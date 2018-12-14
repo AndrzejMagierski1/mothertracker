@@ -2,6 +2,8 @@
 #include "mtInterface.h"
 #include "Arduino.h"
 
+#include "mtSequencer.h"
+
 
 //=======================================================================
 void setup()
