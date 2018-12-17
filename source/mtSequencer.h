@@ -35,12 +35,7 @@
 #define MODE_MIDICLOCK_MAX_VALUE		3	// ograniczenie wyboru
 
 #define MODE_MIDICLOCK_INC_VALUE		8
-/*
 
- konfiguracja IO dla:
- pcb SEQ 1.1
-
- */
 
 #define MIDI1	Serial1
 //#define MIDI2	Serial2
@@ -255,63 +250,29 @@
 
 #define DEFAULT_MOD NULL_MOD
 
-enum lcdView
-{
-	LCDVIEW_IDLE,
-	LCDVIEW_STEP_PROP,
-	LCDVIEW_STEP_NOTE,
-	LCDVIEW_STEP_VELO,
-	LCDVIEW_STEP_MOVE,
-	LCDVIEW_STEP_ROLL,
-	LCDVIEW_TRACK_PROP,
-	LCDVIEW_TRACK_NOTE,
-	LCDVIEW_TRACK_VELO,
-	LCDVIEW_TRACK_LENGTH,
-	LCDVIEW_TRACK_MOVE,
-	LCDVIEW_TRACK_TEMPO,
 
-	LCDVIEW_PATTERN,
-	LCDVIEW_DUPLICATE,
-	LCDVIEW_QUANTIZE,
-	LCDVIEW_RANDOM,
-	LCDVIEW_ON_OFF,
-	LCDVIEW_CLEAR_TRACK,
-	LCDVIEW_CLEAR_PATTERN,
-	LCDVIEW_DUPLICATE_PATTERN,
-	LCDVIEW_DUPLICATE_TRACK,
-	LCDVIEW_DUPLICATE_STEP,
+//#define IGNORE_CLOCKS 1	// półśrodek do ignorowania pierwszych clocków
 
-	LCDVIEW_MAX,
+//#define LCD_TEXT_COLOUR tft.color565(219,202,145)
+//#define LCD_GRAY_COLOUR tft.color565(192,192,192)
 
-	// // komunikaty (bez menu)
-
-	LCDVIEW_FIRMWARE_CHANGE = 200,
-	LCDVIEW_POLYEND,
-	LCDVIEW_FIRMWARE
-};
-
-#define IGNORE_CLOCKS 1	// półśrodek do ignorowania pierwszych clocków
-
-#define LCD_TEXT_COLOUR tft.color565(219,202,145)
-#define LCD_GRAY_COLOUR tft.color565(192,192,192)
-
-#define LCD_BACKGROUND ILI9341_BLACK
-#define LCD_activeParameter_COLOUR LCD_TEXT_COLOUR
-#define LCDPIX_COL_A 25
-#define LCDPIX_COL_B 175
-
-#define LCDPIX_ROW_1 32
-#define LCDPIX_ROW_2 84
-#define LCDPIX_ROW_3 136
-#define LCDPIX_ROW_4 188
-
-#define LCDPIX_RECT_H 20
-#define LCDPIX_RECT_4H 180
-#define LCDPIX_RECT_W 100
-#define LCDPIX_RECT_2W 250
-
-#define LCDPIX_activeParameter_H 52
-#define LCDPIX_activeParameter_W 300
+//#define LCD_BACKGROUND ILI9341_BLACK
+//#define LCD_activeParameter_COLOUR LCD_TEXT_COLOUR
+//#define LCDPIX_COL_A 25
+//#define LCDPIX_COL_B 175
+//
+//#define LCDPIX_ROW_1 32
+//#define LCDPIX_ROW_2 84
+//#define LCDPIX_ROW_3 136
+//#define LCDPIX_ROW_4 188
+//
+//#define LCDPIX_RECT_H 20
+//#define LCDPIX_RECT_4H 180
+//#define LCDPIX_RECT_W 100
+//#define LCDPIX_RECT_2W 250
+//
+//#define LCDPIX_activeParameter_H 52
+//#define LCDPIX_activeParameter_W 300
 
 #define ROLL_CURVE_MIN		1
 #define ROLL_CURVE_FLAT 	1
@@ -434,7 +395,7 @@ public:
 		uint8_t copy_row_from = 0;
 		uint8_t copy_row_to = 0;
 
-		uint8_t ignore_first_clock = IGNORE_CLOCKS;
+//		uint8_t ignore_first_clock = IGNORE_CLOCKS;
 		float externalTempo = 120.0;
 		// float lockedTempo = 120.0;
 
