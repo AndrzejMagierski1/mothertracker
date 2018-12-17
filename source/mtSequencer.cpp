@@ -3,35 +3,11 @@
 #include "mtSequencer.h"
 
 
-elapsedMicros timeBetweenTicks = 0;
-IntervalTimer midiReceiveTimer;
-IntervalTimer playTimer;
-strBank seq[4];
-strBankCRC seq_crc[4];
-strChangeBuffer change_buffer;
-strDebug debug;
-strGhost ghost;
-strGlobalConfig  config;
-strGridView gv;
-strHidden hidden;
-strPlayer player;
-uint16_t timerTick = 0;
 
 
-//void copy_bank(uint8_t from, uint8_t to)
-//{
-//	if (to == player.actualBank)
-//	{
-//		read_bank(from, player.ramBank);
-//	}
-//	else
-//	{
-//		read_bank(from, 2);
-//		flash_bank(to, 2);
-//	}
-//}
 
-void copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x, uint8_t to_y)
+
+void Sequencer::Sequencer::copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x, uint8_t to_y)
 {
 	from_x = constrain(from_x, 1, 32);
 	from_y = constrain(from_y, 1, 32);
@@ -43,34 +19,11 @@ void copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x, uint8_t to_y)
 }
 
 
-//void set_power_mode(uint8_t mode)
-//{
-//	player.pwr_mode = mode;
-//
-//	if (player.last_pwr_mode != player.pwr_mode)
-//	{
-//		//Serial.println("zmiana trybu zasilania");
-//
-//		// ZASILACZ
-//		if (player.pwr_mode == 0)
-//		{	// step, ghost, other
-//			set_brightness(ledmatrix1.get_g32(32), ledmatrix1.get_g32(10), ledmatrix1.get_g32(32));
-//		}
-//		// USB
-//		else if (player.pwr_mode == 1)
-//		{	// step, ghost, other
-//			set_brightness(ledmatrix1.get_g32(15), ledmatrix1.get_g32(9), ledmatrix1.get_g32(15));
-//		}
-//
-//		player.last_pwr_mode = player.pwr_mode;
-//
-//	}
-//
-//}
 
 
 
-void copy_row(uint8_t from, uint8_t to)
+
+void Sequencer::Sequencer::copy_row(uint8_t from, uint8_t to)
 {
 	from = constrain(from, 1, 8);
 	to = constrain(to, 1, 8);
@@ -81,7 +34,7 @@ void copy_row(uint8_t from, uint8_t to)
 
 
 
-void handle_ghosts(void)
+void Sequencer::Sequencer::handle_ghosts(void)
 {
 	for (int8_t col = 1; col <= seq[player.ramBank].row[ghost.cnt1].length; col++)
 	{
@@ -121,7 +74,7 @@ void handle_ghosts(void)
 
 
 /*
-void learnNote(uint8_t note, uint8_t velo, uint8_t channel)
+void Sequencer::Sequencer::learnNote(uint8_t note, uint8_t velo, uint8_t channel)
 {
 	if (player.isREC)
 	{
@@ -272,7 +225,7 @@ void learnNote(uint8_t note, uint8_t velo, uint8_t channel)
 }
 */
 /*
-void learnNoteOff(uint8_t note, uint8_t velo, uint8_t channel)
+void Sequencer::Sequencer::learnNoteOff(uint8_t note, uint8_t velo, uint8_t channel)
 {
 	if (player.isREC)
 	{
@@ -339,7 +292,7 @@ void learnNoteOff(uint8_t note, uint8_t velo, uint8_t channel)
 }
 */
 
-void rec_metronome(void)
+void Sequencer::Sequencer::rec_metronome(void)
 {
 	if (player.isREC && player.rec_intro_timer)
 	{
@@ -389,7 +342,7 @@ void rec_metronome(void)
 
 
 
-void action_buttonPlay(void)
+void Sequencer::Sequencer::action_buttonPlay(void)
 {
 	if (debug.player) Serial.println("play");
 
@@ -427,7 +380,7 @@ void action_buttonPlay(void)
 
 
 
-void panic_all_notes_off(void)
+void Sequencer::Sequencer::panic_all_notes_off(void)
 {
 //	for (uint8_t row = 1; row <= MAXROW; row++)
 //	{
@@ -438,7 +391,7 @@ void panic_all_notes_off(void)
 //	}
 }
 
-void action_buttonStop(void)
+void Sequencer::Sequencer::action_buttonStop(void)
 {
 
 	if (player.isStop)
@@ -489,7 +442,7 @@ void action_buttonStop(void)
 
 
 
-void resetLastSendMod(void)
+void Sequencer::Sequencer::resetLastSendMod(void)
 {
 	for (uint8_t y = 1; y <= 8; y++)
 	{
@@ -497,7 +450,7 @@ void resetLastSendMod(void)
 	}
 }
 
-void resetAllLearned(void)
+void Sequencer::Sequencer::resetAllLearned(void)
 {
 	for (uint8_t x = 1; x <= 32; x++)
 	{
@@ -508,7 +461,7 @@ void resetAllLearned(void)
 	}
 }
 
-void action_buttonREC(void)
+void Sequencer::Sequencer::action_buttonREC(void)
 {
 
 	if (debug.player) Serial.println("REC");
@@ -536,7 +489,7 @@ void action_buttonREC(void)
 
 
 
-//void action_buttonClear(void)
+//void Sequencer::Sequencer::action_buttonClear(void)
 //{
 //	//set_LCD_mode(LCDVIEW_CLEAR_TRACK, 0);
 //
@@ -549,12 +502,12 @@ void action_buttonREC(void)
 //	}
 //}
 
-void clearRow(uint8_t row)
+void Sequencer::Sequencer::clearRow(uint8_t row)
 {
 	clearRow(row, player.ramBank);
 }
 
-void clearRow(uint8_t row, uint8_t bank)
+void Sequencer::Sequencer::clearRow(uint8_t row, uint8_t bank)
 {
 	for (uint8_t x = 1; x <= 32; x++)
 	{
@@ -563,7 +516,7 @@ void clearRow(uint8_t row, uint8_t bank)
 }
 
 
-void initRow(uint8_t row, uint8_t bank)
+void Sequencer::Sequencer::initRow(uint8_t row, uint8_t bank)
 {
 
 	for (uint8_t x = 1; x <= 32; x++)
@@ -589,7 +542,7 @@ void initRow(uint8_t row, uint8_t bank)
 
 
 
-void clearStep(uint8_t x, uint8_t row)
+void Sequencer::Sequencer::clearStep(uint8_t x, uint8_t row)
 {
 	// strRow & tempRow = seq[player.ramBank].row[row];
 	// strStep & step  = tempRow.step[x];
@@ -611,7 +564,7 @@ void clearStep(uint8_t x, uint8_t row)
 }
 
 
-void clearStep(uint8_t x, uint8_t row, uint8_t bank)
+void Sequencer::Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 {
 	strRow & tempRow = seq[bank].row[row];
 	strStep & step  = tempRow.step[x];
@@ -632,7 +585,7 @@ void clearStep(uint8_t x, uint8_t row, uint8_t bank)
 
 
 
-// void clearBank(uint8_t pattern)
+// void Sequencer::Sequencer::clearBank(uint8_t pattern)
 // {
 // 	for (uint8_t row = 1; row <= 8; row++)
 // 	{
@@ -646,7 +599,7 @@ void clearStep(uint8_t x, uint8_t row, uint8_t bank)
 // }
 
 
-void initBank(uint8_t bank)
+void Sequencer::Sequencer::initBank(uint8_t bank)
 {
 	seq[bank].tempo 				= DEFAULT_TEMPO;
 	seq[bank].swing 				= DEFAULT_SWING;
@@ -662,7 +615,7 @@ void initBank(uint8_t bank)
 
 }
 
-void initPattern(uint8_t pattern) // czyści pattern z flasha
+void Sequencer::initPattern(uint8_t pattern) // czyści pattern z flasha
 {
 	// czyścimy bank 3
 	initBank(3);
@@ -678,7 +631,7 @@ void initPattern(uint8_t pattern) // czyści pattern z flasha
 	//	flash_bank(pattern, 3);
 }
 
-//void action_buttonOnOff(void)
+//void Sequencer::action_buttonOnOff(void)
 //{
 //	//set_LCD_mode(LCDVIEW_ON_OFF, 0);
 //
@@ -693,7 +646,7 @@ void initPattern(uint8_t pattern) // czyści pattern z flasha
 //
 //}
 
-//void action_buttonRandom(void)
+//void Sequencer::action_buttonRandom(void)
 //{
 //	//set_LCD_mode(LCDVIEW_RANDOM, 0);
 //
@@ -707,7 +660,7 @@ void initPattern(uint8_t pattern) // czyści pattern z flasha
 //}
 
 
-void randomize_row(uint8_t row)
+void Sequencer::randomize_row(uint8_t row)
 {
 	bool oneRoll = 0;
 	bool randomInScale = seq[player.ramBank].row[row].trackScale > 0;
@@ -857,7 +810,7 @@ uint8_t isInScale(uint8_t note, uint8_t root, uint8_t scale)
 	return 0;
 }
 /*
-void action_buttonQuantize(void)
+void Sequencer::action_buttonQuantize(void)
 {
 	//set_LCD_mode(LCDVIEW_QUANTIZE, 0);
 	for (uint8_t y = 1; y <= 8; y++)
@@ -948,7 +901,7 @@ uint8_t get_copy_row_to(void)
 }
 
 /*
-void push_track(uint16_t row)
+void Sequencer::push_track(uint16_t row)
 {
 	// odwrocona kolejnosc:
 	// najpierw funkcja, potem wiersz
@@ -1040,7 +993,7 @@ void push_track(uint16_t row)
 }
 */
 /*
-void release_track(uint16_t row)
+void Sequencer::release_track(uint16_t row)
 {
 	// odwrocona kolejnosc:
 	// najpierw funkcja, potem wiersz
@@ -1085,12 +1038,12 @@ void release_track(uint16_t row)
 
 
 
-void init_player(void)
+void Sequencer::init_player(void)
 {
 	init_defaultPlayerParameters();
 }
 
-void init_defaultPlayerParameters(void)
+void Sequencer::init_defaultPlayerParameters(void)
 {
 	for (uint8_t x = 1; x <= 8; x++)
 	{
@@ -1117,7 +1070,7 @@ uint16_t get_size(void)
 
 
 
-void allNoteOffs(void)
+void Sequencer::allNoteOffs(void)
 {
 	for (uint8_t a = 1; a <= 8; a++)
 	{
@@ -1159,22 +1112,22 @@ uint8_t get_copy_step_to_col(void)
 	return player.copy_step_to_col;
 }
 
-uint8_t get_copy_bank_from(void)
-{
-	return player.copy_bank_from;
-}
+//uint8_t get_copy_bank_from(void)
+//{
+//	return player.copy_bank_from;
+//}
 
-uint8_t get_copy_mode_step(void)
-{
-	return player.copy_mode_step;
-}
+//uint8_t get_copy_mode_step(void)
+//{
+//	return player.copy_mode_step;
+//}
 
-uint8_t get_copy_bank_to(void)
-{
-	return player.copy_bank_to;
-}
+//uint8_t get_copy_bank_to(void)
+//{
+//	return player.copy_bank_to;
+//}
 /*
-void push_step(int16_t x, uint16_t y)
+void Sequencer::push_step(int16_t x, uint16_t y)
 {
 	//uint8_t extraFunction = 0;
 
@@ -1366,7 +1319,7 @@ void push_step(int16_t x, uint16_t y)
 */
 
 /*
-void hold_step(int16_t x, uint16_t y)
+void Sequencer::hold_step(int16_t x, uint16_t y)
 {
 	player.row[y].step[x].wasModification = 1;
 	if (get_LCD_mode() == 0 || ((get_LCD_mode() == LCDVIEW_STEP_PROP) && isStepPressed()))
@@ -1379,7 +1332,7 @@ void hold_step(int16_t x, uint16_t y)
 }
 */
 /*
-void hold_track(int16_t x, uint16_t y)
+void Sequencer::hold_track(int16_t x, uint16_t y)
 {
 	if (get_LCD_mode() == 0 || ((get_LCD_mode() == LCDVIEW_TRACK_PROP) && isTrackPressed()))
 	{
@@ -1389,7 +1342,7 @@ void hold_track(int16_t x, uint16_t y)
 }
 */
 /*
-void hold_function(int16_t x, uint16_t y)
+void Sequencer::hold_function(int16_t x, uint16_t y)
 {
 
 	if (y == BUTTON_ROW_CLEAR)            action_buttonClear();
@@ -1448,7 +1401,7 @@ void hold_function(int16_t x, uint16_t y)
 */
 
 /*
-void release_step(int16_t x, uint16_t y)
+void Sequencer::release_step(int16_t x, uint16_t y)
 {
 	//uint8_t extraFunction = 0;
 
@@ -1533,7 +1486,7 @@ void release_step(int16_t x, uint16_t y)
 
 
 
-void switchStep(uint8_t row)   //przełączamy stepy w zależności od trybu grania
+void Sequencer::switchStep(uint8_t row)   //przełączamy stepy w zależności od trybu grania
 {
 	uint8_t x = constrain(row, 1, 8);
 
@@ -1674,7 +1627,7 @@ void switchStep(uint8_t row)   //przełączamy stepy w zależności od trybu gra
 
 }
 
-void reset_actual_pos(void)
+void Sequencer::reset_actual_pos(void)
 {
 	for (uint8_t row = 1; row <= MAXROW; row++)
 	{
@@ -1683,7 +1636,7 @@ void reset_actual_pos(void)
 	}
 }
 
-void reset_actual_pos(uint8_t row)
+void Sequencer::reset_actual_pos(uint8_t row)
 {
 
 
@@ -2258,7 +2211,7 @@ uint8_t getLongRollVelo(uint8_t rollCurve, float progress)
 }
 
 
-void init_player_timer(void) // MT::refreshTimer
+void Sequencer::init_player_timer(void) // MT::refreshTimer
 {
 
 	float timer_var = 0;
@@ -2277,7 +2230,7 @@ void init_player_timer(void) // MT::refreshTimer
 
 
 }
-void print_uSteps()
+void Sequencer::print_uSteps()
 {
 	for (uint8_t a = 1; a <= 8; a++)
 	{
@@ -2286,7 +2239,7 @@ void print_uSteps()
 }
 
 
-void handle_uStep_timer(void)
+void Sequencer::handle_uStep_timer(void)
 {
 	// Serial.print(player.swingToogle);
 	// Serial.print("\t");
@@ -2335,7 +2288,7 @@ void handle_uStep_timer(void)
 
 elapsedMicros playerTimer;
 
-void handle_player(void)
+void Sequencer::handle_player(void)
 {
 }
 
@@ -2358,7 +2311,7 @@ struct strNoteHandler
 
 
 
-void addNoteOn(uint8_t note, uint8_t velocity, uint8_t channel, uint8_t midiOut)
+void Sequencer::addNoteOn(uint8_t note, uint8_t velocity, uint8_t channel, uint8_t midiOut)
 {
 	// Serial.println("add");
 
@@ -2378,7 +2331,7 @@ void addNoteOn(uint8_t note, uint8_t velocity, uint8_t channel, uint8_t midiOut)
 		}
 	}
 }
-void addNoteOff(uint8_t note, uint8_t velocity, uint8_t channel, uint8_t midiOut)
+void Sequencer::addNoteOff(uint8_t note, uint8_t velocity, uint8_t channel, uint8_t midiOut)
 {
 	for (uint8_t a = 0; a < 100; a++)
 	{
@@ -2399,7 +2352,7 @@ void addNoteOff(uint8_t note, uint8_t velocity, uint8_t channel, uint8_t midiOut
 }
 
 elapsedMicros flushTimer = 0;
-void flushNotes()
+void Sequencer::flushNotes()
 {
 	flushTimer = 0;
 
@@ -2424,7 +2377,7 @@ void flushNotes()
 }
 
 
-void incr_uStep(uint8_t row)
+void Sequencer::incr_uStep(uint8_t row)
 {
 	if (!player.row[row].divChange)
 	{
@@ -2438,7 +2391,7 @@ void incr_uStep(uint8_t row)
 	}
 }
 
-void divChangeQuantize(uint8_t row)
+void Sequencer::divChangeQuantize(uint8_t row)
 {
 	int8_t tTempoOption = constrain(seq[player.ramBank].row[row].tempoDiv, MIN_TEMPO_DIV, MAX_TEMPO_DIV);
 	uint8_t tDiv      = getTempoDiv(tTempoOption);
@@ -2454,12 +2407,12 @@ void divChangeQuantize(uint8_t row)
 
 
 
-// void incr_uStep(uint8_t row)
+// void Sequencer::incr_uStep(uint8_t row)
 // {
 
 // }
 
-void trySwitchBank()
+void Sequencer::trySwitchBank()
 {
 	if (player.jumpNOW)
 	{
@@ -2519,7 +2472,7 @@ uint8_t getTempoDiv(int8_t val)
 
 
 
-void handle_uStep12(uint8_t step)
+void Sequencer::handle_uStep12(uint8_t step)
 {
 	if (isPlay())
 	{
@@ -2749,7 +2702,7 @@ inline uint8_t get_row_length(uint8_t row)
 
 
 
-void init_player_lcd_values(void)
+void Sequencer::init_player_lcd_values(void)
 {
 	change_buffer.transpose = 0;
 	change_buffer.uMoveTrack = 1;
@@ -2811,7 +2764,7 @@ inline uint8_t isStop(void)
 }
 
 
-void midiSendChordOn(uint8_t note,
+void Sequencer::midiSendChordOn(uint8_t note,
                      uint8_t chord,
                      uint8_t velo,
                      uint8_t channel,
@@ -2821,7 +2774,7 @@ void midiSendChordOn(uint8_t note,
 {
 
 }
-void midiSendChordOff(uint8_t note,
+void Sequencer::midiSendChordOff(uint8_t note,
                       uint8_t chord,
                       uint8_t velo,
                       uint8_t channel,
@@ -2832,7 +2785,7 @@ void midiSendChordOff(uint8_t note,
 
 }
 
-void midiSendCC(uint8_t channel, uint8_t control, uint8_t value, uint8_t midiOut)
+void Sequencer::midiSendCC(uint8_t channel, uint8_t control, uint8_t value, uint8_t midiOut)
 {
 //	if 		((midiOut == MIDIOUT_USB)  || (midiOut == MIDIOUT_USB_C)) 		usbMIDI.sendControlChange(channel, control, value);
 //	else if ((midiOut == MIDIOUT_DIN1) || (midiOut == MIDIOUT_DIN1_C)) 		MIDI2.sendControlChange(channel, control, value);
@@ -2842,7 +2795,7 @@ void midiSendCC(uint8_t channel, uint8_t control, uint8_t value, uint8_t midiOut
 
 }
 
-void setLoadBank2Ram(uint8_t bank)
+void Sequencer::setLoadBank2Ram(uint8_t bank)
 {
 	// Serial.print("change bank to:");
 	// Serial.println(bank);
@@ -2856,7 +2809,7 @@ void setLoadBank2Ram(uint8_t bank)
 
 }
 
-void switch_bank_with_reset(void)
+void Sequencer::switch_bank_with_reset(void)
 {
 
 }
