@@ -4,10 +4,10 @@
 
 
 
+Sequencer sequencer;
 
 
-
-void Sequencer::Sequencer::copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x, uint8_t to_y)
+void Sequencer::copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x, uint8_t to_y)
 {
 	from_x = constrain(from_x, 1, 32);
 	from_y = constrain(from_y, 1, 32);
@@ -23,7 +23,7 @@ void Sequencer::Sequencer::copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_
 
 
 
-void Sequencer::Sequencer::copy_row(uint8_t from, uint8_t to)
+void Sequencer::copy_row(uint8_t from, uint8_t to)
 {
 	from = constrain(from, 1, 8);
 	to = constrain(to, 1, 8);
@@ -34,7 +34,7 @@ void Sequencer::Sequencer::copy_row(uint8_t from, uint8_t to)
 
 
 
-void Sequencer::Sequencer::handle_ghosts(void)
+void Sequencer::handle_ghosts(void)
 {
 	for (int8_t col = 1; col <= seq[player.ramBank].row[ghost.cnt1].length; col++)
 	{
@@ -74,7 +74,7 @@ void Sequencer::Sequencer::handle_ghosts(void)
 
 
 /*
-void Sequencer::Sequencer::learnNote(uint8_t note, uint8_t velo, uint8_t channel)
+void Sequencer::learnNote(uint8_t note, uint8_t velo, uint8_t channel)
 {
 	if (player.isREC)
 	{
@@ -225,7 +225,7 @@ void Sequencer::Sequencer::learnNote(uint8_t note, uint8_t velo, uint8_t channel
 }
 */
 /*
-void Sequencer::Sequencer::learnNoteOff(uint8_t note, uint8_t velo, uint8_t channel)
+void Sequencer::learnNoteOff(uint8_t note, uint8_t velo, uint8_t channel)
 {
 	if (player.isREC)
 	{
@@ -292,7 +292,7 @@ void Sequencer::Sequencer::learnNoteOff(uint8_t note, uint8_t velo, uint8_t chan
 }
 */
 
-void Sequencer::Sequencer::rec_metronome(void)
+void Sequencer::rec_metronome(void)
 {
 	if (player.isREC && player.rec_intro_timer)
 	{
@@ -342,7 +342,7 @@ void Sequencer::Sequencer::rec_metronome(void)
 
 
 
-void Sequencer::Sequencer::action_buttonPlay(void)
+void Sequencer::action_buttonPlay(void)
 {
 	if (debug.player) Serial.println("play");
 
@@ -380,7 +380,7 @@ void Sequencer::Sequencer::action_buttonPlay(void)
 
 
 
-void Sequencer::Sequencer::panic_all_notes_off(void)
+void Sequencer::panic_all_notes_off(void)
 {
 //	for (uint8_t row = 1; row <= MAXROW; row++)
 //	{
@@ -391,7 +391,7 @@ void Sequencer::Sequencer::panic_all_notes_off(void)
 //	}
 }
 
-void Sequencer::Sequencer::action_buttonStop(void)
+void Sequencer::action_buttonStop(void)
 {
 
 	if (player.isStop)
@@ -442,7 +442,7 @@ void Sequencer::Sequencer::action_buttonStop(void)
 
 
 
-void Sequencer::Sequencer::resetLastSendMod(void)
+void Sequencer::resetLastSendMod(void)
 {
 	for (uint8_t y = 1; y <= 8; y++)
 	{
@@ -450,7 +450,7 @@ void Sequencer::Sequencer::resetLastSendMod(void)
 	}
 }
 
-void Sequencer::Sequencer::resetAllLearned(void)
+void Sequencer::resetAllLearned(void)
 {
 	for (uint8_t x = 1; x <= 32; x++)
 	{
@@ -461,7 +461,7 @@ void Sequencer::Sequencer::resetAllLearned(void)
 	}
 }
 
-void Sequencer::Sequencer::action_buttonREC(void)
+void Sequencer::action_buttonREC(void)
 {
 
 	if (debug.player) Serial.println("REC");
@@ -489,7 +489,7 @@ void Sequencer::Sequencer::action_buttonREC(void)
 
 
 
-//void Sequencer::Sequencer::action_buttonClear(void)
+//void Sequencer::action_buttonClear(void)
 //{
 //	//set_LCD_mode(LCDVIEW_CLEAR_TRACK, 0);
 //
@@ -502,12 +502,12 @@ void Sequencer::Sequencer::action_buttonREC(void)
 //	}
 //}
 
-void Sequencer::Sequencer::clearRow(uint8_t row)
+void Sequencer::clearRow(uint8_t row)
 {
 	clearRow(row, player.ramBank);
 }
 
-void Sequencer::Sequencer::clearRow(uint8_t row, uint8_t bank)
+void Sequencer::clearRow(uint8_t row, uint8_t bank)
 {
 	for (uint8_t x = 1; x <= 32; x++)
 	{
@@ -516,7 +516,7 @@ void Sequencer::Sequencer::clearRow(uint8_t row, uint8_t bank)
 }
 
 
-void Sequencer::Sequencer::initRow(uint8_t row, uint8_t bank)
+void Sequencer::initRow(uint8_t row, uint8_t bank)
 {
 
 	for (uint8_t x = 1; x <= 32; x++)
@@ -542,7 +542,7 @@ void Sequencer::Sequencer::initRow(uint8_t row, uint8_t bank)
 
 
 
-void Sequencer::Sequencer::clearStep(uint8_t x, uint8_t row)
+void Sequencer::clearStep(uint8_t x, uint8_t row)
 {
 	// strRow & tempRow = seq[player.ramBank].row[row];
 	// strStep & step  = tempRow.step[x];
@@ -564,7 +564,7 @@ void Sequencer::Sequencer::clearStep(uint8_t x, uint8_t row)
 }
 
 
-void Sequencer::Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
+void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 {
 	strRow & tempRow = seq[bank].row[row];
 	strStep & step  = tempRow.step[x];
@@ -585,7 +585,7 @@ void Sequencer::Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 
 
 
-// void Sequencer::Sequencer::clearBank(uint8_t pattern)
+// void Sequencer::clearBank(uint8_t pattern)
 // {
 // 	for (uint8_t row = 1; row <= 8; row++)
 // 	{
@@ -599,7 +599,7 @@ void Sequencer::Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 // }
 
 
-void Sequencer::Sequencer::initBank(uint8_t bank)
+void Sequencer::initBank(uint8_t bank)
 {
 	seq[bank].tempo 				= DEFAULT_TEMPO;
 	seq[bank].swing 				= DEFAULT_SWING;
@@ -778,7 +778,7 @@ void Sequencer::randomize_row(uint8_t row)
 	}
 }
 
-uint8_t isInScale(uint8_t note, uint8_t root, uint8_t scale)
+uint8_t Sequencer::isInScale(uint8_t note, uint8_t root, uint8_t scale)
 {
 	uint8_t noteName = note % 12; //24 -> 0
 	uint8_t rootName = root % 12; //13 -> 1
@@ -885,17 +885,17 @@ void Sequencer::action_buttonQuantize(void)
 
 
 
-uint8_t isRowOn(uint8_t row)
+uint8_t Sequencer::isRowOn(uint8_t row)
 {
 	return (seq[player.ramBank].row[row].flags & MASK_ROW_ON) > 0;
 }
 
 
-uint8_t get_copy_row_from(void)
+uint8_t Sequencer::get_copy_row_from(void)
 {
 	return player.copy_row_from;
 }
-uint8_t get_copy_row_to(void)
+uint8_t Sequencer::get_copy_row_to(void)
 {
 	return player.copy_row_to;
 }
@@ -1057,12 +1057,12 @@ void Sequencer::init_defaultPlayerParameters(void)
 	}
 }
 
-uint8_t get_metronome_intro_step(void)
+uint8_t Sequencer::get_metronome_intro_step(void)
 {
 	return player.rec_intro_step;
 }
 
-uint16_t get_size(void)
+uint16_t Sequencer::get_size(void)
 {
 	return sizeof(seq[0]);
 }
@@ -1094,20 +1094,20 @@ void Sequencer::allNoteOffs(void)
 
 
 
-uint8_t get_copy_step_from_row(void)
+uint8_t Sequencer::get_copy_step_from_row(void)
 {
 	return player.copy_step_from_row;
 }
-uint8_t get_copy_step_from_col(void)
+uint8_t Sequencer::get_copy_step_from_col(void)
 {
 	return player.copy_step_from_col;
 }
 
-uint8_t get_copy_step_to_row(void)
+uint8_t Sequencer::get_copy_step_to_row(void)
 {
 	return player.copy_step_to_row;
 }
-uint8_t get_copy_step_to_col(void)
+uint8_t Sequencer::get_copy_step_to_col(void)
 {
 	return player.copy_step_to_col;
 }
@@ -1663,7 +1663,7 @@ void Sequencer::reset_actual_pos(uint8_t row)
 
 
 
-uint8_t play_uStep(uint8_t row)
+uint8_t Sequencer::play_uStep(uint8_t row)
 {
 
 
@@ -2099,11 +2099,11 @@ uint8_t play_uStep(uint8_t row)
 }
 
 
-int8_t getLastRollNoteOffset(uint8_t row)
+int8_t Sequencer::getLastRollNoteOffset(uint8_t row)
 {
 	return player.row[row].lastRollNote;
 }
-int8_t getNextRollNoteOffset(uint8_t row)
+int8_t Sequencer::getNextRollNoteOffset(uint8_t row)
 {
 
 	int8_t & retVal = player.row[row].lastRollNote;
@@ -2158,7 +2158,7 @@ int8_t getNextRollNoteOffset(uint8_t row)
 
 	return retVal;
 }
-uint8_t getLongRollVelo(uint8_t rollCurve, float progress)
+uint8_t Sequencer::getLongRollVelo(uint8_t rollCurve, float progress)
 {
 	progress = constrain(progress, 0, 100);
 	uint8_t retVal = 1;
@@ -2224,7 +2224,8 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 	//3125 - wyliczone niegdyś matematycznie, 12 na potrzeby dividerów
 	timer_var = ((3125.0 / temp_Tempo) * (player.swing_offset + 50.0)) / 12.0;
 
-	playTimer.begin(handle_uStep_timer,  timer_var);
+	// TODO: - ogarnąć ten timer
+//	playTimer.begin(handle_uStep_timer,  timer_var);
 
 
 
@@ -2286,7 +2287,7 @@ void Sequencer::handle_uStep_timer(void)
 
 
 
-elapsedMicros playerTimer;
+
 
 void Sequencer::handle_player(void)
 {
@@ -2294,19 +2295,7 @@ void Sequencer::handle_player(void)
 
 
 
-struct strNoteHandler
-{
-	uint8_t free = 1;
-	uint8_t onOff = 0;
 
-	uint8_t note;
-	uint8_t velocity;
-	uint8_t channel;
-
-	uint8_t midiOut = 0;
-
-
-} noteHandler[100];
 
 
 
@@ -2351,7 +2340,7 @@ void Sequencer::addNoteOff(uint8_t note, uint8_t velocity, uint8_t channel, uint
 	}
 }
 
-elapsedMicros flushTimer = 0;
+
 void Sequencer::flushNotes()
 {
 	flushTimer = 0;
@@ -2421,11 +2410,10 @@ void Sequencer::trySwitchBank()
 	}
 }
 
-elapsedMicros timeOfTick = 0;
 
 
 
-uint8_t getTempoDiv(int8_t val)
+uint8_t Sequencer::getTempoDiv(int8_t val)
 {
 
 	// 48, // 1/4	-3
@@ -2629,7 +2617,7 @@ void Sequencer::handle_uStep12(uint8_t step)
 }
 
 
-float get_tempo(void)
+float Sequencer::get_tempo(void)
 {
 	if (config.mode == MODE_MIDICLOCK_INTERNAL)
 		return seq[player.ramBank].tempo;
@@ -2639,7 +2627,7 @@ float get_tempo(void)
 		return 0;
 }
 
-float get_swing(void)
+float Sequencer::get_swing(void)
 {
 
 
@@ -2657,27 +2645,27 @@ float get_swing(void)
 
 
 
-inline uint8_t get_note(uint8_t col, uint8_t row)
+inline uint8_t Sequencer::get_note(uint8_t col, uint8_t row)
 {
 	return seq[player.ramBank].row[row].step[col].note;
 }
 
-inline uint8_t get_hitMode(uint8_t col, uint8_t row)
+inline uint8_t Sequencer::get_hitMode(uint8_t col, uint8_t row)
 {
 	return seq[player.ramBank].row[row].step[col].hitMode;
 }
 
-inline uint8_t get_isOn(uint8_t col, uint8_t row)
+inline uint8_t Sequencer::get_isOn(uint8_t col, uint8_t row)
 {
 	return seq[player.ramBank].row[row].step[col].isOn;
 }
 
-inline uint8_t isGhost(uint8_t col, uint8_t row)
+inline uint8_t Sequencer::isGhost(uint8_t col, uint8_t row)
 {
 	return player.row[row].step[col].isGhost > 0;
 }
 
-inline uint8_t isBlinking(uint8_t col, uint8_t row)
+inline uint8_t Sequencer::isBlinking(uint8_t col, uint8_t row)
 {
 	return player.row[row].step[col].isBlinking;
 }
@@ -2688,12 +2676,12 @@ inline uint8_t isBlinking(uint8_t col, uint8_t row)
 
 
 
-inline uint8_t get_actual_pos(uint8_t row)
+inline uint8_t Sequencer::get_actual_pos(uint8_t row)
 {
 	return player.row[row].actual_pos;
 }
 
-inline uint8_t get_row_length(uint8_t row)
+inline uint8_t Sequencer::get_row_length(uint8_t row)
 {
 	return seq[player.ramBank].row[row].length;
 }
@@ -2716,23 +2704,11 @@ void Sequencer::init_player_lcd_values(void)
 
 
 
-uint8_t arrVal2roll[10] =
-{
-	0,
-	1,
-	1,
-	2,
-	3,
-	4,
-	6,
-	8,
-	12,
-	16
-};
 
 
 
-uint8_t val2roll(uint8_t val)
+
+uint8_t Sequencer::val2roll(uint8_t val)
 {
 	if (val <= sizeof(arrVal2roll))
 	{
@@ -2748,17 +2724,17 @@ uint8_t val2roll(uint8_t val)
 
 
 
-inline uint8_t isPlay(void)
+inline uint8_t Sequencer::isPlay(void)
 {
 	return player.isPlay;
 }
 
-inline uint8_t isREC(void)
+inline uint8_t Sequencer::isREC(void)
 {
 	return player.isREC;
 }
 
-inline uint8_t isStop(void)
+inline uint8_t Sequencer::isStop(void)
 {
 	return player.isStop;
 }

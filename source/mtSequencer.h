@@ -452,7 +452,7 @@ public:
 
 	const int8_t MIN_TEMPO_DIV = -3;
 	const int8_t MAX_TEMPO_DIV = 3;
-	const int8_t TEMPODIV_1_1 = 0;
+	static const int8_t TEMPODIV_1_1 = 0;
 
 	struct strStep
 	{
@@ -571,7 +571,23 @@ public:
 		elapsedMillis firmwareViewTimeout = 0;
 	};
 
+	struct strNoteHandler
+	{
+		uint8_t free = 1;
+		uint8_t onOff = 0;
+
+		uint8_t note;
+		uint8_t velocity;
+		uint8_t channel;
+
+		uint8_t midiOut = 0;
+
+
+	} noteHandler[100];
+
 	float get_swing(void);
+	void initPattern(uint8_t pattern);
+	void switchStep(uint8_t row);
 	float get_tempo(void);
 	inline uint8_t get_actual_pos(uint8_t row);
 	inline uint8_t get_hitMode(uint8_t col, uint8_t row);
@@ -670,7 +686,7 @@ public:
 
 	elapsedMicros timeBetweenTicks = 0;
 	IntervalTimer midiReceiveTimer;
-	IntervalTimer playTimer;
+	static IntervalTimer playTimer;
 	strBank seq[4];
 	strBankCRC seq_crc[4];
 	strChangeBuffer change_buffer;
@@ -681,6 +697,25 @@ public:
 	strHidden hidden;
 	strPlayer player;
 	uint16_t timerTick = 0;
+
+	elapsedMicros playerTimer;
+	elapsedMicros flushTimer = 0;
+
+	elapsedMicros timeOfTick = 0;
+	const uint8_t arrVal2roll[10] =
+	{
+		0,
+		1,
+		1,
+		2,
+		3,
+		4,
+		6,
+		8,
+		12,
+		16
+	};
+
 //uint16_t timerTick = 1;
-} sequencer;
+} ;
 #endif
