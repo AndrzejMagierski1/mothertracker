@@ -10,6 +10,193 @@
 #ifndef SOURCE_MTSEQUENCER_H_
 #define SOURCE_MTSEQUENCER_H_
 
+
+/* LEGACY CODE
+ *
+ *
+ */
+
+
+#define MODE_MIDICLOCK_MIN_VALUE		0
+#define MODE_MIDICLOCK_INTERNAL			0
+#define MODE_MIDICLOCK_INTERNAL_LOCK	1
+#define MODE_MIDICLOCK_MIDIDIN			2
+#define MODE_MIDICLOCK_USB				3
+#define MODE_MIDICLOCK_MAX_VALUE		3	// ograniczenie wyboru
+
+#define FV_VER_1 2	// device version
+#define FV_VER_2 0	// official update
+#define FV_VER_3 0	// fix version
+
+
+#define MASK_ROW_ON 		0b00000001
+#define MASK_RANDOM_VELO 	0b00000010
+#define MASK_RANDOM_MOD 	0b00000100
+#define MASK_RANDOM_NUDGE 	0b00001000
+
+
+
+
+#define MIN_VELO_STEP 0
+#define MAX_VELO_STEP 127
+
+#define MIN_VELO_TRACK 0
+#define MAX_VELO_TRACK 100
+
+#define MIN_MOD 0
+#define MAX_MOD 127
+
+#define MIN_CHANNEL 1
+#define MAX_CHANNEL 16
+
+#define MIN_CHANNEL_IN -1
+#define MAX_CHANNEL_IN 16
+
+#define MIN_TRANSPOSE -100
+#define MAX_TRANSPOSE 100
+
+#define MIN_MOVE_STEP 0
+#define MAX_MOVE_STEP 4000
+#define IDLE_MOVE_STEP 2016
+
+#define MIN_MOVE -32
+#define MAX_MOVE 32
+
+
+#define RANDOM_VELO_MIN 	20
+#define RANDOM_VELO_MAX 	127
+#define RANDOM_MOD_MIN 		20
+#define RANDOM_MOD_MAX 		127
+#define RANDOM_NOTE_DOWN 	12
+#define RANDOM_NOTE_UP 		12
+
+
+#define MIN_CC 1
+#define MAX_CC 127
+
+
+#define NOTE_JUMPTO 128
+#define NOTE_JUMPTO_NEXT 129
+
+#define MIN_JUMPTO 0
+#define MAX_JUMPTO 255
+
+#define MIN_MICROMOVE_STEP -1000
+#define MAX_MICROMOVE_STEP 1000
+
+
+#define ROW_COLUMN 0
+
+
+
+#define COPY_MODE_BANK 0
+#define COPY_MODE_ROW 0
+#define COPY_MODE_STEP 0
+
+#define HITMODE_OFFSET 20
+#define OFFSET_MIN 1
+#define OFFSET_MAX 48
+
+#define DEFAULT_CC 74 // Generally this CC controls a vibrato effect (pitch, loudness, brighness). What is modulated is based on the patch.
+
+#define MAX_TEMPO 400.0
+#define MIN_TEMPO 10.0
+
+#define MAX_SWING 75.0
+#define MIN_SWING 25.0
+
+#define MAX_NOTE_STEP 127
+#define MIN_NOTE_STEP 0
+
+#define MAX_NOTE_TRACK 127
+#define MIN_NOTE_TRACK 0
+
+
+
+
+
+
+#define MAX_TRACK_LENGTH 32
+#define MIN_TRACK_LENGTH 1
+
+#define MAX_STEP_LENGTH 31
+#define MIN_STEP_LENGTH 0
+
+
+#define MIN_STEP_ROLL_VAR 1
+#define MAX_STEP_ROLL_VAR 9
+
+#define MIN_STEP_ROLL_NOTE_VAR 1
+#define MAX_STEP_ROLL_NOTE_VAR 9
+
+
+#define MIN_TRACK_ROLL_VAR 1
+#define MAX_TRACK_ROLL_VAR 16
+
+
+
+
+
+// #define MIN_ROLL_CURVE 1
+// #define MAX_ROLL_CURVE 5
+
+#define MIN_VELO_STEP 0
+#define MAX_VELO_STEP 127
+
+#define MIN_VELO_TRACK 0
+#define MAX_VELO_TRACK 100
+
+#define MIN_MOD 0
+#define MAX_MOD 127
+
+#define MIN_CHANNEL 1
+#define MAX_CHANNEL 16
+
+#define MIN_CHANNEL_IN -1
+#define MAX_CHANNEL_IN 16
+
+#define MIN_TRANSPOSE -100
+#define MAX_TRANSPOSE 100
+
+#define MIN_MOVE_STEP 0
+#define MAX_MOVE_STEP 4000
+#define IDLE_MOVE_STEP 2016
+
+#define MIN_MOVE -32
+#define MAX_MOVE 32
+
+
+#define RANDOM_VELO_MIN 	20
+#define RANDOM_VELO_MAX 	127
+#define RANDOM_MOD_MIN 		20
+#define RANDOM_MOD_MAX 		127
+#define RANDOM_NOTE_DOWN 	12
+#define RANDOM_NOTE_UP 		12
+
+
+#define MIN_CC 1
+#define MAX_CC 127
+
+
+#define NOTE_JUMPTO 128
+#define NOTE_JUMPTO_NEXT 129
+
+#define MIN_JUMPTO 0
+#define MAX_JUMPTO 255
+
+#define MIN_MICROMOVE_STEP -1000
+#define MAX_MICROMOVE_STEP 1000
+
+
+#define ROW_COLUMN 0
+
+
+
+
+/*
+ * LEGACY END
+ */
+
 class Sequencer
 {
 public:
@@ -90,6 +277,8 @@ public:
 		//	uint8_t rezerwa4 = 0;
 
 		strStep step[defs.ROW_STEPS_MAX];
+
+		uint8_t flags 		= 1;
 	};
 	struct strPattern
 	{
@@ -102,7 +291,7 @@ public:
 		//	uint8_t rezerwa4 = 0;
 
 		strRow row[8];
-	} seq;
+	} seq[2];
 
 public:
 	Sequencer();
@@ -227,6 +416,21 @@ private:
 
 	} player;
 
+	struct strGlobalConfig
+	{
+
+		uint8_t mode 		= MODE_MIDICLOCK_INTERNAL;
+		uint8_t fv_ver_1 	= FV_VER_1;
+		uint8_t fv_ver_2 	= FV_VER_2;
+		uint8_t fv_ver_3 	= FV_VER_3;
+		uint8_t zapas 		= 0;
+		uint8_t lastPattern = 0;
+
+		float   tempoLock = 120.0;
+		float   swingLock = 50.0;
+
+	} config;
+
 	void handle_uStep12(uint8_t step);
 	void flushNotes();
 	void rec_metronome(void);
@@ -234,6 +438,10 @@ private:
 	void trySwitchBank();
 	uint8_t play_uStep(uint8_t row);
 	void incr_uStep(uint8_t row);
+
+	void switchStep(uint8_t row);
+
+	uint8_t val2roll(uint8_t val);
 
 
 

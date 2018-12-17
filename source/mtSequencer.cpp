@@ -28,6 +28,8 @@ void Sequencer::init_player_timer()
 
 }
 
+void todo(){};
+
 void Sequencer::timerVector()
 {
 	// Serial.print(player.swingToogle);
@@ -110,7 +112,7 @@ void Sequencer::handle_uStep12(uint8_t step)
 
 					for (uint8_t a = 1; a <= 8; a++)
 					{
-						int8_t tTempoOption = constrain(seq.row[a].tempoDiv,
+						int8_t tTempoOption = constrain(seq[player.ramBank].row[a].tempoDiv,
 														defs.TEMPODIV_MIN,
 														defs.TEMPODIV_MAX);
 						uint8_t tDiv = getTempoDiv(tTempoOption);
@@ -144,8 +146,8 @@ void Sequencer::handle_uStep12(uint8_t step)
 				for (uint8_t a = 1; a <= 8; a++)
 				{
 					int8_t tTempoDiv = constrain(
-							seq.row[a].tempoDiv, MIN_TEMPO_DIV,
-							MAX_TEMPO_DIV);
+							seq[player.ramBank].row[a].tempoDiv, defs.TEMPODIV_MIN,
+							defs.TEMPODIV_MAX);
 					uint8_t tDiv = getTempoDiv(tTempoDiv);
 
 					if (timerTick % tDiv == 1)
@@ -253,7 +255,7 @@ uint8_t Sequencer::play_uStep(uint8_t row)
 {
 	uint8_t anythingSent = 0;
 	uint8_t x = constrain(row, 1, 8);
-	strRow & tempSeqRow = seq.row[x];
+	strRow & tempSeqRow = seq[player.ramBank].row[x];
 	strPlayerRow & tempPlayerRow = player.row[x];
 
 	// TU LICZYMY CZAS DO KONCA NUTY
@@ -270,13 +272,14 @@ uint8_t Sequencer::play_uStep(uint8_t row)
 		{
 			// Serial.println("gasimy");
 
-			midiSendChordOff(player.row[x].note_sent,
-			                 player.row[x].chord_sent,
-			                 0,
-			                 player.row[x].channel_sent,
-			                 player.row[x].midiOut_sent,
-			                 player.row[x].scale_sent,
-			                 player.row[x].scaleRoot_sent);
+//			todo
+//			midiSendChordOff(player.row[x].note_sent,
+//			                 player.row[x].chord_sent,
+//			                 0,
+//			                 player.row[x].channel_sent,
+//			                 player.row[x].midiOut_sent,
+//			                 player.row[x].scale_sent,
+//			                 player.row[x].scaleRoot_sent);
 
 			// usbMIDI.send_now();
 		}
@@ -297,7 +300,8 @@ uint8_t Sequencer::play_uStep(uint8_t row)
 	{
 		if (((player.uStepInd[x] - 1) % 8) == 0)
 		{
-			send_clock(x);
+//			todo
+//			send_clock(x);
 			// Serial.println("clock");
 			// Serial.println(player.uStepInd[x]);
 		}
@@ -337,7 +341,7 @@ uint8_t Sequencer::play_uStep(uint8_t row)
 			const uint8_t tempNote 	=	tempSeqRow.step[player.row[x].actual_pos].note;
 			const uint8_t tempChord =	tempSeqRow.step[player.row[x].actual_pos].chord;
 			const uint8_t tempMod 	=	tempSeqRow.step[player.row[x].actual_pos].modulation;
-			const uint8_t tempScale =	tempSeqRow.trackScale;
+			const uint8_t tempScale =	tempSeqRow.scale;
 			const uint8_t tempRoot 	=	tempSeqRow.rootNote;
 			const uint8_t tempLength =	tempSeqRow.step[player.row[x].actual_pos].length1 + 1;
 
@@ -380,20 +384,21 @@ uint8_t Sequencer::play_uStep(uint8_t row)
 				//                 player.row[x].midiOut_sent);
 
 
-				midiSendChordOff(player.row[x].note_sent,
-				                 player.row[x].chord_sent,
-				                 0,
-				                 player.row[x].channel_sent,
-				                 player.row[x].midiOut_sent,
-				                 player.row[x].scale_sent,
-				                 player.row[x].scaleRoot_sent);
+//				todo();
+//				midiSendChordOff(player.row[x].note_sent,
+//				                 player.row[x].chord_sent,
+//				                 0,
+//				                 player.row[x].channel_sent,
+//				                 player.row[x].midiOut_sent,
+//				                 player.row[x].scale_sent,
+//				                 player.row[x].scaleRoot_sent);
 
 				// usbMIDI.send_now();
 
 
 
 			}
-			//delay(2);
+
 
 			//gramy
 
@@ -419,20 +424,21 @@ uint8_t Sequencer::play_uStep(uint8_t row)
 
 
 
+//				todo();
+//				player.row[x].midiOut_sent = seq[player.ramBank].row[x].midiOut;
+//				player.row[x].channel_sent = seq[player.ramBank].row[x].channel;
 
-				player.row[x].midiOut_sent = seq[player.ramBank].row[x].midiOut;
-				player.row[x].channel_sent = seq[player.ramBank].row[x].channel;
 
 
 				// jesli wystapila zmiana wysylamy mod
-				if (tempMod != NULL_MOD)
-				{
-					midiSendCC(seq[player.ramBank].row[x].cc,
-					           tempMod,
-					           seq[player.ramBank].row[x].channel,
-					           seq[player.ramBank].row[x].midiOut);
-					// player.row[x].lastMod = tempMod;
-				}
+//				if (tempMod != NULL_MOD)
+//				{
+//					midiSendCC(seq[player.ramBank].row[x].cc,
+//					           tempMod,
+//					           seq[player.ramBank].row[x].channel,
+//					           seq[player.ramBank].row[x].midiOut);
+//					// player.row[x].lastMod = tempMod;
+//				}
 			}
 
 			else if (tempNote == NOTE_JUMPTO)
@@ -791,4 +797,157 @@ void Sequencer::divChangeQuantize(uint8_t row)
 		player.uStepInd[row] = 1;
 		switchStep(row);
 	}
+}
+
+
+
+void Sequencer::switchStep(uint8_t row)   //przełączamy stepy w zależności od trybu grania
+{
+	uint8_t x = constrain(row, 1, 8);
+
+
+
+
+
+	if (player.isREC && player.row[x].recNoteOpen)
+	{
+		player.row[x].recNoteLength++;
+		seq[player.ramBank].row[x].step[player.row[x].recNoteStep].length1 = player.row[x].recNoteLength - 1;
+
+	}
+
+
+
+
+	if (player.row[x].goToStep)
+	{
+		player.row[x].actual_pos = player.row[x].goToStep;
+		player.row[x].goToStep = 0;
+	}
+	else if (player.row[x].makeJump)
+	{
+		for (uint8_t a = 1 ; a <= 8; a++)
+		{
+			player.row[x].makeJump = 0;
+		}
+		// switch_bank_with_reset();
+		player.jumpNOW = 1;
+	}
+	else
+	{
+		if (seq[player.ramBank].row[x].playMode == PLAYMODE_FORWARD)
+		{
+			player.row[x].actual_pos++;
+			if ((player.row[x].actual_pos > seq[player.ramBank].row[x].length) || player.row[x].return2start)
+			{
+				// player.row[x].return2start = 0;
+				reset_actual_pos(x);
+
+				// if (player.changeBank)
+				// {
+				// 	switch_bank();
+				// 	// player.row[x].return2start = 1;
+				// }
+			}
+		}
+		else if (seq[player.ramBank].row[x].playMode == PLAYMODE_BACKWARD)
+		{
+			player.row[x].actual_pos--;
+			if ((player.row[x].actual_pos < 1) || player.row[x].return2start)
+			{
+				// player.row[x].return2start = 0;
+				reset_actual_pos(x);
+
+				// if (player.changeBank)
+				// {
+				// 	switch_bank();
+				// 	// player.row[x].return2start = 1;
+				// }
+			}
+		}
+		else if (seq[player.ramBank].row[x].playMode == PLAYMODE_PINGPONG)
+		{
+			if (!player.row[x].pingPongToogle)
+			{
+				if ((player.row[x].actual_pos >= seq[player.ramBank].row[x].length ) || player.row[x].return2start)
+				{
+					// player.row[x].return2start = 0;
+
+					// if (player.changeBank)
+					// {
+					// 	switch_bank();
+					// 	// player.row[x].return2start = 1;
+					// }
+					player.row[x].pingPongToogle = !player.row[x].pingPongToogle;
+				}
+				else
+				{
+					player.row[x].actual_pos++;
+				}
+
+			}
+			else
+			{
+				if ((player.row[x].actual_pos <= 1) || player.row[x].return2start)
+				{
+					// player.row[x].return2start = 0;
+
+
+					// if (player.changeBank)
+					// {
+					// 	switch_bank();
+					// 	// player.row[x].return2start = 1;
+
+					// }
+					player.row[x].pingPongToogle = !player.row[x].pingPongToogle;
+				}
+				else
+				{
+					player.row[x].actual_pos--;
+				}
+			}
+		}
+
+		else if (seq[player.ramBank].row[x].playMode == PLAYMODE_RANDOM)
+		{
+			player.row[x].actual_pos = random(1, seq[player.ramBank].row[x].length + 1);
+		}
+	}
+
+	/*
+	if (player.row[x].return2start)
+	{
+		Serial.print("ret to start ");
+		Serial.println(x);
+		reset_actual_pos();
+		for (uint8_t a = 1 ; a <= 8; a++)
+		{
+			// player.row[x].actual_pos = 1;
+			player.row[x].return2start = 0;
+			timerTick = 1;
+
+			player.uStepInd[x] = 1;
+		}
+		player.uStep = 1;
+
+		// action_buttonPlay();
+
+
+	}*/
+
+}
+
+
+uint8_t Sequencer::val2roll(uint8_t val)
+{
+	if (val <= sizeof(arrVal2roll))
+	{
+		return arrVal2roll[val];
+	}
+	else if (val == HITMODE_OFFSET) return HITMODE_OFFSET; // wyjatek dla nudge //TODO
+	else
+	{
+		return 1;
+	}
+
 }
