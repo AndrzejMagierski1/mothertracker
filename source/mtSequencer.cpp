@@ -891,14 +891,14 @@ uint8_t Sequencer::isRowOn(uint8_t row)
 }
 
 
-uint8_t Sequencer::get_copy_row_from(void)
-{
-	return player.copy_row_from;
-}
-uint8_t Sequencer::get_copy_row_to(void)
-{
-	return player.copy_row_to;
-}
+//uint8_t Sequencer::get_copy_row_from(void)
+//{
+//	return player.copy_row_from;
+//}
+//uint8_t Sequencer::get_copy_row_to(void)
+//{
+//	return player.copy_row_to;
+//}
 
 /*
 void Sequencer::push_track(uint16_t row)
@@ -1094,23 +1094,23 @@ void Sequencer::allNoteOffs(void)
 
 
 
-uint8_t Sequencer::get_copy_step_from_row(void)
-{
-	return player.copy_step_from_row;
-}
-uint8_t Sequencer::get_copy_step_from_col(void)
-{
-	return player.copy_step_from_col;
-}
-
-uint8_t Sequencer::get_copy_step_to_row(void)
-{
-	return player.copy_step_to_row;
-}
-uint8_t Sequencer::get_copy_step_to_col(void)
-{
-	return player.copy_step_to_col;
-}
+//uint8_t Sequencer::get_copy_step_from_row(void)
+//{
+//	return player.copy_step_from_row;
+//}
+//uint8_t Sequencer::get_copy_step_from_col(void)
+//{
+//	return player.copy_step_from_col;
+//}
+//
+//uint8_t Sequencer::get_copy_step_to_row(void)
+//{
+//	return player.copy_step_to_row;
+//}
+//uint8_t Sequencer::get_copy_step_to_col(void)
+//{
+//	return player.copy_step_to_col;
+//}
 
 //uint8_t get_copy_bank_from(void)
 //{
@@ -1671,7 +1671,7 @@ uint8_t Sequencer::play_uStep(uint8_t row)
 	uint8_t anythingSent = 0;
 	uint8_t x = constrain(row, 1, 8);
 	strRow & tempSeqRow = seq[player.ramBank].row[x];
-	strPlayerRow & tempPlayerRow = player.row[x];
+	strPlayer::strPlayerRow & tempPlayerRow = player.row[x];
 
 
 
@@ -2349,14 +2349,14 @@ void Sequencer::flushNotes()
 	{
 		if (!noteHandler[a].free && noteHandler[a].onOff)
 		{
-			if 		((noteHandler[a].midiOut == MIDIOUT_USB)  || (noteHandler[a].midiOut == MIDIOUT_USB_C)) 		usbMIDI.sendNoteOn(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
+//			if 		((noteHandler[a].midiOut == MIDIOUT_USB)  || (noteHandler[a].midiOut == MIDIOUT_USB_C)) 		usbMIDI.sendNoteOn(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
 //			else if ((noteHandler[a].midiOut == MIDIOUT_DIN1) || (noteHandler[a].midiOut == MIDIOUT_DIN1_C)) 		MIDI2.sendNoteOn(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
 //			else if ((noteHandler[a].midiOut == MIDIOUT_DIN2) || (noteHandler[a].midiOut == MIDIOUT_DIN2_C))		MIDI.sendNoteOn(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
 			noteHandler[a].free = 1;
 		}
 		else if (!noteHandler[a].free && !noteHandler[a].onOff)
 		{
-			if 		((noteHandler[a].midiOut == MIDIOUT_USB)  || (noteHandler[a].midiOut == MIDIOUT_USB_C)) 		usbMIDI.sendNoteOff(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
+//			if 		((noteHandler[a].midiOut == MIDIOUT_USB)  || (noteHandler[a].midiOut == MIDIOUT_USB_C)) 		usbMIDI.sendNoteOff(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
 //			else if ((noteHandler[a].midiOut == MIDIOUT_DIN1) || (noteHandler[a].midiOut == MIDIOUT_DIN1_C)) 		MIDI2.sendNoteOff(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
 //			else if ((noteHandler[a].midiOut == MIDIOUT_DIN2) || (noteHandler[a].midiOut == MIDIOUT_DIN2_C))		MIDI.sendNoteOff(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
 			noteHandler[a].free = 1;

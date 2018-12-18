@@ -36,33 +36,32 @@
 
 #define MODE_MIDICLOCK_INC_VALUE		8
 
-
 #define MIDI1	Serial1
 //#define MIDI2	Serial2
 
 // buttony
-
-#define BUTTON_ROW_PATTERN 1
-#define BUTTON_ROW_DUPLICATE 2
-#define BUTTON_ROW_QUANTIZE 3
-#define BUTTON_ROW_RANDOM 4
-#define BUTTON_ROW_ONOFF 5
-#define BUTTON_ROW_CLEAR 6
-#define BUTTON_ROW_STOP 7
-#define BUTTON_ROW_PLAY 8
-
-#define BUTTON_COL_FUNCTION -1
+//
+//#define BUTTON_ROW_PATTERN 1
+//#define BUTTON_ROW_DUPLICATE 2
+//#define BUTTON_ROW_QUANTIZE 3
+//#define BUTTON_ROW_RANDOM 4
+//#define BUTTON_ROW_ONOFF 5
+//#define BUTTON_ROW_CLEAR 6
+//#define BUTTON_ROW_STOP 7
+//#define BUTTON_ROW_PLAY 8
+//
+//#define BUTTON_COL_FUNCTION -1
 
 // buttony koniec
 
 // enkoderyyy
 
-#define ENC_TEMPO 0
-#define ENC_NOTE 1
-#define ENC_VELO 2
-#define ENC_MOVE 3
-#define ENC_LENGTH 4
-#define ENC_ROLL 5
+//#define ENC_TEMPO 0
+//#define ENC_NOTE 1
+//#define ENC_VELO 2
+//#define ENC_MOVE 3
+//#define ENC_LENGTH 4
+//#define ENC_ROLL 5
 
 #define CC_ALL_NOTES_OFF 123
 #define CC_VAL_NOTES_OFF 0
@@ -88,56 +87,56 @@
 #define MIDIOUT_MIN 	0
 #define MIDIOUT_MAX 	5
 
-//	AT45
-#define HWPIN_AT45_RST	4
-#define HWPIN_AT45_CS	16
-#define HWPIN_AT45_WP	17
+////	AT45
+//#define HWPIN_AT45_RST	4
+//#define HWPIN_AT45_CS	16
+//#define HWPIN_AT45_WP	17
 
 // ENCODERY
-#define HWPIN_ENCODER_INT	32
-#define HWPIN_ENCODER_RST	25
-#define HWPIN_EC6_SW		15
-#define HWPIN_EC5_SW		22
+//#define HWPIN_ENCODER_INT	32
+//#define HWPIN_ENCODER_RST	25
+//#define HWPIN_EC6_SW		15
+//#define HWPIN_EC5_SW		22
 
 // DRIVERY BUTTONOW
-#define HWPIN_I2C_SELECT	28
-
-#define HWPIN_GRIDA_INT 	27
-#define HWPIN_GRIDB_INT		29
-#define HWPIN_GRIDC_INT		30
-#define HWPIN_GRIDD_INT		2
-#define HWPIN_GRIDF_INT		8
+//#define HWPIN_I2C_SELECT	28
+//
+//#define HWPIN_GRIDA_INT 	27
+//#define HWPIN_GRIDB_INT		29
+//#define HWPIN_GRIDC_INT		30
+//#define HWPIN_GRIDD_INT		2
+//#define HWPIN_GRIDF_INT		8
 
 //	LCD
-#define HWPIN_LCD_DC		20
-#define HWPIN_LCD_CS		21
+//#define HWPIN_LCD_DC		20
+//#define HWPIN_LCD_CS		21
 
 //	MISC
-#define HWPIN_FOOT_SW		5
-#define HWPIN_TEST_SW		26
-
-#define HWPIN_LVL_IFT_EN	6
-#define HWPIN_BLINK_LED		3
-#define HWPIN_PWR_STATUS	33
-
-#define PWR_STATUS_USB 1
-#define PWR_STATUS_JACK 0
+//#define HWPIN_FOOT_SW		5
+//#define HWPIN_TEST_SW		26
+//
+//#define HWPIN_LVL_IFT_EN	6
+//#define HWPIN_BLINK_LED		3
+//#define HWPIN_PWR_STATUS	33
+//
+//#define PWR_STATUS_USB 1
+//#define PWR_STATUS_JACK 0
 
 //(11101)(A2)(A1)(R/W)
 // if R/W == 1 then READ
-#define ADDR_LED_CONTROLLER_1 0b1110100//0
-#define ADDR_LED_CONTROLLER_2 0b1110111//0
+//#define ADDR_LED_CONTROLLER_1 0b1110100//0
+//#define ADDR_LED_CONTROLLER_2 0b1110111//0
 
 //10110(AD1)(AD0)(R/W)
-#define ADDR_BUTTON_CONTROLLER_A 	0b1011000	// 176
-#define ADDR_BUTTON_CONTROLLER_B 	0b1011001 	// 178
-#define ADDR_BUTTON_CONTROLLER_C 	0b1011010   // 180
-#define ADDR_BUTTON_CONTROLLER_D 	0b1011011
+//#define ADDR_BUTTON_CONTROLLER_A 	0b1011000	// 176
+//#define ADDR_BUTTON_CONTROLLER_B 	0b1011001 	// 178
+//#define ADDR_BUTTON_CONTROLLER_C 	0b1011010   // 180
+//#define ADDR_BUTTON_CONTROLLER_D 	0b1011011
 
-#define ADDR_BUTTON_CONTROLLER_FUNC 0b1011000
+//#define ADDR_BUTTON_CONTROLLER_FUNC 0b1011000
 
 //MCP
-#define ADDR_ENCODER_CONTROLLER 0b0100000 //@ 0x40
+//#define ADDR_ENCODER_CONTROLLER 0b0100000 //@ 0x40
 
 #define COPY_MODE_BANK 0
 #define COPY_MODE_ROW 0
@@ -250,30 +249,6 @@
 
 #define DEFAULT_MOD NULL_MOD
 
-
-//#define IGNORE_CLOCKS 1	// półśrodek do ignorowania pierwszych clocków
-
-//#define LCD_TEXT_COLOUR tft.color565(219,202,145)
-//#define LCD_GRAY_COLOUR tft.color565(192,192,192)
-
-//#define LCD_BACKGROUND ILI9341_BLACK
-//#define LCD_activeParameter_COLOUR LCD_TEXT_COLOUR
-//#define LCDPIX_COL_A 25
-//#define LCDPIX_COL_B 175
-//
-//#define LCDPIX_ROW_1 32
-//#define LCDPIX_ROW_2 84
-//#define LCDPIX_ROW_3 136
-//#define LCDPIX_ROW_4 188
-//
-//#define LCDPIX_RECT_H 20
-//#define LCDPIX_RECT_4H 180
-//#define LCDPIX_RECT_W 100
-//#define LCDPIX_RECT_2W 250
-//
-//#define LCDPIX_activeParameter_H 52
-//#define LCDPIX_activeParameter_W 300
-
 #define ROLL_CURVE_MIN		1
 #define ROLL_CURVE_FLAT 	1
 #define ROLL_CURVE_INC		2
@@ -297,111 +272,92 @@ public:
 
 // struktury odtwarzacza, zmienne pomocnicze nie zapisywane do banku
 
-	struct strPlayerStep
-	{
-
-		uint8_t wasModification = 0;
-		uint8_t justPressed = 0;
-		uint8_t learned = 0;
-		uint8_t isGhost = 0;// jeśli > 0 to ma numer stepa którego jest ghostem
-		uint8_t isMoving = 0;	// jest przemieszczany
-		uint8_t isBlinking = 0;	// jest podświetlany jako ruch
-
-	};
-
-	struct strPlayerRow
-	{
-		int16_t note_length_timer = 1;// tu odliczamy ile zostalo stepow do zakonczenia nuty
-
-		uint8_t noteOn_sent = 0;		// znacznik czy została wysłana nuta
-		uint8_t note_sent = 0;			// wartość wysłanej nuty
-		uint8_t chord_sent = 0;			// wartość wysłanej nuty
-		uint8_t midiOut_sent = 0;
-		uint8_t channel_sent = 0;
-		uint8_t scale_sent = 0;
-		uint8_t scaleRoot_sent = 0;
-
-		uint8_t rollLength = 0;		// tu wrzucamy długość rolki w stepach
-									// zerujemy kiedy wpadnie inny step
-
-		uint8_t rollStep = 0;		// step który jest rollowany
-		uint16_t rollCounter = 0;		// licznik wykonanych hitów
-
-		uint8_t lastMod = 0;			// ostatnio wyslany parametr
-
-		int8_t actual_pos = 0;
-
-		uint8_t return2start = 0;	// po zakonczonym stepie wraca do pocatku
-		uint8_t makeJump = 0;// flaga przeskoku do odpowiedniego patternu po odegraniu stepu
-		uint8_t goToStep = 0;		// odpala odpowiedni step jako kolejny
-
-		uint8_t recNoteOpen = 0;	// czy otwarta nuta? w trakcie nagrywania
-		uint8_t recNoteLength = 0;	// aktualna długość otwartej nuty
-		uint8_t recNote = 0;
-		uint8_t recChannel = 0;
-		uint8_t recNoteStep = 0;
-
-		int8_t lastRollNote = 0;
-
-		bool pingPongToogle = 0;
-
-		uint8_t learned = 0;
-
-		bool divChange = 0;
-		bool divChangeIncr = 0;
-
-		strPlayerStep step[33];
-
-		// uint8_t microStep = 0;
-
-	};
-
 	struct strPlayer
 	{
 
-		uint8_t jumpNOW = 0;
-
+		bool changeBank = 0;
 		bool isPlay = 0;
-		bool isStop = 1;	// zaczyna od 1 bo jest w STOPie
-		uint16_t uStep = 0;
-		uint16_t uStepInd[9] =
-		{ 0 };
 		bool isREC = 0;
-
+		bool isStop = 1;
+		bool loadBank = 0;
+		bool ramBank = 0;
 		bool swingToogle = 0;
+		float externalTempo = 120.0;
 		float swing_offset = 50.0;
-
-		bool ramBank = 0;			// jeden z dwóch banków w pamięci
-		// uint8_t ramBank2change = 0;
+		uint16_t metronome_timer = 0;
+		uint16_t metronome_timer_max = 48 * 4;
+		uint16_t rec_intro_step = 0;
+		uint16_t rec_intro_timer = 0;
+		uint16_t rec_intro_timer_max = 48 * 4;
+		uint16_t uStep = 0;
+		uint16_t uStepInd[9] { 0 };
 		uint8_t actualBank = 0;
 		uint8_t bank2change = 0;
 		uint8_t bank2load = 0;
-		// bool 	changeBank = 0;
-		bool loadBank = 0;
+//		uint8_t copy_row_from = 0;
+//		uint8_t copy_row_to = 0;
+//		uint8_t copy_step_from_col = 0;
+//		uint8_t copy_step_from_row = 0;
+//		uint8_t copy_step_to_col = 0;
+//		uint8_t copy_step_to_row = 0;
+		uint8_t jumpNOW = 0;
 
-		uint16_t metronome_timer = 0;
-		uint16_t metronome_timer_max = 48 * 4;
+		struct strPlayerRow
+		{
+			int16_t note_length_timer = 1; // tu odliczamy ile zostalo stepow do zakonczenia nuty
 
-		uint16_t rec_intro_timer = 0;
-		uint16_t rec_intro_timer_max = 48 * 4;
-		uint16_t rec_intro_step = 0;
+			uint8_t noteOn_sent = 0;		// znacznik czy została wysłana nuta
+			uint8_t note_sent = 0;			// wartość wysłanej nuty
+			uint8_t chord_sent = 0;			// wartość wysłanej nuty
+			uint8_t midiOut_sent = 0;
+			uint8_t channel_sent = 0;
+			uint8_t scale_sent = 0;
+			uint8_t scaleRoot_sent = 0;
 
-		uint8_t copy_step_from_row = 0;
-		uint8_t copy_step_from_col = 0;
+			uint8_t rollLength = 0;		// tu wrzucamy długość rolki w stepach
+										// zerujemy kiedy wpadnie inny step
 
-		uint8_t copy_step_to_row = 0;
-		uint8_t copy_step_to_col = 0;
+			uint8_t rollStep = 0;		// step który jest rollowany
+			uint16_t rollCounter = 0;		// licznik wykonanych hitów
 
-		uint8_t copy_row_from = 0;
-		uint8_t copy_row_to = 0;
+			uint8_t lastMod = 0;			// ostatnio wyslany parametr
 
-//		uint8_t ignore_first_clock = IGNORE_CLOCKS;
-		float externalTempo = 120.0;
-		// float lockedTempo = 120.0;
+			int8_t actual_pos = 0;
 
-		bool changeBank = 0;
+			uint8_t return2start = 0;// po zakonczonym stepie wraca do pocatku
+			uint8_t makeJump = 0;// flaga przeskoku do odpowiedniego patternu po odegraniu stepu
+			uint8_t goToStep = 0;		// odpala odpowiedni step jako kolejny
 
-		strPlayerRow row[9];
+			uint8_t recNoteOpen = 0;// czy otwarta nuta? w trakcie nagrywania
+			uint8_t recNoteLength = 0;	// aktualna długość otwartej nuty
+			uint8_t recNote = 0;
+			uint8_t recChannel = 0;
+			uint8_t recNoteStep = 0;
+
+			int8_t lastRollNote = 0;
+
+			bool pingPongToogle = 0;
+
+			uint8_t learned = 0;
+
+			bool divChange = 0;
+			bool divChangeIncr = 0;
+
+			struct strPlayerStep
+			{
+
+				uint8_t wasModification = 0;
+				uint8_t justPressed = 0;
+				uint8_t learned = 0;
+				uint8_t isGhost = 0;// jeśli > 0 to ma numer stepa którego jest ghostem
+				uint8_t isMoving = 0;	// jest przemieszczany
+				uint8_t isBlinking = 0;	// jest podświetlany jako ruch
+
+			} step[33];
+
+			// uint8_t microStep = 0;
+
+		} row[9];
 
 	};
 
@@ -543,7 +499,6 @@ public:
 
 		uint8_t midiOut = 0;
 
-
 	} noteHandler[100];
 
 	float get_swing(void);
@@ -634,14 +589,16 @@ public:
 	void set_power_mode(uint8_t mode);
 	void trySwitchBank();
 	void midiSendChordOn(uint8_t note, uint8_t chord, uint8_t velo,
-							uint8_t channel, uint8_t midiOut, uint8_t scale,
+							uint8_t channel,
+							uint8_t midiOut, uint8_t scale,
 							uint8_t scaleRoot);
 	void setLoadBank2Ram(uint8_t bank);
 	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 					uint8_t midiOut);
 
 	void midiSendChordOff(uint8_t note, uint8_t chord, uint8_t velo,
-							uint8_t channel, uint8_t midiOut, uint8_t scale,
+							uint8_t channel,
+							uint8_t midiOut, uint8_t scale,
 							uint8_t scaleRoot);
 	void switch_bank_with_reset(void);
 
@@ -653,7 +610,7 @@ public:
 	strChangeBuffer change_buffer;
 	strDebug debug;
 	strGhost ghost;
-	strGlobalConfig  config;
+	strGlobalConfig config;
 	strGridView gv;
 	strHidden hidden;
 	strPlayer player;
@@ -663,20 +620,8 @@ public:
 	elapsedMicros flushTimer = 0;
 
 	elapsedMicros timeOfTick = 0;
-	const uint8_t arrVal2roll[10] =
-	{
-		0,
-		1,
-		1,
-		2,
-		3,
-		4,
-		6,
-		8,
-		12,
-		16
-	};
+	const uint8_t arrVal2roll[10] = { 0, 1, 1, 2, 3, 4, 6, 8, 12, 16 };
 
 //uint16_t timerTick = 1;
-} ;
+};
 #endif
