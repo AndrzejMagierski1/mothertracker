@@ -294,12 +294,7 @@ public:
 		uint8_t actualBank = 0;
 		uint8_t bank2change = 0;
 		uint8_t bank2load = 0;
-//		uint8_t copy_row_from = 0;
-//		uint8_t copy_row_to = 0;
-//		uint8_t copy_step_from_col = 0;
-//		uint8_t copy_step_from_row = 0;
-//		uint8_t copy_step_to_col = 0;
-//		uint8_t copy_step_to_row = 0;
+
 		uint8_t jumpNOW = 0;
 
 		struct strPlayerRow
