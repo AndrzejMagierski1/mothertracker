@@ -348,9 +348,9 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 // #define PRODUCT_NAME_LEN  8
 
 
-#define PRODUCT_ID    0x0DAF // MEDUSA
-#define PRODUCT_NAME    {'M','o','t','h','e','r'}
-#define PRODUCT_NAME_LEN  6
+#define PRODUCT_ID    0x0DAF // TODO:  PID MEDUSY
+#define PRODUCT_NAME    {'M','o','t','h','e','r','T','r','a','c','k','e','r'}
+#define PRODUCT_NAME_LEN  13
 
 // #define PRODUCT_ID    0x815B // POLY product id
 // #define PRODUCT_NAME    {'S','E','Q'}
