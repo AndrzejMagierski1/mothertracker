@@ -27,41 +27,9 @@
 /*
  definicje globalne
  */
-#define MODE_MIDICLOCK_MIN_VALUE		0
-#define MODE_MIDICLOCK_INTERNAL			0
-#define MODE_MIDICLOCK_INTERNAL_LOCK	1
-#define MODE_MIDICLOCK_MIDIDIN			2
-#define MODE_MIDICLOCK_USB				3
-#define MODE_MIDICLOCK_MAX_VALUE		3	// ograniczenie wyboru
-
-#define MODE_MIDICLOCK_INC_VALUE		8
 
 #define MIDI1	Serial1
 //#define MIDI2	Serial2
-
-// buttony
-//
-//#define BUTTON_ROW_PATTERN 1
-//#define BUTTON_ROW_DUPLICATE 2
-//#define BUTTON_ROW_QUANTIZE 3
-//#define BUTTON_ROW_RANDOM 4
-//#define BUTTON_ROW_ONOFF 5
-//#define BUTTON_ROW_CLEAR 6
-//#define BUTTON_ROW_STOP 7
-//#define BUTTON_ROW_PLAY 8
-//
-//#define BUTTON_COL_FUNCTION -1
-
-// buttony koniec
-
-// enkoderyyy
-
-//#define ENC_TEMPO 0
-//#define ENC_NOTE 1
-//#define ENC_VELO 2
-//#define ENC_MOVE 3
-//#define ENC_LENGTH 4
-//#define ENC_ROLL 5
 
 #define CC_ALL_NOTES_OFF 123
 #define CC_VAL_NOTES_OFF 0
@@ -87,57 +55,6 @@
 #define MIDIOUT_MIN 	0
 #define MIDIOUT_MAX 	5
 
-////	AT45
-//#define HWPIN_AT45_RST	4
-//#define HWPIN_AT45_CS	16
-//#define HWPIN_AT45_WP	17
-
-// ENCODERY
-//#define HWPIN_ENCODER_INT	32
-//#define HWPIN_ENCODER_RST	25
-//#define HWPIN_EC6_SW		15
-//#define HWPIN_EC5_SW		22
-
-// DRIVERY BUTTONOW
-//#define HWPIN_I2C_SELECT	28
-//
-//#define HWPIN_GRIDA_INT 	27
-//#define HWPIN_GRIDB_INT		29
-//#define HWPIN_GRIDC_INT		30
-//#define HWPIN_GRIDD_INT		2
-//#define HWPIN_GRIDF_INT		8
-
-//	LCD
-//#define HWPIN_LCD_DC		20
-//#define HWPIN_LCD_CS		21
-
-//	MISC
-//#define HWPIN_FOOT_SW		5
-//#define HWPIN_TEST_SW		26
-//
-//#define HWPIN_LVL_IFT_EN	6
-//#define HWPIN_BLINK_LED		3
-//#define HWPIN_PWR_STATUS	33
-//
-//#define PWR_STATUS_USB 1
-//#define PWR_STATUS_JACK 0
-
-//(11101)(A2)(A1)(R/W)
-// if R/W == 1 then READ
-//#define ADDR_LED_CONTROLLER_1 0b1110100//0
-//#define ADDR_LED_CONTROLLER_2 0b1110111//0
-
-//10110(AD1)(AD0)(R/W)
-//#define ADDR_BUTTON_CONTROLLER_A 	0b1011000	// 176
-//#define ADDR_BUTTON_CONTROLLER_B 	0b1011001 	// 178
-//#define ADDR_BUTTON_CONTROLLER_C 	0b1011010   // 180
-//#define ADDR_BUTTON_CONTROLLER_D 	0b1011011
-
-//#define ADDR_BUTTON_CONTROLLER_FUNC 0b1011000
-
-//MCP
-//#define ADDR_ENCODER_CONTROLLER 0b0100000 //@ 0x40
-
 #define COPY_MODE_BANK 0
 #define COPY_MODE_ROW 0
 #define COPY_MODE_STEP 0
@@ -148,53 +65,40 @@
 
 #define DEFAULT_CC 74 // Generally this CC controls a vibrato effect (pitch, loudness, brighness). What is modulated is based on the patch.
 
-#define MAX_TEMPO 400.0
-#define MIN_TEMPO 10.0
+const float MAX_TEMPO = 400.0;
+const float MIN_TEMPO = 10.0;
 
-#define MAX_SWING 75.0
-#define MIN_SWING 25.0
+const float MAX_SWING = 75.0;
+const float MIN_SWING = 25.0;
 
-#define MAX_NOTE_STEP 127
-#define MIN_NOTE_STEP 0
+const uint8_t MAX_NOTE_STEP = 127;
+const uint8_t MIN_NOTE_STEP = 0;
+const uint8_t MAX_NOTE_TRACK = 127;
+const uint8_t MIN_NOTE_TRACK = 0;
+const uint8_t MAX_TRACK_LENGTH = 32;
+const uint8_t MIN_TRACK_LENGTH = 1;
+const uint8_t MAX_STEP_LENGTH = 31;
+const uint8_t MIN_STEP_LENGTH = 0;
+const uint8_t MIN_STEP_ROLL_VAR = 1;
+const uint8_t MAX_STEP_ROLL_VAR = 9;
+const uint8_t MIN_STEP_ROLL_NOTE_VAR = 1;
+const uint8_t MAX_STEP_ROLL_NOTE_VAR = 9;
+const uint8_t MIN_TRACK_ROLL_VAR = 1;
+const uint8_t MAX_TRACK_ROLL_VAR = 16;
 
-#define MAX_NOTE_TRACK 127
-#define MIN_NOTE_TRACK 0
+const uint8_t MIN_VELO_STEP = 0;
+const uint8_t MAX_VELO_STEP = 127;
+const uint8_t MIN_VELO_TRACK = 0;
+const uint8_t MAX_VELO_TRACK = 100;
+const uint8_t MIN_MOD = 0;
+const uint8_t MAX_MOD = 127;
+const uint8_t MIN_CHANNEL = 1;
+const uint8_t MAX_CHANNEL = 16;
 
-#define MAX_TRACK_LENGTH 32
-#define MIN_TRACK_LENGTH 1
-
-#define MAX_STEP_LENGTH 31
-#define MIN_STEP_LENGTH 0
-
-#define MIN_STEP_ROLL_VAR 1
-#define MAX_STEP_ROLL_VAR 9
-
-#define MIN_STEP_ROLL_NOTE_VAR 1
-#define MAX_STEP_ROLL_NOTE_VAR 9
-
-#define MIN_TRACK_ROLL_VAR 1
-#define MAX_TRACK_ROLL_VAR 16
-
-// #define MIN_ROLL_CURVE 1
-// #define MAX_ROLL_CURVE 5
-
-#define MIN_VELO_STEP 0
-#define MAX_VELO_STEP 127
-
-#define MIN_VELO_TRACK 0
-#define MAX_VELO_TRACK 100
-
-#define MIN_MOD 0
-#define MAX_MOD 127
-
-#define MIN_CHANNEL 1
-#define MAX_CHANNEL 16
-
-#define MIN_CHANNEL_IN -1
-#define MAX_CHANNEL_IN 16
-
-#define MIN_TRANSPOSE -100
-#define MAX_TRANSPOSE 100
+const int8_t MIN_CHANNEL_IN = -1;
+const int8_t MAX_CHANNEL_IN = 16;
+const int8_t MIN_TRANSPOSE = -100;
+const int8_t MAX_TRANSPOSE = 100;
 
 #define MIN_MOVE_STEP 0
 #define MAX_MOVE_STEP 4000
@@ -240,37 +144,53 @@
 #define MIN_GATEMODE 		0
 #define MAX_GATEMODE 		3
 
-#define GATEMODE_NORMAL 	0
-#define GATEMODE_MEDIUM 	1
-#define GATEMODE_SHORT		2
-#define GATEMODE_EXTRASHORT	3
-
 #define NULL_MOD 128
 
 #define DEFAULT_MOD NULL_MOD
 
-#define ROLL_CURVE_MIN		1
-#define ROLL_CURVE_FLAT 	1
-#define ROLL_CURVE_INC		2
-#define ROLL_CURVE_DEC		3
-#define ROLL_CURVE_INC_DEC 	4
-#define ROLL_CURVE_DEC_INC	5
-#define ROLL_CURVE_RANDOM	6
-#define ROLL_CURVE_MAX		6
-
-#define USTEP_TIMER 0
-#define USTEP_EXT_CLOCK 1
+//#define USTEP_TIMER 0
+//#define USTEP_EXT_CLOCK 1
 
 class Sequencer
 {
-public:
+private:
+
+	static struct strMidiModes
+	{
+		static const uint8_t MIN_VALUE = 0;
+		static const uint8_t INTERNAL_ = 0;
+		static const uint8_t INTERNAL_LOCK = 1;
+		static const uint8_t MIDIDIN = 2;
+		static const uint8_t USB = 3;
+		static const uint8_t MAX_VALUE = 3;	// ograniczenie wyboru
+		static const uint8_t INC_VALUE = 8;
+
+	} MODE_MIDICLOCK;
+
+	struct strRollCurve
+	{
+		const uint8_t MIN = 1;
+		const uint8_t FLAT = 1;
+		const uint8_t INCREMENTAL = 2;
+		const uint8_t DECREMENTAL = 3;
+		const uint8_t INC_DEC = 4;
+		const uint8_t DEC_INC = 5;
+		const uint8_t RANDOM = 6;
+		const uint8_t MAX = 6;
+	} ROLL_CURVE;
+
+	static struct strGateMode
+	{
+		static const uint8_t NORMAL = 0;
+		static const uint8_t MEDIUM = 1;
+		static const uint8_t SHORT = 2;
+		static const uint8_t EXTRASHORT = 3;
+	} GATEMODE;
 
 	struct strDebug
 	{
 		uint8_t player = 0;
 	};
-
-// struktury odtwarzacza, zmienne pomocnicze nie zapisywane do banku
 
 	struct strPlayer
 	{
@@ -366,56 +286,7 @@ public:
 	const int8_t MAX_TEMPO_DIV = 3;
 	static const int8_t TEMPODIV_1_1 = 0;
 
-	struct strStep
-	{
-		uint8_t velocity = 127;
-		uint8_t note = 50;
-
-		// 2 x byte
-		uint16_t chord :11;
-		uint16_t length1 :5;	//31
-
-		// byte
-		uint8_t isOn :1;
-		uint8_t rez1 :1;
-		uint8_t offset :6;		// 63 // przesuniecie od 1 do 48
-
-		// byte
-		uint8_t hitMode :5;		// max31
-		uint8_t rez2 :3; 		// max 7
-
-		// byte
-		uint8_t rollCurve :4;		// max 15
-		uint8_t rollNoteCurve :4;	// max 15
-
-		// byte
-		uint8_t modulation = NULL_MOD;
-	};
-
-	struct strRow
-	{
-		uint8_t length = DEFAULT_ROW_LEN;
-		uint8_t rootNote = DEFAULT_ROW_NOTE;
-		uint8_t trackVelo = MAX_VELO_TRACK;
-		uint8_t defaultMod = DEFAULT_MOD;	// rezerwa1
-
-		uint8_t channel = DEFAULT_ROW_CHANNEL;		// wiersz ma swoj channel
-		uint8_t cc = DEFAULT_CC;
-		uint8_t flags = 1;			// bity konfiguracyjne
-		uint8_t trackScale = 0;			// skala tracka
-
-		uint8_t midiOut = MIDIOUT_USB;
-		uint8_t playMode = PLAYMODE_FORWARD;
-
-		uint8_t gateMode = GATEMODE_NORMAL;
-		int8_t tempoDiv = TEMPODIV_1_1;
-		int8_t channelIn = CHANNEL_IN_ALL;
-		uint8_t rezerwa4 = 0;
-
-		strStep step[33];
-
-	};
-
+public:
 	struct strBank
 	{
 		float tempo = DEFAULT_TEMPO;
@@ -426,7 +297,53 @@ public:
 		uint8_t rezerwa3 = 0;
 		uint8_t rezerwa4 = 0;
 
-		strRow row[9];
+		struct strRow
+		{
+			uint8_t length = DEFAULT_ROW_LEN;
+			uint8_t rootNote = DEFAULT_ROW_NOTE;
+			uint8_t trackVelo = MAX_VELO_TRACK;
+			uint8_t defaultMod = DEFAULT_MOD;	// rezerwa1
+
+			uint8_t channel = DEFAULT_ROW_CHANNEL;	// wiersz ma swoj channel
+			uint8_t cc = DEFAULT_CC;
+			uint8_t flags = 1;			// bity konfiguracyjne
+			uint8_t trackScale = 0;			// skala tracka
+
+			uint8_t midiOut = MIDIOUT_USB;
+			uint8_t playMode = PLAYMODE_FORWARD;
+
+			uint8_t gateMode = GATEMODE.NORMAL;
+			int8_t tempoDiv = TEMPODIV_1_1;
+			int8_t channelIn = CHANNEL_IN_ALL;
+			uint8_t rezerwa4 = 0;
+
+			struct strStep
+			{
+				uint8_t velocity = 127;
+				uint8_t note = 50;
+
+				// 2 x byte
+				uint16_t chord :11;
+				uint16_t length1 :5;	//31
+
+				// byte
+				uint8_t isOn :1;
+				uint8_t rez1 :1;
+				uint8_t offset :6;		// 63 // przesuniecie od 1 do 48
+
+				// byte
+				uint8_t hitMode :5;		// max31
+				uint8_t rez2 :3; 		// max 7
+
+				// byte
+				uint8_t rollCurve :4;		// max 15
+				uint8_t rollNoteCurve :4;	// max 15
+
+				// byte
+				uint8_t modulation = NULL_MOD;
+			} step[33];
+
+		} row[9];
 
 	};
 
@@ -439,7 +356,7 @@ public:
 	struct strGlobalConfig
 	{
 
-		uint8_t mode = MODE_MIDICLOCK_INTERNAL;
+		uint8_t mode = MODE_MIDICLOCK.INTERNAL_;
 		uint8_t fv_ver_1 = FV_VER_1;
 		uint8_t fv_ver_2 = FV_VER_2;
 		uint8_t fv_ver_3 = FV_VER_3;

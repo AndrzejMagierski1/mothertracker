@@ -339,33 +339,74 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT6_CONFIG	ENDPOINT_TRANSMIT_ONLY
 
 #elif defined(USB_MIDI)
-  #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0485
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
-  #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I'}
-  #define PRODUCT_NAME_LEN	11
-  #define EP0_SIZE		64
-  #define NUM_ENDPOINTS         4
-  #define NUM_USB_BUFFERS	16
-  #define NUM_INTERFACE		2
-  #define SEREMU_INTERFACE      1	// Serial emulation
-  #define SEREMU_TX_ENDPOINT    1
-  #define SEREMU_TX_SIZE        64
-  #define SEREMU_TX_INTERVAL    1
-  #define SEREMU_RX_ENDPOINT    2
-  #define SEREMU_RX_SIZE        32
-  #define SEREMU_RX_INTERVAL    2
-  #define MIDI_INTERFACE        0	// MIDI
-  #define MIDI_NUM_CABLES       1
-  #define MIDI_TX_ENDPOINT      3
-  #define MIDI_TX_SIZE          64
-  #define MIDI_RX_ENDPOINT      4
-  #define MIDI_RX_SIZE          64
-  #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
-  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
-  #define ENDPOINT3_CONFIG	ENDPOINT_TRANSMIT_ONLY
-  #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_ONLY
+
+// #define VENDOR_ID   0x1FC9 	// nxp vendor id
+#define VENDOR_ID   0x16D0 		// kupiony vendor id
+
+// #define PRODUCT_ID    0x815A // PERC PRO product id
+// #define PRODUCT_NAME    {'P','E','R','C',' ','P','R','O',}
+// #define PRODUCT_NAME_LEN  8
+
+
+#define PRODUCT_ID    0x0DAF // MEDUSA
+#define PRODUCT_NAME    {'M','o','t','h','e','r'}
+#define PRODUCT_NAME_LEN  6
+
+// #define PRODUCT_ID    0x815B // POLY product id
+// #define PRODUCT_NAME    {'S','E','Q'}
+// #define PRODUCT_NAME_LEN  3
+
+// #define PRODUCT_ID    0x815C // POLY product id
+// #define PRODUCT_NAME    {'P','O','L','Y'}
+// #define PRODUCT_NAME_LEN  4
+
+
+
+#define MANUFACTURER_NAME {'P', 'o', 'l', 'y', 'e', 'n', 'd'}
+#define MANUFACTURER_NAME_LEN 7
+
+#define EP0_SIZE    			64
+#define NUM_ENDPOINTS         	7
+#define NUM_USB_BUFFERS 		30
+#define NUM_INTERFACE   		4
+
+#define RAWHID_INTERFACE      	3 // RawHID
+#define RAWHID_TX_ENDPOINT    	1
+#define RAWHID_TX_SIZE        	64
+#define RAWHID_TX_INTERVAL    	1
+#define RAWHID_RX_ENDPOINT    	2
+#define RAWHID_RX_SIZE        	64
+#define RAWHID_RX_INTERVAL    	1
+#define RAWHID_USAGE_PAGE 		0xFFAB  // recommended: 0xFF00 to 0xFFFF
+#define RAWHID_USAGE    		0x0200  // recommended: 0x0100 to 0xFFFF
+
+#define CDC_IAD_DESCRIPTOR  	1
+#define CDC_STATUS_INTERFACE  	0
+#define CDC_DATA_INTERFACE  	1 // Serial
+#define CDC_ACM_ENDPOINT  		7
+#define CDC_RX_ENDPOINT       	4
+#define CDC_TX_ENDPOINT       	3
+#define CDC_ACM_SIZE          	16
+#define CDC_RX_SIZE           	64
+#define CDC_TX_SIZE           	64
+
+#define MIDI_INTERFACE        	2 // MIDI
+#define MIDI_NUM_CABLES			1
+#define MIDI_TX_ENDPOINT      	5
+#define MIDI_TX_SIZE          	64
+#define MIDI_RX_ENDPOINT      	6
+#define MIDI_RX_SIZE          	64
+
+#define ENDPOINT1_CONFIG  ENDPOINT_TRANSMIT_ONLY
+#define ENDPOINT2_CONFIG  ENDPOINT_RECEIVE_ONLY
+
+#define ENDPOINT3_CONFIG  ENDPOINT_TRANSMIT_ONLY
+#define ENDPOINT4_CONFIG  ENDPOINT_RECEIVE_ONLY
+
+#define ENDPOINT5_CONFIG  ENDPOINT_TRANSMIT_ONLY
+#define ENDPOINT6_CONFIG  ENDPOINT_RECEIVE_ONLY
+
+#define ENDPOINT7_CONFIG  ENDPOINT_TRANSMIT_ONLY
 
 #elif defined(USB_MIDI4)
   #define VENDOR_ID		0x16C0
