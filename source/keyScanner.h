@@ -10,48 +10,6 @@
 
 // BUTTNOS DEFINITIONS
 
-#define BUTTON_GRID			49	//SW15 (LED)
-#define BUTTON_VOICE		57	//SW16 (LED)
-#define BUTTON_RANDOM		20	//SW35
-#define BUTTON_BACK			28  //SW36
-#define BUTTON_LOAD 		43	//SW30
-#define BUTTON_SAVE 		35	//SW29
-#define BUTTON_CLEAR 		27	//SW28
-#define BUTTON_PLAY 		42	//SW22 (LED)
-#define BUTTON_REC 			34	//SW21 (LED)
-#define BUTTON_HOLD 		26	//SW20 (LED)
-
-#define BUTTON_WAVE_1 		59	//SW32
-#define BUTTON_OCTAVE_1 	3	//SW25
-#define BUTTON_WAVE_2 		11	//SW26
-#define BUTTON_OCTAVE_2 	19	//SW27
-#define BUTTON_WAVE_3 		51	//SW31
-#define BUTTON_OCTAVE_3  	4	//SW33
-#define BUTTON_DIGITAL		5	//SW37 (LED)
-#define BUTTON_OSC 			18	//SW19 (LED)
-#define BUTTON_OSC_FILTER	50	//SW23 (LED)
-#define BUTTON_SYNC2 		58	//SW24 (LED)
-#define BUTTON_SYNC3		2	//SW17 (LED)
-#define BUTTON_FINETUNE		10	//SW18 (LED)
-
-#define BUTTON_PLAY_MODE 	13	//SW38
-
-#define BUTTON_TYPE			12	//SW34
-
-#define BUTTON_ENV1			41	//SW14 (LED)
-#define BUTTON_ENV2			9	//SW10 (LED)
-#define BUTTON_ENV3			1	//SW9 (LED)
-#define BUTTON_ENV4			40	//SW6 (LED)
-#define BUTTON_ENV5			8	//SW2 (LED)
-#define BUTTON_ENV6			0	//SW1 (LED)
-
-#define BUTTON_LFO1			25	//SW12 (LED)
-#define BUTTON_LFO2			17	//SW11 (LED)
-#define BUTTON_LFO3			33	//SW13 (LED)
-#define BUTTON_LFO4			24	//SW4 (LED)
-#define BUTTON_LFO5			16	//SW3 (LED)
-#define BUTTON_LFO6			32	//SW5 (LED)
-
 #define IO7326_ADDR1 0b1011000
 #define IO7326_ADDR2 0b1011001
 #define IO7326_ADDR3 0b1011010
@@ -96,12 +54,12 @@ public:
 	void setDoubleTime(uint16_t time);
 	void testMode(uint8_t set);
 
-	uint8_t buttonToX(uint8_t number);
+/*	uint8_t buttonToX(uint8_t number);
 	uint8_t buttonToY(uint8_t number);
-	bool isButtonPressed(uint8_t number);
+	bool (uint8_t number);
 	bool isButtonHold(uint8_t number);
 	uint8_t getButtonState(uint8_t number);
-	uint8_t xy2key(uint8_t x, uint8_t y);
+	uint8_t xy2key(uint8_t x, uint8_t y);*/
 
 private:
 	void (*onPush)(uint8_t,uint8_t);
@@ -110,7 +68,7 @@ private:
 	void (*onDouble)(uint8_t,uint8_t);
 
 	void read_buttons_IC(uint8_t grid_no);
-	void handle_howManyPressed();
+//	void handle_howManyPressed();
 	void handle_buttonTimeout();
 	void action_button_press(uint8_t num);
 	void action_button_hold(uint8_t num);

@@ -66,20 +66,11 @@ void keyScanner::begin(uint8_t address, uint8_t sda_pin, uint8_t scl_pin, uint8_
 	IO7326_sda_pin= sda_pin;
 	IO7326_scl_pin = scl_pin;
 
-	//pinMode(66,OUTPUT);
-	//digitalWrite(66,HIGH);
 	PORTA_PCR4|=PORT_PCR_MUX(1);
 	GPIOA_PDDR|= (1<<4);
 	GPIOA_PDOR|= (1<<4);
 
-/*	GPIOE_PDDR|= (1<<8);
-	GPIOE_PDOR|= (1<<8);
 
-	GPIOE_PDDR|= (1<<9);
-	GPIOE_PDOR|= (1<<9);
-
-	GPIOE_PDDR|= (1<<26);
-	GPIOE_PDOR|= (1<<26);*/
 
 	//Wire.begin(I2C_MASTER, 0x00, IO7326_scl_pin, IO7326_sda_pin); 
 	
@@ -281,7 +272,7 @@ void keyScanner::read_buttons_IC(uint8_t grid_no) //grid no 0-3
 }
 
 
-void keyScanner::handle_howManyPressed()
+/*void keyScanner::handle_howManyPressed()
 {
 	uint8_t tempButtoonsPressed = 0;
 
@@ -294,7 +285,7 @@ void keyScanner::handle_howManyPressed()
 		}
 	}
 	buttonsPressed = tempButtoonsPressed;
-}
+}*/
 
 
 void keyScanner::handle_buttonTimeout()
@@ -486,7 +477,7 @@ void keyScanner::action_button_double(uint8_t num)
 	onDouble(x,y);
 }
 
-uint8_t keyScanner::getButtonState(uint8_t number)
+/*uint8_t keyScanner::getButtonState(uint8_t number)
 {
 	return button[number];
 }
@@ -514,7 +505,6 @@ uint8_t keyScanner::buttonToX(uint8_t number)
 uint8_t keyScanner::buttonToY(uint8_t number)
 {
 	return (number / 8) + 1;
-}
 
 void keyScanner::testMode(uint8_t set)
 {

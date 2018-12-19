@@ -12,7 +12,7 @@ keyScanner seqButtonsA,seqButtonsB,seqButtonsC;
 
 void IO7326_INT_FUNCT_A() { seqButtonsA.intAction(); }
 void IO7326_INT_FUNCT_B() { seqButtonsB.intAction(); }
-void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); Serial.println("Przerwanie C"); }
+void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 
 //=======================================================================
 void cMtInterface::begin()
