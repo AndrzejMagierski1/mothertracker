@@ -27,7 +27,7 @@
 									<listOptionValue builtIn="false" value="__NEWLIB__"/>
 									<listOptionValue builtIn="false" value="__MK66FX1M0__"/>
 									<listOptionValue builtIn="false" value="F_CPU=180000000"/>
-									<listOptionValue builtIn="false" value="USB_SERIAL"/>
+									<listOptionValue builtIn="false" value="USB_MIDI"/>
 									<listOptionValue builtIn="false" value="TEENSYDUINO=142"/>
 									<listOptionValue builtIn="false" value="ARDUINO=10805"/>
 									<listOptionValue builtIn="false" value="LAYOUT_US_ENGLISH"/>
@@ -68,7 +68,7 @@
 									<listOptionValue builtIn="false" value="__NEWLIB__"/>
 									<listOptionValue builtIn="false" value="__MK66FX1M0__"/>
 									<listOptionValue builtIn="false" value="F_CPU=180000000"/>
-									<listOptionValue builtIn="false" value="USB_SERIAL"/>
+									<listOptionValue builtIn="false" value="USB_MIDI"/>
 									<listOptionValue builtIn="false" value="TEENSYDUINO=142"/>
 									<listOptionValue builtIn="false" value="ARDUINO=10805"/>
 									<listOptionValue builtIn="false" value="LAYOUT_US_ENGLISH"/>
