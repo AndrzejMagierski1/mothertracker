@@ -153,140 +153,9 @@ const int8_t MAX_TRANSPOSE = 100;
 
 class Sequencer
 {
-private:
-
-	static struct strMidiModes
-	{
-		static const uint8_t MIN_VALUE = 0;
-		static const uint8_t INTERNAL_ = 0;
-		static const uint8_t INTERNAL_LOCK = 1;
-		static const uint8_t MIDIDIN = 2;
-		static const uint8_t USB = 3;
-		static const uint8_t MAX_VALUE = 3;	// ograniczenie wyboru
-		static const uint8_t INC_VALUE = 8;
-
-	} MODE_MIDICLOCK;
-
-	struct strRollCurve
-	{
-		const uint8_t MIN = 1;
-		const uint8_t FLAT = 1;
-		const uint8_t INCREMENTAL = 2;
-		const uint8_t DECREMENTAL = 3;
-		const uint8_t INC_DEC = 4;
-		const uint8_t DEC_INC = 5;
-		const uint8_t RANDOM = 6;
-		const uint8_t MAX = 6;
-	} ROLL_CURVE;
-
-	static struct strGateMode
-	{
-		static const uint8_t NORMAL = 0;
-		static const uint8_t MEDIUM = 1;
-		static const uint8_t SHORT = 2;
-		static const uint8_t EXTRASHORT = 3;
-	} GATEMODE;
-
-	struct strDebug
-	{
-		uint8_t player = 0;
-	};
-
-	struct strPlayer
-	{
-
-		bool changeBank = 0;
-		bool isPlay = 0;
-		bool isREC = 0;
-		bool isStop = 1;
-		bool loadBank = 0;
-		bool ramBank = 0;
-		bool swingToogle = 0;
-		float externalTempo = 120.0;
-		float swing_offset = 50.0;
-		uint16_t metronome_timer = 0;
-		uint16_t metronome_timer_max = 48 * 4;
-		uint16_t rec_intro_step = 0;
-		uint16_t rec_intro_timer = 0;
-		uint16_t rec_intro_timer_max = 48 * 4;
-		uint16_t uStep = 0;
-		uint16_t uStepInd[9] { 0 };
-		uint8_t actualBank = 0;
-		uint8_t bank2change = 0;
-		uint8_t bank2load = 0;
-
-		uint8_t jumpNOW = 0;
-
-		struct strPlayerRow
-		{
-			int16_t note_length_timer = 1; // tu odliczamy ile zostalo stepow do zakonczenia nuty
-
-			uint8_t noteOn_sent = 0;		// znacznik czy została wysłana nuta
-			uint8_t note_sent = 0;			// wartość wysłanej nuty
-			uint8_t chord_sent = 0;			// wartość wysłanej nuty
-			uint8_t midiOut_sent = 0;
-			uint8_t channel_sent = 0;
-			uint8_t scale_sent = 0;
-			uint8_t scaleRoot_sent = 0;
-
-			uint8_t rollLength = 0;		// tu wrzucamy długość rolki w stepach
-										// zerujemy kiedy wpadnie inny step
-
-			uint8_t rollStep = 0;		// step który jest rollowany
-			uint16_t rollCounter = 0;		// licznik wykonanych hitów
-
-			uint8_t lastMod = 0;			// ostatnio wyslany parametr
-
-			int8_t actual_pos = 0;
-
-			uint8_t return2start = 0;// po zakonczonym stepie wraca do pocatku
-			uint8_t makeJump = 0;// flaga przeskoku do odpowiedniego patternu po odegraniu stepu
-			uint8_t goToStep = 0;		// odpala odpowiedni step jako kolejny
-
-			uint8_t recNoteOpen = 0;// czy otwarta nuta? w trakcie nagrywania
-			uint8_t recNoteLength = 0;	// aktualna długość otwartej nuty
-			uint8_t recNote = 0;
-			uint8_t recChannel = 0;
-			uint8_t recNoteStep = 0;
-
-			int8_t lastRollNote = 0;
-
-			bool pingPongToogle = 0;
-
-			uint8_t learned = 0;
-
-			bool divChange = 0;
-			bool divChangeIncr = 0;
-
-			struct strPlayerStep
-			{
-
-				uint8_t wasModification = 0;
-				uint8_t justPressed = 0;
-				uint8_t learned = 0;
-				uint8_t isGhost = 0;// jeśli > 0 to ma numer stepa którego jest ghostem
-				uint8_t isMoving = 0;	// jest przemieszczany
-				uint8_t isBlinking = 0;	// jest podświetlany jako ruch
-
-			} step[33];
-
-			// uint8_t microStep = 0;
-
-		} row[9];
-
-	};
-
-	struct strGridView
-	{
-		elapsedMillis timer = 0;
-		uint32_t timer_max = 2000;
-	};
-
-	const int8_t MIN_TEMPO_DIV = -3;
-	const int8_t MAX_TEMPO_DIV = 3;
-	static const int8_t TEMPODIV_1_1 = 0;
 
 public:
+//	Sequencer() : IntervalTimer(){}
 	struct strBank
 	{
 		float tempo = DEFAULT_TEMPO;
@@ -345,13 +214,7 @@ public:
 
 		} row[9];
 
-	};
-
-// strBank templateBank;
-
-	/*
-	 bank koniec ##########################################
-	 */
+	} seq[4];
 
 	struct strGlobalConfig
 	{
@@ -385,19 +248,6 @@ public:
 		int16_t uMoveTrack = 1;
 		uint8_t trackRoll = 1;
 
-	};
-
-	struct strBankCRC
-	{
-		uint32_t part[5];
-		uint32_t total;
-	};
-
-	struct strHidden
-	{
-		uint8_t firmwareViewCount = 0;
-		uint8_t firmwareViewCountMax = 5;
-		elapsedMillis firmwareViewTimeout = 0;
 	};
 
 	struct strNoteHandler
@@ -513,19 +363,15 @@ public:
 							uint8_t midiOut, uint8_t scale,
 							uint8_t scaleRoot);
 	void switch_bank_with_reset(void);
-
-	elapsedMicros timeBetweenTicks = 0;
+	void handle();
+	void init();
 	IntervalTimer midiReceiveTimer;
-	static IntervalTimer playTimer;
-	strBank seq[4];
-	strBankCRC seq_crc[4];
+	IntervalTimer playTimer;
+
 	strChangeBuffer change_buffer;
-	strDebug debug;
 	strGhost ghost;
 	strGlobalConfig config;
-	strGridView gv;
-	strHidden hidden;
-	strPlayer player;
+
 	uint16_t timerTick = 0;
 
 	elapsedMicros playerTimer;
@@ -534,6 +380,140 @@ public:
 	elapsedMicros timeOfTick = 0;
 	const uint8_t arrVal2roll[10] = { 0, 1, 1, 2, 3, 4, 6, 8, 12, 16 };
 
-//uint16_t timerTick = 1;
+private:
+
+	static struct strMidiModes
+	{
+		static const uint8_t MIN_VALUE = 0;
+		static const uint8_t INTERNAL_ = 0;
+		static const uint8_t INTERNAL_LOCK = 1;
+		static const uint8_t MIDIDIN = 2;
+		static const uint8_t USB = 3;
+		static const uint8_t MAX_VALUE = 3;	// ograniczenie wyboru
+		static const uint8_t INC_VALUE = 8;
+
+	} MODE_MIDICLOCK;
+
+	struct strRollCurve
+	{
+		const uint8_t MIN = 1;
+		const uint8_t FLAT = 1;
+		const uint8_t INCREMENTAL = 2;
+		const uint8_t DECREMENTAL = 3;
+		const uint8_t INC_DEC = 4;
+		const uint8_t DEC_INC = 5;
+		const uint8_t RANDOM = 6;
+		const uint8_t MAX = 6;
+	} ROLL_CURVE;
+
+	static struct strGateMode
+	{
+		static const uint8_t NORMAL = 0;
+		static const uint8_t MEDIUM = 1;
+		static const uint8_t SHORT = 2;
+		static const uint8_t EXTRASHORT = 3;
+	} GATEMODE;
+
+	struct strDebug
+	{
+		uint8_t player = 0;
+	}debug;
+
+	struct strPlayer
+	{
+
+		bool changeBank = 0;
+		bool isPlay = 0;
+		bool isREC = 0;
+		bool isStop = 1;
+		bool loadBank = 0;
+		bool ramBank = 0;
+		bool swingToogle = 0;
+		float externalTempo = 120.0;
+		float swing_offset = 50.0;
+		uint16_t metronome_timer = 0;
+		uint16_t metronome_timer_max = 48 * 4;
+		uint16_t rec_intro_step = 0;
+		uint16_t rec_intro_timer = 0;
+		uint16_t rec_intro_timer_max = 48 * 4;
+		uint16_t uStep = 0;
+		uint16_t uStepInd[9] { 0 };
+		uint8_t actualBank = 0;
+		uint8_t bank2change = 0;
+		uint8_t bank2load = 0;
+
+		uint8_t jumpNOW = 0;
+
+		struct strPlayerRow
+		{
+			int16_t note_length_timer = 1; // tu odliczamy ile zostalo stepow do zakonczenia nuty
+
+			uint8_t noteOn_sent = 0;		// znacznik czy została wysłana nuta
+			uint8_t note_sent = 0;			// wartość wysłanej nuty
+			uint8_t chord_sent = 0;			// wartość wysłanej nuty
+			uint8_t midiOut_sent = 0;
+			uint8_t channel_sent = 0;
+			uint8_t scale_sent = 0;
+			uint8_t scaleRoot_sent = 0;
+
+			uint8_t rollLength = 0;		// tu wrzucamy długość rolki w stepach
+										// zerujemy kiedy wpadnie inny step
+
+			uint8_t rollStep = 0;		// step który jest rollowany
+			uint16_t rollCounter = 0;		// licznik wykonanych hitów
+
+			uint8_t lastMod = 0;			// ostatnio wyslany parametr
+
+			int8_t actual_pos = 0;
+
+			uint8_t return2start = 0;// po zakonczonym stepie wraca do pocatku
+			uint8_t makeJump = 0;// flaga przeskoku do odpowiedniego patternu po odegraniu stepu
+			uint8_t goToStep = 0;		// odpala odpowiedni step jako kolejny
+
+			uint8_t recNoteOpen = 0;// czy otwarta nuta? w trakcie nagrywania
+			uint8_t recNoteLength = 0;	// aktualna długość otwartej nuty
+			uint8_t recNote = 0;
+			uint8_t recChannel = 0;
+			uint8_t recNoteStep = 0;
+
+			int8_t lastRollNote = 0;
+
+			bool pingPongToogle = 0;
+
+			uint8_t learned = 0;
+
+			bool divChange = 0;
+			bool divChangeIncr = 0;
+
+			struct strPlayerStep
+			{
+
+				uint8_t wasModification = 0;
+				uint8_t justPressed = 0;
+				uint8_t learned = 0;
+				uint8_t isGhost = 0;// jeśli > 0 to ma numer stepa którego jest ghostem
+				uint8_t isMoving = 0;	// jest przemieszczany
+				uint8_t isBlinking = 0;	// jest podświetlany jako ruch
+
+			} step[33];
+
+
+		} row[9];
+
+	} player;
+
+	struct strGridView
+	{
+		elapsedMillis timer = 0;
+		uint32_t timer_max = 2000;
+	}gv;
+
+	const int8_t MIN_TEMPO_DIV = -3;
+	const int8_t MAX_TEMPO_DIV = 3;
+	static const int8_t TEMPODIV_1_1 = 0;
+
+//	strDebug debug;
+//	strGridView ;
+
 };
 #endif

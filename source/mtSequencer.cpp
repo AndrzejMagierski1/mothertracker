@@ -2,27 +2,33 @@
 
 #include "mtSequencer.h"
 
-Sequencer sequencer;
+extern Sequencer sequencer;
 
-void Sequencer::copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x,
-							uint8_t to_y)
+inline void timerExternalVector()
 {
-	from_x = constrain(from_x, 1, 32);
-	from_y = constrain(from_y, 1, 32);
 
-	to_x = constrain(to_x, 1, 32);
-	to_y = constrain(to_y, 1, 32);
+	sequencer.init_player_timer();
 
-	seq[player.ramBank].row[to_y].step[to_x] =
-			seq[player.ramBank].row[from_y].step[from_x];
 }
 
-void Sequencer::copy_row(uint8_t from, uint8_t to)
+/*
+ * PUBLIC
+ */
+void Sequencer::init()
 {
-	from = constrain(from, 1, 8);
-	to = constrain(to, 1, 8);
-	seq[player.ramBank].row[to] = seq[player.ramBank].row[from];
+	init_player_timer();
+	init_player();
+
 }
+void Sequencer::handle()
+{
+//	handle_ghosts();
+}
+
+
+/*
+ * PUBLIC & PRIVATE
+ */
 
 void Sequencer::handle_ghosts(void)
 {
@@ -67,225 +73,6 @@ void Sequencer::handle_ghosts(void)
 		}
 	}
 }
-
-/*
- void Sequencer::learnNote(uint8_t note, uint8_t velo, uint8_t channel)
- {
- if (player.isREC)
- {
- for (uint8_t row = 1; row <= 8; row++)
- {
- // if ((seq[player.ramBank].row[row].flags & MASK_ROW_ON) && (seq[player.ramBank].row[row].channelIn == channel))
- if (	(seq[player.ramBank].row[row].flags & MASK_ROW_ON) &&
- (seq[player.ramBank].row[row].channelIn == channel || seq[player.ramBank].row[row].channelIn == 0) &&
- seq[player.ramBank].row[row].channelIn != -1)
- {
-
- uint8_t tempPos = player.row[row].actual_pos;
- if (!player.row[row].step[tempPos].learned && !player.row[row].recNoteOpen && player.row[row].note_length_timer == 0)
- {
- seq[player.ramBank].row[row].step[tempPos].hitMode     	= 1;
- seq[player.ramBank].row[row].step[tempPos].isOn     	= 1;
- seq[player.ramBank].row[row].step[tempPos].note         = note;
- seq[player.ramBank].row[row].step[tempPos].chord        = NO_CHORD;
- seq[player.ramBank].row[row].step[tempPos].velocity     = velo;
- seq[player.ramBank].row[row].step[tempPos].offset       = player.uStep;
- player.row[row].step[tempPos].learned                   = 1;
- player.row[row].recNoteOpen                             = 1;
- player.row[row].recNoteLength                           = 1;
- player.row[row].recNote                                 = note;
- player.row[row].recChannel                              = channel;
- player.row[row].recNoteStep                             = tempPos;
-
-
-
- midiSendChordOn(note,
- NO_CHORD,
- velo,
- seq[player.ramBank].row[row].channel,
- seq[player.ramBank].row[row].midiOut,
- seq[player.ramBank].row[row].trackScale,
- seq[player.ramBank].row[row].rootNote);
-
- player.row[row].midiOut_sent    = seq[player.ramBank].row[row].midiOut;
- player.row[row].channel_sent    = seq[player.ramBank].row[row].channel;
- player.row[row].scale_sent 	    = seq[player.ramBank].row[row].trackScale;
- player.row[row].note_sent       = note;
- player.row[row].chord_sent      = NO_CHORD;
- player.row[row].noteOn_sent     = 1;
-
-
-
-
-
- return;
- }
- }
- }
- }
- else
- {
- for (uint8_t row = 1; row <= 8; row++)
- {
- // przyciski wierszy
- if (isButtonPressed(0, row))
- {
- // int8_t delta = note - seq[player.ramBank].row[row].rootNote;
-
-
- //seq[player.ramBank].row[row].trackVelo = velo;
- //seq[player.ramBank].row[row].channel = channel;
- //player.row[row].learned = 1;
- update_temp_track(row);
- set_LCD_mode(LCDVIEW_TRACK_NOTE, 1);
-
- if (!player.row[row].noteOn_sent && !isPlay())
- {
- midiSendChordOn(note,
- 1,
- velo,
- seq[player.ramBank].row[row].channel,
- seq[player.ramBank].row[row].midiOut,
- seq[player.ramBank].row[row].trackScale,
- seq[player.ramBank].row[row].rootNote);
-
- player.row[row].midiOut_sent    = seq[player.ramBank].row[row].midiOut;
- player.row[row].channel_sent    = seq[player.ramBank].row[row].channel;
- player.row[row].scale_sent    	= seq[player.ramBank].row[row].trackScale;
- player.row[row].scaleRoot_sent  = seq[player.ramBank].row[row].rootNote;
- player.row[row].note_sent       = note;
- player.row[row].chord_sent      = 0;
- player.row[row].noteOn_sent     = 1;
- }
-
- // transpozycja o delte wzgledem pierwszej zapalonej nuty
-
- // int8_t 	first_set_note = 0;										// pierwsza nuta z brzegu
- int8_t 	delta = note - seq[player.ramBank].row[row].rootNote; 		// delta miedzy nuta przychodzącą a pierwszą z brzegu
- // bool 	first_note = 0;											// flaga odnalezienia pierwszej nuty z brzegu
-
- for (uint8_t col = 1; col <= 32; col++)
- {
- if (seq[player.ramBank].row[row].step[col].note <= MAX_NOTE_STEP)
- {
- // przeliczam każda kolejną nutę
- seq[player.ramBank].row[row].step[col].note =
- constrain(seq[player.ramBank].row[row].step[col].note + delta, MIN_NOTE_TRACK, MAX_NOTE_TRACK);
- }
- }
-
- seq[player.ramBank].row[row].rootNote = note;
- }
-
-
- // przyciski stepów
- for (uint8_t col = 1; col <= 32; col++)
- {
- if (isButtonPressed(col, row) && !player.row[row].step[col].learned)
- {
- seq[player.ramBank].row[row].step[col].note = note;
- seq[player.ramBank].row[row].step[col].chord = 0;
- seq[player.ramBank].row[row].step[col].velocity = velo;
- player.row[row].step[col].learned = 1;
- player.row[row].step[col].wasModification = 1;
-
- update_temp_step();
- set_LCD_mode(LCDVIEW_STEP_PROP);
-
- if (stepsPressed() == 1)player.row[row].step[col].learned = 0;
-
- if (!player.row[row].noteOn_sent )
- {
- midiSendChordOn(note,
- 0,
- velo,
- seq[player.ramBank].row[row].channel,
- seq[player.ramBank].row[row].midiOut,
- seq[player.ramBank].row[row].trackScale,
- seq[player.ramBank].row[row].rootNote);
-
- player.row[row].midiOut_sent    = seq[player.ramBank].row[row].midiOut;
- player.row[row].channel_sent    = seq[player.ramBank].row[row].channel;
- player.row[row].scale_sent    	= seq[player.ramBank].row[row].trackScale;
- player.row[row].scaleRoot_sent	= seq[player.ramBank].row[row].rootNote;
- player.row[row].note_sent       = note;
- player.row[row].chord_sent      = 0;
- player.row[row].noteOn_sent     = 1;
- }
- return;
- }
- }
- }
- }
- }
- */
-/*
- void Sequencer::learnNoteOff(uint8_t note, uint8_t velo, uint8_t channel)
- {
- if (player.isREC)
- {
- for (uint8_t row = 1; row <= 8; row++)
- {
- if (player.row[row].recChannel == channel && player.row[row].recNote == note && player.row[row].recNoteOpen)//!player.row[row].step[player.row[row].actual_pos].isGhost)
- {
- player.row[row].recNoteOpen = 0;
- seq[player.ramBank].row[row].step[player.row[row].recNoteStep].length1 = player.row[row].recNoteLength - 1;
-
- midiSendChordOff(note,
- 0,
- 0,
- player.row[row].channel_sent,
- player.row[row].midiOut_sent,
- player.row[row].scale_sent,
- player.row[row].scaleRoot_sent);
- player.row[row].noteOn_sent = 0;
-
- player.row[row].recNoteLength = 0;
- }
- }
- }
- else
- {
- for (uint8_t row = 1; row <= 8; row++)
- {
- if (isButtonPressed(0, row) && player.row[row].midiOut_sent && !isPlay())
- {
-
- midiSendChordOff(player.row[row].note_sent,
- player.row[row].chord_sent,
- 0,
- player.row[row].channel_sent,
- player.row[row].midiOut_sent,
- player.row[row].scale_sent,
- player.row[row].scaleRoot_sent);
-
- player.row[row].noteOn_sent = 0;
- }
-
- for (uint8_t col = 1; col <= 32; col++)
- {
- if (isButtonPressed(col, row) && player.row[row].note_sent == note)
- {
-
- midiSendChordOff(player.row[row].note_sent,
- player.row[row].chord_sent,
- 0,
- player.row[row].channel_sent,
- player.row[row].midiOut_sent,
- player.row[row].scale_sent,
- player.row[row].scaleRoot_sent);
-
- player.row[row].noteOn_sent = 0;
-
- return;
-
- }
- }
- }
- }
-
- }
- */
 
 void Sequencer::rec_metronome(void)
 {
@@ -588,33 +375,6 @@ void Sequencer::initPattern(uint8_t pattern) // czyści pattern z flasha
 	//	flash_bank(pattern, 3);
 }
 
-//void Sequencer::action_buttonOnOff(void)
-//{
-//	//set_LCD_mode(LCDVIEW_ON_OFF, 0);
-//
-//	for (uint8_t x = 1; x <= 8; x++)
-//	{
-//
-//		if (isButtonPressed(0, x))
-//		{
-//			seq[player.ramBank].row[x].flags ^= MASK_ROW_ON;
-//		}
-//	}
-//
-//}
-
-//void Sequencer::action_buttonRandom(void)
-//{
-//	//set_LCD_mode(LCDVIEW_RANDOM, 0);
-//
-//	for (uint8_t x = 1; x <= 8; x++)
-//	{
-//		if (isButtonPressed(0, x))
-//		{
-//			randomize_row(x);
-//		}
-//	}
-//}
 
 void Sequencer::randomize_row(uint8_t row)
 {
@@ -789,227 +549,12 @@ uint8_t Sequencer::isInScale(uint8_t note, uint8_t root, uint8_t scale)
 	// Serial.println(" no...");
 	return 0;
 }
-/*
- void Sequencer::action_buttonQuantize(void)
- {
- //set_LCD_mode(LCDVIEW_QUANTIZE, 0);
- for (uint8_t y = 1; y <= 8; y++)
- {
- // tracki
- if (isButtonPressed(ROW_COLUMN, y))
- {
- for (uint8_t x = 0; x <= seq[player.ramBank].row[y].length; x++)
- {
- if ((seq[player.ramBank].row[y].step[x].offset < 24))
- {
- seq[player.ramBank].row[y].step[x].offset = 1;
- }
- else
- {
- if (x < seq[player.ramBank].row[y].length)
- {
- seq[player.ramBank].row[y].step[x].offset = 1;
- seq[player.ramBank].row[y].step[x + 1] = seq[player.ramBank].row[y].step[x];
- clearStep(x, y);
- // seq[player.ramBank].row[y].step[x] = templateBank.row[0].step[0];
- }
- }
- // // quantize dla nut
- // uint8_t scaleCorrection = 0;
- // while (isInScale(seq[player.ramBank].row[y].step[x].note + scaleCorrection,
- //                  seq[player.ramBank].row[y].rootNote,
- //                  seq[player.ramBank].row[y].trackScale))
- // {
- // 	scaleCorrection++;
- // }
-
-
-
-
-
- }
- // set_backToIdle();
- }
-
- //stepy
- for (uint8_t x = 1; x <= seq[player.ramBank].row[y].length; x++)
- {
- if (isButtonPressed(x, y))
- {
- if (seq[player.ramBank].row[y].step[x].offset > 1)
- {
- seq[player.ramBank].row[y].step[x].offset 	= 1;
- seq[player.ramBank].row[y].step[x].hitMode 	= 1;
- seq[player.ramBank].row[y].step[x].isOn 	= 1;
- }
- update_temp_step();
- set_updateLCD();
-
-
- // // quantize dla nut
- // uint8_t scaleCorrection = 0;
- // while (isInScale(seq[player.ramBank].row[y].step[x].note + scaleCorrection,
- //                  seq[player.ramBank].row[y].rootNote,
- //                  seq[player.ramBank].row[y].trackScale))
- // {
- // 	scaleCorrection++;
- // }
- }
- }
- }
- }
-
- */
 
 uint8_t Sequencer::isRowOn(uint8_t row)
 {
 	return (seq[player.ramBank].row[row].flags & MASK_ROW_ON) > 0;
 }
 
-//uint8_t Sequencer::get_copy_row_from(void)
-//{
-//	return player.copy_row_from;
-//}
-//uint8_t Sequencer::get_copy_row_to(void)
-//{
-//	return player.copy_row_to;
-//}
-
-/*
- void Sequencer::push_track(uint16_t row)
- {
- // odwrocona kolejnosc:
- // najpierw funkcja, potem wiersz
- uint8_t functionDetected = 0;
-
- update_temp_track(row);
- set_updateLCD();
-
- // if(get_LCD_mode() == LCDVIEW_TRACK_PROP)
- // {
- //  update_temp_track(row);
- //  set_updateLCD();
- // }
-
-
- if (tracksPressed() > 1) return;
-
- //Serial.print("push_track");
- for (uint8_t x = 1; x <= 8; x++)
- {
- if (isButtonPressed(-1, x))
- {
- functionDetected = 1;
- if (x == BUTTON_ROW_ONOFF)
- {
- seq[player.ramBank].row[row].flags ^= MASK_ROW_ON;
- }
-
- else if (x == BUTTON_ROW_CLEAR)
- {
- clearRow(row);
- }
-
- else if (x == BUTTON_ROW_RANDOM)
- {
- randomize_row(row);
- }
-
- else if (x == BUTTON_ROW_QUANTIZE)
- {
- action_buttonQuantize();
- }
-
- else if (x == BUTTON_ROW_DUPLICATE)
- {
- if (player.copy_mode_step == 0)
- {
- set_LCD_mode(LCDVIEW_DUPLICATE_TRACK , 0);
- player.copy_mode = COPY_MODE_ROW;
- player.copy_row_from = row;
- player.copy_mode_step++;
- }
- else if (player.copy_mode_step > 0)
- {
- set_LCD_mode(LCDVIEW_DUPLICATE_TRACK , 0);
- player.copy_mode = COPY_MODE_ROW;
- player.copy_row_to = row;
- player.copy_mode_step++;
- }
-
- if (player.copy_mode_step > 1)
- {
- copy_row(player.copy_row_from, player.copy_row_to);
- }
- }
- }
- }
- if (!functionDetected && isEncPressed(ENC_NOTE))
- {
-
- midiSendChordOn(seq[player.ramBank].row[row].rootNote,
- NO_CHORD,
- seq[player.ramBank].row[row].trackVelo,
- seq[player.ramBank].row[row].channel,
- seq[player.ramBank].row[row].midiOut,
- seq[player.ramBank].row[row].trackScale,
- seq[player.ramBank].row[row].rootNote);
-
- player.row[row].note_sent       = seq[player.ramBank].row[row].rootNote;
- player.row[row].chord_sent      = NO_CHORD;
- player.row[row].noteOn_sent     = 1;
- player.row[row].midiOut_sent    = seq[player.ramBank].row[row].midiOut;
- player.row[row].channel_sent    = seq[player.ramBank].row[row].channel;
- player.row[row].scale_sent    	= seq[player.ramBank].row[row].trackScale;
- player.row[row].scaleRoot_sent  = seq[player.ramBank].row[row].rootNote;
- }
-
-
- }
- */
-/*
- void Sequencer::release_track(uint16_t row)
- {
- // odwrocona kolejnosc:
- // najpierw funkcja, potem wiersz
- // uint8_t functionDetected = 0;
-
- // for (uint8_t x = 1; x <= 8; x++)
- // {
- //  if (isButtonPressed(-1, x))
- //  {
- //      functionDetected = 1;
-
- //  }
- // }
- // if (!functionDetected)
- // {
- if (player.row[row].noteOn_sent && !isPlay())
- {
- player.row[row].noteOn_sent = 0;
- // todo
- //		midiSendChordOff(player.row[row].note_sent,
- //		                 player.row[row].chord_sent,
- //		                 0,
- //		                 player.row[row].channel_sent,
- //		                 player.row[row].midiOut_sent,
- //		                 player.row[row].scale_sent,
- //		                 player.row[row].scaleRoot_sent);
- }
-
- // Serial.print("tracksPressed: ");
- // Serial.println(tracksPressed());
- if ((tracksPressed() == 1) && (get_LCD_mode() == LCDVIEW_TRACK_PROP))
- {
- set_backToIdle();
- }
- else
- {
- reset_LcdTimer();
- }
-
-
- }*/
 
 void Sequencer::init_player(void)
 {
@@ -2208,8 +1753,9 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 	//3125 - wyliczone niegdyś matematycznie, 12 na potrzeby dividerów
 	timer_var = ((3125.0 / temp_Tempo) * (player.swing_offset + 50.0)) / 12.0;
 
-	// TODO: - ogarnąć ten timer
-//	playTimer.begin(handle_uStep_timer,  timer_var);
+
+	playTimer.begin(timerExternalVector, timer_var);
+
 
 }
 void Sequencer::print_uSteps()
@@ -2265,10 +1811,6 @@ void Sequencer::handle_uStep_timer(void)
 			// clockFuck = 0;
 		}
 	}
-}
-
-void Sequencer::handle_player(void)
-{
 }
 
 void Sequencer::addNoteOn(uint8_t note, uint8_t velocity, uint8_t channel,
@@ -2699,6 +2241,26 @@ void Sequencer::midiSendChordOff(uint8_t note,
 
 }
 
+void Sequencer::copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x,
+							uint8_t to_y)
+{
+	from_x = constrain(from_x, 1, 32);
+	from_y = constrain(from_y, 1, 32);
+
+	to_x = constrain(to_x, 1, 32);
+	to_y = constrain(to_y, 1, 32);
+
+	seq[player.ramBank].row[to_y].step[to_x] =
+			seq[player.ramBank].row[from_y].step[from_x];
+}
+
+void Sequencer::copy_row(uint8_t from, uint8_t to)
+{
+	from = constrain(from, 1, 8);
+	to = constrain(to, 1, 8);
+	seq[player.ramBank].row[to] = seq[player.ramBank].row[from];
+}
+
 void Sequencer::midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 							uint8_t midiOut)
 {
@@ -2727,4 +2289,5 @@ void Sequencer::switch_bank_with_reset(void)
 {
 
 }
+
 
