@@ -39,8 +39,8 @@
 
 //SEQ GRID
 #define GRID_A			24 			//PTE26			pin-47
-#define GRID_B			xxx 		//PTE8			pin-11
-#define GRID_C			xxx 		//PTE9			pin-12
+#define GRID_B			64			//PTE8			pin-11
+#define GRID_C			65	 		//PTE9			pin-12
 #define GRID_I2C_SELECT	xxx 		//PTA4			pin-54
 
 // I2C

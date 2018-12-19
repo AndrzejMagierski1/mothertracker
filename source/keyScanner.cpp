@@ -4,7 +4,9 @@
 
 
 
-void IO7326_INT_FUNCT();
+void IO7326_INT_FUNCT_A();
+void IO7326_INT_FUNCT_B();
+void IO7326_INT_FUNCT_C();
 
 
 keyScanner::keyScanner()
@@ -25,11 +27,31 @@ keyScanner::keyScanner(uint8_t address, uint8_t sda_pin, uint8_t scl_pin, uint8_
 	IO7326_scl_pin = scl_pin;
 }
 
+uint8_t keyScanner::setButtonPushFunc(void (*func)(uint8_t,uint8_t))
+{
+	if(func == NULL) return statusError;
+	onPush = func;
+	return statusSuccess;
+}
+uint8_t keyScanner::setButtonReleaseFunc(void (*func)(uint8_t,uint8_t))
+{
+	if(func == NULL) return statusError;
+	onRelease = func;
+	return statusSuccess;
+}
+uint8_t keyScanner::setButtonHoldFunc(void (*func)(uint8_t,uint8_t))
+{
+	if(func == NULL) return statusError;
+	onHold = func;
+	return statusSuccess;
+}
+uint8_t keyScanner::setButtonDoubleFunc(void (*func)(uint8_t,uint8_t))
+{
+	if(func == NULL) return statusError;
+	onDouble = func;
+	return statusSuccess;
+}
 
-void keyScanner::setButtonPushFunc(void (*func)(uint8_t)){onPush = func;}
-void keyScanner::setButtonReleaseFunc(void (*func)(uint8_t)){onRelease = func;}
-void keyScanner::setButtonHoldFunc(void (*func)(uint8_t)){onHold = func;}
-void keyScanner::setButtonDoubleFunc(void (*func)(uint8_t)){onDouble = func;}
 
 void keyScanner::setHoldTime(uint16_t time){button_hold_max = time;}
 void keyScanner::setDoubleTime(uint16_t time){button_double_time_max = time;}
@@ -44,26 +66,41 @@ void keyScanner::begin(uint8_t address, uint8_t sda_pin, uint8_t scl_pin, uint8_
 	IO7326_sda_pin= sda_pin;
 	IO7326_scl_pin = scl_pin;
 
+	//pinMode(66,OUTPUT);
+	//digitalWrite(66,HIGH);
+	PORTA_PCR4|=PORT_PCR_MUX(1);
+	GPIOA_PDDR|= (1<<4);
+	GPIOA_PDOR|= (1<<4);
+
+/*	GPIOE_PDDR|= (1<<8);
+	GPIOE_PDOR|= (1<<8);
+
+	GPIOE_PDDR|= (1<<9);
+	GPIOE_PDOR|= (1<<9);
+
+	GPIOE_PDDR|= (1<<26);
+	GPIOE_PDOR|= (1<<26);*/
+
 	//Wire.begin(I2C_MASTER, 0x00, IO7326_scl_pin, IO7326_sda_pin); 
 	
 #ifdef KEYSCANNER_I2C_DMA
-	Wire.begin(I2C_MASTER, 0x00, IO7326_scl_pin, IO7326_sda_pin, I2C_PULLUP_EXT, 400000, I2C_OP_MODE_DMA);
+	Wire2.begin(I2C_MASTER, 0x00, IO7326_scl_pin, IO7326_sda_pin, I2C_PULLUP_EXT, 400000, I2C_OP_MODE_DMA);
 #else
-	Wire.begin(I2C_MASTER, 0x00, IO7326_scl_pin, IO7326_sda_pin, I2C_PULLUP_EXT, 400000);
+	Wire2.begin(I2C_MASTER, 0x00, IO7326_scl_pin, IO7326_sda_pin, I2C_PULLUP_EXT, 400000);
 #endif
-	Wire.setDefaultTimeout(250000); // 250ms default timeout
+	Wire2.setDefaultTimeout(250000); // 250ms default timeout
 	/*
 		init i2c układów skanujących
 	*/
-	Wire.beginTransmission(ucAddr);
-	Wire.write(uint8_t(IS31_CONF_REGISTER));
-	Wire.write(uint8_t((0 << 7) | (IS31_ACIa << 6) | (IS31_ACIb << 5) | (IS31_DE << 4) | (IS31_SD << 3) | (IS31_LE << 2) | (IS31_LTa << 1) | (IS31_LTb << 0)) );
-	Wire.endTransmission();
+	Wire2.beginTransmission(ucAddr);
+	Wire2.write(uint8_t(IS31_CONF_REGISTER));
+	Wire2.write(uint8_t((0 << 7) | (IS31_ACIa << 6) | (IS31_ACIb << 5) | (IS31_DE << 4) | (IS31_SD << 3) | (IS31_LE << 2) | (IS31_LTa << 1) | (IS31_LTb << 0)) );
+	Wire2.endTransmission();
 
 	/*
 		init IO i przerwan od kontrolerów przycisków
 	*/
-	pinMode(IO7326_int_pin,INPUT);// INPUT_PULLUP);
+	pinMode(IO7326_int_pin,INPUT_PULLUP);
 	attachInterrupt(digitalPinToInterrupt(IO7326_int_pin), func, FALLING);
 }
 
@@ -71,7 +108,7 @@ void keyScanner::begin(uint8_t address, uint8_t sda_pin, uint8_t scl_pin, uint8_
 uint8_t keyScanner::update()
 {
 	uint8_t status = 0;
-	if (Wire.done())
+	if (Wire2.done())
 	{
 		if (IO7326_int)
 		{
@@ -122,14 +159,14 @@ void keyScanner::intAction()
 
 void keyScanner::read_buttons_IC(uint8_t grid_no) //grid no 0-3
 {
-	while (!Wire.done()) {};
+	while (!Wire2.done()) {};
 
-	Wire.beginTransmission(ucAddr);         // slave addr
-	Wire.write(IS31_KEY_STATUS_REGISTER);                       // memory address
-	Wire.endTransmission();       // blocking write (NOSTOP triggers RepSTART on next I2C command)
+	Wire2.beginTransmission(ucAddr);         // slave addr
+	Wire2.write(IS31_KEY_STATUS_REGISTER);                       // memory address
+	Wire2.endTransmission();       // blocking write (NOSTOP triggers RepSTART on next I2C command)
 	//delay(1);
 
-	Wire.requestFrom((uint8_t)ucAddr, (uint8_t)1); // NON-blocking read (request 256 bytes)
+	Wire2.requestFrom((uint8_t)ucAddr, (uint8_t)1); // NON-blocking read (request 256 bytes)
 
 	// Since request is non-blocking, do some other things.
 	//Serial.print("...request sent, doing one thing then waiting for Wire.finish()...\n");
@@ -142,11 +179,11 @@ void keyScanner::read_buttons_IC(uint8_t grid_no) //grid no 0-3
 	//Serial.print("Received: ");             // print received bytes
 	uint8_t ob = 0;
 
-	while (Wire.available())
+	while (Wire2.available())
 	{
 		ob++;
 
-		uint8_t rcvd = Wire.read();
+		uint8_t rcvd = Wire2.read();
 		//if(!rcvd) break;
 
 		uint8_t dn = (rcvd & 0b10000000) >> 7;
@@ -325,46 +362,128 @@ void keyScanner::handle_buttonTimeout()
 
 void keyScanner::action_button_press(uint8_t num)
 {
+	uint8_t x=0,y=0;
+
 	if (test_mode)
 	{
 		Serial.print("- PushButton ("); Serial.print(num);
 		Serial.println(")");
 	}
 
+	if(IO7326_int_pin == GRID_A)
+	{
+		x = (num / 8) + 1;
+		y = (num % 8) + 1;
+
+	}
+	else if(IO7326_int_pin == GRID_B)
+	{
+		x = (num / 8) + 1;
+		y = (num % 8) + 9;
+
+	}
+	else if(IO7326_int_pin == GRID_C)
+	{
+		x = (num / 8) + 1;
+		y = (num % 8) + 17;
+	}
 	//handle_howManyPressed();
 
-	onPush(num);
+	onPush(x,y);
 }
 
 
 void keyScanner::action_button_hold(uint8_t num)
 {
+	uint8_t x=0,y=0;
+
 	if (test_mode)
 	{
 		Serial.print("  |    HoldButton ("); Serial.print(num);
 		Serial.println(")");
 	}
-	onHold(num);
+
+	if(IO7326_int_pin == GRID_A)
+	{
+		x = (num / 8) + 1;
+		y = (num % 8) + 1;
+
+	}
+	else if(IO7326_int_pin == GRID_B)
+	{
+		x = (num / 8) + 1;
+		y = (num % 8) + 9;
+
+	}
+	else if(IO7326_int_pin == GRID_C)
+	{
+		x = (num / 8) + 1;
+		y = (num % 8) + 17;
+	}
+
+	onHold(x,y);
 }
 
 void keyScanner::action_button_release(uint8_t num)
 {
+	uint8_t x=0,y=0;
+
 	if (test_mode)
 	{
 		Serial.print("  |____ReleaseButton ("); Serial.print(num);
 		Serial.println(")"); 
 	}
-	onRelease(num);
+
+	if(IO7326_int_pin == GRID_A)
+	{
+		x = (num / 8) + 1;
+		y = (num % 8) + 1;
+
+	}
+	else if(IO7326_int_pin == GRID_B)
+	{
+		x = (num / 8) + 1;
+		y = (num % 8) + 9;
+
+	}
+	else if(IO7326_int_pin == GRID_C)
+	{
+		x = (num / 8) + 1;
+		y = (num % 8) + 17;
+	}
+
+	onRelease(x,y);
 }
 
 void keyScanner::action_button_double(uint8_t num)
 {
+	uint8_t x=0,y=0;
+
 	if(test_mode)
 	{
 		Serial.print("++++++ DoubleButton ("); Serial.print(num);
 		Serial.println(")");
 	}
-	onDouble(num); 
+
+	if(IO7326_int_pin == GRID_A)
+	{
+		x = (num / 8) + 1;
+		y = (num % 8) + 1;
+
+	}
+	else if(IO7326_int_pin == GRID_B)
+	{
+		x = (num / 8) + 1;
+		y = (num % 8) + 9;
+
+	}
+	else if(IO7326_int_pin == GRID_C)
+	{
+		x = (num / 8) + 1;
+		y = (num % 8) + 17;
+	}
+
+	onDouble(x,y);
 }
 
 uint8_t keyScanner::getButtonState(uint8_t number)

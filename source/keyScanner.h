@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 #include <elapsedMillis.h>
+#include "mtHardware.h"
 
 // BUTTNOS DEFINITIONS
 
@@ -87,10 +88,10 @@ public:
 	uint8_t update();
 	void intAction();
 
-	void setButtonPushFunc(void (*func)(uint8_t));
-	void setButtonReleaseFunc(void (*func)(uint8_t));
-	void setButtonHoldFunc(void (*func)(uint8_t));
-	void setButtonDoubleFunc(void (*func)(uint8_t));
+	uint8_t setButtonPushFunc(void (*func)(uint8_t,uint8_t));
+	uint8_t setButtonReleaseFunc(void (*func)(uint8_t,uint8_t));
+	uint8_t setButtonHoldFunc(void (*func)(uint8_t,uint8_t));
+	uint8_t setButtonDoubleFunc(void (*func)(uint8_t,uint8_t));
 	void setHoldTime(uint16_t time);
 	void setDoubleTime(uint16_t time);
 	void testMode(uint8_t set);
@@ -103,10 +104,10 @@ public:
 	uint8_t xy2key(uint8_t x, uint8_t y);
 
 private:
-	void (*onPush)(uint8_t);
-	void (*onRelease)(uint8_t);
-	void (*onHold)(uint8_t);
-	void (*onDouble)(uint8_t);
+	void (*onPush)(uint8_t,uint8_t);
+	void (*onRelease)(uint8_t,uint8_t);
+	void (*onHold)(uint8_t,uint8_t);
+	void (*onDouble)(uint8_t,uint8_t);
 
 	void read_buttons_IC(uint8_t grid_no);
 	void handle_howManyPressed();
@@ -150,6 +151,12 @@ private:
 	elapsedMillis checkIntPins = 0;
 	uint32_t checkIntPinsMax = 500;
 	// struct end
+
+	enum status
+	{
+		statusError=0,
+		statusSuccess
+	};
 };
 
 #endif
