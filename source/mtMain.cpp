@@ -3,6 +3,9 @@
 #include "Arduino.h"
 
 #include "mtSequencer.h"
+Sequencer sequencer;
+
+
 
 
 //=======================================================================
@@ -12,6 +15,7 @@ void setup()
 
 
 	mtInterface.begin();
+	sequencer.init();
 }
 
 
@@ -23,6 +27,8 @@ void setup()
 void loop()
 {
 
-
 	mtInterface.update();
+
+	sequencer.handle();
+
 }

@@ -7,7 +7,7 @@ extern Sequencer sequencer;
 inline void timerExternalVector()
 {
 
-	sequencer.init_player_timer();
+	sequencer.handle_uStep_timer();
 
 }
 
@@ -24,7 +24,6 @@ void Sequencer::handle()
 {
 //	handle_ghosts();
 }
-
 
 /*
  * PUBLIC & PRIVATE
@@ -375,7 +374,6 @@ void Sequencer::initPattern(uint8_t pattern) // czyści pattern z flasha
 	//	flash_bank(pattern, 3);
 }
 
-
 void Sequencer::randomize_row(uint8_t row)
 {
 	bool oneRoll = 0;
@@ -555,7 +553,6 @@ uint8_t Sequencer::isRowOn(uint8_t row)
 	return (seq[player.ramBank].row[row].flags & MASK_ROW_ON) > 0;
 }
 
-
 void Sequencer::init_player(void)
 {
 	init_defaultPlayerParameters();
@@ -566,12 +563,20 @@ void Sequencer::init_defaultPlayerParameters(void)
 	for (uint8_t x = 1; x <= 8; x++)
 	{
 		seq[player.ramBank].row[x].rootNote = 35 + x;
+		seq[player.ramBank].row[x].channel = x;
+
+		for(uint8_t y = 1; y<=32;y++){
+
+		seq[player.ramBank].row[x].step[y].isOn = 0;
+		}
 	}
 
-	for (uint8_t a = 1; a <= 8; a++)
-	{
-		seq[player.ramBank].row[a].channel = a;
-	}
+
+	seq[player.ramBank].row[1].length = 4;
+	seq[player.ramBank].row[1].step[1].isOn = 1;
+	seq[player.ramBank].row[1].step[1].note = 30;
+
+	action_buttonPlay();
 }
 
 uint8_t Sequencer::get_metronome_intro_step(void)
@@ -1753,9 +1758,7 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 	//3125 - wyliczone niegdyś matematycznie, 12 na potrzeby dividerów
 	timer_var = ((3125.0 / temp_Tempo) * (player.swing_offset + 50.0)) / 12.0;
 
-
 	playTimer.begin(timerExternalVector, timer_var);
-
 
 }
 void Sequencer::print_uSteps()
@@ -2289,5 +2292,4 @@ void Sequencer::switch_bank_with_reset(void)
 {
 
 }
-
 
