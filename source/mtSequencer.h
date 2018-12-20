@@ -168,6 +168,11 @@ public:
 
 		struct strRow
 		{
+			uint8_t isOn :1;
+			uint8_t randomVelo :1; 	// TODO: do wyrzucenia w trackerze?
+			uint8_t randomMod :1;	// TODO: do wyrzucenia w trackerze?
+			uint8_t randomNudge :1;	// TODO: do wyrzucenia w trackerze?
+
 			uint8_t length = DEFAULT_ROW_LEN;
 			uint8_t rootNote = DEFAULT_ROW_NOTE;
 			uint8_t trackVelo = MAX_VELO_TRACK;
@@ -175,7 +180,8 @@ public:
 
 			uint8_t channel = DEFAULT_ROW_CHANNEL;	// wiersz ma swoj channel
 			uint8_t cc = DEFAULT_CC;
-			uint8_t flags = 1;			// bity konfiguracyjne
+
+
 			uint8_t trackScale = 0;			// skala tracka
 
 			uint8_t midiOut = MIDIOUT_USB;
@@ -327,7 +333,7 @@ public:
 	void hold_step(int16_t x, uint16_t y);
 	void hold_track(int16_t x, uint16_t y);
 	void incr_uStep(uint8_t row);
-	void init_defaultPlayerParameters(void);
+	void loadDefaultSequence(void);
 	void init_player(void);
 	void init_player_lcd_values(void);
 	void init_player_timer(void);
@@ -417,7 +423,7 @@ private:
 	struct strDebug
 	{
 		uint8_t player = 0;
-	}debug;
+	} debug;
 
 	struct strPlayer
 	{
@@ -497,7 +503,6 @@ private:
 
 			} step[33];
 
-
 		} row[9];
 
 	} player;
@@ -506,7 +511,7 @@ private:
 	{
 		elapsedMillis timer = 0;
 		uint32_t timer_max = 2000;
-	}gv;
+	} gv;
 
 	const int8_t MIN_TEMPO_DIV = -3;
 	const int8_t MAX_TEMPO_DIV = 3;

@@ -17,7 +17,7 @@ inline void timerExternalVector()
 void Sequencer::init()
 {
 	init_player_timer();
-	init_defaultPlayerParameters();
+	loadDefaultSequence();
 
 }
 void Sequencer::handle()
@@ -278,7 +278,8 @@ void Sequencer::initRow(uint8_t row, uint8_t bank)
 		seq[bank].row[row].defaultMod = DEFAULT_MOD;
 		seq[bank].row[row].channel = DEFAULT_ROW_CHANNEL;
 		seq[bank].row[row].cc = DEFAULT_CC;
-		seq[bank].row[row].flags = 1;
+//		seq[bank].row[row].flags = 1;
+		seq[bank].row[row].isOn = 1;
 		seq[bank].row[row].trackScale = 0;
 		seq[bank].row[row].midiOut = MIDIOUT_USB;
 		seq[bank].row[row].playMode = PLAYMODE_FORWARD;
@@ -447,7 +448,7 @@ void Sequencer::randomize_row(uint8_t row)
 			// jeżeli nie rolka, spróbuj randomizować nudge
 			if ((seq[player.ramBank].row[row].step[col].hitMode == 1)
 					&& seq[player.ramBank].row[row].step[col].isOn
-					&& (seq[player.ramBank].row[row].flags & MASK_RANDOM_NUDGE))
+					&& (seq[player.ramBank].row[row].randomNudge))
 			{
 				if (random(0, 2) < 1)
 				{
@@ -464,7 +465,7 @@ void Sequencer::randomize_row(uint8_t row)
 			}
 
 			// RANDOM VELO
-			if ((seq[player.ramBank].row[row].flags & MASK_RANDOM_VELO))
+			if ((seq[player.ramBank].row[row].randomVelo))
 			{
 				seq[player.ramBank].row[row].step[col].velocity = random(
 						RANDOM_VELO_MIN, RANDOM_VELO_MAX);
@@ -475,7 +476,7 @@ void Sequencer::randomize_row(uint8_t row)
 			}
 
 			// RANDOM MOD
-			if ((seq[player.ramBank].row[row].flags & MASK_RANDOM_MOD))
+			if ((seq[player.ramBank].row[row].randomMod))
 			{
 				seq[player.ramBank].row[row].step[col].modulation = random(
 						RANDOM_MOD_MIN, RANDOM_MOD_MAX);
@@ -550,7 +551,7 @@ uint8_t Sequencer::isInScale(uint8_t note, uint8_t root, uint8_t scale)
 
 uint8_t Sequencer::isRowOn(uint8_t row)
 {
-	return (seq[player.ramBank].row[row].flags & MASK_ROW_ON) > 0;
+	return seq[player.ramBank].row[row].isOn;
 }
 
 //void Sequencer::init_player(void)
@@ -558,7 +559,7 @@ uint8_t Sequencer::isRowOn(uint8_t row)
 //	init_defaultPlayerParameters();
 //}
 
-void Sequencer::init_defaultPlayerParameters(void)
+void Sequencer::loadDefaultSequence(void)
 {
 	for (uint8_t x = 1; x <= 8; x++)
 	{
@@ -1218,7 +1219,7 @@ uint8_t Sequencer::play_uStep(uint8_t row)
 	const uint8_t temp_hitMode =
 			seq[player.ramBank].row[x].step[player.row[x].actual_pos].hitMode;
 	const uint8_t temp_rowIsOn =
-			(seq[player.ramBank].row[x].flags & MASK_ROW_ON) > 0;
+			seq[player.ramBank].row[x].isOn;
 	const uint8_t temp_stepIsOn =
 			seq[player.ramBank].row[x].step[player.row[x].actual_pos].isOn;
 
@@ -1490,8 +1491,7 @@ uint8_t Sequencer::play_uStep(uint8_t row)
 		const uint8_t ghost_stepIsOn = val2roll(
 				seq[player.ramBank].row[x].step[ghostedStep].isOn);
 
-		const uint8_t temp_rowIsOn = (seq[player.ramBank].row[x].flags
-				& MASK_ROW_ON) > 0;
+		const uint8_t temp_rowIsOn = seq[player.ramBank].row[x].isOn;
 		const uint8_t ghostedRollCurve =
 				seq[player.ramBank].row[x].step[ghostedStep].rollCurve;
 		const uint8_t ghostedStepLength =
@@ -2225,6 +2225,7 @@ inline uint8_t Sequencer::isStop(void)
 {
 	return player.isStop;
 }
+//extern usb_midi_class usbMIDI;
 
 void Sequencer::midiSendChordOn(uint8_t note,
 								uint8_t chord,
@@ -2235,6 +2236,9 @@ void Sequencer::midiSendChordOn(uint8_t note,
 								uint8_t scaleRoot)
 {
 	Serial.println("BAM!");
+	usbMIDI.sendNoteOn(channel, note, velo);
+
+
 }
 void Sequencer::midiSendChordOff(uint8_t note,
 									uint8_t chord,
@@ -2245,6 +2249,7 @@ void Sequencer::midiSendChordOff(uint8_t note,
 									uint8_t scaleRoot)
 {
 	Serial.println("\t tsss...");
+	usbMIDI.sendNoteOff(channel, note, velo);
 }
 
 void Sequencer::copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x,
