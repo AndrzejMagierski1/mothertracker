@@ -17,7 +17,7 @@ inline void timerExternalVector()
 void Sequencer::init()
 {
 	init_player_timer();
-	init_player();
+	init_defaultPlayerParameters();
 
 }
 void Sequencer::handle()
@@ -553,10 +553,10 @@ uint8_t Sequencer::isRowOn(uint8_t row)
 	return (seq[player.ramBank].row[row].flags & MASK_ROW_ON) > 0;
 }
 
-void Sequencer::init_player(void)
-{
-	init_defaultPlayerParameters();
-}
+//void Sequencer::init_player(void)
+//{
+//	init_defaultPlayerParameters();
+//}
 
 void Sequencer::init_defaultPlayerParameters(void)
 {
@@ -565,16 +565,21 @@ void Sequencer::init_defaultPlayerParameters(void)
 		seq[player.ramBank].row[x].rootNote = 35 + x;
 		seq[player.ramBank].row[x].channel = x;
 
-		for(uint8_t y = 1; y<=32;y++){
+		for (uint8_t y = 1; y <= 32; y++)
+		{
 
-		seq[player.ramBank].row[x].step[y].isOn = 0;
+			seq[player.ramBank].row[x].step[y].isOn = 0;
 		}
 	}
 
-
 	seq[player.ramBank].row[1].length = 4;
 	seq[player.ramBank].row[1].step[1].isOn = 1;
+	seq[player.ramBank].row[1].step[1].hitMode = 1;
 	seq[player.ramBank].row[1].step[1].note = 30;
+
+	seq[player.ramBank].row[1].step[2].isOn = 1;
+	seq[player.ramBank].row[1].step[2].hitMode = 1;
+	seq[player.ramBank].row[1].step[2].note = 42;
 
 	action_buttonPlay();
 }
@@ -1177,14 +1182,13 @@ uint8_t Sequencer::play_uStep(uint8_t row)
 		{
 			// Serial.println("gasimy");
 
-			// wykoment
-//			midiSendChordOff(player.row[x].note_sent,
-//			                 player.row[x].chord_sent,
-//			                 0,
-//			                 player.row[x].channel_sent,
-//			                 player.row[x].midiOut_sent,
-//			                 player.row[x].scale_sent,
-//			                 player.row[x].scaleRoot_sent);
+			midiSendChordOff(player.row[x].note_sent,
+								player.row[x].chord_sent,
+								0,
+								player.row[x].channel_sent,
+								player.row[x].midiOut_sent,
+								player.row[x].scale_sent,
+								player.row[x].scaleRoot_sent);
 
 			// usbMIDI.send_now();
 		}
@@ -1204,8 +1208,7 @@ uint8_t Sequencer::play_uStep(uint8_t row)
 	{
 		if (((player.uStepInd[x] - 1) % 8) == 0)
 		{
-			// wykoment
-//			send_clock(x);
+			send_clock(x);
 			// Serial.println("clock");
 			// Serial.println(player.uStepInd[x]);
 		}
@@ -1292,19 +1295,19 @@ uint8_t Sequencer::play_uStep(uint8_t row)
 			//wyciszamy jezeli bylo cos wczesniej
 			if (player.row[x].noteOn_sent)
 			{
+
 				// midiSendNoteOff(player.row[x].note_sent,
 				//                 0,
 				//                 player.row[x].channel_sent,
 				//                 player.row[x].midiOut_sent);
 
-				// wykoment
-//				midiSendChordOff(player.row[x].note_sent,
-//				                 player.row[x].chord_sent,
-//				                 0,
-//				                 player.row[x].channel_sent,
-//				                 player.row[x].midiOut_sent,
-//				                 player.row[x].scale_sent,
-//				                 player.row[x].scaleRoot_sent);
+				midiSendChordOff(player.row[x].note_sent,
+									player.row[x].chord_sent,
+									0,
+									player.row[x].channel_sent,
+									player.row[x].midiOut_sent,
+									player.row[x].scale_sent,
+									player.row[x].scaleRoot_sent);
 
 				// usbMIDI.send_now();
 
@@ -2231,7 +2234,7 @@ void Sequencer::midiSendChordOn(uint8_t note,
 								uint8_t scale,
 								uint8_t scaleRoot)
 {
-
+	Serial.println("BAM!");
 }
 void Sequencer::midiSendChordOff(uint8_t note,
 									uint8_t chord,
@@ -2241,7 +2244,7 @@ void Sequencer::midiSendChordOff(uint8_t note,
 									uint8_t scale,
 									uint8_t scaleRoot)
 {
-
+	Serial.println("\t tsss...");
 }
 
 void Sequencer::copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x,
@@ -2290,6 +2293,12 @@ void Sequencer::setLoadBank2Ram(uint8_t bank)
 
 void Sequencer::switch_bank_with_reset(void)
 {
+
+}
+
+void Sequencer::send_clock(uint8_t arg)
+{
+	// TODO: wypełnić
 
 }
 

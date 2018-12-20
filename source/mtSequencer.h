@@ -511,6 +511,7 @@ private:
 	const int8_t MIN_TEMPO_DIV = -3;
 	const int8_t MAX_TEMPO_DIV = 3;
 	static const int8_t TEMPODIV_1_1 = 0;
+	void send_clock(uint8_t);
 
 //	strDebug debug;
 //	strGridView ;
