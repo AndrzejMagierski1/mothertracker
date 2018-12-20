@@ -505,7 +505,7 @@ uint8_t keyScanner::buttonToX(uint8_t number)
 uint8_t keyScanner::buttonToY(uint8_t number)
 {
 	return (number / 8) + 1;
-
+*/
 void keyScanner::testMode(uint8_t set)
 {
 	test_mode = set;
