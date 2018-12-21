@@ -6,7 +6,7 @@ cMtInterface mtInterface;
 
 keyScanner seqButtonsA,seqButtonsB,seqButtonsC;
 mtLEDs leds;
-mtLED grid;
+
 
 
 
@@ -49,30 +49,33 @@ void cMtInterface::begin()
 	////////////////// IO7326 C
 	seqButtonsC.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);
 
-/*	leds.begin();
-	leds.setAllLEDPWM(leds.ledPWMseq, 0);*/
+	leds.begin();
+	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
 
-	grid.begin(IS31FL3731_ADDR1);
-	leds.setAllLEDPWM(grid.ledPWM, 0);
 
-/*	for(int i=1;i<=128;i++)
+
+	for(int i=1;i<=20;i++)
 	{
 		for(int j=1;j<=8;j++)
 		{
 			leds.setLEDseq(j,i,1,5);
-			delay(500);
-			leds.setLEDseq(j,i,0,5);
+			delay(5);
+			leds.update();
 		}
+		delay(1000);
 	}
-	leds.update();*/
-	for(int i=0;i<127;i++)
+	for(int i=1;i<=20;i++)
 	{
-		grid.setLED(i,1,5);
-		grid.update_all_leds();
-		delay(100);
-		grid.setLED(i,0,5);
-		grid.update_all_leds();
+		for(int j=1;j<=8;j++)
+		{
+			leds.setLEDseq(j,i,1,5);
+			delay(5);
+			leds.update();
+		}
+		delay(500);
 	}
+
+
 }
 
 
@@ -94,7 +97,7 @@ void cMtInterface::update()
 			{
 				return;
 			}
-//			leds.update();
-			grid.update_all_leds();
+			leds.update();
+
 		}
 }

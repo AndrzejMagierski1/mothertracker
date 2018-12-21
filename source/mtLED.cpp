@@ -631,16 +631,16 @@ mtLEDs::mtLEDs()
 
 void mtLEDs::begin()
 {
-	ledsSeqA.begin(IS31FL3731_ADDR1);
+	ledsSeqA.begin(IS31FL3731_ADDR4);
 	ledsSeqB.begin(IS31FL3731_ADDR3);
-	//ledsGrid.begin();
+	ledsGrid.begin(IS31FL3731_ADDR1);
 
 }
 void mtLEDs::update()
 {
 	ledsSeqA.update_all_leds();
 	ledsSeqB.update_all_leds();
-	//ledsGrid.update_all_leds();
+	ledsGrid.update_all_leds();
 }
 
 void mtLEDs::setLEDseq(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm)
@@ -654,9 +654,10 @@ void mtLEDs::setLEDseq(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm)
 
 		ledsSeqA.setLED(num, state, gamma_pwm);
 	}
-	else
+	else if(y>=17 && y<=20)
 	{
 		y-=16;
+
 		num=16*(y-1)+x-1;
 		ledsSeqB.setLED(num, state, gamma_pwm);
 	}
@@ -664,9 +665,10 @@ void mtLEDs::setLEDseq(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm)
 }
 void mtLEDs::setLEDgrid(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm)
 {
+	uint8_t num=0;
+	num=16*(y-1)+x-1;
 
-	//ledsGrid.setLED(num, state, gamma_pwm);
-
+	ledsGrid.setLED(num, state, gamma_pwm);
 }
 
 void mtLEDs::setLEDseqPWM(uint8_t x,uint8_t y, uint8_t state, uint8_t pwm)
@@ -690,7 +692,9 @@ void mtLEDs::setLEDseqPWM(uint8_t x,uint8_t y, uint8_t state, uint8_t pwm)
 void mtLEDs::setLEDgridPWM(uint8_t x,uint8_t y, uint8_t state, uint8_t pwm)
 {
 
-	//ledsGrid.setLED(num, state, pwm);
+	uint8_t num=0;
+	num=16*(y-1)+x-1;
+	ledsGrid.setLED(num, state, pwm);
 }
 
 void mtLEDs::fastSetLEDseqPWM(uint8_t x,uint8_t y, uint8_t pwm )
@@ -714,18 +718,15 @@ void mtLEDs::fastSetLEDseqPWM(uint8_t x,uint8_t y, uint8_t pwm )
 }
 void mtLEDs::fastSetLEDgridPWM(uint8_t x,uint8_t y, uint8_t pwm)
 {
-	//uint8_t bank = 0;
-	//ledsGrid.fastSetLEDPWM(num, state, pwm);
+	uint8_t num=0;
+	num=16*(y-1)+x-1;
+	ledsGrid.fastSetLEDPWM(num, pwm);
 }
-void mtLEDs::setAllLEDPWM(uint8_t *arrSeq, uint8_t bank) //setAllLEDPWM(uint8_t *arrSeq,uint8_t *arrGrid, uint8_t bank)
+void mtLEDs::setAllLEDPWM(uint8_t *arrSeq,uint8_t *arrGrid, uint8_t bank)
 {
 	ledsSeqA.setAllLEDPWM(arrSeq,bank);
 	ledsSeqB.setAllLEDPWM((arrSeq+144),bank);
-	//ledsGrid.setAllLEDPWM(arrGrid,0);
-
-
-
-
+	ledsGrid.setAllLEDPWM(arrGrid,0);
 }
 
 

@@ -234,7 +234,7 @@ public:
 	void setLEDgridPWM(uint8_t x,uint8_t y, uint8_t state, uint8_t pwm);
 	void fastSetLEDseqPWM(uint8_t x,uint8_t y, uint8_t pwm);
 	void fastSetLEDgridPWM(uint8_t x,uint8_t y, uint8_t pwm);
-	void setAllLEDPWM(uint8_t *arrSeq, uint8_t bank); //void setAllLEDPWM(uint8_t *arrSeq,uint8_t *arrGrid, uint8_t bank);
+	void setAllLEDPWM(uint8_t *arrSeq,uint8_t *arrGrid, uint8_t bank);
 
 	uint8_t ledPWMseq[288] =
 			{
