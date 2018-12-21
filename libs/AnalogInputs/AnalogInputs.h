@@ -26,7 +26,7 @@
 #define ANALOG_BUTTON_POSITION_DEAD_ZONE_START 22
 #define ANALOG_BUTTON_POSITION_DEAD_ZONE_NORMAL 2
 
-#define ANALOG_POT_DEAD_ZONE 10
+#define ANALOG_POT_DEAD_ZONE 5
 
 //buttons settings
 #define ANALOG_BUTTON_HOLD_TIME 800
@@ -220,6 +220,7 @@ private:
 		int16_t positions[2];
 		uint8_t part;
 		uint8_t last_part;
+		uint8_t last_direction;
 
 		int16_t diffrences[4];
 
@@ -227,8 +228,8 @@ private:
 		int16_t  global_diff = 0;
 
 	} potentiometers[ANALOG_MAX_POTS];
-	uint16_t pots_death_zone = ANALOG_POT_DEAD_ZONE;
 
+	uint16_t pots_death_zone = ANALOG_POT_DEAD_ZONE;
 
 
 	struct strButtons

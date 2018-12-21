@@ -30,19 +30,35 @@ void cAnalogInputs::processPotData()
 	}
 
 	int16_t diffrence, is_moving_diff, resolution_step;
-	uint8_t in_death_zone;
+	uint8_t in_death_zone, direction;
 
 	for(uint8_t i=0;i<ANALOG_MAX_POTS;i++)
 	{
 		diffrence = potentiometers[i].positions[0] - potentiometers[i].positions[1];
-		if(diffrence > 0 && potentiometers[i].last_part > potentiometers[i].part)
+
+		if(diffrence > 0)
 		{
-			diffrence = 1023 - diffrence;
+			if(potentiometers[i].last_part < 2 && potentiometers[i].part > 5)
+			{
+				diffrence = 1023 - diffrence;
+			}
+			else if(potentiometers[i].last_part < 2 && potentiometers[i].part > 5)
+			{
+				diffrence = 0;
+			}
+
 		}
-		else if(diffrence < 0 && potentiometers[i].last_part < 2 && potentiometers[i].part > 5)
+		else if(diffrence < 0)
 		{
-			diffrence = 1023 - diffrence;
-			diffrence = diffrence * (-1);
+			if(potentiometers[i].last_part > 5 && potentiometers[i].part < 2)
+			{
+				diffrence = 1023 - diffrence;
+				diffrence = diffrence * (-1);
+			}
+			else if(potentiometers[i].last_part > 5 && potentiometers[i].part < 2)
+			{
+				diffrence = 0;
+			}
 		}
 
 		potentiometers[i].last_part = potentiometers[i].part;
@@ -59,6 +75,12 @@ void cAnalogInputs::processPotData()
 
 		if(in_death_zone) continue;
 
+		// zerowanie global_diff przy zmianie kierunkudirection = 1;
+		direction = 0;
+		if(diffrence > 0) 		direction = 1;
+		else if(diffrence < 0) 	direction = 2;
+		if(direction != potentiometers[i].last_direction) potentiometers[i].global_diff = 0;
+		potentiometers[i].last_direction = direction;
 
 		resolution_step = 1023.0 / potentiometers[i].resolution;
 
@@ -81,13 +103,14 @@ void cAnalogInputs::processPotData()
 
 uint16_t cAnalogInputs::calculatePotPosition(uint16_t A, uint16_t B, uint8_t * part)
 {
-	int16_t position=0;
+	int16_t position = 0;
+	*part = 0;
 
 	if(B > (A+2000) ) // 1
 	{
 		if(A < 400)
 		{
-			position=map(B,2048,4095,0,243);
+			position=map(B,2001,4095,0,243);   //map(B,2048,4095,0,243);
 		}
 		else
 		{

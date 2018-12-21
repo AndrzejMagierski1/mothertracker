@@ -30,9 +30,9 @@ void onPadRelease(uint8_t n)
 //-----------------------------------------------------------------
 void onPotChange(uint8_t n, int16_t value)
 {
-	Serial.print("pot change: ");
+	Serial.print("pot: ");
 	Serial.print(n);
-	Serial.print(" value: ");
+	Serial.print(" change: ");
 	Serial.println(value);
 }
 
