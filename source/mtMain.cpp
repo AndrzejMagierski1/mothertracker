@@ -2,13 +2,17 @@
 #include "mtInterface.h"
 #include "Arduino.h"
 
+extern void initHardware();
+extern void updateHardware();
 
 //=======================================================================
 void setup()
 {
-	Serial.begin(9600);
+	// inicjalizacja hardware jako pierwsza
+	initHardware();
 
 
+	// inincjalizacja interfejsu na koncu
 	mtInterface.begin();
 }
 
@@ -20,7 +24,7 @@ void setup()
 //=======================================================================
 void loop()
 {
-
+	updateHardware();
 
 	mtInterface.update();
 }

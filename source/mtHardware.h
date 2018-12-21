@@ -3,24 +3,48 @@
 #define MTHARDWARE_H
 
 
+#include "core_pins.h"
+
 // PAD,POT,BUTTONS MUXS
 // pad xy_z control
 #define CTRL_XY_Z		25 			//PTA5			pin-55
-// control lines
-#define MUX_CTRL_A		PTA8 		//PTA8			pin-60
-#define MUX_CTRL_B		PTA9 		//PTA9			pin-61
-#define MUX_CTRL_C		PTA10 		//PTA10			pin-62
-#define MUX_CTRL_D		PTA11 		//PTA11			pin-63
+
+
+// control lines (KINETIS VER)
+#define MUX_CTRL_A				8 		//PTA8			pin-60
+#define MUX_CTRL_A_PCR			PORTA_PCR8
+#define MUX_CTRL_A_GPIO_SET		GPIOA_PSOR
+#define MUX_CTRL_A_GPIO_CLR		GPIOA_PCOR
+#define MUX_CTRL_A_GPIO_DDR		GPIOA_PDDR
+
+#define MUX_CTRL_B				9 		//PTA9			pin-61
+#define MUX_CTRL_B_PCR			PORTA_PCR9
+#define MUX_CTRL_B_GPIO_SET		GPIOA_PSOR
+#define MUX_CTRL_B_GPIO_CLR		GPIOA_PCOR
+#define MUX_CTRL_B_GPIO_DDR		GPIOA_PDDR
+
+#define MUX_CTRL_C				10 		//PTA10			pin-62
+#define MUX_CTRL_C_PCR			PORTA_PCR10
+#define MUX_CTRL_C_GPIO_SET		GPIOA_PSOR
+#define MUX_CTRL_C_GPIO_CLR		GPIOA_PCOR
+#define MUX_CTRL_C_GPIO_DDR		GPIOA_PDDR
+
+#define MUX_CTRL_D				11 		//PTA11			pin-63
+#define MUX_CTRL_D_PCR			PORTA_PCR11
+#define MUX_CTRL_D_GPIO_SET		GPIOA_PSOR
+#define MUX_CTRL_D_GPIO_CLR		GPIOA_PCOR
+#define MUX_CTRL_D_GPIO_DDR		GPIOA_PDDR
+
 // signal lines
 #define MUX_PAD_OUT_0	50 			//PTB5			pin-86
 #define MUX_PAD_OUT_1	49	 		//PTB4			pin-85
 #define MUX_PAD_OUT_2	A11 		//ADC1_DM0		pin-30
-#define MUX_PAD_OUT_3	xxx 		//ADC1_SE16		pin-35
-#define MUX_PAD_OUT_4	xxx 		//ADC0_DM0		pin-28
-#define MUX_PAD_OUT_5	xxx 		//ADC1_DMA0		pin-29
-#define MUX_PAD_OUT_6	xxx 		//PTA25			pin-76
-#define MUX_PAD_OUT_7	PTA11 		//PTA24			pin-75
-#define MUX_POT_OUT_0	PTA7 		//PTA24			pin-59
+#define MUX_PAD_OUT_3	72 			//ADC1_SE16		pin-35	ADC1_SE16 / ADC0_SE22
+#define MUX_PAD_OUT_4	73 			//ADC0_DM0		pin-28	ADC0_DM0 / ADC1_DM3
+#define MUX_PAD_OUT_5	74 			//ADC1_DMA0		pin-29	ADC1_DP0 / ADC0_DP3
+#define MUX_PAD_OUT_6	A0 		//				pin-116 0_se7b
+#define MUX_PAD_OUT_7	A19 			//				pin-128 0_se5b
+#define MUX_OUT_8		77 			//PTA7			pin-59	ADC0_SE10
 
 
 // LCD DISLPAY

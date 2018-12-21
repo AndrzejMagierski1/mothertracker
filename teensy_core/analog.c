@@ -419,7 +419,10 @@ static const uint8_t pin2sc1a[] = {
 	23, 23+128,// 66-67 are A21-A22 (DAC pins)
 	1, 1+128,  // 68-69 are A25-A26 (unused USB host port on Teensy 3.5)
 	26,        // 70 is Temperature Sensor
-	18+128     // 71 is Vref
+	18+128,     // 71 is Vref
+	22, 19, 128+0, 255, 255, 10,	//72-77 TODO: dolozone piny
+//	16, 31, 0, 31, 31, 31,		//ADC1
+//				 	/\  /\ edytowac po podmianie
 };
 #endif
 
