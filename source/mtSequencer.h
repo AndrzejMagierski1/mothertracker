@@ -11,151 +11,125 @@
 #define FV_VER_1 0	// device version
 #define FV_VER_2 1	// official update
 #define FV_VER_3 0	// fix version
-
 #define MEMORY_STRUCT_VER 2
-#define MAXROW 8
-#define MAXCOL 32
-
-#define MIN_CHORD 0
-#define MAX_CHORD 29
-#define NO_CHORD 0
-
-#define I2C_ID_ENC 1
-#define I2C_ID_BUTTONS 2
-#define I2C_ID_LEDS 3
-
-/*
- definicje globalne
- */
-
-#define MIDI1	Serial1
-//#define MIDI2	Serial2
-
-#define CC_ALL_NOTES_OFF 123
-#define CC_VAL_NOTES_OFF 0
-
-// enkodery koniec
-
-// inne
-#define PLAYMODE_MIN 0
-#define PLAYMODE_FORWARD 0
-#define PLAYMODE_BACKWARD 1
-#define PLAYMODE_PINGPONG 2
-#define PLAYMODE_RANDOM 3
-#define PLAYMODE_POLY 4
-#define PLAYMODE_MAX 3
-
-#define MIDIOUT_DIN1 	0
-#define MIDIOUT_DIN2 	1
-#define MIDIOUT_USB 	2
-#define MIDIOUT_DIN1_C 	3
-#define MIDIOUT_DIN2_C 	4
-#define MIDIOUT_USB_C	5
-
-#define MIDIOUT_MIN 	0
-#define MIDIOUT_MAX 	5
-
-#define COPY_MODE_BANK 0
-#define COPY_MODE_ROW 0
-#define COPY_MODE_STEP 0
-
-#define HITMODE_OFFSET 20
-#define OFFSET_MIN 1
-#define OFFSET_MAX 48
-
-#define DEFAULT_CC 74 // Generally this CC controls a vibrato effect (pitch, loudness, brighness). What is modulated is based on the patch.
-
-const float MAX_TEMPO = 400.0;
-const float MIN_TEMPO = 10.0;
-
-const float MAX_SWING = 75.0;
-const float MIN_SWING = 25.0;
-
-const uint8_t MAX_NOTE_STEP = 127;
-const uint8_t MIN_NOTE_STEP = 0;
-const uint8_t MAX_NOTE_TRACK = 127;
-const uint8_t MIN_NOTE_TRACK = 0;
-const uint8_t MAX_TRACK_LENGTH = 32;
-const uint8_t MIN_TRACK_LENGTH = 1;
-const uint8_t MAX_STEP_LENGTH = 31;
-const uint8_t MIN_STEP_LENGTH = 0;
-const uint8_t MIN_STEP_ROLL_VAR = 1;
-const uint8_t MAX_STEP_ROLL_VAR = 9;
-const uint8_t MIN_STEP_ROLL_NOTE_VAR = 1;
-const uint8_t MAX_STEP_ROLL_NOTE_VAR = 9;
-const uint8_t MIN_TRACK_ROLL_VAR = 1;
-const uint8_t MAX_TRACK_ROLL_VAR = 16;
-
-const uint8_t MIN_VELO_STEP = 0;
-const uint8_t MAX_VELO_STEP = 127;
-const uint8_t MIN_VELO_TRACK = 0;
-const uint8_t MAX_VELO_TRACK = 100;
-const uint8_t MIN_MOD = 0;
-const uint8_t MAX_MOD = 127;
-const uint8_t MIN_CHANNEL = 1;
-const uint8_t MAX_CHANNEL = 16;
-
-const int8_t MIN_CHANNEL_IN = -1;
-const int8_t MAX_CHANNEL_IN = 16;
-const int8_t MIN_TRANSPOSE = -100;
-const int8_t MAX_TRANSPOSE = 100;
-
-#define MIN_MOVE_STEP 0
-#define MAX_MOVE_STEP 4000
-#define IDLE_MOVE_STEP 2016
-
-#define MIN_MOVE -32
-#define MAX_MOVE 32
-
-#define RANDOM_VELO_MIN 	20
-#define RANDOM_VELO_MAX 	127
-#define RANDOM_MOD_MIN 		20
-#define RANDOM_MOD_MAX 		127
-#define RANDOM_NOTE_DOWN 	12
-#define RANDOM_NOTE_UP 		12
-
-#define MIN_CC 1
-#define MAX_CC 127
-
-#define NOTE_JUMPTO 128
-#define NOTE_JUMPTO_NEXT 129
-
-#define MIN_JUMPTO 0
-#define MAX_JUMPTO 255
-
-#define MIN_MICROMOVE_STEP -1000
-#define MAX_MICROMOVE_STEP 1000
-
-#define ROW_COLUMN 0
-
-#define CHANNEL_IN_ALL 0
-
-#define DEFAULT_ROW_LEN 32
-#define DEFAULT_ROW_NOTE 36
-#define DEFAULT_ROW_CHANNEL 1
-#define DEFAULT_TEMPO 120.0
-#define DEFAULT_SWING 50.0
-
-#define MASK_ROW_ON 		0b00000001
-#define MASK_RANDOM_VELO 	0b00000010
-#define MASK_RANDOM_MOD 	0b00000100
-#define MASK_RANDOM_NUDGE 	0b00001000
-
-#define MIN_GATEMODE 		0
-#define MAX_GATEMODE 		3
-
-#define NULL_MOD 128
-
-#define DEFAULT_MOD NULL_MOD
-
-//#define USTEP_TIMER 0
-//#define USTEP_EXT_CLOCK 1
 
 class Sequencer
 {
+private:
+	static const uint8_t MAXROW = 8,
+			MAXCOL = 32,
+
+			DEFAULT_ROW_LEN = 32,
+			DEFAULT_ROW_NOTE = 36,
+			DEFAULT_ROW_CHANNEL = 1,
+
+			MIN_CHORD = 0,
+			MAX_CHORD = 29,
+			NO_CHORD = 0;
+
+	static const uint8_t MIDIOUT_DIN1 = 0,
+			MIDIOUT_DIN2 = 1,
+			MIDIOUT_USB = 2,
+			MIDIOUT_DIN1_C = 3,
+			MIDIOUT_DIN2_C = 4,
+			MIDIOUT_USB_C = 5,
+
+			MIDIOUT_MIN = 0,
+			MIDIOUT_MAX = 5,
+
+			COPY_MODE_BANK = 0,
+			COPY_MODE_ROW = 0,
+			COPY_MODE_STEP = 0,
+
+			HITMODE_OFFSET = 20,
+			OFFSET_MIN = 1,
+			OFFSET_MAX = 48,
+
+			CC_ALL_NOTES_OFF = 123,
+			CC_VAL_NOTES_OFF = 0,
+
+			DEFAULT_CC = 74; // Generally this CC controls a vibrato effect (pitch, loudness, brighness). What is modulated is based on the patch.
+
+	static constexpr float MAX_TEMPO = 400.0,
+			MIN_TEMPO = 10.0,
+			MAX_SWING = 75.0,
+			MIN_SWING = 25.0,
+			DEFAULT_TEMPO = 120.0,
+
+			DEFAULT_SWING = 50.0;
+
+	static const uint8_t MAX_NOTE_TRACK = 127,
+			MIN_NOTE_TRACK = 0,
+			MAX_TRACK_LENGTH = 32,
+			MIN_TRACK_LENGTH = 1,
+			MAX_STEP_LENGTH = 31,
+			MIN_STEP_LENGTH = 0,
+			MIN_STEP_ROLL_VAR = 1,
+			MAX_STEP_ROLL_VAR = 9,
+			MIN_STEP_ROLL_NOTE_VAR = 1,
+			MAX_STEP_ROLL_NOTE_VAR = 9,
+			MIN_TRACK_ROLL_VAR = 1,
+			MAX_TRACK_ROLL_VAR = 16,
+
+			MIN_VELO_STEP = 0,
+			MAX_VELO_STEP = 127,
+			MIN_VELO_TRACK = 0,
+			MAX_VELO_TRACK = 100,
+			MIN_MOD = 0,
+			MAX_MOD = 127,
+			MIN_CHANNEL = 1,
+			MAX_CHANNEL = 16,
+			MIN_CC = 1,
+			MAX_CC = 127,
+
+			NOTE_JUMPTO = 128,
+			NOTE_JUMPTO_NEXT = 129,
+
+			MIN_JUMPTO = 0,
+			MAX_JUMPTO = 255;
+
+	static const int8_t MIN_CHANNEL_IN = -1,
+			MAX_CHANNEL_IN = 16,
+			MIN_TRANSPOSE = -100,
+			MAX_TRANSPOSE = 100,
+			MIN_MOVE = -32,
+			MAX_MOVE = 32;
+
+	static const uint16_t MIN_MOVE_STEP = 0,
+			MAX_MOVE_STEP = 4000,
+			IDLE_MOVE_STEP = 2016;
+
+	static const int16_t MIN_MICROMOVE_STEP = -1000,
+			MAX_MICROMOVE_STEP = 1000;
+
+	static const uint8_t RANDOM_VELO_MIN = 20,
+			RANDOM_VELO_MAX = 127,
+			RANDOM_MOD_MIN = 20,
+			RANDOM_MOD_MAX = 127,
+			RANDOM_NOTE_DOWN = 12,
+			RANDOM_NOTE_UP = 12;
+
+	static const uint8_t CHANNEL_IN_ALL = 0;
+
+	static const uint8_t MIN_GATEMODE = 0,
+			MAX_GATEMODE = 3,
+			NULL_MOD = 128, // TODO: co to kurwa za null jak nie null
+			DEFAULT_MOD = NULL_MOD;
+
+	static const uint8_t MAX_NOTE_STEP = 127;
+	static const uint8_t MIN_NOTE_STEP = 0;
+
+	static const uint8_t PLAYMODE_MIN = 0,
+			PLAYMODE_FORWARD = 0,
+			PLAYMODE_BACKWARD = 1,
+			PLAYMODE_PINGPONG = 2,
+			PLAYMODE_RANDOM = 3,
+			PLAYMODE_POLY = 4,
+			PLAYMODE_MAX = 3;
 
 public:
 //	Sequencer() : IntervalTimer(){}
+
 	struct strBank
 	{
 		float tempo = DEFAULT_TEMPO;
@@ -180,7 +154,6 @@ public:
 
 			uint8_t channel = DEFAULT_ROW_CHANNEL;	// wiersz ma swoj channel
 			uint8_t cc = DEFAULT_CC;
-
 
 			uint8_t trackScale = 0;			// skala tracka
 
@@ -387,6 +360,8 @@ public:
 	const uint8_t arrVal2roll[10] = { 0, 1, 1, 2, 3, 4, 6, 8, 12, 16 };
 
 private:
+
+#define MIDI1	Serial1
 
 	static struct strMidiModes
 	{
