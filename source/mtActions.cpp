@@ -6,36 +6,35 @@
 void onPowerButtonChange(uint8_t value);
 
 //-----------------------------------------------------------------
-void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t f)
+//------------------------|   PADS   |-----------------------------
+//-----------------------------------------------------------------
+void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
-	Serial.print("pad press: ");
-	Serial.println(n);
 
 }
 
 //-----------------------------------------------------------------
 void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f)
 {
-	Serial.print("pad change: ");
-	Serial.println(n);
+
 }
 
 //-----------------------------------------------------------------
 void onPadRelease(uint8_t n)
 {
-	Serial.print("pad release: ");
-	Serial.println(n);
+
 }
 
 //-----------------------------------------------------------------
+//-------------------------|   POTS   |----------------------------
+//-----------------------------------------------------------------
 void onPotChange(uint8_t n, int16_t value)
 {
-	Serial.print("pot: ");
-	Serial.print(n);
-	Serial.print(" change: ");
-	Serial.println(value);
+
 }
 
+//-----------------------------------------------------------------
+//------------------------|   BUTTONS   |--------------------------
 //-----------------------------------------------------------------
 // 0 - puszczenie
 // 1 - wcisniecie
@@ -49,18 +48,13 @@ void onButtonChange(uint8_t n, uint8_t value)
 		return;
 	}
 
-	Serial.print("button: ");
-	Serial.print(n);
-	Serial.print(" value: ");
-	Serial.println(value);
-
 }
-
+//-----------------------------------------------------------------
+//----------------------|   POWER BUTTON   |-----------------------
+//-----------------------------------------------------------------
 void onPowerButtonChange(uint8_t value)
 {
 
-	Serial.print("power button value: ");
-	Serial.println(value);
 }
 
 

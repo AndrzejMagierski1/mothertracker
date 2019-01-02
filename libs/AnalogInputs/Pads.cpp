@@ -40,110 +40,95 @@ void cAnalogInputs::readPadPressPosition()
 		if(reading_channel%2 == 0) // X
 		{
 			// jesli sila zminiala sie
-			if(padButtons[button_nr].pad_buttons_count_fx > 0)
+			if(padButtons[button_nr].count_fx > 0)
 			{
 				// mniej niz 5 odczytow sily w osi x
-				if(padButtons[button_nr].pad_buttons_count_fx < 5)
+				if(padButtons[button_nr].count_fx < 5)
 				{
 					if(!pads_mode_x) // 0 - absolutie
 					{
-						padButtons[button_nr].pad_buttons_dzone_x = ANALOG_BUTTON_POSITION_DEAD_ZONE_NORMAL;
+						padButtons[button_nr].dzone_x = ANALOG_BUTTON_POSITION_DEAD_ZONE_NORMAL;
 					}
 					else // 1 - relatywnie
 					{
-						padButtons[button_nr].pad_buttons_start_x = new_value;
-						padButtons[button_nr].pad_buttons_dzone_x = ANALOG_BUTTON_POSITION_DEAD_ZONE_START;
-						padButtons[button_nr].pad_buttons_x = 0;
+						padButtons[button_nr].start_x = new_value;
+						padButtons[button_nr].dzone_x = ANALOG_BUTTON_POSITION_DEAD_ZONE_START;
+						padButtons[button_nr].x = 0;
 					}
 				}
 				// odejmuje od odczytu wartosc poczatkowa  // 1 - relatywnie
-				if(pads_mode_x) new_value = new_value-padButtons[button_nr].pad_buttons_start_x;
+				if(pads_mode_x) new_value = new_value-padButtons[button_nr].start_x;
 
 				if(new_value > 127) new_value = 127;
 				else if(new_value < -127) new_value = -127;
 
 				// jesli przekoroczona delete = zmiana polozenia w osi x
-				if(new_value > padButtons[button_nr].pad_buttons_x+padButtons[button_nr].pad_buttons_dzone_x
-				|| new_value < padButtons[button_nr].pad_buttons_x-padButtons[button_nr].pad_buttons_dzone_x)
+				if(new_value > padButtons[button_nr].x+padButtons[button_nr].dzone_x
+				|| new_value < padButtons[button_nr].x-padButtons[button_nr].dzone_x)
 				{
 					// zmiana stanow osi x
-					if(padButtons[button_nr].pad_buttons_state_x == 0)
+					if(padButtons[button_nr].state_x == 0)
 					{
-						padButtons[button_nr].pad_buttons_state_x = 5;
+						padButtons[button_nr].state_x = 5;
 					}
-					else if(padButtons[button_nr].pad_buttons_state_x == 1)
+					else if(padButtons[button_nr].state_x == 1)
 					{
-						padButtons[button_nr].pad_buttons_dzone_x = ANALOG_BUTTON_POSITION_DEAD_ZONE_NORMAL;
-						padButtons[button_nr].pad_buttons_state_x = 6;
+						padButtons[button_nr].dzone_x = ANALOG_BUTTON_POSITION_DEAD_ZONE_NORMAL;
+						padButtons[button_nr].state_x = 6;
 					}
 
-					padButtons[button_nr].pad_buttons_x = new_value;
+					padButtons[button_nr].x = new_value;
 				}
 			}
 			// sila na osi x rowna zero
 			else
 			{
-				padButtons[button_nr].pad_buttons_x = 0;
+				padButtons[button_nr].x = 0;
 			}
 
 		}
 		else // Y
 		{
-			if(padButtons[button_nr].pad_buttons_count_fy > 0)
+			if(padButtons[button_nr].count_fy > 0)
 			{
-				if(padButtons[button_nr].pad_buttons_count_fy < 5)
+				if(padButtons[button_nr].count_fy < 5)
 				{
 					if(!pads_mode_y) //
 					{
-						padButtons[button_nr].pad_buttons_dzone_y = ANALOG_BUTTON_POSITION_DEAD_ZONE_NORMAL;
+						padButtons[button_nr].dzone_y = ANALOG_BUTTON_POSITION_DEAD_ZONE_NORMAL;
 					}
 					else
 					{
-						padButtons[button_nr].pad_buttons_start_y = new_value;
-						padButtons[button_nr].pad_buttons_dzone_y = ANALOG_BUTTON_POSITION_DEAD_ZONE_START;
-						padButtons[button_nr].pad_buttons_y = 0;
+						padButtons[button_nr].start_y = new_value;
+						padButtons[button_nr].dzone_y = ANALOG_BUTTON_POSITION_DEAD_ZONE_START;
+						padButtons[button_nr].y = 0;
 					}
 				}
-				if(pads_mode_y) new_value = new_value-padButtons[button_nr].pad_buttons_start_y;
+				if(pads_mode_y) new_value = new_value-padButtons[button_nr].start_y;
 
 				if(new_value > 127) new_value = 127;
 				else if(new_value < -127) new_value = -127;
 
-				if(new_value > padButtons[button_nr].pad_buttons_y+padButtons[button_nr].pad_buttons_dzone_y
-				|| new_value < padButtons[button_nr].pad_buttons_y-padButtons[button_nr].pad_buttons_dzone_y)
+				if(new_value > padButtons[button_nr].y+padButtons[button_nr].dzone_y
+				|| new_value < padButtons[button_nr].y-padButtons[button_nr].dzone_y)
 				{
-					if(padButtons[button_nr].pad_buttons_state_y == 0)
+					if(padButtons[button_nr].state_y == 0)
 					{
-						padButtons[button_nr].pad_buttons_state_y = 5;
+						padButtons[button_nr].state_y = 5;
 					}
-					else if(padButtons[button_nr].pad_buttons_state_y == 1)
+					else if(padButtons[button_nr].state_y == 1)
 					{
-						padButtons[button_nr].pad_buttons_dzone_y = ANALOG_BUTTON_POSITION_DEAD_ZONE_NORMAL;
-						padButtons[button_nr].pad_buttons_state_y = 6;
+						padButtons[button_nr].dzone_y = ANALOG_BUTTON_POSITION_DEAD_ZONE_NORMAL;
+						padButtons[button_nr].state_y = 6;
 					}
 
-					padButtons[button_nr].pad_buttons_y = new_value*(-1); /// odwrocenie osi y
+					padButtons[button_nr].y = new_value*(-1); /// odwrocenie osi y
 				}
 			}
 			else
 			{
-				padButtons[button_nr].pad_buttons_y = 0;
+				padButtons[button_nr].y = 0;
 			}
-
-
-/*			if(button_nr == 49)
-			{
-				Serial.print(padButtons[button_nr].pad_buttons_x); 			Serial.print(" ");
-				Serial.print(padButtons[button_nr].pad_buttons_y); 			Serial.print(" ");
-				Serial.print(padButtons[button_nr].pad_buttons_fx); 		Serial.print(" ");
-				Serial.print(padButtons[button_nr].pad_buttons_fy); 		Serial.print(" ");
-				//Serial.print(padButtons[button_nr].pad_buttons_count_fx); 	Serial.print(" ");
-				//Serial.print(padButtons[button_nr].pad_buttons_count_fy); 	Serial.print(" ");
-				//Serial.print(padButtons[button_nr].pad_buttons_dzone_x); 	Serial.print(" ");
-				//Serial.print(padButtons[button_nr].pad_buttons_dzone_y); 	Serial.print(" ");
-				Serial.println("");
-			}
-*/
 		}
 	}
 }
@@ -161,69 +146,89 @@ void cAnalogInputs::readPadPressForce()
 		new_value = ((255-ANALOG_BUTTON_FORCE_OFFSET) - (analogRead(analog_pads_muxs_order[i])/16));
 
 
-		//Serial.print(analogRead(analog_pad_adc_muxs[i])); Serial.print(" ");
-
 		if(reading_channel%2 == 0) // nacisk na pad w osi X
 		{
 			if(new_value < ANALOG_BUTTON_FORCE_START_DEAD_ZONE+padButtons[button_nr].start_point_fx) // wartosc mniejsza niz graniczna
 			{
-				if(padButtons[button_nr].pad_buttons_state_x == 0 || padButtons[button_nr].pad_buttons_state_x == 5)
+				if(padButtons[button_nr].state_x == 0 || padButtons[button_nr].state_x == 5)
 				{
-					padButtons[button_nr].pad_buttons_state_x = 0;
+					padButtons[button_nr].state_x = 0;
 				}
-				else if(padButtons[button_nr].pad_buttons_state_x == 1 || padButtons[button_nr].pad_buttons_state_x == 6)
+				else if(padButtons[button_nr].state_x == 1 || padButtons[button_nr].state_x == 6)
 				{
-					padButtons[button_nr].pad_buttons_state_x = 3;
-					//padButtons[button_nr].pad_buttons_fx = new_value;
-					padButtons[button_nr].pad_buttons_count_fx = 0;
+					padButtons[button_nr].state_x = 3;
+					//padButtons[button_nr].fx = new_value;
+					padButtons[button_nr].count_fx = 0;
 				}
-				else if(padButtons[button_nr].pad_buttons_state_x == 4)
+				else if(padButtons[button_nr].state_x == 4)
 				{
-					padButtons[button_nr].pad_buttons_state_x = 0;
+					padButtons[button_nr].state_x = 0;
 				}
 
 				padButtons[button_nr].start_point_fx = new_value;
 			}
 			else //wartosc wieksza niz graniczna
 			{
-				if(padButtons[button_nr].pad_buttons_count_fx < 20)
-					padButtons[button_nr].pad_buttons_count_fx++;
+				if(padButtons[button_nr].count_fx < 20)
+					padButtons[button_nr].count_fx++;
 
 				// czy zaszla zmiana sily nacisku
-				if(new_value > (padButtons[button_nr].pad_buttons_fx+ANALOG_BUTTON_FORCE_DEAD_ZONE)
-					|| new_value < (padButtons[button_nr].pad_buttons_fx-ANALOG_BUTTON_FORCE_DEAD_ZONE))
+				if(	padButtons[button_nr].count_fx < 3)
 				{
-					if(padButtons[button_nr].pad_buttons_state_x == 0 || padButtons[button_nr].pad_buttons_state_x == 5)
+					if(padButtons[button_nr].state_x == 0 || padButtons[button_nr].state_x == 5)
 					{
-						padButtons[button_nr].pad_buttons_state_x = 2;
-						padButtons[button_nr].start_point_fx = 0;
-						padButtons[button_nr].pad_buttons_fx = new_value;
-					}
-					else if(padButtons[button_nr].pad_buttons_state_x == 1 || padButtons[button_nr].pad_buttons_state_x == 6)
-					{
-						/*if(padButtons[button_nr].pad_buttons_state_x == 6)*/
-						padButtons[button_nr].pad_buttons_state_x = 4;
+						if(padButtons[button_nr].count_fx == 1)
+						{
+							padButtons[button_nr].velo_timer_x = 0;
+							padButtons[button_nr].state_x = 0;
+							padButtons[button_nr].fx = new_value;
+						}
+						else if(padButtons[button_nr].count_fx > 1)
+						{
+							padButtons[button_nr].state_x = 2;
+							padButtons[button_nr].start_point_fx = 0;
+							padButtons[button_nr].fx2 = new_value;
+							padButtons[button_nr].time_x = padButtons[button_nr].velo_timer_x;
+						}
 
-						padButtons[button_nr].pad_buttons_fx = new_value;
+
 					}
+
+				}
+				else if(new_value > (padButtons[button_nr].fx+ANALOG_BUTTON_FORCE_DEAD_ZONE)
+						|| new_value < (padButtons[button_nr].fx-ANALOG_BUTTON_FORCE_DEAD_ZONE))
+				{
+					//if(padButtons[button_nr].state_x == 0 || padButtons[button_nr].state_x == 5)
+					//{
+					//	padButtons[button_nr].state_x = 4;
+
+					//	padButtons[button_nr].fx = new_value;
+					//}
+					//else if(padButtons[button_nr].state_x == 1 || padButtons[button_nr].state_x == 6)
+					//{
+						/*if(padButtons[button_nr].state_x == 6)*/
+						padButtons[button_nr].state_x = 4;
+
+						padButtons[button_nr].fx = new_value;
+					//}
 				}
 				else
 				{
-					if(padButtons[button_nr].pad_buttons_state_x == 0)
+					if(padButtons[button_nr].state_x == 0)
 					{
-						padButtons[button_nr].pad_buttons_state_x = 0;
+						padButtons[button_nr].state_x = 0;
 					}
-					else if(padButtons[button_nr].pad_buttons_state_x == 1)
+					else if(padButtons[button_nr].state_x == 1)
 					{
-						padButtons[button_nr].pad_buttons_state_x = 1;
+						padButtons[button_nr].state_x = 1;
 					}
-					else if(padButtons[button_nr].pad_buttons_state_x == 5)
+					else if(padButtons[button_nr].state_x == 5)
 					{
-						padButtons[button_nr].pad_buttons_state_x = 0;
+						padButtons[button_nr].state_x = 0;
 					}
-					else if(padButtons[button_nr].pad_buttons_state_x == 6)
+					else if(padButtons[button_nr].state_x == 6)
 					{
-						padButtons[button_nr].pad_buttons_state_x = 4;
+						padButtons[button_nr].state_x = 4;
 					}
 				}
 			}
@@ -233,64 +238,76 @@ void cAnalogInputs::readPadPressForce()
 
 			if(new_value < ANALOG_BUTTON_FORCE_START_DEAD_ZONE+padButtons[button_nr].start_point_fy) // wartosc mniejsza niz graniczna
 			{
-				if(padButtons[button_nr].pad_buttons_state_y == 0 || padButtons[button_nr].pad_buttons_state_y == 5)
+				if(padButtons[button_nr].state_y == 0 || padButtons[button_nr].state_y == 5)
 				{
-					padButtons[button_nr].pad_buttons_state_y = 0;
+					padButtons[button_nr].state_y = 0;
 				}
-				else if(padButtons[button_nr].pad_buttons_state_y == 1 || padButtons[button_nr].pad_buttons_state_y == 6)
+				else if(padButtons[button_nr].state_y == 1 || padButtons[button_nr].state_y == 6)
 				{
-					padButtons[button_nr].pad_buttons_state_y = 3;
-					//padButtons[button_nr].pad_buttons_fx = new_value;
-					padButtons[button_nr].pad_buttons_count_fy = 0;
+					padButtons[button_nr].state_y = 3;
+					//padButtons[button_nr].fx = new_value;
+					padButtons[button_nr].count_fy = 0;
 				}
-				else if(padButtons[button_nr].pad_buttons_state_y == 4)
+				else if(padButtons[button_nr].state_y == 4)
 				{
-					padButtons[button_nr].pad_buttons_state_y = 0;
+					padButtons[button_nr].state_y = 0;
 				}
 
 				padButtons[button_nr].start_point_fy = new_value;
 			}
 			else //wartosc wieksza niz graniczna
 			{
-				if(padButtons[button_nr].pad_buttons_count_fy < 20)
-					padButtons[button_nr].pad_buttons_count_fy++;
+				if(padButtons[button_nr].count_fy < 20)
+					padButtons[button_nr].count_fy++;
 
 
-				if(new_value > (padButtons[button_nr].pad_buttons_fy+ANALOG_BUTTON_FORCE_DEAD_ZONE)
-					|| new_value < (padButtons[button_nr].pad_buttons_fy-ANALOG_BUTTON_FORCE_DEAD_ZONE))
+				if(padButtons[button_nr].count_fy < 3)
 				{
-					if(padButtons[button_nr].pad_buttons_state_y == 0 || padButtons[button_nr].pad_buttons_state_y == 5)
+					if(padButtons[button_nr].state_y == 0 || padButtons[button_nr].state_y == 5)
 					{
-						padButtons[button_nr].pad_buttons_state_y = 2;
-						padButtons[button_nr].start_point_fy = 0;
-						padButtons[button_nr].pad_buttons_fy = new_value;
+						if(padButtons[button_nr].count_fy == 1)
+						{
+							padButtons[button_nr].velo_timer_y = 0;
+							padButtons[button_nr].state_y = 0;
+							padButtons[button_nr].fy = new_value;
+						}
+						else if(padButtons[button_nr].count_fy > 1)
+						{
+							padButtons[button_nr].state_y = 2;
+							padButtons[button_nr].start_point_fy = 0;
+							padButtons[button_nr].fy2 = new_value;
+							padButtons[button_nr].time_y = padButtons[button_nr].velo_timer_y;
+						}
+
+
 
 					}
-					else if(padButtons[button_nr].pad_buttons_state_y == 1 || padButtons[button_nr].pad_buttons_state_y == 6)
-					{
-						/*if(padButtons[button_nr].pad_buttons_state_y == 6)*/
-						padButtons[button_nr].pad_buttons_state_y = 4;
-
-						padButtons[button_nr].pad_buttons_fy = new_value;
-					}
+				}
+				else if(new_value > (padButtons[button_nr].fy+ANALOG_BUTTON_FORCE_DEAD_ZONE)
+						|| new_value < (padButtons[button_nr].fy-ANALOG_BUTTON_FORCE_DEAD_ZONE))
+				///*padButtons[button_nr].state_y == 1 || */padButtons[button_nr].state_y == 6)
+				{
+					/*if(padButtons[button_nr].state_y == 6)*/
+					padButtons[button_nr].state_y = 4;
+					padButtons[button_nr].fy = new_value;
 				}
 				else
 				{
-					if(padButtons[button_nr].pad_buttons_state_y == 0)
+					if(padButtons[button_nr].state_y == 0)
 					{
-						padButtons[button_nr].pad_buttons_state_y = 0;
+						padButtons[button_nr].state_y = 0;
 					}
-					else if(padButtons[button_nr].pad_buttons_state_y == 1)
+					else if(padButtons[button_nr].state_y == 1)
 					{
-						padButtons[button_nr].pad_buttons_state_y = 1;
+						padButtons[button_nr].state_y = 1;
 					}
-					else if(padButtons[button_nr].pad_buttons_state_y == 5)
+					else if(padButtons[button_nr].state_y == 5)
 					{
-						padButtons[button_nr].pad_buttons_state_y = 0;
+						padButtons[button_nr].state_y = 0;
 					}
-					else if(padButtons[button_nr].pad_buttons_state_y == 6)
+					else if(padButtons[button_nr].state_y == 6)
 					{
-						padButtons[button_nr].pad_buttons_state_y = 4;
+						padButtons[button_nr].state_y = 4;
 					}
 				}
 			}
@@ -307,8 +324,8 @@ void cAnalogInputs::processPadData()
 	{
 		for(uint8_t i= 0;i<64;i++)
 		{
-			padButtons[i].pad_buttons_state_x = 0;
-			padButtons[i].pad_buttons_state_y = 0;
+			padButtons[i].state_x = 0;
+			padButtons[i].state_y = 0;
 		}
 		#if ANALOG_POTS_ON == 0
 		start_up = 0;
@@ -318,77 +335,77 @@ void cAnalogInputs::processPadData()
 
 	for(uint8_t i= 0;i<64;i++)
 	{
-		if(padButtons[i].pad_buttons_state_x > 0 || padButtons[i].pad_buttons_state_y > 0) // ( x&&y  < 5)
+		if(padButtons[i].state_x > 0 || padButtons[i].state_y > 0) // ( x&&y  < 5)
 		{
 			// 2 & 2 ; 0 & 2 ; 2 & 0
-			if((padButtons[i].pad_buttons_state_x == 2 && padButtons[i].pad_buttons_state_y == 2)
-				||(padButtons[i].pad_buttons_state_x == 0 && padButtons[i].pad_buttons_state_y == 2)
-				||(padButtons[i].pad_buttons_state_x == 2 && padButtons[i].pad_buttons_state_y == 0))
+			if((padButtons[i].state_x == 2 && padButtons[i].state_y == 2)
+				||(padButtons[i].state_x == 0 && padButtons[i].state_y == 2)
+				||(padButtons[i].state_x == 2 && padButtons[i].state_y == 0))
 			{
 
-				if(padButtons[i].pad_buttons_state_x != 0) padButtons[i].pad_buttons_state_x = 1;
-				if(padButtons[i].pad_buttons_state_y != 0) padButtons[i].pad_buttons_state_y = 1;
-				PadPressFunc(mux2pad[i],padButtons[i].pad_buttons_x,padButtons[i].pad_buttons_y,calculateForce(i));
+				if(padButtons[i].state_x != 0) padButtons[i].state_x = 1;
+				if(padButtons[i].state_y != 0) padButtons[i].state_y = 1;
+				PadPressFunc(mux2pad[i],padButtons[i].x,padButtons[i].y,calculateVelocity(i));
 			}
 			// 3 & 3 ; 0 & 3 ; 3 & 0
-			else if((padButtons[i].pad_buttons_state_x == 3 && padButtons[i].pad_buttons_state_y == 3)
-				||(padButtons[i].pad_buttons_state_x == 0 && padButtons[i].pad_buttons_state_y == 3)
-				||(padButtons[i].pad_buttons_state_x == 3 && padButtons[i].pad_buttons_state_y == 0))
+			else if((padButtons[i].state_x == 3 && padButtons[i].state_y == 3)
+				||(padButtons[i].state_x == 0 && padButtons[i].state_y == 3)
+				||(padButtons[i].state_x == 3 && padButtons[i].state_y == 0))
 			{
-				padButtons[i].pad_buttons_start_x = 0;
-				padButtons[i].pad_buttons_start_y = 0;
-				padButtons[i].pad_buttons_fx = 0;
-				padButtons[i].pad_buttons_fy = 0;
+				padButtons[i].start_x = 0;
+				padButtons[i].start_y = 0;
+				padButtons[i].fx = 0;
+				padButtons[i].fy = 0;
 
 				PadReleaseFunc(mux2pad[i]);
-				if(padButtons[i].pad_buttons_state_x == 3) padButtons[i].pad_buttons_state_x = 0;
-				if(padButtons[i].pad_buttons_state_y == 3) padButtons[i].pad_buttons_state_y = 0;
+				if(padButtons[i].state_x == 3) padButtons[i].state_x = 0;
+				if(padButtons[i].state_y == 3) padButtons[i].state_y = 0;
 			}
 			// 4 || 4 => x & 4 / 4 & x
-			else if(padButtons[i].pad_buttons_state_x == 4 || padButtons[i].pad_buttons_state_y == 4)
+			else if(padButtons[i].state_x == 4 || padButtons[i].state_y == 4)
 			{
-				PadChangeFunc(mux2pad[i],padButtons[i].pad_buttons_x,padButtons[i].pad_buttons_y,calculateForce(i));
-				if(padButtons[i].pad_buttons_state_x == 0 || padButtons[i].pad_buttons_state_x == 3) padButtons[i].pad_buttons_state_x = 0;
-				else padButtons[i].pad_buttons_state_x = 1;
-				if(padButtons[i].pad_buttons_state_y == 0 || padButtons[i].pad_buttons_state_y == 3) padButtons[i].pad_buttons_state_y = 0;
-				else padButtons[i].pad_buttons_state_y = 1;
+				PadChangeFunc(mux2pad[i],padButtons[i].x,padButtons[i].y,calculateForce(i));
+				if(padButtons[i].state_x == 0 || padButtons[i].state_x == 3) padButtons[i].state_x = 0;
+				else padButtons[i].state_x = 1;
+				if(padButtons[i].state_y == 0 || padButtons[i].state_y == 3) padButtons[i].state_y = 0;
+				else padButtons[i].state_y = 1;
 			}
 			// 1 & 3 ; 3 & 1
 			// 1 & 2 ; 2 & 1
-			else if((padButtons[i].pad_buttons_state_x == 1 && padButtons[i].pad_buttons_state_y == 3)
-				||(padButtons[i].pad_buttons_state_x == 3 && padButtons[i].pad_buttons_state_y == 1)
-				||(padButtons[i].pad_buttons_state_x == 2 && padButtons[i].pad_buttons_state_y == 1)
-				||(padButtons[i].pad_buttons_state_x == 1 && padButtons[i].pad_buttons_state_y == 2))
+			else if((padButtons[i].state_x == 1 && padButtons[i].state_y == 3)
+				||(padButtons[i].state_x == 3 && padButtons[i].state_y == 1)
+				||(padButtons[i].state_x == 2 && padButtons[i].state_y == 1)
+				||(padButtons[i].state_x == 1 && padButtons[i].state_y == 2))
 			{
-				PadChangeFunc(mux2pad[i],padButtons[i].pad_buttons_x,padButtons[i].pad_buttons_y,calculateForce(i));
-				if(padButtons[i].pad_buttons_state_x == 2 || padButtons[i].pad_buttons_state_x == 1) padButtons[i].pad_buttons_state_x = 1;
-				else padButtons[i].pad_buttons_state_x = 0;
-				if(padButtons[i].pad_buttons_state_y == 2 || padButtons[i].pad_buttons_state_y == 1) padButtons[i].pad_buttons_state_y = 1;
-				else padButtons[i].pad_buttons_state_y = 0;
+				PadChangeFunc(mux2pad[i],padButtons[i].x,padButtons[i].y,calculateForce(i));
+				if(padButtons[i].state_x == 2 || padButtons[i].state_x == 1) padButtons[i].state_x = 1;
+				else padButtons[i].state_x = 0;
+				if(padButtons[i].state_y == 2 || padButtons[i].state_y == 1) padButtons[i].state_y = 1;
+				else padButtons[i].state_y = 0;
 			}
 			// 2 & 3 ; 3 & 2
-			else if((padButtons[i].pad_buttons_state_x == 2 && padButtons[i].pad_buttons_state_y == 3)
-				||(padButtons[i].pad_buttons_state_x == 3 && padButtons[i].pad_buttons_state_y == 2))
+			else if((padButtons[i].state_x == 2 && padButtons[i].state_y == 3)
+				||(padButtons[i].state_x == 3 && padButtons[i].state_y == 2))
 			{
-				PadChangeFunc(mux2pad[i],padButtons[i].pad_buttons_x,padButtons[i].pad_buttons_y,calculateForce(i));
-				if(padButtons[i].pad_buttons_state_x == 2) padButtons[i].pad_buttons_state_x = 1;
-				else padButtons[i].pad_buttons_state_x = 0;
-				if(padButtons[i].pad_buttons_state_y == 2) padButtons[i].pad_buttons_state_y = 1;
-				else padButtons[i].pad_buttons_state_y = 0;
+				PadChangeFunc(mux2pad[i],padButtons[i].x,padButtons[i].y,calculateForce(i));
+				if(padButtons[i].state_x == 2) padButtons[i].state_x = 1;
+				else padButtons[i].state_x = 0;
+				if(padButtons[i].state_y == 2) padButtons[i].state_y = 1;
+				else padButtons[i].state_y = 0;
 			}
 			// x && x (x != 0)
-			else if(padButtons[i].pad_buttons_state_x != 0 && padButtons[i].pad_buttons_state_y != 0)
+			else if(padButtons[i].state_x != 0 && padButtons[i].state_y != 0)
 			{
-				if(padButtons[i].pad_buttons_state_x != 1 && padButtons[i].pad_buttons_state_y != 1)
+				if(padButtons[i].state_x != 1 && padButtons[i].state_y != 1)
 				{
-					//Serial.print(padButtons[i].pad_buttons_state_x);Serial.print(padButtons[i].pad_buttons_state_y);Serial.println("");
+					//Serial.print(padButtons[i].state_x);Serial.print(padButtons[i].state_y);Serial.println("");
 				}
 			}
 		}
 		else
 		{
-			padButtons[i].pad_buttons_state_x = 0;
-			padButtons[i].pad_buttons_state_y = 0;
+			padButtons[i].state_x = 0;
+			padButtons[i].state_y = 0;
 		}
 
 	}
@@ -397,19 +414,42 @@ void cAnalogInputs::processPadData()
 
 uint16_t cAnalogInputs::calculateForce(uint8_t pad)
 {
-	uint16_t force = force_ratio[padButtons[pad].pad_buttons_fx+padButtons[pad].pad_buttons_fy]/2;
+	uint16_t force = force_ratio[padButtons[pad].fx+padButtons[pad].fy]/2;
 	if(force > 127) force = 127;
 	return force;
 }
 
+uint16_t cAnalogInputs::calculateVelocity(uint8_t pad)
+{
+	//	int16_t diff =	 force_ratio[padButtons[pad].pad_buttons_fx2+padButtons[pad].pad_buttons_fy2]/2
+	//				   - force_ratio[padButtons[pad].pad_buttons_fx+padButtons[pad].pad_buttons_fy]/2;
+	//	if(diff <= 0) 		diff = 100;
+	//	else if(diff > 127) diff = 127;
+
+		uint16_t force = force_ratio[padButtons[pad].fx2+padButtons[pad].fy2]/2;
+
+	//	uint16_t velocity = 127-diff;
+	/*
+		Serial.print("diff: ");
+		Serial.print(diff);
+		Serial.print(" czas: ");
+		Serial.print(padButtons[pad].time_x);
+		Serial.print(" velo: ");
+		Serial.print(velocity);
+		Serial.print(" force: ");
+		Serial.println(force);
+	*/
+		if(force > 127) force = 127;
+		return force;
+}
 
 uint8_t cAnalogInputs::howManyPadPressed()
 {
 	uint8_t counter = 0;
 	for(uint8_t i = 0;i < 64; i++)
 	{
-		if(	padButtons[i].pad_buttons_state_x == 1 || padButtons[i].pad_buttons_state_x == 2  || padButtons[i].pad_buttons_state_x == 4  || padButtons[i].pad_buttons_state_x == 6 ||
-			padButtons[i].pad_buttons_state_y == 1 || padButtons[i].pad_buttons_state_y == 2  || padButtons[i].pad_buttons_state_y == 4  || padButtons[i].pad_buttons_state_y == 6
+		if(	padButtons[i].state_x == 1 || padButtons[i].state_x == 2  || padButtons[i].state_x == 4  || padButtons[i].state_x == 6 ||
+			padButtons[i].state_y == 1 || padButtons[i].state_y == 2  || padButtons[i].state_y == 4  || padButtons[i].state_y == 6
 			) counter++;
 	}
 	//Serial.print("pads press count: ");
@@ -420,8 +460,8 @@ uint8_t cAnalogInputs::howManyPadPressed()
 uint8_t cAnalogInputs::isPadPressed(uint8_t pad)
 {
 	pad = pad2mux[pad];
-	if(	padButtons[pad].pad_buttons_state_x == 1 || padButtons[pad].pad_buttons_state_x == 2  || padButtons[pad].pad_buttons_state_x == 4  || padButtons[pad].pad_buttons_state_x == 6 ||
-		padButtons[pad].pad_buttons_state_y == 1 || padButtons[pad].pad_buttons_state_y == 2  || padButtons[pad].pad_buttons_state_y == 4  || padButtons[pad].pad_buttons_state_y == 6
+	if(	padButtons[pad].state_x == 1 || padButtons[pad].state_x == 2  || padButtons[pad].state_x == 4  || padButtons[pad].state_x == 6 ||
+		padButtons[pad].state_y == 1 || padButtons[pad].state_y == 2  || padButtons[pad].state_y == 4  || padButtons[pad].state_y == 6
 		) return 1;
 	return 0;
 }

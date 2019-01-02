@@ -88,55 +88,64 @@ void cAnalogInputs::update()
 	// odczyt pozycji nacisku
 	else if(last_read_time > ANALOG_STAB_DELAY && reading_step == 1)
 	{
-		#if ANALOG_PADS_ON
-		digitalWrite(ANALOG_CTRL_XY_Z,0);
-		delayMicroseconds(4);
-		readPadPressPosition();
-		#endif
-		digitalWrite(ANALOG_CTRL_XY_Z,1);
+		while(reading_step == 1)
+		{
+			#if ANALOG_PADS_ON
+			delayMicroseconds(5);
+			readPadPressPosition();
+			#endif
 
-		reading_channel++;
-		if(reading_channel < ANALOG_MAX_MUX_CHANNELS)
-		{
-			setMux(analog_mux_channels_order[reading_channel]);
-			reading_step = 1;
-			last_read_time = 0;
+			reading_channel++;
+			if(reading_channel < ANALOG_MAX_MUX_CHANNELS)
+			{
+				setMux(analog_mux_channels_order[reading_channel]);
+				reading_step = 1;
+				last_read_time = 0;
+			}
+			else
+			{
+				setMux(analog_mux_channels_order[0]);
+				reading_channel = 0;
+				digitalWrite(ANALOG_CTRL_XY_Z,1);//digitalWrite(ANALOG_CTRL_XY_Z,1);
+				reading_step = 2;
+				last_read_time = 0;
+			}
 		}
-		else
-		{
-			setMux(analog_mux_channels_order[0]);
-			reading_channel = 0;
-			digitalWrite(ANALOG_CTRL_XY_Z,1);//digitalWrite(ANALOG_CTRL_XY_Z,1);
-			reading_step = 2;
-			last_read_time = 0;
-		}
+
+		digitalWrite(ANALOG_CTRL_XY_Z,1);
 	}
 	//--------------------------------------------------------------------------------------
 	// odczyt sily nacisku i pozycji potencjometrow
 	else if(last_read_time > ANALOG_STAB_DELAY && reading_step == 2)
 	{
-		#if ANALOG_PADS_ON
-		readPadPressForce();
-		#endif
-		#if (ANALOG_POTS_ON || ANALOG_BUTTONS_ON)
-		readPotButtons();
-		#endif
+		while(reading_step == 2)
+		{
+			delayMicroseconds(5);
 
-		reading_channel++;
-		if(reading_channel < ANALOG_MAX_MUX_CHANNELS)
-		{
-			setMux(analog_mux_channels_order[reading_channel]);
-			reading_step = 2;
-			last_read_time = 0;
+			#if ANALOG_PADS_ON
+			readPadPressForce();
+			#endif
+			#if (ANALOG_POTS_ON || ANALOG_BUTTONS_ON)
+			readPotButtons();
+			#endif
+
+			reading_channel++;
+			if(reading_channel < ANALOG_MAX_MUX_CHANNELS)
+			{
+				setMux(analog_mux_channels_order[reading_channel]);
+				reading_step = 2;
+				last_read_time = 0;
+			}
+			else
+			{
+				setMux(analog_mux_channels_order[0]);
+				reading_channel = 0;
+				digitalWrite(ANALOG_CTRL_XY_Z,1);
+				reading_step = 3;
+				last_read_time = 0;
+			}
 		}
-		else
-		{
-			setMux(analog_mux_channels_order[0]);
-			reading_channel = 0;
-			digitalWrite(ANALOG_CTRL_XY_Z,1);
-			reading_step = 3;
-			last_read_time = 0;
-		}
+
 	}
 	//--------------------------------------------------------------------------------------
 	//przetworzenie danych porownanie odczytow z poprzednimi i wykonanie akcji

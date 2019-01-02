@@ -27,8 +27,11 @@ void cAnalogInputs::processPotData()
 		A = new_pot_button_values[analog_pots_index_A[i]];
 		B = new_pot_button_values[analog_pots_index_B[i]];
 		potentiometers[i].positions[0] = calculatePotPosition(A ,B, &(potentiometers[i].part));
+
+		if(start_up) potentiometers[i].positions[1] = potentiometers[i].positions[0];
 	}
 
+	if(start_up) start_up = 0;
 	int16_t diffrence, is_moving_diff, resolution_step;
 	uint8_t in_death_zone, direction;
 
@@ -41,19 +44,18 @@ void cAnalogInputs::processPotData()
 			if(potentiometers[i].last_part < 2 && potentiometers[i].part > 5)
 			{
 				diffrence = 1023 - diffrence;
+				diffrence = diffrence * (-1);
 			}
 			else if(potentiometers[i].last_part < 2 && potentiometers[i].part > 5)
 			{
 				diffrence = 0;
 			}
-
 		}
 		else if(diffrence < 0)
 		{
 			if(potentiometers[i].last_part > 5 && potentiometers[i].part < 2)
 			{
-				diffrence = 1023 - diffrence;
-				diffrence = diffrence * (-1);
+				diffrence = 1023 + diffrence;
 			}
 			else if(potentiometers[i].last_part > 5 && potentiometers[i].part < 2)
 			{
@@ -93,8 +95,6 @@ void cAnalogInputs::processPotData()
 
 			potentiometers[i].global_diff = potentiometers[i].global_diff % resolution_step;
 		}
-
-
 
 	}
 
@@ -169,8 +169,8 @@ uint16_t cAnalogInputs::calculatePotPosition(uint16_t A, uint16_t B, uint8_t * p
 	}
 
 
-	if(position < 0) position=0;
-
+	if(position < 0) 			position = 0;
+	else if(position > 1023) 	position = 1023;
 	return position;
 }
 

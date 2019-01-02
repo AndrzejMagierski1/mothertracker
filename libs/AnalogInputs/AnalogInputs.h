@@ -9,7 +9,7 @@
 // MODULES OPTIONS
 
 #define ANALOG_POTS_ON 		1
-#define ANALOG_PADS_ON 		0
+#define ANALOG_PADS_ON 		1
 #define ANALOG_BUTTONS_ON 	1
 
 
@@ -192,22 +192,29 @@ private:
 
 	struct strPadButtons
 	{
-		int8_t pad_buttons_x;
-		int8_t pad_buttons_y;
-		int8_t pad_buttons_start_x;
-		int8_t pad_buttons_start_y;
-		uint8_t pad_buttons_dzone_x;
-		uint8_t pad_buttons_dzone_y;
+		int8_t x;
+		int8_t y;
+		int8_t start_x;
+		int8_t start_y;
+		uint8_t dzone_x;
+		uint8_t dzone_y;
 
-		uint8_t pad_buttons_fx;
-		uint8_t pad_buttons_fy;
-		uint8_t pad_buttons_count_fx;
-		uint8_t pad_buttons_count_fy;
+		uint8_t count_fx;
+		uint8_t count_fy;
 		uint8_t start_point_fx;
 		uint8_t start_point_fy;
 
-		uint8_t pad_buttons_state_x;
-		uint8_t pad_buttons_state_y;
+		uint8_t state_x;
+		uint8_t state_y;
+
+		uint8_t fx;
+		uint8_t fx2;
+		uint8_t fy;
+		uint8_t fy2;
+		uint8_t time_x;
+		uint8_t time_y;
+		elapsedMicros velo_timer_x;
+		elapsedMicros velo_timer_y;
 	};
 
 	strPadButtons padButtons[ANALOG_MAX_PAD_BUTTONS];
@@ -222,7 +229,7 @@ private:
 		uint8_t last_part;
 		uint8_t last_direction;
 
-		int16_t diffrences[4];
+		int16_t diffrences[3];
 
 		uint16_t resolution = 1023;
 		int16_t  global_diff = 0;
@@ -257,6 +264,7 @@ private:
 	void processButtonData();
 	uint16_t calculatePotPosition(uint16_t A, uint16_t B, uint8_t * part);
 	uint16_t calculateForce(uint8_t pad);
+	uint16_t calculateVelocity(uint8_t pad);
 	void calculateXPos();
 	void calculateYPos();
 
