@@ -35,7 +35,6 @@ void initHardware()
 
 void updateHardware()
 {
-
 	AnalogInputs.update();
 
 
