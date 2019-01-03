@@ -457,7 +457,7 @@ uint8_t  mtLED::readRegister8(uint8_t bank, uint8_t reg) {
 	uint8_t x;
 	x = 0;
 
-	while (!Wire2.done()) _count++; // Since write is non-blocking, do some counting while waiting
+	while (!Wire2.done() ) _count++; // Since write is non-blocking, do some counting while waiting
 
 	Wire2.beginTransmission(_i2caddr);
 	Wire2.write((byte)ISSI_COMMANDREGISTER);
@@ -636,10 +636,16 @@ void mtLEDs::begin()
 	ledsGrid.begin(IS31FL3731_ADDR1);
 
 }
-void mtLEDs::update()
+void mtLEDs::updateSeq()
 {
 	ledsSeqA.update_all_leds();
 	ledsSeqB.update_all_leds();
+
+}
+
+void mtLEDs::updateGrid()
+{
+
 	ledsGrid.update_all_leds();
 }
 
@@ -665,9 +671,9 @@ void mtLEDs::setLEDseq(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm)
 }
 void mtLEDs::setLEDgrid(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm)
 {
-	uint8_t num=0;
-	num=16*(y-1)+x-1;
 
+	uint8_t num=0;
+	num=16*(x-1)+y-1;
 	ledsGrid.setLED(num, state, gamma_pwm);
 }
 
@@ -693,7 +699,7 @@ void mtLEDs::setLEDgridPWM(uint8_t x,uint8_t y, uint8_t state, uint8_t pwm)
 {
 
 	uint8_t num=0;
-	num=16*(y-1)+x-1;
+	num=16*(x-1)+y-1;
 	ledsGrid.setLED(num, state, pwm);
 }
 
@@ -719,7 +725,7 @@ void mtLEDs::fastSetLEDseqPWM(uint8_t x,uint8_t y, uint8_t pwm )
 void mtLEDs::fastSetLEDgridPWM(uint8_t x,uint8_t y, uint8_t pwm)
 {
 	uint8_t num=0;
-	num=16*(y-1)+x-1;
+	num=16*(x-1)+y-1;
 	ledsGrid.fastSetLEDPWM(num, pwm);
 }
 void mtLEDs::setAllLEDPWM(uint8_t *arrSeq,uint8_t *arrGrid, uint8_t bank)

@@ -19,7 +19,7 @@ void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 void cMtInterface::begin()
 {
 
-	////////////////// IO7326 A
+	/*////////////////// IO7326 A
 	seqButtonsA.setButtonPushFunc(onButtonPush);
 	seqButtonsA.setButtonReleaseFunc(onButtonRelease);
 	seqButtonsA.setButtonHoldFunc(onButtonHold);
@@ -47,34 +47,60 @@ void cMtInterface::begin()
 	////////////////// IO7326 B
 	seqButtonsB.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,GRID_B,IO7326_INT_FUNCT_B);
 	////////////////// IO7326 C
-	seqButtonsC.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);
+	seqButtonsC.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);*/
 
 	leds.begin();
 	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
 
 
+while(1)
+{
+	for(int i=8;i>=1;i--)
+	{
+		for(int j=8;j>=1;j--)
+		{
+			leds.setLEDgrid(j,i,1,31);
+			delayMicroseconds(200);
+			leds.updateGrid();
+			//delay(1);
 
-	for(int i=1;i<=20;i++)
-	{
-		for(int j=1;j<=8;j++)
-		{
-			leds.setLEDseq(j,i,1,5);
-			delay(5);
-			leds.update();
 		}
-		delay(1000);
-	}
-	for(int i=1;i<=20;i++)
-	{
-		for(int j=1;j<=8;j++)
-		{
-			leds.setLEDseq(j,i,1,5);
-			delay(5);
-			leds.update();
-		}
-		delay(500);
 	}
 
+	for(int i=1;i<=8;i++)
+	{
+		for(int j=8;j>=1;j--)
+		{
+			leds.setLEDgrid(j,i,0,31);
+			//leds.setLEDseq(j,i,0,5);
+			//delay(1);
+			delayMicroseconds(200);
+			leds.updateGrid();
+		}
+	}
+
+/*	for(int i=20;i>=1;i--)
+	{
+		for(int j=8;j>=1;j--)
+		{
+			leds.setLEDseq(j,i,1,31);
+			delayMicroseconds(200);
+			leds.updateSeq();
+			//delay(1);
+
+		}
+
+			for(int j=20;j>=1;j--)
+			{
+				leds.setLEDseq(j,i,0,31);
+				//leds.setledseq(j,i,0,5);
+				//delay(1);
+				delayMicroseconds(200);
+				leds.updateSeq();
+			}
+	}*/
+
+}
 
 }
 
@@ -97,7 +123,8 @@ void cMtInterface::update()
 			{
 				return;
 			}
-			leds.update();
+			leds.updateSeq();
+			leds.updateGrid();
 
 		}
 }

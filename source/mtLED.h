@@ -227,7 +227,8 @@ class mtLEDs
 public:
 	mtLEDs();
 	void begin();
-	void update();
+	void updateSeq();
+	void updateGrid();
 	void setLEDseq(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm);
 	void setLEDgrid(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm);
 	void setLEDseqPWM(uint8_t x,uint8_t y, uint8_t state, uint8_t pwm);
