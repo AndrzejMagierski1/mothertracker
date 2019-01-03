@@ -565,6 +565,7 @@ void Sequencer::loadDefaultSequence(void)
 	{
 		seq[player.ramBank].row[x].rootNote = 35 + x;
 		seq[player.ramBank].row[x].channel = x;
+		seq[player.ramBank].row[x].isOn = 1;
 
 		for (uint8_t y = 1; y <= 32; y++)
 		{
