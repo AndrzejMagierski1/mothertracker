@@ -1,7 +1,8 @@
 
-
 #include <stdint.h>
-#include <Arduino.h>
+
+#include "mtDisplay.h"
+
 
 void onPowerButtonChange(uint8_t value);
 
@@ -10,7 +11,8 @@ void onPowerButtonChange(uint8_t value);
 //-----------------------------------------------------------------
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
-
+	mtPrint("pad press: ");
+	mtPrintln(n);
 }
 
 //-----------------------------------------------------------------
@@ -30,6 +32,12 @@ void onPadRelease(uint8_t n)
 //-----------------------------------------------------------------
 void onPotChange(uint8_t n, int16_t value)
 {
+	mtPrint("pot change: ");
+	mtPrint(n);
+	mtPrint(" value: ");
+	mtPrintln(value);
+
+	mtHaptic.start(100,50,0x02,56);
 
 }
 
@@ -48,13 +56,19 @@ void onButtonChange(uint8_t n, uint8_t value)
 		return;
 	}
 
+	mtPrint("button: ");
+	mtPrint(n);
+	mtPrint(" value: ");
+	mtPrintln(value);
+
 }
 //-----------------------------------------------------------------
 //----------------------|   POWER BUTTON   |-----------------------
 //-----------------------------------------------------------------
 void onPowerButtonChange(uint8_t value)
 {
-
+	mtPrint("power button: ");
+	mtPrintln(value);
 }
 
 

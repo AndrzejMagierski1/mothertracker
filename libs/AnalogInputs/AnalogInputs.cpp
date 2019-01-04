@@ -15,11 +15,11 @@ void cAnalogInputs::begin()
 	reading_step = 0;
 	reading_channel = 0;
 
-	setPotResolution(0, 100);
-	setPotResolution(1, 100);
-	setPotResolution(2, 100);
-	setPotResolution(3, 100);
-	setPotResolution(4, 100);
+	setPotResolution(0, 50);
+	setPotResolution(1, 50);
+	setPotResolution(2, 50);
+	setPotResolution(3, 50);
+	setPotResolution(4, 50);
 
 
 
@@ -91,6 +91,7 @@ void cAnalogInputs::update()
 		while(reading_step == 1)
 		{
 			#if ANALOG_PADS_ON
+			digitalWrite(ANALOG_CTRL_XY_Z,0);
 			delayMicroseconds(5);
 			readPadPressPosition();
 			#endif
@@ -111,8 +112,6 @@ void cAnalogInputs::update()
 				last_read_time = 0;
 			}
 		}
-
-		digitalWrite(ANALOG_CTRL_XY_Z,1);
 	}
 	//--------------------------------------------------------------------------------------
 	// odczyt sily nacisku i pozycji potencjometrow

@@ -52,12 +52,16 @@
 									<listOptionValue builtIn="false" value="../libs/FT812"/>
 									<listOptionValue builtIn="false" value="../libs/fonts"/>
 									<listOptionValue builtIn="false" value="../libs/AnalogInputs"/>
+									<listOptionValue builtIn="false" value="../libs/Display"/>
 								</option>
 								<option id="com.crt.advproject.cpp.hdrlib.53466571" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.2141253513" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.general" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.other.other.446577717" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -felide-constructors" valueType="string"/>
 								<option id="com.crt.advproject.cpp.misc.dialect.1670428909" name="Language standard" superClass="com.crt.advproject.cpp.misc.dialect" useByScannerDiscovery="true" value="com.crt.advproject.misc.dialect.cppdefault" valueType="enumerated"/>
 								<option id="com.crt.advproject.cpp.exe.debug.option.debugging.level.624598762" name="Debug Level" superClass="com.crt.advproject.cpp.exe.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.include.files.390219898" name="Include files (-include)" superClass="gnu.cpp.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="../libs/Display/mtPrint.h"/>
+								</option>
 								<inputType id="com.crt.advproject.compiler.cpp.input.851671978" superClass="com.crt.advproject.compiler.cpp.input"/>
 							</tool>
 							<tool id="com.crt.advproject.gcc.exe.debug.888206355" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug">
@@ -93,6 +97,7 @@
 									<listOptionValue builtIn="false" value="../libs/FT812"/>
 									<listOptionValue builtIn="false" value="../libs/fonts"/>
 									<listOptionValue builtIn="false" value="../libs/AnalogInputs"/>
+									<listOptionValue builtIn="false" value="../libs/Display"/>
 								</option>
 								<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.637294101" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.general" valueType="enumerated"/>
 								<option id="com.crt.advproject.gcc.lto.101578116" name="Enable Link-time optimization (-flto)" superClass="com.crt.advproject.gcc.lto" useByScannerDiscovery="false" value="false" valueType="boolean"/>
@@ -119,6 +124,7 @@
 									<listOptionValue builtIn="false" value="../libs/FT812"/>
 									<listOptionValue builtIn="false" value="../libs/fonts"/>
 									<listOptionValue builtIn="false" value="../libs/AnalogInputs"/>
+									<listOptionValue builtIn="false" value="../libs/Display"/>
 								</option>
 								<option id="com.crt.advproject.gas.arch.731726900" name="Architecture" superClass="com.crt.advproject.gas.arch" useByScannerDiscovery="false" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.gas.fpu.985373801" name="Floating point" superClass="com.crt.advproject.gas.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gas.fpu.fpv4.hard" valueType="enumerated"/>
@@ -223,6 +229,7 @@
 									<listOptionValue builtIn="false" value="../libs/FT812"/>
 									<listOptionValue builtIn="false" value="../libs/fonts"/>
 									<listOptionValue builtIn="false" value="../libs/AnalogInputs"/>
+									<listOptionValue builtIn="false" value="../libs/Display"/>
 								</option>
 								<option id="com.crt.advproject.cpp.arch.1277266838" name="Architecture" superClass="com.crt.advproject.cpp.arch" value="com.crt.advproject.cpp.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.cpp.hdrlib.615462902" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>
@@ -259,6 +266,7 @@
 									<listOptionValue builtIn="false" value="../libs/FT812"/>
 									<listOptionValue builtIn="false" value="../libs/fonts"/>
 									<listOptionValue builtIn="false" value="../libs/AnalogInputs"/>
+									<listOptionValue builtIn="false" value="../libs/Display"/>
 								</option>
 								<option id="com.crt.advproject.gcc.arch.2035563646" name="Architecture" superClass="com.crt.advproject.gcc.arch" value="com.crt.advproject.gcc.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.gcc.fpu.937380535" name="Floating point" superClass="com.crt.advproject.gcc.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gcc.fpu.fpv4.hard" valueType="enumerated"/>
@@ -284,6 +292,7 @@
 									<listOptionValue builtIn="false" value="../libs/FT812"/>
 									<listOptionValue builtIn="false" value="../libs/fonts"/>
 									<listOptionValue builtIn="false" value="../libs/AnalogInputs"/>
+									<listOptionValue builtIn="false" value="../libs/Display"/>
 								</option>
 								<option id="com.crt.advproject.gas.arch.1402598248" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
 								<option id="gnu.both.asm.option.flags.crt.1599692473" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" useByScannerDiscovery="false" value="-c -x assembler-with-cpp -D__NEWLIB__ -D__MK66FX1M0__" valueType="string"/>
@@ -338,10 +347,10 @@
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/MT_LCD"/>
+			<resource resourceType="PROJECT" workspacePath="/MotherTracker"/>
 		</configuration>
 		<configuration configurationName="Release">
-			<resource resourceType="PROJECT" workspacePath="/teensy_3_6_example"/>
+			<resource resourceType="PROJECT" workspacePath="/MotherTracker"/>
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
