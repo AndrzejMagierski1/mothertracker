@@ -19,7 +19,7 @@ void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 void cMtInterface::begin()
 {
 
-	/*////////////////// IO7326 A
+	////////////////// IO7326 A
 	seqButtonsA.setButtonPushFunc(onButtonPush);
 	seqButtonsA.setButtonReleaseFunc(onButtonRelease);
 	seqButtonsA.setButtonHoldFunc(onButtonHold);
@@ -47,7 +47,7 @@ void cMtInterface::begin()
 	////////////////// IO7326 B
 	seqButtonsB.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,GRID_B,IO7326_INT_FUNCT_B);
 	////////////////// IO7326 C
-	seqButtonsC.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);*/
+	seqButtonsC.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);
 
 	leds.begin();
 	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
