@@ -673,6 +673,7 @@ void mtLEDs::setLEDgrid(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm)
 {
 
 	uint8_t num=0;
+	y=9-y;
 	num=16*(x-1)+y-1;
 	ledsGrid.setLED(num, state, gamma_pwm);
 }
@@ -699,6 +700,7 @@ void mtLEDs::setLEDgridPWM(uint8_t x,uint8_t y, uint8_t state, uint8_t pwm)
 {
 
 	uint8_t num=0;
+	y=9-y;
 	num=16*(x-1)+y-1;
 	ledsGrid.setLED(num, state, pwm);
 }
@@ -722,12 +724,15 @@ void mtLEDs::fastSetLEDseqPWM(uint8_t x,uint8_t y, uint8_t pwm )
 	}
 
 }
+
 void mtLEDs::fastSetLEDgridPWM(uint8_t x,uint8_t y, uint8_t pwm)
 {
 	uint8_t num=0;
+	y=9-y;
 	num=16*(x-1)+y-1;
 	ledsGrid.fastSetLEDPWM(num, pwm);
 }
+
 void mtLEDs::setAllLEDPWM(uint8_t *arrSeq,uint8_t *arrGrid, uint8_t bank)
 {
 	ledsSeqA.setAllLEDPWM(arrSeq,bank);
