@@ -4,7 +4,9 @@
 #include <Arduino.h>
 
 #include "keyScanner.h"
+#include "mtLED.h"
 
+extern mtLEDs leds;
 
 void onPowerButtonChange(uint8_t value);
 
@@ -13,6 +15,15 @@ void onPowerButtonChange(uint8_t value);
 //-----------------------------------------------------------------
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
+
+	uint8_t nx=0,ny=0;
+
+	Serial.println(n);
+
+	nx=n%8+1;
+	ny=n/8+1;
+	leds.setLEDgrid(nx,ny,1,31);
+	leds.updateGrid();
 
 }
 
@@ -64,7 +75,7 @@ void onPowerButtonChange(uint8_t value)
 
 extern keyScanner Buttons;
 
-//--------------------------------- BUTTONS ----------------------------
+//--------------------------------- BUTTONS SEQ ----------------------------
 void onButtonPush (uint8_t x, uint8_t y)
 {	
 	Serial.print("ButtonPush: x = ");

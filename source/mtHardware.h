@@ -4,6 +4,11 @@
 
 
 #include "core_pins.h"
+#include "keyScanner.h"
+#include "mtLED.h"
+#include "Arduino.h"
+#include "Wire.h"
+#include "mtHardware.h"
 
 // PAD,POT,BUTTONS MUXS
 // pad xy_z control

@@ -9,11 +9,7 @@
 #include "Wire.h"
 #include "mtHardware.h"
 
-//keyScanner
-void onButtonPush			(uint8_t x, uint8_t y);
-void onButtonRelease		(uint8_t x, uint8_t y);
-void onButtonHold			(uint8_t x, uint8_t y);
-void onButtonDouble			(uint8_t x, uint8_t y);
+
 
 
 
