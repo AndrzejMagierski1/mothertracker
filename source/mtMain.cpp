@@ -15,6 +15,8 @@ void setup()
 	initHardware();
 
 
+
+
 	// inincjalizacja interfejsu na koncu
 
 

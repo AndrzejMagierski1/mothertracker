@@ -103,103 +103,27 @@ public:
 
 	uint8_t ledBits[18] = 
 	{	//---A----  ----B-----
-		0b11111111, 0b00111111,
-		0b11111111, 0b11111111,
-		0b11111111, 0b11111111,
-		0b11111111, 0b00000001,
-		0b11111111, 0b00000000,
-		0b11111111, 0b11111110,
-		0b11111111, 0b11111111,
-		0b11111111, 0b11111111,
-		0b00000000, 0b00001111
+		0b00000000, 0b00000000,
+		0b00000000, 0b00000000,
+		0b00000000, 0b00000000,
+		0b00000000, 0b00000000,
+		0b00000000, 0b00000000,
+		0b00000000, 0b00000000,
+		0b00000000, 0b00000000,
+		0b00000000, 0b00000000,
+		0b00000000, 0b00000000
 	};
 
 	uint8_t ledPWM[144] = 
 	{
-		//255,255,255,255,255,255,255,255,	// PADS1
-		0,0,0,0,0,0,0,0,
-		0, // BUTTON ENV 6/LOOP
-		0, // BUTTON ENV 5/AMP
-		0, // BUTTON LFO 5
-		0, // BUTTON LFO 4
-		0, // BUTTON LFO 6/SYNC
-		0, // BUTTON ENV 4/FILTER
-		0,	 // -
-		0,	 // -
-
-		//255,255,255,255,255,255,255,255,	// PADS2
-		0,0,0,0,0,0,0,0,
-		0, // BUTTON ENV 3
-		0, // BUTTON ENV 2
-		0, // BUTTON LFO 2
-		0, // BUTTON LFO 1
-		0, // BUTTON LFO 3
-		0, // BUTTON ENV 1
-		0, // BUTTON PRESET
-		0, //  BUTTON SEQ
-
-		//255,255,255,255,255,255,255,255,	// PADS3
-		0,0,0,0,0,0,0,0,
-		0, // BUTTON SYNC 3
-		0, //  BUTTON FINETUNE
-		0, // BUTTON OSC1,2
-		0, //  BUTTON HOLD
-		0, //  BUTTON REC
-		0, // BUTTON PLAY
-		0, //  BUTTON OSC FILTER
-		0, // BUTTON SYNC 2
-
-		//255,255,255,255,255,255,255,255,	//PADS4
-		0,0,0,0,0,0,0,0,
-		0, // BUTTON DRONE
-		  0,0,0,0,0,0,0,		// NOT USED
-
-		//255,255,255,255,255,255,255,255,	// PADS5
-		0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,	// NOT USED
-
-		//255,255,255,255,255,255,255,255,	// PADS6
-		0,0,0,0,0,0,0,0,
-		0, 	 // -
-		0, // HP
-		0 , // L4
-		0, // L2
-		0, // P2
-		0, // P1
-		0, // M
-		0, // OSC1 WAV1
-
-		//255,255,255,255,255,255,255,255,	// PADS7
-		0,0,0,0,0,0,0,0,
-		0, // OSC2 WAV2
-		0, // OSC1 WAV2
-		0, // OSC1 WAV3
-		0, // OSC1 WAV4
-		0, // OSC1 OCT-1
-		0, // OSC1 OCT0
-		0, // OSC1 OCT+1
-		0, // OSC2 WAV1
-
-		//255,255,255,255,255,255,255,255,	// PADS8
-		0,0,0,0,0,0,0,0,
-		0, // OSC2 WAV3
-		0, // OSC2 WAV4
-		0, // OSC2 OCT-1
-		0, // OSC2 OCT0
-		0, // OSC2 OCT+1
-		0, // OSC3 WAV1
-		0, // OSC3 WAV2
-		0, // OSC3 WAV3
-
-		0,0,0,0,0,0,0,0,	// NOT USED
-		0, // OSC3 WAV4
-		0, // OSC3 OCT-1
-		0, // OSC3 OCT0
-		0, // OSC3 OCT+1
-		0, 	 // -
-		0, 	 // -
-		0, 	 // -
-		0 	 // -
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0
 	};
 
 	// default values
@@ -230,7 +154,8 @@ public:
 	void updateSeq();
 	void updateGrid();
 	void setLEDseq(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm);
-	void setLEDgrid(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm);
+	//void setLEDgrid(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm);
+	void setLEDgrid(uint8_t num, uint8_t state, uint8_t gamma_pwm);
 	void setLEDseqPWM(uint8_t x,uint8_t y, uint8_t state, uint8_t pwm);
 	void setLEDgridPWM(uint8_t x,uint8_t y, uint8_t state, uint8_t pwm);
 	void fastSetLEDseqPWM(uint8_t x,uint8_t y, uint8_t pwm);

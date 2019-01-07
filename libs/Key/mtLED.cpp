@@ -459,6 +459,8 @@ uint8_t  mtLED::readRegister8(uint8_t bank, uint8_t reg) {
 
 	while (!Wire2.done() ) _count++; // Since write is non-blocking, do some counting while waiting
 
+
+
 	Wire2.beginTransmission(_i2caddr);
 	Wire2.write((byte)ISSI_COMMANDREGISTER);
 	Wire2.write((byte)bank);
@@ -468,7 +470,6 @@ uint8_t  mtLED::readRegister8(uint8_t bank, uint8_t reg) {
 	Wire2.beginTransmission(_i2caddr);
 	Wire2.write((byte)reg);
 	Wire2.endTransmission();
-
 
 	Wire2.requestFrom(_i2caddr, uint8_t(1) );
 
@@ -669,12 +670,21 @@ void mtLEDs::setLEDseq(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm)
 	}
 
 }
-void mtLEDs::setLEDgrid(uint8_t x,uint8_t y, uint8_t state, uint8_t gamma_pwm)
+void mtLEDs::setLEDgrid(uint8_t num, uint8_t state, uint8_t gamma_pwm)
 {
+	uint8_t j=0,i=0;
 
-	uint8_t num=0;
-	y=9-y;
-	num=16*(x-1)+y-1;
+	num--; // zeby mogl byc zakres 1-64
+	j=num/8;
+	j=7-j;
+	i=num%8; // przeliczenia związane z "obrotem" macierzy
+
+	num=i*8+j;
+
+	j=num/8;
+	num+=j*8; // obliczenia związane z podłączeniem fizycznym ledow do jednej z dwoch macierzy sterownika (co drugi adres)
+
+
 	ledsGrid.setLED(num, state, gamma_pwm);
 }
 

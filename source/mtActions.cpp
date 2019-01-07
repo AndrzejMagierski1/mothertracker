@@ -16,13 +16,10 @@ void onPowerButtonChange(uint8_t value);
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
 
-	uint8_t nx=0,ny=0;
-
+	Serial.println("pusz ");
 	Serial.println(n);
 
-	nx=n%8+1;
-	ny=n/8+1;
-	leds.setLEDgrid(nx,ny,1,31);
+	leds.setLEDgrid(n,1,31);
 	leds.updateGrid();
 
 }
@@ -36,6 +33,11 @@ void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f)
 //-----------------------------------------------------------------
 void onPadRelease(uint8_t n)
 {
+	Serial.println("rilejs ");
+	Serial.println(n);
+
+	leds.setLEDgrid(n,0,31);
+	leds.updateGrid();
 
 }
 
