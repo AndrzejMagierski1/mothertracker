@@ -1,6 +1,7 @@
 
 #include "AnalogInputs.h"
 #include "mtDisplay.h"
+#include "SD.h"
 
 
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo);
@@ -25,7 +26,6 @@ void initHardware()
 	AnalogInputs.setPadxMode(0);
 	AnalogInputs.setPadyMode(0);
 	AnalogInputs.setPotDeathZone(4);
-
 /*
 	AnalogInputs.setPotResolution(0, 100);
 	AnalogInputs.setPotResolution(1, 100);
@@ -35,9 +35,18 @@ void initHardware()
 */
 	AnalogInputs.begin();
 
+
+
+    if (!SD.begin(SdioConfig(FIFO_SDIO)))
+    {
+    	 Serial.println("\nFIFO SDIO mode error.");
+    }
+    Serial.println("\nFIFO SDIO mode.");
+
+
+
 //....................................................
 	mtDisplay.begin(mtDisplayModePolyLogo);
-
 
 }
 

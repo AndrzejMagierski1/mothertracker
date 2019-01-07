@@ -4,7 +4,16 @@
 #define MTINTERFACE_H
 
 
-
+enum enumMtOperatingMode
+{
+	mtOperatingModeNone,
+	mtOperatingModeStartup,
+	mtOperatingModeSongEditor,
+	mtOperatingModeFileManager,
+	mtOperatingModeSampleEditor,
+	mtOperatingModePrint,
+	mtOperatingModePolyLogo,
+};
 
 
 
@@ -15,6 +24,9 @@ public:
 	void update();
 
 private:
+
+	uint8_t operatingMode;
+
 
 
 
