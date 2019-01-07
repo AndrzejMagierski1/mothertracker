@@ -25,6 +25,7 @@ void initHardware()
 	AnalogInputs.setPadxMode(0);
 	AnalogInputs.setPadyMode(0);
 	AnalogInputs.setPotDeathZone(4);
+
 /*
 	AnalogInputs.setPotResolution(0, 100);
 	AnalogInputs.setPotResolution(1, 100);
