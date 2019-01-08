@@ -70,47 +70,6 @@ void initHardware()
 
 	leds.begin();
 	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
-/*	while(1)
-	{
-		for(int i=1;i<=64;i++)
-		{
-
-				leds.setLEDgrid(i,1,31);
-				delayMicroseconds(100);
-				leds.updateGrid();
-		}
-
-		for(int i=1;i<=64;i++)
-		{
-
-				leds.setLEDgrid(i,0,31);
-				delayMicroseconds(100);
-				leds.updateGrid();
-		}
-
-		for(int i=20;i>=1;i--)
-		{
-			for(int j=8;j>=1;j--)
-			{
-				leds.setLEDseq(j,i,1,31);
-				delayMicroseconds(200);
-				leds.updateSeq();
-				//delay(1);
-
-			}
-
-			for(int j=8;j>=1;j--)
-			{
-				leds.setLEDseq(j,i,0,31);
-				//leds.setledseq(j,i,0,5);
-				//delay(1);
-				delayMicroseconds(200);
-				leds.updateSeq();
-			}
-		}
-
-
-	}*/
 
 
 }
