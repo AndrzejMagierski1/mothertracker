@@ -26,6 +26,7 @@ uint32_t AudioLoadSdWav::loadSdWavToMemory(const char *filename, int16_t * buf)
 	wavfile = SD.open(filename);
 
 	bufferLength = wavfile.read(buffor.buf8, 512);
+
 	if( (buffor.buf8[8] != 'W') || (buffor.buf8[9] != 'A') ||  (buffor.buf8[10] != 'V') || (buffor.buf8[11] != 'E') ||
 	(buffor.buf8[20] != 1) || (buffor.buf8[34] != 16) || (buffor.buf8[24] != 68) || (buffor.buf8[25] != 172) ) return 0; // błędny format
 
