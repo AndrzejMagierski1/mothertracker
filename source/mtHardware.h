@@ -4,8 +4,6 @@
 
 
 #include "core_pins.h"
-#include "keyScanner.h"
-#include "mtLED.h"
 #include "Arduino.h"
 #include "Wire.h"
 #include "mtHardware.h"

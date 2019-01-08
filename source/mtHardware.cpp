@@ -1,5 +1,7 @@
 
 #include "AnalogInputs.h"
+#include "keyScanner.h"
+#include "mtLED.h"
 
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo);
 void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f);
@@ -68,14 +70,13 @@ void initHardware()
 
 	leds.begin();
 	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
-
-	while(1)
+/*	while(1)
 	{
 		for(int i=1;i<=64;i++)
 		{
 
 				leds.setLEDgrid(i,1,31);
-				delayMicroseconds(100000);
+				delayMicroseconds(100);
 				leds.updateGrid();
 		}
 
@@ -83,7 +84,7 @@ void initHardware()
 		{
 
 				leds.setLEDgrid(i,0,31);
-				delayMicroseconds(100000);
+				delayMicroseconds(100);
 				leds.updateGrid();
 		}
 
@@ -98,18 +99,18 @@ void initHardware()
 
 			}
 
-				for(int j=20;j>=1;j--)
-				{
-					leds.setLEDseq(j,i,0,31);
-					//leds.setledseq(j,i,0,5);
-					//delay(1);
-					delayMicroseconds(200);
-					leds.updateSeq();
-				}
+			for(int j=8;j>=1;j--)
+			{
+				leds.setLEDseq(j,i,0,31);
+				//leds.setledseq(j,i,0,5);
+				//delay(1);
+				delayMicroseconds(200);
+				leds.updateSeq();
+			}
 		}
 
 
-	}
+	}*/
 
 
 }

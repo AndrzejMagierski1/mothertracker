@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <Arduino.h>
-
 #include "keyScanner.h"
 #include "mtLED.h"
 
@@ -16,11 +15,17 @@ void onPowerButtonChange(uint8_t value);
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
 
-	Serial.println("pusz ");
-	Serial.println(n);
+	if(n==3)
+	{
+		for(int i=1;i<=64;i++)
+		{
 
-	leds.setLEDgrid(n,1,31);
-	leds.updateGrid();
+				leds.setLEDgrid(i,1,31);
+				//delayMicroseconds(100000);
+
+		}
+		leds.updateGrid();
+	}
 
 }
 
@@ -33,11 +38,19 @@ void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f)
 //-----------------------------------------------------------------
 void onPadRelease(uint8_t n)
 {
-	Serial.println("rilejs ");
-	Serial.println(n);
 
-	leds.setLEDgrid(n,0,31);
-	leds.updateGrid();
+	if(n==3)
+	{
+		for(int i=1;i<=64;i++)
+		{
+
+				leds.setLEDgrid(i,0,31);
+				//delayMicroseconds(100000);
+
+		}
+		leds.updateGrid();
+	}
+
 
 }
 
