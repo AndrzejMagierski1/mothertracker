@@ -17,6 +17,7 @@ class Sequencer
 {
 private:
 	static const uint8_t MAXROW = 8,
+			MINROW = 1,
 			MAXCOL = 32,
 
 			DEFAULT_ROW_LEN = 32,
@@ -127,7 +128,6 @@ private:
 			PLAYMODE_POLY = 4,
 			PLAYMODE_MAX = 3;
 
-public:
 //	Sequencer() : IntervalTimer(){}
 
 	struct strBank
@@ -194,6 +194,8 @@ public:
 		} row[9];
 
 	} seq[4];
+	public:
+	strBank const * actualBank = &seq[0];
 
 	struct strGlobalConfig
 	{
@@ -241,7 +243,7 @@ public:
 		uint8_t midiOut = 0;
 
 	} noteHandler[100];
-
+	private:
 	float get_swing(void);
 	void initPattern(uint8_t pattern);
 	void switchStep(uint8_t row);
@@ -273,8 +275,11 @@ public:
 	uint8_t getTempoDiv(int8_t val);
 	uint8_t isInScale(uint8_t note, uint8_t root, uint8_t scale);
 	uint8_t isRowOn(uint8_t row);
-	uint8_t play_uStep(uint8_t row);
+	uint8_t play_microStep(uint8_t row);
 	uint8_t val2roll(uint8_t val);
+
+public:
+	void toggleStep(uint8_t, uint8_t);
 	void action_buttonClear(void);
 	void action_buttonDuplicate(void);
 	void action_buttonOnOff(void);
@@ -301,7 +306,7 @@ public:
 	void handle_ghosts(void);
 	void handle_player(void);
 	void handle_uStep_timer(void);
-	void handle_uStep12(uint8_t step);
+	void handle_nanoStep(uint8_t step);
 	void hold_function(int16_t x, uint16_t y);
 	void hold_step(int16_t x, uint16_t y);
 	void hold_track(int16_t x, uint16_t y);
@@ -351,7 +356,7 @@ public:
 	strGhost ghost;
 	strGlobalConfig config;
 
-	uint16_t timerTick = 0;
+	uint16_t nanoStep = 0;
 
 	elapsedMicros playerTimer;
 	elapsedMicros flushTimer = 0;

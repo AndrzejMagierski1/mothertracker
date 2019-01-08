@@ -29,6 +29,733 @@ void Sequencer::handle()
  * PUBLIC & PRIVATE
  */
 
+void Sequencer::handle_uStep_timer(void)
+{
+	// Serial.print(player.swingToogle);
+	// Serial.print("\t");
+	// Serial.println(timeBetweenTicks);
+	// Serial.send_now();
+
+	/*
+	 1 step = 48 x uStep = 48 x 12 timerTick(576)
+	 6912 timerTick = 12 stepów
+	 */
+
+	// noInterrupts();
+	if ((config.mode == MODE_MIDICLOCK.INTERNAL_)
+			|| (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK))
+	{
+		// handle_uStep(0);
+		// play_uStepEmulate(0);
+		if (isPlay() || isREC())
+		{
+			handle_nanoStep(0);
+			nanoStep++;
+			if (nanoStep > 6912)
+				nanoStep = 1;
+
+		}
+
+	}
+	else // external clock
+	{
+		// warunek blokujący przejście do kolejnego stepa
+		if ((nanoStep % 576 != 0) && (player.isPlay || isREC())) // && !clockustep)
+		{
+			handle_nanoStep(0); // to nie jest bez sensu, zostawione do testów
+			// play_uStepEmulate(0);
+
+			nanoStep++;
+			if (nanoStep > 6912)
+				nanoStep = 1;
+		}
+		else
+		{
+			// clockFuck = 0;
+		}
+	}
+}
+
+void Sequencer::handle_nanoStep(uint8_t step)
+{
+	if (isPlay())
+	{
+
+		if ((step == 1))// to znaczy że wywoładnie funkcji przyszło z midi clocka
+		{
+			player.uStep = 1;
+
+			// podciągamy tick do wielokrotności całego stepa czyli 576 +1
+			uint16_t tickBefore = nanoStep;
+			uint16_t tickAfter = nanoStep;
+			if (nanoStep % 576 != 1)
+			{
+				uint16_t tempTick = nanoStep;
+				while (tempTick % 576 != 1)
+					tempTick++;
+				tickAfter = tempTick;
+				// Serial.print("tickAfter ");
+				// Serial.println(tickAfter);
+			}
+
+			if (tickAfter >= tickBefore)
+			{
+				for (uint16_t tempTick = tickBefore; tempTick <= tickAfter;
+						tempTick++)
+				{
+					if (tempTick > 6912)
+					{
+						tempTick = 1;
+					}
+					nanoStep = tempTick;
+
+					for (uint8_t a = MINROW; a <= MAXROW; a++)
+					{
+						int8_t tTempoOption = constrain(
+								seq[player.ramBank].row[a].tempoDiv,
+								MIN_TEMPO_DIV,
+								MAX_TEMPO_DIV);
+						uint8_t tDiv = getTempoDiv(tTempoOption);
+
+						if (nanoStep % tDiv == 1)
+						{
+							divChangeQuantize(a);
+							play_microStep(a);
+							incr_uStep(a);
+						}
+					}
+					trySwitchBank();
+					if (tempTick == 1)
+					{
+						break;
+					}
+				}
+			}
+
+			else
+			{
+				Serial.println("a jednak");
+			}
+
+		}
+
+		else // wywoładnie z timera wewnętrznego
+		{
+			if (!player.isREC)
+			{
+				for (uint8_t a = MINROW; a <= MAXROW; a++)
+				{
+					int8_t tTempoDiv = constrain(
+							seq[player.ramBank].row[a].tempoDiv, MIN_TEMPO_DIV,
+							MAX_TEMPO_DIV);
+					uint8_t tDiv = getTempoDiv(tTempoDiv);
+
+					if (nanoStep % tDiv == 1)
+					{
+						divChangeQuantize(a);
+						play_microStep(a);
+						incr_uStep(a);
+					}
+				}
+				trySwitchBank();
+
+			}
+			else
+			{
+				for (uint8_t a = MINROW; a <= MAXROW; a++)
+				{
+					if (nanoStep % 12 == 1)
+					{
+						divChangeQuantize(a);
+						play_microStep(a);
+						incr_uStep(a);
+					}
+				}
+				trySwitchBank();
+			}
+		}
+
+		// stary mechanizm, na potrzeby startowania timera
+		if ((nanoStep % 12 == 1) || step)
+		{
+			if (player.uStep == 1)
+			{
+				// if (config.mode == MODE_MIDICLOCK_INTERNAL)
+				// {
+				//konfig timera do zmiany czasu trwania kroku na swing
+				if (!player.isREC)
+				{
+					float tempSwing;
+					if (config.mode == MODE_MIDICLOCK.INTERNAL_)
+						tempSwing = seq[player.ramBank].swing;
+					else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
+						tempSwing = config.swingLock;
+					else
+						tempSwing = 50.0;
+
+					if ((player.swingToogle))
+						player.swing_offset = 0 + tempSwing;
+					else
+						player.swing_offset = 100 - tempSwing;
+					player.swingToogle = !player.swingToogle;
+				}
+				else
+				{
+					player.swing_offset = 50.0;
+				}
+
+				//rekonfig timera
+				init_player_timer();
+			}
+
+			if (player.isPlay)
+			{
+				if (player.uStep > 0)
+				{
+					player.uStep++;
+
+					if (player.uStep > 48)
+					{
+						player.uStep = 1;
+					}
+				}
+			}
+		}
+
+		if (step == 1)
+		{
+			nanoStep++;
+			if (nanoStep > 6912)
+				nanoStep = 1;
+		}
+	}
+
+	if ((nanoStep % 12 == 1) || step)
+		rec_metronome();
+
+	flushNotes();
+
+}
+
+uint8_t Sequencer::play_microStep(uint8_t row)
+{
+
+	uint8_t anythingSent = 0;
+	uint8_t x = constrain(row, MINROW, MAXROW);
+	strBank::strRow & tempSeqRow = seq[player.ramBank].row[x];
+	strPlayer::strPlayerRow & tempPlayerRow = player.row[x];
+
+	// TU LICZYMY CZAS DO KONCA NUTY
+	if (player.row[x].note_length_timer > 0)					//ZMIANA
+	{
+		player.row[x].note_length_timer--;
+		if (player.row[x].note_length_timer < 0)
+			player.row[x].note_length_timer = 0; //bzdura ale huj, zostawie
+	}
+	// wyłączamy nutę jeśli się skończyła
+	if ((player.row[x].note_length_timer <= 1) && (player.row[x].noteOn_sent)
+			&& !player.row[x].recNoteOpen)
+	{
+		// GASIMY
+		if (player.row[x].note_sent <= 127)
+		{
+			// Serial.println("gasimy");
+
+			midiSendChordOff(player.row[x].note_sent,
+								player.row[x].chord_sent,
+								0,
+								player.row[x].channel_sent,
+								player.row[x].midiOut_sent,
+								player.row[x].scale_sent,
+								player.row[x].scaleRoot_sent);
+
+			// usbMIDI.send_now();
+		}
+		else if (player.row[x].note_sent == NOTE_JUMPTO)
+		{
+
+		}
+		else if (player.row[x].note_sent == NOTE_JUMPTO_NEXT)
+		{
+
+		}
+		player.row[x].noteOn_sent = 0;
+	}
+
+	// wysyłamy zegar
+	if ((player.uStepInd[x] > 0) && player.isPlay)
+	{
+		if (((player.uStepInd[x] - 1) % 8) == 0)
+		{
+			send_clock(x);
+			// Serial.println("clock");
+			// Serial.println(player.uStepInd[x]);
+		}
+	}
+
+	// uint8_t temp_hitMode, temp_isOn, temp_offset;//, temp_isGhost;
+	const uint8_t temp_hitMode =
+			seq[player.ramBank].row[x].step[player.row[x].actual_pos].hitMode;
+	const uint8_t temp_rowIsOn =
+			seq[player.ramBank].row[x].isOn;
+	const uint8_t temp_stepIsOn =
+			seq[player.ramBank].row[x].step[player.row[x].actual_pos].isOn;
+
+	const uint8_t temp_rollMode = val2roll(
+			seq[player.ramBank].row[x].step[player.row[x].actual_pos].hitMode);
+	const uint8_t temp_rollCurve =
+			seq[player.ramBank].row[x].step[player.row[x].actual_pos].rollCurve;
+	const uint8_t temp_offset =
+			seq[player.ramBank].row[x].step[player.row[x].actual_pos].offset;
+	const uint8_t temp_stepVelo =
+			seq[player.ramBank].row[x].step[player.row[x].actual_pos].velocity;
+	// temp_isGhost 	= player.row[x].step[player.row[x].actual_pos].isGhost;
+
+	if (temp_hitMode >= 1 && temp_rowIsOn && temp_stepIsOn)
+	{
+		//
+
+		// TU GRAMY
+		if (((temp_hitMode != HITMODE_OFFSET)
+				&& ((player.uStepInd[x] % (48 / temp_rollMode)) == 1))
+				|| ((temp_hitMode == HITMODE_OFFSET)
+						&& (player.uStepInd[x] == temp_offset)))
+		{
+
+			if ((player.uStepInd[x] % 48) == 1)
+			{
+				player.row[x].rollLength = 0;
+				player.row[x].rollCounter = 0;
+				// Serial.print("cycki1 ");
+			}
+			// tempPlayerRow.rollLength = 0;
+
+			const uint8_t tempNote =
+					tempSeqRow.step[player.row[x].actual_pos].note;
+			const uint8_t tempChord =
+					tempSeqRow.step[player.row[x].actual_pos].chord;
+			const uint8_t tempMod =
+					tempSeqRow.step[player.row[x].actual_pos].modulation;
+			const uint8_t tempScale = tempSeqRow.trackScale;
+			const uint8_t tempRoot = tempSeqRow.rootNote;
+			const uint8_t tempLength =
+					tempSeqRow.step[player.row[x].actual_pos].length1 + 1;
+
+			// sprawdzam czy początek rolki
+			if ((temp_hitMode != HITMODE_OFFSET) && (temp_hitMode > 1)
+					&& ((player.uStepInd[x] % 48) == 1))
+			{
+				player.row[x].rollLength = tempLength;
+				player.row[x].rollStep = player.row[x].actual_pos;
+				// Serial.print("cycki2 ");
+
+				// Serial.print("<");
+			}
+			else if ((temp_hitMode != HITMODE_OFFSET) && (temp_hitMode == 1))
+			{
+				player.row[x].rollStep = player.row[x].actual_pos;
+			}
+
+			// procent postępu rolki
+			const float rollProgress = (float(player.uStepInd[row])
+					/ (float(tempLength) * 48)) * 100;
+			// Serial.print("progress: ");
+			// Serial.println(rollProgress);
+
+			float tempVelo =
+					temp_hitMode > 1 ?
+							getLongRollVelo(temp_rollCurve, rollProgress)
+									* ((float) temp_stepVelo / 127) :
+							temp_stepVelo;
+
+			tempVelo = (tempVelo / MAX_VELO_TRACK)
+					* seq[player.ramBank].row[x].trackVelo;
+
+			//wyciszamy jezeli bylo cos wczesniej
+			if (player.row[x].noteOn_sent)
+			{
+
+				// midiSendNoteOff(player.row[x].note_sent,
+				//                 0,
+				//                 player.row[x].channel_sent,
+				//                 player.row[x].midiOut_sent);
+
+				midiSendChordOff(player.row[x].note_sent,
+									player.row[x].chord_sent,
+									0,
+									player.row[x].channel_sent,
+									player.row[x].midiOut_sent,
+									player.row[x].scale_sent,
+									player.row[x].scaleRoot_sent);
+
+				// usbMIDI.send_now();
+
+			}
+			//delay(2);
+
+			//gramy
+
+			if (player.row[x].rollLength > 0)
+				++player.row[x].rollCounter;
+
+			if (tempNote <= MAX_NOTE_TRACK && !player.row[x].divChange)
+			{
+
+				player.row[x].note_sent = constrain(
+						(int16_t ) tempNote
+								+ (int16_t ) getNextRollNoteOffset(x),
+						MIN_NOTE_STEP, MAX_NOTE_STEP);
+				// Serial.println(player.row[x].note_sent);
+
+				midiSendChordOn(
+						constrain(player.row[x].note_sent, MIN_NOTE_STEP,
+									MAX_NOTE_STEP),
+						tempChord,
+						uint8_t(tempVelo),
+						seq[player.ramBank].row[x].channel,
+						seq[player.ramBank].row[x].midiOut,
+						tempScale,
+						tempRoot);
+
+				anythingSent = 1;
+
+				// usbMIDI.send_now();
+
+				player.row[x].midiOut_sent = seq[player.ramBank].row[x].midiOut;
+				player.row[x].channel_sent = seq[player.ramBank].row[x].channel;
+
+				// jesli wystapila zmiana wysylamy mod
+				if (tempMod != NULL_MOD)
+				{
+					midiSendCC(seq[player.ramBank].row[x].cc,
+								tempMod,
+								seq[player.ramBank].row[x].channel,
+								seq[player.ramBank].row[x].midiOut);
+					// player.row[x].lastMod = tempMod;
+				}
+			}
+
+			else if (tempNote == NOTE_JUMPTO)
+			{
+				uint8_t can_i_jump = 1;
+				for (uint8_t a = MINROW; a <= MAXROW; a++)
+					if (player.row[a].makeJump)
+						can_i_jump = 0;
+
+				if (can_i_jump)
+				{
+					seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 =
+							0; // moment przed koncem, zeby nie zaświecała kolejna dioda
+
+					player.row[x].lastMod = tempMod;  // mod mówi gdzie skaczemy
+
+					setLoadBank2Ram(tempMod);
+
+					player.row[x].makeJump = 1;
+				}
+
+				// JUMP TO po odliczeniu długości nuty
+
+			}
+			else if (tempNote == NOTE_JUMPTO_NEXT)
+			{
+
+				uint8_t can_i_jump = 1;
+				for (uint8_t a = MINROW; a <= MAXROW; a++)
+					if (player.row[a].makeJump)
+						can_i_jump = 0;
+
+				if (can_i_jump)
+				{
+					seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 =
+							0; // moment przed koncem, zeby nie zaświecała kolejna dioda
+
+					// player.row[x].lastMod = tempMod;    // mod mówi gdzie skaczemy
+
+					setLoadBank2Ram(
+							player.actualBank < 255 ?
+														player.actualBank + 1 :
+														0);
+
+					player.row[x].makeJump = 1;
+				}
+
+			}
+
+			// player.row[x].note_sent = constrain(tempNote + getLastRollNoteOffset(x), MIN_NOTE_STEP, MAX_NOTE_STEP);
+			player.row[x].chord_sent = tempChord;
+			player.row[x].scale_sent = tempScale;
+			player.row[x].scaleRoot_sent = tempRoot;
+			player.row[x].noteOn_sent = 1;
+
+			if ((temp_hitMode > 1) && (temp_hitMode != HITMODE_OFFSET))
+			{
+				switch (seq[player.ramBank].row[x].gateMode)
+				{
+				case GATEMODE.NORMAL:
+					player.row[x].note_length_timer = (48 / temp_rollMode) - 2;
+					break;
+
+				case GATEMODE.MEDIUM:
+					player.row[x].note_length_timer = (48 / temp_rollMode) / 2;
+					break;
+
+				case GATEMODE.SHORT:
+					player.row[x].note_length_timer = 1;
+					break;
+
+				case GATEMODE.EXTRASHORT:
+					player.row[x].note_length_timer = 1;
+					break;
+
+				default:
+					player.row[x].note_length_timer =
+							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
+									+ 1) * 48 - 3;
+				}
+			}
+
+			else
+			{
+				// player.row[x].note_length_timer = seq[player.ramBank].row[x].step[player.row[x].actual_pos].length * 48 - 3;
+				// if (seq[player.ramBank].row[x].playMode == PLAYMODE_FORWARD) player.row[x].note_length_timer = 10;
+
+				switch (seq[player.ramBank].row[x].gateMode)
+				{
+				case GATEMODE.NORMAL:
+					player.row[x].note_length_timer =
+							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
+									+ 1) * 48 - 3;
+					break;
+
+				case GATEMODE.MEDIUM:
+					player.row[x].note_length_timer =
+							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
+									+ 1) * 48 - 24;
+					break;
+
+				case GATEMODE.SHORT:
+					player.row[x].note_length_timer =
+							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
+									+ 1) * 48 - 36;
+					break;
+
+				case GATEMODE.EXTRASHORT:
+					player.row[x].note_length_timer =
+							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
+									+ 1) * 48 - 43;
+					break;
+
+				default:
+					player.row[x].note_length_timer =
+							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
+									+ 1) * 48 - 3;
+				}
+			}
+
+			if (tempNote == NOTE_JUMPTO)
+				player.row[x].note_length_timer -= 1; // zeby diody nastepne po jumpie nie zaswiecily
+		}
+	}
+
+	else if (tempPlayerRow.rollLength > 0)
+	{
+		// pobieramy dane
+		const uint8_t ghostedStep = tempPlayerRow.rollStep;
+		// const uint8_t ghost_hitMode 	= seq[player.ramBank].row[x].step[ghostedStep].hitMode;
+		const uint8_t ghost_rollMode = val2roll(
+				seq[player.ramBank].row[x].step[ghostedStep].hitMode);
+
+		const uint8_t ghost_stepIsOn = val2roll(
+				seq[player.ramBank].row[x].step[ghostedStep].isOn);
+
+		const uint8_t temp_rowIsOn = seq[player.ramBank].row[x].isOn;
+		const uint8_t ghostedRollCurve =
+				seq[player.ramBank].row[x].step[ghostedStep].rollCurve;
+		const uint8_t ghostedStepLength =
+				seq[player.ramBank].row[x].step[ghostedStep].length1 + 1;
+
+		if ((player.uStepInd[row] % 48) == 1)
+		{
+			--tempPlayerRow.rollLength;
+		}
+
+		if (ghostedStep == 0)
+		{
+			tempPlayerRow.rollLength = 0;
+			tempPlayerRow.rollCounter = 0;
+		}
+		if (((player.uStepInd[row] % (48 / ghost_rollMode)) == 1)
+				&& tempPlayerRow.rollLength)
+		{
+			if (ghost_stepIsOn >= 1 && temp_rowIsOn)
+			{
+
+				if (player.row[x].rollLength > 0)
+					++player.row[x].rollCounter;
+
+				// procent postępu rolki
+				const float rollProgress = (float(
+						(ghostedStepLength - tempPlayerRow.rollLength) * 48
+								+ player.uStepInd[row])
+						/ (float(ghostedStepLength) * 48)) * 100;
+
+				// TU GRAMY
+				if (((ghost_rollMode != HITMODE_OFFSET)
+						&& ((player.uStepInd[row] % (48 / ghost_rollMode)) == 1))
+						|| ((ghost_rollMode == HITMODE_OFFSET)
+								&& (player.uStepInd[row] == temp_offset)))
+				{
+					const uint8_t tempNote = tempSeqRow.step[ghostedStep].note;
+					const uint8_t tempStepVelo =
+							tempSeqRow.step[ghostedStep].velocity;
+					const uint8_t tempChord = tempSeqRow.step[ghostedStep].chord;
+					// const uint8_t tempMod 	=	tempSeqRow.step[ghostedStep].modulation;
+					const uint8_t tempScale = tempSeqRow.trackScale;
+					const uint8_t tempRoot = tempSeqRow.rootNote;
+
+					float tempVelo = getLongRollVelo(ghostedRollCurve,
+														rollProgress)
+							* ((float) tempStepVelo / 127);
+					tempVelo = (tempVelo / MAX_VELO_TRACK)
+							* seq[player.ramBank].row[x].trackVelo;
+
+					//wyciszamy jezeli bylo cos wczesniej
+					if (player.row[x].noteOn_sent)
+					{
+						midiSendChordOff(player.row[x].note_sent,
+											player.row[x].chord_sent,
+											0,
+											player.row[x].channel_sent,
+											player.row[x].midiOut_sent,
+											player.row[x].scale_sent,
+											player.row[x].scaleRoot_sent);
+					}
+					//gramy
+					if (tempNote <= MAX_NOTE_TRACK)
+					{
+						player.row[x].note_sent = constrain(
+								(int16_t ) tempNote
+										+ (int16_t ) getNextRollNoteOffset(x),
+								MIN_NOTE_STEP, MAX_NOTE_STEP);
+						// Serial.println(player.row[x].note_sent);
+						midiSendChordOn(
+										constrain(player.row[x].note_sent,
+													MIN_NOTE_STEP,
+													MAX_NOTE_STEP),
+										tempChord,
+										uint8_t(tempVelo),
+										seq[player.ramBank].row[x].channel,
+										seq[player.ramBank].row[x].midiOut,
+										tempScale,
+										tempRoot);
+
+						anythingSent = 1;
+
+						player.row[x].midiOut_sent =
+								seq[player.ramBank].row[x].midiOut;
+						player.row[x].channel_sent =
+								seq[player.ramBank].row[x].channel;
+					}
+
+					player.row[x].chord_sent = tempChord;
+					player.row[x].scale_sent = tempScale;
+					player.row[x].scaleRoot_sent = tempRoot;
+					player.row[x].noteOn_sent = 1;
+
+					if ((ghost_rollMode >= 1)
+							&& (ghost_rollMode != HITMODE_OFFSET))
+					{
+						switch (seq[player.ramBank].row[x].gateMode)
+						{
+						case GATEMODE.NORMAL:
+							player.row[x].note_length_timer = (48
+									/ ghost_rollMode) - 2;
+							break;
+
+						case GATEMODE.MEDIUM:
+							player.row[x].note_length_timer = (48
+									/ ghost_rollMode) / 2;
+							break;
+
+						case GATEMODE.SHORT:
+							player.row[x].note_length_timer = 1;
+							break;
+
+						case GATEMODE.EXTRASHORT:
+							player.row[x].note_length_timer = 1;
+							break;
+
+						default:
+							player.row[x].note_length_timer =
+									(seq[player.ramBank].row[x].step[ghostedStep].length1
+											+ 1) * 48 - 3;
+						}
+					}
+				}
+			}
+
+			// wyłączamy przedłużenie rolki
+			if ((tempPlayerRow.rollLength == 1) && (player.uStepInd[row] == 48))
+			{
+				tempPlayerRow.rollLength = 0;
+				player.row[x].rollCounter = 0;
+				// Serial.println(">");
+			}
+		}
+		else
+		{
+
+		}
+	}
+	return anythingSent;
+}
+
+void Sequencer::rec_metronome(void)
+{
+	if (player.isREC && player.rec_intro_timer)
+	{
+		player.rec_intro_timer++;
+
+		if (player.rec_intro_timer >= player.rec_intro_timer_max)
+		{
+
+			player.rec_intro_timer = 1;
+			player.rec_intro_step++;
+
+			if (player.rec_intro_step == 5)
+			{
+				if (debug.player)
+					Serial.println("zaraz...");
+
+				player.isPlay = 1;
+				player.uStep = 1;
+				for (uint8_t a = MINROW; a <= MAXROW; a++)
+				{
+					player.uStepInd[a] = 1;
+				}
+				//player.metronome_timer = 1;
+
+				player.rec_intro_step = 0;
+				player.rec_intro_timer = 0;
+
+//				change_grid_view_mode(VIEWMODE_SEQUENCE);
+
+				if (debug.player)
+					Serial.println("nagrywam");
+
+//				reset_ruler_blink();
+			}
+		}
+
+	}
+	else if (!player.isREC)
+	{
+		player.rec_intro_timer = 0;
+		player.rec_intro_step = 0;
+	}
+}
+
 void Sequencer::handle_ghosts(void)
 {
 	for (int8_t col = 1; col <= seq[player.ramBank].row[ghost.cnt1].length;
@@ -73,51 +800,6 @@ void Sequencer::handle_ghosts(void)
 	}
 }
 
-void Sequencer::rec_metronome(void)
-{
-	if (player.isREC && player.rec_intro_timer)
-	{
-		player.rec_intro_timer++;
-
-		if (player.rec_intro_timer >= player.rec_intro_timer_max)
-		{
-
-			player.rec_intro_timer = 1;
-			player.rec_intro_step++;
-
-			if (player.rec_intro_step == 5)
-			{
-				if (debug.player)
-					Serial.println("zaraz...");
-
-				player.isPlay = 1;
-				player.uStep = 1;
-				for (uint8_t a = 1; a <= 8; a++)
-				{
-					player.uStepInd[a] = 1;
-				}
-				//player.metronome_timer = 1;
-
-				player.rec_intro_step = 0;
-				player.rec_intro_timer = 0;
-
-//				change_grid_view_mode(VIEWMODE_SEQUENCE);
-
-				if (debug.player)
-					Serial.println("nagrywam");
-
-//				reset_ruler_blink();
-			}
-		}
-
-	}
-	else if (!player.isREC)
-	{
-		player.rec_intro_timer = 0;
-		player.rec_intro_step = 0;
-	}
-}
-
 void Sequencer::action_buttonPlay(void)
 {
 	if (debug.player)
@@ -127,10 +809,10 @@ void Sequencer::action_buttonPlay(void)
 
 	player.isStop = 0;
 	player.isPlay = 1;
-	timerTick = 1;
+	nanoStep = 1;
 
 	player.uStep = 1;
-	for (uint8_t a = 0; a <= 8; a++)
+	for (uint8_t a = MINROW; a <= MAXROW; a++)
 	{
 		player.uStepInd[a] = 1;
 
@@ -176,9 +858,9 @@ void Sequencer::action_buttonStop(void)
 	player.isREC = 0;
 	player.uStep = 0;
 
-	timerTick = 1;
+	nanoStep = 1;
 
-	for (uint8_t a = 0; a <= 8; a++)
+	for (uint8_t a = MINROW; a <= MAXROW; a++)
 	{
 		player.uStepInd[a] = 0;
 		player.row[a].rollStep = 0;
@@ -205,7 +887,7 @@ void Sequencer::action_buttonStop(void)
 
 void Sequencer::resetLastSendMod(void)
 {
-	for (uint8_t y = 1; y <= 8; y++)
+	for (uint8_t y = MINROW; y <= MAXROW; y++)
 	{
 		player.row[y].lastMod = 128;
 	}
@@ -215,7 +897,7 @@ void Sequencer::resetAllLearned(void)
 {
 	for (uint8_t x = 1; x <= 32; x++)
 	{
-		for (uint8_t y = 1; y <= 8; y++)
+		for (uint8_t y = MINROW; y <= MAXROW; y++)
 		{
 			player.row[y].step[x].learned = 0;
 		}
@@ -352,7 +1034,7 @@ void Sequencer::initBank(uint8_t bank)
 	seq[bank].rezerwa3 = 0;
 	seq[bank].rezerwa4 = 0;
 
-	for (uint8_t row = 1; row <= 8; row++)
+	for (uint8_t row = MINROW; row <= MAXROW; row++)
 	{
 		initRow(row, bank);
 	}
@@ -453,7 +1135,7 @@ void Sequencer::randomize_row(uint8_t row)
 				if (random(0, 2) < 1)
 				{
 					seq[player.ramBank].row[row].step[col].hitMode =
-					HITMODE_OFFSET;
+							HITMODE_OFFSET;
 					seq[player.ramBank].row[row].step[col].offset = random(
 							OFFSET_MIN, OFFSET_MAX);
 					;
@@ -561,20 +1243,19 @@ uint8_t Sequencer::isRowOn(uint8_t row)
 
 void Sequencer::loadDefaultSequence(void)
 {
-	for (uint8_t x = 1; x <= 8; x++)
+	for (uint8_t x = MINROW; x <= MAXROW; x++)
 	{
 		seq[player.ramBank].row[x].rootNote = 35 + x;
 		seq[player.ramBank].row[x].channel = x;
 		seq[player.ramBank].row[x].isOn = 1;
 
+		seq[player.ramBank].row[x].length = 16;
 		for (uint8_t y = 1; y <= 32; y++)
 		{
-
 			seq[player.ramBank].row[x].step[y].isOn = 0;
 		}
 	}
 
-	seq[player.ramBank].row[1].length = 4;
 	seq[player.ramBank].row[1].step[1].isOn = 1;
 	seq[player.ramBank].row[1].step[1].hitMode = 1;
 	seq[player.ramBank].row[1].step[1].note = 30;
@@ -598,7 +1279,7 @@ uint16_t Sequencer::get_size(void)
 
 void Sequencer::allNoteOffs(void)
 {
-	for (uint8_t a = 1; a <= 8; a++)
+	for (uint8_t a = MINROW; a <= MAXROW; a++)
 	{
 		if (player.row[a].noteOn_sent)
 		{
@@ -997,7 +1678,7 @@ void Sequencer::allNoteOffs(void)
 
 void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od trybu grania
 {
-	uint8_t x = constrain(row, 1, 8);
+	uint8_t x = constrain(row, MINROW, MAXROW);
 
 	if (player.isREC && player.row[x].recNoteOpen)
 	{
@@ -1014,7 +1695,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	}
 	else if (player.row[x].makeJump)
 	{
-		for (uint8_t a = 1; a <= 8; a++)
+		for (uint8_t a = MINROW; a <= MAXROW; a++)
 		{
 			player.row[x].makeJump = 0;
 		}
@@ -1133,7 +1814,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 
 void Sequencer::reset_actual_pos(void)
 {
-	for (uint8_t row = 1; row <= MAXROW; row++)
+	for (uint8_t row = MINROW; row <= MAXROW; row++)
 	{
 		player.row[row].pingPongToogle = 0;
 		reset_actual_pos(row);
@@ -1158,480 +1839,6 @@ void Sequencer::reset_actual_pos(uint8_t row)
 		player.row[row].actual_pos = 1;
 	}
 
-}
-
-uint8_t Sequencer::play_uStep(uint8_t row)
-{
-
-	uint8_t anythingSent = 0;
-	uint8_t x = constrain(row, 1, 8);
-	strBank::strRow & tempSeqRow = seq[player.ramBank].row[x];
-	strPlayer::strPlayerRow & tempPlayerRow = player.row[x];
-
-	// TU LICZYMY CZAS DO KONCA NUTY
-	if (player.row[x].note_length_timer > 0)					//ZMIANA
-	{
-		player.row[x].note_length_timer--;
-		if (player.row[x].note_length_timer < 0)
-			player.row[x].note_length_timer = 0; //bzdura ale huj, zostawie
-	}
-	// wyłączamy nutę jeśli się skończyła
-	if ((player.row[x].note_length_timer <= 1) && (player.row[x].noteOn_sent)
-			&& !player.row[x].recNoteOpen)
-	{
-		// GASIMY
-		if (player.row[x].note_sent <= 127)
-		{
-			// Serial.println("gasimy");
-
-			midiSendChordOff(player.row[x].note_sent,
-								player.row[x].chord_sent,
-								0,
-								player.row[x].channel_sent,
-								player.row[x].midiOut_sent,
-								player.row[x].scale_sent,
-								player.row[x].scaleRoot_sent);
-
-			// usbMIDI.send_now();
-		}
-		else if (player.row[x].note_sent == NOTE_JUMPTO)
-		{
-
-		}
-		else if (player.row[x].note_sent == NOTE_JUMPTO_NEXT)
-		{
-
-		}
-		player.row[x].noteOn_sent = 0;
-	}
-
-	// wysyłamy zegar
-	if ((player.uStepInd[x] > 0) && player.isPlay)
-	{
-		if (((player.uStepInd[x] - 1) % 8) == 0)
-		{
-			send_clock(x);
-			// Serial.println("clock");
-			// Serial.println(player.uStepInd[x]);
-		}
-	}
-
-	// uint8_t temp_hitMode, temp_isOn, temp_offset;//, temp_isGhost;
-	const uint8_t temp_hitMode =
-			seq[player.ramBank].row[x].step[player.row[x].actual_pos].hitMode;
-	const uint8_t temp_rowIsOn =
-			seq[player.ramBank].row[x].isOn;
-	const uint8_t temp_stepIsOn =
-			seq[player.ramBank].row[x].step[player.row[x].actual_pos].isOn;
-
-	const uint8_t temp_rollMode = val2roll(
-			seq[player.ramBank].row[x].step[player.row[x].actual_pos].hitMode);
-	const uint8_t temp_rollCurve =
-			seq[player.ramBank].row[x].step[player.row[x].actual_pos].rollCurve;
-	const uint8_t temp_offset =
-			seq[player.ramBank].row[x].step[player.row[x].actual_pos].offset;
-	const uint8_t temp_stepVelo =
-			seq[player.ramBank].row[x].step[player.row[x].actual_pos].velocity;
-	// temp_isGhost 	= player.row[x].step[player.row[x].actual_pos].isGhost;
-
-	if (temp_hitMode >= 1 && temp_rowIsOn && temp_stepIsOn)
-	{
-		//
-
-		// TU GRAMY
-		if (((temp_hitMode != HITMODE_OFFSET)
-				&& ((player.uStepInd[x] % (48 / temp_rollMode)) == 1))
-				|| ((temp_hitMode == HITMODE_OFFSET)
-						&& (player.uStepInd[x] == temp_offset)))
-		{
-
-			if ((player.uStepInd[x] % 48) == 1)
-			{
-				player.row[x].rollLength = 0;
-				player.row[x].rollCounter = 0;
-				// Serial.print("cycki1 ");
-			}
-			// tempPlayerRow.rollLength = 0;
-
-			const uint8_t tempNote =
-					tempSeqRow.step[player.row[x].actual_pos].note;
-			const uint8_t tempChord =
-					tempSeqRow.step[player.row[x].actual_pos].chord;
-			const uint8_t tempMod =
-					tempSeqRow.step[player.row[x].actual_pos].modulation;
-			const uint8_t tempScale = tempSeqRow.trackScale;
-			const uint8_t tempRoot = tempSeqRow.rootNote;
-			const uint8_t tempLength =
-					tempSeqRow.step[player.row[x].actual_pos].length1 + 1;
-
-			// sprawdzam czy początek rolki
-			if ((temp_hitMode != HITMODE_OFFSET) && (temp_hitMode > 1)
-					&& ((player.uStepInd[x] % 48) == 1))
-			{
-				player.row[x].rollLength = tempLength;
-				player.row[x].rollStep = player.row[x].actual_pos;
-				// Serial.print("cycki2 ");
-
-				// Serial.print("<");
-			}
-			else if ((temp_hitMode != HITMODE_OFFSET) && (temp_hitMode == 1))
-			{
-				player.row[x].rollStep = player.row[x].actual_pos;
-			}
-
-			// procent postępu rolki
-			const float rollProgress = (float(player.uStepInd[row])
-					/ (float(tempLength) * 48)) * 100;
-			// Serial.print("progress: ");
-			// Serial.println(rollProgress);
-
-			float tempVelo =
-					temp_hitMode > 1 ?
-							getLongRollVelo(temp_rollCurve, rollProgress)
-									* ((float) temp_stepVelo / 127) :
-							temp_stepVelo;
-
-			tempVelo = (tempVelo / MAX_VELO_TRACK)
-					* seq[player.ramBank].row[x].trackVelo;
-
-			//wyciszamy jezeli bylo cos wczesniej
-			if (player.row[x].noteOn_sent)
-			{
-
-				// midiSendNoteOff(player.row[x].note_sent,
-				//                 0,
-				//                 player.row[x].channel_sent,
-				//                 player.row[x].midiOut_sent);
-
-				midiSendChordOff(player.row[x].note_sent,
-									player.row[x].chord_sent,
-									0,
-									player.row[x].channel_sent,
-									player.row[x].midiOut_sent,
-									player.row[x].scale_sent,
-									player.row[x].scaleRoot_sent);
-
-				// usbMIDI.send_now();
-
-			}
-			//delay(2);
-
-			//gramy
-
-			if (player.row[x].rollLength > 0)
-				++player.row[x].rollCounter;
-
-			if (tempNote <= MAX_NOTE_TRACK && !player.row[x].divChange)
-			{
-
-				player.row[x].note_sent = constrain(
-						(int16_t ) tempNote
-								+ (int16_t ) getNextRollNoteOffset(x),
-						MIN_NOTE_STEP, MAX_NOTE_STEP);
-				// Serial.println(player.row[x].note_sent);
-
-				midiSendChordOn(
-						constrain(player.row[x].note_sent, MIN_NOTE_STEP,
-									MAX_NOTE_STEP),
-						tempChord,
-						uint8_t(tempVelo),
-						seq[player.ramBank].row[x].channel,
-						seq[player.ramBank].row[x].midiOut,
-						tempScale,
-						tempRoot);
-
-				anythingSent = 1;
-
-				// usbMIDI.send_now();
-
-				player.row[x].midiOut_sent = seq[player.ramBank].row[x].midiOut;
-				player.row[x].channel_sent = seq[player.ramBank].row[x].channel;
-
-				// jesli wystapila zmiana wysylamy mod
-				if (tempMod != NULL_MOD)
-				{
-					midiSendCC(seq[player.ramBank].row[x].cc,
-								tempMod,
-								seq[player.ramBank].row[x].channel,
-								seq[player.ramBank].row[x].midiOut);
-					// player.row[x].lastMod = tempMod;
-				}
-			}
-
-			else if (tempNote == NOTE_JUMPTO)
-			{
-				uint8_t can_i_jump = 1;
-				for (uint8_t a = 1; a <= 8; a++)
-					if (player.row[a].makeJump)
-						can_i_jump = 0;
-
-				if (can_i_jump)
-				{
-					seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 =
-							0; // moment przed koncem, zeby nie zaświecała kolejna dioda
-
-					player.row[x].lastMod = tempMod;  // mod mówi gdzie skaczemy
-
-					setLoadBank2Ram(tempMod);
-
-					player.row[x].makeJump = 1;
-				}
-
-				// JUMP TO po odliczeniu długości nuty
-
-			}
-			else if (tempNote == NOTE_JUMPTO_NEXT)
-			{
-
-				uint8_t can_i_jump = 1;
-				for (uint8_t a = 1; a <= 8; a++)
-					if (player.row[a].makeJump)
-						can_i_jump = 0;
-
-				if (can_i_jump)
-				{
-					seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 =
-							0; // moment przed koncem, zeby nie zaświecała kolejna dioda
-
-					// player.row[x].lastMod = tempMod;    // mod mówi gdzie skaczemy
-
-					setLoadBank2Ram(
-							player.actualBank < 255 ?
-														player.actualBank + 1 :
-														0);
-
-					player.row[x].makeJump = 1;
-				}
-
-			}
-
-			// player.row[x].note_sent = constrain(tempNote + getLastRollNoteOffset(x), MIN_NOTE_STEP, MAX_NOTE_STEP);
-			player.row[x].chord_sent = tempChord;
-			player.row[x].scale_sent = tempScale;
-			player.row[x].scaleRoot_sent = tempRoot;
-			player.row[x].noteOn_sent = 1;
-
-			if ((temp_hitMode > 1) && (temp_hitMode != HITMODE_OFFSET))
-			{
-				switch (seq[player.ramBank].row[x].gateMode)
-				{
-				case GATEMODE.NORMAL:
-					player.row[x].note_length_timer = (48 / temp_rollMode) - 2;
-					break;
-
-				case GATEMODE.MEDIUM:
-					player.row[x].note_length_timer = (48 / temp_rollMode) / 2;
-					break;
-
-				case GATEMODE.SHORT:
-					player.row[x].note_length_timer = 1;
-					break;
-
-				case GATEMODE.EXTRASHORT:
-					player.row[x].note_length_timer = 1;
-					break;
-
-				default:
-					player.row[x].note_length_timer =
-							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
-									+ 1) * 48 - 3;
-				}
-			}
-
-			else
-			{
-				// player.row[x].note_length_timer = seq[player.ramBank].row[x].step[player.row[x].actual_pos].length * 48 - 3;
-				// if (seq[player.ramBank].row[x].playMode == PLAYMODE_FORWARD) player.row[x].note_length_timer = 10;
-
-				switch (seq[player.ramBank].row[x].gateMode)
-				{
-				case GATEMODE.NORMAL:
-					player.row[x].note_length_timer =
-							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
-									+ 1) * 48 - 3;
-					break;
-
-				case GATEMODE.MEDIUM:
-					player.row[x].note_length_timer =
-							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
-									+ 1) * 48 - 24;
-					break;
-
-				case GATEMODE.SHORT:
-					player.row[x].note_length_timer =
-							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
-									+ 1) * 48 - 36;
-					break;
-
-				case GATEMODE.EXTRASHORT:
-					player.row[x].note_length_timer =
-							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
-									+ 1) * 48 - 43;
-					break;
-
-				default:
-					player.row[x].note_length_timer =
-							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
-									+ 1) * 48 - 3;
-				}
-			}
-
-			if (tempNote == NOTE_JUMPTO)
-				player.row[x].note_length_timer -= 1; // zeby diody nastepne po jumpie nie zaswiecily
-		}
-	}
-
-	else if (tempPlayerRow.rollLength > 0)
-	{
-		// pobieramy dane
-		const uint8_t ghostedStep = tempPlayerRow.rollStep;
-		// const uint8_t ghost_hitMode 	= seq[player.ramBank].row[x].step[ghostedStep].hitMode;
-		const uint8_t ghost_rollMode = val2roll(
-				seq[player.ramBank].row[x].step[ghostedStep].hitMode);
-
-		const uint8_t ghost_stepIsOn = val2roll(
-				seq[player.ramBank].row[x].step[ghostedStep].isOn);
-
-		const uint8_t temp_rowIsOn = seq[player.ramBank].row[x].isOn;
-		const uint8_t ghostedRollCurve =
-				seq[player.ramBank].row[x].step[ghostedStep].rollCurve;
-		const uint8_t ghostedStepLength =
-				seq[player.ramBank].row[x].step[ghostedStep].length1 + 1;
-
-		if ((player.uStepInd[row] % 48) == 1)
-		{
-			--tempPlayerRow.rollLength;
-		}
-
-		if (ghostedStep == 0)
-		{
-			tempPlayerRow.rollLength = 0;
-			tempPlayerRow.rollCounter = 0;
-		}
-		if (((player.uStepInd[row] % (48 / ghost_rollMode)) == 1)
-				&& tempPlayerRow.rollLength)
-		{
-			if (ghost_stepIsOn >= 1 && temp_rowIsOn)
-			{
-
-				if (player.row[x].rollLength > 0)
-					++player.row[x].rollCounter;
-
-				// procent postępu rolki
-				const float rollProgress = (float(
-						(ghostedStepLength - tempPlayerRow.rollLength) * 48
-								+ player.uStepInd[row])
-						/ (float(ghostedStepLength) * 48)) * 100;
-
-				// TU GRAMY
-				if (((ghost_rollMode != HITMODE_OFFSET)
-						&& ((player.uStepInd[row] % (48 / ghost_rollMode)) == 1))
-						|| ((ghost_rollMode == HITMODE_OFFSET)
-								&& (player.uStepInd[row] == temp_offset)))
-				{
-					const uint8_t tempNote = tempSeqRow.step[ghostedStep].note;
-					const uint8_t tempStepVelo =
-							tempSeqRow.step[ghostedStep].velocity;
-					const uint8_t tempChord = tempSeqRow.step[ghostedStep].chord;
-					// const uint8_t tempMod 	=	tempSeqRow.step[ghostedStep].modulation;
-					const uint8_t tempScale = tempSeqRow.trackScale;
-					const uint8_t tempRoot = tempSeqRow.rootNote;
-
-					float tempVelo = getLongRollVelo(ghostedRollCurve,
-														rollProgress)
-							* ((float) tempStepVelo / 127);
-					tempVelo = (tempVelo / MAX_VELO_TRACK)
-							* seq[player.ramBank].row[x].trackVelo;
-
-					//wyciszamy jezeli bylo cos wczesniej
-					if (player.row[x].noteOn_sent)
-					{
-						midiSendChordOff(player.row[x].note_sent,
-											player.row[x].chord_sent,
-											0,
-											player.row[x].channel_sent,
-											player.row[x].midiOut_sent,
-											player.row[x].scale_sent,
-											player.row[x].scaleRoot_sent);
-					}
-					//gramy
-					if (tempNote <= MAX_NOTE_TRACK)
-					{
-						player.row[x].note_sent = constrain(
-								(int16_t ) tempNote
-										+ (int16_t ) getNextRollNoteOffset(x),
-								MIN_NOTE_STEP, MAX_NOTE_STEP);
-						// Serial.println(player.row[x].note_sent);
-						midiSendChordOn(
-										constrain(player.row[x].note_sent,
-													MIN_NOTE_STEP,
-													MAX_NOTE_STEP),
-										tempChord,
-										uint8_t(tempVelo),
-										seq[player.ramBank].row[x].channel,
-										seq[player.ramBank].row[x].midiOut,
-										tempScale,
-										tempRoot);
-
-						anythingSent = 1;
-
-						player.row[x].midiOut_sent =
-								seq[player.ramBank].row[x].midiOut;
-						player.row[x].channel_sent =
-								seq[player.ramBank].row[x].channel;
-					}
-
-					player.row[x].chord_sent = tempChord;
-					player.row[x].scale_sent = tempScale;
-					player.row[x].scaleRoot_sent = tempRoot;
-					player.row[x].noteOn_sent = 1;
-
-					if ((ghost_rollMode >= 1)
-							&& (ghost_rollMode != HITMODE_OFFSET))
-					{
-						switch (seq[player.ramBank].row[x].gateMode)
-						{
-						case GATEMODE.NORMAL:
-							player.row[x].note_length_timer = (48
-									/ ghost_rollMode) - 2;
-							break;
-
-						case GATEMODE.MEDIUM:
-							player.row[x].note_length_timer = (48
-									/ ghost_rollMode) / 2;
-							break;
-
-						case GATEMODE.SHORT:
-							player.row[x].note_length_timer = 1;
-							break;
-
-						case GATEMODE.EXTRASHORT:
-							player.row[x].note_length_timer = 1;
-							break;
-
-						default:
-							player.row[x].note_length_timer =
-									(seq[player.ramBank].row[x].step[ghostedStep].length1
-											+ 1) * 48 - 3;
-						}
-					}
-				}
-			}
-
-			// wyłączamy przedłużenie rolki
-			if ((tempPlayerRow.rollLength == 1) && (player.uStepInd[row] == 48))
-			{
-				tempPlayerRow.rollLength = 0;
-				player.row[x].rollCounter = 0;
-				// Serial.println(">");
-			}
-		}
-		else
-		{
-
-		}
-	}
-	return anythingSent;
 }
 
 int8_t Sequencer::getLastRollNoteOffset(uint8_t row)
@@ -1767,56 +1974,9 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 }
 void Sequencer::print_uSteps()
 {
-	for (uint8_t a = 1; a <= 8; a++)
+	for (uint8_t a = MINROW; a <= MAXROW; a++)
 	{
 		Serial.println(player.uStepInd[a]);
-	}
-}
-
-void Sequencer::handle_uStep_timer(void)
-{
-	// Serial.print(player.swingToogle);
-	// Serial.print("\t");
-	// Serial.println(timeBetweenTicks);
-	// Serial.send_now();
-
-	/*
-	 1 step = 48 x uStep = 48 x 12 timerTick(576)
-	 6912 timerTick = 12 stepów
-	 */
-
-	// noInterrupts();
-	if ((config.mode == MODE_MIDICLOCK.INTERNAL_)
-			|| (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK))
-	{
-		// handle_uStep(0);
-		// play_uStepEmulate(0);
-		if (isPlay() || isREC())
-		{
-			handle_uStep12(0);
-			timerTick++;
-			if (timerTick > 6912)
-				timerTick = 1;
-
-		}
-
-	}
-	else // external clock
-	{
-		// warunek blokujący przejście do kolejnego stepa
-		if ((timerTick % 576 != 0) && (player.isPlay || isREC())) // && !clockustep)
-		{
-			handle_uStep12(0); // to nie jest bez sensu, zostawione do testów
-			// play_uStepEmulate(0);
-
-			timerTick++;
-			if (timerTick > 6912)
-				timerTick = 1;
-		}
-		else
-		{
-			// clockFuck = 0;
-		}
 	}
 }
 
@@ -1907,7 +2067,7 @@ void Sequencer::divChangeQuantize(uint8_t row)
 									MAX_TEMPO_DIV);
 	uint8_t tDiv = getTempoDiv(tTempoOption);
 
-	if (player.row[row].divChange && ((timerTick % (tDiv * 48)) == 1))
+	if (player.row[row].divChange && ((nanoStep % (tDiv * 48)) == 1))
 	{
 		player.row[row].divChange = 0;
 		player.uStepInd[row] = 1;
@@ -1969,167 +2129,6 @@ uint8_t Sequencer::getTempoDiv(int8_t val)
 	}
 
 	return 12;
-}
-
-void Sequencer::handle_uStep12(uint8_t step)
-{
-	if (isPlay())
-	{
-
-		if ((step == 1))// to znaczy że wywoładnie funkcji przyszło z midi clocka
-		{
-			player.uStep = 1;
-
-			// podciągamy tick do wielokrotności całego stepa czyli 576 +1
-			uint16_t tickBefore = timerTick;
-			uint16_t tickAfter = timerTick;
-			if (timerTick % 576 != 1)
-			{
-				uint16_t tempTick = timerTick;
-				while (tempTick % 576 != 1)
-					tempTick++;
-				tickAfter = tempTick;
-				// Serial.print("tickAfter ");
-				// Serial.println(tickAfter);
-			}
-
-			if (tickAfter >= tickBefore)
-			{
-				for (uint16_t tempTick = tickBefore; tempTick <= tickAfter;
-						tempTick++)
-				{
-					if (tempTick > 6912)
-					{
-						tempTick = 1;
-					}
-					timerTick = tempTick;
-
-					for (uint8_t a = 1; a <= 8; a++)
-					{
-						int8_t tTempoOption = constrain(
-								seq[player.ramBank].row[a].tempoDiv,
-								MIN_TEMPO_DIV,
-								MAX_TEMPO_DIV);
-						uint8_t tDiv = getTempoDiv(tTempoOption);
-
-						if (timerTick % tDiv == 1)
-						{
-							divChangeQuantize(a);
-							play_uStep(a);
-							incr_uStep(a);
-						}
-					}
-					trySwitchBank();
-					if (tempTick == 1)
-					{
-						break;
-					}
-				}
-			}
-
-			else
-			{
-				Serial.println("a jednak");
-			}
-
-		}
-
-		else // wywoładnie z timera wewnętrznego
-		{
-			if (!player.isREC)
-			{
-				for (uint8_t a = 1; a <= 8; a++)
-				{
-					int8_t tTempoDiv = constrain(
-							seq[player.ramBank].row[a].tempoDiv, MIN_TEMPO_DIV,
-							MAX_TEMPO_DIV);
-					uint8_t tDiv = getTempoDiv(tTempoDiv);
-
-					if (timerTick % tDiv == 1)
-					{
-						divChangeQuantize(a);
-						play_uStep(a);
-						incr_uStep(a);
-					}
-				}
-				trySwitchBank();
-
-			}
-			else
-			{
-				for (uint8_t a = 1; a <= 8; a++)
-				{
-					if (timerTick % 12 == 1)
-					{
-						divChangeQuantize(a);
-						play_uStep(a);
-						incr_uStep(a);
-					}
-				}
-				trySwitchBank();
-			}
-		}
-
-		// stary mechanizm, na potrzeby startowania timera
-		if ((timerTick % 12 == 1) || step)
-		{
-			if (player.uStep == 1)
-			{
-				// if (config.mode == MODE_MIDICLOCK_INTERNAL)
-				// {
-				//konfig timera do zmiany czasu trwania kroku na swing
-				if (!player.isREC)
-				{
-					float tempSwing;
-					if (config.mode == MODE_MIDICLOCK.INTERNAL_)
-						tempSwing = seq[player.ramBank].swing;
-					else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
-						tempSwing = config.swingLock;
-					else
-						tempSwing = 50.0;
-
-					if ((player.swingToogle))
-						player.swing_offset = 0 + tempSwing;
-					else
-						player.swing_offset = 100 - tempSwing;
-					player.swingToogle = !player.swingToogle;
-				}
-				else
-				{
-					player.swing_offset = 50.0;
-				}
-
-				//rekonfig timera
-				init_player_timer();
-			}
-
-			if (player.isPlay)
-			{
-				if (player.uStep > 0)
-				{
-					player.uStep++;
-
-					if (player.uStep > 48)
-					{
-						player.uStep = 1;
-					}
-				}
-			}
-		}
-
-		if (step == 1)
-		{
-			timerTick++;
-			if (timerTick > 6912)
-				timerTick = 1;
-		}
-	}
-
-	if ((timerTick % 12 == 1) || step)
-		rec_metronome();
-
-	flushNotes();
-
 }
 
 float Sequencer::get_tempo(void)
@@ -2239,7 +2238,6 @@ void Sequencer::midiSendChordOn(uint8_t note,
 	Serial.println("BAM!");
 	usbMIDI.sendNoteOn(channel, note, velo);
 
-
 }
 void Sequencer::midiSendChordOff(uint8_t note,
 									uint8_t chord,
@@ -2253,23 +2251,24 @@ void Sequencer::midiSendChordOff(uint8_t note,
 	usbMIDI.sendNoteOff(channel, note, velo);
 }
 
-void Sequencer::copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x,
-							uint8_t to_y)
+void Sequencer::copy_step(uint8_t from_step, uint8_t from_track,
+							uint8_t to_step,
+							uint8_t to_track)
 {
-	from_x = constrain(from_x, 1, 32);
-	from_y = constrain(from_y, 1, 32);
+	from_step = constrain(from_step, 1, 32);
+	from_track = constrain(from_track, MINROW, MAXROW);
 
-	to_x = constrain(to_x, 1, 32);
-	to_y = constrain(to_y, 1, 32);
+	to_step = constrain(to_step, 1, 32);
+	to_track = constrain(to_track, MINROW, MAXROW);
 
-	seq[player.ramBank].row[to_y].step[to_x] =
-			seq[player.ramBank].row[from_y].step[from_x];
+	seq[player.ramBank].row[to_track].step[to_step] =
+			seq[player.ramBank].row[from_track].step[from_step];
 }
 
 void Sequencer::copy_row(uint8_t from, uint8_t to)
 {
-	from = constrain(from, 1, 8);
-	to = constrain(to, 1, 8);
+	from = constrain(from, MINROW, MAXROW);
+	to = constrain(to, MINROW, MAXROW);
 	seq[player.ramBank].row[to] = seq[player.ramBank].row[from];
 }
 
@@ -2308,3 +2307,9 @@ void Sequencer::send_clock(uint8_t arg)
 
 }
 
+void Sequencer::toggleStep(uint8_t row, uint8_t step)
+{
+	seq[player.ramBank].row[row].step[step].isOn =
+			!seq[player.ramBank].row[row].step[step].isOn;
+	seq[player.ramBank].row[row].step[step].note = DEFAULT_ROW_NOTE;
+}
