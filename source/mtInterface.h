@@ -3,17 +3,8 @@
 #ifndef MTINTERFACE_H
 #define MTINTERFACE_H
 
-
-enum enumMtOperatingMode
-{
-	mtOperatingModeNone,
-	mtOperatingModeStartup,
-	mtOperatingModeSongEditor,
-	mtOperatingModeFileManager,
-	mtOperatingModeSampleEditor,
-	mtOperatingModePrint,
-	mtOperatingModePolyLogo,
-};
+#include <stdint.h>
+#include "elapsedMillis.h"
 
 
 
@@ -22,11 +13,14 @@ class cMtInterface
 public:
 	void begin();
 	void update();
+	void setOperatingMode(uint8_t mode);
 
 private:
 
-	uint8_t operatingMode;
+	void processOperatingMode();
 
+	uint8_t operatingMode;
+	elapsedMillis startupTimer;
 
 
 

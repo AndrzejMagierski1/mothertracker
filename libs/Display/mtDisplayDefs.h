@@ -16,6 +16,7 @@
 #define MT_DISP_VALUE_ROUND_COLOR 	DISP_RGB(255,255,255)
 #define MT_DISP_VALUE_F_COLOR 		DISP_RGB(255,255,255)
 
+//-------------------------------------------------------------------
 // ENUMs
 enum enumMtDisplayMode
 {
@@ -35,7 +36,10 @@ enum enumMtDisplayBlockType
 	mtDisplayBlockTypeMenu
 };
 
+//-------------------------------------------------------------------
 // STRUKTURY
+
+// ODSWIEZANIE
 struct strMtDisplayRefreshTable
 {
 	uint8_t all;
@@ -57,6 +61,15 @@ struct strMtDisplayRefreshTable
 		uint8_t mainList;
 		uint8_t labels;
 	} fManager;
+
+	struct strSampleEditor
+	{
+		uint8_t title;
+		uint8_t spectrum;
+		uint8_t labels;
+	} sampleEditor;
+
+
 
 
 };
@@ -86,8 +99,9 @@ struct strMtDisplayBlock
 	uint32_t ramTitleSize = 0;
 	uint32_t ramLabelSize = 0;
 	uint32_t ramCenterSize = 0;
-
 };
+
+
 
 struct strMtFmanager
 {
@@ -128,6 +142,25 @@ struct strMtFmanager
 	uint32_t ramMainListSize = 0;
 };
 
+
+struct strMtSampleEditor
+{
+	char * labels; //wielksoc 20 liter max na jeden label
+
+	int8_t animationStep = 0;
+
+	uint32_t fontTitleColor = MT_DISP_TITLE_F_COLOR;
+	uint32_t fontLabelColor = MT_DISP_LABEL_F_COLOR;
+	uint32_t labelColor 	= MT_DISP_LABEL_BG_COLOR;
+	uint32_t listColor 		= MT_DISP_TITLE_F_COLOR;
+
+	uint32_t ramTitleSize = 0;
+	uint32_t ramLabelsSize = 0;
+	uint32_t ramSpectrumSize = 0;
+};
+
+
+
 struct strMtHaptic
 {
 	uint16_t time;
@@ -136,6 +169,7 @@ struct strMtHaptic
 	uint8_t pitch;
 };
 
+//-------------------------------------------------------------------
 // OPCJE ANIMACJI
 #define MT_DISP_ANIMATION_T 	1
 
@@ -216,9 +250,20 @@ struct strMtHaptic
 #define MT_GPU_RAM_FMANAGER_ROOTLIST_ADRESS		(MT_GPU_RAM_FMANAGER_LABELS_ADRESS+MT_GPU_RAM_FMANAGER_LABELS_SIZE)
 #define MT_GPU_RAM_FMANAGER_ROOTLIST_SIZE		2000
 
-#define MT_GPU_RAM_FMANAGER_VALUES_END_ADRESS	(MT_GPU_RAM_FMANAGER_ROOTLIST_ADRESS+MT_GPU_RAM_FMANAGER_ROOTLIST_SIZE)
+#define MT_GPU_RAM_FMANAGER_END_ADRESS			(MT_GPU_RAM_FMANAGER_ROOTLIST_ADRESS+MT_GPU_RAM_FMANAGER_ROOTLIST_SIZE)
 
 
+
+#define MT_GPU_RAM_SAMPLE_EDITOR_TITLE_ADRESS		MT_GPU_RAM_FMANAGER_END_ADRESS
+#define MT_GPU_RAM_SAMPLE_EDITOR_TITLE_SIZE			500
+
+#define MT_GPU_RAM_SAMPLE_EDITOR_LABELS_ADRESS		(MT_GPU_RAM_SAMPLE_EDITOR_TITLE_ADRESS+MT_GPU_RAM_SAMPLE_EDITOR_TITLE_SIZE)
+#define MT_GPU_RAM_SAMPLE_EDITOR_LABELS_SIZE		1000
+
+#define MT_GPU_RAM_SAMPLE_EDITOR_ROOTLIST_ADRESS	(MT_GPU_RAM_SAMPLE_EDITOR_LABELS_ADRESS+MT_GPU_RAM_SAMPLE_EDITOR_LABELS_SIZE)
+#define MT_GPU_RAM_SAMPLE_EDITOR_ROOTLIST_SIZE		2000
+
+#define MT_GPU_RAM_SAMPLE_EDITOR_END_ADRESS			(MT_GPU_RAM_SAMPLE_EDITOR_ROOTLIST_ADRESS+MT_GPU_RAM_SAMPLE_EDITOR_ROOTLIST_SIZE)
 
 
 

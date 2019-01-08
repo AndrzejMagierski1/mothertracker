@@ -88,6 +88,7 @@ private:
 	void dl_load_fmanager_main();
 	void dl_load_print_main();
 	void dl_load_poly_logo_main();
+	void dl_load_sample_editor_main();
 
 	// metody poszczegolnych trybow
 	void ramg_blocks_title(uint8_t block);
