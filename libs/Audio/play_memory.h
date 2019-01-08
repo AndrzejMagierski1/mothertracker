@@ -34,15 +34,15 @@ class AudioPlayMemory : public AudioStream
 {
 public:
 	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0) { }
-	void play(const unsigned int *data);
+	void play(int16_t *data, uint32_t len);
 	void stop(void);
 	bool isPlaying(void) { return playing; }
 	uint32_t positionMillis(void);
 	uint32_t lengthMillis(void);
 	virtual void update(void);
 private:
-	const unsigned int *next;
-	const unsigned int *beginning;
+	int16_t *next;
+	int16_t *beginning;
 	uint32_t length;
 	int16_t prior;
 	volatile uint8_t playing;
