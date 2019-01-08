@@ -55,15 +55,6 @@ class cMtDisplay
 public:
 	void begin(uint8_t mode);
 	void updateDisplay();
-	void print(const char * s);
-	void print(int n);
-	void print(unsigned int n);
-	void printNumber(unsigned long n, uint8_t base, uint8_t sign);
-	void println(const char * s);
-	void println(int n);
-	void println();
-	void printClear();
-	void printShow();
 
 	//metody publiczne zarzadzania ekranem
 	void setMode(uint8_t mode);
@@ -78,8 +69,21 @@ public:
 	void setFmanagerRootListPos(uint16_t position);
 	void setFmanagerLabels(char * labels);
 
+	void setSampleEditorTitle(char text[]);
+	void setSampleEditorSpectrum(uint16_t start, char * list, uint16_t count, uint8_t filename_length);
 	void setSampleEditorLabels(char * labels);
 
+
+	// print
+	void print(const char * s);
+	void print(int n);
+	void print(unsigned int n);
+	void printNumber(unsigned long n, uint8_t base, uint8_t sign);
+	void println(const char * s);
+	void println(int n);
+	void println();
+	void printClear();
+	void printShow();
 
 private:
 	// metody glowne trybow pracy
@@ -104,18 +108,30 @@ private:
 	void ramg_fmanager_rootlist();
 	void ramg_fmanager_mainlist();
 
+	void ramg_sample_editor_title();
+	void ramg_sample_editor_spectrum();
+	void ramg_sample_editor_labels();
+
+
 	// zmienne glowne
 	uint8_t screenMode = mtDisplayModeBlank;
 	uint8_t screenRefresh = 0;
 	strMtDisplayRefreshTable displayRefreshTable;
 	uint32_t  displayBgColor = MT_DISP_BG_COLOR;
 
+	//---------------------------------------------
 	// tryb blokowy
 	strMtDisplayBlock displayBlock[5];
 
-	//tryb menadzera plikow
+	//---------------------------------------------
+	// tryb menadzera plikow
 	strMtFmanager displayFmanager;
 	cMtDisplayList fManagerList;
+
+	//---------------------------------------------
+	// tryb edytora sampla
+	strMtSampleEditor sampleEditor;
+
 
 	// animowane przejscia
 	uint8_t screenAnimation = 0;

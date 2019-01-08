@@ -305,14 +305,25 @@ void cMtDisplay::updateDisplay()
 		case mtDisplayModeSampleEditor:
 		{
 			//-------------------------------------------------
-			for(uint8_t i = 0; i < 5; i++)
+			if(displayRefreshTable.sampleEditor.title)
 			{
-				if(displayRefreshTable.sampleEditor.labels)
-				{
-					displayRefreshTable.sampleEditor.labels = 0;
-					ramg_sample_editor_labels();
-					if(updateStep > 0) return;
-				}
+				displayRefreshTable.sampleEditor.title = 0;
+				ramg_sample_editor_title();
+				if(updateStep > 0) return;
+			}
+			//-------------------------------------------------
+			if(displayRefreshTable.sampleEditor.spectrum)
+			{
+				displayRefreshTable.sampleEditor.spectrum = 0;
+				ramg_sample_editor_spectrum();
+				if(updateStep > 0) return;
+			}
+			//-------------------------------------------------
+			if(displayRefreshTable.sampleEditor.labels)
+			{
+				displayRefreshTable.sampleEditor.labels = 0;
+				ramg_sample_editor_labels();
+				if(updateStep > 0) return;
 			}
 			//-------------------------------------------------
 			dl_load_sample_editor_main();
@@ -457,39 +468,9 @@ void cMtDisplay::dl_load_print_main()
 }
 
 //---------------------------------------------------------------------------
-void cMtDisplay::dl_load_block_main()
-{
-    API_LIB_BeginCoProList();
-    API_CMD_DLSTART();
-
-	API_CLEAR_COLOR(displayBgColor);
-	API_CLEAR(1,1,1);
-
-	for(uint8_t i = 0; i < MT_DISP_BLOCK_COUNT ; i++)
-	{
-		// values
-		API_CMD_APPEND(MT_GPU_RAM_BLOCK_CENTERS_ADRESS + (MT_GPU_RAM_BLOCK_CENTERS_SIZE * i), displayBlock[i].ramCenterSize);
-
-		// buttons labels
-		API_CMD_APPEND(MT_GPU_RAM_BLOCK_LABELS_ADRESS + (MT_GPU_RAM_BLOCK_LABELS_SIZE * i), displayBlock[i].ramLabelSize);
-
-		// top titles
-		API_CMD_APPEND(MT_GPU_RAM_BLOCK_TITLES_ADRESS + (MT_GPU_RAM_BLOCK_TITLES_SIZE * i), displayBlock[i].ramTitleSize);
-	}
-
-    API_DISPLAY();
-    API_CMD_SWAP();
-    API_LIB_EndCoProList();
-}
 
 
 //---------------------------------------------------------------------------
-
-
-//#########################################################################################################
-//################################## metody poszczegolnych trybow #########################################
-//#########################################################################################################
-
 
 
 //#########################################################################################################

@@ -6,8 +6,38 @@
 
 #include "mtDisplay.h"
 
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
 
+void cMtDisplay::dl_load_block_main()
+{
+    API_LIB_BeginCoProList();
+    API_CMD_DLSTART();
 
+	API_CLEAR_COLOR(displayBgColor);
+	API_CLEAR(1,1,1);
+
+	for(uint8_t i = 0; i < MT_DISP_BLOCK_COUNT ; i++)
+	{
+		// values
+		API_CMD_APPEND(MT_GPU_RAM_BLOCK_CENTERS_ADRESS + (MT_GPU_RAM_BLOCK_CENTERS_SIZE * i), displayBlock[i].ramCenterSize);
+
+		// buttons labels
+		API_CMD_APPEND(MT_GPU_RAM_BLOCK_LABELS_ADRESS + (MT_GPU_RAM_BLOCK_LABELS_SIZE * i), displayBlock[i].ramLabelSize);
+
+		// top titles
+		API_CMD_APPEND(MT_GPU_RAM_BLOCK_TITLES_ADRESS + (MT_GPU_RAM_BLOCK_TITLES_SIZE * i), displayBlock[i].ramTitleSize);
+	}
+
+    API_DISPLAY();
+    API_CMD_SWAP();
+    API_LIB_EndCoProList();
+}
+
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
 
 void cMtDisplay::setBlockType (uint8_t number, uint32_t type, uint16_t start, char * menu, uint16_t max)
 {
@@ -47,7 +77,9 @@ void cMtDisplay::setBlockCenter(uint8_t number, int32_t value)
 	screenRefresh = 1;
 }
 
-//#############################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
 
 void cMtDisplay::ramg_blocks_title(uint8_t block)
 {
