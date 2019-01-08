@@ -28,11 +28,6 @@ int Extern_SDRAM_Init(void)
     uint32_t fbReg;
     BOARD_InitPins();
 
-
- //   gpio_pin_config_t out_config = { kGPIO_DigitalOutput, 0,};
-
- //   GPIO_PinInit(GPIOD , 14U, &out_config);
-    //GPIO_PinInit(GPIOD , 15U, &out_config);
     /* Set clock out to flexbus CLKOUT. */
     CLOCK_SetClkOutClock(0);
 
@@ -52,87 +47,15 @@ int Extern_SDRAM_Init(void)
     fbReg = FB->CSPMCR & ~FB_CSPMCR_GROUP5_MASK;
     FB->CSPMCR = fbReg | FB_CSPMCR_GROUP5(2);
     /* SDRAM initialize. */
-    clockSrc = 60000000;
+    clockSrc = 90000000;
 
-    if (SDRAM_Init(EXAMPLE_SDRAMC, SDRAM_START_ADDRESS, clockSrc) != kStatus_Success)
-    {
-    	asm( "BKPT 255" );
-    }
-
- /*
-    while(datalen--)
-    {
-    	internall_writeBuffer[index]=index/2;
-    	internall_writeBuffer[index]=index/2;
-    	index++;
-    }
-   // PRINTF("\r\n adr1: %x, adr2: %x \r\n",&internall_writeBuffer[0],&internall_writeBuffer[1]);
-    datalen = SDRAM_EXAMPLE_DATALEN;
-    index=0;
-    while(datalen--)
-    {
-    	sdram_writeBuffer[index]=index/2;
-    	sdram_writeBuffer2[index]=index/2;
-    	index++;
-    }
-    //PRINTF("\r\n adr1: %x, adr2: %x \r\n",&sdram_writeBuffer[0],&sdram_writeBuffer[1]);
-
-    datalen = SDRAM_EXAMPLE_DATALEN;
-    index=0;
-    while(datalen--)
-    {
-    	uint16_t zmienna=0;
-    	zmienna=sdram_writeBuffer[index]+internall_writeBuffer[index];
-       // PRINTF("\r\n sdram: %d, internal: %d, suma: %d \r\n",sdram_writeBuffer[index],internall_writeBuffer[index],zmienna);
-        index++;
-
-    }
-
-
-    while (1)
-    {
-        datalen = SDRAM_EXAMPLE_DATALEN;
-        index=0;
-//        GPIO_PortToggle(GPIOD, 1u << 14U);
-        while(datalen--)
-        {
-        	internall_writeBuffer[index]=internall_writeBuffer[index]+internall_writeBuffer[index];
-        	index++;
-        }
-       // GPIO_PortToggle(GPIOD, 1u << 14U);
-
-        datalen = SDRAM_EXAMPLE_DATALEN;
-        index=0;
-      //  GPIO_PortToggle(GPIOD, 1u << 15U);
-        while(datalen--)
-        {
-        	sdram_writeBuffer[index]=sdram_writeBuffer[index]+sdram_writeBuffer[index];
-        	index++;
-        }
-
-      //  GPIO_PortToggle(GPIOD, 1u << 15U);
-
-    }
-
-    */
+    SDRAM_Init(EXAMPLE_SDRAMC, SDRAM_START_ADDRESS, clockSrc);
 
     return 0;
 }
 
 void BOARD_InitPins(void)
 {
-    /* Port A Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortA);
-    /* Port B Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortB);
-    /* Port C Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortC);
-    /* Port D Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortD);
-    /* Port E Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortE);
-
-
 
     /* PORTA6 (pin M10) is configured as CLKOUT */
     PORTA_PCR6=PORT_PCR_MUX(5);
@@ -255,9 +178,4 @@ void BOARD_InitPins(void)
     /* PORTB17 (pin D13) is configured as SDRAM_D16 */
     PORTB_PCR17=PORT_PCR_MUX(5);
 
-    /* PORTE16 (pin H3) is configured as UART2_TX */
-    PORTE_PCR16=PORT_PCR_MUX(3);
-
-    /* PORTE17 (pin F5) is configured as UART2_RX */
-    PORTE_PCR17=PORT_PCR_MUX(3);
 }

@@ -12421,7 +12421,7 @@ typedef struct {
 #define SIM_SCGC6_SPI1(x)                        (((uint32_t)(((uint32_t)(x)) << SIM_SCGC6_SPI1_SHIFT)) & SIM_SCGC6_SPI1_MASK)
 #define SIM_SCGC6_I2S_MASK                       (0x8000U)
 #define SIM_SCGC6_I2S_SHIFT                      (15U)
-#define SIM_SCGC6_I2S(x)                         (((uint32_t)(((uint32_t)(x)) << SIM_SCGC6_I2S_SHIFT)) & SIM_SCGC6_I2S_MASK)
+//#define SIM_SCGC6_I2S(x)                         (((uint32_t)(((uint32_t)(x)) << SIM_SCGC6_I2S_SHIFT)) & SIM_SCGC6_I2S_MASK)
 #define SIM_SCGC6_CRC_MASK                       (0x40000U)
 #define SIM_SCGC6_CRC_SHIFT                      (18U)
 #define SIM_SCGC6_CRC(x)                         (((uint32_t)(((uint32_t)(x)) << SIM_SCGC6_CRC_SHIFT)) & SIM_SCGC6_CRC_MASK)
