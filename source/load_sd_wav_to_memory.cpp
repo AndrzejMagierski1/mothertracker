@@ -10,7 +10,7 @@ uint32_t AudioLoadSdWav::loadSdWavToMemory(const char *filename, int16_t * buf)
 	int16_t * bufTemp;
 	uint8_t numChannel=0;
 
-	File wavfile;
+	FsFile wavfile;
 
 	union buffors
 	{
@@ -26,6 +26,8 @@ uint32_t AudioLoadSdWav::loadSdWavToMemory(const char *filename, int16_t * buf)
 	wavfile = SD.open(filename);
 
 	bufferLength = wavfile.read(buffor.buf8, 512);
+	Serial.println(bufferLength);
+
 
 	if( (buffor.buf8[8] != 'W') || (buffor.buf8[9] != 'A') ||  (buffor.buf8[10] != 'V') || (buffor.buf8[11] != 'E') ||
 	(buffor.buf8[20] != 1) || (buffor.buf8[34] != 16) || (buffor.buf8[24] != 68) || (buffor.buf8[25] != 172) ) return 0; // błędny format
@@ -43,6 +45,7 @@ uint32_t AudioLoadSdWav::loadSdWavToMemory(const char *filename, int16_t * buf)
 		while ( wavfile.available() )
 		{
 			bufferLength = wavfile.read(buffor.buf8, 512);
+
 			accBufferLength += bufferLength;
 			for(int i=0; i< 256; i++)
 			{
@@ -54,10 +57,11 @@ uint32_t AudioLoadSdWav::loadSdWavToMemory(const char *filename, int16_t * buf)
 	}
 	else if ( numChannel == 2)
 	{
-		while ( wavfile.available() )
+		while (wavfile.available() )
 		{
 
 			bufferLength = wavfile.read(buffor.buf8, 512);
+			Serial.println(bufferLength);
 			accBufferLength += bufferLength;
 			for(int i=0; i< 256; i+=2)
 			{

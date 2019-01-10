@@ -632,8 +632,8 @@ mtLEDs::mtLEDs()
 
 void mtLEDs::begin()
 {
-	ledsSeqA.begin(IS31FL3731_ADDR3);
-	ledsSeqB.begin(IS31FL3731_ADDR2);
+	ledsSeqA.begin(IS31FL3731_ADDR4);
+	ledsSeqB.begin(IS31FL3731_ADDR3);
 	ledsGrid.begin(IS31FL3731_ADDR1);
 
 }

@@ -28,14 +28,30 @@
 #include "utility/dspinst.h"
 
 
-void AudioPlayMemory::play(int16_t *data, uint32_t len)
+void AudioPlayMemory::play(int16_t *data, uint32_t len,uint32_t startPoint,uint32_t endPoint, uint32_t loopPoint1, uint32_t loopPoint2)
 {
 	uint32_t format;
 
 	playing = 0;
 	prior = 0;
+	stopLoop=0;
+
+	if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return; //startpoint
+	if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return; //looppoint1
+	if (loopPoint2 > endPoint) return; // looppoint2
 
 
+
+	startSample= (uint32_t)(startPoint*44.1);
+	endSample= (uint32_t)(endPoint*44.1);
+	loopSample1= (uint32_t)(loopPoint1*44.1);
+	loopSample2= (uint32_t)(loopPoint2*44.1);
+
+	//loopSample1-=loopSample1%128;
+	//loopSample2-=loopSample2%128;
+
+
+	if((startSample >= len) || (loopSample1>len) || (loopSample2>len) || (endSample>len)) return; // wskazniki za plikiem
 
 	union pomoc
 	{
@@ -43,10 +59,14 @@ void AudioPlayMemory::play(int16_t *data, uint32_t len)
 		uint16_t dane[2];
 	} pomoc1;
 
+	loopConstrain1=len-loopSample1;
+	loopConstrain2=len-loopSample2;
+	endConstrain= len-endSample;
+	loopLength=loopSample2-loopSample1;
+
 	pomoc1.dane[0]= *data;
 	data++;
 	pomoc1.dane[1]= *data;
-
 	format=pomoc1.format;
 	//format = (uint32_t)( ( pomocnicza << 16) & 0xFFFF0000); // nie wiadomo czemu nie dziala - dlatego playing na sztywno, a len zewnetrznie (nie dziala shiftowanie bo pamiec 16-bitowa??)
 
@@ -57,9 +77,9 @@ void AudioPlayMemory::play(int16_t *data, uint32_t len)
 
 	data++;
 
-	next = data+42;
-	beginning = data+42;
-	length =len;//format & 0xFFFFFF;
+	next = data+42+startSample;
+	beginning = data+startSample;
+	length =len-=startSample;//format & 0xFFFFFF;
 	playing = 0x81;//format >> 24;
 
 }
@@ -110,6 +130,16 @@ void AudioPlayMemory::update(void)
 			//*out++ = (int16_t)(tmp32 & 65535);
 			//*out++ = (int16_t)(tmp32 >> 16);
 			*out++ = *in++;
+			if (length > 0)
+			{
+				length --;
+				if((length<=loopConstrain2) && (!stopLoop)) {length=loopConstrain1; in-=loopLength;}
+				if(length<=endConstrain) length=0;
+			}
+			else
+			{
+				playing = 0;
+			}
 		}
 		consumed = AUDIO_BLOCK_SAMPLES;
 		break;
@@ -201,11 +231,6 @@ void AudioPlayMemory::update(void)
 	}
 	prior = s0;
 	next = in;
-	if (length > consumed) {
-		length -= consumed;
-	} else {
-		playing = 0;
-	}
 	transmit(block);
 	release(block);
 }
@@ -270,6 +295,10 @@ uint32_t AudioPlayMemory::lengthMillis(void)
 		return 0;
 	}
 	return ((uint64_t)(*(b - 1) & 0xFFFFFF) * b2m) >> 32;
+}
+void AudioPlayMemory::stopLoopMode()
+{
+	stopLoop=1;
 }
 
 

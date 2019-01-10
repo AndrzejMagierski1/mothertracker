@@ -43,7 +43,7 @@ public:
 	uint32_t lengthMillis(void);
 	virtual void update(void);
 private:
-	File rawfile;
+	FsFile rawfile;
 	uint32_t file_size;
 	volatile uint32_t file_offset;
 	volatile bool playing;
