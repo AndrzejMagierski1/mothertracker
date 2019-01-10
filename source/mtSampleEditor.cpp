@@ -1,12 +1,13 @@
 
-#include <stdint.h>
 
 #include "mtDisplay.h"
 #include "mtSampleEditor.h"
+#include "sdram.h"
 
 //#include "Arduino.h"
 
 cMtSampleEditor mtSampleEditor;
+
 
 //#########################################################################################################
 //#########################################################################################################
@@ -138,9 +139,24 @@ void cMtSampleEditor::processSpectrum()
 void cMtSampleEditor::readFileInfo()
 {
 	sampleFile.close();
-	sampleFile.open(filePath,O_READ);
+	//sampleFile.open(filePath,O_READ);
+
+
+	sampleFile.open("7A.wav",O_READ);
 
 	sampleFile.read((char*)&sampleDesc, 44);
+/*
+	uint8_t bufor[512];
+	//static uint32_t pos = 0;
+
+	for(uint8_t i = 0; i < 100; i++)
+	{
+		sampleFile.read(bufor, 512);
+
+		//pos = sampleFile.position();
+	}
+*/
+
 	sampleFile.close();
 
 	monoSamplesCount = (sampleDesc.subchunk2Size - 8) / sampleDesc.numChannels;

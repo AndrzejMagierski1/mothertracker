@@ -1,7 +1,8 @@
-#ifndef MTSampleEditor_H
-#define MTSampleEditor_H
+#ifndef MT_SAMPLE_EDITOR_H
+#define MT_SAMPLE_EDITOR_H
 
 #include "SD.h"
+#include <stdint.h>
 
 
 enum enumMtSampleEditorMode

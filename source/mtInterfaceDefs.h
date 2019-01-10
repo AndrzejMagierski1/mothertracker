@@ -11,6 +11,7 @@ enum enumMtOperatingMode
 {
 	mtOperatingModeNone,
 	mtOperatingModeStartup,
+	mtOperatingModeProjectEditor,
 	mtOperatingModeSongEditor,
 	mtOperatingModePaternEditor,
 	mtOperatingModeSampleEditor,

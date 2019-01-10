@@ -67,7 +67,7 @@ status_t SDRAM_Init(SDRAM_Type *base, uint32_t address, uint32_t busClock_Hz)
     sdramc_blockctl_config_t ctlConfig;
 
     /* SDRAM refresh timing configuration. */
-    refConfig.refreshTime = kSDRAMC_RefreshThreeClocks;
+    refConfig.refreshTime = kSDRAMC_RefreshSixClocks;
     /* Refresh time 4096 rows/ 64ms. */
     refConfig.sdramRefreshRow = 15625;
     refConfig.busClock_Hz = busClock_Hz;
@@ -77,7 +77,7 @@ status_t SDRAM_Init(SDRAM_Type *base, uint32_t address, uint32_t busClock_Hz)
     ctlConfig.location = kSDRAMC_Commandbit20;
     ctlConfig.block = kSDRAMC_Block0;
     /* SDRAM with trcd-15ns(min), trp-15ns(min), tras-37ns (min). */
-    ctlConfig.latency = kSDRAMC_LatencyOne;
+    ctlConfig.latency = kSDRAMC_LatencyThree;
     ctlConfig.address = address;
     ctlConfig.addressMask = 0xFC0000;
 

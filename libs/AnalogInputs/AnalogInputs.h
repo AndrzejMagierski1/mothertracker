@@ -8,9 +8,9 @@
 
 // MODULES OPTIONS
 
-#define ANALOG_POTS_ON 		0
+#define ANALOG_POTS_ON 		1
 #define ANALOG_PADS_ON 		0
-#define ANALOG_BUTTONS_ON 	0
+#define ANALOG_BUTTONS_ON 	1
 
 
 

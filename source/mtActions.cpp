@@ -41,12 +41,12 @@ void onPotChange(uint8_t n, int16_t value)
 
 
 
-	mtHaptic.start(100,50,0x02,56);
+	mtHaptic.start(25,200,0x02,56);
 
-//	mtPrint("pot change: ");
-//	mtPrint(n);
-//	mtPrint(" value: ");
-//	mtPrintln(value);
+	mtPrint("pot change: ");
+	mtPrint(n);
+	mtPrint(" value: ");
+	mtPrintln(value);
 }
 
 //-----------------------------------------------------------------

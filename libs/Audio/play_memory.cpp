@@ -28,17 +28,40 @@
 #include "utility/dspinst.h"
 
 
-void AudioPlayMemory::play(const unsigned int *data)
+void AudioPlayMemory::play(int16_t *data, uint32_t len)
 {
 	uint32_t format;
 
 	playing = 0;
 	prior = 0;
-	format = *data++;
-	next = data;
-	beginning = data;
-	length = format & 0xFFFFFF;
-	playing = format >> 24;
+
+
+
+	union pomoc
+	{
+		uint32_t format;
+		uint16_t dane[2];
+	} pomoc1;
+
+	pomoc1.dane[0]= *data;
+	data++;
+	pomoc1.dane[1]= *data;
+
+	format=pomoc1.format;
+	//format = (uint32_t)( ( pomocnicza << 16) & 0xFFFF0000); // nie wiadomo czemu nie dziala - dlatego playing na sztywno, a len zewnetrznie (nie dziala shiftowanie bo pamiec 16-bitowa??)
+
+	//data++;
+
+	//pomocnicza=*data;
+	//format |= (uint32_t)( pomocnicza & 0x0000FFFF);
+
+	data++;
+
+	next = data+42;
+	beginning = data+42;
+	length =len;//format & 0xFFFFFF;
+	playing = 0x81;//format >> 24;
+
 }
 
 void AudioPlayMemory::stop(void)
@@ -53,7 +76,7 @@ extern const int16_t ulaw_decode_table[256];
 void AudioPlayMemory::update(void)
 {
 	audio_block_t *block;
-	const unsigned int *in;
+	int16_t *in;
 	int16_t *out;
 	uint32_t tmp32, consumed;
 	int16_t s0, s1, s2, s3, s4;
@@ -82,10 +105,11 @@ void AudioPlayMemory::update(void)
 		break;
 
 	  case 0x81: // 16 bit PCM, 44100 Hz
-		for (i=0; i < AUDIO_BLOCK_SAMPLES; i += 2) {
-			tmp32 = *in++;
-			*out++ = (int16_t)(tmp32 & 65535);
-			*out++ = (int16_t)(tmp32 >> 16);
+		for (i=0; i < AUDIO_BLOCK_SAMPLES; i ++) {
+			//tmp32 = *in++;
+			//*out++ = (int16_t)(tmp32 & 65535);
+			//*out++ = (int16_t)(tmp32 >> 16);
+			*out++ = *in++;
 		}
 		consumed = AUDIO_BLOCK_SAMPLES;
 		break;

@@ -2,6 +2,9 @@
 #include "AnalogInputs.h"
 #include "mtDisplay.h"
 #include "SD.h"
+#include "sdram.h"
+
+
 
 
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo);
@@ -15,7 +18,11 @@ void onButtonChange(uint8_t n, uint8_t value);
 void initHardware()
 {
 	Serial.begin(9600);
-//....................................................
+
+
+	Extern_SDRAM_Init();
+
+	//....................................................
 	AnalogInputs.setPadPressFunc(onPadPress);
 	AnalogInputs.setPadChangeFunc(onPadChange);
 	AnalogInputs.setPadReleaseFunc(onPadRelease);
@@ -35,18 +42,19 @@ void initHardware()
 */
 	AnalogInputs.begin();
 
-
-
-    if (!SD.begin(SdioConfig(FIFO_SDIO)))
-    {
-    	 Serial.println("\nFIFO SDIO mode error.");
-    }
-    Serial.println("\nFIFO SDIO mode.");
-
-
-
-//....................................................
+	//....................................................
 	mtDisplay.begin(mtDisplayModePolyLogo);
+
+	//....................................................
+    if (!SD.begin(SdioConfig(DMA_SDIO)))	//FIFO_SDIO
+    {
+    	 Serial.println("SD card init error");
+    	 mtPrint("SD card init error");
+    }
+
+
+
+
 
 }
 

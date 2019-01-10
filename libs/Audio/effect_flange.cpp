@@ -153,11 +153,13 @@ void AudioEffectFlange::update(void)
   block = receiveWritable(0);
   if(block) {
     bp = block->data;
-    for(int i = 0;i < AUDIO_BLOCK_SAMPLES;i++) {
+    for(int i = 0;i < AUDIO_BLOCK_SAMPLES;i++)
+    {
       // increment the index into the circular delay line buffer
       l_circ_idx++;
       // wrap the index around if necessary
-      if(l_circ_idx >= delay_length) {
+      if(l_circ_idx >= delay_length)
+      {
         l_circ_idx = 0;
       }
       // store the current sample in the delay line
@@ -178,10 +180,12 @@ void AudioEffectFlange::update(void)
       // Calculate the offset into the buffer
       idx = l_circ_idx - (delay_offset_idx + idx);
       // and adjust idx to point into the circular buffer
-      if(idx < 0) {
+      if(idx < 0)
+      {
         idx += delay_length;
       }
-      if(idx >= delay_length) {
+      if(idx >= delay_length)
+      {
         idx -= delay_length;
       }
 
