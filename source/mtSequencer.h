@@ -18,6 +18,8 @@ class Sequencer
 private:
 	static const uint8_t MAXROW = 8,
 			MINROW = 1,
+			MINSTEP = 1,
+			MAXSTEP = 32,
 			MAXCOL = 32,
 
 			DEFAULT_ROW_LEN = 32,
@@ -143,9 +145,7 @@ private:
 		struct strRow
 		{
 			uint8_t isOn :1;
-			uint8_t randomVelo :1; 	// TODO: do wyrzucenia w trackerze?
-			uint8_t randomMod :1;	// TODO: do wyrzucenia w trackerze?
-			uint8_t randomNudge :1;	// TODO: do wyrzucenia w trackerze?
+
 
 			uint8_t length = DEFAULT_ROW_LEN;
 			uint8_t rootNote = DEFAULT_ROW_NOTE;
@@ -167,28 +167,33 @@ private:
 
 			struct strStep
 			{
+				uint8_t isOn :1;
+				uint8_t note :7;
+
 				uint8_t velocity = 127;
-				uint8_t note = 50;
+				uint8_t instrument = 0;
+				uint8_t offset :6;
 
 				// 2 x byte
-				uint16_t chord :11;
+//				uint16_t chord :11;
 				uint16_t length1 :5;	//31
 
-				// byte
-				uint8_t isOn :1;
-				uint8_t rez1 :1;
-				uint8_t offset :6;		// 63 // przesuniecie od 1 do 48
-
-				// byte
-				uint8_t hitMode :5;		// max31
-				uint8_t rez2 :3; 		// max 7
+				uint8_t hitMode :5;
+				uint8_t rez :3;
 
 				// byte
 				uint8_t rollCurve :4;		// max 15
 				uint8_t rollNoteCurve :4;	// max 15
 
-				// byte
-				uint8_t modulation = NULL_MOD;
+				uint8_t modulation = 0;
+
+				//FX
+				struct strFx
+				{
+					uint8_t target = 0;
+					uint16_t value = 0;
+				} fx[4];
+
 			} step[33];
 
 		} row[9];
@@ -279,16 +284,11 @@ private:
 	uint8_t val2roll(uint8_t val);
 
 public:
+	void play(void);
+	void rec(void);
+	void stop(void);
 	void toggleStep(uint8_t, uint8_t);
-	void action_buttonClear(void);
-	void action_buttonDuplicate(void);
-	void action_buttonOnOff(void);
-	void action_buttonPattern(void);
-	void action_buttonPlay(void);
-	void action_buttonQuantize(void);
-	void action_buttonRandom(void);
-	void action_buttonREC(void);
-	void action_buttonStop(void);
+
 	void addNoteOff(uint8_t note, uint8_t velocity, uint8_t channel,
 					uint8_t midiOut);
 	void addNoteOn(uint8_t note, uint8_t velocity, uint8_t channel,
@@ -302,7 +302,6 @@ public:
 	void copy_row(uint8_t from, uint8_t to);
 	void copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x, uint8_t to_y);
 	void divChangeQuantize(uint8_t row);
-	void flushNotes();
 	void handle_ghosts(void);
 	void handle_player(void);
 	void handle_uStep_timer(void);
@@ -334,21 +333,24 @@ public:
 	void resetLastSendMod(void);
 	void set_power_mode(uint8_t mode);
 	void trySwitchBank();
-	void midiSendChordOn(uint8_t note, uint8_t chord, uint8_t velo,
-							uint8_t channel,
-							uint8_t midiOut, uint8_t scale,
-							uint8_t scaleRoot);
+	//	void midiSendChordOn(uint8_t note, uint8_t chord, uint8_t velo,
+//							uint8_t channel,
+//							uint8_t midiOut, uint8_t scale,
+//							uint8_t scaleRoot);
 	void setLoadBank2Ram(uint8_t bank);
 	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 					uint8_t midiOut);
 
-	void midiSendChordOff(uint8_t note, uint8_t chord, uint8_t velo,
-							uint8_t channel,
-							uint8_t midiOut, uint8_t scale,
-							uint8_t scaleRoot);
+//	void midiSendChordOff(uint8_t note, uint8_t chord, uint8_t velo,
+//							uint8_t channel,
+//							uint8_t midiOut, uint8_t scale,
+//							uint8_t scaleRoot);
 	void switch_bank_with_reset(void);
 	void handle();
 	void init();
+	void flushNotes();
+	void sendNoteOn(strBank::strRow::strStep *step);
+	void sendNoteOff(strBank::strRow::strStep *step);
 	IntervalTimer midiReceiveTimer;
 	IntervalTimer playTimer;
 
@@ -423,7 +425,6 @@ private:
 		uint16_t rec_intro_timer = 0;
 		uint16_t rec_intro_timer_max = 48 * 4;
 		uint16_t uStep = 0;
-		uint16_t uStepInd[9] { 0 };
 		uint8_t actualBank = 0;
 		uint8_t bank2change = 0;
 		uint8_t bank2load = 0;
@@ -432,6 +433,7 @@ private:
 
 		struct strPlayerRow
 		{
+			uint16_t uStep = 0;
 			int16_t note_length_timer = 1; // tu odliczamy ile zostalo stepow do zakonczenia nuty
 
 			uint8_t noteOn_sent = 0;		// znacznik czy została wysłana nuta

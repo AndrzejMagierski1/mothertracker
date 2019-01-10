@@ -31,31 +31,22 @@ void Sequencer::handle()
 
 void Sequencer::handle_uStep_timer(void)
 {
-	// Serial.print(player.swingToogle);
-	// Serial.print("\t");
-	// Serial.println(timeBetweenTicks);
-	// Serial.send_now();
-
 	/*
-	 1 step = 48 x uStep = 48 x 12 timerTick(576)
-	 6912 timerTick = 12 stepów
+	 1 step sekwencji = 48 x uStep = 48 x 12 nanoStep(576)
+	 6912 nanoStep = 12 stepów
 	 */
 
 	// noInterrupts();
 	if ((config.mode == MODE_MIDICLOCK.INTERNAL_)
 			|| (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK))
 	{
-		// handle_uStep(0);
-		// play_uStepEmulate(0);
 		if (isPlay() || isREC())
 		{
 			handle_nanoStep(0);
 			nanoStep++;
 			if (nanoStep > 6912)
 				nanoStep = 1;
-
 		}
-
 	}
 	else // external clock
 	{
@@ -80,7 +71,6 @@ void Sequencer::handle_nanoStep(uint8_t step)
 {
 	if (isPlay())
 	{
-
 		if ((step == 1))// to znaczy że wywoładnie funkcji przyszło z midi clocka
 		{
 			player.uStep = 1;
@@ -261,13 +251,8 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 		{
 			// Serial.println("gasimy");
 
-			midiSendChordOff(player.row[x].note_sent,
-								player.row[x].chord_sent,
-								0,
-								player.row[x].channel_sent,
-								player.row[x].midiOut_sent,
-								player.row[x].scale_sent,
-								player.row[x].scaleRoot_sent);
+			sendNoteOff(
+					&seq[player.ramBank].row[x].step[player.row[x].actual_pos]);
 
 			// usbMIDI.send_now();
 		}
@@ -283,9 +268,9 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 	}
 
 	// wysyłamy zegar
-	if ((player.uStepInd[x] > 0) && player.isPlay)
+	if ((player.row[x].uStep > 0) && player.isPlay)
 	{
-		if (((player.uStepInd[x] - 1) % 8) == 0)
+		if (((player.row[x].uStep - 1) % 8) == 0)
 		{
 			send_clock(x);
 			// Serial.println("clock");
@@ -317,12 +302,12 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 
 		// TU GRAMY
 		if (((temp_hitMode != HITMODE_OFFSET)
-				&& ((player.uStepInd[x] % (48 / temp_rollMode)) == 1))
+				&& ((player.row[x].uStep % (48 / temp_rollMode)) == 1))
 				|| ((temp_hitMode == HITMODE_OFFSET)
-						&& (player.uStepInd[x] == temp_offset)))
+						&& (player.row[x].uStep == temp_offset)))
 		{
 
-			if ((player.uStepInd[x] % 48) == 1)
+			if ((player.row[x].uStep % 48) == 1)
 			{
 				player.row[x].rollLength = 0;
 				player.row[x].rollCounter = 0;
@@ -332,8 +317,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 
 			const uint8_t tempNote =
 					tempSeqRow.step[player.row[x].actual_pos].note;
-			const uint8_t tempChord =
-					tempSeqRow.step[player.row[x].actual_pos].chord;
+
 			const uint8_t tempMod =
 					tempSeqRow.step[player.row[x].actual_pos].modulation;
 			const uint8_t tempScale = tempSeqRow.trackScale;
@@ -343,7 +327,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 
 			// sprawdzam czy początek rolki
 			if ((temp_hitMode != HITMODE_OFFSET) && (temp_hitMode > 1)
-					&& ((player.uStepInd[x] % 48) == 1))
+					&& ((player.row[x].uStep % 48) == 1))
 			{
 				player.row[x].rollLength = tempLength;
 				player.row[x].rollStep = player.row[x].actual_pos;
@@ -357,7 +341,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 			}
 
 			// procent postępu rolki
-			const float rollProgress = (float(player.uStepInd[row])
+			const float rollProgress = (float(player.row[row].uStep)
 					/ (float(tempLength) * 48)) * 100;
 			// Serial.print("progress: ");
 			// Serial.println(rollProgress);
@@ -380,13 +364,8 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 				//                 player.row[x].channel_sent,
 				//                 player.row[x].midiOut_sent);
 
-				midiSendChordOff(player.row[x].note_sent,
-									player.row[x].chord_sent,
-									0,
-									player.row[x].channel_sent,
-									player.row[x].midiOut_sent,
-									player.row[x].scale_sent,
-									player.row[x].scaleRoot_sent);
+				sendNoteOff(
+						&seq[player.ramBank].row[x].step[player.row[x].actual_pos]);
 
 				// usbMIDI.send_now();
 
@@ -407,16 +386,8 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 						MIN_NOTE_STEP, MAX_NOTE_STEP);
 				// Serial.println(player.row[x].note_sent);
 
-				midiSendChordOn(
-						constrain(player.row[x].note_sent, MIN_NOTE_STEP,
-									MAX_NOTE_STEP),
-						tempChord,
-						uint8_t(tempVelo),
-						seq[player.ramBank].row[x].channel,
-						seq[player.ramBank].row[x].midiOut,
-						tempScale,
-						tempRoot);
-
+				sendNoteOn(
+						&seq[player.ramBank].row[x].step[player.row[x].actual_pos]);
 				anythingSent = 1;
 
 				// usbMIDI.send_now();
@@ -483,7 +454,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 			}
 
 			// player.row[x].note_sent = constrain(tempNote + getLastRollNoteOffset(x), MIN_NOTE_STEP, MAX_NOTE_STEP);
-			player.row[x].chord_sent = tempChord;
+//			player.row[x].chord_sent = tempChord;
 			player.row[x].scale_sent = tempScale;
 			player.row[x].scaleRoot_sent = tempRoot;
 			player.row[x].noteOn_sent = 1;
@@ -575,7 +546,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 		const uint8_t ghostedStepLength =
 				seq[player.ramBank].row[x].step[ghostedStep].length1 + 1;
 
-		if ((player.uStepInd[row] % 48) == 1)
+		if ((player.row[row].uStep % 48) == 1)
 		{
 			--tempPlayerRow.rollLength;
 		}
@@ -585,7 +556,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 			tempPlayerRow.rollLength = 0;
 			tempPlayerRow.rollCounter = 0;
 		}
-		if (((player.uStepInd[row] % (48 / ghost_rollMode)) == 1)
+		if (((player.row[row].uStep % (48 / ghost_rollMode)) == 1)
 				&& tempPlayerRow.rollLength)
 		{
 			if (ghost_stepIsOn >= 1 && temp_rowIsOn)
@@ -597,19 +568,19 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 				// procent postępu rolki
 				const float rollProgress = (float(
 						(ghostedStepLength - tempPlayerRow.rollLength) * 48
-								+ player.uStepInd[row])
+								+ player.row[row].uStep)
 						/ (float(ghostedStepLength) * 48)) * 100;
 
 				// TU GRAMY
 				if (((ghost_rollMode != HITMODE_OFFSET)
-						&& ((player.uStepInd[row] % (48 / ghost_rollMode)) == 1))
+						&& ((player.row[row].uStep % (48 / ghost_rollMode)) == 1))
 						|| ((ghost_rollMode == HITMODE_OFFSET)
-								&& (player.uStepInd[row] == temp_offset)))
+								&& (player.row[row].uStep == temp_offset)))
 				{
 					const uint8_t tempNote = tempSeqRow.step[ghostedStep].note;
 					const uint8_t tempStepVelo =
 							tempSeqRow.step[ghostedStep].velocity;
-					const uint8_t tempChord = tempSeqRow.step[ghostedStep].chord;
+//					const uint8_t tempChord = tempSeqRow.step[ghostedStep].chord;
 					// const uint8_t tempMod 	=	tempSeqRow.step[ghostedStep].modulation;
 					const uint8_t tempScale = tempSeqRow.trackScale;
 					const uint8_t tempRoot = tempSeqRow.rootNote;
@@ -623,13 +594,8 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 					//wyciszamy jezeli bylo cos wczesniej
 					if (player.row[x].noteOn_sent)
 					{
-						midiSendChordOff(player.row[x].note_sent,
-											player.row[x].chord_sent,
-											0,
-											player.row[x].channel_sent,
-											player.row[x].midiOut_sent,
-											player.row[x].scale_sent,
-											player.row[x].scaleRoot_sent);
+						sendNoteOn(
+								&seq[player.ramBank].row[x].step[player.row[x].actual_pos]);
 					}
 					//gramy
 					if (tempNote <= MAX_NOTE_TRACK)
@@ -639,16 +605,8 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 										+ (int16_t ) getNextRollNoteOffset(x),
 								MIN_NOTE_STEP, MAX_NOTE_STEP);
 						// Serial.println(player.row[x].note_sent);
-						midiSendChordOn(
-										constrain(player.row[x].note_sent,
-													MIN_NOTE_STEP,
-													MAX_NOTE_STEP),
-										tempChord,
-										uint8_t(tempVelo),
-										seq[player.ramBank].row[x].channel,
-										seq[player.ramBank].row[x].midiOut,
-										tempScale,
-										tempRoot);
+						sendNoteOn(
+								&seq[player.ramBank].row[x].step[player.row[x].actual_pos]);
 
 						anythingSent = 1;
 
@@ -658,7 +616,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 								seq[player.ramBank].row[x].channel;
 					}
 
-					player.row[x].chord_sent = tempChord;
+//					player.row[x].chord_sent = tempChord;
 					player.row[x].scale_sent = tempScale;
 					player.row[x].scaleRoot_sent = tempRoot;
 					player.row[x].noteOn_sent = 1;
@@ -696,7 +654,8 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 			}
 
 			// wyłączamy przedłużenie rolki
-			if ((tempPlayerRow.rollLength == 1) && (player.uStepInd[row] == 48))
+			if ((tempPlayerRow.rollLength == 1)
+					&& (player.row[row].uStep == 48))
 			{
 				tempPlayerRow.rollLength = 0;
 				player.row[x].rollCounter = 0;
@@ -732,7 +691,7 @@ void Sequencer::rec_metronome(void)
 				player.uStep = 1;
 				for (uint8_t a = MINROW; a <= MAXROW; a++)
 				{
-					player.uStepInd[a] = 1;
+					player.row[a].uStep = 1;
 				}
 				//player.metronome_timer = 1;
 
@@ -800,7 +759,7 @@ void Sequencer::handle_ghosts(void)
 	}
 }
 
-void Sequencer::action_buttonPlay(void)
+void Sequencer::play(void)
 {
 	if (debug.player)
 		Serial.println("play");
@@ -814,7 +773,7 @@ void Sequencer::action_buttonPlay(void)
 	player.uStep = 1;
 	for (uint8_t a = MINROW; a <= MAXROW; a++)
 	{
-		player.uStepInd[a] = 1;
+		player.row[a].uStep = 1;
 
 		player.row[a].rollStep = 0;
 	}
@@ -843,7 +802,7 @@ void Sequencer::panic_all_notes_off(void)
 //	}
 }
 
-void Sequencer::action_buttonStop(void)
+void Sequencer::stop(void)
 {
 
 	if (player.isStop)
@@ -862,7 +821,7 @@ void Sequencer::action_buttonStop(void)
 
 	for (uint8_t a = MINROW; a <= MAXROW; a++)
 	{
-		player.uStepInd[a] = 0;
+		player.row[a].uStep = 0;
 		player.row[a].rollStep = 0;
 
 		player.row[a].makeJump = 0;
@@ -895,7 +854,7 @@ void Sequencer::resetLastSendMod(void)
 
 void Sequencer::resetAllLearned(void)
 {
-	for (uint8_t x = 1; x <= 32; x++)
+	for (uint8_t x = MINSTEP; x <= MAXSTEP; x++)
 	{
 		for (uint8_t y = MINROW; y <= MAXROW; y++)
 		{
@@ -904,7 +863,7 @@ void Sequencer::resetAllLearned(void)
 	}
 }
 
-void Sequencer::action_buttonREC(void)
+void Sequencer::rec(void)
 {
 
 	if (debug.player)
@@ -943,7 +902,8 @@ void Sequencer::clearRow(uint8_t row)
 
 void Sequencer::clearRow(uint8_t row, uint8_t bank)
 {
-	for (uint8_t x = 1; x <= 32; x++)
+	// TODO: ograniczyć ba
+	for (uint8_t x = MINSTEP; x <= MAXSTEP; x++)
 	{
 		clearStep(x, row, bank);
 	}
@@ -952,7 +912,7 @@ void Sequencer::clearRow(uint8_t row, uint8_t bank)
 void Sequencer::initRow(uint8_t row, uint8_t bank)
 {
 
-	for (uint8_t x = 1; x <= 32; x++)
+	for (uint8_t x = 1; x <= MAXSTEP; x++)
 	{
 		seq[bank].row[row].length = DEFAULT_ROW_LEN;
 		seq[bank].row[row].rootNote = DEFAULT_ROW_NOTE;
@@ -1001,7 +961,7 @@ void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 
 	step.hitMode = 1;
 	step.isOn = 0;
-	step.chord = MIN_CHORD;
+//	step.chord = MIN_CHORD;
 	step.velocity = MAX_VELO_STEP;
 	step.modulation = DEFAULT_MOD;
 	step.rollCurve = MIN_STEP_ROLL_VAR;
@@ -1056,148 +1016,150 @@ void Sequencer::initPattern(uint8_t pattern) // czyści pattern z flasha
 	// 	TODO
 	//	flash_bank(pattern, 3);
 }
+/*
 
-void Sequencer::randomize_row(uint8_t row)
-{
-	bool oneRoll = 0;
-	bool randomInScale = seq[player.ramBank].row[row].trackScale > 0;
-	int8_t random_from = constrain(
-			seq[player.ramBank].row[row].rootNote - RANDOM_NOTE_DOWN,
-			MIN_NOTE_TRACK,
-			MAX_NOTE_TRACK);
-	int8_t random_to = constrain(
-			seq[player.ramBank].row[row].rootNote + RANDOM_NOTE_UP,
-			MIN_NOTE_TRACK,
-			MAX_NOTE_TRACK);
+ void Sequencer::randomize_row(uint8_t row)
+ {
+ bool oneRoll = 0;
+ bool randomInScale = seq[player.ramBank].row[row].trackScale > 0;
+ int8_t random_from = constrain(
+ seq[player.ramBank].row[row].rootNote - RANDOM_NOTE_DOWN,
+ MIN_NOTE_TRACK,
+ MAX_NOTE_TRACK);
+ int8_t random_to = constrain(
+ seq[player.ramBank].row[row].rootNote + RANDOM_NOTE_UP,
+ MIN_NOTE_TRACK,
+ MAX_NOTE_TRACK);
 
-	// Serial.println(random_from);
-	// Serial.println(random_to);
-	// Serial.println();
+ // Serial.println(random_from);
+ // Serial.println(random_to);
+ // Serial.println();
 
-	uint8_t dispersion = random(2, 6);
+ uint8_t dispersion = random(2, 6);
 
-	for (uint8_t col = 1; col <= 32; col++)
-	{
-		seq[player.ramBank].row[row].step[col].note =
-				seq[player.ramBank].row[row].rootNote;
-		seq[player.ramBank].row[row].step[col].chord = MIN_CHORD;
+ for (uint8_t col = MINSTEP; col <= MAXSTEP; col++)
+ {
+ seq[player.ramBank].row[row].step[col].note =
+ seq[player.ramBank].row[row].rootNote;
+ seq[player.ramBank].row[row].step[col].chord = MIN_CHORD;
 
-		if (oneRoll)
-		{
-			seq[player.ramBank].row[row].step[col].hitMode = random(0,
-																	dispersion)
-					< 1;
-			if (seq[player.ramBank].row[row].step[col].hitMode)
-				seq[player.ramBank].row[row].step[col].isOn = 1;
-			else
-				clearStep(col, row);
-		}
-		else
-		{
-			if (random(0, 4) > 2)
-			{
-				seq[player.ramBank].row[row].step[col].hitMode = random(0, 5);
-				if (seq[player.ramBank].row[row].step[col].hitMode)
-					seq[player.ramBank].row[row].step[col].isOn = 1;
-				else
-					clearStep(col, row);
-			}
-			else
-			{
+ if (oneRoll)
+ {
+ seq[player.ramBank].row[row].step[col].hitMode = random(0,
+ dispersion)
+ < 1;
+ if (seq[player.ramBank].row[row].step[col].hitMode)
+ seq[player.ramBank].row[row].step[col].isOn = 1;
+ else
+ clearStep(col, row);
+ }
+ else
+ {
+ if (random(0, 4) > 2)
+ {
+ seq[player.ramBank].row[row].step[col].hitMode = random(0, 5);
+ if (seq[player.ramBank].row[row].step[col].hitMode)
+ seq[player.ramBank].row[row].step[col].isOn = 1;
+ else
+ clearStep(col, row);
+ }
+ else
+ {
 
-				seq[player.ramBank].row[row].step[col].hitMode = random(
-						0, dispersion) < 1;
-				if (seq[player.ramBank].row[row].step[col].hitMode)
-					seq[player.ramBank].row[row].step[col].isOn = 1;
-				else
-					clearStep(col, row);
-			}
-			if (seq[player.ramBank].row[row].step[col].hitMode > 1)
-				oneRoll = 1;
+ seq[player.ramBank].row[row].step[col].hitMode = random(
+ 0, dispersion) < 1;
+ if (seq[player.ramBank].row[row].step[col].hitMode)
+ seq[player.ramBank].row[row].step[col].isOn = 1;
+ else
+ clearStep(col, row);
+ }
+ if (seq[player.ramBank].row[row].step[col].hitMode > 1)
+ oneRoll = 1;
 
-		}
+ }
 
-		if (seq[player.ramBank].row[row].step[col].hitMode > 1
-				&& seq[player.ramBank].row[row].step[col].isOn)
-		{
-			seq[player.ramBank].row[row].step[col].rollCurve = random(
-					ROLL_CURVE.MIN, ROLL_CURVE.MAX + 1);
-		}
-		if (seq[player.ramBank].row[row].step[col].hitMode > 0
-				&& seq[player.ramBank].row[row].step[col].isOn)
-		{
+ if (seq[player.ramBank].row[row].step[col].hitMode > 1
+ && seq[player.ramBank].row[row].step[col].isOn)
+ {
+ seq[player.ramBank].row[row].step[col].rollCurve = random(
+ ROLL_CURVE.MIN, ROLL_CURVE.MAX + 1);
+ }
+ if (seq[player.ramBank].row[row].step[col].hitMode > 0
+ && seq[player.ramBank].row[row].step[col].isOn)
+ {
 
-			// jeżeli nie rolka, spróbuj randomizować nudge
-			if ((seq[player.ramBank].row[row].step[col].hitMode == 1)
-					&& seq[player.ramBank].row[row].step[col].isOn
-					&& (seq[player.ramBank].row[row].randomNudge))
-			{
-				if (random(0, 2) < 1)
-				{
-					seq[player.ramBank].row[row].step[col].hitMode =
-							HITMODE_OFFSET;
-					seq[player.ramBank].row[row].step[col].offset = random(
-							OFFSET_MIN, OFFSET_MAX);
-					;
-				}
-				else
-				{
-					seq[player.ramBank].row[row].step[col].offset = OFFSET_MIN;
-				}
-			}
+ // jeżeli nie rolka, spróbuj randomizować nudge
+ if ((seq[player.ramBank].row[row].step[col].hitMode == 1)
+ && seq[player.ramBank].row[row].step[col].isOn
+ && (seq[player.ramBank].row[row].randomNudge))
+ {
+ if (random(0, 2) < 1)
+ {
+ seq[player.ramBank].row[row].step[col].hitMode =
+ HITMODE_OFFSET;
+ seq[player.ramBank].row[row].step[col].offset = random(
+ OFFSET_MIN, OFFSET_MAX);
+ ;
+ }
+ else
+ {
+ seq[player.ramBank].row[row].step[col].offset = OFFSET_MIN;
+ }
+ }
 
-			// RANDOM VELO
-			if ((seq[player.ramBank].row[row].randomVelo))
-			{
-				seq[player.ramBank].row[row].step[col].velocity = random(
-						RANDOM_VELO_MIN, RANDOM_VELO_MAX);
-			}
-			else
-			{
-				seq[player.ramBank].row[row].step[col].velocity = 127;
-			}
+ // RANDOM VELO
+ if ((seq[player.ramBank].row[row].randomVelo))
+ {
+ seq[player.ramBank].row[row].step[col].velocity = random(
+ RANDOM_VELO_MIN, RANDOM_VELO_MAX);
+ }
+ else
+ {
+ seq[player.ramBank].row[row].step[col].velocity = 127;
+ }
 
-			// RANDOM MOD
-			if ((seq[player.ramBank].row[row].randomMod))
-			{
-				seq[player.ramBank].row[row].step[col].modulation = random(
-						RANDOM_MOD_MIN, RANDOM_MOD_MAX);
-			}
-			else
-			{
-				seq[player.ramBank].row[row].step[col].modulation = DEFAULT_MOD;
-			}
+ // RANDOM MOD
+ if ((seq[player.ramBank].row[row].randomMod))
+ {
+ seq[player.ramBank].row[row].step[col].modulation = random(
+ RANDOM_MOD_MIN, RANDOM_MOD_MAX);
+ }
+ else
+ {
+ seq[player.ramBank].row[row].step[col].modulation = DEFAULT_MOD;
+ }
 
-			// RANDOM NOTE
-			if (randomInScale)
-			{
-				for (uint8_t a = 0; a <= 15; a++)
-				{
-					seq[player.ramBank].row[row].step[col].note = random(
-							random_from, random_to);
+ // RANDOM NOTE
+ if (randomInScale)
+ {
+ for (uint8_t a = 0; a <= 15; a++)
+ {
+ seq[player.ramBank].row[row].step[col].note = random(
+ random_from, random_to);
 
-					if (isInScale(seq[player.ramBank].row[row].step[col].note,
-									seq[player.ramBank].row[row].rootNote,
-									seq[player.ramBank].row[row].trackScale))
-						break;
+ if (isInScale(seq[player.ramBank].row[row].step[col].note,
+ seq[player.ramBank].row[row].rootNote,
+ seq[player.ramBank].row[row].trackScale))
+ break;
 
-					if (a == 15)
-						seq[player.ramBank].row[row].step[col].note =
-								seq[player.ramBank].row[row].rootNote;
-				}
-				// Serial.println(seq[player.ramBank].row[row].step[col].note);
-			}
-			else
-			{
-				seq[player.ramBank].row[row].step[col].note =
-						seq[player.ramBank].row[row].rootNote;
-			}
+ if (a == 15)
+ seq[player.ramBank].row[row].step[col].note =
+ seq[player.ramBank].row[row].rootNote;
+ }
+ // Serial.println(seq[player.ramBank].row[row].step[col].note);
+ }
+ else
+ {
+ seq[player.ramBank].row[row].step[col].note =
+ seq[player.ramBank].row[row].rootNote;
+ }
 
-			seq[player.ramBank].row[row].step[col].length1 = 0;
-		}
+ seq[player.ramBank].row[row].step[col].length1 = 0;
+ }
 
-	}
-}
+ }
+ }
+ */
 
 uint8_t Sequencer::isInScale(uint8_t note, uint8_t root, uint8_t scale)
 {
@@ -1250,7 +1212,7 @@ void Sequencer::loadDefaultSequence(void)
 		seq[player.ramBank].row[x].isOn = 1;
 
 		seq[player.ramBank].row[x].length = 16;
-		for (uint8_t y = 1; y <= 32; y++)
+		for (uint8_t y = MINSTEP; y <= MAXSTEP; y++)
 		{
 			seq[player.ramBank].row[x].step[y].isOn = 0;
 		}
@@ -1264,7 +1226,7 @@ void Sequencer::loadDefaultSequence(void)
 	seq[player.ramBank].row[1].step[2].hitMode = 1;
 	seq[player.ramBank].row[1].step[2].note = 42;
 
-	action_buttonPlay();
+	play();
 }
 
 uint8_t Sequencer::get_metronome_intro_step(void)
@@ -1976,7 +1938,7 @@ void Sequencer::print_uSteps()
 {
 	for (uint8_t a = MINROW; a <= MAXROW; a++)
 	{
-		Serial.println(player.uStepInd[a]);
+		Serial.println(player.row[a].uStep);
 	}
 }
 
@@ -2050,11 +2012,11 @@ void Sequencer::incr_uStep(uint8_t row)
 {
 	if (!player.row[row].divChange)
 	{
-		player.uStepInd[row]++;
+		player.row[row].uStep++;
 
-		if (player.uStepInd[row] > 48)
+		if (player.row[row].uStep > 48)
 		{
-			player.uStepInd[row] = 1;
+			player.row[row].uStep = 1;
 			switchStep(row);
 		}
 	}
@@ -2070,7 +2032,7 @@ void Sequencer::divChangeQuantize(uint8_t row)
 	if (player.row[row].divChange && ((nanoStep % (tDiv * 48)) == 1))
 	{
 		player.row[row].divChange = 0;
-		player.uStepInd[row] = 1;
+		player.row[row].uStep = 1;
 		switchStep(row);
 	}
 }
@@ -2092,7 +2054,7 @@ void Sequencer::trySwitchBank()
 uint8_t Sequencer::getTempoDiv(int8_t val)
 {
 
-	// 48, // 1/4	-3
+	// 48, 	// 1/4	-3
 	// 36,	// 1/3	-2
 	// 24,	// 1/2	-1
 	// 12,	// 1/1	0
@@ -2227,38 +2189,38 @@ inline uint8_t Sequencer::isStop(void)
 }
 //extern usb_midi_class usbMIDI;
 
-void Sequencer::midiSendChordOn(uint8_t note,
-								uint8_t chord,
-								uint8_t velo,
-								uint8_t channel,
-								uint8_t midiOut,
-								uint8_t scale,
-								uint8_t scaleRoot)
-{
-	Serial.println("BAM!");
-	usbMIDI.sendNoteOn(channel, note, velo);
-
-}
-void Sequencer::midiSendChordOff(uint8_t note,
-									uint8_t chord,
-									uint8_t velo,
-									uint8_t channel,
-									uint8_t midiOut,
-									uint8_t scale,
-									uint8_t scaleRoot)
-{
-	Serial.println("\t tsss...");
-	usbMIDI.sendNoteOff(channel, note, velo);
-}
+//void Sequencer::midiSendChordOn(uint8_t note,
+//								uint8_t chord,
+//								uint8_t velo,
+//								uint8_t channel,
+//								uint8_t midiOut,
+//								uint8_t scale,
+//								uint8_t scaleRoot)
+//{
+//	Serial.println("BAM!");
+//	usbMIDI.sendNoteOn(channel, note, velo);
+//
+//}
+//void Sequencer::midiSendChordOff(uint8_t note,
+//									uint8_t chord,
+//									uint8_t velo,
+//									uint8_t channel,
+//									uint8_t midiOut,
+//									uint8_t scale,
+//									uint8_t scaleRoot)
+//{
+//	Serial.println("\t tsss...");
+//	usbMIDI.sendNoteOff(channel, note, velo);
+//}
 
 void Sequencer::copy_step(uint8_t from_step, uint8_t from_track,
 							uint8_t to_step,
 							uint8_t to_track)
 {
-	from_step = constrain(from_step, 1, 32);
+	from_step = constrain(from_step, MINSTEP, MAXSTEP);
 	from_track = constrain(from_track, MINROW, MAXROW);
 
-	to_step = constrain(to_step, 1, 32);
+	to_step = constrain(to_step, MINSTEP, MAXSTEP);
 	to_track = constrain(to_track, MINROW, MAXROW);
 
 	seq[player.ramBank].row[to_track].step[to_step] =
@@ -2312,4 +2274,13 @@ void Sequencer::toggleStep(uint8_t row, uint8_t step)
 	seq[player.ramBank].row[row].step[step].isOn =
 			!seq[player.ramBank].row[row].step[step].isOn;
 	seq[player.ramBank].row[row].step[step].note = DEFAULT_ROW_NOTE;
+}
+
+void Sequencer::sendNoteOn(strBank::strRow::strStep *step)
+{
+
+}
+void Sequencer::sendNoteOff(strBank::strRow::strStep *step)
+{
+
 }
