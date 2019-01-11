@@ -4,8 +4,11 @@
 #include <Arduino.h>
 #include "keyScanner.h"
 #include "mtLED.h"
+#include "mtAudioEngine.h"
 
-extern mtLEDs leds;
+extern uint32_t wavLen1;
+extern int16_t wavBuf1[500800];
+extern AudioPlayMemory playMem1;
 
 void onPowerButtonChange(uint8_t value);
 
@@ -76,7 +79,11 @@ void onButtonChange(uint8_t n, uint8_t value)
 		onPowerButtonChange(value);
 		return;
 	}
-
+	if(n == 4)
+	{
+		if( (value == 1)) playMem1.play(wavBuf1,wavLen1,160,714,253,377);
+		else if(value == 0) playMem1.stopLoopMode();
+	}
 }
 //-----------------------------------------------------------------
 //----------------------|   POWER BUTTON   |-----------------------

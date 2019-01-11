@@ -30,11 +30,11 @@
 
 void AudioPlayMemory::play(int16_t *data, uint32_t len,uint32_t startPoint,uint32_t endPoint, uint32_t loopPoint1, uint32_t loopPoint2)
 {
-	uint32_t format;
 
 	playing = 0;
 	prior = 0;
 	stopLoop=0;
+	startBuf=len;
 
 	if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return; //startpoint
 	if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return; //looppoint1
@@ -42,44 +42,26 @@ void AudioPlayMemory::play(int16_t *data, uint32_t len,uint32_t startPoint,uint3
 
 
 
-	startSample= (uint32_t)(startPoint*44.1);
-	endSample= (uint32_t)(endPoint*44.1);
-	loopSample1= (uint32_t)(loopPoint1*44.1);
-	loopSample2= (uint32_t)(loopPoint2*44.1);
-
-	//loopSample1-=loopSample1%128;
-	//loopSample2-=loopSample2%128;
+	samplePoints.start= (uint32_t)(startPoint*44.1);
+	samplePoints.end= (uint32_t)(endPoint*44.1);
+	samplePoints.loop1= (uint32_t)(loopPoint1*44.1);
+	samplePoints.loop2= (uint32_t)(loopPoint2*44.1);
 
 
-	if((startSample >= len) || (loopSample1>len) || (loopSample2>len) || (endSample>len)) return; // wskazniki za plikiem
+	if((samplePoints.start >= len) || (samplePoints.loop1>len) || (samplePoints.loop2>len) || (samplePoints.end>len)) return; // wskazniki za plikiem
 
-	union pomoc
-	{
-		uint32_t format;
-		uint16_t dane[2];
-	} pomoc1;
 
-	loopConstrain1=len-loopSample1;
-	loopConstrain2=len-loopSample2;
-	endConstrain= len-endSample;
-	loopLength=loopSample2-loopSample1;
+	sampleConstrains.loopPoint1=len-samplePoints.loop1;
+	sampleConstrains.loopPoint2=len-samplePoints.loop2;
+	sampleConstrains.endPoint= len-samplePoints.end;
+	sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
 
-	pomoc1.dane[0]= *data;
-	data++;
-	pomoc1.dane[1]= *data;
-	format=pomoc1.format;
-	//format = (uint32_t)( ( pomocnicza << 16) & 0xFFFF0000); // nie wiadomo czemu nie dziala - dlatego playing na sztywno, a len zewnetrznie (nie dziala shiftowanie bo pamiec 16-bitowa??)
 
-	//data++;
+	data+=2;
 
-	//pomocnicza=*data;
-	//format |= (uint32_t)( pomocnicza & 0x0000FFFF);
-
-	data++;
-
-	next = data+42+startSample;
-	beginning = data+startSample;
-	length =len-=startSample;//format & 0xFFFFFF;
+	next = data+42+samplePoints.start;
+	beginning = data+samplePoints.start;
+	length =len-samplePoints.start;//format & 0xFFFFFF;
 	playing = 0x81;//format >> 24;
 
 }
@@ -125,7 +107,8 @@ void AudioPlayMemory::update(void)
 		break;
 
 	  case 0x81: // 16 bit PCM, 44100 Hz
-		for (i=0; i < AUDIO_BLOCK_SAMPLES; i ++) {
+		for (i=0; i < AUDIO_BLOCK_SAMPLES; i ++)
+		{
 			//tmp32 = *in++;
 			//*out++ = (int16_t)(tmp32 & 65535);
 			//*out++ = (int16_t)(tmp32 >> 16);
@@ -133,15 +116,15 @@ void AudioPlayMemory::update(void)
 			if (length > 0)
 			{
 				length --;
-				if((length<=loopConstrain2) && (!stopLoop)) {length=loopConstrain1; in-=loopLength;}
-				if(length<=endConstrain) length=0;
+				if((length <= sampleConstrains.loopPoint2) && (!stopLoop) ) {length = sampleConstrains.loopPoint1;	 in -= sampleConstrains.loopLength;}
+				if(length <= sampleConstrains.endPoint) length=0;
 			}
 			else
 			{
 				playing = 0;
 			}
 		}
-		consumed = AUDIO_BLOCK_SAMPLES;
+		//consumed = AUDIO_BLOCK_SAMPLES;
 		break;
 
 	  case 0x02: // u-law encoded, 22050 Hz 
@@ -296,9 +279,34 @@ uint32_t AudioPlayMemory::lengthMillis(void)
 	}
 	return ((uint64_t)(*(b - 1) & 0xFFFFFF) * b2m) >> 32;
 }
-void AudioPlayMemory::stopLoopMode()
+void AudioPlayMemory::stopLoopMode(void)
 {
 	stopLoop=1;
+}
+
+void AudioPlayMemory::setStartPoint(uint32_t sp)
+{
+	samplePoints.start= (uint32_t)(sp*44.1);
+
+}
+void AudioPlayMemory::setEndPoint(uint32_t ep)
+{
+	samplePoints.end= (uint32_t)(ep*44.1);
+	sampleConstrains.endPoint= startBuf-samplePoints.end;
+
+}
+void AudioPlayMemory::setLoopPoint1(uint32_t lp1)
+{
+	samplePoints.loop1= (uint32_t)(lp1*44.1);
+	sampleConstrains.loopPoint1=startBuf-samplePoints.loop1;
+	sampleConstrains.loopLength=sampleConstrains.loopPoint2-sampleConstrains.loopPoint1;
+
+}
+void AudioPlayMemory::setLoopPoint2(uint32_t lp2)
+{
+	samplePoints.loop2= (uint32_t)(lp2*44.1);
+	sampleConstrains.loopPoint2=startBuf-samplePoints.loop2;
+	sampleConstrains.loopLength=sampleConstrains.loopPoint2-sampleConstrains.loopPoint1;
 }
 
 

@@ -200,6 +200,6 @@ private:
 	mtLED ledsGrid;
 };
 
-
+extern mtLEDs leds;
 
 #endif

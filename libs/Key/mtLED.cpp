@@ -33,6 +33,9 @@ const uint8_t gamma255[256] = {
 215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255
 
 };
+
+mtLEDs leds;
+
 /* Constructor */
 mtLED::mtLED()
 {

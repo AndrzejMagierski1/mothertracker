@@ -6,7 +6,7 @@
 #include "core_pins.h"
 #include "Arduino.h"
 #include "Wire.h"
-#include "mtHardware.h"
+
 
 // PAD,POT,BUTTONS MUXS
 // pad xy_z control

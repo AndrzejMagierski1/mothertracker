@@ -1,7 +1,19 @@
 
+#include "mtHardware.h"
 #include "AnalogInputs.h"
 #include "keyScanner.h"
 #include "mtLED.h"
+
+#include <Audio.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SD.h>
+#include <SerialFlash.h>
+
+#include "sdram.h"
+
+
+
 
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo);
 void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f);
@@ -16,7 +28,7 @@ void onButtonHold			(uint8_t x, uint8_t y);
 void onButtonDouble			(uint8_t x, uint8_t y);
 
 keyScanner seqButtonsA,seqButtonsB,seqButtonsC;
-mtLEDs leds;
+AudioControlSGTL5000 audioShield;
 
 void IO7326_INT_FUNCT_A() { seqButtonsA.intAction(); }
 void IO7326_INT_FUNCT_B() { seqButtonsB.intAction(); }
@@ -26,6 +38,19 @@ void initHardware()
 {
 	Serial.begin(9600);
 
+	//SD CARD
+	SD.begin(SdioConfig(DMA_SDIO));
+
+	//CODAC AUDIO
+	audioShield.enable();
+	audioShield.volume(0.7);
+	AudioMemory(200);
+
+	//SDRAM
+	Extern_SDRAM_Init();
+
+
+	//ANALOG
 	AnalogInputs.setPadPressFunc(onPadPress);
 	AnalogInputs.setPadChangeFunc(onPadChange);
 	AnalogInputs.setPadReleaseFunc(onPadRelease);
@@ -68,6 +93,7 @@ void initHardware()
 	////////////////// IO7326 C
 	seqButtonsC.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);
 
+	//LEDS
 	leds.begin();
 	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
 

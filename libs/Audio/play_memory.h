@@ -40,21 +40,36 @@ public:
 	uint32_t positionMillis(void);
 	uint32_t lengthMillis(void);
 	virtual void update(void);
-	void stopLoopMode();
+	void stopLoopMode(void);
+	void setStartPoint(uint32_t sp);
+	void setEndPoint(uint32_t ep);
+	void setLoopPoint1(uint32_t lp1);
+	void setLoopPoint2(uint32_t lp2);
 private:
 	int16_t *next;
 	int16_t *beginning;
 	uint32_t length;
 	int16_t prior;
 	volatile uint8_t playing;
-	uint32_t startSample=0;
-	uint32_t endSample=0;
-	uint32_t loopSample1=0;
-	uint32_t loopSample2=0;
-	uint32_t loopLength=0;
-	uint32_t loopConstrain1=0;
-	uint32_t loopConstrain2=0;
-	uint32_t endConstrain=0;
+
+	struct strSamplePoints
+	{
+		uint32_t start=0;
+		uint32_t end=0;
+		uint32_t loop1=0;
+		uint32_t loop2=0;
+	} samplePoints;
+
+	struct strSampleConstrains
+	{
+		uint32_t loopLength=0;
+		uint32_t loopPoint1=0;
+		uint32_t loopPoint2=0;
+		uint32_t endPoint=0;
+
+	} sampleConstrains;
+
+	uint32_t startBuf=0;
 	uint8_t  stopLoop=0;
 };
 
