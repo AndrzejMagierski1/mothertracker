@@ -4,33 +4,36 @@
 //#include "mtDisplay.h"
 #include "mtProjectEditor.h"
 
+#include "SD.h"
 #include "sdram.h"
-#include "Arduino.h"
+//#include "Arduino.h"
+#include "spi_interrupt.h"
+#include "sdram.h"
+//#include "AudioStream.h"
+
+
+//cr_section_macros.h
 
 cMtProjectEditor mtProjectEditor;
 
 
 strMtProject mtProject;
-
-
-__NOINIT(EXTERNAL_RAM) uint8_t sdram_writeBuffer[1024*1024];
+strPatern mtPatern;
 
 
 
-extern uint32_t loadSdWavToMemory(const char *filename, uint16_t * buf);
+__NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[4*1024*1024];
 
 
-//-------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 uint8_t cMtProjectEditor::readProjectConfig()
 {
 	// parametry sampli ==============================================
 	mtProject.sampleBank.samples_count = 8;
 
-	for(uint8_t i = 0; i < mtProject.sampleBank.samples_count; i++)
-	{
-		mtProject.sampleBank.sample[i].index = i+1;
-		//mtProject.sampleBank.sample[i].address = i+1;
-	}
+	// trzeba czytac z pliku projektu zawierajacego opis banku sampli
+	// pod jaki index tablicy sampli 0-32 zapisywac dany sampel
+	// teraz domyslnie zajmowane 0-7
 
 	mtProject.sampleBank.sample[0].file_name = (char*)"1.wav";
 	mtProject.sampleBank.sample[1].file_name = (char*)"2.wav";
@@ -44,18 +47,51 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// parametry instrumentow ========================================
 	mtProject.instruments_count = 8;
 
+	for(uint8_t i = 0; i < mtProject.instruments_count; i++)
+	{
+		mtProject.instrument[i].sampleIndex = i;
+
+		mtProject.instrument[i].playMode = 0;
+		mtProject.instrument[i].start_point = 0;
+		mtProject.instrument[i].loop_point1 = 0;
+		mtProject.instrument[i].loop_point2 = 0;
+		mtProject.instrument[i].end_point = 1000;
+
+		mtProject.instrument[i].amp_delay = 0;
+		mtProject.instrument[i].amp_attack = 0;
+		mtProject.instrument[i].amp_hold = 0;
+		mtProject.instrument[i].amp_decay = 0;
+		mtProject.instrument[i].amp_sustain = 100;
+		mtProject.instrument[i].amp_release = 1000;
+
+		mtProject.instrument[i].panning = 0;
+	}
 
 
+	// parametry paternu ========================================
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+
+		mtPatern.track[i].step[0].instrumentIndex = i;
+		mtPatern.track[i].step[0].volume = 100;
+		mtPatern.track[i].step[0].note = 48;
+
+		mtPatern.track[i].volume = 100;
+		mtPatern.track[i].enabled = 1;
+
+
+	}
 
 	return 0;
 }
 
 //-------------------------------------------------------------------------------
-uint8_t cMtProjectEditor::loadSamples()
+uint8_t cMtProjectEditor::loadSamplesBank()
 {
 	//zaladowanie banku sampli
-
 	int32_t size;
+	mtProject.sampleBank.sample[0].address = sdram_sampleBank;
 
 	for(uint8_t i = 0; i < mtProject.sampleBank.samples_count; i++)
 	{
@@ -68,37 +104,23 @@ uint8_t cMtProjectEditor::loadSamples()
 		}
 		else return 2; // blad ladowania wave
 
-		if(mtProject.sampleBank.used_memory > mtProject.sampleBank.max_memory) return 1; // out of mem
+		if(i+1 < mtProject.sampleBank.samples_count)
+		{
+			mtProject.sampleBank.sample[i+1].address = mtProject.sampleBank.sample[i].address+size;
+		}
+		if(mtProject.sampleBank.used_memory > mtProject.sampleBank.max_memory) return 1; // out of memory
 	}
-
-	 return 0;
-}
-
-//-------------------------------------------------------------------------------
-uint8_t cMtProjectEditor::loadInstruments()
-{
-
-
-
 
 	return 0;
 }
 
 //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 uint8_t cMtProjectEditor::loadProject()
 {
-
-	Serial.println(sdram_writeBuffer[0]);
-
-
-	sdram_writeBuffer[0] = 1;
-
-	Serial.println(sdram_writeBuffer[0]);
-
 	readProjectConfig();
 
-	if(loadSamples()) return 1;
-	if(loadInstruments()) return 1;
+	if(loadSamplesBank()) return 1;
 
 
 	return 0;
@@ -112,3 +134,98 @@ uint8_t cMtProjectEditor::isProjectLoaded()
 
 	return 0;
 }
+
+
+
+
+
+int32_t loadSdWavToMemory(const char *filename, int16_t * buf)
+{
+	strWavFileHeader sampleHead;
+	uint16_t bufferLength=0;
+	uint32_t accBufferLength=0;
+	uint32_t * bufStart;
+	int16_t buf16[256];
+	FsFile wavfile;
+
+	//__disable_irq();
+
+	bufStart = (uint32_t*)buf;
+	buf+=2;
+
+	wavfile = SD.open(filename);
+	wavfile.read(&sampleHead, 44);
+
+	if(sampleHead.format != 1163280727 || sampleHead.AudioFormat != 1  || sampleHead.bitsPerSample != 16  || sampleHead.sampleRate != 44100 )
+	{
+		wavfile.close();
+//		__enable_irq();
+		return -1;
+	}
+/*
+	if(sampleHead.numChannels == 1) sampleLength = sampleHead.subchunk2Size;
+	else if(sampleHead.numChannels == 2) sampleLength = sampleHead.subchunk2Size/2;
+	else
+	{
+		wavfile.close();
+//		__enable_irq();
+		return -2;
+	}
+*/
+	if(sampleHead.numChannels == 1)
+	{
+		while ( wavfile.available() )
+		{
+			bufferLength = wavfile.read(buf16, 512);
+
+			accBufferLength += bufferLength;
+
+			for(int i=0; i< 256; i++)
+			{
+				if(bufferLength <= i ) *buf=0;
+				else *buf=buf16[i];
+				buf++;
+			}
+		}
+	}
+	else if (sampleHead.numChannels == 2)
+	{
+		while (wavfile.available() )
+		{
+
+			bufferLength = wavfile.read(buf16, 512);
+			//Serial.println(bufferLength);
+			accBufferLength += bufferLength;
+			for(int i=0; i< 256; i+=2)
+			{
+				if(bufferLength <= i ) *buf=0;
+				else *buf=buf16[i];
+				buf++;
+			}
+
+		}
+	}
+
+	wavfile.close();
+
+	*bufStart = (accBufferLength/4);
+
+	accBufferLength = accBufferLength/2;
+
+/*
+ 	if(sampleLength != accBufferLength)
+	{
+		return -3; // rozne wielkosc danych
+	}
+*/
+//	*bufStart = (0x8100 | ((accBufferLength/4) >> 24));
+//	bufStart++;
+//	*bufStart |= ((uint16_t) (accBufferLength/4) & 0xFFFF);
+
+
+//	__enable_irq();
+	return accBufferLength;
+}
+
+
+

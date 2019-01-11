@@ -14,6 +14,44 @@
 
 
 //=====================================================================
+//parametry przetwarzanego pliku
+struct strWavFileHeader
+{
+	uint32_t chunkId;			//0
+	uint32_t chunkSize;
+	uint32_t format;
+
+	uint32_t subchunk1Id;		//12
+	uint32_t subchunk1Size;
+	uint16_t AudioFormat;		//20
+	uint16_t numChannels;		//22
+	uint32_t sampleRate;		//24
+	uint32_t byteRate;			//28
+	uint16_t blockAlign;		//32
+	uint16_t bitsPerSample;		//34
+
+	uint32_t subchunk2Id;		//36
+	uint32_t subchunk2Size;		//40
+
+};
+
+
+struct strSampleBank
+{
+	struct strSampleBankSlot
+	{
+		uint8_t loaded;
+		int16_t *address;
+		char *file_name;
+
+	} sample[SAMPLES_MAX];
+
+	uint32_t max_memory = SAMPLE_MEMORY_MAX;
+	uint32_t used_memory;
+	uint8_t samples_count;
+
+};
+
 
 struct strInstrument
 {
@@ -32,25 +70,29 @@ struct strInstrument
 	uint16_t amp_sustain;
 	uint16_t amp_release;
 
-	uint16_t panning;
+	int16_t panning;
 };
 
 
-
-struct strSampleBank
+struct strPatern
 {
-	struct strSampleBankSlot
+	struct strTrack
 	{
-		uint8_t loaded;
-		uint8_t index;
-		uint16_t *address;
-		char *file_name;
+		struct strStep
+		{
+			uint8_t instrumentIndex;
+			uint8_t volume;
+			int8_t note;
+			//TODO: FX
 
-	} sample[SAMPLES_MAX];
+		} step[32];
 
-	uint32_t max_memory = SAMPLE_MEMORY_MAX;
-	uint32_t used_memory;
-	uint8_t samples_count;
+		uint8_t volume;
+		uint8_t enabled;
+
+	} track[8];
+
+
 
 };
 
@@ -63,12 +105,14 @@ struct strMtProject
 
 };
 
+
+
+//=====================================================================
 class cMtProjectEditor
 {
 public:
 	uint8_t readProjectConfig();
-	uint8_t loadInstruments();
-	uint8_t loadSamples();
+	uint8_t loadSamplesBank();
 	uint8_t loadProject();
 	uint8_t isProjectLoaded();
 
@@ -83,8 +127,12 @@ private:
 };
 
 
+//=====================================================================
 extern cMtProjectEditor mtProjectEditor;
 extern strMtProject project;
+
+
+int32_t loadSdWavToMemory(const char *filename, int16_t * buf);
 
 
 

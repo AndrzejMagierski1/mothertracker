@@ -47,10 +47,10 @@ void cAnalogInputs::processPotData()
 				diffrence = 1023 - diffrence;
 				diffrence = diffrence * (-1);
 			}
-			else if(potentiometers[i].last_part < 2 && potentiometers[i].part > 5)
-			{
-				diffrence = 0;
-			}
+			//else if(potentiometers[i].last_part < 2 && potentiometers[i].part > 5)
+			//{
+			//	diffrence = 0;
+			//}
 		}
 		else if(diffrence < 0)
 		{
@@ -58,10 +58,10 @@ void cAnalogInputs::processPotData()
 			{
 				diffrence = 1023 + diffrence;
 			}
-			else if(potentiometers[i].last_part > 5 && potentiometers[i].part < 2)
-			{
-				diffrence = 0;
-			}
+			//else if(potentiometers[i].last_part > 5 && potentiometers[i].part < 2)
+			//{
+			//	diffrence = 0;
+			//}
 		}
 
 		potentiometers[i].last_part = potentiometers[i].part;
