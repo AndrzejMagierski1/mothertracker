@@ -9,7 +9,7 @@
 // MODULES OPTIONS
 
 #define ANALOG_POTS_ON 		1
-#define ANALOG_PADS_ON 		1
+#define ANALOG_PADS_ON 		0
 #define ANALOG_BUTTONS_ON 	1
 
 
@@ -222,7 +222,7 @@ private:
 	uint16_t new_pot_button_values[ANALOG_MAX_MUX_CHANNELS];
 
 
-	struct strpotentiometers
+	struct strPotentiometers
 	{
 		int16_t positions[2];
 		uint8_t part;

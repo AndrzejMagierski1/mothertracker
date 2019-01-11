@@ -28,11 +28,13 @@
 #include "utility/dspinst.h"
 
 
+
 void AudioPlayMemory::play(int16_t *data, uint32_t len,uint32_t startPoint,uint32_t endPoint, uint32_t loopPoint1, uint32_t loopPoint2)
 {
 
 	playing = 0;
 	prior = 0;
+
 	stopLoop=0;
 	startBuf=len;
 
@@ -62,6 +64,7 @@ void AudioPlayMemory::play(int16_t *data, uint32_t len,uint32_t startPoint,uint3
 	next = data+42+samplePoints.start;
 	beginning = data+samplePoints.start;
 	length =len-samplePoints.start;//format & 0xFFFFFF;
+
 	playing = 0x81;//format >> 24;
 
 }
@@ -107,6 +110,7 @@ void AudioPlayMemory::update(void)
 		break;
 
 	  case 0x81: // 16 bit PCM, 44100 Hz
+
 		for (i=0; i < AUDIO_BLOCK_SAMPLES; i ++)
 		{
 			//tmp32 = *in++;

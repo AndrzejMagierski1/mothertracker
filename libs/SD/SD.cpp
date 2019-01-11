@@ -14,6 +14,6 @@ SdExFat sd;
 ExFatFile file;
 #elif FILE_SYSTEM == 3
 SdFs SD;
-FsVolume volume;
-FsFile root;
+//FsVolume volume;
+//FsFile root;
 #endif

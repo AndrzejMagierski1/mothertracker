@@ -37,6 +37,7 @@ void cAnalogInputs::processPotData()
 
 	for(uint8_t i=0;i<ANALOG_MAX_POTS;i++)
 	{
+		// roznica pozycji pomiedzy aktualna a ostanio zapisana
 		diffrence = potentiometers[i].positions[0] - potentiometers[i].positions[1];
 
 		if(diffrence > 0)
@@ -46,10 +47,10 @@ void cAnalogInputs::processPotData()
 				diffrence = 1023 - diffrence;
 				diffrence = diffrence * (-1);
 			}
-			else if(potentiometers[i].last_part < 2 && potentiometers[i].part > 5)
-			{
-				diffrence = 0;
-			}
+			//else if(potentiometers[i].last_part < 2 && potentiometers[i].part > 5)
+			//{
+			//	diffrence = 0;
+			//}
 		}
 		else if(diffrence < 0)
 		{
@@ -57,14 +58,13 @@ void cAnalogInputs::processPotData()
 			{
 				diffrence = 1023 + diffrence;
 			}
-			else if(potentiometers[i].last_part > 5 && potentiometers[i].part < 2)
-			{
-				diffrence = 0;
-			}
+			//else if(potentiometers[i].last_part > 5 && potentiometers[i].part < 2)
+			//{
+			//	diffrence = 0;
+			//}
 		}
 
 		potentiometers[i].last_part = potentiometers[i].part;
-		potentiometers[i].positions[1] = potentiometers[i].positions[0];
 
 		potentiometers[i].diffrences[2] = potentiometers[i].diffrences[1];
 		potentiometers[i].diffrences[1] = potentiometers[i].diffrences[0];
@@ -76,6 +76,15 @@ void cAnalogInputs::processPotData()
 		in_death_zone = (is_moving_diff > (pots_death_zone * (-1)) &&  is_moving_diff < pots_death_zone);
 
 		if(in_death_zone) continue;
+
+		// zapisywanie poprzedniej pozycji dopiero po wykryciu zmiany
+		potentiometers[i].positions[1] = potentiometers[i].positions[0];
+
+//		mtPrint(potentiometers[i].diffrences[2]); mtPrint(" ");
+//		mtPrint(potentiometers[i].diffrences[1]); mtPrint(" ");
+//		mtPrint(potentiometers[i].diffrences[0]); mtPrint(" ");
+//		mtPrintln();
+//		Serial.print(" ");
 
 		// zerowanie global_diff przy zmianie kierunkudirection = 1;
 		direction = 0;

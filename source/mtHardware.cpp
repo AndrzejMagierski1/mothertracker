@@ -1,6 +1,7 @@
 
 #include "mtHardware.h"
 #include "AnalogInputs.h"
+
 #include "keyScanner.h"
 #include "mtLED.h"
 
@@ -9,6 +10,11 @@
 #include <SPI.h>
 #include <SD.h>
 #include <SerialFlash.h>
+
+
+#include "mtDisplay.h"
+#include "SD.h"
+
 
 #include "sdram.h"
 
@@ -38,8 +44,14 @@ void initHardware()
 {
 	Serial.begin(9600);
 
+
 	//SD CARD
-	SD.begin(SdioConfig(DMA_SDIO));
+	//....................................................
+	if (!SD.begin(SdioConfig(DMA_SDIO)))	//FIFO_SDIO
+	{
+		 Serial.println("SD card init error");
+		 mtPrint("SD card init error");
+	}
 
 	//CODAC AUDIO
 	audioShield.enable();
@@ -50,7 +62,8 @@ void initHardware()
 	Extern_SDRAM_Init();
 
 
-	//ANALOG
+	//....................................................
+
 	AnalogInputs.setPadPressFunc(onPadPress);
 	AnalogInputs.setPadChangeFunc(onPadChange);
 	AnalogInputs.setPadReleaseFunc(onPadRelease);
@@ -60,9 +73,16 @@ void initHardware()
 	AnalogInputs.testMode(0); // (1 = on; 0 = off) test mode
 	AnalogInputs.setPadxMode(0);
 	AnalogInputs.setPadyMode(0);
-	AnalogInputs.setPotDeathZone(3);
-
+	AnalogInputs.setPotDeathZone(4);
+/*
+	AnalogInputs.setPotResolution(0, 100);
+	AnalogInputs.setPotResolution(1, 100);
+	AnalogInputs.setPotResolution(2, 100);
+	AnalogInputs.setPotResolution(3, 100);
+	AnalogInputs.setPotResolution(4, 100);
+*/
 	AnalogInputs.begin();
+
 
 	////////////////// IO7326 A
 	seqButtonsA.setButtonPushFunc(onButtonPush);
@@ -97,6 +117,9 @@ void initHardware()
 	leds.begin();
 	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
 
+	//....................................................
+	mtDisplay.begin(mtDisplayModePolyLogo);
+
 
 
 }
@@ -106,6 +129,7 @@ void initHardware()
 void updateHardware()
 {
 	AnalogInputs.update();
+
 
 	if(Wire2.done())
 	{
@@ -126,5 +150,8 @@ void updateHardware()
 			leds.updateGrid();
 
 	}
+
+	mtDisplay.updateDisplay();
+
 
 }

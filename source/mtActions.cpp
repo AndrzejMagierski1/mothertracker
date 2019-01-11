@@ -1,6 +1,6 @@
 
-
 #include <stdint.h>
+
 #include <Arduino.h>
 #include "keyScanner.h"
 #include "mtLED.h"
@@ -10,6 +10,11 @@ extern uint32_t wavLen1;
 extern int16_t wavBuf1[500800];
 extern AudioPlayMemory playMem1;
 
+
+#include "mtDisplay.h"
+
+
+
 void onPowerButtonChange(uint8_t value);
 
 //-----------------------------------------------------------------
@@ -17,6 +22,7 @@ void onPowerButtonChange(uint8_t value);
 //-----------------------------------------------------------------
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
+
 
 	if(n==3)
 	{
@@ -29,6 +35,12 @@ void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 		}
 		leds.updateGrid();
 	}
+
+
+
+
+//	mtPrint("pad press: ");
+//	mtPrintln(n);
 
 }
 
@@ -63,6 +75,16 @@ void onPadRelease(uint8_t n)
 void onPotChange(uint8_t n, int16_t value)
 {
 
+
+
+
+
+	mtHaptic.start(15,150,0x01,56);
+
+	mtPrint("pot change: ");
+	mtPrint(n);
+	mtPrint(" value: ");
+	mtPrintln(value);
 }
 
 //-----------------------------------------------------------------
@@ -79,11 +101,22 @@ void onButtonChange(uint8_t n, uint8_t value)
 		onPowerButtonChange(value);
 		return;
 	}
+
 	if(n == 4)
 	{
 		if( (value == 1)) playMem1.play(wavBuf1,wavLen1,160,714,253,377);
 		else if(value == 0) playMem1.stopLoopMode();
 	}
+
+
+
+
+
+//	mtPrint("button: ");
+//	mtPrint(n);
+//	mtPrint(" value: ");
+//	mtPrintln(value);
+
 }
 //-----------------------------------------------------------------
 //----------------------|   POWER BUTTON   |-----------------------
@@ -91,6 +124,10 @@ void onButtonChange(uint8_t n, uint8_t value)
 void onPowerButtonChange(uint8_t value)
 {
 
+
+
+//	mtPrint("power button: ");
+//	mtPrintln(value);
 }
 
 
