@@ -28,8 +28,7 @@ private:
 
 //=====================================================================
 extern cMtProjectEditor mtProjectEditor;
-extern strMtProject mtProject;
-extern strPatern mtPatern;
+
 
 int32_t loadSdWavToMemory(const char *filename, int16_t * buf);
 

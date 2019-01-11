@@ -118,7 +118,7 @@ void initHardware()
 	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
 
 	//....................................................
-	mtDisplay.begin(mtDisplayModePolyLogo);
+	//mtDisplay.begin(mtDisplayModePolyLogo);
 
 
 
@@ -151,7 +151,7 @@ void updateHardware()
 
 	}
 
-	mtDisplay.updateDisplay();
+	//mtDisplay.updateDisplay();
 
 
 }

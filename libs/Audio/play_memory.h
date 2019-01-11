@@ -29,12 +29,14 @@
 
 #include "Arduino.h"
 #include "AudioStream.h"
+#include "mtStructs.h"
 
 class AudioPlayMemory : public AudioStream
 {
 public:
 	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0) { }
-	void play(int16_t *data, uint32_t len, uint32_t startPoint,uint32_t endPoint, uint32_t loopPoint1, uint32_t loopPoint2); // parametry w ms
+	//void play(int16_t *data, uint32_t len, uint32_t startPoint,uint32_t endPoint, uint32_t loopPoint1, uint32_t loopPoint2); // parametry w ms
+	void play(strStep * step); // parametry w ms
 	void stop(void);
 	bool isPlaying(void) { return playing; }
 	uint32_t positionMillis(void);

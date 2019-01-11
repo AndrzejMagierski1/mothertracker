@@ -29,14 +29,26 @@
 
 
 
-void AudioPlayMemory::play(int16_t *data, uint32_t len,uint32_t startPoint,uint32_t endPoint, uint32_t loopPoint1, uint32_t loopPoint2)
+//void AudioPlayMemory::play(int16_t *data, uint32_t len,uint32_t startPoint,uint32_t endPoint, uint32_t loopPoint1, uint32_t loopPoint2)
+void AudioPlayMemory::play(strStep * step)
 {
+	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
 
 	playing = 0;
 	prior = 0;
 
 	stopLoop=0;
-	startBuf=len;
+	int16_t * data = mtProject.sampleBank.sample[mtProject.instrument[step->instrumentIndex].sampleIndex].address;
+
+
+	startBuf=(uint32_t)*data;
+
+
+
+	startPoint=mtProject.instrument[step->instrumentIndex].startPoint;
+	endPoint=mtProject.instrument[step->instrumentIndex].endPoint;
+	loopPoint1=mtProject.instrument[step->instrumentIndex].loopPoint1;
+	loopPoint2=mtProject.instrument[step->instrumentIndex].loopPoint2;
 
 	if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return; //startpoint
 	if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return; //looppoint1
@@ -50,12 +62,12 @@ void AudioPlayMemory::play(int16_t *data, uint32_t len,uint32_t startPoint,uint3
 	samplePoints.loop2= (uint32_t)(loopPoint2*44.1);
 
 
-	if((samplePoints.start >= len) || (samplePoints.loop1>len) || (samplePoints.loop2>len) || (samplePoints.end>len)) return; // wskazniki za plikiem
+	if((samplePoints.start >= startBuf) || (samplePoints.loop1>startBuf) || (samplePoints.loop2>startBuf) || (samplePoints.end>startBuf)) return; // wskazniki za plikiem
 
 
-	sampleConstrains.loopPoint1=len-samplePoints.loop1;
-	sampleConstrains.loopPoint2=len-samplePoints.loop2;
-	sampleConstrains.endPoint= len-samplePoints.end;
+	sampleConstrains.loopPoint1=startBuf-samplePoints.loop1;
+	sampleConstrains.loopPoint2=startBuf-samplePoints.loop2;
+	sampleConstrains.endPoint= startBuf-samplePoints.end;
 	sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
 
 
@@ -63,7 +75,7 @@ void AudioPlayMemory::play(int16_t *data, uint32_t len,uint32_t startPoint,uint3
 
 	next = data+42+samplePoints.start;
 	beginning = data+samplePoints.start;
-	length =len-samplePoints.start;//format & 0xFFFFFF;
+	length =startBuf-samplePoints.start;//format & 0xFFFFFF;
 
 	playing = 0x81;//format >> 24;
 

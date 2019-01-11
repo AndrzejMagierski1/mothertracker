@@ -105,16 +105,15 @@ void onButtonChange(uint8_t n, uint8_t value)
 		return;
 	}
 
-//	if(n == 4)
-//	{
-		//mtPatern.track[0].step[0].instrumentIndex;
-		//project.instrument[mtPatern.track[0].step[0].instrumentIndex].sampleIndex
 
-		int16_t * address = mtProject.sampleBank.sample[mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].sampleIndex].address;
 
-		if( (value == 1)) playMem1.play(address, (uint32_t)*address, 0, 100,10,60);
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].startPoint=0;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].endPoint=100;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint1=10;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint2=60;
+
+		if( (value == 1)) playMem1.play(&mtPatern.track[n].step[0]);
 		else if(value == 0) playMem1.stopLoopMode();
-//	}
 
 
 
