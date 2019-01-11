@@ -4,7 +4,10 @@
 #include <Arduino.h>
 #include "keyScanner.h"
 #include "mtLED.h"
+
 #include "mtAudioEngine.h"
+#include "mtProjectEditor.h"
+
 
 extern uint32_t wavLen1;
 extern int16_t wavBuf1[500800];
@@ -102,11 +105,17 @@ void onButtonChange(uint8_t n, uint8_t value)
 		return;
 	}
 
-	if(n == 4)
-	{
-		if( (value == 1)) playMem1.play(wavBuf1,wavLen1,160,714,253,377);
+//	if(n == 4)
+//	{
+		//mtPatern.track[0].step[0].instrumentIndex;
+		//project.instrument[mtPatern.track[0].step[0].instrumentIndex].sampleIndex
+
+		int16_t * address = mtProject.sampleBank.sample[mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].sampleIndex].address;
+
+		if( (value == 1)) playMem1.play(address, (uint32_t)*address, 0, 100,10,60);
 		else if(value == 0) playMem1.stopLoopMode();
-	}
+//	}
+
 
 
 
