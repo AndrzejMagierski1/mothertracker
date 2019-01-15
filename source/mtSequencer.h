@@ -117,7 +117,7 @@ private:
 	static const uint8_t MIN_GATEMODE = 0,
 			MAX_GATEMODE = 3,
 			NULL_MOD = 128, // TODO: co to kurwa za null jak nie null
-			DEFAULT_MOD = NULL_MOD;
+			DEFAULT_MOD = 128;//NULL_MOD
 
 	static const uint8_t MAX_NOTE_STEP = 127;
 	static const uint8_t MIN_NOTE_STEP = 0;
@@ -145,7 +145,6 @@ private:
 		struct strRow
 		{
 			uint8_t isOn :1;
-
 
 			uint8_t length = DEFAULT_ROW_LEN;
 			uint8_t rootNote = DEFAULT_ROW_NOTE;
@@ -175,11 +174,11 @@ private:
 				uint8_t offset :6;
 
 				// 2 x byte
-//				uint16_t chord :11;
-				uint16_t length1 :5;	//31
+				uint16_t length1 :5;	//31 długość w stepach
+				uint8_t rez1 :3;
 
-				uint8_t hitMode :5;
-				uint8_t rez :3;
+				uint8_t hitMode :5;		// tryb grania, jeśli >1 to rolka
+				uint8_t rez2 :3;
 
 				// byte
 				uint8_t rollCurve :4;		// max 15

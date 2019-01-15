@@ -14,7 +14,7 @@ void setup()
 	Serial.begin(9600);
 
 
-	mtInterface.begin();
+//	mtInterface.begin();
 	sequencer.init();
 }
 
@@ -27,8 +27,8 @@ void setup()
 void loop()
 {
 
-	mtInterface.update();
-
-	sequencer.handle();
+//	mtInterface.update();
+//
+//	sequencer.handle();
 
 }

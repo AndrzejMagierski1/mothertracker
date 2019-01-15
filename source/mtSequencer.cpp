@@ -16,12 +16,14 @@ inline void timerExternalVector()
  */
 void Sequencer::init()
 {
-	init_player_timer();
-	loadDefaultSequence();
+//	init_player_timer();
+//	loadDefaultSequence();
 
 }
 void Sequencer::handle()
 {
+//	uint32_t size;
+//	size = sizeof(strBank);
 //	handle_ghosts();
 }
 
