@@ -29,27 +29,31 @@
 
 #include "Arduino.h"
 #include "AudioStream.h"
+#include "mtStructs.h"
 
 class AudioPlayMemory : public AudioStream
 {
 public:
 	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0) { }
-	void play(int16_t *data, uint32_t len, uint32_t startPoint,uint32_t endPoint, uint32_t loopPoint1, uint32_t loopPoint2); // parametry w ms
+	uint8_t play(strStep * step);
+	uint8_t play(strInstrument *instr, uint8_t vol );
 	void stop(void);
 	bool isPlaying(void) { return playing; }
 	uint32_t positionMillis(void);
 	uint32_t lengthMillis(void);
 	virtual void update(void);
 	void stopLoopMode(void);
-	void setStartPoint(uint32_t sp);
-	void setEndPoint(uint32_t ep);
-	void setLoopPoint1(uint32_t lp1);
-	void setLoopPoint2(uint32_t lp2);
+	uint8_t setTimePoints(strStep * step);
+	void setPitch(float pitch);
+
 private:
 	int16_t *next;
 	int16_t *beginning;
 	uint32_t length;
 	int16_t prior;
+	float pitchControl=1;
+	float pitchCounter=0;
+	uint8_t playMode=0;
 	volatile uint8_t playing;
 
 	struct strSamplePoints
@@ -69,7 +73,7 @@ private:
 
 	} sampleConstrains;
 
-	uint32_t startBuf=0;
+	uint32_t startLen=0;
 	uint8_t  stopLoop=0;
 };
 

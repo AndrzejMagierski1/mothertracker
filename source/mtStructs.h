@@ -33,6 +33,14 @@ enum enSamplePlayMode
 };
 
 
+enum memoryPlayStatus
+{
+	successInit=0,
+	badStartPoint,
+	badLoopPoint1,
+	badLoopPoint2,
+	pointsBeyondFile
+};
 
 
 //=====================================================================
@@ -82,43 +90,44 @@ struct strInstrument
 {
 	int8_t sampleIndex;
 
-	uint8_t playMode;
-	uint32_t start_point;
-	uint32_t loop_point1;
-	uint32_t loop_point2;
-	uint32_t end_point;
+	uint8_t  playMode;
+	uint16_t startPoint;
+	uint16_t loopPoint1;
+	uint16_t loopPoint2;
+	uint16_t endPoint;
 
-	uint16_t amp_delay;
-	uint16_t amp_attack;
-	uint16_t amp_hold;
-	uint16_t amp_decay;
-	uint16_t amp_sustain;
-	uint16_t amp_release;
+	uint16_t ampDelay;
+	uint16_t ampAttack;
+	uint16_t ampHold;
+	uint16_t ampDecay;
+	uint16_t ampSustain;
+	uint16_t ampRelease;
 
 	int16_t panning;
 };
 
 
+
+struct strStep
+{
+	uint8_t instrumentIndex;
+	uint8_t volume;
+	int8_t note;
+	float pitchCtrl;
+	//TODO: FX
+
+};
+
+struct strTrack
+{
+	strStep step[32];
+	uint8_t volume;
+	uint8_t enabled;
+
+};
 struct strPatern
 {
-	struct strTrack
-	{
-		struct strStep
-		{
-			uint8_t instrumentIndex;
-			uint8_t volume;
-			int8_t note;
-			//TODO: FX
-
-		} step[32];
-
-		uint8_t volume;
-		uint8_t enabled;
-
-	} track[8];
-
-
-
+	strTrack track[8];
 };
 
 struct strMtProject
@@ -129,6 +138,7 @@ struct strMtProject
 	uint8_t instruments_count;
 
 };
+
 
 struct strSpectrum
 {
@@ -145,8 +155,9 @@ struct strSpectrum
 
 
 
-
 extern strMtProject mtProject;
 extern strPatern mtPatern;
+
+
 
 #endif

@@ -36,10 +36,10 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// teraz domyslnie zajmowane 0-7
 
 	mtProject.sampleBank.sample[0].file_name = (char*)"1.wav";
-	mtProject.sampleBank.sample[1].file_name = (char*)"2.wav";
-	mtProject.sampleBank.sample[2].file_name = (char*)"3.wav";
-	mtProject.sampleBank.sample[3].file_name = (char*)"4.wav";
-	mtProject.sampleBank.sample[4].file_name = (char*)"5.wav";
+	mtProject.sampleBank.sample[1].file_name = (char*)"1.wav";
+	mtProject.sampleBank.sample[2].file_name = (char*)"1.wav";
+	mtProject.sampleBank.sample[3].file_name = (char*)"1.wav";
+	mtProject.sampleBank.sample[4].file_name = (char*)"1.wav";
 	mtProject.sampleBank.sample[5].file_name = (char*)"6.wav";
 	mtProject.sampleBank.sample[6].file_name = (char*)"7.wav";
 	mtProject.sampleBank.sample[7].file_name = (char*)"8.wav";
@@ -52,17 +52,18 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].sampleIndex = i;
 
 		mtProject.instrument[i].playMode = 1;
-		mtProject.instrument[i].start_point = 0;
-		mtProject.instrument[i].loop_point1 = 0;
-		mtProject.instrument[i].loop_point2 = SAMPLE_POINT_POS_MAX;
-		mtProject.instrument[i].end_point = SAMPLE_POINT_POS_MAX;
 
-		mtProject.instrument[i].amp_delay = 0;
-		mtProject.instrument[i].amp_attack = 0;
-		mtProject.instrument[i].amp_hold = 0;
-		mtProject.instrument[i].amp_decay = 0;
-		mtProject.instrument[i].amp_sustain = 100;
-		mtProject.instrument[i].amp_release = 1000;
+		mtProject.instrument[i].startPoint = 0;
+		mtProject.instrument[i].loopPoint1 = 0;
+		mtProject.instrument[i].loopPoint2 = SAMPLE_POINT_POS_MAX;
+		mtProject.instrument[i].endPoint = SAMPLE_POINT_POS_MAX;
+
+		mtProject.instrument[i].ampDelay = 0;
+		mtProject.instrument[i].ampAttack = 0;
+		mtProject.instrument[i].ampHold = 0;
+		mtProject.instrument[i].ampDecay = 0;
+		mtProject.instrument[i].ampSustain = 100;
+		mtProject.instrument[i].ampRelease = 1000;
 
 		mtProject.instrument[i].panning = 0;
 	}

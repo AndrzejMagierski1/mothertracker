@@ -112,16 +112,18 @@ void cMtInstrumentEditor::startEmpty()
 
 	editorInstrument.sampleIndex = -1;
 	editorInstrument.playMode = 0;
-	editorInstrument.start_point = 0;
-	editorInstrument.loop_point1 = 0;
-	editorInstrument.loop_point2 = 0;
-	editorInstrument.end_point = 0xFFFFFFFF;
-	editorInstrument.amp_delay = 0;
-	editorInstrument.amp_attack = 0;
-	editorInstrument.amp_hold = 0;
-	editorInstrument.amp_decay = 0;
-	editorInstrument.amp_sustain = 100;
-	editorInstrument.amp_release = 0;
+
+	editorInstrument.startPoint = 0;
+	editorInstrument.loopPoint1 = 0;
+	editorInstrument.loopPoint2 = SAMPLE_POINT_POS_MAX;
+	editorInstrument.endPoint = SAMPLE_POINT_POS_MAX;
+
+	editorInstrument.ampDelay = 0;
+	editorInstrument.ampAttack = 0;
+	editorInstrument.ampHold = 0;
+	editorInstrument.ampDecay = 0;
+	editorInstrument.ampSustain = 100;
+	editorInstrument.ampRelease = 0;
 	editorInstrument.panning = 0;
 
 	instrumentEditorMode = mtInstrumentEditorModeInstrumentSelect;
@@ -261,10 +263,10 @@ void cMtInstrumentEditor::processSpectrum()
 void cMtInstrumentEditor::processPoints()
 {
 
-	spectrum.startPoint = (editorInstrument.start_point * 480) / SAMPLE_POINT_POS_MAX;
-	spectrum.endPoint   = (editorInstrument.end_point * 480) / SAMPLE_POINT_POS_MAX;
-	spectrum.loopPoint1 = (editorInstrument.loop_point1 * 480) / SAMPLE_POINT_POS_MAX;
-	spectrum.loopPoint2 = (editorInstrument.loop_point2 * 480) / SAMPLE_POINT_POS_MAX;
+	spectrum.startPoint = (editorInstrument.startPoint * 480) / SAMPLE_POINT_POS_MAX;
+	spectrum.endPoint   = (editorInstrument.endPoint * 480) / SAMPLE_POINT_POS_MAX;
+	spectrum.loopPoint1 = (editorInstrument.loopPoint1 * 480) / SAMPLE_POINT_POS_MAX;
+	spectrum.loopPoint2 = (editorInstrument.loopPoint2 * 480) / SAMPLE_POINT_POS_MAX;
 
 
 }
@@ -419,12 +421,12 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 	uint16_t move_step = viewLength / 480;
 	value = value * move_step;
 
-	if(editorInstrument.start_point + value < SAMPLE_POINT_POS_MIN) editorInstrument.start_point  = 0;
-	else if(editorInstrument.start_point + value > SAMPLE_POINT_POS_MAX ) editorInstrument.start_point  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument.start_point += value;
+	if(editorInstrument.startPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument.startPoint  = 0;
+	else if(editorInstrument.startPoint + value > SAMPLE_POINT_POS_MAX ) editorInstrument.startPoint  = SAMPLE_POINT_POS_MAX;
+	else editorInstrument.startPoint += value;
 
-	if(editorInstrument.start_point > editorInstrument.end_point) editorInstrument.start_point = editorInstrument.end_point-1;
-//	if(editorInstrument.loopPoint1 > editorInstrument.end_point) editorInstrument.start_point = editorInstrument.end_point-1;
+	if(editorInstrument.startPoint > editorInstrument.endPoint) editorInstrument.startPoint = editorInstrument.endPoint-1;
+//	if(editorInstrument.loopPoint1 > editorInstrument.endPoint) editorInstrument.startPoint = editorInstrument.endPoint-1;
 
 	pointsChanged = 1;
 }
@@ -434,11 +436,11 @@ void cMtInstrumentEditor::modEndPoint(int16_t value)
 	uint16_t move_step = viewLength / 480;
 	value = value * move_step;
 
-	if(editorInstrument.end_point + value < SAMPLE_POINT_POS_MIN) editorInstrument.end_point  = 0;
-	else if(editorInstrument.end_point + value > SAMPLE_POINT_POS_MAX ) editorInstrument.end_point  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument.end_point += value;
+	if(editorInstrument.endPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument.endPoint  = 0;
+	else if(editorInstrument.endPoint + value > SAMPLE_POINT_POS_MAX ) editorInstrument.endPoint  = SAMPLE_POINT_POS_MAX;
+	else editorInstrument.endPoint += value;
 
-	if(editorInstrument.start_point > editorInstrument.end_point) editorInstrument.start_point = editorInstrument.end_point-1;
+	if(editorInstrument.startPoint > editorInstrument.endPoint) editorInstrument.startPoint = editorInstrument.endPoint-1;
 
 	pointsChanged = 1;
 }
@@ -448,9 +450,9 @@ void cMtInstrumentEditor::modLoopPoint1(int16_t value)
 	uint16_t move_step = viewLength / 480;
 	value = value * move_step;
 
-	if(editorInstrument.loop_point1 + value < SAMPLE_POINT_POS_MIN) editorInstrument.loop_point1  = 0;
-	else if(editorInstrument.loop_point1 + value > SAMPLE_POINT_POS_MAX ) editorInstrument.loop_point1  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument.loop_point1 += value;
+	if(editorInstrument.loopPoint1 + value < SAMPLE_POINT_POS_MIN) editorInstrument.loopPoint1  = 0;
+	else if(editorInstrument.loopPoint1 + value > SAMPLE_POINT_POS_MAX ) editorInstrument.loopPoint1  = SAMPLE_POINT_POS_MAX;
+	else editorInstrument.loopPoint1 += value;
 
 	pointsChanged = 1;
 }
@@ -460,9 +462,9 @@ void cMtInstrumentEditor::modLoopPoint2(int16_t value)
 	uint16_t move_step = viewLength / 480;
 	value = value * move_step;
 
-	if(editorInstrument.loop_point2 + value < SAMPLE_POINT_POS_MIN) editorInstrument.loop_point2  = 0;
-	else if(editorInstrument.loop_point2 + value > SAMPLE_POINT_POS_MAX ) editorInstrument.loop_point2  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument.loop_point2 += value;
+	if(editorInstrument.loopPoint2 + value < SAMPLE_POINT_POS_MIN) editorInstrument.loopPoint2  = 0;
+	else if(editorInstrument.loopPoint2 + value > SAMPLE_POINT_POS_MAX ) editorInstrument.loopPoint2  = SAMPLE_POINT_POS_MAX;
+	else editorInstrument.loopPoint2 += value;
 
 	pointsChanged = 1;
 }
