@@ -15,4 +15,9 @@
 #include <SerialFlash.h>
 
 
+extern uint32_t wavLen1;
+extern int16_t wavBuf1[500800];
+extern AudioPlayMemory playMem1;
+
+
 #endif /* SOURCE_MTAUDIOENGINE_H_ */

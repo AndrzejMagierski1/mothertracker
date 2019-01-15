@@ -69,9 +69,10 @@ public:
 	void setFmanagerRootListPos(uint16_t position);
 	void setFmanagerLabels(char * labels);
 
-	void setSampleEditorTitle(char text[]);
-	void setSampleEditorSpectrum(uint16_t start, char * list, uint16_t count, uint8_t filename_length);
-	void setSampleEditorLabels(char * labels);
+	void setInstrumentEditorPoints(strSpectrum *spectrum);
+	void setInstrumentEditorSpectrum(strSpectrum *spectrum);
+	void setInstrumentEditorPotsLabels(char ** labels);
+	void setInstrumentEditorButtonsLabels(char * labels);
 
 
 	// print
@@ -92,7 +93,7 @@ private:
 	void dl_load_fmanager_main();
 	void dl_load_print_main();
 	void dl_load_poly_logo_main();
-	void dl_load_sample_editor_main();
+	void dl_load_instrument_editor_main();
 
 	// metody poszczegolnych trybow
 	void ramg_blocks_title(uint8_t block);
@@ -108,9 +109,9 @@ private:
 	void ramg_fmanager_rootlist();
 	void ramg_fmanager_mainlist();
 
-	void ramg_sample_editor_title();
-	void ramg_sample_editor_spectrum();
-	void ramg_sample_editor_labels();
+	void ramg_instrument_editor_points();
+	void ramg_instrument_editor_spectrum();
+	void ramg_instrument_editor_labels();
 
 
 	// zmienne glowne
@@ -129,8 +130,8 @@ private:
 	cMtDisplayList fManagerList;
 
 	//---------------------------------------------
-	// tryb edytora sampla
-	strMtSampleEditor sampleEditor;
+	// tryb edytora instrumentu
+	strMtInstrumentEditor instrumentEditor;
 
 
 	// animowane przejscia

@@ -15,11 +15,11 @@ void cAnalogInputs::begin()
 	reading_step = 0;
 	reading_channel = 0;
 
-	setPotResolution(0, 50);
-	setPotResolution(1, 50);
-	setPotResolution(2, 50);
-	setPotResolution(3, 50);
-	setPotResolution(4, 50);
+	setPotResolution(0, 100);
+	setPotResolution(1, 100);
+	setPotResolution(2, 100);
+	setPotResolution(3, 100);
+	setPotResolution(4, 100);
 
 
 

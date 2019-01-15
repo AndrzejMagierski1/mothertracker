@@ -2,6 +2,8 @@
 #ifndef MTDISPALYDEFS_H
 #define MTDISPALYDEFS_H
 
+#include "mtStructs.h"
+
 
 #define DISP_RGB(red,green,blue) ((((red)&255UL)<<16)|(((green)&255UL)<<8)|(((blue)&255UL)<<0))
 
@@ -16,6 +18,9 @@
 #define MT_DISP_VALUE_ROUND_COLOR 	DISP_RGB(255,255,255)
 #define MT_DISP_VALUE_F_COLOR 		DISP_RGB(255,255,255)
 
+
+
+
 //-------------------------------------------------------------------
 // ENUMs
 enum enumMtDisplayMode
@@ -24,7 +29,7 @@ enum enumMtDisplayMode
 	mtDisplayModeLogo,
 	mtDisplayModeBlocks5,
 	mtDisplayModeFileManager,
-	mtDisplayModeSampleEditor,
+	mtDisplayModeInstrumentEditor,
 	mtDisplayModePrint,
 	mtDisplayModePolyLogo,
 };
@@ -62,12 +67,12 @@ struct strMtDisplayRefreshTable
 		uint8_t labels;
 	} fManager;
 
-	struct strSampleEditor
+	struct strInstrumentEditor
 	{
-		uint8_t title;
+		uint8_t points;
 		uint8_t spectrum;
 		uint8_t labels;
-	} sampleEditor;
+	} instrumentEditor;
 
 
 
@@ -143,12 +148,12 @@ struct strMtFmanager
 };
 
 
-struct strMtSampleEditor
+struct strMtInstrumentEditor
 {
+	char * buttonsLabels; //wielksoc 20 liter max na jeden label
+	char ** potsLabels; //wielksoc 20 liter max na jeden label
 
-	char title[100];
-
-	char * labels; //wielksoc 20 liter max na jeden label
+	strSpectrum *spectrum;
 
 	int8_t animationStep = 0;
 
@@ -156,8 +161,10 @@ struct strMtSampleEditor
 	uint32_t fontLabelColor = MT_DISP_LABEL_F_COLOR;
 	uint32_t labelColor 	= MT_DISP_LABEL_BG_COLOR;
 	uint32_t listColor 		= MT_DISP_TITLE_F_COLOR;
+	uint32_t pointsColor 		= DISP_RGB(255,255,255);
+	uint32_t spectrumColor 		= DISP_RGB(255,255,255);
 
-	uint32_t ramTitleSize = 0;
+	uint32_t ramPointsSize = 0;
 	uint32_t ramLabelsSize = 0;
 	uint32_t ramSpectrumSize = 0;
 };
@@ -213,6 +220,10 @@ struct strMtHaptic
 #define MT_DISP_FMANAGER_TITLE_Y		10
 
 
+#define MT_DISP_IEDITOR_SPECTRUM_Y		64
+
+
+
 
 
 // CZCIONKI
@@ -257,16 +268,16 @@ struct strMtHaptic
 
 
 
-#define MT_GPU_RAM_SAMPLE_EDITOR_TITLE_ADRESS		MT_GPU_RAM_FMANAGER_END_ADRESS
-#define MT_GPU_RAM_SAMPLE_EDITOR_TITLE_SIZE			500
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_POINTS_ADRESS		MT_GPU_RAM_FMANAGER_END_ADRESS
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_POINTS_SIZE		1000
 
-#define MT_GPU_RAM_SAMPLE_EDITOR_LABELS_ADRESS		(MT_GPU_RAM_SAMPLE_EDITOR_TITLE_ADRESS+MT_GPU_RAM_SAMPLE_EDITOR_TITLE_SIZE)
-#define MT_GPU_RAM_SAMPLE_EDITOR_LABELS_SIZE		1000
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_LABELS_ADRESS		(MT_GPU_RAM_INSTRUMENT_EDITOR_POINTS_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_POINTS_SIZE)
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_LABELS_SIZE		1000
 
-#define MT_GPU_RAM_SAMPLE_EDITOR_SPECTRUM_ADRESS	(MT_GPU_RAM_SAMPLE_EDITOR_LABELS_ADRESS+MT_GPU_RAM_SAMPLE_EDITOR_LABELS_SIZE)
-#define MT_GPU_RAM_SAMPLE_EDITOR_SPECTRUM_SIZE		2000
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_ADRESS	(MT_GPU_RAM_INSTRUMENT_EDITOR_LABELS_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_LABELS_SIZE)
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_SIZE		2000
 
-#define MT_GPU_RAM_SAMPLE_EDITOR_END_ADRESS			(MT_GPU_RAM_SAMPLE_EDITOR_ROOTLIST_ADRESS+MT_GPU_RAM_SAMPLE_EDITOR_ROOTLIST_SIZE)
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_END_ADRESS			(MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_SIZE)
 
 
 

@@ -14,7 +14,7 @@ enum enumMtOperatingMode
 	mtOperatingModeProjectEditor,
 	mtOperatingModeSongEditor,
 	mtOperatingModePaternEditor,
-	mtOperatingModeSampleEditor,
+	mtOperatingModeInstrumentEditor,
 	mtOperatingModeFileManager,
 	mtOperatingModeRecorder,
 	mtOperatingModeMixer,

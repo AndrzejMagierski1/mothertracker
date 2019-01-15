@@ -2,15 +2,41 @@
 #ifndef MT_STRUCTS_H
 #define MT_STRUCTS_H
 
+#include <stdint.h>
 
 //=====================================================================
-#define SAMPLE_MEMORY_MAX					8*1024*1024
-#define INSTRUMENTS_MAX					32
-#define SAMPLES_MAX						32
-#define SAMPLES_FILENAME_LENGTH_MAX		32
+//=====================================================================
+//=====================================================================
+
+const uint16_t  MAX_16BIT						= 65535;
+
+const uint32_t SAMPLE_MEMORY_MAX				= 8*1024*1024;
+const uint8_t  INSTRUMENTS_MAX					= 32;
+const uint8_t  SAMPLES_MAX						= 32;
+const uint8_t  SAMPLES_FILENAME_LENGTH_MAX		= 32;
+
+const uint16_t SAMPLE_POINT_POS_MIN				= 0;
+const uint16_t SAMPLE_POINT_POS_MAX				= MAX_16BIT;
 
 
 
+//=====================================================================
+//=====================================================================
+//=====================================================================
+
+enum enSamplePlayMode
+{
+	samplePlayModeSingleShot,
+	samplePlayModeLoop,
+
+
+};
+
+
+
+
+//=====================================================================
+//=====================================================================
 //=====================================================================
 //parametry przetwarzanego pliku
 struct strWavFileHeader
@@ -41,6 +67,7 @@ struct strSampleBank
 		uint8_t loaded;
 		int16_t *address;
 		char *file_name;
+		uint32_t length;
 
 	} sample[SAMPLES_MAX];
 
@@ -53,7 +80,7 @@ struct strSampleBank
 
 struct strInstrument
 {
-	uint8_t sampleIndex;
+	int8_t sampleIndex;
 
 	uint8_t playMode;
 	uint32_t start_point;
@@ -102,5 +129,24 @@ struct strMtProject
 	uint8_t instruments_count;
 
 };
+
+struct strSpectrum
+{
+	uint8_t spectrumType = 0;
+	int8_t upperData[480];
+	int8_t lowerData[480];
+
+	uint8_t pointsType = 0;
+	uint16_t startPoint;
+	uint16_t endPoint;
+	uint16_t loopPoint1;
+	uint16_t loopPoint2;
+};
+
+
+
+
+extern strMtProject mtProject;
+extern strPatern mtPatern;
 
 #endif

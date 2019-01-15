@@ -1,7 +1,8 @@
 
+#include "mtInstrumentEditor.h"
 #include "mtDisplay.h"
-#include "mtSampleEditor.h"
 #include "mtProjectEditor.h"
+
 
 #include "mtInterface.h"
 #include "mtInterfaceDefs.h"
@@ -21,7 +22,7 @@ void cMtInterface::begin()
 	setOperatingMode(mtOperatingModeStartup);
 	startupTimer = 0;
 
-	mtSampleEditor.begin();
+	mtInstrumentEditor.begin();
 
 
 
@@ -37,7 +38,7 @@ void cMtInterface::update()
 
 
 
-	mtSampleEditor.update();
+	mtInstrumentEditor.update();
 
 
 }
@@ -62,14 +63,19 @@ void cMtInterface::setOperatingMode(uint8_t mode)
 
 		break;
 	}
+	case mtOperatingModeProjectEditor:
+	{
+
+		break;
+	}
 	case mtOperatingModePaternEditor:
 	{
 
 		break;
 	}
-	case mtOperatingModeSampleEditor:
+	case mtOperatingModeInstrumentEditor:
 	{
-		//mtSampleEditor.start("/bum1.wav");
+		mtInstrumentEditor.startExisting(4);
 		break;
 	}
 	case mtOperatingModeFileManager:
@@ -106,7 +112,7 @@ void cMtInterface::processOperatingMode()
 	{
 		if(startupTimer > MT_INTERFACE_STARTUP_TIME)
 		{
-			setOperatingMode(mtOperatingModeProjectEditor);
+			setOperatingMode(mtOperatingModeInstrumentEditor);
 		}
 	}
 

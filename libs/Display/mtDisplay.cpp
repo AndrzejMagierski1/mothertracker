@@ -1,8 +1,6 @@
 
 #include <stdint.h>
-
-#include "mtDisplay.h"
-
+#include "mtStructs.h"
 #include "Arduino.h"
 
 #include "poly_logo_inv.h"
@@ -19,6 +17,8 @@
 #include "OpenSans-Regular_12_L4.h"
 #include "OpenSans-Regular_22_L4.h"
 #endif
+
+#include "mtDisplay.h"
 
 
 cMtDisplay mtDisplay;
@@ -144,9 +144,10 @@ void cMtDisplay::updateDisplay()
 		switch(screenMode)
 		{
 
-		case mtDisplayModeBlank: 		dl_load_blank_main(); break;
-		case mtDisplayModeBlocks5: 		dl_load_block_main(); break;
-		case mtDisplayModeFileManager: 	dl_load_fmanager_main(); break;
+		case mtDisplayModeBlank: 				dl_load_blank_main(); break;
+		case mtDisplayModeBlocks5: 				dl_load_block_main(); break;
+		case mtDisplayModeFileManager: 			dl_load_fmanager_main(); break;
+		case mtDisplayModeInstrumentEditor: 	dl_load_instrument_editor_main(); break;
 
 		default : dl_load_blank_main(); break;
 		}
@@ -302,31 +303,31 @@ void cMtDisplay::updateDisplay()
 		}
 		//-------------------------------------------------
 		//-------------------------------------------------
-		case mtDisplayModeSampleEditor:
+		case mtDisplayModeInstrumentEditor:
 		{
 			//-------------------------------------------------
-			if(displayRefreshTable.sampleEditor.title)
+			if(displayRefreshTable.instrumentEditor.points)
 			{
-				displayRefreshTable.sampleEditor.title = 0;
-				ramg_sample_editor_title();
+				displayRefreshTable.instrumentEditor.points = 0;
+				ramg_instrument_editor_points();
 				if(updateStep > 0) return;
 			}
 			//-------------------------------------------------
-			if(displayRefreshTable.sampleEditor.spectrum)
+			if(displayRefreshTable.instrumentEditor.spectrum)
 			{
-				displayRefreshTable.sampleEditor.spectrum = 0;
-				ramg_sample_editor_spectrum();
+				displayRefreshTable.instrumentEditor.spectrum = 0;
+				ramg_instrument_editor_spectrum();
 				if(updateStep > 0) return;
 			}
 			//-------------------------------------------------
-			if(displayRefreshTable.sampleEditor.labels)
+			if(displayRefreshTable.instrumentEditor.labels)
 			{
-				displayRefreshTable.sampleEditor.labels = 0;
-				ramg_sample_editor_labels();
+				displayRefreshTable.instrumentEditor.labels = 0;
+				ramg_instrument_editor_labels();
 				if(updateStep > 0) return;
 			}
 			//-------------------------------------------------
-			dl_load_sample_editor_main();
+			dl_load_instrument_editor_main();
 
 			break;
 		}

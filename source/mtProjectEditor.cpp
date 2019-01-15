@@ -51,11 +51,11 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	{
 		mtProject.instrument[i].sampleIndex = i;
 
-		mtProject.instrument[i].playMode = 0;
+		mtProject.instrument[i].playMode = 1;
 		mtProject.instrument[i].start_point = 0;
 		mtProject.instrument[i].loop_point1 = 0;
-		mtProject.instrument[i].loop_point2 = 0;
-		mtProject.instrument[i].end_point = 1000;
+		mtProject.instrument[i].loop_point2 = SAMPLE_POINT_POS_MAX;
+		mtProject.instrument[i].end_point = SAMPLE_POINT_POS_MAX;
 
 		mtProject.instrument[i].amp_delay = 0;
 		mtProject.instrument[i].amp_attack = 0;
@@ -101,6 +101,7 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 		{
 			mtProject.sampleBank.used_memory += size;
 			mtProject.sampleBank.sample[i].loaded = 1;
+			mtProject.sampleBank.sample[i].length = size;
 		}
 		else return 2; // blad ladowania wave
 
@@ -121,6 +122,11 @@ uint8_t cMtProjectEditor::loadProject()
 	readProjectConfig();
 
 	if(loadSamplesBank()) return 1;
+
+	mtPrint("sample memory used: ");
+	mtPrint( int((mtProject.sampleBank.used_memory * 100 ) / mtProject.sampleBank.max_memory));
+	mtPrintln(" %");
+
 
 
 	return 0;
@@ -144,14 +150,14 @@ int32_t loadSdWavToMemory(const char *filename, int16_t * buf)
 	strWavFileHeader sampleHead;
 	uint16_t bufferLength=0;
 	uint32_t accBufferLength=0;
-	uint32_t * bufStart;
+//	uint32_t * bufStart;
 	int16_t buf16[256];
 	FsFile wavfile;
 
 	//__disable_irq();
 
-	bufStart = (uint32_t*)buf;
-	buf+=2;
+	//bufStart = (uint32_t*)buf;
+	//buf+=2;
 
 	wavfile = SD.open(filename);
 	wavfile.read(&sampleHead, 44);
@@ -208,9 +214,9 @@ int32_t loadSdWavToMemory(const char *filename, int16_t * buf)
 
 	wavfile.close();
 
-	*bufStart = (accBufferLength/4);
+//	*bufStart = (accBufferLength/4);
 
-	accBufferLength = accBufferLength/2;
+	accBufferLength = accBufferLength/4;
 
 /*
  	if(sampleLength != accBufferLength)
