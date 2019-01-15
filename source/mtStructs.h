@@ -78,6 +78,7 @@ struct strStep
 	uint8_t instrumentIndex;
 	uint8_t volume;
 	int8_t note;
+	float pitchCtrl;
 	//TODO: FX
 
 };
@@ -105,4 +106,14 @@ struct strMtProject
 
 extern strMtProject mtProject;
 extern strPatern mtPatern;
+
+enum memoryPlayStatus
+{
+	successInit=0,
+	badStartPoint,
+	badLoopPoint1,
+	badLoopPoint2,
+	pointsBeyondFile
+};
+
 #endif

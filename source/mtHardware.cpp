@@ -55,7 +55,7 @@ void initHardware()
 
 	//CODAC AUDIO
 	audioShield.enable();
-	audioShield.volume(0.7);
+	audioShield.volume(0.1);
 	AudioMemory(200);
 
 	//SDRAM
@@ -119,8 +119,29 @@ void initHardware()
 
 	//....................................................
 	//mtDisplay.begin(mtDisplayModePolyLogo);
+	/*while(1)
+	{
+
+		for(int i=1;i<=20;i++)
+		{
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,1,31);
+				leds.updateSeq();
+			}
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,0,31);
+				leds.updateSeq();
+			}
+
+		}
 
 
+
+
+	}
+*/
 
 }
 

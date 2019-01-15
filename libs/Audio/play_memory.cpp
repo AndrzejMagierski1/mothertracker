@@ -30,16 +30,18 @@
 
 
 //void AudioPlayMemory::play(int16_t *data, uint32_t len,uint32_t startPoint,uint32_t endPoint, uint32_t loopPoint1, uint32_t loopPoint2)
-void AudioPlayMemory::play(strStep * step)
+uint8_t AudioPlayMemory::play(strStep * step)
 {
 	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
 
 	playing = 0;
 	prior = 0;
-
 	stopLoop=0;
+	pitchCounter=0;
+	pitchControl=step->pitchCtrl;
 	int16_t * data = mtProject.sampleBank.sample[mtProject.instrument[step->instrumentIndex].sampleIndex].address;
 
+	playMode=mtProject.instrument[step->instrumentIndex].playMode;
 
 	startBuf=(uint32_t)*data;
 
@@ -47,37 +49,63 @@ void AudioPlayMemory::play(strStep * step)
 
 	startPoint=mtProject.instrument[step->instrumentIndex].startPoint;
 	endPoint=mtProject.instrument[step->instrumentIndex].endPoint;
-	loopPoint1=mtProject.instrument[step->instrumentIndex].loopPoint1;
-	loopPoint2=mtProject.instrument[step->instrumentIndex].loopPoint2;
 
-	if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return; //startpoint
-	if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return; //looppoint1
-	if (loopPoint2 > endPoint) return; // looppoint2
+	if(playMode == 1) //loopMode
+	{
+		loopPoint1=mtProject.instrument[step->instrumentIndex].loopPoint1;
+		loopPoint2=mtProject.instrument[step->instrumentIndex].loopPoint2;
+	}
+
+	if(playMode == 0)
+	{
+		if (startPoint >= endPoint) return badStartPoint;
+	}
+	else if(playMode == 1)
+	{
+		if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
+		if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1; //looppoint1
+		if (loopPoint2 > endPoint) return badLoopPoint2;
+	}
+
 
 
 
 	samplePoints.start= (uint32_t)(startPoint*44.1);
 	samplePoints.end= (uint32_t)(endPoint*44.1);
-	samplePoints.loop1= (uint32_t)(loopPoint1*44.1);
-	samplePoints.loop2= (uint32_t)(loopPoint2*44.1);
+	if(playMode == 1)
+	{
+		samplePoints.loop1= (uint32_t)(loopPoint1*44.1);
+		samplePoints.loop2= (uint32_t)(loopPoint2*44.1);
+	}
 
 
-	if((samplePoints.start >= startBuf) || (samplePoints.loop1>startBuf) || (samplePoints.loop2>startBuf) || (samplePoints.end>startBuf)) return; // wskazniki za plikiem
+
+	if((samplePoints.start >= startBuf) || (samplePoints.loop1>startBuf) || (samplePoints.loop2>startBuf) || (samplePoints.end>startBuf)) return pointsBeyondFile; // wskazniki za plikiem
 
 
-	sampleConstrains.loopPoint1=startBuf-samplePoints.loop1;
+/*	sampleConstrains.loopPoint1=startBuf-samplePoints.loop1;
 	sampleConstrains.loopPoint2=startBuf-samplePoints.loop2;
 	sampleConstrains.endPoint= startBuf-samplePoints.end;
-	sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+	sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;*/
 
+	if(playMode == 1)
+	{
+		sampleConstrains.loopPoint1=samplePoints.loop1;
+		sampleConstrains.loopPoint2=samplePoints.loop2;
+		sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+	}
+
+	sampleConstrains.endPoint=samplePoints.end;
 
 	data+=2;
 
-	next = data+42+samplePoints.start;
+	next = data+samplePoints.start;
 	beginning = data+samplePoints.start;
 	length =startBuf-samplePoints.start;//format & 0xFFFFFF;
 
 	playing = 0x81;//format >> 24;
+
+	return successInit;
 
 }
 
@@ -95,8 +123,7 @@ void AudioPlayMemory::update(void)
 	audio_block_t *block;
 	int16_t *in;
 	int16_t *out;
-	uint32_t tmp32, consumed;
-	int16_t s0, s1, s2, s3, s4;
+	int16_t s0;
 	int i;
 
 	if (!playing) return;
@@ -109,118 +136,32 @@ void AudioPlayMemory::update(void)
 	in = next;
 	s0 = prior;
 
-	switch (playing) {
-	  case 0x01: // u-law encoded, 44100 Hz
-		for (i=0; i < AUDIO_BLOCK_SAMPLES; i += 4) {
-			tmp32 = *in++;
-			*out++ = ulaw_decode_table[(tmp32 >> 0) & 255];
-			*out++ = ulaw_decode_table[(tmp32 >> 8) & 255];
-			*out++ = ulaw_decode_table[(tmp32 >> 16) & 255];
-			*out++ = ulaw_decode_table[(tmp32 >> 24) & 255];
-		}
-		consumed = AUDIO_BLOCK_SAMPLES;
-		break;
+	switch (playing)
+	{
 
 	  case 0x81: // 16 bit PCM, 44100 Hz
 
 		for (i=0; i < AUDIO_BLOCK_SAMPLES; i ++)
 		{
-			//tmp32 = *in++;
-			//*out++ = (int16_t)(tmp32 & 65535);
-			//*out++ = (int16_t)(tmp32 >> 16);
-			*out++ = *in++;
-			if (length > 0)
+
+			*out++ = *(in+(uint32_t)pitchCounter);
+
+			if (length >= (uint32_t)pitchCounter) //if (length > 0)
 			{
-				length --;
-				if((length <= sampleConstrains.loopPoint2) && (!stopLoop) ) {length = sampleConstrains.loopPoint1;	 in -= sampleConstrains.loopLength;}
-				if(length <= sampleConstrains.endPoint) length=0;
+				pitchCounter+=pitchControl;
+
+				if(playMode == 1)
+				{
+					if(( (uint32_t)pitchCounter >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter = sampleConstrains.loopPoint1;
+				}
+
+				if( (uint32_t)pitchCounter >= sampleConstrains.endPoint) pitchCounter=length+1;
 			}
 			else
 			{
 				playing = 0;
 			}
 		}
-		//consumed = AUDIO_BLOCK_SAMPLES;
-		break;
-
-	  case 0x02: // u-law encoded, 22050 Hz 
-		for (i=0; i < AUDIO_BLOCK_SAMPLES; i += 8) {
-			tmp32 = *in++;
-			s1 = ulaw_decode_table[(tmp32 >> 0) & 255];
-			s2 = ulaw_decode_table[(tmp32 >> 8) & 255];
-			s3 = ulaw_decode_table[(tmp32 >> 16) & 255];
-			s4 = ulaw_decode_table[(tmp32 >> 24) & 255];
-			*out++ = (s0 + s1) >> 1;
-			*out++ = s1;
-			*out++ = (s1 + s2) >> 1;
-			*out++ = s2;
-			*out++ = (s2 + s3) >> 1;
-			*out++ = s3;
-			*out++ = (s3 + s4) >> 1;
-			*out++ = s4;
-			s0 = s4;
-		}
-		consumed = AUDIO_BLOCK_SAMPLES/2;
-		break;
-
-	  case 0x82: // 16 bits PCM, 22050 Hz
-		for (i=0; i < AUDIO_BLOCK_SAMPLES; i += 4) {
-			tmp32 = *in++;
-			s1 = (int16_t)(tmp32 & 65535);
-			s2 = (int16_t)(tmp32 >> 16);
-			*out++ = (s0 + s1) >> 1;
-			*out++ = s1;
-			*out++ = (s1 + s2) >> 1;
-			*out++ = s2;
-			s0 = s2;
-		}
-		consumed = AUDIO_BLOCK_SAMPLES/2;
-		break;
-
-	  case 0x03: // u-law encoded, 11025 Hz
-		for (i=0; i < AUDIO_BLOCK_SAMPLES; i += 16) {
-			tmp32 = *in++;
-			s1 = ulaw_decode_table[(tmp32 >> 0) & 255];
-			s2 = ulaw_decode_table[(tmp32 >> 8) & 255];
-			s3 = ulaw_decode_table[(tmp32 >> 16) & 255];
-			s4 = ulaw_decode_table[(tmp32 >> 24) & 255];
-			*out++ = (s0 * 3 + s1) >> 2;
-			*out++ = (s0 + s1)     >> 1;
-			*out++ = (s0 + s1 * 3) >> 2;
-			*out++ = s1;
-			*out++ = (s1 * 3 + s2) >> 2;
-			*out++ = (s1 + s2)     >> 1;
-			*out++ = (s1 + s2 * 3) >> 2;
-			*out++ = s2;
-			*out++ = (s2 * 3 + s3) >> 2;
-			*out++ = (s2 + s3)     >> 1;
-			*out++ = (s2 + s3 * 3) >> 2;
-			*out++ = s3;
-			*out++ = (s3 * 3 + s4) >> 2;
-			*out++ = (s3 + s4)     >> 1;
-			*out++ = (s3 + s4 * 3) >> 2;
-			*out++ = s4;
-			s0 = s4;
-		}
-		consumed = AUDIO_BLOCK_SAMPLES/4;
-		break;
-
-	  case 0x83: // 16 bit PCM, 11025 Hz
-		for (i=0; i < AUDIO_BLOCK_SAMPLES; i += 8) {
-			tmp32 = *in++;
-			s1 = (int16_t)(tmp32 & 65535);
-			s2 = (int16_t)(tmp32 >> 16);
-			*out++ = (s0 * 3 + s1) >> 2;
-			*out++ = (s0 + s1)     >> 1;
-			*out++ = (s0 + s1 * 3) >> 2;
-			*out++ = s1;
-			*out++ = (s1 * 3 + s2) >> 2;
-			*out++ = (s1 + s2)     >> 1;
-			*out++ = (s1 + s2 * 3) >> 2;
-			*out++ = s2;
-			s0 = s2;
-		}
-		consumed = AUDIO_BLOCK_SAMPLES/4;
 		break;
 
 	  default:
@@ -241,6 +182,7 @@ void AudioPlayMemory::update(void)
 #define B2M_11025 (uint32_t)((double)4294967296000.0 / AUDIO_SAMPLE_RATE_EXACT * 4.0)
 
 
+
 uint32_t AudioPlayMemory::positionMillis(void)
 {
 	uint8_t p;
@@ -252,7 +194,8 @@ uint32_t AudioPlayMemory::positionMillis(void)
 	n = (const uint8_t *)next;
 	b = (const uint8_t *)beginning;
 	__enable_irq();
-	switch (p) {
+	switch (p)
+	{
 	  case 0x81: // 16 bit PCM, 44100 Hz
 		b2m = B2M_88200;  break;
 	  case 0x01: // u-law encoded, 44100 Hz
@@ -300,29 +243,54 @@ void AudioPlayMemory::stopLoopMode(void)
 	stopLoop=1;
 }
 
-void AudioPlayMemory::setStartPoint(uint32_t sp)
+uint8_t AudioPlayMemory::setTimePoints(strStep * step)
 {
-	samplePoints.start= (uint32_t)(sp*44.1);
+	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
 
-}
-void AudioPlayMemory::setEndPoint(uint32_t ep)
-{
-	samplePoints.end= (uint32_t)(ep*44.1);
-	sampleConstrains.endPoint= startBuf-samplePoints.end;
+	startPoint=mtProject.instrument[step->instrumentIndex].startPoint;
+	endPoint=mtProject.instrument[step->instrumentIndex].endPoint;
 
-}
-void AudioPlayMemory::setLoopPoint1(uint32_t lp1)
-{
-	samplePoints.loop1= (uint32_t)(lp1*44.1);
-	sampleConstrains.loopPoint1=startBuf-samplePoints.loop1;
-	sampleConstrains.loopLength=sampleConstrains.loopPoint2-sampleConstrains.loopPoint1;
+	if(playMode == 1)
+	{
+		loopPoint1=mtProject.instrument[step->instrumentIndex].loopPoint1;
+		loopPoint2=mtProject.instrument[step->instrumentIndex].loopPoint2;
+	}
 
-}
-void AudioPlayMemory::setLoopPoint2(uint32_t lp2)
-{
-	samplePoints.loop2= (uint32_t)(lp2*44.1);
-	sampleConstrains.loopPoint2=startBuf-samplePoints.loop2;
-	sampleConstrains.loopLength=sampleConstrains.loopPoint2-sampleConstrains.loopPoint1;
-}
 
+
+	if(playMode == 0)
+	{
+		if (startPoint >= endPoint) return badStartPoint;
+	}
+	else if(playMode == 1)
+	{
+		if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
+		if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
+		if (loopPoint2 > endPoint) return badLoopPoint2;
+	}
+
+
+	samplePoints.start= (uint32_t)(startPoint*44.1);
+	samplePoints.end= (uint32_t)(endPoint*44.1);
+	if(playMode == 1)
+	{
+		samplePoints.loop1= (uint32_t)(loopPoint1*44.1);
+		samplePoints.loop2= (uint32_t)(loopPoint2*44.1);
+	}
+
+
+	if((samplePoints.start >= startBuf) || (samplePoints.loop1>startBuf) || (samplePoints.loop2>startBuf) || (samplePoints.end>startBuf)) return pointsBeyondFile; // wskazniki za plikiem
+
+
+	if(playMode == 1)
+	{
+		sampleConstrains.loopPoint1=samplePoints.loop1;
+		sampleConstrains.loopPoint2=samplePoints.loop2;
+		sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+	}
+
+	sampleConstrains.endPoint= samplePoints.end;
+
+	return successInit;
+}
 
