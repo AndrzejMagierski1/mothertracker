@@ -101,6 +101,7 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 		{
 			mtProject.sampleBank.used_memory += size;
 			mtProject.sampleBank.sample[i].loaded = 1;
+			mtProject.sampleBank.sample[i].length = size;
 		}
 		else return 2; // blad ladowania wave
 
@@ -210,7 +211,7 @@ int32_t loadSdWavToMemory(const char *filename, int16_t * buf)
 
 	*bufStart = (accBufferLength/4);
 
-	accBufferLength = accBufferLength/2;
+	accBufferLength = accBufferLength/4;
 
 /*
  	if(sampleLength != accBufferLength)

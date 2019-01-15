@@ -39,11 +39,15 @@ uint8_t AudioPlayMemory::play(strStep * step)
 	stopLoop=0;
 	pitchCounter=0;
 	pitchControl=step->pitchCtrl;
+
+	if(pitchControl < 0.25f) pitchControl = 0.25;
+	if(pitchControl > 4.0f) pitchControl = 4.0;
+
 	int16_t * data = mtProject.sampleBank.sample[mtProject.instrument[step->instrumentIndex].sampleIndex].address;
 
 	playMode=mtProject.instrument[step->instrumentIndex].playMode;
 
-	startBuf=(uint32_t)*data;
+	startLen=mtProject.sampleBank.sample[mtProject.instrument[step->instrumentIndex].sampleIndex].length;
 
 
 
@@ -70,17 +74,17 @@ uint8_t AudioPlayMemory::play(strStep * step)
 
 
 
-	samplePoints.start= (uint32_t)(startPoint*44.1);
-	samplePoints.end= (uint32_t)(endPoint*44.1);
+	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
+	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
 	if(playMode == 1)
 	{
-		samplePoints.loop1= (uint32_t)(loopPoint1*44.1);
-		samplePoints.loop2= (uint32_t)(loopPoint2*44.1);
+		samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
+		samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
 	}
 
 
 
-	if((samplePoints.start >= startBuf) || (samplePoints.loop1>startBuf) || (samplePoints.loop2>startBuf) || (samplePoints.end>startBuf)) return pointsBeyondFile; // wskazniki za plikiem
+	if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
 
 
 /*	sampleConstrains.loopPoint1=startBuf-samplePoints.loop1;
@@ -97,15 +101,96 @@ uint8_t AudioPlayMemory::play(strStep * step)
 
 	sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
 
-	data+=2;
+	next = data+samplePoints.start;
+	beginning = data+samplePoints.start;
+	length =startLen-samplePoints.start;
+
+	playing = 0x81;
+
+	return successInit;
+
+}
+
+uint8_t AudioPlayMemory:: play(strInstrument *instr, uint8_t vol )
+{
+
+	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
+
+	playing = 0;
+	prior = 0;
+	stopLoop=0;
+	pitchCounter=0;
+	pitchControl=1.0;
+
+
+
+	int16_t * data = mtProject.sampleBank.sample[instr->sampleIndex].address;
+
+	playMode=instr->playMode;
+
+	startLen=mtProject.sampleBank.sample[instr->sampleIndex].length;
+
+
+
+	startPoint=instr->startPoint;
+	endPoint=instr->endPoint;
+
+	if(playMode == 1) //loopMode
+	{
+		loopPoint1=instr->loopPoint1;
+		loopPoint2=instr->loopPoint2;
+	}
+
+	if(playMode == 0)
+	{
+		if (startPoint >= endPoint) return badStartPoint;
+	}
+	else if(playMode == 1)
+	{
+		if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
+		if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
+		if (loopPoint2 > endPoint) return badLoopPoint2;
+	}
+
+
+
+
+	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
+	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
+	if(playMode == 1)
+	{
+		samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
+		samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
+	}
+
+
+	if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
+
+
+/*	sampleConstrains.loopPoint1=startBuf-samplePoints.loop1;
+	sampleConstrains.loopPoint2=startBuf-samplePoints.loop2;
+	sampleConstrains.endPoint= startBuf-samplePoints.end;
+	sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;*/
+
+	if(playMode == 1)
+	{
+		sampleConstrains.loopPoint1=samplePoints.loop1- samplePoints.start;
+		sampleConstrains.loopPoint2=samplePoints.loop2- samplePoints.start;
+		sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+	}
+
+	sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
 
 	next = data+samplePoints.start;
 	beginning = data+samplePoints.start;
-	length =startBuf-samplePoints.start;//format & 0xFFFFFF;
+	length =startLen-samplePoints.start;
 
-	playing = 0x81;//format >> 24;
+	playing = 0x81;
 
 	return successInit;
+
+
+
 
 }
 
@@ -279,7 +364,7 @@ uint8_t AudioPlayMemory::setTimePoints(strStep * step)
 	}
 
 
-	if((samplePoints.start >= startBuf) || (samplePoints.loop1>startBuf) || (samplePoints.loop2>startBuf) || (samplePoints.end>startBuf)) return pointsBeyondFile; // wskazniki za plikiem
+	if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
 
 
 	if(playMode == 1)
@@ -293,4 +378,14 @@ uint8_t AudioPlayMemory::setTimePoints(strStep * step)
 
 	return successInit;
 }
+
+void AudioPlayMemory::setPitch(float  pitch)
+{
+
+	pitchControl=pitch;
+	if(pitchControl < 0.25) pitchControl=0.25;
+	if(pitchControl > 4.0 ) pitchControl=0.4;
+}
+
+
 

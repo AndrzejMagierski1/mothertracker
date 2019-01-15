@@ -107,10 +107,10 @@ void onButtonChange(uint8_t n, uint8_t value)
 
 
 
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].startPoint=150;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].endPoint=3300;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint1=1200;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint2=1600;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].startPoint=0;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].endPoint=65533;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint1=1000;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint2=10000;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].playMode=1;
 
 		mtPatern.track[4].step[0].pitchCtrl=2;
@@ -118,7 +118,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtPatern.track[2].step[0].pitchCtrl=1.5;
 		mtPatern.track[1].step[0].pitchCtrl=1.75;
 
-		if( (value == 1)) playMem1.play(&mtPatern.track[n].step[0]);
+		if( (value == 1)) playMem1.play(&mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex],1);
 		else if(value == 0) playMem1.stopLoopMode();
 
 

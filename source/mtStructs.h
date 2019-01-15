@@ -2,14 +2,19 @@
 #ifndef MT_STRUCTS_H
 #define MT_STRUCTS_H
 
+#include <stdint.h>
 
 //=====================================================================
-#define SAMPLE_MEMORY_MAX					8*1024*1024
-#define INSTRUMENTS_MAX					32
-#define SAMPLES_MAX						32
-#define SAMPLES_FILENAME_LENGTH_MAX		32
+const uint16_t MAX_16BIT =              		65535;
+const uint32_t SAMPLE_MEMORY_MAX =      		8*1024*1024;
+const uint8_t  INSTRUMENTS_MAX =        		32;
+const uint8_t  SAMPLES_MAX =            		32;
+const uint8_t  SAMPLES_FILENAME_LENGTH_MAX =    32;
 
+const uint8_t SAMPLE_POINT_POS_MIN =            0;
+const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
 
+//=====================================================================
 
 //=====================================================================
 //parametry przetwarzanego pliku
@@ -41,6 +46,7 @@ struct strSampleBank
 		uint8_t loaded;
 		int16_t *address;
 		char *file_name;
+		uint32_t length;
 
 	} sample[SAMPLES_MAX];
 
