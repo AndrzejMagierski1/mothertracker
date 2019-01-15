@@ -63,7 +63,7 @@ uint8_t AudioPlayMemory::play(strStep * step)
 	else if(playMode == 1)
 	{
 		if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
-		if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1; //looppoint1
+		if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
 		if (loopPoint2 > endPoint) return badLoopPoint2;
 	}
 
@@ -90,12 +90,12 @@ uint8_t AudioPlayMemory::play(strStep * step)
 
 	if(playMode == 1)
 	{
-		sampleConstrains.loopPoint1=samplePoints.loop1;
-		sampleConstrains.loopPoint2=samplePoints.loop2;
+		sampleConstrains.loopPoint1=samplePoints.loop1- samplePoints.start;
+		sampleConstrains.loopPoint2=samplePoints.loop2- samplePoints.start;
 		sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
 	}
 
-	sampleConstrains.endPoint=samplePoints.end;
+	sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
 
 	data+=2;
 
@@ -144,21 +144,21 @@ void AudioPlayMemory::update(void)
 		for (i=0; i < AUDIO_BLOCK_SAMPLES; i ++)
 		{
 
-			*out++ = *(in+(uint32_t)pitchCounter);
-
-			if (length >= (uint32_t)pitchCounter) //if (length > 0)
+			if (length > (uint32_t)pitchCounter) //if (length > 0)
 			{
+				*out++ = *(in+(uint32_t)pitchCounter);
 				pitchCounter+=pitchControl;
 
 				if(playMode == 1)
 				{
-					if(( (uint32_t)pitchCounter >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter = sampleConstrains.loopPoint1;
+					if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter = sampleConstrains.loopPoint1 ;
 				}
 
-				if( (uint32_t)pitchCounter >= sampleConstrains.endPoint) pitchCounter=length+1;
+				if( (uint32_t)pitchCounter >= sampleConstrains.endPoint) pitchCounter=length;
 			}
 			else
 			{
+				*out++=0;
 				playing = 0;
 			}
 		}

@@ -107,10 +107,10 @@ void onButtonChange(uint8_t n, uint8_t value)
 
 
 
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].startPoint=0;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].endPoint=100;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint1=10;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint2=60;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].startPoint=150;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].endPoint=3300;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint1=1200;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint2=1600;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].playMode=1;
 
 		mtPatern.track[4].step[0].pitchCtrl=2;

@@ -35,11 +35,11 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// pod jaki index tablicy sampli 0-32 zapisywac dany sampel
 	// teraz domyslnie zajmowane 0-7
 
-	mtProject.sampleBank.sample[0].file_name = (char*)"2.wav";
-	mtProject.sampleBank.sample[1].file_name = (char*)"2.wav";
-	mtProject.sampleBank.sample[2].file_name = (char*)"2.wav";
-	mtProject.sampleBank.sample[3].file_name = (char*)"2.wav";
-	mtProject.sampleBank.sample[4].file_name = (char*)"2.wav";
+	mtProject.sampleBank.sample[0].file_name = (char*)"1.wav";
+	mtProject.sampleBank.sample[1].file_name = (char*)"1.wav";
+	mtProject.sampleBank.sample[2].file_name = (char*)"1.wav";
+	mtProject.sampleBank.sample[3].file_name = (char*)"1.wav";
+	mtProject.sampleBank.sample[4].file_name = (char*)"1.wav";
 	mtProject.sampleBank.sample[5].file_name = (char*)"6.wav";
 	mtProject.sampleBank.sample[6].file_name = (char*)"7.wav";
 	mtProject.sampleBank.sample[7].file_name = (char*)"8.wav";
