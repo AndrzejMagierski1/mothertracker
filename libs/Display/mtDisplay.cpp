@@ -160,22 +160,24 @@ void cMtDisplay::updateDisplay()
 	//---------------------------------------------------------------------------------------
 	//---------------------------------------------------------------------------------------
 	//HAPTIC
-	if(mtHaptic.active == 1)
+	if(mtHaptic.enabled)
 	{
-		EVE_MemWrite8(REG_VOL_SOUND,mtHaptic.params.amplitude); //set the volume
-		EVE_MemWrite16(REG_SOUND, (mtHaptic.params.pitch << 8) | mtHaptic.params.effect);
-		EVE_MemWrite8(REG_PLAY, 1); // play the sound
+		if(mtHaptic.active == 1)
+		{
+			EVE_MemWrite8(REG_VOL_SOUND,mtHaptic.params.amplitude); //set the volume
+			EVE_MemWrite16(REG_SOUND, (mtHaptic.params.pitch << 8) | mtHaptic.params.effect);
+			EVE_MemWrite8(REG_PLAY, 1); // play the sound
 
-		mtHaptic.active = 2;
+			mtHaptic.active = 2;
+		}
+		else if(mtHaptic.active > 1 && mtHaptic.timer > mtHaptic.params.time)
+		{
+			EVE_MemWrite16(REG_SOUND, 0);
+			EVE_MemWrite8(REG_PLAY, 1);
+
+			mtHaptic.active = 0;
+		}
 	}
-	else if(mtHaptic.active > 1 && mtHaptic.timer > mtHaptic.params.time)
-	{
-		EVE_MemWrite16(REG_SOUND, 0);
-		EVE_MemWrite8(REG_PLAY, 1);
-
-		mtHaptic.active = 0;
-	}
-
 	//---------------------------------------------------------------------------------------
 	//---------------------------------------------------------------------------------------
 	//---------------------------------------------------------------------------------------
@@ -247,11 +249,20 @@ void cMtDisplay::updateDisplay()
 	//-------------------------------------------------
 	//-------------------------------------------------
 	// sprawdzanei czy wymagane jest odswiezanie
+		if(!screenRefresh
+			&& (!screenAnimation || animationTimer < MT_DISP_ANIMATION_T)
+			&& !displayPrint) return;
+	/*
 	if(!screenRefresh
-		&& (!screenAnimation || animationTimer < MT_DISP_ANIMATION_T)
-		&& !displayPrint) return;
+		&&
+		) return;
+	if(!screenAnimation) if(animationTimer > MT_DISP_ANIMATION_T) return;
+	if(!displayPrint) return;
+	*/
+
 	if(!API_LIB_IsCoProEmpty()) return;
 
+	displayPrint = 0;
 	animationTimer = 0;
 	screenRefresh = 0;
 	//-------------------------------------------------
@@ -305,6 +316,13 @@ void cMtDisplay::updateDisplay()
 		//-------------------------------------------------
 		case mtDisplayModeInstrumentEditor:
 		{
+			//-------------------------------------------------
+			if(displayRefreshTable.instrumentEditor.background)
+			{
+				displayRefreshTable.instrumentEditor.background = 0;
+				ramg_instrument_editor_background();
+				if(updateStep > 0) return;
+			}
 			//-------------------------------------------------
 			if(displayRefreshTable.instrumentEditor.points)
 			{

@@ -44,7 +44,6 @@ void initHardware()
 {
 	Serial.begin(9600);
 
-
 	//SD CARD
 	//....................................................
 	if (!SD.begin(SdioConfig(DMA_SDIO)))	//FIFO_SDIO
@@ -53,17 +52,18 @@ void initHardware()
 		 mtPrint("SD card init error");
 	}
 
+	//....................................................
 	//CODAC AUDIO
 	audioShield.enable();
 	audioShield.volume(0.1);
 	AudioMemory(200);
 
+	//....................................................
 	//SDRAM
 	Extern_SDRAM_Init();
 
-
 	//....................................................
-
+	// Pady, Poty, Buttony
 	AnalogInputs.setPadPressFunc(onPadPress);
 	AnalogInputs.setPadChangeFunc(onPadChange);
 	AnalogInputs.setPadReleaseFunc(onPadRelease);
@@ -83,7 +83,12 @@ void initHardware()
 */
 	AnalogInputs.begin();
 
+	//....................................................
+	// Haptic on
+	//mtHaptic.enable();
 
+	//....................................................
+	// Seq buttons
 	////////////////// IO7326 A
 	seqButtonsA.setButtonPushFunc(onButtonPush);
 	seqButtonsA.setButtonReleaseFunc(onButtonRelease);
@@ -118,10 +123,13 @@ void initHardware()
 	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
 
 	//....................................................
-	//mtDisplay.begin(mtDisplayModePolyLogo);
-	/*while(1)
-	{
+	// LCD
+	mtDisplay.begin(mtDisplayModePolyLogo);
 
+
+/*
+	while(1)
+	{
 		for(int i=1;i<=20;i++)
 		{
 			for(int j=1;j<=8;j++)
@@ -134,12 +142,7 @@ void initHardware()
 				leds.setLEDseq(j,i,0,31);
 				leds.updateSeq();
 			}
-
 		}
-
-
-
-
 	}
 */
 
@@ -172,7 +175,7 @@ void updateHardware()
 
 	}
 
-	//mtDisplay.updateDisplay();
+	mtDisplay.updateDisplay();
 
 
 }

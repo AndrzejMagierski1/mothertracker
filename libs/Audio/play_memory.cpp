@@ -379,6 +379,58 @@ uint8_t AudioPlayMemory::setTimePoints(strStep * step)
 	return successInit;
 }
 
+uint8_t AudioPlayMemory::setTimePoints(strInstrument * instr)
+{
+    uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
+
+    startPoint=instr->startPoint;
+    endPoint=instr->endPoint;
+
+    if(playMode == 1)
+    {
+        loopPoint1=instr->loopPoint1;
+        loopPoint2=instr->loopPoint2;
+    }
+
+
+
+    if(playMode == 0)
+    {
+        if (startPoint >= endPoint) return badStartPoint;
+    }
+    else if(playMode == 1)
+    {
+        if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
+        if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
+        if (loopPoint2 > endPoint) return badLoopPoint2;
+    }
+
+
+    samplePoints.start= (uint32_t)(startPoint*44.1);
+    samplePoints.end= (uint32_t)(endPoint*44.1);
+    if(playMode == 1)
+    {
+        samplePoints.loop1= (uint32_t)(loopPoint1*44.1);
+        samplePoints.loop2= (uint32_t)(loopPoint2*44.1);
+    }
+
+
+    if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
+
+
+    if(playMode == 1)
+    {
+        sampleConstrains.loopPoint1=samplePoints.loop1;
+        sampleConstrains.loopPoint2=samplePoints.loop2;
+        sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+    }
+
+    sampleConstrains.endPoint= samplePoints.end;
+
+    return successInit;
+}
+
+
 void AudioPlayMemory::setPitch(float  pitch)
 {
 

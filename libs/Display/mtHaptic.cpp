@@ -7,6 +7,19 @@
 
 cMtHaptic mtHaptic;
 
+void cMtHaptic::enable()
+{
+	enabled = 1;
+}
+
+
+void cMtHaptic::disable()
+{
+	enabled = 0;
+}
+
+
+
 void cMtHaptic::set(uint16_t time, uint8_t amplitude, uint8_t effect, uint8_t pitch)
 {
 	params.amplitude = amplitude;

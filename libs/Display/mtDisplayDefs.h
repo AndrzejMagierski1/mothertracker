@@ -72,6 +72,7 @@ struct strMtDisplayRefreshTable
 		uint8_t points;
 		uint8_t spectrum;
 		uint8_t labels;
+		uint8_t background;
 	} instrumentEditor;
 
 
@@ -161,12 +162,15 @@ struct strMtInstrumentEditor
 	uint32_t fontLabelColor = MT_DISP_LABEL_F_COLOR;
 	uint32_t labelColor 	= MT_DISP_LABEL_BG_COLOR;
 	uint32_t listColor 		= MT_DISP_TITLE_F_COLOR;
-	uint32_t pointsColor 		= DISP_RGB(255,255,255);
-	uint32_t spectrumColor 		= DISP_RGB(255,255,255);
+	uint32_t pointsColor 	= DISP_RGB(255,255,255);
+	uint32_t spectrumColor 	= DISP_RGB(255,255,255);
+	uint32_t loopColor 		= DISP_RGB(22,19,0);
+
 
 	uint32_t ramPointsSize = 0;
 	uint32_t ramLabelsSize = 0;
 	uint32_t ramSpectrumSize = 0;
+	uint32_t ramBackgroundSize = 0;
 };
 
 
@@ -181,7 +185,7 @@ struct strMtHaptic
 
 //-------------------------------------------------------------------
 // OPCJE ANIMACJI
-#define MT_DISP_ANIMATION_T 	1
+#define MT_DISP_ANIMATION_T 	1000
 
 
 
@@ -277,7 +281,10 @@ struct strMtHaptic
 #define MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_ADRESS	(MT_GPU_RAM_INSTRUMENT_EDITOR_LABELS_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_LABELS_SIZE)
 #define MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_SIZE		2000
 
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_END_ADRESS			(MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_SIZE)
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_BG_ADRESS			(MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_SIZE)
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_BG_SIZE			2000
+
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_END_ADRESS			(MT_GPU_RAM_INSTRUMENT_EDITOR_BG_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_BG_SIZE)
 
 
 

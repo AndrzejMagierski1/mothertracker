@@ -44,6 +44,7 @@ public:
 	virtual void update(void);
 	void stopLoopMode(void);
 	uint8_t setTimePoints(strStep * step);
+	uint8_t setTimePoints(strInstrument * instr);
 	void setPitch(float pitch);
 
 private:

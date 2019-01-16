@@ -39,14 +39,18 @@ private:
 class cMtHaptic
 {
 public:
+	void enable();
+	void disable();
 	void set(uint16_t time, uint8_t amplitude, uint8_t effect, uint8_t pitch);
 	void start(uint16_t time);
 	void start(uint16_t time, uint8_t amplitude);
 	void start(uint16_t time, uint8_t amplitude, uint8_t effect, uint8_t pitch);
 	void stop();
+
 	elapsedMillis timer;
 	strMtHaptic params;
 	uint8_t active = 0;
+	uint8_t enabled = 0;
 };
 
 
@@ -112,7 +116,7 @@ private:
 	void ramg_instrument_editor_points();
 	void ramg_instrument_editor_spectrum();
 	void ramg_instrument_editor_labels();
-
+	void ramg_instrument_editor_background();
 
 	// zmienne glowne
 	uint8_t screenMode = mtDisplayModeBlank;
@@ -136,7 +140,7 @@ private:
 
 	// animowane przejscia
 	uint8_t screenAnimation = 0;
-	elapsedMillis animationTimer;
+	elapsedMicros animationTimer;
 	uint8_t updateStep = 0;
 
 	uint32_t updateAdress = 0;
