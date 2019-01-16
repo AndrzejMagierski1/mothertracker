@@ -117,7 +117,7 @@ private:
 	static const uint8_t MIN_GATEMODE = 0,
 			MAX_GATEMODE = 3,
 			NULL_MOD = 128, // TODO: co to kurwa za null jak nie null
-			DEFAULT_MOD = 128;//NULL_MOD
+			DEFAULT_MOD = 128; //NULL_MOD
 
 	static const uint8_t MAX_NOTE_STEP = 127;
 	static const uint8_t MIN_NOTE_STEP = 0;
@@ -197,7 +197,7 @@ private:
 
 		} row[9];
 
-	} seq[4];
+	} seq[2];
 	public:
 	strBank const * actualBank = &seq[0];
 
@@ -205,9 +205,12 @@ private:
 	{
 
 		uint8_t mode = MODE_MIDICLOCK.INTERNAL_;
-		uint8_t fv_ver_1 = FV_VER_1;
-		uint8_t fv_ver_2 = FV_VER_2;
-		uint8_t fv_ver_3 = FV_VER_3;
+		uint8_t fv_ver_1 =
+		FV_VER_1;
+		uint8_t fv_ver_2 =
+		FV_VER_2;
+		uint8_t fv_ver_3 =
+		FV_VER_3;
 		uint8_t zapas = 0;
 		uint8_t lastPattern = 0;
 

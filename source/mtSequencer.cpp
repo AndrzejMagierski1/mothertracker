@@ -16,14 +16,14 @@ inline void timerExternalVector()
  */
 void Sequencer::init()
 {
-//	init_player_timer();
-//	loadDefaultSequence();
+	init_player_timer();
+	loadDefaultSequence();
 
 }
 void Sequencer::handle()
 {
-//	uint32_t size;
-//	size = sizeof(strBank);
+	uint32_t size;
+	size = sizeof(strBank);
 //	handle_ghosts();
 }
 
@@ -39,8 +39,7 @@ void Sequencer::handle_uStep_timer(void)
 	 */
 
 	// noInterrupts();
-	if ((config.mode == MODE_MIDICLOCK.INTERNAL_)
-			|| (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK))
+	if ((config.mode == MODE_MIDICLOCK.INTERNAL_) || (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK))
 	{
 		if (isPlay() || isREC())
 		{
@@ -105,8 +104,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 					{
 						int8_t tTempoOption = constrain(
 								seq[player.ramBank].row[a].tempoDiv,
-								MIN_TEMPO_DIV,
-								MAX_TEMPO_DIV);
+								MIN_TEMPO_DIV, MAX_TEMPO_DIV);
 						uint8_t tDiv = getTempoDiv(tTempoOption);
 
 						if (nanoStep % tDiv == 1)
@@ -245,8 +243,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 			player.row[x].note_length_timer = 0; //bzdura ale huj, zostawie
 	}
 	// wyłączamy nutę jeśli się skończyła
-	if ((player.row[x].note_length_timer <= 1) && (player.row[x].noteOn_sent)
-			&& !player.row[x].recNoteOpen)
+	if ((player.row[x].note_length_timer <= 1) && (player.row[x].noteOn_sent) && !player.row[x].recNoteOpen)
 	{
 		// GASIMY
 		if (player.row[x].note_sent <= 127)
@@ -281,21 +278,15 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 	}
 
 	// uint8_t temp_hitMode, temp_isOn, temp_offset;//, temp_isGhost;
-	const uint8_t temp_hitMode =
-			seq[player.ramBank].row[x].step[player.row[x].actual_pos].hitMode;
-	const uint8_t temp_rowIsOn =
-			seq[player.ramBank].row[x].isOn;
-	const uint8_t temp_stepIsOn =
-			seq[player.ramBank].row[x].step[player.row[x].actual_pos].isOn;
+	const uint8_t temp_hitMode = seq[player.ramBank].row[x].step[player.row[x].actual_pos].hitMode;
+	const uint8_t temp_rowIsOn = seq[player.ramBank].row[x].isOn;
+	const uint8_t temp_stepIsOn = seq[player.ramBank].row[x].step[player.row[x].actual_pos].isOn;
 
 	const uint8_t temp_rollMode = val2roll(
 			seq[player.ramBank].row[x].step[player.row[x].actual_pos].hitMode);
-	const uint8_t temp_rollCurve =
-			seq[player.ramBank].row[x].step[player.row[x].actual_pos].rollCurve;
-	const uint8_t temp_offset =
-			seq[player.ramBank].row[x].step[player.row[x].actual_pos].offset;
-	const uint8_t temp_stepVelo =
-			seq[player.ramBank].row[x].step[player.row[x].actual_pos].velocity;
+	const uint8_t temp_rollCurve = seq[player.ramBank].row[x].step[player.row[x].actual_pos].rollCurve;
+	const uint8_t temp_offset = seq[player.ramBank].row[x].step[player.row[x].actual_pos].offset;
+	const uint8_t temp_stepVelo = seq[player.ramBank].row[x].step[player.row[x].actual_pos].velocity;
 	// temp_isGhost 	= player.row[x].step[player.row[x].actual_pos].isGhost;
 
 	if (temp_hitMode >= 1 && temp_rowIsOn && temp_stepIsOn)
@@ -303,10 +294,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 		//
 
 		// TU GRAMY
-		if (((temp_hitMode != HITMODE_OFFSET)
-				&& ((player.row[x].uStep % (48 / temp_rollMode)) == 1))
-				|| ((temp_hitMode == HITMODE_OFFSET)
-						&& (player.row[x].uStep == temp_offset)))
+		if (((temp_hitMode != HITMODE_OFFSET) && ((player.row[x].uStep % (48 / temp_rollMode)) == 1)) || ((temp_hitMode == HITMODE_OFFSET) && (player.row[x].uStep == temp_offset)))
 		{
 
 			if ((player.row[x].uStep % 48) == 1)
@@ -317,19 +305,15 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 			}
 			// tempPlayerRow.rollLength = 0;
 
-			const uint8_t tempNote =
-					tempSeqRow.step[player.row[x].actual_pos].note;
+			const uint8_t tempNote = tempSeqRow.step[player.row[x].actual_pos].note;
 
-			const uint8_t tempMod =
-					tempSeqRow.step[player.row[x].actual_pos].modulation;
+			const uint8_t tempMod = tempSeqRow.step[player.row[x].actual_pos].modulation;
 			const uint8_t tempScale = tempSeqRow.trackScale;
 			const uint8_t tempRoot = tempSeqRow.rootNote;
-			const uint8_t tempLength =
-					tempSeqRow.step[player.row[x].actual_pos].length1 + 1;
+			const uint8_t tempLength = tempSeqRow.step[player.row[x].actual_pos].length1 + 1;
 
 			// sprawdzam czy początek rolki
-			if ((temp_hitMode != HITMODE_OFFSET) && (temp_hitMode > 1)
-					&& ((player.row[x].uStep % 48) == 1))
+			if ((temp_hitMode != HITMODE_OFFSET) && (temp_hitMode > 1) && ((player.row[x].uStep % 48) == 1))
 			{
 				player.row[x].rollLength = tempLength;
 				player.row[x].rollStep = player.row[x].actual_pos;
@@ -343,19 +327,16 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 			}
 
 			// procent postępu rolki
-			const float rollProgress = (float(player.row[row].uStep)
-					/ (float(tempLength) * 48)) * 100;
+			const float rollProgress = (float(player.row[row].uStep) / (float(
+					tempLength) * 48)) * 100;
 			// Serial.print("progress: ");
 			// Serial.println(rollProgress);
 
 			float tempVelo =
-					temp_hitMode > 1 ?
-							getLongRollVelo(temp_rollCurve, rollProgress)
-									* ((float) temp_stepVelo / 127) :
-							temp_stepVelo;
+					temp_hitMode > 1 ? getLongRollVelo(temp_rollCurve,
+														rollProgress) * ((float) temp_stepVelo / 127) : temp_stepVelo;
 
-			tempVelo = (tempVelo / MAX_VELO_TRACK)
-					* seq[player.ramBank].row[x].trackVelo;
+			tempVelo = (tempVelo / MAX_VELO_TRACK) * seq[player.ramBank].row[x].trackVelo;
 
 			//wyciszamy jezeli bylo cos wczesniej
 			if (player.row[x].noteOn_sent)
@@ -383,8 +364,8 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 			{
 
 				player.row[x].note_sent = constrain(
-						(int16_t ) tempNote
-								+ (int16_t ) getNextRollNoteOffset(x),
+						(int16_t ) tempNote + (int16_t ) getNextRollNoteOffset(
+								x),
 						MIN_NOTE_STEP, MAX_NOTE_STEP);
 				// Serial.println(player.row[x].note_sent);
 
@@ -400,8 +381,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 				// jesli wystapila zmiana wysylamy mod
 				if (tempMod != NULL_MOD)
 				{
-					midiSendCC(seq[player.ramBank].row[x].cc,
-								tempMod,
+					midiSendCC(seq[player.ramBank].row[x].cc, tempMod,
 								seq[player.ramBank].row[x].channel,
 								seq[player.ramBank].row[x].midiOut);
 					// player.row[x].lastMod = tempMod;
@@ -417,8 +397,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 
 				if (can_i_jump)
 				{
-					seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 =
-							0; // moment przed koncem, zeby nie zaświecała kolejna dioda
+					seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 = 0; // moment przed koncem, zeby nie zaświecała kolejna dioda
 
 					player.row[x].lastMod = tempMod;  // mod mówi gdzie skaczemy
 
@@ -440,15 +419,12 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 
 				if (can_i_jump)
 				{
-					seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 =
-							0; // moment przed koncem, zeby nie zaświecała kolejna dioda
+					seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 = 0; // moment przed koncem, zeby nie zaświecała kolejna dioda
 
 					// player.row[x].lastMod = tempMod;    // mod mówi gdzie skaczemy
 
 					setLoadBank2Ram(
-							player.actualBank < 255 ?
-														player.actualBank + 1 :
-														0);
+							player.actualBank < 255 ? player.actualBank + 1 : 0);
 
 					player.row[x].makeJump = 1;
 				}
@@ -482,9 +458,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 					break;
 
 				default:
-					player.row[x].note_length_timer =
-							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
-									+ 1) * 48 - 3;
+					player.row[x].note_length_timer = (seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 + 1) * 48 - 3;
 				}
 			}
 
@@ -496,33 +470,23 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 				switch (seq[player.ramBank].row[x].gateMode)
 				{
 				case GATEMODE.NORMAL:
-					player.row[x].note_length_timer =
-							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
-									+ 1) * 48 - 3;
+					player.row[x].note_length_timer = (seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 + 1) * 48 - 3;
 					break;
 
 				case GATEMODE.MEDIUM:
-					player.row[x].note_length_timer =
-							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
-									+ 1) * 48 - 24;
+					player.row[x].note_length_timer = (seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 + 1) * 48 - 24;
 					break;
 
 				case GATEMODE.SHORT:
-					player.row[x].note_length_timer =
-							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
-									+ 1) * 48 - 36;
+					player.row[x].note_length_timer = (seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 + 1) * 48 - 36;
 					break;
 
 				case GATEMODE.EXTRASHORT:
-					player.row[x].note_length_timer =
-							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
-									+ 1) * 48 - 43;
+					player.row[x].note_length_timer = (seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 + 1) * 48 - 43;
 					break;
 
 				default:
-					player.row[x].note_length_timer =
-							(seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1
-									+ 1) * 48 - 3;
+					player.row[x].note_length_timer = (seq[player.ramBank].row[x].step[player.row[x].actual_pos].length1 + 1) * 48 - 3;
 				}
 			}
 
@@ -543,10 +507,8 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 				seq[player.ramBank].row[x].step[ghostedStep].isOn);
 
 		const uint8_t temp_rowIsOn = seq[player.ramBank].row[x].isOn;
-		const uint8_t ghostedRollCurve =
-				seq[player.ramBank].row[x].step[ghostedStep].rollCurve;
-		const uint8_t ghostedStepLength =
-				seq[player.ramBank].row[x].step[ghostedStep].length1 + 1;
+		const uint8_t ghostedRollCurve = seq[player.ramBank].row[x].step[ghostedStep].rollCurve;
+		const uint8_t ghostedStepLength = seq[player.ramBank].row[x].step[ghostedStep].length1 + 1;
 
 		if ((player.row[row].uStep % 48) == 1)
 		{
@@ -558,8 +520,7 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 			tempPlayerRow.rollLength = 0;
 			tempPlayerRow.rollCounter = 0;
 		}
-		if (((player.row[row].uStep % (48 / ghost_rollMode)) == 1)
-				&& tempPlayerRow.rollLength)
+		if (((player.row[row].uStep % (48 / ghost_rollMode)) == 1) && tempPlayerRow.rollLength)
 		{
 			if (ghost_stepIsOn >= 1 && temp_rowIsOn)
 			{
@@ -569,29 +530,22 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 
 				// procent postępu rolki
 				const float rollProgress = (float(
-						(ghostedStepLength - tempPlayerRow.rollLength) * 48
-								+ player.row[row].uStep)
-						/ (float(ghostedStepLength) * 48)) * 100;
+						(ghostedStepLength - tempPlayerRow.rollLength) * 48 + player.row[row].uStep) / (float(
+						ghostedStepLength) * 48)) * 100;
 
 				// TU GRAMY
-				if (((ghost_rollMode != HITMODE_OFFSET)
-						&& ((player.row[row].uStep % (48 / ghost_rollMode)) == 1))
-						|| ((ghost_rollMode == HITMODE_OFFSET)
-								&& (player.row[row].uStep == temp_offset)))
+				if (((ghost_rollMode != HITMODE_OFFSET) && ((player.row[row].uStep % (48 / ghost_rollMode)) == 1)) || ((ghost_rollMode == HITMODE_OFFSET) && (player.row[row].uStep == temp_offset)))
 				{
 					const uint8_t tempNote = tempSeqRow.step[ghostedStep].note;
-					const uint8_t tempStepVelo =
-							tempSeqRow.step[ghostedStep].velocity;
+					const uint8_t tempStepVelo = tempSeqRow.step[ghostedStep].velocity;
 //					const uint8_t tempChord = tempSeqRow.step[ghostedStep].chord;
 					// const uint8_t tempMod 	=	tempSeqRow.step[ghostedStep].modulation;
 					const uint8_t tempScale = tempSeqRow.trackScale;
 					const uint8_t tempRoot = tempSeqRow.rootNote;
 
 					float tempVelo = getLongRollVelo(ghostedRollCurve,
-														rollProgress)
-							* ((float) tempStepVelo / 127);
-					tempVelo = (tempVelo / MAX_VELO_TRACK)
-							* seq[player.ramBank].row[x].trackVelo;
+														rollProgress) * ((float) tempStepVelo / 127);
+					tempVelo = (tempVelo / MAX_VELO_TRACK) * seq[player.ramBank].row[x].trackVelo;
 
 					//wyciszamy jezeli bylo cos wczesniej
 					if (player.row[x].noteOn_sent)
@@ -603,8 +557,8 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 					if (tempNote <= MAX_NOTE_TRACK)
 					{
 						player.row[x].note_sent = constrain(
-								(int16_t ) tempNote
-										+ (int16_t ) getNextRollNoteOffset(x),
+								(int16_t ) tempNote + (int16_t ) getNextRollNoteOffset(
+										x),
 								MIN_NOTE_STEP, MAX_NOTE_STEP);
 						// Serial.println(player.row[x].note_sent);
 						sendNoteOn(
@@ -612,10 +566,8 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 
 						anythingSent = 1;
 
-						player.row[x].midiOut_sent =
-								seq[player.ramBank].row[x].midiOut;
-						player.row[x].channel_sent =
-								seq[player.ramBank].row[x].channel;
+						player.row[x].midiOut_sent = seq[player.ramBank].row[x].midiOut;
+						player.row[x].channel_sent = seq[player.ramBank].row[x].channel;
 					}
 
 //					player.row[x].chord_sent = tempChord;
@@ -623,19 +575,16 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 					player.row[x].scaleRoot_sent = tempRoot;
 					player.row[x].noteOn_sent = 1;
 
-					if ((ghost_rollMode >= 1)
-							&& (ghost_rollMode != HITMODE_OFFSET))
+					if ((ghost_rollMode >= 1) && (ghost_rollMode != HITMODE_OFFSET))
 					{
 						switch (seq[player.ramBank].row[x].gateMode)
 						{
 						case GATEMODE.NORMAL:
-							player.row[x].note_length_timer = (48
-									/ ghost_rollMode) - 2;
+							player.row[x].note_length_timer = (48 / ghost_rollMode) - 2;
 							break;
 
 						case GATEMODE.MEDIUM:
-							player.row[x].note_length_timer = (48
-									/ ghost_rollMode) / 2;
+							player.row[x].note_length_timer = (48 / ghost_rollMode) / 2;
 							break;
 
 						case GATEMODE.SHORT:
@@ -647,17 +596,14 @@ uint8_t Sequencer::play_microStep(uint8_t row)
 							break;
 
 						default:
-							player.row[x].note_length_timer =
-									(seq[player.ramBank].row[x].step[ghostedStep].length1
-											+ 1) * 48 - 3;
+							player.row[x].note_length_timer = (seq[player.ramBank].row[x].step[ghostedStep].length1 + 1) * 48 - 3;
 						}
 					}
 				}
 			}
 
 			// wyłączamy przedłużenie rolki
-			if ((tempPlayerRow.rollLength == 1)
-					&& (player.row[row].uStep == 48))
+			if ((tempPlayerRow.rollLength == 1) && (player.row[row].uStep == 48))
 			{
 				tempPlayerRow.rollLength = 0;
 				player.row[x].rollCounter = 0;
@@ -724,22 +670,16 @@ void Sequencer::handle_ghosts(void)
 	{
 		int8_t motherGhost = col; // numer stepa który jest matką ghostów
 		uint8_t temp_row_lenght = seq[player.ramBank].row[ghost.cnt1].length;
-		uint8_t temp_hitMode =
-				seq[player.ramBank].row[ghost.cnt1].step[col].hitMode;
+		uint8_t temp_hitMode = seq[player.ramBank].row[ghost.cnt1].step[col].hitMode;
 		uint8_t temp_isOn = seq[player.ramBank].row[ghost.cnt1].step[col].isOn;
 
-		uint8_t temp_length =
-				seq[player.ramBank].row[ghost.cnt1].step[col].length1 + 1;
+		uint8_t temp_length = seq[player.ramBank].row[ghost.cnt1].step[col].length1 + 1;
 
 		if (temp_hitMode > 0 && temp_length > 1 && temp_isOn)
 		{
-			while (temp_length > 1
-					&& !seq[player.ramBank].row[ghost.cnt1].step[col + 1
-							+ ((col + 1 > temp_row_lenght) * -temp_row_lenght)].isOn)
+			while (temp_length > 1 && !seq[player.ramBank].row[ghost.cnt1].step[col + 1 + ((col + 1 > temp_row_lenght) * -temp_row_lenght)].isOn)
 			{
-				player.row[ghost.cnt1].step[col + 1
-						+ ((col + 1 > temp_row_lenght) * (-(temp_row_lenght)))].isGhost =
-						motherGhost;
+				player.row[ghost.cnt1].step[col + 1 + ((col + 1 > temp_row_lenght) * (-(temp_row_lenght)))].isGhost = motherGhost;
 				temp_length--;
 				col++;
 			}
@@ -1647,8 +1587,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	if (player.isREC && player.row[x].recNoteOpen)
 	{
 		player.row[x].recNoteLength++;
-		seq[player.ramBank].row[x].step[player.row[x].recNoteStep].length1 =
-				player.row[x].recNoteLength - 1;
+		seq[player.ramBank].row[x].step[player.row[x].recNoteStep].length1 = player.row[x].recNoteLength - 1;
 
 	}
 
@@ -1671,8 +1610,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 		if (seq[player.ramBank].row[x].playMode == PLAYMODE_FORWARD)
 		{
 			player.row[x].actual_pos++;
-			if ((player.row[x].actual_pos > seq[player.ramBank].row[x].length)
-					|| player.row[x].return2start)
+			if ((player.row[x].actual_pos > seq[player.ramBank].row[x].length) || player.row[x].return2start)
 			{
 				// player.row[x].return2start = 0;
 				reset_actual_pos(x);
@@ -1703,9 +1641,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 		{
 			if (!player.row[x].pingPongToogle)
 			{
-				if ((player.row[x].actual_pos
-						>= seq[player.ramBank].row[x].length)
-						|| player.row[x].return2start)
+				if ((player.row[x].actual_pos >= seq[player.ramBank].row[x].length) || player.row[x].return2start)
 				{
 					// player.row[x].return2start = 0;
 
@@ -1714,8 +1650,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 					// 	switch_bank();
 					// 	// player.row[x].return2start = 1;
 					// }
-					player.row[x].pingPongToogle =
-							!player.row[x].pingPongToogle;
+					player.row[x].pingPongToogle = !player.row[x].pingPongToogle;
 				}
 				else
 				{
@@ -1725,8 +1660,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			}
 			else
 			{
-				if ((player.row[x].actual_pos <= 1)
-						|| player.row[x].return2start)
+				if ((player.row[x].actual_pos <= 1) || player.row[x].return2start)
 				{
 					// player.row[x].return2start = 0;
 
@@ -1736,8 +1670,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 					// 	// player.row[x].return2start = 1;
 
 					// }
-					player.row[x].pingPongToogle =
-							!player.row[x].pingPongToogle;
+					player.row[x].pingPongToogle = !player.row[x].pingPongToogle;
 				}
 				else
 				{
@@ -1817,8 +1750,7 @@ int8_t Sequencer::getNextRollNoteOffset(uint8_t row)
 	if (player.row[row].rollStep == 0)
 		return 0;
 
-	strBank::strRow::strStep & step =
-			seq[player.ramBank].row[row].step[player.row[row].rollStep];
+	strBank::strRow::strStep & step = seq[player.ramBank].row[row].step[player.row[row].rollStep];
 
 	if (step.rollNoteCurve == ROLL_CURVE.FLAT)
 		return 0;
@@ -2027,8 +1959,7 @@ void Sequencer::incr_uStep(uint8_t row)
 void Sequencer::divChangeQuantize(uint8_t row)
 {
 	int8_t tTempoOption = constrain(seq[player.ramBank].row[row].tempoDiv,
-									MIN_TEMPO_DIV,
-									MAX_TEMPO_DIV);
+									MIN_TEMPO_DIV, MAX_TEMPO_DIV);
 	uint8_t tDiv = getTempoDiv(tTempoOption);
 
 	if (player.row[row].divChange && ((nanoStep % (tDiv * 48)) == 1))
@@ -2216,8 +2147,7 @@ inline uint8_t Sequencer::isStop(void)
 //}
 
 void Sequencer::copy_step(uint8_t from_step, uint8_t from_track,
-							uint8_t to_step,
-							uint8_t to_track)
+							uint8_t to_step, uint8_t to_track)
 {
 	from_step = constrain(from_step, MINSTEP, MAXSTEP);
 	from_track = constrain(from_track, MINROW, MAXROW);
@@ -2225,8 +2155,7 @@ void Sequencer::copy_step(uint8_t from_step, uint8_t from_track,
 	to_step = constrain(to_step, MINSTEP, MAXSTEP);
 	to_track = constrain(to_track, MINROW, MAXROW);
 
-	seq[player.ramBank].row[to_track].step[to_step] =
-			seq[player.ramBank].row[from_track].step[from_step];
+	seq[player.ramBank].row[to_track].step[to_step] = seq[player.ramBank].row[from_track].step[from_step];
 }
 
 void Sequencer::copy_row(uint8_t from, uint8_t to)
@@ -2273,16 +2202,15 @@ void Sequencer::send_clock(uint8_t arg)
 
 void Sequencer::toggleStep(uint8_t row, uint8_t step)
 {
-	seq[player.ramBank].row[row].step[step].isOn =
-			!seq[player.ramBank].row[row].step[step].isOn;
+	seq[player.ramBank].row[row].step[step].isOn = !seq[player.ramBank].row[row].step[step].isOn;
 	seq[player.ramBank].row[row].step[step].note = DEFAULT_ROW_NOTE;
 }
 
 void Sequencer::sendNoteOn(strBank::strRow::strStep *step)
 {
-
+	Serial.println("bum!");
 }
 void Sequencer::sendNoteOff(strBank::strRow::strStep *step)
 {
-
+	Serial.println("\tkszc!");
 }

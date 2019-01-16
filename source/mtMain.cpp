@@ -29,6 +29,6 @@ void loop()
 
 //	mtInterface.update();
 //
-//	sequencer.handle();
+	sequencer.handle();
 
 }
