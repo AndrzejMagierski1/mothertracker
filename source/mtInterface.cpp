@@ -26,7 +26,7 @@ void cMtInterface::begin()
 
 
 
-	mtProjectEditor.loadProject();
+
 
 }
 
@@ -65,7 +65,8 @@ void cMtInterface::setOperatingMode(uint8_t mode)
 	}
 	case mtOperatingModeProjectEditor:
 	{
-
+		mtProjectEditor.loadProject();
+		setOperatingMode(mtOperatingModeInstrumentEditor);
 		break;
 	}
 	case mtOperatingModePaternEditor:
@@ -112,7 +113,7 @@ void cMtInterface::processOperatingMode()
 	{
 		if(startupTimer > MT_INTERFACE_STARTUP_TIME)
 		{
-			setOperatingMode(mtOperatingModeInstrumentEditor);
+			setOperatingMode(mtOperatingModeProjectEditor);
 		}
 	}
 

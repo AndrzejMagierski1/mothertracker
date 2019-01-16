@@ -142,10 +142,10 @@ private:
 	char mtInstrumentEditorPotsLabels[mtInstrumentEditorPotFunctionCount][20] =
 	{
 			{0},
-			"SP: 0",
-			"EP: 0",
-			"LP1: 0",
-			"LP2: 0",
+			"Start Point",
+			"End Point",
+			"Loop Point 1",
+			"Loop Point 2",
 			"Instrument",
 			"Sample",
 			"View",

@@ -55,7 +55,7 @@ void initHardware()
 	//....................................................
 	//CODAC AUDIO
 	audioShield.enable();
-	audioShield.volume(0.1);
+	audioShield.volume(0.2);
 	AudioMemory(200);
 
 	//....................................................

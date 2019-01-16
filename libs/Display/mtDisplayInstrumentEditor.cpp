@@ -117,7 +117,7 @@ void cMtDisplay::ramg_instrument_editor_points()
 
 	API_COLOR(instrumentEditor.loopColor);
 
-	API_BLEND_FUNC(SRC_ALPHA, ZERO);
+	API_BLEND_FUNC(SRC_ALPHA, ONE);
 
 	API_LINE_WIDTH(8);
 	API_BEGIN(RECTS);

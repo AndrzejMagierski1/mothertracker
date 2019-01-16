@@ -164,7 +164,7 @@ struct strMtInstrumentEditor
 	uint32_t listColor 		= MT_DISP_TITLE_F_COLOR;
 	uint32_t pointsColor 	= DISP_RGB(255,255,255);
 	uint32_t spectrumColor 	= DISP_RGB(255,255,255);
-	uint32_t loopColor 		= DISP_RGB(22,19,0);
+	uint32_t loopColor 		= DISP_RGB(45,38,20);
 
 
 	uint32_t ramPointsSize = 0;

@@ -405,17 +405,15 @@ uint8_t AudioPlayMemory::setTimePoints(strInstrument * instr)
         if (loopPoint2 > endPoint) return badLoopPoint2;
     }
 
+	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
+	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
+	if(playMode == 1)
+	{
+		samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
+		samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
+	}
 
-    samplePoints.start= (uint32_t)(startPoint*44.1);
-    samplePoints.end= (uint32_t)(endPoint*44.1);
-    if(playMode == 1)
-    {
-        samplePoints.loop1= (uint32_t)(loopPoint1*44.1);
-        samplePoints.loop2= (uint32_t)(loopPoint2*44.1);
-    }
-
-
-    if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
+    if((samplePoints.start > startLen) || (samplePoints.loop1 > startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
 
 
     if(playMode == 1)

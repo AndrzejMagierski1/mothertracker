@@ -317,13 +317,13 @@ void cMtDisplay::updateDisplay()
 		case mtDisplayModeInstrumentEditor:
 		{
 			//-------------------------------------------------
-			if(displayRefreshTable.instrumentEditor.background)
+/*			if(displayRefreshTable.instrumentEditor.background)
 			{
 				displayRefreshTable.instrumentEditor.background = 0;
 				ramg_instrument_editor_background();
 				if(updateStep > 0) return;
 			}
-			//-------------------------------------------------
+*/			//-------------------------------------------------
 			if(displayRefreshTable.instrumentEditor.points)
 			{
 				displayRefreshTable.instrumentEditor.points = 0;
