@@ -1,9 +1,3 @@
-/*
- * mtAudioEngine.h
- *
- *  Created on: 11 sty 2019
- *      Author: Pc
- */
 
 #ifndef SOURCE_MTAUDIOENGINE_H_
 #define SOURCE_MTAUDIOENGINE_H_
@@ -13,6 +7,44 @@
 #include <SPI.h>
 #include <SD.h>
 #include <SerialFlash.h>
+
+
+
+class audioEngine
+{
+public:
+	void init();
+	void update();
+
+};
+
+
+
+class instrumentEngine
+{
+public:
+
+	void init(AudioPlayMemory * playMem,AudioEffectEnvelope * env);
+
+	uint8_t play(strStep * step, strMtModAudioEngine * mod);
+	uint8_t play(strInstrument * instr, strMtModAudioEngine *mod);
+
+	uint8_t change(strStep * step,strMtModAudioEngine * mod);
+	uint8_t change(strInstrument * instr,strMtModAudioEngine * mod);
+
+	void update();
+	void stop();
+
+
+private:
+
+	AudioPlayMemory *        playMemPtr;
+	AudioEffectEnvelope *      envelopePtr;
+
+
+};
+
+
 
 
 #endif /* SOURCE_MTAUDIOENGINE_H_ */

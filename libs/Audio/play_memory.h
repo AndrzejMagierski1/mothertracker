@@ -35,16 +35,16 @@ class AudioPlayMemory : public AudioStream
 {
 public:
 	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0) { }
-	uint8_t play(strStep * step);
-	uint8_t play(strInstrument *instr, uint8_t vol );
+	uint8_t play(strStep * step,strMtModAudioEngine * mod);
+	uint8_t play(strInstrument *instr,strMtModAudioEngine * mod, uint8_t vol );
 	void stop(void);
 	bool isPlaying(void) { return playing; }
 	uint32_t positionMillis(void);
 	uint32_t lengthMillis(void);
 	virtual void update(void);
 	void stopLoopMode(void);
-	uint8_t setTimePoints(strStep * step);
-	void setPitch(float pitch);
+	uint8_t setMod(strStep * step, strMtModAudioEngine * mod);
+	uint8_t setMod(strInstrument * instr, strMtModAudioEngine * mod);
 
 private:
 	int16_t *next;

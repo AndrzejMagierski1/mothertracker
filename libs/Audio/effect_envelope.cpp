@@ -37,6 +37,7 @@
 
 void AudioEffectEnvelope::noteOn(void)
 {
+	endReleaseFlag=0;
 	__disable_irq();
 	if (state == STATE_IDLE || state == STATE_DELAY || release_forced_count == 0) {
 		mult_hires = 0;
@@ -83,54 +84,78 @@ void AudioEffectEnvelope::update(void)
 	p = (uint32_t *)(block->data);
 	end = p + AUDIO_BLOCK_SAMPLES/2;
 
-	while (p < end) {
+	while (p < end)
+	{
 		// we only care about the state when completing a region
-		if (count == 0) {
-			if (state == STATE_ATTACK) {
+		if (count == 0)
+		{
+			if (state == STATE_ATTACK)
+			{
 				count = hold_count;
-				if (count > 0) {
+				if (count > 0)
+				{
 					state = STATE_HOLD;
 					mult_hires = 0x40000000;
 					inc_hires = 0;
-				} else {
+				}
+				else
+				{
 					state = STATE_DECAY;
 					count = decay_count;
 					inc_hires = (sustain_mult - 0x40000000) / (int32_t)count;
 				}
 				continue;
-			} else if (state == STATE_HOLD) {
+			}
+			else if (state == STATE_HOLD)
+			{
 				state = STATE_DECAY;
 				count = decay_count;
 				inc_hires = (sustain_mult - 0x40000000) / (int32_t)count;
 				continue;
-			} else if (state == STATE_DECAY) {
+			}
+			else if (state == STATE_DECAY)
+			{
 				state = STATE_SUSTAIN;
 				count = 0xFFFF;
 				mult_hires = sustain_mult;
 				inc_hires = 0;
-			} else if (state == STATE_SUSTAIN) {
+			}
+			else if (state == STATE_SUSTAIN)
+			{
 				count = 0xFFFF;
-			} else if (state == STATE_RELEASE) {
+			}
+			else if (state == STATE_RELEASE)
+			{
 				state = STATE_IDLE;
-				while (p < end) {
+				while (p < end)
+				{
+
 					*p++ = 0;
 					*p++ = 0;
 					*p++ = 0;
 					*p++ = 0;
 				}
+				endReleaseFlag=1;
 				break;
-			} else if (state == STATE_FORCED) {
+			}
+			else if (state == STATE_FORCED)
+			{
 				mult_hires = 0;
 				count = delay_count;
-				if (count > 0) {
+				if (count > 0)
+				{
 					state = STATE_DELAY;
 					inc_hires = 0;
-				} else {
+				}
+				else
+				{
 					state = STATE_ATTACK;
 					count = attack_count;
 					inc_hires = 0x40000000 / (int32_t)count;
 				}
-			} else if (state == STATE_DELAY) {
+			}
+			else if (state == STATE_DELAY)
+			{
 				state = STATE_ATTACK;
 				count = attack_count;
 				inc_hires = 0x40000000 / count;
@@ -179,3 +204,8 @@ void AudioEffectEnvelope::update(void)
 	release(block);
 }
 
+uint8_t AudioEffectEnvelope::endRelease()
+{
+	if(endReleaseFlag==1) return 1;
+	else return 0;
+}

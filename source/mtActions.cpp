@@ -12,8 +12,8 @@
 extern uint32_t wavLen1;
 extern int16_t wavBuf1[500800];
 extern AudioPlayMemory playMem1;
-
-
+extern instrumentEngine instrumentPlayer[8];
+extern strMtModAudioEngine modAudioEngine[8];
 #include "mtDisplay.h"
 
 
@@ -27,18 +27,7 @@ void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
 
 
-	if(n==3)
-	{
-		for(int i=1;i<=64;i++)
-		{
-
-				leds.setLEDgrid(i,1,31);
-				//delayMicroseconds(100000);
-
-		}
-		leds.updateGrid();
-	}
-
+Serial.println(n);
 
 
 
@@ -56,18 +45,6 @@ void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f)
 //-----------------------------------------------------------------
 void onPadRelease(uint8_t n)
 {
-
-	if(n==3)
-	{
-		for(int i=1;i<=64;i++)
-		{
-
-				leds.setLEDgrid(i,0,31);
-				//delayMicroseconds(100000);
-
-		}
-		leds.updateGrid();
-	}
 
 
 }
@@ -110,16 +87,23 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].startPoint=0;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].endPoint=65533;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint1=1000;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint2=10000;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint2=20000;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].playMode=1;
 
-		mtPatern.track[4].step[0].pitchCtrl=2;
-		mtPatern.track[3].step[0].pitchCtrl=1.25;
-		mtPatern.track[2].step[0].pitchCtrl=1.5;
-		mtPatern.track[1].step[0].pitchCtrl=1.75;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].ampDelay=0;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].ampAttack=300;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].ampHold=50;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].ampDecay=100;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].ampSustain=0.7;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].ampRelease=500;
 
-		if( (value == 1)) playMem1.play(&mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex],1);
-		else if(value == 0) playMem1.stopLoopMode();
+		mtPatern.track[4].step[0].note=20;
+		mtPatern.track[3].step[0].note=21;
+		mtPatern.track[2].step[0].note=22;
+		mtPatern.track[1].step[0].note=23;
+
+		if( (value == 1)) instrumentPlayer[0].play(&mtPatern.track[n].step[0],&modAudioEngine[0]);
+		else if(value == 0) instrumentPlayer[0].stop();
 
 
 

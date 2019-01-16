@@ -7,6 +7,7 @@
 extern void initHardware();
 extern void updateHardware();
 
+extern audioEngine engine;
 //=======================================================================
 void setup()
 {
@@ -17,7 +18,7 @@ void setup()
 
 	// inicjalizacja hardware jako pierwsza
 	initHardware();
-
+	engine.init();
 
 
 	// inincjalizacja interfejsu na koncu
@@ -38,6 +39,7 @@ void loop()
 
 	updateHardware();
 
+	engine.update();
 	mtInterface.update();
 
 }
