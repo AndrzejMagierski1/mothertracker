@@ -184,12 +184,14 @@ private:
 				uint8_t rollCurve :4;		// max 15
 				uint8_t rollNoteCurve :4;	// max 15
 
-				uint8_t modulation = 0;
+//				uint8_t modulation = 0;
 
 				//FX
 				struct strFx
 				{
-					uint8_t target = 0;
+					uint8_t isOn :1;
+					uint8_t target :7;
+
 					uint16_t value = 0;
 				} fx[4];
 
@@ -205,12 +207,9 @@ private:
 	{
 
 		uint8_t mode = MODE_MIDICLOCK.INTERNAL_;
-		uint8_t fv_ver_1 =
-		FV_VER_1;
-		uint8_t fv_ver_2 =
-		FV_VER_2;
-		uint8_t fv_ver_3 =
-		FV_VER_3;
+		uint8_t fv_ver_1 = FV_VER_1;
+		uint8_t fv_ver_2 = FV_VER_2;
+		uint8_t fv_ver_3 = FV_VER_3;
 		uint8_t zapas = 0;
 		uint8_t lastPattern = 0;
 
@@ -282,7 +281,7 @@ private:
 	uint8_t getTempoDiv(int8_t val);
 	uint8_t isInScale(uint8_t note, uint8_t root, uint8_t scale);
 	uint8_t isRowOn(uint8_t row);
-	uint8_t play_microStep(uint8_t row);
+	void play_microStep(uint8_t row);
 	uint8_t val2roll(uint8_t val);
 
 public:
@@ -351,8 +350,8 @@ public:
 	void handle();
 	void init();
 	void flushNotes();
-	void sendNoteOn(strBank::strRow::strStep *step);
-	void sendNoteOff(strBank::strRow::strStep *step);
+	void sendNoteOn(uint8_t track, strBank::strRow::strStep *step);
+	void sendNoteOff(uint8_t track, strBank::strRow::strStep *step);
 	IntervalTimer midiReceiveTimer;
 	IntervalTimer playTimer;
 
