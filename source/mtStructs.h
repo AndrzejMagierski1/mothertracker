@@ -72,10 +72,10 @@ struct strSampleBank
 {
 	struct strSampleBankSlot
 	{
-		uint8_t loaded;
+		uint8_t loaded = 0;
 		int16_t *address;
-		char *file_name;
-		uint32_t length;
+		char file_name[32];
+		uint32_t length = 0;
 
 	} sample[SAMPLES_MAX];
 

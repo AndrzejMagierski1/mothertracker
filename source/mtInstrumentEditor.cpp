@@ -1,5 +1,6 @@
 
 #include "mtDisplay.h"
+#include "AnalogInputs.h"
 #include "sdram.h"
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
@@ -31,9 +32,10 @@ void cMtInstrumentEditor::update()
 	//---------------------------------------------------------------------------------------
 	if(instrumentEditorMode == mtInstrumentEditorModeWaveEdit)
 	{
-		if(instrumentEditorStart)
+		//-----------------------------------------------------
+		if(instrumentEditorModeStart)
 		{
-			instrumentEditorStart = 0;
+			instrumentEditorModeStart = 0;
 			spectrumChanged = 1;
 			pointsChanged = 1;
 			labelsChanged = 1;
@@ -44,7 +46,7 @@ void cMtInstrumentEditor::update()
 
 			mtDisplay.setMode(mtDisplayModeInstrumentEditor);
 		}
-
+		//-----------------------------------------------------
 		if(spectrumChanged)
 		{
 			spectrumChanged = 0;
@@ -52,6 +54,7 @@ void cMtInstrumentEditor::update()
 			processSpectrum();
 			mtDisplay.setInstrumentEditorSpectrum(&spectrum);
 		}
+		//-----------------------------------------------------
 		if(pointsChanged)
 		{
 			pointsChanged = 0;
@@ -61,6 +64,7 @@ void cMtInstrumentEditor::update()
 			processPoints();
 			mtDisplay.setInstrumentEditorPoints(&spectrum);
 		}
+		//-----------------------------------------------------
 		if(labelsChanged)
 		{
 			labelsChanged = 0;
@@ -70,11 +74,47 @@ void cMtInstrumentEditor::update()
 			//mtDisplay.setInstrumentEditorPotsLabels();
 			//mtDisplay.setInstrumentEditorButtonsLabels();
 		}
+		//-----------------------------------------------------
+		if(sampleListChanged)
+		{
+			updateButtons();
+			updatePots();
+
+			if(!sampleListEnabled)
+			{
+				sampleListChanged = 0;
+				mtDisplay.setInstrumentEditorSampleList(0, 0, 0);
+				return;
+			}
+
+			if(sampleListChanged == 2) // pokaz liste
+			{
+				sampleListChanged = 0;
+				//przetworz tablice adresow nazw sampli na podstawie nazw z banku sampli
+
+				for(uint8_t i = 0; i < SAMPLES_MAX; i++)
+				{
+					sampleNames[i] = mtProject.sampleBank.sample[i].file_name;
+				}
+
+
+
+				if(editorInstrument.sampleIndex < 0) editorInstrument.sampleIndex = 0;
+				mtDisplay.setInstrumentEditorSampleList(editorInstrument.sampleIndex,
+														sampleNames, SAMPLES_MAX);
+
+			}
+		}
+
 	}
 	//---------------------------------------------------------------------------------------
 	else if(instrumentEditorMode == mtInstrumentEditorModeInstrumentSelect)
 	{
+		if(instrumentEditorModeStart)
+		{
+			instrumentEditorModeStart = 0;
 
+		}
 
 
 
@@ -104,7 +144,7 @@ void cMtInstrumentEditor::startExisting(uint8_t instrumentIndex)
 	editorInstrument = mtProject.instrument[instrumentIndex];
 
 	instrumentEditorMode = mtInstrumentEditorModeWaveEdit;
-	instrumentEditorStart = 1;
+	instrumentEditorModeStart = 1;
 	refreshInstrumentEditor = 1;
 }
 
@@ -112,7 +152,7 @@ void cMtInstrumentEditor::startEmpty()
 {
 	openedInstrumentIndex = -1;
 
-	editorInstrument.sampleIndex = -1;
+	editorInstrument.sampleIndex = 0;
 	editorInstrument.playMode = 0;
 
 	editorInstrument.startPoint = 0;
@@ -128,8 +168,10 @@ void cMtInstrumentEditor::startEmpty()
 	editorInstrument.ampRelease = 0;
 	editorInstrument.panning = 0;
 
+	sampleListEnabled = 1;
+	sampleListChanged = 2;
 	instrumentEditorMode = mtInstrumentEditorModeInstrumentSelect;
-	instrumentEditorStart = 1;
+	instrumentEditorModeStart = 1;
 	refreshInstrumentEditor = 1;
 }
 
@@ -140,17 +182,20 @@ void cMtInstrumentEditor::buttonChange(uint8_t button, uint8_t value)
 {
 	switch(buttonFunction[button])
 	{
-	case mtInstrumentEditorButtonFunctionNone  		: 	break;
-	case mtInstrumentEditorButtonFunctionPlay  		:	play(value);	break;
-	case mtInstrumentEditorButtonFunctionStop  		:	stop(); break;
-	case mtInstrumentEditorButtonFunctionPlayMode  	: 	break;
+	case mtInstrumentEditorButtonFunctionNone  				: 					break;
+	case mtInstrumentEditorButtonFunctionPlay  				:	play(value);	break;
+	case mtInstrumentEditorButtonFunctionStop  				:	stop(value);			break;
+	case mtInstrumentEditorButtonFunctionPlayMode  			: 	break;
+	case mtInstrumentEditorButtonFunctionAmpEnvelope  		: 	break;
+	case mtInstrumentEditorButtonFunctionInstrumentSelect  	: 	break;
+	case mtInstrumentEditorButtonFunctionSampleList  		: 	showSampleList(value);	break;
 
 	default: break;
 	}
+
 	refreshInstrumentEditor = 1;
 }
 
-uint8_t pot1;
 
 void cMtInstrumentEditor::potChange(uint8_t pot, int16_t value)
 {
@@ -167,33 +212,6 @@ void cMtInstrumentEditor::potChange(uint8_t pot, int16_t value)
 		case mtInstrumentEditorPotFunctionVievZoom:			changeZoom(value);			break;
 		default: break;
 	}
-
-/*
-	switch(pot)
-	{
-	case 0:
-	{
-		pot1 += value;
-		char label[20] = {"SP: "};
-		label[4] = pot1/100+48;
-		label[5] = (pot1%100)/10   +48;
-		label[6] = pot1%10  +48;
-		label[7] = 0;
-
-		setPotsLabel(mtInstrumentEditorPotFunctionStartPoint,label);
-
-		break;
-	}
-	case 2:
-	{
-
-		break;
-	}
-
-	default: break;
-	}
-
-*/
 
 	refreshInstrumentEditor = 1;
 }
@@ -254,9 +272,8 @@ void cMtInstrumentEditor::processSpectrum()
 		spectrum.lowerData[i] = low;
 	}
 
-
-	spectrum.spectrumType = 0;
-
+	if(mtProject.sampleBank.sample[editorInstrument.sampleIndex].length > 480) spectrum.spectrumType = 0;
+	else spectrum.spectrumType = 1;
 
 
 }
@@ -286,16 +303,18 @@ void cMtInstrumentEditor::processLabels()
 //#########################################################################################################
 // BUTTONS
 
-void cMtInstrumentEditor::setButtonLabel(uint8_t number, char * label)
+void cMtInstrumentEditor::setButtonLabel(uint8_t function, char* label)
 {
 	uint8_t i = 0;
-	buttonLabels[number][i] = 0;
+	buttonLabels[function][i] = 0;
 	while(label[i] != 0 && i < 19)
 	{
-		buttonLabels[number][i] = label[i];
+		mtInstrumentEditorButtonsLabels[function][i] = label[i];
 		i++;
 	}
-	buttonLabels[number][i] = 0;
+	buttonLabels[function][i] = 0;
+
+	mtDisplay.setInstrumentEditorButtonsLabels(&buttonLabels[0]);
 }
 
 
@@ -323,21 +342,20 @@ void cMtInstrumentEditor::updateButtons()
 
 			setButton(1, mtInstrumentEditorButtonFunctionPlayMode);
 			setButton(2, mtInstrumentEditorButtonFunctionAmpEnvelope);
-			setButton(3, mtInstrumentEditorButtonFunctionSampelSelect);
+			setButton(3, mtInstrumentEditorButtonFunctionSampleList);
 			setButton(4, mtInstrumentEditorButtonFunctionInstrumentSelect);
 
 			break;
 		}
 	}
 
+	buttonLabels[0] = (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[0]][0];
+	buttonLabels[1] = (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[1]][0];
+	buttonLabels[2] = (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[2]][0];
+	buttonLabels[3] = (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[3]][0];
+	buttonLabels[4] = (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[4]][0];
 
-	setButtonLabel(0, (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[0]][0]);
-	setButtonLabel(1, (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[1]][0]);
-	setButtonLabel(2, (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[2]][0]);
-	setButtonLabel(3, (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[3]][0]);
-	setButtonLabel(4, (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[4]][0]);
-
-	mtDisplay.setInstrumentEditorButtonsLabels(&buttonLabels[0][0]);
+	mtDisplay.setInstrumentEditorButtonsLabels(buttonLabels);
 }
 
 
@@ -383,11 +401,13 @@ void cMtInstrumentEditor::updatePots()
 			setPotFunction(0, mtInstrumentEditorPotFunctionStartPoint);
 			setPotFunction(1, mtInstrumentEditorPotFunctionEndPoint);
 
+			if(sampleListEnabled) setPotFunction(3, mtInstrumentEditorPotFunctionSampleSelect);
+
 			if(editorInstrument.playMode == samplePlayModeLoop)
 			{
 				setPotFunction(1, mtInstrumentEditorPotFunctionLoopPoint1);
 				setPotFunction(2, mtInstrumentEditorPotFunctionLoopPoint2);
-				setPotFunction(3, mtInstrumentEditorPotFunctionEndPoint);
+				if(!sampleListEnabled) setPotFunction(3, mtInstrumentEditorPotFunctionEndPoint);
 			}
 
 
@@ -410,6 +430,7 @@ void cMtInstrumentEditor::updatePots()
 void cMtInstrumentEditor::setPotFunction(uint8_t number, uint8_t function)
 {
 	potFunction[number] = function;
+	AnalogInputs.setPotResolution(number, potsFuncResolutions[function]);
 }
 
 //#########################################################################################################
@@ -421,6 +442,7 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 {
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
 	uint16_t move_step = viewLength / 480;
+	uint16_t dif;
 	value = value * move_step;
 
 	if(editorInstrument.startPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument.startPoint  = 0;
@@ -428,14 +450,22 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 	else editorInstrument.startPoint += value;
 
 	if(editorInstrument.startPoint > editorInstrument.endPoint) editorInstrument.startPoint = editorInstrument.endPoint-1;
+
+
 	if(editorInstrument.startPoint > editorInstrument.loopPoint1)
 	{
-		uint16_t dif = editorInstrument.loopPoint2 - editorInstrument.loopPoint1;
-
+		dif = editorInstrument.loopPoint2 - editorInstrument.loopPoint1;
 		editorInstrument.loopPoint1 = editorInstrument.startPoint;
 		editorInstrument.loopPoint2 = editorInstrument.loopPoint1 + dif;
+
+		if(editorInstrument.loopPoint2 > editorInstrument.endPoint)
+		{
+			editorInstrument.loopPoint2 = editorInstrument.endPoint;
+			editorInstrument.loopPoint1 = editorInstrument.loopPoint2 - dif;
+			editorInstrument.startPoint = editorInstrument.loopPoint1;
+		}
 	}
-	//if(editorInstrument.loopPoint1 > editorInstrument.loopPoint2) editorInstrument.loopPoint2 = editorInstrument.loopPoint1+1;
+
 
 
 	pointsChanged = 1;
@@ -444,6 +474,7 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 void cMtInstrumentEditor::modEndPoint(int16_t value)
 {
 	uint16_t move_step = viewLength / 480;
+	uint16_t dif;
 	value = value * move_step;
 
 	if(editorInstrument.endPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument.endPoint  = 0;
@@ -453,12 +484,19 @@ void cMtInstrumentEditor::modEndPoint(int16_t value)
 	if(editorInstrument.endPoint < editorInstrument.startPoint) editorInstrument.endPoint = editorInstrument.startPoint+1;
 	if(editorInstrument.endPoint < editorInstrument.loopPoint2)
 	{
-		uint16_t dif = editorInstrument.loopPoint2 - editorInstrument.loopPoint1;
+		dif = editorInstrument.loopPoint2 - editorInstrument.loopPoint1;
 
 		editorInstrument.loopPoint2 = editorInstrument.endPoint;
 		editorInstrument.loopPoint1 = editorInstrument.loopPoint2 - dif;
+
+		if(editorInstrument.loopPoint1 < editorInstrument.startPoint)
+		{
+			editorInstrument.loopPoint1 = editorInstrument.startPoint;
+			editorInstrument.loopPoint2 = editorInstrument.loopPoint1 + dif;
+			editorInstrument.endPoint = editorInstrument.loopPoint2;
+		}
 	}
-	//if(editorInstrument.loopPoint2 < editorInstrument.loopPoint1) editorInstrument.loopPoint1 = editorInstrument.loopPoint2-1;
+
 
 
 	pointsChanged = 1;
@@ -501,7 +539,37 @@ void cMtInstrumentEditor::selectInstrument(int16_t value)
 
 void cMtInstrumentEditor::selectSample(int16_t value)
 {
+	if(editorInstrument.sampleIndex + value < 0) editorInstrument.sampleIndex  = 0;
+	else if(editorInstrument.sampleIndex + value >= SAMPLES_MAX) editorInstrument.sampleIndex  = SAMPLES_MAX-1;
+	else editorInstrument.sampleIndex += value;
 
+	mtDisplay.setInstrumentEditorSampleListPos(editorInstrument.sampleIndex);
+	spectrumChanged = 1;
+	//instrumentEditorModeStart = 1;
+	refreshInstrumentEditor = 1;
+
+}
+
+void cMtInstrumentEditor::showSampleList(uint8_t value)
+{
+	if(value == 1)
+	{
+
+		//instrumentEditorMode == mtInstrumentEditorModeSampleSelect;
+		//instrumentEditorModeStart = 1;
+		if(sampleListEnabled)
+		{
+			sampleListEnabled = 0;
+			sampleListChanged = 1;
+		}
+		else
+		{
+			sampleListEnabled = 1;
+			sampleListChanged = 2;
+		}
+
+
+	}
 }
 
 void cMtInstrumentEditor::changeView(int16_t value)
@@ -513,8 +581,6 @@ void cMtInstrumentEditor::changeZoom(int16_t value)
 {
 
 }
-
-
 
 void cMtInstrumentEditor::play(uint8_t value)
 {
@@ -530,7 +596,7 @@ void cMtInstrumentEditor::play(uint8_t value)
 	}
 }
 
-void cMtInstrumentEditor::stop()
+void cMtInstrumentEditor::stop(uint8_t value)
 {
 
 	if(isPlayingSample) playMem1.stopLoopMode();

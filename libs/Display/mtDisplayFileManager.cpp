@@ -76,9 +76,9 @@ void cMtDisplay::setFmanagerRootTitle(char text[])
 	screenRefresh = 1;
 }
 
-void cMtDisplay::setFmanagerRootList(uint16_t start, char * list, uint16_t count, uint8_t filename_length)
+void cMtDisplay::setFmanagerRootList(uint16_t start, char ** list, uint16_t count, uint8_t filename_length)
 {
-	fManagerList.setList(start, list, count, filename_length);
+	fManagerList.setList(0, 2, start, list, count);
 
 	displayRefreshTable.fManager.rootList = 1;
 	screenRefresh = 1;

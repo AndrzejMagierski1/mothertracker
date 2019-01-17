@@ -26,9 +26,15 @@ void cAnalogInputs::processPotData()
 	{
 		A = new_pot_button_values[analog_pots_index_A[i]];
 		B = new_pot_button_values[analog_pots_index_B[i]];
-		potentiometers[i].positions[0] = calculatePotPosition(A ,B, &(potentiometers[i].part));
+		potentiometers[i].position = calculatePotPosition(A ,B, &(potentiometers[i].part));
 
-		if(start_up) potentiometers[i].positions[1] = potentiometers[i].positions[0];
+		if(start_up) potentiometers[i].last_position= potentiometers[i].position;
+
+
+		//if(potentiometers[i].position == 0)
+		//{
+		//	delayMicroseconds(1);
+		//}
 	}
 
 	if(start_up) start_up = 0;
@@ -38,7 +44,7 @@ void cAnalogInputs::processPotData()
 	for(uint8_t i=0;i<ANALOG_MAX_POTS;i++)
 	{
 		// roznica pozycji pomiedzy aktualna a ostanio zapisana
-		diffrence = potentiometers[i].positions[0] - potentiometers[i].positions[1];
+		diffrence = potentiometers[i].position - potentiometers[i].last_position;
 
 		if(diffrence > 0)
 		{
@@ -64,7 +70,12 @@ void cAnalogInputs::processPotData()
 			//}
 		}
 
-		potentiometers[i].last_part = potentiometers[i].part;
+		//if(diffrence > 1000 || diffrence < -1000)
+		//{
+		//	delay(1);
+		//}
+
+
 
 		potentiometers[i].diffrences[2] = potentiometers[i].diffrences[1];
 		potentiometers[i].diffrences[1] = potentiometers[i].diffrences[0];
@@ -78,7 +89,9 @@ void cAnalogInputs::processPotData()
 		if(in_death_zone) continue;
 
 		// zapisywanie poprzedniej pozycji dopiero po wykryciu zmiany
-		potentiometers[i].positions[1] = potentiometers[i].positions[0];
+		potentiometers[i].last_position = potentiometers[i].position;
+		potentiometers[i].last_part = potentiometers[i].part;
+
 
 //		mtPrint(potentiometers[i].diffrences[2]); mtPrint(" ");
 //		mtPrint(potentiometers[i].diffrences[1]); mtPrint(" ");
@@ -96,6 +109,7 @@ void cAnalogInputs::processPotData()
 		resolution_step = 1023.0 / potentiometers[i].resolution;
 
 		potentiometers[i].global_diff = potentiometers[i].global_diff + diffrence;
+
 
 		if(potentiometers[i].global_diff >= resolution_step || potentiometers[i].global_diff <= resolution_step*(-1))
 		{

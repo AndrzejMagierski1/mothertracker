@@ -23,7 +23,7 @@ enum enumMtInstrumentEditorButtonFunction
 	mtInstrumentEditorButtonFunctionPlayMode,
 	mtInstrumentEditorButtonFunctionAmpEnvelope,
 	mtInstrumentEditorButtonFunctionInstrumentSelect,
-	mtInstrumentEditorButtonFunctionSampelSelect,
+	mtInstrumentEditorButtonFunctionSampleList,
 
 
 	//-------------------------------
@@ -46,18 +46,20 @@ enum enumMtInstrumentEditorPotFunction
 	mtInstrumentEditorPotFunctionCount
 };
 
-
-const char mtInstrumentEditorButtonsLabels[mtInstrumentEditorButtonFunctionCount][20] =
+const uint8_t potsFuncResolutions[mtInstrumentEditorPotFunctionCount]=
 {
-		{0},
-		"Play",
-		"Stop",
-		"1-Shot",
-		"Amp Envelope",
-		"Instrument",
-		"Sample",
+		100,
+		100,
+		100,
+		100,
+		100,
+		100,
+		50,
+		100,
+		100,
 
 };
+
 
 
 
@@ -90,6 +92,12 @@ private:
 	void updatePots();
 	void setPotFunction(uint8_t number, uint8_t function);
 
+	//funkcje przyciskow
+	void showSampleList(uint8_t value);
+	void play(uint8_t value);
+	void stop(uint8_t value);
+
+	//funkcje potow
 	void modStartPoint(int16_t value);
 	void modEndPoint(int16_t value);
 	void modLoopPoint1(int16_t value);
@@ -99,13 +107,14 @@ private:
 	void changeView(int16_t value);
 	void changeZoom(int16_t value);
 
-	void play(uint8_t value);
-	void stop();
+
+
+
 
 
 	uint8_t	instrumentEditorMode = mtInstrumentEditorModeDisabled;
 	uint8_t	refreshInstrumentEditor = 0;
-	uint8_t	instrumentEditorStart = 0;
+	uint8_t	instrumentEditorModeStart = 0;
 	uint8_t	editMode = 0;
 
 //========================================================
@@ -117,23 +126,38 @@ private:
 	uint8_t spectrumChanged;
 	uint8_t pointsChanged;
 	uint8_t labelsChanged;
+	uint8_t sampleListChanged;
 
 
 	uint16_t viewStart = 0;
 	uint16_t viewLength = MAX_16BIT;
 
-
 	uint8_t isPlayingSample;
 
 
-	//parametry rysowania spektrum
+	uint8_t sampleListEnabled = 0;
+	char *sampleNames[SAMPLES_MAX];
+
+
+	//parametry rysowania spektrum dla wyswietalcza
 	strSpectrum  spectrum;
 
 //========================================================
 
 	//przyciski w edytorze
-	char buttonLabels[5][20];
+	char *buttonLabels[5];
 	uint8_t buttonFunction[5];
+
+	char mtInstrumentEditorButtonsLabels[mtInstrumentEditorButtonFunctionCount][20] =
+	{
+			{0},
+			"Play",
+			"Stop",
+			"1-Shot",
+			"Amp Envelope",
+			"Instrument",
+			"Sample",
+	};
 
 	//potencjometry w edytorze
 	char *potsLabels[5];

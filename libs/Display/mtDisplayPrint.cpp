@@ -143,7 +143,7 @@ void cMtDisplay::printShow()
 {
 #ifdef DEBUG
 
-	displayPrint = 1;
+	screenRefresh = 1;
 	printTimer = 0;
 	if(screenMode != mtDisplayModePrint) modeSave = screenMode;
 	screenMode = mtDisplayModePrint;

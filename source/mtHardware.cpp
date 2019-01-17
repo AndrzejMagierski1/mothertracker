@@ -81,7 +81,7 @@ void initHardware()
 	AnalogInputs.setPotResolution(3, 100);
 	AnalogInputs.setPotResolution(4, 100);
 */
-	AnalogInputs.begin();
+	AnalogInputs.begin(100);
 
 	//....................................................
 	// Haptic on

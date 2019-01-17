@@ -19,7 +19,7 @@ void cMtDisplayList::setListPos(uint16_t position)
 
 
 
-void cMtDisplayList::setList(uint16_t start, char * list, uint16_t count, uint8_t row_length)
+void cMtDisplayList::setList(uint8_t block, uint8_t blockWidth, uint16_t start, char ** list, uint16_t count)
 {
 	if(count == 0)
 	{
@@ -27,13 +27,15 @@ void cMtDisplayList::setList(uint16_t start, char * list, uint16_t count, uint8_
 		return;
 	}
 
+	listBlockWidth = blockWidth;
+	listBlock = block;
 	listEnable = 1;
 	listPosition = start;
 	listCount = count;
 	listStart = start;
 	listTable = list;
 	listState = 2;
-	listRowLength = row_length;
+//	listRowLength = row_length;
 }
 
 void cMtDisplayList::update()
@@ -58,7 +60,7 @@ void cMtDisplayList::update()
 		else if(listPosition >= listCount-2)	sel_row = 3;
 
 		listState = sel_row;
-		x_pos = MT_DISP_BLOCK_W * (0) + ( MT_DISP_BLOCK_MENU_OFFSET);
+		x_pos = MT_DISP_BLOCK_W * (listBlock) + ( MT_DISP_BLOCK_MENU_OFFSET);
 		y_pos = (MT_DISP_BLOCK_MENU_TOP_Y - (MT_DISP_BLOCK_MENU_Y_SPACE/2)) + (sel_row * MT_DISP_BLOCK_MENU_Y_SPACE);
 
 
@@ -67,14 +69,14 @@ void cMtDisplayList::update()
 		API_LINE_WIDTH(4);
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2II(x_pos, y_pos, 0, 0);
-		API_VERTEX2II(x_pos + (2*MT_DISP_BLOCK_W - (MT_DISP_BLOCK_MENU_OFFSET + 6)), y_pos, 0, 0);
-		API_VERTEX2II(x_pos + (2*MT_DISP_BLOCK_W - (MT_DISP_BLOCK_MENU_OFFSET + 6)), y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+		API_VERTEX2II(x_pos + (listBlockWidth*MT_DISP_BLOCK_W - (MT_DISP_BLOCK_MENU_OFFSET + 6)), y_pos, 0, 0);
+		API_VERTEX2II(x_pos + (listBlockWidth*MT_DISP_BLOCK_W - (MT_DISP_BLOCK_MENU_OFFSET + 6)), y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
 		API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
 		API_VERTEX2II(x_pos, y_pos, 0, 0);
 		API_END();
 
 		//lista tekstow
-		x_pos = MT_DISP_BLOCK_W * (0) + ( MT_DISP_BLOCK_MENU_OFFSET + MT_DISP_BLOCK_MENU_TEXT_OFFSET);
+		x_pos = MT_DISP_BLOCK_W * (listBlock) + ( MT_DISP_BLOCK_MENU_OFFSET + MT_DISP_BLOCK_MENU_TEXT_OFFSET);
 		y_pos = MT_DISP_BLOCK_MENU_TOP_Y;
 
 		lines = (listCount >= MT_DISP_BLOCK_MENU_ROWS)  ? MT_DISP_BLOCK_MENU_ROWS : listCount;
@@ -91,7 +93,7 @@ void cMtDisplayList::update()
 					y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
 					MT_GPU_RAM_FONT1_HANDLE,
 					(OPT_CENTERY),
-					(listTable)/*+txt_offset*/+(listRowLength*(listStart  + i -  listState)));
+					*(listTable/*+txt_offset*/+(listStart  + i -  listState)));
 		}
 
 
@@ -151,7 +153,7 @@ void cMtDisplayList::update()
 		*selfRefresh = 1;
 
 		//uint8_t y_move = (dir > 0 ? listAnimationStep : (-1)*listAnimationStep);
-		x_pos = MT_DISP_BLOCK_W * (0) + ( MT_DISP_BLOCK_MENU_OFFSET);
+		x_pos = MT_DISP_BLOCK_W * (listBlock) + ( MT_DISP_BLOCK_MENU_OFFSET);
 		y_pos = (MT_DISP_BLOCK_MENU_TOP_Y - (MT_DISP_BLOCK_MENU_Y_SPACE/2)) + (listState * MT_DISP_BLOCK_MENU_Y_SPACE) + (mode ? 0 : listAnimationStep);
 
 		//ramka
@@ -159,26 +161,41 @@ void cMtDisplayList::update()
 		API_LINE_WIDTH(4);
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2II(x_pos, y_pos, 0, 0);
-		API_VERTEX2II(x_pos + (2*MT_DISP_BLOCK_W - (MT_DISP_BLOCK_MENU_OFFSET + 6)), y_pos, 0, 0);
-		API_VERTEX2II(x_pos + (2*MT_DISP_BLOCK_W - (MT_DISP_BLOCK_MENU_OFFSET + 6)), y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+		API_VERTEX2II(x_pos + (listBlockWidth*MT_DISP_BLOCK_W - (MT_DISP_BLOCK_MENU_OFFSET + 6)), y_pos, 0, 0);
+		API_VERTEX2II(x_pos + (listBlockWidth*MT_DISP_BLOCK_W - (MT_DISP_BLOCK_MENU_OFFSET + 6)), y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
 		API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
 		API_VERTEX2II(x_pos, y_pos, 0, 0);
 		API_END();
 
 
-		x_pos = MT_DISP_BLOCK_W * (0) + ( MT_DISP_BLOCK_MENU_OFFSET + MT_DISP_BLOCK_MENU_TEXT_OFFSET);
+		x_pos = MT_DISP_BLOCK_W * (listBlock) + ( MT_DISP_BLOCK_MENU_OFFSET + MT_DISP_BLOCK_MENU_TEXT_OFFSET);
 		y_pos = MT_DISP_BLOCK_MENU_TOP_Y - 16 - (mode ? listAnimationStep : 0);
 
 		API_SAVE_CONTEXT();
 
 		API_COLOR(listColor);
 
-		API_SCISSOR_XY(MT_DISP_BLOCK_W * (0), MT_DISP_BLOCK_MENU_TOP_Y-8);
-		API_SCISSOR_SIZE(MT_DISP_BLOCK_W * (2), MT_DISP_BLOCK_MENU_Y_SPACE*5);
+		API_SCISSOR_XY(MT_DISP_BLOCK_W * (listBlock), MT_DISP_BLOCK_MENU_TOP_Y-8);
+		API_SCISSOR_SIZE(MT_DISP_BLOCK_W * (listBlockWidth), MT_DISP_BLOCK_MENU_Y_SPACE*5);
 
 		lines = (listCount >= MT_DISP_BLOCK_MENU_ROWS)  ? MT_DISP_BLOCK_MENU_ROWS : listCount;
 		//uint8_t txt_offset;
 
+
+		for(uint8_t i = 0; i < lines; i++)
+		{
+			//txt_offset = 1;
+			//API_CMD_TEXT(x_pos, y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE), MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), (displayBlock[block].menu)+20*(displayBlock[block].value+row+i));
+			//if(*((listTable)+(listRowLength*(listStart  + i -  listState))) == '/') txt_offset = 0;
+
+			API_CMD_TEXT(x_pos,
+					y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
+					MT_GPU_RAM_FONT1_HANDLE,
+					(OPT_CENTERY),
+					*(listTable+(listStart  + i -  listState)));
+		}
+
+/*
 		for(int8_t i = -1; i < (lines+1); i++)
 		{
 			//txt_offset = 1;
@@ -187,9 +204,9 @@ void cMtDisplayList::update()
 					y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
 					MT_GPU_RAM_FONT1_HANDLE,
 					(OPT_CENTERY),
-					(listTable)/*+txt_offset*/+(listRowLength*(listStart  + i -  (listState+1))));
+					*(listTable+ (listStart  + i -  (listState+1) ) ) );
 		}
-
+*/
 		API_RESTORE_CONTEXT();
 
 	}
@@ -204,8 +221,8 @@ void cMtDisplayList::update()
 		API_COLOR(listColor);
 		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
-		API_VERTEX2II((MT_DISP_BLOCK_W * (1)) + (MT_DISP_BLOCK_W - 3) , y_pos ,0,0);
-		API_VERTEX2II((MT_DISP_BLOCK_W * (1)) + (MT_DISP_BLOCK_W - 2) , y_pos+y_length,0,0);
+		API_VERTEX2II((MT_DISP_BLOCK_W * (listBlock)) + (MT_DISP_BLOCK_W - 3) , y_pos ,0,0);
+		API_VERTEX2II((MT_DISP_BLOCK_W * (listBlock)) + (MT_DISP_BLOCK_W - 2) , y_pos+y_length,0,0);
 		API_END();
 	}
 

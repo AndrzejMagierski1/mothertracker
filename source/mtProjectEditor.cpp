@@ -29,20 +29,66 @@ __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[4*1024*1024];
 uint8_t cMtProjectEditor::readProjectConfig()
 {
 	// parametry sampli ==============================================
-	mtProject.sampleBank.samples_count = 8;
 
 	// trzeba czytac z pliku projektu zawierajacego opis banku sampli
 	// pod jaki index tablicy sampli 0-32 zapisywac dany sampel
 	// teraz domyslnie zajmowane 0-7
 
-	mtProject.sampleBank.sample[0].file_name = (char*)"1.wav";
-	mtProject.sampleBank.sample[1].file_name = (char*)"1.wav";
-	mtProject.sampleBank.sample[2].file_name = (char*)"1.wav";
-	mtProject.sampleBank.sample[3].file_name = (char*)"1.wav";
-	mtProject.sampleBank.sample[4].file_name = (char*)"1.wav";
-	mtProject.sampleBank.sample[5].file_name = (char*)"6.wav";
-	mtProject.sampleBank.sample[6].file_name = (char*)"7.wav";
-	mtProject.sampleBank.sample[7].file_name = (char*)"8.wav";
+	mtProject.sampleBank.sample[0].file_name[0] = '1';
+	mtProject.sampleBank.sample[0].file_name[1] = '.';
+	mtProject.sampleBank.sample[0].file_name[2] = 'w';
+	mtProject.sampleBank.sample[0].file_name[3] = 'a';
+	mtProject.sampleBank.sample[0].file_name[4] = 'v';
+	mtProject.sampleBank.sample[0].file_name[5] = 0;
+
+	mtProject.sampleBank.sample[1].file_name[0] = '2';
+	mtProject.sampleBank.sample[1].file_name[1] = '.';
+	mtProject.sampleBank.sample[1].file_name[2] = 'w';
+	mtProject.sampleBank.sample[1].file_name[3] = 'a';
+	mtProject.sampleBank.sample[1].file_name[4] = 'v';
+	mtProject.sampleBank.sample[1].file_name[5] = 0;
+
+	mtProject.sampleBank.sample[2].file_name[0] = '3';
+	mtProject.sampleBank.sample[2].file_name[1] = '.';
+	mtProject.sampleBank.sample[2].file_name[2] = 'w';
+	mtProject.sampleBank.sample[2].file_name[3] = 'a';
+	mtProject.sampleBank.sample[2].file_name[4] = 'v';
+	mtProject.sampleBank.sample[2].file_name[5] = 0;
+
+	mtProject.sampleBank.sample[3].file_name[0] = '4';
+	mtProject.sampleBank.sample[3].file_name[1] = '.';
+	mtProject.sampleBank.sample[3].file_name[2] = 'w';
+	mtProject.sampleBank.sample[3].file_name[3] = 'a';
+	mtProject.sampleBank.sample[3].file_name[4] = 'v';
+	mtProject.sampleBank.sample[3].file_name[5] = 0;
+
+	mtProject.sampleBank.sample[4].file_name[0] = '5';
+	mtProject.sampleBank.sample[4].file_name[1] = '.';
+	mtProject.sampleBank.sample[4].file_name[2] = 'w';
+	mtProject.sampleBank.sample[4].file_name[3] = 'a';
+	mtProject.sampleBank.sample[4].file_name[4] = 'v';
+	mtProject.sampleBank.sample[4].file_name[5] = 0;
+
+	mtProject.sampleBank.sample[5].file_name[0] = '6';
+	mtProject.sampleBank.sample[5].file_name[1] = '.';
+	mtProject.sampleBank.sample[5].file_name[2] = 'w';
+	mtProject.sampleBank.sample[5].file_name[3] = 'a';
+	mtProject.sampleBank.sample[5].file_name[4] = 'v';
+	mtProject.sampleBank.sample[5].file_name[5] = 0;
+
+	mtProject.sampleBank.sample[6].file_name[0] = '7';
+	mtProject.sampleBank.sample[6].file_name[1] = '.';
+	mtProject.sampleBank.sample[6].file_name[2] = 'w';
+	mtProject.sampleBank.sample[6].file_name[3] = 'a';
+	mtProject.sampleBank.sample[6].file_name[4] = 'v';
+	mtProject.sampleBank.sample[6].file_name[5] = 0;
+
+	mtProject.sampleBank.sample[7].file_name[0] = '8';
+	mtProject.sampleBank.sample[7].file_name[1] = '.';
+	mtProject.sampleBank.sample[7].file_name[2] = 'w';
+	mtProject.sampleBank.sample[7].file_name[3] = 'a';
+	mtProject.sampleBank.sample[7].file_name[4] = 'v';
+	mtProject.sampleBank.sample[7].file_name[5] = 0;
 
 	// parametry instrumentow ========================================
 	mtProject.instruments_count = 8;
@@ -54,8 +100,8 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].playMode = 1;
 
 		mtProject.instrument[i].startPoint = 0;
-		mtProject.instrument[i].loopPoint1 = 0;
-		mtProject.instrument[i].loopPoint2 = SAMPLE_POINT_POS_MAX;
+		mtProject.instrument[i].loopPoint1 = 10000;
+		mtProject.instrument[i].loopPoint2 = 20000;
 		mtProject.instrument[i].endPoint = SAMPLE_POINT_POS_MAX;
 
 		mtProject.instrument[i].ampDelay = 0;
@@ -93,20 +139,37 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 	//zaladowanie banku sampli
 	int32_t size;
 	mtProject.sampleBank.sample[0].address = sdram_sampleBank;
+	mtProject.sampleBank.samples_count = 0;
 
-	for(uint8_t i = 0; i < mtProject.sampleBank.samples_count; i++)
+	for(uint8_t i = 0; i < SAMPLES_MAX; i++)
 	{
 		size = loadSdWavToMemory(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address);
 
 		if(size > 0)
 		{
-			mtProject.sampleBank.used_memory += size;
+			mtProject.sampleBank.used_memory += size*2;
 			mtProject.sampleBank.sample[i].loaded = 1;
 			mtProject.sampleBank.sample[i].length = size;
-		}
-		else return 2; // blad ladowania wave
 
-		if(i+1 < mtProject.sampleBank.samples_count)
+			mtProject.sampleBank.samples_count++;
+		}
+		else
+		{
+			mtProject.sampleBank.sample[i].loaded = 0;
+			mtProject.sampleBank.sample[i].length = 0;
+			mtProject.sampleBank.sample[i].file_name[0] = '-';
+			mtProject.sampleBank.sample[i].file_name[1] = 'e';
+			mtProject.sampleBank.sample[i].file_name[2] = 'm';
+			mtProject.sampleBank.sample[i].file_name[3] = 'p';
+			mtProject.sampleBank.sample[i].file_name[4] = 't';
+			mtProject.sampleBank.sample[i].file_name[5] = 'y';
+			mtProject.sampleBank.sample[i].file_name[6] = '-';
+			mtProject.sampleBank.sample[i].file_name[7] = 0;
+			size = 0;
+			//return 2; // blad ladowania wave
+		}
+
+		if(i+1 < SAMPLES_MAX)
 		{
 			mtProject.sampleBank.sample[i+1].address = mtProject.sampleBank.sample[i].address+size;
 		}
@@ -122,11 +185,20 @@ uint8_t cMtProjectEditor::loadProject()
 {
 	readProjectConfig();
 
-	if(loadSamplesBank()) return 1;
+	if(loadSamplesBank())
+	{
+		mtPrintln("loading samples failed!");
+	}
+	else
+	{
+		mtPrint(mtProject.sampleBank.samples_count);
+		mtPrintln(" samples loaded successfully");
+		mtPrint("sample memory used: ");
+		mtPrint( int((mtProject.sampleBank.used_memory * 100 ) / mtProject.sampleBank.max_memory));
+		mtPrintln(" %");
+	}
 
-	mtPrint("sample memory used: ");
-	mtPrint( int((mtProject.sampleBank.used_memory * 100 ) / mtProject.sampleBank.max_memory));
-	mtPrintln(" %");
+
 
 
 

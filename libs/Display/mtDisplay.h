@@ -13,19 +13,21 @@ class cMtDisplayList
 {
 public:
 	void setSeflRefreshPtr(uint8_t *refresh, uint8_t *animate);
-	void setList(uint16_t start, char * list, uint16_t count, uint8_t row_length);
+	void setList(uint8_t block, uint8_t blockWidth, uint16_t start, char ** list, uint16_t count);
 	void setListPos(uint16_t position);
 	void update();
 	uint8_t enabled() { return listEnable; }
 
 private:
-	char * listTable;
+	char ** listTable;
 
+	uint8_t  listBlock;
+	uint8_t  listBlockWidth;
 	uint16_t listPosition;
 	uint16_t listCount;
 	uint16_t listStart;
 	int8_t 	 listState;
-	uint8_t  listRowLength;
+//	uint8_t  listRowLength;
 	uint8_t  listEnable;
 	int8_t   listAnimationStep = 0;
 
@@ -69,15 +71,16 @@ public:
 	void setBlockCenter(uint8_t number, int32_t value);
 
 	void setFmanagerRootTitle(char text[]);
-	void setFmanagerRootList(uint16_t start, char * list, uint16_t count, uint8_t filename_length);
+	void setFmanagerRootList(uint16_t start, char ** list, uint16_t count, uint8_t filename_length);
 	void setFmanagerRootListPos(uint16_t position);
 	void setFmanagerLabels(char * labels);
 
 	void setInstrumentEditorPoints(strSpectrum *spectrum);
 	void setInstrumentEditorSpectrum(strSpectrum *spectrum);
 	void setInstrumentEditorPotsLabels(char ** labels);
-	void setInstrumentEditorButtonsLabels(char * labels);
-
+	void setInstrumentEditorButtonsLabels(char ** labels);
+	void setInstrumentEditorSampleList(uint16_t start, char ** list, uint16_t count);
+	void setInstrumentEditorSampleListPos(uint16_t position);
 
 	// print
 	void print(const char * s);
@@ -136,7 +139,7 @@ private:
 	//---------------------------------------------
 	// tryb edytora instrumentu
 	strMtInstrumentEditor instrumentEditor;
-
+	cMtDisplayList instrumentEditorSampleList;
 
 	// animowane przejscia
 	uint8_t screenAnimation = 0;
@@ -157,7 +160,7 @@ private:
 	#ifdef DEBUG
 
 	#define MAX_PRINT_LINES 6
-	#define PRINT_SHOW_TIME 3000
+	#define PRINT_SHOW_TIME 1500
 	char text[MAX_PRINT_LINES][256];
 	uint8_t	lastPrintLine = 0;
 	uint8_t	firstPrintLine = 0;

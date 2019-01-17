@@ -111,7 +111,9 @@ void cMtDisplay::begin(uint8_t mode)
     API_LIB_AwaitCoProEmpty();
 
     fManagerList.setSeflRefreshPtr(&displayRefreshTable.fManager.rootList, &screenAnimation);
-	screenMode = mode;
+    instrumentEditorSampleList.setSeflRefreshPtr(&displayRefreshTable.instrumentEditor.sampleList, &screenAnimation);
+
+    screenMode = mode;
 	screenRefresh = 1;
 }
 
@@ -245,13 +247,22 @@ void cMtDisplay::updateDisplay()
 	//---------------------------------------------------------------------------------------
 	//---------------------------------------------------------------------------------------
 	//---------------------------------------------------------------------------------------
-
+	if(screenMode == mtDisplayModePrint)
+	{
+		if(printTimer > PRINT_SHOW_TIME)
+		{
+			displayPrint = 0;
+			screenMode = modeSave;
+			screenRefresh = 1;
+			printClear();
+		}
+	}
 	//-------------------------------------------------
 	//-------------------------------------------------
 	// sprawdzanei czy wymagane jest odswiezanie
 		if(!screenRefresh
 			&& (!screenAnimation || animationTimer < MT_DISP_ANIMATION_T)
-			&& !displayPrint) return;
+			) return;
 	/*
 	if(!screenRefresh
 		&&
@@ -343,6 +354,18 @@ void cMtDisplay::updateDisplay()
 				displayRefreshTable.instrumentEditor.labels = 0;
 				ramg_instrument_editor_labels();
 				if(updateStep > 0) return;
+			}
+			if(displayRefreshTable.instrumentEditor.sampleList)
+			{
+				displayRefreshTable.instrumentEditor.sampleList = 0;
+				if(instrumentEditorSampleList.enabled())
+				{
+					instrumentEditorSampleList.update();
+				    updateAdress = MT_GPU_RAM_INSTRUMENT_EDITOR_SAMPLE_ADRESS;
+					updateSize = &instrumentEditor.ramSampleListSize;
+					updateStep = 1;
+					return;
+				}
 			}
 			//-------------------------------------------------
 			dl_load_instrument_editor_main();
@@ -476,13 +499,6 @@ void cMtDisplay::dl_load_print_main()
     API_LIB_EndCoProList();
 
 
-    if(printTimer > PRINT_SHOW_TIME)
-    {
-    	displayPrint = 0;
-    	screenMode = modeSave;
-    	screenRefresh = 1;
-    	printClear();
-	}
 
 }
 
@@ -497,6 +513,13 @@ void cMtDisplay::dl_load_print_main()
 //#########################################################################################################
 void cMtDisplay::setMode(uint8_t mode)
 {
+	if(screenMode == mtDisplayModePrint)
+	{
+		modeSave = mode;
+		screenRefresh = 1;
+		return;
+
+	}
 	screenMode = mode;
 	screenRefresh = 1;
 }

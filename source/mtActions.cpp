@@ -145,8 +145,6 @@ void onPowerButtonChange(uint8_t value)
 
 
 
-extern keyScanner Buttons;
-
 //--------------------------------- BUTTONS SEQ ----------------------------
 void onButtonPush (uint8_t x, uint8_t y)
 {	

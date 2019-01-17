@@ -76,7 +76,7 @@ void cMtInterface::setOperatingMode(uint8_t mode)
 	}
 	case mtOperatingModeInstrumentEditor:
 	{
-		mtInstrumentEditor.startExisting(4);
+		mtInstrumentEditor.startExisting(0);
 		break;
 	}
 	case mtOperatingModeFileManager:

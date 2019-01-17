@@ -20,11 +20,6 @@ void cMtDisplay::dl_load_instrument_editor_main()
 	API_CLEAR(1,1,1);
 
 
-	// background
-	//API_CMD_APPEND(MT_GPU_RAM_INSTRUMENT_EDITOR_BG_ADRESS, instrumentEditor.ramBackgroundSize);
-
-
-
 	// spectrum
 	API_CMD_APPEND(MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_ADRESS, instrumentEditor.ramSpectrumSize);
 
@@ -34,6 +29,13 @@ void cMtDisplay::dl_load_instrument_editor_main()
 
 	// buttons labels
 	API_CMD_APPEND(MT_GPU_RAM_INSTRUMENT_EDITOR_LABELS_ADRESS, instrumentEditor.ramLabelsSize);
+
+	// sample list
+	if(instrumentEditorSampleList.enabled())
+	{
+		API_CMD_APPEND(MT_GPU_RAM_INSTRUMENT_EDITOR_SAMPLE_ADRESS, instrumentEditor.ramSampleListSize);
+	}
+
 
 
     API_DISPLAY();
@@ -64,7 +66,7 @@ void cMtDisplay::setInstrumentEditorSpectrum(strSpectrum *spectrum)
 }
 
 
-void  cMtDisplay::setInstrumentEditorButtonsLabels(char * labels)
+void  cMtDisplay::setInstrumentEditorButtonsLabels(char ** labels)
 {
 	instrumentEditor.buttonsLabels = labels;
 
@@ -80,34 +82,27 @@ void  cMtDisplay::setInstrumentEditorPotsLabels(char ** labels)
 	screenRefresh = 1;
 }
 
-//#############################################################################
-//#############################################################################
-//#############################################################################
-
-
-void cMtDisplay::ramg_instrument_editor_background()
+void  cMtDisplay::setInstrumentEditorSampleList(uint16_t start, char ** list, uint16_t count)
 {
-    API_LIB_BeginCoProList();
-    API_CMD_DLSTART();
 
+	instrumentEditorSampleList.setList(3, 1, start, list, count);
 
-	API_COLOR(instrumentEditor.loopColor);
-/*
-	API_LINE_WIDTH(8);
-	API_BEGIN(RECTS);
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint1, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint2, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
-	API_END();
-*/
-    API_LIB_EndCoProList();
+	displayRefreshTable.instrumentEditor.sampleList = 1;
+	screenRefresh = 1;
 
-    /**/
-
-	updateAdress = MT_GPU_RAM_INSTRUMENT_EDITOR_BG_ADRESS;
-	updateSize = &instrumentEditor.ramBackgroundSize;
-
-	updateStep = 1;
 }
+
+void cMtDisplay::setInstrumentEditorSampleListPos(uint16_t position)
+{
+	instrumentEditorSampleList.setListPos(position);
+
+	displayRefreshTable.instrumentEditor.sampleList = 1;
+	screenRefresh = 1;
+}
+//#############################################################################
+//#############################################################################
+//#############################################################################
+
 
 void cMtDisplay::ramg_instrument_editor_points()
 {
@@ -254,7 +249,8 @@ void cMtDisplay::ramg_instrument_editor_labels()
 		API_VERTEX2II((MT_DISP_BLOCK_W * i + (MT_DISP_BLOCK_W - MT_DISP_BLOCK_LABEL_OFFSET)) , MT_DISP_H,0,0);
 		API_END();
 		API_COLOR(instrumentEditor.fontLabelColor);
-		API_CMD_TEXT(MT_DISP_BLOCK_W * i + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_LABEL_Y, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), instrumentEditor.buttonsLabels+(i*20));
+		API_CMD_TEXT(MT_DISP_BLOCK_W * i + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_LABEL_Y, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), *(instrumentEditor.buttonsLabels+i));
+
 
 		//pots
 		API_COLOR(instrumentEditor.fontTitleColor);

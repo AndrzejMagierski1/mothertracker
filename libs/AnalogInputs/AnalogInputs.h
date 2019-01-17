@@ -165,7 +165,7 @@ public:
 	uint8_t isButtonPressed(uint8_t button);
 
 
-	void begin();
+	void begin(uint16_t pot_res);
 	void update();
 
 	void testMode(uint8_t set);
@@ -224,9 +224,11 @@ private:
 
 	struct strPotentiometers
 	{
-		int16_t positions[2];
+		int16_t position;
+		int16_t last_position;
 		uint8_t part;
 		uint8_t last_part;
+
 		uint8_t last_direction;
 
 		int16_t diffrences[3];

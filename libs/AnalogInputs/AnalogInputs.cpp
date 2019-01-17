@@ -9,17 +9,17 @@ cAnalogInputs AnalogInputs;
 
 
 //-----------------------------------------------------------------------------------------------
-void cAnalogInputs::begin()
+void cAnalogInputs::begin(uint16_t pot_res)
 {
 	last_read_time = 0;
 	reading_step = 0;
 	reading_channel = 0;
 
-	setPotResolution(0, 100);
-	setPotResolution(1, 100);
-	setPotResolution(2, 100);
-	setPotResolution(3, 100);
-	setPotResolution(4, 100);
+	setPotResolution(0, pot_res);
+	setPotResolution(1, pot_res);
+	setPotResolution(2, pot_res);
+	setPotResolution(3, pot_res);
+	setPotResolution(4, pot_res);
 
 
 

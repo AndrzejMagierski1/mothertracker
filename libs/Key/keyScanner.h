@@ -117,4 +117,9 @@ private:
 	};
 };
 
+
+
+extern keyScanner Buttons;
+
+
 #endif
