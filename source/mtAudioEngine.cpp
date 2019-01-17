@@ -109,7 +109,7 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 		mixerL.gain(numPanChannel,instr->panning/100.0);
 		mixerR.gain(numPanChannel,(100-instr->panning)/100.0);
 
-		status = playMemPtr->play(instr,mod,1.0);
+		status = playMemPtr->play(instr,mod,1.0,24);
 		envelopePtr->noteOn();
 
 		return status;
@@ -129,7 +129,7 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 	{
 		uint8_t status=0;
 
-		status=playMemPtr->setMod(instr,mod);
+		status=playMemPtr->setMod(instr,mod,24);
 
 		return status;
 	}

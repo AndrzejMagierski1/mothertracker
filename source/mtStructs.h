@@ -104,7 +104,6 @@ struct strInstrument
 	uint16_t ampRelease;
 
 	uint16_t glide;
-
 	int16_t panning;
 };
 
@@ -155,6 +154,7 @@ struct strMtModAudioEngine
 	uint8_t loopPoint1Mod;
 	uint8_t loopPoint2Mod;
 	uint8_t pitchCtrlMod;
+	uint8_t glideMod;
 };
 
 
