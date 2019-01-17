@@ -42,22 +42,14 @@ AudioConnection          patchCord20(mixer[2], 0, i2s1, 1);
 				mixer[j].gain(i,1.0);
 			}
 		}
-		modAudioEngine[0].startPointMod=relativeMod;
-		modAudioEngine[0].endPointMod=relativeMod;
-		modAudioEngine[0].loopPoint1Mod=relativeMod;
-		modAudioEngine[0].loopPoint2Mod=relativeMod;
-		modAudioEngine[0].pitchCtrlMod=relativeMod;
-		modAudioEngine[0].startPoint=0;
-		modAudioEngine[0].endPoint=0;
-		modAudioEngine[0].loopPoint1=0;
-		modAudioEngine[0].loopPoint2=0;
-		modAudioEngine[0].pitchCtrl=0;
-
 
 	}
 	void audioEngine::update()
 	{
-		instrumentPlayer[0].update();
+		for(int i=0; i<8; i++)
+		{
+			instrumentPlayer[0].update();
+		}
 	}
 
 	void instrumentEngine::init(AudioPlayMemory * playMem,AudioEffectEnvelope * env)

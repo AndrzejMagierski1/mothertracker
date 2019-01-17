@@ -55,6 +55,7 @@ private:
 	float pitchCounter=0;
 	uint8_t playMode=0;
 	volatile uint8_t playing;
+	uint8_t loopBackwardFlag=0;
 
 	struct strSamplePoints
 	{

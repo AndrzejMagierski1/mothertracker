@@ -17,8 +17,32 @@ const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
 const uint8_t NUMBER_OF_NOTES =					48;
 
 //=====================================================================
+enum memoryPlayStatus
+{
+	successInit=0,
+	badStartPoint,
+	badLoopPoint1,
+	badLoopPoint2,
+	pointsBeyondFile
+};
 
+enum modType
+{
+	relativeMod=0,
+	globalMod
+
+};
+
+enum playMode
+{
+	singleShot=0,
+	loopForward,
+	loopBackward,
+	loopPingPong
+
+};
 //=====================================================================
+
 //parametry przetwarzanego pliku
 struct strWavFileHeader
 {
@@ -131,21 +155,7 @@ struct strMtModAudioEngine
 extern strMtProject mtProject;
 extern strPatern mtPatern;
 
-enum memoryPlayStatus
-{
-	successInit=0,
-	badStartPoint,
-	badLoopPoint1,
-	badLoopPoint2,
-	pointsBeyondFile
-};
 
-enum modType
-{
-	relativeMod=0,
-	globalMod
-
-};
 
 const float notes[NUMBER_OF_NOTES] =
 {
