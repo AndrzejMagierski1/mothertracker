@@ -2,8 +2,10 @@
 
 AudioPlayMemory          playMem[8];
 AudioEffectEnvelope      envelope[8];
-AudioMixer4              mixer[3];
+AudioAmplifier           amp[8];
+AudioMixer8				 mixerL,mixerR;
 AudioOutputI2S           i2s1;
+
 AudioConnection          patchCord1(playMem[7], envelope[7]);
 AudioConnection          patchCord2(playMem[5], envelope[5]);
 AudioConnection          patchCord3(playMem[6], envelope[6]);
@@ -12,18 +14,34 @@ AudioConnection          patchCord5(playMem[4], envelope[4]);
 AudioConnection          patchCord6(playMem[1], envelope[1]);
 AudioConnection          patchCord7(playMem[2], envelope[2]);
 AudioConnection          patchCord8(playMem[0], envelope[0]);
-AudioConnection          patchCord9(envelope[2], 0, mixer[0], 2);
-AudioConnection          patchCord10(envelope[3], 0, mixer[0], 3);
-AudioConnection          patchCord11(envelope[1], 0, mixer[0], 1);
-AudioConnection          patchCord12(envelope[7], 0, mixer[1], 3);
-AudioConnection          patchCord13(envelope[4], 0, mixer[1], 0);
-AudioConnection          patchCord14(envelope[6], 0, mixer[1], 2);
-AudioConnection          patchCord15(envelope[5], 0, mixer[1], 1);
-AudioConnection          patchCord16(envelope[0], 0, mixer[0], 0);
-AudioConnection          patchCord17(mixer[1], 0, mixer[2], 1);
-AudioConnection          patchCord18(mixer[0], 0, mixer[2], 0);
-AudioConnection          patchCord19(mixer[2], 0, i2s1, 0);
-AudioConnection          patchCord20(mixer[2], 0, i2s1, 1);
+AudioConnection          patchCord9(envelope[2], amp[2]);
+AudioConnection          patchCord10(envelope[3], amp[2]);
+AudioConnection          patchCord11(envelope[1], amp[1]);
+AudioConnection          patchCord12(envelope[7], amp[7]);
+AudioConnection          patchCord13(envelope[4], amp[4]);
+AudioConnection          patchCord14(envelope[6], amp[6]);
+AudioConnection          patchCord15(envelope[5], amp[5]);
+AudioConnection          patchCord16(envelope[0], amp[0]);
+AudioConnection          patchCord17(amp[7], 0, mixerL, 7);
+AudioConnection          patchCord18(amp[7], 0, mixerR, 7);
+AudioConnection          patchCord19(amp[6], 0, mixerL, 6);
+AudioConnection          patchCord20(amp[6], 0, mixerR, 6);
+AudioConnection          patchCord21(amp[2], 0, mixerL, 2);
+AudioConnection          patchCord22(amp[2], 0, mixerR, 2);
+AudioConnection          patchCord23(amp[1], 0, mixerL, 1);
+AudioConnection          patchCord24(amp[1], 0, mixerR, 1);
+AudioConnection          patchCord25(amp[0], 0, mixerL, 0);
+AudioConnection          patchCord26(amp[0], 0, mixerR, 0);
+AudioConnection          patchCord27(amp[4], 0, mixerL, 4);
+AudioConnection          patchCord28(amp[4], 0, mixerR, 4);
+AudioConnection          patchCord29(amp[3], 0, mixerL, 3);
+AudioConnection          patchCord30(amp[3], 0, mixerR, 3);
+AudioConnection          patchCord31(amp[5], 0, mixerL, 5);
+AudioConnection          patchCord32(amp[5], 0, mixerR, 5);
+AudioConnection          patchCord33(mixerL, 0, i2s1, 1);
+AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
+
+
 
 	instrumentEngine instrumentPlayer[8];
 	strMtModAudioEngine modAudioEngine[8];
@@ -33,14 +51,7 @@ AudioConnection          patchCord20(mixer[2], 0, i2s1, 1);
 	{
 		for(int i=0;i<8; i++)
 		{
-			instrumentPlayer[i].init(&playMem[i],&envelope[i]);
-		}
-		for(int i=0;i<4;i++)
-		{
-			for(int j=0;j<3;j++)
-			{
-				mixer[j].gain(i,1.0);
-			}
+			instrumentPlayer[i].init(&playMem[i],&envelope[i], &amp[i]);
 		}
 
 	}
@@ -52,10 +63,11 @@ AudioConnection          patchCord20(mixer[2], 0, i2s1, 1);
 		}
 	}
 
-	void instrumentEngine::init(AudioPlayMemory * playMem,AudioEffectEnvelope * env)
+	void instrumentEngine::init(AudioPlayMemory * playMem,AudioEffectEnvelope * env, AudioAmplifier * amp)
 	{
 		playMemPtr=playMem;
 		envelopePtr=env;
+		ampPtr=amp;
 	}
 
 	uint8_t instrumentEngine :: play(strStep * step,strMtModAudioEngine * mod)
@@ -68,7 +80,7 @@ AudioConnection          patchCord20(mixer[2], 0, i2s1, 1);
 		envelopePtr->sustain(mtProject.instrument[step->instrumentIndex].ampSustain);
 		envelopePtr->release(mtProject.instrument[step->instrumentIndex].ampRelease);
 
-
+		ampPtr->gain(step->volume/100.0);
 
 		status = playMemPtr->play(step,mod);
 		envelopePtr->noteOn();

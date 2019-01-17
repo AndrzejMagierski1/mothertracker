@@ -24,7 +24,7 @@ class instrumentEngine
 {
 public:
 
-	void init(AudioPlayMemory * playMem,AudioEffectEnvelope * env);
+	void init(AudioPlayMemory * playMem,AudioEffectEnvelope * env, AudioAmplifier * amp);
 
 	uint8_t play(strStep * step, strMtModAudioEngine * mod);
 	uint8_t play(strInstrument * instr, strMtModAudioEngine *mod);
@@ -38,9 +38,9 @@ public:
 
 private:
 
-	AudioPlayMemory *        playMemPtr;
-	AudioEffectEnvelope *      envelopePtr;
-
+	AudioPlayMemory *        	playMemPtr;
+	AudioEffectEnvelope *       envelopePtr;
+	AudioAmplifier *			ampPtr;
 
 };
 

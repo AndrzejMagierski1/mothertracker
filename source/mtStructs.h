@@ -16,6 +16,9 @@ const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
 
 const uint8_t NUMBER_OF_NOTES =					48;
 
+const float MIN_PITCH =							0.25;
+const float MAX_PITCH =							4.0;
+
 //=====================================================================
 enum memoryPlayStatus
 {
@@ -100,6 +103,8 @@ struct strInstrument
 	float	 ampSustain;
 	uint16_t ampRelease;
 
+	uint16_t glide;
+
 	int16_t panning;
 };
 
@@ -142,6 +147,7 @@ struct strMtModAudioEngine
 	int16_t loopPoint1;
 	int16_t loopPoint2;
 	float pitchCtrl;
+	uint16_t glide;
 
 
 	uint8_t startPointMod;

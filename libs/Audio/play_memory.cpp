@@ -78,8 +78,8 @@ uint8_t AudioPlayMemory::play(strStep * step,strMtModAudioEngine * mod)
 
 
 	pitchControl += mod->pitchCtrl;
-	if(pitchControl < 0.25f) pitchControl = 0.25;
-	if(pitchControl > 4.0f) pitchControl = 4.0;
+	if(pitchControl < MIN_PITCH) pitchControl = MIN_PITCH;
+	if(pitchControl > MAX_PITCH) pitchControl = MAX_PITCH;
 
 	if(playMode == singleShot)
 	{
@@ -408,8 +408,8 @@ uint8_t AudioPlayMemory::setMod(strStep * step,strMtModAudioEngine * mod)
 	}
 
 	pitchControl+=mod->pitchCtrl;
-	if(pitchControl < 0.25) pitchControl=0.25;
-	if(pitchControl > 4.0 ) pitchControl=4.0;
+	if(pitchControl < MIN_PITCH) pitchControl=MIN_PITCH;
+	if(pitchControl > MAX_PITCH ) pitchControl=MAX_PITCH;
 
 	if(playMode == singleShot)
 	{
@@ -477,8 +477,8 @@ uint8_t AudioPlayMemory::setMod(strInstrument * instr,strMtModAudioEngine * mod)
 	}
 
 	pitchControl+=mod->pitchCtrl;
-	if(pitchControl < 0.25) pitchControl=0.25;
-	if(pitchControl > 4.0 ) pitchControl=4.0;
+	if(pitchControl < MIN_PITCH) pitchControl=MIN_PITCH;
+	if(pitchControl > MAX_PITCH ) pitchControl=MAX_PITCH;
 
 	if(playMode == singleShot)
 	{
@@ -492,12 +492,12 @@ uint8_t AudioPlayMemory::setMod(strInstrument * instr,strMtModAudioEngine * mod)
 	}
 
 
-	samplePoints.start= (uint32_t)(startPoint*44.1);
-	samplePoints.end= (uint32_t)(endPoint*44.1);
+	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
+	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
 	if(playMode == 1)
 	{
-		samplePoints.loop1= (uint32_t)(loopPoint1*44.1);
-		samplePoints.loop2= (uint32_t)(loopPoint2*44.1);
+		samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
+		samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
 	}
 
 
