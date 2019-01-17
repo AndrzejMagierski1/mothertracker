@@ -51,7 +51,7 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 	{
 		for(int i=0;i<8; i++)
 		{
-			instrumentPlayer[i].init(&playMem[i],&envelope[i], &amp[i]);
+			instrumentPlayer[i].init(&playMem[i],&envelope[i], &amp[i], i);
 		}
 
 	}
@@ -63,16 +63,18 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 		}
 	}
 
-	void instrumentEngine::init(AudioPlayMemory * playMem,AudioEffectEnvelope * env, AudioAmplifier * amp)
+	void instrumentEngine::init(AudioPlayMemory * playMem,AudioEffectEnvelope * env, AudioAmplifier * amp, uint8_t panCh)
 	{
 		playMemPtr=playMem;
 		envelopePtr=env;
 		ampPtr=amp;
+		numPanChannel=panCh;
 	}
 
 	uint8_t instrumentEngine :: play(strStep * step,strMtModAudioEngine * mod)
 	{
 		uint8_t status;
+		float gainL=0,gainR=0;
 		envelopePtr->delay(mtProject.instrument[step->instrumentIndex].ampDelay);
 		envelopePtr->attack(mtProject.instrument[step->instrumentIndex].ampAttack);
 		envelopePtr->hold(mtProject.instrument[step->instrumentIndex].ampHold);
@@ -81,6 +83,12 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 		envelopePtr->release(mtProject.instrument[step->instrumentIndex].ampRelease);
 
 		ampPtr->gain(step->volume/100.0);
+
+		gainL=mtProject.instrument[step->instrumentIndex].panning/100.0;
+		gainR=(100-mtProject.instrument[step->instrumentIndex].panning)/100.0;
+
+		mixerL.gain(numPanChannel,gainL);
+		mixerR.gain(numPanChannel,gainR);
 
 		status = playMemPtr->play(step,mod);
 		envelopePtr->noteOn();
@@ -97,6 +105,9 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 		envelopePtr->decay(instr->ampDecay);
 		envelopePtr->sustain(instr->ampSustain);
 		envelopePtr->release(instr->ampRelease);
+
+		mixerL.gain(numPanChannel,instr->panning/100.0);
+		mixerR.gain(numPanChannel,(100-instr->panning)/100.0);
 
 		status = playMemPtr->play(instr,mod,1.0);
 		envelopePtr->noteOn();
