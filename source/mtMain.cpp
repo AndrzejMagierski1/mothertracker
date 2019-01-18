@@ -12,22 +12,13 @@ extern audioEngine engine;
 void setup()
 {
 
-
-
-
-
 	// inicjalizacja hardware jako pierwsza
 	initHardware();
 	engine.init();
-
-
 	// inincjalizacja interfejsu na koncu
 
 
 	mtInterface.begin();
-
-
-
 
 }
 

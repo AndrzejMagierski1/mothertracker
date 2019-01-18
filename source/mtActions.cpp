@@ -90,12 +90,12 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].loopPoint2=12224;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].playMode=loopPingPong;
 
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampDelay=0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampAttack=5;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampHold=50;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampDecay=100;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampSustain=0.7;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampRelease=500;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.delay=0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.attack=5;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.hold=50;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.decay=100;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.sustain=0.7;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.release=500;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].panning=50;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].glide=10000;
 
@@ -124,8 +124,8 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtPatern.track[8].step[0].note=43;*/
 
 
-		mtPatern.track[1].step[0].note=24;
-		mtPatern.track[1].step[1].note=36;
+		//mtPatern.track[1].step[0].note=24;
+		//mtPatern.track[1].step[1].note=36;
 
 
 
@@ -140,7 +140,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 //			instrumentPlayer[n+3].stop();
 			}
 
-if(licznik>1) licznik=0;
+if(licznik>31) licznik=0;
 
 
 

@@ -57,12 +57,12 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].loopPoint2 = 0;
 		mtProject.instrument[i].endPoint = 1000;
 
-		mtProject.instrument[i].ampDelay = 0;
-		mtProject.instrument[i].ampAttack = 0;
-		mtProject.instrument[i].ampHold = 0;
-		mtProject.instrument[i].ampDecay = 0;
-		mtProject.instrument[i].ampSustain = 100;
-		mtProject.instrument[i].ampRelease = 1000;
+		mtProject.instrument[i].envelopeAmp.delay = 0;
+		mtProject.instrument[i].envelopeAmp.attack = 0;
+		mtProject.instrument[i].envelopeAmp.hold = 0;
+		mtProject.instrument[i].envelopeAmp.decay = 0;
+		mtProject.instrument[i].envelopeAmp.sustain = 100;
+		mtProject.instrument[i].envelopeAmp.release = 1000;
 
 		mtProject.instrument[i].panning = 0;
 	}
