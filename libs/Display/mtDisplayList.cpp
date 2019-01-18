@@ -47,6 +47,18 @@ void cMtDisplayList::update()
 	API_LIB_BeginCoProList();
     API_CMD_DLSTART();
 
+    x_pos = MT_DISP_BLOCK_W * (listBlock) + ( MT_DISP_BLOCK_MENU_OFFSET);
+
+	//tlo listy
+	API_COLOR(MT_DISP_BG_GOLD_COLOR);
+	API_BLEND_FUNC(DST_ALPHA , ZERO);
+	API_LINE_WIDTH(8);
+	API_BEGIN(RECTS);
+	API_VERTEX2II(x_pos, MT_DISP_BLOCK_MENU_TOP_Y-8,0,0);
+	API_VERTEX2II(x_pos+(listBlockWidth*MT_DISP_BLOCK_W)-3, MT_DISP_BLOCK_MENU_TOP_Y+MT_DISP_BLOCK_MENU_Y_SPACE*5-8,0,0);
+	API_END();
+	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+
 	if(listStart == listPosition)
 	{
 		// geneorwanie poczatkowego menu
@@ -62,7 +74,6 @@ void cMtDisplayList::update()
 		listState = sel_row;
 		x_pos = MT_DISP_BLOCK_W * (listBlock) + ( MT_DISP_BLOCK_MENU_OFFSET);
 		y_pos = (MT_DISP_BLOCK_MENU_TOP_Y - (MT_DISP_BLOCK_MENU_Y_SPACE/2)) + (sel_row * MT_DISP_BLOCK_MENU_Y_SPACE);
-
 
 		//ramka
 		API_COLOR(listColor);
@@ -215,7 +226,7 @@ void cMtDisplayList::update()
 	if(listCount >= 6)
 	{
 		uint8_t y_length = ((( MT_DISP_BLOCK_MENU_Y_SPACE * 5 ) * 5)  / (listCount-1)) - 4 ;
-		y_pos = 23 + (listStart * (( MT_DISP_BLOCK_MENU_Y_SPACE * 5 )-(y_length))) / (listCount-1) ;
+		y_pos = 23 + (listStart * (( MT_DISP_BLOCK_MENU_Y_SPACE * 5 )-(y_length+2))) / (listCount-1) ;
 
 
 		API_COLOR(listColor);

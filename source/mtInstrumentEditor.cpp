@@ -282,10 +282,10 @@ void cMtInstrumentEditor::processSpectrum()
 void cMtInstrumentEditor::processPoints()
 {
 
-	spectrum.startPoint = (editorInstrument.startPoint * 480) / SAMPLE_POINT_POS_MAX;
-	spectrum.endPoint   = (editorInstrument.endPoint * 480) / SAMPLE_POINT_POS_MAX;
-	spectrum.loopPoint1 = (editorInstrument.loopPoint1 * 480) / SAMPLE_POINT_POS_MAX;
-	spectrum.loopPoint2 = (editorInstrument.loopPoint2 * 480) / SAMPLE_POINT_POS_MAX;
+	spectrum.startPoint = (editorInstrument.startPoint * 479) / SAMPLE_POINT_POS_MAX;
+	spectrum.endPoint   = (editorInstrument.endPoint * 479)   / SAMPLE_POINT_POS_MAX;
+	spectrum.loopPoint1 = (editorInstrument.loopPoint1 * 479) / SAMPLE_POINT_POS_MAX;
+	spectrum.loopPoint2 = (editorInstrument.loopPoint2 * 479) / SAMPLE_POINT_POS_MAX;
 
 
 }

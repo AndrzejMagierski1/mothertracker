@@ -18,7 +18,7 @@
 #define MT_DISP_VALUE_ROUND_COLOR 	DISP_RGB(255,255,255)
 #define MT_DISP_VALUE_F_COLOR 		DISP_RGB(255,255,255)
 
-
+#define MT_DISP_BG_GOLD_COLOR 		DISP_RGB(45,38,20)
 
 
 //-------------------------------------------------------------------
@@ -165,7 +165,7 @@ struct strMtInstrumentEditor
 	uint32_t listColor 		= MT_DISP_TITLE_F_COLOR;
 	uint32_t pointsColor 	= DISP_RGB(255,255,255);
 	uint32_t spectrumColor 	= DISP_RGB(255,255,255);
-	uint32_t loopColor 		= DISP_RGB(45,38,20);
+	uint32_t loopColor 		= MT_DISP_BG_GOLD_COLOR;
 
 
 	uint32_t ramPointsSize = 0;
