@@ -58,7 +58,8 @@ private:
 	uint8_t loopBackwardFlag = 0;
 	int8_t	lastNote = -1;
 	uint16_t glide;
-	float glideCnt;
+	uint32_t glideCounter=0;;
+	float glideControl;
 
 
 	struct strSamplePoints

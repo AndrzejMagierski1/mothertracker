@@ -16,7 +16,7 @@ extern instrumentEngine instrumentPlayer[8];
 extern strMtModAudioEngine modAudioEngine[8];
 #include "mtDisplay.h"
 
-
+uint8_t licznik=0; // wyrzucic po testach
 
 void onPowerButtonChange(uint8_t value);
 
@@ -84,22 +84,23 @@ void onButtonChange(uint8_t n, uint8_t value)
 
 
 
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].startPoint=0;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].endPoint=65533;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint1=2716;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].loopPoint2=12224;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].playMode=loopPingPong;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].startPoint=0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].endPoint=65533;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].loopPoint1=2716;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].loopPoint2=12224;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].playMode=loopPingPong;
 
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].ampDelay=0;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].ampAttack=300;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].ampHold=50;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].ampDecay=100;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].ampSustain=0.7;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].ampRelease=500;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].panning=100;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampDelay=0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampAttack=5;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampHold=50;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampDecay=100;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampSustain=0.7;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampRelease=500;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].panning=50;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].glide=10000;
 
-		mtPatern.track[n].step[0].volume=50;
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].startPoint=0;
+		mtPatern.track[1].step[0].volume=100;
+/*		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].startPoint=0;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].endPoint=65533;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].loopPoint1=2716;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].loopPoint2=12224;
@@ -111,29 +112,35 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].ampDecay=100;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].ampSustain=0.7;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].ampRelease=500;
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].panning=0;
+		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].panning=0;*/
 
-		mtPatern.track[4].step[0].note=24;
+/*		mtPatern.track[4].step[0].note=24;
 		mtPatern.track[3].step[0].note=25;
 		mtPatern.track[2].step[0].note=26;
 		mtPatern.track[1].step[0].note=27;
 		mtPatern.track[5].step[0].note=40;
 		mtPatern.track[6].step[0].note=41;
 		mtPatern.track[7].step[0].note=42;
-		mtPatern.track[8].step[0].note=43;
+		mtPatern.track[8].step[0].note=43;*/
+
+
+		mtPatern.track[1].step[0].note=24;
+		mtPatern.track[1].step[1].note=36;
+
+
 
 		if( (value == 1))
 			{
-			instrumentPlayer[n].play(&mtPatern.track[n].step[0],&modAudioEngine[0]);
-			instrumentPlayer[n+3].play(&mtPatern.track[n+3].step[0],&modAudioEngine[0]);
+			instrumentPlayer[1].play(&mtPatern.track[1].step[licznik++],&modAudioEngine[0]);
+//			instrumentPlayer[n+3].play(&mtPatern.track[n+3].step[0],&modAudioEngine[0]);
 			}
 		else if(value == 0)
 			{
-			instrumentPlayer[n].stop();
-			instrumentPlayer[n+3].stop();
+			instrumentPlayer[1].stop();
+//			instrumentPlayer[n+3].stop();
 			}
 
-
+if(licznik>1) licznik=0;
 
 
 

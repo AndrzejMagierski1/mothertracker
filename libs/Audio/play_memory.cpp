@@ -38,18 +38,18 @@ uint8_t AudioPlayMemory::play(strStep * step,strMtModAudioEngine * mod)
 	stopLoop=0;
 	loopBackwardFlag=0;
 	pitchCounter=0;
+	glideCounter=0;
 
 	glide=mtProject.instrument[step->instrumentIndex].glide;
 
-	pitchControl=notes[step->note];
+	if(lastNote>=0) pitchControl=notes[lastNote];
+	else pitchControl=notes[step->note];
 
 	int16_t * data = mtProject.sampleBank.sample[mtProject.instrument[step->instrumentIndex].sampleIndex].address;
 
 	playMode=mtProject.instrument[step->instrumentIndex].playMode;
 
 	startLen=mtProject.sampleBank.sample[mtProject.instrument[step->instrumentIndex].sampleIndex].length;
-
-
 
 	startPoint=mtProject.instrument[step->instrumentIndex].startPoint;
 	endPoint=mtProject.instrument[step->instrumentIndex].endPoint;
@@ -95,8 +95,8 @@ uint8_t AudioPlayMemory::play(strStep * step,strMtModAudioEngine * mod)
 	}
 
 	sampleConstrains.glide=(uint32_t)(glide*44.1);
-	if((lastNote>=0) && (lastNote != step->note)) glideCnt=(notes[lastNote] - notes[step->note])/sampleConstrains.glide;
-	else glideCnt=0;
+	if((lastNote>=0) && (lastNote != step->note)) glideControl=(notes[step->note]-notes[lastNote] )/sampleConstrains.glide;
+	else glideControl=0;
 
 	lastNote=step->note;
 
@@ -142,13 +142,16 @@ uint8_t AudioPlayMemory:: play(strInstrument *instr,strMtModAudioEngine * mod, u
 	prior = 0;
 	stopLoop=0;
 	pitchCounter=0;
-	pitchControl=1.0;
+	glideCounter=0;
 
 	int16_t * data = mtProject.sampleBank.sample[instr->sampleIndex].address;
 
 	playMode=instr->playMode;
 
 	startLen=mtProject.sampleBank.sample[instr->sampleIndex].length;
+
+	if(lastNote>=0) pitchControl=notes[lastNote];
+	else pitchControl=notes[note];
 
 	glide=instr->glide;
 
@@ -192,8 +195,8 @@ uint8_t AudioPlayMemory:: play(strInstrument *instr,strMtModAudioEngine * mod, u
 
 
 	sampleConstrains.glide=(uint32_t)(glide*44.1);
-	if((lastNote>=0) && (lastNote != note)) glideCnt=(notes[lastNote] - notes[note])/sampleConstrains.glide;
-	else glideCnt=0;
+	if((lastNote>=0) && (lastNote != note)) glideControl=(notes[note]-notes[lastNote]  )/sampleConstrains.glide;
+	else glideControl=0;
 
 	lastNote=note;
 
@@ -267,6 +270,10 @@ void AudioPlayMemory::update(void)
 
 			if (length > (uint32_t)pitchCounter) //if (length > 0)
 			{
+
+				if(glideCounter<=sampleConstrains.glide) pitchControl+=glideControl;
+				glideCounter++;
+
 				if((playMode == singleShot) ||(playMode == loopForward))
 				{
 					*out++ = *(in+(uint32_t)pitchCounter);
@@ -420,8 +427,8 @@ uint8_t AudioPlayMemory::setMod(strStep * step,strMtModAudioEngine * mod)
 	}
 
 	sampleConstrains.glide=(uint32_t)(glide*44.1);
-	if((lastNote>=0) && (lastNote != step->note)) glideCnt=(notes[lastNote] - notes[step->note])/sampleConstrains.glide;
-	else glideCnt=0;
+	if((lastNote>=0) && (lastNote != step->note)) glideControl=(notes[step->note] - notes[lastNote] )/sampleConstrains.glide;
+	else glideControl=0;
 
 	lastNote=step->note;
 
@@ -442,7 +449,7 @@ uint8_t AudioPlayMemory::setMod(strStep * step,strMtModAudioEngine * mod)
 
 
 	sampleConstrains.glide=(uint32_t)(glide*44.1);
-	if(lastNote>=0) glideCnt=(notes[lastNote] - notes[step->note])/sampleConstrains.glide;
+	if(lastNote>=0) glideControl=(notes[step->note] - notes[lastNote])/sampleConstrains.glide;
 
 	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
 	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
@@ -518,8 +525,8 @@ uint8_t AudioPlayMemory::setMod(strInstrument * instr,strMtModAudioEngine * mod,
 	}
 
 	sampleConstrains.glide=(uint32_t)(glide*44.1);
-	if((lastNote>=0) && (lastNote != note)) glideCnt=(notes[lastNote] - notes[note])/sampleConstrains.glide;
-	else glideCnt=0;
+	if((lastNote>=0) && (lastNote != note)) glideControl=(notes[note] - notes[lastNote])/sampleConstrains.glide;
+	else glideControl=0;
 
 	lastNote=note;
 
