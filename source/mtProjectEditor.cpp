@@ -34,6 +34,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// pod jaki index tablicy sampli 0-32 zapisywac dany sampel
 	// teraz domyslnie zajmowane 0-7
 
+
 	mtProject.sampleBank.sample[0].file_name[0] = '1';
 	mtProject.sampleBank.sample[0].file_name[1] = '.';
 	mtProject.sampleBank.sample[0].file_name[2] = 'w';
@@ -90,6 +91,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	mtProject.sampleBank.sample[7].file_name[4] = 'v';
 	mtProject.sampleBank.sample[7].file_name[5] = 0;
 
+
 	// parametry instrumentow ========================================
 	mtProject.instruments_count = 8;
 
@@ -119,10 +121,14 @@ uint8_t cMtProjectEditor::readProjectConfig()
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
+		for(uint8_t j=0; j<32; j++)
+		{
+			mtPatern.track[i].step[j].instrumentIndex = i;
+			mtPatern.track[i].step[j].volume = 100;
+			mtPatern.track[i].step[j].note = j;
 
-		mtPatern.track[i].step[0].instrumentIndex = i;
-		mtPatern.track[i].step[0].volume = 100;
-		mtPatern.track[i].step[0].note = 48;
+		}
+
 
 		mtPatern.track[i].volume = 100;
 		mtPatern.track[i].enabled = 1;

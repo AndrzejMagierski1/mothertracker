@@ -35,27 +35,32 @@ class AudioPlayMemory : public AudioStream
 {
 public:
 	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0) { }
-	uint8_t play(strStep * step);
-	uint8_t play(strInstrument *instr, uint8_t vol );
+	uint8_t play(strStep * step,strMtModAudioEngine * mod);
+	uint8_t play(strInstrument *instr,strMtModAudioEngine * mod, uint8_t vol, int8_t note );
 	void stop(void);
 	bool isPlaying(void) { return playing; }
 	uint32_t positionMillis(void);
 	uint32_t lengthMillis(void);
 	virtual void update(void);
 	void stopLoopMode(void);
-	uint8_t setTimePoints(strStep * step);
-	uint8_t setTimePoints(strInstrument * instr);
-	void setPitch(float pitch);
+	uint8_t setMod(strStep * step, strMtModAudioEngine * mod);
+	uint8_t setMod(strInstrument * instr, strMtModAudioEngine * mod, int8_t note);
 
 private:
 	int16_t *next;
 	int16_t *beginning;
 	uint32_t length;
 	int16_t prior;
-	float pitchControl=1;
-	float pitchCounter=0;
-	uint8_t playMode=0;
+	float pitchControl = 1;
+	float pitchCounter = 0;
+	uint8_t playMode = 0;
 	volatile uint8_t playing;
+	uint8_t loopBackwardFlag = 0;
+	int8_t	lastNote = -1;
+	uint16_t glide;
+	uint32_t glideCounter=0;;
+	float glideControl;
+
 
 	struct strSamplePoints
 	{
@@ -71,6 +76,8 @@ private:
 		uint32_t loopPoint1=0;
 		uint32_t loopPoint2=0;
 		uint32_t endPoint=0;
+
+		uint32_t glide=0;
 
 	} sampleConstrains;
 

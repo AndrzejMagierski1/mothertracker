@@ -29,19 +29,21 @@
 
 
 
-//void AudioPlayMemory::play(int16_t *data, uint32_t len,uint32_t startPoint,uint32_t endPoint, uint32_t loopPoint1, uint32_t loopPoint2)
-uint8_t AudioPlayMemory::play(strStep * step)
+uint8_t AudioPlayMemory::play(strStep * step,strMtModAudioEngine * mod)
 {
 	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
 
 	playing = 0;
 	prior = 0;
 	stopLoop=0;
+	loopBackwardFlag=0;
 	pitchCounter=0;
-	pitchControl=step->pitchCtrl;
+	glideCounter=0;
 
-	if(pitchControl < 0.25f) pitchControl = 0.25;
-	if(pitchControl > 4.0f) pitchControl = 4.0;
+	glide=mtProject.instrument[step->instrumentIndex].glide;
+
+	if(lastNote>=0) pitchControl=notes[lastNote];
+	else pitchControl=notes[step->note];
 
 	int16_t * data = mtProject.sampleBank.sample[mtProject.instrument[step->instrumentIndex].sampleIndex].address;
 
@@ -49,34 +51,58 @@ uint8_t AudioPlayMemory::play(strStep * step)
 
 	startLen=mtProject.sampleBank.sample[mtProject.instrument[step->instrumentIndex].sampleIndex].length;
 
-
-
 	startPoint=mtProject.instrument[step->instrumentIndex].startPoint;
 	endPoint=mtProject.instrument[step->instrumentIndex].endPoint;
 
-	if(playMode == 1) //loopMode
+	if(playMode != singleShot) //loopMode
 	{
 		loopPoint1=mtProject.instrument[step->instrumentIndex].loopPoint1;
 		loopPoint2=mtProject.instrument[step->instrumentIndex].loopPoint2;
 	}
 
-	if(playMode == 0)
+
+	if((mod->startPointMod == relativeMod) && (mod->startPoint)) startPoint += mod->startPoint;
+	else if(mod->startPointMod == globalMod) startPoint = mod->startPoint;
+
+	if((mod->endPointMod == relativeMod) && (mod->endPoint)) endPoint += mod->endPoint;
+	else if(mod->endPointMod == globalMod) endPoint=mod->endPoint;
+
+	if(playMode != singleShot)
+	{
+		if((mod->loopPoint1Mod == relativeMod) && (mod->loopPoint1)) loopPoint1 += mod->loopPoint1;
+		else if(mod->loopPoint1Mod == globalMod) loopPoint1 = mod->loopPoint1;
+
+		if((mod->loopPoint2Mod == relativeMod) && (mod->loopPoint2)) loopPoint2 += mod->loopPoint2;
+		else if(mod->loopPoint2Mod == globalMod) loopPoint2 = mod->loopPoint2;
+	}
+
+	if((mod->glideMod == relativeMod) && (mod->glide)) glide+=mod->glide;
+	else if(mod->glideMod == globalMod) glide=mod->glideMod;
+
+	if(mod->pitchCtrl) pitchControl += mod->pitchCtrl;
+	if(pitchControl < MIN_PITCH) pitchControl = MIN_PITCH;
+	if(pitchControl > MAX_PITCH) pitchControl = MAX_PITCH;
+
+	if(playMode == singleShot)
 	{
 		if (startPoint >= endPoint) return badStartPoint;
 	}
-	else if(playMode == 1)
+	else
 	{
 		if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
 		if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
 		if (loopPoint2 > endPoint) return badLoopPoint2;
 	}
 
+	sampleConstrains.glide=(uint32_t)(glide*44.1);
+	if((lastNote>=0) && (lastNote != step->note)) glideControl=(notes[step->note]-notes[lastNote] )/sampleConstrains.glide;
+	else glideControl=0;
 
-
+	lastNote=step->note;
 
 	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
 	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
-	if(playMode == 1)
+	if(playMode != singleShot)
 	{
 		samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
 		samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
@@ -87,12 +113,8 @@ uint8_t AudioPlayMemory::play(strStep * step)
 	if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
 
 
-/*	sampleConstrains.loopPoint1=startBuf-samplePoints.loop1;
-	sampleConstrains.loopPoint2=startBuf-samplePoints.loop2;
-	sampleConstrains.endPoint= startBuf-samplePoints.end;
-	sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;*/
 
-	if(playMode == 1)
+	if(playMode != singleShot)
 	{
 		sampleConstrains.loopPoint1=samplePoints.loop1- samplePoints.start;
 		sampleConstrains.loopPoint2=samplePoints.loop2- samplePoints.start;
@@ -111,7 +133,7 @@ uint8_t AudioPlayMemory::play(strStep * step)
 
 }
 
-uint8_t AudioPlayMemory:: play(strInstrument *instr, uint8_t vol )
+uint8_t AudioPlayMemory:: play(strInstrument *instr,strMtModAudioEngine * mod, uint8_t vol, int8_t note )
 {
 
 	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
@@ -120,9 +142,7 @@ uint8_t AudioPlayMemory:: play(strInstrument *instr, uint8_t vol )
 	prior = 0;
 	stopLoop=0;
 	pitchCounter=0;
-	pitchControl=1.0;
-
-
+	glideCounter=0;
 
 	int16_t * data = mtProject.sampleBank.sample[instr->sampleIndex].address;
 
@@ -130,22 +150,43 @@ uint8_t AudioPlayMemory:: play(strInstrument *instr, uint8_t vol )
 
 	startLen=mtProject.sampleBank.sample[instr->sampleIndex].length;
 
+	if(lastNote>=0) pitchControl=notes[lastNote];
+	else pitchControl=notes[note];
 
+	glide=instr->glide;
 
 	startPoint=instr->startPoint;
 	endPoint=instr->endPoint;
 
-	if(playMode == 1) //loopMode
+	if(playMode != singleShot) //loopMode
 	{
 		loopPoint1=instr->loopPoint1;
 		loopPoint2=instr->loopPoint2;
 	}
 
-	if(playMode == 0)
+	if((mod->startPointMod == relativeMod) && (mod->startPoint)) startPoint += mod->startPoint;
+	else if(mod->startPointMod == globalMod) startPoint = mod->startPoint;
+
+	if((mod->endPointMod == relativeMod) && (mod->endPoint)) endPoint += mod->endPoint;
+	else if(mod->endPointMod == globalMod) endPoint = mod->endPoint;
+
+	if(playMode != singleShot)
+	{
+		if((mod->loopPoint1Mod == relativeMod) && (mod->loopPoint1)) loopPoint1 += mod->loopPoint1;
+		else if(mod->loopPoint1Mod == globalMod) loopPoint1 = mod->loopPoint1;
+
+		if((mod->loopPoint2Mod == relativeMod) && (mod->loopPoint2)) loopPoint2 += mod->loopPoint2;
+		else if(mod->loopPoint2Mod == globalMod) loopPoint2 = mod->loopPoint2;
+	}
+
+	if((mod->glideMod == relativeMod) && (mod->glide)) glide+=mod->glide;
+	else if(mod->glideMod == globalMod) glide=mod->glideMod;
+
+	if(playMode == singleShot)
 	{
 		if (startPoint >= endPoint) return badStartPoint;
 	}
-	else if(playMode == 1)
+	else
 	{
 		if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
 		if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
@@ -153,11 +194,15 @@ uint8_t AudioPlayMemory:: play(strInstrument *instr, uint8_t vol )
 	}
 
 
+	sampleConstrains.glide=(uint32_t)(glide*44.1);
+	if((lastNote>=0) && (lastNote != note)) glideControl=(notes[note]-notes[lastNote]  )/sampleConstrains.glide;
+	else glideControl=0;
 
+	lastNote=note;
 
 	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
 	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
-	if(playMode == 1)
+	if(playMode != singleShot)
 	{
 		samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
 		samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
@@ -166,13 +211,7 @@ uint8_t AudioPlayMemory:: play(strInstrument *instr, uint8_t vol )
 
 	if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
 
-
-/*	sampleConstrains.loopPoint1=startBuf-samplePoints.loop1;
-	sampleConstrains.loopPoint2=startBuf-samplePoints.loop2;
-	sampleConstrains.endPoint= startBuf-samplePoints.end;
-	sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;*/
-
-	if(playMode == 1)
+	if(playMode != singleShot)
 	{
 		sampleConstrains.loopPoint1=samplePoints.loop1- samplePoints.start;
 		sampleConstrains.loopPoint2=samplePoints.loop2- samplePoints.start;
@@ -231,13 +270,42 @@ void AudioPlayMemory::update(void)
 
 			if (length > (uint32_t)pitchCounter) //if (length > 0)
 			{
-				*out++ = *(in+(uint32_t)pitchCounter);
-				pitchCounter+=pitchControl;
 
-				if(playMode == 1)
+				if(glideCounter<=sampleConstrains.glide) pitchControl+=glideControl;
+				glideCounter++;
+
+				if((playMode == singleShot) ||(playMode == loopForward))
 				{
-					if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter = sampleConstrains.loopPoint1 ;
+					*out++ = *(in+(uint32_t)pitchCounter);
+					pitchCounter+=pitchControl;
+
+					if(playMode == loopForward)
+					{
+						if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter = sampleConstrains.loopPoint1 ;
+					}
 				}
+				else if(playMode == loopBackward)
+				{
+					*out++ = *(in+(uint32_t)pitchCounter);
+					if(!loopBackwardFlag) pitchCounter+=pitchControl;
+					else pitchCounter-=pitchControl;
+
+					if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) && (!loopBackwardFlag) ) loopBackwardFlag=1;
+					if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) pitchCounter = sampleConstrains.loopPoint2 ;
+
+				}
+				else if(playMode == loopPingPong)
+				{
+					*out++ = *(in+(uint32_t)pitchCounter);
+					if(!loopBackwardFlag) pitchCounter+=pitchControl;
+					else pitchCounter-=pitchControl;
+
+
+					if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) && (!loopBackwardFlag) ) loopBackwardFlag=1;
+					if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) loopBackwardFlag=0; ;
+
+				}
+
 
 				if( (uint32_t)pitchCounter >= sampleConstrains.endPoint) pitchCounter=length;
 			}
@@ -328,26 +396,51 @@ void AudioPlayMemory::stopLoopMode(void)
 	stopLoop=1;
 }
 
-uint8_t AudioPlayMemory::setTimePoints(strStep * step)
+uint8_t AudioPlayMemory::setMod(strStep * step,strMtModAudioEngine * mod)
 {
 	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
 
 	startPoint=mtProject.instrument[step->instrumentIndex].startPoint;
 	endPoint=mtProject.instrument[step->instrumentIndex].endPoint;
 
-	if(playMode == 1)
+	if(playMode != singleShot) //loopMode
 	{
 		loopPoint1=mtProject.instrument[step->instrumentIndex].loopPoint1;
 		loopPoint2=mtProject.instrument[step->instrumentIndex].loopPoint2;
 	}
 
+	glide=mtProject.instrument[step->instrumentIndex].glide;
 
+	if((mod->startPointMod == relativeMod) && (mod->startPoint)) startPoint += mod->startPoint;
+	else if(mod->startPointMod == globalMod) startPoint = mod->startPoint;
 
-	if(playMode == 0)
+	if((mod->endPointMod == relativeMod) && (mod->endPoint)) endPoint += mod->endPoint;
+	else if(mod->endPointMod == globalMod) endPoint = mod->endPoint;
+
+	if(playMode != singleShot) //loopMode
+	{
+		if((mod->loopPoint1Mod == relativeMod) && (mod->loopPoint1)) loopPoint1 += mod->loopPoint1;
+		else if(mod->loopPoint1Mod == globalMod) loopPoint1 = mod->loopPoint1;
+
+		if((mod->loopPoint2Mod == relativeMod) && (mod->loopPoint2)) loopPoint2 += mod->loopPoint2;
+		else if(mod->loopPoint2Mod == globalMod) loopPoint2 = mod->loopPoint2;
+	}
+
+	sampleConstrains.glide=(uint32_t)(glide*44.1);
+	if((lastNote>=0) && (lastNote != step->note)) glideControl=(notes[step->note] - notes[lastNote] )/sampleConstrains.glide;
+	else glideControl=0;
+
+	lastNote=step->note;
+
+	if(mod->pitchCtrl) pitchControl+=mod->pitchCtrl;
+	if(pitchControl < MIN_PITCH) pitchControl=MIN_PITCH;
+	if(pitchControl > MAX_PITCH ) pitchControl=MAX_PITCH;
+
+	if(playMode == singleShot)
 	{
 		if (startPoint >= endPoint) return badStartPoint;
 	}
-	else if(playMode == 1)
+	else
 	{
 		if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
 		if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
@@ -355,19 +448,23 @@ uint8_t AudioPlayMemory::setTimePoints(strStep * step)
 	}
 
 
-	samplePoints.start= (uint32_t)(startPoint*44.1);
-	samplePoints.end= (uint32_t)(endPoint*44.1);
+	sampleConstrains.glide=(uint32_t)(glide*44.1);
+	if(lastNote>=0) glideControl=(notes[step->note] - notes[lastNote])/sampleConstrains.glide;
+
+	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
+	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
 	if(playMode == 1)
 	{
-		samplePoints.loop1= (uint32_t)(loopPoint1*44.1);
-		samplePoints.loop2= (uint32_t)(loopPoint2*44.1);
+		samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
+		samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
 	}
+
 
 
 	if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
 
 
-	if(playMode == 1)
+	if(playMode != singleShot)
 	{
 		sampleConstrains.loopPoint1=samplePoints.loop1;
 		sampleConstrains.loopPoint2=samplePoints.loop2;
@@ -378,64 +475,5 @@ uint8_t AudioPlayMemory::setTimePoints(strStep * step)
 
 	return successInit;
 }
-
-uint8_t AudioPlayMemory::setTimePoints(strInstrument * instr)
-{
-    uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
-
-    startPoint=instr->startPoint;
-    endPoint=instr->endPoint;
-
-    if(playMode == 1)
-    {
-        loopPoint1=instr->loopPoint1;
-        loopPoint2=instr->loopPoint2;
-    }
-
-
-
-    if(playMode == 0)
-    {
-        if (startPoint >= endPoint) return badStartPoint;
-    }
-    else if(playMode == 1)
-    {
-        if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
-        if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
-        if (loopPoint2 > endPoint) return badLoopPoint2;
-    }
-
-	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
-	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
-	if(playMode == 1)
-	{
-		samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
-		samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
-	}
-
-    if((samplePoints.start > startLen) || (samplePoints.loop1 > startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
-
-
-    if(playMode == 1)
-    {
-        sampleConstrains.loopPoint1=samplePoints.loop1;
-        sampleConstrains.loopPoint2=samplePoints.loop2;
-        sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
-    }
-
-    sampleConstrains.endPoint= samplePoints.end;
-
-    return successInit;
-}
-
-
-void AudioPlayMemory::setPitch(float  pitch)
-{
-
-	pitchControl=pitch;
-	if(pitchControl < 0.25) pitchControl=0.25;
-	if(pitchControl > 4.0 ) pitchControl=0.4;
-}
-
 
 

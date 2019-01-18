@@ -66,4 +66,22 @@ private:
 #endif
 };
 
+class AudioAmplifier : public AudioStream
+{
+public:
+	AudioAmplifier(void) : AudioStream(1, inputQueueArray), multiplier(65536) {
+	}
+	virtual void update(void);
+	void gain(float n) {
+		if (n > 32767.0f) n = 32767.0f;
+		else if (n < -32767.0f) n = -32767.0f;
+		multiplier = n * 65536.0f;
+	}
+private:
+	int32_t multiplier;
+	audio_block_t *inputQueueArray[1];
+};
+
+
+
 #endif

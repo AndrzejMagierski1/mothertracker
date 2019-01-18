@@ -310,6 +310,8 @@ AudioStream * AudioStream::first_update = NULL;
 
 void software_isr(void) // AudioStream::update_all()
 {
+
+	elapsedMicros timer=0;
 	AudioStream *p;
 
 	ARM_DEMCR |= ARM_DEMCR_TRCENA;
@@ -332,5 +334,8 @@ void software_isr(void) // AudioStream::update_all()
 	AudioStream::cpu_cycles_total = totalcycles;
 	if (totalcycles > AudioStream::cpu_cycles_total_max)
 		AudioStream::cpu_cycles_total_max = totalcycles;
+	Serial.print("czas: ");
+	Serial.println(timer);
+	timer=0;
 }
 

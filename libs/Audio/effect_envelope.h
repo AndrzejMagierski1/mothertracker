@@ -76,7 +76,10 @@ public:
 	}
 	using AudioStream::release;
 	virtual void update(void);
+	uint8_t endRelease();
 private:
+
+	uint8_t endReleaseFlag=0;
 	uint16_t milliseconds2count(float milliseconds) {
 		if (milliseconds < 0.0) milliseconds = 0.0;
 		uint32_t c = ((uint32_t)(milliseconds*SAMPLES_PER_MSEC)+7)>>3;
