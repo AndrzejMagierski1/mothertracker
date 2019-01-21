@@ -16,6 +16,11 @@ void setup()
 
 //	mtInterface.begin();
 	sequencer.init();
+	sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
+	sequencer.play();
+
+
+
 }
 
 

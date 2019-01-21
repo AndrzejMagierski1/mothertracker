@@ -16,11 +16,11 @@
 class Sequencer
 {
 private:
-	static const uint8_t MAXROW = 8,
-			MINROW = 1,
-			MINSTEP = 1,
-			MAXSTEP = 32,
-			MAXCOL = 32,
+	static const uint8_t MAXROW = 7,
+			MINROW = 0,
+			MINSTEP = 0,
+			MAXSTEP = 31,
+			//			MAXCOL = 32,
 
 			DEFAULT_ROW_LEN = 32,
 			DEFAULT_ROW_NOTE = 36,
@@ -142,7 +142,7 @@ private:
 		uint8_t rezerwa3 = 0;
 		uint8_t rezerwa4 = 0;
 
-		struct strRow
+		struct strTrack
 		{
 			uint8_t isOn :1;
 
@@ -171,20 +171,9 @@ private:
 
 				uint8_t velocity = 127;
 				uint8_t instrument = 0;
-				uint8_t offset :6;
 
 				// 2 x byte
-				uint16_t length1 :5;	//31 długość w stepach
-				uint8_t rez1 :3;
-
-				uint8_t hitMode :5;		// tryb grania, jeśli >1 to rolka
-				uint8_t rez2 :3;
-
-				// byte
-				uint8_t rollCurve :4;		// max 15
-				uint8_t rollNoteCurve :4;	// max 15
-
-//				uint8_t modulation = 0;
+				uint16_t length1;	//31 długość w stepach
 
 				//FX
 				struct strFx
@@ -195,21 +184,27 @@ private:
 					uint16_t value = 0;
 				} fx[4];
 
-			} step[33];
+				// do wyjebania:
+				uint8_t offset;
+				uint8_t hitMode;		// tryb grania, jeśli >1 to rolka
+				uint8_t rollCurve;		// max 15
+				uint8_t rollNoteCurve;	// max 15
 
-		} row[9];
+			} step[32];
+
+		} row[8];
 
 	} seq[2];
 	public:
-	strBank const * actualBank = &seq[0];
+	strBank const * pattern = &seq[0];
 
 	struct strGlobalConfig
 	{
 
 		uint8_t mode = MODE_MIDICLOCK.INTERNAL_;
-		uint8_t fv_ver_1 = FV_VER_1;
-		uint8_t fv_ver_2 = FV_VER_2;
-		uint8_t fv_ver_3 = FV_VER_3;
+		//		uint8_t fv_ver_1 = FV_VER_1;
+//		uint8_t fv_ver_2 = FV_VER_2;
+//		uint8_t fv_ver_3 = FV_VER_3;
 		uint8_t zapas = 0;
 		uint8_t lastPattern = 0;
 
@@ -350,8 +345,8 @@ public:
 	void handle();
 	void init();
 	void flushNotes();
-	void sendNoteOn(uint8_t track, strBank::strRow::strStep *step);
-	void sendNoteOff(uint8_t track, strBank::strRow::strStep *step);
+	void sendNoteOn(uint8_t track, strBank::strTrack::strStep *step);
+	void sendNoteOff(uint8_t track, strBank::strTrack::strStep *step);
 	IntervalTimer midiReceiveTimer;
 	IntervalTimer playTimer;
 
@@ -432,10 +427,11 @@ private:
 
 		uint8_t jumpNOW = 0;
 
-		struct strPlayerRow
+		struct strPlayerTrack
 		{
 			uint16_t uStep = 0;
-			int16_t note_length_timer = 1; // tu odliczamy ile zostalo stepow do zakonczenia nuty
+			uint16_t note_length_timer = 1;	// tu odliczamy ile zostalo microstepów
+											// do zakonczenia nuty
 
 			uint8_t noteOn_sent = 0;		// znacznik czy została wysłana nuta
 			uint8_t note_sent = 0;			// wartość wysłanej nuty
