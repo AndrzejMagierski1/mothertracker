@@ -74,6 +74,7 @@ struct strMtDisplayRefreshTable
 		uint8_t labels;
 		uint8_t background;
 		uint8_t sampleList;
+		uint8_t params;
 	} instrumentEditor;
 
 
@@ -156,6 +157,9 @@ struct strMtInstrumentEditor
 	char ** potsLabels; //wielksoc 20 liter max na jeden label
 
 	strSpectrum *spectrum;
+	strInstrumentParams * params;
+
+	uint8_t mode = 0;
 
 	int8_t animationStep = 0;
 
@@ -166,12 +170,14 @@ struct strMtInstrumentEditor
 	uint32_t pointsColor 	= DISP_RGB(255,255,255);
 	uint32_t spectrumColor 	= DISP_RGB(255,255,255);
 	uint32_t loopColor 		= MT_DISP_BG_GOLD_COLOR;
+	uint32_t paramsFontColor= MT_DISP_VALUE_F_COLOR;
 
 
 	uint32_t ramPointsSize = 0;
 	uint32_t ramLabelsSize = 0;
 	uint32_t ramSpectrumSize = 0;
 	uint32_t ramSampleListSize = 0;
+	uint32_t ramParamsSize = 0;
 };
 
 
@@ -285,7 +291,11 @@ struct strMtHaptic
 #define MT_GPU_RAM_INSTRUMENT_EDITOR_SAMPLE_ADRESS		(MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_SIZE)
 #define MT_GPU_RAM_INSTRUMENT_EDITOR_SAMPLE_SIZE		2000
 
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_END_ADRESS			(MT_GPU_RAM_INSTRUMENT_EDITOR_SAMPLE_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_SAMPLE_SIZE)
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_PARAMS_ADRESS		(MT_GPU_RAM_INSTRUMENT_EDITOR_SAMPLE_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_SAMPLE_SIZE)
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_PARAMS_SIZE		2000
+
+
+#define MT_GPU_RAM_INSTRUMENT_EDITOR_END_ADRESS			(MT_GPU_RAM_INSTRUMENT_EDITOR_PARAMS_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_PARAMS_SIZE)
 
 
 

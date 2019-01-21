@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "keyScanner.h"
 #include "mtLED.h"
-
+#include "mtAudioEngine.h"
 
 #include "mtProjectEditor.h"
 #include "mtInstrumentEditor.h"
@@ -13,9 +13,7 @@
 
 extern uint32_t wavLen1;
 extern int16_t wavBuf1[500800];
-extern AudioPlayMemory playMem1;
-extern instrumentEngine instrumentPlayer[8];
-extern strMtModAudioEngine modAudioEngine[8];
+
 
 #include "mtDisplay.h"
 

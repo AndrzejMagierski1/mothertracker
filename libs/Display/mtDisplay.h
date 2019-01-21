@@ -81,6 +81,7 @@ public:
 	void setInstrumentEditorButtonsLabels(char ** labels);
 	void setInstrumentEditorSampleList(uint16_t start, char ** list, uint16_t count);
 	void setInstrumentEditorSampleListPos(uint16_t position);
+	void setInstrumentEditorParameters(strInstrumentParams * params);
 
 	// print
 	void print(const char * s);
@@ -119,7 +120,7 @@ private:
 	void ramg_instrument_editor_points();
 	void ramg_instrument_editor_spectrum();
 	void ramg_instrument_editor_labels();
-	void ramg_instrument_editor_background();
+	void ramg_instrument_editor_params();
 
 	// zmienne glowne
 	uint8_t screenMode = mtDisplayModeBlank;

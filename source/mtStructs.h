@@ -22,37 +22,15 @@ const uint8_t NUMBER_OF_NOTES =					48;
 const float MIN_PITCH =							0.25;
 const float MAX_PITCH =							4.0;
 
-
-
-
-
-
-//=====================================================================
-//=====================================================================
-//=====================================================================
-
-enum enSamplePlayMode
-{
-	samplePlayModeSingleShot,
-	samplePlayModeLoop,
-
-
-};
-
-
-enum memoryPlayStatus
-{
-	successInit=0,
-	badStartPoint,
-	badLoopPoint1,
-	badLoopPoint2,
-	pointsBeyondFile
-};
+const uint8_t  PANNING_MIN =        			0;
+const uint8_t  PANNING_MAX =        			100;
 
 
 //=====================================================================
 //=====================================================================
 //=====================================================================
+
+
 enum memoryPlayStatus
 {
 	successInit=0,
@@ -74,9 +52,12 @@ enum playMode
 	singleShot=0,
 	loopForward,
 	loopBackward,
-	loopPingPong
+	loopPingPong,
 
+	playModeMax
 };
+//=====================================================================
+//=====================================================================
 //=====================================================================
 
 //parametry przetwarzanego pliku
@@ -173,6 +154,7 @@ struct strMtProject
 };
 
 
+// dla wyswietlacza -----
 struct strSpectrum
 {
 	uint8_t spectrumType = 0;
@@ -186,6 +168,12 @@ struct strSpectrum
 	uint16_t loopPoint2;
 };
 
+struct strInstrumentParams
+{
+	uint8_t type[5];
+	int16_t value[5];
+};
+//----
 
 
 struct strMtModAudioEngine

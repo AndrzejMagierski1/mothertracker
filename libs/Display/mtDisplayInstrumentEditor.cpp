@@ -20,11 +20,16 @@ void cMtDisplay::dl_load_instrument_editor_main()
 	API_CLEAR(1,1,1);
 
 
-	// spectrum
-	API_CMD_APPEND(MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_ADRESS, instrumentEditor.ramSpectrumSize);
 
-	// points
-	API_CMD_APPEND(MT_GPU_RAM_INSTRUMENT_EDITOR_POINTS_ADRESS, instrumentEditor.ramPointsSize);
+	if(instrumentEditor.mode == 0)
+	{
+		// spectrum
+		API_CMD_APPEND(MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_ADRESS, instrumentEditor.ramSpectrumSize);
+		// points
+		API_CMD_APPEND(MT_GPU_RAM_INSTRUMENT_EDITOR_POINTS_ADRESS, instrumentEditor.ramPointsSize);
+	}
+	// paramaters
+	else if(instrumentEditor.mode == 1) API_CMD_APPEND(MT_GPU_RAM_INSTRUMENT_EDITOR_PARAMS_ADRESS, instrumentEditor.ramParamsSize);
 
 
 	// buttons labels
@@ -60,6 +65,7 @@ void cMtDisplay::setInstrumentEditorPoints(strSpectrum *spectrum)
 void cMtDisplay::setInstrumentEditorSpectrum(strSpectrum *spectrum)
 {
 	instrumentEditor.spectrum = spectrum;
+	instrumentEditor.mode = 0;
 
 	displayRefreshTable.instrumentEditor.spectrum = 1;
 	screenRefresh = 1;
@@ -99,34 +105,56 @@ void cMtDisplay::setInstrumentEditorSampleListPos(uint16_t position)
 	displayRefreshTable.instrumentEditor.sampleList = 1;
 	screenRefresh = 1;
 }
+
+void cMtDisplay::setInstrumentEditorParameters(strInstrumentParams * params)
+{
+	instrumentEditor.params = params;
+	instrumentEditor.mode = 1;
+
+	displayRefreshTable.instrumentEditor.params = 1;
+	screenRefresh = 1;
+}
+
+
+
+
 //#############################################################################
 //#############################################################################
 //#############################################################################
 
+void cMtDisplay::ramg_instrument_editor_params()
+{
+    API_LIB_BeginCoProList();
+    API_CMD_DLSTART();
+
+    for(uint8_t i = 0; i < 5; i++)
+    {
+		if(instrumentEditor.params->type[i] == 1)
+		{
+			API_COLOR(instrumentEditor.paramsFontColor);
+			API_CMD_NUMBER(MT_DISP_BLOCK_W * i + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), instrumentEditor.params->value[i]);
+		}
+    }
+
+    API_LIB_EndCoProList();
+
+    /**/
+
+	updateAdress = MT_GPU_RAM_INSTRUMENT_EDITOR_PARAMS_ADRESS;
+	updateSize = &instrumentEditor.ramParamsSize;
+
+	updateStep = 1;
+}
 
 void cMtDisplay::ramg_instrument_editor_points()
 {
     API_LIB_BeginCoProList();
     API_CMD_DLSTART();
 
-
-	API_COLOR(instrumentEditor.loopColor);
-
-	API_BLEND_FUNC(SRC_ALPHA, ONE);
-
-	API_LINE_WIDTH(8);
-	API_BEGIN(RECTS);
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint1, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint2, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
-	API_END();
-
-	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-
+    // linie start end
 	API_COLOR(instrumentEditor.pointsColor);
 	API_LINE_WIDTH(8);
-
 	API_BEGIN(LINES);
-
 	// start point
 	API_VERTEX2II(instrumentEditor.spectrum->startPoint, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
 	API_VERTEX2II(instrumentEditor.spectrum->startPoint, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
@@ -134,17 +162,7 @@ void cMtDisplay::ramg_instrument_editor_points()
 	// end point
 	API_VERTEX2II(instrumentEditor.spectrum->endPoint, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
 	API_VERTEX2II(instrumentEditor.spectrum->endPoint, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
-
-	// loop point 1
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint1, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint1, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
-
-	// loop point 2
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint2, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint2, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
-
 	API_END();
-
 
 	//znaczki
 	API_BEGIN(LINE_STRIP);
@@ -159,19 +177,42 @@ void cMtDisplay::ramg_instrument_editor_points()
 	API_VERTEX2II(instrumentEditor.spectrum->endPoint-1, MT_DISP_IEDITOR_SPECTRUM_Y-34,0,0);
 	API_END();
 
+	if(instrumentEditor.spectrum->pointsType > 0)
+	{
+		// tlo loop
+		API_COLOR(instrumentEditor.loopColor);
+		API_BLEND_FUNC(SRC_ALPHA, ONE);
+		API_LINE_WIDTH(8);
+		API_BEGIN(RECTS);
+		API_VERTEX2II(instrumentEditor.spectrum->loopPoint1, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
+		API_VERTEX2II(instrumentEditor.spectrum->loopPoint2, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
+		API_END();
+		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 
-	API_BEGIN(LINE_STRIP);
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint1+1, MT_DISP_IEDITOR_SPECTRUM_Y+34,0,0);
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint1+5, MT_DISP_IEDITOR_SPECTRUM_Y+37,0,0);
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint1+1, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
-	API_END();
+		// linie loop
+		API_COLOR(instrumentEditor.pointsColor);
+		API_BEGIN(LINES);
+		// loop point 1
+		API_VERTEX2II(instrumentEditor.spectrum->loopPoint1, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
+		API_VERTEX2II(instrumentEditor.spectrum->loopPoint1, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
+		// loop point 2
+		API_VERTEX2II(instrumentEditor.spectrum->loopPoint2, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
+		API_VERTEX2II(instrumentEditor.spectrum->loopPoint2, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
+		API_END();
 
-	API_BEGIN(LINE_STRIP);
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint2-1, MT_DISP_IEDITOR_SPECTRUM_Y+34,0,0);
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint2-5, MT_DISP_IEDITOR_SPECTRUM_Y+37,0,0);
-	API_VERTEX2II(instrumentEditor.spectrum->loopPoint2-1, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
-	API_END();
+		// znaczki loop
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2II(instrumentEditor.spectrum->loopPoint1+1, MT_DISP_IEDITOR_SPECTRUM_Y+34,0,0);
+		API_VERTEX2II(instrumentEditor.spectrum->loopPoint1+5, MT_DISP_IEDITOR_SPECTRUM_Y+37,0,0);
+		API_VERTEX2II(instrumentEditor.spectrum->loopPoint1+1, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
+		API_END();
 
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2II(instrumentEditor.spectrum->loopPoint2-1, MT_DISP_IEDITOR_SPECTRUM_Y+34,0,0);
+		API_VERTEX2II(instrumentEditor.spectrum->loopPoint2-5, MT_DISP_IEDITOR_SPECTRUM_Y+37,0,0);
+		API_VERTEX2II(instrumentEditor.spectrum->loopPoint2-1, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
+		API_END();
+	}
 
 
     API_LIB_EndCoProList();

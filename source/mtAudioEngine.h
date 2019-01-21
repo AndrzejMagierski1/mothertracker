@@ -34,7 +34,7 @@ public:
 	uint8_t play(strStep * step, strMtModAudioEngine * mod);
 	uint8_t play(strInstrument * instr, strMtModAudioEngine *mod);
 
-	uint8_t change(strStep * step,strMtModAudioEngine * mod);
+	uint8_t change(strStep * step, strMtModAudioEngine * mod);
 	uint8_t change(strInstrument * instr,strMtModAudioEngine * mod);
 
 	void update();
@@ -50,6 +50,8 @@ private:
 
 };
 
-
+extern instrumentEngine instrumentPlayer[8];
+extern strMtModAudioEngine modAudioEngine[8];
+extern audioEngine engine;
 
 #endif /* SOURCE_MTAUDIOENGINE_H_ */

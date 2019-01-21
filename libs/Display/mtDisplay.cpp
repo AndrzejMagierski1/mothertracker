@@ -368,6 +368,13 @@ void cMtDisplay::updateDisplay()
 				}
 			}
 			//-------------------------------------------------
+			if(displayRefreshTable.instrumentEditor.params)
+			{
+				displayRefreshTable.instrumentEditor.params = 0;
+				ramg_instrument_editor_params();
+				if(updateStep > 0) return;
+			}
+			//-------------------------------------------------
 			dl_load_instrument_editor_main();
 
 			break;

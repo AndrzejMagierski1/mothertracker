@@ -59,7 +59,7 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 	{
 		for(int i=0; i<8; i++)
 		{
-			instrumentPlayer[0].update();
+			instrumentPlayer[i].update();
 		}
 	}
 
