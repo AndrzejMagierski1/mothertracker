@@ -35,6 +35,7 @@
 #include <stdio.h>  // for NULL
 #include <string.h> // for memcpy
 #include "kinetis.h"
+
 #endif
 
 // AUDIO_BLOCK_SAMPLES determines how many samples the audio library processes
@@ -68,6 +69,8 @@
 #ifndef __ASSEMBLER__
 class AudioStream;
 class AudioConnection;
+class instrumentEngine;
+
 
 typedef struct audio_block_struct {
 	uint8_t  ref_count;
@@ -98,6 +101,7 @@ public:
 	}
 	void disconnect(void);
 	void connect(void);
+	friend class instrumentEngine;
 protected:
 	AudioStream &src;
 	AudioStream &dst;

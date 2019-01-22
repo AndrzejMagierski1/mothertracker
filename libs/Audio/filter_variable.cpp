@@ -87,7 +87,7 @@ void AudioFilterStateVariable::update_fixed(const int16_t *in,
 
 
 void AudioFilterStateVariable::update_variable(const int16_t *in,
-	const int16_t *ctl, int16_t *lp, int16_t *bp, int16_t *hp)
+	 int16_t *ctl, int16_t *lp, int16_t *bp, int16_t *hp)
 {
 	const int16_t *end = in + AUDIO_BLOCK_SAMPLES;
 	int32_t input, inputprev, control;
@@ -95,7 +95,7 @@ void AudioFilterStateVariable::update_variable(const int16_t *in,
 	int32_t lowpasstmp, bandpasstmp, highpasstmp;
 	int32_t fcenter, fmult, damp, octavemult;
 	int32_t n;
-
+	float ctlValue;
 	fcenter = setting_fcenter;
 	octavemult = setting_octavemult;
 	damp = setting_damp;
@@ -104,6 +104,20 @@ void AudioFilterStateVariable::update_variable(const int16_t *in,
 	bandpass = state_bandpass;
 	do {
 		// compute fmult using control input, fcenter and octavemult
+		/*=========================================================== próba przerobienia zakresu*/
+		ctlValue= ((float)*ctl) * (1.0 / 2147418112.0);
+		if(filterType == 3)
+		{
+			ctlValue*=2;
+			ctlValue+=1.0; // highpass
+		}
+		else if(filterType == 1)
+		{
+			ctlValue*=2;
+			ctlValue-=1.0; //lowpass;
+		}
+		*ctl=ctlValue*2147418112;
+		/*===========================================================*/
 		control = *ctl++;          // signal is always 15 fractional bits
 		control *= octavemult;     // octavemult range: 0 to 28671 (12 frac bits)
 		n = control & 0x7FFFFFF;   // 27 fractional control bits

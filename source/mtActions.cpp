@@ -91,15 +91,26 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].playMode=loopPingPong;
 
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.delay=0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.attack=5;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.attack=1;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.hold=50;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.decay=100;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.sustain=0.7;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.release=500;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].panning=50;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].glide=10000;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.sustain=1.0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.release=2000;
 
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeFilter.delay=0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeFilter.attack=2000;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeFilter.hold=0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeFilter.decay=0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeFilter.sustain=1.0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeFilter.release=2000;
+
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].panning=50;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].glide=50;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].freq=20;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].resonance=0.7;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].filterType=highPass;
 		mtPatern.track[1].step[0].volume=100;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].filterEnvelope=envelopeOn;
 /*		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].startPoint=0;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].endPoint=65533;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].loopPoint1=2716;

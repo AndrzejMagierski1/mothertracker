@@ -309,7 +309,7 @@ void AudioPlayMemory::update(void)
 
 
 					if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) && (!loopBackwardFlag) ) loopBackwardFlag=1;
-					if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) loopBackwardFlag=0; ;
+					if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) loopBackwardFlag=0;
 
 				}
 

@@ -6,7 +6,7 @@
 
 //=====================================================================
 const uint16_t MAX_16BIT =              		65535;
-const uint32_t SAMPLE_MEMORY_MAX =      		8*1024*1024;
+const uint32_t SAMPLE_MEMORY_MAX =      		(8*1024*1024);
 const uint8_t  INSTRUMENTS_MAX =        		32;
 const uint8_t  SAMPLES_MAX =            		32;
 const uint8_t  SAMPLES_FILENAME_LENGTH_MAX =    32;
@@ -18,6 +18,13 @@ const uint8_t NUMBER_OF_NOTES =					48;
 
 const float MIN_PITCH =							0.25;
 const float MAX_PITCH =							4.0;
+
+const uint16_t HIGH_PASS_FILTER_FREQ =			(20*128); // 7 octaves up
+const uint16_t HIGH_PASS_FILTER_FREQ_2UP=		(20*512); // 9 octaves up
+const uint16_t LOW_PASS_FILTER_FREQ =			(15000/128); // 7 octaves down
+const uint16_t LOW_PASS_FILTER_FREQ_2DOWN =		(15000/512); // 2 octaves down
+const uint16_t OCTAVES_BUFFOR_SIZE = 			351;
+const uint16_t TWO_OCTAVES_IN_BUFFOR =			101;
 
 //=====================================================================
 enum memoryPlayStatus
@@ -42,7 +49,21 @@ enum playMode
 	loopForward,
 	loopBackward,
 	loopPingPong
+};
 
+enum filterEnvelope
+{
+	envelopeOff=0,
+	envelopeOn
+
+};
+
+enum filterType
+{
+	noFilter=0,
+	lowPass,
+	bandPass,
+	highPass
 };
 //=====================================================================
 
@@ -107,8 +128,12 @@ struct strInstrument
 	}envelopeAmp, envelopeFilter;
 
 
-	uint16_t freq;
+	uint16_t freq; // 0 - 477
 	float resonance;
+	uint8_t filterType;
+	uint8_t filterEnvelope;
+
+
 	uint16_t glide;
 	int16_t panning;
 };
