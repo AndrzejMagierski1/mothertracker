@@ -108,13 +108,15 @@ uint8_t cMtProjectEditor::readProjectConfig()
 
 		mtProject.instrument[i].ampDelay = 0;
 		mtProject.instrument[i].ampAttack = 100;
-		mtProject.instrument[i].ampHold = 100;
+		mtProject.instrument[i].ampHold = 0;
 		mtProject.instrument[i].ampDecay = 100;
-		mtProject.instrument[i].ampSustain = 1;
+		mtProject.instrument[i].ampSustain = 1.0;
 		mtProject.instrument[i].ampRelease = 3000;
 
 		mtProject.instrument[i].panning = 50;
 		mtProject.instrument[i].glide = 10000;
+
+		mtProject.instrument[i].volume = 1.0;
 	}
 
 

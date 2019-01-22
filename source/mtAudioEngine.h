@@ -32,7 +32,7 @@ public:
 	void init(AudioPlayMemory * playMem,AudioEffectEnvelope * env, AudioAmplifier * amp, uint8_t panCh);
 
 	uint8_t play(strStep * step, strMtModAudioEngine * mod);
-	uint8_t play(strInstrument * instr, strMtModAudioEngine *mod);
+	uint8_t play(strInstrument * instr, strMtModAudioEngine *mod, int8_t note);
 
 	uint8_t change(strStep * step, strMtModAudioEngine * mod);
 	uint8_t change(strInstrument * instr,strMtModAudioEngine * mod);

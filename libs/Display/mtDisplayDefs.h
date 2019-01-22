@@ -132,6 +132,9 @@ enum enumMtDispValueTypes
 #define MT_GPU_RAM_SPECTRUM_VIEW_ADRESS		(MT_GPU_RAM_SPECTRUM_POINTS_ADRESS+MT_GPU_RAM_SPECTRUM_POINTS_SIZE)
 #define MT_GPU_RAM_SPECTRUM_VIEW_SIZE		1000
 
+#define MT_GPU_RAM_ENVELOPE_ADRESS			(MT_GPU_RAM_SPECTRUM_VIEW_ADRESS+MT_GPU_RAM_SPECTRUM_VIEW_SIZE)
+#define MT_GPU_RAM_ENVELOPE_SIZE			1000
+
 
 
 
@@ -153,6 +156,8 @@ struct strMtDisplayRefreshTable
 
 	uint8_t values[MT_DISP_VALUES_MAX];
 	uint8_t lists[MT_DISP_LISTS_MAX];
+
+	uint8_t envelope;
 };
 
 //KOLORY
@@ -179,7 +184,9 @@ struct strMtDisplayColors
 	uint32_t fontList 			= DISP_RGB(255,255,255);
 
 
-
+	uint32_t envelopeLines 		= DISP_RGB(255,255,255);
+	uint32_t envelopeBGLines	= DISP_RGB(85,74,25);
+	uint32_t fontEnvelope 		= DISP_RGB(255,255,255);
 };
 
 
@@ -193,6 +200,8 @@ struct strMtRamSize
 
 	uint32_t values[MT_DISP_VALUES_MAX] = {0,0,0,0,0};
 	uint32_t lists[MT_DISP_LISTS_MAX] = {0,0,0,0,0};
+
+	uint32_t envelope = 0;
 
 };
 
@@ -218,7 +227,10 @@ struct strMtRamAddres
 			MT_GPU_RAM_LISTS_ADRESS+(MT_GPU_RAM_LISTS_SIZE*2),
 			MT_GPU_RAM_LISTS_ADRESS+(MT_GPU_RAM_LISTS_SIZE*3),
 			MT_GPU_RAM_LISTS_ADRESS+(MT_GPU_RAM_LISTS_SIZE*4)};
+
+	uint32_t envelope = MT_GPU_RAM_ENVELOPE_ADRESS;
 };
+
 
 struct strMtElementsState
 {
@@ -230,8 +242,11 @@ struct strMtElementsState
 
 	uint8_t values[MT_DISP_VALUES_MAX] = {0,0,0,0,0};
 	uint8_t lists[MT_DISP_LISTS_MAX] = {0,0,0,0,0};
+
+	uint8_t envelope = 0;
 };
 
+// -------------------------------------------------------------------------
 
 struct strMtDispSpectrum
 {
@@ -252,6 +267,19 @@ struct strMtDispValues
 	int16_t value[MT_DISP_VALUES_MAX];
 };
 
+struct strMtDispEnvelope
+{
+	uint8_t type;
+
+	uint8_t delay;
+	uint8_t attack;
+	uint8_t hold;
+	uint8_t decay;
+	uint8_t	sustain;
+	uint8_t release;
+
+	uint8_t amount;
+};
 
 struct strMtHaptic
 {
@@ -261,7 +289,7 @@ struct strMtHaptic
 	uint8_t pitch;
 };
 
-
+// -------------------------------------------------------------------------
 
 // funkcje matematyczne
 

@@ -27,6 +27,13 @@ const uint8_t  PANNING_MAX 					=   100;
 const uint8_t  GLIDE_MIN 					=	0;
 const uint16_t  GLIDE_MAX 					=	15000;
 
+const uint16_t  ATTACK_MAX 					=	11000;
+const uint16_t  DECAY_MAX					=	11000;
+const float  	SUSTAIN_MAX					=	1.0;
+const uint16_t  RELEASE_MAX					=	11000;
+
+const float  VOLUME_MAX						=	1.0;
+
 //=====================================================================
 //=====================================================================
 //=====================================================================
@@ -121,6 +128,7 @@ struct strInstrument
 	uint16_t glide;
 	int16_t panning;
 	uint16_t filter;
+	uint8_t volume;
 };
 
 

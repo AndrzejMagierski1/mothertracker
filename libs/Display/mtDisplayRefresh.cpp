@@ -36,7 +36,6 @@ void cMtDisplay::normalModeDisplayRefresh()
 		if(updateStep > 0) return;
 	}
 	//-------------------------------------------------
-
 	for(uint8_t i = 0; i < MT_DISP_VALUES_MAX ; i++)
 	{
 		if(displayRefreshTable.values[i])
@@ -46,9 +45,7 @@ void cMtDisplay::normalModeDisplayRefresh()
 			if(updateStep > 0) return;
 		}
 	}
-
 	//-------------------------------------------------
-
 	for(uint8_t i = 0; i < MT_DISP_LISTS_MAX ; i++)
 	{
 		if(displayRefreshTable.lists[i])
@@ -58,7 +55,13 @@ void cMtDisplay::normalModeDisplayRefresh()
 			if(updateStep > 0) return;
 		}
 	}
-
+	//-------------------------------------------------
+	if(displayRefreshTable.envelope)
+	{
+		displayRefreshTable.envelope = 0;
+		ramg_envelope();
+		if(updateStep > 0) return;
+	}
 
 	//-------------------------------------------------
 	dl_load_normal_main();
@@ -104,6 +107,10 @@ void cMtDisplay::dl_load_normal_main()
 	{
 		if(elementsState.lists[i]) API_CMD_APPEND(ramAddress.lists[i], ramSize.lists[i]);
 	}
+
+	// envelope
+	if(elementsState.envelope) API_CMD_APPEND(ramAddress.envelope, ramSize.envelope);
+
 
 
 
@@ -170,6 +177,17 @@ void cMtDisplay::setValue(uint8_t state)
 	screenRefresh = 1;
 }
 
+void cMtDisplay::setEnvelopes(uint8_t state)
+{
+
+	elementsState.envelope = state;
+	screenRefresh = 1;
+}
+
+
+//=============================================================
+
+
 
 void cMtDisplay::changeButtonsLabels(char ** labels)
 {
@@ -233,6 +251,13 @@ void cMtDisplay::changeValues(strMtDispValues * values)
 	screenRefresh = 1;
 }
 
+void cMtDisplay::changeEnvelopes(strMtDispEnvelope * envelope)
+{
+	ptrEnvelope = envelope;
+
+	displayRefreshTable.envelope = 1;
+	screenRefresh = 1;
+}
 
 
 //#############################################################################
@@ -421,21 +446,22 @@ void cMtDisplay::ramg_values(uint8_t index)
 
 	if(ptrValues->type[index] == mtDispValueValueNumberOnly)
 	{
+
 		API_COLOR(displayColors.fontValue);
 		API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value[index]);
+
 	}
 	else if(ptrValues->type[index] == mtDispValueValue_0_100)
 	{
 		if(valuesDisplayMode == 0)
 		{
-
 			uint16_t x = MT_DISP_BLOCK_W * index + 3 +(((MT_DISP_BLOCK_W-6)*(ptrValues->value[index]))/100);
 
 	    	//bg
 			API_COLOR(displayColors.valueBar);
-			API_LINE_WIDTH(16);
+			API_LINE_WIDTH(8);
 			API_BEGIN(RECTS);
-			API_VERTEX2II((MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_LABEL_OFFSET) , (MT_DISP_BLOCK_VALUE_CENTER_Y+MT_DISP_BLOCK_LABEL_OFFSET) ,0,0);
+			API_VERTEX2II((MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_LABEL_OFFSET) , (MT_DISP_BLOCK_VALUE_CENTER_Y+3) ,0,0);
 			API_VERTEX2II(x, (MT_DISP_BLOCK_VALUE_CENTER_Y + 42),0,0);
 			API_END();
 
@@ -447,11 +473,10 @@ void cMtDisplay::ramg_values(uint8_t index)
 		else if(valuesDisplayMode == 1)
 		{
 			uint16_t y = (MT_DISP_BLOCK_VALUE_CENTER_Y + 42) - ((80*(ptrValues->value[index]))/100);
-		//	uint8_t y =
 
 	    	//bg
 			API_COLOR(displayColors.valueBar);
-			API_LINE_WIDTH(16);
+			API_LINE_WIDTH(8);
 			API_BEGIN(RECTS);
 			API_VERTEX2II((MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_LABEL_OFFSET) , y ,0,0);
 			API_VERTEX2II(MT_DISP_BLOCK_W * (index+1) - 3 , (MT_DISP_BLOCK_VALUE_CENTER_Y + 42),0,0);
@@ -459,7 +484,7 @@ void cMtDisplay::ramg_values(uint8_t index)
 
 			//number
 			API_COLOR(displayColors.fontValue);
-			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value[index]);
+			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value[index]-50);
 
 		}
 
@@ -468,8 +493,79 @@ void cMtDisplay::ramg_values(uint8_t index)
 	}
 	else if(ptrValues->type[index] == mtDispValueValueLeftRight_0_100)
 	{
-		API_COLOR(displayColors.fontValue);
-		API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value[index]);
+		if(valuesDisplayMode == 0)
+		{
+
+			uint16_t x1 = (ptrValues->value[index] > 50)
+					? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2
+					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
+
+			uint16_t x2 = (ptrValues->value[index] < 50)
+					? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2
+					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
+
+	    	//bg
+			API_COLOR(displayColors.valueBar);
+			API_LINE_WIDTH(8);
+			API_BEGIN(RECTS);
+			API_VERTEX2II(x1, (MT_DISP_BLOCK_VALUE_CENTER_Y + 3) ,0,0);
+			API_VERTEX2II(x2, (MT_DISP_BLOCK_VALUE_CENTER_Y + 42),0,0);
+			API_END();
+
+			//number
+			API_COLOR(displayColors.fontValue);
+			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y-20, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY | OPT_SIGNED), ptrValues->value[index]-50);
+
+		}
+		else if(valuesDisplayMode == 1)
+		{
+
+
+			uint16_t x1 = (ptrValues->value[index] > 50)
+					? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2
+					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
+
+			uint16_t x2 = (ptrValues->value[index] < 50)
+					? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2
+					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
+
+	    	//bg
+			API_COLOR(displayColors.valueBar);
+			API_LINE_WIDTH(8);
+			API_BEGIN(RECTS);
+			API_VERTEX2II(x1, (MT_DISP_BLOCK_VALUE_CENTER_Y -40 ) ,0,0);
+			API_VERTEX2II(x2, (MT_DISP_BLOCK_VALUE_CENTER_Y + 42),0,0);
+			API_END();
+
+			//number
+			API_COLOR(displayColors.fontValue);
+			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY | OPT_SIGNED), ptrValues->value[index]);
+
+
+		/*
+			uint16_t x1 = (ptrValues->value[index] < 50)
+					? MT_DISP_BLOCK_W * index + 3
+					: MT_DISP_BLOCK_W * index + 3  + (( (ptrValues->value[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
+
+			uint16_t x2 = (ptrValues->value[index] > 50)
+					? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W-3
+					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W-3 + (( (ptrValues->value[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
+
+	    	//bg
+			API_COLOR(displayColors.valueBar);
+			API_LINE_WIDTH(8);
+			API_BEGIN(RECTS);
+			API_VERTEX2II(x1, (MT_DISP_BLOCK_VALUE_CENTER_Y + 3) ,0,0);
+			API_VERTEX2II(x2, (MT_DISP_BLOCK_VALUE_CENTER_Y + 42),0,0);
+			API_END();
+
+			//number
+			API_COLOR(displayColors.fontValue);
+			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y-20, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value[index]-50);
+
+		*/
+
+		}
 
 	}
 
@@ -497,4 +593,49 @@ void cMtDisplay::ramg_lists(uint8_t index)
 	return;
 }
 
+//-----------------------------------------------------------------------------------------------------------
+void cMtDisplay::ramg_envelope()
+{
+    API_LIB_BeginCoProList();
+    API_CMD_DLSTART();
 
+	#define ADSR_START_X 120
+	#define ADSR_START_Y (MT_DISP_BLOCK_VALUE_CENTER_Y + 35)
+	#define ADSR_H 65
+
+
+    uint16_t a_x = ADSR_START_X;
+    uint16_t a_y = ADSR_START_Y;
+    uint16_t d_x = ADSR_START_X + ptrEnvelope->attack;
+    uint16_t d_y = ADSR_START_Y - ADSR_H;
+    uint16_t s_x = d_x + ptrEnvelope->decay;
+    uint16_t s_y = ADSR_START_Y - ptrEnvelope->sustain;
+    uint16_t r_x = s_x + 60;
+    uint16_t r_y = ADSR_START_Y - ptrEnvelope->sustain;
+    uint16_t end_x = r_x + ptrEnvelope->release;
+    uint16_t end_y = ADSR_START_Y;
+
+	API_COLOR(displayColors.valueBar);
+	API_LINE_WIDTH(16);
+	API_BEGIN(LINE_STRIP);
+
+	API_VERTEX2II(a_x, a_y, 0,0);
+	API_VERTEX2II(d_x, d_y,0,0);
+	API_VERTEX2II(s_x, s_y, 0,0);
+	API_VERTEX2II(r_x, r_y,0,0);
+	API_VERTEX2II(end_x, end_y, 0,0);
+
+
+
+	API_END();
+
+
+
+    API_LIB_EndCoProList();
+
+	updateAdress = ramAddress.envelope;
+	updateSize = &ramSize.envelope;
+
+	updateStep = 1;
+
+}

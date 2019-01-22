@@ -67,6 +67,7 @@ void cMtInstrumentEditor::update()
 				mtDisplay.setSpectrum(1);
 				mtDisplay.setSpectrumPoints(1);
 				mtDisplay.setValue(0);
+				mtDisplay.setEnvelopes(0);
 			}
 			spectrumChanged = 0;
 			updateButtonsFunctions();
@@ -133,6 +134,26 @@ void cMtInstrumentEditor::update()
 			mtDisplay.changeValues(&values);
 			instrumentPlayer[0].change(&editorInstrument, &editorMod);
 		}
+		if(envelopesChanged)
+		{
+			if(envelopesChanged == 2)
+			{
+				mtDisplay.setSpectrum(0);
+				mtDisplay.setSpectrumPoints(0);
+				mtDisplay.setValue(0);
+				mtDisplay.setEnvelopes(1);
+
+				updateButtonsFunctions();
+				updatePotsFunctions();
+			}
+			envelopesChanged = 0;
+
+			processEnvelopes();
+
+			mtDisplay.changeEnvelopes(&envelope);
+			instrumentPlayer[0].change(&editorInstrument, &editorMod);
+
+		}
 
 	}
 	//---------------------------------------------------------------------------------------
@@ -195,10 +216,11 @@ void cMtInstrumentEditor::buttonChange(uint8_t button, uint8_t value)
 	case mtInstrumentEditorButtonFunctionPlay  				:	play(value);	break;
 	case mtInstrumentEditorButtonFunctionStop  				:	stop(value);			break;
 	case mtInstrumentEditorButtonFunctionPlayMode  			: 	changePlayMode(value);	break;
-	case mtInstrumentEditorButtonFunctionEnvelopes  		: 	break;
+	case mtInstrumentEditorButtonFunctionEnvelopes  		: 	showEnvelopes(value);		break;
 	case mtInstrumentEditorButtonFunctionInstrumentSelect  	: 	break;
 	case mtInstrumentEditorButtonFunctionSampleList  		: 	showSampleList(value);	break;
 	case mtInstrumentEditorButtonFunctionParameters  		: 	showParameters(value);	break;
+	case mtInstrumentEditorButtonFunctionChangeGlideNote	: 	changeGlideNote(value);	break;
 	default: break;
 	}
 
@@ -220,8 +242,12 @@ void cMtInstrumentEditor::potChange(uint8_t pot, int16_t value)
 		case mtInstrumentEditorPotFunctionViewPosition		:	changeView(value);			break;
 		case mtInstrumentEditorPotFunctionVievZoom			:	changeZoom(value);			break;
 		case mtInstrumentEditorPotFunctionPanning  			: 	changePanning(pot, value);	break;
-		case mtInstrumentEditorPotFunctionGlide  			: 	changeGlide(pot, value);	break;
-		case mtInstrumentEditorPotFunctionFilter  			: 	changeFilter(pot, value);	break;
+		case mtInstrumentEditorPotFunctionGlide  			: 	changeGlide(value);			break;
+		case mtInstrumentEditorPotFunctionFilter  			: 	changeFilter(value);		break;
+		case mtInstrumentEditorPotFunctionAttack			:	changeAttack(value);		break;
+		case mtInstrumentEditorPotFunctionDecay  			: 	changeDecay(value);			break;
+		case mtInstrumentEditorPotFunctionSustaion  		: 	changeSustain(value);		break;
+		case mtInstrumentEditorPotFunctionRelease  			: 	changeRelease(value);		break;
 		default: break;
 	}
 
@@ -300,7 +326,6 @@ void cMtInstrumentEditor::processPoints()
 	spectrum.loopPoint1 = (editorInstrument.loopPoint1 * 479) / SAMPLE_POINT_POS_MAX;
 	spectrum.loopPoint2 = (editorInstrument.loopPoint2 * 479) / SAMPLE_POINT_POS_MAX;
 
-
 }
 
 void cMtInstrumentEditor::processLabels()
@@ -317,6 +342,12 @@ void cMtInstrumentEditor::processLabels()
 
 			break;
 
+			case mtInstrumentEditorButtonFunctionChangeGlideNote:
+
+				setButtonLabel(mtInstrumentEditorButtonFunctionChangeGlideNote, (char*)&glidePreviewDifLabels[glidePreviewDif][0]);
+
+			break;
+
 			default: break;
 			}
 		}
@@ -325,60 +356,76 @@ void cMtInstrumentEditor::processLabels()
 
 void cMtInstrumentEditor::processParameters()
 {
-	//
-
-
-
 	// odswieza wartosci tylko te ktore sa aktulanie wyswietlana (5 wartosci w valuesParameters[5])
 	for(uint8_t i = 0; i < 5; i++)
 	{
 		switch(valuesParameters[i])
 		{
-		case mtInstrumentEditorValueNone:
-		{
-			values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueNone];
-			values.value[i] = 0;
-			break;
-		}
-		case mtInstrumentEditorValuePanning:
-		{
-			values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValuePanning];
-			values.value[i] = editorInstrument.panning;
-			break;
-		}
-		case mtInstrumentEditorValueGlide:
-		{
-			values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueGlide];
-			values.value[i] =  (editorInstrument.glide*100)/GLIDE_MAX;
-			break;
-		}
-		case mtInstrumentEditorValueFilter:
-		{
-			values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueFilter];
-			values.value[i] =  editorInstrument.filter;
-			break;
-		}
-		case mtInstrumentEditorValue1:
-		{
+			case mtInstrumentEditorValueNone:
+			{
+				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueNone];
+				values.value[i] = 0;
+				break;
+			}
+			case mtInstrumentEditorValuePanning:
+			{
+				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValuePanning];
+				values.value[i] = editorInstrument.panning;
+				break;
+			}
+			case mtInstrumentEditorValueGlide:
+			{
+				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueGlide];
+				values.value[i] =  (editorInstrument.glide*100)/GLIDE_MAX;
+				break;
+			}
+			case mtInstrumentEditorValueFilter:
+			{
+				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueFilter];
+				values.value[i] =  editorInstrument.filter;
+				break;
+			}
+			case mtInstrumentEditorValue1:
+			{
 
-			break;
-		}
-		case mtInstrumentEditorValue2:
-		{
+				break;
+			}
+			case mtInstrumentEditorValue2:
+			{
 
-			break;
-		}
-		default:
-		{
-			values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueNone];
-			values.value[i] = 0;
-			break;
-		}
+				break;
+			}
+			default:
+			{
+				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueNone];
+				values.value[i] = 0;
+				break;
+			}
 		}
 	}
+}
+
+void cMtInstrumentEditor::processEnvelopes()
+{
+	if(envelopeType == 0)
+	{
+		envelope.type = envelopeType;
+
+		envelope.attack  = (editorInstrument.ampAttack*70)/ATTACK_MAX;
+		envelope.decay   = (editorInstrument.ampDecay*70)/DECAY_MAX;
+		envelope.sustain = (editorInstrument.ampSustain*65);
+		envelope.release = (editorInstrument.ampRelease*70)/RELEASE_MAX;
+
+		envelope.amount  = (editorInstrument.volume*100);
+	}
+
+
 
 }
 
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
 
 void cMtInstrumentEditor::updateParameters()
 {
@@ -450,8 +497,17 @@ void cMtInstrumentEditor::updateButtonsFunctions()
 			if(parametersEnabled)
 			{
 				setButtonFunction(0, mtInstrumentEditorButtonFunctionPlay);
+				setButtonFunction(1, mtInstrumentEditorButtonFunctionChangeGlideNote);
 				setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
 
+			}
+			else if(envelopesEnabled)
+			{
+				setButtonFunction(0, mtInstrumentEditorButtonFunctionPlay);
+
+
+
+				setButtonFunction(4, mtInstrumentEditorButtonFunctionEnvelopes);
 			}
 			else
 			{
@@ -459,7 +515,7 @@ void cMtInstrumentEditor::updateButtonsFunctions()
 				setButtonFunction(1, mtInstrumentEditorButtonFunctionPlayMode);
 				setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
 				setButtonFunction(3, mtInstrumentEditorButtonFunctionSampleList);
-				setButtonFunction(4, mtInstrumentEditorButtonFunctionInstrumentSelect);
+				setButtonFunction(4, mtInstrumentEditorButtonFunctionEnvelopes);
 			}
 			break;
 		}
@@ -521,6 +577,14 @@ void cMtInstrumentEditor::updatePotsFunctions()
 				setPotFunction(0, mtInstrumentEditorPotFunctionPanning);
 				setPotFunction(1, mtInstrumentEditorPotFunctionGlide);
 				setPotFunction(4, mtInstrumentEditorPotFunctionFilter);
+			}
+			else if(envelopesEnabled)
+			{
+				setPotFunction(0, mtInstrumentEditorPotFunctionNone);
+				setPotFunction(1, mtInstrumentEditorPotFunctionAttack);
+				setPotFunction(2, mtInstrumentEditorPotFunctionDecay);
+				setPotFunction(3, mtInstrumentEditorPotFunctionSustaion);
+				setPotFunction(4, mtInstrumentEditorPotFunctionRelease);
 			}
 			else
 			{
@@ -676,7 +740,7 @@ void cMtInstrumentEditor::changePanning(uint8_t pot, int16_t value)
 	parametersChanged = 1;
 }
 
-void cMtInstrumentEditor::changeGlide(uint8_t pot, int16_t value)
+void cMtInstrumentEditor::changeGlide(int16_t value)
 {
 	value = value * 100;
 
@@ -688,7 +752,17 @@ void cMtInstrumentEditor::changeGlide(uint8_t pot, int16_t value)
 	parametersChanged = 1;
 }
 
-void cMtInstrumentEditor::changeFilter(uint8_t pot, int16_t value)
+void cMtInstrumentEditor::changeGlideNote(uint8_t value)
+{
+	if(value == 1)
+	{
+		glidePreviewDif++;
+		if(glidePreviewDif > 3) glidePreviewDif = 0;
+		labelsChanged = 1;
+	}
+}
+
+void cMtInstrumentEditor::changeFilter(int16_t value)
 {
 
 
@@ -717,6 +791,76 @@ void cMtInstrumentEditor::showParameters(uint8_t value)
 		}
 	}
 }
+
+void cMtInstrumentEditor::showEnvelopes(uint8_t value)
+{
+	if(value == 1)
+	{
+		if(envelopesEnabled)
+		{
+			envelopesEnabled = 0;
+			spectrumChanged   = 2;
+			//envelopesChanged = 1;
+		}
+		else
+		{
+			envelopesEnabled = 1;
+			envelopesChanged = 2;
+		}
+
+		if(sampleListEnabled)
+		{
+			sampleListEnabled = 0;
+			sampleListChanged = 1;
+		}
+	}
+}
+
+void cMtInstrumentEditor::changeAttack(int16_t value)
+{
+	value = value * 100;
+
+	if(editorInstrument.ampAttack + value < 0) editorInstrument.ampAttack = 0;
+	else if(editorInstrument.ampAttack + value > ATTACK_MAX ) editorInstrument.ampAttack = ATTACK_MAX;
+	else editorInstrument.ampAttack += value;
+
+	envelopesChanged = 1;
+}
+
+void cMtInstrumentEditor::changeDecay(int16_t value)
+{
+	value = value * 100;
+
+	if(editorInstrument.ampDecay + value < 0) editorInstrument.ampDecay = 0;
+	else if(editorInstrument.ampDecay + value > DECAY_MAX ) editorInstrument.ampDecay = DECAY_MAX;
+	else editorInstrument.ampDecay += value;
+
+	envelopesChanged = 1;
+}
+
+void cMtInstrumentEditor::changeSustain(int16_t value)
+{
+	float fVal = value * 0.01;
+
+	if(editorInstrument.ampSustain + fVal < 0) editorInstrument.ampSustain = 0;
+	else if(editorInstrument.ampSustain + fVal > SUSTAIN_MAX ) editorInstrument.ampSustain = SUSTAIN_MAX;
+	else editorInstrument.ampSustain += fVal;
+
+	envelopesChanged = 1;
+}
+
+void cMtInstrumentEditor::changeRelease(int16_t value)
+{
+	value = value * 100;
+
+	if(editorInstrument.ampRelease + value < 0) editorInstrument.ampRelease = 0;
+	else if(editorInstrument.ampRelease + value > RELEASE_MAX ) editorInstrument.ampRelease = RELEASE_MAX;
+	else editorInstrument.ampRelease += value;
+
+	envelopesChanged = 1;
+}
+
+
 
 void cMtInstrumentEditor::selectInstrument(int16_t value)
 {
@@ -760,13 +904,23 @@ void cMtInstrumentEditor::changeZoom(int16_t value)
 
 }
 
-
 void cMtInstrumentEditor::play(uint8_t value)
 {
 	if(value == 1)
 	{
 		isPlayingSample = 1;
-		instrumentPlayer[0].play(&editorInstrument, &editorMod);
+		if(editorInstrument.glide > 0)
+		{
+			switch(	glidePreviewDif)
+			{
+				case 0: playNote = 24;	break;
+				case 1: playNote = (playNote == 24)? 25 : 24; 	break;
+				case 2: playNote = (playNote == 24)? 36 : 24; 	break;
+				case 3: playNote = (playNote == 24)? 47 : 24; 	break;
+			}
+		}
+
+		instrumentPlayer[0].play(&editorInstrument, &editorMod, playNote);
 	}
 	else if(value == 0)
 	{

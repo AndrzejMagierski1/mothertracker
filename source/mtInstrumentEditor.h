@@ -24,7 +24,7 @@ enum enumMtInstrumentEditorButtonFunction
 	mtInstrumentEditorButtonFunctionInstrumentSelect,
 	mtInstrumentEditorButtonFunctionSampleList,
 	mtInstrumentEditorButtonFunctionParameters,
-
+	mtInstrumentEditorButtonFunctionChangeGlideNote,
 
 	//-------------------------------
 	mtInstrumentEditorButtonFunctionCount
@@ -44,8 +44,10 @@ enum enumMtInstrumentEditorPotFunction
 	mtInstrumentEditorPotFunctionPanning,
 	mtInstrumentEditorPotFunctionGlide,
 	mtInstrumentEditorPotFunctionFilter,
-	mtInstrumentEditorPotFunction1,
-	mtInstrumentEditorPotFunction2,
+	mtInstrumentEditorPotFunctionAttack,
+	mtInstrumentEditorPotFunctionDecay,
+	mtInstrumentEditorPotFunctionSustaion,
+	mtInstrumentEditorPotFunctionRelease,
 
 
 	//-------------------------------
@@ -81,9 +83,11 @@ const uint16_t potsFuncResolutions[mtInstrumentEditorPotFunctionCount]=
 		100,  //mtInstrumentEditorPotFunctionVievZoom,
 		100,  //mtInstrumentEditorPotFunctionPanning,
 		100,  //mtInstrumentEditorPotFunctionGlide,
-		100,  //mtInstrumentEditorPotFunctionFilter,
-		100,  //mtInstrumentEditorPotFunction1,
-		100,  //mtInstrumentEditorPotFunction2,
+		100,	//mtInstrumentEditorPotFunctionFilter,
+		100,	//mtInstrumentEditorPotFunctionAttack,
+		100,	//mtInstrumentEditorPotFunctionDecay,
+		100,	//mtInstrumentEditorPotFunctionSustaion,
+		100,	//mtInstrumentEditorPotFunctionRelease,
 
 
 };
@@ -97,6 +101,14 @@ const char playModeFunctLabels[playModeMax][20]=
 		"Pingpong Loop",
 };
 
+
+const char glidePreviewDifLabels[4][20]=
+{
+		"Preview Off",
+		"Note",
+		"Octave",
+		"2 Octaves",
+};
 
 
 
@@ -117,6 +129,7 @@ private:
 	void processPoints();
 	void processLabels();
 	void processParameters();
+	void processEnvelopes();
 
 	void setButtonLabel(uint8_t number, char * label);
 	void updateButtonsFunctions();
@@ -136,7 +149,8 @@ private:
 	void stop(uint8_t value);
 	void changePlayMode(uint8_t value);
 	void showParameters(uint8_t value);
-
+	void changeGlideNote(uint8_t value);
+	void showEnvelopes(uint8_t value);
 
 	//funkcje potow
 	void modStartPoint(int16_t value);
@@ -148,10 +162,12 @@ private:
 	void changeView(int16_t value);
 	void changeZoom(int16_t value);
 	void changePanning(uint8_t pot, int16_t value);
-	void changeGlide(uint8_t pot, int16_t value);
-	void changeFilter(uint8_t pot, int16_t value);
-
-
+	void changeGlide(int16_t value);
+	void changeFilter(int16_t value);
+	void changeAttack(int16_t value);
+	void changeDecay(int16_t value);
+	void changeSustain(int16_t value);
+	void changeRelease(int16_t value);
 
 	uint8_t	instrumentEditorMode = mtInstrumentEditorModeDisabled;
 	uint8_t	refreshInstrumentEditor = 0;
@@ -163,14 +179,15 @@ private:
 	int8_t openedInstrumentIndex;
 	strInstrument editorInstrument;
 	strMtModAudioEngine  editorMod;
+	int8_t playNote = 24;
+	uint8_t glidePreviewDif = 0;
 
 	uint8_t spectrumChanged;
 	uint8_t pointsChanged;
 	uint8_t labelsChanged;
 	uint8_t sampleListChanged;
 	uint8_t parametersChanged;
-
-
+	uint8_t envelopesChanged;
 
 	uint16_t viewStart = 0;
 	uint16_t viewLength = MAX_16BIT;
@@ -178,14 +195,14 @@ private:
 	uint8_t isPlayingSample;
 
 
-
+	uint8_t envelopesEnabled = 0;
 	uint8_t parametersEnabled = 0;
 
 	uint8_t sampleListEnabled = 0;
 	char *sampleNames[SAMPLES_MAX];
 
 
-	//parametry rysowania spektrum/parametrow dla wyswietalcza
+	//parametry rysowania spektrum/parametrow/envelopow
 	strMtDispSpectrum  spectrum;
 
 	strMtDispValues  values;
@@ -201,6 +218,8 @@ private:
 			mtDispValueValueNone,				//mtInstrumentEditorPotValue2,
 	};
 
+	strMtDispEnvelope envelope;
+	uint8_t envelopeType;
 
 //========================================================
 
@@ -214,10 +233,11 @@ private:
 		"Play",
 		"Stop",
 		"1-Shot",
-		"Amp Envelope",
+		"Envelopes",
 		"Instrument",
 		"Sample",
 		"Parameters",
+		"Preview Off",
 	};
 
 	//potencjometry w edytorze
@@ -238,8 +258,10 @@ private:
 		"Panning",
 		"Glide",
 		"Filter",
-		"",
-		"",
+		"Attack",
+		"Decay",
+		"Sustain",
+		"Release",
 	};
 
 };

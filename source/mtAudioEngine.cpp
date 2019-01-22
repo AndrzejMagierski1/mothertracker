@@ -96,7 +96,7 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 		return status;
 
 	}
-	uint8_t instrumentEngine :: play(strInstrument * instr,strMtModAudioEngine * mod)
+	uint8_t instrumentEngine :: play(strInstrument * instr,strMtModAudioEngine * mod, int8_t note)
 	{
 		uint8_t status=0;
 		envelopePtr->delay(instr->ampDelay);
@@ -109,7 +109,7 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 		mixerL.gain(numPanChannel,instr->panning/100.0);
 		mixerR.gain(numPanChannel,(100-instr->panning)/100.0);
 
-		status = playMemPtr->play(instr,mod,1.0,24);
+		status = playMemPtr->play(instr,mod,1.0,note);
 		envelopePtr->noteOn();
 
 		return status;
