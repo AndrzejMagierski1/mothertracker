@@ -1,11 +1,14 @@
 
-#include "mtInstrumentEditor.h"
-#include "mtDisplay.h"
+
+
 #include "mtProjectEditor.h"
+#include "mtInstrumentEditor.h"
 
 
 #include "mtInterface.h"
 #include "mtInterfaceDefs.h"
+
+
 
 extern void sampleEditorEvent(uint8_t event, void* param);
 
@@ -113,6 +116,7 @@ void cMtInterface::processOperatingMode()
 	{
 		if(startupTimer > MT_INTERFACE_STARTUP_TIME)
 		{
+			mtDisplay.setMode(mtDisplayModeNormal);
 			setOperatingMode(mtOperatingModeProjectEditor);
 		}
 	}

@@ -1,7 +1,7 @@
 #ifndef MT_INSTRUMENT_EDITOR_H
 #define MT_INSTRUMENT_EDITOR_H
 
-
+#include "mtDisplay.h"
 #include <stdint.h>
 
 #include "SD.h"
@@ -52,22 +52,38 @@ enum enumMtInstrumentEditorPotFunction
 	mtInstrumentEditorPotFunctionCount
 };
 
-const uint8_t potsFuncResolutions[mtInstrumentEditorPotFunctionCount]=
+enum enumMtInstrumentEditorValue
 {
-		100,
-		100,
-		100,
-		100,
-		100,
-		100,
-		50,
-		100,
-		100,
-		100,
-		100,
-		100,
-		100,
-		100,
+	mtInstrumentEditorValueNone,
+	mtInstrumentEditorValuePanning,
+	mtInstrumentEditorValueGlide,
+	mtInstrumentEditorValueFilter,
+	mtInstrumentEditorValue1,
+	mtInstrumentEditorValue2,
+
+
+	//-------------------------------
+	mtInstrumentEditorPotValueCount
+};
+
+
+
+const uint16_t potsFuncResolutions[mtInstrumentEditorPotFunctionCount]=
+{
+		100,  //mtInstrumentEditorPotFunctionNone,
+		100,  //mtInstrumentEditorPotFunctionStartPoint,
+		100,  //mtInstrumentEditorPotFunctionEndPoint,
+		100,  //mtInstrumentEditorPotFunctionLoopPoint1,
+		100,  //mtInstrumentEditorPotFunctionLoopPoint2,
+		100,  //mtInstrumentEditorPotFunctionInstrumentSelect,
+		50,   //mtInstrumentEditorPotFunctionSampleSelect,
+		100,  //mtInstrumentEditorPotFunctionViewPosition,
+		100,  //mtInstrumentEditorPotFunctionVievZoom,
+		100,  //mtInstrumentEditorPotFunctionPanning,
+		100,  //mtInstrumentEditorPotFunctionGlide,
+		100,  //mtInstrumentEditorPotFunctionFilter,
+		100,  //mtInstrumentEditorPotFunction1,
+		100,  //mtInstrumentEditorPotFunction2,
 
 
 };
@@ -100,15 +116,19 @@ private:
 	void processSpectrum();
 	void processPoints();
 	void processLabels();
+	void processParameters();
 
 	void setButtonLabel(uint8_t number, char * label);
-	void updateButtons();
-	void setButton(uint8_t number, uint8_t function);
+	void updateButtonsFunctions();
+	void setButtonFunction(uint8_t number, uint8_t function);
 
 	void setPotsLabel(uint8_t number, char * label);
 	void processPotsLabels();
-	void updatePots();
+	void updatePotsFunctions();
 	void setPotFunction(uint8_t number, uint8_t function);
+
+	void updateParameters();
+	void setParameter(uint8_t number, uint8_t param);
 
 	//funkcje przyciskow
 	void showSampleList(uint8_t value);
@@ -166,8 +186,22 @@ private:
 
 
 	//parametry rysowania spektrum/parametrow dla wyswietalcza
-	strSpectrum  spectrum;
-	strInstrumentParams params;
+	strMtDispSpectrum  spectrum;
+
+	strMtDispValues  values;
+	uint8_t valuesParameters[5];
+
+	uint8_t mtInstrumentEditorValuesTypes[mtInstrumentEditorPotValueCount] =
+	{
+			mtDispValueValueNone,				//mtInstrumentEditorPotValueNone,
+			mtDispValueValueLeftRight_0_100,	//mtInstrumentEditorPotValuePanning,
+			mtDispValueValue_0_100,				//mtInstrumentEditorPotValueGlide,
+			mtDispValueValue_0_100,				//mtInstrumentEditorPotValueFilter,
+			mtDispValueValueNone,				//mtInstrumentEditorPotValue1,
+			mtDispValueValueNone,				//mtInstrumentEditorPotValue2,
+	};
+
+
 //========================================================
 
 	//przyciski w edytorze

@@ -120,6 +120,11 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 	uint8_t instrumentEngine :: change(strStep * step, strMtModAudioEngine * mod)
 	{
 		uint8_t status=0;
+		float gainL=mtProject.instrument[step->instrumentIndex].panning/100.0;
+		float gainR=(100-mtProject.instrument[step->instrumentIndex].panning)/100.0;
+
+		mixerL.gain(numPanChannel,gainL);
+		mixerR.gain(numPanChannel,gainR);
 
 		status=playMemPtr->setMod(step,mod);
 
@@ -129,6 +134,8 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 	{
 		uint8_t status=0;
 
+		mixerL.gain(numPanChannel,instr->panning/100.0);
+		mixerR.gain(numPanChannel,(100-instr->panning)/100.0);
 		status=playMemPtr->setMod(instr,mod,24);
 
 		return status;

@@ -13,25 +13,22 @@ class cMtDisplayList
 {
 public:
 	void setSeflRefreshPtr(uint8_t *refresh, uint8_t *animate);
-	void setList(uint8_t block, uint8_t blockWidth, uint16_t start, char ** list, uint16_t count);
+	void setList(uint8_t block, uint8_t width, uint16_t start, char ** list, uint16_t count, strMtDisplayColors * colors);
 	void setListPos(uint16_t position);
 	void update();
-	uint8_t enabled() { return listEnable; }
 
 private:
 	char ** listTable;
+	strMtDisplayColors * ptrColors;
 
-	uint8_t  listBlock;
-	uint8_t  listBlockWidth;
 	uint16_t listPosition;
 	uint16_t listCount;
 	uint16_t listStart;
 	int8_t 	 listState;
-//	uint8_t  listRowLength;
-	uint8_t  listEnable;
+	uint8_t  listRowLength;
+	uint8_t  listBlockWidth;
+	uint8_t  listBlock;
 	int8_t   listAnimationStep = 0;
-
-	uint32_t listColor 		= MT_DISP_TITLE_F_COLOR;
 
 	uint8_t *selfAnimate   = 0;
 	uint8_t *selfRefresh   = 0;
@@ -48,7 +45,6 @@ public:
 	void start(uint16_t time, uint8_t amplitude);
 	void start(uint16_t time, uint8_t amplitude, uint8_t effect, uint8_t pitch);
 	void stop();
-
 	elapsedMillis timer;
 	strMtHaptic params;
 	uint8_t active = 0;
@@ -61,27 +57,25 @@ class cMtDisplay
 public:
 	void begin(uint8_t mode);
 	void updateDisplay();
+	void updateHaptic();
 
 	//metody publiczne zarzadzania ekranem
 	void setMode(uint8_t mode);
 
-	void setBlockType (uint8_t number, uint32_t type, uint16_t start, char * menu, uint16_t max);
-	void setBlockTitle(uint8_t number, char text[]);
-	void setBlockLabel(uint8_t number, char text[]);
-	void setBlockCenter(uint8_t number, int32_t value);
+	void setButtonsLabels(uint8_t state);
+	void setPotsLabels(uint8_t state);
+	void setSpectrum(uint8_t state);
+	void setSpectrumPoints(uint8_t state);
+	void setList(uint8_t index, uint8_t block, uint8_t width, uint16_t start, char ** list, uint16_t count);
+	void setValue(uint8_t state);
 
-	void setFmanagerRootTitle(char text[]);
-	void setFmanagerRootList(uint16_t start, char ** list, uint16_t count, uint8_t filename_length);
-	void setFmanagerRootListPos(uint16_t position);
-	void setFmanagerLabels(char * labels);
+	void changeButtonsLabels(char ** labels);
+	void changePotsLabels(char ** labels);
+	void changeSpectrum(strMtDispSpectrum *spectrum);
+	void changeSpectrumPoints(strMtDispSpectrum *spectrum);
+	void changeList(uint8_t index, uint16_t position);
+	void changeValues(strMtDispValues * values);
 
-	void setInstrumentEditorPoints(strSpectrum *spectrum);
-	void setInstrumentEditorSpectrum(strSpectrum *spectrum);
-	void setInstrumentEditorPotsLabels(char ** labels);
-	void setInstrumentEditorButtonsLabels(char ** labels);
-	void setInstrumentEditorSampleList(uint16_t start, char ** list, uint16_t count);
-	void setInstrumentEditorSampleListPos(uint16_t position);
-	void setInstrumentEditorParameters(strInstrumentParams * params);
 
 	// print
 	void print(const char * s);
@@ -95,73 +89,74 @@ public:
 	void printShow();
 
 private:
-	// metody glowne trybow pracy
+	// metody łądujące okreslony ekran z ramu
 	void dl_load_blank_main();
-	void dl_load_block_main();
-	void dl_load_fmanager_main();
-	void dl_load_print_main();
+	void dl_load_normal_main();
 	void dl_load_poly_logo_main();
-	void dl_load_instrument_editor_main();
+	void dl_load_print_main();
 
-	// metody poszczegolnych trybow
-	void ramg_blocks_title(uint8_t block);
-	void ramg_blocks_label(uint8_t block);
-	void ramg_blocks_center(uint8_t block);
-	void ramg_blocks_blank(uint8_t block);
-	void ramg_blocks_value(uint8_t block);
-	void ramg_blocks_menu(uint8_t block);
+	void normalModeDisplayRefresh();
 
-	void ramg_fmanager_roottitle();
-	void ramg_fmanager_maintitle();
-	void ramg_fmanager_labels();
-	void ramg_fmanager_rootlist();
-	void ramg_fmanager_mainlist();
+	// metody łądujące elementy do ramu wyswietlacza
+	void ramg_spectrum_points();
+	void ramg_spectrum_view();
+	void ramg_pots_labels();
+	void ramg_buttons_labels();
+	void ramg_values(uint8_t index);
+	void ramg_lists(uint8_t index);
 
-	void ramg_instrument_editor_points();
-	void ramg_instrument_editor_spectrum();
-	void ramg_instrument_editor_labels();
-	void ramg_instrument_editor_params();
 
 	// zmienne glowne
 	uint8_t screenMode = mtDisplayModeBlank;
 	uint8_t screenRefresh = 0;
 	strMtDisplayRefreshTable displayRefreshTable;
-	uint32_t  displayBgColor = MT_DISP_BG_COLOR;
+	uint8_t valuesDisplayMode = 0;
+
+	strMtDisplayColors 	displayColors;
+	strMtRamSize		ramSize;
+	strMtRamAddres		ramAddress;
+	strMtElementsState	elementsState;
+
+
 
 	//---------------------------------------------
-	// tryb blokowy
-	strMtDisplayBlock displayBlock[5];
+	// pots labels
+	char ** ptrPotsLabels;
 
 	//---------------------------------------------
-	// tryb menadzera plikow
-	strMtFmanager displayFmanager;
-	cMtDisplayList fManagerList;
+	// pots buttons
+	char ** ptrButtonsLabels;
 
 	//---------------------------------------------
-	// tryb edytora instrumentu
-	strMtInstrumentEditor instrumentEditor;
-	cMtDisplayList instrumentEditorSampleList;
+	// spectrum / points
+	strMtDispSpectrum * ptrSpectrum;
+
+	//---------------------------------------------
+	// values
+	strMtDispValues * ptrValues;
+	strMtDispValues lastValues;
+
+	//---------------------------------------------
+	// lists
+	cMtDisplayList lists[MT_DISP_LISTS_MAX];
+
+
+
 
 	// animowane przejscia
 	uint8_t screenAnimation = 0;
-	elapsedMicros animationTimer;
+	elapsedMillis animationTimer;
 	uint8_t updateStep = 0;
 
 	uint32_t updateAdress = 0;
 	uint32_t *updateSize;
 
-	struct strTouch
-	{
-		int16_t x;
-		int16_t y;
-
-	} touchPanel[5];
 
 	//print
 	#ifdef DEBUG
 
 	#define MAX_PRINT_LINES 6
-	#define PRINT_SHOW_TIME 1500
+	#define PRINT_SHOW_TIME 3000
 	char text[MAX_PRINT_LINES][256];
 	uint8_t	lastPrintLine = 0;
 	uint8_t	firstPrintLine = 0;

@@ -4,6 +4,37 @@
 #include "mtDisplay.h"
 
 
+//---------------------------------------------------------------------------
+void cMtDisplay::dl_load_print_main()
+{
+    API_LIB_BeginCoProList();
+    API_CMD_DLSTART();
+
+	API_CLEAR_COLOR(displayColors.bgColor);
+	API_CLEAR(1,1,1);
+
+	uint8_t first_line = (totalLinesPrint < MAX_PRINT_LINES ? 0 : (lastPrintLine < MAX_PRINT_LINES-1 ? lastPrintLine+1 : 0));
+	uint8_t max_lines = (totalLinesPrint >= MAX_PRINT_LINES ? MAX_PRINT_LINES : totalLinesPrint);
+
+	for(uint8_t i = 0; i < max_lines; i++)
+	{
+		API_COLOR(displayColors.fontPrint);
+		API_CMD_TEXT(3,(i*20)+3, MT_GPU_RAM_FONT1_HANDLE, 0, &text[first_line][0]);
+
+		first_line++;
+		if(first_line == MAX_PRINT_LINES) first_line  = 0;
+	}
+
+    API_DISPLAY();
+    API_CMD_SWAP();
+    API_LIB_EndCoProList();
+
+
+
+}
+
+//---------------------------------------------------------------------------
+
 
 void cMtDisplay::print(const char * s)
 {

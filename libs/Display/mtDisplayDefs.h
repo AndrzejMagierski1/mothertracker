@@ -9,27 +9,32 @@
 
 // COLORY
 #define MT_DISP_BG_COLOR 			DISP_RGB(0,0,0) //DISP_RGB(100,10,100)
+#define MT_DISP_F_COLOR				DISP_RGB(255,255,255)
 
-#define MT_DISP_TITLE_F_COLOR 		DISP_RGB(255,255,255)
+#define MT_DISP_POT_F_COLOR 		DISP_RGB(255,255,255)
 
-#define MT_DISP_LABEL_F_COLOR 		DISP_RGB(0,0,0)
-#define MT_DISP_LABEL_BG_COLOR 		DISP_RGB(255,255,255)
+#define MT_DISP_BUTTON_F_COLOR 		DISP_RGB(0,0,0)
+#define MT_DISP_BUTTON_BG_COLOR 	DISP_RGB(255,255,255)
 
 #define MT_DISP_VALUE_ROUND_COLOR 	DISP_RGB(255,255,255)
 #define MT_DISP_VALUE_F_COLOR 		DISP_RGB(255,255,255)
 
-#define MT_DISP_BG_GOLD_COLOR 		DISP_RGB(45,38,20)
+#define MT_DISP_SPECTRUM_COLOR 		DISP_RGB(255,255,255)
+#define MT_DISP_POINTS_COLOR 		DISP_RGB(255,255,255)
+#define MT_DISP_POINTS_BG_COLOR 	DISP_RGB(45,38,20) //DISP_RGB(170,148,51)
 
+
+// wilekosci
+
+#define MT_DISP_VALUES_MAX			5
+#define MT_DISP_LISTS_MAX			5
 
 //-------------------------------------------------------------------
 // ENUMs
 enum enumMtDisplayMode
 {
 	mtDisplayModeBlank,
-	mtDisplayModeLogo,
-	mtDisplayModeBlocks5,
-	mtDisplayModeFileManager,
-	mtDisplayModeInstrumentEditor,
+	mtDisplayModeNormal,
 	mtDisplayModePrint,
 	mtDisplayModePolyLogo,
 };
@@ -41,158 +46,20 @@ enum enumMtDisplayBlockType
 	mtDisplayBlockTypeMenu
 };
 
-//-------------------------------------------------------------------
-// STRUKTURY
-
-// ODSWIEZANIE
-struct strMtDisplayRefreshTable
+enum enumMtDispValueTypes
 {
-	uint8_t all;
-	uint8_t background;
-	uint8_t logo;
-
-	struct strBlockRefresh
-	{
-		uint8_t title;
-		uint8_t label;
-		uint8_t center;
-	} block[5];
-
-	struct strFmanager
-	{
-		uint8_t rootTitle;
-		uint8_t mainTitle;
-		uint8_t rootList;
-		uint8_t mainList;
-		uint8_t labels;
-	} fManager;
-
-	struct strInstrumentEditor
-	{
-		uint8_t points;
-		uint8_t spectrum;
-		uint8_t labels;
-		uint8_t background;
-		uint8_t sampleList;
-		uint8_t params;
-	} instrumentEditor;
-
-
-
-
+	mtDispValueValueNone,
+	mtDispValueValueNumberOnly,
+	mtDispValueValue_0_100,
+	mtDispValueValueLeftRight_0_100,
+	mtDispValueValue1,
+	mtDispValueValue2,
 };
 
-
-
-struct strMtDisplayBlock
-{
-	uint8_t type;
-
-	char title[20] = {0};
-	char label[20] = {0};
-
-	char * menu;
-	uint16_t value   = 0;
-	uint16_t max;
-	uint16_t start;
-	int8_t state;
-	int8_t animationStep = 0;
-
-	uint32_t fontTitleColor = MT_DISP_TITLE_F_COLOR;
-	uint32_t fontLabelColor = MT_DISP_LABEL_F_COLOR;
-	uint32_t labelColor 	= MT_DISP_LABEL_BG_COLOR;
-	uint32_t valueColor 	= MT_DISP_VALUE_ROUND_COLOR;
-	uint32_t fontValueColor = MT_DISP_VALUE_F_COLOR;
-
-	uint32_t ramTitleSize = 0;
-	uint32_t ramLabelSize = 0;
-	uint32_t ramCenterSize = 0;
-};
-
-
-
-struct strMtFmanager
-{
-	char rootTitle[100];
-	char mainTitle[60];
-
-	char * rootList; // 40 liter max na linie
-	char * mainList;
-
-	uint16_t rootPosition;
-	uint16_t rootCount;
-	uint16_t rootStart;
-	int8_t rootState;
-	uint8_t rootListFilenameLength;
-	uint8_t rootListEnable;
-
-	uint16_t mainPosition;
-	uint16_t mainCount;
-	uint16_t mainStart;
-	int8_t mainState;
-	uint8_t mainListFilenameLength;
-	uint8_t mainListEnable;
-
-	char * labels; //wielksoc 20 liter max na jeden label
-
-	int8_t animationStepRoot = 0;
-	int8_t animationStepMain = 0;
-
-	uint32_t fontTitleColor = MT_DISP_TITLE_F_COLOR;
-	uint32_t fontLabelColor = MT_DISP_LABEL_F_COLOR;
-	uint32_t labelColor 	= MT_DISP_LABEL_BG_COLOR;
-	uint32_t listColor 		= MT_DISP_TITLE_F_COLOR;
-
-	uint32_t ramRootTitleSize = 0;
-	uint32_t ramMainTitleSize = 0;
-	uint32_t ramLabelsSize = 0;
-	uint32_t ramRootListSize = 0;
-	uint32_t ramMainListSize = 0;
-};
-
-
-struct strMtInstrumentEditor
-{
-	char ** buttonsLabels; //wielksoc 20 liter max na jeden label
-	char ** potsLabels; //wielksoc 20 liter max na jeden label
-
-	strSpectrum *spectrum;
-	strInstrumentParams * params;
-
-	uint8_t mode = 0;
-
-	int8_t animationStep = 0;
-
-	uint32_t fontTitleColor = MT_DISP_TITLE_F_COLOR;
-	uint32_t fontLabelColor = MT_DISP_LABEL_F_COLOR;
-	uint32_t labelColor 	= MT_DISP_LABEL_BG_COLOR;
-	uint32_t listColor 		= MT_DISP_TITLE_F_COLOR;
-	uint32_t pointsColor 	= DISP_RGB(255,255,255);
-	uint32_t spectrumColor 	= DISP_RGB(255,255,255);
-	uint32_t loopColor 		= MT_DISP_BG_GOLD_COLOR;
-	uint32_t paramsFontColor= MT_DISP_VALUE_F_COLOR;
-
-
-	uint32_t ramPointsSize = 0;
-	uint32_t ramLabelsSize = 0;
-	uint32_t ramSpectrumSize = 0;
-	uint32_t ramSampleListSize = 0;
-	uint32_t ramParamsSize = 0;
-};
-
-
-
-struct strMtHaptic
-{
-	uint16_t time;
-	uint8_t amplitude;
-	uint8_t effect;
-	uint8_t pitch;
-};
 
 //-------------------------------------------------------------------
 // OPCJE ANIMACJI
-#define MT_DISP_ANIMATION_T 	1000
+#define MT_DISP_ANIMATION_T 	1
 
 
 
@@ -211,24 +78,18 @@ struct strMtHaptic
 #define MT_DISP_BLOCK_LABEL_OFFSET 	3
 #define MT_DISP_BLOCK_LABEL_W 		(MT_DISP_BLOCK_W - (2 * MT_DISP_BLOCK_LABEL_OFFSET))
 
-//#define MT_DISP_BLOCK_VALUE_CENTER_X	(MT_DISP_BLOCK_W/2)
 #define MT_DISP_BLOCK_VALUE_CENTER_Y 	60
 #define MT_DISP_BLOCK_VALUE_ROUND_SIZE	35
 #define MT_DISP_BLOCK_VALUE_ROUND_W	 	3
 
 
-//#define MT_DISP_BLOCK_MENU_LEFT_X 		(MT_DISP_BLOCK_W/2)
 #define MT_DISP_BLOCK_MENU_TOP_Y 		30
-//#define MT_DISP_BLOCK_MENU_W	 		90
 #define MT_DISP_BLOCK_MENU_Y_SPACE	 	16
 #define MT_DISP_BLOCK_MENU_OFFSET 		3
 #define MT_DISP_BLOCK_MENU_TEXT_OFFSET 	5
 #define MT_DISP_BLOCK_MENU_ROWS			5
 
 
-#define MT_DISP_FMANAGER_ROOTTITLE_X	8
-#define MT_DISP_FMANAGER_MAINTITLE_X	((MT_DISP_BLOCK_W * 2) + 8)
-#define MT_DISP_FMANAGER_TITLE_Y		10
 
 
 #define MT_DISP_IEDITOR_SPECTRUM_Y		64
@@ -244,59 +105,161 @@ struct strMtHaptic
 #define MT_GPU_RAM_FONT2_HANDLE	14
 // handle nie moze byc wikesze niz 14
 
-// OBRAZY
 
+// OBRAZY
 #define MT_GPU_RAM_POLY_LOGO_ADRESS	50000
 #define MT_GPU_RAM_POLY_LOGO_HANDLE	12
 
 
+
 // rozmiesczenie elementow w pamieci ram_g
 
-#define MT_GPU_RAM_BLOCK_TITLES_ADRESS	60000
-#define MT_GPU_RAM_BLOCK_TITLES_SIZE	200
+#define MT_GPU_RAM_POTS_LABELS_ADDRESS		60000
+#define MT_GPU_RAM_POTS_LABELS_SIZE			1000
 
-#define MT_GPU_RAM_BLOCK_LABELS_ADRESS	(MT_GPU_RAM_BLOCK_TITLES_ADRESS+(5*MT_GPU_RAM_BLOCK_TITLES_SIZE))
-#define MT_GPU_RAM_BLOCK_LABELS_SIZE	200
+#define MT_GPU_RAM_BUTTONS_LABELS_ADDRESS	(MT_GPU_RAM_POTS_LABELS_ADDRESS + MT_GPU_RAM_POTS_LABELS_SIZE)
+#define MT_GPU_RAM_BUTTONS_LABELS_SIZE		1000
 
-#define MT_GPU_RAM_BLOCK_CENTERS_ADRESS	(MT_GPU_RAM_BLOCK_LABELS_ADRESS+(5*MT_GPU_RAM_BLOCK_LABELS_SIZE))
-#define MT_GPU_RAM_BLOCK_CENTERS_SIZE	1000
+#define MT_GPU_RAM_VALUES_ADRESS			(MT_GPU_RAM_BUTTONS_LABELS_ADDRESS + MT_GPU_RAM_BUTTONS_LABELS_SIZE)
+#define MT_GPU_RAM_VALUES_SIZE				500
 
-#define MT_GPU_RAM_BLOCK_VALUES_END_ADRESS	(MT_GPU_RAM_BLOCK_CENTERS_ADRESS+(5*MT_GPU_RAM_BLOCK_CENTERS_SIZE))
+#define MT_GPU_RAM_LISTS_ADRESS				(MT_GPU_RAM_VALUES_ADRESS+(5*MT_GPU_RAM_VALUES_SIZE))
+#define MT_GPU_RAM_LISTS_SIZE				1000
 
+#define MT_GPU_RAM_SPECTRUM_POINTS_ADRESS	(MT_GPU_RAM_LISTS_ADRESS+(5*MT_GPU_RAM_LISTS_SIZE))
+#define MT_GPU_RAM_SPECTRUM_POINTS_SIZE		1000
 
-
-
-#define MT_GPU_RAM_FMANAGER_ROOTTITLE_ADRESS	MT_GPU_RAM_BLOCK_VALUES_END_ADRESS
-#define MT_GPU_RAM_FMANAGER_ROOTTITLE_SIZE		500
-
-#define MT_GPU_RAM_FMANAGER_LABELS_ADRESS		(MT_GPU_RAM_FMANAGER_ROOTTITLE_ADRESS+MT_GPU_RAM_FMANAGER_ROOTTITLE_SIZE)
-#define MT_GPU_RAM_FMANAGER_LABELS_SIZE			1000
-
-#define MT_GPU_RAM_FMANAGER_ROOTLIST_ADRESS		(MT_GPU_RAM_FMANAGER_LABELS_ADRESS+MT_GPU_RAM_FMANAGER_LABELS_SIZE)
-#define MT_GPU_RAM_FMANAGER_ROOTLIST_SIZE		2000
-
-#define MT_GPU_RAM_FMANAGER_END_ADRESS			(MT_GPU_RAM_FMANAGER_ROOTLIST_ADRESS+MT_GPU_RAM_FMANAGER_ROOTLIST_SIZE)
+#define MT_GPU_RAM_SPECTRUM_VIEW_ADRESS		(MT_GPU_RAM_SPECTRUM_POINTS_ADRESS+MT_GPU_RAM_SPECTRUM_POINTS_SIZE)
+#define MT_GPU_RAM_SPECTRUM_VIEW_SIZE		1000
 
 
 
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_POINTS_ADRESS		MT_GPU_RAM_FMANAGER_END_ADRESS
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_POINTS_SIZE		2000
 
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_LABELS_ADRESS		(MT_GPU_RAM_INSTRUMENT_EDITOR_POINTS_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_POINTS_SIZE)
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_LABELS_SIZE		2000
+//-------------------------------------------------------------------
+// STRUKTURY
 
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_ADRESS	(MT_GPU_RAM_INSTRUMENT_EDITOR_LABELS_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_LABELS_SIZE)
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_SIZE		4000
+// ODSWIEZANIE
+struct strMtDisplayRefreshTable
+{
+	uint8_t all;
+	uint8_t background;
+	uint8_t logo;
 
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_SAMPLE_ADRESS		(MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_SPECTRUM_SIZE)
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_SAMPLE_SIZE		2000
+	uint8_t potsLabels;
+	uint8_t buttonsLabels;
 
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_PARAMS_ADRESS		(MT_GPU_RAM_INSTRUMENT_EDITOR_SAMPLE_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_SAMPLE_SIZE)
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_PARAMS_SIZE		2000
+	uint8_t spectrumPoints;
+	uint8_t spectrumView;
+
+	uint8_t values[MT_DISP_VALUES_MAX];
+	uint8_t lists[MT_DISP_LISTS_MAX];
+};
+
+//KOLORY
+struct strMtDisplayColors
+{
+	uint32_t bgColor			= MT_DISP_BG_COLOR;
+	uint32_t fontPrint			= MT_DISP_F_COLOR;
+
+	uint32_t fontPotLabel 		= MT_DISP_POT_F_COLOR;
+	uint32_t fontButtonLabel 	= MT_DISP_BUTTON_F_COLOR;
+	uint32_t labelButton 		= MT_DISP_BUTTON_BG_COLOR;
+
+	uint32_t spectrumView		= MT_DISP_SPECTRUM_COLOR;
+	uint32_t spectrumPoint		= MT_DISP_POINTS_COLOR;
+	uint32_t spectrumPointsBG	= MT_DISP_POINTS_BG_COLOR;
+
+	uint32_t fontValue			= MT_DISP_VALUE_F_COLOR;
+	uint32_t valueBar			= DISP_RGB(130,130,130);
+
+	uint32_t listItemFrame 		= DISP_RGB(255,255,255);
+	uint32_t listItemFrameBG 	= DISP_RGB(0,0,0);
+	uint32_t listScrollBar 		= DISP_RGB(255,255,255);
+	uint32_t listBG 			= DISP_RGB(85,74,25);
+	uint32_t fontList 			= DISP_RGB(255,255,255);
 
 
-#define MT_GPU_RAM_INSTRUMENT_EDITOR_END_ADRESS			(MT_GPU_RAM_INSTRUMENT_EDITOR_PARAMS_ADRESS+MT_GPU_RAM_INSTRUMENT_EDITOR_PARAMS_SIZE)
 
+};
+
+
+struct strMtRamSize
+{
+	uint32_t potsLabels = 0;
+	uint32_t buttonsLabels = 0;
+
+	uint32_t spectrumView = 0;
+	uint32_t spectrumPoints = 0;
+
+	uint32_t values[MT_DISP_VALUES_MAX] = {0,0,0,0,0};
+	uint32_t lists[MT_DISP_LISTS_MAX] = {0,0,0,0,0};
+
+};
+
+
+struct strMtRamAddres
+{
+	uint32_t potsLabels = MT_GPU_RAM_POTS_LABELS_ADDRESS;
+	uint32_t buttonsLabels = MT_GPU_RAM_BUTTONS_LABELS_ADDRESS;
+
+	uint32_t spectrumView = MT_GPU_RAM_SPECTRUM_VIEW_ADRESS;
+	uint32_t spectrumPoints = MT_GPU_RAM_SPECTRUM_POINTS_ADRESS;
+
+	uint32_t values[MT_DISP_VALUES_MAX] =
+			{MT_GPU_RAM_VALUES_ADRESS,
+			MT_GPU_RAM_VALUES_ADRESS+MT_GPU_RAM_VALUES_SIZE,
+			MT_GPU_RAM_VALUES_ADRESS+(MT_GPU_RAM_VALUES_SIZE*2),
+			MT_GPU_RAM_VALUES_ADRESS+(MT_GPU_RAM_VALUES_SIZE*3),
+			MT_GPU_RAM_VALUES_ADRESS+(MT_GPU_RAM_VALUES_SIZE*4)};
+
+	uint32_t lists[MT_DISP_LISTS_MAX] =
+			{MT_GPU_RAM_LISTS_ADRESS,
+			MT_GPU_RAM_LISTS_ADRESS+MT_GPU_RAM_LISTS_SIZE,
+			MT_GPU_RAM_LISTS_ADRESS+(MT_GPU_RAM_LISTS_SIZE*2),
+			MT_GPU_RAM_LISTS_ADRESS+(MT_GPU_RAM_LISTS_SIZE*3),
+			MT_GPU_RAM_LISTS_ADRESS+(MT_GPU_RAM_LISTS_SIZE*4)};
+};
+
+struct strMtElementsState
+{
+	uint8_t potsLabels = 0;
+	uint8_t buttonsLabels = 0;
+
+	uint8_t spectrumView = 0;
+	uint8_t spectrumPoints = 0;
+
+	uint8_t values[MT_DISP_VALUES_MAX] = {0,0,0,0,0};
+	uint8_t lists[MT_DISP_LISTS_MAX] = {0,0,0,0,0};
+};
+
+
+struct strMtDispSpectrum
+{
+	uint8_t spectrumType = 0;
+	int8_t upperData[480];
+	int8_t lowerData[480];
+
+	uint8_t pointsType = 0;
+	uint16_t startPoint;
+	uint16_t endPoint;
+	uint16_t loopPoint1;
+	uint16_t loopPoint2;
+};
+
+struct strMtDispValues
+{
+	uint8_t type[MT_DISP_VALUES_MAX];
+	int16_t value[MT_DISP_VALUES_MAX];
+};
+
+
+struct strMtHaptic
+{
+	uint16_t time;
+	uint8_t amplitude;
+	uint8_t effect;
+	uint8_t pitch;
+};
 
 
 

@@ -176,6 +176,6 @@ void updateHardware()
 	}
 
 	mtDisplay.updateDisplay();
-
+	mtDisplay.updateHaptic();
 
 }

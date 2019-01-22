@@ -22,9 +22,10 @@ const uint8_t NUMBER_OF_NOTES =					48;
 const float MIN_PITCH =							0.25;
 const float MAX_PITCH =							4.0;
 
-const uint8_t  PANNING_MIN =        			0;
-const uint8_t  PANNING_MAX =        			100;
-
+const uint8_t  PANNING_MIN 					=	0;
+const uint8_t  PANNING_MAX 					=   100;
+const uint8_t  GLIDE_MIN 					=	0;
+const uint16_t  GLIDE_MAX 					=	15000;
 
 //=====================================================================
 //=====================================================================
@@ -119,6 +120,7 @@ struct strInstrument
 
 	uint16_t glide;
 	int16_t panning;
+	uint16_t filter;
 };
 
 
@@ -153,27 +155,6 @@ struct strMtProject
 
 };
 
-
-// dla wyswietlacza -----
-struct strSpectrum
-{
-	uint8_t spectrumType = 0;
-	int8_t upperData[480];
-	int8_t lowerData[480];
-
-	uint8_t pointsType = 0;
-	uint16_t startPoint;
-	uint16_t endPoint;
-	uint16_t loopPoint1;
-	uint16_t loopPoint2;
-};
-
-struct strInstrumentParams
-{
-	uint8_t type[5];
-	int16_t value[5];
-};
-//----
 
 
 struct strMtModAudioEngine

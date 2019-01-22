@@ -8,8 +8,8 @@
 
 void cMtDisplayList::setSeflRefreshPtr(uint8_t *refresh, uint8_t *animate)
 {
-	selfAnimate   = refresh;
-	selfRefresh   = animate;
+	selfAnimate   = animate;
+	selfRefresh   = refresh;
 }
 
 void cMtDisplayList::setListPos(uint16_t position)
@@ -19,23 +19,16 @@ void cMtDisplayList::setListPos(uint16_t position)
 
 
 
-void cMtDisplayList::setList(uint8_t block, uint8_t blockWidth, uint16_t start, char ** list, uint16_t count)
+void cMtDisplayList::setList(uint8_t block, uint8_t width, uint16_t start, char ** list, uint16_t count, strMtDisplayColors * colors)
 {
-	if(count == 0)
-	{
-		listEnable = 0;
-		return;
-	}
-
-	listBlockWidth = blockWidth;
+	ptrColors = colors;
+	listBlockWidth = width;
 	listBlock = block;
-	listEnable = 1;
 	listPosition = start;
 	listCount = count;
 	listStart = start;
 	listTable = list;
 	listState = 2;
-//	listRowLength = row_length;
 }
 
 void cMtDisplayList::update()
@@ -50,7 +43,7 @@ void cMtDisplayList::update()
     x_pos = MT_DISP_BLOCK_W * (listBlock) + ( MT_DISP_BLOCK_MENU_OFFSET);
 
 	//tlo listy
-	API_COLOR(MT_DISP_BG_GOLD_COLOR);
+	API_COLOR(ptrColors->listBG);
 	API_BLEND_FUNC(DST_ALPHA , ZERO);
 	API_LINE_WIDTH(8);
 	API_BEGIN(RECTS);
@@ -76,7 +69,7 @@ void cMtDisplayList::update()
 		y_pos = (MT_DISP_BLOCK_MENU_TOP_Y - (MT_DISP_BLOCK_MENU_Y_SPACE/2)) + (sel_row * MT_DISP_BLOCK_MENU_Y_SPACE);
 
 		//ramka
-		API_COLOR(listColor);
+		API_COLOR(ptrColors->listItemFrame);
 		API_LINE_WIDTH(4);
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2II(x_pos, y_pos, 0, 0);
@@ -93,7 +86,7 @@ void cMtDisplayList::update()
 		lines = (listCount >= MT_DISP_BLOCK_MENU_ROWS)  ? MT_DISP_BLOCK_MENU_ROWS : listCount;
 
 		//uint8_t txt_offset;
-		API_COLOR(listColor);
+		API_COLOR(ptrColors->fontList);
 		for(uint8_t i = 0; i < lines; i++)
 		{
 			//txt_offset = 1;
@@ -168,7 +161,7 @@ void cMtDisplayList::update()
 		y_pos = (MT_DISP_BLOCK_MENU_TOP_Y - (MT_DISP_BLOCK_MENU_Y_SPACE/2)) + (listState * MT_DISP_BLOCK_MENU_Y_SPACE) + (mode ? 0 : listAnimationStep);
 
 		//ramka
-		API_COLOR(0xFFFFFF);
+		API_COLOR(ptrColors->listItemFrame);
 		API_LINE_WIDTH(4);
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2II(x_pos, y_pos, 0, 0);
@@ -184,7 +177,7 @@ void cMtDisplayList::update()
 
 		API_SAVE_CONTEXT();
 
-		API_COLOR(listColor);
+		API_COLOR(ptrColors->fontList);
 
 		API_SCISSOR_XY(MT_DISP_BLOCK_W * (listBlock), MT_DISP_BLOCK_MENU_TOP_Y-8);
 		API_SCISSOR_SIZE(MT_DISP_BLOCK_W * (listBlockWidth), MT_DISP_BLOCK_MENU_Y_SPACE*5);
@@ -229,7 +222,7 @@ void cMtDisplayList::update()
 		y_pos = 23 + (listStart * (( MT_DISP_BLOCK_MENU_Y_SPACE * 5 )-(y_length+2))) / (listCount-1) ;
 
 
-		API_COLOR(listColor);
+		API_COLOR(ptrColors->listScrollBar);
 		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2II((MT_DISP_BLOCK_W * (listBlock)) + (MT_DISP_BLOCK_W - 3) , y_pos ,0,0);
