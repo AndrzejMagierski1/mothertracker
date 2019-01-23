@@ -444,7 +444,8 @@ void cMtDisplay::ramg_values(uint8_t index)
     API_CMD_DLSTART();
 
 
-	if(ptrValues->type[index] == mtDispValueValueNumberOnly)
+
+    if(ptrValues->type[index] == mtDispValueValueNumberOnly)
 	{
 
 		API_COLOR(displayColors.fontValue);
@@ -599,23 +600,95 @@ void cMtDisplay::ramg_envelope()
     API_LIB_BeginCoProList();
     API_CMD_DLSTART();
 
-	#define ADSR_START_X 120
-	#define ADSR_START_Y (MT_DISP_BLOCK_VALUE_CENTER_Y + 35)
-	#define ADSR_H 65
+	#define ADSR_START_X MT_DISP_BLOCK_W+(MT_DISP_BLOCK_W/2)
+	#define ADSR_START_Y (MT_DISP_BLOCK_VALUE_CENTER_Y + 38)
+	#define ADSR_H 70
+
+
+    uint16_t top_y = ADSR_START_Y - ADSR_H;
+    uint16_t bott_y = ADSR_START_Y;
+    uint16_t cent_y = top_y + ADSR_H/2;
+    uint16_t x_max = ADSR_START_X+70+70+60+70;
+    uint16_t step_y = ADSR_H/4;
+    uint16_t high_y = ADSR_H;
 
 
     uint16_t a_x = ADSR_START_X;
     uint16_t a_y = ADSR_START_Y;
-    uint16_t d_x = ADSR_START_X + ptrEnvelope->attack;
+    uint16_t d_x = ADSR_START_X + (ptrEnvelope->attack*70)/100;
     uint16_t d_y = ADSR_START_Y - ADSR_H;
-    uint16_t s_x = d_x + ptrEnvelope->decay;
-    uint16_t s_y = ADSR_START_Y - ptrEnvelope->sustain;
+    uint16_t s_x = d_x + (ptrEnvelope->decay*70)/100;
+    uint16_t s_y = ADSR_START_Y - (ptrEnvelope->sustain*70)/100;
     uint16_t r_x = s_x + 60;
-    uint16_t r_y = ADSR_START_Y - ptrEnvelope->sustain;
-    uint16_t end_x = r_x + ptrEnvelope->release;
+    uint16_t r_y = s_y;
+    uint16_t end_x = r_x +	(ptrEnvelope->release*70)/100;
     uint16_t end_y = ADSR_START_Y;
 
-	API_COLOR(displayColors.valueBar);
+
+
+    uint16_t p100_y = top_y;
+    int16_t p50_y;
+    int16_t p25_y;
+
+    int16_t p75_y = bott_y - ((   ptrEnvelope->amount < 75 ? 100 : (100 - ptrEnvelope->amount) + 75  )*high_y)/100;
+
+    if(ptrEnvelope->amount > 75) // 75 - 100
+    {
+    	// 67 - 50
+    	p50_y = bott_y - ((  ((100-ptrEnvelope->amount) *17)/25 + 50   )*high_y)/100;
+    	// 33 - 25
+    	p25_y = bott_y - ((  ((100-ptrEnvelope->amount)*8)/25 + 25   )*high_y)/100;
+    }
+    else if(ptrEnvelope->amount > 50) // 50 - 75
+    {
+    	// 100 - 67
+    	p50_y = bott_y - ((  ((75-ptrEnvelope->amount) *33)/25 + 67   )*high_y)/100;
+    	// 50 - 33
+    	p25_y = bott_y - ((  ((75-ptrEnvelope->amount)*17)/25 + 33   )*high_y)/100;
+    }
+    else if(ptrEnvelope->amount > 25) // 25 - 50
+    {
+    	// 100
+    	p50_y = bott_y - ((  100   )*high_y)/100;
+    	// 100 - 50
+    	p25_y = bott_y - ((  ((50-ptrEnvelope->amount)*50)/25 + 50   )*high_y)/100;
+    }
+    else
+    {
+    	p50_y = top_y;
+    	p25_y = top_y;
+    }
+
+
+    //p25_y = bott_y - ((   ptrEnvelope->amount < 25 ? 100 : (100 - ptrEnvelope->amount) + 25  )*high_y)/100;
+
+    //if(cent_y < top_y) p50_y = top_y;
+
+	API_SAVE_CONTEXT();
+
+
+	API_SCISSOR_XY(a_x, top_y);
+	API_SCISSOR_SIZE(end_x-a_x, bott_y-top_y);
+
+
+	API_CMD_GRADIENT(a_x, top_y, displayColors.envelopeGradTop , a_x, bott_y, displayColors.envelopeGradBott);
+
+
+	API_COLOR(displayColors.bgColor);
+
+	API_LINE_WIDTH(16);
+	API_BEGIN(EDGE_STRIP_A);
+	API_VERTEX2II(a_x, a_y, 0,0);
+	API_VERTEX2II(d_x, d_y,0,0);
+	API_VERTEX2II(s_x, s_y, 0,0);
+	API_VERTEX2II(r_x, r_y,0,0);
+	API_VERTEX2II(end_x, end_y, 0,0);
+	API_END();
+
+
+
+
+	API_COLOR(displayColors.envelopeLines);
 	API_LINE_WIDTH(16);
 	API_BEGIN(LINE_STRIP);
 
@@ -629,9 +702,102 @@ void cMtDisplay::ramg_envelope()
 
 	API_END();
 
+	API_RESTORE_CONTEXT();
+
+	API_BLEND_FUNC(SRC_ALPHA, ONE);
 
 
-    API_LIB_EndCoProList();
+
+	//API_BLEND_FUNC(DST_ALPHA, ONE_MINUS_SRC_ALPHA);
+
+	API_COLOR(displayColors.envelopeBGGrid);
+	API_LINE_WIDTH(8);
+	API_BEGIN(LINES);
+
+	//poziome-----------------------------------------
+
+	API_VERTEX2II(a_x-20, p100_y, 0, 0);
+	API_VERTEX2II(x_max, p100_y, 0, 0);
+
+	API_VERTEX2II(a_x-20, p75_y, 0, 0);
+	API_VERTEX2II(x_max, p75_y, 0, 0);
+
+	API_VERTEX2II(a_x-20, p50_y, 0, 0);
+	API_VERTEX2II(x_max, p50_y, 0, 0);
+
+	API_VERTEX2II(a_x-20, p25_y, 0, 0);
+	API_VERTEX2II(x_max, p25_y, 0, 0);
+
+	API_VERTEX2II(a_x-20, bott_y, 0, 0);
+	API_VERTEX2II(x_max, bott_y, 0, 0);
+
+	//pionowe----------------------------------------
+
+	API_VERTEX2II(a_x, top_y, 0, 0);
+	API_VERTEX2II(a_x, bott_y, 0, 0);
+
+	API_VERTEX2II(d_x, top_y, 0, 0);
+	API_VERTEX2II(d_x, bott_y, 0, 0);
+
+	API_VERTEX2II(s_x, top_y, 0, 0);
+	API_VERTEX2II(s_x, bott_y, 0, 0);
+
+	API_VERTEX2II(r_x, top_y, 0, 0);
+	API_VERTEX2II(r_x, bott_y, 0, 0);
+
+	API_VERTEX2II(end_x, top_y, 0, 0);
+	API_VERTEX2II(end_x, bott_y, 0, 0);
+
+
+
+	API_END();
+
+	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+
+	//wartosci----------------------------------------
+
+	API_COLOR(displayColors.fontEnvelope);
+	if(ptrEnvelope->attack > 0)
+	{
+		API_CMD_NUMBER((a_x+((d_x-a_x)/2))-5, cent_y, MT_GPU_RAM_FONT1_HANDLE, (OPT_RIGHTX | OPT_CENTERY), ptrEnvelope->attack);
+	}
+
+
+	if(ptrEnvelope->decay > 0)
+	{
+		if(ptrEnvelope->sustain <= 50)
+		{
+			API_CMD_NUMBER((s_x+((d_x-s_x)/2))+5, top_y+(s_y-top_y)/2, MT_GPU_RAM_FONT1_HANDLE, (OPT_RIGHTX | OPT_CENTERY), ptrEnvelope->decay);
+		}
+		else
+		{
+			if(ptrEnvelope->decay < 50)
+				API_CMD_NUMBER(d_x+5, s_y+10, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrEnvelope->decay);
+			else
+				API_CMD_NUMBER((s_x+((d_x-s_x)/2))+5, top_y+((s_y-top_y)/2)+10, MT_GPU_RAM_FONT1_HANDLE, (OPT_RIGHTX | OPT_CENTERY), ptrEnvelope->decay);
+		}
+	}
+
+
+	if(ptrEnvelope->sustain > 50)
+	{
+		API_CMD_NUMBER((s_x+((r_x-s_x)/2)), s_y+10, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrEnvelope->sustain);
+	}
+	else
+	{
+		API_CMD_NUMBER((s_x+((r_x-s_x)/2)), s_y-10, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrEnvelope->sustain);
+	}
+
+
+	if(ptrEnvelope->release > 0)
+	{
+		API_CMD_NUMBER((r_x+((end_x-r_x)/2))+5, s_y+(end_y-s_y)/2, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrEnvelope->release);
+	}
+
+	API_CMD_NUMBER(a_x-25, top_y, MT_GPU_RAM_FONT1_HANDLE, (OPT_RIGHTX | OPT_CENTERY), ptrEnvelope->amount);
+
+
+	API_LIB_EndCoProList();
 
 	updateAdress = ramAddress.envelope;
 	updateSize = &ramSize.envelope;

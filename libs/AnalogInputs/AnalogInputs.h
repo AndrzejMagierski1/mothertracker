@@ -286,6 +286,16 @@ extern cAnalogInputs AnalogInputs;
 //
 // * - stany wywołujące procedury akcji
 
+
+
+
+
+
+
+
+
+
+
 const uint16_t force_ratio[375] =
 {
 0,

@@ -34,6 +34,8 @@ const uint16_t  RELEASE_MAX					=	11000;
 
 const float  VOLUME_MAX						=	1.0;
 
+const float  FILTER_CUTOFF_MAX				=	477;
+
 //=====================================================================
 //=====================================================================
 //=====================================================================
@@ -110,27 +112,36 @@ struct strSampleBank
 
 struct strInstrument
 {
-	int8_t sampleIndex;
+    uint8_t sampleIndex;
 
-	uint8_t  playMode;
-	uint16_t startPoint;
-	uint16_t loopPoint1;
-	uint16_t loopPoint2;
-	uint16_t endPoint;
+    uint8_t  playMode;
+    uint16_t startPoint;
+    uint16_t loopPoint1;
+    uint16_t loopPoint2;
+    uint16_t endPoint;
 
-	uint16_t ampDelay;
-	uint16_t ampAttack;
-	uint16_t ampHold;
-	uint16_t ampDecay;
-	float	 ampSustain;
-	uint16_t ampRelease;
+    struct strEnvelope
+    {
+        uint16_t delay;
+        uint16_t attack;
+        uint16_t hold;
+        uint16_t decay;
+        float    sustain;
+        uint16_t release;
+    }envelopeAmp, envelopeFilter;
 
-	uint16_t glide;
-	int16_t panning;
-	uint16_t filter;
-	uint8_t volume;
+
+    float volume;
+
+    uint16_t freq; // 0 - 477
+    float resonance;
+
+    uint8_t filterType;
+    uint8_t filterEnvelope;
+
+    uint16_t glide;
+    int16_t panning;
 };
-
 
 
 struct strStep

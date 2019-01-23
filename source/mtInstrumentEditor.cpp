@@ -190,12 +190,12 @@ void cMtInstrumentEditor::startEmpty()
 	editorInstrument.loopPoint2 = SAMPLE_POINT_POS_MAX;
 	editorInstrument.endPoint = SAMPLE_POINT_POS_MAX;
 
-	editorInstrument.ampDelay = 0;
-	editorInstrument.ampAttack = 0;
-	editorInstrument.ampHold = 0;
-	editorInstrument.ampDecay = 0;
-	editorInstrument.ampSustain = 100;
-	editorInstrument.ampRelease = 0;
+	editorInstrument.envelopeAmp.delay = 0;
+	editorInstrument.envelopeAmp.attack = 0;
+	editorInstrument.envelopeAmp.hold = 0;
+	editorInstrument.envelopeAmp.decay = 0;
+	editorInstrument.envelopeAmp.sustain = 1;
+	editorInstrument.envelopeAmp.release = 0;
 	editorInstrument.panning = 0;
 
 	sampleListEnabled = 1;
@@ -248,6 +248,7 @@ void cMtInstrumentEditor::potChange(uint8_t pot, int16_t value)
 		case mtInstrumentEditorPotFunctionDecay  			: 	changeDecay(value);			break;
 		case mtInstrumentEditorPotFunctionSustaion  		: 	changeSustain(value);		break;
 		case mtInstrumentEditorPotFunctionRelease  			: 	changeRelease(value);		break;
+		case mtInstrumentEditorPotFunctionAmount  			: 	changeAmount(value);		break;
 		default: break;
 	}
 
@@ -382,7 +383,7 @@ void cMtInstrumentEditor::processParameters()
 			case mtInstrumentEditorValueFilter:
 			{
 				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueFilter];
-				values.value[i] =  editorInstrument.filter;
+				values.value[i] =  (editorInstrument.freq*100)/FILTER_CUTOFF_MAX;
 				break;
 			}
 			case mtInstrumentEditorValue1:
@@ -411,10 +412,10 @@ void cMtInstrumentEditor::processEnvelopes()
 	{
 		envelope.type = envelopeType;
 
-		envelope.attack  = (editorInstrument.ampAttack*70)/ATTACK_MAX;
-		envelope.decay   = (editorInstrument.ampDecay*70)/DECAY_MAX;
-		envelope.sustain = (editorInstrument.ampSustain*65);
-		envelope.release = (editorInstrument.ampRelease*70)/RELEASE_MAX;
+		envelope.attack  = (editorInstrument.envelopeAmp.attack*100)/ATTACK_MAX;
+		envelope.decay   = (editorInstrument.envelopeAmp.decay*100)/DECAY_MAX;
+		envelope.sustain = (editorInstrument.envelopeAmp.sustain*100);
+		envelope.release = (editorInstrument.envelopeAmp.release*100)/RELEASE_MAX;
 
 		envelope.amount  = (editorInstrument.volume*100);
 	}
@@ -580,7 +581,7 @@ void cMtInstrumentEditor::updatePotsFunctions()
 			}
 			else if(envelopesEnabled)
 			{
-				setPotFunction(0, mtInstrumentEditorPotFunctionNone);
+				setPotFunction(0, mtInstrumentEditorPotFunctionAmount);
 				setPotFunction(1, mtInstrumentEditorPotFunctionAttack);
 				setPotFunction(2, mtInstrumentEditorPotFunctionDecay);
 				setPotFunction(3, mtInstrumentEditorPotFunctionSustaion);
@@ -820,9 +821,9 @@ void cMtInstrumentEditor::changeAttack(int16_t value)
 {
 	value = value * 100;
 
-	if(editorInstrument.ampAttack + value < 0) editorInstrument.ampAttack = 0;
-	else if(editorInstrument.ampAttack + value > ATTACK_MAX ) editorInstrument.ampAttack = ATTACK_MAX;
-	else editorInstrument.ampAttack += value;
+	if(editorInstrument.envelopeAmp.attack + value < 0) editorInstrument.envelopeAmp.attack = 0;
+	else if(editorInstrument.envelopeAmp.attack + value > ATTACK_MAX ) editorInstrument.envelopeAmp.attack = ATTACK_MAX;
+	else editorInstrument.envelopeAmp.attack += value;
 
 	envelopesChanged = 1;
 }
@@ -831,9 +832,9 @@ void cMtInstrumentEditor::changeDecay(int16_t value)
 {
 	value = value * 100;
 
-	if(editorInstrument.ampDecay + value < 0) editorInstrument.ampDecay = 0;
-	else if(editorInstrument.ampDecay + value > DECAY_MAX ) editorInstrument.ampDecay = DECAY_MAX;
-	else editorInstrument.ampDecay += value;
+	if(editorInstrument.envelopeAmp.decay + value < 0) editorInstrument.envelopeAmp.decay = 0;
+	else if(editorInstrument.envelopeAmp.decay + value > DECAY_MAX ) editorInstrument.envelopeAmp.decay = DECAY_MAX;
+	else editorInstrument.envelopeAmp.decay += value;
 
 	envelopesChanged = 1;
 }
@@ -842,9 +843,9 @@ void cMtInstrumentEditor::changeSustain(int16_t value)
 {
 	float fVal = value * 0.01;
 
-	if(editorInstrument.ampSustain + fVal < 0) editorInstrument.ampSustain = 0;
-	else if(editorInstrument.ampSustain + fVal > SUSTAIN_MAX ) editorInstrument.ampSustain = SUSTAIN_MAX;
-	else editorInstrument.ampSustain += fVal;
+	if(editorInstrument.envelopeAmp.sustain + fVal < 0) editorInstrument.envelopeAmp.sustain = 0;
+	else if(editorInstrument.envelopeAmp.sustain + fVal > SUSTAIN_MAX ) editorInstrument.envelopeAmp.sustain = SUSTAIN_MAX;
+	else editorInstrument.envelopeAmp.sustain += fVal;
 
 	envelopesChanged = 1;
 }
@@ -853,9 +854,23 @@ void cMtInstrumentEditor::changeRelease(int16_t value)
 {
 	value = value * 100;
 
-	if(editorInstrument.ampRelease + value < 0) editorInstrument.ampRelease = 0;
-	else if(editorInstrument.ampRelease + value > RELEASE_MAX ) editorInstrument.ampRelease = RELEASE_MAX;
-	else editorInstrument.ampRelease += value;
+	if(editorInstrument.envelopeAmp.release + value < 0) editorInstrument.envelopeAmp.release = 0;
+	else if(editorInstrument.envelopeAmp.release + value > RELEASE_MAX ) editorInstrument.envelopeAmp.release = RELEASE_MAX;
+	else editorInstrument.envelopeAmp.release += value;
+
+	envelopesChanged = 1;
+}
+
+void cMtInstrumentEditor::changeAmount(int16_t value)
+{
+	float fVal = value * 0.01;
+
+	if(envelopeType == 0)
+	{
+		if(editorInstrument.volume + fVal < 0) editorInstrument.volume = 0;
+		else if(editorInstrument.volume + fVal > VOLUME_MAX ) editorInstrument.volume = VOLUME_MAX;
+		else editorInstrument.volume += fVal;
+	}
 
 	envelopesChanged = 1;
 }

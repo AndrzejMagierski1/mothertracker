@@ -48,6 +48,7 @@ enum enumMtInstrumentEditorPotFunction
 	mtInstrumentEditorPotFunctionDecay,
 	mtInstrumentEditorPotFunctionSustaion,
 	mtInstrumentEditorPotFunctionRelease,
+	mtInstrumentEditorPotFunctionAmount,
 
 
 	//-------------------------------
@@ -88,6 +89,7 @@ const uint16_t potsFuncResolutions[mtInstrumentEditorPotFunctionCount]=
 		100,	//mtInstrumentEditorPotFunctionDecay,
 		100,	//mtInstrumentEditorPotFunctionSustaion,
 		100,	//mtInstrumentEditorPotFunctionRelease,
+		100,	//mtInstrumentEditorPotFunctionAmount,
 
 
 };
@@ -168,6 +170,7 @@ private:
 	void changeDecay(int16_t value);
 	void changeSustain(int16_t value);
 	void changeRelease(int16_t value);
+	void changeAmount(int16_t value);
 
 	uint8_t	instrumentEditorMode = mtInstrumentEditorModeDisabled;
 	uint8_t	refreshInstrumentEditor = 0;
@@ -262,6 +265,7 @@ private:
 		"Decay",
 		"Sustain",
 		"Release",
+		"Amount",
 	};
 
 };

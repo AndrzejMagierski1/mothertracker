@@ -75,12 +75,12 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 	{
 		uint8_t status;
 		float gainL=0,gainR=0;
-		envelopePtr->delay(mtProject.instrument[step->instrumentIndex].ampDelay);
-		envelopePtr->attack(mtProject.instrument[step->instrumentIndex].ampAttack);
-		envelopePtr->hold(mtProject.instrument[step->instrumentIndex].ampHold);
-		envelopePtr->decay(mtProject.instrument[step->instrumentIndex].ampDecay);
-		envelopePtr->sustain(mtProject.instrument[step->instrumentIndex].ampSustain);
-		envelopePtr->release(mtProject.instrument[step->instrumentIndex].ampRelease);
+		envelopePtr->delay(mtProject.instrument[step->instrumentIndex].envelopeAmp.delay);
+		envelopePtr->attack(mtProject.instrument[step->instrumentIndex].envelopeAmp.attack);
+		envelopePtr->hold(mtProject.instrument[step->instrumentIndex].envelopeAmp.hold);
+		envelopePtr->decay(mtProject.instrument[step->instrumentIndex].envelopeAmp.decay);
+		envelopePtr->sustain(mtProject.instrument[step->instrumentIndex].envelopeAmp.sustain);
+		envelopePtr->release(mtProject.instrument[step->instrumentIndex].envelopeAmp.release);
 
 		ampPtr->gain(step->volume/100.0);
 
@@ -99,17 +99,19 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 	uint8_t instrumentEngine :: play(strInstrument * instr,strMtModAudioEngine * mod, int8_t note)
 	{
 		uint8_t status=0;
-		envelopePtr->delay(instr->ampDelay);
-		envelopePtr->attack(instr->ampAttack);
-		envelopePtr->hold(instr->ampHold);
-		envelopePtr->decay(instr->ampDecay);
-		envelopePtr->sustain(instr->ampSustain);
-		envelopePtr->release(instr->ampRelease);
+		envelopePtr->delay(instr->envelopeAmp.delay);
+		envelopePtr->attack(instr->envelopeAmp.attack);
+		envelopePtr->hold(instr->envelopeAmp.hold);
+		envelopePtr->decay(instr->envelopeAmp.decay);
+		envelopePtr->sustain(instr->envelopeAmp.sustain);
+		envelopePtr->release(instr->envelopeAmp.release);
 
 		mixerL.gain(numPanChannel,instr->panning/100.0);
 		mixerR.gain(numPanChannel,(100-instr->panning)/100.0);
 
-		status = playMemPtr->play(instr,mod,1.0,note);
+		ampPtr->gain(instr->volume);
+
+		status = playMemPtr->play(instr,mod,1.0,24);
 		envelopePtr->noteOn();
 
 		return status;
@@ -136,6 +138,8 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 
 		mixerL.gain(numPanChannel,instr->panning/100.0);
 		mixerR.gain(numPanChannel,(100-instr->panning)/100.0);
+
+		ampPtr->gain(instr->volume);
 		status=playMemPtr->setMod(instr,mod,24);
 
 		return status;

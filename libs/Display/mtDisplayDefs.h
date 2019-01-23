@@ -184,9 +184,11 @@ struct strMtDisplayColors
 	uint32_t fontList 			= DISP_RGB(255,255,255);
 
 
-	uint32_t envelopeLines 		= DISP_RGB(255,255,255);
-	uint32_t envelopeBGLines	= DISP_RGB(85,74,25);
+	uint32_t envelopeLines 		= DISP_RGB(200,200,200);
+	uint32_t envelopeGradTop	= DISP_RGB(90,90,90);//DISP_RGB(200,200,200);
+	uint32_t envelopeGradBott	= DISP_RGB(90,90,90);
 	uint32_t fontEnvelope 		= DISP_RGB(255,255,255);
+	uint32_t envelopeBGGrid 	= DISP_RGB(50,50,50);
 };
 
 

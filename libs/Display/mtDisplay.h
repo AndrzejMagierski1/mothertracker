@@ -157,7 +157,7 @@ private:
 	#ifdef DEBUG
 
 	#define MAX_PRINT_LINES 6
-	#define PRINT_SHOW_TIME 3000
+	#define PRINT_SHOW_TIME 1000
 	char text[MAX_PRINT_LINES][256];
 	uint8_t	lastPrintLine = 0;
 	uint8_t	firstPrintLine = 0;
