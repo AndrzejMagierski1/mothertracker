@@ -106,12 +106,12 @@ void AudioFilterStateVariable::update_variable(const int16_t *in,
 		// compute fmult using control input, fcenter and octavemult
 		/*=========================================================== próba przerobienia zakresu*/
 		ctlValue= ((float)*ctl) * (1.0f / 32767.0f);
-		if(filterType == 3)
+		if(filterControlType == ENVELOPE_HIGH_PASS_CONTROL)
 		{
 			ctlValue*=2;
 			ctlValue+=1.0; // highpass
 		}
-		else if(filterType == 1)
+		else if(filterControlType == ENVELOPE_LOW_PASS_CONTROL)
 		{
 			ctlValue*=2;
 			ctlValue-=1.0; //lowpass;

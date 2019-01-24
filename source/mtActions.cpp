@@ -17,6 +17,7 @@ extern strMtModAudioEngine modAudioEngine[8];
 #include "mtDisplay.h"
 
 uint8_t licznik=0; // wyrzucic po testach
+uint16_t freqTest=0; // to samo
 
 void onPowerButtonChange(uint8_t value);
 
@@ -55,25 +56,21 @@ void onPadRelease(uint8_t n)
 void onPotChange(uint8_t n, int16_t value)
 {
 
-
-
-
-
 	mtHaptic.start(15,150,0x01,56);
 
-/*	if(value>=1)
+	if(value>= 1)
 	{
-		if(mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].freq) mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].freq++;
+		if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].freq< 700) mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].freq++;
 	}
-	if(value<=1)
+	if(value<= -1)
 	{
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].freq--;
+		if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].freq > 0) mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].freq--;
 	}
-	instrumentPlayer[1].change(&mtPatern.track[1].step[licznik++],&modAudioEngine[0]);*/
-	mtPrint("pot change: ");
+	instrumentPlayer[1].change(&mtPatern.track[1].step[licznik],&modAudioEngine[0]);
+/*	mtPrint("pot change: ");
 	mtPrint(n);
 	mtPrint(" value: ");
-	mtPrintln(value);
+	mtPrintln(value); */
 }
 
 //-----------------------------------------------------------------
@@ -115,10 +112,11 @@ void onButtonChange(uint8_t n, uint8_t value)
 
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].panning=50;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].glide=50;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].freq=350;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].freq=20;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].resonance=0.7;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].filterType=lowPass;
 		mtPatern.track[1].step[0].volume=100;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].volume=1.0;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].filterEnvelope=envelopeOff;
 /*		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].startPoint=0;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].endPoint=65533;

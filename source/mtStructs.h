@@ -19,12 +19,9 @@ const uint8_t NUMBER_OF_NOTES =					48;
 const float MIN_PITCH =							0.25;
 const float MAX_PITCH =							4.0;
 
-const uint16_t HIGH_PASS_FILTER_FREQ =			(14000/128); // 7 octaves up
-const uint16_t HIGH_PASS_FILTER_FREQ_7UP =		(14000); // 14 octaves up
-const uint16_t LOW_PASS_FILTER_FREQ =			(14000/128); // 7 octaves down
-const uint16_t LOW_PASS_FILTER_FREQ_7DOWN =		(14000/16384); // 14 octaves down
-const uint16_t OCTAVES_BUFFOR_SIZE = 			351;
-const uint16_t THREE_OCTAVES_IN_BUFFOR =		151;
+const uint16_t HIGH_PASS_FILTER_FREQ =			(14000/128);
+const uint16_t LOW_PASS_FILTER_FREQ =			(14000/128);
+const float MAX_OCTAVE_CONTROL = 				7.0;
 
 //=====================================================================
 enum memoryPlayStatus
@@ -55,7 +52,6 @@ enum filterEnvelope
 {
 	envelopeOff=0,
 	envelopeOn
-
 };
 
 enum filterType
@@ -64,6 +60,14 @@ enum filterType
 	lowPass,
 	bandPass,
 	highPass
+};
+
+enum filterControlType
+{
+	manualControl,
+	envelopeControlHighPass,
+	envelopeControlLowPass,
+	lfoControl,
 };
 //=====================================================================
 

@@ -30,6 +30,11 @@
 #include "Arduino.h"
 #include "AudioStream.h"
 
+#define MANUAL_CONTROL 0
+#define ENVELOPE_HIGH_PASS_CONTROL 1
+#define ENVELOPE_LOW_PASS_CONTROL 2
+#define LFO_CONTROL 3
+
 class AudioFilterStateVariable: public AudioStream
 {
 public:
@@ -79,7 +84,7 @@ private:
 	int32_t state_inputprev;
 	int32_t state_lowpass;
 	int32_t state_bandpass;
-	uint8_t filterType;
+	uint8_t filterControlType;
 	audio_block_t *inputQueueArray[2];
 };
 

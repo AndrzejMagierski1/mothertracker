@@ -52,39 +52,7 @@ const float filterFreq[478] =
 
 };
 
-const float filterOctaves[OCTAVES_BUFFOR_SIZE] =
-{
- 7.0000000 ,  6.9800000 ,  6.9600000 ,  6.9400000 ,  6.9200000 ,  6.9000000 ,  6.8800000 ,  6.8600000 ,  6.8400000 ,  6.8200000 ,  6.8000000 ,  6.7800000 ,
- 6.7600000 ,  6.7400000 ,  6.7200000 ,  6.7000000 ,  6.6800000 ,  6.6600000 ,  6.6400000 ,  6.6200000 ,  6.6000000 ,  6.5800000 ,  6.5600000 ,  6.5400000 ,
- 6.5200000 ,  6.5000000 ,  6.4800000 ,  6.4600000 ,  6.4400000 ,  6.4200000 ,  6.4000000 ,  6.3800000 ,  6.3600000 ,  6.3400000 ,  6.3200000 ,  6.3000000 ,
- 6.2800000 ,  6.2600000 ,  6.2400000 ,  6.2200000 ,  6.2000000 ,  6.1800000 ,  6.1600000 ,  6.1400000 ,  6.1200000 ,  6.1000000 ,  6.0800000 ,  6.0600000 ,
- 6.0400000 ,  6.0200000 ,  6.0000000 ,  5.9800000 ,  5.9600000 ,  5.9400000 ,  5.9200000 ,  5.9000000 ,  5.8800000 ,  5.8600000 ,  5.8400000 ,  5.8200000 ,
- 5.8000000 ,  5.7800000 ,  5.7600000 ,  5.7400000 ,  5.7200000 ,  5.7000000 ,  5.6800000 ,  5.6600000 ,  5.6400000 ,  5.6200000 ,  5.6000000 ,  5.5800000 ,
- 5.5600000 ,  5.5400000 ,  5.5200000 ,  5.5000000 ,  5.4800000 ,  5.4600000 ,  5.4400000 ,  5.4200000 ,  5.4000000 ,  5.3800000 ,  5.3600000 ,  5.3400000 ,
- 5.3200000 ,  5.3000000 ,  5.2800000 ,  5.2600000 ,  5.2400000 ,  5.2200000 ,  5.2000000 ,  5.1800000 ,  5.1600000 ,  5.1400000 ,  5.1200000 ,  5.1000000 ,
- 5.0800000 ,  5.0600000 ,  5.0400000 ,  5.0200000 ,  5.0000000 ,  4.9800000 ,  4.9600000 ,  4.9400000 ,  4.9200000 ,  4.9000000 ,  4.8800000 ,  4.8600000 ,
- 4.8400000 ,  4.8200000 ,  4.8000000 ,  4.7800000 ,  4.7600000 ,  4.7400000 ,  4.7200000 ,  4.7000000 ,  4.6800000 ,  4.6600000 ,  4.6400000 ,  4.6200000 ,
- 4.6000000 ,  4.5800000 ,  4.5600000 ,  4.5400000 ,  4.5200000 ,  4.5000000 ,  4.4800000 ,  4.4600000 ,  4.4400000 ,  4.4200000 ,  4.4000000 ,  4.3800000 ,
- 4.3600000 ,  4.3400000 ,  4.3200000 ,  4.3000000 ,  4.2800000 ,  4.2600000 ,  4.2400000 ,  4.2200000 ,  4.2000000 ,  4.1800000 ,  4.1600000 ,  4.1400000 ,
- 4.1200000 ,  4.1000000 ,  4.0800000 ,  4.0600000 ,  4.0400000 ,  4.0200000 ,  4.0000000 ,  3.9800000 ,  3.9600000 ,  3.9400000 ,  3.9200000 ,  3.9000000 ,
- 3.8800000 ,  3.8600000 ,  3.8400000 ,  3.8200000 ,  3.8000000 ,  3.7800000 ,  3.7600000 ,  3.7400000 ,  3.7200000 ,  3.7000000 ,  3.6800000 ,  3.6600000 ,
- 3.6400000 ,  3.6200000 ,  3.6000000 ,  3.5800000 ,  3.5600000 ,  3.5400000 ,  3.5200000 ,  3.5000000 ,  3.4800000 ,  3.4600000 ,  3.4400000 ,  3.4200000 ,
- 3.4000000 ,  3.3800000 ,  3.3600000 ,  3.3400000 ,  3.3200000 ,  3.3000000 ,  3.2800000 ,  3.2600000 ,  3.2400000 ,  3.2200000 ,  3.2000000 ,  3.1800000 ,
- 3.1600000 ,  3.1400000 ,  3.1200000 ,  3.1000000 ,  3.0800000 ,  3.0600000 ,  3.0400000 ,  3.0200000 ,  3.0000000 ,  2.9800000 ,  2.9600000 ,  2.9400000 ,
- 2.9200000 ,  2.9000000 ,  2.8800000 ,  2.8600000 ,  2.8400000 ,  2.8200000 ,  2.8000000 ,  2.7800000 ,  2.7600000 ,  2.7400000 ,  2.7200000 ,  2.7000000 ,
- 2.6800000 ,  2.6600000 ,  2.6400000 ,  2.6200000 ,  2.6000000 ,  2.5800000 ,  2.5600000 ,  2.5400000 ,  2.5200000 ,  2.5000000 ,  2.4800000 ,  2.4600000 ,
- 2.4400000 ,  2.4200000 ,  2.4000000 ,  2.3800000 ,  2.3600000 ,  2.3400000 ,  2.3200000 ,  2.3000000 ,  2.2800000 ,  2.2600000 ,  2.2400000 ,  2.2200000 ,
- 2.2000000 ,  2.1800000 ,  2.1600000 ,  2.1400000 ,  2.1200000 ,  2.1000000 ,  2.0800000 ,  2.0600000 ,  2.0400000 ,  2.0200000 ,  2.0000000 ,  1.9800000 ,
- 1.9600000 ,  1.9400000 ,  1.9200000 ,  1.9000000 ,  1.8800000 ,  1.8600000 ,  1.8400000 ,  1.8200000 ,  1.8000000 ,  1.7800000 ,  1.7600000 ,  1.7400000 ,
- 1.7200000 ,  1.7000000 ,  1.6800000 ,  1.6600000 ,  1.6400000 ,  1.6200000 ,  1.6000000 ,  1.5800000 ,  1.5600000 ,  1.5400000 ,  1.5200000 ,  1.5000000 ,
- 1.4800000 ,  1.4600000 ,  1.4400000 ,  1.4200000 ,  1.4000000 ,  1.3800000 ,  1.3600000 ,  1.3400000 ,  1.3200000 ,  1.3000000 ,  1.2800000 ,  1.2600000 ,
- 1.2400000 ,  1.2200000 ,  1.2000000 ,  1.1800000 ,  1.1600000 ,  1.1400000 ,  1.1200000 ,  1.1000000 ,  1.0800000 ,  1.0600000 ,  1.0400000 ,  1.0200000 ,
- 1.0000000 ,  0.9800000 ,  0.9600000 ,  0.9400000 ,  0.9200000 ,  0.9000000 ,  0.8800000 ,  0.8600000 ,  0.8400000 ,  0.8200000 ,  0.8000000 ,  0.7800000 ,
- 0.7600000 ,  0.7400000 ,  0.7200000 ,  0.7000000 ,  0.6800000 ,  0.6600000 ,  0.6400000 ,  0.6200000 ,  0.6000000 ,  0.5800000 ,  0.5600000 ,  0.5400000 ,
- 0.5200000 ,  0.5000000 ,  0.4800000 ,  0.4600000 ,  0.4400000 ,  0.4200000 ,  0.4000000 ,  0.3800000 ,  0.3600000 ,  0.3400000 ,  0.3200000 ,  0.3000000 ,
- 0.2800000 ,  0.2600000 ,  0.2400000 ,  0.2200000 ,  0.2000000 ,  0.1800000 ,  0.1600000 ,  0.1400000 ,  0.1200000 ,  0.1000000 ,  0.0800000 ,  0.0600000 ,
- 0.0400000 ,  0.0200000 ,  0.0000000
-};
+
 /*
 AudioConnection,	dcToEnvFilter[8] =
 {
@@ -349,14 +317,14 @@ AudioConnection         connect58(mixerR, 0, i2s1, 0);
 				dcFilterPtr->amplitude(-1.0);
 
 				filterPtr->frequency(HIGH_PASS_FILTER_FREQ);
-				filterPtr->octaveControl(filterOctaves[mtProject.instrument[step->instrumentIndex].freq], highPass);
+				filterPtr->octaveControl(MAX_OCTAVE_CONTROL, envelopeControlHighPass);
 			}
 			else if(mtProject.instrument[step->instrumentIndex].filterType == lowPass)
 			{
 				dcFilterPtr->amplitude(1.0);
 
 				filterPtr->frequency(LOW_PASS_FILTER_FREQ);
-				filterPtr->octaveControl(filterOctaves[OCTAVES_BUFFOR_SIZE - mtProject.instrument[step->instrumentIndex].freq - 1],lowPass);
+				filterPtr->octaveControl(MAX_OCTAVE_CONTROL,envelopeControlLowPass);
 			}
 		}
 		/*======================================================================================================*/
@@ -414,13 +382,13 @@ AudioConnection         connect58(mixerR, 0, i2s1, 0);
 				dcFilterPtr->amplitude(-1.0);
 
 				filterPtr->frequency(HIGH_PASS_FILTER_FREQ);
-				filterPtr->octaveControl(filterOctaves[instr->freq], highPass);
+				filterPtr->octaveControl(MAX_OCTAVE_CONTROL, envelopeControlHighPass);
 			}
 			else if(instr->filterType == lowPass)
 			{
 				dcFilterPtr->amplitude(1.0);
 				filterPtr->frequency(LOW_PASS_FILTER_FREQ);
-				filterPtr->octaveControl(filterOctaves[OCTAVES_BUFFOR_SIZE - instr->freq - 1],lowPass);
+				filterPtr->octaveControl(MAX_OCTAVE_CONTROL,envelopeControlLowPass);
 			}
 		}
 		/*======================================================================================================*/
@@ -445,7 +413,6 @@ AudioConnection         connect58(mixerR, 0, i2s1, 0);
 		float gainL=0,gainR=0;
 
 		/*================================================FILTER================================================*/
-		changeFilterType(mtProject.instrument[step->instrumentIndex].filterType);
 		filterPtr->resonance(mtProject.instrument[step->instrumentIndex].resonance);
 
 		if(mtProject.instrument[step->instrumentIndex].filterEnvelope == envelopeOff)
@@ -458,31 +425,17 @@ AudioConnection         connect58(mixerR, 0, i2s1, 0);
 			if(mtProject.instrument[step->instrumentIndex].filterType == highPass)
 			{
 				dcFilterPtr->amplitude(-1.0);
-				if(mtProject.instrument[step->instrumentIndex].freq > OCTAVES_BUFFOR_SIZE)
-				{
-					filterPtr->frequency(HIGH_PASS_FILTER_FREQ_7UP);
-					filterPtr->octaveControl(filterOctaves[mtProject.instrument[step->instrumentIndex].freq- OCTAVES_BUFFOR_SIZE - 1], highPass);
-				}
-				else
-				{
-					filterPtr->frequency(HIGH_PASS_FILTER_FREQ);
-					filterPtr->octaveControl(filterOctaves[mtProject.instrument[step->instrumentIndex].freq], highPass);
-				}
+
+				filterPtr->frequency(HIGH_PASS_FILTER_FREQ);
+				filterPtr->octaveControl(MAX_OCTAVE_CONTROL, envelopeControlHighPass);
 
 			}
 			else if(mtProject.instrument[step->instrumentIndex].filterType == lowPass)
 			{
 				dcFilterPtr->amplitude(1.0);
-				if(mtProject.instrument[step->instrumentIndex].freq > OCTAVES_BUFFOR_SIZE)
-				{
-					filterPtr->frequency(LOW_PASS_FILTER_FREQ_7DOWN);
-					filterPtr->octaveControl(filterOctaves[OCTAVES_BUFFOR_SIZE -(mtProject.instrument[step->instrumentIndex].freq - OCTAVES_BUFFOR_SIZE) - 1],lowPass);
-				}
-				else
-				{
-					filterPtr->frequency(LOW_PASS_FILTER_FREQ);
-					filterPtr->octaveControl(filterOctaves[OCTAVES_BUFFOR_SIZE - mtProject.instrument[step->instrumentIndex].freq - 1],lowPass);
-				}
+
+				filterPtr->frequency(LOW_PASS_FILTER_FREQ);
+				filterPtr->octaveControl(MAX_OCTAVE_CONTROL,envelopeControlLowPass);
 			}
 		}
 		/*======================================================================================================*/
@@ -507,7 +460,6 @@ AudioConnection         connect58(mixerR, 0, i2s1, 0);
 	{
 		uint8_t status=0;
 		/*================================================FILTER================================================*/
-		changeFilterType(instr->filterType);
 		filterPtr->resonance(instr->resonance);
 
 		if(instr->filterEnvelope == envelopeOff)
@@ -520,31 +472,16 @@ AudioConnection         connect58(mixerR, 0, i2s1, 0);
 			if(instr->filterType == highPass)
 			{
 				dcFilterPtr->amplitude(-1.0);
-				if(instr->freq > OCTAVES_BUFFOR_SIZE)
-				{
-					filterPtr->frequency(HIGH_PASS_FILTER_FREQ_7UP);
-					filterPtr->octaveControl(filterOctaves[instr->freq- OCTAVES_BUFFOR_SIZE - 1], highPass);
-				}
-				else
-				{
-					filterPtr->frequency(HIGH_PASS_FILTER_FREQ);
-					filterPtr->octaveControl(filterOctaves[instr->freq], highPass);
-				}
 
+				filterPtr->frequency(HIGH_PASS_FILTER_FREQ);
+				filterPtr->octaveControl(MAX_OCTAVE_CONTROL, envelopeControlHighPass);
 			}
 			else if(instr->filterType == lowPass)
 			{
 				dcFilterPtr->amplitude(1.0);
-				if(instr->freq > OCTAVES_BUFFOR_SIZE)
-				{
-					filterPtr->frequency(LOW_PASS_FILTER_FREQ_7DOWN);
-					filterPtr->octaveControl(filterOctaves[OCTAVES_BUFFOR_SIZE -(instr->freq - OCTAVES_BUFFOR_SIZE)  - 1],lowPass);
-				}
-				else
-				{
-					filterPtr->frequency(LOW_PASS_FILTER_FREQ);
-					filterPtr->octaveControl(filterOctaves[OCTAVES_BUFFOR_SIZE - instr->freq - 1],lowPass);
-				}
+
+				filterPtr->frequency(LOW_PASS_FILTER_FREQ);
+				filterPtr->octaveControl(MAX_OCTAVE_CONTROL,envelopeControlLowPass);
 			}
 		}
 		/*======================================================================================================*/
