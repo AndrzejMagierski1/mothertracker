@@ -19,12 +19,12 @@ const uint8_t NUMBER_OF_NOTES =					48;
 const float MIN_PITCH =							0.25;
 const float MAX_PITCH =							4.0;
 
-const uint16_t HIGH_PASS_FILTER_FREQ =			(20*128); // 7 octaves up
-const uint16_t HIGH_PASS_FILTER_FREQ_2UP=		(20*512); // 9 octaves up
-const uint16_t LOW_PASS_FILTER_FREQ =			(15000/128); // 7 octaves down
-const uint16_t LOW_PASS_FILTER_FREQ_2DOWN =		(15000/512); // 2 octaves down
+const uint16_t HIGH_PASS_FILTER_FREQ =			(14000/128); // 7 octaves up
+const uint16_t HIGH_PASS_FILTER_FREQ_7UP =		(14000); // 14 octaves up
+const uint16_t LOW_PASS_FILTER_FREQ =			(14000/128); // 7 octaves down
+const uint16_t LOW_PASS_FILTER_FREQ_7DOWN =		(14000/16384); // 14 octaves down
 const uint16_t OCTAVES_BUFFOR_SIZE = 			351;
-const uint16_t TWO_OCTAVES_IN_BUFFOR =			101;
+const uint16_t THREE_OCTAVES_IN_BUFFOR =		151;
 
 //=====================================================================
 enum memoryPlayStatus
@@ -128,12 +128,12 @@ struct strInstrument
 	}envelopeAmp, envelopeFilter;
 
 
-	uint16_t freq; // 0 - 477
+	uint16_t freq; // 0 - 7
 	float resonance;
 	uint8_t filterType;
 	uint8_t filterEnvelope;
 
-
+	float volume;
 	uint16_t glide;
 	int16_t panning;
 };
