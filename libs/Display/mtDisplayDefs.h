@@ -127,13 +127,13 @@ enum enumMtDispValueTypes
 #define MT_GPU_RAM_LISTS_SIZE				1000
 
 #define MT_GPU_RAM_SPECTRUM_POINTS_ADRESS	(MT_GPU_RAM_LISTS_ADRESS+(5*MT_GPU_RAM_LISTS_SIZE))
-#define MT_GPU_RAM_SPECTRUM_POINTS_SIZE		1000
+#define MT_GPU_RAM_SPECTRUM_POINTS_SIZE		2000
 
 #define MT_GPU_RAM_SPECTRUM_VIEW_ADRESS		(MT_GPU_RAM_SPECTRUM_POINTS_ADRESS+MT_GPU_RAM_SPECTRUM_POINTS_SIZE)
-#define MT_GPU_RAM_SPECTRUM_VIEW_SIZE		1000
+#define MT_GPU_RAM_SPECTRUM_VIEW_SIZE		2000
 
 #define MT_GPU_RAM_ENVELOPE_ADRESS			(MT_GPU_RAM_SPECTRUM_VIEW_ADRESS+MT_GPU_RAM_SPECTRUM_VIEW_SIZE)
-#define MT_GPU_RAM_ENVELOPE_SIZE			1000
+#define MT_GPU_RAM_ENVELOPE_SIZE			2000
 
 
 
@@ -189,6 +189,7 @@ struct strMtDisplayColors
 	uint32_t envelopeGradBott	= DISP_RGB(90,90,90);
 	uint32_t fontEnvelope 		= DISP_RGB(255,255,255);
 	uint32_t envelopeBGGrid 	= DISP_RGB(50,50,50);
+	uint32_t envelopelistFrame 	= DISP_RGB(200,200,200);
 };
 
 
@@ -272,6 +273,7 @@ struct strMtDispValues
 struct strMtDispEnvelope
 {
 	uint8_t type;
+	char * names[INSTRUMEN_ENVELOPES_MAX];
 
 	uint8_t delay;
 	uint8_t attack;
@@ -485,6 +487,113 @@ const float sin_deg[] =
 -1.00,
 -1.00,
 -1.00,
+};
+
+
+
+const uint8_t adsr_log[101] =
+{
+0  ,
+5  ,
+9  ,
+13 ,
+17 ,
+20 ,
+23 ,
+26 ,
+28 ,
+31 ,
+33 ,
+35 ,
+37 ,
+39 ,
+41 ,
+42 ,
+44 ,
+46 ,
+47 ,
+49 ,
+50 ,
+51 ,
+53 ,
+54 ,
+55 ,
+56 ,
+57 ,
+58 ,
+60 ,
+61 ,
+62 ,
+63 ,
+64 ,
+64 ,
+65 ,
+66 ,
+67 ,
+68 ,
+69 ,
+70 ,
+70 ,
+71 ,
+72 ,
+73 ,
+73 ,
+74 ,
+75 ,
+76 ,
+76 ,
+77 ,
+78 ,
+78 ,
+79 ,
+79 ,
+80 ,
+81 ,
+81 ,
+82 ,
+82 ,
+83 ,
+84 ,
+84 ,
+85 ,
+85 ,
+86 ,
+86 ,
+87 ,
+87 ,
+88 ,
+88 ,
+89 ,
+89 ,
+90 ,
+90 ,
+91 ,
+91 ,
+91 ,
+92 ,
+92 ,
+93 ,
+93 ,
+94 ,
+94 ,
+94 ,
+95 ,
+95 ,
+96 ,
+96 ,
+96 ,
+97 ,
+97 ,
+97 ,
+98 ,
+98 ,
+98 ,
+99 ,
+99 ,
+99 ,
+99 ,
+99 ,
+100,
 };
 
 

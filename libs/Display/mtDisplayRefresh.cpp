@@ -456,6 +456,26 @@ void cMtDisplay::ramg_values(uint8_t index)
 	{
 		if(valuesDisplayMode == 0)
 		{
+			uint16_t y = (MT_DISP_BLOCK_VALUE_CENTER_Y + 42) - ((80*(ptrValues->value[index]))/100);
+
+	    	//bg
+			API_COLOR(displayColors.valueBar);
+			API_LINE_WIDTH(8);
+			API_BEGIN(RECTS);
+			API_VERTEX2II((MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_LABEL_OFFSET) , y ,0,0);
+			API_VERTEX2II(MT_DISP_BLOCK_W * (index+1) - 3 , (MT_DISP_BLOCK_VALUE_CENTER_Y + 42),0,0);
+			API_END();
+
+			//number
+			API_COLOR(displayColors.fontValue);
+			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value[index]);
+
+
+		}
+		else if(valuesDisplayMode == 1)
+		{
+
+
 			uint16_t x = MT_DISP_BLOCK_W * index + 3 +(((MT_DISP_BLOCK_W-6)*(ptrValues->value[index]))/100);
 
 	    	//bg
@@ -469,23 +489,6 @@ void cMtDisplay::ramg_values(uint8_t index)
 			//number
 			API_COLOR(displayColors.fontValue);
 			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y-20, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value[index]);
-
-		}
-		else if(valuesDisplayMode == 1)
-		{
-			uint16_t y = (MT_DISP_BLOCK_VALUE_CENTER_Y + 42) - ((80*(ptrValues->value[index]))/100);
-
-	    	//bg
-			API_COLOR(displayColors.valueBar);
-			API_LINE_WIDTH(8);
-			API_BEGIN(RECTS);
-			API_VERTEX2II((MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_LABEL_OFFSET) , y ,0,0);
-			API_VERTEX2II(MT_DISP_BLOCK_W * (index+1) - 3 , (MT_DISP_BLOCK_VALUE_CENTER_Y + 42),0,0);
-			API_END();
-
-			//number
-			API_COLOR(displayColors.fontValue);
-			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value[index]-50);
 
 		}
 
@@ -540,7 +543,7 @@ void cMtDisplay::ramg_values(uint8_t index)
 
 			//number
 			API_COLOR(displayColors.fontValue);
-			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY | OPT_SIGNED), ptrValues->value[index]);
+			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY | OPT_SIGNED), ptrValues->value[index]-50);
 
 
 		/*
@@ -613,24 +616,32 @@ void cMtDisplay::ramg_envelope()
     uint16_t high_y = ADSR_H;
 
 
+    uint8_t envAttack = adsr_log[ptrEnvelope->attack];
+    uint8_t envDecay = adsr_log[ptrEnvelope->decay];
+    uint8_t envSustain = adsr_log[ptrEnvelope->sustain];
+    uint8_t envRelease = adsr_log[ptrEnvelope->release];
+
+
     uint16_t a_x = ADSR_START_X;
     uint16_t a_y = ADSR_START_Y;
-    uint16_t d_x = ADSR_START_X + (ptrEnvelope->attack*70)/100;
-    uint16_t d_y = ADSR_START_Y - ADSR_H;
-    uint16_t s_x = d_x + (ptrEnvelope->decay*70)/100;
-    uint16_t s_y = ADSR_START_Y - (ptrEnvelope->sustain*70)/100;
+    uint16_t d_x = ADSR_START_X + (envAttack*70)/100;
+    uint16_t d_y = ADSR_START_Y - (ADSR_H*ptrEnvelope->amount)/100;
+    uint16_t s_x = d_x + (envDecay*70)/100;
+    uint16_t s_y = ADSR_START_Y - ((envSustain*70)/100* (ptrEnvelope->amount))/100;
     uint16_t r_x = s_x + 60;
     uint16_t r_y = s_y;
-    uint16_t end_x = r_x +	(ptrEnvelope->release*70)/100;
+    uint16_t end_x = r_x +	(envRelease*70)/100;
     uint16_t end_y = ADSR_START_Y;
 
 
-
     uint16_t p100_y = top_y;
-    int16_t p50_y;
-    int16_t p25_y;
+    int16_t p50_y = cent_y;
+    int16_t p25_y = cent_y + step_y;
+    int16_t p75_y = top_y + step_y;
 
-    int16_t p75_y = bott_y - ((   ptrEnvelope->amount < 75 ? 100 : (100 - ptrEnvelope->amount) + 75  )*high_y)/100;
+
+/*
+	p75_y = bott_y - ((   ptrEnvelope->amount < 75 ? 100 : (100 - ptrEnvelope->amount) + 75  )*high_y)/100;
 
     if(ptrEnvelope->amount > 75) // 75 - 100
     {
@@ -658,17 +669,13 @@ void cMtDisplay::ramg_envelope()
     	p50_y = top_y;
     	p25_y = top_y;
     }
-
-
-    //p25_y = bott_y - ((   ptrEnvelope->amount < 25 ? 100 : (100 - ptrEnvelope->amount) + 25  )*high_y)/100;
-
-    //if(cent_y < top_y) p50_y = top_y;
+*/
 
 	API_SAVE_CONTEXT();
 
 
-	API_SCISSOR_XY(a_x, top_y);
-	API_SCISSOR_SIZE(end_x-a_x, bott_y-top_y);
+	API_SCISSOR_XY(a_x, top_y-1);
+	API_SCISSOR_SIZE(end_x-a_x, bott_y-top_y+1);
 
 
 	API_CMD_GRADIENT(a_x, top_y, displayColors.envelopeGradTop , a_x, bott_y, displayColors.envelopeGradBott);
@@ -757,29 +764,29 @@ void cMtDisplay::ramg_envelope()
 	//wartosci----------------------------------------
 
 	API_COLOR(displayColors.fontEnvelope);
-	if(ptrEnvelope->attack > 0)
+	if(envAttack > 0)
 	{
-		API_CMD_NUMBER((a_x+((d_x-a_x)/2))-5, cent_y, MT_GPU_RAM_FONT1_HANDLE, (OPT_RIGHTX | OPT_CENTERY), ptrEnvelope->attack);
+		API_CMD_NUMBER((a_x+((d_x-a_x)/2))-5, bott_y-(a_y-d_y)/2, MT_GPU_RAM_FONT1_HANDLE, (OPT_RIGHTX | OPT_CENTERY), ptrEnvelope->attack);
 	}
 
 
-	if(ptrEnvelope->decay > 0)
+	if(envDecay > 0)
 	{
-		if(ptrEnvelope->sustain <= 50)
+		if(envSustain <= 50)
 		{
 			API_CMD_NUMBER((s_x+((d_x-s_x)/2))+5, top_y+(s_y-top_y)/2, MT_GPU_RAM_FONT1_HANDLE, (OPT_RIGHTX | OPT_CENTERY), ptrEnvelope->decay);
 		}
 		else
 		{
-			if(ptrEnvelope->decay < 50)
+			if(envDecay < 50)
 				API_CMD_NUMBER(d_x+5, s_y+10, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrEnvelope->decay);
 			else
-				API_CMD_NUMBER((s_x+((d_x-s_x)/2))+5, top_y+((s_y-top_y)/2)+10, MT_GPU_RAM_FONT1_HANDLE, (OPT_RIGHTX | OPT_CENTERY), ptrEnvelope->decay);
+				API_CMD_NUMBER((s_x+((d_x-s_x)/2))+5, bott_y-((s_y-a_y)/2)-10, MT_GPU_RAM_FONT1_HANDLE, (OPT_RIGHTX | OPT_CENTERY), ptrEnvelope->decay);
 		}
 	}
 
 
-	if(ptrEnvelope->sustain > 50)
+	if(envSustain > 50)
 	{
 		API_CMD_NUMBER((s_x+((r_x-s_x)/2)), s_y+10, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrEnvelope->sustain);
 	}
@@ -789,13 +796,38 @@ void cMtDisplay::ramg_envelope()
 	}
 
 
-	if(ptrEnvelope->release > 0)
+	if(envRelease > 0)
 	{
 		API_CMD_NUMBER((r_x+((end_x-r_x)/2))+5, s_y+(end_y-s_y)/2, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrEnvelope->release);
 	}
 
-	API_CMD_NUMBER(a_x-25, top_y, MT_GPU_RAM_FONT1_HANDLE, (OPT_RIGHTX | OPT_CENTERY), ptrEnvelope->amount);
+	API_CMD_NUMBER(a_x-15, d_y, MT_GPU_RAM_FONT1_HANDLE, (OPT_RIGHTX | OPT_CENTERY), ptrEnvelope->amount);
 
+//----------------------------------------------------------------------------------------------------
+// lista envelopow
+
+	int16_t x_pos = MT_DISP_BLOCK_W * (0) + ( MT_DISP_BLOCK_MENU_OFFSET);
+	int16_t y_pos = (cent_y - (MT_DISP_BLOCK_MENU_Y_SPACE/2));
+
+	API_COLOR(displayColors.envelopelistFrame);
+	API_LINE_WIDTH(8);
+	API_BEGIN(LINE_STRIP);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W - (MT_DISP_BLOCK_MENU_OFFSET + 6)), y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W - (MT_DISP_BLOCK_MENU_OFFSET + 6)), y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_END();
+
+	int8_t type = ptrEnvelope->type;
+
+	API_COLOR(displayColors.fontEnvelope);
+	API_CMD_TEXT(MT_DISP_BLOCK_W * 0 + (MT_DISP_BLOCK_W/2), cent_y - MT_DISP_BLOCK_MENU_Y_SPACE, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrEnvelope->names[(type-1<0)?INSTRUMEN_ENVELOPES_MAX-1:type-1]);
+	API_CMD_TEXT(MT_DISP_BLOCK_W * 0 + (MT_DISP_BLOCK_W/2), cent_y, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrEnvelope->names[ptrEnvelope->type]);
+	API_CMD_TEXT(MT_DISP_BLOCK_W * 0 + (MT_DISP_BLOCK_W/2), cent_y + MT_DISP_BLOCK_MENU_Y_SPACE, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrEnvelope->names[(type+1>=INSTRUMEN_ENVELOPES_MAX)?0:type+1]);
+
+
+//----------------------------------------------------------------------------------------------------
 
 	API_LIB_EndCoProList();
 

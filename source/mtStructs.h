@@ -19,6 +19,9 @@ const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
 
 const uint8_t NUMBER_OF_NOTES =					48;
 
+const uint8_t INSTRUMEN_ENVELOPES_MAX 		=	3;
+
+
 const float MIN_PITCH =							0.25;
 const float MAX_PITCH =							4.0;
 
@@ -32,9 +35,12 @@ const uint16_t  DECAY_MAX					=	11000;
 const float  	SUSTAIN_MAX					=	1.0;
 const uint16_t  RELEASE_MAX					=	11000;
 
-const float  VOLUME_MAX						=	1.0;
+const uint16_t  FILTER_CUTOFF_MAX 			=	477;
+const float  RESONANCE_MIN					=	0.7;
+const float  RESONANCE_MAX					=	5.0;
 
-const float  FILTER_CUTOFF_MAX				=	477;
+
+const float  VOLUME_MAX						=	1.0;
 
 //=====================================================================
 //=====================================================================
@@ -66,6 +72,26 @@ enum playMode
 
 	playModeMax
 };
+
+enum filterTypes
+{
+	filterTypeLowPass,
+	filterTypeHighPass,
+	filterTypeBandPass,
+
+	filterTypeMax,
+};
+
+
+enum envelopeTypes
+{
+	envelopeTypeAmp,
+	envelopeTypeFilter,
+	envelopeTypePitch,
+
+	envelopeTypeMax,
+};
+
 //=====================================================================
 //=====================================================================
 //=====================================================================
@@ -128,16 +154,18 @@ struct strInstrument
         uint16_t decay;
         float    sustain;
         uint16_t release;
-    }envelopeAmp, envelopeFilter;
+    }envelopeAmp, envelopeFilter, envelopePitch;
 
 
     float volume;
 
     uint16_t freq; // 0 - 477
-    float resonance;
-
     uint8_t filterType;
     uint8_t filterEnvelope;
+    float resonance;
+
+    float pitch;
+
 
     uint16_t glide;
     int16_t panning;

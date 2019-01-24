@@ -141,9 +141,14 @@ private:
 	// lists
 	cMtDisplayList lists[MT_DISP_LISTS_MAX];
 
+	//---------------------------------------------
 	//envelope
 	strMtDispEnvelope * ptrEnvelope;
 
+
+
+
+	//---------------------------------------------
 	// animowane przejscia
 	uint8_t screenAnimation = 0;
 	elapsedMillis animationTimer;

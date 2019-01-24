@@ -111,7 +111,7 @@ AudioConnection          patchCord34(mixerR, 0, i2s1, 0);
 
 		ampPtr->gain(instr->volume);
 
-		status = playMemPtr->play(instr,mod,1.0,24);
+		status = playMemPtr->play(instr,mod,1.0,note);
 		envelopePtr->noteOn();
 
 		return status;

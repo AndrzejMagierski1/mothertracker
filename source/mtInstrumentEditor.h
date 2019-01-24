@@ -7,6 +7,10 @@
 #include "SD.h"
 #include "mtStructs.h"
 
+
+#define ZOOM_MAX 10
+
+
 enum enumMtInstrumentEditorMode
 {
 	mtInstrumentEditorModeDisabled,
@@ -25,6 +29,8 @@ enum enumMtInstrumentEditorButtonFunction
 	mtInstrumentEditorButtonFunctionSampleList,
 	mtInstrumentEditorButtonFunctionParameters,
 	mtInstrumentEditorButtonFunctionChangeGlideNote,
+	mtInstrumentEditorButtonFunctionFilterType,
+	mtInstrumentEditorButtonFunctionEnvelopeType,
 
 	//-------------------------------
 	mtInstrumentEditorButtonFunctionCount
@@ -40,7 +46,7 @@ enum enumMtInstrumentEditorPotFunction
 	mtInstrumentEditorPotFunctionInstrumentSelect,
 	mtInstrumentEditorPotFunctionSampleSelect,
 	mtInstrumentEditorPotFunctionViewPosition,
-	mtInstrumentEditorPotFunctionVievZoom,
+	mtInstrumentEditorPotFunctionViewZoom,
 	mtInstrumentEditorPotFunctionPanning,
 	mtInstrumentEditorPotFunctionGlide,
 	mtInstrumentEditorPotFunctionFilter,
@@ -49,6 +55,8 @@ enum enumMtInstrumentEditorPotFunction
 	mtInstrumentEditorPotFunctionSustaion,
 	mtInstrumentEditorPotFunctionRelease,
 	mtInstrumentEditorPotFunctionAmount,
+	mtInstrumentEditorPotFunctionResonance,
+
 
 
 	//-------------------------------
@@ -61,7 +69,7 @@ enum enumMtInstrumentEditorValue
 	mtInstrumentEditorValuePanning,
 	mtInstrumentEditorValueGlide,
 	mtInstrumentEditorValueFilter,
-	mtInstrumentEditorValue1,
+	mtInstrumentEditorValueResonance,
 	mtInstrumentEditorValue2,
 
 
@@ -90,7 +98,7 @@ const uint16_t potsFuncResolutions[mtInstrumentEditorPotFunctionCount]=
 		100,	//mtInstrumentEditorPotFunctionSustaion,
 		100,	//mtInstrumentEditorPotFunctionRelease,
 		100,	//mtInstrumentEditorPotFunctionAmount,
-
+		100,	//mtInstrumentEditorPotFunctionAmount,
 
 };
 
@@ -112,6 +120,19 @@ const char glidePreviewDifLabels[4][20]=
 		"2 Octaves",
 };
 
+const char filterTypeLabels[3][10]=
+{
+		"Low Pass",
+		"High Pass",
+		"Band Pass",
+};
+
+const char envelopeTypeNames[INSTRUMEN_ENVELOPES_MAX][20]=
+{
+		"Amp Envelope",
+		"Filter Envelope",
+		"Pitch Envelope",
+};
 
 
 class cMtInstrumentEditor
@@ -153,6 +174,8 @@ private:
 	void showParameters(uint8_t value);
 	void changeGlideNote(uint8_t value);
 	void showEnvelopes(uint8_t value);
+	void changeFilterType(uint8_t value);
+	void changeEnvelopeType(uint8_t value);
 
 	//funkcje potow
 	void modStartPoint(int16_t value);
@@ -166,6 +189,7 @@ private:
 	void changePanning(uint8_t pot, int16_t value);
 	void changeGlide(int16_t value);
 	void changeFilter(int16_t value);
+	void changeResonance(int16_t value);
 	void changeAttack(int16_t value);
 	void changeDecay(int16_t value);
 	void changeSustain(int16_t value);
@@ -194,6 +218,9 @@ private:
 
 	uint16_t viewStart = 0;
 	uint16_t viewLength = MAX_16BIT;
+	uint8_t lastPointChanged = 0;;
+	float zoomValue = 1;
+
 
 	uint8_t isPlayingSample;
 
@@ -217,7 +244,7 @@ private:
 			mtDispValueValueLeftRight_0_100,	//mtInstrumentEditorPotValuePanning,
 			mtDispValueValue_0_100,				//mtInstrumentEditorPotValueGlide,
 			mtDispValueValue_0_100,				//mtInstrumentEditorPotValueFilter,
-			mtDispValueValueNone,				//mtInstrumentEditorPotValue1,
+			mtDispValueValue_0_100,				//mtInstrumentEditorValueResonance,
 			mtDispValueValueNone,				//mtInstrumentEditorPotValue2,
 	};
 
@@ -241,6 +268,8 @@ private:
 		"Sample",
 		"Parameters",
 		"Preview Off",
+		"Low Pass",
+		"Switch Envelope",
 	};
 
 	//potencjometry w edytorze
@@ -266,6 +295,7 @@ private:
 		"Sustain",
 		"Release",
 		"Amount",
+		"Resonance",
 	};
 
 };
