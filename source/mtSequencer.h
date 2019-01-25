@@ -179,14 +179,31 @@ private:
 				struct strFx
 				{
 					uint8_t isOn :1;
-					uint8_t target :7;
+					uint8_t type :7;
 
-					uint16_t value = 0;
+					union
+					{
+						uint16_t value_u16;
+						int16_t value_i16;
+
+						struct
+						{
+							uint8_t val1_u8;
+							uint8_t val2_u8;
+						};
+						struct
+						{
+							int8_t val1_i8;
+							int8_t val2_i8;
+						};
+
+					};
+
 				} fx[4];
 
 				// do wyjebania:
-				uint8_t offset;
-				uint8_t hitMode;		// tryb grania, jeśli >1 to rolka
+//				uint8_t offset;
+//				uint8_t hitMode;		// tryb grania, jeśli >1 to rolka
 				uint8_t rollCurve;		// max 15
 				uint8_t rollNoteCurve;	// max 15
 
@@ -403,9 +420,30 @@ private:
 		uint8_t player = 0;
 	} debug;
 
+	enum fxTypes
+	{
+		FX_NONE,
+		FX_OFFSET,  // przesuniecie wewnątrz stepa 0-48
+		FX_GLIDE,	// czas płynnego przejścia do kolejnej nuty/pitcha
+		FX_SLIDE,	// podciągnięcie do nuty w czasie
+		FX_ARP_UP,	// arpeggio w górę
+		FX_ARP_DOWN,
+		FX_SP,		//	start point
+		FX_LP1,		// 	loop point 1
+		FX_LP2,		//	loop point 2
+		FX_MICROTUNE,
+		FX_SAMPLE_PLAYMODE,
+		FX_VOL_ROLL,
+		FX_JUMP_TO_STEP,
+		FX_JUMP_TO_PATTERN,
+		FX_PANNING,
+		FX_PANNING_ROLL,
+		FX_SLICE_NUMBER,
+		FX_PROBABILITY
+	};
+
 	struct strPlayer
 	{
-
 		bool changeBank = 0;
 		bool isPlay = 0;
 		bool isREC = 0;
@@ -429,17 +467,19 @@ private:
 
 		struct strPlayerTrack
 		{
+
+			strBank::strTrack::strStep stepSent;
 			uint16_t uStep = 0;
 			uint16_t note_length_timer = 1;	// tu odliczamy ile zostalo microstepów
 											// do zakonczenia nuty
 
 			uint8_t noteOn_sent = 0;		// znacznik czy została wysłana nuta
-			uint8_t note_sent = 0;			// wartość wysłanej nuty
-			uint8_t chord_sent = 0;			// wartość wysłanej nuty
-			uint8_t midiOut_sent = 0;
-			uint8_t channel_sent = 0;
-			uint8_t scale_sent = 0;
-			uint8_t scaleRoot_sent = 0;
+//			uint8_t note_sent = 0;			// wartość wysłanej nuty
+//			uint8_t chord_sent = 0;			// wartość wysłanej nuty
+//			uint8_t midiOut_sent = 0;
+//			uint8_t channel_sent = 0;
+//			uint8_t scale_sent = 0;
+//			uint8_t scaleRoot_sent = 0;
 
 			uint8_t rollLength = 0;		// tu wrzucamy długość rolki w stepach
 										// zerujemy kiedy wpadnie inny step
