@@ -57,15 +57,57 @@ void onPotChange(uint8_t n, int16_t value)
 {
 
 	mtHaptic.start(15,150,0x01,56);
+	if(n==1)
+	{
+		if(value>= 1)
+		{
+			if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].filterType == highPass)
+			{
+				if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].cutOff<1.0) mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].cutOff+=0.01;
+			}
+			else if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].filterType == lowPass)
+			{
+				if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].cutOff >0.0) mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].cutOff-=0.01;
+			}
+		}
 
-	if(value>= 1)
-	{
-		if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].freq< 700) mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].freq++;
+		if(value<= -1)
+		{
+			if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].filterType == highPass)
+			{
+				if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].cutOff >0.0) mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].cutOff-=0.01;
+			}
+			else if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].filterType == lowPass)
+			{
+				if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].cutOff<1.0) mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].cutOff+=0.01;
+			}
+
+		}
 	}
-	if(value<= -1)
+	if(n==2)
 	{
-		if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].freq > 0) mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].freq--;
+		if(value>= 1)
+		{
+			if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].resonance < 4.95) mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].resonance+=0.05;
+		}
+		else if(value <= -1)
+		{
+			if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].resonance > 0.75) mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].resonance-=0.05;
+		}
 	}
+	if(n==3)
+	{
+		if(value>= 1)
+		{
+			if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].envelope[envFilter].amount < 1.0) mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].envelope[envFilter].amount+=0.01;
+		}
+		else if(value <= -1)
+		{
+			if(mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].envelope[envFilter].amount> 0.0) mtProject.instrument[mtPatern.track[1].step[licznik].instrumentIndex].envelope[envFilter].amount-=0.01;
+		}
+	}
+
+
 	instrumentPlayer[1].change(&mtPatern.track[1].step[licznik],&modAudioEngine[0]);
 /*	mtPrint("pot change: ");
 	mtPrint(n);
@@ -96,28 +138,30 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].loopPoint2=12224;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].playMode=loopPingPong;
 
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.delay=0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.attack=1;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.hold=1;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.decay=1;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.sustain=1.0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeAmp.release=2000;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].delay=0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].attack=1;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].hold=1;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].decay=1;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].sustain=1.0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].release=2000;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].amount=1.0;
 
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeFilter.delay=0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeFilter.attack=2000;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeFilter.hold=1;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeFilter.decay=1;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeFilter.sustain=1.0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelopeFilter.release=2000;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].delay=0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].attack=2000;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].hold=1;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].decay=1;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].sustain=1.0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].release=2000;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].amount=1.0;
 
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].panning=50;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].glide=50;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].freq=20;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].cutOff=0.0;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].resonance=0.7;
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].filterType=lowPass;
 		mtPatern.track[1].step[0].volume=100;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].volume=1.0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].filterEnvelope=envelopeOff;
+
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].filterEnvelope=envelopeOn;
 /*		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].startPoint=0;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].endPoint=65533;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].loopPoint1=2716;

@@ -69,6 +69,13 @@ enum filterControlType
 	envelopeControlLowPass,
 	lfoControl,
 };
+
+enum envelopesType
+{
+    envAmp,
+    envFilter,
+    envPitch
+};
 //=====================================================================
 
 //parametry przetwarzanego pliku
@@ -129,15 +136,15 @@ struct strInstrument
 		uint16_t decay;
 		float	 sustain;
 		uint16_t release;
-	}envelopeAmp, envelopeFilter;
+		float	 amount;
+	} envelope[3];
 
 
-	uint16_t freq; // 0 - 7
+	float cutOff;
 	float resonance;
 	uint8_t filterType;
 	uint8_t filterEnvelope;
 
-	float volume;
 	uint16_t glide;
 	int16_t panning;
 };

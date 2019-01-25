@@ -57,12 +57,21 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].loopPoint2 = 0;
 		mtProject.instrument[i].endPoint = 1000;
 
-		mtProject.instrument[i].envelopeAmp.delay = 0;
-		mtProject.instrument[i].envelopeAmp.attack = 0;
-		mtProject.instrument[i].envelopeAmp.hold = 0;
-		mtProject.instrument[i].envelopeAmp.decay = 0;
-		mtProject.instrument[i].envelopeAmp.sustain = 100;
-		mtProject.instrument[i].envelopeAmp.release = 1000;
+		mtProject.instrument[i].envelope[envAmp].delay = 0;
+		mtProject.instrument[i].envelope[envAmp].attack = 0;
+		mtProject.instrument[i].envelope[envAmp].hold = 0;
+		mtProject.instrument[i].envelope[envAmp].decay = 0;
+		mtProject.instrument[i].envelope[envAmp].sustain = 100;
+		mtProject.instrument[i].envelope[envAmp].release = 1000;
+		mtProject.instrument[i].envelope[envAmp].amount = 1.0;
+
+		mtProject.instrument[i].envelope[envFilter].delay = 0;
+		mtProject.instrument[i].envelope[envFilter].attack = 0;
+		mtProject.instrument[i].envelope[envFilter].hold = 0;
+		mtProject.instrument[i].envelope[envFilter].decay = 0;
+		mtProject.instrument[i].envelope[envFilter].sustain = 100;
+		mtProject.instrument[i].envelope[envFilter].release = 1000;
+		mtProject.instrument[i].envelope[envFilter].amount = 1.0;
 
 		mtProject.instrument[i].panning = 0;
 	}
