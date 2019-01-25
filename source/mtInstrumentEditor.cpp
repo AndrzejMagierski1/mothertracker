@@ -224,6 +224,8 @@ void cMtInstrumentEditor::buttonChange(uint8_t button, uint8_t value)
 	case mtInstrumentEditorButtonFunctionChangeGlideNote	: 	changeGlideNote(value);	break;
 	case mtInstrumentEditorButtonFunctionFilterType			: 	changeFilterType(value);break;
 	case mtInstrumentEditorButtonFunctionEnvelopeType		: 	changeEnvelopeType(value);break;
+	case mtInstrumentEditorButtonFunctionEnvelopeAmp		: 	setEnvelopeTypeAmp(value);	break;
+	case mtInstrumentEditorButtonFunctionEnvelopeFilter		: 	setEnvelopeTypeFilter(value);break;
 	default: break;
 	}
 
@@ -388,7 +390,7 @@ void cMtInstrumentEditor::processParameters()
 			case mtInstrumentEditorValueFilter:
 			{
 				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueFilter];
-				values.value[i] =  (editorInstrument.filterCutoff*100);
+				values.value[i] =  (editorInstrument.cutOff*100);
 				break;
 			}
 			case mtInstrumentEditorValueResonance:
@@ -511,14 +513,13 @@ void cMtInstrumentEditor::updateButtonsFunctions()
 				setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
 
 				setButtonFunction(4, mtInstrumentEditorButtonFunctionFilterType);
-
 			}
 			else if(envelopesEnabled)
 			{
 				setButtonFunction(0, mtInstrumentEditorButtonFunctionPlay);
+				setButtonFunction(1, mtInstrumentEditorButtonFunctionEnvelopeAmp);
+				setButtonFunction(2, mtInstrumentEditorButtonFunctionEnvelopeFilter);
 
-
-				setButtonFunction(1, mtInstrumentEditorButtonFunctionEnvelopeType);
 				setButtonFunction(4, mtInstrumentEditorButtonFunctionEnvelopes);
 			}
 			else
@@ -603,15 +604,15 @@ void cMtInstrumentEditor::updatePotsFunctions()
 			else
 			{
 				setPotFunction(0, mtInstrumentEditorPotFunctionStartPoint);
-				setPotFunction(1, mtInstrumentEditorPotFunctionEndPoint);
-				if(sampleListEnabled) setPotFunction(3, mtInstrumentEditorPotFunctionSampleSelect);
+				setPotFunction(4, mtInstrumentEditorPotFunctionEndPoint);
+
 				if(editorInstrument.playMode >= loopForward)
 				{
 					setPotFunction(1, mtInstrumentEditorPotFunctionLoopPoint1);
-					setPotFunction(2, mtInstrumentEditorPotFunctionLoopPoint2);
-					if(!sampleListEnabled) setPotFunction(3, mtInstrumentEditorPotFunctionEndPoint);
+					setPotFunction(3, mtInstrumentEditorPotFunctionLoopPoint2);
 				}
-				setPotFunction(4, mtInstrumentEditorPotFunctionViewZoom);
+				if(sampleListEnabled) setPotFunction(3, mtInstrumentEditorPotFunctionSampleSelect);
+				//setPotFunction(4, mtInstrumentEditorPotFunctionViewZoom);
 			}
 			break;
 		}
@@ -784,9 +785,9 @@ void cMtInstrumentEditor::changeFilter(int16_t value)
 {
 	float fVal = value * 0.01;
 
-	if(editorInstrument.filterCutoff + fVal < 0) editorInstrument.filterCutoff = 0;
-	else if(editorInstrument.filterCutoff + fVal > FILTER_CUTOFF_MAX ) editorInstrument.filterCutoff = FILTER_CUTOFF_MAX;
-	else editorInstrument.filterCutoff += fVal;
+	if(editorInstrument.cutOff + fVal < 0) editorInstrument.cutOff = 0;
+	else if(editorInstrument.cutOff + fVal > FILTER_CUTOFF_MAX ) editorInstrument.cutOff = FILTER_CUTOFF_MAX;
+	else editorInstrument.cutOff += fVal;
 
 	parametersChanged = 1;
 }
@@ -824,6 +825,28 @@ void cMtInstrumentEditor::changeEnvelopeType(uint8_t value)
 		envelopesChanged = 1;
 	}
 }
+
+void cMtInstrumentEditor::setEnvelopeTypeAmp(uint8_t value)
+{
+	if(value == 1)
+	{
+		envelopeType = envelopeTypeAmp;
+
+		envelopesChanged = 1;
+	}
+}
+
+void cMtInstrumentEditor::setEnvelopeTypeFilter(uint8_t value)
+{
+	if(value == 1)
+	{
+		envelopeType = envelopeTypeFilter;
+
+		envelopesChanged = 1;
+	}
+}
+
+
 
 void cMtInstrumentEditor::showParameters(uint8_t value)
 {

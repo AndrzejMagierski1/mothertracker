@@ -18,6 +18,7 @@ extern int16_t wavBuf1[500800];
 #include "mtDisplay.h"
 
 uint8_t licznik=0; // wyrzucic po testach
+uint16_t freqTest=0; // to samo
 
 void onPowerButtonChange(uint8_t value);
 
@@ -56,16 +57,28 @@ void onPadRelease(uint8_t n)
 void onPotChange(uint8_t n, int16_t value)
 {
 
+
 	mtInstrumentEditor.potChange(n,value);
+
+
 
 
 
 	mtHaptic.start(15,150,0x01,56);
 
+
+
 //	mtPrint("pot change: ");
 //	mtPrint(n);
 //	mtPrint(" value: ");
 //	mtPrintln(value);
+
+
+/*	mtPrint("pot change: ");
+	mtPrint(n);
+	mtPrint(" value: ");
+	mtPrintln(value); */
+
 }
 
 //-----------------------------------------------------------------
@@ -98,17 +111,35 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].playMode=loopPingPong;
 
 
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampDelay=0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampAttack=5;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampHold=50;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampDecay=100;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampSustain=0.7;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].ampRelease=500;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].panning=50;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].glide=10000;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].delay=0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].attack=1;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].hold=1;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].decay=1;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].sustain=1.0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].release=2000;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].amount=1.0;
 
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].delay=0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].attack=2000;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].hold=1;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].decay=1;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].sustain=1.0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].release=2000;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].amount=1.0;
+
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].panning=50;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].glide=50;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].cutOff=0.0;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].resonance=0.7;
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].filterType=lowPass;
 		mtPatern.track[1].step[0].volume=100;
+<<<<<<< HEAD
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].startPoint=0;
+=======
+
+		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].filterEnvelope=envelopeOn;
+/*		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].startPoint=0;
+>>>>>>> refs/remotes/MotherTracker/AudioFilter
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].endPoint=65533;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].loopPoint1=2716;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].loopPoint2=12224;
@@ -129,6 +160,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtPatern.track[5].step[0].note=40;
 		mtPatern.track[6].step[0].note=41;
 		mtPatern.track[7].step[0].note=42;
+<<<<<<< HEAD
 		mtPatern.track[8].step[0].note=43;
 */
 
@@ -137,21 +169,12 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtPatern.track[1].step[1].note=36;
 
 
+=======
+		mtPatern.track[8].step[0].note=43;*/
 
-		if( (value == 1))
-			{
-			instrumentPlayer[1].play(&mtPatern.track[1].step[licznik++],&modAudioEngine[0]);
-//			instrumentPlayer[n+3].play(&mtPatern.track[n+3].step[0],&modAudioEngine[0]);
-			}
-		else if(value == 0)
-			{
-			instrumentPlayer[1].stop();
-//			instrumentPlayer[n+3].stop();
-			}
 
-if(licznik>1) licznik=0;
-
-*/
+		//mtPatern.track[1].step[0].note=24;
+		//mtPatern.track[1].step[1].note=36;
 
 
 

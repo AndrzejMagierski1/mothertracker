@@ -31,6 +31,8 @@ enum enumMtInstrumentEditorButtonFunction
 	mtInstrumentEditorButtonFunctionChangeGlideNote,
 	mtInstrumentEditorButtonFunctionFilterType,
 	mtInstrumentEditorButtonFunctionEnvelopeType,
+	mtInstrumentEditorButtonFunctionEnvelopeAmp,
+	mtInstrumentEditorButtonFunctionEnvelopeFilter,
 
 	//-------------------------------
 	mtInstrumentEditorButtonFunctionCount
@@ -122,9 +124,9 @@ const char glidePreviewDifLabels[4][20]=
 
 const char filterTypeLabels[3][10]=
 {
+		"No Filter",
 		"Low Pass",
 		"High Pass",
-		"Band Pass",
 };
 
 const char envelopeTypeNames[INSTRUMEN_ENVELOPES_MAX][20]=
@@ -176,6 +178,8 @@ private:
 	void showEnvelopes(uint8_t value);
 	void changeFilterType(uint8_t value);
 	void changeEnvelopeType(uint8_t value);
+	void setEnvelopeTypeAmp(uint8_t value);
+	void setEnvelopeTypeFilter(uint8_t value);
 
 	//funkcje potow
 	void modStartPoint(int16_t value);
@@ -240,12 +244,12 @@ private:
 
 	uint8_t mtInstrumentEditorValuesTypes[mtInstrumentEditorPotValueCount] =
 	{
-			mtDispValueValueNone,				//mtInstrumentEditorPotValueNone,
-			mtDispValueValueLeftRight_0_100,	//mtInstrumentEditorPotValuePanning,
-			mtDispValueValue_0_100,				//mtInstrumentEditorPotValueGlide,
-			mtDispValueValue_0_100,				//mtInstrumentEditorPotValueFilter,
-			mtDispValueValue_0_100,				//mtInstrumentEditorValueResonance,
-			mtDispValueValueNone,				//mtInstrumentEditorPotValue2,
+		mtDispValueValueNone,				//mtInstrumentEditorPotValueNone,
+		mtDispValueValueLeftRight_0_100,	//mtInstrumentEditorPotValuePanning,
+		mtDispValueValue_0_100,				//mtInstrumentEditorPotValueGlide,
+		mtDispValueValue_0_100,				//mtInstrumentEditorPotValueFilter,
+		mtDispValueValue_0_100,				//mtInstrumentEditorValueResonance,
+		mtDispValueValueNone,				//mtInstrumentEditorPotValue2,
 	};
 
 	strMtDispEnvelope envelope;
@@ -268,8 +272,10 @@ private:
 		"Sample",
 		"Parameters",
 		"Preview Off",
-		"Low Pass",
+		"No Filter",
 		"Switch Envelope",
+		"Amp Envelope",
+		"Filter Envelope",
 	};
 
 	//potencjometry w edytorze

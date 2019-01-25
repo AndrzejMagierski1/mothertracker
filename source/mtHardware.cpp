@@ -123,8 +123,14 @@ void initHardware()
 	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
 
 	//....................................................
+
 	// LCD
 	mtDisplay.begin(mtDisplayModePolyLogo);
+
+	//mtDisplay.begin(mtDisplayModePolyLogo);
+/*	while(1)
+	{
+>>>>>>> refs/remotes/MotherTracker/AudioFilter
 
 /*
 
@@ -142,9 +148,28 @@ void initHardware()
 				leds.setLEDseq(j,i,0,31);
 				leds.updateSeq();
 			}
+<<<<<<< HEAD
+=======
 		}
+		for(int i=1;i<=20;i++)
+		{
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,1,31);
+				leds.updateSeq();
+			}
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,0,31);
+				leds.updateSeq();
+			}
+>>>>>>> refs/remotes/MotherTracker/AudioFilter
+		}
+<<<<<<< HEAD
 	}
 */
+
+
 
 }
 

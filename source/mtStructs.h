@@ -9,7 +9,7 @@
 //=====================================================================
 
 const uint16_t MAX_16BIT =              		65535;
-const uint32_t SAMPLE_MEMORY_MAX =      		8*1024*1024;
+const uint32_t SAMPLE_MEMORY_MAX =      		(8*1024*1024);
 const uint8_t  INSTRUMENTS_MAX =        		32;
 const uint8_t  SAMPLES_MAX =            		32;
 const uint8_t  SAMPLES_FILENAME_LENGTH_MAX =    32;
@@ -43,6 +43,10 @@ const float  RESONANCE_MAX					=	5.0;
 
 
 
+const uint16_t HIGH_PASS_FILTER_FREQ =			(14000/128);
+const uint16_t LOW_PASS_FILTER_FREQ =			(14000/128);
+const float MAX_OCTAVE_CONTROL = 				7.0;
+
 //=====================================================================
 //=====================================================================
 //=====================================================================
@@ -74,6 +78,37 @@ enum playMode
 	playModeMax
 };
 
+
+
+
+enum filterEnvelope
+{
+	envelopeOff=0,
+	envelopeOn
+};
+
+enum filterType
+{
+	noFilter=0,
+	lowPass,
+	highPass
+};
+
+enum filterControlType
+{
+	manualControl,
+	envelopeControlHighPass,
+	envelopeControlLowPass,
+	lfoControl,
+};
+
+enum envelopesType
+{
+    envAmp,
+    envFilter,
+    envPitch
+};
+
 enum filterTypes
 {
 	filterTypeLowPass,
@@ -88,18 +123,11 @@ enum envelopeTypes
 {
 	envelopeTypeAmp,
 	envelopeTypeFilter,
-	envelopeTypePitch,
+	//envelopeTypePitch,
 
 	envelopeTypeMax,
 };
 
-
-enum envelopesType
-{
-	envAmp,
-	envFilter,
-	envPitch
-};
 
 
 //=====================================================================
@@ -156,6 +184,7 @@ struct strInstrument
     uint16_t loopPoint2;
     uint16_t endPoint;
 
+
     struct strEnvelope
     {
         uint16_t delay;
@@ -167,17 +196,12 @@ struct strInstrument
         float amount;
     } envelope[3];
 
-
-    float volume;
-
-    float filterCutoff;
-    uint16_t freq; // 0 - 477
-    uint8_t filterType;
-    uint8_t filterEnvelope;
-    float resonance;
+	float cutOff;
+	float resonance;
+	uint8_t filterType;
+	uint8_t filterEnvelope;
 
     float pitch;
-
 
     uint16_t glide;
     int16_t panning;
