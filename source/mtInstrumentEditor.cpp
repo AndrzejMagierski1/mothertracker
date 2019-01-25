@@ -191,12 +191,12 @@ void cMtInstrumentEditor::startEmpty()
 	editorInstrument.loopPoint2 = SAMPLE_POINT_POS_MAX;
 	editorInstrument.endPoint = SAMPLE_POINT_POS_MAX;
 
-	editorInstrument.envelopeAmp.delay = 0;
-	editorInstrument.envelopeAmp.attack = 0;
-	editorInstrument.envelopeAmp.hold = 0;
-	editorInstrument.envelopeAmp.decay = 0;
-	editorInstrument.envelopeAmp.sustain = 1;
-	editorInstrument.envelopeAmp.release = 0;
+	editorInstrument.envelope[envAmp].delay = 0;
+	editorInstrument.envelope[envAmp].attack = 0;
+	editorInstrument.envelope[envAmp].hold = 0;
+	editorInstrument.envelope[envAmp].decay = 0;
+	editorInstrument.envelope[envAmp].sustain = 1;
+	editorInstrument.envelope[envAmp].release = 0;
 	editorInstrument.panning = 0;
 
 	sampleListEnabled = 1;
@@ -388,7 +388,7 @@ void cMtInstrumentEditor::processParameters()
 			case mtInstrumentEditorValueFilter:
 			{
 				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueFilter];
-				values.value[i] =  (editorInstrument.freq*100)/FILTER_CUTOFF_MAX;
+				values.value[i] =  (editorInstrument.filterCutoff*100);
 				break;
 			}
 			case mtInstrumentEditorValueResonance:
@@ -415,39 +415,15 @@ void cMtInstrumentEditor::processParameters()
 
 void cMtInstrumentEditor::processEnvelopes()
 {
-	if(envelopeType == envelopeTypeAmp)
-	{
-		envelope.type = envelopeType;
 
-		envelope.attack  = (editorInstrument.envelopeAmp.attack*100)/ATTACK_MAX;
-		envelope.decay   = (editorInstrument.envelopeAmp.decay*100)/DECAY_MAX;
-		envelope.sustain = (editorInstrument.envelopeAmp.sustain*100);
-		envelope.release = (editorInstrument.envelopeAmp.release*100)/RELEASE_MAX;
+	envelope.type = envelopeType;
+	envelope.attack  = (editorInstrument.envelope[envelopeType].attack*100)/ATTACK_MAX;
+	envelope.decay   = (editorInstrument.envelope[envelopeType].decay*100)/DECAY_MAX;
+	envelope.sustain = (editorInstrument.envelope[envelopeType].sustain*100);
+	envelope.release = (editorInstrument.envelope[envelopeType].release*100)/RELEASE_MAX;
 
-		envelope.amount  = (editorInstrument.volume*100);
-	}
-	else if(envelopeType == envelopeTypeFilter)
-	{
-		envelope.type = envelopeType;
+	envelope.amount  = (editorInstrument.envelope[envelopeType].amount*100);
 
-		envelope.attack  = (editorInstrument.envelopeFilter.attack*100)/ATTACK_MAX;
-		envelope.decay   = (editorInstrument.envelopeFilter.decay*100)/DECAY_MAX;
-		envelope.sustain = (editorInstrument.envelopeFilter.sustain*100);
-		envelope.release = (editorInstrument.envelopeFilter.release*100)/RELEASE_MAX;
-
-		envelope.amount  = (editorInstrument.freq*100)/FILTER_CUTOFF_MAX;
-	}
-	else if(envelopeType == envelopeTypePitch)
-	{
-		envelope.type = envelopeType;
-
-		envelope.attack  = (editorInstrument.envelopePitch.attack*100)/ATTACK_MAX;
-		envelope.decay   = (editorInstrument.envelopePitch.decay*100)/DECAY_MAX;
-		envelope.sustain = (editorInstrument.envelopePitch.sustain*100);
-		envelope.release = (editorInstrument.envelopePitch.release*100)/RELEASE_MAX;
-
-		envelope.amount  = (editorInstrument.pitch*100);
-	}
 
 	for(uint8_t i = 0; i < INSTRUMEN_ENVELOPES_MAX; i++)
 	{
@@ -806,10 +782,11 @@ void cMtInstrumentEditor::changeGlideNote(uint8_t value)
 
 void cMtInstrumentEditor::changeFilter(int16_t value)
 {
-	value = value * 4;
-	if(editorInstrument.freq + value < 0) editorInstrument.freq = 0;
-	else if(editorInstrument.freq + value > FILTER_CUTOFF_MAX ) editorInstrument.freq = FILTER_CUTOFF_MAX;
-	else editorInstrument.freq += value;
+	float fVal = value * 0.01;
+
+	if(editorInstrument.filterCutoff + fVal < 0) editorInstrument.filterCutoff = 0;
+	else if(editorInstrument.filterCutoff + fVal > FILTER_CUTOFF_MAX ) editorInstrument.filterCutoff = FILTER_CUTOFF_MAX;
+	else editorInstrument.filterCutoff += fVal;
 
 	parametersChanged = 1;
 }
@@ -841,7 +818,6 @@ void cMtInstrumentEditor::changeEnvelopeType(uint8_t value)
 {
 	if(value == 1)
 	{
-
 		envelopeType++;
 		if(envelopeType > envelopeTypeMax - 1) envelopeType = 0;
 
@@ -857,7 +833,6 @@ void cMtInstrumentEditor::showParameters(uint8_t value)
 		{
 			parametersEnabled = 0;
 			spectrumChanged   = 2;
-			//parametersChanged = 1;
 		}
 		else
 		{
@@ -881,7 +856,6 @@ void cMtInstrumentEditor::showEnvelopes(uint8_t value)
 		{
 			envelopesEnabled = 0;
 			spectrumChanged   = 2;
-			//envelopesChanged = 1;
 		}
 		else
 		{
@@ -901,9 +875,9 @@ void cMtInstrumentEditor::changeAttack(int16_t value)
 {
 	value = value * 100;
 
-	if(editorInstrument.envelopeAmp.attack + value < 0) editorInstrument.envelopeAmp.attack = 0;
-	else if(editorInstrument.envelopeAmp.attack + value > ATTACK_MAX ) editorInstrument.envelopeAmp.attack = ATTACK_MAX;
-	else editorInstrument.envelopeAmp.attack += value;
+	if(editorInstrument.envelope[envelopeType].attack + value < 0) editorInstrument.envelope[envelopeType].attack = 0;
+	else if(editorInstrument.envelope[envelopeType].attack + value > ATTACK_MAX ) editorInstrument.envelope[envelopeType].attack = ATTACK_MAX;
+	else editorInstrument.envelope[envelopeType].attack += value;
 
 	envelopesChanged = 1;
 }
@@ -912,9 +886,9 @@ void cMtInstrumentEditor::changeDecay(int16_t value)
 {
 	value = value * 100;
 
-	if(editorInstrument.envelopeAmp.decay + value < 0) editorInstrument.envelopeAmp.decay = 0;
-	else if(editorInstrument.envelopeAmp.decay + value > DECAY_MAX ) editorInstrument.envelopeAmp.decay = DECAY_MAX;
-	else editorInstrument.envelopeAmp.decay += value;
+	if(editorInstrument.envelope[envelopeType].decay + value < 0) editorInstrument.envelope[envelopeType].decay = 0;
+	else if(editorInstrument.envelope[envelopeType].decay + value > DECAY_MAX ) editorInstrument.envelope[envelopeType].decay = DECAY_MAX;
+	else editorInstrument.envelope[envelopeType].decay += value;
 
 	envelopesChanged = 1;
 }
@@ -923,9 +897,9 @@ void cMtInstrumentEditor::changeSustain(int16_t value)
 {
 	float fVal = value * 0.01;
 
-	if(editorInstrument.envelopeAmp.sustain + fVal < 0) editorInstrument.envelopeAmp.sustain = 0;
-	else if(editorInstrument.envelopeAmp.sustain + fVal > SUSTAIN_MAX ) editorInstrument.envelopeAmp.sustain = SUSTAIN_MAX;
-	else editorInstrument.envelopeAmp.sustain += fVal;
+	if(editorInstrument.envelope[envelopeType].sustain + fVal < 0) editorInstrument.envelope[envelopeType].sustain = 0;
+	else if(editorInstrument.envelope[envelopeType].sustain + fVal > SUSTAIN_MAX ) editorInstrument.envelope[envelopeType].sustain = SUSTAIN_MAX;
+	else editorInstrument.envelope[envelopeType].sustain += fVal;
 
 	envelopesChanged = 1;
 }
@@ -934,9 +908,9 @@ void cMtInstrumentEditor::changeRelease(int16_t value)
 {
 	value = value * 100;
 
-	if(editorInstrument.envelopeAmp.release + value < 0) editorInstrument.envelopeAmp.release = 0;
-	else if(editorInstrument.envelopeAmp.release + value > RELEASE_MAX ) editorInstrument.envelopeAmp.release = RELEASE_MAX;
-	else editorInstrument.envelopeAmp.release += value;
+	if(editorInstrument.envelope[envelopeType].release + value < 0) editorInstrument.envelope[envelopeType].release = 0;
+	else if(editorInstrument.envelope[envelopeType].release + value > RELEASE_MAX ) editorInstrument.envelope[envelopeType].release = RELEASE_MAX;
+	else editorInstrument.envelope[envelopeType].release += value;
 
 	envelopesChanged = 1;
 }
@@ -945,12 +919,9 @@ void cMtInstrumentEditor::changeAmount(int16_t value)
 {
 	float fVal = value * 0.01;
 
-	if(envelopeType == 0)
-	{
-		if(editorInstrument.volume + fVal < 0) editorInstrument.volume = 0;
-		else if(editorInstrument.volume + fVal > VOLUME_MAX ) editorInstrument.volume = VOLUME_MAX;
-		else editorInstrument.volume += fVal;
-	}
+	if(editorInstrument.envelope[envelopeType].amount + fVal < 0) editorInstrument.envelope[envelopeType].amount = 0;
+	else if(editorInstrument.envelope[envelopeType].amount + fVal > AMOUNT_MAX ) editorInstrument.envelope[envelopeType].amount = AMOUNT_MAX;
+	else editorInstrument.envelope[envelopeType].amount += fVal;
 
 	envelopesChanged = 1;
 }

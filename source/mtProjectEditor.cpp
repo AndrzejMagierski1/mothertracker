@@ -106,17 +106,17 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].loopPoint2 = 20000;
 		mtProject.instrument[i].endPoint = SAMPLE_POINT_POS_MAX;
 
-		mtProject.instrument[i].envelopeAmp.delay = 0;
-		mtProject.instrument[i].envelopeAmp.attack = 100;
-		mtProject.instrument[i].envelopeAmp.hold = 0;
-		mtProject.instrument[i].envelopeAmp.decay = 100;
-		mtProject.instrument[i].envelopeAmp.sustain = 1.0;
-		mtProject.instrument[i].envelopeAmp.release = 3000;
+		mtProject.instrument[i].envelope[envAmp].delay = 0;
+		mtProject.instrument[i].envelope[envAmp].attack = 100;
+		mtProject.instrument[i].envelope[envAmp].hold = 0;
+		mtProject.instrument[i].envelope[envAmp].decay = 100;
+		mtProject.instrument[i].envelope[envAmp].sustain = 1.0;
+		mtProject.instrument[i].envelope[envAmp].release = 3000;
 
 		mtProject.instrument[i].panning = 50;
 		mtProject.instrument[i].glide = 10000;
 
-		mtProject.instrument[i].volume = 1.0;
+		mtProject.instrument[i].envelope[envAmp].amount = 1.0;
 	}
 
 

@@ -22,8 +22,8 @@ const uint8_t NUMBER_OF_NOTES =					48;
 const uint8_t INSTRUMEN_ENVELOPES_MAX 		=	3;
 
 
-const float MIN_PITCH =							0.25;
-const float MAX_PITCH =							4.0;
+const float MIN_PITCH 						=	0.25;
+const float MAX_PITCH 						=	4.0;
 
 const uint8_t  PANNING_MIN 					=	0;
 const uint8_t  PANNING_MAX 					=   100;
@@ -34,13 +34,14 @@ const uint16_t  ATTACK_MAX 					=	11000;
 const uint16_t  DECAY_MAX					=	11000;
 const float  	SUSTAIN_MAX					=	1.0;
 const uint16_t  RELEASE_MAX					=	11000;
+const float  AMOUNT_MAX						=	1.0;
 
-const uint16_t  FILTER_CUTOFF_MAX 			=	477;
+const float  FILTER_CUTOFF_MAX 				=	1.0;
+
 const float  RESONANCE_MIN					=	0.7;
 const float  RESONANCE_MAX					=	5.0;
 
 
-const float  VOLUME_MAX						=	1.0;
 
 //=====================================================================
 //=====================================================================
@@ -91,6 +92,15 @@ enum envelopeTypes
 
 	envelopeTypeMax,
 };
+
+
+enum envelopesType
+{
+	envAmp,
+	envFilter,
+	envPitch
+};
+
 
 //=====================================================================
 //=====================================================================
@@ -152,13 +162,15 @@ struct strInstrument
         uint16_t attack;
         uint16_t hold;
         uint16_t decay;
-        float    sustain;
+        float sustain;
         uint16_t release;
-    }envelopeAmp, envelopeFilter, envelopePitch;
+        float amount;
+    } envelope[3];
 
 
     float volume;
 
+    float filterCutoff;
     uint16_t freq; // 0 - 477
     uint8_t filterType;
     uint8_t filterEnvelope;
