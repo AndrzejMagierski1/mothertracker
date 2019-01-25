@@ -16,11 +16,11 @@
 class Sequencer
 {
 private:
+
 	static const uint8_t MAXROW = 7,
 			MINROW = 0,
 			MINSTEP = 0,
 			MAXSTEP = 31,
-			//			MAXCOL = 32,
 
 			DEFAULT_ROW_LEN = 32,
 			DEFAULT_ROW_NOTE = 36,
@@ -130,7 +130,11 @@ private:
 			PLAYMODE_POLY = 4,
 			PLAYMODE_MAX = 3;
 
-//	Sequencer() : IntervalTimer(){}
+	const int8_t MIN_TEMPO_DIV = -3;
+	const int8_t MAX_TEMPO_DIV = 3;
+	static const int8_t TEMPODIV_1_1 = 0;
+
+	// KONIEC STAŁYCH
 
 	struct strBank
 	{
@@ -213,10 +217,6 @@ private:
 
 	} seq[2];
 
-
-
-
-	public:
 	strBank const * pattern = &seq[0];
 
 	struct strGlobalConfig
@@ -226,9 +226,7 @@ private:
 		float tempoLock = 120.0;
 		float swingLock = 50.0;
 
-	};
-
-	const strGlobalConfig config_const;
+	} config_const;
 
 	struct strGhost
 	{
@@ -259,34 +257,23 @@ private:
 		uint8_t midiOut = 0;
 
 	} noteHandler[100];
-	private:
-	float get_swing(void);
+
+
 	void initPattern(uint8_t pattern);
+
 	void switchStep(uint8_t row);
-	float get_tempo(void);
-	inline uint8_t get_actual_pos(uint8_t row);
+
+
 	inline uint8_t get_hitMode(uint8_t col, uint8_t row);
 	inline uint8_t get_isOn(uint8_t col, uint8_t row);
 	inline uint8_t get_note(uint8_t col, uint8_t row);
 	inline uint8_t get_row_length(uint8_t row);
-	inline uint8_t isBlinking(uint8_t col, uint8_t row);
-	inline uint8_t isGhost(uint8_t col, uint8_t row);
+
 	inline uint8_t isPlay(void);
 	inline uint8_t isREC(void);
 	inline uint8_t isStop(void);
 	int8_t getLastRollNoteOffset(uint8_t row);
 	int8_t getNextRollNoteOffset(uint8_t row);
-	uint16_t get_size(void);
-	uint8_t get_copy_bank_from(void);
-	uint8_t get_copy_bank_to(void);
-	uint8_t get_copy_mode_step(void);
-	uint8_t get_copy_row_from(void);
-	uint8_t get_copy_row_to(void);
-	uint8_t get_copy_step_from_col(void);
-	uint8_t get_copy_step_from_row(void);
-	uint8_t get_copy_step_to_col(void);
-	uint8_t get_copy_step_to_row(void);
-	uint8_t get_metronome_intro_step(void);
 	uint8_t getLongRollVelo(uint8_t rollCurve, float progress);
 	uint8_t getTempoDiv(int8_t val);
 	uint8_t isInScale(uint8_t note, uint8_t root, uint8_t scale);
@@ -294,74 +281,44 @@ private:
 	void play_microStep(uint8_t row);
 	uint8_t val2roll(uint8_t val);
 
-public:
-	void play(void);
-	void rec(void);
-	void stop(void);
-	void toggleStep(uint8_t, uint8_t);
-
-	void addNoteOff(uint8_t note, uint8_t velocity, uint8_t channel,
-					uint8_t midiOut);
-	void addNoteOn(uint8_t note, uint8_t velocity, uint8_t channel,
-					uint8_t midiOut);
-	void allNoteOffs(void);
-	void clearRow(uint8_t row);
-	void clearRow(uint8_t row, uint8_t bank);
-	void clearStep(uint8_t x, uint8_t row);
-	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
-	void copy_bank(uint8_t from, uint8_t to);
-	void copy_row(uint8_t from, uint8_t to);
-	void copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x, uint8_t to_y);
 	void divChangeQuantize(uint8_t row);
 	void handle_ghosts(void);
 	void handle_player(void);
-	void handle_uStep_timer(void);
+
 	void handle_nanoStep(uint8_t step);
-	void hold_function(int16_t x, uint16_t y);
-	void hold_step(int16_t x, uint16_t y);
-	void hold_track(int16_t x, uint16_t y);
 	void incr_uStep(uint8_t row);
-	void loadDefaultSequence(void);
-	void init_player(void);
-	void init_player_lcd_values(void);
+
 	void init_player_timer(void);
-	void initBank(uint8_t bank);
-	void initRow(uint8_t row, uint8_t bank);
-	void learnNote(uint8_t note, uint8_t velo, uint8_t channel);
-	void learnNoteOff(uint8_t note, uint8_t velo, uint8_t channel);
-	void panic_all_notes_off(void);
-	void print_uSteps();
-	void push_step(int16_t x, uint16_t y);
-	void push_track(uint16_t row);
+
+
+	void loadDefaultBank(uint8_t bank);
+	void loadDefaultTrack(uint8_t track, uint8_t bank);
+
+	void send_allNotesOff(void);
+
 	void randomize_row(uint8_t row);
 	void rec_metronome(void);
-	void release_function(uint16_t row);
-	void release_step(int16_t x, uint16_t y);
-	void release_track(uint16_t row);
+
 	void reset_actual_pos(uint8_t row);
 	void reset_actual_pos(void);
 	void resetAllLearned(void);
 	void resetLastSendMod(void);
-	void set_power_mode(uint8_t mode);
+	//	void set_power_mode(uint8_t mode);
 	void trySwitchBank();
-	//	void midiSendChordOn(uint8_t note, uint8_t chord, uint8_t velo,
-//							uint8_t channel,
-//							uint8_t midiOut, uint8_t scale,
-//							uint8_t scaleRoot);
+
 	void setLoadBank2Ram(uint8_t bank);
 	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 					uint8_t midiOut);
 
-//	void midiSendChordOff(uint8_t note, uint8_t chord, uint8_t velo,
-//							uint8_t channel,
-//							uint8_t midiOut, uint8_t scale,
-//							uint8_t scaleRoot);
+
 	void switch_bank_with_reset(void);
-	void handle();
-	void init();
+
 	void flushNotes();
 	void sendNoteOn(uint8_t track, strBank::strTrack::strStep *step);
 	void sendNoteOff(uint8_t track, strBank::strTrack::strStep *step);
+
+	void send_clock(uint8_t);
+
 	IntervalTimer midiReceiveTimer;
 	IntervalTimer playTimer;
 
@@ -376,10 +333,6 @@ public:
 
 	elapsedMicros timeOfTick = 0;
 	const uint8_t arrVal2roll[10] = { 0, 1, 1, 2, 3, 4, 6, 8, 12, 16 };
-
-private:
-
-#define MIDI1	Serial1
 
 	static struct strMidiModes
 	{
@@ -418,40 +371,6 @@ private:
 		uint8_t player = 0;
 	} debug;
 
-	struct strFxConsts
-	{
-		enum
-		{
-			FX_TYPE_NONE,
-			FX_TYPE_OFFSET,             // przesuniecie wewnątrz stepa 0-48
-			FX_TYPE_GLIDE,	  // czas płynnego przejścia do kolejnej nuty/pitcha
-			FX_TYPE_SLIDE,	            // podciągnięcie do nuty w czasie
-			FX_TYPE_ARP_UP,	            // arpeggio w górę
-			FX_TYPE_ARP_DOWN,
-			FX_TYPE_SP,		            //	start point
-			FX_TYPE_LP1,		        // 	loop point 1
-			FX_TYPE_LP2,		        //	loop point 2
-			FX_TYPE_MICROTUNE,
-			FX_TYPE_SAMPLE_PLAYMODE,
-			FX_TYPE_VOL_ROLL,
-			FX_TYPE_JUMP_TO_STEP,
-			FX_TYPE_JUMP_TO_PATTERN,
-			FX_TYPE_PANNING,
-			FX_TYPE_PANNING_ROLL,
-			FX_TYPE_SLICE_NUMBER,
-			FX_TYPE_PROBABILITY,
-
-		};
-		enum
-		{
-			FX_VAL_TYPE_U16,
-			FX_VAL_TYPE_I16,
-			FX_VAL_TYPE_U8_U8,
-			FX_VAL_TYPE_I8_I8,
-		};
-
-	} fxConsts;
-
 	uint8_t get_fxValType(uint8_t fxType);
 
 	struct strPlayer
@@ -486,12 +405,6 @@ private:
 											// do zakonczenia nuty
 
 			uint8_t noteOn_sent = 0;		// znacznik czy została wysłana nuta
-//			uint8_t note_sent = 0;			// wartość wysłanej nuty
-//			uint8_t chord_sent = 0;			// wartość wysłanej nuty
-//			uint8_t midiOut_sent = 0;
-//			uint8_t channel_sent = 0;
-//			uint8_t scale_sent = 0;
-//			uint8_t scaleRoot_sent = 0;
 
 			uint8_t rollLength = 0;		// tu wrzucamy długość rolki w stepach
 										// zerujemy kiedy wpadnie inny step
@@ -538,19 +451,77 @@ private:
 
 	} player;
 
-	struct strGridView
+	/********************************
+	 * ******************************
+	 * 			PUBLIC				*
+	 ********************************
+	 ********************************/
+
+public:
+
+	struct strFxConsts
 	{
-		elapsedMillis timer = 0;
-		uint32_t timer_max = 2000;
-	} gv;
+		enum
+		{
+			FX_TYPE_NONE,
+			FX_TYPE_OFFSET,             // przesuniecie wewnątrz stepa 0-48
+			FX_TYPE_GLIDE,	  // czas płynnego przejścia do kolejnej nuty/pitcha
+			FX_TYPE_SLIDE,	            // podciągnięcie do nuty w czasie
+			FX_TYPE_ARP_UP,	            // arpeggio w górę
+			FX_TYPE_ARP_DOWN,
+			FX_TYPE_SP,		            //	start point
+			FX_TYPE_LP1,		        // 	loop point 1
+			FX_TYPE_LP2,		        //	loop point 2
+			FX_TYPE_MICROTUNE,
+			FX_TYPE_SAMPLE_PLAYMODE,
+			FX_TYPE_VOL_ROLL,
+			FX_TYPE_JUMP_TO_STEP,
+			FX_TYPE_JUMP_TO_PATTERN,
+			FX_TYPE_PANNING,
+			FX_TYPE_PANNING_ROLL,
+			FX_TYPE_SLICE_NUMBER,
+			FX_TYPE_PROBABILITY,
 
-	const int8_t MIN_TEMPO_DIV = -3;
-	const int8_t MAX_TEMPO_DIV = 3;
-	static const int8_t TEMPODIV_1_1 = 0;
-	void send_clock(uint8_t);
+		};
+		enum
+		{
+			FX_VAL_TYPE_U16,
+			FX_VAL_TYPE_I16,
+			FX_VAL_TYPE_U8_U8,
+			FX_VAL_TYPE_I8_I8,
+		};
 
-//	strDebug debug;
-//	strGridView ;
+	} fx;
+
+	// klasowe
+	void handle();
+	void init();
+	void loadDefaultSequence(void);
+
+	// sekwencerowe
+	void play(void);
+	void rec(void);
+	void stop(void);
+
+	void clearStep(uint8_t x, uint8_t row);
+	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
+	void clearRow(uint8_t row);
+	void clearRow(uint8_t row, uint8_t bank);
+
+	void copy_row(uint8_t from, uint8_t to);
+
+	void toggleStep(uint8_t, uint8_t);
+
+	void addNoteOff(uint8_t note, uint8_t velocity, uint8_t channel,
+					uint8_t midiOut);
+	void addNoteOn(uint8_t note, uint8_t velocity, uint8_t channel,
+					uint8_t midiOut);
+	void allNoteOffs(void);
+
+	void copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x, uint8_t to_y);
+
+	// inne
+	void handle_uStep_timer(void);
 
 };
 #endif

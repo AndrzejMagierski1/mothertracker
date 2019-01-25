@@ -258,14 +258,14 @@ void Sequencer::play_microStep(uint8_t row)
 //		if(playerRow.noteOn_sent) sendNoteOff(row, &playerRow.stepSent);
 
 		boolean sendNote = 0;
-		if (patternStep.fx[0].type != fxConsts.FX_TYPE_OFFSET &&
+		if (patternStep.fx[0].type != fx.FX_TYPE_OFFSET &&
 				playerRow.uStep == 1)
 		{
 			sendNote = 1;
 			if (playerRow.noteOn_sent) sendNoteOff(row, &playerRow.stepSent);
 			sendNoteOn(row, &patternStep);
 		}
-		else if (patternStep.fx[0].type == fxConsts.FX_TYPE_OFFSET &&
+		else if (patternStep.fx[0].type == fx.FX_TYPE_OFFSET &&
 				playerRow.uStep == patternStep.fx[0].value_u16)
 		{
 			sendNote = 1;
@@ -1114,7 +1114,7 @@ void Sequencer::play(void)
 
 }
 
-void Sequencer::panic_all_notes_off(void)
+void Sequencer::send_allNotesOff(void)
 {
 //	for (uint8_t row = 1; row <= MAXROW; row++)
 //	{
@@ -1130,7 +1130,7 @@ void Sequencer::stop(void)
 
 	if (player.isStop)
 	{
-		panic_all_notes_off();
+		send_allNotesOff();
 	}
 
 //	send_stop();
@@ -1232,7 +1232,7 @@ void Sequencer::clearRow(uint8_t row, uint8_t bank)
 	}
 }
 
-void Sequencer::initRow(uint8_t row, uint8_t bank)
+void Sequencer::loadDefaultTrack(uint8_t row, uint8_t bank)
 {
 
 	for (uint8_t x = 1; x <= MAXSTEP; x++)
@@ -1294,7 +1294,7 @@ void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 // 	}
 // }
 
-void Sequencer::initBank(uint8_t bank)
+void Sequencer::loadDefaultBank(uint8_t bank)
 {
 	seq[bank].tempo = DEFAULT_TEMPO;
 	seq[bank].swing = DEFAULT_SWING;
@@ -1305,7 +1305,7 @@ void Sequencer::initBank(uint8_t bank)
 
 	for (uint8_t row = MINROW; row <= MAXROW; row++)
 	{
-		initRow(row, bank);
+		loadDefaultTrack(row, bank);
 	}
 
 }
@@ -1313,12 +1313,12 @@ void Sequencer::initBank(uint8_t bank)
 void Sequencer::initPattern(uint8_t pattern) // czyści pattern z flasha
 {
 	// czyścimy bank 3
-	initBank(3);
+	loadDefaultBank(3);
 
 	if (pattern == player.actualBank)
 	{
-		initBank(1);
-		initBank(0);
+		loadDefaultBank(1);
+		loadDefaultBank(0);
 	}
 
 	// flashuje pattern ramem z 3 pozycji
@@ -1363,10 +1363,7 @@ uint8_t Sequencer::isRowOn(uint8_t row)
 	return seq[player.ramBank].row[row].isOn;
 }
 
-//void Sequencer::init_player(void)
-//{
-//	init_defaultPlayerParameters();
-//}
+
 
 void Sequencer::loadDefaultSequence(void)
 {
@@ -1398,20 +1395,12 @@ void Sequencer::loadDefaultSequence(void)
 	seq[player.ramBank].row[0].step[2].note = 46;
 	seq[player.ramBank].row[0].step[2].length1 = 30;
 	seq[player.ramBank].row[0].step[2].fx[0].isOn = 1;
-	seq[player.ramBank].row[0].step[2].fx[0].type = fxConsts.FX_TYPE_OFFSET;
+	seq[player.ramBank].row[0].step[2].fx[0].type = fx.FX_TYPE_OFFSET;
 	seq[player.ramBank].row[0].step[2].fx[0].value_u16 = 10;
 
 }
 
-uint8_t Sequencer::get_metronome_intro_step(void)
-{
-	return player.rec_intro_step;
-}
 
-uint16_t Sequencer::get_size(void)
-{
-	return sizeof(seq[0]);
-}
 
 void Sequencer::allNoteOffs(void)
 {
@@ -1592,6 +1581,8 @@ int8_t Sequencer::getLastRollNoteOffset(uint8_t row)
 {
 	return player.row[row].lastRollNote;
 }
+
+
 int8_t Sequencer::getNextRollNoteOffset(uint8_t row)
 {
 
@@ -1718,13 +1709,13 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 	playTimer.begin(timerExternalVector, timer_var);
 
 }
-void Sequencer::print_uSteps()
-{
-	for (uint8_t a = MINROW; a <= MAXROW; a++)
-	{
-		Serial.println(player.row[a].uStep);
-	}
-}
+//void Sequencer::print_uSteps()
+//{
+//	for (uint8_t a = MINROW; a <= MAXROW; a++)
+//	{
+//		Serial.println(player.row[a].uStep);
+//	}
+//}
 
 void Sequencer::addNoteOn(uint8_t note, uint8_t velocity, uint8_t channel,
 							uint8_t midiOut)
@@ -1821,10 +1812,7 @@ void Sequencer::divChangeQuantize(uint8_t row)
 	}
 }
 
-// void Sequencer::incr_uStep(uint8_t row)
-// {
 
-// }
 
 void Sequencer::trySwitchBank()
 {
@@ -1877,70 +1865,21 @@ uint8_t Sequencer::getTempoDiv(int8_t val)
 	return 12;
 }
 
-float Sequencer::get_tempo(void)
-{
-	if (config.mode == MODE_MIDICLOCK.INTERNAL_)
-	return seq[player.ramBank].tempo;
-	else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
-	return config.tempoLock;
-	else
-		return 0;
-}
 
-float Sequencer::get_swing(void)
-{
 
-	if (config.mode == MODE_MIDICLOCK.INTERNAL_)
-	return seq[player.ramBank].swing;
-	else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
-	return config.swingLock;
-	else
-		return 0;
-}
 
-inline uint8_t Sequencer::get_note(uint8_t col, uint8_t row)
-{
-	return seq[player.ramBank].row[row].step[col].note;
-}
 
-//inline uint8_t Sequencer::get_hitMode(uint8_t col, uint8_t row)
-//{
-//	return seq[player.ramBank].row[row].step[col].hitMode;
-//}
 
-inline uint8_t Sequencer::get_isOn(uint8_t col, uint8_t row)
-{
-	return seq[player.ramBank].row[row].step[col].isOn;
-}
 
-inline uint8_t Sequencer::isGhost(uint8_t col, uint8_t row)
-{
-	return player.row[row].step[col].isGhost > 0;
-}
 
-inline uint8_t Sequencer::isBlinking(uint8_t col, uint8_t row)
-{
-	return player.row[row].step[col].isBlinking;
-}
 
-inline uint8_t Sequencer::get_actual_pos(uint8_t row)
-{
-	return player.row[row].actual_pos;
-}
 
-inline uint8_t Sequencer::get_row_length(uint8_t row)
-{
-	return seq[player.ramBank].row[row].length;
-}
 
-void Sequencer::init_player_lcd_values(void)
-{
-	change_buffer.transpose = 0;
-	change_buffer.uMoveTrack = 1;
-	change_buffer.moveStep = IDLE_MOVE_STEP;
 
-	//player.move2change = 0;
-}
+
+
+
+
 
 uint8_t Sequencer::val2roll(uint8_t val)
 {
@@ -1971,31 +1910,9 @@ inline uint8_t Sequencer::isStop(void)
 {
 	return player.isStop;
 }
-//extern usb_midi_class usbMIDI;
 
-//void Sequencer::midiSendChordOn(uint8_t note,
-//								uint8_t chord,
-//								uint8_t velo,
-//								uint8_t channel,
-//								uint8_t midiOut,
-//								uint8_t scale,
-//								uint8_t scaleRoot)
-//{
-//	Serial.println("BAM!");
-//	usbMIDI.sendNoteOn(channel, note, velo);
-//
-//}
-//void Sequencer::midiSendChordOff(uint8_t note,
-//									uint8_t chord,
-//									uint8_t velo,
-//									uint8_t channel,
-//									uint8_t midiOut,
-//									uint8_t scale,
-//									uint8_t scaleRoot)
-//{
-//	Serial.println("\t tsss...");
-//	usbMIDI.sendNoteOff(channel, note, velo);
-//}
+
+
 
 void Sequencer::copy_step(uint8_t from_step, uint8_t from_track,
 							uint8_t to_step,
@@ -2062,80 +1979,80 @@ uint8_t Sequencer::get_fxValType(uint8_t fxType)
 {
 	switch (fxType)
 	{
-	case fxConsts.FX_TYPE_NONE:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_NONE:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_OFFSET:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_OFFSET:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_GLIDE:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_GLIDE:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_SLIDE:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_SLIDE:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_ARP_UP:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_ARP_UP:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_ARP_DOWN:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_ARP_DOWN:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_SP:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_SP:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_LP1:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_LP1:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_LP2:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_LP2:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_MICROTUNE:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_MICROTUNE:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_SAMPLE_PLAYMODE:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_SAMPLE_PLAYMODE:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_VOL_ROLL:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_VOL_ROLL:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_JUMP_TO_STEP:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_JUMP_TO_STEP:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_JUMP_TO_PATTERN:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_JUMP_TO_PATTERN:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_PANNING:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_PANNING:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_PANNING_ROLL:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_PANNING_ROLL:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_SLICE_NUMBER:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_SLICE_NUMBER:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fxConsts.FX_TYPE_PROBABILITY:
-		return fxConsts.FX_VAL_TYPE_U16;
+	case fx.FX_TYPE_PROBABILITY:
+		return fx.FX_VAL_TYPE_U16;
 		break;
 
 	default:
-		return fxConsts.FX_VAL_TYPE_U16;
+		return fx.FX_VAL_TYPE_U16;
 		break;
 	}
 }
