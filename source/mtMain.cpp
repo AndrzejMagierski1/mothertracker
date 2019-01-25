@@ -19,6 +19,10 @@ void setup()
 	sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
 	sequencer.play();
 
+//	Serial.println(sequencer.fxConsts.FX_TYPE_LP1);
+
+
+
 
 
 }

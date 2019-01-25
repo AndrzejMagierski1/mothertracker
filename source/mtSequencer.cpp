@@ -21,8 +21,8 @@ void Sequencer::init()
 }
 void Sequencer::handle()
 {
-	uint32_t size;
-	size = sizeof(strBank);
+//	uint32_t size;
+//	size = sizeof(strBank);
 //	handle_ghosts();
 }
 
@@ -229,7 +229,7 @@ void Sequencer::play_microStep(uint8_t row)
 	strPlayer::strPlayerTrack & playerRow = player.row[row];
 
 	strBank::strTrack::strStep & patternStep = patternRow.step[playerRow.actual_pos];
-	strPlayer::strPlayerTrack::strPlayerStep & playerStep = playerRow.step[playerRow.actual_pos];
+//	strPlayer::strPlayerTrack::strPlayerStep & playerStep = playerRow.step[playerRow.actual_pos];
 
 	// TU LICZYMY CZAS DO KONCA NUTY
 	if (playerRow.note_length_timer > 0)
@@ -258,14 +258,14 @@ void Sequencer::play_microStep(uint8_t row)
 //		if(playerRow.noteOn_sent) sendNoteOff(row, &playerRow.stepSent);
 
 		boolean sendNote = 0;
-		if (patternStep.fx[0].type != FX_OFFSET &&
+		if (patternStep.fx[0].type != fxConsts.FX_TYPE_OFFSET &&
 				playerRow.uStep == 1)
 		{
 			sendNote = 1;
 			if (playerRow.noteOn_sent) sendNoteOff(row, &playerRow.stepSent);
 			sendNoteOn(row, &patternStep);
 		}
-		else if (patternStep.fx[0].type == FX_OFFSET &&
+		else if (patternStep.fx[0].type == fxConsts.FX_TYPE_OFFSET &&
 				playerRow.uStep == patternStep.fx[0].value_u16)
 		{
 			sendNote = 1;
@@ -1398,7 +1398,7 @@ void Sequencer::loadDefaultSequence(void)
 	seq[player.ramBank].row[0].step[2].note = 46;
 	seq[player.ramBank].row[0].step[2].length1 = 30;
 	seq[player.ramBank].row[0].step[2].fx[0].isOn = 1;
-	seq[player.ramBank].row[0].step[2].fx[0].type = FX_OFFSET;
+	seq[player.ramBank].row[0].step[2].fx[0].type = fxConsts.FX_TYPE_OFFSET;
 	seq[player.ramBank].row[0].step[2].fx[0].value_u16 = 10;
 
 }
@@ -1642,7 +1642,7 @@ int8_t Sequencer::getNextRollNoteOffset(uint8_t row)
 //	{
 //	}
 
-		retVal = random(-6, 6);
+	retVal = random(-6, 6);
 	// Serial.print("retVal");
 	// Serial.println(retVal);
 
@@ -2056,6 +2056,88 @@ void Sequencer::toggleStep(uint8_t row, uint8_t step)
 {
 	seq[player.ramBank].row[row].step[step].isOn = !seq[player.ramBank].row[row].step[step].isOn;
 	seq[player.ramBank].row[row].step[step].note = DEFAULT_ROW_NOTE;
+}
+
+uint8_t Sequencer::get_fxValType(uint8_t fxType)
+{
+	switch (fxType)
+	{
+	case fxConsts.FX_TYPE_NONE:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_OFFSET:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_GLIDE:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_SLIDE:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_ARP_UP:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_ARP_DOWN:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_SP:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_LP1:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_LP2:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_MICROTUNE:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_SAMPLE_PLAYMODE:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_VOL_ROLL:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_JUMP_TO_STEP:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_JUMP_TO_PATTERN:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_PANNING:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_PANNING_ROLL:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_SLICE_NUMBER:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	case fxConsts.FX_TYPE_PROBABILITY:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+
+	default:
+		return fxConsts.FX_VAL_TYPE_U16;
+		break;
+	}
 }
 
 void Sequencer::sendNoteOn(uint8_t track, strBank::strTrack::strStep *step)

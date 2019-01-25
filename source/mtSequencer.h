@@ -183,15 +183,15 @@ private:
 
 					union
 					{
-						uint16_t value_u16;
-						int16_t value_i16;
+						uint16_t value_u16;		// FX_VAL_U16
+						int16_t value_i16;		// FX_VAL_I16
 
-						struct
+						struct					// FX_VAL_U8_U8
 						{
 							uint8_t val1_u8;
 							uint8_t val2_u8;
 						};
-						struct
+						struct					// FX_VAL_I8_I8
 						{
 							int8_t val1_i8;
 							int8_t val2_i8;
@@ -212,19 +212,17 @@ private:
 		} row[8];
 
 	} seq[2];
+
+
+
+
 	public:
 	strBank const * pattern = &seq[0];
 
 	struct strGlobalConfig
 	{
-
 		uint8_t mode = MODE_MIDICLOCK.INTERNAL_;
-		//		uint8_t fv_ver_1 = FV_VER_1;
-//		uint8_t fv_ver_2 = FV_VER_2;
-//		uint8_t fv_ver_3 = FV_VER_3;
-		uint8_t zapas = 0;
 		uint8_t lastPattern = 0;
-
 		float tempoLock = 120.0;
 		float swingLock = 50.0;
 
@@ -420,27 +418,41 @@ private:
 		uint8_t player = 0;
 	} debug;
 
-	enum fxTypes
+	struct strFxConsts
 	{
-		FX_NONE,
-		FX_OFFSET,  // przesuniecie wewnątrz stepa 0-48
-		FX_GLIDE,	// czas płynnego przejścia do kolejnej nuty/pitcha
-		FX_SLIDE,	// podciągnięcie do nuty w czasie
-		FX_ARP_UP,	// arpeggio w górę
-		FX_ARP_DOWN,
-		FX_SP,		//	start point
-		FX_LP1,		// 	loop point 1
-		FX_LP2,		//	loop point 2
-		FX_MICROTUNE,
-		FX_SAMPLE_PLAYMODE,
-		FX_VOL_ROLL,
-		FX_JUMP_TO_STEP,
-		FX_JUMP_TO_PATTERN,
-		FX_PANNING,
-		FX_PANNING_ROLL,
-		FX_SLICE_NUMBER,
-		FX_PROBABILITY
-	};
+		enum
+		{
+			FX_TYPE_NONE,
+			FX_TYPE_OFFSET,             // przesuniecie wewnątrz stepa 0-48
+			FX_TYPE_GLIDE,	  // czas płynnego przejścia do kolejnej nuty/pitcha
+			FX_TYPE_SLIDE,	            // podciągnięcie do nuty w czasie
+			FX_TYPE_ARP_UP,	            // arpeggio w górę
+			FX_TYPE_ARP_DOWN,
+			FX_TYPE_SP,		            //	start point
+			FX_TYPE_LP1,		        // 	loop point 1
+			FX_TYPE_LP2,		        //	loop point 2
+			FX_TYPE_MICROTUNE,
+			FX_TYPE_SAMPLE_PLAYMODE,
+			FX_TYPE_VOL_ROLL,
+			FX_TYPE_JUMP_TO_STEP,
+			FX_TYPE_JUMP_TO_PATTERN,
+			FX_TYPE_PANNING,
+			FX_TYPE_PANNING_ROLL,
+			FX_TYPE_SLICE_NUMBER,
+			FX_TYPE_PROBABILITY,
+
+		};
+		enum
+		{
+			FX_VAL_TYPE_U16,
+			FX_VAL_TYPE_I16,
+			FX_VAL_TYPE_U8_U8,
+			FX_VAL_TYPE_I8_I8,
+		};
+
+	} fxConsts;
+
+	uint8_t get_fxValType(uint8_t fxType);
 
 	struct strPlayer
 	{
