@@ -160,9 +160,10 @@ void AudioFilterStateVariable::update_variable(const int16_t *in,
 		if(filterControlType == ENVELOPE_HIGH_PASS_CONTROL)
 		{
 			ctlValue*=2;
-			ctlValue+=1.0; // highpass
+			//ctlValue+=1.0; // highpass
+			ctlValue++;
 			ctlValue =( (ctlValue - ENVELOPE_MAX) * (CUTOFF_MAX - CUTOFF_MIN) / (ENVELOPE_MIN - ENVELOPE_MAX) ) + CUTOFF_MIN;
-			ctlValue*=((1-cutOff) * amount);
+			ctlValue*=((cutOff) * amount);
 			ctlValue =( (ctlValue - CUTOFF_MIN) * (ENVELOPE_MIN - ENVELOPE_MAX) / (CUTOFF_MAX - CUTOFF_MIN) ) + ENVELOPE_MAX;
 			if(ctlValue < -1.0) ctlValue = - 1.0;
 			if(ctlValue > 1.0) ctlValue = 1.0;
@@ -170,9 +171,10 @@ void AudioFilterStateVariable::update_variable(const int16_t *in,
 		else if(filterControlType == ENVELOPE_LOW_PASS_CONTROL)
 		{
 			ctlValue*=2;
-			ctlValue-=1.0; //lowpass;
+			//ctlValue-=1.0; //lowpass;
+			ctlValue--;
 			ctlValue =( (ctlValue - ENVELOPE_MIN) * (CUTOFF_MAX - CUTOFF_MIN) / (ENVELOPE_MAX - ENVELOPE_MIN) ) + CUTOFF_MIN;
-			ctlValue*=((1-cutOff) * amount);
+			ctlValue*=((cutOff) * amount);
 			ctlValue =( (ctlValue - CUTOFF_MIN) * (ENVELOPE_MAX - ENVELOPE_MIN) / (CUTOFF_MAX - CUTOFF_MIN) ) + ENVELOPE_MIN;
 			if(ctlValue < -1.0) ctlValue = - 1.0;
 			if(ctlValue > 1.0) ctlValue = 1.0;

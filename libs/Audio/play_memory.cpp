@@ -478,8 +478,8 @@ uint8_t AudioPlayMemory::setMod(strStep * step,strMtModAudioEngine * mod)
 
 	if(playMode != singleShot)
 	{
-		sampleConstrains.loopPoint1=samplePoints.loop1;
-		sampleConstrains.loopPoint2=samplePoints.loop2;
+		sampleConstrains.loopPoint1=samplePoints.loop1- samplePoints.start;
+		sampleConstrains.loopPoint2=samplePoints.loop2- samplePoints.start;
 		sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
 	}
 
