@@ -146,7 +146,6 @@ void AudioFilterStateVariable::update_variable(const int16_t *in,
 	int32_t lowpasstmp, bandpasstmp, highpasstmp;
 	int32_t fcenter, fmult, damp, octavemult;
 	int32_t n;
-	float ctlValue;
 	fcenter = setting_fcenter;
 	octavemult = setting_octavemult;
 	damp = setting_damp;
@@ -155,32 +154,6 @@ void AudioFilterStateVariable::update_variable(const int16_t *in,
 	bandpass = state_bandpass;
 	do {
 		// compute fmult using control input, fcenter and octavemult
-		/*=========================================================== próba przerobienia zakresu*/
-		ctlValue= ((float)*ctl) * (1.0f / 32767.0f);
-		if(filterControlType == ENVELOPE_HIGH_PASS_CONTROL)
-		{
-			ctlValue*=2;
-			//ctlValue+=1.0; // highpass
-			ctlValue++;
-			ctlValue =( (ctlValue - ENVELOPE_MAX) * (CUTOFF_MAX - CUTOFF_MIN) / (ENVELOPE_MIN - ENVELOPE_MAX) ) + CUTOFF_MIN;
-			ctlValue*=((cutOff) * amount);
-			ctlValue =( (ctlValue - CUTOFF_MIN) * (ENVELOPE_MIN - ENVELOPE_MAX) / (CUTOFF_MAX - CUTOFF_MIN) ) + ENVELOPE_MAX;
-			if(ctlValue < -1.0) ctlValue = - 1.0;
-			if(ctlValue > 1.0) ctlValue = 1.0;
-		}
-		else if(filterControlType == ENVELOPE_LOW_PASS_CONTROL)
-		{
-			ctlValue*=2;
-			//ctlValue-=1.0; //lowpass;
-			ctlValue--;
-			ctlValue =( (ctlValue - ENVELOPE_MIN) * (CUTOFF_MAX - CUTOFF_MIN) / (ENVELOPE_MAX - ENVELOPE_MIN) ) + CUTOFF_MIN;
-			ctlValue*=((cutOff) * amount);
-			ctlValue =( (ctlValue - CUTOFF_MIN) * (ENVELOPE_MAX - ENVELOPE_MIN) / (CUTOFF_MAX - CUTOFF_MIN) ) + ENVELOPE_MIN;
-			if(ctlValue < -1.0) ctlValue = - 1.0;
-			if(ctlValue > 1.0) ctlValue = 1.0;
-		}
-		*ctl=(int16_t)(ctlValue*32767.0);
-		/*===========================================================*/
 		control = *ctl++;          // signal is always 15 fractional bits
 		control *= octavemult;     // octavemult range: 0 to 28671 (12 frac bits)
 		n = control & 0x7FFFFFF;   // 27 fractional control bits

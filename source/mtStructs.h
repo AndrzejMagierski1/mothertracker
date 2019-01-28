@@ -3,6 +3,7 @@
 #define MT_STRUCTS_H
 
 #include <stdint.h>
+#include "mtEnvelopeGenerator.h"
 
 //=====================================================================
 const uint16_t MAX_16BIT =              		65535;
@@ -128,22 +129,11 @@ struct strInstrument
 	uint16_t loopPoint2;
 	uint16_t endPoint;
 
-	struct strEnvelope
-	{
-		uint16_t delay;
-		uint16_t attack;
-		uint16_t hold;
-		uint16_t decay;
-		float	 sustain;
-		uint16_t release;
-		float	 amount;
-	} envelope[3];
-
+	envelopeGenerator::strEnv envelope[3];
 
 	float cutOff;
 	float resonance;
 	uint8_t filterType;
-	uint8_t filterEnvelope;
 
 	uint16_t glide;
 	int16_t panning;

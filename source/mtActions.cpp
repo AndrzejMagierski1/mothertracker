@@ -61,14 +61,14 @@ void onPotChange(uint8_t n, int16_t value)
 		if(value>= 1)
 		{
 			if(mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].cutOff<1.0) mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].cutOff+=0.01;
-			if(mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].cutOff<1.0) mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].cutOff+=0.01;
+//			if(mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].cutOff<1.0) mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].cutOff+=0.01;
 		}
 
 		if(value<= -1)
 		{
 
 			if(mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].cutOff >0.0) mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].cutOff-=0.01;
-			if(mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].cutOff >0.0) mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].cutOff-=0.01;
+//			if(mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].cutOff >0.0) mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].cutOff-=0.01;
 		}
 
 
@@ -97,7 +97,7 @@ void onPotChange(uint8_t n, int16_t value)
 
 
 	instrumentPlayer[n].change(&mtPatern.track[n].step[0],&modAudioEngine[0]);
-	instrumentPlayer[n+3].change(&mtPatern.track[n+3].step[0],&modAudioEngine[0]);
+	//instrumentPlayer[n+3].change(&mtPatern.track[n+3].step[0],&modAudioEngine[0]);
 /*	mtPrint("pot change: ");
 	mtPrint(n);
 	mtPrint(" value: ");
@@ -142,18 +142,20 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].sustain=1.0;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].release=2000;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].amount=1.0;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].enable=envelopeOn;
 
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].panning=50;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].glide=50;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].cutOff=0.0;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].cutOff=1.0;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].resonance=0.7;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].filterType=lowPass;
 		mtPatern.track[n].step[0].volume=100;
 
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].filterEnvelope=envelopeOff;
 
 
 
+
+/*
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].startPoint=0;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].endPoint=65533;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].loopPoint1=2716;
@@ -175,6 +177,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].envelope[envFilter].sustain=1.0;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].envelope[envFilter].release=2000;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].envelope[envFilter].amount=1.0;
+		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].envelope[envFilter].enable=envelopeOff;
 
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].panning=50;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].glide=50;
@@ -182,8 +185,9 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].resonance=0.7;
 		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].filterType=highPass;
 		mtPatern.track[n+3].step[0].volume=100;
+*/
 
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].filterEnvelope=envelopeOff;
+
 
 
 
@@ -203,12 +207,12 @@ void onButtonChange(uint8_t n, uint8_t value)
 		if( (value == 1))
 			{
 			instrumentPlayer[n].play(&mtPatern.track[n].step[0],&modAudioEngine[0]);
-			instrumentPlayer[n+3].play(&mtPatern.track[n+3].step[0],&modAudioEngine[0]);
+//			instrumentPlayer[n+3].play(&mtPatern.track[n+3].step[0],&modAudioEngine[0]);
 			}
 		else if(value == 0)
 			{
 			instrumentPlayer[n].stop();
-			instrumentPlayer[n+3].stop();
+//			instrumentPlayer[n+3].stop();
 			}
 
 if(licznik>31) licznik=0;
