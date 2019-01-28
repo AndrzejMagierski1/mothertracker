@@ -27,6 +27,7 @@
 #define ANALOG_BUTTON_POSITION_DEAD_ZONE_NORMAL 2
 
 #define ANALOG_POT_DEAD_ZONE 5
+#define ANALOG_POT_REFRESH_TIME 20
 
 //buttons settings
 #define ANALOG_BUTTON_HOLD_TIME 800
@@ -215,9 +216,7 @@ private:
 		uint8_t time_y;
 		elapsedMicros velo_timer_x;
 		elapsedMicros velo_timer_y;
-	};
-
-	strPadButtons padButtons[ANALOG_MAX_PAD_BUTTONS];
+	} padButtons[ANALOG_MAX_PAD_BUTTONS];
 
 	uint16_t new_pot_button_values[ANALOG_MAX_MUX_CHANNELS];
 
@@ -239,7 +238,7 @@ private:
 	} potentiometers[ANALOG_MAX_POTS];
 
 	uint16_t pots_death_zone = ANALOG_POT_DEAD_ZONE;
-
+	elapsedMillis pots_refresh_timer;
 
 	struct strButtons
 	{

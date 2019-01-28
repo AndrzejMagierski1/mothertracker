@@ -153,9 +153,17 @@ void cAnalogInputs::update()
 		#if ANALOG_PADS_ON
 		processPadData();
 		#endif
-		#if ANALOG_POTS_ON
-		processPotData();
-		#endif
+
+		if(pots_refresh_timer > ANALOG_POT_REFRESH_TIME)
+		{
+			pots_refresh_timer = 0;
+
+			#if ANALOG_POTS_ON
+			processPotData();
+			#endif
+
+		}
+
 		#if ANALOG_BUTTONS_ON
 		processButtonData();
 		#endif

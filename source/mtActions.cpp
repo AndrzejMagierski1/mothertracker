@@ -11,9 +11,6 @@
 
 
 
-extern uint32_t wavLen1;
-extern int16_t wavBuf1[500800];
-
 
 #include "mtDisplay.h"
 
@@ -68,10 +65,7 @@ void onPotChange(uint8_t n, int16_t value)
 
 
 
-//	mtPrint("pot change: ");
-//	mtPrint(n);
-//	mtPrint(" value: ");
-//	mtPrintln(value);
+	Serial.println(value);
 
 
 /*	mtPrint("pot change: ");
@@ -99,82 +93,6 @@ void onButtonChange(uint8_t n, uint8_t value)
 
 
 	mtInstrumentEditor.buttonChange(n,value);
-
-/*
-
-
-
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].startPoint=0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].endPoint=65533;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].loopPoint1=2716;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].loopPoint2=12224;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].playMode=loopPingPong;
-
-
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].delay=0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].attack=1;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].hold=1;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].decay=1;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].sustain=1.0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].release=2000;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envAmp].amount=1.0;
-
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].delay=0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].attack=2000;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].hold=1;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].decay=1;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].sustain=1.0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].release=2000;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].envelope[envFilter].amount=1.0;
-
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].panning=50;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].glide=50;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].cutOff=0.0;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].resonance=0.7;
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].filterType=lowPass;
-		mtPatern.track[1].step[0].volume=100;
-<<<<<<< HEAD
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].startPoint=0;
-=======
-
-		mtProject.instrument[mtPatern.track[1].step[0].instrumentIndex].filterEnvelope=envelopeOn;
-/*		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].startPoint=0;
->>>>>>> refs/remotes/MotherTracker/AudioFilter
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].endPoint=65533;
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].loopPoint1=2716;
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].loopPoint2=12224;
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].playMode=loopForward;
-
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].ampDelay=0;
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].ampAttack=300;
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].ampHold=50;
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].ampDecay=100;
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].ampSustain=0.7;
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].ampRelease=500;
-		mtProject.instrument[mtPatern.track[n+3].step[0].instrumentIndex].panning=0;
-
-		mtPatern.track[4].step[0].note=24;
-		mtPatern.track[3].step[0].note=25;
-		mtPatern.track[2].step[0].note=26;
-		mtPatern.track[1].step[0].note=27;
-		mtPatern.track[5].step[0].note=40;
-		mtPatern.track[6].step[0].note=41;
-		mtPatern.track[7].step[0].note=42;
-<<<<<<< HEAD
-		mtPatern.track[8].step[0].note=43;
-*/
-
-/*
-		mtPatern.track[1].step[0].note=24;
-		mtPatern.track[1].step[1].note=36;
-
-
-=======
-		mtPatern.track[8].step[0].note=43;*/
-
-
-		//mtPatern.track[1].step[0].note=24;
-		//mtPatern.track[1].step[1].note=36;
 
 
 

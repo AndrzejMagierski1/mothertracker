@@ -272,64 +272,82 @@ void cMtDisplay::ramg_spectrum_points()
 	// linie start end
 	API_COLOR(displayColors.spectrumPoint);
 	API_LINE_WIDTH(8);
-	API_BEGIN(LINES);
-	// start point
-	API_VERTEX2II(ptrSpectrum->startPoint, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
-	API_VERTEX2II(ptrSpectrum->startPoint, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
 
-	// end point
-	API_VERTEX2II(ptrSpectrum->endPoint, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
-	API_VERTEX2II(ptrSpectrum->endPoint, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
-	API_END();
+	if(ptrSpectrum->startPoint >= 0)
+	{
+		// start point
+		API_BEGIN(LINES);
+		API_VERTEX2II(ptrSpectrum->startPoint, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
+		API_VERTEX2II(ptrSpectrum->startPoint, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
+		API_END();
+		//znaczek
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2II(ptrSpectrum->startPoint+1, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
+		API_VERTEX2II(ptrSpectrum->startPoint+5, MT_DISP_IEDITOR_SPECTRUM_Y-37,0,0);
+		API_VERTEX2II(ptrSpectrum->startPoint+1, MT_DISP_IEDITOR_SPECTRUM_Y-34,0,0);
+		API_END();
+	}
 
-	//znaczki
-	API_BEGIN(LINE_STRIP);
-	API_VERTEX2II(ptrSpectrum->startPoint+1, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
-	API_VERTEX2II(ptrSpectrum->startPoint+5, MT_DISP_IEDITOR_SPECTRUM_Y-37,0,0);
-	API_VERTEX2II(ptrSpectrum->startPoint+1, MT_DISP_IEDITOR_SPECTRUM_Y-34,0,0);
-	API_END();
+	if(ptrSpectrum->endPoint >= 0)
+	{
+		// end point
+		API_BEGIN(LINES);
+		API_VERTEX2II(ptrSpectrum->endPoint, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
+		API_VERTEX2II(ptrSpectrum->endPoint, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
+		API_END();
+		//znaczek
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2II(ptrSpectrum->endPoint-1, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
+		API_VERTEX2II(ptrSpectrum->endPoint-5, MT_DISP_IEDITOR_SPECTRUM_Y-37,0,0);
+		API_VERTEX2II(ptrSpectrum->endPoint-1, MT_DISP_IEDITOR_SPECTRUM_Y-34,0,0);
+		API_END();
+	}
 
-	API_BEGIN(LINE_STRIP);
-	API_VERTEX2II(ptrSpectrum->endPoint-1, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
-	API_VERTEX2II(ptrSpectrum->endPoint-5, MT_DISP_IEDITOR_SPECTRUM_Y-37,0,0);
-	API_VERTEX2II(ptrSpectrum->endPoint-1, MT_DISP_IEDITOR_SPECTRUM_Y-34,0,0);
-	API_END();
-
-	if(ptrSpectrum->pointsType > 0)
+	if(ptrSpectrum->pointsType > 0 && (ptrSpectrum->loopPoint1 >= 0 || ptrSpectrum->loopPoint2 >= 0))
 	{
 		// tlo loop
 		API_COLOR(displayColors.spectrumPointsBG);
 		API_BLEND_FUNC(SRC_ALPHA, ONE);
 		API_LINE_WIDTH(8);
 		API_BEGIN(RECTS);
-		API_VERTEX2II(ptrSpectrum->loopPoint1, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
-		API_VERTEX2II(ptrSpectrum->loopPoint2, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
+		API_VERTEX2II((ptrSpectrum->loopPoint1 >= 0 ? ptrSpectrum->loopPoint1:0), MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
+		API_VERTEX2II((ptrSpectrum->loopPoint2 >= 0 ? ptrSpectrum->loopPoint2:479), MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
 		API_END();
 		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 
+
 		// linie loop
 		API_COLOR(displayColors.spectrumPoint);
-		API_BEGIN(LINES);
-		// loop point 1
-		API_VERTEX2II(ptrSpectrum->loopPoint1, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
-		API_VERTEX2II(ptrSpectrum->loopPoint1, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
-		// loop point 2
-		API_VERTEX2II(ptrSpectrum->loopPoint2, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
-		API_VERTEX2II(ptrSpectrum->loopPoint2, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
-		API_END();
 
-		// znaczki loop
-		API_BEGIN(LINE_STRIP);
-		API_VERTEX2II(ptrSpectrum->loopPoint1+1, MT_DISP_IEDITOR_SPECTRUM_Y+34,0,0);
-		API_VERTEX2II(ptrSpectrum->loopPoint1+5, MT_DISP_IEDITOR_SPECTRUM_Y+37,0,0);
-		API_VERTEX2II(ptrSpectrum->loopPoint1+1, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
-		API_END();
 
-		API_BEGIN(LINE_STRIP);
-		API_VERTEX2II(ptrSpectrum->loopPoint2-1, MT_DISP_IEDITOR_SPECTRUM_Y+34,0,0);
-		API_VERTEX2II(ptrSpectrum->loopPoint2-5, MT_DISP_IEDITOR_SPECTRUM_Y+37,0,0);
-		API_VERTEX2II(ptrSpectrum->loopPoint2-1, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
-		API_END();
+		if(ptrSpectrum->loopPoint1 >= 0)
+		{
+			// loop point 1
+			API_BEGIN(LINES);
+			API_VERTEX2II(ptrSpectrum->loopPoint1, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
+			API_VERTEX2II(ptrSpectrum->loopPoint1, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
+			API_END();
+			// znaczek loop
+			API_BEGIN(LINE_STRIP);
+			API_VERTEX2II(ptrSpectrum->loopPoint1+1, MT_DISP_IEDITOR_SPECTRUM_Y+34,0,0);
+			API_VERTEX2II(ptrSpectrum->loopPoint1+5, MT_DISP_IEDITOR_SPECTRUM_Y+37,0,0);
+			API_VERTEX2II(ptrSpectrum->loopPoint1+1, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
+			API_END();
+		}
+		if(ptrSpectrum->loopPoint2 >= 0)
+		{
+			// loop point 2
+			API_BEGIN(LINES);
+			API_VERTEX2II(ptrSpectrum->loopPoint2, MT_DISP_IEDITOR_SPECTRUM_Y-40,0,0);
+			API_VERTEX2II(ptrSpectrum->loopPoint2, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
+			API_END();
+			// znaczek loop
+			API_BEGIN(LINE_STRIP);
+			API_VERTEX2II(ptrSpectrum->loopPoint2-1, MT_DISP_IEDITOR_SPECTRUM_Y+34,0,0);
+			API_VERTEX2II(ptrSpectrum->loopPoint2-5, MT_DISP_IEDITOR_SPECTRUM_Y+37,0,0);
+			API_VERTEX2II(ptrSpectrum->loopPoint2-1, MT_DISP_IEDITOR_SPECTRUM_Y+40,0,0);
+			API_END();
+		}
 	}
 
 

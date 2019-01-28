@@ -28,7 +28,7 @@ void cAnalogInputs::processPotData()
 		B = new_pot_button_values[analog_pots_index_B[i]];
 		potentiometers[i].position = calculatePotPosition(A ,B, &(potentiometers[i].part));
 
-		if(start_up) potentiometers[i].last_position= potentiometers[i].position;
+		if(start_up) potentiometers[i].last_position = potentiometers[i].position;
 
 
 		//if(potentiometers[i].position == 0)
@@ -45,6 +45,7 @@ void cAnalogInputs::processPotData()
 	{
 		// roznica pozycji pomiedzy aktualna a ostanio zapisana
 		diffrence = potentiometers[i].position - potentiometers[i].last_position;
+
 
 		if(diffrence > 0)
 		{
@@ -93,11 +94,21 @@ void cAnalogInputs::processPotData()
 		potentiometers[i].last_part = potentiometers[i].part;
 
 
-//		mtPrint(potentiometers[i].diffrences[2]); mtPrint(" ");
-//		mtPrint(potentiometers[i].diffrences[1]); mtPrint(" ");
-//		mtPrint(potentiometers[i].diffrences[0]); mtPrint(" ");
-//		mtPrintln();
-//		Serial.print(" ");
+
+
+
+
+
+
+		//TODO:
+		// oblicznie predskoic z danych przed przeskalowaniem rozdzielczoscia
+		// i jej usrednianie/wygladzanie, potem kozystajac z tablicy wypluwac
+		// wartosc odpowiednio zwiekszaona
+
+
+
+
+
 
 		// zerowanie global_diff przy zmianie kierunkudirection = 1;
 		direction = 0;

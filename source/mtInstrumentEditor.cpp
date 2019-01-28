@@ -39,7 +39,7 @@ void cMtInstrumentEditor::update()
 			spectrumChanged = 2;
 			pointsChanged = 2;
 			labelsChanged = 2;
-			lastPointChanged = 0;
+			lastChangedPoint = 0;
 
 			updateButtonsFunctions();
 			updatePotsFunctions();
@@ -69,10 +69,13 @@ void cMtInstrumentEditor::update()
 				mtDisplay.setSpectrumPoints(1);
 				mtDisplay.setValue(0);
 				mtDisplay.setEnvelopes(0);
+
+				updateButtonsFunctions();
+				updatePotsFunctions();
 			}
 			spectrumChanged = 0;
-			updateButtonsFunctions();
-			updatePotsFunctions();
+			//updateButtonsFunctions();
+			//updatePotsFunctions();
 
 			processSpectrum();
 			mtDisplay.changeSpectrum(&spectrum);
@@ -81,8 +84,8 @@ void cMtInstrumentEditor::update()
 		if(pointsChanged)
 		{
 			pointsChanged = 0;
-			updateButtonsFunctions();
-			updatePotsFunctions();
+			//updateButtonsFunctions();
+			//updatePotsFunctions();
 
 			instrumentPlayer[0].change(&editorInstrument, &editorMod);
 
@@ -282,11 +285,66 @@ void cMtInstrumentEditor::processSpectrum()
 	}
 
 
-	int16_t * sampleData = mtProject.sampleBank.sample[editorInstrument.sampleIndex].address;
-	//uint32_t * samplesCount = (uint32_t*)sampleData;
+
+	if(lastChangedPoint != 0)
+	{
+		switch(lastChangedPoint)
+		{
+			case 1: zoomPosition = editorInstrument.startPoint; break;
+			case 2: zoomPosition = editorInstrument.endPoint; 	break;
+			case 3: zoomPosition = editorInstrument.loopPoint1; break;
+			case 4: zoomPosition = editorInstrument.loopPoint2; break;
+			default: zoomPosition = MAX_16BIT/2; break;
+		}
+	}
+
+	//if(zoomPosition )
+	int16_t * sampleData;
+	uint32_t resolution;
+
+	if(zoomValue > 1.0)
+	{
+
+		zoomWidth = (MAX_16BIT/zoomValue);
+		zoomStart =  zoomPosition - zoomWidth/2;
+		zoomEnd = zoomPosition + zoomWidth/2;
+
+		if(zoomStart < 0)
+		{
+			zoomEnd = zoomWidth;
+			zoomStart = 0;
+		}
+		else if(zoomEnd > MAX_16BIT)
+		{
+			zoomEnd = MAX_16BIT;
+			zoomStart = MAX_16BIT-zoomWidth;
+		}
 
 
-	uint32_t resolution = mtProject.sampleBank.sample[editorInstrument.sampleIndex].length / 480;
+		uint32_t offset = ((float)zoomStart/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument.sampleIndex].length;
+
+		sampleData = mtProject.sampleBank.sample[editorInstrument.sampleIndex].address + offset;
+
+		resolution = (((float)zoomWidth/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument.sampleIndex].length ) / 480;
+
+
+
+	}
+	else
+	{
+
+		zoomWidth = MAX_16BIT;
+		zoomStart = 0;
+		zoomEnd = MAX_16BIT;
+		sampleData = mtProject.sampleBank.sample[editorInstrument.sampleIndex].address;
+		resolution = mtProject.sampleBank.sample[editorInstrument.sampleIndex].length / 480;
+	}
+
+
+
+
+
+	if(resolution < 1) resolution = 1;
 
 
 	int16_t up = 0;
@@ -317,8 +375,8 @@ void cMtInstrumentEditor::processSpectrum()
 		spectrum.lowerData[i] = low;
 	}
 
-	if(mtProject.sampleBank.sample[editorInstrument.sampleIndex].length > 480) spectrum.spectrumType = 0;
-	else spectrum.spectrumType = 1;
+	if(resolution <= 1) spectrum.spectrumType = 1;
+	else spectrum.spectrumType = 0;
 
 }
 
@@ -328,10 +386,29 @@ void cMtInstrumentEditor::processPoints()
 
 	spectrum.pointsType = editorInstrument.playMode;
 
-	spectrum.startPoint = (editorInstrument.startPoint * 479) / SAMPLE_POINT_POS_MAX;
-	spectrum.endPoint   = (editorInstrument.endPoint   * 479) / SAMPLE_POINT_POS_MAX;
-	spectrum.loopPoint1 = (editorInstrument.loopPoint1 * 479) / SAMPLE_POINT_POS_MAX;
-	spectrum.loopPoint2 = (editorInstrument.loopPoint2 * 479) / SAMPLE_POINT_POS_MAX;
+	if(editorInstrument.startPoint >= zoomStart && editorInstrument.startPoint <= zoomEnd)
+	{
+		spectrum.startPoint = ((editorInstrument.startPoint-zoomStart) * 479) / zoomWidth;
+	}
+	else spectrum.startPoint = -1;
+
+	if(editorInstrument.endPoint >= zoomStart && editorInstrument.endPoint <= zoomEnd)
+	{
+		spectrum.endPoint = ((editorInstrument.endPoint-zoomStart) * 479) / zoomWidth;
+	}
+	else spectrum.endPoint = -1;
+
+	if(editorInstrument.loopPoint1 >= zoomStart && editorInstrument.loopPoint1 <= zoomEnd)
+	{
+		spectrum.loopPoint1 = ((editorInstrument.loopPoint1-zoomStart) * 479) / zoomWidth;
+	}
+	else spectrum.loopPoint1 = -1;
+
+	if(editorInstrument.loopPoint2 >= zoomStart && editorInstrument.loopPoint2 <= zoomEnd)
+	{
+		spectrum.loopPoint2 = ((editorInstrument.loopPoint2-zoomStart) * 479) / zoomWidth;
+	}
+	else spectrum.loopPoint2 = -1;
 
 }
 
@@ -604,6 +681,7 @@ void cMtInstrumentEditor::updatePotsFunctions()
 			else
 			{
 				setPotFunction(0, mtInstrumentEditorPotFunctionStartPoint);
+				setPotFunction(2, mtInstrumentEditorPotFunctionViewZoom);
 				setPotFunction(4, mtInstrumentEditorPotFunctionEndPoint);
 
 				if(editorInstrument.playMode >= loopForward)
@@ -643,7 +721,7 @@ void cMtInstrumentEditor::setPotFunction(uint8_t number, uint8_t function)
 void cMtInstrumentEditor::modStartPoint(int16_t value)
 {
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
-	uint16_t move_step = viewLength / 480;
+	uint16_t move_step = zoomWidth / 480;
 	uint16_t dif;
 	value = value * move_step;
 
@@ -668,15 +746,17 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 		}
 	}
 
+	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
+	if(zoomValue > 1 && lastChangedPoint != 1
+		&& (editorInstrument.startPoint < zoomStart || editorInstrument.startPoint > zoomEnd)) spectrumChanged = 1;
 
-
-	lastPointChanged = 1;
+	lastChangedPoint = 1;
 	pointsChanged = 1;
 }
 
 void cMtInstrumentEditor::modEndPoint(int16_t value)
 {
-	uint16_t move_step = viewLength / 480;
+	uint16_t move_step = zoomWidth / 480;
 	uint16_t dif;
 	value = value * move_step;
 
@@ -700,13 +780,16 @@ void cMtInstrumentEditor::modEndPoint(int16_t value)
 		}
 	}
 
-	lastPointChanged = 2;
+	if(zoomValue > 1 && lastChangedPoint != 2
+			&& (editorInstrument.endPoint < zoomStart || editorInstrument.endPoint > zoomEnd)) spectrumChanged = 1;
+
+	lastChangedPoint = 2;
 	pointsChanged = 1;
 }
 
 void cMtInstrumentEditor::modLoopPoint1(int16_t value)
 {
-	uint16_t move_step = viewLength / 480;
+	uint16_t move_step = zoomWidth / 480;
 	value = value * move_step;
 
 	if(editorInstrument.loopPoint1 + value < SAMPLE_POINT_POS_MIN) editorInstrument.loopPoint1  = 0;
@@ -716,13 +799,16 @@ void cMtInstrumentEditor::modLoopPoint1(int16_t value)
 	if(editorInstrument.loopPoint1 < editorInstrument.startPoint) editorInstrument.loopPoint1 = editorInstrument.startPoint;
 	if(editorInstrument.loopPoint1 > editorInstrument.loopPoint2) editorInstrument.loopPoint1 = editorInstrument.loopPoint2-1;
 
-	lastPointChanged = 3;
+	if(zoomValue > 1 && lastChangedPoint != 3
+			&& (editorInstrument.loopPoint1 < zoomStart || editorInstrument.loopPoint1 > zoomEnd)) spectrumChanged = 1;
+
+	lastChangedPoint = 3;
 	pointsChanged = 1;
 }
 
 void cMtInstrumentEditor::modLoopPoint2(int16_t value)
 {
-	uint16_t move_step = viewLength / 480;
+	uint16_t move_step = zoomWidth / 480;
 	value = value * move_step;
 
 	if(editorInstrument.loopPoint2 + value < SAMPLE_POINT_POS_MIN) editorInstrument.loopPoint2  = 0;
@@ -732,7 +818,10 @@ void cMtInstrumentEditor::modLoopPoint2(int16_t value)
 	if(editorInstrument.loopPoint2 > editorInstrument.endPoint) editorInstrument.loopPoint2 = editorInstrument.endPoint;
 	if(editorInstrument.loopPoint2 < editorInstrument.loopPoint1) editorInstrument.loopPoint2 = editorInstrument.loopPoint1+1;
 
-	lastPointChanged = 4;
+	if(zoomValue > 1 && lastChangedPoint != 4
+			&& (editorInstrument.loopPoint2 < zoomStart || editorInstrument.loopPoint2 > zoomEnd)) spectrumChanged = 1;
+
+	lastChangedPoint = 4;
 	pointsChanged = 1;
 }
 
@@ -964,7 +1053,7 @@ void cMtInstrumentEditor::selectSample(int16_t value)
 
 	mtDisplay.changeList(3, editorInstrument.sampleIndex);
 
-	lastPointChanged = 0;
+	lastChangedPoint = 0;
 	spectrumChanged = 1;
 }
 
@@ -992,18 +1081,17 @@ void cMtInstrumentEditor::changeView(int16_t value)
 
 void cMtInstrumentEditor::changeZoom(int16_t value)
 {
-	if(zoomValue != 0) lastPointChanged = 0;
+	//if(zoomValue > 1) lastChangedPoint = 0;
 
-	float fVal = + value * 0.1;
+	float fVal = value * ZOOM_FACTOR;
 
-	if(zoomValue + fVal < 0) editorInstrument.startPoint  = 0;
+	if(zoomValue + fVal < ZOOM_MIN) zoomValue  = ZOOM_MIN;
 	else if(zoomValue + fVal > ZOOM_MAX ) zoomValue  = ZOOM_MAX;
 	else zoomValue += fVal;
 
 
-	lastPointChanged = 1;
 	spectrumChanged = 1;
-
+	pointsChanged = 1;
 }
 
 void cMtInstrumentEditor::play(uint8_t value)

@@ -258,10 +258,10 @@ struct strMtDispSpectrum
 	int8_t lowerData[480];
 
 	uint8_t pointsType = 0;
-	uint16_t startPoint;
-	uint16_t endPoint;
-	uint16_t loopPoint1;
-	uint16_t loopPoint2;
+	int16_t startPoint;
+	int16_t endPoint;
+	int16_t loopPoint1;
+	int16_t loopPoint2;
 };
 
 struct strMtDispValues

@@ -7,9 +7,9 @@
 #include "SD.h"
 #include "mtStructs.h"
 
-
-#define ZOOM_MAX 10
-
+#define ZOOM_MIN 	1
+#define ZOOM_MAX 	10
+#define ZOOM_FACTOR 0.05
 
 enum enumMtInstrumentEditorMode
 {
@@ -100,7 +100,7 @@ const uint16_t potsFuncResolutions[mtInstrumentEditorPotFunctionCount]=
 		100,	//mtInstrumentEditorPotFunctionSustaion,
 		100,	//mtInstrumentEditorPotFunctionRelease,
 		100,	//mtInstrumentEditorPotFunctionAmount,
-		100,	//mtInstrumentEditorPotFunctionAmount,
+		100,	//mtInstrumentEditorPotFunctionResonance,
 
 };
 
@@ -220,11 +220,15 @@ private:
 	uint8_t parametersChanged;
 	uint8_t envelopesChanged;
 
-	uint16_t viewStart = 0;
-	uint16_t viewLength = MAX_16BIT;
-	uint8_t lastPointChanged = 0;;
-	float zoomValue = 1;
+//	uint16_t viewStart = 0;
+//	uint16_t viewLength = MAX_16BIT;
 
+	uint16_t zoomWidth = MAX_16BIT;
+	int32_t zoomStart =  0;
+	int32_t zoomEnd = MAX_16BIT;
+	uint8_t lastChangedPoint = 0;
+	float zoomValue = 1;
+	uint16_t zoomPosition = 0;
 
 	uint8_t isPlayingSample;
 

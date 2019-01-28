@@ -334,8 +334,8 @@ void software_isr(void) // AudioStream::update_all()
 	AudioStream::cpu_cycles_total = totalcycles;
 	if (totalcycles > AudioStream::cpu_cycles_total_max)
 		AudioStream::cpu_cycles_total_max = totalcycles;
-	Serial.print("czas: ");
-	Serial.println(timer);
-	timer=0;
+//	Serial.print("czas: ");
+//	Serial.println(timer);
+//	timer=0;
 }
 
