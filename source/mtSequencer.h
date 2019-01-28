@@ -208,8 +208,8 @@ private:
 				// do wyjebania:
 //				uint8_t offset;
 //				uint8_t hitMode;		// tryb grania, jeśli >1 to rolka
-				uint8_t rollCurve;		// max 15
-				uint8_t rollNoteCurve;	// max 15
+//				uint8_t rollCurve;		// max 15
+//				uint8_t rollNoteCurve;	// max 15
 
 			} step[32];
 

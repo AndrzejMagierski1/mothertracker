@@ -1273,9 +1273,9 @@ void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 //	step.chord = MIN_CHORD;
 	step.velocity = MAX_VELO_STEP;
 //	step.modulation = DEFAULT_MOD;
-	step.rollCurve = MIN_STEP_ROLL_VAR;
+//	step.rollCurve = MIN_STEP_ROLL_VAR;
 
-	step.rollNoteCurve = MIN_STEP_ROLL_NOTE_VAR;
+//	step.rollNoteCurve = MIN_STEP_ROLL_NOTE_VAR;
 	step.length1 = MIN_STEP_LENGTH;
 //	step.offset = OFFSET_MIN;
 	step.note = tempRow.rootNote;

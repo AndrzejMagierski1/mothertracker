@@ -20,7 +20,7 @@ void setup()
 	sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
 	sequencer.play();
 
-	sequencer.
+
 
 
 
