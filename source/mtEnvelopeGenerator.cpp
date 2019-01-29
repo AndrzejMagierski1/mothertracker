@@ -42,15 +42,15 @@ void envelopeGenerator::calc()
 {
 
 	// values
-	float amount 		= ((float) envelope->amount / 4095); 	// float -1 - 1
-	float sustain 		= ((float) envelope->sustain / 4095);	// float 0-1
+	float amount 		= envelope->amount ; 	// float -1 - 1
+	float sustain 		= envelope->sustain ;	// float 0-1
 
 	// time-dependent values
-	float delay 		= pow((float(envelope->delay) / 4095.0 * 100), 2) * timeMul;
-	float attack 		= pow((float(envelope->attack) / 4095.0 * 100), 2) * timeMul;
+	float delay 		= (float)envelope->delay * timeMul;
+	float attack 		= (float)envelope->attack * timeMul;
 	float hold 			= 0;// float(*_hold * 	2) 		* timeMul;
-	float decay 		= pow((float(envelope->decay+1) / 4095.0 * 100), 2) * timeMul;
-	float release 		= pow((float(envelope->release) / 4095.0 * 100), 2) * timeMul;
+	float decay 		= (float)envelope->decay * timeMul;
+	float release 		= (float)envelope->release * timeMul;
 
 	bool _loop 			= envelope->loop;
 

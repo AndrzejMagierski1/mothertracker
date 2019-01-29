@@ -55,9 +55,14 @@ enum filterEnvelope
 	envelopeOn
 };
 
+enum filterEnable
+{
+	filterOff=0,
+	filterOn
+};
+
 enum filterType
 {
-	noFilter=0,
 	lowPass,
 	bandPass,
 	highPass
@@ -134,6 +139,7 @@ struct strInstrument
 	float cutOff;
 	float resonance;
 	uint8_t filterType;
+	uint8_t filterEnable;
 
 	uint16_t glide;
 	int16_t panning;

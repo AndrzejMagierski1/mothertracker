@@ -28,12 +28,12 @@ class envelopeGenerator
 public:
 	struct strEnv // do flash
 	{
-		int16_t  amount 	= 100;
+		float    amount 	= 1.0;
 		uint16_t delay 		= 0;
 		uint16_t attack 	= 20;
 		uint16_t hold 		= 0;
 		uint16_t decay 		= 30;
-		uint16_t sustain 	= 100;
+		float	 sustain 	= 1.0;
 		uint16_t release 	= 50;
 
 		uint8_t loop 		= 0;

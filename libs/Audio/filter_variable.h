@@ -37,8 +37,6 @@
 
 #define CUTOFF_MAX 1.0
 #define CUTOFF_MIN 0.0
-#define ENVELOPE_MAX 1.0
-#define ENVELOPE_MIN (-1.0)
 #define FREQ_MAX 477
 #define FREQ_MIN 0
 

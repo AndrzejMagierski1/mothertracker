@@ -35,7 +35,8 @@ public:
 	uint8_t change(strInstrument * instr,strMtModAudioEngine * mod);
 
 	void changeFilterType(uint8_t type);
-
+	void filterConnect();
+	void filterDisconnect();
 
 	void update();
 
@@ -51,6 +52,7 @@ private:
 	envelopeGenerator* 			envelopeFilterPtr;
 	AudioFilterStateVariable *	filterPtr;
 	AudioConnection*			conFilterToAmpPtr;
+	AudioConnection*			conPlayToFilterPtr;
 	uint8_t 					numPanChannel;
 	strStep *					actualStepPtr=NULL;
 	strInstrument *				actualInstrPtr=NULL;

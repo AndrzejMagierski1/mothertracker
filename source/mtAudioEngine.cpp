@@ -92,27 +92,35 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 		{
 		case 0:
 			conFilterToAmpPtr=&connect9;
+			conPlayToFilterPtr=&connect1;
 			break;
 		case 1:
 			conFilterToAmpPtr=&connect10;
+			conPlayToFilterPtr=&connect2;
 			break;
 		case 2:
 			conFilterToAmpPtr=&connect11;
+			conPlayToFilterPtr=&connect3;
 			break;
 		case 3:
 			conFilterToAmpPtr=&connect12;
+			conPlayToFilterPtr=&connect4;
 			break;
 		case 4:
 			conFilterToAmpPtr=&connect13;
+			conPlayToFilterPtr=&connect5;
 			break;
 		case 5:
 			conFilterToAmpPtr=&connect14;
+			conPlayToFilterPtr=&connect6;
 			break;
 		case 6:
 			conFilterToAmpPtr=&connect15;
+			conPlayToFilterPtr=&connect7;
 			break;
 		case 7:
 			conFilterToAmpPtr=&connect16;
+			conPlayToFilterPtr=&connect8;
 			break;
 		default:
 			break;
@@ -136,16 +144,24 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 		envelopeAmpPtr->release(mtProject.instrument[step->instrumentIndex].envelope[envAmp].release);
 		/*======================================================================================================*/
 		/*================================================ENVELOPE FILTER=======================================*/
-		envelopeFilterPtr->init(&mtProject.instrument[step->instrumentIndex].envelope[envFilter]);
 
+		if(mtProject.instrument[step->instrumentIndex].filterEnable == filterOn)
+		{
+			envelopeFilterPtr->init(&mtProject.instrument[step->instrumentIndex].envelope[envFilter]);
 		/*======================================================================================================*/
 		/*================================================FILTER================================================*/
-		changeFilterType(mtProject.instrument[step->instrumentIndex].filterType);
-		filterPtr->resonance(mtProject.instrument[step->instrumentIndex].resonance);
+			filterConnect();
+			changeFilterType(mtProject.instrument[step->instrumentIndex].filterType);
+			filterPtr->resonance(mtProject.instrument[step->instrumentIndex].resonance);
 
 
-		if(mtProject.instrument[step->instrumentIndex].filterType == highPass) filterPtr->setCutoff(mtProject.instrument[step->instrumentIndex].cutOff);
-		else if(mtProject.instrument[step->instrumentIndex].filterType == lowPass) filterPtr->setCutoff(1-mtProject.instrument[step->instrumentIndex].cutOff);
+			filterPtr->setCutoff(mtProject.instrument[step->instrumentIndex].cutOff);
+
+		}
+		else filterDisconnect();
+
+
+
 
 
 		/*======================================================================================================*/
@@ -183,15 +199,22 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 		envelopeAmpPtr->release(instr->envelope[envAmp].release);
 		/*======================================================================================================*/
 		/*================================================ENVELOPE FILTER=======================================*/
-		envelopeFilterPtr->init(&instr->envelope[envFilter]);
+		if(instr->filterEnable == filterOn)
+		{
+			envelopeFilterPtr->init(&instr->envelope[envFilter]);
+			filterConnect();
+
 		/*======================================================================================================*/
 		/*================================================FILTER================================================*/
-		changeFilterType(instr->filterType);
-		filterPtr->resonance(instr->resonance);
+			changeFilterType(instr->filterType);
+			filterPtr->resonance(instr->resonance);
 
 
-		if(instr->filterType == highPass) filterPtr->setCutoff(instr->cutOff);
-		else if(instr->filterType == lowPass) filterPtr->setCutoff(1-instr->cutOff);
+			filterPtr->setCutoff(instr->cutOff);
+		}
+		else filterDisconnect();
+
+
 
 
 		/*======================================================================================================*/
@@ -215,19 +238,28 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 	{
 		uint8_t status=0;
 		float gainL=0,gainR=0;
+		float filterMod=0;
+
 		envelopeAmpPtr->sustain(mtProject.instrument[step->instrumentIndex].envelope[envAmp].sustain);
 		/*================================================FILTER================================================*/
-		filterPtr->resonance(mtProject.instrument[step->instrumentIndex].resonance);
-
-
-		if(mtProject.instrument[actualStepPtr->instrumentIndex].filterType == highPass)
+		if(mtProject.instrument[step->instrumentIndex].filterEnable == filterOn)
 		{
-			filterPtr->setCutoff(mtProject.instrument[actualStepPtr->instrumentIndex].cutOff + fmap(envelopeFilterPtr->getOut(),0.0,1.0,mtProject.instrument[actualStepPtr->instrumentIndex].cutOff,1.0));
+			filterPtr->resonance(mtProject.instrument[step->instrumentIndex].resonance);
 
-		}
-		else if(mtProject.instrument[actualStepPtr->instrumentIndex].filterType == lowPass)
-		{
-			filterPtr->setCutoff(1-mtProject.instrument[actualStepPtr->instrumentIndex].cutOff + fmap(envelopeFilterPtr->getOut(),0.0,1.0,1.0-mtProject.instrument[actualStepPtr->instrumentIndex].cutOff,0.0));
+			if(mtProject.instrument[actualStepPtr->instrumentIndex].envelope[envFilter].enable == envelopeOn)
+			{
+				if(mtProject.instrument[step->instrumentIndex].filterType == highPass)
+				{
+					filterMod-=envelopeFilterPtr->getOut();
+
+				}
+				else if(mtProject.instrument[step->instrumentIndex].filterType == lowPass)
+				{
+					filterMod+=envelopeFilterPtr->getOut();
+				}
+			}
+
+			filterPtr->setCutoff(mtProject.instrument[step->instrumentIndex].cutOff + filterMod);
 		}
 
 		/*======================================================================================================*/
@@ -251,14 +283,28 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 	uint8_t instrumentEngine :: change(strInstrument * instr, strMtModAudioEngine * mod)
 	{
 		uint8_t status=0;
+		float filterMod=0;
 		envelopeAmpPtr->sustain(instr->envelope[envAmp].sustain);
 
 		/*================================================FILTER================================================*/
-		filterPtr->resonance(instr->resonance);
+		if(instr->filterEnable == filterOn)
+		{
+			filterPtr->resonance(instr->resonance);
 
-		if(instr->filterType == highPass) filterPtr->setCutoff(instr->cutOff);
-		else if(instr->filterType == lowPass) filterPtr->setCutoff(1-instr->cutOff);
+			if(instr->envelope[envFilter].enable == envelopeOn)
+			{
+				if(instr->filterType == highPass)
+				{
+					filterMod-=envelopeFilterPtr->getOut();
 
+				}
+				else if(instr->filterType == lowPass)
+				{
+					filterMod+=envelopeFilterPtr->getOut();
+				}
+			}
+			filterPtr->setCutoff(instr->cutOff + filterMod);
+		}
 
 		/*======================================================================================================*/
 		/*==================================================GAIN================================================*/
@@ -276,6 +322,7 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 
 	void instrumentEngine:: update()
 	{
+		float filterMod=0;
 
 		if(envelopeAmpPtr->endRelease()) playMemPtr->stop();
 		if(actualStepPtr)
@@ -284,14 +331,16 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 			{
 				if(mtProject.instrument[actualStepPtr->instrumentIndex].filterType == highPass)
 				{
-					filterPtr->setCutoff(mtProject.instrument[actualStepPtr->instrumentIndex].cutOff + fmap(envelopeFilterPtr->getOut(),0.0,1.0,mtProject.instrument[actualStepPtr->instrumentIndex].cutOff,1.0));
+					filterMod-=envelopeFilterPtr->getOut();
 
 				}
 				else if(mtProject.instrument[actualStepPtr->instrumentIndex].filterType == lowPass)
 				{
-					filterPtr->setCutoff(1-mtProject.instrument[actualStepPtr->instrumentIndex].cutOff + fmap(envelopeFilterPtr->getOut(),0.0,1.0,1.0-mtProject.instrument[actualStepPtr->instrumentIndex].cutOff,0.0));
+					filterMod+=envelopeFilterPtr->getOut();
 				}
+				filterPtr->setCutoff(mtProject.instrument[actualStepPtr->instrumentIndex].cutOff + filterMod);
 			}
+
 		}
 
 
@@ -301,12 +350,14 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 			{
 				if(actualInstrPtr->filterType == highPass)
 				{
-					filterPtr->setCutoff(actualInstrPtr->cutOff + envelopeFilterPtr->getOut());
+					filterMod-=envelopeFilterPtr->getOut();
+
 				}
 				else if(actualInstrPtr->filterType == lowPass)
 				{
-					filterPtr->setCutoff((1-actualInstrPtr->cutOff) + envelopeFilterPtr->getOut());
+					filterMod+=envelopeFilterPtr->getOut();
 				}
+				filterPtr->setCutoff(actualInstrPtr->cutOff + filterMod);
 			}
 		}
 
@@ -328,6 +379,32 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 		else if(type == bandPass) conFilterToAmpPtr->src_index=1;
 		else if(type ==  highPass) conFilterToAmpPtr->src_index=2;
 		conFilterToAmpPtr->connect();
+	}
+
+	void instrumentEngine :: filterDisconnect()
+	{
+		conFilterToAmpPtr->disconnect();
+		conPlayToFilterPtr->disconnect();
+
+		conPlayToFilterPtr->src=*playMemPtr;
+		conPlayToFilterPtr->dst=*envelopeAmpPtr;
+
+		conPlayToFilterPtr->connect();
+	}
+
+	void instrumentEngine :: filterConnect()
+	{
+		conFilterToAmpPtr->disconnect();
+		conPlayToFilterPtr->disconnect();
+
+		conPlayToFilterPtr->src=*playMemPtr;
+		conPlayToFilterPtr->dst=*filterPtr;
+		conPlayToFilterPtr->src_index=0;
+		conPlayToFilterPtr->dest_index=0;
+
+		conFilterToAmpPtr->connect();
+		conPlayToFilterPtr->connect();
+
 	}
 
 	float instrumentEngine :: fmap(float x, float in_min, float in_max, float out_min, float out_max)
