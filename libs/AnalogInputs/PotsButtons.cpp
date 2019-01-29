@@ -94,33 +94,48 @@ void cAnalogInputs::processPotData()
 		potentiometers[i].last_part = potentiometers[i].part;
 
 
-
-
-
-
-
-
 		//TODO:
 		// oblicznie predskoic z danych przed przeskalowaniem rozdzielczoscia
 		// i jej usrednianie/wygladzanie, potem kozystajac z tablicy wypluwac
 		// wartosc odpowiednio zwiekszaona
 
+		// wygladzenie wartosci delty przed dalszym przetwarzaniem
+		diffrence = potentiometers[i].diffrence_blur = (diffrence + potentiometers[i].diffrence_blur * 5)/6;
+		Serial.print(diffrence);
+
+		//
+		if(potentiometers[i].speed > 0)
+		{
+			if(potentiometers[i].speed > 5) potentiometers[i].speed = 5;
 
 
+			if(diffrence > 0)
+			{
+				if(diffrence > 49) diffrence = 49;
+				diffrence = potAcc[potentiometers[i].speed-1][diffrence];
+			}
+			else if(diffrence < 0)
+			{
+				if(diffrence < -49) diffrence = -49;
+				diffrence = potAcc[potentiometers[i].speed-1][diffrence*(-1)] * (-1);
+			}
+		}
+		Serial.print("   ");
+		Serial.println(diffrence);
 
 
-
-		// zerowanie global_diff przy zmianie kierunkudirection = 1;
+		// zerowanie global_diff przy zmianie kierunku
 		direction = 0;
 		if(diffrence > 0) 		direction = 1;
 		else if(diffrence < 0) 	direction = 2;
 		if(direction != potentiometers[i].last_direction) potentiometers[i].global_diff = 0;
 		potentiometers[i].last_direction = direction;
+		//
 
+		// obliczenie kroku przy aktualnej rozdzielczosci
 		resolution_step = 1023.0 / potentiometers[i].resolution;
-
 		potentiometers[i].global_diff = potentiometers[i].global_diff + diffrence;
-
+		//
 
 		if(potentiometers[i].global_diff >= resolution_step || potentiometers[i].global_diff <= resolution_step*(-1))
 		{
@@ -129,9 +144,7 @@ void cAnalogInputs::processPotData()
 
 			potentiometers[i].global_diff = potentiometers[i].global_diff % resolution_step;
 		}
-
 	}
-
 }
 
 
@@ -212,10 +225,18 @@ uint16_t cAnalogInputs::calculatePotPosition(uint16_t A, uint16_t B, uint8_t * p
 //-----------------------------------------------------------------------------------------------
 // n = 0-5
 // value 0-1023
-void cAnalogInputs::setPotResolution(uint16_t n, uint16_t value)
+void cAnalogInputs::setPotResolution(uint8_t n, uint16_t value)
 {
 	potentiometers[n].resolution = value;
 	potentiometers[n].global_diff = 0;
+}
+
+//-----------------------------------------------------------------------------------------------
+// n = 0-5
+// value 0-1023
+void cAnalogInputs::setPotAcceleration(uint8_t n, uint8_t value)
+{
+	potentiometers[n].speed = value;
 }
 
 //-----------------------------------------------------------------------------------------------

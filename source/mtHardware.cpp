@@ -55,7 +55,7 @@ void initHardware()
 	//....................................................
 	//CODAC AUDIO
 	audioShield.enable();
-	audioShield.volume(0.2);
+	audioShield.volume(0.1);
 	AudioMemory(200);
 
 	//....................................................
@@ -73,7 +73,7 @@ void initHardware()
 	AnalogInputs.testMode(0); // (1 = on; 0 = off) test mode
 	AnalogInputs.setPadxMode(0);
 	AnalogInputs.setPadyMode(0);
-	AnalogInputs.setPotDeathZone(4);
+	AnalogInputs.setPotDeathZone(7);
 /*
 	AnalogInputs.setPotResolution(0, 100);
 	AnalogInputs.setPotResolution(1, 100);
@@ -81,6 +81,13 @@ void initHardware()
 	AnalogInputs.setPotResolution(3, 100);
 	AnalogInputs.setPotResolution(4, 100);
 */
+
+	AnalogInputs.setPotAcceleration(0, 3);
+	AnalogInputs.setPotAcceleration(1, 3);
+	AnalogInputs.setPotAcceleration(2, 3);
+	AnalogInputs.setPotAcceleration(3, 3);
+	AnalogInputs.setPotAcceleration(4, 3);
+
 	AnalogInputs.begin(100);
 
 	//....................................................
@@ -126,48 +133,6 @@ void initHardware()
 
 	// LCD
 	mtDisplay.begin(mtDisplayModePolyLogo);
-
-	//mtDisplay.begin(mtDisplayModePolyLogo);
-/*	while(1)
-	{
->>>>>>> refs/remotes/MotherTracker/AudioFilter
-
-/*
-
-	while(1)
-	{
-		for(int i=1;i<=20;i++)
-		{
-			for(int j=1;j<=8;j++)
-			{
-				leds.setLEDseq(j,i,1,31);
-				leds.updateSeq();
-			}
-			for(int j=1;j<=8;j++)
-			{
-				leds.setLEDseq(j,i,0,31);
-				leds.updateSeq();
-			}
-<<<<<<< HEAD
-=======
-		}
-		for(int i=1;i<=20;i++)
-		{
-			for(int j=1;j<=8;j++)
-			{
-				leds.setLEDseq(j,i,1,31);
-				leds.updateSeq();
-			}
-			for(int j=1;j<=8;j++)
-			{
-				leds.setLEDseq(j,i,0,31);
-				leds.updateSeq();
-			}
->>>>>>> refs/remotes/MotherTracker/AudioFilter
-		}
-<<<<<<< HEAD
-	}
-*/
 
 
 

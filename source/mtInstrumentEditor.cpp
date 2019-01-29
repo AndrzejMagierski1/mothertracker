@@ -730,19 +730,20 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 	else editorInstrument.startPoint += value;
 
 	if(editorInstrument.startPoint > editorInstrument.endPoint) editorInstrument.startPoint = editorInstrument.endPoint-1;
-
-
 	if(editorInstrument.startPoint > editorInstrument.loopPoint1)
 	{
 		dif = editorInstrument.loopPoint2 - editorInstrument.loopPoint1;
 		editorInstrument.loopPoint1 = editorInstrument.startPoint;
-		editorInstrument.loopPoint2 = editorInstrument.loopPoint1 + dif;
 
-		if(editorInstrument.loopPoint2 > editorInstrument.endPoint)
+		if(editorInstrument.loopPoint1 + dif > editorInstrument.endPoint)
 		{
 			editorInstrument.loopPoint2 = editorInstrument.endPoint;
 			editorInstrument.loopPoint1 = editorInstrument.loopPoint2 - dif;
 			editorInstrument.startPoint = editorInstrument.loopPoint1;
+		}
+		else
+		{
+			editorInstrument.loopPoint2 = editorInstrument.loopPoint1 + dif;
 		}
 	}
 
@@ -770,13 +771,16 @@ void cMtInstrumentEditor::modEndPoint(int16_t value)
 		dif = editorInstrument.loopPoint2 - editorInstrument.loopPoint1;
 
 		editorInstrument.loopPoint2 = editorInstrument.endPoint;
-		editorInstrument.loopPoint1 = editorInstrument.loopPoint2 - dif;
 
-		if(editorInstrument.loopPoint1 < editorInstrument.startPoint)
+		if(editorInstrument.loopPoint2 - dif < editorInstrument.startPoint)
 		{
 			editorInstrument.loopPoint1 = editorInstrument.startPoint;
 			editorInstrument.loopPoint2 = editorInstrument.loopPoint1 + dif;
 			editorInstrument.endPoint = editorInstrument.loopPoint2;
+		}
+		else
+		{
+			editorInstrument.loopPoint1 = editorInstrument.loopPoint2 - dif;
 		}
 	}
 

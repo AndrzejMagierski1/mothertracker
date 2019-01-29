@@ -65,7 +65,7 @@ void onPotChange(uint8_t n, int16_t value)
 
 
 
-	Serial.println(value);
+	//Serial.println(value);
 
 
 /*	mtPrint("pot change: ");
