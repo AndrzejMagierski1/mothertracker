@@ -49,6 +49,8 @@ void cMtInstrumentEditor::update()
 		{
 			if(labelsChanged == 2)
 			{
+				updateButtonsFunctions();
+				updatePotsFunctions();
 				mtDisplay.setPotsLabels(1);
 				mtDisplay.setButtonsLabels(1);
 			}
@@ -72,6 +74,7 @@ void cMtInstrumentEditor::update()
 
 				updateButtonsFunctions();
 				updatePotsFunctions();
+				labelsChanged = 1;
 			}
 			spectrumChanged = 0;
 			//updateButtonsFunctions();
@@ -130,6 +133,7 @@ void cMtInstrumentEditor::update()
 				updateButtonsFunctions();
 				updatePotsFunctions();
 				updateParameters();
+				labelsChanged = 1;
 			}
 			parametersChanged = 0;
 
@@ -149,6 +153,7 @@ void cMtInstrumentEditor::update()
 
 				updateButtonsFunctions();
 				updatePotsFunctions();
+				labelsChanged = 1;
 			}
 			envelopesChanged = 0;
 
@@ -229,6 +234,7 @@ void cMtInstrumentEditor::buttonChange(uint8_t button, uint8_t value)
 	case mtInstrumentEditorButtonFunctionEnvelopeType		: 	changeEnvelopeType(value);break;
 	case mtInstrumentEditorButtonFunctionEnvelopeAmp		: 	setEnvelopeTypeAmp(value);	break;
 	case mtInstrumentEditorButtonFunctionEnvelopeFilter		: 	setEnvelopeTypeFilter(value);break;
+	case mtInstrumentEditorButtonFunctionEnvelopeEnable		: 	setEnvelopeEnable(value);break;
 	default: break;
 	}
 
@@ -286,25 +292,27 @@ void cMtInstrumentEditor::processSpectrum()
 
 
 
-	if(lastChangedPoint != 0)
+	switch(lastChangedPoint)
 	{
-		switch(lastChangedPoint)
-		{
-			case 1: zoomPosition = editorInstrument.startPoint; break;
-			case 2: zoomPosition = editorInstrument.endPoint; 	break;
-			case 3: zoomPosition = editorInstrument.loopPoint1; break;
-			case 4: zoomPosition = editorInstrument.loopPoint2; break;
-			default: zoomPosition = MAX_16BIT/2; break;
-		}
+		case 0: zoomPosition = editorInstrument.startPoint; break; //MAX_16BIT/2; break;
+
+		case 1: zoomPosition = editorInstrument.startPoint; break;
+		case 2: zoomPosition = editorInstrument.endPoint; 	break;
+		case 3: zoomPosition = editorInstrument.loopPoint1; break;
+		case 4: zoomPosition = editorInstrument.loopPoint2; break;
+
+		default: zoomPosition = editorInstrument.startPoint; break; //MAX_16BIT/2; break;
 	}
 
-	//if(zoomPosition )
+
+
 	int16_t * sampleData;
 	uint32_t resolution;
+	uint16_t offset_pixel;
+
 
 	if(zoomValue > 1.0)
 	{
-
 		zoomWidth = (MAX_16BIT/zoomValue);
 		zoomStart =  zoomPosition - zoomWidth/2;
 		zoomEnd = zoomPosition + zoomWidth/2;
@@ -319,20 +327,35 @@ void cMtInstrumentEditor::processSpectrum()
 			zoomEnd = MAX_16BIT;
 			zoomStart = MAX_16BIT-zoomWidth;
 		}
+		else
+		{
+			offset_pixel = 239;
+		}
 
 
-		uint32_t offset = ((float)zoomStart/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument.sampleIndex].length;
+		//uint32_t offset = ((float)zoomStart/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument.sampleIndex].length;
+
+		uint32_t offset = (zoomPosition/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument.sampleIndex].length;
 
 		sampleData = mtProject.sampleBank.sample[editorInstrument.sampleIndex].address + offset;
 
 		resolution = (((float)zoomWidth/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument.sampleIndex].length ) / 480;
 
 
+		Serial.print(zoomValue);
+		Serial.print("   ");
+		Serial.print(zoomStart);
+		Serial.print("   ");
+		Serial.print(zoomEnd);
+		Serial.print("   ");
+
+		Serial.println();
 
 	}
 	else
 	{
 
+		offset_pixel = 0;
 		zoomWidth = MAX_16BIT;
 		zoomStart = 0;
 		zoomEnd = MAX_16BIT;
@@ -341,7 +364,8 @@ void cMtInstrumentEditor::processSpectrum()
 	}
 
 
-
+// TODO:
+	// cos zrobic z tym picxel ofdset chyba jescze i bedzie git
 
 
 	if(resolution < 1) resolution = 1;
@@ -353,7 +377,7 @@ void cMtInstrumentEditor::processSpectrum()
 	uint32_t step = 0;
 
 
-	for(uint16_t i = 0; i < 480; i++)
+	for(uint16_t i = offset_pixel; i < 480; i++)
 	{
 		low = up = 0; //*(sampleData+step);
 
@@ -429,9 +453,13 @@ void cMtInstrumentEditor::processLabels()
 			break;
 
 			case mtInstrumentEditorButtonFunctionFilterType:
-				setButtonLabel(mtInstrumentEditorButtonFunctionFilterType, (char*)&filterTypeLabels[editorInstrument.filterType][0]);
+				if(!editorInstrument.filterEnable) setButtonLabel(mtInstrumentEditorButtonFunctionFilterType, (char*)&filterTypeLabels[0][0]);
+				else setButtonLabel(mtInstrumentEditorButtonFunctionFilterType, (char*)&filterTypeLabels[editorInstrument.filterType+1][0]);
 			break;
 
+			case mtInstrumentEditorButtonFunctionEnvelopeEnable:
+				setButtonLabel(mtInstrumentEditorButtonFunctionEnvelopeEnable, (char*)&envelopeEnableLabels[editorInstrument.envelope[envelopeType].enable][0]);
+			break;
 
 			default: break;
 			}
@@ -596,7 +624,7 @@ void cMtInstrumentEditor::updateButtonsFunctions()
 				setButtonFunction(0, mtInstrumentEditorButtonFunctionPlay);
 				setButtonFunction(1, mtInstrumentEditorButtonFunctionEnvelopeAmp);
 				setButtonFunction(2, mtInstrumentEditorButtonFunctionEnvelopeFilter);
-
+				if(envelopeType>envAmp) setButtonFunction(3, mtInstrumentEditorButtonFunctionEnvelopeEnable);
 				setButtonFunction(4, mtInstrumentEditorButtonFunctionEnvelopes);
 			}
 			else
@@ -892,17 +920,24 @@ void cMtInstrumentEditor::changeFilterType(uint8_t value)
 		if(!editorInstrument.filterEnable)
 		{
 			editorInstrument.filterEnable = 1;
-			editorInstrument.filterType = filterTypeLowPass;
+			editorInstrument.filterType = lowPass;
 		}
-		else if(editorInstrument.filterType == filterTypeLowPass)
+		else if(editorInstrument.filterType == lowPass)
 		{
-			editorInstrument.filterType = filterTypeHighPass;
+			editorInstrument.filterEnable = 1;
+			editorInstrument.filterType = highPass;
 		}
-		else if(editorInstrument.filterType == filterTypeHighPass)
+		else if(editorInstrument.filterType == highPass)
+		{
+			editorInstrument.filterEnable = 1;
+			editorInstrument.filterType = bandPass;
+		}
+		else if(editorInstrument.filterType == bandPass)
 		{
 			editorInstrument.filterEnable = 0;
-			editorInstrument.filterType = filterTypeLowPass;
+			editorInstrument.filterType = lowPass;
 		}
+
 
 		labelsChanged = 1;
 	}
@@ -937,6 +972,7 @@ void cMtInstrumentEditor::setEnvelopeTypeAmp(uint8_t value)
 		envelopeType = envelopeTypeAmp;
 
 		envelopesChanged = 1;
+		labelsChanged = 2;
 	}
 }
 
@@ -947,10 +983,18 @@ void cMtInstrumentEditor::setEnvelopeTypeFilter(uint8_t value)
 		envelopeType = envelopeTypeFilter;
 
 		envelopesChanged = 1;
+		labelsChanged = 2;
 	}
 }
 
-
+void cMtInstrumentEditor::setEnvelopeEnable(uint8_t value)
+{
+	if(value == 1)
+	{
+		editorInstrument.envelope[envelopeType].enable = !editorInstrument.envelope[envelopeType].enable;
+		labelsChanged = 1;
+	}
+}
 
 void cMtInstrumentEditor::showParameters(uint8_t value)
 {

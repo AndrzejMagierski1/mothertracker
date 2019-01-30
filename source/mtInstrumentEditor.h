@@ -9,7 +9,7 @@
 
 #define ZOOM_MIN 	1
 #define ZOOM_MAX 	10
-#define ZOOM_FACTOR 1//0.05
+#define ZOOM_FACTOR 0.05
 
 enum enumMtInstrumentEditorMode
 {
@@ -33,6 +33,7 @@ enum enumMtInstrumentEditorButtonFunction
 	mtInstrumentEditorButtonFunctionEnvelopeType,
 	mtInstrumentEditorButtonFunctionEnvelopeAmp,
 	mtInstrumentEditorButtonFunctionEnvelopeFilter,
+	mtInstrumentEditorButtonFunctionEnvelopeEnable,
 
 	//-------------------------------
 	mtInstrumentEditorButtonFunctionCount
@@ -122,11 +123,19 @@ const char glidePreviewDifLabels[4][20]=
 		"2 Octaves",
 };
 
-const char filterTypeLabels[3][10]=
+const char filterTypeLabels[4][10]=
 {
 		"No Filter",
 		"Low Pass",
 		"High Pass",
+		"Band Pass",
+};
+
+
+const char envelopeEnableLabels[2][10]=
+{
+		"Disabled",
+		"Enabled",
 };
 
 const char envelopeTypeNames[INSTRUMEN_ENVELOPES_MAX][20]=
@@ -180,6 +189,7 @@ private:
 	void changeEnvelopeType(uint8_t value);
 	void setEnvelopeTypeAmp(uint8_t value);
 	void setEnvelopeTypeFilter(uint8_t value);
+	void setEnvelopeEnable(uint8_t value);
 
 	//funkcje potow
 	void modStartPoint(int16_t value);
@@ -280,6 +290,7 @@ private:
 		"Switch Envelope",
 		"Amp Envelope",
 		"Filter Envelope",
+		"Disabled",
 	};
 
 	//potencjometry w edytorze

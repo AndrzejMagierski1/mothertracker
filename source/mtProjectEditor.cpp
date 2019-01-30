@@ -34,7 +34,6 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// pod jaki index tablicy sampli 0-32 zapisywac dany sampel
 	// teraz domyslnie zajmowane 0-7
 
-
 	mtProject.sampleBank.sample[0].file_name[0] = '1';
 	mtProject.sampleBank.sample[0].file_name[1] = '.';
 	mtProject.sampleBank.sample[0].file_name[2] = 'w';
@@ -122,9 +121,11 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].envelope[envFilter].sustain = 1.0;
 		mtProject.instrument[i].envelope[envFilter].release = 1000;
 		mtProject.instrument[i].envelope[envFilter].amount = 1.0;
+		mtProject.instrument[i].envelope[envFilter].enable = 1;
 
 		mtProject.instrument[i].cutOff = 0.5;
-		mtProject.instrument[i].filterEnvelope = 1;
+		mtProject.instrument[i].filterEnable = 1;
+		mtProject.instrument[i].filterType = 0;
 		mtProject.instrument[i].resonance = 2;
 		mtProject.instrument[i].panning = 50;
 		mtProject.instrument[i].glide = 10000;

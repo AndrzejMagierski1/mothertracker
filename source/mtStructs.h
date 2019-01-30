@@ -3,6 +3,7 @@
 #define MT_STRUCTS_H
 
 #include <stdint.h>
+#include "mtEnvelopeGenerator.h"
 
 //=====================================================================
 //=====================================================================
@@ -78,9 +79,6 @@ enum playMode
 	playModeMax
 };
 
-
-
-
 enum filterEnvelope
 {
 	envelopeOff=0,
@@ -89,9 +87,11 @@ enum filterEnvelope
 
 enum filterType
 {
-	noFilter=0,
 	lowPass,
-	highPass
+	highPass,
+	bandPass,
+
+	filterTypeMax
 };
 
 enum filterControlType
@@ -107,15 +107,6 @@ enum envelopesType
     envAmp,
     envFilter,
     envPitch
-};
-
-enum filterTypes
-{
-	filterTypeLowPass,
-	filterTypeHighPass,
-	filterTypeBandPass,
-
-	filterTypeMax,
 };
 
 
@@ -187,7 +178,6 @@ struct strInstrument
     uint16_t loopPoint1;
     uint16_t loopPoint2;
     uint16_t endPoint;
-
 
     envelopeGenerator::strEnv envelope[3];
 

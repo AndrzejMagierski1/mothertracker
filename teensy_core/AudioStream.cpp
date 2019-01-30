@@ -159,8 +159,8 @@ void AudioStream::transmit(audio_block_t *block, unsigned char index)
 {
 	for (AudioConnection *c = destination_list; c != NULL; c = c->next_dest) {
 		if (c->src_index == index) {
-			if (c->dst.inputQueue[c->dest_index] == NULL) {
-				c->dst.inputQueue[c->dest_index] = block;
+			if (c->dst->inputQueue[c->dest_index] == NULL) {
+				c->dst->inputQueue[c->dest_index] = block;
 				block->ref_count++;
 			}
 		}
@@ -204,11 +204,11 @@ void AudioConnection::connect(void)
 	AudioConnection *p;
 
 	if (isConnected) return;
-	if (dest_index > dst.num_inputs) return;
+	if (dest_index > dst->num_inputs) return;
 	__disable_irq();
-	p = src.destination_list;
+	p = src->destination_list;
 	if (p == NULL) {
-		src.destination_list = this;
+		src->destination_list = this;
 	} else {
 		while (p->next_dest) {
 			if (&p->src == &this->src && &p->dst == &this->dst
@@ -222,11 +222,11 @@ void AudioConnection::connect(void)
 		p->next_dest = this;
 	}
 	this->next_dest = NULL;
-	src.numConnections++;
-	src.active = true;
+	src->numConnections++;
+	src->active = true;
 
-	dst.numConnections++;
-	dst.active = true;
+	dst->numConnections++;
+	dst->active = true;
 
 	isConnected = true;
 
@@ -238,17 +238,17 @@ void AudioConnection::disconnect(void)
 	AudioConnection *p;
 
 	if (!isConnected) return;
-	if (dest_index > dst.num_inputs) return;
+	if (dest_index > dst->num_inputs) return;
 	__disable_irq();
 	// Remove destination from source list
-	p = src.destination_list;
+	p = src->destination_list;
 	if (p == NULL) {
 		return;
 	} else if (p == this) {
 		if (p->next_dest) {
-			src.destination_list = next_dest;
+			src->destination_list = next_dest;
 		} else {
-			src.destination_list = NULL;
+			src->destination_list = NULL;
 		}
 	} else {
 		while (p) {
@@ -265,17 +265,17 @@ void AudioConnection::disconnect(void)
 		}
 	}
 	//Remove possible pending src block from destination
-	dst.inputQueue[dest_index] = NULL;
+	dst->inputQueue[dest_index] = NULL;
 
 	//Check if the disconnected AudioStream objects should still be active
-	src.numConnections--;
-	if (src.numConnections == 0) {
-		src.active = false;
+	src->numConnections--;
+	if (src->numConnections == 0) {
+		src->active = false;
 	}
 
-	dst.numConnections--;
-	if (dst.numConnections == 0) {
-		dst.active = false;
+	dst->numConnections--;
+	if (dst->numConnections == 0) {
+		dst->active = false;
 	}
 
 	isConnected = false;

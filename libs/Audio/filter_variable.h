@@ -37,8 +37,6 @@
 
 #define CUTOFF_MAX 1.0
 #define CUTOFF_MIN 0.0
-#define ENVELOPE_MAX 1.0
-#define ENVELOPE_MIN (-1.0)
 #define FREQ_MAX 477
 #define FREQ_MIN 0
 
@@ -49,7 +47,7 @@ class AudioFilterStateVariable: public AudioStream
 public:
 	AudioFilterStateVariable() : AudioStream(2, inputQueueArray) {
 		frequency(1000);
-		octaveControl(1.0,0); // default values
+		octaveControl(1.0); // default values
 		resonance(0.707);
 		state_inputprev = 0;
 		state_lowpass = 0;
@@ -71,11 +69,10 @@ public:
 		// TODO: allow lower Q when frequency is lower
 		setting_damp = (1.0 / q) * 1073741824.0;
 	}
-	void octaveControl(float n, uint8_t filterCtrlT) {
+	void octaveControl(float n) {
 		// filter's corner frequency is Fcenter * 2^(control * N)
 		// where "control" ranges from -1.0 to +1.0
 		// and "N" allows the frequency to change from 0 to 7 octaves
-		filterControlType=filterCtrlT;
 		if (n < 0.0) n = 0.0;
 		else if (n > 6.9999) n = 6.9999;
 		setting_octavemult = n * 4096.0;
@@ -84,25 +81,12 @@ public:
 	{
 		uint16_t freq;
 
-		if(c<-1.0) c=-1.0;
+		if(c<0.0) c=0.0;
 		if(c>1.0) c=1.0;
 
-		if((filterControlType == ENVELOPE_HIGH_PASS_CONTROL) || (filterControlType == ENVELOPE_LOW_PASS_CONTROL))
-		{
-		cutOff=c;
-		}
-		else
-		{
-			freq=( (c - CUTOFF_MIN) * (FREQ_MAX - FREQ_MIN) / (CUTOFF_MAX - CUTOFF_MIN) ) + FREQ_MIN;
-			frequency(filterFreq[freq]);
-		}
-	}
-	void setEnvAmount(float a)
-	{
-		if(a<0.0) a=0.0;
-		if(a>1.0) a=1.0;
+		freq=( (c - CUTOFF_MIN) * (FREQ_MAX - FREQ_MIN) / (CUTOFF_MAX - CUTOFF_MIN) ) + FREQ_MIN;
+		frequency(filterFreq[freq]);
 
-		amount=a;
 	}
 	virtual void update(void);
 private:
@@ -117,9 +101,7 @@ private:
 	int32_t state_inputprev;
 	int32_t state_lowpass;
 	int32_t state_bandpass;
-	uint8_t filterControlType;
 	float cutOff;
-	float amount;
 	audio_block_t *inputQueueArray[2];
 };
 

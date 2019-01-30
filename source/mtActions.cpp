@@ -62,12 +62,6 @@ void onPotChange(uint8_t n, int16_t value)
 
 
 	mtHaptic.start(15,150,0x01,56);
-
-
-
-	//Serial.println(value);
-
-
 /*	mtPrint("pot change: ");
 	mtPrint(n);
 	mtPrint(" value: ");
@@ -90,10 +84,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 		return;
 	}
 
-
-
 	mtInstrumentEditor.buttonChange(n,value);
-
 
 
 //	mtPrint("button: ");

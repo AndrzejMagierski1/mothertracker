@@ -8,6 +8,8 @@
 #include <SD.h>
 #include <SerialFlash.h>
 
+#include "mtEnvelopeGenerator.h"
+
 
 
 extern uint32_t wavLen1;
@@ -29,8 +31,7 @@ class instrumentEngine
 {
 public:
 
-	void init(AudioPlayMemory * playMem,AudioEffectEnvelope * envFilter,AudioSynthWaveformDc * dcFilter,AudioFilterStateVariable * filter,
-			AudioEffectEnvelope * envAmp, AudioAmplifier * amp, uint8_t panCh);
+	void init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter, AudioEffectEnvelope * envAmp, AudioAmplifier * amp, uint8_t panCh);
 
 	uint8_t play(strStep * step, strMtModAudioEngine * mod);
 	uint8_t play(strInstrument * instr, strMtModAudioEngine *mod, int8_t note);
@@ -39,9 +40,12 @@ public:
 	uint8_t change(strInstrument * instr,strMtModAudioEngine * mod);
 
 	void changeFilterType(uint8_t type);
-
+	void filterConnect();
+	void filterDisconnect();
 
 	void update();
+
+
 	void stop();
 
 
@@ -49,12 +53,16 @@ private:
 
 	AudioPlayMemory *        	playMemPtr;
 	AudioEffectEnvelope *       envelopeAmpPtr;
-	AudioEffectEnvelope *       envelopeFilterPtr;
 	AudioAmplifier *			ampPtr;
-	AudioSynthWaveformDc * 		dcFilterPtr;
+	envelopeGenerator* 			envelopeFilterPtr;
 	AudioFilterStateVariable *	filterPtr;
 	AudioConnection*			conFilterToAmpPtr;
+	AudioConnection*			conPlayToFilterPtr;
 	uint8_t 					numPanChannel;
+	strStep *					actualStepPtr=NULL;
+	strInstrument *				actualInstrPtr=NULL;
+
+	float fmap(float x, float in_min, float in_max, float out_min, float out_max);
 
 };
 
@@ -66,12 +74,11 @@ extern audioEngine engine;
 
 extern AudioPlayMemory          playMem[8];
 extern AudioEffectEnvelope      envelopeAmp[8];
-extern AudioEffectEnvelope      envelopeFilter[8];
+extern envelopeGenerator		envelopeFilter[8];
 extern AudioFilterStateVariable filter[8];
 extern AudioAmplifier           amp[8];
 extern AudioMixer8				mixerL,mixerR;
 extern AudioOutputI2S           i2s1;
-extern AudioSynthWaveformDc     dc[8];
 
 
 

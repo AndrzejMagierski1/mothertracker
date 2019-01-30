@@ -177,7 +177,7 @@
 							<tool id="com.crt.advproject.link.exe.debug.809486444" name="MCU Linker" superClass="com.crt.advproject.link.exe.debug">
 								<option id="com.crt.advproject.link.gcc.hdrlib.74952146" name="Library" superClass="com.crt.advproject.link.gcc.hdrlib"/>
 							</tool>
-							<tool id="com.crt.advproject.tool.debug.debug.2145611596" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.debug"/>
+							<tool id="com.crt.advproject.tool.debug.debug.1081057570" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.debug"/>
 						</toolChain>
 					</folderInfo>
 				</configuration>
@@ -341,7 +341,8 @@
 							<tool id="com.crt.advproject.link.exe.release.1363405877" name="MCU Linker" superClass="com.crt.advproject.link.exe.release">
 								<option id="com.crt.advproject.link.gcc.hdrlib.161560944" name="Library" superClass="com.crt.advproject.link.gcc.hdrlib"/>
 							</tool>
-							<tool id="com.crt.advproject.tool.debug.release.1102197438" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.release"/>
+							<tool id="com.crt.advproject.tool.debug.release.190299746" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.release"/>
+
 						</toolChain>
 					</folderInfo>
 				</configuration>
@@ -496,6 +497,6 @@
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="com.nxp.mcuxpresso.core.datamodels">
 		<sdkName>SDK_2.x_MK66FX1M0xxx18</sdkName>
-		<sdkVersion>2.4.1</sdkVersion>
+		<sdkVersion>2.5.0</sdkVersion>
 	</storageModule>
 </cproject>
