@@ -149,7 +149,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].cutOff=1.0;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].resonance=0.7;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].filterType=highPass;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].filterEnable=filterOff;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].filterEnable=filterOn;
 		mtPatern.track[n].step[0].volume=100;
 
 

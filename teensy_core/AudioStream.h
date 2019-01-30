@@ -83,13 +83,13 @@ typedef struct audio_block_struct {
 class AudioConnection
 {
 public:
-	AudioConnection(AudioStream &source, AudioStream &destination) :
+	AudioConnection(AudioStream *source, AudioStream *destination) :
 		src(source), dst(destination), src_index(0), dest_index(0),
 		next_dest(NULL)
 		{ isConnected = false;
 		  connect(); }
-	AudioConnection(AudioStream &source, unsigned char sourceOutput,
-		AudioStream &destination, unsigned char destinationInput) :
+	AudioConnection(AudioStream *source, unsigned char sourceOutput,
+		AudioStream *destination, unsigned char destinationInput) :
 		src(source), dst(destination),
 		src_index(sourceOutput), dest_index(destinationInput),
 		next_dest(NULL)
@@ -103,8 +103,8 @@ public:
 	void connect(void);
 	friend class instrumentEngine;
 protected:
-	AudioStream &src;
-	AudioStream &dst;
+	AudioStream *src;
+	AudioStream *dst;
 	unsigned char src_index;
 	unsigned char dest_index;
 	AudioConnection *next_dest;

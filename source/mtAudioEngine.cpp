@@ -8,54 +8,54 @@ AudioAmplifier           amp[8];
 AudioMixer8				 mixerL,mixerR;
 AudioOutputI2S           i2s1;
 
-AudioConnection          connect1(playMem[0], 0, filter[0], 0);
-AudioConnection          connect2(playMem[1], 0, filter[1], 0);
-AudioConnection          connect3(playMem[2], 0, filter[2], 0);
-AudioConnection          connect4(playMem[3], 0, filter[3], 0);
-AudioConnection          connect5(playMem[4], 0, filter[4], 0);
-AudioConnection          connect6(playMem[5], 0, filter[5], 0);
-AudioConnection          connect7(playMem[6], 0, filter[6], 0);
-AudioConnection          connect8(playMem[7], 0, filter[7], 0);
+AudioConnection          connect1(&playMem[0], 0, &filter[0], 0);
+AudioConnection          connect2(&playMem[1], 0, &filter[1], 0);
+AudioConnection          connect3(&playMem[2], 0, &filter[2], 0);
+AudioConnection          connect4(&playMem[3], 0, &filter[3], 0);
+AudioConnection          connect5(&playMem[4], 0, &filter[4], 0);
+AudioConnection          connect6(&playMem[5], 0, &filter[5], 0);
+AudioConnection          connect7(&playMem[6], 0, &filter[6], 0);
+AudioConnection          connect8(&playMem[7], 0, &filter[7], 0);
 
-AudioConnection          connect9(filter[0], 0, envelopeAmp[0], 0);
-AudioConnection          connect10(filter[1], 0, envelopeAmp[1], 0);
-AudioConnection          connect11(filter[2], 0, envelopeAmp[2], 0);
-AudioConnection          connect12(filter[3], 0, envelopeAmp[3], 0);
-AudioConnection          connect13(filter[4], 0, envelopeAmp[4], 0);
-AudioConnection          connect14(filter[5], 0, envelopeAmp[5], 0);
-AudioConnection          connect15(filter[6], 0, envelopeAmp[6], 0);
-AudioConnection          connect16(filter[7], 0, envelopeAmp[7], 0);
+AudioConnection          connect9(&filter[0], 0, &envelopeAmp[0], 0);
+AudioConnection          connect10(&filter[1], 0, &envelopeAmp[1], 0);
+AudioConnection          connect11(&filter[2], 0, &envelopeAmp[2], 0);
+AudioConnection          connect12(&filter[3], 0, &envelopeAmp[3], 0);
+AudioConnection          connect13(&filter[4], 0, &envelopeAmp[4], 0);
+AudioConnection          connect14(&filter[5], 0, &envelopeAmp[5], 0);
+AudioConnection          connect15(&filter[6], 0, &envelopeAmp[6], 0);
+AudioConnection          connect16(&filter[7], 0, &envelopeAmp[7], 0);
 
-AudioConnection          connect17(envelopeAmp[0], amp[0]);
-AudioConnection          connect18(envelopeAmp[1], amp[1]);
-AudioConnection          connect19(envelopeAmp[2], amp[2]);
-AudioConnection          connect20(envelopeAmp[3], amp[3]);
-AudioConnection          connect21(envelopeAmp[4], amp[4]);
-AudioConnection          connect22(envelopeAmp[5], amp[5]);
-AudioConnection          connect23(envelopeAmp[6], amp[6]);
-AudioConnection          connect24(envelopeAmp[7], amp[7]);
+AudioConnection          connect17(&envelopeAmp[0],&amp[0]);
+AudioConnection          connect18(&envelopeAmp[1], &amp[1]);
+AudioConnection          connect19(&envelopeAmp[2], &amp[2]);
+AudioConnection          connect20(&envelopeAmp[3], &amp[3]);
+AudioConnection          connect21(&envelopeAmp[4], &amp[4]);
+AudioConnection          connect22(&envelopeAmp[5], &amp[5]);
+AudioConnection          connect23(&envelopeAmp[6], &amp[6]);
+AudioConnection          connect24(&envelopeAmp[7], &amp[7]);
 
-AudioConnection          connect25(amp[0], 0, mixerL, 0);
-AudioConnection          connect26(amp[1], 0, mixerL, 1);
-AudioConnection          connect27(amp[2], 0, mixerL, 2);
-AudioConnection          connect28(amp[3], 0, mixerL, 3);
-AudioConnection          connect29(amp[4], 0, mixerL, 4);
-AudioConnection          connect30(amp[5], 0, mixerL, 5);
-AudioConnection          connect31(amp[6], 0, mixerL, 6);
-AudioConnection          connect32(amp[7], 0, mixerL, 7);
+AudioConnection          connect25(&amp[0], 0, &mixerL, 0);
+AudioConnection          connect26(&amp[1], 0, &mixerL, 1);
+AudioConnection          connect27(&amp[2], 0, &mixerL, 2);
+AudioConnection          connect28(&amp[3], 0, &mixerL, 3);
+AudioConnection          connect29(&amp[4], 0, &mixerL, 4);
+AudioConnection          connect30(&amp[5], 0, &mixerL, 5);
+AudioConnection          connect31(&amp[6], 0, &mixerL, 6);
+AudioConnection          connect32(&amp[7], 0, &mixerL, 7);
 
 
-AudioConnection          connect33(amp[0], 0, mixerR, 0);
-AudioConnection          connect34(amp[1], 0, mixerR, 1);
-AudioConnection          connect35(amp[2], 0, mixerR, 2);
-AudioConnection          connect36(amp[3], 0, mixerR, 3);
-AudioConnection          connect37(amp[4], 0, mixerR, 4);
-AudioConnection          connect38(amp[5], 0, mixerR, 5);
-AudioConnection          connect39(amp[6], 0, mixerR, 6);
-AudioConnection          connect40(amp[7], 0, mixerR, 7);
+AudioConnection          connect33(&amp[0], 0, &mixerR, 0);
+AudioConnection          connect34(&amp[1], 0, &mixerR, 1);
+AudioConnection          connect35(&amp[2], 0, &mixerR, 2);
+AudioConnection          connect36(&amp[3], 0, &mixerR, 3);
+AudioConnection          connect37(&amp[4], 0, &mixerR, 4);
+AudioConnection          connect38(&amp[5], 0, &mixerR, 5);
+AudioConnection          connect39(&amp[6], 0, &mixerR, 6);
+AudioConnection          connect40(&amp[7], 0, &mixerR, 7);
 
-AudioConnection         connect41(mixerL, 0, i2s1, 1);
-AudioConnection         connect42(mixerR, 0, i2s1, 0);
+AudioConnection         connect41(&mixerL, 0, &i2s1, 1);
+AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 
 
 
@@ -158,7 +158,7 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 			filterPtr->setCutoff(mtProject.instrument[step->instrumentIndex].cutOff);
 
 		}
-		else filterDisconnect();
+		else if(mtProject.instrument[step->instrumentIndex].filterEnable == filterOff) filterDisconnect();
 
 
 
@@ -212,7 +212,7 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 
 			filterPtr->setCutoff(instr->cutOff);
 		}
-		else filterDisconnect();
+		else if(instr->filterEnable == filterOff) filterDisconnect();
 
 
 
@@ -383,11 +383,13 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 
 	void instrumentEngine :: filterDisconnect()
 	{
-		conFilterToAmpPtr->disconnect();
+		//conFilterToAmpPtr->disconnect();
 		conPlayToFilterPtr->disconnect();
 
-		conPlayToFilterPtr->src=*playMemPtr;
-		conPlayToFilterPtr->dst=*envelopeAmpPtr;
+		conPlayToFilterPtr->src=playMemPtr;
+		conPlayToFilterPtr->dst=envelopeAmpPtr;
+		conPlayToFilterPtr->src_index=0;
+		conPlayToFilterPtr->dest_index=0;
 
 		conPlayToFilterPtr->connect();
 	}
@@ -397,10 +399,12 @@ AudioConnection         connect42(mixerR, 0, i2s1, 0);
 		conFilterToAmpPtr->disconnect();
 		conPlayToFilterPtr->disconnect();
 
-		conPlayToFilterPtr->src=*playMemPtr;
-		conPlayToFilterPtr->dst=*filterPtr;
+		conPlayToFilterPtr->src=playMemPtr;
+		conPlayToFilterPtr->dst=filterPtr;
 		conPlayToFilterPtr->src_index=0;
 		conPlayToFilterPtr->dest_index=0;
+
+
 
 		conFilterToAmpPtr->connect();
 		conPlayToFilterPtr->connect();

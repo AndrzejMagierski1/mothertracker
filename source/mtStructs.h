@@ -49,12 +49,6 @@ enum playMode
 	loopPingPong
 };
 
-enum filterEnvelope
-{
-	envelopeOff=0,
-	envelopeOn
-};
-
 enum filterEnable
 {
 	filterOff=0,
