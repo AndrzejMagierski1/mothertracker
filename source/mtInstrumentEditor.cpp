@@ -889,9 +889,20 @@ void cMtInstrumentEditor::changeFilterType(uint8_t value)
 {
 	if(value == 1)
 	{
-		editorInstrument.filterType++;
-
-		if(editorInstrument.filterType > filterTypeMax-1 ) editorInstrument.filterType = 0;
+		if(!editorInstrument.filterEnable)
+		{
+			editorInstrument.filterEnable = 1;
+			editorInstrument.filterType = filterTypeLowPass;
+		}
+		else if(editorInstrument.filterType == filterTypeLowPass)
+		{
+			editorInstrument.filterType = filterTypeHighPass;
+		}
+		else if(editorInstrument.filterType == filterTypeHighPass)
+		{
+			editorInstrument.filterEnable = 0;
+			editorInstrument.filterType = filterTypeLowPass;
+		}
 
 		labelsChanged = 1;
 	}

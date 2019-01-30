@@ -9,7 +9,7 @@
 
 #define ZOOM_MIN 	1
 #define ZOOM_MAX 	10
-#define ZOOM_FACTOR 0.05
+#define ZOOM_FACTOR 1//0.05
 
 enum enumMtInstrumentEditorMode
 {
