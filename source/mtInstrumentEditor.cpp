@@ -419,6 +419,31 @@ void cMtInstrumentEditor::processSpectrum()
 	step = 0;
 
 
+	if(offset_pixel > 0)
+	{
+		for(int16_t i = offset_pixel-1; i >= 0; i--)
+		{
+			low = up = 0; //*(sampleData+step);
+
+			for(uint16_t j = 0; j < resolution; j++)
+			{
+				int16_t sample = *(sampleData-step+j);
+
+				if(sample > up)  up = sample;
+				else if(sample < low) low = sample;
+
+			}
+			step+= resolution;
+
+			up = up/1000;
+			low = low/1000;
+
+			spectrum.upperData[i] =  up;
+			spectrum.lowerData[i] = low;
+		}
+	}
+
+
 	for(uint16_t i = offset_pixel; i < 480; i++)
 	{
 		low = up = 0; //*(sampleData+step);
