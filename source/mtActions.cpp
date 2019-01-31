@@ -14,8 +14,7 @@
 
 #include "mtDisplay.h"
 
-uint8_t licznik=0; // wyrzucic po testach
-uint16_t freqTest=0; // to samo
+
 
 void onPowerButtonChange(uint8_t value);
 

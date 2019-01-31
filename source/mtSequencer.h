@@ -533,4 +533,8 @@ public:
 	void handle_uStep_timer(void);
 
 };
+
+
+extern Sequencer sequencer;
+
 #endif

@@ -4,7 +4,7 @@
 #include "mtAudioEngine.h"
 
 #include "mtSequencer.h"
-Sequencer sequencer;
+
 
 
 

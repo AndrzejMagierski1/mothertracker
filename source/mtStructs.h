@@ -173,6 +173,8 @@ struct strInstrument
 {
     uint8_t sampleIndex;
 
+    char name[4];
+
     uint8_t  playMode;
     uint16_t startPoint;
     uint16_t loopPoint1;
@@ -213,6 +215,8 @@ struct strPatern
 {
 	strTrack track[8];
 };
+
+
 
 struct strMtProject
 {

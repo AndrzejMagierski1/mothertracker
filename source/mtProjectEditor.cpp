@@ -111,7 +111,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].envelope[envAmp].hold = 0;
 		mtProject.instrument[i].envelope[envAmp].decay = 0;
 		mtProject.instrument[i].envelope[envAmp].sustain = 1.0;
-		mtProject.instrument[i].envelope[envAmp].release = 11000;
+		mtProject.instrument[i].envelope[envAmp].release = 1000;
 		mtProject.instrument[i].envelope[envAmp].amount = 1.0;
 
 		mtProject.instrument[i].envelope[envFilter].delay = 0;
@@ -123,13 +123,30 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].envelope[envFilter].amount = 1.0;
 		mtProject.instrument[i].envelope[envFilter].enable = 1;
 
-		mtProject.instrument[i].cutOff = 0.5;
-		mtProject.instrument[i].filterEnable = 1;
+		mtProject.instrument[i].cutOff = 0.0;
+		mtProject.instrument[i].filterEnable = 0;
 		mtProject.instrument[i].filterType = 0;
-		mtProject.instrument[i].resonance = 2;
+		mtProject.instrument[i].resonance = 0;
 		mtProject.instrument[i].panning = 50;
 		mtProject.instrument[i].glide = 10000;
+
+		if(i >= 10)
+		{
+			mtProject.instrument[i].name[0] = (i+1)/10 + 48;
+			mtProject.instrument[i].name[1] = (i+1)%10 + 48;
+			mtProject.instrument[i].name[2] = 0;
+		}
+		else
+		{
+			mtProject.instrument[i].name[0] = (i+1)%10 + 48;
+			mtProject.instrument[i].name[1] = 0;
+		}
+
 	}
+
+	mtProject.instrument[0].startPoint = 19000;
+	mtProject.instrument[0].loopPoint1 = 19000; //PRO
+	mtProject.instrument[0].loopPoint2 = 29000;
 
 
 	// parametry paternu ========================================

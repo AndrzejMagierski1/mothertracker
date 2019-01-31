@@ -11,12 +11,6 @@
 #define ZOOM_MAX 	10
 #define ZOOM_FACTOR 0.05
 
-enum enumMtInstrumentEditorMode
-{
-	mtInstrumentEditorModeDisabled,
-	mtInstrumentEditorModeWaveEdit,
-	mtInstrumentEditorParameters,
-};
 
 enum enumMtInstrumentEditorButtonFunction
 {
@@ -25,7 +19,7 @@ enum enumMtInstrumentEditorButtonFunction
 	mtInstrumentEditorButtonFunctionStop,
 	mtInstrumentEditorButtonFunctionPlayMode,
 	mtInstrumentEditorButtonFunctionEnvelopes,
-	mtInstrumentEditorButtonFunctionInstrumentSelect,
+	mtInstrumentEditorButtonFunctionInstrumentList,
 	mtInstrumentEditorButtonFunctionSampleList,
 	mtInstrumentEditorButtonFunctionParameters,
 	mtInstrumentEditorButtonFunctionChangeGlideNote,
@@ -60,8 +54,6 @@ enum enumMtInstrumentEditorPotFunction
 	mtInstrumentEditorPotFunctionAmount,
 	mtInstrumentEditorPotFunctionResonance,
 
-
-
 	//-------------------------------
 	mtInstrumentEditorPotFunctionCount
 };
@@ -74,7 +66,6 @@ enum enumMtInstrumentEditorValue
 	mtInstrumentEditorValueFilter,
 	mtInstrumentEditorValueResonance,
 	mtInstrumentEditorValue2,
-
 
 	//-------------------------------
 	mtInstrumentEditorPotValueCount
@@ -89,7 +80,7 @@ const uint16_t potsFuncResolutions[mtInstrumentEditorPotFunctionCount]=
 		100,  //mtInstrumentEditorPotFunctionEndPoint,
 		100,  //mtInstrumentEditorPotFunctionLoopPoint1,
 		100,  //mtInstrumentEditorPotFunctionLoopPoint2,
-		100,  //mtInstrumentEditorPotFunctionInstrumentSelect,
+		20,  //mtInstrumentEditorPotFunctionInstrumentSelect,
 		50,   //mtInstrumentEditorPotFunctionSampleSelect,
 		100,  //mtInstrumentEditorPotFunctionViewPosition,
 		100,  //mtInstrumentEditorPotFunctionVievZoom,
@@ -179,6 +170,7 @@ private:
 
 	//funkcje przyciskow
 	void showSampleList(uint8_t value);
+	void showInstrumentList(uint8_t value);
 	void play(uint8_t value);
 	void stop(uint8_t value);
 	void changePlayMode(uint8_t value);
@@ -210,7 +202,6 @@ private:
 	void changeRelease(int16_t value);
 	void changeAmount(int16_t value);
 
-	uint8_t	instrumentEditorMode = mtInstrumentEditorModeDisabled;
 	uint8_t	refreshInstrumentEditor = 0;
 	uint8_t	instrumentEditorModeStart = 0;
 	uint8_t	editMode = 0;
@@ -218,7 +209,7 @@ private:
 //========================================================
 
 	int8_t openedInstrumentIndex;
-	strInstrument editorInstrument;
+	strInstrument * editorInstrument;
 	strMtModAudioEngine  editorMod;
 	int8_t playNote = 24;
 	uint8_t glidePreviewDif = 0;
@@ -227,6 +218,7 @@ private:
 	uint8_t pointsChanged;
 	uint8_t labelsChanged;
 	uint8_t sampleListChanged;
+	uint8_t instrumentListChanged;
 	uint8_t parametersChanged;
 	uint8_t envelopesChanged;
 
@@ -249,6 +241,8 @@ private:
 	uint8_t sampleListEnabled = 0;
 	char *sampleNames[SAMPLES_MAX];
 
+	uint8_t instrumentListEnabled = 0;
+	char *instrumentNames[INSTRUMENTS_MAX];
 
 	//parametry rysowania spektrum/parametrow/envelopow
 	strMtDispSpectrum  spectrum;
