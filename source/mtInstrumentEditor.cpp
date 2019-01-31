@@ -291,15 +291,25 @@ void cMtInstrumentEditor::processSpectrum()
 	}
 
 
+	uint16_t offset_pixel;
+
 
 	switch(lastChangedPoint)
 	{
 		case 0: zoomPosition = editorInstrument.startPoint; break; //MAX_16BIT/2; break;
 
-		case 1: zoomPosition = editorInstrument.startPoint; break;
-		case 2: zoomPosition = editorInstrument.endPoint; 	break;
-		case 3: zoomPosition = editorInstrument.loopPoint1; break;
-		case 4: zoomPosition = editorInstrument.loopPoint2; break;
+		case 1:
+			zoomPosition = editorInstrument.startPoint;
+		break;
+		case 2:
+			zoomPosition = editorInstrument.endPoint;
+		break;
+		case 3:
+			zoomPosition = editorInstrument.loopPoint1;
+		break;
+		case 4:
+			zoomPosition = editorInstrument.loopPoint2;
+		break;
 
 		default: zoomPosition = editorInstrument.startPoint; break; //MAX_16BIT/2; break;
 	}
@@ -308,7 +318,7 @@ void cMtInstrumentEditor::processSpectrum()
 
 	int16_t * sampleData;
 	uint32_t resolution;
-	uint16_t offset_pixel;
+
 
 
 	if(zoomValue > 1.0)
@@ -321,15 +331,17 @@ void cMtInstrumentEditor::processSpectrum()
 		{
 			zoomEnd = zoomWidth;
 			zoomStart = 0;
+			offset_pixel = ((zoomPosition-zoomStart) * 479) / zoomWidth;
 		}
 		else if(zoomEnd > MAX_16BIT)
 		{
 			zoomEnd = MAX_16BIT;
 			zoomStart = MAX_16BIT-zoomWidth;
+			offset_pixel = ((zoomPosition-zoomStart) * 479) / zoomWidth;
 		}
 		else
 		{
-			offset_pixel = 239;
+			offset_pixel = ((zoomPosition-zoomStart) * 479) / zoomWidth;
 		}
 
 
@@ -365,7 +377,7 @@ void cMtInstrumentEditor::processSpectrum()
 
 
 // TODO:
-	// cos zrobic z tym picxel ofdset chyba jescze i bedzie git
+	// do zrobienia zooomowanie
 
 
 	if(resolution < 1) resolution = 1;
@@ -375,6 +387,36 @@ void cMtInstrumentEditor::processSpectrum()
 	int16_t low = 0;
 
 	uint32_t step = 0;
+
+/*
+	if(offset_pixel > 0)
+	{
+		for(int16_t i = offset_pixel-1; i >= 0; i--)
+		{
+			low = up = 0; //*(sampleData+step);
+
+			for(uint16_t j = 0; j < resolution; j++)
+			{
+				int16_t sample = *(sampleData-step+j);
+
+				if(sample > up)  up = sample;
+				else if(sample < low) low = sample;
+
+			}
+			step+= resolution;
+
+			up = up/1000;
+			low = low/1000;
+
+			spectrum.upperData[i] =  up;
+			spectrum.lowerData[i] = low;
+		}
+	}
+*/
+
+	up = 0;
+	low = 0;
+	step = 0;
 
 
 	for(uint16_t i = offset_pixel; i < 480; i++)

@@ -342,7 +342,6 @@
 								<option id="com.crt.advproject.link.gcc.hdrlib.161560944" name="Library" superClass="com.crt.advproject.link.gcc.hdrlib"/>
 							</tool>
 							<tool id="com.crt.advproject.tool.debug.release.190299746" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.release"/>
-
 						</toolChain>
 					</folderInfo>
 				</configuration>
@@ -497,6 +496,6 @@
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="com.nxp.mcuxpresso.core.datamodels">
 		<sdkName>SDK_2.x_MK66FX1M0xxx18</sdkName>
-		<sdkVersion>2.5.0</sdkVersion>
+		<sdkVersion>2.4.1</sdkVersion>
 	</storageModule>
 </cproject>
