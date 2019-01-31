@@ -177,7 +177,7 @@ private:
 				uint8_t instrument = 0;
 
 				// 2 x byte
-				uint16_t length1;	//31 długość w stepach
+				uint16_t length1;	//długość w microstepach, 1 step = 48uStepów
 
 				//FX
 				struct strFx
@@ -188,6 +188,7 @@ private:
 					union
 					{
 						uint16_t value_u16;		// FX_VAL_U16
+
 						int16_t value_i16;		// FX_VAL_I16
 
 						struct					// FX_VAL_U8_U8
@@ -205,19 +206,11 @@ private:
 
 				} fx[4];
 
-				// do wyjebania:
-//				uint8_t offset;
-//				uint8_t hitMode;		// tryb grania, jeśli >1 to rolka
-//				uint8_t rollCurve;		// max 15
-//				uint8_t rollNoteCurve;	// max 15
-
 			} step[32];
 
-		} row[8];
+		} track[8];
 
 	} seq[2];
-
-	strBank const * pattern = &seq[0];
 
 	struct strGlobalConfig
 	{
@@ -258,11 +251,9 @@ private:
 
 	} noteHandler[100];
 
-
 	void initPattern(uint8_t pattern);
 
 	void switchStep(uint8_t row);
-
 
 	inline uint8_t get_hitMode(uint8_t col, uint8_t row);
 	inline uint8_t get_isOn(uint8_t col, uint8_t row);
@@ -290,7 +281,6 @@ private:
 
 	void init_player_timer(void);
 
-
 	void loadDefaultBank(uint8_t bank);
 	void loadDefaultTrack(uint8_t track, uint8_t bank);
 
@@ -309,7 +299,6 @@ private:
 	void setLoadBank2Ram(uint8_t bank);
 	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 					uint8_t midiOut);
-
 
 	void switch_bank_with_reset(void);
 
@@ -464,11 +453,11 @@ public:
 		enum
 		{
 			FX_TYPE_NONE,
-			FX_TYPE_OFFSET,             // przesuniecie wewnątrz stepa 0-48
-			FX_TYPE_GLIDE,	  // czas płynnego przejścia do kolejnej nuty/pitcha
-			FX_TYPE_SLIDE,	            // podciągnięcie do nuty w czasie
-			FX_TYPE_ARP_UP,	            // arpeggio w górę
-			FX_TYPE_ARP_DOWN,
+			FX_TYPE_OFFSET,             // 	przesuniecie wewnątrz stepa 0-48
+			FX_TYPE_GLIDE,	// 	czas płynnego przejścia do kolejnej nuty/pitcha
+			FX_TYPE_SLIDE,	            // 	podciągnięcie do nuty w czasie
+			FX_TYPE_ARP_UP,	            // 	arpeggio w górę
+			FX_TYPE_ARP_DOWN,			//
 			FX_TYPE_SP,		            //	start point
 			FX_TYPE_LP1,		        // 	loop point 1
 			FX_TYPE_LP2,		        //	loop point 2
@@ -485,10 +474,27 @@ public:
 		};
 		enum
 		{
-			FX_VAL_TYPE_U16,
-			FX_VAL_TYPE_I16,
-			FX_VAL_TYPE_U8_U8,
-			FX_VAL_TYPE_I8_I8,
+			FX_VAL_TYPE_UNKNOWN,		        // unsigned 16
+			FX_VAL_TYPE_U16,	// unsigned 16
+			FX_VAL_TYPE_I16,	// signed 16
+			FX_VAL_TYPE_U8_U8,	// uint8 i uint8
+			FX_VAL_TYPE_I8_I8,	// int8 i int8
+			FX_VAL_TYPE_R8_I8,	// roll(int8) i int8
+		};
+
+		enum
+		{
+			ROLL_TYPE_NONE,
+			ROLL_TYPE_4_1,
+			ROLL_TYPE_3_1,
+			ROLL_TYPE_2_1,
+			ROLL_TYPE_1_1,
+			ROLL_TYPE_1_2,
+			ROLL_TYPE_1_3,
+			ROLL_TYPE_1_4,
+			ROLL_TYPE_1_8,
+			ROLL_TYPE_1_16,
+			ROLL_TYPE_MAX = ROLL_TYPE_1_16
 		};
 
 	} fx;
@@ -499,6 +505,9 @@ public:
 	void loadDefaultSequence(void);
 
 	// sekwencerowe
+
+	strBank const * pattern = &seq[0];
+
 	void play(void);
 	void rec(void);
 	void stop(void);

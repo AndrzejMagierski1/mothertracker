@@ -24,7 +24,7 @@ void setup()
 
 
 
-	Serial.println(sequencer.fx.FX_TYPE_LP1);
+//	Serial.println(sequencer.pattern->track[]);
 
 
 
