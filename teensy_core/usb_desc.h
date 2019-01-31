@@ -340,10 +340,29 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_MIDI)
 
+
+// #define VENDOR_ID   0x1FC9 	// nxp vendor id
 #define VENDOR_ID   0x16D0 		// kupiony vendor id
+
+// #define PRODUCT_ID    0x815A // PERC PRO product id
+// #define PRODUCT_NAME    {'P','E','R','C',' ','P','R','O',}
+// #define PRODUCT_NAME_LEN  8
+
+
 #define PRODUCT_ID    0x0DAF // TODO:  PID MEDUSY
 #define PRODUCT_NAME    {'M','o','t','h','e','r','T','r','a','c','k','e','r'}
 #define PRODUCT_NAME_LEN  13
+
+// #define PRODUCT_ID    0x815B // POLY product id
+// #define PRODUCT_NAME    {'S','E','Q'}
+// #define PRODUCT_NAME_LEN  3
+
+// #define PRODUCT_ID    0x815C // POLY product id
+// #define PRODUCT_NAME    {'P','O','L','Y'}
+// #define PRODUCT_NAME_LEN  4
+
+
+
 #define MANUFACTURER_NAME {'P', 'o', 'l', 'y', 'e', 'n', 'd'}
 #define MANUFACTURER_NAME_LEN 7
 
