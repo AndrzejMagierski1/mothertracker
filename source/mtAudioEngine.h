@@ -9,6 +9,7 @@
 #include <SerialFlash.h>
 
 #include "mtEnvelopeGenerator.h"
+#include "mtLFO.h"
 
 
 
@@ -22,28 +23,30 @@ public:
 
 
 
-class instrumentEngine
+class playerEngine
 {
 public:
 
-	void init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter, AudioEffectEnvelope * envAmp, AudioAmplifier * amp, uint8_t panCh);
+	void init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter, AudioEffectEnvelope * envAmp, AudioAmplifier * amp,
+			uint8_t panCh, LFO * lfoAmp, LFO * lfoFilter, LFO * lfoPitch );
 
-	uint8_t play(strStep * step, strMtModAudioEngine * mod);
-	uint8_t play(strInstrument * instr, strMtModAudioEngine *mod);
+	uint8_t noteOn(uint8_t instr_idx,int8_t note, int8_t velocity);
+	void noteOff();
 
-	uint8_t change(strStep * step,strMtModAudioEngine * mod);
-	uint8_t change(strInstrument * instr,strMtModAudioEngine * mod);
 
-	void changeFilterType(uint8_t type);
-	void filterConnect();
-	void filterDisconnect();
+	void slide(int8_t note, uint16_t time);
+	void modPitch(float value);
+	void modGlide(uint16_t value);
+
+	void modPanning(uint8_t value);
+	void modPlayMode(uint8_t value);
+	void modSP(uint16_t value);
+	void modLP1(uint16_t value);
+	void modLP2(uint16_t value);
+	void modCutoff(float value);
+	void modResonance(float value);
 
 	void update();
-
-
-	void stop();
-
-
 private:
 
 	AudioPlayMemory *        	playMemPtr;
@@ -53,10 +56,18 @@ private:
 	AudioFilterStateVariable *	filterPtr;
 	AudioConnection*			conFilterToAmpPtr;
 	AudioConnection*			conPlayToFilterPtr;
+	LFO *						lfoAmpPtr;
+	LFO *						lfoFilterPtr;
+	LFO *						lfoPitchPtr;
 	uint8_t 					numPanChannel;
-	strStep *					actualStepPtr=NULL;
-	strInstrument *				actualInstrPtr=NULL;
 
+	uint8_t 					currentInstrument_idx;
+	int8_t						currentNote;
+	int8_t						currentVelocity;
+
+	void changeFilterType(uint8_t type);
+	void filterConnect();
+	void filterDisconnect();
 	float fmap(float x, float in_min, float in_max, float out_min, float out_max);
 
 };
@@ -69,6 +80,10 @@ extern AudioFilterStateVariable filter[8];
 extern AudioAmplifier           amp[8];
 extern AudioMixer8				mixerL,mixerR;
 extern AudioOutputI2S           i2s1;
+extern LFO						lfoAmp[8];
+extern LFO						lfoFilter[8];
+extern LFO						lfoPitch[8];
+extern int16_t					mods[MAX_TARGET][MAX_MOD];
 
 
 #endif /* SOURCE_MTAUDIOENGINE_H_ */

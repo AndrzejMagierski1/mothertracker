@@ -16,8 +16,6 @@ extern instrumentEngine instrumentPlayer[8];
 extern strMtModAudioEngine modAudioEngine[8];
 #include "mtDisplay.h"
 
-uint8_t licznik=0; // wyrzucic po testach
-uint16_t freqTest=0; // to samo
 
 void onPowerButtonChange(uint8_t value);
 
@@ -131,28 +129,38 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envAmp].attack=1;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envAmp].hold=1;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envAmp].decay=1;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envAmp].sustain=1.0;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envAmp].release=2000;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envAmp].sustain=0.5;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envAmp].release=5000;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envAmp].amount=1.0;
 
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].delay=0;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].attack=2000;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].hold=0;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].decay=0;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].sustain=1.0;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].sustain=0.5;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].release=2000;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].amount=1.0;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].enable=envelopeOn;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].envelope[envFilter].enable=envelopeOff;
 
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].panning=50;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].glide=50;
-		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].cutOff=1.0;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].cutOff=0.0;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].resonance=0.7;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].filterType=highPass;
 		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].filterEnable=filterOn;
 		mtPatern.track[n].step[0].volume=100;
 
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].lfo[lfoA].rate=600;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].lfo[lfoA].wave=0;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].lfo[lfoA].amount=4095;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].lfo[lfoA].sync=0;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].lfo[lfoA].enable=lfoOff;
 
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].lfo[lfoF].rate=600;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].lfo[lfoF].wave=0;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].lfo[lfoF].amount=4095;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].lfo[lfoF].sync=0;
+		mtProject.instrument[mtPatern.track[n].step[0].instrumentIndex].lfo[lfoF].enable=lfoOn;
 
 
 
@@ -208,7 +216,6 @@ void onButtonChange(uint8_t n, uint8_t value)
 //			instrumentPlayer[n+3].stop();
 			}
 
-if(licznik>31) licznik=0;
 
 
 

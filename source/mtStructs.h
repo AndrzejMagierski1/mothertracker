@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "mtEnvelopeGenerator.h"
+#include "mtLFO.h"
 
 //=====================================================================
 const uint16_t MAX_16BIT =              		65535;
@@ -24,6 +25,8 @@ const uint16_t HIGH_PASS_FILTER_FREQ =			(14000/128);
 const uint16_t LOW_PASS_FILTER_FREQ =			(14000/128);
 const float MAX_OCTAVE_CONTROL = 				7.0;
 
+const uint8_t MAX_TARGET =						20;
+const uint8_t MAX_MOD =							5;
 //=====================================================================
 enum memoryPlayStatus
 {
@@ -34,19 +37,18 @@ enum memoryPlayStatus
 	pointsBeyondFile
 };
 
-enum modType
-{
-	relativeMod=0,
-	globalMod
-
-};
-
 enum playMode
 {
 	singleShot=0,
 	loopForward,
 	loopBackward,
 	loopPingPong
+};
+
+enum envelopeEnable
+{
+	envelopeOff=0,
+	envelopeOn
 };
 
 enum filterEnable
@@ -58,8 +60,8 @@ enum filterEnable
 enum filterType
 {
 	lowPass,
-	bandPass,
-	highPass
+	highPass,
+	bandPass
 };
 
 enum filterControlType
@@ -75,6 +77,42 @@ enum envelopesType
     envAmp,
     envFilter,
     envPitch
+};
+
+enum lfoType
+{
+	lfoA,
+	lfoF,
+	lfoP
+};
+
+enum lfoEnable
+{
+	lfoOff=0,
+	lfoOn
+};
+
+enum targets
+{
+	noTarget = 0,
+	targetAmp,
+	targetPitch,
+	targetSlide,
+	targetGlide,
+	targetCutoff,
+	targetResonance,
+	targetPanning,
+	targetLP1,
+	targetLP2,
+
+};
+enum modyficators
+{
+	noMod=0,
+	manualMod,
+	envelopeMod,
+	lfoMod,
+	sumOfAll = MAX_MOD
 };
 //=====================================================================
 
@@ -129,6 +167,7 @@ struct strInstrument
 	uint16_t endPoint;
 
 	envelopeGenerator::strEnv envelope[3];
+	LFO::strLfo lfo[3];
 
 	float cutOff;
 	float resonance;
