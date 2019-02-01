@@ -25,6 +25,34 @@ strPatern mtPatern;
 __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[4*1024*1024];
 
 
+void cMtProjectEditor::update()
+{
+	if(waitingComandsCount < 0) return;
+
+	lastCommand = commandsBuffor[lastComandIndex];
+
+	waitingComandsCount--;
+	if(waitingComandsCount > 0)
+	{
+
+	}
+
+
+
+	loadLastProject();
+
+
+}
+
+
+void cMtProjectEditor::command(uint8_t comm)
+{
+
+
+
+
+}
+
 //------------------------------------------------------------------------------
 uint8_t cMtProjectEditor::readProjectConfig()
 {
@@ -219,13 +247,14 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-uint8_t cMtProjectEditor::loadProject()
+uint8_t cMtProjectEditor::loadLastProject()
 {
 	readProjectConfig();
 
 	if(loadSamplesBank())
 	{
 		mtPrintln("loading samples failed!");
+		return 1;
 	}
 	else
 	{

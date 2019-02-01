@@ -6,19 +6,39 @@
 #include "mtStructs.h"
 
 
+#define COMMANDS_PROJECT_EDITOR_MAX 32
+
+enum mtProjectEditorCommands
+{
+	ProjEditCommandNone,
+	ProjEditCommandOpenLastProject,
+
+};
+
+
+
 //=====================================================================
 class cMtProjectEditor
 {
 public:
+	void update();
+	void command(uint8_t comm);
+
 	uint8_t readProjectConfig();
 	uint8_t loadSamplesBank();
-	uint8_t loadProject();
+	uint8_t loadLastProject();
 	uint8_t isProjectLoaded();
 
 
 
 private:
 
+	uint8_t commandsBuffor[COMMANDS_PROJECT_EDITOR_MAX];
+
+	uint8_t lastComandIndex = 0;
+	uint8_t waitingComandsCount = 0;
+
+	uint8_t lastCommand = ProjEditCommandNone;
 
 
 

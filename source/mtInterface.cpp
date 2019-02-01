@@ -43,6 +43,7 @@ void cMtInterface::update()
 
 	mtInstrumentEditor.update();
 
+	//mtProjectEditor.update();
 
 }
 
@@ -68,8 +69,7 @@ void cMtInterface::setOperatingMode(uint8_t mode)
 	}
 	case mtOperatingModeProjectEditor:
 	{
-		mtProjectEditor.loadProject();
-		setOperatingMode(mtOperatingModeInstrumentEditor);
+		mtProjectEditor.loadLastProject();
 		break;
 	}
 	case mtOperatingModePaternEditor:
