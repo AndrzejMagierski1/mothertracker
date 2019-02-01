@@ -132,10 +132,43 @@ void initHardware()
 	//....................................................
 
 	// LCD
-	mtDisplay.begin(mtDisplayModePolyLogo);
+	//mtDisplay.begin(mtDisplayModePolyLogo);
 
+	while(1)
+	{
 
+		for(int i=1;i<=20;i++)
+		{
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,1,31);
+				leds.updateSeq();
+				delay(50);
+			}
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,0,31);
+				leds.updateSeq();
+				delay(50);
+			}
+		}
+		for(int i=1;i<=20;i++)
+		{
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,1,31);
+				leds.updateSeq();
+				delay(50);
+			}
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,0,31);
+				leds.updateSeq();
+				delay(50);
+			}
+		}
 
+	}
 }
 
 
@@ -165,7 +198,7 @@ void updateHardware()
 
 	}
 
-	mtDisplay.updateDisplay();
+	//mtDisplay.updateDisplay();
 	mtDisplay.updateHaptic();
 
 }

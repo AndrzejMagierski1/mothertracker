@@ -57,7 +57,7 @@ void onPotChange(uint8_t n, int16_t value)
 {
 
 
-	mtInstrumentEditor.potChange(n,value);
+//	mtInstrumentEditor.potChange(n,value);
 
 
 	mtHaptic.start(15,150,0x01,56);
@@ -122,7 +122,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 
 
 
-
+		//instrumentPlayer[0].noteOn(sequencer.seq[0].track[n].step[0].instrument, sequencer.seq[0].track[n].step[0].instrument, step->note);
 
 
 
