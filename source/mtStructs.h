@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "mtEnvelopeGenerator.h"
+#include "mtLFO.h"
 
 //=====================================================================
 //=====================================================================
@@ -37,16 +38,22 @@ const float  	SUSTAIN_MAX					=	1.0;
 const uint16_t  RELEASE_MAX					=	11000;
 const float  AMOUNT_MAX						=	1.0;
 
-const float  FILTER_CUTOFF_MAX 				=	1.0;
-
-const float  RESONANCE_MIN					=	0.7;
-const float  RESONANCE_MAX					=	5.0;
+const float  RESONANCE_OFFSET				=	0.7;
+const float  RESONANCE_MIN					=	0;
+const float  RESONANCE_MAX					=	4.3;
 
 
 
 const uint16_t HIGH_PASS_FILTER_FREQ =			(14000/128);
 const uint16_t LOW_PASS_FILTER_FREQ =			(14000/128);
 const float MAX_OCTAVE_CONTROL = 				7.0;
+
+const uint8_t MAX_TARGET =						20;
+const uint8_t MAX_MOD =							5;
+
+const float MAX_CUTOFF =						1.0;
+const float MIN_CUTOFF =						0.0;
+
 
 //=====================================================================
 //=====================================================================
@@ -62,13 +69,6 @@ enum memoryPlayStatus
 	pointsBeyondFile
 };
 
-enum modType
-{
-	relativeMod=0,
-	globalMod
-
-};
-
 enum playMode
 {
 	singleShot=0,
@@ -79,10 +79,18 @@ enum playMode
 	playModeMax
 };
 
-enum filterEnvelope
+
+
+enum envelopeEnable
 {
 	envelopeOff=0,
 	envelopeOn
+};
+
+enum filterEnable
+{
+	filterOff=0,
+	filterOn
 };
 
 enum filterType
@@ -110,6 +118,7 @@ enum envelopesType
 };
 
 
+
 enum envelopeTypes
 {
 	envelopeTypeAmp,
@@ -119,14 +128,46 @@ enum envelopeTypes
 	envelopeTypeMax,
 };
 
-enum filterEnable
-{
-    filterOff=0,
-    filterOn
-};
 
 //=====================================================================
 //=====================================================================
+
+enum lfoType
+{
+	lfoA,
+	lfoF,
+	lfoP
+};
+
+enum lfoEnable
+{
+	lfoOff=0,
+	lfoOn
+};
+
+enum targets
+{
+	noTarget = 0,
+	targetAmp,
+	targetPitch,
+	targetSlide,
+	targetGlide,
+	targetCutoff,
+	targetResonance,
+	targetPanning,
+	targetLP1,
+	targetLP2,
+
+};
+enum modyficators
+{
+	noMod=0,
+	manualMod,
+	envelopeMod,
+	lfoMod,
+	sumOfAll = MAX_MOD
+};
+
 //=====================================================================
 
 //parametry przetwarzanego pliku
@@ -175,13 +216,17 @@ struct strInstrument
 
     char name[4];
 
+
     uint8_t  playMode;
     uint16_t startPoint;
     uint16_t loopPoint1;
     uint16_t loopPoint2;
     uint16_t endPoint;
 
-    envelopeGenerator::strEnv envelope[3];
+
+	envelopeGenerator::strEnv envelope[3];
+	LFO::strLfo lfo[3];
+
 
 	float cutOff;
 	float resonance;

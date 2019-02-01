@@ -1,12 +1,18 @@
 #include "mtAudioEngine.h"
 
+
 AudioPlayMemory          playMem[8];
 AudioEffectEnvelope      envelopeAmp[8];
 envelopeGenerator		 envelopeFilter[8];
+LFO						 lfoAmp[8];
+LFO						 lfoFilter[8];
+LFO						 lfoPitch[8];
 AudioFilterStateVariable filter[8];
 AudioAmplifier           amp[8];
 AudioMixer8				 mixerL,mixerR;
 AudioOutputI2S           i2s1;
+
+int16_t					 mods[MAX_TARGET][MAX_MOD];
 
 AudioConnection          connect1(&playMem[0], 0, &filter[0], 0);
 AudioConnection          connect2(&playMem[1], 0, &filter[1], 0);
@@ -59,7 +65,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 
 
 
-	instrumentEngine instrumentPlayer[8];
+	playerEngine instrumentPlayer[8];
 	strMtModAudioEngine modAudioEngine[8];
 	audioEngine engine;
 
@@ -67,7 +73,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 	{
 		for(int i=0;i<8; i++)
 		{
-			instrumentPlayer[i].init(&playMem[i],&envelopeFilter[i],&filter[i],&envelopeAmp[i], &amp[i], i);
+			instrumentPlayer[i].init(&playMem[i],&envelopeFilter[i],&filter[i],&envelopeAmp[i], &amp[i], i, &lfoAmp[i],&lfoFilter[i],&lfoPitch[i]);
 		}
 
 	}
@@ -79,8 +85,8 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		}
 	}
 
-	void instrumentEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter,
-			AudioEffectEnvelope * envAmp, AudioAmplifier * amp, uint8_t panCh)
+	void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter,
+			AudioEffectEnvelope * envAmp, AudioAmplifier * amp, uint8_t panCh, LFO * lfoAmp, LFO * lfoFilter, LFO * lfoPitch)
 	{
 		playMemPtr=playMem;
 		envelopeAmpPtr=envAmp;
@@ -88,6 +94,9 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		filterPtr=filter;
 		ampPtr=amp;
 		numPanChannel=panCh;
+		lfoAmpPtr=lfoAmp;
+		lfoFilterPtr=lfoFilter;
+		lfoPitchPtr=lfoPitch;
 		switch(panCh)
 		{
 		case 0:
@@ -128,233 +137,189 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 
 	}
 
-	uint8_t instrumentEngine :: play(strStep * step,strMtModAudioEngine * mod)
+	uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	{
 		uint8_t status;
 		float gainL=0,gainR=0;
 
 
-		actualStepPtr=step;
-		actualInstrPtr=NULL;
+		currentInstrument_idx=instr_idx;
+		currentNote=note;
+		currentVelocity=velocity;
 		/*================================================ENVELOPE AMP==========================================*/
-		envelopeAmpPtr->delay(mtProject.instrument[step->instrumentIndex].envelope[envAmp].delay);
-		envelopeAmpPtr->attack(mtProject.instrument[step->instrumentIndex].envelope[envAmp].attack);
-		envelopeAmpPtr->hold(mtProject.instrument[step->instrumentIndex].envelope[envAmp].hold);
-		envelopeAmpPtr->decay(mtProject.instrument[step->instrumentIndex].envelope[envAmp].decay);
-		envelopeAmpPtr->sustain(mtProject.instrument[step->instrumentIndex].envelope[envAmp].sustain);
-		envelopeAmpPtr->release(mtProject.instrument[step->instrumentIndex].envelope[envAmp].release);
+		lfoAmpPtr->init(&mtProject.instrument[instr_idx].lfo[lfoA]);
+
+		envelopeAmpPtr->delay(mtProject.instrument[instr_idx].envelope[envAmp].delay);
+		envelopeAmpPtr->attack(mtProject.instrument[instr_idx].envelope[envAmp].attack);
+		envelopeAmpPtr->hold(mtProject.instrument[instr_idx].envelope[envAmp].hold);
+		envelopeAmpPtr->decay(mtProject.instrument[instr_idx].envelope[envAmp].decay);
+		envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
+		envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
 		/*======================================================================================================*/
 		/*================================================ENVELOPE FILTER=======================================*/
 
-		if(mtProject.instrument[step->instrumentIndex].filterEnable == filterOn)
+		if(mtProject.instrument[instr_idx].filterEnable == filterOn)
 		{
-			envelopeFilterPtr->init(&mtProject.instrument[step->instrumentIndex].envelope[envFilter]);
+			envelopeFilterPtr->init(&mtProject.instrument[instr_idx].envelope[envFilter]);
+			lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
 		/*======================================================================================================*/
 		/*================================================FILTER================================================*/
 			filterConnect();
-			changeFilterType(mtProject.instrument[step->instrumentIndex].filterType);
-			filterPtr->resonance(mtProject.instrument[step->instrumentIndex].resonance);
+			changeFilterType(mtProject.instrument[instr_idx].filterType);
+			filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
 
 
-			filterPtr->setCutoff(mtProject.instrument[step->instrumentIndex].cutOff);
+			filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
 
 		}
-		else if(mtProject.instrument[step->instrumentIndex].filterEnable == filterOff) filterDisconnect();
-
-
-
-
+		else if(mtProject.instrument[instr_idx].filterEnable == filterOff) filterDisconnect();
 
 		/*======================================================================================================*/
 		/*==================================================GAIN================================================*/
-		ampPtr->gain( (step->volume/100.0) * mtProject.instrument[step->instrumentIndex].envelope[envAmp].amount);
+		ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
 		/*======================================================================================================*/
 		/*===============================================PANNING================================================*/
 
-		gainL=mtProject.instrument[step->instrumentIndex].panning/100.0;
-		gainR=(100-mtProject.instrument[step->instrumentIndex].panning)/100.0;
+		gainL=mtProject.instrument[instr_idx].panning/100.0;
+		gainR=(100-mtProject.instrument[instr_idx].panning)/100.0;
 
 		mixerL.gain(numPanChannel,gainL);
 		mixerR.gain(numPanChannel,gainR);
 		/*======================================================================================================*/
 
-		status = playMemPtr->play(step,mod);
-		envelopeAmpPtr->noteOn();
-		if(mtProject.instrument[step->instrumentIndex].envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
-
-		return status;
-
-	}
-	uint8_t instrumentEngine :: play(strInstrument * instr,strMtModAudioEngine * mod, int8_t note)
-	{
-		uint8_t status=0;
-
-		actualStepPtr=NULL;
-		actualInstrPtr=instr;
-		/*================================================ENVELOPE AMP==========================================*/
-		envelopeAmpPtr->delay(instr->envelope[envAmp].delay);
-		envelopeAmpPtr->attack(instr->envelope[envAmp].attack);
-		envelopeAmpPtr->hold(instr->envelope[envAmp].hold);
-		envelopeAmpPtr->decay(instr->envelope[envAmp].decay);
-		envelopeAmpPtr->sustain(instr->envelope[envAmp].sustain);
-		envelopeAmpPtr->release(instr->envelope[envAmp].release);
-		/*======================================================================================================*/
-		/*================================================ENVELOPE FILTER=======================================*/
-		if(instr->filterEnable == filterOn)
-		{
-			envelopeFilterPtr->init(&instr->envelope[envFilter]);
-			filterConnect();
-
-		/*======================================================================================================*/
-		/*================================================FILTER================================================*/
-
-			changeFilterType(instr->filterType);
-			filterPtr->resonance(instr->resonance);
-
-
-
-			filterPtr->setCutoff(instr->cutOff);
-		}
-		else if(instr->filterEnable == filterOff) filterDisconnect();
-
-
-
-
-		/*======================================================================================================*/
-		/*==================================================GAIN================================================*/
-		ampPtr->gain(instr->envelope[envAmp].amount);
-		/*======================================================================================================*/
-		/*===============================================PANNING================================================*/
-		mixerL.gain(numPanChannel,instr->panning/100.0);
-		mixerR.gain(numPanChannel,(100-instr->panning)/100.0);
-
-
-		status = playMemPtr->play(instr,mod,1.0,note);
+		status = playMemPtr->play(instr_idx,note);
 		envelopeAmpPtr->noteOn();
 
-		/*======================================================================================================*/
-
-		if(instr->envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
-
-
-		return status;
-
-	}
-
-
-	uint8_t instrumentEngine :: change(strStep * step, strMtModAudioEngine * mod)
-	{
-		uint8_t status=0;
-		float gainL=0,gainR=0;
-		float filterMod=0;
-
-		envelopeAmpPtr->sustain(mtProject.instrument[step->instrumentIndex].envelope[envAmp].sustain);
-		/*================================================FILTER================================================*/
-		if(mtProject.instrument[step->instrumentIndex].filterEnable == filterOn)
-		{
-			filterPtr->resonance(mtProject.instrument[step->instrumentIndex].resonance);
-
-			if(mtProject.instrument[actualStepPtr->instrumentIndex].envelope[envFilter].enable == envelopeOn)
-			{
-					filterMod+=envelopeFilterPtr->getOut();
-			}
-
-			filterPtr->setCutoff(mtProject.instrument[step->instrumentIndex].cutOff + filterMod);
-		}
-
-		/*======================================================================================================*/
-
-		/*==================================================GAIN================================================*/
-		ampPtr->gain( (step->volume/100.0) * mtProject.instrument[step->instrumentIndex].envelope[envAmp].amount);
-		/*======================================================================================================*/
-		/*===============================================PANNING================================================*/
-		gainL=mtProject.instrument[step->instrumentIndex].panning/100.0;
-		gainR=(100-mtProject.instrument[step->instrumentIndex].panning)/100.0;
-
-		mixerL.gain(numPanChannel,gainL);
-		mixerR.gain(numPanChannel,gainR);
-		/*======================================================================================================*/
-
-		status=playMemPtr->setMod(step,mod);
+		if(mtProject.instrument[instr_idx].lfo[lfoA].enable == lfoOn) lfoAmpPtr->start();
+		if(mtProject.instrument[instr_idx].lfo[lfoF].enable == lfoOn) lfoFilterPtr->start();
+		if(mtProject.instrument[instr_idx].envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
 
 
 		return status;
-	}
-	uint8_t instrumentEngine :: change(strInstrument * instr, strMtModAudioEngine * mod)
-	{
-		uint8_t status=0;
-		float filterMod=0;
-		envelopeAmpPtr->sustain(instr->envelope[envAmp].sustain);
-
-		/*================================================FILTER================================================*/
-
-		if(instr->filterEnable == filterOn)
-		{
-			filterPtr->resonance(instr->resonance);
-
-			if(instr->envelope[envFilter].enable == envelopeOn)
-			{
-					filterMod+=envelopeFilterPtr->getOut();
-			}
-			filterPtr->setCutoff(instr->cutOff + filterMod);
-		}
-
-		/*======================================================================================================*/
-		/*==================================================GAIN================================================*/
-		ampPtr->gain(instr->envelope[envAmp].amount);
-		/*======================================================================================================*/
-		/*===============================================PANNING================================================*/
-		mixerL.gain(numPanChannel,instr->panning/100.0);
-		mixerR.gain(numPanChannel,(100-instr->panning)/100.0);
-		/*======================================================================================================*/
-
-		ampPtr->gain(instr->envelope[envAmp].amount);
-		status=playMemPtr->setMod(instr,mod,24);
-
-		return status;
-	}
-
-	void instrumentEngine:: update()
-	{
-		float filterMod=0;
-
-		if(envelopeAmpPtr->endRelease()) playMemPtr->stop();
-		if(actualStepPtr)
-		{
-			if(mtProject.instrument[actualStepPtr->instrumentIndex].envelope[envFilter].enable == envelopeOn)
-			{
-
-					filterMod+=envelopeFilterPtr->getOut();
-
-				filterPtr->setCutoff(mtProject.instrument[actualStepPtr->instrumentIndex].cutOff + filterMod);
-			}
-
-		}
-
-
-		if(actualInstrPtr)
-		{
-			if(actualInstrPtr->envelope[envFilter].enable == envelopeOn)
-			{
-
-					filterMod+=envelopeFilterPtr->getOut();
-
-				filterPtr->setCutoff(actualInstrPtr->cutOff + filterMod);
-			}
-		}
 
 	}
 
 
-
-	void instrumentEngine :: stop()
+	void playerEngine :: noteOff()
 	{
 		envelopeAmpPtr->noteOff();
 		envelopeFilterPtr->stop();
+	}
+
+
+	void playerEngine :: modGlide(uint16_t value)
+	{
+		//mods[targetGlide][manualMod]=value;
+		playMemPtr->setGlide(value,currentNote);
+	}
+
+	void playerEngine :: modPanning(uint8_t value)
+	{
+		//mods[targetPanning][manualMod]=value;
+		float gainL=0,gainR=0;
+		gainL=value/100.0;
+		gainR=(100-value)/100.0;
+
+		mixerL.gain(numPanChannel,gainL);
+		mixerR.gain(numPanChannel,gainR);
+	}
+
+	void playerEngine :: modPlayMode(uint8_t value)
+	{
+		playMemPtr->setPlayMode(value);
+
+	}
+/*	void playerEngine :: modSP(uint16_t value)
+	{
+		//mods[targetSP][manualMod]=value;
+	}*/
+	void playerEngine :: modLP1(uint16_t value)
+	{
+		//mods[targetLP1][manualMod]=value;
+		playMemPtr->setLP1(value);
+	}
+	void playerEngine :: modLP2(uint16_t value)
+	{
+		//mods[targetLP2][manualMod]=value;
+		playMemPtr->setLP2(value);
+	}
+
+	void playerEngine :: modCutoff(uint16_t value)
+	{
+		uint8_t filterMod=0;
+		if(mtProject.instrument[currentInstrument_idx].filterEnable == filterOn)
+		{
+			//mods[targetCutoff][manualMod]=value;
+			value=fmap(value, 0, MAX_16BIT,MIN_CUTOFF,MAX_CUTOFF);
+			if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable == envelopeOn)
+			{
+
+				filterMod+=envelopeFilterPtr->getOut();
+			}
+
+			if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable == lfoOn)
+			{
+				filterMod+=lfoFilterPtr->getOut();
+			}
+			filterPtr->setCutoff(value + filterMod);
+		}
+
+	}
+	void playerEngine :: modResonance(uint16_t value)
+	{
+		value=fmap(value, 0, MAX_16BIT,RESONANCE_MIN,RESONANCE_MAX);
+		if(mtProject.instrument[currentInstrument_idx].filterEnable == filterOn)
+		{
+			//mods[targetResonance][manualMod]=value;
+			filterPtr->resonance(value + RESONANCE_OFFSET);
+		}
+	}
+
+/*	void playerEngine:: resetMods(void)
+	{
+		for(uint8_t i=0;i<MAX_TARGET;i++)
+		{
+			mods[i][manualMod]=0;
+		}
+	}*/
+	void playerEngine:: update()
+	{
+		float filterMod=0;
+		float ampMod=0;
+
+		if(envelopeAmpPtr->endRelease())
+		{
+			playMemPtr->stop();
+			lfoAmpPtr->stop();
+			lfoFilterPtr->stop();
+			lfoPitchPtr->stop();
+		}
+
+
+		if(mtProject.instrument[currentInstrument_idx].filterEnable == filterOn)
+		{
+			if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable == envelopeOn)
+			{
+				filterMod+=envelopeFilterPtr->getOut();
+			}
+			if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable == lfoOn)
+			{
+				filterMod+=lfoFilterPtr->getOut();
+			}
+		}
+		if(mtProject.instrument[currentInstrument_idx].lfo[lfoA].enable == lfoOn )
+		{
+			ampMod=lfoAmpPtr->getOut();
+		}
+		filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff + filterMod);
+
+		ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
 
 	}
 
-	void instrumentEngine :: changeFilterType(uint8_t type)
+
+
+	void playerEngine :: changeFilterType(uint8_t type)
 	{
 		conFilterToAmpPtr->disconnect();
 		if(type == lowPass) conFilterToAmpPtr->src_index=0;
@@ -363,7 +328,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		conFilterToAmpPtr->connect();
 	}
 
-	void instrumentEngine :: filterDisconnect()
+	void playerEngine :: filterDisconnect()
 	{
 		//conFilterToAmpPtr->disconnect();
 		conPlayToFilterPtr->disconnect();
@@ -376,7 +341,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		conPlayToFilterPtr->connect();
 	}
 
-	void instrumentEngine :: filterConnect()
+	void playerEngine :: filterConnect()
 	{
 		conFilterToAmpPtr->disconnect();
 		conPlayToFilterPtr->disconnect();
@@ -386,14 +351,12 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		conPlayToFilterPtr->src_index=0;
 		conPlayToFilterPtr->dest_index=0;
 
-
-
 		conFilterToAmpPtr->connect();
 		conPlayToFilterPtr->connect();
 
 	}
 
-	float instrumentEngine :: fmap(float x, float in_min, float in_max, float out_min, float out_max)
+	float playerEngine :: fmap(float x, float in_min, float in_max, float out_min, float out_max)
 	{
 	  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 	}

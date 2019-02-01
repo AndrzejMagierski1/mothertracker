@@ -69,6 +69,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	mtProject.sampleBank.sample[0].file_name[4] = 'v';
 	mtProject.sampleBank.sample[0].file_name[5] = 0;
 
+
 	mtProject.sampleBank.sample[1].file_name[0] = '2';
 	mtProject.sampleBank.sample[1].file_name[1] = '.';
 	mtProject.sampleBank.sample[1].file_name[2] = 'w';
@@ -119,6 +120,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	mtProject.sampleBank.sample[7].file_name[5] = 0;
 
 
+
 	// parametry instrumentow ========================================
 	mtProject.instruments_count = 8;
 
@@ -149,11 +151,11 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].envelope[envFilter].sustain = 1.0;
 		mtProject.instrument[i].envelope[envFilter].release = 1000;
 		mtProject.instrument[i].envelope[envFilter].amount = 1.0;
-		mtProject.instrument[i].envelope[envFilter].enable = 1;
+		mtProject.instrument[i].envelope[envFilter].enable = envelopeOff;
 
-		mtProject.instrument[i].cutOff = 0.0;
-		mtProject.instrument[i].filterEnable = 0;
-		mtProject.instrument[i].filterType = 0;
+		mtProject.instrument[i].cutOff = 1.0;
+		mtProject.instrument[i].filterEnable = filterOff;
+		mtProject.instrument[i].filterType = lowPass;
 		mtProject.instrument[i].resonance = 0;
 		mtProject.instrument[i].panning = 50;
 		mtProject.instrument[i].glide = 10000;
@@ -175,6 +177,13 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	mtProject.instrument[0].startPoint = 19000;
 	mtProject.instrument[0].loopPoint1 = 19000; //PRO
 	mtProject.instrument[0].loopPoint2 = 29000;
+
+	mtProject.instrument[0].lfo[lfoA].rate=600;
+	mtProject.instrument[0].lfo[lfoA].wave=0;
+	mtProject.instrument[0].lfo[lfoA].amount=4095;
+	mtProject.instrument[0].lfo[lfoA].sync=0;
+	mtProject.instrument[0].lfo[lfoA].enable=lfoOff;
+
 
 
 	// parametry paternu ========================================

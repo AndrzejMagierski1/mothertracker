@@ -939,8 +939,8 @@ void cMtInstrumentEditor::changeFilter(int16_t value)
 {
 	float fVal = value * 0.01;
 
-	if(editorInstrument->cutOff + fVal < 0) editorInstrument->cutOff = 0;
-	else if(editorInstrument->cutOff + fVal > FILTER_CUTOFF_MAX ) editorInstrument->cutOff = FILTER_CUTOFF_MAX;
+	if(editorInstrument->cutOff + fVal < MIN_CUTOFF) editorInstrument->cutOff = MIN_CUTOFF;
+	else if(editorInstrument->cutOff + fVal > MAX_CUTOFF ) editorInstrument->cutOff = MAX_CUTOFF;
 	else editorInstrument->cutOff += fVal;
 
 	parametersChanged = 1;
@@ -1227,11 +1227,11 @@ void cMtInstrumentEditor::play(uint8_t value)
 			}
 		}
 
-		instrumentPlayer[0].play(editorInstrument, &editorMod, playNote);
+		instrumentPlayer[0].noteOn(openedInstrumentIndex, playNote, 100);
 	}
 	else if(value == 0)
 	{
-		if(isPlayingSample) instrumentPlayer[0].stop();
+		if(isPlayingSample) instrumentPlayer[0].noteOff();
 		isPlayingSample = 0;
 	}
 }
@@ -1239,7 +1239,7 @@ void cMtInstrumentEditor::play(uint8_t value)
 void cMtInstrumentEditor::stop(uint8_t value)
 {
 
-	if(isPlayingSample) instrumentPlayer[0].stop();
+	if(isPlayingSample) instrumentPlayer[0].noteOff();
 
 
 	isPlayingSample = 0;

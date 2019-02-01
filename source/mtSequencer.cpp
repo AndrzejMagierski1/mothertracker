@@ -1382,25 +1382,27 @@ void Sequencer::loadDefaultSequence(void)
 	}
 
 	seq[player.ramBank].track[0].step[0].isOn = 1;
+	seq[player.ramBank].track[0].step[0].velocity = 100;
 	seq[player.ramBank].track[0].step[0].instrument = 0;
 	seq[player.ramBank].track[0].step[0].note = 21;
 	seq[player.ramBank].track[0].step[0].length1 = 100;
 
 	seq[player.ramBank].track[1].step[0].isOn = 1;
+	seq[player.ramBank].track[1].step[0].velocity = 100;
 	seq[player.ramBank].track[1].step[0].instrument = 0;
 	seq[player.ramBank].track[1].step[0].note = 24;
 	seq[player.ramBank].track[1].step[0].length1 = 100;
 
 	seq[player.ramBank].track[2].step[0].isOn = 1;
+	seq[player.ramBank].track[2].step[0].velocity = 100;
 	seq[player.ramBank].track[2].step[0].instrument = 0;
 	seq[player.ramBank].track[2].step[0].note = 29;
 	seq[player.ramBank].track[2].step[0].length1 = 100;
 
 
 
-
-
 	seq[player.ramBank].track[3].step[7].isOn = 1;
+	seq[player.ramBank].track[3].step[7].velocity = 100;
 	seq[player.ramBank].track[3].step[7].instrument = 0;
 	seq[player.ramBank].track[3].step[7].note = 41;
 	seq[player.ramBank].track[3].step[7].length1 = 50;
@@ -2069,7 +2071,7 @@ void Sequencer::sendNoteOn(uint8_t track, strBank::strTrack::strStep *step)
 	usbMIDI.sendNoteOn(step->note, step->velocity, 1);
 
 
-	instrumentPlayer[track].play(&mtProject.instrument[step->instrument], &playMod, step->note);
+	instrumentPlayer[track].noteOn(step->instrument, step->velocity, step->note);
 
 }
 
@@ -2083,6 +2085,6 @@ void Sequencer::sendNoteOff(uint8_t track, strBank::strTrack::strStep *step)
 
 	usbMIDI.sendNoteOff(step->note, 0, 1);
 
-	instrumentPlayer[track].stop();
+	instrumentPlayer[track].noteOff();
 
 }
