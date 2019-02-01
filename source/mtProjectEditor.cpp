@@ -27,26 +27,29 @@ __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[4*1024*1024];
 
 void cMtProjectEditor::update()
 {
-	if(waitingComandsCount < 0) return;
 
-	lastCommand = commandsBuffor[lastComandIndex];
-
-	waitingComandsCount--;
-	if(waitingComandsCount > 0)
+	if(commandsToDo[ProjEditCommandOpenLastProject])
 	{
+		commandsToDo[ProjEditCommandOpenLastProject] = 0;
 
+		uint8_t result = loadLastProject();
+		if(result)
+		{
+			// jesli nie mozna zaladowac ostatneigo projektu
+			// to poinformuj o tym interfejs
+			projectEditorEvent(ProjEditEventLoadLastProjFailed, &result);
+		}
 	}
 
 
-
-	loadLastProject();
 
 
 }
 
 
-void cMtProjectEditor::command(uint8_t comm)
+void cMtProjectEditor::startProject()
 {
+	commandsToDo[ProjEditCommandOpenLastProject] = 1;
 
 
 
@@ -258,12 +261,16 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 //-------------------------------------------------------------------------------
 uint8_t cMtProjectEditor::loadLastProject()
 {
-	readProjectConfig();
+	if(readProjectConfig())
+	{
+		mtPrintln("loading config file failed!");
+		return 1;
+	}
 
 	if(loadSamplesBank())
 	{
 		mtPrintln("loading samples failed!");
-		return 1;
+		return 2;
 	}
 	else
 	{

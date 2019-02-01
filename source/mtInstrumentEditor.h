@@ -140,7 +140,6 @@ const char envelopeTypeNames[INSTRUMEN_ENVELOPES_MAX][20]=
 class cMtInstrumentEditor
 {
 public:
-	void begin();
 	void update();
 
 	void startExisting(uint8_t instrumentIndex);
@@ -316,6 +315,7 @@ private:
 };
 
 
+void instrumentEditorEvent(uint8_t event, void* param);
 
 extern cMtInstrumentEditor mtInstrumentEditor;
 

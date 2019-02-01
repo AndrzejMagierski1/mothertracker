@@ -10,9 +10,6 @@
 
 
 
-extern void sampleEditorEvent(uint8_t event, void* param);
-
-
 cMtInterface mtInterface;
 
 
@@ -24,8 +21,6 @@ void cMtInterface::begin()
 {
 	setOperatingMode(mtOperatingModeStartup);
 	startupTimer = 0;
-
-	mtInstrumentEditor.begin();
 
 
 
@@ -40,95 +35,58 @@ void cMtInterface::update()
 	processOperatingMode();
 
 
+	if(activeModules[mtModuleProjectEditor]) 		mtProjectEditor.update();
+	if(activeModules[mtModuleInstrumentEditor]) 	mtInstrumentEditor.update();
 
-	mtInstrumentEditor.update();
 
-	//mtProjectEditor.update();
+
+
+}
+
+
+
+
+void cMtInterface::processOperatingMode()
+{
+	if(lastOperatingMode == operatingMode) return;
+
+	if(operatingMode == mtOperatingModeStartup)
+	{
+		if(startupTimer > MT_INTERFACE_STARTUP_TIME)
+		{
+			lastOperatingMode = operatingMode;
+			mtDisplay.setMode(mtDisplayModeNormal);
+			setOperatingMode(mtOperatingModeProjectEditor);
+		}
+	}
+	else if(operatingMode == mtOperatingModeProjectEditor)
+	{
+		lastOperatingMode = operatingMode;
+		activateModule(mtModuleProjectEditor);
+		mtProjectEditor.startProject();
+	}
+	else if(operatingMode == mtOperatingModeInstrumentEditor)
+	{
+		lastOperatingMode = operatingMode;
+		activateModule(mtModuleInstrumentEditor);
+		mtInstrumentEditor.startExisting(0);
+	}
+
 
 }
 
 
 void cMtInterface::setOperatingMode(uint8_t mode)
 {
-	switch(mode)
-	{
-	case mtOperatingModeNone:
-	{
-
-		break;
-	}
-	case mtOperatingModeStartup:
-	{
-
-		break;
-	}
-	case mtOperatingModeSongEditor:
-	{
-
-		break;
-	}
-	case mtOperatingModeProjectEditor:
-	{
-		mtProjectEditor.loadLastProject();
-		break;
-	}
-	case mtOperatingModePaternEditor:
-	{
-
-		break;
-	}
-	case mtOperatingModeInstrumentEditor:
-	{
-		mtInstrumentEditor.startExisting(0);
-		break;
-	}
-	case mtOperatingModeFileManager:
-	{
-
-		break;
-	}
-	case mtOperatingModeRecorder:
-	{
-
-		break;
-	}
-	case mtOperatingModeMixer:
-	{
-
-		break;
-	}
-	case mtOperatingModeConfig:
-	{
-
-		break;
-	}
-
-	}
-
-
 	operatingMode = mode;
 }
 
-
-void cMtInterface::processOperatingMode()
+void cMtInterface::activateModule(uint8_t module)
 {
-	if(operatingMode == mtOperatingModeStartup)
-	{
-		if(startupTimer > MT_INTERFACE_STARTUP_TIME)
-		{
-			mtDisplay.setMode(mtDisplayModeNormal);
-			setOperatingMode(mtOperatingModeProjectEditor);
-		}
-	}
-
-
-
-
-
-
-
-
-
-
+	activeModules[module] = 1;
 }
 
+void cMtInterface::deactivateModule(uint8_t module)
+{
+	activeModules[module] = 0;
+}

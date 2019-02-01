@@ -11,12 +11,16 @@
 #include "mtInstrumentEditor.h"
 
 #include "mtSequencer.h"
-
-
-
-
-
 #include "mtDisplay.h"
+
+
+
+#include "mtInterface.h"
+
+
+
+
+
 
 
 void onPowerButtonChange(uint8_t value);
@@ -27,8 +31,8 @@ void onPowerButtonChange(uint8_t value);
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
 
+	mtInterface.padPressed(n,x,y,velo);
 
-Serial.println(n);
 
 
 
@@ -46,7 +50,7 @@ void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f)
 //-----------------------------------------------------------------
 void onPadRelease(uint8_t n)
 {
-
+	mtInterface.padReleased(n);
 
 }
 
@@ -57,8 +61,7 @@ void onPotChange(uint8_t n, int16_t value)
 {
 
 
-	mtInstrumentEditor.potChange(n,value);
-
+	mtInterface.potChange(n, value);
 
 	mtHaptic.start(15,150,0x01,56);
 
@@ -123,7 +126,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 
 
 
-
+		mtInterface.buttonChange(n,value);
 
 
 //	mtPrint("button: ");
@@ -139,7 +142,7 @@ void onPowerButtonChange(uint8_t value)
 {
 
 
-
+	mtInterface.powerButtonChange(value);
 //	mtPrint("power button: ");
 //	mtPrintln(value);
 }
@@ -149,6 +152,9 @@ void onPowerButtonChange(uint8_t value)
 //--------------------------------- BUTTONS SEQ ----------------------------
 void onButtonPush (uint8_t x, uint8_t y)
 {	
+	mtInterface.seqButtonPressed(x,y);
+
+
 	Serial.print("ButtonPush: x = ");
 	Serial.print(x);
 	Serial.print(" y = ");
@@ -157,6 +163,8 @@ void onButtonPush (uint8_t x, uint8_t y)
 
 void onButtonRelease(uint8_t x, uint8_t y)
 {	
+	mtInterface.seqButtonReleased(x,y);
+
 	Serial.print("ButtonRelease: x = ");
 	Serial.print(x);
 	Serial.print(" y = ");
@@ -165,6 +173,9 @@ void onButtonRelease(uint8_t x, uint8_t y)
 
 void onButtonHold(uint8_t x, uint8_t y)
 {	
+	mtInterface.seqButtonHold(x,y);
+
+
 	Serial.print("ButtonHold: x = ");
 	Serial.print(x);
 	Serial.print(" y = ");
@@ -173,6 +184,9 @@ void onButtonHold(uint8_t x, uint8_t y)
 
 void onButtonDouble	(uint8_t x, uint8_t y)
 {	
+	mtInterface.seqButtonDouble(x,y);
+
+
 	Serial.print("ButtonDouble: x = ");
 	Serial.print(x);
 	Serial.print(" y = ");

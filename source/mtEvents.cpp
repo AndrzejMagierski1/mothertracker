@@ -3,10 +3,10 @@
 
 
 #include "mtInterface.h"
+#include "mtProjectEditor.h"
 
 
-
-void sampleEditorEvent(uint8_t event, void* param)
+void instrumentEditorEvent(uint8_t event, void* param)
 {
 	switch(event)
 	{
@@ -25,9 +25,9 @@ void projectEditorEvent(uint8_t event, void* param)
 {
 	switch(event)
 	{
-//	case mtFileManagerFileCallbackOpenFile:
+	case ProjEditEventLoadLastProjFailed:
 
-//	break;
+	break;
 
 	default: break;
 	}

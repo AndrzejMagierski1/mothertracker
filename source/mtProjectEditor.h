@@ -13,16 +13,24 @@ enum mtProjectEditorCommands
 	ProjEditCommandNone,
 	ProjEditCommandOpenLastProject,
 
+	ProjEditCommandCount
 };
 
+enum mtProjectEditorEvents
+{
+	ProjEditEventNone,
+	ProjEditEventLoadLastProjFailed,
 
+	ProjEditEventCount
+};
 
 //=====================================================================
 class cMtProjectEditor
 {
 public:
 	void update();
-	void command(uint8_t comm);
+	void startProject();
+
 
 	uint8_t readProjectConfig();
 	uint8_t loadSamplesBank();
@@ -33,14 +41,7 @@ public:
 
 private:
 
-	uint8_t commandsBuffor[COMMANDS_PROJECT_EDITOR_MAX];
-
-	uint8_t lastComandIndex = 0;
-	uint8_t waitingComandsCount = 0;
-
-	uint8_t lastCommand = ProjEditCommandNone;
-
-
+	uint8_t commandsToDo[ProjEditCommandCount];
 
 
 };
@@ -49,7 +50,7 @@ private:
 //=====================================================================
 extern cMtProjectEditor mtProjectEditor;
 
-
+void projectEditorEvent(uint8_t event, void* param);
 int32_t loadSdWavToMemory(const char *filename, int16_t * buf);
 
 

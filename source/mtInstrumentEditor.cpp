@@ -15,14 +15,6 @@ cMtInstrumentEditor mtInstrumentEditor;
 //#########################################################################################################
 //#########################################################################################################
 
-void cMtInstrumentEditor::begin()
-{
-
-
-
-}
-
-
 void cMtInstrumentEditor::update()
 {
 	if(!refreshInstrumentEditor) return;
