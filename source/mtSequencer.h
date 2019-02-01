@@ -15,7 +15,7 @@
 
 class Sequencer
 {
-private:
+public:
 
 	static const uint8_t MAXROW = 7,
 			MINROW = 0,

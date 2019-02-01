@@ -186,7 +186,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		mixerR.gain(numPanChannel,gainR);
 		/*======================================================================================================*/
 
-		status = playMemPtr->play(step,mod);
+		status = playMemPtr->play(instr_idx,note);
 		envelopeAmpPtr->noteOn();
 		if(mtProject.instrument[instr_idx].lfo[lfoA].enable == lfoOn) lfoAmpPtr->start();
 		if(mtProject.instrument[instr_idx].lfo[lfoF].enable == lfoOn) lfoFilterPtr->start();
@@ -196,7 +196,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 
 	}
 
-	void playerEngine :: stop()
+	void playerEngine :: noteOff()
 	{
 		envelopeAmpPtr->noteOff();
 		envelopeFilterPtr->stop();
@@ -205,45 +205,49 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 
 	void playerEngine :: modGlide(uint16_t value)
 	{
-		mods[targetGlide][manualMod]=value;
-
+		//mods[targetGlide][manualMod]=value;
+		playMemPtr->setGlide(value,currentNote);
 	}
 
-	void playerEngine :: modPanning(uint16_t value)
+	void playerEngine :: modPanning(uint8_t value)
 	{
-		mods[targetPanning][manualMod]=value;
-		/*float gainL=0,gainR=0;
+		//mods[targetPanning][manualMod]=value;
+		float gainL=0,gainR=0;
 		gainL=value/100.0;
 		gainR=(100-value)/100.0;
 
 		mixerL.gain(numPanChannel,gainL);
-		mixerR.gain(numPanChannel,gainR);*/
+		mixerR.gain(numPanChannel,gainR);
 	}
 
 	void playerEngine :: modPlayMode(uint8_t value)
 	{
-
+		playMemPtr->setPlayMode(value);
 
 	}
-	void playerEngine :: modSP(uint16_t value)
+/*	void playerEngine :: modSP(uint16_t value)
 	{
-		mods[targetSP][manualMod]=value;
-	}
+		//mods[targetSP][manualMod]=value;
+	}*/
 	void playerEngine :: modLP1(uint16_t value)
 	{
-		mods[targetLP1][manualMod]=value;
+		//mods[targetLP1][manualMod]=value;
+		playMemPtr->setLP1(value);
 	}
 	void playerEngine :: modLP2(uint16_t value)
 	{
-		mods[targetLP2][manualMod]=value;
+		//mods[targetLP2][manualMod]=value;
+		playMemPtr->setLP2(value);
 	}
 
 	void playerEngine :: modCutoff(uint16_t value)
 	{
+		uint8_t filterMod=0;
 		if(mtProject.instrument[currentInstrument_idx].filterEnable == filterOn)
 		{
-			mods[targetCutoff][manualMod]=value;
-/*			if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable == envelopeOn)
+			//mods[targetCutoff][manualMod]=value;
+			value=fmap(value, 0, MAX_16BIT,MIN_CUTOFF,MAX_CUTOFF);
+			if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable == envelopeOn)
 			{
 
 				filterMod+=envelopeFilterPtr->getOut();
@@ -253,25 +257,27 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 			{
 				filterMod+=lfoFilterPtr->getOut();
 			}
-			filterPtr->setCutoff(value + filterMod);*/
+			filterPtr->setCutoff(value + filterMod);
 		}
 
 	}
 	void playerEngine :: modResonance(uint16_t value)
 	{
+		value=fmap(value, 0, MAX_16BIT,MIN_RESONANCE,MAX_RESONANCE);
 		if(mtProject.instrument[currentInstrument_idx].filterEnable == filterOn)
 		{
-			mods[targetResonance][manualMod]=value;
+			//mods[targetResonance][manualMod]=value;
+			filterPtr->resonance(value);
 		}
 	}
 
-	void playerEngine:: resetMods(void)
+/*	void playerEngine:: resetMods(void)
 	{
 		for(uint8_t i=0;i<MAX_TARGET;i++)
 		{
 			mods[i][manualMod]=0;
 		}
-	}
+	}*/
 	void playerEngine:: update()
 	{
 		float filterMod=0;
@@ -303,7 +309,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		}
 		filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff + filterMod);
 
-		ampPtr->gain( (actualStepPtr->volume/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
+		ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
 
 	}
 

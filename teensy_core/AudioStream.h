@@ -69,7 +69,7 @@
 #ifndef __ASSEMBLER__
 class AudioStream;
 class AudioConnection;
-class instrumentEngine;
+class playerEngine;
 
 
 typedef struct audio_block_struct {
@@ -101,7 +101,7 @@ public:
 	}
 	void disconnect(void);
 	void connect(void);
-	friend class instrumentEngine;
+	friend class playerEngine;
 protected:
 	AudioStream *src;
 	AudioStream *dst;

@@ -27,6 +27,12 @@ const float MAX_OCTAVE_CONTROL = 				7.0;
 
 const uint8_t MAX_TARGET =						20;
 const uint8_t MAX_MOD =							5;
+
+const float MAX_CUTOFF =						1.0;
+const float MIN_CUTOFF =						0.0;
+
+const float MAX_RESONANCE =						5.0;
+const float MIN_RESONANCE = 					0.7;
 //=====================================================================
 enum memoryPlayStatus
 {

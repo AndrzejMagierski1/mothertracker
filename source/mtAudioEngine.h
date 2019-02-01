@@ -40,11 +40,12 @@ public:
 
 	void modPanning(uint8_t value);
 	void modPlayMode(uint8_t value);
-	void modSP(uint16_t value);
+//	void modSP(uint16_t value);
 	void modLP1(uint16_t value);
 	void modLP2(uint16_t value);
-	void modCutoff(float value);
-	void modResonance(float value);
+	void modCutoff(uint16_t value);
+	void modResonance(uint16_t value);
+//	void resetMods();
 
 	void update();
 private:

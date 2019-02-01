@@ -2076,7 +2076,7 @@ void Sequencer::sendNoteOn(uint8_t track, strBank::strTrack::strStep *step)
 	usbMIDI.sendNoteOn(step->note, step->velocity, 1);
 
 
-	instrumentPlayer[track].play(&mtProject.instrument[step->instrument], &playMod, step->note);
+	//instrumentPlayer[track].play(&mtProject.instrument[step->instrument], &playMod, step->note);
 
 }
 
@@ -2090,6 +2090,6 @@ void Sequencer::sendNoteOff(uint8_t track, strBank::strTrack::strStep *step)
 
 	usbMIDI.sendNoteOff(step->note, 0, 1);
 
-	instrumentPlayer[track].stop();
+	//instrumentPlayer[track].stop();
 
 }
