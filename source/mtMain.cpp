@@ -45,7 +45,7 @@ void loop()
 {
 
 	sequencer.handle();
-	//seqDisplay.update();
+	seqDisplay.update();
 
 	updateHardware();
 

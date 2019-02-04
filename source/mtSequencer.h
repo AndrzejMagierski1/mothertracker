@@ -188,7 +188,6 @@ public:
 
 	// KONIEC STAŁYCH
 
-private:
 
 	struct strBank
 	{
