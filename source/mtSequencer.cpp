@@ -1380,7 +1380,7 @@ void Sequencer::loadDefaultSequence(void)
 			seq[player.ramBank].track[x].step[y].isOn = 0;
 		}
 	}
-
+	seq[player.ramBank].track[0].tempoDiv=1;
 	seq[player.ramBank].track[0].step[15].isOn = 1;
 	seq[player.ramBank].track[0].step[15].velocity = 100;
 	seq[player.ramBank].track[0].step[15].instrument = 0;

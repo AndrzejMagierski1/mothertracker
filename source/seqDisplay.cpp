@@ -125,24 +125,26 @@ void SeqDisplay::updatePlayMode()
 	}
 	for(uint8_t i=0;i<8;i++)
 	{
-
-		for(uint8_t j=1;j<19;j++)
+		if(sequencerPtr->track[i].isOn)
 		{
-			if(!(j-1-sequencer.ptrPlayer->row[i].actual_pos ))
+			for(uint8_t j=1;j<19;j++)
 			{
-				if(sequencerPtr->track[i].step[j-1].isOn) leds.setLEDseq(i+1,TRACKER_LINE - sequencer.ptrPlayer->row[i].actual_pos +j,1,28);
-				else leds.setLEDseq(i+1,TRACKER_LINE  - sequencer.ptrPlayer->row[i].actual_pos + j,1,3);
-			}
-			else
-			{
-				if((TRACKER_LINE  - sequencer.ptrPlayer->row[i].actual_pos +j) > 1 )
+				if(!(j-1-sequencer.ptrPlayer->row[i].actual_pos ))
 				{
-					if(sequencerPtr->track[i].step[j-1].isOn) leds.setLEDseq(i+1,TRACKER_LINE  - sequencer.ptrPlayer->row[i].actual_pos +j,1,31);
-					else leds.setLEDseq(i+1,TRACKER_LINE - sequencer.ptrPlayer->row[i].actual_pos + j,0,31);
+					if(sequencerPtr->track[i].step[j-1].isOn) leds.setLEDseq(i+1,TRACKER_LINE - sequencer.ptrPlayer->row[i].actual_pos +j,1,28);
+					else leds.setLEDseq(i+1,TRACKER_LINE  - sequencer.ptrPlayer->row[i].actual_pos + j,1,3);
+				}
+				else
+				{
+					if((TRACKER_LINE  - sequencer.ptrPlayer->row[i].actual_pos +j) > 1 )
+					{
+						if(sequencerPtr->track[i].step[j-1].isOn) leds.setLEDseq(i+1,TRACKER_LINE  - sequencer.ptrPlayer->row[i].actual_pos +j,1,31);
+						else leds.setLEDseq(i+1,TRACKER_LINE - sequencer.ptrPlayer->row[i].actual_pos + j,0,31);
+					}
+
 				}
 
 			}
-
 		}
 	}
 	leds.updateSeq();

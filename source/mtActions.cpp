@@ -28,7 +28,7 @@ void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
 
 
-Serial.println(n);
+//Serial.println(n);
 
 
 

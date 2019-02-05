@@ -121,14 +121,5 @@ void cMtInterface::processOperatingMode()
 		}
 	}
 
-
-
-
-
-
-
-
-
-
 }
 
