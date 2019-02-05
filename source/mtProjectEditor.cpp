@@ -37,7 +37,7 @@ void cMtProjectEditor::update()
 		{
 			// jesli nie mozna zaladowac ostatneigo projektu
 			// to poinformuj o tym interfejs
-			projectEditorEvent(ProjEditEventLoadLastProjFailed, &result);
+			//projectEditorEvent(ProjEditEventLoadLastProjFailed, &result,0,0);
 		}
 	}
 
@@ -297,7 +297,37 @@ uint8_t cMtProjectEditor::isProjectLoaded()
 	return 0;
 }
 
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+uint8_t cMtProjectEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
+{
 
+	return 0;
+}
+
+void cMtProjectEditor::buttonChange(uint8_t button, uint8_t value)
+{
+
+
+}
+
+void cMtProjectEditor::potChange(uint8_t pot, int16_t value)
+{
+
+
+}
+
+void cMtProjectEditor::seqButtonChange(uint8_t type, uint8_t x, uint8_t y)
+{
+
+
+}
+
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 
 

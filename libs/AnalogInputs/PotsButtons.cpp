@@ -32,6 +32,7 @@ void cAnalogInputs::processPotData()
 		{
 			potentiometers[i].last_position = potentiometers[i].position;
 			potentiometers[i].last_part = potentiometers[i].part;
+
 		}
 
 
@@ -41,7 +42,11 @@ void cAnalogInputs::processPotData()
 		//}
 	}
 
-	if(start_up) start_up = 0;
+	if(start_up)
+	{
+		start_up++;
+		if(start_up > 10)start_up = 0;
+	}
 	int16_t diffrence, is_moving_diff, resolution_step;
 	uint8_t in_death_zone, direction;
 

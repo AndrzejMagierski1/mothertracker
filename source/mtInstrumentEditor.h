@@ -71,9 +71,14 @@ enum enumMtInstrumentEditorValue
 	mtInstrumentEditorPotValueCount
 };
 
+enum enumMtInstrumentEditorEvents
+{
+	mtInstrumentEditorSeqButtonsPress,
+
+};
 
 
-const uint16_t potsFuncResolutions[mtInstrumentEditorPotFunctionCount]=
+const uint16_t mtInstrumentEditorPotsFuncRes[mtInstrumentEditorPotFunctionCount]=
 {
 		100,  //mtInstrumentEditorPotFunctionNone,
 		100,  //mtInstrumentEditorPotFunctionStartPoint,
@@ -144,9 +149,14 @@ public:
 
 	void startExisting(uint8_t instrumentIndex);
 	void startEmpty();
+	void stop();
 
+	uint8_t padsChange(uint8_t type, uint8_t n, uint8_t velo);
 	void buttonChange(uint8_t button, uint8_t value);
 	void potChange(uint8_t pot, int16_t value);
+	void seqButtonChange(uint8_t type, uint8_t x, uint8_t y);
+
+	void setEventFunct(void (*func)(uint8_t, void*, void*, void*)) { eventFunct = func; };
 
 private:
 	void processSpectrum();
@@ -171,7 +181,7 @@ private:
 	void showSampleList(uint8_t value);
 	void showInstrumentList(uint8_t value);
 	void play(uint8_t value);
-	void stop(uint8_t value);
+	void stopPlaying(uint8_t value);
 	void changePlayMode(uint8_t value);
 	void showParameters(uint8_t value);
 	void changeGlideNote(uint8_t value);
@@ -204,6 +214,8 @@ private:
 	uint8_t	refreshInstrumentEditor = 0;
 	uint8_t	instrumentEditorModeStart = 0;
 	uint8_t	editMode = 0;
+
+	void (*eventFunct)(uint8_t, void*, void*, void*);
 
 //========================================================
 

@@ -3,6 +3,7 @@
 
 #include "mtProjectEditor.h"
 #include "mtInstrumentEditor.h"
+#include "mtStepEditor.h"
 
 
 #include "mtInterface.h"
@@ -22,8 +23,9 @@ void cMtInterface::begin()
 	setOperatingMode(mtOperatingModeStartup);
 	startupTimer = 0;
 
-
-
+	mtProjectEditor.setEventFunct(projectEditorEvent);
+	mtInstrumentEditor.setEventFunct(instrumentEditorEvent);
+	mtStepEditor.setEventFunct(stepEditorEvent);
 
 
 }
@@ -35,8 +37,9 @@ void cMtInterface::update()
 	processOperatingMode();
 
 
-	if(activeModules[mtModuleProjectEditor]) 		mtProjectEditor.update();
+ 	if(activeModules[mtModuleProjectEditor]) 		mtProjectEditor.update();
 	if(activeModules[mtModuleInstrumentEditor]) 	mtInstrumentEditor.update();
+	if(activeModules[mtModuleStepEditor]) 			mtStepEditor.update();
 
 
 
@@ -63,12 +66,14 @@ void cMtInterface::processOperatingMode()
 	{
 		lastOperatingMode = operatingMode;
 		activateModule(mtModuleProjectEditor);
+		activateModule(mtModuleStepEditor);
 		mtProjectEditor.startProject();
 	}
 	else if(operatingMode == mtOperatingModeInstrumentEditor)
 	{
 		lastOperatingMode = operatingMode;
 		activateModule(mtModuleInstrumentEditor);
+		onScreenModule = mtModuleInstrumentEditor;
 		mtInstrumentEditor.startExisting(0);
 	}
 

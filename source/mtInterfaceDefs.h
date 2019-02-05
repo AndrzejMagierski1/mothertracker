@@ -12,6 +12,7 @@ enum mtInterfaceModules
 {
 	mtModuleProjectEditor,
 	mtModuleInstrumentEditor,
+	mtModuleStepEditor,
 
 
 

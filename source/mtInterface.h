@@ -48,6 +48,7 @@ public:
 	// mtInterfaceInputs.cpp -----------------------------
 
 
+	uint8_t onScreenModule = 0;
 
 private:
 	void activateModule(uint8_t module);
@@ -58,8 +59,9 @@ private:
 	uint8_t lastOperatingMode = 0;
 	elapsedMillis startupTimer;
 
-
 	uint8_t activeModules[mtModulesCount] = {0};
+
+
 
 };
 
@@ -74,6 +76,8 @@ private:
 
 extern cMtInterface mtInterface;
 
-
+void instrumentEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
+void projectEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
+void stepEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
 
 #endif
