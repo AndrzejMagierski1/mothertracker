@@ -27,14 +27,7 @@ enum enumMtOperatingMode
 {
 	mtOperatingModeNone,
 	mtOperatingModeStartup,
-	mtOperatingModeProjectEditor,
-	mtOperatingModeSongEditor,
-	mtOperatingModePaternEditor,
-	mtOperatingModeInstrumentEditor,
-	mtOperatingModeFileManager,
-	mtOperatingModeRecorder,
-	mtOperatingModeMixer,
-	mtOperatingModeConfig,
+	mtOperatingModeRun,
 };
 
 

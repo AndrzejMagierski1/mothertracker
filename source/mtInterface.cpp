@@ -18,9 +18,12 @@ cMtInterface mtInterface;
 
 
 //=======================================================================
+//=======================================================================
+//=======================================================================
+//=======================================================================
 void cMtInterface::begin()
 {
-	setOperatingMode(mtOperatingModeStartup);
+	operatingMode = mtOperatingModeStartup;
 	startupTimer = 0;
 
 	mtProjectEditor.setEventFunct(projectEditorEvent);
@@ -28,9 +31,11 @@ void cMtInterface::begin()
 	mtStepEditor.setEventFunct(stepEditorEvent);
 
 
+
 }
 
-
+//=======================================================================
+//=======================================================================
 //=======================================================================
 void cMtInterface::update()
 {
@@ -43,56 +48,48 @@ void cMtInterface::update()
 
 
 
-
 }
 
 
 
-
+//=======================================================================
+//=======================================================================
+//=======================================================================
 void cMtInterface::processOperatingMode()
 {
-	if(lastOperatingMode == operatingMode) return;
-
 	if(operatingMode == mtOperatingModeStartup)
 	{
 		if(startupTimer > MT_INTERFACE_STARTUP_TIME)
 		{
-			lastOperatingMode = operatingMode;
+			operatingMode = mtOperatingModeRun;
+
 			mtDisplay.setMode(mtDisplayModeNormal);
-			setOperatingMode(mtOperatingModeProjectEditor);
+			activateModule(mtModuleProjectEditor);
+			mtProjectEditor.startProject();
 		}
 	}
-	else if(operatingMode == mtOperatingModeProjectEditor)
+	else if(operatingMode == mtOperatingModeRun)
 	{
-		lastOperatingMode = operatingMode;
-		activateModule(mtModuleProjectEditor);
-		activateModule(mtModuleStepEditor);
-		mtProjectEditor.startProject();
-	}
-	else if(operatingMode == mtOperatingModeInstrumentEditor)
-	{
-		lastOperatingMode = operatingMode;
-		activateModule(mtModuleInstrumentEditor);
-		onScreenModule = mtModuleInstrumentEditor;
-		mtInstrumentEditor.startExisting(0);
+
 	}
 
 
 }
 
-
-void cMtInterface::setOperatingMode(uint8_t mode)
-{
-	operatingMode = mode;
-}
-
+//=======================================================================
+//=======================================================================
+//=======================================================================
 void cMtInterface::activateModule(uint8_t module)
 {
 
 	activeModules[module] = 1;
+	onScreenModule = module;
 
 }
 
+//=======================================================================
+//=======================================================================
+//=======================================================================
 void cMtInterface::deactivateModule(uint8_t module)
 {
 	activeModules[module] = 0;

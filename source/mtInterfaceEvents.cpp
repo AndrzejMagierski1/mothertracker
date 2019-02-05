@@ -7,6 +7,10 @@
 #include "mtInstrumentEditor.h"
 #include "mtStepEditor.h"
 
+
+//=======================================================================
+//=======================================================================
+//=======================================================================
 void instrumentEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 {
 	switch(event)
@@ -14,8 +18,11 @@ void instrumentEditorEvent(uint8_t event, void* param1, void* param2, void* para
 
 	case mtInstrumentEditorSeqButtonsPress:
 
-		mtInterface.onScreenModule = mtModuleStepEditor;
+
+		mtInterface.deactivateModule(mtModuleInstrumentEditor);
+		mtInterface.activateModule(mtModuleStepEditor);
 		mtStepEditor.showStep(*(uint8_t*)param1,*(uint8_t*)param2);
+
 
 	break;
 
@@ -26,7 +33,9 @@ void instrumentEditorEvent(uint8_t event, void* param1, void* param2, void* para
 }
 
 
-
+//=======================================================================
+//=======================================================================
+//=======================================================================
 void projectEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 {
 	switch(event)
@@ -35,20 +44,38 @@ void projectEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 
 	break;
 
+	case mtPriojectEditorEventPadPress:
+
+		if(*(uint8_t*)param1 == 3)
+		{
+			mtInterface.activateModule(mtModuleInstrumentEditor);
+			mtInstrumentEditor.startExisting(0);
+		}
+
+	break;
+
+
 	default: break;
 	}
 
 }
 
 
+//=======================================================================
+//=======================================================================
+//=======================================================================
 void stepEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 {
 	switch(event)
 	{
 	case mtStepEditorEventPadPress:
 
-		mtInterface.onScreenModule = mtModuleInstrumentEditor;
-		mtInstrumentEditor.startExisting(0);
+		if(*(uint8_t*)param1 == 3)
+		{
+			mtInterface.deactivateModule(mtModuleStepEditor);
+			mtInterface.activateModule(mtModuleInstrumentEditor);
+			mtInstrumentEditor.startExisting(0);
+		}
 
 	break;
 

@@ -20,6 +20,7 @@ enum mtProjectEditorEvents
 {
 	ProjEditEventNone,
 	ProjEditEventLoadLastProjFailed,
+	mtPriojectEditorEventPadPress,
 
 	ProjEditEventCount
 };

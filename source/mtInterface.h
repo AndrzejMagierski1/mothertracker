@@ -48,19 +48,19 @@ public:
 	// mtInterfaceInputs.cpp -----------------------------
 
 
-	uint8_t onScreenModule = 0;
-
-private:
 	void activateModule(uint8_t module);
 	void deactivateModule(uint8_t module);
+
+private:
+
 	void processOperatingMode();
 
 	uint8_t operatingMode = 0;
-	uint8_t lastOperatingMode = 0;
+
 	elapsedMillis startupTimer;
 
 	uint8_t activeModules[mtModulesCount] = {0};
-
+	uint8_t onScreenModule = 0;
 
 
 };

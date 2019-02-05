@@ -79,7 +79,7 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		if(n == 3)
 		{
 			stop();
-			eventFunct(mtStepEditorEventPadPress, 0, 0, 0);
+			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
 		}
 	}
 
