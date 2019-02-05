@@ -40,6 +40,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	loopBackwardFlag=0;
 	pitchCounter=0;
 	glideCounter=0;
+	slideCounter=0;
 	/*=========================================================================================================================*/
 	/*========================================PRZEPISANIE WARTOSCI STEP========================================================*/
 	glide=mtProject.instrument[instr_idx].glide;
@@ -308,8 +309,16 @@ void AudioPlayMemory::setLP2(uint16_t value)
 
 void AudioPlayMemory::setGlide(uint16_t value, int8_t currentNote)
 {
-	sampleConstrains.glide=(uint32_t)(glide*44.1);
+	sampleConstrains.glide=(uint32_t)(value*44.1);
 	if((lastNote>=0) && (lastNote != currentNote)) glideControl=(notes[currentNote] - notes[lastNote] )/sampleConstrains.glide;
+	else glideControl=0;
+
+}
+
+void AudioPlayMemory::setSlide(uint16_t value, int8_t currentNote, int8_t slideNote)
+{
+	sampleConstrains.slide =(uint32_t)(value*44.1);
+	if((lastNote>=0) && (lastNote != currentNote)) glideControl=(notes[currentNote] - notes[slideNote] )/sampleConstrains.glide;
 	else glideControl=0;
 
 }
