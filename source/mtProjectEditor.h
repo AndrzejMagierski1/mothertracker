@@ -13,35 +13,42 @@ enum mtProjectEditorCommands
 	ProjEditCommandNone,
 	ProjEditCommandOpenLastProject,
 
+	ProjEditCommandCount
 };
 
+enum mtProjectEditorEvents
+{
+	ProjEditEventNone,
+	ProjEditEventLoadLastProjFailed,
+	mtPriojectEditorEventPadPress,
 
+	ProjEditEventCount
+};
 
 //=====================================================================
 class cMtProjectEditor
 {
 public:
 	void update();
-	void command(uint8_t comm);
+	void startProject();
+
+	uint8_t padsChange(uint8_t type, uint8_t n, uint8_t velo);
+	void buttonChange(uint8_t button, uint8_t value);
+	void potChange(uint8_t pot, int16_t value);
+	void seqButtonChange(uint8_t type, uint8_t x, uint8_t y);
 
 	uint8_t readProjectConfig();
 	uint8_t loadSamplesBank();
 	uint8_t loadLastProject();
 	uint8_t isProjectLoaded();
 
-
+	void setEventFunct(void (*func)(uint8_t, void*, void*, void*)) { eventFunct = func; };
 
 private:
 
-	uint8_t commandsBuffor[COMMANDS_PROJECT_EDITOR_MAX];
+	uint8_t commandsToDo[ProjEditCommandCount];
 
-	uint8_t lastComandIndex = 0;
-	uint8_t waitingComandsCount = 0;
-
-	uint8_t lastCommand = ProjEditCommandNone;
-
-
-
+	void (*eventFunct)(uint8_t, void*, void*, void*);
 
 };
 

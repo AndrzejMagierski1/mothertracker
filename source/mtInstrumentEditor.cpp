@@ -15,14 +15,6 @@ cMtInstrumentEditor mtInstrumentEditor;
 //#########################################################################################################
 //#########################################################################################################
 
-void cMtInstrumentEditor::begin()
-{
-
-
-
-}
-
-
 void cMtInstrumentEditor::update()
 {
 	if(!refreshInstrumentEditor) return;
@@ -230,16 +222,30 @@ void cMtInstrumentEditor::startEmpty()
 	refreshInstrumentEditor = 1;
 }
 
+void cMtInstrumentEditor::stop()
+{
+	mtDisplay.setSpectrum(0);
+	mtDisplay.setSpectrumPoints(0);
+	mtDisplay.setValue(0);
+	mtDisplay.setEnvelopes(0);
+}
+
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
+uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
+{
+
+	return 0;
+}
+
 void cMtInstrumentEditor::buttonChange(uint8_t button, uint8_t value)
 {
 	switch(buttonFunction[button])
 	{
 	case mtInstrumentEditorButtonFunctionNone  				: 					break;
 	case mtInstrumentEditorButtonFunctionPlay  				:	play(value);			break;
-	case mtInstrumentEditorButtonFunctionStop  				:	stop(value);			break;
+	case mtInstrumentEditorButtonFunctionStop  				:	stopPlaying(value);			break;
 	case mtInstrumentEditorButtonFunctionPlayMode  			: 	changePlayMode(value);	break;
 	case mtInstrumentEditorButtonFunctionEnvelopes  		: 	showEnvelopes(value);	break;
 	case mtInstrumentEditorButtonFunctionInstrumentList 	: 	showInstrumentList(value);	break;
@@ -284,6 +290,16 @@ void cMtInstrumentEditor::potChange(uint8_t pot, int16_t value)
 	}
 
 	refreshInstrumentEditor = 1;
+}
+
+
+void cMtInstrumentEditor::seqButtonChange(uint8_t type, uint8_t x, uint8_t y)
+{
+
+	stop();
+	eventFunct(mtInstrumentEditorSeqButtonsPress, &x, &y, 0);
+
+
 }
 
 //#########################################################################################################
@@ -771,7 +787,7 @@ void cMtInstrumentEditor::updatePotsFunctions()
 void cMtInstrumentEditor::setPotFunction(uint8_t number, uint8_t function)
 {
 	potFunction[number] = function;
-	AnalogInputs.setPotResolution(number, potsFuncResolutions[function]);
+	AnalogInputs.setPotResolution(number, mtInstrumentEditorPotsFuncRes[function]);
 }
 
 //#########################################################################################################
@@ -1236,7 +1252,7 @@ void cMtInstrumentEditor::play(uint8_t value)
 	}
 }
 
-void cMtInstrumentEditor::stop(uint8_t value)
+void cMtInstrumentEditor::stopPlaying(uint8_t value)
 {
 
 	if(isPlayingSample) instrumentPlayer[0].noteOff();

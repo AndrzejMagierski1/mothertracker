@@ -328,7 +328,8 @@ void cAnalogInputs::processPadData()
 			padButtons[i].state_y = 0;
 		}
 		#if ANALOG_POTS_ON == 0
-		start_up = 0;
+		start_up++;
+		if(start_up > 10)start_up = 0;
 		#endif
 		return;
 	}

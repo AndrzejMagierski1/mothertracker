@@ -3,14 +3,12 @@
 
 #include "mtProjectEditor.h"
 #include "mtInstrumentEditor.h"
+#include "mtStepEditor.h"
 
 
 #include "mtInterface.h"
 #include "mtInterfaceDefs.h"
 
-
-
-extern void sampleEditorEvent(uint8_t event, void* param);
 
 
 cMtInterface mtInterface;
@@ -20,106 +18,79 @@ cMtInterface mtInterface;
 
 
 //=======================================================================
+//=======================================================================
+//=======================================================================
+//=======================================================================
 void cMtInterface::begin()
 {
-	setOperatingMode(mtOperatingModeStartup);
+	operatingMode = mtOperatingModeStartup;
 	startupTimer = 0;
 
-	mtInstrumentEditor.begin();
-
-
+	mtProjectEditor.setEventFunct(projectEditorEvent);
+	mtInstrumentEditor.setEventFunct(instrumentEditorEvent);
+	mtStepEditor.setEventFunct(stepEditorEvent);
 
 
 
 }
 
-
+//=======================================================================
+//=======================================================================
 //=======================================================================
 void cMtInterface::update()
 {
 	processOperatingMode();
 
 
+ 	if(activeModules[mtModuleProjectEditor]) 		mtProjectEditor.update();
+	if(activeModules[mtModuleInstrumentEditor]) 	mtInstrumentEditor.update();
+	if(activeModules[mtModuleStepEditor]) 			mtStepEditor.update();
 
-	mtInstrumentEditor.update();
 
-	//mtProjectEditor.update();
 
 }
 
 
-void cMtInterface::setOperatingMode(uint8_t mode)
-{
-	switch(mode)
-	{
-	case mtOperatingModeNone:
-	{
 
-		break;
-	}
-	case mtOperatingModeStartup:
-	{
-
-		break;
-	}
-	case mtOperatingModeSongEditor:
-	{
-
-		break;
-	}
-	case mtOperatingModeProjectEditor:
-	{
-		mtProjectEditor.loadLastProject();
-		break;
-	}
-	case mtOperatingModePaternEditor:
-	{
-
-		break;
-	}
-	case mtOperatingModeInstrumentEditor:
-	{
-		mtInstrumentEditor.startExisting(0);
-		break;
-	}
-	case mtOperatingModeFileManager:
-	{
-
-		break;
-	}
-	case mtOperatingModeRecorder:
-	{
-
-		break;
-	}
-	case mtOperatingModeMixer:
-	{
-
-		break;
-	}
-	case mtOperatingModeConfig:
-	{
-
-		break;
-	}
-
-	}
-
-
-	operatingMode = mode;
-}
-
-
+//=======================================================================
+//=======================================================================
+//=======================================================================
 void cMtInterface::processOperatingMode()
 {
 	if(operatingMode == mtOperatingModeStartup)
 	{
 		if(startupTimer > MT_INTERFACE_STARTUP_TIME)
 		{
+			operatingMode = mtOperatingModeRun;
+
 			mtDisplay.setMode(mtDisplayModeNormal);
-			setOperatingMode(mtOperatingModeProjectEditor);
+			activateModule(mtModuleProjectEditor);
+			mtProjectEditor.startProject();
 		}
 	}
+	else if(operatingMode == mtOperatingModeRun)
+	{
+
+	}
+
 
 }
 
+//=======================================================================
+//=======================================================================
+//=======================================================================
+void cMtInterface::activateModule(uint8_t module)
+{
+
+	activeModules[module] = 1;
+	onScreenModule = module;
+
+}
+
+//=======================================================================
+//=======================================================================
+//=======================================================================
+void cMtInterface::deactivateModule(uint8_t module)
+{
+	activeModules[module] = 0;
+}
