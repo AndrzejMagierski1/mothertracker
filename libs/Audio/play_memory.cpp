@@ -156,6 +156,22 @@ void AudioPlayMemory::update(void)
 
 				if(glideCounter<=sampleConstrains.glide) pitchControl+=glideControl;
 				glideCounter++;
+				if(slideControl != 0.0f)
+				{
+					if(slideCounter<=sampleConstrains.slide)
+					{
+						pitchControl+=slideControl;
+						slideCounter++;
+					}
+					else
+					{
+						pitchControl -= (slideControl * slideCounter);
+						slideControl=0.0f;
+						slideCounter=0;
+						sampleConstrains.glide=0;
+					}
+
+				}
 
 				if((playMode == singleShot) ||(playMode == loopForward))
 				{
@@ -317,9 +333,11 @@ void AudioPlayMemory::setGlide(uint16_t value, int8_t currentNote)
 
 void AudioPlayMemory::setSlide(uint16_t value, int8_t currentNote, int8_t slideNote)
 {
+	pitchControl-=(slideControl * slideCounter);
+	slideCounter=0;
 	sampleConstrains.slide =(uint32_t)(value*44.1);
-	if((lastNote>=0) && (lastNote != currentNote)) glideControl=(notes[currentNote] - notes[slideNote] )/sampleConstrains.glide;
-	else glideControl=0;
+	if((slideNote>=0) && (slideNote != currentNote)) slideControl=(notes[slideNote] - notes[currentNote] )/sampleConstrains.slide;
+	else slideControl=0;
 
 }
 

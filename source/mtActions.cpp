@@ -123,8 +123,16 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].filterEnable=filterOn;
 
 
-
-		mtInterface.buttonChange(n,value);
+		if(!n)
+		{
+			if(value)instrumentPlayer[4].modSlide(5000,24);
+		}
+		else
+		{
+			if(value) instrumentPlayer[n].noteOn (sequencer.seq[0].track[n].step[0].instrument,40,100);
+			else instrumentPlayer[n].noteOff();
+		}
+		//mtInterface.buttonChange(n,value);
 
 
 //	mtPrint("button: ");

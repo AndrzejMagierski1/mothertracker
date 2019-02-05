@@ -26,11 +26,11 @@ void setup()
 
 
 
-	sequencer.init();
-	sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
-	sequencer.play();
+	//sequencer.init();
+	//sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
+	//sequencer.play();
 
-	seqDisplay.init(&sequencer.seq[0]);
+	//seqDisplay.init(&sequencer.seq[0]);
 
 
 
@@ -44,8 +44,8 @@ void setup()
 void loop()
 {
 
-	sequencer.handle();
-	seqDisplay.update();
+	//sequencer.handle();
+	//seqDisplay.update();
 
 	updateHardware();
 

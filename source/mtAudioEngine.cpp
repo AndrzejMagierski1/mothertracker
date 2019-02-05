@@ -213,6 +213,12 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		playMemPtr->setGlide(value,currentNote);
 	}
 
+	void playerEngine :: modSlide(uint16_t value,int8_t slideNote)
+	{
+		//mods[targetGlide][manualMod]=value;
+		playMemPtr->setSlide(value,currentNote,slideNote);
+	}
+
 	void playerEngine :: modPanning(uint8_t value)
 	{
 		//mods[targetPanning][manualMod]=value;

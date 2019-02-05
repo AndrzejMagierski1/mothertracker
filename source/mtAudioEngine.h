@@ -43,6 +43,7 @@ public:
 	void slide(int8_t note, uint16_t time);
 	void modPitch(float value);
 	void modGlide(uint16_t value);
+	void modSlide(uint16_t value,int8_t slideNote);
 
 	void modPanning(uint8_t value);
 	void modPlayMode(uint8_t value);

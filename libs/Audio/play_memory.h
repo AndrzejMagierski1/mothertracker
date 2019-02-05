@@ -48,7 +48,7 @@ public:
 	void setLP2(uint16_t value); //global
 	void setGlide(uint16_t value, int8_t currentNote); // global
 	void setPitch(float value); // incremental
-
+	void setSlide(uint16_t value, int8_t currentNote, int8_t slideNote);//incremental
 
 private:
 	int16_t *next;
@@ -84,6 +84,7 @@ private:
 		uint32_t endPoint=0;
 
 		uint32_t glide=0;
+		uint32_t slide=0;
 
 	} sampleConstrains;
 
