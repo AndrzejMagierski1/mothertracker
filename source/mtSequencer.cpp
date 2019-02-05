@@ -1380,32 +1380,54 @@ void Sequencer::loadDefaultSequence(void)
 			seq[player.ramBank].track[x].step[y].isOn = 0;
 		}
 	}
+	seq[player.ramBank].track[0].tempoDiv=1;
+	seq[player.ramBank].track[0].step[15].isOn = 1;
+	seq[player.ramBank].track[0].step[15].velocity = 100;
+	seq[player.ramBank].track[0].step[15].instrument = 0;
+	seq[player.ramBank].track[0].step[15].note = 28;
+	seq[player.ramBank].track[0].step[15].length1 = 100;
 
-	seq[player.ramBank].track[0].step[0].isOn = 1;
-	seq[player.ramBank].track[0].step[0].velocity = 100;
-	seq[player.ramBank].track[0].step[0].instrument = 0;
-	seq[player.ramBank].track[0].step[0].note = 21;
-	seq[player.ramBank].track[0].step[0].length1 = 100;
+	seq[player.ramBank].track[7].step[15].isOn = 1;
+	seq[player.ramBank].track[7].step[15].velocity = 100;
+	seq[player.ramBank].track[7].step[15].instrument = 0;
+	seq[player.ramBank].track[7].step[15].note = 21;
+	seq[player.ramBank].track[7].step[15].length1 = 100;
 
-	seq[player.ramBank].track[1].step[0].isOn = 1;
-	seq[player.ramBank].track[1].step[0].velocity = 100;
-	seq[player.ramBank].track[1].step[0].instrument = 0;
-	seq[player.ramBank].track[1].step[0].note = 24;
-	seq[player.ramBank].track[1].step[0].length1 = 100;
+	seq[player.ramBank].track[1].step[15].isOn = 1;
+	seq[player.ramBank].track[1].step[15].velocity = 100;
+	seq[player.ramBank].track[1].step[15].instrument = 0;
+	seq[player.ramBank].track[1].step[15].note = 24;
+	seq[player.ramBank].track[1].step[15].length1 = 100;
 
-	seq[player.ramBank].track[2].step[0].isOn = 1;
-	seq[player.ramBank].track[2].step[0].velocity = 100;
-	seq[player.ramBank].track[2].step[0].instrument = 0;
-	seq[player.ramBank].track[2].step[0].note = 29;
-	seq[player.ramBank].track[2].step[0].length1 = 100;
+	seq[player.ramBank].track[2].step[15].isOn = 1;
+	seq[player.ramBank].track[2].step[15].velocity = 100;
+	seq[player.ramBank].track[2].step[15].instrument = 0;
+	seq[player.ramBank].track[2].step[15].note = 29;
+	seq[player.ramBank].track[2].step[15].length1 = 100;
 
+	seq[player.ramBank].track[4].step[15].isOn = 1;
+	seq[player.ramBank].track[4].step[15].velocity = 100;
+	seq[player.ramBank].track[4].step[15].instrument = 5;
+	seq[player.ramBank].track[4].step[15].note = 14;
+	seq[player.ramBank].track[4].step[15].length1 = 50;
 
+	seq[player.ramBank].track[5].step[15].isOn = 1;
+	seq[player.ramBank].track[5].step[15].velocity = 100;
+	seq[player.ramBank].track[5].step[15].instrument = 5;
+	seq[player.ramBank].track[5].step[15].note = 13;
+	seq[player.ramBank].track[5].step[15].length1 = 50;
 
-	seq[player.ramBank].track[3].step[7].isOn = 1;
-	seq[player.ramBank].track[3].step[7].velocity = 100;
-	seq[player.ramBank].track[3].step[7].instrument = 0;
-	seq[player.ramBank].track[3].step[7].note = 41;
-	seq[player.ramBank].track[3].step[7].length1 = 50;
+	seq[player.ramBank].track[6].step[15].isOn = 1;
+	seq[player.ramBank].track[6].step[15].velocity = 100;
+	seq[player.ramBank].track[6].step[15].instrument = 5;
+	seq[player.ramBank].track[6].step[15].note = 12;
+	seq[player.ramBank].track[6].step[15].length1 = 50;
+
+	seq[player.ramBank].track[3].step[15].isOn = 1;
+	seq[player.ramBank].track[3].step[15].velocity = 100;
+	seq[player.ramBank].track[3].step[15].instrument = 5;
+	seq[player.ramBank].track[3].step[15].note = 11;
+	seq[player.ramBank].track[3].step[15].length1 = 50;
 
 
 //	seq[player.ramBank].track[0].step[5].isOn = 1;
@@ -2022,9 +2044,9 @@ uint8_t Sequencer::get_fxValType(uint8_t fxType)
 		return fx.FX_VAL_TYPE_U16;
 		break;
 
-	case fx.FX_TYPE_VOL_ROLL:
+/*	case fx.FX_TYPE_VOL_ROLL:
 		return fx.FX_VAL_TYPE_U16;
-		break;
+		break;*/
 
 	case fx.FX_TYPE_JUMP_TO_STEP:
 		return fx.FX_VAL_TYPE_U16;
@@ -2070,8 +2092,7 @@ void Sequencer::sendNoteOn(uint8_t track, strBank::strTrack::strStep *step)
 
 	usbMIDI.sendNoteOn(step->note, step->velocity, 1);
 
-
-	instrumentPlayer[track].noteOn(step->instrument,step->note,step->velocity);
+	instrumentPlayer[track].noteOn(step->instrument, step->note, step->velocity);
 
 }
 

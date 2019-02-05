@@ -3,7 +3,7 @@
 
 //#include "mtDisplay.h"
 #include "mtProjectEditor.h"
-
+#include "mtHardware.h"
 #include "SD.h"
 #include "sdram.h"
 //#include "Arduino.h"
@@ -352,7 +352,17 @@ int32_t loadSdWavToMemory(const char *filename, int16_t * buf)
 	{
 		wavfile.close();
 //		__enable_irq();
+		if(hardwareTest)
+		{
+			Serial.println("Bad WAV file or External RAM(if SD Card init is Correct");
+			mtPrint("Bad WAV file or External RAM(if SD Card init is Correct");
+		}
 		return -1;
+	}
+	else
+	{
+		Serial.println("load WAV header to SDRAM succesfull");
+		mtPrint("load WAV header to SDRAM succesfull");
 	}
 /*
 	if(sampleHead.numChannels == 1) sampleLength = sampleHead.subchunk2Size;

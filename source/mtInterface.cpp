@@ -88,7 +88,9 @@ void cMtInterface::setOperatingMode(uint8_t mode)
 
 void cMtInterface::activateModule(uint8_t module)
 {
+
 	activeModules[module] = 1;
+
 }
 
 void cMtInterface::deactivateModule(uint8_t module)

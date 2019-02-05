@@ -18,7 +18,7 @@
 
 #include "sdram.h"
 
-
+uint8_t hardwareTest;
 
 
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo);
@@ -42,14 +42,30 @@ void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 
 void initHardware()
 {
+	//hardwareTest=1;
+
 	Serial.begin(9600);
+
+	// LCD
+	mtDisplay.begin(mtDisplayModePolyLogo);
 
 	//SD CARD
 	//....................................................
 	if (!SD.begin(SdioConfig(DMA_SDIO)))	//FIFO_SDIO
 	{
+		if(hardwareTest)
+		{
 		 Serial.println("SD card init error");
 		 mtPrint("SD card init error");
+		}
+	}
+	else
+	{
+		if(hardwareTest)
+		{
+		 Serial.println("SD card init succesfull");
+		 mtPrint("SD card init succesfull");
+		}
 	}
 
 	//....................................................
@@ -70,7 +86,7 @@ void initHardware()
 	AnalogInputs.setPotChangeFunc(onPotChange);
 	AnalogInputs.setButtonChangeFunc(onButtonChange);
 
-	AnalogInputs.testMode(0); // (1 = on; 0 = off) test mode
+	AnalogInputs.testMode(hardwareTest); // (1 = on; 0 = off) test mode
 	AnalogInputs.setPadxMode(0);
 	AnalogInputs.setPadyMode(0);
 	AnalogInputs.setPotDeathZone(7);
@@ -118,6 +134,10 @@ void initHardware()
 	seqButtonsC.setHoldTime(200);
 	seqButtonsC.setDoubleTime(300);
 
+	seqButtonsA.testMode(hardwareTest);
+	seqButtonsB.testMode(hardwareTest);
+	seqButtonsC.testMode(hardwareTest);
+
 	////////////////// IO7326 A
 	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,IO7326_INT_FUNCT_A);
 	////////////////// IO7326 B
@@ -131,11 +151,43 @@ void initHardware()
 
 	//....................................................
 
-	// LCD
-	mtDisplay.begin(mtDisplayModePolyLogo);
 
 
+	/*while(1)
+	{
 
+		for(int i=1;i<=20;i++)
+		{
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,1,31);
+				leds.updateSeq();
+				delay(50);
+			}
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,0,31);
+				leds.updateSeq();
+				delay(50);
+			}
+		}
+		for(int i=1;i<=20;i++)
+		{
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,1,31);
+				leds.updateSeq();
+				delay(50);
+			}
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,0,31);
+				leds.updateSeq();
+				delay(50);
+			}
+		}
+
+	}*/
 }
 
 
@@ -165,7 +217,7 @@ void updateHardware()
 
 	}
 
-	mtDisplay.updateDisplay();
+	//mtDisplay.updateDisplay();
 	mtDisplay.updateHaptic();
 
 }

@@ -35,7 +35,6 @@ void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 
 
 
-
 //	mtPrint("pad press: ");
 //	mtPrintln(n);
 
@@ -122,7 +121,6 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].resonance=0.7;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].filterType=highPass;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].filterEnable=filterOn;
-
 
 
 

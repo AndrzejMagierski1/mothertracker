@@ -85,5 +85,6 @@
 // HAPTIC - DAC OPTION
 #define HAPTIC_OUT		xxx 		//DAC0_OUT		pin-38
 
+extern uint8_t hardwareTest;
 
 #endif

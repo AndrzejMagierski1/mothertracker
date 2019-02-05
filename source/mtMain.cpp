@@ -4,7 +4,7 @@
 #include "mtAudioEngine.h"
 
 #include "mtSequencer.h"
-
+#include "seqDisplay.h"
 
 
 
@@ -30,7 +30,7 @@ void setup()
 	sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
 	sequencer.play();
 
-
+	seqDisplay.init(&sequencer.seq[0]);
 
 
 
@@ -45,7 +45,7 @@ void loop()
 {
 
 	sequencer.handle();
-
+	seqDisplay.update();
 
 	updateHardware();
 

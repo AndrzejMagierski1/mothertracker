@@ -26,6 +26,7 @@
 
 #include "control_sgtl5000.h"
 #include "Wire.h"
+#include "mtHardware.h"
 
 #define CHIP_ID				0x0000
 // 15:8 PARTID		0xA0 - 8 bit identifier for SGTL5000
@@ -547,10 +548,31 @@ unsigned int AudioControlSGTL5000::read(unsigned int reg)
 	Wire2.beginTransmission(i2c_addr);
 	Wire2.write(reg >> 8);
 	Wire2.write(reg);
-	if (Wire2.endTransmission(false) != 0) return 0;
-	if (Wire2.requestFrom((int)i2c_addr, 2) < 2) return 0;
+	if (Wire2.endTransmission(false) != 0)
+	{
+		if(hardwareTest)
+		{
+			Serial.println("Codac audio read error");
+			mtPrint("Codac audio read error");
+		}
+		return 0;
+	}
+	if (Wire2.requestFrom((int)i2c_addr, 2) < 2)
+	{
+		if(hardwareTest)
+		{
+			Serial.println("Codac audio read error");
+			mtPrint("Codac audio read error");
+		}
+		return 0;
+	}
 	val = Wire2.read() << 8;
 	val |= Wire2.read();
+	if(hardwareTest)
+	{
+		Serial.println("Codac audio read succesfull");
+		mtPrint("Codac audio read succesfull");
+	}
 	return val;
 }
 
@@ -562,7 +584,20 @@ bool AudioControlSGTL5000::write(unsigned int reg, unsigned int val)
 	Wire2.write(reg);
 	Wire2.write(val >> 8);
 	Wire2.write(val);
-	if (Wire2.endTransmission() == 0) return true;
+	if (Wire2.endTransmission() == 0)
+	{
+		if(hardwareTest)
+		{
+			Serial.println("Codac audio write succesfull");
+			mtPrint("Codac audio write succesfull");
+		}
+		return true;
+	}
+	if(hardwareTest)
+	{
+		Serial.println("Codac audio write error");
+		mtPrint("Codac audio write succesfull");
+	}
 	return false;
 }
 

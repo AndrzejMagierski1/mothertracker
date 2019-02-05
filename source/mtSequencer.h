@@ -136,7 +136,58 @@ public:
 	const int8_t MAX_TEMPO_DIV = 3;
 	static const int8_t TEMPODIV_1_1 = 0;
 
+	struct strFxConsts
+	{
+		enum
+		{
+			FX_TYPE_NONE,
+			FX_TYPE_OFFSET,             // 	przesuniecie wewnątrz stepa 0-48
+			FX_TYPE_GLIDE,	// 	czas płynnego przejścia do kolejnej nuty/pitcha
+			FX_TYPE_SLIDE,	            // 	podciągnięcie do nuty w czasie
+			FX_TYPE_ARP_UP,	            // 	arpeggio w górę
+			FX_TYPE_ARP_DOWN,			//
+			FX_TYPE_SP,		            //	start point
+			FX_TYPE_LP1,		        // 	loop point 1
+			FX_TYPE_LP2,		        //	loop point 2
+			FX_TYPE_MICROTUNE,
+			FX_TYPE_SAMPLE_PLAYMODE,
+			FX_TYPE_JUMP_TO_STEP,
+			FX_TYPE_JUMP_TO_PATTERN,
+			FX_TYPE_PANNING,
+			FX_TYPE_PANNING_ROLL,
+			FX_TYPE_SLICE_NUMBER,
+			FX_TYPE_PROBABILITY,
+
+		};
+		enum
+		{
+			FX_VAL_TYPE_UNKNOWN,		        // unsigned 16
+			FX_VAL_TYPE_U16,	// unsigned 16
+			FX_VAL_TYPE_I16,	// signed 16
+			FX_VAL_TYPE_U8_U8,	// uint8 i uint8
+			FX_VAL_TYPE_I8_I8,	// int8 i int8
+			FX_VAL_TYPE_R8_I8,	// roll(int8) i int8
+		};
+
+		enum
+		{
+			ROLL_TYPE_NONE,
+			ROLL_TYPE_4_1,
+			ROLL_TYPE_3_1,
+			ROLL_TYPE_2_1,
+			ROLL_TYPE_1_1,
+			ROLL_TYPE_1_2,
+			ROLL_TYPE_1_3,
+			ROLL_TYPE_1_4,
+			ROLL_TYPE_1_8,
+			ROLL_TYPE_1_16,
+			ROLL_TYPE_MAX = ROLL_TYPE_1_16
+		};
+
+	} fx;
+
 	// KONIEC STAŁYCH
+
 
 	struct strBank
 	{
@@ -450,57 +501,6 @@ public:
 
 public:
 
-	struct strFxConsts
-	{
-		enum
-		{
-			FX_TYPE_NONE,
-			FX_TYPE_OFFSET,             // 	przesuniecie wewnątrz stepa 0-48
-			FX_TYPE_GLIDE,	// 	czas płynnego przejścia do kolejnej nuty/pitcha
-			FX_TYPE_SLIDE,	            // 	podciągnięcie do nuty w czasie
-			FX_TYPE_ARP_UP,	            // 	arpeggio w górę
-			FX_TYPE_ARP_DOWN,			//
-			FX_TYPE_SP,		            //	start point
-			FX_TYPE_LP1,		        // 	loop point 1
-			FX_TYPE_LP2,		        //	loop point 2
-			FX_TYPE_MICROTUNE,
-			FX_TYPE_SAMPLE_PLAYMODE,
-			FX_TYPE_VOL_ROLL,
-			FX_TYPE_JUMP_TO_STEP,
-			FX_TYPE_JUMP_TO_PATTERN,
-			FX_TYPE_PANNING,
-			FX_TYPE_PANNING_ROLL,
-			FX_TYPE_SLICE_NUMBER,
-			FX_TYPE_PROBABILITY,
-
-		};
-		enum
-		{
-			FX_VAL_TYPE_UNKNOWN,		        // unsigned 16
-			FX_VAL_TYPE_U16,	// unsigned 16
-			FX_VAL_TYPE_I16,	// signed 16
-			FX_VAL_TYPE_U8_U8,	// uint8 i uint8
-			FX_VAL_TYPE_I8_I8,	// int8 i int8
-			FX_VAL_TYPE_R8_I8,	// roll(int8) i int8
-		};
-
-		enum
-		{
-			ROLL_TYPE_NONE,
-			ROLL_TYPE_4_1,
-			ROLL_TYPE_3_1,
-			ROLL_TYPE_2_1,
-			ROLL_TYPE_1_1,
-			ROLL_TYPE_1_2,
-			ROLL_TYPE_1_3,
-			ROLL_TYPE_1_4,
-			ROLL_TYPE_1_8,
-			ROLL_TYPE_1_16,
-			ROLL_TYPE_MAX = ROLL_TYPE_1_16
-		};
-
-	} fx;
-
 	// klasowe
 	void handle();
 	void init();
@@ -509,6 +509,8 @@ public:
 	// sekwencerowe
 
 	strBank const * pattern = &seq[0];
+
+	strPlayer const * ptrPlayer = &player;
 
 	void play(void);
 	void rec(void);

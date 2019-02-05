@@ -90,6 +90,7 @@ uint8_t PWM = 0;
 // ------------------- MCU specific initialisation  ----------------------------
 void FT812_Init(void)
 {
+	uint32_t timeout=0;
 
     pinMode(CS, OUTPUT);
     pinMode(PD, OUTPUT);
@@ -125,12 +126,31 @@ void FT812_Init(void)
 
     while (EVE_MemRead8(REG_ID) != 0x7C)                                        // Read REG_ID register until reads 0x7C
     {
+    	timeout++;
+    	if(timeout>=0xFFFF)
+    	{
+    		if(hardwareTest)
+    		{
+    			 Serial.println("Display init error");
+    		}
+    		break;
+    	}
     }
-
+    if(timeout >= 0xFFFF) return;
+    timeout=0;
     while (EVE_MemRead8(REG_CPURESET) != 0x00)                                  // Ensure CPUreset register reads 0 and so FT8xx is ready
     {
+    	timeout++;
+    	if(timeout>=0xFFFF)
+    	{
+    		if(hardwareTest)
+    		{
+    			 Serial.println("Display init error");
+    		}
+    		break;
+    	}
     }
-
+    if(timeout >= 0xFFFF) return;
     // ---------------- Configure the GPIO and PWM  --------------------
 
     EVE_MemWrite8(REG_PWM_DUTY, 0);                                             // Backlight off
@@ -235,6 +255,11 @@ void FT812_Init(void)
 
 //TODO // TOUCH
     EVE_MemWrite16( REG_CTOUCH_EXTENDED, CTOUCH_MODE_EXTENDED);
+
+	if(hardwareTest)
+	{
+		 Serial.println("Display init succesfull");
+	}
 }
 
 // ########################### GPIO CONTROL ####################################
