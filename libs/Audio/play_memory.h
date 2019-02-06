@@ -46,9 +46,10 @@ public:
 	void setPlayMode(uint8_t value); //global
 	void setLP1(uint16_t value); //global
 	void setLP2(uint16_t value); //global
-	void setGlide(uint16_t value, int8_t currentNote); // global
+	void setGlide(uint16_t value, int8_t currentNote,uint8_t instr_idx); // global
 	void setPitch(float value); // incremental
-	void setSlide(uint16_t value, int8_t currentNote, int8_t slideNote);//incremental
+	void setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx);//incremental
+	void setFineTune(int8_t value, int8_t currentNote);
 
 private:
 	int16_t *next;
@@ -66,6 +67,8 @@ private:
 	uint32_t slideCounter=0;
 	float glideControl;
 	float slideControl;
+	float fineTuneControl;
+	int8_t currentTune;
 
 
 	struct strSamplePoints

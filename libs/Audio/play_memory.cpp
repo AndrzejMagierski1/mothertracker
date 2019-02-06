@@ -44,9 +44,10 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	/*=========================================================================================================================*/
 	/*========================================PRZEPISANIE WARTOSCI STEP========================================================*/
 	glide=mtProject.instrument[instr_idx].glide;
+	currentTune=mtProject.instrument[instr_idx].tune;
 
-	if(lastNote>=0) pitchControl=notes[lastNote];
-	else pitchControl=notes[note];
+	if(lastNote>=0) pitchControl=notes[lastNote + mtProject.instrument[instr_idx].tune];
+	else pitchControl=notes[note+ mtProject.instrument[instr_idx].tune];
 
 	int16_t * data = mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].address;
 
@@ -77,8 +78,28 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	}
 	/*=========================================================================================================================*/
 	/*====================================================PRZELICZENIA=========================================================*/
+	if(mtProject.instrument[instr_idx].fineTune >= 0)
+	{
+		if((note + mtProject.instrument[instr_idx].tune + 1) <= MAX_NOTE)
+		{
+			fineTuneControl= mtProject.instrument[instr_idx].fineTune * ((notes[note + currentTune + 1] - notes[note + currentTune]) /MAX_FINETUNE);
+		}
+		else fineTuneControl=0;
+	}
+	else
+	{
+		if((note + mtProject.instrument[instr_idx].tune - 1) >= MIN_NOTE)
+		{
+			fineTuneControl= (0 - mtProject.instrument[instr_idx].fineTune) * ((notes[note + currentTune - 1] - notes[note + currentTune] )/MAX_FINETUNE);
+		}
+		else fineTuneControl=0;
+	}
+
+	pitchControl+=fineTuneControl;
+
+
 	sampleConstrains.glide=(uint32_t)(glide*44.1);
-	if((lastNote>=0) && (lastNote != note)) glideControl=(notes[note]-notes[lastNote] )/sampleConstrains.glide;
+	if((lastNote>=0) && (lastNote != note)) glideControl=(notes[note + currentTune]-notes[lastNote + currentTune] )/sampleConstrains.glide;
 	else glideControl=0;
 
 	lastNote=note;
@@ -323,20 +344,20 @@ void AudioPlayMemory::setLP2(uint16_t value)
 	}
 }
 
-void AudioPlayMemory::setGlide(uint16_t value, int8_t currentNote)
+void AudioPlayMemory::setGlide(uint16_t value, int8_t currentNote, uint8_t instr_idx)
 {
 	sampleConstrains.glide=(uint32_t)(value*44.1);
-	if((lastNote>=0) && (lastNote != currentNote)) glideControl=(notes[currentNote] - notes[lastNote] )/sampleConstrains.glide;
+	if((lastNote>=0) && (lastNote != currentNote)) glideControl=(notes[currentNote + mtProject.instrument[instr_idx].tune] - notes[lastNote + mtProject.instrument[instr_idx].tune] )/sampleConstrains.glide;
 	else glideControl=0;
 
 }
 
-void AudioPlayMemory::setSlide(uint16_t value, int8_t currentNote, int8_t slideNote)
+void AudioPlayMemory::setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx)
 {
 	pitchControl-=(slideControl * slideCounter);
 	slideCounter=0;
 	sampleConstrains.slide =(uint32_t)(value*44.1);
-	if((slideNote>=0) && (slideNote != currentNote)) slideControl=(notes[slideNote] - notes[currentNote] )/sampleConstrains.slide;
+	if((slideNote>=0) && (slideNote != currentNote)) slideControl=(notes[slideNote + mtProject.instrument[instr_idx].tune] - notes[currentNote] )/sampleConstrains.slide;
 	else slideControl=0;
 
 }
@@ -346,6 +367,29 @@ void AudioPlayMemory::setPitch(float value)
 	if(value) pitchControl+=value;
 	if(pitchControl < MIN_PITCH) pitchControl=MIN_PITCH;
 	if(pitchControl > MAX_PITCH ) pitchControl=MAX_PITCH;
+}
+
+void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
+{
+	pitchControl-=fineTuneControl;
+	if(value >= 0)
+	{
+		if((currentNote + currentTune + 1) <= MAX_NOTE)
+		{
+			fineTuneControl= value * ((notes[currentNote + currentTune + 1] - notes[currentNote + currentTune]) /MAX_FINETUNE);
+		}
+		else fineTuneControl=0;
+	}
+	else
+	{
+		if((currentNote + currentTune - 1) >= MIN_NOTE)
+		{
+			fineTuneControl= (0-value) * ((notes[currentNote + currentTune - 1] - notes[currentNote + currentTune]) /MAX_FINETUNE);
+		}
+		else fineTuneControl=0;
+	}
+
+	pitchControl+=fineTuneControl;
 }
 
 

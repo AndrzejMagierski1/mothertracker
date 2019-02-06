@@ -19,7 +19,8 @@ const uint8_t  SAMPLES_FILENAME_LENGTH_MAX =    32;
 const uint8_t SAMPLE_POINT_POS_MIN =            0;
 const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
 
-const uint8_t NUMBER_OF_NOTES =					48;
+const  int8_t MAX_NOTE =						48;
+const  int8_t MIN_NOTE =						0;
 
 const uint8_t INSTRUMEN_ENVELOPES_MAX 		=	3;
 
@@ -54,7 +55,7 @@ const uint8_t MAX_MOD =							5;
 const float MAX_CUTOFF =						1.0;
 const float MIN_CUTOFF =						0.0;
 
-
+const uint8_t MAX_FINETUNE =					100;
 //=====================================================================
 //=====================================================================
 //=====================================================================
@@ -216,24 +217,24 @@ struct strInstrument
 
     char name[4];
 
-
     uint8_t  playMode;
     uint16_t startPoint;
     uint16_t loopPoint1;
     uint16_t loopPoint2;
     uint16_t endPoint;
 
-
 	envelopeGenerator::strEnv envelope[3];
 	LFO::strLfo lfo[3];
-
 
 	float cutOff;
 	float resonance;
 	uint8_t filterType;
 	uint8_t filterEnable;
 
-    float pitch;
+    int8_t tune;
+    int8_t fineTune;
+
+    uint8_t volume;
 
     uint16_t glide;
     int16_t panning;
@@ -298,7 +299,7 @@ extern strPatern mtPatern;
 
 
 
-const float notes[NUMBER_OF_NOTES] =
+const float notes[MAX_NOTE] =
 {
 		0.2500, //c0
 		0.2649,

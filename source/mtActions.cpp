@@ -121,11 +121,15 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].resonance=0.7;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].filterType=highPass;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].filterEnable=filterOn;
+		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].tune=-20;
+		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].fineTune=0;
 
 
 		if(!n)
 		{
-			if(value)instrumentPlayer[4].modSlide(5000,24);
+			if(value)instrumentPlayer[4].modFineTune(50);
+			else instrumentPlayer[4].modFineTune(0);
+
 		}
 		else
 		{
