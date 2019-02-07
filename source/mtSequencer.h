@@ -506,6 +506,7 @@ public:
 	strPlayer const * ptrPlayer = &player;
 
 	void play(void);
+	void pause(void);
 	void rec(void);
 	void stop(void);
 

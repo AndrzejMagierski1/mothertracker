@@ -421,24 +421,26 @@ void Sequencer::play(void)
 
 }
 
+void Sequencer::pause(void)
+{
+	player.isPlay = 0;
+	send_allNotesOff();
+}
+
 void Sequencer::send_allNotesOff(void)
 {
-//	for (uint8_t row = 1; row <= MAXROW; row++)
-//	{
-//		midiSendCC( seq[player.ramBank].row[row].channel,
-//		            CC_ALL_NOTES_OFF,
-//		            CC_VAL_NOTES_OFF,
-//		            seq[player.ramBank].row[row].midiOut);
-//	}
+
+	for (uint8_t row = MINROW; row <= MAXROW; row++)
+	{
+		strPlayer::strPlayerTrack & playerRow = player.row[row];
+		if (playerRow.stepOpen) sendNoteOff(row, &playerRow.stepSent);
+	}
 }
 
 void Sequencer::stop(void)
 {
 
-	if (player.isStop)
-	{
-		send_allNotesOff();
-	}
+	send_allNotesOff();
 
 //	send_stop();
 
