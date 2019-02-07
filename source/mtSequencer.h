@@ -429,6 +429,7 @@ private:
 		uint16_t metronome_timer_max = 48 * 4;
 		uint16_t rec_intro_step = 0;
 		uint16_t rec_intro_timer = 0;
+
 		uint16_t rec_intro_timer_max = 48 * 4;
 		uint16_t uStep = 0;
 		uint8_t actualBank = 0;
@@ -439,23 +440,17 @@ private:
 
 		struct strPlayerTrack
 		{
-
 			strBank::strTrack::strStep stepSent;
-			uint16_t uStep = 0;
-			uint16_t note_length_timer = 1;	// tu odliczamy ile zostalo microstepów
-											// do zakonczenia nuty
+			bool stepOpen = 0;		// znacznik czy została wysłana nuta
 
-			uint8_t noteOn_sent = 0;		// znacznik czy została wysłana nuta
+			uint16_t uStep = 0;		// aktualny microstep
+			int8_t actual_pos = 0;	// aktualna pozycja w stepach
+			uint16_t stepTimer = 1;	// tu odliczamy ile zostalo microstepów
 
-			uint8_t rollLength = 0;		// tu wrzucamy długość rolki w stepach
-										// zerujemy kiedy wpadnie inny step
+			bool pingPongToogle = 0;
+									// do zakonczenia stepa
 
-			uint8_t rollStep = 0;		// step który jest rollowany
-			uint16_t rollCounter = 0;		// licznik wykonanych hitów
-
-			uint8_t lastMod = 0;			// ostatnio wyslany parametr
-
-			int8_t actual_pos = 0;
+//			uint8_t lastMod = 0;			// ostatnio wyslany parametr
 
 			uint8_t return2start = 0;// po zakonczonym stepie wraca do pocatku
 			uint8_t makeJump = 0;// flaga przeskoku do odpowiedniego patternu po odegraniu stepu
@@ -467,11 +462,10 @@ private:
 			uint8_t recChannel = 0;
 			uint8_t recNoteStep = 0;
 
-			int8_t lastRollNote = 0;
+//			int8_t lastRollNote = 0;
 
-			bool pingPongToogle = 0;
 
-			uint8_t learned = 0;
+//			uint8_t learned = 0;
 
 			bool divChange = 0;
 			bool divChangeIncr = 0;

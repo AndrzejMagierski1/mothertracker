@@ -24,7 +24,8 @@ void setup()
 
 
 
-//	Serial.println(sequencer.pattern->track[]);
+
+	Serial.println(sequencer.ptrPlayer->row[0].actual_pos);
 
 
 
