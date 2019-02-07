@@ -480,9 +480,9 @@ private:
 				uint8_t isMoving = 0;	// jest przemieszczany
 				uint8_t isBlinking = 0;	// jest podświetlany jako ruch
 
-			} step[33];
+			} step[MAXSTEP+1];
 
-		} row[9];
+		} row[MAXROW+1];
 
 	} player;
 
