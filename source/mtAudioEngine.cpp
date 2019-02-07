@@ -189,7 +189,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 
 		/*======================================================================================================*/
 		/*==================================================GAIN================================================*/
-		ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount * mtProject.instrument[instr_idx].volume);
+		ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100));
 		/*======================================================================================================*/
 		/*===============================================PANNING================================================*/
 
@@ -299,6 +299,11 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		}
 	}
 
+	void playerEngine :: modWavetableWindow(uint16_t value)
+	{
+		playMemPtr->setWavetableWindow(value);
+	}
+
 /*	void playerEngine:: resetMods(void)
 	{
 		for(uint8_t i=0;i<MAX_TARGET;i++)
@@ -337,7 +342,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		}
 		filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff + filterMod);
 
-		ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
+		ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100));
 
 	}
 

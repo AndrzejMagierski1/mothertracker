@@ -56,6 +56,8 @@ const float MAX_CUTOFF =						1.0;
 const float MIN_CUTOFF =						0.0;
 
 const uint8_t MAX_FINETUNE =					100;
+
+const uint8_t MAX_WAVETABLE_WINDOW =			255;
 //=====================================================================
 //=====================================================================
 //=====================================================================
@@ -76,6 +78,7 @@ enum playMode
 	loopForward,
 	loopBackward,
 	loopPingPong,
+	wavetable,
 
 	playModeMax
 };
@@ -222,6 +225,9 @@ struct strInstrument
     uint16_t loopPoint1;
     uint16_t loopPoint2;
     uint16_t endPoint;
+
+    uint16_t wavetableWindowSize;
+    uint16_t wavetableCurrentWindow;
 
 	envelopeGenerator::strEnv envelope[3];
 	LFO::strLfo lfo[3];

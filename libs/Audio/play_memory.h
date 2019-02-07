@@ -50,6 +50,7 @@ public:
 	void setPitch(float value); // incremental
 	void setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx);//incremental
 	void setFineTune(int8_t value, int8_t currentNote);
+	void setWavetableWindow(uint16_t value);
 
 private:
 	int16_t *next;
@@ -69,6 +70,9 @@ private:
 	float slideControl;
 	float fineTuneControl;
 	int8_t currentTune;
+	uint16_t wavetableWindowSize;
+	uint16_t currentWindow;
+	uint32_t waveTablePosition;
 
 
 	struct strSamplePoints

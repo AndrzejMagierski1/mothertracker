@@ -53,6 +53,8 @@ public:
 	void modLP2(uint16_t value);
 	void modCutoff(uint16_t value);
 	void modResonance(uint16_t value);
+
+	void modWavetableWindow(uint16_t value);
 //	void resetMods();
 
 	void update();

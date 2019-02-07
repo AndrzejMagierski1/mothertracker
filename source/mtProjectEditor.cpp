@@ -65,7 +65,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// pod jaki index tablicy sampli 0-32 zapisywac dany sampel
 	// teraz domyslnie zajmowane 0-7
 
-	mtProject.sampleBank.sample[0].file_name[0] = '1';
+	mtProject.sampleBank.sample[0].file_name[0] = '7';
 	mtProject.sampleBank.sample[0].file_name[1] = '.';
 	mtProject.sampleBank.sample[0].file_name[2] = 'w';
 	mtProject.sampleBank.sample[0].file_name[3] = 'a';
@@ -73,35 +73,35 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	mtProject.sampleBank.sample[0].file_name[5] = 0;
 
 
-	mtProject.sampleBank.sample[1].file_name[0] = '2';
+	mtProject.sampleBank.sample[1].file_name[0] = '7';
 	mtProject.sampleBank.sample[1].file_name[1] = '.';
 	mtProject.sampleBank.sample[1].file_name[2] = 'w';
 	mtProject.sampleBank.sample[1].file_name[3] = 'a';
 	mtProject.sampleBank.sample[1].file_name[4] = 'v';
 	mtProject.sampleBank.sample[1].file_name[5] = 0;
 
-	mtProject.sampleBank.sample[2].file_name[0] = '3';
+	mtProject.sampleBank.sample[2].file_name[0] = '7';
 	mtProject.sampleBank.sample[2].file_name[1] = '.';
 	mtProject.sampleBank.sample[2].file_name[2] = 'w';
 	mtProject.sampleBank.sample[2].file_name[3] = 'a';
 	mtProject.sampleBank.sample[2].file_name[4] = 'v';
 	mtProject.sampleBank.sample[2].file_name[5] = 0;
 
-	mtProject.sampleBank.sample[3].file_name[0] = '4';
+	mtProject.sampleBank.sample[3].file_name[0] = '7';
 	mtProject.sampleBank.sample[3].file_name[1] = '.';
 	mtProject.sampleBank.sample[3].file_name[2] = 'w';
 	mtProject.sampleBank.sample[3].file_name[3] = 'a';
 	mtProject.sampleBank.sample[3].file_name[4] = 'v';
 	mtProject.sampleBank.sample[3].file_name[5] = 0;
 
-	mtProject.sampleBank.sample[4].file_name[0] = '5';
+	mtProject.sampleBank.sample[4].file_name[0] = '7';
 	mtProject.sampleBank.sample[4].file_name[1] = '.';
 	mtProject.sampleBank.sample[4].file_name[2] = 'w';
 	mtProject.sampleBank.sample[4].file_name[3] = 'a';
 	mtProject.sampleBank.sample[4].file_name[4] = 'v';
 	mtProject.sampleBank.sample[4].file_name[5] = 0;
 
-	mtProject.sampleBank.sample[5].file_name[0] = '6';
+	mtProject.sampleBank.sample[5].file_name[0] = '7';
 	mtProject.sampleBank.sample[5].file_name[1] = '.';
 	mtProject.sampleBank.sample[5].file_name[2] = 'w';
 	mtProject.sampleBank.sample[5].file_name[3] = 'a';
@@ -412,8 +412,15 @@ int32_t loadSdWavToMemory(const char *filename, int16_t * buf)
 	wavfile.close();
 
 //	*bufStart = (accBufferLength/4);
+	if(sampleHead.numChannels == 1)
+	{
+		accBufferLength = accBufferLength/2;
+	}
+	else if(sampleHead.numChannels == 2)
+	{
+		accBufferLength = accBufferLength/4;
+	}
 
-	accBufferLength = accBufferLength/4;
 
 /*
  	if(sampleLength != accBufferLength)
