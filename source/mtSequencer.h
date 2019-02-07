@@ -416,6 +416,7 @@ private:
 
 	struct strPlayer
 	{
+		bool printNotes = 0;
 		bool changeBank = 0;
 		bool isPlay = 0;
 		bool isREC = 0;
@@ -448,7 +449,7 @@ private:
 			uint16_t stepTimer = 1;	// tu odliczamy ile zostalo microstepów
 
 			bool pingPongToogle = 0;
-									// do zakonczenia stepa
+			// do zakonczenia stepa
 
 //			uint8_t lastMod = 0;			// ostatnio wyslany parametr
 
@@ -463,7 +464,6 @@ private:
 			uint8_t recNoteStep = 0;
 
 //			int8_t lastRollNote = 0;
-
 
 //			uint8_t learned = 0;
 
@@ -498,6 +498,11 @@ public:
 	void handle();
 	void init();
 	void loadDefaultSequence(void);
+	void printNotes(bool val);
+	void printNotes(void)
+	{
+		player.printNotes = !player.printNotes;
+	}
 
 	// sekwencerowe
 

@@ -1277,23 +1277,34 @@ uint8_t Sequencer::get_fxValType(uint8_t fxType)
 
 void Sequencer::sendNoteOn(uint8_t track, strBank::strTrack::strStep *step)
 {
-	Serial.printf("track %d\nnoteOn:\t%d\nvelo:\t%d\ninstr:\t%d\n\n",
-					track,
-					step->note,
-					step->velocity,
-					step->instrument);
+	if (player.printNotes)
+	{
+		Serial.printf("track %d\nnoteOn:\t%d\nvelo:\t%d\ninstr:\t%d\n\n",
+						track,
+						step->note,
+						step->velocity,
+						step->instrument);
+	}
 
 	usbMIDI.sendNoteOn(step->note, step->velocity, 1);
 
 }
 void Sequencer::sendNoteOff(uint8_t track, strBank::strTrack::strStep *step)
 {
-	Serial.printf("\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
-					track,
-					step->note,
-					step->velocity,
-					step->instrument);
-
+	if (player.printNotes)
+	{
+		Serial.printf(
+				"\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
+				track,
+				step->note,
+				step->velocity,
+				step->instrument);
+	}
 	usbMIDI.sendNoteOff(step->note, 0, 1);
+}
+
+void Sequencer::printNotes(bool val)
+{
+	player.printNotes = val;
 }
 
