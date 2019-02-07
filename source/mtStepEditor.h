@@ -11,9 +11,12 @@
 
 enum enumMtStepEditorButtonFunction
 {
-	mtStepEditorButtonFunctionNone,
-	mtStepEditorButtonFunctionPlay,
-	mtStepEditorButtonFunctionStop,
+	mtStepEditButtonFunctNone,
+	mtStepEditButtonFunctPlay,
+	mtStepEditButtonFunctStop,
+	mtStepEditButtonFunctChangeStepParamsSel,
+	mtStepEditButtonFunctShowNextStepParams,
+
 
 
 	//-------------------------------
@@ -22,12 +25,13 @@ enum enumMtStepEditorButtonFunction
 
 enum enumMtStepEditorPotFunction
 {
-	mtStepEditorPotFunctionNone,
-	mtStepEditorPotFunctionStepParams,
-	mtStepEditorPotFunctionStepFx1,
-	mtStepEditorPotFunctionStepFx2,
-	mtStepEditorPotFunctionStepFx3,
-	mtStepEditorPotFunctionStepFx4,
+	mtStepEditPotFunctNone,
+	mtStepEditPotFunctChangeStepInstrument,
+	mtStepEditPotFunctChangeStepNote,
+	mtStepEditPotFunctChangeStepLength,
+	mtStepEditPotFunctChangeStepVolume,
+	mtStepEditPotFunctChangeSeqPosition,
+
 
 
 	//-------------------------------
@@ -64,12 +68,41 @@ const uint16_t stepEditorPotsFuncRes[mtStepEditorPotFunctionCount] =
 };
 
 
-const char cddcvyjkhLabels[4][20]=
+const char stepParamsLabels[4][20]=
 {
-		"1-Shot",
-		"Forward Loop",
-		"Backward Loop",
-		"Pingpong Loop",
+		"Inst:",
+		"Note:",
+		"Length:",
+		"Volume:",
+};
+
+
+const char stepFxLabels[3][20]=
+{
+		"Fx:",
+		"Value1:",
+		"Value2:",
+};
+
+const char stepEditStepFxNames[17][20]=
+{
+	"---",			//FX_TYPE_NONE,
+	"Offset",			//FX_TYPE_OFFSET,
+	"Glide",			//FX_TYPE_GLIDE,	// 	czas p
+	"Slide",			//FX_TYPE_SLIDE,
+	"Arp up",			//FX_TYPE_ARP_UP,
+	"Arp dwn",			//FX_TYPE_ARP_DOWN,
+	"SP",			//FX_TYPE_SP,
+	"LP1",			//FX_TYPE_LP1,
+	"LP2",			//FX_TYPE_LP2,
+	"uTune",			//FX_TYPE_MICROTUNE,
+	"Play mode",			//FX_TYPE_SAMPLE_PLAYMODE,
+	"Jump step",			//FX_TYPE_JUMP_TO_STEP,
+	"Jump patt",			//FX_TYPE_JUMP_TO_PATTERN,
+	"Panning",			//FX_TYPE_PANNING,
+	"Roll Pan",			//FX_TYPE_PANNING_ROLL,
+	"Slice",			//FX_TYPE_SLICE_NUMBER,
+	"Probability"			//FX_TYPE_PROBABILITY,
 };
 
 
@@ -93,6 +126,9 @@ public:
 private:
 
 	void processLabels();
+	void processStepParameters();
+
+
 
 	void setButtonLabel(uint8_t number, char * label);
 	void updateButtonsFunctions();
@@ -104,14 +140,39 @@ private:
 
 	void (*eventFunct)(uint8_t, void*, void*, void*);
 
+	// aktulane wybrane parametry do edycji
+	uint8_t actualTrackTableSelection[5];
+
+	// parametry stepa
+	strMtDispTrackTable trackTable;
+	char fx1ActualNames[5][20];
+	char fx2ActualNames[5][20];
+	char fx3ActualNames[5][20];
+	char fx4ActualNames[5][20];
+
+	uint8_t getFxNameFromType(uint8_t fxType, char* ptrName);
+//	uint8_t mtInstrumentEditorValuesTypes[mtInstrumentEditorPotValueCount] =
+//	{
+//		mtDispValueValueNone,
+//		mtDispValueMultiValue4Row,
+//		mtDispValueMultiValue3Row,
+//		mtDispValueMultiValue3Row,
+//		mtDispValueMultiValue3Row,
+//		mtDispValueMultiValue3Row
+//	};
+//
 
 	//funkcje przyciskow
-
 	void play(uint8_t value);
 	void stop(uint8_t value);
-
+	void changeStepParamsSelection(uint8_t value);
+	void showNextStepParams(uint8_t value);
 
 	//funkcje potow
+	void changeActualStepInstrument();
+	void changeActualStepNote();
+	void changeActualStepLength();
+	void changeActualStepVeleocity();
 
 
 
@@ -127,7 +188,7 @@ private:
 
 
 	uint8_t labelsChanged;
-
+	uint8_t stepParametersChanged;
 
 
 
@@ -149,6 +210,9 @@ private:
 		{0},
 		"Play",
 		"Stop",
+		"<  >",
+
+
 
 	};
 
@@ -159,7 +223,7 @@ private:
 	char mtStepEditorPotsLabels[mtStepEditorPotFunctionCount][20] =
 	{
 		{0},
-		"Params",
+		"Inst Note Len Vol",
 		"Fx1",
 		"Fx2",
 		"Fx3",

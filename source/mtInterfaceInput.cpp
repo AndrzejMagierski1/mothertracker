@@ -66,6 +66,14 @@ void cMtInterface::padPressed(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 //=======================================================================
 void cMtInterface::padReleased(uint8_t n)
 {
+	switch(onScreenModule)
+	{
+		case mtModuleProjectEditor:		mtProjectEditor.padsChange(0,n,0);		break;
+		case mtModuleInstrumentEditor:	mtInstrumentEditor.padsChange(0,n,0);	break;
+		case mtModuleStepEditor:		mtStepEditor.padsChange(0,n,0);			break;
+
+		default : break;
+	}
 
 
 }

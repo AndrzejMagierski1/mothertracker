@@ -4,6 +4,7 @@
 #include "sdram.h"
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
+#include "mtSequencer.h"
 
 #include "mtStepEditor.h"
 
@@ -26,6 +27,7 @@ void cMtStepEditor::update()
 	{
 		stepEditorModeStart = 0;
 		labelsChanged = 2;
+		stepParametersChanged = 2;
 
 		updateButtonsFunctions();
 		updatePotsFunctions();
@@ -42,12 +44,23 @@ void cMtStepEditor::update()
 		}
 
 		labelsChanged = 0;
-
 		processLabels();
-
-		//mtDisplay.setInstrumentEditorPotsLabels();
-		//mtDisplay.setInstrumentEditorButtonsLabels();
 	}
+	if(stepParametersChanged)
+	{
+		if(stepParametersChanged == 2)
+		{
+			updateButtonsFunctions();
+			updatePotsFunctions();
+			mtDisplay.setTrackTable(1);
+		}
+
+		stepParametersChanged = 0;
+		processStepParameters();
+
+		mtDisplay.changeTrackTable(&trackTable);
+	}
+
 	//-----------------------------------------------------
 
 
@@ -60,10 +73,17 @@ void cMtStepEditor::showStep(uint8_t track, uint8_t step)
 	refreshStepEditor = 1;
 	actualTrack = track;
 	actualStep = step;
+
+//	mtPrint("track:");
+//	mtPrint(actualTrack);
+//	mtPrint("  step:");
+//	mtPrintln(actualstep);
 }
 
 void cMtStepEditor::stop()
 {
+	mtDisplay.setTrackTable(0);
+
 
 }
 //#########################################################################################################
@@ -81,6 +101,10 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
 		}
+		if(n == 0 || n == 2)
+		{
+			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+		}
 	}
 
 	return 0;
@@ -90,7 +114,11 @@ void cMtStepEditor::buttonChange(uint8_t button, uint8_t value)
 {
 	switch(buttonFunction[button])
 	{
-	case mtStepEditorButtonFunctionNone:		break;
+	case mtStepEditButtonFunctNone				:		break;
+	case mtStepEditButtonFunctPlay            	:		break;
+	case mtStepEditButtonFunctStop            	:		break;
+	case mtStepEditButtonFunctChangeStepParamsSel:	changeStepParamsSelection(value);	break;
+	case mtStepEditButtonFunctShowNextStepParams:	showNextStepParams(value);	break;
 
 
 
@@ -105,7 +133,7 @@ void cMtStepEditor::potChange(uint8_t pot, int16_t value)
 {
 	switch(potFunction[pot])
 	{
-		case mtStepEditorPotFunctionNone				: 	break;
+		case mtStepEditPotFunctNone				: 	break;
 
 
 		default: break;
@@ -116,8 +144,11 @@ void cMtStepEditor::potChange(uint8_t pot, int16_t value)
 
 void cMtStepEditor::seqButtonChange(uint8_t type, uint8_t x, uint8_t y)
 {
-
-
+	if(type == 1)
+	{
+		//if(y > 0)
+			showStep(x,y);
+	}
 
 }
 
@@ -125,7 +156,116 @@ void cMtStepEditor::seqButtonChange(uint8_t type, uint8_t x, uint8_t y)
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
-// spectrum processing
+
+void cMtStepEditor::processStepParameters()
+{
+	uint8_t track_length = sequencer.pattern->track[actualTrack].length;
+
+	for(uint8_t i = 0; i < 5; i++)
+	{
+		if((i == 0 && actualStep < 2) || (i == 1 && actualStep < 1)
+		|| (i == 3 && actualStep > track_length-3) || (i == 4 && actualStep > track_length-2))
+		{
+			trackTable.state[i] = 0;
+		}
+		else
+		{
+			trackTable.state[i] = 1;
+			trackTable.active[0] = actualTrackTableSelection[0];
+
+			trackTable.params[i].iVal1 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].instrument;
+			trackTable.params[i].iVal2 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].note;
+			trackTable.params[i].iVal3 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].length1;
+			trackTable.params[i].iVal4 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].velocity;
+
+			if(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[0].isOn == 0)
+			{
+				trackTable.fx1[i].mode = 0;
+				getFxNameFromType(0, &fx1ActualNames[i][0]);
+				trackTable.fx1[i].name = &fx1ActualNames[i][0];
+			}
+			else
+			{
+				trackTable.fx1[i].mode = getFxNameFromType(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[0].type, &fx1ActualNames[i][0]);
+				trackTable.fx1[i].name = &fx1ActualNames[i][0];
+				trackTable.active[1] = actualTrackTableSelection[1];
+
+				switch(trackTable.fx1[i].mode)
+				{
+
+
+				default: break;
+				}
+
+				//trackTable.fx1[i].cVal1 =
+				//trackTable.fx1[i].cVal2 =
+				//trackTable.fx1[i].iVal1 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[0].val1_i8;
+				//trackTable.fx1[i].iVal2 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[0].val2_i8;
+
+			}
+			//-------------------------------------------------------------------------------
+			if(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[1].isOn == 0)
+			{
+				trackTable.fx2[i].mode = 0;
+				getFxNameFromType(0, &fx2ActualNames[i][0]);
+				trackTable.fx2[i].name = &fx2ActualNames[i][0];
+			}
+			else
+			{
+				trackTable.fx2[i].mode = getFxNameFromType(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[1].type, &fx2ActualNames[i][0]);
+				trackTable.fx2[i].name = &fx2ActualNames[i][0];
+				trackTable.active[2] = actualTrackTableSelection[2];
+			}
+			//-------------------------------------------------------------------------------
+			if(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[2].isOn == 0)
+			{
+				trackTable.fx3[i].mode = 0;
+				getFxNameFromType(0, &fx3ActualNames[i][0]);
+				trackTable.fx3[i].name = &fx3ActualNames[i][0];
+			}
+			else
+			{
+				trackTable.fx3[i].mode = getFxNameFromType(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[2].type, &fx3ActualNames[i][0]);
+				trackTable.fx3[i].name = &fx3ActualNames[i][0];
+				trackTable.active[3] = actualTrackTableSelection[3];
+			}
+			//-------------------------------------------------------------------------------
+			if(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[3].isOn == 0)
+			{
+				trackTable.fx4[i].mode = 0;
+				getFxNameFromType(0, &fx4ActualNames[i][0]);
+				trackTable.fx4[i].name = &fx4ActualNames[i][0];
+			}
+			else
+			{
+				trackTable.fx4[i].mode = getFxNameFromType(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[3].type, &fx4ActualNames[i][0]);
+				trackTable.fx4[i].name = &fx4ActualNames[i][0];
+				trackTable.active[4] = actualTrackTableSelection[4];
+			}
+
+
+
+
+		}
+	}
+
+}
+
+uint8_t cMtStepEditor::getFxNameFromType(uint8_t fxType, char* ptrName)
+{
+
+	uint8_t i = 0;
+	ptrName[0] = 0;
+	while(stepEditStepFxNames[fxType][i] != 0 && i < 19)
+	{
+		ptrName[i] = stepEditStepFxNames[fxType][i];
+		i++;
+	}
+	ptrName[i] = 0;
+
+
+	return sequencer.get_fxValType(fxType);
+}
 
 
 void cMtStepEditor::processLabels()
@@ -171,22 +311,24 @@ void cMtStepEditor::setButtonLabel(uint8_t function, char* label)
 
 void cMtStepEditor::updateButtonsFunctions()
 {
-	setButtonFunction(0, mtStepEditorButtonFunctionNone);
-	setButtonFunction(1, mtStepEditorButtonFunctionNone);
-	setButtonFunction(2, mtStepEditorButtonFunctionNone);
-	setButtonFunction(3, mtStepEditorButtonFunctionNone);
-	setButtonFunction(4, mtStepEditorButtonFunctionNone);
+	setButtonFunction(0, mtStepEditButtonFunctNone);
+	setButtonFunction(1, mtStepEditButtonFunctNone);
+	setButtonFunction(2, mtStepEditButtonFunctNone);
+	setButtonFunction(3, mtStepEditButtonFunctNone);
+	setButtonFunction(4, mtStepEditButtonFunctNone);
 
-/*
-	if()
-	{
-		setButtonFunction(0, mtStepEditorButtonFunctionPlay);
-	}
-	else
-	{
 
-	}
+	setButtonFunction(0, mtStepEditButtonFunctChangeStepParamsSel);
+/*	setButtonFunction(1, mtStepEditButtonFunctChangeStepFx1);
+	setButtonFunction(2, mtStepEditButtonFunctChangeStepFx2);
+	setButtonFunction(3, mtStepEditButtonFunctChangeStepFx3);
 */
+	setButtonFunction(4, mtStepEditButtonFunctShowNextStepParams);
+
+
+
+
+
 
 
 	buttonLabels[0] = (char *)&mtStepEditorButtonsLabels[buttonFunction[0]][0];
@@ -227,20 +369,20 @@ void cMtStepEditor::setPotsLabel(uint8_t function, char* label)
 
 void cMtStepEditor::updatePotsFunctions()
 {
-	setPotFunction(0, mtStepEditorPotFunctionNone);
-	setPotFunction(1, mtStepEditorPotFunctionNone);
-	setPotFunction(2, mtStepEditorPotFunctionNone);
-	setPotFunction(3, mtStepEditorPotFunctionNone);
-	setPotFunction(4, mtStepEditorPotFunctionNone);
+	setPotFunction(0, mtStepEditPotFunctNone);
+	setPotFunction(1, mtStepEditPotFunctNone);
+	setPotFunction(2, mtStepEditPotFunctNone);
+	setPotFunction(3, mtStepEditPotFunctNone);
+	setPotFunction(4, mtStepEditPotFunctNone);
 
 
 
 
-	setPotFunction(0, mtStepEditorPotFunctionStepParams);
-	setPotFunction(1, mtStepEditorPotFunctionStepFx1);
-	setPotFunction(2, mtStepEditorPotFunctionStepFx2);
-	setPotFunction(3, mtStepEditorPotFunctionStepFx3);
-	setPotFunction(4, mtStepEditorPotFunctionStepFx4);
+	setPotFunction(0, mtStepEditPotFunctChangeStepInstrument);
+	setPotFunction(1, mtStepEditPotFunctChangeStepNote);
+	setPotFunction(2, mtStepEditPotFunctChangeStepLength);
+	setPotFunction(3, mtStepEditPotFunctChangeStepVolume);
+	setPotFunction(4, mtStepEditPotFunctChangeSeqPosition);
 
 
 
@@ -265,6 +407,23 @@ void cMtStepEditor::setPotFunction(uint8_t number, uint8_t function)
 //#########################################################################################################
 //#########################################################################################################
 // instrument modification
+
+void cMtStepEditor::changeStepParamsSelection(uint8_t value)
+{
+	if(value == 1)
+	{
+		actualTrackTableSelection[0]++;
+		if(actualTrackTableSelection[0] > 3) actualTrackTableSelection[0] = 0;
+
+		stepParametersChanged = 1;
+		refreshStepEditor = 1;
+	}
+}
+
+void cMtStepEditor::showNextStepParams(uint8_t value)
+{
+
+}
 
 
 void cMtStepEditor::play(uint8_t value)

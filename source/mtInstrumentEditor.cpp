@@ -235,6 +235,26 @@ void cMtInstrumentEditor::stop()
 //#########################################################################################################
 uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 {
+	if(type == 1)
+	{
+/*
+		if(n == 3)
+		{
+			stop();
+			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+		}
+*/
+	if(n == 2)
+	{
+		eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
+	}
+
+	}
+	if(n == 0)
+	{
+		play(type);
+	}
+
 
 	return 0;
 }
@@ -548,32 +568,32 @@ void cMtInstrumentEditor::processParameters()
 			case mtInstrumentEditorValueNone:
 			{
 				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueNone];
-				values.value[i] = 0;
+				values.value1[i] = 0;
 				break;
 			}
 			case mtInstrumentEditorValuePanning:
 			{
 				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValuePanning];
-				values.value[i] = editorInstrument->panning;
+				values.value1[i] = editorInstrument->panning;
 				break;
 			}
 			case mtInstrumentEditorValueGlide:
 			{
 				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueGlide];
-				values.value[i] =  (editorInstrument->glide*100)/GLIDE_MAX;
+				values.value1[i] =  (editorInstrument->glide*100)/GLIDE_MAX;
 				break;
 			}
 			case mtInstrumentEditorValueFilter:
 			{
 				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueFilter];
-				values.value[i] =  (editorInstrument->cutOff*100);
+				values.value1[i] =  (editorInstrument->cutOff*100);
 				break;
 			}
 			case mtInstrumentEditorValueResonance:
 			{
 				if(editorInstrument->resonance < RESONANCE_MIN) editorInstrument->resonance = RESONANCE_MIN;
 				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueResonance];
-				values.value[i] =  ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100;
+				values.value1[i] =  ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100;
 				break;
 			}
 			case mtInstrumentEditorValue2:
@@ -584,7 +604,7 @@ void cMtInstrumentEditor::processParameters()
 			default:
 			{
 				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueNone];
-				values.value[i] = 0;
+				values.value1[i] = 0;
 				break;
 			}
 		}
@@ -918,7 +938,6 @@ void cMtInstrumentEditor::changePlayMode(uint8_t value)
 		labelsChanged = 1;
 	}
 }
-
 
 void cMtInstrumentEditor::changePanning(uint8_t pot, int16_t value)
 {

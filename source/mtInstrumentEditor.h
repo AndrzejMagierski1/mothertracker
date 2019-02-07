@@ -74,6 +74,7 @@ enum enumMtInstrumentEditorValue
 enum enumMtInstrumentEditorEvents
 {
 	mtInstrumentEditorSeqButtonsPress,
+	mtInstrumentEditorEventPadPress,
 
 };
 
@@ -108,6 +109,7 @@ const char playModeFunctLabels[playModeMax][20]=
 		"Forward Loop",
 		"Backward Loop",
 		"Pingpong Loop",
+		//"Wavetable"
 };
 
 
@@ -233,8 +235,6 @@ private:
 	uint8_t parametersChanged;
 	uint8_t envelopesChanged;
 
-//	uint16_t viewStart = 0;
-//	uint16_t viewLength = MAX_16BIT;
 
 	uint16_t zoomWidth = MAX_16BIT;
 	int32_t zoomStart =  0;

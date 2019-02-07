@@ -68,7 +68,9 @@ public:
 	void setSpectrumPoints(uint8_t state);
 	void setList(uint8_t index, uint8_t block, uint8_t width, uint16_t start, char ** list, uint16_t count);
 	void setValue(uint8_t state);
+	void setMultiRowValue(uint8_t state);
 	void setEnvelopes(uint8_t state);
+	void setTrackTable(uint8_t state);
 
 	void changeButtonsLabels(char ** labels);
 	void changePotsLabels(char ** labels);
@@ -76,7 +78,9 @@ public:
 	void changeSpectrumPoints(strMtDispSpectrum *spectrum);
 	void changeList(uint8_t index, uint16_t position);
 	void changeValues(strMtDispValues * values);
+	void changeMultiRowValues(strMtDispMultiRowValues * values);
 	void changeEnvelopes(strMtDispEnvelope * envelope);
+	void changeTrackTable(strMtDispTrackTable * trackTable);
 
 	// print
 	void print(const char * s);
@@ -104,8 +108,10 @@ private:
 	void ramg_pots_labels();
 	void ramg_buttons_labels();
 	void ramg_values(uint8_t index);
+	void ramg_multi_row_values(uint8_t index);
 	void ramg_lists(uint8_t index);
 	void ramg_envelope();
+	void ramg_track_table();
 
 	// zmienne glowne
 	uint8_t screenMode = mtDisplayModeBlank;
@@ -138,12 +144,21 @@ private:
 	strMtDispValues lastValues;
 
 	//---------------------------------------------
+	// multi row values
+	strMtDispMultiRowValues * ptrMultiRowValues;
+	strMtDispMultiRowValues lastMultiRowValues;
+
+	//---------------------------------------------
 	// lists
 	cMtDisplayList lists[MT_DISP_LISTS_MAX];
 
 	//---------------------------------------------
-	//envelope
+	// envelope
 	strMtDispEnvelope * ptrEnvelope;
+
+	//---------------------------------------------
+	// trackTable
+	strMtDispTrackTable * ptrTrackTable;
 
 
 

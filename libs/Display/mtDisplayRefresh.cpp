@@ -46,6 +46,16 @@ void cMtDisplay::normalModeDisplayRefresh()
 		}
 	}
 	//-------------------------------------------------
+	for(uint8_t i = 0; i < MT_DISP_VALUES_MAX ; i++)
+	{
+		if(displayRefreshTable.multiRowValues[i])
+		{
+			displayRefreshTable.multiRowValues[i] = 0;
+			ramg_multi_row_values(i);
+			if(updateStep > 0) return;
+		}
+	}
+	//-------------------------------------------------
 	for(uint8_t i = 0; i < MT_DISP_LISTS_MAX ; i++)
 	{
 		if(displayRefreshTable.lists[i])
@@ -62,7 +72,13 @@ void cMtDisplay::normalModeDisplayRefresh()
 		ramg_envelope();
 		if(updateStep > 0) return;
 	}
-
+	//-------------------------------------------------
+	if(displayRefreshTable.trackTable)
+	{
+		displayRefreshTable.trackTable = 0;
+		ramg_track_table();
+		if(updateStep > 0) return;
+	}
 	//-------------------------------------------------
 	dl_load_normal_main();
 
@@ -102,6 +118,12 @@ void cMtDisplay::dl_load_normal_main()
 		if(elementsState.values[i]) API_CMD_APPEND(ramAddress.values[i], ramSize.values[i]);
 	}
 
+	// multi row values
+	for(uint8_t i = 0; i < MT_DISP_VALUES_MAX ; i++)
+	{
+		if(elementsState.multiRowValues[i]) API_CMD_APPEND(ramAddress.multiRowValues[i], ramSize.multiRowValues[i]);
+	}
+
 	// lists
 	for(uint8_t i = 0; i < MT_DISP_LISTS_MAX ; i++)
 	{
@@ -110,6 +132,10 @@ void cMtDisplay::dl_load_normal_main()
 
 	// envelope
 	if(elementsState.envelope) API_CMD_APPEND(ramAddress.envelope, ramSize.envelope);
+
+	// envelope
+	if(elementsState.trackTable) API_CMD_APPEND(ramAddress.trackTable, ramSize.trackTable);
+
 
 
 
@@ -167,7 +193,6 @@ void cMtDisplay::setList(uint8_t index, uint8_t block, uint8_t width, uint16_t s
 
 void cMtDisplay::setValue(uint8_t state)
 {
-
 	for(uint8_t i = 0; i < MT_DISP_VALUES_MAX; i++)
 	{
 		elementsState.values[i] = state;
@@ -177,13 +202,28 @@ void cMtDisplay::setValue(uint8_t state)
 	screenRefresh = 1;
 }
 
+void cMtDisplay::setMultiRowValue(uint8_t state)
+{
+	for(uint8_t i = 0; i < MT_DISP_VALUES_MAX; i++)
+	{
+		elementsState.multiRowValues[i] = state;
+		if(state == 1) displayRefreshTable.multiRowValues[i] = 1;
+	}
+
+	screenRefresh = 1;
+}
+
 void cMtDisplay::setEnvelopes(uint8_t state)
 {
-
 	elementsState.envelope = state;
 	screenRefresh = 1;
 }
 
+void cMtDisplay::setTrackTable(uint8_t state)
+{
+	elementsState.trackTable = state;
+	screenRefresh = 1;
+}
 
 //=============================================================
 
@@ -237,17 +277,38 @@ void cMtDisplay::changeValues(strMtDispValues * values)
 	{
 		if(ptrValues->type[i] > 0)
 		{
-			//elementsState.values[i] = 1;
-			if(lastValues.type[i] != ptrValues->type[i] || lastValues.value[i] != ptrValues->value[i])
+			if(lastValues.type[i] != ptrValues->type[i] || lastValues.value1[i] != ptrValues->value1[i])
 			{
 				displayRefreshTable.values[i] = 1;
 			}
 			else displayRefreshTable.values[i] = 0;
 		}
 		else elementsState.values[i] = 0;
-
 	}
+	screenRefresh = 1;
+}
 
+void cMtDisplay::changeMultiRowValues(strMtDispMultiRowValues * values)
+{
+	ptrMultiRowValues = values;
+
+	for(uint8_t i = 0; i < MT_DISP_VALUES_MAX; i++)
+	{
+		if(ptrMultiRowValues->type[i] > 0)
+		{
+			if(lastValues.type[i] != ptrMultiRowValues->type[i]
+			|| lastMultiRowValues.values[i][0] != ptrMultiRowValues->values[i][0]
+			|| lastMultiRowValues.values[i][1] != ptrMultiRowValues->values[i][1]
+			|| lastMultiRowValues.values[i][2] != ptrMultiRowValues->values[i][2]
+			|| lastMultiRowValues.values[i][3] != ptrMultiRowValues->values[i][3]
+			|| lastMultiRowValues.values[i][4] != ptrMultiRowValues->values[i][4])
+			{
+				displayRefreshTable.multiRowValues[i] = 1;
+			}
+			else displayRefreshTable.multiRowValues[i] = 0;
+		}
+		else elementsState.multiRowValues[i] = 0;
+	}
 	screenRefresh = 1;
 }
 
@@ -259,6 +320,14 @@ void cMtDisplay::changeEnvelopes(strMtDispEnvelope * envelope)
 	screenRefresh = 1;
 }
 
+
+void cMtDisplay::changeTrackTable(strMtDispTrackTable * trackTable)
+{
+	ptrTrackTable = trackTable;
+
+	displayRefreshTable.trackTable = 1;
+	screenRefresh = 1;
+}
 
 //#############################################################################
 //#############################################################################
@@ -467,14 +536,14 @@ void cMtDisplay::ramg_values(uint8_t index)
 	{
 
 		API_COLOR(displayColors.fontValue);
-		API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value[index]);
+		API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value1[index]);
 
 	}
 	else if(ptrValues->type[index] == mtDispValueValue_0_100)
 	{
 		if(valuesDisplayMode == 0)
 		{
-			uint16_t y = (MT_DISP_BLOCK_VALUE_CENTER_Y + 42) - ((80*(ptrValues->value[index]))/100);
+			uint16_t y = (MT_DISP_BLOCK_VALUE_CENTER_Y + 42) - ((80*(ptrValues->value1[index]))/100);
 
 	    	//bg
 			API_COLOR(displayColors.valueBar);
@@ -486,7 +555,7 @@ void cMtDisplay::ramg_values(uint8_t index)
 
 			//number
 			API_COLOR(displayColors.fontValue);
-			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value[index]);
+			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value1[index]);
 
 
 		}
@@ -494,7 +563,7 @@ void cMtDisplay::ramg_values(uint8_t index)
 		{
 
 
-			uint16_t x = MT_DISP_BLOCK_W * index + 3 +(((MT_DISP_BLOCK_W-6)*(ptrValues->value[index]))/100);
+			uint16_t x = MT_DISP_BLOCK_W * index + 3 +(((MT_DISP_BLOCK_W-6)*(ptrValues->value1[index]))/100);
 
 	    	//bg
 			API_COLOR(displayColors.valueBar);
@@ -506,7 +575,7 @@ void cMtDisplay::ramg_values(uint8_t index)
 
 			//number
 			API_COLOR(displayColors.fontValue);
-			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y-20, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value[index]);
+			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y-20, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value1[index]);
 
 		}
 
@@ -517,13 +586,13 @@ void cMtDisplay::ramg_values(uint8_t index)
 	{
 		if(valuesDisplayMode == 0)
 		{
-			uint16_t x1 = (ptrValues->value[index] > 50)
+			uint16_t x1 = (ptrValues->value1[index] > 50)
 					? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2
-					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
+					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value1[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
 
-			uint16_t x2 = (ptrValues->value[index] < 50)
+			uint16_t x2 = (ptrValues->value1[index] < 50)
 					? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2
-					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
+					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value1[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
 
 	    	//bg
 			API_COLOR(displayColors.valueBar);
@@ -535,18 +604,18 @@ void cMtDisplay::ramg_values(uint8_t index)
 
 			//number
 			API_COLOR(displayColors.fontValue);
-			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY | OPT_SIGNED), ptrValues->value[index]-50);
+			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY | OPT_SIGNED), ptrValues->value1[index]-50);
 		}
 		else if(valuesDisplayMode == 1)
 		{
 
-			uint16_t x1 = (ptrValues->value[index] > 50)
+			uint16_t x1 = (ptrValues->value1[index] > 50)
 					? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2
-					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
+					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value1[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
 
-			uint16_t x2 = (ptrValues->value[index] < 50)
+			uint16_t x2 = (ptrValues->value1[index] < 50)
 					? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2
-					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
+					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value1[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
 
 	    	//bg
 			API_COLOR(displayColors.valueBar);
@@ -558,7 +627,7 @@ void cMtDisplay::ramg_values(uint8_t index)
 
 			//number
 			API_COLOR(displayColors.fontValue);
-			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y-20, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY | OPT_SIGNED), ptrValues->value[index]-50);
+			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y-20, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY | OPT_SIGNED), ptrValues->value1[index]-50);
 
 		/*
 			uint16_t x1 = (ptrValues->value[index] < 50)
@@ -591,9 +660,13 @@ void cMtDisplay::ramg_values(uint8_t index)
     API_LIB_EndCoProList();
 
     // zapisuje ostatnio wyswietlone wartosci
-    // w tym meijscu zeby miec pewnoesc ze wyswietlil zmiane
+    // w tym meijscu zeby miec pewnoesc ze wyswietlilo zmiane
 	lastValues.type[index] = ptrValues->type[index];
-	lastValues.value[index] = ptrValues->value[index];
+	lastValues.value1[index] = ptrValues->value1[index];
+//	lastValues.value2[index] = ptrValues->value2[index];
+//	lastValues.value3[index] = ptrValues->value3[index];
+//	lastValues.value4[index] = ptrValues->value4[index];
+//	lastValues.value5[index] = ptrValues->value5[index];
 
 	updateAdress = ramAddress.values[index];
 	updateSize = &ramSize.values[index];
@@ -863,3 +936,164 @@ void cMtDisplay::ramg_envelope()
 	updateStep = 1;
 
 }
+
+
+
+
+void cMtDisplay::ramg_multi_row_values(uint8_t index)
+{
+    API_LIB_BeginCoProList();
+    API_CMD_DLSTART();
+
+
+    if(ptrMultiRowValues->type[index] == mtDispValueMultiValue4Row)
+	{
+    	int16_t x_pos = MT_DISP_BLOCK_W * (index) + ( MT_DISP_BLOCK_MENU_OFFSET);
+    	int16_t y_pos = (ptrMultiRowValues->values[index][0]*MT_DISP_BLOCK_MENU_Y_SPACE + 30);
+
+
+    	API_COLOR(displayColors.multiRowValueFrame);
+    	API_LINE_WIDTH(8);
+    	API_BEGIN(LINE_STRIP);
+    	API_VERTEX2II(x_pos, y_pos, 0, 0);
+    	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W - (MT_DISP_BLOCK_MENU_OFFSET + 6)), y_pos, 0, 0);
+    	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W - (MT_DISP_BLOCK_MENU_OFFSET + 6)), y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+    	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+    	API_VERTEX2II(x_pos, y_pos, 0, 0);
+    	API_END();
+
+    	for(uint8_t i = 0; i < 4; i++)
+    	{
+
+    		y_pos = (MT_DISP_BLOCK_MENU_Y_SPACE/2) + 30 + i*MT_DISP_BLOCK_MENU_Y_SPACE;
+
+    		// param name
+    		API_COLOR(displayColors.fontMultiRowValue);
+    		API_CMD_TEXT(x_pos+4 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), *(ptrMultiRowValues->labels[index]+i));
+
+    		// param value
+    		API_COLOR(displayColors.fontMultiRowValue);
+    		API_CMD_NUMBER(MT_DISP_BLOCK_W * (index+1) - 7, y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_RIGHTX | OPT_CENTERY), ptrMultiRowValues->values[index][i+1]);
+
+
+    	}
+
+
+
+	}
+	else if(ptrMultiRowValues->type[index] == mtDispValueMultiValue3Row)
+	{
+
+		//number
+		API_COLOR(displayColors.fontValue);
+		API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y-20, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrMultiRowValues->values[index][0]);
+
+	}
+
+
+    API_LIB_EndCoProList();
+
+    // zapisuje ostatnio wyswietlone wartosci
+    // w tym meijscu zeby miec pewnoesc ze wyswietlilo zmiane
+    lastMultiRowValues.type[index] = ptrMultiRowValues->type[index];
+    lastMultiRowValues.values[index][0] = ptrMultiRowValues->values[index][0];
+	lastMultiRowValues.values[index][1] = ptrMultiRowValues->values[index][1];
+	lastMultiRowValues.values[index][2] = ptrMultiRowValues->values[index][2];
+	lastMultiRowValues.values[index][3] = ptrMultiRowValues->values[index][3];
+	lastMultiRowValues.values[index][4] = ptrMultiRowValues->values[index][4];
+
+	updateAdress = ramAddress.multiRowValues[index];
+	updateSize = &ramSize.multiRowValues[index];
+
+	updateStep = 1;
+}
+
+
+void cMtDisplay::ramg_track_table()
+{
+    API_LIB_BeginCoProList();
+    API_CMD_DLSTART();
+
+	int16_t x_pos = 0;
+	int16_t y_pos = 20 + (2) * MT_DISP_BLOCK_MENU_Y_SPACE;
+
+	// linie
+	API_COLOR(displayColors.trackTableFrame);
+	API_LINE_WIDTH(8);
+	API_BEGIN(LINES);
+	API_VERTEX2II(0, y_pos, 0, 0);
+	API_VERTEX2II(479, y_pos, 0, 0);
+	API_VERTEX2II(0, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(479, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+
+	API_VERTEX2II(MT_DISP_BLOCK_W * (1), 20, 0, 0);
+	API_VERTEX2II(MT_DISP_BLOCK_W * (1), 20+5*MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+
+	API_VERTEX2II(MT_DISP_BLOCK_W * (2), 20, 0, 0);
+	API_VERTEX2II(MT_DISP_BLOCK_W * (2), 20+5*MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+
+	API_VERTEX2II(MT_DISP_BLOCK_W * (3), 20, 0, 0);
+	API_VERTEX2II(MT_DISP_BLOCK_W * (3), 20+5*MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+
+	API_VERTEX2II(MT_DISP_BLOCK_W * (4), 20, 0, 0);
+	API_VERTEX2II(MT_DISP_BLOCK_W * (4), 20+5*MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+
+	API_END();
+
+	x_pos = ptrTrackTable->active[0] * (MT_DISP_BLOCK_W/4);
+
+	// ramka
+	API_COLOR(displayColors.trackTableFrame);
+	API_LINE_WIDTH(12);
+	API_BEGIN(LINE_STRIP);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_END();
+
+
+	for(uint8_t i = 0; i < 5; i++)
+	{
+		if(ptrTrackTable->state[i])
+		{
+			y_pos = (MT_DISP_BLOCK_MENU_Y_SPACE/2) + 20 + i*MT_DISP_BLOCK_MENU_Y_SPACE;
+			x_pos = 0;
+
+			// param value
+			API_COLOR(displayColors.fontTrackTable);
+			API_CMD_NUMBER(1, y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal1);
+			API_CMD_NUMBER(1+(MT_DISP_BLOCK_W/4)*1 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal2);
+			API_CMD_NUMBER(1+(MT_DISP_BLOCK_W/4)*2 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal3);
+			API_CMD_NUMBER(1+(MT_DISP_BLOCK_W/4)*3 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal4);
+
+
+			// fxs
+			API_CMD_TEXT(MT_DISP_BLOCK_W * (1)+3 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->fx1[i].name);
+			API_CMD_TEXT(MT_DISP_BLOCK_W * (2)+3 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->fx2[i].name);
+			API_CMD_TEXT(MT_DISP_BLOCK_W * (3)+3 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->fx3[i].name);
+			API_CMD_TEXT(MT_DISP_BLOCK_W * (4)+3 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->fx4[i].name);
+		}
+
+	}
+
+
+
+    API_LIB_EndCoProList();
+
+	updateAdress = ramAddress.trackTable;
+	updateSize = &ramSize.trackTable;
+
+	updateStep = 1;
+}
+
+
+
+
+
+
+
+
+
+

@@ -363,20 +363,20 @@ void keyScanner::action_button_press(uint8_t num)
 
 	if(IO7326_int_pin == GRID_A)
 	{
-		x = (num / 8) + 1;
-		y = (num % 8) + 1;
+		x = (num / 8) + 0;
+		y = (num % 8) + 0;
 
 	}
 	else if(IO7326_int_pin == GRID_B)
 	{
-		x = (num / 8) + 1;
-		y = (num % 8) + 9;
+		x = (num / 8) + 0;
+		y = (num % 8) + 8;
 
 	}
 	else if(IO7326_int_pin == GRID_C)
 	{
-		x = (num / 8) + 1;
-		y = (num % 8) + 17;
+		x = (num / 8) + 0;
+		y = (num % 8) + 16;
 	}
 	//handle_howManyPressed();
 
@@ -396,20 +396,20 @@ void keyScanner::action_button_hold(uint8_t num)
 
 	if(IO7326_int_pin == GRID_A)
 	{
-		x = (num / 8) + 1;
-		y = (num % 8) + 1;
+		x = (num / 8) + 0;
+		y = (num % 8) + 0;
 
 	}
 	else if(IO7326_int_pin == GRID_B)
 	{
-		x = (num / 8) + 1;
-		y = (num % 8) + 9;
+		x = (num / 8) + 0;
+		y = (num % 8) + 8;
 
 	}
 	else if(IO7326_int_pin == GRID_C)
 	{
-		x = (num / 8) + 1;
-		y = (num % 8) + 17;
+		x = (num / 8) + 0;
+		y = (num % 8) + 16;
 	}
 
 	onHold(x,y);
@@ -427,20 +427,20 @@ void keyScanner::action_button_release(uint8_t num)
 
 	if(IO7326_int_pin == GRID_A)
 	{
-		x = (num / 8) + 1;
-		y = (num % 8) + 1;
+		x = (num / 8) + 0;
+		y = (num % 8) + 0;
 
 	}
 	else if(IO7326_int_pin == GRID_B)
 	{
-		x = (num / 8) + 1;
-		y = (num % 8) + 9;
+		x = (num / 8) + 0;
+		y = (num % 8) + 8;
 
 	}
 	else if(IO7326_int_pin == GRID_C)
 	{
-		x = (num / 8) + 1;
-		y = (num % 8) + 17;
+		x = (num / 8) + 0;
+		y = (num % 8) + 16;
 	}
 
 	onRelease(x,y);
@@ -458,20 +458,20 @@ void keyScanner::action_button_double(uint8_t num)
 
 	if(IO7326_int_pin == GRID_A)
 	{
-		x = (num / 8) + 1;
-		y = (num % 8) + 1;
+		x = (num / 8) + 0;
+		y = (num % 8) + 0;
 
 	}
 	else if(IO7326_int_pin == GRID_B)
 	{
-		x = (num / 8) + 1;
-		y = (num % 8) + 9;
+		x = (num / 8) + 0;
+		y = (num % 8) + 8;
 
 	}
 	else if(IO7326_int_pin == GRID_C)
 	{
-		x = (num / 8) + 1;
-		y = (num % 8) + 17;
+		x = (num / 8) + 0;
+		y = (num % 8) + 16;
 	}
 
 	onDouble(x,y);

@@ -52,8 +52,8 @@ enum enumMtDispValueTypes
 	mtDispValueValueNumberOnly,
 	mtDispValueValue_0_100,
 	mtDispValueValueLeftRight_0_100,
-	mtDispValueValue1,
-	mtDispValueValue2,
+	mtDispValueMultiValue4Row,
+	mtDispValueMultiValue3Row,
 };
 
 
@@ -135,7 +135,13 @@ enum enumMtDispValueTypes
 #define MT_GPU_RAM_ENVELOPE_ADRESS			(MT_GPU_RAM_SPECTRUM_VIEW_ADRESS+MT_GPU_RAM_SPECTRUM_VIEW_SIZE)
 #define MT_GPU_RAM_ENVELOPE_SIZE			2000
 
+#define MT_GPU_RAM_MR_VALUES_ADRESS			(MT_GPU_RAM_ENVELOPE_ADRESS+MT_GPU_RAM_ENVELOPE_SIZE)
+#define MT_GPU_RAM_MR_VALUES_SIZE			1000
 
+#define MT_GPU_RAM_TRACK_TABLE_ADRESS		(MT_GPU_RAM_MR_VALUES_ADRESS+(5*MT_GPU_RAM_MR_VALUES_SIZE))
+#define MT_GPU_RAM_TRACK_TABLE_SIZE			5000
+
+#define MT_GPU_RAM_TRACK___NEXT___			(MT_GPU_RAM_TRACK_TABLE_ADRESS+MT_GPU_RAM_TRACK_TABLE_SIZE)
 
 
 //-------------------------------------------------------------------
@@ -155,41 +161,52 @@ struct strMtDisplayRefreshTable
 	uint8_t spectrumView;
 
 	uint8_t values[MT_DISP_VALUES_MAX];
+	uint8_t multiRowValues[MT_DISP_VALUES_MAX];
+
 	uint8_t lists[MT_DISP_LISTS_MAX];
 
 	uint8_t envelope;
+
+	uint8_t trackTable;
 };
 
 //KOLORY
 struct strMtDisplayColors
 {
-	uint32_t bgColor			= MT_DISP_BG_COLOR;
-	uint32_t fontPrint			= MT_DISP_F_COLOR;
+	uint32_t bgColor				= MT_DISP_BG_COLOR;
+	uint32_t fontPrint				= MT_DISP_F_COLOR;
 
-	uint32_t fontPotLabel 		= MT_DISP_POT_F_COLOR;
-	uint32_t fontButtonLabel 	= MT_DISP_BUTTON_F_COLOR;
-	uint32_t labelButton 		= MT_DISP_BUTTON_BG_COLOR;
+	uint32_t fontPotLabel 			= MT_DISP_POT_F_COLOR;
+	uint32_t fontButtonLabel 		= MT_DISP_BUTTON_F_COLOR;
+	uint32_t labelButton 			= MT_DISP_BUTTON_BG_COLOR;
 
-	uint32_t spectrumView		= MT_DISP_SPECTRUM_COLOR;
-	uint32_t spectrumPoint		= MT_DISP_POINTS_COLOR;
-	uint32_t spectrumPointsBG	= MT_DISP_POINTS_BG_COLOR;
+	uint32_t spectrumView			= MT_DISP_SPECTRUM_COLOR;
+	uint32_t spectrumPoint			= MT_DISP_POINTS_COLOR;
+	uint32_t spectrumPointsBG		= MT_DISP_POINTS_BG_COLOR;
 
-	uint32_t fontValue			= MT_DISP_VALUE_F_COLOR;
-	uint32_t valueBar			= DISP_RGB(130,130,130);
+	uint32_t fontValue				= DISP_RGB(255,255,255);
+	uint32_t valueBar				= DISP_RGB(130,130,130);
 
-	uint32_t listItemFrame 		= DISP_RGB(255,255,255);
-	uint32_t listItemFrameBG 	= DISP_RGB(0,0,0);
-	uint32_t listScrollBar 		= DISP_RGB(255,255,255);
-	uint32_t listBG 			= DISP_RGB(85,74,25);
-	uint32_t fontList 			= DISP_RGB(255,255,255);
+	uint32_t multiRowValueFrame		= DISP_RGB(255,255,255);
+	uint32_t multiRowValueFrameBG 	= DISP_RGB(0,0,0);
+	uint32_t fontMultiRowValue		= DISP_RGB(255,255,255);
 
+	uint32_t listItemFrame 			= DISP_RGB(255,255,255);
+	uint32_t listItemFrameBG 		= DISP_RGB(0,0,0);
+	uint32_t listScrollBar 			= DISP_RGB(255,255,255);
+	uint32_t listBG 				= DISP_RGB(85,74,25);
+	uint32_t fontList 				= DISP_RGB(255,255,255);
 
-	uint32_t envelopeLines 		= DISP_RGB(200,200,200);
-	uint32_t envelopeGradTop	= DISP_RGB(90,90,90);//DISP_RGB(200,200,200);
-	uint32_t envelopeGradBott	= DISP_RGB(90,90,90);
-	uint32_t fontEnvelope 		= DISP_RGB(255,255,255);
-	uint32_t envelopeBGGrid 	= DISP_RGB(50,50,50);
-	uint32_t envelopeValueBar 	= DISP_RGB(130,130,130);
+	uint32_t envelopeLines 			= DISP_RGB(200,200,200);
+	uint32_t envelopeGradTop		= DISP_RGB(90,90,90);//DISP_RGB(200,200,200);
+	uint32_t envelopeGradBott		= DISP_RGB(90,90,90);
+	uint32_t fontEnvelope 			= DISP_RGB(255,255,255);
+	uint32_t envelopeBGGrid 		= DISP_RGB(50,50,50);
+	uint32_t envelopeValueBar 		= DISP_RGB(130,130,130);
+
+	uint32_t trackTableFrame		= DISP_RGB(255,255,255);
+	uint32_t fontTrackTable			= DISP_RGB(255,255,255);
+
 };
 
 
@@ -206,6 +223,9 @@ struct strMtRamSize
 
 	uint32_t envelope = 0;
 
+	uint32_t multiRowValues[MT_DISP_VALUES_MAX] = {0,0,0,0,0};
+
+	uint32_t trackTable = 0;
 };
 
 
@@ -232,6 +252,16 @@ struct strMtRamAddres
 			MT_GPU_RAM_LISTS_ADRESS+(MT_GPU_RAM_LISTS_SIZE*4)};
 
 	uint32_t envelope = MT_GPU_RAM_ENVELOPE_ADRESS;
+
+	uint32_t multiRowValues[MT_DISP_VALUES_MAX] =
+			{MT_GPU_RAM_MR_VALUES_ADRESS,
+				MT_GPU_RAM_MR_VALUES_ADRESS+MT_GPU_RAM_MR_VALUES_SIZE,
+				MT_GPU_RAM_MR_VALUES_ADRESS+(MT_GPU_RAM_MR_VALUES_SIZE*2),
+				MT_GPU_RAM_MR_VALUES_ADRESS+(MT_GPU_RAM_MR_VALUES_SIZE*3),
+				MT_GPU_RAM_MR_VALUES_ADRESS+(MT_GPU_RAM_MR_VALUES_SIZE*4)};
+
+
+	uint32_t trackTable = MT_GPU_RAM_TRACK_TABLE_ADRESS;
 };
 
 
@@ -244,9 +274,11 @@ struct strMtElementsState
 	uint8_t spectrumPoints = 0;
 
 	uint8_t values[MT_DISP_VALUES_MAX] = {0,0,0,0,0};
+	uint8_t multiRowValues[MT_DISP_VALUES_MAX] = {0,0,0,0,0};
 	uint8_t lists[MT_DISP_LISTS_MAX] = {0,0,0,0,0};
 
 	uint8_t envelope = 0;
+	uint8_t trackTable = 0;
 };
 
 // -------------------------------------------------------------------------
@@ -267,8 +299,20 @@ struct strMtDispSpectrum
 struct strMtDispValues
 {
 	uint8_t type[MT_DISP_VALUES_MAX];
-	int16_t value[MT_DISP_VALUES_MAX];
+	int16_t value1[MT_DISP_VALUES_MAX];
+//	int16_t value2[MT_DISP_VALUES_MAX];
+//	int16_t value3[MT_DISP_VALUES_MAX];
+//	int16_t value4[MT_DISP_VALUES_MAX];
+//	int16_t value5[MT_DISP_VALUES_MAX];
 };
+
+struct strMtDispMultiRowValues
+{
+	uint8_t type[MT_DISP_VALUES_MAX];
+	char** labels[MT_DISP_VALUES_MAX];
+	int16_t values[MT_DISP_VALUES_MAX][5];
+};
+
 
 struct strMtDispEnvelope
 {
@@ -284,6 +328,33 @@ struct strMtDispEnvelope
 
 	uint8_t amount;
 };
+
+struct strMtDispTrackTable
+{
+	struct strStepParams
+	{
+		uint8_t iVal1;
+		uint8_t iVal2;
+		uint8_t iVal3;
+		uint8_t iVal4;
+	}params[5];
+
+	struct strStepFx
+	{
+		uint8_t mode;
+		char* name;
+		char* cVal1;
+		char* cVal2;
+		uint8_t iVal1;
+		uint8_t iVal2;
+
+	}fx1[5],fx2[5],fx3[5],fx4[5];
+
+	uint8_t active[5];
+	uint8_t state[5];
+};
+
+
 
 struct strMtHaptic
 {
