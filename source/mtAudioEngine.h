@@ -43,6 +43,8 @@ public:
 	void slide(int8_t note, uint16_t time);
 	void modPitch(float value);
 	void modGlide(uint16_t value);
+	void modSlide(uint16_t value,int8_t slideNote);
+	void modFineTune(uint16_t value);
 
 	void modPanning(uint8_t value);
 	void modPlayMode(uint8_t value);
@@ -51,6 +53,8 @@ public:
 	void modLP2(uint16_t value);
 	void modCutoff(uint16_t value);
 	void modResonance(uint16_t value);
+
+	void modWavetableWindow(uint16_t value);
 //	void resetMods();
 
 	void update();

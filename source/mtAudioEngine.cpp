@@ -149,12 +149,25 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		/*================================================ENVELOPE AMP==========================================*/
 		lfoAmpPtr->init(&mtProject.instrument[instr_idx].lfo[lfoA]);
 
-		envelopeAmpPtr->delay(mtProject.instrument[instr_idx].envelope[envAmp].delay);
-		envelopeAmpPtr->attack(mtProject.instrument[instr_idx].envelope[envAmp].attack);
-		envelopeAmpPtr->hold(mtProject.instrument[instr_idx].envelope[envAmp].hold);
-		envelopeAmpPtr->decay(mtProject.instrument[instr_idx].envelope[envAmp].decay);
-		envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
-		envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
+		if(mtProject.instrument[instr_idx].envelope[envAmp].enable)
+		{
+			envelopeAmpPtr->delay(mtProject.instrument[instr_idx].envelope[envAmp].delay);
+			envelopeAmpPtr->attack(mtProject.instrument[instr_idx].envelope[envAmp].attack);
+			envelopeAmpPtr->hold(mtProject.instrument[instr_idx].envelope[envAmp].hold);
+			envelopeAmpPtr->decay(mtProject.instrument[instr_idx].envelope[envAmp].decay);
+			envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
+			envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
+		}
+		else
+		{
+			envelopeAmpPtr->delay(0);
+			envelopeAmpPtr->attack(0);
+			envelopeAmpPtr->hold(0);
+			envelopeAmpPtr->decay(0);
+			envelopeAmpPtr->sustain(1.0);
+			envelopeAmpPtr->release(0.0f);
+		}
+
 		/*======================================================================================================*/
 		/*================================================ENVELOPE FILTER=======================================*/
 
@@ -176,7 +189,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 
 		/*======================================================================================================*/
 		/*==================================================GAIN================================================*/
-		ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
+		ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100));
 		/*======================================================================================================*/
 		/*===============================================PANNING================================================*/
 
@@ -210,7 +223,18 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 	void playerEngine :: modGlide(uint16_t value)
 	{
 		//mods[targetGlide][manualMod]=value;
-		playMemPtr->setGlide(value,currentNote);
+		playMemPtr->setGlide(value,currentNote,currentInstrument_idx);
+	}
+
+	void playerEngine :: modSlide(uint16_t value,int8_t slideNote)
+	{
+		//mods[targetGlide][manualMod]=value;
+		playMemPtr->setSlide(value,currentNote,slideNote,currentInstrument_idx);
+	}
+
+	void playerEngine :: modFineTune(uint16_t value)
+	{
+		playMemPtr->setFineTune(value,currentNote);
 	}
 
 	void playerEngine :: modPanning(uint8_t value)
@@ -275,6 +299,11 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		}
 	}
 
+	void playerEngine :: modWavetableWindow(uint16_t value)
+	{
+		playMemPtr->setWavetableWindow(value);
+	}
+
 /*	void playerEngine:: resetMods(void)
 	{
 		for(uint8_t i=0;i<MAX_TARGET;i++)
@@ -313,7 +342,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		}
 		filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff + filterMod);
 
-		ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
+		ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100));
 
 	}
 

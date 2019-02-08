@@ -46,6 +46,12 @@ void initHardware()
 
 	Serial.begin(9600);
 
+	//....................................................
+	//CODAC AUDIO
+	audioShield.enable();
+	audioShield.lineOutLevel(26);
+	AudioMemory(200);
+
 	// LCD
 	mtDisplay.begin(mtDisplayModePolyLogo);
 
@@ -68,11 +74,7 @@ void initHardware()
 		}
 	}
 
-	//....................................................
-	//CODAC AUDIO
-	audioShield.enable();
-	audioShield.volume(0.1);
-	AudioMemory(200);
+
 
 	//....................................................
 	//SDRAM

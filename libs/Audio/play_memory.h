@@ -46,9 +46,11 @@ public:
 	void setPlayMode(uint8_t value); //global
 	void setLP1(uint16_t value); //global
 	void setLP2(uint16_t value); //global
-	void setGlide(uint16_t value, int8_t currentNote); // global
+	void setGlide(uint16_t value, int8_t currentNote,uint8_t instr_idx); // global
 	void setPitch(float value); // incremental
-
+	void setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx);//incremental
+	void setFineTune(int8_t value, int8_t currentNote);
+	void setWavetableWindow(uint16_t value);
 
 private:
 	int16_t *next;
@@ -62,8 +64,15 @@ private:
 	uint8_t loopBackwardFlag = 0;
 	int8_t	lastNote = -1;
 	uint16_t glide;
-	uint32_t glideCounter=0;;
+	uint32_t glideCounter=0;
+	uint32_t slideCounter=0;
 	float glideControl;
+	float slideControl;
+	float fineTuneControl;
+	int8_t currentTune;
+	uint16_t wavetableWindowSize;
+	uint16_t currentWindow;
+	uint32_t waveTablePosition;
 
 
 	struct strSamplePoints
@@ -82,6 +91,7 @@ private:
 		uint32_t endPoint=0;
 
 		uint32_t glide=0;
+		uint32_t slide=0;
 
 	} sampleConstrains;
 

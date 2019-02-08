@@ -19,7 +19,8 @@ const uint8_t  SAMPLES_FILENAME_LENGTH_MAX =    32;
 const uint8_t SAMPLE_POINT_POS_MIN =            0;
 const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
 
-const uint8_t NUMBER_OF_NOTES =					48;
+const  int8_t MAX_NOTE =						48;
+const  int8_t MIN_NOTE =						0;
 
 const uint8_t INSTRUMEN_ENVELOPES_MAX 		=	3;
 
@@ -54,6 +55,13 @@ const uint8_t MAX_MOD =							5;
 const float MAX_CUTOFF =						1.0;
 const float MIN_CUTOFF =						0.0;
 
+const uint8_t MAX_FINETUNE =					100;
+
+const uint8_t MAX_WAVETABLE_WINDOW =			255;
+const uint16_t STANDARD_WAVETABLE_WINDOW_LEN = 	1024;
+const uint16_t SERUM_WAVETABLE_WINDOW_LEN = 	2048;
+
+const uint16_t STANDARD_WAVETABLE_WINDOWS_NUMBER = 	256;
 
 //=====================================================================
 //=====================================================================
@@ -75,6 +83,7 @@ enum playMode
 	loopForward,
 	loopBackward,
 	loopPingPong,
+	wavetable,
 
 	playModeMax
 };
@@ -191,6 +200,27 @@ struct strWavFileHeader
 
 };
 
+struct strSerumWavetableFileHeader
+{
+	uint32_t chunkId;			//0
+	uint32_t chunkSize;			//4
+	uint32_t format;			//8
+	uint16_t empty1[18];		//12
+	uint32_t subchunk1Id;		//48
+	uint32_t subchunk1Size;		//52
+	uint16_t AudioFormat;		//56
+	uint16_t numChannels;		//58
+	uint32_t sampleRate;		//60
+	uint32_t byteRate;			//64
+	uint16_t blockAlign;		//68
+	uint16_t bitsPerSample;		//70
+	uint8_t  empty2[11];		//72
+	uint32_t wavetableFormat;	//83
+	uint8_t	 empty3[41];		//87
+	uint32_t subchunk2Id;		//128
+	uint32_t subchunk2Size;		//132
+};
+
 
 struct strSampleBank
 {
@@ -216,24 +246,27 @@ struct strInstrument
 
     char name[4];
 
-
     uint8_t  playMode;
     uint16_t startPoint;
     uint16_t loopPoint1;
     uint16_t loopPoint2;
     uint16_t endPoint;
 
+    uint16_t wavetableWindowSize;
+    uint16_t wavetableCurrentWindow;
 
 	envelopeGenerator::strEnv envelope[3];
 	LFO::strLfo lfo[3];
-
 
 	float cutOff;
 	float resonance;
 	uint8_t filterType;
 	uint8_t filterEnable;
 
-    float pitch;
+    int8_t tune;
+    int8_t fineTune;
+
+    uint8_t volume;
 
     uint16_t glide;
     int16_t panning;
@@ -298,7 +331,7 @@ extern strPatern mtPatern;
 
 
 
-const float notes[NUMBER_OF_NOTES] =
+const float notes[MAX_NOTE] =
 {
 		0.2500, //c0
 		0.2649,

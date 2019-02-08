@@ -40,12 +40,14 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	loopBackwardFlag=0;
 	pitchCounter=0;
 	glideCounter=0;
+	slideCounter=0;
 	/*=========================================================================================================================*/
 	/*========================================PRZEPISANIE WARTOSCI STEP========================================================*/
 	glide=mtProject.instrument[instr_idx].glide;
+	currentTune=mtProject.instrument[instr_idx].tune;
 
-	if(lastNote>=0) pitchControl=notes[lastNote];
-	else pitchControl=notes[note];
+	if(lastNote>=0) pitchControl=notes[lastNote + mtProject.instrument[instr_idx].tune];
+	else pitchControl=notes[note+ mtProject.instrument[instr_idx].tune];
 
 	int16_t * data = mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].address;
 
@@ -53,54 +55,94 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 	startLen=mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].length;
 
-	startPoint=mtProject.instrument[instr_idx].startPoint;
-	endPoint=mtProject.instrument[instr_idx].endPoint;
 
-	if(playMode != singleShot) //loopMode
-	{
-		loopPoint1=mtProject.instrument[instr_idx].loopPoint1;
-		loopPoint2=mtProject.instrument[instr_idx].loopPoint2;
-	}
-	/*=========================================================================================================================*/
-	/*========================================WARUNKI LOOPPOINTOW==============================================================*/
 
-	if(playMode == singleShot)
+	if(playMode != wavetable)
 	{
-		if (startPoint >= endPoint) return badStartPoint;
+		startPoint=mtProject.instrument[instr_idx].startPoint;
+		endPoint=mtProject.instrument[instr_idx].endPoint;
+		if(playMode != singleShot) //loopMode
+		{
+			loopPoint1=mtProject.instrument[instr_idx].loopPoint1;
+			loopPoint2=mtProject.instrument[instr_idx].loopPoint2;
+		}
 	}
 	else
 	{
-		if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
-		if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
-		if (loopPoint2 > endPoint) return badLoopPoint2;
+		wavetableWindowSize = mtProject.instrument[instr_idx].wavetableWindowSize;
+		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
+		samplePoints.start=currentWindow*wavetableWindowSize;;
+		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
+		sampleConstrains.loopPoint1=currentWindow*wavetableWindowSize;
+		sampleConstrains.loopPoint2=(currentWindow+1)*wavetableWindowSize;
+		sampleConstrains.loopLength=wavetableWindowSize;
 	}
 	/*=========================================================================================================================*/
+	/*========================================WARUNKI LOOPPOINTOW==============================================================*/
+	if(playMode != wavetable)
+	{
+		if(playMode == singleShot)
+		{
+			if (startPoint >= endPoint) return badStartPoint;
+		}
+		else
+		{
+			if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
+			if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
+			if (loopPoint2 > endPoint) return badLoopPoint2;
+		}
+	}
+
+	/*=========================================================================================================================*/
 	/*====================================================PRZELICZENIA=========================================================*/
+	if(mtProject.instrument[instr_idx].fineTune >= 0)
+	{
+		if((note + mtProject.instrument[instr_idx].tune + 1) <= MAX_NOTE)
+		{
+			fineTuneControl= mtProject.instrument[instr_idx].fineTune * ((notes[note + currentTune + 1] - notes[note + currentTune]) /MAX_FINETUNE);
+		}
+		else fineTuneControl=0;
+	}
+	else
+	{
+		if((note + mtProject.instrument[instr_idx].tune - 1) >= MIN_NOTE)
+		{
+			fineTuneControl= (0 - mtProject.instrument[instr_idx].fineTune) * ((notes[note + currentTune - 1] - notes[note + currentTune] )/MAX_FINETUNE);
+		}
+		else fineTuneControl=0;
+	}
+
+	pitchControl+=fineTuneControl;
+
+
 	sampleConstrains.glide=(uint32_t)(glide*44.1);
-	if((lastNote>=0) && (lastNote != note)) glideControl=(notes[note]-notes[lastNote] )/sampleConstrains.glide;
+	if((lastNote>=0) && (lastNote != note)) glideControl=(notes[note + currentTune]-notes[lastNote + currentTune] )/sampleConstrains.glide;
 	else glideControl=0;
 
 	lastNote=note;
-
-	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
-	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
-	if(playMode != singleShot)
+	if(playMode!= wavetable)
 	{
-		samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
-		samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
+		samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
+		samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
+		if(playMode != singleShot)
+		{
+			samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
+			samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
+		}
+
+		if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
+
+		if(playMode != singleShot)
+		{
+			sampleConstrains.loopPoint1=samplePoints.loop1- samplePoints.start;
+			sampleConstrains.loopPoint2=samplePoints.loop2- samplePoints.start;
+			sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+		}
+
+		sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
 	}
 
 
-	if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
-
-	if(playMode != singleShot)
-	{
-		sampleConstrains.loopPoint1=samplePoints.loop1- samplePoints.start;
-		sampleConstrains.loopPoint2=samplePoints.loop2- samplePoints.start;
-		sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
-	}
-
-	sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
 
 /*===========================================================================================================================*/
 /*============================================PRZEKAZANIE PARAMETROW=========================================================*/
@@ -147,6 +189,18 @@ void AudioPlayMemory::update(void)
 
 	  case 0x81: // 16 bit PCM, 44100 Hz
 
+		if( playMode == wavetable)
+		{
+			pitchCounter-=waveTablePosition;
+
+			waveTablePosition=wavetableWindowSize * currentWindow;
+
+			pitchCounter+=waveTablePosition;
+
+			sampleConstrains.loopPoint2=waveTablePosition + wavetableWindowSize;
+
+			sampleConstrains.loopPoint1=waveTablePosition;
+		}
 		for (i=0; i < AUDIO_BLOCK_SAMPLES; i ++)
 		{
 
@@ -155,6 +209,22 @@ void AudioPlayMemory::update(void)
 
 				if(glideCounter<=sampleConstrains.glide) pitchControl+=glideControl;
 				glideCounter++;
+				if(slideControl != 0.0f)
+				{
+					if(slideCounter<=sampleConstrains.slide)
+					{
+						pitchControl+=slideControl;
+						slideCounter++;
+					}
+					else
+					{
+						pitchControl -= (slideControl * slideCounter);
+						slideControl=0.0f;
+						slideCounter=0;
+						sampleConstrains.glide=0;
+					}
+
+				}
 
 				if((playMode == singleShot) ||(playMode == loopForward))
 				{
@@ -186,6 +256,13 @@ void AudioPlayMemory::update(void)
 					if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) && (!loopBackwardFlag) ) loopBackwardFlag=1;
 					if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) loopBackwardFlag=0;
 
+				}
+				else if(playMode == wavetable)
+				{
+					*out++ = *(in+(uint32_t)pitchCounter);
+					pitchCounter+=pitchControl;
+
+					if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter = sampleConstrains.loopPoint1;
 				}
 
 
@@ -278,6 +355,12 @@ void AudioPlayMemory::stopLoopMode(void)
 	stopLoop=1;
 }
 
+void AudioPlayMemory::setWavetableWindow(uint16_t value)
+{
+	if(playMode != wavetable) return;
+	if(value > MAX_WAVETABLE_WINDOW) return;
+	currentWindow=value;
+}
 
 void AudioPlayMemory::setPlayMode(uint8_t value)
 {
@@ -306,11 +389,21 @@ void AudioPlayMemory::setLP2(uint16_t value)
 	}
 }
 
-void AudioPlayMemory::setGlide(uint16_t value, int8_t currentNote)
+void AudioPlayMemory::setGlide(uint16_t value, int8_t currentNote, uint8_t instr_idx)
 {
-	sampleConstrains.glide=(uint32_t)(glide*44.1);
-	if((lastNote>=0) && (lastNote != currentNote)) glideControl=(notes[currentNote] - notes[lastNote] )/sampleConstrains.glide;
+	sampleConstrains.glide=(uint32_t)(value*44.1);
+	if((lastNote>=0) && (lastNote != currentNote)) glideControl=(notes[currentNote + mtProject.instrument[instr_idx].tune] - notes[lastNote + mtProject.instrument[instr_idx].tune] )/sampleConstrains.glide;
 	else glideControl=0;
+
+}
+
+void AudioPlayMemory::setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx)
+{
+	pitchControl-=(slideControl * slideCounter);
+	slideCounter=0;
+	sampleConstrains.slide =(uint32_t)(value*44.1);
+	if((slideNote>=0) && (slideNote != currentNote)) slideControl=(notes[slideNote + mtProject.instrument[instr_idx].tune] - notes[currentNote] )/sampleConstrains.slide;
+	else slideControl=0;
 
 }
 
@@ -319,6 +412,29 @@ void AudioPlayMemory::setPitch(float value)
 	if(value) pitchControl+=value;
 	if(pitchControl < MIN_PITCH) pitchControl=MIN_PITCH;
 	if(pitchControl > MAX_PITCH ) pitchControl=MAX_PITCH;
+}
+
+void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
+{
+	pitchControl-=fineTuneControl;
+	if(value >= 0)
+	{
+		if((currentNote + currentTune + 1) <= MAX_NOTE)
+		{
+			fineTuneControl= value * ((notes[currentNote + currentTune + 1] - notes[currentNote + currentTune]) /MAX_FINETUNE);
+		}
+		else fineTuneControl=0;
+	}
+	else
+	{
+		if((currentNote + currentTune - 1) >= MIN_NOTE)
+		{
+			fineTuneControl= (0-value) * ((notes[currentNote + currentTune - 1] - notes[currentNote + currentTune]) /MAX_FINETUNE);
+		}
+		else fineTuneControl=0;
+	}
+
+	pitchControl+=fineTuneControl;
 }
 
 
