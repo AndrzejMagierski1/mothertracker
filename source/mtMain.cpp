@@ -21,23 +21,14 @@ void setup()
 	initHardware();
 	engine.init();
 
-
-
-
-
-
 	//sequencer.init();
 	//sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
 	//sequencer.play();
 
 	//seqDisplay.init(&sequencer.seq[0]);
 
-
-
 	// inincjalizacja interfejsu na koncu
 	mtInterface.begin();
-
-
 }
 
 //=======================================================================

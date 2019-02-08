@@ -66,7 +66,7 @@ void onPotChange(uint8_t n, int16_t value)
 
 	if(value > 0 )
 	{
-		if(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow  < MAX_WAVETABLE_WINDOW )
+		if(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow  < MAX_WAVETABLE_WINDOW)
 		{
 			mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow++;
 			Serial.print("pot: ");
@@ -80,7 +80,7 @@ void onPotChange(uint8_t n, int16_t value)
 	}
 	else if( value < 0)
 	{
-		if(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow  > 0 )
+		if(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow  > 0)
 		{
 			mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow--;
 			Serial.print("pot: ");
@@ -152,7 +152,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].tune=0;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].fineTune=0;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow=0;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableWindowSize=2048;
+		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableWindowSize=1024;
 	}
 
 
@@ -166,7 +166,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 		}
 		else
 		{*/
-			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,47,100);
+			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,40,100);
 			else instrumentPlayer[n].noteOff();
 		//}
 		//mtInterface.buttonChange(n,value);

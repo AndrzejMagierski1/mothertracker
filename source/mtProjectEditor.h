@@ -57,7 +57,11 @@ private:
 extern cMtProjectEditor mtProjectEditor;
 
 
-int32_t loadSdWavToMemory(const char *filename, int16_t * buf);
+int32_t loadSample(const char *filename, int16_t * buf);
+int32_t loadWavetable(const char *filename, int16_t * buf);
+int32_t loadWavetableStandard(const char *filename, int16_t * buf);
+int32_t loadWavetableSerum(const char *filename, int16_t * buf);
+uint8_t getMiddleWindow(uint16_t cnt, float windowsCnt, float windowsControl);
 
 
 
