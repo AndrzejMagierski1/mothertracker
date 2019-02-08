@@ -1,10 +1,11 @@
-
 #include "mtInterface.h"
 #include "mtHardware.h"
 #include "mtAudioEngine.h"
 
 #include "mtSequencer.h"
 #include "seqDisplay.h"
+#include "chatBot.h"
+Sequencer sequencer;
 
 
 
@@ -29,12 +30,17 @@ void setup()
 
 	// inincjalizacja interfejsu na koncu
 	mtInterface.begin();
+	sequencer.printNotes(1);		// printuje nuty w trakcie sekwencji
 }
 
 //=======================================================================
 void loop()
 {
 
+//	mtInterface.update();
+//
+	sequencer.handle();
+	handle_chatBot();
 	//sequencer.handle();
 	//seqDisplay.update();
 
