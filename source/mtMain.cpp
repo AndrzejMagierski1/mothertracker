@@ -5,7 +5,7 @@
 #include "mtSequencer.h"
 #include "seqDisplay.h"
 #include "chatBot.h"
-Sequencer sequencer;
+
 
 
 
