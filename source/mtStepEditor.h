@@ -223,7 +223,7 @@ private:
 	char mtStepEditorPotsLabels[mtStepEditorPotFunctionCount][20] =
 	{
 		{0},
-		"Inst Note Len Vol",
+		"Note Inst Len Vol",
 		"Fx1",
 		"Fx2",
 		"Fx3",

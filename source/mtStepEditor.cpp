@@ -173,8 +173,8 @@ void cMtStepEditor::processStepParameters()
 			trackTable.state[i] = 1;
 			trackTable.active[0] = actualTrackTableSelection[0];
 
-			trackTable.params[i].iVal1 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].instrument;
-			trackTable.params[i].iVal2 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].note;
+			trackTable.params[i].iVal1 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].note;
+			trackTable.params[i].iVal2 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].instrument;
 			trackTable.params[i].iVal3 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].length1;
 			trackTable.params[i].iVal4 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].velocity;
 

@@ -1041,10 +1041,49 @@ void cMtDisplay::ramg_track_table()
 	API_END();
 
 	x_pos = ptrTrackTable->active[0] * (MT_DISP_BLOCK_W/4);
-
-	// ramka
+	// ramka 1
 	API_COLOR(displayColors.trackTableFrame);
 	API_LINE_WIDTH(12);
+	API_BEGIN(LINE_STRIP);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_END();
+
+	x_pos = MT_DISP_BLOCK_W * (1) + ((ptrTrackTable->fx1[2].mode>0) ? ptrTrackTable->active[1] * (MT_DISP_BLOCK_W/3) :ptrTrackTable->active[1]  * (MT_DISP_BLOCK_W/2));
+	// ramka 2
+	API_BEGIN(LINE_STRIP);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_END();
+
+	x_pos = MT_DISP_BLOCK_W * (2) + ((ptrTrackTable->fx2[2].mode>0) ? ptrTrackTable->active[2] * (MT_DISP_BLOCK_W/3) :ptrTrackTable->active[2]  * (MT_DISP_BLOCK_W/2));
+	// ramka 3
+	API_BEGIN(LINE_STRIP);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_END();
+
+	x_pos = MT_DISP_BLOCK_W * (3) + ((ptrTrackTable->fx3[2].mode>0) ? ptrTrackTable->active[3] * (MT_DISP_BLOCK_W/3) :ptrTrackTable->active[3]  * (MT_DISP_BLOCK_W/2));
+	// ramka 4
+	API_BEGIN(LINE_STRIP);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_END();
+
+	x_pos = MT_DISP_BLOCK_W * (4) + ((ptrTrackTable->fx4[2].mode>0) ? ptrTrackTable->active[4] * (MT_DISP_BLOCK_W/3) :ptrTrackTable->active[4]  * (MT_DISP_BLOCK_W/2));
+	// ramka 5
 	API_BEGIN(LINE_STRIP);
 	API_VERTEX2II(x_pos, y_pos, 0, 0);
 	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos, 0, 0);
@@ -1063,7 +1102,7 @@ void cMtDisplay::ramg_track_table()
 
 			// param value
 			API_COLOR(displayColors.fontTrackTable);
-			API_CMD_NUMBER(1, y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal1);
+			API_CMD_TEXT(1, y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), &mtDispNotes[ptrTrackTable->params[i].iVal1][0]);
 			API_CMD_NUMBER(1+(MT_DISP_BLOCK_W/4)*1 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal2);
 			API_CMD_NUMBER(1+(MT_DISP_BLOCK_W/4)*2 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal3);
 			API_CMD_NUMBER(1+(MT_DISP_BLOCK_W/4)*3 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal4);
