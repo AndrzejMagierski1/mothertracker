@@ -88,7 +88,13 @@ enum playMode
 	playModeMax
 };
 
+enum mtSampleType
+{
+	mtSampleTypeWaveFile,
+	mtSampleTypeWavetable,
 
+	mtSampleTypeCount
+};
 
 enum envelopeEnable
 {
@@ -226,10 +232,14 @@ struct strSampleBank
 {
 	struct strSampleBankSlot
 	{
+		uint8_t type = 0;
+		char file_name[32];
+
 		uint8_t loaded = 0;
 		int16_t *address;
-		char file_name[32];
 		uint32_t length = 0;
+
+		uint16_t wavetable_window_size = 0;
 
 	} sample[SAMPLES_MAX];
 
@@ -273,26 +283,6 @@ struct strInstrument
 };
 
 
-struct strStep
-{
-	uint8_t instrumentIndex;
-	uint8_t volume;
-	int8_t note;
-	//TODO: FX
-
-};
-
-struct strTrack
-{
-	strStep step[32];
-	uint8_t volume;
-	uint8_t enabled;
-
-};
-struct strPatern
-{
-	strTrack track[8];
-};
 
 
 
@@ -327,7 +317,7 @@ struct strMtModAudioEngine
 
 
 extern strMtProject mtProject;
-extern strPatern mtPatern;
+
 
 
 

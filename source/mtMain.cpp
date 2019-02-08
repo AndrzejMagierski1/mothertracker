@@ -40,10 +40,10 @@ void setup()
 void loop()
 {
 
-	//sequencer.handle();
+	sequencer.handle();
 	//handle_chatBot();
 
-	//seqDisplay.update();
+	seqDisplay.update();
 
 	updateHardware();
 

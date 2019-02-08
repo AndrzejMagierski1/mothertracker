@@ -1405,6 +1405,8 @@ void Sequencer::sendNoteOff(uint8_t track, strBank::strTrack::strStep *step)
 				step->instrument);
 	}
 	usbMIDI.sendNoteOff(step->note, 0, 1);
+
+	instrumentPlayer[track].noteOff();
 }
 
 

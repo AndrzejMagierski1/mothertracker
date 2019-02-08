@@ -228,6 +228,11 @@ void cMtInstrumentEditor::stop()
 	mtDisplay.setSpectrumPoints(0);
 	mtDisplay.setValue(0);
 	mtDisplay.setEnvelopes(0);
+	mtDisplay.setList(0, 0, 0, 0, 0, 0);
+	mtDisplay.setList(1, 0, 0, 0, 0, 0);
+	mtDisplay.setList(2, 0, 0, 0, 0, 0);
+	mtDisplay.setList(3, 0, 0, 0, 0, 0);
+	mtDisplay.setList(4, 0, 0, 0, 0, 0);
 }
 
 //#########################################################################################################
@@ -342,8 +347,57 @@ void cMtInstrumentEditor::processSpectrum()
 		return;
 	}
 
-
 	uint16_t offset_pixel;
+	int16_t * sampleData;
+
+
+	if(mtProject.sampleBank.sample[mtProject.instrument[openedInstrumentIndex].sampleIndex].type == mtSampleTypeWavetable)
+	{
+		zoomWidth = MAX_16BIT;
+		zoomStart = 0;
+		zoomValue = 1;
+		zoomEnd = MAX_16BIT;
+		uint16_t windowSize = mtProject.sampleBank.sample[editorInstrument->sampleIndex].wavetable_window_size;
+
+		sampleData = mtProject.sampleBank.sample[editorInstrument->sampleIndex].address
+				+ (mtProject.instrument[openedInstrumentIndex].wavetableCurrentWindow * windowSize);
+
+		float resolution = windowSize / 480.0;
+
+		int16_t up = 0;
+		int16_t low = 0;
+		float step = 0;
+
+		for(uint16_t i = 0; i < 480; i++)
+		{
+			low = up = 0; //*(sampleData+step);
+
+			for(uint16_t j = 0; j < resolution; j++)
+			{
+				int16_t sample = *(sampleData+(uint32_t)step+j);
+
+				if(sample > up)  up = sample;
+				else if(sample < low) low = sample;
+
+			}
+			step+= resolution;
+
+			up = up/1000;
+			low = low/1000;
+
+			spectrum.upperData[i] =  up;
+			spectrum.lowerData[i] = low;
+		}
+
+		if(resolution <= 1) spectrum.spectrumType = 1;
+		else spectrum.spectrumType = 0;
+
+
+
+		return;
+	}
+
+	uint32_t resolution;
 
 
 	switch(lastChangedPoint)
@@ -368,8 +422,7 @@ void cMtInstrumentEditor::processSpectrum()
 
 
 
-	int16_t * sampleData;
-	uint32_t resolution;
+
 
 
 
@@ -404,14 +457,14 @@ void cMtInstrumentEditor::processSpectrum()
 		resolution = (((float)zoomWidth/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument->sampleIndex].length ) / 480;
 
 
-		Serial.print(zoomValue);
-		Serial.print("   ");
-		Serial.print(zoomStart);
-		Serial.print("   ");
-		Serial.print(zoomEnd);
-		Serial.print("   ");
-
-		Serial.println();
+//		Serial.print(zoomValue);
+//		Serial.print("   ");
+//		Serial.print(zoomStart);
+//		Serial.print("   ");
+//		Serial.print(zoomEnd);
+//		Serial.print("   ");
+//
+//		Serial.println();
 
 	}
 	else
@@ -424,10 +477,6 @@ void cMtInstrumentEditor::processSpectrum()
 		sampleData = mtProject.sampleBank.sample[editorInstrument->sampleIndex].address;
 		resolution = mtProject.sampleBank.sample[editorInstrument->sampleIndex].length / 480;
 	}
-
-
-// TODO:
-	// do zrobienia zooomowanie
 
 
 	if(resolution < 1) resolution = 1;
@@ -702,7 +751,7 @@ void cMtInstrumentEditor::updateButtonsFunctions()
 		setButtonFunction(0, mtInstrumentEditorButtonFunctionPlay);
 		setButtonFunction(1, mtInstrumentEditorButtonFunctionEnvelopeAmp);
 		setButtonFunction(2, mtInstrumentEditorButtonFunctionEnvelopeFilter);
-		if(envelopeType>envAmp) setButtonFunction(3, mtInstrumentEditorButtonFunctionEnvelopeEnable);
+		setButtonFunction(3, mtInstrumentEditorButtonFunctionEnvelopeEnable);
 		setButtonFunction(4, mtInstrumentEditorButtonFunctionEnvelopes);
 	}
 	else
@@ -710,8 +759,8 @@ void cMtInstrumentEditor::updateButtonsFunctions()
 		setButtonFunction(0, mtInstrumentEditorButtonFunctionInstrumentList);
 		setButtonFunction(1, mtInstrumentEditorButtonFunctionPlayMode);
 		setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
-		setButtonFunction(3, mtInstrumentEditorButtonFunctionSampleList);
-		setButtonFunction(4, mtInstrumentEditorButtonFunctionEnvelopes);
+		setButtonFunction(3, mtInstrumentEditorButtonFunctionEnvelopes);
+		setButtonFunction(4, mtInstrumentEditorButtonFunctionSampleList);
 	}
 
 
@@ -787,7 +836,7 @@ void cMtInstrumentEditor::updatePotsFunctions()
 			setPotFunction(1, mtInstrumentEditorPotFunctionLoopPoint1);
 			setPotFunction(3, mtInstrumentEditorPotFunctionLoopPoint2);
 		}
-		if(sampleListEnabled) setPotFunction(3, mtInstrumentEditorPotFunctionSampleSelect);
+		if(sampleListEnabled) setPotFunction(4, mtInstrumentEditorPotFunctionSampleSelect);
 		if(instrumentListEnabled) setPotFunction(0, mtInstrumentEditorPotFunctionInstrumentSelect);
 		//setPotFunction(4, mtInstrumentEditorPotFunctionViewZoom);
 	}
@@ -820,7 +869,13 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
 	uint16_t move_step = zoomWidth / 480;
 	uint16_t dif;
-	value = value * move_step;
+	//value = value * move_step;
+
+	if(editorInstrument->wavetableCurrentWindow + value < 0) editorInstrument->wavetableCurrentWindow  = 0;
+	else if(editorInstrument->wavetableCurrentWindow + value > 255 ) editorInstrument->wavetableCurrentWindow  = 255;
+	else editorInstrument->wavetableCurrentWindow += value;
+
+/*
 
 	if(editorInstrument->startPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument->startPoint  = 0;
 	else if(editorInstrument->startPoint + value > SAMPLE_POINT_POS_MAX ) editorInstrument->startPoint  = SAMPLE_POINT_POS_MAX;
@@ -850,6 +905,9 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 
 	lastChangedPoint = 1;
 	pointsChanged = 1;
+
+	*/
+	spectrumChanged = 1;
 }
 
 void cMtInstrumentEditor::modEndPoint(int16_t value)

@@ -18,7 +18,6 @@ cMtProjectEditor mtProjectEditor;
 
 
 strMtProject mtProject;
-strPatern mtPatern;
 
 
 
@@ -65,64 +64,21 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// pod jaki index tablicy sampli 0-32 zapisywac dany sampel
 	// teraz domyslnie zajmowane 0-7
 
-	mtProject.sampleBank.sample[0].file_name[0] = '6';
-	mtProject.sampleBank.sample[0].file_name[1] = '.';
-	mtProject.sampleBank.sample[0].file_name[2] = 'w';
-	mtProject.sampleBank.sample[0].file_name[3] = 'a';
-	mtProject.sampleBank.sample[0].file_name[4] = 'v';
-	mtProject.sampleBank.sample[0].file_name[5] = 0;
+	for(uint8_t i = 0; i < 8; i++) // max do 9
+	{
+											// mtSampleTypeWaveFile
+		mtProject.sampleBank.sample[i].type = mtSampleTypeWavetable;
+		mtProject.sampleBank.sample[i].file_name[0] = i+49;
+		mtProject.sampleBank.sample[i].file_name[1] = '.';
+		mtProject.sampleBank.sample[i].file_name[2] = 'w';
+		mtProject.sampleBank.sample[i].file_name[3] = 'a';
+		mtProject.sampleBank.sample[i].file_name[4] = 'v';
+		mtProject.sampleBank.sample[i].file_name[5] = 0;
+		mtProject.sampleBank.sample[i].wavetable_window_size = 1024;
+	}
 
-
-	mtProject.sampleBank.sample[1].file_name[0] = '6';
-	mtProject.sampleBank.sample[1].file_name[1] = '.';
-	mtProject.sampleBank.sample[1].file_name[2] = 'w';
-	mtProject.sampleBank.sample[1].file_name[3] = 'a';
-	mtProject.sampleBank.sample[1].file_name[4] = 'v';
-	mtProject.sampleBank.sample[1].file_name[5] = 0;
-
-	mtProject.sampleBank.sample[2].file_name[0] = '6';
-	mtProject.sampleBank.sample[2].file_name[1] = '.';
-	mtProject.sampleBank.sample[2].file_name[2] = 'w';
-	mtProject.sampleBank.sample[2].file_name[3] = 'a';
-	mtProject.sampleBank.sample[2].file_name[4] = 'v';
-	mtProject.sampleBank.sample[2].file_name[5] = 0;
-
-	mtProject.sampleBank.sample[3].file_name[0] = '6';
-	mtProject.sampleBank.sample[3].file_name[1] = '.';
-	mtProject.sampleBank.sample[3].file_name[2] = 'w';
-	mtProject.sampleBank.sample[3].file_name[3] = 'a';
-	mtProject.sampleBank.sample[3].file_name[4] = 'v';
-	mtProject.sampleBank.sample[3].file_name[5] = 0;
-
-	mtProject.sampleBank.sample[4].file_name[0] = '6';
-	mtProject.sampleBank.sample[4].file_name[1] = '.';
-	mtProject.sampleBank.sample[4].file_name[2] = 'w';
-	mtProject.sampleBank.sample[4].file_name[3] = 'a';
-	mtProject.sampleBank.sample[4].file_name[4] = 'v';
-	mtProject.sampleBank.sample[4].file_name[5] = 0;
-
-	mtProject.sampleBank.sample[5].file_name[0] = '7';
-	mtProject.sampleBank.sample[5].file_name[1] = '.';
-	mtProject.sampleBank.sample[5].file_name[2] = 'w';
-	mtProject.sampleBank.sample[5].file_name[3] = 'a';
-	mtProject.sampleBank.sample[5].file_name[4] = 'v';
-	mtProject.sampleBank.sample[5].file_name[5] = 0;
-
-	mtProject.sampleBank.sample[6].file_name[0] = '7';
-	mtProject.sampleBank.sample[6].file_name[1] = '.';
-	mtProject.sampleBank.sample[6].file_name[2] = 'w';
-	mtProject.sampleBank.sample[6].file_name[3] = 'a';
-	mtProject.sampleBank.sample[6].file_name[4] = 'v';
-	mtProject.sampleBank.sample[6].file_name[5] = 0;
-
-	mtProject.sampleBank.sample[7].file_name[0] = '8';
-	mtProject.sampleBank.sample[7].file_name[1] = '.';
-	mtProject.sampleBank.sample[7].file_name[2] = 'w';
-	mtProject.sampleBank.sample[7].file_name[3] = 'a';
-	mtProject.sampleBank.sample[7].file_name[4] = 'v';
-	mtProject.sampleBank.sample[7].file_name[5] = 0;
-
-
+	//mtProject.sampleBank.sample[1].wavetable_window_size = 1024;
+	//mtProject.sampleBank.sample[1].type = mtSampleTypeWaveFile;
 
 	// parametry instrumentow ========================================
 	mtProject.instruments_count = 8;
@@ -131,7 +87,15 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	{
 		mtProject.instrument[i].sampleIndex = i;
 
-		mtProject.instrument[i].playMode = 1;
+		if(mtProject.sampleBank.sample[i].type == mtSampleTypeWavetable)
+		{
+			mtProject.instrument[i].playMode = wavetable;
+			mtProject.instrument[i].wavetableWindowSize = mtProject.sampleBank.sample[mtProject.instrument[i].sampleIndex].wavetable_window_size;
+		}
+		else
+		{
+			mtProject.instrument[i].playMode = 1;
+		}
 
 		mtProject.instrument[i].startPoint = 0;
 		mtProject.instrument[i].loopPoint1 = 10000;
@@ -146,6 +110,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].envelope[envAmp].sustain = 1.0;
 		mtProject.instrument[i].envelope[envAmp].release = 1000;
 		mtProject.instrument[i].envelope[envAmp].amount = 1.0;
+		mtProject.instrument[i].envelope[envAmp].enable = envelopeOn;
 
 		mtProject.instrument[i].envelope[envFilter].delay = 0;
 		mtProject.instrument[i].envelope[envFilter].attack = 3000;
@@ -162,6 +127,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].resonance = 0;
 		mtProject.instrument[i].panning = 50;
 		mtProject.instrument[i].glide = 10000;
+		mtProject.instrument[i].volume = 100;
 
 		if(i >= 10)
 		{
@@ -191,22 +157,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 
 	// parametry paternu ========================================
 
-	for(uint8_t i = 0; i < 8; i++)
-	{
-		for(uint8_t j=0; j<32; j++)
-		{
-			mtPatern.track[i].step[j].instrumentIndex = i;
-			mtPatern.track[i].step[j].volume = 100;
-			mtPatern.track[i].step[j].note = j;
 
-		}
-
-
-		mtPatern.track[i].volume = 100;
-		mtPatern.track[i].enabled = 1;
-
-
-	}
 
 	return 0;
 }
@@ -221,9 +172,14 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 
 	for(uint8_t i = 0; i < SAMPLES_MAX; i++)
 	{
-
-//		size = loadSample(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address);
-		size = loadWavetableStandard(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address);
+		if(mtProject.sampleBank.sample[i].type == mtSampleTypeWavetable)
+		{
+			size = loadWavetableStandard(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address);
+		}
+		else
+		{
+			size = loadSample(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address);
+		}
 
 		if(size > 0)
 		{

@@ -109,7 +109,7 @@ const char playModeFunctLabels[playModeMax][20]=
 		"Forward Loop",
 		"Backward Loop",
 		"Pingpong Loop",
-		//"Wavetable"
+		"Wavetable"
 };
 
 
@@ -223,7 +223,6 @@ private:
 
 	int8_t openedInstrumentIndex;
 	strInstrument * editorInstrument;
-	strMtModAudioEngine  editorMod;
 	int8_t playNote = 24;
 	uint8_t glidePreviewDif = 0;
 
