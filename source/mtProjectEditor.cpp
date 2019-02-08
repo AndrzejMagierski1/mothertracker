@@ -641,6 +641,207 @@ int32_t loadWavetableStandard(const char *filename, int16_t * buf)
 	return STANDARD_WAVETABLE_WINDOW_LEN*STANDARD_WAVETABLE_WINDOWS_NUMBER;
 }
 
+
+int32_t loadWavetableSerum(const char *filename, int16_t * buf)
+{
+	strSerumWavetableFileHeader sampleHead;
+	uint16_t bufferLength=0;
+	uint32_t accBufferLength=0;
+	int16_t buf16[256];
+	int16_t buf16_1024[1024];
+	int16_t windowDivider=0;
+	int16_t currentWave[1024];
+	int16_t nextWave[1024];
+
+	FsFile wavfile;
+
+	uint16_t numberOfWindows=0;
+	uint16_t missingWindows=0;
+	float windowsControl=0;
+	float windowsCounter=0;
+	uint16_t buforCounter=0;
+
+	wavfile = SD.open(filename);
+	wavfile.read(&sampleHead, 136);
+
+
+
+	if(sampleHead.format != 1163280727 || sampleHead.AudioFormat != 3  || sampleHead.bitsPerSample != 16  || sampleHead.sampleRate != 44100 )
+	{
+		wavfile.close();
+//		__enable_irq();
+		if(hardwareTest)
+		{
+			Serial.println("Bad WAV file or External RAM(if SD Card init is Correct");
+			mtPrint("Bad WAV file or External RAM(if SD Card init is Correct");
+		}
+		return -1;
+	}
+	else
+	{
+		if(hardwareTest)
+		{
+			Serial.println("load WAV header to SDRAM succesfull");
+			mtPrint("load WAV header to SDRAM succesfull");
+		}
+	}
+
+	numberOfWindows= (sampleHead.subchunk2Size/4)/STANDARD_WAVETABLE_WINDOW_LEN;
+	if(numberOfWindows == STANDARD_WAVETABLE_WINDOWS_NUMBER)
+	{
+		if(sampleHead.numChannels == 1)
+		{
+			while ( wavfile.available() )
+			{
+				bufferLength = wavfile.read(buf16, 512);
+
+				accBufferLength += bufferLength;
+
+				for(int i=0; i< 256; i++)
+				{
+					if(bufferLength <= i ) *buf=0;
+					else *buf=buf16[i];
+					buf++;
+				}
+			}
+		}
+		else if (sampleHead.numChannels == 2)
+		{
+			while (wavfile.available() )
+			{
+				bufferLength = wavfile.read(buf16, 512);
+				accBufferLength += bufferLength;
+				for(int i=0; i< 256; i+=2)
+				{
+					if(bufferLength <= i ) *buf=0;
+					else *buf=buf16[i];
+					buf++;
+				}
+			}
+		}
+
+		wavfile.close();
+
+
+		if(sampleHead.numChannels == 1)
+		{
+			accBufferLength = accBufferLength/2;
+		}
+		else if(sampleHead.numChannels == 2)
+		{
+			accBufferLength = accBufferLength/4;
+		}
+	}
+
+	else if(numberOfWindows > STANDARD_WAVETABLE_WINDOWS_NUMBER)
+	{
+		;
+	}
+	else if(numberOfWindows < STANDARD_WAVETABLE_WINDOWS_NUMBER)
+	{
+		missingWindows=STANDARD_WAVETABLE_WINDOWS_NUMBER-numberOfWindows;
+		windowsControl=(float)STANDARD_WAVETABLE_WINDOWS_NUMBER/(missingWindows+1);
+
+		if(sampleHead.numChannels == 1)
+		{
+			while ( wavfile.available() )
+			{
+				if((buforCounter < (uint16_t) windowsCounter) || ((!buforCounter)&&(windowsCounter == 0.0f)))
+				{
+					bufferLength=wavfile.read(buf16_1024, 2048);
+					for(int i=0; i< 1024; i++)
+					{
+						if(bufferLength <= i ) *buf=0;
+						else *buf=buf16_1024[i];
+						buf++;
+						currentWave[i]=buf16_1024[i];
+					}
+					buforCounter++;
+				}
+				else
+				{
+					bufferLength=wavfile.read(nextWave, 2048);
+					windowDivider=getMiddleWindow(buforCounter,windowsCounter,windowsControl);
+
+					for(uint8_t i=0;i<windowDivider;i++)
+					{
+						for(uint16_t j=0; j< 1024; j++)
+						{
+							*buf=currentWave[j]+(((nextWave[j]-currentWave[j])/(windowDivider+1))*i);
+							buf++;
+						}
+					}
+					for(int i=0; i< 1024; i++)
+					{
+						if(bufferLength <= i ) *buf=0;
+						else *buf=nextWave[i];
+						buf++;
+
+						currentWave[i]=nextWave[i];
+					}
+					buforCounter++;
+					buforCounter+=(windowDivider);
+					windowsCounter+=(windowDivider*windowsControl);
+				}
+			}
+		}
+		else if (sampleHead.numChannels == 2)
+		{
+			// nie trzeba ale zostawiam jakieś bałagany
+			/*while ( wavfile.available() )
+			{
+				if((buforCounter < (uint16_t) windowsCounter) || ((!buforCounter)&&(windowsCounter == 0.0f)))
+				{
+					bufferLength=wavfile.read(buf16_2048, 4096);
+					for(int i=0; i< 2048; i+=2)
+					{
+						if(bufferLength <= i ) *buf=0;
+						else *buf=buf16_2048[i];
+						buf++;
+						currentWave_2048[i]=buf16_2048[i];
+					}
+					buforCounter++;
+				}
+				else
+				{
+					bufferLength=wavfile.read(buf16_2048, 4096);
+					for(int i=0; i< 2048; i+=2)
+					{
+						if(bufferLength <= i ) nextWave_2048[i]=0;
+						else nextWave_2048[i]=buf16_2048[i];
+					}
+					windowDivider=getMiddleWindow(buforCounter,windowsCounter,windowsControl);
+
+					for(uint8_t i=0;i<windowDivider;i++)
+					{
+						for(uint16_t j=0; j< 1024; j++)
+						{
+							*buf=currentWave_2048[j]+(((nextWave_2048[j]-currentWave_2048[j])/(windowDivider+1))*i);
+							buf++;
+						}
+					}
+					for(int i=0; i< 1024; i++)
+					{
+						if(bufferLength <= i ) *buf=0;
+						else *buf=nextWave_2048[i];
+						buf++;
+
+						currentWave_2048[i]=nextWave_2048[i];
+					}
+					buforCounter++;
+					buforCounter+=(windowDivider);
+					windowsCounter+=(windowDivider*windowsControl);
+				}
+			}*/
+		}
+
+		wavfile.close();
+	}
+
+	return STANDARD_WAVETABLE_WINDOW_LEN*STANDARD_WAVETABLE_WINDOWS_NUMBER;
+}
+
+
 uint8_t getMiddleWindow(uint16_t cnt, float windowsCnt, float windowsControl)
 {
 	uint8_t localCounter=0;

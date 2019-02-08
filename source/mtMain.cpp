@@ -30,18 +30,16 @@ void setup()
 
 	// inincjalizacja interfejsu na koncu
 	mtInterface.begin();
-	sequencer.printNotes(1);		// printuje nuty w trakcie sekwencji
+	//sequencer.printNotes(1);		// printuje nuty w trakcie sekwencji
 }
 
 //=======================================================================
 void loop()
 {
 
-//	mtInterface.update();
-//
-	sequencer.handle();
-	handle_chatBot();
 	//sequencer.handle();
+	//handle_chatBot();
+
 	//seqDisplay.update();
 
 	updateHardware();
