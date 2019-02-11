@@ -503,7 +503,6 @@ void cMtDisplay::ramg_buttons_labels()
 
     for(uint8_t i = 0; i < 5; i++)
     {
-
     	//buttons
 		API_COLOR(displayColors.labelButton);
 		API_LINE_WIDTH(16);
@@ -531,13 +530,10 @@ void cMtDisplay::ramg_values(uint8_t index)
     API_CMD_DLSTART();
 
 
-
     if(ptrValues->type[index] == mtDispValueValueNumberOnly)
 	{
-
 		API_COLOR(displayColors.fontValue);
 		API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value1[index]);
-
 	}
 	else if(ptrValues->type[index] == mtDispValueValue_0_100)
 	{
@@ -578,9 +574,6 @@ void cMtDisplay::ramg_values(uint8_t index)
 			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y-20, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value1[index]);
 
 		}
-
-
-
 	}
 	else if(ptrValues->type[index] == mtDispValueValueLeftRight_0_100)
 	{

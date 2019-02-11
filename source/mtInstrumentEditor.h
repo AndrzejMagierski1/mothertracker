@@ -28,6 +28,7 @@ enum enumMtInstrumentEditorButtonFunction
 	mtInstrumentEditorButtonFunctionEnvelopeAmp,
 	mtInstrumentEditorButtonFunctionEnvelopeFilter,
 	mtInstrumentEditorButtonFunctionEnvelopeEnable,
+	mtInstrumentEditorButtonFunctionParamsNextPage,
 
 	//-------------------------------
 	mtInstrumentEditorButtonFunctionCount
@@ -203,6 +204,7 @@ private:
 	void setEnvelopeTypeAmp(uint8_t value);
 	void setEnvelopeTypeFilter(uint8_t value);
 	void setEnvelopeEnable(uint8_t value);
+	void changeParamsPage(uint8_t value);
 
 	//funkcje potow
 	void modStartPoint(int16_t value);
@@ -274,6 +276,8 @@ private:
 	strMtDispValues  values;
 	uint8_t valuesParameters[5];
 
+	uint8_t parametersPage = 0;
+
 	uint8_t mtInstrumentEditorValuesTypes[mtInstrumentEditorPotValueCount] =
 	{
 		mtDispValueValueNone,				//mtInstrumentEditorPotValueNone,
@@ -311,6 +315,7 @@ private:
 		"Amp Envelope",
 		"Filter Envelope",
 		"Disabled",
+		"Next page",
 	};
 
 	//potencjometry w edytorze

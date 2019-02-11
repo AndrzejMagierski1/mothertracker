@@ -274,7 +274,7 @@ void cMtInstrumentEditor::buttonChange(uint8_t button, uint8_t value)
 {
 	switch(buttonFunction[button])
 	{
-	case mtInstrumentEditorButtonFunctionNone  				: 					break;
+	case mtInstrumentEditorButtonFunctionNone  				: 							break;
 	case mtInstrumentEditorButtonFunctionPlay  				:	play(value);			break;
 	case mtInstrumentEditorButtonFunctionStop  				:	stopPlaying(value);			break;
 	case mtInstrumentEditorButtonFunctionPlayMode  			: 	changePlayMode(value);	break;
@@ -288,6 +288,7 @@ void cMtInstrumentEditor::buttonChange(uint8_t button, uint8_t value)
 	case mtInstrumentEditorButtonFunctionEnvelopeAmp		: 	setEnvelopeTypeAmp(value);	break;
 	case mtInstrumentEditorButtonFunctionEnvelopeFilter		: 	setEnvelopeTypeFilter(value);break;
 	case mtInstrumentEditorButtonFunctionEnvelopeEnable		: 	setEnvelopeEnable(value);break;
+	case mtInstrumentEditorButtonFunctionParamsNextPage		:	changeParamsPage(value); break;
 	default: break;
 	}
 
@@ -359,7 +360,6 @@ void cMtInstrumentEditor::processSpectrum()
 
 	uint16_t offset_pixel;
 	int16_t * sampleData;
-
 
 	if(mtProject.sampleBank.sample[mtProject.instrument[openedInstrumentIndex].sampleIndex].type == mtSampleTypeWavetable)
 	{
@@ -715,15 +715,27 @@ void cMtInstrumentEditor::updateParameters()
 
 	if(parametersEnabled)
 	{
-		setParameter(0, mtInstrumentEditorValuePanning);
-		setParameter(1, mtInstrumentEditorValueGlide);
+		if(parametersPage == 0)
+		{
+			setParameter(0, mtInstrumentEditorValueVolume);
+			setParameter(1, mtInstrumentEditorValuePanning);
+
+			setParameter(2, mtInstrumentEditorValueResonance);
+			setParameter(3, mtInstrumentEditorValueFilter);
 
 
-		setParameter(3, mtInstrumentEditorValueResonance);
-		setParameter(4, mtInstrumentEditorValueFilter);
+		}
+		else if(parametersPage == 1)
+		{
+			setParameter(0, mtInstrumentEditorValueGlide);
+
+			setParameter(2, mtInstrumentEditorValueFinetune);
+			setParameter(3, mtInstrumentEditorValueTune);
+		}
+
+
+
 	}
-
-
 }
 
 void cMtInstrumentEditor::setParameter(uint8_t number, uint8_t param)
@@ -760,14 +772,23 @@ void cMtInstrumentEditor::updateButtonsFunctions()
 	setButtonFunction(3, mtInstrumentEditorButtonFunctionNone);
 	setButtonFunction(4, mtInstrumentEditorButtonFunctionNone);
 
-
 	if(parametersEnabled)
 	{
-		setButtonFunction(0, mtInstrumentEditorButtonFunctionPlay);
-		setButtonFunction(1, mtInstrumentEditorButtonFunctionChangeGlideNote);
-		setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
-
-		setButtonFunction(4, mtInstrumentEditorButtonFunctionFilterType);
+		if(parametersPage == 0)
+		{
+			setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
+			setButtonFunction(3, mtInstrumentEditorButtonFunctionFilterType);
+			setButtonFunction(4, mtInstrumentEditorButtonFunctionParamsNextPage);
+		}
+		else if(parametersPage == 1)
+		{
+			//setButtonFunction(0, mtInstrumentEditorButtonFunctionPlay);
+			//setButtonFunction(1, mtInstrumentEditorButtonFunctionChangeGlideNote);
+			//setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
+			//setButtonFunction(4, mtInstrumentEditorButtonFunctionFilterType);
+			setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
+			setButtonFunction(4, mtInstrumentEditorButtonFunctionParamsNextPage);
+		}
 	}
 	else if(envelopesEnabled)
 	{
@@ -834,11 +855,24 @@ void cMtInstrumentEditor::updatePotsFunctions()
 
 	if(parametersEnabled)
 	{
-		setPotFunction(0, mtInstrumentEditorPotFunctionPanning);
-		setPotFunction(1, mtInstrumentEditorPotFunctionGlide);
+		if(parametersPage == 0)
+		{
+			setPotFunction(0, mtInstrumentEditorPotFunctionVolume);
+			setPotFunction(1, mtInstrumentEditorPotFunctionPanning);
+			setPotFunction(2, mtInstrumentEditorPotFunctionResonance);
+			setPotFunction(3, mtInstrumentEditorPotFunctionFilter);
+		}
+		else if(parametersPage == 1)
+		{
+			setPotFunction(0, mtInstrumentEditorPotFunctionGlide);
 
-		setPotFunction(3, mtInstrumentEditorPotFunctionResonance);
-		setPotFunction(4, mtInstrumentEditorPotFunctionFilter);
+			setPotFunction(2, mtInstrumentEditorPotFunctionFinetune);
+			setPotFunction(3, mtInstrumentEditorPotFunctionTune);
+		}
+
+
+
+
 	}
 	else if(envelopesEnabled)
 	{
@@ -1176,6 +1210,17 @@ void cMtInstrumentEditor::setEnvelopeEnable(uint8_t value)
 	{
 		editorInstrument->envelope[envelopeType].enable = !editorInstrument->envelope[envelopeType].enable;
 		labelsChanged = 1;
+	}
+}
+
+void cMtInstrumentEditor::changeParamsPage(uint8_t value)
+{
+	if(value == 1)
+	{
+		if(parametersPage == 0) parametersPage = 1;
+		else if(parametersPage == 1) parametersPage = 0;
+
+		parametersChanged = 2;
 	}
 }
 
