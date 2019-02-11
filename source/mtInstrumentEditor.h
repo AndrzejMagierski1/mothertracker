@@ -119,7 +119,6 @@ const char playModeFunctLabels[playModeMax][20]=
 		"Forward Loop",
 		"Backward Loop",
 		"Pingpong Loop",
-		"Wavetable"
 };
 
 

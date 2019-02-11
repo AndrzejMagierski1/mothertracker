@@ -73,6 +73,7 @@ private:
 	uint16_t wavetableWindowSize;
 	uint16_t currentWindow;
 	uint32_t waveTablePosition;
+	uint8_t currentInstr_idx;
 
 
 	struct strSamplePoints

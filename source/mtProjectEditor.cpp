@@ -1,6 +1,3 @@
-
-
-
 //#include "mtDisplay.h"
 #include "mtProjectEditor.h"
 #include "mtHardware.h"
@@ -87,15 +84,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	{
 		mtProject.instrument[i].sampleIndex = i;
 
-		if(mtProject.sampleBank.sample[i].type == mtSampleTypeWavetable)
-		{
-			mtProject.instrument[i].playMode = wavetable;
-			mtProject.instrument[i].wavetableWindowSize = mtProject.sampleBank.sample[mtProject.instrument[i].sampleIndex].wavetable_window_size;
-		}
-		else
-		{
-			mtProject.instrument[i].playMode = 1;
-		}
+		mtProject.instrument[i].playMode = 1;
 
 		mtProject.instrument[i].startPoint = 0;
 		mtProject.instrument[i].loopPoint1 = 10000;
@@ -175,8 +164,7 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 
 		if(mtProject.sampleBank.sample[i].type == mtSampleTypeWavetable)
 		{
-			size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address);
-			mtProject.sampleBank.sample[i].wavetable_window_size = size/256;
+			size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
 		}
 		else
 		{
@@ -386,18 +374,6 @@ int32_t loadSample(const char *filename, int16_t * buf)
 	}
 
 
-/*
- 	if(sampleLength != accBufferLength)
-	{
-		return -3; // rozne wielkosc danych
-	}
-*/
-//	*bufStart = (0x8100 | ((accBufferLength/4) >> 24));
-//	bufStart++;
-//	*bufStart |= ((uint16_t) (accBufferLength/4) & 0xFFFF);
-
-
-//	__enable_irq();
 	return accBufferLength;
 }
 
@@ -767,7 +743,7 @@ void readHeader(strWavFileHeader* header, FsFile * wavfile)
 	}
 }
 
-int32_t loadWavetable(const char *filename, int16_t * buf)
+int32_t loadWavetable(const char *filename, int16_t * buf ,uint16_t * windowSize)
 {
 	strWavFileHeader sampleHead;
 	FsFile wavfile;
@@ -776,8 +752,16 @@ int32_t loadWavetable(const char *filename, int16_t * buf)
 	wavfile = SD.open(filename);
 	readHeader(&sampleHead,&wavfile);
 	wavfile.close();
-	if(sampleHead.AudioFormat == 1) size=loadWavetableStandard(filename,buf);
-	else if(sampleHead.AudioFormat == 3) size=loadWavetableSerum(filename,buf);
+	if(sampleHead.AudioFormat == 1)
+	{
+		size=loadWavetableStandard(filename,buf);
+		*windowSize = STANDARD_WAVETABLE_WINDOW_LEN;
+	}
+	else if(sampleHead.AudioFormat == 3)
+	{
+		size=loadWavetableSerum(filename,buf);
+		*windowSize = SERUM_WAVETABLE_WINDOW_LEN;
+	}
 	return size;
 
 }
