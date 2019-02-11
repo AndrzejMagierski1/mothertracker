@@ -166,7 +166,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 		}
 		else
 		{*/
-			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,40,100);
+			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,24,100);
 			else instrumentPlayer[n].noteOff();
 		//}
 		//mtInterface.buttonChange(n,value);
