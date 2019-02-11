@@ -63,8 +63,13 @@ void onPotChange(uint8_t n, int16_t value)
 	mtInterface.potChange(n, value);
 
 	mtHaptic.start(15,150,0x01,56);
+
 /*
 	if(value > 0 )
+=======
+
+/*	if(value > 0 )
+>>>>>>> refs/heads/audioEngine2
 	{
 		if(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow  < MAX_WAVETABLE_WINDOW)
 		{
@@ -90,8 +95,13 @@ void onPotChange(uint8_t n, int16_t value)
 			instrumentPlayer[n].modWavetableWindow(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow);
 		}
 
+<<<<<<< HEAD
 	}
-*/
+
+
+	}*/
+
+
 /*	mtPrint("pot change: ");
 	mtPrint(n);
 	mtPrint(" value: ");
@@ -116,8 +126,13 @@ void onButtonChange(uint8_t n, uint8_t value)
 
 
 	mtInterface.buttonChange(n,value);
+
 /*
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].delay=0;
+
+
+	/*	mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].delay=0;
+/*
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].attack=1;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].hold=1;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].decay=1;

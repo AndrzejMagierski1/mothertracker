@@ -1343,7 +1343,7 @@ void cMtInstrumentEditor::selectSample(int16_t value)
 	else if(editorInstrument->sampleIndex + value > SAMPLES_MAX-1) editorInstrument->sampleIndex  = SAMPLES_MAX-1;
 	else editorInstrument->sampleIndex += value;
 
-	mtDisplay.changeList(3, editorInstrument->sampleIndex);
+	mtDisplay.changeList(4, editorInstrument->sampleIndex);
 
 	lastChangedPoint = 0;
 	spectrumChanged = 1;

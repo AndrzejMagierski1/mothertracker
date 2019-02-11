@@ -72,10 +72,10 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	{
 		wavetableWindowSize = mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].wavetable_window_size;
 		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
-		samplePoints.start=currentWindow*wavetableWindowSize;;
+		//samplePoints.start=currentWindow*wavetableWindowSize;;
 		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
-		sampleConstrains.loopPoint1=currentWindow*wavetableWindowSize;
-		sampleConstrains.loopPoint2=(currentWindow+1)*wavetableWindowSize;
+		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
+		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
 		sampleConstrains.loopLength=wavetableWindowSize;
 	}
 	/*=========================================================================================================================*/
@@ -192,15 +192,16 @@ void AudioPlayMemory::update(void)
 
 		if(mtProject.sampleBank.sample[mtProject.instrument[currentInstr_idx].sampleIndex].type == mtSampleTypeWavetable)
 		{
-			pitchCounter-=waveTablePosition;
-
+//			pitchCounter-=(float)waveTablePosition;
+//
+//			waveTablePosition=wavetableWindowSize * currentWindow;
+//
+//			pitchCounter+=(float)waveTablePosition;
+//
+//			sampleConstrains.loopPoint2=waveTablePosition + wavetableWindowSize;
+//
+//			sampleConstrains.loopPoint1=waveTablePosition;
 			waveTablePosition=wavetableWindowSize * currentWindow;
-
-			pitchCounter+=waveTablePosition;
-
-			sampleConstrains.loopPoint2=waveTablePosition + wavetableWindowSize;
-
-			sampleConstrains.loopPoint1=waveTablePosition;
 		}
 		for (i=0; i < AUDIO_BLOCK_SAMPLES; i ++)
 		{
@@ -227,43 +228,45 @@ void AudioPlayMemory::update(void)
 
 				}
 
-				if(((playMode == singleShot) ||(playMode == loopForward)) && (mtProject.sampleBank.sample[mtProject.instrument[currentInstr_idx].sampleIndex].type != mtSampleTypeWavetable))
+				if(mtProject.sampleBank.sample[mtProject.instrument[currentInstr_idx].sampleIndex].type != mtSampleTypeWavetable)
 				{
-					*out++ = *(in+(uint32_t)pitchCounter);
-					pitchCounter+=pitchControl;
-
-					if(playMode == loopForward)
+					if((playMode == singleShot) ||(playMode == loopForward))
 					{
-						if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter = sampleConstrains.loopPoint1 ;
+						*out++ = *(in+(uint32_t)pitchCounter);
+						pitchCounter+=pitchControl;
+
+						if(playMode == loopForward)
+						{
+							if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter = sampleConstrains.loopPoint1 ;
+						}
+					}
+					else if(playMode == loopBackward)
+					{
+						*out++ = *(in+(uint32_t)pitchCounter);
+						if(!loopBackwardFlag) pitchCounter+=pitchControl;
+						else pitchCounter-=pitchControl;
+
+						if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) && (!loopBackwardFlag) ) loopBackwardFlag=1;
+						if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) pitchCounter = sampleConstrains.loopPoint2 ;
+
+					}
+					else if(playMode == loopPingPong)
+					{
+						*out++ = *(in+(uint32_t)pitchCounter);
+						if(!loopBackwardFlag) pitchCounter+=pitchControl;
+						else pitchCounter-=pitchControl;
+
+
+						if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) && (!loopBackwardFlag) ) loopBackwardFlag=1;
+						if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) loopBackwardFlag=0;
 					}
 				}
-				else if((playMode == loopBackward) && (mtProject.sampleBank.sample[mtProject.instrument[currentInstr_idx].sampleIndex].type != mtSampleTypeWavetable) )
+				else
 				{
-					*out++ = *(in+(uint32_t)pitchCounter);
-					if(!loopBackwardFlag) pitchCounter+=pitchControl;
-					else pitchCounter-=pitchControl;
-
-					if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) && (!loopBackwardFlag) ) loopBackwardFlag=1;
-					if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) pitchCounter = sampleConstrains.loopPoint2 ;
-
-				}
-				else if((playMode == loopPingPong) && (mtProject.sampleBank.sample[mtProject.instrument[currentInstr_idx].sampleIndex].type != mtSampleTypeWavetable))
-				{
-					*out++ = *(in+(uint32_t)pitchCounter);
-					if(!loopBackwardFlag) pitchCounter+=pitchControl;
-					else pitchCounter-=pitchControl;
-
-
-					if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) && (!loopBackwardFlag) ) loopBackwardFlag=1;
-					if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) loopBackwardFlag=0;
-				}
-
-				if(mtProject.sampleBank.sample[mtProject.instrument[currentInstr_idx].sampleIndex].type == mtSampleTypeWavetable)
-				{
-					*out++ = *(in+(uint32_t)pitchCounter);
+					*out++ = *(in+(uint32_t)pitchCounter + waveTablePosition);
 					pitchCounter+=pitchControl;
 
-					if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter = sampleConstrains.loopPoint1;
+					if(( (uint32_t)pitchCounter  >= wavetableWindowSize) && (!stopLoop) ) pitchCounter -= wavetableWindowSize;
 				}
 
 
