@@ -83,6 +83,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	for(uint8_t i = 0; i < mtProject.instruments_count; i++)
 	{
 		mtProject.instrument[i].sampleIndex = i;
+		mtProject.instrument[i].wavetableCurrentWindow = 0;
 
 		mtProject.instrument[i].playMode = 1;
 
@@ -117,6 +118,8 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].panning = 50;
 		mtProject.instrument[i].glide = 10000;
 		mtProject.instrument[i].volume = 100;
+		mtProject.instrument[i].tune = 0;
+		mtProject.instrument[i].fineTune = 0;
 
 		if(i >= 10)
 		{

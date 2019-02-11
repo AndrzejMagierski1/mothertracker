@@ -63,7 +63,7 @@ void onPotChange(uint8_t n, int16_t value)
 	mtInterface.potChange(n, value);
 
 	mtHaptic.start(15,150,0x01,56);
-
+/*
 	if(value > 0 )
 	{
 		if(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow  < MAX_WAVETABLE_WINDOW)
@@ -91,7 +91,7 @@ void onPotChange(uint8_t n, int16_t value)
 		}
 
 	}
-
+*/
 /*	mtPrint("pot change: ");
 	mtPrint(n);
 	mtPrint(" value: ");
@@ -116,7 +116,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 
 
 	mtInterface.buttonChange(n,value);
-
+/*
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].delay=0;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].attack=1;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].hold=1;
@@ -148,7 +148,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 
 
 
-
+*/
 
 /*		if(!n)
 		{
@@ -158,8 +158,8 @@ void onButtonChange(uint8_t n, uint8_t value)
 		}
 		else
 		{*/
-			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,24,100);
-			else instrumentPlayer[n].noteOff();
+//			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,24,100);
+//			else instrumentPlayer[n].noteOff();
 		//}
 		//mtInterface.buttonChange(n,value);
 
@@ -176,7 +176,11 @@ void onButtonChange(uint8_t n, uint8_t value)
 //-----------------------------------------------------------------
 void onPowerButtonChange(uint8_t value)
 {
-
+	if(value == 1)
+	{
+		mtInterface.activateModule(mtModuleInstrumentEditor);
+		mtInstrumentEditor.startExisting(0);
+	}
 
 	mtInterface.powerButtonChange(value);
 //	mtPrint("power button: ");

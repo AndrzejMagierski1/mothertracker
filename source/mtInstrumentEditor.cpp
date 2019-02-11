@@ -403,7 +403,6 @@ void cMtInstrumentEditor::processSpectrum()
 		else spectrum.spectrumType = 0;
 
 
-
 		return;
 	}
 
