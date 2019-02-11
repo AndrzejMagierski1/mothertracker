@@ -66,7 +66,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 
 
 	playerEngine instrumentPlayer[8];
-	strMtModAudioEngine modAudioEngine[8];
+//	strMtModAudioEngine modAudioEngine[8];
 	audioEngine engine;
 
 	void audioEngine::init()

@@ -53,6 +53,10 @@ enum enumMtInstrumentEditorPotFunction
 	mtInstrumentEditorPotFunctionRelease,
 	mtInstrumentEditorPotFunctionAmount,
 	mtInstrumentEditorPotFunctionResonance,
+	mtInstrumentEditorPotFunctionVolume,
+	mtInstrumentEditorPotFunctionFinetune,
+	mtInstrumentEditorPotFunctionTune,
+	mtInstrumentEditorPotFunctionWavetablePos,
 
 	//-------------------------------
 	mtInstrumentEditorPotFunctionCount
@@ -65,7 +69,9 @@ enum enumMtInstrumentEditorValue
 	mtInstrumentEditorValueGlide,
 	mtInstrumentEditorValueFilter,
 	mtInstrumentEditorValueResonance,
-	mtInstrumentEditorValue2,
+	mtInstrumentEditorValueVolume,
+	mtInstrumentEditorValueFinetune,
+	mtInstrumentEditorValueTune,
 
 	//-------------------------------
 	mtInstrumentEditorPotValueCount
@@ -99,6 +105,10 @@ const uint16_t mtInstrumentEditorPotsFuncRes[mtInstrumentEditorPotFunctionCount]
 		100,	//mtInstrumentEditorPotFunctionRelease,
 		100,	//mtInstrumentEditorPotFunctionAmount,
 		100,	//mtInstrumentEditorPotFunctionResonance,
+		100,	//mtInstrumentEditorPotFunctionVolume,
+		100,	//mtInstrumentEditorPotFunctionFineTune,
+		100,	//mtInstrumentEditorPotFunctionTune,
+		100,	//mtInstrumentEditorPotFunctionWavetablePos,
 
 };
 
@@ -212,6 +222,10 @@ private:
 	void changeSustain(int16_t value);
 	void changeRelease(int16_t value);
 	void changeAmount(int16_t value);
+	void changeVolume(int16_t value);
+	void changeFinetune(int16_t value);
+	void changeTune(int16_t value);
+	void changeWavetablePos(int16_t value);
 
 	uint8_t	refreshInstrumentEditor = 0;
 	uint8_t	instrumentEditorModeStart = 0;
@@ -267,7 +281,9 @@ private:
 		mtDispValueValue_0_100,				//mtInstrumentEditorPotValueGlide,
 		mtDispValueValue_0_100,				//mtInstrumentEditorPotValueFilter,
 		mtDispValueValue_0_100,				//mtInstrumentEditorValueResonance,
-		mtDispValueValueNone,				//mtInstrumentEditorPotValue2,
+		mtDispValueValue_0_100,				//mtInstrumentEditorValueVolume,
+		mtDispValueValue_0_100,				//mtInstrumentEditorValueFinetune,
+		mtDispValueValue_0_100,				//mtInstrumentEditorValueTune,
 	};
 
 	strMtDispEnvelope envelope;
@@ -321,6 +337,10 @@ private:
 		"Release",
 		"Amount",
 		"Resonance",
+		"Volume",
+		"Finetune",
+		"Tune",
+		"Wavetable"
 	};
 
 };

@@ -68,6 +68,10 @@ void cMtInstrumentEditor::update()
 		spectrumChanged = 0;
 		//updateButtonsFunctions();
 		//updatePotsFunctions();
+		if(mtProject.sampleBank.sample[mtProject.instrument[openedInstrumentIndex].sampleIndex].type == mtSampleTypeWavetable)
+		{
+			mtDisplay.setSpectrumPoints(0);
+		}
 
 		processSpectrum();
 		mtDisplay.changeSpectrum(&spectrum);
@@ -93,7 +97,7 @@ void cMtInstrumentEditor::update()
 		if(!sampleListEnabled)
 		{
 			sampleListChanged = 0;
-			mtDisplay.setList(3, 0, 0, 0, 0, 0);
+			mtDisplay.setList(4, 0, 0, 0, 0, 0);
 			return;
 		}
 
@@ -108,7 +112,7 @@ void cMtInstrumentEditor::update()
 			}
 
 			if(editorInstrument->sampleIndex < 0) editorInstrument->sampleIndex = 0;
-			mtDisplay.setList(3, 3, 1, editorInstrument->sampleIndex, sampleNames, SAMPLES_MAX);
+			mtDisplay.setList(4, 4, 1, editorInstrument->sampleIndex, sampleNames, SAMPLES_MAX);
 		}
 	}
 	//-----------------------------------------------------
@@ -311,6 +315,10 @@ void cMtInstrumentEditor::potChange(uint8_t pot, int16_t value)
 		case mtInstrumentEditorPotFunctionRelease  			: 	changeRelease(value);		break;
 		case mtInstrumentEditorPotFunctionAmount  			: 	changeAmount(value);		break;
 		case mtInstrumentEditorPotFunctionResonance  		: 	changeResonance(value);		break;
+		case mtInstrumentEditorPotFunctionVolume            :   changeVolume(value);        break;
+		case mtInstrumentEditorPotFunctionFinetune          :   changeFinetune(value);      break;
+		case mtInstrumentEditorPotFunctionTune              :   changeTune(value);          break;
+		case mtInstrumentEditorPotFunctionWavetablePos      :   changeWavetablePos(value);  break;
 		default: break;
 	}
 
@@ -640,14 +648,27 @@ void cMtInstrumentEditor::processParameters()
 			}
 			case mtInstrumentEditorValueResonance:
 			{
-				if(editorInstrument->resonance < RESONANCE_MIN) editorInstrument->resonance = RESONANCE_MIN;
+				//if(editorInstrument->resonance < RESONANCE_MIN) editorInstrument->resonance = RESONANCE_MIN;
 				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueResonance];
 				values.value1[i] =  ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100;
 				break;
 			}
-			case mtInstrumentEditorValue2:
+			case mtInstrumentEditorValueVolume:
 			{
-
+				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueVolume];
+				values.value1[i] = editorInstrument->volume;
+				break;
+			}
+			case mtInstrumentEditorValueFinetune:
+			{
+				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueFinetune];
+				values.value1[i] = editorInstrument->fineTune;
+				break;
+			}
+			case mtInstrumentEditorValueTune:
+			{
+				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueTune];
+				values.value1[i] = editorInstrument->tune;
 				break;
 			}
 			default:
@@ -827,18 +848,25 @@ void cMtInstrumentEditor::updatePotsFunctions()
 	}
 	else
 	{
-		setPotFunction(0, mtInstrumentEditorPotFunctionStartPoint);
-		setPotFunction(2, mtInstrumentEditorPotFunctionViewZoom);
-		setPotFunction(4, mtInstrumentEditorPotFunctionEndPoint);
-
-		if(editorInstrument->playMode >= loopForward)
+		if(mtProject.sampleBank.sample[mtProject.instrument[openedInstrumentIndex].sampleIndex].type == mtSampleTypeWavetable)
 		{
-			setPotFunction(1, mtInstrumentEditorPotFunctionLoopPoint1);
-			setPotFunction(3, mtInstrumentEditorPotFunctionLoopPoint2);
+			setPotFunction(0, mtInstrumentEditorPotFunctionWavetablePos);
 		}
+		else
+		{
+			setPotFunction(0, mtInstrumentEditorPotFunctionStartPoint);
+			setPotFunction(2, mtInstrumentEditorPotFunctionViewZoom);
+			setPotFunction(4, mtInstrumentEditorPotFunctionEndPoint);
+
+			if(editorInstrument->playMode >= loopForward)
+			{
+				setPotFunction(1, mtInstrumentEditorPotFunctionLoopPoint1);
+				setPotFunction(3, mtInstrumentEditorPotFunctionLoopPoint2);
+			}
+		}
+
 		if(sampleListEnabled) setPotFunction(4, mtInstrumentEditorPotFunctionSampleSelect);
 		if(instrumentListEnabled) setPotFunction(0, mtInstrumentEditorPotFunctionInstrumentSelect);
-		//setPotFunction(4, mtInstrumentEditorPotFunctionViewZoom);
 	}
 
 
@@ -869,13 +897,7 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
 	uint16_t move_step = zoomWidth / 480;
 	uint16_t dif;
-	//value = value * move_step;
-
-	if(editorInstrument->wavetableCurrentWindow + value < 0) editorInstrument->wavetableCurrentWindow  = 0;
-	else if(editorInstrument->wavetableCurrentWindow + value > 255 ) editorInstrument->wavetableCurrentWindow  = 255;
-	else editorInstrument->wavetableCurrentWindow += value;
-
-/*
+	value = value * move_step;
 
 	if(editorInstrument->startPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument->startPoint  = 0;
 	else if(editorInstrument->startPoint + value > SAMPLE_POINT_POS_MAX ) editorInstrument->startPoint  = SAMPLE_POINT_POS_MAX;
@@ -905,9 +927,6 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 
 	lastChangedPoint = 1;
 	pointsChanged = 1;
-
-	*/
-	spectrumChanged = 1;
 }
 
 void cMtInstrumentEditor::modEndPoint(int16_t value)
@@ -988,7 +1007,6 @@ void cMtInstrumentEditor::changePlayMode(uint8_t value)
 {
 	if(value == 1)
 	{
-
 		if(editorInstrument->playMode < playModeMax-1 ) editorInstrument->playMode++;
 		else editorInstrument->playMode = 0;
 
@@ -1013,7 +1031,6 @@ void cMtInstrumentEditor::changeGlide(int16_t value)
 	if(editorInstrument->glide + value < GLIDE_MIN) editorInstrument->glide = GLIDE_MIN;
 	else if(editorInstrument->glide + value > GLIDE_MAX ) editorInstrument->glide = GLIDE_MAX;
 	else editorInstrument->glide += value;
-
 
 	parametersChanged = 1;
 }
@@ -1074,11 +1091,49 @@ void cMtInstrumentEditor::changeResonance(int16_t value)
 	float fVal = value * 0.05;
 
 	if(editorInstrument->resonance + fVal < RESONANCE_MIN) editorInstrument->resonance = RESONANCE_MIN;
-	else if(editorInstrument->resonance + fVal > RESONANCE_MAX ) editorInstrument->resonance = RESONANCE_MAX;
+	else if(editorInstrument->resonance + fVal > RESONANCE_MAX) editorInstrument->resonance = RESONANCE_MAX;
 	else editorInstrument->resonance += fVal;
 
 	parametersChanged = 1;
 }
+
+void cMtInstrumentEditor::changeVolume(int16_t value)
+{
+	if(editorInstrument->volume + value < 0) editorInstrument->volume = 0;
+	else if(editorInstrument->volume + value > MAX_INSTRUMENT_VOLUME) editorInstrument->volume = MAX_INSTRUMENT_VOLUME;
+	else editorInstrument->volume += value;
+
+	parametersChanged = 1;
+}
+
+void cMtInstrumentEditor::changeFinetune(int16_t value)
+{
+	if(editorInstrument->fineTune + value < MIN_INSTRUMENT_FINETUNE) editorInstrument->fineTune = MIN_INSTRUMENT_FINETUNE;
+	else if(editorInstrument->fineTune + value > MAX_INSTRUMENT_FINETUNE) editorInstrument->fineTune = MAX_INSTRUMENT_FINETUNE;
+	else editorInstrument->fineTune += value;
+
+	parametersChanged = 1;
+}
+
+void cMtInstrumentEditor::changeTune(int16_t value)
+{
+	if(editorInstrument->tune + value < MIN_NOTE) editorInstrument->tune = MIN_NOTE;
+	else if(editorInstrument->tune + value > MAX_NOTE) editorInstrument->tune = MAX_NOTE;
+	else editorInstrument->tune += value;
+
+	parametersChanged = 1;
+}
+
+void cMtInstrumentEditor::changeWavetablePos(int16_t value)
+{
+	if(editorInstrument->wavetableCurrentWindow + value < 0) editorInstrument->wavetableCurrentWindow  = 0;
+	else if(editorInstrument->wavetableCurrentWindow + value > MAX_WAVETABLE_WINDOW) editorInstrument->wavetableCurrentWindow = MAX_WAVETABLE_WINDOW;
+	else editorInstrument->wavetableCurrentWindow += value;
+
+	spectrumChanged = 1;
+}
+
+
 
 void cMtInstrumentEditor::changeEnvelopeType(uint8_t value)
 {

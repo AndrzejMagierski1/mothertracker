@@ -1374,7 +1374,7 @@ uint8_t Sequencer::get_fxValType(uint8_t fxType)
 	}
 }
 
-strMtModAudioEngine  playMod = {0};
+//strMtModAudioEngine  playMod = {0};
 
 void Sequencer::sendNoteOn(uint8_t track, strBank::strTrack::strStep *step)
 {

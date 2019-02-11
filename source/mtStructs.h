@@ -37,7 +37,7 @@ const uint16_t  ATTACK_MAX 					=	11000;
 const uint16_t  DECAY_MAX					=	11000;
 const float  	SUSTAIN_MAX					=	1.0;
 const uint16_t  RELEASE_MAX					=	11000;
-const float  AMOUNT_MAX						=	1.0;
+const float  	AMOUNT_MAX					=	1.0;
 
 const float  RESONANCE_OFFSET				=	0.7;
 const float  RESONANCE_MIN					=	0;
@@ -55,7 +55,10 @@ const uint8_t MAX_MOD =							5;
 const float MAX_CUTOFF =						1.0;
 const float MIN_CUTOFF =						0.0;
 
-const uint8_t MAX_FINETUNE =					100;
+const int8_t  MIN_INSTRUMENT_FINETUNE  	=		-100;
+const uint8_t MAX_INSTRUMENT_FINETUNE  	=		100;
+const uint8_t MAX_INSTRUMENT_VOLUME 	=		100;
+
 
 const uint8_t MAX_WAVETABLE_WINDOW =			255;
 const uint16_t STANDARD_WAVETABLE_WINDOW_LEN = 	1024;
@@ -284,8 +287,6 @@ struct strInstrument
 
 
 
-
-
 struct strMtProject
 {
 	strSampleBank sampleBank;
@@ -296,28 +297,7 @@ struct strMtProject
 };
 
 
-
-struct strMtModAudioEngine
-{
-	int16_t startPoint;
-	int16_t endPoint;
-	int16_t loopPoint1;
-	int16_t loopPoint2;
-	float pitchCtrl;
-	uint16_t glide;
-
-
-	uint8_t startPointMod;
-	uint8_t endPointMod;
-	uint8_t loopPoint1Mod;
-	uint8_t loopPoint2Mod;
-	uint8_t pitchCtrlMod;
-	uint8_t glideMod;
-};
-
-
 extern strMtProject mtProject;
-
 
 
 

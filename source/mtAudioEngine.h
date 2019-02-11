@@ -85,7 +85,6 @@ private:
 
 
 extern playerEngine instrumentPlayer[8];
-extern strMtModAudioEngine modAudioEngine[8];
 extern audioEngine engine;
 
 

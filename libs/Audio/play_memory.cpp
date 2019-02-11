@@ -99,7 +99,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	{
 		if((note + mtProject.instrument[instr_idx].tune + 1) <= MAX_NOTE)
 		{
-			fineTuneControl= mtProject.instrument[instr_idx].fineTune * ((notes[note + currentTune + 1] - notes[note + currentTune]) /MAX_FINETUNE);
+			fineTuneControl= mtProject.instrument[instr_idx].fineTune * ((notes[note + currentTune + 1] - notes[note + currentTune]) /MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
@@ -107,7 +107,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	{
 		if((note + mtProject.instrument[instr_idx].tune - 1) >= MIN_NOTE)
 		{
-			fineTuneControl= (0 - mtProject.instrument[instr_idx].fineTune) * ((notes[note + currentTune - 1] - notes[note + currentTune] )/MAX_FINETUNE);
+			fineTuneControl= (0 - mtProject.instrument[instr_idx].fineTune) * ((notes[note + currentTune - 1] - notes[note + currentTune] )/MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
@@ -421,7 +421,7 @@ void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 	{
 		if((currentNote + currentTune + 1) <= MAX_NOTE)
 		{
-			fineTuneControl= value * ((notes[currentNote + currentTune + 1] - notes[currentNote + currentTune]) /MAX_FINETUNE);
+			fineTuneControl= value * ((notes[currentNote + currentTune + 1] - notes[currentNote + currentTune]) /MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
@@ -429,7 +429,7 @@ void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 	{
 		if((currentNote + currentTune - 1) >= MIN_NOTE)
 		{
-			fineTuneControl= (0-value) * ((notes[currentNote + currentTune - 1] - notes[currentNote + currentTune]) /MAX_FINETUNE);
+			fineTuneControl= (0-value) * ((notes[currentNote + currentTune - 1] - notes[currentNote + currentTune]) /MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
