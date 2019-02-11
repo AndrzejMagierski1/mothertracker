@@ -64,33 +64,33 @@ void onPotChange(uint8_t n, int16_t value)
 
 	mtHaptic.start(15,150,0x01,56);
 
-//	if(value > 0 )
-//	{
-//		if(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow  < MAX_WAVETABLE_WINDOW)
-//		{
-//			mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow++;
-//			Serial.print("pot: ");
-//			Serial.print(n);
-//			Serial.print(" wavetableWindow: ");
-//			Serial.println(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow);
-//			instrumentPlayer[n].modWavetableWindow(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow);
-//
-//		}
-//
-//	}
-//	else if( value < 0)
-//	{
-//		if(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow  > 0)
-//		{
-//			mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow--;
-//			Serial.print("pot: ");
-//			Serial.print(n);
-//			Serial.print(" wavetableWindow: ");
-//			Serial.println(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow);
-//			instrumentPlayer[n].modWavetableWindow(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow);
-//		}
-//
-//	}
+	if(value > 0 )
+	{
+		if(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow  < MAX_WAVETABLE_WINDOW)
+		{
+			mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow++;
+			Serial.print("pot: ");
+			Serial.print(n);
+			Serial.print(" wavetableWindow: ");
+			Serial.println(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow);
+			instrumentPlayer[n].modWavetableWindow(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow);
+
+		}
+
+	}
+	else if( value < 0)
+	{
+		if(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow  > 0)
+		{
+			mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow--;
+			Serial.print("pot: ");
+			Serial.print(n);
+			Serial.print(" wavetableWindow: ");
+			Serial.println(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow);
+			instrumentPlayer[n].modWavetableWindow(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow);
+		}
+
+	}
 
 /*	mtPrint("pot change: ");
 	mtPrint(n);
@@ -117,7 +117,6 @@ void onButtonChange(uint8_t n, uint8_t value)
 
 	mtInterface.buttonChange(n,value);
 
-/*
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].delay=0;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].attack=1;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].hold=1;
@@ -146,9 +145,8 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].tune=0;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].fineTune=0;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow=0;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableWindowSize=1024;
 
-*/
+
 
 
 
@@ -160,8 +158,8 @@ void onButtonChange(uint8_t n, uint8_t value)
 		}
 		else
 		{*/
-//			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,24,100);
-//			else instrumentPlayer[n].noteOff();
+			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,24,100);
+			else instrumentPlayer[n].noteOff();
 		//}
 		//mtInterface.buttonChange(n,value);
 

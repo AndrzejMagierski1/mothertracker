@@ -47,8 +47,6 @@ const float  RESONANCE_OFFSET				=	0.7;
 const float  RESONANCE_MIN					=	0;
 const float  RESONANCE_MAX					=	4.3;
 
-
-
 const uint16_t HIGH_PASS_FILTER_FREQ =			(14000/128);
 const uint16_t LOW_PASS_FILTER_FREQ =			(14000/128);
 const float MAX_OCTAVE_CONTROL = 				7.0;
@@ -90,7 +88,6 @@ enum playMode
 	loopForward,
 	loopBackward,
 	loopPingPong,
-	wavetable,
 
 	playModeMax
 };
@@ -213,27 +210,6 @@ struct strWavFileHeader
 
 };
 
-/*struct strSerumWavetableFileHeader
-{
-	uint32_t chunkId;		//0
-	uint32_t chunkSize;		//4
-	uint32_t format;		//8
-	uint16_t empty1[18];	//12
-	uint32_t subchunk1Id;	//48
-	uint32_t subchunk1Size;	//52
-	uint16_t AudioFormat;	//56
-	uint16_t numChannels;	//58
-	uint32_t sampleRate;	//60
-	uint32_t byteRate;		//64
-	uint16_t blockAlign;	//68
-	uint16_t bitsPerSample;	//70
-	uint8_t  empty2[56];	//72
-	uint32_t subchunk2Id;	//128
-	uint32_t subchunk2Size;	//132
-};*/
-
-
-
 struct strSampleBank
 {
 	struct strSampleBankSlot
@@ -268,7 +244,6 @@ struct strInstrument
     uint16_t loopPoint2;
     uint16_t endPoint;
 
-    uint16_t wavetableWindowSize;
     uint16_t wavetableCurrentWindow;
 
 	envelopeGenerator::strEnv envelope[3];
