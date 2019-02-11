@@ -71,6 +71,7 @@ void cMtInstrumentEditor::update()
 		if(mtProject.sampleBank.sample[mtProject.instrument[openedInstrumentIndex].sampleIndex].type == mtSampleTypeWavetable)
 		{
 			mtDisplay.setSpectrumPoints(0);
+			instrumentPlayer[0].modWavetableWindow(editorInstrument->wavetableCurrentWindow);
 		}
 
 		processSpectrum();
@@ -84,6 +85,7 @@ void cMtInstrumentEditor::update()
 		//updatePotsFunctions();
 
 		//instrumentPlayer[0].change(editorInstrument, &editorMod);
+
 
 		processPoints();
 		mtDisplay.changeSpectrumPoints(&spectrum);

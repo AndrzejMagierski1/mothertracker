@@ -11,6 +11,10 @@
 //=====================================================================
 
 const uint16_t MAX_16BIT =              		65535;
+const int16_t MAX_SIGNED_16BIT =				32767;
+const int16_t MIN_SIGNED_16BIT =				-32768;
+const float MAX_WAVE_FLOAT =					1.0;
+const float MIN_WAVE_FLOAT =					-1.0;
 const uint32_t SAMPLE_MEMORY_MAX =      		(8*1024*1024);
 const uint8_t  INSTRUMENTS_MAX =        		32;
 const uint8_t  SAMPLES_MAX =            		32;
@@ -209,26 +213,25 @@ struct strWavFileHeader
 
 };
 
-struct strSerumWavetableFileHeader
+/*struct strSerumWavetableFileHeader
 {
-	uint32_t chunkId;			//0
-	uint32_t chunkSize;			//4
-	uint32_t format;			//8
-	uint16_t empty1[18];		//12
-	uint32_t subchunk1Id;		//48
-	uint32_t subchunk1Size;		//52
-	uint16_t AudioFormat;		//56
-	uint16_t numChannels;		//58
-	uint32_t sampleRate;		//60
-	uint32_t byteRate;			//64
-	uint16_t blockAlign;		//68
-	uint16_t bitsPerSample;		//70
-	uint8_t  empty2[11];		//72
-	uint32_t wavetableFormat;	//83
-	uint8_t	 empty3[41];		//87
-	uint32_t subchunk2Id;		//128
-	uint32_t subchunk2Size;		//132
-};
+	uint32_t chunkId;		//0
+	uint32_t chunkSize;		//4
+	uint32_t format;		//8
+	uint16_t empty1[18];	//12
+	uint32_t subchunk1Id;	//48
+	uint32_t subchunk1Size;	//52
+	uint16_t AudioFormat;	//56
+	uint16_t numChannels;	//58
+	uint32_t sampleRate;	//60
+	uint32_t byteRate;		//64
+	uint16_t blockAlign;	//68
+	uint16_t bitsPerSample;	//70
+	uint8_t  empty2[56];	//72
+	uint32_t subchunk2Id;	//128
+	uint32_t subchunk2Size;	//132
+};*/
+
 
 
 struct strSampleBank
