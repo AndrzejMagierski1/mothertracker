@@ -57,7 +57,7 @@ public:
 			MIN_TEMPO = 10.0,
 			MAX_SWING = 75.0,
 			MIN_SWING = 25.0,
-			DEFAULT_TEMPO = 120.0,
+			DEFAULT_TEMPO = 130.0,
 
 			DEFAULT_SWING = 50.0;
 
@@ -225,7 +225,7 @@ private:
 				uint8_t isOn :1;
 				uint8_t note :7;
 
-				uint8_t velocity = 127;
+				int8_t velocity = 127;	// jeśli <0 to nie wysyłamy
 				uint8_t instrument = 0;
 
 				// 2 x byte
@@ -446,7 +446,10 @@ private:
 
 			uint16_t uStep = 0;		// aktualny microstep
 			int8_t actual_pos = 0;	// aktualna pozycja w stepach
-			uint16_t stepTimer = 1;	// tu odliczamy ile zostalo microstepów
+			uint16_t stepTimer = 0;	// tu liczymy microstepy w górę
+			uint16_t stepLength = 0;	// z tym porównujemy timer
+
+			uint8_t rollMode = 0;
 
 			bool pingPongToogle = 0;
 			// do zakonczenia stepa

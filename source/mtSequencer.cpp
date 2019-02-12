@@ -236,18 +236,19 @@ void Sequencer::play_microStep(uint8_t row)
 	// odliczamy odpaloną nutę
 	//
 
-	if (playerRow.stepTimer > 0)
-		playerRow.stepTimer--;
+	if (playerRow.stepOpen)
+		playerRow.stepTimer++;
 
 	//
 	// wyłączamy nutę jeśli się skończyła
 	//
 
-	if ((playerRow.stepTimer <= 1) && (playerRow.stepOpen) && !playerRow.recNoteOpen)
+	if ((playerRow.stepTimer >= playerRow.stepLength) && (playerRow.stepOpen))  // && !playerRow.recNoteOpen)
 	{
 		sendNoteOff(row,
 					&playerRow.stepSent);
 		playerRow.stepOpen = 0;
+
 	}
 
 	//
@@ -290,7 +291,8 @@ void Sequencer::play_microStep(uint8_t row)
 		{
 
 			playerRow.stepOpen = 1;
-			playerRow.stepTimer = patternStep.length1;
+			playerRow.stepTimer = 0; // od tej pory timer liczy w górę
+			playerRow.stepLength = patternStep.length1;
 			playerRow.stepSent = patternStep; // buforujemy wysłanego stepa
 		}
 	}
@@ -690,17 +692,17 @@ void Sequencer::loadDefaultSequence(void)
 	seq[player.ramBank].track[0].step[0].isOn = 1;
 //	seq[player.ramBank].row[0].step[0].hitMode = 1;
 	seq[player.ramBank].track[0].step[0].note = 42;
-	seq[player.ramBank].track[0].step[0].length1 = 10;
+	seq[player.ramBank].track[0].step[0].length1 = 48;
 
 	seq[player.ramBank].track[0].step[1].isOn = 1;
 //	seq[player.ramBank].row[0].step[1].hitMode = 1;
 	seq[player.ramBank].track[0].step[1].note = 45;
-	seq[player.ramBank].track[0].step[1].length1 = 30;
+	seq[player.ramBank].track[0].step[1].length1 = 48;
 
 	seq[player.ramBank].track[0].step[2].isOn = 1;
 //	seq[player.ramBank].row[0].step[2].hitMode = 1;
 	seq[player.ramBank].track[0].step[2].note = 46;
-	seq[player.ramBank].track[0].step[2].length1 = 30;
+	seq[player.ramBank].track[0].step[2].length1 = 48;
 	seq[player.ramBank].track[0].step[2].fx[0].isOn = 1;
 	seq[player.ramBank].track[0].step[2].fx[0].type = fx.FX_TYPE_OFFSET;
 	seq[player.ramBank].track[0].step[2].fx[0].value_u16 = 10;
