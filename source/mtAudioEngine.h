@@ -56,6 +56,7 @@ public:
 
 	void modWavetableWindow(uint16_t value);
 	void modTune(int8_t value);
+	void setStatusByte(uint8_t value);
 //	void resetMods();
 
 	void update();
@@ -76,6 +77,7 @@ private:
 	uint8_t 					currentInstrument_idx;
 	int8_t						currentNote;
 	int8_t						currentVelocity;
+	uint8_t 					statusByte; // 7-resonance, 6-cutoff, 5-panning ,4-volume,3-tune,2-fineTune, 1-LP1 , 0-LP2
 
 	void changeFilterType(uint8_t type);
 	void filterConnect();
@@ -100,7 +102,7 @@ extern LFO						lfoAmp[8];
 extern LFO						lfoFilter[8];
 extern LFO						lfoPitch[8];
 extern int16_t					mods[MAX_TARGET][MAX_MOD];
-extern uint8_t 					instrumentStatusByte;
+
 
 
 #endif /* SOURCE_MTAUDIOENGINE_H_ */
