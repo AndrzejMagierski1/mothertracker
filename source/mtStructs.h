@@ -68,6 +68,16 @@ const uint16_t SERUM_WAVETABLE_WINDOW_LEN = 	2048;
 
 const uint16_t STANDARD_WAVETABLE_WINDOWS_NUMBER = 	256;
 
+const uint8_t LP1_MASK =						1;
+const uint8_t LP2_MASK =						2;
+const uint8_t FINETUNE_MASK =					3;
+const uint8_t TUNE_MASK =						4;
+const uint8_t VOLUME_MASK =						5;
+const uint8_t PANNING_MASK =					6;
+const uint8_t CUTOFF_MASK =						7;
+const uint8_t RESONANCE_MASK =					8;
+
+
 //=====================================================================
 //=====================================================================
 //=====================================================================
