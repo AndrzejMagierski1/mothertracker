@@ -399,8 +399,9 @@ void cMtInstrumentEditor::processSpectrum()
 			spectrum.lowerData[i] = low;
 		}
 
-		if(resolution <= 1) spectrum.spectrumType = 1;
-		else spectrum.spectrumType = 0;
+		//if(resolution <= 1)
+			spectrum.spectrumType = 1;
+		//else spectrum.spectrumType = 0;
 
 
 		return;
@@ -800,7 +801,10 @@ void cMtInstrumentEditor::updateButtonsFunctions()
 	else
 	{
 		setButtonFunction(0, mtInstrumentEditorButtonFunctionInstrumentList);
-		setButtonFunction(1, mtInstrumentEditorButtonFunctionPlayMode);
+		if(mtProject.sampleBank.sample[mtProject.instrument[openedInstrumentIndex].sampleIndex].type == mtSampleTypeWaveFile)
+		{
+			setButtonFunction(1, mtInstrumentEditorButtonFunctionPlayMode);
+		}
 		setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
 		setButtonFunction(3, mtInstrumentEditorButtonFunctionEnvelopes);
 		setButtonFunction(4, mtInstrumentEditorButtonFunctionSampleList);

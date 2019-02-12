@@ -186,11 +186,17 @@ void cMtDisplayList::update()
 		//uint8_t txt_offset;
 
 
+// TODO: TUTEJ MAGIA DO ZROBIENIA
+// TODO:
+// TODO:
+// TODO:
+// TODO:
+// TODO:
+
+
 		for(uint8_t i = 0; i < lines; i++)
 		{
-			//txt_offset = 1;
 			//API_CMD_TEXT(x_pos, y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE), MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), (displayBlock[block].menu)+20*(displayBlock[block].value+row+i));
-			//if(*((listTable)+(listRowLength*(listStart  + i -  listState))) == '/') txt_offset = 0;
 
 			API_CMD_TEXT(x_pos,
 					y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
@@ -202,8 +208,6 @@ void cMtDisplayList::update()
 /*
 		for(int8_t i = -1; i < (lines+1); i++)
 		{
-			//txt_offset = 1;
-			//if(*((listTable)+(listRowLength*(listStart  + i -  (listState+1)))) == '/') txt_offset = 0;
 			API_CMD_TEXT(x_pos,
 					y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
 					MT_GPU_RAM_FONT1_HANDLE,
@@ -211,6 +215,14 @@ void cMtDisplayList::update()
 					*(listTable+ (listStart  + i -  (listState+1) ) ) );
 		}
 */
+
+
+
+
+
+
+
+
 		API_RESTORE_CONTEXT();
 
 	}
