@@ -237,18 +237,31 @@ void Sequencer::play_microStep(uint8_t row)
 	//
 
 	if (playerRow.stepOpen)
+	{
 		playerRow.stepTimer++;
 
-	//
-	// wyłączamy nutę jeśli się skończyła
-	//
+		//
+		// wyłączamy nutę jeśli się skończyła
+		//
 
-	if ((playerRow.stepTimer >= playerRow.stepLength) && (playerRow.stepOpen))  // && !playerRow.recNoteOpen)
+		if ((playerRow.stepTimer >= playerRow.stepLength))
+		{
+
+			playerRow.stepOpen = 0;
+			playerRow.rollMode = fx.ROLL_TYPE_NONE;
+
+		}
+	}
+	if (playerRow.noteOpen)
 	{
-		sendNoteOff(row,
-					&playerRow.stepSent);
-		playerRow.stepOpen = 0;
+		playerRow.noteTimer++;
 
+		if ((playerRow.noteTimer >= playerRow.noteLength))
+		{
+			sendNoteOff(row,
+						&playerRow.stepSent);
+			playerRow.noteOpen = 0;
+		}
 	}
 
 	//
@@ -263,37 +276,67 @@ void Sequencer::play_microStep(uint8_t row)
 	}
 
 	//
-	//		wystartować nutę?
+	//		wystartować stepa?
 	//
 	if (patternRow.isOn && patternStep.isOn)
 	{
-		boolean sendNote = 0;
+		boolean startStep = 0;
 		// nie-offset
 		if (patternStep.fx[0].type != fx.FX_TYPE_OFFSET &&
 				playerRow.uStep == 1)
 		{
-			sendNote = 1;
-			if (playerRow.stepOpen) sendNoteOff(row, &playerRow.stepSent);
+			startStep = 1;
+			if (playerRow.noteOpen)
+			{
+				playerRow.noteOpen = 0;
+				sendNoteOff(row, &playerRow.stepSent);
+				playerRow.rollMode = fx.ROLL_TYPE_NONE;
+			}
+			if (playerRow.stepOpen)
+			{
+				playerRow.stepOpen = 0;
+				playerRow.rollMode = fx.ROLL_TYPE_NONE;
+			}
 
-			sendNoteOn(row, &patternStep);
 		}
 		// offset
 		else if (patternStep.fx[0].type == fx.FX_TYPE_OFFSET &&
 				playerRow.uStep == patternStep.fx[0].value_u16)
 		{
-			sendNote = 1;
-			if (playerRow.stepOpen) sendNoteOff(row, &playerRow.stepSent);
-
-			sendNoteOn(row, &patternStep);
+			startStep = 1;
+			if (playerRow.noteOpen)
+			{
+				playerRow.noteOpen = 0;
+				sendNoteOff(row, &playerRow.stepSent);
+				playerRow.rollMode = fx.ROLL_TYPE_NONE;
+			}
+			if (playerRow.stepOpen)
+			{
+				playerRow.stepOpen = 0;
+				playerRow.rollMode = fx.ROLL_TYPE_NONE;
+			}
 		}
 
-		if (sendNote)
+		if (startStep)
 		{
-
+			// ustawiamy całego stepa
 			playerRow.stepOpen = 1;
 			playerRow.stepTimer = 0; // od tej pory timer liczy w górę
 			playerRow.stepLength = patternStep.length1;
+			// ustawiamy nute
+			playerRow.noteOpen = 1;
+			playerRow.noteLength = patternStep.length1;
+			playerRow.noteTimer = 0; // od tej pory timer liczy w górę
+
 			playerRow.stepSent = patternStep; // buforujemy wysłanego stepa
+
+			// jeśli rolka to nuty są krótsze od stepa
+			if (patternStep.fx[0].type == fx.FX_TYPE_ROLL)
+			{
+				playerRow.noteLength = 5; // TODO: wyliczyć długość rolki
+				playerRow.rollMode = patternStep.fx[0].rollType;
+			}
+			sendNoteOn(row, &patternStep);
 		}
 	}
 
@@ -303,9 +346,42 @@ void Sequencer::play_microStep(uint8_t row)
 
 	if (playerRow.stepOpen)
 	{
+		if (playerRow.rollMode != fx.ROLL_TYPE_NONE)
+		{
+			// sprawdzamy timer microstepów, czy jest wielokrotrością rolki
+			if (((playerRow.stepTimer % rollTypeToVal(playerRow.rollMode)) == 1) && playerRow.stepTimer != 1)
+			{
+//				Serial.println("rolka!");
 
+				playerRow.noteOpen = 1;
+				playerRow.noteTimer = 0; // od tej pory timer liczy w górę
+				playerRow.noteLength = 6; // TODO: wyliczyć długość rolki
+
+				sendNoteOn(row, &playerRow.stepSent);
+//				playerRow.stepSent = patternStep; // buforujemy wysłanego stepa
+			}
+		}
 	}
 
+}
+
+uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
+{
+	switch (rollType)
+	{
+	case fx.ROLL_TYPE_NONE:
+		break;
+	case fx.ROLL_TYPE_1_1:
+		return 48;
+	case fx.ROLL_TYPE_1_2:
+		return 24;
+	case fx.ROLL_TYPE_1_4:
+		return 12;
+		break;
+	default:
+		return 0;
+	}
+	return 0;
 }
 
 void Sequencer::rec_metronome(void)
@@ -706,6 +782,13 @@ void Sequencer::loadDefaultSequence(void)
 	seq[player.ramBank].track[0].step[2].fx[0].isOn = 1;
 	seq[player.ramBank].track[0].step[2].fx[0].type = fx.FX_TYPE_OFFSET;
 	seq[player.ramBank].track[0].step[2].fx[0].value_u16 = 10;
+
+	seq[player.ramBank].track[0].step[4].isOn = 1;
+	seq[player.ramBank].track[0].step[4].note = 47;
+	seq[player.ramBank].track[0].step[4].length1 = 45;
+	seq[player.ramBank].track[0].step[4].fx[0].isOn = 1;
+	seq[player.ramBank].track[0].step[4].fx[0].type = fx.FX_TYPE_ROLL;
+	seq[player.ramBank].track[0].step[4].fx[0].rollType = fx.ROLL_TYPE_1_4;
 
 }
 

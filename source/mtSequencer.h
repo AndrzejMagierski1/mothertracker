@@ -16,92 +16,87 @@
 class Sequencer
 {
 public:
+	enum
+	{
+		//static const uint8_t
+		MAXROW = 7,
+		MINROW = 0,
+		MINSTEP = 0,
+		MAXSTEP = 31,
 
-	static const uint8_t MAXROW = 7,
-			MINROW = 0,
-			MINSTEP = 0,
-			MAXSTEP = 31,
+		DEFAULT_ROW_LEN = 32,
+		DEFAULT_ROW_NOTE = 36,
+		DEFAULT_ROW_CHANNEL = 1,
 
-			DEFAULT_ROW_LEN = 32,
-			DEFAULT_ROW_NOTE = 36,
-			DEFAULT_ROW_CHANNEL = 1,
+		MIN_CHORD = 0,
+		MAX_CHORD = 29,
+		NO_CHORD = 0,
 
-			MIN_CHORD = 0,
-			MAX_CHORD = 29,
-			NO_CHORD = 0;
+//	static const uint8_t
+		MIDIOUT_DIN1 = 0,
+		MIDIOUT_DIN2 = 1,
+		MIDIOUT_USB = 2,
+		MIDIOUT_DIN1_C = 3,
+		MIDIOUT_DIN2_C = 4,
+		MIDIOUT_USB_C = 5,
 
-	static const uint8_t MIDIOUT_DIN1 = 0,
-			MIDIOUT_DIN2 = 1,
-			MIDIOUT_USB = 2,
-			MIDIOUT_DIN1_C = 3,
-			MIDIOUT_DIN2_C = 4,
-			MIDIOUT_USB_C = 5,
+		MIDIOUT_MIN = 0,
+		MIDIOUT_MAX = 5,
 
-			MIDIOUT_MIN = 0,
-			MIDIOUT_MAX = 5,
+		COPY_MODE_BANK = 0,
+		COPY_MODE_ROW = 0,
+		COPY_MODE_STEP = 0,
 
-			COPY_MODE_BANK = 0,
-			COPY_MODE_ROW = 0,
-			COPY_MODE_STEP = 0,
+		HITMODE_OFFSET = 20,
+		OFFSET_MIN = 1,
+		OFFSET_MAX = 48,
 
-			HITMODE_OFFSET = 20,
-			OFFSET_MIN = 1,
-			OFFSET_MAX = 48,
+		CC_ALL_NOTES_OFF = 123,
+		CC_VAL_NOTES_OFF = 0,
 
-			CC_ALL_NOTES_OFF = 123,
-			CC_VAL_NOTES_OFF = 0,
+		DEFAULT_CC = 74, // Generally this CC controls a vibrato effect (pitch, loudness, brighness). What is modulated is based on the patch.
 
-			DEFAULT_CC = 74; // Generally this CC controls a vibrato effect (pitch, loudness, brighness). What is modulated is based on the patch.
+		MAX_NOTE_TRACK = 127,
+		MIN_NOTE_TRACK = 0,
+		MAX_TRACK_LENGTH = 32,
+		MIN_TRACK_LENGTH = 1,
+		MAX_STEP_LENGTH = 31,
+		MIN_STEP_LENGTH = 0,
+		MIN_STEP_ROLL_VAR = 1,
+		MAX_STEP_ROLL_VAR = 9,
+		MIN_STEP_ROLL_NOTE_VAR = 1,
+		MAX_STEP_ROLL_NOTE_VAR = 9,
+		MIN_TRACK_ROLL_VAR = 1,
+		MAX_TRACK_ROLL_VAR = 16,
 
-	static constexpr float MAX_TEMPO = 400.0,
-			MIN_TEMPO = 10.0,
-			MAX_SWING = 75.0,
-			MIN_SWING = 25.0,
-			DEFAULT_TEMPO = 130.0,
+		MIN_VELO_STEP = 0,
+		MAX_VELO_STEP = 127,
+		MIN_VELO_TRACK = 0,
+		MAX_VELO_TRACK = 100,
+		MIN_MOD = 0,
+		MAX_MOD = 127,
+		MIN_CHANNEL = 1,
+		MAX_CHANNEL = 16,
+		MIN_CC = 1,
+		MAX_CC = 127,
 
-			DEFAULT_SWING = 50.0;
+		NOTE_JUMPTO = 128,
+		NOTE_JUMPTO_NEXT = 129,
 
-	static const uint8_t MAX_NOTE_TRACK = 127,
-			MIN_NOTE_TRACK = 0,
-			MAX_TRACK_LENGTH = 32,
-			MIN_TRACK_LENGTH = 1,
-			MAX_STEP_LENGTH = 31,
-			MIN_STEP_LENGTH = 0,
-			MIN_STEP_ROLL_VAR = 1,
-			MAX_STEP_ROLL_VAR = 9,
-			MIN_STEP_ROLL_NOTE_VAR = 1,
-			MAX_STEP_ROLL_NOTE_VAR = 9,
-			MIN_TRACK_ROLL_VAR = 1,
-			MAX_TRACK_ROLL_VAR = 16,
+		MIN_JUMPTO = 0,
+		MAX_JUMPTO = 255,
 
-			MIN_VELO_STEP = 0,
-			MAX_VELO_STEP = 127,
-			MIN_VELO_TRACK = 0,
-			MAX_VELO_TRACK = 100,
-			MIN_MOD = 0,
-			MAX_MOD = 127,
-			MIN_CHANNEL = 1,
-			MAX_CHANNEL = 16,
-			MIN_CC = 1,
-			MAX_CC = 127,
+		MIN_CHANNEL_IN = -1,
+		MAX_CHANNEL_IN = 16,
+		MIN_TRANSPOSE = -100,
+		MAX_TRANSPOSE = 100,
+		MIN_MOVE = -32,
+		MAX_MOVE = 32,
 
-			NOTE_JUMPTO = 128,
-			NOTE_JUMPTO_NEXT = 129,
-
-			MIN_JUMPTO = 0,
-			MAX_JUMPTO = 255;
-
-	static const int8_t MIN_CHANNEL_IN = -1,
-			MAX_CHANNEL_IN = 16,
-			MIN_TRANSPOSE = -100,
-			MAX_TRANSPOSE = 100,
-			MIN_MOVE = -32,
-			MAX_MOVE = 32;
-
-	static const uint16_t MIN_MOVE_STEP = 0,
-			MAX_MOVE_STEP = 4000,
-			IDLE_MOVE_STEP = 2016;
-
+		MIN_MOVE_STEP = 0,
+		MAX_MOVE_STEP = 4000,
+		IDLE_MOVE_STEP = 2016,
+	};
 	static const int16_t MIN_MICROMOVE_STEP = -1000,
 			MAX_MICROMOVE_STEP = 1000;
 
@@ -134,14 +129,23 @@ public:
 	const int8_t MAX_TEMPO_DIV = 3;
 	static const int8_t TEMPODIV_1_1 = 0;
 
+	static constexpr float MAX_TEMPO = 400.0,
+			MIN_TEMPO = 10.0,
+			MAX_SWING = 75.0,
+			MIN_SWING = 25.0,
+			DEFAULT_TEMPO = 130.0,
+
+			DEFAULT_SWING = 50.0;
+
 	struct strFxConsts
 	{
-		enum
+		enum enFxType
 		{
 			FX_TYPE_NONE,
 			FX_TYPE_OFFSET,             // 	przesuniecie wewnątrz stepa 0-48
 			FX_TYPE_GLIDE,	// 	czas płynnego przejścia do kolejnej nuty/pitcha
 			FX_TYPE_SLIDE,	            // 	podciągnięcie do nuty w czasie
+			FX_TYPE_ROLL,
 			FX_TYPE_ARP_UP,	            // 	arpeggio w górę
 			FX_TYPE_ARP_DOWN,			//
 			FX_TYPE_SP,		            //	start point
@@ -157,7 +161,7 @@ public:
 			FX_TYPE_PROBABILITY,
 
 		};
-		enum
+		enum enFxVal
 		{
 			FX_VAL_TYPE_UNKNOWN,		        // unsigned 16
 			FX_VAL_TYPE_U16,	// unsigned 16
@@ -167,7 +171,7 @@ public:
 			FX_VAL_TYPE_R8_I8,	// roll(int8) i int8
 		};
 
-		enum
+		enum enRollType
 		{
 			ROLL_TYPE_NONE,
 			ROLL_TYPE_4_1,
@@ -210,7 +214,7 @@ private:
 			uint8_t channel = DEFAULT_ROW_CHANNEL;	// wiersz ma swoj channel
 			uint8_t cc = DEFAULT_CC;
 
-			uint8_t trackScale = 0;			// skala tracka
+			uint8_t trackScale = 0;	// skala tracka
 
 			uint8_t midiOut = MIDIOUT_USB;
 			uint8_t playMode = PLAYMODE_FORWARD;
@@ -240,20 +244,26 @@ private:
 					union
 					{
 						uint16_t value_u16;		// FX_VAL_U16
-
-						int16_t value_i16;		// FX_VAL_I16
-
-						struct					// FX_VAL_U8_U8
+						////////////OR////////////
+						int16_t value_i16;						// FX_VAL_I16
+						////////////OR////////////
+						struct						// FX_VAL_U8_U8
 						{
 							uint8_t val1_u8;
 							uint8_t val2_u8;
 						};
-						struct					// FX_VAL_I8_I8
+						////////////OR////////////
+						struct						// FX_VAL_I8_I8
 						{
 							int8_t val1_i8;
 							int8_t val2_i8;
 						};
-
+						////////////OR////////////
+						struct						// FX_VAL_I8_I8
+						{
+							int8_t rollType;
+							int8_t rollVal;
+						};
 					};
 
 				} fx[4];
@@ -360,6 +370,8 @@ private:
 
 	void send_clock(uint8_t);
 
+	inline uint8_t rollTypeToVal(uint8_t rollType);
+
 	IntervalTimer midiReceiveTimer;
 	IntervalTimer playTimer;
 
@@ -442,12 +454,15 @@ private:
 		struct strPlayerTrack
 		{
 			strBank::strTrack::strStep stepSent;
-			bool stepOpen = 0;		// znacznik czy została wysłana nuta
+			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
+			bool noteOpen = 0;		// znacznik czy została wysłana nuta
 
 			uint16_t uStep = 0;		// aktualny microstep
 			int8_t actual_pos = 0;	// aktualna pozycja w stepach
-			uint16_t stepTimer = 0;	// tu liczymy microstepy w górę
+			uint16_t stepTimer = 0;		// tu liczymy microstepy w górę
 			uint16_t stepLength = 0;	// z tym porównujemy timer
+			uint16_t noteTimer = 0;
+			uint16_t noteLength = 0;
 
 			uint8_t rollMode = 0;
 
@@ -483,9 +498,9 @@ private:
 				uint8_t isMoving = 0;	// jest przemieszczany
 				uint8_t isBlinking = 0;	// jest podświetlany jako ruch
 
-			} step[MAXSTEP+1];
+			} step[MAXSTEP + 1];
 
-		} row[MAXROW+1];
+		} row[MAXROW + 1];
 
 	} player;
 
