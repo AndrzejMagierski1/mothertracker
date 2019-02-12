@@ -333,8 +333,8 @@ void Sequencer::play_microStep(uint8_t row)
 			// jeśli rolka to nuty są krótsze od stepa
 			if (patternStep.fx[0].type == fx.FX_TYPE_ROLL)
 			{
-				playerRow.noteLength = 5; // TODO: wyliczyć długość rolki
 				playerRow.rollMode = patternStep.fx[0].rollType;
+				playerRow.noteLength = rollTypeToVal(playerRow.rollMode) / 2; // TODO: wyliczyć długość rolki
 			}
 			sendNoteOn(row, &patternStep);
 		}
@@ -355,7 +355,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 				playerRow.noteOpen = 1;
 				playerRow.noteTimer = 0; // od tej pory timer liczy w górę
-				playerRow.noteLength = 6; // TODO: wyliczyć długość rolki
+				playerRow.noteLength = rollTypeToVal(playerRow.rollMode) / 2; // TODO: wyliczyć długość rolki
 
 				sendNoteOn(row, &playerRow.stepSent);
 //				playerRow.stepSent = patternStep; // buforujemy wysłanego stepa
@@ -370,13 +370,36 @@ uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
 	switch (rollType)
 	{
 	case fx.ROLL_TYPE_NONE:
+		return 0;
 		break;
+
+	case fx.ROLL_TYPE_4_1:
+		return 192;
+	case fx.ROLL_TYPE_3_1:
+		return 144;
+	case fx.ROLL_TYPE_2_1:
+		return 96;
 	case fx.ROLL_TYPE_1_1:
 		return 48;
 	case fx.ROLL_TYPE_1_2:
 		return 24;
+	case fx.ROLL_TYPE_1_3:
+		return 16;
+		break;
 	case fx.ROLL_TYPE_1_4:
 		return 12;
+		break;
+	case fx.ROLL_TYPE_1_6:
+		return 8;
+		break;
+	case fx.ROLL_TYPE_1_8:
+		return 6;
+		break;
+	case fx.ROLL_TYPE_1_12:
+		return 4;
+		break;
+	case fx.ROLL_TYPE_1_16:
+		return 3;
 		break;
 	default:
 		return 0;
@@ -789,6 +812,13 @@ void Sequencer::loadDefaultSequence(void)
 	seq[player.ramBank].track[0].step[4].fx[0].isOn = 1;
 	seq[player.ramBank].track[0].step[4].fx[0].type = fx.FX_TYPE_ROLL;
 	seq[player.ramBank].track[0].step[4].fx[0].rollType = fx.ROLL_TYPE_1_4;
+
+	seq[player.ramBank].track[0].step[5].isOn = 1;
+	seq[player.ramBank].track[0].step[5].note = 48;
+	seq[player.ramBank].track[0].step[5].length1 = 300;
+	seq[player.ramBank].track[0].step[5].fx[0].isOn = 1;
+	seq[player.ramBank].track[0].step[5].fx[0].type = fx.FX_TYPE_ROLL;
+	seq[player.ramBank].track[0].step[5].fx[0].rollType = fx.ROLL_TYPE_2_1;
 
 }
 

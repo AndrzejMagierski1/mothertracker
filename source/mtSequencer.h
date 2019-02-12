@@ -181,7 +181,9 @@ public:
 			ROLL_TYPE_1_2,
 			ROLL_TYPE_1_3,
 			ROLL_TYPE_1_4,
+			ROLL_TYPE_1_6,
 			ROLL_TYPE_1_8,
+			ROLL_TYPE_1_12,
 			ROLL_TYPE_1_16,
 			ROLL_TYPE_MAX = ROLL_TYPE_1_16
 		};
