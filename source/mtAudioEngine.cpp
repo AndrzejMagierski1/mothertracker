@@ -63,8 +63,6 @@ AudioConnection          connect40(&amp[7], 0, &mixerR, 7);
 AudioConnection         connect41(&mixerL, 0, &i2s1, 1);
 AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 
-
-	uint8_t instrumentStatusByte; // 7-resonance, 6-cutoff, 5-panning ,4-volume,3-tune,2-fineTune, 1-LP1 , 0-LP2
 	playerEngine instrumentPlayer[8];
 //	strMtModAudioEngine modAudioEngine[8];
 	audioEngine engine;
@@ -323,62 +321,62 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 			if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable == envelopeOn)
 			{
 				filterMod+=envelopeFilterPtr->getOut();
-				instrumentStatusByte |= CUTOFF_MASK;
+				statusByte |= CUTOFF_MASK;
 			}
 			if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable == lfoOn)
 			{
 				filterMod+=lfoFilterPtr->getOut();
-				instrumentStatusByte |= CUTOFF_MASK;
+				statusByte |= CUTOFF_MASK;
 			}
 		}
 		if(mtProject.instrument[currentInstrument_idx].lfo[lfoA].enable == lfoOn )
 		{
 			ampMod=lfoAmpPtr->getOut();
-			instrumentStatusByte |= VOLUME_MASK;
+			statusByte |= VOLUME_MASK;
 		}
 
 
-		if(instrumentStatusByte)
+		if(statusByte)
 		{
-			if(instrumentStatusByte & LP1_MASK)
+			if(statusByte & LP1_MASK)
 			{
-				instrumentStatusByte &= (~LP1_MASK);
+				statusByte &= (~LP1_MASK);
 				modLP1(mtProject.instrument[currentInstrument_idx].loopPoint1);
 			}
-			if(instrumentStatusByte & LP2_MASK)
+			if(statusByte & LP2_MASK)
 			{
-				instrumentStatusByte &= (~LP2_MASK);
+				statusByte &= (~LP2_MASK);
 				modLP2(mtProject.instrument[currentInstrument_idx].loopPoint2);
 			}
-			if(instrumentStatusByte & FINETUNE_MASK)
+			if(statusByte & FINETUNE_MASK)
 			{
-				instrumentStatusByte &= (~FINETUNE_MASK);
+				statusByte &= (~FINETUNE_MASK);
 				modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
 			}
-			if(instrumentStatusByte & TUNE_MASK)
+			if(statusByte & TUNE_MASK)
 			{
-				instrumentStatusByte &= (~TUNE_MASK);
+				statusByte &= (~TUNE_MASK);
 				modTune(mtProject.instrument[currentInstrument_idx].tune);
 			}
-			if(instrumentStatusByte & VOLUME_MASK)
+			if(statusByte & VOLUME_MASK)
 			{
-				instrumentStatusByte &= (~VOLUME_MASK);
+				statusByte &= (~VOLUME_MASK);
 				if(!currentVelocity) ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100));
 				else ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
 			}
-			if(instrumentStatusByte & PANNING_MASK)
+			if(statusByte & PANNING_MASK)
 			{
-				instrumentStatusByte &= (~PANNING_MASK);
+				statusByte &= (~PANNING_MASK);
 				modPanning(mtProject.instrument[currentInstrument_idx].panning);
 			}
-			if(instrumentStatusByte & CUTOFF_MASK)
+			if(statusByte & CUTOFF_MASK)
 			{
-				instrumentStatusByte &= (~CUTOFF_MASK);
+				statusByte &= (~CUTOFF_MASK);
 				modCutoff(mtProject.instrument[currentInstrument_idx].cutOff + filterMod);
 			}
-			if(instrumentStatusByte & RESONANCE_MASK)
+			if(statusByte & RESONANCE_MASK)
 			{
-				instrumentStatusByte &= (~RESONANCE_MASK);
+				statusByte &= (~RESONANCE_MASK);
 				modResonance(mtProject.instrument[currentInstrument_idx].resonance);
 			}
 		}
@@ -387,6 +385,10 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 
 	}
 
+	void playerEngine :: setStatusByte(uint8_t value)
+	{
+		statusByte|=value;
+	}
 
 
 	void playerEngine :: changeFilterType(uint8_t type)
