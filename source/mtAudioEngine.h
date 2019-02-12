@@ -44,17 +44,18 @@ public:
 	void modPitch(float value);
 	void modGlide(uint16_t value);
 	void modSlide(uint16_t value,int8_t slideNote);
-	void modFineTune(uint16_t value);
+	void modFineTune(int8_t value);
 
-	void modPanning(uint8_t value);
+	void modPanning(int16_t value);
 	void modPlayMode(uint8_t value);
 //	void modSP(uint16_t value);
 	void modLP1(uint16_t value);
 	void modLP2(uint16_t value);
-	void modCutoff(uint16_t value);
-	void modResonance(uint16_t value);
+	void modCutoff(float value);
+	void modResonance(float value);
 
 	void modWavetableWindow(uint16_t value);
+	void modTune(int8_t value);
 //	void resetMods();
 
 	void update();
@@ -99,7 +100,7 @@ extern LFO						lfoAmp[8];
 extern LFO						lfoFilter[8];
 extern LFO						lfoPitch[8];
 extern int16_t					mods[MAX_TARGET][MAX_MOD];
-
+extern uint8_t 					instrumentStatusByte;
 
 
 #endif /* SOURCE_MTAUDIOENGINE_H_ */

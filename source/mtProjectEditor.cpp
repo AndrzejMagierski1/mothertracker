@@ -568,7 +568,6 @@ int32_t loadWavetableSerum(const char *filename, int16_t * buf)
 	strWavFileHeader sampleHead;
 	uint16_t bufferLength=0;
 
-	uint8_t header[512];
 	float bufFloat[2048];
 	float currentWave[2048];
 	float nextWave[2048];

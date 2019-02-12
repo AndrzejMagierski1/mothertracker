@@ -51,6 +51,7 @@ public:
 	void setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx);//incremental
 	void setFineTune(int8_t value, int8_t currentNote);
 	void setWavetableWindow(uint16_t value);
+	void setTune(int8_t value, int8_t currentNote);
 
 private:
 	int16_t *next;

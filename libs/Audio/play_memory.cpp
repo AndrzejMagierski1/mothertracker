@@ -43,12 +43,23 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	slideCounter=0;
 	currentInstr_idx=instr_idx;
 	/*=========================================================================================================================*/
-	/*========================================PRZEPISANIE WARTOSCI STEP========================================================*/
+	/*========================================PRZEPISANIE WARTOSCI ============================================================*/
 	glide=mtProject.instrument[instr_idx].glide;
 	currentTune=mtProject.instrument[instr_idx].tune;
 
-	if(lastNote>=0) pitchControl=notes[lastNote + mtProject.instrument[instr_idx].tune];
-	else pitchControl=notes[note+ mtProject.instrument[instr_idx].tune];
+	if( (note + currentTune) > MAX_NOTE)
+	{
+		if(lastNote>note) currentTune=MAX_NOTE-lastNote;
+		else currentTune=MAX_NOTE-note;
+	}
+	if( (note + currentTune) < MIN_NOTE)
+	{
+		if((lastNote>=0) && (lastNote<note)) currentTune=MIN_NOTE-lastNote;
+		else currentTune=MIN_NOTE-note;
+	}
+
+	if(lastNote>=0) pitchControl=notes[lastNote + currentTune];
+	else pitchControl=notes[note+ currentTune];
 
 	int16_t * data = mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].address;
 
@@ -72,7 +83,6 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	{
 		wavetableWindowSize = mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].wavetable_window_size;
 		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
-		//samplePoints.start=currentWindow*wavetableWindowSize;;
 		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
 		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
 		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
@@ -441,6 +451,13 @@ void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 	pitchControl+=fineTuneControl;
 }
 
+void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)
+{
+	if( (currentNote + value) > MAX_NOTE) value=MAX_NOTE-currentNote;
+	if( (currentNote + value) < MIN_NOTE) value=MIN_NOTE-currentNote;
 
+	pitchControl-=notes[currentNote+currentTune];
+	pitchControl+=notes[currentNote+value];
+}
 
 
