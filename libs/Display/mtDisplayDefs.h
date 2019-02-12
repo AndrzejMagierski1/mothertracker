@@ -52,6 +52,8 @@ enum enumMtDispValueTypes
 	mtDispValueValueNumberOnly,
 	mtDispValueValue_0_100,
 	mtDispValueValueLeftRight_0_100,
+	mtDispValueValueLeftRight_100_100,
+	mtDispValueValueLeftRight_24_24,
 	mtDispValueMultiValue4Row,
 	mtDispValueMultiValue3Row,
 };
@@ -279,6 +281,9 @@ struct strMtElementsState
 
 	uint8_t envelope = 0;
 	uint8_t trackTable = 0;
+
+
+	uint8_t waitSpinner = 0;
 };
 
 // -------------------------------------------------------------------------

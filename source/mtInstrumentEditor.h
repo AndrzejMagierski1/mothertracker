@@ -176,6 +176,7 @@ private:
 	void processLabels();
 	void processParameters();
 	void processEnvelopes();
+	void waitToLoadSpectrum();
 
 	void setButtonLabel(uint8_t number, char * label);
 	void updateButtonsFunctions();
@@ -257,20 +258,25 @@ private:
 	float zoomValue = 1;
 	uint16_t zoomPosition = 0;
 
+
 	uint8_t isPlayingSample;
 
 
 	uint8_t envelopesEnabled = 0;
 	uint8_t parametersEnabled = 0;
 
+	const uint8_t sample_list_pos = 4;
 	uint8_t sampleListEnabled = 0;
 	char *sampleNames[SAMPLES_MAX];
 
+	const uint8_t instrument_list_pos = 0;
 	uint8_t instrumentListEnabled = 0;
 	char *instrumentNames[INSTRUMENTS_MAX];
 
 	//parametry rysowania spektrum/parametrow/envelopow
+	const uint16_t SPECTRUM_DRAW_DELAY_VALUE = 500;
 	strMtDispSpectrum  spectrum;
+	elapsedMillis spectrumDrawDelay;
 
 	strMtDispValues  values;
 	uint8_t valuesParameters[5];
@@ -285,8 +291,8 @@ private:
 		mtDispValueValue_0_100,				//mtInstrumentEditorPotValueFilter,
 		mtDispValueValue_0_100,				//mtInstrumentEditorValueResonance,
 		mtDispValueValue_0_100,				//mtInstrumentEditorValueVolume,
-		mtDispValueValue_0_100,				//mtInstrumentEditorValueFinetune,
-		mtDispValueValue_0_100,				//mtInstrumentEditorValueTune,
+		mtDispValueValueLeftRight_100_100,	//mtInstrumentEditorValueFinetune,
+		mtDispValueValueLeftRight_24_24,	//mtInstrumentEditorValueTune,
 	};
 
 	strMtDispEnvelope envelope;

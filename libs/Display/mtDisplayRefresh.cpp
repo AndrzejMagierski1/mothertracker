@@ -138,7 +138,7 @@ void cMtDisplay::dl_load_normal_main()
 
 
 
-
+	if(elementsState.waitSpinner) API_CMD_SPINNER(240, 64, 0, 0);
 
 
     API_DISPLAY();
@@ -166,6 +166,7 @@ void cMtDisplay::setPotsLabels(uint8_t state)
 
 void cMtDisplay::setSpectrum(uint8_t state)
 {
+	elementsState.waitSpinner = 0;
 	elementsState.spectrumView = state;
 	screenRefresh = 1;
 }
@@ -438,6 +439,8 @@ void cMtDisplay::ramg_spectrum_view()
 	API_COLOR(displayColors.spectrumView);
 	API_LINE_WIDTH(8);
 
+	elementsState.waitSpinner = 0;
+
 	if(ptrSpectrum->spectrumType == 1)
 	{
 		//jedna lamana linia
@@ -449,9 +452,8 @@ void cMtDisplay::ramg_spectrum_view()
 			else if(ptrSpectrum->lowerData[i] < 0) API_VERTEX2II( i, MT_DISP_IEDITOR_SPECTRUM_Y-ptrSpectrum->lowerData[i],0,0);
 			else API_VERTEX2II( i, MT_DISP_IEDITOR_SPECTRUM_Y,0,0);
 		}
-
 	}
-	else
+	else if(ptrSpectrum->spectrumType == 0)
 	{
 		API_BEGIN(LINES);
 		// 480 pionowych lini
@@ -460,6 +462,10 @@ void cMtDisplay::ramg_spectrum_view()
 			API_VERTEX2II( i, MT_DISP_IEDITOR_SPECTRUM_Y-ptrSpectrum->upperData[i],0,0);
 			API_VERTEX2II( i, MT_DISP_IEDITOR_SPECTRUM_Y-ptrSpectrum->lowerData[i],0,0);
 		}
+	}
+	else if(ptrSpectrum->spectrumType == 3)
+	{
+		elementsState.waitSpinner = 1;
 	}
 
 	API_END();
@@ -622,30 +628,53 @@ void cMtDisplay::ramg_values(uint8_t index)
 			API_COLOR(displayColors.fontValue);
 			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y-20, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY | OPT_SIGNED), ptrValues->value1[index]-50);
 
-		/*
-			uint16_t x1 = (ptrValues->value[index] < 50)
-					? MT_DISP_BLOCK_W * index + 3
-					: MT_DISP_BLOCK_W * index + 3  + (( (ptrValues->value[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
-
-			uint16_t x2 = (ptrValues->value[index] > 50)
-					? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W-3
-					: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W-3 + (( (ptrValues->value[index]-50)*((MT_DISP_BLOCK_W-6)/2) )/50);
-
-	    	//bg
-			API_COLOR(displayColors.valueBar);
-			API_LINE_WIDTH(8);
-			API_BEGIN(RECTS);
-			API_VERTEX2II(x1, (MT_DISP_BLOCK_VALUE_CENTER_Y + 3) ,0,0);
-			API_VERTEX2II(x2, (MT_DISP_BLOCK_VALUE_CENTER_Y + 42),0,0);
-			API_END();
-
-			//number
-			API_COLOR(displayColors.fontValue);
-			API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y-20, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrValues->value[index]-50);
-
-		*/
-
 		}
+
+	}
+	else if(ptrValues->type[index] == mtDispValueValueLeftRight_24_24)
+	{
+		uint16_t x1 = (ptrValues->value1[index] > 0)
+				? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2
+				: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value1[index])*((MT_DISP_BLOCK_W-6)/2) )/24);
+
+		uint16_t x2 = (ptrValues->value1[index] < 0)
+				? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2
+				: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value1[index])*((MT_DISP_BLOCK_W-6)/2) )/24);
+
+    	//bg
+		API_COLOR(displayColors.valueBar);
+		API_LINE_WIDTH(8);
+		API_BEGIN(RECTS);
+		API_VERTEX2II(x1, (MT_DISP_BLOCK_VALUE_CENTER_Y -40 ) ,0,0);
+		API_VERTEX2II(x2, (MT_DISP_BLOCK_VALUE_CENTER_Y + 42),0,0);
+		API_END();
+
+		//number
+		API_COLOR(displayColors.fontValue);
+		API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY | OPT_SIGNED), ptrValues->value1[index]);
+
+	}
+	else if(ptrValues->type[index] == mtDispValueValueLeftRight_100_100)
+	{
+		uint16_t x1 = (ptrValues->value1[index] > 0)
+				? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2
+				: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value1[index])*((MT_DISP_BLOCK_W-6)/2) )/100);
+
+		uint16_t x2 = (ptrValues->value1[index] < 0)
+				? MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2
+				: MT_DISP_BLOCK_W * index + MT_DISP_BLOCK_W/2 + (( (ptrValues->value1[index])*((MT_DISP_BLOCK_W-6)/2) )/100);
+
+    	//bg
+		API_COLOR(displayColors.valueBar);
+		API_LINE_WIDTH(8);
+		API_BEGIN(RECTS);
+		API_VERTEX2II(x1, (MT_DISP_BLOCK_VALUE_CENTER_Y -40 ) ,0,0);
+		API_VERTEX2II(x2, (MT_DISP_BLOCK_VALUE_CENTER_Y + 42),0,0);
+		API_END();
+
+		//number
+		API_COLOR(displayColors.fontValue);
+		API_CMD_NUMBER(MT_DISP_BLOCK_W * index + (MT_DISP_BLOCK_W/2), MT_DISP_BLOCK_VALUE_CENTER_Y, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERX | OPT_CENTERY | OPT_SIGNED), ptrValues->value1[index]);
 
 	}
 

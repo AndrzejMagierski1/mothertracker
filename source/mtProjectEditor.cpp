@@ -63,16 +63,29 @@ uint8_t cMtProjectEditor::readProjectConfig()
 
 	for(uint8_t i = 0; i < 8; i++) // max do 9
 	{
-											// mtSampleTypeWaveFile
-		mtProject.sampleBank.sample[i].type = mtSampleTypeWavetable;
+		mtProject.sampleBank.sample[i].type = mtSampleTypeWaveFile;
 		mtProject.sampleBank.sample[i].file_name[0] = i+49;
 		mtProject.sampleBank.sample[i].file_name[1] = '.';
 		mtProject.sampleBank.sample[i].file_name[2] = 'w';
 		mtProject.sampleBank.sample[i].file_name[3] = 'a';
 		mtProject.sampleBank.sample[i].file_name[4] = 'v';
 		mtProject.sampleBank.sample[i].file_name[5] = 0;
-		mtProject.sampleBank.sample[i].wavetable_window_size = 1024;
+		//mtProject.sampleBank.sample[i].wavetable_window_size = 1024;
 	}
+
+	for(uint8_t i = 0; i < 8; i++) // max do 9
+	{
+		mtProject.sampleBank.sample[i+8].type = mtSampleTypeWavetable;
+		mtProject.sampleBank.sample[i+8].file_name[0] = 49;
+		mtProject.sampleBank.sample[i+8].file_name[1] = i+49;
+		mtProject.sampleBank.sample[i+8].file_name[2] = '.';
+		mtProject.sampleBank.sample[i+8].file_name[3] = 'w';
+		mtProject.sampleBank.sample[i+8].file_name[4] = 'a';
+		mtProject.sampleBank.sample[i+8].file_name[5] = 'v';
+		mtProject.sampleBank.sample[i+8].file_name[6] = 0;
+		mtProject.sampleBank.sample[i+8].wavetable_window_size = 1024;
+	}
+
 
 	//mtProject.sampleBank.sample[1].wavetable_window_size = 1024;
 	//mtProject.sampleBank.sample[1].type = mtSampleTypeWaveFile;

@@ -186,40 +186,28 @@ void cMtDisplayList::update()
 		//uint8_t txt_offset;
 
 
-// TODO: TUTEJ MAGIA DO ZROBIENIA
-// TODO:
-// TODO:
-// TODO:
-// TODO:
-// TODO:
-
-
-		for(uint8_t i = 0; i < lines; i++)
+		if(listState > 0 && listState < 4)
 		{
-			//API_CMD_TEXT(x_pos, y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE), MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), (displayBlock[block].menu)+20*(displayBlock[block].value+row+i));
-
-			API_CMD_TEXT(x_pos,
-					y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
-					MT_GPU_RAM_FONT1_HANDLE,
-					(OPT_CENTERY),
-					*(listTable+(listStart  + i -  listState)));
+			for(int8_t i = -1; i < (lines+1); i++)
+			{
+				API_CMD_TEXT(x_pos,
+						y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
+						MT_GPU_RAM_FONT1_HANDLE,
+						(OPT_CENTERY),
+						*(listTable+ (listStart  + i -  (listState+1) ) ) );
+			}
 		}
-
-/*
-		for(int8_t i = -1; i < (lines+1); i++)
+		else
 		{
-			API_CMD_TEXT(x_pos,
-					y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
-					MT_GPU_RAM_FONT1_HANDLE,
-					(OPT_CENTERY),
-					*(listTable+ (listStart  + i -  (listState+1) ) ) );
+			for(uint8_t i = 0; i < lines; i++)
+			{
+				API_CMD_TEXT(x_pos,
+						y_pos + ((i+1) * MT_DISP_BLOCK_MENU_Y_SPACE),
+						MT_GPU_RAM_FONT1_HANDLE,
+						(OPT_CENTERY),
+						*(listTable+(listStart  + i -  listState)));
+			}
 		}
-*/
-
-
-
-
-
 
 
 

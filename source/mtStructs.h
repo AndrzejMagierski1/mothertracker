@@ -57,6 +57,8 @@ const uint8_t MAX_MOD =							5;
 const float MAX_CUTOFF =						1.0;
 const float MIN_CUTOFF =						0.0;
 
+const int8_t  MIN_INSTRUMENT_TUNE  	=			-24;
+const uint8_t MAX_INSTRUMENT_TUNE  	=			24;
 const int8_t  MIN_INSTRUMENT_FINETUNE  	=		-100;
 const uint8_t MAX_INSTRUMENT_FINETUNE  	=		100;
 const uint8_t MAX_INSTRUMENT_VOLUME 	=		100;
