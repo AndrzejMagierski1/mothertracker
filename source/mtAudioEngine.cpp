@@ -187,7 +187,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 
 		/*======================================================================================================*/
 		/*==================================================GAIN================================================*/
-		if(!velocity) ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100));
+		if(!velocity) ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
 		else ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
 		/*======================================================================================================*/
 		/*===============================================PANNING================================================*/
@@ -361,7 +361,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 			if(statusByte & VOLUME_MASK)
 			{
 				statusByte &= (~VOLUME_MASK);
-				if(!currentVelocity) ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100));
+				if(!currentVelocity) ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0));
 				else ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
 			}
 			if(statusByte & PANNING_MASK)
