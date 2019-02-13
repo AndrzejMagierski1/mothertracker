@@ -740,7 +740,7 @@ void Sequencer::loadDefaultSequence(void)
 
 
 
-	seq[player.ramBank].track[0].step[8].isOn = 1;
+/*	seq[player.ramBank].track[0].step[8].isOn = 1;
 	seq[player.ramBank].track[0].step[8].velocity = 100;
 	seq[player.ramBank].track[0].step[8].instrument = 0;
 	seq[player.ramBank].track[0].step[8].note = 28;
@@ -787,7 +787,7 @@ void Sequencer::loadDefaultSequence(void)
 	seq[player.ramBank].track[7].step[15].velocity = 100;
 	seq[player.ramBank].track[7].step[15].instrument = 0;
 	seq[player.ramBank].track[7].step[15].note = 21;
-	seq[player.ramBank].track[7].step[15].length1 = 100;
+	seq[player.ramBank].track[7].step[15].length1 = 100;*/
 
 
 

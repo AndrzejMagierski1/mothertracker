@@ -75,8 +75,8 @@
 #define I2C_SCL			3 			//PTA12			pin-64
 
 // AUDIO CODEC
-#define AUDIO_OUT_MUX	xxx 		//PTE28			pin-49
-#define AUDIO_IN_MUX	xxx 		//PTE27			pin-48
+#define AUDIO_OUT_MUX	68 			//PTE28			pin-49
+#define AUDIO_IN_MUX	67 			//PTE27			pin-48
 
 // MIDI DIN/JACK
 #define MIDI_OUT		xxx 		//PTE24			pin-45
@@ -86,5 +86,6 @@
 #define HAPTIC_OUT		xxx 		//DAC0_OUT		pin-38
 
 extern uint8_t hardwareTest;
+
 
 #endif

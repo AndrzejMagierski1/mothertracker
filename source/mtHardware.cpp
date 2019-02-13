@@ -36,19 +36,23 @@ void onButtonDouble			(uint8_t x, uint8_t y);
 keyScanner seqButtonsA,seqButtonsB,seqButtonsC;
 AudioControlSGTL5000 audioShield;
 
+uint8_t audioOutStatus;
+uint8_t audioInStatus;
+
 void IO7326_INT_FUNCT_A() { seqButtonsA.intAction(); }
 void IO7326_INT_FUNCT_B() { seqButtonsB.intAction(); }
 void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 
 void initHardware()
 {
-	//hardwareTest=1;
+	hardwareTest=1;
 
 	Serial.begin(9600);
 
 	//....................................................
 	//CODAC AUDIO
 	audioShield.enable();
+	audioShield.volume(1.0);
 	audioShield.lineOutLevel(26);
 	AudioMemory(200);
 
@@ -155,7 +159,7 @@ void initHardware()
 
 
 
-/*	while(1)
+	while(1)
 	{
 
 		for(int i=1;i<=20;i++)
@@ -166,30 +170,30 @@ void initHardware()
 				leds.updateSeq();
 				delay(50);
 			}
-			for(int j=1;j<=8;j++)
+/*			for(int j=1;j<=8;j++)
 			{
 				leds.setLEDseq(j,i,0,31);
 				leds.updateSeq();
 				delay(50);
-			}
+			}*/
 		}
 		for(int i=1;i<=20;i++)
 		{
 			for(int j=1;j<=8;j++)
 			{
-				leds.setLEDseq(j,i,1,31);
-				leds.updateSeq();
-				delay(50);
-			}
-			for(int j=1;j<=8;j++)
-			{
 				leds.setLEDseq(j,i,0,31);
 				leds.updateSeq();
 				delay(50);
 			}
+/*			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,0,31);
+				leds.updateSeq();
+				delay(50);
+			}*/
 		}
 
-	}*/
+	}
 }
 
 

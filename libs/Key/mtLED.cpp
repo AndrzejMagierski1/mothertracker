@@ -64,7 +64,7 @@ void mtLED::begin(uint8_t addr)
 #else
 	Wire2.begin(I2C_MASTER, 0x00, I2C_PINS_3_4, I2C_PULLUP_EXT, 400000);
 #endif
-	Wire2.setDefaultTimeout(250000); // 250ms default timeout
+	Wire2.setDefaultTimeout(1000); // 250ms default timeout
 
 
 
@@ -460,8 +460,7 @@ uint8_t  mtLED::readRegister8(uint8_t bank, uint8_t reg) {
 	uint8_t x;
 	x = 0;
 
-	while (!Wire2.done() ) _count++; // Since write is non-blocking, do some counting while waiting
-
+	while (!Wire2.done()) _count++; // Since write is non-blocking, do some counting while waiting
 
 
 	Wire2.beginTransmission(_i2caddr);

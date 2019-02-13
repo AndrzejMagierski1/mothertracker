@@ -69,6 +69,10 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 
 	void audioEngine::init()
 	{
+		pinMode(AUDIO_IN_MUX, OUTPUT);
+		pinMode(AUDIO_OUT_MUX, OUTPUT);
+		digitalWrite(AUDIO_IN_MUX, LOW);
+		digitalWrite(AUDIO_OUT_MUX, LOW);
 		for(int i=0;i<8; i++)
 		{
 			instrumentPlayer[i].init(&playMem[i],&envelopeFilter[i],&filter[i],&envelopeAmp[i], &amp[i], i, &lfoAmp[i],&lfoFilter[i],&lfoPitch[i]);
@@ -81,6 +85,18 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		{
 			instrumentPlayer[i].update();
 		}
+	}
+
+	void audioEngine::setOut(uint8_t audioOutStatus)
+	{
+		if(audioOutStatus) digitalWrite(AUDIO_OUT_MUX, HIGH);
+		else digitalWrite(AUDIO_OUT_MUX, LOW);
+	}
+
+	void audioEngine::setIn(uint8_t audioInStatus)
+	{
+		if(audioInStatus) digitalWrite(AUDIO_IN_MUX, HIGH);
+		else digitalWrite(AUDIO_IN_MUX, LOW);
 	}
 
 	void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter,

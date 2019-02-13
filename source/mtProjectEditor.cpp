@@ -164,8 +164,8 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 
 		if(mtProject.sampleBank.sample[i].type == mtSampleTypeWavetable)
 		{
-			//size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
-			size = loadFullWavetableSerum("Dist",mtProject.sampleBank.sample[i].address);
+			size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
+			//size = loadFullWavetableSerum("Dist",mtProject.sampleBank.sample[i].address);
 		}
 		else
 		{
