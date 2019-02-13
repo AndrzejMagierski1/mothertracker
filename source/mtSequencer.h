@@ -479,7 +479,9 @@ private:
 
 			uint8_t return2start = 0;// po zakonczonym stepie wraca do pocatku
 			uint8_t makeJump = 0;// flaga przeskoku do odpowiedniego patternu po odegraniu stepu
+
 			uint8_t goToStep = 0;		// odpala odpowiedni step jako kolejny
+			bool isGoToStep = 0;		// odpala odpowiedni step jako kolejny
 
 			uint8_t recNoteOpen = 0;// czy otwarta nuta? w trakcie nagrywania
 			uint8_t recNoteLength = 0;	// aktualna długość otwartej nuty

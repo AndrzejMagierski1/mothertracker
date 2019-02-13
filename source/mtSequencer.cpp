@@ -278,61 +278,103 @@ void Sequencer::play_microStep(uint8_t row)
 	//
 	//		WYSTARTOWAĆ STEPA?
 	//
-	if (patternRow.isOn && patternStep.isOn)
+	if (patternRow.isOn)
 	{
 		boolean startStep = 0;
 		boolean isOffset = 0;
 		uint16_t offsetValue = 0;
 
+		boolean isJumpToStep = 0;
+		uint16_t jumpToStep = 0;
+
+		boolean isRoll = 0;
+		int8_t valRoll = 0;
+
+		// przerabiamy FXy
 		for (strBank::strTrack::strStep::strFx &_fx : patternStep.fx)
 		{
-			if (_fx.isOn && _fx.type == fx.FX_TYPE_OFFSET)
+			if (_fx.isOn)
+			{
+				switch (_fx.type)
+				{
+				case fx.FX_TYPE_OFFSET:
+					if (!isOffset)
+					{
+						isOffset = 1;
+						offsetValue = _fx.value_u16;
+					}
+					break;
+
+				case fx.FX_TYPE_JUMP_TO_STEP:
+					if (!isJumpToStep)
+					{
+						isJumpToStep = 1;
+						jumpToStep = _fx.value_u16;
+					}
+
+				case fx.FX_TYPE_ROLL:
+					if (!isRoll)
+					{
+						isRoll = 1;
+						valRoll = _fx.rollType;
+					}
+
+				default:
+					break;
+				}
+			}
+
+			else if (_fx.isOn && !isJumpToStep && _fx.type == fx.FX_TYPE_OFFSET)
 			{
 				isOffset = 1;
 				offsetValue = _fx.value_u16;
-				break;
 			}
 		}
 
-		// nie-offset
-		if (!isOffset &&
-				playerRow.uStep == 1)
+		if (patternStep.isOn)
 		{
-			// wystartuj stepa
-			startStep = 1;
-			if (playerRow.noteOpen)
-			{
-				// zeruj wiszącą nutę
-				playerRow.noteOpen = 0;
-				sendNoteOff(row, &playerRow.stepSent);
-				playerRow.rollMode = fx.ROLL_TYPE_NONE;
-			}
-			if (playerRow.stepOpen)
-			{
-				// zeruj wiszący step
-				playerRow.stepOpen = 0;
-				playerRow.rollMode = fx.ROLL_TYPE_NONE;
-			}
 
-		}
-		// offset
-		else if (isOffset &&
-				playerRow.uStep == offsetValue)
-		{
-			startStep = 1;
-			if (playerRow.noteOpen)
+			// nie-offset
+			if (!isOffset &&
+					playerRow.uStep == 1)
 			{
-				playerRow.noteOpen = 0;
-				sendNoteOff(row, &playerRow.stepSent);
-				playerRow.rollMode = fx.ROLL_TYPE_NONE;
+				// wystartuj stepa
+				startStep = 1;
+				if (playerRow.noteOpen)
+				{
+					// zeruj wiszącą nutę
+					playerRow.noteOpen = 0;
+					sendNoteOff(row, &playerRow.stepSent);
+					playerRow.rollMode = fx.ROLL_TYPE_NONE;
+				}
+				if (playerRow.stepOpen)
+				{
+					// zeruj wiszący step
+					playerRow.stepOpen = 0;
+					playerRow.rollMode = fx.ROLL_TYPE_NONE;
+				}
+
 			}
-			if (playerRow.stepOpen)
+			// offset
+			else if (isOffset &&
+					playerRow.uStep == offsetValue)
 			{
-				playerRow.stepOpen = 0;
-				playerRow.rollMode = fx.ROLL_TYPE_NONE;
+				startStep = 1;
+				if (playerRow.noteOpen)
+				{
+					playerRow.noteOpen = 0;
+					sendNoteOff(row, &playerRow.stepSent);
+					playerRow.rollMode = fx.ROLL_TYPE_NONE;
+				}
+				if (playerRow.stepOpen)
+				{
+					playerRow.stepOpen = 0;
+					playerRow.rollMode = fx.ROLL_TYPE_NONE;
+				}
 			}
 		}
 
+		// odpalamy stepa
 		if (startStep)
 		{
 			// ustawiamy całego stepa
@@ -347,18 +389,28 @@ void Sequencer::play_microStep(uint8_t row)
 			playerRow.stepSent = patternStep; // buforujemy wysłanego stepa
 
 			// jeśli rolka to nuty są krótsze od stepa
-			if (patternStep.fx[0].type == fx.FX_TYPE_ROLL)
+			if (isRoll)
 			{
-				playerRow.rollMode = patternStep.fx[0].rollType;
+				playerRow.rollMode = valRoll;
 				playerRow.noteLength = rollTypeToVal(playerRow.rollMode) / 2; // TODO: wyliczyć długość rolki
 			}
-			sendNoteOn(row, &patternStep);
+			if (patternStep.isOn)
+			{
+				sendNoteOn(row, &patternStep);
+			}
 		}
+		// odpalamy efekty po-nutowe
+		if (isJumpToStep)
+		{
+			playerRow.isGoToStep = 1;
+			playerRow.goToStep = jumpToStep;
+		}
+
 	}
 
-	//
-	//	kontynuowanie nuty
-	//
+//
+//	kontynuowanie nuty
+//
 
 	if (playerRow.stepOpen)
 	{
@@ -590,7 +642,7 @@ void Sequencer::stop(void)
 	allNoteOffs();
 	resetAllLearned();
 
-	// flash_bank(player.actualBank, player.ramBank);
+// flash_bank(player.actualBank, player.ramBank);
 }
 
 //void Sequencer::resetLastSendMod(void)
@@ -626,7 +678,7 @@ void Sequencer::rec(void)
 //	send_play();
 
 	player.swing_offset = 50.0;
-	//rekonfig timera
+//rekonfig timera
 	init_player_timer();
 
 }
@@ -651,7 +703,7 @@ void Sequencer::clearRow(uint8_t row)
 
 void Sequencer::clearRow(uint8_t row, uint8_t bank)
 {
-	// TODO: ograniczyć ba
+// TODO: ograniczyć ba
 	for (uint8_t x = MINSTEP; x <= MAXSTEP; x++)
 	{
 		clearStep(x, row, bank);
@@ -738,7 +790,7 @@ void Sequencer::loadDefaultBank(uint8_t bank)
 
 void Sequencer::initPattern(uint8_t pattern) // czyści pattern z flasha
 {
-	// czyścimy bank 3
+// czyścimy bank 3
 	loadDefaultBank(3);
 
 	if (pattern == player.actualBank)
@@ -747,9 +799,9 @@ void Sequencer::initPattern(uint8_t pattern) // czyści pattern z flasha
 		loadDefaultBank(0);
 	}
 
-	// flashuje pattern ramem z 3 pozycji
-	// 	TODO
-	//	flash_bank(pattern, 3);
+// flashuje pattern ramem z 3 pozycji
+// 	TODO
+//	flash_bank(pattern, 3);
 }
 
 uint8_t Sequencer::isInScale(uint8_t note, uint8_t root, uint8_t scale)
@@ -757,12 +809,12 @@ uint8_t Sequencer::isInScale(uint8_t note, uint8_t root, uint8_t scale)
 	uint8_t noteName = note % 12; //24 -> 0
 	uint8_t rootName = root % 12; //13 -> 1
 
-	// Serial.print("isInScale: note: ");
-	// Serial.print(noteName);
-	// Serial.print("root: ");
-	// Serial.print(rootName);
-	// Serial.print("scale: ");
-	// Serial.print(scale);
+// Serial.print("isInScale: note: ");
+// Serial.print(noteName);
+// Serial.print("root: ");
+// Serial.print(rootName);
+// Serial.print("scale: ");
+// Serial.print(scale);
 
 	if (rootName <= noteName)
 	{
@@ -780,7 +832,7 @@ uint8_t Sequencer::isInScale(uint8_t note, uint8_t root, uint8_t scale)
 			return 1;
 		}
 	}
-	// Serial.println(" no...");
+// Serial.println(" no...");
 	return 0;
 }
 
@@ -833,13 +885,22 @@ void Sequencer::loadDefaultSequence(void)
 
 	seq[player.ramBank].track[0].step[5].isOn = 1;
 	seq[player.ramBank].track[0].step[5].note = 48;
-	seq[player.ramBank].track[0].step[5].length1 = 300;
+	seq[player.ramBank].track[0].step[5].length1 = 48;
 	seq[player.ramBank].track[0].step[5].fx[0].isOn = 1;
 	seq[player.ramBank].track[0].step[5].fx[0].type = fx.FX_TYPE_ROLL;
 	seq[player.ramBank].track[0].step[5].fx[0].rollType = fx.ROLL_TYPE_2_1;
 	seq[player.ramBank].track[0].step[5].fx[1].isOn = 1;
 	seq[player.ramBank].track[0].step[5].fx[1].type = fx.FX_TYPE_OFFSET;
 	seq[player.ramBank].track[0].step[5].fx[1].value_u16 = 24;
+
+
+	// JUMP TO STEP
+//	seq[player.ramBank].track[0].step[7].isOn = 0;
+//	seq[player.ramBank].track[0].step[7].note = 49;
+//	seq[player.ramBank].track[0].step[7].length1 = 300;
+//	seq[player.ramBank].track[0].step[7].fx[0].isOn = 1;
+//	seq[player.ramBank].track[0].step[7].fx[0].type = fx.FX_TYPE_JUMP_TO_STEP;
+//	seq[player.ramBank].track[0].step[7].fx[0].value_u16 = 4;
 
 }
 
@@ -857,7 +918,7 @@ void Sequencer::allNoteOffs(void)
 
 	}
 
-	// Serial.println("all stop");
+// Serial.println("all stop");
 }
 
 void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od trybu grania
@@ -871,10 +932,10 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 
 	}
 
-	if (player.row[x].goToStep)
+	if (player.row[x].isGoToStep)
 	{
 		player.row[x].actual_pos = player.row[x].goToStep;
-		player.row[x].goToStep = 0;
+		player.row[x].isGoToStep = 0;
 	}
 	else if (player.row[x].makeJump)
 	{
@@ -1082,7 +1143,7 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 	else
 		temp_Tempo = player.externalTempo;
 
-	//3125 - wyliczone niegdyś matematycznie, 12 na potrzeby dividerów
+//3125 - wyliczone niegdyś matematycznie, 12 na potrzeby dividerów
 	timer_var = ((3125.0 / temp_Tempo) * (player.swing_offset + 50.0)) / 12.0;
 
 	playTimer.begin(timerExternalVector, timer_var);
@@ -1099,7 +1160,7 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 void Sequencer::addNoteOn(uint8_t note, uint8_t velocity, uint8_t channel,
 							uint8_t midiOut)
 {
-	// Serial.println("add");
+// Serial.println("add");
 
 	for (uint8_t a = 0; a < 100; a++)
 	{
@@ -1203,13 +1264,13 @@ void Sequencer::trySwitchBank()
 uint8_t Sequencer::getTempoDiv(int8_t val)
 {
 
-	// 48, 	// 1/4	-3
-	// 36,	// 1/3	-2
-	// 24,	// 1/2	-1
-	// 12,	// 1/1	0
-	// 6, 	// 2/1	1
-	// 4, 	// 3/1	2
-	// 3	// 4/1	3
+// 48, 	// 1/4	-3
+// 36,	// 1/3	-2
+// 24,	// 1/2	-1
+// 12,	// 1/1	0
+// 6, 	// 2/1	1
+// 4, 	// 3/1	2
+// 3	// 4/1	3
 
 	switch (val)
 	{
@@ -1299,14 +1360,14 @@ void Sequencer::midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 //	else if ((midiOut == MIDIOUT_DIN1) || (midiOut == MIDIOUT_DIN1_C)) 		MIDI2.sendControlChange(channel, control, value);
 //	else if ((midiOut == MIDIOUT_DIN2) || (midiOut == MIDIOUT_DIN2_C))		MIDI.sendControlChange(channel, control, value);
 
-	// usbMIDI.send_now();
+// usbMIDI.send_now();
 
 }
 
 void Sequencer::setLoadBank2Ram(uint8_t bank)
 {
-	// Serial.print("change bank to:");
-	// Serial.println(bank);
+// Serial.print("change bank to:");
+// Serial.println(bank);
 //	bank = constrain(bank, 0, 255);
 //	set_updateLCD();
 //
@@ -1323,7 +1384,7 @@ void Sequencer::switch_bank_with_reset(void)
 
 void Sequencer::send_clock(uint8_t arg)
 {
-	// TODO: wypełnić
+// TODO: wypełnić
 
 }
 
@@ -1403,6 +1464,9 @@ uint8_t Sequencer::get_fxValType(uint8_t fxType)
 
 	case fx.FX_TYPE_PROBABILITY:
 		return fx.FX_VAL_TYPE_U16;
+		break;
+	case fx.FX_TYPE_ROLL:
+		return fx.FX_VAL_TYPE_R8_I8;
 		break;
 
 	default:
