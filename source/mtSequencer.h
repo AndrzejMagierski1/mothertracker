@@ -139,6 +139,9 @@ public:
 
 	struct strFxConsts
 	{
+		enum enMisc{
+			FX_INDEX_MAX = 3
+		};
 		enum enFxType
 		{
 			FX_TYPE_NONE,
@@ -173,7 +176,8 @@ public:
 
 		enum enRollType
 		{
-			ROLL_TYPE_NONE,
+			ROLL_TYPE_MIN = 0,
+			ROLL_TYPE_NONE = 0,
 			ROLL_TYPE_4_1,
 			ROLL_TYPE_3_1,
 			ROLL_TYPE_2_1,

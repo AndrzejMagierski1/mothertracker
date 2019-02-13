@@ -276,32 +276,48 @@ void Sequencer::play_microStep(uint8_t row)
 	}
 
 	//
-	//		wystartować stepa?
+	//		WYSTARTOWAĆ STEPA?
 	//
 	if (patternRow.isOn && patternStep.isOn)
 	{
 		boolean startStep = 0;
+		boolean isOffset = 0;
+		uint16_t offsetValue = 0;
+
+		for (strBank::strTrack::strStep::strFx &_fx : patternStep.fx)
+		{
+			if (_fx.isOn && _fx.type == fx.FX_TYPE_OFFSET)
+			{
+				isOffset = 1;
+				offsetValue = _fx.value_u16;
+				break;
+			}
+		}
+
 		// nie-offset
-		if (patternStep.fx[0].type != fx.FX_TYPE_OFFSET &&
+		if (!isOffset &&
 				playerRow.uStep == 1)
 		{
+			// wystartuj stepa
 			startStep = 1;
 			if (playerRow.noteOpen)
 			{
+				// zeruj wiszącą nutę
 				playerRow.noteOpen = 0;
 				sendNoteOff(row, &playerRow.stepSent);
 				playerRow.rollMode = fx.ROLL_TYPE_NONE;
 			}
 			if (playerRow.stepOpen)
 			{
+				// zeruj wiszący step
 				playerRow.stepOpen = 0;
 				playerRow.rollMode = fx.ROLL_TYPE_NONE;
 			}
 
 		}
 		// offset
-		else if (patternStep.fx[0].type == fx.FX_TYPE_OFFSET &&
-				playerRow.uStep == patternStep.fx[0].value_u16)
+		else if (isOffset &&
+				playerRow.uStep == offsetValue)
 		{
 			startStep = 1;
 			if (playerRow.noteOpen)
@@ -775,6 +791,8 @@ uint8_t Sequencer::isRowOn(uint8_t row)
 
 void Sequencer::loadDefaultSequence(void)
 {
+	seq[player.ramBank].tempo = 120.0;
+
 	for (uint8_t x = MINROW; x <= MAXROW; x++)
 	{
 		seq[player.ramBank].track[x].rootNote = 35 + x;
@@ -819,6 +837,9 @@ void Sequencer::loadDefaultSequence(void)
 	seq[player.ramBank].track[0].step[5].fx[0].isOn = 1;
 	seq[player.ramBank].track[0].step[5].fx[0].type = fx.FX_TYPE_ROLL;
 	seq[player.ramBank].track[0].step[5].fx[0].rollType = fx.ROLL_TYPE_2_1;
+	seq[player.ramBank].track[0].step[5].fx[1].isOn = 1;
+	seq[player.ramBank].track[0].step[5].fx[1].type = fx.FX_TYPE_OFFSET;
+	seq[player.ramBank].track[0].step[5].fx[1].value_u16 = 24;
 
 }
 
