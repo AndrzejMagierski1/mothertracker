@@ -25,7 +25,7 @@ void setup()
 
 	sequencer.init();
 	sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
-	//sequencer.play();
+	sequencer.play();
 
 	seqDisplay.init((Sequencer::strBank*)sequencer.pattern);
 

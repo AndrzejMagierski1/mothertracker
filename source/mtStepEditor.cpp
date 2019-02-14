@@ -118,7 +118,10 @@ void cMtStepEditor::buttonChange(uint8_t button, uint8_t value)
 	case mtStepEditButtonFunctPlay            	:		break;
 	case mtStepEditButtonFunctStop            	:		break;
 	case mtStepEditButtonFunctChangeStepParamsSel:	changeStepParamsSelection(value);	break;
-	case mtStepEditButtonFunctShowNextStepParams:	showNextStepParams(value);	break;
+	case mtStepEditButtonFunctShowNextStepFx1	:	changeStepFxSelection(1,value);		break;
+	case mtStepEditButtonFunctShowNextStepFx2	:	changeStepFxSelection(2,value);		break;
+	case mtStepEditButtonFunctShowNextStepFx3	:	changeStepFxSelection(3,value);		break;
+	case mtStepEditButtonFunctShowNextStepFx4	:	changeStepFxSelection(4,value);		break;
 
 
 
@@ -134,7 +137,11 @@ void cMtStepEditor::potChange(uint8_t pot, int16_t value)
 	switch(potFunction[pot])
 	{
 		case mtStepEditPotFunctNone				: 	break;
-
+		case mtStepEditPotFunctChangeStepParam  :   changeActualStepParams(value);	break;
+		case mtStepEditPotFunctChangeStepFx1    :  	changeActualStepFx1(value);		break;
+		case mtStepEditPotFunctChangeStepFx2    :   changeActualStepFx2(value);		break;
+		case mtStepEditPotFunctChangeStepFx3    :   changeActualStepFx3(value);		break;
+		case mtStepEditPotFunctChangeStepFx4    :   changeActualStepFx4(value);		break;
 
 		default: break;
 	}
@@ -319,11 +326,11 @@ void cMtStepEditor::updateButtonsFunctions()
 
 
 	setButtonFunction(0, mtStepEditButtonFunctChangeStepParamsSel);
-/*	setButtonFunction(1, mtStepEditButtonFunctChangeStepFx1);
-	setButtonFunction(2, mtStepEditButtonFunctChangeStepFx2);
-	setButtonFunction(3, mtStepEditButtonFunctChangeStepFx3);
-*/
-	setButtonFunction(4, mtStepEditButtonFunctShowNextStepParams);
+	setButtonFunction(1, mtStepEditButtonFunctShowNextStepFx1);
+	setButtonFunction(2, mtStepEditButtonFunctShowNextStepFx2);
+	setButtonFunction(3, mtStepEditButtonFunctShowNextStepFx3);
+	setButtonFunction(4, mtStepEditButtonFunctShowNextStepFx4);
+
 
 
 
@@ -378,11 +385,11 @@ void cMtStepEditor::updatePotsFunctions()
 
 
 
-	setPotFunction(0, mtStepEditPotFunctChangeStepInstrument);
-	setPotFunction(1, mtStepEditPotFunctChangeStepNote);
-	setPotFunction(2, mtStepEditPotFunctChangeStepLength);
-	setPotFunction(3, mtStepEditPotFunctChangeStepVolume);
-	setPotFunction(4, mtStepEditPotFunctChangeSeqPosition);
+	setPotFunction(0, mtStepEditPotFunctChangeStepParam);
+	setPotFunction(1, mtStepEditPotFunctChangeStepFx1);
+	setPotFunction(2, mtStepEditPotFunctChangeStepFx2);
+	setPotFunction(3, mtStepEditPotFunctChangeStepFx3);
+	setPotFunction(4, mtStepEditPotFunctChangeStepFx4);
 
 
 
@@ -406,25 +413,85 @@ void cMtStepEditor::setPotFunction(uint8_t number, uint8_t function)
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
-// instrument modification
+// steps modification
 
 void cMtStepEditor::changeStepParamsSelection(uint8_t value)
 {
 	if(value == 1)
 	{
 		actualTrackTableSelection[0]++;
-		if(actualTrackTableSelection[0] > 3) actualTrackTableSelection[0] = 0;
+		if(actualTrackTableSelection[0] >= enumMtStepEditStepParamsCount) actualTrackTableSelection[0] = 0;
 
 		stepParametersChanged = 1;
 		refreshStepEditor = 1;
 	}
 }
 
-void cMtStepEditor::showNextStepParams(uint8_t value)
+void cMtStepEditor::changeStepFxSelection(uint8_t fx, uint8_t value)
+{
+	if(value == 1)
+	{
+		uint8_t fx_type = sequencer.pattern->track[actualTrack].step[actualStep].fx[fx-1].type;
+
+		if(fx_type > Sequencer::strFxConsts::FX_TYPE_NONE)
+		{
+			uint8_t fx_val_count = 1;
+			if(sequencer.get_fxValType(fx_type) > Sequencer::strFxConsts::FX_VAL_TYPE_I16) fx_val_count = 2;
+
+			actualTrackTableSelection[fx]++;
+			if(actualTrackTableSelection[fx] > fx_val_count) actualTrackTableSelection[fx] = 0;
+
+			stepParametersChanged = 1;
+			refreshStepEditor = 1;
+		}
+	}
+}
+
+
+//-----------------------------------------------------------------------------------
+void cMtStepEditor::changeActualStepParams(int16_t value)
+{
+	switch(actualTrackTableSelection[0])
+	{
+	case mtStepEditStepParamNote: //MAX_NOTE_STEP
+	{
+		//sequencer.pattern->track[actualTrack].step[actualStep].note =
+
+		break;
+	}
+
+
+
+	default: break;
+	}
+
+
+
+
+
+}
+
+void cMtStepEditor::changeActualStepFx1(int16_t value)
 {
 
 }
 
+void cMtStepEditor::changeActualStepFx2(int16_t value)
+{
+
+}
+
+void cMtStepEditor::changeActualStepFx3(int16_t value)
+{
+
+}
+
+void cMtStepEditor::changeActualStepFx4(int16_t value)
+{
+
+}
+
+//-----------------------------------------------------------------------------------
 
 void cMtStepEditor::play(uint8_t value)
 {

@@ -15,8 +15,10 @@ enum enumMtStepEditorButtonFunction
 	mtStepEditButtonFunctPlay,
 	mtStepEditButtonFunctStop,
 	mtStepEditButtonFunctChangeStepParamsSel,
-	mtStepEditButtonFunctShowNextStepParams,
-
+	mtStepEditButtonFunctShowNextStepFx1,
+	mtStepEditButtonFunctShowNextStepFx2,
+	mtStepEditButtonFunctShowNextStepFx3,
+	mtStepEditButtonFunctShowNextStepFx4,
 
 
 	//-------------------------------
@@ -26,11 +28,11 @@ enum enumMtStepEditorButtonFunction
 enum enumMtStepEditorPotFunction
 {
 	mtStepEditPotFunctNone,
-	mtStepEditPotFunctChangeStepInstrument,
-	mtStepEditPotFunctChangeStepNote,
-	mtStepEditPotFunctChangeStepLength,
-	mtStepEditPotFunctChangeStepVolume,
-	mtStepEditPotFunctChangeSeqPosition,
+	mtStepEditPotFunctChangeStepParam,
+	mtStepEditPotFunctChangeStepFx1,
+	mtStepEditPotFunctChangeStepFx2,
+	mtStepEditPotFunctChangeStepFx3,
+	mtStepEditPotFunctChangeStepFx4,
 
 
 
@@ -45,6 +47,28 @@ enum enumMtStepEditorValue
 
 	//-------------------------------
 	mtStepEditorPotValueCount
+};
+
+
+enum enumMtStepEditorStepParams
+{
+	mtStepEditStepParamNote,
+	mtStepEditStepParamInstr,
+	mtStepEditStepParamLength,
+	mtStepEditStepParamVolume,
+
+	//-------------------------------
+	enumMtStepEditStepParamsCount
+};
+
+enum enumMtStepEditorStepFx
+{
+	mtStepEditStepParamType,
+	mtStepEditStepParamVal1,
+	mtStepEditStepParamVal2,
+
+	//-------------------------------
+	enumMtStepEditStepFxCount
 };
 
 
@@ -166,13 +190,14 @@ private:
 	void play(uint8_t value);
 	void stop(uint8_t value);
 	void changeStepParamsSelection(uint8_t value);
-	void showNextStepParams(uint8_t value);
+	void changeStepFxSelection(uint8_t fx, uint8_t value);
 
 	//funkcje potow
-	void changeActualStepInstrument();
-	void changeActualStepNote();
-	void changeActualStepLength();
-	void changeActualStepVeleocity();
+	void changeActualStepParams(int16_t value);
+	void changeActualStepFx1(int16_t value);
+	void changeActualStepFx2(int16_t value);
+	void changeActualStepFx3(int16_t value);
+	void changeActualStepFx4(int16_t value);
 
 
 
@@ -210,6 +235,10 @@ private:
 		{0},
 		"Play",
 		"Stop",
+		"<  >",
+		"<  >",
+		"<  >",
+		"<  >",
 		"<  >",
 
 
