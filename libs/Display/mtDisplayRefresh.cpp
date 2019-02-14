@@ -1062,14 +1062,19 @@ void cMtDisplay::ramg_track_table()
 
 	API_END();
 
-	x_pos = ptrTrackTable->active[0] * (MT_DISP_BLOCK_W/4);
+	uint8_t x_length = 24;
+	if(ptrTrackTable->active[0] == 0) 		{x_pos = 0;  x_length = 32;}
+	else if(ptrTrackTable->active[0] == 1)	{x_pos = 33; x_length = 18;}
+	else if(ptrTrackTable->active[0] == 2)	{x_pos = 52; x_length = 19;}
+	else									{x_pos = 71; x_length = 25;}
+
 	// ramka 1
 	API_COLOR(displayColors.trackTableFrame);
 	API_LINE_WIDTH(12);
 	API_BEGIN(LINE_STRIP);
 	API_VERTEX2II(x_pos, y_pos, 0, 0);
-	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos, 0, 0);
-	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(x_pos + x_length -1, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + x_length -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
 	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
 	API_VERTEX2II(x_pos, y_pos, 0, 0);
 	API_END();
@@ -1125,9 +1130,9 @@ void cMtDisplay::ramg_track_table()
 			// param value
 			API_COLOR(displayColors.fontTrackTable);
 			API_CMD_TEXT(1, y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), &mtDispNotes[ptrTrackTable->params[i].iVal1][0]);
-			API_CMD_NUMBER(1+(MT_DISP_BLOCK_W/4)*1 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal2);
-			API_CMD_NUMBER(1+(MT_DISP_BLOCK_W/4)*2 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal3);
-			API_CMD_NUMBER(1+(MT_DISP_BLOCK_W/4)*3 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal4);
+			API_CMD_NUMBER(1+34 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal2);
+			API_CMD_NUMBER(1+53 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal3);
+			API_CMD_NUMBER(1+72 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal4);
 
 
 			// fxs
