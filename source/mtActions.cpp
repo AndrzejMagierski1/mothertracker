@@ -67,6 +67,9 @@ void onPotChange(uint8_t n, int16_t value)
 
 /*	if(value > 0 )
 
+=======
+	if(value > 0 )
+>>>>>>> refs/heads/audioEngine2
 	{
 		if(mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow  < MAX_WAVETABLE_WINDOW)
 		{
@@ -93,9 +96,11 @@ void onPotChange(uint8_t n, int16_t value)
 		}
 
 	}
+<<<<<<< HEAD
 
 
 	}*/
+
 
 
 /*	mtPrint("pot change: ");
@@ -128,8 +133,12 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].delay=0;
 
 
+<<<<<<< HEAD
 	/*	mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].delay=0;
 /*
+=======
+		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].delay=0;
+>>>>>>> refs/heads/audioEngine2
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].attack=1;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].hold=1;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].decay=1;
@@ -157,7 +166,11 @@ void onButtonChange(uint8_t n, uint8_t value)
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].tune=0;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].fineTune=0;
 		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow=0;
+<<<<<<< HEAD
 
+=======
+		mtProject.sampleBank.sample[mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].sampleIndex].wavetable_window_size = 2048;
+>>>>>>> refs/heads/audioEngine2
 
 
 */
@@ -170,8 +183,8 @@ void onButtonChange(uint8_t n, uint8_t value)
 		}
 		else
 		{*/
-//			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,24,100);
-//			else instrumentPlayer[n].noteOff();
+			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,24,100);
+			else instrumentPlayer[n].noteOff();
 		//}
 		//mtInterface.buttonChange(n,value);
 

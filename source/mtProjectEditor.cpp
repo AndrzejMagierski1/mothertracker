@@ -61,7 +61,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// pod jaki index tablicy sampli 0-32 zapisywac dany sampel
 	// teraz domyslnie zajmowane 0-7
 
-	for(uint8_t i = 0; i < 8; i++) // max do 9
+	for(uint8_t i = 0; i < 8; i++) // max do 9mtSampleTypeWaveFile
 	{
 		mtProject.sampleBank.sample[i].type = mtSampleTypeWaveFile;
 		mtProject.sampleBank.sample[i].file_name[0] = i+49;
@@ -181,6 +181,8 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 		if(mtProject.sampleBank.sample[i].type == mtSampleTypeWavetable)
 		{
 			size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
+
+			//size = loadFullWavetableSerum("DirtySaw",mtProject.sampleBank.sample[i].address);
 		}
 		else
 		{
@@ -778,5 +780,65 @@ int32_t loadWavetable(const char *filename, int16_t * buf ,uint16_t * windowSize
 		*windowSize = SERUM_WAVETABLE_WINDOW_LEN;
 	}
 	return size;
+
+}
+int32_t loadFullWavetableSerum(const char *baseName, int16_t * buf)
+{
+	strWavFileHeader sampleHead;
+	uint8_t tabSize=0;
+	uint16_t bufferLength=0;
+	float currentWave[2048];
+	FsFile wavfile;
+	while( *(baseName+tabSize) != 0 )
+	{
+		tabSize++;
+	}
+	tabSize+=9;
+
+
+	char name[tabSize];
+
+	for(uint8_t i=0;i< tabSize; i++)
+	{
+		if(i< (tabSize-9)) name[i]=baseName[i];
+		else if(i== (tabSize -1 ) ) name[i] = 0;
+		else if(i== (tabSize -2 ) ) name[i] = 'V';
+		else if(i== (tabSize -3 ) ) name[i] = 'A';
+		else if(i== (tabSize -4 ) ) name[i] = 'W';
+		else if(i== (tabSize -5 ) ) name[i] = '.';
+		else if(i== (tabSize -6 ) ) name[i] = '1';
+		else if(i== (tabSize -9 ) ) name[i] = '_';
+		else name[i] ='0';
+	}
+
+	for(uint16_t a=0; a < STANDARD_WAVETABLE_WINDOWS_NUMBER;a++)
+	{
+		wavfile = SD.open(name);
+		wavfile.read(&sampleHead,44);
+
+		bufferLength = wavfile.read(currentWave, 8192);
+
+		for(int j=0; j< SERUM_WAVETABLE_WINDOW_LEN; j++)
+		{
+			if(bufferLength <= j ) *buf=0;
+			else *buf=fmap(currentWave[j],MIN_WAVE_FLOAT,MAX_WAVE_FLOAT,MIN_SIGNED_16BIT,MAX_SIGNED_16BIT);
+			buf++;
+		}
+		wavfile.close();
+
+		if(name[tabSize - 6 ] < '9') name[tabSize - 6 ]++;
+		else if(name[tabSize - 6 ] == '9')
+		{
+			name[tabSize - 6 ] = '0';
+			if( name[tabSize - 7 ] < '9') name[tabSize - 7 ]++;
+			else if(name[tabSize - 7 ] == '9')
+			{
+				name[tabSize - 7 ]= '0';
+				name[tabSize - 8]++;
+			}
+		}
+	}
+
+	return STANDARD_WAVETABLE_WINDOWS_NUMBER* SERUM_WAVETABLE_WINDOW_LEN;
 
 }
