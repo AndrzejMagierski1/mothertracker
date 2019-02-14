@@ -157,7 +157,17 @@ enum envelopeTypes
 	envelopeTypeMax,
 };
 
+enum inputSelect
+{
+	inputSelectMic,
+	inputSelectLineIn
+};
 
+enum outputSelect
+{
+	outputSelectHeadphones,
+	outputSelectLineOut
+};
 //=====================================================================
 //=====================================================================
 
@@ -220,6 +230,23 @@ struct strWavFileHeader
 
 };
 
+struct strAudioCodacConfig
+{
+	uint8_t inSelect;
+	uint8_t outSelect;
+
+	float headphoneVolume;
+	uint8_t inputGain; // 0-63
+	uint8_t mutedHeadphone;
+	uint8_t mutedLineOut;
+	uint8_t lineInLeft; // 0-15
+	uint8_t lineInRight; // 0-15
+	uint8_t lineOutLeft; // 0-15
+	uint8_t lineOutRight; // 0-15
+
+	uint8_t changeFlag;
+};
+
 struct strSampleBank
 {
 	struct strSampleBankSlot
@@ -280,6 +307,7 @@ struct strMtProject
 	strSampleBank sampleBank;
 	strInstrument instrument[INSTRUMENTS_MAX];
 
+	strAudioCodacConfig audioCodacConfig;
 	uint8_t instruments_count;
 
 };

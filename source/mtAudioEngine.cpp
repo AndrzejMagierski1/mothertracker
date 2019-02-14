@@ -1,5 +1,6 @@
 #include "mtAudioEngine.h"
 
+extern AudioControlSGTL5000 audioShield;
 
 AudioPlayMemory          playMem[8];
 AudioEffectEnvelope      envelopeAmp[8];
@@ -73,6 +74,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		pinMode(AUDIO_OUT_MUX, OUTPUT);
 		digitalWrite(AUDIO_IN_MUX, LOW);
 		digitalWrite(AUDIO_OUT_MUX, LOW);
+
 		for(int i=0;i<8; i++)
 		{
 			instrumentPlayer[i].init(&playMem[i],&envelopeFilter[i],&filter[i],&envelopeAmp[i], &amp[i], i, &lfoAmp[i],&lfoFilter[i],&lfoPitch[i]);
@@ -85,6 +87,47 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 		{
 			instrumentPlayer[i].update();
 		}
+
+		if(mtProject.audioCodacConfig.changeFlag)
+		{
+			mtProject.audioCodacConfig.changeFlag=0;
+
+			if(mtProject.audioCodacConfig.outSelect == outputSelectHeadphones)
+			{
+				if(mtProject.audioCodacConfig.mutedHeadphone) audioShield.muteHeadphone();
+				else
+				{
+					audioShield.unmuteHeadphone();
+					setOut(outputSelectHeadphones);
+					audioShield.volume(mtProject.audioCodacConfig.headphoneVolume);
+				}
+
+			}
+			else if(mtProject.audioCodacConfig.outSelect == outputSelectLineOut)
+			{
+				if(mtProject.audioCodacConfig.mutedLineOut) audioShield.muteLineout();
+				else
+				{
+					setOut(outputSelectLineOut);
+					audioShield.lineOutLevel(mtProject.audioCodacConfig.lineOutLeft,mtProject.audioCodacConfig.lineOutRight);
+				}
+			}
+
+			if(mtProject.audioCodacConfig.inSelect == inputSelectMic)
+			{
+				setIn(inputSelectMic);
+				audioShield.inputSelect(AUDIO_INPUT_MIC);
+				audioShield.micGain(mtProject.audioCodacConfig.inputGain);
+			}
+			else if(mtProject.audioCodacConfig.inSelect == inputSelectLineIn)
+			{
+				setIn(inputSelectLineIn);
+				audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+				audioShield.lineInLevel(mtProject.audioCodacConfig.lineInLeft, mtProject.audioCodacConfig.lineInRight);
+			}
+
+		}
+
 	}
 
 	void audioEngine::setOut(uint8_t audioOutStatus)

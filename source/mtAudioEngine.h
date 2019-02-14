@@ -12,13 +12,6 @@
 #include "mtLFO.h"
 #include "mtHardware.h"
 
-
-
-extern uint32_t wavLen1;
-extern int16_t wavBuf1[500800];
-extern AudioPlayMemory playMem1;
-
-
 class audioEngine
 {
 public:

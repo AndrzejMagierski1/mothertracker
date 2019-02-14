@@ -8,6 +8,8 @@
 #include "Wire.h"
 
 
+
+
 // PAD,POT,BUTTONS MUXS
 // pad xy_z control
 #define CTRL_XY_Z		25 			//PTA5			pin-55
@@ -86,6 +88,5 @@
 #define HAPTIC_OUT		xxx 		//DAC0_OUT		pin-38
 
 extern uint8_t hardwareTest;
-
 
 #endif

@@ -44,6 +44,7 @@ RE-CERTIFICATION AS A RESULT OF MAKING THESE CHANGES.
 
 #include "mtHardware.h"
 #include "SPI2.h"
+
 #define CS LCD_CS
 #define PD LCD_PD
 
