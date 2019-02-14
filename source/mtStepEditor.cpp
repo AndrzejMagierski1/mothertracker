@@ -182,7 +182,7 @@ void cMtStepEditor::processStepParameters()
 
 			trackTable.params[i].iVal1 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].note;
 			trackTable.params[i].iVal2 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].instrument;
-			trackTable.params[i].iVal3 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].length1;
+			trackTable.params[i].iVal3 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].length1/48;
 			trackTable.params[i].iVal4 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].velocity;
 
 			if(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[0].isOn == 0)
@@ -453,13 +453,54 @@ void cMtStepEditor::changeActualStepParams(int16_t value)
 {
 	switch(actualTrackTableSelection[0])
 	{
-	case mtStepEditStepParamNote: //MAX_NOTE_STEP
+	case mtStepEditStepParamNote:
 	{
-		//sequencer.pattern->track[actualTrack].step[actualStep].note =
+		uint8_t step_note = sequencer.pattern->track[actualTrack].step[actualStep].note;
 
+		if(step_note + value > Sequencer::MAX_NOTE_STEP)
+			sequencer.seq[0].track[actualTrack].step[actualStep].note = Sequencer::MAX_NOTE_STEP;
+		else if(step_note + value < Sequencer::MIN_NOTE_STEP)
+			sequencer.seq[0].track[actualTrack].step[actualStep].note = Sequencer::MIN_NOTE_STEP;
+		else
+			sequencer.seq[0].track[actualTrack].step[actualStep].note += value;
 		break;
 	}
+	case mtStepEditStepParamInstr:
+	{
+		uint8_t step_inst = sequencer.pattern->track[actualTrack].step[actualStep].instrument;
 
+		if(step_inst + value >= mtProject.instruments_count)
+			sequencer.seq[0].track[actualTrack].step[actualStep].instrument = mtProject.instruments_count-1;
+		else if(step_inst + value < 0)
+			sequencer.seq[0].track[actualTrack].step[actualStep].instrument = 0;
+		else
+			sequencer.seq[0].track[actualTrack].step[actualStep].instrument += value;
+		break;
+	}
+	case mtStepEditStepParamLength:
+	{
+		uint8_t step_length = sequencer.pattern->track[actualTrack].step[actualStep].length1;
+
+		if(step_length + value*48 > Sequencer::MAX_STEP_LENGTH*48)
+			sequencer.seq[0].track[actualTrack].step[actualStep].length1 = Sequencer::MAX_STEP_LENGTH*48;
+		else if(step_length + value*48 < 0)
+			sequencer.seq[0].track[actualTrack].step[actualStep].length1 = 0;
+		else
+			sequencer.seq[0].track[actualTrack].step[actualStep].length1 += value*48;
+		break;
+	}
+	case mtStepEditStepParamVolume:
+	{
+		uint8_t step_volume = sequencer.pattern->track[actualTrack].step[actualStep].velocity;
+
+		if(step_volume + value > Sequencer::MAX_VELO_STEP)
+			sequencer.seq[0].track[actualTrack].step[actualStep].velocity = Sequencer::MAX_VELO_STEP;
+		else if(step_volume + value < Sequencer::MIN_VELO_STEP)
+			sequencer.seq[0].track[actualTrack].step[actualStep].velocity = Sequencer::MIN_VELO_STEP;
+		else
+			sequencer.seq[0].track[actualTrack].step[actualStep].velocity += value;
+		break;
+	}
 
 
 	default: break;
@@ -467,7 +508,8 @@ void cMtStepEditor::changeActualStepParams(int16_t value)
 
 
 
-
+	stepParametersChanged = 1;
+	refreshStepEditor = 1;
 
 }
 

@@ -198,7 +198,6 @@ void initHardware()
 //	}
 }
 
-uint8_t out = 1;
 
 void updateHardware()
 {
