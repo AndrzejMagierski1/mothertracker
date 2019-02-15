@@ -139,7 +139,8 @@ public:
 
 	struct strFxConsts
 	{
-		enum enMisc{
+		enum enMisc
+		{
 			FX_INDEX_MAX = 3
 		};
 		enum enFxType
@@ -196,9 +197,7 @@ public:
 
 	// KONIEC STAŁYCH
 
-private:
-
-	struct strBank
+	struct strPattern
 	{
 		float tempo = DEFAULT_TEMPO;
 		float swing = DEFAULT_SWING;
@@ -278,7 +277,10 @@ private:
 
 		} track[8];
 
-	} seq[2];
+	};
+	private:
+
+	strPattern seq[2];
 
 	struct strGlobalConfig
 	{
@@ -371,8 +373,8 @@ private:
 	void switch_bank_with_reset(void);
 
 	void flushNotes();
-	void sendNoteOn(uint8_t track, strBank::strTrack::strStep *step);
-	void sendNoteOff(uint8_t track, strBank::strTrack::strStep *step);
+	void sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step);
+	void sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step);
 
 	void send_clock(uint8_t);
 
@@ -459,7 +461,7 @@ private:
 
 		struct strPlayerTrack
 		{
-			strBank::strTrack::strStep stepSent;
+			strPattern::strTrack::strStep stepSent;
 			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
 
@@ -532,9 +534,33 @@ public:
 
 	// sekwencerowe
 
-	strBank const * pattern = &seq[0];
+//	strPattern const * pattern = &seq[0];
 
 	strPlayer const * ptrPlayer = &player;
+
+	uint8_t * getPatternToSaveToFile()
+	{
+		return (uint8_t *) &seq[0];
+	}
+	void saveToFileDone()
+	{
+	}
+
+	uint8_t * getPatternToLoadFromFile()
+	{
+		return (uint8_t *) &seq[0];
+	}
+	void loadFromFileOK()
+	{
+	}
+	void loadFromFileERROR()
+	{
+	}
+
+	strPattern * getPatternToUI()
+	{
+		return &seq[0];
+	}
 
 	void play(void);
 	void pause(void);

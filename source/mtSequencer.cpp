@@ -226,10 +226,10 @@ void Sequencer::play_microStep(uint8_t row)
 {
 	if (row > MAXROW)
 		return;
-	strBank::strTrack & patternRow = seq[player.ramBank].track[row];
+	strPattern::strTrack & patternRow = seq[player.ramBank].track[row];
 	strPlayer::strPlayerTrack & playerRow = player.row[row];
 
-	strBank::strTrack::strStep & patternStep = patternRow.step[playerRow.actual_pos];
+	strPattern::strTrack::strStep & patternStep = patternRow.step[playerRow.actual_pos];
 //	strPlayer::strPlayerTrack::strPlayerStep & playerStep = playerRow.step[playerRow.actual_pos];
 
 	//
@@ -291,7 +291,7 @@ void Sequencer::play_microStep(uint8_t row)
 		int8_t valRoll = 0;
 
 		// przerabiamy FXy
-		for (strBank::strTrack::strStep::strFx &_fx : patternStep.fx)
+		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
 		{
 			if (_fx.isOn)
 			{
@@ -743,8 +743,8 @@ void Sequencer::clearStep(uint8_t x, uint8_t row)
 
 void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 {
-	strBank::strTrack & tempRow = seq[bank].track[row];
-	strBank::strTrack::strStep & step = tempRow.step[x];
+	strPattern::strTrack & tempRow = seq[bank].track[row];
+	strPattern::strTrack::strStep & step = tempRow.step[x];
 
 //	step.hitMode = 1;
 	step.isOn = 0;
@@ -1475,7 +1475,7 @@ uint8_t Sequencer::get_fxValType(uint8_t fxType)
 	}
 }
 
-void Sequencer::sendNoteOn(uint8_t track, strBank::strTrack::strStep *step)
+void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 {
 	if (player.printNotes)
 	{
@@ -1489,7 +1489,7 @@ void Sequencer::sendNoteOn(uint8_t track, strBank::strTrack::strStep *step)
 	usbMIDI.sendNoteOn(step->note, step->velocity, 1);
 
 }
-void Sequencer::sendNoteOff(uint8_t track, strBank::strTrack::strStep *step)
+void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
 {
 	if (player.printNotes)
 	{
