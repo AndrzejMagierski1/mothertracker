@@ -556,6 +556,10 @@ public:
 	void loadFromFileERROR()
 	{
 	}
+	uint16_t getPatternSize()
+	{
+		return sizeof(strPattern);
+	}
 
 	strPattern * getPatternToUI()
 	{
