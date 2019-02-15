@@ -279,6 +279,8 @@ public:
 		} track[8];
 
 	};
+
+	uint8_t get_fxValType(uint8_t fxType);
 	private:
 
 	strPattern seq[2];
@@ -433,7 +435,7 @@ public:
 		uint8_t player = 0;
 	} debug;
 
-	uint8_t get_fxValType(uint8_t fxType);
+
 
 	struct strPlayer
 	{

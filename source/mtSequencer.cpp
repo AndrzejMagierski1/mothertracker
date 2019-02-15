@@ -1550,7 +1550,7 @@ uint8_t Sequencer::get_fxValType(uint8_t fxType)
 
 //strMtModAudioEngine  playMod = {0};
 
-void Sequencer::sendNoteOn(uint8_t track, strBank::strTrack::strStep *step)
+void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 {
 	if (player.printNotes)
 	{
@@ -1567,7 +1567,7 @@ void Sequencer::sendNoteOn(uint8_t track, strBank::strTrack::strStep *step)
 
 }
 
-void Sequencer::sendNoteOff(uint8_t track, strBank::strTrack::strStep *step)
+void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
 {
 	if (player.printNotes)
 	{

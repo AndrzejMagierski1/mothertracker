@@ -28,7 +28,7 @@ void setup()
 	sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
 	sequencer.play();
 
-	seqDisplay.init((Sequencer::strBank*)sequencer.pattern);
+	seqDisplay.init((Sequencer::strPattern*)sequencer.getPatternToUI());
 
 	// inincjalizacja interfejsu na koncu
 	mtInterface.begin();

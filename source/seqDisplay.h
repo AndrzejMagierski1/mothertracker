@@ -12,7 +12,7 @@ class SeqDisplay
 {
 public:
 
-void init(Sequencer::strBank * seq);
+void init(Sequencer::strPattern * seq);
 void update();
 void setMode(uint8_t s);
 
@@ -23,7 +23,7 @@ void updatePlayMode();
 void updateStopMode();
 int8_t getMaxTrackLen();
 
-Sequencer::strBank * sequencerPtr;
+Sequencer::strPattern * sequencerPtr;
 uint8_t state;
 
 elapsedMillis refreshTimer;

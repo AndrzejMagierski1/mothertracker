@@ -379,7 +379,7 @@ struct strPatternFile
 	struct strInstrumentDataAndHeader
 	{
 		strProjectFileHeader patternHeader;
-		Sequencer::strBank pattern;
+		Sequencer::strPattern pattern;
 
 	} patternDataAndHeader;
 

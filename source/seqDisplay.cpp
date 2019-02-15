@@ -1,6 +1,6 @@
 #include "seqDisplay.h"
 
-void SeqDisplay::init(Sequencer::strBank * seq)
+void SeqDisplay::init(Sequencer::strPattern * seq)
 {
 	sequencerPtr=seq;
 	refreshTimer=0;

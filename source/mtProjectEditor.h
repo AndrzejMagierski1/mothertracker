@@ -47,8 +47,8 @@ public:
 	uint8_t isProjectLoaded();
 	void writeInstrumentFile(char * name, strInstrument * instr);
 	uint8_t readInstrumentFile(char * name, strInstrument * instr);
-	void writePatternFile(char * name, Sequencer::strBank * patt);
-	uint8_t readPatternFile(char * name, Sequencer::strBank * patt);
+	void writePatternFile(char * name);
+	uint8_t readPatternFile(char * name);
 
 	void setEventFunct(void (*func)(uint8_t, void*, void*, void*)) { eventFunct = func; };
 

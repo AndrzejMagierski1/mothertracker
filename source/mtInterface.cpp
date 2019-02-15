@@ -32,8 +32,8 @@ void cMtInterface::begin()
 
 	mtProjectEditor.writeInstrumentFile("instrument_000.mti", &mtProject.instrument[0]);
 	mtProjectEditor.readInstrumentFile("instrument_000.mti", &mtProject.instrument[0]);
-	mtProjectEditor.writePatternFile("pattern_000.mtp", &sequencer.seq[0]);
-	mtProjectEditor.readPatternFile("pattern_000.mtp", &sequencer.seq[0]);
+	mtProjectEditor.writePatternFile("pattern_000.mtp");
+	mtProjectEditor.readPatternFile("pattern_000.mtp");
 
 }
 

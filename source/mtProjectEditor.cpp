@@ -310,14 +310,15 @@ void cMtProjectEditor::writeInstrumentFile(char * name, strInstrument * instr)
 
 }
 
-void cMtProjectEditor::writePatternFile(char * name, Sequencer::strBank * patt)
+void cMtProjectEditor::writePatternFile(char * name)
 {
 	if(SD.exists(name)) return; //todo: do ustalenia czy nadpisujemy czy nie
 
 	FsFile file;
 	FastCRC32 crcCalc;
-
 	strPatternFile patternFile;
+	Sequencer::strPattern * patt;
+	patt=(Sequencer::strPattern *)sequencer.getPatternToSaveToFile();
 
 	patternFile.patternDataAndHeader.pattern = * patt;
 
@@ -340,6 +341,8 @@ void cMtProjectEditor::writePatternFile(char * name, Sequencer::strBank * patt)
 	file=SD.open(name,FILE_WRITE);
 	file.write((uint8_t *)&patternFile,sizeof(patternFile));
 	file.close();
+
+	sequencer.saveToFileDone();
 }
 
 uint8_t cMtProjectEditor::readInstrumentFile(char * name, strInstrument * instr)
@@ -366,28 +369,43 @@ uint8_t cMtProjectEditor::readInstrumentFile(char * name, strInstrument * instr)
 	else return 0;
 }
 
-uint8_t cMtProjectEditor::readPatternFile(char * name, Sequencer::strBank * patt)
+uint8_t cMtProjectEditor::readPatternFile(char * name)
 {
-	if(!SD.exists(name)) return 0;
+	if(!SD.exists(name))
+	{
+		return 0;
+		sequencer.loadFromFileERROR();
+	}
 	FsFile file;
 	FastCRC32 crcCalc;
 	uint32_t checkCRC=0;
 
-	strPatternFile patternFile;
 
+	strPatternFile patternFile;
+	Sequencer::strPattern * patt;
+	patt=(Sequencer::strPattern *)sequencer.getPatternToLoadFromFile();
 	file=SD.open(name);
 	file.read((uint8_t*)&patternFile, sizeof(patternFile));
 	file.close();
 
-	if(patternFile.patternDataAndHeader.patternHeader.type != fileTypePattern) return 0;
+	if(patternFile.patternDataAndHeader.patternHeader.type != fileTypePattern)
+	{
+		return 0;
+		sequencer.loadFromFileERROR();
+	}
 
 	checkCRC=crcCalc.crc32((uint8_t *)&patternFile.patternDataAndHeader,sizeof(patternFile.patternDataAndHeader));
 	if(checkCRC == patternFile.crc)
 	{
 		*patt=patternFile.patternDataAndHeader.pattern;
+		sequencer.loadFromFileOK();
 		return 1;
 	}
-	else return 0;
+	else
+	{
+		return 0;
+		sequencer.loadFromFileERROR();
+	}
 
 
 }
