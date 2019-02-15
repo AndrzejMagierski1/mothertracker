@@ -114,14 +114,14 @@ void cMtStepEditor::buttonChange(uint8_t button, uint8_t value)
 {
 	switch(buttonFunction[button])
 	{
-	case mtStepEditButtonFunctNone				:		break;
-	case mtStepEditButtonFunctPlay            	:		break;
-	case mtStepEditButtonFunctStop            	:		break;
-	case mtStepEditButtonFunctChangeStepParamsSel:	changeStepParamsSelection(value);	break;
-	case mtStepEditButtonFunctShowNextStepFx1	:	changeStepFxSelection(1,value);		break;
-	case mtStepEditButtonFunctShowNextStepFx2	:	changeStepFxSelection(2,value);		break;
-	case mtStepEditButtonFunctShowNextStepFx3	:	changeStepFxSelection(3,value);		break;
-	case mtStepEditButtonFunctShowNextStepFx4	:	changeStepFxSelection(4,value);		break;
+	case buttonFunctNone				:		break;
+	case buttonFunctPlay            	:		break;
+	case buttonFunctStop            	:		break;
+	case buttonFunctChangeStepParamsSel:	changeStepParamsSelection(value);	break;
+	case buttonFunctShowNextStepFx1	:	changeStepFxSelection(1,value);		break;
+	case buttonFunctShowNextStepFx2	:	changeStepFxSelection(2,value);		break;
+	case buttonFunctShowNextStepFx3	:	changeStepFxSelection(3,value);		break;
+	case buttonFunctShowNextStepFx4	:	changeStepFxSelection(4,value);		break;
 
 
 
@@ -134,14 +134,14 @@ void cMtStepEditor::buttonChange(uint8_t button, uint8_t value)
 
 void cMtStepEditor::potChange(uint8_t pot, int16_t value)
 {
-	switch(potFunction[pot])
+	switch(potFunctions[pot])
 	{
-		case mtStepEditPotFunctNone				: 	break;
-		case mtStepEditPotFunctChangeStepParam  :   changeActualStepParams(value);	break;
-		case mtStepEditPotFunctChangeStepFx1    :  	changeActualStepFx1(value);		break;
-		case mtStepEditPotFunctChangeStepFx2    :   changeActualStepFx2(value);		break;
-		case mtStepEditPotFunctChangeStepFx3    :   changeActualStepFx3(value);		break;
-		case mtStepEditPotFunctChangeStepFx4    :   changeActualStepFx4(value);		break;
+		case potFunctNone			  : 	break;
+		case potFunctChangeStepParam  :   changeActualStepParams(value);	break;
+		case potFunctChangeStepFx1    :   changeActualStepFx1(value);		break;
+		case potFunctChangeStepFx2    :   changeActualStepFx2(value);		break;
+		case potFunctChangeStepFx3    :   changeActualStepFx3(value);		break;
+		case potFunctChangeStepFx4    :   changeActualStepFx4(value);		break;
 
 		default: break;
 	}
@@ -304,13 +304,13 @@ void cMtStepEditor::processLabels()
 void cMtStepEditor::setButtonLabel(uint8_t function, char* label)
 {
 	uint8_t i = 0;
-	mtStepEditorButtonsLabels[function][i] = 0;
+	buttonLabels[function][i] = 0;
 	while(label[i] != 0 && i < 19)
 	{
-		mtStepEditorButtonsLabels[function][i] = label[i];
+		buttonLabels[function][i] = label[i];
 		i++;
 	}
-	mtStepEditorButtonsLabels[function][i] = 0;
+	buttonLabels[function][i] = 0;
 
 	mtDisplay.changeButtonsLabels(buttonLabels);
 }
@@ -318,31 +318,31 @@ void cMtStepEditor::setButtonLabel(uint8_t function, char* label)
 
 void cMtStepEditor::updateButtonsFunctions()
 {
-	setButtonFunction(0, mtStepEditButtonFunctNone);
-	setButtonFunction(1, mtStepEditButtonFunctNone);
-	setButtonFunction(2, mtStepEditButtonFunctNone);
-	setButtonFunction(3, mtStepEditButtonFunctNone);
-	setButtonFunction(4, mtStepEditButtonFunctNone);
+	setButtonFunction(0, buttonFunctNone);
+	setButtonFunction(1, buttonFunctNone);
+	setButtonFunction(2, buttonFunctNone);
+	setButtonFunction(3, buttonFunctNone);
+	setButtonFunction(4, buttonFunctNone);
 
 
-	setButtonFunction(0, mtStepEditButtonFunctChangeStepParamsSel);
-	setButtonFunction(1, mtStepEditButtonFunctShowNextStepFx1);
-	setButtonFunction(2, mtStepEditButtonFunctShowNextStepFx2);
-	setButtonFunction(3, mtStepEditButtonFunctShowNextStepFx3);
-	setButtonFunction(4, mtStepEditButtonFunctShowNextStepFx4);
-
-
-
+	setButtonFunction(0, buttonFunctChangeStepParamsSel);
+	setButtonFunction(1, buttonFunctShowNextStepFx1);
+	setButtonFunction(2, buttonFunctShowNextStepFx2);
+	setButtonFunction(3, buttonFunctShowNextStepFx3);
+	setButtonFunction(4, buttonFunctShowNextStepFx4);
 
 
 
 
 
-	buttonLabels[0] = (char *)&mtStepEditorButtonsLabels[buttonFunction[0]][0];
-	buttonLabels[1] = (char *)&mtStepEditorButtonsLabels[buttonFunction[1]][0];
-	buttonLabels[2] = (char *)&mtStepEditorButtonsLabels[buttonFunction[2]][0];
-	buttonLabels[3] = (char *)&mtStepEditorButtonsLabels[buttonFunction[3]][0];
-	buttonLabels[4] = (char *)&mtStepEditorButtonsLabels[buttonFunction[4]][0];
+
+
+
+	buttonLabels[0] = (char *)&buttonLabels[buttonFunction[0]][0];
+	buttonLabels[1] = (char *)&buttonLabels[buttonFunction[1]][0];
+	buttonLabels[2] = (char *)&buttonLabels[buttonFunction[2]][0];
+	buttonLabels[3] = (char *)&buttonLabels[buttonFunction[3]][0];
+	buttonLabels[4] = (char *)&buttonLabels[buttonFunction[4]][0];
 
 	mtDisplay.changeButtonsLabels(buttonLabels);
 }
@@ -361,53 +361,54 @@ void cMtStepEditor::setButtonFunction(uint8_t number, uint8_t function)
 void cMtStepEditor::setPotsLabel(uint8_t function, char* label)
 {
 	uint8_t i = 0;
-	mtStepEditorPotsLabels[function][i] = 0;
+	potLabels[function][i] = 0;
 	while(label[i] != 0 && i < 19)
 	{
-		mtStepEditorPotsLabels[function][i] = label[i];
+		potLabels[function][i] = label[i];
 		i++;
 	}
-	mtStepEditorPotsLabels[function][i] = 0;
+	potLabels[function][i] = 0;
 
-	mtDisplay.changePotsLabels(potsLabels);
+	mtDisplay.changePotsLabels(potLabels);
 }
 
 
 
 void cMtStepEditor::updatePotsFunctions()
 {
-	setPotFunction(0, mtStepEditPotFunctNone);
-	setPotFunction(1, mtStepEditPotFunctNone);
-	setPotFunction(2, mtStepEditPotFunctNone);
-	setPotFunction(3, mtStepEditPotFunctNone);
-	setPotFunction(4, mtStepEditPotFunctNone);
+	setPotFunction(0, potFunctNone);
+	setPotFunction(1, potFunctNone);
+	setPotFunction(2, potFunctNone);
+	setPotFunction(3, potFunctNone);
+	setPotFunction(4, potFunctNone);
 
 
 
 
-	setPotFunction(0, mtStepEditPotFunctChangeStepParam);
-	setPotFunction(1, mtStepEditPotFunctChangeStepFx1);
-	setPotFunction(2, mtStepEditPotFunctChangeStepFx2);
-	setPotFunction(3, mtStepEditPotFunctChangeStepFx3);
-	setPotFunction(4, mtStepEditPotFunctChangeStepFx4);
+	setPotFunction(0, potFunctChangeStepParam);
+	setPotFunction(1, potFunctChangeStepFx1);
+	setPotFunction(2, potFunctChangeStepFx2);
+	setPotFunction(3, potFunctChangeStepFx3);
+	setPotFunction(4, potFunctChangeStepFx4);
 
 
 
 
-	potsLabels[0] = (char *)&mtStepEditorPotsLabels[potFunction[0]][0];
-	potsLabels[1] = (char *)&mtStepEditorPotsLabels[potFunction[1]][0];
-	potsLabels[2] = (char *)&mtStepEditorPotsLabels[potFunction[2]][0];
-	potsLabels[3] = (char *)&mtStepEditorPotsLabels[potFunction[3]][0];
-	potsLabels[4] = (char *)&mtStepEditorPotsLabels[potFunction[4]][0];
+	potLabels[0] = (char *)&potLabels[potFunctions[0]][0];
+	potLabels[1] = (char *)&potLabels[potFunctions[1]][0];
+	potLabels[2] = (char *)&potLabels[potFunctions[2]][0];
+	potLabels[3] = (char *)&potLabels[potFunctions[3]][0];
+	potLabels[4] = (char *)&potLabels[potFunctions[4]][0];
 
-	mtDisplay.changePotsLabels(potsLabels);
+	mtDisplay.changePotsLabels(potLabels);
 }
 
 
 void cMtStepEditor::setPotFunction(uint8_t number, uint8_t function)
 {
-	potFunction[number] = function;
-	AnalogInputs.setPotResolution(number, stepEditorPotsFuncRes[function]);
+	potFunctions[number] = function;
+	AnalogInputs.setPotResolution(number, potFuncRes[function]);
+	AnalogInputs.setPotAcceleration(number, potFuncAcc[function]);
 }
 
 //#########################################################################################################
@@ -420,7 +421,7 @@ void cMtStepEditor::changeStepParamsSelection(uint8_t value)
 	if(value == 1)
 	{
 		actualTrackTableSelection[0]++;
-		if(actualTrackTableSelection[0] >= enumMtStepEditStepParamsCount) actualTrackTableSelection[0] = 0;
+		if(actualTrackTableSelection[0] >= stepParamsCount) actualTrackTableSelection[0] = 0;
 
 		stepParametersChanged = 1;
 		refreshStepEditor = 1;
@@ -453,7 +454,7 @@ void cMtStepEditor::changeActualStepParams(int16_t value)
 {
 	switch(actualTrackTableSelection[0])
 	{
-	case mtStepEditStepParamNote:
+	case stepParamNote:
 	{
 		uint8_t step_note = sequencer.pattern->track[actualTrack].step[actualStep].note;
 
@@ -465,7 +466,7 @@ void cMtStepEditor::changeActualStepParams(int16_t value)
 			sequencer.seq[0].track[actualTrack].step[actualStep].note += value;
 		break;
 	}
-	case mtStepEditStepParamInstr:
+	case stepParamInstr:
 	{
 		uint8_t step_inst = sequencer.pattern->track[actualTrack].step[actualStep].instrument;
 
@@ -477,7 +478,7 @@ void cMtStepEditor::changeActualStepParams(int16_t value)
 			sequencer.seq[0].track[actualTrack].step[actualStep].instrument += value;
 		break;
 	}
-	case mtStepEditStepParamLength:
+	case stepParamLength:
 	{
 		uint8_t step_length = sequencer.pattern->track[actualTrack].step[actualStep].length1;
 
@@ -489,7 +490,7 @@ void cMtStepEditor::changeActualStepParams(int16_t value)
 			sequencer.seq[0].track[actualTrack].step[actualStep].length1 += value*48;
 		break;
 	}
-	case mtStepEditStepParamVolume:
+	case stepParamVolume:
 	{
 		uint8_t step_volume = sequencer.pattern->track[actualTrack].step[actualStep].velocity;
 

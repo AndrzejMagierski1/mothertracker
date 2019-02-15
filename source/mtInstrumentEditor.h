@@ -12,71 +12,6 @@
 #define ZOOM_FACTOR 0.05
 
 
-enum enumMtInstrumentEditorButtonFunction
-{
-	mtInstrumentEditorButtonFunctionNone,
-	mtInstrumentEditorButtonFunctionPlay,
-	mtInstrumentEditorButtonFunctionStop,
-	mtInstrumentEditorButtonFunctionPlayMode,
-	mtInstrumentEditorButtonFunctionEnvelopes,
-	mtInstrumentEditorButtonFunctionInstrumentList,
-	mtInstrumentEditorButtonFunctionSampleList,
-	mtInstrumentEditorButtonFunctionParameters,
-	mtInstrumentEditorButtonFunctionChangeGlideNote,
-	mtInstrumentEditorButtonFunctionFilterType,
-	mtInstrumentEditorButtonFunctionEnvelopeType,
-	mtInstrumentEditorButtonFunctionEnvelopeAmp,
-	mtInstrumentEditorButtonFunctionEnvelopeFilter,
-	mtInstrumentEditorButtonFunctionEnvelopeEnable,
-	mtInstrumentEditorButtonFunctionParamsNextPage,
-
-	//-------------------------------
-	mtInstrumentEditorButtonFunctionCount
-};
-
-enum enumMtInstrumentEditorPotFunction
-{
-	mtInstrumentEditorPotFunctionNone,
-	mtInstrumentEditorPotFunctionStartPoint,
-	mtInstrumentEditorPotFunctionEndPoint,
-	mtInstrumentEditorPotFunctionLoopPoint1,
-	mtInstrumentEditorPotFunctionLoopPoint2,
-	mtInstrumentEditorPotFunctionInstrumentSelect,
-	mtInstrumentEditorPotFunctionSampleSelect,
-	mtInstrumentEditorPotFunctionViewPosition,
-	mtInstrumentEditorPotFunctionViewZoom,
-	mtInstrumentEditorPotFunctionPanning,
-	mtInstrumentEditorPotFunctionGlide,
-	mtInstrumentEditorPotFunctionFilter,
-	mtInstrumentEditorPotFunctionAttack,
-	mtInstrumentEditorPotFunctionDecay,
-	mtInstrumentEditorPotFunctionSustaion,
-	mtInstrumentEditorPotFunctionRelease,
-	mtInstrumentEditorPotFunctionAmount,
-	mtInstrumentEditorPotFunctionResonance,
-	mtInstrumentEditorPotFunctionVolume,
-	mtInstrumentEditorPotFunctionFinetune,
-	mtInstrumentEditorPotFunctionTune,
-	mtInstrumentEditorPotFunctionWavetablePos,
-
-	//-------------------------------
-	mtInstrumentEditorPotFunctionCount
-};
-
-enum enumMtInstrumentEditorValue
-{
-	mtInstrumentEditorValueNone,
-	mtInstrumentEditorValuePanning,
-	mtInstrumentEditorValueGlide,
-	mtInstrumentEditorValueFilter,
-	mtInstrumentEditorValueResonance,
-	mtInstrumentEditorValueVolume,
-	mtInstrumentEditorValueFinetune,
-	mtInstrumentEditorValueTune,
-
-	//-------------------------------
-	mtInstrumentEditorPotValueCount
-};
 
 enum enumMtInstrumentEditorEvents
 {
@@ -85,33 +20,6 @@ enum enumMtInstrumentEditorEvents
 
 };
 
-
-const uint16_t mtInstrumentEditorPotsFuncRes[mtInstrumentEditorPotFunctionCount]=
-{
-		100,  //mtInstrumentEditorPotFunctionNone,
-		100,  //mtInstrumentEditorPotFunctionStartPoint,
-		100,  //mtInstrumentEditorPotFunctionEndPoint,
-		100,  //mtInstrumentEditorPotFunctionLoopPoint1,
-		100,  //mtInstrumentEditorPotFunctionLoopPoint2,
-		20,  //mtInstrumentEditorPotFunctionInstrumentSelect,
-		50,   //mtInstrumentEditorPotFunctionSampleSelect,
-		100,  //mtInstrumentEditorPotFunctionViewPosition,
-		100,  //mtInstrumentEditorPotFunctionVievZoom,
-		100,  //mtInstrumentEditorPotFunctionPanning,
-		100,  //mtInstrumentEditorPotFunctionGlide,
-		100,	//mtInstrumentEditorPotFunctionFilter,
-		100,	//mtInstrumentEditorPotFunctionAttack,
-		100,	//mtInstrumentEditorPotFunctionDecay,
-		100,	//mtInstrumentEditorPotFunctionSustaion,
-		100,	//mtInstrumentEditorPotFunctionRelease,
-		100,	//mtInstrumentEditorPotFunctionAmount,
-		100,	//mtInstrumentEditorPotFunctionResonance,
-		100,	//mtInstrumentEditorPotFunctionVolume,
-		100,	//mtInstrumentEditorPotFunctionFineTune,
-		100,	//mtInstrumentEditorPotFunctionTune,
-		100,	//mtInstrumentEditorPotFunctionWavetablePos,
-
-};
 
 
 const char playModeFunctLabels[playModeMax][20]=
@@ -283,7 +191,22 @@ private:
 
 	uint8_t parametersPage = 0;
 
-	uint8_t mtInstrumentEditorValuesTypes[mtInstrumentEditorPotValueCount] =
+	enum
+	{
+		valueNone,
+		valuePanning,
+		valueGlide,
+		valueFilter,
+		valueResonance,
+		valueVolume,
+		valueFinetune,
+		valueTune,
+
+		//-------------------------------
+		valueCount
+	};
+
+	uint8_t valuesTypes[valueCount] =
 	{
 		mtDispValueValueNone,				//mtInstrumentEditorPotValueNone,
 		mtDispValueValueLeftRight_0_100,	//mtInstrumentEditorPotValuePanning,
@@ -300,11 +223,35 @@ private:
 
 //========================================================
 
-	//przyciski w edytorze
-	char *buttonLabels[5];
-	uint8_t buttonFunction[5];
+	//przyciski
+	enum
+	{
+		buttonFunctNone,
+		buttonFunctPlay,
+		buttonFunctStop,
+		buttonFunctPlayMode,
+		buttonFunctEnvelopes,
+		buttonFunctInstrumentList,
+		buttonFunctSampleList,
+		buttonFunctParameters,
+		buttonFunctChangeGlideNote,
+		buttonFunctFilterType,
+		buttonFunctEnvelopeType,
+		buttonFunctEnvelopeAmp,
+		buttonFunctEnvelopeFilter,
+		buttonFunctEnvelopeEnable,
+		buttonFunctParamsNextPage,
 
-	char mtInstrumentEditorButtonsLabels[mtInstrumentEditorButtonFunctionCount][20] =
+		//-------------------------------
+		buttonFunctCount
+	};
+
+
+
+	char *buttonLabels[5];
+	uint8_t buttonFunctions[5];
+
+	char buttonFunctionLabels[buttonFunctCount][20] =
 	{
 		{0},
 		"Play",
@@ -323,11 +270,40 @@ private:
 		"Next page",
 	};
 
-	//potencjometry w edytorze
-	char *potsLabels[5];
-	uint8_t potFunction[5];
+	//potencjometry
+	enum
+	{
+		potFunctNone,
+		potFunctStartPoint,
+		potFunctEndPoint,
+		potFunctLoopPoint1,
+		potFunctLoopPoint2,
+		potFunctInstrumentSelect,
+		potFunctSampleSelect,
+		potFunctViewPosition,
+		potFunctViewZoom,
+		potFunctPanning,
+		potFunctGlide,
+		potFunctFilter,
+		potFunctAttack,
+		potFunctDecay,
+		potFunctSustaion,
+		potFunctRelease,
+		potFunctAmount,
+		potFunctResonance,
+		potFunctVolume,
+		potFunctFinetune,
+		potFunctTune,
+		potFunctWavetablePos,
 
-	char mtInstrumentEditorPotsLabels[mtInstrumentEditorPotFunctionCount][20] =
+		//-------------------------------
+		potFunctCount
+	};
+
+	char *potLabels[5];
+	uint8_t potFunctions[5];
+
+	char potFunctionLabels[potFunctCount][20] =
 	{
 		{0},
 		"Start Point",
@@ -351,6 +327,58 @@ private:
 		"Finetune",
 		"Tune",
 		"Wavetable"
+	};
+
+	const uint16_t potFuncRes[potFunctCount] =
+	{
+			100, 	 // potFunctionNone,
+			100,     //potFunctStartPoint,
+			100,     //potFunctEndPoint,
+			100,     //potFunctLoopPoint1,
+			100,     //potFunctLoopPoint2,
+			100,     //potFunctInstrumentSelect,
+			100,     //potFunctSampleSelect,
+			100,     //potFunctViewPosition,
+			100,     //potFunctViewZoom,
+			100,     //potFunctPanning,
+			100,     //potFunctGlide,
+			100,     //potFunctFilter,
+			100,     //potFunctAttack,
+			100,     //potFunctDecay,
+			100,     //potFunctSustaion,
+			100,     //potFunctRelease,
+			100,     //potFunctAmount,
+			100,     //potFunctResonance,
+			100,     //potFunctVolume,
+			100,     //potFunctFinetune,
+			100,     //potFunctTune,
+            100,     //potFunctWavetablePos,
+	};
+
+	const uint8_t potFuncAcc[potFunctCount] =
+	{
+			3, 	   //potFunctionNone,
+			3,	   //potFunctStartPoint,
+			3,	   //potFunctEndPoint,
+			3,	   //potFunctLoopPoint1,
+			3,	   //potFunctLoopPoint2,
+			3,	   //potFunctInstrumentSelect,
+			3,	   //potFunctSampleSelect,
+			3,	   //potFunctViewPosition,
+			3,	   //potFunctViewZoom,
+			3,	   //potFunctPanning,
+			3,	   //potFunctGlide,
+			3,	   //potFunctFilter,
+			3,	   //potFunctAttack,
+			3,	   //potFunctDecay,
+			3,	   //potFunctSustaion,
+			3,	   //potFunctRelease,
+			3,	   //potFunctAmount,
+			3,	   //potFunctResonance,
+			3,	   //potFunctVolume,
+			3,	   //potFunctFinetune,
+			3,	   //potFunctTune,
+			3,	   //potFunctWavetablePos,
 	};
 
 };

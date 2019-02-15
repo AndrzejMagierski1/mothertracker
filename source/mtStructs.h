@@ -16,8 +16,10 @@ const int16_t MIN_SIGNED_16BIT =				-32768;
 const float MAX_WAVE_FLOAT =					1.0;
 const float MIN_WAVE_FLOAT =					-1.0;
 const uint32_t SAMPLE_MEMORY_MAX =      		(8*1024*1024);
+
 const uint8_t  INSTRUMENTS_MAX =        		32;
 const uint8_t  SAMPLES_MAX =            		32;
+
 const uint8_t  SAMPLES_FILENAME_LENGTH_MAX =    32;
 
 const uint8_t SAMPLE_POINT_POS_MIN =            0;

@@ -1,15 +1,14 @@
+
 //#include "mtDisplay.h"
 #include "mtProjectEditor.h"
 #include "mtHardware.h"
 #include "SD.h"
 #include "sdram.h"
-//#include "Arduino.h"
+
+
 #include "spi_interrupt.h"
 #include "sdram.h"
-//#include "AudioStream.h"
 
-
-//cr_section_macros.h
 
 cMtProjectEditor mtProjectEditor;
 
@@ -86,10 +85,6 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.sampleBank.sample[i+8].wavetable_window_size = 1024;
 	}
 
-
-	//mtProject.sampleBank.sample[1].wavetable_window_size = 1024;
-	//mtProject.sampleBank.sample[1].type = mtSampleTypeWaveFile;
-
 	// parametry instrumentow ========================================
 	mtProject.instruments_count = 8;
 
@@ -161,8 +156,6 @@ uint8_t cMtProjectEditor::readProjectConfig()
 
 
 	// parametry paternu ========================================
-
-
 
 	return 0;
 }

@@ -79,5 +79,9 @@ extern cMtInterface mtInterface;
 void instrumentEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
 void projectEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
 void stepEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
+void sampleBankEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
+void configEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
+
+
 
 #endif

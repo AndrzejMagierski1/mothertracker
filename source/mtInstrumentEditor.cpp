@@ -30,26 +30,22 @@ void cMtInstrumentEditor::update()
 		labelsChanged = 2;
 		lastChangedPoint = 0;
 
-		updateButtonsFunctions();
-		updatePotsFunctions();
 	}
 	//-----------------------------------------------------
 	if(labelsChanged)
 	{
 		if(labelsChanged == 2)
 		{
-			updateButtonsFunctions();
-			updatePotsFunctions();
 			mtDisplay.setPotsLabels(1);
 			mtDisplay.setButtonsLabels(1);
 		}
 
 		labelsChanged = 0;
 
-		processLabels();
-
 		updateButtonsFunctions();
 		updatePotsFunctions();
+
+		processLabels();
 	}
 	//-----------------------------------------------------
 	if(spectrumChanged)
@@ -61,8 +57,6 @@ void cMtInstrumentEditor::update()
 			mtDisplay.setValue(0);
 			mtDisplay.setEnvelopes(0);
 
-			//updateButtonsFunctions();
-			//updatePotsFunctions();
 			refreshInstrumentEditor = 1;
 			labelsChanged = 1;
 		}
@@ -93,8 +87,6 @@ void cMtInstrumentEditor::update()
 	if(pointsChanged)
 	{
 		pointsChanged = 0;
-		//updateButtonsFunctions();
-		//updatePotsFunctions();
 
 		processPoints();
 		mtDisplay.changeSpectrumPoints(&spectrum);
@@ -105,8 +97,6 @@ void cMtInstrumentEditor::update()
 	{
 		labelsChanged = 1;
 		refreshInstrumentEditor = 1;
-		//updateButtonsFunctions();
-		//updatePotsFunctions();
 
 		if(!sampleListEnabled)
 		{
@@ -117,7 +107,6 @@ void cMtInstrumentEditor::update()
 
 		if(sampleListChanged == 2) // pokaz liste
 		{
-			//sampleListChanged = 0;
 			//przetworz tablice adresow nazw sampli na podstawie nazw z banku sampli
 			for(uint8_t i = 0; i < SAMPLES_MAX; i++)
 			{
@@ -135,8 +124,6 @@ void cMtInstrumentEditor::update()
 	{
 		labelsChanged = 1;
 		refreshInstrumentEditor = 1;
-		//updateButtonsFunctions();
-		//updatePotsFunctions();
 
 		if(!instrumentListEnabled)
 		{
@@ -169,14 +156,12 @@ void cMtInstrumentEditor::update()
 			mtDisplay.setList(instrument_list_pos, 0, 0, 0, 0, 0);
 			mtDisplay.setList(sample_list_pos, 0, 0, 0, 0, 0);
 
-			//updateButtonsFunctions();
-			//updatePotsFunctions();
 			updateParameters();
 			labelsChanged = 1;
 			refreshInstrumentEditor = 1;
 		}
-		parametersChanged = 0;
 
+		parametersChanged = 0;
 		processParameters();
 
 		mtDisplay.changeValues(&values);
@@ -192,8 +177,6 @@ void cMtInstrumentEditor::update()
 			mtDisplay.setList(instrument_list_pos, 0, 0, 0, 0, 0);
 			mtDisplay.setList(sample_list_pos, 0, 0, 0, 0, 0);
 
-			//updateButtonsFunctions();
-			//updatePotsFunctions();
 			labelsChanged = 1;
 			refreshInstrumentEditor = 1;
 		}
@@ -290,23 +273,23 @@ uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 
 void cMtInstrumentEditor::buttonChange(uint8_t button, uint8_t value)
 {
-	switch(buttonFunction[button])
+	switch(buttonFunctions[button])
 	{
-	case mtInstrumentEditorButtonFunctionNone  				: 							break;
-	case mtInstrumentEditorButtonFunctionPlay  				:	play(value);			break;
-	case mtInstrumentEditorButtonFunctionStop  				:	stopPlaying(value);			break;
-	case mtInstrumentEditorButtonFunctionPlayMode  			: 	changePlayMode(value);	break;
-	case mtInstrumentEditorButtonFunctionEnvelopes  		: 	showEnvelopes(value);	break;
-	case mtInstrumentEditorButtonFunctionInstrumentList 	: 	showInstrumentList(value);	break;
-	case mtInstrumentEditorButtonFunctionSampleList  		: 	showSampleList(value);	break;
-	case mtInstrumentEditorButtonFunctionParameters  		: 	showParameters(value);	break;
-	case mtInstrumentEditorButtonFunctionChangeGlideNote	: 	changeGlideNote(value);	break;
-	case mtInstrumentEditorButtonFunctionFilterType			: 	changeFilterType(value);break;
-	case mtInstrumentEditorButtonFunctionEnvelopeType		: 	changeEnvelopeType(value);break;
-	case mtInstrumentEditorButtonFunctionEnvelopeAmp		: 	setEnvelopeTypeAmp(value);	break;
-	case mtInstrumentEditorButtonFunctionEnvelopeFilter		: 	setEnvelopeTypeFilter(value);break;
-	case mtInstrumentEditorButtonFunctionEnvelopeEnable		: 	setEnvelopeEnable(value);break;
-	case mtInstrumentEditorButtonFunctionParamsNextPage		:	changeParamsPage(value); break;
+	case buttonFunctNone  				: 							break;
+	case buttonFunctPlay  				:	play(value);			break;
+	case buttonFunctStop  				:	stopPlaying(value);			break;
+	case buttonFunctPlayMode  			: 	changePlayMode(value);	break;
+	case buttonFunctEnvelopes  			: 	showEnvelopes(value);	break;
+	case buttonFunctInstrumentList 		: 	showInstrumentList(value);	break;
+	case buttonFunctSampleList  		: 	showSampleList(value);	break;
+	case buttonFunctParameters  		: 	showParameters(value);	break;
+	case buttonFunctChangeGlideNote		: 	changeGlideNote(value);	break;
+	case buttonFunctFilterType			: 	changeFilterType(value);break;
+	case buttonFunctEnvelopeType		: 	changeEnvelopeType(value);break;
+	case buttonFunctEnvelopeAmp			: 	setEnvelopeTypeAmp(value);	break;
+	case buttonFunctEnvelopeFilter		: 	setEnvelopeTypeFilter(value);break;
+	case buttonFunctEnvelopeEnable		: 	setEnvelopeEnable(value);break;
+	case buttonFunctParamsNextPage		:	changeParamsPage(value); break;
 	default: break;
 	}
 
@@ -316,30 +299,30 @@ void cMtInstrumentEditor::buttonChange(uint8_t button, uint8_t value)
 
 void cMtInstrumentEditor::potChange(uint8_t pot, int16_t value)
 {
-	switch(potFunction[pot])
+	switch(potFunctions[pot])
 	{
-		case mtInstrumentEditorPotFunctionNone				: 	break;
-		case mtInstrumentEditorPotFunctionStartPoint		:	modStartPoint(value);		break;
-		case mtInstrumentEditorPotFunctionEndPoint			:	modEndPoint(value);			break;
-		case mtInstrumentEditorPotFunctionLoopPoint1		:	modLoopPoint1(value);		break;
-		case mtInstrumentEditorPotFunctionLoopPoint2		:	modLoopPoint2(value);		break;
-		case mtInstrumentEditorPotFunctionInstrumentSelect	:	selectInstrument(value);	break;
-		case mtInstrumentEditorPotFunctionSampleSelect		:	selectSample(value);		break;
-		case mtInstrumentEditorPotFunctionViewPosition		:	changeView(value);			break;
-		case mtInstrumentEditorPotFunctionViewZoom			:	changeZoom(value);			break;
-		case mtInstrumentEditorPotFunctionPanning  			: 	changePanning(pot, value);	break;
-		case mtInstrumentEditorPotFunctionGlide  			: 	changeGlide(value);			break;
-		case mtInstrumentEditorPotFunctionFilter  			: 	changeFilter(value);		break;
-		case mtInstrumentEditorPotFunctionAttack			:	changeAttack(value);		break;
-		case mtInstrumentEditorPotFunctionDecay  			: 	changeDecay(value);			break;
-		case mtInstrumentEditorPotFunctionSustaion  		: 	changeSustain(value);		break;
-		case mtInstrumentEditorPotFunctionRelease  			: 	changeRelease(value);		break;
-		case mtInstrumentEditorPotFunctionAmount  			: 	changeAmount(value);		break;
-		case mtInstrumentEditorPotFunctionResonance  		: 	changeResonance(value);		break;
-		case mtInstrumentEditorPotFunctionVolume            :   changeVolume(value);        break;
-		case mtInstrumentEditorPotFunctionFinetune          :   changeFinetune(value);      break;
-		case mtInstrumentEditorPotFunctionTune              :   changeTune(value);          break;
-		case mtInstrumentEditorPotFunctionWavetablePos      :   changeWavetablePos(value);  break;
+		case potFunctNone				: 	break;
+		case potFunctStartPoint			:	modStartPoint(value);		break;
+		case potFunctEndPoint			:	modEndPoint(value);			break;
+		case potFunctLoopPoint1			:	modLoopPoint1(value);		break;
+		case potFunctLoopPoint2			:	modLoopPoint2(value);		break;
+		case potFunctInstrumentSelect	:	selectInstrument(value);	break;
+		case potFunctSampleSelect		:	selectSample(value);		break;
+		case potFunctViewPosition		:	changeView(value);			break;
+		case potFunctViewZoom			:	changeZoom(value);			break;
+		case potFunctPanning  			: 	changePanning(pot, value);	break;
+		case potFunctGlide  			: 	changeGlide(value);			break;
+		case potFunctFilter  			: 	changeFilter(value);		break;
+		case potFunctAttack				:	changeAttack(value);		break;
+		case potFunctDecay  			: 	changeDecay(value);			break;
+		case potFunctSustaion  			: 	changeSustain(value);		break;
+		case potFunctRelease  			: 	changeRelease(value);		break;
+		case potFunctAmount  			: 	changeAmount(value);		break;
+		case potFunctResonance  		: 	changeResonance(value);		break;
+		case potFunctVolume             :   changeVolume(value);        break;
+		case potFunctFinetune           :   changeFinetune(value);      break;
+		case potFunctTune               :   changeTune(value);          break;
+		case potFunctWavetablePos       :   changeWavetablePos(value);  break;
 		default: break;
 	}
 
@@ -624,23 +607,23 @@ void cMtInstrumentEditor::processLabels()
 
 	for(uint8_t i = 0; i < 5; i++)
 	{
-		switch(buttonFunction[i])
+		switch(buttonFunctions[i])
 		{
-		case mtInstrumentEditorButtonFunctionPlayMode:
-			setButtonLabel(mtInstrumentEditorButtonFunctionPlayMode, (char*)&playModeFunctLabels[editorInstrument->playMode][0]);
+		case buttonFunctPlayMode:
+			setButtonLabel(buttonFunctPlayMode, (char*)&playModeFunctLabels[editorInstrument->playMode][0]);
 		break;
 
-		case mtInstrumentEditorButtonFunctionChangeGlideNote:
-			setButtonLabel(mtInstrumentEditorButtonFunctionChangeGlideNote, (char*)&glidePreviewDifLabels[glidePreviewDif][0]);
+		case buttonFunctChangeGlideNote:
+			setButtonLabel(buttonFunctChangeGlideNote, (char*)&glidePreviewDifLabels[glidePreviewDif][0]);
 		break;
 
-		case mtInstrumentEditorButtonFunctionFilterType:
-			if(!editorInstrument->filterEnable) setButtonLabel(mtInstrumentEditorButtonFunctionFilterType, (char*)&filterTypeLabels[0][0]);
-			else setButtonLabel(mtInstrumentEditorButtonFunctionFilterType, (char*)&filterTypeLabels[editorInstrument->filterType+1][0]);
+		case buttonFunctFilterType:
+			if(!editorInstrument->filterEnable) setButtonLabel(buttonFunctFilterType, (char*)&filterTypeLabels[0][0]);
+			else setButtonLabel(buttonFunctFilterType, (char*)&filterTypeLabels[editorInstrument->filterType+1][0]);
 		break;
 
-		case mtInstrumentEditorButtonFunctionEnvelopeEnable:
-			setButtonLabel(mtInstrumentEditorButtonFunctionEnvelopeEnable, (char*)&envelopeEnableLabels[editorInstrument->envelope[envelopeType].enable][0]);
+		case buttonFunctEnvelopeEnable:
+			setButtonLabel(buttonFunctEnvelopeEnable, (char*)&envelopeEnableLabels[editorInstrument->envelope[envelopeType].enable][0]);
 		break;
 
 		default: break;
@@ -656,58 +639,58 @@ void cMtInstrumentEditor::processParameters()
 	{
 		switch(valuesParameters[i])
 		{
-			case mtInstrumentEditorValueNone:
+			case valueNone:
 			{
-				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueNone];
+				values.type[i] = valuesTypes[valueNone];
 				values.value1[i] = 0;
 				break;
 			}
-			case mtInstrumentEditorValuePanning:
+			case valuePanning:
 			{
-				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValuePanning];
+				values.type[i] = valuesTypes[valuePanning];
 				values.value1[i] = editorInstrument->panning;
 				break;
 			}
-			case mtInstrumentEditorValueGlide:
+			case valueGlide:
 			{
-				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueGlide];
+				values.type[i] = valuesTypes[valueGlide];
 				values.value1[i] =  (editorInstrument->glide*100)/GLIDE_MAX;
 				break;
 			}
-			case mtInstrumentEditorValueFilter:
+			case valueFilter:
 			{
-				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueFilter];
+				values.type[i] = valuesTypes[valueFilter];
 				values.value1[i] =  (editorInstrument->cutOff*100);
 				break;
 			}
-			case mtInstrumentEditorValueResonance:
+			case valueResonance:
 			{
 				//if(editorInstrument->resonance < RESONANCE_MIN) editorInstrument->resonance = RESONANCE_MIN;
-				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueResonance];
+				values.type[i] = valuesTypes[valueResonance];
 				values.value1[i] =  ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100;
 				break;
 			}
-			case mtInstrumentEditorValueVolume:
+			case valueVolume:
 			{
-				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueVolume];
+				values.type[i] = valuesTypes[valueVolume];
 				values.value1[i] = editorInstrument->volume;
 				break;
 			}
-			case mtInstrumentEditorValueFinetune:
+			case valueFinetune:
 			{
-				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueFinetune];
+				values.type[i] = valuesTypes[valueFinetune];
 				values.value1[i] = editorInstrument->fineTune;
 				break;
 			}
-			case mtInstrumentEditorValueTune:
+			case valueTune:
 			{
-				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueTune];
+				values.type[i] = valuesTypes[valueTune];
 				values.value1[i] = editorInstrument->tune;
 				break;
 			}
 			default:
 			{
-				values.type[i] = mtInstrumentEditorValuesTypes[mtInstrumentEditorValueNone];
+				values.type[i] = valuesTypes[valueNone];
 				values.value1[i] = 0;
 				break;
 			}
@@ -739,30 +722,30 @@ void cMtInstrumentEditor::processEnvelopes()
 
 void cMtInstrumentEditor::updateParameters()
 {
-	setParameter(0, mtInstrumentEditorValueNone);
-	setParameter(1, mtInstrumentEditorValueNone);
-	setParameter(2, mtInstrumentEditorValueNone);
-	setParameter(3, mtInstrumentEditorValueNone);
-	setParameter(4, mtInstrumentEditorValueNone);
+	setParameter(0, valueNone);
+	setParameter(1, valueNone);
+	setParameter(2, valueNone);
+	setParameter(3, valueNone);
+	setParameter(4, valueNone);
 
 	if(parametersEnabled)
 	{
 		if(parametersPage == 0)
 		{
-			setParameter(0, mtInstrumentEditorValueVolume);
-			setParameter(1, mtInstrumentEditorValuePanning);
+			setParameter(0, valueVolume);
+			setParameter(1, valuePanning);
 
-			setParameter(2, mtInstrumentEditorValueResonance);
-			setParameter(3, mtInstrumentEditorValueFilter);
+			setParameter(2, valueResonance);
+			setParameter(3, valueFilter);
 
 
 		}
 		else if(parametersPage == 1)
 		{
-			setParameter(0, mtInstrumentEditorValueGlide);
+			setParameter(0, valueGlide);
 
-			setParameter(2, mtInstrumentEditorValueFinetune);
-			setParameter(3, mtInstrumentEditorValueTune);
+			setParameter(2, valueFinetune);
+			setParameter(3, valueTune);
 		}
 
 
@@ -784,13 +767,13 @@ void cMtInstrumentEditor::setParameter(uint8_t number, uint8_t param)
 void cMtInstrumentEditor::setButtonLabel(uint8_t function, char* label)
 {
 	uint8_t i = 0;
-	mtInstrumentEditorButtonsLabels[function][i] = 0;
+	buttonLabels[function][i] = 0;
 	while(label[i] != 0 && i < 19)
 	{
-		mtInstrumentEditorButtonsLabels[function][i] = label[i];
+		buttonLabels[function][i] = label[i];
 		i++;
 	}
-	mtInstrumentEditorButtonsLabels[function][i] = 0;
+	buttonLabels[function][i] = 0;
 
 	mtDisplay.changeButtonsLabels(buttonLabels);
 }
@@ -798,56 +781,56 @@ void cMtInstrumentEditor::setButtonLabel(uint8_t function, char* label)
 
 void cMtInstrumentEditor::updateButtonsFunctions()
 {
-	setButtonFunction(0, mtInstrumentEditorButtonFunctionNone);
-	setButtonFunction(1, mtInstrumentEditorButtonFunctionNone);
-	setButtonFunction(2, mtInstrumentEditorButtonFunctionNone);
-	setButtonFunction(3, mtInstrumentEditorButtonFunctionNone);
-	setButtonFunction(4, mtInstrumentEditorButtonFunctionNone);
+	setButtonFunction(0, buttonFunctNone);
+	setButtonFunction(1, buttonFunctNone);
+	setButtonFunction(2, buttonFunctNone);
+	setButtonFunction(3, buttonFunctNone);
+	setButtonFunction(4, buttonFunctNone);
 
 	if(parametersEnabled)
 	{
 		if(parametersPage == 0)
 		{
-			setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
-			setButtonFunction(3, mtInstrumentEditorButtonFunctionFilterType);
-			setButtonFunction(4, mtInstrumentEditorButtonFunctionParamsNextPage);
+			setButtonFunction(2, buttonFunctParameters);
+			setButtonFunction(3, buttonFunctFilterType);
+			setButtonFunction(4, buttonFunctParamsNextPage);
 		}
 		else if(parametersPage == 1)
 		{
-			//setButtonFunction(0, mtInstrumentEditorButtonFunctionPlay);
-			//setButtonFunction(1, mtInstrumentEditorButtonFunctionChangeGlideNote);
-			//setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
-			//setButtonFunction(4, mtInstrumentEditorButtonFunctionFilterType);
-			setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
-			setButtonFunction(4, mtInstrumentEditorButtonFunctionParamsNextPage);
+			//setButtonFunction(0, buttonFunctPlay);
+			//setButtonFunction(1, buttonFunctChangeGlideNote);
+			//setButtonFunction(2, buttonFunctParameters);
+			//setButtonFunction(4, buttonFunctFilterType);
+			setButtonFunction(2, buttonFunctParameters);
+			setButtonFunction(4, buttonFunctParamsNextPage);
 		}
 	}
 	else if(envelopesEnabled)
 	{
-		setButtonFunction(0, mtInstrumentEditorButtonFunctionPlay);
-		setButtonFunction(1, mtInstrumentEditorButtonFunctionEnvelopeAmp);
-		setButtonFunction(2, mtInstrumentEditorButtonFunctionEnvelopeFilter);
-		setButtonFunction(3, mtInstrumentEditorButtonFunctionEnvelopeEnable);
-		setButtonFunction(4, mtInstrumentEditorButtonFunctionEnvelopes);
+		setButtonFunction(0, buttonFunctPlay);
+		setButtonFunction(1, buttonFunctEnvelopeAmp);
+		setButtonFunction(2, buttonFunctEnvelopeFilter);
+		setButtonFunction(3, buttonFunctEnvelopeEnable);
+		setButtonFunction(4, buttonFunctEnvelopes);
 	}
 	else
 	{
-		setButtonFunction(0, mtInstrumentEditorButtonFunctionInstrumentList);
+		setButtonFunction(0, buttonFunctInstrumentList);
 		if(mtProject.sampleBank.sample[editorInstrument->sampleIndex].type == mtSampleTypeWaveFile)
 		{
-			setButtonFunction(1, mtInstrumentEditorButtonFunctionPlayMode);
+			setButtonFunction(1, buttonFunctPlayMode);
 		}
-		setButtonFunction(2, mtInstrumentEditorButtonFunctionParameters);
-		setButtonFunction(3, mtInstrumentEditorButtonFunctionEnvelopes);
-		setButtonFunction(4, mtInstrumentEditorButtonFunctionSampleList);
+		setButtonFunction(2, buttonFunctParameters);
+		setButtonFunction(3, buttonFunctEnvelopes);
+		setButtonFunction(4, buttonFunctSampleList);
 	}
 
 
-	buttonLabels[0] = (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[0]][0];
-	buttonLabels[1] = (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[1]][0];
-	buttonLabels[2] = (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[2]][0];
-	buttonLabels[3] = (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[3]][0];
-	buttonLabels[4] = (char *)&mtInstrumentEditorButtonsLabels[buttonFunction[4]][0];
+	buttonLabels[0] = (char *)&buttonLabels[buttonFunctions[0]][0];
+	buttonLabels[1] = (char *)&buttonLabels[buttonFunctions[1]][0];
+	buttonLabels[2] = (char *)&buttonLabels[buttonFunctions[2]][0];
+	buttonLabels[3] = (char *)&buttonLabels[buttonFunctions[3]][0];
+	buttonLabels[4] = (char *)&buttonLabels[buttonFunctions[4]][0];
 
 	mtDisplay.changeButtonsLabels(buttonLabels);
 }
@@ -855,7 +838,7 @@ void cMtInstrumentEditor::updateButtonsFunctions()
 
 void cMtInstrumentEditor::setButtonFunction(uint8_t number, uint8_t function)
 {
-	buttonFunction[number] = function;
+	buttonFunctions[number] = function;
 }
 
 //#########################################################################################################
@@ -866,43 +849,43 @@ void cMtInstrumentEditor::setButtonFunction(uint8_t number, uint8_t function)
 void cMtInstrumentEditor::setPotsLabel(uint8_t function, char* label)
 {
 	uint8_t i = 0;
-	mtInstrumentEditorPotsLabels[function][i] = 0;
+	potLabels[function][i] = 0;
 	while(label[i] != 0 && i < 19)
 	{
-		mtInstrumentEditorPotsLabels[function][i] = label[i];
+		potLabels[function][i] = label[i];
 		i++;
 	}
-	mtInstrumentEditorPotsLabels[function][i] = 0;
+	potLabels[function][i] = 0;
 
-	mtDisplay.changePotsLabels(potsLabels);
+	mtDisplay.changePotsLabels(potLabels);
 }
 
 
 
 void cMtInstrumentEditor::updatePotsFunctions()
 {
-	setPotFunction(0, mtInstrumentEditorPotFunctionNone);
-	setPotFunction(1, mtInstrumentEditorPotFunctionNone);
-	setPotFunction(2, mtInstrumentEditorPotFunctionNone);
-	setPotFunction(3, mtInstrumentEditorPotFunctionNone);
-	setPotFunction(4, mtInstrumentEditorPotFunctionNone);
+	setPotFunction(0, potFunctNone);
+	setPotFunction(1, potFunctNone);
+	setPotFunction(2, potFunctNone);
+	setPotFunction(3, potFunctNone);
+	setPotFunction(4, potFunctNone);
 
 
 	if(parametersEnabled)
 	{
 		if(parametersPage == 0)
 		{
-			setPotFunction(0, mtInstrumentEditorPotFunctionVolume);
-			setPotFunction(1, mtInstrumentEditorPotFunctionPanning);
-			setPotFunction(2, mtInstrumentEditorPotFunctionResonance);
-			setPotFunction(3, mtInstrumentEditorPotFunctionFilter);
+			setPotFunction(0, potFunctVolume);
+			setPotFunction(1, potFunctPanning);
+			setPotFunction(2, potFunctResonance);
+			setPotFunction(3, potFunctFilter);
 		}
 		else if(parametersPage == 1)
 		{
-			setPotFunction(0, mtInstrumentEditorPotFunctionGlide);
+			setPotFunction(0, potFunctGlide);
 
-			setPotFunction(2, mtInstrumentEditorPotFunctionFinetune);
-			setPotFunction(3, mtInstrumentEditorPotFunctionTune);
+			setPotFunction(2, potFunctFinetune);
+			setPotFunction(3, potFunctTune);
 		}
 
 
@@ -911,51 +894,52 @@ void cMtInstrumentEditor::updatePotsFunctions()
 	}
 	else if(envelopesEnabled)
 	{
-		setPotFunction(0, mtInstrumentEditorPotFunctionAmount);
-		setPotFunction(1, mtInstrumentEditorPotFunctionAttack);
-		setPotFunction(2, mtInstrumentEditorPotFunctionDecay);
-		setPotFunction(3, mtInstrumentEditorPotFunctionSustaion);
-		setPotFunction(4, mtInstrumentEditorPotFunctionRelease);
+		setPotFunction(0, potFunctAmount);
+		setPotFunction(1, potFunctAttack);
+		setPotFunction(2, potFunctDecay);
+		setPotFunction(3, potFunctSustaion);
+		setPotFunction(4, potFunctRelease);
 	}
 	else
 	{
 		if(mtProject.sampleBank.sample[editorInstrument->sampleIndex].type == mtSampleTypeWavetable)
 		{
-			setPotFunction(0, mtInstrumentEditorPotFunctionWavetablePos);
+			setPotFunction(0, potFunctWavetablePos);
 		}
 		else
 		{
-			setPotFunction(0, mtInstrumentEditorPotFunctionStartPoint);
-			setPotFunction(2, mtInstrumentEditorPotFunctionViewZoom);
-			setPotFunction(4, mtInstrumentEditorPotFunctionEndPoint);
+			setPotFunction(0, potFunctStartPoint);
+			setPotFunction(2, potFunctViewZoom);
+			setPotFunction(4, potFunctEndPoint);
 
 			if(editorInstrument->playMode >= loopForward)
 			{
-				setPotFunction(1, mtInstrumentEditorPotFunctionLoopPoint1);
-				setPotFunction(3, mtInstrumentEditorPotFunctionLoopPoint2);
+				setPotFunction(1, potFunctLoopPoint1);
+				setPotFunction(3, potFunctLoopPoint2);
 			}
 		}
 
-		if(sampleListEnabled) setPotFunction(4, mtInstrumentEditorPotFunctionSampleSelect);
-		if(instrumentListEnabled) setPotFunction(0, mtInstrumentEditorPotFunctionInstrumentSelect);
+		if(sampleListEnabled) setPotFunction(4, potFunctSampleSelect);
+		if(instrumentListEnabled) setPotFunction(0, potFunctInstrumentSelect);
 	}
 
 
 
-	potsLabels[0] = (char *)&mtInstrumentEditorPotsLabels[potFunction[0]][0];
-	potsLabels[1] = (char *)&mtInstrumentEditorPotsLabels[potFunction[1]][0];
-	potsLabels[2] = (char *)&mtInstrumentEditorPotsLabels[potFunction[2]][0];
-	potsLabels[3] = (char *)&mtInstrumentEditorPotsLabels[potFunction[3]][0];
-	potsLabels[4] = (char *)&mtInstrumentEditorPotsLabels[potFunction[4]][0];
+	potLabels[0] = (char *)&potLabels[potFunctions[0]][0];
+	potLabels[1] = (char *)&potLabels[potFunctions[1]][0];
+	potLabels[2] = (char *)&potLabels[potFunctions[2]][0];
+	potLabels[3] = (char *)&potLabels[potFunctions[3]][0];
+	potLabels[4] = (char *)&potLabels[potFunctions[4]][0];
 
-	mtDisplay.changePotsLabels(potsLabels);
+	mtDisplay.changePotsLabels(potLabels);
 }
 
 
 void cMtInstrumentEditor::setPotFunction(uint8_t number, uint8_t function)
 {
-	potFunction[number] = function;
-	AnalogInputs.setPotResolution(number, mtInstrumentEditorPotsFuncRes[function]);
+	potFunctions[number] = function;
+	AnalogInputs.setPotResolution(number, potFuncRes[function]);
+	AnalogInputs.setPotAcceleration(number, potFuncAcc[function]);
 }
 
 //#########################################################################################################

@@ -3,9 +3,14 @@
 
 
 #include "mtInterface.h"
+
+
 #include "mtProjectEditor.h"
 #include "mtInstrumentEditor.h"
 #include "mtStepEditor.h"
+#include "mtSampleBankEditor.h"
+//#include "mtConfigEditor.h"
+
 #include "mtSequencer.h"
 
 
@@ -116,3 +121,79 @@ void stepEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 	}
 
 }
+
+//=======================================================================
+//=======================================================================
+//=======================================================================
+
+/*
+void configEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
+{
+	switch(event)
+	{
+	case configEditorEventPadPress:
+
+		if(*(uint8_t*)param1 == 3)
+		{
+			mtInterface.deactivateModule(mtModuleStepEditor);
+			mtInterface.activateModule(mtModuleInstrumentEditor);
+			mtInstrumentEditor.startExisting(0);
+		}
+		else if(*(uint8_t*)param1 == 0)
+		{
+			sequencer.play();
+		}
+		else if(*(uint8_t*)param1 == 2)
+		{
+			sequencer.stop();
+		}
+
+	break;
+
+	case configEditorEventSeqButtonsPress:
+
+	break;
+
+	default: break;
+	}
+
+}
+*/
+//=======================================================================
+//=======================================================================
+//=======================================================================
+void sampleBankEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
+{
+	switch(event)
+	{
+	case mtSampleBankEditorEventPadPress:
+
+		if(*(uint8_t*)param1 == 3)
+		{
+			mtInterface.deactivateModule(mtModuleStepEditor);
+			mtInterface.activateModule(mtModuleInstrumentEditor);
+			mtInstrumentEditor.startExisting(0);
+		}
+		else if(*(uint8_t*)param1 == 0)
+		{
+			sequencer.play();
+		}
+		else if(*(uint8_t*)param1 == 2)
+		{
+			sequencer.stop();
+		}
+
+	break;
+
+	case mtSampleBankEditorEventSeqButtonsPress:
+
+	break;
+
+	default: break;
+	}
+
+}
+
+
+
+

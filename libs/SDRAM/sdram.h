@@ -1,5 +1,6 @@
 
-
+#ifndef _SDRAM_H_
+#define _SDRAM_H_
 
 #include <cr_section_macros.h>
 
@@ -15,3 +16,5 @@
 
 int Extern_SDRAM_Init(void);
 void BOARD_InitPins(void);
+
+#endif

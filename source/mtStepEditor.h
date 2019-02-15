@@ -9,67 +9,6 @@
 
 
 
-enum enumMtStepEditorButtonFunction
-{
-	mtStepEditButtonFunctNone,
-	mtStepEditButtonFunctPlay,
-	mtStepEditButtonFunctStop,
-	mtStepEditButtonFunctChangeStepParamsSel,
-	mtStepEditButtonFunctShowNextStepFx1,
-	mtStepEditButtonFunctShowNextStepFx2,
-	mtStepEditButtonFunctShowNextStepFx3,
-	mtStepEditButtonFunctShowNextStepFx4,
-
-
-	//-------------------------------
-	mtStepEditorButtonFunctionCount
-};
-
-enum enumMtStepEditorPotFunction
-{
-	mtStepEditPotFunctNone,
-	mtStepEditPotFunctChangeStepParam,
-	mtStepEditPotFunctChangeStepFx1,
-	mtStepEditPotFunctChangeStepFx2,
-	mtStepEditPotFunctChangeStepFx3,
-	mtStepEditPotFunctChangeStepFx4,
-
-
-
-	//-------------------------------
-	mtStepEditorPotFunctionCount
-};
-
-enum enumMtStepEditorValue
-{
-	mtStepEditorValueNone,
-
-
-	//-------------------------------
-	mtStepEditorPotValueCount
-};
-
-
-enum enumMtStepEditorStepParams
-{
-	mtStepEditStepParamNote,
-	mtStepEditStepParamInstr,
-	mtStepEditStepParamLength,
-	mtStepEditStepParamVolume,
-
-	//-------------------------------
-	enumMtStepEditStepParamsCount
-};
-
-enum enumMtStepEditorStepFx
-{
-	mtStepEditStepParamType,
-	mtStepEditStepParamVal1,
-	mtStepEditStepParamVal2,
-
-	//-------------------------------
-	enumMtStepEditStepFxCount
-};
 
 
 enum mtStepEditorEvents
@@ -79,16 +18,6 @@ enum mtStepEditorEvents
 	mtStepEditorEventPadPress,
 
 	mtStepEditorEventCount
-};
-
-const uint16_t stepEditorPotsFuncRes[mtStepEditorPotFunctionCount] =
-{
-		100, // mtStepEditorPotFunctionNone,
-		100, //	mtStepEditorPotFunctionStepParams,
-		100, //	mtStepEditorPotFunctionStepFx1,
-		100, //	mtStepEditorPotFunctionStepFx2,
-		100, //	mtStepEditorPotFunctionStepFx3,
-		100  //	mtStepEditorPotFunctionStepFx4,
 };
 
 
@@ -175,16 +104,7 @@ private:
 	char fx4ActualNames[5][20];
 
 	uint8_t getFxNameFromType(uint8_t fxType, char* ptrName);
-//	uint8_t mtInstrumentEditorValuesTypes[mtInstrumentEditorPotValueCount] =
-//	{
-//		mtDispValueValueNone,
-//		mtDispValueMultiValue4Row,
-//		mtDispValueMultiValue3Row,
-//		mtDispValueMultiValue3Row,
-//		mtDispValueMultiValue3Row,
-//		mtDispValueMultiValue3Row
-//	};
-//
+
 
 	//funkcje przyciskow
 	void play(uint8_t value);
@@ -208,6 +128,28 @@ private:
 
 //========================================================
 
+	enum
+	{
+		stepParamNote,
+		stepParamInstr,
+		stepParamLength,
+		stepParamVolume,
+
+		//-------------------------------
+		stepParamsCount
+	};
+
+	enum
+	{
+		stepParamType,
+		stepParamVal1,
+		stepParamVal2,
+
+		//-------------------------------
+		stepFxCount
+	};
+
+
 	uint8_t actualTrack;
 	uint8_t actualStep;
 
@@ -224,13 +166,31 @@ private:
 
 
 
-//========================================================
+//=======================================================================
+
+//przyciski  ------------------------------------------------------------
+	enum
+	{
+		buttonFunctNone,
+		buttonFunctPlay,
+		buttonFunctStop,
+		buttonFunctChangeStepParamsSel,
+		buttonFunctShowNextStepFx1,
+		buttonFunctShowNextStepFx2,
+		buttonFunctShowNextStepFx3,
+		buttonFunctShowNextStepFx4,
+
+		//-------------------------------
+		buttonFunctCount
+	};
+
+
 
 	//przyciski w edytorze
 	char *buttonLabels[5];
 	uint8_t buttonFunction[5];
 
-	char mtStepEditorButtonsLabels[mtStepEditorButtonFunctionCount][20] =
+	char buttonFunctionLabels[buttonFunctCount][20] =
 	{
 		{0},
 		"Play",
@@ -245,11 +205,28 @@ private:
 
 	};
 
-	//potencjometry w edytorze
-	char *potsLabels[5];
-	uint8_t potFunction[5];
+//potencjometry  ---------------------------------------------------------
 
-	char mtStepEditorPotsLabels[mtStepEditorPotFunctionCount][20] =
+	enum
+	{
+		potFunctNone,
+		potFunctChangeStepParam,
+		potFunctChangeStepFx1,
+		potFunctChangeStepFx2,
+		potFunctChangeStepFx3,
+		potFunctChangeStepFx4,
+
+
+
+		//-------------------------------
+		potFunctionCount
+	};
+
+
+	char *potLabels[5];
+	uint8_t potFunctions[5];
+
+	char potFunctionLabels[potFunctionCount][20] =
 	{
 		{0},
 		"Note Inst Len Vol",
@@ -259,6 +236,32 @@ private:
 		"Fx4"
 
 	};
+
+
+	const uint16_t potFuncRes[potFunctionCount] =
+	{
+		100,	//potFunctNone,
+		100,	//potFunctChangeStepParam,
+		100,	//potFunctChangeStepFx1,
+		100,	//potFunctChangeStepFx2,
+		100,	//potFunctChangeStepFx3,
+		100,	//potFunctChangeStepFx4,
+
+
+	};
+
+	const uint8_t potFuncAcc[potFunctionCount] =
+	{
+		3,	//potFunctNone,
+		3,	//potFunctChangeStepParam,
+		3,	//potFunctChangeStepFx1,
+		3,	//potFunctChangeStepFx2,
+		3,	//potFunctChangeStepFx3,
+		3,	//potFunctChangeStepFx4,
+
+
+	};
+
 
 };
 
