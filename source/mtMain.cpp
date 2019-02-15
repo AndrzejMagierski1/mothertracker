@@ -9,7 +9,7 @@
 
 
 
-
+extern Sequencer seq[2];
 extern void initHardware();
 extern void updateHardware();
 
@@ -30,8 +30,6 @@ void setup()
 
 	seqDisplay.init((Sequencer::strBank*)sequencer.pattern);
 
-
-	loadFullWavetableSerum("Dist");
 	// inincjalizacja interfejsu na koncu
 	mtInterface.begin();
 	//sequencer.printNotes(1);		// printuje nuty w trakcie sekwencji

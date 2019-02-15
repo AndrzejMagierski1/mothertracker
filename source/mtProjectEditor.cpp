@@ -275,7 +275,122 @@ void cMtProjectEditor::seqButtonChange(uint8_t type, uint8_t x, uint8_t y)
 
 }
 
+void cMtProjectEditor::writeInstrumentFile(char * name, strInstrument * instr)
+{
+	if(SD.exists(name)) return; //todo: do ustalenia czy nadpisujemy czy nie
 
+	FsFile file;
+	FastCRC32 crcCalc;
+
+	strInstrumentFile instrumentFile;
+
+
+	instrumentFile.instrumentDataAndHeader.instrument = * instr;
+
+
+	instrumentFile.instrumentDataAndHeader.instrHeader.id_file[0]='I';
+	instrumentFile.instrumentDataAndHeader.instrHeader.id_file[1]='D';
+	instrumentFile.instrumentDataAndHeader.instrHeader.type = fileTypeInstrument;
+	instrumentFile.instrumentDataAndHeader.instrHeader.version[0] = '0';
+	instrumentFile.instrumentDataAndHeader.instrHeader.version[1] = '.';
+	instrumentFile.instrumentDataAndHeader.instrHeader.version[2] = '0';
+	instrumentFile.instrumentDataAndHeader.instrHeader.version[3] = '1';
+	instrumentFile.instrumentDataAndHeader.instrHeader.id_data[0] = 'D';
+	instrumentFile.instrumentDataAndHeader.instrHeader.id_data[1] = 'A';
+	instrumentFile.instrumentDataAndHeader.instrHeader.id_data[2] = 'T';
+	instrumentFile.instrumentDataAndHeader.instrHeader.id_data[3] = 'A';
+	instrumentFile.instrumentDataAndHeader.instrHeader.size = sizeof(*instr);
+
+	instrumentFile.crc = crcCalc.crc32((uint8_t *)&instrumentFile.instrumentDataAndHeader,sizeof(instrumentFile.instrumentDataAndHeader));
+
+	file=SD.open(name,FILE_WRITE);
+	file.write((uint8_t *)&instrumentFile,sizeof(instrumentFile));
+	file.close();
+
+
+}
+
+void cMtProjectEditor::writePatternFile(char * name, Sequencer::strBank * patt)
+{
+	if(SD.exists(name)) return; //todo: do ustalenia czy nadpisujemy czy nie
+
+	FsFile file;
+	FastCRC32 crcCalc;
+
+	strPatternFile patternFile;
+
+	patternFile.patternDataAndHeader.pattern = * patt;
+
+
+	patternFile.patternDataAndHeader.patternHeader.id_file[0]='I';
+	patternFile.patternDataAndHeader.patternHeader.id_file[1]='D';
+	patternFile.patternDataAndHeader.patternHeader.type = fileTypePattern;
+	patternFile.patternDataAndHeader.patternHeader.version[0] = '0';
+	patternFile.patternDataAndHeader.patternHeader.version[1] = '.';
+	patternFile.patternDataAndHeader.patternHeader.version[2] = '0';
+	patternFile.patternDataAndHeader.patternHeader.version[3] = '1';
+	patternFile.patternDataAndHeader.patternHeader.id_data[0] = 'D';
+	patternFile.patternDataAndHeader.patternHeader.id_data[1] = 'A';
+	patternFile.patternDataAndHeader.patternHeader.id_data[2] = 'T';
+	patternFile.patternDataAndHeader.patternHeader.id_data[3] = 'A';
+	patternFile.patternDataAndHeader.patternHeader.size = sizeof(*patt);
+
+	patternFile.crc = crcCalc.crc32((uint8_t *)&patternFile.patternDataAndHeader,sizeof(patternFile.patternDataAndHeader));
+
+	file=SD.open(name,FILE_WRITE);
+	file.write((uint8_t *)&patternFile,sizeof(patternFile));
+	file.close();
+}
+
+uint8_t cMtProjectEditor::readInstrumentFile(char * name, strInstrument * instr)
+{
+	if(!SD.exists(name)) return 0;
+	FsFile file;
+	FastCRC32 crcCalc;
+	uint32_t checkCRC=0;
+
+	strInstrumentFile instrumentFile;
+
+	file=SD.open(name);
+	file.read((uint8_t*)&instrumentFile, sizeof(instrumentFile));
+	file.close();
+
+	if(instrumentFile.instrumentDataAndHeader.instrHeader.type != fileTypeInstrument) return 0;
+
+	checkCRC=crcCalc.crc32((uint8_t *)&instrumentFile.instrumentDataAndHeader,sizeof(instrumentFile.instrumentDataAndHeader));
+	if(checkCRC == instrumentFile.crc)
+	{
+		*instr=instrumentFile.instrumentDataAndHeader.instrument;
+		return 1;
+	}
+	else return 0;
+}
+
+uint8_t cMtProjectEditor::readPatternFile(char * name, Sequencer::strBank * patt)
+{
+	if(!SD.exists(name)) return 0;
+	FsFile file;
+	FastCRC32 crcCalc;
+	uint32_t checkCRC=0;
+
+	strPatternFile patternFile;
+
+	file=SD.open(name);
+	file.read((uint8_t*)&patternFile, sizeof(patternFile));
+	file.close();
+
+	if(patternFile.patternDataAndHeader.patternHeader.type != fileTypePattern) return 0;
+
+	checkCRC=crcCalc.crc32((uint8_t *)&patternFile.patternDataAndHeader,sizeof(patternFile.patternDataAndHeader));
+	if(checkCRC == patternFile.crc)
+	{
+		*patt=patternFile.patternDataAndHeader.pattern;
+		return 1;
+	}
+	else return 0;
+
+
+}
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------

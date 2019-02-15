@@ -6,6 +6,9 @@
 #include "mtStructs.h"
 #include "SD.h"
 
+#include <FastCRC.h>
+#include <FastCRC_cpu.h>
+#include <FastCRC_tables.h>
 
 #define COMMANDS_PROJECT_EDITOR_MAX 32
 
@@ -42,6 +45,10 @@ public:
 	uint8_t loadSamplesBank();
 	uint8_t loadLastProject();
 	uint8_t isProjectLoaded();
+	void writeInstrumentFile(char * name, strInstrument * instr);
+	uint8_t readInstrumentFile(char * name, strInstrument * instr);
+	void writePatternFile(char * name, Sequencer::strBank * patt);
+	uint8_t readPatternFile(char * name, Sequencer::strBank * patt);
 
 	void setEventFunct(void (*func)(uint8_t, void*, void*, void*)) { eventFunct = func; };
 

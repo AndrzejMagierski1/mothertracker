@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "mtEnvelopeGenerator.h"
 #include "mtLFO.h"
-
+#include "mtSequencer.h"
 //=====================================================================
 //=====================================================================
 //=====================================================================
@@ -18,7 +18,13 @@ const float MIN_WAVE_FLOAT =					-1.0;
 const uint32_t SAMPLE_MEMORY_MAX =      		(8*1024*1024);
 const uint8_t  INSTRUMENTS_MAX =        		32;
 const uint8_t  SAMPLES_MAX =            		32;
+const uint8_t  INSTRUMENTS_COUNT =        	32;
+const uint8_t  SAMPLES_COUNT =            	32;
 const uint8_t  SAMPLES_FILENAME_LENGTH_MAX =    32;
+const uint8_t INSTRUMENT_NAME_SIZE =			19;
+const uint8_t PATERN_NAME_SIZE	=				15;
+const uint8_t SAMPLE_NAME_SIZE =				32;
+const uint8_t PATERN_COUNT 	=					32;
 
 const uint8_t SAMPLE_POINT_POS_MIN =            0;
 const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
@@ -168,6 +174,13 @@ enum outputSelect
 	outputSelectHeadphones,
 	outputSelectLineOut
 };
+
+enum fileType
+{
+	fileTypeProject,
+	fileTypeInstrument,
+	fileTypePattern
+};
 //=====================================================================
 //=====================================================================
 
@@ -230,7 +243,7 @@ struct strWavFileHeader
 
 };
 
-struct strAudioCodacConfig
+struct strAudioCodecConfig
 {
 	uint8_t inSelect;
 	uint8_t outSelect;
@@ -300,17 +313,79 @@ struct strInstrument
     int16_t panning;
 };
 
+struct strMtProjectRemote
+{
+	struct strSampleFile
+	{
+		uint8_t index;
+		char name[SAMPLE_NAME_SIZE];
+		uint8_t type;
+		uint16_t wavetable_window_size;
+	} sampleFile[SAMPLES_COUNT];
 
+	struct strInstrumentFile
+	{
+		uint8_t index;
+		char name[INSTRUMENT_NAME_SIZE];
+	} instrumentFile[INSTRUMENTS_COUNT];
+
+	struct strPaternFile
+	{
+		uint8_t index;
+		char name[PATERN_NAME_SIZE];
+	} paternFile[PATERN_COUNT];
+
+	uint8_t instruments_count;
+	uint8_t sample_count;
+	uint8_t pattern_count;
+
+};
 
 struct strMtProject
 {
 	strSampleBank sampleBank;
 	strInstrument instrument[INSTRUMENTS_MAX];
 
-	strAudioCodacConfig audioCodacConfig;
+	strAudioCodecConfig audioCodacConfig;
 	uint8_t instruments_count;
 
+	strMtProjectRemote mtProjectRemote;
+
 };
+
+struct strProjectFileHeader
+{
+	char id_file[2];
+	char type;
+	char version[4];
+	char id_data[4];
+	uint8_t size;
+};
+
+struct strInstrumentFile
+{
+	struct strInstrumentDataAndHeader
+	{
+		strProjectFileHeader instrHeader;
+		strInstrument instrument;
+
+	} instrumentDataAndHeader;
+
+	uint32_t crc;
+} ;
+
+struct strPatternFile
+{
+	struct strInstrumentDataAndHeader
+	{
+		strProjectFileHeader patternHeader;
+		Sequencer::strBank pattern;
+
+	} patternDataAndHeader;
+
+	uint32_t crc;
+} ;
+
 
 
 extern strMtProject mtProject;
