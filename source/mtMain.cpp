@@ -1,6 +1,7 @@
 #include "mtInterface.h"
 #include "mtHardware.h"
 #include "mtAudioEngine.h"
+#include "mtProjectEditor.h"
 
 #include "mtSequencer.h"
 #include "seqDisplay.h"
@@ -30,7 +31,7 @@ void setup()
 	seqDisplay.init((Sequencer::strBank*)sequencer.pattern);
 
 
-
+	loadFullWavetableSerum("Dist");
 	// inincjalizacja interfejsu na koncu
 	mtInterface.begin();
 	//sequencer.printNotes(1);		// printuje nuty w trakcie sekwencji

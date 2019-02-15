@@ -108,6 +108,7 @@ AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
 				if(mtProject.audioCodacConfig.mutedLineOut) audioShield.muteLineout();
 				else
 				{
+					audioShield.unmuteLineout();
 					setOut(outputSelectLineOut);
 					audioShield.lineOutLevel(mtProject.audioCodacConfig.lineOutLeft,mtProject.audioCodacConfig.lineOutRight);
 				}
