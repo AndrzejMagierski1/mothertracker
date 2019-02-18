@@ -37,7 +37,7 @@
 #define ANALOG_MAX_PAD_BUTTONS 	64
 #define ANALOG_MAX_POTS 		5
 //TODO:
-#define ANALOG_MAX_BUTTONS 		6
+#define ANALOG_MAX_BUTTONS 		5
 
 // adc pins in - pads
 #define ANALOG_ADC_MUX_0 MUX_PAD_OUT_0
@@ -91,7 +91,7 @@
 
 // ----------MUX channels to PADS order------
 const uint8_t analog_mux_channels_order[ANALOG_MAX_MUX_CHANNELS] =
-{6,7,4,5,2,3,0,1, 15,14,13,12,11,10,9,8};  //medusa/grid
+{6,7,4,5,2,3,0,1,15,14,13,12,11,10,9,8};  //medusa/grid
 
 const uint8_t analog_pads_muxs_order[ANALOG_MAX_PAD_MUXS] =
 {
@@ -105,34 +105,29 @@ const uint8_t analog_pots_muxs_order[ANALOG_MAX_POT_MUXS] =
 };
 
 const uint8_t analog_pots_buttons_mux_channels[ANALOG_MAX_MUX_CHANNELS] =
-{
-	ANALOG_BUTTON2,
-	ANALOG_BUTTON1,
-	ANALOG_BUTTON3,
-	ANALOG_BUTTON_TACT,
-	ANALOG_BUTTON5,
-	ANALOG_BUTTON4,
-	ANALOG_POT5_A,
-	ANALOG_POT5_B,
-	ANALOG_POT4_B,
-	ANALOG_POT4_A,
-	ANALOG_POT3_B,
-	ANALOG_POT3_A,
-	ANALOG_POT2_B,
-	ANALOG_POT2_A,
-	ANALOG_POT1_B,
-	ANALOG_POT1_A,
+{ // zgodnie z analog_mux_channels_order[]
+	ANALOG_BUTTON2,      //6
+	ANALOG_BUTTON1,      //7
+	ANALOG_BUTTON3,      //4
+	ANALOG_BUTTON_TACT,  //5
+	ANALOG_BUTTON5,      //2
+	ANALOG_BUTTON4,      //3
+	ANALOG_POT1_B,       //0
+	ANALOG_POT1_A,       //1
+	ANALOG_POT2_A,       //15
+	ANALOG_POT2_B,       //14
+	ANALOG_POT3_A,       //13
+	ANALOG_POT3_B,       //12
+	ANALOG_POT5_B,       //11
+	ANALOG_POT5_A,       //10
+	ANALOG_POT4_B,       //9
+	ANALOG_POT4_A,       //8
 };
 
 const uint8_t analog_buttons_index[ANALOG_MAX_BUTTONS] =
 {
 	ANALOG_BUTTON1, ANALOG_BUTTON2, ANALOG_BUTTON3,
 	ANALOG_BUTTON4, ANALOG_BUTTON5,
-
-
-	//TODO:
-	ANALOG_BUTTON_TACT
-
 };
 
 const uint8_t analog_pots_index_A[ANALOG_MAX_BUTTONS] =

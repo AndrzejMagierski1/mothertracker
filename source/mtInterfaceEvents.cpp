@@ -34,11 +34,11 @@ void instrumentEditorEvent(uint8_t event, void* param1, void* param2, void* para
 
 	case mtInstrumentEditorEventPadPress:
 
-		if(*(uint8_t*)param1 == 0)
+		if(*(uint8_t*)param1 == interfacePadPlay)
 		{
 			sequencer.play();
 		}
-		else if(*(uint8_t*)param1 == 2)
+		else if(*(uint8_t*)param1 == interfacePadStop)
 		{
 			sequencer.stop();
 		}
@@ -58,22 +58,22 @@ void projectEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 {
 	switch(event)
 	{
-	case ProjEditEventLoadLastProjFailed:
+	case mtPriojectEditorEventLoadLastProjFailed:
 
 	break;
 
 	case mtPriojectEditorEventPadPress:
 
-		if(*(uint8_t*)param1 == 3)
+		if(*(uint8_t*)param1 == interfacePadInstrumentEditor)
 		{
 			mtInterface.activateModule(mtModuleInstrumentEditor);
 			mtInstrumentEditor.startExisting(0);
 		}
-		else if(*(uint8_t*)param1 == 0)
+		else if(*(uint8_t*)param1 == interfacePadPlay)
 		{
 			sequencer.play();
 		}
-		else if(*(uint8_t*)param1 == 2)
+		else if(*(uint8_t*)param1 == interfacePadStop)
 		{
 			sequencer.stop();
 		}
@@ -96,17 +96,17 @@ void stepEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 	{
 	case mtStepEditorEventPadPress:
 
-		if(*(uint8_t*)param1 == 3)
+		if(*(uint8_t*)param1 == interfacePadInstrumentEditor)
 		{
 			mtInterface.deactivateModule(mtModuleStepEditor);
 			mtInterface.activateModule(mtModuleInstrumentEditor);
 			mtInstrumentEditor.startExisting(0);
 		}
-		else if(*(uint8_t*)param1 == 0)
+		else if(*(uint8_t*)param1 == interfacePadPlay)
 		{
 			sequencer.play();
 		}
-		else if(*(uint8_t*)param1 == 2)
+		else if(*(uint8_t*)param1 == interfacePadStop)
 		{
 			sequencer.stop();
 		}
@@ -168,17 +168,17 @@ void sampleBankEditorEvent(uint8_t event, void* param1, void* param2, void* para
 	{
 	case mtSampleBankEditorEventPadPress:
 
-		if(*(uint8_t*)param1 == 3)
+		if(*(uint8_t*)param1 == interfacePadInstrumentEditor)
 		{
 			mtInterface.deactivateModule(mtModuleStepEditor);
 			mtInterface.activateModule(mtModuleInstrumentEditor);
 			mtInstrumentEditor.startExisting(0);
 		}
-		else if(*(uint8_t*)param1 == 0)
+		else if(*(uint8_t*)param1 == interfacePadPlay)
 		{
 			sequencer.play();
 		}
-		else if(*(uint8_t*)param1 == 2)
+		else if(*(uint8_t*)param1 == interfacePadStop)
 		{
 			sequencer.stop();
 		}

@@ -4,6 +4,7 @@
 
 #include "keyScanner.h"
 #include "mtLED.h"
+#include "BlinkLed.h"
 
 #include <Audio.h>
 #include <Wire.h>
@@ -12,15 +13,21 @@
 #include <SerialFlash.h>
 
 
-
-
 #include "mtDisplay.h"
 #include "SD.h"
 
-
 #include "sdram.h"
 
+
+
 uint8_t hardwareTest;
+
+//-------- TACT POWER SWITCH -------------
+elapsedMillis powerSwitchHoldTimer;
+uint8_t powerSwitchLastState = 0;
+int8_t powerSwitchDebounce;
+
+void TactSwitchRead();
 
 
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo);
@@ -28,6 +35,7 @@ void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f);
 void onPadRelease(uint8_t n);
 void onPotChange(uint8_t n, int16_t value);
 void onButtonChange(uint8_t n, uint8_t value);
+void onPowerButtonChange(uint8_t value);
 
 //keyScanner
 void onButtonPush			(uint8_t x, uint8_t y);
@@ -44,7 +52,10 @@ void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 
 void initHardware()
 {
-	hardwareTest=1;
+	hardwareTest=0;
+
+	BlinkLed.begin(BLINK_LED);
+	BlinkLed.blinkOnce();
 
 	Serial.begin(9600);
 
@@ -156,6 +167,10 @@ void initHardware()
 
 	//....................................................
 
+	pinMode(TACT_SWITCH, INPUT);
+	//attachInterrupt(TACT_SWITCH, TactSwitchAction, FALLING);
+
+	BlinkLed.blinkOnce();
 
 /*
 	while(1)
@@ -225,5 +240,50 @@ void updateHardware()
 
 	mtDisplay.updateDisplay();
 	mtDisplay.updateHaptic();
+	BlinkLed.update();
 
+	TactSwitchRead();
+}
+
+
+void TactSwitchRead()
+{
+	if(digitalRead(TACT_SWITCH) == LOW)
+	{
+		if(powerSwitchDebounce <= 0 && powerSwitchDebounce > (0-10) )
+		{
+			powerSwitchDebounce--;
+		}
+		else if(powerSwitchDebounce <= 0 && powerSwitchLastState != 1)
+		{
+			powerSwitchDebounce = 1;
+			powerSwitchLastState = 1;
+			powerSwitchHoldTimer = 0;
+			// press
+			onPowerButtonChange(1);
+		}
+		else if(powerSwitchHoldTimer > 800 &&  powerSwitchLastState != 2)
+		{
+			powerSwitchLastState = 2;
+			// hold
+			onPowerButtonChange(2);
+		}
+	}
+	else
+	{
+		if(powerSwitchLastState > 0 && powerSwitchDebounce < 10)
+		{
+			powerSwitchDebounce++;
+		}
+		else if(powerSwitchDebounce > 0 && powerSwitchLastState != 0)
+		{
+			powerSwitchDebounce = 0;
+			powerSwitchLastState = 0;
+			//buttons[i].hold_time = 0;
+			// release
+			onPowerButtonChange(0);
+		}
+
+
+	}
 }

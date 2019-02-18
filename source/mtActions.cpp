@@ -183,8 +183,8 @@ void onButtonChange(uint8_t n, uint8_t value)
 		}
 		else
 		{*/
-			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,24,100);
-			else instrumentPlayer[n].noteOff();
+//			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,24,100);
+//			else instrumentPlayer[n].noteOff();
 		//}
 		//mtInterface.buttonChange(n,value);
 
@@ -201,13 +201,9 @@ void onButtonChange(uint8_t n, uint8_t value)
 //-----------------------------------------------------------------
 void onPowerButtonChange(uint8_t value)
 {
-	if(value == 1)
-	{
-		mtInterface.activateModule(mtModuleInstrumentEditor);
-		mtInstrumentEditor.startExisting(0);
-	}
-
 	mtInterface.powerButtonChange(value);
+
+
 //	mtPrint("power button: ");
 //	mtPrintln(value);
 }

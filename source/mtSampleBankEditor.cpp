@@ -6,7 +6,7 @@
 //#include "mtAudioEngine.h"
 
 
-
+#include "mtInterfaceDefs.h"
 #include "mtSampleBankEditor.h"
 
 
@@ -82,12 +82,12 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 {
 	if(type == 1)
 	{
-		if(n == 3)
+		if(n == interfacePadInstrumentEditor)
 		{
 			stop();
 			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
 		}
-		if(n == 0 || n == 2)
+		if(n == interfacePadPlay || n == interfacePadStop)
 		{
 			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
 		}
@@ -171,13 +171,13 @@ void cMtSampleBankEditor::processLabels()
 void cMtSampleBankEditor::setButtonLabel(uint8_t function, char* label)
 {
 	uint8_t i = 0;
-	buttonLabels[function][i] = 0;
+	buttonFunctionLabels[function][i] = 0;
 	while(label[i] != 0 && i < 19)
 	{
-		buttonLabels[function][i] = label[i];
+		buttonFunctionLabels[function][i] = label[i];
 		i++;
 	}
-	buttonLabels[function][i] = 0;
+	buttonFunctionLabels[function][i] = 0;
 
 	mtDisplay.changeButtonsLabels(buttonLabels);
 }
@@ -198,11 +198,11 @@ void cMtSampleBankEditor::updateButtonsFunctions()
 
 //--------------------------------------------------------
 
-	buttonLabels[0] = (char *)&buttonLabels[buttonFunctions[0]][0];
-	buttonLabels[1] = (char *)&buttonLabels[buttonFunctions[1]][0];
-	buttonLabels[2] = (char *)&buttonLabels[buttonFunctions[2]][0];
-	buttonLabels[3] = (char *)&buttonLabels[buttonFunctions[3]][0];
-	buttonLabels[4] = (char *)&buttonLabels[buttonFunctions[4]][0];
+	buttonLabels[0] = (char *)&buttonFunctionLabels[buttonFunctions[0]][0];
+	buttonLabels[1] = (char *)&buttonFunctionLabels[buttonFunctions[1]][0];
+	buttonLabels[2] = (char *)&buttonFunctionLabels[buttonFunctions[2]][0];
+	buttonLabels[3] = (char *)&buttonFunctionLabels[buttonFunctions[3]][0];
+	buttonLabels[4] = (char *)&buttonFunctionLabels[buttonFunctions[4]][0];
 
 	mtDisplay.changeButtonsLabels(buttonLabels);
 }
@@ -221,13 +221,13 @@ void cMtSampleBankEditor::setButtonFunction(uint8_t number, uint8_t function)
 void cMtSampleBankEditor::setPotsLabel(uint8_t function, char* label)
 {
 	uint8_t i = 0;
-	potLabels[function][i] = 0;
+	potFunctionLabels[function][i] = 0;
 	while(label[i] != 0 && i < 19)
 	{
-		potLabels[function][i] = label[i];
+		potFunctionLabels[function][i] = label[i];
 		i++;
 	}
-	potLabels[function][i] = 0;
+	potFunctionLabels[function][i] = 0;
 
 	mtDisplay.changePotsLabels(potLabels);
 }
@@ -249,11 +249,11 @@ void cMtSampleBankEditor::updatePotsFunctions()
 
 //--------------------------------------------------------
 
-	potLabels[0] = (char *)&potLabels[potFunctions[0]][0];
-	potLabels[1] = (char *)&potLabels[potFunctions[1]][0];
-	potLabels[2] = (char *)&potLabels[potFunctions[2]][0];
-	potLabels[3] = (char *)&potLabels[potFunctions[3]][0];
-	potLabels[4] = (char *)&potLabels[potFunctions[4]][0];
+	potLabels[0] = (char *)&potFunctionLabels[potFunctions[0]][0];
+	potLabels[1] = (char *)&potFunctionLabels[potFunctions[1]][0];
+	potLabels[2] = (char *)&potFunctionLabels[potFunctions[2]][0];
+	potLabels[3] = (char *)&potFunctionLabels[potFunctions[3]][0];
+	potLabels[4] = (char *)&potFunctionLabels[potFunctions[4]][0];
 
 	mtDisplay.changePotsLabels(potLabels);
 }

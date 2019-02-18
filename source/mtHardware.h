@@ -12,7 +12,7 @@
 
 // PAD,POT,BUTTONS MUXS
 // pad xy_z control
-#define CTRL_XY_Z		25 			//PTA5			pin-55
+#define CTRL_XY_Z				25 			//PTA5			pin-55
 
 
 // control lines (KINETIS VER)
@@ -47,8 +47,8 @@
 #define MUX_PAD_OUT_3	72 			//ADC1_SE16		pin-35	ADC1_SE16 / ADC0_SE22
 #define MUX_PAD_OUT_4	73 			//ADC0_DM0		pin-28	ADC0_DM0 / ADC1_DM3
 #define MUX_PAD_OUT_5	74 			//ADC1_DMA0		pin-29	ADC1_DP0 / ADC0_DP3
-#define MUX_PAD_OUT_6	A0 		//				pin-116 0_se7b
-#define MUX_PAD_OUT_7	A19 			//				pin-128 0_se5b
+#define MUX_PAD_OUT_6	A19 		//PTC11			pin-116 0_se7b
+#define MUX_PAD_OUT_7	A0 			//PTD1			pin-128 0_se5b
 #define MUX_OUT_8		77 			//PTA7			pin-59	ADC0_SE10
 
 
@@ -86,6 +86,13 @@
 
 // HAPTIC - DAC OPTION
 #define HAPTIC_OUT		xxx 		//DAC0_OUT		pin-38
+
+// BLINK LED
+#define BLINK_LED		48 			//PTD9			pin-138
+
+// TACT SWITCH
+#define TACT_SWITCH		47 			//PTD8			pin-137
+
 
 extern uint8_t hardwareTest;
 

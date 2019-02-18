@@ -1,13 +1,16 @@
 
-//#include "mtDisplay.h"
-#include "mtProjectEditor.h"
+#include "mtDisplay.h"
+#include "AnalogInputs.h"
+
 #include "mtHardware.h"
 #include "SD.h"
 #include "sdram.h"
 
-
 #include "spi_interrupt.h"
 #include "sdram.h"
+
+#include "mtInterfaceDefs.h"
+#include "mtProjectEditor.h"
 
 
 cMtProjectEditor mtProjectEditor;
@@ -22,34 +25,359 @@ __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[4*1024*1024];
 
 void cMtProjectEditor::update()
 {
+	if(!refreshModule) return;
+	refreshModule = 0;
 
-	if(commandsToDo[ProjEditCommandOpenLastProject])
+
+	//-----------------------------------------------------
+	if(moduleStart)
 	{
-		commandsToDo[ProjEditCommandOpenLastProject] = 0;
+		moduleStart = 0;
+		labelsChanged = 2;
 
+
+	}
+	//-----------------------------------------------------
+	if(labelsChanged)
+	{
+		if(labelsChanged == 2)
+		{
+			mtDisplay.setPotsLabels(1);
+			mtDisplay.setButtonsLabels(1);
+		}
+
+		labelsChanged = 0;
+
+		updateButtonsFunctions();
+		updatePotsFunctions();
+
+		processLabels();
+	}
+	//-----------------------------------------------------
+	if(filesListChanged)
+	{
+		labelsChanged = 1;
+		refreshModule = 1;
+
+		if(!filesListEnabled)
+		{
+			filesListChanged = 0;
+			mtDisplay.setList(file_list_pos, 0, 0, 0, 0, 0);
+			return;
+		}
+
+		if(filesListChanged == 2) // pokaz liste
+		{
+			//przetworz tablice adresow nazw sampli na podstawie nazw z banku sampli
+			for(uint8_t i = 0; i < 128; i++)
+			{
+			//	filesNames[i] = mtProject.instrument[i].name;
+			}
+
+
+			mtDisplay.setList(file_list_pos, file_list_pos, 2, 0, filesNames, 128);
+		}
+
+		filesListChanged = 0;
+	}
+
+
+}
+
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+
+
+void cMtProjectEditor::start(uint8_t mode)
+{
+
+	switch(mode)
+	{
+	case mtProjectStartModeDonNothing :
+	{
+
+		break;
+	}
+	case mtProjectStartModeOpenLast   :
+	{
 		uint8_t result = loadLastProject();
 		if(result)
 		{
 			// jesli nie mozna zaladowac ostatneigo projektu
 			// to poinformuj o tym interfejs
-			//projectEditorEvent(ProjEditEventLoadLastProjFailed, &result,0,0);
+			eventFunct(mtPriojectEditorEventLoadLastProjFailed, &result,0,0);
 		}
+		break;
+	}
+	case mtProjectStartModeOpenProject:
+	{
+
+		break;
+	}
+	case mtProjectStartModeNewProject :
+	{
+
+		break;
+	}
+	default: break;
 	}
 
 
 
 
+	moduleStart = 1;
+	refreshModule = 1;
+
+
 }
 
 
-void cMtProjectEditor::startProject()
+void cMtProjectEditor::stop()
 {
-	commandsToDo[ProjEditCommandOpenLastProject] = 1;
 
 
 
 
 }
+
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+
+uint8_t cMtProjectEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
+{
+	if(type == 1)
+	{
+		if(n == interfacePadInstrumentEditor)
+		{
+			stop();
+			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
+		}
+		if(n == interfacePadPlay || n == interfacePadStop)
+		{
+			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
+		}
+	}
+
+	return 0;
+}
+
+void cMtProjectEditor::buttonChange(uint8_t button, uint8_t value)
+{
+	switch(buttonFunctions[button])
+	{
+	case buttonFunctNone  				: 							break;
+	case buttonFunctNewProject			:	newProject(value);
+	case buttonFunctOpenProject			:	openProject(value);
+	case buttonFunctSaveProject			:	saveProject(value);
+	case buttonFunctCopyProject			:	copyProject(value);
+
+	default: break;
+	}
+
+	refreshModule = 1;
+}
+
+void cMtProjectEditor::potChange(uint8_t pot, int16_t value)
+{
+	switch(potFunctions[pot])
+	{
+	case potFunctNone				: 	break;
+
+
+	default: break;
+	}
+
+	refreshModule = 1;
+}
+
+void cMtProjectEditor::seqButtonChange(uint8_t type, uint8_t x, uint8_t y)
+{
+
+
+}
+
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+
+
+void cMtProjectEditor::processLabels()
+{
+
+	for(uint8_t i = 0; i < 5; i++)
+	{
+		switch(buttonFunctions[i])
+		{
+
+
+		default: break;
+		}
+	}
+
+}
+
+
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+// BUTTONS
+
+void cMtProjectEditor::setButtonLabel(uint8_t function, char* label)
+{
+	uint8_t i = 0;
+	buttonFunctionLabels[function][i] = 0;
+	while(label[i] != 0 && i < 19)
+	{
+		buttonFunctionLabels[function][i] = label[i];
+		i++;
+	}
+	buttonFunctionLabels[function][i] = 0;
+
+	mtDisplay.changeButtonsLabels(buttonLabels);
+}
+
+
+void cMtProjectEditor::updateButtonsFunctions()
+{
+	setButtonFunction(0, buttonFunctNone);
+	setButtonFunction(1, buttonFunctNone);
+	setButtonFunction(2, buttonFunctNone);
+	setButtonFunction(3, buttonFunctNone);
+	setButtonFunction(4, buttonFunctNone);
+
+//--------------------------------------------------------
+
+	setButtonFunction(0, buttonFunctNewProject);
+	setButtonFunction(1, buttonFunctOpenProject);
+
+
+//--------------------------------------------------------
+
+	buttonLabels[0] = (char *)&buttonFunctionLabels[buttonFunctions[0]][0];
+	buttonLabels[1] = (char *)&buttonFunctionLabels[buttonFunctions[1]][0];
+	buttonLabels[2] = (char *)&buttonFunctionLabels[buttonFunctions[2]][0];
+	buttonLabels[3] = (char *)&buttonFunctionLabels[buttonFunctions[3]][0];
+	buttonLabels[4] = (char *)&buttonFunctionLabels[buttonFunctions[4]][0];
+
+	mtDisplay.changeButtonsLabels(buttonLabels);
+}
+
+
+void cMtProjectEditor::setButtonFunction(uint8_t number, uint8_t function)
+{
+	buttonFunctions[number] = function;
+}
+
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+// POTS
+
+void cMtProjectEditor::setPotsLabel(uint8_t function, char* label)
+{
+	uint8_t i = 0;
+	potFunctionLabels[function][i] = 0;
+	while(label[i] != 0 && i < 19)
+	{
+		potFunctionLabels[function][i] = label[i];
+		i++;
+	}
+	potFunctionLabels[function][i] = 0;
+
+	mtDisplay.changePotsLabels(potLabels);
+}
+
+
+
+void cMtProjectEditor::updatePotsFunctions()
+{
+	setPotFunction(0, potFunctNone);
+	setPotFunction(1, potFunctNone);
+	setPotFunction(2, potFunctNone);
+	setPotFunction(3, potFunctNone);
+	setPotFunction(4, potFunctNone);
+
+//--------------------------------------------------------
+
+
+
+
+//--------------------------------------------------------
+
+	potLabels[0] = (char *)&potFunctionLabels[potFunctions[0]][0];
+	potLabels[1] = (char *)&potFunctionLabels[potFunctions[1]][0];
+	potLabels[2] = (char *)&potFunctionLabels[potFunctions[2]][0];
+	potLabels[3] = (char *)&potFunctionLabels[potFunctions[3]][0];
+	potLabels[4] = (char *)&potFunctionLabels[potFunctions[4]][0];
+
+	mtDisplay.changePotsLabels(potLabels);
+}
+
+
+void cMtProjectEditor::setPotFunction(uint8_t number, uint8_t function)
+{
+	potFunctions[number] = function;
+	AnalogInputs.setPotResolution(number, potFuncRes[function]);
+	AnalogInputs.setPotAcceleration(number, potFuncAcc[function]);
+}
+
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+
+void cMtProjectEditor::newProject(uint8_t value)
+{
+	if(value == 1)
+	{
+
+	}
+}
+
+void cMtProjectEditor::openProject(uint8_t value)
+{
+	if(value == 1)
+	{
+
+	}
+}
+
+void cMtProjectEditor::saveProject(uint8_t value)
+{
+	if(value == 1)
+	{
+
+	}
+}
+
+void cMtProjectEditor::copyProject(uint8_t value)
+{
+	if(value == 1)
+	{
+
+	}
+}
+
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+
+
+
+
 
 //------------------------------------------------------------------------------
 uint8_t cMtProjectEditor::readProjectConfig()
@@ -257,33 +585,6 @@ uint8_t cMtProjectEditor::isProjectLoaded()
 	return 0;
 }
 
-//-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-uint8_t cMtProjectEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
-{
-	eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
-
-	return 0;
-}
-
-void cMtProjectEditor::buttonChange(uint8_t button, uint8_t value)
-{
-
-
-}
-
-void cMtProjectEditor::potChange(uint8_t pot, int16_t value)
-{
-
-
-}
-
-void cMtProjectEditor::seqButtonChange(uint8_t type, uint8_t x, uint8_t y)
-{
-
-
-}
 
 
 //-------------------------------------------------------------------------------

@@ -46,7 +46,7 @@ void cMtInterface::update()
  	if(activeModules[mtModuleProjectEditor]) 		mtProjectEditor.update();
 	if(activeModules[mtModuleInstrumentEditor]) 	mtInstrumentEditor.update();
 	if(activeModules[mtModuleStepEditor]) 			mtStepEditor.update();
-
+	if(activeModules[mtModuleSampleBankEditor]) 	mtSampleBankEditor.update();
 
 
 }
@@ -66,7 +66,7 @@ void cMtInterface::processOperatingMode()
 
 			mtDisplay.setMode(mtDisplayModeNormal);
 			activateModule(mtModuleProjectEditor);
-			mtProjectEditor.startProject();
+			mtProjectEditor.start(mtProjectStartModeOpenLast);
 		}
 	}
 	else if(operatingMode == mtOperatingModeRun)
@@ -88,10 +88,33 @@ void cMtInterface::activateModule(uint8_t module)
 
 }
 
-//=======================================================================
-//=======================================================================
-//=======================================================================
+
 void cMtInterface::deactivateModule(uint8_t module)
 {
 	activeModules[module] = 0;
 }
+
+
+//=======================================================================
+//=======================================================================
+//=======================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

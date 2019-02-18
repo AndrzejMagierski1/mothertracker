@@ -43,8 +43,11 @@ void cMtInterface::buttonChange(uint8_t n, uint8_t value)
 //=======================================================================
 void cMtInterface::powerButtonChange(uint8_t value)
 {
-
-
+	if(value == 1)
+	{
+		mtInterface.activateModule(mtModuleInstrumentEditor);
+		mtInstrumentEditor.startExisting(0);
+	}
 }
 
 //=======================================================================

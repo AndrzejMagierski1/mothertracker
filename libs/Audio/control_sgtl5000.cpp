@@ -552,8 +552,8 @@ unsigned int AudioControlSGTL5000::read(unsigned int reg)
 	{
 		if(hardwareTest)
 		{
-			Serial.println("Codac audio read error");
-			mtPrint("Codac audio read error");
+			Serial.println("Codec audio read error");
+			mtPrint("Codec audio read error");
 		}
 		return 0;
 	}
@@ -561,8 +561,8 @@ unsigned int AudioControlSGTL5000::read(unsigned int reg)
 	{
 		if(hardwareTest)
 		{
-			Serial.println("Codac audio read error");
-			mtPrint("Codac audio read error");
+			Serial.println("Codec audio read error");
+			mtPrint("Codec audio read error");
 		}
 		return 0;
 	}
@@ -570,8 +570,8 @@ unsigned int AudioControlSGTL5000::read(unsigned int reg)
 	val |= Wire2.read();
 	if(hardwareTest)
 	{
-		Serial.println("Codac audio read succesfull");
-		mtPrint("Codac audio read succesfull");
+		Serial.println("Codec audio read succesfull");
+		mtPrint("Codec audio read succesfull");
 	}
 	return val;
 }
@@ -588,15 +588,15 @@ bool AudioControlSGTL5000::write(unsigned int reg, unsigned int val)
 	{
 		if(hardwareTest)
 		{
-			Serial.println("Codac audio write succesfull");
-			mtPrint("Codac audio write succesfull");
+			Serial.println("Codec audio write succesfull");
+			mtPrint("Codec audio write succesfull");
 		}
 		return true;
 	}
 	if(hardwareTest)
 	{
-		Serial.println("Codac audio write error");
-		mtPrint("Codac audio write succesfull");
+		Serial.println("Codec audio write error");
+		mtPrint("Codec audio write succesfull");
 	}
 	return false;
 }

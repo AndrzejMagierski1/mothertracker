@@ -6,6 +6,21 @@
 #define MT_INTERFACE_STARTUP_TIME 200
 
 
+enum mtInterfacePadButtonsFunctions
+{
+	interfacePadPlay,
+	interfacePadStop,
+	interfacePad2,
+	interfacePadProjectEditor,
+	interfacePadSampleBank,
+	interfacePadInstrumentEditor,
+	interfacePadConfig,
+
+
+
+};
+
+
 
 
 enum mtInterfaceModules
@@ -13,6 +28,7 @@ enum mtInterfaceModules
 	mtModuleProjectEditor,
 	mtModuleInstrumentEditor,
 	mtModuleStepEditor,
+	mtModuleSampleBankEditor,
 
 
 
