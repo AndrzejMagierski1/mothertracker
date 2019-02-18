@@ -356,10 +356,10 @@ struct strMtProject
 struct strProjectFileHeader
 {
 	char id_file[2];
-	char type;
+	uint16_t type;
 	char version[4];
 	char id_data[4];
-	uint8_t size;
+	uint16_t size;
 };
 
 struct strInstrumentFile
@@ -376,7 +376,7 @@ struct strInstrumentFile
 
 struct strPatternFile
 {
-	struct strInstrumentDataAndHeader
+	struct strPatternDataAndHeader
 	{
 		strProjectFileHeader patternHeader;
 		Sequencer::strPattern pattern;
@@ -386,7 +386,16 @@ struct strPatternFile
 	uint32_t crc;
 } ;
 
+struct strProjectFile
+{
+	struct strProjectDataAndHeader
+	{
+		strProjectFileHeader projectHeader;
+		strMtProjectRemote project;
+	} projectDataAndHeader;
 
+	uint32_t crc;
+};
 
 extern strMtProject mtProject;
 

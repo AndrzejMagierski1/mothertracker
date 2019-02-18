@@ -49,7 +49,8 @@ public:
 	uint8_t readInstrumentFile(char * name, strInstrument * instr);
 	void writePatternFile(char * name);
 	uint8_t readPatternFile(char * name);
-
+	void writeProjectFile(char * name,strMtProjectRemote *proj);
+	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
 	void setEventFunct(void (*func)(uint8_t, void*, void*, void*)) { eventFunct = func; };
 
 private:

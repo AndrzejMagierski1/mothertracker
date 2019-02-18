@@ -345,6 +345,40 @@ void cMtProjectEditor::writePatternFile(char * name)
 	sequencer.saveToFileDone();
 }
 
+
+void cMtProjectEditor::writeProjectFile(char * name, strMtProjectRemote * proj)
+{
+	if(SD.exists(name)) return; //todo: do ustalenia czy nadpisujemy czy nie
+
+	FsFile file;
+	FastCRC32 crcCalc;
+	strProjectFile projectFile;
+
+	projectFile.projectDataAndHeader.project = * proj;
+
+
+	projectFile.projectDataAndHeader.projectHeader.id_file[0]='I';
+	projectFile.projectDataAndHeader.projectHeader.id_file[1]='D';
+	projectFile.projectDataAndHeader.projectHeader.type = fileTypeProject;
+	projectFile.projectDataAndHeader.projectHeader.version[0] = '0';
+	projectFile.projectDataAndHeader.projectHeader.version[1] = '.';
+	projectFile.projectDataAndHeader.projectHeader.version[2] = '0';
+	projectFile.projectDataAndHeader.projectHeader.version[3] = '1';
+	projectFile.projectDataAndHeader.projectHeader.id_data[0] = 'D';
+	projectFile.projectDataAndHeader.projectHeader.id_data[1] = 'A';
+	projectFile.projectDataAndHeader.projectHeader.id_data[2] = 'T';
+	projectFile.projectDataAndHeader.projectHeader.id_data[3] = 'A';
+	projectFile.projectDataAndHeader.projectHeader.size = sizeof(*proj);
+
+	projectFile.crc = crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
+
+	file=SD.open(name,FILE_WRITE);
+	file.write((uint8_t *)&projectFile,sizeof(projectFile));
+	file.close();
+
+
+}
+
 uint8_t cMtProjectEditor::readInstrumentFile(char * name, strInstrument * instr)
 {
 	if(!SD.exists(name)) return 0;
@@ -409,6 +443,31 @@ uint8_t cMtProjectEditor::readPatternFile(char * name)
 
 
 }
+
+uint8_t cMtProjectEditor::readProjectFile(char * name, strMtProjectRemote * proj)
+{
+	if(!SD.exists(name)) return 0;
+	FsFile file;
+	FastCRC32 crcCalc;
+	uint32_t checkCRC=0;
+
+	strProjectFile projectFile;
+
+	file=SD.open(name);
+	file.read((uint8_t*)&projectFile, sizeof(projectFile));
+	file.close();
+
+	if(projectFile.projectDataAndHeader.projectHeader.type != fileTypeProject) return 0;
+
+	checkCRC=crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
+	if(checkCRC == projectFile.crc)
+	{
+		*proj=projectFile.projectDataAndHeader.project;
+		return 1;
+	}
+	else return 0;
+}
+
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------

@@ -34,6 +34,8 @@ void cMtInterface::begin()
 	mtProjectEditor.readInstrumentFile("instrument_000.mti", &mtProject.instrument[0]);
 	mtProjectEditor.writePatternFile("pattern_000.mtp");
 	mtProjectEditor.readPatternFile("pattern_000.mtp");
+	mtProjectEditor.writeProjectFile("project_000.bin", &mtProject.mtProjectRemote);
+	mtProjectEditor.readProjectFile("project_000.bin", &mtProject.mtProjectRemote);
 
 }
 
