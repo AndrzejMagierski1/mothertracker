@@ -30,13 +30,14 @@ void cMtInterface::begin()
 	mtInstrumentEditor.setEventFunct(instrumentEditorEvent);
 	mtStepEditor.setEventFunct(stepEditorEvent);
 
-	mtProjectEditor.writeInstrumentFile("instrument_000.mti", &mtProject.instrument[0]);
-	mtProjectEditor.readInstrumentFile("instrument_000.mti", &mtProject.instrument[0]);
-	mtProjectEditor.writePatternFile("pattern_000.mtp");
-	mtProjectEditor.readPatternFile("pattern_000.mtp");
-	mtProjectEditor.writeProjectFile("project_000.bin", &mtProject.mtProjectRemote);
-	mtProjectEditor.readProjectFile("project_000.bin", &mtProject.mtProjectRemote);
-
+//	mtProjectEditor.writeInstrumentFile("instrument_000.mti", &mtProject.instrument[0]);
+//	mtProjectEditor.readInstrumentFile("instrument_000.mti", &mtProject.instrument[0]);
+//	mtProjectEditor.writePatternFile("pattern_000.mtp");
+//	mtProjectEditor.readPatternFile("pattern_000.mtp");
+//	mtProjectEditor.writeProjectFile("project_000.bin", &mtProject.mtProjectRemote);
+//	mtProjectEditor.readProjectFile("project_000.bin", &mtProject.mtProjectRemote);
+	mtProjectEditor.createNewProject(NULL,"Project_001");
+	mtProjectEditor.importSampleToProject("/Project_001",NULL,"1.WAV",1,mtSampleTypeWaveFile);
 }
 
 //=======================================================================

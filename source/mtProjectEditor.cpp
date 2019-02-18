@@ -16,7 +16,8 @@ cMtProjectEditor mtProjectEditor;
 
 strMtProject mtProject;
 
-
+char * currentDirectoryOpen = "/Project001";
+char * currentDirectory= "Project001";
 
 __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[4*1024*1024];
 
@@ -348,7 +349,7 @@ void cMtProjectEditor::writePatternFile(char * name)
 
 void cMtProjectEditor::writeProjectFile(char * name, strMtProjectRemote * proj)
 {
-	if(SD.exists(name)) return; //todo: do ustalenia czy nadpisujemy czy nie
+	if(SD.exists(name)) SD.remove(name);
 
 	FsFile file;
 	FastCRC32 crcCalc;
@@ -467,6 +468,212 @@ uint8_t cMtProjectEditor::readProjectFile(char * name, strMtProjectRemote * proj
 	}
 	else return 0;
 }
+
+uint8_t cMtProjectEditor::openProject(char * name)
+{
+	uint8_t status;
+
+	SD.open(currentDirectoryOpen);
+	status = readProjectFile(name, &mtProject.mtProjectRemote);
+	if(!status) return status;
+
+	SD.open("/instruments");
+	for(int i=0; i < INSTRUMENTS_COUNT; i++)
+	{
+		 if(mtProject.mtProjectRemote.instrumentFile[i].index != - 1)
+		 {
+			 status=readInstrumentFile(mtProject.mtProjectRemote.instrumentFile[i].name,&mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index]);
+			 if(!status) return status;
+		 }
+	}
+	SD.open("/patterns");
+	for(int i=0; i< PATTERNS_COUNT;i++)
+	{
+		if(mtProject.mtProjectRemote.patternFile[i].index != - 1)
+		{
+			status=readPatternFile(mtProject.mtProjectRemote.patternFile[i].name);
+			if(!status) return status;
+			else break;
+		}
+	}
+
+	for(int i=0; i< SAMPLES_COUNT ; i++)
+	{
+		if(mtProject.mtProjectRemote.sampleFile[i].index != - 1)
+		{
+			memcpy(mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].file_name,mtProject.mtProjectRemote.sampleFile[i].name, SAMPLE_NAME_SIZE);
+			mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].type=mtProject.mtProjectRemote.sampleFile[i].type;
+			mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].wavetable_window_size=mtProject.mtProjectRemote.sampleFile[i].wavetable_window_size;
+		}
+	}
+
+	return status;
+}
+
+void cMtProjectEditor::createNewProject(char* patch, char * name)
+{
+	char patchFolder[50];
+
+	for(uint8_t i=0;i < INSTRUMENTS_COUNT;i++)
+	{
+		mtProject.mtProjectRemote.instrumentFile[i].index= -1;
+	}
+	for(uint8_t i=0;i < SAMPLES_COUNT;i++)
+	{
+		mtProject.mtProjectRemote.sampleFile[i].index= -1;
+	}
+	for(uint8_t i=0;i < PATTERNS_COUNT;i++)
+	{
+		mtProject.mtProjectRemote.patternFile[i].index= -1;
+	}
+
+	if(patch == NULL)
+	{
+		patchFolder[0]='/';
+		patchFolder[1]=0;
+		if(!SD.exists(name)) SD.mkdir(name);
+
+		strcat(patchFolder,name);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,"instruments");
+		SD.mkdir(patchFolder);
+
+		memset(patchFolder,0,50);
+		patchFolder[0]='/';
+
+		strcat(patchFolder,name);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,"patterns");
+		SD.mkdir(patchFolder);
+
+		memset(patchFolder,0,50);
+		patchFolder[0]='/';
+
+		strcat(patchFolder,name);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,"samples");
+		SD.mkdir(patchFolder);
+
+		memset(patchFolder,0,50);
+		patchFolder[0]='/';
+
+		strcat(patchFolder,name);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,name);
+		strcat(patchFolder,".bin");
+
+		writeProjectFile(patchFolder, &mtProject.mtProjectRemote);
+
+	}
+	else
+	{
+		strcpy(patchFolder,patch);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,name);
+		if(!SD.exists(patchFolder)) SD.mkdir(patchFolder);
+
+		memset(patchFolder,0,50);
+
+		strcpy(patchFolder,patch);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,name);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,"instruments");
+		if(!SD.exists(patchFolder)) SD.mkdir(patchFolder);
+
+		memset(patchFolder,0,50);
+
+		strcpy(patchFolder,patch);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,name);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,"patterns");
+		if(!SD.exists(patchFolder)) SD.mkdir(patchFolder);
+
+		memset(patchFolder,0,50);
+
+		strcpy(patchFolder,patch);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,name);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,"samples");
+		if(!SD.exists(patchFolder)) SD.mkdir(patchFolder);
+
+		memset(patchFolder,0,50);
+
+		strcpy(patchFolder,patch);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,name);
+		strcat(patchFolder,"/");
+		strcat(patchFolder,name);
+		strcat(patchFolder,".bin");
+
+		writeProjectFile(patchFolder, &mtProject.mtProjectRemote);
+
+	}
+
+}
+
+void cMtProjectEditor::importSampleToProject(char* projectPatch, char* filePatch, char* name, int8_t index, uint8_t type)
+{
+	char currentPatch[50];
+	FsFile file;
+	FsFile copy;
+	uint8_t currentBuffor[1024];
+	uint8_t cnt=0;
+	while(mtProject.mtProjectRemote.sampleFile[cnt].index != -1)
+	{
+		cnt++;
+	}
+
+	mtProject.mtProjectRemote.sampleFile[cnt].index=index;
+	mtProject.mtProjectRemote.sampleFile[cnt].type=type;
+	strcpy(mtProject.mtProjectRemote.sampleFile[cnt].name,name);
+
+	mtProject.sampleBank.sample[index].type=type;
+	strcpy(mtProject.sampleBank.sample[index].file_name,name);
+
+	if(filePatch!= NULL)
+	{
+		strcpy(currentPatch,filePatch);
+		strcat(currentPatch,"/");
+		strcat(currentPatch,name);
+	}
+	else
+	{
+		strcpy(currentPatch,name);
+	}
+	file = SD.open(currentPatch);
+
+	memset(currentPatch,0,50);
+
+	strcpy(currentPatch,projectPatch);
+	strcat(currentPatch,"/");
+	strcat(currentPatch,"samples");
+	strcat(currentPatch,"/");
+	strcat(currentPatch,name);
+	copy= SD.open(currentPatch,FILE_WRITE);
+
+	while(file.available())
+	{
+		file.read(currentBuffor,1024);
+		copy.write(currentBuffor,1024);
+	}
+	file.close();
+	copy.close();
+}
+
+/*void cMtProjectEditor::saveProject(char * name)
+{
+	if(!SD.exists(currentDirectory))
+	{
+		SD.mkdir(currentDirectory);
+		SD.open(currentDirectoryOpen);
+		SD.mkdir("instruments");
+		SD.mkdir("patterns");
+	}
+
+}*/
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------

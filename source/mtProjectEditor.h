@@ -45,12 +45,17 @@ public:
 	uint8_t loadSamplesBank();
 	uint8_t loadLastProject();
 	uint8_t isProjectLoaded();
+	uint8_t openProject(char * name);
+	void createNewProject(char* patch, char * name);
+	void importSampleToProject(char* projectPatch, char* filePatch, char* name, int8_t index, uint8_t type);
+	///todo: jest mozliwosc ze beda potem prywatne
 	void writeInstrumentFile(char * name, strInstrument * instr);
 	uint8_t readInstrumentFile(char * name, strInstrument * instr);
 	void writePatternFile(char * name);
 	uint8_t readPatternFile(char * name);
 	void writeProjectFile(char * name,strMtProjectRemote *proj);
 	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
+
 	void setEventFunct(void (*func)(uint8_t, void*, void*, void*)) { eventFunct = func; };
 
 private:
