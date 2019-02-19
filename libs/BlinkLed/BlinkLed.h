@@ -14,6 +14,7 @@ public:
 	void begin(uint8_t pin);
 	void update();
 	void blinkOnce();
+	void blinkOnceWithDelay();
 	void blinkXTimes(uint8_t x);
 
 private:

@@ -54,8 +54,10 @@ void initHardware()
 {
 	hardwareTest=0;
 
+
 	BlinkLed.begin(BLINK_LED);
-	BlinkLed.blinkOnce();
+	BlinkLed.blinkOnceWithDelay();
+
 
 	Serial.begin(9600);
 

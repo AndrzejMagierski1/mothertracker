@@ -5,7 +5,11 @@
 #include <stdint.h>
 #include "mtStructs.h"
 #include "SD.h"
+#include "mtFileManager.h"
 
+#include <FastCRC.h>
+#include <FastCRC_cpu.h>
+#include <FastCRC_tables.h>
 
 #define COMMANDS_PROJECT_EDITOR_MAX 32
 
@@ -65,6 +69,8 @@ private:
 	void (*eventFunct)(uint8_t, void*, void*, void*);
 
 	// elementy modulu
+
+
 
 	//lista plikow/folderow
 	enum
@@ -206,7 +212,8 @@ int32_t loadSample(const char *filename, int16_t * buf);
 int32_t loadWavetable(const char *filename, int16_t * buf);
 int32_t loadWavetableStandard(const char *filename, int16_t * buf);
 int32_t loadWavetableSerum(const char *filename, int16_t * buf);
-int32_t loadFullWavetableSerum(const char *filename, int16_t * buf);
+//int32_t loadFullWavetableSerum(const char *filename, int16_t * buf);
+void loadFullWavetableSerum(const char *baseName);
 uint8_t getMiddleWindow(uint16_t cnt, float windowsCnt, float windowsControl);
 int16_t fmap(float x, float in_min, float in_max, float out_min, float out_max);
 int32_t loadWavetable(const char *filename, int16_t * buf ,uint16_t * windowSize);

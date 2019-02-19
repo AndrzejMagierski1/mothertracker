@@ -37,6 +37,13 @@ void cBlinkLed::update()
 }
 
 
+void cBlinkLed::blinkOnceWithDelay()
+{
+	digitalWrite(_pin, LOW);
+	delay(200);
+	digitalWrite(_pin, HIGH);
+}
+
 void cBlinkLed::blinkOnce()
 {
 	digitalWrite(_pin, LOW);

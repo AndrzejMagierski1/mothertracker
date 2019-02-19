@@ -18,8 +18,6 @@ cMtProjectEditor mtProjectEditor;
 
 strMtProject mtProject;
 
-
-
 __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[4*1024*1024];
 
 
@@ -455,7 +453,8 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// pod jaki index tablicy sampli 0-32 zapisywac dany sampel
 	// teraz domyslnie zajmowane 0-7
 
-	for(uint8_t i = 0; i < 8; i++) // max do 9mtSampleTypeWaveFile
+
+/*	for(uint8_t i = 0; i < 8; i++) // max do 9
 	{
 		mtProject.sampleBank.sample[i].type = mtSampleTypeWaveFile;
 		mtProject.sampleBank.sample[i].file_name[0] = i+49;
@@ -464,8 +463,10 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.sampleBank.sample[i].file_name[3] = 'a';
 		mtProject.sampleBank.sample[i].file_name[4] = 'v';
 		mtProject.sampleBank.sample[i].file_name[5] = 0;
-		//mtProject.sampleBank.sample[i].wavetable_window_size = 1024;
+
+		mtProject.sampleBank.sample[i].wavetable_window_size = 1024;
 	}
+
 
 	for(uint8_t i = 0; i < 8; i++) // max do 9
 	{
@@ -479,6 +480,8 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.sampleBank.sample[i+8].file_name[6] = 0;
 		mtProject.sampleBank.sample[i+8].wavetable_window_size = 1024;
 	}
+
+*/
 
 	// parametry instrumentow ========================================
 	mtProject.instruments_count = 8;
@@ -559,22 +562,36 @@ uint8_t cMtProjectEditor::readProjectConfig()
 uint8_t cMtProjectEditor::loadSamplesBank()
 {
 	//zaladowanie banku sampli
+	char currentPatch[PATCH_SIZE];
+
 	int32_t size;
 	mtProject.sampleBank.sample[0].address = sdram_sampleBank;
 	mtProject.sampleBank.samples_count = 0;
 
 	for(uint8_t i = 0; i < SAMPLES_MAX; i++)
 	{
+		if(fileManager.currentProjectPatch != NULL)
+		{
+			memset(currentPatch,0,PATCH_SIZE);
+			strcpy(currentPatch,fileManager.currentProjectPatch);
+			strcat(currentPatch,"/samples/");
+			strcat(currentPatch,mtProject.sampleBank.sample[i].file_name);
+		}
+
 
 		if(mtProject.sampleBank.sample[i].type == mtSampleTypeWavetable)
 		{
-			size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
+
+			//size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
 
 			//size = loadFullWavetableSerum("DirtySaw",mtProject.sampleBank.sample[i].address);
+
+			size = loadWavetable(currentPatch, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
+
 		}
 		else
 		{
-			size = loadSample(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address);
+			size = loadSample(currentPatch, mtProject.sampleBank.sample[i].address);
 		}
 
 
@@ -651,7 +668,6 @@ uint8_t cMtProjectEditor::isProjectLoaded()
 
 	return 0;
 }
-
 
 
 //-------------------------------------------------------------------------------
@@ -1143,7 +1159,7 @@ int32_t loadWavetable(const char *filename, int16_t * buf ,uint16_t * windowSize
 	return size;
 
 }
-int32_t loadFullWavetableSerum(const char *baseName, int16_t * buf)
+/*int32_t loadFullWavetableSerum(const char *baseName, int16_t * buf)
 {
 	strWavFileHeader sampleHead;
 	uint8_t tabSize=0;
@@ -1201,5 +1217,90 @@ int32_t loadFullWavetableSerum(const char *baseName, int16_t * buf)
 	}
 
 	return STANDARD_WAVETABLE_WINDOWS_NUMBER* SERUM_WAVETABLE_WINDOW_LEN;
+
+}*/
+
+void loadFullWavetableSerum(const char *baseName)
+{
+	strWavFileHeader sampleHead;
+	uint8_t tabSize=0;
+	uint8_t newTabSize=0;
+	float currentWave[2048];
+	FsFile wavfile;
+	FsFile result;
+	while( *(baseName+tabSize) != 0 )
+	{
+		tabSize++;
+	}
+	newTabSize=tabSize+5;
+	tabSize+=9;
+
+	char newName[newTabSize];
+	char name[tabSize];
+
+	for(uint8_t i=0;i< (newTabSize - 5); i++)
+	{
+		newName[i]=baseName[i];
+	}
+	newName[newTabSize -1] = 0;
+	newName[newTabSize -2] = 'v';
+	newName[newTabSize -3] = 'a';
+	newName[newTabSize -4] = 'w';
+	newName[newTabSize -5] = '.';
+
+	if(SD.exists(newName)) return;
+	for(uint8_t i=0;i< tabSize; i++)
+	{
+		if(i< (tabSize-9)) name[i]=baseName[i];
+		else if(i== (tabSize -1 ) ) name[i] = 0;
+		else if(i== (tabSize -2 ) ) name[i] = 'V';
+		else if(i== (tabSize -3 ) ) name[i] = 'A';
+		else if(i== (tabSize -4 ) ) name[i] = 'W';
+		else if(i== (tabSize -5 ) ) name[i] = '.';
+		else if(i== (tabSize -6 ) ) name[i] = '1';
+		else if(i== (tabSize -9 ) ) name[i] = '_';
+		else name[i] ='0';
+	}
+
+
+	result = SD.open(newName,FILE_WRITE);
+	for(uint16_t a=0; a < STANDARD_WAVETABLE_WINDOWS_NUMBER;a++)
+	{
+
+		if(!a)
+		{
+			wavfile = SD.open(name);
+			wavfile.read(&sampleHead,44);
+
+			sampleHead.subchunk2Size=STANDARD_WAVETABLE_WINDOWS_NUMBER* SERUM_WAVETABLE_WINDOW_LEN*4;
+			result.write(&sampleHead,44);
+		}
+		else
+		{
+			wavfile = SD.open(name);
+			wavfile.read(&sampleHead,44);
+		}
+
+
+		wavfile.read(currentWave, 8192);
+		result.write(currentWave, 8192);
+
+
+		wavfile.close();
+
+		if(name[tabSize - 6 ] < '9') name[tabSize - 6 ]++;
+		else if(name[tabSize - 6 ] == '9')
+		{
+			name[tabSize - 6 ] = '0';
+			if( name[tabSize - 7 ] < '9') name[tabSize - 7 ]++;
+			else if(name[tabSize - 7 ] == '9')
+			{
+				name[tabSize - 7 ]= '0';
+				name[tabSize - 8]++;
+			}
+		}
+	}
+	result.close();
+
 
 }

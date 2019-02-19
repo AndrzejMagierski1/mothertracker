@@ -130,9 +130,7 @@ void audioEngine::update()
 			audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 			audioShield.lineInLevel(mtProject.audioCodacConfig.lineInLeft, mtProject.audioCodacConfig.lineInRight);
 		}
-
 	}
-
 }
 
 void audioEngine::setOut(uint8_t audioOutStatus)

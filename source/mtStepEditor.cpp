@@ -168,7 +168,7 @@ void cMtStepEditor::seqButtonChange(uint8_t type, uint8_t x, uint8_t y)
 
 void cMtStepEditor::processStepParameters()
 {
-	uint8_t track_length = sequencer.pattern->track[actualTrack].length;
+	uint8_t track_length = sequencer.getPatternToUI()->track[actualTrack].length;
 
 	for(uint8_t i = 0; i < 5; i++)
 	{
@@ -182,12 +182,15 @@ void cMtStepEditor::processStepParameters()
 			trackTable.state[i] = 1;
 			trackTable.active[0] = actualTrackTableSelection[0];
 
-			trackTable.params[i].iVal1 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].note;
-			trackTable.params[i].iVal2 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].instrument;
-			trackTable.params[i].iVal3 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].length1/48;
-			trackTable.params[i].iVal4 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].velocity;
+			Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
-			if(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[0].isOn == 0)
+			trackTable.params[i].iVal1 = pattern->track[actualTrack].step[(actualStep-2)+i].note;
+			trackTable.params[i].iVal2 = pattern->track[actualTrack].step[(actualStep-2)+i].instrument;
+			trackTable.params[i].iVal3 = pattern->track[actualTrack].step[(actualStep-2)+i].length1;
+			trackTable.params[i].iVal4 = pattern->track[actualTrack].step[(actualStep-2)+i].velocity;
+
+
+			if(pattern->track[actualTrack].step[(actualStep-2)+i].fx[0].isOn == 0)
 			{
 				trackTable.fx1[i].mode = 0;
 				getFxNameFromType(0, &fx1ActualNames[i][0]);
@@ -195,7 +198,7 @@ void cMtStepEditor::processStepParameters()
 			}
 			else
 			{
-				trackTable.fx1[i].mode = getFxNameFromType(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[0].type, &fx1ActualNames[i][0]);
+				trackTable.fx1[i].mode = getFxNameFromType(pattern->track[actualTrack].step[(actualStep-2)+i].fx[0].type, &fx1ActualNames[i][0]);
 				trackTable.fx1[i].name = &fx1ActualNames[i][0];
 				trackTable.active[1] = actualTrackTableSelection[1];
 
@@ -208,12 +211,12 @@ void cMtStepEditor::processStepParameters()
 
 				//trackTable.fx1[i].cVal1 =
 				//trackTable.fx1[i].cVal2 =
-				//trackTable.fx1[i].iVal1 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[0].val1_i8;
-				//trackTable.fx1[i].iVal2 = sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[0].val2_i8;
+				//trackTable.fx1[i].iVal1 = sequencer.getPatternToUI()->track[actualTrack].step[(actualStep-2)+i].fx[0].val1_i8;
+				//trackTable.fx1[i].iVal2 = sequencer.getPatternToUI()->track[actualTrack].step[(actualStep-2)+i].fx[0].val2_i8;
 
 			}
 			//-------------------------------------------------------------------------------
-			if(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[1].isOn == 0)
+			if(pattern->track[actualTrack].step[(actualStep-2)+i].fx[1].isOn == 0)
 			{
 				trackTable.fx2[i].mode = 0;
 				getFxNameFromType(0, &fx2ActualNames[i][0]);
@@ -221,12 +224,12 @@ void cMtStepEditor::processStepParameters()
 			}
 			else
 			{
-				trackTable.fx2[i].mode = getFxNameFromType(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[1].type, &fx2ActualNames[i][0]);
+				trackTable.fx2[i].mode = getFxNameFromType(pattern->track[actualTrack].step[(actualStep-2)+i].fx[1].type, &fx2ActualNames[i][0]);
 				trackTable.fx2[i].name = &fx2ActualNames[i][0];
 				trackTable.active[2] = actualTrackTableSelection[2];
 			}
 			//-------------------------------------------------------------------------------
-			if(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[2].isOn == 0)
+			if(pattern->track[actualTrack].step[(actualStep-2)+i].fx[2].isOn == 0)
 			{
 				trackTable.fx3[i].mode = 0;
 				getFxNameFromType(0, &fx3ActualNames[i][0]);
@@ -234,12 +237,12 @@ void cMtStepEditor::processStepParameters()
 			}
 			else
 			{
-				trackTable.fx3[i].mode = getFxNameFromType(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[2].type, &fx3ActualNames[i][0]);
+				trackTable.fx3[i].mode = getFxNameFromType(pattern->track[actualTrack].step[(actualStep-2)+i].fx[2].type, &fx3ActualNames[i][0]);
 				trackTable.fx3[i].name = &fx3ActualNames[i][0];
 				trackTable.active[3] = actualTrackTableSelection[3];
 			}
 			//-------------------------------------------------------------------------------
-			if(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[3].isOn == 0)
+			if(pattern->track[actualTrack].step[(actualStep-2)+i].fx[3].isOn == 0)
 			{
 				trackTable.fx4[i].mode = 0;
 				getFxNameFromType(0, &fx4ActualNames[i][0]);
@@ -247,7 +250,7 @@ void cMtStepEditor::processStepParameters()
 			}
 			else
 			{
-				trackTable.fx4[i].mode = getFxNameFromType(sequencer.pattern->track[actualTrack].step[(actualStep-2)+i].fx[3].type, &fx4ActualNames[i][0]);
+				trackTable.fx4[i].mode = getFxNameFromType(pattern->track[actualTrack].step[(actualStep-2)+i].fx[3].type, &fx4ActualNames[i][0]);
 				trackTable.fx4[i].name = &fx4ActualNames[i][0];
 				trackTable.active[4] = actualTrackTableSelection[4];
 			}
@@ -434,7 +437,8 @@ void cMtStepEditor::changeStepFxSelection(uint8_t fx, uint8_t value)
 {
 	if(value == 1)
 	{
-		uint8_t fx_type = sequencer.pattern->track[actualTrack].step[actualStep].fx[fx-1].type;
+
+		uint8_t fx_type = sequencer.getPatternToUI()->track[actualTrack].step[actualStep].fx[fx-1].type;
 
 		if(fx_type > Sequencer::strFxConsts::FX_TYPE_NONE)
 		{
@@ -454,54 +458,56 @@ void cMtStepEditor::changeStepFxSelection(uint8_t fx, uint8_t value)
 //-----------------------------------------------------------------------------------
 void cMtStepEditor::changeActualStepParams(int16_t value)
 {
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+
 	switch(actualTrackTableSelection[0])
 	{
 	case stepParamNote:
 	{
-		uint8_t step_note = sequencer.pattern->track[actualTrack].step[actualStep].note;
+		uint8_t step_note = pattern->track[actualTrack].step[actualStep].note;
 
 		if(step_note + value > Sequencer::MAX_NOTE_STEP)
-			sequencer.seq[0].track[actualTrack].step[actualStep].note = Sequencer::MAX_NOTE_STEP;
+			pattern->track[actualTrack].step[actualStep].note = Sequencer::MAX_NOTE_STEP;
 		else if(step_note + value < Sequencer::MIN_NOTE_STEP)
-			sequencer.seq[0].track[actualTrack].step[actualStep].note = Sequencer::MIN_NOTE_STEP;
+			pattern->track[actualTrack].step[actualStep].note = Sequencer::MIN_NOTE_STEP;
 		else
-			sequencer.seq[0].track[actualTrack].step[actualStep].note += value;
+			pattern->track[actualTrack].step[actualStep].note += value;
 		break;
 	}
 	case stepParamInstr:
 	{
-		uint8_t step_inst = sequencer.pattern->track[actualTrack].step[actualStep].instrument;
+		uint8_t step_inst = pattern->track[actualTrack].step[actualStep].instrument;
 
 		if(step_inst + value >= mtProject.instruments_count)
-			sequencer.seq[0].track[actualTrack].step[actualStep].instrument = mtProject.instruments_count-1;
+			pattern->track[actualTrack].step[actualStep].instrument = mtProject.instruments_count-1;
 		else if(step_inst + value < 0)
-			sequencer.seq[0].track[actualTrack].step[actualStep].instrument = 0;
+			pattern->track[actualTrack].step[actualStep].instrument = 0;
 		else
-			sequencer.seq[0].track[actualTrack].step[actualStep].instrument += value;
+			pattern->track[actualTrack].step[actualStep].instrument += value;
 		break;
 	}
 	case stepParamLength:
 	{
-		uint8_t step_length = sequencer.pattern->track[actualTrack].step[actualStep].length1;
+		uint8_t step_length = pattern->track[actualTrack].step[actualStep].length1;
 
 		if(step_length + value*48 > Sequencer::MAX_STEP_LENGTH*48)
-			sequencer.seq[0].track[actualTrack].step[actualStep].length1 = Sequencer::MAX_STEP_LENGTH*48;
+			pattern->track[actualTrack].step[actualStep].length1 = Sequencer::MAX_STEP_LENGTH*48;
 		else if(step_length + value*48 < 0)
-			sequencer.seq[0].track[actualTrack].step[actualStep].length1 = 0;
+			pattern->track[actualTrack].step[actualStep].length1 = 0;
 		else
-			sequencer.seq[0].track[actualTrack].step[actualStep].length1 += value*48;
+			pattern->track[actualTrack].step[actualStep].length1 += value*48;
 		break;
 	}
 	case stepParamVolume:
 	{
-		uint8_t step_volume = sequencer.pattern->track[actualTrack].step[actualStep].velocity;
+		uint8_t step_volume = pattern->track[actualTrack].step[actualStep].velocity;
 
 		if(step_volume + value > Sequencer::MAX_VELO_STEP)
-			sequencer.seq[0].track[actualTrack].step[actualStep].velocity = Sequencer::MAX_VELO_STEP;
+			pattern->track[actualTrack].step[actualStep].velocity = Sequencer::MAX_VELO_STEP;
 		else if(step_volume + value < Sequencer::MIN_VELO_STEP)
-			sequencer.seq[0].track[actualTrack].step[actualStep].velocity = Sequencer::MIN_VELO_STEP;
+			pattern->track[actualTrack].step[actualStep].velocity = Sequencer::MIN_VELO_STEP;
 		else
-			sequencer.seq[0].track[actualTrack].step[actualStep].velocity += value;
+			pattern->track[actualTrack].step[actualStep].velocity += value;
 		break;
 	}
 
