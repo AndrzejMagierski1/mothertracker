@@ -13,18 +13,24 @@
 const uint16_t MAX_16BIT =              		65535;
 const int16_t MAX_SIGNED_16BIT =				32767;
 const int16_t MIN_SIGNED_16BIT =				-32768;
+
 const float MAX_WAVE_FLOAT =					1.0;
 const float MIN_WAVE_FLOAT =					-1.0;
+
 const uint32_t SAMPLE_MEMORY_MAX =      		(8*1024*1024);
-const uint8_t  INSTRUMENTS_MAX =        		32;
-const uint8_t  SAMPLES_MAX =            		32;
-const uint8_t  INSTRUMENTS_COUNT =        		32;
-const uint8_t  SAMPLES_COUNT =            		32;
-const uint8_t  SAMPLES_FILENAME_LENGTH_MAX =    32;
+const uint8_t INSTRUMENTS_MAX =        			32;
+const uint8_t SAMPLES_MAX =            			32;
+const uint8_t SAMPLES_FILENAME_LENGTH_MAX =     32;
+
+const uint8_t INSTRUMENTS_COUNT =        		32;
+const uint8_t SAMPLES_COUNT =            		32;
+const uint8_t PATTERNS_COUNT 	=				32;
+
+const uint8_t PROJECT_NAME_SIZE =				32;
 const uint8_t INSTRUMENT_NAME_SIZE =			19;
 const uint8_t PATERN_NAME_SIZE	=				15;
 const uint8_t SAMPLE_NAME_SIZE =				32;
-const uint8_t PATTERNS_COUNT 	=				32;
+const uint8_t PATCH_SIZE =						50;
 
 const uint8_t SAMPLE_POINT_POS_MIN =            0;
 const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
@@ -318,9 +324,9 @@ struct strMtProjectRemote
 	struct strSampleFile
 	{
 		int8_t index;
-		char name[SAMPLE_NAME_SIZE];
 		uint8_t type;
 		uint16_t wavetable_window_size;
+		char name[SAMPLE_NAME_SIZE];
 	} sampleFile[SAMPLES_COUNT];
 
 	struct strInstrumentFile

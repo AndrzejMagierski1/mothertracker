@@ -8,7 +8,7 @@
 
 #include "mtInterface.h"
 #include "mtInterfaceDefs.h"
-
+#include "mtFileManager.h"
 
 
 cMtInterface mtInterface;
@@ -36,8 +36,15 @@ void cMtInterface::begin()
 //	mtProjectEditor.readPatternFile("pattern_000.mtp");
 //	mtProjectEditor.writeProjectFile("project_000.bin", &mtProject.mtProjectRemote);
 //	mtProjectEditor.readProjectFile("project_000.bin", &mtProject.mtProjectRemote);
-	mtProjectEditor.createNewProject(NULL,"Project_001");
-	mtProjectEditor.importSampleToProject("/Project_001",NULL,"1.WAV",1,mtSampleTypeWaveFile);
+	fileManager.createNewProject(NULL,"Project_001");
+	fileManager.importSampleToProject(NULL,"2.WAV",0,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"4.WAV",1,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"7.WAV",2,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"8.WAV",3,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"3.WAV",4,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"5.WAV",5,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"6.WAV",6,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"1.WAV",7,mtSampleTypeWavetable);
 }
 
 //=======================================================================
