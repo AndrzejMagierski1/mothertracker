@@ -10,8 +10,10 @@ class FileManager
 public:
 
 	uint8_t openProject(char * name);
-	void createNewProject(char* patch, char * name);
+	void createNewProject(char * name);
 	void importSampleToProject( char* filePatch, char* name, int8_t index, uint8_t type);
+	void importInstrumentToProject(char* filePatch, char* name, int8_t index);
+	void importPatternToProject(char* filePatch, char* name, int8_t index);
 	///todo: jest mozliwosc ze beda potem prywatne
 	void writeInstrumentFile(char * name, strInstrument * instr);
 	uint8_t readInstrumentFile(char * name, strInstrument * instr);

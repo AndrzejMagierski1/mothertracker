@@ -36,7 +36,13 @@ void cMtInterface::begin()
 //	mtProjectEditor.readPatternFile("pattern_000.mtp");
 //	mtProjectEditor.writeProjectFile("project_000.bin", &mtProject.mtProjectRemote);
 //	mtProjectEditor.readProjectFile("project_000.bin", &mtProject.mtProjectRemote);
-	fileManager.createNewProject(NULL,"Project_001");
+	fileManager.writeInstrumentFile("IMPORT/Instrument_001.mti",&mtProject.instrument[0]);
+	fileManager.writeInstrumentFile("IMPORT/Instrument_002.mti",&mtProject.instrument[1]);
+	fileManager.writeInstrumentFile("IMPORT/Instrument_003.mti",&mtProject.instrument[2]);
+	fileManager.writeInstrumentFile("IMPORT/Instrument_004.mti",&mtProject.instrument[3]);
+	fileManager.writePatternFile("IMPORT/Pattern_001.mtp");
+
+	fileManager.createNewProject("Project_001");
 	fileManager.importSampleToProject(NULL,"2.WAV",0,mtSampleTypeWavetable);
 	fileManager.importSampleToProject(NULL,"4.WAV",1,mtSampleTypeWavetable);
 	fileManager.importSampleToProject(NULL,"7.WAV",2,mtSampleTypeWavetable);
@@ -45,6 +51,11 @@ void cMtInterface::begin()
 	fileManager.importSampleToProject(NULL,"5.WAV",5,mtSampleTypeWavetable);
 	fileManager.importSampleToProject(NULL,"6.WAV",6,mtSampleTypeWavetable);
 	fileManager.importSampleToProject(NULL,"1.WAV",7,mtSampleTypeWavetable);
+	fileManager.importPatternToProject("IMPORT", "Pattern_001.mtp", 7);
+	fileManager.importInstrumentToProject("IMPORT", "Instrument_001.mti", 0);
+	fileManager.importInstrumentToProject("IMPORT", "Instrument_002.mti", 1);
+	fileManager.importInstrumentToProject("IMPORT", "Instrument_003.mti", 2);
+	fileManager.importInstrumentToProject("IMPORT", "Instrument_004.mti", 3);
 }
 
 //=======================================================================
