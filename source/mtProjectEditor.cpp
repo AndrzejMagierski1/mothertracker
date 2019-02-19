@@ -68,12 +68,14 @@ void cMtProjectEditor::update()
 
 		if(filesListChanged == 2) // pokaz liste
 		{
-			//przetworz tablice adresow nazw sampli na podstawie nazw z banku sampli
+			exploreActualLocation();
+
+
+
 			for(uint8_t i = 0; i < 128; i++)
 			{
 			//	filesNames[i] = mtProject.instrument[i].name;
 			}
-
 
 			mtDisplay.setList(file_list_pos, file_list_pos, 2, 0, filesNames, 128);
 		}
@@ -83,6 +85,19 @@ void cMtProjectEditor::update()
 
 
 }
+
+void cMtProjectEditor::exploreActualLocation()
+{
+	sdLocation.close();
+	sdLocation.open(filePath, O_READ); //"/"
+	locationFilesCount = sdLocation.createFilesList(0,locationFilesList);
+	sdLocation.close();
+
+
+
+
+}
+
 
 //#########################################################################################################
 //#########################################################################################################
@@ -168,10 +183,13 @@ void cMtProjectEditor::buttonChange(uint8_t button, uint8_t value)
 	switch(buttonFunctions[button])
 	{
 	case buttonFunctNone  				: 							break;
-	case buttonFunctNewProject			:	newProject(value);
-	case buttonFunctOpenProject			:	openProject(value);
-	case buttonFunctSaveProject			:	saveProject(value);
-	case buttonFunctCopyProject			:	copyProject(value);
+	case buttonFunctNewProject			:	newProject(value);		break;
+	case buttonFunctOpenProject			:	openProject(value);		break;
+	case buttonFunctSaveProject			:	saveProject(value);		break;
+	case buttonFunctCopyProject			:	copyProject(value);		break;
+	case buttonFunctBrowseSave  		:	browseSave(value);     	break;
+	case buttonFunctBrowseOpen  		:	browseOpen(value);     	break;
+	case buttonFunctBrowseCancel		:	browseCancel(value);  	break;
 
 	default: break;
 	}
@@ -249,9 +267,24 @@ void cMtProjectEditor::updateButtonsFunctions()
 
 //--------------------------------------------------------
 
-	setButtonFunction(0, buttonFunctNewProject);
-	setButtonFunction(1, buttonFunctOpenProject);
+	if(filesListEnabled)
+	{
+		if(browseLocationType == browseLocationTypeSave)
+		{
+			setButtonFunction(0, buttonFunctBrowseSave);
+		}
+		else if(browseLocationType == browseLocationTypeOpen)
+		{
+			setButtonFunction(0, buttonFunctBrowseOpen);
+		}
 
+		setButtonFunction(1, buttonFunctBrowseCancel);
+	}
+	else
+	{
+		setButtonFunction(0, buttonFunctNewProject);
+		setButtonFunction(1, buttonFunctOpenProject);
+	}
 
 //--------------------------------------------------------
 
@@ -337,7 +370,16 @@ void cMtProjectEditor::newProject(uint8_t value)
 {
 	if(value == 1)
 	{
+		filePath[0] = '/';
+		filePath[1] = 0;
 
+		if(!filesListEnabled)
+		{
+			filesListEnabled = 1;
+			filesListChanged = 2;
+		}
+
+		refreshModule = 1;
 	}
 }
 
@@ -364,6 +406,31 @@ void cMtProjectEditor::copyProject(uint8_t value)
 
 	}
 }
+
+void cMtProjectEditor::browseSave(uint8_t value)
+{
+	if(value == 1)
+	{
+
+	}
+}
+
+void cMtProjectEditor::browseOpen(uint8_t value)
+{
+	if(value == 1)
+	{
+
+	}
+}
+
+void cMtProjectEditor::browseCancel(uint8_t value)
+{
+	if(value == 1)
+	{
+
+	}
+}
+
 
 //#########################################################################################################
 //#########################################################################################################

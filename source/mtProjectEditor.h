@@ -66,9 +66,28 @@ private:
 
 	// elementy modulu
 
+	//lista plikow/folderow
+	enum
+	{
+		browseLocationTypeSave,
+		browseLocationTypeOpen,
+	};
+
 	const uint8_t file_list_pos = 0;
 	uint8_t filesListEnabled = 0;
+
 	char *filesNames[128];
+	char filePath[256];
+	char fileName[32];
+
+	uint8_t browseLocationType;
+	uint8_t locationLevel;
+	char locationFilesList[100][20];
+	uint16_t locationFilesCount;
+
+	FsFile sdLocation;
+
+	void exploreActualLocation();
 
 
 
@@ -77,6 +96,9 @@ private:
 	void openProject(uint8_t value);
 	void saveProject(uint8_t value);
 	void copyProject(uint8_t value);
+	void browseSave(uint8_t value);
+	void browseOpen(uint8_t value);
+	void browseCancel(uint8_t value);
 
 
 	//funkcje potow
@@ -108,6 +130,10 @@ private:
 		buttonFunctOpenProject,
 		buttonFunctSaveProject,
 		buttonFunctCopyProject,
+		buttonFunctBrowseSave,
+		buttonFunctBrowseOpen,
+		buttonFunctBrowseCancel,
+
 
 
 		//-------------------------------
@@ -124,6 +150,9 @@ private:
 		"Open project",
 		"Save project",
 		"Copy project",
+		"Save",
+		"Open",
+		"Cancel",
 
 
 
