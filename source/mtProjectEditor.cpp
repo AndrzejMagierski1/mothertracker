@@ -9,6 +9,8 @@
 #include "spi_interrupt.h"
 #include "sdram.h"
 
+#include "mtFileManager.h"
+
 #include "mtInterfaceDefs.h"
 #include "mtProjectEditor.h"
 
@@ -72,7 +74,7 @@ void cMtProjectEditor::update()
 
 				for(uint8_t i = 0; i < locationFilesCount; i++)
 				{
-					filesNames[i] = &locationFilesList[i][1];
+					filesNames[i] = &locationFilesList[i][0];
 				}
 			}
 
@@ -143,14 +145,10 @@ void cMtProjectEditor::listOnlyProjectFolderNames()
 
 			sdLocation.open(filePath, O_READ);
 
-			if(sdLocation.exists("Project.bin"))	//tylko jesli w folderze jest plik projektu
+			if(sdLocation.exists("project.bin"))	//tylko jesli w folderze jest plik projektu
 			{
-				if(foundProjectsCount < i)			//
-				{
-					strcpy(&locationFilesList[foundProjectsCount][0],&locationFilesList[i][0]);
+				strcpy(&locationFilesList[foundProjectsCount][0],&locationFilesList[i][1]);
 
-
-				}
 				foundProjectsCount++;
 			}
 
@@ -509,6 +507,22 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 	if(value == 1)
 	{
 
+		selectedLocation = 0;
+		fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
+		loadSamplesBank();
+
+//
+//		fileManager.createNewProject("Project_001");
+//		    fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",0,mtSampleTypeWaveFile);
+//		    fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",1,mtSampleTypeWaveFile);
+//		    fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",2,mtSampleTypeWaveFile);
+//		    fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",3,mtSampleTypeWaveFile);
+//		    fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",4,mtSampleTypeWaveFile);
+//		    fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",5,mtSampleTypeWaveFile);
+//		    fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",6,mtSampleTypeWaveFile);
+//		    fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",7,mtSampleTypeWaveFile);
+//		fileManager.saveProject();
+
 	}
 }
 
@@ -557,7 +571,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	{
 		mtProject.mtProjectRemote.patternFile[i].index = -1;
 	}
-/*
+
 	for(uint8_t i = 0; i < 8; i++) // max do 9
 	{
 		mtProject.sampleBank.sample[i].type = mtSampleTypeWaveFile;//;
@@ -570,7 +584,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 
 		mtProject.sampleBank.sample[i].wavetable_window_size = 1024;
 	}
-*/
+
 
 /*
 	for(uint8_t i = 0; i < 8; i++) // max do 9
@@ -594,6 +608,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 
 	// parametry instrumentow ========================================
 	strcpy(fileManager.currentProjectPatch,"Projects/Project_001");
+
 	mtProject.instruments_count = 8;
 
 	for(uint8_t i = 0; i < mtProject.instruments_count; i++)
@@ -748,7 +763,7 @@ uint8_t cMtProjectEditor::loadLastProject()
 		mtPrintln("loading config file failed!");
 		return 1;
 	}
-
+/*
 	if(loadSamplesBank())
 	{
 		mtPrintln("loading samples failed!");
@@ -762,7 +777,7 @@ uint8_t cMtProjectEditor::loadLastProject()
 //		mtPrint( int((mtProject.sampleBank.used_memory * 100 ) / mtProject.sampleBank.max_memory));
 //		mtPrintln(" %");
 	}
-
+*/
 
 
 

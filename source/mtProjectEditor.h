@@ -101,7 +101,7 @@ private:
 	char filePath[256];
 	char fileName[32];
 
-	uint8_t locationLevel;
+	uint8_t selectedLocation;
 	char locationFilesList[files_list_length_max][20];
 	uint16_t locationFilesCount;
 
