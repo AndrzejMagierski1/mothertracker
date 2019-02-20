@@ -187,6 +187,12 @@ enum fileType
 	fileTypeInstrument,
 	fileTypePattern
 };
+
+enum projectType
+{
+	projectTypeExample,
+	projectTypeUserMade
+};
 //=====================================================================
 //=====================================================================
 

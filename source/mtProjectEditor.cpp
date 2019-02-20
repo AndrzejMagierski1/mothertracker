@@ -59,7 +59,20 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// pod jaki index tablicy sampli 0-32 zapisywac dany sampel
 	// teraz domyslnie zajmowane 0-7
 
-/*	for(uint8_t i = 0; i < 8; i++) // max do 9
+	for(uint8_t i=0; i < INSTRUMENTS_COUNT; i++)
+	{
+		mtProject.mtProjectRemote.instrumentFile[i].index = -1;
+	}
+	for(uint8_t i=0; i < SAMPLES_COUNT; i++)
+	{
+		mtProject.mtProjectRemote.sampleFile[i].index = -1;
+	}
+	for(uint8_t i=0; i < PATTERNS_COUNT; i++)
+	{
+		mtProject.mtProjectRemote.patternFile[i].index = -1;
+	}
+
+	for(uint8_t i = 0; i < 8; i++) // max do 9
 	{
 											// mtSampleTypeWaveFile
 		mtProject.sampleBank.sample[i].type = mtSampleTypeWavetable;
@@ -70,12 +83,13 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.sampleBank.sample[i].file_name[4] = 'v';
 		mtProject.sampleBank.sample[i].file_name[5] = 0;
 		mtProject.sampleBank.sample[i].wavetable_window_size = 1024;
-	}*/
+	}
 
-	//mtProject.sampleBank.sample[1].wavetable_window_size = 1024;
-	//mtProject.sampleBank.sample[1].type = mtSampleTypeWaveFile;
+//	mtProject.sampleBank.sample[1].wavetable_window_size = 1024;
+//	mtProject.sampleBank.sample[1].type = mtSampleTypeWaveFile;
 
 	// parametry instrumentow ========================================
+	strcpy(fileManager.currentProjectPatch,"Projects/Project_001");
 	mtProject.instruments_count = 8;
 
 	for(uint8_t i = 0; i < mtProject.instruments_count; i++)
