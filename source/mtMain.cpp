@@ -38,7 +38,6 @@ void setup()
 //=======================================================================
 void loop()
 {
-
 	sequencer.handle();
 	//handle_chatBot();
 
@@ -48,6 +47,4 @@ void loop()
 
 	engine.update();
 	mtInterface.update();
-
-
 }

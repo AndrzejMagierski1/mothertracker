@@ -52,6 +52,7 @@ void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 
 void initHardware()
 {
+
 	hardwareTest=0;
 
 
