@@ -456,7 +456,8 @@ void mtLED::writeRegister8(uint8_t b, uint8_t reg, uint8_t data) {
 	//Serial.print(" = 0x"); Serial.println(data, HEX);
 }
 
-uint8_t  mtLED::readRegister8(uint8_t bank, uint8_t reg) {
+uint8_t  mtLED::readRegister8(uint8_t bank, uint8_t reg)
+{
 	uint8_t x;
 	x = 0;
 
@@ -636,7 +637,7 @@ void mtLEDs::begin()
 {
 	ledsSeqA.begin(IS31FL3731_ADDR4);
 	ledsSeqB.begin(IS31FL3731_ADDR3);
-	//ledsGrid.begin(IS31FL3731_ADDR1);
+	ledsGrid.begin(IS31FL3731_ADDR1);
 
 }
 void mtLEDs::updateSeq()

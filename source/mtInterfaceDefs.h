@@ -9,8 +9,8 @@
 enum mtInterfacePadButtonsFunctions
 {
 	interfacePadPlay,
+	empty1,
 	interfacePadStop,
-	interfacePad2,
 	interfacePadProjectEditor,
 	interfacePadSampleBank,
 	interfacePadInstrumentEditor,

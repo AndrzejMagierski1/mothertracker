@@ -80,6 +80,13 @@ void cMtDisplay::normalModeDisplayRefresh()
 		if(updateStep > 0) return;
 	}
 	//-------------------------------------------------
+	if(displayRefreshTable.textEdit)
+	{
+		displayRefreshTable.textEdit = 0;
+		ramg_text_edit();
+		if(updateStep > 0) return;
+	}
+	//-------------------------------------------------
 	dl_load_normal_main();
 
 
@@ -133,12 +140,20 @@ void cMtDisplay::dl_load_normal_main()
 	// envelope
 	if(elementsState.envelope) API_CMD_APPEND(ramAddress.envelope, ramSize.envelope);
 
-	// envelope
+	// tracktable
 	if(elementsState.trackTable) API_CMD_APPEND(ramAddress.trackTable, ramSize.trackTable);
 
+	// edit text
+	if(elementsState.textEdit) API_CMD_APPEND(ramAddress.textEdit, ramSize.textEdit);
 
 
-	if(elementsState.waitSpinner) API_CMD_SPINNER(240, 64, 0, 0);
+
+
+
+
+
+
+	if(elementsState.waitSpinner) API_CMD_SPINNER(240, 64, 3, 0);
 
 
     API_DISPLAY();
@@ -226,6 +241,26 @@ void cMtDisplay::setTrackTable(uint8_t state)
 	screenRefresh = 1;
 }
 
+
+void cMtDisplay::setTextEdit(uint8_t x, uint8_t y, uint8_t length, char* text, char* label)
+{
+	if(length == 0)
+	{
+		elementsState.textEdit = 0;
+		return;
+	}
+
+	textEditData.editPos = 0;
+	textEditData.label = label;
+	textEditData.text = text;
+	textEditData.x = x;
+	textEditData.y = y;
+	textEditData.length = length;
+
+	elementsState.textEdit = 1;
+	displayRefreshTable.textEdit = 1;
+	screenRefresh = 1;
+}
 //=============================================================
 
 
@@ -329,6 +364,16 @@ void cMtDisplay::changeTrackTable(strMtDispTrackTable * trackTable)
 	displayRefreshTable.trackTable = 1;
 	screenRefresh = 1;
 }
+
+void cMtDisplay::changeTextEdit(char* text, uint8_t pos)
+{
+	textEditData.editPos = pos;
+	textEditData.text = text;
+
+	displayRefreshTable.textEdit = 1;
+	screenRefresh = 1;
+}
+
 
 //#############################################################################
 //#############################################################################
@@ -1155,8 +1200,46 @@ void cMtDisplay::ramg_track_table()
 }
 
 
+void cMtDisplay::ramg_text_edit()
+{
+    API_LIB_BeginCoProList();
+    API_CMD_DLSTART();
 
+    //label
+	API_CMD_TEXT(textEditData.x, textEditData.y, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), textEditData.label);
 
+	int16_t x_pos = textEditData.x + textEditData.length;
+	int16_t y_pos = textEditData.y+16;
+
+    //ramka
+	API_COLOR(displayColors.trackTableFrame);
+	API_LINE_WIDTH(12);
+	API_BEGIN(LINE_STRIP);
+	API_VERTEX2II(textEditData.x, y_pos, 0, 0);
+	API_VERTEX2II(x_pos, y_pos, 0, 0);
+	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(textEditData.x, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+	API_VERTEX2II(textEditData.x, y_pos, 0, 0);
+	API_END();
+
+	//text
+	API_CMD_TEXT(textEditData.x+(textEditData.length/2) , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), textEditData.text);
+
+	// pozycja edycji
+/*
+	API_BEGIN(LINES);
+	API_VERTEX2II(textEditData.editPos, y_pos, 0, 0);
+	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos, 0, 0);
+	API_END();
+*/
+
+    API_LIB_EndCoProList();
+
+	updateAdress = ramAddress.textEdit;
+	updateSize = &ramSize.textEdit;
+
+	updateStep = 1;
+}
 
 
 

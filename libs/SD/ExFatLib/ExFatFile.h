@@ -266,7 +266,7 @@ class ExFatFile {
    * the value false is returned for failure.
    */
 //TODO
-  uint16_t createFilesList(uint8_t start_line, char list[][20]);
+  uint16_t createFilesList(uint8_t start_line, char list[][20], uint8_t list_length);
 
   bool mkdir(ExFatFile* parent, const ExChar_t* path, bool pFlag = true);
   /** Open a file or directory by name.

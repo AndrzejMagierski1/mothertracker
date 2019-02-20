@@ -129,7 +129,7 @@ void FatFile::ls(print_t* pr, uint8_t flags, uint8_t indent) {
 }
 
 
-uint16_t FatFile::createFilesList(uint8_t start_line, char list[][20])
+uint16_t FatFile::createFilesList(uint8_t start_line, char list[][20], uint8_t list_length)
 {
 	uint16_t count = start_line;
 	uint8_t n = 0;
@@ -155,6 +155,7 @@ uint16_t FatFile::createFilesList(uint8_t start_line, char list[][20])
 
 		//list[count][w] = 0;
 
+		if(count >= list_length) break;
 	}
 
 	return count;

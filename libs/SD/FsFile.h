@@ -187,10 +187,10 @@ class FsFile {
   }
 
 
-  uint16_t createFilesList(uint8_t start_line, char list[][20])
+  uint16_t createFilesList(uint8_t start_line, char list[][20], uint8_t list_length)
   {
-	    if (m_fFile) return m_fFile->createFilesList(start_line, list);
-	    if (m_xFile) return m_xFile->createFilesList(start_line, list);
+	    if (m_fFile) return m_fFile->createFilesList(start_line, list, list_length);
+	    if (m_xFile) return m_xFile->createFilesList(start_line, list, list_length);
 
 	    return 0;
   }

@@ -45,7 +45,31 @@ void cMtInterface::begin()
 //	mtProjectEditor.writeProjectFile("project_000.bin", &mtProject.mtProjectRemote);
 //	mtProjectEditor.readProjectFile("project_000.bin", &mtProject.mtProjectRemote);
 
-	fileManager.createNewProject(NULL,"Project_001");
+/*
+	fileManager.createNewProject(NULL,(char*)"Project_001");
+
+
+	fileManager.importSampleToProject(NULL,(char*)"1.WAV",0,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,(char*)"2.WAV",1,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,(char*)"3.WAV",2,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,(char*)"4.WAV",3,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,(char*)"5.WAV",4,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,(char*)"6.WAV",5,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,(char*)"7.WAV",6,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,(char*)"8.WAV",7,mtSampleTypeWaveFile);
+
+	fileManager.importSampleToProject(NULL,(char*)"11.WAV",8,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,(char*)"12.WAV",9,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,(char*)"13.WAV",10,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,(char*)"14.WAV",11,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,(char*)"15.WAV",12,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,(char*)"16.WAV",13,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,(char*)"17.WAV",14,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,(char*)"18.WAV",15,mtSampleTypeWavetable);
+*/
+
+
+/*
 	fileManager.importSampleToProject(NULL,"2.WAV",0,mtSampleTypeWavetable);
 	fileManager.importSampleToProject(NULL,"4.WAV",1,mtSampleTypeWavetable);
 	fileManager.importSampleToProject(NULL,"7.WAV",2,mtSampleTypeWavetable);
@@ -54,7 +78,7 @@ void cMtInterface::begin()
 	fileManager.importSampleToProject(NULL,"5.WAV",5,mtSampleTypeWavetable);
 	fileManager.importSampleToProject(NULL,"6.WAV",6,mtSampleTypeWavetable);
 	fileManager.importSampleToProject(NULL,"1.WAV",7,mtSampleTypeWavetable);
-
+*/
 }
 
 //=======================================================================

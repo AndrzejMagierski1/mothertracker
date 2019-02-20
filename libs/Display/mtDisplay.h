@@ -71,6 +71,7 @@ public:
 	void setMultiRowValue(uint8_t state);
 	void setEnvelopes(uint8_t state);
 	void setTrackTable(uint8_t state);
+	void setTextEdit(uint8_t x, uint8_t y, uint8_t length, char* text, char* label);
 
 	void changeButtonsLabels(char ** labels);
 	void changePotsLabels(char ** labels);
@@ -81,6 +82,7 @@ public:
 	void changeMultiRowValues(strMtDispMultiRowValues * values);
 	void changeEnvelopes(strMtDispEnvelope * envelope);
 	void changeTrackTable(strMtDispTrackTable * trackTable);
+	void changeTextEdit(char* text, uint8_t pos);
 
 	// print
 	void print(const char * s);
@@ -112,6 +114,7 @@ private:
 	void ramg_lists(uint8_t index);
 	void ramg_envelope();
 	void ramg_track_table();
+	void ramg_text_edit();
 
 	// zmienne glowne
 	uint8_t screenMode = mtDisplayModeBlank;
@@ -160,7 +163,9 @@ private:
 	// trackTable
 	strMtDispTrackTable * ptrTrackTable;
 
-
+	//---------------------------------------------
+	// editText
+	strMtDispTextEdit textEditData;
 
 
 	//---------------------------------------------

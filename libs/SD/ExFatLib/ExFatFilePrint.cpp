@@ -117,10 +117,36 @@ void ExFatFile::ls(print_t* pr, uint8_t flags, uint8_t indent) {
 }
 
 //TODO
-uint16_t ExFatFile::createFilesList(uint8_t start_line, char list[][20])
+uint16_t ExFatFile::createFilesList(uint8_t start_line, char list[][20], uint8_t list_length)
 {
+	uint16_t count = start_line;
+	uint8_t n = 0;
+	ExFatFile file;
+	rewind();
+	while (file.openNext(this, O_READ))
+	{
+		n = 0;
 
-	return 0;
+		if (!file.isHidden())
+		{
+			if (file.isDir())
+			{
+				list[count][0] = '/';
+				n = 1;
+			}
+
+			file.getName(&list[count][n], 20-n);
+
+			count++;
+		}
+		file.close();
+
+		//list[count][w] = 0;
+
+		if(count >= list_length) break;
+	}
+
+	return count;
 }
 
 //------------------------------------------------------------------------------

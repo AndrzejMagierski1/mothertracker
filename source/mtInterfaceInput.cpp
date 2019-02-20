@@ -3,6 +3,8 @@
 #include "mtInstrumentEditor.h"
 #include "mtStepEditor.h"
 
+#include "mtLED.h"
+
 
 #include "mtInterface.h"
 
@@ -63,6 +65,11 @@ void cMtInterface::padPressed(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 	}
 
 
+
+	leds.setLEDgrid(n+1,1,31);
+
+
+
 	//if(n == 3) setOperatingMode(mtOperatingModeInstrumentEditor);
 }
 
@@ -78,7 +85,7 @@ void cMtInterface::padReleased(uint8_t n)
 		default : break;
 	}
 
-
+	leds.setLEDgrid(n+1,0,31);
 }
 
 //=======================================================================

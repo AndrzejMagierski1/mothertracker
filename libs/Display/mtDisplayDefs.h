@@ -143,7 +143,12 @@ enum enumMtDispValueTypes
 #define MT_GPU_RAM_TRACK_TABLE_ADRESS		(MT_GPU_RAM_MR_VALUES_ADRESS+(5*MT_GPU_RAM_MR_VALUES_SIZE))
 #define MT_GPU_RAM_TRACK_TABLE_SIZE			5000
 
-#define MT_GPU_RAM_TRACK___NEXT___			(MT_GPU_RAM_TRACK_TABLE_ADRESS+MT_GPU_RAM_TRACK_TABLE_SIZE)
+#define MT_GPU_RAM_TEXT_EDIT_ADRESS			(MT_GPU_RAM_TRACK_TABLE_ADRESS+MT_GPU_RAM_TRACK_TABLE_SIZE)
+#define MT_GPU_RAM_TEXT_EDIT_SIZE			2000
+
+
+
+#define MT_GPU_RAM_TRACK___NEXT___			(MT_GPU_RAM_TEXT_EDIT_ADRESS+MT_GPU_RAM_TEXT_EDIT_SIZE)
 
 
 //-------------------------------------------------------------------
@@ -170,6 +175,8 @@ struct strMtDisplayRefreshTable
 	uint8_t envelope;
 
 	uint8_t trackTable;
+
+	uint8_t textEdit;
 };
 
 //KOLORY
@@ -209,6 +216,8 @@ struct strMtDisplayColors
 	uint32_t trackTableFrame		= DISP_RGB(255,255,255);
 	uint32_t fontTrackTable			= DISP_RGB(255,255,255);
 
+	uint32_t textEditFrame			= DISP_RGB(255,255,255);
+	uint32_t fontTextEdit			= DISP_RGB(255,255,255);
 };
 
 
@@ -228,6 +237,8 @@ struct strMtRamSize
 	uint32_t multiRowValues[MT_DISP_VALUES_MAX] = {0,0,0,0,0};
 
 	uint32_t trackTable = 0;
+
+	uint32_t textEdit = 0;
 };
 
 
@@ -264,6 +275,8 @@ struct strMtRamAddres
 
 
 	uint32_t trackTable = MT_GPU_RAM_TRACK_TABLE_ADRESS;
+
+	uint32_t textEdit = MT_GPU_RAM_TEXT_EDIT_ADRESS;
 };
 
 
@@ -281,6 +294,8 @@ struct strMtElementsState
 
 	uint8_t envelope = 0;
 	uint8_t trackTable = 0;
+	uint32_t textEdit = 0;
+
 
 
 	uint8_t waitSpinner = 0;
@@ -357,6 +372,20 @@ struct strMtDispTrackTable
 
 	uint8_t active[5];
 	uint8_t state[5];
+};
+
+
+struct strMtDispTextEdit
+{
+	uint16_t x;
+	uint8_t y;
+	uint8_t length;
+
+	uint8_t editPos;
+
+	char* label;
+	char* text;
+
 };
 
 

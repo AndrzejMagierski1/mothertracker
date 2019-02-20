@@ -70,34 +70,48 @@ private:
 
 	// elementy modulu
 
-
-
-	//lista plikow/folderow
+	//edycja nazw---------------------------------------------
 	enum
 	{
-		browseLocationTypeSave,
-		browseLocationTypeOpen,
+		editNameTypeNone,
+		editNameTypeSaveProject,
+		editNameTypeSaveTemplate,
 	};
 
-	const uint8_t file_list_pos = 0;
+	uint8_t editNameType;
+	uint8_t editNameEnabled = 0;
+	char editName[20];
+	char editLabel[32];
+
+	//lista plikow/folderow---------------------------------------------
+	enum
+	{
+		browseLocationTypeNone,
+		browseLocationTypeSaveProject,
+		browseLocationTypeSaveTemplate,
+		browseLocationTypeOpenProject,
+	};
+
+	static const uint8_t files_list_length_max = 100;
+	const uint8_t files_list_pos = 0;
 	uint8_t filesListEnabled = 0;
+	uint8_t browseLocationType;
 
 	char *filesNames[128];
 	char filePath[256];
 	char fileName[32];
 
-	uint8_t browseLocationType;
 	uint8_t locationLevel;
-	char locationFilesList[100][20];
+	char locationFilesList[files_list_length_max][20];
 	uint16_t locationFilesCount;
 
 	FsFile sdLocation;
 
 	void exploreActualLocation();
+	void listOnlyProjectFolderNames();
 
 
-
-	//funkcje przyciskow
+	//funkcje przyciskow---------------------------------------------
 	void newProject(uint8_t value);
 	void openProject(uint8_t value);
 	void saveProject(uint8_t value);
@@ -121,6 +135,7 @@ private:
 
 	uint8_t labelsChanged;
 	uint8_t filesListChanged;
+	uint8_t editNameChanged;
 
 
 
@@ -172,8 +187,8 @@ private:
 	enum
 	{
 		potFunctNone,
-
-
+		potFunctChangeProjectsList,
+		potFunctEditText,
 
 
 		//-------------------------------
@@ -186,6 +201,7 @@ private:
 	char potFunctionLabels[potFunctCount][20] =
 	{
 		{0},
+		"Select project:"
 
 
 	};
@@ -193,12 +209,14 @@ private:
 	const uint16_t potFuncRes[potFunctCount] =
 	{
 			100, // potFunctionNone,
+			50,
 
 	};
 
 	const uint8_t potFuncAcc[potFunctCount] =
 	{
 			3, // potFunctionNone,
+			3,
 
 	};
 

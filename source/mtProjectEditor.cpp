@@ -60,26 +60,56 @@ void cMtProjectEditor::update()
 		if(!filesListEnabled)
 		{
 			filesListChanged = 0;
-			mtDisplay.setList(file_list_pos, 0, 0, 0, 0, 0);
+			mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
 			return;
 		}
 
 		if(filesListChanged == 2) // pokaz liste
 		{
-			exploreActualLocation();
-
-
-
-			for(uint8_t i = 0; i < 128; i++)
+			if(browseLocationType == browseLocationTypeOpenProject)
 			{
-			//	filesNames[i] = mtProject.instrument[i].name;
+				listOnlyProjectFolderNames();
+
+				for(uint8_t i = 0; i < locationFilesCount; i++)
+				{
+					filesNames[i] = &locationFilesList[i][1];
+				}
 			}
 
-			mtDisplay.setList(file_list_pos, file_list_pos, 2, 0, filesNames, 128);
+
+
+			mtDisplay.setList(files_list_pos, files_list_pos, 2, 0, filesNames, locationFilesCount);
 		}
 
 		filesListChanged = 0;
 	}
+	//-----------------------------------------------------
+	if(editNameChanged)
+	{
+		labelsChanged = 1;
+		refreshModule = 1;
+
+		if(!editNameEnabled)
+		{
+			editNameChanged = 0;
+			mtDisplay.setTextEdit(0, 0, 0, 0, 0);
+			return;
+		}
+
+		if(editNameChanged == 2) // pokaz liste
+		{
+			if(editNameType == editNameTypeSaveProject)
+			{
+
+			}
+
+			mtDisplay.setTextEdit(32, 10, 20, editName,editLabel);
+
+		}
+
+		editNameChanged = 0;
+	}
+
 
 
 }
@@ -88,11 +118,49 @@ void cMtProjectEditor::exploreActualLocation()
 {
 	sdLocation.close();
 	sdLocation.open(filePath, O_READ); //"/"
-	locationFilesCount = sdLocation.createFilesList(0,locationFilesList);
+	locationFilesCount = sdLocation.createFilesList(0,locationFilesList, files_list_length_max);
+	sdLocation.close();
+
+}
+
+
+void cMtProjectEditor::listOnlyProjectFolderNames()
+{
+	sdLocation.close();
+	sdLocation.open("/Projects/", O_READ); //"/"
+	locationFilesCount = sdLocation.createFilesList(0,locationFilesList, files_list_length_max);
 	sdLocation.close();
 
 
+	uint8_t foundProjectsCount = 0;
 
+	for(uint8_t i = 0; i < locationFilesCount; i++)
+	{
+		if(locationFilesList[i][0] == '/')	//tylko jesli folder
+		{
+			strcpy(filePath,"/Projects");
+			strcat(filePath,&locationFilesList[i][0]); //doklej nazwe folderu
+
+			sdLocation.open(filePath, O_READ);
+
+			if(sdLocation.exists("Project.bin"))	//tylko jesli w folderze jest plik projektu
+			{
+				if(foundProjectsCount < i)			//
+				{
+					strcpy(&locationFilesList[foundProjectsCount][0],&locationFilesList[i][0]);
+
+
+				}
+				foundProjectsCount++;
+			}
+
+
+			sdLocation.close();
+		}
+	}
+
+
+	locationFilesCount = foundProjectsCount;
 
 }
 
@@ -267,11 +335,11 @@ void cMtProjectEditor::updateButtonsFunctions()
 
 	if(filesListEnabled)
 	{
-		if(browseLocationType == browseLocationTypeSave)
+		if(browseLocationType == browseLocationTypeSaveProject)
 		{
 			setButtonFunction(0, buttonFunctBrowseSave);
 		}
-		else if(browseLocationType == browseLocationTypeOpen)
+		else if(browseLocationType == browseLocationTypeOpenProject)
 		{
 			setButtonFunction(0, buttonFunctBrowseOpen);
 		}
@@ -332,7 +400,25 @@ void cMtProjectEditor::updatePotsFunctions()
 
 //--------------------------------------------------------
 
+	if(filesListEnabled)
+	{
+		if(browseLocationType == browseLocationTypeSaveProject)
+		{
+			setPotFunction(0, buttonFunctBrowseSave);
+		}
+		else if(browseLocationType == browseLocationTypeOpenProject)
+		{
+			setPotFunction(0, potFunctChangeProjectsList);
+		}
 
+		setPotFunction(1, buttonFunctBrowseCancel);
+	}
+	else
+	{
+
+
+
+	}
 
 
 //--------------------------------------------------------
@@ -368,15 +454,13 @@ void cMtProjectEditor::newProject(uint8_t value)
 {
 	if(value == 1)
 	{
-		filePath[0] = '/';
-		filePath[1] = 0;
-
-		if(!filesListEnabled)
+		if(!editNameEnabled)
 		{
-			filesListEnabled = 1;
-			filesListChanged = 2;
+			editNameEnabled = 1;
+			editNameChanged = 2;
 		}
 
+		editNameType = editNameTypeSaveProject;
 		refreshModule = 1;
 	}
 }
@@ -385,7 +469,14 @@ void cMtProjectEditor::openProject(uint8_t value)
 {
 	if(value == 1)
 	{
+		if(!filesListEnabled)
+		{
+			filesListEnabled = 1;
+			filesListChanged = 2;
+		}
 
+		browseLocationType = browseLocationTypeOpenProject;
+		refreshModule = 1;
 	}
 }
 
@@ -454,9 +545,9 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// teraz domyslnie zajmowane 0-7
 
 
-/*	for(uint8_t i = 0; i < 8; i++) // max do 9
+	for(uint8_t i = 0; i < 8; i++) // max do 9
 	{
-		mtProject.sampleBank.sample[i].type = mtSampleTypeWaveFile;
+		mtProject.sampleBank.sample[i].type = mtSampleTypeWaveFile;//;
 		mtProject.sampleBank.sample[i].file_name[0] = i+49;
 		mtProject.sampleBank.sample[i].file_name[1] = '.';
 		mtProject.sampleBank.sample[i].file_name[2] = 'w';
@@ -467,7 +558,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.sampleBank.sample[i].wavetable_window_size = 1024;
 	}
 
-
+/*
 	for(uint8_t i = 0; i < 8; i++) // max do 9
 	{
 		mtProject.sampleBank.sample[i+8].type = mtSampleTypeWavetable;
@@ -482,6 +573,8 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	}
 
 */
+
+	strcpy(fileManager.currentProjectPatch,"Projects/Project_001");
 
 	// parametry instrumentow ========================================
 	mtProject.instruments_count = 8;

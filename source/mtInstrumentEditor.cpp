@@ -248,6 +248,12 @@ void cMtInstrumentEditor::stop()
 //#########################################################################################################
 uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 {
+
+	if(n == interfacePadPlay)
+	{
+		play(type);
+	}
+
 	if(type == 1)
 	{
 /*
@@ -260,11 +266,6 @@ uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		if(n == interfacePadStop)
 		{
 			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
-		}
-
-		if(n == interfacePadPlay)
-		{
-			play(type);
 		}
 
 	}
