@@ -542,21 +542,48 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 	if(value == 1)
 	{
 
+
+
 		selectedLocation = 0;
+
+
+//		for(uint8_t i=0; i < INSTRUMENTS_COUNT; i++)
+//		{
+//			mtProject.mtProjectRemote.instrumentFile[i].index = -1;
+//		}
+//		for(uint8_t i=0; i < SAMPLES_COUNT; i++)
+//		{
+//			mtProject.mtProjectRemote.sampleFile[i].index = -1;
+//		}
+//		for(uint8_t i=0; i < PATTERNS_COUNT; i++)
+//		{
+//			mtProject.mtProjectRemote.patternFile[i].index = -1;
+//		}
+
 		fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
 		loadSamplesBank();
 
+//		fileManager.createNewProject("Project_Test1");
+//		fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",0,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",1,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",2,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",3,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",4,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",5,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",6,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",7,mtSampleTypeWaveFile);
+//
+//		fileManager.importSampleToProject(NULL,"11.WAV","11.WAV",8,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"12.WAV","12.WAV",9,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"13.WAV","13.WAV",10,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"14.WAV","14.WAV",11,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"15.WAV","15.WAV",12,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"16.WAV","16.WAV",13,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"17.WAV","17.WAV",14,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"18.WAV","18.WAV",15,mtSampleTypeWavetable);
 
-//			fileManager.createNewProject("Project_001");
-//		    fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",0,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",1,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",2,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",3,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",4,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",5,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",6,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",7,mtSampleTypeWaveFile);
-//			fileManager.saveProject();
+
+//		fileManager.saveProject();
 
 		refreshModule = 1;
 	}
@@ -637,7 +664,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// pod jaki index tablicy sampli 0-32 zapisywac dany sampel
 	// teraz domyslnie zajmowane 0-7
 
-
+/*
 	for(uint8_t i=0; i < INSTRUMENTS_COUNT; i++)
 	{
 		mtProject.mtProjectRemote.instrumentFile[i].index = -1;
@@ -664,7 +691,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.sampleBank.sample[i].wavetable_window_size = 1024;
 	}
 
-
+*/
 /*
 	for(uint8_t i = 0; i < 8; i++) // max do 9
 	{
@@ -686,7 +713,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 
 
 	// parametry instrumentow ========================================
-	strcpy(fileManager.currentProjectPatch,"Projects/Project_001");
+//	strcpy(fileManager.currentProjectPatch,"Projects/Project_001");
 
 	mtProject.instruments_count = 8;
 

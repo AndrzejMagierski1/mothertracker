@@ -860,10 +860,12 @@ void Sequencer::loadDefaultSequence(void)
 		}
 	}
 	//seq[player.ramBank].track[0].tempoDiv=1;
+
+
 	seq[player.ramBank].track[0].step[0].isOn = 1;
 	seq[player.ramBank].track[0].step[0].velocity = 100;
 	seq[player.ramBank].track[0].step[0].instrument = 0;
-	seq[player.ramBank].track[0].step[0].note = 28;
+	seq[player.ramBank].track[0].step[0].note = 24;
 	seq[player.ramBank].track[0].step[0].length1 = 100;
 
 	seq[player.ramBank].track[1].step[1].isOn = 1;

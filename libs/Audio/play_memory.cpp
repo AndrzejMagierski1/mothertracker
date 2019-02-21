@@ -433,7 +433,7 @@ void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 	pitchControl-=fineTuneControl;
 	if(value >= 0)
 	{
-		if((currentNote + currentTune + 1) <= MAX_NOTE)
+		if((currentNote + currentTune + 1) <= MAX_NOTE-1)
 		{
 			fineTuneControl= value * ((notes[currentNote + currentTune + 1] - notes[currentNote + currentTune]) /MAX_INSTRUMENT_FINETUNE);
 		}
@@ -453,11 +453,14 @@ void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 
 void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)
 {
-	if( (currentNote + value) > MAX_NOTE) value=MAX_NOTE-currentNote;
+	if( (currentNote + value) > MAX_NOTE-1) value=(MAX_NOTE-1)-currentNote;
 	if( (currentNote + value) < MIN_NOTE) value=MIN_NOTE-currentNote;
+
 
 	pitchControl-=notes[currentNote+currentTune];
 	pitchControl+=notes[currentNote+value];
+
+	currentTune = value;
 }
 
 

@@ -613,7 +613,7 @@ void FileManager::saveProject()
 	}
 	memset(currentPatch,0,PATCH_SIZE);
 	strcpy(currentPatch,currentProjectPatch);
-	strcpy(currentPatch,"/project.bin");
+	strcat(currentPatch,"/project.bin");
 
 	writeProjectFile(currentPatch,&mtProject.mtProjectRemote);
 

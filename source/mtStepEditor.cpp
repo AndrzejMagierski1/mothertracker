@@ -485,6 +485,10 @@ void cMtStepEditor::changeActualStepParams(int16_t value)
 		else
 			pattern->track[actualTrack].step[actualStep].instrument += value;
 		break;
+
+
+
+
 	}
 	case stepParamLength:
 	{
@@ -500,12 +504,12 @@ void cMtStepEditor::changeActualStepParams(int16_t value)
 	}
 	case stepParamVolume:
 	{
-		uint8_t step_volume = pattern->track[actualTrack].step[actualStep].velocity;
+		int8_t step_volume = pattern->track[actualTrack].step[actualStep].velocity;
 
 		if(step_volume + value > Sequencer::MAX_VELO_STEP)
 			pattern->track[actualTrack].step[actualStep].velocity = Sequencer::MAX_VELO_STEP;
-		else if(step_volume + value < Sequencer::MIN_VELO_STEP)
-			pattern->track[actualTrack].step[actualStep].velocity = Sequencer::MIN_VELO_STEP;
+		else if(step_volume + value < Sequencer::MIN_VELO_STEP-1)
+			pattern->track[actualTrack].step[actualStep].velocity = Sequencer::MIN_VELO_STEP-1;
 		else
 			pattern->track[actualTrack].step[actualStep].velocity += value;
 		break;

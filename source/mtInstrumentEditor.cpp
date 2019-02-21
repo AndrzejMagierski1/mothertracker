@@ -30,6 +30,7 @@ void cMtInstrumentEditor::update()
 		//pointsChanged = 2;
 		labelsChanged = 2;
 		lastChangedPoint = 0;
+		//instrumentPlayer[0].
 
 	}
 	//-----------------------------------------------------
