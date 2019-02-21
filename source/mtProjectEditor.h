@@ -15,7 +15,7 @@
 
 enum mtProjectStartMode
 {
-	mtProjectStartModeDonNothing,
+	mtProjectStartModeDoNothing,
 	mtProjectStartModeOpenLast,
 	mtProjectStartModeOpenProject,
 	mtProjectStartModeNewProject,
@@ -90,6 +90,7 @@ private:
 		browseLocationTypeSaveProject,
 		browseLocationTypeSaveTemplate,
 		browseLocationTypeOpenProject,
+		browseLocationTypeOpenTemplate,
 	};
 
 	static const uint8_t files_list_length_max = 100;
@@ -108,7 +109,7 @@ private:
 	FsFile sdLocation;
 
 	void exploreActualLocation();
-	void listOnlyProjectFolderNames();
+	void listOnlyFolderNames(const char* folder);
 
 
 	//funkcje przyciskow---------------------------------------------
@@ -116,14 +117,15 @@ private:
 	void openProject(uint8_t value);
 	void saveProject(uint8_t value);
 	void copyProject(uint8_t value);
-	void browseSave(uint8_t value);
+	void browseOpenSave(uint8_t value);
 	void browseOpen(uint8_t value);
 	void browseCancel(uint8_t value);
 
 
+
 	//funkcje potow
-
-
+	void changeProjectsListPos(uint16_t value);
+	void changeTemplatesListPos(uint16_t value);
 
 
 	uint8_t	refreshModule = 0;
@@ -151,9 +153,10 @@ private:
 		buttonFunctOpenProject,
 		buttonFunctSaveProject,
 		buttonFunctCopyProject,
-		buttonFunctBrowseSave,
+		buttonFunctBrowseOpenSave,
 		buttonFunctBrowseOpen,
 		buttonFunctBrowseCancel,
+
 
 
 
@@ -171,7 +174,7 @@ private:
 		"Open project",
 		"Save project",
 		"Copy project",
-		"Save",
+		"Select",
 		"Open",
 		"Cancel",
 
@@ -188,6 +191,7 @@ private:
 	{
 		potFunctNone,
 		potFunctChangeProjectsList,
+		potFunctChangeTemplatesList,
 		potFunctEditText,
 
 
@@ -201,7 +205,8 @@ private:
 	char potFunctionLabels[potFunctCount][20] =
 	{
 		{0},
-		"Select project:"
+		"Select project:",
+		"Select template:",
 
 
 	};
@@ -210,12 +215,14 @@ private:
 	{
 			100, // potFunctionNone,
 			50,
+			50,
 
 	};
 
 	const uint8_t potFuncAcc[potFunctCount] =
 	{
 			3, // potFunctionNone,
+			3,
 			3,
 
 	};
