@@ -70,15 +70,12 @@ void cMtProjectEditor::update()
 		{
 			if(browseLocationType == browseLocationTypeOpenProject)
 			{
-				listOnlyProjectFolderNames();
-
-				for(uint8_t i = 0; i < locationFilesCount; i++)
-				{
-					filesNames[i] = &locationFilesList[i][0];
-				}
+				listOnlyFolderNames("/Projects/");
 			}
-
-
+			else if(browseLocationType == browseLocationTypeOpenTemplate)
+			{
+				listOnlyFolderNames("/Templates/");
+			}
 
 			mtDisplay.setList(files_list_pos, files_list_pos, 2, 0, filesNames, locationFilesCount);
 		}
@@ -126,10 +123,10 @@ void cMtProjectEditor::exploreActualLocation()
 }
 
 
-void cMtProjectEditor::listOnlyProjectFolderNames()
+void cMtProjectEditor::listOnlyFolderNames(const char* folder)
 {
 	sdLocation.close();
-	sdLocation.open("/Projects/", O_READ); //"/"
+	sdLocation.open(folder, O_READ); //"/"
 	locationFilesCount = sdLocation.createFilesList(0,locationFilesList, files_list_length_max);
 	sdLocation.close();
 
@@ -160,6 +157,11 @@ void cMtProjectEditor::listOnlyProjectFolderNames()
 
 	locationFilesCount = foundProjectsCount;
 
+	for(uint8_t i = 0; i < locationFilesCount; i++)
+	{
+		filesNames[i] = &locationFilesList[i][0];
+	}
+
 }
 
 
@@ -173,7 +175,7 @@ void cMtProjectEditor::start(uint8_t mode)
 
 	switch(mode)
 	{
-	case mtProjectStartModeDonNothing :
+	case mtProjectStartModeDoNothing :
 	{
 
 		break;
@@ -216,7 +218,13 @@ void cMtProjectEditor::stop()
 {
 
 
+	mtDisplay.setList(0, 0, 0, 0, 0, 0);
+	mtDisplay.setList(1, 0, 0, 0, 0, 0);
+	mtDisplay.setList(2, 0, 0, 0, 0, 0);
+	mtDisplay.setList(3, 0, 0, 0, 0, 0);
+	mtDisplay.setList(4, 0, 0, 0, 0, 0);
 
+	mtDisplay.setTextEdit(0, 0, 0, 0, 0);
 
 }
 
@@ -233,7 +241,11 @@ uint8_t cMtProjectEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
 		}
-		if(n == interfacePadPlay || n == interfacePadStop)
+		else if(n == interfacePadPlay || n == interfacePadStop)
+		{
+			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
+		}
+		else
 		{
 			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
 		}
@@ -251,9 +263,11 @@ void cMtProjectEditor::buttonChange(uint8_t button, uint8_t value)
 	case buttonFunctOpenProject			:	openProject(value);		break;
 	case buttonFunctSaveProject			:	saveProject(value);		break;
 	case buttonFunctCopyProject			:	copyProject(value);		break;
-	case buttonFunctBrowseSave  		:	browseSave(value);     	break;
+	case buttonFunctBrowseOpenSave  	:	browseOpenSave(value);	break;
 	case buttonFunctBrowseOpen  		:	browseOpen(value);     	break;
 	case buttonFunctBrowseCancel		:	browseCancel(value);  	break;
+
+
 
 	default: break;
 	}
@@ -265,8 +279,9 @@ void cMtProjectEditor::potChange(uint8_t pot, int16_t value)
 {
 	switch(potFunctions[pot])
 	{
-	case potFunctNone				: 	break;
-
+	case potFunctNone					:	 	break;
+	case potFunctChangeProjectsList 	:	changeProjectsListPos(value);	break;
+	case potFunctChangeTemplatesList	:	changeTemplatesListPos(value);	break;
 
 	default: break;
 	}
@@ -333,13 +348,18 @@ void cMtProjectEditor::updateButtonsFunctions()
 
 	if(filesListEnabled)
 	{
-		if(browseLocationType == browseLocationTypeSaveProject)
+		if(browseLocationType == browseLocationTypeOpenTemplate)
 		{
-			setButtonFunction(0, buttonFunctBrowseSave);
+			setButtonFunction(0, buttonFunctBrowseOpenSave);
 		}
 		else if(browseLocationType == browseLocationTypeOpenProject)
 		{
 			setButtonFunction(0, buttonFunctBrowseOpen);
+		}
+
+		if(editNameType == editNameTypeSaveProject)
+		{
+			//setButtonFunction(1, buttonFunctBrowseOpen);
 		}
 
 		setButtonFunction(1, buttonFunctBrowseCancel);
@@ -400,16 +420,16 @@ void cMtProjectEditor::updatePotsFunctions()
 
 	if(filesListEnabled)
 	{
-		if(browseLocationType == browseLocationTypeSaveProject)
-		{
-			setPotFunction(0, buttonFunctBrowseSave);
-		}
-		else if(browseLocationType == browseLocationTypeOpenProject)
+		if(browseLocationType == browseLocationTypeOpenProject)
 		{
 			setPotFunction(0, potFunctChangeProjectsList);
 		}
+		else if(browseLocationType == browseLocationTypeOpenTemplate)
+		{
+			setPotFunction(0, potFunctChangeTemplatesList);
+		}
 
-		setPotFunction(1, buttonFunctBrowseCancel);
+
 	}
 	else
 	{
@@ -452,14 +472,16 @@ void cMtProjectEditor::newProject(uint8_t value)
 {
 	if(value == 1)
 	{
-		if(!editNameEnabled)
+		if(!filesListEnabled)
 		{
-			editNameEnabled = 1;
-			editNameChanged = 2;
+			filesListEnabled = 1;
+			filesListChanged = 2;
 		}
 
-		editNameType = editNameTypeSaveProject;
+		browseLocationType = browseLocationTypeOpenTemplate;
 		refreshModule = 1;
+
+
 	}
 }
 
@@ -494,11 +516,24 @@ void cMtProjectEditor::copyProject(uint8_t value)
 	}
 }
 
-void cMtProjectEditor::browseSave(uint8_t value)
+void cMtProjectEditor::browseOpenSave(uint8_t value)
 {
 	if(value == 1)
 	{
+		if(filesListEnabled)
+		{
+			filesListEnabled = 0;
+			filesListChanged = 1;
+		}
+		browseLocationType = browseLocationTypeNone;
 
+		if(!editNameEnabled)
+		{
+			editNameEnabled = 1;
+			editNameChanged = 2;
+		}
+		editNameType = editNameTypeSaveProject;
+		refreshModule = 1;
 	}
 }
 
@@ -512,6 +547,7 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 		loadSamplesBank();
 
 
+
 //		fileManager.createNewProject("Project_001");
 //		fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",0,mtSampleTypeWavetable);
 //		fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",1,mtSampleTypeWavetable);
@@ -523,6 +559,8 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 //		fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",7,mtSampleTypeWavetable);
 //		fileManager.saveProject();
 
+
+		refreshModule = 1;
 	}
 }
 
@@ -530,9 +568,52 @@ void cMtProjectEditor::browseCancel(uint8_t value)
 {
 	if(value == 1)
 	{
+		if(filesListEnabled)
+		{
+			filesListEnabled = 0;
+			filesListChanged = 1;
+		}
+		browseLocationType = browseLocationTypeNone;
 
+		if(editNameEnabled)
+		{
+			editNameEnabled = 0;
+			editNameChanged = 1;
+		}
+		editNameType = editNameTypeNone;
+
+		refreshModule = 1;
 	}
 }
+
+
+
+
+
+void cMtProjectEditor::changeProjectsListPos(uint16_t value)
+{
+	if(selectedLocation + value < 0) selectedLocation  = 0;
+	else if(selectedLocation + value > locationFilesCount-1) selectedLocation  = locationFilesCount-1;
+	else selectedLocation += value;
+
+	mtDisplay.changeList(files_list_pos, selectedLocation);
+
+	filesListChanged = 1;
+	refreshModule = 1;
+}
+
+void cMtProjectEditor::changeTemplatesListPos(uint16_t value)
+{
+	if(selectedLocation + value < 0) selectedLocation  = 0;
+	else if(selectedLocation + value > locationFilesCount-1) selectedLocation  = locationFilesCount-1;
+	else selectedLocation += value;
+
+	mtDisplay.changeList(files_list_pos, selectedLocation);
+
+	filesListChanged = 1;
+	refreshModule = 1;
+}
+
 
 
 //#########################################################################################################
@@ -596,7 +677,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 
 
 	// parametry instrumentow ========================================
-	strcpy(fileManager.currentProjectPatch,"Projects/Project_001");
+	//strcpy(fileManager.currentProjectPatch,"Projects/Project_001");
 
 	mtProject.instruments_count = 8;
 

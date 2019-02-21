@@ -33,7 +33,7 @@ public:
 
 	uint8_t noteOn(uint8_t instr_idx,int8_t note, int8_t velocity);
 	void noteOff();
-
+	void clean();
 
 	void slide(int8_t note, uint16_t time);
 	void modPitch(float value);
