@@ -256,13 +256,23 @@ uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 
 	if(type == 1)
 	{
-/*
-		if(n == 3)
+
+		if(n == interfacePadProjectEditor)
 		{
 			stop();
-			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
 		}
-*/
+		else if(n == interfacePadSampleBank)
+		{
+			stop();
+			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadConfig)
+		{
+			stop();
+			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
+		}
+
 		if(n == interfacePadStop)
 		{
 			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);

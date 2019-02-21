@@ -42,6 +42,19 @@ void instrumentEditorEvent(uint8_t event, void* param1, void* param2, void* para
 		{
 			sequencer.stop();
 		}
+		else if(*(uint8_t*)param1 == interfacePadProjectEditor)
+		{
+			mtInterface.activateModule(mtModuleProjectEditor);
+			mtProjectEditor.start(mtProjectStartModeDoNothing);
+		}
+		else if(*(uint8_t*)param1 == interfacePadSampleBank)
+		{
+
+		}
+		else if(*(uint8_t*)param1 == interfacePadConfig)
+		{
+
+		}
 
 	break;
 
