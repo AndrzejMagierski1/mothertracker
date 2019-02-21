@@ -311,10 +311,10 @@ struct strInstrument
     uint16_t endPoint;
 
     uint16_t wavetableCurrentWindow;
-    uint16_t wavetableSync;
-    uint16_t wavetablePWM;
-    uint16_t wavetableFlip;
-    uint16_t wavetableQuantize;
+//    uint16_t wavetableSync;
+//    uint16_t wavetablePWM;
+//    uint16_t wavetableFlip;
+//    uint16_t wavetableQuantize;
 
 	envelopeGenerator::strEnv envelope[3];
 	LFO::strLfo lfo[3];
