@@ -43,7 +43,7 @@ void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 
 void initHardware()
 {
-	hardwareTest=1;
+	hardwareTest=0;
 
 	Serial.begin(9600);
 
