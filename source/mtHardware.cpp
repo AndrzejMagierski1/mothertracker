@@ -53,11 +53,13 @@ void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 void initHardware()
 {
 
+
 	hardwareTest=0;
 
 
 	BlinkLed.begin(BLINK_LED);
 	BlinkLed.blinkOnceWithDelay();
+
 
 
 	Serial.begin(9600);
