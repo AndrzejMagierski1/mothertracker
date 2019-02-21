@@ -145,8 +145,8 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 		if(playMode != singleShot)
 		{
-			sampleConstrains.loopPoint1=samplePoints.loop1- samplePoints.start;
-			sampleConstrains.loopPoint2=samplePoints.loop2- samplePoints.start;
+			sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
+			sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
 			sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
 		}
 

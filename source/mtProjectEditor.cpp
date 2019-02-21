@@ -511,16 +511,16 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 		fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
 		loadSamplesBank();
 
-//
+
 //		fileManager.createNewProject("Project_001");
-//		    fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",0,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",1,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",2,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",3,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",4,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",5,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",6,mtSampleTypeWaveFile);
-//		    fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",7,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",0,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",1,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",2,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",3,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",4,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",5,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",6,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",7,mtSampleTypeWavetable);
 //		fileManager.saveProject();
 
 	}
@@ -559,31 +559,20 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// teraz domyslnie zajmowane 0-7
 
 
-	for(uint8_t i=0; i < INSTRUMENTS_COUNT; i++)
-	{
-		mtProject.mtProjectRemote.instrumentFile[i].index = -1;
-	}
-	for(uint8_t i=0; i < SAMPLES_COUNT; i++)
-	{
-		mtProject.mtProjectRemote.sampleFile[i].index = -1;
-	}
-	for(uint8_t i=0; i < PATTERNS_COUNT; i++)
-	{
-		mtProject.mtProjectRemote.patternFile[i].index = -1;
-	}
 
-	for(uint8_t i = 0; i < 8; i++) // max do 9
-	{
-		mtProject.sampleBank.sample[i].type = mtSampleTypeWaveFile;//;
-		mtProject.sampleBank.sample[i].file_name[0] = i+49;
-		mtProject.sampleBank.sample[i].file_name[1] = '.';
-		mtProject.sampleBank.sample[i].file_name[2] = 'w';
-		mtProject.sampleBank.sample[i].file_name[3] = 'a';
-		mtProject.sampleBank.sample[i].file_name[4] = 'v';
-		mtProject.sampleBank.sample[i].file_name[5] = 0;
 
-		mtProject.sampleBank.sample[i].wavetable_window_size = 1024;
-	}
+//	for(uint8_t i = 0; i < 8; i++) // max do 9
+//	{
+//		mtProject.sampleBank.sample[i].type = mtSampleTypeWaveFile;//;
+//		mtProject.sampleBank.sample[i].file_name[0] = i+49;
+//		mtProject.sampleBank.sample[i].file_name[1] = '.';
+//		mtProject.sampleBank.sample[i].file_name[2] = 'w';
+//		mtProject.sampleBank.sample[i].file_name[3] = 'a';
+//		mtProject.sampleBank.sample[i].file_name[4] = 'v';
+//		mtProject.sampleBank.sample[i].file_name[5] = 0;
+//
+//		mtProject.sampleBank.sample[i].wavetable_window_size = 1024;
+//	}
 
 
 /*
