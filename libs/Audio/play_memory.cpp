@@ -145,8 +145,8 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 		if(playMode != singleShot)
 		{
-			sampleConstrains.loopPoint1=samplePoints.loop1- samplePoints.start;
-			sampleConstrains.loopPoint2=samplePoints.loop2- samplePoints.start;
+			sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
+			sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
 			sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
 		}
 
@@ -461,6 +461,55 @@ void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)
 	pitchControl+=notes[currentNote+value];
 
 	currentTune = value;
+}
+
+void AudioPlayMemory::clean(void)
+{
+	if(!playing)
+	{
+		next=NULL;
+		beginning=NULL;
+		length=0;
+		prior=0;
+		pitchControl = 1;
+		pitchCounter = 0;
+		playMode = 0;
+		playing=0;
+		loopBackwardFlag = 0;
+		lastNote = -1;
+		glide=0;
+		glideCounter=0;
+		slideCounter=0;
+		glideControl=0;
+		slideControl=0;
+		fineTuneControl=0;
+		currentTune=0;
+		wavetableWindowSize=0;
+		currentWindow=0;
+		waveTablePosition=0;
+	    wavetableSync=0;
+	    wavetablePWM=0;
+	    wavetableFlip=0;
+	    wavetableQuantize=0;
+		currentInstr_idx=0;
+
+		samplePoints.start=0;
+		samplePoints.end=0;
+		samplePoints.loop1=0;
+		samplePoints.loop2=0;
+
+		sampleConstrains.loopLength=0;
+		sampleConstrains.loopPoint1=0;
+		sampleConstrains.loopPoint2=0;
+		sampleConstrains.endPoint=0;
+
+		sampleConstrains.glide=0;
+		sampleConstrains.slide=0;
+
+		startLen=0;
+		stopLoop=0;
+	}
+
 }
 
 

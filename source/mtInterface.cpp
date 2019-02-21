@@ -87,16 +87,18 @@ void cMtInterface::begin()
 	fileManager.writeInstrumentFile("IMPORT/Instrument_003.mti",&mtProject.instrument[2]);
 	fileManager.writeInstrumentFile("IMPORT/Instrument_004.mti",&mtProject.instrument[3]);
 	fileManager.writePatternFile("IMPORT/Pattern_001.mtp");*/
-//
-//	fileManager.createNewProject("Project_001");
-//	fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",0,mtSampleTypeWavetable);
-//	fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",1,mtSampleTypeWavetable);
-//	fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",2,mtSampleTypeWavetable);
-//	fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",3,mtSampleTypeWavetable);
-//	fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",4,mtSampleTypeWavetable);
-//	fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",5,mtSampleTypeWavetable);
-//	fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",6,mtSampleTypeWavetable);
-//	fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",7,mtSampleTypeWavetable);
+
+
+/*	fileManager.createNewProject("Project_001");
+	fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",0,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",1,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",2,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",3,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",4,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",5,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",6,mtSampleTypeWavetable);
+	fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",7,mtSampleTypeWavetable);*/
+
 //	fileManager.importPatternToProject("IMPORT", "Pattern_001.mtp", "Pattern_001.mtp", 7);
 //	fileManager.importInstrumentToProject("IMPORT", "Instrument_001.mti","Instrument_001.mti", 0);
 //	fileManager.importInstrumentToProject("IMPORT", "Instrument_002.mti","Instrument_002.mti", 1);

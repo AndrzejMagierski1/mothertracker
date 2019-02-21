@@ -36,7 +36,7 @@ class AudioPlayMemory : public AudioStream
 public:
 	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0) { }
 	uint8_t play(uint8_t instr_idx,int8_t note);
-
+	void clean(void);
 	void stop(void);
 	bool isPlaying(void) { return playing; }
 	uint32_t positionMillis(void);
@@ -59,14 +59,14 @@ private:
 	uint32_t length;
 	int16_t prior;
 	float pitchControl = 1;
-	float pitchCounter = 0;
-	uint8_t playMode = 0;
+	float pitchCounter;
+	uint8_t playMode;
 	volatile uint8_t playing;
-	uint8_t loopBackwardFlag = 0;
+	uint8_t loopBackwardFlag;
 	int8_t	lastNote = -1;
 	uint16_t glide;
-	uint32_t glideCounter=0;
-	uint32_t slideCounter=0;
+	uint32_t glideCounter;
+	uint32_t slideCounter;
 	float glideControl;
 	float slideControl;
 	float fineTuneControl;
@@ -74,6 +74,10 @@ private:
 	uint16_t wavetableWindowSize;
 	uint16_t currentWindow;
 	uint32_t waveTablePosition;
+    uint16_t wavetableSync;
+    uint16_t wavetablePWM;
+    uint16_t wavetableFlip;
+    uint16_t wavetableQuantize;
 	uint8_t currentInstr_idx;
 
 
@@ -87,18 +91,18 @@ private:
 
 	struct strSampleConstrains
 	{
-		uint32_t loopLength=0;
-		uint32_t loopPoint1=0;
-		uint32_t loopPoint2=0;
-		uint32_t endPoint=0;
+		uint32_t loopLength;
+		uint32_t loopPoint1;
+		uint32_t loopPoint2;
+		uint32_t endPoint;
 
-		uint32_t glide=0;
-		uint32_t slide=0;
+		uint32_t glide;
+		uint32_t slide;
 
 	} sampleConstrains;
 
-	uint32_t startLen=0;
-	uint8_t  stopLoop=0;
+	uint32_t startLen;
+	uint8_t  stopLoop;
 };
 
 #endif

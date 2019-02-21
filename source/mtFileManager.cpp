@@ -300,8 +300,6 @@ void FileManager::createNewProject(char * name)
 
 	writeProjectFile(patchFolder, &mtProject.mtProjectRemote);
 
-
-
 }
 
 void FileManager::importSampleToProject(char* filePatch, char* name, char* newName, int8_t index, uint8_t type)
