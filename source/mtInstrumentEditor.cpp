@@ -30,6 +30,7 @@ void cMtInstrumentEditor::update()
 		//pointsChanged = 2;
 		labelsChanged = 2;
 		lastChangedPoint = 0;
+		//instrumentPlayer[0].clean();
 
 	}
 	//-----------------------------------------------------
@@ -982,10 +983,13 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 			editorInstrument->loopPoint2 = editorInstrument->endPoint;
 			editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
 			editorInstrument->startPoint = editorInstrument->loopPoint1;
+			instrumentPlayer[0].setStatusByte(LP1_MASK);
+			instrumentPlayer[0].setStatusByte(LP2_MASK);
 		}
 		else
 		{
 			editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
+			instrumentPlayer[0].setStatusByte(LP2_MASK);
 		}
 	}
 
@@ -1019,10 +1023,13 @@ void cMtInstrumentEditor::modEndPoint(int16_t value)
 			editorInstrument->loopPoint1 = editorInstrument->startPoint;
 			editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
 			editorInstrument->endPoint = editorInstrument->loopPoint2;
+			instrumentPlayer[0].setStatusByte(LP1_MASK);
+			instrumentPlayer[0].setStatusByte(LP2_MASK);
 		}
 		else
 		{
 			editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
+			instrumentPlayer[0].setStatusByte(LP1_MASK);
 		}
 	}
 
