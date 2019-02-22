@@ -115,7 +115,7 @@ enum playMode
 	loopBackward,
 	loopPingPong,
 
-	playModeMax
+	playModeCount
 };
 
 enum mtSampleType

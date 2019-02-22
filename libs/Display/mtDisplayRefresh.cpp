@@ -767,7 +767,7 @@ void cMtDisplay::ramg_envelope()
     uint16_t cent_y = top_y + ADSR_H/2;
     uint16_t x_max = ADSR_START_X+70+70+60+70;
     uint16_t step_y = ADSR_H/4;
-    uint16_t high_y = ADSR_H;
+   // uint16_t high_y = ADSR_H;
 
 
     uint8_t envAttack = adsr_log[ptrEnvelope->attack];
@@ -1209,7 +1209,7 @@ void cMtDisplay::ramg_text_edit()
 	API_CMD_TEXT(textEditData.x, textEditData.y, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), textEditData.label);
 
 	int16_t x_pos = textEditData.x + textEditData.length;
-	int16_t y_pos = textEditData.y+16;
+	int16_t y_pos = textEditData.y+12;
 
     //ramka
 	API_COLOR(displayColors.trackTableFrame);
@@ -1223,7 +1223,7 @@ void cMtDisplay::ramg_text_edit()
 	API_END();
 
 	//text
-	API_CMD_TEXT(textEditData.x+(textEditData.length/2) , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), textEditData.text);
+	API_CMD_TEXT(textEditData.x+(textEditData.length/2) , y_pos+8, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), textEditData.text);
 
 	// pozycja edycji
 /*

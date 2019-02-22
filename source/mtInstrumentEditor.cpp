@@ -973,23 +973,27 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 	else editorInstrument->startPoint += value;
 
 	if(editorInstrument->startPoint > editorInstrument->endPoint) editorInstrument->startPoint = editorInstrument->endPoint-1;
-	if(editorInstrument->startPoint > editorInstrument->loopPoint1)
-	{
-		dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
-		editorInstrument->loopPoint1 = editorInstrument->startPoint;
 
-		if(editorInstrument->loopPoint1 + dif > editorInstrument->endPoint)
+	if(editorInstrument->playMode != singleShot)
+	{
+		if(editorInstrument->startPoint > editorInstrument->loopPoint1)
 		{
-			editorInstrument->loopPoint2 = editorInstrument->endPoint;
-			editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
-			editorInstrument->startPoint = editorInstrument->loopPoint1;
-			instrumentPlayer[0].setStatusByte(LP1_MASK);
-			instrumentPlayer[0].setStatusByte(LP2_MASK);
-		}
-		else
-		{
-			editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
-			instrumentPlayer[0].setStatusByte(LP2_MASK);
+			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
+			editorInstrument->loopPoint1 = editorInstrument->startPoint;
+
+			if(editorInstrument->loopPoint1 + dif > editorInstrument->endPoint)
+			{
+				editorInstrument->loopPoint2 = editorInstrument->endPoint;
+				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
+				editorInstrument->startPoint = editorInstrument->loopPoint1;
+				instrumentPlayer[0].setStatusByte(LP1_MASK);
+				instrumentPlayer[0].setStatusByte(LP2_MASK);
+			}
+			else
+			{
+				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
+				instrumentPlayer[0].setStatusByte(LP2_MASK);
+			}
 		}
 	}
 
@@ -1012,24 +1016,28 @@ void cMtInstrumentEditor::modEndPoint(int16_t value)
 	else editorInstrument->endPoint += value;
 
 	if(editorInstrument->endPoint < editorInstrument->startPoint) editorInstrument->endPoint = editorInstrument->startPoint+1;
-	if(editorInstrument->endPoint < editorInstrument->loopPoint2)
+
+	if(editorInstrument->playMode != singleShot)
 	{
-		dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
-
-		editorInstrument->loopPoint2 = editorInstrument->endPoint;
-
-		if(editorInstrument->loopPoint2 - dif < editorInstrument->startPoint)
+		if(editorInstrument->endPoint < editorInstrument->loopPoint2)
 		{
-			editorInstrument->loopPoint1 = editorInstrument->startPoint;
-			editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
-			editorInstrument->endPoint = editorInstrument->loopPoint2;
-			instrumentPlayer[0].setStatusByte(LP1_MASK);
-			instrumentPlayer[0].setStatusByte(LP2_MASK);
-		}
-		else
-		{
-			editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
-			instrumentPlayer[0].setStatusByte(LP1_MASK);
+			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
+
+			editorInstrument->loopPoint2 = editorInstrument->endPoint;
+
+			if(editorInstrument->loopPoint2 - dif < editorInstrument->startPoint)
+			{
+				editorInstrument->loopPoint1 = editorInstrument->startPoint;
+				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
+				editorInstrument->endPoint = editorInstrument->loopPoint2;
+				instrumentPlayer[0].setStatusByte(LP1_MASK);
+				instrumentPlayer[0].setStatusByte(LP2_MASK);
+			}
+			else
+			{
+				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
+				instrumentPlayer[0].setStatusByte(LP1_MASK);
+			}
 		}
 	}
 
@@ -1087,7 +1095,7 @@ void cMtInstrumentEditor::changePlayMode(uint8_t value)
 {
 	if(value == 1)
 	{
-		if(editorInstrument->playMode < playModeMax-1 ) editorInstrument->playMode++;
+		if(editorInstrument->playMode < playModeCount-1 ) editorInstrument->playMode++;
 		else editorInstrument->playMode = 0;
 
 		pointsChanged = 1;
