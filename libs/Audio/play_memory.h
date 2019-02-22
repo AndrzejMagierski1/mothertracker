@@ -79,6 +79,7 @@ private:
     uint16_t wavetableFlip;
     uint16_t wavetableQuantize;
 	uint8_t currentInstr_idx;
+	int8_t currentFineTune;
 
 
 	struct strSamplePoints

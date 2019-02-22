@@ -47,10 +47,10 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	glide=mtProject.instrument[instr_idx].glide;
 	currentTune=mtProject.instrument[instr_idx].tune;
 
-	if( (note + currentTune) > MAX_NOTE)
+	if( (note + currentTune) > (MAX_NOTE-1))
 	{
 		if(lastNote>note) currentTune=MAX_NOTE-lastNote;
-		else currentTune=MAX_NOTE-note;
+		else currentTune=(MAX_NOTE-1)-note;
 	}
 	if( (note + currentTune) < MIN_NOTE)
 	{
@@ -108,6 +108,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	/*====================================================PRZELICZENIA=========================================================*/
 	if(mtProject.instrument[instr_idx].fineTune >= 0)
 	{
+		currentFineTune=mtProject.instrument[instr_idx].fineTune;
 		if((note + mtProject.instrument[instr_idx].tune + 1) <= MAX_NOTE)
 		{
 			fineTuneControl= mtProject.instrument[instr_idx].fineTune * ((notes[note + currentTune + 1] - notes[note + currentTune]) /MAX_INSTRUMENT_FINETUNE);
@@ -247,7 +248,7 @@ void AudioPlayMemory::update(void)
 
 						if(playMode == loopForward)
 						{
-							if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter = sampleConstrains.loopPoint1 ;
+							if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter -= sampleConstrains.loopLength ;
 						}
 					}
 					else if(playMode == loopBackward)
@@ -257,7 +258,7 @@ void AudioPlayMemory::update(void)
 						else pitchCounter-=pitchControl;
 
 						if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) && (!loopBackwardFlag) ) loopBackwardFlag=1;
-						if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) pitchCounter = sampleConstrains.loopPoint2 ;
+						if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) pitchCounter += sampleConstrains.loopLength ;
 
 					}
 					else if(playMode == loopPingPong)
@@ -430,6 +431,7 @@ void AudioPlayMemory::setPitch(float value)
 
 void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 {
+	currentFineTune=value;
 	pitchControl-=fineTuneControl;
 	if(value >= 0)
 	{
@@ -459,7 +461,8 @@ void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)
 
 	pitchControl-=notes[currentNote+currentTune];
 	pitchControl+=notes[currentNote+value];
-	currentNote=value;
+	currentTune=value;
+	setFineTune(currentFineTune,currentNote);
 }
 
 void AudioPlayMemory::clean(void)
@@ -491,6 +494,7 @@ void AudioPlayMemory::clean(void)
 	    wavetableFlip=0;
 	    wavetableQuantize=0;
 		currentInstr_idx=0;
+		currentFineTune=0;
 
 		samplePoints.start=0;
 		samplePoints.end=0;
