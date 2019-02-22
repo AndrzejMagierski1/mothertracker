@@ -30,8 +30,11 @@ void cMtInstrumentEditor::update()
 		//pointsChanged = 2;
 		labelsChanged = 2;
 		lastChangedPoint = 0;
+		envelopesEnabled = 0;
+		parametersEnabled = 0;
+		sampleListEnabled = 0;
+		instrumentListEnabled = 0;
 		//instrumentPlayer[0].clean();
-
 	}
 	//-----------------------------------------------------
 	if(labelsChanged)
@@ -242,6 +245,11 @@ void cMtInstrumentEditor::stop()
 	mtDisplay.setList(2, 0, 0, 0, 0, 0);
 	mtDisplay.setList(3, 0, 0, 0, 0, 0);
 	mtDisplay.setList(4, 0, 0, 0, 0, 0);
+
+	envelopesEnabled = 0;
+	parametersEnabled = 0;
+	sampleListEnabled = 0;
+	instrumentListEnabled = 0;
 }
 
 //#########################################################################################################
@@ -268,12 +276,12 @@ uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
 		}
-		else if(n == interfacePadConfig)
+/*		else if(n == interfacePadConfig)
 		{
 			stop();
 			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
 		}
-
+*/
 		if(n == interfacePadStop)
 		{
 			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);

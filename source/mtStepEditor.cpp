@@ -103,7 +103,17 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
 		}
-		if(n == interfacePadPlay || n == interfacePadStop)
+		else if(n == interfacePadSampleBank)
+		{
+			stop();
+			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadProjectEditor)
+		{
+			stop();
+			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadPlay || n == interfacePadStop)
 		{
 			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
 		}
@@ -119,11 +129,11 @@ void cMtStepEditor::buttonChange(uint8_t button, uint8_t value)
 	case buttonFunctNone				:		break;
 	case buttonFunctPlay            	:		break;
 	case buttonFunctStop            	:		break;
-	case buttonFunctChangeStepParamsSel:	changeStepParamsSelection(value);	break;
-	case buttonFunctShowNextStepFx1	:	changeStepFxSelection(1,value);		break;
-	case buttonFunctShowNextStepFx2	:	changeStepFxSelection(2,value);		break;
-	case buttonFunctShowNextStepFx3	:	changeStepFxSelection(3,value);		break;
-	case buttonFunctShowNextStepFx4	:	changeStepFxSelection(4,value);		break;
+	case buttonFunctChangeStepParamsSel	:	changeStepParamsSelection(value);	break;
+	case buttonFunctShowNextStepFx1		:	changeStepFxSelection(1,value);		break;
+	case buttonFunctShowNextStepFx2		:	changeStepFxSelection(2,value);		break;
+	case buttonFunctShowNextStepFx3		:	changeStepFxSelection(3,value);		break;
+	case buttonFunctShowNextStepFx4		:	changeStepFxSelection(4,value);		break;
 
 
 

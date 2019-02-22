@@ -363,7 +363,7 @@ void cMtProjectEditor::updateButtonsFunctions()
 	{
 		if(editNameType == editNameTypeSaveProject)
 		{
-			setButtonFunction(1, buttonFunctSaveProjectAs);
+			setButtonFunction(0, buttonFunctSaveProjectAs);
 		}
 		setButtonFunction(1, buttonFunctBrowseCancel);
 	}
@@ -597,10 +597,8 @@ void cMtProjectEditor::saveProjectAs(uint8_t value)
 	if(value == 1)
 	{
 
-
-
-
 		fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeExample);
+		loadSamplesBank();
 		fileManager.saveAsProject(editName);
 		fileManager.openProject(editName,projectTypeUserMade);
 		loadSamplesBank();
@@ -822,6 +820,8 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 	char currentPatch[PATCH_SIZE];
 
 	int32_t size;
+	mtProject.sampleBank.used_memory = 0;
+
 	mtProject.sampleBank.sample[0].address = sdram_sampleBank;
 	mtProject.sampleBank.samples_count = 0;
 
