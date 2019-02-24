@@ -78,6 +78,8 @@ private:
 		editNameTypeSaveTemplate,
 	};
 
+
+
 	uint8_t editNameType;
 	uint8_t editNameEnabled = 0;
 	char editName[20] = {"Untitled"};

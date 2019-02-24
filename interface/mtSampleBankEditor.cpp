@@ -1,3 +1,4 @@
+#include "mtSampleBankEditor.h"
 
 #include "mtDisplay.h"
 #include "AnalogInputs.h"
@@ -7,7 +8,6 @@
 
 
 #include "mtInterfaceDefs.h"
-#include "mtSampleBankEditor.h"
 
 
 cMtSampleBankEditor mtSampleBankEditor;

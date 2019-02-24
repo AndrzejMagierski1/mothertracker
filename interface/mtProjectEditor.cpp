@@ -1,3 +1,4 @@
+#include "mtProjectEditor.h"
 
 #include "mtDisplay.h"
 #include "AnalogInputs.h"
@@ -12,7 +13,6 @@
 #include "mtFileManager.h"
 
 #include "mtInterfaceDefs.h"
-#include "mtProjectEditor.h"
 
 
 cMtProjectEditor mtProjectEditor;
@@ -371,6 +371,9 @@ void cMtProjectEditor::updateButtonsFunctions()
 	{
 		setButtonFunction(0, buttonFunctNewProject);
 		setButtonFunction(1, buttonFunctOpenProject);
+
+
+		setButtonFunction(4, buttonFunctSaveProject);
 	}
 
 //--------------------------------------------------------
@@ -507,6 +510,9 @@ void cMtProjectEditor::saveProject(uint8_t value)
 {
 	if(value == 1)
 	{
+
+		fileManager.saveProject();
+
 
 	}
 }

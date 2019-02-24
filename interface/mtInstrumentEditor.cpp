@@ -1,3 +1,4 @@
+#include "mtInstrumentEditor.h"
 
 #include "mtDisplay.h"
 #include "AnalogInputs.h"
@@ -6,7 +7,6 @@
 #include "mtStructs.h"
 
 #include "mtInterfaceDefs.h"
-#include "mtInstrumentEditor.h"
 
 
 cMtInstrumentEditor mtInstrumentEditor;
