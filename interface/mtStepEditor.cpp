@@ -1,3 +1,4 @@
+#include "mtStepEditor.h"
 
 #include "mtDisplay.h"
 #include "AnalogInputs.h"
@@ -8,7 +9,6 @@
 
 
 #include "mtInterfaceDefs.h"
-#include "mtStepEditor.h"
 
 
 cMtStepEditor mtStepEditor;
@@ -103,7 +103,27 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
 		}
-		if(n == interfacePadPlay || n == interfacePadStop)
+		else if(n == interfacePadSampleBank)
+		{
+			stop();
+			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadProjectEditor)
+		{
+			stop();
+			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadConfig)
+		{
+			stop();
+			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadSettings)
+		{
+			stop();
+			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadPlay || n == interfacePadStop)
 		{
 			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
 		}
@@ -119,11 +139,11 @@ void cMtStepEditor::buttonChange(uint8_t button, uint8_t value)
 	case buttonFunctNone				:		break;
 	case buttonFunctPlay            	:		break;
 	case buttonFunctStop            	:		break;
-	case buttonFunctChangeStepParamsSel:	changeStepParamsSelection(value);	break;
-	case buttonFunctShowNextStepFx1	:	changeStepFxSelection(1,value);		break;
-	case buttonFunctShowNextStepFx2	:	changeStepFxSelection(2,value);		break;
-	case buttonFunctShowNextStepFx3	:	changeStepFxSelection(3,value);		break;
-	case buttonFunctShowNextStepFx4	:	changeStepFxSelection(4,value);		break;
+	case buttonFunctChangeStepParamsSel	:	changeStepParamsSelection(value);	break;
+	case buttonFunctShowNextStepFx1		:	changeStepFxSelection(1,value);		break;
+	case buttonFunctShowNextStepFx2		:	changeStepFxSelection(2,value);		break;
+	case buttonFunctShowNextStepFx3		:	changeStepFxSelection(3,value);		break;
+	case buttonFunctShowNextStepFx4		:	changeStepFxSelection(4,value);		break;
 
 
 
@@ -175,20 +195,28 @@ void cMtStepEditor::processStepParameters()
 		if((i == 0 && actualStep < 2) || (i == 1 && actualStep < 1)
 		|| (i == 3 && actualStep > track_length-3) || (i == 4 && actualStep > track_length-2))
 		{
-			trackTable.state[i] = 0;
+			trackTable.state[i] = 0; // linia poza sekwencja
 		}
 		else
 		{
-			trackTable.state[i] = 1;
-			trackTable.active[0] = actualTrackTableSelection[0];
+			trackTable.state[i] = 1; // linia w zakresie sekwencji
 
 			Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
-			trackTable.params[i].iVal1 = pattern->track[actualTrack].step[(actualStep-2)+i].note;
-			trackTable.params[i].iVal2 = pattern->track[actualTrack].step[(actualStep-2)+i].instrument;
-			trackTable.params[i].iVal3 = pattern->track[actualTrack].step[(actualStep-2)+i].length1;
-			trackTable.params[i].iVal4 = pattern->track[actualTrack].step[(actualStep-2)+i].velocity;
-
+			if(pattern->track[actualTrack].step[(actualStep-2)+i].isOn) // czy parametry aktywne
+			{
+				trackTable.params[i].mode = 1; // parametry aktywne
+				trackTable.active[0] = actualTrackTableSelection[0];
+				trackTable.params[i].iVal1 = pattern->track[actualTrack].step[(actualStep-2)+i].note;
+				trackTable.params[i].iVal2 = pattern->track[actualTrack].step[(actualStep-2)+i].instrument+1;
+				trackTable.params[i].iVal3 = pattern->track[actualTrack].step[(actualStep-2)+i].length1;
+				trackTable.params[i].iVal4 = pattern->track[actualTrack].step[(actualStep-2)+i].velocity;
+			}
+			else
+			{
+				trackTable.params[i].mode = 0; // parametry nie aktywne
+				//trackTable.active[0] = 0;
+			}
 
 			if(pattern->track[actualTrack].step[(actualStep-2)+i].fx[0].isOn == 0)
 			{
@@ -460,65 +488,86 @@ void cMtStepEditor::changeActualStepParams(int16_t value)
 {
 	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
-	switch(actualTrackTableSelection[0])
+	if(pattern->track[actualTrack].step[actualStep].isOn)
 	{
-	case stepParamNote:
+		switch(actualTrackTableSelection[0])
+		{
+		case stepParamNote:
+		{
+			uint8_t step_note = pattern->track[actualTrack].step[actualStep].note;
+
+			if(step_note + value > Sequencer::MAX_NOTE_STEP)
+				pattern->track[actualTrack].step[actualStep].note = Sequencer::MAX_NOTE_STEP;
+			else if(step_note + value < Sequencer::MIN_NOTE_STEP)
+			{
+				pattern->track[actualTrack].step[actualStep].note = Sequencer::MIN_NOTE_STEP;
+				pattern->track[actualTrack].step[actualStep].isOn = 0;
+			}
+			else
+				pattern->track[actualTrack].step[actualStep].note += value;
+
+
+			break;
+		}
+		case stepParamInstr:
+		{
+			uint8_t step_inst = pattern->track[actualTrack].step[actualStep].instrument;
+
+			if(step_inst + value >= mtProject.instruments_count)
+				pattern->track[actualTrack].step[actualStep].instrument = mtProject.instruments_count-1;
+			else if(step_inst + value < 0)
+				pattern->track[actualTrack].step[actualStep].instrument = 0;
+			else
+				pattern->track[actualTrack].step[actualStep].instrument += value;
+
+			last_selected_instrument = pattern->track[actualTrack].step[actualStep].instrument;
+
+			break;
+		}
+		case stepParamLength:
+		{
+			uint8_t step_length = pattern->track[actualTrack].step[actualStep].length1;
+
+			if(step_length + value*48 > Sequencer::MAX_STEP_LENGTH*48)
+				pattern->track[actualTrack].step[actualStep].length1 = Sequencer::MAX_STEP_LENGTH*48;
+			else if(step_length + value*48 < 0)
+				pattern->track[actualTrack].step[actualStep].length1 = 0;
+			else
+				pattern->track[actualTrack].step[actualStep].length1 += value*48;
+
+			last_selected_length = pattern->track[actualTrack].step[actualStep].length1;
+
+			break;
+		}
+		case stepParamVolume:
+		{
+			int8_t step_volume = pattern->track[actualTrack].step[actualStep].velocity;
+
+			if(step_volume + value > Sequencer::MAX_VELO_STEP)
+				pattern->track[actualTrack].step[actualStep].velocity = Sequencer::MAX_VELO_STEP;
+			else if(step_volume + value < Sequencer::MIN_VELO_STEP-1)
+				pattern->track[actualTrack].step[actualStep].velocity = Sequencer::MIN_VELO_STEP-1;
+			else
+				pattern->track[actualTrack].step[actualStep].velocity += value;
+			break;
+		}
+
+
+		default: break;
+		}
+	}
+	else
 	{
-		uint8_t step_note = pattern->track[actualTrack].step[actualStep].note;
+		pattern->track[actualTrack].step[actualStep].isOn = 1;
+		actualTrackTableSelection[0] = stepParamNote;
 
-		if(step_note + value > Sequencer::MAX_NOTE_STEP)
-			pattern->track[actualTrack].step[actualStep].note = Sequencer::MAX_NOTE_STEP;
-		else if(step_note + value < Sequencer::MIN_NOTE_STEP)
-			pattern->track[actualTrack].step[actualStep].note = Sequencer::MIN_NOTE_STEP;
-		else
-			pattern->track[actualTrack].step[actualStep].note += value;
-		break;
-	}
-	case stepParamInstr:
-	{
-		uint8_t step_inst = pattern->track[actualTrack].step[actualStep].instrument;
-
-		if(step_inst + value >= mtProject.instruments_count)
-			pattern->track[actualTrack].step[actualStep].instrument = mtProject.instruments_count-1;
-		else if(step_inst + value < 0)
-			pattern->track[actualTrack].step[actualStep].instrument = 0;
-		else
-			pattern->track[actualTrack].step[actualStep].instrument += value;
-		break;
-
-
+		pattern->track[actualTrack].step[actualStep].note = 24;
+		pattern->track[actualTrack].step[actualStep].instrument = last_selected_instrument;
+		pattern->track[actualTrack].step[actualStep].velocity = -1;
+		pattern->track[actualTrack].step[actualStep].length1 = last_selected_length;
 
 
 	}
-	case stepParamLength:
-	{
-		uint8_t step_length = pattern->track[actualTrack].step[actualStep].length1;
-
-		if(step_length + value*48 > Sequencer::MAX_STEP_LENGTH*48)
-			pattern->track[actualTrack].step[actualStep].length1 = Sequencer::MAX_STEP_LENGTH*48;
-		else if(step_length + value*48 < 0)
-			pattern->track[actualTrack].step[actualStep].length1 = 0;
-		else
-			pattern->track[actualTrack].step[actualStep].length1 += value*48;
-		break;
-	}
-	case stepParamVolume:
-	{
-		int8_t step_volume = pattern->track[actualTrack].step[actualStep].velocity;
-
-		if(step_volume + value > Sequencer::MAX_VELO_STEP)
-			pattern->track[actualTrack].step[actualStep].velocity = Sequencer::MAX_VELO_STEP;
-		else if(step_volume + value < Sequencer::MIN_VELO_STEP-1)
-			pattern->track[actualTrack].step[actualStep].velocity = Sequencer::MIN_VELO_STEP-1;
-		else
-			pattern->track[actualTrack].step[actualStep].velocity += value;
-		break;
-	}
-
-
-	default: break;
-	}
-
 
 
 	stepParametersChanged = 1;

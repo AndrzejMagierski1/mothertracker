@@ -93,17 +93,8 @@ private:
 
 	void (*eventFunct)(uint8_t, void*, void*, void*);
 
-	// aktulane wybrane parametry do edycji
-	uint8_t actualTrackTableSelection[5];
 
-	// parametry stepa
-	strMtDispTrackTable trackTable;
-	char fx1ActualNames[5][20];
-	char fx2ActualNames[5][20];
-	char fx3ActualNames[5][20];
-	char fx4ActualNames[5][20];
 
-	uint8_t getFxNameFromType(uint8_t fxType, char* ptrName);
 
 
 	//funkcje przyciskow
@@ -121,12 +112,14 @@ private:
 
 
 
-
 	uint8_t	refreshStepEditor = 0;
 	uint8_t	stepEditorModeStart = 0;
 	uint8_t	editMode = 0;
 
 //========================================================
+
+	uint8_t getFxNameFromType(uint8_t fxType, char* ptrName);
+
 
 	enum
 	{
@@ -163,7 +156,19 @@ private:
 	uint8_t instrumentListEnabled = 0;
 	char *instrumentNames[INSTRUMENTS_MAX];
 
+	//ostatnio wybrany globalnie instrument
+	uint8_t last_selected_instrument = 0;
+	uint8_t last_selected_length = 1;
 
+	// aktulane wybrane parametry do edycji
+	uint8_t actualTrackTableSelection[5];
+
+	// parametry stepa
+	strMtDispTrackTable trackTable;
+	char fx1ActualNames[5][20];
+	char fx2ActualNames[5][20];
+	char fx3ActualNames[5][20];
+	char fx4ActualNames[5][20];
 
 
 //=======================================================================

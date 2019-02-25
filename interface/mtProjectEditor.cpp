@@ -1,3 +1,4 @@
+#include "mtProjectEditor.h"
 
 #include "mtDisplay.h"
 #include "AnalogInputs.h"
@@ -12,7 +13,6 @@
 #include "mtFileManager.h"
 
 #include "mtInterfaceDefs.h"
-#include "mtProjectEditor.h"
 
 
 cMtProjectEditor mtProjectEditor;
@@ -102,7 +102,7 @@ void cMtProjectEditor::update()
 
 			}
 
-			mtDisplay.setTextEdit(32, 10, 20, editName,editLabel);
+			mtDisplay.setTextEdit(10, 20, 172, editName,editLabel);
 
 		}
 
@@ -236,19 +236,32 @@ uint8_t cMtProjectEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 {
 	if(type == 1)
 	{
-		if(n == interfacePadInstrumentEditor)
+		if(n == interfacePadPlay || n == interfacePadStop)
+		{
+			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadInstrumentEditor)
 		{
 			stop();
 			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
 		}
-		else if(n == interfacePadPlay || n == interfacePadStop)
+		else if(n == interfacePadConfig)
 		{
+			stop();
 			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
 		}
-		else
+		else if(n == interfacePadSampleBank)
 		{
+			stop();
 			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
 		}
+		else if(n == interfacePadSettings)
+		{
+			stop();
+			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
+		}
+
+
 	}
 
 	return 0;
@@ -266,7 +279,7 @@ void cMtProjectEditor::buttonChange(uint8_t button, uint8_t value)
 	case buttonFunctBrowseOpenSave  	:	browseOpenSave(value);	break;
 	case buttonFunctBrowseOpen  		:	browseOpen(value);     	break;
 	case buttonFunctBrowseCancel		:	browseCancel(value);  	break;
-
+	case buttonFunctSaveProjectAs		:	saveProjectAs(value);  	break;
 
 
 	default: break;
@@ -357,17 +370,23 @@ void cMtProjectEditor::updateButtonsFunctions()
 			setButtonFunction(0, buttonFunctBrowseOpen);
 		}
 
+		setButtonFunction(1, buttonFunctBrowseCancel);
+	}
+	else if(editNameEnabled)
+	{
 		if(editNameType == editNameTypeSaveProject)
 		{
-			//setButtonFunction(1, buttonFunctBrowseOpen);
+			setButtonFunction(0, buttonFunctSaveProjectAs);
 		}
-
 		setButtonFunction(1, buttonFunctBrowseCancel);
 	}
 	else
 	{
 		setButtonFunction(0, buttonFunctNewProject);
 		setButtonFunction(1, buttonFunctOpenProject);
+
+
+		setButtonFunction(4, buttonFunctSaveProject);
 	}
 
 //--------------------------------------------------------
@@ -505,6 +524,9 @@ void cMtProjectEditor::saveProject(uint8_t value)
 	if(value == 1)
 	{
 
+		fileManager.saveProject();
+
+
 	}
 }
 
@@ -541,11 +563,6 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 {
 	if(value == 1)
 	{
-
-
-
-		selectedLocation = 0;
-
 
 //		for(uint8_t i=0; i < INSTRUMENTS_COUNT; i++)
 //		{
@@ -584,24 +601,28 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 //		fileManager.importSampleToProject(NULL,"17.WAV","17.WAV",14,mtSampleTypeWavetable);
 //		fileManager.importSampleToProject(NULL,"18.WAV","18.WAV",15,mtSampleTypeWavetable);
 
-
-
-//		fileManager.saveProject();
-
-
-//		fileManager.createNewProject("Project_001");
-//		fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",0,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",1,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",2,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",3,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",4,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",5,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",6,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",7,mtSampleTypeWavetable);
 //		fileManager.saveProject();
 
 
 
+		browseCancel(1);
+		refreshModule = 1;
+	}
+}
+
+
+void cMtProjectEditor::saveProjectAs(uint8_t value)
+{
+	if(value == 1)
+	{
+
+		fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeExample);
+		loadSamplesBank();
+		fileManager.saveAsProject(editName);
+		fileManager.openProject(editName,projectTypeUserMade);
+		loadSamplesBank();
+
+		browseCancel(1);
 		refreshModule = 1;
 	}
 }
@@ -632,7 +653,7 @@ void cMtProjectEditor::browseCancel(uint8_t value)
 
 
 
-void cMtProjectEditor::changeProjectsListPos(uint16_t value)
+void cMtProjectEditor::changeProjectsListPos(int16_t value)
 {
 	if(selectedLocation + value < 0) selectedLocation  = 0;
 	else if(selectedLocation + value > locationFilesCount-1) selectedLocation  = locationFilesCount-1;
@@ -644,7 +665,7 @@ void cMtProjectEditor::changeProjectsListPos(uint16_t value)
 	refreshModule = 1;
 }
 
-void cMtProjectEditor::changeTemplatesListPos(uint16_t value)
+void cMtProjectEditor::changeTemplatesListPos(int16_t value)
 {
 	if(selectedLocation + value < 0) selectedLocation  = 0;
 	else if(selectedLocation + value > locationFilesCount-1) selectedLocation  = locationFilesCount-1;
@@ -818,6 +839,8 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 	char currentPatch[PATCH_SIZE];
 
 	int32_t size;
+	mtProject.sampleBank.used_memory = 0;
+
 	mtProject.sampleBank.sample[0].address = sdram_sampleBank;
 	mtProject.sampleBank.samples_count = 0;
 

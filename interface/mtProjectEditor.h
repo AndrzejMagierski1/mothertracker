@@ -78,10 +78,12 @@ private:
 		editNameTypeSaveTemplate,
 	};
 
+
+
 	uint8_t editNameType;
 	uint8_t editNameEnabled = 0;
-	char editName[20];
-	char editLabel[32];
+	char editName[20] = {"Untitled"};
+	char editLabel[32] = {"Eneter name for new project:"};
 
 	//lista plikow/folderow---------------------------------------------
 	enum
@@ -120,12 +122,12 @@ private:
 	void browseOpenSave(uint8_t value);
 	void browseOpen(uint8_t value);
 	void browseCancel(uint8_t value);
-
+	void saveProjectAs(uint8_t value);
 
 
 	//funkcje potow
-	void changeProjectsListPos(uint16_t value);
-	void changeTemplatesListPos(uint16_t value);
+	void changeProjectsListPos(int16_t value);
+	void changeTemplatesListPos(int16_t value);
 
 
 	uint8_t	refreshModule = 0;
@@ -156,6 +158,7 @@ private:
 		buttonFunctBrowseOpenSave,
 		buttonFunctBrowseOpen,
 		buttonFunctBrowseCancel,
+		buttonFunctSaveProjectAs,
 
 
 
@@ -177,6 +180,7 @@ private:
 		"Select",
 		"Open",
 		"Cancel",
+		"Create"
 
 
 
@@ -214,16 +218,16 @@ private:
 	const uint16_t potFuncRes[potFunctCount] =
 	{
 			100, // potFunctionNone,
-			50,
-			50,
+			20,
+			20,
 
 	};
 
 	const uint8_t potFuncAcc[potFunctCount] =
 	{
 			3, // potFunctionNone,
-			3,
-			3,
+			1,
+			1,
 
 	};
 

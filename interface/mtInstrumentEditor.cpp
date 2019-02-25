@@ -1,3 +1,4 @@
+#include "mtInstrumentEditor.h"
 
 #include "mtDisplay.h"
 #include "AnalogInputs.h"
@@ -6,7 +7,6 @@
 #include "mtStructs.h"
 
 #include "mtInterfaceDefs.h"
-#include "mtInstrumentEditor.h"
 
 
 cMtInstrumentEditor mtInstrumentEditor;
@@ -30,8 +30,11 @@ void cMtInstrumentEditor::update()
 		//pointsChanged = 2;
 		labelsChanged = 2;
 		lastChangedPoint = 0;
+		envelopesEnabled = 0;
+		parametersEnabled = 0;
+		sampleListEnabled = 0;
+		instrumentListEnabled = 0;
 		//instrumentPlayer[0].clean();
-
 	}
 	//-----------------------------------------------------
 	if(labelsChanged)
@@ -242,6 +245,11 @@ void cMtInstrumentEditor::stop()
 	mtDisplay.setList(2, 0, 0, 0, 0, 0);
 	mtDisplay.setList(3, 0, 0, 0, 0, 0);
 	mtDisplay.setList(4, 0, 0, 0, 0, 0);
+
+	envelopesEnabled = 0;
+	parametersEnabled = 0;
+	sampleListEnabled = 0;
+	instrumentListEnabled = 0;
 }
 
 //#########################################################################################################
@@ -269,6 +277,11 @@ uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
 		}
 		else if(n == interfacePadConfig)
+		{
+			stop();
+			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadSettings)
 		{
 			stop();
 			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
@@ -973,23 +986,27 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 	else editorInstrument->startPoint += value;
 
 	if(editorInstrument->startPoint > editorInstrument->endPoint) editorInstrument->startPoint = editorInstrument->endPoint-1;
-	if(editorInstrument->startPoint > editorInstrument->loopPoint1)
-	{
-		dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
-		editorInstrument->loopPoint1 = editorInstrument->startPoint;
 
-		if(editorInstrument->loopPoint1 + dif > editorInstrument->endPoint)
+	if(editorInstrument->playMode != singleShot)
+	{
+		if(editorInstrument->startPoint > editorInstrument->loopPoint1)
 		{
-			editorInstrument->loopPoint2 = editorInstrument->endPoint;
-			editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
-			editorInstrument->startPoint = editorInstrument->loopPoint1;
-			instrumentPlayer[0].setStatusByte(LP1_MASK);
-			instrumentPlayer[0].setStatusByte(LP2_MASK);
-		}
-		else
-		{
-			editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
-			instrumentPlayer[0].setStatusByte(LP2_MASK);
+			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
+			editorInstrument->loopPoint1 = editorInstrument->startPoint;
+
+			if(editorInstrument->loopPoint1 + dif > editorInstrument->endPoint)
+			{
+				editorInstrument->loopPoint2 = editorInstrument->endPoint;
+				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
+				editorInstrument->startPoint = editorInstrument->loopPoint1;
+				instrumentPlayer[0].setStatusByte(LP1_MASK);
+				instrumentPlayer[0].setStatusByte(LP2_MASK);
+			}
+			else
+			{
+				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
+				instrumentPlayer[0].setStatusByte(LP2_MASK);
+			}
 		}
 	}
 
@@ -1012,24 +1029,28 @@ void cMtInstrumentEditor::modEndPoint(int16_t value)
 	else editorInstrument->endPoint += value;
 
 	if(editorInstrument->endPoint < editorInstrument->startPoint) editorInstrument->endPoint = editorInstrument->startPoint+1;
-	if(editorInstrument->endPoint < editorInstrument->loopPoint2)
+
+	if(editorInstrument->playMode != singleShot)
 	{
-		dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
-
-		editorInstrument->loopPoint2 = editorInstrument->endPoint;
-
-		if(editorInstrument->loopPoint2 - dif < editorInstrument->startPoint)
+		if(editorInstrument->endPoint < editorInstrument->loopPoint2)
 		{
-			editorInstrument->loopPoint1 = editorInstrument->startPoint;
-			editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
-			editorInstrument->endPoint = editorInstrument->loopPoint2;
-			instrumentPlayer[0].setStatusByte(LP1_MASK);
-			instrumentPlayer[0].setStatusByte(LP2_MASK);
-		}
-		else
-		{
-			editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
-			instrumentPlayer[0].setStatusByte(LP1_MASK);
+			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
+
+			editorInstrument->loopPoint2 = editorInstrument->endPoint;
+
+			if(editorInstrument->loopPoint2 - dif < editorInstrument->startPoint)
+			{
+				editorInstrument->loopPoint1 = editorInstrument->startPoint;
+				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
+				editorInstrument->endPoint = editorInstrument->loopPoint2;
+				instrumentPlayer[0].setStatusByte(LP1_MASK);
+				instrumentPlayer[0].setStatusByte(LP2_MASK);
+			}
+			else
+			{
+				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
+				instrumentPlayer[0].setStatusByte(LP1_MASK);
+			}
 		}
 	}
 
@@ -1050,7 +1071,7 @@ void cMtInstrumentEditor::modLoopPoint1(int16_t value)
 	else editorInstrument->loopPoint1 += value;
 
 	if(editorInstrument->loopPoint1 < editorInstrument->startPoint) editorInstrument->loopPoint1 = editorInstrument->startPoint;
-	if(editorInstrument->loopPoint1 > editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2-1;
+	if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2-1;
 
 	if(zoomValue > 1 && lastChangedPoint != 3
 			&& (editorInstrument->loopPoint1 < zoomStart || editorInstrument->loopPoint1 > zoomEnd)) spectrumChanged = 1;
@@ -1072,7 +1093,7 @@ void cMtInstrumentEditor::modLoopPoint2(int16_t value)
 	else editorInstrument->loopPoint2 += value;
 
 	if(editorInstrument->loopPoint2 > editorInstrument->endPoint) editorInstrument->loopPoint2 = editorInstrument->endPoint;
-	if(editorInstrument->loopPoint2 < editorInstrument->loopPoint1) editorInstrument->loopPoint2 = editorInstrument->loopPoint1+1;
+	if(editorInstrument->loopPoint2 <= editorInstrument->loopPoint1) editorInstrument->loopPoint2 = editorInstrument->loopPoint1+1;
 
 	if(zoomValue > 1 && lastChangedPoint != 4
 			&& (editorInstrument->loopPoint2 < zoomStart || editorInstrument->loopPoint2 > zoomEnd)) spectrumChanged = 1;
@@ -1087,7 +1108,7 @@ void cMtInstrumentEditor::changePlayMode(uint8_t value)
 {
 	if(value == 1)
 	{
-		if(editorInstrument->playMode < playModeMax-1 ) editorInstrument->playMode++;
+		if(editorInstrument->playMode < playModeCount-1 ) editorInstrument->playMode++;
 		else editorInstrument->playMode = 0;
 
 		pointsChanged = 1;

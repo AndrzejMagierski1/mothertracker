@@ -1,3 +1,4 @@
+#include "mtSampleBankEditor.h"
 
 #include "mtDisplay.h"
 #include "AnalogInputs.h"
@@ -7,7 +8,6 @@
 
 
 #include "mtInterfaceDefs.h"
-#include "mtSampleBankEditor.h"
 
 
 cMtSampleBankEditor mtSampleBankEditor;
@@ -87,7 +87,22 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
 		}
-		if(n == interfacePadPlay || n == interfacePadStop)
+		else if(n == interfacePadProjectEditor)
+		{
+			stop();
+			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadConfig)
+		{
+			stop();
+			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadSettings)
+		{
+			stop();
+			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadPlay || n == interfacePadStop)
 		{
 			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
 		}

@@ -22,7 +22,7 @@ enum enumMtInstrumentEditorEvents
 
 
 
-const char playModeFunctLabels[playModeMax][20]=
+const char playModeFunctLabels[playModeCount][20]=
 {
 		"1-Shot",
 		"Forward Loop",

@@ -15,7 +15,7 @@ enum mtInterfacePadButtonsFunctions
 	interfacePadSampleBank,
 	interfacePadInstrumentEditor,
 	interfacePadConfig,
-
+	interfacePadSettings,
 
 
 };
@@ -29,6 +29,7 @@ enum mtInterfaceModules
 	mtModuleInstrumentEditor,
 	mtModuleStepEditor,
 	mtModuleSampleBankEditor,
+	mtModuleConfigEditor,
 
 
 

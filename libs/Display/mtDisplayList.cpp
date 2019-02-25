@@ -58,13 +58,13 @@ void cMtDisplayList::update()
 		listAnimationStep = 0;
 		*selfAnimate = 0;
 
-		int8_t sel_row = listState;
+		int8_t sel_row = listState; ///// <= albo  = 2;
 		if(listPosition == 0) 					sel_row = 0;
 		else if(listPosition == 1) 				sel_row = 1;
-		else if(listPosition >= listCount-1)	sel_row = 4;
-		else if(listPosition >= listCount-2)	sel_row = 3;
-
+		else if(listCount > 4 && listPosition >= listCount-1)	sel_row = 4;
+		else if(listCount > 3 && listPosition >= listCount-2)	sel_row = 3;
 		listState = sel_row;
+
 		x_pos = MT_DISP_BLOCK_W * (listBlock) + ( MT_DISP_BLOCK_MENU_OFFSET);
 		y_pos = (MT_DISP_BLOCK_MENU_TOP_Y - (MT_DISP_BLOCK_MENU_Y_SPACE/2)) + (sel_row * MT_DISP_BLOCK_MENU_Y_SPACE);
 
@@ -173,7 +173,7 @@ void cMtDisplayList::update()
 
 
 		x_pos = MT_DISP_BLOCK_W * (listBlock) + ( MT_DISP_BLOCK_MENU_OFFSET + MT_DISP_BLOCK_MENU_TEXT_OFFSET);
-		y_pos = MT_DISP_BLOCK_MENU_TOP_Y - 16 - (mode ? listAnimationStep : 0);
+		y_pos = MT_DISP_BLOCK_MENU_TOP_Y + (mode ? ((-16) - listAnimationStep) : 0);
 
 		API_SAVE_CONTEXT();
 
@@ -186,7 +186,7 @@ void cMtDisplayList::update()
 		//uint8_t txt_offset;
 
 
-		if(listState > 0 && listState < 4)
+		if((listState == 1 || listState == 3 ) && mode == 1)
 		{
 			for(int8_t i = -1; i < (lines+1); i++)
 			{
@@ -194,7 +194,7 @@ void cMtDisplayList::update()
 						y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
 						MT_GPU_RAM_FONT1_HANDLE,
 						(OPT_CENTERY),
-						*(listTable+ (listStart  + i -  (listState+1) ) ) );
+						*(listTable + (listStart  + i -  (listState+1) ) ) );
 			}
 		}
 		else
@@ -202,10 +202,10 @@ void cMtDisplayList::update()
 			for(uint8_t i = 0; i < lines; i++)
 			{
 				API_CMD_TEXT(x_pos,
-						y_pos + ((i+1) * MT_DISP_BLOCK_MENU_Y_SPACE),
+						y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
 						MT_GPU_RAM_FONT1_HANDLE,
 						(OPT_CENTERY),
-						*(listTable+(listStart  + i -  listState)));
+						*(listTable + (listStart  + i -  listState)));
 			}
 		}
 

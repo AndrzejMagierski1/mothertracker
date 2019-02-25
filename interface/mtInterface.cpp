@@ -1,17 +1,14 @@
+#include "mtInterface.h"
 
-
-
-#include "mtProjectEditor.h"
-#include "mtInstrumentEditor.h"
-#include "mtStepEditor.h"
-//#include "mtConfigEditor.h"
-#include "mtSampleBankEditor.h"
 #include "mtFileManager.h"
 
 
+#include "mtInstrumentEditor.h"
 #include "mtInterfaceDefs.h"
-#include "mtInterface.h"
-
+#include "mtProjectEditor.h"
+#include "mtSampleBankEditor.h"
+#include "mtStepEditor.h"
+#include "mtConfigEditor.h"
 
 
 
@@ -34,7 +31,7 @@ void cMtInterface::begin()
 	mtInstrumentEditor.setEventFunct(instrumentEditorEvent);
 	mtStepEditor.setEventFunct(stepEditorEvent);
 	mtSampleBankEditor.setEventFunct(sampleBankEditorEvent);
-//	mtConfigEditor.setEventFunct(configEditorEvent);
+	mtConfigEditor.setEventFunct(configEditorEvent);
 
 
 
