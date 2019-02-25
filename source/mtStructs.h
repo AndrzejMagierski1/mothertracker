@@ -37,7 +37,7 @@ const uint8_t PATCH_SIZE =						50;
 const uint8_t SAMPLE_POINT_POS_MIN =            0;
 const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
 
-const  int8_t MAX_NOTE =						48;
+const  int8_t MAX_NOTE =						49;
 const  int8_t MIN_NOTE =						0;
 
 const uint8_t INSTRUMEN_ENVELOPES_MAX 		=	3;
@@ -466,7 +466,8 @@ const float notes[MAX_NOTE] =
 		3.1748021039364,
 		3.3635856610149,
 		3.5635948725614,
-		3.7754972507268
+		3.7754972507268,
+		4.0
 };
 
 #endif
