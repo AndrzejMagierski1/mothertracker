@@ -99,7 +99,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 		else
 		{
 			if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
-			if ((loopPoint1 >= loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
+			if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
 			if (loopPoint2 > endPoint) return badLoopPoint2;
 		}
 	}
@@ -290,8 +290,6 @@ void AudioPlayMemory::update(void)
 
 					if(( (uint32_t)pitchCounter  >= wavetableWindowSize) && (!stopLoop) ) pitchCounter = 0;
 				}
-
-
 				if(( (uint32_t)pitchCounter >= sampleConstrains.endPoint) && (sampleConstrains.endPoint != sampleConstrains.loopPoint2)) pitchCounter=length;
 			}
 			else
@@ -397,7 +395,7 @@ void AudioPlayMemory::setPlayMode(uint8_t value)
 void AudioPlayMemory::setLP1(uint16_t value)
 {
 	if(playMode != singleShot) samplePoints.loop1= (uint32_t)((float)value*((float)startLen/MAX_16BIT));
-	if ((samplePoints.loop1 < samplePoints.start)||(samplePoints.loop1 >= samplePoints.loop2) || (samplePoints.loop1 > samplePoints.end)) return;
+	if ((samplePoints.loop1 < samplePoints.start)||(samplePoints.loop1 > samplePoints.loop2) || (samplePoints.loop1 > samplePoints.end)) return;
 	if(playMode != singleShot)
 	{
 			sampleConstrains.loopPoint1=samplePoints.loop1- samplePoints.start;
@@ -407,7 +405,7 @@ void AudioPlayMemory::setLP1(uint16_t value)
 void AudioPlayMemory::setLP2(uint16_t value)
 {
 	if(playMode != singleShot) samplePoints.loop2= (uint32_t)((float)value*((float)startLen/MAX_16BIT));
-	if ((samplePoints.loop2 < samplePoints.start)||(samplePoints.loop2 <= samplePoints.loop1) || (samplePoints.loop1 > samplePoints.end)) return;
+	if ((samplePoints.loop2 < samplePoints.start)||(samplePoints.loop2 < samplePoints.loop1) || (samplePoints.loop1 > samplePoints.end)) return;
 	if(playMode != singleShot)
 	{
 			sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;

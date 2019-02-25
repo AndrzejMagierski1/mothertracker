@@ -300,7 +300,8 @@ struct strSampleBank
 
 struct strInstrument
 {
-    uint8_t sampleIndex;
+	uint8_t isActive;
+	uint8_t sampleIndex;
 
     char name[4];
 
@@ -417,7 +418,7 @@ extern strMtProject mtProject;
 
 
 
-const float notes[MAX_NOTE] =
+const double notes[MAX_NOTE] =
 {
 		0.2500000000000,
 		0.2648657735898,

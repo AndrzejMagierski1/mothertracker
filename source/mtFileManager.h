@@ -13,7 +13,7 @@ public:
 	void importProject(char* sourceProjectPatch,char* name, char* newName);
 	void saveAsProject(char* name);
 	void saveProject();
-	void importSampleToProject( char* filePatch, char* name, char* newName, int8_t index, uint8_t type);
+	void importSampleToProject(char* filePatch, char* name, char* newName, int8_t sampleIndex,int8_t instrumentIndex, uint8_t type);
 	void importInstrumentToProject(char* filePatch, char* name, char* newName, int8_t index);
 	void importPatternToProject(char* filePatch, char* name, char* newName, int8_t index);
 	///todo: jest mozliwosc ze beda potem prywatne
