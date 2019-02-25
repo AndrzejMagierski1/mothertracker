@@ -1,13 +1,12 @@
 
-#include "mtProjectEditor.h"
-#include "mtInstrumentEditor.h"
-#include "mtStepEditor.h"
-#include "mtSampleBankEditor.h"
-
 #include "mtLED.h"
 
 
+#include "mtInstrumentEditor.h"
 #include "mtInterface.h"
+#include "mtProjectEditor.h"
+#include "mtSampleBankEditor.h"
+#include "mtStepEditor.h"
 
 
 

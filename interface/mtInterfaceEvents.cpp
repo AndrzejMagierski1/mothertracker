@@ -1,18 +1,15 @@
 
 #include <stdint.h>
 
-
-#include "mtInterface.h"
-
-
-#include "mtProjectEditor.h"
-#include "mtInstrumentEditor.h"
-#include "mtStepEditor.h"
-#include "mtSampleBankEditor.h"
-//#include "mtConfigEditor.h"
-
+#include "elapsedMillis.h"
 #include "mtSequencer.h"
 
+#include "mtInterface.h"
+#include "mtInstrumentEditor.h"
+#include "mtProjectEditor.h"
+#include "mtSampleBankEditor.h"
+#include "mtStepEditor.h"
+#include "mtConfigEditor.h"
 
 //=======================================================================
 //=======================================================================
@@ -158,32 +155,41 @@ void stepEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 //=======================================================================
 //=======================================================================
 
-/*
+
 void configEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 {
 	switch(event)
 	{
-	case configEditorEventPadPress:
+	case mtConfigEditorEventPadPress:
 
-		if(*(uint8_t*)param1 == 0)
+		if(*(uint8_t*)param1 == interfacePadPlay)
 		{
 			sequencer.play();
 		}
-		else if(*(uint8_t*)param1 == 2)
+		else if(*(uint8_t*)param1 == interfacePadStop)
 		{
 			sequencer.stop();
 		}
-		else if(*(uint8_t*)param1 == 3)
+		else if(*(uint8_t*)param1 == interfacePadInstrumentEditor)
 		{
-			mtInterface.deactivateModule(mtModuleStepEditor);
 			mtInterface.activateModule(mtModuleInstrumentEditor);
 			mtInstrumentEditor.startExisting(0);
+		}
+		else if(*(uint8_t*)param1 == interfacePadProjectEditor)
+		{
+			mtInterface.activateModule(mtModuleProjectEditor);
+			mtProjectEditor.start(mtProjectStartModeDoNothing);
+		}
+		else if(*(uint8_t*)param1 == interfacePadSampleBank)
+		{
+			mtInterface.activateModule(mtModuleSampleBankEditor);
+			mtSampleBankEditor.start();
 		}
 
 
 	break;
 
-	case configEditorEventSeqButtonsPress:
+	case mtConfigEditorEventSeqButtonsPress:
 
 	break;
 
@@ -191,7 +197,7 @@ void configEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 	}
 
 }
-*/
+
 //=======================================================================
 //=======================================================================
 //=======================================================================

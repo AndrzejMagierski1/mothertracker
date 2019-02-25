@@ -353,10 +353,11 @@ struct strMtDispTrackTable
 {
 	struct strStepParams
 	{
+		uint8_t mode;
 		uint8_t iVal1;
 		uint8_t iVal2;
 		uint8_t iVal3;
-		uint8_t iVal4;
+		int8_t  iVal4;  // vwlocity
 	}params[5];
 
 	struct strStepFx
@@ -370,8 +371,8 @@ struct strMtDispTrackTable
 
 	}fx1[5],fx2[5],fx3[5],fx4[5];
 
-	uint8_t active[5];
-	uint8_t state[5];
+	uint8_t active[5]; // aktualne edytowana wartosc w kazdej kolumnie (params/fxs)
+	uint8_t state[5];  // czy step lezy w sekwencji
 };
 
 
