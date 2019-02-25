@@ -583,23 +583,23 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 //		fileManager.importSampleToProject(NULL,"c.WAV","1.WAV",0,mtSampleTypeWaveFile);
 
 //		fileManager.createNewProject("Project_Test1");
-//		fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",0,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",1,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",2,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",3,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",4,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",5,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",6,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",7,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",0,0,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",1,1,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",2,2,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",3,3,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",4,4,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",5,5,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",6,6,mtSampleTypeWaveFile);
+//		fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",7,7,mtSampleTypeWaveFile);
 //
-//		fileManager.importSampleToProject(NULL,"11.WAV","11.WAV",8,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"12.WAV","12.WAV",9,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"13.WAV","13.WAV",10,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"14.WAV","14.WAV",11,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"15.WAV","15.WAV",12,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"16.WAV","16.WAV",13,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"17.WAV","17.WAV",14,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"18.WAV","18.WAV",15,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"11.WAV","11.WAV",8,8,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"12.WAV","12.WAV",9,9,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"13.WAV","13.WAV",10,10,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"14.WAV","14.WAV",11,11,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"15.WAV","15.WAV",12,12,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"16.WAV","16.WAV",13,13,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"17.WAV","17.WAV",14,14,mtSampleTypeWavetable);
+//		fileManager.importSampleToProject(NULL,"18.WAV","18.WAV",15,15,mtSampleTypeWavetable);
 
 //		fileManager.saveProject();
 

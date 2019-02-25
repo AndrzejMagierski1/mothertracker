@@ -374,8 +374,9 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 		mtProject.mtProjectRemote.instrumentFile[cnt].index = instrumentIndex;
 
 		strcpy(mtProject.mtProjectRemote.instrumentFile[cnt].name,"instrument_00.mti");
-		mtProject.mtProjectRemote.instrumentFile[cnt].name[11] = instrumentIndex%10 + 48;
-		mtProject.mtProjectRemote.instrumentFile[cnt].name[12] = (instrumentIndex - (instrumentIndex%10 * 10)) + 48;
+		mtProject.mtProjectRemote.instrumentFile[cnt].name[11] = ((instrumentIndex-instrumentIndex%10)/10) + 48;
+		mtProject.mtProjectRemote.instrumentFile[cnt].name[12] = instrumentIndex%10 + 48;
+
 
 		memset(currentPatch,0,PATCH_SIZE);
 		strcpy(currentPatch,currentProjectPatch);
@@ -627,8 +628,6 @@ void FileManager::saveProject()
 
 		if(mtProject.mtProjectRemote.patternFile[i].index != - 1)
 		{
-
-
 			if(mtProject.mtProjectRemote.patternFile[i].index == currentPattern)
 			{
 				memset(currentPatch,0,PATCH_SIZE);
