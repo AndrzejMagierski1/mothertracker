@@ -113,6 +113,16 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
 		}
+		else if(n == interfacePadConfig)
+		{
+			stop();
+			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadSettings)
+		{
+			stop();
+			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+		}
 		else if(n == interfacePadPlay || n == interfacePadStop)
 		{
 			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);

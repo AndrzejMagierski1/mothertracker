@@ -44,6 +44,16 @@ void instrumentEditorEvent(uint8_t event, void* param1, void* param2, void* para
 			mtInterface.activateModule(mtModuleProjectEditor);
 			mtProjectEditor.start(mtProjectStartModeDoNothing);
 		}
+		else if(*(uint8_t*)param1 == interfacePadConfig)
+		{
+			mtInterface.activateModule(mtModuleConfigEditor);
+			mtConfigEditor.start();
+		}
+		else if(*(uint8_t*)param1 == interfacePadSettings)
+		{
+			mtInterface.activateModule(mtModuleConfigEditor);
+			mtConfigEditor.start();
+		}
 		else if(*(uint8_t*)param1 == interfacePadSampleBank)
 		{
 			mtInterface.activateModule(mtModuleSampleBankEditor);
@@ -95,7 +105,13 @@ void projectEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 		}
 		else if(*(uint8_t*)param1 == interfacePadConfig)
 		{
-
+			mtInterface.activateModule(mtModuleConfigEditor);
+			mtConfigEditor.start();
+		}
+		else if(*(uint8_t*)param1 == interfacePadSettings)
+		{
+			mtInterface.activateModule(mtModuleConfigEditor);
+			mtConfigEditor.start();
 		}
 
 
@@ -137,7 +153,13 @@ void stepEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 		}
 		else if(*(uint8_t*)param1 == interfacePadConfig)
 		{
-
+			mtInterface.activateModule(mtModuleConfigEditor);
+			mtConfigEditor.start();
+		}
+		else if(*(uint8_t*)param1 == interfacePadSettings)
+		{
+			mtInterface.activateModule(mtModuleConfigEditor);
+			mtConfigEditor.start();
 		}
 
 	break;
@@ -227,7 +249,13 @@ void sampleBankEditorEvent(uint8_t event, void* param1, void* param2, void* para
 		}
 		else if(*(uint8_t*)param1 == interfacePadConfig)
 		{
-
+			mtInterface.activateModule(mtModuleConfigEditor);
+			mtConfigEditor.start();
+		}
+		else if(*(uint8_t*)param1 == interfacePadSettings)
+		{
+			mtInterface.activateModule(mtModuleConfigEditor);
+			mtConfigEditor.start();
 		}
 
 	break;

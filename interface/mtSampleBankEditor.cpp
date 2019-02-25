@@ -97,6 +97,11 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
 		}
+		else if(n == interfacePadSettings)
+		{
+			stop();
+			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
+		}
 		else if(n == interfacePadPlay || n == interfacePadStop)
 		{
 			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);

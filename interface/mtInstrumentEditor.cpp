@@ -276,12 +276,17 @@ uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
 		}
-/*		else if(n == interfacePadConfig)
+		else if(n == interfacePadConfig)
 		{
 			stop();
 			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
 		}
-*/
+		else if(n == interfacePadSettings)
+		{
+			stop();
+			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
+		}
+
 		if(n == interfacePadStop)
 		{
 			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
@@ -1066,7 +1071,7 @@ void cMtInstrumentEditor::modLoopPoint1(int16_t value)
 	else editorInstrument->loopPoint1 += value;
 
 	if(editorInstrument->loopPoint1 < editorInstrument->startPoint) editorInstrument->loopPoint1 = editorInstrument->startPoint;
-	if(editorInstrument->loopPoint1 > editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2-1;
+	if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2-1;
 
 	if(zoomValue > 1 && lastChangedPoint != 3
 			&& (editorInstrument->loopPoint1 < zoomStart || editorInstrument->loopPoint1 > zoomEnd)) spectrumChanged = 1;
@@ -1088,7 +1093,7 @@ void cMtInstrumentEditor::modLoopPoint2(int16_t value)
 	else editorInstrument->loopPoint2 += value;
 
 	if(editorInstrument->loopPoint2 > editorInstrument->endPoint) editorInstrument->loopPoint2 = editorInstrument->endPoint;
-	if(editorInstrument->loopPoint2 < editorInstrument->loopPoint1) editorInstrument->loopPoint2 = editorInstrument->loopPoint1+1;
+	if(editorInstrument->loopPoint2 <= editorInstrument->loopPoint1) editorInstrument->loopPoint2 = editorInstrument->loopPoint1+1;
 
 	if(zoomValue > 1 && lastChangedPoint != 4
 			&& (editorInstrument->loopPoint2 < zoomStart || editorInstrument->loopPoint2 > zoomEnd)) spectrumChanged = 1;

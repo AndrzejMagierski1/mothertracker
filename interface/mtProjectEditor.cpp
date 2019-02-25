@@ -236,19 +236,32 @@ uint8_t cMtProjectEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 {
 	if(type == 1)
 	{
-		if(n == interfacePadInstrumentEditor)
+		if(n == interfacePadPlay || n == interfacePadStop)
+		{
+			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n == interfacePadInstrumentEditor)
 		{
 			stop();
 			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
 		}
-		else if(n == interfacePadPlay || n == interfacePadStop)
+		else if(n == interfacePadConfig)
 		{
+			stop();
 			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
 		}
-		else
+		else if(n == interfacePadSampleBank)
 		{
+			stop();
 			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
 		}
+		else if(n == interfacePadSettings)
+		{
+			stop();
+			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
+		}
+
+
 	}
 
 	return 0;

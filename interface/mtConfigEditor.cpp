@@ -90,7 +90,7 @@ uint8_t cMtConfigEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
 		}
-		else if(n == interfacePadConfig)
+		else if(n == interfacePadSampleBank)
 		{
 			stop();
 			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
@@ -135,14 +135,10 @@ void cMtConfigEditor::potChange(uint8_t pot, int16_t value)
 
 void cMtConfigEditor::seqButtonChange(uint8_t type, uint8_t x, uint8_t y)
 {
-/*
 
-	if(type == 1)
-	{
-		//if(y > 0)
-			showStep(x,y);
-	}
-*/
+
+
+
 }
 
 
