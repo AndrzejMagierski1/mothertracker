@@ -49,7 +49,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 	if( (note + currentTune) > (MAX_NOTE-1))
 	{
-		if(lastNote>note) currentTune=MAX_NOTE-lastNote;
+		if(lastNote>note) currentTune=(MAX_NOTE-1)-lastNote;
 		else currentTune=(MAX_NOTE-1)-note;
 	}
 	if( (note + currentTune) < MIN_NOTE)
@@ -126,10 +126,18 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 	pitchControl+=fineTuneControl;
 
+	if(glide)
+	{
+		sampleConstrains.glide=(uint32_t)((float)glide*44.1);
+		if((lastNote>=0) && (lastNote != note)) glideControl=(notes[note + currentTune]-notes[lastNote + currentTune] )/sampleConstrains.glide;
+		else glideControl=0;
+	}
+	else
+	{
+		sampleConstrains.glide=0;
+		glideControl=0;
+	}
 
-	sampleConstrains.glide=(uint32_t)(glide*44.1);
-	if((lastNote>=0) && (lastNote != note)) glideControl=(notes[note + currentTune]-notes[lastNote + currentTune] )/sampleConstrains.glide;
-	else glideControl=0;
 
 	lastNote=note;
 	if(mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].type != mtSampleTypeWavetable)
@@ -219,9 +227,12 @@ void AudioPlayMemory::update(void)
 
 			if (length > (uint32_t)pitchCounter) //if (length > 0)
 			{
+				if(sampleConstrains.glide)
+				{
+					if(glideCounter<=sampleConstrains.glide) pitchControl+=glideControl;
+					glideCounter++;
+				}
 
-				if(glideCounter<=sampleConstrains.glide) pitchControl+=glideControl;
-				glideCounter++;
 				if(slideControl != 0.0f)
 				{
 					if(slideCounter<=sampleConstrains.slide)
@@ -234,7 +245,7 @@ void AudioPlayMemory::update(void)
 						pitchControl -= (slideControl * slideCounter);
 						slideControl=0.0f;
 						slideCounter=0;
-						sampleConstrains.glide=0;
+						sampleConstrains.slide=0;
 					}
 
 				}
@@ -248,7 +259,7 @@ void AudioPlayMemory::update(void)
 
 						if(playMode == loopForward)
 						{
-							if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter -= sampleConstrains.loopLength ;
+							if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) ) pitchCounter = sampleConstrains.loopPoint1 ;
 						}
 					}
 					else if(playMode == loopBackward)
@@ -258,7 +269,7 @@ void AudioPlayMemory::update(void)
 						else pitchCounter-=pitchControl;
 
 						if(( (uint32_t)pitchCounter  >= sampleConstrains.loopPoint2) && (!stopLoop) && (!loopBackwardFlag) ) loopBackwardFlag=1;
-						if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) pitchCounter += sampleConstrains.loopLength ;
+						if(( (uint32_t)pitchCounter  <= sampleConstrains.loopPoint1) && (!stopLoop) && loopBackwardFlag ) pitchCounter = sampleConstrains.loopPoint2 ;
 
 					}
 					else if(playMode == loopPingPong)
@@ -277,11 +288,9 @@ void AudioPlayMemory::update(void)
 					*out++ = *(in+(uint32_t)pitchCounter + waveTablePosition);
 					pitchCounter+=pitchControl;
 
-					if(( (uint32_t)pitchCounter  >= wavetableWindowSize) && (!stopLoop) ) pitchCounter -= wavetableWindowSize;
+					if(( (uint32_t)pitchCounter  >= wavetableWindowSize) && (!stopLoop) ) pitchCounter = 0;
 				}
-
-
-				if( (uint32_t)pitchCounter >= sampleConstrains.endPoint) pitchCounter=length;
+				if(( (uint32_t)pitchCounter >= sampleConstrains.endPoint) && (sampleConstrains.endPoint != sampleConstrains.loopPoint2)) pitchCounter=length;
 			}
 			else
 			{
@@ -431,7 +440,7 @@ void AudioPlayMemory::setPitch(float value)
 
 void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 {
-	currentFineTune=value;
+
 	pitchControl-=fineTuneControl;
 	if(value >= 0)
 	{
@@ -451,6 +460,7 @@ void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 	}
 
 	pitchControl+=fineTuneControl;
+	currentFineTune=value;
 }
 
 void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)

@@ -58,8 +58,8 @@ private:
 	int16_t *beginning;
 	uint32_t length;
 	int16_t prior;
-	float pitchControl = 1;
-	float pitchCounter;
+	double pitchControl = 1;
+	double pitchCounter;
 	uint8_t playMode;
 	volatile uint8_t playing;
 	uint8_t loopBackwardFlag;
@@ -67,9 +67,9 @@ private:
 	uint16_t glide;
 	uint32_t glideCounter;
 	uint32_t slideCounter;
-	float glideControl;
-	float slideControl;
-	float fineTuneControl;
+	double glideControl;
+	double slideControl;
+	double fineTuneControl;
 	int8_t currentTune;
 	uint16_t wavetableWindowSize;
 	uint16_t currentWindow;
