@@ -15,6 +15,7 @@ enum mtInterfacePadButtonsFunctions
 	interfacePadSampleBank,
 	interfacePadInstrumentEditor,
 	interfacePadConfig,
+	interfacePadSettings,
 
 
 
