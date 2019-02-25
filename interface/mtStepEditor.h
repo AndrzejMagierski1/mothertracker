@@ -246,7 +246,7 @@ private:
 	const uint16_t potFuncRes[potFunctionCount] =
 	{
 		100,	//potFunctNone,
-		100,	//potFunctChangeStepParam,
+		30,	//potFunctChangeStepParam,
 		100,	//potFunctChangeStepFx1,
 		100,	//potFunctChangeStepFx2,
 		100,	//potFunctChangeStepFx3,

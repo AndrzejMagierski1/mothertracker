@@ -1,4 +1,14 @@
+
+
+#include "mtStructs.h"
+
+
+#include <FastCRC.h>
+#include <FastCRC_cpu.h>
+#include <FastCRC_tables.h>
+
 #include "mtFileManager.h"
+
 
 FileManager fileManager;
 

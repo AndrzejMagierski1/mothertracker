@@ -1,4 +1,6 @@
-#include "mtInterface.h"
+
+
+#include "mtStructs.h"
 
 #include "mtFileManager.h"
 
@@ -9,6 +11,10 @@
 #include "mtSampleBankEditor.h"
 #include "mtStepEditor.h"
 #include "mtConfigEditor.h"
+
+
+
+#include "mtInterface.h"
 
 
 
@@ -116,6 +122,7 @@ void cMtInterface::update()
 	if(activeModules[mtModuleInstrumentEditor]) 	mtInstrumentEditor.update();
 	if(activeModules[mtModuleStepEditor]) 			mtStepEditor.update();
 	if(activeModules[mtModuleSampleBankEditor]) 	mtSampleBankEditor.update();
+	if(activeModules[mtModuleConfigEditor]) 		mtConfigEditor.update();
 
 
 }

@@ -1411,6 +1411,8 @@ void cMtInstrumentEditor::selectInstrument(int16_t value)
 
 	mtDisplay.changeList(instrument_list_pos, openedInstrumentIndex);
 
+	mtHaptic.start(15,150,0x01,56);
+
 	waitToLoadSpectrum();
 	if(sampleListEnabled) sampleListChanged = 2;
 }
@@ -1423,6 +1425,8 @@ void cMtInstrumentEditor::selectSample(int16_t value)
 	else editorInstrument->sampleIndex += value;
 
 	mtDisplay.changeList(sample_list_pos, editorInstrument->sampleIndex);
+
+	mtHaptic.start(15,150,0x01,56);
 
 	waitToLoadSpectrum();
 	lastChangedPoint = 0;

@@ -129,7 +129,7 @@ void initHardware()
 
 	//....................................................
 	// Haptic on
-	//mtHaptic.enable();
+	mtHaptic.enable();
 
 	//....................................................
 	// Seq buttons

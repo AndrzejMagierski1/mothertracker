@@ -209,7 +209,7 @@ void cMtStepEditor::processStepParameters()
 				trackTable.active[0] = actualTrackTableSelection[0];
 				trackTable.params[i].iVal1 = pattern->track[actualTrack].step[(actualStep-2)+i].note;
 				trackTable.params[i].iVal2 = pattern->track[actualTrack].step[(actualStep-2)+i].instrument+1;
-				trackTable.params[i].iVal3 = pattern->track[actualTrack].step[(actualStep-2)+i].length1;
+				trackTable.params[i].iVal3 = pattern->track[actualTrack].step[(actualStep-2)+i].length1/48;
 				trackTable.params[i].iVal4 = pattern->track[actualTrack].step[(actualStep-2)+i].velocity;
 			}
 			else
@@ -556,7 +556,7 @@ void cMtStepEditor::changeActualStepParams(int16_t value)
 		default: break;
 		}
 	}
-	else
+	else if(value > 0)
 	{
 		pattern->track[actualTrack].step[actualStep].isOn = 1;
 		actualTrackTableSelection[0] = stepParamNote;
@@ -565,8 +565,6 @@ void cMtStepEditor::changeActualStepParams(int16_t value)
 		pattern->track[actualTrack].step[actualStep].instrument = last_selected_instrument;
 		pattern->track[actualTrack].step[actualStep].velocity = -1;
 		pattern->track[actualTrack].step[actualStep].length1 = last_selected_length;
-
-
 	}
 
 

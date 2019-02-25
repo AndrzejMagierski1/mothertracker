@@ -3,13 +3,15 @@
 #include "AnalogInputs.h"
 
 
-
 #include "mtInterfaceDefs.h"
+
 #include "mtConfigEditor.h"
 
 
 cMtConfigEditor mtConfigEditor;
 
+
+strMtConfig mtConfig;
 
 //#########################################################################################################
 //#########################################################################################################
@@ -26,7 +28,7 @@ void cMtConfigEditor::update()
 	{
 		moduleStart = 0;
 		labelsChanged = 2;
-
+		parametersChanged = 2;
 
 	}
 	//-----------------------------------------------------
@@ -46,18 +48,35 @@ void cMtConfigEditor::update()
 		processLabels();
 	}
 	//-----------------------------------------------------
+	if(parametersChanged)
+	{
+		if(parametersChanged == 2)
+		{
+			mtDisplay.setValue(1);
 
+			updateParameters(); // zmiana parametrow
+			labelsChanged = 1;
+			refreshModule = 1;
+		}
 
+		parametersChanged = 0;
+		processParameters();   // na zmiane wartosci
+
+		mtDisplay.changeValues(&values);
+	}
+	//-----------------------------------------------------
 }
 
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
 
-void cMtConfigEditor::start()
+void cMtConfigEditor::start(uint8_t mode)
 {
 	moduleStart = 1;
 	refreshModule = 1;
+
+	parametersType = mode;
 
 
 
@@ -65,7 +84,7 @@ void cMtConfigEditor::start()
 
 void cMtConfigEditor::stop()
 {
-
+	mtDisplay.setValue(0);
 
 
 }
@@ -80,12 +99,12 @@ uint8_t cMtConfigEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 {
 	if(type == 1)
 	{
-		if(n == interfacePadInstrumentEditor)
+		if(n == interfacePadProjectEditor)
 		{
 			stop();
 			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
 		}
-		else if(n == interfacePadProjectEditor)
+		else if(n == interfacePadInstrumentEditor)
 		{
 			stop();
 			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
@@ -99,6 +118,17 @@ uint8_t cMtConfigEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		{
 			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
 		}
+		//--------------------------------------------------------
+		else if(n == interfacePadConfig)
+		{
+			switchParametersType(mtConfigEditorStartModeConfig);
+		}
+		else if(n == interfacePadSettings)
+		{
+			switchParametersType(mtConfigEditorStartModeGlobals);
+		}
+
+
 	}
 
 	return 0;
@@ -164,7 +194,94 @@ void cMtConfigEditor::processLabels()
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
+// PARAMETERS
+void cMtConfigEditor::processParameters()
+{
+	// odswieza wartosci tylko te ktore sa aktulanie wyswietlana (5 wartosci w valuesParameters[5])
+	for(uint8_t i = 0; i < 5; i++)
+	{
+		switch(valuesParameters[i])
+		{
+			case valueNone:
+			{
+				values.type[i] = valuesTypes[valueNone];
+				values.value1[i] = 0;
+				break;
+			}
+			case valueMasterVolume:
+			{
+				values.type[i] = valuesTypes[valueMasterVolume];
+				values.value1[i] = mtConfig.globals.masterVolume;
+				break;
+			}
+/*			case valueTempo:
+			{
+				values.type[i] = valuesTypes[valueTempo];
+				values.value1[i] =  (editorInstrument->glide*100)/GLIDE_MAX;
+				break;
+			}
+*/
 
+
+			//-------------------------------------------------------------
+			case valueCodecInput:
+			{
+				values.type[i] = valuesTypes[valueCodecInput];
+				values.value1[i] =  mtConfig.audioCodecConfig.inSelect;
+				break;
+			}
+			case valueCodecOutput:
+			{
+				values.type[i] = valuesTypes[valueCodecOutput];
+				values.value1[i] =  mtConfig.audioCodecConfig.outSelect;
+				break;
+			}
+
+
+
+
+
+			//-------------------------------------------------------------
+			default:
+			{
+				values.type[i] = valuesTypes[valueNone];
+				values.value1[i] = 0;
+				break;
+			}
+		}
+	}
+}
+
+//=====================================================================
+void cMtConfigEditor::updateParameters()
+{
+	setParameter(0, valueNone);
+	setParameter(1, valueNone);
+	setParameter(2, valueNone);
+	setParameter(3, valueNone);
+	setParameter(4, valueNone);
+
+
+	if(parametersType == mtConfigEditorStartModeGlobals)
+	{
+		setParameter(0, valueMasterVolume);
+
+
+	}
+	else if(parametersType == mtConfigEditorStartModeConfig)
+	{
+		setParameter(0, valueCodecInput);
+		setParameter(1, valueCodecOutput);
+
+	}
+
+}
+
+//=====================================================================
+void cMtConfigEditor::setParameter(uint8_t number, uint8_t param)
+{
+	valuesParameters[number] = param;
+}
 
 
 //#########################################################################################################
@@ -248,8 +365,18 @@ void cMtConfigEditor::updatePotsFunctions()
 
 //--------------------------------------------------------
 
+	if(parametersType == mtConfigEditorStartModeGlobals)
+	{
+		setPotFunction(0, potFunctMasterVolume);
 
 
+	}
+	else if(parametersType == mtConfigEditorStartModeConfig)
+	{
+		setPotFunction(0, potFunctCodecInput);
+		setPotFunction(1, potFunctCodecOutput);
+
+	}
 
 //--------------------------------------------------------
 
@@ -274,7 +401,13 @@ void cMtConfigEditor::setPotFunction(uint8_t number, uint8_t function)
 //#########################################################################################################
 //#########################################################################################################
 
-
+void cMtConfigEditor::switchParametersType(uint8_t type)
+{
+	refreshModule = 1;
+	labelsChanged = 1;
+	parametersType = type;
+	parametersChanged = 2;
+}
 
 
 
