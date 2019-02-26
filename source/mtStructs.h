@@ -29,10 +29,10 @@ const uint8_t PATTERNS_COUNT 	=				32;
 
 const uint8_t PROJECT_NAME_SIZE =				32;
 const uint8_t INSTRUMENT_NAME_SIZE =			19;
-const uint8_t PATERN_NAME_SIZE	=				15;
+const uint8_t PATTERN_NAME_SIZE	=				15;
 const uint8_t SAMPLE_NAME_SIZE =				32;
-const uint8_t PATCH_SIZE =						255;
 
+const uint8_t PATCH_SIZE =						255;
 
 const uint8_t SAMPLE_POINT_POS_MIN =            0;
 const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
@@ -318,7 +318,7 @@ struct strMtProjectRemote
 	struct strPaternFile
 	{
 		int8_t index;
-		char name[PATERN_NAME_SIZE];
+		char name[PATTERN_NAME_SIZE];
 	} patternFile[PATTERNS_COUNT];
 
 };

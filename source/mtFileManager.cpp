@@ -144,8 +144,8 @@ uint8_t FileManager::readPatternFile(char * name)
 {
 	if(!SD.exists(name))
 	{
-		return 0;
 		sequencer.loadFromFileERROR();
+		return 0;
 	}
 	FsFile file;
 	FastCRC32 crcCalc;
@@ -230,6 +230,7 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 	status = readProjectFile(currentPatch, &mtProject.mtProjectRemote);
 	if(!status) return status;
 
+	 mtProject.instruments_count=0;
 	for(int i=0; i < INSTRUMENTS_COUNT; i++)
 	{
 		 if(mtProject.mtProjectRemote.instrumentFile[i].index != - 1)
@@ -238,8 +239,10 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 			 strcpy(currentPatch,currentProjectPatch);
 			 strcat(currentPatch,"/instruments/");
 			 strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[i].name);
+
 			 status=readInstrumentFile(currentPatch,&mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index]);
 			 if(!status) return status;
+			 mtProject.instruments_count++;
 		 }
 	}
 
@@ -618,6 +621,10 @@ void FileManager::saveProject()
 			mtProject.mtProjectRemote.sampleFile[i].type=mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].type;
 			mtProject.mtProjectRemote.sampleFile[i].wavetable_window_size=mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].wavetable_window_size;
 		}
+		else
+		{
+			memset(mtProject.mtProjectRemote.sampleFile[i].name,0,SAMPLE_NAME_SIZE);
+		}
 	}
 
 	for(uint8_t i=0;i<INSTRUMENTS_COUNT;i++)
@@ -632,12 +639,17 @@ void FileManager::saveProject()
 
 			writeInstrumentFile(currentPatch, &mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index]);
 		}
+		else
+		{
+			memset(mtProject.mtProjectRemote.instrumentFile[i].name,0,INSTRUMENT_NAME_SIZE);
+		}
 	}
-
-	currentPattern = 1;
 
 	for(uint8_t i=0; i< PATTERNS_COUNT; i++)
 	{
+
+		currentPattern=1;
+
 		if(mtProject.mtProjectRemote.patternFile[i].index != - 1)
 		{
 			if(mtProject.mtProjectRemote.patternFile[i].index == currentPattern)
@@ -645,12 +657,17 @@ void FileManager::saveProject()
 				memset(currentPatch,0,PATCH_SIZE);
 				strcpy(currentPatch,currentProjectPatch);
 				strcat(currentPatch,"/patterns/");
+				strcpy(mtProject.mtProjectRemote.patternFile[i].name,"pattern_001.mtp");
 				strcat(currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
 
 				writePatternFile(currentPatch);
 			}
-
 		}
+		else
+		{
+			memset(mtProject.mtProjectRemote.patternFile[i].name,0,PATTERN_NAME_SIZE);
+		}
+
 	}
 	memset(currentPatch,0,PATCH_SIZE);
 	strcpy(currentPatch,currentProjectPatch);

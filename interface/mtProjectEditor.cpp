@@ -584,6 +584,7 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 		fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
 		loadSamplesBank();
 
+
 //		fileManager.importSampleToProject(NULL,"c.WAV","1.WAV",0,mtSampleTypeWaveFile);
 
 //		fileManager.createNewProject("Project_Test1");
