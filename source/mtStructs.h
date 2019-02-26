@@ -31,7 +31,7 @@ const uint8_t PROJECT_NAME_SIZE =				32;
 const uint8_t INSTRUMENT_NAME_SIZE =			19;
 const uint8_t PATERN_NAME_SIZE	=				15;
 const uint8_t SAMPLE_NAME_SIZE =				32;
-const uint8_t PATCH_SIZE =						50;
+const uint8_t PATCH_SIZE =						255;
 
 
 const uint8_t SAMPLE_POINT_POS_MIN =            0;
@@ -364,50 +364,6 @@ struct strMtConfig
 	} audioCodecConfig;
 };
 
-
-struct strProjectFileHeader
-{
-	char id_file[2];
-	uint16_t type;
-	char version[4];
-	char id_data[4];
-	uint16_t size;
-};
-
-struct strInstrumentFile
-{
-	struct strInstrumentDataAndHeader
-	{
-		strProjectFileHeader instrHeader;
-		strInstrument instrument;
-
-	} instrumentDataAndHeader;
-
-	uint32_t crc;
-} ;
-
-struct strPatternFile
-{
-	struct strPatternDataAndHeader
-	{
-		strProjectFileHeader patternHeader;
-		Sequencer::strPattern pattern;
-
-	} patternDataAndHeader;
-
-	uint32_t crc;
-} ;
-
-struct strProjectFile
-{
-	struct strProjectDataAndHeader
-	{
-		strProjectFileHeader projectHeader;
-		strMtProjectRemote project;
-	} projectDataAndHeader;
-
-	uint32_t crc;
-};
 
 extern strMtProject mtProject;
 extern strMtConfig 	mtConfig;

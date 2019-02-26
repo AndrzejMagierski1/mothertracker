@@ -26,7 +26,7 @@ void cMtSampleBankEditor::update()
 	{
 		moduleStart = 0;
 		labelsChanged = 2;
-
+		samplesListChanged = 2;
 
 	}
 	//-----------------------------------------------------
@@ -46,7 +46,31 @@ void cMtSampleBankEditor::update()
 		processLabels();
 	}
 	//-----------------------------------------------------
+	if(samplesListChanged)
+	{
+		labelsChanged = 1;
+		refreshModule = 1;
 
+		if(!samplesListEnabled)
+		{
+			samplesListChanged = 0;
+			mtDisplay.setList(samples_list_pos, 0, 0, 0, 0, 0);
+			return;
+		}
+
+		if(samplesListChanged == 2) // pokaz liste
+		{
+			for(uint8_t i = 0; i < SAMPLES_MAX; i++)
+			{
+				samplesNames[i] = mtProject.sampleBank.sample[i].file_name;
+			}
+
+			mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, samplesNames, mtProject.sampleBank.samples_count);
+		}
+
+		samplesListChanged = 0;
+	}
+	//-----------------------------------------------------
 
 }
 

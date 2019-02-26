@@ -47,6 +47,7 @@ public:
 	void seqButtonDouble(uint8_t x, uint8_t y);
 	// mtInterfaceInputs.cpp -----------------------------
 
+	uint8_t activeModules[mtModulesCount] = {0};
 
 	void activateModule(uint8_t module);
 	void deactivateModule(uint8_t module);
@@ -59,7 +60,7 @@ private:
 
 	elapsedMillis startupTimer;
 
-	uint8_t activeModules[mtModulesCount] = {0};
+//	uint8_t activeModules[mtModulesCount] = {0};
 	uint8_t onScreenModule = 0;
 
 

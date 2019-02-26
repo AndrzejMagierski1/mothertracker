@@ -51,10 +51,6 @@ private:
 
 	void (*eventFunct)(uint8_t, void*, void*, void*);
 
-	// elementy modulu
-
-
-
 
 
 	//funkcje przyciskow
@@ -62,7 +58,7 @@ private:
 
 
 	//funkcje potow
-
+	void changeSampleListPos(int16_t value);
 
 
 
@@ -74,6 +70,14 @@ private:
 	// odswiezanie elementow modulu
 
 	uint8_t labelsChanged;
+
+
+	uint8_t samplesListChanged;
+	static const uint8_t samples_list_length_max = SAMPLES_MAX;
+	const uint8_t samples_list_pos = 3;
+	uint8_t samplesListEnabled = 0;
+	char *samplesNames[SAMPLES_MAX];
+	uint16_t samplesCount;
 
 
 
@@ -111,7 +115,7 @@ private:
 	enum
 	{
 		potFunctNone,
-
+		potFunctChangeSamplesListPos,
 
 
 
@@ -125,6 +129,7 @@ private:
 	char potFunctionLabels[potFunctCount][20] =
 	{
 		{0},
+		"Sample Bank:",
 
 
 	};
@@ -132,12 +137,14 @@ private:
 	const uint16_t potFuncRes[potFunctCount] =
 	{
 			100, // potFunctionNone,
+			30, //
 
 	};
 
 	const uint8_t potFuncAcc[potFunctCount] =
 	{
 			3, // potFunctionNone,
+			1, //
 
 	};
 

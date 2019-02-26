@@ -26,6 +26,50 @@ struct strWavFileHeader
 };
 
 
+struct strProjectFileHeader
+{
+	char id_file[2];
+	uint16_t type;
+	char version[4];
+	char id_data[4];
+	uint16_t size;
+};
+
+struct strInstrumentFile
+{
+	struct strInstrumentDataAndHeader
+	{
+		strProjectFileHeader instrHeader;
+		strInstrument instrument;
+
+	} instrumentDataAndHeader;
+
+	uint32_t crc;
+};
+
+struct strPatternFile
+{
+	struct strPatternDataAndHeader
+	{
+		strProjectFileHeader patternHeader;
+		Sequencer::strPattern pattern;
+
+	} patternDataAndHeader;
+
+	uint32_t crc;
+};
+
+struct strProjectFile
+{
+	struct strProjectDataAndHeader
+	{
+		strProjectFileHeader projectHeader;
+		strMtProjectRemote project;
+	} projectDataAndHeader;
+
+	uint32_t crc;
+};
+
 
 
 

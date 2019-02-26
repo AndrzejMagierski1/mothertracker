@@ -17,6 +17,7 @@
 
 #include "mtProjectEditor.h"
 
+#include "mtInterface.h"
 
 cMtProjectEditor mtProjectEditor;
 
@@ -606,7 +607,8 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 
 //		fileManager.saveProject();
 
-
+		uint8_t val = mtInterface.activeModules[0];
+		(void)val;
 
 		browseCancel(1);
 		refreshModule = 1;
@@ -691,8 +693,6 @@ void cMtProjectEditor::changeTemplatesListPos(int16_t value)
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
-
-
 
 
 

@@ -251,7 +251,7 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 			strcpy(currentPatch,currentProjectPatch);
 			strcat(currentPatch,"/patterns/");
 			strcat(currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
-			status=readPatternFile(mtProject.mtProjectRemote.patternFile[i].name);
+			status=readPatternFile(currentPatch);
 			if(!status) return status;
 			else break;
 		}
@@ -633,9 +633,11 @@ void FileManager::saveProject()
 			writeInstrumentFile(currentPatch, &mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index]);
 		}
 	}
+
+	currentPattern = 1;
+
 	for(uint8_t i=0; i< PATTERNS_COUNT; i++)
 	{
-
 		if(mtProject.mtProjectRemote.patternFile[i].index != - 1)
 		{
 			if(mtProject.mtProjectRemote.patternFile[i].index == currentPattern)
