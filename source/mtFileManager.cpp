@@ -1,4 +1,14 @@
+
+
+#include "mtStructs.h"
+
+
+#include <FastCRC.h>
+#include <FastCRC_cpu.h>
+#include <FastCRC_tables.h>
+
 #include "mtFileManager.h"
+
 
 FileManager fileManager;
 
@@ -634,9 +644,12 @@ void FileManager::saveProject()
 			memset(mtProject.mtProjectRemote.instrumentFile[i].name,0,INSTRUMENT_NAME_SIZE);
 		}
 	}
+
 	for(uint8_t i=0; i< PATTERNS_COUNT; i++)
 	{
+
 		currentPattern=1;
+
 		if(mtProject.mtProjectRemote.patternFile[i].index != - 1)
 		{
 			if(mtProject.mtProjectRemote.patternFile[i].index == currentPattern)

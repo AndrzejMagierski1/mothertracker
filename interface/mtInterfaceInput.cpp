@@ -7,6 +7,7 @@
 #include "mtProjectEditor.h"
 #include "mtSampleBankEditor.h"
 #include "mtStepEditor.h"
+#include "mtConfigEditor.h"
 
 
 
@@ -21,6 +22,7 @@ void cMtInterface::potChange(uint8_t n, int16_t value)
 		case mtModuleInstrumentEditor:	mtInstrumentEditor.potChange(n,value);	break;
 		case mtModuleStepEditor:		mtStepEditor.potChange(n,value);		break;
 		case mtModuleSampleBankEditor:	mtSampleBankEditor.potChange(n,value);	break;
+		case mtModuleConfigEditor:		mtConfigEditor.potChange(n,value);		break;
 
 		default : break;
 	}
@@ -37,6 +39,7 @@ void cMtInterface::buttonChange(uint8_t n, uint8_t value)
 		case mtModuleInstrumentEditor:	mtInstrumentEditor.buttonChange(n,value);	break;
 		case mtModuleStepEditor:		mtStepEditor.buttonChange(n,value);			break;
 		case mtModuleSampleBankEditor:	mtSampleBankEditor.buttonChange(n,value);	break;
+		case mtModuleConfigEditor:		mtConfigEditor.buttonChange(n,value);		break;
 
 		default : break;
 	}
@@ -63,6 +66,7 @@ void cMtInterface::padPressed(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 		case mtModuleInstrumentEditor:	mtInstrumentEditor.padsChange(1,n,velo);	break;
 		case mtModuleStepEditor:		mtStepEditor.padsChange(1,n,velo);			break;
 		case mtModuleSampleBankEditor:	mtSampleBankEditor.padsChange(1,n,velo);	break;
+		case mtModuleConfigEditor:		mtConfigEditor.padsChange(1,n,velo);		break;
 
 		default : break;
 	}
@@ -85,6 +89,7 @@ void cMtInterface::padReleased(uint8_t n)
 		case mtModuleInstrumentEditor:	mtInstrumentEditor.padsChange(0,n,0);	break;
 		case mtModuleStepEditor:		mtStepEditor.padsChange(0,n,0);			break;
 		case mtModuleSampleBankEditor:	mtSampleBankEditor.padsChange(0,n,0);	break;
+		case mtModuleConfigEditor:		mtConfigEditor.padsChange(0,n,0);		break;
 
 		default : break;
 	}
@@ -101,6 +106,7 @@ void cMtInterface::seqButtonPressed(uint8_t x, uint8_t y)
 		case mtModuleInstrumentEditor:	mtInstrumentEditor.seqButtonChange(1,x,y);	break;
 		case mtModuleStepEditor:		mtStepEditor.seqButtonChange(1,x,y);		break;
 		case mtModuleSampleBankEditor:	mtSampleBankEditor.seqButtonChange(1,x,y);	break;
+		case mtModuleConfigEditor:		mtConfigEditor.seqButtonChange(1,x,y);		break;
 
 		default : break;
 	}

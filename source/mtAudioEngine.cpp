@@ -92,43 +92,43 @@ void audioEngine::update()
 		instrumentPlayer[i].update();
 	}
 
-	if(mtProject.audioCodacConfig.changeFlag)
+	if(mtConfig.audioCodecConfig.changeFlag)
 	{
-		mtProject.audioCodacConfig.changeFlag=0;
+		mtConfig.audioCodecConfig.changeFlag=0;
 
-		if(mtProject.audioCodacConfig.outSelect == outputSelectHeadphones)
+		if(mtConfig.audioCodecConfig.outSelect == outputSelectHeadphones)
 		{
-			if(mtProject.audioCodacConfig.mutedHeadphone) audioShield.muteHeadphone();
+			if(mtConfig.audioCodecConfig.mutedHeadphone) audioShield.muteHeadphone();
 			else
 			{
 				audioShield.unmuteHeadphone();
 				setOut(outputSelectHeadphones);
-				audioShield.volume(mtProject.audioCodacConfig.headphoneVolume);
+				audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
 			}
 
 		}
-		else if(mtProject.audioCodacConfig.outSelect == outputSelectLineOut)
+		else if(mtConfig.audioCodecConfig.outSelect == outputSelectLineOut)
 		{
-			if(mtProject.audioCodacConfig.mutedLineOut) audioShield.muteLineout();
+			if(mtConfig.audioCodecConfig.mutedLineOut) audioShield.muteLineout();
 			else
 			{
 				audioShield.unmuteLineout();
 				setOut(outputSelectLineOut);
-				audioShield.lineOutLevel(mtProject.audioCodacConfig.lineOutLeft,mtProject.audioCodacConfig.lineOutRight);
+				audioShield.lineOutLevel(mtConfig.audioCodecConfig.lineOutLeft,mtConfig.audioCodecConfig.lineOutRight);
 			}
 		}
 
-		if(mtProject.audioCodacConfig.inSelect == inputSelectMic)
+		if(mtConfig.audioCodecConfig.inSelect == inputSelectMic)
 		{
 			setIn(inputSelectMic);
 			audioShield.inputSelect(AUDIO_INPUT_MIC);
-			audioShield.micGain(mtProject.audioCodacConfig.inputGain);
+			audioShield.micGain(mtConfig.audioCodecConfig.inputGain);
 		}
-		else if(mtProject.audioCodacConfig.inSelect == inputSelectLineIn)
+		else if(mtConfig.audioCodecConfig.inSelect == inputSelectLineIn)
 		{
 			setIn(inputSelectLineIn);
 			audioShield.inputSelect(AUDIO_INPUT_LINEIN);
-			audioShield.lineInLevel(mtProject.audioCodacConfig.lineInLeft, mtProject.audioCodacConfig.lineInRight);
+			audioShield.lineInLevel(mtConfig.audioCodecConfig.lineInLeft, mtConfig.audioCodecConfig.lineInRight);
 		}
 	}
 }

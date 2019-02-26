@@ -17,7 +17,14 @@ enum mtConfigEditorEvents
 	mtConfigEditorEventCount
 };
 
+enum mtConfigEditorStartMode
+{
+	mtConfigEditorStartModeDefault,
+	mtConfigEditorStartModeGlobals,
+	mtConfigEditorStartModeConfig,
+	mtConfigEditorStartModeMixer,
 
+};
 
 class cMtConfigEditor
 {
@@ -25,7 +32,7 @@ public:
 	void update();
 
 
-	void start();
+	void start(uint8_t mode);
 	void stop();
 
 
@@ -39,6 +46,7 @@ public:
 private:
 
 	void processLabels();
+	void processParameters();
 
 
 	void setButtonLabel(uint8_t number, char * label);
@@ -53,8 +61,44 @@ private:
 
 	// elementy modulu
 
+	void updateParameters();
+	void setParameter(uint8_t number, uint8_t param);
+	void switchParametersType(uint8_t type);
+
+	uint8_t parametersChanged;
+	strMtDispValues  values;
+	uint8_t valuesParameters[5];
+	uint8_t parametersType = 0;
+
+	enum
+	{
+		valueNone,
+		// globals
+		valueMasterVolume,
+		valueTempo,
 
 
+		// config
+		valueCodecInput,
+		valueCodecOutput,
+
+		//-------------------------------
+		valueCount
+	};
+
+	uint8_t valuesTypes[valueCount] =
+	{
+		mtDispValueValueNone,				//
+		//globals
+		mtDispValueValue_0_100,				//
+		mtDispValueValueNumberOnly,			//
+
+
+		//config
+		mtDispValueValueNumberOnly,			//
+		mtDispValueValueNumberOnly,			//
+
+	};
 
 
 	//funkcje przyciskow
@@ -111,9 +155,11 @@ private:
 	enum
 	{
 		potFunctNone,
+		potFunctMasterVolume,
 
 
-
+		potFunctCodecInput,
+		potFunctCodecOutput,
 
 		//-------------------------------
 		potFunctCount
@@ -125,6 +171,12 @@ private:
 	char potFunctionLabels[potFunctCount][20] =
 	{
 		{0},
+		"Master Volume",
+
+
+		"Signal Input",
+		"Signal Output",
+
 
 
 	};
@@ -132,11 +184,17 @@ private:
 	const uint16_t potFuncRes[potFunctCount] =
 	{
 			100, // potFunctionNone,
+			100, // potFunctionNone,
+			100, // potFunctionNone,
+			100, // potFunctionNone,
 
 	};
 
 	const uint8_t potFuncAcc[potFunctCount] =
 	{
+			3, // potFunctionNone,
+			3, // potFunctionNone,
+			3, // potFunctionNone,
 			3, // potFunctionNone,
 
 	};

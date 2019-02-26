@@ -31,8 +31,8 @@ const uint8_t PROJECT_NAME_SIZE =				32;
 const uint8_t INSTRUMENT_NAME_SIZE =			19;
 const uint8_t PATTERN_NAME_SIZE	=				15;
 const uint8_t SAMPLE_NAME_SIZE =				32;
-const uint8_t PATCH_SIZE =						100;
 
+const uint8_t PATCH_SIZE =						255;
 
 const uint8_t SAMPLE_POINT_POS_MIN =            0;
 const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
@@ -238,43 +238,6 @@ enum modyficators
 
 //=====================================================================
 
-//parametry przetwarzanego pliku
-struct strWavFileHeader
-{
-	uint32_t chunkId;			//0
-	uint32_t chunkSize;
-	uint32_t format;
-
-	uint32_t subchunk1Id;		//12
-	uint32_t subchunk1Size;
-	uint16_t AudioFormat;		//20
-	uint16_t numChannels;		//22
-	uint32_t sampleRate;		//24
-	uint32_t byteRate;			//28
-	uint16_t blockAlign;		//32
-	uint16_t bitsPerSample;		//34
-
-	uint32_t subchunk2Id;		//36
-	uint32_t subchunk2Size;		//40
-
-};
-
-struct strAudioCodecConfig
-{
-	uint8_t inSelect;
-	uint8_t outSelect;
-
-	float headphoneVolume;
-	uint8_t inputGain; // 0-63
-	uint8_t mutedHeadphone;
-	uint8_t mutedLineOut;
-	uint8_t lineInLeft; // 0-15
-	uint8_t lineInRight; // 0-15
-	uint8_t lineOutLeft; // 0-15
-	uint8_t lineOutRight; // 0-15
-
-	uint8_t changeFlag;
-};
 
 struct strSampleBank
 {
@@ -301,7 +264,9 @@ struct strSampleBank
 struct strInstrument
 {
 	uint8_t isActive;
+
 	uint8_t sampleIndex;
+
 
     char name[4];
 
@@ -363,59 +328,45 @@ struct strMtProject
 	strSampleBank sampleBank;
 	strInstrument instrument[INSTRUMENTS_MAX];
 
-	strAudioCodecConfig audioCodacConfig;
+
 	uint8_t instruments_count;
 
 	strMtProjectRemote mtProjectRemote;
 
 };
 
-struct strProjectFileHeader
+struct strMtConfig
 {
-	char id_file[2];
-	uint16_t type;
-	char version[4];
-	char id_data[4];
-	uint16_t size;
+	struct strGlobalValues
+	{
+		uint8_t masterVolume;
+
+
+
+	} globals;
+
+	struct strAudioCodecConfig
+	{
+		uint8_t inSelect;
+		uint8_t outSelect;
+
+		float headphoneVolume;
+		uint8_t inputGain; // 0-63
+		uint8_t mutedHeadphone;
+		uint8_t mutedLineOut;
+		uint8_t lineInLeft; // 0-15
+		uint8_t lineInRight; // 0-15
+		uint8_t lineOutLeft; // 0-15
+		uint8_t lineOutRight; // 0-15
+
+		uint8_t changeFlag;
+
+	} audioCodecConfig;
 };
 
-struct strInstrumentFile
-{
-	struct strInstrumentDataAndHeader
-	{
-		strProjectFileHeader instrHeader;
-		strInstrument instrument;
-
-	} instrumentDataAndHeader;
-
-	uint32_t crc;
-} ;
-
-struct strPatternFile
-{
-	struct strPatternDataAndHeader
-	{
-		strProjectFileHeader patternHeader;
-		Sequencer::strPattern pattern;
-
-	} patternDataAndHeader;
-
-	uint32_t crc;
-} ;
-
-struct strProjectFile
-{
-	struct strProjectDataAndHeader
-	{
-		strProjectFileHeader projectHeader;
-		strMtProjectRemote project;
-	} projectDataAndHeader;
-
-	uint32_t crc;
-};
 
 extern strMtProject mtProject;
-
+extern strMtConfig 	mtConfig;
 
 
 const double notes[MAX_NOTE] =

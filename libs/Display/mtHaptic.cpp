@@ -23,9 +23,9 @@ void cMtHaptic::disable()
 void cMtHaptic::set(uint16_t time, uint8_t amplitude, uint8_t effect, uint8_t pitch)
 {
 	params.amplitude = amplitude;
-	params.amplitude = effect;
-	params.amplitude = time;
-	params.amplitude = pitch;
+	params.effect = effect;
+	params.time = time;
+	params.pitch = pitch;
 }
 
 void cMtHaptic::start(uint16_t time)

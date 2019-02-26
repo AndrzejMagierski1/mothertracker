@@ -129,7 +129,7 @@ void initHardware()
 
 	//....................................................
 	// Haptic on
-	//mtHaptic.enable();
+	mtHaptic.enable();
 
 	//....................................................
 	// Seq buttons
@@ -172,6 +172,7 @@ void initHardware()
 
 	//....................................................
 
+	// power switch
 	pinMode(TACT_SWITCH, INPUT);
 	//attachInterrupt(TACT_SWITCH, TactSwitchAction, FALLING);
 
