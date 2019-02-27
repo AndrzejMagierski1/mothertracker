@@ -677,7 +677,7 @@ void mtLEDs::setLEDgrid(uint8_t num, uint8_t state, uint8_t gamma_pwm)
 {
 	uint8_t j=0,i=0;
 
-	num--; // zeby mogl byc zakres 1-64
+	//num--; // zeby mogl byc zakres 1-64
 	j=num/8;
 	j=7-j;
 	i=num%8; // przeliczenia związane z "obrotem" macierzy

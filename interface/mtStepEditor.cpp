@@ -6,7 +6,7 @@
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
 #include "mtSequencer.h"
-
+#include "mtLED.h"
 
 #include "mtInterfaceDefs.h"
 
@@ -76,6 +76,20 @@ void cMtStepEditor::showStep(uint8_t track, uint8_t step)
 	actualTrack = track;
 	actualStep = step;
 
+	showActualParamOnPads();
+
+	leds.setLEDgrid(interfacePadUp, 1, 10);
+	leds.setLEDgrid(interfacePadLeft, 1, 10);
+	leds.setLEDgrid(interfacePadDown, 1, 10);
+	leds.setLEDgrid(interfacePadRight, 1, 10);
+
+	for(uint8_t i = 0; i < 32; i++)
+	{
+		leds.setLEDgrid(32+i, 1, 8);
+	}
+
+	last_selected_instrument = mtProject.values.lastUsedInstrument;
+
 //	mtPrint("track:");
 //	mtPrint(actualTrack);
 //	mtPrint("  step:");
@@ -86,8 +100,98 @@ void cMtStepEditor::stop()
 {
 	mtDisplay.setTrackTable(0);
 
+	clearPads();
+}
+
+
+void cMtStepEditor::showActualParamOnPads()
+{
+	leds.setLEDgrid(24, 0, 0);
+	leds.setLEDgrid(25, 0, 0);
+	leds.setLEDgrid(26, 0, 0);
+	leds.setLEDgrid(27, 0, 0);
+	leds.setLEDgrid(28, 0, 0);
+
+	leds.setLEDgrid(24+actualTrackTableSelection[0], 1, 15);
+
+
+
+
 
 }
+
+void cMtStepEditor::clearPads()
+{
+
+	leds.setLEDgrid(24, 0, 0);
+	leds.setLEDgrid(25, 0, 0);
+	leds.setLEDgrid(26, 0, 0);
+	leds.setLEDgrid(27, 0, 0);
+	leds.setLEDgrid(28, 0, 0);
+
+	leds.setLEDgrid(interfacePadUp, 0, 0);
+	leds.setLEDgrid(interfacePadLeft, 0, 0);
+	leds.setLEDgrid(interfacePadDown, 0, 0);
+	leds.setLEDgrid(interfacePadRight, 0, 0);
+
+
+	for(uint8_t i = 0; i < 32; i++)
+	{
+		leds.setLEDgrid(32+i, 0, 0);
+	}
+
+
+}
+
+
+void cMtStepEditor::moveActualStep(uint8_t direction)
+{
+
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+
+	uint8_t track_length = pattern->track[actualTrack].length;
+
+	switch(direction)
+	{
+	case 0:
+	{
+		if(actualStep > 0) actualStep--;
+		break;
+	}
+	case 1:
+	{
+		if(actualTrack < 7) actualTrack++;
+		break;
+	}
+	case 2:
+	{
+		if(actualStep < track_length-1) actualStep++;
+		break;
+	}
+	case 3:
+	{
+		if(actualTrack > 0) actualTrack--;
+		break;
+	}
+
+	default: break;
+	}
+
+	stepParametersChanged = 1;
+	refreshStepEditor = 1;
+}
+
+
+
+void cMtStepEditor::setActualEditedStepParam(uint8_t param)
+{
+	actualTrackTableSelection[0] = param;
+	showActualParamOnPads();
+	stepParametersChanged = 1;
+	refreshStepEditor = 1;
+}
+
+
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
@@ -98,10 +202,11 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 {
 	if(type == 1)
 	{
+
+/*
 		if(n == interfacePadInstrumentEditor)
 		{
-			stop();
-			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+
 		}
 		else if(n == interfacePadSampleBank)
 		{
@@ -123,10 +228,45 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
 		}
+
 		else if(n == interfacePadPlay || n == interfacePadStop)
 		{
 			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
 		}
+*/
+
+
+
+
+		switch(n)
+		{
+		case interfacePadPlay                 :    sequencer.play();    break;
+		case interfacePadStop                 :    sequencer.stop();    break;
+		case interfacePadProjectEditor        :
+		case interfacePadSampleBank           :
+		case interfacePadInstrumentEditor     :
+		case interfacePadConfig               :
+		case interfacePadSettings             :
+
+			stop();
+			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
+
+		break;
+
+		case interfacePadNotes       :  setActualEditedStepParam(stepParamNote);   break;
+		case interfacePadInstr       :  setActualEditedStepParam(stepParamInstr);   break;
+		case interfacePadVelocity    :  setActualEditedStepParam(stepParamVolume);   break;
+		case interfacePadFx          :  setActualEditedStepParam(stepParamFx);   break;
+		case interfacePadFxParams    :  setActualEditedStepParam(stepParamFxParams);   break;
+		case interfacePadUp          :  moveActualStep(0);   break;
+		case interfacePadLeft        :  moveActualStep(3);   break;
+		case interfacePadDown        :  moveActualStep(2);   break;
+		case interfacePadRight       :  moveActualStep(1);   break;
+
+		default: break;
+		}
+
+
 	}
 
 	return 0;
@@ -158,12 +298,12 @@ void cMtStepEditor::potChange(uint8_t pot, int16_t value)
 {
 	switch(potFunctions[pot])
 	{
-		case potFunctNone			  : 	break;
-		case potFunctChangeStepParam  :   changeActualStepParams(value);	break;
-		case potFunctChangeStepFx1    :   changeActualStepFx1(value);		break;
-		case potFunctChangeStepFx2    :   changeActualStepFx2(value);		break;
-		case potFunctChangeStepFx3    :   changeActualStepFx3(value);		break;
-		case potFunctChangeStepFx4    :   changeActualStepFx4(value);		break;
+		case potFunctNone			  	: 		break;
+		case potFunctChangeStepNote  	:   	changeActualStepNote(value);		break;
+		case potFunctChangeStepInstr    :   	changeActualStepInstrument(value);		break;
+		case potFunctChangeStepVolume    :   	changeActualStepVolume(value);		break;
+		case potFunctChangeStepFx    	:   	changeActualStepFx1(value);			break;
+		case potFunctChangeStepFxParams    :   	changeActualStepFx1Params(value);		break;
 
 		default: break;
 	}
@@ -188,7 +328,9 @@ void cMtStepEditor::seqButtonChange(uint8_t type, uint8_t x, uint8_t y)
 
 void cMtStepEditor::processStepParameters()
 {
-	uint8_t track_length = sequencer.getPatternToUI()->track[actualTrack].length;
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+
+	uint8_t track_length = pattern->track[actualTrack].length;
 
 	for(uint8_t i = 0; i < 5; i++)
 	{
@@ -200,8 +342,6 @@ void cMtStepEditor::processStepParameters()
 		else
 		{
 			trackTable.state[i] = 1; // linia w zakresie sekwencji
-
-			Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
 			if(pattern->track[actualTrack].step[(actualStep-2)+i].isOn) // czy parametry aktywne
 			{
@@ -357,14 +497,14 @@ void cMtStepEditor::updateButtonsFunctions()
 	setButtonFunction(3, buttonFunctNone);
 	setButtonFunction(4, buttonFunctNone);
 
-
+/*
 	setButtonFunction(0, buttonFunctChangeStepParamsSel);
 	setButtonFunction(1, buttonFunctShowNextStepFx1);
 	setButtonFunction(2, buttonFunctShowNextStepFx2);
 	setButtonFunction(3, buttonFunctShowNextStepFx3);
 	setButtonFunction(4, buttonFunctShowNextStepFx4);
 
-
+*/
 
 
 
@@ -418,11 +558,11 @@ void cMtStepEditor::updatePotsFunctions()
 
 
 
-	setPotFunction(0, potFunctChangeStepParam);
-	setPotFunction(1, potFunctChangeStepFx1);
-	setPotFunction(2, potFunctChangeStepFx2);
-	setPotFunction(3, potFunctChangeStepFx3);
-	setPotFunction(4, potFunctChangeStepFx4);
+	setPotFunction(0, potFunctChangeStepNote);
+	setPotFunction(1, potFunctChangeStepInstr);
+	setPotFunction(2, potFunctChangeStepVolume);
+	setPotFunction(3, potFunctChangeStepFx);
+	setPotFunction(4, potFunctChangeStepFxParams);
 
 
 
@@ -484,6 +624,8 @@ void cMtStepEditor::changeStepFxSelection(uint8_t fx, uint8_t value)
 
 
 //-----------------------------------------------------------------------------------
+
+/*
 void cMtStepEditor::changeActualStepParams(int16_t value)
 {
 	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
@@ -573,24 +715,123 @@ void cMtStepEditor::changeActualStepParams(int16_t value)
 
 }
 
+*/
+
+
+
+void cMtStepEditor::changeActualStepNote(int16_t value)
+{
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+
+	if(pattern->track[actualTrack].step[actualStep].isOn)
+	{
+		uint8_t step_note = pattern->track[actualTrack].step[actualStep].note;
+
+		if(step_note + value > Sequencer::MAX_NOTE_STEP)
+			pattern->track[actualTrack].step[actualStep].note = Sequencer::MAX_NOTE_STEP;
+		else if(step_note + value < Sequencer::MIN_NOTE_STEP)
+		{
+			pattern->track[actualTrack].step[actualStep].note = Sequencer::MIN_NOTE_STEP;
+			pattern->track[actualTrack].step[actualStep].isOn = 0;
+		}
+		else
+			pattern->track[actualTrack].step[actualStep].note += value;
+	}
+	else if(value > 0)
+	{
+		pattern->track[actualTrack].step[actualStep].isOn = 1;
+		actualTrackTableSelection[0] = stepParamNote;
+
+		pattern->track[actualTrack].step[actualStep].note = 24;
+		pattern->track[actualTrack].step[actualStep].instrument = last_selected_instrument;
+		pattern->track[actualTrack].step[actualStep].velocity = -1;
+		pattern->track[actualTrack].step[actualStep].length1 = last_selected_length;
+	}
+
+	setActualEditedStepParam(stepParamNote);
+	stepParametersChanged = 1;
+	refreshStepEditor = 1;
+}
+
+void cMtStepEditor::changeActualStepInstrument(int16_t value)
+{
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+
+	if(pattern->track[actualTrack].step[actualStep].isOn)
+	{
+		uint8_t step_inst = pattern->track[actualTrack].step[actualStep].instrument;
+
+		if(step_inst + value >= mtProject.instruments_count)
+			pattern->track[actualTrack].step[actualStep].instrument = mtProject.instruments_count-1;
+		else if(step_inst + value < 0)
+			pattern->track[actualTrack].step[actualStep].instrument = 0;
+		else
+			pattern->track[actualTrack].step[actualStep].instrument += value;
+
+		last_selected_instrument = pattern->track[actualTrack].step[actualStep].instrument;
+
+		mtProject.values.lastUsedInstrument = last_selected_instrument;
+	}
+
+	setActualEditedStepParam(stepParamInstr);
+	stepParametersChanged = 1;
+	refreshStepEditor = 1;
+}
+
+void cMtStepEditor::changeActualStepVolume(int16_t value)
+{
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+
+	if(pattern->track[actualTrack].step[actualStep].isOn)
+	{
+		int8_t step_volume = pattern->track[actualTrack].step[actualStep].velocity;
+
+		if(step_volume + value > Sequencer::MAX_VELO_STEP)
+			pattern->track[actualTrack].step[actualStep].velocity = Sequencer::MAX_VELO_STEP;
+		else if(step_volume + value < Sequencer::MIN_VELO_STEP-1)
+			pattern->track[actualTrack].step[actualStep].velocity = Sequencer::MIN_VELO_STEP-1;
+		else
+			pattern->track[actualTrack].step[actualStep].velocity += value;
+	}
+
+	setActualEditedStepParam(stepParamVolume);
+	stepParametersChanged = 1;
+	refreshStepEditor = 1;
+}
+
 void cMtStepEditor::changeActualStepFx1(int16_t value)
 {
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
+	if(pattern->track[actualTrack].step[actualStep].fx[0].isOn)
+	{
+
+	}
+	else if(value > 0)
+	{
+
+	}
+
+	setActualEditedStepParam(stepParamFx);
+	stepParametersChanged = 1;
+	refreshStepEditor = 1;
 }
 
-void cMtStepEditor::changeActualStepFx2(int16_t value)
+void cMtStepEditor::changeActualStepFx1Params(int16_t value)
 {
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
-}
+	if(pattern->track[actualTrack].step[actualStep].fx[0].isOn)
+	{
 
-void cMtStepEditor::changeActualStepFx3(int16_t value)
-{
+	}
 
-}
 
-void cMtStepEditor::changeActualStepFx4(int16_t value)
-{
 
+	setActualEditedStepParam(stepParamFxParams);
+
+	stepParametersChanged = 1;
+	refreshStepEditor = 1;
 }
 
 //-----------------------------------------------------------------------------------

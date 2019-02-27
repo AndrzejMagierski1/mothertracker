@@ -51,12 +51,6 @@ void cMtSampleBankEditor::update()
 		labelsChanged = 1;
 		refreshModule = 1;
 
-		if(!samplesListEnabled)
-		{
-			samplesListChanged = 0;
-			mtDisplay.setList(samples_list_pos, 0, 0, 0, 0, 0);
-			return;
-		}
 
 		if(samplesListChanged == 2) // pokaz liste
 		{
@@ -67,6 +61,8 @@ void cMtSampleBankEditor::update()
 
 			mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, samplesNames, mtProject.sampleBank.samples_count);
 		}
+
+		//processSamples();
 
 		samplesListChanged = 0;
 	}
@@ -89,7 +85,7 @@ void cMtSampleBankEditor::start()
 
 void cMtSampleBankEditor::stop()
 {
-
+	mtDisplay.setList(samples_list_pos, 0, 0, 0, 0, 0);
 
 
 }

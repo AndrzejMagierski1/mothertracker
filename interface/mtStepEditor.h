@@ -93,8 +93,10 @@ private:
 
 	void (*eventFunct)(uint8_t, void*, void*, void*);
 
-
-
+	void showActualParamOnPads();
+	void clearPads();
+	void moveActualStep(uint8_t direction);
+	void setActualEditedStepParam(uint8_t param);
 
 
 	//funkcje przyciskow
@@ -104,11 +106,11 @@ private:
 	void changeStepFxSelection(uint8_t fx, uint8_t value);
 
 	//funkcje potow
-	void changeActualStepParams(int16_t value);
+	void changeActualStepNote(int16_t value);
+	void changeActualStepInstrument(int16_t value);
+	void changeActualStepVolume(int16_t value);
 	void changeActualStepFx1(int16_t value);
-	void changeActualStepFx2(int16_t value);
-	void changeActualStepFx3(int16_t value);
-	void changeActualStepFx4(int16_t value);
+	void changeActualStepFx1Params(int16_t value);
 
 
 
@@ -125,8 +127,11 @@ private:
 	{
 		stepParamNote,
 		stepParamInstr,
-		stepParamLength,
+		//stepParamLength,
 		stepParamVolume,
+
+		stepParamFx,
+		stepParamFxParams,
 
 		//-------------------------------
 		stepParamsCount
@@ -215,11 +220,11 @@ private:
 	enum
 	{
 		potFunctNone,
-		potFunctChangeStepParam,
-		potFunctChangeStepFx1,
-		potFunctChangeStepFx2,
-		potFunctChangeStepFx3,
-		potFunctChangeStepFx4,
+		potFunctChangeStepNote,
+		potFunctChangeStepInstr,
+		potFunctChangeStepVolume,
+		potFunctChangeStepFx,
+		potFunctChangeStepFxParams,
 
 
 
@@ -234,11 +239,11 @@ private:
 	char potFunctionLabels[potFunctionCount][20] =
 	{
 		{0},
-		"Note Inst Len Vol",
+		"Note",
+		"Instrument",
+		"Volume",
 		"Fx1",
-		"Fx2",
-		"Fx3",
-		"Fx4"
+		"Fx params"
 
 	};
 
@@ -247,17 +252,17 @@ private:
 	{
 		100,	//potFunctNone,
 		30,	//potFunctChangeStepParam,
-		100,	//potFunctChangeStepFx1,
-		100,	//potFunctChangeStepFx2,
-		100,	//potFunctChangeStepFx3,
-		100,	//potFunctChangeStepFx4,
+		30,	//potFunctChangeStepFx1,
+		30,	//potFunctChangeStepFx2,
+		30,	//potFunctChangeStepFx3,
+		30,	//potFunctChangeStepFx4,
 
 
 	};
 
 	const uint8_t potFuncAcc[potFunctionCount] =
 	{
-		3,	//potFunctNone,
+		0,	//potFunctNone,
 		3,	//potFunctChangeStepParam,
 		3,	//potFunctChangeStepFx1,
 		3,	//potFunctChangeStepFx2,

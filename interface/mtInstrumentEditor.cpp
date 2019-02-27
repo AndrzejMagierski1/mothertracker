@@ -146,6 +146,7 @@ void cMtInstrumentEditor::update()
 			}
 
 			if(openedInstrumentIndex < 0) openedInstrumentIndex = 0;
+			mtProject.values.lastUsedInstrument = openedInstrumentIndex;
 			mtDisplay.setList(instrument_list_pos, instrument_list_pos, 1, openedInstrumentIndex, instrumentNames, mtProject.instruments_count);
 		}
 

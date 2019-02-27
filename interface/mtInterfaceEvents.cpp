@@ -93,7 +93,7 @@ void projectEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 		else if(*(uint8_t*)param1 == interfacePadInstrumentEditor)
 		{
 			mtInterface.activateModule(mtModuleInstrumentEditor);
-			mtInstrumentEditor.startExisting(0);
+			mtInstrumentEditor.startExisting(mtProject.values.lastUsedInstrument);
 		}
 		else if(*(uint8_t*)param1 == interfacePadSampleBank)
 		{
@@ -138,10 +138,11 @@ void stepEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 		{
 			sequencer.stop();
 		}
+
 		else if(*(uint8_t*)param1 == interfacePadInstrumentEditor)
 		{
 			mtInterface.activateModule(mtModuleInstrumentEditor);
-			mtInstrumentEditor.startExisting(0);
+			mtInstrumentEditor.startExisting(mtProject.values.lastUsedInstrument);
 		}
 		else if(*(uint8_t*)param1 == interfacePadSampleBank)
 		{
@@ -192,7 +193,7 @@ void configEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 		else if(*(uint8_t*)param1 == interfacePadInstrumentEditor)
 		{
 			mtInterface.activateModule(mtModuleInstrumentEditor);
-			mtInstrumentEditor.startExisting(0);
+			mtInstrumentEditor.startExisting(mtProject.values.lastUsedInstrument);
 		}
 		else if(*(uint8_t*)param1 == interfacePadProjectEditor)
 		{
@@ -237,7 +238,7 @@ void sampleBankEditorEvent(uint8_t event, void* param1, void* param2, void* para
 		else if(*(uint8_t*)param1 == interfacePadInstrumentEditor)
 		{
 			mtInterface.activateModule(mtModuleInstrumentEditor);
-			mtInstrumentEditor.startExisting(0);
+			mtInstrumentEditor.startExisting(mtProject.values.lastUsedInstrument);
 		}
 		else if(*(uint8_t*)param1 == interfacePadProjectEditor)
 		{

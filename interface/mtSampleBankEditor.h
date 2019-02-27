@@ -75,7 +75,7 @@ private:
 	uint8_t samplesListChanged;
 	static const uint8_t samples_list_length_max = SAMPLES_MAX;
 	const uint8_t samples_list_pos = 3;
-	uint8_t samplesListEnabled = 0;
+//	uint8_t samplesListEnabled = 0;
 	char *samplesNames[SAMPLES_MAX];
 	uint16_t samplesCount;
 

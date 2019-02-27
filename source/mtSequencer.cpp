@@ -857,6 +857,8 @@ void Sequencer::loadDefaultSequence(void)
 		for (uint8_t y = MINSTEP; y <= MAXSTEP; y++)
 		{
 			seq[player.ramBank].track[x].step[y].isOn = 0;
+
+			seq[player.ramBank].track[x].step[y].length1 = 48;
 		}
 	}
 	//seq[player.ramBank].track[0].tempoDiv=1;

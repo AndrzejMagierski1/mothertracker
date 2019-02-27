@@ -73,7 +73,7 @@ void cMtInterface::padPressed(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 
 
 
-	leds.setLEDgrid(n+1,1,31);
+	leds.setLEDgrid(n,1,31);
 
 
 
@@ -94,7 +94,7 @@ void cMtInterface::padReleased(uint8_t n)
 		default : break;
 	}
 
-	leds.setLEDgrid(n+1,0,31);
+	leds.setLEDgrid(n,0,31);
 }
 
 //=======================================================================

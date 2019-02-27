@@ -1083,7 +1083,7 @@ void cMtDisplay::ramg_track_table()
 
 	int16_t x_pos = 0;
 	int16_t y_pos = 20 + (2) * MT_DISP_BLOCK_MENU_Y_SPACE;
-
+	uint8_t x_length = 0;
 	// linie
 	API_COLOR(displayColors.trackTableFrame);
 	API_LINE_WIDTH(8);
@@ -1093,6 +1093,7 @@ void cMtDisplay::ramg_track_table()
 	API_VERTEX2II(0, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
 	API_VERTEX2II(479, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
 
+/*
 	API_VERTEX2II(MT_DISP_BLOCK_W * (1), 20, 0, 0);
 	API_VERTEX2II(MT_DISP_BLOCK_W * (1), 20+5*MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
 
@@ -1104,103 +1105,88 @@ void cMtDisplay::ramg_track_table()
 
 	API_VERTEX2II(MT_DISP_BLOCK_W * (4), 20, 0, 0);
 	API_VERTEX2II(MT_DISP_BLOCK_W * (4), 20+5*MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
-
+*/
 	API_END();
 
-	uint8_t x_length = 24;
-	if(ptrTrackTable->active[0] == 0) 		{x_pos = 0;  x_length = 32;}
-	else if(ptrTrackTable->active[0] == 1)	{x_pos = 33; x_length = 18;}
-	else if(ptrTrackTable->active[0] == 2)	{x_pos = 52; x_length = 19;}
-	else									{x_pos = 71; x_length = 25;}
 
-	if(ptrTrackTable->params[2].mode == 0) {x_pos = 0;  x_length = 32;}
+	// ramka aktulanie edytowanego parametru tylko dla pierszych 4 kolumn
+	if(ptrTrackTable->active[0] < 4)
+	{
+		x_pos = MT_DISP_BLOCK_W * ((ptrTrackTable->params[2].mode > 0) ? ptrTrackTable->active[0] : 0);
 
-	// ramka 1
-	API_COLOR(displayColors.trackTableFrame);
-	API_LINE_WIDTH(12);
-	API_BEGIN(LINE_STRIP);
-	API_VERTEX2II(x_pos, y_pos, 0, 0);
-	API_VERTEX2II(x_pos + x_length -1, y_pos, 0, 0);
-	API_VERTEX2II(x_pos + x_length -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
-	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
-	API_VERTEX2II(x_pos, y_pos, 0, 0);
-	API_END();
-
-	x_pos = MT_DISP_BLOCK_W * (1) + ((ptrTrackTable->fx1[2].mode>0) ? ptrTrackTable->active[1] * (MT_DISP_BLOCK_W/3) :ptrTrackTable->active[1]  * (MT_DISP_BLOCK_W/2));
-	// ramka 2
-	API_BEGIN(LINE_STRIP);
-	API_VERTEX2II(x_pos, y_pos, 0, 0);
-	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos, 0, 0);
-	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
-	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
-	API_VERTEX2II(x_pos, y_pos, 0, 0);
-	API_END();
-
-	x_pos = MT_DISP_BLOCK_W * (2) + ((ptrTrackTable->fx2[2].mode>0) ? ptrTrackTable->active[2] * (MT_DISP_BLOCK_W/3) :ptrTrackTable->active[2]  * (MT_DISP_BLOCK_W/2));
-	// ramka 3
-	API_BEGIN(LINE_STRIP);
-	API_VERTEX2II(x_pos, y_pos, 0, 0);
-	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos, 0, 0);
-	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
-	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
-	API_VERTEX2II(x_pos, y_pos, 0, 0);
-	API_END();
-
-	x_pos = MT_DISP_BLOCK_W * (3) + ((ptrTrackTable->fx3[2].mode>0) ? ptrTrackTable->active[3] * (MT_DISP_BLOCK_W/3) :ptrTrackTable->active[3]  * (MT_DISP_BLOCK_W/2));
-	// ramka 4
-	API_BEGIN(LINE_STRIP);
-	API_VERTEX2II(x_pos, y_pos, 0, 0);
-	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos, 0, 0);
-	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
-	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
-	API_VERTEX2II(x_pos, y_pos, 0, 0);
-	API_END();
-
-	x_pos = MT_DISP_BLOCK_W * (4) + ((ptrTrackTable->fx4[2].mode>0) ? ptrTrackTable->active[4] * (MT_DISP_BLOCK_W/3) :ptrTrackTable->active[4]  * (MT_DISP_BLOCK_W/2));
-	// ramka 5
-	API_BEGIN(LINE_STRIP);
-	API_VERTEX2II(x_pos, y_pos, 0, 0);
-	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos, 0, 0);
-	API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W/4) -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
-	API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
-	API_VERTEX2II(x_pos, y_pos, 0, 0);
-	API_END();
-
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2II(x_pos, y_pos+1, 0, 0);
+		API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W) -1, y_pos+1, 0, 0);
+		API_VERTEX2II(x_pos + (MT_DISP_BLOCK_W) -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE -1, 0, 0);
+		API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE-1, 0, 0);
+		API_VERTEX2II(x_pos, y_pos, 0, 0);
+		API_END();
+	}
+	else
+	{
+		x_pos = MT_DISP_BLOCK_W * (4) + ((ptrTrackTable->fx1[2].mode > 2) ? MT_DISP_BLOCK_W : (MT_DISP_BLOCK_W/2));
+		x_length = (ptrTrackTable->fx1[2].mode > 2) ? (MT_DISP_BLOCK_W/2) : MT_DISP_BLOCK_W;
+		// ramka wartosci efektu
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2II(x_pos, y_pos, 0, 0);
+		API_VERTEX2II(x_pos + x_length -1, y_pos, 0, 0);
+		API_VERTEX2II(x_pos + x_length -1, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+		API_VERTEX2II(x_pos, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+		API_VERTEX2II(x_pos, y_pos, 0, 0);
+		API_END();
+	}
 
 	for(uint8_t i = 0; i < 5; i++)
 	{
-		if(ptrTrackTable->state[i])
+		if(ptrTrackTable->state[i]) // czy step lezy w sekwencji
 		{
 			y_pos = (MT_DISP_BLOCK_MENU_Y_SPACE/2) + 20 + i*MT_DISP_BLOCK_MENU_Y_SPACE;
 			x_pos = 0;
 
 			// param value
 			API_COLOR(displayColors.fontTrackTable);
-			if(ptrTrackTable->params[i].mode)
+			if(ptrTrackTable->params[i].mode) // czy step aktywny ? isOn == 1
 			{
-				API_CMD_TEXT(1, y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), &mtDispNotes[ptrTrackTable->params[i].iVal1][0]);
-				API_CMD_NUMBER(1+34 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal2);
-				API_CMD_NUMBER(1+53 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal3);
+				API_CMD_TEXT  ((0) * MT_DISP_BLOCK_W + MT_DISP_BLOCK_W/2 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), &mtDispNotes[ptrTrackTable->params[i].iVal1][0]);
+				API_CMD_NUMBER((1) * MT_DISP_BLOCK_W + MT_DISP_BLOCK_W/2 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrTrackTable->params[i].iVal2);
+				//API_CMD_NUMBER((2) * MT_DISP_BLOCK_W + MT_DISP_BLOCK_W/2 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrTrackTable->params[i].iVal3);
 				if(ptrTrackTable->params[i].iVal4 >= 0) // velocity
 				{
-					API_CMD_NUMBER(1+72 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->params[i].iVal4);
+					API_CMD_NUMBER((2) * MT_DISP_BLOCK_W + MT_DISP_BLOCK_W/2 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrTrackTable->params[i].iVal4);
 				}
 				else
 				{
-					API_CMD_TEXT(1+72 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "---");
+					API_CMD_TEXT((2) * MT_DISP_BLOCK_W + MT_DISP_BLOCK_W/2 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), "---");
 				}
 
 			}
 			else
 			{
-				API_CMD_TEXT(1, y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "---");
+				API_CMD_TEXT((0) * MT_DISP_BLOCK_W + MT_DISP_BLOCK_W/2, y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), "---");
+				API_CMD_TEXT((1) * MT_DISP_BLOCK_W + MT_DISP_BLOCK_W/2, y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), "---");
+				API_CMD_TEXT((2) * MT_DISP_BLOCK_W + MT_DISP_BLOCK_W/2, y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), "---");
+
 			}
 
 			// fxs
-			API_CMD_TEXT(MT_DISP_BLOCK_W * (1)+3 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->fx1[i].name);
-			API_CMD_TEXT(MT_DISP_BLOCK_W * (2)+3 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->fx2[i].name);
-			API_CMD_TEXT(MT_DISP_BLOCK_W * (3)+3 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->fx3[i].name);
-			API_CMD_TEXT(MT_DISP_BLOCK_W * (4)+3 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), ptrTrackTable->fx4[i].name);
+			API_CMD_TEXT((3) * MT_DISP_BLOCK_W + MT_DISP_BLOCK_W/2 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrTrackTable->fx1[i].name);
+
+			if(ptrTrackTable->fx1[i].mode > 2)
+			{
+				API_CMD_NUMBER((4) * MT_DISP_BLOCK_W + MT_DISP_BLOCK_W/4 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrTrackTable->fx1[i].iVal1);
+				API_CMD_NUMBER((4) * MT_DISP_BLOCK_W + (MT_DISP_BLOCK_W/4)*3 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrTrackTable->fx1[i].iVal2);
+
+			}
+			else if(ptrTrackTable->fx1[i].mode > 0)
+			{
+				API_CMD_NUMBER((4) * MT_DISP_BLOCK_W + MT_DISP_BLOCK_W/2 , y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), ptrTrackTable->fx1[i].iVal1);
+			}
+			else
+			{
+				API_CMD_TEXT((4) * MT_DISP_BLOCK_W + MT_DISP_BLOCK_W/2, y_pos, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERX | OPT_CENTERY), "---");
+
+			}
+
 		}
 
 	}

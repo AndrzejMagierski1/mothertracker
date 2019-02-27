@@ -585,6 +585,8 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 		loadSamplesBank();
 
 
+		//readProjectConfig();
+
 //		fileManager.importSampleToProject(NULL,"c.WAV","1.WAV",0,mtSampleTypeWaveFile);
 
 //		fileManager.createNewProject("Project_Test1");
@@ -608,8 +610,6 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 
 //		fileManager.saveProject();
 
-		uint8_t val = mtInterface.activeModules[0];
-		(void)val;
 
 		browseCancel(1);
 		refreshModule = 1;
@@ -762,7 +762,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	//strcpy(fileManager.currentProjectPatch,"Projects/Project_001");
 
 
-	mtProject.instruments_count = 8;
+
 
 	for(uint8_t i = 0; i < mtProject.instruments_count; i++)
 	{
@@ -819,6 +819,8 @@ uint8_t cMtProjectEditor::readProjectConfig()
 
 	}
 
+
+/*
 	mtProject.instrument[0].startPoint = 19000;
 	mtProject.instrument[0].loopPoint1 = 19000; //PRO
 	mtProject.instrument[0].loopPoint2 = 29000;
@@ -829,7 +831,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	mtProject.instrument[0].lfo[lfoA].sync=0;
 	mtProject.instrument[0].lfo[lfoA].enable=lfoOff;
 
-
+*/
 
 	// parametry paternu ========================================
 
@@ -913,12 +915,15 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 //-------------------------------------------------------------------------------
 uint8_t cMtProjectEditor::loadLastProject()
 {
+
+/*
+
 	if(readProjectConfig())
 	{
 		mtPrintln("loading config file failed!");
 		return 1;
 	}
-/*
+
 	if(loadSamplesBank())
 	{
 		mtPrintln("loading samples failed!");

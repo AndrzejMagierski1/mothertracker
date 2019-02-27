@@ -299,6 +299,11 @@ struct strInstrument
     int16_t panning;
 };
 
+struct strMtValues
+{
+	uint8_t lastUsedInstrument = 0;
+};
+
 struct strMtProjectRemote
 {
 	struct strSampleFile
@@ -327,11 +332,13 @@ struct strMtProject
 {
 	strSampleBank sampleBank;
 	strInstrument instrument[INSTRUMENTS_MAX];
-
-
 	uint8_t instruments_count;
 
 	strMtProjectRemote mtProjectRemote;
+
+
+	strMtValues values;
+
 
 };
 
