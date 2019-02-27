@@ -145,7 +145,9 @@ private:
 
 //========================================================
 
-	int8_t openedInstrumentIndex;
+	int8_t openedInstrumentIndex; // index w globalnej liscie instrumentow
+	int8_t openedInstrFromActive; // index z listy tylko aktywnych ( activeInstruments[] )
+	int8_t activeInstruments[INSTRUMENTS_MAX];
 	strInstrument * editorInstrument;
 	int8_t playNote = 24;
 	uint8_t glidePreviewDif = 0;

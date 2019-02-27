@@ -121,7 +121,7 @@ private:
 	void browseOpen(uint8_t value);
 	void browseCancel(uint8_t value);
 	void saveProjectAs(uint8_t value);
-
+	void createNewTemplate(uint8_t value);
 
 	//funkcje potow
 	void changeProjectsListPos(int16_t value);
@@ -157,7 +157,7 @@ private:
 		buttonFunctBrowseOpen,
 		buttonFunctBrowseCancel,
 		buttonFunctSaveProjectAs,
-
+		buttonFunctCreateNewTemplate,
 
 
 
@@ -178,7 +178,8 @@ private:
 		"Select",
 		"Open",
 		"Cancel",
-		"Create"
+		"Create",
+		"Create empty"
 
 
 
@@ -207,7 +208,7 @@ private:
 	char potFunctionLabels[potFunctCount][20] =
 	{
 		{0},
-		"Select project:",
+		"Select project:  ",
 		"Select template:",
 
 

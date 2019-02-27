@@ -140,14 +140,22 @@ void cMtInstrumentEditor::update()
 		if(instrumentListChanged == 2) // pokaz liste
 		{
 			//przetworz tablice adresow nazw sampli na podstawie nazw z banku sampli
+			openedInstrFromActive = 0;
+			uint8_t activeInstr = 0;
 			for(uint8_t i = 0; i < INSTRUMENTS_MAX; i++)
 			{
-				instrumentNames[i] = mtProject.instrument[i].name;
+				if(mtProject.instrument[i].isActive)
+				{
+					instrumentNames[activeInstr] = mtProject.instrument[i].name;
+					activeInstruments[activeInstr] = i;
+					if(i == openedInstrumentIndex) openedInstrFromActive = activeInstr;
+					activeInstr++;
+				}
 			}
 
 			if(openedInstrumentIndex < 0) openedInstrumentIndex = 0;
-			mtProject.values.lastUsedInstrument = openedInstrumentIndex;
-			mtDisplay.setList(instrument_list_pos, instrument_list_pos, 1, openedInstrumentIndex, instrumentNames, mtProject.instruments_count);
+
+			mtDisplay.setList(instrument_list_pos, instrument_list_pos, 1, openedInstrFromActive, instrumentNames, mtProject.instruments_count);
 		}
 
 		instrumentListChanged = 0;
@@ -844,13 +852,13 @@ void cMtInstrumentEditor::updateButtonsFunctions()
 	else
 	{
 		setButtonFunction(0, buttonFunctInstrumentList);
+		setButtonFunction(1, buttonFunctSampleList);
 		if(mtProject.sampleBank.sample[editorInstrument->sampleIndex].type == mtSampleTypeWaveFile)
 		{
-			setButtonFunction(1, buttonFunctPlayMode);
+			setButtonFunction(4, buttonFunctPlayMode);
 		}
-		setButtonFunction(2, buttonFunctParameters);
-		setButtonFunction(3, buttonFunctEnvelopes);
-		setButtonFunction(4, buttonFunctSampleList);
+		//setButtonFunction(2, buttonFunctParameters);
+		//setButtonFunction(3, buttonFunctEnvelopes);
 	}
 
 
@@ -1404,13 +1412,18 @@ void cMtInstrumentEditor::changeAmount(int16_t value)
 
 void cMtInstrumentEditor::selectInstrument(int16_t value)
 {
-	if(openedInstrumentIndex + value < 0) openedInstrumentIndex  = 0;
-	else if(openedInstrumentIndex + value > mtProject.instruments_count-1) openedInstrumentIndex  = mtProject.instruments_count-1;
-	else openedInstrumentIndex += value;
 
+
+	if(openedInstrFromActive + value < 0) openedInstrFromActive = 0;
+	else if(openedInstrFromActive + value > mtProject.instruments_count-1) openedInstrFromActive  = mtProject.instruments_count-1;
+	else openedInstrFromActive += value;
+
+	openedInstrumentIndex = activeInstruments[openedInstrFromActive];
+
+	mtProject.values.lastUsedInstrument = openedInstrumentIndex;
 	editorInstrument = &mtProject.instrument[openedInstrumentIndex];
 
-	mtDisplay.changeList(instrument_list_pos, openedInstrumentIndex);
+	mtDisplay.changeList(instrument_list_pos, openedInstrFromActive);
 
 	mtHaptic.start(15,150,0x01,56);
 
