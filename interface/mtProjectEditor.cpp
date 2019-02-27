@@ -534,7 +534,6 @@ void cMtProjectEditor::saveProject(uint8_t value)
 
 		fileManager.saveProject();
 
-
 	}
 }
 

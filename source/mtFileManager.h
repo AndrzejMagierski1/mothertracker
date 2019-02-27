@@ -86,7 +86,7 @@ public:
 	void importInstrumentToProject(char* filePatch, char* name, int8_t index);
 	void importPatternToProject(char* filePatch, char* name, int8_t index);
 	void createEmptyTemplateProject(char * name);
-
+	void addInstrumentToProject (int8_t index);
 	///todo: jest mozliwosc ze beda potem prywatne
 	void formatSDCard();
 	void createNewProject(char * name);
