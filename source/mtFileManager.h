@@ -83,9 +83,12 @@ public:
 	void saveAsProject(char* name);
 	void saveProject();
 	void importSampleToProject(char* filePatch, char* name, char* newName, int8_t sampleIndex,int8_t instrumentIndex, uint8_t type);
-	void importInstrumentToProject(char* filePatch, char* name, char* newName, int8_t index);
-	void importPatternToProject(char* filePatch, char* name, char* newName, int8_t index);
+	void importInstrumentToProject(char* filePatch, char* name, int8_t index);
+	void importPatternToProject(char* filePatch, char* name, int8_t index);
+	void createEmptyTemplateProject(char * name);
+
 	///todo: jest mozliwosc ze beda potem prywatne
+	void formatSDCard();
 	void createNewProject(char * name);
 	void copySample(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
 	void copyPattern(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
