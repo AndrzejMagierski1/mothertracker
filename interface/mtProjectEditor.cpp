@@ -78,7 +78,7 @@ void cMtProjectEditor::update()
 			}
 			else if(browseLocationType == browseLocationTypeOpenTemplate)
 			{
-				listOnlyFolderNames("/Templates/");
+				listOnlyFolderNames("/Templates");
 			}
 
 			mtDisplay.setList(files_list_pos, files_list_pos, 2, 0, filesNames, locationFilesCount);
@@ -129,6 +129,8 @@ void cMtProjectEditor::exploreActualLocation()
 
 void cMtProjectEditor::listOnlyFolderNames(const char* folder)
 {
+	strcpy(filePath, folder);
+	strcat(filePath,"/");
 	sdLocation.close();
 	sdLocation.open(folder, O_READ); //"/"
 	locationFilesCount = sdLocation.createFilesList(0,locationFilesList, files_list_length_max);
@@ -141,7 +143,7 @@ void cMtProjectEditor::listOnlyFolderNames(const char* folder)
 	{
 		if(locationFilesList[i][0] == '/')	//tylko jesli folder
 		{
-			strcpy(filePath,"/Projects");
+			strcpy(filePath, folder);
 			strcat(filePath,&locationFilesList[i][0]); //doklej nazwe folderu
 
 			sdLocation.open(filePath, O_READ);
@@ -506,6 +508,8 @@ void cMtProjectEditor::newProject(uint8_t value)
 
 
 	}
+
+
 }
 
 void cMtProjectEditor::openProject(uint8_t value)
@@ -585,6 +589,7 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 		loadSamplesBank();
 
 
+
 //		fileManager.importSampleToProject(NULL,"c.WAV","1.WAV",0,mtSampleTypeWaveFile);
 
 //		fileManager.createNewProject("Project_Test1");
@@ -624,6 +629,7 @@ void cMtProjectEditor::saveProjectAs(uint8_t value)
 
 		fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeExample);
 		loadSamplesBank();
+
 		fileManager.saveAsProject(editName);
 		fileManager.openProject(editName,projectTypeUserMade);
 		loadSamplesBank();
@@ -762,7 +768,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	//strcpy(fileManager.currentProjectPatch,"Projects/Project_001");
 
 
-	mtProject.instruments_count = 8;
+	//mtProject.instruments_count = 8;
 
 	for(uint8_t i = 0; i < mtProject.instruments_count; i++)
 	{
@@ -805,7 +811,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 		mtProject.instrument[i].tune = 0;
 		mtProject.instrument[i].fineTune = 0;
 
-		if(i >= 10)
+		if(i >= 9)
 		{
 			mtProject.instrument[i].name[0] = (i+1)/10 + 48;
 			mtProject.instrument[i].name[1] = (i+1)%10 + 48;
@@ -819,15 +825,15 @@ uint8_t cMtProjectEditor::readProjectConfig()
 
 	}
 
-	mtProject.instrument[0].startPoint = 19000;
-	mtProject.instrument[0].loopPoint1 = 19000; //PRO
-	mtProject.instrument[0].loopPoint2 = 29000;
-
-	mtProject.instrument[0].lfo[lfoA].rate=600;
-	mtProject.instrument[0].lfo[lfoA].wave=0;
-	mtProject.instrument[0].lfo[lfoA].amount=4095;
-	mtProject.instrument[0].lfo[lfoA].sync=0;
-	mtProject.instrument[0].lfo[lfoA].enable=lfoOff;
+//	mtProject.instrument[0].startPoint = 19000;
+//	mtProject.instrument[0].loopPoint1 = 19000; //PRO
+//	mtProject.instrument[0].loopPoint2 = 29000;
+//
+//	mtProject.instrument[0].lfo[lfoA].rate=600;
+//	mtProject.instrument[0].lfo[lfoA].wave=0;
+//	mtProject.instrument[0].lfo[lfoA].amount=4095;
+//	mtProject.instrument[0].lfo[lfoA].sync=0;
+//	mtProject.instrument[0].lfo[lfoA].enable=lfoOff;
 
 
 

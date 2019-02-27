@@ -33,6 +33,7 @@ const uint8_t PATTERN_NAME_SIZE	=				15;
 const uint8_t SAMPLE_NAME_SIZE =				32;
 
 const uint8_t PATCH_SIZE =						255;
+const uint8_t SONG_MAX =						100;
 
 const uint8_t SAMPLE_POINT_POS_MIN =            0;
 const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
@@ -303,7 +304,7 @@ struct strMtProjectRemote
 {
 	struct strSampleFile
 	{
-		int8_t index;
+		int8_t index= -1;
 		uint8_t type;
 		uint16_t wavetable_window_size;
 		char name[SAMPLE_NAME_SIZE];
@@ -311,15 +312,17 @@ struct strMtProjectRemote
 
 	struct strInstrumentFile
 	{
-		int8_t index;
+		int8_t index= -1;
 		char name[INSTRUMENT_NAME_SIZE];
 	} instrumentFile[INSTRUMENTS_COUNT];
 
 	struct strPaternFile
 	{
-		int8_t index;
+		int8_t index= -1;
 		char name[PATTERN_NAME_SIZE];
 	} patternFile[PATTERNS_COUNT];
+
+	int8_t song[SONG_MAX];
 
 };
 
