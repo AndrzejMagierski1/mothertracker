@@ -532,7 +532,8 @@ void cMtProjectEditor::saveProject(uint8_t value)
 	if(value == 1)
 	{
 
-		fileManager.saveProject();
+		//fileManager.saveProject();
+		fileManager.addInstrumentToProject(9);
 
 	}
 }
