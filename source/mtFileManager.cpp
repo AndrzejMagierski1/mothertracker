@@ -367,6 +367,16 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 		if(mtProject.instrument[instrumentIndex].isActive)
 		{
 			// todo:wywolanie zapytania o nadpisanie?
+
+			while((mtProject.mtProjectRemote.instrumentFile[cnt].index != instrumentIndex) && (cnt < INSTRUMENTS_COUNT) )
+			{
+				cnt++;
+			}
+			if(cnt != INSTRUMENTS_COUNT)
+			{
+				mtProject.mtProjectRemote.instrumentFile[cnt].index=-1;
+				memset(mtProject.mtProjectRemote.instrumentFile[cnt].name,0,INSTRUMENT_NAME_SIZE);
+			}
 		}
 
 		cnt=0;
@@ -385,6 +395,45 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 		mtProject.mtProjectRemote.instrumentFile[cnt].name[11] = ((instrumentIndex-instrumentIndex%10)/10) + 48;
 		mtProject.mtProjectRemote.instrumentFile[cnt].name[12] = instrumentIndex%10 + 48;
 
+		mtProject.instrument[instrumentIndex].isActive=1;
+		mtProject.instrument[instrumentIndex].startPoint=0;
+		mtProject.instrument[instrumentIndex].loopPoint1=0;
+		mtProject.instrument[instrumentIndex].loopPoint2=MAX_16BIT;
+		mtProject.instrument[instrumentIndex].endPoint=MAX_16BIT;
+
+		mtProject.instrument[instrumentIndex].wavetableCurrentWindow = 0;
+		mtProject.instrument[instrumentIndex].playMode = 1;
+
+		mtProject.instrument[instrumentIndex].envelope[envAmp].delay = 0;
+		mtProject.instrument[instrumentIndex].envelope[envAmp].attack = 1000;
+		mtProject.instrument[instrumentIndex].envelope[envAmp].hold = 0;
+		mtProject.instrument[instrumentIndex].envelope[envAmp].decay = 0;
+		mtProject.instrument[instrumentIndex].envelope[envAmp].sustain = 1.0;
+		mtProject.instrument[instrumentIndex].envelope[envAmp].release = 1000;
+		mtProject.instrument[instrumentIndex].envelope[envAmp].amount = 1.0;
+		mtProject.instrument[instrumentIndex].envelope[envAmp].enable = envelopeOn;
+
+		mtProject.instrument[instrumentIndex].envelope[envFilter].delay = 0;
+		mtProject.instrument[instrumentIndex].envelope[envFilter].attack = 3000;
+		mtProject.instrument[instrumentIndex].envelope[envFilter].hold = 0;
+		mtProject.instrument[instrumentIndex].envelope[envFilter].decay = 0;
+		mtProject.instrument[instrumentIndex].envelope[envFilter].sustain = 1.0;
+		mtProject.instrument[instrumentIndex].envelope[envFilter].release = 1000;
+		mtProject.instrument[instrumentIndex].envelope[envFilter].amount = 1.0;
+		mtProject.instrument[instrumentIndex].envelope[envFilter].enable = envelopeOff;
+
+		mtProject.instrument[instrumentIndex].cutOff = 1.0;
+		mtProject.instrument[instrumentIndex].filterEnable = filterOff;
+		mtProject.instrument[instrumentIndex].filterType = lowPass;
+		mtProject.instrument[instrumentIndex].resonance = 0;
+		mtProject.instrument[instrumentIndex].panning = 50;
+		mtProject.instrument[instrumentIndex].glide = 0;
+		mtProject.instrument[instrumentIndex].volume = 100;
+		mtProject.instrument[instrumentIndex].tune = 0;
+		mtProject.instrument[instrumentIndex].fineTune = 0;
+
+
+		mtProject.instruments_count++;
 
 		memset(currentPatch,0,PATCH_SIZE);
 		strcpy(currentPatch,currentProjectPatch);
@@ -406,6 +455,20 @@ void FileManager::importInstrumentToProject(char* filePatch,char* name, int8_t i
 	char currentPatch[PATCH_SIZE];
 	FsFile file;
 	uint8_t cnt=0;
+	if(mtProject.instrument[index].isActive)
+	{
+		//todo: zapytanie o nadpisanie?
+		while((mtProject.mtProjectRemote.instrumentFile[cnt].index != index) && (cnt < INSTRUMENTS_COUNT) )
+		{
+			cnt++;
+		}
+		if(cnt != INSTRUMENTS_COUNT)
+		{
+			mtProject.mtProjectRemote.instrumentFile[cnt].index=-1;
+			memset(mtProject.mtProjectRemote.instrumentFile[cnt].name,0,INSTRUMENT_NAME_SIZE);
+		}
+		cnt=0;
+	}
 
 	while((mtProject.mtProjectRemote.instrumentFile[cnt].index != -1) && (cnt < INSTRUMENTS_COUNT) )
 	{
@@ -439,6 +502,9 @@ void FileManager::importInstrumentToProject(char* filePatch,char* name, int8_t i
 		mtProject.instrument[index].name[0] = (((index+1)-(index+1)%10)/10) + 48;
 		mtProject.instrument[index].name[1] = (index+1)%10 + 48;
 	}
+	mtProject.instrument[index].isActive=1;
+	mtProject.instruments_count++;
+	writeInstrumentFile(currentPatch,&mtProject.instrument[index]);
 
 	writeInstrumentFile(currentPatch,&mtProject.instrument[index]);
 
@@ -794,6 +860,7 @@ void FileManager::createEmptyTemplateProject(char * name)
 	strcat(patchFolder,"/patterns/");
 	strcat(patchFolder,mtProject.mtProjectRemote.patternFile[0].name);
 
+	mtProject.patterns_count++;
 	writePatternFile(patchFolder);
 
 	memset(patchFolder,0,PATCH_SIZE);
@@ -802,4 +869,139 @@ void FileManager::createEmptyTemplateProject(char * name)
 	strcat(patchFolder,"/project.bin");
 
 	writeProjectFile(patchFolder, &mtProject.mtProjectRemote);
+
+//	addInstrumentToProject (0);
+}
+
+void FileManager:: addInstrumentToProject (int8_t index)
+{
+	char currentPatch[PATCH_SIZE];
+	uint8_t cnt=0;
+
+	if(mtProject.instrument[index].isActive)
+	{
+		//todo: nadpisac?
+		while((mtProject.mtProjectRemote.instrumentFile[cnt].index != index) && (cnt < INSTRUMENTS_COUNT) )
+		{
+			cnt++;
+		}
+		if(cnt != INSTRUMENTS_COUNT)
+		{
+			mtProject.mtProjectRemote.instrumentFile[cnt].index=-1;
+			memset(mtProject.mtProjectRemote.instrumentFile[cnt].name,0,INSTRUMENT_NAME_SIZE);
+		}
+		cnt=0;
+	}
+
+	while((mtProject.mtProjectRemote.instrumentFile[cnt].index != -1) && (cnt < INSTRUMENTS_COUNT) )
+	{
+			cnt++;
+	}
+	mtProject.mtProjectRemote.instrumentFile[cnt].index=index;
+	strcpy(mtProject.mtProjectRemote.instrumentFile[cnt].name,"instrument_00.mti");
+	mtProject.mtProjectRemote.instrumentFile[cnt].name[11] = ((index-index%10)/10) + 48;
+	mtProject.mtProjectRemote.instrumentFile[cnt].name[12] = index%10 + 48;
+
+
+	if(index<9) mtProject.instrument[index].name[0] = (index+1)%10 + 48;
+	else
+	{
+		mtProject.instrument[index].name[0] = (((index+1)-(index+1)%10)/10) + 48;
+		mtProject.instrument[index].name[1] = (index+1)%10 + 48;
+	}
+	mtProject.instrument[index].isActive=1;
+	mtProject.instrument[index].startPoint=0;
+	mtProject.instrument[index].loopPoint1=0;
+	mtProject.instrument[index].loopPoint2=MAX_16BIT;
+	mtProject.instrument[index].endPoint=MAX_16BIT;
+
+	mtProject.instrument[index].wavetableCurrentWindow = 0;
+	mtProject.instrument[index].playMode = 1;
+
+	mtProject.instrument[index].envelope[envAmp].delay = 0;
+	mtProject.instrument[index].envelope[envAmp].attack = 1000;
+	mtProject.instrument[index].envelope[envAmp].hold = 0;
+	mtProject.instrument[index].envelope[envAmp].decay = 0;
+	mtProject.instrument[index].envelope[envAmp].sustain = 1.0;
+	mtProject.instrument[index].envelope[envAmp].release = 1000;
+	mtProject.instrument[index].envelope[envAmp].amount = 1.0;
+	mtProject.instrument[index].envelope[envAmp].enable = envelopeOn;
+
+	mtProject.instrument[index].envelope[envFilter].delay = 0;
+	mtProject.instrument[index].envelope[envFilter].attack = 3000;
+	mtProject.instrument[index].envelope[envFilter].hold = 0;
+	mtProject.instrument[index].envelope[envFilter].decay = 0;
+	mtProject.instrument[index].envelope[envFilter].sustain = 1.0;
+	mtProject.instrument[index].envelope[envFilter].release = 1000;
+	mtProject.instrument[index].envelope[envFilter].amount = 1.0;
+	mtProject.instrument[index].envelope[envFilter].enable = envelopeOff;
+
+	mtProject.instrument[index].cutOff = 1.0;
+	mtProject.instrument[index].filterEnable = filterOff;
+	mtProject.instrument[index].filterType = lowPass;
+	mtProject.instrument[index].resonance = 0;
+	mtProject.instrument[index].panning = 50;
+	mtProject.instrument[index].glide = 0;
+	mtProject.instrument[index].volume = 100;
+	mtProject.instrument[index].tune = 0;
+	mtProject.instrument[index].fineTune = 0;
+
+
+	mtProject.instruments_count++;
+
+	memset(currentPatch,0,PATCH_SIZE);
+	strcpy(currentPatch,currentProjectPatch);
+	strcat(currentPatch,"/instruments/");
+	strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[cnt].name);
+
+	if(SD.exists(currentPatch)) SD.remove(currentPatch);
+
+	writeInstrumentFile(currentPatch,&mtProject.instrument[index]);
+
+	memset(currentPatch,0,PATCH_SIZE);
+	strcpy(currentPatch,currentProjectPatch);
+	strcat(currentPatch,"/project.bin");
+
+	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
+}
+
+void FileManager:: addPatternToProject (int8_t index)
+{
+	char currentPatch[PATCH_SIZE];
+	uint8_t cnt=0;
+	while((mtProject.mtProjectRemote.patternFile[cnt].index != index) && (cnt < PATTERNS_COUNT) )
+	{
+		cnt++;
+	}
+	if(cnt != PATTERNS_COUNT)
+	{
+		mtProject.mtProjectRemote.patternFile[cnt].index=-1;
+		memset(mtProject.mtProjectRemote.patternFile[cnt].name,0,PATTERN_NAME_SIZE);
+	}
+	cnt=0;
+	while((mtProject.mtProjectRemote.patternFile[cnt].index != -1) && (cnt < PATTERNS_COUNT) )
+	{
+		cnt++;
+	}
+	mtProject.mtProjectRemote.patternFile[cnt].index=index;
+	strcpy(mtProject.mtProjectRemote.patternFile[cnt].name,"pattern_00.mti");
+	mtProject.mtProjectRemote.patternFile[cnt].name[8] = ((index-index%10)/10) + 48;
+	mtProject.mtProjectRemote.patternFile[cnt].name[9] = index%10 + 48;
+
+	mtProject.patterns_count++;
+
+	memset(currentPatch,0,PATCH_SIZE);
+	strcpy(currentPatch,currentProjectPatch);
+	strcat(currentPatch,"/patterns/");
+	strcat(currentPatch,mtProject.mtProjectRemote.patternFile[cnt].name);
+
+	if(SD.exists(currentPatch)) SD.remove(currentPatch);
+
+	writePatternFile(currentPatch);
+
+	memset(currentPatch,0,PATCH_SIZE);
+	strcpy(currentPatch,currentProjectPatch);
+	strcat(currentPatch,"/project.bin");
+
+	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 }

@@ -336,6 +336,7 @@ struct strMtProject
 	strSampleBank sampleBank;
 	strInstrument instrument[INSTRUMENTS_MAX];
 	uint8_t instruments_count;
+	uint8_t patterns_count;
 
 	strMtProjectRemote mtProjectRemote;
 
