@@ -456,8 +456,6 @@ void cMtProjectEditor::updatePotsFunctions()
 		{
 			setPotFunction(0, potFunctChangeTemplatesList);
 		}
-
-
 	}
 	else
 	{
