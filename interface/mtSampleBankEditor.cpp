@@ -54,12 +54,24 @@ void cMtSampleBankEditor::update()
 
 		if(samplesListChanged == 2) // pokaz liste
 		{
-			for(uint8_t i = 0; i < SAMPLES_MAX; i++)
+
+			if(mtProject.sampleBank.samples_count > 0)
 			{
-				samplesNames[i] = mtProject.sampleBank.sample[i].file_name;
+				for(uint8_t i = 0; i < SAMPLES_MAX; i++)
+				{
+					samplesNames[i] = mtProject.sampleBank.sample[i].file_name;
+				}
+
+				mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, samplesNames, mtProject.sampleBank.samples_count);
+			}
+			else
+			{
+				samplesNames[0] = buttonFunctionLabels[0]; // przypisanie pustego
+				mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, samplesNames, 1 );
 			}
 
-			mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, samplesNames, mtProject.sampleBank.samples_count);
+
+
 		}
 
 		//processSamples();
@@ -146,15 +158,17 @@ void cMtSampleBankEditor::buttonChange(uint8_t button, uint8_t value)
 
 void cMtSampleBankEditor::potChange(uint8_t pot, int16_t value)
 {
-	switch(potFunctions[pot])
+	if(value == 1)
 	{
-		case potFunctNone				:		break;
+		switch(potFunctions[pot])
+		{
+			case potFunctNone					:	break;
+			case potFunctChangeSamplesListPos	:	changeSampleListPos();	break;
 
 
-
-		default: break;
+			default: break;
+		}
 	}
-
 	refreshModule = 1;
 }
 
@@ -277,7 +291,7 @@ void cMtSampleBankEditor::updatePotsFunctions()
 
 //--------------------------------------------------------
 
-
+	setPotFunction(3, potFunctChangeSamplesListPos);
 
 
 //--------------------------------------------------------
@@ -304,6 +318,10 @@ void cMtSampleBankEditor::setPotFunction(uint8_t number, uint8_t function)
 //#########################################################################################################
 
 
+void cMtSampleBankEditor::changeSampleListPos()
+{
+
+}
 
 
 

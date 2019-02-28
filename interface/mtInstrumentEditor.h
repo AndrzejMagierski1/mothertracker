@@ -103,9 +103,10 @@ private:
 	void play(uint8_t value);
 	void stopPlaying(uint8_t value);
 	void changePlayMode(uint8_t value);
-	void showParameters(uint8_t value);
+	void showParameters();
 	void changeGlideNote(uint8_t value);
-	void showEnvelopes(uint8_t value);
+	void showEnvelopes();
+	void showSpectrum();
 	void changeFilterType(uint8_t value);
 	void changeEnvelopeType(uint8_t value);
 	void setEnvelopeTypeAmp(uint8_t value);
@@ -113,11 +114,11 @@ private:
 	void setEnvelopeEnable(uint8_t value);
 	void changeParamsPage(uint8_t value);
 	void addInstrument(uint8_t value);
-	void removeInstrument(uint8_t value);
+	void removeInstrument();
 	void addSample(uint8_t value);
 	void createInstrument(uint8_t value);
 	void cancelCreateInstrument(uint8_t value);
-
+	void importInstrument(uint8_t value);
 
 	//funkcje potow
 	void modStartPoint(int16_t value);
@@ -260,6 +261,7 @@ private:
 		buttonFunctSampleAdd,
 		buttonFunctInstrumentCreate,
 		buttonFunctInstrumentCreateCancel,
+		buttonFunctInstrumentImport,
 
 
 		//-------------------------------
@@ -286,11 +288,12 @@ private:
 		"Filter Envelope",
 		"Disabled",
 		"Next page",
-		"Add instr",
-		"Remove instr",
+		"Add inst.",
+		"Remove inst.",
 		"Add sample",
 		"Create",
 		"Cancel",
+		"Import inst.",
 
 	};
 

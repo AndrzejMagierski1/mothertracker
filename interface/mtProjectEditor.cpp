@@ -574,6 +574,26 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 	{
 
 		fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
+/*
+		fileManager.importSampleToProject(NULL,(char*)"1.WAV",(char*)"1.WAV",0,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"2.WAV",(char*)"2.WAV",1,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"3.WAV",(char*)"3.WAV",2,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"4.WAV",(char*)"4.WAV",3,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"5.WAV",(char*)"5.WAV",4,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"6.WAV",(char*)"6.WAV",5,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"7.WAV",(char*)"7.WAV",6,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"8.WAV",(char*)"8.WAV",7,-1,mtSampleTypeWaveFile);
+		*/
+/*
+		fileManager.importSampleToProject(NULL,(char*)"11.WAV",8,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"12.WAV",9,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"13.WAV",10,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"14.WAV",11,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"15.WAV",12,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"16.WAV",13,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"17.WAV",14,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"18.WAV",15,mtSampleTypeWavetable);
+*/
 		loadSamplesBank();
 
 		browseCancel(1);

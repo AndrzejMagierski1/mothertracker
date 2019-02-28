@@ -56,9 +56,8 @@ private:
 	//funkcje przyciskow
 
 
-
 	//funkcje potow
-	void changeSampleListPos(int16_t value);
+	void changeSampleListPos();
 
 
 
@@ -107,7 +106,6 @@ private:
 
 
 	};
-
 
 
 //potencjometry  ---------------------------------------------------------
