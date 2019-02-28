@@ -143,13 +143,24 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 
 void cMtSampleBankEditor::buttonChange(uint8_t button, uint8_t value)
 {
-	switch(buttonFunctions[button])
+	if(value == 1)
 	{
-	case buttonFunctNone				:		break;
+		switch(buttonFunctions[button])
+		{
+		case buttonFunctNone				:	break;
+		case buttonFunctImportSample		:	importSample();		break;
+		case buttonFunctRemoveSample		:	removeSample();		break;
+		case buttonFunctRenameSample		:	renameSample();		break;
+
+		case buttonFunctBrowseSelectSample	:	browseSelectSample();	break;
+		case buttonFunctBrowseOpenFolder	:	browseOpenFolder();	break;
+		case buttonFunctBrowseBack			:	browseBack();		break;
+		case buttonFunctBrowseCancel		:	browseCancel();		break;
 
 
 
-	default: break;
+		default: break;
+		}
 	}
 
 	refreshModule = 1;
@@ -163,7 +174,7 @@ void cMtSampleBankEditor::potChange(uint8_t pot, int16_t value)
 		switch(potFunctions[pot])
 		{
 			case potFunctNone					:	break;
-			case potFunctChangeSamplesListPos	:	changeSampleListPos();	break;
+			case potFunctChangeSamplesListPos	:	changeSampleListPos(value);	break;
 
 
 			default: break;
@@ -240,7 +251,9 @@ void cMtSampleBankEditor::updateButtonsFunctions()
 
 //--------------------------------------------------------
 
-
+	//setButtonFunction(0, buttonFunctRenameSample);
+	setButtonFunction(3, buttonFunctImportSample);
+	setButtonFunction(4, buttonFunctRemoveSample);
 
 
 //--------------------------------------------------------
@@ -317,8 +330,46 @@ void cMtSampleBankEditor::setPotFunction(uint8_t number, uint8_t function)
 //#########################################################################################################
 //#########################################################################################################
 
+void cMtSampleBankEditor::importSample()
+{
 
-void cMtSampleBankEditor::changeSampleListPos()
+}
+
+void cMtSampleBankEditor::removeSample()
+{
+
+}
+
+void cMtSampleBankEditor::renameSample()
+{
+
+}
+
+void cMtSampleBankEditor::browseSelectSample()
+{
+
+}
+
+void cMtSampleBankEditor::browseOpenFolder()
+{
+
+}
+
+void cMtSampleBankEditor::browseBack()
+{
+
+}
+
+void cMtSampleBankEditor::browseCancel()
+{
+
+}
+
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+
+void cMtSampleBankEditor::changeSampleListPos(int16_t value)
 {
 
 }

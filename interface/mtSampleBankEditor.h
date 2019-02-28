@@ -54,10 +54,16 @@ private:
 
 
 	//funkcje przyciskow
-
+	void importSample();
+	void removeSample();
+	void renameSample();
+	void browseSelectSample();
+	void browseOpenFolder();
+	void browseBack();
+	void browseCancel();
 
 	//funkcje potow
-	void changeSampleListPos();
+	void changeSampleListPos(int16_t value);
 
 
 
@@ -89,6 +95,15 @@ private:
 	enum
 	{
 		buttonFunctNone,
+		buttonFunctImportSample,
+		buttonFunctRemoveSample,
+		buttonFunctRenameSample,
+
+		buttonFunctBrowseSelectSample,
+		buttonFunctBrowseOpenFolder,
+		buttonFunctBrowseBack,
+		buttonFunctBrowseCancel,
+
 
 
 
@@ -102,6 +117,14 @@ private:
 	char buttonFunctionLabels[buttonFunctCount][20] =
 	{
 		{0},
+		"Import",
+		"Remove",
+		"Rename",
+
+		"Select",
+		"Open folder",
+		"Back",
+		"Cancel",
 
 
 
