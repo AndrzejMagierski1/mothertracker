@@ -770,60 +770,60 @@ uint8_t cMtProjectEditor::readProjectConfig()
 
 	//mtProject.instruments_count = 8;
 
-	for(uint8_t i = 0; i < mtProject.instruments_count; i++)
-	{
-		mtProject.instrument[i].sampleIndex = i;
-		mtProject.instrument[i].wavetableCurrentWindow = 0;
-
-		mtProject.instrument[i].playMode = 1;
-
-		mtProject.instrument[i].startPoint = 0;
-		mtProject.instrument[i].loopPoint1 = 10000;
-		mtProject.instrument[i].loopPoint2 = 20000;
-		mtProject.instrument[i].endPoint = SAMPLE_POINT_POS_MAX;
-
-		mtProject.instrument[i].envelope[envAmp].delay = 0;
-
-		mtProject.instrument[i].envelope[envAmp].attack = 0;
-		mtProject.instrument[i].envelope[envAmp].hold = 0;
-		mtProject.instrument[i].envelope[envAmp].decay = 0;
-		mtProject.instrument[i].envelope[envAmp].sustain = 1.0;
-		mtProject.instrument[i].envelope[envAmp].release = 1000;
-		mtProject.instrument[i].envelope[envAmp].amount = 1.0;
-		mtProject.instrument[i].envelope[envAmp].enable = envelopeOn;
-
-		mtProject.instrument[i].envelope[envFilter].delay = 0;
-		mtProject.instrument[i].envelope[envFilter].attack = 3000;
-		mtProject.instrument[i].envelope[envFilter].hold = 0;
-		mtProject.instrument[i].envelope[envFilter].decay = 0;
-		mtProject.instrument[i].envelope[envFilter].sustain = 1.0;
-		mtProject.instrument[i].envelope[envFilter].release = 1000;
-		mtProject.instrument[i].envelope[envFilter].amount = 1.0;
-		mtProject.instrument[i].envelope[envFilter].enable = envelopeOff;
-
-		mtProject.instrument[i].cutOff = 1.0;
-		mtProject.instrument[i].filterEnable = filterOff;
-		mtProject.instrument[i].filterType = lowPass;
-		mtProject.instrument[i].resonance = 0;
-		mtProject.instrument[i].panning = 50;
-		mtProject.instrument[i].glide = 10000;
-		mtProject.instrument[i].volume = 100;
-		mtProject.instrument[i].tune = 0;
-		mtProject.instrument[i].fineTune = 0;
-
-		if(i >= 9)
-		{
-			mtProject.instrument[i].name[0] = (i+1)/10 + 48;
-			mtProject.instrument[i].name[1] = (i+1)%10 + 48;
-			mtProject.instrument[i].name[2] = 0;
-		}
-		else
-		{
-			mtProject.instrument[i].name[0] = (i+1)%10 + 48;
-			mtProject.instrument[i].name[1] = 0;
-		}
-
-	}
+//	for(uint8_t i = 0; i < mtProject.instruments_count; i++)
+//	{
+//		mtProject.instrument[i].sampleIndex = i;
+//		mtProject.instrument[i].wavetableCurrentWindow = 0;
+//
+//		mtProject.instrument[i].playMode = 1;
+//
+//		mtProject.instrument[i].startPoint = 0;
+//		mtProject.instrument[i].loopPoint1 = 10000;
+//		mtProject.instrument[i].loopPoint2 = 20000;
+//		mtProject.instrument[i].endPoint = SAMPLE_POINT_POS_MAX;
+//
+//		mtProject.instrument[i].envelope[envAmp].delay = 0;
+//
+//		mtProject.instrument[i].envelope[envAmp].attack = 0;
+//		mtProject.instrument[i].envelope[envAmp].hold = 0;
+//		mtProject.instrument[i].envelope[envAmp].decay = 0;
+//		mtProject.instrument[i].envelope[envAmp].sustain = 1.0;
+//		mtProject.instrument[i].envelope[envAmp].release = 1000;
+//		mtProject.instrument[i].envelope[envAmp].amount = 1.0;
+//		mtProject.instrument[i].envelope[envAmp].enable = envelopeOn;
+//
+//		mtProject.instrument[i].envelope[envFilter].delay = 0;
+//		mtProject.instrument[i].envelope[envFilter].attack = 3000;
+//		mtProject.instrument[i].envelope[envFilter].hold = 0;
+//		mtProject.instrument[i].envelope[envFilter].decay = 0;
+//		mtProject.instrument[i].envelope[envFilter].sustain = 1.0;
+//		mtProject.instrument[i].envelope[envFilter].release = 1000;
+//		mtProject.instrument[i].envelope[envFilter].amount = 1.0;
+//		mtProject.instrument[i].envelope[envFilter].enable = envelopeOff;
+//
+//		mtProject.instrument[i].cutOff = 1.0;
+//		mtProject.instrument[i].filterEnable = filterOff;
+//		mtProject.instrument[i].filterType = lowPass;
+//		mtProject.instrument[i].resonance = 0;
+//		mtProject.instrument[i].panning = 50;
+//		mtProject.instrument[i].glide = 10000;
+//		mtProject.instrument[i].volume = 100;
+//		mtProject.instrument[i].tune = 0;
+//		mtProject.instrument[i].fineTune = 0;
+//
+//		if(i >= 9)
+//		{
+//			mtProject.instrument[i].name[0] = (i+1)/10 + 48;
+//			mtProject.instrument[i].name[1] = (i+1)%10 + 48;
+//			mtProject.instrument[i].name[2] = 0;
+//		}
+//		else
+//		{
+//			mtProject.instrument[i].name[0] = (i+1)%10 + 48;
+//			mtProject.instrument[i].name[1] = 0;
+//		}
+//
+//	}
 
 //	mtProject.instrument[0].startPoint = 19000;
 //	mtProject.instrument[0].loopPoint1 = 19000; //PRO
