@@ -7,10 +7,11 @@
 #include <SPI.h>
 #include <SD.h>
 #include <SerialFlash.h>
-
 #include "mtEnvelopeGenerator.h"
 #include "mtLFO.h"
 #include "mtHardware.h"
+
+void updateRec_isr();
 
 class audioEngine
 {
@@ -19,6 +20,10 @@ public:
 	void update();
 	void setOut(uint8_t audioOutStatus);
 	void setIn(uint8_t audioInStatus);
+	void prevSdConnect();
+	void prevSdDisconnect();
+private:
+	AudioConnection* i2sConnect[2];
 };
 
 
@@ -81,10 +86,37 @@ private:
 
 };
 
+class Recorder
+{
+public:
+	void startRecording(char * name);
+	void stopRecording();
+	void update();
+	uint8_t mode = recorderModeStop;
+private:
+	void writeOutHeader();
+
+	uint32_t ChunkSize = 0L;
+	uint32_t Subchunk1Size = 16;
+	uint32_t AudioFormat = 1;
+	uint32_t numChannels = 1;
+	uint32_t sampleRate = 44100;
+	uint32_t bitsPerSample = 16;
+	uint32_t byteRate = sampleRate*numChannels*(bitsPerSample/8);
+	uint32_t blockAlign = numChannels*bitsPerSample/8;
+	uint32_t Subchunk2Size = 0L;
+	uint32_t recByteSaved = 0L;
+	uint32_t NumSamples = 0L;
+	uint8_t byte1, byte2, byte3, byte4;
+
+	FsFile rec;
+};
+
+
 
 extern playerEngine instrumentPlayer[8];
 extern audioEngine engine;
-
+extern Recorder recorder;
 
 extern AudioPlayMemory          playMem[8];
 extern AudioEffectEnvelope      envelopeAmp[8];

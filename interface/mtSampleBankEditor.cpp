@@ -2,7 +2,7 @@
 #include "mtDisplay.h"
 #include "AnalogInputs.h"
 
-
+#include "mtAudioEngine.h"
 #include "mtInterfaceDefs.h"
 
 #include "mtSampleBankEditor.h"
@@ -127,6 +127,16 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		else if(n == interfacePadPlay || n == interfacePadStop)
 		{
 			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n==8)
+		{
+			Serial.println("START RECORD");
+			recorder.startRecording("testrec.wav");
+		}
+		else if(n==9)
+		{
+			recorder.stopRecording();
+			Serial.println("STOP RECORD");
 		}
 	}
 

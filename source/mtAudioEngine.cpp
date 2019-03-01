@@ -1,9 +1,12 @@
-
-
 #include "mtAudioEngine.h"
 
 extern AudioControlSGTL5000 audioShield;
 
+
+AudioInputI2S            i2sIn;
+AudioRecordQueue         queue;
+
+AudioPlaySdWav           playSdWav;
 AudioPlayMemory          playMem[8];
 AudioEffectEnvelope      envelopeAmp[8];
 envelopeGenerator		 envelopeFilter[8];
@@ -13,7 +16,7 @@ LFO						 lfoPitch[8];
 AudioFilterStateVariable filter[8];
 AudioAmplifier           amp[8];
 AudioMixer8				 mixerL,mixerR;
-AudioOutputI2S           i2s1;
+AudioOutputI2S           i2sOut;
 
 int16_t					 mods[MAX_TARGET][MAX_MOD];
 
@@ -63,11 +66,14 @@ AudioConnection          connect38(&amp[5], 0, &mixerR, 5);
 AudioConnection          connect39(&amp[6], 0, &mixerR, 6);
 AudioConnection          connect40(&amp[7], 0, &mixerR, 7);
 
-AudioConnection         connect41(&mixerL, 0, &i2s1, 1);
-AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
+AudioConnection          connect41(&mixerL, 0, &i2sOut, 1);
+AudioConnection          connect42(&mixerR, 0, &i2sOut, 0);
+
+AudioConnection          connect43(&i2sIn, 0, &queue, 0);
+
 
 playerEngine instrumentPlayer[8];
-
+Recorder recorder;
 
 audioEngine engine;
 
@@ -77,6 +83,11 @@ void audioEngine::init()
 	pinMode(AUDIO_OUT_MUX, OUTPUT);
 	digitalWrite(AUDIO_IN_MUX, LOW);
 	digitalWrite(AUDIO_OUT_MUX, LOW);
+	i2sConnect[0]= &connect41;
+	i2sConnect[1]= &connect42;
+
+	setIn(inputSelectLineIn);
+	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 
 	for(int i=0;i<8; i++)
 	{
@@ -87,50 +98,56 @@ void audioEngine::init()
 
 void audioEngine::update()
 {
-	for(int i=0; i<8; i++)
-	{
-		instrumentPlayer[i].update();
-	}
+	recorder.update();
 
-	if(mtConfig.audioCodecConfig.changeFlag)
+	if(recorder.mode == recorderModeStop)
 	{
-		mtConfig.audioCodecConfig.changeFlag=0;
-
-		if(mtConfig.audioCodecConfig.outSelect == outputSelectHeadphones)
+		for(int i=0; i<8; i++)
 		{
-			if(mtConfig.audioCodecConfig.mutedHeadphone) audioShield.muteHeadphone();
-			else
+			instrumentPlayer[i].update();
+		}
+
+		if(mtConfig.audioCodecConfig.changeFlag)
+		{
+			mtConfig.audioCodecConfig.changeFlag=0;
+
+			if(mtConfig.audioCodecConfig.outSelect == outputSelectHeadphones)
 			{
-				audioShield.unmuteHeadphone();
-				setOut(outputSelectHeadphones);
-				audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
+				if(mtConfig.audioCodecConfig.mutedHeadphone) audioShield.muteHeadphone();
+				else
+				{
+					audioShield.unmuteHeadphone();
+					setOut(outputSelectHeadphones);
+					audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
+				}
+
+			}
+			else if(mtConfig.audioCodecConfig.outSelect == outputSelectLineOut)
+			{
+				if(mtConfig.audioCodecConfig.mutedLineOut) audioShield.muteLineout();
+				else
+				{
+					audioShield.unmuteLineout();
+					setOut(outputSelectLineOut);
+					audioShield.lineOutLevel(mtConfig.audioCodecConfig.lineOutLeft,mtConfig.audioCodecConfig.lineOutRight);
+				}
 			}
 
-		}
-		else if(mtConfig.audioCodecConfig.outSelect == outputSelectLineOut)
-		{
-			if(mtConfig.audioCodecConfig.mutedLineOut) audioShield.muteLineout();
-			else
+			if(mtConfig.audioCodecConfig.inSelect == inputSelectMic)
 			{
-				audioShield.unmuteLineout();
-				setOut(outputSelectLineOut);
-				audioShield.lineOutLevel(mtConfig.audioCodecConfig.lineOutLeft,mtConfig.audioCodecConfig.lineOutRight);
+				setIn(inputSelectMic);
+				audioShield.inputSelect(AUDIO_INPUT_MIC);
+				audioShield.micGain(mtConfig.audioCodecConfig.inputGain);
+			}
+			else if(mtConfig.audioCodecConfig.inSelect == inputSelectLineIn)
+			{
+				setIn(inputSelectLineIn);
+				audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+				audioShield.lineInLevel(mtConfig.audioCodecConfig.lineInLeft, mtConfig.audioCodecConfig.lineInRight);
 			}
 		}
-
-		if(mtConfig.audioCodecConfig.inSelect == inputSelectMic)
-		{
-			setIn(inputSelectMic);
-			audioShield.inputSelect(AUDIO_INPUT_MIC);
-			audioShield.micGain(mtConfig.audioCodecConfig.inputGain);
-		}
-		else if(mtConfig.audioCodecConfig.inSelect == inputSelectLineIn)
-		{
-			setIn(inputSelectLineIn);
-			audioShield.inputSelect(AUDIO_INPUT_LINEIN);
-			audioShield.lineInLevel(mtConfig.audioCodecConfig.lineInLeft, mtConfig.audioCodecConfig.lineInRight);
-		}
 	}
+
 }
 
 void audioEngine::setOut(uint8_t audioOutStatus)
@@ -490,6 +507,45 @@ void playerEngine :: filterConnect()
 
 }
 
+void audioEngine:: prevSdConnect()
+{
+	i2sConnect[0]->disconnect();
+	i2sConnect[1]->disconnect();
+
+	i2sConnect[0]->src = &playSdWav;
+	i2sConnect[0]->dst = &i2sOut;
+	i2sConnect[0]->src_index=0;
+	i2sConnect[0]->dest_index=0;
+
+	i2sConnect[1]->src = &playSdWav;
+	i2sConnect[1]->dst = &i2sOut;
+	i2sConnect[1]->src_index=0;
+	i2sConnect[1]->dest_index=1;
+
+	i2sConnect[0]->connect();
+	i2sConnect[1]->connect();
+
+}
+
+void audioEngine:: prevSdDisconnect()
+{
+	i2sConnect[0]->disconnect();
+	i2sConnect[1]->disconnect();
+
+	i2sConnect[0]->src = &mixerL;
+	i2sConnect[0]->dst = &i2sOut;
+	i2sConnect[0]->src_index=0;
+	i2sConnect[0]->dest_index=1;
+
+	i2sConnect[1]->src = &mixerR;
+	i2sConnect[1]->dst = &i2sOut;
+	i2sConnect[1]->src_index=0;
+	i2sConnect[1]->dest_index=0;
+
+	i2sConnect[0]->connect();
+	i2sConnect[1]->connect();
+}
+
 void playerEngine :: clean(void)
 {
 
@@ -505,3 +561,94 @@ float playerEngine :: fmap(float x, float in_min, float in_max, float out_min, f
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+
+void Recorder:: startRecording(char * name)
+{
+	if (SD.exists(name)) SD.remove(name);
+
+	rec = SD.open(name, FILE_WRITE);
+	if (rec)
+	{
+		queue.begin();
+		mode = recorderModeRec;
+		recByteSaved = 0L;
+		rec.seek(44);
+	}
+}
+
+void Recorder::update()
+{
+	if(mode == recorderModeRec )
+	{
+		if ((queue.available() >= 1))
+		{
+			uint8_t buffer[256];
+			rec.write(queue.readBuffer(), 256);
+			queue.freeBuffer();
+			recByteSaved += 256;
+		}
+	}
+}
+
+void Recorder::stopRecording()
+{
+	queue.end();
+	if (mode == recorderModeRec)
+	{
+		while ((queue.available() > 0) )
+		{
+			update();
+		}
+		writeOutHeader();
+	}
+	mode = recorderModeStop;
+}
+
+void Recorder::writeOutHeader()
+{
+	Subchunk2Size = recByteSaved;
+	ChunkSize = Subchunk2Size + 36;
+	rec.seek(0);
+	rec.write("RIFF",4);
+	byte1 = ChunkSize & 0xff;
+	byte2 = (ChunkSize >> 8) & 0xff;
+	byte3 = (ChunkSize >> 16) & 0xff;
+	byte4 = (ChunkSize >> 24) & 0xff;
+	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
+	rec.write("WAVE",4);
+	rec.write("fmt ",4);
+	byte1 = Subchunk1Size & 0xff;
+	byte2 = (Subchunk1Size >> 8) & 0xff;
+	byte3 = (Subchunk1Size >> 16) & 0xff;
+	byte4 = (Subchunk1Size >> 24) & 0xff;
+	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
+	byte1 = AudioFormat & 0xff;
+	byte2 = (AudioFormat >> 8) & 0xff;
+	rec.write(byte1);  rec.write(byte2);
+	byte1 = numChannels & 0xff;
+	byte2 = (numChannels >> 8) & 0xff;
+	rec.write(byte1);  rec.write(byte2);
+	byte1 = sampleRate & 0xff;
+	byte2 = (sampleRate >> 8) & 0xff;
+	byte3 = (sampleRate >> 16) & 0xff;
+	byte4 = (sampleRate >> 24) & 0xff;
+	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
+	byte1 = byteRate & 0xff;
+	byte2 = (byteRate >> 8) & 0xff;
+	byte3 = (byteRate >> 16) & 0xff;
+	byte4 = (byteRate >> 24) & 0xff;
+	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
+	byte1 = blockAlign & 0xff;
+	byte2 = (blockAlign >> 8) & 0xff;
+	rec.write(byte1);  rec.write(byte2);
+	byte1 = bitsPerSample & 0xff;
+	byte2 = (bitsPerSample >> 8) & 0xff;
+	rec.write(byte1);  rec.write(byte2);
+	rec.write("data",4);
+	byte1 = Subchunk2Size & 0xff;
+	byte2 = (Subchunk2Size >> 8) & 0xff;
+	byte3 = (Subchunk2Size >> 16) & 0xff;
+	byte4 = (Subchunk2Size >> 24) & 0xff;
+	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
+	rec.close();
+}

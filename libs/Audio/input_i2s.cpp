@@ -45,7 +45,8 @@ void AudioInputI2S::begin(void)
 	// TODO: should we set & clear the I2S_RCSR_SR bit here?
 	AudioOutputI2S::config_i2s();
 
-	CORE_PIN13_CONFIG = PORT_PCR_MUX(4); // pin 13, PTC5, I2S0_RXD0
+	//CORE_PIN13_CONFIG = PORT_PCR_MUX(4); // pin 13, PTC5, I2S0_RXD0
+	PORTE_PCR7 = PORT_PCR_MUX(4); //RX
 #if defined(KINETISK)
 	dma.TCD->SADDR = (void *)((uint32_t)&I2S0_RDR0 + 2);
 	dma.TCD->SOFF = 0;

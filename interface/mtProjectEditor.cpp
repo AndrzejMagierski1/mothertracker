@@ -266,8 +266,6 @@ uint8_t cMtProjectEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtPriojectEditorEventPadPress, &n, 0, 0);
 		}
-
-
 	}
 
 	return 0;

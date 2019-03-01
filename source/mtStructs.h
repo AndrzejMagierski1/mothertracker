@@ -176,8 +176,8 @@ enum envelopeTypes
 
 enum inputSelect
 {
-	inputSelectMic,
-	inputSelectLineIn
+	inputSelectLineIn,
+	inputSelectMic
 };
 
 enum outputSelect
@@ -197,6 +197,12 @@ enum projectType
 {
 	projectTypeExample,
 	projectTypeUserMade
+};
+
+enum recorderMode
+{
+	recorderModeStop,
+	recorderModeRec
 };
 //=====================================================================
 //=====================================================================
