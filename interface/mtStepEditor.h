@@ -163,7 +163,7 @@ private:
 
 	//ostatnio wybrany globalnie instrument
 	uint8_t last_selected_instrument = 0;
-	uint8_t last_selected_length = 1;
+	uint8_t last_selected_length = 48;
 
 	// aktulane wybrane parametry do edycji
 	uint8_t actualTrackTableSelection[5];

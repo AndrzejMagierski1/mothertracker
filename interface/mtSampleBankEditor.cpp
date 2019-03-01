@@ -51,10 +51,8 @@ void cMtSampleBankEditor::update()
 		labelsChanged = 1;
 		refreshModule = 1;
 
-
 		if(samplesListChanged == 2) // pokaz liste
 		{
-
 			if(mtProject.sampleBank.samples_count > 0)
 			{
 				for(uint8_t i = 0; i < SAMPLES_MAX; i++)
@@ -79,7 +77,30 @@ void cMtSampleBankEditor::update()
 		samplesListChanged = 0;
 	}
 	//-----------------------------------------------------
+	if(filesListChanged)
+	{
+		labelsChanged = 1;
+		refreshModule = 1;
 
+		if(!filesListEnabled)
+		{
+			filesListChanged = 0;
+			mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
+			return;
+		}
+
+		if(filesListChanged == 2) // pokaz liste
+		{
+
+			listOnlyDirAndWavFromActualPath();
+
+			getSelectedFileType();
+
+			mtDisplay.setList(files_list_pos, files_list_pos, 2, selectedLocation, filesNames, locationFilesCount);
+		}
+
+		filesListChanged = 0;
+	}
 }
 
 //#########################################################################################################
@@ -98,7 +119,73 @@ void cMtSampleBankEditor::start()
 void cMtSampleBankEditor::stop()
 {
 	mtDisplay.setList(samples_list_pos, 0, 0, 0, 0, 0);
+	mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
+	filesListEnabled = 0;
+	//filesListChanged = 1;
+}
 
+void cMtSampleBankEditor::listOnlyDirAndWavFromActualPath()
+{
+
+	sdLocation.close();
+	sdLocation.open(filePath, O_READ);
+
+	if(dirLevel == 0)
+	{
+		locationFilesCount = sdLocation.createFilesList(0,locationFilesList, files_list_length_max);
+	}
+	else
+	{
+		strcpy(&locationFilesList[0][0], "/..");
+		locationFilesCount = sdLocation.createFilesList(1,locationFilesList, files_list_length_max-1);
+	}
+
+
+	sdLocation.close();
+
+
+	uint8_t foundFilesCount = 0;
+	for(uint8_t i = 0; i < locationFilesCount; i++)
+	{
+		if(locationFilesList[i][0] == '/' || isWavFile(&locationFilesList[i][0]))	//tylko jesli folder albo plik wav
+		{
+			strcpy(&locationFilesList[foundFilesCount][0],&locationFilesList[i][0]);
+			foundFilesCount++;
+		}
+	}
+
+
+	locationFilesCount = foundFilesCount;
+
+	for(uint8_t i = 0; i < locationFilesCount; i++)
+	{
+		filesNames[i] = &locationFilesList[i][0];
+	}
+}
+
+uint8_t cMtSampleBankEditor::isWavFile(char* fileName)
+{
+	uint8_t endPos = 0;
+	while(fileName[endPos] != 0 && endPos < 19)
+	{
+		if(fileName[endPos] > 96 && fileName[endPos] < 123) fileName[endPos] = fileName[endPos] - 32;
+		endPos++;
+	}
+
+	endPos--;
+
+	if(fileName[endPos] == 'V' && fileName[endPos-1] == 'A' && fileName[endPos-2] == 'W' && fileName[endPos-3] == '.')
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+void cMtSampleBankEditor::getSelectedFileType()
+{
+	if(locationFilesList[selectedLocation][0] == '/') selectedFileType = 0;
+	else selectedFileType = 1;
 
 }
 
@@ -169,17 +256,16 @@ void cMtSampleBankEditor::buttonChange(uint8_t button, uint8_t value)
 
 void cMtSampleBankEditor::potChange(uint8_t pot, int16_t value)
 {
-	if(value == 1)
+
+	switch(potFunctions[pot])
 	{
-		switch(potFunctions[pot])
-		{
-			case potFunctNone					:	break;
-			case potFunctChangeSamplesListPos	:	changeSampleListPos(value);	break;
+		case potFunctNone					:	break;
+		case potFunctChangeSamplesListPos	:	changeSampleListPos(value);	break;
+		case potFunctChangeFileListPos		:	changeFilesListPos(value);	break;
 
-
-			default: break;
-		}
+		default: break;
 	}
+
 	refreshModule = 1;
 }
 
@@ -252,9 +338,20 @@ void cMtSampleBankEditor::updateButtonsFunctions()
 //--------------------------------------------------------
 
 	//setButtonFunction(0, buttonFunctRenameSample);
-	setButtonFunction(3, buttonFunctImportSample);
-	setButtonFunction(4, buttonFunctRemoveSample);
 
+
+	if(filesListEnabled)
+	{
+		if(selectedFileType == 0) setButtonFunction(0, buttonFunctBrowseOpenFolder);
+		else setButtonFunction(0, buttonFunctBrowseSelectSample);
+		setButtonFunction(1, buttonFunctBrowseCancel);
+
+	}
+	else
+	{
+		setButtonFunction(3, buttonFunctImportSample);
+		setButtonFunction(4, buttonFunctRemoveSample);
+	}
 
 //--------------------------------------------------------
 
@@ -306,6 +403,11 @@ void cMtSampleBankEditor::updatePotsFunctions()
 
 	setPotFunction(3, potFunctChangeSamplesListPos);
 
+	if(filesListEnabled)
+	{
+		setPotFunction(0, potFunctChangeFileListPos);
+	}
+
 
 //--------------------------------------------------------
 
@@ -332,6 +434,12 @@ void cMtSampleBankEditor::setPotFunction(uint8_t number, uint8_t function)
 
 void cMtSampleBankEditor::importSample()
 {
+	strcpy(filePath,"/");
+	dirLevel = 0;
+	selectedLocation = 0;
+
+	filesListChanged = 2;
+	filesListEnabled = 1;
 
 }
 
@@ -362,7 +470,8 @@ void cMtSampleBankEditor::browseBack()
 
 void cMtSampleBankEditor::browseCancel()
 {
-
+	filesListChanged = 1;
+	filesListEnabled = 0;
 }
 
 //#########################################################################################################
@@ -374,5 +483,18 @@ void cMtSampleBankEditor::changeSampleListPos(int16_t value)
 
 }
 
+void cMtSampleBankEditor::changeFilesListPos(int16_t value)
+{
+	if(selectedLocation + value < 0) selectedLocation  = 0;
+	else if(selectedLocation + value > locationFilesCount-1) selectedLocation  = locationFilesCount-1;
+	else selectedLocation += value;
+
+	getSelectedFileType();
+
+	mtDisplay.changeList(files_list_pos, selectedLocation);
+
+//	filesListChanged = 1;
+//	refreshModule = 1;
+}
 
 

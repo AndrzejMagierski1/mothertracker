@@ -9,8 +9,6 @@
 
 
 
-#define COMMANDS_PROJECT_EDITOR_MAX 32
-
 enum mtProjectStartMode
 {
 	mtProjectStartModeDoNothing,

@@ -264,8 +264,8 @@ void cMtInstrumentEditor::startExisting(uint8_t instrumentIndex)
 
 	}
 
-	openedInstrumentIndex = openedInstrFromActive;
-	editorInstrument = &mtProject.instrument[openedInstrFromActive];
+	//openedInstrumentIndex = openedInstrFromActive;
+	editorInstrument = &mtProject.instrument[openedInstrumentIndex];
 
 
 
@@ -1631,9 +1631,9 @@ void cMtInstrumentEditor::createInstrument(uint8_t value)
 {
 	if(value == 1)
 	{
-		fileManager.addInstrumentToProject(inActiveInstrumentIndex);
+		fileManager.addInstrumentToProject(activeInstruments[inActiveInstrumentIndex]);
 
-		startExisting(inActiveInstrumentIndex);
+		startExisting(activeInstruments[inActiveInstrumentIndex]);
 
 		instrumentListEnabled = 0;  // ustaiwnie na 0 zeby pokazalo liste zamiast ukryc
 		showInstrumentList(1);
@@ -1785,7 +1785,7 @@ void cMtInstrumentEditor::play(uint8_t value)
 			}
 		}
 
-		instrumentPlayer[0].noteOn(openedInstrumentIndex, playNote, 0);
+		instrumentPlayer[0].noteOn(openedInstrumentIndex, playNote, -1);
 	}
 	else if(value == 0)
 	{

@@ -1568,7 +1568,7 @@ void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 	usbMIDI.sendNoteOn(step->note, step->velocity, 1);
 
 
-	instrumentPlayer[track].noteOn(step->instrument, step->note, (step->velocity <= 0) ? 0 : step->velocity );
+	instrumentPlayer[track].noteOn(step->instrument, step->note, step->velocity );
 
 }
 

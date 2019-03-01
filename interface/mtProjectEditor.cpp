@@ -72,6 +72,7 @@ void cMtProjectEditor::update()
 
 		if(filesListChanged == 2) // pokaz liste
 		{
+
 			if(browseLocationType == browseLocationTypeOpenProject)
 			{
 				listOnlyFolderNames("/Projects/");
@@ -533,8 +534,8 @@ void cMtProjectEditor::saveProject(uint8_t value)
 	if(value == 1)
 	{
 
-		//fileManager.saveProject();
-		fileManager.addInstrumentToProject(9);
+		fileManager.saveProject();
+		//fileManager.addInstrumentToProject(9);
 
 	}
 }
@@ -583,16 +584,16 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 		fileManager.importSampleToProject(NULL,(char*)"6.WAV",(char*)"6.WAV",5,-1,mtSampleTypeWaveFile);
 		fileManager.importSampleToProject(NULL,(char*)"7.WAV",(char*)"7.WAV",6,-1,mtSampleTypeWaveFile);
 		fileManager.importSampleToProject(NULL,(char*)"8.WAV",(char*)"8.WAV",7,-1,mtSampleTypeWaveFile);
-		*/
-/*
-		fileManager.importSampleToProject(NULL,(char*)"11.WAV",8,mtSampleTypeWavetable);
-		fileManager.importSampleToProject(NULL,(char*)"12.WAV",9,mtSampleTypeWavetable);
-		fileManager.importSampleToProject(NULL,(char*)"13.WAV",10,mtSampleTypeWavetable);
-		fileManager.importSampleToProject(NULL,(char*)"14.WAV",11,mtSampleTypeWavetable);
-		fileManager.importSampleToProject(NULL,(char*)"15.WAV",12,mtSampleTypeWavetable);
-		fileManager.importSampleToProject(NULL,(char*)"16.WAV",13,mtSampleTypeWavetable);
-		fileManager.importSampleToProject(NULL,(char*)"17.WAV",14,mtSampleTypeWavetable);
-		fileManager.importSampleToProject(NULL,(char*)"18.WAV",15,mtSampleTypeWavetable);
+
+
+		fileManager.importSampleToProject(NULL,(char*)"11.WAV",(char*)"11.WAV",8, -1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"12.WAV",(char*)"12.WAV",9, -1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"13.WAV",(char*)"13.WAV",10,-1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"14.WAV",(char*)"14.WAV",11,-1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"15.WAV",(char*)"15.WAV",12,-1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"16.WAV",(char*)"16.WAV",13,-1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"17.WAV",(char*)"17.WAV",14,-1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"18.WAV",(char*)"18.WAV",15,-1,mtSampleTypeWavetable);
 */
 		loadSamplesBank();
 
@@ -669,8 +670,8 @@ void cMtProjectEditor::changeProjectsListPos(int16_t value)
 
 	mtDisplay.changeList(files_list_pos, selectedLocation);
 
-	filesListChanged = 1;
-	refreshModule = 1;
+	//filesListChanged = 1;
+	//refreshModule = 1;
 }
 
 void cMtProjectEditor::changeTemplatesListPos(int16_t value)
@@ -681,8 +682,8 @@ void cMtProjectEditor::changeTemplatesListPos(int16_t value)
 
 	mtDisplay.changeList(files_list_pos, selectedLocation);
 
-	filesListChanged = 1;
-	refreshModule = 1;
+	//filesListChanged = 1;
+	//refreshModule = 1;
 }
 
 

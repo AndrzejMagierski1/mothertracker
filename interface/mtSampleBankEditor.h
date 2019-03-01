@@ -3,6 +3,7 @@
 
 #include "mtDisplay.h"
 #include <stdint.h>
+#include "SD.h"
 
 #include "mtStructs.h"
 
@@ -64,7 +65,7 @@ private:
 
 	//funkcje potow
 	void changeSampleListPos(int16_t value);
-
+	void changeFilesListPos(int16_t value);
 
 
 	uint8_t	refreshModule = 0;
@@ -75,9 +76,10 @@ private:
 	// odswiezanie elementow modulu
 
 	uint8_t labelsChanged;
-
-
+	uint8_t filesListChanged;
 	uint8_t samplesListChanged;
+
+
 	static const uint8_t samples_list_length_max = SAMPLES_MAX;
 	const uint8_t samples_list_pos = 3;
 //	uint8_t samplesListEnabled = 0;
@@ -85,8 +87,27 @@ private:
 	uint16_t samplesCount;
 
 
+	//lista plikow/folderow---------------------------------------------
+	static const uint8_t files_list_length_max = 100;
+	const uint8_t files_list_pos = 0;
+	uint8_t filesListEnabled = 0;
 
+	char *filesNames[128];
+	char filePath[255];
+	char fileName[32];
 
+	uint8_t dirLevel;
+	uint8_t selectedFileType;
+	uint8_t selectedLocation = 0;
+	char locationFilesList[files_list_length_max][20];
+	uint16_t locationFilesCount;
+
+	FsFile sdLocation;
+
+	void listOnlyDirAndWavFromActualPath();
+	uint8_t isWavFile(char* fileName);
+	void getSelectedFileType();
+	//-------------------------------------------------------------------
 
 
 //=======================================================================
@@ -122,7 +143,7 @@ private:
 		"Rename",
 
 		"Select",
-		"Open folder",
+		"Open",
 		"Back",
 		"Cancel",
 
@@ -137,6 +158,7 @@ private:
 	{
 		potFunctNone,
 		potFunctChangeSamplesListPos,
+		potFunctChangeFileListPos,
 
 
 
@@ -150,7 +172,8 @@ private:
 	char potFunctionLabels[potFunctCount][20] =
 	{
 		{0},
-		"Sample Bank:",
+		"Sample Bank",
+		"Select file"
 
 
 	};
@@ -159,6 +182,7 @@ private:
 	{
 			100, // potFunctionNone,
 			30, //
+			30,
 
 	};
 
@@ -166,7 +190,7 @@ private:
 	{
 			3, // potFunctionNone,
 			1, //
-
+			1,
 	};
 
 };
