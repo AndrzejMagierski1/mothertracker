@@ -29,6 +29,7 @@
 
 #include "Arduino.h"
 #include "AudioStream.h"
+#define QUEUE_SIZE 100
 
 class AudioRecordQueue : public AudioStream
 {
@@ -49,7 +50,7 @@ public:
 	virtual void update(void);
 private:
 	audio_block_t *inputQueueArray[1];
-	audio_block_t * volatile queue[53];
+	audio_block_t * volatile queue[QUEUE_SIZE];
 	audio_block_t *userblock;
 	volatile uint8_t head, tail, enabled;
 };

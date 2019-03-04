@@ -2,14 +2,14 @@
 #include "mtDisplay.h"
 #include "AnalogInputs.h"
 
-
+#include "mtAudioEngine.h"
 #include "mtInterfaceDefs.h"
 
 #include "mtSampleBankEditor.h"
 
 
 cMtSampleBankEditor mtSampleBankEditor;
-
+extern int16_t sdram_sampleBank[4*1024*1024];
 
 //#########################################################################################################
 //#########################################################################################################
@@ -222,6 +222,27 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		else if(n == interfacePadPlay || n == interfacePadStop)
 		{
 			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
+		}
+		else if(n==8)
+		{
+			recorder.startRecording("nazwa.wav", sdram_sampleBank);
+
+		}
+		else if(n==9)
+		{
+			recorder.stopRecording();
+		}
+		else if(n==10)
+		{
+			recorder.play(0, MAX_16BIT);
+		}
+		else if(n==11)
+		{
+			recorder.stop();
+		}
+		else if(n==12)
+		{
+			recorder.save("\0","nagrywka.wav");
 		}
 	}
 

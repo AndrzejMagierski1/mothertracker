@@ -88,6 +88,10 @@ public:
 	void createEmptyTemplateProject(char * name);
 	void addInstrumentToProject (int8_t index);
 	void addPatternToProject (int8_t index);
+	void deleteSample(int8_t index);
+	void deleteInstrument(int8_t index);
+	void deletePattern(int8_t index);
+
 	///todo: jest mozliwosc ze beda potem prywatne
 	void formatSDCard();
 	void createNewProject(char * name);

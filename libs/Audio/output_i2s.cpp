@@ -363,7 +363,7 @@ void AudioOutputI2S::config_i2s(void)
 	PORTE_PCR11 = PORT_PCR_MUX(4); //LRCLK
 	PORTE_PCR12 = PORT_PCR_MUX(4); //BCLK
 	PORTE_PCR6 = PORT_PCR_MUX(4); //MCLK
-	//PORTE_PCR7 = PORT_PCR_MUX(4); //RX
+
 }
 
 

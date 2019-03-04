@@ -31,6 +31,7 @@
 
 #include <Arduino.h>
 #include "AudioStream.h"
+#include "mtAudioEngine.h"
 
 #if defined(__MKL26Z64__)
   #define MAX_AUDIO_MEMORY 6144
@@ -310,7 +311,6 @@ AudioStream * AudioStream::first_update = NULL;
 
 void software_isr(void) // AudioStream::update_all()
 {
-
 	AudioStream *p;
 
 	ARM_DEMCR |= ARM_DEMCR_TRCENA;

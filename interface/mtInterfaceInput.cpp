@@ -52,8 +52,7 @@ void cMtInterface::powerButtonChange(uint8_t value)
 {
 	if(value == 1)
 	{
-
-
+		SD.begin(SdioConfig(DMA_SDIO));
 	}
 }
 

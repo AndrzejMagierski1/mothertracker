@@ -102,6 +102,7 @@ public:
 	void disconnect(void);
 	void connect(void);
 	friend class playerEngine;
+	friend class audioEngine;
 protected:
 	AudioStream *src;
 	AudioStream *dst;

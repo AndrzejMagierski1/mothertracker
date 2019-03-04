@@ -1,9 +1,12 @@
-
-
 #include "mtAudioEngine.h"
 
 extern AudioControlSGTL5000 audioShield;
 
+
+AudioInputI2S            i2sIn;
+AudioRecordQueue         queue;
+
+AudioPlaySdWav           playSdWav;
 AudioPlayMemory          playMem[8];
 AudioEffectEnvelope      envelopeAmp[8];
 envelopeGenerator		 envelopeFilter[8];
@@ -13,7 +16,8 @@ LFO						 lfoPitch[8];
 AudioFilterStateVariable filter[8];
 AudioAmplifier           amp[8];
 AudioMixer8				 mixerL,mixerR;
-AudioOutputI2S           i2s1;
+AudioOutputI2S           i2sOut;
+AudioMixer4              mixerRec;
 
 int16_t					 mods[MAX_TARGET][MAX_MOD];
 
@@ -63,11 +67,15 @@ AudioConnection          connect38(&amp[5], 0, &mixerR, 5);
 AudioConnection          connect39(&amp[6], 0, &mixerR, 6);
 AudioConnection          connect40(&amp[7], 0, &mixerR, 7);
 
-AudioConnection         connect41(&mixerL, 0, &i2s1, 1);
-AudioConnection         connect42(&mixerR, 0, &i2s1, 0);
+AudioConnection          connect41(&mixerL, 0, &i2sOut, 1);
+AudioConnection          connect42(&mixerR, 0, &i2sOut, 0);
+
+AudioConnection          connect43(&i2sIn, 0, &mixerRec, 0);
+AudioConnection          connect44(&i2sIn, 1, &mixerRec, 1);
+AudioConnection          connect45(&mixerRec, &queue);
+
 
 playerEngine instrumentPlayer[8];
-
 
 audioEngine engine;
 
@@ -77,6 +85,14 @@ void audioEngine::init()
 	pinMode(AUDIO_OUT_MUX, OUTPUT);
 	digitalWrite(AUDIO_IN_MUX, LOW);
 	digitalWrite(AUDIO_OUT_MUX, LOW);
+	i2sConnect[0]= &connect41;
+	i2sConnect[1]= &connect42;
+
+//	setIn(inputSelectLineIn);
+//	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+	setIn(inputSelectMic);
+	audioShield.inputSelect(AUDIO_INPUT_MIC);
+	audioShield.micGain(25);
 
 	for(int i=0;i<8; i++)
 	{
@@ -87,50 +103,56 @@ void audioEngine::init()
 
 void audioEngine::update()
 {
-	for(int i=0; i<8; i++)
-	{
-		instrumentPlayer[i].update();
-	}
+	recorder.update();
 
-	if(mtConfig.audioCodecConfig.changeFlag)
+	if(recorder.mode == recorderModeStop)
 	{
-		mtConfig.audioCodecConfig.changeFlag=0;
-
-		if(mtConfig.audioCodecConfig.outSelect == outputSelectHeadphones)
+		for(int i=0; i<8; i++)
 		{
-			if(mtConfig.audioCodecConfig.mutedHeadphone) audioShield.muteHeadphone();
-			else
+			instrumentPlayer[i].update();
+		}
+
+		if(mtConfig.audioCodecConfig.changeFlag)
+		{
+			mtConfig.audioCodecConfig.changeFlag=0;
+
+			if(mtConfig.audioCodecConfig.outSelect == outputSelectHeadphones)
 			{
-				audioShield.unmuteHeadphone();
-				setOut(outputSelectHeadphones);
-				audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
+				if(mtConfig.audioCodecConfig.mutedHeadphone) audioShield.muteHeadphone();
+				else
+				{
+					audioShield.unmuteHeadphone();
+					setOut(outputSelectHeadphones);
+					audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
+				}
+
+			}
+			else if(mtConfig.audioCodecConfig.outSelect == outputSelectLineOut)
+			{
+				if(mtConfig.audioCodecConfig.mutedLineOut) audioShield.muteLineout();
+				else
+				{
+					audioShield.unmuteLineout();
+					setOut(outputSelectLineOut);
+					audioShield.lineOutLevel(mtConfig.audioCodecConfig.lineOutLeft,mtConfig.audioCodecConfig.lineOutRight);
+				}
 			}
 
-		}
-		else if(mtConfig.audioCodecConfig.outSelect == outputSelectLineOut)
-		{
-			if(mtConfig.audioCodecConfig.mutedLineOut) audioShield.muteLineout();
-			else
+			if(mtConfig.audioCodecConfig.inSelect == inputSelectMic)
 			{
-				audioShield.unmuteLineout();
-				setOut(outputSelectLineOut);
-				audioShield.lineOutLevel(mtConfig.audioCodecConfig.lineOutLeft,mtConfig.audioCodecConfig.lineOutRight);
+				setIn(inputSelectMic);
+				audioShield.inputSelect(AUDIO_INPUT_MIC);
+				audioShield.micGain(mtConfig.audioCodecConfig.inputGain);
+			}
+			else if(mtConfig.audioCodecConfig.inSelect == inputSelectLineIn)
+			{
+				setIn(inputSelectLineIn);
+				audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+				audioShield.lineInLevel(mtConfig.audioCodecConfig.lineInLeft, mtConfig.audioCodecConfig.lineInRight);
 			}
 		}
-
-		if(mtConfig.audioCodecConfig.inSelect == inputSelectMic)
-		{
-			setIn(inputSelectMic);
-			audioShield.inputSelect(AUDIO_INPUT_MIC);
-			audioShield.micGain(mtConfig.audioCodecConfig.inputGain);
-		}
-		else if(mtConfig.audioCodecConfig.inSelect == inputSelectLineIn)
-		{
-			setIn(inputSelectLineIn);
-			audioShield.inputSelect(AUDIO_INPUT_LINEIN);
-			audioShield.lineInLevel(mtConfig.audioCodecConfig.lineInLeft, mtConfig.audioCodecConfig.lineInRight);
-		}
 	}
+
 }
 
 void audioEngine::setOut(uint8_t audioOutStatus)
@@ -490,6 +512,45 @@ void playerEngine :: filterConnect()
 
 }
 
+void audioEngine:: prevSdConnect()
+{
+	i2sConnect[0]->disconnect();
+	i2sConnect[1]->disconnect();
+
+	i2sConnect[0]->src = &playSdWav;
+	i2sConnect[0]->dst = &i2sOut;
+	i2sConnect[0]->src_index=0;
+	i2sConnect[0]->dest_index=0;
+
+	i2sConnect[1]->src = &playSdWav;
+	i2sConnect[1]->dst = &i2sOut;
+	i2sConnect[1]->src_index=0;
+	i2sConnect[1]->dest_index=1;
+
+	i2sConnect[0]->connect();
+	i2sConnect[1]->connect();
+
+}
+
+void audioEngine:: prevSdDisconnect()
+{
+	i2sConnect[0]->disconnect();
+	i2sConnect[1]->disconnect();
+
+	i2sConnect[0]->src = &mixerL;
+	i2sConnect[0]->dst = &i2sOut;
+	i2sConnect[0]->src_index=0;
+	i2sConnect[0]->dest_index=1;
+
+	i2sConnect[1]->src = &mixerR;
+	i2sConnect[1]->dst = &i2sOut;
+	i2sConnect[1]->src_index=0;
+	i2sConnect[1]->dest_index=0;
+
+	i2sConnect[0]->connect();
+	i2sConnect[1]->connect();
+}
+
 void playerEngine :: clean(void)
 {
 
@@ -504,4 +565,29 @@ float playerEngine :: fmap(float x, float in_min, float in_max, float out_min, f
 {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
+
+uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
+{
+	uint8_t status=0;
+	envelopeAmpPtr->delay(0);
+	envelopeAmpPtr->attack(0);
+	envelopeAmpPtr->hold(0);
+	envelopeAmpPtr->decay(0);
+	envelopeAmpPtr->sustain(1.0);
+	envelopeAmpPtr->release(0.0f);
+
+	filterDisconnect();
+	ampPtr->gain(1.0);
+
+	mixerL.gain(numPanChannel,0.5);
+	mixerR.gain(numPanChannel,0.5);
+	/*======================================================================================================*/
+
+	status = playMemPtr->playForPrev(addr,len);
+	envelopeAmpPtr->noteOn();
+
+	return status;
+
+}
+
 

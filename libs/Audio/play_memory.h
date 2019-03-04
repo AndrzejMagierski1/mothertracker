@@ -52,6 +52,7 @@ public:
 	void setFineTune(int8_t value, int8_t currentNote);
 	void setWavetableWindow(uint16_t value);
 	void setTune(int8_t value, int8_t currentNote);
+	uint8_t playForPrev(int16_t * addr,uint32_t len);
 
 private:
 	int16_t *next;

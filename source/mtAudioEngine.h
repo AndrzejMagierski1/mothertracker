@@ -7,10 +7,10 @@
 #include <SPI.h>
 #include <SD.h>
 #include <SerialFlash.h>
-
 #include "mtEnvelopeGenerator.h"
 #include "mtLFO.h"
 #include "mtHardware.h"
+#include "mtRecorder.h"
 
 class audioEngine
 {
@@ -19,6 +19,10 @@ public:
 	void update();
 	void setOut(uint8_t audioOutStatus);
 	void setIn(uint8_t audioInStatus);
+	void prevSdConnect();
+	void prevSdDisconnect();
+private:
+	AudioConnection* i2sConnect[2];
 };
 
 
@@ -55,6 +59,7 @@ public:
 //	void resetMods();
 
 	void update();
+	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
 private:
 
 	AudioPlayMemory *        	playMemPtr;
@@ -77,14 +82,16 @@ private:
 	void changeFilterType(uint8_t type);
 	void filterConnect();
 	void filterDisconnect();
+
 	float fmap(float x, float in_min, float in_max, float out_min, float out_max);
 
 };
 
 
+
+
 extern playerEngine instrumentPlayer[8];
 extern audioEngine engine;
-
 
 extern AudioPlayMemory          playMem[8];
 extern AudioEffectEnvelope      envelopeAmp[8];
@@ -98,6 +105,8 @@ extern LFO						lfoFilter[8];
 extern LFO						lfoPitch[8];
 extern int16_t					mods[MAX_TARGET][MAX_MOD];
 
-
+extern AudioInputI2S            i2sIn;
+extern AudioRecordQueue         queue;
+extern AudioMixer4              mixerRec;
 
 #endif /* SOURCE_MTAUDIOENGINE_H_ */

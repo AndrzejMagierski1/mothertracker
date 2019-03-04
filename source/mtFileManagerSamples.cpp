@@ -636,6 +636,6 @@ void loadFullWavetableSerum(const char *baseName)
 		}
 	}
 	result.close();
-
-
 }
+
+
