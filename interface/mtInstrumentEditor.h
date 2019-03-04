@@ -97,6 +97,10 @@ private:
 	void updateParameters();
 	void setParameter(uint8_t number, uint8_t param);
 
+	//player
+	void playInstrumentByPad(uint8_t type, int8_t pad, int8_t velocity);
+
+
 	//funkcje przyciskow
 	void showSampleList(uint8_t value);
 	void showInstrumentList(uint8_t value);

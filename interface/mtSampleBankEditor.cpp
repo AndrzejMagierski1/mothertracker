@@ -493,8 +493,10 @@ void cMtSampleBankEditor::changeFilesListPos(int16_t value)
 
 	mtDisplay.changeList(files_list_pos, selectedLocation);
 
+	labelsChanged = 1;
+
 //	filesListChanged = 1;
-//	refreshModule = 1;
+	refreshModule = 1;
 }
 
 

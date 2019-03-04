@@ -1,11 +1,14 @@
 #include "mtInstrumentEditor.h"
 
 #include "mtDisplay.h"
+#include "mtPadBoard.h"
 #include "AnalogInputs.h"
 #include "sdram.h"
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
 #include "mtFileManager.h"
+
+
 
 #include "mtInterfaceDefs.h"
 
@@ -216,6 +219,12 @@ void cMtInstrumentEditor::update()
 void cMtInstrumentEditor::startExisting(uint8_t instrumentIndex)
 {
 
+	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
+			mtProject.values.padBoardNoteOffset,
+			mtProject.values.padBoardRootNote);
+
+	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
+
 	if(mtProject.sampleBank.samples_count == 0)
 	{
 		strcpy(buttonFunctionLabels[buttonFunctSampleList], "No samples");
@@ -285,6 +294,7 @@ void cMtInstrumentEditor::startExisting(uint8_t instrumentIndex)
 	}
 
 
+
 	instrumentEditorModeStart = 1;
 	refreshInstrumentEditor = 1;
 }
@@ -317,6 +327,15 @@ uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 	if(n == interfacePadPlay)
 	{
 		play(type);
+	}
+	else if(n > interfacePadKeybord0)
+	{
+	/*
+  		if(parametersEnabled) {}
+		else if(envelopesEnabled) {}
+		else
+	*/
+			playInstrumentByPad(type, n-interfacePadKeybord0, -1);
 	}
 
 	if(type == 1)
@@ -1773,6 +1792,9 @@ void cMtInstrumentEditor::play(uint8_t value)
 {
 	if(value == 1)
 	{
+		//eventFunct(mtInstrumentEditorEventPadPress, &interfacePadStop, 0, 0);
+		sequencer.stop();
+
 		isPlayingSample = 1;
 		if(editorInstrument->glide > 0)
 		{
@@ -1796,10 +1818,31 @@ void cMtInstrumentEditor::play(uint8_t value)
 
 void cMtInstrumentEditor::stopPlaying(uint8_t value)
 {
-
 	if(isPlayingSample) instrumentPlayer[0].noteOff();
 
-
 	isPlayingSample = 0;
+}
+
+
+void cMtInstrumentEditor::playInstrumentByPad(uint8_t type, int8_t pad, int8_t velocity)
+{
+	sequencer.stop();
+
+	if(type == 1)
+	{
+		//uint8_t note = mtPadBoard.convertPadToNote(pad);
+		//if(note > 48) note = 48;
+		//editorInstrument->tune = note;
+		mtPadBoard.startInstrument(pad, openedInstrumentIndex,-1);
+
+	}
+	else if(type == 0)
+	{
+		mtPadBoard.stopInstrument(pad);
+	}
+
+
+
 
 }
+

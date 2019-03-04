@@ -44,6 +44,9 @@ enum mtInterfacePadButtonsFunctions
 	interfacePadLeft,
 	interfacePadDown,
 	interfacePadRight,
+//5
+	interfacePadKeybord0,
+
 
 };
 

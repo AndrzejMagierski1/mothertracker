@@ -95,6 +95,12 @@ const uint8_t CUTOFF_MASK =						64;
 const uint8_t RESONANCE_MASK =					128;
 
 
+const uint8_t MIN_NOTE_OFFSET =					0;
+const uint8_t MAX_NOTE_OFFSET =					9;
+
+
+
+
 //=====================================================================
 //=====================================================================
 //=====================================================================
@@ -238,8 +244,7 @@ enum modyficators
 };
 
 //=====================================================================
-
-
+//-------------------------------------------------
 struct strSampleBank
 {
 	struct strSampleBankSlot
@@ -261,7 +266,7 @@ struct strSampleBank
 
 };
 
-
+//-------------------------------------------------
 struct strInstrument
 {
 	uint8_t isActive;
@@ -300,11 +305,8 @@ struct strInstrument
     int16_t panning;
 };
 
-struct strMtValues
-{
-	uint8_t lastUsedInstrument = 0;
-};
 
+//-------------------------------------------------
 struct strMtProjectRemote
 {
 	struct strSampleFile
@@ -331,6 +333,7 @@ struct strMtProjectRemote
 
 };
 
+//-------------------------------------------------
 struct strMtProject
 {
 	strSampleBank sampleBank;
@@ -340,12 +343,22 @@ struct strMtProject
 
 	strMtProjectRemote mtProjectRemote;
 
+	struct strMtValues
+	{
+		uint8_t lastUsedInstrument = 0;
 
-	strMtValues values;
+		uint8_t padBoardScale = 3;
+		uint8_t padBoardNoteOffset = 7;
+		uint8_t padBoardRootNote = 0;
+		uint8_t padBoardMaxVoices = 8;
+
+
+	} values;
 
 
 };
 
+//-------------------------------------------------
 struct strMtConfig
 {
 	struct strGlobalValues
@@ -375,62 +388,11 @@ struct strMtConfig
 	} audioCodecConfig;
 };
 
+//-------------------------------------------------
 
 extern strMtProject mtProject;
 extern strMtConfig 	mtConfig;
 
 
-const double notes[MAX_NOTE] =
-{
-		0.2500000000000,
-		0.2648657735898,
-		0.2806155120773,
-		0.2973017787507,
-		0.3149802624737,
-		0.3337099635425,
-		0.3535533905933,
-		0.3745767692192,
-		0.3968502629921,
-		0.4204482076269,
-		0.4454493590702,
-		0.4719371563408,
-		0.5000000000000,
-		0.5297315471796,
-		0.5612310241547,
-		0.5946035575014,
-		0.6299605249474,
-		0.6674199270850,
-		0.7071067811865,
-		0.7491535384383,
-		0.7937005259841,
-		0.8408964152537,
-		0.8908987181403,
-		0.9438743126817,
-		1.0000000000000,
-		1.0594630943593,
-		1.1224620483094,
-		1.1892071150027,
-		1.2599210498949,
-		1.3348398541700,
-		1.4142135623731,
-		1.4983070768767,
-		1.5874010519682,
-		1.6817928305074,
-		1.7817974362807,
-		1.8877486253634,
-		2.0000000000000,
-		2.1189261887186,
-		2.2449240966188,
-		2.3784142300055,
-		2.5198420997898,
-		2.6696797083401,
-		2.8284271247462,
-		2.9966141537534,
-		3.1748021039364,
-		3.3635856610149,
-		3.5635948725614,
-		3.7754972507268,
-		4.0
-};
 
 #endif
