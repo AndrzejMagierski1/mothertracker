@@ -31,7 +31,7 @@ private:
 
 	uint8_t padNotes[32];
 
-	int8_t voices[9] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+	int8_t voices[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
 
 
 

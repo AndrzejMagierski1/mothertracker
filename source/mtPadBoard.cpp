@@ -43,8 +43,8 @@ void cMtPadBoard::startInstrument(uint8_t pad, uint8_t index, int8_t velocity)
 
 	voices[voiceToTake] = pad;
 
-	mtPrint("start: ");
-	mtPrintln(voiceToTake);
+	//mtPrint("start: ");
+	//mtPrintln(voiceToTake);
 
 	instrumentPlayer[voiceToTake].noteOn(index, convertPadToNote(pad), velocity);
 }
@@ -74,8 +74,8 @@ void cMtPadBoard::stopInstrument(uint8_t pad)
 	int8_t voiceToClear = getVoiceTakenByPad(pad);
 	if(voiceToClear < 0) return;
 	voices[voiceToClear] = -1;
-	mtPrint("stop: ");
-	mtPrintln(voiceToClear);
+	//mtPrint("stop: ");
+	//mtPrintln(voiceToClear);
 	instrumentPlayer[voiceToClear].noteOff();
 }
 
