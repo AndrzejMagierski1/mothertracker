@@ -10,8 +10,7 @@
 #include "mtEnvelopeGenerator.h"
 #include "mtLFO.h"
 #include "mtHardware.h"
-
-void updateRec_isr();
+#include "mtRecorder.h"
 
 class audioEngine
 {
@@ -60,6 +59,7 @@ public:
 //	void resetMods();
 
 	void update();
+	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
 private:
 
 	AudioPlayMemory *        	playMemPtr;
@@ -82,41 +82,16 @@ private:
 	void changeFilterType(uint8_t type);
 	void filterConnect();
 	void filterDisconnect();
+
 	float fmap(float x, float in_min, float in_max, float out_min, float out_max);
 
 };
 
-class Recorder
-{
-public:
-	void startRecording(char * name);
-	void stopRecording();
-	void update();
-	uint8_t mode = recorderModeStop;
-private:
-	void writeOutHeader();
-
-	uint32_t ChunkSize = 0L;
-	uint32_t Subchunk1Size = 16;
-	uint32_t AudioFormat = 1;
-	uint32_t numChannels = 1;
-	uint32_t sampleRate = 44100;
-	uint32_t bitsPerSample = 16;
-	uint32_t byteRate = sampleRate*numChannels*(bitsPerSample/8);
-	uint32_t blockAlign = numChannels*bitsPerSample/8;
-	uint32_t Subchunk2Size = 0L;
-	uint32_t recByteSaved = 0L;
-	uint32_t NumSamples = 0L;
-	uint8_t byte1, byte2, byte3, byte4;
-
-	FsFile rec;
-};
 
 
 
 extern playerEngine instrumentPlayer[8];
 extern audioEngine engine;
-extern Recorder recorder;
 
 extern AudioPlayMemory          playMem[8];
 extern AudioEffectEnvelope      envelopeAmp[8];
@@ -130,6 +105,8 @@ extern LFO						lfoFilter[8];
 extern LFO						lfoPitch[8];
 extern int16_t					mods[MAX_TARGET][MAX_MOD];
 
-
+extern AudioInputI2S            i2sIn;
+extern AudioRecordQueue         queue;
+extern AudioMixer4              mixerRec;
 
 #endif /* SOURCE_MTAUDIOENGINE_H_ */

@@ -17,6 +17,7 @@ AudioFilterStateVariable filter[8];
 AudioAmplifier           amp[8];
 AudioMixer8				 mixerL,mixerR;
 AudioOutputI2S           i2sOut;
+AudioMixer4              mixerRec;
 
 int16_t					 mods[MAX_TARGET][MAX_MOD];
 
@@ -69,11 +70,12 @@ AudioConnection          connect40(&amp[7], 0, &mixerR, 7);
 AudioConnection          connect41(&mixerL, 0, &i2sOut, 1);
 AudioConnection          connect42(&mixerR, 0, &i2sOut, 0);
 
-AudioConnection          connect43(&i2sIn, 0, &queue, 0);
+AudioConnection          connect43(&i2sIn, 0, &mixerRec, 0);
+AudioConnection          connect44(&i2sIn, 1, &mixerRec, 1);
+AudioConnection          connect45(&mixerRec, &queue);
 
 
 playerEngine instrumentPlayer[8];
-Recorder recorder;
 
 audioEngine engine;
 
@@ -86,8 +88,11 @@ void audioEngine::init()
 	i2sConnect[0]= &connect41;
 	i2sConnect[1]= &connect42;
 
-	setIn(inputSelectLineIn);
-	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+//	setIn(inputSelectLineIn);
+//	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+	setIn(inputSelectMic);
+	audioShield.inputSelect(AUDIO_INPUT_MIC);
+	audioShield.micGain(25);
 
 	for(int i=0;i<8; i++)
 	{
@@ -561,94 +566,28 @@ float playerEngine :: fmap(float x, float in_min, float in_max, float out_min, f
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-
-void Recorder:: startRecording(char * name)
+uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
 {
-	if (SD.exists(name)) SD.remove(name);
+	uint8_t status=0;
+	envelopeAmpPtr->delay(0);
+	envelopeAmpPtr->attack(0);
+	envelopeAmpPtr->hold(0);
+	envelopeAmpPtr->decay(0);
+	envelopeAmpPtr->sustain(1.0);
+	envelopeAmpPtr->release(0.0f);
 
-	rec = SD.open(name, FILE_WRITE);
-	if (rec)
-	{
-		queue.begin();
-		mode = recorderModeRec;
-		recByteSaved = 0L;
-		rec.seek(44);
-	}
+	filterDisconnect();
+	ampPtr->gain(1.0);
+
+	mixerL.gain(numPanChannel,0.5);
+	mixerR.gain(numPanChannel,0.5);
+	/*======================================================================================================*/
+
+	status = playMemPtr->playForPrev(addr,len);
+	envelopeAmpPtr->noteOn();
+
+	return status;
+
 }
 
-void Recorder::update()
-{
-	if(mode == recorderModeRec )
-	{
-		if ((queue.available() >= 1))
-		{
-			uint8_t buffer[256];
-			rec.write(queue.readBuffer(), 256);
-			queue.freeBuffer();
-			recByteSaved += 256;
-		}
-	}
-}
 
-void Recorder::stopRecording()
-{
-	queue.end();
-	if (mode == recorderModeRec)
-	{
-		while ((queue.available() > 0) )
-		{
-			update();
-		}
-		writeOutHeader();
-	}
-	mode = recorderModeStop;
-}
-
-void Recorder::writeOutHeader()
-{
-	Subchunk2Size = recByteSaved;
-	ChunkSize = Subchunk2Size + 36;
-	rec.seek(0);
-	rec.write("RIFF",4);
-	byte1 = ChunkSize & 0xff;
-	byte2 = (ChunkSize >> 8) & 0xff;
-	byte3 = (ChunkSize >> 16) & 0xff;
-	byte4 = (ChunkSize >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	rec.write("WAVE",4);
-	rec.write("fmt ",4);
-	byte1 = Subchunk1Size & 0xff;
-	byte2 = (Subchunk1Size >> 8) & 0xff;
-	byte3 = (Subchunk1Size >> 16) & 0xff;
-	byte4 = (Subchunk1Size >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	byte1 = AudioFormat & 0xff;
-	byte2 = (AudioFormat >> 8) & 0xff;
-	rec.write(byte1);  rec.write(byte2);
-	byte1 = numChannels & 0xff;
-	byte2 = (numChannels >> 8) & 0xff;
-	rec.write(byte1);  rec.write(byte2);
-	byte1 = sampleRate & 0xff;
-	byte2 = (sampleRate >> 8) & 0xff;
-	byte3 = (sampleRate >> 16) & 0xff;
-	byte4 = (sampleRate >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	byte1 = byteRate & 0xff;
-	byte2 = (byteRate >> 8) & 0xff;
-	byte3 = (byteRate >> 16) & 0xff;
-	byte4 = (byteRate >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	byte1 = blockAlign & 0xff;
-	byte2 = (blockAlign >> 8) & 0xff;
-	rec.write(byte1);  rec.write(byte2);
-	byte1 = bitsPerSample & 0xff;
-	byte2 = (bitsPerSample >> 8) & 0xff;
-	rec.write(byte1);  rec.write(byte2);
-	rec.write("data",4);
-	byte1 = Subchunk2Size & 0xff;
-	byte2 = (Subchunk2Size >> 8) & 0xff;
-	byte3 = (Subchunk2Size >> 16) & 0xff;
-	byte4 = (Subchunk2Size >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	rec.close();
-}

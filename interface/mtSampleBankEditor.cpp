@@ -9,7 +9,7 @@
 
 
 cMtSampleBankEditor mtSampleBankEditor;
-
+extern int16_t sdram_sampleBank[4*1024*1024];
 
 //#########################################################################################################
 //#########################################################################################################
@@ -130,13 +130,24 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		}
 		else if(n==8)
 		{
-			Serial.println("START RECORD");
-			recorder.startRecording("testrec.wav");
+			recorder.startRecording("nazwa.wav", sdram_sampleBank);
+
 		}
 		else if(n==9)
 		{
 			recorder.stopRecording();
-			Serial.println("STOP RECORD");
+		}
+		else if(n==10)
+		{
+			recorder.play(0, MAX_16BIT);
+		}
+		else if(n==11)
+		{
+			recorder.stop();
+		}
+		else if(n==12)
+		{
+			recorder.save("\0","nagrywka.wav");
 		}
 	}
 
