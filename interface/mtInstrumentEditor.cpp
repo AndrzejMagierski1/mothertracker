@@ -1140,13 +1140,13 @@ void cMtInstrumentEditor::modStartPoint(int16_t value)
 				editorInstrument->loopPoint2 = editorInstrument->endPoint;
 				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
 				editorInstrument->startPoint = editorInstrument->loopPoint1;
-				instrumentPlayer[0].setStatusByte(LP1_MASK);
-				instrumentPlayer[0].setStatusByte(LP2_MASK);
+				instrumentPlayer[0].setStatusBytes(LP1_MASK);
+				instrumentPlayer[0].setStatusBytes(LP2_MASK);
 			}
 			else
 			{
 				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
-				instrumentPlayer[0].setStatusByte(LP2_MASK);
+				instrumentPlayer[0].setStatusBytes(LP2_MASK);
 			}
 		}
 	}
@@ -1184,13 +1184,13 @@ void cMtInstrumentEditor::modEndPoint(int16_t value)
 				editorInstrument->loopPoint1 = editorInstrument->startPoint;
 				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
 				editorInstrument->endPoint = editorInstrument->loopPoint2;
-				instrumentPlayer[0].setStatusByte(LP1_MASK);
-				instrumentPlayer[0].setStatusByte(LP2_MASK);
+				instrumentPlayer[0].setStatusBytes(LP1_MASK);
+				instrumentPlayer[0].setStatusBytes(LP2_MASK);
 			}
 			else
 			{
 				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
-				instrumentPlayer[0].setStatusByte(LP1_MASK);
+				instrumentPlayer[0].setStatusBytes(LP1_MASK);
 			}
 		}
 	}
@@ -1217,7 +1217,7 @@ void cMtInstrumentEditor::modLoopPoint1(int16_t value)
 	if(zoomValue > 1 && lastChangedPoint != 3
 			&& (editorInstrument->loopPoint1 < zoomStart || editorInstrument->loopPoint1 > zoomEnd)) spectrumChanged = 1;
 
-	instrumentPlayer[0].setStatusByte(LP1_MASK);
+	instrumentPlayer[0].setStatusBytes(LP1_MASK);
 
 
 	lastChangedPoint = 3;
@@ -1239,7 +1239,7 @@ void cMtInstrumentEditor::modLoopPoint2(int16_t value)
 	if(zoomValue > 1 && lastChangedPoint != 4
 			&& (editorInstrument->loopPoint2 < zoomStart || editorInstrument->loopPoint2 > zoomEnd)) spectrumChanged = 1;
 
-	instrumentPlayer[0].setStatusByte(LP2_MASK);
+	instrumentPlayer[0].setStatusBytes(LP2_MASK);
 
 	lastChangedPoint = 4;
 	pointsChanged = 1;
@@ -1263,7 +1263,7 @@ void cMtInstrumentEditor::changePanning(uint8_t pot, int16_t value)
 	else if(editorInstrument->panning + value > PANNING_MAX ) editorInstrument->panning = PANNING_MAX;
 	else editorInstrument->panning += value;
 
-	instrumentPlayer[0].setStatusByte(PANNING_MASK);
+	instrumentPlayer[0].setStatusBytes(PANNING_MASK);
 
 	parametersChanged = 1;
 }
@@ -1297,7 +1297,7 @@ void cMtInstrumentEditor::changeFilter(int16_t value)
 	else if(editorInstrument->cutOff + fVal > MAX_CUTOFF ) editorInstrument->cutOff = MAX_CUTOFF;
 	else editorInstrument->cutOff += fVal;
 
-	instrumentPlayer[0].setStatusByte(CUTOFF_MASK);
+	instrumentPlayer[0].setStatusBytes(CUTOFF_MASK);
 
 	parametersChanged = 1;
 }
@@ -1340,7 +1340,7 @@ void cMtInstrumentEditor::changeResonance(int16_t value)
 	else if(editorInstrument->resonance + fVal > RESONANCE_MAX) editorInstrument->resonance = RESONANCE_MAX;
 	else editorInstrument->resonance += fVal;
 
-	instrumentPlayer[0].setStatusByte(RESONANCE_MASK);
+	instrumentPlayer[0].setStatusBytes(RESONANCE_MASK);
 
 	parametersChanged = 1;
 }
@@ -1351,7 +1351,7 @@ void cMtInstrumentEditor::changeVolume(int16_t value)
 	else if(editorInstrument->volume + value > MAX_INSTRUMENT_VOLUME) editorInstrument->volume = MAX_INSTRUMENT_VOLUME;
 	else editorInstrument->volume += value;
 
-	instrumentPlayer[0].setStatusByte(VOLUME_MASK);
+	instrumentPlayer[0].setStatusBytes(VOLUME_MASK);
 
 	parametersChanged = 1;
 }
@@ -1362,7 +1362,7 @@ void cMtInstrumentEditor::changeFinetune(int16_t value)
 	else if(editorInstrument->fineTune + value > MAX_INSTRUMENT_FINETUNE) editorInstrument->fineTune = MAX_INSTRUMENT_FINETUNE;
 	else editorInstrument->fineTune += value;
 
-	instrumentPlayer[0].setStatusByte(FINETUNE_MASK);
+	instrumentPlayer[0].setStatusBytes(FINETUNE_MASK);
 
 	parametersChanged = 1;
 }
@@ -1373,7 +1373,7 @@ void cMtInstrumentEditor::changeTune(int16_t value)
 	else if(editorInstrument->tune + value > MAX_INSTRUMENT_TUNE) editorInstrument->tune = MAX_INSTRUMENT_TUNE;
 	else editorInstrument->tune += value;
 
-	instrumentPlayer[0].setStatusByte(TUNE_MASK);
+	instrumentPlayer[0].setStatusBytes(TUNE_MASK);
 
 	parametersChanged = 1;
 }

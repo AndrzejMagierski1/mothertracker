@@ -93,6 +93,7 @@ const uint8_t VOLUME_MASK =						16;
 const uint8_t PANNING_MASK =					32;
 const uint8_t CUTOFF_MASK =						64;
 const uint8_t RESONANCE_MASK =					128;
+const uint16_t REVERB_SEND_MASK =				256;
 
 
 const uint8_t MIN_NOTE_OFFSET =					0;
@@ -309,6 +310,8 @@ struct strInstrument
 
     uint16_t glide;
     int16_t panning;
+
+    uint8_t reverbSend;
 };
 
 

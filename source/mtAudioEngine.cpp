@@ -15,9 +15,10 @@ LFO						 lfoFilter[8];
 LFO						 lfoPitch[8];
 AudioFilterStateVariable filter[8];
 AudioAmplifier           amp[8];
-AudioMixer8				 mixerL,mixerR;
+AudioMixer9				 mixerL,mixerR,mixerReverb;
 AudioOutputI2S           i2sOut;
 AudioMixer4              mixerRec;
+AudioEffectFreeverb		 reverb;
 
 int16_t					 mods[MAX_TARGET][MAX_MOD];
 
@@ -57,7 +58,6 @@ AudioConnection          connect30(&amp[5], 0, &mixerL, 5);
 AudioConnection          connect31(&amp[6], 0, &mixerL, 6);
 AudioConnection          connect32(&amp[7], 0, &mixerL, 7);
 
-
 AudioConnection          connect33(&amp[0], 0, &mixerR, 0);
 AudioConnection          connect34(&amp[1], 0, &mixerR, 1);
 AudioConnection          connect35(&amp[2], 0, &mixerR, 2);
@@ -67,12 +67,27 @@ AudioConnection          connect38(&amp[5], 0, &mixerR, 5);
 AudioConnection          connect39(&amp[6], 0, &mixerR, 6);
 AudioConnection          connect40(&amp[7], 0, &mixerR, 7);
 
-AudioConnection          connect41(&mixerL, 0, &i2sOut, 1);
-AudioConnection          connect42(&mixerR, 0, &i2sOut, 0);
+AudioConnection          connect41(&envelopeAmp[0], 0, &mixerReverb, 0);
+AudioConnection          connect42(&envelopeAmp[1], 0, &mixerReverb, 1);
+AudioConnection          connect43(&envelopeAmp[2], 0, &mixerReverb, 2);
+AudioConnection          connect44(&envelopeAmp[3], 0, &mixerReverb, 3);
+AudioConnection          connect45(&envelopeAmp[4], 0, &mixerReverb, 4);
+AudioConnection          connect46(&envelopeAmp[5], 0, &mixerReverb, 5);
+AudioConnection          connect47(&envelopeAmp[6], 0, &mixerReverb, 6);
+AudioConnection          connect48(&envelopeAmp[7], 0, &mixerReverb, 7);
 
-AudioConnection          connect43(&i2sIn, 0, &mixerRec, 0);
-AudioConnection          connect44(&i2sIn, 1, &mixerRec, 1);
-AudioConnection          connect45(&mixerRec, &queue);
+AudioConnection          connect49(&mixerReverb,&reverb);
+
+AudioConnection          connect50(&reverb, 0, &mixerL, 8);
+AudioConnection          connect51(&reverb, 0, &mixerR, 8);
+
+AudioConnection          connect52(&mixerL, 0, &i2sOut, 1);
+AudioConnection          connect53(&mixerR, 0, &i2sOut, 0);
+
+AudioConnection          connect54(&i2sIn, 0, &mixerRec, 0);
+AudioConnection          connect55(&i2sIn, 1, &mixerRec, 1);
+
+AudioConnection          connect56(&mixerRec, &queue);
 
 
 playerEngine instrumentPlayer[8];
@@ -85,9 +100,10 @@ void audioEngine::init()
 	pinMode(AUDIO_OUT_MUX, OUTPUT);
 	digitalWrite(AUDIO_IN_MUX, LOW);
 	digitalWrite(AUDIO_OUT_MUX, LOW);
-	i2sConnect[0]= &connect41;
-	i2sConnect[1]= &connect42;
-
+	i2sConnect[0]= &connect52;
+	i2sConnect[1]= &connect53;
+	mixerR.gain(8,1.0);
+	mixerL.gain(8,1.0);
 //	setIn(inputSelectLineIn);
 //	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 	setIn(inputSelectMic);
@@ -165,6 +181,21 @@ void audioEngine::setIn(uint8_t audioInStatus)
 {
 	if(audioInStatus) digitalWrite(AUDIO_IN_MUX, HIGH);
 	else digitalWrite(AUDIO_IN_MUX, LOW);
+}
+
+void audioEngine::setReverbRoomsize(uint8_t value)
+{
+	reverb.roomsize(value/100);
+}
+
+void audioEngine::setReverbDamping(uint8_t value)
+{
+	reverb.damping(value/100);
+}
+
+void audioEngine::muteTrack(uint8_t channel)
+{
+	amp[channel].gain(0.0);
 }
 
 void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter,
@@ -275,14 +306,22 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	else ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
 	/*======================================================================================================*/
 	/*===============================================PANNING================================================*/
+	if(mtProject.instrument[instr_idx].panning < 0) gainL=(0-mtProject.instrument[instr_idx].panning)/100.0;
+	else if(mtProject.instrument[instr_idx].panning > 0) gainR=(mtProject.instrument[instr_idx].panning)/100.0;
+	else if(mtProject.instrument[instr_idx].panning == 0)
+	{
+		gainL=1.0; gainR=1.0;
+	}
 
-	gainL=mtProject.instrument[instr_idx].panning/100.0;
-	gainR=(100-mtProject.instrument[instr_idx].panning)/100.0;
 
 	mixerL.gain(numPanChannel,gainL);
 	mixerR.gain(numPanChannel,gainR);
 	/*======================================================================================================*/
+	/*===============================================REVERB=================================================*/
+	mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100);
 
+
+	/*======================================================================================================*/
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();
 
@@ -292,7 +331,6 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 
 	return status;
-
 }
 
 
@@ -324,8 +362,12 @@ void playerEngine :: modPanning(int16_t value)
 {
 	//mods[targetPanning][manualMod]=value;
 	float gainL=0,gainR=0;
-	gainL=value/100.0;
-	gainR=(100-value)/100.0;
+	if(value < 0) gainL=(0-value)/100.0;
+	else if(value> 0) gainR=(value)/100.0;
+	else if(value == 0)
+	{
+		gainL=1.0; gainR=1.0;
+	}
 
 	mixerL.gain(numPanChannel,gainL);
 	mixerR.gain(numPanChannel,gainR);
@@ -379,6 +421,11 @@ void playerEngine :: modTune(int8_t value)
 	playMemPtr->setTune(value,currentNote);
 }
 
+void playerEngine :: modReverbSend(uint8_t value)
+{
+	mixerL.gain(numPanChannel,value/100);
+}
+
 /*	void playerEngine:: resetMods(void)
 {
 	for(uint8_t i=0;i<MAX_TARGET;i++)
@@ -405,63 +452,68 @@ void playerEngine:: update()
 		if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable == envelopeOn)
 		{
 			filterMod+=envelopeFilterPtr->getOut();
-			statusByte |= CUTOFF_MASK;
+			statusBytes |= CUTOFF_MASK;
 		}
 		if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable == lfoOn)
 		{
 			filterMod+=lfoFilterPtr->getOut();
-			statusByte |= CUTOFF_MASK;
+			statusBytes |= CUTOFF_MASK;
 		}
 	}
 	if(mtProject.instrument[currentInstrument_idx].lfo[lfoA].enable == lfoOn )
 	{
 		ampMod=lfoAmpPtr->getOut();
-		statusByte |= VOLUME_MASK;
+		statusBytes |= VOLUME_MASK;
 	}
 
 
-	if(statusByte)
+	if(statusBytes)
 	{
-		if(statusByte & LP1_MASK)
+		if(statusBytes & LP1_MASK)
 		{
-			statusByte &= (~LP1_MASK);
+			statusBytes &= (~LP1_MASK);
 			modLP1(mtProject.instrument[currentInstrument_idx].loopPoint1);
 		}
-		if(statusByte & LP2_MASK)
+		if(statusBytes & LP2_MASK)
 		{
-			statusByte &= (~LP2_MASK);
+			statusBytes &= (~LP2_MASK);
 			modLP2(mtProject.instrument[currentInstrument_idx].loopPoint2);
 		}
-		if(statusByte & FINETUNE_MASK)
+		if(statusBytes & FINETUNE_MASK)
 		{
-			statusByte &= (~FINETUNE_MASK);
+			statusBytes &= (~FINETUNE_MASK);
 			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
 		}
-		if(statusByte & TUNE_MASK)
+		if(statusBytes & TUNE_MASK)
 		{
-			statusByte &= (~TUNE_MASK);
+			statusBytes &= (~TUNE_MASK);
 			modTune(mtProject.instrument[currentInstrument_idx].tune);
 		}
-		if(statusByte & VOLUME_MASK)
+		if(statusBytes & VOLUME_MASK)
 		{
-			statusByte &= (~VOLUME_MASK);
+			statusBytes &= (~VOLUME_MASK);
 			if(!currentVelocity) ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0));
 			else ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
 		}
-		if(statusByte & PANNING_MASK)
+		if(statusBytes & PANNING_MASK)
 		{
-			statusByte &= (~PANNING_MASK);
+			statusBytes &= (~PANNING_MASK);
 			modPanning(mtProject.instrument[currentInstrument_idx].panning);
 		}
-		if(statusByte & CUTOFF_MASK)
+		if(statusBytes & CUTOFF_MASK)
 		{
-			statusByte &= (~CUTOFF_MASK);
+			statusBytes &= (~CUTOFF_MASK);
 			modCutoff(mtProject.instrument[currentInstrument_idx].cutOff + filterMod);
 		}
-		if(statusByte & RESONANCE_MASK)
+		if(statusBytes & RESONANCE_MASK)
 		{
-			statusByte &= (~RESONANCE_MASK);
+			statusBytes &= (~RESONANCE_MASK);
 			modResonance(mtProject.instrument[currentInstrument_idx].resonance);
+		}
+		if(statusBytes & REVERB_SEND_MASK)
+		{
+			statusBytes &= (~REVERB_SEND_MASK);
+			modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
 		}
 	}
 
@@ -469,9 +521,9 @@ void playerEngine:: update()
 
 }
 
-void playerEngine :: setStatusByte(uint8_t value)
+void playerEngine :: setStatusBytes(uint16_t value)
 {
-	statusByte|=value;
+	statusBytes|=value;
 }
 
 
@@ -557,7 +609,7 @@ void playerEngine :: clean(void)
 	currentInstrument_idx=0;
 	currentNote=0;
 	currentVelocity=0;
-	statusByte=0;
+	statusBytes=0;
 	playMemPtr->clean();
 }
 
@@ -576,11 +628,13 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
 	envelopeAmpPtr->sustain(1.0);
 	envelopeAmpPtr->release(0.0f);
 
+
 	filterDisconnect();
 	ampPtr->gain(1.0);
 
 	mixerL.gain(numPanChannel,0.5);
 	mixerR.gain(numPanChannel,0.5);
+	mixerReverb.gain(numPanChannel,0.0);
 	/*======================================================================================================*/
 
 	status = playMemPtr->playForPrev(addr,len);
