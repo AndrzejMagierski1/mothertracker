@@ -110,9 +110,16 @@ void projectEditorEvent(uint8_t event, void* param1, void* param2, void* param3)
 			mtInterface.activateModule(mtModuleConfigEditor);
 			mtConfigEditor.start(mtConfigEditorStartModeGlobals);
 		}
+	break;
 
+
+	case mtProjectEditorEventLoadSampleBank:
+
+		mtSampleBankEditor.loadSamplesBank();
 
 	break;
+
+
 
 
 	default: break;

@@ -593,7 +593,7 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 		fileManager.importSampleToProject(NULL,(char*)"17.WAV",(char*)"17.WAV",14,-1,mtSampleTypeWavetable);
 		fileManager.importSampleToProject(NULL,(char*)"18.WAV",(char*)"18.WAV",15,-1,mtSampleTypeWavetable);
 */
-		loadSamplesBank();
+		eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
 
 		browseCancel(1);
 		refreshModule = 1;
@@ -610,7 +610,9 @@ void cMtProjectEditor::saveProjectAs(uint8_t value)
 		//loadSamplesBank();
 		fileManager.saveAsProject(editName);
 		fileManager.openProject(editName,projectTypeUserMade);
-		loadSamplesBank();
+		//loadSamplesBank();
+		eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
+
 
 		browseCancel(1);
 		refreshModule = 1;
@@ -712,6 +714,7 @@ uint8_t cMtProjectEditor::readProjectConfig()
 }
 
 //-------------------------------------------------------------------------------
+/*
 uint8_t cMtProjectEditor::loadSamplesBank()
 {
 	//zaladowanie banku sampli
@@ -783,7 +786,7 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 
 	return 0;
 }
-
+*/
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 uint8_t cMtProjectEditor::loadLastProject()

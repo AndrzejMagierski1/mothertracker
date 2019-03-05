@@ -105,8 +105,8 @@ void cMtSampleBankEditor::update()
 
 		if(!slotListEnabled)
 		{
-			filesListChanged = 0;
-			mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
+			slotListChanged = 0;
+			mtDisplay.setList(slot_list_index, 0, 0, 0, 0, 0);
 			return;
 		}
 
@@ -184,15 +184,18 @@ void cMtSampleBankEditor::listOnlyDirAndWavFromActualPath()
 uint8_t cMtSampleBankEditor::isWavFile(char* fileName)
 {
 	uint8_t endPos = 0;
-	while(fileName[endPos] != 0 && endPos < 19)
+	char temp_name[32];
+	strcpy(temp_name, fileName);
+
+	while(temp_name[endPos] != 0 && endPos < 19)
 	{
-		if(fileName[endPos] > 96 && fileName[endPos] < 123) fileName[endPos] = fileName[endPos] - 32;
+		if(temp_name[endPos] > 96 && temp_name[endPos] < 123) temp_name[endPos] = temp_name[endPos] - 32;
 		endPos++;
 	}
 
 	endPos--;
 
-	if(fileName[endPos] == 'V' && fileName[endPos-1] == 'A' && fileName[endPos-2] == 'W' && fileName[endPos-3] == '.')
+	if(temp_name[endPos] == 'V' && temp_name[endPos-1] == 'A' && temp_name[endPos-2] == 'W' && temp_name[endPos-3] == '.')
 	{
 		return 1;
 	}
@@ -209,12 +212,31 @@ void cMtSampleBankEditor::getSelectedFileType()
 
 void cMtSampleBankEditor::listSampleSlots()
 {
+	for(uint8_t i = 0; i < SAMPLES_COUNT; i++)
+	{
+		if(i<9)
+		{
+			slotNames[i][0] = (i+1)%10 + 48;
+			slotNames[i][1] = '.';
+			slotNames[i][2] = ' ';
+			slotNames[i][3] = 0;
+		}
+		else
+		{
+			slotNames[i][0] = (((i+1)-(i)%10)/10) + 48;
+			slotNames[i][1] = (i+1)%10 + 48;
+			slotNames[i][2] = '.';
+			slotNames[i][3] = ' ';
+			slotNames[i][4] = 0;
+		}
 
+		if(mtProject.sampleBank.sample[i].loaded)
+		{
+			strcat(&slotNames[i][0], mtProject.sampleBank.sample[i].file_name);
+		}
 
-	slotNames[SAMPLES_COUNT][26];
-
-
-	ptrSlotNames[SAMPLES_COUNT];
+		ptrSlotNames[i] = &slotNames[i][0];
+	}
 
 }
 
@@ -359,7 +381,77 @@ void cMtSampleBankEditor::processLabels()
 //#########################################################################################################
 //#########################################################################################################
 
+uint8_t cMtSampleBankEditor::loadSamplesBank()
+{
+	//zaladowanie banku sampli
+	char currentPatch[PATCH_SIZE];
 
+	int32_t size;
+	mtProject.sampleBank.used_memory = 0;
+
+	mtProject.sampleBank.sample[0].address = sdram_sampleBank;
+	mtProject.sampleBank.samples_count = 0;
+
+	for(uint8_t i = 0; i < SAMPLES_COUNT; i++)
+	{
+		if(fileManager.currentProjectPatch != NULL)
+		{
+			memset(currentPatch,0,PATCH_SIZE);
+			strcpy(currentPatch,fileManager.currentProjectPatch);
+			strcat(currentPatch,"/samples/");
+			strcat(currentPatch,mtProject.sampleBank.sample[i].file_name);
+		}
+
+
+		if(mtProject.sampleBank.sample[i].type == mtSampleTypeWavetable)
+		{
+
+			//size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
+
+			//size = loadFullWavetableSerum("DirtySaw",mtProject.sampleBank.sample[i].address);
+
+			size = loadWavetable(currentPatch, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
+
+		}
+		else
+		{
+			size = loadSample(currentPatch, mtProject.sampleBank.sample[i].address);
+		}
+
+
+		if(size > 0)
+		{
+			mtProject.sampleBank.used_memory += size*2;
+			mtProject.sampleBank.sample[i].loaded = 1;
+			mtProject.sampleBank.sample[i].length = size;
+
+			mtProject.sampleBank.samples_count++;
+		}
+		else
+		{
+			mtProject.sampleBank.sample[i].loaded = 0;
+			mtProject.sampleBank.sample[i].length = 0;
+			mtProject.sampleBank.sample[i].file_name[0] = '-';
+			mtProject.sampleBank.sample[i].file_name[1] = 'e';
+			mtProject.sampleBank.sample[i].file_name[2] = 'm';
+			mtProject.sampleBank.sample[i].file_name[3] = 'p';
+			mtProject.sampleBank.sample[i].file_name[4] = 't';
+			mtProject.sampleBank.sample[i].file_name[5] = 'y';
+			mtProject.sampleBank.sample[i].file_name[6] = '-';
+			mtProject.sampleBank.sample[i].file_name[7] = 0;
+			size = 0;
+			//return 2; // blad ladowania wave
+		}
+
+		if(i+1 < SAMPLES_COUNT)
+		{
+			mtProject.sampleBank.sample[i+1].address = mtProject.sampleBank.sample[i].address+size;
+		}
+		if(mtProject.sampleBank.used_memory > mtProject.sampleBank.max_memory) return 1; // out of memory
+	}
+
+	return 0;
+}
 
 //#########################################################################################################
 //#########################################################################################################
@@ -529,6 +621,7 @@ void cMtSampleBankEditor::browseSelectSample()
 	slotListChanged = 2;
 	slotListEnabled = 1;
 
+	refreshModule = 1;
 }
 
 void cMtSampleBankEditor::browseSelectSlot()
@@ -536,6 +629,16 @@ void cMtSampleBankEditor::browseSelectSlot()
 	if(selectedSlot > SAMPLES_MAX) browseCancel();
 	fileManager.importSampleToProject(filePath, &locationFilesList[selectedLocation][0],
 			&locationFilesList[selectedLocation][0], selectedSlot, -1, sampleType);
+
+
+	loadSamplesBank();
+
+	slotListChanged = 1;
+	slotListEnabled = 0;
+
+	samplesListChanged = 2;
+
+	refreshModule = 1;
 }
 
 
@@ -555,6 +658,8 @@ void cMtSampleBankEditor::browseCancel()
 	filesListEnabled = 0;
 	slotListChanged = 1;
 	slotListEnabled = 0;
+
+	refreshModule = 1;
 }
 
 //#########################################################################################################

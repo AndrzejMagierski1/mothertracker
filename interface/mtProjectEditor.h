@@ -24,6 +24,7 @@ enum mtProjectEditorEvents
 	mtPriojectEditorEventNone,
 	mtPriojectEditorEventLoadLastProjFailed,
 	mtPriojectEditorEventPadPress,
+	mtProjectEditorEventLoadSampleBank,
 
 	ProjEditEventCount
 };
@@ -42,7 +43,7 @@ public:
 	void seqButtonChange(uint8_t type, uint8_t x, uint8_t y);
 
 	uint8_t readProjectConfig();
-	uint8_t loadSamplesBank();
+	//uint8_t loadSamplesBank();
 	uint8_t loadLastProject();
 	uint8_t isProjectLoaded();
 

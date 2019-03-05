@@ -104,7 +104,7 @@ public:
 	void writeProjectFile(char * name,strMtProjectRemote * proj);
 	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
 
-	friend class cMtProjectEditor;
+	friend class cMtSampleBankEditor;
 private:
 
 	char currentProjectPatch[PATCH_SIZE];

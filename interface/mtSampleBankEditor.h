@@ -37,6 +37,8 @@ public:
 	void potChange(uint8_t pot, int16_t value);
 	void seqButtonChange(uint8_t type, uint8_t x, uint8_t y);
 
+	uint8_t loadSamplesBank();
+
 private:
 
 	void processLabels();
@@ -196,8 +198,8 @@ private:
 	{
 		{0},
 		"Sample Bank",
-		"Select file"
-		"Select slot"
+		"Select file",
+		"Select slot",
 
 	};
 
