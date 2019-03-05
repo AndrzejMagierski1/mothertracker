@@ -21,6 +21,9 @@ public:
 	void setIn(uint8_t audioInStatus);
 	void prevSdConnect();
 	void prevSdDisconnect();
+	void setReverbRoomsize(uint8_t value);
+	void setReverbDamping(uint8_t value);
+	void muteTrack(uint8_t channel);
 private:
 	AudioConnection* i2sConnect[2];
 };
@@ -55,7 +58,8 @@ public:
 
 	void modWavetableWindow(uint16_t value);
 	void modTune(int8_t value);
-	void setStatusByte(uint8_t value);
+	void modReverbSend(uint8_t value);
+	void setStatusBytes(uint16_t value);
 //	void resetMods();
 
 	void update();
@@ -77,7 +81,7 @@ private:
 	uint8_t 					currentInstrument_idx;
 	int8_t						currentNote;
 	int8_t						currentVelocity;
-	uint8_t 					statusByte; // 7-resonance, 6-cutoff, 5-panning ,4-volume,3-tune,2-fineTune, 1-LP1 , 0-LP2
+	uint16_t 					statusBytes; // 8- reverbSend 7-resonance, 6-cutoff, 5-panning ,4-volume,3-tune,2-fineTune, 1-LP1 , 0-LP2
 
 	void changeFilterType(uint8_t type);
 	void filterConnect();
@@ -98,7 +102,7 @@ extern AudioEffectEnvelope      envelopeAmp[8];
 extern envelopeGenerator		envelopeFilter[8];
 extern AudioFilterStateVariable filter[8];
 extern AudioAmplifier           amp[8];
-extern AudioMixer8				mixerL,mixerR;
+extern AudioMixer9				mixerL,mixerR,mixerReverb;
 extern AudioOutputI2S           i2s1;
 extern LFO						lfoAmp[8];
 extern LFO						lfoFilter[8];

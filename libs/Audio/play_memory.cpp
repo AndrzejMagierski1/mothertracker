@@ -58,7 +58,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 		else currentTune=MIN_NOTE-note;
 	}
 
-	if(lastNote>=0) pitchControl=notes[lastNote + currentTune];
+	if(lastNote>=0 && glide != 0 ) pitchControl=notes[lastNote + currentTune];
 	else pitchControl=notes[note+ currentTune];
 
 	int16_t * data = mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].address;
