@@ -102,8 +102,7 @@ void audioEngine::init()
 	digitalWrite(AUDIO_OUT_MUX, LOW);
 	i2sConnect[0]= &connect52;
 	i2sConnect[1]= &connect53;
-	mixerR.gain(8,1.0);
-	mixerL.gain(8,1.0);
+
 //	setIn(inputSelectLineIn);
 //	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 	setIn(inputSelectMic);
@@ -191,6 +190,25 @@ void audioEngine::setReverbRoomsize(uint8_t value)
 void audioEngine::setReverbDamping(uint8_t value)
 {
 	reverb.damping(value/100);
+}
+
+void audioEngine::setReverbPanning(int8_t value)
+{
+	if(value > 0)
+	{
+		mixerL.gain(8,(100 - value)/100);
+		mixerR.gain(8,1.0);
+	}
+	else if(value < 0)
+	{
+		mixerL.gain(8,1.0);
+		mixerR.gain(8, (100 + value)/100 );
+	}
+	else if (value == 0)
+	{
+		mixerL.gain(8,1.0);
+		mixerR.gain(8,1.0);
+	}
 }
 
 void audioEngine::muteTrack(uint8_t channel)
@@ -306,8 +324,16 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	else ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
 	/*======================================================================================================*/
 	/*===============================================PANNING================================================*/
-	if(mtProject.instrument[instr_idx].panning < 0) gainL=(0-mtProject.instrument[instr_idx].panning)/100.0;
-	else if(mtProject.instrument[instr_idx].panning > 0) gainR=(mtProject.instrument[instr_idx].panning)/100.0;
+	if(mtProject.instrument[instr_idx].panning < 0)
+	{
+		gainR=(100+mtProject.instrument[instr_idx].panning)/100.0;
+		gainL=1.0;
+	}
+	else if(mtProject.instrument[instr_idx].panning > 0)
+	{
+		gainR=1.0;
+		gainL=(100-mtProject.instrument[instr_idx].panning)/100.0;
+	}
 	else if(mtProject.instrument[instr_idx].panning == 0)
 	{
 		gainL=1.0; gainR=1.0;
@@ -362,8 +388,16 @@ void playerEngine :: modPanning(int16_t value)
 {
 	//mods[targetPanning][manualMod]=value;
 	float gainL=0,gainR=0;
-	if(value < 0) gainL=(0-value)/100.0;
-	else if(value> 0) gainR=(value)/100.0;
+	if(value < 0)
+	{
+		gainR=(100 + value)/100.0;
+		gainL=1.0;
+	}
+	else if(value> 0)
+	{
+		gainR=1.0;
+		gainL=(100 - value)/100.0;
+	}
 	else if(value == 0)
 	{
 		gainL=1.0; gainR=1.0;

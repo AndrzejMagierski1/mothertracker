@@ -318,6 +318,23 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 	uint16_t lengthData=0;
 	uint8_t currentBuffor[1024];
 	uint8_t cnt=0;
+
+	while( (mtProject.mtProjectRemote.sampleFile[cnt].index != sampleIndex) && (cnt < SAMPLES_COUNT) )
+	{
+		cnt++;
+	}
+	if(cnt != SAMPLES_COUNT )
+	{
+		strcpy(currentPatch,currentProjectPatch);
+		strcat(currentPatch,"/samples/");
+		strcat(currentPatch,mtProject.mtProjectRemote.sampleFile[cnt].name);
+		if(SD.exists(currentPatch)) SD.remove(currentPatch);
+		mtProject.mtProjectRemote.sampleFile[cnt].index = -1;
+		memset(mtProject.mtProjectRemote.sampleFile[cnt].name,0,SAMPLE_NAME_SIZE);
+	}
+
+	cnt=0;
+
 	while( (mtProject.mtProjectRemote.sampleFile[cnt].index != -1) && (cnt < SAMPLES_COUNT) )
 	{
 		cnt++;
@@ -333,6 +350,7 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 
 	if(filePatch!= NULL)
 	{
+		memset(currentPatch,0,PATCH_SIZE);
 		strcpy(currentPatch,filePatch);
 		strcat(currentPatch,"/");
 		strcat(currentPatch,name);
@@ -344,12 +362,10 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 	file = SD.open(currentPatch);
 
 	memset(currentPatch,0,PATCH_SIZE);
-
 	strcpy(currentPatch,currentProjectPatch);
-	strcat(currentPatch,"/");
-	strcat(currentPatch,"samples");
-	strcat(currentPatch,"/");
+	strcat(currentPatch,"/samples/");
 	strcat(currentPatch,newName);
+
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 	copy= SD.open(currentPatch,FILE_WRITE);
 
@@ -432,6 +448,7 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 		mtProject.instrument[instrumentIndex].tune = 0;
 		mtProject.instrument[instrumentIndex].fineTune = 0;
 
+		mtProject.instrument[instrumentIndex].reverbSend = 0;
 
 		mtProject.instruments_count++;
 
@@ -948,6 +965,7 @@ void FileManager:: addInstrumentToProject (int8_t index)
 	mtProject.instrument[index].tune = 0;
 	mtProject.instrument[index].fineTune = 0;
 
+	mtProject.instrument[index].reverbSend = 0;
 
 	mtProject.instruments_count++;
 

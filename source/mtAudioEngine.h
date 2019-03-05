@@ -23,6 +23,7 @@ public:
 	void prevSdDisconnect();
 	void setReverbRoomsize(uint8_t value);
 	void setReverbDamping(uint8_t value);
+	void setReverbPanning(int8_t value);
 	void muteTrack(uint8_t channel);
 private:
 	AudioConnection* i2sConnect[2];
