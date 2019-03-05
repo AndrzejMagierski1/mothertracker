@@ -645,6 +645,34 @@ void cMtSampleBankEditor::browseSelectSlot()
 void cMtSampleBankEditor::browseOpenFolder()
 {
 
+	if(dirLevel == 0)
+	{
+		strcpy(filePath,&locationFilesList[selectedLocation][0]);
+		dirLevel++;
+	}
+	else
+	{
+		if(selectedLocation == 0)
+		{
+			*strrchr(filePath, '/') = 0;
+			dirLevel--;
+			if(dirLevel == 0) 	strcpy(filePath,"/");
+		}
+		else
+		{
+			strcat(filePath,&locationFilesList[selectedLocation][0]);
+			dirLevel++;
+		}
+	}
+
+
+
+	selectedLocation = 0;
+
+	filesListChanged = 2;
+	filesListEnabled = 1;
+
+	refreshModule = 1;
 }
 
 void cMtSampleBankEditor::browseBack()
