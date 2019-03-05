@@ -159,7 +159,7 @@ private:
 
 
 	uint8_t instrumentListEnabled = 0;
-	char *instrumentNames[INSTRUMENTS_MAX];
+	char *instrumentNames[INSTRUMENTS_COUNT];
 
 	//ostatnio wybrany globalnie instrument
 	uint8_t last_selected_instrument = 0;

@@ -723,7 +723,7 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 	mtProject.sampleBank.sample[0].address = sdram_sampleBank;
 	mtProject.sampleBank.samples_count = 0;
 
-	for(uint8_t i = 0; i < SAMPLES_MAX; i++)
+	for(uint8_t i = 0; i < SAMPLES_COUNT; i++)
 	{
 		if(fileManager.currentProjectPatch != NULL)
 		{
@@ -774,7 +774,7 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 			//return 2; // blad ladowania wave
 		}
 
-		if(i+1 < SAMPLES_MAX)
+		if(i+1 < SAMPLES_COUNT)
 		{
 			mtProject.sampleBank.sample[i+1].address = mtProject.sampleBank.sample[i].address+size;
 		}

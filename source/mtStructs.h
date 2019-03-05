@@ -19,8 +19,8 @@ const float MIN_WAVE_FLOAT =					-1.0;
 
 const uint32_t SAMPLE_MEMORY_MAX =      		(8*1024*1024);
 
-const uint8_t INSTRUMENTS_MAX =        			32;
-const uint8_t SAMPLES_MAX =            			32;
+const uint8_t INSTRUMENTS_MAX =        			31;
+const uint8_t SAMPLES_MAX =            			31;
 const uint8_t SAMPLES_FILENAME_LENGTH_MAX =     32;
 
 const uint8_t INSTRUMENTS_COUNT =        		32;
@@ -264,7 +264,7 @@ struct strSampleBank
 
 		uint16_t wavetable_window_size = 0;
 
-	} sample[SAMPLES_MAX];
+	} sample[SAMPLES_COUNT];
 
 	uint32_t max_memory = SAMPLE_MEMORY_MAX;
 	uint32_t used_memory;
@@ -343,7 +343,7 @@ struct strMtProjectRemote
 struct strMtProject
 {
 	strSampleBank sampleBank;
-	strInstrument instrument[INSTRUMENTS_MAX];
+	strInstrument instrument[INSTRUMENTS_COUNT];
 	uint8_t instruments_count;
 	uint8_t patterns_count;
 

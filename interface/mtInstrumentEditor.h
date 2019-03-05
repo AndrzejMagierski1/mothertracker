@@ -159,7 +159,7 @@ private:
 	int8_t openedInstrumentIndex; // index w globalnej liscie instrumentow
 	int8_t openedInstrFromActive; // index z listy tylko aktywnych ( activeInstruments[] )
 	int8_t inActiveInstrumentIndex;
-	int8_t activeInstruments[INSTRUMENTS_MAX];
+	int8_t activeInstruments[INSTRUMENTS_COUNT];
 	uint8_t inActiveInstrumentsCount;
 	strInstrument * editorInstrument;
 
@@ -193,12 +193,12 @@ private:
 
 	const uint8_t sample_list_pos = 1;
 	uint8_t sampleListEnabled = 0;
-	char *sampleNames[SAMPLES_MAX];
+	char *sampleNames[SAMPLES_COUNT];
 
 	uint8_t instrumentListMode = 0;
 	const uint8_t instrument_list_pos = 0;
 	uint8_t instrumentListEnabled = 0;
-	char *instrumentNames[INSTRUMENTS_MAX];
+	char *instrumentNames[INSTRUMENTS_COUNT];
 
 	//parametry rysowania spektrum/parametrow/envelopow
 	const uint16_t SPECTRUM_DRAW_DELAY_VALUE = 500;

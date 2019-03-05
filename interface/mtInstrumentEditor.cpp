@@ -118,7 +118,7 @@ void cMtInstrumentEditor::update()
 			if(mtProject.sampleBank.samples_count > 0)
 			{
 				//przetworz tablice adresow nazw sampli na podstawie nazw z banku sampli
-				for(uint8_t i = 0; i < SAMPLES_MAX; i++)
+				for(uint8_t i = 0; i < SAMPLES_COUNT; i++)
 				{
 					sampleNames[i] = mtProject.sampleBank.sample[i].file_name;
 				}
@@ -245,7 +245,7 @@ void cMtInstrumentEditor::startExisting(uint8_t instrumentIndex)
 	openedInstrumentIndex = -1;
 	openedInstrFromActive = 0;
 	uint8_t activeInstr = 0;
-	for(uint8_t i = 0; i < INSTRUMENTS_MAX; i++)
+	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
 		if(mtProject.instrument[i].isActive)
 		{
@@ -1611,7 +1611,7 @@ void cMtInstrumentEditor::addInstrument(uint8_t value)
 {
 	if(value == 1)
 	{
-		if(mtProject.instruments_count < INSTRUMENTS_MAX)
+		if(mtProject.instruments_count < INSTRUMENTS_COUNT)
 		{
 			openedInstrFromActive = 0;
 			inActiveInstrumentsCount = 0;
@@ -1673,7 +1673,7 @@ void cMtInstrumentEditor::removeInstrument()
 	//fileManager.removeInstrument(openedInstrumentIndex);
 
 	uint8_t open_first = 0;
-	for(uint8_t i = 0; i < INSTRUMENTS_MAX; i++)
+	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
 		if(mtProject.instrument[i].isActive == 1)
 		{
@@ -1748,7 +1748,7 @@ void cMtInstrumentEditor::showInstrumentList(uint8_t value)
 			{
 				openedInstrFromActive = 0;
 				uint8_t activeInstr = 0;
-				for(uint8_t i = 0; i < INSTRUMENTS_MAX; i++)
+				for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 				{
 					if(mtProject.instrument[i].isActive)
 					{

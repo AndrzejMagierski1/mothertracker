@@ -55,18 +55,21 @@ private:
 
 
 	//funkcje przyciskow
-	void importSample();
+	void importSample(uint8_t type);
 	void removeSample();
 	void renameSample();
 	void browseSelectSample();
 	void browseOpenFolder();
 	void browseBack();
 	void browseCancel();
+	void browseSelectSlot();
+
+
 
 	//funkcje potow
 	void changeSampleListPos(int16_t value);
 	void changeFilesListPos(int16_t value);
-
+	void changeSlotsListPos(int16_t value);
 
 	uint8_t	refreshModule = 0;
 	uint8_t	moduleStart = 0;
@@ -78,12 +81,13 @@ private:
 	uint8_t labelsChanged;
 	uint8_t filesListChanged;
 	uint8_t samplesListChanged;
+	uint8_t slotListChanged;
 
 
 	static const uint8_t samples_list_length_max = SAMPLES_MAX;
 	const uint8_t samples_list_pos = 3;
 //	uint8_t samplesListEnabled = 0;
-	char *samplesNames[SAMPLES_MAX];
+	char *samplesNames[SAMPLES_COUNT];
 	uint16_t samplesCount;
 
 
@@ -101,12 +105,25 @@ private:
 	uint8_t selectedLocation = 0;
 	char locationFilesList[files_list_length_max][20];
 	uint16_t locationFilesCount;
+	uint8_t sampleType;
 
 	FsFile sdLocation;
+
+	//lista slotow---------------------------------------------
+	const uint8_t slot_list_index = 1;
+	uint8_t slotListEnabled = 0;
+
+	char slotNames[SAMPLES_COUNT][26];
+	char *ptrSlotNames[SAMPLES_COUNT];
+	uint8_t selectedSlot;
+
+	//-------------------------------------------------------------------
 
 	void listOnlyDirAndWavFromActualPath();
 	uint8_t isWavFile(char* fileName);
 	void getSelectedFileType();
+
+	void listSampleSlots();
 	//-------------------------------------------------------------------
 
 
@@ -117,6 +134,7 @@ private:
 	{
 		buttonFunctNone,
 		buttonFunctImportSample,
+		buttonFunctImportWavetable,
 		buttonFunctRemoveSample,
 		buttonFunctRenameSample,
 
@@ -124,6 +142,8 @@ private:
 		buttonFunctBrowseOpenFolder,
 		buttonFunctBrowseBack,
 		buttonFunctBrowseCancel,
+
+		buttonFunctSelectSampleSlot,
 
 
 
@@ -138,7 +158,8 @@ private:
 	char buttonFunctionLabels[buttonFunctCount][20] =
 	{
 		{0},
-		"Import",
+		"Import sample",
+		"Import wavetable",
 		"Remove",
 		"Rename",
 
@@ -147,6 +168,7 @@ private:
 		"Back",
 		"Cancel",
 
+		"Select",
 
 
 	};
@@ -159,6 +181,7 @@ private:
 		potFunctNone,
 		potFunctChangeSamplesListPos,
 		potFunctChangeFileListPos,
+		potFunctChangeSlotListPos,
 
 
 
@@ -174,7 +197,7 @@ private:
 		{0},
 		"Sample Bank",
 		"Select file"
-
+		"Select slot"
 
 	};
 
@@ -183,14 +206,16 @@ private:
 			100, // potFunctionNone,
 			30, //
 			30,
+			30,
 
 	};
 
 	const uint8_t potFuncAcc[potFunctCount] =
 	{
-			3, // potFunctionNone,
-			1, //
-			1,
+			0, // potFunctionNone,
+			0, //
+			0,
+			0,
 	};
 
 };

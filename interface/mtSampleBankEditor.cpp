@@ -4,6 +4,8 @@
 
 #include "mtAudioEngine.h"
 #include "mtInterfaceDefs.h"
+#include "mtFileManager.h"
+
 
 #include "mtSampleBankEditor.h"
 
@@ -55,7 +57,7 @@ void cMtSampleBankEditor::update()
 		{
 			if(mtProject.sampleBank.samples_count > 0)
 			{
-				for(uint8_t i = 0; i < SAMPLES_MAX; i++)
+				for(uint8_t i = 0; i < SAMPLES_COUNT; i++)
 				{
 					samplesNames[i] = mtProject.sampleBank.sample[i].file_name;
 				}
@@ -67,13 +69,8 @@ void cMtSampleBankEditor::update()
 				samplesNames[0] = buttonFunctionLabels[0]; // przypisanie pustego
 				mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, samplesNames, 1 );
 			}
-
-
-
 		}
-
 		//processSamples();
-
 		samplesListChanged = 0;
 	}
 	//-----------------------------------------------------
@@ -91,7 +88,6 @@ void cMtSampleBankEditor::update()
 
 		if(filesListChanged == 2) // pokaz liste
 		{
-
 			listOnlyDirAndWavFromActualPath();
 
 			getSelectedFileType();
@@ -100,6 +96,28 @@ void cMtSampleBankEditor::update()
 		}
 
 		filesListChanged = 0;
+	}
+	//-----------------------------------------------------
+	if(slotListChanged)
+	{
+		labelsChanged = 1;
+		refreshModule = 1;
+
+		if(!slotListEnabled)
+		{
+			filesListChanged = 0;
+			mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
+			return;
+		}
+
+		if(slotListChanged == 2) // pokaz liste
+		{
+			listSampleSlots();
+
+			mtDisplay.setList(slot_list_index, files_list_pos, 2, selectedSlot, ptrSlotNames, SAMPLES_COUNT);
+		}
+
+		slotListChanged = 0;
 	}
 }
 
@@ -189,6 +207,17 @@ void cMtSampleBankEditor::getSelectedFileType()
 
 }
 
+void cMtSampleBankEditor::listSampleSlots()
+{
+
+
+	slotNames[SAMPLES_COUNT][26];
+
+
+	ptrSlotNames[SAMPLES_COUNT];
+
+}
+
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
@@ -256,7 +285,8 @@ void cMtSampleBankEditor::buttonChange(uint8_t button, uint8_t value)
 		switch(buttonFunctions[button])
 		{
 		case buttonFunctNone				:	break;
-		case buttonFunctImportSample		:	importSample();		break;
+		case buttonFunctImportSample		:	importSample(mtSampleTypeWaveFile);		break;
+		case buttonFunctImportWavetable		:	importSample(mtSampleTypeWavetable);	break;
 		case buttonFunctRemoveSample		:	removeSample();		break;
 		case buttonFunctRenameSample		:	renameSample();		break;
 
@@ -264,6 +294,8 @@ void cMtSampleBankEditor::buttonChange(uint8_t button, uint8_t value)
 		case buttonFunctBrowseOpenFolder	:	browseOpenFolder();	break;
 		case buttonFunctBrowseBack			:	browseBack();		break;
 		case buttonFunctBrowseCancel		:	browseCancel();		break;
+
+		case buttonFunctSelectSampleSlot	:	browseSelectSlot();	break;
 
 
 
@@ -283,6 +315,7 @@ void cMtSampleBankEditor::potChange(uint8_t pot, int16_t value)
 		case potFunctNone					:	break;
 		case potFunctChangeSamplesListPos	:	changeSampleListPos(value);	break;
 		case potFunctChangeFileListPos		:	changeFilesListPos(value);	break;
+		case potFunctChangeSlotListPos		:	changeSlotsListPos(value);	break;
 
 		default: break;
 	}
@@ -368,9 +401,17 @@ void cMtSampleBankEditor::updateButtonsFunctions()
 		setButtonFunction(1, buttonFunctBrowseCancel);
 
 	}
+	else if(slotListEnabled)
+	{
+		setButtonFunction(0, buttonFunctSelectSampleSlot);
+		setButtonFunction(1, buttonFunctBrowseCancel);
+	}
 	else
 	{
-		setButtonFunction(3, buttonFunctImportSample);
+		setButtonFunction(0, buttonFunctImportSample);
+		setButtonFunction(1, buttonFunctImportWavetable);
+
+		setButtonFunction(3, buttonFunctRenameSample);
 		setButtonFunction(4, buttonFunctRemoveSample);
 	}
 
@@ -428,6 +469,10 @@ void cMtSampleBankEditor::updatePotsFunctions()
 	{
 		setPotFunction(0, potFunctChangeFileListPos);
 	}
+	else if(slotListEnabled)
+	{
+		setPotFunction(0, potFunctChangeSlotListPos);
+	}
 
 
 //--------------------------------------------------------
@@ -453,8 +498,10 @@ void cMtSampleBankEditor::setPotFunction(uint8_t number, uint8_t function)
 //#########################################################################################################
 //#########################################################################################################
 
-void cMtSampleBankEditor::importSample()
+void cMtSampleBankEditor::importSample(uint8_t type)
 {
+	sampleType = type;
+
 	strcpy(filePath,"/");
 	dirLevel = 0;
 	selectedLocation = 0;
@@ -476,8 +523,21 @@ void cMtSampleBankEditor::renameSample()
 
 void cMtSampleBankEditor::browseSelectSample()
 {
+	filesListChanged = 1;
+	filesListEnabled = 0;
+
+	slotListChanged = 2;
+	slotListEnabled = 1;
 
 }
+
+void cMtSampleBankEditor::browseSelectSlot()
+{
+	if(selectedSlot > SAMPLES_MAX) browseCancel();
+	fileManager.importSampleToProject(filePath, &locationFilesList[selectedLocation][0],
+			&locationFilesList[selectedLocation][0], selectedSlot, -1, sampleType);
+}
+
 
 void cMtSampleBankEditor::browseOpenFolder()
 {
@@ -493,6 +553,8 @@ void cMtSampleBankEditor::browseCancel()
 {
 	filesListChanged = 1;
 	filesListEnabled = 0;
+	slotListChanged = 1;
+	slotListEnabled = 0;
 }
 
 //#########################################################################################################
@@ -520,4 +582,15 @@ void cMtSampleBankEditor::changeFilesListPos(int16_t value)
 	refreshModule = 1;
 }
 
+void cMtSampleBankEditor::changeSlotsListPos(int16_t value)
+{
+	if(selectedSlot + value < 0) selectedSlot  = 0;
+	else if(selectedSlot + value > SAMPLES_MAX) selectedSlot  = SAMPLES_MAX;
+	else selectedSlot += value;
 
+	mtDisplay.changeList(slot_list_index, selectedSlot);
+
+
+//	filesListChanged = 1;
+	refreshModule = 1;
+}
