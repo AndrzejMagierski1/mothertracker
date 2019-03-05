@@ -324,6 +324,7 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 		cnt++;
 	}
 
+
 	if(cnt != SAMPLES_COUNT )
 	{
 		strcpy(currentPatch,currentProjectPatch);
@@ -352,6 +353,7 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 
 	if(filePatch!= NULL)
 	{
+		memset(currentPatch,0,PATCH_SIZE);
 		strcpy(currentPatch,filePatch);
 		strcat(currentPatch,"/");
 		strcat(currentPatch,name);
@@ -363,12 +365,10 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 	file = SD.open(currentPatch);
 
 	memset(currentPatch,0,PATCH_SIZE);
-
 	strcpy(currentPatch,currentProjectPatch);
-	strcat(currentPatch,"/");
-	strcat(currentPatch,"samples");
-	strcat(currentPatch,"/");
+	strcat(currentPatch,"/samples/");
 	strcat(currentPatch,newName);
+
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 	copy= SD.open(currentPatch,FILE_WRITE);
 
@@ -451,6 +451,7 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 		mtProject.instrument[instrumentIndex].tune = 0;
 		mtProject.instrument[instrumentIndex].fineTune = 0;
 
+		mtProject.instrument[instrumentIndex].reverbSend = 0;
 
 		mtProject.instruments_count++;
 
@@ -967,6 +968,7 @@ void FileManager:: addInstrumentToProject (int8_t index)
 	mtProject.instrument[index].tune = 0;
 	mtProject.instrument[index].fineTune = 0;
 
+	mtProject.instrument[index].reverbSend = 0;
 
 	mtProject.instruments_count++;
 
