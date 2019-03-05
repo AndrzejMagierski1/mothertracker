@@ -1,10 +1,14 @@
 #include "mtInstrumentEditor.h"
 
 #include "mtDisplay.h"
+#include "mtPadBoard.h"
 #include "AnalogInputs.h"
 #include "sdram.h"
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
+#include "mtFileManager.h"
+
+
 
 #include "mtInterfaceDefs.h"
 
@@ -53,7 +57,7 @@ void cMtInstrumentEditor::update()
 		processLabels();
 	}
 	//-----------------------------------------------------
-	if(spectrumChanged)
+	if(spectrumChanged && mtProject.instruments_count > 0 && mtProject.sampleBank.samples_count > 0)
 	{
 		if(spectrumChanged == 2)
 		{
@@ -95,7 +99,6 @@ void cMtInstrumentEditor::update()
 
 		processPoints();
 		mtDisplay.changeSpectrumPoints(&spectrum);
-
 	}
 	//-----------------------------------------------------
 	if(sampleListChanged)
@@ -112,19 +115,25 @@ void cMtInstrumentEditor::update()
 
 		if(sampleListChanged == 2) // pokaz liste
 		{
-			//przetworz tablice adresow nazw sampli na podstawie nazw z banku sampli
-			for(uint8_t i = 0; i < SAMPLES_MAX; i++)
+			if(mtProject.sampleBank.samples_count > 0)
 			{
-				sampleNames[i] = mtProject.sampleBank.sample[i].file_name;
+				//przetworz tablice adresow nazw sampli na podstawie nazw z banku sampli
+				for(uint8_t i = 0; i < SAMPLES_MAX; i++)
+				{
+					sampleNames[i] = mtProject.sampleBank.sample[i].file_name;
+				}
+				mtDisplay.setList(sample_list_pos, sample_list_pos, 1, editorInstrument->sampleIndex, sampleNames, mtProject.sampleBank.samples_count );
 			}
-
-			if(editorInstrument->sampleIndex < 0) editorInstrument->sampleIndex = 0;
-			mtDisplay.setList(sample_list_pos, sample_list_pos, 1, editorInstrument->sampleIndex, sampleNames, mtProject.sampleBank.samples_count );
+			else
+			{
+				sampleNames[0] = buttonFunctionLabels[0]; // przypisanie pustego
+				mtDisplay.setList(sample_list_pos, sample_list_pos, 1, 0, sampleNames, 1 );
+			}
 		}
 
 		sampleListChanged = 0;
 	}
-	//-----------------------------------------------------
+	//---------------------------------------------------------
 	if(instrumentListChanged)
 	{
 		labelsChanged = 1;
@@ -139,24 +148,31 @@ void cMtInstrumentEditor::update()
 
 		if(instrumentListChanged == 2) // pokaz liste
 		{
-			//przetworz tablice adresow nazw sampli na podstawie nazw z banku sampli
-			for(uint8_t i = 0; i < INSTRUMENTS_MAX; i++)
+			if(instrumentListMode == 0 && mtProject.instruments_count > 0)
 			{
-				instrumentNames[i] = mtProject.instrument[i].name;
+				mtDisplay.setList(instrument_list_pos, instrument_list_pos, 1, openedInstrFromActive, instrumentNames, mtProject.instruments_count);
 			}
-
-			if(openedInstrumentIndex < 0) openedInstrumentIndex = 0;
-			mtDisplay.setList(instrument_list_pos, instrument_list_pos, 1, openedInstrumentIndex, instrumentNames, mtProject.instruments_count);
+			else if(instrumentListMode == 1 && inActiveInstrumentsCount > 0)
+			{
+				mtDisplay.setList(instrument_list_pos, instrument_list_pos, 1, inActiveInstrumentIndex, instrumentNames, inActiveInstrumentsCount);
+			}
+			else
+			{
+				instrumentNames[0] = buttonFunctionLabels[0]; // przypisanie pustego
+				mtDisplay.setList(instrument_list_pos, instrument_list_pos, 1, 0, instrumentNames, 1);
+			}
 		}
 
 		instrumentListChanged = 0;
 	}
+	//---------------------------------------------------------
 	if(parametersChanged)
 	{
 		if(parametersChanged == 2)
 		{
 			mtDisplay.setSpectrum(0);
 			mtDisplay.setSpectrumPoints(0);
+			mtDisplay.setEnvelopes(0);
 			mtDisplay.setValue(1);
 			mtDisplay.setList(instrument_list_pos, 0, 0, 0, 0, 0);
 			mtDisplay.setList(sample_list_pos, 0, 0, 0, 0, 0);
@@ -171,6 +187,7 @@ void cMtInstrumentEditor::update()
 
 		mtDisplay.changeValues(&values);
 	}
+	//---------------------------------------------------------
 	if(envelopesChanged)
 	{
 		if(envelopesChanged == 2)
@@ -201,38 +218,87 @@ void cMtInstrumentEditor::update()
 
 void cMtInstrumentEditor::startExisting(uint8_t instrumentIndex)
 {
-	openedInstrumentIndex = instrumentIndex;
-	editorInstrument = &mtProject.instrument[instrumentIndex];
 
-	instrumentEditorModeStart = 1;
-	refreshInstrumentEditor = 1;
-}
+	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
+			mtProject.values.padBoardNoteOffset,
+			mtProject.values.padBoardRootNote);
 
-void cMtInstrumentEditor::startEmpty()
-{
+	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
+
+	if(mtProject.sampleBank.samples_count == 0)
+	{
+		strcpy(buttonFunctionLabels[buttonFunctSampleList], "No samples");
+	}
+	if(mtProject.instruments_count == 0)
+	{
+		strcpy(buttonFunctionLabels[buttonFunctInstrumentList], "No instruments");
+
+		//askToCreateNewInstr();
+
+		instrumentEditorModeStart = 1;
+		refreshInstrumentEditor = 1;
+		return;
+	}
+
+
+	// utworzenie listy tylko aktywnych instryumentow w otwartym projeckie
 	openedInstrumentIndex = -1;
+	openedInstrFromActive = 0;
+	uint8_t activeInstr = 0;
+	for(uint8_t i = 0; i < INSTRUMENTS_MAX; i++)
+	{
+		if(mtProject.instrument[i].isActive)
+		{
+			if(openedInstrumentIndex == -1) openedInstrumentIndex = i; // tymczasowo przypisz pierwszy aktywny jako otwarty
+			instrumentNames[activeInstr] = mtProject.instrument[i].name;
+			activeInstruments[activeInstr] = i;
+			if(i == instrumentIndex) // jesli znaleziono wybrany jako aktywny
+			{
+				openedInstrFromActive = activeInstr; // zapisz jego index z listy tylko aktywnych
+				openedInstrumentIndex = i;	// zapisz otwarty jako wybrany
+			}
+			activeInstr++;
+		}
+	}
 
-	editorInstrument->sampleIndex = 0;
-	editorInstrument->playMode = 0;
 
-	editorInstrument->startPoint = 0;
-	editorInstrument->loopPoint1 = 0;
-	editorInstrument->loopPoint2 = SAMPLE_POINT_POS_MAX;
-	editorInstrument->endPoint = SAMPLE_POINT_POS_MAX;
 
-	editorInstrument->envelope[envAmp].delay = 0;
-	editorInstrument->envelope[envAmp].attack = 0;
-	editorInstrument->envelope[envAmp].hold = 0;
-	editorInstrument->envelope[envAmp].decay = 0;
-	editorInstrument->envelope[envAmp].sustain = 1;
-	editorInstrument->envelope[envAmp].release = 0;
-	editorInstrument->panning = 0;
+	if(openedInstrumentIndex == -1) // jesli wybrano nieaktywny i jest brak aktywnych - niemozliwe jesli (count > 0)
+	{
 
-	sampleListEnabled = 1;
-	sampleListChanged = 2;
+	}
+	else if(openedInstrumentIndex != instrumentIndex) // jesli wybrany nie jest aktywny
+	{
+		// przypisano juz wczesniej pierwszy aktywny jako otwierany (openedInstrumentIndex = i;	// zapisz otwarty jako wybrany)
+
+	}
+
+	//openedInstrumentIndex = openedInstrFromActive;
+	editorInstrument = &mtProject.instrument[openedInstrumentIndex];
+
+
+
+
+
+
+	strcpy(buttonFunctionLabels[buttonFunctInstrumentList], "Instrument ");
+	strcat(buttonFunctionLabels[buttonFunctInstrumentList], mtProject.instrument[openedInstrumentIndex].name);
+
+	if(mtProject.sampleBank.samples_count > 0)
+	{
+		int8_t sample_index = mtProject.instrument[openedInstrumentIndex].sampleIndex;
+		if(sample_index >= 0)
+		{
+			strcpy(buttonFunctionLabels[buttonFunctSampleList], mtProject.sampleBank.sample[sample_index].file_name);
+		}
+	}
+
+
+
 	instrumentEditorModeStart = 1;
 	refreshInstrumentEditor = 1;
 }
+
 
 void cMtInstrumentEditor::stop()
 {
@@ -262,6 +328,15 @@ uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 	{
 		play(type);
 	}
+	else if(n > interfacePadKeybord0)
+	{
+	/*
+  		if(parametersEnabled) {}
+		else if(envelopesEnabled) {}
+		else
+	*/
+			playInstrumentByPad(type, n-interfacePadKeybord0, -1);
+	}
 
 	if(type == 1)
 	{
@@ -286,11 +361,23 @@ uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
 		}
-
-		if(n == interfacePadStop)
+		else if(n == interfacePadStop)
 		{
 			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
 		}
+		else if(n == interfacePadParams)
+		{
+			showParameters();
+		}
+		else if(n == interfacePadEnvelopes)
+		{
+			showEnvelopes();
+		}
+		else if(n == interfacePadInstrumentEditor)
+		{
+			showSpectrum();
+		}
+
 
 	}
 
@@ -300,24 +387,44 @@ uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 
 void cMtInstrumentEditor::buttonChange(uint8_t button, uint8_t value)
 {
-	switch(buttonFunctions[button])
+	if(value == 1)
 	{
-	case buttonFunctNone  				: 							break;
-	case buttonFunctPlay  				:	play(value);			break;
-	case buttonFunctStop  				:	stopPlaying(value);			break;
-	case buttonFunctPlayMode  			: 	changePlayMode(value);	break;
-	case buttonFunctEnvelopes  			: 	showEnvelopes(value);	break;
-	case buttonFunctInstrumentList 		: 	showInstrumentList(value);	break;
-	case buttonFunctSampleList  		: 	showSampleList(value);	break;
-	case buttonFunctParameters  		: 	showParameters(value);	break;
-	case buttonFunctChangeGlideNote		: 	changeGlideNote(value);	break;
-	case buttonFunctFilterType			: 	changeFilterType(value);break;
-	case buttonFunctEnvelopeType		: 	changeEnvelopeType(value);break;
-	case buttonFunctEnvelopeAmp			: 	setEnvelopeTypeAmp(value);	break;
-	case buttonFunctEnvelopeFilter		: 	setEnvelopeTypeFilter(value);break;
-	case buttonFunctEnvelopeEnable		: 	setEnvelopeEnable(value);break;
-	case buttonFunctParamsNextPage		:	changeParamsPage(value); break;
-	default: break;
+		switch(buttonFunctions[button])
+		{
+		case buttonFunctNone  				: 							break;
+		case buttonFunctPlay  				:	play(1);				break;
+		case buttonFunctStop  				:	stopPlaying(1);			break;
+		case buttonFunctPlayMode  			: 	changePlayMode(1);		break;
+		case buttonFunctEnvelopes  			: 	showEnvelopes();		break;
+		case buttonFunctInstrumentList 		: 	showInstrumentList(1);	break;
+		case buttonFunctSampleList  		: 	showSampleList(1);		break;
+		case buttonFunctParameters  		: 	showParameters();		break;
+		case buttonFunctChangeGlideNote		: 	changeGlideNote(1);		break;
+		case buttonFunctFilterType			: 	changeFilterType(1);	break;
+		case buttonFunctEnvelopeType		: 	changeEnvelopeType(1);	break;
+		case buttonFunctEnvelopeAmp			: 	setEnvelopeTypeAmp(1);	break;
+		case buttonFunctEnvelopeFilter		: 	setEnvelopeTypeFilter(1);break;
+		case buttonFunctEnvelopeEnable		: 	setEnvelopeEnable(1);	break;
+		case buttonFunctParamsNextPage		:	changeParamsPage(1); 	break;
+		case buttonFunctInstrumentAdd		:	addInstrument(1); 	 	break;
+		case buttonFunctInstrumentRemove	:	removeInstrument(); 	break;
+		case buttonFunctSampleAdd			:	addSample(1); 		 	break;
+		case buttonFunctInstrumentCreate	:   createInstrument(1);	break;
+		case buttonFunctInstrumentCreateCancel: cancelCreateInstrument(1); break;
+		case buttonFunctInstrumentImport	:	importInstrument(1);	break;
+
+
+		default: break;
+		}
+	}
+	else if(value == 0)
+	{
+		switch(buttonFunctions[button])
+		{
+		case buttonFunctPlay  	:	play(0);			break;
+		default: break;
+		}
+
 	}
 
 	refreshInstrumentEditor = 1;
@@ -350,6 +457,7 @@ void cMtInstrumentEditor::potChange(uint8_t pot, int16_t value)
 		case potFunctFinetune           :   changeFinetune(value);      break;
 		case potFunctTune               :   changeTune(value);          break;
 		case potFunctWavetablePos       :   changeWavetablePos(value);  break;
+		case potFunctAddInstrumentSelect:   selectAddInstrument(value); break;
 		default: break;
 	}
 
@@ -388,7 +496,7 @@ void cMtInstrumentEditor::processSpectrum()
 		return;
 	}
 */
-	//TODO: uwaga tu wazna kolejnosc + do sprawdzenia
+	// uwaga tu wazna kolejnosc + do sprawdzenia
 	if(openedInstrumentIndex < 0 || mtProject.instrument[openedInstrumentIndex].sampleIndex < 0)
 	{
 		for(uint16_t i = 0; i < 480; i++)
@@ -834,22 +942,50 @@ void cMtInstrumentEditor::updateButtonsFunctions()
 	}
 	else if(envelopesEnabled)
 	{
-		setButtonFunction(0, buttonFunctPlay);
-		setButtonFunction(1, buttonFunctEnvelopeAmp);
-		setButtonFunction(2, buttonFunctEnvelopeFilter);
-		setButtonFunction(3, buttonFunctEnvelopeEnable);
-		setButtonFunction(4, buttonFunctEnvelopes);
+		setButtonFunction(0, buttonFunctEnvelopeAmp);
+		setButtonFunction(1, buttonFunctEnvelopeFilter);
+		setButtonFunction(4, buttonFunctEnvelopeEnable);
 	}
 	else
 	{
-		setButtonFunction(0, buttonFunctInstrumentList);
-		if(mtProject.sampleBank.sample[editorInstrument->sampleIndex].type == mtSampleTypeWaveFile)
+		if(instrumentListEnabled)
 		{
-			setButtonFunction(1, buttonFunctPlayMode);
+			if(instrumentListMode == 0)
+			{
+				setButtonFunction(0, buttonFunctInstrumentList);
+				if(mtProject.instruments_count > 0) setButtonFunction(1, buttonFunctSampleList);
+				setButtonFunction(2, buttonFunctInstrumentAdd);
+				setButtonFunction(3, buttonFunctInstrumentRemove);
+				setButtonFunction(4, buttonFunctInstrumentImport);
+			}
+			else if(instrumentListMode == 1)
+			{
+				setButtonFunction(0, buttonFunctInstrumentCreate);
+				setButtonFunction(1, buttonFunctInstrumentCreateCancel);
+			}
 		}
-		setButtonFunction(2, buttonFunctParameters);
-		setButtonFunction(3, buttonFunctEnvelopes);
-		setButtonFunction(4, buttonFunctSampleList);
+		else if(sampleListEnabled)
+		{
+			setButtonFunction(0, buttonFunctInstrumentList);
+			setButtonFunction(1, buttonFunctSampleList);
+			setButtonFunction(2, buttonFunctSampleAdd);
+		}
+		else
+		{
+			if(mtProject.instruments_count > 0)
+			{
+				if(mtProject.sampleBank.sample[editorInstrument->sampleIndex].type == mtSampleTypeWaveFile)
+				{
+					setButtonFunction(4, buttonFunctPlayMode);
+				}
+				setButtonFunction(1, buttonFunctSampleList);
+			}
+			setButtonFunction(0, buttonFunctInstrumentList);
+		}
+
+
+		//setButtonFunction(2, buttonFunctParameters);
+		//setButtonFunction(3, buttonFunctEnvelopes);
 	}
 
 
@@ -861,7 +997,6 @@ void cMtInstrumentEditor::updateButtonsFunctions()
 
 	mtDisplay.changeButtonsLabels(buttonLabels);
 }
-
 
 void cMtInstrumentEditor::setButtonFunction(uint8_t number, uint8_t function)
 {
@@ -898,7 +1033,7 @@ void cMtInstrumentEditor::updatePotsFunctions()
 	setPotFunction(4, potFunctNone);
 
 
-	if(parametersEnabled)
+	if(parametersEnabled) // parametry
 	{
 		if(parametersPage == 0)
 		{
@@ -910,16 +1045,11 @@ void cMtInstrumentEditor::updatePotsFunctions()
 		else if(parametersPage == 1)
 		{
 			setPotFunction(0, potFunctGlide);
-
 			setPotFunction(2, potFunctFinetune);
 			setPotFunction(3, potFunctTune);
 		}
-
-
-
-
 	}
-	else if(envelopesEnabled)
+	else if(envelopesEnabled) // envelopy
 	{
 		setPotFunction(0, potFunctAmount);
 		setPotFunction(1, potFunctAttack);
@@ -927,27 +1057,38 @@ void cMtInstrumentEditor::updatePotsFunctions()
 		setPotFunction(3, potFunctSustaion);
 		setPotFunction(4, potFunctRelease);
 	}
-	else
+	else // spectrum
 	{
-		if(mtProject.sampleBank.sample[editorInstrument->sampleIndex].type == mtSampleTypeWavetable)
+		if(instrumentListEnabled)
 		{
-			setPotFunction(0, potFunctWavetablePos);
-		}
-		else
-		{
-			setPotFunction(0, potFunctStartPoint);
-			setPotFunction(2, potFunctViewZoom);
-			setPotFunction(4, potFunctEndPoint);
+			if(instrumentListMode == 0) 		setPotFunction(0, potFunctInstrumentSelect);
+			else if(instrumentListMode == 1) 	setPotFunction(0, potFunctAddInstrumentSelect);
 
-			if(editorInstrument->playMode >= loopForward)
+			if(sampleListEnabled) setPotFunction(1, potFunctSampleSelect);
+		}
+		else if(sampleListEnabled)
+		{
+			setPotFunction(1, potFunctSampleSelect);
+		}
+		else if(mtProject.instruments_count > 0 && mtProject.sampleBank.samples_count > 0)
+		{
+			if(mtProject.sampleBank.sample[editorInstrument->sampleIndex].type == mtSampleTypeWavetable)
 			{
-				setPotFunction(1, potFunctLoopPoint1);
-				setPotFunction(3, potFunctLoopPoint2);
+				setPotFunction(0, potFunctWavetablePos);
+			}
+			else
+			{
+				setPotFunction(0, potFunctStartPoint);
+				setPotFunction(2, potFunctViewZoom);
+				setPotFunction(4, potFunctEndPoint);
+
+				if(editorInstrument->playMode >= loopForward)
+				{
+					setPotFunction(1, potFunctLoopPoint1);
+					setPotFunction(3, potFunctLoopPoint2);
+				}
 			}
 		}
-
-		if(sampleListEnabled) setPotFunction(4, potFunctSampleSelect);
-		if(instrumentListEnabled) setPotFunction(0, potFunctInstrumentSelect);
 	}
 
 
@@ -1299,50 +1440,73 @@ void cMtInstrumentEditor::changeParamsPage(uint8_t value)
 	}
 }
 
-void cMtInstrumentEditor::showParameters(uint8_t value)
+void cMtInstrumentEditor::showParameters()
 {
-	if(value == 1)
+	if(!parametersEnabled)
 	{
-		if(parametersEnabled)
-		{
-			parametersEnabled = 0;
-			spectrumChanged   = 2;
-		}
-		else
-		{
-			parametersEnabled = 1;
-			parametersChanged = 2;
-		}
+		parametersEnabled = 1;
+		parametersChanged = 2;
+
+		envelopesEnabled = 0;
 
 		if(sampleListEnabled)
 		{
 			sampleListEnabled = 0;
 			sampleListChanged = 1;
 		}
+		if(instrumentListEnabled)
+		{
+			instrumentListEnabled = 0;
+			instrumentListChanged = 1;
+		}
+
+		refreshInstrumentEditor = 1;
+	}
+	else
+	{
+		if(parametersPage == 0) parametersPage = 1;
+		else if(parametersPage == 1) parametersPage = 0;
+
+		parametersChanged = 2;
+
+		refreshInstrumentEditor = 1;
+	}
+
+}
+
+void cMtInstrumentEditor::showEnvelopes()
+{
+	if(!envelopesEnabled)
+	{
+		envelopesEnabled = 1;
+		envelopesChanged = 2;
+
+
+		parametersEnabled = 0;
+
+		if(sampleListEnabled)
+		{
+			sampleListEnabled = 0;
+			sampleListChanged = 1;
+		}
+		if(instrumentListEnabled)
+		{
+			instrumentListEnabled = 0;
+			instrumentListChanged = 1;
+		}
+
+		refreshInstrumentEditor = 1;
 	}
 }
 
-void cMtInstrumentEditor::showEnvelopes(uint8_t value)
-{
-	if(value == 1)
-	{
-		if(envelopesEnabled)
-		{
-			envelopesEnabled = 0;
-			spectrumChanged   = 2;
-		}
-		else
-		{
-			envelopesEnabled = 1;
-			envelopesChanged = 2;
-		}
 
-		if(sampleListEnabled)
-		{
-			sampleListEnabled = 0;
-			sampleListChanged = 1;
-		}
-	}
+void cMtInstrumentEditor::showSpectrum()
+{
+	parametersEnabled = 0;
+	envelopesEnabled = 0;
+	spectrumChanged   = 2;
+
+	refreshInstrumentEditor = 1;
 }
 
 void cMtInstrumentEditor::changeAttack(int16_t value)
@@ -1400,23 +1564,131 @@ void cMtInstrumentEditor::changeAmount(int16_t value)
 	envelopesChanged = 1;
 }
 
-
+// ----------------------------------------------------------------------------------------------
+// instrument
 void cMtInstrumentEditor::selectInstrument(int16_t value)
 {
-	if(openedInstrumentIndex + value < 0) openedInstrumentIndex  = 0;
-	else if(openedInstrumentIndex + value > mtProject.instruments_count-1) openedInstrumentIndex  = mtProject.instruments_count-1;
-	else openedInstrumentIndex += value;
+	if(openedInstrFromActive + value < 0) openedInstrFromActive = 0;
+	else if(openedInstrFromActive + value > mtProject.instruments_count-1) openedInstrFromActive  = mtProject.instruments_count-1;
+	else openedInstrFromActive += value;
 
+	openedInstrumentIndex = activeInstruments[openedInstrFromActive];
+	mtProject.values.lastUsedInstrument = openedInstrumentIndex;
 	editorInstrument = &mtProject.instrument[openedInstrumentIndex];
 
-	mtDisplay.changeList(instrument_list_pos, openedInstrumentIndex);
-
+	mtDisplay.changeList(instrument_list_pos, openedInstrFromActive);
 	mtHaptic.start(15,150,0x01,56);
 
-	waitToLoadSpectrum();
+	strcpy(buttonFunctionLabels[buttonFunctInstrumentList], "Instrument ");
+	strcat(buttonFunctionLabels[buttonFunctInstrumentList], mtProject.instrument[openedInstrumentIndex].name);
+
+	if(mtProject.sampleBank.samples_count > 0)
+	{
+		int8_t sample_index = mtProject.instrument[openedInstrumentIndex].sampleIndex;
+		if(sample_index >= 0)
+		{
+			waitToLoadSpectrum(); // przeladuj spectrum tlyko jelsi posiada sampla
+			strcpy(buttonFunctionLabels[buttonFunctSampleList], mtProject.sampleBank.sample[sample_index].file_name);
+		}
+	}
+
+	labelsChanged = 1;
 	if(sampleListEnabled) sampleListChanged = 2;
 }
 
+void cMtInstrumentEditor::selectAddInstrument(int16_t value)
+{
+	if(inActiveInstrumentIndex + value < 0) inActiveInstrumentIndex = 0;
+	else if(inActiveInstrumentIndex + value > inActiveInstrumentsCount-1) inActiveInstrumentIndex  = inActiveInstrumentsCount-1;
+	else inActiveInstrumentIndex += value;
+
+	mtHaptic.start(15,150,0x01,56);
+
+	mtDisplay.changeList(instrument_list_pos, inActiveInstrumentIndex);
+}
+
+void cMtInstrumentEditor::addInstrument(uint8_t value)
+{
+	if(value == 1)
+	{
+		if(mtProject.instruments_count < INSTRUMENTS_MAX)
+		{
+			openedInstrFromActive = 0;
+			inActiveInstrumentsCount = 0;
+			for(uint8_t i = 0; i < INSTRUMENTS_MAX; i++)
+			{
+				if(mtProject.instrument[i].isActive == 0)
+				{
+					if(i<9) mtProject.instrument[i].name[0] = (i+1)%10 + 48;
+					else
+					{
+						mtProject.instrument[i].name[0] = (((i+1)-(i+1)%10)/10) + 48;
+						mtProject.instrument[i].name[1] = (i+1)%10 + 48;
+					}
+
+					instrumentNames[inActiveInstrumentsCount] = mtProject.instrument[i].name;
+					activeInstruments[inActiveInstrumentsCount] = i;
+					//if(i == openedInstrumentIndex) openedInstrFromActive = inActiveInstr;
+					inActiveInstrumentsCount++;
+				}
+			}
+
+			inActiveInstrumentIndex = 0;
+			instrumentListMode = 1;
+			instrumentListEnabled = 1;
+			instrumentListChanged = 2;
+		}
+	}
+}
+
+void cMtInstrumentEditor::importInstrument(uint8_t value)
+{
+
+}
+
+void cMtInstrumentEditor::createInstrument(uint8_t value)
+{
+	if(value == 1)
+	{
+		fileManager.addInstrumentToProject(activeInstruments[inActiveInstrumentIndex]);
+
+		startExisting(activeInstruments[inActiveInstrumentIndex]);
+
+		instrumentListEnabled = 0;  // ustaiwnie na 0 zeby pokazalo liste zamiast ukryc
+		showInstrumentList(1);
+	}
+}
+
+void cMtInstrumentEditor::cancelCreateInstrument(uint8_t value)
+{
+	if(value == 1)
+	{
+		instrumentListEnabled = 0;  // ustaiwnie na 0 zeby pokazalo liste zamiast ukryc
+		showInstrumentList(1);
+	}
+}
+
+void cMtInstrumentEditor::removeInstrument()
+{
+	//fileManager.removeInstrument(openedInstrumentIndex);
+
+	uint8_t open_first = 0;
+	for(uint8_t i = 0; i < INSTRUMENTS_MAX; i++)
+	{
+		if(mtProject.instrument[i].isActive == 1)
+		{
+			open_first = i;
+			break;
+		}
+	}
+
+	startExisting(open_first); // otworz pierwszy aktywny
+
+	instrumentListEnabled = 0;  // ustaiwnie na 0 zeby pokazalo liste zamiast ukryc
+	showInstrumentList(1);
+}
+
+// ----------------------------------------------------------------------------------------------
 
 void cMtInstrumentEditor::selectSample(int16_t value)
 {
@@ -1432,6 +1704,12 @@ void cMtInstrumentEditor::selectSample(int16_t value)
 	lastChangedPoint = 0;
 }
 
+
+void cMtInstrumentEditor::addSample(uint8_t value)
+{
+	if(value == 1) padsChange(1, interfacePadSampleBank, 0);
+}
+
 void cMtInstrumentEditor::showSampleList(uint8_t value)
 {
 	if(value == 1)
@@ -1443,6 +1721,11 @@ void cMtInstrumentEditor::showSampleList(uint8_t value)
 		}
 		else
 		{
+			if(mtProject.sampleBank.samples_count == 0)
+			{
+
+			}
+
 			sampleListEnabled = 1;
 			sampleListChanged = 2;
 		}
@@ -1461,6 +1744,23 @@ void cMtInstrumentEditor::showInstrumentList(uint8_t value)
 		}
 		else
 		{
+			if(mtProject.instruments_count > 0)
+			{
+				openedInstrFromActive = 0;
+				uint8_t activeInstr = 0;
+				for(uint8_t i = 0; i < INSTRUMENTS_MAX; i++)
+				{
+					if(mtProject.instrument[i].isActive)
+					{
+						instrumentNames[activeInstr] = mtProject.instrument[i].name;
+						activeInstruments[activeInstr] = i;
+						if(i == openedInstrumentIndex) openedInstrFromActive = activeInstr;
+						activeInstr++;
+					}
+				}
+			}
+
+			instrumentListMode = 0;
 			instrumentListEnabled = 1;
 			instrumentListChanged = 2;
 		}
@@ -1492,6 +1792,9 @@ void cMtInstrumentEditor::play(uint8_t value)
 {
 	if(value == 1)
 	{
+		//eventFunct(mtInstrumentEditorEventPadPress, &interfacePadStop, 0, 0);
+		sequencer.stop();
+
 		isPlayingSample = 1;
 		if(editorInstrument->glide > 0)
 		{
@@ -1504,7 +1807,7 @@ void cMtInstrumentEditor::play(uint8_t value)
 			}
 		}
 
-		instrumentPlayer[0].noteOn(openedInstrumentIndex, playNote, 0);
+		instrumentPlayer[0].noteOn(openedInstrumentIndex, playNote, -1);
 	}
 	else if(value == 0)
 	{
@@ -1515,10 +1818,31 @@ void cMtInstrumentEditor::play(uint8_t value)
 
 void cMtInstrumentEditor::stopPlaying(uint8_t value)
 {
-
 	if(isPlayingSample) instrumentPlayer[0].noteOff();
 
-
 	isPlayingSample = 0;
+}
+
+
+void cMtInstrumentEditor::playInstrumentByPad(uint8_t type, int8_t pad, int8_t velocity)
+{
+	sequencer.stop();
+
+	if(type == 1)
+	{
+		//uint8_t note = mtPadBoard.convertPadToNote(pad);
+		//if(note > 48) note = 48;
+		//editorInstrument->tune = note;
+		mtPadBoard.startInstrument(pad, openedInstrumentIndex,-1);
+
+	}
+	else if(type == 0)
+	{
+		mtPadBoard.stopInstrument(pad);
+	}
+
+
+
 
 }
+

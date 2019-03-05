@@ -68,7 +68,6 @@ public:
 	void update();
 
 	void startExisting(uint8_t instrumentIndex);
-	void startEmpty();
 	void stop();
 
 	uint8_t padsChange(uint8_t type, uint8_t n, uint8_t velo);
@@ -98,21 +97,32 @@ private:
 	void updateParameters();
 	void setParameter(uint8_t number, uint8_t param);
 
+	//player
+	void playInstrumentByPad(uint8_t type, int8_t pad, int8_t velocity);
+
+
 	//funkcje przyciskow
 	void showSampleList(uint8_t value);
 	void showInstrumentList(uint8_t value);
 	void play(uint8_t value);
 	void stopPlaying(uint8_t value);
 	void changePlayMode(uint8_t value);
-	void showParameters(uint8_t value);
+	void showParameters();
 	void changeGlideNote(uint8_t value);
-	void showEnvelopes(uint8_t value);
+	void showEnvelopes();
+	void showSpectrum();
 	void changeFilterType(uint8_t value);
 	void changeEnvelopeType(uint8_t value);
 	void setEnvelopeTypeAmp(uint8_t value);
 	void setEnvelopeTypeFilter(uint8_t value);
 	void setEnvelopeEnable(uint8_t value);
 	void changeParamsPage(uint8_t value);
+	void addInstrument(uint8_t value);
+	void removeInstrument();
+	void addSample(uint8_t value);
+	void createInstrument(uint8_t value);
+	void cancelCreateInstrument(uint8_t value);
+	void importInstrument(uint8_t value);
 
 	//funkcje potow
 	void modStartPoint(int16_t value);
@@ -136,6 +146,7 @@ private:
 	void changeFinetune(int16_t value);
 	void changeTune(int16_t value);
 	void changeWavetablePos(int16_t value);
+	void selectAddInstrument(int16_t value);
 
 	uint8_t	refreshInstrumentEditor = 0;
 	uint8_t	instrumentEditorModeStart = 0;
@@ -145,8 +156,15 @@ private:
 
 //========================================================
 
-	int8_t openedInstrumentIndex;
+	int8_t openedInstrumentIndex; // index w globalnej liscie instrumentow
+	int8_t openedInstrFromActive; // index z listy tylko aktywnych ( activeInstruments[] )
+	int8_t inActiveInstrumentIndex;
+	int8_t activeInstruments[INSTRUMENTS_MAX];
+	uint8_t inActiveInstrumentsCount;
 	strInstrument * editorInstrument;
+
+
+
 	int8_t playNote = 24;
 	uint8_t glidePreviewDif = 0;
 
@@ -173,10 +191,11 @@ private:
 	uint8_t envelopesEnabled = 0;
 	uint8_t parametersEnabled = 0;
 
-	const uint8_t sample_list_pos = 4;
+	const uint8_t sample_list_pos = 1;
 	uint8_t sampleListEnabled = 0;
 	char *sampleNames[SAMPLES_MAX];
 
+	uint8_t instrumentListMode = 0;
 	const uint8_t instrument_list_pos = 0;
 	uint8_t instrumentListEnabled = 0;
 	char *instrumentNames[INSTRUMENTS_MAX];
@@ -241,12 +260,17 @@ private:
 		buttonFunctEnvelopeFilter,
 		buttonFunctEnvelopeEnable,
 		buttonFunctParamsNextPage,
+		buttonFunctInstrumentAdd,
+		buttonFunctInstrumentRemove,
+		buttonFunctSampleAdd,
+		buttonFunctInstrumentCreate,
+		buttonFunctInstrumentCreateCancel,
+		buttonFunctInstrumentImport,
+
 
 		//-------------------------------
 		buttonFunctCount
 	};
-
-
 
 	char *buttonLabels[5];
 	uint8_t buttonFunctions[5];
@@ -268,6 +292,13 @@ private:
 		"Filter Envelope",
 		"Disabled",
 		"Next page",
+		"Add inst.",
+		"Remove inst.",
+		"Add sample",
+		"Create",
+		"Cancel",
+		"Import inst.",
+
 	};
 
 	//potencjometry
@@ -295,6 +326,7 @@ private:
 		potFunctFinetune,
 		potFunctTune,
 		potFunctWavetablePos,
+		potFunctAddInstrumentSelect,
 
 		//-------------------------------
 		potFunctCount
@@ -326,7 +358,8 @@ private:
 		"Volume",
 		"Finetune",
 		"Tune",
-		"Wavetable"
+		"Wavetable",
+		"Select slot:",
 	};
 
 	const uint16_t potFuncRes[potFunctCount] =
@@ -336,8 +369,8 @@ private:
 			100,     //potFunctEndPoint,
 			100,     //potFunctLoopPoint1,
 			100,     //potFunctLoopPoint2,
-			20,     //potFunctInstrumentSelect,
-			20,     //potFunctSampleSelect,
+			20,      //potFunctInstrumentSelect,
+			20,      //potFunctSampleSelect,
 			100,     //potFunctViewPosition,
 			100,     //potFunctViewZoom,
 			100,     //potFunctPanning,
@@ -353,6 +386,7 @@ private:
 			100,     //potFunctFinetune,
 			100,     //potFunctTune,
             100,     //potFunctWavetablePos,
+			20,		 //potFunctAddInstrumentSelect,
 	};
 
 	const uint8_t potFuncAcc[potFunctCount] =
@@ -362,8 +396,8 @@ private:
 			3,	   //potFunctEndPoint,
 			3,	   //potFunctLoopPoint1,
 			3,	   //potFunctLoopPoint2,
-			3,	   //potFunctInstrumentSelect,
-			3,	   //potFunctSampleSelect,
+			0,	   //potFunctInstrumentSelect,
+			0,	   //potFunctSampleSelect,
 			3,	   //potFunctViewPosition,
 			3,	   //potFunctViewZoom,
 			3,	   //potFunctPanning,
@@ -379,6 +413,7 @@ private:
 			3,	   //potFunctFinetune,
 			3,	   //potFunctTune,
 			3,	   //potFunctWavetablePos,
+			0,	   //potFunctAddInstrumentSelect,
 	};
 
 };

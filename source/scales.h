@@ -1,3 +1,6 @@
+#ifndef _SCALES_H_
+#define _SCALES_H_
+
 #define MIN_SCALE 0
 #define MAX_SCALE 39
 
@@ -212,3 +215,4 @@ const uint16_t scaleDef[] =
 #define SCALENAME99 "test99"
 #define SCALENAME100 "test100"
 
+#endif

@@ -357,7 +357,7 @@ struct strMtDispTrackTable
 		uint8_t iVal1;
 		uint8_t iVal2;
 		uint8_t iVal3;
-		int8_t  iVal4;  // vwlocity
+		int8_t  iVal4;  // velocity
 	}params[5];
 
 	struct strStepFx

@@ -857,6 +857,8 @@ void Sequencer::loadDefaultSequence(void)
 		for (uint8_t y = MINSTEP; y <= MAXSTEP; y++)
 		{
 			seq[player.ramBank].track[x].step[y].isOn = 0;
+
+			seq[player.ramBank].track[x].step[y].length1 = 48;
 		}
 	}
 	//seq[player.ramBank].track[0].tempoDiv=1;
@@ -1566,7 +1568,7 @@ void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 	usbMIDI.sendNoteOn(step->note, step->velocity, 1);
 
 
-	instrumentPlayer[track].noteOn(step->instrument, step->note, (step->velocity <= 0) ? 0 : step->velocity );
+	instrumentPlayer[track].noteOn(step->instrument, step->note, step->velocity );
 
 }
 

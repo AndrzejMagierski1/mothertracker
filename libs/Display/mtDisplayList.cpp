@@ -186,15 +186,42 @@ void cMtDisplayList::update()
 		//uint8_t txt_offset;
 
 
-		if((listState == 1 || listState == 3 ) && mode == 1)
+		if(/*(listState == 1 || listState == 3 ) && */mode == 1)
 		{
-			for(int8_t i = -1; i < (lines+1); i++)
+			if(listStart == 3 && dir == 1)
 			{
-				API_CMD_TEXT(x_pos,
-						y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
-						MT_GPU_RAM_FONT1_HANDLE,
-						(OPT_CENTERY),
-						*(listTable + (listStart  + i -  (listState+1) ) ) );
+				y_pos+=MT_DISP_BLOCK_MENU_Y_SPACE;
+
+				for(int8_t i = 0; i < (lines+1); i++)
+				{
+					API_CMD_TEXT(x_pos,
+							y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
+							MT_GPU_RAM_FONT1_HANDLE,
+							(OPT_CENTERY),
+							*(listTable + (listStart  + i -  (listState) ) ) );
+				}
+			}
+			else if(listStart == 1 && dir == -1)
+			{
+				for(int8_t i = 0; i < (lines); i++)
+				{
+					API_CMD_TEXT(x_pos,
+							y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
+							MT_GPU_RAM_FONT1_HANDLE,
+							(OPT_CENTERY),
+							*(listTable + (listStart  + i -  (listState) ) ) );
+				}
+			}
+			else
+			{
+				for(int8_t i = 0; i < (lines+1); i++)
+				{
+					API_CMD_TEXT(x_pos,
+							y_pos + (i * MT_DISP_BLOCK_MENU_Y_SPACE),
+							MT_GPU_RAM_FONT1_HANDLE,
+							(OPT_CENTERY),
+							*(listTable + (listStart  + i -  (listState+1) ) ) );
+				}
 			}
 		}
 		else
@@ -223,10 +250,10 @@ void cMtDisplayList::update()
 
 
 		API_COLOR(ptrColors->listScrollBar);
-		API_LINE_WIDTH(16);
+		API_LINE_WIDTH(24);
 		API_BEGIN(RECTS);
-		API_VERTEX2II((MT_DISP_BLOCK_W * (listBlock)) + (MT_DISP_BLOCK_W - 3) , y_pos ,0,0);
-		API_VERTEX2II((MT_DISP_BLOCK_W * (listBlock)) + (MT_DISP_BLOCK_W - 2) , y_pos+y_length,0,0);
+		API_VERTEX2II((MT_DISP_BLOCK_W * (listBlock)) + (listBlockWidth*MT_DISP_BLOCK_W - 3) , y_pos ,0,0);
+		API_VERTEX2II((MT_DISP_BLOCK_W * (listBlock)) + (listBlockWidth*MT_DISP_BLOCK_W - 3) , y_pos+y_length,0,0);
 		API_END();
 	}
 

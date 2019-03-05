@@ -72,6 +72,7 @@ void cMtProjectEditor::update()
 
 		if(filesListChanged == 2) // pokaz liste
 		{
+
 			if(browseLocationType == browseLocationTypeOpenProject)
 			{
 				listOnlyFolderNames("/Projects/");
@@ -284,7 +285,7 @@ void cMtProjectEditor::buttonChange(uint8_t button, uint8_t value)
 	case buttonFunctBrowseOpen  		:	browseOpen(value);     	break;
 	case buttonFunctBrowseCancel		:	browseCancel(value);  	break;
 	case buttonFunctSaveProjectAs		:	saveProjectAs(value);  	break;
-
+	case buttonFunctCreateNewTemplate   :	createNewTemplate(value);  	break;
 
 	default: break;
 	}
@@ -368,6 +369,9 @@ void cMtProjectEditor::updateButtonsFunctions()
 		if(browseLocationType == browseLocationTypeOpenTemplate)
 		{
 			setButtonFunction(0, buttonFunctBrowseOpenSave);
+
+			setButtonFunction(4, buttonFunctCreateNewTemplate);
+
 		}
 		else if(browseLocationType == browseLocationTypeOpenProject)
 		{
@@ -451,8 +455,6 @@ void cMtProjectEditor::updatePotsFunctions()
 		{
 			setPotFunction(0, potFunctChangeTemplatesList);
 		}
-
-
 	}
 	else
 	{
@@ -530,8 +532,8 @@ void cMtProjectEditor::saveProject(uint8_t value)
 	if(value == 1)
 	{
 
-		//fileManager.saveProject();
-		fileManager.addInstrumentToProject(9);
+		fileManager.saveProject();
+		//fileManager.addInstrumentToProject(9);
 
 	}
 }
@@ -570,49 +572,28 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 	if(value == 1)
 	{
 
-//		for(uint8_t i=0; i < INSTRUMENTS_COUNT; i++)
-//		{
-//			mtProject.mtProjectRemote.instrumentFile[i].index = -1;
-//		}
-//		for(uint8_t i=0; i < SAMPLES_COUNT; i++)
-//		{
-//			mtProject.mtProjectRemote.sampleFile[i].index = -1;
-//		}
-//		for(uint8_t i=0; i < PATTERNS_COUNT; i++)
-//		{
-//			mtProject.mtProjectRemote.patternFile[i].index = -1;
-//		}
-
 		fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
+/*
+		fileManager.importSampleToProject(NULL,(char*)"1.WAV",(char*)"1.WAV",0,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"2.WAV",(char*)"2.WAV",1,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"3.WAV",(char*)"3.WAV",2,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"4.WAV",(char*)"4.WAV",3,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"5.WAV",(char*)"5.WAV",4,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"6.WAV",(char*)"6.WAV",5,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"7.WAV",(char*)"7.WAV",6,-1,mtSampleTypeWaveFile);
+		fileManager.importSampleToProject(NULL,(char*)"8.WAV",(char*)"8.WAV",7,-1,mtSampleTypeWaveFile);
+
+
+		fileManager.importSampleToProject(NULL,(char*)"11.WAV",(char*)"11.WAV",8, -1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"12.WAV",(char*)"12.WAV",9, -1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"13.WAV",(char*)"13.WAV",10,-1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"14.WAV",(char*)"14.WAV",11,-1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"15.WAV",(char*)"15.WAV",12,-1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"16.WAV",(char*)"16.WAV",13,-1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"17.WAV",(char*)"17.WAV",14,-1,mtSampleTypeWavetable);
+		fileManager.importSampleToProject(NULL,(char*)"18.WAV",(char*)"18.WAV",15,-1,mtSampleTypeWavetable);
+*/
 		loadSamplesBank();
-
-
-
-//		fileManager.importSampleToProject(NULL,"c.WAV","1.WAV",0,mtSampleTypeWaveFile);
-
-//		fileManager.createNewProject("Project_Test1");
-//		fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",0,0,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",1,1,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",2,2,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",3,3,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",4,4,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",5,5,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",6,6,mtSampleTypeWaveFile);
-//		fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",7,7,mtSampleTypeWaveFile);
-//
-//		fileManager.importSampleToProject(NULL,"11.WAV","11.WAV",8,8,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"12.WAV","12.WAV",9,9,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"13.WAV","13.WAV",10,10,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"14.WAV","14.WAV",11,11,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"15.WAV","15.WAV",12,12,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"16.WAV","16.WAV",13,13,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"17.WAV","17.WAV",14,14,mtSampleTypeWavetable);
-//		fileManager.importSampleToProject(NULL,"18.WAV","18.WAV",15,15,mtSampleTypeWavetable);
-
-//		fileManager.saveProject();
-
-		uint8_t val = mtInterface.activeModules[0];
-		(void)val;
 
 		browseCancel(1);
 		refreshModule = 1;
@@ -620,14 +601,13 @@ void cMtProjectEditor::browseOpen(uint8_t value)
 }
 
 
+
 void cMtProjectEditor::saveProjectAs(uint8_t value)
 {
 	if(value == 1)
 	{
-
 		fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeExample);
-		loadSamplesBank();
-
+		//loadSamplesBank();
 		fileManager.saveAsProject(editName);
 		fileManager.openProject(editName,projectTypeUserMade);
 		loadSamplesBank();
@@ -636,6 +616,23 @@ void cMtProjectEditor::saveProjectAs(uint8_t value)
 		refreshModule = 1;
 	}
 }
+
+void cMtProjectEditor::createNewTemplate(uint8_t value)
+{
+	if(value == 1)
+	{
+		// utworz nowy czysty projekt w templates
+		fileManager.createEmptyTemplateProject((char*)"New");
+
+		//
+		filesListEnabled = 1;
+		filesListChanged = 2;
+
+		browseLocationType = browseLocationTypeOpenTemplate;
+		refreshModule = 1;
+	}
+}
+
 
 void cMtProjectEditor::browseCancel(uint8_t value)
 {
@@ -671,8 +668,8 @@ void cMtProjectEditor::changeProjectsListPos(int16_t value)
 
 	mtDisplay.changeList(files_list_pos, selectedLocation);
 
-	filesListChanged = 1;
-	refreshModule = 1;
+	//filesListChanged = 1;
+	//refreshModule = 1;
 }
 
 void cMtProjectEditor::changeTemplatesListPos(int16_t value)
@@ -683,8 +680,8 @@ void cMtProjectEditor::changeTemplatesListPos(int16_t value)
 
 	mtDisplay.changeList(files_list_pos, selectedLocation);
 
-	filesListChanged = 1;
-	refreshModule = 1;
+	//filesListChanged = 1;
+	//refreshModule = 1;
 }
 
 
@@ -710,132 +707,6 @@ uint8_t cMtProjectEditor::readProjectConfig()
 	// pod jaki index tablicy sampli 0-32 zapisywac dany sampel
 	// teraz domyslnie zajmowane 0-7
 
-
-/*
-	for(uint8_t i=0; i < INSTRUMENTS_COUNT; i++)
-	{
-		mtProject.mtProjectRemote.instrumentFile[i].index = -1;
-	}
-	for(uint8_t i=0; i < SAMPLES_COUNT; i++)
-	{
-		mtProject.mtProjectRemote.sampleFile[i].index = -1;
-	}
-	for(uint8_t i=0; i < PATTERNS_COUNT; i++)
-	{
-		mtProject.mtProjectRemote.patternFile[i].index = -1;
-	}
-
-
-
-//	for(uint8_t i = 0; i < 8; i++) // max do 9
-//	{
-//		mtProject.sampleBank.sample[i].type = mtSampleTypeWaveFile;//;
-//		mtProject.sampleBank.sample[i].file_name[0] = i+49;
-//		mtProject.sampleBank.sample[i].file_name[1] = '.';
-//		mtProject.sampleBank.sample[i].file_name[2] = 'w';
-//		mtProject.sampleBank.sample[i].file_name[3] = 'a';
-//		mtProject.sampleBank.sample[i].file_name[4] = 'v';
-//		mtProject.sampleBank.sample[i].file_name[5] = 0;
-//
-//		mtProject.sampleBank.sample[i].wavetable_window_size = 1024;
-//	}
-
-*/
-/*
-	for(uint8_t i = 0; i < 8; i++) // max do 9
-	{
-		mtProject.sampleBank.sample[i+8].type = mtSampleTypeWavetable;
-		mtProject.sampleBank.sample[i+8].file_name[0] = 49;
-		mtProject.sampleBank.sample[i+8].file_name[1] = i+49;
-		mtProject.sampleBank.sample[i+8].file_name[2] = '.';
-		mtProject.sampleBank.sample[i+8].file_name[3] = 'w';
-		mtProject.sampleBank.sample[i+8].file_name[4] = 'a';
-		mtProject.sampleBank.sample[i+8].file_name[5] = 'v';
-		mtProject.sampleBank.sample[i+8].file_name[6] = 0;
-		mtProject.sampleBank.sample[i+8].wavetable_window_size = 1024;
-	}
-
-*/
-
-//	mtProject.sampleBank.sample[1].wavetable_window_size = 1024;
-//	mtProject.sampleBank.sample[1].type = mtSampleTypeWaveFile;
-
-
-	// parametry instrumentow ========================================
-
-	//strcpy(fileManager.currentProjectPatch,"Projects/Project_001");
-
-
-	//mtProject.instruments_count = 8;
-
-//	for(uint8_t i = 0; i < mtProject.instruments_count; i++)
-//	{
-//		mtProject.instrument[i].sampleIndex = i;
-//		mtProject.instrument[i].wavetableCurrentWindow = 0;
-//
-//		mtProject.instrument[i].playMode = 1;
-//
-//		mtProject.instrument[i].startPoint = 0;
-//		mtProject.instrument[i].loopPoint1 = 10000;
-//		mtProject.instrument[i].loopPoint2 = 20000;
-//		mtProject.instrument[i].endPoint = SAMPLE_POINT_POS_MAX;
-//
-//		mtProject.instrument[i].envelope[envAmp].delay = 0;
-//
-//		mtProject.instrument[i].envelope[envAmp].attack = 0;
-//		mtProject.instrument[i].envelope[envAmp].hold = 0;
-//		mtProject.instrument[i].envelope[envAmp].decay = 0;
-//		mtProject.instrument[i].envelope[envAmp].sustain = 1.0;
-//		mtProject.instrument[i].envelope[envAmp].release = 1000;
-//		mtProject.instrument[i].envelope[envAmp].amount = 1.0;
-//		mtProject.instrument[i].envelope[envAmp].enable = envelopeOn;
-//
-//		mtProject.instrument[i].envelope[envFilter].delay = 0;
-//		mtProject.instrument[i].envelope[envFilter].attack = 3000;
-//		mtProject.instrument[i].envelope[envFilter].hold = 0;
-//		mtProject.instrument[i].envelope[envFilter].decay = 0;
-//		mtProject.instrument[i].envelope[envFilter].sustain = 1.0;
-//		mtProject.instrument[i].envelope[envFilter].release = 1000;
-//		mtProject.instrument[i].envelope[envFilter].amount = 1.0;
-//		mtProject.instrument[i].envelope[envFilter].enable = envelopeOff;
-//
-//		mtProject.instrument[i].cutOff = 1.0;
-//		mtProject.instrument[i].filterEnable = filterOff;
-//		mtProject.instrument[i].filterType = lowPass;
-//		mtProject.instrument[i].resonance = 0;
-//		mtProject.instrument[i].panning = 50;
-//		mtProject.instrument[i].glide = 10000;
-//		mtProject.instrument[i].volume = 100;
-//		mtProject.instrument[i].tune = 0;
-//		mtProject.instrument[i].fineTune = 0;
-//
-//		if(i >= 9)
-//		{
-//			mtProject.instrument[i].name[0] = (i+1)/10 + 48;
-//			mtProject.instrument[i].name[1] = (i+1)%10 + 48;
-//			mtProject.instrument[i].name[2] = 0;
-//		}
-//		else
-//		{
-//			mtProject.instrument[i].name[0] = (i+1)%10 + 48;
-//			mtProject.instrument[i].name[1] = 0;
-//		}
-//
-//	}
-
-//	mtProject.instrument[0].startPoint = 19000;
-//	mtProject.instrument[0].loopPoint1 = 19000; //PRO
-//	mtProject.instrument[0].loopPoint2 = 29000;
-//
-//	mtProject.instrument[0].lfo[lfoA].rate=600;
-//	mtProject.instrument[0].lfo[lfoA].wave=0;
-//	mtProject.instrument[0].lfo[lfoA].amount=4095;
-//	mtProject.instrument[0].lfo[lfoA].sync=0;
-//	mtProject.instrument[0].lfo[lfoA].enable=lfoOff;
-
-
-
-	// parametry paternu ========================================
 
 	return 0;
 }
@@ -917,12 +788,15 @@ uint8_t cMtProjectEditor::loadSamplesBank()
 //-------------------------------------------------------------------------------
 uint8_t cMtProjectEditor::loadLastProject()
 {
+
+/*
+
 	if(readProjectConfig())
 	{
 		mtPrintln("loading config file failed!");
 		return 1;
 	}
-/*
+
 	if(loadSamplesBank())
 	{
 		mtPrintln("loading samples failed!");

@@ -506,6 +506,9 @@ void FileManager::importInstrumentToProject(char* filePatch,char* name, int8_t i
 	mtProject.instruments_count++;
 	writeInstrumentFile(currentPatch,&mtProject.instrument[index]);
 
+	writeInstrumentFile(currentPatch,&mtProject.instrument[index]);
+
+
 	memset(currentPatch,0,PATCH_SIZE);
 	strcpy(currentPatch,currentProjectPatch);
 	strcat(currentPatch,"/project.bin");
