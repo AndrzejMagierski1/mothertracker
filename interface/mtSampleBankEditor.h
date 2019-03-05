@@ -161,7 +161,7 @@ private:
 	{
 		{0},
 		"Import sample",
-		"Import wavetable",
+		"Import wtable",
 		"Remove",
 		"Rename",
 

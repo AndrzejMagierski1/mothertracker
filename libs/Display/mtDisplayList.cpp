@@ -61,8 +61,8 @@ void cMtDisplayList::update()
 		int8_t sel_row = listState; ///// <= albo  = 2;
 		if(listPosition == 0) 					sel_row = 0;
 		else if(listPosition == 1) 				sel_row = 1;
-		else if(listCount > 4 && listPosition >= listCount-1)	sel_row = 4;
-		else if(listCount > 3 && listPosition >= listCount-2)	sel_row = 3;
+		else if(listCount > 5 && listPosition >= listCount-1)	sel_row = 4;
+		else if(listCount > 4 && listPosition >= listCount-2)	sel_row = 3;
 		listState = sel_row;
 
 		x_pos = MT_DISP_BLOCK_W * (listBlock) + ( MT_DISP_BLOCK_MENU_OFFSET);
@@ -203,6 +203,8 @@ void cMtDisplayList::update()
 			}
 			else if(listStart == 1 && dir == -1)
 			{
+				y_pos+=MT_DISP_BLOCK_MENU_Y_SPACE;
+
 				for(int8_t i = 0; i < (lines); i++)
 				{
 					API_CMD_TEXT(x_pos,
