@@ -6,13 +6,13 @@
 class Recorder
 {
 public:
-	void startRecording(char * name, int16_t * addr);
+	void startRecording(int16_t * addr);
 	void stopRecording();
 	void play(uint16_t start, uint16_t stop);
 	void update();
 	void stop();
 	void trim(uint16_t a, uint16_t b);
-	void save(char * patch, char * name);
+	void save();
 	int16_t * getAddress();
 	uint32_t getLength();
 	uint8_t mode = recorderModeStop;

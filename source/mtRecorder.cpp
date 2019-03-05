@@ -1,10 +1,11 @@
 #include  "mtRecorder.h"
 
-void Recorder:: startRecording(char * name, int16_t * addr)
+void Recorder:: startRecording(int16_t * addr)
 {
-	strcpy(currentName,name);
+	strcpy(currentName,"rec_001.wav");
 	currentAddress = addr;
 	startAddress = addr;
+
 	queue.begin();
 	if(mtConfig.audioCodecConfig.inSelect == inputSelectMic )
 	{
@@ -80,17 +81,36 @@ void Recorder::trim(uint16_t a, uint16_t b)
 	recByteSaved -= 2*lengthShift; //zamieniam probki na bajty
 }
 
-void Recorder::save(char * patch, char * name)
+void Recorder::save()
 {
 	char currentPatch[PATCH_SIZE];
+	uint16_t rec_cnt=1;
 	uint32_t length;
-	if(patch[0] != 0)
+	if(!SD.exists("Recorded")) SD.mkdir("Recorded");
+
+	strcpy(currentPatch,"Recorded/");
+	strcat(currentPatch,currentName);
+
+	while(SD.exists(currentPatch))
 	{
-		strcpy(currentPatch,patch);
-		strcat(currentPatch,"/");
-		strcat(currentPatch,name);
+		rec_cnt++;
+
+		if(rec_cnt<10) currentName[6] = rec_cnt+48;
+		if(rec_cnt>=10 && rec_cnt < 100 )
+		{
+			currentName[6] = rec_cnt%10 + 48;
+			currentName[5] = rec_cnt/10 + 48;
+		}
+		if(rec_cnt>=100 && rec_cnt < 1000 )
+		{
+			currentName[6] = rec_cnt%10 + 48;
+			currentName[5] = (rec_cnt/10)%10 + 48;
+			currentName[4] = rec_cnt/100 + 48;
+		}
+
+		strcpy(currentPatch,"Recorded/");
+		strcat(currentPatch,currentName);
 	}
-	else strcpy(currentPatch,name);
 
 	length=recByteSaved;
 

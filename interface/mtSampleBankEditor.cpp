@@ -276,7 +276,7 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		}
 		else if(n==8)
 		{
-			recorder.startRecording("nazwa.wav", sdram_sampleBank);
+			recorder.startRecording(sdram_sampleBank);
 
 		}
 		else if(n==9)
@@ -293,7 +293,7 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		}
 		else if(n==12)
 		{
-			recorder.save("\0","nagrywka.wav");
+			recorder.save();
 		}
 	}
 
