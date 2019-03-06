@@ -113,7 +113,7 @@ void audioEngine::init()
 	setIn(inputSelectMic);
 	setOut(outputSelectHeadphones);
 
-	audioShield.volume(1.0);
+	audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
 	audioShield.inputSelect(AUDIO_INPUT_MIC);
 	audioShield.micGain(35);
 

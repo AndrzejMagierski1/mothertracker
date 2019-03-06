@@ -363,7 +363,7 @@ private:
 		"Finetune",
 		"Tune",
 		"Wavetable",
-		"Select slot:",
+		"Select slot",
 		"Reverb Send",
 
 	};

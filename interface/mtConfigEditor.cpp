@@ -214,7 +214,7 @@ void cMtConfigEditor::processParameters()
 			case valueMasterVolume:
 			{
 				values.type[i] = valuesTypes[valueMasterVolume];
-				values.value1[i] = mtConfig.globals.masterVolume;
+				values.value1[i] = mtConfig.audioCodecConfig.headphoneVolume*100;
 				break;
 			}
 /*			case valueTempo:
@@ -440,7 +440,14 @@ void cMtConfigEditor::switchParametersType(uint8_t type)
 
 void cMtConfigEditor::changeMasterVolume(int16_t value)
 {
+	float fVal = value * 0.01;
 
+	if(mtConfig.audioCodecConfig.headphoneVolume + fVal < MASTER_VOLUME_MIN) mtConfig.audioCodecConfig.headphoneVolume = MASTER_VOLUME_MIN;
+	else if(mtConfig.audioCodecConfig.headphoneVolume + fVal > MASTER_VOLUME_MAX) mtConfig.audioCodecConfig.headphoneVolume = MASTER_VOLUME_MAX;
+	else mtConfig.audioCodecConfig.headphoneVolume += fVal;
+
+	mtConfig.audioCodecConfig.changeFlag = 1;
+	parametersChanged = 1;
 }
 
 void cMtConfigEditor::changeReverbPanning(int16_t value)

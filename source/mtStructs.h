@@ -103,8 +103,8 @@ const uint8_t MAX_NOTE_OFFSET =					9;
 
 
 
-const uint8_t MASTER_VOLUME_MIN 			=	0;
-const uint8_t MASTER_VOLUME_MAX 			=	100;
+const float MASTER_VOLUME_MIN 				=	0;
+const float MASTER_VOLUME_MAX 				=	1.0;
 
 const uint8_t REVERB_ROOM_SIZE_MIN 			=	0;
 const uint8_t REVERB_ROOM_SIZE_MAX 			=	100;
@@ -388,7 +388,7 @@ struct strMtConfig
 {
 	struct strGlobalValues
 	{
-		uint8_t masterVolume;
+		uint8_t masterVolume = 50;
 	} globals;
 
 	struct strAudioCodecConfig
@@ -396,7 +396,7 @@ struct strMtConfig
 		uint8_t inSelect;
 		uint8_t outSelect;
 
-		float headphoneVolume;
+		float headphoneVolume = 0.5;
 		uint8_t inputGain; // 0-63
 		uint8_t mutedHeadphone;
 		uint8_t mutedLineOut;

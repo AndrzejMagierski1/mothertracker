@@ -94,7 +94,7 @@ private:
 	char *ptrSamplesNames[SAMPLES_COUNT];
 	uint16_t samplesCount;
 	uint8_t sampleListPos;
-
+	uint8_t samplesListEnabled;
 
 	//lista plikow/folderow---------------------------------------------
 	static const uint8_t files_list_length_max = 100;

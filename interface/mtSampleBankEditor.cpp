@@ -29,7 +29,7 @@ void cMtSampleBankEditor::update()
 		moduleStart = 0;
 		labelsChanged = 2;
 		samplesListChanged = 2;
-
+		samplesListEnabled = 1;
 	}
 	//-----------------------------------------------------
 	if(labelsChanged)
@@ -52,6 +52,13 @@ void cMtSampleBankEditor::update()
 	{
 		labelsChanged = 1;
 		refreshModule = 1;
+
+		if(!samplesListEnabled)
+		{
+			samplesListChanged = 0;
+			mtDisplay.setList(samples_list_pos, 0, 0, 0, 0, 0);
+			return;
+		}
 
 		if(samplesListChanged == 2) // pokaz liste
 		{
@@ -148,13 +155,15 @@ void cMtSampleBankEditor::stop()
 {
 	mtDisplay.setList(samples_list_pos, 0, 0, 0, 0, 0);
 	mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
+	samplesListEnabled = 0;
 	filesListEnabled = 0;
+	slotListEnabled = 0;
 
 	if(playMode != playModeStop)
 	{
 		stopPlaying();
 	}
-	//filesListChanged = 1;
+
 }
 
 void cMtSampleBankEditor::listOnlyDirAndWavFromActualPath()
