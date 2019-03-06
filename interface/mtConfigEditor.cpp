@@ -1,7 +1,7 @@
 
 #include "mtDisplay.h"
 #include "AnalogInputs.h"
-
+#include "mtAudioEngine.h"
 
 #include "mtInterfaceDefs.h"
 
@@ -154,7 +154,10 @@ void cMtConfigEditor::potChange(uint8_t pot, int16_t value)
 	switch(potFunctions[pot])
 	{
 		case potFunctNone				:		break;
-
+		case potFunctMasterVolume		:	changeMasterVolume(value);		break;
+		case potFunctReverbRoomSize		:	changeReverbRoomSize(value);	break;
+		case potFunctReverbDamping		:	changeReverbDamping(value);		break;
+		case potFunctReverbPanning		:	changeReverbPanning(value);		break;
 
 
 		default: break;
@@ -221,7 +224,24 @@ void cMtConfigEditor::processParameters()
 				break;
 			}
 */
-
+			case valueReverbRoomSize:
+			{
+				values.type[i] = valuesTypes[valueReverbRoomSize];
+				values.value1[i] = mtProject.values.reverbRoomSize;
+				break;
+			}
+			case valueReverbDamping:
+			{
+				values.type[i] = valuesTypes[valueReverbDamping];
+				values.value1[i] = mtProject.values.reverbDamping;
+				break;
+			}
+			case valueReverbPanning:
+			{
+				values.type[i] = valuesTypes[valueReverbPanning];
+				values.value1[i] = mtProject.values.reverbPanning;
+				break;
+			}
 
 			//-------------------------------------------------------------
 			case valueCodecInput:
@@ -265,6 +285,11 @@ void cMtConfigEditor::updateParameters()
 	if(parametersType == mtConfigEditorStartModeGlobals)
 	{
 		setParameter(0, valueMasterVolume);
+
+		setParameter(1, valueReverbRoomSize);
+		setParameter(2, valueReverbDamping);
+		setParameter(3, valueReverbPanning);
+
 
 
 	}
@@ -368,6 +393,9 @@ void cMtConfigEditor::updatePotsFunctions()
 	if(parametersType == mtConfigEditorStartModeGlobals)
 	{
 		setPotFunction(0, potFunctMasterVolume);
+		setPotFunction(1, potFunctReverbRoomSize);
+		setPotFunction(2, potFunctReverbDamping);
+		setPotFunction(3, potFunctReverbPanning);
 
 
 	}
@@ -408,6 +436,46 @@ void cMtConfigEditor::switchParametersType(uint8_t type)
 	parametersType = type;
 	parametersChanged = 2;
 }
+
+
+void cMtConfigEditor::changeMasterVolume(int16_t value)
+{
+
+}
+
+void cMtConfigEditor::changeReverbPanning(int16_t value)
+{
+	if(mtProject.values.reverbPanning + value < REVERB_PANNING_MIN) mtProject.values.reverbPanning = REVERB_PANNING_MIN;
+	else if(mtProject.values.reverbPanning + value > REVERB_PANNING_MAX) mtProject.values.reverbPanning = REVERB_PANNING_MAX;
+	else mtProject.values.reverbPanning += value;
+
+	parametersChanged = 1;
+
+	engine.setReverbPanning(mtProject.values.reverbPanning);
+}
+
+void cMtConfigEditor::changeReverbRoomSize(int16_t value)
+{
+	if(mtProject.values.reverbRoomSize + value < REVERB_ROOM_SIZE_MIN) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MIN;
+	else if(mtProject.values.reverbRoomSize + value > REVERB_ROOM_SIZE_MAX) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MAX;
+	else mtProject.values.reverbRoomSize += value;
+
+	parametersChanged = 1;
+
+	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
+}
+
+void cMtConfigEditor::changeReverbDamping(int16_t value)
+{
+	if(mtProject.values.reverbDamping + value < REVERB_DAMPING_MIN) mtProject.values.reverbDamping = REVERB_DAMPING_MIN;
+	else if(mtProject.values.reverbDamping + value > REVERB_DAMPING_MAX) mtProject.values.reverbDamping = REVERB_DAMPING_MAX;
+	else mtProject.values.reverbDamping += value;
+
+	parametersChanged = 1;
+
+	engine.setReverbDamping(mtProject.values.reverbDamping);
+}
+
 
 
 

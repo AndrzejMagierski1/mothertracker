@@ -57,17 +57,27 @@ void cMtSampleBankEditor::update()
 		{
 			if(mtProject.sampleBank.samples_count > 0)
 			{
+				uint8_t activeSample = 0;
 				for(uint8_t i = 0; i < SAMPLES_COUNT; i++)
 				{
-					samplesNames[i] = mtProject.sampleBank.sample[i].file_name;
+					if(mtProject.sampleBank.sample[i].loaded)
+					{
+						strcpy(&samplesNames[activeSample][0], mtProject.sampleBank.sample[i].file_name);
+						ptrSamplesNames[activeSample] = &samplesNames[activeSample][0];
+						samplesIndex[activeSample] = i;
+						activeSample++;
+					}
 				}
 
-				mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, samplesNames, mtProject.sampleBank.samples_count);
+				sampleListPos = 0;
+				samplesCount = activeSample;
+
+				mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, ptrSamplesNames, mtProject.sampleBank.samples_count);
 			}
 			else
 			{
-				samplesNames[0] = buttonFunctionLabels[0]; // przypisanie pustego
-				mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, samplesNames, 1 );
+				ptrSamplesNames[0] = buttonFunctionLabels[0]; // przypisanie pustego
+				mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, ptrSamplesNames, 1 );
 			}
 		}
 		//processSamples();
@@ -139,6 +149,11 @@ void cMtSampleBankEditor::stop()
 	mtDisplay.setList(samples_list_pos, 0, 0, 0, 0, 0);
 	mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
 	filesListEnabled = 0;
+
+	if(playMode != playModeStop)
+	{
+		stopPlaying();
+	}
 	//filesListChanged = 1;
 }
 
@@ -240,6 +255,47 @@ void cMtSampleBankEditor::listSampleSlots()
 
 }
 
+void cMtSampleBankEditor::playSdFile()
+{
+	if(!isWavFile(&locationFilesList[selectedLocation][0])) return;
+
+	char file_path[255];
+
+	strcpy(file_path, filePath);
+	strcat(file_path, &locationFilesList[selectedLocation][0]);
+
+	playMode = playModeSdFile;
+
+	engine.prevSdConnect();
+
+	playSdWav.play(file_path);
+
+}
+
+void cMtSampleBankEditor::playSampleFromBank()
+{
+	playMode = playModeSampleBank;
+
+	instrumentPlayer[0].noteOnforPrev(mtProject.sampleBank.sample[samplesIndex[sampleListPos]].address,
+									  mtProject.sampleBank.sample[samplesIndex[sampleListPos]].length);
+}
+
+
+void cMtSampleBankEditor::stopPlaying()
+{
+	if(playMode == playModeSdFile)
+	{
+		playSdWav.stop();
+		engine.prevSdDisconnect();
+	}
+	else if(playMode == playModeSampleBank)
+	{
+		instrumentPlayer[0].noteOff();
+	}
+
+	playMode = playModeStop;
+}
+
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
@@ -248,6 +304,20 @@ void cMtSampleBankEditor::listSampleSlots()
 //#########################################################################################################
 uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 {
+
+	if(n == interfacePadPlay)
+	{
+		if(type == 1)
+		{
+			if(filesListEnabled) playSdFile();
+			else playSampleFromBank();
+		}
+		else
+		{
+			stopPlaying();
+		}
+	}
+
 	if(type == 1)
 	{
 		if(n == interfacePadInstrumentEditor)
@@ -270,8 +340,13 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stop();
 			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
 		}
-		else if(n == interfacePadPlay || n == interfacePadStop)
+		else if(n == interfacePadPlay)
 		{
+
+		}
+		else if(n == interfacePadStop)
+		{
+			stopPlaying();
 			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
 		}
 		else if(n==8)
@@ -605,6 +680,8 @@ void cMtSampleBankEditor::importSample(uint8_t type)
 
 void cMtSampleBankEditor::removeSample()
 {
+	fileManager.deleteSample(samplesIndex[sampleListPos]);
+
 
 }
 
@@ -690,13 +767,24 @@ void cMtSampleBankEditor::browseCancel()
 	refreshModule = 1;
 }
 
+
+
+
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
 
 void cMtSampleBankEditor::changeSampleListPos(int16_t value)
 {
+	if(sampleListPos + value < 0) sampleListPos  = 0;
+	else if(sampleListPos + value > samplesCount-1) sampleListPos  = samplesCount-1;
+	else sampleListPos += value;
 
+
+	mtDisplay.changeList(samples_list_pos, sampleListPos);
+
+
+	refreshModule = 1;
 }
 
 void cMtSampleBankEditor::changeFilesListPos(int16_t value)

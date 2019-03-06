@@ -105,6 +105,11 @@ void audioEngine::init()
 
 //	setIn(inputSelectLineIn);
 //	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+
+//	setOut(outputSelectLineOut);
+//	audioShield.lineOutLevel(17,17);
+//	audioShield.inputSelect(AUDIO_INPUT_MIC);
+
 	setIn(inputSelectMic);
 	setOut(outputSelectHeadphones);
 
@@ -460,7 +465,7 @@ void playerEngine :: modTune(int8_t value)
 
 void playerEngine :: modReverbSend(uint8_t value)
 {
-	mixerL.gain(numPanChannel,value/100.0);
+	mixerReverb.gain(numPanChannel,value/100.0);
 }
 
 /*	void playerEngine:: resetMods(void)

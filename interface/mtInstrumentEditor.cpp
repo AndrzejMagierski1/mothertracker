@@ -458,6 +458,9 @@ void cMtInstrumentEditor::potChange(uint8_t pot, int16_t value)
 		case potFunctTune               :   changeTune(value);          break;
 		case potFunctWavetablePos       :   changeWavetablePos(value);  break;
 		case potFunctAddInstrumentSelect:   selectAddInstrument(value); break;
+		case potFunctReverbSend			:	changeReverbSend(value);	break;
+
+
 		default: break;
 	}
 
@@ -823,6 +826,12 @@ void cMtInstrumentEditor::processParameters()
 				values.value1[i] = editorInstrument->tune;
 				break;
 			}
+			case valueReverbSend:
+			{
+				values.type[i] = valuesTypes[valueReverbSend];
+				values.value1[i] = editorInstrument->reverbSend;
+				break;
+			}
 			default:
 			{
 				values.type[i] = valuesTypes[valueNone];
@@ -872,6 +881,8 @@ void cMtInstrumentEditor::updateParameters()
 
 			setParameter(2, valueResonance);
 			setParameter(3, valueFilter);
+
+			setParameter(4, valueReverbSend);
 
 
 		}
@@ -1041,6 +1052,7 @@ void cMtInstrumentEditor::updatePotsFunctions()
 			setPotFunction(1, potFunctPanning);
 			setPotFunction(2, potFunctResonance);
 			setPotFunction(3, potFunctFilter);
+			setPotFunction(4, potFunctReverbSend);
 		}
 		else if(parametersPage == 1)
 		{
@@ -1267,6 +1279,18 @@ void cMtInstrumentEditor::changePanning(uint8_t pot, int16_t value)
 
 	parametersChanged = 1;
 }
+
+void cMtInstrumentEditor::changeReverbSend(int16_t value)
+{
+	if(editorInstrument->reverbSend + value < REVERB_SEND_MIN) editorInstrument->reverbSend = REVERB_SEND_MIN;
+	else if(editorInstrument->reverbSend + value > REVERB_SEND_MAX ) editorInstrument->reverbSend = REVERB_SEND_MAX;
+	else editorInstrument->reverbSend += value;
+
+	instrumentPlayer[0].setStatusBytes(REVERB_SEND_MASK);
+
+	parametersChanged = 1;
+}
+
 
 void cMtInstrumentEditor::changeGlide(int16_t value)
 {
