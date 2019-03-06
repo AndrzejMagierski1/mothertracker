@@ -189,8 +189,8 @@ enum inputSelect
 
 enum outputSelect
 {
+	outputSelectLineOut,
 	outputSelectHeadphones,
-	outputSelectLineOut
 };
 
 enum fileType
@@ -313,7 +313,16 @@ struct strInstrument
 
     uint8_t reverbSend;
 };
+//-------------------------------------------------
+struct strMtValues
+{
+	uint8_t lastUsedInstrument = 0;
 
+	uint8_t padBoardScale = 3;
+	uint8_t padBoardNoteOffset = 7;
+	uint8_t padBoardRootNote = 0;
+	uint8_t padBoardMaxVoices = 8;
+};
 
 //-------------------------------------------------
 struct strMtProjectRemote
@@ -340,8 +349,9 @@ struct strMtProjectRemote
 
 	int8_t song[SONG_MAX];
 
-};
+	strMtValues values;
 
+};
 //-------------------------------------------------
 struct strMtProject
 {
@@ -352,19 +362,7 @@ struct strMtProject
 
 	strMtProjectRemote mtProjectRemote;
 
-	struct strMtValues
-	{
-		uint8_t lastUsedInstrument = 0;
-
-		uint8_t padBoardScale = 3;
-		uint8_t padBoardNoteOffset = 7;
-		uint8_t padBoardRootNote = 0;
-		uint8_t padBoardMaxVoices = 8;
-
-
-	} values;
-
-
+	strMtValues values;
 };
 
 //-------------------------------------------------
@@ -373,9 +371,6 @@ struct strMtConfig
 	struct strGlobalValues
 	{
 		uint8_t masterVolume;
-
-
-
 	} globals;
 
 	struct strAudioCodecConfig
@@ -387,10 +382,12 @@ struct strMtConfig
 		uint8_t inputGain; // 0-63
 		uint8_t mutedHeadphone;
 		uint8_t mutedLineOut;
+
 		uint8_t lineInLeft; // 0-15
 		uint8_t lineInRight; // 0-15
-		uint8_t lineOutLeft; // 0-15
-		uint8_t lineOutRight; // 0-15
+
+		uint8_t lineOutLeft; // 13-31
+		uint8_t lineOutRight; //13-31
 
 		uint8_t changeFlag;
 

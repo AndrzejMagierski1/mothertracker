@@ -198,34 +198,21 @@ void AudioPlayMemory::update(void)
 	block = allocate();
 	if (block == NULL) return;
 
-	//Serial.write('.');
-
 	out = block->data;
 	in = next;
 	s0 = prior;
 
 	switch (playing)
 	{
-
-	  case 0x81: // 16 bit PCM, 44100 Hz
-
+	case 0x81: // 16 bit PCM, 44100 Hz
 		if(mtProject.sampleBank.sample[mtProject.instrument[currentInstr_idx].sampleIndex].type == mtSampleTypeWavetable)
 		{
-//			pitchCounter-=(float)waveTablePosition;
-//
-//			waveTablePosition=wavetableWindowSize * currentWindow;
-//
-//			pitchCounter+=(float)waveTablePosition;
-//
-//			sampleConstrains.loopPoint2=waveTablePosition + wavetableWindowSize;
-//
-//			sampleConstrains.loopPoint1=waveTablePosition;
 			waveTablePosition=wavetableWindowSize * currentWindow;
 		}
+		length+=(uint32_t)pitchControl; //maksymalnie moze wyjsc za length i nie wiecej niz pitch control
 		for (i=0; i < AUDIO_BLOCK_SAMPLES; i ++)
 		{
-
-			if (length > (uint32_t)pitchCounter) //if (length > 0)
+			if (length > (uint32_t)pitchCounter)
 			{
 				if(sampleConstrains.glide)
 				{
@@ -242,7 +229,7 @@ void AudioPlayMemory::update(void)
 					}
 					else
 					{
-						pitchControl -= (slideControl * slideCounter);
+						pitchControl -= (slideControl * slideCounter);// nie bac sie - to sie robi tylko raz
 						slideControl=0.0f;
 						slideCounter=0;
 						sampleConstrains.slide=0;
@@ -290,7 +277,7 @@ void AudioPlayMemory::update(void)
 
 					if(( (uint32_t)pitchCounter  >= wavetableWindowSize) && (!stopLoop) ) pitchCounter = 0;
 				}
-				if(( (uint32_t)pitchCounter >= sampleConstrains.endPoint) && (sampleConstrains.endPoint != sampleConstrains.loopPoint2)) pitchCounter=length;
+				if(( (uint32_t)pitchCounter >= sampleConstrains.endPoint) && (sampleConstrains.endPoint != sampleConstrains.loopPoint2)) pitchCounter=length+pitchControl;
 			}
 			else
 			{
@@ -298,6 +285,7 @@ void AudioPlayMemory::update(void)
 				playing = 0;
 			}
 		}
+
 		break;
 
 	  default:
@@ -499,10 +487,10 @@ void AudioPlayMemory::clean(void)
 		wavetableWindowSize=0;
 		currentWindow=0;
 		waveTablePosition=0;
-	    wavetableSync=0;
-	    wavetablePWM=0;
-	    wavetableFlip=0;
-	    wavetableQuantize=0;
+//	    wavetableSync=0;
+//	    wavetablePWM=0;
+//	    wavetableFlip=0;
+//	    wavetableQuantize=0;
 		currentInstr_idx=0;
 		currentFineTune=0;
 

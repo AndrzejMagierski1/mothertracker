@@ -106,8 +106,11 @@ void audioEngine::init()
 //	setIn(inputSelectLineIn);
 //	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 	setIn(inputSelectMic);
+	setOut(outputSelectHeadphones);
+
+	audioShield.volume(1.0);
 	audioShield.inputSelect(AUDIO_INPUT_MIC);
-	audioShield.micGain(25);
+	audioShield.micGain(35);
 
 	for(int i=0;i<8; i++)
 	{
@@ -344,7 +347,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	mixerR.gain(numPanChannel,gainR);
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
-	mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100);
+	mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
 
 
 	/*======================================================================================================*/
@@ -457,7 +460,7 @@ void playerEngine :: modTune(int8_t value)
 
 void playerEngine :: modReverbSend(uint8_t value)
 {
-	mixerL.gain(numPanChannel,value/100);
+	mixerL.gain(numPanChannel,value/100.0);
 }
 
 /*	void playerEngine:: resetMods(void)
@@ -471,6 +474,7 @@ void playerEngine:: update()
 {
 	float filterMod=0;
 	float ampMod=0;
+
 
 	if(envelopeAmpPtr->endRelease())
 	{
@@ -526,7 +530,7 @@ void playerEngine:: update()
 		if(statusBytes & VOLUME_MASK)
 		{
 			statusBytes &= (~VOLUME_MASK);
-			if(!currentVelocity) ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0));
+			if(currentVelocity == -1) ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0));
 			else ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
 		}
 		if(statusBytes & PANNING_MASK)
@@ -550,6 +554,7 @@ void playerEngine:: update()
 			modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
 		}
 	}
+
 
 
 
@@ -666,8 +671,8 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
 	filterDisconnect();
 	ampPtr->gain(1.0);
 
-	mixerL.gain(numPanChannel,0.5);
-	mixerR.gain(numPanChannel,0.5);
+	mixerL.gain(numPanChannel,1.0);
+	mixerR.gain(numPanChannel,1.0);
 	mixerReverb.gain(numPanChannel,0.0);
 	/*======================================================================================================*/
 

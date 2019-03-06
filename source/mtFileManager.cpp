@@ -92,7 +92,7 @@ void FileManager::writeProjectFile(char * name, strMtProjectRemote * proj)
 	strProjectFile projectFile;
 
 	projectFile.projectDataAndHeader.project = * proj;
-
+	projectFile.projectDataAndHeader.project.values = mtProject.values;
 
 	projectFile.projectDataAndHeader.projectHeader.id_file[0]='I';
 	projectFile.projectDataAndHeader.projectHeader.id_file[1]='D';
@@ -200,6 +200,7 @@ uint8_t FileManager::readProjectFile(char * name, strMtProjectRemote * proj)
 	if(checkCRC == projectFile.crc)
 	{
 		*proj=projectFile.projectDataAndHeader.project;
+		mtProject.values=projectFile.projectDataAndHeader.project.values;
 		return 1;
 	}
 	else return 0;
@@ -445,13 +446,13 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 		mtProject.instrument[instrumentIndex].filterEnable = filterOff;
 		mtProject.instrument[instrumentIndex].filterType = lowPass;
 		mtProject.instrument[instrumentIndex].resonance = 0;
-		mtProject.instrument[instrumentIndex].panning = 50;
+		mtProject.instrument[instrumentIndex].panning = 0;
 		mtProject.instrument[instrumentIndex].glide = 0;
 		mtProject.instrument[instrumentIndex].volume = 100;
 		mtProject.instrument[instrumentIndex].tune = 0;
 		mtProject.instrument[instrumentIndex].fineTune = 0;
 
-		mtProject.instrument[instrumentIndex].reverbSend = 0;
+		mtProject.instrument[instrumentIndex].reverbSend = 100;
 
 		mtProject.instruments_count++;
 
@@ -962,7 +963,7 @@ void FileManager:: addInstrumentToProject (int8_t index)
 	mtProject.instrument[index].filterEnable = filterOff;
 	mtProject.instrument[index].filterType = lowPass;
 	mtProject.instrument[index].resonance = 0;
-	mtProject.instrument[index].panning = 50;
+	mtProject.instrument[index].panning = 0;
 	mtProject.instrument[index].glide = 0;
 	mtProject.instrument[index].volume = 100;
 	mtProject.instrument[index].tune = 0;

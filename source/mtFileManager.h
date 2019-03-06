@@ -92,7 +92,9 @@ public:
 	void deleteInstrument(int8_t index);
 	void deletePattern(int8_t index);
 
-	///todo: jest mozliwosc ze beda potem prywatne
+	friend class cMtSampleBankEditor;
+
+private:
 	void formatSDCard();
 	void createNewProject(char * name);
 	void copySample(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
@@ -103,9 +105,6 @@ public:
 	uint8_t readPatternFile(char * name);
 	void writeProjectFile(char * name,strMtProjectRemote * proj);
 	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
-
-	friend class cMtSampleBankEditor;
-private:
 
 	char currentProjectPatch[PATCH_SIZE];
 	char currentProjectName[PROJECT_NAME_SIZE];

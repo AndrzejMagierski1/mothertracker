@@ -75,13 +75,12 @@ private:
 	uint16_t wavetableWindowSize;
 	uint16_t currentWindow;
 	uint32_t waveTablePosition;
-    uint16_t wavetableSync;
-    uint16_t wavetablePWM;
-    uint16_t wavetableFlip;
-    uint16_t wavetableQuantize;
+//    uint16_t wavetableSync;
+//    uint16_t wavetablePWM;
+//    uint16_t wavetableFlip;
+//    uint16_t wavetableQuantize;
 	uint8_t currentInstr_idx;
 	int8_t currentFineTune;
-
 
 	struct strSamplePoints
 	{

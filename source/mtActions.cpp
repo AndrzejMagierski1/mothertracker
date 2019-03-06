@@ -17,9 +17,9 @@
 
 #include "mtInterface.h"
 
+extern AudioControlSGTL5000 audioShield;
 
-
-
+float licznik=1;
 
 
 
@@ -59,6 +59,16 @@ void onPotChange(uint8_t n, int16_t value)
 
 
 	mtInterface.potChange(n, value);
+
+//	if(value>0)
+//	{
+//		if(licznik<1.0f) licznik+=0.01;
+//	}
+//	else if(value<0)
+//	{
+//		if(licznik>0.0f) licznik-=0.01;
+//	}
+//	audioShield.volume(licznik);
 
 //	mtHaptic.start(15,150,0x01,56);
 
