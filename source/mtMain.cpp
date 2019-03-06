@@ -6,6 +6,7 @@
 #include "mtSequencer.h"
 #include "seqDisplay.h"
 #include "chatBot.h"
+#include "mtPadsBacklight.h"
 
 
 
@@ -25,6 +26,7 @@ void setup()
 
 
 	sequencer.init();
+	padsBacklight.init(500);
 	sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
 	//sequencer.play();
 
@@ -42,7 +44,7 @@ void loop()
 	//handle_chatBot();
 
 	seqDisplay.update();
-
+	padsBacklight.update();
 	updateHardware();
 
 	engine.update();
