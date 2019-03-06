@@ -277,7 +277,7 @@ void AudioPlayMemory::update(void)
 
 					if(( (uint32_t)pitchCounter  >= wavetableWindowSize) && (!stopLoop) ) pitchCounter = 0;
 				}
-				if(( (uint32_t)pitchCounter >= sampleConstrains.endPoint) && (sampleConstrains.endPoint != sampleConstrains.loopPoint2)) pitchCounter=length+pitchControl;
+				if(( (uint32_t)pitchCounter >= sampleConstrains.endPoint) && (sampleConstrains.endPoint != sampleConstrains.loopPoint2)) pitchCounter=length;
 			}
 			else
 			{
