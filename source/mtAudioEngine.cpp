@@ -103,6 +103,7 @@ void audioEngine::init()
 	i2sConnect[0]= &connect52;
 	i2sConnect[1]= &connect53;
 
+	readConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
 //	setIn(inputSelectLineIn);
 //	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 
@@ -138,6 +139,8 @@ void audioEngine::update()
 		if(mtConfig.audioCodecConfig.changeFlag)
 		{
 			mtConfig.audioCodecConfig.changeFlag=0;
+
+			saveConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
 
 			if(mtConfig.audioCodecConfig.outSelect == outputSelectHeadphones)
 			{
@@ -192,25 +195,25 @@ void audioEngine::setIn(uint8_t audioInStatus)
 
 void audioEngine::setReverbRoomsize(uint8_t value)
 {
-	reverb.roomsize(value/100);
+	reverb.roomsize(value/100.0);
 }
 
 void audioEngine::setReverbDamping(uint8_t value)
 {
-	reverb.damping(value/100);
+	reverb.damping(value/100.0);
 }
 
 void audioEngine::setReverbPanning(int8_t value)
 {
 	if(value > 0)
 	{
-		mixerL.gain(8,(100 - value)/100);
+		mixerL.gain(8,(100 - value)/100.0);
 		mixerR.gain(8,1.0);
 	}
 	else if(value < 0)
 	{
 		mixerL.gain(8,1.0);
-		mixerR.gain(8, (100 + value)/100 );
+		mixerR.gain(8, (100 + value)/100.0 );
 	}
 	else if (value == 0)
 	{

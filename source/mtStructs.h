@@ -113,6 +113,8 @@ const uint8_t REVERB_DAMPING_MAX 			=	100;
 const int8_t REVERB_PANNING_MIN 			=	-100;
 const uint8_t REVERB_PANNING_MAX 			=	100;
 
+const uint8_t CONFIG_EEPROM_ADDRESS			=	0;
+
 
 //=====================================================================
 //=====================================================================
