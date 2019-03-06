@@ -47,10 +47,12 @@ const uint8_t INSTRUMEN_ENVELOPES_MAX 		=	3;
 const float MIN_PITCH 						=	0.25;
 const float MAX_PITCH 						=	4.0;
 
-const uint8_t  PANNING_MIN 					=	0;
+const int8_t  PANNING_MIN 					=	-100;
 const uint8_t  PANNING_MAX 					=   100;
 const uint8_t  GLIDE_MIN 					=	0;
 const uint16_t  GLIDE_MAX 					=	15000;
+const uint8_t  REVERB_SEND_MIN 				=	0;
+const uint8_t  REVERB_SEND_MAX				=	100;
 
 const uint16_t  ATTACK_MAX 					=	11000;
 const uint16_t  DECAY_MAX					=	11000;
@@ -95,11 +97,21 @@ const uint8_t CUTOFF_MASK =						64;
 const uint8_t RESONANCE_MASK =					128;
 const uint16_t REVERB_SEND_MASK =				256;
 
-
 const uint8_t MIN_NOTE_OFFSET =					0;
 const uint8_t MAX_NOTE_OFFSET =					9;
 
 
+
+
+const uint8_t MASTER_VOLUME_MIN 			=	0;
+const uint8_t MASTER_VOLUME_MAX 			=	100;
+
+const uint8_t REVERB_ROOM_SIZE_MIN 			=	0;
+const uint8_t REVERB_ROOM_SIZE_MAX 			=	100;
+const uint8_t REVERB_DAMPING_MIN 			=	0;
+const uint8_t REVERB_DAMPING_MAX 			=	100;
+const int8_t REVERB_PANNING_MIN 			=	-100;
+const uint8_t REVERB_PANNING_MAX 			=	100;
 
 
 //=====================================================================
@@ -361,6 +373,9 @@ struct strMtProject
 		uint8_t padBoardRootNote = 0;
 		uint8_t padBoardMaxVoices = 8;
 
+		uint8_t reverbRoomSize;
+		uint8_t reverbDamping;
+		int8_t reverbPanning;
 
 	} values;
 

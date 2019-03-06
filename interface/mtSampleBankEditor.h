@@ -89,8 +89,11 @@ private:
 	static const uint8_t samples_list_length_max = SAMPLES_MAX;
 	const uint8_t samples_list_pos = 3;
 //	uint8_t samplesListEnabled = 0;
-	char *samplesNames[SAMPLES_COUNT];
+	char samplesNames[SAMPLES_COUNT][32];
+	uint8_t samplesIndex[SAMPLES_COUNT];
+	char *ptrSamplesNames[SAMPLES_COUNT];
 	uint16_t samplesCount;
+	uint8_t sampleListPos;
 
 
 	//lista plikow/folderow---------------------------------------------
@@ -115,7 +118,7 @@ private:
 	const uint8_t slot_list_index = 1;
 	uint8_t slotListEnabled = 0;
 
-	char slotNames[SAMPLES_COUNT][26];
+	char slotNames[SAMPLES_COUNT][36];
 	char *ptrSlotNames[SAMPLES_COUNT];
 	uint8_t selectedSlot;
 
@@ -128,7 +131,19 @@ private:
 	void listSampleSlots();
 	//-------------------------------------------------------------------
 
+	//ogolne
+	uint8_t playMode = 0;
+	enum
+	{
+		playModeStop,
+		playModeSdFile,
+		playModeSampleBank,
 
+	};
+
+	void playSdFile();
+	void playSampleFromBank();
+	void stopPlaying();
 //=======================================================================
 
 //przyciski  ------------------------------------------------------------

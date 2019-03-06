@@ -76,6 +76,9 @@ private:
 		// globals
 		valueMasterVolume,
 		valueTempo,
+		valueReverbRoomSize,
+		valueReverbDamping,
+		valueReverbPanning,
 
 
 		// config
@@ -92,6 +95,9 @@ private:
 		//globals
 		mtDispValueValue_0_100,				//
 		mtDispValueValueNumberOnly,			//
+		mtDispValueValue_0_100,				//
+		mtDispValueValue_0_100,				//
+		mtDispValueValueLeftRight_100_100,	//
 
 
 		//config
@@ -106,7 +112,10 @@ private:
 
 
 	//funkcje potow
-
+	void changeMasterVolume(int16_t value);
+	void changeReverbPanning(int16_t value);
+	void changeReverbRoomSize(int16_t value);
+	void changeReverbDamping(int16_t value);
 
 
 
@@ -156,6 +165,9 @@ private:
 	{
 		potFunctNone,
 		potFunctMasterVolume,
+		potFunctReverbRoomSize,
+		potFunctReverbDamping,
+		potFunctReverbPanning,
 
 
 		potFunctCodecInput,
@@ -172,6 +184,9 @@ private:
 	{
 		{0},
 		"Master Volume",
+		"Reverb Size",
+		"Reverb Damping",
+		"Reverb Panning",
 
 
 		"Signal Input",
@@ -187,6 +202,11 @@ private:
 			100, // potFunctionNone,
 			100, // potFunctionNone,
 			100, // potFunctionNone,
+			100, // potFunctionNone,
+
+
+			100, // potFunctionNone,
+			100, // potFunctionNone,
 
 	};
 
@@ -194,6 +214,10 @@ private:
 	{
 			3, // potFunctionNone,
 			3, // potFunctionNone,
+			3, // potFunctionNone,
+			3, // potFunctionNone,
+			3, // potFunctionNone,
+
 			3, // potFunctionNone,
 			3, // potFunctionNone,
 

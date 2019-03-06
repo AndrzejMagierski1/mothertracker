@@ -105,6 +105,11 @@ void audioEngine::init()
 
 //	setIn(inputSelectLineIn);
 //	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+
+//	setOut(outputSelectLineOut);
+//	audioShield.lineOutLevel(17,17);
+//	audioShield.inputSelect(AUDIO_INPUT_MIC);
+
 	setIn(inputSelectMic);
 	audioShield.inputSelect(AUDIO_INPUT_MIC);
 	audioShield.micGain(25);
@@ -344,7 +349,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	mixerR.gain(numPanChannel,gainR);
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
-	mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100);
+	mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
 
 
 	/*======================================================================================================*/
@@ -457,7 +462,7 @@ void playerEngine :: modTune(int8_t value)
 
 void playerEngine :: modReverbSend(uint8_t value)
 {
-	mixerL.gain(numPanChannel,value/100);
+	mixerL.gain(numPanChannel,value/100.0);
 }
 
 /*	void playerEngine:: resetMods(void)

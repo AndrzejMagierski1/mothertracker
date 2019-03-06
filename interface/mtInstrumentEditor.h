@@ -134,6 +134,7 @@ private:
 	void changeView(int16_t value);
 	void changeZoom(int16_t value);
 	void changePanning(uint8_t pot, int16_t value);
+	void changeReverbSend(int16_t value);
 	void changeGlide(int16_t value);
 	void changeFilter(int16_t value);
 	void changeResonance(int16_t value);
@@ -220,6 +221,7 @@ private:
 		valueVolume,
 		valueFinetune,
 		valueTune,
+		valueReverbSend,
 
 		//-------------------------------
 		valueCount
@@ -228,13 +230,14 @@ private:
 	uint8_t valuesTypes[valueCount] =
 	{
 		mtDispValueValueNone,				//mtInstrumentEditorPotValueNone,
-		mtDispValueValueLeftRight_0_100,	//mtInstrumentEditorPotValuePanning,
+		mtDispValueValueLeftRight_100_100,	//mtInstrumentEditorPotValuePanning,
 		mtDispValueValue_0_100,				//mtInstrumentEditorPotValueGlide,
 		mtDispValueValue_0_100,				//mtInstrumentEditorPotValueFilter,
 		mtDispValueValue_0_100,				//mtInstrumentEditorValueResonance,
 		mtDispValueValue_0_100,				//mtInstrumentEditorValueVolume,
 		mtDispValueValueLeftRight_100_100,	//mtInstrumentEditorValueFinetune,
 		mtDispValueValueLeftRight_24_24,	//mtInstrumentEditorValueTune,
+		mtDispValueValue_0_100,	//mtInstrumentEditorValueFinetune,
 	};
 
 	strMtDispEnvelope envelope;
@@ -327,6 +330,7 @@ private:
 		potFunctTune,
 		potFunctWavetablePos,
 		potFunctAddInstrumentSelect,
+		potFunctReverbSend,
 
 		//-------------------------------
 		potFunctCount
@@ -360,6 +364,8 @@ private:
 		"Tune",
 		"Wavetable",
 		"Select slot:",
+		"Reverb Send",
+
 	};
 
 	const uint16_t potFuncRes[potFunctCount] =
@@ -387,6 +393,7 @@ private:
 			100,     //potFunctTune,
             100,     //potFunctWavetablePos,
 			20,		 //potFunctAddInstrumentSelect,
+			100,	 //potFunctReverbSend,
 	};
 
 	const uint8_t potFuncAcc[potFunctCount] =
@@ -414,6 +421,7 @@ private:
 			3,	   //potFunctTune,
 			3,	   //potFunctWavetablePos,
 			0,	   //potFunctAddInstrumentSelect,
+			3,	   //potFunctReverbSend,
 	};
 
 };

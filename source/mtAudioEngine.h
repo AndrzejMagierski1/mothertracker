@@ -98,6 +98,7 @@ private:
 extern playerEngine instrumentPlayer[8];
 extern audioEngine engine;
 
+extern AudioPlaySdWav           playSdWav;
 extern AudioPlayMemory          playMem[8];
 extern AudioEffectEnvelope      envelopeAmp[8];
 extern envelopeGenerator		envelopeFilter[8];
