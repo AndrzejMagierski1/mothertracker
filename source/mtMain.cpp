@@ -45,6 +45,7 @@ void loop()
 
 	seqDisplay.update();
 	padsBacklight.update();
+
 	updateHardware();
 
 	engine.update();

@@ -11,7 +11,7 @@
 #include "mtSampleBankEditor.h"
 #include "mtStepEditor.h"
 #include "mtConfigEditor.h"
-
+#include "mtConfig.h"
 
 
 #include "mtInterface.h"
@@ -39,7 +39,7 @@ void cMtInterface::begin()
 	mtSampleBankEditor.setEventFunct(sampleBankEditorEvent);
 	mtConfigEditor.setEventFunct(configEditorEvent);
 
-
+	readConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
 
 //	fileManager.importProject("IMPORT","Project_001","Mirek");
 //	mtProjectEditor.writeInstrumentFile("instrument_000.mti", &mtProject.instrument[0]);

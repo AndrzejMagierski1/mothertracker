@@ -27,6 +27,7 @@ public:
 
 
 	void start();
+	void startRecorder();
 	void stop();
 
 
@@ -67,13 +68,19 @@ private:
 	void browseBack();
 	void browseCancel();
 	void browseSelectSlot();
-
+	void saveRecording();
+	void clearRecording();
+	void trimRecording();
 
 
 	//funkcje potow
 	void changeSampleListPos(int16_t value);
 	void changeFilesListPos(int16_t value);
 	void changeSlotsListPos(int16_t value);
+
+	void changeStartPoint(int16_t value);
+	void changeStopPoint(int16_t value);
+	void changeZoom(int16_t value);
 
 	uint8_t	refreshModule = 0;
 	uint8_t	moduleStart = 0;
@@ -137,6 +144,13 @@ private:
 	// spectrum
 	uint8_t spectrumEnabled;
 
+	enum
+	{
+		recordingStatusClear,
+		recordingStatusRecording,
+		recordingStatusRecorded,
+	};
+
 	uint16_t zoomWidth = MAX_16BIT;
 	int32_t zoomStart =  0;
 	int32_t zoomEnd = MAX_16BIT;
@@ -147,6 +161,11 @@ private:
 	const uint16_t SPECTRUM_DRAW_DELAY_VALUE = 500;
 	strMtDispSpectrum  spectrum;
 	elapsedMillis spectrumDrawDelay;
+
+	uint16_t startPoint;
+	uint16_t stopPoint = MAX_16BIT;
+
+	uint8_t recordingStatus = recordingStatusClear;
 
 	//-------------------------------------------------------------------
 	//ogolne
@@ -159,9 +178,16 @@ private:
 
 	};
 
+	void play(uint8_t type);
 	void playSdFile();
 	void playSampleFromBank();
 	void stopPlaying();
+
+
+	//-------------------------------------------------------------------
+	// recorder
+
+
 //=======================================================================
 
 //przyciski  ------------------------------------------------------------
@@ -180,7 +206,9 @@ private:
 
 		buttonFunctSelectSampleSlot,
 
-
+		buttonFunctSaveRecording,
+		buttonFucntTrimRecording,
+		buttonClearRecording,
 
 
 		//-------------------------------
@@ -205,6 +233,10 @@ private:
 
 		"Select",
 
+		"Save",
+		"Trim",
+		"Clear",
+
 
 	};
 
@@ -218,7 +250,9 @@ private:
 		potFunctChangeFileListPos,
 		potFunctChangeSlotListPos,
 
-
+		potFunctChangeStartPoint,
+		potFunctChangeStopPoint,
+		potFunctChangeZoom,
 
 		//-------------------------------
 		potFunctCount
@@ -234,6 +268,10 @@ private:
 		"Select file",
 		"Select slot",
 
+		"Start",
+		"Stop",
+		"Zoom",
+
 	};
 
 	const uint16_t potFuncRes[potFunctCount] =
@@ -243,6 +281,10 @@ private:
 			30,
 			30,
 
+			100,
+			100,
+			100,
+
 	};
 
 	const uint8_t potFuncAcc[potFunctCount] =
@@ -251,6 +293,10 @@ private:
 			0, //
 			0,
 			0,
+
+			3,
+			3,
+			3,
 	};
 
 };

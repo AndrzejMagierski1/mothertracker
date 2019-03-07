@@ -22,15 +22,6 @@ void cMtSampleBankEditor::update()
 	if(!refreshModule) return;
 	refreshModule = 0;
 
-
-	//-----------------------------------------------------
-	if(moduleStart)
-	{
-		moduleStart = 0;
-		labelsChanged = 2;
-		samplesListChanged = 2;
-		samplesListEnabled = 1;
-	}
 	//-----------------------------------------------------
 	if(labelsChanged)
 	{
@@ -50,43 +41,36 @@ void cMtSampleBankEditor::update()
 	//-----------------------------------------------------
 	if(spectrumChanged)
 	{
-
 		if(!spectrumEnabled)
 		{
 			spectrumChanged = 0;
 			mtDisplay.setSpectrum(0);
 			mtDisplay.setSpectrumPoints(0);
+
+			refreshModule = 1;
 			return;
 		}
 
 		if(spectrumChanged == 2)
 		{
-			mtDisplay.setSpectrum(1);
+			//mtDisplay.setSpectrum(1);
 			mtDisplay.setSpectrumPoints(1);
 
 			refreshModule = 1;
 			labelsChanged = 1;
 		}
 
-			spectrumChanged = 0;
+		spectrumChanged = 0;
+		pointsChanged = 1;
 
+		processSpectrum();
 
-			mtDisplay.setSpectrumPoints(1);
-			pointsChanged = 1;
-
-
-			processSpectrum();
-
-			mtDisplay.changeSpectrum(&spectrum);
-
-			refreshModule = 1;
+		mtDisplay.changeSpectrum(&spectrum);
 
 	}
 	//-----------------------------------------------------
 	if(pointsChanged)
 	{
-		pointsChanged = 0;
-
 		processPoints();
 		mtDisplay.changeSpectrumPoints(&spectrum);
 	}
@@ -187,77 +171,83 @@ void cMtSampleBankEditor::update()
 
 void cMtSampleBankEditor::start()
 {
-	moduleStart = 1;
+	samplesListChanged = 2;
+	samplesListEnabled = 1;
+
+	filesListEnabled = 0;
+	slotListEnabled = 0;
+	spectrumEnabled = 0;
+	filesListChanged = 1;
+	slotListChanged = 1;
+	spectrumChanged = 1;
+
+	if(spectrumEnabled) loadSamplesBank();
+
 	refreshModule = 1;
-
-
-
 }
 
 void cMtSampleBankEditor::stop()
 {
 	mtDisplay.setList(samples_list_pos, 0, 0, 0, 0, 0);
 	mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
+	mtDisplay.setSpectrum(0);
+	mtDisplay.setSpectrumPoints(0);
+
 	samplesListEnabled = 0;
 	filesListEnabled = 0;
 	slotListEnabled = 0;
+	spectrumEnabled = 0;
+
+
+	if(spectrumEnabled) loadSamplesBank();
 
 	if(playMode != playModeStop)
 	{
 		stopPlaying();
 	}
+}
 
+
+void cMtSampleBankEditor::startRecorder()
+{
+	samplesListEnabled = 0;
+	filesListEnabled = 0;
+	slotListEnabled = 0;
+	samplesListChanged = 1;
+	filesListChanged = 1;
+	slotListChanged = 1;
+
+	spectrumEnabled = 1;
+	spectrumChanged = 2;
+
+	refreshModule = 1;
 }
 
 
 
 void cMtSampleBankEditor::processSpectrum()
 {
-/*	if(SpectrumDrawDelay < SPECTRUM_DRAW_DELAY_VALUE)
-	{
-		spectrum.spectrumType = 3;
-		return;
-	}
-*/
-
-	if(1)
+	if(recordingStatus == recordingStatusClear)
 	{
 		for(uint16_t i = 0; i < 480; i++)
 		{
 			spectrum.upperData[i] = 0;
 			spectrum.lowerData[i] = 0;
 		}
-
 		return;
 	}
 
 	uint16_t offset_pixel;
 	int16_t * sampleData;
-
-
-
 	uint32_t resolution;
 
-/*
 	switch(lastChangedPoint)
 	{
-		case 0: zoomPosition = editorInstrument->startPoint; break; //MAX_16BIT/2; break;
+		case 0: zoomPosition = startPoint; break;
+		case 1: zoomPosition = stopPoint;  break;
 
-		case 1:
-			zoomPosition = editorInstrument->startPoint;
-		break;
-		case 2:
-			zoomPosition = editorInstrument->endPoint;
-		break;
-
-
-		default: zoomPosition = editorInstrument->startPoint; break; //MAX_16BIT/2; break;
+		default: zoomPosition = startPoint; break;
 	}
-
-*/
-
-
-
 
 
 	if(zoomValue > 1.0)
@@ -283,27 +273,12 @@ void cMtSampleBankEditor::processSpectrum()
 			offset_pixel = ((zoomPosition-zoomStart) * 479) / zoomWidth;
 		}
 
-
-		//uint32_t offset = ((float)zoomPosition/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument->sampleIndex].length;
-
-		//sampleData = mtProject.sampleBank.sample[editorInstrument->sampleIndex].address + offset;
-
-		//resolution = (((float)zoomWidth/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument->sampleIndex].length ) / 480;
-
-
-//		Serial.print(zoomValue);
-//		Serial.print("   ");
-//		Serial.print(zoomStart);
-//		Serial.print("   ");
-//		Serial.print(zoomEnd);
-//		Serial.print("   ");
-//
-//		Serial.println();
-
+		uint32_t offset = ((float)zoomPosition/MAX_16BIT) * recorder.getLength();
+		sampleData = recorder.getAddress() + offset;
+		resolution = (((float)zoomWidth/MAX_16BIT) * recorder.getLength() ) / 480;
 	}
 	else
 	{
-
 		offset_pixel = 0;
 		zoomWidth = MAX_16BIT;
 		zoomStart = 0;
@@ -317,12 +292,9 @@ void cMtSampleBankEditor::processSpectrum()
 
 	if(resolution < 1) resolution = 1;
 
-
 	int16_t up = 0;
 	int16_t low = 0;
-
 	uint32_t step = 0;
-
 
 
 	if(offset_pixel > 0)
@@ -378,14 +350,56 @@ void cMtSampleBankEditor::processSpectrum()
 
 	if(resolution <= 1) spectrum.spectrumType = 1;
 	else spectrum.spectrumType = 0;
-
 }
 
 
 void cMtSampleBankEditor::processPoints()
 {
+	spectrum.pointsType = singleShot;
 
-	spectrum;
+	if(startPoint >= zoomStart && startPoint <= zoomEnd)
+	{
+		spectrum.startPoint = ((startPoint-zoomStart) * 479) / zoomWidth;
+	}
+	else spectrum.startPoint = -1;
+
+	if(stopPoint >= zoomStart && stopPoint <= zoomEnd)
+	{
+		spectrum.endPoint = ((stopPoint-zoomStart) * 479) / zoomWidth;
+	}
+	else spectrum.endPoint = -1;
+}
+
+void cMtSampleBankEditor::saveRecording()
+{
+
+}
+
+void cMtSampleBankEditor::clearRecording()
+{
+
+	recordingStatus = recordingStatusClear;
+	refreshModule = 1;
+}
+
+void cMtSampleBankEditor::trimRecording()
+{
+
+}
+
+
+void cMtSampleBankEditor::changeStartPoint(int16_t value)
+{
+
+}
+
+void cMtSampleBankEditor::changeStopPoint(int16_t value)
+{
+
+}
+
+void cMtSampleBankEditor::changeZoom(int16_t value)
+{
 
 }
 
@@ -401,80 +415,92 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 
 	if(n == interfacePadPlay)
 	{
-		if(type == 1)
-		{
-			if(filesListEnabled) playSdFile();
-			else playSampleFromBank();
-		}
-		else
-		{
-			stopPlaying();
-		}
+		sequencer.stop();
+		play(type);
+
+		return 0;
 	}
+	if(n == interfacePadStop && recordingStatus > 0)
+	{
+		if(recordingStatus == recordingStatusRecording)
+		{
+			recorder.stopRecording();
+			recordingStatus = recordingStatusRecorded;
+		}
+		else if(recordingStatus == recordingStatusRecorded) recorder.stop();
+
+		refreshModule = 1;
+
+		return 0;
+	}
+	if(n == interfacePadRec && recordingStatus == recordingStatusClear)
+	{
+		recordingStatus = recordingStatusRecording;
+
+		sequencer.stop();
+		recorder.startRecording(sdram_sampleBank);
+		refreshModule = 1;
+		return 0;
+	}
+
+			if(n==16)
+	        {
+	            recorder.startRecording(sdram_sampleBank);
+
+	        }
+	        else if(n==17)
+	        {
+	            recorder.stopRecording();
+	        }
+	        else if(n==18)
+	        {
+	            recorder.play(0, MAX_16BIT);
+	        }
+	        else if(n==19)
+	        {
+	            recorder.stop();
+	        }
+	        else if(n==20)
+	        {
+	            recorder.save();
+	        }
+
+
 
 	if(type == 1)
 	{
-		if(n == interfacePadInstrumentEditor)
+		switch(n)
 		{
+		case interfacePadPlay                 :    sequencer.play();    break;
+		case interfacePadStop                 :    sequencer.stop();    break;
+		case interfacePadProjectEditor        :
+		case interfacePadInstrumentEditor     :
+		case interfacePadConfig               :
+		case interfacePadSettings             :
+
 			stop();
 			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadProjectEditor)
-		{
-			stop();
-			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadConfig)
-		{
-			stop();
-			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadSettings)
-		{
-			stop();
-			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadPlay)
-		{
 
-		}
-		else if(n == interfacePadStop)
-		{
-			stopPlaying();
-			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadRec)
-		{
+		break;
 
-
-
-		}
-
-
-
+		case interfacePadRecorder			:	startRecorder(); 	   break;
+		case interfacePadSampleBank			:	start();			   break;
 
 
 /*
-		recorder.startRecording(sdram_sampleBank);
-
-		}
-		else if(n==9)
-		{
-			recorder.stopRecording();
-		}
-		else if(n==10)
-		{
-			recorder.play(0, MAX_16BIT);
-		}
-		else if(n==11)
-		{
-			recorder.stop();
-		}
-		else if(n==12)
-		{
-			recorder.save();
-		}
+		case interfacePadNotes       :  setActualEditedStepParam(stepParamNote);   break;
+		case interfacePadInstr       :  setActualEditedStepParam(stepParamInstr);   break;
+		case interfacePadVelocity    :  setActualEditedStepParam(stepParamVolume);   break;
+		case interfacePadFx          :  setActualEditedStepParam(stepParamFx);   break;
+		case interfacePadFxParams    :  setActualEditedStepParam(stepParamFxParams);   break;
+		case interfacePadUp          :  moveActualStep(0);   break;
+		case interfacePadLeft        :  moveActualStep(3);   break;
+		case interfacePadDown        :  moveActualStep(2);   break;
+		case interfacePadRight       :  moveActualStep(1);   break;
 */
+		default: break;
+		}
+
 	}
 
 	return 0;
@@ -500,6 +526,11 @@ void cMtSampleBankEditor::buttonChange(uint8_t button, uint8_t value)
 		case buttonFunctSelectSampleSlot	:	browseSelectSlot();	break;
 
 
+		case buttonFunctSaveRecording		:	saveRecording();	break;
+		case buttonFucntTrimRecording		:	trimRecording();	break;
+		case buttonClearRecording			:	clearRecording();	break;
+
+
 
 		default: break;
 		}
@@ -518,6 +549,10 @@ void cMtSampleBankEditor::potChange(uint8_t pot, int16_t value)
 		case potFunctChangeSamplesListPos	:	changeSampleListPos(value);	break;
 		case potFunctChangeFileListPos		:	changeFilesListPos(value);	break;
 		case potFunctChangeSlotListPos		:	changeSlotsListPos(value);	break;
+
+		case potFunctChangeStartPoint		:	changeStartPoint(value);	break;
+		case potFunctChangeStopPoint		:	changeStopPoint(value);		break;
+		case potFunctChangeZoom				:	changeZoom(value);			break;
 
 		default: break;
 	}
@@ -613,6 +648,15 @@ void cMtSampleBankEditor::updateButtonsFunctions()
 		setButtonFunction(0, buttonFunctSelectSampleSlot);
 		setButtonFunction(1, buttonFunctBrowseCancel);
 	}
+	else if(spectrumEnabled)
+	{
+		if(recordingStatus == recordingStatusRecorded)
+		{
+			setButtonFunction(0, buttonFunctSaveRecording);
+			setButtonFunction(1, buttonFucntTrimRecording);
+			setButtonFunction(1, buttonClearRecording);
+		}
+	}
 	else
 	{
 		setButtonFunction(0, buttonFunctImportSample);
@@ -670,15 +714,27 @@ void cMtSampleBankEditor::updatePotsFunctions()
 
 //--------------------------------------------------------
 
-	setPotFunction(3, potFunctChangeSamplesListPos);
+
 
 	if(filesListEnabled)
 	{
 		setPotFunction(0, potFunctChangeFileListPos);
+		setPotFunction(3, potFunctChangeSamplesListPos);
 	}
 	else if(slotListEnabled)
 	{
 		setPotFunction(0, potFunctChangeSlotListPos);
+		setPotFunction(3, potFunctChangeSamplesListPos);
+	}
+	else if(spectrumEnabled)
+	{
+		setPotFunction(0, potFunctChangeStartPoint);
+		setPotFunction(2, potFunctChangeZoom);
+		setPotFunction(4, potFunctChangeStopPoint);
+	}
+	else
+	{
+		setPotFunction(3, potFunctChangeSamplesListPos);
 	}
 
 
@@ -972,6 +1028,25 @@ void cMtSampleBankEditor::listSampleSlots()
 	}
 
 }
+void cMtSampleBankEditor::play(uint8_t type)
+{
+	if(spectrumEnabled)
+	{
+		if(recordingStatus == recordingStatusRecorded) recorder.play(startPoint, stopPoint);
+	}
+	else
+	{
+		if(type == 1)
+		{
+			if(filesListEnabled) playSdFile();
+			else playSampleFromBank();
+		}
+		else
+		{
+			stopPlaying();
+		}
+	}
+}
 
 void cMtSampleBankEditor::playSdFile()
 {
@@ -1090,5 +1165,6 @@ uint8_t cMtSampleBankEditor::loadSamplesBank()
 
 	return 0;
 }
+
 
 

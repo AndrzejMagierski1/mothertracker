@@ -130,7 +130,7 @@ enum memoryPlayStatus
 	pointsBeyondFile
 };
 
-enum playMode
+enum instrumentPlayMode
 {
 	singleShot=0,
 	loopForward,
@@ -195,17 +195,23 @@ enum envelopeTypes
 	envelopeTypeMax,
 };
 
+//---------------------------------------
 enum inputSelect
 {
 	inputSelectLineIn,
-	inputSelectMic
+	inputSelectMic,
+
+	inputSelectCount
 };
 
 enum outputSelect
 {
 	outputSelectLineOut,
 	outputSelectHeadphones,
+
+	outputSelectCount
 };
+//---------------------------------------
 
 enum fileType
 {

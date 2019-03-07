@@ -485,6 +485,7 @@ void cMtDisplay::ramg_spectrum_view()
 	API_LINE_WIDTH(8);
 
 	elementsState.waitSpinner = 0;
+	elementsState.spectrumView = 1;
 
 	if(ptrSpectrum->spectrumType == 1)
 	{

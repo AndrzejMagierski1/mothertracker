@@ -11,7 +11,7 @@
 #include "mtLFO.h"
 #include "mtHardware.h"
 #include "mtRecorder.h"
-#include "mtConfig.h"
+
 
 class audioEngine
 {

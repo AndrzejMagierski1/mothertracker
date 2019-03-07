@@ -2,7 +2,7 @@
 #include "mtDisplay.h"
 #include "AnalogInputs.h"
 #include "mtAudioEngine.h"
-
+#include "mtConfig.h"
 #include "mtInterfaceDefs.h"
 
 #include "mtConfigEditor.h"
@@ -86,6 +86,7 @@ void cMtConfigEditor::stop()
 {
 	mtDisplay.setValue(0);
 
+	saveConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
 
 }
 
@@ -99,37 +100,30 @@ uint8_t cMtConfigEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 {
 	if(type == 1)
 	{
-		if(n == interfacePadProjectEditor)
+		switch(n)
 		{
-			stop();
-			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadInstrumentEditor)
-		{
-			stop();
-			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadSampleBank)
-		{
-			stop();
-			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadPlay || n == interfacePadStop)
-		{
-			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
-		}
-		//--------------------------------------------------------
-		else if(n == interfacePadConfig)
-		{
-			switchParametersType(mtConfigEditorStartModeConfig);
-		}
-		else if(n == interfacePadSettings)
-		{
-			switchParametersType(mtConfigEditorStartModeGlobals);
-		}
+		case interfacePadPlay                 :    sequencer.play();    break;
+		case interfacePadStop                 :    sequencer.stop();    break;
+		case interfacePadProjectEditor        :
+		case interfacePadSampleBank           :
+		case interfacePadInstrumentEditor     :
+		case interfacePadRecorder             :
 
+			stop();
+			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
+
+		break;
+
+		case interfacePadConfig       :  switchParametersType(mtConfigEditorStartModeConfig);    break;
+		case interfacePadSettings     :  switchParametersType(mtConfigEditorStartModeGlobals);   break;
+
+
+		default: break;
+		}
 
 	}
+
+
 
 	return 0;
 }

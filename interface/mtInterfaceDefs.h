@@ -11,7 +11,7 @@ enum mtInterfacePadButtonsFunctions
 //1
 	interfacePadPlay,
 	interfacePadStop,
-	empty2,
+	interfacePadRec,
 	interfacePadProjectEditor,
 	interfacePadSampleBank,
 	interfacePadInstrumentEditor,
@@ -21,7 +21,7 @@ enum mtInterfacePadButtonsFunctions
 	empty8,
 	empty9,
 	empty10,
-	interfacePadRec,
+	interfacePadRecorder,
 	interfacePadParams,
 	interfacePadEnvelopes,
 	empty14,

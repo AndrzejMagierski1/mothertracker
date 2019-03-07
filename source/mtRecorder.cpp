@@ -57,13 +57,13 @@ void Recorder::stopRecording()
 
 void Recorder::play(uint16_t start, uint16_t stop)
 {
-uint32_t length;
-uint32_t addressShift;
-length =(uint32_t)((uint32_t)stop * (float)(recByteSaved/2)/MAX_16BIT);
+	uint32_t length;
+	uint32_t addressShift;
+	length =(uint32_t)((uint32_t)stop * (float)(recByteSaved/2)/MAX_16BIT);
 
-addressShift = (uint32_t)( (uint32_t)start * (float)(recByteSaved/2)/MAX_16BIT);
+	addressShift = (uint32_t)( (uint32_t)start * (float)(recByteSaved/2)/MAX_16BIT);
 
-instrumentPlayer[0].noteOnforPrev(startAddress + addressShift,length);
+	instrumentPlayer[0].noteOnforPrev(startAddress + addressShift,length);
 }
 
 void Recorder::stop()
