@@ -21,7 +21,7 @@ enum mtInterfacePadButtonsFunctions
 	empty8,
 	empty9,
 	empty10,
-	empty11,
+	interfacePadRec,
 	interfacePadParams,
 	interfacePadEnvelopes,
 	empty14,

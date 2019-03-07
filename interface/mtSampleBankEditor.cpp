@@ -48,6 +48,49 @@ void cMtSampleBankEditor::update()
 		processLabels();
 	}
 	//-----------------------------------------------------
+	if(spectrumChanged)
+	{
+
+		if(!spectrumEnabled)
+		{
+			spectrumChanged = 0;
+			mtDisplay.setSpectrum(0);
+			mtDisplay.setSpectrumPoints(0);
+			return;
+		}
+
+		if(spectrumChanged == 2)
+		{
+			mtDisplay.setSpectrum(1);
+			mtDisplay.setSpectrumPoints(1);
+
+			refreshModule = 1;
+			labelsChanged = 1;
+		}
+
+			spectrumChanged = 0;
+
+
+			mtDisplay.setSpectrumPoints(1);
+			pointsChanged = 1;
+
+
+			processSpectrum();
+
+			mtDisplay.changeSpectrum(&spectrum);
+
+			refreshModule = 1;
+
+	}
+	//-----------------------------------------------------
+	if(pointsChanged)
+	{
+		pointsChanged = 0;
+
+		processPoints();
+		mtDisplay.changeSpectrumPoints(&spectrum);
+	}
+	//-----------------------------------------------------
 	if(samplesListChanged)
 	{
 		labelsChanged = 1;
@@ -305,6 +348,186 @@ void cMtSampleBankEditor::stopPlaying()
 	playMode = playModeStop;
 }
 
+
+void cMtSampleBankEditor::processSpectrum()
+{
+/*	if(SpectrumDrawDelay < SPECTRUM_DRAW_DELAY_VALUE)
+	{
+		spectrum.spectrumType = 3;
+		return;
+	}
+*/
+	// uwaga tu wazna kolejnosc + do sprawdzenia
+	if(1)
+	{
+		for(uint16_t i = 0; i < 480; i++)
+		{
+			spectrum.upperData[i] = 0;
+			spectrum.lowerData[i] = 0;
+		}
+
+		return;
+	}
+
+	uint16_t offset_pixel;
+	int16_t * sampleData;
+
+
+
+	uint32_t resolution;
+
+/*
+	switch(lastChangedPoint)
+	{
+		case 0: zoomPosition = editorInstrument->startPoint; break; //MAX_16BIT/2; break;
+
+		case 1:
+			zoomPosition = editorInstrument->startPoint;
+		break;
+		case 2:
+			zoomPosition = editorInstrument->endPoint;
+		break;
+
+
+		default: zoomPosition = editorInstrument->startPoint; break; //MAX_16BIT/2; break;
+	}
+
+*/
+
+
+
+
+
+	if(zoomValue > 1.0)
+	{
+		zoomWidth = (MAX_16BIT/zoomValue);
+		zoomStart =  zoomPosition - zoomWidth/2;
+		zoomEnd = zoomPosition + zoomWidth/2;
+
+		if(zoomStart < 0)
+		{
+			zoomEnd = zoomWidth;
+			zoomStart = 0;
+			offset_pixel = ((zoomPosition-zoomStart) * 479) / zoomWidth;
+		}
+		else if(zoomEnd > MAX_16BIT)
+		{
+			zoomEnd = MAX_16BIT;
+			zoomStart = MAX_16BIT-zoomWidth;
+			offset_pixel = ((zoomPosition-zoomStart) * 479) / zoomWidth;
+		}
+		else
+		{
+			offset_pixel = ((zoomPosition-zoomStart) * 479) / zoomWidth;
+		}
+
+
+		uint32_t offset = ((float)zoomPosition/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument->sampleIndex].length;
+
+		sampleData = mtProject.sampleBank.sample[editorInstrument->sampleIndex].address + offset;
+
+		resolution = (((float)zoomWidth/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument->sampleIndex].length ) / 480;
+
+
+//		Serial.print(zoomValue);
+//		Serial.print("   ");
+//		Serial.print(zoomStart);
+//		Serial.print("   ");
+//		Serial.print(zoomEnd);
+//		Serial.print("   ");
+//
+//		Serial.println();
+
+	}
+	else
+	{
+
+		offset_pixel = 0;
+		zoomWidth = MAX_16BIT;
+		zoomStart = 0;
+		zoomEnd = MAX_16BIT;
+
+		// TODO
+		sampleData = mtProject.sampleBank.sample[0].address;
+		resolution = mtProject.sampleBank.sample[0].length / 480;
+	}
+
+
+	if(resolution < 1) resolution = 1;
+
+
+	int16_t up = 0;
+	int16_t low = 0;
+
+	uint32_t step = 0;
+
+
+
+	if(offset_pixel > 0)
+	{
+		for(int16_t i = offset_pixel-1; i >= 0; i--)
+		{
+			low = up = 0; //*(sampleData+step);
+
+			for(uint16_t j = 0; j < resolution; j++)
+			{
+				int16_t sample = *(sampleData-step+j);
+
+				if(sample > up)  up = sample;
+				else if(sample < low) low = sample;
+
+			}
+			step+= resolution;
+
+			up = up/1000;
+			low = low/1000;
+
+			spectrum.upperData[i] =  up;
+			spectrum.lowerData[i] = low;
+		}
+	}
+
+	up = 0;
+	low = 0;
+	step = 0;
+
+
+	for(uint16_t i = offset_pixel; i < 480; i++)
+	{
+		low = up = 0; //*(sampleData+step);
+
+		for(uint16_t j = 0; j < resolution; j++)
+		{
+			int16_t sample = *(sampleData+step+j);
+
+
+			if(sample > up)  up = sample;
+			else if(sample < low) low = sample;
+
+		}
+		step+= resolution;
+
+		up = up/1000;
+		low = low/1000;
+
+		spectrum.upperData[i] =  up;
+		spectrum.lowerData[i] = low;
+	}
+
+	if(resolution <= 1) spectrum.spectrumType = 1;
+	else spectrum.spectrumType = 0;
+
+}
+
+
+void cMtSampleBankEditor::processPoints()
+{
+
+	spectrum;
+
+}
+
+
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
@@ -358,9 +581,19 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 			stopPlaying();
 			eventFunct(mtSampleBankEditorEventPadPress, &n, 0, 0);
 		}
-		else if(n==8)
+		else if(n == interfacePadRec)
 		{
-			recorder.startRecording(sdram_sampleBank);
+
+
+
+		}
+
+
+
+
+
+/*
+		recorder.startRecording(sdram_sampleBank);
 
 		}
 		else if(n==9)
@@ -379,6 +612,7 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		{
 			recorder.save();
 		}
+*/
 	}
 
 	return 0;

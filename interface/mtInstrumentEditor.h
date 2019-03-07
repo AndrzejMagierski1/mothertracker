@@ -237,7 +237,7 @@ private:
 		mtDispValueValue_0_100,				//mtInstrumentEditorValueVolume,
 		mtDispValueValueLeftRight_100_100,	//mtInstrumentEditorValueFinetune,
 		mtDispValueValueLeftRight_24_24,	//mtInstrumentEditorValueTune,
-		mtDispValueValue_0_100,	//mtInstrumentEditorValueFinetune,
+		mtDispValueValue_0_100,				//mtInstrumentEditorValueFinetune,
 	};
 
 	strMtDispEnvelope envelope;

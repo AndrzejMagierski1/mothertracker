@@ -42,6 +42,8 @@ public:
 private:
 
 	void processLabels();
+	void processSpectrum();
+	void processPoints();
 
 
 	void setButtonLabel(uint8_t number, char * label);
@@ -84,7 +86,8 @@ private:
 	uint8_t filesListChanged;
 	uint8_t samplesListChanged;
 	uint8_t slotListChanged;
-
+	uint8_t spectrumChanged;
+	uint8_t pointsChanged;
 
 	static const uint8_t samples_list_length_max = SAMPLES_MAX;
 	const uint8_t samples_list_pos = 3;
@@ -129,8 +132,23 @@ private:
 	void getSelectedFileType();
 
 	void listSampleSlots();
-	//-------------------------------------------------------------------
 
+	//-------------------------------------------------------------------
+	// spectrum
+	uint8_t spectrumEnabled;
+
+	uint16_t zoomWidth = MAX_16BIT;
+	int32_t zoomStart =  0;
+	int32_t zoomEnd = MAX_16BIT;
+	uint8_t lastChangedPoint = 0;
+	float zoomValue = 1;
+	uint16_t zoomPosition = 0;
+
+	const uint16_t SPECTRUM_DRAW_DELAY_VALUE = 500;
+	strMtDispSpectrum  spectrum;
+	elapsedMillis spectrumDrawDelay;
+
+	//-------------------------------------------------------------------
 	//ogolne
 	uint8_t playMode = 0;
 	enum
