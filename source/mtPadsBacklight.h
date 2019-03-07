@@ -15,13 +15,13 @@ public:
 	void init(uint16_t blink);
 	void update();
 	void startBlink(uint8_t gamma_pwm, uint8_t n);
-	void stopBlink(uint8_t gamma_pwm, uint8_t n);
+	void stopBlink(uint8_t n);
 	void setFrontLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n );
 	void setBackLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n );
-
+	void clearAllPads(uint8_t front, uint8_t back, uint8_t blink);
 
 private:
-	void clearAllPads();
+
 	elapsedMillis blinkTimer;
 	uint8_t backLayer[64];
 	uint8_t blinkLayer[64];

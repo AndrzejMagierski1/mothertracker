@@ -31,7 +31,6 @@ void onPowerButtonChange(uint8_t value);
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
 	//mtInterface.padPressed(n,x,y,velo);
-	padsBacklight.setBackLayer(1, 5, n);
 	padsBacklight.startBlink(31, n);
 
 	//mtPrint("Pad press: ");
