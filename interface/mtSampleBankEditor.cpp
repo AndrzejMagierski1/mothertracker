@@ -209,144 +209,6 @@ void cMtSampleBankEditor::stop()
 
 }
 
-void cMtSampleBankEditor::listOnlyDirAndWavFromActualPath()
-{
-
-	sdLocation.close();
-	sdLocation.open(filePath, O_READ);
-
-	if(dirLevel == 0)
-	{
-		locationFilesCount = sdLocation.createFilesList(0,locationFilesList, files_list_length_max);
-	}
-	else
-	{
-		strcpy(&locationFilesList[0][0], "/..");
-		locationFilesCount = sdLocation.createFilesList(1,locationFilesList, files_list_length_max-1);
-	}
-
-
-	sdLocation.close();
-
-
-	uint8_t foundFilesCount = 0;
-	for(uint8_t i = 0; i < locationFilesCount; i++)
-	{
-		if(locationFilesList[i][0] == '/' || isWavFile(&locationFilesList[i][0]))	//tylko jesli folder albo plik wav
-		{
-			strcpy(&locationFilesList[foundFilesCount][0],&locationFilesList[i][0]);
-			foundFilesCount++;
-		}
-	}
-
-
-	locationFilesCount = foundFilesCount;
-
-	for(uint8_t i = 0; i < locationFilesCount; i++)
-	{
-		filesNames[i] = &locationFilesList[i][0];
-	}
-}
-
-uint8_t cMtSampleBankEditor::isWavFile(char* fileName)
-{
-	uint8_t endPos = 0;
-	char temp_name[32];
-	strcpy(temp_name, fileName);
-
-	while(temp_name[endPos] != 0 && endPos < 19)
-	{
-		if(temp_name[endPos] > 96 && temp_name[endPos] < 123) temp_name[endPos] = temp_name[endPos] - 32;
-		endPos++;
-	}
-
-	endPos--;
-
-	if(temp_name[endPos] == 'V' && temp_name[endPos-1] == 'A' && temp_name[endPos-2] == 'W' && temp_name[endPos-3] == '.')
-	{
-		return 1;
-	}
-
-	return 0;
-}
-
-void cMtSampleBankEditor::getSelectedFileType()
-{
-	if(locationFilesList[selectedLocation][0] == '/') selectedFileType = 0;
-	else selectedFileType = 1;
-
-}
-
-void cMtSampleBankEditor::listSampleSlots()
-{
-	for(uint8_t i = 0; i < SAMPLES_COUNT; i++)
-	{
-		if(i<9)
-		{
-			slotNames[i][0] = (i+1)%10 + 48;
-			slotNames[i][1] = '.';
-			slotNames[i][2] = ' ';
-			slotNames[i][3] = 0;
-		}
-		else
-		{
-			slotNames[i][0] = (((i+1)-(i)%10)/10) + 48;
-			slotNames[i][1] = (i+1)%10 + 48;
-			slotNames[i][2] = '.';
-			slotNames[i][3] = ' ';
-			slotNames[i][4] = 0;
-		}
-
-		if(mtProject.sampleBank.sample[i].loaded)
-		{
-			strcat(&slotNames[i][0], mtProject.sampleBank.sample[i].file_name);
-		}
-
-		ptrSlotNames[i] = &slotNames[i][0];
-	}
-
-}
-
-void cMtSampleBankEditor::playSdFile()
-{
-	if(!isWavFile(&locationFilesList[selectedLocation][0])) return;
-
-	char file_path[255];
-
-	strcpy(file_path, filePath);
-	strcat(file_path, &locationFilesList[selectedLocation][0]);
-
-	playMode = playModeSdFile;
-
-	engine.prevSdConnect();
-
-	playSdWav.play(file_path);
-
-}
-
-void cMtSampleBankEditor::playSampleFromBank()
-{
-	playMode = playModeSampleBank;
-
-	instrumentPlayer[0].noteOnforPrev(mtProject.sampleBank.sample[samplesIndex[sampleListPos]].address,
-									  mtProject.sampleBank.sample[samplesIndex[sampleListPos]].length);
-}
-
-
-void cMtSampleBankEditor::stopPlaying()
-{
-	if(playMode == playModeSdFile)
-	{
-		playSdWav.stop();
-		engine.prevSdDisconnect();
-	}
-	else if(playMode == playModeSampleBank)
-	{
-		instrumentPlayer[0].noteOff();
-	}
-
-	playMode = playModeStop;
-}
 
 
 void cMtSampleBankEditor::processSpectrum()
@@ -357,7 +219,7 @@ void cMtSampleBankEditor::processSpectrum()
 		return;
 	}
 */
-	// uwaga tu wazna kolejnosc + do sprawdzenia
+
 	if(1)
 	{
 		for(uint16_t i = 0; i < 480; i++)
@@ -422,11 +284,11 @@ void cMtSampleBankEditor::processSpectrum()
 		}
 
 
-		uint32_t offset = ((float)zoomPosition/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument->sampleIndex].length;
+		//uint32_t offset = ((float)zoomPosition/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument->sampleIndex].length;
 
-		sampleData = mtProject.sampleBank.sample[editorInstrument->sampleIndex].address + offset;
+		//sampleData = mtProject.sampleBank.sample[editorInstrument->sampleIndex].address + offset;
 
-		resolution = (((float)zoomWidth/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument->sampleIndex].length ) / 480;
+		//resolution = (((float)zoomWidth/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument->sampleIndex].length ) / 480;
 
 
 //		Serial.print(zoomValue);
@@ -699,81 +561,16 @@ void cMtSampleBankEditor::processLabels()
 //#########################################################################################################
 //#########################################################################################################
 
-uint8_t cMtSampleBankEditor::loadSamplesBank()
-{
-	//zaladowanie banku sampli
-	char currentPatch[PATCH_SIZE];
-
-	int32_t size;
-	mtProject.sampleBank.used_memory = 0;
-
-	mtProject.sampleBank.sample[0].address = sdram_sampleBank;
-	mtProject.sampleBank.samples_count = 0;
-
-	for(uint8_t i = 0; i < SAMPLES_COUNT; i++)
-	{
-		if(fileManager.currentProjectPatch != NULL)
-		{
-			memset(currentPatch,0,PATCH_SIZE);
-			strcpy(currentPatch,fileManager.currentProjectPatch);
-			strcat(currentPatch,"/samples/");
-			strcat(currentPatch,mtProject.sampleBank.sample[i].file_name);
-		}
-
-
-		if(mtProject.sampleBank.sample[i].type == mtSampleTypeWavetable)
-		{
-
-			//size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
-
-			//size = loadFullWavetableSerum("DirtySaw",mtProject.sampleBank.sample[i].address);
-
-			size = loadWavetable(currentPatch, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
-
-		}
-		else
-		{
-			size = loadSample(currentPatch, mtProject.sampleBank.sample[i].address);
-		}
-
-
-		if(size > 0)
-		{
-			mtProject.sampleBank.used_memory += size*2;
-			mtProject.sampleBank.sample[i].loaded = 1;
-			mtProject.sampleBank.sample[i].length = size;
-
-			mtProject.sampleBank.samples_count++;
-		}
-		else
-		{
-			mtProject.sampleBank.sample[i].loaded = 0;
-			mtProject.sampleBank.sample[i].length = 0;
-			mtProject.sampleBank.sample[i].file_name[0] = '-';
-			mtProject.sampleBank.sample[i].file_name[1] = 'e';
-			mtProject.sampleBank.sample[i].file_name[2] = 'm';
-			mtProject.sampleBank.sample[i].file_name[3] = 'p';
-			mtProject.sampleBank.sample[i].file_name[4] = 't';
-			mtProject.sampleBank.sample[i].file_name[5] = 'y';
-			mtProject.sampleBank.sample[i].file_name[6] = '-';
-			mtProject.sampleBank.sample[i].file_name[7] = 0;
-			size = 0;
-			//return 2; // blad ladowania wave
-		}
-
-		if(i+1 < SAMPLES_COUNT)
-		{
-			mtProject.sampleBank.sample[i+1].address = mtProject.sampleBank.sample[i].address+size;
-		}
-		if(mtProject.sampleBank.used_memory > mtProject.sampleBank.max_memory) return 1; // out of memory
-	}
-
-	return 0;
-}
-
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+
 // BUTTONS
 
 void cMtSampleBankEditor::setButtonLabel(uint8_t function, char* label)
@@ -907,6 +704,13 @@ void cMtSampleBankEditor::setPotFunction(uint8_t number, uint8_t function)
 //#########################################################################################################
 //#########################################################################################################
 //#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+
 
 void cMtSampleBankEditor::importSample(uint8_t type)
 {
@@ -1058,3 +862,233 @@ void cMtSampleBankEditor::changeSlotsListPos(int16_t value)
 //	filesListChanged = 1;
 	refreshModule = 1;
 }
+
+
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+
+
+void cMtSampleBankEditor::listOnlyDirAndWavFromActualPath()
+{
+
+	sdLocation.close();
+	sdLocation.open(filePath, O_READ);
+
+	if(dirLevel == 0)
+	{
+		locationFilesCount = sdLocation.createFilesList(0,locationFilesList, files_list_length_max);
+	}
+	else
+	{
+		strcpy(&locationFilesList[0][0], "/..");
+		locationFilesCount = sdLocation.createFilesList(1,locationFilesList, files_list_length_max-1);
+	}
+
+
+	sdLocation.close();
+
+
+	uint8_t foundFilesCount = 0;
+	for(uint8_t i = 0; i < locationFilesCount; i++)
+	{
+		if(locationFilesList[i][0] == '/' || isWavFile(&locationFilesList[i][0]))	//tylko jesli folder albo plik wav
+		{
+			strcpy(&locationFilesList[foundFilesCount][0],&locationFilesList[i][0]);
+			foundFilesCount++;
+		}
+	}
+
+
+	locationFilesCount = foundFilesCount;
+
+	for(uint8_t i = 0; i < locationFilesCount; i++)
+	{
+		filesNames[i] = &locationFilesList[i][0];
+	}
+}
+
+uint8_t cMtSampleBankEditor::isWavFile(char* fileName)
+{
+	uint8_t endPos = 0;
+	char temp_name[32];
+	strcpy(temp_name, fileName);
+
+	while(temp_name[endPos] != 0 && endPos < 19)
+	{
+		if(temp_name[endPos] > 96 && temp_name[endPos] < 123) temp_name[endPos] = temp_name[endPos] - 32;
+		endPos++;
+	}
+
+	endPos--;
+
+	if(temp_name[endPos] == 'V' && temp_name[endPos-1] == 'A' && temp_name[endPos-2] == 'W' && temp_name[endPos-3] == '.')
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+void cMtSampleBankEditor::getSelectedFileType()
+{
+	if(locationFilesList[selectedLocation][0] == '/') selectedFileType = 0;
+	else selectedFileType = 1;
+
+}
+
+void cMtSampleBankEditor::listSampleSlots()
+{
+	for(uint8_t i = 0; i < SAMPLES_COUNT; i++)
+	{
+		if(i<9)
+		{
+			slotNames[i][0] = (i+1)%10 + 48;
+			slotNames[i][1] = '.';
+			slotNames[i][2] = ' ';
+			slotNames[i][3] = 0;
+		}
+		else
+		{
+			slotNames[i][0] = (((i+1)-(i)%10)/10) + 48;
+			slotNames[i][1] = (i+1)%10 + 48;
+			slotNames[i][2] = '.';
+			slotNames[i][3] = ' ';
+			slotNames[i][4] = 0;
+		}
+
+		if(mtProject.sampleBank.sample[i].loaded)
+		{
+			strcat(&slotNames[i][0], mtProject.sampleBank.sample[i].file_name);
+		}
+
+		ptrSlotNames[i] = &slotNames[i][0];
+	}
+
+}
+
+void cMtSampleBankEditor::playSdFile()
+{
+	if(!isWavFile(&locationFilesList[selectedLocation][0])) return;
+
+	char file_path[255];
+
+	strcpy(file_path, filePath);
+	strcat(file_path, &locationFilesList[selectedLocation][0]);
+
+	playMode = playModeSdFile;
+
+	engine.prevSdConnect();
+
+	playSdWav.play(file_path);
+
+}
+
+void cMtSampleBankEditor::playSampleFromBank()
+{
+	playMode = playModeSampleBank;
+
+	instrumentPlayer[0].noteOnforPrev(mtProject.sampleBank.sample[samplesIndex[sampleListPos]].address,
+									  mtProject.sampleBank.sample[samplesIndex[sampleListPos]].length);
+}
+
+
+void cMtSampleBankEditor::stopPlaying()
+{
+	if(playMode == playModeSdFile)
+	{
+		playSdWav.stop();
+		engine.prevSdDisconnect();
+	}
+	else if(playMode == playModeSampleBank)
+	{
+		instrumentPlayer[0].noteOff();
+	}
+
+	playMode = playModeStop;
+}
+
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+//#########################################################################################################
+
+uint8_t cMtSampleBankEditor::loadSamplesBank()
+{
+	//zaladowanie banku sampli
+	char currentPatch[PATCH_SIZE];
+
+	int32_t size;
+	mtProject.sampleBank.used_memory = 0;
+
+	mtProject.sampleBank.sample[0].address = sdram_sampleBank;
+	mtProject.sampleBank.samples_count = 0;
+
+	for(uint8_t i = 0; i < SAMPLES_COUNT; i++)
+	{
+		if(fileManager.currentProjectPatch != NULL)
+		{
+			memset(currentPatch,0,PATCH_SIZE);
+			strcpy(currentPatch,fileManager.currentProjectPatch);
+			strcat(currentPatch,"/samples/");
+			strcat(currentPatch,mtProject.sampleBank.sample[i].file_name);
+		}
+
+
+		if(mtProject.sampleBank.sample[i].type == mtSampleTypeWavetable)
+		{
+
+			//size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
+
+			//size = loadFullWavetableSerum("DirtySaw",mtProject.sampleBank.sample[i].address);
+
+			size = loadWavetable(currentPatch, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
+
+		}
+		else
+		{
+			size = loadSample(currentPatch, mtProject.sampleBank.sample[i].address);
+		}
+
+
+		if(size > 0)
+		{
+			mtProject.sampleBank.used_memory += size*2;
+			mtProject.sampleBank.sample[i].loaded = 1;
+			mtProject.sampleBank.sample[i].length = size;
+
+			mtProject.sampleBank.samples_count++;
+		}
+		else
+		{
+			mtProject.sampleBank.sample[i].loaded = 0;
+			mtProject.sampleBank.sample[i].length = 0;
+			mtProject.sampleBank.sample[i].file_name[0] = '-';
+			mtProject.sampleBank.sample[i].file_name[1] = 'e';
+			mtProject.sampleBank.sample[i].file_name[2] = 'm';
+			mtProject.sampleBank.sample[i].file_name[3] = 'p';
+			mtProject.sampleBank.sample[i].file_name[4] = 't';
+			mtProject.sampleBank.sample[i].file_name[5] = 'y';
+			mtProject.sampleBank.sample[i].file_name[6] = '-';
+			mtProject.sampleBank.sample[i].file_name[7] = 0;
+			size = 0;
+			//return 2; // blad ladowania wave
+		}
+
+		if(i+1 < SAMPLES_COUNT)
+		{
+			mtProject.sampleBank.sample[i+1].address = mtProject.sampleBank.sample[i].address+size;
+		}
+		if(mtProject.sampleBank.used_memory > mtProject.sampleBank.max_memory) return 1; // out of memory
+	}
+
+	return 0;
+}
+
+
