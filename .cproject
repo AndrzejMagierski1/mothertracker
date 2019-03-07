@@ -56,6 +56,7 @@
 									<listOptionValue builtIn="false" value="../libs/BlinkLed"/>
 									<listOptionValue builtIn="false" value="../libs/FastCRC"/>
 									<listOptionValue builtIn="false" value="../interface"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mothertracker/libs/EEPROM}&quot;"/>
 								</option>
 								<option id="com.crt.advproject.cpp.hdrlib.53466571" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.2141253513" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.general" valueType="enumerated"/>
@@ -104,6 +105,7 @@
 									<listOptionValue builtIn="false" value="../libs/BlinkLed"/>
 									<listOptionValue builtIn="false" value="../libs/FastCRC"/>
 									<listOptionValue builtIn="false" value="../interface"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mothertracker/libs/EEPROM}&quot;"/>
 								</option>
 								<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.637294101" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.general" valueType="enumerated"/>
 								<option id="com.crt.advproject.gcc.lto.101578116" name="Enable Link-time optimization (-flto)" superClass="com.crt.advproject.gcc.lto" useByScannerDiscovery="false" value="false" valueType="boolean"/>
@@ -134,6 +136,7 @@
 									<listOptionValue builtIn="false" value="../libs/BlinkLed"/>
 									<listOptionValue builtIn="false" value="../libs/FastCRC"/>
 									<listOptionValue builtIn="false" value="../interface"/>
+									<listOptionValue builtIn="false" value="../libs/EEPROM"/>
 								</option>
 								<option id="com.crt.advproject.gas.arch.731726900" name="Architecture" superClass="com.crt.advproject.gas.arch" useByScannerDiscovery="false" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.gas.fpu.985373801" name="Floating point" superClass="com.crt.advproject.gas.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gas.fpu.fpv4.hard" valueType="enumerated"/>
