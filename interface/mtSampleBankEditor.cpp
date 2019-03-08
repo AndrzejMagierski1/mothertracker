@@ -430,6 +430,8 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		else if(recordingStatus == recordingStatusRecorded) recorder.stop();
 
 		refreshModule = 1;
+		labelsChanged = 1;
+		spectrumChanged = 1;
 
 		return 0;
 	}
@@ -439,7 +441,10 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 
 		sequencer.stop();
 		recorder.startRecording(sdram_sampleBank);
+
 		refreshModule = 1;
+		labelsChanged = 1;
+		spectrumChanged = 1;
 		return 0;
 	}
 
@@ -1033,6 +1038,9 @@ void cMtSampleBankEditor::play(uint8_t type)
 	if(spectrumEnabled)
 	{
 		if(recordingStatus == recordingStatusRecorded) recorder.play(startPoint, stopPoint);
+		refreshModule = 1;
+		labelsChanged = 1;
+		spectrumChanged = 1;
 	}
 	else
 	{

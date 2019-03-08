@@ -117,7 +117,8 @@ private:
 	void changeReverbRoomSize(int16_t value);
 	void changeReverbDamping(int16_t value);
 
-
+	void changeInputSignal(int16_t value);
+	void changeOutputSignal(int16_t value);
 
 	uint8_t	refreshModule = 0;
 	uint8_t	moduleStart = 0;

@@ -38,7 +38,17 @@ void checkConfig(strMtConfig * config)
 		mtConfig.audioCodecConfig.outSelect = outputSelectHeadphones;
 
 	mtConfig.audioCodecConfig.inSelect = 0;
-	mtConfig.audioCodecConfig.outSelect = 0;
+	mtConfig.audioCodecConfig.outSelect = 1;
+
+	mtConfig.audioCodecConfig.inputGain = 35; // 0-63
+	mtConfig.audioCodecConfig.mutedHeadphone = 0;
+	mtConfig.audioCodecConfig.mutedLineOut = 0;
+
+	mtConfig.audioCodecConfig.lineInLeft = 5; // 0-15
+	mtConfig.audioCodecConfig.lineInRight = 5; // 0-15
+
+	mtConfig.audioCodecConfig.lineOutLeft = 29; // 13-31
+	mtConfig.audioCodecConfig.lineOutRight = 29; //13-31
 
 	//TODO
 	// ustawnianie reszty paramtrow min. do ngrywania przez mikforon potrzebne to jest

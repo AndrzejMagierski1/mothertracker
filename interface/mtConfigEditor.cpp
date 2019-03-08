@@ -154,6 +154,11 @@ void cMtConfigEditor::potChange(uint8_t pot, int16_t value)
 		case potFunctReverbPanning		:	changeReverbPanning(value);		break;
 
 
+		case potFunctCodecInput			:	changeInputSignal(value);		break;
+		case potFunctCodecOutput		:	changeOutputSignal(value);		break;
+
+
+
 		default: break;
 	}
 
@@ -478,5 +483,28 @@ void cMtConfigEditor::changeReverbDamping(int16_t value)
 }
 
 
+void cMtConfigEditor::changeInputSignal(int16_t value)
+{
+	if(mtConfig.audioCodecConfig.inSelect + value >= inputSelectCount)
+		mtConfig.audioCodecConfig.inSelect = inputSelectCount-1;
+	else if(mtConfig.audioCodecConfig.inSelect + value < 0)
+		mtConfig.audioCodecConfig.inSelect = 0;
+	else mtConfig.audioCodecConfig.inSelect = mtConfig.audioCodecConfig.inSelect + value;
 
+	mtConfig.audioCodecConfig.changeFlag = 1;
 
+	parametersChanged = 1;
+}
+
+void cMtConfigEditor::changeOutputSignal(int16_t value)
+{
+	if(mtConfig.audioCodecConfig.outSelect + value >= outputSelectCount)
+		mtConfig.audioCodecConfig.outSelect = outputSelectCount-1;
+	else if(mtConfig.audioCodecConfig.outSelect + value < 0)
+		mtConfig.audioCodecConfig.outSelect = 0;
+	else mtConfig.audioCodecConfig.outSelect += value;
+
+	mtConfig.audioCodecConfig.changeFlag = 1;
+
+	parametersChanged = 1;
+}
