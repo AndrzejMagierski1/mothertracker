@@ -106,12 +106,23 @@ const uint8_t MAX_NOTE_OFFSET =					9;
 const float MASTER_VOLUME_MIN 				=	0;
 const float MASTER_VOLUME_MAX 				=	1.0;
 
+const uint8_t INPUT_MIC_GAIN_DEFAULT 		=	35;
+
+const uint8_t LINE_IN_SENS_LEVEL_DEFAULT 	=	15;
+const uint8_t LINE_OUT_LEVEL_DEFAULT 		=	29;
+
+
+
 const uint8_t REVERB_ROOM_SIZE_MIN 			=	0;
 const uint8_t REVERB_ROOM_SIZE_MAX 			=	100;
 const uint8_t REVERB_DAMPING_MIN 			=	0;
 const uint8_t REVERB_DAMPING_MAX 			=	100;
 const int8_t REVERB_PANNING_MIN 			=	-100;
 const uint8_t REVERB_PANNING_MAX 			=	100;
+
+
+
+
 
 const uint8_t CONFIG_EEPROM_ADDRESS			=	0;
 

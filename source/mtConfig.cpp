@@ -37,22 +37,44 @@ void checkConfig(strMtConfig * config)
 	if(mtConfig.audioCodecConfig.outSelect >= outputSelectCount)
 		mtConfig.audioCodecConfig.outSelect = outputSelectHeadphones;
 
+	if(mtConfig.audioCodecConfig.inputGain > 63)
+		mtConfig.audioCodecConfig.inputGain = INPUT_MIC_GAIN_DEFAULT;
+
+	if(mtConfig.audioCodecConfig.mutedHeadphone > 1)
+			mtConfig.audioCodecConfig.mutedHeadphone = 0;
+	if(mtConfig.audioCodecConfig.mutedLineOut > 1)
+			mtConfig.audioCodecConfig.mutedLineOut = 0;
+
+	if(mtConfig.audioCodecConfig.lineInLeft > 15)
+			mtConfig.audioCodecConfig.lineInLeft = LINE_IN_SENS_LEVEL_DEFAULT;
+	if(mtConfig.audioCodecConfig.lineInRight > 15)
+			mtConfig.audioCodecConfig.lineInRight = LINE_IN_SENS_LEVEL_DEFAULT;
+
+	if(mtConfig.audioCodecConfig.lineOutLeft > 31)
+			mtConfig.audioCodecConfig.lineOutLeft = LINE_OUT_LEVEL_DEFAULT;
+	else if(mtConfig.audioCodecConfig.lineOutLeft < 13)
+			mtConfig.audioCodecConfig.lineOutLeft = LINE_OUT_LEVEL_DEFAULT;
+
+	if(mtConfig.audioCodecConfig.lineOutRight > 31)
+			mtConfig.audioCodecConfig.lineOutRight = LINE_OUT_LEVEL_DEFAULT;
+	else if(mtConfig.audioCodecConfig.lineOutRight < 13)
+			mtConfig.audioCodecConfig.lineOutRight = LINE_OUT_LEVEL_DEFAULT;
+
+/*
 	mtConfig.audioCodecConfig.inSelect = 0;
 	mtConfig.audioCodecConfig.outSelect = 1;
 
 	mtConfig.audioCodecConfig.inputGain = 35; // 0-63
+
 	mtConfig.audioCodecConfig.mutedHeadphone = 0;
+
 	mtConfig.audioCodecConfig.mutedLineOut = 0;
 
-	mtConfig.audioCodecConfig.lineInLeft = 5; // 0-15
-	mtConfig.audioCodecConfig.lineInRight = 5; // 0-15
+	mtConfig.audioCodecConfig.lineInLeft = 0; // 0-15
+	mtConfig.audioCodecConfig.lineInRight = 0; // 0-15
 
-	mtConfig.audioCodecConfig.lineOutLeft = 29; // 13-31
-	mtConfig.audioCodecConfig.lineOutRight = 29; //13-31
-
-	//TODO
-	// ustawnianie reszty paramtrow min. do ngrywania przez mikforon potrzebne to jest
-
+	mtConfig.audioCodecConfig.lineOutLeft = 15; // 13-31
+	mtConfig.audioCodecConfig.lineOutRight = 15; //13-31
+*/
 	mtConfig.audioCodecConfig.changeFlag = 1;
-
 }

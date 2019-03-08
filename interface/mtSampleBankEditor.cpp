@@ -5,7 +5,7 @@
 #include "mtAudioEngine.h"
 #include "mtInterfaceDefs.h"
 #include "mtFileManager.h"
-
+#include "mtPadsBacklight.h"
 
 #include "mtSampleBankEditor.h"
 
@@ -424,6 +424,7 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 	{
 		if(recordingStatus == recordingStatusRecording)
 		{
+			padsBacklight.stopBlink(interfacePadRec);
 			recorder.stopRecording();
 			recordingStatus = recordingStatusRecorded;
 		}
@@ -439,6 +440,7 @@ uint8_t cMtSampleBankEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 	{
 		recordingStatus = recordingStatusRecording;
 
+		padsBacklight.startBlink(31, interfacePadRec);
 		sequencer.stop();
 		recorder.startRecording(sdram_sampleBank);
 
@@ -1037,7 +1039,13 @@ void cMtSampleBankEditor::play(uint8_t type)
 {
 	if(spectrumEnabled)
 	{
-		if(recordingStatus == recordingStatusRecorded) recorder.play(startPoint, stopPoint);
+		if(recordingStatus == recordingStatusRecording)
+		{
+			padsBacklight.stopBlink(interfacePadRec);
+			recorder.stopRecording();
+			recordingStatus = recordingStatusRecorded;
+		}
+		else if(recordingStatus == recordingStatusRecorded) recorder.play(startPoint, stopPoint);
 		refreshModule = 1;
 		labelsChanged = 1;
 		spectrumChanged = 1;

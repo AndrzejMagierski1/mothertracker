@@ -156,7 +156,9 @@ void cMtConfigEditor::potChange(uint8_t pot, int16_t value)
 
 		case potFunctCodecInput			:	changeInputSignal(value);		break;
 		case potFunctCodecOutput		:	changeOutputSignal(value);		break;
-
+		case potFunctCodecMicGain			:	changeMicGain(value);			break;
+		case potFunctCodecLineInputLevel	:	changeLineInLevel(value);		break;
+		case potFunctCodecLineOutputLevel	:	changeLineOutLevel(value);		break;
 
 
 		default: break;
@@ -255,6 +257,24 @@ void cMtConfigEditor::processParameters()
 				values.value1[i] =  mtConfig.audioCodecConfig.outSelect;
 				break;
 			}
+			case valueCodecMicGain:
+			{
+				values.type[i] = valuesTypes[valueCodecMicGain];
+				values.value1[i] =  mtConfig.audioCodecConfig.inputGain;
+				break;
+			}
+			case valueCodecLineInputLevel:
+			{
+				values.type[i] = valuesTypes[valueCodecLineInputLevel];
+				values.value1[i] =  mtConfig.audioCodecConfig.lineInLeft;
+				break;
+			}
+			case valueCodecLineOutputLevel:
+			{
+				values.type[i] = valuesTypes[valueCodecLineOutputLevel];
+				values.value1[i] =  mtConfig.audioCodecConfig.lineOutLeft;
+				break;
+			}
 
 
 
@@ -296,6 +316,10 @@ void cMtConfigEditor::updateParameters()
 	{
 		setParameter(0, valueCodecInput);
 		setParameter(1, valueCodecOutput);
+		setParameter(2, valueCodecMicGain);
+		setParameter(3, valueCodecLineInputLevel);
+		setParameter(4, valueCodecLineOutputLevel);
+
 
 	}
 
@@ -402,6 +426,10 @@ void cMtConfigEditor::updatePotsFunctions()
 	{
 		setPotFunction(0, potFunctCodecInput);
 		setPotFunction(1, potFunctCodecOutput);
+		setPotFunction(2, potFunctCodecMicGain);
+		setPotFunction(3, potFunctCodecLineInputLevel);
+		setPotFunction(4, potFunctCodecLineOutputLevel);
+
 
 	}
 
@@ -508,3 +536,47 @@ void cMtConfigEditor::changeOutputSignal(int16_t value)
 
 	parametersChanged = 1;
 }
+
+void cMtConfigEditor::changeMicGain(int16_t value)
+{
+	if(mtConfig.audioCodecConfig.inputGain + value > 63)
+		mtConfig.audioCodecConfig.inputGain = 63;
+	else if(mtConfig.audioCodecConfig.inputGain + value < 0)
+		mtConfig.audioCodecConfig.inputGain = 0;
+	else mtConfig.audioCodecConfig.inputGain += value;
+
+	mtConfig.audioCodecConfig.changeFlag = 1;
+
+	parametersChanged = 1;
+}
+
+void cMtConfigEditor::changeLineInLevel(int16_t value)
+{
+	if(mtConfig.audioCodecConfig.lineInLeft + value > 15)
+		mtConfig.audioCodecConfig.lineInLeft = 15;
+	else if(mtConfig.audioCodecConfig.lineInLeft + value < 0)
+		mtConfig.audioCodecConfig.lineInLeft = 0;
+	else mtConfig.audioCodecConfig.lineInLeft += value;
+
+	mtConfig.audioCodecConfig.lineInRight = mtConfig.audioCodecConfig.lineInLeft;
+
+	mtConfig.audioCodecConfig.changeFlag = 1;
+
+	parametersChanged = 1;
+}
+
+void cMtConfigEditor::changeLineOutLevel(int16_t value)
+{
+	if(mtConfig.audioCodecConfig.lineOutLeft + value > 31)
+		mtConfig.audioCodecConfig.lineOutLeft = 31;
+	else if(mtConfig.audioCodecConfig.lineOutLeft + value < 13)
+		mtConfig.audioCodecConfig.lineOutLeft = 13;
+	else mtConfig.audioCodecConfig.lineOutLeft += value;
+
+	mtConfig.audioCodecConfig.lineOutRight = mtConfig.audioCodecConfig.lineOutLeft;
+
+	mtConfig.audioCodecConfig.changeFlag = 1;
+
+	parametersChanged = 1;
+}
+
