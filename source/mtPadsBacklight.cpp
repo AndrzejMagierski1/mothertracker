@@ -27,8 +27,6 @@ void cMtPadsBacklight:: update()
 				if(blinkLayer[i]) setFrontLayer(toggler, blinkLayer[i], i );
 			}
 		}
-
-		leds.updateGrid();
 	}
 
 }
@@ -45,8 +43,6 @@ void cMtPadsBacklight::setBackLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n 
 		leds.setLEDgrid(n,state,gamma_pwm);
 		backLayer[n]=0;
 	}
-
-	leds.updateGrid();
 }
 
 void cMtPadsBacklight::setFrontLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n )
@@ -60,8 +56,6 @@ void cMtPadsBacklight::setFrontLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n
 		if(backLayer[n] != 0) leds.setLEDgrid(n,1,backLayer[n]);
 		else leds.setLEDgrid(n,state,gamma_pwm);
 	}
-
-	leds.updateGrid();
 }
 
 void cMtPadsBacklight::startBlink(uint8_t gamma_pwm, uint8_t n)

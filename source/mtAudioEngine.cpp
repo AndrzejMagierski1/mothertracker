@@ -103,7 +103,7 @@ void audioEngine::init()
 	i2sConnect[0]= &connect52;
 	i2sConnect[1]= &connect53;
 
-	readConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
+
 //	setIn(inputSelectLineIn);
 //	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 
@@ -114,7 +114,7 @@ void audioEngine::init()
 	setIn(inputSelectMic);
 	setOut(outputSelectHeadphones);
 
-	audioShield.volume(1.0);
+	audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
 	audioShield.inputSelect(AUDIO_INPUT_MIC);
 	audioShield.micGain(35);
 
@@ -140,7 +140,7 @@ void audioEngine::update()
 		{
 			mtConfig.audioCodecConfig.changeFlag=0;
 
-			saveConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
+
 
 			if(mtConfig.audioCodecConfig.outSelect == outputSelectHeadphones)
 			{

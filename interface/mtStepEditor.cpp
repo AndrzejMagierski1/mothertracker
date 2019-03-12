@@ -7,6 +7,7 @@
 #include "mtStructs.h"
 #include "mtSequencer.h"
 #include "mtLED.h"
+#include "mtPadsBacklight.h"
 
 #include "mtInterfaceDefs.h"
 
@@ -78,14 +79,17 @@ void cMtStepEditor::showStep(uint8_t track, uint8_t step)
 
 	showActualParamOnPads();
 
-	leds.setLEDgrid(interfacePadUp, 1, 10);
-	leds.setLEDgrid(interfacePadLeft, 1, 10);
-	leds.setLEDgrid(interfacePadDown, 1, 10);
-	leds.setLEDgrid(interfacePadRight, 1, 10);
+
+	padsBacklight.setBackLayer(1,10,interfacePadUp);
+	padsBacklight.setBackLayer(1,10,interfacePadLeft);
+	padsBacklight.setBackLayer(1,10,interfacePadDown);
+	padsBacklight.setBackLayer(1,10,interfacePadRight);
+
+
 
 	for(uint8_t i = 0; i < 32; i++)
 	{
-		leds.setLEDgrid(32+i, 1, 8);
+		padsBacklight.setBackLayer(1, 8, 32+i);
 	}
 
 	last_selected_instrument = mtProject.values.lastUsedInstrument;
@@ -106,33 +110,30 @@ void cMtStepEditor::stop()
 
 void cMtStepEditor::showActualParamOnPads()
 {
-	leds.setLEDgrid(24, 0, 0);
-	leds.setLEDgrid(25, 0, 0);
-	leds.setLEDgrid(26, 0, 0);
-	leds.setLEDgrid(27, 0, 0);
-	leds.setLEDgrid(28, 0, 0);
+	padsBacklight.setBackLayer( 0, 0, 24);
+	padsBacklight.setBackLayer( 0, 0, 25);
+	padsBacklight.setBackLayer( 0, 0, 26);
+	padsBacklight.setBackLayer( 0, 0, 27);
+	padsBacklight.setBackLayer( 0, 0, 28);
 
-	leds.setLEDgrid(24+actualTrackTableSelection[0], 1, 15);
-
-
-
+	padsBacklight.setBackLayer( 1, 15, 24+actualTrackTableSelection[0]);
 
 
 }
 
 void cMtStepEditor::clearPads()
 {
+/*
+	padsBacklight.setBackLayer( 0, 0, 24);
+	padsBacklight.setBackLayer( 0, 0, 25);
+	padsBacklight.setBackLayer( 0, 0, 26);
+	padsBacklight.setBackLayer( 0, 0, 27);
+	padsBacklight.setBackLayer( 0, 0, 28);
 
-	leds.setLEDgrid(24, 0, 0);
-	leds.setLEDgrid(25, 0, 0);
-	leds.setLEDgrid(26, 0, 0);
-	leds.setLEDgrid(27, 0, 0);
-	leds.setLEDgrid(28, 0, 0);
-
-	leds.setLEDgrid(interfacePadUp, 0, 0);
-	leds.setLEDgrid(interfacePadLeft, 0, 0);
-	leds.setLEDgrid(interfacePadDown, 0, 0);
-	leds.setLEDgrid(interfacePadRight, 0, 0);
+	padsBacklight.setBackLayer( 0, 0, interfacePadUp);(interfacePadUp, 0, 0);
+	padsBacklight.setBackLayer( 0, 0, 28);(interfacePadLeft, 0, 0);
+	padsBacklight.setBackLayer( 0, 0, 28);(interfacePadDown, 0, 0);
+	padsBacklight.setBackLayer( 0, 0, 28);(interfacePadRight, 0, 0);
 
 
 	for(uint8_t i = 0; i < 32; i++)
@@ -140,6 +141,8 @@ void cMtStepEditor::clearPads()
 		leds.setLEDgrid(32+i, 0, 0);
 	}
 
+	*/
+	padsBacklight.clearAllPads(0,1,0);
 
 }
 
@@ -202,42 +205,6 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 {
 	if(type == 1)
 	{
-
-/*
-		if(n == interfacePadInstrumentEditor)
-		{
-
-		}
-		else if(n == interfacePadSampleBank)
-		{
-			stop();
-			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadProjectEditor)
-		{
-			stop();
-			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadConfig)
-		{
-			stop();
-			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadSettings)
-		{
-			stop();
-			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
-		}
-
-		else if(n == interfacePadPlay || n == interfacePadStop)
-		{
-			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
-		}
-*/
-
-
-
-
 		switch(n)
 		{
 		case interfacePadPlay                 :    sequencer.play();    break;
@@ -247,6 +214,7 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		case interfacePadInstrumentEditor     :
 		case interfacePadConfig               :
 		case interfacePadSettings             :
+		case interfacePadRecorder             :
 
 			stop();
 			eventFunct(mtStepEditorEventPadPress, &n, 0, 0);
@@ -265,7 +233,6 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 
 		default: break;
 		}
-
 
 	}
 

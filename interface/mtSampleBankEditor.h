@@ -27,6 +27,7 @@ public:
 
 
 	void start();
+	void startRecorder();
 	void stop();
 
 
@@ -42,6 +43,8 @@ public:
 private:
 
 	void processLabels();
+	void processSpectrum();
+	void processPoints();
 
 
 	void setButtonLabel(uint8_t number, char * label);
@@ -65,13 +68,19 @@ private:
 	void browseBack();
 	void browseCancel();
 	void browseSelectSlot();
-
+	void saveRecording();
+	void clearRecording();
+	void trimRecording();
 
 
 	//funkcje potow
 	void changeSampleListPos(int16_t value);
 	void changeFilesListPos(int16_t value);
 	void changeSlotsListPos(int16_t value);
+
+	void changeStartPoint(int16_t value);
+	void changeStopPoint(int16_t value);
+	void changeZoom(int16_t value);
 
 	uint8_t	refreshModule = 0;
 	uint8_t	moduleStart = 0;
@@ -84,7 +93,8 @@ private:
 	uint8_t filesListChanged;
 	uint8_t samplesListChanged;
 	uint8_t slotListChanged;
-
+	uint8_t spectrumChanged;
+	uint8_t pointsChanged;
 
 	static const uint8_t samples_list_length_max = SAMPLES_MAX;
 	const uint8_t samples_list_pos = 3;
@@ -94,7 +104,7 @@ private:
 	char *ptrSamplesNames[SAMPLES_COUNT];
 	uint16_t samplesCount;
 	uint8_t sampleListPos;
-
+	uint8_t samplesListEnabled;
 
 	//lista plikow/folderow---------------------------------------------
 	static const uint8_t files_list_length_max = 100;
@@ -129,8 +139,35 @@ private:
 	void getSelectedFileType();
 
 	void listSampleSlots();
-	//-------------------------------------------------------------------
 
+	//-------------------------------------------------------------------
+	// spectrum
+	uint8_t spectrumEnabled;
+
+	enum
+	{
+		recordingStatusClear,
+		recordingStatusRecording,
+		recordingStatusRecorded,
+	};
+
+	uint16_t zoomWidth = MAX_16BIT;
+	int32_t zoomStart =  0;
+	int32_t zoomEnd = MAX_16BIT;
+	uint8_t lastChangedPoint = 0;
+	float zoomValue = 1;
+	uint16_t zoomPosition = 0;
+
+	const uint16_t SPECTRUM_DRAW_DELAY_VALUE = 500;
+	strMtDispSpectrum  spectrum;
+	elapsedMillis spectrumDrawDelay;
+
+	uint16_t startPoint;
+	uint16_t stopPoint = MAX_16BIT;
+
+	uint8_t recordingStatus = recordingStatusClear;
+
+	//-------------------------------------------------------------------
 	//ogolne
 	uint8_t playMode = 0;
 	enum
@@ -141,9 +178,16 @@ private:
 
 	};
 
+	void play(uint8_t type);
 	void playSdFile();
 	void playSampleFromBank();
 	void stopPlaying();
+
+
+	//-------------------------------------------------------------------
+	// recorder
+
+
 //=======================================================================
 
 //przyciski  ------------------------------------------------------------
@@ -162,7 +206,9 @@ private:
 
 		buttonFunctSelectSampleSlot,
 
-
+		buttonFunctSaveRecording,
+		buttonFucntTrimRecording,
+		buttonClearRecording,
 
 
 		//-------------------------------
@@ -187,6 +233,10 @@ private:
 
 		"Select",
 
+		"Save",
+		"Trim",
+		"Clear",
+
 
 	};
 
@@ -200,7 +250,9 @@ private:
 		potFunctChangeFileListPos,
 		potFunctChangeSlotListPos,
 
-
+		potFunctChangeStartPoint,
+		potFunctChangeStopPoint,
+		potFunctChangeZoom,
 
 		//-------------------------------
 		potFunctCount
@@ -216,6 +268,10 @@ private:
 		"Select file",
 		"Select slot",
 
+		"Start",
+		"Stop",
+		"Zoom",
+
 	};
 
 	const uint16_t potFuncRes[potFunctCount] =
@@ -225,6 +281,10 @@ private:
 			30,
 			30,
 
+			100,
+			100,
+			100,
+
 	};
 
 	const uint8_t potFuncAcc[potFunctCount] =
@@ -233,6 +293,10 @@ private:
 			0, //
 			0,
 			0,
+
+			3,
+			3,
+			3,
 	};
 
 };

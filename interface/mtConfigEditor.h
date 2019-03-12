@@ -84,6 +84,10 @@ private:
 		// config
 		valueCodecInput,
 		valueCodecOutput,
+		valueCodecMicGain,
+		valueCodecLineInputLevel,
+		valueCodecLineOutputLevel,
+
 
 		//-------------------------------
 		valueCount
@@ -103,7 +107,9 @@ private:
 		//config
 		mtDispValueValueNumberOnly,			//
 		mtDispValueValueNumberOnly,			//
-
+		mtDispValueValueNumberOnly,			//
+		mtDispValueValueNumberOnly,			//
+		mtDispValueValueNumberOnly,			//
 	};
 
 
@@ -117,7 +123,11 @@ private:
 	void changeReverbRoomSize(int16_t value);
 	void changeReverbDamping(int16_t value);
 
-
+	void changeInputSignal(int16_t value);
+	void changeOutputSignal(int16_t value);
+	void changeMicGain(int16_t value);
+	void changeLineInLevel(int16_t value);
+	void changeLineOutLevel(int16_t value);
 
 	uint8_t	refreshModule = 0;
 	uint8_t	moduleStart = 0;
@@ -172,6 +182,9 @@ private:
 
 		potFunctCodecInput,
 		potFunctCodecOutput,
+		potFunctCodecMicGain,
+		potFunctCodecLineInputLevel,
+		potFunctCodecLineOutputLevel,
 
 		//-------------------------------
 		potFunctCount
@@ -191,6 +204,9 @@ private:
 
 		"Signal Input",
 		"Signal Output",
+		"Mic Gain",
+		"Line In Sens",
+		"Line Out Level",
 
 
 
@@ -207,6 +223,9 @@ private:
 
 			100, // potFunctionNone,
 			100, // potFunctionNone,
+			100, // potFunctionNone,
+			100, // potFunctionNone,
+			100, // potFunctionNone,
 
 	};
 
@@ -218,6 +237,9 @@ private:
 			3, // potFunctionNone,
 			3, // potFunctionNone,
 
+			3, // potFunctionNone,
+			3, // potFunctionNone,
+			3, // potFunctionNone,
 			3, // potFunctionNone,
 			3, // potFunctionNone,
 

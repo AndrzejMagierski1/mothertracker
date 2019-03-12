@@ -2,7 +2,7 @@
 #include "mtDisplay.h"
 #include "AnalogInputs.h"
 #include "mtAudioEngine.h"
-
+#include "mtConfig.h"
 #include "mtInterfaceDefs.h"
 
 #include "mtConfigEditor.h"
@@ -86,6 +86,7 @@ void cMtConfigEditor::stop()
 {
 	mtDisplay.setValue(0);
 
+	saveConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
 
 }
 
@@ -99,37 +100,30 @@ uint8_t cMtConfigEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 {
 	if(type == 1)
 	{
-		if(n == interfacePadProjectEditor)
+		switch(n)
 		{
-			stop();
-			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadInstrumentEditor)
-		{
-			stop();
-			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadSampleBank)
-		{
-			stop();
-			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadPlay || n == interfacePadStop)
-		{
-			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
-		}
-		//--------------------------------------------------------
-		else if(n == interfacePadConfig)
-		{
-			switchParametersType(mtConfigEditorStartModeConfig);
-		}
-		else if(n == interfacePadSettings)
-		{
-			switchParametersType(mtConfigEditorStartModeGlobals);
-		}
+		case interfacePadPlay                 :    sequencer.play();    break;
+		case interfacePadStop                 :    sequencer.stop();    break;
+		case interfacePadProjectEditor        :
+		case interfacePadSampleBank           :
+		case interfacePadInstrumentEditor     :
+		case interfacePadRecorder             :
 
+			stop();
+			eventFunct(mtConfigEditorEventPadPress, &n, 0, 0);
+
+		break;
+
+		case interfacePadConfig       :  switchParametersType(mtConfigEditorStartModeConfig);    break;
+		case interfacePadSettings     :  switchParametersType(mtConfigEditorStartModeGlobals);   break;
+
+
+		default: break;
+		}
 
 	}
+
+
 
 	return 0;
 }
@@ -158,6 +152,13 @@ void cMtConfigEditor::potChange(uint8_t pot, int16_t value)
 		case potFunctReverbRoomSize		:	changeReverbRoomSize(value);	break;
 		case potFunctReverbDamping		:	changeReverbDamping(value);		break;
 		case potFunctReverbPanning		:	changeReverbPanning(value);		break;
+
+
+		case potFunctCodecInput			:	changeInputSignal(value);		break;
+		case potFunctCodecOutput		:	changeOutputSignal(value);		break;
+		case potFunctCodecMicGain			:	changeMicGain(value);			break;
+		case potFunctCodecLineInputLevel	:	changeLineInLevel(value);		break;
+		case potFunctCodecLineOutputLevel	:	changeLineOutLevel(value);		break;
 
 
 		default: break;
@@ -214,7 +215,7 @@ void cMtConfigEditor::processParameters()
 			case valueMasterVolume:
 			{
 				values.type[i] = valuesTypes[valueMasterVolume];
-				values.value1[i] = mtConfig.globals.masterVolume;
+				values.value1[i] = mtConfig.audioCodecConfig.headphoneVolume*100;
 				break;
 			}
 /*			case valueTempo:
@@ -254,6 +255,24 @@ void cMtConfigEditor::processParameters()
 			{
 				values.type[i] = valuesTypes[valueCodecOutput];
 				values.value1[i] =  mtConfig.audioCodecConfig.outSelect;
+				break;
+			}
+			case valueCodecMicGain:
+			{
+				values.type[i] = valuesTypes[valueCodecMicGain];
+				values.value1[i] =  mtConfig.audioCodecConfig.inputGain;
+				break;
+			}
+			case valueCodecLineInputLevel:
+			{
+				values.type[i] = valuesTypes[valueCodecLineInputLevel];
+				values.value1[i] =  mtConfig.audioCodecConfig.lineInLeft;
+				break;
+			}
+			case valueCodecLineOutputLevel:
+			{
+				values.type[i] = valuesTypes[valueCodecLineOutputLevel];
+				values.value1[i] =  mtConfig.audioCodecConfig.lineOutLeft;
 				break;
 			}
 
@@ -297,6 +316,10 @@ void cMtConfigEditor::updateParameters()
 	{
 		setParameter(0, valueCodecInput);
 		setParameter(1, valueCodecOutput);
+		setParameter(2, valueCodecMicGain);
+		setParameter(3, valueCodecLineInputLevel);
+		setParameter(4, valueCodecLineOutputLevel);
+
 
 	}
 
@@ -403,6 +426,10 @@ void cMtConfigEditor::updatePotsFunctions()
 	{
 		setPotFunction(0, potFunctCodecInput);
 		setPotFunction(1, potFunctCodecOutput);
+		setPotFunction(2, potFunctCodecMicGain);
+		setPotFunction(3, potFunctCodecLineInputLevel);
+		setPotFunction(4, potFunctCodecLineOutputLevel);
+
 
 	}
 
@@ -440,7 +467,14 @@ void cMtConfigEditor::switchParametersType(uint8_t type)
 
 void cMtConfigEditor::changeMasterVolume(int16_t value)
 {
+	float fVal = value * 0.01;
 
+	if(mtConfig.audioCodecConfig.headphoneVolume + fVal < MASTER_VOLUME_MIN) mtConfig.audioCodecConfig.headphoneVolume = MASTER_VOLUME_MIN;
+	else if(mtConfig.audioCodecConfig.headphoneVolume + fVal > MASTER_VOLUME_MAX) mtConfig.audioCodecConfig.headphoneVolume = MASTER_VOLUME_MAX;
+	else mtConfig.audioCodecConfig.headphoneVolume += fVal;
+
+	mtConfig.audioCodecConfig.changeFlag = 1;
+	parametersChanged = 1;
 }
 
 void cMtConfigEditor::changeReverbPanning(int16_t value)
@@ -477,5 +511,72 @@ void cMtConfigEditor::changeReverbDamping(int16_t value)
 }
 
 
+void cMtConfigEditor::changeInputSignal(int16_t value)
+{
+	if(mtConfig.audioCodecConfig.inSelect + value >= inputSelectCount)
+		mtConfig.audioCodecConfig.inSelect = inputSelectCount-1;
+	else if(mtConfig.audioCodecConfig.inSelect + value < 0)
+		mtConfig.audioCodecConfig.inSelect = 0;
+	else mtConfig.audioCodecConfig.inSelect = mtConfig.audioCodecConfig.inSelect + value;
 
+	mtConfig.audioCodecConfig.changeFlag = 1;
+
+	parametersChanged = 1;
+}
+
+void cMtConfigEditor::changeOutputSignal(int16_t value)
+{
+	if(mtConfig.audioCodecConfig.outSelect + value >= outputSelectCount)
+		mtConfig.audioCodecConfig.outSelect = outputSelectCount-1;
+	else if(mtConfig.audioCodecConfig.outSelect + value < 0)
+		mtConfig.audioCodecConfig.outSelect = 0;
+	else mtConfig.audioCodecConfig.outSelect += value;
+
+	mtConfig.audioCodecConfig.changeFlag = 1;
+
+	parametersChanged = 1;
+}
+
+void cMtConfigEditor::changeMicGain(int16_t value)
+{
+	if(mtConfig.audioCodecConfig.inputGain + value > 63)
+		mtConfig.audioCodecConfig.inputGain = 63;
+	else if(mtConfig.audioCodecConfig.inputGain + value < 0)
+		mtConfig.audioCodecConfig.inputGain = 0;
+	else mtConfig.audioCodecConfig.inputGain += value;
+
+	mtConfig.audioCodecConfig.changeFlag = 1;
+
+	parametersChanged = 1;
+}
+
+void cMtConfigEditor::changeLineInLevel(int16_t value)
+{
+	if(mtConfig.audioCodecConfig.lineInLeft + value > 15)
+		mtConfig.audioCodecConfig.lineInLeft = 15;
+	else if(mtConfig.audioCodecConfig.lineInLeft + value < 0)
+		mtConfig.audioCodecConfig.lineInLeft = 0;
+	else mtConfig.audioCodecConfig.lineInLeft += value;
+
+	mtConfig.audioCodecConfig.lineInRight = mtConfig.audioCodecConfig.lineInLeft;
+
+	mtConfig.audioCodecConfig.changeFlag = 1;
+
+	parametersChanged = 1;
+}
+
+void cMtConfigEditor::changeLineOutLevel(int16_t value)
+{
+	if(mtConfig.audioCodecConfig.lineOutLeft + value > 31)
+		mtConfig.audioCodecConfig.lineOutLeft = 31;
+	else if(mtConfig.audioCodecConfig.lineOutLeft + value < 13)
+		mtConfig.audioCodecConfig.lineOutLeft = 13;
+	else mtConfig.audioCodecConfig.lineOutLeft += value;
+
+	mtConfig.audioCodecConfig.lineOutRight = mtConfig.audioCodecConfig.lineOutLeft;
+
+	mtConfig.audioCodecConfig.changeFlag = 1;
+
+	parametersChanged = 1;
+}
 

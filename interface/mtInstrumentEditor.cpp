@@ -327,6 +327,7 @@ uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 	if(n == interfacePadPlay)
 	{
 		play(type);
+		return 0;
 	}
 	else if(n > interfacePadKeybord0)
 	{
@@ -336,51 +337,37 @@ uint8_t cMtInstrumentEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		else
 	*/
 			playInstrumentByPad(type, n-interfacePadKeybord0, -1);
+			return 0;
 	}
 
 	if(type == 1)
 	{
 
-		if(n == interfacePadProjectEditor)
-		{
-			stop();
-			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadSampleBank)
-		{
-			stop();
-			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadConfig)
-		{
-			stop();
-			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadSettings)
-		{
-			stop();
-			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadStop)
-		{
-			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
-		}
-		else if(n == interfacePadParams)
-		{
-			showParameters();
-		}
-		else if(n == interfacePadEnvelopes)
-		{
-			showEnvelopes();
-		}
-		else if(n == interfacePadInstrumentEditor)
-		{
-			showSpectrum();
-		}
 
+		switch(n)
+		{
+		case interfacePadPlay                 :    sequencer.play();    break;
+		case interfacePadStop                 :    sequencer.stop();    break;
+		case interfacePadProjectEditor        :
+		case interfacePadSampleBank           :
+		case interfacePadConfig               :
+		case interfacePadSettings             :
+		case interfacePadRecorder             :
+
+			stop();
+			eventFunct(mtInstrumentEditorEventPadPress, &n, 0, 0);
+
+		break;
+
+		case interfacePadParams       		:  showParameters();  	break;
+		case interfacePadEnvelopes       	:  showEnvelopes();   	break;
+		case interfacePadInstrumentEditor	:  showSpectrum();   	break;
+
+
+		default: break;
+		}
 
 	}
-
 
 	return 0;
 }

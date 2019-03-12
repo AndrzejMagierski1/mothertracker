@@ -31,7 +31,9 @@ void onPowerButtonChange(uint8_t value);
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
 	mtInterface.padPressed(n,x,y,velo);
-	//padsBacklight.startBlink(31, n);
+
+	padsBacklight.setFrontLayer(1, 31, n);
+
 
 	//mtPrint("Pad press: ");
 	//mtPrintln(n);
@@ -49,7 +51,8 @@ void onPadRelease(uint8_t n)
 {
 	mtInterface.padReleased(n);
 	//padsBacklight.setFrontLayer(0, 31, n);
-	//padsBacklight.stopBlink(n);
+	padsBacklight.setFrontLayer(0,0,n);
+
 }
 
 //-----------------------------------------------------------------
