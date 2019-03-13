@@ -24,7 +24,6 @@ void setup()
 	initHardware();
 	engine.init();
 
-
 	sequencer.init();
 	padsBacklight.init(500);
 	sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów

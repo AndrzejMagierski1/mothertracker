@@ -1139,12 +1139,12 @@ uint8_t cMtSampleBankEditor::loadSamplesBank()
 
 			//size = loadFullWavetableSerum("DirtySaw",mtProject.sampleBank.sample[i].address);
 
-			size = loadWavetable(currentPatch, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
+			size = fmLoadWavetable(currentPatch, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
 
 		}
 		else
 		{
-			size = loadSample(currentPatch, mtProject.sampleBank.sample[i].address);
+			size = fmLoadSample(currentPatch, mtProject.sampleBank.sample[i].address);
 		}
 
 

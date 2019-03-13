@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include "SD.h"
-
+#include "mtStructs.h"
 //parametry przetwarzanego pliku
 struct strWavFileHeader
 {
@@ -117,7 +117,7 @@ extern FileManager fileManager;
 
 
 
-int32_t loadSample(const char *filename, int16_t * buf);
+int32_t fmLoadSample(const char *filename, int16_t * buf);
 int32_t loadWavetable(const char *filename, int16_t * buf);
 int32_t loadWavetableStandard(const char *filename, int16_t * buf);
 int32_t loadWavetableSerum(const char *filename, int16_t * buf);
@@ -125,7 +125,7 @@ int32_t loadWavetableSerum(const char *filename, int16_t * buf);
 void loadFullWavetableSerum(const char *baseName);
 uint8_t getMiddleWindow(uint16_t cnt, float windowsCnt, float windowsControl);
 int16_t fmap(float x, float in_min, float in_max, float out_min, float out_max);
-int32_t loadWavetable(const char *filename, int16_t * buf ,uint16_t * windowSize);
+int32_t fmLoadWavetable(const char *filename, int16_t * buf ,uint16_t * windowSize);
 void readHeader(strWavFileHeader* header, FsFile * wavfile);
 
 #endif
