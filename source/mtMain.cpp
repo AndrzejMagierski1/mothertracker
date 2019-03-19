@@ -23,9 +23,6 @@ extern void updateHardware();
 //=======================================================================
 void setup()
 {
-
-
-
 	// inicjalizacja hardware jako pierwsza
 	initHardware();
 	engine.init();

@@ -1,17 +1,15 @@
 #include "mtEffector.h"
 
-extern int16_t sdram_effectsBank[4*1024*1024];
-extern int16_t sdram_sampleBank[4*1024*1024];
+mtEffector effector;
 
-
-void Effector::loadSample(const char *patch, int16_t * buf)
+void mtEffector::loadSample(const char *patch, int16_t * buf)
 {
 	fileByteSaved = fmLoadSample(patch,buf);
 	if(fileByteSaved == -1) return; //todo: obsluga bledu
 	startAddress=buf;
 }
 
-void Effector::play(uint16_t start, uint16_t stop)
+void mtEffector::play(uint16_t start, uint16_t stop)
 {
 	uint32_t length;
 	uint32_t addressShift;
@@ -22,18 +20,18 @@ void Effector::play(uint16_t start, uint16_t stop)
 	instrumentPlayer[0].noteOnforPrev(startAddress + addressShift,length);
 }
 
-void Effector::playPrev(uint8_t effect)
+void mtEffector::playPrev(uint8_t effect)
 {
 	startAddressEffect = sdram_effectsBank;
 
 	instrumentPlayer[0].noteOnforPrev(startAddressEffect,affterEffectLength);
 }
-void Effector::stop()
+void mtEffector::stop()
 {
 	instrumentPlayer[0].noteOff();
 }
 
-void Effector::trim(uint16_t a, uint16_t b)
+void mtEffector::trim(uint16_t a, uint16_t b)
 {
 	uint32_t addressShift;
 	uint32_t lengthShift;
@@ -52,7 +50,7 @@ void Effector::trim(uint16_t a, uint16_t b)
 
 }
 
-void Effector::save(const char *patch)
+void mtEffector::save(const char *patch)
 {
 	uint32_t length;
 	if(SD.exists(patch)) SD.remove(patch);
@@ -84,7 +82,7 @@ void Effector::save(const char *patch)
 	writeOutHeader();
 }
 
-void Effector::setEffects()
+void mtEffector::setEffects()
 {
 	uint32_t localLength = affterEffectLength;
 
@@ -97,7 +95,7 @@ void Effector::setEffects()
 
 }
 
-void Effector::writeOutHeader()
+void mtEffector::writeOutHeader()
 {
 	Subchunk2Size = fileByteSaved;
 	ChunkSize = Subchunk2Size + 36;
@@ -144,4 +142,14 @@ void Effector::writeOutHeader()
 	byte4 = (Subchunk2Size >> 24) & 0xff;
 	file.write(byte1);  file.write(byte2);  file.write(byte3);  file.write(byte4);
 	file.close();
+}
+
+int32_t mtEffector::getLength()
+{
+	return fileByteSaved;
+}
+
+int16_t * mtEffector:: getAddress()
+{
+	return startAddress;
 }

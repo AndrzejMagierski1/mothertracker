@@ -4,8 +4,8 @@
 #include "mtFileManager.h"
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
-
-class Effector
+#include "mtEffectorChorus.h"
+class mtEffector
 {
 public:
 
@@ -19,7 +19,7 @@ public:
 
 
 	int16_t * getAddress();
-	uint32_t getLength();
+	int32_t getLength();
 
 private:
 	void writeOutHeader();
@@ -38,13 +38,14 @@ private:
 	uint32_t byteRate = sampleRate*numChannels*(bitsPerSample/8);
 	uint32_t blockAlign = numChannels*bitsPerSample/8;
 	uint32_t Subchunk2Size = 0;
-	uint32_t fileByteSaved = 0; // w bajtach
+	int32_t fileByteSaved = 0; // w bajtach
 	uint32_t NumSamples = 0;
 	uint8_t byte1, byte2, byte3, byte4;
 
 	FsFile file;
 };
 
-
-
+extern int16_t sdram_effectsBank[4*1024*1024];
+extern int16_t sdram_sampleBank[4*1024*1024];
+extern mtEffector effector;
 #endif /* SOURCE_MTEFFECTOR_H_ */
