@@ -8,6 +8,7 @@
 #include "mtSampleBankEditor.h"
 #include "mtStepEditor.h"
 #include "mtConfigEditor.h"
+#include "mtSleep.h"
 
 
 
@@ -43,8 +44,6 @@ void cMtInterface::buttonChange(uint8_t n, uint8_t value)
 
 		default : break;
 	}
-
-
 }
 
 //=======================================================================
@@ -52,7 +51,7 @@ void cMtInterface::powerButtonChange(uint8_t value)
 {
 	if(value == 1)
 	{
-		SD.begin(SdioConfig(DMA_SDIO));
+		changePowerState();	//SD.begin(SdioConfig(DMA_SDIO));
 	}
 }
 

@@ -1,6 +1,8 @@
 #include "mtEffector.h"
 
 extern int16_t sdram_effectsBank[4*1024*1024];
+extern int16_t sdram_sampleBank[4*1024*1024];
+
 
 void Effector::loadSample(const char *patch, int16_t * buf)
 {
@@ -20,14 +22,34 @@ void Effector::play(uint16_t start, uint16_t stop)
 	instrumentPlayer[0].noteOnforPrev(startAddress + addressShift,length);
 }
 
-void Effector::playPrev()
+void Effector::playPrev(uint8_t effect)
 {
+	startAddressEffect = sdram_effectsBank;
 
 	instrumentPlayer[0].noteOnforPrev(startAddressEffect,affterEffectLength);
 }
-void Effector::playPrev()
+void Effector::stop()
 {
 	instrumentPlayer[0].noteOff();
+}
+
+void Effector::trim(uint16_t a, uint16_t b)
+{
+	uint32_t addressShift;
+	uint32_t lengthShift;
+	int16_t * localAddress;
+	int16_t * localEffectAddress = startAddressEffect;
+	uint32_t localLength;
+	addressShift = (uint32_t)( (uint32_t)a * (float)(fileByteSaved/2)/MAX_16BIT);
+	lengthShift =(uint32_t)((uint32_t)b * (float)(fileByteSaved/2)/MAX_16BIT);
+
+	localAddress = startAddress+addressShift;
+	localLength = fileByteSaved - 2*lengthShift; //zamieniam probki na bajty
+
+	affterEffectLength = localLength;
+
+	memcpy(localEffectAddress,localAddress,localLength);
+
 }
 
 void Effector::save(const char *patch)
@@ -62,6 +84,18 @@ void Effector::save(const char *patch)
 	writeOutHeader();
 }
 
+void Effector::setEffects()
+{
+	uint32_t localLength = affterEffectLength;
+
+	int16_t * localAddress = startAddress ;
+	int16_t * localEffectAddress = startAddressEffect;
+
+	fileByteSaved = affterEffectLength;
+
+	memcpy(localAddress,localEffectAddress,localLength);
+
+}
 
 void Effector::writeOutHeader()
 {

@@ -33,7 +33,6 @@
 #include "ser_print.h" // testing only
 #include <errno.h>
 
-
 // Flash Security Setting. On Teensy 3.2, you can lock the MK20 chip to prevent
 // anyone from reading your code.  You CAN still reprogram your Teensy while
 // security is set, but the bootloader will be unable to respond to auto-reboot
@@ -687,8 +686,12 @@ __attribute__ ((optimize("-Os")))
 // hopefully all others fit into startup section (below 0x400)
 __attribute__ ((section(".startup"),optimize("-Os")))
 #endif
+
+
+
 void ResetHandler(void)
 {
+
 	uint32_t *src = &_etext;
 	uint32_t *dest = &_sdata;
 	unsigned int i;

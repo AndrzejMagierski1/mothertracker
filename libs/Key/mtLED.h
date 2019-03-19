@@ -150,6 +150,7 @@ class mtLEDs
 {
 public:
 	mtLEDs();
+	void setSleep();
 	void begin();
 	void updateSeq();
 	void updateGrid();

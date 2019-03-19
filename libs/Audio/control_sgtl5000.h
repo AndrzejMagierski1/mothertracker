@@ -89,7 +89,7 @@ public:
 	unsigned short surroundSoundEnable(void);
 	unsigned short surroundSoundDisable(void);
 	void killAutomation(void) { semi_automated=false; }
-
+	bool write(unsigned int reg, unsigned int val);
 protected:
 	bool muted;
 	bool volumeInteger(unsigned int n); // range: 0x00 to 0x80
@@ -97,7 +97,7 @@ protected:
 	uint8_t i2c_addr;
 	unsigned char calcVol(float n, unsigned char range);
 	unsigned int read(unsigned int reg);
-	bool write(unsigned int reg, unsigned int val);
+
 	unsigned int modify(unsigned int reg, unsigned int val, unsigned int iMask);
 	unsigned short dap_audio_eq_band(uint8_t bandNum, float n);
 private:

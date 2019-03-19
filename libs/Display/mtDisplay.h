@@ -59,6 +59,9 @@ public:
 	void updateDisplay();
 	void updateHaptic();
 
+	void setSleepMode(void);
+	void setRunMode(void);
+
 	//metody publiczne zarzadzania ekranem
 	void setMode(uint8_t mode);
 

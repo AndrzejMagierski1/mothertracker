@@ -255,7 +255,7 @@ void FT812_Init(void)
     }
 
 //TODO // TOUCH
-    EVE_MemWrite16( REG_CTOUCH_EXTENDED, CTOUCH_MODE_EXTENDED);
+//    EVE_MemWrite16( REG_CTOUCH_EXTENDED, CTOUCH_MODE_EXTENDED);
 
 	if(hardwareTest)
 	{
@@ -309,3 +309,17 @@ void MCU_Delay_500ms(void)
 	delay(500);
 }
 
+void MCU_set_sleepMode(void)
+{
+	MCU_CSlow();
+	EVE_AddrForWr(REG_PWM_DUTY);
+	EVE_Write8(0);
+	MCU_CShigh();
+	EVE_CmdWrite(0x43,0x00);
+    EVE_CmdWrite(0x50,0x00);
+}
+
+void MCU_set_runMode(void)
+{
+	EVE_CmdWrite(FT81x_ACTIVE, 0x00);
+}

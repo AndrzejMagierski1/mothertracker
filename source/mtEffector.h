@@ -11,10 +11,12 @@ public:
 
 	void loadSample(const char *patch, int16_t * buf);
 	void play(uint16_t start, uint16_t stop);
-	void playPrev();
+	void playPrev(uint8_t effect);
 	void stop();
 	void trim(uint16_t a, uint16_t b);
 	void save(const char *patch);
+	void setEffects();
+
 
 	int16_t * getAddress();
 	uint32_t getLength();
@@ -25,7 +27,7 @@ private:
 	int16_t * startAddress;
 
 	int16_t * startAddressEffect;
-	uint32_t affterEffectLength;
+	uint32_t affterEffectLength; // w bajtach
 
 	uint32_t ChunkSize = 0L;
 	uint32_t Subchunk1Size = 16;
@@ -36,7 +38,7 @@ private:
 	uint32_t byteRate = sampleRate*numChannels*(bitsPerSample/8);
 	uint32_t blockAlign = numChannels*bitsPerSample/8;
 	uint32_t Subchunk2Size = 0;
-	uint32_t fileByteSaved = 0;
+	uint32_t fileByteSaved = 0; // w bajtach
 	uint32_t NumSamples = 0;
 	uint8_t byte1, byte2, byte3, byte4;
 

@@ -303,5 +303,13 @@ void cMtDisplay::setMode(uint8_t mode)
 	screenRefresh = 1;
 }
 
+void cMtDisplay::setSleepMode(void)
+{
+	MCU_set_sleepMode();
+}
+void cMtDisplay::setRunMode(void)
+{
+	MCU_set_runMode();
+}
 
 

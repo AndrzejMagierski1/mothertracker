@@ -1,3 +1,5 @@
+#include "Snooze.h" // tymczasowo
+
 #include "mtInterface.h"
 #include "mtHardware.h"
 #include "mtAudioEngine.h"
@@ -7,6 +9,7 @@
 #include "seqDisplay.h"
 #include "chatBot.h"
 #include "mtPadsBacklight.h"
+#include "mtSleep.h"
 
 
 
@@ -16,9 +19,12 @@ extern void updateHardware();
 
 
 
+
 //=======================================================================
 void setup()
 {
+
+
 
 	// inicjalizacja hardware jako pierwsza
 	initHardware();
@@ -39,6 +45,7 @@ void setup()
 //=======================================================================
 void loop()
 {
+	powerModeUpdate();
 	sequencer.handle();
 	//handle_chatBot();
 
