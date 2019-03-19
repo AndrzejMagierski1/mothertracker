@@ -11,7 +11,7 @@
 class mtChorus
 {
 public:
-	int32_t makeChorus(int16_t *delayline,int d_length,int n_chorus);
+	int32_t makeChorus(int d_length,int n_chorus);
 
 private:
 	short *l_delayline;

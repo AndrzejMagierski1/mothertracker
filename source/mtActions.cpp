@@ -16,6 +16,7 @@
 
 #include "mtPadsBacklight.h"
 #include "mtInterface.h"
+#include "mtEffector.h"
 
 extern AudioControlSGTL5000 audioShield;
 
@@ -134,7 +135,22 @@ void onButtonChange(uint8_t n, uint8_t value)
 		return;
 	}
 
-
+	if(value)
+	{
+		if(n == 0)
+		{
+			effector.loadSample("dupa.wav");
+			effectorChorus.makeChorus(2048,4);
+		}
+		else if(n == 1)
+		{
+			effector.playPrev();
+		}
+		else if(n == 2)
+		{
+			effector.play(0,MAX_16BIT);
+		}
+	}
 	mtInterface.buttonChange(n,value);
 
 

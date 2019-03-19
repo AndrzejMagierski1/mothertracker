@@ -2,11 +2,11 @@
 
 mtEffector effector;
 
-void mtEffector::loadSample(const char *patch, int16_t * buf)
+void mtEffector::loadSample(const char *patch)
 {
-	fileByteSaved = fmLoadSample(patch,buf);
-	if(fileByteSaved == -1) return; //todo: obsluga bledu
-	startAddress=buf;
+	fileByteSaved = 2 * fmLoadSample(patch,sdram_sampleBank);
+	if(fileByteSaved == 0) return; //todo: obsluga bledu
+	startAddress=sdram_sampleBank;
 }
 
 void mtEffector::play(uint16_t start, uint16_t stop)
@@ -20,7 +20,7 @@ void mtEffector::play(uint16_t start, uint16_t stop)
 	instrumentPlayer[0].noteOnforPrev(startAddress + addressShift,length);
 }
 
-void mtEffector::playPrev(uint8_t effect)
+void mtEffector::playPrev()
 {
 	startAddressEffect = sdram_effectsBank;
 

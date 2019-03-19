@@ -50,8 +50,8 @@ int32_t mtFlanger::makeFlanger(int d_length,int delay_offset,int d_depth,float d
 		else localLength=0;
 	}
 
-
-	return returnLength;
+	effector.affterEffectLength=returnLength/2;
+	return 1;
 
 }
 

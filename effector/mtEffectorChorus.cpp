@@ -5,7 +5,7 @@
 int16_t chorusBuffer[CHORUS_BUF_SIZE];
 mtChorus effectorChorus;
 
-int32_t mtChorus::makeChorus(short *delayline,int d_length,int n_chorus)
+int32_t mtChorus::makeChorus(int d_length,int n_chorus)
 {
 	uint32_t localLength = effector.getLength();
 	int32_t returnLength = (int32_t) localLength;
@@ -36,7 +36,8 @@ int32_t mtChorus::makeChorus(short *delayline,int d_length,int n_chorus)
 		if(localLength> AUDIO_BLOCK_SAMPLES) localLength -= AUDIO_BLOCK_SAMPLES;
 		else localLength=0;
 	}
-	return returnLength;
+	effector.affterEffectLength=returnLength/2;
+	return 1;
 }
 
 
@@ -46,8 +47,11 @@ void mtChorus::calculate(int16_t * sbuf, int16_t * dbuf)
   short *bp;
   int sum;
   int c_idx;
+  int16_t tempBuf[AUDIO_BLOCK_SAMPLES];
 
-  if(l_delayline == NULL)return;
+  memcpy(tempBuf,sbuf,2*AUDIO_BLOCK_SAMPLES);
+
+  if(l_delayline == NULL) return;
 
   if(num_chorus <= 1)
   {
@@ -69,6 +73,7 @@ void mtChorus::calculate(int16_t * sbuf, int16_t * dbuf)
     	  *dbuf++ = *bp++;
       }
 
+      memcpy(sbuf,tempBuf,AUDIO_BLOCK_SAMPLES);
       return;
   }
 
@@ -98,11 +103,14 @@ void mtChorus::calculate(int16_t * sbuf, int16_t * dbuf)
 
 		  *bp++ = sum/num_chorus;
 	  }
-
+	  bp-=AUDIO_BLOCK_SAMPLES;
       for(int i=0; i<AUDIO_BLOCK_SAMPLES;i++)
       {
-    	  *dbuf++ = *sbuf++;
+    	  *dbuf++ = *bp++;
       }
+      //todo: gdyby dzialal wolno mozna optymalizowac
+
+      memcpy(sbuf,tempBuf,2*AUDIO_BLOCK_SAMPLES);
 }
 
 

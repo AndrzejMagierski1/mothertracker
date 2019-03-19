@@ -117,8 +117,8 @@ extern FileManager fileManager;
 
 
 
-int32_t fmLoadSample(const char *filename, int16_t * buf);
-int32_t loadWavetable(const char *filename, int16_t * buf);
+uint32_t fmLoadSample(const char *filename, int16_t * buf);
+int32_t fmLoadWavetable(const char *filename, int16_t * buf);
 int32_t loadWavetableStandard(const char *filename, int16_t * buf);
 int32_t loadWavetableSerum(const char *filename, int16_t * buf);
 //int32_t loadFullWavetableSerum(const char *filename, int16_t * buf);

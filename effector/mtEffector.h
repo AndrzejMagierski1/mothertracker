@@ -5,18 +5,22 @@
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
 #include "mtEffectorChorus.h"
+#include "mtEffectorFlanger.h"
+
 class mtEffector
 {
 public:
 
-	void loadSample(const char *patch, int16_t * buf);
+	void loadSample(const char *patch);
 	void play(uint16_t start, uint16_t stop);
-	void playPrev(uint8_t effect);
+	void playPrev();
 	void stop();
 	void trim(uint16_t a, uint16_t b);
 	void save(const char *patch);
 	void setEffects();
 
+	friend class mtChorus;
+	friend class mtFlanger;
 
 	int16_t * getAddress();
 	int32_t getLength();

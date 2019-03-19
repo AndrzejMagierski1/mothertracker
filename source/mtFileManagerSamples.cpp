@@ -11,7 +11,7 @@
 
 
 
-int32_t fmLoadSample(const char *filename, int16_t * buf)
+uint32_t fmLoadSample(const char *filename, int16_t * buf)
 {
 	strWavFileHeader sampleHead;
 	uint16_t bufferLength=0;
@@ -35,7 +35,7 @@ int32_t fmLoadSample(const char *filename, int16_t * buf)
 			Serial.println("too long file");
 			mtPrint("too long file");
 		}
-		return -1;
+		return 0;
 	}
 	if(sampleHead.format != 1163280727 || sampleHead.AudioFormat != 1  || sampleHead.bitsPerSample != 16  || sampleHead.sampleRate != 44100 )
 	{
@@ -46,7 +46,7 @@ int32_t fmLoadSample(const char *filename, int16_t * buf)
 			Serial.println("Bad WAV file or External RAM(if SD Card init is Correct");
 			mtPrint("Bad WAV file or External RAM(if SD Card init is Correct");
 		}
-		return -1;
+		return 0;
 	}
 	else
 	{
