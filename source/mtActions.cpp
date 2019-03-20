@@ -139,12 +139,11 @@ void onButtonChange(uint8_t n, uint8_t value)
 	{
 		if(n == 0)
 		{
-			effector.loadSample("dupa.wav");
-
+			effector.loadSample("1.wav");
+			effectorDelay.makeDelay(0.65,100);
 		}
 		else if(n == 1)
 		{
-			effectorFlanger.makeFlanger(256, 64, 128, 3.0);
 			effector.playPrev();
 		}
 		else if(n == 2)
@@ -157,7 +156,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 		}
 		else if(n == 4)
 		{
-			effector.save("flanger.wav");
+			effector.save("Delay.wav");
 		}
 	}
 	mtInterface.buttonChange(n,value);

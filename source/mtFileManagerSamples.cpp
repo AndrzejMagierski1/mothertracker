@@ -30,6 +30,7 @@ uint32_t fmLoadSample(const char *filename, int16_t * buf)
 
 	if ( (sampleHead.numChannels == 1 && (sampleHead.subchunk2Size > 8388608 )) &&  (sampleHead.numChannels == 2 && (sampleHead.subchunk2Size > 4194304)))
 	{
+		wavfile.close();
 		if(hardwareTest)
 		{
 			Serial.println("too long file");
@@ -88,7 +89,7 @@ uint32_t fmLoadSample(const char *filename, int16_t * buf)
 		{
 
 			bufferLength = wavfile.read(buf16, 512);
-			//Serial.println(bufferLength);
+
 			accBufferLength += bufferLength;
 			for(int i=0; i< 256; i+=2)
 			{
@@ -101,7 +102,7 @@ uint32_t fmLoadSample(const char *filename, int16_t * buf)
 	}
 
 	wavfile.close();
-
+	accBufferLength = sampleHead.subchunk2Size;
 //	*bufStart = (accBufferLength/4);
 	if(sampleHead.numChannels == 1)
 	{

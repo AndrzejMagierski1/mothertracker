@@ -6,6 +6,7 @@
 #include "mtStructs.h"
 #include "mtEffectorChorus.h"
 #include "mtEffectorFlanger.h"
+#include "mtEffectorDelay.h"
 
 class mtEffector
 {
@@ -21,6 +22,7 @@ public:
 
 	friend class mtChorus;
 	friend class mtFlanger;
+	friend class mtDelay;
 
 	int16_t * getAddress();
 	int32_t getLength();
