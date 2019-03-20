@@ -3,6 +3,7 @@
 #include "arm_math.h"
 
 int16_t flangerBuf[FLANGE_BUF_SIZE];
+mtFlanger effectorFlanger;
 
 int32_t mtFlanger::makeFlanger(int d_length,int delay_offset,int d_depth,float delay_rate)
 {
@@ -39,7 +40,6 @@ int32_t mtFlanger::makeFlanger(int d_length,int delay_offset,int d_depth,float d
 
 	while ( localLength )
 	{
-		calculate(localAddress,destAddress);
 
 /*		todo: jakby byly jakies problemy mozna na 0 ustawic wartosci wykraczajace poza bufor w ostatnim buforze
 		if(localLength<AUDIO_BLOCK_SAMPLES) memset(localAddress+localLength,0,AUDIO_BLOCK_SAMPLES-localLength);*/
@@ -65,9 +65,11 @@ void mtFlanger::calculate(int16_t * sbuf, int16_t * dbuf)
 	short *bp;
 	short frac;
 	int idx1;
+	int16_t tempBuf[AUDIO_BLOCK_SAMPLES];
 
 	if(l_delayline == NULL) return;
 
+	memcpy(tempBuf,sbuf,2*AUDIO_BLOCK_SAMPLES);
 	if(delay_offset_idx == FLANGE_DELAY_PASSTHRU)
 	{
 		  bp = sbuf;
@@ -110,10 +112,12 @@ void mtFlanger::calculate(int16_t * sbuf, int16_t * dbuf)
 	   l_delay_rate_index += delay_rate_incr;
 	   if(l_delay_rate_index & 0x80000000) l_delay_rate_index &= 0x7fffffff;
 	 }
-
+	 bp = sbuf;
      for(int i=0; i<AUDIO_BLOCK_SAMPLES;i++)
      {
-   	  *dbuf++ = *sbuf++;
+   	  *dbuf++ = *bp++;
      }
+
+     memcpy(sbuf,tempBuf,2*AUDIO_BLOCK_SAMPLES);
 
 }

@@ -31,7 +31,7 @@ private:
 	int16_t * startAddress;
 
 	int16_t * startAddressEffect;
-	uint32_t affterEffectLength; // w bajtach
+	uint32_t affterEffectLength; // w probkach
 
 	uint32_t ChunkSize = 0L;
 	uint32_t Subchunk1Size = 16;

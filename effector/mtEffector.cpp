@@ -89,9 +89,9 @@ void mtEffector::setEffects()
 	int16_t * localAddress = startAddress ;
 	int16_t * localEffectAddress = startAddressEffect;
 
-	fileByteSaved = affterEffectLength;
+	fileByteSaved = 2*affterEffectLength;
 
-	memcpy(localAddress,localEffectAddress,localLength);
+	memcpy(localAddress,localEffectAddress,2*localLength);
 
 }
 

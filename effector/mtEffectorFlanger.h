@@ -27,6 +27,6 @@ private:
   void calculate(int16_t * sbuf, int16_t * dbuf);
 };
 
-
+extern mtFlanger effectorFlanger;
 
 #endif
