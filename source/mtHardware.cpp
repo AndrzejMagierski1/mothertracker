@@ -178,14 +178,14 @@ void initHardware()
 
 	BlinkLed.blinkOnce();
 
-	while(1)
+/*	while(1)
 	{
 
-		for(int i=1;i<=16;i++)
+		for(int i=1;i<=20;i++)
 		{
 			for(int j=1;j<=8;j++)
 			{
-				leds.setLEDseq(j,i,1,31);
+				leds.setLEDseq(j,i,1,5);
 				leds.updateSeq();
 				delay(50);
 //				leds.setLEDseq(j,i,0,31);
@@ -198,7 +198,13 @@ void initHardware()
 //				delay(50);
 //			}
 		}
-		for(int i=1;i<=16;i++)
+		for(int i=0;i<63;i++)
+		{
+			leds.setLEDgrid(i, 1, 5);
+			leds.updateGrid();
+			delay(50);
+		}
+		for(int i=1;i<=20;i++)
 		{
 //			for(int j=1;j<=8;j++)
 //			{
@@ -208,13 +214,19 @@ void initHardware()
 //			}
 			for(int j=1;j<=8;j++)
 			{
-				leds.setLEDseq(j,i,0,31);
+				leds.setLEDseq(j,i,0,5);
 				leds.updateSeq();
 				delay(50);
 			}
 		}
+		for(int i=0;i<63;i++)
+		{
+			leds.setLEDgrid(i, 0, 5);
+			leds.updateGrid();
+			delay(50);
+		}
 
-	}
+	}*/
 
 }
 

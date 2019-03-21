@@ -7,6 +7,7 @@
 #include "mtEffectorChorus.h"
 #include "mtEffectorFlanger.h"
 #include "mtEffectorDelay.h"
+#include "mtEffectorLimiter.h"
 
 class mtEffector
 {
@@ -23,6 +24,7 @@ public:
 	friend class mtChorus;
 	friend class mtFlanger;
 	friend class mtDelay;
+	friend class mtLimiter;
 
 	int16_t * getAddress();
 	int32_t getLength();

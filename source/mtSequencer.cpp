@@ -863,8 +863,7 @@ void Sequencer::loadDefaultSequence(void)
 	}
 	//seq[player.ramBank].track[0].tempoDiv=1;
 
-/*
-	seq[player.ramBank].track[0].step[0].isOn = 1;
+	/*seq[player.ramBank].track[0].step[0].isOn = 1;
 	seq[player.ramBank].track[0].step[0].velocity = 100;
 	seq[player.ramBank].track[0].step[0].instrument = 0;
 	seq[player.ramBank].track[0].step[0].note = 24;
@@ -912,10 +911,9 @@ void Sequencer::loadDefaultSequence(void)
 	seq[player.ramBank].track[7].step[7].instrument = 0;
 	seq[player.ramBank].track[7].step[7].note = 21;
 	seq[player.ramBank].track[7].step[7].length1 = 100;
-*/
 
 
-/*	seq[player.ramBank].track[0].step[8].isOn = 1;
+	seq[player.ramBank].track[0].step[8].isOn = 1;
 	seq[player.ramBank].track[0].step[8].velocity = 100;
 	seq[player.ramBank].track[0].step[8].instrument = 0;
 	seq[player.ramBank].track[0].step[8].note = 28;

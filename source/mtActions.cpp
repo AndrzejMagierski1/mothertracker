@@ -140,7 +140,8 @@ void onButtonChange(uint8_t n, uint8_t value)
 		if(n == 0)
 		{
 			effector.loadSample("1.wav");
-			effectorDelay.makeDelay(0.65,100);
+			//effectorDelay.makeDelay(0.65,100);
+			effectorLimiter.makeLimiter(15000, 300, 20);
 		}
 		else if(n == 1)
 		{
