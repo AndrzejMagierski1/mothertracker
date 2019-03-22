@@ -20,7 +20,7 @@
 
 extern AudioControlSGTL5000 audioShield;
 
-float licznik=1;
+uint16_t licznik=32000;
 
 
 
@@ -65,16 +65,18 @@ void onPotChange(uint8_t n, int16_t value)
 
 	mtInterface.potChange(n, value);
 
-//	if(value>0)
-//	{
-//		if(licznik<1.0f) licznik+=0.01;
-//	}
-//	else if(value<0)
-//	{
-//		if(licznik>0.0f) licznik-=0.01;
-//	}
+	if(value>0)
+	{
+		if(licznik<31900) licznik+=100;
+	}
+	else if(value<0)
+	{
+		if(licznik>100) licznik-=100;
+	}
+	limiter[0].setThreshold(licznik);
+	limiter[1].setThreshold(licznik);
 //	audioShield.volume(licznik);
-
+	Serial.println(licznik);
 //	mtHaptic.start(15,150,0x01,56);
 
 
@@ -135,31 +137,31 @@ void onButtonChange(uint8_t n, uint8_t value)
 		return;
 	}
 
-	if(value)
-	{
-		if(n == 0)
-		{
-			effector.loadSample("1.wav");
-			//effectorDelay.makeDelay(0.65,100);
-			effectorLimiter.makeLimiter(15000, 300, 20);
-		}
-		else if(n == 1)
-		{
-			effector.playPrev();
-		}
-		else if(n == 2)
-		{
-			effector.play(0,MAX_16BIT);
-		}
-		else if(n == 3)
-		{
-			effector.setEffects();
-		}
-		else if(n == 4)
-		{
-			effector.save("Delay.wav");
-		}
-	}
+//	if(value)
+//	{
+//		if(n == 0)
+//		{
+//			effector.loadSample("1.wav");
+//			//effectorDelay.makeDelay(0.65,100);
+//			effectorLimiter.makeLimiter(15000, 300, 20);
+//		}
+//		else if(n == 1)
+//		{
+//			effector.playPrev();
+//		}
+//		else if(n == 2)
+//		{
+//			effector.play(0,MAX_16BIT);
+//		}
+//		else if(n == 3)
+//		{
+//			effector.setEffects();
+//		}
+//		else if(n == 4)
+//		{
+//			effector.save("Delay.wav");
+//		}
+//	}
 	mtInterface.buttonChange(n,value);
 
 

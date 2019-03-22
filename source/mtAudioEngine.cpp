@@ -19,6 +19,7 @@ AudioMixer9				 mixerL,mixerR,mixerReverb;
 AudioOutputI2S           i2sOut;
 AudioMixer4              mixerRec;
 AudioEffectFreeverb		 reverb;
+AudioEffectLimiter		 limiter[2];
 
 int16_t					 mods[MAX_TARGET][MAX_MOD];
 
@@ -81,8 +82,11 @@ AudioConnection          connect49(&mixerReverb,&reverb);
 AudioConnection          connect50(&reverb, 0, &mixerL, 8);
 AudioConnection          connect51(&reverb, 0, &mixerR, 8);
 
-AudioConnection          connect52(&mixerL, 0, &i2sOut, 1);
-AudioConnection          connect53(&mixerR, 0, &i2sOut, 0);
+AudioConnection          connect57(&mixerL, &limiter[0]);
+AudioConnection          connect58(&mixerR, &limiter[1]);
+
+AudioConnection          connect52(&limiter[0], 0, &i2sOut, 1);
+AudioConnection          connect53(&limiter[1], 0, &i2sOut, 0);
 
 AudioConnection          connect54(&i2sIn, 0, &mixerRec, 0);
 AudioConnection          connect55(&i2sIn, 1, &mixerRec, 1);
@@ -117,7 +121,8 @@ void audioEngine::init()
 	audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
 	audioShield.inputSelect(AUDIO_INPUT_MIC);
 	audioShield.micGain(35);
-
+	limiter[0].begin(32000, 300, 20);
+	limiter[1].begin(32000, 300, 20);
 	for(int i=0;i<8; i++)
 	{
 		instrumentPlayer[i].init(&playMem[i],&envelopeFilter[i],&filter[i],&envelopeAmp[i], &amp[i], i, &lfoAmp[i],&lfoFilter[i],&lfoPitch[i]);

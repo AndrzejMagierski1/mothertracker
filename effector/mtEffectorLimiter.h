@@ -6,7 +6,7 @@
 class mtLimiter
 {
 public:
-	int8_t makeLimiter(uint16_t threshold, uint16_t attack, uint16_t release );
+	int8_t makeLimiter(uint16_t ts, uint16_t a, uint16_t r );
 private:
 	int16_t buffer[5];
 	uint16_t threshold;
