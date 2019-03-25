@@ -8,6 +8,7 @@
 #include "mtEffectorFlanger.h"
 #include "mtEffectorDelay.h"
 #include "mtEffectorLimiter.h"
+#include "mtEffectorCompressor.h"
 
 class mtEffector
 {
@@ -25,6 +26,7 @@ public:
 	friend class mtFlanger;
 	friend class mtDelay;
 	friend class mtLimiter;
+	friend class mtCompressor;
 
 	int16_t * getAddress();
 	int32_t getLength();

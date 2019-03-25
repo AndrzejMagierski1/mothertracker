@@ -6,7 +6,7 @@
 #include "mtSequencer.h"
 
 const uint8_t TRACKER_LINE = 			10;
-const unsigned long REFRESH_TIME = 		50;
+const unsigned long REFRESH_TIME = 		100;
 
 class SeqDisplay
 {
@@ -26,7 +26,7 @@ int8_t getMaxTrackLen();
 Sequencer::strPattern * sequencerPtr;
 uint8_t state;
 
-elapsedMillis refreshTimer;
+
 enum seqState
 {
 	seqPlay = 0,

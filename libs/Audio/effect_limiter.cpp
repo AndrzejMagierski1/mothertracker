@@ -25,7 +25,6 @@ void AudioEffectLimiter::setRelease(uint16_t r)
 
 void AudioEffectLimiter::update(void)
 {
-   elapsedMicros tajmerek=0;
 	audio_block_t *sblock;
     int16_t *sbuf;
     int16_t *dbuf;
@@ -72,6 +71,4 @@ void AudioEffectLimiter::update(void)
 
     transmit(sblock,0);
     release(sblock);
-    Serial.print("apoloniuszTajmer: ");
-    Serial.println(tajmerek);
 }

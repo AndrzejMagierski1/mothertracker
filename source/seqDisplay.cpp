@@ -3,18 +3,13 @@
 void SeqDisplay::init(Sequencer::strPattern * seq)
 {
 	sequencerPtr=seq;
-	refreshTimer=0;
 	setMode(seqStop);
 }
 
 void SeqDisplay::update()
 {
-	if(refreshTimer >= REFRESH_TIME)
-	{
 	if(state == seqPlay) updatePlayMode();
 	else updateStopMode();
-	refreshTimer=0;
-	}
 }
 
 void SeqDisplay::setMode(uint8_t s)
@@ -105,6 +100,10 @@ void SeqDisplay::updatePlayMode()
 void SeqDisplay::updatePlayMode()
 {
 	int8_t maxTrackLen=0;
+	static elapsedMillis tim;
+	if(tim>REFRESH_TIME)
+	{
+	tim=0;
 
 	maxTrackLen=getMaxTrackLen();
 	if(!maxTrackLen) return;
@@ -148,12 +147,17 @@ void SeqDisplay::updatePlayMode()
 		}
 	}
 //	leds.updateSeq();
-
+	}
 }
 
 
 void SeqDisplay::updateStopMode()
 {
+	static elapsedMillis tim;
+	if(tim>REFRESH_TIME)
+	{
+	tim=0;
+
 	for(uint8_t i=0;i<8;i++)
 	{
 		if(sequencerPtr->track[i].isOn) leds.setLEDseq(i+1,1,1,31);
@@ -166,6 +170,7 @@ void SeqDisplay::updateStopMode()
 			if(sequencerPtr->track[i].step[j].isOn) leds.setLEDseq(i+1,j+1,1,31);
 			else leds.setLEDseq(i+1,j+1,0,31);
 		}
+	}
 	}
 
 }
