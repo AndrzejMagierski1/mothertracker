@@ -136,7 +136,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 		onPowerButtonChange(value);
 		return;
 	}
-
+/*
 	if(value)
 	{
 		if(n == 0)
@@ -162,7 +162,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 		{
 			effector.save("Delay.wav");
 		}
-	}
+	}*/
 	mtInterface.buttonChange(n,value);
 
 

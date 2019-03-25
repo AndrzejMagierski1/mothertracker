@@ -6,7 +6,7 @@
 #include "mtSequencer.h"
 
 const uint8_t TRACKER_LINE = 			10;
-const unsigned long REFRESH_TIME = 		100;
+const unsigned long REFRESH_TIME = 		20;
 
 class SeqDisplay
 {

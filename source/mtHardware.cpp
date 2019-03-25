@@ -226,8 +226,8 @@ void initHardware()
 			delay(50);
 		}
 
-	}*/
-
+	}
+*/
 }
 
 

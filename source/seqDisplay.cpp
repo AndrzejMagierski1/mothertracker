@@ -171,6 +171,7 @@ void SeqDisplay::updateStopMode()
 			else leds.setLEDseq(i+1,j+1,0,31);
 		}
 	}
+
 	}
 
 }
