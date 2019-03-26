@@ -9,6 +9,22 @@ void IO7326_INT_FUNCT_B();
 void IO7326_INT_FUNCT_C();
 
 
+void print_scan_status(uint8_t target)
+{
+    switch(Wire2.status())
+    {
+    case I2C_WAITING:
+        Serial.printf("Addr: 0x%02X ACK\n", target);
+        break;
+    case I2C_ADDR_NAK:
+    	Serial.printf("Addr: 0x%02X\n", target);
+        break;
+    default:
+        break;
+    }
+}
+
+
 keyScanner::keyScanner()
 {
 	/*
@@ -103,7 +119,7 @@ uint8_t keyScanner::update()
 	{
 		if (IO7326_int)
 		{
-			IO7326_int--;
+			IO7326_int=0;
 			read_buttons_IC(0);
 			status = 1;
 		}
@@ -115,8 +131,7 @@ uint8_t keyScanner::update()
 	if (checkIntPins > checkIntPinsMax)
 	{
 		checkIntPins = 0;
-
-		if ((digitalRead(IO7326_int_pin) == 0) && (IO7326_int == 0))
+		if ((digitalReadFast(IO7326_int_pin) == 0) && (IO7326_int == 0))
 		{
 			IO7326_int = 1;
 			if(test_mode) Serial.println("IO7326 int low");
@@ -155,6 +170,7 @@ void keyScanner::read_buttons_IC(uint8_t grid_no) //grid no 0-3
 	Wire2.beginTransmission(ucAddr);         // slave addr
 	Wire2.write(IS31_KEY_STATUS_REGISTER);                       // memory address
 	Wire2.endTransmission();       // blocking write (NOSTOP triggers RepSTART on next I2C command)
+	print_scan_status(ucAddr);
 	//delay(1);
 
 	Wire2.requestFrom((uint8_t)ucAddr, (uint8_t)1); // NON-blocking read (request 256 bytes)
@@ -188,7 +204,7 @@ void keyScanner::read_buttons_IC(uint8_t grid_no) //grid no 0-3
 			return;
 		}
 
-		if (test_mode > 1)
+		if (test_mode )
 		{
 			Serial.print("rcvd\t");
 			Serial.println(rcvd, BIN);

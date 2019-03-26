@@ -17,7 +17,7 @@ void update();
 void setMode(uint8_t s);
 
 private:
-
+void drawCurrentPosition();
 void startPlayMode();
 void updatePlayMode();
 void updateStopMode();

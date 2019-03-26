@@ -75,7 +75,7 @@ void cMtStepEditor::showStep(uint8_t track, uint8_t step)
 	stepEditorModeStart = 1;
 	refreshStepEditor = 1;
 	actualTrack = track;
-	actualStep = step;
+	actualStep = step-1;
 
 	showActualParamOnPads();
 

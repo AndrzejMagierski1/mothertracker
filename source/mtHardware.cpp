@@ -54,7 +54,7 @@ void initHardware()
 {
 
 
-	hardwareTest=0;
+	hardwareTest=1;
 
 
 	BlinkLed.begin(BLINK_LED);
@@ -162,9 +162,9 @@ void initHardware()
 	////////////////// IO7326 A
 	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,IO7326_INT_FUNCT_A);
 	////////////////// IO7326 B
-	seqButtonsB.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,GRID_B,IO7326_INT_FUNCT_B);
+	seqButtonsB.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_B,IO7326_INT_FUNCT_B);
 	////////////////// IO7326 C
-	seqButtonsC.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);
+	seqButtonsC.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);
 
 	//LEDS
 	leds.begin();
