@@ -581,7 +581,6 @@ void Sequencer::play(void)
 
 	player.metronome_timer = 1;
 
-	seqDisplay.setMode(0);
 //	send_play();
 //
 //	set_playLed(1);
@@ -644,7 +643,6 @@ void Sequencer::stop(void)
 
 	allNoteOffs();
 	resetAllLearned();
-	seqDisplay.setMode(1);
 // flash_bank(player.actualBank, player.ramBank);
 }
 

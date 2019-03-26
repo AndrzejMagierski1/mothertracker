@@ -15,7 +15,10 @@ public:
 void init(Sequencer::strPattern * seq);
 void update();
 void setMode(uint8_t s);
-
+void setScroll(int8_t sc);
+uint8_t getStep(uint8_t x, uint8_t y);
+void incScroll();
+void decScroll();
 private:
 void drawCurrentPosition();
 void startPlayMode();
@@ -25,7 +28,7 @@ int8_t getMaxTrackLen();
 
 Sequencer::strPattern * sequencerPtr;
 uint8_t state;
-
+int16_t scrollShift;
 
 enum seqState
 {

@@ -8,7 +8,7 @@
 #include "mtSequencer.h"
 #include "mtLED.h"
 #include "mtPadsBacklight.h"
-
+#include "seqDisplay.h"
 #include "mtInterfaceDefs.h"
 
 
@@ -75,7 +75,7 @@ void cMtStepEditor::showStep(uint8_t track, uint8_t step)
 	stepEditorModeStart = 1;
 	refreshStepEditor = 1;
 	actualTrack = track;
-	actualStep = step-1;
+	actualStep = seqDisplay.getStep(track, step);
 
 	showActualParamOnPads();
 
@@ -208,9 +208,9 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		switch(n)
 		{
 		case interfacePadPlay                 :    sequencer.play();    break;
-		case interfacePadStop                 :    sequencer.stop();    break;
-		case interfacePadProjectEditor        :
-		case interfacePadSampleBank           :
+		case interfacePadStop                 :    sequencer.pause();    break;
+		case interfacePadProjectEditor        :	   seqDisplay.incScroll(); break;
+		case interfacePadSampleBank           :	   seqDisplay.decScroll();	break;
 		case interfacePadInstrumentEditor     :
 		case interfacePadConfig               :
 		case interfacePadSettings             :
