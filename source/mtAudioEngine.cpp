@@ -286,9 +286,9 @@ void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,A
 
 uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 {
+	__disable_irq();
 	uint8_t status;
 	float gainL=0,gainR=0;
-
 
 	currentInstrument_idx=instr_idx;
 	currentNote=note;
@@ -364,6 +364,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 
 	/*======================================================================================================*/
+	envelopeAmpPtr->noteOffWithoutRelease();
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();
 
@@ -371,15 +372,22 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	if(mtProject.instrument[instr_idx].lfo[lfoF].enable == lfoOn) lfoFilterPtr->start();
 	if(mtProject.instrument[instr_idx].envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
 
-
+	__enable_irq();
 	return status;
 }
 
 
 void playerEngine :: noteOff()
 {
+	__disable_irq();
 	envelopeAmpPtr->noteOff();
 	envelopeFilterPtr->stop();
+	if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable) playMemPtr->stop();
+	else
+	{
+		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f) playMemPtr->stop();
+	}
+	__enable_irq();
 }
 
 

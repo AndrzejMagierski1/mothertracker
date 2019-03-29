@@ -43,10 +43,11 @@ public:
 		decay(35.0f);
 		sustain(0.5f);
 		release(300.0f);
-		releaseNoteOn(5.0f);
+		releaseNoteOn(0.0f);
 	}
 	void noteOn();
 	void noteOff();
+	void noteOffWithoutRelease();
 	void delay(float milliseconds) {
 		delay_count = milliseconds2count(milliseconds);
 	}

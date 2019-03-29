@@ -69,6 +69,13 @@ void AudioEffectEnvelope::noteOff(void)
 	__enable_irq();
 }
 
+void AudioEffectEnvelope::noteOffWithoutRelease(void)
+{
+	__disable_irq();
+	state = STATE_IDLE;
+	__enable_irq();
+}
+
 void AudioEffectEnvelope::update(void)
 {
 	audio_block_t *block;
@@ -77,6 +84,7 @@ void AudioEffectEnvelope::update(void)
 
 	block = receiveWritable();
 	if (!block) return;
+
 	if (state == STATE_IDLE) {
 		release(block);
 		return;
@@ -127,16 +135,19 @@ void AudioEffectEnvelope::update(void)
 			else if (state == STATE_RELEASE)
 			{
 				state = STATE_IDLE;
-				while (p < end)
-				{
-
-					*p++ = 0;
-					*p++ = 0;
-					*p++ = 0;
-					*p++ = 0;
-				}
+//				while (p < end)
+//				{
+//
+//					*p++ = 0;
+//					*p++ = 0;
+//					*p++ = 0;
+//					*p++ = 0;
+//				}
+//				break;
 				endReleaseFlag=1;
-				break;
+				release(block);
+				return;
+
 			}
 			else if (state == STATE_FORCED)
 			{
@@ -202,7 +213,6 @@ void AudioEffectEnvelope::update(void)
 	}
 	transmit(block);
 	release(block);
-
 }
 
 uint8_t AudioEffectEnvelope::endRelease()
