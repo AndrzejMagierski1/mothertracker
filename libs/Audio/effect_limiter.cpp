@@ -33,7 +33,6 @@ void AudioEffectLimiter::update(void)
     if(sblock) sbuf = sblock->data;
     else
     {
-    	release(sblock);
     	return;
     }
 

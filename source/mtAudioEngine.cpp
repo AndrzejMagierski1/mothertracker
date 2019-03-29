@@ -41,7 +41,7 @@ AudioConnection          connect14(&filter[5], 0, &envelopeAmp[5], 0);
 AudioConnection          connect15(&filter[6], 0, &envelopeAmp[6], 0);
 AudioConnection          connect16(&filter[7], 0, &envelopeAmp[7], 0);
 
-AudioConnection          connect17(&envelopeAmp[0],&amp[0]);
+AudioConnection          connect17(&envelopeAmp[0], &amp[0]);
 AudioConnection          connect18(&envelopeAmp[1], &amp[1]);
 AudioConnection          connect19(&envelopeAmp[2], &amp[2]);
 AudioConnection          connect20(&envelopeAmp[3], &amp[3]);

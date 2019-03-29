@@ -212,7 +212,6 @@ void AudioEffectFreeverb::update()
 	transmit(outblock);
 	release(outblock);
 	if (block != &zeroblock) release((audio_block_t *)block);
-
 #elif defined(KINETISL)
 	audio_block_t *block;
 	block = receiveReadOnly(0);

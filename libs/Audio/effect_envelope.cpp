@@ -202,6 +202,7 @@ void AudioEffectEnvelope::update(void)
 	}
 	transmit(block);
 	release(block);
+
 }
 
 uint8_t AudioEffectEnvelope::endRelease()

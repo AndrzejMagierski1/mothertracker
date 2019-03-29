@@ -106,6 +106,7 @@ static void applyGainThenAdd(int16_t *dst, const int16_t *src, int32_t mult)
 
 void AudioMixer9::update(void)
 {
+	elapsedMicros tim=0;
 	audio_block_t *in, *out=NULL;
 	unsigned int channel;
 
@@ -128,4 +129,5 @@ void AudioMixer9::update(void)
 		transmit(out);
 		release(out);
 	}
+	Serial.println(tim);
 }
