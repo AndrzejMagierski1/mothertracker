@@ -244,43 +244,6 @@ void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,A
 	lfoAmpPtr=lfoAmp;
 	lfoFilterPtr=lfoFilter;
 	lfoPitchPtr=lfoPitch;
-	switch(panCh)
-	{
-	case 0:
-		conFilterToAmpPtr=&connect9;
-		conPlayToFilterPtr=&connect1;
-		break;
-	case 1:
-		conFilterToAmpPtr=&connect10;
-		conPlayToFilterPtr=&connect2;
-		break;
-	case 2:
-		conFilterToAmpPtr=&connect11;
-		conPlayToFilterPtr=&connect3;
-		break;
-	case 3:
-		conFilterToAmpPtr=&connect12;
-		conPlayToFilterPtr=&connect4;
-		break;
-	case 4:
-		conFilterToAmpPtr=&connect13;
-		conPlayToFilterPtr=&connect5;
-		break;
-	case 5:
-		conFilterToAmpPtr=&connect14;
-		conPlayToFilterPtr=&connect6;
-		break;
-	case 6:
-		conFilterToAmpPtr=&connect15;
-		conPlayToFilterPtr=&connect7;
-		break;
-	case 7:
-		conFilterToAmpPtr=&connect16;
-		conPlayToFilterPtr=&connect8;
-		break;
-	default:
-		break;
-	}
 
 }
 
@@ -325,15 +288,15 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
 	/*======================================================================================================*/
 	/*================================================FILTER================================================*/
-//		filterConnect();
-//		changeFilterType(mtProject.instrument[instr_idx].filterType);
+		filterConnect();
+		changeFilterType(mtProject.instrument[instr_idx].filterType);
 		filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
 
 
 		filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
 
 	}
-//	else if(mtProject.instrument[instr_idx].filterEnable == filterOff) filterDisconnect();
+	else if(mtProject.instrument[instr_idx].filterEnable == filterOff) filterDisconnect();
 
 	/*======================================================================================================*/
 	/*==================================================GAIN================================================*/
@@ -365,7 +328,6 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 
 	/*======================================================================================================*/
-//	envelopeAmpPtr->noteOffWithoutRelease();
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();
 
@@ -590,40 +552,17 @@ void playerEngine :: setStatusBytes(uint16_t value)
 
 void playerEngine :: changeFilterType(uint8_t type)
 {
-	conFilterToAmpPtr->disconnect();
-	if(type == lowPass) conFilterToAmpPtr->src_index=0;
-	else if(type == bandPass) conFilterToAmpPtr->src_index=1;
-	else if(type ==  highPass) conFilterToAmpPtr->src_index=2;
-	conFilterToAmpPtr->connect();
+	filterPtr->setType(type);
 }
 
 void playerEngine :: filterDisconnect()
 {
-	conFilterToAmpPtr->disconnect();
-	conPlayToFilterPtr->disconnect();
-
-	conPlayToFilterPtr->src=playMemPtr;
-	conPlayToFilterPtr->dst=envelopeAmpPtr;
-	conPlayToFilterPtr->src_index=0;
-	conPlayToFilterPtr->dest_index=0;
-
-	conPlayToFilterPtr->connect();
-	conFilterToAmpPtr->connect();
+	filterPtr->disconnect();
 }
 
 void playerEngine :: filterConnect()
 {
-	conFilterToAmpPtr->disconnect();
-	conPlayToFilterPtr->disconnect();
-
-	conPlayToFilterPtr->src=playMemPtr;
-	conPlayToFilterPtr->dst=filterPtr;
-	conPlayToFilterPtr->src_index=0;
-	conPlayToFilterPtr->dest_index=0;
-
-	conFilterToAmpPtr->connect();
-	conPlayToFilterPtr->connect();
-
+	filterPtr->connect();
 }
 
 void audioEngine:: prevSdConnect()
