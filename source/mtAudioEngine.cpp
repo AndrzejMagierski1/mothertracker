@@ -290,6 +290,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	uint8_t status;
 	float gainL=0,gainR=0;
 
+
 	currentInstrument_idx=instr_idx;
 	currentNote=note;
 	currentVelocity=velocity;
@@ -324,15 +325,15 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
 	/*======================================================================================================*/
 	/*================================================FILTER================================================*/
-		filterConnect();
-		changeFilterType(mtProject.instrument[instr_idx].filterType);
+//		filterConnect();
+//		changeFilterType(mtProject.instrument[instr_idx].filterType);
 		filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
 
 
 		filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
 
 	}
-	else if(mtProject.instrument[instr_idx].filterEnable == filterOff) filterDisconnect();
+//	else if(mtProject.instrument[instr_idx].filterEnable == filterOff) filterDisconnect();
 
 	/*======================================================================================================*/
 	/*==================================================GAIN================================================*/
@@ -364,7 +365,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 
 	/*======================================================================================================*/
-	envelopeAmpPtr->noteOffWithoutRelease();
+//	envelopeAmpPtr->noteOffWithoutRelease();
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();
 
@@ -598,7 +599,7 @@ void playerEngine :: changeFilterType(uint8_t type)
 
 void playerEngine :: filterDisconnect()
 {
-	//conFilterToAmpPtr->disconnect();
+	conFilterToAmpPtr->disconnect();
 	conPlayToFilterPtr->disconnect();
 
 	conPlayToFilterPtr->src=playMemPtr;
@@ -607,6 +608,7 @@ void playerEngine :: filterDisconnect()
 	conPlayToFilterPtr->dest_index=0;
 
 	conPlayToFilterPtr->connect();
+	conFilterToAmpPtr->connect();
 }
 
 void playerEngine :: filterConnect()

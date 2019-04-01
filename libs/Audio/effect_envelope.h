@@ -47,7 +47,7 @@ public:
 	}
 	void noteOn();
 	void noteOff();
-	void noteOffWithoutRelease();
+	void setIdle();
 	void delay(float milliseconds) {
 		delay_count = milliseconds2count(milliseconds);
 	}

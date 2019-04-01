@@ -69,7 +69,7 @@ void AudioEffectEnvelope::noteOff(void)
 	__enable_irq();
 }
 
-void AudioEffectEnvelope::noteOffWithoutRelease(void)
+void AudioEffectEnvelope::setIdle(void)
 {
 	__disable_irq();
 	state = STATE_IDLE;

@@ -145,7 +145,6 @@ void AudioStream::release(audio_block_t *block)
 		memory_pool_available_mask[index] |= mask;
 		if (index < memory_pool_first_mask) memory_pool_first_mask = index;
 		memory_used--;
-		Serial.println(memory_used);
 	}
 	__enable_irq();
 }
