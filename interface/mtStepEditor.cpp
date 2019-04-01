@@ -78,7 +78,8 @@ void cMtStepEditor::showStep(uint8_t track, uint8_t step)
 	actualStep = seqDisplay.getStep(track, step);
 
 	showActualParamOnPads();
-
+	seqDisplay.clearAllBlink();
+	seqDisplay.setBlink(track,step);
 
 	padsBacklight.setBackLayer(1,10,interfacePadUp);
 	padsBacklight.setBackLayer(1,10,interfacePadLeft);

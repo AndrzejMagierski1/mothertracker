@@ -7,7 +7,9 @@
 
 const uint8_t TRACKER_LINE = 			10;
 const unsigned long REFRESH_TIME = 		20;
-
+const uint8_t TRACKER_LINE_LIGHT_OFF =	10;
+const uint8_t TRACKER_LINE_LIGHT_ON =	21;
+const uint16_t REFRESH_BLINK_TIME_MS = 	500;
 class SeqDisplay
 {
 public:
@@ -19,6 +21,8 @@ void setScroll(int8_t sc);
 uint8_t getStep(uint8_t x, uint8_t y);
 void incScroll();
 void decScroll();
+void setBlink(uint8_t x, uint8_t y);
+void clearAllBlink();
 private:
 void drawCurrentPosition();
 void startPlayMode();
@@ -29,6 +33,7 @@ int8_t getMaxTrackLen();
 Sequencer::strPattern * sequencerPtr;
 uint8_t state;
 int16_t scrollShift;
+uint8_t cleared = 1;
 
 enum seqState
 {
@@ -40,5 +45,6 @@ enum seqState
 
 
 extern SeqDisplay seqDisplay;
+extern uint8_t blinkTab[8][20];
 
 #endif /* SOURCE_SEQDISPLAY_H_ */
