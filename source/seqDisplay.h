@@ -23,6 +23,8 @@ void incScroll();
 void decScroll();
 void setBlink(uint8_t x, uint8_t y);
 void clearAllBlink();
+void setMultiBlink(uint8_t x,uint8_t y);
+void clearLast();
 private:
 void drawCurrentPosition();
 void startPlayMode();
@@ -34,6 +36,12 @@ Sequencer::strPattern * sequencerPtr;
 uint8_t state;
 int16_t scrollShift;
 uint8_t cleared = 1;
+uint8_t toggler=1;
+struct strLastPoint
+{
+	int8_t x = -1;
+	int8_t y = -1;
+} lastPoint;
 
 enum seqState
 {

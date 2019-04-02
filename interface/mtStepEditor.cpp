@@ -80,6 +80,7 @@ void cMtStepEditor::showStep(uint8_t track, uint8_t step)
 	showActualParamOnPads();
 	seqDisplay.clearAllBlink();
 	seqDisplay.setBlink(track,step);
+	seqDisplay.setMultiBlink(track, step);
 
 	padsBacklight.setBackLayer(1,10,interfacePadUp);
 	padsBacklight.setBackLayer(1,10,interfacePadLeft);
@@ -285,6 +286,10 @@ void cMtStepEditor::seqButtonChange(uint8_t type, uint8_t x, uint8_t y)
 	{
 		//if(y > 0)
 			showStep(x,y);
+	}
+	else
+	{
+		seqDisplay.clearLast();
 	}
 
 }

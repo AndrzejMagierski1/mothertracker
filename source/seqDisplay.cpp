@@ -12,7 +12,7 @@ void SeqDisplay::update()
 {
 	uint8_t sequencerState=sequencer.getSeqState();
 	static elapsedMillis blinkTimer;
-	static uint8_t toggler;
+
 	if((sequencerState == 1) && (state == seqStop) )
 	{
 		setMode(seqPlay);
@@ -290,7 +290,7 @@ void SeqDisplay::decScroll()
 		{
 			for(uint8_t i=0;i<8;i++)
 			{
-				for(uint8_t j=20;j>=1;j--)
+				for(uint8_t j=19;j>=1;j--)
 				{
 					blinkTab[i][j]=blinkTab[i][j-1];
 				}
@@ -311,6 +311,62 @@ void SeqDisplay::setBlink(uint8_t x, uint8_t y)
 {
 	blinkTab[x][y]=1;
 	cleared=0;
+}
+
+void SeqDisplay::setMultiBlink(uint8_t x,uint8_t y)
+{
+	uint8_t xmin{0},ymin{0},xmax{0},ymax{0};
+
+	if( (lastPoint.x != -1) && (lastPoint.y != - 1) )
+	{
+		if(x > lastPoint.x)
+		{
+			xmin = lastPoint.x;
+			xmax = x;
+		}
+		else if (x == lastPoint.x)
+		{
+			xmin = x;
+			xmax = x;
+		}
+		else
+		{
+			xmin = x;
+			xmax = lastPoint.x;
+		}
+
+		if(y > lastPoint.y)
+		{
+			ymin = lastPoint.y;
+			ymax = y;
+		}
+		else if (y == lastPoint.y)
+		{
+			ymin = y;
+			ymax = y;
+		}
+		else
+		{
+			ymin = y;
+			ymax = lastPoint.y;
+		}
+		for(uint8_t i = xmin; i<= xmax ; i++)
+		{
+			for(uint8_t j = ymin; j<= ymax ; j++)
+			{
+				blinkTab[i][j]=1;
+			}
+		}
+
+	}
+	lastPoint.x=x;
+	lastPoint.y=y;
+}
+
+void SeqDisplay::clearLast()
+{
+	lastPoint.x=-1;
+	lastPoint.y=-1;
 }
 
 void SeqDisplay::clearAllBlink()

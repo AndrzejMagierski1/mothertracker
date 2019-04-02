@@ -121,7 +121,16 @@ void cMtInterface::seqButtonPressed(uint8_t x, uint8_t y)
 void cMtInterface::seqButtonReleased(uint8_t x, uint8_t y)
 {
 
+	switch(onScreenModule)
+	{
+		case mtModuleProjectEditor:		mtProjectEditor.seqButtonChange(0,x,y);		break;
+		case mtModuleInstrumentEditor:	mtInstrumentEditor.seqButtonChange(0,x,y);	break;
+		case mtModuleStepEditor:		mtStepEditor.seqButtonChange(0,x,y);		break;
+		case mtModuleSampleBankEditor:	mtSampleBankEditor.seqButtonChange(0,x,y);	break;
+		case mtModuleConfigEditor:		mtConfigEditor.seqButtonChange(0,x,y);		break;
 
+		default : break;
+	}
 }
 
 //=======================================================================
