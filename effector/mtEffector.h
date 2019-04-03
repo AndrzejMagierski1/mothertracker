@@ -9,6 +9,8 @@
 #include "mtEffectorDelay.h"
 #include "mtEffectorLimiter.h"
 #include "mtEffectorCompressor.h"
+#include "mtEffectorAmplifier.h"
+#include "mtEffectorBitcrusher.h"
 
 class mtEffector
 {
@@ -27,6 +29,8 @@ public:
 	friend class mtDelay;
 	friend class mtLimiter;
 	friend class mtCompressor;
+	friend class mtAmplifier;
+	friend class mtBitcrusher;
 
 	int16_t * getAddress();
 	int32_t getLength();

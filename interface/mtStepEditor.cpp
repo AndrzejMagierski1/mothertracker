@@ -78,7 +78,6 @@ void cMtStepEditor::showStep(uint8_t track, uint8_t step)
 	actualStep = seqDisplay.getStep(track, step);
 
 	showActualParamOnPads();
-	seqDisplay.clearAllBlink();
 	seqDisplay.setBlink(track,step);
 	seqDisplay.setMultiBlink(track, step);
 
@@ -164,7 +163,6 @@ void cMtStepEditor::moveActualStep(uint8_t direction)
 		{
 			if(seqDisplay.getBlink(actualTrack, actualStep) == 1) seqDisplay.decScroll();
 			actualStep--;
-			seqDisplay.clearAllBlink();
 			seqDisplay.setBlink(actualTrack,seqDisplay.getBlink(actualTrack, actualStep));
 		}
 		break;
@@ -174,7 +172,6 @@ void cMtStepEditor::moveActualStep(uint8_t direction)
 		if(actualTrack < 7)
 		{
 			actualTrack++;
-			seqDisplay.clearAllBlink();
 			seqDisplay.setBlink(actualTrack,seqDisplay.getBlink(actualTrack, actualStep));
 		}
 		break;
@@ -185,7 +182,6 @@ void cMtStepEditor::moveActualStep(uint8_t direction)
 		{
 			if(seqDisplay.getBlink(actualTrack, actualStep) == 19)seqDisplay.incScroll() ;
 			actualStep++;
-			seqDisplay.clearAllBlink();
 			seqDisplay.setBlink(actualTrack,seqDisplay.getBlink(actualTrack, actualStep));
 		}
 		break;

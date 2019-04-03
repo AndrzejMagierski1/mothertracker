@@ -371,6 +371,7 @@ void SeqDisplay::setBlink(uint8_t x, uint8_t y)
 	ymax=19;
 	if( (y >= ymin) && (y<= ymax) )
 	{
+		clearAllBlink();
 		blinkTab[x][y]=1;
 		cleared=0;
 	}
