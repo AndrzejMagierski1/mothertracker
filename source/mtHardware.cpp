@@ -178,7 +178,7 @@ void initHardware()
 
 	BlinkLed.blinkOnce();
 
-	/*while(1)
+/*	while(1)
 	{
 
 		for(int i=1;i<=20;i++)
@@ -226,8 +226,7 @@ void initHardware()
 			delay(50);
 		}
 
-	}
-*/
+	}*/
 }
 
 

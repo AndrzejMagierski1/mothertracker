@@ -160,22 +160,44 @@ void cMtStepEditor::moveActualStep(uint8_t direction)
 	{
 	case 0:
 	{
-		if(actualStep > 0) actualStep--;
+		if(actualStep > 0)
+		{
+			if(seqDisplay.getBlink(actualTrack, actualStep) == 1) seqDisplay.decScroll();
+			actualStep--;
+			seqDisplay.clearAllBlink();
+			seqDisplay.setBlink(actualTrack,seqDisplay.getBlink(actualTrack, actualStep));
+		}
 		break;
 	}
 	case 1:
 	{
-		if(actualTrack < 7) actualTrack++;
+		if(actualTrack < 7)
+		{
+			actualTrack++;
+			seqDisplay.clearAllBlink();
+			seqDisplay.setBlink(actualTrack,seqDisplay.getBlink(actualTrack, actualStep));
+		}
 		break;
 	}
 	case 2:
 	{
-		if(actualStep < track_length-1) actualStep++;
+		if(actualStep < track_length-1)
+		{
+			if(seqDisplay.getBlink(actualTrack, actualStep) == 19)seqDisplay.incScroll() ;
+			actualStep++;
+			seqDisplay.clearAllBlink();
+			seqDisplay.setBlink(actualTrack,seqDisplay.getBlink(actualTrack, actualStep));
+		}
 		break;
 	}
 	case 3:
 	{
-		if(actualTrack > 0) actualTrack--;
+		if(actualTrack > 0)
+		{
+			actualTrack--;
+			seqDisplay.clearAllBlink();
+			seqDisplay.setBlink(actualTrack,seqDisplay.getBlink(actualTrack, actualStep));
+		}
 		break;
 	}
 
@@ -237,6 +259,7 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		}
 
 	}
+
 
 	return 0;
 }

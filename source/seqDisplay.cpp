@@ -1,6 +1,8 @@
 #include "seqDisplay.h"
 
 uint8_t blinkTab[8][20];
+uint8_t beyondUp[8][12];
+uint8_t beyondDown[8][12];
 
 void SeqDisplay::init(Sequencer::strPattern * seq)
 {
@@ -20,7 +22,6 @@ void SeqDisplay::update()
 	else if((sequencerState == 2) && (state == seqPlay))
 	{
 		setMode(seqStop);
-
 	}
 	if(state == seqPlay) updatePlayMode();
 	else
@@ -34,6 +35,7 @@ void SeqDisplay::update()
 			{
 				for(uint8_t j=0;j<20; j++)
 				{
+					if(j==0) continue;
 					if(blinkTab[i][j])
 					{
 						if(toggler)
@@ -254,6 +256,7 @@ void SeqDisplay::setScroll(int8_t sc)
 void SeqDisplay::incScroll()
 {
 	uint8_t cnt=0;
+	uint8_t temp[8];
 	for(uint8_t i = 0; i<8 ; i++)
 	{
 		if(scrollShift + sequencer.ptrPlayer->row[i].actual_pos >= 32) cnt++;
@@ -265,9 +268,26 @@ void SeqDisplay::incScroll()
 		{
 			for(uint8_t i=0;i<8;i++)
 			{
-				for(uint8_t j=0;j<19;j++)
+				temp[i] = blinkTab[i][0];
+			}
+			for(uint8_t i=0;i<8;i++)
+			{
+				for(uint8_t j=0;j<20;j++)
 				{
-					blinkTab[i][j]=blinkTab[i][j+1];
+					if(j < 19)blinkTab[i][j]=blinkTab[i][j+1];
+					if(j < 11) beyondDown[i][j] = beyondDown[i][j+1];
+					if(j == 19) blinkTab[i][j] = beyondUp[i][0];
+				}
+			}
+			for(uint8_t i=0;i<8;i++)
+			{
+				beyondDown[i][11] = temp[i];
+			}
+			for(uint8_t i=0;i<8;i++)
+			{
+				for(uint8_t j=0;j<11;j++)
+				{
+					beyondUp[i][j] = beyondUp[i][j+1];
 				}
 			}
 		}
@@ -279,6 +299,7 @@ void SeqDisplay::incScroll()
 void SeqDisplay::decScroll()
 {
 	uint8_t cnt=0;
+	uint8_t temp[8];
 	for(uint8_t i = 0; i<8 ; i++)
 	{
 		if(scrollShift + sequencer.ptrPlayer->row[i].actual_pos <= 0) cnt++;
@@ -290,9 +311,35 @@ void SeqDisplay::decScroll()
 		{
 			for(uint8_t i=0;i<8;i++)
 			{
-				for(uint8_t j=19;j>=1;j--)
+				temp[i] = blinkTab[i][19];
+			}
+			for(uint8_t i=0;i<8;i++)
+			{
+				for(int8_t j=19;j>=0;j--)
 				{
-					blinkTab[i][j]=blinkTab[i][j-1];
+					if(j > 0)
+					{
+						blinkTab[i][j] = blinkTab[i][j-1];
+					}
+					if( (j < 12) && (j > 0) )
+					{
+						beyondUp[i][j] = beyondUp[i][j-1];
+					}
+					if(j == 0)
+					{
+						blinkTab[i][j] = beyondDown[i][11];
+					}
+				}
+			}
+			for(uint8_t i=0;i<8;i++)
+			{
+				beyondUp[i][0] = temp[i];
+			}
+			for(uint8_t i=0;i<8;i++)
+			{
+				for(uint8_t j=11;j>=1;j--)
+				{
+					beyondDown[i][j] = beyondDown[i][j-1];
 				}
 			}
 		}
@@ -302,15 +349,31 @@ void SeqDisplay::decScroll()
 
 uint8_t SeqDisplay::getStep(uint8_t x, uint8_t y)
 {
-	uint8_t result = y  - TRACKER_LINE + sequencer.ptrPlayer->row[x].actual_pos + scrollShift;
+	int8_t result = y  - TRACKER_LINE + sequencer.ptrPlayer->row[x].actual_pos + scrollShift;
 	if(result<0) result=0;
-	return  result;
+	return  (uint8_t)result;
+}
+
+uint8_t SeqDisplay::getBlink(uint8_t track, uint8_t step)
+{
+	int8_t result = TRACKER_LINE - sequencer.ptrPlayer->row[track].actual_pos - scrollShift + step;
+	if(result<0) result=0;
+	if(result>19) result = 19;
+	return  (uint8_t)result;
 }
 
 void SeqDisplay::setBlink(uint8_t x, uint8_t y)
 {
-	blinkTab[x][y]=1;
-	cleared=0;
+	int8_t ymin,ymax;
+	ymin=TRACKER_LINE-sequencer.ptrPlayer->row[x].actual_pos - scrollShift;
+	if(ymin<1) ymin=1;
+	if(ymin>19) ymin=19;
+	ymax=19;
+	if( (y >= ymin) && (y<= ymax) )
+	{
+		blinkTab[x][y]=1;
+		cleared=0;
+	}
 }
 
 void SeqDisplay::setMultiBlink(uint8_t x,uint8_t y)

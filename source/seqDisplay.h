@@ -25,6 +25,7 @@ void setBlink(uint8_t x, uint8_t y);
 void clearAllBlink();
 void setMultiBlink(uint8_t x,uint8_t y);
 void clearLast();
+uint8_t getBlink(uint8_t track, uint8_t step);
 private:
 void drawCurrentPosition();
 void startPlayMode();
