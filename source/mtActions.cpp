@@ -136,16 +136,16 @@ void onButtonChange(uint8_t n, uint8_t value)
 		onPowerButtonChange(value);
 		return;
 	}
-	if(value)
+/*	if(value)
 	{
 		if(n == 0)
 		{
-			effector.loadSample("dupa.wav");
+			effector.loadSample("c.wav");
 			//effectorDelay.makeDelay(0.65,100);
 			//effectorLimiter.makeLimiter(15000, 300, 20);
 			//effectorCompressor.makeCompressor(32000, 1000, 32000, -1000, 30, 3);
 			//effectorAmplifier.makeAmplifier(3);
-			effectorBitcrusher.makeBitcrusher(4, 50);
+			effectorBitcrusher.makeBitcrusher(4, 44100);
 		}
 		else if(n == 1)
 		{
@@ -163,7 +163,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 		{
 			effector.save("bitkraszer.wav");
 		}
-	}
+	}*/
 	mtInterface.buttonChange(n,value);
 
 

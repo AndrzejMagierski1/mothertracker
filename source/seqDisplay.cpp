@@ -1,8 +1,8 @@
 #include "seqDisplay.h"
 
 uint8_t blinkTab[8][20];
-uint8_t beyondUp[8][12];
-uint8_t beyondDown[8][12];
+uint8_t beyondUp[8][32];
+uint8_t beyondDown[8][32];
 
 void SeqDisplay::init(Sequencer::strPattern * seq)
 {
@@ -31,7 +31,8 @@ void SeqDisplay::update()
 		{
 			blinkTimer=0;
 			if(cleared) return;
-			for(uint8_t i = 0; i< 8 ; i++)
+#ifdef BLINK
+/*			for(uint8_t i = 0; i< 8 ; i++)
 			{
 				for(uint8_t j=0;j<20; j++)
 				{
@@ -51,8 +52,26 @@ void SeqDisplay::update()
 					}
 				}
 			}
-			toggler = !toggler;
+			toggler = !toggler;*/
+#else
+			for(uint8_t i = 0; i< 8 ; i++)
+			{
+				for(uint8_t j=0;j<20; j++)
+				{
+					if(j==0) continue;
+					if(blinkTab[i][j])
+					{
 
+						if(sequencerPtr->track[i].step[getStep(i,j)].isOn) leds.setLEDseq(i+1,j+1,1,15);
+						else
+						{
+							if(j != TRACKER_LINE) leds.setLEDseq(i+1,j+1,1,5);
+							else leds.setLEDseq(i+1,j+1,1,8);
+						}
+					}
+				}
+			}
+#endif
 		}
 	}
 
@@ -272,20 +291,20 @@ void SeqDisplay::incScroll()
 			}
 			for(uint8_t i=0;i<8;i++)
 			{
-				for(uint8_t j=0;j<20;j++)
+				for(uint8_t j=0;j<31;j++)
 				{
 					if(j < 19)blinkTab[i][j]=blinkTab[i][j+1];
-					if(j < 11) beyondDown[i][j] = beyondDown[i][j+1];
+					beyondDown[i][j] = beyondDown[i][j+1];
 					if(j == 19) blinkTab[i][j] = beyondUp[i][0];
 				}
 			}
 			for(uint8_t i=0;i<8;i++)
 			{
-				beyondDown[i][11] = temp[i];
+				beyondDown[i][31] = temp[i];
 			}
 			for(uint8_t i=0;i<8;i++)
 			{
-				for(uint8_t j=0;j<11;j++)
+				for(uint8_t j=0;j<31;j++)
 				{
 					beyondUp[i][j] = beyondUp[i][j+1];
 				}
@@ -315,19 +334,19 @@ void SeqDisplay::decScroll()
 			}
 			for(uint8_t i=0;i<8;i++)
 			{
-				for(int8_t j=19;j>=0;j--)
+				for(int8_t j=31;j>=0;j--)
 				{
-					if(j > 0)
+					if((j > 0) && (j <=19))
 					{
 						blinkTab[i][j] = blinkTab[i][j-1];
 					}
-					if( (j < 12) && (j > 0) )
+					if( j > 0 )
 					{
 						beyondUp[i][j] = beyondUp[i][j-1];
 					}
 					if(j == 0)
 					{
-						blinkTab[i][j] = beyondDown[i][11];
+						blinkTab[i][j] = beyondDown[i][31];
 					}
 				}
 			}
@@ -337,7 +356,7 @@ void SeqDisplay::decScroll()
 			}
 			for(uint8_t i=0;i<8;i++)
 			{
-				for(uint8_t j=11;j>=1;j--)
+				for(uint8_t j=31;j>=1;j--)
 				{
 					beyondDown[i][j] = beyondDown[i][j-1];
 				}

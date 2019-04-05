@@ -9,7 +9,7 @@ const uint8_t TRACKER_LINE = 			10;
 const unsigned long REFRESH_TIME = 		20;
 const uint8_t TRACKER_LINE_LIGHT_OFF =	10;
 const uint8_t TRACKER_LINE_LIGHT_ON =	21;
-const uint16_t REFRESH_BLINK_TIME_MS = 	500;
+const uint16_t REFRESH_BLINK_TIME_MS = 	50;
 class SeqDisplay
 {
 public:

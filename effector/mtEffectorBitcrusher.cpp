@@ -39,25 +39,29 @@ void mtBitcrusher::calculate(int16_t * src, int16_t *dst)
 {
 	uint32_t i;
 	uint32_t sampleSquidge, sampleSqueeze;
+	int16_t localBuf[AUDIO_BLOCK_SAMPLES];
+	int16_t	* localAddress = localBuf;
+
+
 
 	if (crushBits == 16 && sampleStep <= 1)
 	{
-		for (uint8_t i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
+		for(uint8_t i=0; i<AUDIO_BLOCK_SAMPLES; i++)
 		{
-			*dst++ = 0;
+			*dst++=0;
 		}
 		return;
 	}
+
+	memcpy(localBuf,src,2*AUDIO_BLOCK_SAMPLES);
 
 	if (sampleStep <= 1)
 	{
 		for (i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			sampleSquidge = *src >> (16 - crushBits);
+			sampleSquidge = *localAddress >> (16 - crushBits);
 
-			*dst = sampleSquidge << (16 - crushBits);
-			src++;
-			dst++;
+			*localAddress++ = sampleSquidge << (16 - crushBits);
 		}
 	}
 	else if (crushBits == 16)
@@ -65,10 +69,10 @@ void mtBitcrusher::calculate(int16_t * src, int16_t *dst)
 		i = 0;
 		while (i < AUDIO_BLOCK_SAMPLES)
 		{
-			sampleSqueeze = *src++;
+			sampleSqueeze = *localAddress;
 			for (int j = 0; j < sampleStep && i < AUDIO_BLOCK_SAMPLES; j++)
 			{
-				*dst++ = sampleSqueeze;
+				*localAddress++ = sampleSqueeze;
 				i++;
 			}
 		}
@@ -78,14 +82,15 @@ void mtBitcrusher::calculate(int16_t * src, int16_t *dst)
 		i = 0;
 		while (i < AUDIO_BLOCK_SAMPLES)
 		{
-
-			sampleSqueeze = *src++;
+			sampleSqueeze = *localAddress;
 			for (int j = 0; j < sampleStep && i < AUDIO_BLOCK_SAMPLES; j++)
 			{
 				sampleSquidge = sampleSqueeze >> (16 - crushBits);
-				*dst = sampleSquidge << (16 - crushBits);
+				*localAddress++ = sampleSquidge << (16 - crushBits);
 				i++;
 			}
 		}
 	}
+	localAddress=localBuf;
+	memcpy(dst,localAddress,2*AUDIO_BLOCK_SAMPLES);
 }

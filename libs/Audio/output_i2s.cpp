@@ -34,6 +34,14 @@ audio_block_t * AudioOutputI2S::block_left_2nd = NULL;
 audio_block_t * AudioOutputI2S::block_right_2nd = NULL;
 uint16_t  AudioOutputI2S::block_left_offset = 0;
 uint16_t  AudioOutputI2S::block_right_offset = 0;
+volatile uint8_t AudioOutputI2S::readR=1;
+volatile uint8_t AudioOutputI2S::readL=1;
+volatile int16_t AudioOutputI2S::bufR[AUDIO_BLOCK_SAMPLES];
+volatile int16_t AudioOutputI2S::bufL[AUDIO_BLOCK_SAMPLES];
+volatile destinationState AudioOutputI2S::destState = destinationState::i2sOutput;
+FsFile AudioOutputI2S::wavExport;
+uint32_t AudioOutputI2S::bytesWrite;
+
 bool AudioOutputI2S::update_responsibility = false;
 DMAMEM static uint32_t i2s_tx_buffer[AUDIO_BLOCK_SAMPLES];
 
@@ -229,46 +237,141 @@ void AudioOutputI2S::update(void)
 	//if (!active) return;
 	//audio_block_t *block = receiveReadOnly();
 	//if (block) release(block);
+	if (destState == destinationState::i2sOutput)
+	{
+		audio_block_t *block;
+		block = receiveReadOnly(0); // input 0 = left channel
+		if (block)
+		{
+			__disable_irq()
+			;
+			if (block_left_1st == NULL)
+			{
+				block_left_1st = block;
+				block_left_offset = 0;
+				__enable_irq()
+				;
+			}
+			else if (block_left_2nd == NULL)
+			{
+				block_left_2nd = block;
+				__enable_irq()
+				;
+			}
+			else
+			{
+				audio_block_t *tmp = block_left_1st;
+				block_left_1st = block_left_2nd;
+				block_left_2nd = block;
+				block_left_offset = 0;
+				__enable_irq()
+				;
+				release(tmp);
+			}
+		}
+		block = receiveReadOnly(1); // input 1 = right channel
+		if (block)
+		{
+			__disable_irq()
+			;
+			if (block_right_1st == NULL)
+			{
+				block_right_1st = block;
+				block_right_offset = 0;
+				__enable_irq()
+				;
+			}
+			else if (block_right_2nd == NULL)
+			{
+				block_right_2nd = block;
+				__enable_irq()
+				;
+			}
+			else
+			{
+				audio_block_t *tmp = block_right_1st;
+				block_right_1st = block_right_2nd;
+				block_right_2nd = block;
+				block_right_offset = 0;
+				__enable_irq()
+				;
+				release(tmp);
+			}
+		}
+	}
+	else if(destState == destinationState::sdCard)
+	{
+		audio_block_t * blockL{nullptr}, * blockR{nullptr};
+		int16_t sendBuf[256];
+		uint32_t * dst;
+		int16_t * srcL = nullptr;
+		int16_t * srcR = nullptr;
+		if(readL)	blockL = receiveReadOnly(0);
+		if(readR)	blockR = receiveReadOnly(1);
 
-	audio_block_t *block;
-	block = receiveReadOnly(0); // input 0 = left channel
-	if (block) {
-		__disable_irq();
-		if (block_left_1st == NULL) {
-			block_left_1st = block;
-			block_left_offset = 0;
-			__enable_irq();
-		} else if (block_left_2nd == NULL) {
-			block_left_2nd = block;
-			__enable_irq();
-		} else {
-			audio_block_t *tmp = block_left_1st;
-			block_left_1st = block_left_2nd;
-			block_left_2nd = block;
-			block_left_offset = 0;
-			__enable_irq();
-			release(tmp);
+		if(readR && readL)
+		{
+			if(blockL == nullptr)
+			{
+				readL = 1;
+				if(blockR == nullptr)
+				{
+					readR = 1;
+					return;
+				}
+				else
+				{
+					readR = 0;
+					memcpy((void*)bufR,blockR->data,2*AUDIO_BLOCK_SAMPLES);
+					release(blockR);
+					return;
+				}
+			}
+			else
+			{
+				if(blockR == nullptr)
+				{
+					readL = 0;
+					readR = 1;
+					memcpy((void*)bufL,blockL->data,2*AUDIO_BLOCK_SAMPLES);
+					release(blockL);
+					return;
+				}
+				else
+				{
+					readL=1;
+					readR=1;
+				}
+			}
+			srcL=blockL->data;
+			srcR=blockR->data;
 		}
-	}
-	block = receiveReadOnly(1); // input 1 = right channel
-	if (block) {
-		__disable_irq();
-		if (block_right_1st == NULL) {
-			block_right_1st = block;
-			block_right_offset = 0;
-			__enable_irq();
-		} else if (block_right_2nd == NULL) {
-			block_right_2nd = block;
-			__enable_irq();
-		} else {
-			audio_block_t *tmp = block_right_1st;
-			block_right_1st = block_right_2nd;
-			block_right_2nd = block;
-			block_right_offset = 0;
-			__enable_irq();
-			release(tmp);
+		else if( readL && !readR)
+		{
+			if(blockL == nullptr) return;
+			else readR=1;
+			srcL=blockL->data;
+			srcR=(int16_t * )bufR;
+
 		}
+		else if( readR && !readL)
+		{
+			if(blockR == nullptr) return;
+			else readL=1;
+			srcL=(int16_t * )bufL;
+			srcR=blockR->data;
+		}
+		else return;
+		dst=(uint32_t * )sendBuf;
+		for(uint8_t i=0; i<AUDIO_BLOCK_SAMPLES ; i++)
+		{
+			*((int16_t * )dst) = *srcL++;
+			*((int16_t * )((dst++)+1)) = *srcR++;
+		}
+		wavExport.write(sendBuf,4*AUDIO_BLOCK_SAMPLES);
+		bytesWrite+=4*AUDIO_BLOCK_SAMPLES;
 	}
+
 }
 
 
@@ -445,4 +548,82 @@ void AudioOutputI2Sslave::config_i2s(void)
 	CORE_PIN11_CONFIG = PORT_PCR_MUX(6); // pin 11, PTC6, I2S0_MCLK
 }
 
+void AudioOutputI2S::destinationSwitch(destinationState dst)
+{
+	if(dst == destinationState::i2sOutput)
+	{
+		if(destState == destinationState::sdCard ) destState = dst;
+	}
+	else if (dst == destinationState::sdCard)
+	{
+		if(destState == destinationState::i2sOutput ) destState = dst;
+	}
+}
 
+void AudioOutputI2S::startExport(char * patch)
+{
+	destinationSwitch(destinationState::sdCard);
+	wavExport=SD.open(patch,FILE_WRITE);
+	wavExport.seek(44);
+}
+
+void AudioOutputI2S::finishExport()
+{
+	uint32_t ChunkSize = 0L;
+	uint32_t Subchunk1Size = 16;
+	uint32_t AudioFormat = 1;
+	uint32_t numChannels = 2;
+	uint32_t sampleRate = 44100;
+	uint32_t bitsPerSample = 16;
+	uint32_t byteRate = sampleRate*numChannels*(bitsPerSample/8);
+	uint32_t blockAlign = numChannels*bitsPerSample/8;
+	uint32_t Subchunk2Size = 0;
+	uint8_t byte1, byte2, byte3, byte4;
+
+	Subchunk2Size = bytesWrite;
+	ChunkSize = Subchunk2Size + 36;
+	wavExport.seek(0);
+	wavExport.write("RIFF",4);
+	byte1 = ChunkSize & 0xff;
+	byte2 = (ChunkSize >> 8) & 0xff;
+	byte3 = (ChunkSize >> 16) & 0xff;
+	byte4 = (ChunkSize >> 24) & 0xff;
+	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
+	wavExport.write("WAVE",4);
+	wavExport.write("fmt ",4);
+	byte1 = Subchunk1Size & 0xff;
+	byte2 = (Subchunk1Size >> 8) & 0xff;
+	byte3 = (Subchunk1Size >> 16) & 0xff;
+	byte4 = (Subchunk1Size >> 24) & 0xff;
+	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
+	byte1 = AudioFormat & 0xff;
+	byte2 = (AudioFormat >> 8) & 0xff;
+	wavExport.write(byte1);  wavExport.write(byte2);
+	byte1 = numChannels & 0xff;
+	byte2 = (numChannels >> 8) & 0xff;
+	wavExport.write(byte1);  wavExport.write(byte2);
+	byte1 = sampleRate & 0xff;
+	byte2 = (sampleRate >> 8) & 0xff;
+	byte3 = (sampleRate >> 16) & 0xff;
+	byte4 = (sampleRate >> 24) & 0xff;
+	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
+	byte1 = byteRate & 0xff;
+	byte2 = (byteRate >> 8) & 0xff;
+	byte3 = (byteRate >> 16) & 0xff;
+	byte4 = (byteRate >> 24) & 0xff;
+	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
+	byte1 = blockAlign & 0xff;
+	byte2 = (blockAlign >> 8) & 0xff;
+	wavExport.write(byte1);  wavExport.write(byte2);
+	byte1 = bitsPerSample & 0xff;
+	byte2 = (bitsPerSample >> 8) & 0xff;
+	wavExport.write(byte1);  wavExport.write(byte2);
+	wavExport.write("data",4);
+	byte1 = Subchunk2Size & 0xff;
+	byte2 = (Subchunk2Size >> 8) & 0xff;
+	byte3 = (Subchunk2Size >> 16) & 0xff;
+	byte4 = (Subchunk2Size >> 24) & 0xff;
+	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
+	wavExport.close();
+	destinationSwitch(destinationState::i2sOutput);
+}
