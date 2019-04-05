@@ -1026,7 +1026,8 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			{
 				// player.row[x].return2start = 0;
 				reset_actual_pos(x);
-				if (player.onPatternEnd != NULL) player.onPatternEnd();
+				if ((player.onPatternEnd != NULL) && (x == MINROW))
+									player.onPatternEnd();
 
 				// if (player.changeBank)
 				// {
@@ -1042,7 +1043,8 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			{
 				// player.row[x].return2start = 0;
 				reset_actual_pos(x);
-				if (player.onPatternEnd != NULL) player.onPatternEnd();
+				if ((player.onPatternEnd != NULL) && (x == MINROW))
+					player.onPatternEnd();
 
 				// if (player.changeBank)
 				// {
