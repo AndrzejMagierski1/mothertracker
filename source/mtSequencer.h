@@ -98,9 +98,9 @@ public:
 		MAX_MOVE_STEP = 4000,
 		IDLE_MOVE_STEP = 2016,
 
-		SEQ_STATE_STOP=0,
-		SEQ_STATE_PLAY=1,
-		SEQ_STATE_PAUSE=2,
+		SEQ_STATE_STOP = 0,
+		SEQ_STATE_PLAY = 1,
+		SEQ_STATE_PAUSE = 2,
 	};
 	static const int16_t MIN_MICROMOVE_STEP = -1000,
 			MAX_MICROMOVE_STEP = 1000;
@@ -517,6 +517,9 @@ public:
 
 		} row[MAXROW + 1];
 
+		void(*onPatternEnd)(void) = NULL;
+
+
 	} player;
 
 	/********************************
@@ -555,7 +558,8 @@ public:
 		if (player.isStop) return 0;
 		else if (player.isPlay) return 1;
 		else if (!player.isStop && !player.isPlay) return 2;
-		else return 0;
+		else
+			return 0;
 	}
 
 	uint8_t * getPatternToLoadFromFile()
@@ -599,6 +603,11 @@ public:
 	void allNoteOffs(void);
 
 	void copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x, uint8_t to_y);
+
+	void setOnPatternEnd(void (*action)(void))
+	{
+		player.onPatternEnd = action;
+	}
 
 	// inne
 	void handle_uStep_timer(void);
