@@ -32,6 +32,7 @@
 #include <Arduino.h>
 #include "AudioStream.h"
 #include "mtAudioEngine.h"
+#include "mtExporterWAV.h"
 
 #if defined(__MKL26Z64__)
   #define MAX_AUDIO_MEMORY 6144
@@ -327,7 +328,6 @@ void software_isr(void) // AudioStream::update_all()
 			if (cycles > p->cpu_cycles_max) p->cpu_cycles_max = cycles;
 		}
 	}
-
 	totalcycles = (ARM_DWT_CYCCNT - totalcycles) >> 4;;
 	AudioStream::cpu_cycles_total = totalcycles;
 	if (totalcycles > AudioStream::cpu_cycles_total_max)

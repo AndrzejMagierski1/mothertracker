@@ -29,7 +29,7 @@
 
 #include "Arduino.h"
 #include "AudioStream.h"
-#define QUEUE_SIZE 100
+#define QUEUE_SIZE 200
 
 class AudioRecordQueue : public AudioStream
 {

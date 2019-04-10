@@ -34,13 +34,13 @@ audio_block_t * AudioOutputI2S::block_left_2nd = NULL;
 audio_block_t * AudioOutputI2S::block_right_2nd = NULL;
 uint16_t  AudioOutputI2S::block_left_offset = 0;
 uint16_t  AudioOutputI2S::block_right_offset = 0;
-volatile uint8_t AudioOutputI2S::readR=1;
-volatile uint8_t AudioOutputI2S::readL=1;
-volatile int16_t AudioOutputI2S::bufR[AUDIO_BLOCK_SAMPLES];
-volatile int16_t AudioOutputI2S::bufL[AUDIO_BLOCK_SAMPLES];
-volatile destinationState AudioOutputI2S::destState = destinationState::i2sOutput;
-FsFile AudioOutputI2S::wavExport;
-uint32_t AudioOutputI2S::bytesWrite;
+//uint8_t AudioOutputI2S::readR=1;
+//uint8_t AudioOutputI2S::readL=1;
+//int16_t AudioOutputI2S::bufR[AUDIO_BLOCK_SAMPLES];
+//int16_t AudioOutputI2S::bufL[AUDIO_BLOCK_SAMPLES];
+uint8_t AudioOutputI2S::destState = statei2sOutput;
+//FsFile AudioOutputI2S::wavExport;
+//uint32_t AudioOutputI2S::bytesWrite;
 
 bool AudioOutputI2S::update_responsibility = false;
 DMAMEM static uint32_t i2s_tx_buffer[AUDIO_BLOCK_SAMPLES];
@@ -226,6 +226,7 @@ void AudioOutputI2S::isr(void)
 	}
 #endif
 
+//	if(destState != statei2sOutput) dma.disable();
 }
 
 
@@ -237,8 +238,8 @@ void AudioOutputI2S::update(void)
 	//if (!active) return;
 	//audio_block_t *block = receiveReadOnly();
 	//if (block) release(block);
-	if (destState == destinationState::i2sOutput)
-	{
+//	if (destState == statei2sOutput)
+//	{
 		audio_block_t *block;
 		block = receiveReadOnly(0); // input 0 = left channel
 		if (block)
@@ -298,79 +299,97 @@ void AudioOutputI2S::update(void)
 				release(tmp);
 			}
 		}
-	}
-	else if(destState == destinationState::sdCard)
-	{
-		audio_block_t * blockL{nullptr}, * blockR{nullptr};
-		int16_t sendBuf[256];
-		uint32_t * dst;
-		int16_t * srcL = nullptr;
-		int16_t * srcR = nullptr;
-		if(readL)	blockL = receiveReadOnly(0);
-		if(readR)	blockR = receiveReadOnly(1);
-
-		if(readR && readL)
-		{
-			if(blockL == nullptr)
-			{
-				readL = 1;
-				if(blockR == nullptr)
-				{
-					readR = 1;
-					return;
-				}
-				else
-				{
-					readR = 0;
-					memcpy((void*)bufR,blockR->data,2*AUDIO_BLOCK_SAMPLES);
-					release(blockR);
-					return;
-				}
-			}
-			else
-			{
-				if(blockR == nullptr)
-				{
-					readL = 0;
-					readR = 1;
-					memcpy((void*)bufL,blockL->data,2*AUDIO_BLOCK_SAMPLES);
-					release(blockL);
-					return;
-				}
-				else
-				{
-					readL=1;
-					readR=1;
-				}
-			}
-			srcL=blockL->data;
-			srcR=blockR->data;
-		}
-		else if( readL && !readR)
-		{
-			if(blockL == nullptr) return;
-			else readR=1;
-			srcL=blockL->data;
-			srcR=(int16_t * )bufR;
-
-		}
-		else if( readR && !readL)
-		{
-			if(blockR == nullptr) return;
-			else readL=1;
-			srcL=(int16_t * )bufL;
-			srcR=blockR->data;
-		}
-		else return;
-		dst=(uint32_t * )sendBuf;
-		for(uint8_t i=0; i<AUDIO_BLOCK_SAMPLES ; i++)
-		{
-			*((int16_t * )dst) = *srcL++;
-			*((int16_t * )((dst++)+1)) = *srcR++;
-		}
-		wavExport.write(sendBuf,4*AUDIO_BLOCK_SAMPLES);
-		bytesWrite+=4*AUDIO_BLOCK_SAMPLES;
-	}
+//	}
+//	else if(destState == stateSdCard)
+//	{
+//		Serial.println("apdejt sdcard");
+//		__disable_irq();
+//		audio_block_t * blockL{NULL}, * blockR{NULL};
+//		int16_t sendBuf[256];
+//		int16_t * dst = NULL;
+//		int16_t * srcL = NULL;
+//		int16_t * srcR = NULL;
+//		if(readL)	blockL = receiveReadOnly(0);
+//		if(readR)	blockR = receiveReadOnly(1);
+//
+//		if(readR && readL)
+//		{
+//			if(!blockL)
+//			{
+//				readL = 1;
+//				if(!blockR)
+//				{
+//					readR = 1;
+//					return;
+//				}
+//				else
+//				{
+//					readR = 0;
+//					memcpy(bufR,blockR->data,2*AUDIO_BLOCK_SAMPLES);
+//					return;
+//				}
+//			}
+//			else
+//			{
+//				if(!blockR)
+//				{
+//					readL = 0;
+//					readR = 1;
+//					memcpy(bufL,blockL->data,2*AUDIO_BLOCK_SAMPLES);
+//					return;
+//				}
+//				else
+//				{
+//					readL=1;
+//					readR=1;
+//				}
+//			}
+//			srcL=blockL->data;
+//			srcR=blockR->data;
+//		}
+//		else if( readL && !readR)
+//		{
+//			if(!blockL) return;
+//			srcL=blockL->data;
+//			srcR=(int16_t * )bufR;
+//
+//		}
+//		else if( readR && !readL)
+//		{
+//			if(!blockR) return;
+//			srcL=(int16_t * )bufL;
+//			srcR=blockR->data;
+//		}
+//		else return;
+//		dst=sendBuf;
+//
+//		for(uint8_t i=0; i<AUDIO_BLOCK_SAMPLES ; i++)
+//		{
+//			*dst++ = *srcL++;
+//			*dst++ = *srcR++;
+//		}
+//		wavExport.write(sendBuf,4*AUDIO_BLOCK_SAMPLES);
+//		bytesWrite+=4*AUDIO_BLOCK_SAMPLES;
+//
+//		if(readR && readL)
+//		{
+//			release(blockL);
+//			release(blockR);
+//		}
+//		else if(readR && !readL)
+//		{
+//			release(blockR);
+//			readL=1;
+//		}
+//		else if(!readR && readL)
+//		{
+//			release(blockL);
+//			readR=1;
+//		}
+//
+////		__enable_irq();
+//
+//	}
 
 }
 
@@ -548,82 +567,81 @@ void AudioOutputI2Sslave::config_i2s(void)
 	CORE_PIN11_CONFIG = PORT_PCR_MUX(6); // pin 11, PTC6, I2S0_MCLK
 }
 
-void AudioOutputI2S::destinationSwitch(destinationState dst)
-{
-	if(dst == destinationState::i2sOutput)
-	{
-		if(destState == destinationState::sdCard ) destState = dst;
-	}
-	else if (dst == destinationState::sdCard)
-	{
-		if(destState == destinationState::i2sOutput ) destState = dst;
-	}
-}
 
-void AudioOutputI2S::startExport(char * patch)
-{
-	destinationSwitch(destinationState::sdCard);
-	wavExport=SD.open(patch,FILE_WRITE);
-	wavExport.seek(44);
-}
 
-void AudioOutputI2S::finishExport()
-{
-	uint32_t ChunkSize = 0L;
-	uint32_t Subchunk1Size = 16;
-	uint32_t AudioFormat = 1;
-	uint32_t numChannels = 2;
-	uint32_t sampleRate = 44100;
-	uint32_t bitsPerSample = 16;
-	uint32_t byteRate = sampleRate*numChannels*(bitsPerSample/8);
-	uint32_t blockAlign = numChannels*bitsPerSample/8;
-	uint32_t Subchunk2Size = 0;
-	uint8_t byte1, byte2, byte3, byte4;
+//uint8_t AudioOutputI2S::startExport(char * patch)
+//{
+//	__disable_irq();
+//	destState = stateSdCard;
+//	if(SD.exists(patch)) SD.remove(patch);
+//	wavExport=SD.open(patch,FILE_WRITE);
+//	wavExport.seek(44);
+//	__enable_irq();
+//	return 1;
+//}
 
-	Subchunk2Size = bytesWrite;
-	ChunkSize = Subchunk2Size + 36;
-	wavExport.seek(0);
-	wavExport.write("RIFF",4);
-	byte1 = ChunkSize & 0xff;
-	byte2 = (ChunkSize >> 8) & 0xff;
-	byte3 = (ChunkSize >> 16) & 0xff;
-	byte4 = (ChunkSize >> 24) & 0xff;
-	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
-	wavExport.write("WAVE",4);
-	wavExport.write("fmt ",4);
-	byte1 = Subchunk1Size & 0xff;
-	byte2 = (Subchunk1Size >> 8) & 0xff;
-	byte3 = (Subchunk1Size >> 16) & 0xff;
-	byte4 = (Subchunk1Size >> 24) & 0xff;
-	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
-	byte1 = AudioFormat & 0xff;
-	byte2 = (AudioFormat >> 8) & 0xff;
-	wavExport.write(byte1);  wavExport.write(byte2);
-	byte1 = numChannels & 0xff;
-	byte2 = (numChannels >> 8) & 0xff;
-	wavExport.write(byte1);  wavExport.write(byte2);
-	byte1 = sampleRate & 0xff;
-	byte2 = (sampleRate >> 8) & 0xff;
-	byte3 = (sampleRate >> 16) & 0xff;
-	byte4 = (sampleRate >> 24) & 0xff;
-	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
-	byte1 = byteRate & 0xff;
-	byte2 = (byteRate >> 8) & 0xff;
-	byte3 = (byteRate >> 16) & 0xff;
-	byte4 = (byteRate >> 24) & 0xff;
-	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
-	byte1 = blockAlign & 0xff;
-	byte2 = (blockAlign >> 8) & 0xff;
-	wavExport.write(byte1);  wavExport.write(byte2);
-	byte1 = bitsPerSample & 0xff;
-	byte2 = (bitsPerSample >> 8) & 0xff;
-	wavExport.write(byte1);  wavExport.write(byte2);
-	wavExport.write("data",4);
-	byte1 = Subchunk2Size & 0xff;
-	byte2 = (Subchunk2Size >> 8) & 0xff;
-	byte3 = (Subchunk2Size >> 16) & 0xff;
-	byte4 = (Subchunk2Size >> 24) & 0xff;
-	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
-	wavExport.close();
-	destinationSwitch(destinationState::i2sOutput);
-}
+//void AudioOutputI2S::finishExport()
+//{
+//	__disable_irq();
+//	uint32_t ChunkSize = 0L;
+//	uint32_t Subchunk1Size = 16;
+//	uint32_t AudioFormat = 1;
+//	uint32_t numChannels = 2;
+//	uint32_t sampleRate = 44100;
+//	uint32_t bitsPerSample = 16;
+//	uint32_t byteRate = sampleRate*numChannels*(bitsPerSample/8);
+//	uint32_t blockAlign = numChannels*bitsPerSample/8;
+//	uint32_t Subchunk2Size = 0;
+//	uint8_t byte1, byte2, byte3, byte4;
+//
+//	Subchunk2Size = bytesWrite;
+//	ChunkSize = Subchunk2Size + 36;
+//	wavExport.seek(0);
+//	wavExport.write("RIFF",4);
+//	byte1 = ChunkSize & 0xff;
+//	byte2 = (ChunkSize >> 8) & 0xff;
+//	byte3 = (ChunkSize >> 16) & 0xff;
+//	byte4 = (ChunkSize >> 24) & 0xff;
+//	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
+//	wavExport.write("WAVE",4);
+//	wavExport.write("fmt ",4);
+//	byte1 = Subchunk1Size & 0xff;
+//	byte2 = (Subchunk1Size >> 8) & 0xff;
+//	byte3 = (Subchunk1Size >> 16) & 0xff;
+//	byte4 = (Subchunk1Size >> 24) & 0xff;
+//	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
+//	byte1 = AudioFormat & 0xff;
+//	byte2 = (AudioFormat >> 8) & 0xff;
+//	wavExport.write(byte1);  wavExport.write(byte2);
+//	byte1 = numChannels & 0xff;
+//	byte2 = (numChannels >> 8) & 0xff;
+//	wavExport.write(byte1);  wavExport.write(byte2);
+//	byte1 = sampleRate & 0xff;
+//	byte2 = (sampleRate >> 8) & 0xff;
+//	byte3 = (sampleRate >> 16) & 0xff;
+//	byte4 = (sampleRate >> 24) & 0xff;
+//	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
+//	byte1 = byteRate & 0xff;
+//	byte2 = (byteRate >> 8) & 0xff;
+//	byte3 = (byteRate >> 16) & 0xff;
+//	byte4 = (byteRate >> 24) & 0xff;
+//	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
+//	byte1 = blockAlign & 0xff;
+//	byte2 = (blockAlign >> 8) & 0xff;
+//	wavExport.write(byte1);  wavExport.write(byte2);
+//	byte1 = bitsPerSample & 0xff;
+//	byte2 = (bitsPerSample >> 8) & 0xff;
+//	wavExport.write(byte1);  wavExport.write(byte2);
+//	wavExport.write("data",4);
+//	byte1 = Subchunk2Size & 0xff;
+//	byte2 = (Subchunk2Size >> 8) & 0xff;
+//	byte3 = (Subchunk2Size >> 16) & 0xff;
+//	byte4 = (Subchunk2Size >> 24) & 0xff;
+//	wavExport.write(byte1);  wavExport.write(byte2);  wavExport.write(byte3);  wavExport.write(byte4);
+//	wavExport.close();
+//	destState = statei2sOutput;
+//
+//
+//
+//	__enable_irq();
+//}

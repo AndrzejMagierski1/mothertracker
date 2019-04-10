@@ -10,7 +10,7 @@
 #include "mtPadsBacklight.h"
 #include "seqDisplay.h"
 #include "mtInterfaceDefs.h"
-
+#include "mtExporterWAV.h"
 
 cMtStepEditor mtStepEditor;
 
@@ -231,7 +231,7 @@ uint8_t cMtStepEditor::padsChange(uint8_t type, uint8_t n, uint8_t velo)
 		case interfacePadStop                 :    sequencer.pause();    break;
 		case interfacePadProjectEditor        :	   seqDisplay.incScroll(); break;
 		case interfacePadSampleBank           :	   seqDisplay.decScroll();	break;
-		case interfacePadInstrumentEditor     :
+		case interfacePadInstrumentEditor     :	   startExport("dupadupa.wav"); break;
 		case interfacePadConfig               :
 		case interfacePadSettings             :
 		case interfacePadRecorder             :

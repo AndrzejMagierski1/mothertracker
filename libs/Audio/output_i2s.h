@@ -32,10 +32,10 @@
 #include "DMAChannel.h"
 #include "SD.h"
 
-enum struct destinationState
+enum  destinationState
 {
-	sdCard,
-	i2sOutput
+	stateSdCard,
+	statei2sOutput
 };
 
 
@@ -45,8 +45,8 @@ public:
 	AudioOutputI2S(void) : AudioStream(2, inputQueueArray) { begin(); }
 	virtual void update(void);
 	void begin(void);
-	static void startExport(char * patch);
-	static void finishExport();
+//	static uint8_t startExport(char * patch);
+//	static void finishExport();
 	friend class AudioInputI2S;
 protected:
 	AudioOutputI2S(int dummy): AudioStream(2, inputQueueArray) {} // to be used only inside AudioOutputI2Sslave !!
@@ -58,18 +58,17 @@ protected:
 	static void isr(void);
 
 private:
-	static void destinationSwitch(destinationState dst);
-	volatile static destinationState destState;
+	static uint8_t destState;
 	static audio_block_t *block_left_2nd;
 	static audio_block_t *block_right_2nd;
 	static uint16_t block_left_offset;
 	static uint16_t block_right_offset;
-	static FsFile wavExport;
-	static uint32_t bytesWrite;
-	volatile static uint8_t readR;
-	volatile static uint8_t readL;
-	volatile static int16_t bufR[AUDIO_BLOCK_SAMPLES];
-	volatile static int16_t bufL[AUDIO_BLOCK_SAMPLES];
+//	static FsFile wavExport;
+//	static uint32_t bytesWrite;
+//	static uint8_t readR;
+//	static uint8_t readL;
+//	static int16_t bufR[AUDIO_BLOCK_SAMPLES];
+//	static int16_t bufL[AUDIO_BLOCK_SAMPLES];
 	audio_block_t *inputQueueArray[2];
 };
 

@@ -26,6 +26,8 @@ public:
 	void setReverbDamping(uint8_t value);
 	void setReverbPanning(int8_t value);
 	void muteTrack(uint8_t channel);
+	void wavExportConnect();
+	void wavExportDisconnect();
 private:
 	AudioConnection* i2sConnect[2];
 };
@@ -115,5 +117,7 @@ extern int16_t					mods[MAX_TARGET][MAX_MOD];
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;
 extern AudioMixer4              mixerRec;
+
+extern AudioRecordQueue		 exportL, exportR;
 
 #endif /* SOURCE_MTAUDIOENGINE_H_ */

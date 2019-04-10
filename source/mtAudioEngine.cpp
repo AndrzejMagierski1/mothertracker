@@ -21,6 +21,8 @@ AudioMixer4              mixerRec;
 AudioEffectFreeverb		 reverb;
 AudioEffectLimiter		 limiter[2];
 
+AudioRecordQueue		 exportL, exportR;
+
 int16_t					 mods[MAX_TARGET][MAX_MOD];
 
 AudioConnection          connect1(&playMem[0], 0, &filter[0], 0);
@@ -602,6 +604,31 @@ void audioEngine:: prevSdDisconnect()
 
 	i2sConnect[0]->connect();
 	i2sConnect[1]->connect();
+}
+
+void audioEngine:: wavExportConnect()
+{
+	i2sConnect[0]->disconnect();
+	i2sConnect[1]->disconnect();
+
+	i2sConnect[0]->src = &mixerL;
+	i2sConnect[0]->dst = &exportL;
+	i2sConnect[0]->src_index=0;
+	i2sConnect[0]->dest_index=0;
+
+	i2sConnect[1]->src = &mixerR;
+	i2sConnect[1]->dst = &exportR;
+	i2sConnect[1]->src_index=0;
+	i2sConnect[1]->dest_index=0;
+
+	i2sConnect[0]->connect();
+	i2sConnect[1]->connect();
+
+}
+
+void audioEngine:: wavExportDisconnect()
+{
+	prevSdDisconnect();
 }
 
 void playerEngine :: clean(void)

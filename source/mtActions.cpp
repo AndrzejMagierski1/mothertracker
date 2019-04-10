@@ -17,6 +17,7 @@
 #include "mtPadsBacklight.h"
 #include "mtInterface.h"
 #include "mtEffector.h"
+#include "mtExporterWAV.h"
 
 extern AudioControlSGTL5000 audioShield;
 

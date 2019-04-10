@@ -10,6 +10,7 @@
 #include "chatBot.h"
 #include "mtPadsBacklight.h"
 #include "mtSleep.h"
+#include "mtExporterWAV.h"
 
 
 
@@ -48,7 +49,7 @@ void loop()
 
 	seqDisplay.update();
 	padsBacklight.update();
-
+	updateExport();
 	updateHardware();
 
 	engine.update();

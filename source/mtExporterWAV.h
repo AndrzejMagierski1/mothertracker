@@ -2,23 +2,20 @@
 #define SOURCE_MTEXPORTERWAV_H_
 
 #include "Audio.h"
+#include "SD.h"
+
+#define SEND_BUF_SIZE 2560
 
 enum struct exportStatus
 {
 	exportFinished,
 	exportDuring
-};
-class mtExporterWAV
-{
-	public:
-		void startExport(char * patch);
-		void finishExport();
-		uint8_t getStatus();
-		void  getFinishAction();
-	private:
-		exportStatus status;
-};
+} ;
 
-extern mtExporterWAV exporterWAV;
+void startExport(char * patch);
+void finishExport();
+void updateExport();
+uint8_t getExportStatus();
+
 
 #endif
