@@ -4,9 +4,30 @@
 exportStatus status;
 uint32_t byteRecorded;
 FsFile wavExport;
-int16_t sendBuf[SEND_BUF_SIZE];
+int16_t sendBuf1[SEND_BUF_SIZE];
+int16_t sendBuf2[SEND_BUF_SIZE];
 uint16_t position;
+uint8_t sendBufStatus;
+uint8_t lastStep;
 
+void setLastExportStep()
+{
+	if(status != exportStatus::exportFinished)
+	{
+		sequencer.stop();
+		lastStep=1;
+	}
+
+}
+void clearLastExportStep()
+{
+	lastStep=0;
+}
+
+uint8_t getLastExportStep()
+{
+	return lastStep;
+}
 void finishExport()
 {
 	__disable_irq();
@@ -27,7 +48,6 @@ void finishExport()
 		{
 			updateExport();
 		}
-		sequencer.stop();
 		exportL.end();
 		exportR.end();
 		engine.wavExportDisconnect();
@@ -91,7 +111,7 @@ void startExport(char * patch)
 	wavExport = SD.open(patch,FILE_WRITE);
 	if(wavExport)
 	{
-		sequencer.setOnPatternEnd(finishExport);
+		sequencer.setOnPatternEnd(setLastExportStep);
 		byteRecorded=0;
 		status = exportStatus::exportDuring;
 
@@ -115,12 +135,14 @@ void updateExport()
 	{
 		if ((exportL.available() >= 1) && (exportR.available() >= 1 ))
 		{
-			elapsedMicros apoloniuszTajmer=0;
 			int16_t bufL[128];
 			int16_t bufR[128];
 			int16_t * srcL = bufL;
 			int16_t * srcR = bufR;
-			int16_t * dest = sendBuf+position;
+			int16_t * dest;
+			if(sendBufStatus) dest =sendBuf1+position;
+			else dest =sendBuf2+position;
+
 			memcpy(bufL,exportL.readBuffer(),256);
 			exportL.freeBuffer();
 			memcpy(bufR,exportR.readBuffer(),256);
@@ -136,13 +158,13 @@ void updateExport()
 			if(position == SEND_BUF_SIZE)
 			{
 				__disable_irq();
-				wavExport.write(sendBuf,SEND_BUF_SIZE*2);
+				if(sendBufStatus) wavExport.write(sendBuf1,SEND_BUF_SIZE*2);
+				else wavExport.write(sendBuf2,SEND_BUF_SIZE*2);
 				__enable_irq();
 				byteRecorded+=SEND_BUF_SIZE*2;
 				position=0;
+				sendBufStatus = !sendBufStatus;
 			}
-
-			Serial.println(apoloniuszTajmer);
 		}
 	}
 }

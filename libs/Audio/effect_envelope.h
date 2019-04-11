@@ -78,6 +78,8 @@ public:
 	using AudioStream::release;
 	virtual void update(void);
 	uint8_t endRelease();
+	void clearEndReleaseFlag();
+	uint8_t getState();
 private:
 
 	uint8_t endReleaseFlag=0;

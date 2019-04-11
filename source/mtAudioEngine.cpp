@@ -87,8 +87,8 @@ AudioConnection          connect51(&reverb, 0, &mixerR, 8);
 AudioConnection          connect57(&mixerL, &limiter[0]);
 AudioConnection          connect58(&mixerR, &limiter[1]);
 
-AudioConnection          connect52(&limiter[0], 0, &i2sOut, 1);
-AudioConnection          connect53(&limiter[1], 0, &i2sOut, 0);
+AudioConnection          connect52(&limiter[0], 0, &i2sOut, 0);
+AudioConnection          connect53(&limiter[1], 0, &i2sOut, 1);
 
 AudioConnection          connect54(&i2sIn, 0, &mixerRec, 0);
 AudioConnection          connect55(&i2sIn, 1, &mixerRec, 1);
@@ -99,6 +99,8 @@ AudioConnection          connect56(&mixerRec, &queue);
 playerEngine instrumentPlayer[8];
 
 audioEngine engine;
+uint8_t playerEngine::onVoices=0;
+uint8_t	playerEngine::activeAmpEnvelopes=0;
 
 void audioEngine::init()
 {
@@ -123,8 +125,8 @@ void audioEngine::init()
 	audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
 	audioShield.inputSelect(AUDIO_INPUT_MIC);
 	audioShield.micGain(35);
-	limiter[0].begin(32000, 300, 20);
-	limiter[1].begin(32000, 300, 20);
+	limiter[0].begin(30000, 300, 20);
+	limiter[1].begin(30000, 300, 20);
 	for(int i=0;i<8; i++)
 	{
 		instrumentPlayer[i].init(&playMem[i],&envelopeFilter[i],&filter[i],&envelopeAmp[i], &amp[i], i, &lfoAmp[i],&lfoFilter[i],&lfoPitch[i]);
@@ -254,7 +256,15 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	__disable_irq();
 	uint8_t status;
 	float gainL=0,gainR=0;
-
+	Serial.print("Przed: ");
+	Serial.print(activeAmpEnvelopes);
+	Serial.print(" Po: ");
+	if(envelopeAmpPtr->getState())
+	{
+		onVoices--;
+		activeAmpEnvelopes--;
+	}
+	onVoices++;
 
 	currentInstrument_idx=instr_idx;
 	currentNote=note;
@@ -270,6 +280,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		envelopeAmpPtr->decay(mtProject.instrument[instr_idx].envelope[envAmp].decay);
 		envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
 		envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
+		activeAmpEnvelopes++;
+		Serial.println(activeAmpEnvelopes);
 	}
 	else
 	{
@@ -347,10 +359,27 @@ void playerEngine :: noteOff()
 	__disable_irq();
 	envelopeAmpPtr->noteOff();
 	envelopeFilterPtr->stop();
-	if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable) playMemPtr->stop();
+	if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+	{
+		playMemPtr->stop();
+		if((getLastExportStep()) && (!onVoices))
+		{
+			Serial.println("w noteofie bo dont enable");
+			clearLastExportStep();
+			finishExport();
+		}
+	}
 	else
 	{
-		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f) playMemPtr->stop();
+		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f)
+		{
+			playMemPtr->stop();
+			if((getLastExportStep()) && (!onVoices) )
+			{
+				clearLastExportStep();
+				finishExport();
+			}
+		}
 	}
 	__enable_irq();
 }
@@ -461,15 +490,26 @@ void playerEngine:: update()
 	float filterMod=0;
 	float ampMod=0;
 
-
 	if(envelopeAmpPtr->endRelease())
 	{
+		envelopeAmpPtr->clearEndReleaseFlag();
+		Serial.print("Przed: ");
+		Serial.print(activeAmpEnvelopes);
+		Serial.print(" po: ");
+		onVoices--;
+		activeAmpEnvelopes--;
+		Serial.println(activeAmpEnvelopes);
 		playMemPtr->stop();
 		lfoAmpPtr->stop();
 		lfoFilterPtr->stop();
 		lfoPitchPtr->stop();
+		if((getLastExportStep()) && (!onVoices))
+		{
+			Serial.println("w endrelease");
+			clearLastExportStep();
+			finishExport();
+		}
 	}
-
 
 	if(mtProject.instrument[currentInstrument_idx].filterEnable == filterOn)
 	{
@@ -592,15 +632,15 @@ void audioEngine:: prevSdDisconnect()
 	i2sConnect[0]->disconnect();
 	i2sConnect[1]->disconnect();
 
-	i2sConnect[0]->src = &mixerL;
+	i2sConnect[0]->src = &limiter[0];
 	i2sConnect[0]->dst = &i2sOut;
 	i2sConnect[0]->src_index=0;
-	i2sConnect[0]->dest_index=1;
+	i2sConnect[0]->dest_index=0;
 
-	i2sConnect[1]->src = &mixerR;
+	i2sConnect[1]->src = &limiter[1];
 	i2sConnect[1]->dst = &i2sOut;
 	i2sConnect[1]->src_index=0;
-	i2sConnect[1]->dest_index=0;
+	i2sConnect[1]->dest_index=1;
 
 	i2sConnect[0]->connect();
 	i2sConnect[1]->connect();
@@ -611,12 +651,12 @@ void audioEngine:: wavExportConnect()
 	i2sConnect[0]->disconnect();
 	i2sConnect[1]->disconnect();
 
-	i2sConnect[0]->src = &mixerL;
+	i2sConnect[0]->src = &limiter[0];
 	i2sConnect[0]->dst = &exportL;
 	i2sConnect[0]->src_index=0;
 	i2sConnect[0]->dest_index=0;
 
-	i2sConnect[1]->src = &mixerR;
+	i2sConnect[1]->src = &limiter[1];
 	i2sConnect[1]->dst = &exportR;
 	i2sConnect[1]->src_index=0;
 	i2sConnect[1]->dest_index=0;

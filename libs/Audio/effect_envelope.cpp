@@ -37,7 +37,6 @@
 
 void AudioEffectEnvelope::noteOn(void)
 {
-	endReleaseFlag=0;
 	__disable_irq();
 	if (state == STATE_IDLE || state == STATE_DELAY || release_forced_count == 0) {
 		mult_hires = 0;
@@ -219,4 +218,14 @@ uint8_t AudioEffectEnvelope::endRelease()
 {
 	if(endReleaseFlag==1) return 1;
 	else return 0;
+}
+
+void AudioEffectEnvelope::clearEndReleaseFlag()
+{
+	endReleaseFlag = 0;
+}
+
+uint8_t AudioEffectEnvelope:: getState()
+{
+	return state;
 }

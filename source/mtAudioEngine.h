@@ -11,6 +11,7 @@
 #include "mtLFO.h"
 #include "mtHardware.h"
 #include "mtRecorder.h"
+#include "mtExporterWAV.h"
 
 
 class audioEngine
@@ -86,6 +87,8 @@ private:
 	int8_t						currentNote;
 	int8_t						currentVelocity;
 	uint16_t 					statusBytes; // 8- reverbSend 7-resonance, 6-cutoff, 5-panning ,4-volume,3-tune,2-fineTune, 1-LP1 , 0-LP2
+	static uint8_t				onVoices;
+	static uint8_t				activeAmpEnvelopes;
 
 	void changeFilterType(uint8_t type);
 	void filterConnect();

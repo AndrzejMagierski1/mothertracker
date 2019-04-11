@@ -28,7 +28,7 @@ uint32_t fmLoadSample(const char *filename, int16_t * buf)
 	wavfile = SD.open(filename);
 	wavfile.read(&sampleHead, 44);
 
-	if ( (sampleHead.numChannels == 1 && (sampleHead.subchunk2Size > 8388608 )) &&  (sampleHead.numChannels == 2 && (sampleHead.subchunk2Size > 4194304)))
+	if ( (sampleHead.numChannels == 1 && (sampleHead.subchunk2Size > 8388608 )) &&  (sampleHead.numChannels == 2 && (sampleHead.subchunk2Size > 16777216)))
 	{
 		wavfile.close();
 		if(hardwareTest)
