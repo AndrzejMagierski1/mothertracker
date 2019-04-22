@@ -10,7 +10,7 @@ class cDisplayControl
 public:
 
 	virtual uint8_t update() = 0;
-	virtual uint8_t setColors(uint32_t colorsTable[]) = 0;
+	virtual void setColors(uint32_t colorsTable[]) = 0;
 
 	inline uint32_t getRamAddress(){ return ramAddress; }
 	inline uint32_t getRamSize() { return ramSize; }

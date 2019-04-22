@@ -75,6 +75,8 @@ uint16_t lcdVsync1;                                                             
 uint8_t lcdPclk;                                                                // Pixel Clock
 uint8_t lcdSwizzle;                                                             // Define RGB output pins
 uint8_t lcdPclkpol;                                                             // Define active edge of PCLK
+uint8_t lcdCsSpread;
+
 
 uint32_t ramDisplayList = RAM_DL;                                               // Set beginning of display list memory
 uint32_t ramCommandBuffer = RAM_CMD;                                            // Set beginning of graphics command memory
@@ -125,8 +127,11 @@ void FT812_Init(void)
 
     // --------------- Check that FT8xx ready and SPI comms OK -----------------
 
-    while (EVE_MemRead8(REG_ID) != 0x7C)                                        // Read REG_ID register until reads 0x7C
+    uint8_t ftID = EVE_MemRead8(REG_ID);
+
+    while (ftID != 0x7C)                                        // Read REG_ID register until reads 0x7C
     {
+    	ftID = EVE_MemRead8(REG_ID);
     	timeout++;
     	if(timeout>=0xFFFF)
     	{
@@ -137,8 +142,10 @@ void FT812_Init(void)
     		break;
     	}
     }
-    if(timeout >= 0xFFFF) return;
+
+   // if(timeout >= 0xFFFF) return;
     timeout=0;
+
     while (EVE_MemRead8(REG_CPURESET) != 0x00)                                  // Ensure CPUreset register reads 0 and so FT8xx is ready
     {
     	timeout++;
@@ -172,38 +179,79 @@ void FT812_Init(void)
 	#define FT_DispDither 0
 */
     // WF52ATLASDNN0 display parameters
-    lcdWidth   = 480;                                                           // Active width of LCD display
+/*  lcdWidth   = 480;                                                           // Active width of LCD display
     lcdHeight  = 128;                                                           // Active height of LCD display
+
     lcdHcycle  = 531;                                                           // Total number of clocks per line
     lcdHoffset = 51;                                                            // Start of active line
     lcdHsync0  = 8;                                                             // Start of horizontal sync pulse
     lcdHsync1  = 12;                                                            // End of horizontal sync pulse
+
     lcdVcycle  = 292;                                                           // Total number of lines per screen
     lcdVoffset = 91;                                                            // Start of active screen
     lcdVsync0  = 8;                                                             // Start of vertical sync pulse
     lcdVsync1  = 12;                                                             // End of vertical sync pulse
+
     lcdPclk    = 6;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
+*/
 
-
-  /*
+    // WF70A2TIAGDNN0 display parameters
     lcdWidth   = 800;                                                           // Active width of LCD display
     lcdHeight  = 480;                                                           // Active height of LCD display
 
-    lcdHcycle  = 928;                                                           // Total number of clocks per line
-    lcdHoffset = 88;                                                            // Start of active line
-    lcdHsync0  = 40;                                                             // Start of horizontal sync pulse
-    lcdHsync1  = 48;                                                            // End of horizontal sync pulse
+    lcdHcycle  = 1056;                                                           // Total number of clocks per line
+    lcdHoffset = 256;                                                            // Start of active line
+    lcdHsync0  = 210;                                                             // Start of horizontal sync pulse
+    lcdHsync1  = 220;                                                            // End of horizontal sync pulse
 
     lcdVcycle  = 525;                                                           // Total number of lines per screen
-    lcdVoffset = 32;                                                            // Start of active screen
-    lcdVsync0  = 3;                                                             // Start of vertical sync pulse
-    lcdVsync1  = 13;                                                             // End of vertical sync pulse
+    lcdVoffset = 45;                                                            // Start of active screen
+    lcdVsync0  = 7;                                                             // Start of vertical sync pulse
+    lcdVsync1  = 8;                                                             // End of vertical sync pulse
 
     lcdPclk    = 2;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
+
+ //   lcdCsSpread = 1;
+
+/*
+#define EVE_HSIZE	(800L)	// Thd Length of visible part of line (in PCLKs) - display width //
+#define EVE_VSIZE	(480L)	// Tvd Number of visible lines (in lines) - display height //
+
+#define EVE_VSYNC0	(0L)	// Tvf Vertical Front Porch //
+#define EVE_VSYNC1	(10L)	// Tvf + Tvp Vertical Front Porch plus Vsync Pulse width //
+#define EVE_VOFFSET	(23L)	// Tvf + Tvp + Tvb Number of non-visible lines (in lines) //
+#define EVE_VCYCLE	(525L)	// Tv Total number of lines (visible and non-visible) (in lines) //
+#define EVE_HSYNC0	(0L)	// Thf Horizontal Front Porch //
+#define EVE_HSYNC1	(10L)	// Thf + Thp Horizontal Front Porch plus Hsync Pulse width //
+#define EVE_HOFFSET (46L)	// Thf + Thp + Thb Length of non-visible part of line (in PCLK cycles) //
+#define EVE_HCYCLE 	(1056L)	// Th Total length of line (visible and non-visible) (in PCLKs) //
+#define EVE_PCLKPOL (1L)	// PCLK polarity (0 = rising edge, 1 = falling edge) //
+#define EVE_SWIZZLE (0L)	// Defines the arrangement of the RGB pins of the FT800 //
+#define EVE_PCLK	(2L)	// 60MHz / REG_PCLK = PCLK frequency 30 MHz //
+#define EVE_CSPREAD	(1L)	// helps with noise, when set to 1 fewer signals are changed simultaneously, reset-default: 1 //
+
+    lcdWidth   = EVE_HSIZE;                                                           // Active width of LCD display
+    lcdHeight  = EVE_VSIZE;                                                           // Active height of LCD display
+
+    lcdHcycle  = EVE_HCYCLE;                                                           // Total number of clocks per line
+    lcdHoffset = EVE_HOFFSET;                                                            // Start of active line
+    lcdHsync0  = EVE_HSYNC0;                                                             // Start of horizontal sync pulse
+    lcdHsync1  = EVE_HSYNC1;                                                            // End of horizontal sync pulse
+
+    lcdVcycle  = EVE_VCYCLE;                                                           // Total number of lines per screen
+    lcdVoffset = EVE_VOFFSET;                                                            // Start of active screen
+    lcdVsync0  = EVE_VSYNC0;                                                             // Start of vertical sync pulse
+    lcdVsync1  = EVE_VSYNC1;                                                             // End of vertical sync pulse
+
+    lcdPclk    = EVE_PCLK;                                                             // Pixel Clock
+    lcdSwizzle = EVE_SWIZZLE;                                                             // Define RGB output pins
+    lcdPclkpol = EVE_PCLKPOL;                                                             // Define active edge of PCLK
+
+    lcdCsSpread = EVE_CSPREAD;
 */
 
 
@@ -219,6 +267,7 @@ void FT812_Init(void)
     EVE_MemWrite16(REG_VSYNC1,  lcdVsync1);
     EVE_MemWrite8(REG_SWIZZLE,  lcdSwizzle);
     EVE_MemWrite8(REG_PCLK_POL, lcdPclkpol);
+    EVE_MemWrite8(REG_CSPREAD,  lcdCsSpread);
 
     // ---------------------- Touch and Audio settings -------------------------
 
@@ -231,7 +280,7 @@ void FT812_Init(void)
     // ---------------------- Create an initial screen before we enable the display -------------------------
 
     ramDisplayList = RAM_DL;                                                    // start of Display List
-    EVE_MemWrite32(ramDisplayList, 0x02000000);                                 // Clear Color RGB sets the colour to clear screen to
+    EVE_MemWrite32(ramDisplayList, 0x0200FF00);                                 // Clear Color RGB sets the colour to clear screen to
 
     ramDisplayList += 4;                                                        // point to next location
     EVE_MemWrite32(ramDisplayList, (0x26000000 | 0x00000007));                  // Clear 00100110 -------- -------- -----CST  (C/S/T define which parameters to clear)
@@ -251,16 +300,19 @@ void FT812_Init(void)
     for(PWM = 0; PWM <= 127; PWM ++)
     {
         EVE_MemWrite8(REG_PWM_DUTY, PWM);
-        delay(2);
+        delay(20);
     }
 
 //TODO // TOUCH
-    EVE_MemWrite16( REG_CTOUCH_EXTENDED, CTOUCH_MODE_EXTENDED);
+   // EVE_MemWrite16( REG_CTOUCH_EXTENDED, CTOUCH_MODE_EXTENDED);
 
 	if(hardwareTest)
 	{
 		 Serial.println("Display init succesfull");
 	}
+
+
+	delay(10000);
 }
 
 // ########################### GPIO CONTROL ####################################
