@@ -54,7 +54,7 @@ void initHardware()
 {
 
 
-	hardwareTest=0;
+	hardwareTest=1;
 
 
 	BlinkLed.begin(BLINK_LED);

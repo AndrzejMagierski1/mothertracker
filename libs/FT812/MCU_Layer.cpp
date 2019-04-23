@@ -158,7 +158,7 @@ void FT812_Init(void)
     		break;
     	}
     }
-    if(timeout >= 0xFFFF) return;
+    //if(timeout >= 0xFFFF) return;
     // ---------------- Configure the GPIO and PWM  --------------------
 
     EVE_MemWrite8(REG_PWM_DUTY, 0);                                             // Backlight off
@@ -179,7 +179,7 @@ void FT812_Init(void)
 	#define FT_DispDither 0
 */
     // WF52ATLASDNN0 display parameters
-/*  lcdWidth   = 480;                                                           // Active width of LCD display
+    lcdWidth   = 480;                                                           // Active width of LCD display
     lcdHeight  = 128;                                                           // Active height of LCD display
 
     lcdHcycle  = 531;                                                           // Total number of clocks per line
@@ -195,7 +195,9 @@ void FT812_Init(void)
     lcdPclk    = 6;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
-*/
+
+
+ /*
 
     // WF70A2TIAGDNN0 display parameters
     lcdWidth   = 800;                                                           // Active width of LCD display
@@ -216,7 +218,7 @@ void FT812_Init(void)
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
 
  //   lcdCsSpread = 1;
-
+*/
 /*
 #define EVE_HSIZE	(800L)	// Thd Length of visible part of line (in PCLKs) - display width //
 #define EVE_VSIZE	(480L)	// Tvd Number of visible lines (in lines) - display height //
@@ -280,7 +282,7 @@ void FT812_Init(void)
     // ---------------------- Create an initial screen before we enable the display -------------------------
 
     ramDisplayList = RAM_DL;                                                    // start of Display List
-    EVE_MemWrite32(ramDisplayList, 0x0200FF00);                                 // Clear Color RGB sets the colour to clear screen to
+    EVE_MemWrite32(ramDisplayList, 0x02000000);                                 // Clear Color RGB sets the colour to clear screen to
 
     ramDisplayList += 4;                                                        // point to next location
     EVE_MemWrite32(ramDisplayList, (0x26000000 | 0x00000007));                  // Clear 00100110 -------- -------- -----CST  (C/S/T define which parameters to clear)
@@ -300,7 +302,7 @@ void FT812_Init(void)
     for(PWM = 0; PWM <= 127; PWM ++)
     {
         EVE_MemWrite8(REG_PWM_DUTY, PWM);
-        delay(20);
+        delay(1);
     }
 
 //TODO // TOUCH
@@ -312,7 +314,7 @@ void FT812_Init(void)
 	}
 
 
-	delay(10000);
+	//delay(10000);
 }
 
 // ########################### GPIO CONTROL ####################################
