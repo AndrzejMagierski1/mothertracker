@@ -1086,13 +1086,79 @@ void cMtDisplay::ramg_track_table()
 	int16_t y_pos = 20 + (2) * MT_DISP_BLOCK_MENU_Y_SPACE;
 	uint8_t x_length = 0;
 	// linie
+
+
 	API_COLOR(displayColors.trackTableFrame);
 	API_LINE_WIDTH(8);
 	API_BEGIN(LINES);
-	API_VERTEX2II(0, y_pos, 0, 0);
-	API_VERTEX2II(479, y_pos, 0, 0);
-	API_VERTEX2II(0, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
-	API_VERTEX2II(479, y_pos + MT_DISP_BLOCK_MENU_Y_SPACE, 0, 0);
+
+
+	//API_VERTEX2II(20, 0, 0, 0);
+	//API_VERTEX2II(20, 479, 0, 0);
+
+
+	for(uint16_t i = 20; i < 800; i+=95)
+	{
+		API_VERTEX2F(i*16, 0*16);
+		API_VERTEX2F(i*16, 479*16);
+
+
+
+
+
+	}
+
+	API_VERTEX2F(0*16, 230*16);
+	API_VERTEX2F(799*16, 230*16);
+
+	API_VERTEX2F(0*16, 250*16);
+	API_VERTEX2F(799*16, 250*16);
+
+	API_END();
+
+
+
+
+	uint8_t row = 201;
+
+	for(uint16_t i = 20; i < 480; i+=20)
+	{
+			API_COLOR(DISP_RGB(255,255,255));
+			API_CMD_NUMBER((799-21) , i, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERY), row);
+
+			API_COLOR(DISP_RGB(255,255,255));
+			API_CMD_NUMBER(0 , i, MT_GPU_RAM_FONT2_HANDLE, (OPT_CENTERY), row);
+
+			row++;
+	}
+
+
+
+	for(uint16_t i = 22; i < 93*8; i+=95)
+	{
+			API_COLOR(DISP_RGB(255,0,0));
+			API_CMD_TEXT  ((i) , 220, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "C#1");
+			API_CMD_TEXT  ((i) , 240, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "D-2");
+			//API_CMD_TEXT  ((i) , 260, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "F#3");
+
+			API_COLOR(DISP_RGB(0,255,0));
+			API_CMD_TEXT  ((i+28) , 220, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "01");
+			//API_CMD_TEXT  ((i+27) , 240, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "03");
+			//API_CMD_TEXT  ((i+28) , 260, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "18");
+
+			API_COLOR(DISP_RGB(128,0,128));
+			//API_CMD_TEXT  ((i+45) , 220, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "00");
+			API_CMD_TEXT  ((i+45) , 240, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "60");
+			//API_CMD_TEXT  ((i+45) , 260, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "99");
+
+			API_COLOR(DISP_RGB(128,128,20));
+			//API_CMD_TEXT  ((i+64) , 220, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "H43");
+			API_CMD_TEXT  ((i+64) , 240, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "A30");
+			//API_CMD_TEXT  ((i+64) , 260, MT_GPU_RAM_FONT1_HANDLE, (OPT_CENTERY), "B12");
+	}
+
+
+
 
 /*
 	API_VERTEX2II(MT_DISP_BLOCK_W * (1), 20, 0, 0);
@@ -1110,6 +1176,7 @@ void cMtDisplay::ramg_track_table()
 	API_END();
 
 
+/*
 	// ramka aktulanie edytowanego parametru tylko dla pierszych 4 kolumn
 	if(ptrTrackTable->active[0] < 4)
 	{
@@ -1191,7 +1258,7 @@ void cMtDisplay::ramg_track_table()
 		}
 
 	}
-
+*/
 
 
     API_LIB_EndCoProList();

@@ -20,6 +20,12 @@
 
 
 
+
+#include "display.h"
+
+
+
+
 uint8_t hardwareTest;
 
 //-------- TACT POWER SWITCH -------------
@@ -66,8 +72,8 @@ void initHardware()
 
 	//....................................................
 	//CODAC AUDIO
-	audioShield.enable();
-	AudioMemory(200);
+//	audioShield.enable();
+//	AudioMemory(200);
 
 	//engine.setOut(1);
 

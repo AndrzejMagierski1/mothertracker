@@ -1,22 +1,18 @@
 
+
+
 #include <stdint.h>
 #include "mtStructs.h"
 #include "Arduino.h"
 
 #include "poly_logo_inv.h"
 
-#define font_def 1
 
-#if font_def == 1
-#include "Roboto_Regular_12_L4.h"
-#include "Roboto_Regular_22_L4.h"
-#elif font_def == 2
-#include "UnicaPro_Regular_12_L4.h"
-#include "UnicaPro_Regular_22_L4.h"
-#elif font_def == 3
-#include "OpenSans-Regular_12_L4.h"
-#include "OpenSans-Regular_22_L4.h"
-#endif
+
+#include "Roboto_Mono_10_L4.h"
+
+#include "Roboto_Mono_14_L4.h"
+
 
 #include "mtDisplay.h"
 
@@ -33,16 +29,10 @@ void cMtDisplay::begin(uint8_t mode)
 
 //####################################
 
-#if font_def == 1
-	API_LIB_WriteDataRAMG(Roboto_Regular_12_L4, sizeof(Roboto_Regular_12_L4), MT_GPU_RAM_FONT1_ADRESS);
-	API_LIB_WriteDataRAMG(Roboto_Regular_22_L4, sizeof(Roboto_Regular_22_L4), MT_GPU_RAM_FONT2_ADRESS);
-#elif font_def == 2
-	API_LIB_WriteDataRAMG(UnicaPro_Regular_12_L4, sizeof(UnicaPro_Regular_12_L4), 1000);
-	API_LIB_WriteDataRAMG(UnicaPro_Regular_22_L4, sizeof(UnicaPro_Regular_22_L4), 11000);
-#elif font_def == 3
-	API_LIB_WriteDataRAMG(Sans_Regular_12_L4, sizeof(Sans_Regular_12_L4), 1000);
-	API_LIB_WriteDataRAMG(Sans_Regular_22_L4, sizeof(Sans_Regular_22_L4), 11000);
-#endif
+	//API_LIB_WriteDataRAMG(Roboto_Regular_12_L4, sizeof(Roboto_Regular_12_L4), MT_GPU_RAM_FONT1_ADRESS);
+	API_LIB_WriteDataRAMG(Roboto_Mono_14_L4, sizeof(Roboto_Mono_14_L4), MT_GPU_RAM_FONT1_ADRESS);
+	API_LIB_WriteDataRAMG(Roboto_Mono_10_L4, sizeof(Roboto_Mono_10_L4), MT_GPU_RAM_FONT2_ADRESS);
+	//API_LIB_WriteDataRAMG(Roboto_Regular_22_L4, sizeof(Roboto_Regular_22_L4), MT_GPU_RAM_FONT2_ADRESS);
 
 	API_LIB_WriteDataRAMG(poly_logo_inv_128x128, sizeof(poly_logo_inv_128x128), MT_GPU_RAM_POLY_LOGO_ADRESS);
 
@@ -54,49 +44,34 @@ void cMtDisplay::begin(uint8_t mode)
 	API_CLEAR_COLOR(DISP_RGB(0,0,0));
 	API_CLEAR(1,1,1);
 
-#if font_def == 1
+
 
 	API_BITMAP_HANDLE(MT_GPU_RAM_FONT1_HANDLE);
-	API_BITMAP_SOURCE(-1924);
-	API_BITMAP_LAYOUT(L4,6,16);
-	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 12,16);
+	API_BITMAP_SOURCE(-1732);
+	API_BITMAP_LAYOUT(L4,5,18);
+	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 10,18);
 	API_CMD_SETFONT(MT_GPU_RAM_FONT1_HANDLE, MT_GPU_RAM_FONT1_ADRESS);
 
 	API_BITMAP_HANDLE(MT_GPU_RAM_FONT2_HANDLE);
-	API_BITMAP_SOURCE(1868);
-	API_BITMAP_LAYOUT(L4,10,29);
-	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 20,29);
+	API_BITMAP_SOURCE(9484);
+	API_BITMAP_LAYOUT(L4,4,13);
+	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 7,13);
 	API_CMD_SETFONT(MT_GPU_RAM_FONT2_HANDLE, MT_GPU_RAM_FONT2_ADRESS);
 
-#elif font_def == 2
 
-	API_BITMAP_HANDLE(MT_GPU_RAM_FONT1_HANDLE);
-	API_BITMAP_SOURCE(-2308);
-	API_BITMAP_LAYOUT(L4,6,18);
-	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 12,18);
-	API_CMD_SETFONT(MT_GPU_RAM_FONT1_HANDLE, MT_GPU_RAM_FONT1_ADRESS);
 
-	API_BITMAP_HANDLE(MT_GPU_RAM_FONT2_HANDLE);
-	API_BITMAP_SOURCE(588);
-	API_BITMAP_LAYOUT(L4,10,33);
-	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 20,33);
-	API_CMD_SETFONT(MT_GPU_RAM_FONT2_HANDLE, MT_GPU_RAM_FONT2_ADRESS);
+//	API_BITMAP_HANDLE(MT_GPU_RAM_FONT1_HANDLE);
+//	API_BITMAP_SOURCE(-1924);
+//	API_BITMAP_LAYOUT(L4,6,16);
+//	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 12,16);
+//	API_CMD_SETFONT(MT_GPU_RAM_FONT1_HANDLE, MT_GPU_RAM_FONT1_ADRESS);
 
-#elif font_def == 3
+//	API_BITMAP_HANDLE(MT_GPU_RAM_FONT2_HANDLE);
+//	API_BITMAP_SOURCE(1868);
+//	API_BITMAP_LAYOUT(L4,10,29);
+//	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 20,29);
+//	API_CMD_SETFONT(MT_GPU_RAM_FONT2_HANDLE, MT_GPU_RAM_FONT2_ADRESS);
 
-	API_BITMAP_HANDLE(MT_GPU_RAM_FONT1_HANDLE);
-	API_BITMAP_SOURCE(-1924);
-	API_BITMAP_LAYOUT(L4,6,16);
-	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 12,16);
-	API_CMD_SETFONT(MT_GPU_RAM_FONT1_HANDLE, MT_GPU_RAM_FONT1_ADRESS);
-
-	API_BITMAP_HANDLE(MT_GPU_RAM_FONT2_HANDLE);
-	API_BITMAP_SOURCE(1548);
-	API_BITMAP_LAYOUT(L4,10,30);
-	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 20,30);
-	API_CMD_SETFONT(MT_GPU_RAM_FONT2_HANDLE, MT_GPU_RAM_FONT2_ADRESS);
-
-#endif
 
 
 /*	API_BITMAP_HANDLE(MT_GPU_RAM_POLY_LOGO_HANDLE);

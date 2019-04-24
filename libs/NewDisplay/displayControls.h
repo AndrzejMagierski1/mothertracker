@@ -45,10 +45,17 @@ public:
 class cEdit: public cDisplayControl
 {
 	virtual uint8_t update();
+	void create();
+	void setColors(uint32_t colorsTable[]);
 };
 
 //--------------------------------------------------------------------
-
+class cTracker: public cDisplayControl
+{
+	virtual uint8_t update();
+	void create();
+	void setColors(uint32_t colorsTable[]);
+};
 
 //--------------------------------------------------------------------
 

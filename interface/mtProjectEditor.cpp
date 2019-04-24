@@ -56,6 +56,21 @@ void cMtProjectEditor::update()
 		updatePotsFunctions();
 
 		processLabels();
+
+//-----------------------------------------------------//-----------------------------------------------------	//-----------------------------------------------------
+
+		mtDisplay.setPotsLabels(0);
+		mtDisplay.setButtonsLabels(0);
+
+		mtDisplay.setTrackTable(1);
+		strMtDispTrackTable trackTable;
+
+
+
+		mtDisplay.changeTrackTable(&trackTable);
+
+//-----------------------------------------------------//-----------------------------------------------------	//-----------------------------------------------------
+
 	}
 	//-----------------------------------------------------
 	if(filesListChanged)
