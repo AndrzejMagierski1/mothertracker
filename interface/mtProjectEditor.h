@@ -2,6 +2,7 @@
 #ifndef MT_PROJECT_MANAGER_H
 #define MT_PROJECT_MANAGER_H
 
+#include "display.h"
 #include <stdint.h>
 #include "mtStructs.h"
 #include "SD.h"
@@ -66,6 +67,9 @@ private:
 	void (*eventFunct)(uint8_t, void*, void*, void*);
 
 	// elementy modulu
+
+	hControl trackTable1;
+	hControl trackTable2;
 
 	//edycja nazw---------------------------------------------
 	enum

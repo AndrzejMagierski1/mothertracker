@@ -60,7 +60,7 @@ void initHardware()
 {
 
 
-	hardwareTest=1;
+	hardwareTest=0;
 
 
 	BlinkLed.begin(BLINK_LED);
@@ -78,7 +78,9 @@ void initHardware()
 	//engine.setOut(1);
 
 	// LCD
-	mtDisplay.begin(mtDisplayModePolyLogo);
+	//mtDisplay.begin(mtDisplayModePolyLogo);
+
+	display.begin();
 
 	//SD CARD
 	//....................................................
@@ -135,7 +137,7 @@ void initHardware()
 
 	//....................................................
 	// Haptic on
-	mtHaptic.enable();
+	//mtHaptic.enable();
 
 	//....................................................
 	// Seq buttons
@@ -250,8 +252,13 @@ void updateHardware()
 
 	}
 
-	mtDisplay.updateDisplay();
-	mtDisplay.updateHaptic();
+	//mtDisplay.updateDisplay();
+	//mtDisplay.updateHaptic();
+
+
+	display.update();
+
+
 	BlinkLed.update();
 
 	TactSwitchRead();

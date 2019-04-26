@@ -61,6 +61,14 @@ void API_LIB_BeginCoProList(void)
     EVE_AddrForWr(RAM_CMD + cmdOffset);                                         // Send address for writing as the next free location in the co-pro buffer                                      
 }
 
+
+void API_LIB_BeginCoProListNoCheck(void)
+{
+	MCU_CSlow();
+                                                               // CS low begins SPI transaction
+    EVE_AddrForWr(RAM_CMD + cmdOffset);                                         // Send address for writing as the next free location in the co-pro buffer
+}
+
 // Ends co-pro list for display creation
 void API_LIB_EndCoProList(void)
 {

@@ -1102,10 +1102,6 @@ void cMtDisplay::ramg_track_table()
 		API_VERTEX2F(i*16, 0*16);
 		API_VERTEX2F(i*16, 479*16);
 
-
-
-
-
 	}
 
 	API_VERTEX2F(0*16, 230*16);

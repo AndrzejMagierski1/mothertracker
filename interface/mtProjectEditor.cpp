@@ -1,6 +1,7 @@
 
+#include "mtStructs.h"
 
-#include "mtDisplay.h"
+
 #include "AnalogInputs.h"
 
 #include "mtHardware.h"
@@ -18,6 +19,9 @@
 #include "mtProjectEditor.h"
 
 #include "mtInterface.h"
+
+
+
 
 cMtProjectEditor mtProjectEditor;
 
@@ -46,8 +50,8 @@ void cMtProjectEditor::update()
 	{
 		if(labelsChanged == 2)
 		{
-			mtDisplay.setPotsLabels(1);
-			mtDisplay.setButtonsLabels(1);
+			//mtDisplay.setPotsLabels(1);
+			//mtDisplay.setButtonsLabels(1);
 		}
 
 		labelsChanged = 0;
@@ -59,15 +63,38 @@ void cMtProjectEditor::update()
 
 //-----------------------------------------------------//-----------------------------------------------------	//-----------------------------------------------------
 
-		mtDisplay.setPotsLabels(0);
-		mtDisplay.setButtonsLabels(0);
+//		mtDisplay.setPotsLabels(0);
+//		mtDisplay.setButtonsLabels(0);
+//
+//		mtDisplay.setTrackTable(1);
+//		strMtDispTrackTable trackTable;
+//
+//
+//
+//		mtDisplay.changeTrackTable(&trackTable);
 
-		mtDisplay.setTrackTable(1);
-		strMtDispTrackTable trackTable;
+
+		trackTable1 = display.createControl<cTracker>(nullptr, controlShow, 0, 0, 0, 0);
+		display.refreshControl(trackTable1);
 
 
 
-		mtDisplay.changeTrackTable(&trackTable);
+		//trackTable2 = display.createControl<cLabel>(editName, controlShow, 10, 10, 0, 0);
+		//display.refreshControl(trackTable2);
+
+		trackTable2 = display.createControl<cTracker>(nullptr, controlShow, 10, 10, 0, 0);
+		display.refreshControl(trackTable2);
+/*
+		trackTable = display.createControl<cTracker>(nullptr, controlShow, 0, 0, 0, 0);
+		display.refreshControl(trackTable);
+
+		trackTable = display.createControl<cTracker>(nullptr, controlShow, 0, 0, 0, 0);
+		display.refreshControl(trackTable);
+
+		trackTable = display.createControl<cTracker>(nullptr, controlShow, 0, 0, 0, 0);
+		display.refreshControl(trackTable);
+*/
+		//display.setControlState(trackTable,1);
 
 //-----------------------------------------------------//-----------------------------------------------------	//-----------------------------------------------------
 
@@ -81,7 +108,7 @@ void cMtProjectEditor::update()
 		if(!filesListEnabled)
 		{
 			filesListChanged = 0;
-			mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
+			//mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
 			return;
 		}
 
@@ -97,7 +124,7 @@ void cMtProjectEditor::update()
 				listOnlyFolderNames("/Templates");
 			}
 
-			mtDisplay.setList(files_list_pos, files_list_pos, 2, 0, filesNames, locationFilesCount);
+			//mtDisplay.setList(files_list_pos, files_list_pos, 2, 0, filesNames, locationFilesCount);
 		}
 
 		filesListChanged = 0;
@@ -111,7 +138,7 @@ void cMtProjectEditor::update()
 		if(!editNameEnabled)
 		{
 			editNameChanged = 0;
-			mtDisplay.setTextEdit(0, 0, 0, 0, 0);
+			//mtDisplay.setTextEdit(0, 0, 0, 0, 0);
 			return;
 		}
 
@@ -122,7 +149,7 @@ void cMtProjectEditor::update()
 
 			}
 
-			mtDisplay.setTextEdit(10, 20, 172, editName,editLabel);
+			//mtDisplay.setTextEdit(10, 20, 172, editName,editLabel);
 
 		}
 
@@ -240,13 +267,13 @@ void cMtProjectEditor::stop()
 {
 
 
-	mtDisplay.setList(0, 0, 0, 0, 0, 0);
-	mtDisplay.setList(1, 0, 0, 0, 0, 0);
-	mtDisplay.setList(2, 0, 0, 0, 0, 0);
-	mtDisplay.setList(3, 0, 0, 0, 0, 0);
-	mtDisplay.setList(4, 0, 0, 0, 0, 0);
-
-	mtDisplay.setTextEdit(0, 0, 0, 0, 0);
+//	mtDisplay.setList(0, 0, 0, 0, 0, 0);
+//	mtDisplay.setList(1, 0, 0, 0, 0, 0);
+//	mtDisplay.setList(2, 0, 0, 0, 0, 0);
+//	mtDisplay.setList(3, 0, 0, 0, 0, 0);
+//	mtDisplay.setList(4, 0, 0, 0, 0, 0);
+//
+//	mtDisplay.setTextEdit(0, 0, 0, 0, 0);
 
 }
 
@@ -361,7 +388,7 @@ void cMtProjectEditor::setButtonLabel(uint8_t function, char* label)
 	}
 	buttonFunctionLabels[function][i] = 0;
 
-	mtDisplay.changeButtonsLabels(buttonLabels);
+	//mtDisplay.changeButtonsLabels(buttonLabels);
 }
 
 
@@ -416,7 +443,7 @@ void cMtProjectEditor::updateButtonsFunctions()
 	buttonLabels[3] = (char *)&buttonFunctionLabels[buttonFunctions[3]][0];
 	buttonLabels[4] = (char *)&buttonFunctionLabels[buttonFunctions[4]][0];
 
-	mtDisplay.changeButtonsLabels(buttonLabels);
+	//mtDisplay.changeButtonsLabels(buttonLabels);
 }
 
 
@@ -441,7 +468,7 @@ void cMtProjectEditor::setPotsLabel(uint8_t function, char* label)
 	}
 	potFunctionLabels[function][i] = 0;
 
-	mtDisplay.changePotsLabels(potLabels);
+	//mtDisplay.changePotsLabels(potLabels);
 }
 
 
@@ -483,7 +510,7 @@ void cMtProjectEditor::updatePotsFunctions()
 	potLabels[3] = (char *)&potFunctionLabels[potFunctions[3]][0];
 	potLabels[4] = (char *)&potFunctionLabels[potFunctions[4]][0];
 
-	mtDisplay.changePotsLabels(potLabels);
+	//mtDisplay.changePotsLabels(potLabels);
 }
 
 
@@ -679,7 +706,7 @@ void cMtProjectEditor::changeProjectsListPos(int16_t value)
 	else if(selectedLocation + value > locationFilesCount-1) selectedLocation  = locationFilesCount-1;
 	else selectedLocation += value;
 
-	mtDisplay.changeList(files_list_pos, selectedLocation);
+	//mtDisplay.changeList(files_list_pos, selectedLocation);
 
 	//filesListChanged = 1;
 	//refreshModule = 1;
@@ -691,7 +718,7 @@ void cMtProjectEditor::changeTemplatesListPos(int16_t value)
 	else if(selectedLocation + value > locationFilesCount-1) selectedLocation  = locationFilesCount-1;
 	else selectedLocation += value;
 
-	mtDisplay.changeList(files_list_pos, selectedLocation);
+	//mtDisplay.changeList(files_list_pos, selectedLocation);
 
 	//filesListChanged = 1;
 	//refreshModule = 1;

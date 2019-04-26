@@ -49,7 +49,7 @@ RE-CERTIFICATION AS A RESULT OF MAKING THESE CHANGES.
 #define PD LCD_PD
 
 SPI2Settings settingsSLOW(4000000,  MSBFIRST, SPI_MODE0);
-SPI2Settings settingsFAST(30000000, MSBFIRST, SPI_MODE0);
+SPI2Settings settingsFAST(4000000, MSBFIRST, SPI_MODE0);
 
 //############################################################################## 
 //##############################################################################
