@@ -9,15 +9,21 @@
 
 
 
+
 typedef cDisplayControl* hControl;
 
 
 //#########################################################################
 //							DEFINICJE
 //#########################################################################
+
 const uint8_t controlsCount = 50;
-const uint8_t controlsRefreshQueueSize = controlsCount+1;
 const uint32_t controlsRamStartAddress = 60000;
+
+
+// NIE-EDITABLE
+const uint8_t controlsRefreshQueueSize = controlsCount+1;
+
 
 
 //#########################################################################

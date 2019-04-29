@@ -8,10 +8,10 @@
 
 
 #include "poly_logo_inv.h"
+
+
 #include "Roboto_Mono_10_L4.h"
 #include "Roboto_Mono_14_L4.h"
-
-
 
 
 
@@ -90,16 +90,13 @@ void cDisplay::update()
 		{
 			if(!API_LIB_IsCoProEmpty()) return;
 
-			uint16_t dlOffset = EVE_MemRead32(REG_CMD_DL);
+			uint32_t ramAddress = controlsRamStartAddress+(actualUpdating->ramMapPosition*10000);
+			if(actualUpdating->memCpy(ramAddress))
+			{
+				updateStep = 0; // jesli obslugiwana kontrolka potrzebuje odswiezenia
+				return;			// wiekszej ilosci blokow
+			}
 
-			API_LIB_BeginCoProListNoCheck();
-
-			uint32_t ramAddress = controlsRamStartAddress+(actualUpdating->ramMapPosition*5000);
-			API_CMD_MEMCPY(ramAddress, RAM_DL, dlOffset);
-			actualUpdating->ramSize = dlOffset;
-
-			API_LIB_EndCoProList();
-			API_LIB_AwaitCoProEmpty();
 
 		    refreshQueueBott++;
 			if(refreshQueueBott >= controlsRefreshQueueSize) refreshQueueBott = 0;
@@ -123,18 +120,19 @@ void cDisplay::update()
 			{
 				hControl p = controlsTable[i];
 				if(p == nullptr) break;
-				uint32_t ramAddress = controlsRamStartAddress+(p->ramMapPosition*5000);
-				if(p->cState) API_CMD_APPEND(ramAddress, p->ramSize);
+				uint32_t ramAddress = controlsRamStartAddress+(p->ramMapPosition*10000);
+				if(p->cState) p->append(ramAddress);
 			}
 
 		    API_DISPLAY();
 		    API_CMD_SWAP();
 		    API_LIB_EndCoProList();
-
-
+		    API_LIB_AwaitCoProEmpty();
+			uint32_t dlOffset = EVE_MemRead32(REG_CMD_DL);
 
 
 			updateStep = 0;
+			dlOffset = 0;
 			break;
 		}
 		default: updateStep = 0; break;

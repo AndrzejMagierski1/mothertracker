@@ -33,7 +33,11 @@ enum controlsState
 #define MT_GPU_RAM_FONT2_HANDLE	14
 // handle nie moze byc wikesze niz 14
 
+void Number2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, int16_t number);
+void Char2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, uint8_t length);
 
+extern const uint8_t Roboto_Mono_10_L4[];
+extern const uint8_t Roboto_Mono_14_L4[];
 
 
 class cDisplay;
@@ -48,6 +52,8 @@ class cDisplayControl
 public:
 
 	virtual uint8_t update() = 0;
+	virtual uint8_t append(uint32_t address) = 0;
+	virtual uint8_t memCpy(uint32_t address) = 0;
 
 	void setColors(uint32_t colorsTable[])
 	{
@@ -100,7 +106,8 @@ public:
 	virtual ~cLabel();
 
 	virtual uint8_t update();
-
+	virtual uint8_t memCpy(uint32_t address);
+	virtual uint8_t append(uint32_t address);
 
 	//void setColors(uint32_t colorsTable[]);
 	static uint8_t colorsCount;
@@ -114,7 +121,8 @@ class cEdit: public cDisplayControl
 public:
 
 	virtual uint8_t update();
-
+	virtual uint8_t append(uint32_t address);
+	virtual uint8_t memCpy(uint32_t address);
 
 };
 
@@ -128,12 +136,22 @@ public:
 
 
 	virtual uint8_t update();
-
+	virtual uint8_t append(uint32_t address);
+	virtual uint8_t memCpy(uint32_t address);
 
 //	void setColors(uint32_t colorsTable[]);
 	static uint8_t colorsCount;
 	static uint32_t defaultColors[];
 	uint32_t* colors = defaultColors;
+
+	uint16_t ramPartSize[5] = {0};
+	uint8_t refreshStep;
+	void refresh1();
+	void refresh2();
+	void refresh3();
+	void refresh4();
+	void refresh5();
+
 
 };
 

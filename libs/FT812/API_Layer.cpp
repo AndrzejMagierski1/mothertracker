@@ -548,6 +548,22 @@ void API_CMD_NUMBER(int16_t x, int16_t y, int16_t font, uint16_t options, int32_
     cmdOffset = EVE_IncCMDOffset(cmdOffset, 16);
 }
 
+/*
+void API_CMD_NUMBER_2(int16_t x, int16_t y, int16_t font, uint16_t options, int32_t n)
+{
+	if()
+
+
+    EVE_Write32(CMD_NUMBER);
+    EVE_Write32( (((uint32_t)y<<16)|(x & 0xffff)));
+    EVE_Write32( (((uint32_t)options<<16)|(font&0xffff)));
+    EVE_Write32( n);
+    cmdOffset = EVE_IncCMDOffset(cmdOffset, 16);
+
+
+}
+*/
+
 //ft_void_t Ft_Gpu_CoCmd_LoadIdentity(Ft_Gpu_Hal_Context_t *phost);
 void API_CMD_LOADIDENTITY(void)
 {
