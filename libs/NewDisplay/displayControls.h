@@ -29,16 +29,16 @@ enum controlsState
 // CZCIONKI
 #define MT_GPU_RAM_FONT1_ADRESS	1000
 #define MT_GPU_RAM_FONT1_HANDLE	13
-#define MT_GPU_RAM_FONT2_ADRESS	11000
+#define MT_GPU_RAM_FONT2_ADRESS	20000
 #define MT_GPU_RAM_FONT2_HANDLE	14
 // handle nie moze byc wikesze niz 14
 
 void Number2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, int16_t number);
-void Char2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, uint8_t length);
+void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
 
 extern const uint8_t Roboto_Mono_10_L4[];
 extern const uint8_t Roboto_Mono_14_L4[];
-
+extern const  uint8_t Roboto_Mono_20_L4[];
 
 class cDisplay;
 
@@ -123,35 +123,6 @@ public:
 	virtual uint8_t update();
 	virtual uint8_t append(uint32_t address);
 	virtual uint8_t memCpy(uint32_t address);
-
-};
-
-//--------------------------------------------------------------------
-class cTracker: public cDisplayControl
-{
-public:
-
-	cTracker(char text[] = nullptr, uint8_t state = 0, uint16_t x = 0, uint16_t y = 0, uint16_t w = 0, uint16_t h = 0);
-	virtual ~cTracker();
-
-
-	virtual uint8_t update();
-	virtual uint8_t append(uint32_t address);
-	virtual uint8_t memCpy(uint32_t address);
-
-//	void setColors(uint32_t colorsTable[]);
-	static uint8_t colorsCount;
-	static uint32_t defaultColors[];
-	uint32_t* colors = defaultColors;
-
-	uint16_t ramPartSize[5] = {0};
-	uint8_t refreshStep;
-	void refresh1();
-	void refresh2();
-	void refresh3();
-	void refresh4();
-	void refresh5();
-
 
 };
 

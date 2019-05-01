@@ -24,59 +24,38 @@ inline void draw_char(uint16_t x, uint16_t y, uint8_t charr)
 {
 	if(x > 511 || y > 511)
 	{
-		//API_CELL(charr);
-		//API_VERTEX2F(x, y);
+		API_CELL(charr);
+		API_VERTEX2F(x, y);
 	}
 	else
 	{
-		API_VERTEX2II(x,y,MT_GPU_RAM_FONT2_HANDLE,charr);
+		API_VERTEX2II(x,y,MT_GPU_RAM_FONT1_HANDLE,charr);
 	}
 }
 
-void Char2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, uint8_t length)
+void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length)
 {
 	y = y - font_y/2;
 	uint8_t strPtr = 0;
 
-	if(length > 2)
-	{
-		if(x > 500 || y > 500)
-		{
-			//API_CELL(string[strPtr++]);
-			//API_VERTEX2F(x, y);
-		}
-		else
-		{
-			API_VERTEX2II(x,y,MT_GPU_RAM_FONT1_HANDLE, (char)string[strPtr++]);
-		}
-		x+=font_x;
-	}
-	if(length > 1)
-	{
-		if(x > 500 || y > 500)
-		{
-			//API_CELL((char)string[strPtr++]);
-			//API_VERTEX2F(x, y);
-		}
-		else
-		{
-			API_VERTEX2II(x,y,MT_GPU_RAM_FONT1_HANDLE,(char)string[strPtr++]);
-		}
-		x+=font_x;
-	}
-	if(length > 0)
-	{
-		if(x > 500 || y > 500)
-		{
-			//API_CELL((char)string[strPtr++]);
-			//API_VERTEX2F(x, y);
-		}
-		else
-		{
-			API_VERTEX2II(x,y,MT_GPU_RAM_FONT1_HANDLE,(char)string[strPtr++]);
-		}
-	}
 
+	for(uint8_t i = 0; i < length; i++)
+	{
+		if(x > 755 || y > 480 || x < 30 || y < 0)
+		{
+			strPtr++;
+		}
+		else if(x > 511 || y > 511)
+		{
+			API_CELL(string[strPtr++]);
+			API_VERTEX2F(x, y);
+		}
+		else
+		{
+			API_VERTEX2II(x,y,MT_GPU_RAM_FONT2_HANDLE, (char)string[strPtr++]);
+		}
+		x+=font_x;
+	}
 }
 
 

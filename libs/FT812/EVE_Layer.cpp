@@ -310,12 +310,12 @@ uint16_t EVE_IncCMDOffset(uint16_t currentOffset, uint16_t commandSize)
 
 uint8_t EVE_WaitCmdFifoEmpty(void)
 {
-    uint16_t ReadPointer, WritePointer;
+    uint32_t ReadPointer, WritePointer;
         
     do
     {
-        ReadPointer = EVE_MemRead16(REG_CMD_READ);                              // Read the graphics processor read pointer
-        WritePointer = EVE_MemRead16(REG_CMD_WRITE);                            // Read the graphics processor write pointer
+        ReadPointer = EVE_MemRead32(REG_CMD_READ);                              // Read the graphics processor read pointer
+        WritePointer = EVE_MemRead32(REG_CMD_WRITE);                            // Read the graphics processor write pointer
     }while ((WritePointer != ReadPointer) && (ReadPointer != 0xFFF));           // Wait until the two registers match
 
     if(ReadPointer == 0xFFF)
@@ -327,8 +327,8 @@ uint8_t EVE_WaitCmdFifoEmpty(void)
 
 uint8_t EVE_IsCmdFifoEmpty(void)
 {
-    uint16_t ReadPointer = EVE_MemRead16(REG_CMD_READ);
-    uint16_t WritePointer = EVE_MemRead16(REG_CMD_WRITE);
+    uint32_t ReadPointer = EVE_MemRead32(REG_CMD_READ);
+    uint32_t WritePointer = EVE_MemRead32(REG_CMD_WRITE);
 
     if(WritePointer == ReadPointer) return 1;
 

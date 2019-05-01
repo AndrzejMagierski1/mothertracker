@@ -57,15 +57,24 @@ void API_LIB_BeginCoProList(void)
 
     API_LIB_AwaitCoProEmpty();                                                  // Wait for command FIFO to be empty and record current position in FIFO
     MCU_CSlow();
-                                                               // CS low begins SPI transaction
+                                                               	   	   	   	    // CS low begins SPI transaction
     EVE_AddrForWr(RAM_CMD + cmdOffset);                                         // Send address for writing as the next free location in the co-pro buffer                                      
 }
+
+void API_LIB_BeginDirectDL(void)
+{
+    API_LIB_AwaitCoProEmpty();                                                  // Wait for command FIFO to be empty and record current position in FIFO
+    MCU_CSlow();
+                                                               	   	   	   	    // CS low begins SPI transaction
+    EVE_AddrForWr(RAM_DL);                                        				 // Send address for writing as the next free location in the co-pro buffer
+}
+
 
 
 void API_LIB_BeginCoProListNoCheck(void)
 {
 	MCU_CSlow();
-                                                               // CS low begins SPI transaction
+                                                               	   	   	   	    // CS low begins SPI transaction
     EVE_AddrForWr(RAM_CMD + cmdOffset);                                         // Send address for writing as the next free location in the co-pro buffer
 }
 
@@ -80,14 +89,18 @@ void API_LIB_EndCoProList(void)
 // Waits for the read and write pointers to become equal
 void API_LIB_AwaitCoProEmpty(void)
 {
-/*    uint8_t success = 0;
-    success = */EVE_WaitCmdFifoEmpty();                                           // Await completion of processing
+    uint8_t success = 0;
+    success = EVE_WaitCmdFifoEmpty();                                           // Await completion of processing
     cmdOffset = EVE_GetCurrentWritePointer();                                   // and record starting address for next screen update
+    (void)success;
 }
 
 uint8_t API_LIB_IsCoProEmpty(void)
 {
-	return EVE_IsCmdFifoEmpty();
+	uint8_t success = 0;
+	success =  EVE_IsCmdFifoEmpty();
+	if(success) cmdOffset = EVE_GetCurrentWritePointer();
+	return success;
 }
 
 

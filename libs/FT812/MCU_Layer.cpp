@@ -120,7 +120,7 @@ void FT812_Init(void)
     MCU_Delay_20ms();
 
     // ---------------------- Delay to allow FT81x start-up --------------------
-    EVE_CmdWrite(0x61,3);
+    EVE_CmdWrite(0x61,4);
 
 
     MCU_Delay_500ms();

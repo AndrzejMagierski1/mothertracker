@@ -74,9 +74,6 @@ void cMtProjectEditor::update()
 //		mtDisplay.changeTrackTable(&trackTable);
 
 
-		trackTable1 = display.createControl<cTracker>(nullptr, controlShow, 0, 0, 0, 0);
-		display.refreshControl(trackTable1);
-
 
 
 		//trackTable2 = display.createControl<cLabel>(editName, controlShow, 10, 10, 0, 0);

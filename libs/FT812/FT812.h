@@ -85,6 +85,7 @@ uint16_t EVE_CheckFreeSpace(uint16_t CmdOffset);
 
 // API Functions
 void API_LIB_BeginCoProList(void);
+void API_LIB_BeginDirectDL(void);
 void API_LIB_BeginCoProListNoCheck(void);
 void API_LIB_EndCoProList(void);
 void API_LIB_AwaitCoProEmpty(void);

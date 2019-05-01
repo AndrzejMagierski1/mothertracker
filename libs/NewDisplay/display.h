@@ -18,7 +18,7 @@ typedef cDisplayControl* hControl;
 //#########################################################################
 
 const uint8_t controlsCount = 50;
-const uint32_t controlsRamStartAddress = 60000;
+const uint32_t controlsRamStartAddress = 100000;
 
 
 // NIE-EDITABLE

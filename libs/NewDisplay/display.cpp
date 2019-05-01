@@ -3,17 +3,17 @@
 #include "FT812.h"
 
 #include "display.h"
+#include "trackerControl.h"
 
 
-
+#include "core_pins.h"
+#include "elapsedMillis.h"
 
 #include "poly_logo_inv.h"
 
 
-#include "Roboto_Mono_10_L4.h"
+#include "Roboto_Mono_20_L4.h"
 #include "Roboto_Mono_14_L4.h"
-
-
 
 
 // OBRAZY
@@ -23,10 +23,12 @@
 #define DISP_RGB(red,green,blue) ((((red)&255UL)<<16)|(((green)&255UL)<<8)|(((blue)&255UL)<<0))
 
 
+void display_table();
+
 
 cDisplay display;
 
-
+extern strTrackerSeqDisplay  trackerSeqDisplay;
 
 void cDisplay::begin()
 {
@@ -35,7 +37,7 @@ void cDisplay::begin()
 //####################################
 
 	API_LIB_WriteDataRAMG(Roboto_Mono_14_L4, sizeof(Roboto_Mono_14_L4), MT_GPU_RAM_FONT1_ADRESS);
-	API_LIB_WriteDataRAMG(Roboto_Mono_10_L4, sizeof(Roboto_Mono_10_L4), MT_GPU_RAM_FONT2_ADRESS);
+	API_LIB_WriteDataRAMG(Roboto_Mono_20_L4, sizeof(Roboto_Mono_20_L4), MT_GPU_RAM_FONT2_ADRESS);
 
 	API_LIB_WriteDataRAMG(poly_logo_inv_128x128, sizeof(poly_logo_inv_128x128), MT_GPU_RAM_POLY_LOGO_ADRESS);
 
@@ -54,9 +56,9 @@ void cDisplay::begin()
 	API_CMD_SETFONT(MT_GPU_RAM_FONT1_HANDLE, MT_GPU_RAM_FONT1_ADRESS);
 
 	API_BITMAP_HANDLE(MT_GPU_RAM_FONT2_HANDLE);
-	API_BITMAP_SOURCE(9484);
-	API_BITMAP_LAYOUT(L4,4,13);
-	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 7,13);
+	API_BITMAP_SOURCE(14324);
+	API_BITMAP_LAYOUT(L4,7,26);
+	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 12,26);
 	API_CMD_SETFONT(MT_GPU_RAM_FONT2_HANDLE, MT_GPU_RAM_FONT2_ADRESS);
 
 
@@ -64,35 +66,133 @@ void cDisplay::begin()
 	API_DISPLAY();
     API_CMD_SWAP();
     API_LIB_EndCoProList();
-    API_LIB_AwaitCoProEmpty();
+    //API_LIB_AwaitCoProEmpty();
 
 	refreshQueueTop = 0;
 	refreshQueueBott = 0;
     updateStep = 0;
 }
 
+elapsedMicros testTimer;
+elapsedMillis refreshTimer;
+elapsedMillis seqTimer;
+hControl hTrackControl;
+uint8_t created = 0;
+int8_t moveStep = 5;
+uint16_t refreshF = 20;
+
+
+
 void cDisplay::update()
 {
+
+if(seqTimer > 125)
+{
+	seqTimer = 0;
+
+	trackerSeqDisplay.position++;
+	if(trackerSeqDisplay.position > 256) trackerSeqDisplay.position = 1;
+
+	uint8_t value = trackerSeqDisplay.position;
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+
+		for(uint8_t j = 0; j < 15; j++)
+		{
+			value+=j;
+
+			trackerSeqDisplay.track[i].row[j].vol[0] =  48 + (value%100)/10;
+			trackerSeqDisplay.track[i].row[j].vol[1] =  48 + (value%100)%10;
+
+		}
+
+
+		value = trackerSeqDisplay.position;
+
+	}
+
+
+
+
+
+
+
+
+	if(hTrackControl != nullptr) display.refreshControl(hTrackControl);
+
+}
+
+
+
+if(refreshTimer > refreshF)
+{
+	refreshTimer = 0;
+	if(!created)
+	{
+		hTrackControl = display.createControl<cTracker>(nullptr, controlShow, 0, 0, 0, 0);
+		created = 1;
+	}
+
+	trackerSeqDisplay.part += moveStep;
+
+	if(trackerSeqDisplay.part >= 744)
+	{
+		trackerSeqDisplay.part = 744;
+
+		moveStep = -1;
+		refreshF = 5000;
+	}
+	else if (trackerSeqDisplay.part <= 0)
+	{
+		trackerSeqDisplay.part = 0;
+		moveStep = 10;
+		refreshF = 5000;
+	}
+	else
+	{
+		refreshF = 20;
+	}
+
+	display.refreshControl(hTrackControl);
+
+}
+
+
+
+	//display_table();
+
+	//return;
+
+
 	switch(updateStep)
 	{
+
 		case 0:	// sprawdz czy ktoras z kontrolek jest w kolejce odswiazania, jesli tak odswiez ja
 		{
 			if(refreshQueueTop ==  refreshQueueBott) return; // nie jest wymagane odswiezenie
 
 			if(!API_LIB_IsCoProEmpty()) return;
+			testTimer = 0;
 
 			actualUpdating = refreshQueue[refreshQueueBott];
 			actualUpdating->update();
+
+			Serial.print("phase 1 ");
+			Serial.println(testTimer);
 			updateStep = 1;
 			break;
 		}
 		case 1: // zapisz DL z porzedniego kroku do ramu ukladu graficznego
 		{
 			if(!API_LIB_IsCoProEmpty()) return;
+			testTimer = 0;
 
 			uint32_t ramAddress = controlsRamStartAddress+(actualUpdating->ramMapPosition*10000);
 			if(actualUpdating->memCpy(ramAddress))
 			{
+				Serial.print("phase 2 ");
+				Serial.println(testTimer);
 				updateStep = 0; // jesli obslugiwana kontrolka potrzebuje odswiezenia
 				return;			// wiekszej ilosci blokow
 			}
@@ -105,9 +205,13 @@ void cDisplay::update()
 			updateStep = 2;
 			break;
 		}
+
+
 		case 2: // oswiez cały ekran
 		{
 			if(!API_LIB_IsCoProEmpty()) return;
+
+			testTimer = 0;
 
 			API_LIB_BeginCoProListNoCheck();
 		    API_CMD_DLSTART();
@@ -124,38 +228,26 @@ void cDisplay::update()
 				if(p->cState) p->append(ramAddress);
 			}
 
+
 		    API_DISPLAY();
 		    API_CMD_SWAP();
-		    API_LIB_EndCoProList();
-		    API_LIB_AwaitCoProEmpty();
-			uint32_t dlOffset = EVE_MemRead32(REG_CMD_DL);
 
+			API_LIB_EndCoProList();
+			API_LIB_AwaitCoProEmpty();
+
+			Serial.print("phase 3 ");
+			Serial.println(testTimer);
 
 			updateStep = 0;
-			dlOffset = 0;
 			break;
 		}
 		default: updateStep = 0; break;
 	}
 
 }
-/*
-template <typename controlClass> hControl cDisplay::createControl(char text[], uint8_t state, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
-{
-	hControl newControlSlot = controlsTable[0];
 
-	uint8_t i = 0;
 
-	while(nullptr != newControlSlot++)
-	{
-		if(++i >= controlsCount) return nullptr; //zabezpieczenie przed przekroczeniem max ilosci mozliwych kontrolek
-	}
 
-	newControlSlot = new controlClass(text, state, x, y, w, h);
-
-	return newControlSlot;
-}
-*/
 void cDisplay::setControlState(hControl handle, uint8_t state)
 {
 	handle->cState = state;
@@ -197,6 +289,8 @@ void cDisplay::destroyControl(hControl handle)
 
 void cDisplay::refreshControl(hControl handle)
 {
+	if(handle == nullptr) return;
+
 	// dorzuc kontrolke do kolejki fifo odtwarzania
 	// jesli juz jest w kolejce to nic nie rob
 
