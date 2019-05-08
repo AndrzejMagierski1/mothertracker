@@ -185,8 +185,10 @@ void FT812_Init(void)
 	#define FT_DispCSpread 0
 	#define FT_DispDither 0
 */
+
+/*
     // WF52ATLASDNN0 display parameters
-/*   lcdWidth   = 480;                                                           // Active width of LCD display
+	lcdWidth   = 480;                                                           // Active width of LCD display
     lcdHeight  = 128;                                                           // Active height of LCD display
 
     lcdHcycle  = 531;                                                           // Total number of clocks per line
@@ -204,40 +206,45 @@ void FT812_Init(void)
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
     lcdCsSpread = 1;
 */
-/*
+
 
     // WF70A2TIAGDNN0 display parameters
     lcdWidth   = 800;                                                           // Active width of LCD display
     lcdHeight  = 480;                                                           // Active height of LCD display
 
-    lcdHcycle  = 1056;                                                           // Total number of clocks per line
-    lcdHoffset = 256;                                                            // Start of active line
-    lcdHsync0  = 210;                                                             // Start of horizontal sync pulse
-    lcdHsync1  = 220;                                                            // End of horizontal sync pulse
+    lcdHcycle  = 953;                                                           // Total number of clocks per line
+    lcdHoffset = 88;                                                            // Start of active line
+    lcdHsync0  = 42;                                                             // Start of horizontal sync pulse
+    lcdHsync1  = 90;                                                            // End of horizontal sync pulse
 
     lcdVcycle  = 525;                                                           // Total number of lines per screen
-    lcdVoffset = 45;                                                            // Start of active screen
-    lcdVsync0  = 22;                                                             // Start of vertical sync pulse
-    lcdVsync1  = 23;                                                             // End of vertical sync pulse
+    lcdVoffset = 32;                                                            // Start of active screen
+    lcdVsync0  = 9;                                                             // Start of vertical sync pulse
+    lcdVsync1  = 12;                                                             // End of vertical sync pulse
 
-    lcdPclk    = 4;                                                             // Pixel Clock
+    lcdPclk    = 1;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
 
-    lcdCsSpread = 1;
+    lcdCsSpread = 0;
 
-*/
+
+
+/*
+
 #define EVE_HSIZE	(800L)
 #define EVE_VSIZE	(480L)
 
-#define EVE_VSYNC0	(0L)
-#define EVE_VSYNC1	(3L)
+#define EVE_VSYNC0	(9L)
+#define EVE_VSYNC1	(12L)
 #define EVE_VOFFSET	(32L)
 #define EVE_VCYCLE	(525L)
-#define EVE_HSYNC0	(0L)
-#define EVE_HSYNC1	(48L)
+
+#define EVE_HSYNC0	(42L)
+#define EVE_HSYNC1	(90L)
 #define EVE_HOFFSET	(88L)
-#define EVE_HCYCLE 	(928L)
+#define EVE_HCYCLE 	(953)
+
 #define EVE_PCLKPOL	(1L)
 #define EVE_SWIZZLE	(0L)
 #define EVE_PCLK	(1L)
@@ -262,7 +269,7 @@ void FT812_Init(void)
 
     lcdCsSpread = EVE_CSPREAD;
 
-
+*/
 
     EVE_MemWrite16(REG_HSIZE,   lcdWidth);
     EVE_MemWrite16(REG_HCYCLE,  lcdHcycle);
@@ -280,7 +287,7 @@ void FT812_Init(void)
 
 
     EVE_MemWrite8(REG_ROTATE,  1);
-
+    EVE_MemWrite8(REG_DITHER,  0);
 
 
     // ---------------------- Touch and Audio settings -------------------------

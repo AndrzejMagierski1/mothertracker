@@ -5,77 +5,111 @@
 #include <stdint.h>
 
 
-enum controlsTypes
+
+enum controlsStyle
 {
-	displayControlLabel,
-	displayControlEdit,
-	displayControlBox,
+	controlStyleHide = 0,
+	controlStyleShow = 1,
 
-	displayControlTracker
+	controlStyleCenterX = 4,
+	controlStyleCenterY = 8,
+	controlStyleRightX 	= 16,
 
 
+	controlStyleFont1 	= 256,
+	controlStyleFont2 	= 512,
+	controlStyleFont3 	= 1024,
+	controlStyleFont4 	= 1280,
 
 };
 
 
-enum controlsState
+struct strControlProperties
 {
-	controlHide,
-	controlShow,
+	char* text;
+	int number;
 
+	int16_t style;
 
+	uint16_t x;
+	uint16_t y;
+	uint16_t w;
+	uint16_t h;
 };
 
-// CZCIONKI
-#define MT_GPU_RAM_FONT1_ADRESS	1000
-#define MT_GPU_RAM_FONT1_HANDLE	13
-#define MT_GPU_RAM_FONT2_ADRESS	20000
-#define MT_GPU_RAM_FONT2_HANDLE	14
-// handle nie moze byc wikesze niz 14
 
-void Number2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, int16_t number);
-void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
+struct strFont
+{
+	const uint8_t* data;
+	uint32_t size;
+	int16_t handle;
+	uint32_t address;
+	int32_t source;
+	uint16_t width;
+	uint16_t height;
+	uint8_t format;
+	uint16_t linestride;
+};
 
-extern const uint8_t Roboto_Mono_10_L4[];
-extern const uint8_t Roboto_Mono_14_L4[];
-extern const  uint8_t Roboto_Mono_20_L4[];
+struct strBitmap
+{
+	const uint8_t* data;
+	uint32_t address;
+	uint32_t source;
+	uint16_t width;
+	uint16_t height;
+	uint8_t format;
+	uint16_t linestride;
+};
 
-class cDisplay;
+
+extern strFont font[];
+extern strBitmap bitmap[];
+
 
 //--------------------------------------------------------------------
-
-
+// klasa wirtualna bazowa dla kontrolek
 class cDisplayControl
 {
-	friend cDisplay;
+	friend class cDisplay;
 
 public:
 
 	virtual uint8_t update() = 0;
 	virtual uint8_t append(uint32_t address) = 0;
 	virtual uint8_t memCpy(uint32_t address) = 0;
-
+/*
 	void setColors(uint32_t colorsTable[])
 	{
 		for(uint8_t i = 0; i < colorsCount;i++) if(colorsTable+i == nullptr || colorsTable[i] > 0xFFFFFF) return;
 		colors = colorsTable;
 	}
-	static uint8_t colorsCount;
-	static uint32_t defaultColors[];
-	uint32_t* colors = defaultColors;
+*/
+
+	virtual void setStyle(uint16_t style) = 0;
+	virtual void setText(char* text) = 0;
 
 	cDisplayControl()
 	{
 		ramMapPosition = 0;
 		ramSize = 0;
-		cState = 0;
+		style = 0;
+		text = nullptr;
 		posX = 0;
 		posY = 0;
+		cWidth = 0;
+		cHeight = 0;
 	}
 	virtual ~cDisplayControl() {}
 
-	uint8_t cState;
-	char* cText;
+
+protected:
+
+	uint8_t ramMapPosition;
+	uint32_t ramSize;
+
+	uint16_t style;
+	char* text;
 
 	uint16_t posX;
 	uint16_t posY;
@@ -83,67 +117,12 @@ public:
 	uint16_t cWidth;
 	uint16_t cHeight;
 
-
-private:
-
-
-	uint8_t ramMapPosition;
-	uint32_t ramSize;
-
-
-
-};
-
-
-
-//--------------------------------------------------------------------
-//--------------------------------------------------------------------
-//--------------------------------------------------------------------
-class cLabel: public cDisplayControl
-{
-public:
-	cLabel(char text[] = nullptr, uint8_t state = 0, uint16_t x = 0, uint16_t y = 0, uint16_t w = 0, uint16_t h = 0);
-	virtual ~cLabel();
-
-	virtual uint8_t update();
-	virtual uint8_t memCpy(uint32_t address);
-	virtual uint8_t append(uint32_t address);
-
-	//void setColors(uint32_t colorsTable[]);
 	static uint8_t colorsCount;
 	static uint32_t defaultColors[];
-	//uint32_t* colors = defaultColors;
-};
+	uint32_t* colors = defaultColors;
 
-//--------------------------------------------------------------------
-class cEdit: public cDisplayControl
-{
-public:
-
-	virtual uint8_t update();
-	virtual uint8_t append(uint32_t address);
-	virtual uint8_t memCpy(uint32_t address);
 
 };
-
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------
-
-
-
-
-
 
 
 

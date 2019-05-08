@@ -3,7 +3,6 @@
 #include "FT812.h"
 
 #include "display.h"
-#include "trackerControl.h"
 
 
 #include "core_pins.h"
@@ -12,23 +11,62 @@
 #include "poly_logo_inv.h"
 
 
-#include "Roboto_Mono_20_L4.h"
 #include "Roboto_Mono_14_L4.h"
+#include "Roboto_Mono_20_L4.h"
 
 
 // OBRAZY
-#define MT_GPU_RAM_POLY_LOGO_ADRESS	50000
-#define MT_GPU_RAM_POLY_LOGO_HANDLE	12
 
-#define DISP_RGB(red,green,blue) ((((red)&255UL)<<16)|(((green)&255UL)<<8)|(((blue)&255UL)<<0))
+// CZCIONKI
+strFont font[displayFontCount] =
+{
+	{
+		Roboto_Mono_14_L4,
+		sizeof(Roboto_Mono_14_L4),
+		13,
+		1000,
+		-1732,
+		10,
+		18,
+		L4,
+		5,
+	},
+	{
+		Roboto_Mono_20_L4,
+		sizeof(Roboto_Mono_20_L4),
+		14,
+		20000,
+		14324,
+		12,
+		26,
+		L4,
+		7,
+	},
+};
+// handle nie moze byc wikesze niz 14
+
+strBitmap bitmap[displayBitmapsCount] =
+{
+	{
+		poly_logo_inv_128x128,
+		50000,
+		128,
+		128,
+		L4,
+		64,
+	},
+
+};
 
 
+
+extern strTrackerSeqDisplay  trackerSeqDisplay;
 void display_table();
 
 
 cDisplay display;
 
-extern strTrackerSeqDisplay  trackerSeqDisplay;
+
 
 void cDisplay::begin()
 {
@@ -36,11 +74,18 @@ void cDisplay::begin()
 
 //####################################
 
-	API_LIB_WriteDataRAMG(Roboto_Mono_14_L4, sizeof(Roboto_Mono_14_L4), MT_GPU_RAM_FONT1_ADRESS);
-	API_LIB_WriteDataRAMG(Roboto_Mono_20_L4, sizeof(Roboto_Mono_20_L4), MT_GPU_RAM_FONT2_ADRESS);
+	for(uint8_t i = 0; i < displayFontCount; i++)
+	{
+		API_LIB_WriteDataRAMG(font[i].data, font[i].size, font[i].address);
+	}
 
-	API_LIB_WriteDataRAMG(poly_logo_inv_128x128, sizeof(poly_logo_inv_128x128), MT_GPU_RAM_POLY_LOGO_ADRESS);
+	for(uint8_t i = 0; i < displayBitmapsCount; i++)
+	{
+		API_LIB_WriteDataRAMG(bitmap[i].data, sizeof(bitmap[i].data), bitmap[i].address);
+	}
 
+//	API_LIB_WriteDataRAMG(Roboto_Mono_14_L4, sizeof(Roboto_Mono_14_L4), 1000);
+//	API_LIB_WriteDataRAMG(Roboto_Mono_20_L4, sizeof(Roboto_Mono_20_L4), 20000);
 //####################################
 
     API_LIB_BeginCoProList();
@@ -49,19 +94,29 @@ void cDisplay::begin()
 	API_CLEAR_COLOR(DISP_RGB(0,0,0));
 	API_CLEAR(1,1,1);
 
-	API_BITMAP_HANDLE(MT_GPU_RAM_FONT1_HANDLE);
-	API_BITMAP_SOURCE(-1732);
-	API_BITMAP_LAYOUT(L4,5,18);
-	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 10,18);
-	API_CMD_SETFONT(MT_GPU_RAM_FONT1_HANDLE, MT_GPU_RAM_FONT1_ADRESS);
+	for(uint8_t i = 0; i < displayFontCount; i++)
+	{
 
-	API_BITMAP_HANDLE(MT_GPU_RAM_FONT2_HANDLE);
+		API_BITMAP_HANDLE(font[i].handle);
+		API_BITMAP_SOURCE(font[i].source);
+		API_BITMAP_LAYOUT(font[i].format, font[i].linestride,font[i].height);
+		API_BITMAP_SIZE(NEAREST, BORDER, BORDER, font[i].width, font[i].height);
+		API_CMD_SETFONT(font[i].handle, font[i].address);
+	}
+
+/*
+	API_BITMAP_HANDLE(14);
 	API_BITMAP_SOURCE(14324);
-	API_BITMAP_LAYOUT(L4,7,26);
-	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 12,26);
-	API_CMD_SETFONT(MT_GPU_RAM_FONT2_HANDLE, MT_GPU_RAM_FONT2_ADRESS);
+	API_BITMAP_LAYOUT(L4, 7, 26);
+	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 12, 26);
+	API_CMD_SETFONT(14, 20000);
 
-
+	API_BITMAP_HANDLE(13);
+	API_BITMAP_SOURCE(-1732);
+	API_BITMAP_LAYOUT(L4, 5, 18);
+	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 10, 18);
+	API_CMD_SETFONT(13, 1000);
+*/
 
 	API_DISPLAY();
     API_CMD_SWAP();
@@ -85,6 +140,12 @@ uint16_t refreshF = 20;
 
 void cDisplay::update()
 {
+	//display_table();
+
+	//return;
+
+
+
 
 if(seqTimer > 125)
 {
@@ -130,7 +191,15 @@ if(refreshTimer > refreshF)
 	refreshTimer = 0;
 	if(!created)
 	{
-		hTrackControl = display.createControl<cTracker>(nullptr, controlShow, 0, 0, 0, 0);
+		strControlProperties prop;
+		prop.text ="Test";
+		prop.style = 	(controlStyleShow | controlStyleFont2);
+		prop.x = 40;
+		prop.y = 40;
+		//hTrackControl = display.createControl<cTracker>(nullptr, controlStyleShow, 0, 0, 0, 0);
+		hTrackControl = display.createControl<cLabel>(&prop);
+		//display.refreshControl(hTrackControl);
+
 		created = 1;
 	}
 
@@ -160,9 +229,6 @@ if(refreshTimer > refreshF)
 
 
 
-	//display_table();
-
-	//return;
 
 
 	switch(updateStep)
@@ -188,7 +254,7 @@ if(refreshTimer > refreshF)
 			if(!API_LIB_IsCoProEmpty()) return;
 			testTimer = 0;
 
-			uint32_t ramAddress = controlsRamStartAddress+(actualUpdating->ramMapPosition*10000);
+			uint32_t ramAddress = controlsRamStartAddress+(actualUpdating->ramMapPosition*controlsRamAddressStep);
 			if(actualUpdating->memCpy(ramAddress))
 			{
 				Serial.print("phase 2 ");
@@ -224,8 +290,8 @@ if(refreshTimer > refreshF)
 			{
 				hControl p = controlsTable[i];
 				if(p == nullptr) break;
-				uint32_t ramAddress = controlsRamStartAddress+(p->ramMapPosition*10000);
-				if(p->cState) p->append(ramAddress);
+				uint32_t ramAddress = controlsRamStartAddress+(p->ramMapPosition*controlsRamAddressStep);
+				if(p->style & controlStyleShow) p->append(ramAddress);
 			}
 
 
@@ -233,10 +299,11 @@ if(refreshTimer > refreshF)
 		    API_CMD_SWAP();
 
 			API_LIB_EndCoProList();
-			API_LIB_AwaitCoProEmpty();
+			//API_LIB_AwaitCoProEmpty();
 
 			Serial.print("phase 3 ");
 			Serial.println(testTimer);
+
 
 			updateStep = 0;
 			break;
@@ -247,10 +314,25 @@ if(refreshTimer > refreshF)
 }
 
 
-
-void cDisplay::setControlState(hControl handle, uint8_t state)
+void cDisplay::setControlStyle(hControl handle, uint16_t style)
 {
-	handle->cState = state;
+	//sprawdzenie porpawnosci czcionki
+	if(((style >> 8) & 15) > displayFontCount)
+	{
+		style &= ~(15 << 8);
+	}
+
+	handle->setStyle(style);
+
+	//handle->cStyle = style;
+}
+
+void cDisplay::setControlColor(hControl handle, uint32_t colorsTable[])
+{
+	for(uint8_t i = 0; i < handle->colorsCount; i++) if(colorsTable+i == nullptr || colorsTable[i] > 0xFFFFFF) return;
+	handle->colors = colorsTable;
+
+	//handle->setColors(colorsTable);
 }
 
 void cDisplay::destroyControl(hControl handle)

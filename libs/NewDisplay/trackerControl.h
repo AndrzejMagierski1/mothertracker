@@ -37,18 +37,19 @@ class cTracker: public cDisplayControl
 {
 public:
 
-	cTracker(char text[] = nullptr, uint8_t state = 0, uint16_t x = 0, uint16_t y = 0, uint16_t w = 0, uint16_t h = 0);
+	cTracker(char text[] = nullptr, uint16_t style = 0, uint16_t x = 0, uint16_t y = 0, uint16_t w = 0, uint16_t h = 0);
 	virtual ~cTracker();
-
 
 	virtual uint8_t update();
 	virtual uint8_t append(uint32_t address);
 	virtual uint8_t memCpy(uint32_t address);
 
-//	void setColors(uint32_t colorsTable[]);
+	//virtual void setStyle(uint16_t style);
+
 	static uint8_t colorsCount;
 	static uint32_t defaultColors[];
-	uint32_t* colors = defaultColors;
+
+private:
 
 	uint16_t ramPartSize[5] = {0};
 	uint8_t refreshStep;

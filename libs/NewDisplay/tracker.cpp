@@ -4,6 +4,10 @@
 
 #include "trackerControl.h"
 
+void Number2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, int16_t number);
+void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
+
+
 
 uint8_t cTracker::colorsCount = 6;
 uint32_t cTracker::defaultColors[] =
@@ -25,7 +29,7 @@ strTrackerSeqDisplay trackerSeqDisplay;
 
 
 //--------------------------------------------------------------------------------
-cTracker::cTracker(char text[], uint8_t state, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+cTracker::cTracker(char text[], uint16_t style, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	trackerSeqDisplay.track[0].row[0].note[0] = 'C';
 	trackerSeqDisplay.track[0].row[0].note[1] = '-';
@@ -60,8 +64,12 @@ cTracker::cTracker(char text[], uint8_t state, uint16_t x, uint16_t y, uint16_t 
 	trackerSeqDisplay.track[7].row[7].note[2] = '1';
 
 
+	visibleCharOffset = 0;
+	firstVisibleTrack = 0;
+	visibleTracksOffset = 0;
 
-	cState = state;
+	colors = defaultColors;
+	this->style = style;
 	posX = x;
 	posY = y;
 	refreshStep = 0;
@@ -114,7 +122,7 @@ uint8_t cTracker::memCpy(uint32_t address)
 	ramPartSize[refreshStep] = dlOffset;
 
 	API_LIB_EndCoProList();
-	API_LIB_AwaitCoProEmpty();
+	//API_LIB_AwaitCoProEmpty();
 
     refreshStep++;
     if(refreshStep > 4)
@@ -150,6 +158,9 @@ void cTracker::refresh1()
 	firstVisibleTrack = trackerSeqDisplay.part/186;
 	visibleTracksOffset = trackerSeqDisplay.part%186;
 	visibleCharOffset = visibleTracksOffset/12;  // font width = 12
+
+	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
+	API_COLOR_A(128);
 
 	// linie
 	API_VERTEX_FORMAT(0);
@@ -194,7 +205,7 @@ void cTracker::refresh1()
 	uint8_t row = trackerSeqDisplay.position;
 
 	API_COLOR(colors[1]);
-	API_BITMAP_HANDLE(MT_GPU_RAM_FONT1_HANDLE);
+	API_BITMAP_HANDLE(font[0].handle);
 	API_BEGIN(BITMAPS);
 
 
@@ -214,7 +225,7 @@ void cTracker::refresh1()
 	//API_SCISSOR_SIZE(799-28*2, 28*15+24);
 
 
-	API_BITMAP_HANDLE(MT_GPU_RAM_FONT2_HANDLE);
+	API_BITMAP_HANDLE(font[1].handle);
 
 	#define TRACK_NAME_L 7
 	char trackName[TRACK_NAME_L+1] = "Track 1";
@@ -244,7 +255,7 @@ void cTracker::refresh2()
 
 	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[2]);
-	API_BITMAP_HANDLE(MT_GPU_RAM_FONT2_HANDLE);
+	API_BITMAP_HANDLE(font[1].handle);
 	API_BEGIN(BITMAPS);
 
 	for(uint16_t j = 0; j < 15; j++)
@@ -261,7 +272,7 @@ void cTracker::refresh3()
 {
 	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[3]);
-	API_BITMAP_HANDLE(MT_GPU_RAM_FONT2_HANDLE);
+	API_BITMAP_HANDLE(font[1].handle);
 	API_BEGIN(BITMAPS);
 
 	for(uint16_t j = 0; j < 15; j++)
@@ -278,7 +289,7 @@ void cTracker::refresh4()
 {
 	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[4]);
-	API_BITMAP_HANDLE(MT_GPU_RAM_FONT2_HANDLE);
+	API_BITMAP_HANDLE(font[1].handle);
 	API_BEGIN(BITMAPS);
 
 	for(uint16_t j = 0; j < 15; j++)
@@ -295,7 +306,7 @@ void cTracker::refresh5()
 {
 	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[5]);
-	API_BITMAP_HANDLE(MT_GPU_RAM_FONT2_HANDLE);
+	API_BITMAP_HANDLE(font[1].handle);
 	API_BEGIN(BITMAPS);
 
 	for(uint16_t j = 0; j < 15; j++)
@@ -308,3 +319,74 @@ void cTracker::refresh5()
 	API_END();
 }
 
+inline void draw_char(uint16_t x, uint16_t y, uint8_t charr)
+{
+	if(x > 511 || y > 511)
+	{
+		API_CELL(charr);
+		API_VERTEX2F(x, y);
+	}
+	else
+	{
+		API_VERTEX2II(x,y,font[0].handle,charr);
+	}
+}
+
+void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length)
+{
+	y = y - font_y/2;
+	uint8_t strPtr = 0;
+
+
+	for(uint8_t i = 0; i < length; i++)
+	{
+		if(x > 755 || y > 480 || x < 30 || y < 0)
+		{
+			strPtr++;
+		}
+		else if(x > 511 || y > 511)
+		{
+			API_CELL(string[strPtr++]);
+			API_VERTEX2F(x, y);
+		}
+		else
+		{
+			API_VERTEX2II(x,y,font[1].handle, (char)string[strPtr++]);
+		}
+		x+=font_x;
+	}
+}
+
+
+void Number2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, int16_t number)
+{
+	y = y - font_y/2;
+	uint8_t digit, flag = 0;
+
+	if(number < 0)
+	{
+		number = number*(-1);
+		draw_char(x,y,45);
+		x+=font_x;
+	}
+
+
+	digit =  number/10000;
+	number = number%10000;
+	if(digit > 0) {draw_char(x,y,digit+48); x+=font_x; flag = 1;}
+
+	digit =  number/1000;
+	number = number%1000;
+	if(digit > 0 || flag) {draw_char(x,y,digit+48); x+=font_x; flag = 1;}
+
+	digit =  number/100;
+	number = number%100;
+	if(digit > 0 || flag) {draw_char(x,y,digit+48); x+=font_x; flag = 1;}
+
+	digit =  number/10;
+	number = number%10;
+	if(digit > 0 || flag) {draw_char(x,y,digit+48); x+=font_x; flag = 1;}
+
+	draw_char(x,y,number+48);
+
+}
