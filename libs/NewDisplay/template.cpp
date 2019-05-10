@@ -2,7 +2,8 @@
 #include "FT812.h"
 
 #include "displayControls.h"
-#include "commonControls.h"
+#include "templateControl.h"
+
 
 
 static uint32_t defaultColors[] =
@@ -15,7 +16,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cLabel::cLabel(strControlProperties* properties)
+cTemplate::cTemplate(strControlProperties* properties)
 {
 	colorsCount = 3;
 	colors = defaultColors;
@@ -25,6 +26,7 @@ cLabel::cLabel(strControlProperties* properties)
 		posX = 0;
 		posY = 0;
 		text = nullptr;
+		value = 0;
 		width = 0;
 		height = 0;
 		style = 0;
@@ -35,6 +37,7 @@ cLabel::cLabel(strControlProperties* properties)
 	posY = properties->y;
 
 	text = properties->text;
+	value = properties->value;
 
 	width = properties->w;
 	height = properties->h;
@@ -42,7 +45,7 @@ cLabel::cLabel(strControlProperties* properties)
 	setStyle(properties->style);
 }
 
-cLabel::~cLabel()
+cTemplate::~cTemplate()
 {
 
 }
@@ -50,7 +53,7 @@ cLabel::~cLabel()
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-void cLabel::setStyle(uint16_t style)
+void cTemplate::setStyle(uint16_t style)
 {
 	this->style = style;
 
@@ -61,22 +64,22 @@ void cLabel::setStyle(uint16_t style)
 	textFont =  fonts[FONT_INDEX_FROM_STYLE].handle;
 }
 
-void cLabel::setText(char* text)
+void cTemplate::setText(char* text)
 {
 	this->text = text;
 }
 
-void cLabel::setValue(int value)
+void cTemplate::setValue(int value)
 {
 
 }
 
-void cLabel::setColors(uint32_t* colors)
+void cTemplate::setColors(uint32_t* colors)
 {
-	this->colors = colors;
+
 }
 
-void cLabel::setData(void* data)
+void cTemplate::setData(void* data)
 {
 
 }
@@ -84,58 +87,15 @@ void cLabel::setData(void* data)
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-uint8_t cLabel::update()
+uint8_t cTemplate::update()
 {
     API_LIB_BeginCoProList();
     API_CMD_DLSTART();
 
-	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
-	//API_COLOR_A(128);
-
-   // uint16_t text_x = posX, text_y = posY;
-    int16_t border_x = posX-2;//, border_y = posY-2;
 
 	if(style & controlStyleCenterX)
 	{
-		//border_x = posX - (getTextWidth(FONT_INDEX_FROM_STYLE,text)/2 + 2);
 
-		border_x = posX - (width/2);
-	}
-
-
-	if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
-	else API_LINE_WIDTH(8);
-
-
-	if(style & controlStyleBackground)
-	{
-		API_COLOR(colors[1]);
-
-
-		API_BEGIN(RECTS);
-		API_VERTEX2F(border_x , posY);
-		API_VERTEX2F(border_x+width , posY+height);
-		API_END();
-
-		//text_x = posX + 2;
-		//text_y = posY + 2;
-	}
-	if(style & controlStyleBorder)
-	{
-		API_COLOR(colors[2]);
-
-		API_LINE_WIDTH(8);
-		API_BEGIN(LINE_STRIP);
-		API_VERTEX2F(border_x , posY);
-		API_VERTEX2F(border_x+width , posY);
-		API_VERTEX2F(border_x+width , posY+height);
-		API_VERTEX2F(border_x , posY+height);
-		API_VERTEX2F(border_x , posY);
-		API_END();
-
-		//text_x = posX + 2;
-		//text_y = posY + 2;
 	}
 
 
@@ -150,7 +110,7 @@ uint8_t cLabel::update()
 	return 0;
 }
 
-uint8_t cLabel::memCpy(uint32_t address)
+uint8_t cTemplate::memCpy(uint32_t address)
 {
 	uint32_t dlOffset = EVE_MemRead32(REG_CMD_DL);
 
@@ -167,7 +127,7 @@ uint8_t cLabel::memCpy(uint32_t address)
 }
 
 
-uint8_t cLabel::append(uint32_t address)
+uint8_t cTemplate::append(uint32_t address)
 {
 	API_CMD_APPEND(address, ramSize);
 

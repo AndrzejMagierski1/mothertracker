@@ -1,5 +1,4 @@
 
-
 #ifndef _TACKER_CONTROL_H_
 #define _TACKER_CONTROL_H_
 
@@ -24,8 +23,6 @@ struct strTrackerSeqDisplay
 	uint16_t position = 201;
 	int16_t part = 0;
 
-	static uint16_t hMove[40];
-
 };
 
 
@@ -37,19 +34,22 @@ class cTracker: public cDisplayControl
 {
 public:
 
-	cTracker(char text[] = nullptr, uint16_t style = 0, uint16_t x = 0, uint16_t y = 0, uint16_t w = 0, uint16_t h = 0);
+	cTracker(strControlProperties* properties);
 	virtual ~cTracker();
 
 	virtual uint8_t update();
 	virtual uint8_t append(uint32_t address);
 	virtual uint8_t memCpy(uint32_t address);
 
-	//virtual void setStyle(uint16_t style);
-
-	static uint8_t colorsCount;
-	static uint32_t defaultColors[];
+	virtual void setStyle(uint16_t style);
+	virtual void setText(char* text);
+	virtual void setValue(int value);
+	virtual void setColors(uint32_t* colors);
+	virtual void setData(void* data);
 
 private:
+
+	strTrackerSeqDisplay* tracks;
 
 	uint16_t ramPartSize[5] = {0};
 	uint8_t refreshStep;

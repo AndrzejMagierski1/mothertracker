@@ -16,10 +16,16 @@ enum controlsStyle
 	controlStyleRightX 	= 16,
 
 
+
 	controlStyleFont1 	= 256,
 	controlStyleFont2 	= 512,
 	controlStyleFont3 	= 1024,
 	controlStyleFont4 	= 1280,
+
+	controlStyleBorder 			= 4096,
+	controlStyleBackground 		= 8192,
+	controlStyleRoundedBorder 	= 16384,
+
 
 };
 
@@ -27,16 +33,17 @@ enum controlsStyle
 struct strControlProperties
 {
 	char* text;
-	int number;
+	int value;
+	void* data;
 
-	int16_t style;
+	uint16_t style;
+	uint32_t* colors;
 
 	uint16_t x;
 	uint16_t y;
 	uint16_t w;
 	uint16_t h;
 };
-
 
 struct strFont
 {
@@ -63,9 +70,14 @@ struct strBitmap
 };
 
 
-extern strFont font[];
-extern strBitmap bitmap[];
+extern strFont fonts[];
+extern strBitmap bitmaps[];
 
+
+#define FONT_INDEX_FROM_STYLE (((style >> 8) & 15)-1)
+
+
+uint16_t getTextWidth(uint8_t font, char* text);
 
 //--------------------------------------------------------------------
 // klasa wirtualna bazowa dla kontrolek
@@ -78,6 +90,7 @@ public:
 	virtual uint8_t update() = 0;
 	virtual uint8_t append(uint32_t address) = 0;
 	virtual uint8_t memCpy(uint32_t address) = 0;
+
 /*
 	void setColors(uint32_t colorsTable[])
 	{
@@ -88,6 +101,9 @@ public:
 
 	virtual void setStyle(uint16_t style) = 0;
 	virtual void setText(char* text) = 0;
+	virtual void setValue(int value) = 0;
+	virtual void setColors(uint32_t* colors) = 0;
+	virtual void setData(void* data) = 0;
 
 	cDisplayControl()
 	{
@@ -95,10 +111,13 @@ public:
 		ramSize = 0;
 		style = 0;
 		text = nullptr;
+		value = 0;
 		posX = 0;
 		posY = 0;
-		cWidth = 0;
-		cHeight = 0;
+		width = 0;
+		height = 0;
+		colorsCount = 10;
+		colors = nullptr;
 	}
 	virtual ~cDisplayControl() {}
 
@@ -110,16 +129,16 @@ protected:
 
 	uint16_t style;
 	char* text;
+	int value;
 
 	uint16_t posX;
 	uint16_t posY;
 
-	uint16_t cWidth;
-	uint16_t cHeight;
+	uint16_t width;
+	uint16_t height;
 
-	static uint8_t colorsCount;
-	static uint32_t defaultColors[];
-	uint32_t* colors = defaultColors;
+	uint8_t colorsCount;
+	uint32_t* colors;
 
 
 };

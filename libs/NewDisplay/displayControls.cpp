@@ -1,30 +1,22 @@
 
-#ifndef _DISPLAY_CONTROLS_H_
-#define _DISPLAY_CONTROLS_H_
 
 #include "FT812.h"
-
+#include <string.h>
 
 #include "displayControls.h"
 
 
-uint8_t cDisplayControl::colorsCount = 10;
-uint32_t cDisplayControl::defaultColors[] =
+
+uint16_t getTextWidth(uint8_t font, char* text)
 {
-	0xFFFFFF,
-	0xFFFFFF,
-	0xFFFFFF,
-	0xFFFFFF,
-	0xFFFFFF,
-	0xFFFFFF,
-	0xFFFFFF,
-	0xFFFFFF,
-	0xFFFFFF,
-	0xFFFFFF,
-};
+	uint16_t length = 0;
+
+	for(uint8_t i = 0; i < strlen(text); i++)
+	{
+		length += fonts[font].data[(uint8_t)text[i]-32];
+	}
 
 
+	return length;
+}
 
-
-
-#endif

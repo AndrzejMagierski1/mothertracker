@@ -48,6 +48,9 @@ RE-CERTIFICATION AS A RESULT OF MAKING THESE CHANGES.
 #define CS LCD_CS
 #define PD LCD_PD
 
+//#define lcd_480x128
+
+
 SPI2Settings settingsSLOW(4000000,  MSBFIRST, SPI_MODE0);
 SPI2Settings settingsFAST(4000000, MSBFIRST, SPI_MODE0);
 
@@ -76,7 +79,7 @@ uint8_t lcdPclk;                                                                
 uint8_t lcdSwizzle;                                                             // Define RGB output pins
 uint8_t lcdPclkpol;                                                             // Define active edge of PCLK
 uint8_t lcdCsSpread;
-
+uint8_t lcdRotate;
 
 uint32_t ramDisplayList = RAM_DL;                                               // Set beginning of display list memory
 uint32_t ramCommandBuffer = RAM_CMD;                                            // Set beginning of graphics command memory
@@ -186,7 +189,7 @@ void FT812_Init(void)
 	#define FT_DispDither 0
 */
 
-/*
+#ifdef lcd_480x128
     // WF52ATLASDNN0 display parameters
 	lcdWidth   = 480;                                                           // Active width of LCD display
     lcdHeight  = 128;                                                           // Active height of LCD display
@@ -205,8 +208,9 @@ void FT812_Init(void)
     lcdSwizzle = 0;                                                             // Define RGB output pins
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
     lcdCsSpread = 1;
-*/
+    lcdRotate = 0;
 
+#else
 
     // WF70A2TIAGDNN0 display parameters
     lcdWidth   = 800;                                                           // Active width of LCD display
@@ -227,8 +231,10 @@ void FT812_Init(void)
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
 
     lcdCsSpread = 0;
+    lcdRotate = 1;
 
 
+#endif
 
 /*
 
@@ -286,7 +292,7 @@ void FT812_Init(void)
     EVE_MemWrite8(REG_CSPREAD,  lcdCsSpread);
 
 
-    EVE_MemWrite8(REG_ROTATE,  1);
+    EVE_MemWrite8(REG_ROTATE,  lcdRotate);
     EVE_MemWrite8(REG_DITHER,  0);
 
 

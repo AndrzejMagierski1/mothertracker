@@ -81,10 +81,14 @@ public:
 		return *newControlSlot;
 	}
 
-	void setControlStyle(hControl handle, uint16_t style);
-	void setControlColor(hControl handle, uint32_t colorsTable[]);
 	void destroyControl(hControl handle);
 	void refreshControl(hControl handle);
+
+	void setControlStyle(hControl handle, uint16_t style);
+	void setControlText(hControl handle, char* text);
+	void setControlValue(hControl handle, int value);
+	void setControlColor(hControl handle, uint32_t colorsTable[]);
+	void setControlData(hControl handle, void* data);
 
 
 private:

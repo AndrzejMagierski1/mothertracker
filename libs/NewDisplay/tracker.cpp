@@ -1,16 +1,13 @@
 
 #include "FT812.h"
 
-
 #include "trackerControl.h"
 
 void Number2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, int16_t number);
 void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
 
 
-
-uint8_t cTracker::colorsCount = 6;
-uint32_t cTracker::defaultColors[] =
+static uint32_t defaultColors[] =
 {
 	0xFFFFFF, // linie
 	0xFFFFFF, // numery wierszy
@@ -21,65 +18,76 @@ uint32_t cTracker::defaultColors[] =
 };
 
 
-
-
-
-strTrackerSeqDisplay trackerSeqDisplay;
-
-
-
 //--------------------------------------------------------------------------------
-cTracker::cTracker(char text[], uint16_t style, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+cTracker::cTracker(strControlProperties* properties)
 {
-	trackerSeqDisplay.track[0].row[0].note[0] = 'C';
-	trackerSeqDisplay.track[0].row[0].note[1] = '-';
-	trackerSeqDisplay.track[0].row[0].note[2] = '1';
-
-	trackerSeqDisplay.track[1].row[1].note[0] = 'C';
-	trackerSeqDisplay.track[1].row[1].note[1] = '#';
-	trackerSeqDisplay.track[1].row[1].note[2] = '1';
-
-	trackerSeqDisplay.track[2].row[2].note[0] = 'D';
-	trackerSeqDisplay.track[2].row[2].note[1] = '-';
-	trackerSeqDisplay.track[2].row[2].note[2] = '1';
-
-	trackerSeqDisplay.track[3].row[3].note[0] = 'D';
-	trackerSeqDisplay.track[3].row[3].note[1] = '#';
-	trackerSeqDisplay.track[3].row[3].note[2] = '1';
-
-	trackerSeqDisplay.track[4].row[4].note[0] = 'E';
-	trackerSeqDisplay.track[4].row[4].note[1] = '-';
-	trackerSeqDisplay.track[4].row[4].note[2] = '1';
-
-	trackerSeqDisplay.track[5].row[5].note[0] = 'F';
-	trackerSeqDisplay.track[5].row[5].note[1] = '-';
-	trackerSeqDisplay.track[5].row[5].note[2] = '1';
-
-	trackerSeqDisplay.track[6].row[6].note[0] = 'F';
-	trackerSeqDisplay.track[6].row[6].note[1] = '#';
-	trackerSeqDisplay.track[6].row[6].note[2] = '1';
-
-	trackerSeqDisplay.track[7].row[7].note[0] = 'G';
-	trackerSeqDisplay.track[7].row[7].note[1] = '#';
-	trackerSeqDisplay.track[7].row[7].note[2] = '1';
-
-
 	visibleCharOffset = 0;
 	firstVisibleTrack = 0;
 	visibleTracksOffset = 0;
 
+	colorsCount = 6;
 	colors = defaultColors;
-	this->style = style;
-	posX = x;
-	posY = y;
-	refreshStep = 0;
+
+	refreshStep =  0;
+
+	if(properties == nullptr)
+	{
+		posX = 0;
+		posY = 0;
+		width = 0;
+		height = 0;
+		tracks = nullptr;
+		this->style = 0;
+		return;
+	}
+
+	tracks = (strTrackerSeqDisplay*)properties->data;
+	posX = properties->x;
+	posY = properties->y;
+	width = properties->w;
+	height = properties->y;
+
+	setStyle(properties->style);
 }
+
 
 cTracker::~cTracker()
 {
 
 }
 
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+void cTracker::setStyle(uint16_t style)
+{
+	this->style = style;
+}
+
+void cTracker::setText(char* text)
+{
+
+}
+
+void cTracker::setValue(int value)
+{
+
+}
+
+void cTracker::setColors(uint32_t* colors)
+{
+	this->colors = colors;
+}
+
+void cTracker::setData(void* data)
+{
+	tracks = (strTrackerSeqDisplay*)data;
+}
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 uint8_t cTracker::update()
 {
@@ -134,12 +142,12 @@ uint8_t cTracker::memCpy(uint32_t address)
 	return 1;
 }
 
-uint16_t length;
-
 uint8_t cTracker::append(uint32_t address)
 {
-	length = ramPartSize[0]+ramPartSize[1]+ramPartSize[2]+ramPartSize[3]+ramPartSize[4];
+	//length = ramPartSize[0]+ramPartSize[1]+ramPartSize[2]+ramPartSize[3]+ramPartSize[4];
 	//API_CMD_APPEND(address		, 3900);
+
+//	API_CMD_APPEND(address, ramPartSize[0]+ramPartSize[1]+ramPartSize[2]+ramPartSize[3]+ramPartSize[4]);
 
 	API_CMD_APPEND(address, ramPartSize[0]);
 	API_CMD_APPEND(address+ ramPartSize[0], ramPartSize[1]);
@@ -150,17 +158,19 @@ uint8_t cTracker::append(uint32_t address)
 	return 0;
 }
 
-//---------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 void cTracker::refresh1()
 {
-	posX = trackerSeqDisplay.part;
+	posX = tracks->part;
 
-	firstVisibleTrack = trackerSeqDisplay.part/186;
-	visibleTracksOffset = trackerSeqDisplay.part%186;
+	firstVisibleTrack = tracks->part/186;
+	visibleTracksOffset = tracks->part%186;
 	visibleCharOffset = visibleTracksOffset/12;  // font width = 12
 
 	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
-	API_COLOR_A(128);
+	//API_COLOR_A(128);
 
 	// linie
 	API_VERTEX_FORMAT(0);
@@ -202,10 +212,10 @@ void cTracker::refresh1()
 	API_END();
 
 
-	uint8_t row = trackerSeqDisplay.position;
+	uint8_t row = tracks->position;
 
 	API_COLOR(colors[1]);
-	API_BITMAP_HANDLE(font[0].handle);
+	API_BITMAP_HANDLE(fonts[0].handle);
 	API_BEGIN(BITMAPS);
 
 
@@ -225,7 +235,7 @@ void cTracker::refresh1()
 	//API_SCISSOR_SIZE(799-28*2, 28*15+24);
 
 
-	API_BITMAP_HANDLE(font[1].handle);
+	API_BITMAP_HANDLE(fonts[1].handle);
 
 	#define TRACK_NAME_L 7
 	char trackName[TRACK_NAME_L+1] = "Track 1";
@@ -255,14 +265,14 @@ void cTracker::refresh2()
 
 	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[2]);
-	API_BITMAP_HANDLE(font[1].handle);
+	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
 	for(uint16_t j = 0; j < 15; j++)
 	{
 		for(uint16_t i = 0; i < 5; i++)
 		{
-			String2Bitmaps(36+i*186-visibleTracksOffset, 40+j*28, 12, 26, trackerSeqDisplay.track[firstVisibleTrack+i].row[j].note, 3);
+			String2Bitmaps(36+i*186-visibleTracksOffset, 40+j*28, 12, 26, tracks->track[firstVisibleTrack+i].row[j].note, 3);
 		}
 	}
 	API_END();
@@ -272,14 +282,14 @@ void cTracker::refresh3()
 {
 	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[3]);
-	API_BITMAP_HANDLE(font[1].handle);
+	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
 	for(uint16_t j = 0; j < 15; j++)
 	{
 		for(uint16_t i = 0; i < 5; i++)
 		{
-			String2Bitmaps(36+50+i*186-visibleTracksOffset, 40+j*28, 12, 26, trackerSeqDisplay.track[firstVisibleTrack+i].row[j].instr, 2);
+			String2Bitmaps(36+50+i*186-visibleTracksOffset, 40+j*28, 12, 26, tracks->track[firstVisibleTrack+i].row[j].instr, 2);
 		}
 	}
 	API_END();
@@ -289,14 +299,14 @@ void cTracker::refresh4()
 {
 	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[4]);
-	API_BITMAP_HANDLE(font[1].handle);
+	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
 	for(uint16_t j = 0; j < 15; j++)
 	{
 		for(uint16_t i = 0; i < 5; i++)
 		{
-			String2Bitmaps(33+90+i*186-visibleTracksOffset, 40+j*28, 12, 26, trackerSeqDisplay.track[firstVisibleTrack+i].row[j].vol, 2);
+			String2Bitmaps(33+90+i*186-visibleTracksOffset, 40+j*28, 12, 26, tracks->track[firstVisibleTrack+i].row[j].vol, 2);
 		}
 	}
 	API_END();
@@ -306,14 +316,14 @@ void cTracker::refresh5()
 {
 	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[5]);
-	API_BITMAP_HANDLE(font[1].handle);
+	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
 	for(uint16_t j = 0; j < 15; j++)
 	{
 		for(uint16_t i = 0; i < 5; i++)
 		{
-			String2Bitmaps(33+130+i*186-visibleTracksOffset, 40+j*28, 12, 26, trackerSeqDisplay.track[firstVisibleTrack+i].row[j].fx, 3);
+			String2Bitmaps(33+130+i*186-visibleTracksOffset, 40+j*28, 12, 26, tracks->track[firstVisibleTrack+i].row[j].fx, 3);
 		}
 	}
 	API_END();
@@ -328,7 +338,7 @@ inline void draw_char(uint16_t x, uint16_t y, uint8_t charr)
 	}
 	else
 	{
-		API_VERTEX2II(x,y,font[0].handle,charr);
+		API_VERTEX2II(x,y,fonts[0].handle,charr);
 	}
 }
 
@@ -351,7 +361,7 @@ void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* 
 		}
 		else
 		{
-			API_VERTEX2II(x,y,font[1].handle, (char)string[strPtr++]);
+			API_VERTEX2II(x,y,fonts[1].handle, (char)string[strPtr++]);
 		}
 		x+=font_x;
 	}

@@ -581,7 +581,6 @@ void cMtDisplay::ramg_values(uint8_t index)
     API_LIB_BeginCoProList();
     API_CMD_DLSTART();
 
-
     if(ptrValues->type[index] == mtDispValueValueNumberOnly)
 	{
 		API_COLOR(displayColors.fontValue);

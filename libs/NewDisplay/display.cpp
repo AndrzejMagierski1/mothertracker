@@ -18,7 +18,7 @@
 // OBRAZY
 
 // CZCIONKI
-strFont font[displayFontCount] =
+strFont fonts[displayFontCount] =
 {
 	{
 		Roboto_Mono_14_L4,
@@ -45,7 +45,7 @@ strFont font[displayFontCount] =
 };
 // handle nie moze byc wikesze niz 14
 
-strBitmap bitmap[displayBitmapsCount] =
+strBitmap bitmaps[displayBitmapsCount] =
 {
 	{
 		poly_logo_inv_128x128,
@@ -60,7 +60,8 @@ strBitmap bitmap[displayBitmapsCount] =
 
 
 
-extern strTrackerSeqDisplay  trackerSeqDisplay;
+strTrackerSeqDisplay trackerSeqDisplay;
+
 void display_table();
 
 
@@ -76,12 +77,12 @@ void cDisplay::begin()
 
 	for(uint8_t i = 0; i < displayFontCount; i++)
 	{
-		API_LIB_WriteDataRAMG(font[i].data, font[i].size, font[i].address);
+		API_LIB_WriteDataRAMG(fonts[i].data, fonts[i].size, fonts[i].address);
 	}
 
 	for(uint8_t i = 0; i < displayBitmapsCount; i++)
 	{
-		API_LIB_WriteDataRAMG(bitmap[i].data, sizeof(bitmap[i].data), bitmap[i].address);
+		API_LIB_WriteDataRAMG(bitmaps[i].data, sizeof(bitmaps[i].data), bitmaps[i].address);
 	}
 
 //	API_LIB_WriteDataRAMG(Roboto_Mono_14_L4, sizeof(Roboto_Mono_14_L4), 1000);
@@ -97,11 +98,11 @@ void cDisplay::begin()
 	for(uint8_t i = 0; i < displayFontCount; i++)
 	{
 
-		API_BITMAP_HANDLE(font[i].handle);
-		API_BITMAP_SOURCE(font[i].source);
-		API_BITMAP_LAYOUT(font[i].format, font[i].linestride,font[i].height);
-		API_BITMAP_SIZE(NEAREST, BORDER, BORDER, font[i].width, font[i].height);
-		API_CMD_SETFONT(font[i].handle, font[i].address);
+		API_BITMAP_HANDLE(fonts[i].handle);
+		API_BITMAP_SOURCE(fonts[i].source);
+		API_BITMAP_LAYOUT(fonts[i].format, fonts[i].linestride,fonts[i].height);
+		API_BITMAP_SIZE(NEAREST, BORDER, BORDER, fonts[i].width, fonts[i].height);
+		API_CMD_SETFONT(fonts[i].handle, fonts[i].address);
 	}
 
 /*
@@ -141,10 +142,9 @@ uint16_t refreshF = 20;
 void cDisplay::update()
 {
 	//display_table();
-
 	//return;
-
-
+//=================================================================================================
+//=================================================================================================
 
 
 if(seqTimer > 125)
@@ -176,10 +176,6 @@ if(seqTimer > 125)
 
 
 
-
-
-
-
 	if(hTrackControl != nullptr) display.refreshControl(hTrackControl);
 
 }
@@ -192,12 +188,15 @@ if(refreshTimer > refreshF)
 	if(!created)
 	{
 		strControlProperties prop;
-		prop.text ="Test";
-		prop.style = 	(controlStyleShow | controlStyleFont2);
-		prop.x = 40;
-		prop.y = 40;
-		//hTrackControl = display.createControl<cTracker>(nullptr, controlStyleShow, 0, 0, 0, 0);
-		hTrackControl = display.createControl<cLabel>(&prop);
+		prop.text = (char*)"Test";
+		prop.style = 	(controlStyleShow );//| controlStyleFont2 | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+		prop.x = 0;
+		prop.y = 0;
+		prop.w = 50;
+		prop.h = 25;
+		prop.data = &trackerSeqDisplay;
+		hTrackControl = display.createControl<cTracker>(&prop);
+		//hTrackControl = display.createControl<cLabel>(&prop);
 		//display.refreshControl(hTrackControl);
 
 		created = 1;
@@ -224,16 +223,15 @@ if(refreshTimer > refreshF)
 	}
 
 	display.refreshControl(hTrackControl);
-
 }
 
 
 
-
+//=================================================================================================
+//=================================================================================================
 
 	switch(updateStep)
 	{
-
 		case 0:	// sprawdz czy ktoras z kontrolek jest w kolejce odswiazania, jesli tak odswiez ja
 		{
 			if(refreshQueueTop ==  refreshQueueBott) return; // nie jest wymagane odswiezenie
@@ -285,6 +283,9 @@ if(refreshTimer > refreshF)
 			API_CLEAR_COLOR(config.bgColor);
 			API_CLEAR(1,1,1);
 
+			API_COLOR_A(128);
+			API_VERTEX_FORMAT(0);
+
 			// wczytaj elementy w kolejnosci w jakiej byly tworzone
 			for(uint8_t  i = 0; i < controlsCount; i++)
 			{
@@ -313,7 +314,9 @@ if(refreshTimer > refreshF)
 
 }
 
-
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 void cDisplay::setControlStyle(hControl handle, uint16_t style)
 {
 	//sprawdzenie porpawnosci czcionki
@@ -322,19 +325,36 @@ void cDisplay::setControlStyle(hControl handle, uint16_t style)
 		style &= ~(15 << 8);
 	}
 
-	handle->setStyle(style);
-
 	//handle->cStyle = style;
+	handle->setStyle(style);
+}
+
+void cDisplay::setControlText(hControl handle, char* text)
+{
+	handle->setText(text);
+}
+
+void cDisplay::setControlValue(hControl handle, int value)
+{
+	handle->setValue(value);
 }
 
 void cDisplay::setControlColor(hControl handle, uint32_t colorsTable[])
 {
 	for(uint8_t i = 0; i < handle->colorsCount; i++) if(colorsTable+i == nullptr || colorsTable[i] > 0xFFFFFF) return;
-	handle->colors = colorsTable;
 
-	//handle->setColors(colorsTable);
+	//handle->colors = colorsTable;
+	handle->setColors(colorsTable);
 }
 
+void cDisplay::setControlData(hControl handle, void* data)
+{
+	handle->setData(data);
+}
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 void cDisplay::destroyControl(hControl handle)
 {
 	if(handle == nullptr)	return;
