@@ -1,7 +1,7 @@
 #ifndef MT_INSTRUMENT_EDITOR_H
 #define MT_INSTRUMENT_EDITOR_H
 
-#include "mtDisplay.h"
+#include "display.h"
 #include <stdint.h>
 
 #include "SD.h"
@@ -227,17 +227,17 @@ private:
 		valueCount
 	};
 
-	uint8_t valuesTypes[valueCount] =
+	uint32_t valuesTypes[valueCount] =
 	{
-		mtDispValueValueNone,				//mtInstrumentEditorPotValueNone,
-		mtDispValueValueLeftRight_100_100,	//mtInstrumentEditorPotValuePanning,
-		mtDispValueValue_0_100,				//mtInstrumentEditorPotValueGlide,
-		mtDispValueValue_0_100,				//mtInstrumentEditorPotValueFilter,
-		mtDispValueValue_0_100,				//mtInstrumentEditorValueResonance,
-		mtDispValueValue_0_100,				//mtInstrumentEditorValueVolume,
-		mtDispValueValueLeftRight_100_100,	//mtInstrumentEditorValueFinetune,
-		mtDispValueValueLeftRight_24_24,	//mtInstrumentEditorValueTune,
-		mtDispValueValue_0_100,				//mtInstrumentEditorValueFinetune,
+		0,				//mtInstrumentEditorPotValueNone,
+		controlStyleValueLeftRight_100_100,	//mtInstrumentEditorPotValuePanning,
+		controlStyleValue_0_100,				//mtInstrumentEditorPotValueGlide,
+		controlStyleValue_0_100,				//mtInstrumentEditorPotValueFilter,
+		controlStyleValue_0_100,				//mtInstrumentEditorValueResonance,
+		controlStyleValue_0_100,				//mtInstrumentEditorValueVolume,
+		controlStyleValueLeftRight_100_100,	//mtInstrumentEditorValueFinetune,
+		controlStyleValueLeftRight_24_24,	//mtInstrumentEditorValueTune,
+		controlStyleValue_0_100,				//mtInstrumentEditorValueFinetune,
 	};
 
 	strMtDispEnvelope envelope;

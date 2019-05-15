@@ -1,5 +1,5 @@
 
-#include "mtDisplay.h"
+#include "display.h"
 #include "AnalogInputs.h"
 
 #include "mtAudioEngine.h"
@@ -27,8 +27,32 @@ void cMtSampleBankEditor::update()
 	{
 		if(labelsChanged == 2)
 		{
-			mtDisplay.setPotsLabels(1);
-			mtDisplay.setButtonsLabels(1);
+
+			for(uint8_t i = 0; i<5; i++)
+			{
+				strControlProperties prop;
+				prop.text = (char*)"Test";
+				prop.style = 	(controlStyleShow |/* controlStyleFont2 | controlStyleBackground |*/ controlStyleCenterX);
+				prop.x = (800/5)*i+(800/10);
+				prop.y = 5;
+				prop.w = 800/5;
+				prop.h = 25;
+
+				if(potControls[i] == nullptr) potControls[i] = display.createControl<cLabel>(&prop);
+			}
+
+			for(uint8_t i = 0; i<5; i++)
+			{
+				strControlProperties prop;
+				prop.text = (char*)"Test";
+				prop.style = 	(controlStyleShow | /*controlStyleCenterY |*/ controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+				prop.x = (800/5)*i+(800/10);
+				prop.y = 450;
+				prop.w = 800/5-10;
+				prop.h = 30;
+
+				if(buttonControls[i] == nullptr) buttonControls[i] = display.createControl<cLabel>(&prop);
+			}
 		}
 
 		labelsChanged = 0;
@@ -44,8 +68,8 @@ void cMtSampleBankEditor::update()
 		if(!spectrumEnabled)
 		{
 			spectrumChanged = 0;
-			mtDisplay.setSpectrum(0);
-			mtDisplay.setSpectrumPoints(0);
+			//mtDisplay.setSpectrum(0);
+			//mtDisplay.setSpectrumPoints(0);
 
 			refreshModule = 1;
 			return;
@@ -53,8 +77,8 @@ void cMtSampleBankEditor::update()
 
 		if(spectrumChanged == 2)
 		{
-			//mtDisplay.setSpectrum(1);
-			mtDisplay.setSpectrumPoints(1);
+			////mtDisplay.setSpectrum(1);
+			//mtDisplay.setSpectrumPoints(1);
 
 			refreshModule = 1;
 			labelsChanged = 1;
@@ -65,14 +89,14 @@ void cMtSampleBankEditor::update()
 
 		processSpectrum();
 
-		mtDisplay.changeSpectrum(&spectrum);
+		//mtDisplay.changeSpectrum(&spectrum);
 
 	}
 	//-----------------------------------------------------
 	if(pointsChanged)
 	{
 		processPoints();
-		mtDisplay.changeSpectrumPoints(&spectrum);
+		//mtDisplay.changeSpectrumPoints(&spectrum);
 	}
 	//-----------------------------------------------------
 	if(samplesListChanged)
@@ -83,7 +107,9 @@ void cMtSampleBankEditor::update()
 		if(!samplesListEnabled)
 		{
 			samplesListChanged = 0;
-			mtDisplay.setList(samples_list_pos, 0, 0, 0, 0, 0);
+			display.destroyControl(samplesListControl);
+			samplesListControl = nullptr;
+			//mtDisplay.setList(samples_list_pos, 0, 0, 0, 0, 0);
 			return;
 		}
 
@@ -106,12 +132,44 @@ void cMtSampleBankEditor::update()
 				sampleListPos = 0;
 				samplesCount = activeSample;
 
-				mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, ptrSamplesNames, mtProject.sampleBank.samples_count);
+				//mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, ptrSamplesNames, mtProject.sampleBank.samples_count);
+
+				samplesList.start = 0;
+				samplesList.length = mtProject.sampleBank.samples_count;
+				samplesList.linesCount = 5;
+				samplesList.data = ptrSamplesNames;
+
+				strControlProperties prop;
+				prop.style = 	(controlStyleShow );//| controlStyleFont2 | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+				prop.x = (800/5)*3;
+				prop.y = 35;
+				prop.w = (800/5)*2;
+				prop.h = 25;
+				prop.data = &samplesList;
+				if(samplesListControl == nullptr) samplesListControl = display.createControl<cList>(&prop);
+				display.refreshControl(samplesListControl);
+
 			}
 			else
 			{
 				ptrSamplesNames[0] = buttonFunctionLabels[0]; // przypisanie pustego
-				mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, ptrSamplesNames, 1 );
+
+				samplesList.start = 0;
+				samplesList.length = 1;
+				samplesList.linesCount = 5;
+				samplesList.data = ptrSamplesNames;
+
+				strControlProperties prop;
+				prop.style = 	(controlStyleShow );//| controlStyleFont2 | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+				prop.x = (800/5)*3;
+				prop.y = 35;
+				prop.w = (800/5)*2;
+				prop.h = 25;
+				prop.data = &samplesList;
+				if(samplesListControl == nullptr) samplesListControl = display.createControl<cList>(&prop);
+				//display.setControlData(control1,  &projectList);
+				display.refreshControl(samplesListControl);
+				//mtDisplay.setList(samples_list_pos, samples_list_pos, 2, 0, ptrSamplesNames, 1 );
 			}
 		}
 		//processSamples();
@@ -126,7 +184,7 @@ void cMtSampleBankEditor::update()
 		if(!filesListEnabled)
 		{
 			filesListChanged = 0;
-			mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
+			//mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
 			return;
 		}
 
@@ -136,7 +194,7 @@ void cMtSampleBankEditor::update()
 
 			getSelectedFileType();
 
-			mtDisplay.setList(files_list_pos, files_list_pos, 2, selectedLocation, filesNames, locationFilesCount);
+			//mtDisplay.setList(files_list_pos, files_list_pos, 2, selectedLocation, filesNames, locationFilesCount);
 		}
 
 		filesListChanged = 0;
@@ -150,7 +208,7 @@ void cMtSampleBankEditor::update()
 		if(!slotListEnabled)
 		{
 			slotListChanged = 0;
-			mtDisplay.setList(slot_list_index, 0, 0, 0, 0, 0);
+			//mtDisplay.setList(slot_list_index, 0, 0, 0, 0, 0);
 			return;
 		}
 
@@ -158,7 +216,7 @@ void cMtSampleBankEditor::update()
 		{
 			listSampleSlots();
 
-			mtDisplay.setList(slot_list_index, files_list_pos, 2, selectedSlot, ptrSlotNames, SAMPLES_COUNT);
+			//mtDisplay.setList(slot_list_index, files_list_pos, 2, selectedSlot, ptrSlotNames, SAMPLES_COUNT);
 		}
 
 		slotListChanged = 0;
@@ -180,6 +238,7 @@ void cMtSampleBankEditor::start()
 	filesListChanged = 1;
 	slotListChanged = 1;
 	spectrumChanged = 1;
+	labelsChanged = 2;
 
 	if(spectrumEnabled) loadSamplesBank();
 
@@ -188,10 +247,21 @@ void cMtSampleBankEditor::start()
 
 void cMtSampleBankEditor::stop()
 {
-	mtDisplay.setList(samples_list_pos, 0, 0, 0, 0, 0);
-	mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
-	mtDisplay.setSpectrum(0);
-	mtDisplay.setSpectrumPoints(0);
+	display.destroyControl(filesListControl);
+	display.destroyControl(samplesListControl);
+	display.destroyControl(slotsListControl);
+
+	slotsListControl = nullptr;
+	samplesListControl = nullptr;
+	filesListControl = nullptr;
+
+	for(uint8_t i = 0; i<5; i++)
+	{
+		display.destroyControl(potControls[i]);
+		display.destroyControl(buttonControls[i]);
+		potControls[i] = nullptr;
+		buttonControls[i] = nullptr;
+	}
 
 	samplesListEnabled = 0;
 	filesListEnabled = 0;
@@ -626,7 +696,7 @@ void cMtSampleBankEditor::setButtonLabel(uint8_t function, char* label)
 	}
 	buttonFunctionLabels[function][i] = 0;
 
-	mtDisplay.changeButtonsLabels(buttonLabels);
+	//mtDisplay.changeButtonsLabels(buttonLabels);
 }
 
 
@@ -681,7 +751,17 @@ void cMtSampleBankEditor::updateButtonsFunctions()
 	buttonLabels[3] = (char *)&buttonFunctionLabels[buttonFunctions[3]][0];
 	buttonLabels[4] = (char *)&buttonFunctionLabels[buttonFunctions[4]][0];
 
-	mtDisplay.changeButtonsLabels(buttonLabels);
+	display.setControlText(buttonControls[0], buttonLabels[0]);
+	display.setControlText(buttonControls[1], buttonLabels[1]);
+	display.setControlText(buttonControls[2], buttonLabels[2]);
+	display.setControlText(buttonControls[3], buttonLabels[3]);
+	display.setControlText(buttonControls[4], buttonLabels[4]);
+
+	display.refreshControl(buttonControls[0]);
+	display.refreshControl(buttonControls[1]);
+	display.refreshControl(buttonControls[2]);
+	display.refreshControl(buttonControls[3]);
+	display.refreshControl(buttonControls[4]);
 }
 
 
@@ -706,7 +786,7 @@ void cMtSampleBankEditor::setPotsLabel(uint8_t function, char* label)
 	}
 	potFunctionLabels[function][i] = 0;
 
-	mtDisplay.changePotsLabels(potLabels);
+	//mtDisplay.changePotsLabels(potLabels);
 }
 
 
@@ -753,7 +833,18 @@ void cMtSampleBankEditor::updatePotsFunctions()
 	potLabels[3] = (char *)&potFunctionLabels[potFunctions[3]][0];
 	potLabels[4] = (char *)&potFunctionLabels[potFunctions[4]][0];
 
-	mtDisplay.changePotsLabels(potLabels);
+
+	display.setControlText(potControls[0], potLabels[0]);
+	display.setControlText(potControls[1], potLabels[1]);
+	display.setControlText(potControls[2], potLabels[2]);
+	display.setControlText(potControls[3], potLabels[3]);
+	display.setControlText(potControls[4], potLabels[4]);
+
+	display.refreshControl(potControls[0]);
+	display.refreshControl(potControls[1]);
+	display.refreshControl(potControls[2]);
+	display.refreshControl(potControls[3]);
+	display.refreshControl(potControls[4]);
 }
 
 
@@ -891,7 +982,7 @@ void cMtSampleBankEditor::changeSampleListPos(int16_t value)
 	else sampleListPos += value;
 
 
-	mtDisplay.changeList(samples_list_pos, sampleListPos);
+	//mtDisplay.changeList(samples_list_pos, sampleListPos);
 
 
 	refreshModule = 1;
@@ -905,7 +996,7 @@ void cMtSampleBankEditor::changeFilesListPos(int16_t value)
 
 	getSelectedFileType();
 
-	mtDisplay.changeList(files_list_pos, selectedLocation);
+	//mtDisplay.changeList(files_list_pos, selectedLocation);
 
 	labelsChanged = 1;
 
@@ -919,7 +1010,7 @@ void cMtSampleBankEditor::changeSlotsListPos(int16_t value)
 	else if(selectedSlot + value > SAMPLES_MAX) selectedSlot  = SAMPLES_MAX;
 	else selectedSlot += value;
 
-	mtDisplay.changeList(slot_list_index, selectedSlot);
+	//mtDisplay.changeList(slot_list_index, selectedSlot);
 
 
 //	filesListChanged = 1;

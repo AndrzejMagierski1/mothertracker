@@ -68,8 +68,10 @@ private:
 
 	// elementy modulu
 
-	hControl trackTable1;
-	hControl trackTable2;
+	strList projectList;
+	hControl potControls[5];
+	hControl buttonControls[5];
+	hControl fileListControl;
 
 	//edycja nazw---------------------------------------------
 	enum

@@ -1,5 +1,5 @@
 
-#include "mtDisplay.h"
+#include "display.h"
 #include "AnalogInputs.h"
 #include "mtAudioEngine.h"
 #include "mtConfig.h"
@@ -36,8 +36,8 @@ void cMtConfigEditor::update()
 	{
 		if(labelsChanged == 2)
 		{
-			mtDisplay.setPotsLabels(1);
-			mtDisplay.setButtonsLabels(1);
+			//mtDisplay.setPotsLabels(1);
+			//mtDisplay.setButtonsLabels(1);
 		}
 
 		labelsChanged = 0;
@@ -52,7 +52,7 @@ void cMtConfigEditor::update()
 	{
 		if(parametersChanged == 2)
 		{
-			mtDisplay.setValue(1);
+			//mtDisplay.setValue(1);
 
 			updateParameters(); // zmiana parametrow
 			labelsChanged = 1;
@@ -62,7 +62,7 @@ void cMtConfigEditor::update()
 		parametersChanged = 0;
 		processParameters();   // na zmiane wartosci
 
-		mtDisplay.changeValues(&values);
+		//mtDisplay.changeValues(&values);
 	}
 	//-----------------------------------------------------
 }
@@ -84,7 +84,7 @@ void cMtConfigEditor::start(uint8_t mode)
 
 void cMtConfigEditor::stop()
 {
-	mtDisplay.setValue(0);
+	//mtDisplay.setValue(0);
 
 	saveConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
 
@@ -348,7 +348,7 @@ void cMtConfigEditor::setButtonLabel(uint8_t function, char* label)
 	}
 	buttonFunctionLabels[function][i] = 0;
 
-	mtDisplay.changeButtonsLabels(buttonLabels);
+	//mtDisplay.changeButtonsLabels(buttonLabels);
 }
 
 
@@ -373,7 +373,7 @@ void cMtConfigEditor::updateButtonsFunctions()
 	buttonLabels[3] = (char *)&buttonFunctionLabels[buttonFunctions[3]][0];
 	buttonLabels[4] = (char *)&buttonFunctionLabels[buttonFunctions[4]][0];
 
-	mtDisplay.changeButtonsLabels(buttonLabels);
+	//mtDisplay.changeButtonsLabels(buttonLabels);
 }
 
 
@@ -398,7 +398,7 @@ void cMtConfigEditor::setPotsLabel(uint8_t function, char* label)
 	}
 	potFunctionLabels[function][i] = 0;
 
-	mtDisplay.changePotsLabels(potLabels);
+	//mtDisplay.changePotsLabels(potLabels);
 }
 
 
@@ -441,7 +441,7 @@ void cMtConfigEditor::updatePotsFunctions()
 	potLabels[3] = (char *)&potFunctionLabels[potFunctions[3]][0];
 	potLabels[4] = (char *)&potFunctionLabels[potFunctions[4]][0];
 
-	mtDisplay.changePotsLabels(potLabels);
+	//mtDisplay.changePotsLabels(potLabels);
 }
 
 

@@ -74,9 +74,9 @@ void cMtInterface::processOperatingMode()
 		{
 			operatingMode = mtOperatingModeRun;
 
-			mtDisplay.setMode(mtDisplayModeNormal);
-			activateModule(mtModuleProjectEditor);
-			mtProjectEditor.start(mtProjectStartModeOpenLast);
+
+			//activateModule(mtModuleProjectEditor);
+			//mtProjectEditor.start(mtProjectStartModeOpenLast);
 		}
 	}
 	else if(operatingMode == mtOperatingModeRun)

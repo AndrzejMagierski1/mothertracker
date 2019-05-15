@@ -61,7 +61,7 @@ cTracker::~cTracker()
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-void cTracker::setStyle(uint16_t style)
+void cTracker::setStyle(uint32_t style)
 {
 	this->style = style;
 }
@@ -79,6 +79,11 @@ void cTracker::setValue(int value)
 void cTracker::setColors(uint32_t* colors)
 {
 	this->colors = colors;
+}
+
+void cTracker::setDefaultColors(uint32_t colors[])
+{
+	memcpy(defaultColors, colors, colorsCount*4);
 }
 
 void cTracker::setData(void* data)

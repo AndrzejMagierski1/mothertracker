@@ -3,8 +3,11 @@
 #define LIBS_NEWDISPLAY_DISPALYCONTROLS_H_
 
 #include <stdint.h>
+#include <stddef.h>
 
-
+extern "C" {
+extern void *memcpy (void *dst, const void *src, size_t count);
+}
 
 enum controlsStyle
 {
@@ -26,7 +29,10 @@ enum controlsStyle
 	controlStyleBackground 		= 8192,
 	controlStyleRoundedBorder 	= 16384,
 
-
+	controlStyleValueLeftRight_100_100 	= (1<<16),
+	controlStyleValueLeftRight_24_24 	= (1<<17),
+	controlStyleValue_0_100 			= (1<<18),
+	controlStyleValueNumberOnly			= (1<<19),
 };
 
 
@@ -99,10 +105,11 @@ public:
 	}
 */
 
-	virtual void setStyle(uint16_t style) = 0;
+	virtual void setStyle(uint32_t style) = 0;
 	virtual void setText(char* text) = 0;
 	virtual void setValue(int value) = 0;
 	virtual void setColors(uint32_t* colors) = 0;
+	virtual void setDefaultColors(uint32_t* colors) = 0;
 	virtual void setData(void* data) = 0;
 
 	cDisplayControl()
@@ -127,7 +134,7 @@ protected:
 	uint8_t ramMapPosition;
 	uint32_t ramSize;
 
-	uint16_t style;
+	uint32_t style;
 	char* text;
 	int value;
 

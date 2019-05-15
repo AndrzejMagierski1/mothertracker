@@ -1,7 +1,7 @@
 #ifndef MT_CONFIG_EDITOR_H
 #define MT_CONFIG_EDITOR_H
 
-#include "mtDisplay.h"
+#include "display.h"
 #include <stdint.h>
 
 #include "mtStructs.h"
@@ -93,23 +93,23 @@ private:
 		valueCount
 	};
 
-	uint8_t valuesTypes[valueCount] =
+	uint32_t valuesTypes[valueCount] =
 	{
-		mtDispValueValueNone,				//
+		0,				//
 		//globals
-		mtDispValueValue_0_100,				//
-		mtDispValueValueNumberOnly,			//
-		mtDispValueValue_0_100,				//
-		mtDispValueValue_0_100,				//
-		mtDispValueValueLeftRight_100_100,	//
+		controlStyleValue_0_100,				//
+		controlStyleValueNumberOnly,			//
+		controlStyleValue_0_100,				//
+		controlStyleValue_0_100,				//
+		controlStyleValueLeftRight_100_100,	//
 
 
 		//config
-		mtDispValueValueNumberOnly,			//
-		mtDispValueValueNumberOnly,			//
-		mtDispValueValueNumberOnly,			//
-		mtDispValueValueNumberOnly,			//
-		mtDispValueValueNumberOnly,			//
+		controlStyleValueNumberOnly,			//
+		controlStyleValueNumberOnly,			//
+		controlStyleValueNumberOnly,			//
+		controlStyleValueNumberOnly,			//
+		controlStyleValueNumberOnly,			//
 	};
 
 

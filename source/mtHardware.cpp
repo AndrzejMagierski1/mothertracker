@@ -13,7 +13,7 @@
 #include <SerialFlash.h>
 
 
-#include "mtDisplay.h"
+
 #include "SD.h"
 
 #include "sdram.h"
@@ -72,8 +72,8 @@ void initHardware()
 
 	//....................................................
 	//CODAC AUDIO
-//	audioShield.enable();
-//	AudioMemory(200);
+	audioShield.enable();
+	AudioMemory(200);
 
 	//engine.setOut(1);
 
@@ -89,7 +89,7 @@ void initHardware()
 		if(hardwareTest)
 		{
 		 Serial.println("SD card init error");
-		 mtPrint("SD card init error");
+		// mtPrint("SD card init error");
 		}
 	}
 	else
@@ -97,7 +97,7 @@ void initHardware()
 		if(hardwareTest)
 		{
 		 Serial.println("SD card init succesfull");
-		 mtPrint("SD card init succesfull");
+		// mtPrint("SD card init succesfull");
 		}
 	}
 
@@ -186,44 +186,7 @@ void initHardware()
 
 	BlinkLed.blinkOnce();
 
-/*
-	while(1)
-	{
 
-		for(int i=1;i<=16;i++)
-		{
-			for(int j=1;j<=8;j++)
-			{
-				leds.setLEDseq(j,i,1,31);
-				leds.updateSeq();
-				delay(50);
-//				leds.setLEDseq(j,i,0,31);
-//				leds.updateSeq();
-			}
-//			for(int j=1;j<=8;j++)
-//			{
-//				leds.setLEDseq(j,i,0,31);
-//				leds.updateSeq();
-//				delay(50);
-//			}
-		}
-		for(int i=1;i<=16;i++)
-		{
-//			for(int j=1;j<=8;j++)
-//			{
-//				leds.setLEDseq(j,i,0,1);
-//				leds.updateSeq();
-//				delay(50);
-//			}
-			for(int j=1;j<=8;j++)
-			{
-				leds.setLEDseq(j,i,0,31);
-				leds.updateSeq();
-				delay(50);
-			}
-		}
-
-	}*/
 
 }
 

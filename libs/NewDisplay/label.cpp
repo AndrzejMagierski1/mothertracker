@@ -50,7 +50,7 @@ cLabel::~cLabel()
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-void cLabel::setStyle(uint16_t style)
+void cLabel::setStyle(uint32_t style)
 {
 	this->style = style;
 
@@ -58,7 +58,10 @@ void cLabel::setStyle(uint16_t style)
 				 | (style & controlStyleCenterY ? OPT_CENTERY : 0)
 	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
 
-	textFont =  fonts[FONT_INDEX_FROM_STYLE].handle;
+
+	textFont = FONT_INDEX_FROM_STYLE;
+	textFont = (textFont>=0) ? textFont : 0;
+	textFont =  fonts[textFont].handle;
 }
 
 void cLabel::setText(char* text)
@@ -76,6 +79,11 @@ void cLabel::setColors(uint32_t* colors)
 	this->colors = colors;
 }
 
+void cLabel::setDefaultColors(uint32_t colors[])
+{
+	memcpy(defaultColors, colors, colorsCount*4);
+}
+
 void cLabel::setData(void* data)
 {
 
@@ -86,6 +94,8 @@ void cLabel::setData(void* data)
 //--------------------------------------------------------------------------------
 uint8_t cLabel::update()
 {
+	if(text == nullptr) return 0;
+
     API_LIB_BeginCoProList();
     API_CMD_DLSTART();
 

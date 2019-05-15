@@ -52,48 +52,43 @@ void cMtProjectEditor::update()
 		{
 			//mtDisplay.setPotsLabels(1);
 			//mtDisplay.setButtonsLabels(1);
+
+			for(uint8_t i = 0; i<5; i++)
+			{
+				strControlProperties prop;
+				prop.text = (char*)"Test";
+				prop.style = 	(controlStyleShow |/* controlStyleFont2 | controlStyleBackground |*/ controlStyleCenterX);
+				prop.x = (800/5)*i+(800/10);
+				prop.y = 5;
+				prop.w = 800/5;
+				prop.h = 25;
+
+				if(potControls[i] == nullptr) potControls[i] = display.createControl<cLabel>(&prop);
+			}
+
+			for(uint8_t i = 0; i<5; i++)
+			{
+				strControlProperties prop;
+				prop.text = (char*)"Test";
+				prop.style = 	(controlStyleShow | /*controlStyleCenterY |*/ controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+				prop.x = (800/5)*i+(800/10);
+				prop.y = 450;
+				prop.w = 800/5-10;
+				prop.h = 30;
+
+				if(buttonControls[i] == nullptr) buttonControls[i] = display.createControl<cLabel>(&prop);
+			}
+
+
 		}
 
 		labelsChanged = 0;
+
 
 		updateButtonsFunctions();
 		updatePotsFunctions();
 
 		processLabels();
-
-//-----------------------------------------------------//-----------------------------------------------------	//-----------------------------------------------------
-
-//		mtDisplay.setPotsLabels(0);
-//		mtDisplay.setButtonsLabels(0);
-//
-//		mtDisplay.setTrackTable(1);
-//		strMtDispTrackTable trackTable;
-//
-//
-//
-//		mtDisplay.changeTrackTable(&trackTable);
-
-
-
-
-		//trackTable2 = display.createControl<cLabel>(editName, controlShow, 10, 10, 0, 0);
-		//display.refreshControl(trackTable2);
-
-		//trackTable2 = display.createControl<cTracker>(nullptr, controlShow, 10, 10, 0, 0);
-		//display.refreshControl(trackTable2);
-/*
-		trackTable = display.createControl<cTracker>(nullptr, controlShow, 0, 0, 0, 0);
-		display.refreshControl(trackTable);
-
-		trackTable = display.createControl<cTracker>(nullptr, controlShow, 0, 0, 0, 0);
-		display.refreshControl(trackTable);
-
-		trackTable = display.createControl<cTracker>(nullptr, controlShow, 0, 0, 0, 0);
-		display.refreshControl(trackTable);
-*/
-		//display.setControlState(trackTable,1);
-
-//-----------------------------------------------------//-----------------------------------------------------	//-----------------------------------------------------
 
 	}
 	//-----------------------------------------------------
@@ -105,7 +100,8 @@ void cMtProjectEditor::update()
 		if(!filesListEnabled)
 		{
 			filesListChanged = 0;
-			//mtDisplay.setList(files_list_pos, 0, 0, 0, 0, 0);
+			display.destroyControl(fileListControl);
+			fileListControl == nullptr;
 			return;
 		}
 
@@ -120,6 +116,23 @@ void cMtProjectEditor::update()
 			{
 				listOnlyFolderNames("/Templates");
 			}
+
+			projectList.start = 0;
+			projectList.length = locationFilesCount;
+			projectList.linesCount = 5;
+			projectList.data = filesNames;
+
+			strControlProperties prop;
+			prop.text = (char*)"Test";
+			prop.style = 	(controlStyleShow );//| controlStyleFont2 | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+			prop.x = 0;
+			prop.y = 35;
+			prop.w = (800/5);
+			prop.h = 25;
+			prop.data = &projectList;
+			if(fileListControl == nullptr)  fileListControl = display.createControl<cList>(&prop);
+			//display.setControlData(control1,  &projectList);
+			display.refreshControl(fileListControl);
 
 			//mtDisplay.setList(files_list_pos, files_list_pos, 2, 0, filesNames, locationFilesCount);
 		}
@@ -262,6 +275,19 @@ void cMtProjectEditor::start(uint8_t mode)
 
 void cMtProjectEditor::stop()
 {
+
+
+	display.destroyControl(fileListControl);
+	fileListControl = nullptr;
+
+	for(uint8_t i = 0; i<5; i++)
+	{
+		display.destroyControl(potControls[i]);
+		display.destroyControl(buttonControls[i]);
+		potControls[i] = nullptr;
+		buttonControls[i] = nullptr;
+	}
+
 
 
 //	mtDisplay.setList(0, 0, 0, 0, 0, 0);
@@ -440,7 +466,21 @@ void cMtProjectEditor::updateButtonsFunctions()
 	buttonLabels[3] = (char *)&buttonFunctionLabels[buttonFunctions[3]][0];
 	buttonLabels[4] = (char *)&buttonFunctionLabels[buttonFunctions[4]][0];
 
-	//mtDisplay.changeButtonsLabels(buttonLabels);
+
+
+	display.setControlText(buttonControls[0], buttonLabels[0]);
+	display.setControlText(buttonControls[1], buttonLabels[1]);
+	display.setControlText(buttonControls[2], buttonLabels[2]);
+	display.setControlText(buttonControls[3], buttonLabels[3]);
+	display.setControlText(buttonControls[4], buttonLabels[4]);
+
+	display.refreshControl(buttonControls[0]);
+	display.refreshControl(buttonControls[1]);
+	display.refreshControl(buttonControls[2]);
+	display.refreshControl(buttonControls[3]);
+	display.refreshControl(buttonControls[4]);
+
+
 }
 
 
@@ -507,7 +547,18 @@ void cMtProjectEditor::updatePotsFunctions()
 	potLabels[3] = (char *)&potFunctionLabels[potFunctions[3]][0];
 	potLabels[4] = (char *)&potFunctionLabels[potFunctions[4]][0];
 
-	//mtDisplay.changePotsLabels(potLabels);
+
+	display.setControlText(potControls[0], potLabels[0]);
+	display.setControlText(potControls[1], potLabels[1]);
+	display.setControlText(potControls[2], potLabels[2]);
+	display.setControlText(potControls[3], potLabels[3]);
+	display.setControlText(potControls[4], potLabels[4]);
+
+	display.refreshControl(potControls[0]);
+	display.refreshControl(potControls[1]);
+	display.refreshControl(potControls[2]);
+	display.refreshControl(potControls[3]);
+	display.refreshControl(potControls[4]);
 }
 
 
@@ -703,6 +754,8 @@ void cMtProjectEditor::changeProjectsListPos(int16_t value)
 	else if(selectedLocation + value > locationFilesCount-1) selectedLocation  = locationFilesCount-1;
 	else selectedLocation += value;
 
+	display.setControlValue(fileListControl, selectedLocation);
+	display.refreshControl(fileListControl);
 	//mtDisplay.changeList(files_list_pos, selectedLocation);
 
 	//filesListChanged = 1;
@@ -714,6 +767,9 @@ void cMtProjectEditor::changeTemplatesListPos(int16_t value)
 	if(selectedLocation + value < 0) selectedLocation  = 0;
 	else if(selectedLocation + value > locationFilesCount-1) selectedLocation  = locationFilesCount-1;
 	else selectedLocation += value;
+
+	display.setControlValue(fileListControl, selectedLocation);
+	display.refreshControl(fileListControl);
 
 	//mtDisplay.changeList(files_list_pos, selectedLocation);
 

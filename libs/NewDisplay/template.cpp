@@ -53,7 +53,7 @@ cTemplate::~cTemplate()
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-void cTemplate::setStyle(uint16_t style)
+void cTemplate::setStyle(uint32_t style)
 {
 	this->style = style;
 
@@ -61,7 +61,9 @@ void cTemplate::setStyle(uint16_t style)
 				 | (style & controlStyleCenterY ? OPT_CENTERY : 0)
 	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
 
-	textFont =  fonts[FONT_INDEX_FROM_STYLE].handle;
+	textFont = FONT_INDEX_FROM_STYLE;
+	textFont = (textFont>=0) ? textFont : 0;
+	textFont =  fonts[textFont].handle;
 }
 
 void cTemplate::setText(char* text)
@@ -76,7 +78,12 @@ void cTemplate::setValue(int value)
 
 void cTemplate::setColors(uint32_t* colors)
 {
+	this->colors = colors;
+}
 
+void cTemplate::setDefaultColors(uint32_t colors[])
+{
+	memcpy(defaultColors, colors, colorsCount*4);
 }
 
 void cTemplate::setData(void* data)

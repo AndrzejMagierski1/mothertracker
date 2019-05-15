@@ -35,7 +35,7 @@ int32_t loadSample(const char *filename, int16_t * buf)
 		if(hardwareTest)
 		{
 			Serial.println("Bad WAV file or External RAM(if SD Card init is Correct");
-			mtPrint("Bad WAV file or External RAM(if SD Card init is Correct");
+			//mtPrint("Bad WAV file or External RAM(if SD Card init is Correct");
 		}
 		return -1;
 	}
@@ -44,7 +44,7 @@ int32_t loadSample(const char *filename, int16_t * buf)
 		if(hardwareTest)
 		{
 			Serial.println("load WAV header to SDRAM succesfull");
-			mtPrint("load WAV header to SDRAM succesfull");
+			//mtPrint("load WAV header to SDRAM succesfull");
 		}
 	}
 /*
@@ -136,7 +136,7 @@ int32_t loadWavetableStandard(const char *filename, int16_t * buf)
 		if(hardwareTest)
 		{
 			Serial.println("Bad WAV file or External RAM(if SD Card init is Correct");
-			mtPrint("Bad WAV file or External RAM(if SD Card init is Correct");
+			//mtPrint("Bad WAV file or External RAM(if SD Card init is Correct");
 		}
 		return -1;
 	}
@@ -145,7 +145,7 @@ int32_t loadWavetableStandard(const char *filename, int16_t * buf)
 		if(hardwareTest)
 		{
 			Serial.println("load WAV header to SDRAM succesfull");
-			mtPrint("load WAV header to SDRAM succesfull");
+			//mtPrint("load WAV header to SDRAM succesfull");
 		}
 	}
 
@@ -327,7 +327,7 @@ int32_t loadWavetableSerum(const char *filename, int16_t * buf)
 		if(hardwareTest)
 		{
 			Serial.println("Bad WAV file or External RAM(if SD Card init is Correct");
-			mtPrint("Bad WAV file or External RAM(if SD Card init is Correct");
+			//mtPrint("Bad WAV file or External RAM(if SD Card init is Correct");
 		}
 		return -1;
 	}
@@ -336,7 +336,7 @@ int32_t loadWavetableSerum(const char *filename, int16_t * buf)
 		if(hardwareTest)
 		{
 			Serial.println("load WAV header to SDRAM succesfull");
-			mtPrint("load WAV header to SDRAM succesfull");
+			//mtPrint("load WAV header to SDRAM succesfull");
 		}
 	}
 

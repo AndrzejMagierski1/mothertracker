@@ -1,6 +1,6 @@
 #include "mtStepEditor.h"
 
-#include "mtDisplay.h"
+#include "display.h"
 #include "AnalogInputs.h"
 #include "sdram.h"
 #include "mtAudioEngine.h"
@@ -42,8 +42,8 @@ void cMtStepEditor::update()
 		{
 			updateButtonsFunctions();
 			updatePotsFunctions();
-			mtDisplay.setPotsLabels(1);
-			mtDisplay.setButtonsLabels(1);
+			//mtDisplay.setPotsLabels(1);
+			//mtDisplay.setButtonsLabels(1);
 		}
 
 		labelsChanged = 0;
@@ -55,13 +55,13 @@ void cMtStepEditor::update()
 		{
 			updateButtonsFunctions();
 			updatePotsFunctions();
-			mtDisplay.setTrackTable(1);
+			//mtDisplay.setTrackTable(1);
 		}
 
 		stepParametersChanged = 0;
 		processStepParameters();
 
-		mtDisplay.changeTrackTable(&trackTable);
+		//mtDisplay.changeTrackTable(&trackTable);
 	}
 
 	//-----------------------------------------------------
@@ -102,7 +102,7 @@ void cMtStepEditor::showStep(uint8_t track, uint8_t step)
 
 void cMtStepEditor::stop()
 {
-	mtDisplay.setTrackTable(0);
+	//mtDisplay.setTrackTable(0);
 
 	clearPads();
 }
@@ -452,7 +452,7 @@ void cMtStepEditor::setButtonLabel(uint8_t function, char* label)
 	}
 	buttonFunctionLabels[function][i] = 0;
 
-	mtDisplay.changeButtonsLabels(buttonLabels);
+	//mtDisplay.changeButtonsLabels(buttonLabels);
 }
 
 
@@ -484,7 +484,7 @@ void cMtStepEditor::updateButtonsFunctions()
 	buttonLabels[3] = (char *)&buttonFunctionLabels[buttonFunction[3]][0];
 	buttonLabels[4] = (char *)&buttonFunctionLabels[buttonFunction[4]][0];
 
-	mtDisplay.changeButtonsLabels(buttonLabels);
+	//mtDisplay.changeButtonsLabels(buttonLabels);
 }
 
 
@@ -509,7 +509,7 @@ void cMtStepEditor::setPotsLabel(uint8_t function, char* label)
 	}
 	potFunctionLabels[function][i] = 0;
 
-	mtDisplay.changePotsLabels(potLabels);
+	//mtDisplay.changePotsLabels(potLabels);
 }
 
 
@@ -540,7 +540,7 @@ void cMtStepEditor::updatePotsFunctions()
 	potLabels[3] = (char *)&potFunctionLabels[potFunctions[3]][0];
 	potLabels[4] = (char *)&potFunctionLabels[potFunctions[4]][0];
 
-	mtDisplay.changePotsLabels(potLabels);
+	//mtDisplay.changePotsLabels(potLabels);
 }
 
 

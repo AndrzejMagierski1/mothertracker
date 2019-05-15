@@ -11,7 +11,7 @@
 #include "mtInstrumentEditor.h"
 
 #include "mtSequencer.h"
-#include "mtDisplay.h"
+#include "display.h"
 
 
 #include "mtPadsBacklight.h"

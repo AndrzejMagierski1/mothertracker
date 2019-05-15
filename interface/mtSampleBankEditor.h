@@ -1,7 +1,7 @@
 #ifndef MT_SAMPLE_BANK_EDITOR_H
 #define MT_SAMPLE_BANK_EDITOR_H
 
-#include "mtDisplay.h"
+#include "display.h"
 #include <stdint.h>
 #include "SD.h"
 
@@ -57,7 +57,14 @@ private:
 
 	void (*eventFunct)(uint8_t, void*, void*, void*);
 
-
+	strList filesList;
+	strList samplesList;
+	strList slotsList;
+	hControl potControls[5];
+	hControl buttonControls[5];
+	hControl filesListControl;
+	hControl samplesListControl;
+	hControl slotsListControl;
 
 	//funkcje przyciskow
 	void importSample(uint8_t type);

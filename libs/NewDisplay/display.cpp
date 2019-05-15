@@ -253,12 +253,24 @@ if(refreshTimer > refreshF)
 			testTimer = 0;
 
 			uint32_t ramAddress = controlsRamStartAddress+(actualUpdating->ramMapPosition*controlsRamAddressStep);
-			if(actualUpdating->memCpy(ramAddress))
+
+			uint8_t result = actualUpdating->memCpy(ramAddress);
+
+			if(result == 1)
 			{
 				Serial.print("phase 2 ");
 				Serial.println(testTimer);
 				updateStep = 0; // jesli obslugiwana kontrolka potrzebuje odswiezenia
 				return;			// wiekszej ilosci blokow
+			}
+			else if(result == 2)
+			{
+			    refreshQueueBott++;
+				if(refreshQueueBott >= controlsRefreshQueueSize) refreshQueueBott = 0;
+				refreshControl(actualUpdating);
+				actualUpdating = nullptr;
+				updateStep = 2; // jesli kontrolka jest animowana i potzebuje sie automatycznie dalej odswiezac
+				return;			// dodawana jest automatycznie na koniec kolejki
 			}
 
 
@@ -317,8 +329,9 @@ if(refreshTimer > refreshF)
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-void cDisplay::setControlStyle(hControl handle, uint16_t style)
+void cDisplay::setControlStyle(hControl handle, uint32_t style)
 {
+	if(handle == nullptr) return;
 	//sprawdzenie porpawnosci czcionki
 	if(((style >> 8) & 15) > displayFontCount)
 	{
@@ -331,24 +344,36 @@ void cDisplay::setControlStyle(hControl handle, uint16_t style)
 
 void cDisplay::setControlText(hControl handle, char* text)
 {
+	if(handle == nullptr) return;
 	handle->setText(text);
 }
 
 void cDisplay::setControlValue(hControl handle, int value)
 {
+	if(handle == nullptr) return;
 	handle->setValue(value);
 }
 
-void cDisplay::setControlColor(hControl handle, uint32_t colorsTable[])
+void cDisplay::setControlColors(hControl handle, uint32_t colorsTable[])
 {
+	if(handle == nullptr) return;
 	for(uint8_t i = 0; i < handle->colorsCount; i++) if(colorsTable+i == nullptr || colorsTable[i] > 0xFFFFFF) return;
 
 	//handle->colors = colorsTable;
 	handle->setColors(colorsTable);
 }
 
+void cDisplay::setControlDefaultColors(hControl handle, uint32_t colorsTable[])
+{
+	if(handle == nullptr) return;
+	for(uint8_t i = 0; i < handle->colorsCount; i++) if(colorsTable+i == nullptr || colorsTable[i] > 0xFFFFFF) return;
+
+	handle->setDefaultColors(colorsTable);
+}
+
 void cDisplay::setControlData(hControl handle, void* data)
 {
+	if(handle == nullptr) return;
 	handle->setData(data);
 }
 

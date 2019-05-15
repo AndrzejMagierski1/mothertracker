@@ -18,10 +18,11 @@ public:
 	virtual uint8_t memCpy(uint32_t address);
 	virtual uint8_t append(uint32_t address);
 
-	virtual void setStyle(uint16_t style);
+	virtual void setStyle(uint32_t style);
 	virtual void setText(char* text);
 	virtual void setValue(int value);
 	virtual void setColors(uint32_t* colors);
+	virtual void setDefaultColors(uint32_t colors[]);
 	virtual void setData(void* data);
 
 	uint16_t textStyle;
@@ -37,7 +38,7 @@ public:
 	virtual uint8_t append(uint32_t address);
 	virtual uint8_t memCpy(uint32_t address);
 
-	virtual void setStyle(uint16_t style);
+	virtual void setStyle(uint32_t style);
 	virtual void setText(char* text);
 };
 

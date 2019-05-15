@@ -438,4 +438,77 @@ extern strMtConfig 	mtConfig;
 
 
 
+struct strMtDispSpectrum
+{
+	uint8_t spectrumType = 0;
+	int8_t upperData[480];
+	int8_t lowerData[480];
+
+	uint8_t pointsType = 0;
+	int16_t startPoint;
+	int16_t endPoint;
+	int16_t loopPoint1;
+	int16_t loopPoint2;
+};
+
+struct strMtDispValues
+{
+	uint8_t type[5];
+	int16_t value1[5];
+//	int16_t value2[MT_DISP_VALUES_MAX];
+//	int16_t value3[MT_DISP_VALUES_MAX];
+//	int16_t value4[MT_DISP_VALUES_MAX];
+//	int16_t value5[MT_DISP_VALUES_MAX];
+};
+
+struct strMtDispMultiRowValues
+{
+	uint8_t type[5];
+	char** labels[5];
+	int16_t values[5][5];
+};
+
+
+struct strMtDispEnvelope
+{
+	uint8_t type;
+	char * names[INSTRUMEN_ENVELOPES_MAX];
+
+	uint8_t delay;
+	uint8_t attack;
+	uint8_t hold;
+	uint8_t decay;
+	uint8_t	sustain;
+	uint8_t release;
+
+	uint8_t amount;
+};
+
+struct strMtDispTrackTable
+{
+	struct strStepParams
+	{
+		uint8_t mode;
+		uint8_t iVal1;
+		uint8_t iVal2;
+		uint8_t iVal3;
+		int8_t  iVal4;  // velocity
+	}params[5];
+
+	struct strStepFx
+	{
+		uint8_t mode;
+		char* name;
+		char* cVal1;
+		char* cVal2;
+		uint8_t iVal1;
+		uint8_t iVal2;
+
+	}fx1[5],fx2[5],fx3[5],fx4[5];
+
+	uint8_t active[5]; // aktualne edytowana wartosc w kazdej kolumnie (params/fxs)
+	uint8_t state[5];  // czy step lezy w sekwencji
+};
+
+
 #endif

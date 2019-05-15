@@ -1,7 +1,7 @@
 #ifndef MT_STEP_EDITOR_H
 #define MT_STEP_EDITOR_H
 
-#include "mtDisplay.h"
+#include "display.h"
 #include <stdint.h>
 
 #include "SD.h"

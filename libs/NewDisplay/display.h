@@ -8,7 +8,7 @@
 #include "displayControls.h"
 #include "trackerControl.h"
 #include "commonControls.h"
-
+#include "list.h"
 
 typedef cDisplayControl* hControl;
 
@@ -84,10 +84,11 @@ public:
 	void destroyControl(hControl handle);
 	void refreshControl(hControl handle);
 
-	void setControlStyle(hControl handle, uint16_t style);
+	void setControlStyle(hControl handle, uint32_t style);
 	void setControlText(hControl handle, char* text);
 	void setControlValue(hControl handle, int value);
-	void setControlColor(hControl handle, uint32_t colorsTable[]);
+	void setControlColors(hControl handle, uint32_t colorsTable[]);
+	void setControlDefaultColors(hControl handle, uint32_t colorsTable[]);
 	void setControlData(hControl handle, void* data);
 
 
