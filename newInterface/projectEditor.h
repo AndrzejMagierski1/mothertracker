@@ -24,14 +24,13 @@ public:
 
 
 
-
-
-
-
 };
 
 
 
+
+
+extern cProjectEditor projectEditor;
 
 
 
