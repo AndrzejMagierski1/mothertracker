@@ -1,7 +1,8 @@
-#include "mtInterface.h"
+
+#include "interface.h"
 #include "mtHardware.h"
 #include "mtAudioEngine.h"
-#include "mtProjectEditor.h"
+
 
 #include "mtSequencer.h"
 #include "seqDisplay.h"

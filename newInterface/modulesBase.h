@@ -5,10 +5,12 @@
 #include <stdint.h>
 #include <display.h>
 
-
+class  cFunctionMachine;
 
 class cModuleBase
 {
+	friend class cInterface;
+
 public:
 
 	virtual void update() = 0;
@@ -25,7 +27,8 @@ private:
 
 	void (*eventFunct)(uint8_t, void*, void*, void*);
 
-
+	uint8_t moduleRefresh = 0;
+	cFunctionMachine* FM;
 
 
 };
@@ -36,29 +39,79 @@ private:
 class  cFunctionMachine
 {
 
-// funkcja wykonywujaca sie
-// kontrolka
-// dane do kontrolki
-//
+public:
+
+	void clearAll();
+	void disable() {state = 0;};
+	void enable() {state = 1;};
+
+
+
+
+	void setPotObj(uint8_t objectID, void(*funct)(int16_t), hControl control);
 	template <typename T>
-	void setFunctObject(uint8_t objectID, T* param, T min, T max, T step, hControl control)
+	void setPotObj(uint8_t objectID, T param, T min, T max, T step, hControl control)
 	{
 
 	}
 
-	void setFunctObject(uint8_t objectID, void(*funct)(void), hControl control);
-	void setFunctObject(uint8_t objectID, void(*funct)(int16_t), hControl control);
-	void setFunctObject(uint8_t objectID, void(*funct)(uint8_t), hControl control);
+	void setButtonObj(uint8_t objectID, uint8_t state, void(*funct)(void), hControl control);
+	void setButtonObj(uint8_t objectID, void(*funct)(uint8_t), hControl control);
+
+	void setPadObj(uint8_t objectID, uint8_t state, void(*funct)(), hControl control);
+	void setPadObj(uint8_t objectID, void(*funct)(uint8_t,int16_t), hControl control);
+
+
 
 
 	void processButtonsInput(uint8_t button, uint8_t state);
 	void processPotsInput(uint8_t pot, int16_t value);
-	void processPadInput(uint8_t pad, int16_t value);
+	void processPadsInput(uint8_t pad, uint8_t state, int16_t velo);
+	void processPadsInput(uint8_t pad, uint8_t state, int8_t x, int8_t y, int16_t velo);
 
-	struct strValueChange
+private:
+
+	struct strButtonObject
 	{
+		uint8_t isActive;
+
+		void (*funct1)(void) = nullptr;
+		void (*funct2)(uint8_t) = nullptr;
+		uint8_t state;
+		hControl control;
+	};
+
+
+	struct strPotObject
+	{
+		uint8_t isActive;
+
+		void (*funct1)(void) = nullptr;
+		hControl control;
+	};
+
+	struct strPadObject
+	{
+		uint8_t isActive;
+
+		void (*funct1)(void) = nullptr;
+		void (*funct2)(uint8_t,int16_t) = nullptr;
+		uint8_t state;
+		hControl control;
 
 	};
+
+
+
+	uint8_t state;
+
+	static uint8_t potsCount;
+	static uint8_t buttonsCount;
+	static uint8_t padsCount;
+
+	static strPotObject pots[];
+	static strButtonObject buttons[];
+	static strPadObject pads[];
 
 
 };
@@ -71,7 +124,7 @@ class  cStateMachine
 // przechodzenie pomiedzy stanami
 //
 //
-//
+
 public:
 	void addState(uint8_t id, void (stateBegin)(void) ,void (*stateUpdate)(void));
 	void changeState();

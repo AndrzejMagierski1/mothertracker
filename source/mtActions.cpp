@@ -1,25 +1,17 @@
 
 #include <stdint.h>
-
 #include <Arduino.h>
+
+
 #include "keyScanner.h"
 #include "mtLED.h"
-#include "mtAudioEngine.h"
 
-#include "mtProjectEditor.h"
 
-#include "mtInstrumentEditor.h"
-
-#include "mtSequencer.h"
-#include "display.h"
 
 
 #include "mtPadsBacklight.h"
-#include "mtInterface.h"
+#include "interface.h"
 
-extern AudioControlSGTL5000 audioShield;
-
-float licznik=1;
 
 
 

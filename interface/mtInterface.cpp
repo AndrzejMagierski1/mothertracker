@@ -15,6 +15,8 @@
 
 
 #include "mtInterface.h"
+#include "modulesBase.h"
+
 
 
 
@@ -32,6 +34,11 @@ void cMtInterface::begin()
 {
 	operatingMode = mtOperatingModeStartup;
 	startupTimer = 0;
+
+
+
+
+
 
 	mtProjectEditor.setEventFunct(projectEditorEvent);
 	mtInstrumentEditor.setEventFunct(instrumentEditorEvent);

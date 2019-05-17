@@ -4,6 +4,28 @@
 
 #include "modulesBase.h"
 
+enum mtProjectStartMode
+{
+	mtProjectStartModeDoNothing,
+	mtProjectStartModeOpenLast,
+	mtProjectStartModeOpenProject,
+	mtProjectStartModeNewProject,
+
+};
+
+
+enum mtProjectEditorEvents
+{
+	mtPriojectEditorEventNone,
+	mtPriojectEditorEventLoadLastProjFailed,
+	mtPriojectEditorEventPadPress,
+	mtProjectEditorEventLoadSampleBank,
+
+	ProjEditEventCount
+};
+
+
+
 
 class cProjectEditor: public cModuleBase
 {

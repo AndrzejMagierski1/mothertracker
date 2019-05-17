@@ -1,26 +1,26 @@
 
 
-#ifndef MTINTERFACE_H
-#define MTINTERFACE_H
-
-
-#include "keyScanner.h"
-#include "mtLED.h"
-#include "Arduino.h"
-#include "Wire.h"
-#include "mtHardware.h"
+#ifndef NEWINTERFACE_INTERFACE_H_
+#define NEWINTERFACE_INTERFACE_H_
 
 
 
-
-
+#include "interfaceDefs.h"
 #include <stdint.h>
 #include "elapsedMillis.h"
 
 
-#include "mtInterfaceDefs.h"
 
-class cMtInterface
+#include "mtHardware.h"
+#include "modulesBase.h"
+
+
+
+
+typedef cModuleBase* hModule;
+
+
+class cInterface
 {
 public:
 
@@ -56,35 +56,31 @@ private:
 
 	void processOperatingMode();
 
+	static const uint8_t modulesCount;
+	static const hModule modules[];
+
+
+	cFunctionMachine uiFM;
 
 
 	uint8_t operatingMode = 0;
 
 	elapsedMillis startupTimer;
 
-//	uint8_t activeModules[mtModulesCount] = {0};
+
 	uint8_t onScreenModule = 0;
 
 
 };
 
 
+extern cInterface mtInterface;
+
+extern void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3);
 
 
 
 
 
 
-
-
-extern cMtInterface mtInterface;
-
-void instrumentEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
-void projectEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
-void stepEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
-void sampleBankEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
-void configEditorEvent(uint8_t event, void* param1, void* param2, void* param3);
-
-
-
-#endif
+#endif /* NEWINTERFACE_INTERFACE_H_ */
