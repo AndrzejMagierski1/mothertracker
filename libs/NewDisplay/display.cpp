@@ -304,7 +304,7 @@ if(refreshTimer > refreshF)
 				hControl p = controlsTable[i];
 				if(p == nullptr) break;
 				uint32_t ramAddress = controlsRamStartAddress+(p->ramMapPosition*controlsRamAddressStep);
-				if(p->style & controlStyleShow) p->append(ramAddress);
+				if(p->refresh) p->append(ramAddress);
 			}
 
 
@@ -459,6 +459,7 @@ void cDisplay::refreshControl(hControl handle)
 {
 	if(handle == nullptr) return;
 
+	handle->refresh = 0;
 	// dorzuc kontrolke do kolejki fifo odtwarzania
 	// jesli juz jest w kolejce to nic nie rob
 

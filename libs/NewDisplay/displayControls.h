@@ -114,6 +114,7 @@ public:
 
 	cDisplayControl()
 	{
+		refresh = 0;
 		ramMapPosition = 0;
 		ramSize = 0;
 		style = 0;
@@ -130,6 +131,8 @@ public:
 
 
 protected:
+
+	uint8_t refresh;
 
 	uint8_t ramMapPosition;
 	uint32_t ramSize;
