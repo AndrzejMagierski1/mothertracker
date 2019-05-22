@@ -13,15 +13,10 @@
 #include <SerialFlash.h>
 
 
-
+#include "display.h"
 #include "SD.h"
 
 #include "sdram.h"
-
-
-
-
-#include "display.h"
 
 
 
@@ -56,11 +51,17 @@ void IO7326_INT_FUNCT_A() { seqButtonsA.intAction(); }
 void IO7326_INT_FUNCT_B() { seqButtonsB.intAction(); }
 void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 
+
+// hid connection
+hidConnection hid(0);
+void hidSendButtonState(uint16_t button, uint16_t state);
+
+
 void initHardware()
 {
 
 
-	hardwareTest=0;
+	hardwareTest=1;
 
 
 	BlinkLed.begin(BLINK_LED);
@@ -78,8 +79,6 @@ void initHardware()
 	//engine.setOut(1);
 
 	// LCD
-	//mtDisplay.begin(mtDisplayModePolyLogo);
-
 	display.begin();
 
 	//SD CARD
@@ -89,7 +88,7 @@ void initHardware()
 		if(hardwareTest)
 		{
 		 Serial.println("SD card init error");
-		// mtPrint("SD card init error");
+		 //mtPrint("SD card init error");
 		}
 	}
 	else
@@ -97,7 +96,7 @@ void initHardware()
 		if(hardwareTest)
 		{
 		 Serial.println("SD card init succesfull");
-		// mtPrint("SD card init succesfull");
+		 //mtPrint("SD card init succesfull");
 		}
 	}
 
@@ -170,9 +169,9 @@ void initHardware()
 	////////////////// IO7326 A
 	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,IO7326_INT_FUNCT_A);
 	////////////////// IO7326 B
-	seqButtonsB.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,GRID_B,IO7326_INT_FUNCT_B);
+	seqButtonsB.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_B,IO7326_INT_FUNCT_B);
 	////////////////// IO7326 C
-	seqButtonsC.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);
+	seqButtonsC.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);
 
 	//LEDS
 	leds.begin();
@@ -184,10 +183,76 @@ void initHardware()
 	pinMode(TACT_SWITCH, INPUT);
 	//attachInterrupt(TACT_SWITCH, TactSwitchAction, FALLING);
 
+	hid.set_sendButtonState(hidSendButtonState);
+
+
 	BlinkLed.blinkOnce();
 
+	/*while(1)
+	{
 
+		for(int i=1;i<=20;i++)
+		{
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,1,31);
+				leds.updateSeq();
+				delay(50);
+//				leds.setLEDseq(j,i,0,31);
+//				leds.updateSeq();
+			}
+//			for(int j=1;j<=8;j++)
+//			{
+//				leds.setLEDseq(j,i,0,31);
+//				leds.updateSeq();
+//				delay(50);
+//			}
+		}
+		for(int i=0;i<63;i++)
+		{
+			leds.setLEDgrid(i, 1, 31);
+			leds.updateGrid();
+			delay(50);
+		}
+		for(int i=1;i<=20;i++)
+		{
+//			for(int j=1;j<=8;j++)
+//			{
+//				leds.setLEDseq(j,i,0,1);
+//				leds.updateSeq();
+//				delay(50);
+//			}
+			for(int j=1;j<=8;j++)
+			{
+				leds.setLEDseq(j,i,0,31);
+				leds.updateSeq();
+				delay(50);
+			}
+		}
+		for(int i=0;i<63;i++)
+		{
+			leds.setLEDgrid(i, 0, 31);
+			leds.updateGrid();
+			delay(50);
+		}
 
+	}
+*/
+}
+
+void hidSendButtonState(uint16_t button, uint16_t state)
+{
+	if(button < 100)
+	{
+		onButtonChange(button, state);
+	}
+	else
+	{
+		if(button == 100 && state == 1)
+			onPotChange(0, -1);
+		else if(button == 101 && state == 1)
+			onPotChange(0, 1);
+	}
 }
 
 
@@ -197,34 +262,30 @@ void updateHardware()
 
 	if(Wire2.done())
 	{
-			// odczyt przyciskow
-			if(seqButtonsA.update())
-			{
-				return;
-			}
-			if(seqButtonsB.update())
-			{
-				return;
-			}
-			if(seqButtonsC.update())
-			{
-				return;
-			}
-			leds.updateSeq();
-			leds.updateGrid();
+		// odczyt przyciskow
+		if(seqButtonsA.update())
+		{
+			return;
+		}
+		if(seqButtonsB.update())
+		{
+			return;
+		}
+		if(seqButtonsC.update())
+		{
+			return;
+		}
+		leds.updateSeq();
+		leds.updateGrid();
 
 	}
 
-	//mtDisplay.updateDisplay();
-	//mtDisplay.updateHaptic();
-
-
 	display.update();
-
-
+	//mtDisplay.updateHaptic();
 	BlinkLed.update();
 
 	TactSwitchRead();
+	hid.handle();
 }
 
 

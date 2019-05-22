@@ -3,12 +3,12 @@
 
 #include "mtFileManager.h"
 
-#include "projectEditor.h"
+
+#include "patternEditor.h"
 
 
-
-cProjectEditor projectEditor;
-cProjectEditor* PE = &projectEditor;
+cPatternEditor patternEditor;
+cPatternEditor* PTE = &patternEditor;
 
 
 
@@ -23,14 +23,14 @@ uint8_t functCreateNewTemplate();
 
 
 
-void cProjectEditor::update()
+void cPatternEditor::update()
 {
 
 
 
 }
 
-void cProjectEditor::start(uint32_t options)
+void cPatternEditor::start(uint32_t options)
 {
 
 	// inicjalizacja kontrolek
@@ -44,7 +44,7 @@ void cProjectEditor::start(uint32_t options)
 		prop1.w = 800/4;
 		prop1.h = 25;
 
-		if(PE->topLabel[0] == nullptr) PE->topLabel[0] = display.createControl<cLabel>(&prop1);
+		if(topLabel[0] == nullptr) topLabel[0] = display.createControl<cLabel>(&prop1);
 	}
 
 	for(uint8_t i = 0; i<8; i++)
@@ -82,7 +82,7 @@ void cProjectEditor::start(uint32_t options)
 
 }
 
-void cProjectEditor::stop()
+void cPatternEditor::stop()
 {
 	display.destroyControl(fileListControl);
 	fileListControl = nullptr;
@@ -102,15 +102,15 @@ void cProjectEditor::stop()
 
 }
 
-void cProjectEditor::showDefaultScreen()
+void cPatternEditor::showDefaultScreen()
 {
 	//lista
-	display.setControlHide(PE->fileListControl);
+	display.setControlHide(fileListControl);
 
 	// top label listy
-	//display.setControlText(PE->topLabel[0], "");
-	display.setControlHide(PE->topLabel[0]);
-	display.refreshControl(PE->topLabel[0]);
+	//display.setControlText(SI->topLabel[0], "");
+	display.setControlHide(topLabel[0]);
+	display.refreshControl(topLabel[0]);
 
 	// bottom labels
 	display.setControlText(bottomLabel[0], "New");
@@ -119,7 +119,7 @@ void cProjectEditor::showDefaultScreen()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.refreshControl(PE->bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
 	}
 
 	display.synchronizeRefresh();
@@ -128,49 +128,49 @@ void cProjectEditor::showDefaultScreen()
 	FM->clearAllButtons();
 	FM->clearAllPots();
 
-	FM->setButtonObj(interfaceButton1, buttonPress, functShowProjectsList, nullptr);
-	FM->setButtonObj(interfaceButton0, buttonPress, functShowTemplatesList, nullptr);
-	FM->setButtonObj(interfaceButton4, buttonPress, functSaveProject, nullptr);
+	//FM->setButtonObj(interfaceButton1, buttonPress, functShowProjectsList, nullptr);
+	//FM->setButtonObj(interfaceButton0, buttonPress, functShowTemplatesList, nullptr);
+	//FM->setButtonObj(interfaceButton4, buttonPress, functSaveProject, nullptr);
 
 }
 //==============================================================================================================
-
+/*
 uint8_t functShowProjectsList()
 {
-	PE->listOnlyFolderNames("/Projects/");
+	SI->listOnlyFolderNames("/Projects/");
 
 // lista
-	PE->projectList.start = 0;
-	PE->projectList.length = PE->locationFilesCount;
-	PE->projectList.linesCount = 5;
-	PE->projectList.data = PE->filesNames;
+	SI->projectList.start = 0;
+	SI->projectList.length = SI->locationFilesCount;
+	SI->projectList.linesCount = 5;
+	SI->projectList.data = SI->filesNames;
 
-	display.setControlData(PE->fileListControl,  &PE->projectList);
-	display.setControlShow(PE->fileListControl);
-	display.refreshControl(PE->fileListControl);
+	display.setControlData(SI->fileListControl,  &SI->projectList);
+	display.setControlShow(SI->fileListControl);
+	display.refreshControl(SI->fileListControl);
 
 // top label listy
-	display.setControlText(PE->topLabel[0], "Open project");
-	display.setControlShow(PE->topLabel[0]);
-	display.refreshControl(PE->topLabel[0]);
+	display.setControlText(SI->topLabel[0], "Open project");
+	display.setControlShow(SI->topLabel[0]);
+	display.refreshControl(SI->topLabel[0]);
 
 // bottom labels
-	display.setControlText(PE->bottomLabel[0], "Open");
-	display.setControlText(PE->bottomLabel[1], "Cancel");
+	display.setControlText(SI->bottomLabel[0], "Open");
+	display.setControlText(SI->bottomLabel[1], "Cancel");
 
-	display.refreshControl(PE->bottomLabel[0]);
-	display.refreshControl(PE->bottomLabel[1]);
+	display.refreshControl(SI->bottomLabel[0]);
+	display.refreshControl(SI->bottomLabel[1]);
 
 	display.synchronizeRefresh();
 
 // funkcje
-	PE->FM->clearAllButtons();
-	PE->FM->clearAllPots();
+	SI->FM->clearAllButtons();
+	SI->FM->clearAllPots();
 
-	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
+	SI->FM->setPotObj(interfacePot0, &SI->selectedLocation, 0, SI->locationFilesCount-1, 1, SI->fileListControl);
 
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProject, nullptr);
-	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList, nullptr);
+	SI->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProject, nullptr);
+	SI->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList, nullptr);
 
 
 	return 0;
@@ -179,50 +179,50 @@ uint8_t functShowProjectsList()
 
 uint8_t functShowTemplatesList()
 {
-	PE->listOnlyFolderNames("/Templates/");
+	SI->listOnlyFolderNames("/Templates/");
 
 // lista
-	PE->projectList.start = 0;
-	PE->projectList.length = PE->locationFilesCount;
-	PE->projectList.linesCount = 5;
-	PE->projectList.data = PE->filesNames;
+	SI->projectList.start = 0;
+	SI->projectList.length = SI->locationFilesCount;
+	SI->projectList.linesCount = 5;
+	SI->projectList.data = SI->filesNames;
 
-	display.setControlData(PE->fileListControl,  &PE->projectList);
-	display.setControlShow(PE->fileListControl);
-	display.refreshControl(PE->fileListControl);
+	display.setControlData(SI->fileListControl,  &SI->projectList);
+	display.setControlShow(SI->fileListControl);
+	display.refreshControl(SI->fileListControl);
 
 // top label listy
-	display.setControlText(PE->topLabel[0], "Choose template");
-	display.setControlShow(PE->topLabel[0]);
-	display.refreshControl(PE->topLabel[0]);
+	display.setControlText(SI->topLabel[0], "Choose template");
+	display.setControlShow(SI->topLabel[0]);
+	display.refreshControl(SI->topLabel[0]);
 
 // bottom labels
-	display.setControlText(PE->bottomLabel[0], "Create");
-	display.setControlText(PE->bottomLabel[1], "Cancel");
-	display.setControlText(PE->bottomLabel[4], "New");
+	display.setControlText(SI->bottomLabel[0], "Create");
+	display.setControlText(SI->bottomLabel[1], "Cancel");
+	display.setControlText(SI->bottomLabel[4], "New");
 
-	display.refreshControl(PE->bottomLabel[0]);
-	display.refreshControl(PE->bottomLabel[1]);
-	display.refreshControl(PE->bottomLabel[4]);
+	display.refreshControl(SI->bottomLabel[0]);
+	display.refreshControl(SI->bottomLabel[1]);
+	display.refreshControl(SI->bottomLabel[4]);
 
 	display.synchronizeRefresh();
 
 // funkcje
-	PE->FM->clearAllButtons();
-	PE->FM->clearAllPots();
+	SI->FM->clearAllButtons();
+	SI->FM->clearAllPots();
 
-	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
+	SI->FM->setPotObj(interfacePot0, &SI->selectedLocation, 0, SI->locationFilesCount-1, 1, SI->fileListControl);
 
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenTemplate, nullptr);
-	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList, nullptr);
-	PE->FM->setButtonObj(interfaceButton4, buttonPress, functCreateNewTemplate, nullptr);
+	SI->FM->setButtonObj(interfaceButton0, buttonPress, functOpenTemplate, nullptr);
+	SI->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList, nullptr);
+	SI->FM->setButtonObj(interfaceButton4, buttonPress, functCreateNewTemplate, nullptr);
 
 	return 0;
 }
 
 uint8_t functCancelList()
 {
-	PE->showDefaultScreen();
+	SI->showDefaultScreen();
 
 	return 0;
 }
@@ -237,25 +237,25 @@ uint8_t functSaveProject()
 uint8_t functOpenProject()
 {
 
-	fileManager.openProject(&PE->locationFilesList[PE->selectedLocation][0],projectTypeUserMade);
-	PE->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
+	fileManager.openProject(&SI->locationFilesList[SI->selectedLocation][0],projectTypeUserMade);
+	//SI->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
 
 
-	PE->showDefaultScreen();
+	SI->showDefaultScreen();
 
 	return 0;
 }
 
 uint8_t functOpenTemplate()
 {
-	fileManager.openProject(&PE->locationFilesList[PE->selectedLocation][0],projectTypeExample);
+	fileManager.openProject(&SI->locationFilesList[SI->selectedLocation][0],projectTypeExample);
 	//loadSamplesBank();
 	fileManager.saveAsProject((char*)"fromTemplate");
 	fileManager.openProject((char*)"fromTemplate", projectTypeUserMade);
 	//loadSamplesBank();
-	PE->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
+	//SI->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
 
-	PE->showDefaultScreen();
+	SI->showDefaultScreen();
 
 
 	return 0;
@@ -269,11 +269,11 @@ uint8_t functCreateNewTemplate()
 	return 0;
 }
 
-
+*/
 //======================================================================================================================
 
 
-void cProjectEditor::listOnlyFolderNames(const char* folder)
+void cPatternEditor::listOnlyFolderNames(const char* folder)
 {
 	strcpy(filePath, folder);
 	strcat(filePath,"/");

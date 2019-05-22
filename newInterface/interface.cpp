@@ -24,7 +24,12 @@
 #include "RamMonitor.h"
 
 
+
 #include "projectEditor.h"
+#include "sampleImporter.h"
+#include "patternEditor.h"
+
+
 
 #include "interface.h"
 
@@ -44,11 +49,12 @@ __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[4*1024*1024];
 //=======================================================================
 //=======================================================================
 
-const uint8_t cInterface::modulesCount = 1;
+const uint8_t cInterface::modulesCount = 3;
 const hModule cInterface::modules[modulesCount] =
 {
 		&projectEditor,
-
+		&sampleImporter,
+		&patternEditor,
 
 
 

@@ -7,6 +7,8 @@
 #include "Arduino.h"
 #include "Wire.h"
 
+#include "hidConnection.h"
+
 
 
 
@@ -95,4 +97,5 @@
 
 
 extern uint8_t hardwareTest;
+
 #endif
