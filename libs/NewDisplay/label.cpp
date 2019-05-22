@@ -94,7 +94,6 @@ void cLabel::setData(void* data)
 //--------------------------------------------------------------------------------
 uint8_t cLabel::update()
 {
-	if(text == nullptr) return 0;
 
     API_LIB_BeginCoProList();
     API_CMD_DLSTART();
@@ -151,7 +150,7 @@ uint8_t cLabel::update()
 
 
 	API_COLOR(colors[0]);
-	API_CMD_TEXT(posX, posY, textFont, textStyle, text);
+	if(text != nullptr) API_CMD_TEXT(posX, posY, textFont, textStyle, text);
 
 
     API_LIB_EndCoProList();

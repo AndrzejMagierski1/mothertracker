@@ -21,7 +21,7 @@
 #include "SD.h"
 #include "sdram.h"
 
-
+#include "RamMonitor.h"
 
 
 #include "projectEditor.h"
@@ -31,7 +31,7 @@
 
 cInterface mtInterface;
 
-
+elapsedMillis ramInfoTimer;
 
 strMtConfig mtConfig;
 strMtProject mtProject;
@@ -82,6 +82,8 @@ void cInterface::begin()
 
 	readConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
 
+	ramMonitor.initialize();
+
 }
 
 //=======================================================================
@@ -95,6 +97,17 @@ void cInterface::update()
 	{
 		if(modules[i]->moduleRefresh) modules[i]->update();
 	}
+
+
+
+	if(ramInfoTimer > 5000)
+	{
+		ramInfoTimer = 0;
+
+		ramMonitor.run();
+		ramMonitor.report_ram();
+
+	}
 }
 
 
@@ -102,6 +115,9 @@ void cInterface::update()
 //=======================================================================
 //=======================================================================
 //=======================================================================
+
+
+
 void cInterface::processOperatingMode()
 {
 	if(operatingMode == mtOperatingModeStartup)
@@ -111,13 +127,13 @@ void cInterface::processOperatingMode()
 			operatingMode = mtOperatingModeRun;
 
 			//activateModule(projectEditor);
-			projectEditor.start(mtProjectStartModeOpenLast);
+			activateModule(&projectEditor, mtProjectStartModeOpenLast);
 		}
 	}
-	else if(operatingMode == mtOperatingModeRun)
-	{
-
-	}
+//	else if(operatingMode == mtOperatingModeRun)
+//	{
+//
+//	}
 
 
 }
@@ -125,18 +141,18 @@ void cInterface::processOperatingMode()
 //=======================================================================
 //=======================================================================
 //=======================================================================
-void cInterface::activateModule(uint8_t module)
+void cInterface::activateModule(hModule module, uint32_t options)
 {
 
-	activeModules[module] = 1;
+	module->start(options);
 	onScreenModule = module;
 
 }
 
 
-void cInterface::deactivateModule(uint8_t module)
+void cInterface::deactivateModule(hModule module)
 {
-	activeModules[module] = 0;
+	module->stop();
 }
 
 

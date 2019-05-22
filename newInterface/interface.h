@@ -29,8 +29,6 @@ public:
 	void update();
 	void setOperatingMode(uint8_t mode);
 
-
-
 	// mtInterface.cpp -----------------------------
 
 
@@ -47,10 +45,8 @@ public:
 	void seqButtonDouble(uint8_t x, uint8_t y);
 	// mtInterfaceInputs.cpp -----------------------------
 
-	uint8_t activeModules[mtModulesCount] = {0};
-
-	void activateModule(uint8_t module);
-	void deactivateModule(uint8_t module);
+	void activateModule(hModule module, uint32_t options);
+	void deactivateModule(hModule module);
 
 private:
 
@@ -68,7 +64,7 @@ private:
 	elapsedMillis startupTimer;
 
 
-	uint8_t onScreenModule = 0;
+	hModule onScreenModule = nullptr;
 
 
 };

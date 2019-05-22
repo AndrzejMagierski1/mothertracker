@@ -58,6 +58,7 @@
 									<listOptionValue builtIn="false" value="../libs/FastCRC"/>
 									<listOptionValue builtIn="false" value="../interface"/>
 									<listOptionValue builtIn="false" value="../libs/EEPROM"/>
+									<listOptionValue builtIn="false" value="../libs/ramMonitor"/>
 									<listOptionValue builtIn="false" value="../newInterface"/>
 								</option>
 								<option id="com.crt.advproject.cpp.hdrlib.53466571" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>

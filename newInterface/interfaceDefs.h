@@ -6,7 +6,7 @@
 #define MT_INTERFACE_STARTUP_TIME 200
 
 
-
+//-------------------------------------------------------------
 enum mtInterfacePadsDef
 {
 //1
@@ -64,14 +64,18 @@ enum mtInterfaceButtonsDef
 
 enum mtInterfacePotsDef
 {
-	interfacePots0,
-	interfacePots1,
-	interfacePots2,
-	interfacePots3,
-	interfacePots4,
+	interfacePot0,
+	interfacePot1,
+	interfacePot2,
+	interfacePot3,
+	interfacePot4,
 
 	interfacePotsCount
 };
+
+
+
+
 
 enum mtInterfacePadButtonsFunctions
 {
@@ -117,23 +121,24 @@ enum mtInterfacePadButtonsFunctions
 
 };
 
-
-
-
-enum mtInterfaceModules
+//-------------------------------------------------------------
+enum buttonStates
 {
-	mtModuleProjectEditor,
-	mtModuleInstrumentEditor,
-	mtModuleStepEditor,
-	mtModuleSampleBankEditor,
-	mtModuleConfigEditor,
+	buttonRelease,
+	buttonPress,
+	buttonHold,
+	buttonDouble,
+};
 
-
-
-	mtModulesCount
+enum padStates
+{
+	padRelease,
+	padPress,
+	padChange,
 };
 
 
+//-------------------------------------------------------------
 
 
 

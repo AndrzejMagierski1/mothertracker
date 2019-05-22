@@ -62,7 +62,7 @@ strBitmap bitmaps[displayBitmapsCount] =
 
 strTrackerSeqDisplay trackerSeqDisplay;
 
-void display_table();
+//void display_table();
 
 
 cDisplay display;
@@ -146,7 +146,7 @@ void cDisplay::update()
 //=================================================================================================
 //=================================================================================================
 
-
+/*
 if(seqTimer > 125)
 {
 	seqTimer = 0;
@@ -224,7 +224,7 @@ if(refreshTimer > refreshF)
 
 	display.refreshControl(hTrackControl);
 }
-
+*/
 
 
 //=================================================================================================
@@ -237,20 +237,20 @@ if(refreshTimer > refreshF)
 			if(refreshQueueTop ==  refreshQueueBott) return; // nie jest wymagane odswiezenie
 
 			if(!API_LIB_IsCoProEmpty()) return;
-			testTimer = 0;
+//			testTimer = 0;
 
 			actualUpdating = refreshQueue[refreshQueueBott];
 			actualUpdating->update();
 
-			Serial.print("phase 1 ");
-			Serial.println(testTimer);
+//			Serial.print("phase 1 ");
+//			Serial.println(testTimer);
 			updateStep = 1;
 			break;
 		}
 		case 1: // zapisz DL z porzedniego kroku do ramu ukladu graficznego
 		{
 			if(!API_LIB_IsCoProEmpty()) return;
-			testTimer = 0;
+//			testTimer = 0;
 
 			uint32_t ramAddress = controlsRamStartAddress+(actualUpdating->ramMapPosition*controlsRamAddressStep);
 
@@ -258,8 +258,8 @@ if(refreshTimer > refreshF)
 
 			if(result == 1)
 			{
-				Serial.print("phase 2 ");
-				Serial.println(testTimer);
+//				Serial.print("phase 2 ");
+//				Serial.println(testTimer);
 				updateStep = 0; // jesli obslugiwana kontrolka potrzebuje odswiezenia
 				return;			// wiekszej ilosci blokow
 			}
@@ -287,7 +287,7 @@ if(refreshTimer > refreshF)
 		{
 			if(!API_LIB_IsCoProEmpty()) return;
 
-			testTimer = 0;
+//			testTimer = 0;
 
 			API_LIB_BeginCoProListNoCheck();
 		    API_CMD_DLSTART();
@@ -314,8 +314,8 @@ if(refreshTimer > refreshF)
 			API_LIB_EndCoProList();
 			//API_LIB_AwaitCoProEmpty();
 
-			Serial.print("phase 3 ");
-			Serial.println(testTimer);
+//			Serial.print("phase 3 ");
+//			Serial.println(testTimer);
 
 
 			updateStep = 0;
@@ -329,6 +329,23 @@ if(refreshTimer > refreshF)
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
+
+void cDisplay::setControlPosition(hControl handle, uint16_t x, uint16_t y)
+{
+	if(handle == nullptr) return;
+
+	handle->posX = x;
+	handle->posY = y;
+}
+
+void cDisplay::setControlSize(hControl handle, uint16_t w, uint16_t h)
+{
+	if(handle == nullptr) return;
+
+	handle->width = w;
+	handle->height = h;
+}
+
 void cDisplay::setControlStyle(hControl handle, uint32_t style)
 {
 	if(handle == nullptr) return;
@@ -342,6 +359,30 @@ void cDisplay::setControlStyle(hControl handle, uint32_t style)
 	handle->setStyle(style);
 }
 
+void cDisplay::setControlShow(hControl handle)
+{
+	if(handle == nullptr) return;
+
+	handle->style |= (controlStyleShow);
+
+	//uint32_t temp_style = handle->style;
+	//temp_style &= ~(controlStyleShow);
+	//handle->setStyle(style);
+}
+
+
+void cDisplay::setControlHide(hControl handle)
+{
+	if(handle == nullptr) return;
+
+	handle->style &= ~(controlStyleShow);
+}
+/*
+void cDisplay::setControlText(hControl handle,  char const* text)
+{
+	setControlText(handle, (char*)text);
+}
+*/
 void cDisplay::setControlText(hControl handle, char* text)
 {
 	if(handle == nullptr) return;

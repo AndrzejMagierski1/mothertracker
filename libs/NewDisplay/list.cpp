@@ -82,7 +82,9 @@ void cList::setText(char* text)
 
 void cList::setValue(int value)
 {
-	listPosition = value;
+	if(value >= list->length) listPosition = list->length-1;
+	else if(value < 0) listPosition = 0;
+	else  listPosition = value;
 }
 
 void cList::setColors(uint32_t* colors)

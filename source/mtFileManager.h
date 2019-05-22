@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "SD.h"
+#include "mtStructs.h"
 
 //parametry przetwarzanego pliku
 struct strWavFileHeader

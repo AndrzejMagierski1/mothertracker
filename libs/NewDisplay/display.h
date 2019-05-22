@@ -84,8 +84,13 @@ public:
 	void destroyControl(hControl handle);
 	void refreshControl(hControl handle);
 
+	void setControlPosition(hControl handle, uint16_t x, uint16_t y);
+	void setControlSize(hControl handle, uint16_t w, uint16_t h);
 	void setControlStyle(hControl handle, uint32_t style);
+	void setControlShow(hControl handle);
+	void setControlHide(hControl handle);
 	void setControlText(hControl handle, char* text);
+	inline void setControlText(hControl handle,  char const* text) { setControlText(handle, (char*)text); }
 	void setControlValue(hControl handle, int value);
 	void setControlColors(hControl handle, uint32_t colorsTable[]);
 	void setControlDefaultColors(hControl handle, uint32_t colorsTable[]);

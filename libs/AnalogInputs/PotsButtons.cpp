@@ -112,7 +112,7 @@ void cAnalogInputs::processPotData()
 		// wygladzenie wartosci delty przed dalszym przetwarzaniem
 		diffrence = potentiometers[i].diffrence_blur = (diffrence + potentiometers[i].diffrence_blur * 5)/6;
 
-		Serial.print(diffrence);
+		//Serial.print(diffrence);
 		//
 		if(potentiometers[i].speed > 0)
 		{
@@ -130,8 +130,8 @@ void cAnalogInputs::processPotData()
 				diffrence = potAcc[potentiometers[i].speed-1][diffrence*(-1)] * (-1);
 			}
 		}
-		Serial.print("   ");
-		Serial.println(diffrence);
+		//Serial.print("   ");
+		//Serial.println(diffrence);
 
 
 		// zerowanie global_diff przy zmianie kierunku

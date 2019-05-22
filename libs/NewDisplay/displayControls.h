@@ -38,17 +38,17 @@ enum controlsStyle
 
 struct strControlProperties
 {
-	char* text;
-	int value;
-	void* data;
+	char* text = nullptr;
+	int value = 0;
+	void* data = nullptr;
 
-	uint16_t style;
-	uint32_t* colors;
+	uint16_t style = 0;
+	uint32_t* colors = nullptr;
 
-	uint16_t x;
-	uint16_t y;
-	uint16_t w;
-	uint16_t h;
+	uint16_t x = 0;
+	uint16_t y = 0;
+	uint16_t w = 0;
+	uint16_t h = 0;
 };
 
 struct strFont
