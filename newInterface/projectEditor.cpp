@@ -140,6 +140,8 @@ void cProjectEditor::showDefaultScreen()
 		display.refreshControl(PE->bottomLabel[i]);
 	}
 
+	display.synchronizeRefresh();
+
 	//funkcje
 	FM->clearAllButtons();
 	FM->clearAllPots();
@@ -176,6 +178,8 @@ uint8_t functShowProjectsList()
 
 	display.refreshControl(PE->bottomLabel[0]);
 	display.refreshControl(PE->bottomLabel[1]);
+
+	display.synchronizeRefresh();
 
 // funkcje
 	PE->FM->clearAllButtons();
@@ -219,6 +223,7 @@ uint8_t functShowTemplatesList()
 	display.refreshControl(PE->bottomLabel[1]);
 	display.refreshControl(PE->bottomLabel[4]);
 
+	display.synchronizeRefresh();
 
 // funkcje
 	PE->FM->clearAllButtons();

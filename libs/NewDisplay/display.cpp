@@ -124,6 +124,8 @@ void cDisplay::begin()
     API_LIB_EndCoProList();
     //API_LIB_AwaitCoProEmpty();
 
+    stopAppend = 0;
+    synchQueuePosition = 0;
 	refreshQueueTop = 0;
 	refreshQueueBott = 0;
     updateStep = 0;
@@ -263,7 +265,7 @@ if(refreshTimer > refreshF)
 				updateStep = 0; // jesli obslugiwana kontrolka potrzebuje odswiezenia
 				return;			// wiekszej ilosci blokow
 			}
-			else if(result == 2)
+/*			else if(result == 2)
 			{
 			    refreshQueueBott++;
 				if(refreshQueueBott >= controlsRefreshQueueSize) refreshQueueBott = 0;
@@ -272,19 +274,35 @@ if(refreshTimer > refreshF)
 				updateStep = 2; // jesli kontrolka jest animowana i potzebuje sie automatycznie dalej odswiezac
 				return;			// dodawana jest automatycznie na koniec kolejki
 			}
-
-
+*/
+			// przesun kolejke odswieznania
 		    refreshQueueBott++;
 			if(refreshQueueBott >= controlsRefreshQueueSize) refreshQueueBott = 0;
+
+			// jesli bot kolejki dogonil zapisana pozycje synch refreschu
+			if(stopAppend && synchQueuePosition == refreshQueueBott)
+			{
+				stopAppend = 0;
+				//synchQueuePosition = -1;
+			}
+
+			// jesli kontrolka jest animowana i potzebuje sie automatycznie dalej odswiezac
+			// dodawana jest automatycznie na koniec kolejki
+/*-*/		if(result == 2) refreshControl(actualUpdating);
+
 			actualUpdating = nullptr;
 
 			updateStep = 2;
 			break;
 		}
-
-
 		case 2: // oswiez cały ekran
 		{
+			if(stopAppend)
+			{
+				updateStep = 0;
+				return;
+			}
+
 			if(!API_LIB_IsCoProEmpty()) return;
 
 //			testTimer = 0;
@@ -304,7 +322,7 @@ if(refreshTimer > refreshF)
 				hControl p = controlsTable[i];
 				if(p == nullptr) break;
 				uint32_t ramAddress = controlsRamStartAddress+(p->ramMapPosition*controlsRamAddressStep);
-				if(p->refresh) p->append(ramAddress);
+				if(p->style & controlStyleShow) p->append(ramAddress);
 			}
 
 
@@ -459,7 +477,6 @@ void cDisplay::refreshControl(hControl handle)
 {
 	if(handle == nullptr) return;
 
-	handle->refresh = 0;
 	// dorzuc kontrolke do kolejki fifo odtwarzania
 	// jesli juz jest w kolejce to nic nie rob
 
@@ -477,7 +494,26 @@ void cDisplay::refreshControl(hControl handle)
 	refreshQueueTop++;
 	if(refreshQueueTop >= controlsRefreshQueueSize) refreshQueueTop = 0;
 
-
 }
+
+void cDisplay::synchronizeRefresh()
+{
+	if(refreshQueueTop ==  refreshQueueBott)
+	{
+		stopAppend = 0;
+		//synchQueuePosition = -1;
+		return;
+	}
+
+	synchQueuePosition = refreshQueueTop;
+	stopAppend = 1;
+}
+
+uint8_t cDisplay::waitForAllControls()
+{
+	return 0;
+}
+
+
 
 

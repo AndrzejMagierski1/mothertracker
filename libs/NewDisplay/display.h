@@ -83,6 +83,7 @@ public:
 
 	void destroyControl(hControl handle);
 	void refreshControl(hControl handle);
+	void synchronizeRefresh();
 
 	void setControlPosition(hControl handle, uint16_t x, uint16_t y);
 	void setControlSize(hControl handle, uint16_t w, uint16_t h);
@@ -98,12 +99,15 @@ public:
 
 
 private:
+	uint8_t waitForAllControls();
 
 	hControl controlsTable[controlsCount] = { nullptr };
 	hControl actualUpdating;
 	uint8_t updateStep;
 
 
+	uint8_t stopAppend;
+	uint8_t synchQueuePosition;
 	hControl refreshQueue[controlsRefreshQueueSize]; // FIFO
 	uint8_t refreshQueueTop; 	// pozycja na nowe dane
 	uint8_t refreshQueueBott; 	// pozycja do nastepnego odczytu
