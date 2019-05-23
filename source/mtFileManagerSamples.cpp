@@ -34,7 +34,7 @@ uint32_t fmLoadSample(const char *filename, int16_t * buf)
 		if(hardwareTest)
 		{
 			Serial.println("too long file");
-			mtPrint("too long file");
+			//mtPrint("too long file");
 		}
 		return 0;
 	}
