@@ -58,6 +58,39 @@ enum mtInterfaceButtonsDef
 	interfaceButton2,
 	interfaceButton3,
 	interfaceButton4,
+	interfaceButton5,
+	interfaceButton6,
+	interfaceButton7,
+
+	interfaceButton8,
+	interfaceButton9,
+	interfaceButton10,
+	interfaceButton11,
+	interfaceButton12,
+
+	interfaceButton13,
+	interfaceButton14,
+	interfaceButton15,
+	interfaceButton16,
+	interfaceButton17,
+
+	interfaceButton18,
+	interfaceButton19,
+	interfaceButton20,
+	interfaceButton21,
+	interfaceButton22,
+
+	interfaceButton23,
+	interfaceButton24,
+	interfaceButton25,
+	interfaceButton26,
+	interfaceButton27,
+
+	interfaceButton28,
+	interfaceButton29,
+	interfaceButton30,
+	interfaceButton31,
+	interfaceButton32,
 
 	interfaceButtonsCount
 };
