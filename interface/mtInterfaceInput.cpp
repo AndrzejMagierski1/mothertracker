@@ -8,6 +8,7 @@
 #include "mtSampleBankEditor.h"
 #include "mtStepEditor.h"
 #include "mtConfigEditor.h"
+#include "mtSleep.h"
 
 
 
@@ -43,8 +44,6 @@ void cMtInterface::buttonChange(uint8_t n, uint8_t value)
 
 		default : break;
 	}
-
-
 }
 
 //=======================================================================
@@ -52,7 +51,7 @@ void cMtInterface::powerButtonChange(uint8_t value)
 {
 	if(value == 1)
 	{
-		SD.begin(SdioConfig(DMA_SDIO));
+		changePowerState();	//SD.begin(SdioConfig(DMA_SDIO));
 	}
 }
 
@@ -72,7 +71,7 @@ void cMtInterface::padPressed(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 
 
 
-	leds.setLEDgrid(n,1,31);
+	//leds.setLEDgrid(n,1,31);
 
 
 
@@ -93,7 +92,7 @@ void cMtInterface::padReleased(uint8_t n)
 		default : break;
 	}
 
-	leds.setLEDgrid(n,0,31);
+	//leds.setLEDgrid(n,0,31);
 }
 
 //=======================================================================
@@ -122,7 +121,16 @@ void cMtInterface::seqButtonPressed(uint8_t x, uint8_t y)
 void cMtInterface::seqButtonReleased(uint8_t x, uint8_t y)
 {
 
+	switch(onScreenModule)
+	{
+		case mtModuleProjectEditor:		mtProjectEditor.seqButtonChange(0,x,y);		break;
+		case mtModuleInstrumentEditor:	mtInstrumentEditor.seqButtonChange(0,x,y);	break;
+		case mtModuleStepEditor:		mtStepEditor.seqButtonChange(0,x,y);		break;
+		case mtModuleSampleBankEditor:	mtSampleBankEditor.seqButtonChange(0,x,y);	break;
+		case mtModuleConfigEditor:		mtConfigEditor.seqButtonChange(0,x,y);		break;
 
+		default : break;
+	}
 }
 
 //=======================================================================

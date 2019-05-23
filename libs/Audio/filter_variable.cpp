@@ -99,7 +99,7 @@ const float filterFreq[478] =
 
 
 void AudioFilterStateVariable::update_fixed(const int16_t *in,
-	int16_t *lp, int16_t *bp, int16_t *hp)
+	int16_t *out)
 {
 	const int16_t *end = in + AUDIO_BLOCK_SAMPLES;
 	int32_t input, inputprev;
@@ -107,33 +107,55 @@ void AudioFilterStateVariable::update_fixed(const int16_t *in,
 	int32_t lowpasstmp, bandpasstmp, highpasstmp;
 	int32_t fmult, damp;
 
-	fmult = setting_fmult;
-	damp = setting_damp;
-	inputprev = state_inputprev;
-	lowpass = state_lowpass;
-	bandpass = state_bandpass;
-	do {
-		input = (*in++) << 12;
-		lowpass = lowpass + MULT(fmult, bandpass);
-		highpass = ((input + inputprev)>>1) - lowpass - MULT(damp, bandpass);
-		inputprev = input;
-		bandpass = bandpass + MULT(fmult, highpass);
-		lowpasstmp = lowpass;
-		bandpasstmp = bandpass;
-		highpasstmp = highpass;
-		lowpass = lowpass + MULT(fmult, bandpass);
-		highpass = input - lowpass - MULT(damp, bandpass);
-		bandpass = bandpass + MULT(fmult, highpass);
-		lowpasstmp = signed_saturate_rshift(lowpass+lowpasstmp, 16, 13);
-		bandpasstmp = signed_saturate_rshift(bandpass+bandpasstmp, 16, 13);
-		highpasstmp = signed_saturate_rshift(highpass+highpasstmp, 16, 13);
-		*lp++ = lowpasstmp;
-		*bp++ = bandpasstmp;
-		*hp++ = highpasstmp;
-	} while (in < end);
-	state_inputprev = inputprev;
-	state_lowpass = lowpass;
-	state_bandpass = bandpass;
+	if(isEnable)
+	{
+		fmult = setting_fmult;
+		damp = setting_damp;
+		inputprev = state_inputprev;
+		lowpass = state_lowpass;
+		bandpass = state_bandpass;
+		do {
+			input = (*in++) << 12;
+			lowpass = lowpass + MULT(fmult, bandpass);
+			highpass = ((input + inputprev)>>1) - lowpass - MULT(damp, bandpass);
+			inputprev = input;
+			bandpass = bandpass + MULT(fmult, highpass);
+			lowpasstmp = lowpass;
+			bandpasstmp = bandpass;
+			highpasstmp = highpass;
+			lowpass = lowpass + MULT(fmult, bandpass);
+			highpass = input - lowpass - MULT(damp, bandpass);
+			bandpass = bandpass + MULT(fmult, highpass);
+			lowpasstmp = signed_saturate_rshift(lowpass+lowpasstmp, 16, 13);
+			bandpasstmp = signed_saturate_rshift(bandpass+bandpasstmp, 16, 13);
+			highpasstmp = signed_saturate_rshift(highpass+highpasstmp, 16, 13);
+
+			switch(filterType)
+			{
+				case filterTypeLowPass:
+					*out++ = lowpasstmp;
+					break;
+				case filterTypeBandPass:
+					*out++ = bandpasstmp;
+					break;
+				case filterTypeHighPass:
+					*out++ = highpasstmp;
+					break;
+				default:
+					break;
+			}
+		} while (in < end);
+		state_inputprev = inputprev;
+		state_lowpass = lowpass;
+		state_bandpass = bandpass;
+	}
+	else
+	{
+		do
+		{
+			*out++=*in++;
+		} while(in<end);
+	}
 }
 
 
@@ -219,57 +241,24 @@ void AudioFilterStateVariable::update_variable(const int16_t *in,
 
 void AudioFilterStateVariable::update(void)
 {
-	audio_block_t *input_block=NULL, *control_block=NULL;
-	audio_block_t *lowpass_block=NULL, *bandpass_block=NULL, *highpass_block=NULL;
+	audio_block_t *input_block=NULL;
+	audio_block_t *out_block=NULL;
 
 	input_block = receiveReadOnly(0);
-	control_block = receiveReadOnly(1);
-	if (!input_block) {
-		if (control_block) release(control_block);
-		return;
-	}
-	lowpass_block = allocate();
-	if (!lowpass_block) {
+	if (!input_block) return;
+
+	out_block = allocate();
+	if (!out_block)
+	{
 		release(input_block);
-		if (control_block) release(control_block);
-		return;
-	}
-	bandpass_block = allocate();
-	if (!bandpass_block) {
-		release(input_block);
-		release(lowpass_block);
-		if (control_block) release(control_block);
-		return;
-	}
-	highpass_block = allocate();
-	if (!highpass_block) {
-		release(input_block);
-		release(lowpass_block);
-		release(bandpass_block);
-		if (control_block) release(control_block);
 		return;
 	}
 
-	if (control_block) {
-		update_variable(input_block->data,
-			 control_block->data,
-			 lowpass_block->data,
-			 bandpass_block->data,
-			 highpass_block->data);
-		release(control_block);
-	} else {
-		update_fixed(input_block->data,
-			 lowpass_block->data,
-			 bandpass_block->data,
-			 highpass_block->data);
-	}
+	update_fixed(input_block->data,out_block->data);
+
 	release(input_block);
-	transmit(lowpass_block, 0);
-	release(lowpass_block);
-	transmit(bandpass_block, 1);
-	release(bandpass_block);
-	transmit(highpass_block, 2);
-	release(highpass_block);
+	transmit(out_block, 0);
+	release(out_block);
 	return;
 }
 

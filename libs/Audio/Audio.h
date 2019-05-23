@@ -119,4 +119,5 @@
 #include "effect_compressor_fb.h"
 #include "mixer8.h"
 #include "play_sd_mono_wav.h"
+#include "effect_limiter.h"
 #endif

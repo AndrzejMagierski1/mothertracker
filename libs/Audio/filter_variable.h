@@ -88,10 +88,21 @@ public:
 		frequency(filterFreq[freq]);
 
 	}
+	void setType(uint8_t type)
+	{
+		filterType = type;
+	}
+	void connect()
+	{
+		isEnable = 1;
+	}
+	void disconnect()
+	{
+		isEnable = 0;
+	}
 	virtual void update(void);
 private:
-	void update_fixed(const int16_t *in,
-		int16_t *lp, int16_t *bp, int16_t *hp);
+	void update_fixed(const int16_t *in, int16_t *out);
 	void update_variable(const int16_t *in, int16_t *ctl,
 		int16_t *lp, int16_t *bp, int16_t *hp);
 	int32_t setting_fcenter;
@@ -103,6 +114,15 @@ private:
 	int32_t state_bandpass;
 	float cutOff;
 	audio_block_t *inputQueueArray[2];
+	uint8_t isEnable;
+	uint8_t filterType;
+	enum enumfilterType
+	{
+		filterTypeLowPass = 0,
+		filterTypeHighPass,
+		filterTypeBandPass
+
+	};
 };
 
 #endif

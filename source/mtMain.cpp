@@ -1,13 +1,21 @@
 
-#include "interface.h"
+
+
 #include "mtHardware.h"
 #include "mtAudioEngine.h"
 
+#include "Snooze.h" // tymczasowo
 
 #include "mtSequencer.h"
 #include "seqDisplay.h"
 #include "chatBot.h"
 #include "mtPadsBacklight.h"
+#include "mtSleep.h"
+#include "mtExporterWAV.h"
+
+
+#include "interface.h"
+
 
 
 
@@ -17,14 +25,13 @@ extern void updateHardware();
 
 
 
+
 //=======================================================================
 void setup()
 {
-
 	// inicjalizacja hardware jako pierwsza
 	initHardware();
 	engine.init();
-
 
 	sequencer.init();
 	padsBacklight.init(500);
@@ -41,12 +48,13 @@ void setup()
 //=======================================================================
 void loop()
 {
+	powerModeUpdate();
 	sequencer.handle();
 	//handle_chatBot();
 
 	seqDisplay.update();
 	padsBacklight.update();
-
+	updateExport();
 	updateHardware();
 
 	engine.update();

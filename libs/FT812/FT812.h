@@ -57,6 +57,8 @@ void MCU_UART_Tx(uint8_t SerialTxByte);
 uint8_t MCU_UART_Rx(void);
 void MCU_Delay_20ms(void);
 void MCU_Delay_500ms(void);
+void MCU_set_sleepMode(void);
+void MCU_set_runMode(void);
 
 // ######################### EVE Layer #########################################
 

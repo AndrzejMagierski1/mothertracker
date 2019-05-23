@@ -43,10 +43,11 @@ public:
 		decay(35.0f);
 		sustain(0.5f);
 		release(300.0f);
-		releaseNoteOn(5.0f);
+		releaseNoteOn(0.0f);
 	}
 	void noteOn();
 	void noteOff();
+	void setIdle();
 	void delay(float milliseconds) {
 		delay_count = milliseconds2count(milliseconds);
 	}
@@ -77,6 +78,8 @@ public:
 	using AudioStream::release;
 	virtual void update(void);
 	uint8_t endRelease();
+	void clearEndReleaseFlag();
+	uint8_t getState();
 private:
 
 	uint8_t endReleaseFlag=0;

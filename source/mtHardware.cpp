@@ -188,56 +188,6 @@ void initHardware()
 
 	BlinkLed.blinkOnce();
 
-	/*while(1)
-	{
-
-		for(int i=1;i<=20;i++)
-		{
-			for(int j=1;j<=8;j++)
-			{
-				leds.setLEDseq(j,i,1,31);
-				leds.updateSeq();
-				delay(50);
-//				leds.setLEDseq(j,i,0,31);
-//				leds.updateSeq();
-			}
-//			for(int j=1;j<=8;j++)
-//			{
-//				leds.setLEDseq(j,i,0,31);
-//				leds.updateSeq();
-//				delay(50);
-//			}
-		}
-		for(int i=0;i<63;i++)
-		{
-			leds.setLEDgrid(i, 1, 31);
-			leds.updateGrid();
-			delay(50);
-		}
-		for(int i=1;i<=20;i++)
-		{
-//			for(int j=1;j<=8;j++)
-//			{
-//				leds.setLEDseq(j,i,0,1);
-//				leds.updateSeq();
-//				delay(50);
-//			}
-			for(int j=1;j<=8;j++)
-			{
-				leds.setLEDseq(j,i,0,31);
-				leds.updateSeq();
-				delay(50);
-			}
-		}
-		for(int i=0;i<63;i++)
-		{
-			leds.setLEDgrid(i, 0, 31);
-			leds.updateGrid();
-			delay(50);
-		}
-
-	}
-*/
 }
 
 void hidSendButtonState(uint16_t button, uint16_t state)
@@ -253,6 +203,7 @@ void hidSendButtonState(uint16_t button, uint16_t state)
 		else if(button == 101 && state == 1)
 			onPotChange(0, 1);
 	}
+
 }
 
 

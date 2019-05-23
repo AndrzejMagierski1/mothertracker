@@ -29,7 +29,7 @@ cMtProjectEditor mtProjectEditor;
 strMtProject mtProject;
 
 __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[4*1024*1024];
-
+__NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[4*1024*1024];
 
 void cMtProjectEditor::update()
 {

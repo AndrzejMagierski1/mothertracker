@@ -32,7 +32,6 @@
 #include "pins_arduino.h"
 #include "HardwareSerial.h"
 
-
 #if defined(KINETISK)
 #define GPIO_BITBAND_ADDR(reg, bit) (((uint32_t)&(reg) - 0x40000000) * 32 + (bit) * 4 + 0x42000000)
 #define GPIO_BITBAND_PTR(reg, bit) ((uint32_t *)GPIO_BITBAND_ADDR((reg), (bit)))
@@ -521,12 +520,16 @@ extern void usb_init(void);
 __attribute__((noinline))
 void _init_Teensyduino_internal_(void)
 {
+
+
 #if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 	NVIC_ENABLE_IRQ(IRQ_PORTA);
 	NVIC_ENABLE_IRQ(IRQ_PORTB);
 	NVIC_ENABLE_IRQ(IRQ_PORTC);
 	NVIC_ENABLE_IRQ(IRQ_PORTD);
 	NVIC_ENABLE_IRQ(IRQ_PORTE);
+
+
 #elif defined(__MKL26Z64__)
 	NVIC_ENABLE_IRQ(IRQ_PORTA);
 	NVIC_ENABLE_IRQ(IRQ_PORTCD);

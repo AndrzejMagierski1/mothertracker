@@ -11,7 +11,7 @@
 
 
 
-int32_t loadSample(const char *filename, int16_t * buf)
+uint32_t fmLoadSample(const char *filename, int16_t * buf)
 {
 	strWavFileHeader sampleHead;
 	uint16_t bufferLength=0;
@@ -28,6 +28,16 @@ int32_t loadSample(const char *filename, int16_t * buf)
 	wavfile = SD.open(filename);
 	wavfile.read(&sampleHead, 44);
 
+	if ( (sampleHead.numChannels == 1 && (sampleHead.subchunk2Size > 8388608 )) &&  (sampleHead.numChannels == 2 && (sampleHead.subchunk2Size > 16777216)))
+	{
+		wavfile.close();
+		if(hardwareTest)
+		{
+			Serial.println("too long file");
+			mtPrint("too long file");
+		}
+		return 0;
+	}
 	if(sampleHead.format != 1163280727 || sampleHead.AudioFormat != 1  || sampleHead.bitsPerSample != 16  || sampleHead.sampleRate != 44100 )
 	{
 		wavfile.close();
@@ -37,7 +47,7 @@ int32_t loadSample(const char *filename, int16_t * buf)
 			Serial.println("Bad WAV file or External RAM(if SD Card init is Correct");
 			//mtPrint("Bad WAV file or External RAM(if SD Card init is Correct");
 		}
-		return -1;
+		return 0;
 	}
 	else
 	{
@@ -79,7 +89,7 @@ int32_t loadSample(const char *filename, int16_t * buf)
 		{
 
 			bufferLength = wavfile.read(buf16, 512);
-			//Serial.println(bufferLength);
+
 			accBufferLength += bufferLength;
 			for(int i=0; i< 256; i+=2)
 			{
@@ -92,7 +102,7 @@ int32_t loadSample(const char *filename, int16_t * buf)
 	}
 
 	wavfile.close();
-
+	accBufferLength = sampleHead.subchunk2Size;
 //	*bufStart = (accBufferLength/4);
 	if(sampleHead.numChannels == 1)
 	{
@@ -472,7 +482,7 @@ void readHeader(strWavFileHeader* header, FsFile * wavfile)
 	}
 }
 
-int32_t loadWavetable(const char *filename, int16_t * buf ,uint16_t * windowSize)
+int32_t fmLoadWavetable(const char *filename, int16_t * buf ,uint16_t * windowSize)
 {
 	strWavFileHeader sampleHead;
 	FsFile wavfile;

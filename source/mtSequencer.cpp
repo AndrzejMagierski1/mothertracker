@@ -3,7 +3,7 @@
 #include "mtSequencer.h"
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
-
+#include "seqDisplay.h"
 Sequencer sequencer;
 
 inline void timerExternalVector()
@@ -643,7 +643,6 @@ void Sequencer::stop(void)
 
 	allNoteOffs();
 	resetAllLearned();
-
 // flash_bank(player.actualBank, player.ramBank);
 }
 
@@ -863,108 +862,104 @@ void Sequencer::loadDefaultSequence(void)
 	}
 	//seq[player.ramBank].track[0].tempoDiv=1;
 
-/*
-	seq[player.ramBank].track[0].step[0].isOn = 1;
-	seq[player.ramBank].track[0].step[0].velocity = 100;
-	seq[player.ramBank].track[0].step[0].instrument = 0;
-	seq[player.ramBank].track[0].step[0].note = 24;
-	seq[player.ramBank].track[0].step[0].length1 = 100;
+	/*seq[player.ramBank].track[0].step[0].isOn = 1;
+	 seq[player.ramBank].track[0].step[0].velocity = 100;
+	 seq[player.ramBank].track[0].step[0].instrument = 0;
+	 seq[player.ramBank].track[0].step[0].note = 24;
+	 seq[player.ramBank].track[0].step[0].length1 = 100;
 
-	seq[player.ramBank].track[1].step[1].isOn = 1;
-	seq[player.ramBank].track[1].step[1].velocity = 100;
-	seq[player.ramBank].track[1].step[1].instrument = 0;
-	seq[player.ramBank].track[1].step[1].note = 24;
-	seq[player.ramBank].track[1].step[1].length1 = 100;
+	 seq[player.ramBank].track[1].step[1].isOn = 1;
+	 seq[player.ramBank].track[1].step[1].velocity = 100;
+	 seq[player.ramBank].track[1].step[1].instrument = 0;
+	 seq[player.ramBank].track[1].step[1].note = 24;
+	 seq[player.ramBank].track[1].step[1].length1 = 100;
 
-	seq[player.ramBank].track[2].step[2].isOn = 1;
-	seq[player.ramBank].track[2].step[2].velocity = 100;
-	seq[player.ramBank].track[2].step[2].instrument = 0;
-	seq[player.ramBank].track[2].step[2].note = 29;
-	seq[player.ramBank].track[2].step[2].length1 = 100;
+	 seq[player.ramBank].track[2].step[2].isOn = 1;
+	 seq[player.ramBank].track[2].step[2].velocity = 100;
+	 seq[player.ramBank].track[2].step[2].instrument = 0;
+	 seq[player.ramBank].track[2].step[2].note = 29;
+	 seq[player.ramBank].track[2].step[2].length1 = 100;
 
-	seq[player.ramBank].track[3].step[3].isOn = 1;
-	seq[player.ramBank].track[3].step[3].velocity = 100;
-	seq[player.ramBank].track[3].step[3].instrument = 5;
-	seq[player.ramBank].track[3].step[3].note = 11;
-	seq[player.ramBank].track[3].step[3].length1 = 50;
+	 seq[player.ramBank].track[3].step[3].isOn = 1;
+	 seq[player.ramBank].track[3].step[3].velocity = 100;
+	 seq[player.ramBank].track[3].step[3].instrument = 5;
+	 seq[player.ramBank].track[3].step[3].note = 11;
+	 seq[player.ramBank].track[3].step[3].length1 = 50;
 
-	seq[player.ramBank].track[4].step[4].isOn = 1;
-	seq[player.ramBank].track[4].step[4].velocity = 100;
-	seq[player.ramBank].track[4].step[4].instrument = 5;
-	seq[player.ramBank].track[4].step[4].note = 14;
-	seq[player.ramBank].track[4].step[4].length1 = 50;
+	 seq[player.ramBank].track[4].step[4].isOn = 1;
+	 seq[player.ramBank].track[4].step[4].velocity = 100;
+	 seq[player.ramBank].track[4].step[4].instrument = 5;
+	 seq[player.ramBank].track[4].step[4].note = 14;
+	 seq[player.ramBank].track[4].step[4].length1 = 50;
 
-	seq[player.ramBank].track[5].step[5].isOn = 1;
-	seq[player.ramBank].track[5].step[5].velocity = 100;
-	seq[player.ramBank].track[5].step[5].instrument = 5;
-	seq[player.ramBank].track[5].step[5].note = 13;
-	seq[player.ramBank].track[5].step[5].length1 = 50;
+	 seq[player.ramBank].track[5].step[5].isOn = 1;
+	 seq[player.ramBank].track[5].step[5].velocity = 100;
+	 seq[player.ramBank].track[5].step[5].instrument = 5;
+	 seq[player.ramBank].track[5].step[5].note = 13;
+	 seq[player.ramBank].track[5].step[5].length1 = 50;
 
-	seq[player.ramBank].track[6].step[6].isOn = 1;
-	seq[player.ramBank].track[6].step[6].velocity = 100;
-	seq[player.ramBank].track[6].step[6].instrument = 5;
-	seq[player.ramBank].track[6].step[6].note = 12;
-	seq[player.ramBank].track[6].step[6].length1 = 50;
-
-
-	seq[player.ramBank].track[7].step[7].isOn = 1;
-	seq[player.ramBank].track[7].step[7].velocity = 100;
-	seq[player.ramBank].track[7].step[7].instrument = 0;
-	seq[player.ramBank].track[7].step[7].note = 21;
-	seq[player.ramBank].track[7].step[7].length1 = 100;
-*/
+	 seq[player.ramBank].track[6].step[6].isOn = 1;
+	 seq[player.ramBank].track[6].step[6].velocity = 100;
+	 seq[player.ramBank].track[6].step[6].instrument = 5;
+	 seq[player.ramBank].track[6].step[6].note = 12;
+	 seq[player.ramBank].track[6].step[6].length1 = 50;
 
 
-/*	seq[player.ramBank].track[0].step[8].isOn = 1;
-	seq[player.ramBank].track[0].step[8].velocity = 100;
-	seq[player.ramBank].track[0].step[8].instrument = 0;
-	seq[player.ramBank].track[0].step[8].note = 28;
-	seq[player.ramBank].track[0].step[8].length1 = 100;
-
-	seq[player.ramBank].track[1].step[9].isOn = 1;
-	seq[player.ramBank].track[1].step[9].velocity = 100;
-	seq[player.ramBank].track[1].step[9].instrument = 0;
-	seq[player.ramBank].track[1].step[9].note = 24;
-	seq[player.ramBank].track[1].step[9].length1 = 100;
-
-	seq[player.ramBank].track[2].step[10].isOn = 1;
-	seq[player.ramBank].track[2].step[10].velocity = 100;
-	seq[player.ramBank].track[2].step[10].instrument = 0;
-	seq[player.ramBank].track[2].step[10].note = 29;
-	seq[player.ramBank].track[2].step[10].length1 = 100;
-
-	seq[player.ramBank].track[3].step[11].isOn = 1;
-	seq[player.ramBank].track[3].step[11].velocity = 100;
-	seq[player.ramBank].track[3].step[11].instrument = 5;
-	seq[player.ramBank].track[3].step[11].note = 11;
-	seq[player.ramBank].track[3].step[11].length1 = 50;
-
-	seq[player.ramBank].track[4].step[12].isOn = 1;
-	seq[player.ramBank].track[4].step[12].velocity = 100;
-	seq[player.ramBank].track[4].step[12].instrument = 5;
-	seq[player.ramBank].track[4].step[12].note = 14;
-	seq[player.ramBank].track[4].step[12].length1 = 50;
-
-	seq[player.ramBank].track[5].step[13].isOn = 1;
-	seq[player.ramBank].track[5].step[13].velocity = 100;
-	seq[player.ramBank].track[5].step[13].instrument = 5;
-	seq[player.ramBank].track[5].step[13].note = 13;
-	seq[player.ramBank].track[5].step[13].length1 = 50;
-
-	seq[player.ramBank].track[6].step[14].isOn = 1;
-	seq[player.ramBank].track[6].step[14].velocity = 100;
-	seq[player.ramBank].track[6].step[14].instrument = 5;
-	seq[player.ramBank].track[6].step[14].note = 12;
-	seq[player.ramBank].track[6].step[14].length1 = 50;
+	 seq[player.ramBank].track[7].step[7].isOn = 1;
+	 seq[player.ramBank].track[7].step[7].velocity = 100;
+	 seq[player.ramBank].track[7].step[7].instrument = 0;
+	 seq[player.ramBank].track[7].step[7].note = 21;
+	 seq[player.ramBank].track[7].step[7].length1 = 100;
 
 
-	seq[player.ramBank].track[7].step[15].isOn = 1;
-	seq[player.ramBank].track[7].step[15].velocity = 100;
-	seq[player.ramBank].track[7].step[15].instrument = 0;
-	seq[player.ramBank].track[7].step[15].note = 21;
-	seq[player.ramBank].track[7].step[15].length1 = 100;*/
+	 seq[player.ramBank].track[0].step[8].isOn = 1;
+	 seq[player.ramBank].track[0].step[8].velocity = 100;
+	 seq[player.ramBank].track[0].step[8].instrument = 0;
+	 seq[player.ramBank].track[0].step[8].note = 28;
+	 seq[player.ramBank].track[0].step[8].length1 = 100;
+
+	 seq[player.ramBank].track[1].step[9].isOn = 1;
+	 seq[player.ramBank].track[1].step[9].velocity = 100;
+	 seq[player.ramBank].track[1].step[9].instrument = 0;
+	 seq[player.ramBank].track[1].step[9].note = 24;
+	 seq[player.ramBank].track[1].step[9].length1 = 100;
+
+	 seq[player.ramBank].track[2].step[10].isOn = 1;
+	 seq[player.ramBank].track[2].step[10].velocity = 100;
+	 seq[player.ramBank].track[2].step[10].instrument = 0;
+	 seq[player.ramBank].track[2].step[10].note = 29;
+	 seq[player.ramBank].track[2].step[10].length1 = 100;
+
+	 seq[player.ramBank].track[3].step[11].isOn = 1;
+	 seq[player.ramBank].track[3].step[11].velocity = 100;
+	 seq[player.ramBank].track[3].step[11].instrument = 5;
+	 seq[player.ramBank].track[3].step[11].note = 11;
+	 seq[player.ramBank].track[3].step[11].length1 = 50;
+
+	 seq[player.ramBank].track[4].step[12].isOn = 1;
+	 seq[player.ramBank].track[4].step[12].velocity = 100;
+	 seq[player.ramBank].track[4].step[12].instrument = 5;
+	 seq[player.ramBank].track[4].step[12].note = 14;
+	 seq[player.ramBank].track[4].step[12].length1 = 50;
+
+	 seq[player.ramBank].track[5].step[13].isOn = 1;
+	 seq[player.ramBank].track[5].step[13].velocity = 100;
+	 seq[player.ramBank].track[5].step[13].instrument = 5;
+	 seq[player.ramBank].track[5].step[13].note = 13;
+	 seq[player.ramBank].track[5].step[13].length1 = 50;
+
+	 seq[player.ramBank].track[6].step[14].isOn = 1;
+	 seq[player.ramBank].track[6].step[14].velocity = 100;
+	 seq[player.ramBank].track[6].step[14].instrument = 5;
+	 seq[player.ramBank].track[6].step[14].note = 12;
+	 seq[player.ramBank].track[6].step[14].length1 = 50;
 
 
+	 seq[player.ramBank].track[7].step[15].isOn = 1;
+	 seq[player.ramBank].track[7].step[15].velocity = 100;
+	 seq[player.ramBank].track[7].step[15].instrument = 0;
+	 seq[player.ramBank].track[7].step[15].note = 21;
+	 seq[player.ramBank].track[7].step[15].length1 = 100;*/
 
 //	seq[player.ramBank].track[0].step[5].isOn = 1;
 ////	seq[player.ramBank].row[0].step[1].hitMode = 1;
@@ -978,7 +973,6 @@ void Sequencer::loadDefaultSequence(void)
 //	seq[player.ramBank].track[0].step[10].fx[0].isOn = 1;
 //	seq[player.ramBank].track[0].step[10].fx[0].type = fx.FX_TYPE_OFFSET;
 //	seq[player.ramBank].track[0].step[10].fx[0].value_u16 = 10;
-
 }
 
 void Sequencer::allNoteOffs(void)
@@ -1032,6 +1026,8 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			{
 				// player.row[x].return2start = 0;
 				reset_actual_pos(x);
+				if ((player.onPatternEnd != NULL) && (x == MINROW))
+									player.onPatternEnd();
 
 				// if (player.changeBank)
 				// {
@@ -1047,6 +1043,8 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			{
 				// player.row[x].return2start = 0;
 				reset_actual_pos(x);
+				if ((player.onPatternEnd != NULL) && (x == MINROW))
+					player.onPatternEnd();
 
 				// if (player.changeBank)
 				// {
@@ -1567,8 +1565,8 @@ void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 
 	usbMIDI.sendNoteOn(step->note, step->velocity, 1);
 
-
-	instrumentPlayer[track].noteOn(step->instrument, step->note, step->velocity );
+	instrumentPlayer[track].noteOn(step->instrument, step->note,
+									step->velocity);
 
 }
 
@@ -1587,6 +1585,4 @@ void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
 
 	instrumentPlayer[track].noteOff();
 }
-
-
 

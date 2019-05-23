@@ -112,8 +112,6 @@ void cAnalogInputs::processPotData()
 		// wygladzenie wartosci delty przed dalszym przetwarzaniem
 		diffrence = potentiometers[i].diffrence_blur = (diffrence + potentiometers[i].diffrence_blur * 5)/6;
 
-		//Serial.print(diffrence);
-		//
 		if(potentiometers[i].speed > 0)
 		{
 			if(potentiometers[i].speed > 5) potentiometers[i].speed = 5;

@@ -16,8 +16,11 @@
 
 #include "mtPadsBacklight.h"
 
+
 #include "interface.h"
-//#include "mtEffector.h"
+
+#include "mtEffector.h"
+#include "mtExporterWAV.h"
 
 extern AudioControlSGTL5000 audioShield;
 
@@ -138,89 +141,10 @@ void onButtonChange(uint8_t n, uint8_t value)
 		return;
 	}
 
-/*
-	if(value)
-	{
-		if(n == 0)
-		{
-			effector.loadSample("dupa.wav");
-			//effectorDelay.makeDelay(0.65,100);
-			//effectorLimiter.makeLimiter(15000, 300, 20);
-			effectorCompressor.makeCompressor(32000, 1000, 32000, -1000, 30, 3);
-		}
-		else if(n == 1)
-		{
-			effector.playPrev();
-		}
-		else if(n == 2)
-		{
-			effector.play(0,MAX_16BIT);
-		}
-		else if(n == 3)
-		{
-			effector.setEffects();
-		}
-		else if(n == 4)
-		{
-			effector.save("Delay.wav");
-		}
-	}*/
+
 	mtInterface.buttonChange(n,value);
 
 
-/*
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].delay=0;
-
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].attack=1;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].hold=1;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].decay=1;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].sustain=0.5;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].release=5000;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].amount=1.0;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envAmp].enable=envelopeOff;
-
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envFilter].delay=0;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envFilter].attack=2000;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envFilter].hold=0;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envFilter].decay=0;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envFilter].sustain=0.5;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envFilter].release=2000;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envFilter].amount=1.0;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].envelope[envFilter].enable=envelopeOff;
-
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].panning=50;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].glide=50;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].cutOff=0.0;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].resonance=0.7;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].filterType=highPass;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].filterEnable=filterOn;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].volume=100;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].tune=0;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].fineTune=0;
-		mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].wavetableCurrentWindow=0;
-
-		mtProject.sampleBank.sample[mtProject.instrument[sequencer.seq[0].track[n].step[0].instrument].sampleIndex].wavetable_window_size = 2048;
-*/
-
-/*		if(!n)
-		{
-			if(value)instrumentPlayer[4].modFineTune(50);
-			else instrumentPlayer[4].modFineTune(0);
-
-		}
-		else
-		{*/
-//			if(value) instrumentPlayer[n].noteOn(sequencer.seq[0].track[n].step[0].instrument,24,100);
-//			else instrumentPlayer[n].noteOff();
-		//}
-		//mtInterface.buttonChange(n,value);
-
-
-
-//	mtPrint("button: ");
-//	mtPrint(n);
-//	mtPrint(" value: ");
-//	mtPrintln(value);
 
 }
 //-----------------------------------------------------------------
