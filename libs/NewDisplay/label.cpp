@@ -7,9 +7,9 @@
 
 static uint32_t defaultColors[] =
 {
-	0xFFFFFF, // tekst
-	0x222222, // tło
-	0xFFFFFF, // ramka
+	0x000000, // tekst
+	0xFFFFFF, // tło
+	0xFF0000, // ramka
 };
 
 //--------------------------------------------------------------------------------
@@ -148,7 +148,13 @@ uint8_t cLabel::update()
 	}
 
 
+	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 
+	//API_RESTORE_CONTEXT();
+	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
+	//API_COLOR_A(128);
+
+	//API_LINE_WIDTH(16);
 	API_COLOR(colors[0]);
 	if(text != nullptr) API_CMD_TEXT(posX, posY, textFont, textStyle, text);
 

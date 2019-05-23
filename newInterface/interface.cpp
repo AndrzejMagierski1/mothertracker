@@ -41,7 +41,9 @@ elapsedMillis ramInfoTimer;
 strMtConfig mtConfig;
 strMtProject mtProject;
 
+
 __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[4*1024*1024];
+__NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[4*1024*1024];
 
 
 //=======================================================================
@@ -60,6 +62,14 @@ const hModule cInterface::modules[modulesCount] =
 
 
 };
+
+const uint8_t cInterface::modulesButtons[modulesCount] =
+{
+	interfaceButton17,
+	interfaceButton16,
+	interfaceButton13,
+};
+
 
 uint8_t cFunctionMachine::potsCount = 		interfacePotsCount;
 uint8_t cFunctionMachine::buttonsCount = 	interfaceButtonsCount;
@@ -161,12 +171,42 @@ void cInterface::deactivateModule(hModule module)
 	module->stop();
 }
 
+void cInterface::activateModulefromButton(uint8_t index)
+{
+	switch(index)
+	{
+	case interfaceButton13: activateModule(modules[2], 0); break;
+	case interfaceButton14: activateModule(modules[1], 0); break;
+	case interfaceButton17: activateModule(modules[0], 0); break;
+	}
 
+}
 //=======================================================================
 //=======================================================================
 //=======================================================================
 
 
+void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
+{
+	switch(event)
+	{
+		case eventSwitchModule:
+		{
+			//((hModule)param1)->stop();
+			mtInterface.deactivateModule((hModule)param1);
+
+			mtInterface.activateModulefromButton(*((uint8_t*)param2));
+
+
+			break;
+		}
+
+
+
+	default: break;
+	}
+
+}
 
 
 

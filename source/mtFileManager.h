@@ -93,7 +93,7 @@ public:
 	void deleteInstrument(int8_t index);
 	void deletePattern(int8_t index);
 
-	friend class cMtSampleBankEditor;
+	friend class cProjectEditor;
 
 private:
 	void formatSDCard();

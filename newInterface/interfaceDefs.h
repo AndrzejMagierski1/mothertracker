@@ -175,6 +175,21 @@ enum padStates
 
 
 
+enum interfaceEvents
+{
+	eventNone,
+	eventLoadLastProjFailed,
+	eventEventPadPress,
+	eventLoadSampleBank,
+
+	eventSwitchModule,
+
+
+	interfaceEventsCount
+};
+
+
+
 enum enumMtOperatingMode
 {
 	mtOperatingModeNone,

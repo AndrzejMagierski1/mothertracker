@@ -16,16 +16,6 @@ enum mtProjectStartMode
 };
 
 
-enum mtProjectEditorEvents
-{
-	mtPriojectEditorEventNone,
-	mtPriojectEditorEventLoadLastProjFailed,
-	mtPriojectEditorEventPadPress,
-	mtProjectEditorEventLoadSampleBank,
-
-	ProjEditEventCount
-};
-
 
 
 
@@ -42,7 +32,7 @@ public:
 	virtual ~cProjectEditor() {}
 
 	void showDefaultScreen();
-
+	uint8_t loadSamplesBank();
 
 	strList projectList;
 

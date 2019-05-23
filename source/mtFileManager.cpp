@@ -135,6 +135,7 @@ uint8_t FileManager::readInstrumentFile(char * name, strInstrument * instr)
 	if(checkCRC == instrumentFile.crc)
 	{
 		*instr=instrumentFile.instrumentDataAndHeader.instrument;
+
 		return 1;
 	}
 	else return 0;

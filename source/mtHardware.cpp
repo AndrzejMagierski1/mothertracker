@@ -17,6 +17,7 @@
 #include "SD.h"
 
 #include "sdram.h"
+#include "hidConnection.h"
 
 
 

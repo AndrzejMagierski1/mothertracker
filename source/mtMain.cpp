@@ -49,11 +49,13 @@ void setup()
 void loop()
 {
 	powerModeUpdate();
+
 	sequencer.handle();
 	//handle_chatBot();
 
 	seqDisplay.update();
 	padsBacklight.update();
+
 	updateExport();
 	updateHardware();
 

@@ -5,7 +5,7 @@
 
 #include "displayControls.h"
 
-struct strTrackerSeqDisplay
+struct strTrackerPattern
 {
 	struct strTracks
 	{
@@ -20,7 +20,7 @@ struct strTrackerSeqDisplay
 
 	} track[8];
 
-	uint16_t position = 201;
+	uint16_t position = 0;
 	int16_t part = 0;
 
 };
@@ -50,7 +50,7 @@ public:
 
 private:
 
-	strTrackerSeqDisplay* tracks;
+	strTrackerPattern* tracks;
 
 	uint16_t ramPartSize[5] = {0};
 	uint8_t refreshStep;

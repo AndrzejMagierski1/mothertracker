@@ -47,6 +47,7 @@ public:
 
 	void activateModule(hModule module, uint32_t options);
 	void deactivateModule(hModule module);
+	void activateModulefromButton(uint8_t index);
 
 private:
 
@@ -54,7 +55,7 @@ private:
 
 	static const uint8_t modulesCount;
 	static const hModule modules[];
-
+	static const uint8_t modulesButtons[];
 
 	cFunctionMachine uiFM;
 

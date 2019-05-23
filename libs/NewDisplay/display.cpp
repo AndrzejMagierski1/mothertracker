@@ -60,7 +60,7 @@ strBitmap bitmaps[displayBitmapsCount] =
 
 
 
-strTrackerSeqDisplay trackerSeqDisplay;
+strTrackerPattern trackerSeqDisplay;
 
 //void display_table();
 
@@ -118,6 +118,9 @@ void cDisplay::begin()
 	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 10, 18);
 	API_CMD_SETFONT(13, 1000);
 */
+
+	API_RESTORE_CONTEXT();
+	API_RESTORE_CONTEXT();
 
 	API_DISPLAY();
     API_CMD_SWAP();
@@ -313,7 +316,10 @@ if(refreshTimer > refreshF)
 			API_CLEAR_COLOR(config.bgColor);
 			API_CLEAR(1,1,1);
 
-			API_COLOR_A(128);
+			API_RESTORE_CONTEXT();
+			//API_RESTORE_CONTEXT();
+
+			//API_COLOR_A(128);
 			API_VERTEX_FORMAT(0);
 
 			// wczytaj elementy w kolejnosci w jakiej byly tworzone

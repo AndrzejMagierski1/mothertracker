@@ -11,10 +11,10 @@ static uint32_t defaultColors[] =
 {
 	0xFFFFFF, // linie
 	0xFFFFFF, // numery wierszy
-	0xFF0000, // nuta
-	0x00FF00, // instrument
-	0x0000FF, // volume
-	0xFFFF30, // effekt
+	0xFFFFFF, // nuta
+	0xFFFFFF, // instrument
+	0xFFFFFF, // volume
+	0xFFFFFF, // effekt
 };
 
 
@@ -43,7 +43,7 @@ cTracker::cTracker(strControlProperties* properties)
 		return;
 	}
 
-	tracks = (strTrackerSeqDisplay*)properties->data;
+	tracks = (strTrackerPattern*)properties->data;
 	posX = properties->x;
 	posY = properties->y;
 	width = properties->w;
@@ -88,7 +88,7 @@ void cTracker::setDefaultColors(uint32_t colors[])
 
 void cTracker::setData(void* data)
 {
-	tracks = (strTrackerSeqDisplay*)data;
+	tracks = (strTrackerPattern*)data;
 }
 
 //--------------------------------------------------------------------------------

@@ -64,7 +64,7 @@ public:
 	void clearAllButtons();
 	void clearAllPots();
 	void clearAllPads();
-
+	void clearButtonsRange(uint8_t from, uint8_t to);
 
 	void setPotObj(uint8_t objectID, uint8_t(*funct)(int16_t), hControl control);
 	void setPotObj(int8_t objectID, uint8_t* param, uint8_t min, uint8_t max, uint8_t step, hControl control);
@@ -93,8 +93,11 @@ public:
 
 
 
-	void setButtonObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(void), hControl control);
-	void setButtonObj(uint8_t objectID, uint8_t(*funct)(uint8_t), hControl control);
+	void setButtonObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(void));
+	void setButtonObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(uint8_t));
+	void setButtonObj(uint8_t objectID, uint8_t(*funct)(uint8_t));
+
+
 
 	void setPadObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(), hControl control);
 	void setPadObj(uint8_t objectID, uint8_t(*funct)(uint8_t,int16_t), hControl control);

@@ -862,7 +862,7 @@ void Sequencer::loadDefaultSequence(void)
 	}
 	//seq[player.ramBank].track[0].tempoDiv=1;
 
-	/*seq[player.ramBank].track[0].step[0].isOn = 1;
+	seq[player.ramBank].track[0].step[0].isOn = 1;
 	 seq[player.ramBank].track[0].step[0].velocity = 100;
 	 seq[player.ramBank].track[0].step[0].instrument = 0;
 	 seq[player.ramBank].track[0].step[0].note = 24;
@@ -870,25 +870,25 @@ void Sequencer::loadDefaultSequence(void)
 
 	 seq[player.ramBank].track[1].step[1].isOn = 1;
 	 seq[player.ramBank].track[1].step[1].velocity = 100;
-	 seq[player.ramBank].track[1].step[1].instrument = 0;
+	 seq[player.ramBank].track[1].step[1].instrument = 1;
 	 seq[player.ramBank].track[1].step[1].note = 24;
 	 seq[player.ramBank].track[1].step[1].length1 = 100;
 
 	 seq[player.ramBank].track[2].step[2].isOn = 1;
 	 seq[player.ramBank].track[2].step[2].velocity = 100;
-	 seq[player.ramBank].track[2].step[2].instrument = 0;
+	 seq[player.ramBank].track[2].step[2].instrument = 2;
 	 seq[player.ramBank].track[2].step[2].note = 29;
 	 seq[player.ramBank].track[2].step[2].length1 = 100;
 
 	 seq[player.ramBank].track[3].step[3].isOn = 1;
 	 seq[player.ramBank].track[3].step[3].velocity = 100;
-	 seq[player.ramBank].track[3].step[3].instrument = 5;
+	 seq[player.ramBank].track[3].step[3].instrument = 3;
 	 seq[player.ramBank].track[3].step[3].note = 11;
 	 seq[player.ramBank].track[3].step[3].length1 = 50;
 
 	 seq[player.ramBank].track[4].step[4].isOn = 1;
 	 seq[player.ramBank].track[4].step[4].velocity = 100;
-	 seq[player.ramBank].track[4].step[4].instrument = 5;
+	 seq[player.ramBank].track[4].step[4].instrument = 4;
 	 seq[player.ramBank].track[4].step[4].note = 14;
 	 seq[player.ramBank].track[4].step[4].length1 = 50;
 
@@ -900,57 +900,57 @@ void Sequencer::loadDefaultSequence(void)
 
 	 seq[player.ramBank].track[6].step[6].isOn = 1;
 	 seq[player.ramBank].track[6].step[6].velocity = 100;
-	 seq[player.ramBank].track[6].step[6].instrument = 5;
+	 seq[player.ramBank].track[6].step[6].instrument = 1;
 	 seq[player.ramBank].track[6].step[6].note = 12;
 	 seq[player.ramBank].track[6].step[6].length1 = 50;
 
 
 	 seq[player.ramBank].track[7].step[7].isOn = 1;
 	 seq[player.ramBank].track[7].step[7].velocity = 100;
-	 seq[player.ramBank].track[7].step[7].instrument = 0;
+	 seq[player.ramBank].track[7].step[7].instrument = 2;
 	 seq[player.ramBank].track[7].step[7].note = 21;
 	 seq[player.ramBank].track[7].step[7].length1 = 100;
 
 
 	 seq[player.ramBank].track[0].step[8].isOn = 1;
 	 seq[player.ramBank].track[0].step[8].velocity = 100;
-	 seq[player.ramBank].track[0].step[8].instrument = 0;
+	 seq[player.ramBank].track[0].step[8].instrument = 3;
 	 seq[player.ramBank].track[0].step[8].note = 28;
 	 seq[player.ramBank].track[0].step[8].length1 = 100;
 
 	 seq[player.ramBank].track[1].step[9].isOn = 1;
 	 seq[player.ramBank].track[1].step[9].velocity = 100;
-	 seq[player.ramBank].track[1].step[9].instrument = 0;
+	 seq[player.ramBank].track[1].step[9].instrument = 4;
 	 seq[player.ramBank].track[1].step[9].note = 24;
 	 seq[player.ramBank].track[1].step[9].length1 = 100;
 
 	 seq[player.ramBank].track[2].step[10].isOn = 1;
 	 seq[player.ramBank].track[2].step[10].velocity = 100;
-	 seq[player.ramBank].track[2].step[10].instrument = 0;
+	 seq[player.ramBank].track[2].step[10].instrument = 5;
 	 seq[player.ramBank].track[2].step[10].note = 29;
 	 seq[player.ramBank].track[2].step[10].length1 = 100;
 
 	 seq[player.ramBank].track[3].step[11].isOn = 1;
 	 seq[player.ramBank].track[3].step[11].velocity = 100;
-	 seq[player.ramBank].track[3].step[11].instrument = 5;
+	 seq[player.ramBank].track[3].step[11].instrument = 1;
 	 seq[player.ramBank].track[3].step[11].note = 11;
 	 seq[player.ramBank].track[3].step[11].length1 = 50;
 
 	 seq[player.ramBank].track[4].step[12].isOn = 1;
 	 seq[player.ramBank].track[4].step[12].velocity = 100;
-	 seq[player.ramBank].track[4].step[12].instrument = 5;
+	 seq[player.ramBank].track[4].step[12].instrument = 2;
 	 seq[player.ramBank].track[4].step[12].note = 14;
 	 seq[player.ramBank].track[4].step[12].length1 = 50;
 
 	 seq[player.ramBank].track[5].step[13].isOn = 1;
 	 seq[player.ramBank].track[5].step[13].velocity = 100;
-	 seq[player.ramBank].track[5].step[13].instrument = 5;
+	 seq[player.ramBank].track[5].step[13].instrument = 3;
 	 seq[player.ramBank].track[5].step[13].note = 13;
 	 seq[player.ramBank].track[5].step[13].length1 = 50;
 
 	 seq[player.ramBank].track[6].step[14].isOn = 1;
 	 seq[player.ramBank].track[6].step[14].velocity = 100;
-	 seq[player.ramBank].track[6].step[14].instrument = 5;
+	 seq[player.ramBank].track[6].step[14].instrument = 4;
 	 seq[player.ramBank].track[6].step[14].note = 12;
 	 seq[player.ramBank].track[6].step[14].length1 = 50;
 
@@ -959,7 +959,7 @@ void Sequencer::loadDefaultSequence(void)
 	 seq[player.ramBank].track[7].step[15].velocity = 100;
 	 seq[player.ramBank].track[7].step[15].instrument = 0;
 	 seq[player.ramBank].track[7].step[15].note = 21;
-	 seq[player.ramBank].track[7].step[15].length1 = 100;*/
+	 seq[player.ramBank].track[7].step[15].length1 = 100;
 
 //	seq[player.ramBank].track[0].step[5].isOn = 1;
 ////	seq[player.ramBank].row[0].step[1].hitMode = 1;

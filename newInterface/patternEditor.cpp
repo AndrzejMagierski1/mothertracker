@@ -12,14 +12,10 @@ cPatternEditor* PTE = &patternEditor;
 
 
 
-uint8_t functShowProjectsList();
-uint8_t functShowTemplatesList();
-uint8_t functCancelList();
-uint8_t functSaveProject();
-uint8_t functOpenProject();
-uint8_t functOpenTemplate();
-uint8_t functCreateNewTemplate();
 
+uint8_t functPlayAction();
+uint8_t functStopAction();
+static  uint8_t functSwitchModule(uint8_t button);
 
 
 
@@ -34,11 +30,12 @@ void cPatternEditor::start(uint32_t options)
 {
 
 	// inicjalizacja kontrolek
+/*
 	for(uint8_t i = 0; i<4; i++)
 	{
 		strControlProperties prop1;
 		prop1.text = (char*)"";
-		prop1.style = 	(/*controlStyleShow |*/ controlStyleCenterX);
+		prop1.style = 	( controlStyleCenterX);
 		prop1.x = (800/4)*i+(800/8);
 		prop1.y = 5;
 		prop1.w = 800/4;
@@ -46,33 +43,42 @@ void cPatternEditor::start(uint32_t options)
 
 		if(topLabel[0] == nullptr) topLabel[0] = display.createControl<cLabel>(&prop1);
 	}
+*/
 
-	for(uint8_t i = 0; i<8; i++)
+	for(uint8_t i = 0; i<4; i++)
 	{
 		strControlProperties prop2;
 		prop2.text = (char*)"";
-		prop2.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
-		prop2.x = (800/8)*i+(800/16);
+		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+		prop2.x = (800/4)*i+(800/8);
 		prop2.y = 450;
-		prop2.w = 800/8-10;
+		prop2.w = 800/4-10;
 		prop2.h = 30;
 
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 	}
 
 
-	projectList.linesCount = 5;
-	projectList.start = 0;
-	projectList.length = 0;
+
 	strControlProperties prop;
+	prop.text = (char*)"Test";
+	prop.style = 	(controlStyleShow );//| controlStyleFont2 | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
 	prop.x = 0;
-	prop.y = 35;
-	prop.w = (800/4);
+	prop.y = 0;
+	prop.w = 50;
 	prop.h = 25;
-	prop.data = &projectList;
-	if(fileListControl == nullptr)  fileListControl = display.createControl<cList>(&prop);
+	prop.data = &trackerPattern;
+	if(patternControl == nullptr)  patternControl = display.createControl<cTracker>(&prop);
+	//hTrackControl = display.createControl<cLabel>(&prop);
+	//display.refreshControl(hTrackControl);
+
 
 	// ustawienie funkcji
+	FM->clearAllButtons();
+	FM->clearAllPots();
+
+	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
+
 
 	showDefaultScreen();
 
@@ -84,38 +90,47 @@ void cPatternEditor::start(uint32_t options)
 
 void cPatternEditor::stop()
 {
-	display.destroyControl(fileListControl);
-	fileListControl = nullptr;
-
+	display.destroyControl(patternControl);
+	patternControl = nullptr;
+/*
 	for(uint8_t i = 0; i<4; i++)
 	{
 		display.destroyControl(topLabel[i]);
 		topLabel[i] = nullptr;
 	}
-
+*/
 	for(uint8_t i = 0; i<8; i++)
 	{
 		display.destroyControl(bottomLabel[i]);
 		bottomLabel[i] = nullptr;
 	}
 
+	FM->clearAllButtons();
+	FM->clearAllPots();
 
 }
 
 void cPatternEditor::showDefaultScreen()
 {
 	//lista
-	display.setControlHide(fileListControl);
+	display.setControlShow(patternControl);
+	display.refreshControl(patternControl);
 
 	// top label listy
 	//display.setControlText(SI->topLabel[0], "");
-	display.setControlHide(topLabel[0]);
-	display.refreshControl(topLabel[0]);
+	//display.setControlHide(topLabel[0]);
+	//display.refreshControl(topLabel[0]);
 
 	// bottom labels
-	display.setControlText(bottomLabel[0], "New");
-	display.setControlText(bottomLabel[1], "Open");
-	display.setControlText(bottomLabel[4], "Save");
+	display.setControlText(bottomLabel[0], "-   BPM: 120   +");
+	display.setControlText(bottomLabel[1], "-  Pattern: 0  +");
+	display.setControlText(bottomLabel[2], "-  Length: 16  +");
+	display.setControlText(bottomLabel[3], "-    Step: 1   +");
+
+	display.setControlShow(bottomLabel[0]);
+	display.setControlShow(bottomLabel[1]);
+	display.setControlShow(bottomLabel[2]);
+	display.setControlShow(bottomLabel[3]);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -125,15 +140,39 @@ void cPatternEditor::showDefaultScreen()
 	display.synchronizeRefresh();
 
 	//funkcje
-	FM->clearAllButtons();
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
 
-	//FM->setButtonObj(interfaceButton1, buttonPress, functShowProjectsList, nullptr);
-	//FM->setButtonObj(interfaceButton0, buttonPress, functShowTemplatesList, nullptr);
+	FM->setButtonObj(interfaceButton8, buttonPress, functPlayAction);
+	FM->setButtonObj(interfaceButton9, buttonPress, functStopAction);
 	//FM->setButtonObj(interfaceButton4, buttonPress, functSaveProject, nullptr);
 
 }
 //==============================================================================================================
+
+uint8_t functPlayAction()
+{
+	if(sequencer.getSeqState() == 0) sequencer.play();
+
+	return 1;
+}
+
+
+uint8_t functStopAction()
+{
+	if(sequencer.getSeqState() == 1) sequencer.stop();
+
+	return 1;
+}
+
+
+static uint8_t functSwitchModule(uint8_t button)
+{
+
+	PTE->eventFunct(eventSwitchModule,PTE,&button,0);
+
+	return 1;
+}
 /*
 uint8_t functShowProjectsList()
 {
@@ -273,45 +312,3 @@ uint8_t functCreateNewTemplate()
 //======================================================================================================================
 
 
-void cPatternEditor::listOnlyFolderNames(const char* folder)
-{
-	strcpy(filePath, folder);
-	strcat(filePath,"/");
-	sdLocation.close();
-	sdLocation.open(folder, O_READ); //"/"
-	locationFilesCount = sdLocation.createFilesList(0,locationFilesList, files_list_length_max);
-	sdLocation.close();
-
-
-	uint8_t foundProjectsCount = 0;
-
-	for(uint8_t i = 0; i < locationFilesCount; i++)
-	{
-		if(locationFilesList[i][0] == '/')	//tylko jesli folder
-		{
-			strcpy(filePath, folder);
-			strcat(filePath,&locationFilesList[i][0]); //doklej nazwe folderu
-
-			sdLocation.open(filePath, O_READ);
-
-			if(sdLocation.exists("project.bin"))	//tylko jesli w folderze jest plik projektu
-			{
-				strcpy(&locationFilesList[foundProjectsCount][0],&locationFilesList[i][1]);
-
-				foundProjectsCount++;
-			}
-
-
-			sdLocation.close();
-		}
-	}
-
-
-	locationFilesCount = foundProjectsCount;
-
-	for(uint8_t i = 0; i < locationFilesCount; i++)
-	{
-		filesNames[i] = &locationFilesList[i][0];
-	}
-
-}

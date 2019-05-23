@@ -8,17 +8,6 @@
 
 
 
-enum mtPatternEditorEvents
-{
-	mtPatternEditEventNone,
-	mtPatternEditEventLoadLastProjFailed,
-	mtPatternEditEventPadPress,
-	mtPatternEditventLoadSampleBank,
-
-	mtPatternEditEventCount
-};
-
-
 
 
 class cPatternEditor: public cModuleBase
@@ -40,7 +29,10 @@ public:
 
 	hControl topLabel[8];
 	hControl bottomLabel[8];
-	hControl fileListControl;
+	hControl patternControl;
+
+
+	strTrackerPattern trackerPattern;
 
 
 
@@ -48,10 +40,6 @@ public:
 
 
 
-
-
-
-	void listOnlyFolderNames(const char* folder);
 	uint8_t selectedLocation;
 	static const uint8_t files_list_length_max = 100;
 	char locationFilesList[files_list_length_max][20];
