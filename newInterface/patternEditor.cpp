@@ -173,6 +173,7 @@ static uint8_t functSwitchModule(uint8_t button)
 
 	return 1;
 }
+
 /*
 uint8_t functShowProjectsList()
 {
