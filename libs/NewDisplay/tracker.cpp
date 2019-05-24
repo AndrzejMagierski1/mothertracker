@@ -359,12 +359,12 @@ void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* 
 		{
 			strPtr++;
 		}
-		else if(x > 511 || y > 511)
+		else if((x > 511 || y > 511) && string[strPtr] >=32)
 		{
 			API_CELL(string[strPtr++]);
 			API_VERTEX2F(x, y);
 		}
-		else
+		else if(string[strPtr] >=32)
 		{
 			API_VERTEX2II(x,y,fonts[1].handle, (char)string[strPtr++]);
 		}

@@ -11,10 +11,10 @@ struct strTrackerPattern
 	{
 		struct strRow
 		{
-			char note[4] = "C-1";
-			char instr[3] = "02";
-			char vol[3] = "80";
-			char fx[4] = "Z38";
+			char note[5] = "";
+			char instr[3] = "";
+			char vol[3] = "";
+			char fx[4] = "";
 
 		} row[21];
 

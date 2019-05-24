@@ -38,7 +38,7 @@ void setup()
 	sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
 	//sequencer.play();
 
-	seqDisplay.init((Sequencer::strPattern*)sequencer.getPatternToUI());
+	//seqDisplay.init((Sequencer::strPattern*)sequencer.getPatternToUI());
 
 	// inincjalizacja interfejsu na koncu
 	mtInterface.begin();
@@ -53,7 +53,6 @@ void loop()
 	sequencer.handle();
 	//handle_chatBot();
 
-	seqDisplay.update();
 	padsBacklight.update();
 
 	updateExport();

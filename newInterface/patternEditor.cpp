@@ -21,6 +21,20 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 void cPatternEditor::update()
 {
+	uint8_t sequencerState = sequencer.getSeqState();
+
+	if(sequencerState != 1) return;
+
+	readPatternState();
+
+	if(patternPosition == lastPatternPosition)  return;
+
+	refreshPattern();
+
+	display.refreshControl(patternControl);
+
+	lastPatternPosition = patternPosition;
+
 
 
 
@@ -28,6 +42,10 @@ void cPatternEditor::update()
 
 void cPatternEditor::start(uint32_t options)
 {
+	moduleRefresh = 1;
+
+	readPatternState();
+	refreshPattern();
 
 	// inicjalizacja kontrolek
 /*
@@ -150,6 +168,126 @@ void cPatternEditor::showDefaultScreen()
 }
 //==============================================================================================================
 
+void cPatternEditor::refreshPattern()
+{
+
+	trackerPattern.position = patternPosition+1;
+	trackerPattern.part = patternPart;
+
+
+	uint8_t steps_down = patternLength - patternPosition;
+	steps_down = (steps_down < 8) ? steps_down : 8;
+
+	uint8_t steps_up = (patternPosition < 7) ? patternPosition : 7;
+
+
+	// 8 w dol
+	for(uint8_t i = 0; i < 8; i++) //track
+	{
+		for(uint8_t j = 0; j < 8; j++) // step
+		{
+			if(j > steps_down)
+			{
+				trackerPattern.track[i].row[7+j].note[0] = 0;
+				trackerPattern.track[i].row[7+j].instr[0] = 0;
+				trackerPattern.track[i].row[7+j].vol[0] = 0;
+				trackerPattern.track[i].row[7+j].fx[0] = 0;
+				continue;
+			}
+
+			if(seq->track[i].step[patternPosition+j].isOn)
+			{
+				trackerPattern.track[i].row[7+j].note[0] = mtNotes[seq->track[i].step[patternPosition+j].note][0];
+				trackerPattern.track[i].row[7+j].note[1] = mtNotes[seq->track[i].step[patternPosition+j].note][1];
+				trackerPattern.track[i].row[7+j].note[2] = mtNotes[seq->track[i].step[patternPosition+j].note][2];
+				trackerPattern.track[i].row[7+j].note[3] = mtNotes[seq->track[i].step[patternPosition+j].note][3];
+				trackerPattern.track[i].row[7+j].note[4] = mtNotes[seq->track[i].step[patternPosition+j].note][4];
+
+
+				char inst0 = (seq->track[i].step[patternPosition+j].instrument+1)/10;
+				char inst1 = (seq->track[i].step[patternPosition+j].instrument+1)%10;;
+
+				trackerPattern.track[i].row[7+j].instr[0] = inst0+48;
+				trackerPattern.track[i].row[7+j].instr[1] = inst1+48;
+				trackerPattern.track[i].row[7+j].instr[2] = 0;
+
+
+				char velo0 = seq->track[i].step[patternPosition+j].velocity/1000;
+				char velo1 = seq->track[i].step[patternPosition+j].velocity%10;
+
+				trackerPattern.track[i].row[7+j].vol[0] = velo0+48;
+				trackerPattern.track[i].row[7+j].vol[1] = velo1+48;
+				trackerPattern.track[i].row[7+j].vol[0] = 0;
+
+			}
+			else
+			{
+				trackerPattern.track[i].row[7+j].note[0] = '-';
+				trackerPattern.track[i].row[7+j].note[1] = '-';
+				trackerPattern.track[i].row[7+j].note[2] = '-';
+				trackerPattern.track[i].row[7+j].note[3] = 0;
+
+
+				trackerPattern.track[i].row[7+j].instr[0] = '-';
+				trackerPattern.track[i].row[7+j].instr[1] = '-';
+				trackerPattern.track[i].row[7+j].instr[2] = 0;
+
+
+				trackerPattern.track[i].row[7+j].vol[0] = '-';
+				trackerPattern.track[i].row[7+j].vol[1] = '-';
+				trackerPattern.track[i].row[7+j].vol[2] = 0;
+
+			}
+
+			if(seq->track[i].step[j].fx[0].isOn)
+			{
+				trackerPattern.track[i].row[7+j].fx[0] = seq->track[i].step[patternPosition+j].fx[0].type + 59;
+				trackerPattern.track[i].row[7+j].fx[1] = '0';
+				trackerPattern.track[i].row[7+j].fx[2] = '0';
+				trackerPattern.track[i].row[7+j].fx[3] = 0;
+			}
+			else
+			{
+				trackerPattern.track[i].row[7+j].fx[0] = '-';
+				trackerPattern.track[i].row[7+j].fx[1] = '-';
+				trackerPattern.track[i].row[7+j].fx[2] = '-';
+				trackerPattern.track[i].row[7+j].fx[3] = 0;
+			}
+
+		}
+	}
+
+
+
+}
+
+
+
+void cPatternEditor::readPatternState()
+{
+	seq = sequencer.getPatternToUI();
+
+	patternLength = 0;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		if(seq->track[i].isOn)
+		{
+			if(patternLength < seq->track[i].length) patternLength = seq->track[i].length;
+		}
+	}
+
+
+	patternPosition = sequencer.ptrPlayer->row[0].actual_pos;
+
+
+
+
+}
+
+
+//==============================================================================================================
+
+
 uint8_t functPlayAction()
 {
 	if(sequencer.getSeqState() == 0) sequencer.play();
@@ -174,142 +312,7 @@ static uint8_t functSwitchModule(uint8_t button)
 	return 1;
 }
 
-/*
-uint8_t functShowProjectsList()
-{
-	SI->listOnlyFolderNames("/Projects/");
 
-// lista
-	SI->projectList.start = 0;
-	SI->projectList.length = SI->locationFilesCount;
-	SI->projectList.linesCount = 5;
-	SI->projectList.data = SI->filesNames;
-
-	display.setControlData(SI->fileListControl,  &SI->projectList);
-	display.setControlShow(SI->fileListControl);
-	display.refreshControl(SI->fileListControl);
-
-// top label listy
-	display.setControlText(SI->topLabel[0], "Open project");
-	display.setControlShow(SI->topLabel[0]);
-	display.refreshControl(SI->topLabel[0]);
-
-// bottom labels
-	display.setControlText(SI->bottomLabel[0], "Open");
-	display.setControlText(SI->bottomLabel[1], "Cancel");
-
-	display.refreshControl(SI->bottomLabel[0]);
-	display.refreshControl(SI->bottomLabel[1]);
-
-	display.synchronizeRefresh();
-
-// funkcje
-	SI->FM->clearAllButtons();
-	SI->FM->clearAllPots();
-
-	SI->FM->setPotObj(interfacePot0, &SI->selectedLocation, 0, SI->locationFilesCount-1, 1, SI->fileListControl);
-
-	SI->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProject, nullptr);
-	SI->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList, nullptr);
-
-
-	return 0;
-}
-
-
-uint8_t functShowTemplatesList()
-{
-	SI->listOnlyFolderNames("/Templates/");
-
-// lista
-	SI->projectList.start = 0;
-	SI->projectList.length = SI->locationFilesCount;
-	SI->projectList.linesCount = 5;
-	SI->projectList.data = SI->filesNames;
-
-	display.setControlData(SI->fileListControl,  &SI->projectList);
-	display.setControlShow(SI->fileListControl);
-	display.refreshControl(SI->fileListControl);
-
-// top label listy
-	display.setControlText(SI->topLabel[0], "Choose template");
-	display.setControlShow(SI->topLabel[0]);
-	display.refreshControl(SI->topLabel[0]);
-
-// bottom labels
-	display.setControlText(SI->bottomLabel[0], "Create");
-	display.setControlText(SI->bottomLabel[1], "Cancel");
-	display.setControlText(SI->bottomLabel[4], "New");
-
-	display.refreshControl(SI->bottomLabel[0]);
-	display.refreshControl(SI->bottomLabel[1]);
-	display.refreshControl(SI->bottomLabel[4]);
-
-	display.synchronizeRefresh();
-
-// funkcje
-	SI->FM->clearAllButtons();
-	SI->FM->clearAllPots();
-
-	SI->FM->setPotObj(interfacePot0, &SI->selectedLocation, 0, SI->locationFilesCount-1, 1, SI->fileListControl);
-
-	SI->FM->setButtonObj(interfaceButton0, buttonPress, functOpenTemplate, nullptr);
-	SI->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList, nullptr);
-	SI->FM->setButtonObj(interfaceButton4, buttonPress, functCreateNewTemplate, nullptr);
-
-	return 0;
-}
-
-uint8_t functCancelList()
-{
-	SI->showDefaultScreen();
-
-	return 0;
-}
-
-uint8_t functSaveProject()
-{
-	fileManager.saveProject();
-
-	return 0;
-}
-
-uint8_t functOpenProject()
-{
-
-	fileManager.openProject(&SI->locationFilesList[SI->selectedLocation][0],projectTypeUserMade);
-	//SI->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
-
-
-	SI->showDefaultScreen();
-
-	return 0;
-}
-
-uint8_t functOpenTemplate()
-{
-	fileManager.openProject(&SI->locationFilesList[SI->selectedLocation][0],projectTypeExample);
-	//loadSamplesBank();
-	fileManager.saveAsProject((char*)"fromTemplate");
-	fileManager.openProject((char*)"fromTemplate", projectTypeUserMade);
-	//loadSamplesBank();
-	//SI->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
-
-	SI->showDefaultScreen();
-
-
-	return 0;
-}
-
-uint8_t functCreateNewTemplate()
-{
-	fileManager.createEmptyTemplateProject((char*)"New");
-	functShowTemplatesList();
-
-	return 0;
-}
-
-*/
 //======================================================================================================================
 
 
