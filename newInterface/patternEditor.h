@@ -37,7 +37,7 @@ public:
 
 	strTrackerPattern trackerPattern;
 
-	uint16_t patternPart = 0;
+	//uint16_t patternPart = 0;
 //----------------------------------
 
 	strList projectList;

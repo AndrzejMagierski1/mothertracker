@@ -216,22 +216,23 @@ void FT812_Init(void)
     lcdWidth   = 800;                                                           // Active width of LCD display
     lcdHeight  = 480;                                                           // Active height of LCD display
 
-    lcdHcycle  = 953;                                                           // Total number of clocks per line
-    lcdHoffset = 88;                                                            // Start of active line
-    lcdHsync0  = 42;                                                             // Start of horizontal sync pulse
-    lcdHsync1  = 90;                                                            // End of horizontal sync pulse
+    lcdHcycle  = 1056;                                                           // Total number of clocks per line
+    lcdHoffset = 46;                                                            // Start of active line
+    lcdHsync0  = 0;                                                             // Start of horizontal sync pulse
+    lcdHsync1  = 10;                                                            // End of horizontal sync pulse
 
     lcdVcycle  = 525;                                                           // Total number of lines per screen
-    lcdVoffset = 32;                                                            // Start of active screen
-    lcdVsync0  = 9;                                                             // Start of vertical sync pulse
-    lcdVsync1  = 12;                                                             // End of vertical sync pulse
+    lcdVoffset = 23;                                                            // Start of active screen
+    lcdVsync0  = 0;                                                             // Start of vertical sync pulse
+    lcdVsync1  = 10;                                                             // End of vertical sync pulse
 
     lcdPclk    = 1;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
 
     lcdCsSpread = 0;
-    lcdRotate = 1;
+    lcdRotate   = 1;
+
 
 
 #endif
@@ -293,7 +294,7 @@ void FT812_Init(void)
 
 
     EVE_MemWrite8(REG_ROTATE,  lcdRotate);
-    EVE_MemWrite8(REG_DITHER,  0);
+    EVE_MemWrite8(REG_DITHER,  1);
 
 
     // ---------------------- Touch and Audio settings -------------------------
@@ -304,9 +305,9 @@ void FT812_Init(void)
     EVE_MemWrite8(REG_VOL_SOUND, ZERO);                                         // turn volume down
     EVE_MemWrite16(REG_SOUND, 0x6000);                                          // set volume mute
 
-    // ---------------------- Create an initial screen before we enable the display -------------------------
+   // ---------------------- Create an initial screen before we enable the display -------------------------
 
-    ramDisplayList = RAM_DL;                                                    // start of Display List
+   ramDisplayList = RAM_DL;                                                    // start of Display List
     EVE_MemWrite32(ramDisplayList, 0x02000000);                                 // Clear Color RGB sets the colour to clear screen to
 
     ramDisplayList += 4;                                                        // point to next location
@@ -317,6 +318,9 @@ void FT812_Init(void)
 
     EVE_MemWrite32(REG_DLSWAP, DLSWAP_FRAME);                                   // Swap display list to make the edited one active
 
+
+
+
     // -------------------- Now turn on PCLK and ramp the PWM up  -------------------------------------
     // ---------------- This provides a clean start-up for the application ----------------------------
 
@@ -324,11 +328,14 @@ void FT812_Init(void)
 
 
 
-    for(PWM = 0; PWM <= 128; PWM ++)
-    {
-        EVE_MemWrite8(REG_PWM_DUTY, PWM);
-        delay(1);
-    }
+//    for(PWM = 0; PWM <= 128; PWM ++)
+//    {
+//        EVE_MemWrite8(REG_PWM_DUTY, PWM);
+//        delay(1);
+//    }
+//
+    EVE_MemWrite8(REG_PWM_DUTY, 128);
+
 
 // TOUCH
 //    EVE_MemWrite16( REG_CTOUCH_EXTENDED, CTOUCH_MODE_EXTENDED);

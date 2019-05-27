@@ -15,6 +15,11 @@ cPatternEditor* PTE = &patternEditor;
 
 uint8_t functPlayAction();
 uint8_t functStopAction();
+uint8_t functLeft();
+uint8_t functRight();
+uint8_t functUp();
+uint8_t functDown();
+
 static  uint8_t functSwitchModule(uint8_t button);
 
 
@@ -31,7 +36,6 @@ void cPatternEditor::update()
 
 	refreshPattern();
 
-	display.refreshControl(patternControl);
 
 	lastPatternPosition = patternPosition;
 
@@ -163,6 +167,19 @@ void cPatternEditor::showDefaultScreen()
 
 	FM->setButtonObj(interfaceButton8, buttonPress, functPlayAction);
 	FM->setButtonObj(interfaceButton9, buttonPress, functStopAction);
+
+
+	FM->setButtonObj(interfaceButton30, buttonPress, functLeft);
+	FM->setButtonObj(interfaceButton32, buttonPress, functRight);
+
+
+	FM->setButtonObj(interfaceButton26, buttonPress, functUp);
+	FM->setButtonObj(interfaceButton31, buttonPress, functDown);
+
+
+	FM->setPotObj(interfacePot0, (uint16_t*)(&trackerPattern.part), 0, 744, 5, patternControl);
+
+
 	//FM->setButtonObj(interfaceButton4, buttonPress, functSaveProject, nullptr);
 
 }
@@ -170,9 +187,9 @@ void cPatternEditor::showDefaultScreen()
 
 void cPatternEditor::refreshPattern()
 {
-
+	trackerPattern.length = patternLength;
 	trackerPattern.position = patternPosition+1;
-	trackerPattern.part = patternPart;
+	//trackerPattern.part = patternPart;
 
 
 	uint8_t steps_down = patternLength - patternPosition;
@@ -181,83 +198,84 @@ void cPatternEditor::refreshPattern()
 	uint8_t steps_up = (patternPosition < 7) ? patternPosition : 7;
 
 
-	// 8 w dol
+
 	for(uint8_t i = 0; i < 8; i++) //track
 	{
-		for(uint8_t j = 0; j < 8; j++) // step
+		for(uint8_t j = 0; j < 15; j++) // step
 		{
-			if(j > steps_down)
+
+			if(j-6 > steps_down || j<7-steps_up)
 			{
-				trackerPattern.track[i].row[7+j].note[0] = 0;
-				trackerPattern.track[i].row[7+j].instr[0] = 0;
-				trackerPattern.track[i].row[7+j].vol[0] = 0;
-				trackerPattern.track[i].row[7+j].fx[0] = 0;
+				trackerPattern.track[i].row[j].note[0] = 0;
+				trackerPattern.track[i].row[j].instr[0] = 0;
+				trackerPattern.track[i].row[j].vol[0] = 0;
+				trackerPattern.track[i].row[j].fx[0] = 0;
 				continue;
 			}
 
-			if(seq->track[i].step[patternPosition+j].isOn)
+			if(seq->track[i].step[patternPosition-7+j].isOn)
 			{
-				trackerPattern.track[i].row[7+j].note[0] = mtNotes[seq->track[i].step[patternPosition+j].note][0];
-				trackerPattern.track[i].row[7+j].note[1] = mtNotes[seq->track[i].step[patternPosition+j].note][1];
-				trackerPattern.track[i].row[7+j].note[2] = mtNotes[seq->track[i].step[patternPosition+j].note][2];
-				trackerPattern.track[i].row[7+j].note[3] = mtNotes[seq->track[i].step[patternPosition+j].note][3];
-				trackerPattern.track[i].row[7+j].note[4] = mtNotes[seq->track[i].step[patternPosition+j].note][4];
+				trackerPattern.track[i].row[j].note[0] = mtNotes[seq->track[i].step[patternPosition-7+j].note][0];
+				trackerPattern.track[i].row[j].note[1] = mtNotes[seq->track[i].step[patternPosition-7+j].note][1];
+				trackerPattern.track[i].row[j].note[2] = mtNotes[seq->track[i].step[patternPosition-7+j].note][2];
+				trackerPattern.track[i].row[j].note[3] = mtNotes[seq->track[i].step[patternPosition-7+j].note][3];
+				trackerPattern.track[i].row[j].note[4] = mtNotes[seq->track[i].step[patternPosition-7+j].note][4];
 
 
-				char inst0 = (seq->track[i].step[patternPosition+j].instrument+1)/10;
-				char inst1 = (seq->track[i].step[patternPosition+j].instrument+1)%10;;
+				char inst0 = (seq->track[i].step[patternPosition-7+j].instrument+1)/10;
+				char inst1 = (seq->track[i].step[patternPosition-7+j].instrument+1)%10;;
 
-				trackerPattern.track[i].row[7+j].instr[0] = inst0+48;
-				trackerPattern.track[i].row[7+j].instr[1] = inst1+48;
-				trackerPattern.track[i].row[7+j].instr[2] = 0;
+				trackerPattern.track[i].row[j].instr[0] = inst0+48;
+				trackerPattern.track[i].row[j].instr[1] = inst1+48;
+				trackerPattern.track[i].row[j].instr[2] = 0;
 
 
-				char velo0 = seq->track[i].step[patternPosition+j].velocity/1000;
-				char velo1 = seq->track[i].step[patternPosition+j].velocity%10;
+				char velo0 = seq->track[i].step[patternPosition-7+j].velocity/1000;
+				char velo1 = seq->track[i].step[patternPosition-7+j].velocity%10;
 
-				trackerPattern.track[i].row[7+j].vol[0] = velo0+48;
-				trackerPattern.track[i].row[7+j].vol[1] = velo1+48;
-				trackerPattern.track[i].row[7+j].vol[0] = 0;
+				trackerPattern.track[i].row[j].vol[0] = velo0+48;
+				trackerPattern.track[i].row[j].vol[1] = velo1+48;
+				trackerPattern.track[i].row[j].vol[0] = 0;
 
 			}
 			else
 			{
-				trackerPattern.track[i].row[7+j].note[0] = '-';
-				trackerPattern.track[i].row[7+j].note[1] = '-';
-				trackerPattern.track[i].row[7+j].note[2] = '-';
-				trackerPattern.track[i].row[7+j].note[3] = 0;
+				trackerPattern.track[i].row[j].note[0] = '-';
+				trackerPattern.track[i].row[j].note[1] = '-';
+				trackerPattern.track[i].row[j].note[2] = '-';
+				trackerPattern.track[i].row[j].note[3] = 0;
 
 
-				trackerPattern.track[i].row[7+j].instr[0] = '-';
-				trackerPattern.track[i].row[7+j].instr[1] = '-';
-				trackerPattern.track[i].row[7+j].instr[2] = 0;
+				trackerPattern.track[i].row[j].instr[0] = '-';
+				trackerPattern.track[i].row[j].instr[1] = '-';
+				trackerPattern.track[i].row[j].instr[2] = 0;
 
 
-				trackerPattern.track[i].row[7+j].vol[0] = '-';
-				trackerPattern.track[i].row[7+j].vol[1] = '-';
-				trackerPattern.track[i].row[7+j].vol[2] = 0;
+				trackerPattern.track[i].row[j].vol[0] = '-';
+				trackerPattern.track[i].row[j].vol[1] = '-';
+				trackerPattern.track[i].row[j].vol[2] = 0;
 
 			}
 
-			if(seq->track[i].step[j].fx[0].isOn)
+			if(seq->track[i].step[patternPosition-7+j].fx[0].isOn)
 			{
-				trackerPattern.track[i].row[7+j].fx[0] = seq->track[i].step[patternPosition+j].fx[0].type + 59;
-				trackerPattern.track[i].row[7+j].fx[1] = '0';
-				trackerPattern.track[i].row[7+j].fx[2] = '0';
-				trackerPattern.track[i].row[7+j].fx[3] = 0;
+				trackerPattern.track[i].row[j].fx[0] = seq->track[i].step[patternPosition-7+j].fx[0].type + 59;
+				trackerPattern.track[i].row[j].fx[1] = '0';
+				trackerPattern.track[i].row[j].fx[2] = '0';
+				trackerPattern.track[i].row[j].fx[3] = 0;
 			}
 			else
 			{
-				trackerPattern.track[i].row[7+j].fx[0] = '-';
-				trackerPattern.track[i].row[7+j].fx[1] = '-';
-				trackerPattern.track[i].row[7+j].fx[2] = '-';
-				trackerPattern.track[i].row[7+j].fx[3] = 0;
+				trackerPattern.track[i].row[j].fx[0] = '-';
+				trackerPattern.track[i].row[j].fx[1] = '-';
+				trackerPattern.track[i].row[j].fx[2] = '-';
+				trackerPattern.track[i].row[j].fx[3] = 0;
 			}
 
 		}
 	}
 
-
+	display.refreshControl(patternControl);
 
 }
 
@@ -286,6 +304,53 @@ void cPatternEditor::readPatternState()
 
 
 //==============================================================================================================
+
+uint8_t functLeft()
+{
+	PTE->trackerPattern.part -= 186;
+	if(PTE->trackerPattern.part < 0 ) PTE->trackerPattern.part = 0;
+
+	display.refreshControl(PTE->patternControl);
+
+
+	return 1;
+}
+
+
+uint8_t functRight()
+{
+	PTE->trackerPattern.part += 186;
+	if(PTE->trackerPattern.part > 744 ) PTE->trackerPattern.part= 744;
+
+	display.refreshControl(PTE->patternControl);
+
+	return 1;
+}
+
+
+uint8_t functUp()
+{
+	//PTE->readPatternState();
+
+
+	if(PTE->patternPosition > 0 ) PTE->patternPosition--;
+
+	PTE->refreshPattern();
+
+	return 1;
+}
+
+
+uint8_t functDown()
+{
+	//PTE->readPatternState();
+
+	if(PTE->patternPosition <  PTE->patternLength-1) PTE->patternPosition++;
+
+	PTE->refreshPattern();
+
+	return 1;
+}
 
 
 uint8_t functPlayAction()

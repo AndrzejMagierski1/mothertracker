@@ -217,7 +217,7 @@ void cTracker::refresh1()
 	API_END();
 
 
-	uint8_t row = tracks->position;
+	int16_t row = tracks->position-7;
 
 	API_COLOR(colors[1]);
 	API_BITMAP_HANDLE(fonts[0].handle);
@@ -226,6 +226,12 @@ void cTracker::refresh1()
 
 	for(uint16_t i = 0; i < 15; i++)
 	{
+		if(row < 1 || row > tracks->length )
+		{
+			row++;
+			continue;
+		}
+
 		Number2Bitmaps(0, (i*28)+40, 8, 18, row);
 
 		Number2Bitmaps((799-25), posY+(i*28)+40, 8, 18, row);

@@ -38,7 +38,11 @@ void cFunctionMachine::clearButtonsRange(uint8_t from, uint8_t to)
 
 void cFunctionMachine::clearAllPots()
 {
+	delete  (paramChange<uint8_t>*)pots[0].paramStruct;
+
 	memset(pots,0,sizeof(strPotObject)*potsCount);
+
+
 }
 
 void cFunctionMachine::clearAllPads()
@@ -73,6 +77,22 @@ void cFunctionMachine::setPotObj(int8_t objectID, uint8_t* param, uint8_t min, u
 	pots[objectID].mode = 2;
 }
 
+void cFunctionMachine::setPotObj(int8_t objectID, uint16_t* param, uint16_t min, uint16_t max, uint16_t step, hControl control)
+{
+	delete  (paramChange<uint16_t>*)pots[objectID].paramStruct;
+
+	paramChange<uint16_t>* strparam = new paramChange<uint16_t>;
+	strparam->ptr = param;
+	strparam->min = min;
+	strparam->max = max;
+	strparam->step = step;
+
+	pots[objectID].paramStruct = strparam;
+
+	pots[objectID].control = control;
+
+	pots[objectID].mode = 3;
+}
 //==================================================================================================================
 
 // przypisuje funkcje na okreslony stan przycisku bez argumentow
@@ -169,6 +189,10 @@ void cFunctionMachine::processPotsInput(uint8_t pot, int16_t value)
 
 		break;
 
+		case 3:
+			changeParam<uint16_t>((paramChange<uint16_t>*) pots[pot].paramStruct, value );
+
+		break;
 		}
 
 

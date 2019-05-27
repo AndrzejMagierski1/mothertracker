@@ -20,8 +20,9 @@ struct strTrackerPattern
 
 	} track[8];
 
-	uint16_t position = 0;
-	int16_t part = 0;
+	int16_t position = 0;
+	uint16_t length = 0;
+	int16_t part = 0; // max 744
 
 };
 

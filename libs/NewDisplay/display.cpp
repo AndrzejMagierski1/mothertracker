@@ -105,19 +105,19 @@ void cDisplay::begin()
 		API_CMD_SETFONT(fonts[i].handle, fonts[i].address);
 	}
 
-/*
-	API_BITMAP_HANDLE(14);
-	API_BITMAP_SOURCE(14324);
-	API_BITMAP_LAYOUT(L4, 7, 26);
-	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 12, 26);
-	API_CMD_SETFONT(14, 20000);
 
-	API_BITMAP_HANDLE(13);
-	API_BITMAP_SOURCE(-1732);
-	API_BITMAP_LAYOUT(L4, 5, 18);
-	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 10, 18);
-	API_CMD_SETFONT(13, 1000);
-*/
+//	API_BITMAP_HANDLE(14);
+//	API_BITMAP_SOURCE(14324);
+//	API_BITMAP_LAYOUT(L4, 7, 26);
+//	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 12, 26);
+//	API_CMD_SETFONT(14, 20000);
+//
+//	API_BITMAP_HANDLE(13);
+//	API_BITMAP_SOURCE(-1732);
+//	API_BITMAP_LAYOUT(L4, 5, 18);
+//	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 10, 18);
+//	API_CMD_SETFONT(13, 1000);
+
 
 	API_RESTORE_CONTEXT();
 	API_RESTORE_CONTEXT();
@@ -150,6 +150,75 @@ void cDisplay::update()
 	//return;
 //=================================================================================================
 //=================================================================================================
+
+/*
+	if(seqTimer < 3000) return;
+
+		seqTimer = 0;
+
+	if(!API_LIB_IsCoProEmpty()) return;
+	API_LIB_BeginCoProListNoCheck();
+    API_CMD_DLSTART();
+
+
+
+    static int a = 0;
+
+
+    if(a)
+    {
+    API_CLEAR_COLOR_RGB(63,63,63);
+	API_CLEAR(1,1,1);
+
+
+	//API_COLOR_A(128);
+
+
+	API_COLOR(0x000000);
+	API_CMD_TEXT(100, 40, 29, 0, "TEST");
+    }
+    else
+
+    {
+        API_CLEAR_COLOR_RGB(0,0,255);
+    	API_CLEAR(1,1,1);
+    }
+
+
+	uint8_t blend[6] =
+	{
+			ONE,
+			ZERO,
+			SRC_ALPHA,
+			DST_ALPHA,
+			ONE_MINUS_SRC_ALPHA,
+			ONE_MINUS_DST_ALPHA,
+	};
+
+//	for(uint8_t i = 0; i<6;i++)
+//	{
+//		for(uint8_t j = 0; j<6;j++)
+//		{
+//			API_RESTORE_CONTEXT();
+//			API_COLOR(0x000000);
+//			API_BLEND_FUNC(blend[i], blend[j]);
+//			API_CMD_TEXT(70*i, 20*j, 28, 0, "TEST");
+//
+//		}
+//	}
+
+
+    a = !a;
+
+	API_DISPLAY();
+	API_CMD_SWAP();
+
+	API_LIB_EndCoProList();
+
+return;
+
+*/
+
 
 /*
 if(seqTimer > 125)
@@ -313,13 +382,18 @@ if(refreshTimer > refreshF)
 			API_LIB_BeginCoProListNoCheck();
 		    API_CMD_DLSTART();
 
-			API_CLEAR_COLOR(config.bgColor);
+
+		    API_CLEAR_COLOR(0);
 			API_CLEAR(1,1,1);
 
-			API_RESTORE_CONTEXT();
+			//API_CLEAR_COLOR(config.bgColor);
+			//API_CLEAR(1,1,1);
+
+			//API_RESTORE_CONTEXT();
 			//API_RESTORE_CONTEXT();
 
 			//API_COLOR_A(128);
+
 			API_VERTEX_FORMAT(0);
 
 			// wczytaj elementy w kolejnosci w jakiej byly tworzone
