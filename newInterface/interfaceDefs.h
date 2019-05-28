@@ -92,6 +92,8 @@ enum mtInterfaceButtonsDef
 	interfaceButton31,
 	interfaceButton32,
 
+	interfaceButton33,
+
 	interfaceButtonsCount
 };
 

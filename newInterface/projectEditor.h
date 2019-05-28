@@ -40,6 +40,12 @@ public:
 	hControl bottomLabel[8];
 	hControl fileListControl;
 
+	uint32_t topLabelColors[3] =
+	{
+			0x3F3F3F, // tekst
+			0x000000, // tło
+			0x3F3F3F, // ramka
+	};
 
 	typedef void (cProjectEditor::*FUNC1) (void);
 

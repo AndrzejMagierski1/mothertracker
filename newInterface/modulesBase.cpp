@@ -210,7 +210,7 @@ void cFunctionMachine::processPotsInput(uint8_t pot, int16_t value)
 
 	uint8_t result = 0;
 
-	if(pots[pot].funct1 != nullptr) result = pots[pot].funct1(state);
+	if(pots[pot].funct1 != nullptr) result = pots[pot].funct1(value);
 
 	if(pots[pot].control != nullptr) display.refreshControl(pots[pot].control);
 

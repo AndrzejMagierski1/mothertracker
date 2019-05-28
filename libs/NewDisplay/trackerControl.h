@@ -24,6 +24,9 @@ struct strTrackerPattern
 	uint16_t length = 0;
 	int16_t part = 0; // max 744
 
+	int8_t select = 0;
+	uint8_t select_param = 0;
+
 };
 
 

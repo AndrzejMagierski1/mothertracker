@@ -29,15 +29,21 @@ public:
 	void refreshPattern();
 	void readPatternState();
 
+	void changeActualStepNote(int16_t value);
+	void changeActualStepInstrument(int16_t value);
+	void changeActualStepVolume(int16_t value);
+
 	uint16_t patternPosition;
 	uint16_t lastPatternPosition;
-	uint16_t patternLength;
 
 	Sequencer::strPattern * seq;
 
 	strTrackerPattern trackerPattern;
 
-	//uint16_t patternPart = 0;
+	uint8_t editMode = 1;
+
+	uint8_t last_selected_instrument = 0;
+	uint8_t last_selected_length = 100;
 //----------------------------------
 
 	strList projectList;

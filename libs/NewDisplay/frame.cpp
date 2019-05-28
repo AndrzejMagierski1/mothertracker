@@ -15,10 +15,10 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cLabel::cLabel(strControlProperties* properties)
+cFrame::cFrame(strControlProperties* properties)
 {
 	colorsCount = 3;
-	colors = (properties->colors == nullptr) ? defaultColors : properties->colors;
+	colors = defaultColors;
 
 	if(properties == nullptr)
 	{
@@ -42,7 +42,7 @@ cLabel::cLabel(strControlProperties* properties)
 	setStyle(properties->style);
 }
 
-cLabel::~cLabel()
+cFrame::~cFrame()
 {
 
 }
@@ -50,7 +50,7 @@ cLabel::~cLabel()
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-void cLabel::setStyle(uint32_t style)
+void cFrame::setStyle(uint32_t style)
 {
 	this->style = style;
 
@@ -64,27 +64,27 @@ void cLabel::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cLabel::setText(char* text)
+void cFrame::setText(char* text)
 {
 	this->text = text;
 }
 
-void cLabel::setValue(int value)
+void cFrame::setValue(int value)
 {
 
 }
 
-void cLabel::setColors(uint32_t* colors)
+void cFrame::setColors(uint32_t* colors)
 {
 	this->colors = colors;
 }
 
-void cLabel::setDefaultColors(uint32_t colors[])
+void cFrame::setDefaultColors(uint32_t colors[])
 {
 	memcpy(defaultColors, colors, colorsCount*4);
 }
 
-void cLabel::setData(void* data)
+void cFrame::setData(void* data)
 {
 
 }
@@ -92,7 +92,7 @@ void cLabel::setData(void* data)
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-uint8_t cLabel::update()
+uint8_t cFrame::update()
 {
 
     API_LIB_BeginCoProList();
@@ -165,7 +165,7 @@ uint8_t cLabel::update()
 	return 0;
 }
 
-uint8_t cLabel::memCpy(uint32_t address)
+uint8_t cFrame::memCpy(uint32_t address)
 {
 	uint32_t dlOffset = EVE_MemRead32(REG_CMD_DL);
 
@@ -182,7 +182,7 @@ uint8_t cLabel::memCpy(uint32_t address)
 }
 
 
-uint8_t cLabel::append(uint32_t address)
+uint8_t cFrame::append(uint32_t address)
 {
 	API_CMD_APPEND(address, ramSize);
 

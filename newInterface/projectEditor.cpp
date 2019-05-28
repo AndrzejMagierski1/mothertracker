@@ -46,6 +46,7 @@ void cProjectEditor::start(uint32_t options)
 		prop1.y = 5;
 		prop1.w = 800/4;
 		prop1.h = 25;
+		prop1.colors = &topLabelColors[0];
 
 		if(PE->topLabel[0] == nullptr) PE->topLabel[0] = display.createControl<cLabel>(&prop1);
 	}

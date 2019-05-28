@@ -197,13 +197,18 @@ void hidSendButtonState(uint16_t button, uint16_t state)
 	{
 		onButtonChange(button, state);
 	}
-	else
+	else if(button < 102)
 	{
 		if(button == 100 && state == 1)
 			onPotChange(0, -1);
 		else if(button == 101 && state == 1)
 			onPotChange(0, 1);
 	}
+	else if(button < 103)
+	{
+		onButtonChange(33, state);
+	}
+
 
 }
 
