@@ -220,7 +220,7 @@ void cTracker::refresh1()
 
 	// RAMKA ZAZNACZAJACA
 
-	if(tracks->select >= firstVisibleTrack && tracks->select <= firstVisibleTrack+4)
+	if(tracks->selectActive && tracks->select >= firstVisibleTrack && tracks->select <= firstVisibleTrack+4)
 	{
 		uint16_t select_x = 27;
 		uint16_t select_w = 186;
@@ -249,7 +249,7 @@ void cTracker::refresh1()
 	}
 
 
-	int16_t row = tracks->position-7;
+	int16_t row = tracks->position-6;
 
 	API_COLOR(colors[1]);
 	API_BITMAP_HANDLE(fonts[0].handle);
@@ -312,7 +312,7 @@ void cTracker::refresh2()
 	API_BEGIN(BITMAPS);
 
 	int8_t mark = -1;
-	if(tracks->select_param == 0 && tracks->select >= 0) mark = tracks->select - firstVisibleTrack;
+	if(tracks->select_param == 0 && tracks->selectActive) mark = tracks->select - firstVisibleTrack;
 
 	for(uint16_t j = 0; j < 15; j++)
 	{
@@ -336,7 +336,7 @@ void cTracker::refresh3()
 	API_BEGIN(BITMAPS);
 
 	int8_t mark = -1;
-	if(tracks->select_param == 1 && tracks->select >= 0) mark = tracks->select - firstVisibleTrack;
+	if(tracks->select_param == 1 && tracks->selectActive) mark = tracks->select - firstVisibleTrack;
 
 	for(uint16_t j = 0; j < 15; j++)
 	{
@@ -360,7 +360,7 @@ void cTracker::refresh4()
 	API_BEGIN(BITMAPS);
 
 	int8_t mark = -1;
-	if(tracks->select_param == 2 && tracks->select >= 0) mark = tracks->select - firstVisibleTrack;
+	if(tracks->select_param == 2 && tracks->selectActive) mark = tracks->select - firstVisibleTrack;
 
 	for(uint16_t j = 0; j < 15; j++)
 	{
@@ -384,7 +384,7 @@ void cTracker::refresh5()
 	API_BEGIN(BITMAPS);
 
 	int8_t mark = -1;
-	if(tracks->select_param == 3 && tracks->select >= 0) mark = tracks->select - firstVisibleTrack;
+	if(tracks->select_param == 3 && tracks->selectActive) mark = tracks->select - firstVisibleTrack;
 
 	for(uint16_t j = 0; j < 15; j++)
 	{

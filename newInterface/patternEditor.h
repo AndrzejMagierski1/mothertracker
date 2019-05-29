@@ -24,6 +24,7 @@ public:
 
 	void showDefaultScreen();
 
+	void focusOnSelected();
 
 //----------------------------------
 	void refreshPattern();
@@ -33,42 +34,25 @@ public:
 	void changeActualStepInstrument(int16_t value);
 	void changeActualStepVolume(int16_t value);
 
-	uint16_t patternPosition;
 	uint16_t lastPatternPosition;
 
 	Sequencer::strPattern * seq;
 
 	strTrackerPattern trackerPattern;
 
-	uint8_t editMode = 1;
+	uint8_t editMode = 0;
 
-	uint8_t last_selected_instrument = 0;
+	//uint8_t last_selected_instrument = 0;
 	uint8_t last_selected_length = 100;
 //----------------------------------
 
-	strList projectList;
+
 
 	hControl topLabel[8];
 	hControl bottomLabel[8];
 	hControl patternControl;
 
 
-
-
-
-
-
-
-	uint8_t selectedLocation;
-	static const uint8_t files_list_length_max = 100;
-	char locationFilesList[files_list_length_max][20];
-	uint16_t locationFilesCount;
-	FsFile sdLocation;
-	uint8_t filesListEnabled = 0;
-	uint8_t browseLocationType;
-	char *filesNames[128];
-	char filePath[256];
-	char fileName[32];
 
 
 

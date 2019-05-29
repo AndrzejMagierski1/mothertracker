@@ -82,7 +82,7 @@ void cProjectEditor::start(uint32_t options)
 
 
 	FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
-
+	FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
 
 	showDefaultScreen();
 
