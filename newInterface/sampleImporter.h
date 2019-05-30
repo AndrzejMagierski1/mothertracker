@@ -8,18 +8,6 @@
 
 
 
-enum mtSampleImporterEvents
-{
-	mtSampleImporterEventNone,
-	mtSampleImporterEventLoadLastProjFailed,
-	mtSampleImporterEventPadPress,
-	mtSampleImporteEventLoadSampleBank,
-
-	mtSampleImporterEventCount
-};
-
-
-
 
 class cSampleImporter: public cModuleBase
 {

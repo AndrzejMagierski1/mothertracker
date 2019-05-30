@@ -96,7 +96,7 @@ void cInterface::begin()
 	}
 
 
-	readConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
+	//readConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
 
 	//ramMonitor.initialize();
 

@@ -1,15 +1,12 @@
 
 
 
-#include "mtFileManager.h"
+
+#include "instrumentEditor.h"
 
 
-#include "sampleImporter.h"
-
-
-cSampleImporter sampleImporter;
-static cSampleImporter* SI = &sampleImporter;
-
+cInstrumentEditor instrumentEditor;
+static cInstrumentEditor* IE = &instrumentEditor;
 
 
 
@@ -33,14 +30,14 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 
 
-void cSampleImporter::update()
+void cInstrumentEditor::update()
 {
 
 
 
 }
 
-void cSampleImporter::start(uint32_t options)
+void cInstrumentEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
@@ -85,10 +82,10 @@ void cSampleImporter::start(uint32_t options)
 
 }
 
-void cSampleImporter::stop()
+void cInstrumentEditor::stop()
 {
-	//display.destroyControl(patternControl);
-	//patternControl = nullptr;
+	display.destroyControl(patternControl);
+	patternControl = nullptr;
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -101,11 +98,11 @@ void cSampleImporter::stop()
 
 }
 
-void cSampleImporter::showDefaultScreen()
+void cInstrumentEditor::showDefaultScreen()
 {
 	//lista
 	//display.setControlShow(patternControl);
-	//display.refreshControl(patternControl);
+	display.refreshControl(patternControl);
 
 	// bottom labels
 	display.setControlText(bottomLabel[0], "Start");
@@ -237,7 +234,7 @@ static  uint8_t functRecAction()
 static uint8_t functSwitchModule(uint8_t button)
 {
 
-	SI->eventFunct(eventSwitchModule,SI,&button,0);
+	IE->eventFunct(eventSwitchModule,IE,&button,0);
 
 	return 1;
 }

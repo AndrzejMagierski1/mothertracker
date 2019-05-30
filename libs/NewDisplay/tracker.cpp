@@ -48,7 +48,7 @@ cTracker::cTracker(strControlProperties* properties)
 	posX = properties->x;
 	posY = properties->y;
 	width = properties->w;
-	height = properties->y;
+	height = properties->h;
 
 	setStyle(properties->style);
 }

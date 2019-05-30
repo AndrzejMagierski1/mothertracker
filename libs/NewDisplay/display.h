@@ -8,6 +8,7 @@
 #include "displayControls.h"
 #include "trackerControl.h"
 #include "commonControls.h"
+#include "spectrumControl.h"
 #include "list.h"
 
 typedef cDisplayControl* hControl;

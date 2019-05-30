@@ -52,7 +52,7 @@ RE-CERTIFICATION AS A RESULT OF MAKING THESE CHANGES.
 
 
 SPI2Settings settingsSLOW(4000000,  MSBFIRST, SPI_MODE0);
-SPI2Settings settingsFAST(4000000, MSBFIRST, SPI_MODE0);
+SPI2Settings settingsFAST(8000000, MSBFIRST, SPI_MODE0);
 
 //############################################################################## 
 //##############################################################################
@@ -123,7 +123,7 @@ void FT812_Init(void)
     MCU_Delay_20ms();
 
     // ---------------------- Delay to allow FT81x start-up --------------------
-    EVE_CmdWrite(0x61,4);
+   // EVE_CmdWrite(0x61,4);
 
 
     MCU_Delay_500ms();
@@ -226,7 +226,7 @@ void FT812_Init(void)
     lcdVsync0  = 0;                                                             // Start of vertical sync pulse
     lcdVsync1  = 10;                                                             // End of vertical sync pulse
 
-    lcdPclk    = 1;                                                             // Pixel Clock
+    lcdPclk    = 2;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
 
@@ -236,29 +236,28 @@ void FT812_Init(void)
 
 
 #endif
+
 /*
-    lcdWidth   = 1024;                                                           // Active width of LCD display
-    lcdHeight  = 600;                                                           // Active height of LCD display
+	lcdWidth   = 480;                                                           // Active width of LCD display
+    lcdHeight  = 128;                                                           // Active height of LCD display
 
-    lcdHcycle  = 1100;                                                           // Total number of clocks per line
-    lcdHoffset = 46;                                                            // Start of active line
-    lcdHsync0  = 0;                                                             // Start of horizontal sync pulse
-    lcdHsync1  = 10;                                                            // End of horizontal sync pulse
+    lcdHcycle  = 531;                                                           // Total number of clocks per line
+    lcdHoffset = 51;                                                            // Start of active line
+    lcdHsync0  = 8;                                                             // Start of horizontal sync pulse
+    lcdHsync1  = 12;                                                            // End of horizontal sync pulse
 
-    lcdVcycle  = 720;                                                           // Total number of lines per screen
-    lcdVoffset = 23;                                                            // Start of active screen
-    lcdVsync0  = 0;                                                             // Start of vertical sync pulse
-    lcdVsync1  = 10;                                                             // End of vertical sync pulse
+    lcdVcycle  = 292;                                                           // Total number of lines per screen
+    lcdVoffset = 91;                                                            // Start of active screen
+    lcdVsync0  = 8;                                                             // Start of vertical sync pulse
+    lcdVsync1  = 12;                                                             // End of vertical sync pulse
 
-    lcdPclk    = 2;                                                             // Pixel Clock
+    lcdPclk    = 6;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
-    lcdPclkpol = 1;                                                             // Define active edge of PCLK
+    lcdPclkpol = 1;
 
     lcdCsSpread = 1;
-    lcdRotate   = 0;
+    lcdRotate = 0;
 */
-
-
 /*
 
 #define EVE_HSIZE	(800L)
