@@ -25,9 +25,11 @@ cLabel::cLabel(strControlProperties* properties)
 		posX = 0;
 		posY = 0;
 		text = nullptr;
+		data = nullptr;
 		width = 0;
 		height = 0;
 		style = 0;
+		value = 0;
 		return;
 	}
 
@@ -35,6 +37,10 @@ cLabel::cLabel(strControlProperties* properties)
 	posY = properties->y;
 
 	text = properties->text;
+
+	value = properties->value;
+
+	data = (strLabelData*)(properties->data);
 
 	width = properties->w;
 	height = properties->h;
@@ -71,7 +77,7 @@ void cLabel::setText(char* text)
 
 void cLabel::setValue(int value)
 {
-
+	this->value = value;
 }
 
 void cLabel::setColors(uint32_t* colors)
@@ -113,12 +119,11 @@ uint8_t cLabel::update()
 	}
 
 
-	if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
-	else API_LINE_WIDTH(8);
-
-
 	if(style & controlStyleBackground)
 	{
+		if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
+		else API_LINE_WIDTH(8);
+
 		API_COLOR(colors[1]);
 
 
@@ -134,13 +139,14 @@ uint8_t cLabel::update()
 	{
 		API_COLOR(colors[2]);
 
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(32);
+
 		API_BEGIN(LINE_STRIP);
-		API_VERTEX2F(border_x , posY);
-		API_VERTEX2F(border_x+width , posY);
-		API_VERTEX2F(border_x+width , posY+height);
-		API_VERTEX2F(border_x , posY+height);
-		API_VERTEX2F(border_x , posY);
+		API_VERTEX2F(border_x-1 , posY-1);
+		API_VERTEX2F(border_x+width+1 , posY-1);
+		API_VERTEX2F(border_x+width+1 , posY+height+1);
+		API_VERTEX2F(border_x-1 , posY+height+1);
+		API_VERTEX2F(border_x-1 , posY-1);
 		API_END();
 
 		//text_x = posX + 2;
@@ -156,7 +162,11 @@ uint8_t cLabel::update()
 
 	//API_LINE_WIDTH(16);
 	API_COLOR(colors[0]);
-	if(text != nullptr) API_CMD_TEXT(posX, posY, textFont, textStyle, text);
+	if(text != nullptr) API_CMD_TEXT(posX, posY+5, textFont, textStyle, text);
+
+	if(style & controlStyleShowValue) API_CMD_NUMBER(posX+data->xValue, posY+5+data->yValue, textFont, data->styleValue, value);
+
+
 
 
     API_LIB_EndCoProList();

@@ -1,5 +1,5 @@
 #include "mtSleep.h"
-#include "mtDisplay.h"
+#include "display.h"
 #include "mtLED.h"
 #include "sdram.h"
 #include <Audio.h>

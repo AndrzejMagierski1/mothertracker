@@ -19,7 +19,13 @@ public:
 	virtual void start(uint32_t options);
 	virtual void stop();
 
-	cPatternEditor() {}
+	cPatternEditor()
+	{
+		seq = nullptr;
+		lastPatternPosition = 0;
+
+		patternControl = nullptr;
+	}
 	~cPatternEditor() {}
 
 	void showDefaultScreen();
@@ -33,6 +39,15 @@ public:
 	void changeActualStepNote(int16_t value);
 	void changeActualStepInstrument(int16_t value);
 	void changeActualStepVolume(int16_t value);
+
+	void changeActualTempo(int16_t value);
+	void changeActualPattern(int16_t value);
+	void changeActualPatternLength(int16_t value);
+	void changeActualPatternEditStep(int16_t value);
+
+
+	void activateLabelsBorder();
+
 
 	uint16_t lastPatternPosition;
 
@@ -51,9 +66,10 @@ public:
 	hControl topLabel[8];
 	hControl bottomLabel[8];
 	hControl patternControl;
+	strLabelData bottomValuesConfig = { 40, 0, 2048UL | 256UL };
 
 
-
+	uint8_t selectedLabel = 0;
 
 
 };

@@ -83,6 +83,7 @@ public:
 	void importProject(char* sourceProjectPatch,char* name, char* newName);
 	void saveAsProject(char* name);
 	void saveProject();
+	void createNewProject(char * name);
 	void importSampleToProject(char* filePatch, char* name, char* newName, int8_t sampleIndex,int8_t instrumentIndex, uint8_t type);
 	void importInstrumentToProject(char* filePatch, char* name, int8_t index);
 	void importPatternToProject(char* filePatch, char* name, int8_t index);
@@ -97,7 +98,7 @@ public:
 
 private:
 	void formatSDCard();
-	void createNewProject(char * name);
+
 	void copySample(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
 	void copyPattern(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
 	void writeInstrumentFile(char * name, strInstrument * instr);

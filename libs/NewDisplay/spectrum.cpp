@@ -26,10 +26,6 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 cSpectrum::cSpectrum(strControlProperties* properties)
 {
-	visibleCharOffset = 0;
-	firstVisibleTrack = 0;
-	visibleTracksOffset = 0;
-
 	colorsCount = 7;
 	colors = defaultColors;
 
@@ -162,7 +158,7 @@ void cSpectrum::refresh1()
 	API_LINE_WIDTH(8);
 
 
-	uint16_t half = height/2;
+	//uint16_t half = height/2;
 	uint16_t center = posY+height/2;
 
 	if(spectrum == nullptr)
@@ -178,8 +174,8 @@ void cSpectrum::refresh1()
 
 		for(uint16_t i = 0; i < width-1; i++)
 		{
-			if(spectrum->upperData[i] > 0) API_VERTEX2F( posX+i, half-spectrum->upperData[i]);
-			else if(spectrum->lowerData[i] < 0) API_VERTEX2F( posX+i, half-spectrum->lowerData[i]);
+			if(spectrum->upperData[i] > 0) API_VERTEX2F( posX+i, center-spectrum->upperData[i]);
+			else if(spectrum->lowerData[i] < 0) API_VERTEX2F( posX+i, center-spectrum->lowerData[i]);
 			else API_VERTEX2F( posX+i, center);
 		}
 	}
@@ -193,8 +189,8 @@ void cSpectrum::refresh1()
 
 		for(uint16_t i = 0; i < length; i++)
 		{
-			if(odd) API_VERTEX2F( posX+i, half-spectrum->upperData[i]);
-			else API_VERTEX2F( posX+i, half-spectrum->lowerData[i]);
+			if(odd) API_VERTEX2F( posX+i, center-spectrum->upperData[i]);
+			else API_VERTEX2F( posX+i, center-spectrum->lowerData[i]);
 			odd = !odd;
 
 		//	Serial.println(half-spectrum->upperData[i]);

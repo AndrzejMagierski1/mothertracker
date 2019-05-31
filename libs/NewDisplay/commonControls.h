@@ -2,6 +2,15 @@
 #define LIBS_NEWDISPLAY_COMMONCONTROLS_H_
 
 
+struct strLabelData
+{
+	uint16_t xValue;
+	uint16_t yValue;
+
+	uint16_t styleValue;
+
+};
+
 
 
 //--------------------------------------------------------------------
@@ -27,6 +36,9 @@ public:
 
 	uint16_t textStyle;
 	int16_t textFont;
+
+	strLabelData* data;
+
 };
 
 //--------------------------------------------------------------------

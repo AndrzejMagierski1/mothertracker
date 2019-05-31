@@ -232,7 +232,8 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 	status = readProjectFile(currentPatch, &mtProject.mtProjectRemote);
 	if(!status) return status;
 
-	 mtProject.instruments_count=0;
+
+	mtProject.instruments_count=0;
 	for(int i=0; i < INSTRUMENTS_COUNT; i++)
 	{
 		 if(mtProject.mtProjectRemote.instrumentFile[i].index != - 1)

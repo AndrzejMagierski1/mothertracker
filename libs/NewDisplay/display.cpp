@@ -475,6 +475,26 @@ void cDisplay::setControlHide(hControl handle)
 
 	handle->style &= ~(controlStyleShow);
 }
+
+void cDisplay::setAddControlStyle(hControl handle, uint32_t style)
+{
+	if(handle == nullptr) return;
+
+	uint32_t temp_style = handle->style;
+	temp_style |= (style);
+	handle->setStyle(temp_style);
+}
+
+
+void cDisplay::setRemoveControlStyle(hControl handle, uint32_t style)
+{
+	if(handle == nullptr) return;
+
+	uint32_t temp_style = handle->style;
+	temp_style &= ~(style);
+	handle->setStyle(temp_style);
+}
+
 /*
 void cDisplay::setControlText(hControl handle,  char const* text)
 {

@@ -98,7 +98,7 @@ void cInterface::begin()
 
 	//readConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
 
-	//ramMonitor.initialize();
+	ramMonitor.initialize();
 
 }
 
@@ -120,8 +120,8 @@ void cInterface::update()
 	{
 		ramInfoTimer = 0;
 
-		//ramMonitor.run();
-		//ramMonitor.report_ram();
+		ramMonitor.run();
+		ramMonitor.report_ram();
 
 	}
 }

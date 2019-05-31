@@ -21,16 +21,34 @@ public:
 	virtual void start(uint32_t options);
 	virtual void stop();
 
-	cSamplePlayback() {}
-	~cSamplePlayback() {}
+	cSamplePlayback()
+	{
+		inActiveInstrumentsCount = 0;
+		inActiveInstrumentIndex = 0;
+		editorInstrument = nullptr;
+		openedInstrFromActive = 0;
+		openedInstrumentIndex = 0;
+
+		spectrumControl = nullptr;
+		pointsControl = nullptr;
+		topLabel[8] = {nullptr};
+		bottomLabel[8] = {nullptr};
+	}
+	virtual ~cSamplePlayback() {}
 
 	void showDefaultScreen();
+	void clearLabelsBorder();
 
 	void processSpectrum();
+	void processPoints();
+	void modStartPoint(int16_t value);
+	void modEndPoint(int16_t value);
+	void modLoopPoint1(int16_t value);
+	void modLoopPoint2(int16_t value);
 
 //----------------------------------
 	uint8_t refreshSpectrum = 0;
-
+	uint8_t refreshPoints = 0;
 
 	int8_t openedInstrumentIndex; // index w globalnej liscie instrumentow
 	int8_t openedInstrFromActive; // index z listy tylko aktywnych ( activeInstruments[] )
@@ -50,13 +68,18 @@ public:
 
 
 	strTrackerSpectrum spectrum;
+	strTrackerPoints points;
 //----------------------------------
 
+	uint8_t isPlayingSample = 0;
+	int8_t playNote = 24;
+	uint8_t glidePreviewDif = 0;
 
 
 	hControl topLabel[8];
 	hControl bottomLabel[8];
 	hControl spectrumControl;
+	hControl pointsControl;
 
 
 	uint8_t instrumentListMode = 0;

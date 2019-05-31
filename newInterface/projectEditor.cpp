@@ -252,6 +252,33 @@ uint8_t functOpenProject()
 {
 
 	fileManager.openProject(&PE->locationFilesList[PE->selectedLocation][0],projectTypeUserMade);
+//
+//			for(uint8_t i=0; i < 8; i++)
+//			{
+//				mtProject.mtProjectRemote.instrumentFile[i].index = -1;
+//			}
+//			for(uint8_t i=0; i < 8; i++)
+//			{
+//				mtProject.mtProjectRemote.sampleFile[i].index = -1;
+//			}
+
+
+/*
+	fileManager.createNewProject("Project_Test1");
+
+	fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",0,0,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",1,1,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",2,2,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",3,3,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",4,4,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",5,5,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",6,6,mtSampleTypeWaveFile);
+	fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",7,7,mtSampleTypeWaveFile);
+
+
+	fileManager.saveProject();
+*/
+
 
 	PE->loadSamplesBank();
 	//PE->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);

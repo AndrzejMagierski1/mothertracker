@@ -12,12 +12,6 @@ struct strTrackerSpectrum
 	int8_t lowerData[800];
 
 	uint16_t loadProgress = 0;
-
-	uint8_t pointsType = 0;
-	int16_t startPoint;
-	int16_t endPoint;
-	int16_t loopPoint1;
-	int16_t loopPoint2;
 };
 
 
@@ -55,9 +49,6 @@ private:
 	void refresh4();
 	void refresh5();
 
-	uint8_t firstVisibleTrack;
-	int16_t visibleTracksOffset;
-	uint8_t visibleCharOffset;
 
 };
 

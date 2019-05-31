@@ -135,12 +135,6 @@ void onPotChange(uint8_t n, int16_t value)
 // 3 - double click
 void onButtonChange(uint8_t n, uint8_t value)
 {
-	if(n == 5)
-	{
-		onPowerButtonChange(value);
-		return;
-	}
-
 
 	mtInterface.buttonChange(n,value);
 

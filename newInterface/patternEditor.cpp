@@ -15,6 +15,9 @@ uint8_t functStopAction();
 uint8_t functRecAction();
 
 uint8_t functChangeTempo(uint8_t button);
+uint8_t functChangePattern(uint8_t button);
+uint8_t functChangePatternLength(uint8_t button);
+uint8_t functChangePatternEditStep(uint8_t button);
 
 
 uint8_t functLeft();
@@ -71,7 +74,8 @@ void cPatternEditor::start(uint32_t options)
 	{
 		strControlProperties prop2;
 		prop2.text = (char*)"";
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+		prop2.data =  &bottomValuesConfig;
+		prop2.style = 	( controlStyleShowValue | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
 		prop2.x = (800/4)*i+(800/8);
 		prop2.y = 450;
 		prop2.w = 800/4-10;
@@ -129,15 +133,23 @@ void cPatternEditor::stop()
 
 void cPatternEditor::showDefaultScreen()
 {
-	//lista
+
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+
 	//display.setControlShow(patternControl);
 	display.refreshControl(patternControl);
 
 	// bottom labels
-	display.setControlText(bottomLabel[0], "-   BPM: 120   +");
-	display.setControlText(bottomLabel[1], "-  Pattern: 0  +");
-	display.setControlText(bottomLabel[2], "-  Length: 16  +");
-	display.setControlText(bottomLabel[3], "-    Step: 1   +");
+	display.setControlText(bottomLabel[0], "-     BPM:         +");
+	display.setControlText(bottomLabel[1], "-    Pattern:      +");
+	display.setControlText(bottomLabel[2], "-    Length:       +");
+	display.setControlText(bottomLabel[3], "-      Step:       +");
+
+	display.setControlValue(bottomLabel[0], pattern->tempo);
+	display.setControlValue(bottomLabel[1], 1);
+	display.setControlValue(bottomLabel[2], pattern->track[0].length);
+	display.setControlValue(bottomLabel[3], mtProject.values.patternEditStep);
+
 
 	display.setControlShow(bottomLabel[0]);
 	display.setControlShow(bottomLabel[1]);
@@ -178,6 +190,16 @@ void cPatternEditor::showDefaultScreen()
 
 	FM->setButtonObj(interfaceButton0, buttonPress, functChangeTempo);
 	FM->setButtonObj(interfaceButton1, buttonPress, functChangeTempo);
+
+	FM->setButtonObj(interfaceButton2, buttonPress, functChangePattern);
+	FM->setButtonObj(interfaceButton3, buttonPress, functChangePattern);
+
+	FM->setButtonObj(interfaceButton4, buttonPress, functChangePatternLength);
+	FM->setButtonObj(interfaceButton5, buttonPress, functChangePatternLength);
+
+	FM->setButtonObj(interfaceButton6, buttonPress, functChangePatternEditStep);
+	FM->setButtonObj(interfaceButton7, buttonPress, functChangePatternEditStep);
+
 
 
 	//FM->setPotObj(interfacePot0, (uint16_t*)(&trackerPattern.part), 0, 744, 5, patternControl);
@@ -341,12 +363,38 @@ void cPatternEditor::focusOnSelected()
 	}
 }
 
+void cPatternEditor::activateLabelsBorder()
+{
+	for(uint8_t i = 0; i<4; i++)
+	{
+		display.setRemoveControlStyle(bottomLabel[i], controlStyleBorder);
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	if(selectedLabel > 0)
+	{
+		display.setAddControlStyle(bottomLabel[selectedLabel-1], controlStyleBorder);
+		trackerPattern.selectActive = 0;
+	}
+}
 
 //==============================================================================================================
 
 
 uint8_t functEncoder(int16_t value)
 {
+	if(PTE->selectedLabel > 0)
+	{
+		switch(PTE->selectedLabel)
+		{
+		case 1: PTE->changeActualTempo(value); break;
+		case 2: PTE->changeActualPattern(value); break;
+		case 3: PTE->changeActualPatternLength(value); break;
+		case 4: PTE->changeActualPatternEditStep(value); break;
+		}
+
+		return 1;
+	}
 
 	if(PTE->editMode == 0)
 	{
@@ -358,37 +406,15 @@ uint8_t functEncoder(int16_t value)
 		return 1;
 	}
 
-
 	switch(PTE->trackerPattern.select_param)
 	{
-	case 0:
-	{
-		PTE->changeActualStepNote(value);
-		break;
-	}
-	case 1:
-	{
-		PTE->changeActualStepInstrument(value);
-
-		break;
-	}
-	case 2:
-	{
-		PTE->changeActualStepVolume(value);
-
-		break;
-	}
-	case 3:
-	{
-
-		break;
-	}
-
+	case 0: PTE->changeActualStepNote(value); break;
+	case 1: PTE->changeActualStepInstrument(value); break;
+	case 2: PTE->changeActualStepVolume(value); break;
+	case 3: break;
 	}
 
 	PTE->refreshPattern();
-
-	//display.refreshControl(PTE->patternControl);
 
 	return 1;
 }
@@ -479,6 +505,8 @@ uint8_t functLeft()
 {
 	if(PTE->editMode)
 	{
+		PTE->selectedLabel = 0;
+		PTE->activateLabelsBorder();
 		PTE->trackerPattern.select -= 1;
 		if(PTE->trackerPattern.select < 0 ) PTE->trackerPattern.select = 0;
 		PTE->focusOnSelected();
@@ -499,6 +527,8 @@ uint8_t functRight()
 {
 	if(PTE->editMode)
 	{
+		PTE->selectedLabel = 0;
+		PTE->activateLabelsBorder();
 		PTE->trackerPattern.select += 1;
 		if(PTE->trackerPattern.select > 7 ) PTE->trackerPattern.select = 7;
 		PTE->focusOnSelected();
@@ -522,6 +552,9 @@ uint8_t functUp()
 		if(sequencer.getSeqState() == 1) return 1;
 	}
 
+
+	PTE->selectedLabel = 0;
+	PTE->activateLabelsBorder();
 	if(PTE->trackerPattern.position > 0 ) PTE->trackerPattern.position--;
 
 
@@ -539,6 +572,9 @@ uint8_t functDown()
 		if(sequencer.getSeqState() == 1) return 1;
 	}
 
+
+	PTE->selectedLabel = 0;
+	PTE->activateLabelsBorder();
 	if(PTE->trackerPattern.position <  PTE->trackerPattern.length-1) PTE->trackerPattern.position++;
 
 	PTE->refreshPattern();
@@ -549,6 +585,8 @@ uint8_t functDown()
 uint8_t functNote()
 {
 	PTE->trackerPattern.select_param = 0;
+	PTE->selectedLabel = 0;
+	PTE->activateLabelsBorder();
 
 	PTE->refreshPattern();
 
@@ -559,6 +597,8 @@ uint8_t functNote()
 uint8_t functInstrument()
 {
 	PTE->trackerPattern.select_param = 1;
+	PTE->selectedLabel = 0;
+	PTE->activateLabelsBorder();
 
 	PTE->refreshPattern();
 
@@ -568,6 +608,7 @@ uint8_t functInstrument()
 uint8_t functVolume()
 {
 	PTE->trackerPattern.select_param = 2;
+	PTE->selectedLabel = 0;
 
 	PTE->refreshPattern();
 
@@ -577,12 +618,12 @@ uint8_t functVolume()
 uint8_t functFx()
 {
 	PTE->trackerPattern.select_param = 3;
+	PTE->selectedLabel = 0;
 
 	PTE->refreshPattern();
 
 	return 1;
 }
-
 
 uint8_t functPlayAction()
 {
@@ -590,7 +631,6 @@ uint8_t functPlayAction()
 
 	return 1;
 }
-
 
 uint8_t functStopAction()
 {
@@ -626,24 +666,135 @@ uint8_t functRecAction()
 	return 1;
 }
 
-uint8_t functChangeTempo(uint8_t button)
-{
 
+void cPatternEditor::changeActualTempo(int16_t value)
+{
 	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
+	if(pattern->tempo+value < 10) pattern->tempo = 10;
+	else if(pattern->tempo+value > 400) pattern->tempo = 400;
+	else  pattern->tempo += value;
+
+	display.setControlValue(bottomLabel[0], pattern->tempo);
+	PTE->selectedLabel = 1;
+	PTE->activateLabelsBorder();
+
+	display.refreshControl(bottomLabel[0]);
+}
+
+void cPatternEditor::changeActualPattern(int16_t value)
+{
+
+}
+
+void cPatternEditor::changeActualPatternLength(int16_t value)
+{
+
+}
+
+void cPatternEditor::changeActualPatternEditStep(int16_t value)
+{
+
+}
+
+uint8_t functChangeTempo(uint8_t button)
+{
 	if(button == interfaceButton0)
 	{
-		if(pattern->tempo-1 > 0) pattern->tempo--;
+		PTE->changeActualTempo(-1);
 	}
 	else //if(button == interfaceButton1)
 	{
-		 if(pattern->tempo+1 < 400) pattern->tempo++;
+		PTE->changeActualTempo(1);
 	}
 
-	display.refreshControl(PTE->bottomLabel[0]);
+
 
 	return 1;
 }
+
+uint8_t functChangePattern(uint8_t button)
+{
+
+	//Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+
+	if(button == interfaceButton2)
+	{
+
+	}
+	else //if(button == interfaceButton3)
+	{
+
+	}
+
+
+	PTE->selectedLabel = 2;
+	PTE->activateLabelsBorder();
+
+	display.setControlValue(PTE->bottomLabel[1], 1);
+	display.refreshControl(PTE->bottomLabel[1]);
+
+	return 1;
+}
+
+uint8_t functChangePatternLength(uint8_t button)
+{
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+
+	if(button == interfaceButton4)
+	{
+		if(pattern->track[0].length-1 > 0)
+		{
+			pattern->track[0].length--;
+			for(uint8_t i = 0;i < 8; i++)
+				pattern->track[i].length = pattern->track[0].length;
+		}
+	}
+	else //if(button == interfaceButton5)
+	{
+		 if(pattern->track[0].length+1 < 255)
+		 {
+				pattern->track[0].length++;
+				for(uint8_t i = 0;i < 8; i++)
+					pattern->track[i].length = pattern->track[0].length;
+		 }
+	}
+
+	PTE->trackerPattern.length = pattern->track[0].length;
+
+	PTE->selectedLabel = 3;
+	PTE->activateLabelsBorder();
+
+	display.setControlValue(PTE->bottomLabel[2], pattern->track[0].length);
+	display.refreshControl(PTE->bottomLabel[2]);
+
+	PTE->refreshPattern();
+
+	return 1;
+}
+uint8_t functChangePatternEditStep(uint8_t button)
+{
+	if(button == interfaceButton6)
+	{
+		if(mtProject.values.patternEditStep-1 > 0) mtProject.values.patternEditStep--;
+	}
+	else //if(button == interfaceButton7)
+	{
+		 if(mtProject.values.patternEditStep+1 < 10) mtProject.values.patternEditStep++;
+	}
+
+
+	PTE->selectedLabel = 4;
+	PTE->activateLabelsBorder();
+
+	display.setControlValue(PTE->bottomLabel[3], mtProject.values.patternEditStep);
+	display.refreshControl(PTE->bottomLabel[3]);
+
+	return 1;
+}
+
+
+
 
 
 

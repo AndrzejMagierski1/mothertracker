@@ -1,6 +1,10 @@
 
 
 #include "mtPadBoard.h"
+#include "mtAudioEngine.h"
+
+
+
 
 #include "samplePlayback.h"
 
@@ -23,6 +27,17 @@ static  uint8_t functUp();
 static  uint8_t functDown();
 
 
+static  uint8_t functSelectStart();
+static  uint8_t functSelectLoop1();
+static  uint8_t functSelectLoop2();
+static  uint8_t functSelectEnd();
+static  uint8_t functPlayMode();
+
+
+static uint8_t play(uint8_t value);
+static uint8_t stopPlaying(uint8_t value);
+
+
 static  uint8_t functEncoder(int16_t value);
 
 
@@ -34,10 +49,21 @@ void cSamplePlayback::update()
 {
 	if(refreshSpectrum)
 	{
-		spectrum.loadProgress;
+		processSpectrum();
+
+		display.refreshControl(SP->spectrumControl);
+
+		refreshSpectrum = 0;
 	}
 
+	if(refreshPoints)
+	{
+		processPoints();
 
+		display.refreshControl(SP->pointsControl);
+
+		refreshPoints = 0;
+	}
 
 
 
@@ -46,6 +72,8 @@ void cSamplePlayback::update()
 void cSamplePlayback::start(uint32_t options)
 {
 	moduleRefresh = 1;
+
+	points.selected = 0;
 
 	//--------------------------------------------------------------------
 
@@ -122,18 +150,17 @@ void cSamplePlayback::start(uint32_t options)
 	}
 
 
-
-
 	strControlProperties prop;
-//	prop.text = (char*)"";
-//	prop.style = 	(controlStyleShow );//| controlStyleFont2 | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
 	prop.x = 0;
-	prop.y = 0;
+	prop.y = 75;
 	prop.w = 800;
-	prop.h = 400;
+	prop.h = 300;
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
-	//display.refreshControl(hTrackControl);
+
+	// te same wpolrzedne
+	prop.data = &points;
+	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
 
 
 
@@ -161,6 +188,9 @@ void cSamplePlayback::stop()
 	display.destroyControl(spectrumControl);
 	spectrumControl = nullptr;
 
+	display.destroyControl(pointsControl);
+	pointsControl = nullptr;
+
 	for(uint8_t i = 0; i<8; i++)
 	{
 		display.destroyControl(bottomLabel[i]);
@@ -174,25 +204,28 @@ void cSamplePlayback::stop()
 
 void cSamplePlayback::showDefaultScreen()
 {
-
 	processSpectrum();
+	processPoints();
 
-
-	//lista
+	//spectrum
 	display.setControlShow(spectrumControl);
 	display.refreshControl(spectrumControl);
+
+	//points
+	display.setControlShow(pointsControl);
+	display.refreshControl(pointsControl);
 
 	// bottom labels
 	display.setControlText(bottomLabel[0], "Start");
 	display.setControlText(bottomLabel[1], "Loop Start");
 	display.setControlText(bottomLabel[2], "Loop End");
 	display.setControlText(bottomLabel[3], "End");
-	display.setControlText(bottomLabel[4], "- Zoom");
-	display.setControlText(bottomLabel[5], "+ Zoom");
-	display.setControlText(bottomLabel[6], "Play Mode");
-	//display.setControlText(bottomLabel[7], "End");
+	display.setControlText(bottomLabel[4], "Play Mode");
+	display.setControlText(bottomLabel[5], "- Zoom");
+	display.setControlText(bottomLabel[6], "+ Zoom");
+	display.setControlText(bottomLabel[7], "");
 
-	for(uint8_t i = 0; i<7; i++)
+	for(uint8_t i = 0; i<8; i++)
 	{
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
@@ -204,7 +237,7 @@ void cSamplePlayback::showDefaultScreen()
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
 
-	FM->setButtonObj(interfaceButton8, buttonPress, functPlayAction);
+	FM->setButtonObj(interfaceButton8, play);
 	FM->setButtonObj(interfaceButton9, buttonPress, functStopAction);
 	FM->setButtonObj(interfaceButton10, buttonPress, functRecAction);
 
@@ -214,17 +247,63 @@ void cSamplePlayback::showDefaultScreen()
 	FM->setButtonObj(interfaceButton31, buttonPress, functDown);
 
 
+	FM->setButtonObj(interfaceButton0, buttonPress, functSelectStart);
+	FM->setButtonObj(interfaceButton1, buttonPress, functSelectLoop1);
+	FM->setButtonObj(interfaceButton2, buttonPress, functSelectLoop2);
+	FM->setButtonObj(interfaceButton3, buttonPress, functSelectEnd);
 
-	//FM->setPotObj(interfacePot0, (uint16_t*)(&trackerPattern.part), 0, 744, 5, patternControl);
+	FM->setButtonObj(interfaceButton4, buttonPress, functPlayMode);
+
 
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
 
-
 }
+
+void cSamplePlayback::clearLabelsBorder()
+{
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setRemoveControlStyle(bottomLabel[i], controlStyleBorder);
+		display.refreshControl(bottomLabel[i]);
+	}
+}
+
+
 //==============================================================================================================
 
+
+void cSamplePlayback::processPoints()
+{
+
+	points.pointsType = editorInstrument->playMode;
+
+	if(editorInstrument->startPoint >= zoomStart && editorInstrument->startPoint <= zoomEnd)
+	{
+		points.startPoint = ((editorInstrument->startPoint-zoomStart) * 799) / zoomWidth;
+	}
+	else points.startPoint = -1;
+
+	if(editorInstrument->endPoint >= zoomStart && editorInstrument->endPoint <= zoomEnd)
+	{
+		points.endPoint = ((editorInstrument->endPoint-zoomStart) * 799) / zoomWidth;
+	}
+	else points.endPoint = -1;
+
+	if(editorInstrument->loopPoint1 >= zoomStart && editorInstrument->loopPoint1 <= zoomEnd)
+	{
+		points.loopPoint1 = ((editorInstrument->loopPoint1-zoomStart) * 799) / zoomWidth;
+	}
+	else points.loopPoint1 = -1;
+
+	if(editorInstrument->loopPoint2 >= zoomStart && editorInstrument->loopPoint2 <= zoomEnd)
+	{
+		points.loopPoint2 = ((editorInstrument->loopPoint2-zoomStart) * 799) / zoomWidth;
+	}
+	else points.loopPoint2 = -1;
+
+}
 
 
 void cSamplePlayback::processSpectrum()
@@ -448,12 +527,80 @@ void cSamplePlayback::processSpectrum()
 //==============================================================================================================
 
 
+static  uint8_t functSelectStart()
+{
+	SP->points.selected = 1;
+	SP->clearLabelsBorder();
+	display.setAddControlStyle(SP->bottomLabel[0], controlStyleBorder);
+	display.refreshControl(SP->bottomLabel[0]);
+	display.refreshControl(SP->pointsControl);
+
+	return 1;
+}
+
+static  uint8_t functSelectLoop1()
+{
+	SP->points.selected = 3;
+	SP->clearLabelsBorder();
+	display.setAddControlStyle(SP->bottomLabel[1], controlStyleBorder);
+	display.refreshControl(SP->bottomLabel[1]);
+	display.refreshControl(SP->pointsControl);
+
+	return 1;
+}
+
+static  uint8_t functSelectLoop2()
+{
+	SP->points.selected = 4;
+	SP->clearLabelsBorder();
+	display.setAddControlStyle(SP->bottomLabel[2], controlStyleBorder);
+	display.refreshControl(SP->bottomLabel[2]);
+	display.refreshControl(SP->pointsControl);
+
+
+	return 1;
+}
+
+static  uint8_t functSelectEnd()
+{
+	SP->points.selected = 2;
+	SP->clearLabelsBorder();
+	display.setAddControlStyle(SP->bottomLabel[3], controlStyleBorder);
+	display.refreshControl(SP->bottomLabel[3]);
+	display.refreshControl(SP->pointsControl);
+
+	return 1;
+}
+
+static  uint8_t functPlayMode()
+{
+	SP->points.selected = 0;
+	SP->clearLabelsBorder();
+
+	if(SP->editorInstrument->playMode < playModeCount-1 ) SP->editorInstrument->playMode++;
+	else SP->editorInstrument->playMode = 0;
+
+	SP->refreshPoints = 1;
+
+	return 1;
+}
+
 static  uint8_t functEncoder(int16_t value)
 {
 
+	if(SP->points.selected > 0)
+	{
+		switch(SP->points.selected)
+		{
+		case 1: SP->modStartPoint(value); 	break;
+		case 2: SP->modEndPoint(value); 	break;
+		case 3: SP->modLoopPoint1(value); 	break;
+		case 4: SP->modLoopPoint2(value); 	break;
+		}
 
+		SP->refreshPoints = 1;
+	}
 
-	//display.refreshControl(PTE->patternControl);
 
 	return 1;
 }
@@ -536,3 +683,169 @@ static uint8_t functSwitchModule(uint8_t button)
 //======================================================================================================================
 
 
+void cSamplePlayback::modStartPoint(int16_t value)
+{
+	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
+	uint16_t move_step = zoomWidth / 480;
+	uint16_t dif;
+	value = value * move_step;
+
+	if(editorInstrument->startPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument->startPoint  = 0;
+	else if(editorInstrument->startPoint + value > SAMPLE_POINT_POS_MAX ) editorInstrument->startPoint  = SAMPLE_POINT_POS_MAX;
+	else editorInstrument->startPoint += value;
+
+	if(editorInstrument->startPoint > editorInstrument->endPoint) editorInstrument->startPoint = editorInstrument->endPoint-1;
+
+	if(editorInstrument->playMode != singleShot)
+	{
+		if(editorInstrument->startPoint > editorInstrument->loopPoint1)
+		{
+			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
+			editorInstrument->loopPoint1 = editorInstrument->startPoint;
+
+			if(editorInstrument->loopPoint1 + dif > editorInstrument->endPoint)
+			{
+				editorInstrument->loopPoint2 = editorInstrument->endPoint;
+				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
+				editorInstrument->startPoint = editorInstrument->loopPoint1;
+				instrumentPlayer[0].setStatusBytes(LP1_MASK);
+				instrumentPlayer[0].setStatusBytes(LP2_MASK);
+			}
+			else
+			{
+				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
+				instrumentPlayer[0].setStatusBytes(LP2_MASK);
+			}
+		}
+	}
+
+	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
+	if(zoomValue > 1 && lastChangedPoint != 1
+		&& (editorInstrument->startPoint < zoomStart || editorInstrument->startPoint > zoomEnd)) refreshSpectrum = 1;
+
+	lastChangedPoint = 1;
+}
+
+void cSamplePlayback::modEndPoint(int16_t value)
+{
+	uint16_t move_step = zoomWidth / 480;
+	uint16_t dif;
+	value = value * move_step;
+
+	if(editorInstrument->endPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument->endPoint  = 0;
+	else if(editorInstrument->endPoint + value > SAMPLE_POINT_POS_MAX ) editorInstrument->endPoint  = SAMPLE_POINT_POS_MAX;
+	else editorInstrument->endPoint += value;
+
+	if(editorInstrument->endPoint < editorInstrument->startPoint) editorInstrument->endPoint = editorInstrument->startPoint+1;
+
+	if(editorInstrument->playMode != singleShot)
+	{
+		if(editorInstrument->endPoint < editorInstrument->loopPoint2)
+		{
+			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
+
+			editorInstrument->loopPoint2 = editorInstrument->endPoint;
+
+			if(editorInstrument->loopPoint2 - dif < editorInstrument->startPoint)
+			{
+				editorInstrument->loopPoint1 = editorInstrument->startPoint;
+				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
+				editorInstrument->endPoint = editorInstrument->loopPoint2;
+				instrumentPlayer[0].setStatusBytes(LP1_MASK);
+				instrumentPlayer[0].setStatusBytes(LP2_MASK);
+			}
+			else
+			{
+				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
+				instrumentPlayer[0].setStatusBytes(LP1_MASK);
+			}
+		}
+	}
+
+	if(zoomValue > 1 && lastChangedPoint != 2
+			&& (editorInstrument->endPoint < zoomStart || editorInstrument->endPoint > zoomEnd)) refreshSpectrum = 1;
+
+	lastChangedPoint = 2;
+}
+
+void cSamplePlayback::modLoopPoint1(int16_t value)
+{
+	uint16_t move_step = zoomWidth / 480;
+	value = value * move_step;
+
+	if(editorInstrument->loopPoint1 + value < SAMPLE_POINT_POS_MIN) editorInstrument->loopPoint1  = 0;
+	else if(editorInstrument->loopPoint1 + value > SAMPLE_POINT_POS_MAX ) editorInstrument->loopPoint1  = SAMPLE_POINT_POS_MAX;
+	else editorInstrument->loopPoint1 += value;
+
+	if(editorInstrument->loopPoint1 < editorInstrument->startPoint) editorInstrument->loopPoint1 = editorInstrument->startPoint;
+	if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2-1;
+
+	if(zoomValue > 1 && lastChangedPoint != 3
+			&& (editorInstrument->loopPoint1 < zoomStart || editorInstrument->loopPoint1 > zoomEnd)) refreshSpectrum = 1;
+
+	instrumentPlayer[0].setStatusBytes(LP1_MASK);
+
+
+	lastChangedPoint = 3;
+}
+
+void cSamplePlayback::modLoopPoint2(int16_t value)
+{
+	uint16_t move_step = zoomWidth / 480;
+	value = value * move_step;
+
+	if(editorInstrument->loopPoint2 + value < SAMPLE_POINT_POS_MIN) editorInstrument->loopPoint2  = 0;
+	else if(editorInstrument->loopPoint2 + value > SAMPLE_POINT_POS_MAX ) editorInstrument->loopPoint2  = SAMPLE_POINT_POS_MAX;
+	else editorInstrument->loopPoint2 += value;
+
+	if(editorInstrument->loopPoint2 > editorInstrument->endPoint) editorInstrument->loopPoint2 = editorInstrument->endPoint;
+	if(editorInstrument->loopPoint2 <= editorInstrument->loopPoint1) editorInstrument->loopPoint2 = editorInstrument->loopPoint1+1;
+
+	if(zoomValue > 1 && lastChangedPoint != 4
+			&& (editorInstrument->loopPoint2 < zoomStart || editorInstrument->loopPoint2 > zoomEnd)) refreshSpectrum = 1;
+
+	instrumentPlayer[0].setStatusBytes(LP2_MASK);
+
+	lastChangedPoint = 4;
+}
+
+
+static uint8_t play(uint8_t value)
+{
+	if(value == 1)
+	{
+		//eventFunct(mtInstrumentEditorEventPadPress, &interfacePadStop, 0, 0);
+		sequencer.stop();
+
+		SP->isPlayingSample = 1;
+		if(SP->editorInstrument->glide > 0)
+		{
+			switch(	SP->glidePreviewDif)
+			{
+				case 0: SP->playNote = 24;	break;
+				case 1: SP->playNote = (SP->playNote == 24)? 25 : 24; 	break;
+				case 2: SP->playNote = (SP->playNote == 24)? 36 : 24; 	break;
+				case 3: SP->playNote = (SP->playNote == 24)? 47 : 24; 	break;
+			}
+		}
+
+		instrumentPlayer[0].noteOn(SP->openedInstrumentIndex, SP->playNote, -1);
+	}
+	else if(value == 0)
+	{
+		if(SP->isPlayingSample) instrumentPlayer[0].noteOff();
+		SP->isPlayingSample = 0;
+	}
+
+	return 1;
+}
+/*
+static uint8_t stopPlaying(uint8_t value)
+{
+	if(SP->isPlayingSample) instrumentPlayer[0].noteOff();
+
+	SP->isPlayingSample = 0;
+
+	return 1;
+}
+*/

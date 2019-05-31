@@ -9,6 +9,7 @@
 #include "trackerControl.h"
 #include "commonControls.h"
 #include "spectrumControl.h"
+#include "pointsControl.h"
 #include "list.h"
 
 typedef cDisplayControl* hControl;
@@ -91,6 +92,8 @@ public:
 	void setControlStyle(hControl handle, uint32_t style);
 	void setControlShow(hControl handle);
 	void setControlHide(hControl handle);
+	void setAddControlStyle(hControl handle, uint32_t style);
+	void setRemoveControlStyle(hControl handle, uint32_t style);
 	void setControlText(hControl handle, char* text);
 	inline void setControlText(hControl handle,  char const* text) { setControlText(handle, (char*)text); }
 	void setControlValue(hControl handle, int value);

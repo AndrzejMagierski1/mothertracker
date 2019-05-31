@@ -29,6 +29,7 @@ void cInterface::potChange(uint8_t n, int16_t value)
 //=======================================================================
 void cInterface::buttonChange(uint8_t n, uint8_t value)
 {
+
 	uiFM.processButtonsInput(n, value);
 
 

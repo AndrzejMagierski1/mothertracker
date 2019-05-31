@@ -7,6 +7,19 @@
 
 
 
+struct strTrackerPoints
+{
+	uint8_t pointsType = 0;
+	int16_t startPoint;
+	int16_t endPoint;
+	int16_t loopPoint1;
+	int16_t loopPoint2;
+
+	uint8_t selected = 0;
+};
+
+
+
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
@@ -28,6 +41,8 @@ public:
 	virtual void setDefaultColors(uint32_t colors[]);
 	virtual void setData(void* data);
 
+
+	strTrackerPoints* points;
 
 	uint16_t textStyle;
 	int16_t textFont;

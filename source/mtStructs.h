@@ -357,6 +357,9 @@ struct strMtValues
 	uint8_t reverbRoomSize;
 	uint8_t reverbDamping;
 	int8_t reverbPanning;
+
+	int8_t patternEditStep = 1;
+
 };
 
 //-------------------------------------------------
