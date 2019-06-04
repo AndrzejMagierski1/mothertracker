@@ -59,8 +59,10 @@
 									<listOptionValue builtIn="false" value="../interface"/>
 									<listOptionValue builtIn="false" value="../libs/EEPROM"/>
 									<listOptionValue builtIn="false" value="../libs/ramMonitor"/>
-									<listOptionValue builtIn="false" value="../newInterface"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mothertracker/libs/EEPROM}&quot;"/>
+									<listOptionValue builtIn="false" value="../interface"/>
+									<listOptionValue builtIn="false" value="../interface/gui"/>
+									<listOptionValue builtIn="false" value="../interface/funct"/>
+									<listOptionValue builtIn="false" value="../libs/EEPROM"/>
 									<listOptionValue builtIn="false" value="../libs/Snooze"/>
 									<listOptionValue builtIn="false" value="../effector"/>
 								</option>
@@ -200,7 +202,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="interface" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="old_interface" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

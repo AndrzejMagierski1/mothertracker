@@ -1,11 +1,11 @@
-#ifndef NEWINTERFACE_MODULESBASE_H_
-#define NEWINTERFACE_MODULESBASE_H_
+#ifndef INTERFACE_MODULESBASE_H_
+#define INTERFACE_MODULESBASE_H_
 
 
 #include <stdint.h>
 #include <display.h>
 
-#include "interfaceDefs.h"
+#include <interfaceDefs.h>
 
 class  cFunctionMachine;
 
@@ -24,6 +24,8 @@ public:
 	virtual void start(uint32_t options) = 0;
 	virtual void stop() = 0;
 
+	virtual void initDisplayControls() = 0;
+	virtual void destroyDisplayControls() = 0;
 
 
 	void setEventFunct(void (*func)(uint8_t, void*, void*, void*)) { eventFunct = func; };
@@ -66,10 +68,11 @@ public:
 	void clearAllPads();
 	void clearButtonsRange(uint8_t from, uint8_t to);
 
+
+
 	void setPotObj(uint8_t objectID, uint8_t(*funct)(int16_t), hControl control);
 	void setPotObj(int8_t objectID, uint8_t* param, uint8_t min, uint8_t max, uint8_t step, hControl control);
 	void setPotObj(int8_t objectID, uint16_t* param, uint16_t min, uint16_t max, uint16_t step, hControl control);
-
 /*
 	template <typename T>
 	void setPotObj(uint8_t objectID, T* param, T min, T max, T step, hControl control)
@@ -77,7 +80,6 @@ public:
 
 	}
 */
-
 	template <typename T>
 	void setPotObjControlValue(uint8_t objectID, T* param, T min, T max, T step, hControl control)
 	{
@@ -89,7 +91,6 @@ public:
 
 		pots[objectID].mode = 1;
 */
-
 	}
 
 
@@ -167,7 +168,9 @@ private:
 	static strPadObject pads[];
 
 
-
+	uint8_t potsCleared = 1;
+	uint8_t buttonsCleared = 1;
+	uint8_t padsCleared = 1;
 };
 
 
@@ -206,4 +209,4 @@ private:
 
 
 
-#endif /* NEWINTERFACE_MODULESBASE_H_ */
+#endif /* INTERFACE_MODULESBASE_H_ */

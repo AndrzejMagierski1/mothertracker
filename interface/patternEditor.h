@@ -1,9 +1,8 @@
-#ifndef NEWINTERFACE_PATTERNEDITOR_H_
-#define NEWINTERFACE_PATTERNEDITOR_H_
+#ifndef INTERFACE_PATTERNEDITOR_H_
+#define INTERFACE_PATTERNEDITOR_H_
 
 
-#include "modulesBase.h"
-
+#include <modulesBase.h>
 #include "SD.h"
 
 #include "mtSequencer.h"
@@ -19,6 +18,9 @@ public:
 	virtual void start(uint32_t options);
 	virtual void stop();
 
+	virtual void initDisplayControls();
+	virtual void destroyDisplayControls();
+
 	cPatternEditor()
 	{
 		seq = nullptr;
@@ -26,13 +28,15 @@ public:
 
 		patternControl = nullptr;
 	}
-	~cPatternEditor() {}
+	virtual ~cPatternEditor() {}
+
+//----------------------------------
 
 	void showDefaultScreen();
+	void setDefaultScreenFunct();
 
 	void focusOnSelected();
 
-//----------------------------------
 	void refreshPattern();
 	void readPatternState();
 
@@ -45,9 +49,11 @@ public:
 	void changeActualPatternLength(int16_t value);
 	void changeActualPatternEditStep(int16_t value);
 
-
+//----------------------------------
 	void activateLabelsBorder();
 
+
+//----------------------------------
 
 	uint16_t lastPatternPosition;
 
@@ -93,4 +99,4 @@ const char mtNotes[128][5] =
 	"C10",	"C#10",	"D10",	"D#10",	"E10",	"F10",	"F#10",	"G10"
 };
 
-#endif /* NEWINTERFACE_PATTERNEDITOR_H_ */
+#endif /* INTERFACE_PATTERNEDITOR_H_ */

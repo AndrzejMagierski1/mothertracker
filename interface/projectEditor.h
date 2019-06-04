@@ -1,9 +1,8 @@
-#ifndef NEWINTERFACE_PROJECTEDITOR_H_
-#define NEWINTERFACE_PROJECTEDITOR_H_
+#ifndef INTERFACE_PROJECTEDITOR_H_
+#define INTERFACE_PROJECTEDITOR_H_
 
 
-#include "modulesBase.h"
-
+#include <modulesBase.h>
 #include "SD.h"
 
 enum mtProjectStartMode
@@ -28,11 +27,27 @@ public:
 	virtual void start(uint32_t options);
 	virtual void stop();
 
+	virtual void initDisplayControls();
+	virtual void destroyDisplayControls();
+
 	cProjectEditor() {}
 	virtual ~cProjectEditor() {}
 
+//-------------------------------------------------------------
+
 	void showDefaultScreen();
+	void showProjectsList();
+	void showTemplatesList();
+
+
+	void setDefaultScreenFunct();
+
+//-------------------------------------------------------------
+
 	uint8_t loadSamplesBank();
+
+
+//-------------------------------------------------------------
 
 	strList projectList;
 
@@ -47,11 +62,8 @@ public:
 			0x3F3F3F, // ramka
 	};
 
-	typedef void (cProjectEditor::*FUNC1) (void);
 
-	//void (cProjectEditor::*funct1)(void) = nullptr;
-	FUNC1 funct1;
-
+	uint32_t projectOptions = 0;
 
 
 
@@ -80,4 +92,4 @@ extern cProjectEditor projectEditor;
 
 
 
-#endif /* NEWINTERFACE_PROJECTEDITOR_H_ */
+#endif /* INTERFACE_PROJECTEDITOR_H_ */

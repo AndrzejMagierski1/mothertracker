@@ -1,18 +1,18 @@
 
 
-#ifndef NEWINTERFACE_INTERFACE_H_
-#define NEWINTERFACE_INTERFACE_H_
+#ifndef INTERFACE_INTERFACE_H_
+#define INTERFACE_INTERFACE_H_
 
 
 
-#include "interfaceDefs.h"
+#include <interfaceDefs.h>
+#include <modulesBase.h>
 #include <stdint.h>
 #include "elapsedMillis.h"
 
 
 
 #include "mtHardware.h"
-#include "modulesBase.h"
 
 
 
@@ -80,4 +80,4 @@ extern void interfaceEnvents(uint8_t event, void* param1, void* param2, void* pa
 
 
 
-#endif /* NEWINTERFACE_INTERFACE_H_ */
+#endif /* INTERFACE_INTERFACE_H_ */

@@ -1,9 +1,9 @@
 
 
 
+#include <projectEditor.h>
 #include "mtFileManager.h"
 
-#include "projectEditor.h"
 
 
 extern int16_t sdram_effectsBank[4*1024*1024];
@@ -31,61 +31,52 @@ void cProjectEditor::update()
 
 
 
+
+	if(projectOptions > 0)
+	{
+
+		switch(projectOptions)
+		{
+
+			case mtProjectStartModeOpenLast:
+			{
+				listOnlyFolderNames("/Projects/");
+
+				fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
+				loadSamplesBank();
+
+				functSwitchModule(interfaceButton13);
+				break;
+			}
+
+
+		}
+
+	}
+
+
 }
 
 void cProjectEditor::start(uint32_t options)
 {
 
-	// inicjalizacja kontrolek
-	for(uint8_t i = 0; i<4; i++)
+	selectedLocation = 0;
+
+	if(options == mtProjectStartModeOpenLast)
 	{
-		strControlProperties prop1;
-		prop1.text = (char*)"";
-		prop1.style = 	(/*controlStyleShow |*/ controlStyleCenterX);
-		prop1.x = (800/4)*i+(800/8);
-		prop1.y = 5;
-		prop1.w = 800/4;
-		prop1.h = 25;
-		prop1.colors = &topLabelColors[0];
+		moduleRefresh = 1;
 
-		if(PE->topLabel[0] == nullptr) PE->topLabel[0] = display.createControl<cLabel>(&prop1);
+		projectOptions = mtProjectStartModeOpenLast;
+
 	}
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		strControlProperties prop2;
-		prop2.text = (char*)"";
-		prop2.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
-		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 450;
-		prop2.w = 800/8-10;
-		prop2.h = 30;
-
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
-	}
-
-
-	projectList.linesCount = 5;
-	projectList.start = 0;
-	projectList.length = 0;
-	strControlProperties prop;
-	prop.x = 0;
-	prop.y = 35;
-	prop.w = (800/4);
-	prop.h = 25;
-	prop.data = &projectList;
-	if(fileListControl == nullptr)  fileListControl = display.createControl<cList>(&prop);
 
 	// ustawienie funkcji
-	FM->clearAllButtons();
-	FM->clearAllPots();
-
 
 	FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
 
 	showDefaultScreen();
-
+	setDefaultScreenFunct();
 
 
 
@@ -97,47 +88,12 @@ void cProjectEditor::start(uint32_t options)
 
 void cProjectEditor::stop()
 {
-	display.destroyControl(fileListControl);
-	fileListControl = nullptr;
+	moduleRefresh = 0;
 
-	for(uint8_t i = 0; i<4; i++)
-	{
-		display.destroyControl(topLabel[i]);
-		topLabel[i] = nullptr;
-	}
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		display.destroyControl(bottomLabel[i]);
-		bottomLabel[i] = nullptr;
-	}
-
-	FM->clearAllButtons();
-	FM->clearAllPots();
 }
 
-void cProjectEditor::showDefaultScreen()
+void cProjectEditor::setDefaultScreenFunct()
 {
-	//lista
-	display.setControlHide(PE->fileListControl);
-
-	// top label listy
-	//display.setControlText(PE->topLabel[0], "");
-	display.setControlHide(PE->topLabel[0]);
-	display.refreshControl(PE->topLabel[0]);
-
-	// bottom labels
-	display.setControlText(bottomLabel[0], "New");
-	display.setControlText(bottomLabel[1], "Open");
-	display.setControlText(bottomLabel[4], "Save");
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		display.refreshControl(PE->bottomLabel[i]);
-	}
-
-	display.synchronizeRefresh();
-
 	//funkcje
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
@@ -153,29 +109,9 @@ uint8_t functShowProjectsList()
 {
 	PE->listOnlyFolderNames("/Projects/");
 
-// lista
-	PE->projectList.start = 0;
-	PE->projectList.length = PE->locationFilesCount;
-	PE->projectList.linesCount = 5;
-	PE->projectList.data = PE->filesNames;
 
-	display.setControlData(PE->fileListControl,  &PE->projectList);
-	display.setControlShow(PE->fileListControl);
-	display.refreshControl(PE->fileListControl);
+	PE->showProjectsList();
 
-// top label listy
-	display.setControlText(PE->topLabel[0], "Open project");
-	display.setControlShow(PE->topLabel[0]);
-	display.refreshControl(PE->topLabel[0]);
-
-// bottom labels
-	display.setControlText(PE->bottomLabel[0], "Open");
-	display.setControlText(PE->bottomLabel[1], "Cancel");
-
-	display.refreshControl(PE->bottomLabel[0]);
-	display.refreshControl(PE->bottomLabel[1]);
-
-	display.synchronizeRefresh();
 
 // funkcje
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
@@ -195,31 +131,11 @@ uint8_t functShowTemplatesList()
 {
 	PE->listOnlyFolderNames("/Templates/");
 
-// lista
-	PE->projectList.start = 0;
-	PE->projectList.length = PE->locationFilesCount;
-	PE->projectList.linesCount = 5;
-	PE->projectList.data = PE->filesNames;
 
-	display.setControlData(PE->fileListControl,  &PE->projectList);
-	display.setControlShow(PE->fileListControl);
-	display.refreshControl(PE->fileListControl);
+	PE->showTemplatesList();
 
-// top label listy
-	display.setControlText(PE->topLabel[0], "Choose template");
-	display.setControlShow(PE->topLabel[0]);
-	display.refreshControl(PE->topLabel[0]);
 
-// bottom labels
-	display.setControlText(PE->bottomLabel[0], "Create");
-	display.setControlText(PE->bottomLabel[1], "Cancel");
-	display.setControlText(PE->bottomLabel[4], "New");
 
-	display.refreshControl(PE->bottomLabel[0]);
-	display.refreshControl(PE->bottomLabel[1]);
-	display.refreshControl(PE->bottomLabel[4]);
-
-	display.synchronizeRefresh();
 
 // funkcje
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);

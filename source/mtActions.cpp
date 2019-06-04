@@ -2,13 +2,10 @@
 #include <stdint.h>
 
 #include <Arduino.h>
+#include <interface.h>
 #include "keyScanner.h"
 #include "mtLED.h"
 #include "mtAudioEngine.h"
-
-#include "mtProjectEditor.h"
-
-#include "mtInstrumentEditor.h"
 
 #include "mtSequencer.h"
 
@@ -17,10 +14,10 @@
 #include "mtPadsBacklight.h"
 
 
-#include "interface.h"
-
 #include "mtEffector.h"
 #include "mtExporterWAV.h"
+#include "../old_interface/mtInstrumentEditor.h"
+#include "../old_interface/mtProjectEditor.h"
 
 extern AudioControlSGTL5000 audioShield;
 

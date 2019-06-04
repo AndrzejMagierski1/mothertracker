@@ -1,15 +1,12 @@
 
 
 
-#include "mtFileManager.h"
+
+#include <instrumentEditor.h>
 
 
-#include "sampleImporter.h"
-
-
-cSampleImporter sampleImporter;
-static cSampleImporter* SI = &sampleImporter;
-
+cInstrumentEditor instrumentEditor;
+static cInstrumentEditor* IE = &instrumentEditor;
 
 
 
@@ -33,35 +30,16 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 
 
-void cSampleImporter::update()
+void cInstrumentEditor::update()
 {
 
 
-
+	moduleRefresh = 0;
 }
 
-void cSampleImporter::start(uint32_t options)
+void cInstrumentEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
-
-
-
-	// inicjalizacja kontrolek
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		strControlProperties prop2;
-		prop2.text = (char*)"";
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
-		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 450;
-		prop2.w = 800/8-10;
-		prop2.h = 30;
-
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
-	}
-
-
 
 
 
@@ -70,14 +48,13 @@ void cSampleImporter::start(uint32_t options)
 
 
 	// ustawienie funkcji
-	FM->clearAllButtons();
-	FM->clearAllPots();
 
 	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
 
 
 	showDefaultScreen();
+	setDefaultScreenFunct();
 
 	//typedef void (cProjectEditor::*funct1) (void);
 	//funct1 = &cProjectEditor::functOpenProject;
@@ -85,45 +62,15 @@ void cSampleImporter::start(uint32_t options)
 
 }
 
-void cSampleImporter::stop()
+void cInstrumentEditor::stop()
 {
-	//display.destroyControl(patternControl);
-	//patternControl = nullptr;
 
-	for(uint8_t i = 0; i<8; i++)
-	{
-		display.destroyControl(bottomLabel[i]);
-		bottomLabel[i] = nullptr;
-	}
 
-	FM->clearAllButtons();
-	FM->clearAllPots();
 
 }
 
-void cSampleImporter::showDefaultScreen()
+void cInstrumentEditor::setDefaultScreenFunct()
 {
-	//lista
-	//display.setControlShow(patternControl);
-	//display.refreshControl(patternControl);
-
-	// bottom labels
-	display.setControlText(bottomLabel[0], "Start");
-	display.setControlText(bottomLabel[1], "Loop Start");
-	display.setControlText(bottomLabel[2], "Loop End");
-	display.setControlText(bottomLabel[3], "End");
-	display.setControlText(bottomLabel[4], "- Zoom");
-	display.setControlText(bottomLabel[5], "+ Zoom");
-	display.setControlText(bottomLabel[6], "Play Mode");
-	//display.setControlText(bottomLabel[7], "End");
-
-	for(uint8_t i = 0; i<7; i++)
-	{
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-	}
-
-	display.synchronizeRefresh();
 
 	//funkcje
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
@@ -237,7 +184,7 @@ static  uint8_t functRecAction()
 static uint8_t functSwitchModule(uint8_t button)
 {
 
-	SI->eventFunct(eventSwitchModule,SI,&button,0);
+	IE->eventFunct(eventSwitchModule,IE,&button,0);
 
 	return 1;
 }

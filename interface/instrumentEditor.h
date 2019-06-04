@@ -1,9 +1,8 @@
-#ifndef NEWINTERFACE_INSTRUMENTEDITOR_H_
-#define NEWINTERFACE_INSTRUMENTEDITOR_H_
+#ifndef INTERFACE_INSTRUMENTEDITOR_H_
+#define INTERFACE_INSTRUMENTEDITOR_H_
 
 
-#include "modulesBase.h"
-
+#include <modulesBase.h>
 #include "SD.h"
 
 #include "mtSequencer.h"
@@ -19,12 +18,16 @@ public:
 	virtual void start(uint32_t options);
 	virtual void stop();
 
+	virtual void initDisplayControls();
+	virtual void destroyDisplayControls();
+
 	cInstrumentEditor() {}
 	~cInstrumentEditor() {}
 
 	void showDefaultScreen();
 
 
+	void setDefaultScreenFunct();
 
 //----------------------------------
 
@@ -50,4 +53,4 @@ extern cInstrumentEditor instrumentEditor;
 
 
 
-#endif /* NEWINTERFACE_INSTRUMENTEDITOR_H_ */
+#endif /* INTERFACE_INSTRUMENTEDITOR_H_ */

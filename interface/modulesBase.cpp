@@ -1,10 +1,11 @@
 
-#include "modulesBase.h"
-
+#include <modulesBase.h>
 #include <string.h>
 
 void cFunctionMachine::clearAll()
 {
+	if(potsCleared && buttonsCleared && padsCleared) return;
+
 	for(uint8_t i = 0; i<potsCount; i++)
 	{
 		pots[i].mode = 0;
@@ -20,34 +21,47 @@ void cFunctionMachine::clearAll()
 		pads[i].mode = 0;
 
 	}
+
+	potsCleared = 1;
+	buttonsCleared = 1;
+	padsCleared = 1;
+
 }
 
 void cFunctionMachine::clearAllButtons()
 {
+	if(buttonsCleared) return;
+
 	memset(buttons,0,sizeof(strButtonObject)*buttonsCount);
+
+	buttonsCleared = 1;
 }
 
 void cFunctionMachine::clearButtonsRange(uint8_t from, uint8_t to)
 {
-	if(from >= buttonsCount || to >= buttonsCount) return;
+	if(from >= buttonsCount || to >= buttonsCount || from > to) return;
 
-	memset(buttons+from,0,sizeof(strButtonObject)*to);
+	memset(buttons+from,0,sizeof(strButtonObject)*(to-from));
 }
-
-
 
 void cFunctionMachine::clearAllPots()
 {
+	if(potsCleared) return;
+
 	delete  (paramChange<uint8_t>*)pots[0].paramStruct;
 
 	memset(pots,0,sizeof(strPotObject)*potsCount);
 
-
+	potsCleared = 1;
 }
 
 void cFunctionMachine::clearAllPads()
 {
+	if(padsCleared) return;
+
 	memset(pads,0,sizeof(strPadObject)*padsCount);
+
+	padsCleared = 1;
 }
 
 //==================================================================================================================
@@ -57,6 +71,8 @@ void cFunctionMachine::setPotObj(uint8_t objectID, uint8_t(*funct)(int16_t), hCo
 	pots[objectID].control = control;
 
 	pots[objectID].mode = 1;
+
+	potsCleared = 0;
 }
 
 //==================================================================================================================
@@ -75,6 +91,8 @@ void cFunctionMachine::setPotObj(int8_t objectID, uint8_t* param, uint8_t min, u
 	pots[objectID].control = control;
 
 	pots[objectID].mode = 2;
+
+	potsCleared = 0;
 }
 
 void cFunctionMachine::setPotObj(int8_t objectID, uint16_t* param, uint16_t min, uint16_t max, uint16_t step, hControl control)
@@ -92,6 +110,8 @@ void cFunctionMachine::setPotObj(int8_t objectID, uint16_t* param, uint16_t min,
 	pots[objectID].control = control;
 
 	pots[objectID].mode = 3;
+
+	potsCleared = 0;
 }
 //==================================================================================================================
 
@@ -103,6 +123,8 @@ void cFunctionMachine::setButtonObj(uint8_t objectID, uint8_t state, uint8_t(*fu
 	//buttons[objectID].control = control;
 
 	buttons[objectID].mode = 1;
+
+	buttonsCleared = 0;
 }
 
 // przypisuje funkcje na okreslony stan przycisku z argumentem w postaci id przycisku
@@ -113,6 +135,8 @@ void cFunctionMachine::setButtonObj(uint8_t objectID, uint8_t state, uint8_t(*fu
 	//buttons[objectID].control = control;
 
 	buttons[objectID].mode = 2;
+
+	buttonsCleared = 0;
 }
 
 // przypisuje funkcje z argumentem w postaci stanu przycisku
@@ -123,6 +147,8 @@ void cFunctionMachine::setButtonObj(uint8_t objectID, uint8_t(*funct)(uint8_t))
 	//buttons[objectID].control = control;
 
 	buttons[objectID].mode = 3;
+
+	buttonsCleared = 0;
 }
 
 //==================================================================================================================
@@ -133,6 +159,8 @@ void cFunctionMachine::setPadObj(uint8_t objectID, uint8_t state, uint8_t(*funct
 	pads[objectID].control = control;
 
 	pads[objectID].mode = 1;
+
+	padsCleared = 0;
 }
 
 void cFunctionMachine::setPadObj(uint8_t objectID, uint8_t(*funct)(uint8_t,int16_t), hControl control)
@@ -142,6 +170,8 @@ void cFunctionMachine::setPadObj(uint8_t objectID, uint8_t(*funct)(uint8_t,int16
 	pads[objectID].control = control;
 
 	pads[objectID].mode = 1;
+
+	padsCleared = 0;
 }
 
 
@@ -197,7 +227,6 @@ void cFunctionMachine::processPotsInput(uint8_t pot, int16_t value)
 
 
 
-
 		display.setControlValue(pots[pot].control, *((paramChange<uint8_t>*) pots[pot].paramStruct)->ptr);
 		display.refreshControl(pots[pot].control);
 
@@ -208,11 +237,12 @@ void cFunctionMachine::processPotsInput(uint8_t pot, int16_t value)
 
 
 
-	uint8_t result = 0;
+	uint8_t result = 1;
 
-	if(pots[pot].funct1 != nullptr) result = pots[pot].funct1(value);
+	if(pots[pot].mode == 1 && pots[pot].funct1 != nullptr) result = pots[pot].funct1(value);
+	else return;
 
-	if(pots[pot].control != nullptr) display.refreshControl(pots[pot].control);
+	display.refreshControl(pots[pot].control);
 
 	if(result == 0)
 	{

@@ -1,4 +1,9 @@
 
+#include <interface.h>
+#include <patternEditor.h>
+#include <projectEditor.h>
+#include <sampleImporter.h>
+#include <samplePlayback.h>
 #include "mtStructs.h"
 
 
@@ -25,13 +30,6 @@
 
 
 
-#include "projectEditor.h"
-#include "sampleImporter.h"
-#include "patternEditor.h"
-#include "samplePlayback.h"
-
-
-#include "interface.h"
 
 
 cInterface mtInterface;
@@ -98,7 +96,7 @@ void cInterface::begin()
 
 	//readConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
 
-	ramMonitor.initialize();
+	//ramMonitor.initialize();
 
 }
 
@@ -120,8 +118,8 @@ void cInterface::update()
 	{
 		ramInfoTimer = 0;
 
-		ramMonitor.run();
-		ramMonitor.report_ram();
+		//ramMonitor.run();
+		//ramMonitor.report_ram();
 
 	}
 }
@@ -159,7 +157,10 @@ void cInterface::processOperatingMode()
 //=======================================================================
 void cInterface::activateModule(hModule module, uint32_t options)
 {
+	uiFM.clearAllButtons();
+	uiFM.clearAllPots();
 
+	module->initDisplayControls();
 	module->start(options);
 	onScreenModule = module;
 
@@ -168,7 +169,12 @@ void cInterface::activateModule(hModule module, uint32_t options)
 
 void cInterface::deactivateModule(hModule module)
 {
+	uiFM.clearAllButtons();
+	uiFM.clearAllPots();
+
 	module->stop();
+	module->destroyDisplayControls();
+	if(module == onScreenModule) onScreenModule = nullptr;
 }
 
 void cInterface::activateModulefromButton(uint8_t index)

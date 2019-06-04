@@ -1,9 +1,8 @@
-#ifndef NEWINTERFACE_SAMPLEPLAYBACK_H_
-#define NEWINTERFACE_SAMPLEPLAYBACK_H_
+#ifndef INTERFACE_SAMPLEPLAYBACK_H_
+#define INTERFACE_SAMPLEPLAYBACK_H_
 
 
-#include "modulesBase.h"
-
+#include <modulesBase.h>
 #include "SD.h"
 
 #include "mtSequencer.h"
@@ -21,6 +20,9 @@ public:
 	virtual void start(uint32_t options);
 	virtual void stop();
 
+	virtual void initDisplayControls();
+	virtual void destroyDisplayControls();
+
 	cSamplePlayback()
 	{
 		inActiveInstrumentsCount = 0;
@@ -37,6 +39,8 @@ public:
 	virtual ~cSamplePlayback() {}
 
 	void showDefaultScreen();
+	void setDefaultScreenFunct();
+
 	void clearLabelsBorder();
 
 	void processSpectrum();
@@ -95,4 +99,4 @@ extern cSamplePlayback samplePlayback;
 
 
 
-#endif /* NEWINTERFACE_SAMPLEPLAYBACK_H_ */
+#endif /* INTERFACE_SAMPLEPLAYBACK_H_ */

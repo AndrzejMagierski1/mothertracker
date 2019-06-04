@@ -1,9 +1,8 @@
-#ifndef NEWINTERFACE_SAMPLEIMPORTER_H_
-#define NEWINTERFACE_SAMPLEIMPORTER_H_
+#ifndef INTERFACE_SAMPLEIMPORTER_H_
+#define INTERFACE_SAMPLEIMPORTER_H_
 
 
-#include "modulesBase.h"
-
+#include <modulesBase.h>
 #include "SD.h"
 
 
@@ -18,10 +17,14 @@ public:
 	virtual void start(uint32_t options);
 	virtual void stop();
 
+	virtual void initDisplayControls();
+	virtual void destroyDisplayControls();
+
 	cSampleImporter() {}
-	~cSampleImporter() {}
+	virtual ~cSampleImporter() {}
 
 	void showDefaultScreen();
+	void setDefaultScreenFunct();
 
 
 	strList projectList;
@@ -64,4 +67,4 @@ extern cSampleImporter sampleImporter;
 
 
 
-#endif /* NEWINTERFACE_SAMPLEIMPORTER_H_ */
+#endif /* INTERFACE_SAMPLEIMPORTER_H_ */
