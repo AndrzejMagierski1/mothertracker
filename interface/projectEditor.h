@@ -68,16 +68,13 @@ public:
 
 
 	void listOnlyFolderNames(const char* folder);
+
+	FsFile sdLocation;
 	uint8_t selectedLocation;
+	uint16_t locationFilesCount;
 	static const uint8_t files_list_length_max = 100;
 	char locationFilesList[files_list_length_max][20];
-	uint16_t locationFilesCount;
-	FsFile sdLocation;
-	uint8_t filesListEnabled = 0;
-	uint8_t browseLocationType;
-	char *filesNames[128];
-	char filePath[256];
-	char fileName[32];
+	char *filesNames[files_list_length_max];
 
 
 

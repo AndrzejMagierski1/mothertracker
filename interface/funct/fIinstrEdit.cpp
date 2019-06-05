@@ -48,10 +48,14 @@ void cInstrumentEditor::start(uint32_t options)
 
 
 	// ustawienie funkcji
-
-	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton10, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton11, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton12, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
-
+	FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton15, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
 
 	showDefaultScreen();
 	setDefaultScreenFunct();
@@ -77,8 +81,8 @@ void cInstrumentEditor::setDefaultScreenFunct()
 	FM->clearAllPots();
 
 	FM->setButtonObj(interfaceButton8, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButton9, buttonPress, functStopAction);
-	FM->setButtonObj(interfaceButton10, buttonPress, functRecAction);
+//	FM->setButtonObj(interfaceButton9, buttonPress, functStopAction);
+	FM->setButtonObj(interfaceButton9, buttonPress, functRecAction);
 
 	FM->setButtonObj(interfaceButton30, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButton32, buttonPress, functRight);
@@ -153,7 +157,16 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == 0) sequencer.play();
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
+	{
+		sequencer.play();
+	}
+	else if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	{
+		sequencer.stop();
+	}
+
+
 
 	return 1;
 }
@@ -161,7 +174,7 @@ static  uint8_t functPlayAction()
 
 static  uint8_t functStopAction()
 {
-	if(sequencer.getSeqState() == 1)
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
 	{
 		sequencer.stop();
 	}

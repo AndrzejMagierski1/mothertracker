@@ -24,35 +24,61 @@ public:
 	virtual ~cSampleImporter() {}
 
 	void showDefaultScreen();
+	void showFolderTree();
+	void showFilesTree();
+	void activateLabelsBorder();
+
+	strList folderList;
+	strList fileList;
+	strList instrumentList;
+
+	hControl topLabel[4];
+	hControl bottomLabel[4];
+
+	hControl folderListControl;
+	hControl fileListControl;
+	hControl instrumentListControl;
+
+	uint8_t selectedLabel = 0;
+
 	void setDefaultScreenFunct();
 
 
-	strList projectList;
-
-	hControl topLabel[8];
-	hControl bottomLabel[8];
-	hControl fileListControl;
+	uint8_t changeFolderSelection(int16_t value);
+	uint8_t changeFileSelection(int16_t value);
 
 
-
-
-
-
-
-
-
-
-	void listOnlyFolderNames(const char* folder);
-	uint8_t selectedLocation;
-	static const uint8_t files_list_length_max = 100;
-	char locationFilesList[files_list_length_max][20];
-	uint16_t locationFilesCount;
+//--------------------------------------------------------------
 	FsFile sdLocation;
-	uint8_t filesListEnabled = 0;
-	uint8_t browseLocationType;
-	char *filesNames[128];
-	char filePath[256];
-	char fileName[32];
+	static const uint8_t list_length_max = 100;
+	char actualPath[255] = {0};
+	uint8_t dirLevel;
+
+	void BrowseFolder();
+	void SelectFile();
+	void goUpInActualPath();
+
+// foldery
+	void listOnlyFolderNames(char* path);
+
+	uint16_t locationFolderCount;
+	char locationFolderList[list_length_max][20];
+	char *folderNames[list_length_max];
+	uint8_t selectedFolder;
+	//char *folderPath;
+
+// pliki wave w wybranym folderze
+
+	void listOnlyWaveNames(char* folder);
+	void listOnlyWavFromActualPath();
+	uint8_t isWavFile(char* fileName);
+
+	uint16_t locationFileCount;
+	char locationFileList[list_length_max][20];
+	char *fileNames[list_length_max];
+	uint8_t selectedFile;
+
+//--------------------------------------------------------------
 
 
 

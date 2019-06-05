@@ -324,7 +324,7 @@ uint8_t cList::update()
 	if(list->length > list->linesCount)
 	{
 		int16_t y_length = (((  height * list->linesCount  ) * list->linesCount)  / (list->length-1)) - 4 ;
-		y_pos = 23 + (list->start * (( height * list->linesCount )-(y_length+2))) / (list->length-1) ;
+		y_pos = posY + 2 + (list->start * (( height * list->linesCount )-(y_length+2))) / (list->length-1) ;
 
 
 		API_COLOR(colors[2]);

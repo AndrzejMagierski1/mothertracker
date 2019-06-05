@@ -29,15 +29,12 @@ static uint8_t functSwitchModule(uint8_t button);
 void cProjectEditor::update()
 {
 
-
-
-
 	if(projectOptions > 0)
 	{
 
+
 		switch(projectOptions)
 		{
-
 			case mtProjectStartModeOpenLast:
 			{
 				listOnlyFolderNames("/Projects/");
@@ -48,9 +45,11 @@ void cProjectEditor::update()
 				functSwitchModule(interfaceButton13);
 				break;
 			}
-
-
+			default: break;
 		}
+
+
+		projectOptions = 0;
 
 	}
 
@@ -68,12 +67,19 @@ void cProjectEditor::start(uint32_t options)
 
 		projectOptions = mtProjectStartModeOpenLast;
 
+		return;
 	}
 
 	// ustawienie funkcji
-
+	FM->setButtonObj(interfaceButton10, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton11, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton12, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton15, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
+
 
 	showDefaultScreen();
 	setDefaultScreenFunct();
@@ -89,6 +95,7 @@ void cProjectEditor::start(uint32_t options)
 void cProjectEditor::stop()
 {
 	moduleRefresh = 0;
+	projectOptions = 0;
 
 }
 
@@ -240,6 +247,7 @@ static uint8_t functSwitchModule(uint8_t button)
 
 void cProjectEditor::listOnlyFolderNames(const char* folder)
 {
+	char filePath[256] = {0};
 	strcpy(filePath, folder);
 	strcat(filePath,"/");
 	sdLocation.close();
@@ -302,7 +310,6 @@ uint8_t cProjectEditor::loadSamplesBank()
 			strcat(currentPatch, "/samples/");
 			strcat(currentPatch, mtProject.sampleBank.sample[i].file_name);
 		}
-
 
 		if(mtProject.sampleBank.sample[i].type == mtSampleTypeWavetable)
 		{

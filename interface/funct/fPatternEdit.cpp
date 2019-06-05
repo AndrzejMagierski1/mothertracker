@@ -20,6 +20,7 @@ uint8_t functChangePatternLength(uint8_t button);
 uint8_t functChangePatternEditStep(uint8_t button);
 
 
+
 uint8_t functLeft();
 uint8_t functRight();
 uint8_t functUp();
@@ -70,16 +71,18 @@ void cPatternEditor::start(uint32_t options)
 
 
 	// ustawienie funkcji
-	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton10, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton11, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton12, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
-
+	FM->setButtonObj(interfaceButton15, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
 
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
-	//typedef void (cProjectEditor::*funct1) (void);
-	//funct1 = &cProjectEditor::functOpenProject;
-	//(this->*funct1)();
 
 }
 
@@ -97,8 +100,8 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->clearAllPots();
 
 	FM->setButtonObj(interfaceButton8, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButton9, buttonPress, functStopAction);
-	FM->setButtonObj(interfaceButton10, buttonPress, functRecAction);
+	//FM->setButtonObj(interfaceButton9, buttonPress, functStopAction);
+	FM->setButtonObj(interfaceButton9, buttonPress, functRecAction);
 
 	FM->setButtonObj(interfaceButton30, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButton32, buttonPress, functRight);
@@ -557,7 +560,17 @@ uint8_t functFx()
 
 uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == 0) sequencer.play();
+	if(sequencer.getSeqState() == 0)
+	{
+		sequencer.play();
+	}
+	else if(sequencer.getSeqState() == 1)
+	{
+		sequencer.stop();
+
+		PTE->trackerPattern.position = 0;
+		PTE->refreshPattern();
+	}
 
 	return 1;
 }
@@ -606,9 +619,6 @@ void cPatternEditor::changeActualTempo(int16_t value)
 	else  pattern->tempo += value;
 
 	display.setControlValue(bottomLabel[0], pattern->tempo);
-	PTE->selectedLabel = 1;
-	PTE->activateLabelsBorder();
-
 	display.refreshControl(bottomLabel[0]);
 }
 
@@ -638,7 +648,8 @@ uint8_t functChangeTempo(uint8_t button)
 		PTE->changeActualTempo(1);
 	}
 
-
+	PTE->selectedLabel = 1;
+	PTE->activateLabelsBorder();
 
 	return 1;
 }
@@ -656,7 +667,6 @@ uint8_t functChangePattern(uint8_t button)
 	{
 
 	}
-
 
 	PTE->selectedLabel = 2;
 	PTE->activateLabelsBorder();

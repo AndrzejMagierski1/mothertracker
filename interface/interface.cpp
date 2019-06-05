@@ -181,9 +181,14 @@ void cInterface::activateModulefromButton(uint8_t index)
 {
 	switch(index)
 	{
+	case interfaceButton10: activateModule(modules[0], 0); break;
+	case interfaceButton11: activateModule(modules[0], 0); break;
+	case interfaceButton12: activateModule(modules[0], 0); break;
 	case interfaceButton13: activateModule(modules[2], 0); break;
 	case interfaceButton14: activateModule(modules[3], 0); break;
-	case interfaceButton17: activateModule(modules[0], 0); break;
+	case interfaceButton15: activateModule(modules[0], 0); break;
+	case interfaceButton16: activateModule(modules[0], 0); break;
+	case interfaceButton17: activateModule(modules[1], 0); break;
 	}
 
 }

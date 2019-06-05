@@ -9,6 +9,8 @@
 
 class  cFunctionMachine;
 
+//#############################################################################################################
+//#############################################################################################################
 class cModuleBase
 {
 	friend class cInterface;
@@ -44,6 +46,8 @@ protected:
 };
 
 
+//#############################################################################################################
+//#############################################################################################################
 template<typename T>
 struct paramChange
 {
@@ -171,34 +175,6 @@ private:
 	uint8_t potsCleared = 1;
 	uint8_t buttonsCleared = 1;
 	uint8_t padsCleared = 1;
-};
-
-
-template <uint8_t N>
-class  cStateMachine
-{
-// tworzenie na start wsyzstkich stanow
-// przechodzenie pomiedzy stanami
-//
-//
-
-public:
-	void addState(uint8_t id, void (stateBegin)(void) ,void (*stateUpdate)(void));
-	void changeState();
-
-
-private:
-
-	const uint8_t statesCount = N;
-
-	struct strSate
-	{
-		void (*stateBegin)(void);
-		void (*stateUpdate)(void);
-
-	};
-	strSate sates[N];
-
 };
 
 
