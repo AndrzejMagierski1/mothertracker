@@ -3,6 +3,12 @@
 #include <sampleImporter.h>
 
 
+uint16_t framesPlaces[3][4] =
+{
+	{0, 0, 800/4, 480},
+	{(800/4)*1, 0, 800/4, 480},
+	{(800/4)*2, 0, 800/4, 480},
+};
 
 
 void cSampleImporter::initDisplayControls()
@@ -48,9 +54,9 @@ void cSampleImporter::initDisplayControls()
 	fileList.length = 0;
 	//strControlProperties prop;
 	prop.x = (800/4)*1+5;
-	prop.y = 10;
-	prop.w = 800/4-10;
-	prop.h = 25;
+	//prop.y = 10;
+	//prop.w = 800/4-10;
+	//prop.h = 25;
 	prop.data = &fileList;
 	if(fileListControl == nullptr)  fileListControl = display.createControl<cList>(&prop);
 
@@ -60,12 +66,30 @@ void cSampleImporter::initDisplayControls()
 	instrumentList.length = 0;
 	//strControlProperties prop;
 	prop.x = (800/4)*2+5;
-	prop.y = 10;
-	prop.w = 800/4-10;
-	prop.h = 25;
+	//prop.y = 10;
+	//prop.w = 800/4-10;
+	//prop.h = 25;
 	prop.data = &instrumentList;
 	if(instrumentListControl == nullptr)  instrumentListControl = display.createControl<cList>(&prop);
 
+
+	prop.x = (800/4)*3+5;
+	//prop.y = 10;
+	//prop.w = 800/4-10;
+	prop.style = controlStyleValue_0_100;
+	prop.h = 400;
+	//prop.value = memoryUsage;
+	if(memoryBarControl == nullptr)  memoryBarControl = display.createControl<cBar>(&prop);
+
+	frameData.placesCount = 3;
+	frameData.startPlace = 0;
+	frameData.places[0] = &framesPlaces[0][0];
+	frameData.places[1] = &framesPlaces[1][0];
+	frameData.places[2] = &framesPlaces[2][0];
+	prop.style = 0;
+	prop.value = 0;
+	prop.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 }
 
 
@@ -86,6 +110,12 @@ void cSampleImporter::destroyDisplayControls()
 		display.destroyControl(bottomLabel[i]);
 		bottomLabel[i] = nullptr;
 	}
+
+	display.destroyControl(memoryBarControl);
+	memoryBarControl = nullptr;
+
+	display.destroyControl(frameControl);
+	frameControl = nullptr;
 }
 
 void cSampleImporter::showDefaultScreen()
@@ -96,9 +126,9 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlText(topLabel[2], "Instruments");
 	display.setControlText(topLabel[3], "Memory");
 
-	display.setControlText(bottomLabel[0], " \\\/           /\\\ ");
-	display.setControlText(bottomLabel[1], " \\\/           /\\\ ");
-	display.setControlText(bottomLabel[2], " \\\/           /\\\ ");
+	display.setControlText(bottomLabel[0], " /\\\           \\\/ ");
+	display.setControlText(bottomLabel[1], " /\\\           \\\/ ");
+	display.setControlText(bottomLabel[2], " /\\\           \\\/ ");
 	display.setControlText(bottomLabel[3], " Add       Delete");
 
 	for(uint8_t i = 0; i<4; i++)
@@ -126,35 +156,51 @@ void cSampleImporter::showFolderTree()
 	display.setControlData(folderListControl,  &folderList);
 	display.setControlShow(folderListControl);
 	display.refreshControl(folderListControl);
+
+	display.setControlText(topLabel[0],actualPath);
+	display.refreshControl(topLabel[0]);
 }
 
 
 void cSampleImporter::showFilesTree()
 {
-	fileList.start = 0;
-	fileList.length = locationFileCount;
-	fileList.linesCount = 16;
-	fileList.data = fileNames;
+	instrumentList.start = 0;
+	instrumentList.length = locationFileCount;
+	instrumentList.linesCount = 16;
+	instrumentList.data = fileNames;
 
-	display.setControlData(fileListControl,  &fileList);
+	display.setControlData(fileListControl,  &instrumentList);
 	display.setControlShow(fileListControl);
 	display.refreshControl(fileListControl);
 }
 
 
+void cSampleImporter::showInstrumentsList()
+{
+	fileList.start = selectedSlot;
+	fileList.length = SAMPLES_COUNT;
+	fileList.linesCount = 16;
+	fileList.data = ptrSlotNames;
+
+	display.setControlData(instrumentListControl,  &fileList);
+	display.setControlShow(instrumentListControl);
+	display.refreshControl(instrumentListControl);
+}
+
+void cSampleImporter::showMemoryUsage()
+{
+	display.setControlValue(memoryBarControl, memoryUsage);
+	display.setControlShow(memoryBarControl);
+	display.refreshControl(memoryBarControl);
+}
+
 //==============================================================================================================
 
 void cSampleImporter::activateLabelsBorder()
 {
-	for(uint8_t i = 0; i<4; i++)
-	{
-		display.setRemoveControlStyle(bottomLabel[i], controlStyleBorder);
-		display.refreshControl(bottomLabel[i]);
-	}
+	if(selectedPlace > frameData.placesCount-1) return;
 
-	if(selectedLabel > 0)
-	{
-		display.setAddControlStyle(bottomLabel[selectedLabel-1], controlStyleBorder);
-	}
+	display.setControlValue(frameControl, selectedPlace);
+	display.setControlShow(frameControl);
+	display.refreshControl(frameControl);
 }
-

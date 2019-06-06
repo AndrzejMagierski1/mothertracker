@@ -11,6 +11,7 @@
 #include "spectrumControl.h"
 #include "pointsControl.h"
 #include "list.h"
+#include "barControl.h"
 
 typedef cDisplayControl* hControl;
 

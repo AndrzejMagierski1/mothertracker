@@ -186,7 +186,7 @@ uint8_t cLabel::memCpy(uint32_t address)
 	ramSize = dlOffset;
 
 	API_LIB_EndCoProList();
-	API_LIB_AwaitCoProEmpty();
+	//API_LIB_AwaitCoProEmpty();
 
 	return 0;
 }

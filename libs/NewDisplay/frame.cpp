@@ -7,9 +7,9 @@
 
 static uint32_t defaultColors[] =
 {
-	0x000000, // tekst
+	0xFF0000, // ramka
 	0x3F3F3F, // tło
-	0x3F0000, // ramka
+	0x000000, // ramka
 };
 
 //--------------------------------------------------------------------------------
@@ -25,6 +25,7 @@ cFrame::cFrame(strControlProperties* properties)
 		posX = 0;
 		posY = 0;
 		text = nullptr;
+		data = nullptr;
 		width = 0;
 		height = 0;
 		style = 0;
@@ -35,6 +36,7 @@ cFrame::cFrame(strControlProperties* properties)
 	posY = properties->y;
 
 	text = properties->text;
+	data = (strFrameData*)properties->data;
 
 	width = properties->w;
 	height = properties->h;
@@ -71,7 +73,7 @@ void cFrame::setText(char* text)
 
 void cFrame::setValue(int value)
 {
-
+	this->value = value;
 }
 
 void cFrame::setColors(uint32_t* colors)
@@ -86,7 +88,7 @@ void cFrame::setDefaultColors(uint32_t colors[])
 
 void cFrame::setData(void* data)
 {
-
+	this->data = (strFrameData*)data;
 }
 
 //--------------------------------------------------------------------------------
@@ -94,16 +96,18 @@ void cFrame::setData(void* data)
 //--------------------------------------------------------------------------------
 uint8_t cFrame::update()
 {
+	if(data == nullptr) return 0;
 
     API_LIB_BeginCoProList();
     API_CMD_DLSTART();
 
-	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
-	//API_COLOR_A(128);
+    if(value > data->placesCount) value = data->placesCount-1;
+    else if(value < 0) value = 0;
 
-   // uint16_t text_x = posX, text_y = posY;
-    int16_t border_x = posX-2;//, border_y = posY-2;
+    int16_t border_x = *(data->places[value]) + 1;
+    int16_t border_y = *((data->places[value]) + 1) + 1;
+    int16_t border_w = *((data->places[value]) + 2) - 2;
+    int16_t border_h = *((data->places[value]) + 3) - 3;
 
 	if(style & controlStyleCenterX)
 	{
@@ -121,31 +125,23 @@ uint8_t cFrame::update()
 	{
 		API_COLOR(colors[1]);
 
-
 		API_BEGIN(RECTS);
-		API_VERTEX2F(border_x , posY);
-		API_VERTEX2F(border_x+width , posY+height);
+		API_VERTEX2F(border_x, border_y);
+		API_VERTEX2F(border_x+border_w, border_y+border_h);
 		API_END();
-
-		//text_x = posX + 2;
-		//text_y = posY + 2;
 	}
-	if(style & controlStyleBorder)
-	{
-		API_COLOR(colors[2]);
 
-		API_LINE_WIDTH(8);
-		API_BEGIN(LINE_STRIP);
-		API_VERTEX2F(border_x , posY);
-		API_VERTEX2F(border_x+width , posY);
-		API_VERTEX2F(border_x+width , posY+height);
-		API_VERTEX2F(border_x , posY+height);
-		API_VERTEX2F(border_x , posY);
-		API_END();
+	API_COLOR(colors[0]);
 
-		//text_x = posX + 2;
-		//text_y = posY + 2;
-	}
+	API_LINE_WIDTH(16);
+	API_BEGIN(LINE_STRIP);
+	API_VERTEX2F(border_x, border_y);
+	API_VERTEX2F(border_x+border_w, border_y);
+	API_VERTEX2F(border_x+border_w, border_y+border_h);
+	API_VERTEX2F(border_x, border_y+border_h);
+	API_VERTEX2F(border_x, border_y);
+	API_END();
+
 
 
 	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
@@ -155,8 +151,8 @@ uint8_t cFrame::update()
 	//API_COLOR_A(128);
 
 	//API_LINE_WIDTH(16);
-	API_COLOR(colors[0]);
-	if(text != nullptr) API_CMD_TEXT(posX, posY, textFont, textStyle, text);
+	//API_COLOR(colors[0]);
+	//if(text != nullptr) API_CMD_TEXT(posX, posY, textFont, textStyle, text);
 
 
     API_LIB_EndCoProList();
@@ -176,7 +172,7 @@ uint8_t cFrame::memCpy(uint32_t address)
 	ramSize = dlOffset;
 
 	API_LIB_EndCoProList();
-	API_LIB_AwaitCoProEmpty();
+	//API_LIB_AwaitCoProEmpty();
 
 	return 0;
 }

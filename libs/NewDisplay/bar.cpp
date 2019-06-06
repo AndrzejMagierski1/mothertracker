@@ -2,7 +2,7 @@
 #include "FT812.h"
 
 #include "displayControls.h"
-#include "templateControl.h"
+#include "barControl.h"
 
 
 
@@ -16,7 +16,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cTemplate::cTemplate(strControlProperties* properties)
+cBar::cBar(strControlProperties* properties)
 {
 	colorsCount = 3;
 	colors = defaultColors;
@@ -45,7 +45,7 @@ cTemplate::cTemplate(strControlProperties* properties)
 	setStyle(properties->style);
 }
 
-cTemplate::~cTemplate()
+cBar::~cBar()
 {
 
 }
@@ -53,7 +53,7 @@ cTemplate::~cTemplate()
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-void cTemplate::setStyle(uint32_t style)
+void cBar::setStyle(uint32_t style)
 {
 	this->style = style;
 
@@ -66,27 +66,27 @@ void cTemplate::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cTemplate::setText(char* text)
+void cBar::setText(char* text)
 {
 	this->text = text;
 }
 
-void cTemplate::setValue(int value)
+void cBar::setValue(int value)
 {
 	this->value = value;
 }
 
-void cTemplate::setColors(uint32_t* colors)
+void cBar::setColors(uint32_t* colors)
 {
 	this->colors = colors;
 }
 
-void cTemplate::setDefaultColors(uint32_t colors[])
+void cBar::setDefaultColors(uint32_t colors[])
 {
 	memcpy(defaultColors, colors, colorsCount*4);
 }
 
-void cTemplate::setData(void* data)
+void cBar::setData(void* data)
 {
 
 }
@@ -94,21 +94,51 @@ void cTemplate::setData(void* data)
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-uint8_t cTemplate::update()
+uint8_t cBar::update()
 {
     API_LIB_BeginCoProList();
     API_CMD_DLSTART();
 
+    uint16_t barWidth = (width >= 800/8) ? 800/8-10 : width-10;
+    uint16_t barX = posX+(width-barWidth)/2; //(width > 800/8) ? posX+5 : posX + width/2;
+    uint16_t barY = posY + 10;
+    uint16_t barHeight = height - 20;
 
-	if(style & controlStyleCenterX)
+
+
+	if(style & controlStyleValue_0_100 && value >= 0 && value <= 100)
 	{
+	    uint16_t barFillY = barHeight - (barHeight * value) / 100;
 
+		API_COLOR(colors[0]);
+
+		API_LINE_WIDTH(8);
+		API_BEGIN(RECTS);
+		API_VERTEX2F(barX+1, barY+barFillY+1);
+		API_VERTEX2F(barX+barWidth-1, barY+barHeight-1);
+		API_END();
+
+		API_LINE_WIDTH(8);
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2F(barX, barY);
+		API_VERTEX2F(barX+barWidth, barY);
+		API_VERTEX2F(barX+barWidth, barY+barHeight);
+		API_VERTEX2F(barX, barY+barHeight);
+		API_VERTEX2F(barX, barY);
+		API_END();
 	}
 
 
 
-	API_COLOR(colors[0]);
-	API_CMD_TEXT(posX, posY, textFont, textStyle, text);
+
+
+
+
+
+
+	//API_COLOR(colors[0]);
+
+	//if(style & controlStyleShowValue) API_CMD_NUMBER(posX+data->xValue, posY+5+data->yValue, textFont, data->styleValue, value);
 
 
     API_LIB_EndCoProList();
@@ -117,7 +147,7 @@ uint8_t cTemplate::update()
 	return 0;
 }
 
-uint8_t cTemplate::memCpy(uint32_t address)
+uint8_t cBar::memCpy(uint32_t address)
 {
 	uint32_t dlOffset = EVE_MemRead32(REG_CMD_DL);
 
@@ -134,7 +164,7 @@ uint8_t cTemplate::memCpy(uint32_t address)
 }
 
 
-uint8_t cTemplate::append(uint32_t address)
+uint8_t cBar::append(uint32_t address)
 {
 	API_CMD_APPEND(address, ramSize);
 

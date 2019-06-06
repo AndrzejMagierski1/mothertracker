@@ -1126,6 +1126,7 @@ void cMtSampleBankEditor::listSampleSlots()
 	}
 
 }
+
 void cMtSampleBankEditor::play(uint8_t type)
 {
 	if(spectrumEnabled)

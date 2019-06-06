@@ -82,7 +82,12 @@ void cList::setText(char* text)
 
 void cList::setValue(int value)
 {
-	if(value >= list->length) listPosition = list->length-1;
+	if(value >= list->length)
+	{
+		if(list->length > 0) listPosition = list->length-1;
+		else listPosition = 0;
+
+	}
 	else if(value < 0) listPosition = 0;
 	else  listPosition = value;
 }
@@ -139,8 +144,11 @@ uint8_t cList::update()
 		int8_t sel_row = listState; ///// <= albo  = 2;
 		if(listPosition == 0) 					sel_row = 0;
 		else if(listPosition == 1) 				sel_row = 1;
-		else if(list->length > 5 && listPosition >= list->length-1)	sel_row = 4;
-		else if(list->length > 4 && listPosition >= list->length-2)	sel_row = 3;
+		else if(list->length > 5 && listPosition >= list->length-1)	sel_row = list->linesCount-1; // 4
+		else if(list->length > 4 && listPosition >= list->length-2)	sel_row = list->linesCount-2;  // 3
+
+
+
 		listState = sel_row;
 
 		x_pos = posX;
@@ -195,9 +203,9 @@ uint8_t cList::update()
 		else diffrence = 2;
 
 		mode = 0;
-		if(listState == 0 || listState == 4 || listState == 2) 	mode = 0;
-		else if(listState  == 1) mode = ((dir ==  1 || list->start == 1) ? 0 : 1);
-		else if(listState  == 3) mode = ((dir == -1 || list->start == list->length-2) ? 0 : 1);
+		if(listState == 0 || listState == list->linesCount-1 || listState == 2) 	mode = 0;
+		else if(listState  == 1) 					mode = ((dir ==  1 || list->start == 1) ? 0 : 1);
+		else if(listState  == list->linesCount-2) 	mode = ((dir == -1 || list->start == list->length-2) ? 0 : 1);
 
 		if(mode == 0)
 		{
@@ -353,7 +361,7 @@ uint8_t cList::memCpy(uint32_t address)
 	ramSize = dlOffset;
 
 	API_LIB_EndCoProList();
-	API_LIB_AwaitCoProEmpty();
+	//API_LIB_AwaitCoProEmpty();
 
 	return selfRefresh;
 }

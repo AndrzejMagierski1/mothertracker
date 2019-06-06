@@ -28,11 +28,8 @@ static uint8_t functSwitchModule(uint8_t button);
 
 void cProjectEditor::update()
 {
-
 	if(projectOptions > 0)
 	{
-
-
 		switch(projectOptions)
 		{
 			case mtProjectStartModeOpenLast:
@@ -42,18 +39,14 @@ void cProjectEditor::update()
 				fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
 				loadSamplesBank();
 
-				functSwitchModule(interfaceButton13);
+				functSwitchModule(interfaceButton17); //13
 				break;
 			}
 			default: break;
 		}
 
-
 		projectOptions = 0;
-
 	}
-
-
 }
 
 void cProjectEditor::start(uint32_t options)

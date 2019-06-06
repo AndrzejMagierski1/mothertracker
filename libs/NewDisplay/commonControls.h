@@ -11,7 +11,12 @@ struct strLabelData
 
 };
 
-
+struct strFrameData
+{
+	uint8_t startPlace;
+	uint16_t placesCount;
+	uint16_t* places[8];
+};
 
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
@@ -83,6 +88,8 @@ public:
 
 	uint16_t textStyle;
 	int16_t textFont;
+
+	strFrameData* data;
 };
 
 

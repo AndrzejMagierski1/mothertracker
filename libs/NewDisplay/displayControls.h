@@ -42,7 +42,7 @@ struct strControlProperties
 	int value = 0;
 	void* data = nullptr;
 
-	uint16_t style = 0;
+	uint32_t style = 0;
 	uint32_t* colors = nullptr;
 
 	uint16_t x = 0;

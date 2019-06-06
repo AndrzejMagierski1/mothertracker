@@ -5,7 +5,7 @@
 #include <modulesBase.h>
 #include "SD.h"
 
-
+#include "mtStructs.h"
 
 
 class cSampleImporter: public cModuleBase
@@ -26,11 +26,16 @@ public:
 	void showDefaultScreen();
 	void showFolderTree();
 	void showFilesTree();
+	void showInstrumentsList();
+	void showMemoryUsage();
 	void activateLabelsBorder();
 
 	strList folderList;
 	strList fileList;
 	strList instrumentList;
+
+	strFrameData frameData;
+
 
 	hControl topLabel[4];
 	hControl bottomLabel[4];
@@ -38,15 +43,18 @@ public:
 	hControl folderListControl;
 	hControl fileListControl;
 	hControl instrumentListControl;
+	hControl memoryBarControl;
+	hControl frameControl;
 
-	uint8_t selectedLabel = 0;
+
+	uint8_t selectedPlace = 0;
 
 	void setDefaultScreenFunct();
 
 
 	uint8_t changeFolderSelection(int16_t value);
 	uint8_t changeFileSelection(int16_t value);
-
+	uint8_t changeInstrumentSelection(int16_t value);
 
 //--------------------------------------------------------------
 	FsFile sdLocation;
@@ -69,6 +77,7 @@ public:
 
 // pliki wave w wybranym folderze
 
+
 	void listOnlyWaveNames(char* folder);
 	void listOnlyWavFromActualPath();
 	uint8_t isWavFile(char* fileName);
@@ -80,8 +89,40 @@ public:
 
 //--------------------------------------------------------------
 
+// instrumenty
+	void listInstrumentSlots();
+	char slotNames[SAMPLES_COUNT][36];
+	char *ptrSlotNames[SAMPLES_COUNT];
+	uint8_t selectedSlot = 0;
+
+//	uint16_t instrumentsCount;
+//	char instrumentsList[list_length_max][20];
+//	char *instrumentsNames[list_length_max];
+//	uint8_t selectedInstrument;
 
 
+//--------------------------------------------------------------
+//memory
+	void calculateMemoryUsage();
+
+	uint8_t memoryUsage;
+
+//--------------------------------------------------------------
+//odsluch
+	void playSdFile();
+	void playSampleFromBank();
+	void stopPlaying();
+
+
+	uint8_t playMode;
+
+	enum
+	{
+		playModeStop,
+		playModeSdFile,
+		playModeSampleBank,
+
+	};
 };
 
 
