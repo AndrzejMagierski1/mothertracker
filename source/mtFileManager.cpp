@@ -245,6 +245,9 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 
 			 status=readInstrumentFile(currentPatch,&mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index]);
 			 if(!status) return status;
+
+			 memcpy(mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.file_name,mtProject.mtProjectRemote.instrumentFile[i].sample.name, SAMPLE_NAME_SIZE);
+			 mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.type=mtProject.mtProjectRemote.instrumentFile[i].sample.type;
 			 mtProject.instruments_count++;
 		 }
 	}
@@ -260,16 +263,6 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 			status=readPatternFile(currentPatch);
 			if(!status) return status;
 			else break;
-		}
-	}
-
-	for(int i=0; i< SAMPLES_COUNT ; i++)
-	{
-		if(mtProject.mtProjectRemote.sampleFile[i].index != - 1)
-		{
-			memcpy(mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].file_name,mtProject.mtProjectRemote.sampleFile[i].name, SAMPLE_NAME_SIZE);
-			mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].type=mtProject.mtProjectRemote.sampleFile[i].type;
-			mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].wavetable_window_size=mtProject.mtProjectRemote.sampleFile[i].wavetable_window_size;
 		}
 	}
 
@@ -313,46 +306,43 @@ void FileManager::createNewProject(char * name)
 	writeProjectFile(patchFolder, &mtProject.mtProjectRemote);
 }
 
-void FileManager::importSampleToProject(char* filePatch, char* name, char* newName, int8_t sampleIndex,int8_t instrumentIndex, uint8_t type)
+void FileManager::importSampleToProject(char* filePatch, char* name, int8_t instrumentIndex, uint8_t type)
 {
 	char currentPatch[PATCH_SIZE];
+	char localName[15];
 	FsFile file;
 	FsFile copy;
 	uint16_t lengthData=0;
 	uint8_t currentBuffor[1024];
-	uint8_t cnt=0;
+	char number[3];
 
-	while( (mtProject.mtProjectRemote.sampleFile[cnt].index != sampleIndex) && (cnt < SAMPLES_COUNT) )
+	number[0] = ((instrumentIndex-instrumentIndex%10)/10) + 48;
+	number[1] = instrumentIndex%10 + 48;
+	number[2] = 0;
+/*********************************************************SAMPLE****************************************************************/
+	memset(mtProject.mtProjectRemote.instrumentFile[instrumentIndex].sample.name,0,SAMPLE_NAME_SIZE);
+	strcpy(mtProject.mtProjectRemote.instrumentFile[instrumentIndex].sample.name,name);
+
+	memset(localName,0,15);
+	strcpy(localName,"instr");
+	strcat(localName,number);
+	strcat(localName,".wav");
+
+
+	mtProject.mtProjectRemote.instrumentFile[instrumentIndex].sample.type = type;
+
+	if(mtProject.instrument[instrumentIndex].isActive)
 	{
-		cnt++;
-	}
 
-
-	if(cnt != SAMPLES_COUNT )
-	{
 		strcpy(currentPatch,currentProjectPatch);
 		strcat(currentPatch,"/samples/");
-		strcat(currentPatch,mtProject.mtProjectRemote.sampleFile[cnt].name);
+		strcat(currentPatch,localName);
 		if(SD.exists(currentPatch)) SD.remove(currentPatch);
-		mtProject.mtProjectRemote.sampleFile[cnt].index = -1;
-		memset(mtProject.mtProjectRemote.sampleFile[cnt].name,0,SAMPLE_NAME_SIZE);
 	}
 
-	cnt=0;
-
-
-	while( (mtProject.mtProjectRemote.sampleFile[cnt].index != -1) && (cnt < SAMPLES_COUNT) )
-	{
-		cnt++;
-	}
-	if(cnt == SAMPLES_COUNT) return;
-
-	mtProject.mtProjectRemote.sampleFile[cnt].index=sampleIndex;
-	mtProject.mtProjectRemote.sampleFile[cnt].type=type;
-	strcpy(mtProject.mtProjectRemote.sampleFile[cnt].name,name);
-
-	mtProject.sampleBank.sample[sampleIndex].type=type;
-	strcpy(mtProject.sampleBank.sample[sampleIndex].file_name,name);
+	memset(mtProject.instrument[instrumentIndex].sample.file_name,0,SAMPLE_NAME_SIZE);
+	strcpy(mtProject.instrument[instrumentIndex].sample.file_name,name);
+	mtProject.instrument[instrumentIndex].sample.type = type;
 
 	if(filePatch!= NULL)
 	{
@@ -365,14 +355,14 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 	{
 		strcpy(currentPatch,name);
 	}
+
 	file = SD.open(currentPatch);
 
 	memset(currentPatch,0,PATCH_SIZE);
 	strcpy(currentPatch,currentProjectPatch);
 	strcat(currentPatch,"/samples/");
-	strcat(currentPatch,newName);
+	strcat(currentPatch,localName);
 
-	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 	copy= SD.open(currentPatch,FILE_WRITE);
 
 	while(file.available())
@@ -384,38 +374,17 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 	copy.close();
 
 
-	if(instrumentIndex != -1)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	if(mtProject.instrument[instrumentIndex].isActive == 0)
 	{
-		if(mtProject.instrument[instrumentIndex].isActive)
-		{
-			// todo:wywolanie zapytania o nadpisanie?
-
-			while((mtProject.mtProjectRemote.instrumentFile[cnt].index != instrumentIndex) && (cnt < INSTRUMENTS_COUNT) )
-			{
-				cnt++;
-			}
-			if(cnt != INSTRUMENTS_COUNT)
-			{
-				mtProject.mtProjectRemote.instrumentFile[cnt].index=-1;
-				memset(mtProject.mtProjectRemote.instrumentFile[cnt].name,0,INSTRUMENT_NAME_SIZE);
-			}
-		}
-
-		cnt=0;
-		while( (mtProject.mtProjectRemote.instrumentFile[cnt].index != -1) && (cnt < INSTRUMENTS_COUNT) )
-		{
-			cnt++;
-		}
-		if(cnt == INSTRUMENTS_COUNT) return;
-
-
-
 		mtProject.instrument[instrumentIndex].isActive = 1;
-		mtProject.mtProjectRemote.instrumentFile[cnt].index = instrumentIndex;
+		mtProject.mtProjectRemote.instrumentFile[instrumentIndex].index = instrumentIndex;
 
-		strcpy(mtProject.mtProjectRemote.instrumentFile[cnt].name,"instrument_00.mti");
-		mtProject.mtProjectRemote.instrumentFile[cnt].name[11] = ((instrumentIndex-instrumentIndex%10)/10) + 48;
-		mtProject.mtProjectRemote.instrumentFile[cnt].name[12] = instrumentIndex%10 + 48;
+		strcpy(mtProject.mtProjectRemote.instrumentFile[instrumentIndex].name,"instrument_00.mti");
+		mtProject.mtProjectRemote.instrumentFile[instrumentIndex].name[11] = ((instrumentIndex-instrumentIndex%10)/10) + 48;
+		mtProject.mtProjectRemote.instrumentFile[instrumentIndex].name[12] = instrumentIndex%10 + 48;
 
 		mtProject.instrument[instrumentIndex].isActive=1;
 		mtProject.instrument[instrumentIndex].startPoint=0;
@@ -457,15 +426,14 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 		mtProject.instrument[instrumentIndex].reverbSend = 100;
 
 		mtProject.instruments_count++;
-
-		memset(currentPatch,0,PATCH_SIZE);
-		strcpy(currentPatch,currentProjectPatch);
-		strcat(currentPatch,"/instruments/");
-		strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[cnt].name);
-		writeInstrumentFile(currentPatch, &mtProject.instrument[instrumentIndex]);
 	}
 
+	memset(currentPatch,0,PATCH_SIZE);
+	strcpy(currentPatch,currentProjectPatch);
+	strcat(currentPatch,"/instruments/");
+	strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[instrumentIndex].name);
 
+	writeInstrumentFile(currentPatch, &mtProject.instrument[instrumentIndex]);
 
 	memset(currentPatch,0,PATCH_SIZE);
 	strcpy(currentPatch,currentProjectPatch);
@@ -473,51 +441,44 @@ void FileManager::importSampleToProject(char* filePatch, char* name, char* newNa
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 }
 
-void FileManager::importInstrumentToProject(char* filePatch,char* name, int8_t index)
+void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_t index) //todo: to nie dziala ze wzgledu na to ze nie ma sensu robic(na ta chwile nie jest potrzebne, a potem sie wszystko zmieni)
 {
 	char currentPatch[PATCH_SIZE];
 	FsFile file;
-	uint8_t cnt=0;
+	char localName[15];
+	char number[3];
+
+	number[0] = ((index-index%10)/10) + 48;
+	number[1] = index%10 + 48;
+	number[3] = 0;
+
 	if(mtProject.instrument[index].isActive)
 	{
-		//todo: zapytanie o nadpisanie?
-		while((mtProject.mtProjectRemote.instrumentFile[cnt].index != index) && (cnt < INSTRUMENTS_COUNT) )
-		{
-			cnt++;
-		}
-		if(cnt != INSTRUMENTS_COUNT)
-		{
-			mtProject.mtProjectRemote.instrumentFile[cnt].index=-1;
-			memset(mtProject.mtProjectRemote.instrumentFile[cnt].name,0,INSTRUMENT_NAME_SIZE);
-		}
-		cnt=0;
+		memset(currentPatch,0,PATCH_SIZE);
+		strcpy(currentPatch,currentProjectPatch);
+		strcat(currentPatch,"/instruments/");
+		strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[index].name);
+		if(SD.exists(currentPatch)) SD.remove(currentPatch);
 	}
 
-	while((mtProject.mtProjectRemote.instrumentFile[cnt].index != -1) && (cnt < INSTRUMENTS_COUNT) )
-	{
-		cnt++;
-	}
-	mtProject.mtProjectRemote.instrumentFile[cnt].index=index;
-	strcpy(mtProject.mtProjectRemote.instrumentFile[cnt].name,"instrument_00.mti");
-	mtProject.mtProjectRemote.instrumentFile[cnt].name[11] = ((index-index%10)/10) + 48;
-	mtProject.mtProjectRemote.instrumentFile[cnt].name[12] = index%10 + 48;
+	mtProject.mtProjectRemote.instrumentFile[index].index=index;
+	strcpy(mtProject.mtProjectRemote.instrumentFile[index].name,"instrument_00.mti");
+	mtProject.mtProjectRemote.instrumentFile[index].name[11] = ((index-index%10)/10) + 48;
+	mtProject.mtProjectRemote.instrumentFile[index].name[12] = index%10 + 48;
 
-	if(filePatch!= NULL)
+	memset(currentPatch,0,PATCH_SIZE);
+
+	if(projectPatch!= NULL)
 	{
-	strcpy(currentPatch,filePatch);
-	strcat(currentPatch,"/");
+	strcpy(currentPatch,projectPatch);
+	strcat(currentPatch,"/instruments/");
 	strcat(currentPatch,name);
 	}
 	else strcpy(currentPatch,name);
 
 	readInstrumentFile(currentPatch,&mtProject.instrument[index]);
 
-	memset(currentPatch,0,PATCH_SIZE);
-	strcpy(currentPatch,currentProjectPatch);
-	strcat(currentPatch,"/instruments/");
-	strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[cnt].name);
 
-	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 
 	if(index<9) mtProject.instrument[index].name[0] = (index+1)%10 + 48;
 	else
@@ -527,8 +488,22 @@ void FileManager::importInstrumentToProject(char* filePatch,char* name, int8_t i
 	}
 	mtProject.instrument[index].isActive=1;
 	mtProject.instruments_count++;
-	writeInstrumentFile(currentPatch,&mtProject.instrument[index]);
 
+	strcpy(localName,"instr");
+	strcat(localName,number);
+	strcat(localName,".wav");
+
+	memset(currentPatch,0,PATCH_SIZE);
+	strcpy(currentPatch,projectPatch);
+	strcat(currentPatch,"/samples/");
+	importSampleToProject(currentPatch,localName,mtProject.mtProjectRemote.instrumentFile[index].index ,mtProject.mtProjectRemote.instrumentFile[index].sample.type);
+
+
+
+	memset(currentPatch,0,PATCH_SIZE);
+	strcpy(currentPatch,currentProjectPatch);
+	strcat(currentPatch,"/instruments/");
+	strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[index].name);
 	writeInstrumentFile(currentPatch,&mtProject.instrument[index]);
 
 
@@ -613,9 +588,9 @@ void FileManager::importProject(char* sourceProjectPatch,char* name, char* newNa
 
 	for(uint8_t i=0; i < SAMPLES_COUNT; i++)
 	{
-		if(mtProject.mtProjectRemote.sampleFile[i].index != -1)
+		if(mtProject.mtProjectRemote.instrumentFile[i].index != -1)
 		{
-			importSampleToProject(currentPatch,mtProject.mtProjectRemote.sampleFile[i].name,mtProject.mtProjectRemote.sampleFile[i].name ,mtProject.mtProjectRemote.sampleFile[i].index,-1,mtProject.mtProjectRemote.sampleFile[i].type);
+			importSampleToProject(currentPatch,mtProject.mtProjectRemote.instrumentFile[i].sample.name,mtProject.mtProjectRemote.instrumentFile[i].index ,mtProject.mtProjectRemote.instrumentFile[i].sample.type);
 		}
 	}
 	memset(currentPatch,0,PATCH_SIZE);
@@ -626,7 +601,7 @@ void FileManager::importProject(char* sourceProjectPatch,char* name, char* newNa
 		if(mtProject.mtProjectRemote.instrumentFile[i].index != -1)
 		{
 			mtProject.instruments_count++;
-			importInstrumentToProject(currentPatch,mtProject.mtProjectRemote.instrumentFile[i].name,mtProject.mtProjectRemote.sampleFile[i].index);
+			importInstrumentToProject(currentPatch,mtProject.mtProjectRemote.instrumentFile[i].name,mtProject.mtProjectRemote.instrumentFile[i].index);
 		}
 	}
 	memset(currentPatch,0,PATCH_SIZE);
@@ -649,21 +624,6 @@ void FileManager::saveAsProject(char* name)
 
 	if(!SD.exists("Projects")) SD.mkdir("Projects");
 
-	for(uint8_t i=0;i<SAMPLES_COUNT;i++)
-	{
-		if(mtProject.mtProjectRemote.sampleFile[i].index != -1)
-		{
-			memcpy(mtProject.mtProjectRemote.sampleFile[i].name,mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].file_name, SAMPLE_NAME_SIZE);
-			mtProject.mtProjectRemote.sampleFile[i].type=mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].type;
-			mtProject.mtProjectRemote.sampleFile[i].wavetable_window_size=mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].wavetable_window_size;
-
-			memset(currentPatch,0,PATCH_SIZE);
-			strcpy(currentPatch,"Projects/");
-			strcat(currentPatch,name);
-
-			copySample(currentProjectPatch,mtProject.mtProjectRemote.sampleFile[i].name,currentPatch,mtProject.mtProjectRemote.sampleFile[i].name);
-		}
-	}
 	for(uint8_t i=0;i<INSTRUMENTS_COUNT;i++)
 	{
 
@@ -674,6 +634,16 @@ void FileManager::saveAsProject(char* name)
 			strcat(currentPatch,name);
 			strcat(currentPatch,"/instruments/");
 			strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[i].name);
+
+			memcpy(mtProject.mtProjectRemote.instrumentFile[i].sample.name,mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.file_name, SAMPLE_NAME_SIZE);
+			mtProject.mtProjectRemote.instrumentFile[i].sample.type=mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.type;
+
+			memset(currentPatch,0,PATCH_SIZE);
+			strcpy(currentPatch,"Projects/");
+			strcat(currentPatch,name);
+
+			copySample(currentProjectPatch,mtProject.mtProjectRemote.instrumentFile[i].sample.name,currentPatch,mtProject.mtProjectRemote.instrumentFile[i].sample.name);
+
 
 			writeInstrumentFile(currentPatch, &mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index]);
 		}
@@ -713,19 +683,7 @@ void FileManager::saveProject()
 	char currentPatch [PATCH_SIZE];
 
 
-	for(int i=0; i< SAMPLES_COUNT ; i++)
-	{
-		if(mtProject.mtProjectRemote.sampleFile[i].index != - 1)
-		{
-			memcpy(mtProject.mtProjectRemote.sampleFile[i].name,mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].file_name, SAMPLE_NAME_SIZE);
-			mtProject.mtProjectRemote.sampleFile[i].type=mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].type;
-			mtProject.mtProjectRemote.sampleFile[i].wavetable_window_size=mtProject.sampleBank.sample[mtProject.mtProjectRemote.sampleFile[i].index].wavetable_window_size;
-		}
-		else
-		{
-			memset(mtProject.mtProjectRemote.sampleFile[i].name,0,SAMPLE_NAME_SIZE);
-		}
-	}
+
 
 	for(uint8_t i=0;i<INSTRUMENTS_COUNT;i++)
 	{
@@ -737,11 +695,14 @@ void FileManager::saveProject()
 			strcat(currentPatch,"/instruments/");
 			strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[i].name);
 
+			memcpy(mtProject.mtProjectRemote.instrumentFile[i].sample.name,mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.file_name, SAMPLE_NAME_SIZE);
+			mtProject.mtProjectRemote.instrumentFile[i].sample.type=mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.type;
 			writeInstrumentFile(currentPatch, &mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index]);
 		}
 		else
 		{
 			memset(mtProject.mtProjectRemote.instrumentFile[i].name,0,INSTRUMENT_NAME_SIZE);
+			memset(mtProject.mtProjectRemote.instrumentFile[i].sample.name,0,SAMPLE_NAME_SIZE);
 		}
 	}
 
@@ -1038,23 +999,18 @@ void FileManager::deleteSample(int8_t index)
 
 	uint8_t cnt=0;
 
-	while( (mtProject.mtProjectRemote.sampleFile[cnt].index != index) && (cnt < SAMPLES_COUNT) )
-	{
-		cnt++;
-	}
-	if(cnt == SAMPLES_COUNT) return;
+
 
 	strcpy(currentPatch,currentProjectPatch);
 	strcat(currentPatch,"/samples/");
-	strcat(currentPatch,mtProject.mtProjectRemote.sampleFile[cnt].name);
+	strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[index].sample.name);
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 
 
-	mtProject.mtProjectRemote.sampleFile[cnt].index=-1;
-	mtProject.mtProjectRemote.sampleFile[cnt].type=0;
-	memset(mtProject.mtProjectRemote.sampleFile[cnt].name,0,SAMPLE_NAME_SIZE);
+	mtProject.mtProjectRemote.instrumentFile[index].sample.type=0;
+	memset(mtProject.mtProjectRemote.instrumentFile[index].sample.name,0,SAMPLE_NAME_SIZE);
 
-	mtProject.sampleBank.sample[index].type=0;
+	mtProject.instrument[index].sample.type=0;
 
 	memset(currentPatch,0,PATCH_SIZE);
 	strcpy(currentPatch,currentProjectPatch);
@@ -1087,6 +1043,7 @@ void FileManager::deleteInstrument(int8_t index)
 	memset(mtProject.mtProjectRemote.instrumentFile[cnt].name,0,INSTRUMENT_NAME_SIZE);
 	memset(&mtProject.instrument[index],0,sizeof(mtProject.instrument[index]));
 
+	deleteSample(index);
 	mtProject.instruments_count--;
 
 	memset(currentPatch,0,PATCH_SIZE);

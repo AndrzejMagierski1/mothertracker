@@ -62,15 +62,15 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	if(lastNote>=0 && glide != 0 ) pitchControl=notes[lastNote + currentTune];
 	else pitchControl=notes[note+ currentTune];
 
-	int16_t * data = mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].address;
+	int16_t * data = mtProject.instrument[instr_idx].sample.address;
 
 	playMode=mtProject.instrument[instr_idx].playMode;
 
-	startLen=mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].length;
+	startLen=mtProject.instrument[instr_idx].sample.length;
 
 
 
-	if(mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].type != mtSampleTypeWavetable)
+	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
 	{
 		startPoint=mtProject.instrument[instr_idx].startPoint;
 		endPoint=mtProject.instrument[instr_idx].endPoint;
@@ -82,7 +82,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	}
 	else
 	{
-		wavetableWindowSize = mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].wavetable_window_size;
+		wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;
 		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
 		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
 		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
@@ -91,7 +91,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	}
 	/*=========================================================================================================================*/
 	/*========================================WARUNKI LOOPPOINTOW==============================================================*/
-	if(mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].type != mtSampleTypeWavetable)
+	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
 	{
 		if(playMode == singleShot)
 		{
@@ -141,7 +141,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 
 	lastNote=note;
-	if(mtProject.sampleBank.sample[mtProject.instrument[instr_idx].sampleIndex].type != mtSampleTypeWavetable)
+	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
 	{
 		samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
 		samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
@@ -194,7 +194,7 @@ void AudioPlayMemory::update(void)
 	int16_t s0=0;
 	int i;
 	uint32_t castPitchControl;
-	uint8_t localType = mtProject.sampleBank.sample[mtProject.instrument[currentInstr_idx].sampleIndex].type ;
+	uint8_t localType = mtProject.instrument[currentInstr_idx].sample.type ;
 
 	block = allocate();
 	if (!block) return;
@@ -465,7 +465,7 @@ void AudioPlayMemory::stopLoopMode(void)
 
 void AudioPlayMemory::setWavetableWindow(uint16_t value)
 {
-	if(mtProject.sampleBank.sample[mtProject.instrument[currentInstr_idx].sampleIndex].type != mtSampleTypeWavetable) return;
+	if(mtProject.instrument[currentInstr_idx].sample.type != mtSampleTypeWavetable) return;
 	if(value > MAX_WAVETABLE_WINDOW) return;
 	currentWindow=value;
 }

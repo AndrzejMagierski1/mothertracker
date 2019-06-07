@@ -84,7 +84,7 @@ void cSamplePlayback::start(uint32_t options)
 
 	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
 
-	if(mtProject.sampleBank.samples_count == 0)
+	if(mtProject.samples_count == 0)
 	{
 		//strcpy(buttonFunctionLabels[buttonFunctSampleList], "No samples");
 	}
@@ -236,7 +236,7 @@ void cSamplePlayback::processSpectrum()
 
 
 	// uwaga tu wazna kolejnosc + do sprawdzenia
-	if(openedInstrumentIndex < 0 || mtProject.instrument[openedInstrumentIndex].sampleIndex < 0)
+	if(openedInstrumentIndex < 0 || mtProject.instrument[openedInstrumentIndex].isActive == 0 )
 	{
 		for(uint16_t i = 0; i < 800; i++)
 		{
@@ -250,15 +250,15 @@ void cSamplePlayback::processSpectrum()
 	uint16_t offset_pixel;
 	int16_t * sampleData;
 
-	if(mtProject.sampleBank.sample[editorInstrument->sampleIndex].type == mtSampleTypeWavetable)
+	if(editorInstrument->sample.type == mtSampleTypeWavetable)
 	{
 		zoomWidth = MAX_16BIT;
 		zoomStart = 0;
 		zoomValue = 1;
 		zoomEnd = MAX_16BIT;
-		uint16_t windowSize = mtProject.sampleBank.sample[editorInstrument->sampleIndex].wavetable_window_size;
+		uint16_t windowSize = editorInstrument->sample.wavetable_window_size;
 
-		sampleData = mtProject.sampleBank.sample[editorInstrument->sampleIndex].address
+		sampleData = editorInstrument->sample.address
 				+ (mtProject.instrument[openedInstrumentIndex].wavetableCurrentWindow * windowSize);
 
 		float resolution = windowSize / 800.0;
@@ -349,11 +349,11 @@ void cSamplePlayback::processSpectrum()
 		}
 
 
-		uint32_t offset = ((float)zoomPosition/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument->sampleIndex].length;
+		uint32_t offset = ((float)zoomPosition/MAX_16BIT) * editorInstrument->sample.length;
 
-		sampleData = mtProject.sampleBank.sample[editorInstrument->sampleIndex].address + offset;
+		sampleData = editorInstrument->sample.address + offset;
 
-		resolution = (((float)zoomWidth/MAX_16BIT) * mtProject.sampleBank.sample[editorInstrument->sampleIndex].length ) / 800;
+		resolution = (((float)zoomWidth/MAX_16BIT) * editorInstrument->sample.length ) / 800;
 
 
 //		Serial.print(zoomValue);
@@ -373,8 +373,8 @@ void cSamplePlayback::processSpectrum()
 		zoomWidth = MAX_16BIT;
 		zoomStart = 0;
 		zoomEnd = MAX_16BIT;
-		sampleData = mtProject.sampleBank.sample[editorInstrument->sampleIndex].address;
-		resolution = mtProject.sampleBank.sample[editorInstrument->sampleIndex].length / 800;
+		sampleData = editorInstrument->sample.address;
+		resolution = editorInstrument->sample.length / 800;
 	}
 
 

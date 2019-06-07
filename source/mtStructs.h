@@ -283,8 +283,11 @@ enum modyficators
 
 //=====================================================================
 //-------------------------------------------------
-struct strSampleBank
+//-------------------------------------------------
+struct strInstrument
 {
+	uint8_t isActive;
+
 	struct strSampleBankSlot
 	{
 		uint8_t type = 0;
@@ -296,20 +299,7 @@ struct strSampleBank
 
 		uint16_t wavetable_window_size = 0;
 
-	} sample[SAMPLES_COUNT];
-
-	uint32_t max_memory = SAMPLE_MEMORY_MAX;
-	uint32_t used_memory;
-	uint8_t samples_count;
-
-};
-
-//-------------------------------------------------
-struct strInstrument
-{
-	uint8_t isActive;
-
-	uint8_t sampleIndex;
+	} sample;
 
 
     char name[4];
@@ -365,18 +355,16 @@ struct strMtValues
 //-------------------------------------------------
 struct strMtProjectRemote
 {
-	struct strSampleFile
-	{
-		int8_t index= -1;
-		uint8_t type;
-		uint16_t wavetable_window_size;
-		char name[SAMPLE_NAME_SIZE];
-	} sampleFile[SAMPLES_COUNT];
-
 	struct strInstrumentFile
 	{
 		int8_t index= -1;
 		char name[INSTRUMENT_NAME_SIZE];
+		struct strSample
+		{
+			uint8_t type;
+			char name[SAMPLE_NAME_SIZE];
+		} sample;
+
 	} instrumentFile[INSTRUMENTS_COUNT];
 
 	struct strPaternFile
@@ -393,7 +381,6 @@ struct strMtProjectRemote
 //-------------------------------------------------
 struct strMtProject
 {
-	strSampleBank sampleBank;
 	strInstrument instrument[INSTRUMENTS_COUNT];
 	uint8_t instruments_count;
 	uint8_t patterns_count;
@@ -402,6 +389,10 @@ struct strMtProject
 
 
 	strMtValues values;
+
+	uint32_t max_memory = SAMPLE_MEMORY_MAX;
+	uint32_t used_memory;
+	uint8_t samples_count;
 
 };
 
