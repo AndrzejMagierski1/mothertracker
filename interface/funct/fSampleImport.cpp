@@ -187,12 +187,21 @@ static  uint8_t functChangeInstrument(uint8_t button)
 
 static  uint8_t functInstrumentAdd()
 {
+	 SI->SelectFile();
+
 
 	return 1;
 }
 
 static  uint8_t functInstrumentDelete()
 {
+
+	fileManager.deleteInstrument(SI->selectedSlot);
+	//importSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot);
+	projectEditor.loadSamplesBank();
+
+	SI->listInstrumentSlots();
+	SI->showInstrumentsList();
 
 	return 1;
 }
@@ -564,9 +573,11 @@ void cSampleImporter::SelectFile()
 {
 	fileManager.importSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot);
 	projectEditor.loadSamplesBank();
-	listInstrumentSlots();
 
-showInstrumentsList();
+	selectedSlot++;
+
+	listInstrumentSlots();
+	showInstrumentsList();
 }
 
 

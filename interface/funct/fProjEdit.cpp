@@ -328,6 +328,11 @@ uint8_t cProjectEditor::loadSamplesBank()
 		}
 
 
+		Serial.print("loaded: ");
+		Serial.print(i);
+		Serial.print(" : ");
+		Serial.println(mtProject.instrument[i].sample.loaded);
+
 		if(size > 0)
 		{
 			mtProject.used_memory += size*2;
@@ -340,6 +345,8 @@ uint8_t cProjectEditor::loadSamplesBank()
 		{
 			mtProject.instrument[i].sample.loaded = 0;
 			mtProject.instrument[i].sample.length = 0;
+
+			/*
 			mtProject.instrument[i].sample.file_name[0] = '-';
 			mtProject.instrument[i].sample.file_name[1] = 'e';
 			mtProject.instrument[i].sample.file_name[2] = 'm';
@@ -348,6 +355,8 @@ uint8_t cProjectEditor::loadSamplesBank()
 			mtProject.instrument[i].sample.file_name[5] = 'y';
 			mtProject.instrument[i].sample.file_name[6] = '-';
 			mtProject.instrument[i].sample.file_name[7] = 0;
+			*/
+
 			size = 0;
 			//return 2; // blad ladowania wave
 		}

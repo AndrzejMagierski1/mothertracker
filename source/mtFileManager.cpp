@@ -996,16 +996,19 @@ void FileManager:: addPatternToProject (int8_t index)
 void FileManager::deleteSample(int8_t index)
 {
 	char currentPatch[PATCH_SIZE];
+	char number[3];
 
-	uint8_t cnt=0;
+	number[0] = ((index-index%10)/10) + 48;
+	number[1] = index%10 + 48;
+	number[2] = 0;
 
+	memset(currentPatch, 0, PATCH_SIZE);
+	strcpy(currentPatch, fileManager.currentProjectPatch);
+	strcat(currentPatch, "/samples/instr");
+	strcat(currentPatch, number);
+	strcat(currentPatch, ".wav");
 
-
-	strcpy(currentPatch,currentProjectPatch);
-	strcat(currentPatch,"/samples/");
-	strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[index].sample.name);
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
-
 
 	mtProject.mtProjectRemote.instrumentFile[index].sample.type=0;
 	memset(mtProject.mtProjectRemote.instrumentFile[index].sample.name,0,SAMPLE_NAME_SIZE);
