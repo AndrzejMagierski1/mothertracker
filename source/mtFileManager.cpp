@@ -1011,6 +1011,8 @@ void FileManager::deleteSample(int8_t index)
 	memset(mtProject.mtProjectRemote.instrumentFile[index].sample.name,0,SAMPLE_NAME_SIZE);
 
 	mtProject.instrument[index].sample.type=0;
+	mtProject.instrument[index].sample.loaded=0;
+	memset(mtProject.instrument[index].sample.file_name,0,SAMPLE_NAME_SIZE);
 
 	memset(currentPatch,0,PATCH_SIZE);
 	strcpy(currentPatch,currentProjectPatch);
