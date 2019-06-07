@@ -287,68 +287,76 @@ uint8_t cProjectEditor::loadSamplesBank()
 {
 	//zaladowanie banku sampli
 	char currentPatch[PATCH_SIZE];
+	char number[3];
 
 	int32_t size;
-	mtProject.sampleBank.used_memory = 0;
+	mtProject.used_memory = 0;
 
-	mtProject.sampleBank.sample[0].address = sdram_sampleBank;
-	mtProject.sampleBank.samples_count = 0;
+	mtProject.instrument[0].sample.address = sdram_sampleBank;
+	mtProject.samples_count = 0;
 
-	for(uint8_t i = 0; i < SAMPLES_COUNT; i++)
+	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
+//		if(mtProject.instrument[i].isActive == 0) continue;
+
+		number[0] = ((i-i%10)/10) + 48;
+		number[1] = i%10 + 48;
+		number[2] = 0;
+
 		if(fileManager.currentProjectPatch != NULL)
 		{
 			memset(currentPatch, 0, PATCH_SIZE);
 			strcpy(currentPatch, fileManager.currentProjectPatch);
-			strcat(currentPatch, "/samples/");
-			strcat(currentPatch, mtProject.sampleBank.sample[i].file_name);
+			strcat(currentPatch, "/samples/instr");
+			strcat(currentPatch, number);
+			strcat(currentPatch, ".wav");
 		}
 
-		if(mtProject.sampleBank.sample[i].type == mtSampleTypeWavetable)
+		if(mtProject.instrument[i].sample.type == mtSampleTypeWavetable)
 		{
 
 			//size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
 
 			//size = loadFullWavetableSerum("DirtySaw",mtProject.sampleBank.sample[i].address);
 
-			size = fmLoadWavetable(currentPatch, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
+			size = fmLoadWavetable(currentPatch, mtProject.instrument[i].sample.address, &mtProject.instrument[i].sample.wavetable_window_size);
 
 		}
 		else
 		{
-			size = fmLoadSample(currentPatch, mtProject.sampleBank.sample[i].address);
+			size = fmLoadSample(currentPatch, mtProject.instrument[i].sample.address);
 		}
 
 
 		if(size > 0)
 		{
-			mtProject.sampleBank.used_memory += size*2;
-			mtProject.sampleBank.sample[i].loaded = 1;
-			mtProject.sampleBank.sample[i].length = size;
+			mtProject.used_memory += size*2;
+			mtProject.instrument[i].sample.loaded = 1;
+			mtProject.instrument[i].sample.length = size;
 
-			mtProject.sampleBank.samples_count++;
+			mtProject.samples_count++;
 		}
 		else
 		{
-			mtProject.sampleBank.sample[i].loaded = 0;
-			mtProject.sampleBank.sample[i].length = 0;
-			mtProject.sampleBank.sample[i].file_name[0] = '-';
-			mtProject.sampleBank.sample[i].file_name[1] = 'e';
-			mtProject.sampleBank.sample[i].file_name[2] = 'm';
-			mtProject.sampleBank.sample[i].file_name[3] = 'p';
-			mtProject.sampleBank.sample[i].file_name[4] = 't';
-			mtProject.sampleBank.sample[i].file_name[5] = 'y';
-			mtProject.sampleBank.sample[i].file_name[6] = '-';
-			mtProject.sampleBank.sample[i].file_name[7] = 0;
+			mtProject.instrument[i].sample.loaded = 0;
+			mtProject.instrument[i].sample.length = 0;
+			mtProject.instrument[i].sample.file_name[0] = '-';
+			mtProject.instrument[i].sample.file_name[1] = 'e';
+			mtProject.instrument[i].sample.file_name[2] = 'm';
+			mtProject.instrument[i].sample.file_name[3] = 'p';
+			mtProject.instrument[i].sample.file_name[4] = 't';
+			mtProject.instrument[i].sample.file_name[5] = 'y';
+			mtProject.instrument[i].sample.file_name[6] = '-';
+			mtProject.instrument[i].sample.file_name[7] = 0;
 			size = 0;
 			//return 2; // blad ladowania wave
 		}
 
 		if(i+1 < SAMPLES_COUNT)
 		{
-			mtProject.sampleBank.sample[i+1].address = mtProject.sampleBank.sample[i].address+size;
+			mtProject.instrument[i+1].sample.address = mtProject.instrument[i].sample.address+size;
 		}
-		if(mtProject.sampleBank.used_memory > mtProject.sampleBank.max_memory) return 1; // out of memory
+		if(mtProject.used_memory > mtProject.max_memory) return 1; // out of memory
 	}
 
 	return 0;

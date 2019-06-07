@@ -4,7 +4,7 @@
 #include "mtFileManager.h"
 
 #include "mtAudioEngine.h"
-
+#include <projectEditor.h>
 
 cSampleImporter sampleImporter;
 static cSampleImporter* SI = &sampleImporter;
@@ -562,7 +562,11 @@ void cSampleImporter::BrowseFolder()
 
 void cSampleImporter::SelectFile()
 {
+	fileManager.importSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot);
+	projectEditor.loadSamplesBank();
+	listInstrumentSlots();
 
+showInstrumentsList();
 }
 
 
@@ -588,9 +592,9 @@ void cSampleImporter::listInstrumentSlots()
 			slotNames[i][4] = 0;
 		}
 
-		if(mtProject.sampleBank.sample[i].loaded)
+		if(mtProject.instrument[i].sample.loaded)
 		{
-			strcat(&slotNames[i][0], mtProject.sampleBank.sample[i].file_name);
+			strcat(&slotNames[i][0], mtProject.instrument[i].sample.file_name);
 		}
 
 		ptrSlotNames[i] = &slotNames[i][0];
@@ -632,8 +636,8 @@ void cSampleImporter::playSampleFromBank()
 {
 	playMode = playModeSampleBank;
 
-	instrumentPlayer[0].noteOnforPrev(mtProject.sampleBank.sample[selectedSlot].address,
-									  mtProject.sampleBank.sample[selectedSlot].length);
+	instrumentPlayer[0].noteOnforPrev(mtProject.instrument[selectedSlot].sample.address,
+									  mtProject.instrument[selectedSlot].sample.length);
 }
 
 

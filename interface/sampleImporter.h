@@ -8,6 +8,7 @@
 #include "mtStructs.h"
 
 
+
 class cSampleImporter: public cModuleBase
 {
 
