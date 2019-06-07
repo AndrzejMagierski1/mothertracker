@@ -121,6 +121,10 @@ const int8_t REVERB_PANNING_MIN 			=	-100;
 const uint8_t REVERB_PANNING_MAX 			=	100;
 
 
+const uint8_t LIMITER_ATTACK_MIN 			=	0;
+const uint8_t LIMITER_ATTACK_MAX  			=	100;
+const uint8_t LIMITER_TRESHOLD_MIN 			=	0;
+const uint8_t LIMITER_TRESHOLD_MAX 			=	100;
 
 
 
@@ -357,6 +361,9 @@ struct strMtValues
 	uint8_t reverbRoomSize;
 	uint8_t reverbDamping;
 	int8_t reverbPanning;
+
+	uint8_t limiterAttak;
+	uint8_t limiterTreshold;
 
 	int8_t patternEditStep = 1;
 

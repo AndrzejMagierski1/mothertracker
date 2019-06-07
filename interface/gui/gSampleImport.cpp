@@ -3,7 +3,7 @@
 #include <sampleImporter.h>
 
 
-uint16_t framesPlaces[3][4] =
+static uint16_t framesPlaces[3][4] =
 {
 	{0, 0, 800/4, 480},
 	{(800/4)*1, 0, 800/4, 480},
