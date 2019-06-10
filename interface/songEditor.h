@@ -48,7 +48,7 @@ public:
 
 	void setDefaultScreenFunct();
 
-	uint8_t changePatternsSelection(int16_t value);
+	void changePatternsSelection(int16_t value);
 	void changeReverbRoomSize(int16_t value);
 	void changeReverbDamping(int16_t value);
 	void changeLimiterAttack(int16_t value);

@@ -92,8 +92,8 @@ public:
 
 // instrumenty
 	void listInstrumentSlots();
-	char slotNames[SAMPLES_COUNT][36];
-	char *ptrSlotNames[SAMPLES_COUNT];
+	char slotNames[INSTRUMENTS_COUNT][36];
+	char *ptrSlotNames[INSTRUMENTS_COUNT];
 	uint8_t selectedSlot = 0;
 
 //	uint16_t instrumentsCount;

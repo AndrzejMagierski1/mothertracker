@@ -94,6 +94,8 @@ public:
 	void deleteInstrument(int8_t index);
 	void deletePattern(int8_t index);
 
+	uint8_t loadSamplesMemory();
+
 	friend class cProjectEditor;
 
 private:
@@ -116,7 +118,8 @@ private:
 
 extern FileManager fileManager;
 
-
+extern int16_t sdram_effectsBank[4*1024*1024];
+extern int16_t sdram_sampleBank[4*1024*1024];
 
 
 uint32_t fmLoadSample(const char *filename, int16_t * buf);

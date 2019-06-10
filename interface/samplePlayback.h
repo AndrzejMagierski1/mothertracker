@@ -10,6 +10,21 @@
 #include "mtStructs.h"
 
 
+const float ZOOM_MIN 	=	1;
+const float ZOOM_MAX 	=	10;
+const float ZOOM_FACTOR =	0.05;
+
+
+const char playModeFunctLabels[playModeCount][15]=
+{
+		"1-Shot",
+		"Forward Loop",
+		"Backward Loop",
+		"Pingpong Loop",
+};
+
+
+
 
 class cSamplePlayback: public cModuleBase
 {
@@ -39,9 +54,11 @@ public:
 	virtual ~cSamplePlayback() {}
 
 	void showDefaultScreen();
+	void showZoomValue();
+	void showPlayModeList();
+
 	void setDefaultScreenFunct();
 
-	void clearLabelsBorder();
 
 	void processSpectrum();
 	void processPoints();
@@ -49,8 +66,26 @@ public:
 	void modEndPoint(int16_t value);
 	void modLoopPoint1(int16_t value);
 	void modLoopPoint2(int16_t value);
+	void changeZoom(int16_t value);
+	void changePlayModeSelection(int16_t value);
+
+	void activateLabelsBorder();
+
+	strFrameData frameData;
+
+	hControl topLabel[8];
+	hControl bottomLabel[8];
+	hControl playModeListControl;
+	hControl spectrumControl;
+	hControl pointsControl;
+	hControl frameControl;
+
+
+	uint8_t selectedPlace = 0;
+
 
 //----------------------------------
+// spectrum + punkty
 	uint8_t refreshSpectrum = 0;
 	uint8_t refreshPoints = 0;
 
@@ -61,35 +96,33 @@ public:
 	uint8_t inActiveInstrumentsCount;
 	strInstrument * editorInstrument;
 
-
-
 	uint16_t zoomWidth = MAX_16BIT;
 	int32_t zoomStart =  0;
 	int32_t zoomEnd = MAX_16BIT;
 	uint8_t lastChangedPoint = 0;
 	float zoomValue = 1;
+	char zoomTextValue[6];
 	uint16_t zoomPosition = 0;
-
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;
-//----------------------------------
 
+//----------------------------------
+// lista play mode
+	strList playModeList;
+
+	void listPlayMode();
+
+	char *playModeNames[playModeCount];
+
+
+//----------------------------------
+// odtwarzanie
 	uint8_t isPlayingSample = 0;
 	int8_t playNote = 24;
 	uint8_t glidePreviewDif = 0;
 
-
-	hControl topLabel[8];
-	hControl bottomLabel[8];
-	hControl spectrumControl;
-	hControl pointsControl;
-
-
-	uint8_t instrumentListMode = 0;
-	const uint8_t instrument_list_pos = 0;
-	uint8_t instrumentListEnabled = 0;
-	char *instrumentNames[INSTRUMENTS_COUNT];
+//----------------------------------
 
 
 

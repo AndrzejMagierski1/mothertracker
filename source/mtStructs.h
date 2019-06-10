@@ -19,12 +19,12 @@ const float MIN_WAVE_FLOAT =					-1.0;
 
 const uint32_t SAMPLE_MEMORY_MAX =      		(8*1024*1024);
 
-const uint8_t INSTRUMENTS_MAX =        			31;
-const uint8_t SAMPLES_MAX =            			31;
+const uint8_t INSTRUMENTS_MAX =        			47;
+//const uint8_t SAMPLES_MAX =            			31;
 const uint8_t SAMPLES_FILENAME_LENGTH_MAX =     32;
 
-const uint8_t INSTRUMENTS_COUNT =        		32;
-const uint8_t SAMPLES_COUNT =            		32;
+const uint8_t INSTRUMENTS_COUNT =        		48;
+//const uint8_t SAMPLES_COUNT =            		32;
 const uint8_t PATTERNS_COUNT 	=				32;
 
 const uint8_t PROJECT_NAME_SIZE =				32;

@@ -194,7 +194,7 @@ private:
 
 	const uint8_t sample_list_pos = 1;
 	uint8_t sampleListEnabled = 0;
-	char *sampleNames[SAMPLES_COUNT];
+	char *sampleNames[INSTRUMENTS_COUNT];
 
 	uint8_t instrumentListMode = 0;
 	const uint8_t instrument_list_pos = 0;

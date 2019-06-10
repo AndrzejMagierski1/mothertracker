@@ -25,6 +25,7 @@ uint8_t functLeft();
 uint8_t functRight();
 uint8_t functUp();
 uint8_t functDown();
+
 uint8_t functNote();
 uint8_t functInstrument();
 uint8_t functVolume();
@@ -390,10 +391,10 @@ void cPatternEditor::changeActualStepInstrument(int16_t value)
 
 	if(pattern->track[trackerPattern.select].step[trackerPattern.position].isOn)
 	{
-		uint8_t step_inst = pattern->track[trackerPattern.select].step[trackerPattern.position].instrument;
+		int8_t step_inst = pattern->track[trackerPattern.select].step[trackerPattern.position].instrument;
 
-		if(step_inst + value >= mtProject.instruments_count)
-			pattern->track[trackerPattern.select].step[trackerPattern.position].instrument = mtProject.instruments_count-1;
+		if(step_inst + value >= INSTRUMENTS_COUNT)
+			pattern->track[trackerPattern.select].step[trackerPattern.position].instrument = INSTRUMENTS_COUNT-1;
 		else if(step_inst + value < 0)
 			pattern->track[trackerPattern.select].step[trackerPattern.position].instrument = 0;
 		else

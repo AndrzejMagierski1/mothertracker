@@ -64,7 +64,7 @@ public:
 	uint8_t editMode = 0;
 
 	//uint8_t last_selected_instrument = 0;
-	uint8_t last_selected_length = 100;
+	uint16_t last_selected_length = 100;
 //----------------------------------
 
 

@@ -6,8 +6,7 @@
 
 
 
-extern int16_t sdram_effectsBank[4*1024*1024];
-extern int16_t sdram_sampleBank[4*1024*1024];
+
 
 
 cProjectEditor projectEditor;
@@ -37,7 +36,7 @@ void cProjectEditor::update()
 				listOnlyFolderNames("/Projects/");
 
 				fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
-				loadSamplesBank();
+				fileManager.loadSamplesMemory();
 
 				functSwitchModule(interfaceButton17); //13
 				break;
@@ -196,7 +195,7 @@ uint8_t functOpenProject()
 */
 
 
-	PE->loadSamplesBank();
+	fileManager.loadSamplesMemory();
 	//PE->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
 
 
@@ -282,94 +281,6 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 
 }
 
-
-uint8_t cProjectEditor::loadSamplesBank()
-{
-	//zaladowanie banku sampli
-	char currentPatch[PATCH_SIZE];
-	char number[3];
-
-	int32_t size;
-	mtProject.used_memory = 0;
-
-	mtProject.instrument[0].sample.address = sdram_sampleBank;
-	mtProject.samples_count = 0;
-
-	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
-	{
-//		if(mtProject.instrument[i].isActive == 0) continue;
-
-		number[0] = ((i-i%10)/10) + 48;
-		number[1] = i%10 + 48;
-		number[2] = 0;
-
-		if(fileManager.currentProjectPatch != NULL)
-		{
-			memset(currentPatch, 0, PATCH_SIZE);
-			strcpy(currentPatch, fileManager.currentProjectPatch);
-			strcat(currentPatch, "/samples/instr");
-			strcat(currentPatch, number);
-			strcat(currentPatch, ".wav");
-		}
-
-		if(mtProject.instrument[i].sample.type == mtSampleTypeWavetable)
-		{
-
-			//size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
-
-			//size = loadFullWavetableSerum("DirtySaw",mtProject.sampleBank.sample[i].address);
-
-			size = fmLoadWavetable(currentPatch, mtProject.instrument[i].sample.address, &mtProject.instrument[i].sample.wavetable_window_size);
-
-		}
-		else
-		{
-			size = fmLoadSample(currentPatch, mtProject.instrument[i].sample.address);
-		}
-
-
-		Serial.print("loaded: ");
-		Serial.print(i);
-		Serial.print(" : ");
-		Serial.println(mtProject.instrument[i].sample.loaded);
-
-		if(size > 0)
-		{
-			mtProject.used_memory += size*2;
-			mtProject.instrument[i].sample.loaded = 1;
-			mtProject.instrument[i].sample.length = size;
-
-			mtProject.samples_count++;
-		}
-		else
-		{
-			mtProject.instrument[i].sample.loaded = 0;
-			mtProject.instrument[i].sample.length = 0;
-
-			/*
-			mtProject.instrument[i].sample.file_name[0] = '-';
-			mtProject.instrument[i].sample.file_name[1] = 'e';
-			mtProject.instrument[i].sample.file_name[2] = 'm';
-			mtProject.instrument[i].sample.file_name[3] = 'p';
-			mtProject.instrument[i].sample.file_name[4] = 't';
-			mtProject.instrument[i].sample.file_name[5] = 'y';
-			mtProject.instrument[i].sample.file_name[6] = '-';
-			mtProject.instrument[i].sample.file_name[7] = 0;
-			*/
-
-			size = 0;
-			//return 2; // blad ladowania wave
-		}
-
-		if(i+1 < SAMPLES_COUNT)
-		{
-			mtProject.instrument[i+1].sample.address = mtProject.instrument[i].sample.address+size;
-		}
-		if(mtProject.used_memory > mtProject.max_memory) return 1; // out of memory
-	}
-
-	return 0;
-}
 
 
 

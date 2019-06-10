@@ -8,8 +8,8 @@
 struct strTrackerSpectrum
 {
 	uint8_t spectrumType = 0;
-	int8_t upperData[800];
-	int8_t lowerData[800];
+	int8_t upperData[600];
+	int8_t lowerData[600];
 
 	uint16_t loadProgress = 0;
 };

@@ -586,7 +586,7 @@ void FileManager::importProject(char* sourceProjectPatch,char* name, char* newNa
 	strcpy(currentPatch,sourceProjectPatch);
 	strcat(currentPatch,"/samples");
 
-	for(uint8_t i=0; i < SAMPLES_COUNT; i++)
+	for(uint8_t i=0; i < INSTRUMENTS_COUNT; i++)
 	{
 		if(mtProject.mtProjectRemote.instrumentFile[i].index != -1)
 		{

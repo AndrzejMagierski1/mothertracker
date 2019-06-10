@@ -196,12 +196,19 @@ static  uint8_t functInstrumentAdd()
 static  uint8_t functInstrumentDelete()
 {
 
+	if(mtProject.instrument[SI->selectedSlot].sample.loaded)
+	{
+		mtProject.used_memory = mtProject.used_memory - mtProject.instrument[SI->selectedSlot].sample.length;
+	}
+
 	fileManager.deleteInstrument(SI->selectedSlot);
 	//importSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot);
-	projectEditor.loadSamplesBank();
+	//fileManager.loadSamplesMemory();
 
 	SI->listInstrumentSlots();
 	SI->showInstrumentsList();
+
+	SI->calculateMemoryUsage();
 
 	return 1;
 }
@@ -360,8 +367,10 @@ uint8_t cSampleImporter::changeFileSelection(int16_t value)
 uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 {
 	if(selectedSlot+value < 0) selectedSlot = 0;
-	else if(selectedSlot+value > SAMPLES_COUNT-1) selectedSlot = SAMPLES_COUNT-1;
+	else if(selectedSlot+value > INSTRUMENTS_COUNT-1) selectedSlot = INSTRUMENTS_COUNT-1;
 	else  selectedSlot += value;
+
+	mtProject.values.lastUsedInstrument = selectedSlot;
 
 	display.setControlValue(instrumentListControl, selectedSlot);
 	display.refreshControl(instrumentListControl);
@@ -572,7 +581,9 @@ void cSampleImporter::BrowseFolder()
 void cSampleImporter::SelectFile()
 {
 	fileManager.importSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot);
-	projectEditor.loadSamplesBank();
+	fileManager.loadSamplesMemory();
+
+	calculateMemoryUsage();
 
 	selectedSlot++;
 
@@ -585,7 +596,7 @@ void cSampleImporter::SelectFile()
 void cSampleImporter::listInstrumentSlots()
 {
 
-	for(uint8_t i = 0; i < SAMPLES_COUNT; i++)
+	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
 		if(i<9)
 		{
@@ -616,7 +627,16 @@ void cSampleImporter::listInstrumentSlots()
 //==============================================================================================
 void cSampleImporter::calculateMemoryUsage()
 {
-	memoryUsage = 20;
+
+	if(mtProject.used_memory > mtProject.max_memory)
+	{
+		memoryUsage = 100;
+	}
+	else
+	{
+		memoryUsage = (mtProject.used_memory*100)/mtProject.max_memory;
+	}
+
 
 	showMemoryUsage();
 

@@ -183,7 +183,7 @@ void cSpectrum::refresh1()
 	{
 		API_BEGIN(LINE_STRIP);
 
-		uint16_t length = (width>400) ? 400 : width;
+		uint16_t length = (width>300) ? 300 : width;
 
 		uint8_t odd = 0;
 
@@ -209,6 +209,7 @@ void cSpectrum::refresh2()
 	API_COLOR(colors[0]);
 	API_LINE_WIDTH(8);
 
+
 	if(spectrum == nullptr)
 	{
 
@@ -221,15 +222,20 @@ void cSpectrum::refresh2()
 	{
 		API_BEGIN(LINES);
 
-		uint16_t half = height/2;
+		uint16_t center = posY+height/2;
 
 		uint8_t odd = 0;
 
-		for(uint16_t i = 0; i < width-400; i++)
+		uint16_t width_left = width-300;
+
+		if(width_left > 0)
 		{
-			if(odd) API_VERTEX2F( posX+i+399, half-spectrum->upperData[i+399]);
-			else API_VERTEX2F( posX+i+399, half-spectrum->lowerData[i+399]);
-			odd = !odd;
+			for(uint16_t i = 0; i < width_left; i++)
+			{
+				if(odd) API_VERTEX2F( posX+i+299, center-spectrum->upperData[i+299]);
+				else API_VERTEX2F( posX+i+299, center-spectrum->lowerData[i+299]);
+				odd = !odd;
+			}
 		}
 	}
 	API_END();

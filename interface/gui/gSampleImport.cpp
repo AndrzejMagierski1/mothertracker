@@ -178,7 +178,7 @@ void cSampleImporter::showFilesTree()
 void cSampleImporter::showInstrumentsList()
 {
 	fileList.start = selectedSlot;
-	fileList.length = SAMPLES_COUNT;
+	fileList.length = INSTRUMENTS_COUNT;
 	fileList.linesCount = 16;
 	fileList.data = ptrSlotNames;
 

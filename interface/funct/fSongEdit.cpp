@@ -319,7 +319,7 @@ static uint8_t functSwitchModule(uint8_t button)
 
 
 //======================================================================================================================
-uint8_t cSongEditor::changePatternsSelection(int16_t value)
+void cSongEditor::changePatternsSelection(int16_t value)
 {
 	if(selectedPattern + value < 0) selectedPattern = 0;
 	else if(selectedPattern + value > songLength-1) selectedPattern = songLength-1;
@@ -328,7 +328,6 @@ uint8_t cSongEditor::changePatternsSelection(int16_t value)
 	display.setControlValue(patternsListControl, selectedPattern);
 	display.refreshControl(patternsListControl);
 
-	return 1;
 }
 
 
