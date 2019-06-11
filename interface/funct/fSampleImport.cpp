@@ -85,6 +85,10 @@ void cSampleImporter::start(uint32_t options)
 	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
 
+	FM->setButtonObj(interfaceButton23, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton24, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton25, buttonPress, functSwitchModule);
+
 	showDefaultScreen();
 	setDefaultScreenFunct();
 }

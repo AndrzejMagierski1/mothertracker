@@ -12,7 +12,6 @@ static cInstrumentEditor* IE = &instrumentEditor;
 
 
 static  uint8_t functPlayAction();
-static  uint8_t functStopAction();
 static  uint8_t functRecAction();
 
 
@@ -28,6 +27,46 @@ static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
 
+static  uint8_t functSwitchMode(uint8_t button);
+
+static  uint8_t functSelectVolume(uint8_t button);
+static  uint8_t functSelectFilter(uint8_t button);
+static  uint8_t functSelectParams(uint8_t button);
+
+
+
+static  uint8_t functSelectVolumeAttack();
+static  uint8_t functSelectVolumeDecay();
+static  uint8_t functSelectVolumeSustain();
+static  uint8_t functSelectVolumeRelease();
+static  uint8_t functSelectVolumeAmount();
+
+static  uint8_t functSelectFilterAttack();
+static  uint8_t functSelectFilterDecay();
+static  uint8_t functSelectFilterSustain();
+static  uint8_t functSelectFilterRelease();
+static  uint8_t functSelectFilterAmount();
+static  uint8_t functSelectFilterFilterType();
+static  uint8_t functSelectFilterCutOff();
+static  uint8_t functSelectFilterResonance();
+
+
+static  uint8_t functSelectParamsVolume();
+static  uint8_t functSelectParamsTune();
+static  uint8_t functSelectParamsFineTune();
+static  uint8_t functSelectParamsGlide();
+static  uint8_t functSelectParamsVibrato();
+static  uint8_t functSelectParamsTremolo();
+static  uint8_t functSelectParamsEffect1();
+static  uint8_t functSelectParamsEffect2();
+
+
+
+
+
+
+
+
 
 
 void cInstrumentEditor::update()
@@ -42,6 +81,7 @@ void cInstrumentEditor::start(uint32_t options)
 	moduleRefresh = 1;
 
 
+	mode = options;
 
 
 
@@ -57,12 +97,32 @@ void cInstrumentEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
 
-	showDefaultScreen();
-	setDefaultScreenFunct();
+	FM->setButtonObj(interfaceButton23, buttonPress, functSwitchMode);
+	FM->setButtonObj(interfaceButton24, buttonPress, functSwitchMode);
+	FM->setButtonObj(interfaceButton25, buttonPress, functSwitchMode);
 
-	//typedef void (cProjectEditor::*funct1) (void);
-	//funct1 = &cProjectEditor::functOpenProject;
-	//(this->*funct1)();
+
+	switch(mode)
+	{
+	case 0:
+	{
+		IE->showInstrumentVolume();
+		IE->setInstrumentVolumeFunct();
+		break;
+	}
+	case 1:
+	{
+		IE->showInstrumentFilter();
+		IE->setInstrumentFilterFunct();
+		break;
+	}
+	case 2:
+	{
+		IE->showInstrumentParams();
+		IE->setInstrumentParamsFunct();
+		break;
+	}
+	}
 
 }
 
@@ -81,7 +141,6 @@ void cInstrumentEditor::setDefaultScreenFunct()
 	FM->clearAllPots();
 
 	FM->setButtonObj(interfaceButton8, buttonPress, functPlayAction);
-//	FM->setButtonObj(interfaceButton9, buttonPress, functStopAction);
 	FM->setButtonObj(interfaceButton9, buttonPress, functRecAction);
 
 	FM->setButtonObj(interfaceButton30, buttonPress, functLeft);
@@ -91,18 +150,65 @@ void cInstrumentEditor::setDefaultScreenFunct()
 
 
 
-	//FM->setPotObj(interfacePot0, (uint16_t*)(&trackerPattern.part), 0, 744, 5, patternControl);
-
-
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
 
 
 }
 //==============================================================================================================
+void cInstrumentEditor::setInstrumentVolumeFunct()
+{
+	for(uint8_t i = interfaceButton0; i < interfaceButton8; i++)
+	{
+		FM->setButtonObj(i, buttonPress, functSelectVolume);
+	}
+
+}
 
 
+void cInstrumentEditor::setInstrumentFilterFunct()
+{
 
+	for(uint8_t i = interfaceButton0; i < interfaceButton8; i++)
+	{
+		FM->setButtonObj(i, buttonPress, functSelectFilter);
+	}
+
+}
+
+
+void cInstrumentEditor::setInstrumentParamsFunct()
+{
+	for(uint8_t i = interfaceButton0; i < interfaceButton8; i++)
+	{
+		FM->setButtonObj(i, buttonPress, functSelectParams);
+	}
+
+}
+
+static  uint8_t functSelectVolume(uint8_t button)
+{
+	IE->selectedPlace = button;
+	IE->activateLabelsBorder();
+
+	return 1;
+}
+
+static  uint8_t functSelectFilter(uint8_t button)
+{
+	IE->selectedPlace = button;
+	IE->activateLabelsBorder();
+
+	return 1;
+}
+
+static  uint8_t functSelectParams(uint8_t button)
+{
+	IE->selectedPlace = button;
+	IE->activateLabelsBorder();
+
+	return 1;
+}
 
 
 
@@ -118,9 +224,6 @@ static  uint8_t functEncoder(int16_t value)
 
 	return 1;
 }
-
-
-
 
 
 static  uint8_t functLeft()
@@ -202,6 +305,49 @@ static uint8_t functSwitchModule(uint8_t button)
 	return 1;
 }
 
+
+static  uint8_t functSwitchMode(uint8_t button)
+{
+	switch(button)
+	{
+	case 23:
+	{
+		if(IE->mode != 0)
+		{
+			IE->mode = 0;
+			IE->showInstrumentVolume();
+			IE->setInstrumentVolumeFunct();
+		}
+		break;
+	}
+	case 24:
+	{
+		if(IE->mode != 1)
+		{
+			IE->mode = 1;
+			IE->showInstrumentFilter();
+			IE->setInstrumentFilterFunct();
+		}
+		break;
+	}
+	case 25:
+	{
+		if(IE->mode != 2)
+		{
+			IE->mode = 2;
+			IE->showInstrumentParams();
+			IE->setInstrumentParamsFunct();
+		}
+		break;
+	}
+
+
+	}
+
+
+
+	return 1;
+}
 
 //======================================================================================================================
 
