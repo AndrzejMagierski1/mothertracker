@@ -152,7 +152,7 @@ void cSamplePlayback::start(uint32_t options)
 	FM->setButtonObj(interfaceButton11, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton12, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
+	//FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton15, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
@@ -164,10 +164,7 @@ void cSamplePlayback::start(uint32_t options)
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
-	//typedef void (cProjectEditor::*funct1) (void);
-	//funct1 = &cProjectEditor::functOpenProject;
-	//(this->*funct1)();
-
+	activateLabelsBorder();
 }
 
 

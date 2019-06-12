@@ -75,7 +75,7 @@ void cPatternEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButton10, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton11, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton12, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
+	//FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton15, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);

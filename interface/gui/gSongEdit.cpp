@@ -107,7 +107,7 @@ void cSongEditor::showDefaultScreen()
 
 	display.setControlText(bottomLabel[0], "  -             +  ");
 	display.setControlText(bottomLabel[1], " /\\\           \\\/ ");
-	display.setControlText(bottomLabel[2], "  Size      Dumping");
+	display.setControlText(bottomLabel[2], "  Size      Damping");
 	display.setControlText(bottomLabel[3], " Attack    Treshold");
 
 	for(uint8_t i = 0; i<4; i++)

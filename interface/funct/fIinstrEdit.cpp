@@ -106,23 +106,25 @@ void cInstrumentEditor::start(uint32_t options)
 	{
 	case 0:
 	{
-		IE->showInstrumentVolume();
-		IE->setInstrumentVolumeFunct();
+		showInstrumentVolume();
+		setInstrumentVolumeFunct();
 		break;
 	}
 	case 1:
 	{
-		IE->showInstrumentFilter();
-		IE->setInstrumentFilterFunct();
+		showInstrumentFilter();
+		setInstrumentFilterFunct();
 		break;
 	}
 	case 2:
 	{
-		IE->showInstrumentParams();
-		IE->setInstrumentParamsFunct();
+		showInstrumentParams();
+		setInstrumentParamsFunct();
 		break;
 	}
 	}
+
+	activateLabelsBorder();
 
 }
 

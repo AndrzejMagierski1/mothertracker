@@ -72,8 +72,7 @@ void cSampleImporter::start(uint32_t options)
 
 	calculateMemoryUsage();
 
-	//SI->selectedPlace = 0;
-	SI->activateLabelsBorder();
+	activateLabelsBorder();
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButton10, buttonPress, functSwitchModule);
@@ -83,7 +82,7 @@ void cSampleImporter::start(uint32_t options)
 	FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton15, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
+	//FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
 
 	FM->setButtonObj(interfaceButton23, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton24, buttonPress, functSwitchModule);
@@ -108,7 +107,6 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 	FM->setButtonObj(interfaceButton8, buttonPress, functPlayAction);
-	//FM->setButtonObj(interfaceButton9, buttonPress, functStopAction);
 	FM->setButtonObj(interfaceButton9, buttonPress, functRecAction);
 
 	FM->setButtonObj(interfaceButton30, buttonPress, functLeft);
@@ -309,22 +307,18 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == 0) sequencer.play();
-
-	return 1;
-}
-
-static  uint8_t functStopAction()
-{
-	if(sequencer.getSeqState() == 1)
+	if(sequencer.getSeqState() == 0)
+	{
+		sequencer.play();
+	}
+	else if(sequencer.getSeqState() == 1)
 	{
 		sequencer.stop();
 	}
 
-
-
 	return 1;
 }
+
 
 static  uint8_t functRecAction()
 {
@@ -658,6 +652,12 @@ void cSampleImporter::playSdFile()
 	if(dirLevel > 0)strcat(file_path, "/");
 	strcat(file_path, &locationFileList[selectedFile][0]);
 
+
+	if(sequencer.getSeqState() == 1)
+	{
+		sequencer.stop();
+	}
+
 	playMode = playModeSdFile;
 
 	engine.prevSdConnect();
@@ -669,6 +669,11 @@ void cSampleImporter::playSdFile()
 
 void cSampleImporter::playSampleFromBank()
 {
+	if(sequencer.getSeqState() == 1)
+	{
+		sequencer.stop();
+	}
+
 	playMode = playModeSampleBank;
 
 	instrumentPlayer[0].noteOnforPrev(mtProject.instrument[selectedSlot].sample.address,
