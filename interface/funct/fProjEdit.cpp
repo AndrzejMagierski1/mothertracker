@@ -35,8 +35,8 @@ void cProjectEditor::update()
 			{
 				listOnlyFolderNames("/Projects/");
 
-//				fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
-//				fileManager.samplesLoader.start(0);
+				fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
+				fileManager.samplesLoader.start(0);
 
 				functSwitchModule(interfaceButton17); //13
 				break;

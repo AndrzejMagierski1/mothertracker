@@ -36,7 +36,7 @@ static  uint8_t functPlayMode(uint8_t button);
 
 
 static uint8_t play(uint8_t value);
-static uint8_t stopPlaying(uint8_t value);
+
 
 
 static  uint8_t functEncoder(int16_t value);
@@ -77,10 +77,10 @@ void cSamplePlayback::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-	points.selected = 0;
+	points.selected = (selectedPlace >= 0 && selectedPlace <= 3) ? selectedPlace+1 : 0;
 
 
-	//--------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
 			mtProject.values.padBoardNoteOffset,
@@ -88,53 +88,9 @@ void cSamplePlayback::start(uint32_t options)
 
 	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
 
-	if(mtProject.samples_count == 0)
-	{
-		//strcpy(buttonFunctionLabels[buttonFunctSampleList], "No samples");
-	}
-	if(mtProject.instruments_count == 0)
-	{
-		//strcpy(buttonFunctionLabels[buttonFunctInstrumentList], "No instruments");
-
-		//askToCreateNewInstr();
-		return;
-	}
 
 
-	// utworzenie listy tylko aktywnych instryumentow w otwartym projeckie
-	openedInstrumentIndex = -1;
-	openedInstrFromActive = 0;
-	uint8_t activeInstr = 0;
-	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
-	{
-		if(mtProject.instrument[i].isActive)
-		{
-			if(openedInstrumentIndex == -1) openedInstrumentIndex = i; // tymczasowo przypisz pierwszy aktywny jako otwarty
-			//instrumentNames[activeInstr] = mtProject.instrument[i].name;
-			activeInstruments[activeInstr] = i;
-			if(i == mtProject.values.lastUsedInstrument) // jesli znaleziono wybrany jako aktywny
-			{
-				openedInstrFromActive = activeInstr; // zapisz jego index z listy tylko aktywnych
-				openedInstrumentIndex = i;	// zapisz otwarty jako wybrany
-			}
-			activeInstr++;
-		}
-	}
-
-
-
-	if(openedInstrumentIndex == -1) // jesli wybrano nieaktywny i jest brak aktywnych - niemozliwe jesli (count > 0)
-	{
-
-	}
-	else if(openedInstrumentIndex != mtProject.values.lastUsedInstrument) // jesli wybrany nie jest aktywny
-	{
-		// przypisano juz wczesniej pierwszy aktywny jako otwierany (openedInstrumentIndex = i;	// zapisz otwarty jako wybrany)
-
-	}
-
-	//openedInstrumentIndex = openedInstrFromActive;
-	editorInstrument = &mtProject.instrument[openedInstrumentIndex];
+	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
 //--------------------------------------------------------------------
 
@@ -250,7 +206,7 @@ void cSamplePlayback::processSpectrum()
 
 
 	// uwaga tu wazna kolejnosc + do sprawdzenia
-	if(openedInstrumentIndex < 0 || mtProject.instrument[openedInstrumentIndex].isActive == 0 )
+	if(mtProject.values.lastUsedInstrument < 0 || mtProject.instrument[mtProject.values.lastUsedInstrument].isActive == 0 )
 	{
 		for(uint16_t i = 0; i < 600; i++)
 		{
@@ -273,7 +229,7 @@ void cSamplePlayback::processSpectrum()
 		uint16_t windowSize = editorInstrument->sample.wavetable_window_size;
 
 		sampleData = editorInstrument->sample.address
-				+ (mtProject.instrument[openedInstrumentIndex].wavetableCurrentWindow * windowSize);
+				+ (mtProject.instrument[mtProject.values.lastUsedInstrument].wavetableCurrentWindow * windowSize);
 
 		float resolution = windowSize / 600.0;
 
@@ -902,7 +858,7 @@ static uint8_t play(uint8_t value)
 			}
 		}
 
-		instrumentPlayer[0].noteOn(SP->openedInstrumentIndex, SP->playNote, -1);
+		instrumentPlayer[0].noteOn(mtProject.values.lastUsedInstrument, SP->playNote, -1);
 	}
 	else if(value == 0)
 	{

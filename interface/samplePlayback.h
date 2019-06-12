@@ -40,11 +40,11 @@ public:
 
 	cSamplePlayback()
 	{
-		inActiveInstrumentsCount = 0;
-		inActiveInstrumentIndex = 0;
+//		inActiveInstrumentsCount = 0;
+//		inActiveInstrumentIndex = 0;
 		editorInstrument = nullptr;
-		openedInstrFromActive = 0;
-		openedInstrumentIndex = 0;
+//		openedInstrFromActive = 0;
+//		openedInstrumentIndex = 0;
 
 		spectrumControl = nullptr;
 		pointsControl = nullptr;
@@ -89,11 +89,11 @@ public:
 	uint8_t refreshSpectrum = 0;
 	uint8_t refreshPoints = 0;
 
-	int8_t openedInstrumentIndex; // index w globalnej liscie instrumentow
-	int8_t openedInstrFromActive; // index z listy tylko aktywnych ( activeInstruments[] )
-	int8_t inActiveInstrumentIndex;
-	int8_t activeInstruments[INSTRUMENTS_COUNT];
-	uint8_t inActiveInstrumentsCount;
+//	int8_t openedInstrumentIndex; // index w globalnej liscie instrumentow
+//	int8_t openedInstrFromActive; // index z listy tylko aktywnych ( activeInstruments[] )
+//	int8_t inActiveInstrumentIndex;
+//	int8_t activeInstruments[INSTRUMENTS_COUNT];
+//	uint8_t inActiveInstrumentsCount;
 	strInstrument * editorInstrument;
 
 	uint16_t zoomWidth = MAX_16BIT;
