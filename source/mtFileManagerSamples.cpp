@@ -10,201 +10,323 @@
 //-------------------------------------------------------------------------------
 
 
-uint8_t FileManager::loadSamplesMemory()
+//********************************************************************SAMPLE LOADER************************************************************************************//
+
+void SamplesLoader::update()
 {
-	//zaladowanie banku sampli
-	char currentPatch[PATCH_SIZE];
-	char number[3];
-
-	int32_t size;
-	mtProject.used_memory = 0;
-
-	mtProject.instrument[0].sample.address = sdram_sampleBank;
-	mtProject.samples_count = 0;
-
-	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
+	if(state == loaderStateTypeInProgress)
 	{
-//		if(mtProject.instrument[i].isActive == 0) continue;
+		char currentPatch[PATCH_SIZE];
+		char number[3];
 
-		number[0] = ((i-i%10)/10) + 48;
-		number[1] = i%10 + 48;
-		number[2] = 0;
-
-		if(fileManager.currentProjectPatch != NULL)
-		{
-			memset(currentPatch, 0, PATCH_SIZE);
-			strcpy(currentPatch, fileManager.currentProjectPatch);
-			strcat(currentPatch, "/samples/instr");
-			strcat(currentPatch, number);
-			strcat(currentPatch, ".wav");
-		}
-
-		if(mtProject.instrument[i].sample.type == mtSampleTypeWavetable)
+		if(waveLoader.getState() == loaderStateTypeEnded)
 		{
 
-			//size = loadWavetable(mtProject.sampleBank.sample[i].file_name, mtProject.sampleBank.sample[i].address, &mtProject.sampleBank.sample[i].wavetable_window_size);
+			number[0] = ((currentIndex-currentIndex%10)/10) + 48;
+			number[1] = currentIndex%10 + 48;
+			number[2] = 0;
 
-			//size = loadFullWavetableSerum("DirtySaw",mtProject.sampleBank.sample[i].address);
+			if(fileManager.currentProjectPatch != NULL)
+			{
+				memset(currentPatch, 0, PATCH_SIZE);
+				strcpy(currentPatch, fileManager.currentProjectPatch);
+				strcat(currentPatch, "/samples/instr");
+				strcat(currentPatch, number);
+				strcat(currentPatch, ".wav");
+			}
 
-			size = fmLoadWavetable(currentPatch, mtProject.instrument[i].sample.address, &mtProject.instrument[i].sample.wavetable_window_size);
+			if(mtProject.instrument[currentIndex].sample.type == mtSampleTypeWavetable)
+			{
 
+			}
+			else
+			{
+				currentSize = waveLoader.start(currentPatch, mtProject.instrument[currentIndex].sample.address);
+//				if(currentSize == 0)
+//				{
+//					mtProject.instrument[currentIndex].sample.loaded = 0;
+//					mtProject.instrument[currentIndex].sample.length = 0;
+//					mtProject.instrument[currentIndex].sample.wavetable_window_size = 0;
+//
+//					if((currentIndex + 1) < INSTRUMENTS_COUNT)
+//					{
+//						mtProject.instrument[currentIndex + 1].sample.address = mtProject.instrument[currentIndex].sample.address;
+//						currentIndex++;
+//					}
+//					else
+//					{
+//						state = loaderStateTypeEnded;
+//					}
+//
+//				}
+//				return;
+			}
 		}
-		else
+
+		waveLoader.update();
+		if(waveLoader.getStopStatus() == 0)
 		{
-			size = fmLoadSample(currentPatch, mtProject.instrument[i].sample.address);
+			mtProject.instrument[currentIndex].sample.loaded = 0;
+			mtProject.instrument[currentIndex].sample.length = 0;
+			mtProject.instrument[currentIndex].sample.wavetable_window_size = 0;
+
+
+			if(currentIndex + 1 < INSTRUMENTS_COUNT)
+			{
+				mtProject.instrument[currentIndex+1].sample.address = mtProject.instrument[currentIndex].sample.address;
+				currentIndex++;
+			}
+			else
+			{
+				state = loaderStateTypeEnded;
+			}
+			waveLoader.setStopStatus(2); // status readed
 		}
-
-
-		if(size > 0)
+		else if(waveLoader.getStopStatus() == 1)
 		{
-			mtProject.used_memory += size*2;
-			mtProject.instrument[i].sample.loaded = 1;
-			mtProject.instrument[i].sample.length = size;
+			mtProject.used_memory += currentSize*2;
+			mtProject.instrument[currentIndex].sample.loaded = 1;
+			mtProject.instrument[currentIndex].sample.length = currentSize;
 
-			mtProject.samples_count++;
+			if( (currentIndex+1) < INSTRUMENTS_COUNT)
+			{
+				mtProject.instrument[currentIndex+1].sample.address = mtProject.instrument[currentIndex].sample.address+currentSize;
+				currentIndex++;
+				mtProject.samples_count++;
+			}
+			else
+			{
+				state = loaderStateTypeEnded;
+			}
+
+
+			waveLoader.setStopStatus(2); // status readed
 		}
-		else
+
+	}
+}
+void SamplesLoader::start(uint8_t startIndex)
+{
+	state =  loaderStateTypeInProgress;
+	currentIndex = startIndex;
+	mtProject.used_memory = 0;
+	mtProject.samples_count = 0;
+	for(uint8_t i = 0; i < startIndex; i++)
+	{
+		if(mtProject.instrument[i].sample.loaded)
 		{
-			mtProject.instrument[i].sample.loaded = 0;
-			mtProject.instrument[i].sample.length = 0;
+			mtProject.used_memory += 2*mtProject.instrument[i].sample.length;
+			mtProject.instrument[startIndex].sample.address = mtProject.instrument[i].sample.address + mtProject.instrument[i].sample.length;
 
-			/*
-			mtProject.instrument[i].sample.file_name[0] = '-';
-			mtProject.instrument[i].sample.file_name[1] = 'e';
-			mtProject.instrument[i].sample.file_name[2] = 'm';
-			mtProject.instrument[i].sample.file_name[3] = 'p';
-			mtProject.instrument[i].sample.file_name[4] = 't';
-			mtProject.instrument[i].sample.file_name[5] = 'y';
-			mtProject.instrument[i].sample.file_name[6] = '-';
-			mtProject.instrument[i].sample.file_name[7] = 0;
-			*/
-
-			size = 0;
-			//return 2; // blad ladowania wave
+			mtProject.samples_count ++;
 		}
-
-		if(i+1 < INSTRUMENTS_COUNT)
-		{
-			mtProject.instrument[i+1].sample.address = mtProject.instrument[i].sample.address+size;
-		}
-		if(mtProject.used_memory > mtProject.max_memory) return 1; // out of memory
 	}
 
-	return 0;
+	if(mtProject.samples_count == 0)  mtProject.instrument[startIndex].sample.address = sdram_sampleBank;
 }
 
-
-
-
-
-
-
-
-uint32_t fmLoadSample(const char *filename, int16_t * buf)
+//**********************************************************************WAVELOADER************************************************************************************//
+void WaveLoader::update()
 {
-	strWavFileHeader sampleHead;
-	uint16_t bufferLength=0;
-	uint32_t accBufferLength=0;
-//	uint32_t * bufStart;
-	int16_t buf16[256];
-	FsFile wavfile;
+	if(state == loaderStateTypeInProgress)
+	{
+		int32_t bufferLength;
+		int16_t buf16[256];
 
-	//__disable_irq();
+		if(sampleHead.numChannels == 1)
+		{
+			for(uint16_t i = 0 ; i< BUFOR_COUNT; i++)
+			{
+				if( wavfile.available() )
+				{
+					bufferLength = wavfile.read(buf16, 512);
 
-	//bufStart = (uint32_t*)buf;
-	//buf+=2;
+					accBufferLength += bufferLength;
 
+					for(int i=0; i< 256; i++)
+					{
+						if(bufferLength <= i ) *currentAddress=0;
+						else *currentAddress=buf16[i];
+						currentAddress++;
+					}
+				}
+				else
+				{
+					stopFlag = stop();
+					break;
+				}
+			}
+
+		}
+		else if (sampleHead.numChannels == 2)
+		{
+			for(uint16_t i = 0 ; i< BUFOR_COUNT; i++)
+			{
+				if (wavfile.available() )
+				{
+					bufferLength = wavfile.read(buf16, 512);
+
+					accBufferLength += bufferLength;
+					for(int i=0; i< 256; i+=2)
+					{
+						if(bufferLength <= i ) *currentAddress=0;
+						else *currentAddress=buf16[i];
+						currentAddress++;
+					}
+				}
+				else
+				{
+					stopFlag = stop();
+					break;
+				}
+			}
+		}
+	}
+}
+uint32_t WaveLoader::start(const char *filename, int16_t * buf)
+{
+	if(buf == NULL)
+	{
+		stopFlag = 0;
+		return 0;
+	}
+	accBufferLength = 0;
 	wavfile = SD.open(filename);
 	wavfile.read(&sampleHead, 44);
-
+	currentAddress = buf;
 	if ( (sampleHead.numChannels == 1 && (sampleHead.subchunk2Size > 8388608 )) &&  (sampleHead.numChannels == 2 && (sampleHead.subchunk2Size > 16777216)))
 	{
 		wavfile.close();
 		if(hardwareTest)
 		{
 			Serial.println("too long file");
-			//mtPrint("too long file");
 		}
+		state = loaderStateTypeEnded;
+		stopFlag = 0;
 		return 0;
 	}
 	if(sampleHead.format != 1163280727 || sampleHead.AudioFormat != 1  || sampleHead.bitsPerSample != 16  || sampleHead.sampleRate != 44100 )
 	{
 		wavfile.close();
-//		__enable_irq();
 		if(hardwareTest)
 		{
 			Serial.println("Bad WAV file or External RAM(if SD Card init is Correct");
-			//mtPrint("Bad WAV file or External RAM(if SD Card init is Correct");
 		}
+		state = loaderStateTypeEnded;
+		stopFlag = 0;
 		return 0;
 	}
-	else
+
+	if(hardwareTest)
 	{
-		if(hardwareTest)
-		{
-			Serial.println("load WAV header to SDRAM succesfull");
-			//mtPrint("load WAV header to SDRAM succesfull");
-		}
+		Serial.println("load WAV header to SDRAM succesfull");
 	}
-/*
-	if(sampleHead.numChannels == 1) sampleLength = sampleHead.subchunk2Size;
-	else if(sampleHead.numChannels == 2) sampleLength = sampleHead.subchunk2Size/2;
-	else
-	{
-		wavfile.close();
-//		__enable_irq();
-		return -2;
-	}
-*/
+	state = loaderStateTypeInProgress;
+	stopFlag = -1;
 	if(sampleHead.numChannels == 1)
 	{
-		while ( wavfile.available() )
-		{
-			bufferLength = wavfile.read(buf16, 512);
-
-			accBufferLength += bufferLength;
-
-			for(int i=0; i< 256; i++)
-			{
-				if(bufferLength <= i ) *buf=0;
-				else *buf=buf16[i];
-				buf++;
-			}
-		}
-	}
-	else if (sampleHead.numChannels == 2)
-	{
-		while (wavfile.available() )
-		{
-
-			bufferLength = wavfile.read(buf16, 512);
-
-			accBufferLength += bufferLength;
-			for(int i=0; i< 256; i+=2)
-			{
-				if(bufferLength <= i ) *buf=0;
-				else *buf=buf16[i];
-				buf++;
-			}
-
-		}
-	}
-
-	wavfile.close();
-	accBufferLength = sampleHead.subchunk2Size;
-//	*bufStart = (accBufferLength/4);
-	if(sampleHead.numChannels == 1)
-	{
-		accBufferLength = accBufferLength/2;
+		return sampleHead.subchunk2Size/2;
 	}
 	else if(sampleHead.numChannels == 2)
 	{
-		accBufferLength = accBufferLength/4;
+		return sampleHead.subchunk2Size/4;
+	}
+	else return 0;
+}
+uint8_t WaveLoader::stop()
+{
+	wavfile.close();
+	state = loaderStateTypeEnded;
+//	if(accBufferLength == sampleHead.subchunk2Size) return 1;
+//	else return 0;
+	return 1;
+}
+
+uint8_t WaveLoader::getState()
+{
+	return state;
+}
+uint8_t WaveLoader::getStopStatus()
+{
+	return stopFlag;
+}
+void WaveLoader::setStopStatus(uint8_t s)
+{
+	stopFlag = s;
+}
+
+uint32_t WaveLoader::getInfoAboutWave(const char *filename)
+{
+	strWavFileHeader localSampleHead;
+
+	wavfile = SD.open(filename);
+	wavfile.read(&localSampleHead, 44);
+
+	if ( (localSampleHead.numChannels == 1 && (localSampleHead.subchunk2Size > 8388608 )) &&  (localSampleHead.numChannels == 2 && (localSampleHead.subchunk2Size > 16777216)))
+	{
+		wavfile.close();
+		return 0;
+	}
+	if(localSampleHead.format != 1163280727 || localSampleHead.AudioFormat != 1  || localSampleHead.bitsPerSample != 16  || localSampleHead.sampleRate != 44100 )
+	{
+		wavfile.close();
+		return 0;
 	}
 
-
-	return accBufferLength;
+	if(sampleHead.numChannels == 1)
+	{
+		return sampleHead.subchunk2Size/2;
+	}
+	else if(sampleHead.numChannels == 2)
+	{
+		return sampleHead.subchunk2Size/4;
+	}
+	else return 0;
 }
+
+//**********************************************************************WAVETABLE LOADER******************************************************************************//
+void WavetableLoader::update()
+{
+ return;
+}
+uint8_t WavetableLoader::start(const char *filename, int16_t * buf)
+{
+ return 0;
+}
+uint32_t WavetableLoader::stop()
+{
+ return 0;
+}
+
+
+int32_t WavetableLoader::fmLoadWavetable(const char *filename, int16_t * buf ,uint16_t * windowSize)
+{
+	strWavFileHeader sampleHead;
+	FsFile wavfile;
+	int32_t size=-1;
+
+	wavfile = SD.open(filename);
+	readHeader(&sampleHead,&wavfile);
+	wavfile.close();
+	if(sampleHead.AudioFormat == 1)
+	{
+		size=loadWavetableStandard(filename,buf);
+		*windowSize = STANDARD_WAVETABLE_WINDOW_LEN;
+	}
+	else if(sampleHead.AudioFormat == 3)
+	{
+		size=loadWavetableSerum(filename,buf);
+		*windowSize = SERUM_WAVETABLE_WINDOW_LEN;
+	}
+	return size;
+
+}
+//********************************************************************************************************************************************************************//
+void FileManager::update()
+{
+	samplesLoader.update();
+}
+
 
 int32_t loadWavetableStandard(const char *filename, int16_t * buf)
 {
@@ -571,28 +693,7 @@ void readHeader(strWavFileHeader* header, FsFile * wavfile)
 	}
 }
 
-int32_t fmLoadWavetable(const char *filename, int16_t * buf ,uint16_t * windowSize)
-{
-	strWavFileHeader sampleHead;
-	FsFile wavfile;
-	int32_t size=-1;
 
-	wavfile = SD.open(filename);
-	readHeader(&sampleHead,&wavfile);
-	wavfile.close();
-	if(sampleHead.AudioFormat == 1)
-	{
-		size=loadWavetableStandard(filename,buf);
-		*windowSize = STANDARD_WAVETABLE_WINDOW_LEN;
-	}
-	else if(sampleHead.AudioFormat == 3)
-	{
-		size=loadWavetableSerum(filename,buf);
-		*windowSize = SERUM_WAVETABLE_WINDOW_LEN;
-	}
-	return size;
-
-}
 /*int32_t loadFullWavetableSerum(const char *baseName, int16_t * buf)
 {
 	strWavFileHeader sampleHead;

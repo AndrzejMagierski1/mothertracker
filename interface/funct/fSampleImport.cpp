@@ -579,11 +579,12 @@ void cSampleImporter::BrowseFolder()
 void cSampleImporter::SelectFile()
 {
 	fileManager.importSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot);
-	fileManager.loadSamplesMemory();
+
+	fileManager.samplesLoader.start(selectedSlot);
 
 	calculateMemoryUsage();
 
-	selectedSlot++;
+//	selectedSlot++;
 
 	listInstrumentSlots();
 	showInstrumentsList();

@@ -1002,6 +1002,7 @@ void FileManager::deleteSample(int8_t index)
 	number[1] = index%10 + 48;
 	number[2] = 0;
 
+	if(mtProject.instrument[index].sample.loaded) mtProject.samples_count--;
 	memset(currentPatch, 0, PATCH_SIZE);
 	strcpy(currentPatch, fileManager.currentProjectPatch);
 	strcat(currentPatch, "/samples/instr");

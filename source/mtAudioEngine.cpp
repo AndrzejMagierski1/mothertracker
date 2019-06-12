@@ -231,6 +231,23 @@ void audioEngine::setReverbPanning(int8_t value)
 	}
 }
 
+void audioEngine::setLimiterAttack(uint16_t attack)
+{
+	limiter[0].setAttack(attack);
+	limiter[1].setAttack(attack);
+}
+void audioEngine::setLimiterRelease(uint16_t release)
+{
+	limiter[0].setRelease(release);
+	limiter[1].setRelease(release);
+}
+void audioEngine::setLimiterTreshold(uint16_t threshold)
+{
+	 limiter[0].setThreshold(threshold);
+	 limiter[1].setThreshold(threshold);
+}
+
+
 void audioEngine::muteTrack(uint8_t channel)
 {
 	amp[channel].gain(0.0);

@@ -4,7 +4,7 @@ mtEffector effector;
 
 void mtEffector::loadSample(const char *patch)
 {
-	fileByteSaved = 2 * fmLoadSample(patch,sdram_sampleBank);
+	fileByteSaved = 2 * fileManager.samplesLoader.waveLoader.start(patch,sdram_sampleBank);
 	if(fileByteSaved == 0) return; //todo: obsluga bledu
 	startAddress=sdram_sampleBank;
 }

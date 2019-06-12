@@ -26,6 +26,9 @@ public:
 	void setReverbRoomsize(uint8_t value);
 	void setReverbDamping(uint8_t value);
 	void setReverbPanning(int8_t value);
+	void setLimiterAttack(uint16_t attack);
+	void setLimiterRelease(uint16_t release);
+	void setLimiterTreshold(uint16_t threshold);
 	void muteTrack(uint8_t channel);
 	void wavExportConnect();
 	void wavExportDisconnect();
