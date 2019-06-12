@@ -13,6 +13,7 @@
 #include "mtPadsBacklight.h"
 #include "mtSleep.h"
 #include "mtExporterWAV.h"
+#include "mtFileManager.h"
 
 
 
@@ -59,5 +60,6 @@ void loop()
 	updateHardware();
 
 	engine.update();
+	fileManager.update();
 	mtInterface.update();
 }

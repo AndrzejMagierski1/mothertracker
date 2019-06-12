@@ -71,8 +71,65 @@ struct strProjectFile
 	uint32_t crc;
 };
 
+enum loaderStateType
+{
+	loaderStateTypeEnded,
+	loaderStateTypeInProgress
+};
+//**********************************************************************WAVE LOADER***********************************************************************************//
+constexpr uint16_t BUFOR_COUNT = 10;
+
+class WaveLoader
+{
+public:
+	void update();
+	uint32_t start(const char *filename, int16_t * buf);
+	uint8_t stop();
+	uint8_t getState();
+	uint8_t getStopStatus();
+	void setStopStatus(uint8_t s);
+private:
+	strWavFileHeader sampleHead;
+	FsFile wavfile;
+	uint8_t state;
+	uint32_t accBufferLength;
+	int16_t * currentAddress;
+	int8_t stopFlag = - 1;
+
+};
+//******************************************************************WAVETABLE LOADER**********************************************************************************//
+
+class WavetableLoader
+{
+public:
+	void update();
+	uint8_t start(const char *filename, int16_t * buf);
+	uint32_t stop();
+	int32_t fmLoadWavetable(const char *filename, int16_t * buf ,uint16_t * windowSize);
+private:
+
+};
+
+//*******************************************************************SAMPLES LOADER***********************************************************************************//
 
 
+class SamplesLoader
+{
+public:
+//	uint8_t loadSamplesMemory();
+	void update();
+	void start(uint8_t startIndex);
+	WaveLoader waveLoader;
+	WavetableLoader wavetableLoader;
+private:
+	uint8_t currentIndex;
+	uint8_t state;
+	uint8_t lastIndex;
+	int32_t currentSize;
+
+};
+
+//********************************************************************************************************************************************************************//
 
 class FileManager
 {
@@ -93,13 +150,14 @@ public:
 	void deleteSample(int8_t index);
 	void deleteInstrument(int8_t index);
 	void deletePattern(int8_t index);
-
-	uint8_t loadSamplesMemory();
+	void update();
 
 	friend class cProjectEditor;
-
+	SamplesLoader samplesLoader;
+	char currentProjectPatch[PATCH_SIZE];
 private:
 	void formatSDCard();
+
 
 	void copySample(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
 	void copyPattern(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
@@ -110,7 +168,7 @@ private:
 	void writeProjectFile(char * name,strMtProjectRemote * proj);
 	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
 
-	char currentProjectPatch[PATCH_SIZE];
+
 	char currentProjectName[PROJECT_NAME_SIZE];
 	uint8_t currentPattern;
 };
@@ -122,8 +180,7 @@ extern int16_t sdram_effectsBank[4*1024*1024];
 extern int16_t sdram_sampleBank[4*1024*1024];
 
 
-uint32_t fmLoadSample(const char *filename, int16_t * buf);
-int32_t fmLoadWavetable(const char *filename, int16_t * buf);
+
 int32_t loadWavetableStandard(const char *filename, int16_t * buf);
 int32_t loadWavetableSerum(const char *filename, int16_t * buf);
 //int32_t loadFullWavetableSerum(const char *filename, int16_t * buf);
