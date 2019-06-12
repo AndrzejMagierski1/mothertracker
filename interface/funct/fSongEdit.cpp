@@ -360,7 +360,7 @@ void cSongEditor::changeLimiterAttack(int16_t value)
 	else if(mtProject.values.limiterAttak + value > LIMITER_ATTACK_MAX) mtProject.values.limiterAttak = LIMITER_ATTACK_MAX;
 	else mtProject.values.limiterAttak += value;
 
-	//engine.setReverbRoomsize(mtProject.values.limiterAttak);
+	engine.setLimiterAttack(mtProject.values.limiterAttak);
 
 	showLimiterAttack();
 
@@ -372,7 +372,7 @@ void cSongEditor::changeLimiterTreshold(int16_t value)
 	else if(mtProject.values.limiterTreshold + value > LIMITER_TRESHOLD_MAX) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MAX;
 	else mtProject.values.limiterTreshold += value;
 
-	//engine.setReverbDamping(mtProject.values.limiterTreshold);
+	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
 
 	showLimiterTreshold();
 }

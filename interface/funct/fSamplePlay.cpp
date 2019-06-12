@@ -35,18 +35,16 @@ static  uint8_t functPlayMode(uint8_t button);
 
 
 
-
-
 static uint8_t play(uint8_t value);
 static uint8_t stopPlaying(uint8_t value);
 
 
-
-
 static  uint8_t functEncoder(int16_t value);
 
-
 static  uint8_t functSwitchModule(uint8_t button);
+
+
+
 
 
 

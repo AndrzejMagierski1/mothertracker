@@ -50,6 +50,31 @@ public:
 	void setInstrumentFilterFunct();
 	void setInstrumentParamsFunct();
 
+//----------------------------------
+
+	void changeVolumeAttack(int16_t value);
+	void changeVolumeDecay(int16_t value);
+	void changeVolumeSustain(int16_t value);
+	void changeVolumeRelease(int16_t value);
+	void changeVolumeAmount(int16_t value);
+
+	void changeFilterAttack(int16_t value);
+	void changeFilterDecay(int16_t value);
+	void changeFilterSustain(int16_t value);
+	void changeFilterRelease(int16_t value);
+	void changeFilterAmount(int16_t value);
+	void changeFilterFilterType(int16_t value);
+	void changeFilterCutOff(int16_t value);
+	void changeFilterResonance(int16_t value);
+
+	void changeParamsVolume(int16_t value);
+	void changeParamsTune(int16_t value);
+	void changeParamsFineTune(int16_t value);
+	void changeParamsGlide(int16_t value);
+	void changeParamsVibrato(int16_t value);
+	void changeParamsTremolo(int16_t value);
+	void changeParamsEffect1(int16_t value);
+	void changeParamsEffect2(int16_t value);
 
 //----------------------------------
 
