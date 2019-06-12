@@ -79,6 +79,10 @@ void cSongEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
 
+	FM->setButtonObj(interfaceButton23, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton24, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton25, buttonPress, functSwitchModule);
+
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
@@ -285,22 +289,18 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == 0) sequencer.play();
-
-	return 1;
-}
-
-static  uint8_t functStopAction()
-{
-	if(sequencer.getSeqState() == 1)
+	if(sequencer.getSeqState() == 0)
+	{
+	sequencer.play();
+		}
+	else if(sequencer.getSeqState() == 1)
 	{
 		sequencer.stop();
 	}
 
-
-
 	return 1;
 }
+
 
 static  uint8_t functRecAction()
 {

@@ -7,7 +7,13 @@
 
 #include "mtSequencer.h"
 
+enum mtInstrumentEditorMode
+{
+	mtInstEditModeVolume,
+	mtInstEditModeFilter,
+	mtInstEditModeParams,
 
+};
 
 class cInstrumentEditor: public cModuleBase
 {
@@ -21,26 +27,54 @@ public:
 	virtual void initDisplayControls();
 	virtual void destroyDisplayControls();
 
-	cInstrumentEditor() {}
+	cInstrumentEditor()
+	{
+
+	}
 	~cInstrumentEditor() {}
 
 	void showDefaultScreen();
 
+	void showInstrumentVolume();
+	void showInstrumentFilter();
+	void showInstrumentParams();
+
+	void activateLabelsBorder();
+
+
+//----------------------------------
 
 	void setDefaultScreenFunct();
 
-//----------------------------------
+	void setInstrumentVolumeFunct();
+	void setInstrumentFilterFunct();
+	void setInstrumentParamsFunct();
 
 
 //----------------------------------
 
+	strFrameData frameData;
 
 
+	hControl titleLabel;
 	hControl topLabel[8];
 	hControl bottomLabel[8];
-	hControl patternControl;
+	hControl barControl[8];
+
+	hControl listControl;
+
+	hControl frameControl;
 
 
+	uint8_t selectedPlace = 0;
+
+
+	uint8_t mode;
+
+//----------------------------------
+
+
+//----------------------------------
 
 
 
