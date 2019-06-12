@@ -87,6 +87,7 @@ public:
 	uint8_t stop();
 	uint8_t getState();
 	uint8_t getStopStatus();
+	uint32_t getInfoAboutWave(const char *filename);
 	void setStopStatus(uint8_t s);
 private:
 	strWavFileHeader sampleHead;
