@@ -7,14 +7,14 @@
 
 static uint16_t framesPlaces[8][4] =
 {
-	{0, 		30, 800/8, 450},
-	{(800/8)*1, 30, 800/8, 450},
-	{(800/8)*2, 30, 800/8, 450},
-	{(800/8)*3, 30, 800/8, 450},
-	{(800/8)*4, 30, 800/8, 450},
-	{(800/8)*5, 30, 800/8, 450},
-	{(800/8)*6, 30, 800/8, 450},
-	{(800/8)*7, 30, 800/8, 450},
+	{0, 		30, 800/8, 380},
+	{(800/8)*1, 30, 800/8, 380},
+	{(800/8)*2, 30, 800/8, 380},
+	{(800/8)*3, 30, 800/8, 380},
+	{(800/8)*4, 30, 800/8, 380},
+	{(800/8)*5, 30, 800/8, 380},
+	{(800/8)*6, 30, 800/8, 380},
+	{(800/8)*7, 30, 800/8, 380},
 };
 
 
@@ -105,6 +105,9 @@ void cInstrumentEditor::destroyDisplayControls()
 		display.destroyControl(barControl[i]);
 		barControl[i] = nullptr;
 	}
+
+	display.destroyControl(filterModeListControl);
+	filterModeListControl = nullptr;
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
@@ -278,7 +281,7 @@ void cInstrumentEditor::showInstrumentParams()
 
 
 
-	display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValueLeftRight_24_24));
+	display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValueLeftRight_100_100));
 	display.setControlStyle(barControl[2], (controlStyleShow | controlStyleValueLeftRight_100_100));
 	display.setControlStyle(barControl[4], (controlStyleShow | controlStyleValueLeftRight_100_100));
 
@@ -299,9 +302,9 @@ void cInstrumentEditor::showInstrumentParams()
 //==============================================================================================================
 void cInstrumentEditor::activateLabelsBorder()
 {
-	if(selectedPlace > frameData.placesCount-1) return;
+	if(selectedPlace[mode] > frameData.placesCount-1) return;
 
-	display.setControlValue(frameControl, selectedPlace);
+	display.setControlValue(frameControl, selectedPlace[mode]);
 	display.setControlShow(frameControl);
 	display.refreshControl(frameControl);
 }
@@ -403,13 +406,13 @@ void cInstrumentEditor::showParamsVolume()
 
 void cInstrumentEditor::showParamsTune()
 {
-	display.setControlValue(barControl[1], editorInstrument->tune);
+	display.setControlValue(barControl[1], (editorInstrument->tune*100)/24);
 	display.refreshControl(barControl[1]);
 }
 
 void cInstrumentEditor::showParamsFineTune()
 {
-	display.setControlValue(barControl[2], editorInstrument->panning);
+	display.setControlValue(barControl[2], editorInstrument->fineTune);
 	display.refreshControl(barControl[2]);
 }
 

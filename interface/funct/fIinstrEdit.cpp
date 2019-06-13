@@ -189,7 +189,7 @@ void cInstrumentEditor::setInstrumentParamsFunct()
 
 static  uint8_t functSelectVolume(uint8_t button)
 {
-	IE->selectedPlace = button;
+	IE->selectedPlace[0] = button;
 	IE->activateLabelsBorder();
 
 	return 1;
@@ -197,7 +197,7 @@ static  uint8_t functSelectVolume(uint8_t button)
 
 static  uint8_t functSelectFilter(uint8_t button)
 {
-	IE->selectedPlace = button;
+	IE->selectedPlace[1] = button;
 	IE->activateLabelsBorder();
 
 	return 1;
@@ -205,7 +205,7 @@ static  uint8_t functSelectFilter(uint8_t button)
 
 static  uint8_t functSelectParams(uint8_t button)
 {
-	IE->selectedPlace = button;
+	IE->selectedPlace[2] = button;
 	IE->activateLabelsBorder();
 
 	return 1;
@@ -218,7 +218,7 @@ static  uint8_t functSelectParams(uint8_t button)
 
 static  uint8_t functEncoder(int16_t value)
 {
-	uint8_t mode_places = IE->selectedPlace + IE->mode*10;
+	uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
 
 	switch(mode_places)
 	{
@@ -254,7 +254,7 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functLeft()
 {
-	if(IE->selectedPlace > 0) IE->selectedPlace--;
+	if(IE->selectedPlace[IE->mode] > 0) IE->selectedPlace[IE->mode]--;
 	IE->activateLabelsBorder();
 
 	return 1;
@@ -264,7 +264,7 @@ static  uint8_t functLeft()
 static  uint8_t functRight()
 {
 
-	if(IE->selectedPlace < IE->frameData.placesCount-1) IE->selectedPlace++;
+	if(IE->selectedPlace[IE->mode] < IE->frameData.placesCount-1) IE->selectedPlace[IE->mode]++;
 	IE->activateLabelsBorder();
 
 	return 1;
@@ -503,7 +503,7 @@ void cInstrumentEditor::changeFilterFilterType(int16_t value)
 {
 
 	if(filterModeListPos + value < 0) filterModeListPos = 0;
-	else if(filterModeListPos + value > filterModeCount-1)filterModeListPos = filterModeCount-1;
+	else if(filterModeListPos + value > filterModeCount-1) filterModeListPos = filterModeCount-1;
 	else filterModeListPos += value;
 
 	if(filterModeListPos == 0)
@@ -528,7 +528,9 @@ void cInstrumentEditor::changeFilterFilterType(int16_t value)
 	}
 
 
-	showFilterFilterType();
+	display.setControlValue(filterModeListControl, filterModeListPos);
+	display.refreshControl(filterModeListControl);
+	//showFilterFilterType();
 }
 
 void cInstrumentEditor::changeFilterCutOff(int16_t value)

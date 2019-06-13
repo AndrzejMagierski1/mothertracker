@@ -368,6 +368,8 @@ void cSongEditor::changeLimiterAttack(int16_t value)
 
 void cSongEditor::changeLimiterTreshold(int16_t value)
 {
+	value = value*100;
+
 	if(mtProject.values.limiterTreshold + value < LIMITER_TRESHOLD_MIN) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MIN;
 	else if(mtProject.values.limiterTreshold + value > LIMITER_TRESHOLD_MAX) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MAX;
 	else mtProject.values.limiterTreshold += value;

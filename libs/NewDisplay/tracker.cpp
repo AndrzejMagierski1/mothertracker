@@ -15,7 +15,7 @@ static uint32_t defaultColors[] =
 	0xFFFFFF, // instrument
 	0xFFFFFF, // volume
 	0xFFFFFF, // effekt
-	0x3F0000, // zaznaczenie
+	0xFF0000, // zaznaczenie
 };
 
 

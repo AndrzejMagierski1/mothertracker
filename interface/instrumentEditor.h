@@ -112,6 +112,7 @@ public:
 
 //----------------------------------
 
+
 	strFrameData frameData;
 
 
@@ -128,7 +129,7 @@ public:
 	hControl frameControl;
 
 
-	uint8_t selectedPlace = 0;
+	uint8_t selectedPlace[3] = {0};
 
 
 	uint8_t mode;

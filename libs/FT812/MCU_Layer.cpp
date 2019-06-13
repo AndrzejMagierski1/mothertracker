@@ -123,7 +123,7 @@ void FT812_Init(void)
     MCU_Delay_20ms();
 
     // ---------------------- Delay to allow FT81x start-up --------------------
-   // EVE_CmdWrite(0x61,4);
+    EVE_CmdWrite(0x61,3);
 
 
     MCU_Delay_500ms();
@@ -226,12 +226,13 @@ void FT812_Init(void)
     lcdVsync0  = 0;                                                             // Start of vertical sync pulse
     lcdVsync1  = 10;                                                             // End of vertical sync pulse
 
-    lcdPclk    = 2;                                                             // Pixel Clock
+    lcdPclk    = 1;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
 
     lcdCsSpread = 0;
     lcdRotate   = 1;
+    //lcdRotate   = 4;
 
 
 

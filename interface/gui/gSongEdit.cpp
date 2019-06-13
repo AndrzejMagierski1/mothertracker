@@ -155,14 +155,14 @@ void cSongEditor::showReverbDamping()
 
 void cSongEditor::showLimiterAttack()
 {
-	display.setControlValue(barControl[2], mtProject.values.limiterAttak);
+	display.setControlValue(barControl[2], (mtProject.values.limiterAttak*100)/LIMITER_ATTACK_MAX);
 	//display.setControlShow(barControl[2]);
 	display.refreshControl(barControl[2]);
 }
 
 void cSongEditor::showLimiterTreshold()
 {
-	display.setControlValue(barControl[3], mtProject.values.limiterTreshold);
+	display.setControlValue(barControl[3], (mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
 	//display.setControlShow(barControl[3]);
 	display.refreshControl(barControl[3]);
 }
