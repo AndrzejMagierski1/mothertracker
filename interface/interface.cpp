@@ -7,6 +7,9 @@
 #include <samplePlayback.h>
 #include "songEditor.h"
 #include "instrumentEditor.h"
+#include "sampleEditor.h"
+
+#include "configEditor.h"
 
 
 
@@ -55,7 +58,7 @@ __NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[4*1024*1024];
 //=======================================================================
 //=======================================================================
 
-const uint8_t cInterface::modulesCount = 6;
+const uint8_t cInterface::modulesCount = 8;
 const hModule cInterface::modules[modulesCount] =
 {
 		&projectEditor,
@@ -63,7 +66,9 @@ const hModule cInterface::modules[modulesCount] =
 		&patternEditor,
 		&samplePlayback,
 		&songEditor,
-		&instrumentEditor
+		&instrumentEditor,
+		&sampleEditor,
+		&configEditor,
 
 
 };
@@ -190,10 +195,10 @@ void cInterface::activateModulefromButton(uint8_t index)
 	{
 	case interfaceButton10: activateModule(modules[0], 0); break;
 	case interfaceButton11: activateModule(modules[4], 0); break;
-	case interfaceButton12: activateModule(modules[0], 0); break;
+	case interfaceButton12: activateModule(modules[7], 0); break;
 	case interfaceButton13: activateModule(modules[2], 0); break;
 	case interfaceButton14: activateModule(modules[3], 0); break;
-	case interfaceButton15: activateModule(modules[0], 0); break;
+	case interfaceButton15: activateModule(modules[6], 0); break;
 	case interfaceButton16: activateModule(modules[0], 0); break;
 	case interfaceButton17: activateModule(modules[1], 0); break;
 	case interfaceButton23: activateModule(modules[5], mtInstEditModeVolume); break;
