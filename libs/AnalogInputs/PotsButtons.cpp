@@ -1,10 +1,10 @@
 
 #include "AnalogInputs.h"
 
-
+#include "Arduino.h"
 
 //-----------------------------------------------------------------------------------------------
-void cAnalogInputs::readPotButtons()
+void cAnalogInputs::readButtons()
 {
 	//reading pots & buttons signals
 //	uint8_t pot_nr = 0;
@@ -12,248 +12,26 @@ void cAnalogInputs::readPotButtons()
 //	for(uint8_t i=0;i<ANALOG_MAX_POT_MUXS;i++)
 //	{
 //		pot_nr = i*16+reading_channel;
-		new_pot_button_values[analog_pots_buttons_mux_channels[reading_channel]] = analogRead(analog_pots_muxs_order[0]);
-//	}
+
+		new_button_values[ANALOG_BUTTON1] = digitalRead(BUTTON1) > 0 ? 4095 : 0;
+		new_button_values[analog_buttons_mux_channels0[reading_channel]] = digitalRead(analog_pots_muxs_signal[0]) > 0 ? 4095 : 0;
+
+
+
+		//new_button_values[analog_buttons_mux_channels0[reading_channel]] = analogRead(analog_pots_muxs_signal[0]);
+
+		//Serial.print(new_button_values[analog_buttons_mux_channels0[reading_channel]]);
+
+		new_button_values[analog_buttons_mux_channels1[reading_channel]] = analogRead(analog_pots_muxs_signal[1]);
+
+		//if(reading_channel == 16)Serial.println();
+		//delay(10);
+		//	}
 
 }
 
 //-----------------------------------------------------------------------------------------------
-void cAnalogInputs::processPotData()
-{
-	uint16_t A, B;
-
-	for(uint8_t i=0;i<ANALOG_MAX_POTS;i++)
-	{
-		A = new_pot_button_values[analog_pots_index_A[i]];
-		B = new_pot_button_values[analog_pots_index_B[i]];
-		potentiometers[i].position = calculatePotPosition(A ,B, &(potentiometers[i].part));
-
-		if(start_up)
-		{
-			potentiometers[i].last_position = potentiometers[i].position;
-			potentiometers[i].last_part = potentiometers[i].part;
-
-		}
-
-
-		//if(potentiometers[i].position == 0)
-		//{
-		//	delayMicroseconds(1);
-		//}
-	}
-
-	if(start_up)
-	{
-		start_up++;
-		if(start_up > 10) start_up = 0;
-	}
-
-	int16_t diffrence, is_moving_diff, resolution_step;
-	uint8_t in_death_zone, direction;
-
-	for(uint8_t i=0;i<ANALOG_MAX_POTS;i++)
-	{
-		// roznica pozycji pomiedzy aktualna a ostanio zapisana
-		diffrence = potentiometers[i].position - potentiometers[i].last_position;
-
-
-		if(diffrence > 0)
-		{
-			if(potentiometers[i].last_part < 2 && potentiometers[i].part > 5)
-			{
-				diffrence = 1023 - diffrence;
-				diffrence = diffrence * (-1);
-			}
-			//else if(potentiometers[i].last_part < 2 && potentiometers[i].part > 5)
-			//{
-			//	diffrence = 0;
-			//}
-		}
-		else if(diffrence < 0)
-		{
-			if(potentiometers[i].last_part > 5 && potentiometers[i].part < 2)
-			{
-				diffrence = 1023 + diffrence;
-			}
-			//else if(potentiometers[i].last_part > 5 && potentiometers[i].part < 2)
-			//{
-			//	diffrence = 0;
-			//}
-		}
-
-		//if(diffrence > 1000 || diffrence < -1000)
-		//{
-		//	delay(1);
-		//}
-
-
-
-		potentiometers[i].diffrences[2] = potentiometers[i].diffrences[1];
-		potentiometers[i].diffrences[1] = potentiometers[i].diffrences[0];
-		potentiometers[i].diffrences[0] = diffrence;
-
-		is_moving_diff =  potentiometers[i].diffrences[2]
-						+ potentiometers[i].diffrences[1] + potentiometers[i].diffrences[0];
-
-		in_death_zone = (is_moving_diff > (pots_death_zone * (-1)) &&  is_moving_diff < pots_death_zone);
-
-		if(in_death_zone) continue;
-
-		// zapisywanie poprzedniej pozycji dopiero po wykryciu zmiany
-		potentiometers[i].last_position = potentiometers[i].position;
-		potentiometers[i].last_part = potentiometers[i].part;
-
-
-		//TODO:
-		// oblicznie predskoic z danych przed przeskalowaniem rozdzielczoscia
-		// i jej usrednianie/wygladzanie, potem kozystajac z tablicy wypluwac
-		// wartosc odpowiednio zwiekszaona
-
-		// wygladzenie wartosci delty przed dalszym przetwarzaniem
-		diffrence = potentiometers[i].diffrence_blur = (diffrence + potentiometers[i].diffrence_blur * 5)/6;
-
-		if(potentiometers[i].speed > 0)
-		{
-			if(potentiometers[i].speed > 5) potentiometers[i].speed = 5;
-
-
-			if(diffrence > 0)
-			{
-				if(diffrence > 49) diffrence = 49;
-				diffrence = potAcc[potentiometers[i].speed-1][diffrence];
-			}
-			else if(diffrence < 0)
-			{
-				if(diffrence < -49) diffrence = -49;
-				diffrence = potAcc[potentiometers[i].speed-1][diffrence*(-1)] * (-1);
-			}
-		}
-		//Serial.print("   ");
-		//Serial.println(diffrence);
-
-
-		// zerowanie global_diff przy zmianie kierunku
-		direction = 0;
-		if(diffrence > 0) 		direction = 1;
-		else if(diffrence < 0) 	direction = 2;
-		if(direction != potentiometers[i].last_direction) potentiometers[i].global_diff = 0;
-		potentiometers[i].last_direction = direction;
-		//
-
-		// obliczenie kroku przy aktualnej rozdzielczosci
-		resolution_step = 1023.0 / potentiometers[i].resolution;
-		potentiometers[i].global_diff = potentiometers[i].global_diff + diffrence;
-		//
-
-		if(potentiometers[i].global_diff >= resolution_step || potentiometers[i].global_diff <= resolution_step*(-1))
-		{
-			/// AKCJA
-			PotChangeFunc(i, potentiometers[i].global_diff / resolution_step);
-
-			potentiometers[i].global_diff = potentiometers[i].global_diff % resolution_step;
-		}
-	}
-}
-
-
-uint16_t cAnalogInputs::calculatePotPosition(uint16_t A, uint16_t B, uint8_t * part)
-{
-	int16_t position = 0;
-	*part = 0;
-
-	if(B > (A+2000) ) // 1
-	{
-		if(A < 400)
-		{
-			position=map(B,2001,4095,0,243);   //map(B,2048,4095,0,243);
-		}
-		else
-		{
-			position=map(A,0,4095,20,499);
-		}
-		*part = 1;
-	}
-
-	else if( (B >= A ) && (A > 2000) && (B > 2047) ) // 2
-	{
-		position=map(A,0,4095,12,499);
-		*part = 2;
-	}
-
-	else if( (A >= B) && (A > 2047) && (B > 2020) ) //3
-	{
-		position=map(B,4095,0,268,755);
-		*part = 3;
-	}
-
-	else if( A > (B+2000)) //4
-	{
-		if(A>2900)
-		{
-			position=map(B,4095,0,268,755);
-		}
-		else
-		{
-			position=map(A,4095,0,530,1008);
-		}
-		*part = 4;
-	}
-
-	else if( (A >= B)  && (A < 2150) && (B < 2047)) //5
-	{
-		position=map(A,4095,0,524,1011);
-		*part = 5;
-	}
-
-	else if( (B >= A) && (A < 2047) && (B < 2070)) //6
-	{
-		position=map(B,0,2047,780,1023);
-		*part = 6;
-	}
-	else
-	{
-		if(A < 400)
-		{
-			position=map(B,2048,4095,0,243);
-		}
-		else
-		{
-			position=map(A,0,4095,20,499);
-		}
-		*part = 7;
-	}
-
-
-	if(position < 0) 			position = 0;
-	else if(position > 1023) 	position = 1023;
-	return position;
-}
-
-
 //-----------------------------------------------------------------------------------------------
-// n = 0-5
-// value 0-1023
-void cAnalogInputs::setPotResolution(uint8_t n, uint16_t value)
-{
-	potentiometers[n].resolution = value;
-	potentiometers[n].global_diff = 0;
-}
-
-//-----------------------------------------------------------------------------------------------
-// n = 0-5
-// value 0-1023
-void cAnalogInputs::setPotAcceleration(uint8_t n, uint8_t value)
-{
-	potentiometers[n].speed = value;
-}
-
-//-----------------------------------------------------------------------------------------------
-// value = 0-?
-void cAnalogInputs::setPotDeathZone(uint16_t value)
-{
-	pots_death_zone = value;
-}
-
 
 
 
@@ -261,7 +39,7 @@ void cAnalogInputs::processButtonData()
 {
 	for(uint8_t i = 0 ; i < ANALOG_MAX_BUTTONS ; i++)
 	{
-		if(new_pot_button_values[analog_buttons_index[i]] < 2048)
+		if(new_button_values[i] < 2048)
 		{
 			if(buttons[i].debounce <= 0 && buttons[i].debounce > (0-ANALOG_BUTTON_DEBOUNCE) )
 			{
@@ -282,7 +60,7 @@ void cAnalogInputs::processButtonData()
 				ButtonChangeFunc(i,2);
 			}
 		}
-		else if(new_pot_button_values[analog_buttons_index[i]] >= 2048)
+		else if(new_button_values[i] >= 2048)
 		{
 			if(buttons[i].state > 0 && buttons[i].debounce < ANALOG_BUTTON_DEBOUNCE)
 			{

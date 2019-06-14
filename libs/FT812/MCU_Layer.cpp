@@ -52,7 +52,7 @@ RE-CERTIFICATION AS A RESULT OF MAKING THESE CHANGES.
 
 
 SPI2Settings settingsSLOW(4000000,  MSBFIRST, SPI_MODE0);
-SPI2Settings settingsFAST(8000000, MSBFIRST, SPI_MODE0);
+SPI2Settings settingsFAST(2000000, MSBFIRST, SPI_MODE0);
 
 //############################################################################## 
 //##############################################################################
@@ -123,7 +123,7 @@ void FT812_Init(void)
     MCU_Delay_20ms();
 
     // ---------------------- Delay to allow FT81x start-up --------------------
-    EVE_CmdWrite(0x61,3);
+    EVE_CmdWrite(0x61,4);
 
 
     MCU_Delay_500ms();
@@ -231,8 +231,8 @@ void FT812_Init(void)
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
 
     lcdCsSpread = 0;
-    lcdRotate   = 1;
-    //lcdRotate   = 4;
+    //lcdRotate   = 1;
+    lcdRotate   = 4;
 
 
 

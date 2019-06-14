@@ -37,55 +37,76 @@
 #define ANALOG_MAX_PAD_BUTTONS 	64
 #define ANALOG_MAX_POTS 		5
 //TODO:
-#define ANALOG_MAX_BUTTONS 		5
+#define ANALOG_MAX_BUTTONS 		33
 
-// adc pins in - pads
-#define ANALOG_ADC_MUX_0 MUX_PAD_OUT_0
-#define ANALOG_ADC_MUX_1 MUX_PAD_OUT_1
-#define ANALOG_ADC_MUX_2 MUX_PAD_OUT_2
-#define ANALOG_ADC_MUX_3 MUX_PAD_OUT_3
-#define ANALOG_ADC_MUX_4 MUX_PAD_OUT_4
-#define ANALOG_ADC_MUX_5 MUX_PAD_OUT_5
-#define ANALOG_ADC_MUX_6 MUX_PAD_OUT_6
-#define ANALOG_ADC_MUX_7 MUX_PAD_OUT_7
+
+
 // adc pins in - buttons/pot
-#define ANALOG_ADC_MUX_8 MUX_OUT_8
+#define ANALOG_ADC_MUX_0 MUX_OUT_0
+#define ANALOG_ADC_MUX_1 MUX_OUT_1
 
 
-// pins out - mux control
-#define ANALOG_CTRL_XY_Z CTRL_XY_Z
 /*
 #define ANALOG_MUX_CTRL_A MUX_CTRL_A
 #define ANALOG_MUX_CTRL_B MUX_CTRL_B
 #define ANALOG_MUX_CTRL_C MUX_CTRL_C
 #define ANALOG_MUX_CTRL_D MUX_CTRL_D
 */
+
 // mux settings
 #define ANALOG_MAX_PAD_MUXS 8  		//////////////////////////////// 8
 #define ANALOG_MAX_MUX_CHANNELS 16  //////////////////////////////// 16
-#define ANALOG_MAX_POT_MUXS 1
+#define ANALOG_MAX_BUTT_MUXS 2
 
 //#define ANALOG_ALL_MUXS (ANALOG_MAX_PAD_MUXS + ANALOG_MAX_POT_MUXS)
 //#define ANALOG_ALL_MUXS_SINGALS (ANALOG_MAX_MUX_CHANNELS*ANALOG_ALL_MUXS)
 
-// pots definitions 0-32 (mux 8-10)
-#define ANALOG_POT1_A 		0
-#define ANALOG_POT1_B 		1
-#define ANALOG_POT2_A 		2
-#define ANALOG_POT2_B		3
-#define ANALOG_POT3_A 		4
-#define ANALOG_POT3_B 		5
-#define ANALOG_POT4_A 		6
-#define ANALOG_POT4_B 		7
-#define ANALOG_POT5_A 		8
-#define ANALOG_POT5_B 		9
 
 // buttons definitions 0-32 (mux 8-10)
-#define ANALOG_BUTTON1 		10
-#define ANALOG_BUTTON2 		11
-#define ANALOG_BUTTON3		12
-#define ANALOG_BUTTON4 		13
-#define ANALOG_BUTTON5 		14
+#define ANALOG_BUTTON1 		0
+
+#define ANALOG_BUTTON2 		1
+#define ANALOG_BUTTON3		2
+#define ANALOG_BUTTON4 		3
+#define ANALOG_BUTTON5 		4
+#define ANALOG_BUTTON6 		5
+#define ANALOG_BUTTON7 		6
+#define ANALOG_BUTTON8		7
+
+#define ANALOG_BUTTON9 		8//0 mux
+#define ANALOG_BUTTON10 	9//0
+
+
+#define ANALOG_BUTTON11 	10  //0
+#define ANALOG_BUTTON12 	11  //0
+#define ANALOG_BUTTON13		12  //0
+#define ANALOG_BUTTON14 	13 //0
+#define ANALOG_BUTTON15 	14 //0
+#define ANALOG_BUTTON16 	15  //0
+#define ANALOG_BUTTON17 	16  //0
+#define ANALOG_BUTTON18		17  //0
+#define ANALOG_BUTTON19 	18  //0
+#define ANALOG_BUTTON20 	19  //0
+
+
+#define ANALOG_BUTTON21 	20//0
+#define ANALOG_BUTTON22 	21//0
+#define ANALOG_BUTTON23		22//0
+#define ANALOG_BUTTON24 	23
+#define ANALOG_BUTTON25 	24
+#define ANALOG_BUTTON26 	25
+#define ANALOG_BUTTON27 	26
+#define ANALOG_BUTTON28		27//0
+#define ANALOG_BUTTON29 	28
+#define ANALOG_BUTTON30 	29
+
+
+#define ANALOG_BUTTON31 	30
+#define ANALOG_BUTTON32 	31
+#define ANALOG_BUTTON33		32
+
+
+
 
 #define ANALOG_BUTTON_TACT 		15
 
@@ -93,72 +114,61 @@
 const uint8_t analog_mux_channels_order[ANALOG_MAX_MUX_CHANNELS] =
 {6,7,4,5,2,3,0,1,15,14,13,12,11,10,9,8};  //medusa/grid
 
-const uint8_t analog_pads_muxs_order[ANALOG_MAX_PAD_MUXS] =
+
+
+const uint8_t analog_pots_muxs_signal[ANALOG_MAX_BUTT_MUXS] =
 {
-	ANALOG_ADC_MUX_0, ANALOG_ADC_MUX_1, ANALOG_ADC_MUX_2, ANALOG_ADC_MUX_3,
-	ANALOG_ADC_MUX_4, ANALOG_ADC_MUX_5, ANALOG_ADC_MUX_6, ANALOG_ADC_MUX_7
+	ANALOG_ADC_MUX_0,
+	ANALOG_ADC_MUX_1
 };
 
-const uint8_t analog_pots_muxs_order[ANALOG_MAX_POT_MUXS] =
-{
-	ANALOG_ADC_MUX_8
-};
-
-const uint8_t analog_pots_buttons_mux_channels[ANALOG_MAX_MUX_CHANNELS] =
+const uint8_t analog_buttons_mux_channels0[ANALOG_MAX_MUX_CHANNELS] =
 { // zgodnie z analog_mux_channels_order[]
-	ANALOG_BUTTON2,      //6
-	ANALOG_BUTTON1,      //7
-	ANALOG_BUTTON3,      //4
-	ANALOG_BUTTON_TACT,  //5
-	ANALOG_BUTTON5,      //2
-	ANALOG_BUTTON4,      //3
-	ANALOG_POT1_B,       //0
-	ANALOG_POT1_A,       //1
-	ANALOG_POT2_A,       //15
-	ANALOG_POT2_B,       //14
-	ANALOG_POT3_A,       //13
-	ANALOG_POT3_B,       //12
-	ANALOG_POT5_B,       //11
-	ANALOG_POT5_A,       //10
-	ANALOG_POT4_B,       //9
-	ANALOG_POT4_A,       //8
+	ANALOG_BUTTON10,      //6
+	ANALOG_BUTTON9,      //7
+	ANALOG_BUTTON12,      //4
+	ANALOG_BUTTON11, 	 //5
+	ANALOG_BUTTON18,      //2
+	ANALOG_BUTTON13,      //3
+	ANALOG_BUTTON16,       //0
+	ANALOG_BUTTON17,       //1
+	ANALOG_BUTTON28,       //15
+	ANALOG_BUTTON15,       //14
+	ANALOG_BUTTON14,       //13
+	ANALOG_BUTTON23,       //12
+	ANALOG_BUTTON22,       //11
+	ANALOG_BUTTON21,       //10
+	ANALOG_BUTTON20,       //9
+	ANALOG_BUTTON19,       //8
 };
 
-const uint8_t analog_buttons_index[ANALOG_MAX_BUTTONS] =
-{
-	ANALOG_BUTTON1, ANALOG_BUTTON2, ANALOG_BUTTON3,
-	ANALOG_BUTTON4, ANALOG_BUTTON5,
+const uint8_t analog_buttons_mux_channels1[ANALOG_MAX_MUX_CHANNELS] =
+{ // zgodnie z analog_mux_channels_order[]
+	ANALOG_BUTTON32,      //6
+	ANALOG_BUTTON33,      //7
+	ANALOG_BUTTON30,      //4
+	ANALOG_BUTTON31,  	  //5
+	ANALOG_BUTTON26,      //2
+	ANALOG_BUTTON27,      //3
+	ANALOG_BUTTON24,       //0
+	ANALOG_BUTTON25,       //1
+	ANALOG_BUTTON29,       //15
+	ANALOG_BUTTON8,       //14
+	ANALOG_BUTTON7,       //13
+	ANALOG_BUTTON6,       //12
+	ANALOG_BUTTON2,       //11
+	ANALOG_BUTTON3,       //10
+	ANALOG_BUTTON4,       //9
+	ANALOG_BUTTON5,       //8
 };
 
-const uint8_t analog_pots_index_A[ANALOG_MAX_BUTTONS] =
-{
-	ANALOG_POT1_A, ANALOG_POT2_A,
-	ANALOG_POT3_A, ANALOG_POT4_A,
-	ANALOG_POT5_A
-};
 
-const uint8_t analog_pots_index_B[ANALOG_MAX_BUTTONS] =
-{
-	ANALOG_POT1_B, ANALOG_POT2_B,
-	ANALOG_POT3_B, ANALOG_POT4_B,
-	ANALOG_POT5_B
-};
 
 class cAnalogInputs
 {
 public:
-	void setPadPressFunc     (void (*func)(uint8_t, int8_t, int8_t, uint8_t));
-	void setPadChangeFunc    (void (*func)(uint8_t, int8_t, int8_t, uint8_t));
-	void setPadReleaseFunc   (void (*func)(uint8_t));
-	void setPotChangeFunc    (void (*func)(uint8_t, int16_t));
 	void setButtonChangeFunc (void (*func)(uint8_t, uint8_t));
 
-
-	void setPotDeathZone(uint16_t value);
-	void setPotResolution(uint8_t n, uint16_t value);
-	void setPotAcceleration(uint8_t n, uint8_t value);
-	uint8_t howManyPadPressed();
-	uint8_t isPadPressed(uint8_t pad);
 	uint8_t isButtonPressed(uint8_t button);
 
 
@@ -166,8 +176,6 @@ public:
 	void update();
 
 	void testMode(uint8_t set);
-	void setPadxMode(uint8_t mode);
-	void setPadyMode(uint8_t mode);
 
 
 private:
@@ -181,63 +189,11 @@ private:
 
 	uint8_t start_up = 1;
 
-	uint8_t pads_mode_x = 1;
-	uint8_t pads_mode_y = 0;
-
-	// 0 = absolturtne
-	// 1 = relatywne
-
-	struct strPadButtons
-	{
-		int8_t x;
-		int8_t y;
-		int8_t start_x;
-		int8_t start_y;
-		uint8_t dzone_x;
-		uint8_t dzone_y;
-
-		uint8_t count_fx;
-		uint8_t count_fy;
-		uint8_t start_point_fx;
-		uint8_t start_point_fy;
-
-		uint8_t state_x;
-		uint8_t state_y;
-
-		uint8_t fx;
-		uint8_t fx2;
-		uint8_t fy;
-		uint8_t fy2;
-		uint8_t time_x;
-		uint8_t time_y;
-		elapsedMicros velo_timer_x;
-		elapsedMicros velo_timer_y;
-	} padButtons[ANALOG_MAX_PAD_BUTTONS];
-
-	uint16_t new_pot_button_values[ANALOG_MAX_MUX_CHANNELS];
 
 
-	struct strPotentiometers
-	{
-		int16_t position;
-		int16_t last_position;
-		uint8_t part;
-		uint8_t last_part;
 
-		uint8_t last_direction;
+	uint16_t new_button_values[ANALOG_MAX_BUTTONS];
 
-		int16_t diffrences[3];
-		int16_t diffrence_blur;
-
-		uint16_t resolution = 1023;
-		uint8_t speed = 0;
-
-		int16_t  global_diff = 0;
-
-	} potentiometers[ANALOG_MAX_POTS];
-
-	uint16_t pots_death_zone = ANALOG_POT_DEAD_ZONE;
-	elapsedMillis pots_refresh_timer;
 
 	struct strButtons
 	{
@@ -256,428 +212,18 @@ private:
 	void (*ButtonChangeFunc)(uint8_t, uint8_t);
 
 	void setMux(uint8_t channel);
-	void readPadPressPosition();
-	void readPadPressForce();
-	void readPotButtons();
-	void processPadData();
-	void processPotData();
+
+	void readButtons();
+
 	void processButtonData();
-	uint16_t calculatePotPosition(uint16_t A, uint16_t B, uint8_t * part);
-	uint16_t calculateForce(uint8_t pad);
-	uint16_t calculateVelocity(uint8_t pad);
-	void calculateXPos();
-	void calculateYPos();
+
+
 
 };
 
 extern cAnalogInputs AnalogInputs;
 
-//=============pad_button_state==========
-//
-// 0 - pad nie jest wcisniety
-// 1 - pad jest wcisniety, brak zmian
-// 2 - pad zostal wcisniety *
-// 3 - pad zostal puszczony *
-// 4 - zmiana wcisniecia pada*
-// 5 - zmiana pozycji po stanie 0
-// 6 - zmiana pozycji po stanie 1
-//
-// * - stany wywołujące procedury akcji
 
 
-
-
-
-const uint16_t potAcc[5][50]=
-{
-/*1*/	{0,1,2,3,4,5,8,12,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,},
-/*2*/	{0,1,2,3,4,5,8,12,17,23,2,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,},
-/*3*/	{0,1,2,3,4,5,6,7,8,10,11,13,16,18,21,24,27,31,34,38,43,47,52,57,62,68,73,79,86,92,99,106,113,121,128,136,145,153,162,171,180,190,199,209,220,230,241},
-/*4*/	{0,1,2,3,4,5,7,9,11,14,18,22,26,31,37,43,49,56,64,72,80,89,99,109,119,130,142,154,166,179,193,207,221,236,252,268,284,301,319,337,355,374,394,414,434,455,477},
-/*5*/	{0,1,2,3,4,5,8,12,17,23,30,38,47,57,68,80,93,107,122,138,155,173,192,212,233,255,278,302,327,353,380,408,437,467,498,530,563,597,632,668,705,743,782,822,863,905,948},
-};
-
-
-
-
-
-const uint16_t force_ratio[375] =
-{
-0,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-4,
-4,
-4,
-4,
-4,
-4,
-4,
-4,
-4,
-4,
-4,
-4,
-4,
-4,
-5,
-5,
-5,
-5,
-5,
-5,
-5,
-5,
-5,
-5,
-5,
-5,
-6,
-6,
-6,
-6,
-6,
-6,
-6,
-6,
-6,
-6,
-7,
-7,
-7,
-7,
-7,
-7,
-7,
-7,
-7,
-8,
-8,
-8,
-8,
-8,
-8,
-8,
-9,
-9,
-9,
-9,
-9,
-9,
-9,
-10,
-10,
-10,
-10,
-10,
-10,
-11,
-11,
-11,
-11,
-11,
-12,
-12,
-12,
-12,
-12,
-13,
-13,
-13,
-13,
-14,
-14,
-14,
-14,
-14,
-15,
-15,
-15,
-15,
-16,
-16,
-16,
-17,
-17,
-17,
-17,
-18,
-18,
-18,
-19,
-19,
-19,
-20,
-20,
-20,
-21,
-21,
-21,
-22,
-22,
-22,
-23,
-23,
-24,
-24,
-24,
-25,
-25,
-26,
-26,
-27,
-27,
-27,
-28,
-28,
-29,
-29,
-30,
-30,
-31,
-31,
-32,
-33,
-33,
-34,
-34,
-35,
-35,
-36,
-37,
-37,
-38,
-39,
-39,
-40,
-41,
-41,
-42,
-43,
-43,
-44,
-45,
-46,
-46,
-47,
-48,
-49,
-50,
-51,
-51,
-52,
-53,
-54,
-55,
-56,
-57,
-58,
-59,
-60,
-61,
-62,
-63,
-64,
-65,
-66,
-67,
-68,
-70,
-71,
-72,
-73,
-75,
-76,
-77,
-78,
-80,
-81,
-82,
-84,
-85,
-87,
-88,
-90,
-91,
-93,
-94,
-96,
-98,
-99,
-101,
-103,
-105,
-106,
-108,
-110,
-112,
-114,
-116,
-118,
-120,
-122,
-124,
-126,
-128,
-130,
-132,
-135,
-137,
-139,
-142,
-144,
-147,
-149,
-152,
-154,
-157,
-159,
-162,
-165,
-168,
-171,
-174,
-177,
-180,
-183,
-186,
-189,
-192,
-195,
-199,
-202,
-206,
-209,
-213,
-216,
-220,
-224,
-227,
-231,
-235,
-239,
-243,
-248,
-252,
-256,
-260,
-265,
-269,
-274,
-279,
-283,
-288,
-293,
-298,
-303,
-308,
-314,
-319,
-324,
-330,
-336,
-341,
-347,
-353,
-359,
-365,
-371,
-378,
-384,
-391,
-397,
-404,
-411,
-418,
-425,
-432,
-440,
-447,
-455,
-463,
-471,
-479,
-487,
-495,
-503,
-512,
-521,
-530,
-539,
-548,
-557,
-567,
-};
 
 #endif

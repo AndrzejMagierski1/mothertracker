@@ -73,7 +73,14 @@ void initHardware()
 	Serial.begin(9600);
 
 	//....................................................
-	//CODAC AUDIO
+	//CODEC AUDIO
+
+	RAM_CTRL_PCR = PORT_PCR_MUX(1);
+	RAM_CTRL_GPIO_DDR |= (1 << RAM_CTRL);
+	RAM_CTRL_GPIO_SET = (1 << RAM_CTRL);
+
+
+
 	audioShield.enable();
 	AudioMemory(200);
 
@@ -109,16 +116,10 @@ void initHardware()
 
 	//....................................................
 	// Pady, Poty, Buttony
-	AnalogInputs.setPadPressFunc(onPadPress);
-	AnalogInputs.setPadChangeFunc(onPadChange);
-	AnalogInputs.setPadReleaseFunc(onPadRelease);
-	AnalogInputs.setPotChangeFunc(onPotChange);
 	AnalogInputs.setButtonChangeFunc(onButtonChange);
 
 	AnalogInputs.testMode(hardwareTest); // (1 = on; 0 = off) test mode
-	AnalogInputs.setPadxMode(0);
-	AnalogInputs.setPadyMode(0);
-	AnalogInputs.setPotDeathZone(7);
+	pinMode(MUX_OUT_0, INPUT);
 /*
 	AnalogInputs.setPotResolution(0, 100);
 	AnalogInputs.setPotResolution(1, 100);
@@ -127,18 +128,18 @@ void initHardware()
 	AnalogInputs.setPotResolution(4, 100);
 */
 
-	AnalogInputs.setPotAcceleration(0, 3);
-	AnalogInputs.setPotAcceleration(1, 3);
-	AnalogInputs.setPotAcceleration(2, 3);
-	AnalogInputs.setPotAcceleration(3, 3);
-	AnalogInputs.setPotAcceleration(4, 3);
+//	AnalogInputs.setPotAcceleration(0, 3);
+//	AnalogInputs.setPotAcceleration(1, 3);
+//	AnalogInputs.setPotAcceleration(2, 3);
+//	AnalogInputs.setPotAcceleration(3, 3);
+//	AnalogInputs.setPotAcceleration(4, 3);
 
 	AnalogInputs.begin(100);
 
 	//....................................................
 	// Haptic on
 	//mtHaptic.enable();
-
+/*
 	//....................................................
 	// Seq buttons
 	////////////////// IO7326 A
@@ -173,7 +174,7 @@ void initHardware()
 	seqButtonsB.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_B,IO7326_INT_FUNCT_B);
 	////////////////// IO7326 C
 	seqButtonsC.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);
-
+*/
 	//LEDS
 	leds.begin();
 	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
@@ -217,6 +218,8 @@ void updateHardware()
 {
 	AnalogInputs.update();
 
+
+/*
 	if(Wire2.done())
 	{
 		// odczyt przyciskow
@@ -236,6 +239,8 @@ void updateHardware()
 		leds.updateGrid();
 
 	}
+*/
+
 
 	display.update();
 	//mtDisplay.updateHaptic();
