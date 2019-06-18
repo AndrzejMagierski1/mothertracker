@@ -25,6 +25,8 @@ void cAnalogInputs::begin(uint16_t pot_res)
 
 	//pinMode(ANALOG_CTRL_XY_Z, OUTPUT);
 
+	pinMode(BUTTON1, INPUT);
+
 	MUX_CTRL_A_PCR = PORT_PCR_MUX(1);
 	MUX_CTRL_B_PCR = PORT_PCR_MUX(1);
 	MUX_CTRL_C_PCR = PORT_PCR_MUX(1);

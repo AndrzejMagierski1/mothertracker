@@ -61,25 +61,47 @@ __NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[4*1024*1024];
 const uint8_t cInterface::modulesCount = 8;
 const hModule cInterface::modules[modulesCount] =
 {
-		&projectEditor,
-		&sampleImporter,
-		&patternEditor,
-		&samplePlayback,
-		&songEditor,
-		&instrumentEditor,
-		&sampleEditor,
-		&configEditor,
-
+		&projectEditor,     // 0
+		&sampleImporter,    // 1
+		&patternEditor,     // 2
+		&samplePlayback,    // 3
+		&songEditor,        // 4
+		&instrumentEditor,  // 5
+		&sampleEditor,      // 6
+		&configEditor,      // 7
+                            // 8
 
 };
 
-//const uint8_t cInterface::modulesButtons[modulesCount] =
-//{
-//	interfaceButton17,
-//	interfaceButton16,
-//	interfaceButton13,
-//};
 
+const uint8_t cInterface::modulesButtonsCount = 11;
+const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
+{
+	{interfaceButton8,  5, mtInstEditModeVolume},
+	{interfaceButton9,  5, mtInstEditModeFilter},
+	{interfaceButton10, 5, mtInstEditModeParams},
+	{interfaceButton11, 0, 0},
+	{interfaceButton12, 2, 0},
+	{interfaceButton13, 3, 0},
+	{interfaceButton14, 6, 0},
+	{interfaceButton15, 0, 0},
+	{interfaceButton16, 1, 0},
+	{interfaceButton17, 4, 0},
+	{interfaceButton22, 5, 0},
+};
+
+//	case interfaceButton10: activateModule(modules[0], 0); break;
+//	case interfaceButton11: activateModule(modules[4], 0); break;
+//	case interfaceButton12: activateModule(modules[7], 0); break;
+//	case interfaceButton13: activateModule(modules[2], 0); break;
+//	case interfaceButton14: activateModule(modules[3], 0); break;
+//	case interfaceButton15: activateModule(modules[6], 0); break;
+//	case interfaceButton16: activateModule(modules[0], 0); break;
+//	case interfaceButton17: activateModule(modules[1], 0); break;
+//	case interfaceButton23: activateModule(modules[5], mtInstEditModeVolume); break;
+//	case interfaceButton24: activateModule(modules[5], mtInstEditModeFilter); break;
+//	case interfaceButton25: activateModule(modules[5], mtInstEditModeParams); break;
+//	}
 
 uint8_t cFunctionMachine::potsCount = 		interfacePotsCount;
 uint8_t cFunctionMachine::buttonsCount = 	interfaceButtonsCount;
@@ -189,24 +211,28 @@ void cInterface::deactivateModule(hModule module)
 	if(module == onScreenModule) onScreenModule = nullptr;
 }
 
-void cInterface::activateModulefromButton(uint8_t index)
+void cInterface::switchModuleByButton(hModule module, uint8_t button)
 {
-	switch(index)
-	{
-	case interfaceButton10: activateModule(modules[0], 0); break;
-	case interfaceButton11: activateModule(modules[4], 0); break;
-	case interfaceButton12: activateModule(modules[7], 0); break;
-	case interfaceButton13: activateModule(modules[2], 0); break;
-	case interfaceButton14: activateModule(modules[3], 0); break;
-	case interfaceButton15: activateModule(modules[6], 0); break;
-	case interfaceButton16: activateModule(modules[0], 0); break;
-	case interfaceButton17: activateModule(modules[1], 0); break;
-	case interfaceButton23: activateModule(modules[5], mtInstEditModeVolume); break;
-	case interfaceButton24: activateModule(modules[5], mtInstEditModeFilter); break;
-	case interfaceButton25: activateModule(modules[5], mtInstEditModeParams); break;
-	}
+	int8_t index = getButtonIndex(button);
+	if(index < 0 ) return;
+	if(modules[modulesButtons[index][1]] == module) return;
 
+	deactivateModule(module);
+	activateModule(modules[modulesButtons[index][1]], modulesButtons[index][2]);
 }
+
+int8_t cInterface::getButtonIndex(uint8_t button)
+{
+	for(uint8_t i = 0; i < modulesButtonsCount; i++)
+	{
+		if(button == modulesButtons[i][0])
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 //=======================================================================
 //=======================================================================
 //=======================================================================
@@ -218,12 +244,8 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 	{
 		case eventSwitchModule:
 		{
-			//((hModule)param1)->stop();
-			mtInterface.deactivateModule((hModule)param1);
-
-			mtInterface.activateModulefromButton(*((uint8_t*)param2));
-
-
+			// param1 = uchwyt do modułu, param2 = index przycisku
+			mtInterface.switchModuleByButton((hModule)param1, *((uint8_t*)param2));
 			break;
 		}
 

@@ -3,7 +3,11 @@
 #define LIBS_NEWDISPLAY_DISPLAY_H_
 
 
+#include <typeinfo>
+#include <Arduino.h>
+
 #include <stdint.h>
+
 
 #include "displayControls.h"
 #include "trackerControl.h"
@@ -49,12 +53,12 @@ public:
 	{
 		hControl* newControlSlot = &controlsTable[0];
 
-		uint8_t i = 0;
+		uint8_t limit = 0;
 
 		while(nullptr != *newControlSlot)
 		{
 			newControlSlot++;
-			if(++i >= controlsCount) return nullptr; //zabezpieczenie przed przekroczeniem max ilosci mozliwych kontrolek
+			if(++limit >= controlsCount) return nullptr; //zabezpieczenie przed przekroczeniem max ilosci mozliwych kontrolek
 		}
 
 		//operacje specjalne przed utworzeniem obiektu---------------
@@ -67,7 +71,9 @@ public:
 
 		//------------------------------------------------------------
 
+
 		hControl newControl = new controlClass(properties);
+		int8_t memory_slot = -1;
 
 		for(uint8_t i = 0; i < controlsCount;i++)
 		{
@@ -75,6 +81,7 @@ public:
 			{
 				 memoryMap[i] = 1;
 				 newControl->ramMapPosition = i;
+				 memory_slot = i;
 				 break;
 			}
 		}
@@ -127,6 +134,7 @@ private:
 
 	uint8_t fontsCount = displayFontCount;
 
+	int8_t controls_count = 0;
 };
 
 

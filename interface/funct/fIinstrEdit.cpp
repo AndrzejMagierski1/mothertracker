@@ -71,7 +71,10 @@ void cInstrumentEditor::start(uint32_t options)
 
 
 	// ustawienie funkcji
-	FM->setButtonObj(interfaceButton10, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton8, buttonPress, functSwitchMode);
+	FM->setButtonObj(interfaceButton9, buttonPress, functSwitchMode);
+	FM->setButtonObj(interfaceButton10, buttonPress, functSwitchMode);
+
 	FM->setButtonObj(interfaceButton11, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton12, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
@@ -79,10 +82,7 @@ void cInstrumentEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButton15, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
-
-	FM->setButtonObj(interfaceButton23, buttonPress, functSwitchMode);
-	FM->setButtonObj(interfaceButton24, buttonPress, functSwitchMode);
-	FM->setButtonObj(interfaceButton25, buttonPress, functSwitchMode);
+	FM->setButtonObj(interfaceButton22, buttonPress, functSwitchModule);
 
 	setDefaultScreenFunct();
 
@@ -126,8 +126,8 @@ void cInstrumentEditor::setDefaultScreenFunct()
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
 
-	FM->setButtonObj(interfaceButton8, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButton9, buttonPress, functRecAction);
+	FM->setButtonObj(interfaceButton23, buttonPress, functPlayAction);
+	FM->setButtonObj(interfaceButton24, buttonPress, functRecAction);
 	FM->setButtonObj(interfaceButton28, play);
 
 
@@ -330,7 +330,7 @@ static  uint8_t functSwitchMode(uint8_t button)
 {
 	switch(button)
 	{
-	case 23:
+	case 8:
 	{
 		if(IE->mode != 0)
 		{
@@ -340,7 +340,7 @@ static  uint8_t functSwitchMode(uint8_t button)
 		}
 		break;
 	}
-	case 24:
+	case 9:
 	{
 		if(IE->mode != 1)
 		{
@@ -350,7 +350,7 @@ static  uint8_t functSwitchMode(uint8_t button)
 		}
 		break;
 	}
-	case 25:
+	case 10:
 	{
 		if(IE->mode != 2)
 		{

@@ -54,9 +54,6 @@ void cProjectEditor::initDisplayControls()
 
 void cProjectEditor::destroyDisplayControls()
 {
-	display.destroyControl(fileListControl);
-	fileListControl = nullptr;
-
 	for(uint8_t i = 0; i<4; i++)
 	{
 		display.destroyControl(topLabel[i]);
@@ -68,6 +65,9 @@ void cProjectEditor::destroyDisplayControls()
 		display.destroyControl(bottomLabel[i]);
 		bottomLabel[i] = nullptr;
 	}
+
+	display.destroyControl(fileListControl);
+	fileListControl = nullptr;
 
 }
 

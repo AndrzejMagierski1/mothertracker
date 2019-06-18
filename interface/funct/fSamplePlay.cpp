@@ -102,18 +102,17 @@ void cSamplePlayback::start(uint32_t options)
 	showZoomValue();
 
 	// ustawienie funkcji
+	FM->setButtonObj(interfaceButton8, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton9, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton10, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton11, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton12, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
-	//FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton15, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
-
-	FM->setButtonObj(interfaceButton23, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton24, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton25, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButton22, buttonPress, functSwitchModule);
 
 	showDefaultScreen();
 	setDefaultScreenFunct();
@@ -136,8 +135,8 @@ void cSamplePlayback::setDefaultScreenFunct()
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
 
-	FM->setButtonObj(interfaceButton8, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButton9, buttonPress, functRecAction);
+	FM->setButtonObj(interfaceButton23, buttonPress, functPlayAction);
+	FM->setButtonObj(interfaceButton24, buttonPress, functRecAction);
 	FM->setButtonObj(interfaceButton28, play);
 
 

@@ -546,31 +546,35 @@ void cDisplay::destroyControl(hControl handle)
 	// przeszukuj tablice kontrolek
 	int8_t found = -1;
 
-	for(uint8_t  i = 0; i < controlsCount; i++)
+	for(uint8_t i = 0; i < controlsCount; i++)
 	{
 		if(controlsTable[i] == handle)
 		{
 			found = i;
 			break;
 		}
-		else if(controlsTable[i] == nullptr) break; // przeszukiwac do pierwszego nullptr?
+		else if(controlsTable[i] == nullptr)  // przeszukiwac do pierwszego nullptr?
+		{
+			break;
+		}
 	}
 
-	delete handle; // sproboj zwolnic pamiec mimo wszystko - wrazie wyjatku nie przepelni pamieci
 
 	if(found < 0) return; // nie znaleziono - wyjdz
 
-
 	memoryMap[controlsTable[found]->ramMapPosition] = 0;
 
+	delete handle;  // sproboj zwolnic pamiec mimo wszystko - wrazie wyjatku nie przepelni pamieci
+
 	// przesun wszystkie wskazniki w tablicy powyzej kasowanego
+	controlsTable[controlsCount-1] = nullptr; // ostatnia pozycja tablicy moze byc zawsze zerowana
 	uint8_t i = 0;
 	for(i = found; i < controlsCount-1; i++)
 	{
 		controlsTable[i] = controlsTable[i+1];
 		//if(controlsTable[i+1] == nullptr) break;
 	}
-	controlsTable[controlsCount-1] = nullptr; // ostatnia pozycja tablicy moze byc zawsze zerowana
+
 }
 
 void cDisplay::refreshControl(hControl handle)

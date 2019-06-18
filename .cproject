@@ -51,6 +51,7 @@
 									<listOptionValue builtIn="false" value="../libs/FT812"/>
 									<listOptionValue builtIn="false" value="../libs/fonts"/>
 									<listOptionValue builtIn="false" value="../libs/AnalogInputs"/>
+									<listOptionValue builtIn="false" value="../libs/Encoder"/>
 									<listOptionValue builtIn="false" value="../libs/Key"/>
 									<listOptionValue builtIn="false" value="../libs/Display"/>
 									<listOptionValue builtIn="false" value="../libs/NewDisplay"/>

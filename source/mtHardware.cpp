@@ -12,12 +12,14 @@
 #include <SD.h>
 #include <SerialFlash.h>
 
+#include "Encoder.h"
 
 #include "display.h"
 #include "SD.h"
 
 #include "sdram.h"
 #include "hidConnection.h"
+
 
 
 
@@ -30,7 +32,7 @@ uint8_t powerSwitchLastState = 0;
 int8_t powerSwitchDebounce;
 
 void TactSwitchRead();
-
+void updateEncoder();
 
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo);
 void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f);
@@ -52,6 +54,8 @@ void IO7326_INT_FUNCT_A() { seqButtonsA.intAction(); }
 void IO7326_INT_FUNCT_B() { seqButtonsB.intAction(); }
 void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 
+
+void ENC_SW_INT_FUNCT() { }
 
 // hid connection
 hidConnection hid(0);
@@ -137,6 +141,13 @@ void initHardware()
 	AnalogInputs.begin(100);
 
 	//....................................................
+	// ENCODER
+	Encoder.begin(ENC_SWITCH,onButtonChange);
+	//	Encoder.testMode(1);
+	//Encoder.setRes(6);
+	Encoder.setSpeedUp(1);
+
+	//....................................................
 	// Haptic on
 	//mtHaptic.enable();
 /*
@@ -218,7 +229,8 @@ void updateHardware()
 {
 	AnalogInputs.update();
 
-
+	updateEncoder();
+	Encoder.switchRead();
 /*
 	if(Wire2.done())
 	{
@@ -249,6 +261,19 @@ void updateHardware()
 	TactSwitchRead();
 	hid.handle();
 }
+
+elapsedMillis encTimer;
+
+void updateEncoder()
+{
+	if(encTimer > 100)
+	{
+		encTimer = 0;
+		int32_t encValue = Encoder.read();
+		if(encValue != 0) onPotChange(0,encValue);
+	}
+}
+
 
 
 void TactSwitchRead()

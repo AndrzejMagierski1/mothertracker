@@ -63,7 +63,7 @@ void onPadRelease(uint8_t n)
 void onPotChange(uint8_t n, int16_t value)
 {
 
-
+//Serial.println(value);
 	mtInterface.potChange(n, value);
 //
 //	if(value>0)

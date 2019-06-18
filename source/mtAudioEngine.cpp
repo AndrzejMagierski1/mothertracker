@@ -273,9 +273,9 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	__disable_irq();
 	uint8_t status;
 	float gainL=0,gainR=0;
-	Serial.print("Przed: ");
-	Serial.print(activeAmpEnvelopes);
-	Serial.print(" Po: ");
+	//Serial.print("Przed: ");
+	////Serial.print(activeAmpEnvelopes);
+	//Serial.print(" Po: ");
 	if(envelopeAmpPtr->getState())
 	{
 		onVoices--;
@@ -298,7 +298,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
 		envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
 		activeAmpEnvelopes++;
-		Serial.println(activeAmpEnvelopes);
+		//Serial.println(activeAmpEnvelopes);
 	}
 	else
 	{
@@ -381,7 +381,7 @@ void playerEngine :: noteOff()
 		playMemPtr->stop();
 		if((getLastExportStep()) && (!onVoices))
 		{
-			Serial.println("w noteofie bo dont enable");
+			//Serial.println("w noteofie bo dont enable");
 			clearLastExportStep();
 			finishExport();
 		}
@@ -510,19 +510,19 @@ void playerEngine:: update()
 	if(envelopeAmpPtr->endRelease())
 	{
 		envelopeAmpPtr->clearEndReleaseFlag();
-		Serial.print("Przed: ");
-		Serial.print(activeAmpEnvelopes);
-		Serial.print(" po: ");
+		//Serial.print("Przed: ");
+		//Serial.print(activeAmpEnvelopes);
+		//Serial.print(" po: ");
 		onVoices--;
 		activeAmpEnvelopes--;
-		Serial.println(activeAmpEnvelopes);
+		//Serial.println(activeAmpEnvelopes);
 		playMemPtr->stop();
 		lfoAmpPtr->stop();
 		lfoFilterPtr->stop();
 		lfoPitchPtr->stop();
 		if((getLastExportStep()) && (!onVoices))
 		{
-			Serial.println("w endrelease");
+			//Serial.println("w endrelease");
 			clearLastExportStep();
 			finishExport();
 		}

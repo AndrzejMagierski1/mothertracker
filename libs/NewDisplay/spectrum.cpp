@@ -102,6 +102,7 @@ uint8_t cSpectrum::update()
 	{
 	case 0: refresh1(); break;
 	case 1: refresh2(); break;
+	case 2: refresh3(); break;
 	default: refreshStep = 0; break;
 	}
 
@@ -121,6 +122,7 @@ uint8_t cSpectrum::memCpy(uint32_t address)
 	{
 	case 0: API_CMD_MEMCPY(address, 		 		RAM_DL, dlOffset); break;
 	case 1: API_CMD_MEMCPY(address+ramPartSize[0], 	RAM_DL, dlOffset); break;
+	case 2: API_CMD_MEMCPY(address+ramPartSize[0]+ramPartSize[1], 	RAM_DL, dlOffset); break;
 	default: break;
 	}
 
@@ -130,7 +132,7 @@ uint8_t cSpectrum::memCpy(uint32_t address)
 	//API_LIB_AwaitCoProEmpty();
 
     refreshStep++;
-    if(refreshStep > 1)
+    if(refreshStep > 2)
     {
     	refreshStep = 0;
     	return 0;
@@ -144,6 +146,7 @@ uint8_t cSpectrum::append(uint32_t address)
 
 	API_CMD_APPEND(address, ramPartSize[0]);
 	API_CMD_APPEND(address+ ramPartSize[0], ramPartSize[1]);
+	API_CMD_APPEND(address+ ramPartSize[0] + ramPartSize[1], ramPartSize[2]);
 
 
 	return 0;
@@ -181,16 +184,16 @@ void cSpectrum::refresh1()
 	}
 	else if(spectrum->spectrumType == 0)
 	{
-		API_BEGIN(LINE_STRIP);
+		API_BEGIN(LINES);
 
-		uint16_t length = (width>300) ? 300 : width;
+		uint16_t length = (width>200) ? 200 : width;
 
 		uint8_t odd = 0;
 
 		for(uint16_t i = 0; i < length; i++)
 		{
-			if(odd) API_VERTEX2F( posX+i, center-spectrum->upperData[i]);
-			else API_VERTEX2F( posX+i, center-spectrum->lowerData[i]);
+			if(odd) API_VERTEX2II( posX+i, center-spectrum->upperData[i],0,0);
+			else API_VERTEX2II( posX+i, center-spectrum->lowerData[i],0,0);
 			odd = !odd;
 
 		//	Serial.println(half-spectrum->upperData[i]);
@@ -206,8 +209,46 @@ void cSpectrum::refresh1()
 //------------------------------------------------------------------------------------------
 void cSpectrum::refresh2()
 {
-	API_COLOR(colors[0]);
-	API_LINE_WIDTH(8);
+	//API_COLOR(colors[0]);
+	//API_LINE_WIDTH(8);
+
+
+	if(spectrum == nullptr)
+	{
+
+	}
+	else if(spectrum->spectrumType == 1)
+	{
+
+	}
+	else if(spectrum->spectrumType == 0 && width > 200)
+	{
+		API_BEGIN(LINES);
+
+		uint16_t center = posY+height/2;
+
+		uint8_t odd = 0;
+
+		uint16_t width_left = (width-200 > 200) ? 200 : width-200;
+
+		if(width_left > 0)
+		{
+			for(uint16_t i = 0; i < width_left; i++)
+			{
+				if(odd) API_VERTEX2II( posX+i+199, center-spectrum->upperData[i+199],0,0);
+				else API_VERTEX2II( posX+i+199, center-spectrum->lowerData[i+199],0,0);
+				odd = !odd;
+			}
+		}
+	}
+	API_END();
+}
+
+//------------------------------------------------------------------------------------------
+void cSpectrum::refresh3()
+{
+	//API_COLOR(colors[0]);
+	//API_LINE_WIDTH(8);
 
 
 	if(spectrum == nullptr)
@@ -226,14 +267,14 @@ void cSpectrum::refresh2()
 
 		uint8_t odd = 0;
 
-		uint16_t width_left = width-300;
+		uint16_t width_left = (width-400 > 200) ? 200 : width-400;
 
 		if(width_left > 0)
 		{
 			for(uint16_t i = 0; i < width_left; i++)
 			{
-				if(odd) API_VERTEX2F( posX+i+299, center-spectrum->upperData[i+299]);
-				else API_VERTEX2F( posX+i+299, center-spectrum->lowerData[i+299]);
+				if(odd) API_VERTEX2F( posX+i+399, center-spectrum->upperData[i+399]);
+				else API_VERTEX2F( posX+i+399, center-spectrum->lowerData[i+399]);
 				odd = !odd;
 			}
 		}

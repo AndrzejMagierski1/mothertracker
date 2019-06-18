@@ -42,7 +42,6 @@ protected:
 
 	uint8_t moduleRefresh = 0;
 
-
 };
 
 

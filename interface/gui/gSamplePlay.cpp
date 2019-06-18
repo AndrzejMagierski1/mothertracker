@@ -49,11 +49,12 @@ void cSamplePlayback::initDisplayControls()
 	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
 
 
+	strControlProperties prop;
+
 	playModeList.linesCount = 5;
 	playModeList.start = editorInstrument->playMode;
 	playModeList.length = playModeCount;
 	playModeList.data = playModeNames;
-	strControlProperties prop;
 	prop.x = (800/8)*6+5;
 	prop.y = 140;
 	prop.w = 800/4-10;
@@ -68,10 +69,10 @@ void cSamplePlayback::initDisplayControls()
 	prop.h = 300;
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
-
+/*
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
-
+*/
 	// ramka
 	frameData.placesCount = 7;
 	frameData.startPlace = 0;
