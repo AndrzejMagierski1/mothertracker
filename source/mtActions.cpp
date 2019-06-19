@@ -153,46 +153,42 @@ void onPowerButtonChange(uint8_t value)
 
 
 //--------------------------------- BUTTONS SEQ ----------------------------
-void onButtonPush (uint8_t x, uint8_t y)
+void onButtonPush (uint8_t x)
 {	
-	mtInterface.seqButtonPressed(x,y);
+//	mtInterface.seqButtonPressed(x,y);
 
 
 	Serial.print("ButtonPush: x = ");
 	Serial.print(x);
-	Serial.print(" y = ");
-	Serial.println(y);
+
 }
 
-void onButtonRelease(uint8_t x, uint8_t y)
+void onButtonRelease(uint8_t x)
 {	
-	mtInterface.seqButtonReleased(x,y);
+//	mtInterface.seqButtonReleased(x,y);
 
 	Serial.print("ButtonRelease: x = ");
 	Serial.print(x);
-	Serial.print(" y = ");
-	Serial.println(y);
+
 }
 
-void onButtonHold(uint8_t x, uint8_t y)
+void onButtonHold(uint8_t x)
 {	
-	mtInterface.seqButtonHold(x,y);
+//	mtInterface.seqButtonHold(x,y);
 
 
 	Serial.print("ButtonHold: x = ");
 	Serial.print(x);
-	Serial.print(" y = ");
-	Serial.println(y);
+
 }
 
-void onButtonDouble	(uint8_t x, uint8_t y)
+void onButtonDouble	(uint8_t x)
 {	
-	mtInterface.seqButtonDouble(x,y);
+//	mtInterface.seqButtonDouble(x,y);
 
 
 	Serial.print("ButtonDouble: x = ");
 	Serial.print(x);
-	Serial.print(" y = ");
-	Serial.println(y);
+
 }
 

@@ -42,17 +42,17 @@ void onButtonChange(uint8_t n, uint8_t value);
 void onPowerButtonChange(uint8_t value);
 
 //keyScanner
-void onButtonPush			(uint8_t x, uint8_t y);
-void onButtonRelease		(uint8_t x, uint8_t y);
-void onButtonHold			(uint8_t x, uint8_t y);
-void onButtonDouble			(uint8_t x, uint8_t y);
+void onButtonPush			(uint8_t x);
+void onButtonRelease		(uint8_t x);
+void onButtonHold			(uint8_t x);
+void onButtonDouble			(uint8_t x);
 
-keyScanner seqButtonsA,seqButtonsB,seqButtonsC;
+keyScanner seqButtonsA;
 AudioControlSGTL5000 audioShield;
 
 void IO7326_INT_FUNCT_A() { seqButtonsA.intAction(); }
-void IO7326_INT_FUNCT_B() { seqButtonsB.intAction(); }
-void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
+//void IO7326_INT_FUNCT_B() { seqButtonsB.intAction(); }
+//void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 
 
 void ENC_SW_INT_FUNCT() { }
@@ -150,7 +150,6 @@ void initHardware()
 	//....................................................
 	// Haptic on
 	//mtHaptic.enable();
-/*
 	//....................................................
 	// Seq buttons
 	////////////////// IO7326 A
@@ -160,32 +159,13 @@ void initHardware()
 	seqButtonsA.setButtonDoubleFunc(onButtonDouble);
 	seqButtonsA.setHoldTime(200);
 	seqButtonsA.setDoubleTime(300);
-	////////////////// IO7326 B
-	seqButtonsB.setButtonPushFunc(onButtonPush);
-	seqButtonsB.setButtonReleaseFunc(onButtonRelease);
-	seqButtonsB.setButtonHoldFunc(onButtonHold);
-	seqButtonsB.setButtonDoubleFunc(onButtonDouble);
-	seqButtonsB.setHoldTime(200);
-	seqButtonsB.setDoubleTime(300);
-	////////////////// IO7326 C
-	seqButtonsC.setButtonPushFunc(onButtonPush);
-	seqButtonsC.setButtonReleaseFunc(onButtonRelease);
-	seqButtonsC.setButtonHoldFunc(onButtonHold);
-	seqButtonsC.setButtonDoubleFunc(onButtonDouble);
-	seqButtonsC.setHoldTime(200);
-	seqButtonsC.setDoubleTime(300);
 
 	seqButtonsA.testMode(hardwareTest);
-	seqButtonsB.testMode(hardwareTest);
-	seqButtonsC.testMode(hardwareTest);
+
 
 	////////////////// IO7326 A
 	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,IO7326_INT_FUNCT_A);
-	////////////////// IO7326 B
-	seqButtonsB.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_B,IO7326_INT_FUNCT_B);
-	////////////////// IO7326 C
-	seqButtonsC.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);
-*/
+
 	//LEDS
 	leds.begin();
 	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
@@ -231,7 +211,6 @@ void updateHardware()
 
 	updateEncoder();
 	Encoder.switchRead();
-/*
 	if(Wire2.done())
 	{
 		// odczyt przyciskow
@@ -239,19 +218,10 @@ void updateHardware()
 		{
 			return;
 		}
-		if(seqButtonsB.update())
-		{
-			return;
-		}
-		if(seqButtonsC.update())
-		{
-			return;
-		}
-		leds.updateSeq();
-		leds.updateGrid();
+//		leds.updateSeq();
+//		leds.updateGrid();
 
 	}
-*/
 
 
 	display.update();

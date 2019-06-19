@@ -46,10 +46,10 @@ public:
 	uint8_t update();
 	void intAction();
 
-	uint8_t setButtonPushFunc(void (*func)(uint8_t,uint8_t));
-	uint8_t setButtonReleaseFunc(void (*func)(uint8_t,uint8_t));
-	uint8_t setButtonHoldFunc(void (*func)(uint8_t,uint8_t));
-	uint8_t setButtonDoubleFunc(void (*func)(uint8_t,uint8_t));
+	uint8_t setButtonPushFunc(void (*func)(uint8_t));
+	uint8_t setButtonReleaseFunc(void (*func)(uint8_t));
+	uint8_t setButtonHoldFunc(void (*func)(uint8_t));
+	uint8_t setButtonDoubleFunc(void (*func)(uint8_t));
 	void setHoldTime(uint16_t time);
 	void setDoubleTime(uint16_t time);
 	void testMode(uint8_t set);
@@ -62,10 +62,10 @@ public:
 	uint8_t xy2key(uint8_t x, uint8_t y);*/
 
 private:
-	void (*onPush)(uint8_t,uint8_t);
-	void (*onRelease)(uint8_t,uint8_t);
-	void (*onHold)(uint8_t,uint8_t);
-	void (*onDouble)(uint8_t,uint8_t);
+	void (*onPush)(uint8_t);
+	void (*onRelease)(uint8_t);
+	void (*onHold)(uint8_t);
+	void (*onDouble)(uint8_t);
 
 	void read_buttons_IC(uint8_t grid_no);
 //	void handle_howManyPressed();

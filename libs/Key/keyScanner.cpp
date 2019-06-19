@@ -24,6 +24,16 @@ void print_scan_status(uint8_t target)
     }
 }
 
+uint8_t keyNumbersOnGrid[64] =
+{
+		0,12,24,36,255,255,255,255,1,13,
+		25,37,255,255,255,255,2,14,26,38,
+		255,255,255,255,3,15,27,39,255,255,
+		255,255,4,16,28,40,11,23,35,47,
+		5,17,29,41,10,22,34,46,6,18,
+		30,42,9,21,33,45,7,19,31,43,
+		8,20,32,44
+};
 
 keyScanner::keyScanner()
 {
@@ -43,25 +53,25 @@ keyScanner::keyScanner(uint8_t address, uint8_t sda_pin, uint8_t scl_pin, uint8_
 	IO7326_scl_pin = scl_pin;
 }
 
-uint8_t keyScanner::setButtonPushFunc(void (*func)(uint8_t,uint8_t))
+uint8_t keyScanner::setButtonPushFunc(void (*func)(uint8_t))
 {
 	if(func == NULL) return statusError;
 	onPush = func;
 	return statusSuccess;
 }
-uint8_t keyScanner::setButtonReleaseFunc(void (*func)(uint8_t,uint8_t))
+uint8_t keyScanner::setButtonReleaseFunc(void (*func)(uint8_t))
 {
 	if(func == NULL) return statusError;
 	onRelease = func;
 	return statusSuccess;
 }
-uint8_t keyScanner::setButtonHoldFunc(void (*func)(uint8_t,uint8_t))
+uint8_t keyScanner::setButtonHoldFunc(void (*func)(uint8_t))
 {
 	if(func == NULL) return statusError;
 	onHold = func;
 	return statusSuccess;
 }
-uint8_t keyScanner::setButtonDoubleFunc(void (*func)(uint8_t,uint8_t))
+uint8_t keyScanner::setButtonDoubleFunc(void (*func)(uint8_t))
 {
 	if(func == NULL) return statusError;
 	onDouble = func;
@@ -369,7 +379,7 @@ void keyScanner::handle_buttonTimeout()
 
 void keyScanner::action_button_press(uint8_t num)
 {
-	uint8_t x=0,y=0;
+	uint8_t x=0;
 
 	if (test_mode)
 	{
@@ -379,8 +389,7 @@ void keyScanner::action_button_press(uint8_t num)
 
 	if(IO7326_int_pin == GRID_A)
 	{
-		x = (num / 8) + 0;
-		y = (num % 8) + 0;
+		x = keyNumbersOnGrid[num];
 
 	}
 
@@ -397,13 +406,13 @@ void keyScanner::action_button_press(uint8_t num)
 	}
 	//handle_howManyPressed();
 */
-	onPush(x,y);
+	onPush(x);
 }
 
 
 void keyScanner::action_button_hold(uint8_t num)
 {
-	uint8_t x=0,y=0;
+	uint8_t x=0;
 
 	if (test_mode)
 	{
@@ -413,8 +422,7 @@ void keyScanner::action_button_hold(uint8_t num)
 
 	if(IO7326_int_pin == GRID_A)
 	{
-		x = (num / 8) + 0;
-		y = (num % 8) + 0;
+		x = keyNumbersOnGrid[num];
 
 	}
 
@@ -430,12 +438,12 @@ void keyScanner::action_button_hold(uint8_t num)
 		y = (num % 8) + 16;
 	}
 */
-	onHold(x,y);
+	onHold(x);
 }
 
 void keyScanner::action_button_release(uint8_t num)
 {
-	uint8_t x=0,y=0;
+	uint8_t x=0;
 
 	if (test_mode)
 	{
@@ -445,8 +453,7 @@ void keyScanner::action_button_release(uint8_t num)
 
 	if(IO7326_int_pin == GRID_A)
 	{
-		x = (num / 8) + 0;
-		y = (num % 8) + 0;
+		x = keyNumbersOnGrid[num];
 
 	}
 /*
@@ -463,12 +470,12 @@ void keyScanner::action_button_release(uint8_t num)
 	}
 */
 
-	onRelease(x,y);
+	onRelease(x);
 }
 
 void keyScanner::action_button_double(uint8_t num)
 {
-	uint8_t x=0,y=0;
+	uint8_t x=0;
 
 	if(test_mode)
 	{
@@ -478,8 +485,7 @@ void keyScanner::action_button_double(uint8_t num)
 
 	if(IO7326_int_pin == GRID_A)
 	{
-		x = (num / 8) + 0;
-		y = (num % 8) + 0;
+		x = keyNumbersOnGrid[num];
 
 	}
 /*
@@ -495,7 +501,7 @@ void keyScanner::action_button_double(uint8_t num)
 		y = (num % 8) + 16;
 	}
 */
-	onDouble(x,y);
+	onDouble(x);
 }
 
 /*uint8_t keyScanner::getButtonState(uint8_t number)
