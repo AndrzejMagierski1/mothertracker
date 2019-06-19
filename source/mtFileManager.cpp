@@ -393,7 +393,7 @@ void FileManager::importSampleToProject(char* filePatch, char* name, int8_t inst
 		mtProject.instrument[instrumentIndex].endPoint=MAX_16BIT;
 
 		mtProject.instrument[instrumentIndex].wavetableCurrentWindow = 0;
-		mtProject.instrument[instrumentIndex].playMode = 1;
+		mtProject.instrument[instrumentIndex].playMode = 0;
 
 		mtProject.instrument[instrumentIndex].envelope[envAmp].delay = 0;
 		mtProject.instrument[instrumentIndex].envelope[envAmp].attack = 0;

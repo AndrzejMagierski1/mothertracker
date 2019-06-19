@@ -69,10 +69,10 @@ void cSamplePlayback::initDisplayControls()
 	prop.h = 300;
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
-/*
+
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
-*/
+
 	// ramka
 	frameData.placesCount = 7;
 	frameData.startPlace = 0;
