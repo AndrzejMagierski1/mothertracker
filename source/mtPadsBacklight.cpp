@@ -35,12 +35,12 @@ void cMtPadsBacklight::setBackLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n 
 {
 	if(state)
 	{
-		leds.setLEDgrid(n,state,gamma_pwm);
+//		leds.setLEDgrid(n,state,gamma_pwm);
 		backLayer[n]=gamma_pwm;
 	}
 	else
 	{
-		leds.setLEDgrid(n,state,gamma_pwm);
+//		leds.setLEDgrid(n,state,gamma_pwm);
 		backLayer[n]=0;
 	}
 }
@@ -49,12 +49,12 @@ void cMtPadsBacklight::setFrontLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n
 {
 	if(state)
 	{
-		leds.setLEDgrid(n,state,gamma_pwm);
+//		leds.setLEDgrid(n,state,gamma_pwm);
 	}
 	else
 	{
-		if(backLayer[n] != 0) leds.setLEDgrid(n,1,backLayer[n]);
-		else leds.setLEDgrid(n,state,gamma_pwm);
+//		if(backLayer[n] != 0) leds.setLEDgrid(n,1,backLayer[n]);
+//		else leds.setLEDgrid(n,state,gamma_pwm);
 	}
 }
 

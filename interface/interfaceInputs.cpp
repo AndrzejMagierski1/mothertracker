@@ -50,7 +50,7 @@ void cInterface::padPressed(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
 	uiFM.processPadsInput(n, 1, velo);
 
-	leds.setLEDgrid(n,1,31);
+//	leds.setLEDgrid(n,1,31);
 }
 
 //=======================================================================
@@ -58,7 +58,7 @@ void cInterface::padReleased(uint8_t n)
 {
 	uiFM.processPadsInput(n, 0, 0);
 
-	leds.setLEDgrid(n,0,31);
+//	leds.setLEDgrid(n,0,31);
 }
 
 //=======================================================================

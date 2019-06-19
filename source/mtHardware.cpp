@@ -62,11 +62,12 @@ hidConnection hid(0);
 void hidSendButtonState(uint16_t button, uint16_t state);
 
 
+
 void initHardware()
 {
 
 
-	hardwareTest=1;
+	hardwareTest=0;
 
 
 	BlinkLed.begin(BLINK_LED);
@@ -168,7 +169,7 @@ void initHardware()
 
 	//LEDS
 	leds.begin();
-	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
+	leds.setAllLEDPWM(leds.ledPWM, 0);
 
 	//....................................................
 
@@ -219,7 +220,7 @@ void updateHardware()
 			return;
 		}
 //		leds.updateSeq();
-//		leds.updateGrid();
+		leds.update_all_leds();
 
 	}
 

@@ -61,13 +61,13 @@ void SeqDisplay::update()
 					if(j==0) continue;
 					if(blinkTab[i][j])
 					{
-
-						if(sequencerPtr->track[i].step[getStep(i,j)].isOn) leds.setLEDseq(i+1,j+1,1,15);
-						else
-						{
-							if(j != TRACKER_LINE) leds.setLEDseq(i+1,j+1,1,5);
-							else leds.setLEDseq(i+1,j+1,1,8);
-						}
+//
+//						if(sequencerPtr->track[i].step[getStep(i,j)].isOn) leds.setLEDseq(i+1,j+1,1,15);
+//						else
+//						{
+//							if(j != TRACKER_LINE) leds.setLEDseq(i+1,j+1,1,5);
+//							else leds.setLEDseq(i+1,j+1,1,8);
+//						}
 					}
 				}
 			}
@@ -98,24 +98,24 @@ void SeqDisplay::startPlayMode()
 	clearAllBlink();
 	for(uint8_t i=0;i<8;i++)
 	{
-		if(sequencerPtr->track[i].isOn) leds.setLEDseq(i+1,1,1,31);
-		else leds.setLEDseq(i+1,1,0,31);
+//		if(sequencerPtr->track[i].isOn) leds.setLEDseq(i+1,1,1,31);
+//		else leds.setLEDseq(i+1,1,0,31);
 	}
 	for(uint8_t i=0;i<8;i++)
 	{
 		for(uint8_t j=1;j<19;j++)
 		{
-			if(j<(TRACKER_LINE))   leds.setLEDseq(i+1,j+1,0,31);
-			else if(j==(TRACKER_LINE))
-			{
-				if(sequencerPtr->track[i].step[j - TRACKER_LINE].isOn) leds.setLEDseq(i+1,j+1,1,TRACKER_LINE_LIGHT_ON);
-				else leds.setLEDseq(i+1,j+1,1,TRACKER_LINE_LIGHT_OFF);
-			}
-			else if(j>(TRACKER_LINE))
-			{
-				if(sequencerPtr->track[i].step[j - TRACKER_LINE].isOn) leds.setLEDseq(i+1,j+1,1,31);
-				else leds.setLEDseq(i+1,j+1,0,31);
-			}
+//			if(j<(TRACKER_LINE))   leds.setLEDseq(i+1,j+1,0,31);
+//			else if(j==(TRACKER_LINE))
+//			{
+//				if(sequencerPtr->track[i].step[j - TRACKER_LINE].isOn) leds.setLEDseq(i+1,j+1,1,TRACKER_LINE_LIGHT_ON);
+//				else leds.setLEDseq(i+1,j+1,1,TRACKER_LINE_LIGHT_OFF);
+//			}
+//			else if(j>(TRACKER_LINE))
+//			{
+//				if(sequencerPtr->track[i].step[j - TRACKER_LINE].isOn) leds.setLEDseq(i+1,j+1,1,31);
+//				else leds.setLEDseq(i+1,j+1,0,31);
+//			}
 		}
 	}
 }
@@ -131,40 +131,40 @@ void SeqDisplay::updatePlayMode()
 		maxTrackLen=getMaxTrackLen();
 		if(!maxTrackLen) return;
 
-		for(uint8_t i=0;i<8;i++)
-		{
-			for(uint8_t j=1;j<19;j++)
-			{
-				if(j==TRACKER_LINE) leds.setLEDseq(i+1,j+1,1,TRACKER_LINE_LIGHT_OFF);
-				else leds.setLEDseq(i+1,j+1,0,31);
-			}
-		}
-
-		for(uint8_t i=0;i<8;i++)
-		{
-			if(sequencerPtr->track[i].isOn) leds.setLEDseq(i+1,1,1,31);
-			else leds.setLEDseq(i+1,1,0,31);
-		}
+//		for(uint8_t i=0;i<8;i++)
+//		{
+//			for(uint8_t j=1;j<19;j++)
+//			{
+//				if(j==TRACKER_LINE) leds.setLEDseq(i+1,j+1,1,TRACKER_LINE_LIGHT_OFF);
+//				else leds.setLEDseq(i+1,j+1,0,31);
+//			}
+//		}
+//
+//		for(uint8_t i=0;i<8;i++)
+//		{
+//			if(sequencerPtr->track[i].isOn) leds.setLEDseq(i+1,1,1,31);
+//			else leds.setLEDseq(i+1,1,0,31);
+//		}
 		for(uint8_t i=0;i<8;i++)
 		{
 			if(sequencerPtr->track[i].isOn)
 			{
 				for(uint8_t j=1;j<19;j++)
 				{
-					if(!(j-1-sequencer.ptrPlayer->row[i].actual_pos ))
-					{
-						if(sequencerPtr->track[i].step[j-1].isOn) leds.setLEDseq(i+1,TRACKER_LINE - sequencer.ptrPlayer->row[i].actual_pos +j,1,TRACKER_LINE_LIGHT_ON);
-						else leds.setLEDseq(i+1,TRACKER_LINE  - sequencer.ptrPlayer->row[i].actual_pos + j,1,TRACKER_LINE_LIGHT_OFF);
-					}
-					else
-					{
-						if((TRACKER_LINE  - sequencer.ptrPlayer->row[i].actual_pos +j) > 1 )
-						{
-							if(sequencerPtr->track[i].step[j-1].isOn) leds.setLEDseq(i+1,TRACKER_LINE  - sequencer.ptrPlayer->row[i].actual_pos +j,1,31);
-							else leds.setLEDseq(i+1,TRACKER_LINE - sequencer.ptrPlayer->row[i].actual_pos + j,0,31);
-						}
-
-					}
+//					if(!(j-1-sequencer.ptrPlayer->row[i].actual_pos ))
+//					{
+//						if(sequencerPtr->track[i].step[j-1].isOn) leds.setLEDseq(i+1,TRACKER_LINE - sequencer.ptrPlayer->row[i].actual_pos +j,1,TRACKER_LINE_LIGHT_ON);
+//						else leds.setLEDseq(i+1,TRACKER_LINE  - sequencer.ptrPlayer->row[i].actual_pos + j,1,TRACKER_LINE_LIGHT_OFF);
+//					}
+//					else
+//					{
+//						if((TRACKER_LINE  - sequencer.ptrPlayer->row[i].actual_pos +j) > 1 )
+//						{
+//							if(sequencerPtr->track[i].step[j-1].isOn) leds.setLEDseq(i+1,TRACKER_LINE  - sequencer.ptrPlayer->row[i].actual_pos +j,1,31);
+//							else leds.setLEDseq(i+1,TRACKER_LINE - sequencer.ptrPlayer->row[i].actual_pos + j,0,31);
+//						}
+//
+//					}
 
 				}
 			}
@@ -189,17 +189,17 @@ void SeqDisplay::drawCurrentPosition()
 			{
 				if(blinkTab[i][j]) continue;
 
-				if(j==TRACKER_LINE) leds.setLEDseq(i+1,j+1,1,TRACKER_LINE_LIGHT_OFF);
-				else leds.setLEDseq(i+1,j+1,0,31);
+//				if(j==TRACKER_LINE) leds.setLEDseq(i+1,j+1,1,TRACKER_LINE_LIGHT_OFF);
+//				else leds.setLEDseq(i+1,j+1,0,31);
 
 			}
 		}
 
-		for(uint8_t i=0;i<8;i++)
-		{
-			if(sequencerPtr->track[i].isOn) leds.setLEDseq(i+1,1,1,31);
-			else leds.setLEDseq(i+1,1,0,31);
-		}
+//		for(uint8_t i=0;i<8;i++)
+//		{
+//			if(sequencerPtr->track[i].isOn) leds.setLEDseq(i+1,1,1,31);
+//			else leds.setLEDseq(i+1,1,0,31);
+//		}
 		for(uint8_t i=0;i<8;i++)
 		{
 			if(sequencerPtr->track[i].isOn)
@@ -210,16 +210,16 @@ void SeqDisplay::drawCurrentPosition()
 
 					if(!(j-1-(sequencer.ptrPlayer->row[i].actual_pos + scrollShift) ))
 					{
-						if(sequencerPtr->track[i].step[j-1].isOn) leds.setLEDseq(i+1,TRACKER_LINE - (sequencer.ptrPlayer->row[i].actual_pos+ scrollShift) +j,1,TRACKER_LINE_LIGHT_ON);
-						else leds.setLEDseq(i+1,TRACKER_LINE  - (sequencer.ptrPlayer->row[i].actual_pos+ scrollShift) + j,1,TRACKER_LINE_LIGHT_OFF);
+//						if(sequencerPtr->track[i].step[j-1].isOn) leds.setLEDseq(i+1,TRACKER_LINE - (sequencer.ptrPlayer->row[i].actual_pos+ scrollShift) +j,1,TRACKER_LINE_LIGHT_ON);
+//						else leds.setLEDseq(i+1,TRACKER_LINE  - (sequencer.ptrPlayer->row[i].actual_pos+ scrollShift) + j,1,TRACKER_LINE_LIGHT_OFF);
 					}
 					else
 					{
-						if((TRACKER_LINE  - (sequencer.ptrPlayer->row[i].actual_pos+scrollShift) +j) > 1 )
-						{
-							if(sequencerPtr->track[i].step[j-1].isOn) leds.setLEDseq(i+1,TRACKER_LINE  - (sequencer.ptrPlayer->row[i].actual_pos+scrollShift) +j,1,31);
-							else leds.setLEDseq(i+1,TRACKER_LINE - (sequencer.ptrPlayer->row[i].actual_pos+scrollShift) + j,0,31);
-						}
+//						if((TRACKER_LINE  - (sequencer.ptrPlayer->row[i].actual_pos+scrollShift) +j) > 1 )
+//						{
+//							if(sequencerPtr->track[i].step[j-1].isOn) leds.setLEDseq(i+1,TRACKER_LINE  - (sequencer.ptrPlayer->row[i].actual_pos+scrollShift) +j,1,31);
+//							else leds.setLEDseq(i+1,TRACKER_LINE - (sequencer.ptrPlayer->row[i].actual_pos+scrollShift) + j,0,31);
+//						}
 
 					}
 

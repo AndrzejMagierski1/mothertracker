@@ -157,7 +157,7 @@ void onButtonPush (uint8_t x)
 {	
 //	mtInterface.seqButtonPressed(x,y);
 
-
+	leds.setLED(x, 1, 31);
 	Serial.print("ButtonPush: x = ");
 	Serial.print(x);
 
@@ -166,7 +166,7 @@ void onButtonPush (uint8_t x)
 void onButtonRelease(uint8_t x)
 {	
 //	mtInterface.seqButtonReleased(x,y);
-
+	leds.setLED(x, 0, 0);
 	Serial.print("ButtonRelease: x = ");
 	Serial.print(x);
 

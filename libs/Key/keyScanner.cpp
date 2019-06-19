@@ -180,7 +180,7 @@ void keyScanner::read_buttons_IC(uint8_t grid_no) //grid no 0-3
 	Wire2.beginTransmission(ucAddr);         // slave addr
 	Wire2.write(IS31_KEY_STATUS_REGISTER);                       // memory address
 	Wire2.endTransmission();       // blocking write (NOSTOP triggers RepSTART on next I2C command)
-	print_scan_status(ucAddr);
+//	print_scan_status(ucAddr);
 	//delay(1);
 
 	Wire2.requestFrom((uint8_t)ucAddr, (uint8_t)1); // NON-blocking read (request 256 bytes)

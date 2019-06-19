@@ -34,8 +34,8 @@ const uint8_t gamma255[256] = {
 
 };
 
-mtLEDs leds;
-
+//mtLEDs leds;
+mtLED leds;
 /* Constructor */
 mtLED::mtLED()
 {
@@ -178,7 +178,10 @@ void mtLED::update_pads()
 void mtLED::setLED(uint8_t num, uint8_t state, uint8_t gamma_pwm)
 {
 	//ledState[num] = 1;
+	num+= 4*(num/12); // special for tracker 12 x 4 grid
+
 	ledPWM[num] = gamma32[gamma_pwm];
+
 	if(state) ledBits[num/8] |= (1 << num % 8);
 	else ledBits[num/8] &= ~(1 << num % 8);
 	leds_need_update = 1;
@@ -635,8 +638,8 @@ mtLEDs::mtLEDs()
 
 void mtLEDs::begin()
 {
-	ledsSeqA.begin(IS31FL3731_ADDR4);
-	ledsSeqB.begin(IS31FL3731_ADDR3);
+//	ledsSeqA.begin(IS31FL3731_ADDR4);
+//	ledsSeqB.begin(IS31FL3731_ADDR3);
 	ledsGrid.begin(IS31FL3731_ADDR1);
 
 }
@@ -748,16 +751,16 @@ void mtLEDs::fastSetLEDgridPWM(uint8_t x,uint8_t y, uint8_t pwm)
 
 void mtLEDs::setAllLEDPWM(uint8_t *arrSeq,uint8_t *arrGrid, uint8_t bank)
 {
-	ledsSeqA.setAllLEDPWM(arrSeq,bank);
-	ledsSeqB.setAllLEDPWM((arrSeq+144),bank);
+//	ledsSeqA.setAllLEDPWM(arrSeq,bank);
+//	ledsSeqB.setAllLEDPWM((arrSeq+144),bank);
 	ledsGrid.setAllLEDPWM(arrGrid,0);
 }
 
 
 void mtLEDs::setSleep()
 {
-	ledsSeqA.writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_SHUTDOWN, 0x00);
-	ledsSeqB.writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_SHUTDOWN, 0x00);
+//	ledsSeqA.writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_SHUTDOWN, 0x00);
+//	ledsSeqB.writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_SHUTDOWN, 0x00);
 	ledsGrid.writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_SHUTDOWN, 0x00);
 }
 

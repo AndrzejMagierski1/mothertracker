@@ -34,7 +34,7 @@ void changePowerState()
 void disableAll()
 {
 	audioShield.write(0x30, 0);
-	leds.setSleep();
+//	leds.setSleep();
 	//mtDisplay.setSleepMode();
 	SDRAM_setSleepMode();
 //todo: sdram...
