@@ -22,8 +22,7 @@ void cAnalogInputs::readButtons()
 
 		//Serial.print(new_button_values[analog_buttons_mux_channels0[reading_channel]]);
 
-		new_button_values[analog_buttons_mux_channels1[reading_channel]] = analogRead(analog_pots_muxs_signal[1]);
-
+		new_button_values[analog_buttons_mux_channels1[reading_channel]] = digitalRead(analog_pots_muxs_signal[1]) > 0 ? 4095 : 0;
 		//if(reading_channel == 16)Serial.println();
 		//delay(10);
 		//	}
