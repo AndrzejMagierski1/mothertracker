@@ -4,7 +4,7 @@
 
 #include <modulesBase.h>
 #include "SD.h"
-
+#include "mtStructs.h"
 #include "mtSequencer.h"
 
 enum mtInstrumentEditorMode
