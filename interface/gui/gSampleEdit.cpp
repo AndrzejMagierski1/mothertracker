@@ -1,6 +1,6 @@
 
 
-#include "samplePlayback.h"
+#include "sampleEditor.h"
 
 
 static uint16_t framesPlaces[7][4] =
@@ -16,7 +16,7 @@ static uint16_t framesPlaces[7][4] =
 
 
 
-void cSamplePlayback::initDisplayControls()
+void cSampleEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
@@ -49,12 +49,11 @@ void cSamplePlayback::initDisplayControls()
 	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
 
 
-	strControlProperties prop;
-
 	playModeList.linesCount = 5;
 	playModeList.start = editorInstrument->playMode;
 	playModeList.length = playModeCount;
 	playModeList.data = playModeNames;
+	strControlProperties prop;
 	prop.x = (800/8)*6+5;
 	prop.y = 140;
 	prop.w = 800/4-10;
@@ -91,7 +90,7 @@ void cSamplePlayback::initDisplayControls()
 }
 
 
-void cSamplePlayback::destroyDisplayControls()
+void cSampleEditor::destroyDisplayControls()
 {
 	display.destroyControl(spectrumControl);
 	spectrumControl = nullptr;
@@ -116,7 +115,7 @@ void cSamplePlayback::destroyDisplayControls()
 	frameControl = nullptr;
 }
 
-void cSamplePlayback::showDefaultScreen()
+void cSampleEditor::showDefaultScreen()
 {
 
 	//spectrum
@@ -124,6 +123,7 @@ void cSamplePlayback::showDefaultScreen()
 	display.refreshControl(spectrumControl);
 
 	//points
+
 	display.setControlShow(pointsControl);
 	display.refreshControl(pointsControl);
 
@@ -132,17 +132,17 @@ void cSamplePlayback::showDefaultScreen()
 	//display.refreshControl(playModeListControl);
 
 	// bottom labels
-	display.setControlText(bottomLabel[0], "Start");
-	display.setControlText(bottomLabel[1], "Loop Start");
-	display.setControlText(bottomLabel[2], "Loop End");
-	display.setControlText(bottomLabel[3], "End");
-	//display.setControlText(bottomLabel[4], "Play Mode");
-	display.setControlText(bottomLabel[5], "Zoom");
+	display.setControlText(bottomLabel[0], "Preview");
+	display.setControlText(bottomLabel[1], "Apply");
+	display.setControlText(bottomLabel[2], "Undo");
+	display.setControlText(bottomLabel[3], "");
+	display.setControlText(bottomLabel[4], "");
+	display.setControlText(bottomLabel[5], "");
 	display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
 	//display.setControlText(bottomLabel[7], "");
 
 
-	display.setControlText(topLabel[6], "Play Mode");
+	display.setControlText(topLabel[6], "Effect");
 
 
 
@@ -164,7 +164,7 @@ void cSamplePlayback::showDefaultScreen()
 
 
 //==============================================================================================================
-void cSamplePlayback::activateLabelsBorder()
+void cSampleEditor::activateLabelsBorder()
 {
 	if(selectedPlace > frameData.placesCount-1) return;
 
@@ -174,7 +174,7 @@ void cSamplePlayback::activateLabelsBorder()
 }
 
 //==============================================================================================================
-void cSamplePlayback::showZoomValue()
+void cSampleEditor::showZoomValue()
 {
 	if(zoomValue >= 10.0)
 	{
@@ -199,7 +199,7 @@ void cSamplePlayback::showZoomValue()
 	display.refreshControl(topLabel[5]);
 }
 
-void cSamplePlayback::showPlayModeList()
+void cSampleEditor::showPlayModeList()
 {
 	playModeList.start = editorInstrument->playMode;
 	playModeList.length = playModeCount;

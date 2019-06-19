@@ -383,7 +383,8 @@ void keyScanner::action_button_press(uint8_t num)
 		y = (num % 8) + 0;
 
 	}
-	else if(IO7326_int_pin == GRID_B)
+
+/*	else if(IO7326_int_pin == GRID_B)
 	{
 		x = (num / 8) + 0;
 		y = (num % 8) + 8;
@@ -395,7 +396,7 @@ void keyScanner::action_button_press(uint8_t num)
 		y = (num % 8) + 16;
 	}
 	//handle_howManyPressed();
-
+*/
 	onPush(x,y);
 }
 
@@ -416,7 +417,8 @@ void keyScanner::action_button_hold(uint8_t num)
 		y = (num % 8) + 0;
 
 	}
-	else if(IO7326_int_pin == GRID_B)
+
+/*	else if(IO7326_int_pin == GRID_B)
 	{
 		x = (num / 8) + 0;
 		y = (num % 8) + 8;
@@ -427,7 +429,7 @@ void keyScanner::action_button_hold(uint8_t num)
 		x = (num / 8) + 0;
 		y = (num % 8) + 16;
 	}
-
+*/
 	onHold(x,y);
 }
 
@@ -447,6 +449,7 @@ void keyScanner::action_button_release(uint8_t num)
 		y = (num % 8) + 0;
 
 	}
+/*
 	else if(IO7326_int_pin == GRID_B)
 	{
 		x = (num / 8) + 0;
@@ -458,6 +461,7 @@ void keyScanner::action_button_release(uint8_t num)
 		x = (num / 8) + 0;
 		y = (num % 8) + 16;
 	}
+*/
 
 	onRelease(x,y);
 }
@@ -478,7 +482,8 @@ void keyScanner::action_button_double(uint8_t num)
 		y = (num % 8) + 0;
 
 	}
-	else if(IO7326_int_pin == GRID_B)
+/*
+  else if(IO7326_int_pin == GRID_B)
 	{
 		x = (num / 8) + 0;
 		y = (num % 8) + 8;
@@ -489,7 +494,7 @@ void keyScanner::action_button_double(uint8_t num)
 		x = (num / 8) + 0;
 		y = (num % 8) + 16;
 	}
-
+*/
 	onDouble(x,y);
 }
 

@@ -12,12 +12,14 @@
 #include <SD.h>
 #include <SerialFlash.h>
 
+#include "Encoder.h"
 
 #include "display.h"
 #include "SD.h"
 
 #include "sdram.h"
 #include "hidConnection.h"
+
 
 
 
@@ -30,7 +32,7 @@ uint8_t powerSwitchLastState = 0;
 int8_t powerSwitchDebounce;
 
 void TactSwitchRead();
-
+void updateEncoder();
 
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo);
 void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f);
@@ -53,6 +55,8 @@ void IO7326_INT_FUNCT_B() { seqButtonsB.intAction(); }
 void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 
 
+void ENC_SW_INT_FUNCT() { }
+
 // hid connection
 hidConnection hid(0);
 void hidSendButtonState(uint16_t button, uint16_t state);
@@ -73,7 +77,14 @@ void initHardware()
 	Serial.begin(9600);
 
 	//....................................................
-	//CODAC AUDIO
+	//CODEC AUDIO
+
+	RAM_CTRL_PCR = PORT_PCR_MUX(1);
+	RAM_CTRL_GPIO_DDR |= (1 << RAM_CTRL);
+	RAM_CTRL_GPIO_SET = (1 << RAM_CTRL);
+
+
+
 	audioShield.enable();
 	AudioMemory(200);
 
@@ -109,16 +120,10 @@ void initHardware()
 
 	//....................................................
 	// Pady, Poty, Buttony
-	AnalogInputs.setPadPressFunc(onPadPress);
-	AnalogInputs.setPadChangeFunc(onPadChange);
-	AnalogInputs.setPadReleaseFunc(onPadRelease);
-	AnalogInputs.setPotChangeFunc(onPotChange);
 	AnalogInputs.setButtonChangeFunc(onButtonChange);
 
 	AnalogInputs.testMode(hardwareTest); // (1 = on; 0 = off) test mode
-	AnalogInputs.setPadxMode(0);
-	AnalogInputs.setPadyMode(0);
-	AnalogInputs.setPotDeathZone(7);
+	pinMode(MUX_OUT_0, INPUT);
 /*
 	AnalogInputs.setPotResolution(0, 100);
 	AnalogInputs.setPotResolution(1, 100);
@@ -127,18 +132,25 @@ void initHardware()
 	AnalogInputs.setPotResolution(4, 100);
 */
 
-	AnalogInputs.setPotAcceleration(0, 3);
-	AnalogInputs.setPotAcceleration(1, 3);
-	AnalogInputs.setPotAcceleration(2, 3);
-	AnalogInputs.setPotAcceleration(3, 3);
-	AnalogInputs.setPotAcceleration(4, 3);
+//	AnalogInputs.setPotAcceleration(0, 3);
+//	AnalogInputs.setPotAcceleration(1, 3);
+//	AnalogInputs.setPotAcceleration(2, 3);
+//	AnalogInputs.setPotAcceleration(3, 3);
+//	AnalogInputs.setPotAcceleration(4, 3);
 
 	AnalogInputs.begin(100);
 
 	//....................................................
+	// ENCODER
+	Encoder.begin(ENC_SWITCH,onButtonChange);
+	//	Encoder.testMode(1);
+	//Encoder.setRes(6);
+	Encoder.setSpeedUp(1);
+
+	//....................................................
 	// Haptic on
 	//mtHaptic.enable();
-
+/*
 	//....................................................
 	// Seq buttons
 	////////////////// IO7326 A
@@ -173,7 +185,7 @@ void initHardware()
 	seqButtonsB.begin(IO7326_ADDR2,I2C_SDA,I2C_SCL,GRID_B,IO7326_INT_FUNCT_B);
 	////////////////// IO7326 C
 	seqButtonsC.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,GRID_C,IO7326_INT_FUNCT_C);
-
+*/
 	//LEDS
 	leds.begin();
 	leds.setAllLEDPWM(leds.ledPWMseq,leds.ledPWMgrid, 0);
@@ -217,6 +229,9 @@ void updateHardware()
 {
 	AnalogInputs.update();
 
+	updateEncoder();
+	Encoder.switchRead();
+/*
 	if(Wire2.done())
 	{
 		// odczyt przyciskow
@@ -236,6 +251,8 @@ void updateHardware()
 		leds.updateGrid();
 
 	}
+*/
+
 
 	display.update();
 	//mtDisplay.updateHaptic();
@@ -244,6 +261,19 @@ void updateHardware()
 	TactSwitchRead();
 	hid.handle();
 }
+
+elapsedMillis encTimer;
+
+void updateEncoder()
+{
+	if(encTimer > 100)
+	{
+		encTimer = 0;
+		int32_t encValue = Encoder.read();
+		if(encValue != 0) onPotChange(0,encValue);
+	}
+}
+
 
 
 void TactSwitchRead()

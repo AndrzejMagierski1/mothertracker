@@ -1,6 +1,6 @@
 
 
-#include <samplePlayback.h>
+#include "sampleEditor.h"
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
 
@@ -9,8 +9,8 @@
 
 
 
-cSamplePlayback samplePlayback;
-static cSamplePlayback* SP = &samplePlayback;
+cSampleEditor sampleEditor;
+static cSampleEditor* SE = &sampleEditor;
 
 extern strMtProject mtProject;
 
@@ -48,13 +48,13 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 
 
-void cSamplePlayback::update()
+void cSampleEditor::update()
 {
 	if(refreshSpectrum)
 	{
 		processSpectrum();
 
-		display.refreshControl(SP->spectrumControl);
+		display.refreshControl(SE->spectrumControl);
 
 		refreshSpectrum = 0;
 	}
@@ -64,7 +64,7 @@ void cSamplePlayback::update()
 		processPoints();
 
 
-		display.refreshControl(SP->pointsControl);
+		display.refreshControl(SE->pointsControl);
 
 		refreshPoints = 0;
 	}
@@ -73,7 +73,7 @@ void cSamplePlayback::update()
 
 }
 
-void cSamplePlayback::start(uint32_t options)
+void cSampleEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
@@ -121,14 +121,14 @@ void cSamplePlayback::start(uint32_t options)
 }
 
 
-void cSamplePlayback::stop()
+void cSampleEditor::stop()
 {
 
 	moduleRefresh = 0;
 }
 
 
-void cSamplePlayback::setDefaultScreenFunct()
+void cSampleEditor::setDefaultScreenFunct()
 {
 
 	//funkcje
@@ -166,7 +166,7 @@ void cSamplePlayback::setDefaultScreenFunct()
 //==============================================================================================================
 
 
-void cSamplePlayback::processPoints()
+void cSampleEditor::processPoints()
 {
 
 	points.pointsType = editorInstrument->playMode;
@@ -198,7 +198,7 @@ void cSamplePlayback::processPoints()
 }
 
 
-void cSamplePlayback::processSpectrum()
+void cSampleEditor::processSpectrum()
 {
 
 	//refreshSpectrum = 1;
@@ -413,12 +413,12 @@ void cSamplePlayback::processSpectrum()
 
 }
 
-void cSamplePlayback::listPlayMode()
+void cSampleEditor::listPlayMode()
 {
 
-	for(uint8_t i = 0; i < playModeCount; i++)
+	for(uint8_t i = 0; i < effectsCount; i++)
 	{
-		playModeNames[i] = (char*)&playModeFunctLabels[i][0];
+		playModeNames[i] = (char*)&effectNamesLabels[i][0];
 	}
 
 
@@ -431,46 +431,46 @@ void cSamplePlayback::listPlayMode()
 
 static  uint8_t functSelectStart()
 {
-	SP->points.selected = 1;
-	SP->selectedPlace = 0;
-	SP->activateLabelsBorder();
+	SE->points.selected = 1;
+	SE->selectedPlace = 0;
+	SE->activateLabelsBorder();
 
-	if(SP->zoomValue > 1.0)
+	if(SE->zoomValue > 1.0)
 	{
-		SP->refreshSpectrum = 1;
+		SE->refreshSpectrum = 1;
 	}
 
-	SP->refreshPoints = 1;
+	SE->refreshPoints = 1;
 
 	return 1;
 }
 
 static  uint8_t functSelectLoop1()
 {
-	SP->points.selected = 3;
-	SP->selectedPlace = 1;
-	SP->activateLabelsBorder();
+	SE->points.selected = 3;
+	SE->selectedPlace = 1;
+	SE->activateLabelsBorder();
 
-	if(SP->zoomValue > 1.0)
+	if(SE->zoomValue > 1.0)
 	{
-		SP->refreshSpectrum = 1;
+		SE->refreshSpectrum = 1;
 	}
-	SP->refreshPoints = 1;
+	SE->refreshPoints = 1;
 
 	return 1;
 }
 
 static  uint8_t functSelectLoop2()
 {
-	SP->points.selected = 4;
-	SP->selectedPlace = 2;
-	SP->activateLabelsBorder();
+	SE->points.selected = 4;
+	SE->selectedPlace = 2;
+	SE->activateLabelsBorder();
 
-	if(SP->zoomValue > 1.0)
+	if(SE->zoomValue > 1.0)
 	{
-		SP->refreshSpectrum = 1;
+		SE->refreshSpectrum = 1;
 	}
-	SP->refreshPoints = 1;
+	SE->refreshPoints = 1;
 
 
 	return 1;
@@ -478,15 +478,15 @@ static  uint8_t functSelectLoop2()
 
 static  uint8_t functSelectEnd()
 {
-	SP->points.selected = 2;
-	SP->selectedPlace = 3;
-	SP->activateLabelsBorder();
+	SE->points.selected = 2;
+	SE->selectedPlace = 3;
+	SE->activateLabelsBorder();
 
-	if(SP->zoomValue > 1.0)
+	if(SE->zoomValue > 1.0)
 	{
-		SP->refreshSpectrum = 1;
+		SE->refreshSpectrum = 1;
 	}
-	SP->refreshPoints = 1;
+	SE->refreshPoints = 1;
 
 	return 1;
 }
@@ -495,8 +495,8 @@ static  uint8_t functSelectEnd()
 static  uint8_t functSelectZoom()
 {
 
-	SP->selectedPlace = 5;
-	SP->activateLabelsBorder();
+	SE->selectedPlace = 5;
+	SE->activateLabelsBorder();
 
 	return 1;
 }
@@ -506,18 +506,18 @@ static  uint8_t functPlayMode(uint8_t button)
 {
 	if(button == interfaceButton6)
 	{
-		SP->changePlayModeSelection(-1);
+		SE->changePlayModeSelection(-1);
 	}
 	else //if(button == interfaceButton7)
 	{
-		SP->changePlayModeSelection(1);
+		SE->changePlayModeSelection(1);
 	}
 
-	SP->selectedPlace = 6;
-	SP->activateLabelsBorder();
-	SP->points.selected = 0;
+	SE->selectedPlace = 6;
+	SE->activateLabelsBorder();
+	SE->points.selected = 0;
 
-	SP->refreshPoints = 1;
+	SE->refreshPoints = 1;
 
 	return 1;
 }
@@ -526,14 +526,14 @@ static  uint8_t functEncoder(int16_t value)
 {
 
 
-	switch(SP->selectedPlace)
+	switch(SE->selectedPlace)
 	{
-	case 0: SP->modStartPoint(value); 			break;
-	case 1: SP->modLoopPoint1(value); 			break;
-	case 2: SP->modLoopPoint2(value); 			break;
-	case 3: SP->modEndPoint(value); 			break;
-	case 5: SP->changeZoom(value);				break;
-	case 6: SP->changePlayModeSelection(value);	break;
+	case 0: SE->modStartPoint(value); 			break;
+	case 1: SE->modLoopPoint1(value); 			break;
+	case 2: SE->modLoopPoint2(value); 			break;
+	case 3: SE->modEndPoint(value); 			break;
+	case 5: SE->changeZoom(value);				break;
+	case 6: SE->changePlayModeSelection(value);	break;
 	}
 
 
@@ -550,21 +550,21 @@ static  uint8_t functSelectLoop2();
 
 static  uint8_t functLeft()
 {
-	if(SP->selectedPlace > 0) SP->selectedPlace--;
+	if(SE->selectedPlace > 0) SE->selectedPlace--;
 
-	switch(SP->selectedPlace)
+	switch(SE->selectedPlace)
 	{
 		case 0: functSelectStart();		break;
 		case 1: functSelectLoop1(); 	break;
 		case 2: functSelectLoop2();		break;
 		case 3: functSelectEnd();		break;
-		case 4: SP->selectedPlace--;	functSelectEnd();break;
+		case 4: SE->selectedPlace--;	functSelectEnd();break;
 		case 5: functSelectZoom();		break;
 		case 6:
 		{
-		SP->selectedPlace = 6;
-		SP->activateLabelsBorder();
-		SP->points.selected = 0;
+		SE->selectedPlace = 6;
+		SE->activateLabelsBorder();
+		SE->points.selected = 0;
 		break;
 		}
 	}
@@ -576,21 +576,21 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
-	if(SP->selectedPlace < SP->frameData.placesCount-1) SP->selectedPlace++;
+	if(SE->selectedPlace < SE->frameData.placesCount-1) SE->selectedPlace++;
 
-	switch(SP->selectedPlace)
+	switch(SE->selectedPlace)
 	{
 		case 0: functSelectStart();		break;
 		case 1: functSelectLoop1(); 	break;
 		case 2: functSelectLoop2();		break;
 		case 3: functSelectEnd();		break;
-		case 4: SP->selectedPlace++;	functSelectZoom();		break;
+		case 4: SE->selectedPlace++;	functSelectZoom();		break;
 		case 5: functSelectZoom();		break;
 		case 6:
 		{
-		SP->selectedPlace = 6;
-		SP->activateLabelsBorder();
-		SP->points.selected = 0;
+		SE->selectedPlace = 6;
+		SE->activateLabelsBorder();
+		SE->points.selected = 0;
 		break;
 		}
 	}
@@ -603,14 +603,14 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
-	switch(SP->selectedPlace)
+	switch(SE->selectedPlace)
 	{
-	case 0: SP->modStartPoint(1); 			break;
-	case 1: SP->modLoopPoint1(1); 			break;
-	case 2: SP->modLoopPoint2(1); 			break;
-	case 3: SP->modEndPoint(1); 			break;
-	case 5: SP->changeZoom(1);				break;
-	case 6: SP->changePlayModeSelection(-1);	break;
+	case 0: SE->modStartPoint(1); 			break;
+	case 1: SE->modLoopPoint1(1); 			break;
+	case 2: SE->modLoopPoint2(1); 			break;
+	case 3: SE->modEndPoint(1); 			break;
+	case 5: SE->changeZoom(1);				break;
+	case 6: SE->changePlayModeSelection(-1);	break;
 	}
 
 	return 1;
@@ -619,14 +619,14 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
-	switch(SP->selectedPlace)
+	switch(SE->selectedPlace)
 	{
-	case 0: SP->modStartPoint(-1); 			break;
-	case 1: SP->modLoopPoint1(-1); 			break;
-	case 2: SP->modLoopPoint2(-1); 			break;
-	case 3: SP->modEndPoint(-1); 			break;
-	case 5: SP->changeZoom(-1);				break;
-	case 6: SP->changePlayModeSelection(1);	break;
+	case 0: SE->modStartPoint(-1); 			break;
+	case 1: SE->modLoopPoint1(-1); 			break;
+	case 2: SE->modLoopPoint2(-1); 			break;
+	case 3: SE->modEndPoint(-1); 			break;
+	case 5: SE->changeZoom(-1);				break;
+	case 6: SE->changePlayModeSelection(1);	break;
 	}
 
 	return 1;
@@ -664,14 +664,14 @@ static  uint8_t functRecAction()
 static uint8_t functSwitchModule(uint8_t button)
 {
 
-	SP->eventFunct(eventSwitchModule,SP,&button,0);
+	SE->eventFunct(eventSwitchModule,SE,&button,0);
 
 	return 1;
 }
 
 
 //======================================================================================================================
-void cSamplePlayback::changeZoom(int16_t value)
+void cSampleEditor::changeZoom(int16_t value)
 {
 
 	float fVal = value * ZOOM_FACTOR;
@@ -687,7 +687,7 @@ void cSamplePlayback::changeZoom(int16_t value)
 
 }
 
-void cSamplePlayback::changePlayModeSelection(int16_t value)
+void cSampleEditor::changePlayModeSelection(int16_t value)
 {
 	if(editorInstrument->playMode + value < 0) editorInstrument->playMode = 0;
 	else if(editorInstrument->playMode + value > playModeCount-1) editorInstrument->playMode = playModeCount-1;
@@ -702,7 +702,7 @@ void cSamplePlayback::changePlayModeSelection(int16_t value)
 
 }
 
-void cSamplePlayback::modStartPoint(int16_t value)
+void cSampleEditor::modStartPoint(int16_t value)
 {
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
 	uint16_t move_step = zoomWidth / 480;
@@ -746,7 +746,7 @@ void cSamplePlayback::modStartPoint(int16_t value)
 	refreshPoints = 1;
 }
 
-void cSamplePlayback::modEndPoint(int16_t value)
+void cSampleEditor::modEndPoint(int16_t value)
 {
 	uint16_t move_step = zoomWidth / 480;
 	uint16_t dif;
@@ -789,7 +789,7 @@ void cSamplePlayback::modEndPoint(int16_t value)
 	refreshPoints = 1;
 }
 
-void cSamplePlayback::modLoopPoint1(int16_t value)
+void cSampleEditor::modLoopPoint1(int16_t value)
 {
 	uint16_t move_step = zoomWidth / 480;
 	value = value * move_step;
@@ -811,7 +811,7 @@ void cSamplePlayback::modLoopPoint1(int16_t value)
 	refreshPoints = 1;
 }
 
-void cSamplePlayback::modLoopPoint2(int16_t value)
+void cSampleEditor::modLoopPoint2(int16_t value)
 {
 	uint16_t move_step = zoomWidth / 480;
 	value = value * move_step;
@@ -845,24 +845,24 @@ static uint8_t play(uint8_t value)
 		//eventFunct(mtInstrumentEditorEventPadPress, &interfacePadStop, 0, 0);
 		sequencer.stop();
 
-		SP->isPlayingSample = 1;
-		if(SP->editorInstrument->glide > 0)
+		SE->isPlayingSample = 1;
+		if(SE->editorInstrument->glide > 0)
 		{
-			switch(	SP->glidePreviewDif)
+			switch(	SE->glidePreviewDif)
 			{
-				case 0: SP->playNote = 24;	break;
-				case 1: SP->playNote = (SP->playNote == 24)? 25 : 24; 	break;
-				case 2: SP->playNote = (SP->playNote == 24)? 36 : 24; 	break;
-				case 3: SP->playNote = (SP->playNote == 24)? 47 : 24; 	break;
+				case 0: SE->playNote = 24;	break;
+				case 1: SE->playNote = (SE->playNote == 24)? 25 : 24; 	break;
+				case 2: SE->playNote = (SE->playNote == 24)? 36 : 24; 	break;
+				case 3: SE->playNote = (SE->playNote == 24)? 47 : 24; 	break;
 			}
 		}
 
-		instrumentPlayer[0].noteOn(mtProject.values.lastUsedInstrument, SP->playNote, -1);
+		instrumentPlayer[0].noteOn(mtProject.values.lastUsedInstrument, SE->playNote, -1);
 	}
 	else if(value == 0)
 	{
-		if(SP->isPlayingSample) instrumentPlayer[0].noteOff();
-		SP->isPlayingSample = 0;
+		if(SE->isPlayingSample) instrumentPlayer[0].noteOff();
+		SE->isPlayingSample = 0;
 	}
 
 	return 1;
@@ -870,9 +870,9 @@ static uint8_t play(uint8_t value)
 /*
 static uint8_t stopPlaying(uint8_t value)
 {
-	if(SP->isPlayingSample) instrumentPlayer[0].noteOff();
+	if(SE->isPlayingSample) instrumentPlayer[0].noteOff();
 
-	SP->isPlayingSample = 0;
+	SE->isPlayingSample = 0;
 
 	return 1;
 }

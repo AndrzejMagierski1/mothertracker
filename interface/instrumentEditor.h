@@ -4,7 +4,9 @@
 
 #include <modulesBase.h>
 #include "SD.h"
+
 #include "mtStructs.h"
+
 #include "mtSequencer.h"
 
 enum mtInstrumentEditorMode
@@ -14,6 +16,18 @@ enum mtInstrumentEditorMode
 	mtInstEditModeParams,
 
 };
+
+
+const uint8_t filterModeCount = 4;
+
+const char filterModeFunctLabels[filterModeCount][11]=
+{
+		"Disabled",
+		"Low-pass",
+		"High-pass",
+		"Band-pass",
+};
+
 
 class cInstrumentEditor: public cModuleBase
 {
@@ -41,7 +55,27 @@ public:
 
 	void activateLabelsBorder();
 
-
+	void showVolumeAttack();
+	void showVolumeDecay();
+	void showVolumeSustain();
+	void showVolumeRelease();
+	void showVolumeAmount();
+	void showFilterAttack();
+	void showFilterDecay();
+	void showFilterSustain();
+	void showFilterRelease();
+	void showFilterAmount();
+	void showFilterFilterType();
+	void showFilterCutOff();
+	void showFilterResonance();
+	void showParamsVolume();
+	void showParamsTune();
+	void showParamsFineTune();
+	void showParamsGlide();
+	void showParamsPanning();
+	void showParamsVibrato();
+	void showParamsTremolo();
+	void showParamsReverbSend();
 //----------------------------------
 
 	void setDefaultScreenFunct();
@@ -71,12 +105,13 @@ public:
 	void changeParamsTune(int16_t value);
 	void changeParamsFineTune(int16_t value);
 	void changeParamsGlide(int16_t value);
+	void changeParamsPanning(int16_t value);
 	void changeParamsVibrato(int16_t value);
 	void changeParamsTremolo(int16_t value);
-	void changeParamsEffect1(int16_t value);
-	void changeParamsEffect2(int16_t value);
+	void changeParamsReverbSend(int16_t value);
 
 //----------------------------------
+
 
 	strFrameData frameData;
 
@@ -86,21 +121,35 @@ public:
 	hControl bottomLabel[8];
 	hControl barControl[8];
 
+	hControl filterModeListControl;
+
+
 	hControl listControl;
 
 	hControl frameControl;
 
 
-	uint8_t selectedPlace = 0;
+	uint8_t selectedPlace[3] = {0};
 
 
 	uint8_t mode;
 
+	strInstrument * editorInstrument;
+
 //----------------------------------
+// lista play mode
 
+		strList filterModeList;
+
+		void listFilterMode();
+
+		char *filterModeNames[filterModeCount];
+
+		uint8_t filterModeListPos;
 
 //----------------------------------
-
+// odtwarzanie
+	uint8_t isPlayingSample = 0;
 
 
 

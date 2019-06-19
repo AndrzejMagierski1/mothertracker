@@ -51,8 +51,8 @@ RE-CERTIFICATION AS A RESULT OF MAKING THESE CHANGES.
 //#define lcd_480x128
 
 
-SPI2Settings settingsSLOW(4000000,  MSBFIRST, SPI_MODE0);
-SPI2Settings settingsFAST(8000000, MSBFIRST, SPI_MODE0);
+SPI2Settings settingsSLOW(1000000,  MSBFIRST, SPI_MODE0);
+SPI2Settings settingsFAST(20000000, MSBFIRST, SPI_MODE0);
 
 //############################################################################## 
 //##############################################################################
@@ -62,7 +62,7 @@ SPI2Settings settingsFAST(8000000, MSBFIRST, SPI_MODE0);
 
 #define LCD_800_480
 #define FT81x_ACTIVE	0x00
-
+#define FT81x_CLKEXT	0x48
 
 // LCD display parameters
 uint16_t lcdWidth;                                                              // Active width of LCD display
@@ -109,11 +109,11 @@ void FT812_Init(void)
 
 	SPI2.begin();
 
-    SPI2.setMOSI(LCD_MOSI);
-    SPI2.setMISO(LCD_MISO);
-    SPI2.setSCK(LCD_SCK);
+   // SPI2.setMOSI(LCD_MOSI);
+   // SPI2.setMISO(LCD_MISO);
+   // SPI2.setSCK(LCD_SCK);
 
-	SPI2.beginTransaction(settingsFAST);
+	SPI2.beginTransaction(settingsSLOW);
 
     // ----------------------- Cycle PD pin to reset device --------------------
 
@@ -123,10 +123,13 @@ void FT812_Init(void)
     MCU_Delay_20ms();
 
     // ---------------------- Delay to allow FT81x start-up --------------------
-   // EVE_CmdWrite(0x61,4);
+    EVE_CmdWrite(0x61,4);
+    EVE_CmdWrite(0x62,4);
 
 
     MCU_Delay_500ms();
+
+    EVE_CmdWrite(FT81x_CLKEXT, 0x00);
 
     EVE_CmdWrite(FT81x_ACTIVE, 0x00);                                           // Sends 00 00 00 to wake FT8xx
 
@@ -226,12 +229,13 @@ void FT812_Init(void)
     lcdVsync0  = 0;                                                             // Start of vertical sync pulse
     lcdVsync1  = 10;                                                             // End of vertical sync pulse
 
-    lcdPclk    = 2;                                                             // Pixel Clock
+    lcdPclk    = 1;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
 
     lcdCsSpread = 0;
-    lcdRotate   = 1;
+    //lcdRotate   = 1;
+    lcdRotate   = 4;
 
 
 
@@ -366,6 +370,9 @@ void FT812_Init(void)
 		 Serial.println("Display init succesfull");
 	}
 
+
+
+	SPI2.beginTransaction(settingsFAST);
 
 	//delay(10000);
 }

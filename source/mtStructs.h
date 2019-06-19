@@ -122,13 +122,17 @@ const uint8_t REVERB_PANNING_MAX 			=	100;
 
 
 const uint8_t LIMITER_ATTACK_MIN 			=	0;
-const uint8_t LIMITER_ATTACK_MAX  			=	100;
+const uint16_t LIMITER_ATTACK_MAX  			=	5000;
 const uint8_t LIMITER_TRESHOLD_MIN 			=	0;
-const uint8_t LIMITER_TRESHOLD_MAX 			=	100;
+const uint16_t LIMITER_TRESHOLD_MAX 		=	32767;
 
 
 
 const uint8_t CONFIG_EEPROM_ADDRESS			=	0;
+
+const float ZOOM_MIN 						=	1;
+const float ZOOM_MAX 						=	10;
+const float ZOOM_FACTOR 					=	0.05;
 
 
 //=====================================================================
@@ -352,8 +356,8 @@ struct strMtValues
 	uint8_t reverbDamping;
 	int8_t reverbPanning;
 
-	uint8_t limiterAttak;
-	uint8_t limiterTreshold;
+	uint16_t limiterAttak;
+	uint16_t limiterTreshold;
 
 	int8_t patternEditStep = 1;
 

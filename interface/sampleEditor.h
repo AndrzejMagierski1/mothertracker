@@ -1,5 +1,5 @@
-#ifndef INTERFACE_SAMPLEPLAYBACK_H_
-#define INTERFACE_SAMPLEPLAYBACK_H_
+#ifndef INTERFACE_SAMPLEEDITOR_H_
+#define INTERFACE_SAMPLEEDITOR_H_
 
 
 #include <modulesBase.h>
@@ -10,18 +10,26 @@
 #include "mtStructs.h"
 
 
-const char playModeFunctLabels[playModeCount][15]=
+
+
+
+
+const uint8_t effectsCount = 7;
+const char effectNamesLabels[effectsCount][15] =
 {
-		"1-Shot",
-		"Forward Loop",
-		"Backward Loop",
-		"Pingpong Loop",
+		"Crop",
+		"Drive",
+		"Reverse",
+		"Echo",
+		"Flanger",
+		"Chorus",
+		"Delay",
 };
 
 
 
 
-class cSamplePlayback: public cModuleBase
+class cSampleEditor: public cModuleBase
 {
 
 public:
@@ -33,7 +41,7 @@ public:
 	virtual void initDisplayControls();
 	virtual void destroyDisplayControls();
 
-	cSamplePlayback()
+	cSampleEditor()
 	{
 //		inActiveInstrumentsCount = 0;
 //		inActiveInstrumentIndex = 0;
@@ -46,7 +54,7 @@ public:
 		topLabel[8] = {nullptr};
 		bottomLabel[8] = {nullptr};
 	}
-	virtual ~cSamplePlayback() {}
+	virtual ~cSampleEditor() {}
 
 	void showDefaultScreen();
 	void showZoomValue();
@@ -84,11 +92,7 @@ public:
 	uint8_t refreshSpectrum = 0;
 	uint8_t refreshPoints = 0;
 
-//	int8_t openedInstrumentIndex; // index w globalnej liscie instrumentow
-//	int8_t openedInstrFromActive; // index z listy tylko aktywnych ( activeInstruments[] )
-//	int8_t inActiveInstrumentIndex;
-//	int8_t activeInstruments[INSTRUMENTS_COUNT];
-//	uint8_t inActiveInstrumentsCount;
+
 	strInstrument * editorInstrument;
 
 	uint16_t zoomWidth = MAX_16BIT;
@@ -108,7 +112,7 @@ public:
 
 	void listPlayMode();
 
-	char *playModeNames[playModeCount];
+	char *playModeNames[effectsCount];
 
 
 //----------------------------------
@@ -123,8 +127,8 @@ public:
 
 };
 
-extern cSamplePlayback samplePlayback;
+extern cSampleEditor sampleEditor;
 
 
 
-#endif /* INTERFACE_SAMPLEPLAYBACK_H_ */
+#endif /* INTERFACE_SAMPLEEDITOR_H_ */

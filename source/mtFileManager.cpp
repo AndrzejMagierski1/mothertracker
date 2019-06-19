@@ -393,10 +393,10 @@ void FileManager::importSampleToProject(char* filePatch, char* name, int8_t inst
 		mtProject.instrument[instrumentIndex].endPoint=MAX_16BIT;
 
 		mtProject.instrument[instrumentIndex].wavetableCurrentWindow = 0;
-		mtProject.instrument[instrumentIndex].playMode = 1;
+		mtProject.instrument[instrumentIndex].playMode = 0;
 
 		mtProject.instrument[instrumentIndex].envelope[envAmp].delay = 0;
-		mtProject.instrument[instrumentIndex].envelope[envAmp].attack = 1000;
+		mtProject.instrument[instrumentIndex].envelope[envAmp].attack = 0;
 		mtProject.instrument[instrumentIndex].envelope[envAmp].hold = 0;
 		mtProject.instrument[instrumentIndex].envelope[envAmp].decay = 0;
 		mtProject.instrument[instrumentIndex].envelope[envAmp].sustain = 1.0;
@@ -423,7 +423,7 @@ void FileManager::importSampleToProject(char* filePatch, char* name, int8_t inst
 		mtProject.instrument[instrumentIndex].tune = 0;
 		mtProject.instrument[instrumentIndex].fineTune = 0;
 
-		mtProject.instrument[instrumentIndex].reverbSend = 100;
+		mtProject.instrument[instrumentIndex].reverbSend = 0;
 
 		mtProject.instruments_count++;
 	}
@@ -804,6 +804,7 @@ void FileManager::formatSDCard()
 {
 	//SD.format();
 }
+
 void FileManager::createEmptyTemplateProject(char * name)
 {
 	char patchFolder[PATCH_SIZE];

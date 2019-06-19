@@ -27,6 +27,15 @@ cList::cList(strControlProperties* properties)
 	colors = defaultColors;
 	selfRefresh = 0;
 
+	listPosition = 0;
+	listCount = 0;
+	listState = 0;
+	listRowLength = 0;
+	listBlockWidth = 0;
+	listBlock = 0;
+	listAnimationStep = 0;
+
+
 	if(properties == nullptr)
 	{
 		posX = 0;
