@@ -14,7 +14,7 @@ cMtPadBoard mtPadBoard;
 
 
 
-const uint8_t padBoard[32] =
+const uint8_t padBoard[48] =
 {
 	24,25,26,27,28,29,30,31,
 	16,17,18,19,20,21,22,23,
@@ -26,7 +26,7 @@ const uint8_t padBoard[32] =
 
 uint8_t cMtPadBoard::convertPadToNote(uint8_t pad)
 {
-	if(pad  > 31) pad = 31;
+	if(pad  > 48) pad = 48;
 	return padNotes[padBoard[pad]];
 }
 

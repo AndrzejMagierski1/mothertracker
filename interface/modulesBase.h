@@ -106,7 +106,7 @@ public:
 
 	void setPadObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(), hControl control);
 	void setPadObj(uint8_t objectID, uint8_t(*funct)(uint8_t,int16_t), hControl control);
-
+	void setPadsGlobal(uint8_t(*funct)(uint8_t,uint8_t,int16_t));
 
 
 
@@ -157,7 +157,9 @@ private:
 		hControl control;
 	};
 
-
+	uint8_t padsGlobalMode = 0;
+	uint8_t padsGlobalState = 0;
+	uint8_t (*padsGlobalFunct)(uint8_t,uint8_t,int16_t) = nullptr;
 
 
 	uint8_t state;

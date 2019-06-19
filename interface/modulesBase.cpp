@@ -61,6 +61,8 @@ void cFunctionMachine::clearAllPads()
 
 	memset(pads,0,sizeof(strPadObject)*padsCount);
 
+	padsGlobalMode = 0;
+
 	padsCleared = 1;
 }
 
@@ -174,6 +176,14 @@ void cFunctionMachine::setPadObj(uint8_t objectID, uint8_t(*funct)(uint8_t,int16
 	padsCleared = 0;
 }
 
+void cFunctionMachine::setPadsGlobal(uint8_t(*funct)(uint8_t,uint8_t,int16_t))
+{
+	padsGlobalMode = 1;
+	padsGlobalState = state;
+	padsGlobalFunct = funct;
+
+	padsCleared = 0;
+}
 
 //==================================================================================================================
 void cFunctionMachine::processButtonsInput(uint8_t button, uint8_t state)
@@ -254,6 +264,16 @@ void cFunctionMachine::processPotsInput(uint8_t pot, int16_t value)
 
 void cFunctionMachine::processPadsInput(uint8_t pad, uint8_t state, int16_t velo)
 {
+
+	if(padsGlobalMode == 1)
+	{
+		uint8_t result = 0;
+
+		if(padsGlobalFunct != nullptr) result = padsGlobalFunct(pad,state,velo);
+
+	}
+
+/*
 	if(!pads[pad].mode) return;
 
 	uint8_t result = 0;
@@ -268,7 +288,10 @@ void cFunctionMachine::processPadsInput(uint8_t pad, uint8_t state, int16_t velo
 		pads[pad].mode = 0;
 		pads[pad].funct1 = nullptr;
 		pads[pad].funct2 = nullptr;
+
 	}
+
+	*/
 }
 
 

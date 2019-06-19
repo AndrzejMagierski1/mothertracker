@@ -5,6 +5,8 @@
 
 #include "spectrumControl.h"
 
+#include "Arduino.h"
+
 void Number2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, int16_t number);
 void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
 
@@ -106,6 +108,9 @@ uint8_t cSpectrum::update()
 	default: refreshStep = 0; break;
 	}
 
+	//API_DISPLAY();
+	//API_CMD_SWAP();
+
 	API_LIB_EndCoProList();
 
 	return 0;
@@ -132,7 +137,7 @@ uint8_t cSpectrum::memCpy(uint32_t address)
 	//API_LIB_AwaitCoProEmpty();
 
     refreshStep++;
-    if(refreshStep > 2)
+    if(refreshStep > 0)
     {
     	refreshStep = 0;
     	return 0;
@@ -144,9 +149,11 @@ uint8_t cSpectrum::memCpy(uint32_t address)
 uint8_t cSpectrum::append(uint32_t address)
 {
 
+
 	API_CMD_APPEND(address, ramPartSize[0]);
-	API_CMD_APPEND(address+ ramPartSize[0], ramPartSize[1]);
-	API_CMD_APPEND(address+ ramPartSize[0] + ramPartSize[1], ramPartSize[2]);
+	//API_CMD_APPEND(address+ ramPartSize[0], ramPartSize[1]);
+	//API_CMD_APPEND(address+ ramPartSize[0] + ramPartSize[1], ramPartSize[2]);
+
 
 
 	return 0;
@@ -158,7 +165,7 @@ uint8_t cSpectrum::append(uint32_t address)
 void cSpectrum::refresh1()
 {
 	API_COLOR(colors[0]);
-	API_LINE_WIDTH(8);
+	API_LINE_WIDTH(12);
 
 
 	//uint16_t half = height/2;
@@ -186,14 +193,14 @@ void cSpectrum::refresh1()
 	{
 		API_BEGIN(LINES);
 
-		uint16_t length = (width>200) ? 200 : width;
+		uint16_t length = (width>200) ? 300 : width;
 
 		uint8_t odd = 0;
 
 		for(uint16_t i = 0; i < length; i++)
 		{
-			if(odd) API_VERTEX2II( posX+i, center-spectrum->upperData[i],0,0);
-			else API_VERTEX2II( posX+i, center-spectrum->lowerData[i],0,0);
+			/*if(odd) 	*/API_VERTEX2F( posX+i*2, center-spectrum->upperData[i*2]);
+			/*else */		API_VERTEX2F( posX+i*2, center-spectrum->lowerData[i*2]);
 			odd = !odd;
 
 		//	Serial.println(half-spectrum->upperData[i]);
@@ -223,7 +230,7 @@ void cSpectrum::refresh2()
 	}
 	else if(spectrum->spectrumType == 0 && width > 200)
 	{
-		API_BEGIN(LINES);
+		API_BEGIN(LINE_STRIP);
 
 		uint16_t center = posY+height/2;
 
@@ -235,8 +242,8 @@ void cSpectrum::refresh2()
 		{
 			for(uint16_t i = 0; i < width_left; i++)
 			{
-				if(odd) API_VERTEX2II( posX+i+199, center-spectrum->upperData[i+199],0,0);
-				else API_VERTEX2II( posX+i+199, center-spectrum->lowerData[i+199],0,0);
+				if(odd)	 	API_VERTEX2II( posX+i+199, center-spectrum->upperData[i+199],0,0);
+				else		API_VERTEX2II( posX+i+199, center-spectrum->lowerData[i+199],0,0);
 				odd = !odd;
 			}
 		}
@@ -261,7 +268,7 @@ void cSpectrum::refresh3()
 	}
 	else if(spectrum->spectrumType == 0 && width > 400)
 	{
-		API_BEGIN(LINES);
+		API_BEGIN(LINE_STRIP);
 
 		uint16_t center = posY+height/2;
 
@@ -273,8 +280,8 @@ void cSpectrum::refresh3()
 		{
 			for(uint16_t i = 0; i < width_left; i++)
 			{
-				if(odd) API_VERTEX2F( posX+i+399, center-spectrum->upperData[i+399]);
-				else API_VERTEX2F( posX+i+399, center-spectrum->lowerData[i+399]);
+				if(odd) 	API_VERTEX2F( posX+i+399, center-spectrum->upperData[i+399]);
+				else 		API_VERTEX2F( posX+i+399, center-spectrum->lowerData[i+399]);
 				odd = !odd;
 			}
 		}

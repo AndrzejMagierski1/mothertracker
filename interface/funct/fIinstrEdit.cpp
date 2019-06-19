@@ -28,6 +28,9 @@ static  uint8_t functDown();
 static  uint8_t functEncoder(int16_t value);
 
 
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
+
+
 static  uint8_t functSwitchModule(uint8_t button);
 
 static  uint8_t functSwitchMode(uint8_t button);
@@ -53,7 +56,6 @@ void cInstrumentEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-
 	mode = options;
 
 
@@ -69,6 +71,10 @@ void cInstrumentEditor::start(uint32_t options)
 
 	listFilterMode();
 
+
+	FM->setPadsGlobal(functPads);
+
+	FM->setButtonObj(interfaceButton11, buttonPress, functSwitchModule);
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButton8, buttonPress, functSwitchMode);
@@ -667,3 +673,29 @@ static uint8_t play(uint8_t value)
 
 	return 1;
 }
+
+
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
+{
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	{
+		sequencer.stop();
+	}
+
+	if(state == 1)
+	{
+		//uint8_t note = mtPadBoard.convertPadToNote(pad);
+		//if(note > 48) note = 48;
+		//editorInstrument->tune = note;
+		mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+
+	}
+	else if(state == 0)
+	{
+		mtPadBoard.stopInstrument(pad);
+
+	}
+
+	return 1;
+}
+

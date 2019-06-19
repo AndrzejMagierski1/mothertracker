@@ -32,9 +32,9 @@ void onPowerButtonChange(uint8_t value);
 //-----------------------------------------------------------------
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
-	mtInterface.padPressed(n,x,y,velo);
+	//mtInterface.padPressed(n,x,y,velo);
 
-	padsBacklight.setFrontLayer(1, 31, n);
+	//padsBacklight.setFrontLayer(1, 31, n);
 
 
 	//mtPrint("Pad press: ");
@@ -51,9 +51,9 @@ void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f)
 //-----------------------------------------------------------------
 void onPadRelease(uint8_t n)
 {
-	mtInterface.padReleased(n);
+	//mtInterface.padReleased(n);
 	//padsBacklight.setFrontLayer(0, 31, n);
-	padsBacklight.setFrontLayer(0,0,n);
+	//padsBacklight.setFrontLayer(0,0,n);
 
 }
 
@@ -155,20 +155,21 @@ void onPowerButtonChange(uint8_t value)
 //--------------------------------- BUTTONS SEQ ----------------------------
 void onButtonPush (uint8_t x)
 {	
-//	mtInterface.seqButtonPressed(x,y);
+	mtInterface.padPressed(x,0,0,0);
 
 	leds.setLED(x, 1, 31);
-	Serial.print("ButtonPush: x = ");
-	Serial.print(x);
+	//Serial.print("ButtonPush: x = ");
+	//Serial.print(x);
 
 }
 
 void onButtonRelease(uint8_t x)
 {	
-//	mtInterface.seqButtonReleased(x,y);
+	mtInterface.padReleased(x);
+
 	leds.setLED(x, 0, 0);
-	Serial.print("ButtonRelease: x = ");
-	Serial.print(x);
+	//Serial.print("ButtonRelease: x = ");
+	//Serial.print(x);
 
 }
 

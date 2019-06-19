@@ -1,11 +1,10 @@
-#ifndef INTERFACE_SAMPLEEDITOR_H_
-#define INTERFACE_SAMPLEEDITOR_H_
+#ifndef INTERFACE_SAMPLERECORDER_H_
+#define INTERFACE_SAMPLERECORDER_H_
 
 
 #include <modulesBase.h>
 #include "SD.h"
 
-#include "mtSequencer.h"
 
 #include "mtStructs.h"
 
@@ -13,24 +12,21 @@
 
 
 
-
-const uint8_t effectsCount = 7;
-const char effectNamesLabels[effectsCount][15] =
+const uint8_t recordsCount = 5;
+const char recordsNamesLabels[recordsCount][15] =
 {
-		"Sample",
-		"Config",
-		"Reverse",
-		"Echo",
-		"Flanger",
-		"Chorus",
-		"Delay",
+		"rec",
+		"rec",
+		"rec",
+		"rec",
+		"rec",
+
 };
 
 
 
 
-
-class cSampleEditor: public cModuleBase
+class cSampleRecorder: public cModuleBase
 {
 
 public:
@@ -42,7 +38,7 @@ public:
 	virtual void initDisplayControls();
 	virtual void destroyDisplayControls();
 
-	cSampleEditor()
+	cSampleRecorder()
 	{
 //		inActiveInstrumentsCount = 0;
 //		inActiveInstrumentIndex = 0;
@@ -55,7 +51,7 @@ public:
 		topLabel[8] = {nullptr};
 		bottomLabel[8] = {nullptr};
 	}
-	virtual ~cSampleEditor() {}
+	virtual ~cSampleRecorder() {}
 
 	void showDefaultScreen();
 	void showZoomValue();
@@ -68,8 +64,6 @@ public:
 	void processPoints();
 	void modStartPoint(int16_t value);
 	void modEndPoint(int16_t value);
-	void modLoopPoint1(int16_t value);
-	void modLoopPoint2(int16_t value);
 	void changeZoom(int16_t value);
 	void changePlayModeSelection(int16_t value);
 
@@ -113,7 +107,7 @@ public:
 
 	void listPlayMode();
 
-	char *playModeNames[effectsCount];
+	char *playModeNames[recordsCount];
 
 
 //----------------------------------
@@ -128,8 +122,8 @@ public:
 
 };
 
-extern cSampleEditor sampleEditor;
+extern cSampleRecorder sampleRecorder;
 
 
 
-#endif /* INTERFACE_SAMPLEEDITOR_H_ */
+#endif /* INTERFACE_SAMPLERECORDER_H_ */

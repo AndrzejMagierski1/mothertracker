@@ -8,7 +8,7 @@
 #include "songEditor.h"
 #include "instrumentEditor.h"
 #include "sampleEditor.h"
-
+#include "sampleRecorder.h"
 #include "configEditor.h"
 
 
@@ -58,7 +58,7 @@ __NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[4*1024*1024];
 //=======================================================================
 //=======================================================================
 
-const uint8_t cInterface::modulesCount = 8;
+const uint8_t cInterface::modulesCount = 9;
 const hModule cInterface::modules[modulesCount] =
 {
 		&projectEditor,     // 0
@@ -69,7 +69,7 @@ const hModule cInterface::modules[modulesCount] =
 		&instrumentEditor,  // 5
 		&sampleEditor,      // 6
 		&configEditor,      // 7
-                            // 8
+		&sampleRecorder,    // 8
 
 };
 
@@ -84,7 +84,7 @@ const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 	{interfaceButton12, 2, 0},
 	{interfaceButton13, 3, 0},
 	{interfaceButton14, 6, 0},
-	{interfaceButton15, 0, 0},
+	{interfaceButton15, 8, 0},
 	{interfaceButton16, 1, 0},
 	{interfaceButton17, 4, 0},
 	{interfaceButton22, 5, 0},
@@ -193,6 +193,7 @@ void cInterface::activateModule(hModule module, uint32_t options)
 {
 	uiFM.clearAllButtons();
 	uiFM.clearAllPots();
+	uiFM.clearAllPads();
 
 	module->initDisplayControls();
 	module->start(options);
@@ -205,6 +206,7 @@ void cInterface::deactivateModule(hModule module)
 {
 	uiFM.clearAllButtons();
 	uiFM.clearAllPots();
+	uiFM.clearAllPads();
 
 	module->stop();
 	module->destroyDisplayControls();

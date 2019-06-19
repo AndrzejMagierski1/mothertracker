@@ -1,6 +1,6 @@
 
 
-#include "samplePlayback.h"
+#include "sampleRecorder.h"
 
 
 static uint16_t framesPlaces[7][4] =
@@ -16,11 +16,9 @@ static uint16_t framesPlaces[7][4] =
 
 
 
-void cSamplePlayback::initDisplayControls()
+void cSampleRecorder::initDisplayControls()
 {
 	// inicjalizacja kontrolek
-
-	strControlProperties prop;
 	strControlProperties prop2;
 
 	for(uint8_t i = 0; i<6; i++)
@@ -51,12 +49,11 @@ void cSamplePlayback::initDisplayControls()
 	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
 
 
-
-
 	playModeList.linesCount = 5;
 	playModeList.start = editorInstrument->playMode;
 	playModeList.length = playModeCount;
 	playModeList.data = playModeNames;
+	strControlProperties prop;
 	prop.x = (800/8)*6+5;
 	prop.y = 140;
 	prop.w = 800/4-10;
@@ -64,10 +61,14 @@ void cSamplePlayback::initDisplayControls()
 	prop.data = &playModeList;
 	if(playModeListControl == nullptr)  playModeListControl = display.createControl<cList>(&prop);
 
+	// spectrum + points
 	prop.x = 0;
 	prop.y = 75;
 	prop.w = 600;
 	prop.h = 300;
+	prop.data = &spectrum;
+	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
+
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
 
@@ -86,23 +87,10 @@ void cSamplePlayback::initDisplayControls()
 	prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
-
-
-
-	// spectrum + points
-	prop.x = 0;
-	prop.y = 75;
-	prop.w = 600;
-	prop.h = 300;
-	prop.data = &spectrum;
-	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
-
-
-
 }
 
 
-void cSamplePlayback::destroyDisplayControls()
+void cSampleRecorder::destroyDisplayControls()
 {
 	display.destroyControl(spectrumControl);
 	spectrumControl = nullptr;
@@ -127,7 +115,7 @@ void cSamplePlayback::destroyDisplayControls()
 	frameControl = nullptr;
 }
 
-void cSamplePlayback::showDefaultScreen()
+void cSampleRecorder::showDefaultScreen()
 {
 
 	//spectrum
@@ -135,6 +123,7 @@ void cSamplePlayback::showDefaultScreen()
 	display.refreshControl(spectrumControl);
 
 	//points
+
 	display.setControlShow(pointsControl);
 	display.refreshControl(pointsControl);
 
@@ -143,17 +132,17 @@ void cSamplePlayback::showDefaultScreen()
 	//display.refreshControl(playModeListControl);
 
 	// bottom labels
-	display.setControlText(bottomLabel[0], "Start");
-	display.setControlText(bottomLabel[1], "Loop Start");
-	display.setControlText(bottomLabel[2], "Loop End");
-	display.setControlText(bottomLabel[3], "End");
-	//display.setControlText(bottomLabel[4], "Play Mode");
-	display.setControlText(bottomLabel[5], "Zoom");
+	display.setControlText(bottomLabel[0], "Preview");
+	display.setControlText(bottomLabel[1], "Apply");
+	display.setControlText(bottomLabel[2], "Undo");
+	display.setControlText(bottomLabel[3], "");
+	display.setControlText(bottomLabel[4], "");
+	display.setControlText(bottomLabel[5], "");
 	display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
 	//display.setControlText(bottomLabel[7], "");
 
 
-	display.setControlText(topLabel[6], "Play Mode");
+	display.setControlText(topLabel[6], "Effect");
 
 
 
@@ -175,7 +164,7 @@ void cSamplePlayback::showDefaultScreen()
 
 
 //==============================================================================================================
-void cSamplePlayback::activateLabelsBorder()
+void cSampleRecorder::activateLabelsBorder()
 {
 	if(selectedPlace > frameData.placesCount-1) return;
 
@@ -185,7 +174,7 @@ void cSamplePlayback::activateLabelsBorder()
 }
 
 //==============================================================================================================
-void cSamplePlayback::showZoomValue()
+void cSampleRecorder::showZoomValue()
 {
 	if(zoomValue >= 10.0)
 	{
@@ -210,7 +199,7 @@ void cSamplePlayback::showZoomValue()
 	display.refreshControl(topLabel[5]);
 }
 
-void cSamplePlayback::showPlayModeList()
+void cSampleRecorder::showPlayModeList()
 {
 	playModeList.start = editorInstrument->playMode;
 	playModeList.length = playModeCount;

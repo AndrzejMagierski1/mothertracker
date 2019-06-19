@@ -51,7 +51,7 @@ void cSampleEditor::initDisplayControls()
 
 	playModeList.linesCount = 5;
 	playModeList.start = editorInstrument->playMode;
-	playModeList.length = playModeCount;
+	playModeList.length = effectsCount;
 	playModeList.data = playModeNames;
 	strControlProperties prop;
 	prop.x = (800/8)*6+5;
@@ -202,7 +202,7 @@ void cSampleEditor::showZoomValue()
 void cSampleEditor::showPlayModeList()
 {
 	playModeList.start = editorInstrument->playMode;
-	playModeList.length = playModeCount;
+	playModeList.length = effectsCount;
 	playModeList.linesCount = 5;
 	playModeList.data = playModeNames;
 

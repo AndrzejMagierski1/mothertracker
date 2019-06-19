@@ -62,7 +62,7 @@ SPI2Settings settingsFAST(20000000, MSBFIRST, SPI_MODE0);
 
 #define LCD_800_480
 #define FT81x_ACTIVE	0x00
-#define FT81x_CLKEXT	0x48
+#define FT81x_CLKEXT	0x44
 
 // LCD display parameters
 uint16_t lcdWidth;                                                              // Active width of LCD display
@@ -123,13 +123,29 @@ void FT812_Init(void)
     MCU_Delay_20ms();
 
     // ---------------------- Delay to allow FT81x start-up --------------------
-    EVE_CmdWrite(0x61,4);
-    EVE_CmdWrite(0x62,4);
+/*
+
+    EVE_CmdWrite(0x42,0);
+    delay(1);
+    EVE_CmdWrite(0x61,0);
+    delay(1);
+    EVE_CmdWrite(0x00,0);
+    delay(1);
+  //  EVE_CmdWrite(0x44,0);
+    delay(1);
+    EVE_CmdWrite(0x49,0);
+    delay(1);
+    EVE_CmdWrite(0x68,0);
+    delay(1);
+
+    */
+   // EVE_CmdWrite(0x62,4);
 
 
     MCU_Delay_500ms();
 
-    EVE_CmdWrite(FT81x_CLKEXT, 0x00);
+//  EVE_CmdWrite(FT81x_CLKEXT, 0x00);                                                        // PD high again
+//  MCU_Delay_20ms();
 
     EVE_CmdWrite(FT81x_ACTIVE, 0x00);                                           // Sends 00 00 00 to wake FT8xx
 
@@ -229,7 +245,7 @@ void FT812_Init(void)
     lcdVsync0  = 0;                                                             // Start of vertical sync pulse
     lcdVsync1  = 10;                                                             // End of vertical sync pulse
 
-    lcdPclk    = 1;                                                             // Pixel Clock
+    lcdPclk    = 2;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
 
