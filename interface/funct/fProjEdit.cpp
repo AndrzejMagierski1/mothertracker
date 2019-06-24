@@ -100,6 +100,20 @@ void cProjectEditor::setDefaultScreenFunct()
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
 
+/*
+	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
+	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
+
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+
+	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
+	FM->setButtonObj(interfaceButtonShift, functShift);
+	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
+*/
+
 	FM->setButtonObj(interfaceButton1, buttonPress, functShowProjectsList);
 	FM->setButtonObj(interfaceButton0, buttonPress, functShowTemplatesList);
 	FM->setButtonObj(interfaceButton4, buttonPress, functSaveProject);

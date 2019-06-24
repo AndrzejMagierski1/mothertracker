@@ -111,7 +111,6 @@ public:
 
 
 private:
-	uint8_t waitForAllControls();
 
 	hControl controlsTable[controlsCount] = { nullptr };
 	hControl actualUpdating;

@@ -145,7 +145,7 @@ void initHardware()
 	// ENCODER
 	Encoder.begin(ENC_SWITCH,onButtonChange);
 	//	Encoder.testMode(1);
-	//Encoder.setRes(6);
+	Encoder.setRes(5);
 	Encoder.setSpeedUp(1);
 
 	//....................................................

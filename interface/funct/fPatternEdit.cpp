@@ -5,34 +5,34 @@
 
 
 cPatternEditor patternEditor;
-cPatternEditor* PTE = &patternEditor;
+static  cPatternEditor* PTE = &patternEditor;
 
 
 extern strMtProject mtProject;
 
-uint8_t functPlayAction();
-uint8_t functStopAction();
-uint8_t functRecAction();
+static  uint8_t functPlayAction();
+static  uint8_t functStopAction();
+static  uint8_t functRecAction();
 
-uint8_t functChangeTempo(uint8_t button);
-uint8_t functChangePattern(uint8_t button);
-uint8_t functChangePatternLength(uint8_t button);
-uint8_t functChangePatternEditStep(uint8_t button);
-
-
-
-uint8_t functLeft();
-uint8_t functRight();
-uint8_t functUp();
-uint8_t functDown();
-
-uint8_t functNote();
-uint8_t functInstrument();
-uint8_t functVolume();
-uint8_t functFx();
+static  uint8_t functChangeTempo(uint8_t button);
+static  uint8_t functChangePattern(uint8_t button);
+static  uint8_t functChangePatternLength(uint8_t button);
+static  uint8_t functChangePatternEditStep(uint8_t button);
 
 
-uint8_t functEncoder(int16_t value);
+static  uint8_t functLeft();
+static  uint8_t functRight();
+static  uint8_t functUp();
+static  uint8_t functDown();
+
+
+static  uint8_t functNote();
+static  uint8_t functInstrument();
+static  uint8_t functVolume();
+static  uint8_t functFx();
+
+
+static  uint8_t functEncoder(int16_t value);
 
 
 static  uint8_t functSwitchModule(uint8_t button);
@@ -103,23 +103,24 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
 
-	FM->setButtonObj(interfaceButton23, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButton24, buttonPress, functRecAction);
+	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
+	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 
-	FM->setButtonObj(interfaceButton30, buttonPress, functLeft);
-	FM->setButtonObj(interfaceButton32, buttonPress, functRight);
-	FM->setButtonObj(interfaceButton26, buttonPress, functUp);
-	FM->setButtonObj(interfaceButton31, buttonPress, functDown);
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-	FM->setButtonObj(interfaceButton18, buttonPress, functNote);
-	FM->setButtonObj(interfaceButton19, buttonPress, functInstrument);
-	FM->setButtonObj(interfaceButton20, buttonPress, functVolume);
-	FM->setButtonObj(interfaceButton21, buttonPress, functFx);
+/*
+	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
+	FM->setButtonObj(interfaceButtonShift, functShift);
+	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
+*/
 
-
-
-	FM->setButtonObj(interfaceButton20, buttonPress, functVolume);
-	FM->setButtonObj(interfaceButton21, buttonPress, functFx);
+	FM->setButtonObj(interfaceButtonNote, buttonPress, functNote);
+	FM->setButtonObj(interfaceButtonInstr, buttonPress, functInstrument);
+	FM->setButtonObj(interfaceButtonVol, buttonPress, functVolume);
+	FM->setButtonObj(interfaceButtonFx, buttonPress, functFx);
 
 
 
@@ -136,8 +137,6 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton7, buttonPress, functChangePatternEditStep);
 
 
-
-	//FM->setPotObj(interfacePot0, (uint16_t*)(&trackerPattern.part), 0, 744, 5, patternControl);
 
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);

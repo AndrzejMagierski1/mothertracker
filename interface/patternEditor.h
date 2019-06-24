@@ -72,6 +72,7 @@ public:
 	hControl topLabel[8];
 	hControl bottomLabel[8];
 	hControl patternControl;
+
 	strLabelData bottomValuesConfig = { 40, 0, 2048UL | 256UL };
 
 

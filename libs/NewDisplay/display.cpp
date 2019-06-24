@@ -622,11 +622,5 @@ void cDisplay::synchronizeRefresh()
 	stopAppend = 1;
 }
 
-uint8_t cDisplay::waitForAllControls()
-{
-	return 0;
-}
-
-
 
 

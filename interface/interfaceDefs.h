@@ -112,46 +112,39 @@ enum mtInterfacePotsDef
 
 
 
-enum mtInterfacePadButtonsFunctions
+enum mtInterfaceButtonsFunctions
 {
-//1
-	interfacePadPlay,
-	interfacePadStop,
-	interfacePadRec,
-	interfacePadProjectEditor,
-	interfacePadSampleBank,
-	interfacePadInstrumentEditor,
-	interfacePadConfig,
-	interfacePadSettings,
-//2
-	empty8,
-	empty9,
-	empty10,
-	interfacePadRecorder,
-	interfacePadParams,
-	interfacePadEnvelopes,
-	empty14,
-	empty15,
-//3
-	empty16,
-	empty17,
-	empty18,
-	empty19,
-	empty20,
-	empty21,
-	interfacePadUp,
-	empty23,
-//4
-	interfacePadNotes,
-	interfacePadInstr,
-	interfacePadVelocity,
-	interfacePadFx,
-	interfacePadFxParams,
-	interfacePadLeft,
-	interfacePadDown,
-	interfacePadRight,
-//5
-	interfacePadKeybord0,
+
+	interfaceButtonPlay 		= interfaceButton23,
+	interfaceButtonRec 			= interfaceButton24,
+	interfaceButtonCopy 		= interfaceButton25,
+	interfaceButtonUp			= interfaceButton26,
+	interfaceButtonPaste 		= interfaceButton27,
+
+	interfaceButtonShift 		= interfaceButton28,
+	interfaceButtonEnter 		= interfaceButton29,
+	interfaceButtonLeft 		= interfaceButton30,
+	interfaceButtonDown 		= interfaceButton31,
+	interfaceButtonRight 		= interfaceButton32,
+
+	interfaceButtonEncoder 		= interfaceButton33,
+
+
+	interfaceButtonParams 		= interfaceButton8,
+	interfaceButtonEnvelopes 	= interfaceButton9,
+	interfaceButtonFile 		= interfaceButton10,
+	interfaceButtonConfig		= interfaceButton11,
+	interfaceButtonMaster 		= interfaceButton12,
+	interfaceButtonSamplePlay 	= interfaceButton13,
+	interfaceButtonSampleEdit 	= interfaceButton14,
+	interfaceButtonSampleRec 	= interfaceButton15,
+	interfaceButtonSampleLoad 	= interfaceButton16,
+	interfaceButtonSong			= interfaceButton17,
+	interfaceButtonNote 		= interfaceButton18,
+	interfaceButtonInstr 		= interfaceButton19,
+	interfaceButtonVol 			= interfaceButton20,
+	interfaceButtonFx 			= interfaceButton21,
+	interfaceButtonPattern 		= interfaceButton22,
 
 
 };

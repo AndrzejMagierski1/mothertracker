@@ -136,7 +136,6 @@ void onButtonChange(uint8_t n, uint8_t value)
 	mtInterface.buttonChange(n,value);
 
 
-
 }
 //-----------------------------------------------------------------
 //----------------------|   POWER BUTTON   |-----------------------

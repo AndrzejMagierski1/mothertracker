@@ -28,13 +28,14 @@ public:
 
 	void zeroFTM();	//Zero position counter
 	int32_t calcPosn(void);	// Calculate current position from 
-				//   Base Position and counter value
+	//   Base Position and counter value
 	void ftm_isr();	// FTM interrupt service routine 
-			//  Interrupt on overflow and position compare
+	//  Interrupt on overflow and position compare
 
 private:
 
-	uint8_t resolution = 20;
+	uint8_t resolution_ratio = 5;
+	uint8_t resolution = resolution_ratio*4;
 	uint8_t test_mode = 0;
 	uint8_t speed_up = 0;
 	int16_t difference = 0;	

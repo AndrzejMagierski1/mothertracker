@@ -86,7 +86,7 @@ void cEncoder::begin(uint8_t intPin, void (*func)(uint8_t n, uint8_t value))
 
 void cEncoder::setRes(uint8_t step_res)
 {
-	resolution = step_res; 
+	resolution_ratio = step_res;
 	//zeroFTM();
 }
 
@@ -147,27 +147,27 @@ int32_t cEncoder::read()
 	{
 		positiveValue = (raw_delta >= 0 ? raw_delta : raw_delta*(-1));
 
-		if(positiveValue > 25*5)
+		if(positiveValue > 25*resolution_ratio)
 		{
 			temp_resolution = resolution / 6.0;
 		}
-		else if(positiveValue > 20*5)
+		else if(positiveValue > 20*resolution_ratio)
 		{
 			temp_resolution = resolution / 5.0;
 		}
-		else if(positiveValue > 16*5)
+		else if(positiveValue > 16*resolution_ratio)
 		{
 			temp_resolution = resolution / 4.0;
 		}
-		else if(positiveValue > 12*5)
+		else if(positiveValue > 12*resolution_ratio)
 		{
 			temp_resolution = resolution / 3.0;
 		}
-		else if(positiveValue > 8*5)
+		else if(positiveValue > 8*resolution_ratio)
 		{
 			temp_resolution = resolution / 2.0;
 		}
-		else if(positiveValue > 6*5)
+		else if(positiveValue > 6*resolution_ratio)
 		{
 			temp_resolution = resolution / 1.5;
 		}

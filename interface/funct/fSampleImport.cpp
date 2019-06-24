@@ -105,13 +105,17 @@ void cSampleImporter::setDefaultScreenFunct()
 
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-	FM->setButtonObj(interfaceButton23, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButton24, buttonPress, functRecAction);
+	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
+	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 
-	FM->setButtonObj(interfaceButton30, buttonPress, functLeft);
-	FM->setButtonObj(interfaceButton32, buttonPress, functRight);
-	FM->setButtonObj(interfaceButton26, buttonPress, functUp);
-	FM->setButtonObj(interfaceButton31, buttonPress, functDown);
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+
+	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
+	FM->setButtonObj(interfaceButtonShift, functShift);
+	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
 
 	FM->setButtonObj(interfaceButton0, buttonPress, functChangeFolder);
@@ -127,10 +131,8 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton7, buttonPress, functInstrumentDelete);
 
 
-	FM->setButtonObj(interfaceButton29, buttonPress, functEnter);
-	FM->setButtonObj(interfaceButton33, buttonPress, functEnter);
 
-	FM->setButtonObj(interfaceButton28, functShift);
+
 }
 
 

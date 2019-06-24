@@ -40,7 +40,7 @@ static  uint8_t functSelectFilter(uint8_t button);
 static  uint8_t functSelectParams(uint8_t button);
 
 
-static uint8_t play(uint8_t value);
+static uint8_t functShift(uint8_t value);
 
 
 
@@ -132,15 +132,16 @@ void cInstrumentEditor::setDefaultScreenFunct()
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
 
-	FM->setButtonObj(interfaceButton23, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButton24, buttonPress, functRecAction);
-	FM->setButtonObj(interfaceButton28, play);
+	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
+	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-	FM->setButtonObj(interfaceButton30, buttonPress, functLeft);
-	FM->setButtonObj(interfaceButton32, buttonPress, functRight);
-	FM->setButtonObj(interfaceButton26, buttonPress, functUp);
-	FM->setButtonObj(interfaceButton31, buttonPress, functDown);
+	FM->setButtonObj(interfaceButtonShift, functShift);
+
 
 
 
@@ -649,7 +650,7 @@ void cInstrumentEditor::changeParamsReverbSend(int16_t value)
 //==============================================================================================
 
 
-static uint8_t play(uint8_t value)
+static uint8_t functShift(uint8_t value)
 {
 	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
 	{

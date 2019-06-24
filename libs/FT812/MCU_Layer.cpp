@@ -80,6 +80,7 @@ uint8_t lcdSwizzle;                                                             
 uint8_t lcdPclkpol;                                                             // Define active edge of PCLK
 uint8_t lcdCsSpread;
 uint8_t lcdRotate;
+uint8_t lcdDither;
 
 uint32_t ramDisplayList = RAM_DL;                                               // Set beginning of display list memory
 uint32_t ramCommandBuffer = RAM_CMD;                                            // Set beginning of graphics command memory
@@ -247,12 +248,12 @@ void FT812_Init(void)
 
     lcdPclk    = 2;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
-    lcdPclkpol = 1;                                                             // Define active edge of PCLK
+    lcdPclkpol = 0;                                                             // Define active edge of PCLK
 
     lcdCsSpread = 0;
     lcdRotate   = 1;
     //lcdRotate   = 4;
-
+    lcdDither = 0;
 
 
 #endif
@@ -335,7 +336,7 @@ void FT812_Init(void)
 
 
     EVE_MemWrite8(REG_ROTATE,  lcdRotate);
-    EVE_MemWrite8(REG_DITHER,  1);
+    EVE_MemWrite8(REG_DITHER,  lcdDither);
 
 
     // ---------------------- Touch and Audio settings -------------------------
@@ -348,7 +349,7 @@ void FT812_Init(void)
 
    // ---------------------- Create an initial screen before we enable the display -------------------------
 
-   ramDisplayList = RAM_DL;                                                    // start of Display List
+	ramDisplayList = RAM_DL;                                                    // start of Display List
     EVE_MemWrite32(ramDisplayList, 0x02000000);                                 // Clear Color RGB sets the colour to clear screen to
 
     ramDisplayList += 4;                                                        // point to next location
