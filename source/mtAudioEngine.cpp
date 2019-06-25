@@ -18,6 +18,7 @@ AudioAmplifier           amp[8];
 AudioMixer9				 mixerL,mixerR,mixerReverb;
 AudioOutputI2S           i2sOut;
 AudioMixer4              mixerRec;
+AudioMixer4              mixerSourceL,mixerSourceR;
 AudioEffectFreeverb		 reverb;
 AudioEffectLimiter		 limiter[2];
 
@@ -87,8 +88,14 @@ AudioConnection          connect51(&reverb, 0, &mixerR, 8);
 AudioConnection          connect57(&mixerL, &limiter[0]);
 AudioConnection          connect58(&mixerR, &limiter[1]);
 
-AudioConnection          connect52(&limiter[0], 0, &i2sOut, 0);
-AudioConnection          connect53(&limiter[1], 0, &i2sOut, 1);
+AudioConnection          connect52(&limiter[0], 0, &mixerSourceL, 0);
+AudioConnection          connect53(&limiter[1], 0, &mixerSourceR, 0);
+
+AudioConnection          connect61(&playSdWav, 0, &mixerSourceL, 1);
+AudioConnection          connect62(&playSdWav, 1, &mixerSourceR, 1);
+
+AudioConnection          connect59(&mixerSourceL, 0, &i2sOut, 0);
+AudioConnection          connect60(&mixerSourceR, 0, &i2sOut, 1);
 
 AudioConnection          connect54(&i2sIn, 0, &mixerRec, 0);
 AudioConnection          connect55(&i2sIn, 1, &mixerRec, 1);
@@ -108,8 +115,8 @@ void audioEngine::init()
 	pinMode(AUDIO_OUT_MUX, OUTPUT);
 	digitalWrite(AUDIO_IN_MUX, LOW);
 	digitalWrite(AUDIO_OUT_MUX, LOW);
-	i2sConnect[0]= &connect52;
-	i2sConnect[1]= &connect53;
+	i2sConnect[0]= &connect59;
+	i2sConnect[1]= &connect60;
 
 
 //	setIn(inputSelectLineIn);
@@ -121,7 +128,10 @@ void audioEngine::init()
 
 	setIn(inputSelectMic);
 	setOut(outputSelectHeadphones);
-
+	mixerSourceR.gain(0,1.0);
+	mixerSourceR.gain(1,1.0);
+	mixerSourceL.gain(0,1.0);
+	mixerSourceL.gain(1,1.0);
 	audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
 	audioShield.inputSelect(AUDIO_INPUT_MIC);
 	audioShield.micGain(35);
@@ -626,49 +636,42 @@ void playerEngine :: filterConnect()
 
 void audioEngine:: prevSdConnect()
 {
-	__disable_irq();
-
-	i2sConnect[0]->disconnect();
-	i2sConnect[1]->disconnect();
-
-	i2sConnect[0]->src = &playSdWav;
-	i2sConnect[0]->dst = &i2sOut;
-	i2sConnect[0]->src_index=0;
-	i2sConnect[0]->dest_index=0;
-
-	i2sConnect[1]->src = &playSdWav;
-	i2sConnect[1]->dst = &i2sOut;
-	i2sConnect[1]->src_index=0;
-	i2sConnect[1]->dest_index=1;
-
-	i2sConnect[0]->connect();
-	i2sConnect[1]->connect();
-
-	__enable_irq();
+//	i2sConnect[0]->disconnect();
+//	i2sConnect[1]->disconnect();
+//
+//	i2sConnect[0]->src = &playSdWav;
+//	i2sConnect[0]->dst = &i2sOut;
+//	i2sConnect[0]->src_index=0;
+//	i2sConnect[0]->dest_index=0;
+//
+//	i2sConnect[1]->src = &playSdWav;
+//	i2sConnect[1]->dst = &i2sOut;
+//	i2sConnect[1]->src_index=0;
+//	i2sConnect[1]->dest_index=1;
+//
+//	i2sConnect[0]->connect();
+//	i2sConnect[1]->connect();
 
 }
 
 void audioEngine:: prevSdDisconnect()
 {
-	__disable_irq();
+//	i2sConnect[0]->disconnect();
+//	i2sConnect[1]->disconnect();
+//
+//	i2sConnect[0]->src = &limiter[0];
+//	i2sConnect[0]->dst = &i2sOut;
+//	i2sConnect[0]->src_index=0;
+//	i2sConnect[0]->dest_index=0;
+//
+//	i2sConnect[1]->src = &limiter[1];
+//	i2sConnect[1]->dst = &i2sOut;
+//	i2sConnect[1]->src_index=0;
+//	i2sConnect[1]->dest_index=1;
+//
+//	i2sConnect[0]->connect();
+//	i2sConnect[1]->connect();
 
-	i2sConnect[0]->disconnect();
-	i2sConnect[1]->disconnect();
-
-	i2sConnect[0]->src = &limiter[0];
-	i2sConnect[0]->dst = &i2sOut;
-	i2sConnect[0]->src_index=0;
-	i2sConnect[0]->dest_index=0;
-
-	i2sConnect[1]->src = &limiter[1];
-	i2sConnect[1]->dst = &i2sOut;
-	i2sConnect[1]->src_index=0;
-	i2sConnect[1]->dest_index=1;
-
-	i2sConnect[0]->connect();
-	i2sConnect[1]->connect();
-
-	__enable_irq();
 }
 
 void audioEngine:: wavExportConnect()
