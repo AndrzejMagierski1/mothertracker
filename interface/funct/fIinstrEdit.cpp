@@ -74,21 +74,23 @@ void cInstrumentEditor::start(uint32_t options)
 
 	FM->setPadsGlobal(functPads);
 
-	FM->setButtonObj(interfaceButton11, buttonPress, functSwitchModule);
 
 	// ustawienie funkcji
-	FM->setButtonObj(interfaceButton8, buttonPress, functSwitchMode);
-	FM->setButtonObj(interfaceButton9, buttonPress, functSwitchMode);
-	FM->setButtonObj(interfaceButton10, buttonPress, functSwitchMode);
 
-	FM->setButtonObj(interfaceButton11, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton12, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton15, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton22, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchMode);
+	FM->setButtonObj(interfaceButtonEnvelopes, buttonPress, functSwitchMode);
+	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchMode);
+
+
+	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
+	//FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSamplePlay, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSampleEdit, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSampleRec, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSampleLoad, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
 	setDefaultScreenFunct();
 
@@ -337,7 +339,7 @@ static  uint8_t functSwitchMode(uint8_t button)
 {
 	switch(button)
 	{
-	case 8:
+	case interfaceButtonEnvelopes:
 	{
 		if(IE->mode != 0)
 		{
@@ -347,7 +349,7 @@ static  uint8_t functSwitchMode(uint8_t button)
 		}
 		break;
 	}
-	case 9:
+	case interfaceButtonMaster:
 	{
 		if(IE->mode != 1)
 		{
@@ -357,7 +359,7 @@ static  uint8_t functSwitchMode(uint8_t button)
 		}
 		break;
 	}
-	case 10:
+	case interfaceButtonParams:
 	{
 		if(IE->mode != 2)
 		{

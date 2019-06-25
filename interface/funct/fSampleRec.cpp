@@ -104,17 +104,17 @@ void cSampleRecorder::start(uint32_t options)
 	showZoomValue();
 
 	// ustawienie funkcji
-	FM->setButtonObj(interfaceButton8, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton9, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton10, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton11, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton12, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton13, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton14, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton15, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton16, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton17, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButton22, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonEnvelopes, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSamplePlay, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSampleEdit, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSampleRec, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSampleLoad, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
 	showDefaultScreen();
 	setDefaultScreenFunct();

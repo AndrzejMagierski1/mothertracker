@@ -77,17 +77,17 @@ const hModule cInterface::modules[modulesCount] =
 const uint8_t cInterface::modulesButtonsCount = 11;
 const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 {
-	{interfaceButton8,  5, mtInstEditModeVolume},
-	{interfaceButton9,  5, mtInstEditModeFilter},
-	{interfaceButton10, 5, mtInstEditModeParams},
-	{interfaceButton11, 0, 0},
-	{interfaceButton12, 2, 0},
-	{interfaceButton13, 3, 0},
-	{interfaceButton14, 6, 0},
-	{interfaceButton15, 8, 0},
-	{interfaceButton16, 1, 0},
-	{interfaceButton17, 4, 0},
-	{interfaceButton22, 5, 0},
+	{interfaceButtonEnvelopes,  5, mtInstEditModeVolume},
+	{interfaceButtonMaster,  	5, mtInstEditModeFilter},
+	{interfaceButtonParams, 	5, mtInstEditModeParams},
+	{interfaceButtonFile, 		0, 0},
+	{interfaceButtonPattern, 	2, 0},
+	{interfaceButtonSamplePlay, 3, 0},
+	{interfaceButtonSampleEdit, 6, 0},
+	{interfaceButtonSampleRec, 	8, 0},
+	{interfaceButtonSampleLoad, 1, 0},
+	{interfaceButtonSong, 		4, 0},
+	{interfaceButtonConfig, 	7, 0},
 };
 
 //	case interfaceButton10: activateModule(modules[0], 0); break;
