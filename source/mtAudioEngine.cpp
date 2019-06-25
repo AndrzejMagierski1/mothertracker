@@ -626,6 +626,8 @@ void playerEngine :: filterConnect()
 
 void audioEngine:: prevSdConnect()
 {
+	__disable_irq();
+
 	i2sConnect[0]->disconnect();
 	i2sConnect[1]->disconnect();
 
@@ -642,10 +644,14 @@ void audioEngine:: prevSdConnect()
 	i2sConnect[0]->connect();
 	i2sConnect[1]->connect();
 
+	__enable_irq();
+
 }
 
 void audioEngine:: prevSdDisconnect()
 {
+	__disable_irq();
+
 	i2sConnect[0]->disconnect();
 	i2sConnect[1]->disconnect();
 
@@ -661,6 +667,8 @@ void audioEngine:: prevSdDisconnect()
 
 	i2sConnect[0]->connect();
 	i2sConnect[1]->connect();
+
+	__enable_irq();
 }
 
 void audioEngine:: wavExportConnect()

@@ -75,8 +75,8 @@ void cInstrumentEditor::start(uint32_t options)
 	FM->setPadsGlobal(functPads);
 
 
-	// ustawienie funkcji
 
+	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchMode);
 	FM->setButtonObj(interfaceButtonEnvelopes, buttonPress, functSwitchMode);
 	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchMode);

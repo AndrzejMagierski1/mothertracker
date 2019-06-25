@@ -660,9 +660,14 @@ void cSampleImporter::playSdFile()
 		sequencer.stop();
 	}
 
+	stopPlaying();
+
+	if(playMode != playModeSdFile)
+	{
+		engine.prevSdConnect();
+	}
 	playMode = playModeSdFile;
 
-	engine.prevSdConnect();
 
 	playSdWav.play(file_path);
 
@@ -675,6 +680,14 @@ void cSampleImporter::playSampleFromBank()
 	{
 		sequencer.stop();
 	}
+
+	if(playMode != playModeSampleBank)
+	{
+		playSdWav.stop();
+		engine.prevSdDisconnect();
+	}
+
+	stopPlaying();
 
 	playMode = playModeSampleBank;
 

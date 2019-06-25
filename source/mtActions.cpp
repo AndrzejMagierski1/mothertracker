@@ -177,8 +177,8 @@ void onButtonHold(uint8_t x)
 //	mtInterface.seqButtonHold(x,y);
 
 
-	Serial.print("ButtonHold: x = ");
-	Serial.print(x);
+//	Serial.print("ButtonHold: x = ");
+//	Serial.print(x);
 
 }
 
@@ -187,8 +187,8 @@ void onButtonDouble	(uint8_t x)
 //	mtInterface.seqButtonDouble(x,y);
 
 
-	Serial.print("ButtonDouble: x = ");
-	Serial.print(x);
+//	`Serial.print("ButtonDouble: x = ");
+//	Serial.print(x);
 
 }
 
