@@ -77,8 +77,8 @@ const hModule cInterface::modules[modulesCount] =
 const uint8_t cInterface::modulesButtonsCount = 11;
 const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 {
-	{interfaceButtonEnvelopes,  5, mtInstEditModeVolume},
-	{interfaceButtonMaster,  	5, mtInstEditModeFilter},
+	{interfaceButtonEnvelopes,  5, mtInstEditModeEnv},
+	{interfaceButtonMaster,  	7, 0},
 	{interfaceButtonParams, 	5, mtInstEditModeParams},
 	{interfaceButtonFile, 		0, 0},
 	{interfaceButtonPattern, 	2, 0},
