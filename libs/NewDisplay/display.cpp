@@ -623,4 +623,17 @@ void cDisplay::synchronizeRefresh()
 }
 
 
+void cDisplay::resetControlQueue()
+{
+	stopAppend = 0;
+	refreshQueueTop = 0;
+	refreshQueueBott = 0;
+
+	updateStep = 0;
+	actualUpdating = nullptr;
+}
+
+
+
+
 

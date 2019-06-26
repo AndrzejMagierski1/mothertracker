@@ -94,6 +94,7 @@ public:
 	void destroyControl(hControl handle);
 	void refreshControl(hControl handle);
 	void synchronizeRefresh();
+	void resetControlQueue();
 
 	void setControlPosition(hControl handle, uint16_t x, uint16_t y);
 	void setControlSize(hControl handle, uint16_t w, uint16_t h);

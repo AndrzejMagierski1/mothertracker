@@ -208,6 +208,7 @@ void cInterface::deactivateModule(hModule module)
 	uiFM.clearAllPots();
 	uiFM.clearAllPads();
 
+	display.resetControlQueue();
 	module->stop();
 	module->destroyDisplayControls();
 	if(module == onScreenModule) onScreenModule = nullptr;
