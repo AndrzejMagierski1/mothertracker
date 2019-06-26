@@ -49,6 +49,23 @@ void cProjectEditor::initDisplayControls()
 	if(fileListControl == nullptr)  fileListControl = display.createControl<cList>(&prop);
 
 
+	strControlProperties prop3;
+	prop3.x = 50;
+	prop3.y = 240;
+	prop3.w = 750;
+	prop3.h = 210;
+	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cKeyboard>(&prop3);
+
+	strControlProperties prop4;
+	prop4.text = (char*)"";
+	prop4.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+	prop4.x = 415;
+	prop4.y = 190;
+	prop4.w = 730;
+	prop4.h = 30;
+	if(textLabel == nullptr)  textLabel = display.createControl<cLabel>(&prop4);
+
+
 }
 
 
@@ -68,6 +85,12 @@ void cProjectEditor::destroyDisplayControls()
 
 	display.destroyControl(fileListControl);
 	fileListControl = nullptr;
+
+	display.destroyControl(keyboardControl);
+	keyboardControl = nullptr;
+
+	display.destroyControl(textLabel);
+	textLabel = nullptr;
 
 }
 
@@ -90,6 +113,19 @@ void cProjectEditor::showDefaultScreen()
 	{
 		display.refreshControl(bottomLabel[i]);
 	}
+
+
+	display.setControlShow(keyboardControl);
+
+	display.setControlValue(keyboardControl, 0);
+	display.refreshControl(keyboardControl);
+
+
+	display.setControlText(textLabel, "losowy tekst");
+	display.refreshControl(textLabel);
+
+
+
 
 	display.synchronizeRefresh();
 

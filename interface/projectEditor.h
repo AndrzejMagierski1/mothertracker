@@ -53,7 +53,9 @@ public:
 
 	hControl topLabel[8];
 	hControl bottomLabel[8];
+	hControl textLabel;
 	hControl fileListControl;
+	hControl keyboardControl;
 
 	uint32_t topLabelColors[3] =
 	{

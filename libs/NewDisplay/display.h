@@ -16,6 +16,7 @@
 #include "pointsControl.h"
 #include "list.h"
 #include "barControl.h"
+#include "keyboardControl.h"
 
 typedef cDisplayControl* hControl;
 

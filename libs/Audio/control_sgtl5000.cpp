@@ -513,11 +513,11 @@ bool AudioControlSGTL5000::enable(void)
 {
 	muted = true;
 
-	//Wire2.setSCL(47);
-	//Wire2.setSDA(48);
+	//Wire.setSCL(47);
+	//Wire.setSDA(48);
 	Wire2.begin();
-//	Wire2.setSCL(47);
-//	Wire2.setSDA(48);
+//	Wire.setSCL(47);
+//	Wire.setSDA(48);
 	delay(5);
 	//Serial.print("chip ID = ");
 	//delay(5);
