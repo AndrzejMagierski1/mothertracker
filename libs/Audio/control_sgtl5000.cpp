@@ -513,11 +513,11 @@ bool AudioControlSGTL5000::enable(void)
 {
 	muted = true;
 
-	//Wire2.setSCL(47);
-	//Wire2.setSDA(48);
-	Wire2.begin();
-//	Wire2.setSCL(47);
-//	Wire2.setSDA(48);
+//	Wire.setSCL(47);
+//	Wire.setSDA(48);
+	Wire.begin();
+	Wire.setSCL(47);
+	Wire.setSDA(48);
 	delay(5);
 	//Serial.print("chip ID = ");
 	//delay(5);
@@ -550,10 +550,10 @@ bool AudioControlSGTL5000::enable(void)
 unsigned int AudioControlSGTL5000::read(unsigned int reg)
 {
 	unsigned int val;
-	Wire2.beginTransmission(i2c_addr);
-	Wire2.write(reg >> 8);
-	Wire2.write(reg);
-	if (Wire2.endTransmission(false) != 0)
+	Wire.beginTransmission(i2c_addr);
+	Wire.write(reg >> 8);
+	Wire.write(reg);
+	if (Wire.endTransmission(false) != 0)
 	{
 		if(hardwareTest)
 		{
@@ -562,7 +562,7 @@ unsigned int AudioControlSGTL5000::read(unsigned int reg)
 		}
 		return 0;
 	}
-	if (Wire2.requestFrom((int)i2c_addr, 2) < 2)
+	if (Wire.requestFrom((int)i2c_addr, 2) < 2)
 	{
 		if(hardwareTest)
 		{
@@ -571,8 +571,8 @@ unsigned int AudioControlSGTL5000::read(unsigned int reg)
 		}
 		return 0;
 	}
-	val = Wire2.read() << 8;
-	val |= Wire2.read();
+	val = Wire.read() << 8;
+	val |= Wire.read();
 	if(hardwareTest)
 	{
 		Serial.println("Codec audio read succesfull");
@@ -584,12 +584,12 @@ unsigned int AudioControlSGTL5000::read(unsigned int reg)
 bool AudioControlSGTL5000::write(unsigned int reg, unsigned int val)
 {
 	if (reg == CHIP_ANA_CTRL) ana_ctrl = val;
-	Wire2.beginTransmission(i2c_addr);
-	Wire2.write(reg >> 8);
-	Wire2.write(reg);
-	Wire2.write(val >> 8);
-	Wire2.write(val);
-	if (Wire2.endTransmission() == 0)
+	Wire.beginTransmission(i2c_addr);
+	Wire.write(reg >> 8);
+	Wire.write(reg);
+	Wire.write(val >> 8);
+	Wire.write(val);
+	if (Wire.endTransmission() == 0)
 	{
 		if(hardwareTest)
 		{
