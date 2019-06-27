@@ -381,7 +381,7 @@ void cPatternEditor::changeActualStepNote(int16_t value)
 		pattern->track[trackerPattern.select].step[trackerPattern.position].note = 24;
 		pattern->track[trackerPattern.select].step[trackerPattern.position].instrument = mtProject.values.lastUsedInstrument;
 		pattern->track[trackerPattern.select].step[trackerPattern.position].velocity = -1;
-		pattern->track[trackerPattern.select].step[trackerPattern.position].length1 = last_selected_length;
+//		pattern->track[trackerPattern.select].step[trackerPattern.position].length1 = last_selected_length;
 	}
 
 }
@@ -412,7 +412,7 @@ void cPatternEditor::changeActualStepInstrument(int16_t value)
 		pattern->track[trackerPattern.select].step[trackerPattern.position].note = 24;
 		pattern->track[trackerPattern.select].step[trackerPattern.position].instrument = mtProject.values.lastUsedInstrument;
 		pattern->track[trackerPattern.select].step[trackerPattern.position].velocity = -1;
-		pattern->track[trackerPattern.select].step[trackerPattern.position].length1 = last_selected_length;
+//		pattern->track[trackerPattern.select].step[trackerPattern.position].length1 = last_selected_length;
 	}
 
 }

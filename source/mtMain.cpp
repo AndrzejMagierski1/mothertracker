@@ -20,7 +20,7 @@
 
 
 
-extern Sequencer seq[2];
+//extern Sequencer seq[2];
 extern void initHardware();
 extern void updateHardware();
 

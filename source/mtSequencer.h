@@ -23,7 +23,7 @@ public:
 		MAXROW = 7,
 		MINROW = 0,
 		MINSTEP = 0,
-		MAXSTEP = 31,
+		MAXSTEP = 127,
 
 		DEFAULT_ROW_LEN = 32,
 		DEFAULT_ROW_NOTE = 36,
@@ -243,7 +243,7 @@ public:
 				uint8_t instrument = 0;
 
 				// 2 x byte
-				uint16_t length1;	//długość w microstepach, 1 step = 48uStepów
+//				uint16_t length1;	//długość w microstepach, 1 step = 48uStepów
 
 				//FX
 				struct strFx
@@ -276,12 +276,21 @@ public:
 						};
 					};
 
-				} fx[4];
+				} fx[1];
 
-			} step[32];
+			} step[MAXSTEP + 1];
 
 		} track[8];
 
+	};
+
+	struct strStepSelection
+	{
+		uint8_t firstStep = 0;
+		uint8_t firstTrack = 0;
+		uint8_t lastStep = 0;
+		uint8_t lastTrack = 0;
+//		uint8_t mode = 0;
 	};
 
 	uint8_t get_fxValType(uint8_t fxType);
@@ -517,8 +526,7 @@ public:
 
 		} row[MAXROW + 1];
 
-		void(*onPatternEnd)(void) = NULL;
-
+		void (*onPatternEnd)(void) = NULL;
 
 	} player;
 

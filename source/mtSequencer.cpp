@@ -382,10 +382,10 @@ void Sequencer::play_microStep(uint8_t row)
 			// ustawiamy całego stepa
 			playerRow.stepOpen = 1;
 			playerRow.stepTimer = 0; // od tej pory timer liczy w górę
-			playerRow.stepLength = patternStep.length1;
+//			playerRow.stepLength = patternStep.length1;
 			// ustawiamy nute
 			playerRow.noteOpen = 1;
-			playerRow.noteLength = patternStep.length1;
+			playerRow.noteLength = 9999; // w MT nie ma dugości stepa
 			playerRow.noteTimer = 0; // od tej pory timer liczy w górę
 
 			playerRow.stepSent = patternStep; // buforujemy wysłanego stepa
@@ -524,6 +524,8 @@ void Sequencer::rec_metronome(void)
 
 void Sequencer::handle_ghosts(void)
 {
+	// ghosty nie potrzebne w MT
+	/*
 	for (int8_t col = 1; col <= seq[player.ramBank].track[ghost.cnt1].length;
 			col++)
 	{
@@ -557,7 +559,7 @@ void Sequencer::handle_ghosts(void)
 			// ghost.cnt2++;
 			// if(ghost.cnt2>ghost.cnt2_max) ghost.cnt2=1;
 		}
-	}
+	}*/
 }
 
 void Sequencer::play(void)
@@ -755,7 +757,7 @@ void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 //	step.rollCurve = MIN_STEP_ROLL_VAR;
 
 //	step.rollNoteCurve = MIN_STEP_ROLL_NOTE_VAR;
-	step.length1 = MIN_STEP_LENGTH;
+//	step.length1 = MIN_STEP_LENGTH;
 //	step.offset = OFFSET_MIN;
 	step.note = tempRow.rootNote;
 }
@@ -852,12 +854,12 @@ void Sequencer::loadDefaultSequence(void)
 		seq[player.ramBank].track[x].channel = x;
 		seq[player.ramBank].track[x].isOn = 1;
 
-		seq[player.ramBank].track[x].length = 16;
+		seq[player.ramBank].track[x].length = 127;
 		for (uint8_t y = MINSTEP; y <= MAXSTEP; y++)
 		{
 			seq[player.ramBank].track[x].step[y].isOn = 0;
 
-			seq[player.ramBank].track[x].step[y].length1 = 48;
+//			seq[player.ramBank].track[x].step[y].length1 = 48;
 		}
 	}
 	//seq[player.ramBank].track[0].tempoDiv=1;
@@ -999,7 +1001,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	if (player.isREC && player.row[x].recNoteOpen)
 	{
 		player.row[x].recNoteLength++;
-		seq[player.ramBank].track[x].step[player.row[x].recNoteStep].length1 = player.row[x].recNoteLength - 1;
+//		seq[player.ramBank].track[x].step[player.row[x].recNoteStep].length1 = player.row[x].recNoteLength - 1;
 
 	}
 
