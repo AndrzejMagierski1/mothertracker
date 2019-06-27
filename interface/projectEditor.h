@@ -80,7 +80,7 @@ public:
 
 //-------------------------------------------------------------
 
-	char name[32];
+	char name[33];
 	uint8_t keyboardPosition;
 	int8_t editPosition;
 	void showKeyboard();

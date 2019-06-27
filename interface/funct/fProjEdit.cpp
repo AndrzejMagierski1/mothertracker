@@ -363,7 +363,30 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 
 static uint8_t functEnterName()
 {
-	strcpy(PE->name,"New Project");
+
+	char localPatch[128];
+	uint16_t cnt=1;
+	char cntBuf[5];
+
+
+	do
+	{
+	   memset(cntBuf,0,5);
+	   sprintf(cntBuf, "%d", cnt);
+	   strcpy(PE->name,"New Project");
+	   strcat(PE->name,cntBuf);
+
+	   strcpy(localPatch,"Projects/");
+	   strcat(localPatch, PE->name);
+
+	   cnt++;
+	   if(cnt > 9999)
+	   {
+		   memset(PE->name,0,33);
+		   break;
+	   }
+	} while(SD.exists(localPatch));
+
 	PE->editPosition = strlen(PE->name);
 	PE->showEnterNameKeyboard();
 	PE->keyboardActiveFlag = 1;
