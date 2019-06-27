@@ -28,24 +28,55 @@ constexpr char bigKeyboard[KEYBOARD_SIZE] =
 			 'Z', 'X', 'C' ,'V' ,'B' ,'N' ,'M' , ' '
 };
 
+//constexpr uint8_t valueMap[4][42] = przechodzenie przez sciany
+//{
+//		{
+//			10,0,1,2,3,4,5,6,7,8,9,
+//			22,11,12,13,14,15,16,17,18,19,20,21,
+//			33,23,24,25,26,27,28,29,30,31,32,
+//			41,34,35,36,37,38,39,40
+//		},
+//
+//		{
+//			1,2,3,4,5,6,7,8,9,10,0,
+//			12,13,14,15,16,17,18,19,20,21,22,11,
+//			24,25,26,27,28,29,30,31,32,33,23,
+//			35,36,37,38,39,40,41,34
+//		},
+//
+//		{
+//			34,35,36,37,38,39,40,41,41,41,41,
+//			0,1,2,3,4,5,6,7,8,9,10,10,
+//			11,12,13,14,15,16,17,18,19,20,21,
+//			23,24,25,26,27,28,29,30,
+//		},
+//
+//		{
+//			11,12,13,14,15,16,17,18,19,20,21,
+//			23,24,25,26,27,28,29,30,31,32,33,33,
+//			34,35,36,37,38,39,40,41,41,41,41,
+//			0,1,2,3,4,5,6,7
+//		},
+//};
+
 constexpr uint8_t valueMap[4][42] =
 {
 		{
-			10,0,1,2,3,4,5,6,7,8,9,
-			22,11,12,13,14,15,16,17,18,19,20,21,
-			33,23,24,25,26,27,28,29,30,31,32,
-			41,34,35,36,37,38,39,40
+			0,0,1,2,3,4,5,6,7,8,9,
+			11,11,12,13,14,15,16,17,18,19,20,21,
+			23,23,24,25,26,27,28,29,30,31,32,
+			34,34,35,36,37,38,39,40
 		},
 
 		{
-			1,2,3,4,5,6,7,8,9,10,0,
-			12,13,14,15,16,17,18,19,20,21,22,11,
-			24,25,26,27,28,29,30,31,32,33,23,
-			35,36,37,38,39,40,41,34
+			1,2,3,4,5,6,7,8,9,10,10,
+			12,13,14,15,16,17,18,19,20,21,22,22,
+			24,25,26,27,28,29,30,31,32,33,33,
+			35,36,37,38,39,40,41,41
 		},
 
 		{
-			34,35,36,37,38,39,40,41,41,41,41,
+			0,1,2,3,4,5,6,7,8,9,10,
 			0,1,2,3,4,5,6,7,8,9,10,10,
 			11,12,13,14,15,16,17,18,19,20,21,
 			23,24,25,26,27,28,29,30,
@@ -55,11 +86,9 @@ constexpr uint8_t valueMap[4][42] =
 			11,12,13,14,15,16,17,18,19,20,21,
 			23,24,25,26,27,28,29,30,31,32,33,33,
 			34,35,36,37,38,39,40,41,41,41,41,
-			0,1,2,3,4,5,6,7
+			34,35,36,37,38,39,40,41
 		},
 };
-
-
 
 cProjectEditor projectEditor;
 cProjectEditor* PE = &projectEditor;
@@ -171,9 +200,8 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonShift, functShift);
 	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 */
-
-	FM->setButtonObj(interfaceButton1, buttonPress, functShowProjectsList);
 	FM->setButtonObj(interfaceButton0, buttonPress, functShowTemplatesList);
+	FM->setButtonObj(interfaceButton1, buttonPress, functShowProjectsList);
 	FM->setButtonObj(interfaceButton4, buttonPress, functSaveProject);
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
@@ -232,7 +260,7 @@ uint8_t functShowTemplatesList()
 uint8_t functCancelList()
 {
 	PE->showDefaultScreen();
-
+	PE->setDefaultScreenFunct();
 	return 1;
 }
 
@@ -288,7 +316,7 @@ uint8_t functOpenTemplate()
 {
 	fileManager.openProject(&PE->locationFilesList[PE->selectedLocation][0],projectTypeExample);
 	//loadSamplesBank();
-	fileManager.saveAsProject(PE->name);
+	if(fileManager.saveAsProject(PE->name) == 2) Serial.println("Zrobic proceduere"); //todo: zrobic procedure
 	fileManager.openProject(PE->name, projectTypeUserMade);
 	//loadSamplesBank();
 	//PE->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
@@ -388,6 +416,7 @@ static uint8_t functEnterName()
 	} while(SD.exists(localPatch));
 
 	PE->editPosition = strlen(PE->name);
+	PE->keyboardPosition = 10;
 	PE->showEnterNameKeyboard();
 	PE->keyboardActiveFlag = 1;
 // funkcje
