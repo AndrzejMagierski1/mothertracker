@@ -121,10 +121,11 @@ uint8_t cLabel::update()
 
 	if(style & controlStyleBackground)
 	{
+		API_COLOR(colors[1]);
+
 		if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
 		else API_LINE_WIDTH(8);
 
-		API_COLOR(colors[1]);
 
 
 		API_BEGIN(RECTS);

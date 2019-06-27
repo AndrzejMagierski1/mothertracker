@@ -17,6 +17,8 @@
 #include "list.h"
 #include "barControl.h"
 
+
+
 typedef cDisplayControl* hControl;
 
 
@@ -73,7 +75,7 @@ public:
 
 
 		hControl newControl = new controlClass(properties);
-		int8_t memory_slot = -1;
+		//int8_t memory_slot = -1;
 
 		for(uint8_t i = 0; i < controlsCount;i++)
 		{
@@ -81,7 +83,7 @@ public:
 			{
 				 memoryMap[i] = 1;
 				 newControl->ramMapPosition = i;
-				 memory_slot = i;
+				 //memory_slot = i;
 				 break;
 			}
 		}

@@ -61,12 +61,49 @@ void cInstrumentEditor::initDisplayControls()
 	filterModeList.length = filterModeCount;
 	filterModeList.data = filterModeNames;
 	strControlProperties prop;
-	prop.x = (800/8)*5+5;
+	prop.x = (800/8)*(4)+5;
 	prop.y = 140;
 	prop.w = 800/8-10;
 	prop.h = 25;
 	prop.data = &filterModeList;
 	if(filterModeListControl == nullptr)  filterModeListControl = display.createControl<cList>(&prop);
+
+
+	envelopesList.linesCount = 5;
+	envelopesList.start = selectedEnvelope;
+	envelopesList.length = 2;
+	envelopesList.data = envelopeNames;
+	prop.x = (800/8)*(0)+5;
+	prop.y = 140;
+	prop.w = 800/8-10;
+	prop.h = 25;
+	prop.data = &envelopesList;
+	if(envelopesListControl == nullptr)  envelopesListControl = display.createControl<cList>(&prop);
+
+
+	envStateList.linesCount = 5;
+	envStateList.start = editorInstrument->envelope[selectedEnvelope].enable;
+	envStateList.length = 2;
+	envStateList.data = envStateNames;
+	prop.x = (800/8)*(1)+5;
+	prop.y = 140;
+	prop.w = 800/8-10;
+	prop.h = 25;
+	prop.data = &envStateList;
+	if(envStateListControl == nullptr)  envStateListControl = display.createControl<cList>(&prop);
+
+
+	envLoopList.linesCount = 5;
+	envLoopList.start = editorInstrument->envelope[selectedEnvelope].loop;
+	envLoopList.length = 2;
+	envLoopList.data = envLoopNames;
+	prop.x = (800/8)*(7)+5;
+	prop.y = 140;
+	prop.w = 800/8-10;
+	prop.h = 25;
+	prop.data = &envLoopList;
+	if(envLoopListControl == nullptr)  envLoopListControl = display.createControl<cList>(&prop);
+
 
 
 	// ramka
@@ -109,10 +146,19 @@ void cInstrumentEditor::destroyDisplayControls()
 	display.destroyControl(filterModeListControl);
 	filterModeListControl = nullptr;
 
+	display.destroyControl(envelopesListControl);
+	envelopesListControl = nullptr;
+
+	display.destroyControl(envStateListControl);
+	envStateListControl = nullptr;
+
+	display.destroyControl(envLoopListControl);
+	envLoopListControl = nullptr;
+
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
 }
-
+/*
 void cInstrumentEditor::showDefaultScreen()
 {
 
@@ -138,19 +184,21 @@ void cInstrumentEditor::showDefaultScreen()
 	display.synchronizeRefresh();
 
 }
+*/
 
-void cInstrumentEditor::showInstrumentVolume()
+
+void cInstrumentEditor::showInstrumentEnv()
 {
-	display.setControlText(titleLabel, "Instrument Volume");
+	display.setControlText(titleLabel, "Instrument Envelopes");
 
-	display.setControlText(bottomLabel[0], "Attack");
-	display.setControlText(bottomLabel[1], "Decay");
-	display.setControlText(bottomLabel[2], "Sustain");
-	display.setControlText(bottomLabel[3], "Release");
-	display.setControlText(bottomLabel[4], "Amount");
-	display.setControlText(bottomLabel[5], "");
-	display.setControlText(bottomLabel[6], "");
-	display.setControlText(bottomLabel[7], "");
+	display.setControlText(bottomLabel[0], "Envelopes");
+	display.setControlText(bottomLabel[1], "State");
+	display.setControlText(bottomLabel[2], "Attack");
+	display.setControlText(bottomLabel[3], "Decay");
+	display.setControlText(bottomLabel[4], "Sustain");
+	display.setControlText(bottomLabel[5], "Release");
+	display.setControlText(bottomLabel[6], "Amount");
+	display.setControlText(bottomLabel[7], "Loop");
 
 
 	display.setControlText(topLabel[0], "");
@@ -163,24 +211,34 @@ void cInstrumentEditor::showInstrumentVolume()
 	display.setControlText(topLabel[7], "");
 
 
-	showVolumeAttack();
-	showVolumeDecay();
-	showVolumeSustain();
-	showVolumeRelease();
-	showVolumeAmount();
+	showEnvList();
+	showEnvState();
+	showEnvAttack();
+	showEnvDecay();
+	showEnvSustain();
+	showEnvRelease();
+	showEnvAmount();
+	showEnvLoop();
 
 //-------------------------------------
 
-	display.setControlHide(barControl[5]);
-	display.setControlHide(barControl[6]);
+	display.setControlHide(barControl[0]);
+	display.setControlHide(barControl[1]);
 	display.setControlHide(barControl[7]);
+
+	display.setControlShow(barControl[4]);
 
 	display.setControlHide(filterModeListControl);
 
 
-	display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValue_0_100));
+	display.setControlShow(envelopesListControl);
+	display.setControlShow(envStateListControl);
+	display.setControlShow(envLoopListControl);
+
+
+	//display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValue_0_100));
 	display.setControlStyle(barControl[2], (controlStyleShow | controlStyleValue_0_100));
-	display.setControlStyle(barControl[4], (controlStyleShow | controlStyleValue_0_100));
+	display.setControlStyle(barControl[3], (controlStyleShow | controlStyleValue_0_100));
 
 
 //-------------------------------------
@@ -199,91 +257,49 @@ void cInstrumentEditor::showInstrumentVolume()
 
 }
 
-void cInstrumentEditor::showInstrumentFilter()
-{
-	display.setControlText(titleLabel, "Instrument Filter");
-
-	display.setControlText(bottomLabel[0], "Attack");
-	display.setControlText(bottomLabel[1], "Decay");
-	display.setControlText(bottomLabel[2], "Sustain");
-	display.setControlText(bottomLabel[3], "Release");
-	display.setControlText(bottomLabel[4], "Amount");
-	display.setControlText(bottomLabel[5], "Filter Type");
-	display.setControlText(bottomLabel[6], "Cutoff");
-	display.setControlText(bottomLabel[7], "Resonance");
-
-
-	showFilterAttack();
-	showFilterDecay();
-	showFilterSustain();
-	showFilterRelease();
-	showFilterAmount();
-	showFilterFilterType();
-	showFilterCutOff();
-	showFilterResonance();
-
-//-------------------------------------
-
-	display.setControlHide(barControl[5]);
-
-	display.setControlShow(barControl[6]);
-	display.setControlShow(barControl[7]);
-
-	display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValue_0_100));
-	display.setControlStyle(barControl[2], (controlStyleShow | controlStyleValue_0_100));
-	display.setControlStyle(barControl[4], (controlStyleShow | controlStyleValue_0_100));
-
-//-------------------------------------
-
-	display.refreshControl(titleLabel);
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		display.refreshControl(bottomLabel[i]);
-		display.refreshControl(topLabel[i]);
-		display.refreshControl(barControl[i]);
-	}
-
-	display.synchronizeRefresh();
-}
 
 void cInstrumentEditor::showInstrumentParams()
 {
 	display.setControlText(titleLabel, "Instrument Parameters");
 
 	display.setControlText(bottomLabel[0], "Volume");
-	display.setControlText(bottomLabel[1], "Tune");
-	display.setControlText(bottomLabel[2], "Finetune");
-	display.setControlText(bottomLabel[3], "Glide");
-	display.setControlText(bottomLabel[4], "Panning");
-	display.setControlText(bottomLabel[5], "Vibrato");
-	display.setControlText(bottomLabel[6], "Tremolo");
-	display.setControlText(bottomLabel[7], "Reverb Send");
+	display.setControlText(bottomLabel[1], "Panning");
+	display.setControlText(bottomLabel[2], "Tune");
+	display.setControlText(bottomLabel[3], "Finetune");
+	display.setControlText(bottomLabel[4], "Filter Type");
+	display.setControlText(bottomLabel[5], "Cutoff");
+	display.setControlText(bottomLabel[6], "Resonance");
+	display.setControlText(bottomLabel[7], "Rev. Send");
 
 
 	showParamsVolume();
+	showParamsPanning();
 	showParamsTune();
 	showParamsFineTune();
-	showParamsGlide();
-	showParamsPanning();
-	showParamsVibrato();
-	showParamsTremolo();
+	showFilterFilterType();
+	showFilterCutOff();
+	showFilterResonance();
 	showParamsReverbSend();
 
 //-------------------------------------
 
 
-	display.setControlShow(barControl[5]);
-	display.setControlShow(barControl[6]);
+	display.setControlHide(barControl[4]);
+
+	display.setControlShow(barControl[0]);
 	display.setControlShow(barControl[7]);
 
-	display.setControlHide(filterModeListControl);
 
+	display.setControlHide(envelopesListControl);
+	display.setControlHide(envStateListControl);
+	display.setControlHide(envLoopListControl);
+
+	display.setControlShow(filterModeListControl);
 
 
 	display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValueLeftRight_100_100));
 	display.setControlStyle(barControl[2], (controlStyleShow | controlStyleValueLeftRight_100_100));
-	display.setControlStyle(barControl[4], (controlStyleShow | controlStyleValueLeftRight_100_100));
+	display.setControlStyle(barControl[3], (controlStyleShow | controlStyleValueLeftRight_100_100));
 
 //-------------------------------------
 
@@ -311,66 +327,81 @@ void cInstrumentEditor::activateLabelsBorder()
 
 //==============================================================================================================
 
-void cInstrumentEditor::showVolumeAttack()
-{
-	display.setControlValue(barControl[0], (editorInstrument->envelope[envelopeTypeAmp].attack*100)/ATTACK_MAX);
-	display.refreshControl(barControl[0]);
 
+void cInstrumentEditor::showEnvList()
+{
+	display.setControlValue(envelopesListControl, selectedEnvelope);
+	display.refreshControl(envelopesListControl);
 }
 
-void cInstrumentEditor::showVolumeDecay()
+void cInstrumentEditor::showEnvState()
 {
-	display.setControlValue(barControl[1], (editorInstrument->envelope[envelopeTypeAmp].decay*100)/DECAY_MAX);
-	display.refreshControl(barControl[1]);
-
+	display.setControlValue(envStateListControl, 0);
+	display.refreshControl(envStateListControl);
 }
 
-void cInstrumentEditor::showVolumeSustain()
+void cInstrumentEditor::showEnvAttack()
 {
-	display.setControlValue(barControl[2], (editorInstrument->envelope[envelopeTypeAmp].sustain*100));
+	display.setControlValue(barControl[2], (editorInstrument->envelope[selectedEnvelope].attack*100)/ATTACK_MAX);
 	display.refreshControl(barControl[2]);
+
 }
 
-void cInstrumentEditor::showVolumeRelease()
+void cInstrumentEditor::showEnvDecay()
 {
-	display.setControlValue(barControl[3], (editorInstrument->envelope[envelopeTypeAmp].release*100)/RELEASE_MAX);
+	display.setControlValue(barControl[3], (editorInstrument->envelope[selectedEnvelope].decay*100)/DECAY_MAX);
 	display.refreshControl(barControl[3]);
+
 }
 
-void cInstrumentEditor::showVolumeAmount()
+void cInstrumentEditor::showEnvSustain()
 {
-	display.setControlValue(barControl[4],(editorInstrument->envelope[envelopeTypeAmp].amount*100) );
+	display.setControlValue(barControl[4], (editorInstrument->envelope[selectedEnvelope].sustain*100));
 	display.refreshControl(barControl[4]);
 }
 
-void cInstrumentEditor::showFilterAttack()
+void cInstrumentEditor::showEnvRelease()
 {
-	display.setControlValue(barControl[0], (editorInstrument->envelope[envelopeTypeFilter].attack*100)/ATTACK_MAX);
+	display.setControlValue(barControl[5], (editorInstrument->envelope[selectedEnvelope].release*100)/RELEASE_MAX);
+	display.refreshControl(barControl[5]);
+}
+
+void cInstrumentEditor::showEnvAmount()
+{
+	display.setControlValue(barControl[6],(editorInstrument->envelope[selectedEnvelope].amount*100) );
+	display.refreshControl(barControl[6]);
+}
+
+void cInstrumentEditor::showEnvLoop()
+{
+	display.setControlValue(envLoopListControl, 0);
+	display.refreshControl(envLoopListControl);
+}
+
+
+
+void cInstrumentEditor::showParamsVolume()
+{
+	display.setControlValue(barControl[0], editorInstrument->volume);
 	display.refreshControl(barControl[0]);
 }
 
-void cInstrumentEditor::showFilterDecay()
+void cInstrumentEditor::showParamsPanning()
 {
-	display.setControlValue(barControl[1], (editorInstrument->envelope[envelopeTypeFilter].decay*100)/DECAY_MAX);
+	display.setControlValue(barControl[1], editorInstrument->panning);
 	display.refreshControl(barControl[1]);
 }
 
-void cInstrumentEditor::showFilterSustain()
+void cInstrumentEditor::showParamsTune()
 {
-	display.setControlValue(barControl[2], (editorInstrument->envelope[envelopeTypeFilter].sustain*100));
+	display.setControlValue(barControl[2], (editorInstrument->tune*100)/24);
 	display.refreshControl(barControl[2]);
 }
 
-void cInstrumentEditor::showFilterRelease()
+void cInstrumentEditor::showParamsFineTune()
 {
-	display.setControlValue(barControl[3], (editorInstrument->envelope[envelopeTypeFilter].release*100)/RELEASE_MAX);
+	display.setControlValue(barControl[3], editorInstrument->fineTune);
 	display.refreshControl(barControl[3]);
-}
-
-void cInstrumentEditor::showFilterAmount()
-{
-	display.setControlValue(barControl[4], (editorInstrument->envelope[envelopeTypeFilter].amount*100));
-	display.refreshControl(barControl[4]);
 }
 
 void cInstrumentEditor::showFilterFilterType()
@@ -388,55 +419,13 @@ void cInstrumentEditor::showFilterFilterType()
 
 void cInstrumentEditor::showFilterCutOff()
 {
-	display.setControlValue(barControl[6], (editorInstrument->cutOff*100));
-	display.refreshControl(barControl[6]);
+	display.setControlValue(barControl[5], (editorInstrument->cutOff*100));
+	display.refreshControl(barControl[5]);
 }
 
 void cInstrumentEditor::showFilterResonance()
 {
-	display.setControlValue(barControl[7], ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100);
-	display.refreshControl(barControl[7]);
-}
-
-void cInstrumentEditor::showParamsVolume()
-{
-	display.setControlValue(barControl[0], editorInstrument->volume);
-	display.refreshControl(barControl[0]);
-}
-
-void cInstrumentEditor::showParamsTune()
-{
-	display.setControlValue(barControl[1], (editorInstrument->tune*100)/24);
-	display.refreshControl(barControl[1]);
-}
-
-void cInstrumentEditor::showParamsFineTune()
-{
-	display.setControlValue(barControl[2], editorInstrument->fineTune);
-	display.refreshControl(barControl[2]);
-}
-
-void cInstrumentEditor::showParamsGlide()
-{
-	display.setControlValue(barControl[3], (editorInstrument->glide*100)/GLIDE_MAX);
-	display.refreshControl(barControl[3]);
-}
-
-void cInstrumentEditor::showParamsPanning()
-{
-	display.setControlValue(barControl[4], editorInstrument->panning);
-	display.refreshControl(barControl[4]);
-}
-
-void cInstrumentEditor::showParamsVibrato()
-{
-	display.setControlValue(barControl[5], 0);
-	display.refreshControl(barControl[5]);
-}
-
-void cInstrumentEditor::showParamsTremolo()
-{
-	display.setControlValue(barControl[6], 0);
+	display.setControlValue(barControl[6], ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100);
 	display.refreshControl(barControl[6]);
 }
 
@@ -445,6 +434,17 @@ void cInstrumentEditor::showParamsReverbSend()
 	display.setControlValue(barControl[7], editorInstrument->reverbSend);
 	display.refreshControl(barControl[7]);
 }
+
+
+
+void cInstrumentEditor::showParamsGlide()
+{
+	display.setControlValue(barControl[3], (editorInstrument->glide*100)/GLIDE_MAX);
+	display.refreshControl(barControl[3]);
+}
+
+
+
 
 
 
