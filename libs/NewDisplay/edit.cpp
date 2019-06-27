@@ -105,7 +105,7 @@ void cEdit::setData(void* data)
 uint8_t cEdit::update()
 {
 
-    API_LIB_BeginCoProList();
+	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
 	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);

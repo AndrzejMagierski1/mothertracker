@@ -99,7 +99,7 @@ void cKeyboard::setData(void* data)
 //--------------------------------------------------------------------------------
 uint8_t cKeyboard::update()
 {
-    API_LIB_BeginCoProList();
+	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
 

@@ -89,7 +89,7 @@ void cDisplay::begin()
 //	API_LIB_WriteDataRAMG(Roboto_Mono_20_L4, sizeof(Roboto_Mono_20_L4), 20000);
 //####################################
 
-    API_LIB_BeginCoProList();
+	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
 	API_CLEAR_COLOR(DISP_RGB(0,0,0));
@@ -377,26 +377,14 @@ if(refreshTimer > refreshF)
 
 			if(!API_LIB_IsCoProEmpty()) return;
 
-			//EVE_MemWrite32(REG_CPURESET,1);
-			//return;
-			//delay(1);
-
-//			testTimer = 0;
 
 			API_LIB_BeginCoProListNoCheck();
 		    API_CMD_DLSTART();
 
 
-		    API_CLEAR_COLOR(0);
+			API_CLEAR_COLOR(config.bgColor);
 			API_CLEAR(1,1,1);
 
-			//API_CLEAR_COLOR(config.bgColor);
-			//API_CLEAR(1,1,1);
-
-			//API_RESTORE_CONTEXT();
-			//API_RESTORE_CONTEXT();
-
-			//API_COLOR_A(128);
 
 			API_VERTEX_FORMAT(0);
 
@@ -416,12 +404,6 @@ if(refreshTimer > refreshF)
 			API_LIB_EndCoProList();
 			//API_LIB_AwaitCoProEmpty();
 
-//uint32_t space = EVE_MemRead32(REG_CMDB_SPACE);
-//(void)space;
-//Serial.println(space);
-
-//			Serial.print("phase 3 ");
-//			Serial.println(testTimer);
 
 
 			updateStep = 0;
