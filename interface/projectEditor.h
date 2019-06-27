@@ -53,7 +53,9 @@ public:
 
 	hControl topLabel[8];
 	hControl bottomLabel[8];
+	hControl editName;
 	hControl fileListControl;
+	hControl keyboardControl;
 
 	uint32_t topLabelColors[3] =
 	{
@@ -76,7 +78,22 @@ public:
 	char locationFilesList[files_list_length_max][20];
 	char *filesNames[files_list_length_max];
 
+//-------------------------------------------------------------
 
+	char name[32];
+	uint8_t keyboardPosition;
+	int8_t editPosition;
+	void showKeyboard();
+	void hideKeyboard();
+	void showKeyboardEditName();
+	void hideKeyboardEditName();
+	void showEnterNameKeyboard();
+
+	uint8_t keyboardActiveFlag = 0;
+	uint8_t keyboardShiftFlag = 0;
+
+
+//-------------------------------------------------------------
 
 };
 

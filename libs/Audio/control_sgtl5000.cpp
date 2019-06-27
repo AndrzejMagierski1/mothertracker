@@ -515,9 +515,11 @@ bool AudioControlSGTL5000::enable(void)
 
 	//Wire.setSCL(47);
 	//Wire.setSDA(48);
+
 	Wire.begin();
 	Wire.setSCL(47);
 	Wire.setSDA(48);
+
 	delay(5);
 	//Serial.print("chip ID = ");
 	//delay(5);

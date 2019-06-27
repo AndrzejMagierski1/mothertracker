@@ -66,6 +66,7 @@ public:
 
 	uint16_t textStyle;
 	int16_t textFont;
+	int16_t textWidth;
 };
 
 //--------------------------------------------------------------------
