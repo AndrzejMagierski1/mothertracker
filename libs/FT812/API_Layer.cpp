@@ -45,7 +45,7 @@ uint16_t cmdBufferRd;		// Used to navigate command ring buffer
 uint16_t cmdBufferWr = 0x0000;		// Used to navigate command ring buffer
 uint16_t cmdOffset = 0x0000;		// Used to navigate command rung buffer
 
-
+void MCU_Delay_3us(void);
 //##############################################################################
 // Library functions
 //##############################################################################
@@ -83,6 +83,8 @@ void API_LIB_EndCoProList(void)
 {
     MCU_CShigh();                                                               // Chip Select high concludes burst
     
+    MCU_Delay_3us();
+
     EVE_MemWrite32(REG_CMD_WRITE, (cmdOffset));                                 // Update the ring buffer pointer 
 }
 

@@ -435,6 +435,12 @@ void MCU_Delay_20ms(void)
 	delay(20);
 }
 
+void MCU_Delay_3us(void)
+{
+	delayMicroseconds(3);
+}
+
+
 void MCU_Delay_500ms(void)
 {
 	delay(500);
