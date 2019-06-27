@@ -1,6 +1,3 @@
-
-
-
 #include <projectEditor.h>
 
 
@@ -63,7 +60,7 @@ void cProjectEditor::initDisplayControls()
 	prop4.y = 190;
 	prop4.w = 730;
 	prop4.h = 30;
-	if(textLabel == nullptr)  textLabel = display.createControl<cLabel>(&prop4);
+	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop4);
 
 
 }
@@ -89,8 +86,8 @@ void cProjectEditor::destroyDisplayControls()
 	display.destroyControl(keyboardControl);
 	keyboardControl = nullptr;
 
-	display.destroyControl(textLabel);
-	textLabel = nullptr;
+	display.destroyControl(editName);
+	editName = nullptr;
 
 }
 
@@ -115,14 +112,11 @@ void cProjectEditor::showDefaultScreen()
 	}
 
 
-	display.setControlShow(keyboardControl);
-
-	display.setControlValue(keyboardControl, 0);
+	display.setControlHide(keyboardControl);
 	display.refreshControl(keyboardControl);
 
-
-	display.setControlText(textLabel, "losowy tekst");
-	display.refreshControl(textLabel);
+	display.setControlHide(editName);
+	display.refreshControl(editName);
 
 
 
@@ -188,4 +182,68 @@ void cProjectEditor::showTemplatesList()
 
 	display.synchronizeRefresh();
 
+}
+
+
+void cProjectEditor::showEnterNameKeyboard()
+{
+
+	display.setControlHide(fileListControl);
+	display.refreshControl(fileListControl);
+
+// top label listy
+	display.setControlHide(topLabel[0]);
+	display.refreshControl(topLabel[0]);
+
+// bottom labels
+	display.setControlText(bottomLabel[0], "Create");
+	display.setControlText(bottomLabel[1], "Cancel");
+	display.setControlText(bottomLabel[4], "New");
+
+	display.refreshControl(bottomLabel[0]);
+	display.refreshControl(bottomLabel[1]);
+	display.refreshControl(bottomLabel[4]);
+
+
+	showKeyboard();
+	showKeyboardEditName();
+
+
+	display.synchronizeRefresh();
+
+
+}
+
+
+void cProjectEditor::showKeyboard()
+{
+
+	if(keyboardShiftFlag) display.setControlValue(keyboardControl, keyboardPosition + 42);
+	else display.setControlValue(keyboardControl, keyboardPosition);
+
+	display.setControlShow(keyboardControl);
+	display.refreshControl(keyboardControl);
+}
+
+void cProjectEditor::hideKeyboard()
+{
+	display.setControlHide(keyboardControl);
+	display.refreshControl(keyboardControl);
+}
+
+void cProjectEditor::showKeyboardEditName()
+{
+
+
+	display.setControlValue(editName, editPosition);
+
+	display.setControlText(editName, name);
+	display.setControlShow(editName);
+	display.refreshControl(editName);
+}
+
+void cProjectEditor::hideKeyboardEditName()
+{
+	display.setControlHide(editName);
+	display.refreshControl(editName);
 }

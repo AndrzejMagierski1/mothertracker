@@ -119,6 +119,12 @@ uint8_t cKeyboard::update()
 	}
 	API_END();
 	API_COLOR(colors[1]);
+	if(value <= 41) keyboardShift = 0;
+	else
+	{
+		keyboardShift = 1;
+		value -=42;
+	}
 	for(uint8_t i = 0 ; i < KEYBOARD_SIZE; i++)
 	{
 		if(keyboardShift)
@@ -274,10 +280,6 @@ void cKeyboard::fillKeyboard()
 		}
 	}
 
-}
-void cKeyboard::setKeyboardShift(uint8_t s)
-{
-	keyboardShift = s;
 }
 
 //void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length)

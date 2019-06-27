@@ -57,7 +57,6 @@ public:
 	virtual void setData(void* data);
 
 	void fillKeyboard();
-	void setKeyboardShift(uint8_t s);
 	strKey keyboard[KEYBOARD_SIZE];
 	uint16_t textStyle;
 	int16_t textFont;
