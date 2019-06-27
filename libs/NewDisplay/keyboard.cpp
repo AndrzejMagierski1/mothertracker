@@ -135,7 +135,7 @@ uint8_t cKeyboard::update()
 				API_CMD_TEXT(keyboard[i].x + keyboard[i].w/2, keyboard[i].y + keyboard[i].h/2, textFont, OPT_CENTER, localString);
 			}
 			else if(charOnKeyboardBig[i] == 0) API_CMD_TEXT(keyboard[i].x + keyboard[i].w/2, keyboard[i].y + keyboard[i].h/2, textFont, OPT_CENTER, "Backspace");
-			else if(charOnKeyboardBig[i] == 1) API_CMD_TEXT(keyboard[i].x + keyboard[i].w/2, keyboard[i].y + keyboard[i].h/2, textFont, OPT_CENTER, "Shift");
+			else if(charOnKeyboardBig[i] == 1) API_CMD_TEXT(keyboard[i].x + keyboard[i].w/2, keyboard[i].y + keyboard[i].h/2, textFont, OPT_CENTER, "Caps Lock");
 			else if(charOnKeyboardBig[i] == 2) API_CMD_TEXT(keyboard[i].x + keyboard[i].w/2, keyboard[i].y + keyboard[i].h/2, textFont, OPT_CENTER, "Space");
 		}
 		else
@@ -146,7 +146,7 @@ uint8_t cKeyboard::update()
 				API_CMD_TEXT(keyboard[i].x + keyboard[i].w/2, keyboard[i].y + keyboard[i].h/2, textFont, OPT_CENTER, localString);
 			}
 			else if(charOnKeyboardSmall[i] == 0) API_CMD_TEXT(keyboard[i].x + keyboard[i].w/2, keyboard[i].y + keyboard[i].h/2, textFont, OPT_CENTER, "Backspace");
-			else if(charOnKeyboardSmall[i] == 1) API_CMD_TEXT(keyboard[i].x + keyboard[i].w/2, keyboard[i].y + keyboard[i].h/2, textFont, OPT_CENTER, "Shift");
+			else if(charOnKeyboardSmall[i] == 1) API_CMD_TEXT(keyboard[i].x + keyboard[i].w/2, keyboard[i].y + keyboard[i].h/2, textFont, OPT_CENTER, "Caps Lock");
 			else if(charOnKeyboardSmall[i] == 2) API_CMD_TEXT(keyboard[i].x + keyboard[i].w/2, keyboard[i].y + keyboard[i].h/2, textFont, OPT_CENTER, "Space");
 		}
 

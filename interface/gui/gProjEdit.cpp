@@ -47,18 +47,18 @@ void cProjectEditor::initDisplayControls()
 
 
 	strControlProperties prop3;
-	prop3.x = 50;
+	prop3.x = 80;
 	prop3.y = 240;
-	prop3.w = 750;
+	prop3.w = 650;
 	prop3.h = 210;
 	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cKeyboard>(&prop3);
 
 	strControlProperties prop4;
 	prop4.text = (char*)"";
 	prop4.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
-	prop4.x = 415;
+	prop4.x = 398;
 	prop4.y = 190;
-	prop4.w = 730;
+	prop4.w = 635;
 	prop4.h = 30;
 	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop4);
 

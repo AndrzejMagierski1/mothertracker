@@ -269,13 +269,14 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 	return status;
 }
 
-void FileManager::createNewProject(char * name)
+uint8_t FileManager::createNewProject(char * name)
 {
 	char patchFolder[PATCH_SIZE];
 
 	strcpy(currentProjectPatch,"Projects/");
 	strcat(currentProjectPatch,name);
 
+	if(!SD.exists(currentProjectPatch)) return 2;
 	strcpy(currentProjectName,name);
 
 	if(!SD.exists("Projects")) SD.mkdir("Projects");
@@ -304,6 +305,8 @@ void FileManager::createNewProject(char * name)
 	strcat(patchFolder,"/project.bin");
 
 	writeProjectFile(patchFolder, &mtProject.mtProjectRemote);
+
+	return 1;
 }
 
 void FileManager::importSampleToProject(char* filePatch, char* name, int8_t instrumentIndex, uint8_t type)
@@ -617,12 +620,10 @@ void FileManager::importProject(char* sourceProjectPatch,char* name, char* newNa
 	}
 }
 
-void FileManager::saveAsProject(char* name)
+uint8_t FileManager::saveAsProject(char* name)
 {
 	char currentPatch [PATCH_SIZE];
-	createNewProject(name);
-
-	if(!SD.exists("Projects")) SD.mkdir("Projects");
+	if(createNewProject(name) == 2) return 2;
 
 	for(uint8_t i=0;i<INSTRUMENTS_COUNT;i++)
 	{
@@ -675,6 +676,7 @@ void FileManager::saveAsProject(char* name)
 	strcat(currentPatch,"/project.bin");
 
 	writeProjectFile(currentPatch,&mtProject.mtProjectRemote);
+	return 1;
 
 }
 
