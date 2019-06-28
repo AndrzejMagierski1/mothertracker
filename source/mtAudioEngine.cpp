@@ -92,7 +92,7 @@ AudioConnection          connect52(&limiter[0], 0, &mixerSourceL, 0);
 AudioConnection          connect53(&limiter[1], 0, &mixerSourceR, 0);
 
 AudioConnection          connect61(&playSdWav, 0, &mixerSourceL, 1);
-AudioConnection          connect62(&playSdWav, 1, &mixerSourceR, 1);
+AudioConnection          connect62(&playSdWav, 0, &mixerSourceR, 1);
 
 AudioConnection          connect59(&mixerSourceL, 0, &i2sOut, 0);
 AudioConnection          connect60(&mixerSourceR, 0, &i2sOut, 1);
