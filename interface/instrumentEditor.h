@@ -144,15 +144,12 @@ public:
 	hControl envStateListControl;
 	hControl envLoopListControl;
 
-
-	hControl listControl;
-
 	hControl frameControl;
 
 
 	uint8_t selectedPlace[2] = {0};
 
-
+	// typ trybu/ekranu
 	uint8_t mode;
 
 	strInstrument * editorInstrument;
@@ -164,20 +161,20 @@ public:
 //----------------------------------
 // lista play mode
 
-		strList filterModeList;
+	strList filterModeList;
 
-		void listData();
+	void listData();
 
-		char *filterModeNames[filterModeCount];
+	char *filterModeNames[filterModeCount];
 
-		uint8_t filterModeListPos;
+	uint8_t filterModeListPos;
 
 //----------------------------------
 // odtwarzanie
 	uint8_t isPlayingSample = 0;
 
 //----------------------------------
-// envelopes list
+// envelopes lists
 
 strList envelopesList;
 strList envStateList;

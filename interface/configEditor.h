@@ -10,6 +10,14 @@
 #include "mtStructs.h"
 
 
+enum mtConfigMode
+{
+	mtConfigModeDefault,
+	mtConfigModeMaster,
+	mtConfigModeMasterTracks,
+
+
+};
 
 
 
@@ -49,9 +57,26 @@ public:
 	}
 	virtual ~cConfigEditor() {}
 
-	void showDefaultScreen();
+
+
+
+	void showDefaultConfigScreen();
+	void showMasterScreen();
+	void showMasterTracksScreen();
+
+
+
+
+
 
 	void showConfigGroupList();
+
+
+
+
+
+
+
 
 	void setDefaultScreenFunct();
 
@@ -72,10 +97,12 @@ public:
 	hControl frameControl;
 
 
-	uint8_t selectedPlace = 0;
+	uint8_t selectedPlace[3] = {0};
 
+	// typ trybu/ekranu
+	uint8_t mode;
 
-
+	strInstrument * editorInstrument;
 
 //----------------------------------
 // lista play mode

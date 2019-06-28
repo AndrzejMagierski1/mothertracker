@@ -73,7 +73,7 @@ public:
 	uint16_t locationFolderCount;
 	char locationFolderList[list_length_max][20];
 	char *folderNames[list_length_max];
-	uint8_t selectedFolder;
+	uint8_t selectedFolder = 0;
 	//char *folderPath;
 
 // pliki wave w wybranym folderze
@@ -86,7 +86,7 @@ public:
 	uint16_t locationFileCount;
 	char locationFileList[list_length_max][20];
 	char *fileNames[list_length_max];
-	uint8_t selectedFile;
+	uint8_t selectedFile = 0;
 
 //--------------------------------------------------------------
 

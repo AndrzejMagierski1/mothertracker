@@ -58,6 +58,8 @@ void cSampleImporter::start(uint32_t options)
 	//selectedFile = 0;
 	dirLevel = 0;
 
+	selectedSlot = mtProject.values.lastUsedInstrument;
+
 	actualPath[0] = '/';
 	actualPath[1] = 0;
 

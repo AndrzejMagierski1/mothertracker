@@ -52,6 +52,7 @@ void cConfigEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
+	mode = options;
 
 //--------------------------------------------------------------------
 
@@ -78,8 +79,31 @@ void cConfigEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
-	showDefaultScreen();
-	setDefaultScreenFunct();
+
+
+
+	switch(mode)
+	{
+	case mtConfigModeDefault:
+	{
+		showDefaultConfigScreen();
+		setDefaultScreenFunct();
+		break;
+	}
+	case mtConfigModeMaster:
+	{
+		showMasterScreen();
+		setDefaultScreenFunct();
+		break;
+	}
+	case mtConfigModeMasterTracks:
+	{
+		showMasterTracksScreen();
+		setDefaultScreenFunct();
+		break;
+	}
+	}
+
 
 	activateLabelsBorder();
 }
@@ -160,7 +184,7 @@ static  uint8_t functConfigGroup(uint8_t button)
 		CE->changeConfigGroupSelection(1);
 	}
 
-	CE->selectedPlace = 6;
+	CE->selectedPlace[0] = 6;
 	CE->activateLabelsBorder();
 
 
@@ -169,17 +193,31 @@ static  uint8_t functConfigGroup(uint8_t button)
 
 static  uint8_t functEncoder(int16_t value)
 {
+	uint8_t mode_places = CE->selectedPlace[CE->mode] + CE->mode*10;
 
-
-	switch(CE->selectedPlace)
+	switch(mode_places)
 	{
-	case 0: break;
-	case 1: break;
-	case 2: break;
-	case 3: break;
-	case 5: break;
-	case 6: CE->changeConfigGroupSelection(value);	break;
+	case 0: 	 break;
+	case 1:		 break;
+	case 2: 	 break;
+	case 3: 	 break;
+	case 4: 	 break;
+	case 5: 	 break;
+	case 6: CE->changeConfigGroupSelection(value);	 break;
+	case 7: 	 break;
+
+	case 10: 	break;
+	case 11: 	break;
+	case 12: 	break;
+	case 13: 	break;
+	case 14: 	break;
+	case 15: 	break;
+	case 16: 	break;
+	case 17: 	break;
+
 	}
+
+
 
 
 
@@ -192,9 +230,9 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functLeft()
 {
-	if(CE->selectedPlace > 0) CE->selectedPlace--;
+	if(CE->selectedPlace[CE->mode] > 0) CE->selectedPlace[CE->mode]--;
 
-	switch(CE->selectedPlace)
+	switch(CE->selectedPlace[CE->mode])
 	{
 		case 0: break;
 		case 1: break;
@@ -204,7 +242,7 @@ static  uint8_t functLeft()
 		case 5: break;
 		case 6:
 		{
-		CE->selectedPlace = 6;
+		CE->selectedPlace[CE->mode] = 6;
 		CE->activateLabelsBorder();
 
 		break;
@@ -218,9 +256,9 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
-	if(CE->selectedPlace < CE->frameData.placesCount-1) CE->selectedPlace++;
+	if(CE->selectedPlace[CE->mode] < CE->frameData.placesCount-1) CE->selectedPlace[CE->mode]++;
 
-	switch(CE->selectedPlace)
+	switch(CE->selectedPlace[CE->mode])
 	{
 		case 0: 	break;
 		case 1: 	break;
@@ -230,7 +268,7 @@ static  uint8_t functRight()
 		case 5: 	break;
 		case 6:
 		{
-		CE->selectedPlace = 6;
+		CE->selectedPlace[CE->mode] = 6;
 		CE->activateLabelsBorder();
 		break;
 		}
@@ -244,7 +282,7 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
-	switch(CE->selectedPlace)
+	switch(CE->selectedPlace[CE->mode])
 	{
 	case 0: 	break;
 	case 1: 	break;
@@ -260,7 +298,7 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
-	switch(CE->selectedPlace)
+	switch(CE->selectedPlace[CE->mode])
 	{
 	case 0: 	break;
 	case 1: 	break;

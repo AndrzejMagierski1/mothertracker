@@ -226,7 +226,7 @@ static  uint8_t functEncoder(int16_t value)
 	case 6: IE->changeFilterResonance(value); 	 break;
 	case 7: IE->changeParamsReverbSend(value); 	 break;
 
-	case 10: IE->changeEnvList(value); 			break;
+	case 10: IE->changeEnvList(value); 		break;
 	case 11: IE->changeEnvState(value); 	break;
 	case 12: IE->changeEnvAttack(value); 	break;
 	case 13: IE->changeEnvDecay(value); 	break;

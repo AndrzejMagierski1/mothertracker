@@ -51,8 +51,6 @@ void cSamplePlayback::initDisplayControls()
 	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
 
 
-
-
 	playModeList.linesCount = 5;
 	playModeList.start = editorInstrument->playMode;
 	playModeList.length = playModeCount;
@@ -63,6 +61,18 @@ void cSamplePlayback::initDisplayControls()
 	prop.h = 25;
 	prop.data = &playModeList;
 	if(playModeListControl == nullptr)  playModeListControl = display.createControl<cList>(&prop);
+
+
+
+	// spectrum + points
+	prop.x = 0;
+	prop.y = 75;
+	prop.w = 600;
+	prop.h = 300;
+	prop.data = &spectrum;
+	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
+
+
 
 	prop.x = 0;
 	prop.y = 75;
@@ -87,15 +97,6 @@ void cSamplePlayback::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 
-
-
-	// spectrum + points
-	prop.x = 0;
-	prop.y = 75;
-	prop.w = 600;
-	prop.h = 300;
-	prop.data = &spectrum;
-	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
 
 
 
