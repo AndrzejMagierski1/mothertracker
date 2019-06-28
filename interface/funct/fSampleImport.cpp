@@ -463,7 +463,7 @@ void cSampleImporter::listOnlyWavFromActualPath()
 	sdLocation.open(actualPath, O_READ);
 
 
-	locationFileCount = sdLocation.createFilesList(0,locationFileList, list_length_max);
+	locationFileCount = sdLocation.createFilesList(0,locationFileList, list_length_max,2);
 
 
 	sdLocation.close();

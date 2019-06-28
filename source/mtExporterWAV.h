@@ -4,7 +4,7 @@
 #include "Audio.h"
 #include "SD.h"
 
-#define SEND_BUF_SIZE 10240
+#define SEND_BUF_SIZE 5120
 
 enum struct exportStatus
 {
