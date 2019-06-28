@@ -96,7 +96,7 @@ void cTemplate::setData(void* data)
 //--------------------------------------------------------------------------------
 uint8_t cTemplate::update()
 {
-    API_LIB_BeginCoProList();
+	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
 

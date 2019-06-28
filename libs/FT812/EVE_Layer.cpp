@@ -325,12 +325,48 @@ uint8_t EVE_WaitCmdFifoEmpty(void)
 }
 
 
+uint32_t error_counter = 0;
+
 uint8_t EVE_IsCmdFifoEmpty(void)
 {
     uint32_t ReadPointer = EVE_MemRead32(REG_CMD_READ);
     uint32_t WritePointer = EVE_MemRead32(REG_CMD_WRITE);
 
-    if(WritePointer == ReadPointer) return 1;
+/*
+    uint8_t flag = 0;
+    if(flag == 1)
+    {
+    	EVE_MemWrite32(REG_CMD_READ, WritePointer);
+    	EVE_MemWrite32(REG_CMD_WRITE, WritePointer);
+    }
+*/
+
+    if(ReadPointer == 0xFFF || error_counter > 1000)
+    {
+    	//Set REG_CPURESET to 1, to hold the co-processor engine in the reset condition
+    	//Set REG_CMD_READ and REG_CMD_WRITE to zero
+    	//Set REG_CPURESET to 0, to restart the co-processor engine
+    	error_counter = 0;
+
+    	Serial.println("FT812 ERROR!");
+
+    	EVE_MemWrite32(REG_CPURESET,1);
+    	EVE_MemWrite32(REG_CMD_READ, 0);
+    	EVE_MemWrite32(REG_CMD_WRITE, 0);
+    	EVE_MemWrite32(REG_CPURESET,0);
+
+    	return 1;
+    	//cmdOffset = 0;
+    }
+
+    if(WritePointer == ReadPointer)
+    {
+    	error_counter = 0;
+    	return 1;
+
+    }
+    else error_counter++;
+
 
     return 0;
 }

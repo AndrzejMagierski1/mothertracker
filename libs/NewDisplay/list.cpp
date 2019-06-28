@@ -129,7 +129,7 @@ uint8_t cList::update()
 	int16_t x_pos, y_pos;
 	uint8_t lines;
 
-	API_LIB_BeginCoProList();
+	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
     x_pos = posX;

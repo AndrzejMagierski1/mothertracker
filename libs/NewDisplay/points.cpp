@@ -101,7 +101,7 @@ uint8_t cPoints::update()
 {
 	if(points == nullptr) return 0;
 
-	API_LIB_BeginCoProList();
+	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
 	// linie start end

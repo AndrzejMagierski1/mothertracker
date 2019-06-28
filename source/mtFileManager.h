@@ -139,9 +139,9 @@ public:
 
 	uint8_t openProject(char * name, uint8_t type);
 	void importProject(char* sourceProjectPatch,char* name, char* newName);
-	void saveAsProject(char* name);
+	uint8_t saveAsProject(char* name);
 	void saveProject();
-	void createNewProject(char * name);
+	uint8_t createNewProject(char * name);
 	void importSampleToProject(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type = mtSampleTypeWaveFile);
 	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
 	void importPatternToProject(char* filePatch, char* name, int8_t index);

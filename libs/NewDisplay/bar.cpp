@@ -96,7 +96,7 @@ void cBar::setData(void* data)
 //--------------------------------------------------------------------------------
 uint8_t cBar::update()
 {
-    API_LIB_BeginCoProList();
+	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
     uint16_t barWidth = (width >= 800/8) ? 800/8-10 : width-10;
