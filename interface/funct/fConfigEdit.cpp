@@ -61,11 +61,6 @@ void cConfigEditor::start(uint32_t options)
 //--------------------------------------------------------------------
 
 
-	listConfigGroups();
-
-	showConfigGroupList();
-
-
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonEnvelopes, buttonPress, functSwitchModule);
@@ -86,20 +81,29 @@ void cConfigEditor::start(uint32_t options)
 	{
 	case mtConfigModeDefault:
 	{
+
+
+		listConfigGroups();
+		showConfigGroupList();
+
 		showDefaultConfigScreen();
-		setDefaultScreenFunct();
+		setConfigScreenFunct();
 		break;
 	}
 	case mtConfigModeMaster:
 	{
+
+
 		showMasterScreen();
-		setDefaultScreenFunct();
+		setMasterScreenFunct();
 		break;
 	}
 	case mtConfigModeMasterTracks:
 	{
+
+
 		showMasterTracksScreen();
-		setDefaultScreenFunct();
+		setMasterTracksScreenFunct();
 		break;
 	}
 	}
@@ -116,7 +120,7 @@ void cConfigEditor::stop()
 }
 
 
-void cConfigEditor::setDefaultScreenFunct()
+void cConfigEditor::setConfigScreenFunct()
 {
 
 	//funkcje
@@ -132,14 +136,7 @@ void cConfigEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-/*
-	FM->setButtonObj(interfaceButton0, buttonPress, functSelectStart);
-	FM->setButtonObj(interfaceButton1, buttonPress, functSelectLoop1);
-	FM->setButtonObj(interfaceButton2, buttonPress, functSelectLoop2);
-	FM->setButtonObj(interfaceButton3, buttonPress, functSelectEnd);
 
-	FM->setButtonObj(interfaceButton5, buttonPress, functSelectZoom);
-*/
 
 	FM->setButtonObj(interfaceButton6, buttonPress, functConfigGroup);
 	FM->setButtonObj(interfaceButton7, buttonPress, functConfigGroup);
@@ -151,6 +148,61 @@ void cConfigEditor::setDefaultScreenFunct()
 
 }
 
+void cConfigEditor::setMasterScreenFunct()
+{
+
+	//funkcje
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	FM->clearAllPots();
+
+	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
+	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
+
+
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+
+
+
+	FM->setButtonObj(interfaceButton6, buttonPress, functConfigGroup);
+	FM->setButtonObj(interfaceButton7, buttonPress, functConfigGroup);
+
+
+
+	FM->setPotObj(interfacePot0, functEncoder, nullptr);
+
+
+}
+
+void cConfigEditor::setMasterTracksScreenFunct()
+{
+
+	//funkcje
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	FM->clearAllPots();
+
+	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
+	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
+
+
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+
+
+
+	FM->setButtonObj(interfaceButton6, buttonPress, functConfigGroup);
+	FM->setButtonObj(interfaceButton7, buttonPress, functConfigGroup);
+
+
+
+	FM->setPotObj(interfacePot0, functEncoder, nullptr);
+
+
+}
 //==============================================================================================================
 
 

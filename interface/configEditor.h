@@ -76,11 +76,14 @@ public:
 
 
 
+	void setConfigScreenFunct();
+	void setMasterScreenFunct();
+	void setMasterTracksScreenFunct();
 
 
-	void setDefaultScreenFunct();
 
 	void changeConfigGroupSelection(int16_t value);
+
 
 	void activateLabelsBorder();
 
