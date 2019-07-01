@@ -20,9 +20,9 @@ struct strTrackerPattern
 
 	} track[8];
 
-	int16_t position = 0;
-	uint16_t length = 0;
-	int16_t part = 0; // max 744
+	int16_t position = 0;	// 0-xxx
+	uint16_t length = 0; 	// 1-xxx
+	int16_t part = 0; 		// 0-4
 
 	int8_t selectActive = 0;
 	int8_t select = 0;

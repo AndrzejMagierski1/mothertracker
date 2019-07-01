@@ -176,15 +176,15 @@ public:
 //----------------------------------
 // envelopes lists
 
-strList envelopesList;
-strList envStateList;
-strList envLoopList;
+	strList envelopesList;
+	strList envStateList;
+	strList envLoopList;
 
 
 
-char *envelopeNames[2];
-char *envStateNames[2];
-char *envLoopNames[2];
+	char *envelopeNames[2];
+	char *envStateNames[2];
+	char *envLoopNames[2];
 
 
 };

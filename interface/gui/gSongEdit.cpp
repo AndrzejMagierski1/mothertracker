@@ -99,7 +99,7 @@ void cSongEditor::destroyDisplayControls()
 
 void cSongEditor::showDefaultScreen()
 {
-
+/*
 	display.setControlText(topLabel[0], "Song Length");
 	display.setControlText(topLabel[1], "Pattern");
 	display.setControlText(topLabel[2], "Reverb");
@@ -110,6 +110,8 @@ void cSongEditor::showDefaultScreen()
 	display.setControlText(bottomLabel[2], "  Size      Damping");
 	display.setControlText(bottomLabel[3], " Attack    Treshold");
 
+
+
 	for(uint8_t i = 0; i<4; i++)
 	{
 		display.setControlShow(topLabel[i]);
@@ -118,6 +120,8 @@ void cSongEditor::showDefaultScreen()
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
 	}
+
+*/
 
 	display.synchronizeRefresh();
 
@@ -139,33 +143,6 @@ void cSongEditor::showPatternsList()
 
 }
 
-void cSongEditor::showReverbSize()
-{
-	display.setControlValue(barControl[0], mtProject.values.reverbRoomSize);
-	//display.setControlShow(barControl[0]);
-	display.refreshControl(barControl[0]);
-}
-
-void cSongEditor::showReverbDamping()
-{
-	display.setControlValue(barControl[1], mtProject.values.reverbDamping);
-	//display.setControlShow(barControl[1]);
-	display.refreshControl(barControl[1]);
-}
-
-void cSongEditor::showLimiterAttack()
-{
-	display.setControlValue(barControl[2], (mtProject.values.limiterAttak*100)/LIMITER_ATTACK_MAX);
-	//display.setControlShow(barControl[2]);
-	display.refreshControl(barControl[2]);
-}
-
-void cSongEditor::showLimiterTreshold()
-{
-	display.setControlValue(barControl[3], (mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
-	//display.setControlShow(barControl[3]);
-	display.refreshControl(barControl[3]);
-}
 
 //==============================================================================================================
 

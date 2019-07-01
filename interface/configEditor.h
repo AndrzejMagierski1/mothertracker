@@ -53,12 +53,16 @@ public:
 		selectedConfigGroup = 0;
 		topLabel[8] = {nullptr};
 		bottomLabel[8] = {nullptr};
+		barControl[8] = {nullptr};
+		configGroupsListControl = nullptr;
+		editorInstrument = nullptr;
+		frameControl = nullptr;
 
 	}
 	virtual ~cConfigEditor() {}
 
 
-
+	//-----------------------------------------
 
 	void showDefaultConfigScreen();
 	void showMasterScreen();
@@ -67,24 +71,47 @@ public:
 
 
 
-
-
+	//config
 	void showConfigGroupList();
 
+	//master
+	void showVolume();
+	void showReverbSize();
+	void showReverbDamping();
+	void showLimiterAttack();
+	void showLimiterRelease();
+	void showLimiterTreshold();
+
+	//master tracks
 
 
 
+	//
 
+	//-----------------------------------------
 
 	void setConfigScreenFunct();
 	void setMasterScreenFunct();
 	void setMasterTracksScreenFunct();
 
 
-
+	// config
 	void changeConfigGroupSelection(int16_t value);
 
+	//master
+	void changeVolume(int16_t value);
+	void changeReverbRoomSize(int16_t value);
+	void changeReverbDamping(int16_t value);
+	void changeLimiterAttack(int16_t value);
+	void changeLimiterRelease(int16_t value);
+	void changeLimiterTreshold(int16_t value);
 
+
+	//master tracks
+
+
+
+	//
 	void activateLabelsBorder();
 
 
@@ -94,6 +121,8 @@ public:
 
 	hControl topLabel[8];
 	hControl bottomLabel[8];
+	hControl barControl[8];
+
 
 	hControl configGroupsListControl;
 
@@ -103,7 +132,7 @@ public:
 	uint8_t selectedPlace[3] = {0};
 
 	// typ trybu/ekranu
-	uint8_t mode;
+	uint8_t mode = 0;
 
 	strInstrument * editorInstrument;
 

@@ -78,7 +78,7 @@ const uint8_t cInterface::modulesButtonsCount = 11;
 const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 {
 	{interfaceButtonEnvelopes,  5, mtInstEditModeEnv},
-	{interfaceButtonMaster,  	7, 0},
+	{interfaceButtonMaster,  	7, mtConfigModeMaster},
 	{interfaceButtonParams, 	5, mtInstEditModeParams},
 	{interfaceButtonFile, 		0, 0},
 	{interfaceButtonPattern, 	2, 0},
@@ -87,7 +87,7 @@ const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 	{interfaceButtonSampleRec, 	8, 0},
 	{interfaceButtonSampleLoad, 1, 0},
 	{interfaceButtonSong, 		4, 0},
-	{interfaceButtonConfig, 	7, 0},
+	{interfaceButtonConfig, 	7, mtConfigModeDefault},
 };
 
 //	case interfaceButton10: activateModule(modules[0], 0); break;

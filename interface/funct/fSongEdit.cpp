@@ -19,10 +19,7 @@ static  uint8_t functChangePattern(uint8_t button);
 
 static  uint8_t functAddPattern();
 static  uint8_t functRemovePattern();
-static  uint8_t functSelectReverbSize();
-static  uint8_t functSelectReverbDamping();
-static  uint8_t functSelectLimiterAttack();
-static  uint8_t functSelectLimiterTreshold();
+
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
@@ -58,10 +55,7 @@ void cSongEditor::start(uint32_t options)
 
 
 	showPatternsList();
-	showReverbSize();
-	showReverbDamping();
-	showLimiterAttack();
-	showLimiterTreshold();
+
 
 	listPatterns();
 	showPatternsList();
@@ -121,11 +115,7 @@ void cSongEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton2, buttonPress, functChangePattern);
 	FM->setButtonObj(interfaceButton3, buttonPress, functChangePattern);
 
-	FM->setButtonObj(interfaceButton4, buttonPress, functSelectReverbSize);
-	FM->setButtonObj(interfaceButton5, buttonPress, functSelectReverbDamping);
 
-	FM->setButtonObj(interfaceButton6, buttonPress, functSelectLimiterAttack);
-	FM->setButtonObj(interfaceButton7, buttonPress, functSelectLimiterTreshold);
 
 
 
@@ -173,37 +163,6 @@ static  uint8_t functRemovePattern()
 	return 1;
 }
 
-static  uint8_t functSelectReverbSize()
-{
-	SE->selectedPlace = 1;
-	SE->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functSelectReverbDamping()
-{
-	SE->selectedPlace = 2;
-	SE->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functSelectLimiterAttack()
-{
-	SE->selectedPlace = 3;
-	SE->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functSelectLimiterTreshold()
-{
-	SE->selectedPlace = 4;
-	SE->activateLabelsBorder();
-
-	return 1;
-}
 
 
 
@@ -213,11 +172,11 @@ static  uint8_t functEncoder(int16_t value)
 {
 	switch(SE->selectedPlace)
 	{
-	case 0: SE->changePatternsSelection(value); break;
-	case 1: SE->changeReverbRoomSize(value); break;
-	case 2: SE->changeReverbDamping(value); break;
-	case 3: SE->changeLimiterAttack(value); break;
-	case 4: SE->changeLimiterTreshold(value); break;
+	case 0: break;
+	case 1: break;
+	case 2: break;
+	case 3: break;
+	case 4: break;
 
 	}
 
@@ -261,11 +220,11 @@ static  uint8_t functUp()
 {
 	switch(SE->selectedPlace)
 	{
-	case 0: SE->changePatternsSelection(-1); break;
-	case 1: SE->changeReverbRoomSize(1); break;
-	case 2: SE->changeReverbDamping(1); break;
-	case 3: SE->changeLimiterAttack(1); break;
-	case 4: SE->changeLimiterTreshold(1); break;
+	case 0: break;
+	case 1: break;
+	case 2: break;
+	case 3: break;
+	case 4: break;
 	}
 
 	return 1;
@@ -275,11 +234,11 @@ static  uint8_t functDown()
 {
 	switch(SE->selectedPlace)
 	{
-	case 0: SE->changePatternsSelection(1); break;
-	case 1: SE->changeReverbRoomSize(-1); break;
-	case 2: SE->changeReverbDamping(-1); break;
-	case 3: SE->changeLimiterAttack(-1); break;
-	case 4: SE->changeLimiterTreshold(-1); break;
+	case 0: break;
+	case 1: break;
+	case 2: break;
+	case 3: break;
+	case 4: break;
 	}
 
 	return 1;
@@ -329,53 +288,7 @@ void cSongEditor::changePatternsSelection(int16_t value)
 }
 
 
-void cSongEditor::changeReverbRoomSize(int16_t value)
-{
-	if(mtProject.values.reverbRoomSize + value < REVERB_ROOM_SIZE_MIN) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MIN;
-	else if(mtProject.values.reverbRoomSize + value > REVERB_ROOM_SIZE_MAX) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MAX;
-	else mtProject.values.reverbRoomSize += value;
 
-	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
-
-	showReverbSize();
-
-}
-
-void cSongEditor::changeReverbDamping(int16_t value)
-{
-	if(mtProject.values.reverbDamping + value < REVERB_DAMPING_MIN) mtProject.values.reverbDamping = REVERB_DAMPING_MIN;
-	else if(mtProject.values.reverbDamping + value > REVERB_DAMPING_MAX) mtProject.values.reverbDamping = REVERB_DAMPING_MAX;
-	else mtProject.values.reverbDamping += value;
-
-	engine.setReverbDamping(mtProject.values.reverbDamping);
-
-	showReverbDamping();
-}
-
-void cSongEditor::changeLimiterAttack(int16_t value)
-{
-	if(mtProject.values.limiterAttak + value < LIMITER_ATTACK_MIN) mtProject.values.limiterAttak = LIMITER_ATTACK_MIN;
-	else if(mtProject.values.limiterAttak + value > LIMITER_ATTACK_MAX) mtProject.values.limiterAttak = LIMITER_ATTACK_MAX;
-	else mtProject.values.limiterAttak += value;
-
-	engine.setLimiterAttack(mtProject.values.limiterAttak);
-
-	showLimiterAttack();
-
-}
-
-void cSongEditor::changeLimiterTreshold(int16_t value)
-{
-	value = value*100;
-
-	if(mtProject.values.limiterTreshold + value < LIMITER_TRESHOLD_MIN) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MIN;
-	else if(mtProject.values.limiterTreshold + value > LIMITER_TRESHOLD_MAX) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MAX;
-	else mtProject.values.limiterTreshold += value;
-
-	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
-
-	showLimiterTreshold();
-}
 
 //======================================================================================================================
 //==============================================================================================

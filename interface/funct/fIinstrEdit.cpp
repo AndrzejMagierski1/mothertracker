@@ -344,7 +344,7 @@ static  uint8_t functSwitchMode(uint8_t button)
 
 	}
 
-
+	IE->activateLabelsBorder();
 
 	return 1;
 }
