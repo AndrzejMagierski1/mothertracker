@@ -20,8 +20,8 @@ public:
 	enum
 	{
 		//static const uint8_t
-		MAXROW = 7,
-		MINROW = 0,
+		MAXTRACK = 7,
+		MINTRACK = 0,
 		MINSTEP = 0,
 		MAXSTEP = 127,
 
@@ -283,15 +283,15 @@ public:
 		} track[8];
 
 	};
+	struct strSelection
 
-	struct strStepSelection
 	{
 		uint8_t firstStep = 0;
 		uint8_t firstTrack = 0;
 		uint8_t lastStep = 0;
 		uint8_t lastTrack = 0;
-//		uint8_t mode = 0;
-	};
+
+	} selection, selectionPaste;
 
 	uint8_t get_fxValType(uint8_t fxType);
 	private:
@@ -524,7 +524,7 @@ public:
 
 			} step[MAXSTEP + 1];
 
-		} row[MAXROW + 1];
+		} row[MAXTRACK + 1];
 
 		void (*onPatternEnd)(void) = NULL;
 
@@ -595,8 +595,14 @@ public:
 	void rec(void);
 	void stop(void);
 
+	void insert(strSelection *selection);
+	bool isSelectionCorrect(strSelection *selection);
+
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
+	void clearStep(strPattern::strTrack::strStep & step);
+
+
 	void clearRow(uint8_t row);
 	void clearRow(uint8_t row, uint8_t bank);
 

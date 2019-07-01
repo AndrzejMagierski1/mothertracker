@@ -13,6 +13,7 @@ extern strMtProject mtProject;
 static  uint8_t functPlayAction();
 static  uint8_t functStopAction();
 static  uint8_t functRecAction();
+static  uint8_t functInsert();
 
 static  uint8_t functChangeTempo(uint8_t button);
 static  uint8_t functChangePattern(uint8_t button);
@@ -105,6 +106,9 @@ void cPatternEditor::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
 	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
+
+
+	FM->setButtonObj(interfaceButtonPaste, buttonPress, functInsert);
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
@@ -607,6 +611,24 @@ uint8_t functRecAction()
 
 
 	display.refreshControl(PTE->patternControl);
+
+	return 1;
+}
+
+uint8_t functInsert()
+{
+//	TODO: podstawić aktualne zaznaczenie
+	sequencer.selection.firstStep = 2;
+	sequencer.selection.lastStep = 5;
+
+	sequencer.selection.firstTrack = 0;
+	sequencer.selection.lastTrack = 1;
+
+
+	sequencer.insert(&sequencer.selection);
+
+	PTE->refreshPattern();
+
 
 	return 1;
 }
