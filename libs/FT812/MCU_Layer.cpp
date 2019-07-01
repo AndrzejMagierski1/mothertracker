@@ -138,9 +138,9 @@ void FT812_Init(void)
     delay(1);
     EVE_CmdWrite(0x68,0);
     delay(1);
+*/
 
-    */
-   // EVE_CmdWrite(0x62,4);
+   // EVE_CmdWrite(0x61,2);
 
 
     MCU_Delay_500ms();

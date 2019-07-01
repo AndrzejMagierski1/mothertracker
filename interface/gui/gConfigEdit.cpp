@@ -100,7 +100,7 @@ void cConfigEditor::destroyDisplayControls()
 	frameControl = nullptr;
 }
 
-void cConfigEditor::showDefaultScreen()
+void cConfigEditor::showDefaultConfigScreen()
 {
 
 	//lista
@@ -121,7 +121,39 @@ void cConfigEditor::showDefaultScreen()
 	display.setControlText(topLabel[6], "Config");
 
 
+	for(uint8_t i = 0; i<7; i++)
+	{
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
 
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+
+
+	display.synchronizeRefresh();
+
+}
+
+void cConfigEditor::showMasterScreen()
+{
+
+	//lista
+	//display.setControlShow(playModeListControl);
+	//display.refreshControl(playModeListControl);
+
+	// bottom labels
+	display.setControlText(bottomLabel[0], "1");
+	display.setControlText(bottomLabel[1], "2");
+	display.setControlText(bottomLabel[2], "3");
+	display.setControlText(bottomLabel[3], "4");
+	display.setControlText(bottomLabel[4], "5");
+	display.setControlText(bottomLabel[5], "6");
+	display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
+	//display.setControlText(bottomLabel[7], "");
+
+
+	display.setControlText(topLabel[6], "Config");
 
 
 	for(uint8_t i = 0; i<7; i++)
@@ -138,13 +170,47 @@ void cConfigEditor::showDefaultScreen()
 
 }
 
+void cConfigEditor::showMasterTracksScreen()
+{
+
+	//lista
+	//display.setControlShow(playModeListControl);
+	//display.refreshControl(playModeListControl);
+
+	// bottom labels
+	display.setControlText(bottomLabel[0], "1");
+	display.setControlText(bottomLabel[1], "2");
+	display.setControlText(bottomLabel[2], "3");
+	display.setControlText(bottomLabel[3], "4");
+	display.setControlText(bottomLabel[4], "5");
+	display.setControlText(bottomLabel[5], "6");
+	display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
+	//display.setControlText(bottomLabel[7], "");
+
+
+	display.setControlText(topLabel[6], "Config");
+
+
+	for(uint8_t i = 0; i<7; i++)
+	{
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+
+
+	display.synchronizeRefresh();
+
+}
 
 //==============================================================================================================
 void cConfigEditor::activateLabelsBorder()
 {
-	if(selectedPlace > frameData.placesCount-1) return;
+	if(selectedPlace[mode] > frameData.placesCount-1) return;
 
-	display.setControlValue(frameControl, selectedPlace);
+	display.setControlValue(frameControl, selectedPlace[mode]);
 	display.setControlShow(frameControl);
 	display.refreshControl(frameControl);
 }

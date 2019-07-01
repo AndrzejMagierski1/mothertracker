@@ -19,11 +19,9 @@
 
 
 
-
 //extern Sequencer seq[2];
 extern void initHardware();
 extern void updateHardware();
-
 
 
 
@@ -62,4 +60,6 @@ void loop()
 	engine.update();
 	fileManager.update();
 	mtInterface.update();
+
+
 }
