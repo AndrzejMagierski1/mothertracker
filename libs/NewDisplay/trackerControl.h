@@ -20,6 +20,8 @@ struct strTrackerPattern
 
 	} track[8];
 
+
+/*
 	int16_t position = 0;	// 0-xxx
 	uint16_t length = 0; 	// 1-xxx
 	int16_t part = 0; 		// 0-4
@@ -27,6 +29,22 @@ struct strTrackerPattern
 	int8_t selectActive = 0;
 	int8_t select = 0;
 	uint8_t select_param = 0;
+
+*/
+
+	//-------------------------------
+	int8_t actualTrack = 0;
+	int16_t actualStep = 0;
+
+	int16_t patternLength = 1;
+	int8_t firstVisibleTrack = 0;
+	int16_t playheadPosition = 0;
+
+	int8_t selectState = 0;
+	int8_t selectedParam = 0;
+	int8_t selectStartTrack;
+	int16_t selectStartStep;
+
 
 };
 
@@ -65,9 +83,9 @@ private:
 	void refresh4();
 	void refresh5();
 
-	uint8_t firstVisibleTrack;
-	int16_t visibleTracksOffset;
-	uint8_t visibleCharOffset;
+//	uint8_t firstVisibleTrack;
+//	int16_t visibleTracksOffset;
+//	uint8_t visibleCharOffset;
 
 };
 

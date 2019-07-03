@@ -35,7 +35,7 @@ public:
 	void showDefaultScreen();
 	void setDefaultScreenFunct();
 
-	void focusOnSelected();
+	void focusOnActual();
 
 	void refreshPattern();
 	void readPatternState();
