@@ -3,6 +3,7 @@
 #include "mtStructs.h"
 
 
+#include "AnalogInputs.h"  // dla isButtonPressed()
 
 cPatternEditor patternEditor;
 static  cPatternEditor* PTE = &patternEditor;
@@ -32,6 +33,11 @@ static  uint8_t functVolume();
 static  uint8_t functFx();
 
 
+
+static  uint8_t functEnter();
+static  uint8_t functShift(uint8_t state);
+
+
 static  uint8_t functEncoder(int16_t value);
 
 
@@ -39,27 +45,42 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 
 
-
+elapsedMillis patternRefreshTimer;
 
 void cPatternEditor::update()
 {
+	if(patternRefreshTimer < 20) return;
+
 	uint8_t sequencerState = sequencer.getSeqState();
 
-	if(sequencerState != 1) return;
+	if(sequencerState != 1 ) return;
 
 	readPatternState();
 
-	if(trackerPattern.playheadPosition == lastPatternPosition)  return;
+
+	if(trackerPattern.playheadPosition == lastPatternPosition || (!isPleyheadOnScreen() && editMode))  return;
+
+
 
 	refreshPattern();
 
-
 	lastPatternPosition = trackerPattern.playheadPosition;
 
-
-
-
+	patternRefreshTimer = 0;
 }
+
+uint8_t cPatternEditor::isPleyheadOnScreen()
+{
+	if(lastPatternPosition == trackerPattern.patternLength-1) return 1;
+	if(lastPatternPosition == trackerPattern.patternLength) return 1;
+
+	if((trackerPattern.playheadPosition > trackerPattern.actualStep-8
+		&&  trackerPattern.playheadPosition <= trackerPattern.actualStep+8))
+		return 1;
+
+	return 0;
+}
+
 
 void cPatternEditor::start(uint32_t options)
 {
@@ -137,6 +158,9 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton7, buttonPress, functChangePatternEditStep);
 
 
+	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
+	FM->setButtonObj(interfaceButtonShift, functShift);
+	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
@@ -286,10 +310,10 @@ void cPatternEditor::readPatternState()
 	}
 */
 
-	trackerPattern.patternLength = seq->track[0].length;
+
+
+	trackerPattern.patternLength = seq->track[0].length+1;
 	trackerPattern.playheadPosition = sequencer.ptrPlayer->row[0].actual_pos;
-
-
 
 
 }
@@ -447,6 +471,26 @@ void cPatternEditor::changeActualStepVolume(int16_t value)
 	}
 }
 
+//------------------------------------------------------------------------------------------------------------------------------
+static  uint8_t functEnter()
+{
+
+
+
+	return 1;
+}
+
+static  uint8_t functShift(uint8_t state)
+{
+
+	if(state == 1)
+	{
+		PTE->trackerPattern.selectStartStep = PTE->trackerPattern.actualStep;
+		PTE->trackerPattern.selectStartTrack = PTE->trackerPattern.actualTrack;
+	}
+
+	return 1;
+}
 
 
 uint8_t functLeft()
@@ -463,6 +507,22 @@ uint8_t functLeft()
 	{
 		PTE->trackerPattern.firstVisibleTrack--;
 		if(PTE->trackerPattern.firstVisibleTrack < 0 ) PTE->trackerPattern.firstVisibleTrack = 0;
+	}
+
+
+
+	if(PTE->editMode == 1)
+	{
+		if(AnalogInputs.isButtonPressed(interfaceButtonShift))
+		{
+			PTE->trackerPattern.selectEndStep = PTE->trackerPattern.actualStep;
+			PTE->trackerPattern.selectEndTrack = PTE->trackerPattern.actualTrack;
+			PTE->trackerPattern.selectState = 1;
+		}
+		else
+		{
+
+		}
 	}
 
 	display.refreshControl(PTE->patternControl);
@@ -486,6 +546,21 @@ uint8_t functRight()
 		if(PTE->trackerPattern.firstVisibleTrack > 4 ) PTE->trackerPattern.firstVisibleTrack = 4;
 	}
 
+
+	if(PTE->editMode == 1)
+	{
+		if(AnalogInputs.isButtonPressed(interfaceButtonShift))
+		{
+			PTE->trackerPattern.selectEndStep = PTE->trackerPattern.actualStep;
+			PTE->trackerPattern.selectEndTrack = PTE->trackerPattern.actualTrack;
+			PTE->trackerPattern.selectState = 1;
+		}
+		else
+		{
+
+		}
+	}
+
 	display.refreshControl(PTE->patternControl);
 
 	return 1;
@@ -500,9 +575,25 @@ uint8_t functUp()
 	}
 
 
+
 	PTE->selectedLabel = 0;
 	PTE->activateLabelsBorder();
 	if(PTE->trackerPattern.actualStep > 0 ) PTE->trackerPattern.actualStep--;
+
+
+	if(PTE->editMode == 1)
+	{
+		if(AnalogInputs.isButtonPressed(interfaceButtonShift))
+		{
+			PTE->trackerPattern.selectEndStep = PTE->trackerPattern.actualStep;
+			PTE->trackerPattern.selectEndTrack = PTE->trackerPattern.actualTrack;
+			PTE->trackerPattern.selectState = 1;
+		}
+		else
+		{
+
+		}
+	}
 
 
 
@@ -523,6 +614,22 @@ uint8_t functDown()
 	PTE->selectedLabel = 0;
 	PTE->activateLabelsBorder();
 	if(PTE->trackerPattern.actualStep <  PTE->trackerPattern.patternLength-1) PTE->trackerPattern.actualStep++;
+
+
+
+	if(PTE->editMode == 1)
+	{
+		if(AnalogInputs.isButtonPressed(interfaceButtonShift))
+		{
+			PTE->trackerPattern.selectEndStep = PTE->trackerPattern.actualStep;
+			PTE->trackerPattern.selectEndTrack = PTE->trackerPattern.actualTrack;
+			PTE->trackerPattern.selectState = 1;
+		}
+		else
+		{
+
+		}
+	}
 
 	PTE->refreshPattern();
 
@@ -643,6 +750,24 @@ void cPatternEditor::changeActualPattern(int16_t value)
 
 void cPatternEditor::changeActualPatternLength(int16_t value)
 {
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+
+	if(pattern->track[0].length+value < 0) pattern->track[0].length = 0;
+	else if(pattern->track[0].length+value > PATTERN_LENGTH_MAX) pattern->track[0].length = PATTERN_LENGTH_MAX;
+	else  pattern->track[0].length += value;
+
+	for(uint8_t i = 1;i < 8; i++)
+		pattern->track[i].length = pattern->track[0].length;
+
+	trackerPattern.patternLength = pattern->track[0].length+1;
+
+	if(trackerPattern.actualStep > trackerPattern.patternLength-1) trackerPattern.actualStep = trackerPattern.patternLength-1;
+
+
+	display.setControlValue(PTE->bottomLabel[2], trackerPattern.patternLength);
+	display.refreshControl(PTE->bottomLabel[2]);
+
+	refreshPattern();
 
 }
 
@@ -693,36 +818,18 @@ uint8_t functChangePattern(uint8_t button)
 
 uint8_t functChangePatternLength(uint8_t button)
 {
-	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
-
 	if(button == interfaceButton4)
 	{
-		if(pattern->track[0].length-1 > 0)
-		{
-			pattern->track[0].length--;
-			for(uint8_t i = 0;i < 8; i++)
-				pattern->track[i].length = pattern->track[0].length;
-		}
+		PTE->changeActualPatternLength(-1);
 	}
 	else //if(button == interfaceButton5)
 	{
-		 if(pattern->track[0].length+1 < 255)
-		 {
-				pattern->track[0].length++;
-				for(uint8_t i = 0;i < 8; i++)
-					pattern->track[i].length = pattern->track[0].length;
-		 }
+		PTE->changeActualPatternLength(+1);
 	}
 
-	PTE->trackerPattern.patternLength = pattern->track[0].length;
 
 	PTE->selectedLabel = 3;
 	PTE->activateLabelsBorder();
-
-	display.setControlValue(PTE->bottomLabel[2], pattern->track[0].length);
-	display.refreshControl(PTE->bottomLabel[2]);
-
-	PTE->refreshPattern();
 
 	return 1;
 }

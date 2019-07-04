@@ -69,8 +69,6 @@ void cConfigEditor::start(uint32_t options)
 
 //--------------------------------------------------------------------
 
-
-
 //--------------------------------------------------------------------
 
 
@@ -98,6 +96,8 @@ void cConfigEditor::start(uint32_t options)
 	{
 	case mtConfigModeDefault:
 	{
+
+		display.begin();
 
 
 		showDefaultConfigScreen();

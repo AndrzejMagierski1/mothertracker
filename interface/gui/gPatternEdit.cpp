@@ -69,7 +69,7 @@ void cPatternEditor::showDefaultScreen()
 
 	display.setControlValue(bottomLabel[0], pattern->tempo);
 	display.setControlValue(bottomLabel[1], 1);
-	display.setControlValue(bottomLabel[2], pattern->track[0].length);
+	display.setControlValue(bottomLabel[2], pattern->track[0].length+1);
 	display.setControlValue(bottomLabel[3], mtProject.values.patternEditStep);
 
 

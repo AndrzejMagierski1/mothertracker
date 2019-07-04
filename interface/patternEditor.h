@@ -56,6 +56,7 @@ public:
 //----------------------------------
 
 	uint16_t lastPatternPosition;
+	uint8_t isPleyheadOnScreen();
 
 	Sequencer::strPattern * seq;
 

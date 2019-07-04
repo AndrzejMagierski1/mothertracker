@@ -20,18 +20,6 @@ struct strTrackerPattern
 
 	} track[8];
 
-
-/*
-	int16_t position = 0;	// 0-xxx
-	uint16_t length = 0; 	// 1-xxx
-	int16_t part = 0; 		// 0-4
-
-	int8_t selectActive = 0;
-	int8_t select = 0;
-	uint8_t select_param = 0;
-
-*/
-
 	//-------------------------------
 	int8_t actualTrack = 0;
 	int16_t actualStep = 0;
@@ -42,10 +30,11 @@ struct strTrackerPattern
 
 	int8_t selectState = 0;
 	int8_t selectedParam = 0;
-	int8_t selectStartTrack;
-	int16_t selectStartStep;
 
-
+	int8_t selectStartTrack = 0;
+	int16_t selectStartStep = 0;
+	int8_t selectEndTrack = 0;
+	int16_t selectEndStep = 0;
 };
 
 
@@ -74,6 +63,9 @@ public:
 private:
 
 	strTrackerPattern* tracks;
+
+	int16_t select1_x, select2_x, select1_y, select2_y;
+	uint8_t selectActive = 0;
 
 	uint16_t ramPartSize[5] = {0};
 	uint8_t refreshStep;
