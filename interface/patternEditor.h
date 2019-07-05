@@ -35,7 +35,7 @@ public:
 	void showDefaultScreen();
 	void setDefaultScreenFunct();
 
-	void focusOnSelected();
+	void focusOnActual();
 
 	void refreshPattern();
 	void readPatternState();
@@ -56,6 +56,7 @@ public:
 //----------------------------------
 
 	uint16_t lastPatternPosition;
+	uint8_t isPleyheadOnScreen();
 
 	Sequencer::strPattern * seq;
 
@@ -76,7 +77,7 @@ public:
 	strLabelData bottomValuesConfig = { 40, 0, 2048UL | 256UL };
 
 
-	uint8_t selectedLabel = 0;
+	int8_t selectedLabel = 0; // -1 = brak zaznaczenia; labele (0-3 ?)
 
 
 };
