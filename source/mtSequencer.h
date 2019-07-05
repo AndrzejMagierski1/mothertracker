@@ -20,10 +20,10 @@ public:
 	enum
 	{
 		//static const uint8_t
-		MAXROW = 7,
-		MINROW = 0,
+		MAXTRACK = 7,
+		MINTRACK = 0,
 		MINSTEP = 0,
-		MAXSTEP = 31,
+		MAXSTEP = 127,
 
 		DEFAULT_ROW_LEN = 32,
 		DEFAULT_ROW_NOTE = 36,
@@ -243,7 +243,7 @@ public:
 				uint8_t instrument = 0;
 
 				// 2 x byte
-				uint16_t length1;	//długość w microstepach, 1 step = 48uStepów
+//				uint16_t length1;	//długość w microstepach, 1 step = 48uStepów
 
 				//FX
 				struct strFx
@@ -276,13 +276,22 @@ public:
 						};
 					};
 
-				} fx[4];
+				} fx[1];
 
-			} step[32];
+			} step[MAXSTEP + 1];
 
 		} track[8];
 
 	};
+	struct strSelection
+
+	{
+		uint8_t firstStep = 0;
+		uint8_t firstTrack = 0;
+		uint8_t lastStep = 0;
+		uint8_t lastTrack = 0;
+
+	} selection, selectionPaste;
 
 	uint8_t get_fxValType(uint8_t fxType);
 	private:
@@ -515,10 +524,9 @@ public:
 
 			} step[MAXSTEP + 1];
 
-		} row[MAXROW + 1];
+		} row[MAXTRACK + 1];
 
-		void(*onPatternEnd)(void) = NULL;
-
+		void (*onPatternEnd)(void) = NULL;
 
 	} player;
 
@@ -587,8 +595,22 @@ public:
 	void rec(void);
 	void stop(void);
 
+	void insert(strSelection *selection);
+	void copy(strSelection *from, strSelection *to);
+	bool isSelectionCorrect(strSelection *selection);
+	void setSelection(uint8_t stepFrom,
+						uint8_t trackFrom,
+						uint8_t stepTo,
+						uint8_t trackTo);
+	void setPasteSelection(uint8_t stepFrom,
+							uint8_t trackFrom,
+							uint8_t stepTo,
+							uint8_t trackTo);
+
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
+	void clearStep(strPattern::strTrack::strStep * step);
+
 	void clearRow(uint8_t row);
 	void clearRow(uint8_t row, uint8_t bank);
 
