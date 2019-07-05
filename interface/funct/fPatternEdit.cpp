@@ -618,29 +618,38 @@ uint8_t functRecAction()
 uint8_t functInsert()
 {
 //	TODO: podstawić aktualne zaznaczenie
-	sequencer.selection.firstStep = 2;
-	sequencer.selection.lastStep = 5;
 
-	sequencer.selection.firstTrack = 0;
-	sequencer.selection.lastTrack = 1;
+//	// test I cwiartki
+//	sequencer.setSelection(0, 2, 7, 4);
+//	sequencer.setPasteSelection(4, 0, 11, 2);
 
+//	// test II cwiartki
+//	sequencer.setSelection(0, 0, 7, 2);
+//	sequencer.setPasteSelection(4, 2, 11, 4);
 
-	sequencer.insert(&sequencer.selection);
+//	// test III cwiartki
+//	sequencer.setSelection(4, 0, 11, 2);
+//	sequencer.setPasteSelection(0, 2, 7, 4);
+
+	// test IV cwiartki
+	sequencer.setSelection(4, 2, 11, 4);
+	sequencer.setPasteSelection(0, 0, 7, 2);
+
+	sequencer.copy();
 
 	PTE->refreshPattern();
 
-
 	return 1;
 }
-
 
 void cPatternEditor::changeActualTempo(int16_t value)
 {
 	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
-	if(pattern->tempo+value < 10) pattern->tempo = 10;
-	else if(pattern->tempo+value > 1000) pattern->tempo = 400;
-	else  pattern->tempo += value;
+	if (pattern->tempo + value < 10) pattern->tempo = 10;
+	else if (pattern->tempo + value > 1000) pattern->tempo = 400;
+	else
+		pattern->tempo += value;
 
 	display.setControlValue(bottomLabel[0], pattern->tempo);
 	display.refreshControl(bottomLabel[0]);

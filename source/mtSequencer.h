@@ -597,6 +597,7 @@ public:
 
 	void insert(strSelection *selection);
 	void copy(strSelection *from, strSelection *to);
+	void copy();
 	bool isSelectionCorrect(strSelection *selection);
 	void setSelection(uint8_t stepFrom,
 						uint8_t trackFrom,
