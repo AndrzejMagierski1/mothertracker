@@ -12,7 +12,6 @@ static  cPatternEditor* PTE = &patternEditor;
 extern strMtProject mtProject;
 
 static  uint8_t functPlayAction();
-static  uint8_t functStopAction();
 static  uint8_t functRecAction();
 static  uint8_t functInsert();
 
@@ -116,7 +115,6 @@ void cPatternEditor::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
 	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
-
 
 	FM->setButtonObj(interfaceButtonPaste, buttonPress, functInsert);
 
@@ -332,9 +330,9 @@ void cPatternEditor::activateLabelsBorder()
 		display.refreshControl(bottomLabel[i]);
 	}
 
-	if(selectedLabel > 0)
+	if(selectedLabel >= 0)
 	{
-		display.setAddControlStyle(bottomLabel[selectedLabel-1], controlStyleBorder);
+		display.setAddControlStyle(bottomLabel[selectedLabel], controlStyleBorder);
 		//trackerPattern.selectActive = 0;
 	}
 }
@@ -357,14 +355,14 @@ uint8_t cPatternEditor::isPleyheadOnScreen()
 
 uint8_t functEncoder(int16_t value)
 {
-	if(PTE->selectedLabel > 0)
+	if(PTE->selectedLabel >= 0)
 	{
 		switch(PTE->selectedLabel)
 		{
-		case 1: PTE->changeActualTempo(value); break;
-		case 2: PTE->changeActualPattern(value); break;
-		case 3: PTE->changeActualPatternLength(value); break;
-		case 4: PTE->changeActualPatternEditStep(value); break;
+		case 0: PTE->changeActualTempo(value); break;
+		case 1: PTE->changeActualPattern(value); break;
+		case 2: PTE->changeActualPatternLength(value); break;
+		case 3: PTE->changeActualPatternEditStep(value); break;
 		}
 
 		return 1;
@@ -552,7 +550,7 @@ static  uint8_t functLeft()
 {
 	if(PTE->editMode)
 	{
-		PTE->selectedLabel = 0;
+		PTE->selectedLabel = -1;
 		PTE->activateLabelsBorder();
 		PTE->trackerPattern.actualTrack--;
 		if(PTE->trackerPattern.actualTrack < 0 ) PTE->trackerPattern.actualTrack = 0;
@@ -589,7 +587,7 @@ static  uint8_t functRight()
 {
 	if(PTE->editMode)
 	{
-		PTE->selectedLabel = 0;
+		PTE->selectedLabel = -1;
 		PTE->activateLabelsBorder();
 		PTE->trackerPattern.actualTrack += 1;
 		if(PTE->trackerPattern.actualTrack > 7 ) PTE->trackerPattern.actualTrack = 7;
@@ -627,11 +625,16 @@ static  uint8_t functUp()
 	if(PTE->editMode == 0)
 	{
 		if(sequencer.getSeqState() == 1) return 1;
+
+
+
+
+
 	}
 
 
 
-	PTE->selectedLabel = 0;
+	PTE->selectedLabel = -1;
 	PTE->activateLabelsBorder();
 	if(PTE->trackerPattern.actualStep > 0 ) PTE->trackerPattern.actualStep--;
 
@@ -666,7 +669,7 @@ static  uint8_t functDown()
 	}
 
 
-	PTE->selectedLabel = 0;
+	PTE->selectedLabel = -1;
 	PTE->activateLabelsBorder();
 	if(PTE->trackerPattern.actualStep <  PTE->trackerPattern.patternLength-1) PTE->trackerPattern.actualStep++;
 
@@ -694,7 +697,7 @@ static  uint8_t functDown()
 static  uint8_t functNote()
 {
 	PTE->trackerPattern.selectedParam = 0;
-	PTE->selectedLabel = 0;
+	PTE->selectedLabel = -1;
 	PTE->activateLabelsBorder();
 
 	PTE->refreshPattern();
@@ -706,7 +709,7 @@ static  uint8_t functNote()
 static  uint8_t functInstrument()
 {
 	PTE->trackerPattern.selectedParam = 1;
-	PTE->selectedLabel = 0;
+	PTE->selectedLabel = -1;
 	PTE->activateLabelsBorder();
 
 	PTE->refreshPattern();
@@ -717,7 +720,7 @@ static  uint8_t functInstrument()
 static  uint8_t functVolume()
 {
 	PTE->trackerPattern.selectedParam = 2;
-	PTE->selectedLabel = 0;
+	PTE->selectedLabel = -1;
 
 	PTE->refreshPattern();
 
@@ -727,7 +730,7 @@ static  uint8_t functVolume()
 static  uint8_t functFx()
 {
 	PTE->trackerPattern.selectedParam = 3;
-	PTE->selectedLabel = 0;
+	PTE->selectedLabel = -1;
 
 	PTE->refreshPattern();
 
@@ -751,20 +754,6 @@ static  uint8_t functPlayAction()
 	return 1;
 }
 
-static  uint8_t functStopAction()
-{
-	if(sequencer.getSeqState() == 1)
-	{
-		sequencer.stop();
-	}
-
-
-	PTE->trackerPattern.actualStep = 0;
-
-	PTE->refreshPattern();
-
-	return 1;
-}
 
 static  uint8_t functRecAction()
 {
@@ -787,7 +776,9 @@ static  uint8_t functRecAction()
 
 static  uint8_t functInsert()
 {
-//	TODO: podstawić aktualne zaznaczenie
+//	TODO: podstawić aktualne zaznaczenie - ZROBIONE
+
+
 	sequencer.selection.firstStep = 2;
 	sequencer.selection.lastStep = 5;
 
@@ -815,7 +806,7 @@ static  uint8_t functChangeTempo(uint8_t button)
 		PTE->changeActualTempo(1);
 	}
 
-	PTE->selectedLabel = 1;
+	PTE->selectedLabel = 0;
 	PTE->activateLabelsBorder();
 
 	return 1;
@@ -835,7 +826,7 @@ static  uint8_t functChangePattern(uint8_t button)
 
 	}
 
-	PTE->selectedLabel = 2;
+	PTE->selectedLabel = 1;
 	PTE->activateLabelsBorder();
 
 	display.setControlValue(PTE->bottomLabel[1], 1);
@@ -856,7 +847,7 @@ static  uint8_t functChangePatternLength(uint8_t button)
 	}
 
 
-	PTE->selectedLabel = 3;
+	PTE->selectedLabel = 2;
 	PTE->activateLabelsBorder();
 
 	return 1;
@@ -873,7 +864,7 @@ static  uint8_t functChangePatternEditStep(uint8_t button)
 	}
 
 
-	PTE->selectedLabel = 4;
+	PTE->selectedLabel = 3;
 	PTE->activateLabelsBorder();
 
 	display.setControlValue(PTE->bottomLabel[3], mtProject.values.patternEditStep);

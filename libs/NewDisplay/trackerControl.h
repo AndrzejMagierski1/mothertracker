@@ -30,7 +30,7 @@ struct strTrackerPattern
 									// - steruje przesunieciem na boki
 	int16_t playheadPosition = 0;	// linia odtwarzania - wartosc stepa (0-xxx)
 
-	int8_t selectState = 0;			// dopiero jesli selected state == 1 rysuje ramke i pozwala na zaznaczanie
+	int8_t selectState = 0;			// dopiero jesli selected state == 1 rysuje ramke kursora i pozwala na zaznaczanie
 	int8_t selectedParam = 0;		// wybrany do modyfikacji parametr (0-4; 4 = wszsytkie)
 
 	int8_t selectStartTrack = 0;	// start zaznaczenia 	//
