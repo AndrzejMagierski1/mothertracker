@@ -21,19 +21,21 @@ struct strTrackerPattern
 	} track[8];
 
 	//-------------------------------
-	int8_t actualTrack = 0;
-	int16_t actualStep = 0;
+	// aktualna pozycja kursora -
+	int8_t actualTrack = 0;		// <- ramka bedzie widziana zaleznie od firstVisibleTrack (0-7)
+	int16_t actualStep = 0; 	// <- od tej wartosci zalezy zawsze pozycja w pionie (0-xxx)
 
-	int16_t patternLength = 1;
-	int8_t firstVisibleTrack = 0;
-	int16_t playheadPosition = 0;
+	int16_t patternLength = 1;		// dlugosc patternu (1-xxx)
+	int8_t firstVisibleTrack = 0;	// pierwszy track od lewej widziany na wyswitlaczu (0-4)
+									// - steruje przesunieciem na boki
+	int16_t playheadPosition = 0;	// linia odtwarzania - wartosc stepa (0-xxx)
 
-	int8_t selectState = 0;
-	int8_t selectedParam = 0;
+	int8_t selectState = 0;			// dopiero jesli selected state == 1 rysuje ramke i pozwala na zaznaczanie
+	int8_t selectedParam = 0;		// wybrany do modyfikacji parametr (0-4; 4 = wszsytkie)
 
-	int8_t selectStartTrack = 0;
-	int16_t selectStartStep = 0;
-	int8_t selectEndTrack = 0;
+	int8_t selectStartTrack = 0;	// start zaznaczenia 	//
+	int16_t selectStartStep = 0;							// <= ustawienie obojetne
+	int8_t selectEndTrack = 0;		// koniec zaznaczenia	//
 	int16_t selectEndStep = 0;
 };
 
