@@ -760,6 +760,23 @@ void Sequencer::clearStep(strPattern::strTrack::strStep * step)
 	step->note = 0;
 }
 
+void Sequencer::clearSelection()
+{
+	clearSelection(&selection);
+}
+void Sequencer::clearSelection(strSelection * selection)
+{
+	if (!isSelectionCorrect(selection)) return;
+
+	for (uint8_t t = selection->firstTrack; t <= selection->lastTrack; t++)
+	{
+		for (uint8_t s = selection->firstStep; s <= selection->lastStep; s++)
+		{
+			clearStep(&seq[player.ramBank].track[t].step[s]);
+		}
+	}
+}
+
 // void Sequencer::clearBank(uint8_t pattern)
 // {
 // 	for (uint8_t row = 1; row <= 8; row++)
@@ -1477,6 +1494,21 @@ void Sequencer::insert(strSelection *selection)
 	}
 
 }
+
+void Sequencer::insertReversed(strSelection *selection)
+{
+	if (!isSelectionCorrect(selection)) return;
+
+	for (uint8_t t = selection->firstTrack; t <= selection->lastTrack; t++)
+	{
+		for (uint8_t s = MINSTEP; s < selection->firstStep; s++)
+		{
+			seq[player.ramBank].track[t].step[s] = seq[player.ramBank].track[t].step[s + 1];
+		}
+		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep]);
+	}
+
+}
 void Sequencer::copy()
 {
 	copy(&sequencer.selection, &sequencer.selectionPaste);
@@ -1517,7 +1549,7 @@ void Sequencer::copy(strSelection *from, strSelection *to)
 					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
 					stepTo = &seq[player.ramBank].track[t].step[s];
 					*stepTo = *stepFrom;
-					clearStep(stepFrom);
+//					clearStep(stepFrom);
 				}
 				stepOff--;
 
@@ -1549,7 +1581,7 @@ void Sequencer::copy(strSelection *from, strSelection *to)
 					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
 					stepTo = &seq[player.ramBank].track[t].step[s];
 					*stepTo = *stepFrom;
-					clearStep(stepFrom);
+//					clearStep(stepFrom);
 				}
 				stepOff--;
 
@@ -1582,7 +1614,7 @@ void Sequencer::copy(strSelection *from, strSelection *to)
 					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
 					stepTo = &seq[player.ramBank].track[t].step[s];
 					*stepTo = *stepFrom;
-					clearStep(stepFrom);
+//					clearStep(stepFrom);
 				}
 				stepOff++;
 
@@ -1614,7 +1646,7 @@ void Sequencer::copy(strSelection *from, strSelection *to)
 					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
 					stepTo = &seq[player.ramBank].track[t].step[s];
 					*stepTo = *stepFrom;
-					clearStep(stepFrom);
+//					clearStep(stepFrom);
 				}
 				stepOff++;
 
@@ -1647,11 +1679,27 @@ void Sequencer::setSelection(uint8_t stepFrom,
 								uint8_t stepTo,
 								uint8_t trackTo)
 {
-	selection.firstStep = stepFrom;
-	selection.firstTrack = trackFrom;
+	if (stepTo < stepFrom)
+	{
+		selection.firstStep = stepTo;
+		selection.lastStep = stepFrom;
+	}
+	else
+	{
+		selection.firstStep = stepFrom;
+		selection.lastStep = stepTo;
+	}
 
-	selection.lastStep = stepTo;
-	selection.lastTrack = trackTo;
+	if (trackTo < trackFrom)
+	{
+		selection.firstTrack = trackTo;
+		selection.lastTrack = trackFrom;
+	}
+	else
+	{
+		selection.firstTrack = trackFrom;
+		selection.lastTrack = trackTo;
+	}
 
 }
 

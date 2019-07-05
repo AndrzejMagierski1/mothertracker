@@ -596,6 +596,8 @@ public:
 	void stop(void);
 
 	void insert(strSelection *selection);
+	void insertReversed(strSelection *selection);
+
 	void copy(strSelection *from, strSelection *to);
 	void copy();
 	bool isSelectionCorrect(strSelection *selection);
@@ -611,6 +613,8 @@ public:
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
 	void clearStep(strPattern::strTrack::strStep * step);
+	void clearSelection(strSelection * sel);
+	void clearSelection();
 
 	void clearRow(uint8_t row);
 	void clearRow(uint8_t row, uint8_t bank);

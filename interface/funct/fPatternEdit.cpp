@@ -13,7 +13,8 @@ extern strMtProject mtProject;
 
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
-static  uint8_t functInsert();
+static  uint8_t functPasteInsert();
+static  uint8_t functCopyDelete();
 
 static  uint8_t functChangeTempo(uint8_t button);
 static  uint8_t functChangePattern(uint8_t button);
@@ -116,7 +117,8 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
 	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 
-	FM->setButtonObj(interfaceButtonPaste, buttonPress, functInsert);
+	FM->setButtonObj(interfaceButtonPaste, buttonPress, functPasteInsert);
+	FM->setButtonObj(interfaceButtonCopy, buttonPress, functCopyDelete);
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
@@ -774,13 +776,12 @@ static  uint8_t functRecAction()
 	return 1;
 }
 
-static  uint8_t functInsert()
+
+
+static  uint8_t functPasteInsert()
 {
 //	TODO: podstawić aktualne zaznaczenie - ZROBIONE
 
-
-	sequencer.selection.firstStep = 2;
-	sequencer.selection.lastStep = 5;
 
 //	// test I cwiartki
 //	sequencer.setSelection(0, 2, 7, 4);
@@ -795,11 +796,114 @@ static  uint8_t functInsert()
 //	sequencer.setPasteSelection(0, 2, 7, 4);
 
 	// test IV cwiartki
-	sequencer.setSelection(4, 2, 11, 4);
-	sequencer.setPasteSelection(0, 0, 7, 2);
+//	sequencer.setSelection(4, 2, 11, 4);
+//	sequencer.setPasteSelection(0, 0, 7, 2);
 
-	sequencer.copy();
+	if (PTE->editMode == 1)
+	{
+		// INSERT
+		if (AnalogInputs.isButtonPressed(interfaceButtonShift))
+		{
+			// czy istnieje zaznaczenie
+			if ((PTE->trackerPattern.selectStartStep != PTE->trackerPattern.selectEndStep) ||
+					(PTE->trackerPattern.selectStartTrack != PTE->trackerPattern.selectEndTrack))
+			{
+				sequencer.setSelection(PTE->trackerPattern.selectStartStep,
+										PTE->trackerPattern.selectStartTrack,
+										PTE->trackerPattern.selectEndStep,
+										PTE->trackerPattern.selectEndTrack);
 
+				sequencer.insert(&sequencer.selection);
+			}
+			else
+			{
+				sequencer.setSelection(PTE->trackerPattern.actualStep,
+										PTE->trackerPattern.actualTrack,
+										PTE->trackerPattern.actualStep,
+										PTE->trackerPattern.actualTrack);
+
+				sequencer.insert(&sequencer.selection);
+			}
+		}
+		// PASTE
+		else
+		{
+			if ((PTE->trackerPattern.selectStartStep != PTE->trackerPattern.selectEndStep) ||
+					(PTE->trackerPattern.selectStartTrack != PTE->trackerPattern.selectEndTrack))
+			{
+				sequencer.setPasteSelection(
+						PTE->trackerPattern.selectStartStep,
+						PTE->trackerPattern.selectStartTrack,
+						PTE->trackerPattern.selectEndStep,
+						PTE->trackerPattern.selectEndTrack);
+
+				sequencer.copy();
+			}
+			else
+			{
+				sequencer.setPasteSelection(PTE->trackerPattern.actualStep,
+											PTE->trackerPattern.actualTrack,
+											PTE->trackerPattern.actualStep,
+											PTE->trackerPattern.actualTrack);
+				sequencer.copy();
+			}
+		}
+
+	}
+
+	PTE->refreshPattern();
+
+	return 1;
+}
+
+static  uint8_t functCopyDelete(){
+
+//	sequencer.copy();
+
+	if (PTE->editMode == 1)
+	{
+		// DELETE
+		if (AnalogInputs.isButtonPressed(interfaceButtonShift))
+		{
+			if ((PTE->trackerPattern.selectStartStep != PTE->trackerPattern.selectEndStep) ||
+					(PTE->trackerPattern.selectStartTrack != PTE->trackerPattern.selectEndTrack))
+			{
+				sequencer.setSelection(PTE->trackerPattern.selectStartStep,
+										PTE->trackerPattern.selectStartTrack,
+										PTE->trackerPattern.selectEndStep,
+										PTE->trackerPattern.selectEndTrack);
+				sequencer.clearSelection();
+			}
+			else
+			{
+				sequencer.setSelection(PTE->trackerPattern.actualStep,
+										PTE->trackerPattern.actualTrack,
+										PTE->trackerPattern.actualStep,
+										PTE->trackerPattern.actualTrack);
+				sequencer.clearSelection();
+			}
+		}
+		// COPY
+		else
+		{
+			if ((PTE->trackerPattern.selectStartStep != PTE->trackerPattern.selectEndStep) ||
+					(PTE->trackerPattern.selectStartTrack != PTE->trackerPattern.selectEndTrack))
+			{
+				sequencer.setSelection(PTE->trackerPattern.selectStartStep,
+										PTE->trackerPattern.selectStartTrack,
+										PTE->trackerPattern.selectEndStep,
+										PTE->trackerPattern.selectEndTrack);
+			}
+			else
+			{
+				sequencer.setSelection(PTE->trackerPattern.actualStep,
+										PTE->trackerPattern.actualTrack,
+										PTE->trackerPattern.actualStep,
+										PTE->trackerPattern.actualTrack);
+			}
+		}
+
+	}
 	PTE->refreshPattern();
 
 	return 1;
