@@ -260,8 +260,9 @@ void cTracker::refresh1()
 	//--------------------
 	// RAMKA ZAZNACZENIA
 
-	if(tracks->selectState
-	   && (tracks->selectStartTrack != tracks->selectEndTrack || tracks->selectStartStep != tracks->selectEndStep))
+	//if(tracks->selectState
+	//   && (tracks->selectStartTrack != tracks->selectEndTrack || tracks->selectStartStep != tracks->selectEndStep))
+	if(tracks->selectState == 2)
 	{
 		selectActive = 1;
 
