@@ -333,7 +333,7 @@ void Sequencer::play_microStep(uint8_t row)
 			}
 		}
 
-		if (patternStep.isOn)
+		if (patternStep.note >= 0)
 		{
 
 			// nie-offset
@@ -396,7 +396,7 @@ void Sequencer::play_microStep(uint8_t row)
 				playerRow.rollMode = valRoll;
 				playerRow.noteLength = rollTypeToVal(playerRow.rollMode) / 2; // TODO: wyliczyć długość rolki
 			}
-			if (patternStep.isOn)
+			if (patternStep.note >=0)
 			{
 				sendNoteOn(row, &patternStep);
 			}
@@ -740,7 +740,6 @@ void Sequencer::loadDefaultTrack(uint8_t row, uint8_t bank)
 
 void Sequencer::clearStep(uint8_t x, uint8_t row)
 {
-
 	clearStep(x, row, player.ramBank);
 }
 
@@ -754,10 +753,14 @@ void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 
 void Sequencer::clearStep(strPattern::strTrack::strStep * step)
 {
-	step->isOn = 0;
+//	step->isOn = 0;
 	step->velocity = MAX_VELO_STEP;
 
-	step->note = 0;
+	step->note = STEP_NOTE_EMPTY;
+	step->instrument = 0;
+	step->velocity = -1;
+	step->fx[0].isOn = 0;
+
 }
 
 void Sequencer::clearSelection()
@@ -872,7 +875,7 @@ void Sequencer::loadDefaultSequence(void)
 		seq[player.ramBank].track[x].length = 127;
 		for (uint8_t y = MINSTEP; y <= MAXSTEP; y++)
 		{
-			seq[player.ramBank].track[x].step[y].isOn = 0;
+			seq[player.ramBank].track[x].step[y].note = STEP_NOTE_EMPTY;
 
 //			seq[player.ramBank].track[x].step[y].length1 = 48;
 		}
@@ -1718,7 +1721,7 @@ void Sequencer::setPasteSelection(uint8_t stepFrom,
 
 void Sequencer::toggleStep(uint8_t row, uint8_t step)
 {
-	seq[player.ramBank].track[row].step[step].isOn = !seq[player.ramBank].track[row].step[step].isOn;
+//	seq[player.ramBank].track[row].step[step].isOn = !seq[player.ramBank].track[row].step[step].isOn;
 	seq[player.ramBank].track[row].step[step].note = DEFAULT_ROW_NOTE;
 }
 

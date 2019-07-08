@@ -203,59 +203,71 @@ void cPatternEditor::refreshPattern()
 				continue;
 			}
 
-			if(seq->track[i].step[patternPosition-7+j].isOn)
+//			if(seq->track[i].step[patternPosition-7+j].isOn)
+//			{
+			bool showInstrument = 0;
+			// jest nuta
+			if(seq->track[i].step[patternPosition-7+j].note >= 0)
 			{
 				trackerPattern.track[i].row[j].note[0] = mtNotes[seq->track[i].step[patternPosition-7+j].note][0];
 				trackerPattern.track[i].row[j].note[1] = mtNotes[seq->track[i].step[patternPosition-7+j].note][1];
 				trackerPattern.track[i].row[j].note[2] = mtNotes[seq->track[i].step[patternPosition-7+j].note][2];
 				trackerPattern.track[i].row[j].note[3] = mtNotes[seq->track[i].step[patternPosition-7+j].note][3];
 				trackerPattern.track[i].row[j].note[4] = mtNotes[seq->track[i].step[patternPosition-7+j].note][4];
-
-
-				char inst0 = (seq->track[i].step[patternPosition-7+j].instrument+1)/10;
-				char inst1 = (seq->track[i].step[patternPosition-7+j].instrument+1)%10;;
-
-				trackerPattern.track[i].row[j].instr[0] = inst0+48;
-				trackerPattern.track[i].row[j].instr[1] = inst1+48;
-				trackerPattern.track[i].row[j].instr[2] = 0;
-
-
-				if(seq->track[i].step[patternPosition-7+j].velocity >= 0)
-				{
-					char velo0 = seq->track[i].step[patternPosition-7+j].velocity/10;
-					char velo1 = seq->track[i].step[patternPosition-7+j].velocity%10;
-
-					trackerPattern.track[i].row[j].vol[0] = velo0+48;
-					trackerPattern.track[i].row[j].vol[1] = velo1+48;
-					trackerPattern.track[i].row[j].vol[2] = 0;
-				}
-				else
-				{
-					trackerPattern.track[i].row[j].vol[0] = '-';
-					trackerPattern.track[i].row[j].vol[1] = '-';
-					trackerPattern.track[i].row[j].vol[2] = 0;
-				}
-
-
+				showInstrument = 1;
 			}
-			else
+			// pusta nuta
+			else if (seq->track[i].step[patternPosition - 7 + j].note == Sequencer::STEP_NOTE_EMPTY)
 			{
 				trackerPattern.track[i].row[j].note[0] = '-';
 				trackerPattern.track[i].row[j].note[1] = '-';
 				trackerPattern.track[i].row[j].note[2] = '-';
 				trackerPattern.track[i].row[j].note[3] = 0;
+			}
+			// note off
+			else if (seq->track[i].step[patternPosition - 7 + j].note == Sequencer::STEP_NOTE_OFF)
+			{
+				trackerPattern.track[i].row[j].note[0] = 'O';
+				trackerPattern.track[i].row[j].note[1] = 'F';
+				trackerPattern.track[i].row[j].note[2] = 'F';
+				trackerPattern.track[i].row[j].note[3] = 0;
+				showInstrument = 1;
+			}
 
+			if (showInstrument)
+			{
+				char inst0 = (seq->track[i].step[patternPosition - 7 + j].instrument + 1) / 10;
+				char inst1 = (seq->track[i].step[patternPosition - 7 + j].instrument + 1) % 10;
 
+				trackerPattern.track[i].row[j].instr[0] = inst0 + 48;
+				trackerPattern.track[i].row[j].instr[1] = inst1 + 48;
+				trackerPattern.track[i].row[j].instr[2] = 0;
+			}
+			else
+			{
 				trackerPattern.track[i].row[j].instr[0] = '-';
 				trackerPattern.track[i].row[j].instr[1] = '-';
 				trackerPattern.track[i].row[j].instr[2] = 0;
+			}
 
 
+			if(seq->track[i].step[patternPosition-7+j].velocity >= 0)
+			{
+				char velo0 = seq->track[i].step[patternPosition-7+j].velocity/10;
+				char velo1 = seq->track[i].step[patternPosition-7+j].velocity%10;
+
+				trackerPattern.track[i].row[j].vol[0] = velo0+48;
+				trackerPattern.track[i].row[j].vol[1] = velo1+48;
+				trackerPattern.track[i].row[j].vol[2] = 0;
+			}
+			else
+			{
 				trackerPattern.track[i].row[j].vol[0] = '-';
 				trackerPattern.track[i].row[j].vol[1] = '-';
 				trackerPattern.track[i].row[j].vol[2] = 0;
-
 			}
+
+
 
 			if(seq->track[i].step[patternPosition-7+j].fx[0].isOn)
 			{
@@ -322,63 +334,37 @@ uint8_t cPatternEditor::isPleyheadOnScreen()
 void cPatternEditor::changeActualStepNote(int16_t value)
 {
 	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+	Sequencer::strPattern::strTrack::strStep *step = &(pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep]);
 
-	if(pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].isOn)
-	{
-		uint8_t step_note = pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note;
+	uint16_t dupa =pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note;
+	Serial.println(dupa);
 
-		if(step_note + value > Sequencer::MAX_NOTE_STEP)
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note = Sequencer::MAX_NOTE_STEP;
-		else if(step_note + value < Sequencer::MIN_NOTE_STEP)
-		{
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note = Sequencer::MIN_NOTE_STEP;
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].isOn = 0;
-		}
-		else
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note += value;
-	}
-	else if(value > 0)
-	{
-		pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].isOn = 1;
-		trackerPattern.selectedParam = 0;
 
-		pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note = 24;
-		pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].instrument = mtProject.values.lastUsedInstrument;
-		pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity = -1;
-		//pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].length1 = last_selected_length;
-
-	}
+	step->note =
+			constrain(step->note + value,
+						Sequencer::MIN_NOTE_STEP,
+						Sequencer::MAX_NOTE_STEP);
 
 }
 
 void cPatternEditor::changeActualStepInstrument(int16_t value)
 {
 	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+	Sequencer::strPattern::strTrack::strStep *step = &(pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep]);
 
-	if(pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].isOn)
+	if (pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note >= 0)
 	{
-		int8_t step_inst = pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].instrument;
+		step->instrument = constrain(step->instrument + value,
+								0,
+								INSTRUMENTS_COUNT - 1);
 
-		if(step_inst + value >= INSTRUMENTS_COUNT)
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].instrument = INSTRUMENTS_COUNT-1;
-		else if(step_inst + value < 0)
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].instrument = 0;
-		else
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].instrument += value;
-
-		mtProject.values.lastUsedInstrument = pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].instrument;
-
-		//mtProject.values.lastUsedInstrument = last_selected_instrument;
+		mtProject.values.lastUsedInstrument = step->instrument;
 	}
 	else
 	{
-		pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].isOn = 1;
-
-		pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note = 24;
-		pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].instrument = mtProject.values.lastUsedInstrument;
-		pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity = -1;
-		//pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].length1 = last_selected_length;
-
+		step->note = 24;
+		step->instrument = mtProject.values.lastUsedInstrument;
+		step->velocity = -1;
 	}
 
 }
@@ -387,8 +373,8 @@ void cPatternEditor::changeActualStepVolume(int16_t value)
 {
 	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
-	if(pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].isOn)
-	{
+//	if(pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].isOn)
+//	{
 		int8_t step_volume = pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity;
 
 		if(step_volume + value > Sequencer::MAX_VELO_STEP)
@@ -397,7 +383,7 @@ void cPatternEditor::changeActualStepVolume(int16_t value)
 			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity = Sequencer::MIN_VELO_STEP-1;
 		else
 			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity += value;
-	}
+//	}
 }
 
 

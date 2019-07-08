@@ -23,7 +23,7 @@ public:
 		MAXTRACK = 7,
 		MINTRACK = 0,
 		MINSTEP = 0,
-		MAXSTEP = 127,
+		MAXSTEP = 63,
 
 		DEFAULT_ROW_LEN = 32,
 		DEFAULT_ROW_NOTE = 36,
@@ -32,6 +32,9 @@ public:
 		MIN_CHORD = 0,
 		MAX_CHORD = 29,
 		NO_CHORD = 0,
+
+		STEP_NOTE_EMPTY = -1,
+		STEP_NOTE_OFF = -2,
 
 //	static const uint8_t
 		MIDIOUT_DIN1 = 0,
@@ -119,8 +122,8 @@ public:
 			NULL_MOD = 128, // TODO: co to kurwa za null jak nie null
 			DEFAULT_MOD = 128; //NULL_MOD
 
-	static const uint8_t MAX_NOTE_STEP = 127;
-	static const uint8_t MIN_NOTE_STEP = 0;
+	static const int8_t MAX_NOTE_STEP = 127;
+	static const int8_t MIN_NOTE_STEP = -2;
 
 	static const uint8_t PLAYMODE_MIN = 0,
 			PLAYMODE_FORWARD = 0,
@@ -141,6 +144,8 @@ public:
 			DEFAULT_TEMPO = 130.0,
 
 			DEFAULT_SWING = 50.0;
+
+
 
 	struct strFxConsts
 	{
@@ -202,6 +207,8 @@ public:
 
 	// KONIEC STAŁYCH
 
+
+
 	struct strPattern
 	{
 		float tempo = DEFAULT_TEMPO;
@@ -236,8 +243,8 @@ public:
 
 			struct strStep
 			{
-				uint8_t isOn :1;
-				uint8_t note :7;
+//				uint8_t isOn ;
+				int8_t note  = STEP_NOTE_EMPTY;
 
 				int8_t velocity = 127;	// jeśli <0 to nie wysyłamy
 				uint8_t instrument = 0;
