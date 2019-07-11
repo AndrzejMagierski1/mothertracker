@@ -23,7 +23,7 @@ public:
 		MAXTRACK = 7,
 		MINTRACK = 0,
 		MINSTEP = 0,
-		MAXSTEP = 63,
+		MAXSTEP = 127,
 
 		DEFAULT_ROW_LEN = 32,
 		DEFAULT_ROW_NOTE = 36,
@@ -398,6 +398,7 @@ public:
 	void flushNotes();
 	void sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step);
 	void sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step);
+	void sendNoteOff(uint8_t track);
 
 	void send_clock(uint8_t);
 

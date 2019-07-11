@@ -333,7 +333,7 @@ void Sequencer::play_microStep(uint8_t row)
 			}
 		}
 
-		if (patternStep.note >= 0)
+		if (patternStep.note != STEP_NOTE_EMPTY )
 		{
 
 			// nie-offset
@@ -399,6 +399,11 @@ void Sequencer::play_microStep(uint8_t row)
 			if (patternStep.note >=0)
 			{
 				sendNoteOn(row, &patternStep);
+			}
+			else if(patternStep.note == STEP_NOTE_OFF)
+			{
+				sendNoteOff(row, &patternStep);
+
 			}
 		}
 		// odpalamy efekty po-nutowe
@@ -1838,6 +1843,21 @@ void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
 				step->instrument);
 	}
 	usbMIDI.sendNoteOff(step->note, 0, 1);
+
+	instrumentPlayer[track].noteOff();
+}
+void Sequencer::sendNoteOff(uint8_t track)
+{
+//	if (player.printNotes)
+//	{
+//		Serial.printf(
+//				"\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
+//				track,
+//				step->note,
+//				step->velocity,
+//				step->instrument);
+//	}
+//	usbMIDI.sendNoteOff(step->note, 0, 1);
 
 	instrumentPlayer[track].noteOff();
 }
