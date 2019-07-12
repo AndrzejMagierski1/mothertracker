@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <elapsedMillis.h>
 #include "mtHardware.h"
+#include "mtKeyMapping.h"
 
 // BUTTNOS DEFINITIONS
 
@@ -41,15 +42,16 @@ public:
 	keyScanner();
 	keyScanner(uint8_t address, uint8_t sda_pin, uint8_t scl_pin, uint8_t int_pin);
 
-	void begin(uint8_t address, uint8_t sda_pin, uint8_t scl_pin, uint8_t int_pin, void (*func)(void));
+	void begin(uint8_t address, uint8_t sda_pin, uint8_t scl_pin, uint8_t int_pin,const uint8_t *keyMapping, void (*func)(void));
+
 	//void begin(void (*func)(void));
 	uint8_t update();
 	void intAction();
 
-	uint8_t setButtonPushFunc(void (*func)(uint8_t));
-	uint8_t setButtonReleaseFunc(void (*func)(uint8_t));
-	uint8_t setButtonHoldFunc(void (*func)(uint8_t));
-	uint8_t setButtonDoubleFunc(void (*func)(uint8_t));
+	uint8_t setButtonPushFunc(void (*func)(uint8_t,uint8_t));
+	uint8_t setButtonReleaseFunc(void (*func)(uint8_t,uint8_t));
+	uint8_t setButtonHoldFunc(void (*func)(uint8_t,uint8_t));
+	uint8_t setButtonDoubleFunc(void (*func)(uint8_t,uint8_t));
 	void setHoldTime(uint16_t time);
 	void setDoubleTime(uint16_t time);
 	void testMode(uint8_t set);
@@ -62,10 +64,10 @@ public:
 	uint8_t xy2key(uint8_t x, uint8_t y);*/
 
 private:
-	void (*onPush)(uint8_t);
-	void (*onRelease)(uint8_t);
-	void (*onHold)(uint8_t);
-	void (*onDouble)(uint8_t);
+	void (*onPush)(uint8_t,uint8_t);
+	void (*onRelease)(uint8_t,uint8_t);
+	void (*onHold)(uint8_t,uint8_t);
+	void (*onDouble)(uint8_t,uint8_t);
 
 	void read_buttons_IC(uint8_t grid_no);
 //	void handle_howManyPressed();
@@ -81,6 +83,8 @@ private:
 	uint8_t IO7326_sda_pin;
 	uint8_t IO7326_scl_pin;
 	uint8_t ucAddr;
+
+	uint8_t *keyMap;
 
 	uint8_t button[BUTTONS_MAX_COUNT];
 	uint8_t button_double[BUTTONS_MAX_COUNT];
@@ -108,6 +112,12 @@ private:
 
 	elapsedMillis checkIntPins = 0;
 	uint32_t checkIntPinsMax = 500;
+
+	elapsedMillis holdTimer;
+	uint16_t speedFactors[5] ={300,250,200,150,100};
+	uint8_t holdMultiplier;
+	uint32_t holdTimestamp[BUTTONS_MAX_COUNT];
+
 	// struct end
 
 	enum status

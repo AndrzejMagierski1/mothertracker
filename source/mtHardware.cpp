@@ -42,15 +42,18 @@ void onButtonChange(uint8_t n, uint8_t value);
 void onPowerButtonChange(uint8_t value);
 
 //keyScanner
-void onButtonPush			(uint8_t x);
-void onButtonRelease		(uint8_t x);
-void onButtonHold			(uint8_t x);
-void onButtonDouble			(uint8_t x);
+void onButtonPush			(uint8_t x,uint8_t state);
+void onButtonRelease		(uint8_t x,uint8_t state);
+void onButtonHold			(uint8_t x,uint8_t state);
+void onButtonDouble			(uint8_t x,uint8_t state);
 
 keyScanner seqButtonsA;
+keyScanner tactButtons;
+
 AudioControlSGTL5000 audioShield;
 
 void IO7326_INT_FUNCT_A() { seqButtonsA.intAction(); }
+void IO7326_TACT_INT_FUNCT() {tactButtons.intAction();}
 //void IO7326_INT_FUNCT_B() { seqButtonsB.intAction(); }
 //void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
 
@@ -121,10 +124,10 @@ void initHardware()
 
 	//....................................................
 	// Pady, Poty, Buttony
-	AnalogInputs.setButtonChangeFunc(onButtonChange);
+	//AnalogInputs.setButtonChangeFunc(onButtonChange);
 
-	AnalogInputs.testMode(hardwareTest); // (1 = on; 0 = off) test mode
-	pinMode(MUX_OUT_0, INPUT);
+	//AnalogInputs.testMode(hardwareTest); // (1 = on; 0 = off) test mode
+	//pinMode(MUX_OUT_0, INPUT);
 /*
 	AnalogInputs.setPotResolution(0, 100);
 	AnalogInputs.setPotResolution(1, 100);
@@ -139,7 +142,7 @@ void initHardware()
 //	AnalogInputs.setPotAcceleration(3, 3);
 //	AnalogInputs.setPotAcceleration(4, 3);
 
-	AnalogInputs.begin(100);
+	//AnalogInputs.begin(100);
 
 	//....................................................
 	// ENCODER
@@ -161,11 +164,19 @@ void initHardware()
 	seqButtonsA.setHoldTime(200);
 	seqButtonsA.setDoubleTime(300);
 
-	seqButtonsA.testMode(hardwareTest);
+	tactButtons.setButtonPushFunc(onButtonChange);
+	tactButtons.setButtonReleaseFunc(onButtonChange);
+	tactButtons.setButtonHoldFunc(onButtonChange);
+	tactButtons.setButtonDoubleFunc(onButtonChange);
+	tactButtons.setHoldTime(200);
+	tactButtons.setDoubleTime(300);
 
 
-	////////////////// IO7326 A
-	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,IO7326_INT_FUNCT_A);
+	////////////////// IO7326
+	tactButtons.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,TACTILE_INT,tactileToKeyMapping,IO7326_TACT_INT_FUNCT);
+	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,gridToKeyMapping,IO7326_INT_FUNCT_A);
+
+	tactButtons.testMode(1);
 
 	//LEDS
 	leds.begin();
@@ -208,21 +219,16 @@ void hidSendButtonState(uint16_t button, uint16_t state)
 
 void updateHardware()
 {
-	AnalogInputs.update();
+	//AnalogInputs.update();
 
 	updateEncoder();
 	Encoder.switchRead();
-	if(Wire2.done())
-	{
-		// odczyt przyciskow
-		if(seqButtonsA.update())
-		{
-			return;
-		}
-//		leds.updateSeq();
-		leds.update_all_leds();
+	seqButtonsA.update();
+	tactButtons.update();
 
-	}
+	//		leds.updateSeq();
+	leds.update_all_leds();
+
 
 
 	display.update();
