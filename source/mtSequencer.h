@@ -621,8 +621,8 @@ public:
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
 	void clearStep(strPattern::strTrack::strStep * step);
-	void clearSelection(strSelection * sel);
-	void clearSelection();
+	void clearSelected(strSelection * sel);
+	void clearSelected();
 
 	void clearRow(uint8_t row);
 	void clearRow(uint8_t row, uint8_t bank);
@@ -646,6 +646,10 @@ public:
 
 	// inne
 	void handle_uStep_timer(void);
+
+
+
+	void fillRandom(uint8_t step);
 
 };
 

@@ -45,6 +45,10 @@ static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
 
 
+static uint8_t isMultiSelection();
+static void sendSelection();
+
+
 
 elapsedMillis patternRefreshTimer;
 
@@ -860,59 +864,75 @@ static  uint8_t functPasteInsert()
 	return 1;
 }
 
-static  uint8_t functCopyDelete(){
+static uint8_t functCopyDelete()
+{
 
 //	sequencer.copy();
 
-	if (PTE->editMode == 1)
+//	if (PTE->editMode == 1)
+	if (0)
 	{
 		// DELETE
 		if (AnalogInputs.isButtonPressed(interfaceButtonShift))
 		{
-			if ((PTE->trackerPattern.selectStartStep != PTE->trackerPattern.selectEndStep) ||
-					(PTE->trackerPattern.selectStartTrack != PTE->trackerPattern.selectEndTrack))
-			{
-				sequencer.setSelection(PTE->trackerPattern.selectStartStep,
-										PTE->trackerPattern.selectStartTrack,
-										PTE->trackerPattern.selectEndStep,
-										PTE->trackerPattern.selectEndTrack);
-				sequencer.clearSelection();
-			}
-			else
-			{
-				sequencer.setSelection(PTE->trackerPattern.actualStep,
-										PTE->trackerPattern.actualTrack,
-										PTE->trackerPattern.actualStep,
-										PTE->trackerPattern.actualTrack);
-				sequencer.clearSelection();
-			}
+			sendSelection();
+			sequencer.clearSelected();
+
 		}
 		// COPY
 		else
 		{
-			if ((PTE->trackerPattern.selectStartStep != PTE->trackerPattern.selectEndStep) ||
-					(PTE->trackerPattern.selectStartTrack != PTE->trackerPattern.selectEndTrack))
-			{
-				sequencer.setSelection(PTE->trackerPattern.selectStartStep,
-										PTE->trackerPattern.selectStartTrack,
-										PTE->trackerPattern.selectEndStep,
-										PTE->trackerPattern.selectEndTrack);
-			}
-			else
-			{
-				sequencer.setSelection(PTE->trackerPattern.actualStep,
-										PTE->trackerPattern.actualTrack,
-										PTE->trackerPattern.actualStep,
-										PTE->trackerPattern.actualTrack);
-			}
+			sendSelection();
 		}
 
 	}
+	else if (PTE->editMode == 1)
+	{
+		// SHIFT
+		if (AnalogInputs.isButtonPressed(interfaceButtonShift))
+		{
+			sendSelection();
+			sequencer.fillRandom(2);
+
+		}
+		// NO SHIFT
+		else
+		{
+			sendSelection();
+			sequencer.fillRandom(4);
+
+		}
+
+	}
+
 	PTE->refreshPattern();
 
 	return 1;
 }
 
+static void sendSelection()
+{
+	if (isMultiSelection())
+	{
+		sequencer.setSelection(PTE->trackerPattern.selectStartStep,
+								PTE->trackerPattern.selectStartTrack,
+								PTE->trackerPattern.selectEndStep,
+								PTE->trackerPattern.selectEndTrack);
+	}
+	else
+	{
+		sequencer.setSelection(PTE->trackerPattern.actualStep,
+								PTE->trackerPattern.actualTrack,
+								PTE->trackerPattern.actualStep,
+								PTE->trackerPattern.actualTrack);
+	}
+}
+
+static uint8_t isMultiSelection()
+{
+	return ((PTE->trackerPattern.selectStartStep != PTE->trackerPattern.selectEndStep) ||
+			(PTE->trackerPattern.selectStartTrack != PTE->trackerPattern.selectEndTrack));
+}
 
 static  uint8_t functChangeTempo(uint8_t button)
 {

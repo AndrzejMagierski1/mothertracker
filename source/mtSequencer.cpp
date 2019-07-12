@@ -333,7 +333,7 @@ void Sequencer::play_microStep(uint8_t row)
 			}
 		}
 
-		if (patternStep.note != STEP_NOTE_EMPTY )
+		if (patternStep.note != STEP_NOTE_EMPTY)
 		{
 
 			// nie-offset
@@ -396,11 +396,11 @@ void Sequencer::play_microStep(uint8_t row)
 				playerRow.rollMode = valRoll;
 				playerRow.noteLength = rollTypeToVal(playerRow.rollMode) / 2; // TODO: wyliczyć długość rolki
 			}
-			if (patternStep.note >=0)
+			if (patternStep.note >= 0)
 			{
 				sendNoteOn(row, &patternStep);
 			}
-			else if(patternStep.note == STEP_NOTE_OFF)
+			else if (patternStep.note == STEP_NOTE_OFF)
 			{
 				sendNoteOff(row, &patternStep);
 
@@ -610,8 +610,8 @@ void Sequencer::send_allNotesOff(void)
 
 	for (uint8_t row = MINTRACK; row <= MAXTRACK; row++)
 	{
-		strPlayer::strPlayerTrack & playerRow = player.row[row];
-		if (playerRow.stepOpen) sendNoteOff(row, &playerRow.stepSent);
+//		strPlayer::strPlayerTrack & playerRow = player.row[row];
+		sendNoteOff(row);
 	}
 }
 
@@ -768,11 +768,11 @@ void Sequencer::clearStep(strPattern::strTrack::strStep * step)
 
 }
 
-void Sequencer::clearSelection()
+void Sequencer::clearSelected()
 {
-	clearSelection(&selection);
+	clearSelected(&selection);
 }
-void Sequencer::clearSelection(strSelection * selection)
+void Sequencer::clearSelected(strSelection * selection)
 {
 	if (!isSelectionCorrect(selection)) return;
 
@@ -1861,4 +1861,44 @@ void Sequencer::sendNoteOff(uint8_t track)
 
 	instrumentPlayer[track].noteOff();
 }
+
+void Sequencer::fillRandom(uint8_t step)
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			if (offset % step == 0)
+			{
+				seq[player.ramBank].track[t].step[s].note =
+						random(0, MAX_NOTE_STEP + 1);
+			}
+		}
+	}
+}
+
+//void Sequencer::fillRandom(uint8_t step)
+//{
+//	strSelection *sel = &selection;
+//	if (!isSelectionCorrect(sel)) return;
+//
+//	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+//	{
+//		for (uint8_t s = sel->firstStep, offset = 0;
+//				s <= sel->lastStep;
+//				s++, offset++)
+//		{
+//			if (offset % step == 0)
+//			{
+//				seq[player.ramBank].track[t].step[s].note =
+//						random(0, MAX_NOTE_STEP + 1);
+//			}
+//		}
+//	}
+//}
 
