@@ -24,9 +24,9 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 cTracker::cTracker(strControlProperties* properties)
 {
-	visibleCharOffset = 0;
-	firstVisibleTrack = 0;
-	visibleTracksOffset = 0;
+	//visibleCharOffset = 0;
+	//firstVisibleTrack = 0;
+	//visibleTracksOffset = 0;
 
 	colorsCount = 7;
 	colors = defaultColors;
@@ -169,12 +169,13 @@ uint8_t cTracker::append(uint32_t address)
 //--------------------------------------------------------------------------------
 void cTracker::refresh1()
 {
+/*
 	posX = tracks->part;
 
 	firstVisibleTrack = tracks->part/186;
 	visibleTracksOffset = tracks->part%186;
 	visibleCharOffset = visibleTracksOffset/12;  // font width = 12
-
+*/
 	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
 	//API_COLOR_A(128);
 
@@ -196,44 +197,50 @@ void cTracker::refresh1()
 	uint16_t x;
 	for(uint8_t i = 1; i < 5; i++)
 	{
-		x = (27+186*i)-(visibleTracksOffset);
+		x = (27+186*i);
 		API_VERTEX2F(x, 0);
 		API_VERTEX2F(x, 28*15+25);
 	}
 
 
 	// POZIOME
-	API_VERTEX2F(0, posY+29);
-	API_VERTEX2F(799, posY+29);
+	API_VERTEX2F(0, posY+25);
+	API_VERTEX2F(799, posY+25);
 
-	API_VERTEX2F(0, posY+28*7+25);
-	API_VERTEX2F(799, posY+28*7+25);
 
-	API_VERTEX2F(0, posY+28*8+25);
-	API_VERTEX2F(799, posY+28*8+25);
+
+	//--------------------
+	//playhead
+	if(tracks->playheadPosition > tracks->actualStep-8 &&  tracks->playheadPosition < tracks->actualStep+8)
+	{
+		uint8_t row = tracks->playheadPosition - (tracks->actualStep-8);
+
+		API_VERTEX2F(0, posY+28*(row-1)+25);
+		API_VERTEX2F(799, posY+28*(row-1)+25);
+
+		API_VERTEX2F(0, posY+28*row+25);
+		API_VERTEX2F(799, posY+28*row+25);
+
+
+	}
+	//--------------------
+
 
 	API_VERTEX2F(0, posY+28*15+25);
 	API_VERTEX2F(799, posY+28*15+25);
 
 	API_END();
 
+	//--------------------
+	// RAMKA ACTUAL
 
-	// RAMKA ZAZNACZAJACA
-
-	if(tracks->selectActive && tracks->select >= firstVisibleTrack && tracks->select <= firstVisibleTrack+4)
+	if(tracks->selectState && tracks->actualTrack >= tracks->firstVisibleTrack && tracks->actualTrack <= tracks->firstVisibleTrack+4)
 	{
 		uint16_t select_x = 27;
 		uint16_t select_w = 186;
 
-		if(tracks->select > firstVisibleTrack)
-		{
-			select_x = 27 + (tracks->select - firstVisibleTrack) * 186 - visibleTracksOffset;
-			if(tracks->select == firstVisibleTrack+4) select_w =  visibleTracksOffset;
-		}
-		else
-		{
-			select_w = 186-visibleTracksOffset;
-		}
+
+		select_x = 27 + (tracks->actualTrack - tracks->firstVisibleTrack) * 186;
 
 
 		API_COLOR(colors[6]);
@@ -249,7 +256,85 @@ void cTracker::refresh1()
 	}
 
 
-	int16_t row = tracks->position-6;
+
+	//--------------------
+	// RAMKA ZAZNACZENIA
+
+	//if(tracks->selectState
+	//   && (tracks->selectStartTrack != tracks->selectEndTrack || tracks->selectStartStep != tracks->selectEndStep))
+	if(tracks->selectState == 2)
+	{
+		selectActive = 1;
+
+		if(tracks->selectStartTrack > tracks->selectEndTrack)
+		{
+			select1_x = tracks->selectEndTrack;
+			select2_x = tracks->selectStartTrack;
+		}
+		else
+		{
+			select1_x = tracks->selectStartTrack;
+			select2_x = tracks->selectEndTrack;
+		}
+
+		if(tracks->selectStartStep > tracks->selectEndStep)
+		{
+			select1_y = tracks->selectEndStep;
+			select2_y = tracks->selectStartStep;
+		}
+		else
+		{
+			select1_y = tracks->selectStartStep;
+			select2_y = tracks->selectEndStep;
+		}
+
+		select1_x = select1_x - tracks->firstVisibleTrack;
+		select1_x = 27+select1_x*186;
+
+		select2_x = select2_x - tracks->firstVisibleTrack;
+		select2_x = 27+ select2_x*186 +186;
+
+		select1_y = select1_y - tracks->actualStep+7;
+		select1_y = 25+select1_y*28;
+
+		select2_y = select2_y - tracks->actualStep+7;
+		select2_y = 25+select2_y*28 + 28;
+
+
+
+		API_COLOR(colors[6]);
+		API_LINE_WIDTH(12);
+		API_BEGIN(LINES);
+
+		if(select1_y >= 25)
+		{
+			API_VERTEX2F(select1_x, select1_y);
+			API_VERTEX2F(select2_x, select1_y);
+		}
+		if(select2_x <= 27+186*4)
+		{
+			API_VERTEX2F(select2_x, select1_y);
+			API_VERTEX2F(select2_x, select2_y);
+		}
+		if(select1_y <= 25+28*15)
+		{
+			API_VERTEX2F(select2_x, select2_y);
+			API_VERTEX2F(select1_x, select2_y);
+		}
+		if(select1_x >= 27)
+		{
+			API_VERTEX2F(select1_x, select2_y);
+			API_VERTEX2F(select1_x, select1_y);
+		}
+
+		API_END();
+	}
+	else selectActive = 0;
+
+
+
+
+	int16_t row = tracks->actualStep-6;
 
 	API_COLOR(colors[1]);
 	API_BITMAP_HANDLE(fonts[0].handle);
@@ -258,7 +343,7 @@ void cTracker::refresh1()
 
 	for(uint16_t i = 0; i < 15; i++)
 	{
-		if(row < 1 || row > tracks->length )
+		if(row < 1 || row > tracks->patternLength)
 		{
 			row++;
 			continue;
@@ -282,18 +367,16 @@ void cTracker::refresh1()
 
 	#define TRACK_NAME_L 7
 	char trackName[TRACK_NAME_L+1] = "Track 1";
-	trackName[TRACK_NAME_L-1] = 49+firstVisibleTrack;
+	trackName[TRACK_NAME_L-1] = 49+tracks->firstVisibleTrack;
 
 
-	int8_t text_length = (TRACK_NAME_L-visibleCharOffset >= 0) ? TRACK_NAME_L-visibleCharOffset : 0;
-
-	String2Bitmaps(33-visibleTracksOffset+12*(7-text_length), 14, 12, 26, trackName+(7-text_length), text_length);
+	String2Bitmaps(33, 13, 12, 26, trackName, TRACK_NAME_L);
 
 
 	for(uint8_t i = 1; i < 5; i++)
 	{
-		trackName[6] = 49+i+firstVisibleTrack;
-		String2Bitmaps(33+(i*186)-visibleTracksOffset, 14, 12, 26, trackName, 7);
+		trackName[6] = 49+i+tracks->firstVisibleTrack;
+		String2Bitmaps(33+(i*186), 13, 12, 26, trackName, 7);
 	}
 
 
@@ -312,17 +395,27 @@ void cTracker::refresh2()
 	API_BEGIN(BITMAPS);
 
 	int8_t mark = -1;
-	if(tracks->select_param == 0 && tracks->selectActive) mark = tracks->select - firstVisibleTrack;
+	if((tracks->selectedParam == 0 || tracks->selectedParam == 4) && tracks->selectState)
+	{
+		mark = tracks->actualTrack - tracks->firstVisibleTrack;
+	}
 
 	for(uint16_t j = 0; j < 15; j++)
 	{
-		for(uint16_t i = 0; i < 5; i++)
+		for(uint16_t i = 0; i < 4; i++)
 		{
-			if(j == 7 && i == mark) API_COLOR(colors[6]);
+			int16_t param_x = 36+i*186;
+			int16_t param_y = 40+j*28;
+			uint8_t change_color = 0;
 
-			String2Bitmaps(36+i*186-visibleTracksOffset, 40+j*28, 12, 26, tracks->track[firstVisibleTrack+i].row[j].note, 3);
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) change_color = 1;
+			else if(j == 7 && i == mark) change_color = 1;
 
-			if(j == 7 && i == mark)  API_COLOR(colors[2]);
+			if(change_color) API_COLOR(colors[6]);
+
+			String2Bitmaps(param_x, param_y, 12, 26, tracks->track[tracks->firstVisibleTrack+i].row[j].note, 3);
+
+			if(change_color) API_COLOR(colors[2]);
 		}
 	}
 	API_END();
@@ -336,17 +429,27 @@ void cTracker::refresh3()
 	API_BEGIN(BITMAPS);
 
 	int8_t mark = -1;
-	if(tracks->select_param == 1 && tracks->selectActive) mark = tracks->select - firstVisibleTrack;
+	if((tracks->selectedParam == 1 || tracks->selectedParam == 4) && tracks->selectState)
+	{
+		mark = tracks->actualTrack - tracks->firstVisibleTrack;
+	}
 
 	for(uint16_t j = 0; j < 15; j++)
 	{
-		for(uint16_t i = 0; i < 5; i++)
+		for(uint16_t i = 0; i < 4; i++)
 		{
-			if(j == 7 && i == mark) API_COLOR(colors[6]);
+			int16_t param_x = 36+50+i*186;
+			int16_t param_y = 40+j*28;
+			uint8_t change_color = 0;
 
-			String2Bitmaps(36+50+i*186-visibleTracksOffset, 40+j*28, 12, 26, tracks->track[firstVisibleTrack+i].row[j].instr, 2);
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) change_color = 1;
+			else if(j == 7 && i == mark) change_color = 1;
 
-			if(j == 7 && i == mark)  API_COLOR(colors[3]);
+			if(change_color) API_COLOR(colors[6]);
+
+			String2Bitmaps(param_x, param_y, 12, 26, tracks->track[tracks->firstVisibleTrack+i].row[j].instr, 2);
+
+			if(change_color) API_COLOR(colors[2]);
 		}
 	}
 	API_END();
@@ -360,17 +463,27 @@ void cTracker::refresh4()
 	API_BEGIN(BITMAPS);
 
 	int8_t mark = -1;
-	if(tracks->select_param == 2 && tracks->selectActive) mark = tracks->select - firstVisibleTrack;
+	if((tracks->selectedParam == 2 || tracks->selectedParam == 4) && tracks->selectState)
+	{
+		mark = tracks->actualTrack - tracks->firstVisibleTrack;
+	}
 
 	for(uint16_t j = 0; j < 15; j++)
 	{
-		for(uint16_t i = 0; i < 5; i++)
+		for(uint16_t i = 0; i < 4; i++)
 		{
-			if(j == 7 && i == mark) API_COLOR(colors[6]);
+			int16_t param_x = 33+90+i*186;
+			int16_t param_y = 40+j*28;
+			uint8_t change_color = 0;
 
-			String2Bitmaps(33+90+i*186-visibleTracksOffset, 40+j*28, 12, 26, tracks->track[firstVisibleTrack+i].row[j].vol, 2);
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) change_color = 1;
+			else if(j == 7 && i == mark) change_color = 1;
 
-			if(j == 7 && i == mark)  API_COLOR(colors[4]);
+			if(change_color) API_COLOR(colors[6]);
+
+			String2Bitmaps(param_x, param_y, 12, 26, tracks->track[tracks->firstVisibleTrack+i].row[j].vol, 2);
+
+			if(change_color) API_COLOR(colors[2]);
 		}
 	}
 	API_END();
@@ -384,19 +497,30 @@ void cTracker::refresh5()
 	API_BEGIN(BITMAPS);
 
 	int8_t mark = -1;
-	if(tracks->select_param == 3 && tracks->selectActive) mark = tracks->select - firstVisibleTrack;
+	if((tracks->selectedParam == 3 || tracks->selectedParam == 4) && tracks->selectState)
+	{
+		mark = tracks->actualTrack - tracks->firstVisibleTrack;
+	}
 
 	for(uint16_t j = 0; j < 15; j++)
 	{
-		for(uint16_t i = 0; i < 5; i++)
+		for(uint16_t i = 0; i < 4; i++)
 		{
-			if(j == 7 && i == mark) API_COLOR(colors[6]);
+			int16_t param_x = 33+130+i*186;
+			int16_t param_y = 40+j*28;
+			uint8_t change_color = 0;
 
-			String2Bitmaps(33+130+i*186-visibleTracksOffset, 40+j*28, 12, 26, tracks->track[firstVisibleTrack+i].row[j].fx, 3);
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) change_color = 1;
+			else if(j == 7 && i == mark) change_color = 1;
 
-			if(j == 7 && i == mark)  API_COLOR(colors[5]);
+			if(change_color) API_COLOR(colors[6]);
+
+			String2Bitmaps(param_x, param_y, 12, 26, tracks->track[tracks->firstVisibleTrack+i].row[j].fx, 3);
+
+			if(change_color) API_COLOR(colors[2]);
 		}
 	}
+
 	API_END();
 }
 

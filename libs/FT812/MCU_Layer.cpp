@@ -118,6 +118,7 @@ void FT812_Init(void)
 
     // ----------------------- Cycle PD pin to reset device --------------------
 
+	MCU_Delay_20ms();
     MCU_PDlow();                                                                // PD low to reset device
     MCU_Delay_20ms();
     MCU_PDhigh();                                                               // PD high again
@@ -138,9 +139,9 @@ void FT812_Init(void)
     delay(1);
     EVE_CmdWrite(0x68,0);
     delay(1);
+*/
 
-    */
-   // EVE_CmdWrite(0x62,4);
+   // EVE_CmdWrite(0x61,2);
 
 
     MCU_Delay_500ms();
@@ -434,6 +435,12 @@ void MCU_Delay_20ms(void)
 {
 	delay(20);
 }
+
+void MCU_Delay_3us(void)
+{
+	delayMicroseconds(3);
+}
+
 
 void MCU_Delay_500ms(void)
 {

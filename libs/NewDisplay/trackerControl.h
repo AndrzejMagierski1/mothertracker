@@ -20,14 +20,23 @@ struct strTrackerPattern
 
 	} track[8];
 
-	int16_t position = 0;
-	uint16_t length = 0;
-	int16_t part = 0; // max 744
+	//-------------------------------
+	// aktualna pozycja kursora -
+	int8_t actualTrack = 0;		// <- ramka bedzie widziana zaleznie od firstVisibleTrack (0-7)
+	int16_t actualStep = 0; 	// <- od tej wartosci zalezy zawsze pozycja w pionie (0-xxx)
 
-	int8_t selectActive = 0;
-	int8_t select = 0;
-	uint8_t select_param = 0;
+	int16_t patternLength = 1;		// dlugosc patternu (1-xxx)
+	int8_t firstVisibleTrack = 0;	// pierwszy track od lewej widziany na wyswitlaczu (0-4)
+									// - steruje przesunieciem na boki
+	int16_t playheadPosition = 0;	// linia odtwarzania - wartosc stepa (0-xxx)
 
+	int8_t selectState = 0;			// 1 = kursor ; 2 = kursor + zaznaczenie
+	int8_t selectedParam = 0;		// wybrany do modyfikacji parametr (0-4; 4 = wszsytkie)
+
+	int8_t selectStartTrack = 0;	// start zaznaczenia 	//
+	int16_t selectStartStep = 0;							// <= ustawienie obojetne
+	int8_t selectEndTrack = 0;		// koniec zaznaczenia	//
+	int16_t selectEndStep = 0;
 };
 
 
@@ -57,6 +66,9 @@ private:
 
 	strTrackerPattern* tracks;
 
+	int16_t select1_x, select2_x, select1_y, select2_y;
+	uint8_t selectActive = 0;
+
 	uint16_t ramPartSize[5] = {0};
 	uint8_t refreshStep;
 	void refresh1();
@@ -65,9 +77,9 @@ private:
 	void refresh4();
 	void refresh5();
 
-	uint8_t firstVisibleTrack;
-	int16_t visibleTracksOffset;
-	uint8_t visibleCharOffset;
+//	uint8_t firstVisibleTrack;
+//	int16_t visibleTracksOffset;
+//	uint8_t visibleCharOffset;
 
 };
 

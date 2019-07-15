@@ -18,6 +18,8 @@
 #include "barControl.h"
 #include "keyboardControl.h"
 
+
+
 typedef cDisplayControl* hControl;
 
 
@@ -74,7 +76,7 @@ public:
 
 
 		hControl newControl = new controlClass(properties);
-		int8_t memory_slot = -1;
+		//int8_t memory_slot = -1;
 
 		for(uint8_t i = 0; i < controlsCount;i++)
 		{
@@ -82,7 +84,7 @@ public:
 			{
 				 memoryMap[i] = 1;
 				 newControl->ramMapPosition = i;
-				 memory_slot = i;
+				 //memory_slot = i;
 				 break;
 			}
 		}
@@ -95,6 +97,7 @@ public:
 	void destroyControl(hControl handle);
 	void refreshControl(hControl handle);
 	void synchronizeRefresh();
+	void resetControlQueue();
 
 	void setControlPosition(hControl handle, uint16_t x, uint16_t y);
 	void setControlSize(hControl handle, uint16_t w, uint16_t h);

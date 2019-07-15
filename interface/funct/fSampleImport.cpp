@@ -58,6 +58,8 @@ void cSampleImporter::start(uint32_t options)
 	//selectedFile = 0;
 	dirLevel = 0;
 
+	selectedSlot = mtProject.values.lastUsedInstrument;
+
 	actualPath[0] = '/';
 	actualPath[1] = 0;
 
@@ -660,9 +662,14 @@ void cSampleImporter::playSdFile()
 		sequencer.stop();
 	}
 
+	stopPlaying();
+
+	if(playMode != playModeSdFile)
+	{
+		engine.prevSdConnect();
+	}
 	playMode = playModeSdFile;
 
-	engine.prevSdConnect();
 
 	playSdWav.play(file_path);
 
@@ -675,6 +682,14 @@ void cSampleImporter::playSampleFromBank()
 	{
 		sequencer.stop();
 	}
+
+	if(playMode != playModeSampleBank)
+	{
+		playSdWav.stop();
+		engine.prevSdDisconnect();
+	}
+
+	stopPlaying();
 
 	playMode = playModeSampleBank;
 

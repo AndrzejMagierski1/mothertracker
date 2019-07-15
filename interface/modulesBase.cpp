@@ -2,7 +2,7 @@
 #include <modulesBase.h>
 #include <string.h>
 
-void cFunctionMachine::clearAll()
+void cFunctionMachine::clearAll()  // stara wersja
 {
 	if(potsCleared && buttonsCleared && padsCleared) return;
 

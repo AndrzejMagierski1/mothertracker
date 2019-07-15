@@ -35,8 +35,7 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 static  uint8_t functSwitchMode(uint8_t button);
 
-static  uint8_t functSelectVolume(uint8_t button);
-static  uint8_t functSelectFilter(uint8_t button);
+static  uint8_t functSelectEnv(uint8_t button);
 static  uint8_t functSelectParams(uint8_t button);
 
 
@@ -69,22 +68,21 @@ void cInstrumentEditor::start(uint32_t options)
 
 	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
-	listFilterMode();
+	listData();
 
 
 	FM->setPadsGlobal(functPads);
 
 
-	// ustawienie funkcji
 
+	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchMode);
 	FM->setButtonObj(interfaceButtonEnvelopes, buttonPress, functSwitchMode);
-	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchMode);
 
 
 	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
-	//FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonSamplePlay, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonSampleEdit, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonSampleRec, buttonPress, functSwitchModule);
@@ -96,22 +94,16 @@ void cInstrumentEditor::start(uint32_t options)
 
 	switch(mode)
 	{
-	case 0:
-	{
-		showInstrumentVolume();
-		setInstrumentVolumeFunct();
-		break;
-	}
-	case 1:
-	{
-		showInstrumentFilter();
-		setInstrumentFilterFunct();
-		break;
-	}
-	case 2:
+	case mtInstEditModeParams:
 	{
 		showInstrumentParams();
 		setInstrumentParamsFunct();
+		break;
+	}
+	case mtInstEditModeEnv:
+	{
+		showInstrumentEnv();
+		setInstrumentEnvFunct();
 		break;
 	}
 	}
@@ -153,7 +145,7 @@ void cInstrumentEditor::setDefaultScreenFunct()
 
 }
 
-void cInstrumentEditor::listFilterMode()
+void cInstrumentEditor::listData()
 {
 
 	for(uint8_t i = 0; i < filterModeCount; i++)
@@ -161,31 +153,33 @@ void cInstrumentEditor::listFilterMode()
 		filterModeNames[i] = (char*)&filterModeFunctLabels[i][0];
 	}
 
+	for(uint8_t i = 0; i < 2; i++)
+	{
+		envelopeNames[i] = (char*)&envelopesLabels[i][0];
+	}
+
+	for(uint8_t i = 0; i < 2; i++)
+	{
+		envStateNames[i] = (char*)&envStateLabels[i][0];
+	}
+
+	for(uint8_t i = 0; i < 2; i++)
+	{
+		envLoopNames[i] = (char*)&envLoopLabels[i][0];
+	}
 
 }
 
 
 //==============================================================================================================
-void cInstrumentEditor::setInstrumentVolumeFunct()
+void cInstrumentEditor::setInstrumentEnvFunct()
 {
 	for(uint8_t i = interfaceButton0; i < interfaceButton8; i++)
 	{
-		FM->setButtonObj(i, buttonPress, functSelectVolume);
+		FM->setButtonObj(i, buttonPress, functSelectEnv);
 	}
 
 }
-
-
-void cInstrumentEditor::setInstrumentFilterFunct()
-{
-
-	for(uint8_t i = interfaceButton0; i < interfaceButton8; i++)
-	{
-		FM->setButtonObj(i, buttonPress, functSelectFilter);
-	}
-
-}
-
 
 void cInstrumentEditor::setInstrumentParamsFunct()
 {
@@ -193,18 +187,10 @@ void cInstrumentEditor::setInstrumentParamsFunct()
 	{
 		FM->setButtonObj(i, buttonPress, functSelectParams);
 	}
-
 }
 
-static  uint8_t functSelectVolume(uint8_t button)
-{
-	IE->selectedPlace[0] = button;
-	IE->activateLabelsBorder();
 
-	return 1;
-}
-
-static  uint8_t functSelectFilter(uint8_t button)
+static  uint8_t functSelectEnv(uint8_t button)
 {
 	IE->selectedPlace[1] = button;
 	IE->activateLabelsBorder();
@@ -214,7 +200,7 @@ static  uint8_t functSelectFilter(uint8_t button)
 
 static  uint8_t functSelectParams(uint8_t button)
 {
-	IE->selectedPlace[2] = button;
+	IE->selectedPlace[0] = button;
 	IE->activateLabelsBorder();
 
 	return 1;
@@ -231,30 +217,24 @@ static  uint8_t functEncoder(int16_t value)
 
 	switch(mode_places)
 	{
-	case 0: IE->changeVolumeAttack(value); 		break;
-	case 1: IE->changeVolumeDecay(value); 		break;
-	case 2: IE->changeVolumeSustain(value); 	break;
-	case 3: IE->changeVolumeRelease(value); 	break;
-	case 4: IE->changeVolumeAmount(value); 		break;
+	case 0: IE->changeParamsVolume(value); 		 break;
+	case 1:	IE->changeParamsPanning(value); 	 break;
+	case 2: IE->changeParamsTune(value); 		 break;
+	case 3: IE->changeParamsFineTune(value); 	 break;
+	case 4: IE->changeFilterFilterType(value); 	 break;
+	case 5: IE->changeFilterCutOff(value); 		 break;
+	case 6: IE->changeFilterResonance(value); 	 break;
+	case 7: IE->changeParamsReverbSend(value); 	 break;
 
+	case 10: IE->changeEnvList(value); 		break;
+	case 11: IE->changeEnvState(value); 	break;
+	case 12: IE->changeEnvAttack(value); 	break;
+	case 13: IE->changeEnvDecay(value); 	break;
+	case 14: IE->changeEnvSustain(value); 	break;
+	case 15: IE->changeEnvRelease(value); 	break;
+	case 16: IE->changeEnvAmount(value); 	break;
+	case 17: IE->changeEnvLoop(value); 		break;
 
-	case 10: IE->changeFilterAttack(value); 	break;
-	case 11: IE->changeFilterDecay(value); 		break;
-	case 12: IE->changeFilterSustain(value); 	break;
-	case 13: IE->changeFilterRelease(value);	break;
-	case 14: IE->changeFilterAmount(value); 	break;
-	case 15: IE->changeFilterFilterType(value); break;
-	case 16: IE->changeFilterCutOff(value); 	break;
-	case 17: IE->changeFilterResonance(value); 	break;
-
-	case 20: IE->changeParamsVolume(value); 	break;
-	case 21: IE->changeParamsTune(value); 		break;
-	case 22: IE->changeParamsFineTune(value); 	break;
-	case 23: IE->changeParamsGlide(value); 		break;
-	case 24: IE->changeParamsPanning(value); 	break;
-	case 25: IE->changeParamsVibrato(value); 	break;
-	case 26: IE->changeParamsTremolo(value); 	break;
-	case 27: IE->changeParamsReverbSend(value); 	break;
 	}
 
 	return 1;
@@ -339,174 +319,136 @@ static  uint8_t functSwitchMode(uint8_t button)
 {
 	switch(button)
 	{
-	case interfaceButtonEnvelopes:
-	{
-		if(IE->mode != 0)
-		{
-			IE->mode = 0;
-			IE->showInstrumentVolume();
-			IE->setInstrumentVolumeFunct();
-		}
-		break;
-	}
-	case interfaceButtonMaster:
-	{
-		if(IE->mode != 1)
-		{
-			IE->mode = 1;
-			IE->showInstrumentFilter();
-			IE->setInstrumentFilterFunct();
-		}
-		break;
-	}
 	case interfaceButtonParams:
 	{
-		if(IE->mode != 2)
+		if(IE->mode != mtInstEditModeParams)
 		{
-			IE->mode = 2;
+			IE->mode = 0;
 			IE->showInstrumentParams();
 			IE->setInstrumentParamsFunct();
 		}
 		break;
 	}
+	case interfaceButtonEnvelopes:
+	{
+		if(IE->mode != mtInstEditModeEnv)
+		{
+			IE->mode = 1;
+			IE->showInstrumentEnv();
+			IE->setInstrumentEnvFunct();
+		}
+		break;
+	}
+
 
 
 	}
 
-
+	IE->activateLabelsBorder();
 
 	return 1;
 }
 
 //======================================================================================================================
 
-void cInstrumentEditor::changeVolumeAttack(int16_t value)
+void cInstrumentEditor::changeEnvList(int16_t value)
+{
+
+	if(selectedEnvelope + value < 0) selectedEnvelope = 0;
+	else if(selectedEnvelope + value > 1 ) selectedEnvelope = 1;
+	else selectedEnvelope += value;
+
+	showInstrumentEnv();
+
+	showEnvList();
+
+}
+
+void cInstrumentEditor::changeEnvState(int16_t value)
+{
+
+
+
+	showEnvState();
+}
+
+void cInstrumentEditor::changeEnvAttack(int16_t value)
 {
 	value = value * 100;
 
-	if(editorInstrument->envelope[envelopeTypeAmp].attack + value < 0) editorInstrument->envelope[envelopeTypeAmp].attack = 0;
-	else if(editorInstrument->envelope[envelopeTypeAmp].attack + value > ATTACK_MAX ) editorInstrument->envelope[envelopeTypeAmp].attack = ATTACK_MAX;
-	else editorInstrument->envelope[envelopeTypeAmp].attack += value;
+	if(editorInstrument->envelope[selectedEnvelope].attack + value < 0) editorInstrument->envelope[selectedEnvelope].attack = 0;
+	else if(editorInstrument->envelope[selectedEnvelope].attack + value > ATTACK_MAX ) editorInstrument->envelope[selectedEnvelope].attack = ATTACK_MAX;
+	else editorInstrument->envelope[selectedEnvelope].attack += value;
 
-	showVolumeAttack();
+	showEnvAttack();
 }
 
-void cInstrumentEditor::changeVolumeDecay(int16_t value)
+void cInstrumentEditor::changeEnvDecay(int16_t value)
 {
 	value = value * 100;
 
-	if(editorInstrument->envelope[envelopeTypeAmp].decay + value < 0) editorInstrument->envelope[envelopeTypeAmp].decay = 0;
-	else if(editorInstrument->envelope[envelopeTypeAmp].decay + value > DECAY_MAX ) editorInstrument->envelope[envelopeTypeAmp].decay = DECAY_MAX;
-	else editorInstrument->envelope[envelopeTypeAmp].decay += value;
+	if(editorInstrument->envelope[selectedEnvelope].decay + value < 0) editorInstrument->envelope[selectedEnvelope].decay = 0;
+	else if(editorInstrument->envelope[selectedEnvelope].decay + value > DECAY_MAX ) editorInstrument->envelope[selectedEnvelope].decay = DECAY_MAX;
+	else editorInstrument->envelope[selectedEnvelope].decay += value;
 
-	showVolumeDecay();
+	showEnvDecay();
 }
 
-void cInstrumentEditor::changeVolumeSustain(int16_t value)
+void cInstrumentEditor::changeEnvSustain(int16_t value)
 {
 	float fVal = value * 0.01;
 
-	if(editorInstrument->envelope[envelopeTypeAmp].sustain + fVal < 0) editorInstrument->envelope[envelopeTypeAmp].sustain = 0;
-	else if(editorInstrument->envelope[envelopeTypeAmp].sustain + fVal > SUSTAIN_MAX ) editorInstrument->envelope[envelopeTypeAmp].sustain = SUSTAIN_MAX;
-	else editorInstrument->envelope[envelopeTypeAmp].sustain += fVal;
+	if(editorInstrument->envelope[selectedEnvelope].sustain + fVal < 0) editorInstrument->envelope[selectedEnvelope].sustain = 0;
+	else if(editorInstrument->envelope[selectedEnvelope].sustain + fVal > SUSTAIN_MAX ) editorInstrument->envelope[selectedEnvelope].sustain = SUSTAIN_MAX;
+	else editorInstrument->envelope[selectedEnvelope].sustain += fVal;
 
-	showVolumeSustain();
+	showEnvSustain();
 }
 
-void cInstrumentEditor::changeVolumeRelease(int16_t value)
+void cInstrumentEditor::changeEnvRelease(int16_t value)
 {
 	value = value * 100;
 
-	if(editorInstrument->envelope[envelopeTypeAmp].release + value < 0) editorInstrument->envelope[envelopeTypeAmp].release = 0;
-	else if(editorInstrument->envelope[envelopeTypeAmp].release + value > RELEASE_MAX ) editorInstrument->envelope[envelopeTypeAmp].release = RELEASE_MAX;
-	else editorInstrument->envelope[envelopeTypeAmp].release += value;
+	if(editorInstrument->envelope[selectedEnvelope].release + value < 0) editorInstrument->envelope[selectedEnvelope].release = 0;
+	else if(editorInstrument->envelope[selectedEnvelope].release + value > RELEASE_MAX ) editorInstrument->envelope[selectedEnvelope].release = RELEASE_MAX;
+	else editorInstrument->envelope[selectedEnvelope].release += value;
 
-	showVolumeRelease();
+	showEnvRelease();
 }
 
-void cInstrumentEditor::changeVolumeAmount(int16_t value)
+void cInstrumentEditor::changeEnvAmount(int16_t value)
 {
 	float fVal = value * 0.01;
 
-	if(editorInstrument->envelope[envelopeTypeAmp].amount + fVal < 0) editorInstrument->envelope[envelopeTypeAmp].amount = 0;
-	else if(editorInstrument->envelope[envelopeTypeAmp].amount + fVal > AMOUNT_MAX ) editorInstrument->envelope[envelopeTypeAmp].amount = AMOUNT_MAX;
-	else editorInstrument->envelope[envelopeTypeAmp].amount += fVal;
+	if(editorInstrument->envelope[selectedEnvelope].amount + fVal < 0) editorInstrument->envelope[selectedEnvelope].amount = 0;
+	else if(editorInstrument->envelope[selectedEnvelope].amount + fVal > AMOUNT_MAX ) editorInstrument->envelope[selectedEnvelope].amount = AMOUNT_MAX;
+	else editorInstrument->envelope[selectedEnvelope].amount += fVal;
 
-	if(editorInstrument->envelope[envelopeTypeAmp].amount == 0)
+	if(editorInstrument->envelope[selectedEnvelope].amount == 0)
 	{
-		editorInstrument->envelope[envelopeTypeAmp].enable = 0;
+		editorInstrument->envelope[selectedEnvelope].enable = 0;
 	}
 	else
 	{
-		editorInstrument->envelope[envelopeTypeAmp].enable = 1;
+		editorInstrument->envelope[selectedEnvelope].enable = 1;
 	}
 
-	showVolumeAmount();
+	showEnvAmount();
 }
 
-void cInstrumentEditor::changeFilterAttack(int16_t value)
+
+
+void cInstrumentEditor::changeEnvLoop(int16_t value)
 {
-	value = value * 100;
 
-	if(editorInstrument->envelope[envelopeTypeFilter].attack + value < 0) editorInstrument->envelope[envelopeTypeFilter].attack = 0;
-	else if(editorInstrument->envelope[envelopeTypeFilter].attack + value > ATTACK_MAX ) editorInstrument->envelope[envelopeTypeFilter].attack = ATTACK_MAX;
-	else editorInstrument->envelope[envelopeTypeFilter].attack += value;
 
-	showFilterAttack();
+
+	showEnvLoop();
 }
 
-void cInstrumentEditor::changeFilterDecay(int16_t value)
-{
-	value = value * 100;
 
-	if(editorInstrument->envelope[envelopeTypeFilter].decay + value < 0) editorInstrument->envelope[envelopeTypeFilter].decay = 0;
-	else if(editorInstrument->envelope[envelopeTypeFilter].decay + value > DECAY_MAX ) editorInstrument->envelope[envelopeTypeFilter].decay = DECAY_MAX;
-	else editorInstrument->envelope[envelopeTypeFilter].decay += value;
 
-	showFilterDecay();
-}
 
-void cInstrumentEditor::changeFilterSustain(int16_t value)
-{
-	float fVal = value * 0.01;
-
-	if(editorInstrument->envelope[envelopeTypeFilter].sustain + fVal < 0) editorInstrument->envelope[envelopeTypeFilter].sustain = 0;
-	else if(editorInstrument->envelope[envelopeTypeFilter].sustain + fVal > SUSTAIN_MAX ) editorInstrument->envelope[envelopeTypeFilter].sustain = SUSTAIN_MAX;
-	else editorInstrument->envelope[envelopeTypeFilter].sustain += fVal;
-
-	showFilterSustain();
-}
-
-void cInstrumentEditor::changeFilterRelease(int16_t value)
-{
-	value = value * 100;
-
-	if(editorInstrument->envelope[envelopeTypeFilter].release + value < 0) editorInstrument->envelope[envelopeTypeFilter].release = 0;
-	else if(editorInstrument->envelope[envelopeTypeFilter].release + value > RELEASE_MAX ) editorInstrument->envelope[envelopeTypeFilter].release = RELEASE_MAX;
-	else editorInstrument->envelope[envelopeTypeFilter].release += value;
-
-	showFilterRelease();
-}
-
-void cInstrumentEditor::changeFilterAmount(int16_t value)
-{
-	float fVal = value * 0.01;
-
-	if(editorInstrument->envelope[envelopeTypeFilter].amount + fVal < 0) editorInstrument->envelope[envelopeTypeFilter].amount = 0;
-	else if(editorInstrument->envelope[envelopeTypeFilter].amount + fVal > AMOUNT_MAX ) editorInstrument->envelope[envelopeTypeFilter].amount = AMOUNT_MAX;
-	else editorInstrument->envelope[envelopeTypeFilter].amount += fVal;
-
-	if(editorInstrument->envelope[envelopeTypeFilter].amount == 0)
-	{
-		editorInstrument->envelope[envelopeTypeFilter].enable = 0;
-	}
-	else
-	{
-		editorInstrument->envelope[envelopeTypeFilter].enable = 1;
-	}
-
-	showFilterAmount();
-}
 
 void cInstrumentEditor::changeFilterFilterType(int16_t value)
 {
@@ -623,19 +565,6 @@ void cInstrumentEditor::changeParamsPanning(int16_t value)
 	showParamsPanning();
 }
 
-void cInstrumentEditor::changeParamsVibrato(int16_t value)
-{
-
-
-	showParamsVibrato();
-}
-
-void cInstrumentEditor::changeParamsTremolo(int16_t value)
-{
-
-
-	showParamsTremolo();
-}
 
 void cInstrumentEditor::changeParamsReverbSend(int16_t value)
 {

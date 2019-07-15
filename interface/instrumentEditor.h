@@ -11,9 +11,9 @@
 
 enum mtInstrumentEditorMode
 {
-	mtInstEditModeVolume,
-	mtInstEditModeFilter,
 	mtInstEditModeParams,
+	mtInstEditModeEnv,
+
 
 };
 
@@ -27,6 +27,27 @@ const char filterModeFunctLabels[filterModeCount][11]=
 		"High-pass",
 		"Band-pass",
 };
+
+
+const char envelopesLabels[filterModeCount][11]=
+{
+		"Amp",
+		"Filter",
+
+};
+
+const char envStateLabels[filterModeCount][11]=
+{
+		"On",
+		"Off",
+};
+
+const char envLoopLabels[filterModeCount][11]=
+{
+	"On",
+	"Off"
+};
+
 
 
 class cInstrumentEditor: public cModuleBase
@@ -49,67 +70,64 @@ public:
 
 	void showDefaultScreen();
 
-	void showInstrumentVolume();
-	void showInstrumentFilter();
+	void showInstrumentEnv();
 	void showInstrumentParams();
 
 	void activateLabelsBorder();
 
-	void showVolumeAttack();
-	void showVolumeDecay();
-	void showVolumeSustain();
-	void showVolumeRelease();
-	void showVolumeAmount();
-	void showFilterAttack();
-	void showFilterDecay();
-	void showFilterSustain();
-	void showFilterRelease();
-	void showFilterAmount();
+
+	void showEnvList();
+	void showEnvState();
+	void showEnvAttack();
+	void showEnvDecay();
+	void showEnvSustain();
+	void showEnvRelease();
+	void showEnvAmount();
+	void showEnvLoop();
+
+
+	void showParamsVolume();
+	void showParamsPanning();
+	void showParamsTune();
+	void showParamsFineTune();
 	void showFilterFilterType();
 	void showFilterCutOff();
 	void showFilterResonance();
-	void showParamsVolume();
-	void showParamsTune();
-	void showParamsFineTune();
-	void showParamsGlide();
-	void showParamsPanning();
-	void showParamsVibrato();
-	void showParamsTremolo();
 	void showParamsReverbSend();
+
+	void showParamsGlide();
+
 //----------------------------------
 
 	void setDefaultScreenFunct();
 
-	void setInstrumentVolumeFunct();
-	void setInstrumentFilterFunct();
+	void setInstrumentEnvFunct();
 	void setInstrumentParamsFunct();
 
 //----------------------------------
 
-	void changeVolumeAttack(int16_t value);
-	void changeVolumeDecay(int16_t value);
-	void changeVolumeSustain(int16_t value);
-	void changeVolumeRelease(int16_t value);
-	void changeVolumeAmount(int16_t value);
 
-	void changeFilterAttack(int16_t value);
-	void changeFilterDecay(int16_t value);
-	void changeFilterSustain(int16_t value);
-	void changeFilterRelease(int16_t value);
-	void changeFilterAmount(int16_t value);
+	void changeEnvList(int16_t value);
+	void changeEnvState(int16_t value);
+	void changeEnvAttack(int16_t value);
+	void changeEnvDecay(int16_t value);
+	void changeEnvSustain(int16_t value);
+	void changeEnvRelease(int16_t value);
+	void changeEnvAmount(int16_t value);
+	void changeEnvLoop(int16_t value);
+
+
+	void changeParamsVolume(int16_t value);
+	void changeParamsPanning(int16_t value);
+	void changeParamsTune(int16_t value);
+	void changeParamsFineTune(int16_t value);
 	void changeFilterFilterType(int16_t value);
 	void changeFilterCutOff(int16_t value);
 	void changeFilterResonance(int16_t value);
-
-	void changeParamsVolume(int16_t value);
-	void changeParamsTune(int16_t value);
-	void changeParamsFineTune(int16_t value);
-	void changeParamsGlide(int16_t value);
-	void changeParamsPanning(int16_t value);
-	void changeParamsVibrato(int16_t value);
-	void changeParamsTremolo(int16_t value);
 	void changeParamsReverbSend(int16_t value);
 
+
+	void changeParamsGlide(int16_t value);
 //----------------------------------
 
 
@@ -122,37 +140,51 @@ public:
 	hControl barControl[8];
 
 	hControl filterModeListControl;
-
-
-	hControl listControl;
+	hControl envelopesListControl;
+	hControl envStateListControl;
+	hControl envLoopListControl;
 
 	hControl frameControl;
 
 
-	uint8_t selectedPlace[3] = {0};
+	uint8_t selectedPlace[2] = {0};
 
-
+	// typ trybu/ekranu
 	uint8_t mode;
 
 	strInstrument * editorInstrument;
 
+
+
+	uint8_t selectedEnvelope = 0;
+
 //----------------------------------
 // lista play mode
 
-		strList filterModeList;
+	strList filterModeList;
 
-		void listFilterMode();
+	void listData();
 
-		char *filterModeNames[filterModeCount];
+	char *filterModeNames[filterModeCount];
 
-		uint8_t filterModeListPos;
+	uint8_t filterModeListPos;
 
 //----------------------------------
 // odtwarzanie
 	uint8_t isPlayingSample = 0;
 
+//----------------------------------
+// envelopes lists
+
+	strList envelopesList;
+	strList envStateList;
+	strList envLoopList;
 
 
+
+	char *envelopeNames[2];
+	char *envStateNames[2];
+	char *envLoopNames[2];
 
 
 };

@@ -69,7 +69,7 @@ void cPatternEditor::showDefaultScreen()
 
 	display.setControlValue(bottomLabel[0], pattern->tempo);
 	display.setControlValue(bottomLabel[1], 1);
-	display.setControlValue(bottomLabel[2], pattern->track[0].length);
+	display.setControlValue(bottomLabel[2], pattern->track[0].length+1);
 	display.setControlValue(bottomLabel[3], mtProject.values.patternEditStep);
 
 
@@ -89,3 +89,20 @@ void cPatternEditor::showDefaultScreen()
 
 
 }
+
+// ustawianie stylu ramki do wybranego labela przycisku (bottomLabel[selectedLabel])
+void cPatternEditor::activateLabelsBorder()
+{
+	for(uint8_t i = 0; i<4; i++)
+	{
+		display.setRemoveControlStyle(bottomLabel[i], controlStyleBorder);
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	if(selectedLabel >= 0)
+	{
+		display.setAddControlStyle(bottomLabel[selectedLabel], controlStyleBorder);
+		//trackerPattern.selectActive = 0;
+	}
+}
+

@@ -74,6 +74,10 @@
 // SEQ GRID
 #define GRID_A			38 			//PTC11			pin-116
 
+
+//TACTILE DRIVER INTERRUPT PIN
+#define TACTILE_INT		14
+
 /*
 #define GRID_B			64			//PTE8			pin-11
 #define GRID_C			65	 		//PTE9			pin-12
@@ -97,7 +101,7 @@
 #define HAPTIC_OUT		xxx 		//DAC0_OUT		pin-38
 
 // BLINK LED
-#define BLINK_LED		48 			//PTD9			pin-138
+#define BLINK_LED		78 			//PTC19
 
 // TACT SWITCH
 #define TACT_SWITCH		9 			//PTC3			pin-106

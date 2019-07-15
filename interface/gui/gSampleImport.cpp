@@ -126,9 +126,9 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlText(topLabel[2], "Instruments");
 	display.setControlText(topLabel[3], "Memory");
 
-	display.setControlText(bottomLabel[0], " /\\\           \\\/ ");
-	display.setControlText(bottomLabel[1], " /\\\           \\\/ ");
-	display.setControlText(bottomLabel[2], " /\\\           \\\/ ");
+	display.setControlText(bottomLabel[0], " /\\           \\/ ");
+	display.setControlText(bottomLabel[1], " /\\           \\/ ");
+	display.setControlText(bottomLabel[2], " /\\           \\/ ");
 	display.setControlText(bottomLabel[3], " Add       Delete");
 
 	for(uint8_t i = 0; i<4; i++)
@@ -156,6 +156,7 @@ void cSampleImporter::showFolderTree()
 	display.setControlData(folderListControl,  &folderList);
 	display.setControlShow(folderListControl);
 	display.refreshControl(folderListControl);
+
 
 	display.setControlText(topLabel[0],actualPath);
 	display.refreshControl(topLabel[0]);

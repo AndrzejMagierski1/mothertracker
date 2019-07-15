@@ -125,7 +125,7 @@ void cProjectEditor::update()
 				fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
 				fileManager.samplesLoader.start(0);
 
-				functSwitchModule(interfaceButtonPattern); //
+				functSwitchModule(interfaceButtonPattern);
 				break;
 			}
 			default: break;

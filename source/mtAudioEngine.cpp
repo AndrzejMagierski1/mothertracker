@@ -671,6 +671,7 @@ void audioEngine:: prevSdDisconnect()
 //
 //	i2sConnect[0]->connect();
 //	i2sConnect[1]->connect();
+
 }
 
 void audioEngine:: wavExportConnect()

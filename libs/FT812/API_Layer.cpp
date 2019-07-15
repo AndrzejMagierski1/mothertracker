@@ -45,7 +45,7 @@ uint16_t cmdBufferRd;		// Used to navigate command ring buffer
 uint16_t cmdBufferWr = 0x0000;		// Used to navigate command ring buffer
 uint16_t cmdOffset = 0x0000;		// Used to navigate command rung buffer
 
-
+void MCU_Delay_3us(void);
 //##############################################################################
 // Library functions
 //##############################################################################
@@ -53,36 +53,37 @@ uint16_t cmdOffset = 0x0000;		// Used to navigate command rung buffer
 // Begins co-pro list for display creation
 void API_LIB_BeginCoProList(void)
 {
-
-
     API_LIB_AwaitCoProEmpty();                                                  // Wait for command FIFO to be empty and record current position in FIFO
     MCU_CSlow();
                                                                	   	   	   	    // CS low begins SPI transaction
+
+    MCU_Delay_3us();
+
     EVE_AddrForWr(RAM_CMD + cmdOffset);                                         // Send address for writing as the next free location in the co-pro buffer                                      
-}
-
-void API_LIB_BeginDirectDL(void)
-{
-    API_LIB_AwaitCoProEmpty();                                                  // Wait for command FIFO to be empty and record current position in FIFO
-    MCU_CSlow();
-                                                               	   	   	   	    // CS low begins SPI transaction
-    EVE_AddrForWr(RAM_DL);                                        				 // Send address for writing as the next free location in the co-pro buffer
 }
 
 
 
 void API_LIB_BeginCoProListNoCheck(void)
 {
-	MCU_CSlow();
-                                                               	   	   	   	    // CS low begins SPI transaction
-    EVE_AddrForWr(RAM_CMD + cmdOffset);                                         // Send address for writing as the next free location in the co-pro buffer
+	MCU_CSlow();																// CS low begins SPI transaction
+
+	MCU_Delay_3us();
+	
+	//cmdOffset = 0;
+	
+	EVE_AddrForWr(RAM_CMD + cmdOffset);                                         // Send address for writing as the next free location in the co-pro buffer
+	
+   // EVE_AddrForWr(RAM_CMD);
 }
 
 // Ends co-pro list for display creation
 void API_LIB_EndCoProList(void)
 {
     MCU_CShigh();                                                               // Chip Select high concludes burst
-    
+
+    MCU_Delay_3us();
+
     EVE_MemWrite32(REG_CMD_WRITE, (cmdOffset));                                 // Update the ring buffer pointer 
 }
 
@@ -99,7 +100,14 @@ uint8_t API_LIB_IsCoProEmpty(void)
 {
 	uint8_t success = 0;
 	success =  EVE_IsCmdFifoEmpty();
-	if(success) cmdOffset = EVE_GetCurrentWritePointer();
+	if(success)  cmdOffset = EVE_GetCurrentWritePointer();
+/*	{
+		cmdOffset = 0;
+		EVE_MemWrite32(REG_CMD_READ, cmdOffset);
+		EVE_MemWrite32(REG_CMD_WRITE, cmdOffset);
+	}
+*/
+
 	return success;
 }
 

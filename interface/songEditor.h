@@ -19,16 +19,21 @@ public:
 	virtual void initDisplayControls();
 	virtual void destroyDisplayControls();
 
-	cSongEditor() {}
+	cSongEditor()
+	{
+		topLabel[4] = {nullptr};
+		bottomLabel[4] = {nullptr};
+
+		patternsListControl = nullptr;
+		barControl[4] = {nullptr};
+		frameControl = nullptr;
+	}
 	virtual ~cSongEditor() {}
 
 	void showDefaultScreen();
 
 	void showPatternsList();
-	void showReverbSize();
-	void showReverbDamping();
-	void showLimiterAttack();
-	void showLimiterTreshold();
+
 
 	void activateLabelsBorder();
 
@@ -49,19 +54,15 @@ public:
 	void setDefaultScreenFunct();
 
 	void changePatternsSelection(int16_t value);
-	void changeReverbRoomSize(int16_t value);
-	void changeReverbDamping(int16_t value);
-	void changeLimiterAttack(int16_t value);
-	void changeLimiterTreshold(int16_t value);
 
 //--------------------------------------------------------------
 // patterns
 	void listPatterns();
 
-	uint16_t songLength;
+	uint16_t songLength = 0;
 	char patternsNamesList[PATTERNS_COUNT][35];
 	char *patternNames[PATTERNS_COUNT];
-	uint8_t selectedPattern;
+	uint8_t selectedPattern = 0;
 
 //--------------------------------------------------------------
 //reverb

@@ -35,7 +35,7 @@ public:
 	void showDefaultScreen();
 	void setDefaultScreenFunct();
 
-	void focusOnSelected();
+	void focusOnActual();
 
 	void refreshPattern();
 	void readPatternState();
@@ -54,20 +54,21 @@ public:
 
 
 //----------------------------------
-
+// Funct
 	uint16_t lastPatternPosition;
+	uint8_t isPleyheadOnScreen();
+
+	uint8_t isCursorInSelection();
 
 	Sequencer::strPattern * seq;
 
 	strTrackerPattern trackerPattern;
 
 	uint8_t editMode = 0;
+	uint8_t isSelectingNow = 0;
 
-	//uint8_t last_selected_instrument = 0;
-	uint16_t last_selected_length = 100;
 //----------------------------------
-
-
+// GUI
 
 	hControl topLabel[8];
 	hControl bottomLabel[8];
@@ -75,8 +76,7 @@ public:
 
 	strLabelData bottomValuesConfig = { 40, 0, 2048UL | 256UL };
 
-
-	uint8_t selectedLabel = 0;
+	int8_t selectedLabel = 0; // -1 = brak zaznaczenia; labele (0-3 ?)
 
 
 };

@@ -98,7 +98,7 @@ uint8_t cFrame::update()
 {
 	if(data == nullptr) return 0;
 
-    API_LIB_BeginCoProList();
+	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
     if(value > data->placesCount) value = data->placesCount-1;

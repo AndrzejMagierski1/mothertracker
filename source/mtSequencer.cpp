@@ -95,7 +95,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 					}
 					nanoStep = tempTick;
 
-					for (uint8_t a = MINROW; a <= MAXROW; a++)
+					for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 					{
 						int8_t tTempoOption = constrain(
 								seq[player.ramBank].track[a].tempoDiv,
@@ -129,7 +129,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 		{
 			if (!player.isREC)
 			{
-				for (uint8_t a = MINROW; a <= MAXROW; a++)
+				for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 				{
 					int8_t tTempoDiv = constrain(
 							seq[player.ramBank].track[a].tempoDiv,
@@ -149,7 +149,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 			}
 			else
 			{
-				for (uint8_t a = MINROW; a <= MAXROW; a++)
+				for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 				{
 					if (nanoStep % 12 == 1)
 					{
@@ -226,7 +226,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 
 void Sequencer::play_microStep(uint8_t row)
 {
-	if (row > MAXROW)
+	if (row > MAXTRACK)
 		return;
 	strPattern::strTrack & patternRow = seq[player.ramBank].track[row];
 	strPlayer::strPlayerTrack & playerRow = player.row[row];
@@ -382,10 +382,10 @@ void Sequencer::play_microStep(uint8_t row)
 			// ustawiamy całego stepa
 			playerRow.stepOpen = 1;
 			playerRow.stepTimer = 0; // od tej pory timer liczy w górę
-			playerRow.stepLength = patternStep.length1;
+//			playerRow.stepLength = patternStep.length1;
 			// ustawiamy nute
 			playerRow.noteOpen = 1;
-			playerRow.noteLength = patternStep.length1;
+			playerRow.noteLength = 9999; // w MT nie ma dugości stepa
 			playerRow.noteTimer = 0; // od tej pory timer liczy w górę
 
 			playerRow.stepSent = patternStep; // buforujemy wysłanego stepa
@@ -496,7 +496,7 @@ void Sequencer::rec_metronome(void)
 
 				player.isPlay = 1;
 				player.uStep = 1;
-				for (uint8_t a = MINROW; a <= MAXROW; a++)
+				for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 				{
 					player.row[a].uStep = 1;
 				}
@@ -524,40 +524,42 @@ void Sequencer::rec_metronome(void)
 
 void Sequencer::handle_ghosts(void)
 {
-	for (int8_t col = 1; col <= seq[player.ramBank].track[ghost.cnt1].length;
-			col++)
-	{
-		int8_t motherGhost = col; // numer stepa który jest matką ghostów
-		uint8_t temp_row_lenght = seq[player.ramBank].track[ghost.cnt1].length;
-//		uint8_t temp_hitMode = seq[player.ramBank].row[ghost.cnt1].step[col].hitMode;
-		uint8_t temp_isOn = seq[player.ramBank].track[ghost.cnt1].step[col].isOn;
+	// ghosty nie potrzebne w MT
+	/*
+	 for (int8_t col = 1; col <= seq[player.ramBank].track[ghost.cnt1].length;
+	 col++)
+	 {
+	 int8_t motherGhost = col; // numer stepa który jest matką ghostów
+	 uint8_t temp_row_lenght = seq[player.ramBank].track[ghost.cnt1].length;
+	 //		uint8_t temp_hitMode = seq[player.ramBank].row[ghost.cnt1].step[col].hitMode;
+	 uint8_t temp_isOn = seq[player.ramBank].track[ghost.cnt1].step[col].isOn;
 
-		uint8_t temp_length = seq[player.ramBank].track[ghost.cnt1].step[col].length1 + 1;
+	 uint8_t temp_length = seq[player.ramBank].track[ghost.cnt1].step[col].length1 + 1;
 
-		if (temp_length > 1 && temp_isOn)
-		{
-			while (temp_length > 1 && !seq[player.ramBank].track[ghost.cnt1].step[col + 1 + ((col + 1 > temp_row_lenght) * -temp_row_lenght)].isOn)
-			{
-				player.row[ghost.cnt1].step[col + 1 + ((col + 1 > temp_row_lenght) * (-(temp_row_lenght)))].isGhost = motherGhost;
-				temp_length--;
-				col++;
-			}
-		}
-		else
-		{
-			player.row[ghost.cnt1].step[col].isGhost = 0;
-		}
-	}
+	 if (temp_length > 1 && temp_isOn)
+	 {
+	 while (temp_length > 1 && !seq[player.ramBank].track[ghost.cnt1].step[col + 1 + ((col + 1 > temp_row_lenght) * -temp_row_lenght)].isOn)
+	 {
+	 player.row[ghost.cnt1].step[col + 1 + ((col + 1 > temp_row_lenght) * (-(temp_row_lenght)))].isGhost = motherGhost;
+	 temp_length--;
+	 col++;
+	 }
+	 }
+	 else
+	 {
+	 player.row[ghost.cnt1].step[col].isGhost = 0;
+	 }
+	 }
 
-	ghost.cnt1++;
-	{
-		if (ghost.cnt1 > ghost.cnt1_max)
-		{
-			ghost.cnt1 = 1;
-			// ghost.cnt2++;
-			// if(ghost.cnt2>ghost.cnt2_max) ghost.cnt2=1;
-		}
-	}
+	 ghost.cnt1++;
+	 {
+	 if (ghost.cnt1 > ghost.cnt1_max)
+	 {
+	 ghost.cnt1 = 1;
+	 // ghost.cnt2++;
+	 // if(ghost.cnt2>ghost.cnt2_max) ghost.cnt2=1;
+	 }
+	 }*/
 }
 
 void Sequencer::play(void)
@@ -572,7 +574,7 @@ void Sequencer::play(void)
 	nanoStep = 1;
 
 	player.uStep = 1;
-	for (uint8_t a = MINROW; a <= MAXROW; a++)
+	for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 	{
 		player.row[a].uStep = 1;
 
@@ -601,7 +603,7 @@ void Sequencer::pause(void)
 void Sequencer::send_allNotesOff(void)
 {
 
-	for (uint8_t row = MINROW; row <= MAXROW; row++)
+	for (uint8_t row = MINTRACK; row <= MAXTRACK; row++)
 	{
 		strPlayer::strPlayerTrack & playerRow = player.row[row];
 		if (playerRow.stepOpen) sendNoteOff(row, &playerRow.stepSent);
@@ -622,7 +624,7 @@ void Sequencer::stop(void)
 
 	nanoStep = 1;
 
-	for (uint8_t a = MINROW; a <= MAXROW; a++)
+	for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 	{
 		player.row[a].uStep = 0;
 //		player.row[a].rollStep = 0;
@@ -658,7 +660,7 @@ void Sequencer::resetAllLearned(void)
 {
 	for (uint8_t x = MINSTEP; x <= MAXSTEP; x++)
 	{
-		for (uint8_t y = MINROW; y <= MAXROW; y++)
+		for (uint8_t y = MINTRACK; y <= MAXTRACK; y++)
 		{
 			player.row[y].step[x].learned = 0;
 		}
@@ -744,20 +746,18 @@ void Sequencer::clearStep(uint8_t x, uint8_t row)
 
 void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 {
-	strPattern::strTrack & tempRow = seq[bank].track[row];
-	strPattern::strTrack::strStep & step = tempRow.step[x];
+	strPattern::strTrack * tempRow = &seq[bank].track[row];
+	strPattern::strTrack::strStep * step = &tempRow->step[x];
 
-//	step.hitMode = 1;
-	step.isOn = 0;
-//	step.chord = MIN_CHORD;
-	step.velocity = MAX_VELO_STEP;
-//	step.modulation = DEFAULT_MOD;
-//	step.rollCurve = MIN_STEP_ROLL_VAR;
+	clearStep(step);
+}
 
-//	step.rollNoteCurve = MIN_STEP_ROLL_NOTE_VAR;
-	step.length1 = MIN_STEP_LENGTH;
-//	step.offset = OFFSET_MIN;
-	step.note = tempRow.rootNote;
+void Sequencer::clearStep(strPattern::strTrack::strStep * step)
+{
+	step->isOn = 0;
+	step->velocity = MAX_VELO_STEP;
+
+	step->note = 0;
 }
 
 // void Sequencer::clearBank(uint8_t pattern)
@@ -782,7 +782,7 @@ void Sequencer::loadDefaultBank(uint8_t bank)
 	seq[bank].rezerwa3 = 0;
 	seq[bank].rezerwa4 = 0;
 
-	for (uint8_t row = MINROW; row <= MAXROW; row++)
+	for (uint8_t row = MINTRACK; row <= MAXTRACK; row++)
 	{
 		loadDefaultTrack(row, bank);
 	}
@@ -846,23 +846,23 @@ void Sequencer::loadDefaultSequence(void)
 {
 	seq[player.ramBank].tempo = 120.0;
 
-	for (uint8_t x = MINROW; x <= MAXROW; x++)
+	for (uint8_t x = MINTRACK; x <= MAXTRACK; x++)
 	{
 		seq[player.ramBank].track[x].rootNote = 35 + x;
 		seq[player.ramBank].track[x].channel = x;
 		seq[player.ramBank].track[x].isOn = 1;
 
-		seq[player.ramBank].track[x].length = 16;
+		seq[player.ramBank].track[x].length = 127;
 		for (uint8_t y = MINSTEP; y <= MAXSTEP; y++)
 		{
 			seq[player.ramBank].track[x].step[y].isOn = 0;
 
-			seq[player.ramBank].track[x].step[y].length1 = 48;
+//			seq[player.ramBank].track[x].step[y].length1 = 48;
 		}
 	}
 	//seq[player.ramBank].track[0].tempoDiv=1;
-/*
-	seq[player.ramBank].track[0].step[0].isOn = 1;
+	/*
+	 seq[player.ramBank].track[0].step[0].isOn = 1;
 	 seq[player.ramBank].track[0].step[0].velocity = 100;
 	 seq[player.ramBank].track[0].step[0].instrument = 0;
 	 seq[player.ramBank].track[0].step[0].note = 24;
@@ -960,7 +960,7 @@ void Sequencer::loadDefaultSequence(void)
 	 seq[player.ramBank].track[7].step[15].instrument = 0;
 	 seq[player.ramBank].track[7].step[15].note = 21;
 	 seq[player.ramBank].track[7].step[15].length1 = 100;
-*/
+	 */
 //	seq[player.ramBank].track[0].step[5].isOn = 1;
 ////	seq[player.ramBank].row[0].step[1].hitMode = 1;
 //	seq[player.ramBank].track[0].step[5].note = 36;
@@ -977,7 +977,7 @@ void Sequencer::loadDefaultSequence(void)
 
 void Sequencer::allNoteOffs(void)
 {
-	for (uint8_t a = MINROW; a <= MAXROW; a++)
+	for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 	{
 		if (player.row[a].stepOpen)
 		{
@@ -994,12 +994,12 @@ void Sequencer::allNoteOffs(void)
 
 void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od trybu grania
 {
-	uint8_t x = constrain(row, MINROW, MAXROW);
+	uint8_t x = constrain(row, MINTRACK, MAXTRACK);
 
 	if (player.isREC && player.row[x].recNoteOpen)
 	{
 		player.row[x].recNoteLength++;
-		seq[player.ramBank].track[x].step[player.row[x].recNoteStep].length1 = player.row[x].recNoteLength - 1;
+//		seq[player.ramBank].track[x].step[player.row[x].recNoteStep].length1 = player.row[x].recNoteLength - 1;
 
 	}
 
@@ -1010,7 +1010,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	}
 	else if (player.row[x].makeJump)
 	{
-		for (uint8_t a = MINROW; a <= MAXROW; a++)
+		for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 		{
 			player.row[x].makeJump = 0;
 		}
@@ -1026,8 +1026,8 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			{
 				// player.row[x].return2start = 0;
 				reset_actual_pos(x);
-				if ((player.onPatternEnd != NULL) && (x == MINROW))
-									player.onPatternEnd();
+				if ((player.onPatternEnd != NULL) && (x == MINTRACK))
+					player.onPatternEnd();
 
 				// if (player.changeBank)
 				// {
@@ -1043,7 +1043,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			{
 				// player.row[x].return2start = 0;
 				reset_actual_pos(x);
-				if ((player.onPatternEnd != NULL) && (x == MINROW))
+				if ((player.onPatternEnd != NULL) && (x == MINTRACK))
 					player.onPatternEnd();
 
 				// if (player.changeBank)
@@ -1127,7 +1127,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 
 void Sequencer::reset_actual_pos(void)
 {
-	for (uint8_t row = MINROW; row <= MAXROW; row++)
+	for (uint8_t row = MINTRACK; row <= MAXTRACK; row++)
 	{
 		player.row[row].pingPongToogle = 0;
 		reset_actual_pos(row);
@@ -1413,18 +1413,18 @@ void Sequencer::copy_step(uint8_t from_step, uint8_t from_track,
 							uint8_t to_track)
 {
 	from_step = constrain(from_step, MINSTEP, MAXSTEP);
-	from_track = constrain(from_track, MINROW, MAXROW);
+	from_track = constrain(from_track, MINTRACK, MAXTRACK);
 
 	to_step = constrain(to_step, MINSTEP, MAXSTEP);
-	to_track = constrain(to_track, MINROW, MAXROW);
+	to_track = constrain(to_track, MINTRACK, MAXTRACK);
 
 	seq[player.ramBank].track[to_track].step[to_step] = seq[player.ramBank].track[from_track].step[from_step];
 }
 
 void Sequencer::copy_row(uint8_t from, uint8_t to)
 {
-	from = constrain(from, MINROW, MAXROW);
-	to = constrain(to, MINROW, MAXROW);
+	from = constrain(from, MINTRACK, MAXTRACK);
+	to = constrain(to, MINTRACK, MAXTRACK);
 	seq[player.ramBank].track[to] = seq[player.ramBank].track[from];
 }
 
@@ -1460,6 +1460,142 @@ void Sequencer::switch_bank_with_reset(void)
 void Sequencer::send_clock(uint8_t arg)
 {
 // TODO: wypełnić
+
+}
+
+void Sequencer::insert(strSelection *selection)
+{
+	if (!isSelectionCorrect(selection)) return;
+
+	for (uint8_t t = selection->firstTrack; t <= selection->lastTrack; t++)
+	{
+		for (uint8_t s = MAXSTEP; s > selection->firstStep; s--)
+		{
+			seq[player.ramBank].track[t].step[s] = seq[player.ramBank].track[t].step[s - 1];
+		}
+		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep]);
+	}
+
+}
+
+void Sequencer::copy(strSelection *from, strSelection *to)
+{
+	if (!isSelectionCorrect(from)) return;
+
+	uint8_t tracksToCopy, rowsToCopy;
+	uint8_t trackOff = 0, stepOff = 0;
+
+	tracksToCopy = from->lastTrack - from->firstTrack + 1;
+	rowsToCopy = from->lastStep - from->firstStep + 1;
+	Sequencer::strPattern::strTrack::strStep *stepFrom, *stepTo;
+
+	// I cwiartka FROM
+	if (to->firstStep >= from->firstStep && from->firstTrack >= to->firstTrack)
+	{
+		trackOff = 0;
+
+		for (uint8_t t = to->firstTrack;
+				t <= to->firstTrack + tracksToCopy - 1;
+				t++)
+		{
+			stepOff = rowsToCopy - 1;
+			for (uint8_t s = to->firstStep + stepOff;
+					s >= to->firstStep;
+					s--)
+			{
+				uint8_t trackNoFrom, stepNoFrom;
+				trackNoFrom = from->firstTrack + trackOff;
+				stepNoFrom = from->firstStep + stepOff;
+				// czy step istnieje?
+				if (stepNoFrom <= MAXSTEP && trackNoFrom <= MAXTRACK)
+				{
+
+					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
+					stepTo = &seq[player.ramBank].track[t].step[s];
+					*stepTo = *stepFrom;
+					clearStep(stepFrom);
+				}
+				stepOff--;
+
+			}
+			trackOff++;
+		}
+	}
+	// II cwiartka FROM
+	else if (to->firstStep >= from->firstStep && from->firstTrack < to->firstTrack)
+	{
+		trackOff = tracksToCopy - 1;
+
+		for (uint8_t t = to->firstTrack + trackOff;
+				t >= to->firstTrack;
+				t--)
+		{
+			stepOff = rowsToCopy - 1;
+			for (uint8_t s = to->firstStep + stepOff;
+					s >= to->firstStep;
+					s--)
+			{
+				uint8_t trackNoFrom, stepNoFrom;
+				trackNoFrom = from->firstTrack + trackOff;
+				stepNoFrom = from->firstStep + stepOff;
+				// czy step istnieje?
+				if (stepNoFrom <= MAXSTEP && trackNoFrom <= MAXTRACK)
+				{
+
+					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
+					stepTo = &seq[player.ramBank].track[t].step[s];
+					*stepTo = *stepFrom;
+					clearStep(stepFrom);
+				}
+				stepOff--;
+
+			}
+			trackOff--;
+		}
+	}
+
+}
+
+bool Sequencer::isSelectionCorrect(strSelection *selection)
+{
+	if (selection->firstStep > selection->lastStep ||
+			selection->firstTrack > selection->lastTrack ||
+			selection->firstStep > MAXSTEP ||
+			selection->firstTrack > MAXTRACK ||
+			selection->lastStep > MAXSTEP ||
+			selection->lastTrack > MAXTRACK)
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
+void Sequencer::setSelection(uint8_t stepFrom,
+								uint8_t trackFrom,
+								uint8_t stepTo,
+								uint8_t trackTo)
+{
+	selection.firstStep = stepFrom;
+	selection.firstTrack = trackFrom;
+
+	selection.lastStep = stepTo;
+	selection.lastTrack = trackTo;
+
+}
+
+void Sequencer::setPasteSelection(uint8_t stepFrom,
+									uint8_t trackFrom,
+									uint8_t stepTo,
+									uint8_t trackTo)
+{
+	selectionPaste.firstStep = stepFrom;
+	selectionPaste.firstTrack = trackFrom;
+
+	selectionPaste.lastStep = stepTo;
+	selectionPaste.lastTrack = trackTo;
 
 }
 
