@@ -131,56 +131,115 @@ void WaveLoader::update()
 	if(state == loaderStateTypeInProgress)
 	{
 		int32_t bufferLength;
-		int16_t buf16[256];
 
-		if(sampleHead.numChannels == 1)
+		if(sampleHead.AudioFormat == 1)
 		{
-			for(uint16_t i = 0 ; i< BUFOR_COUNT; i++)
+			int16_t buf16[256];
+			if(sampleHead.numChannels == 1)
 			{
-				if( wavfile.available() )
+				for(uint16_t i = 0 ; i< BUFOR_COUNT; i++)
 				{
-					bufferLength = wavfile.read(buf16, 512);
-
-					accBufferLength += bufferLength;
-
-					for(int i=0; i< 256; i++)
+					if( wavfile.available() )
 					{
-						if(bufferLength <= i ) *currentAddress=0;
-						else *currentAddress=buf16[i];
-						currentAddress++;
+						bufferLength = wavfile.read(buf16, 512);
+
+						accBufferLength += bufferLength;
+
+						for(int i=0; i< 256; i++)
+						{
+							if(bufferLength <= i ) *currentAddress=0;
+							else *currentAddress=buf16[i];
+							currentAddress++;
+						}
+					}
+					else
+					{
+						stopFlag = stop();
+						break;
 					}
 				}
-				else
+
+			}
+			else if (sampleHead.numChannels == 2)
+			{
+				for(uint16_t i = 0 ; i< BUFOR_COUNT; i++)
 				{
-					stopFlag = stop();
-					break;
+					if (wavfile.available() )
+					{
+						bufferLength = wavfile.read(buf16, 512);
+
+						accBufferLength += bufferLength;
+						for(int i=0; i< 256; i+=2)
+						{
+							if(bufferLength <= i ) *currentAddress=0;
+							else *currentAddress=buf16[i];
+							currentAddress++;
+						}
+					}
+					else
+					{
+						stopFlag = stop();
+						break;
+					}
+				}
+			}
+		}
+		else if(sampleHead.AudioFormat == 3)
+		{
+			float bufFloat[256];
+			if(sampleHead.numChannels == 1)
+			{
+				for(uint16_t i = 0 ; i< BUFOR_COUNT; i++)
+				{
+					if( wavfile.available() )
+					{
+						bufferLength = wavfile.read(bufFloat, 1024);
+
+						accBufferLength += bufferLength/2;
+
+						for(int i=0; i< 256; i++)
+						{
+							if(bufferLength <= i ) *currentAddress=0;
+							else *currentAddress= ( ( (bufFloat[i] + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
+							currentAddress++;
+						}
+					}
+					else
+					{
+						stopFlag = stop();
+						break;
+					}
+				}
+
+			}
+			else if (sampleHead.numChannels == 2)
+			{
+				for(uint16_t i = 0 ; i< BUFOR_COUNT; i++)
+				{
+					if (wavfile.available() )
+					{
+						bufferLength = wavfile.read(bufFloat, 1024);
+
+						accBufferLength += bufferLength/2;
+						for(int i=0; i< 256; i+=2)
+						{
+							if(bufferLength <= i ) *currentAddress=0;
+							else *currentAddress=( ((bufFloat[i] + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
+							currentAddress++;
+						}
+					}
+					else
+					{
+						stopFlag = stop();
+						break;
+					}
 				}
 			}
 
 		}
-		else if (sampleHead.numChannels == 2)
-		{
-			for(uint16_t i = 0 ; i< BUFOR_COUNT; i++)
-			{
-				if (wavfile.available() )
-				{
-					bufferLength = wavfile.read(buf16, 512);
 
-					accBufferLength += bufferLength;
-					for(int i=0; i< 256; i+=2)
-					{
-						if(bufferLength <= i ) *currentAddress=0;
-						else *currentAddress=buf16[i];
-						currentAddress++;
-					}
-				}
-				else
-				{
-					stopFlag = stop();
-					break;
-				}
-			}
-		}
+
+
 	}
 }
 uint32_t WaveLoader::start(const char *filename, int16_t * buf)
@@ -192,7 +251,7 @@ uint32_t WaveLoader::start(const char *filename, int16_t * buf)
 	}
 	accBufferLength = 0;
 	wavfile = SD.open(filename);
-	wavfile.read(&sampleHead, 44);
+	readHeader(&sampleHead,&wavfile);
 	currentAddress = buf;
 	if ( (sampleHead.numChannels == 1 && (sampleHead.subchunk2Size > 8388608 )) &&  (sampleHead.numChannels == 2 && (sampleHead.subchunk2Size > 16777216)))
 	{
@@ -205,7 +264,7 @@ uint32_t WaveLoader::start(const char *filename, int16_t * buf)
 		stopFlag = 0;
 		return 0;
 	}
-	if(sampleHead.format != 1163280727 || sampleHead.AudioFormat != 1  || sampleHead.bitsPerSample != 16  || sampleHead.sampleRate != 44100 )
+	if(sampleHead.format != 1163280727 || ( (sampleHead.AudioFormat != 1) && (sampleHead.AudioFormat != 3) ) || ( (sampleHead.bitsPerSample != 16) && (sampleHead.bitsPerSample != 32)) || sampleHead.sampleRate != 44100 )
 	{
 		wavfile.close();
 		if(hardwareTest)
@@ -225,11 +284,13 @@ uint32_t WaveLoader::start(const char *filename, int16_t * buf)
 	stopFlag = -1;
 	if(sampleHead.numChannels == 1)
 	{
-		return sampleHead.subchunk2Size/2;
+		if(sampleHead.AudioFormat == 3) return sampleHead.subchunk2Size/4;
+		else return sampleHead.subchunk2Size/2;
 	}
 	else if(sampleHead.numChannels == 2)
 	{
-		return sampleHead.subchunk2Size/4;
+		if(sampleHead.AudioFormat == 3) return sampleHead.subchunk2Size/8;
+		else return sampleHead.subchunk2Size/4;
 	}
 	else return 0;
 }
@@ -260,26 +321,27 @@ uint32_t WaveLoader::getInfoAboutWave(const char *filename)
 	strWavFileHeader localSampleHead;
 
 	wavfile = SD.open(filename);
-	wavfile.read(&localSampleHead, 44);
+	readHeader(&sampleHead,&wavfile);
+	wavfile.close();
 
 	if ( (localSampleHead.numChannels == 1 && (localSampleHead.subchunk2Size > 8388608 )) &&  (localSampleHead.numChannels == 2 && (localSampleHead.subchunk2Size > 16777216)))
 	{
-		wavfile.close();
 		return 0;
 	}
-	if(localSampleHead.format != 1163280727 || localSampleHead.AudioFormat != 1  || localSampleHead.bitsPerSample != 16  || localSampleHead.sampleRate != 44100 )
+	if(localSampleHead.format != 1163280727 || ( (localSampleHead.AudioFormat != 1) && (localSampleHead.AudioFormat != 3) )  || ((localSampleHead.bitsPerSample != 16) &&  (localSampleHead.bitsPerSample != 32) )|| localSampleHead.sampleRate != 44100 )
 	{
-		wavfile.close();
 		return 0;
 	}
 
 	if(sampleHead.numChannels == 1)
 	{
-		return sampleHead.subchunk2Size/2;
+		if(sampleHead.AudioFormat == 3) return sampleHead.subchunk2Size/4;
+		else return sampleHead.subchunk2Size/2;
 	}
 	else if(sampleHead.numChannels == 2)
 	{
-		return sampleHead.subchunk2Size/4;
+		if(sampleHead.AudioFormat == 3) return sampleHead.subchunk2Size/8;
+		else return sampleHead.subchunk2Size/4;
 	}
 	else return 0;
 }

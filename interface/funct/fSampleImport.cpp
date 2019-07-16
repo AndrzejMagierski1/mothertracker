@@ -670,8 +670,15 @@ void cSampleImporter::playSdFile()
 	}
 	playMode = playModeSdFile;
 
+	FsFile wavHeader = SD.open(file_path);
+	strWavFileHeader header;
+	wavHeader.read(&header,44);
+	wavHeader.close();
+	if(header.AudioFormat == 3) playSdWavFloat.play(file_path);
+	else playSdWav.play(file_path);
 
-	playSdWav.play(file_path);
+
+
 
 }
 
@@ -703,6 +710,7 @@ void cSampleImporter::stopPlaying()
 	if(playMode == playModeSdFile)
 	{
 		playSdWav.stop();
+		playSdWavFloat.stop();
 		engine.prevSdDisconnect();
 	}
 	else if(playMode == playModeSampleBank)
