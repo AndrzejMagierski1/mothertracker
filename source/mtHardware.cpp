@@ -19,6 +19,7 @@
 
 #include "sdram.h"
 #include "hidConnection.h"
+#include "sdCardDetect.h"
 
 
 
@@ -189,7 +190,7 @@ void initHardware()
 	//attachInterrupt(TACT_SWITCH, TactSwitchAction, FALLING);
 
 	hid.set_sendButtonState(hidSendButtonState);
-
+	sdCardDetector.begin();
 
 	BlinkLed.blinkOnce();
 
@@ -237,6 +238,7 @@ void updateHardware()
 
 	TactSwitchRead();
 	hid.handle();
+	sdCardDetector.update();
 }
 
 elapsedMillis encTimer;
