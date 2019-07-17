@@ -309,7 +309,7 @@ uint8_t FileManager::createNewProject(char * name)
 	return 1;
 }
 
-void FileManager::importSampleToProject(char* filePatch, char* name, int8_t instrumentIndex, uint8_t type)
+uint8_t FileManager::importSampleToProject(char* filePatch, char* name, int8_t instrumentIndex, uint8_t type)
 {
 	char currentPatch[PATCH_SIZE];
 	char localName[15];
@@ -318,6 +318,34 @@ void FileManager::importSampleToProject(char* filePatch, char* name, int8_t inst
 	uint16_t lengthData=0;
 	uint8_t currentBuffor[1024];
 	char number[3];
+
+
+	if(*filePatch !=  '/')
+	{
+		memset(currentPatch,0,PATCH_SIZE);
+		strcpy(currentPatch,filePatch);
+		strcat(currentPatch,"/");
+		strcat(currentPatch,name);
+	}
+	else
+	{
+		memset(currentPatch,0,PATCH_SIZE);
+		strcpy(currentPatch,name);
+	}
+	uint32_t localFileSize = 2 * samplesLoader.waveLoader.getInfoAboutWave(currentPatch);
+	uint32_t locaUsedMemory;
+	if(localFileSize == 0) return 0;
+
+	if(mtProject.instrument[instrumentIndex].sample.loaded)
+	{
+		locaUsedMemory=mtProject.used_memory - 2* mtProject.instrument[instrumentIndex].sample.length;
+	}
+	else
+	{
+		locaUsedMemory=mtProject.used_memory;
+	}
+	if( (locaUsedMemory + localFileSize) > mtProject.max_memory) return 0;
+
 
 	number[0] = ((instrumentIndex-instrumentIndex%10)/10) + 48;
 	number[1] = instrumentIndex%10 + 48;
@@ -337,6 +365,7 @@ void FileManager::importSampleToProject(char* filePatch, char* name, int8_t inst
 	if(mtProject.instrument[instrumentIndex].isActive)
 	{
 
+		memset(currentPatch,0,PATCH_SIZE);
 		strcpy(currentPatch,currentProjectPatch);
 		strcat(currentPatch,"/samples/");
 		strcat(currentPatch,localName);
@@ -442,6 +471,8 @@ void FileManager::importSampleToProject(char* filePatch, char* name, int8_t inst
 	strcpy(currentPatch,currentProjectPatch);
 	strcat(currentPatch,"/project.bin");
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
+
+	return 1;
 }
 
 void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_t index) //todo: to nie dziala ze wzgledu na to ze nie ma sensu robic(na ta chwile nie jest potrzebne, a potem sie wszystko zmieni)

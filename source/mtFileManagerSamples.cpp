@@ -42,6 +42,12 @@ void SamplesLoader::update()
 			else
 			{
 				currentSize = waveLoader.start(currentPatch, mtProject.instrument[currentIndex].sample.address);
+//				if(mtProject.used_memory + currentSize*2 > mtProject.max_memory) bieda rozwiazanie
+//				{
+//					waveLoader.stop();
+//					waveLoader.setStopStatus(0);
+//					// obsluga przepelnienia
+//				}
 //				if(currentSize == 0)
 //				{
 //					mtProject.instrument[currentIndex].sample.loaded = 0;
@@ -78,6 +84,7 @@ void SamplesLoader::update()
 			}
 			else
 			{
+				memoryUsageChange = 1;
 				state = loaderStateTypeEnded;
 			}
 			waveLoader.setStopStatus(2); // status readed
@@ -87,7 +94,7 @@ void SamplesLoader::update()
 			mtProject.used_memory += currentSize*2;
 			mtProject.instrument[currentIndex].sample.loaded = 1;
 			mtProject.instrument[currentIndex].sample.length = currentSize;
-
+			loadedFlagChange = 1;
 			if( (currentIndex+1) < INSTRUMENTS_COUNT)
 			{
 				mtProject.instrument[currentIndex+1].sample.address = mtProject.instrument[currentIndex].sample.address+currentSize;
@@ -96,6 +103,7 @@ void SamplesLoader::update()
 			}
 			else
 			{
+				memoryUsageChange = 1;
 				state = loaderStateTypeEnded;
 			}
 
@@ -105,9 +113,30 @@ void SamplesLoader::update()
 
 	}
 }
+
+uint8_t SamplesLoader::getMemoryUsageChangeFlag()
+{
+	return memoryUsageChange;
+}
+
+void SamplesLoader::clearMemoryUsageChangeFlag()
+{
+	memoryUsageChange = 0;
+}
+
+uint8_t SamplesLoader::getLoadChangeFlag()
+{
+	return loadedFlagChange;
+}
+void SamplesLoader::clearLoadChangeFlag()
+{
+	loadedFlagChange = 0;
+}
+
 void SamplesLoader::start(uint8_t startIndex)
 {
 	state =  loaderStateTypeInProgress;
+
 	currentIndex = startIndex;
 	mtProject.used_memory = 0;
 	mtProject.samples_count = 0;
@@ -121,6 +150,14 @@ void SamplesLoader::start(uint8_t startIndex)
 			mtProject.samples_count ++;
 		}
 	}
+//	for(uint8_t i = startIndex; i < INSTRUMENTS_COUNT; i ++) bieda rozwiazanie
+//	{
+//		if(mtProject.instrument[i].sample.loaded) // nie powinno miec znaczenia przy zabezpieczeniach przed przepelnieniem przed rozpoczeciem ladowania
+//		{
+//			mtProject.instrument[i].sample.loaded = 0;
+//		}
+//
+//	}
 
 	if(mtProject.samples_count == 0)  mtProject.instrument[startIndex].sample.address = sdram_sampleBank;
 }
@@ -147,7 +184,7 @@ void WaveLoader::update()
 
 						for(int i=0; i< 256; i++)
 						{
-							if(bufferLength <= i ) *currentAddress=0;
+							if(bufferLength <= i ) break;
 							else *currentAddress=buf16[i];
 							currentAddress++;
 						}
@@ -171,7 +208,7 @@ void WaveLoader::update()
 						accBufferLength += bufferLength;
 						for(int i=0; i< 256; i+=2)
 						{
-							if(bufferLength <= i ) *currentAddress=0;
+							if(bufferLength <= i ) break;
 							else *currentAddress=buf16[i];
 							currentAddress++;
 						}
@@ -199,7 +236,7 @@ void WaveLoader::update()
 
 						for(int i=0; i< 256; i++)
 						{
-							if(bufferLength <= i ) *currentAddress=0;
+							if(bufferLength <= i ) break;
 							else *currentAddress= ( ( (bufFloat[i] + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
 							currentAddress++;
 						}
@@ -223,7 +260,7 @@ void WaveLoader::update()
 						accBufferLength += bufferLength/2;
 						for(int i=0; i< 256; i+=2)
 						{
-							if(bufferLength <= i ) *currentAddress=0;
+							if(bufferLength <= i ) break;
 							else *currentAddress=( ((bufFloat[i] + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
 							currentAddress++;
 						}
@@ -321,7 +358,7 @@ uint32_t WaveLoader::getInfoAboutWave(const char *filename)
 	strWavFileHeader localSampleHead;
 
 	wavfile = SD.open(filename);
-	readHeader(&sampleHead,&wavfile);
+	readHeader(&localSampleHead,&wavfile);
 	wavfile.close();
 
 	if ( (localSampleHead.numChannels == 1 && (localSampleHead.subchunk2Size > 8388608 )) &&  (localSampleHead.numChannels == 2 && (localSampleHead.subchunk2Size > 16777216)))
@@ -333,15 +370,15 @@ uint32_t WaveLoader::getInfoAboutWave(const char *filename)
 		return 0;
 	}
 
-	if(sampleHead.numChannels == 1)
+	if(localSampleHead.numChannels == 1)
 	{
-		if(sampleHead.AudioFormat == 3) return sampleHead.subchunk2Size/4;
-		else return sampleHead.subchunk2Size/2;
+		if(localSampleHead.AudioFormat == 3) return localSampleHead.subchunk2Size/4;
+		else return localSampleHead.subchunk2Size/2;
 	}
-	else if(sampleHead.numChannels == 2)
+	else if(localSampleHead.numChannels == 2)
 	{
-		if(sampleHead.AudioFormat == 3) return sampleHead.subchunk2Size/8;
-		else return sampleHead.subchunk2Size/4;
+		if(localSampleHead.AudioFormat == 3) return localSampleHead.subchunk2Size/8;
+		else return localSampleHead.subchunk2Size/4;
 	}
 	else return 0;
 }

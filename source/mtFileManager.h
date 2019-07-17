@@ -120,6 +120,10 @@ public:
 //	uint8_t loadSamplesMemory();
 	void update();
 	void start(uint8_t startIndex);
+	uint8_t getMemoryUsageChangeFlag();
+	void clearMemoryUsageChangeFlag();
+	uint8_t getLoadChangeFlag();
+	void clearLoadChangeFlag();
 	WaveLoader waveLoader;
 	WavetableLoader wavetableLoader;
 private:
@@ -127,6 +131,8 @@ private:
 	uint8_t state;
 	uint8_t lastIndex;
 	int32_t currentSize;
+	uint8_t memoryUsageChange = 0;
+	uint8_t loadedFlagChange = 0;
 
 };
 
@@ -142,7 +148,7 @@ public:
 	uint8_t saveAsProject(char* name);
 	void saveProject();
 	uint8_t createNewProject(char * name);
-	void importSampleToProject(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type = mtSampleTypeWaveFile);
+	uint8_t importSampleToProject(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type = mtSampleTypeWaveFile);
 	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
 	void importPatternToProject(char* filePatch, char* name, int8_t index);
 	void createEmptyTemplateProject(char * name);

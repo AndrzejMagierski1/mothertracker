@@ -45,8 +45,18 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 void cSampleImporter::update()
 {
+	if(fileManager.samplesLoader.getMemoryUsageChangeFlag())
+	{
+		fileManager.samplesLoader.clearMemoryUsageChangeFlag();
+		calculateMemoryUsage();
+	}
 
-
+	if(fileManager.samplesLoader.getLoadChangeFlag())
+	{
+		fileManager.samplesLoader.clearLoadChangeFlag();
+		listInstrumentSlots();
+		showInstrumentsList();
+	}
 
 }
 
@@ -203,7 +213,7 @@ static  uint8_t functInstrumentDelete()
 
 	if(mtProject.instrument[SI->selectedSlot].sample.loaded)
 	{
-		mtProject.used_memory = mtProject.used_memory - mtProject.instrument[SI->selectedSlot].sample.length;
+		mtProject.used_memory -= 2* mtProject.instrument[SI->selectedSlot].sample.length;
 	}
 
 	fileManager.deleteInstrument(SI->selectedSlot);
@@ -581,16 +591,16 @@ void cSampleImporter::BrowseFolder()
 
 void cSampleImporter::SelectFile()
 {
-	fileManager.importSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot);
+	if(!fileManager.importSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot)) return;
 
 	fileManager.samplesLoader.start(selectedSlot);
 
-	calculateMemoryUsage();
+//	calculateMemoryUsage(); przeniesione do update - memory usage zostanie zwiekszone dopiero po poprawnym zaladowaniu pliku w update;
 
 //	selectedSlot++;
 
-	listInstrumentSlots();
-	showInstrumentsList();
+//	listInstrumentSlots(); przeniesione do update - flagaLoaded zostanie ustawiona po poprawnym zaladowaniu pliku;
+//	showInstrumentsList();
 }
 
 
@@ -636,7 +646,7 @@ void cSampleImporter::calculateMemoryUsage()
 	}
 	else
 	{
-		memoryUsage = (mtProject.used_memory*100)/mtProject.max_memory;
+		memoryUsage = (mtProject.used_memory*100.0)/mtProject.max_memory;
 	}
 
 
