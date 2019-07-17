@@ -10,6 +10,8 @@ static uint16_t framesPlaces[3][4] =
 	{(800/4)*2, 0, 800/4, 480},
 };
 
+static uint32_t color[3] = {0xFF00FF, 0x0000ff, 0xff0000};
+
 
 void cSampleImporter::initDisplayControls()
 {
@@ -74,12 +76,24 @@ void cSampleImporter::initDisplayControls()
 
 
 	prop.x = (800/4)*3+5;
+//	prop.colors = &color[1];
 	//prop.y = 10;
 	//prop.w = 800/4-10;
 	prop.style = controlStyleValue_0_100;
 	prop.h = 400;
 	//prop.value = memoryUsage;
 	if(memoryBarControl == nullptr)  memoryBarControl = display.createControl<cBar>(&prop);
+
+
+	prop.x = (800/4)*3+5;
+//	prop.colors = &color[0];
+	//prop.y = 10;
+	//prop.w = 800/4-10;
+	prop.style = controlStyleValue_0_100;
+	prop.h = 400;
+	//prop.value = memoryUsage;
+	if(addMemoryBarControl == nullptr)  addMemoryBarControl = display.createControl<cBar>(&prop);
+
 
 	frameData.placesCount = 3;
 	frameData.startPlace = 0;
@@ -113,6 +127,9 @@ void cSampleImporter::destroyDisplayControls()
 
 	display.destroyControl(memoryBarControl);
 	memoryBarControl = nullptr;
+
+	display.destroyControl(addMemoryBarControl);
+	addMemoryBarControl = nullptr;
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
@@ -190,9 +207,32 @@ void cSampleImporter::showInstrumentsList()
 
 void cSampleImporter::showMemoryUsage()
 {
-	display.setControlValue(memoryBarControl, memoryUsage);
-	display.setControlShow(memoryBarControl);
-	display.refreshControl(memoryBarControl);
+
+	if(!fullMemoryFlag) display.setControlColors(addMemoryBarControl, defaultColors);
+	else
+	{
+		display.setControlColors(addMemoryBarControl, barColorsRed);
+	}
+
+	display.setControlValue(addMemoryBarControl, memoryUsageAdd);
+	display.setControlShow(addMemoryBarControl);
+	display.refreshControl(addMemoryBarControl);
+
+	if(!fullMemoryFlag)
+	{
+		display.setControlColors(memoryBarControl, defaultColors);
+		display.setControlValue(memoryBarControl, memoryUsage);
+		display.setControlShow(memoryBarControl);
+		display.refreshControl(memoryBarControl);
+	}
+	else
+	{
+		display.setControlColors(memoryBarControl, barColorsRed);
+		display.setControlValue(memoryBarControl, 100);
+		display.setControlShow(memoryBarControl);
+		display.refreshControl(memoryBarControl);
+	}
+
 }
 
 //==============================================================================================================

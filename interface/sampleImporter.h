@@ -45,6 +45,7 @@ public:
 	hControl fileListControl;
 	hControl instrumentListControl;
 	hControl memoryBarControl;
+	hControl addMemoryBarControl;
 	hControl frameControl;
 
 
@@ -105,9 +106,11 @@ public:
 //--------------------------------------------------------------
 //memory
 	void calculateMemoryUsage();
-
+	void calculateCurrentSelectMemorySize();
 	uint8_t memoryUsage;
-
+	uint8_t memoryUsageAdd;
+	uint32_t currentSelectMemorySize;
+	uint8_t fullMemoryFlag = 0;
 //--------------------------------------------------------------
 //odsluch
 	void playSdFile();
@@ -124,6 +127,15 @@ public:
 		playModeSampleBank,
 
 	};
+
+	uint32_t barColorsRed[3] = { 0xFF0000, 0xFF0000, 0x000000};
+	uint32_t defaultColors[3] =
+	{
+		0xFFFFFF, // tekst
+		0x222222, // tło
+		0xFFFFFF, // ramka
+	};
+	uint32_t barColorsCyan[3] = { 0x00FFFF, 0x00FFFF, 0x00FFFF};
 };
 
 

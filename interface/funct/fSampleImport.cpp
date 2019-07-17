@@ -371,7 +371,9 @@ uint8_t cSampleImporter::changeFileSelection(int16_t value)
 
 	display.setControlValue(fileListControl, selectedFile);
 	display.refreshControl(fileListControl);
-
+	calculateCurrentSelectMemorySize();
+	calculateMemoryUsage();
+	showMemoryUsage();
 	return 1;
 }
 
@@ -649,11 +651,33 @@ void cSampleImporter::calculateMemoryUsage()
 		memoryUsage = (mtProject.used_memory*100.0)/mtProject.max_memory;
 	}
 
-
+	uint32_t memoryUsageAddCurrentSelect = mtProject.used_memory + currentSelectMemorySize;
+	if(memoryUsageAddCurrentSelect > mtProject.max_memory)
+	{
+		memoryUsageAdd = 100;
+		fullMemoryFlag = 1;
+	}
+	else
+	{
+		memoryUsageAdd = (memoryUsageAddCurrentSelect*100.0)/mtProject.max_memory;
+		fullMemoryFlag = 0;
+	}
 	showMemoryUsage();
 
 }
 
+void cSampleImporter::calculateCurrentSelectMemorySize()
+{
+	if(!isWavFile(&locationFileList[selectedFile][0])) return;
+
+	char file_path[255];
+
+	strcpy(file_path, actualPath);
+	if(dirLevel > 0)strcat(file_path, "/");
+	strcat(file_path, &locationFileList[selectedFile][0]);
+
+	currentSelectMemorySize = 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(file_path);
+}
 
 //==============================================================================================
 void cSampleImporter::playSdFile()
