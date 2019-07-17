@@ -48,6 +48,8 @@ static  uint8_t functSwitchModule(uint8_t button);
 static uint8_t isMultiSelection();
 static void sendSelection();
 
+char getHexFromInt(int16_t val, uint8_t index);
+
 
 
 elapsedMillis patternRefreshTimer;
@@ -187,23 +189,24 @@ void cPatternEditor::refreshPattern()
 	{
 		for(uint8_t j = 0; j < 15; j++) // step
 		{
+			strTrackerPattern::strTracks::strRow *row = &trackerPattern.track[i].row[j];
 
 			if(j-6 > steps_down || j<7-steps_up)
 			{
-				trackerPattern.track[i].row[j].note[0] = 0;
-				trackerPattern.track[i].row[j].note[1] = 0;
-				trackerPattern.track[i].row[j].note[2] = 0;
-				trackerPattern.track[i].row[j].note[3] = 0;
-				trackerPattern.track[i].row[j].instr[0] = 0;
-				trackerPattern.track[i].row[j].instr[1] = 0;
-				trackerPattern.track[i].row[j].instr[2] = 0;
-				trackerPattern.track[i].row[j].vol[0] = 0;
-				trackerPattern.track[i].row[j].vol[1] = 0;
-				trackerPattern.track[i].row[j].vol[2] = 0;
-				trackerPattern.track[i].row[j].fx[0] = 0;
-				trackerPattern.track[i].row[j].fx[1] = 0;
-				trackerPattern.track[i].row[j].fx[2] = 0;
-				trackerPattern.track[i].row[j].fx[3] = 0;
+				row->note[0] = 0;
+				row->note[1] = 0;
+				row->note[2] = 0;
+				row->note[3] = 0;
+				row->instr[0] = 0;
+				row->instr[1] = 0;
+				row->instr[2] = 0;
+				row->vol[0] = 0;
+				row->vol[1] = 0;
+				row->vol[2] = 0;
+				row->fx[0] = 0;
+				row->fx[1] = 0;
+				row->fx[2] = 0;
+				row->fx[3] = 0;
 				continue;
 			}
 
@@ -254,21 +257,22 @@ void cPatternEditor::refreshPattern()
 				trackerPattern.track[i].row[j].instr[2] = 0;
 			}
 
-
-			if(seq->track[i].step[patternPosition-7+j].velocity >= 0)
+			if (seq->track[i].step[patternPosition - 7 + j].velocity >= 0)
 			{
-				char velo0 = seq->track[i].step[patternPosition-7+j].velocity/10;
-				char velo1 = seq->track[i].step[patternPosition-7+j].velocity%10;
 
-				trackerPattern.track[i].row[j].vol[0] = velo0+48;
-				trackerPattern.track[i].row[j].vol[1] = velo1+48;
-				trackerPattern.track[i].row[j].vol[2] = 0;
+				row->vol[0] = getHexFromInt(
+						seq->track[i].step[patternPosition - 7 + j].velocity,
+						1);
+				row->vol[1] = getHexFromInt(
+						seq->track[i].step[patternPosition - 7 + j].velocity,
+						0);
+				row->vol[2] = 0;
 			}
 			else
 			{
-				trackerPattern.track[i].row[j].vol[0] = '-';
-				trackerPattern.track[i].row[j].vol[1] = '-';
-				trackerPattern.track[i].row[j].vol[2] = 0;
+				row->vol[0] = '-';
+				row->vol[1] = '-';
+				row->vol[2] = 0;
 			}
 
 
@@ -295,6 +299,33 @@ void cPatternEditor::refreshPattern()
 
 }
 
+char getHexFromInt(int16_t val, uint8_t index)
+{
+
+	int16_t retVal;
+	if (index == 0)
+	{
+		retVal = val % 16;
+	}
+	else
+	{
+		retVal = val / (16 * index);
+	}
+
+	if (retVal < 10)
+	{
+		return retVal + 48;
+	}
+	else if (retVal < 16)
+	{
+		return retVal + 97 - 10;
+	}
+	else
+	{
+		return 0;
+	}
+
+}
 
 // odczytywanie dlugosci i pozycji odtwarzania aktualnej sekewncji
 void cPatternEditor::readPatternState()
@@ -504,12 +535,12 @@ uint8_t functEncoder(int16_t value)
 	}
 
 
-
+	sendSelection();
 	switch(PTE->trackerPattern.selectedParam)
 	{
-	case 0: PTE->changeActualStepNote(value); break;
-	case 1: PTE->changeActualStepInstrument(value); break;
-	case 2: PTE->changeActualStepVolume(value); break;
+	case 0: sequencer.transposeSelection(value); break;
+	case 1: sequencer.changeSelectionInstrument(value); break;
+	case 2: sequencer.changeSelectionVolume(value); break;
 	case 3: break;
 	}
 
@@ -892,14 +923,14 @@ static uint8_t functCopyDelete()
 		if (AnalogInputs.isButtonPressed(interfaceButtonShift))
 		{
 			sendSelection();
-			sequencer.fillRandom(2);
+			sequencer.transposeSelection(1);
 
 		}
 		// NO SHIFT
 		else
 		{
 			sendSelection();
-			sequencer.fillRandom(4);
+			sequencer.transposeSelection(-1);
 
 		}
 

@@ -26,6 +26,13 @@ void Sequencer::handle()
 //	uint32_t size;
 //	size = sizeof(strBank);
 //	handle_ghosts();
+
+	if (player.blink.isOpen && player.blink.timer > 500)
+	{
+		instrumentPlayer[player.blink.track].noteOff();
+		player.blink.isOpen = 0;
+	}
+
 }
 
 void Sequencer::handle_uStep_timer(void)
@@ -1682,6 +1689,21 @@ bool Sequencer::isSelectionCorrect(strSelection *selection)
 	}
 }
 
+bool Sequencer::isSingleSelection(strSelection *selection)
+{
+	if (selection->firstStep == selection->lastStep &&
+			selection->firstTrack == selection->lastTrack &&
+			isSelectionCorrect(selection))
+
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 void Sequencer::setSelection(uint8_t stepFrom,
 								uint8_t trackFrom,
 								uint8_t stepTo,
@@ -1862,7 +1884,7 @@ void Sequencer::sendNoteOff(uint8_t track)
 	instrumentPlayer[track].noteOff();
 }
 
-void Sequencer::fillRandom(uint8_t step)
+void Sequencer::fillRandomNotes(uint8_t step)
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
@@ -1882,23 +1904,115 @@ void Sequencer::fillRandom(uint8_t step)
 	}
 }
 
-//void Sequencer::fillRandom(uint8_t step)
-//{
-//	strSelection *sel = &selection;
-//	if (!isSelectionCorrect(sel)) return;
-//
-//	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
-//	{
-//		for (uint8_t s = sel->firstStep, offset = 0;
-//				s <= sel->lastStep;
-//				s++, offset++)
-//		{
-//			if (offset % step == 0)
-//			{
-//				seq[player.ramBank].track[t].step[s].note =
-//						random(0, MAX_NOTE_STEP + 1);
-//			}
-//		}
-//	}
-//}
+void Sequencer::randomExisting()
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+			if (step->note >= 0)
+			{
+				step->note = random(0, MAX_NOTE_STEP + 1);
+			}
+		}
+	}
+}
+
+void Sequencer::transposeSelection(int16_t value)
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+
+			step->note = constrain(step->note + value, MIN_NOTE_STEP,
+									MAX_NOTE_STEP);
+			if (isSingleSelection(sel) && step->note >= 0)
+			{
+				blinkNote(step->instrument,
+							step->note,
+							step->velocity,
+							t);
+			}
+
+		}
+	}
+}
+
+void Sequencer::blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
+							uint8_t track)
+{
+	player.blink.isOpen = 1;
+	player.blink.track = track;
+	player.blink.timer = 0;
+
+	instrumentPlayer[track].noteOff();
+	instrumentPlayer[track].noteOn(instrument,
+									note,
+									velocity);
+}
+
+void Sequencer::changeSelectionVolume(int16_t value)
+{
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+			step->velocity = constrain(step->velocity + value, 0,
+										MAX_VELO_STEP);
+		}
+	}
+}
+
+void Sequencer::changeSelectionInstrument(int16_t value)
+{
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+			step->instrument = constrain(step->instrument + value, 0,
+											INSTRUMENTS_COUNT);
+			if (isSingleSelection(sel) && step->note >= 0)
+			{
+				blinkNote(step->instrument,
+							step->note,
+							step->velocity,
+							t);
+			}
+		}
+	}
+}
 

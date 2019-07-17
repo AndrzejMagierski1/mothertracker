@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "scales.h"
+#include "mtStructs.h"
 
 /*
  definicje na potrzeby portu programu na mniejsze seczki
@@ -145,8 +146,6 @@ public:
 
 			DEFAULT_SWING = 50.0;
 
-
-
 	struct strFxConsts
 	{
 		enum enMisc
@@ -207,8 +206,6 @@ public:
 
 	// KONIEC STAŁYCH
 
-
-
 	struct strPattern
 	{
 		float tempo = DEFAULT_TEMPO;
@@ -244,7 +241,7 @@ public:
 			struct strStep
 			{
 //				uint8_t isOn ;
-				int8_t note  = STEP_NOTE_EMPTY;
+				int8_t note = STEP_NOTE_EMPTY;
 
 				int8_t velocity = 127;	// jeśli <0 to nie wysyłamy
 				uint8_t instrument = 0;
@@ -479,6 +476,14 @@ public:
 		uint8_t bank2change = 0;
 		uint8_t bank2load = 0;
 
+		struct strBlink
+		{
+			elapsedMillis timer = 0;
+			int8_t note = 0;
+			int8_t track = 0;
+			bool isOpen = 0;
+		} blink;
+
 		uint8_t jumpNOW = 0;
 
 		struct strPlayerTrack
@@ -606,9 +611,13 @@ public:
 	void insert(strSelection *selection);
 	void insertReversed(strSelection *selection);
 
+
+	// SELECTION
 	void copy(strSelection *from, strSelection *to);
 	void copy();
 	bool isSelectionCorrect(strSelection *selection);
+	bool isSingleSelection(strSelection *selection);
+
 	void setSelection(uint8_t stepFrom,
 						uint8_t trackFrom,
 						uint8_t stepTo,
@@ -623,6 +632,12 @@ public:
 	void clearStep(strPattern::strTrack::strStep * step);
 	void clearSelected(strSelection * sel);
 	void clearSelected();
+
+	void changeSelectionVolume(int16_t value);
+	void changeSelectionInstrument(int16_t value);
+
+
+
 
 	void clearRow(uint8_t row);
 	void clearRow(uint8_t row, uint8_t bank);
@@ -647,9 +662,11 @@ public:
 	// inne
 	void handle_uStep_timer(void);
 
-
-
-	void fillRandom(uint8_t step);
+	void fillRandomNotes(uint8_t step);
+	void transposeSelection(int16_t value);
+	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
+					uint8_t track);
+	void randomExisting();
 
 };
 
