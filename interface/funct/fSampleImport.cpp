@@ -58,6 +58,17 @@ void cSampleImporter::update()
 		showInstrumentsList();
 	}
 
+	if(loadFlag == 1)
+	{
+		calculateLoadProgress();
+		showLoadHorizontalBar();
+
+		if(fileManager.samplesLoader.getStateFlag() == 0)
+		{
+			loadFlag = 0;
+			showDefaultScreen();
+		}
+	}
 }
 
 void cSampleImporter::start(uint32_t options)
@@ -596,6 +607,7 @@ void cSampleImporter::SelectFile()
 	if(!fileManager.importSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot)) return;
 
 	fileManager.samplesLoader.start(selectedSlot);
+	loadFlag = 1;
 
 //	calculateMemoryUsage(); przeniesione do update - memory usage zostanie zwiekszone dopiero po poprawnym zaladowaniu pliku w update;
 
@@ -678,6 +690,12 @@ void cSampleImporter::calculateCurrentSelectMemorySize()
 
 	currentSelectMemorySize = 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(file_path);
 }
+
+void cSampleImporter::calculateLoadProgress()
+{
+	loadProgress = fileManager.samplesLoader.getCurrentProgress();
+}
+
 
 //==============================================================================================
 void cSampleImporter::playSdFile()

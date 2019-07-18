@@ -88,6 +88,8 @@ public:
 	uint8_t getState();
 	uint8_t getStopStatus();
 	uint32_t getInfoAboutWave(const char *filename);
+	uint8_t getCurrentWaveProgress();
+	uint32_t getCurrentWaveLoadedMemory();
 	void setStopStatus(uint8_t s);
 private:
 	strWavFileHeader sampleHead;
@@ -124,15 +126,21 @@ public:
 	void clearMemoryUsageChangeFlag();
 	uint8_t getLoadChangeFlag();
 	void clearLoadChangeFlag();
+	uint8_t getCurrentProgress();
+	uint8_t getStateFlag();
 	WaveLoader waveLoader;
 	WavetableLoader wavetableLoader;
 private:
+
 	uint8_t currentIndex;
 	uint8_t state;
 	uint8_t lastIndex;
 	int32_t currentSize;
 	uint8_t memoryUsageChange = 0;
 	uint8_t loadedFlagChange = 0;
+	uint32_t sizeAllFiles;
+	uint32_t currentLoadSize = 0;
+	uint32_t currentStepLoadSize = 0;
 
 };
 

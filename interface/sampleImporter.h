@@ -29,6 +29,7 @@ public:
 	void showFilesTree();
 	void showInstrumentsList();
 	void showMemoryUsage();
+	void showLoadHorizontalBar();
 	void activateLabelsBorder();
 
 	strList folderList;
@@ -47,6 +48,8 @@ public:
 	hControl memoryBarControl;
 	hControl addMemoryBarControl;
 	hControl frameControl;
+
+	hControl loadHorizontalBarControl;
 
 
 	uint8_t selectedPlace = 0;
@@ -107,10 +110,13 @@ public:
 //memory
 	void calculateMemoryUsage();
 	void calculateCurrentSelectMemorySize();
+	void calculateLoadProgress();
 	uint8_t memoryUsage;
 	uint8_t memoryUsageAdd;
 	uint32_t currentSelectMemorySize;
 	uint8_t fullMemoryFlag = 0;
+	uint8_t loadProgress = 0;
+	uint8_t loadFlag = 0;
 //--------------------------------------------------------------
 //odsluch
 	void playSdFile();

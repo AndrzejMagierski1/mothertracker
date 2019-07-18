@@ -70,6 +70,10 @@ void SamplesLoader::update()
 		}
 
 		waveLoader.update();
+		currentLoadSize -=  currentStepLoadSize;
+		currentStepLoadSize = waveLoader.getCurrentWaveLoadedMemory();
+		currentLoadSize += currentStepLoadSize;
+
 		if(waveLoader.getStopStatus() == 0)
 		{
 			mtProject.instrument[currentIndex].sample.loaded = 0;
@@ -87,6 +91,7 @@ void SamplesLoader::update()
 				memoryUsageChange = 1;
 				state = loaderStateTypeEnded;
 			}
+			currentStepLoadSize = 0;
 			waveLoader.setStopStatus(2); // status readed
 		}
 		else if(waveLoader.getStopStatus() == 1)
@@ -107,7 +112,7 @@ void SamplesLoader::update()
 				state = loaderStateTypeEnded;
 			}
 
-
+			currentStepLoadSize = 0;
 			waveLoader.setStopStatus(2); // status readed
 		}
 
@@ -133,10 +138,17 @@ void SamplesLoader::clearLoadChangeFlag()
 	loadedFlagChange = 0;
 }
 
+uint8_t SamplesLoader::getStateFlag()
+{
+	return state;
+}
+
 void SamplesLoader::start(uint8_t startIndex)
 {
 	state =  loaderStateTypeInProgress;
-
+	currentLoadSize = 0;
+	currentStepLoadSize = 0;
+	sizeAllFiles = 0;
 	currentIndex = startIndex;
 	mtProject.used_memory = 0;
 	mtProject.samples_count = 0;
@@ -150,16 +162,43 @@ void SamplesLoader::start(uint8_t startIndex)
 			mtProject.samples_count ++;
 		}
 	}
-//	for(uint8_t i = startIndex; i < INSTRUMENTS_COUNT; i ++) bieda rozwiazanie
-//	{
-//		if(mtProject.instrument[i].sample.loaded) // nie powinno miec znaczenia przy zabezpieczeniach przed przepelnieniem przed rozpoczeciem ladowania
-//		{
-//			mtProject.instrument[i].sample.loaded = 0;
-//		}
-//
-//	}
+	for(uint8_t i = startIndex + 1; i < INSTRUMENTS_COUNT; i ++)
+	{
+		if(mtProject.instrument[i].sample.loaded)
+		{
+			sizeAllFiles += mtProject.instrument[i].sample.length;
+		}
+
+	}
+	char currentPatch[PATCH_SIZE];
+	char number [3];
+
+
+
+	number[0] = ((startIndex-startIndex%10)/10) + 48;
+	number[1] = startIndex%10 + 48;
+	number[2] = 0;
+
+	if(fileManager.currentProjectPatch != NULL)
+	{
+		memset(currentPatch, 0, PATCH_SIZE);
+		strcpy(currentPatch, fileManager.currentProjectPatch);
+		strcat(currentPatch, "/samples/instr");
+		strcat(currentPatch, number);
+		strcat(currentPatch, ".wav");
+	}
+
+	if(SD.exists(currentPatch))
+	{
+		sizeAllFiles+= fileManager.samplesLoader.waveLoader.getInfoAboutWave(currentPatch);
+	}
 
 	if(mtProject.samples_count == 0)  mtProject.instrument[startIndex].sample.address = sdram_sampleBank;
+}
+
+uint8_t SamplesLoader::getCurrentProgress()
+{
+	return ((currentLoadSize * 100) / sizeAllFiles);
 }
 
 //**********************************************************************WAVELOADER************************************************************************************//
@@ -232,7 +271,7 @@ void WaveLoader::update()
 					{
 						bufferLength = wavfile.read(bufFloat, 1024);
 
-						accBufferLength += bufferLength/2;
+						accBufferLength += bufferLength;
 
 						for(int i=0; i< 256; i++)
 						{
@@ -257,7 +296,7 @@ void WaveLoader::update()
 					{
 						bufferLength = wavfile.read(bufFloat, 1024);
 
-						accBufferLength += bufferLength/2;
+						accBufferLength += bufferLength;
 						for(int i=0; i< 256; i+=2)
 						{
 							if(bufferLength <= i ) break;
@@ -383,6 +422,39 @@ uint32_t WaveLoader::getInfoAboutWave(const char *filename)
 	else return 0;
 }
 
+uint8_t WaveLoader::getCurrentWaveProgress()
+{
+	return ((accBufferLength * 100) / sampleHead.subchunk2Size);
+}
+
+
+uint32_t WaveLoader::getCurrentWaveLoadedMemory()
+{
+	if(sampleHead.AudioFormat == 1)
+	{
+
+		if(sampleHead.numChannels == 1)
+		{
+			return accBufferLength/2;
+		}
+		else if(sampleHead.numChannels == 2)
+		{
+			return accBufferLength/4;
+		}
+	}
+	else if(sampleHead.AudioFormat == 3)
+	{
+		if(sampleHead.numChannels == 1)
+		{
+			return accBufferLength/4;
+		}
+		else if(sampleHead.numChannels == 2)
+		{
+			return accBufferLength/8;
+		}
+	}
+	else return 0;
+}
 //**********************************************************************WAVETABLE LOADER******************************************************************************//
 void WavetableLoader::update()
 {

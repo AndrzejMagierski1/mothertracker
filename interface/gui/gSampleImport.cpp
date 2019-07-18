@@ -95,6 +95,19 @@ void cSampleImporter::initDisplayControls()
 	if(addMemoryBarControl == nullptr)  addMemoryBarControl = display.createControl<cBar>(&prop);
 
 
+
+	prop.x = 190;
+//	prop.colors = &color[0];
+	prop.y = 170;
+	//prop.w = 800/4-10;
+	prop.style = controlStyleValue_0_100;
+	prop.h = 100;
+	prop.w = 420;
+//	prop.value = 70;
+//	prop.text = "loading...";
+	if(loadHorizontalBarControl == nullptr)  loadHorizontalBarControl = display.createControl<cHorizontalBar>(&prop);
+
+
 	frameData.placesCount = 3;
 	frameData.startPlace = 0;
 	frameData.places[0] = &framesPlaces[0][0];
@@ -131,6 +144,9 @@ void cSampleImporter::destroyDisplayControls()
 	display.destroyControl(addMemoryBarControl);
 	addMemoryBarControl = nullptr;
 
+	display.destroyControl(loadHorizontalBarControl);
+	loadHorizontalBarControl = nullptr;
+
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
 }
@@ -156,6 +172,9 @@ void cSampleImporter::showDefaultScreen()
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
 	}
+
+	display.setControlHide(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
 
 	display.synchronizeRefresh();
 
@@ -233,6 +252,14 @@ void cSampleImporter::showMemoryUsage()
 		display.refreshControl(memoryBarControl);
 	}
 
+}
+
+void cSampleImporter::showLoadHorizontalBar()
+{
+	display.setControlValue(loadHorizontalBarControl, loadProgress);
+	display.setControlText(loadHorizontalBarControl, "loading...");
+	display.setControlShow(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
 }
 
 //==============================================================================================================
