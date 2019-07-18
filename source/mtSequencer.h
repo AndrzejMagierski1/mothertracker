@@ -36,6 +36,7 @@ public:
 
 		STEP_NOTE_EMPTY = -1,
 		STEP_NOTE_OFF = -2,
+		STEP_NOTE_DEFAULT = 24,
 
 //	static const uint8_t
 		MIDIOUT_DIN1 = 0,

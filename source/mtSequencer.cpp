@@ -2005,6 +2005,11 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 			step = &seq[player.ramBank].track[t].step[s];
 			step->instrument = constrain(step->instrument + value, 0,
 											INSTRUMENTS_COUNT);
+			if (step->note == STEP_NOTE_EMPTY)
+			{
+				step->note = STEP_NOTE_DEFAULT;
+			}
+
 			if (isSingleSelection(sel) && step->note >= 0)
 			{
 				blinkNote(step->instrument,
@@ -2012,6 +2017,7 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 							step->velocity,
 							t);
 			}
+
 		}
 	}
 }
