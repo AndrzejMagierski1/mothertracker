@@ -442,6 +442,7 @@ static  uint8_t functLeft()
 		PE->showKeyboard();
 		return 1;
 	}
+	return 0;
 }
 static  uint8_t functRight()
 {
@@ -451,6 +452,7 @@ static  uint8_t functRight()
 		PE->showKeyboard();
 		return 1;
 	}
+	return 0;
 }
 static  uint8_t functUp()
 {
@@ -460,6 +462,7 @@ static  uint8_t functUp()
 		PE->showKeyboard();
 		return 1;
 	}
+	return 0;
 }
 static  uint8_t functDown()
 {
@@ -469,6 +472,7 @@ static  uint8_t functDown()
 		PE->showKeyboard();
 		return 1;
 	}
+	return 0;
 }
 
 static uint8_t functConfirmKey()
@@ -511,4 +515,5 @@ static uint8_t functConfirmKey()
 		PE->showKeyboardEditName();
 		return 1;
 	}
+	return 0;
 }
