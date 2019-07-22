@@ -5,7 +5,10 @@
 
 #include "displayControls.h"
 
-
+struct strCompareValue
+{
+	int value;
+};
 
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
@@ -28,6 +31,7 @@ public:
 	virtual void setDefaultColors(uint32_t colors[]);
 	virtual void setData(void* data);
 
+	strCompareValue * data;
 
 	uint16_t textStyle;
 	int16_t textFont;

@@ -26,6 +26,7 @@ cBar::cBar(strControlProperties* properties)
 		posX = 0;
 		posY = 0;
 		text = nullptr;
+		data = nullptr;
 		value = 0;
 		width = 0;
 		height = 0;
@@ -41,6 +42,8 @@ cBar::cBar(strControlProperties* properties)
 
 	width = properties->w;
 	height = properties->h;
+
+	data = (strCompareValue*)(properties->data);
 
 	setStyle(properties->style);
 }
@@ -88,7 +91,7 @@ void cBar::setDefaultColors(uint32_t colors[])
 
 void cBar::setData(void* data)
 {
-
+	data = (strCompareValue*)(data);
 }
 
 //--------------------------------------------------------------------------------
@@ -106,6 +109,10 @@ uint8_t cBar::update()
 
 
 
+	if(style & controlStyleCompareTwoValues && value >= 0 && value <= 100)
+	{
+
+	}
 	if(style & controlStyleValue_0_100 && value >= 0 && value <= 100)
 	{
 	    uint16_t barFillY = barHeight - (barHeight * value) / 100;

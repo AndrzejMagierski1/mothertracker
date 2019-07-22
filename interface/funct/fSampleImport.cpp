@@ -690,12 +690,12 @@ void cSampleImporter::calculateMemoryUsage()
 	uint32_t memoryUsageAddCurrentSelect = mtProject.used_memory + currentSelectMemorySize;
 	if(memoryUsageAddCurrentSelect > mtProject.max_memory)
 	{
-		memoryUsageAdd = 100;
+		memoryUsageAdd.value = 100;
 		fullMemoryFlag = 1;
 	}
 	else
 	{
-		memoryUsageAdd = (memoryUsageAddCurrentSelect*100.0)/mtProject.max_memory;
+		memoryUsageAdd.value = (memoryUsageAddCurrentSelect*100.0)/mtProject.max_memory;
 		fullMemoryFlag = 0;
 	}
 	showMemoryUsage();
@@ -713,6 +713,7 @@ void cSampleImporter::calculateCurrentSelectMemorySize()
 	strcat(file_path, &locationFileList[selectedFile][0]);
 
 	currentSelectMemorySize = 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(file_path);
+//	if(mtProject.instrument[selectedSlot].sample.loaded) currentSelectMemorySize -= 2*mtProject.instrument[selectedSlot].sample.length;
 }
 
 void cSampleImporter::calculateLoadProgress()

@@ -114,7 +114,7 @@ public:
 	void calculateLoadProgress();
 	void calculateCopyingProgress();
 	uint8_t memoryUsage;
-	uint8_t memoryUsageAdd;
+	strCompareValue memoryUsageAdd;
 	uint32_t currentSelectMemorySize;
 	uint8_t fullMemoryFlag = 0;
 	uint8_t loadProgress = 0;

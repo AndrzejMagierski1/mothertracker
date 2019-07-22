@@ -233,7 +233,7 @@ void cSampleImporter::showMemoryUsage()
 		display.setControlColors(addMemoryBarControl, barColorsRed);
 	}
 
-	display.setControlValue(addMemoryBarControl, memoryUsageAdd);
+	display.setControlValue(addMemoryBarControl, memoryUsageAdd.value);
 	display.setControlShow(addMemoryBarControl);
 	display.refreshControl(addMemoryBarControl);
 
