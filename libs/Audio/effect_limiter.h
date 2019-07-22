@@ -26,7 +26,7 @@ private:
   uint16_t xpeak;
   float attack;
   float releaseTime;
-  uint16_t delay = 5;
+  const uint16_t delay = 5;
   uint16_t a;
   float coeff;
   float f;

@@ -464,6 +464,7 @@ uint8_t i2c_t3::acquireBus_(struct i2cStruct* i2c, uint8_t bus, uint32_t timeout
                 *(i2c->C1) = I2C_C1_IICEN | I2C_C1_MST | I2C_C1_TX;
                 break;
             }
+
         }
         #if defined(I2C_AUTO_RETRY)
             // if not master and auto-retry set, then reset bus and try one last time

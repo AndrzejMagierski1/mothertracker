@@ -77,7 +77,7 @@ enum loaderStateType
 	loaderStateTypeInProgress
 };
 //**********************************************************************WAVE LOADER***********************************************************************************//
-constexpr uint16_t BUFOR_COUNT = 10;
+constexpr uint16_t BUFOR_COUNT = 1;
 
 class WaveLoader
 {
@@ -88,6 +88,8 @@ public:
 	uint8_t getState();
 	uint8_t getStopStatus();
 	uint32_t getInfoAboutWave(const char *filename);
+	uint8_t getCurrentWaveProgress();
+	uint32_t getCurrentWaveLoadedMemory();
 	void setStopStatus(uint8_t s);
 private:
 	strWavFileHeader sampleHead;
@@ -120,13 +122,25 @@ public:
 //	uint8_t loadSamplesMemory();
 	void update();
 	void start(uint8_t startIndex);
+	uint8_t getMemoryUsageChangeFlag();
+	void clearMemoryUsageChangeFlag();
+	uint8_t getLoadChangeFlag();
+	void clearLoadChangeFlag();
+	uint8_t getCurrentProgress();
+	uint8_t getStateFlag();
 	WaveLoader waveLoader;
 	WavetableLoader wavetableLoader;
 private:
+
 	uint8_t currentIndex;
 	uint8_t state;
 	uint8_t lastIndex;
 	int32_t currentSize;
+	uint8_t memoryUsageChange = 0;
+	uint8_t loadedFlagChange = 0;
+	uint32_t sizeAllFiles;
+	uint32_t currentLoadSize = 0;
+	uint32_t currentStepLoadSize = 0;
 
 };
 
@@ -142,7 +156,14 @@ public:
 	uint8_t saveAsProject(char* name);
 	void saveProject();
 	uint8_t createNewProject(char * name);
-	void importSampleToProject(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type = mtSampleTypeWaveFile);
+	/////////////////////////////////////////////////////////////////////////
+	uint8_t startImportSampleToProject(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type = mtSampleTypeWaveFile);
+	void stopImportSampleToProject();
+	void updateImportSampleToProject();
+	uint8_t getStateImportSampleToProject();
+	uint8_t getProgressImportSampleToProject();
+	/////////////////////////////////////////////////////////////////////////
+
 	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
 	void importPatternToProject(char* filePatch, char* name, int8_t index);
 	void createEmptyTemplateProject(char * name);
@@ -168,7 +189,17 @@ private:
 	uint8_t readPatternFile(char * name);
 	void writeProjectFile(char * name,strMtProjectRemote * proj);
 	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
+	FsFile fileImportSample;
+	FsFile copyImportSample;
+	uint32_t currentCopyingSize = 0;
+	uint32_t copyFileSize;
+	uint8_t importSampleState = importingSampleEnded;
 
+	enum importSampleStateType
+	{
+		importingSampleEnded,
+		importingSampleInProgress,
+	};
 
 	char currentProjectName[PROJECT_NAME_SIZE];
 	uint8_t currentPattern;

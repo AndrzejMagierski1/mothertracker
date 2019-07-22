@@ -2,23 +2,25 @@
 #include "FT812.h"
 
 #include "displayControls.h"
-#include "barControl.h"
+#include "horizontalBarControl.h"
 
 
 
 static uint32_t defaultColors[] =
 {
-	0xFFFFFF, // tekst
-	0x222222, // tło
-	0xFFFFFF, // ramka
+	0xFFFFFF, // ramka okna
+	0x222222, // tło okna
+	0xFFFFFF, // ramka kontrolki
+	0xFFFFFF,  // tło kontrolki
+	0x000000  // tekst
 };
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cBar::cBar(strControlProperties* properties)
+cHorizontalBar::cHorizontalBar(strControlProperties* properties)
 {
-	colorsCount = 3;
+	colorsCount = 5;
 	colors = defaultColors;
 
 	if(properties == nullptr)
@@ -26,7 +28,6 @@ cBar::cBar(strControlProperties* properties)
 		posX = 0;
 		posY = 0;
 		text = nullptr;
-		data = nullptr;
 		value = 0;
 		width = 0;
 		height = 0;
@@ -43,12 +44,10 @@ cBar::cBar(strControlProperties* properties)
 	width = properties->w;
 	height = properties->h;
 
-	data = (strCompareValue*)(properties->data);
-
 	setStyle(properties->style);
 }
 
-cBar::~cBar()
+cHorizontalBar::~cHorizontalBar()
 {
 
 }
@@ -56,7 +55,7 @@ cBar::~cBar()
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-void cBar::setStyle(uint32_t style)
+void cHorizontalBar::setStyle(uint32_t style)
 {
 	this->style = style;
 
@@ -69,61 +68,90 @@ void cBar::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cBar::setText(char* text)
+void cHorizontalBar::setText(char* text)
 {
 	this->text = text;
 }
 
-void cBar::setValue(int value)
+void cHorizontalBar::setValue(int value)
 {
 	this->value = value;
 }
 
-void cBar::setColors(uint32_t* colors)
+void cHorizontalBar::setColors(uint32_t* colors)
 {
 	this->colors = colors;
 }
 
-void cBar::setDefaultColors(uint32_t colors[])
+void cHorizontalBar::setDefaultColors(uint32_t colors[])
 {
 	memcpy(defaultColors, colors, colorsCount*4);
 }
 
-void cBar::setData(void* data)
+void cHorizontalBar::setData(void* data)
 {
-	data = (strCompareValue*)(data);
+
 }
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-uint8_t cBar::update()
+uint8_t cHorizontalBar::update()
 {
 	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
-    uint16_t barWidth = (width >= 800/8) ? 800/8-10 : width-10;
-    uint16_t barX = posX+(width-barWidth)/2; //(width > 800/8) ? posX+5 : posX + width/2;
-    uint16_t barY = posY + 10;
-    uint16_t barHeight = height - 20;
+    uint16_t frameWidth = width;
+    uint16_t frameX = posX; //(width > 800/8) ? posX+5 : posX + width/2;
+
+    uint16_t frameHeight = height;
+    uint16_t frameY = posY;
+
+    uint16_t barWidth = (5*width)/7;
+    uint16_t barX = posX+ (width/7);
+
+    uint16_t barHeight = (2*height)/7 ;
+    uint16_t barY = posY + ((3*height)/7);
+
+    uint16_t textX = posX + (width/2);
+    uint16_t textY = posY + ((2*height)/7);
 
 
 
-	if(style & controlStyleCompareTwoValues && value >= 0 && value <= 100)
-	{
 
-	}
+
 	if(style & controlStyleValue_0_100 && value >= 0 && value <= 100)
 	{
-	    uint16_t barFillY = barHeight - (barHeight * value) / 100;
+	    uint16_t barFillY = (barWidth * value) / 100;
 
 		API_COLOR(colors[0]);
 
 		API_LINE_WIDTH(8);
 		API_BEGIN(RECTS);
-		API_VERTEX2F(barX+1, barY+barFillY+1);
-		API_VERTEX2F(barX+barWidth-1, barY+barHeight-1);
+		API_VERTEX2F(frameX+1, frameY+1);
+		API_VERTEX2F(frameX+frameWidth-1, frameY+frameHeight-1);
 		API_END();
+
+		API_COLOR(colors[1]);
+
+		API_LINE_WIDTH(8);
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2F(frameX, frameY);
+		API_VERTEX2F(frameX+frameWidth, frameY);
+		API_VERTEX2F(frameX+frameWidth, frameY+frameHeight);
+		API_VERTEX2F(frameX, frameY+frameHeight);
+		API_VERTEX2F(frameX, frameY);
+		API_END();
+
+		API_COLOR(colors[2]);
+
+		API_LINE_WIDTH(8);
+		API_BEGIN(RECTS);
+		API_VERTEX2F(barX+1, barY+1);
+		API_VERTEX2F(barX+barFillY-1, barY+barHeight-1);
+		API_END();
+
+		API_COLOR(colors[3]);
 
 		API_LINE_WIDTH(8);
 		API_BEGIN(LINE_STRIP);
@@ -133,60 +161,11 @@ uint8_t cBar::update()
 		API_VERTEX2F(barX, barY+barHeight);
 		API_VERTEX2F(barX, barY);
 		API_END();
+
+		API_COLOR(colors[4]);
+
+		API_CMD_TEXT(textX, textY, textFont, OPT_CENTER, text);
 	}
-	else if(style & controlStyleValueLeftRight_100_100 && value >= -100 && value <= 100)
-	{
-
-		uint8_t halfFill = barHeight/2 - 5;
-
-		uint16_t barFillYtop  = barY +  			(  value > 0 ? ((halfFill * (100-value)) / 100) : halfFill);
-		uint16_t barFillYbott = barY + barHeight -  (  value < 0 ? ((halfFill * (100+value)) / 100) : halfFill);
-
-		API_COLOR(colors[0]);
-
-		API_LINE_WIDTH(8);
-		API_BEGIN(RECTS);
-		API_VERTEX2F(barX+1, barFillYtop+1);
-		API_VERTEX2F(barX+barWidth-1, barFillYbott-1);
-		API_END();
-
-		API_LINE_WIDTH(8);
-		API_BEGIN(LINE_STRIP);
-		API_VERTEX2F(barX, barY);
-		API_VERTEX2F(barX+barWidth, barY);
-		API_VERTEX2F(barX+barWidth, barY+barHeight);
-		API_VERTEX2F(barX, barY+barHeight);
-		API_VERTEX2F(barX, barY);
-		API_END();
-	}
-	else if(style & controlStyleValueLeftRight_24_24 && value >= -24 && value <= 24)
-	{
-		uint16_t barFillY = barHeight - (barHeight * value) / 100;
-
-		API_COLOR(colors[0]);
-
-		API_LINE_WIDTH(8);
-		API_BEGIN(RECTS);
-		API_VERTEX2F(barX+1, barY+barFillY+1);
-		API_VERTEX2F(barX+barWidth-1, barY+barHeight-1);
-		API_END();
-
-		API_LINE_WIDTH(8);
-		API_BEGIN(LINE_STRIP);
-		API_VERTEX2F(barX, barY);
-		API_VERTEX2F(barX+barWidth, barY);
-		API_VERTEX2F(barX+barWidth, barY+barHeight);
-		API_VERTEX2F(barX, barY+barHeight);
-		API_VERTEX2F(barX, barY);
-		API_END();
-	}
-
-
-
-
-
-
-
 
 	//API_COLOR(colors[0]);
 
@@ -199,7 +178,7 @@ uint8_t cBar::update()
 	return 0;
 }
 
-uint8_t cBar::memCpy(uint32_t address)
+uint8_t cHorizontalBar::memCpy(uint32_t address)
 {
 	uint32_t dlOffset = EVE_MemRead32(REG_CMD_DL);
 
@@ -216,7 +195,7 @@ uint8_t cBar::memCpy(uint32_t address)
 }
 
 
-uint8_t cBar::append(uint32_t address)
+uint8_t cHorizontalBar::append(uint32_t address)
 {
 	API_CMD_APPEND(address, ramSize);
 

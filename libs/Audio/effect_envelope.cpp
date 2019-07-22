@@ -218,7 +218,7 @@ uint8_t AudioEffectEnvelope::endRelease()
 {
 	if(endReleaseFlag==1) return 1;
 	else return 0;
-}
+	}
 
 void AudioEffectEnvelope::clearEndReleaseFlag()
 {

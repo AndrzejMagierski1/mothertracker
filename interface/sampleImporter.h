@@ -29,6 +29,8 @@ public:
 	void showFilesTree();
 	void showInstrumentsList();
 	void showMemoryUsage();
+	void showLoadHorizontalBar();
+	void showCopyingHorizontalBar();
 	void activateLabelsBorder();
 
 	strList folderList;
@@ -45,7 +47,10 @@ public:
 	hControl fileListControl;
 	hControl instrumentListControl;
 	hControl memoryBarControl;
+	hControl addMemoryBarControl;
 	hControl frameControl;
+
+	hControl loadHorizontalBarControl;
 
 
 	uint8_t selectedPlace = 0;
@@ -105,9 +110,18 @@ public:
 //--------------------------------------------------------------
 //memory
 	void calculateMemoryUsage();
-
+	void calculateCurrentSelectMemorySize();
+	void calculateLoadProgress();
+	void calculateCopyingProgress();
 	uint8_t memoryUsage;
-
+	strCompareValue memoryUsageAdd;
+	uint32_t currentSelectMemorySize;
+	uint8_t fullMemoryFlag = 0;
+	uint8_t loadProgress = 0;
+	uint8_t loadFlag = 0;
+	uint8_t copyingProgress = 0;
+	uint8_t lastCopyStatusFlag = 0;
+	uint8_t currentCopyStatusFlag = 0;
 //--------------------------------------------------------------
 //odsluch
 	void playSdFile();
@@ -124,6 +138,15 @@ public:
 		playModeSampleBank,
 
 	};
+
+	uint32_t barColorsRed[3] = { 0xFF0000, 0xFF0000, 0x000000};
+	uint32_t defaultColors[3] =
+	{
+		0xFFFFFF, // tekst
+		0x222222, // tło
+		0xFFFFFF, // ramka
+	};
+	uint32_t barColorsCyan[3] = { 0x00FFFF, 0x00FFFF, 0x00FFFF};
 };
 
 

@@ -38,6 +38,7 @@
 								<option id="com.crt.advproject.cpp.fpu.779188972" name="Floating point" superClass="com.crt.advproject.cpp.fpu" useByScannerDiscovery="false" value="com.crt.advproject.cpp.fpu.fpv4.hard" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1702633537" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../source"/>
+									<listOptionValue builtIn="false" value="../libs/MIDI"/>
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
 									<listOptionValue builtIn="false" value="../libs/Audio"/>
@@ -94,6 +95,7 @@
 								<option id="com.crt.advproject.gcc.fpu.534876620" name="Floating point" superClass="com.crt.advproject.gcc.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gcc.fpu.fpv4.hard" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1607126998" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../source"/>
+									<listOptionValue builtIn="false" value="../libs/MIDI"/>
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
 									<listOptionValue builtIn="false" value="../libs/Audio"/>
@@ -129,6 +131,7 @@
 								<option id="com.crt.advproject.gas.specs.1642914133" name="Specs" superClass="com.crt.advproject.gas.specs" useByScannerDiscovery="false" value="com.crt.advproject.gas.specs.newlibnano" valueType="enumerated"/>
 								<option id="gnu.both.asm.option.include.paths.863797007" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../source"/>
+									<listOptionValue builtIn="false" value="../libs/MIDI"/>
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
 									<listOptionValue builtIn="false" value="../libs/Audio"/>
@@ -229,9 +232,9 @@
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.release.483826154" name="ARM-based MCU (Release)" superClass="com.crt.advproject.platform.exe.release"/>
 							<builder buildPath="${workspace_loc:/teensy_3_6_example}/Release" id="com.crt.advproject.builder.exe.release.480966551" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="com.crt.advproject.builder.exe.release"/>
 							<tool id="com.crt.advproject.cpp.exe.release.2107067612" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.release">
-								<option id="com.crt.advproject.cpp.thumb.2031067664" name="Thumb mode" superClass="com.crt.advproject.cpp.thumb" value="true" valueType="boolean"/>
-								<option id="com.crt.advproject.cpp.specs.376402015" name="Specs" superClass="com.crt.advproject.cpp.specs" value="com.crt.advproject.cpp.specs.newlibnano" valueType="enumerated"/>
-								<option id="gnu.cpp.compiler.option.preprocessor.def.334848169" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+								<option id="com.crt.advproject.cpp.thumb.2031067664" name="Thumb mode" superClass="com.crt.advproject.cpp.thumb" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.cpp.specs.376402015" name="Specs" superClass="com.crt.advproject.cpp.specs" useByScannerDiscovery="false" value="com.crt.advproject.cpp.specs.newlibnano" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.preprocessor.def.334848169" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__NEWLIB__"/>
 									<listOptionValue builtIn="false" value="__MK66FX1M0__"/>
 									<listOptionValue builtIn="false" value="F_CPU=180000000"/>
@@ -241,7 +244,7 @@
 									<listOptionValue builtIn="false" value="LAYOUT_US_ENGLISH"/>
 									<listOptionValue builtIn="false" value="CPU_MK66FX1M0VMD18"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.include.paths.28324130" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.cpp.compiler.option.include.paths.28324130" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../source"/>
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
@@ -265,16 +268,16 @@
 									<listOptionValue builtIn="false" value="../libs/Snooze"/>
 									<listOptionValue builtIn="false" value="../effector"/>
 								</option>
-								<option id="com.crt.advproject.cpp.arch.1277266838" name="Architecture" superClass="com.crt.advproject.cpp.arch" value="com.crt.advproject.cpp.target.cm4" valueType="enumerated"/>
+								<option id="com.crt.advproject.cpp.arch.1277266838" name="Architecture" superClass="com.crt.advproject.cpp.arch" useByScannerDiscovery="false" value="com.crt.advproject.cpp.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.cpp.hdrlib.615462902" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.cpp.fpu.1283789444" name="Floating point" superClass="com.crt.advproject.cpp.fpu" useByScannerDiscovery="false" value="com.crt.advproject.cpp.fpu.fpv4.hard" valueType="enumerated"/>
 								<inputType id="com.crt.advproject.compiler.cpp.input.1826307263" superClass="com.crt.advproject.compiler.cpp.input"/>
 							</tool>
 							<tool id="com.crt.advproject.gcc.exe.release.1178515777" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.release">
-								<option id="com.crt.advproject.gcc.thumb.330158468" name="Thumb mode" superClass="com.crt.advproject.gcc.thumb" value="true" valueType="boolean"/>
-								<option id="com.crt.advproject.gcc.hdrlib.845387700" name="Library headers" superClass="com.crt.advproject.gcc.hdrlib" value="com.crt.advproject.gcc.hdrlib.newlibnano" valueType="enumerated"/>
-								<option id="com.crt.advproject.gcc.specs.2136663657" name="Specs" superClass="com.crt.advproject.gcc.specs" value="com.crt.advproject.gcc.specs.newlibnano" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.preprocessor.def.symbols.167226493" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+								<option id="com.crt.advproject.gcc.thumb.330158468" name="Thumb mode" superClass="com.crt.advproject.gcc.thumb" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.gcc.hdrlib.845387700" name="Library headers" superClass="com.crt.advproject.gcc.hdrlib" useByScannerDiscovery="false" value="com.crt.advproject.gcc.hdrlib.newlibnano" valueType="enumerated"/>
+								<option id="com.crt.advproject.gcc.specs.2136663657" name="Specs" superClass="com.crt.advproject.gcc.specs" useByScannerDiscovery="false" value="com.crt.advproject.gcc.specs.newlibnano" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.167226493" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__NEWLIB__"/>
 									<listOptionValue builtIn="false" value="__MK66FX1M0__"/>
 									<listOptionValue builtIn="false" value="F_CPU=180000000"/>
@@ -284,7 +287,7 @@
 									<listOptionValue builtIn="false" value="LAYOUT_US_ENGLISH"/>
 									<listOptionValue builtIn="false" value="CPU_MK66FX1M0VMD18"/>
 								</option>
-								<option id="gnu.c.compiler.option.include.paths.1850366892" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.c.compiler.option.include.paths.1850366892" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../source"/>
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
@@ -308,7 +311,7 @@
 									<listOptionValue builtIn="false" value="../libs/Snooze"/>
 									<listOptionValue builtIn="false" value="../effector"/>
 								</option>
-								<option id="com.crt.advproject.gcc.arch.2035563646" name="Architecture" superClass="com.crt.advproject.gcc.arch" value="com.crt.advproject.gcc.target.cm4" valueType="enumerated"/>
+								<option id="com.crt.advproject.gcc.arch.2035563646" name="Architecture" superClass="com.crt.advproject.gcc.arch" useByScannerDiscovery="false" value="com.crt.advproject.gcc.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.gcc.fpu.937380535" name="Floating point" superClass="com.crt.advproject.gcc.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gcc.fpu.fpv4.hard" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.misc.other.1671599907" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -ffunction-sections -fdata-sections -ffreestanding -fno-builtin" valueType="string"/>
 								<inputType id="com.crt.advproject.compiler.input.2109551822" superClass="com.crt.advproject.compiler.input"/>

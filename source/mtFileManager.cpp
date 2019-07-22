@@ -12,6 +12,8 @@
 
 FileManager fileManager;
 
+
+
 void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 {
 	if(SD.exists(name)) SD.remove(name);
@@ -309,15 +311,43 @@ uint8_t FileManager::createNewProject(char * name)
 	return 1;
 }
 
-void FileManager::importSampleToProject(char* filePatch, char* name, int8_t instrumentIndex, uint8_t type)
+uint8_t FileManager::startImportSampleToProject(char* filePatch, char* name, int8_t instrumentIndex, uint8_t type)
 {
 	char currentPatch[PATCH_SIZE];
 	char localName[15];
-	FsFile file;
-	FsFile copy;
-	uint16_t lengthData=0;
-	uint8_t currentBuffor[1024];
+
+
+
 	char number[3];
+
+
+	if(filePatch !=  NULL)
+	{
+		memset(currentPatch,0,PATCH_SIZE);
+		strcpy(currentPatch,filePatch);
+		strcat(currentPatch,"/");
+		strcat(currentPatch,name);
+	}
+	else
+	{
+		memset(currentPatch,0,PATCH_SIZE);
+		strcpy(currentPatch,name);
+	}
+	if(SD.exists(!currentPatch)) return 0;
+	uint32_t localFileSize = 2 * samplesLoader.waveLoader.getInfoAboutWave(currentPatch);
+	uint32_t locaUsedMemory;
+	if(localFileSize == 0) return 0;
+
+	if(mtProject.instrument[instrumentIndex].sample.loaded)
+	{
+		locaUsedMemory=mtProject.used_memory - 2* mtProject.instrument[instrumentIndex].sample.length;
+	}
+	else
+	{
+		locaUsedMemory=mtProject.used_memory;
+	}
+	if( (locaUsedMemory + localFileSize) > mtProject.max_memory) return 0;
+
 
 	number[0] = ((instrumentIndex-instrumentIndex%10)/10) + 48;
 	number[1] = instrumentIndex%10 + 48;
@@ -337,6 +367,7 @@ void FileManager::importSampleToProject(char* filePatch, char* name, int8_t inst
 	if(mtProject.instrument[instrumentIndex].isActive)
 	{
 
+		memset(currentPatch,0,PATCH_SIZE);
 		strcpy(currentPatch,currentProjectPatch);
 		strcat(currentPatch,"/samples/");
 		strcat(currentPatch,localName);
@@ -359,24 +390,27 @@ void FileManager::importSampleToProject(char* filePatch, char* name, int8_t inst
 		strcpy(currentPatch,name);
 	}
 
-	file = SD.open(currentPatch);
+
+
+	fileImportSample = SD.open(currentPatch);
+
+	strWavFileHeader importFileHeader;
+	readHeader(&importFileHeader,&fileImportSample);
+
+	copyFileSize = importFileHeader.subchunk2Size;
+	fileImportSample.close();
+
+	fileImportSample = SD.open(currentPatch);
+
 
 	memset(currentPatch,0,PATCH_SIZE);
 	strcpy(currentPatch,currentProjectPatch);
 	strcat(currentPatch,"/samples/");
 	strcat(currentPatch,localName);
 
-	copy= SD.open(currentPatch,FILE_WRITE);
-
-	while(file.available())
-	{
-		lengthData=file.read(currentBuffor,1024);
-		copy.write(currentBuffor,(size_t)lengthData);
-	}
-	file.close();
-	copy.close();
-
-
+	copyImportSample= SD.open(currentPatch,FILE_WRITE);
+	currentCopyingSize = 0;
+	importSampleState =importingSampleInProgress;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -442,6 +476,43 @@ void FileManager::importSampleToProject(char* filePatch, char* name, int8_t inst
 	strcpy(currentPatch,currentProjectPatch);
 	strcat(currentPatch,"/project.bin");
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
+
+	return 1;
+}
+
+void FileManager::updateImportSampleToProject()
+{
+	uint16_t lengthData=0;
+	uint8_t currentBuffor[1024];
+
+	if(importSampleState == importingSampleEnded) return;
+	if(fileImportSample.available())
+	{
+		lengthData=fileImportSample.read(currentBuffor,1024);
+		copyImportSample.write(currentBuffor,(size_t)lengthData);
+		currentCopyingSize+=lengthData;
+	}
+	else
+	{
+		stopImportSampleToProject();
+	}
+}
+
+void FileManager::stopImportSampleToProject()
+{
+	importSampleState = importingSampleEnded;
+	fileImportSample.close();
+	copyImportSample.close();
+}
+
+uint8_t FileManager::getStateImportSampleToProject()
+{
+	return importSampleState;
+}
+
+uint8_t FileManager::getProgressImportSampleToProject()
+{
+	return (currentCopyingSize * 100) / copyFileSize;
 }
 
 void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_t index) //todo: to nie dziala ze wzgledu na to ze nie ma sensu robic(na ta chwile nie jest potrzebne, a potem sie wszystko zmieni)
@@ -499,7 +570,7 @@ void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_
 	memset(currentPatch,0,PATCH_SIZE);
 	strcpy(currentPatch,projectPatch);
 	strcat(currentPatch,"/samples/");
-	importSampleToProject(currentPatch,localName,mtProject.mtProjectRemote.instrumentFile[index].index ,mtProject.mtProjectRemote.instrumentFile[index].sample.type);
+	startImportSampleToProject(currentPatch,localName,mtProject.mtProjectRemote.instrumentFile[index].index ,mtProject.mtProjectRemote.instrumentFile[index].sample.type);
 
 
 
@@ -593,7 +664,7 @@ void FileManager::importProject(char* sourceProjectPatch,char* name, char* newNa
 	{
 		if(mtProject.mtProjectRemote.instrumentFile[i].index != -1)
 		{
-			importSampleToProject(currentPatch,mtProject.mtProjectRemote.instrumentFile[i].sample.name,mtProject.mtProjectRemote.instrumentFile[i].index ,mtProject.mtProjectRemote.instrumentFile[i].sample.type);
+			startImportSampleToProject(currentPatch,mtProject.mtProjectRemote.instrumentFile[i].sample.name,mtProject.mtProjectRemote.instrumentFile[i].index ,mtProject.mtProjectRemote.instrumentFile[i].sample.type);
 		}
 	}
 	memset(currentPatch,0,PATCH_SIZE);
