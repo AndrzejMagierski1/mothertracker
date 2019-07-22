@@ -385,13 +385,11 @@ public:
 	void resetAllLearned(void);
 	void resetLastSendMod(void);
 	//	void set_power_mode(uint8_t mode);
-	void trySwitchBank();
+//	void trySwitchBank();
 
-	void setLoadBank2Ram(uint8_t bank);
 	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 					uint8_t midiOut);
 
-	void switch_bank_with_reset(void);
 
 	void flushNotes();
 	void sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step);
@@ -645,7 +643,7 @@ public:
 
 	void copy_row(uint8_t from, uint8_t to);
 
-	void toggleStep(uint8_t, uint8_t);
+//	void toggleStep(uint8_t, uint8_t);
 
 	void addNoteOff(uint8_t note, uint8_t velocity, uint8_t channel,
 					uint8_t midiOut);

@@ -117,7 +117,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 							incr_uStep(a);
 						}
 					}
-					trySwitchBank();
+//					trySwitchBank();
 					if (tempTick == 1)
 					{
 						break;
@@ -151,7 +151,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 						incr_uStep(a);
 					}
 				}
-				trySwitchBank();
+//				trySwitchBank();
 
 			}
 			else
@@ -165,7 +165,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 						incr_uStep(a);
 					}
 				}
-				trySwitchBank();
+//				trySwitchBank();
 			}
 		}
 
@@ -1359,14 +1359,14 @@ void Sequencer::divChangeQuantize(uint8_t row)
 	}
 }
 
-void Sequencer::trySwitchBank()
-{
-	if (player.jumpNOW)
-	{
-		switch_bank_with_reset();
-		player.jumpNOW = 0;
-	}
-}
+//void Sequencer::trySwitchBank()
+//{
+//	if (player.jumpNOW)
+//	{
+//		switch_bank_with_reset();
+//		player.jumpNOW = 0;
+//	}
+//}
 
 uint8_t Sequencer::getTempoDiv(int8_t val)
 {
@@ -1468,24 +1468,6 @@ void Sequencer::midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 //	else if ((midiOut == MIDIOUT_DIN2) || (midiOut == MIDIOUT_DIN2_C))		MIDI.sendControlChange(channel, control, value);
 
 // usbMIDI.send_now();
-
-}
-
-void Sequencer::setLoadBank2Ram(uint8_t bank)
-{
-// Serial.print("change bank to:");
-// Serial.println(bank);
-//	bank = constrain(bank, 0, 255);
-//	set_updateLCD();
-//
-//	player.changeBank  = 1;
-//	player.loadBank = 1;
-//	player.bank2load = bank;
-
-}
-
-void Sequencer::switch_bank_with_reset(void)
-{
 
 }
 
@@ -1745,12 +1727,12 @@ void Sequencer::setPasteSelection(uint8_t stepFrom,
 	selectionPaste.lastTrack = trackTo;
 
 }
-
-void Sequencer::toggleStep(uint8_t row, uint8_t step)
-{
-//	seq[player.ramBank].track[row].step[step].isOn = !seq[player.ramBank].track[row].step[step].isOn;
-	seq[player.ramBank].track[row].step[step].note = DEFAULT_ROW_NOTE;
-}
+//
+//void Sequencer::toggleStep(uint8_t row, uint8_t step)
+//{
+////	seq[player.ramBank].track[row].step[step].isOn = !seq[player.ramBank].track[row].step[step].isOn;
+//	seq[player.ramBank].track[row].step[step].note = DEFAULT_ROW_NOTE;
+//}
 
 uint8_t Sequencer::get_fxValType(uint8_t fxType)
 {
