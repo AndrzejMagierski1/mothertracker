@@ -77,7 +77,7 @@ enum loaderStateType
 	loaderStateTypeInProgress
 };
 //**********************************************************************WAVE LOADER***********************************************************************************//
-constexpr uint16_t BUFOR_COUNT = 10;
+constexpr uint16_t BUFOR_COUNT = 1;
 
 class WaveLoader
 {
@@ -156,7 +156,14 @@ public:
 	uint8_t saveAsProject(char* name);
 	void saveProject();
 	uint8_t createNewProject(char * name);
-	uint8_t importSampleToProject(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type = mtSampleTypeWaveFile);
+	/////////////////////////////////////////////////////////////////////////
+	uint8_t startImportSampleToProject(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type = mtSampleTypeWaveFile);
+	void stopImportSampleToProject();
+	void updateImportSampleToProject();
+	uint8_t getStateImportSampleToProject();
+	uint8_t getProgressImportSampleToProject();
+	/////////////////////////////////////////////////////////////////////////
+
 	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
 	void importPatternToProject(char* filePatch, char* name, int8_t index);
 	void createEmptyTemplateProject(char * name);
@@ -182,7 +189,17 @@ private:
 	uint8_t readPatternFile(char * name);
 	void writeProjectFile(char * name,strMtProjectRemote * proj);
 	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
+	FsFile fileImportSample;
+	FsFile copyImportSample;
+	uint32_t currentCopyingSize = 0;
+	uint32_t copyFileSize;
+	uint8_t importSampleState = importingSampleEnded;
 
+	enum importSampleStateType
+	{
+		importingSampleEnded,
+		importingSampleInProgress,
+	};
 
 	char currentProjectName[PROJECT_NAME_SIZE];
 	uint8_t currentPattern;

@@ -30,6 +30,7 @@ public:
 	void showInstrumentsList();
 	void showMemoryUsage();
 	void showLoadHorizontalBar();
+	void showCopyingHorizontalBar();
 	void activateLabelsBorder();
 
 	strList folderList;
@@ -111,12 +112,16 @@ public:
 	void calculateMemoryUsage();
 	void calculateCurrentSelectMemorySize();
 	void calculateLoadProgress();
+	void calculateCopyingProgress();
 	uint8_t memoryUsage;
 	uint8_t memoryUsageAdd;
 	uint32_t currentSelectMemorySize;
 	uint8_t fullMemoryFlag = 0;
 	uint8_t loadProgress = 0;
 	uint8_t loadFlag = 0;
+	uint8_t copyingProgress = 0;
+	uint8_t lastCopyStatusFlag = 0;
+	uint8_t currentCopyStatusFlag = 0;
 //--------------------------------------------------------------
 //odsluch
 	void playSdFile();

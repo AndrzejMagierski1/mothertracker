@@ -58,17 +58,41 @@ void cSampleImporter::update()
 		showInstrumentsList();
 	}
 
-	if(loadFlag == 1)
+//////////////////////////////////////COPYING////////////////////////////
+	currentCopyStatusFlag = fileManager.getStateImportSampleToProject();
+
+	if(currentCopyStatusFlag)
+	{
+		calculateCopyingProgress();
+		showCopyingHorizontalBar();
+	}
+
+	if( (!currentCopyStatusFlag ) && (lastCopyStatusFlag) )
+	{
+		showDefaultScreen();
+		fileManager.samplesLoader.start(selectedSlot);
+		loadFlag = 1;
+	}
+
+
+
+
+	lastCopyStatusFlag = currentCopyStatusFlag;
+/////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////LOADING////////////////////////////
+	if(loadFlag)
 	{
 		calculateLoadProgress();
 		showLoadHorizontalBar();
 
-		if(fileManager.samplesLoader.getStateFlag() == 0)
+		if(!fileManager.samplesLoader.getStateFlag())
 		{
 			loadFlag = 0;
 			showDefaultScreen();
 		}
 	}
+/////////////////////////////////////////////////////////////////////////
 }
 
 void cSampleImporter::start(uint32_t options)
@@ -604,10 +628,10 @@ void cSampleImporter::BrowseFolder()
 
 void cSampleImporter::SelectFile()
 {
-	if(!fileManager.importSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot)) return;
+	if(currentCopyStatusFlag || loadFlag) return;
+	fileManager.startImportSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot);
 
-	fileManager.samplesLoader.start(selectedSlot);
-	loadFlag = 1;
+
 
 //	calculateMemoryUsage(); przeniesione do update - memory usage zostanie zwiekszone dopiero po poprawnym zaladowaniu pliku w update;
 
@@ -696,10 +720,15 @@ void cSampleImporter::calculateLoadProgress()
 	loadProgress = fileManager.samplesLoader.getCurrentProgress();
 }
 
+void cSampleImporter::calculateCopyingProgress()
+{
+	copyingProgress = fileManager.getProgressImportSampleToProject();
+}
 
 //==============================================================================================
 void cSampleImporter::playSdFile()
 {
+	if(currentCopyStatusFlag || loadFlag) return;
 	if(!isWavFile(&locationFileList[selectedFile][0])) return;
 
 	char file_path[255];
@@ -737,6 +766,8 @@ void cSampleImporter::playSdFile()
 
 void cSampleImporter::playSampleFromBank()
 {
+	if(currentCopyStatusFlag || loadFlag) return;
+
 	if(sequencer.getSeqState() == 1)
 	{
 		sequencer.stop();

@@ -92,6 +92,10 @@ AudioConnection          connect58(&mixerR, &limiter[1]);
 AudioConnection          connect52(&limiter[0], 0, &mixerSourceL, 0);
 AudioConnection          connect53(&limiter[1], 0, &mixerSourceR, 0);
 
+//AudioConnection          connect52(&mixerL, 0, &mixerSourceL, 0);
+//AudioConnection          connect53(&mixerR, 0, &mixerSourceR, 0);
+
+
 AudioConnection          connect61(&playSdWav, 0, &mixerSourceL, 1);
 AudioConnection          connect62(&playSdWav, 0, &mixerSourceR, 1);
 
@@ -740,6 +744,12 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
 	mixerR.gain(numPanChannel,1.0);
 	mixerReverb.gain(numPanChannel,0.0);
 	/*======================================================================================================*/
+	limiter[0].setAttack(300);
+	limiter[0].setRelease(10);
+	limiter[0].setThreshold(32000);
+	limiter[1].setAttack(300);
+	limiter[1].setRelease(10);
+	limiter[1].setThreshold(32000);
 
 	status = playMemPtr->playForPrev(addr,len);
 	envelopeAmpPtr->noteOn();

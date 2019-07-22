@@ -262,6 +262,14 @@ void cSampleImporter::showLoadHorizontalBar()
 	display.refreshControl(loadHorizontalBarControl);
 }
 
+void cSampleImporter::showCopyingHorizontalBar()
+{
+	display.setControlValue(loadHorizontalBarControl, copyingProgress);
+	display.setControlText(loadHorizontalBarControl, "copying...");
+	display.setControlShow(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+}
+
 //==============================================================================================================
 
 void cSampleImporter::activateLabelsBorder()

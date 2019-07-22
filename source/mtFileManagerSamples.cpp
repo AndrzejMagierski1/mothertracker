@@ -207,6 +207,7 @@ void WaveLoader::update()
 	if(state == loaderStateTypeInProgress)
 	{
 		int32_t bufferLength;
+		int32_t forConstrain;
 
 		if(sampleHead.AudioFormat == 1)
 		{
@@ -221,11 +222,10 @@ void WaveLoader::update()
 
 						accBufferLength += bufferLength;
 
-						for(int i=0; i< 256; i++)
+						forConstrain =  bufferLength/2;
+						for(int i=0; i< forConstrain; i++)
 						{
-							if(bufferLength <= i ) break;
-							else *currentAddress=buf16[i];
-							currentAddress++;
+							*(currentAddress++)=buf16[i];
 						}
 					}
 					else
@@ -245,11 +245,10 @@ void WaveLoader::update()
 						bufferLength = wavfile.read(buf16, 512);
 
 						accBufferLength += bufferLength;
-						for(int i=0; i< 256; i+=2)
+						forConstrain =  bufferLength/2;
+						for(int i=0; i< forConstrain; i+=2)
 						{
-							if(bufferLength <= i ) break;
-							else *currentAddress=buf16[i];
-							currentAddress++;
+							*(currentAddress++)=buf16[i];
 						}
 					}
 					else
@@ -272,12 +271,10 @@ void WaveLoader::update()
 						bufferLength = wavfile.read(bufFloat, 1024);
 
 						accBufferLength += bufferLength;
-
-						for(int i=0; i< 256; i++)
+						forConstrain =  bufferLength/4;
+						for(int i=0; i< forConstrain; i++)
 						{
-							if(bufferLength <= i ) break;
-							else *currentAddress= ( ( (bufFloat[i] + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
-							currentAddress++;
+							*(currentAddress++) = ( ( (bufFloat[i] + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
 						}
 					}
 					else
@@ -294,14 +291,15 @@ void WaveLoader::update()
 				{
 					if (wavfile.available() )
 					{
+						memset(bufFloat,0,1024);
 						bufferLength = wavfile.read(bufFloat, 1024);
 
 						accBufferLength += bufferLength;
-						for(int i=0; i< 256; i+=2)
+						forConstrain =  bufferLength/4;
+						for(int i=0; i< forConstrain; i+=2)
 						{
-							if(bufferLength <= i ) break;
-							else *currentAddress=( ((bufFloat[i] + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
-							currentAddress++;
+							*(currentAddress++) = ( ((bufFloat[i] + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
+
 						}
 					}
 					else
@@ -496,6 +494,7 @@ int32_t WavetableLoader::fmLoadWavetable(const char *filename, int16_t * buf ,ui
 void FileManager::update()
 {
 	samplesLoader.update();
+	updateImportSampleToProject();
 }
 
 
