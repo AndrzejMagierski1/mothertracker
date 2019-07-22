@@ -27,6 +27,11 @@
 #include "../common/DebugMacros.h"
 #include "../common/PrintTemplates.h"
 #include "ExFatVolume.h"
+#include "wavHeaderReader.h"
+
+
+
+
 //-----------------------------------------------------------------------------
 size_t ExFatFile::printFileSize(print_t* pr) {
   uint64_t n = m_validLength;
@@ -161,29 +166,11 @@ uint16_t ExFatFile::createFilesList(uint8_t start_line, char list[][20], uint8_t
 
 					if(((list[count][localLength - 1] == 'V') || (list[count][localLength - 1] == 'v'))  && ((list[count][localLength - 2] == 'A') ||(list[count][localLength - 2] == 'a')) && ((list[count][localLength - 3] == 'W') || (list[count][localLength - 3] == 'w')) && (list[count][localLength - 4] == '.'))
 					{
-						struct strWavFileHeader
-						{
-							uint32_t chunkId;			//0
-							uint32_t chunkSize;
-							uint32_t format;
-
-							uint32_t subchunk1Id;		//12
-							uint32_t subchunk1Size;
-							uint16_t AudioFormat;		//20
-							uint16_t numChannels;		//22
-							uint32_t sampleRate;		//24
-							uint32_t byteRate;			//28
-							uint16_t blockAlign;		//32
-							uint16_t bitsPerSample;		//34
-
-							uint32_t subchunk2Id;		//36
-							uint32_t subchunk2Size;		//40
-
-						} localHeader;
-						file.read(&localHeader,44);
+						strWavFileHeader localHeader;
+						readHeader(&localHeader,&file);
 
 
-						if( (localHeader.sampleRate != 44100) || ((localHeader.AudioFormat != 1) && (localHeader.AudioFormat != 3) )  || ((localHeader.bitsPerSample != 16) && (localHeader.bitsPerSample != 32) ) ) memset(&list[count][n],0,localLength);
+						if( (localHeader.sampleRate != 44100) || ((localHeader.AudioFormat != 1) && (localHeader.AudioFormat != 3) )  || ((localHeader.bitsPerSample != 16) && (localHeader.bitsPerSample != 24) && (localHeader.bitsPerSample != 32) ) ) memset(&list[count][n],0,localLength);
 						else count++;
 					}
 
@@ -224,5 +211,9 @@ int ExFatFile::mprintf(const __FlashStringHelper *ifsh, ...) {
   va_start(ap, ifsh);
   return vmprintf(this, ifsh, ap);
 }
+
+
+
+
 #endif  // ENABLE_ARDUINO_FEATURES
 

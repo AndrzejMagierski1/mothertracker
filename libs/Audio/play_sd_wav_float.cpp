@@ -34,6 +34,10 @@
 constexpr uint8_t STATE_STOP = 0;
 constexpr uint8_t STATE_PLAY = 1;
 
+
+
+
+
 void AudioPlaySdWavFloat::begin(void)
 {
 	state = STATE_STOP;
@@ -65,7 +69,7 @@ bool AudioPlaySdWavFloat::play(const char *filename)
 	#endif
 		return false;
 	}
-	wavfile.read(&wavHeader,44);
+	readHeader(&wavHeader,&wavfile);
 
 	if (wavHeader.chunkId == 0x46464952 && wavHeader.format == 0x45564157 && wavHeader.subchunk1Id == 0x20746D66 && wavHeader.subchunk1Size >= 16 && wavHeader.AudioFormat == 3)
 	{

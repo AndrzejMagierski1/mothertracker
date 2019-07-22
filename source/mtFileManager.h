@@ -4,28 +4,7 @@
 #include <stdint.h>
 #include "SD.h"
 #include "mtStructs.h"
-
-//parametry przetwarzanego pliku
-struct strWavFileHeader
-{
-	uint32_t chunkId;			//0
-	uint32_t chunkSize;
-	uint32_t format;
-
-	uint32_t subchunk1Id;		//12
-	uint32_t subchunk1Size;
-	uint16_t AudioFormat;		//20
-	uint16_t numChannels;		//22
-	uint32_t sampleRate;		//24
-	uint32_t byteRate;			//28
-	uint16_t blockAlign;		//32
-	uint16_t bitsPerSample;		//34
-
-	uint32_t subchunk2Id;		//36
-	uint32_t subchunk2Size;		//40
-
-};
-
+#include "wavHeaderReader.h"
 
 struct strProjectFileHeader
 {
@@ -220,7 +199,6 @@ void loadFullWavetableSerum(const char *baseName);
 uint8_t getMiddleWindow(uint16_t cnt, float windowsCnt, float windowsControl);
 int16_t fmap(float x, float in_min, float in_max, float out_min, float out_max);
 int32_t fmLoadWavetable(const char *filename, int16_t * buf ,uint16_t * windowSize);
-void readHeader(strWavFileHeader* header, FsFile * wavfile);
 
 #endif
 
