@@ -52,6 +52,7 @@ bool AudioPlaySdWavFloat::play(const char *filename)
 #endif
 	__disable_irq()
 	;
+	currentPosition = 0;
 	wavfile = SD.open(filename);
 	__enable_irq()
 	;
@@ -66,7 +67,7 @@ bool AudioPlaySdWavFloat::play(const char *filename)
 	}
 	readHeader(&wavHeader, &wavfile);
 
-	if (wavHeader.chunkId == 0x46464952 && wavHeader.format == 0x45564157 && wavHeader.subchunk1Id == 0x20746D66 && wavHeader.subchunk1Size >= 16 && wavHeader.AudioFormat == 3)
+	if (wavHeader.chunkId == 0x46464952 && wavHeader.format == 0x45564157 && wavHeader.subchunk1Id == 0x20746D66 && wavHeader.AudioFormat == 3)
 	{
 		state = STATE_PLAY;
 		return true;
@@ -84,13 +85,13 @@ void AudioPlaySdWavFloat::stop(void)
 	;
 	if (state == STATE_PLAY)
 	{
-		audio_block_t *b1 = block;
+		release(block);
 		block = NULL;
 		state = STATE_STOP;
+		wavfile.close();
 		__enable_irq()
 		;
-		if (b1) release(b1);
-		wavfile.close();
+
 #if defined(HAS_KINETIS_SDHC)
 		if (!(SIM_SCGC3 & SIM_SCGC3_SDHC)) AudioStopUsingSPI();
 #else
@@ -112,38 +113,41 @@ void AudioPlaySdWavFloat::update(void)
 	block = allocate();
 	if (block == NULL) return;
 
-	if (wavfile.available())
+	if (wavfile.available() && (currentPosition < wavHeader.subchunk2Size) )
 	{
 		if (wavHeader.numChannels == 1)
 		{
-			buffer_length = wavfile.read(buffer, 512) / 4;
+			uint32_t localLength = wavfile.read(buffer, 512);
+			buffer_length = localLength / 4;
+			currentPosition += localLength;
+
+			if( (wavHeader.subchunk2Size - currentPosition) < 512 ) buffer_length = (wavHeader.subchunk2Size - currentPosition) /4;
 		}
 		else if (wavHeader.numChannels == 2)
 		{
-			buffer_length = wavfile.read(buffer, 1024) / 8;
+			uint32_t localLength = wavfile.read(buffer, 1024);
+			buffer_length = localLength / 8;
+			currentPosition += localLength;
+			if( (wavHeader.subchunk2Size - currentPosition) < 1024 ) buffer_length = (wavHeader.subchunk2Size - currentPosition) /8;
 		}
 	}
 	else
 	{
-		state = STATE_STOP;
-		wavfile.close();
-#if defined(HAS_KINETIS_SDHC)
-		if (!(SIM_SCGC3 & SIM_SCGC3_SDHC)) AudioStopUsingSPI();
-#else
-		AudioStopUsingSPI();
-#endif
+		stop();
 		return;
 	}
 
 	float * p = buffer;
 
-	for (uint8_t i = 0; i < buffer_length; i++)
+	for (uint8_t i = 0; i < 128; i++)
 	{
-		block->data[i] = (((*p + 1.0) * 65535.0) / 2.0) - 32768.0;
-		p++;
-		if (wavHeader.numChannels == 2) p++;
+		if(i >= buffer_length) block->data[i] = 0;
+		else
+		{
+			block->data[i] = (((*(p++) + 1.0) * 65535.0) / 2.0) - 32768.0;
+			if (wavHeader.numChannels == 2) p++;
+		}
 	}
-
 	if (block)
 	{
 		transmit(block, 0);

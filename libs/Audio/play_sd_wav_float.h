@@ -22,10 +22,11 @@ public:
 private:
 	strWavFileHeader wavHeader;
 
+	uint32_t currentPosition = 0;
 	FsFile wavfile;
 	audio_block_t *block;
 	float buffer[256];		// buffer one block of data
-	uint16_t buffer_length = 128;// how much data is in "buffer" (512 until last read)
+	uint16_t buffer_length;
 	uint8_t state;
 };
 
