@@ -168,7 +168,7 @@ class FatFile {
     ls(&Serial, flags);
   }
   //TODO
-  uint16_t createFilesList(uint8_t start_line, char list[][20], uint8_t list_length,uint8_t chooseFilter = 0);
+  uint16_t createFilesList(uint8_t start_line, char list[][40], uint8_t list_length,uint8_t chooseFilter = 0);
 
   /** Print a file's name.
    *

@@ -133,7 +133,7 @@ void FatFile::ls(print_t* pr, uint8_t flags, uint8_t indent) {
 }
 
 
-uint16_t FatFile::createFilesList(uint8_t start_line, char list[][20], uint8_t list_length, uint8_t chooseFilter)
+uint16_t FatFile::createFilesList(uint8_t start_line, char list[][40], uint8_t list_length, uint8_t chooseFilter)
 {
 	uint16_t count = start_line;
 	uint8_t n = 0;
@@ -154,7 +154,7 @@ uint16_t FatFile::createFilesList(uint8_t start_line, char list[][20], uint8_t l
 					n = 1;
 				}
 
-				file.getName(&list[count][n], 20-n);
+				file.getName(&list[count][n], 40-n);
 
 				count++;
 				break;
@@ -163,14 +163,14 @@ uint16_t FatFile::createFilesList(uint8_t start_line, char list[][20], uint8_t l
 				{
 					list[count][0] = '/';
 					n = 1;
-					file.getName(&list[count][n], 20-n);
+					file.getName(&list[count][n], 40-n);
 					count++;
 				}
 				break;
 			case 2:
 				if (!file.isDir())
 				{
-					file.getName(&list[count][n], 20-n);
+					file.getName(&list[count][n], 40-n);
 					uint8_t localLength = strlen(&list[count][n]);
 
 					if(((list[count][localLength - 1] == 'V') || (list[count][localLength - 1] == 'v'))  && ((list[count][localLength - 2] == 'A') ||(list[count][localLength - 2] == 'a')) && ((list[count][localLength - 3] == 'W') || (list[count][localLength - 3] == 'w')) && (list[count][localLength - 4] == '.'))
