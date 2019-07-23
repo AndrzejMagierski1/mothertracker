@@ -56,7 +56,7 @@ enum loaderStateType
 	loaderStateTypeInProgress
 };
 //**********************************************************************WAVE LOADER***********************************************************************************//
-constexpr uint16_t BUFOR_COUNT = 1;
+constexpr uint16_t BUFFER_COUNT = 1;
 
 class WaveLoader
 {

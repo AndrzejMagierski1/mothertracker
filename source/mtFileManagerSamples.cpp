@@ -214,7 +214,7 @@ void WaveLoader::update()
 			int16_t buf16[256];
 			if(sampleHead.numChannels == 1)
 			{
-				for(uint16_t i = 0 ; i< BUFOR_COUNT; i++)
+				for(uint16_t i = 0 ; i< BUFFER_COUNT; i++)
 				{
 					if( wavfile.available() )
 					{
@@ -238,7 +238,7 @@ void WaveLoader::update()
 			}
 			else if (sampleHead.numChannels == 2)
 			{
-				for(uint16_t i = 0 ; i< BUFOR_COUNT; i++)
+				for(uint16_t i = 0 ; i< BUFFER_COUNT; i++)
 				{
 					if (wavfile.available() )
 					{
@@ -264,7 +264,7 @@ void WaveLoader::update()
 			float bufFloat[256];
 			if(sampleHead.numChannels == 1)
 			{
-				for(uint16_t i = 0 ; i< BUFOR_COUNT; i++)
+				for(uint16_t i = 0 ; i< BUFFER_COUNT; i++)
 				{
 					if( wavfile.available() )
 					{
@@ -287,11 +287,10 @@ void WaveLoader::update()
 			}
 			else if (sampleHead.numChannels == 2)
 			{
-				for(uint16_t i = 0 ; i< BUFOR_COUNT; i++)
+				for(uint16_t i = 0 ; i< BUFFER_COUNT; i++)
 				{
 					if (wavfile.available() )
 					{
-						memset(bufFloat,0,1024);
 						bufferLength = wavfile.read(bufFloat, 1024);
 
 						accBufferLength += bufferLength;
