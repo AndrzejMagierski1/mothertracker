@@ -121,4 +121,5 @@
 #include "play_sd_mono_wav.h"
 #include "effect_limiter.h"
 #include "play_sd_wav_float.h"
+#include "play_sd_wav_24bit.h"
 #endif

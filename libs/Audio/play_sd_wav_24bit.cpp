@@ -1,4 +1,4 @@
-#include "play_sd_wav_float.h"
+#include "play_sd_wav_24Bit.h"
 
 /* Audio Library for Teensy 3.X
  * Copyright (c) 2014, Paul Stoffregen, paul@pjrc.com
@@ -32,7 +32,7 @@
 constexpr uint8_t STATE_STOP = 0;
 constexpr uint8_t STATE_PLAY = 1;
 
-void AudioPlaySdWavFloat::begin(void)
+void AudioPlaySdWav24bit::begin(void)
 {
 	state = STATE_STOP;
 	if (block)
@@ -42,7 +42,7 @@ void AudioPlaySdWavFloat::begin(void)
 	}
 }
 
-bool AudioPlaySdWavFloat::play(const char *filename)
+bool AudioPlaySdWav24bit::play(const char *filename)
 {
 	stop();
 #if defined(HAS_KINETIS_SDHC)
@@ -67,7 +67,7 @@ bool AudioPlaySdWavFloat::play(const char *filename)
 	}
 	readHeader(&wavHeader, &wavfile);
 
-	if (wavHeader.chunkId == 0x46464952 && wavHeader.format == 0x45564157 && wavHeader.subchunk1Id == 0x20746D66 && wavHeader.AudioFormat == 3)
+	if (wavHeader.chunkId == 0x46464952 && wavHeader.format == 0x45564157 && wavHeader.subchunk1Id == 0x20746D66 && wavHeader.AudioFormat == 1 && wavHeader.bitsPerSample == 24)
 	{
 		state = STATE_PLAY;
 		return true;
@@ -79,7 +79,7 @@ bool AudioPlaySdWavFloat::play(const char *filename)
 	}
 }
 
-void AudioPlaySdWavFloat::stop(void)
+void AudioPlaySdWav24bit::stop(void)
 {
 	__disable_irq()
 	;
@@ -105,7 +105,7 @@ void AudioPlaySdWavFloat::stop(void)
 	}
 }
 
-void AudioPlaySdWavFloat::update(void)
+void AudioPlaySdWav24bit::update(void)
 {
 
 	if (state == STATE_STOP) return;
@@ -117,21 +117,20 @@ void AudioPlaySdWavFloat::update(void)
 	{
 		if (wavHeader.numChannels == 1)
 		{
-			uint32_t localLength = wavfile.read(buffer, 512);
-			buffer_length = localLength / 4;
+			uint32_t localLength = wavfile.read(buffer, 384);
+			buffer_length = localLength / 3;
 			currentPosition += localLength;
 
-			if( wavHeader.subchunk2Size < currentPosition  ) buffer_length -= (  currentPosition - wavHeader.subchunk2Size) /4;
+			if( wavHeader.subchunk2Size < currentPosition  ) buffer_length -= (  currentPosition - wavHeader.subchunk2Size) /3;
 
-//			if( (wavHeader.subchunk2Size - currentPosition) < 512 ) buffer_length = (wavHeader.subchunk2Size - currentPosition) /4;
 		}
 		else if (wavHeader.numChannels == 2)
 		{
-			uint32_t localLength = wavfile.read(buffer, 1024);
-			buffer_length = localLength / 8;
+			uint32_t localLength = wavfile.read(buffer, 768);
+			buffer_length = localLength / 6;
 			currentPosition += localLength;
-			if( wavHeader.subchunk2Size < currentPosition  ) buffer_length -= (  currentPosition - wavHeader.subchunk2Size) /8;
-//			if( (wavHeader.subchunk2Size - currentPosition) < 1024 ) buffer_length = (wavHeader.subchunk2Size - currentPosition) /8;
+			if( wavHeader.subchunk2Size < currentPosition ) buffer_length -= (currentPosition - wavHeader.subchunk2Size) /6;
+
 		}
 	}
 	else
@@ -140,15 +139,18 @@ void AudioPlaySdWavFloat::update(void)
 		return;
 	}
 
-	float * p = buffer;
+	uint8_t * p = &buffer[1];
 
 	for (uint8_t i = 0; i < 128; i++)
 	{
-		if(i >= buffer_length) block->data[i] = 0;
+		if(i >= buffer_length)
+		{
+			block->data[i] = 0;
+		}
 		else
 		{
-			block->data[i] = (((*(p++) + 1.0) * 65535.0) / 2.0) - 32768.0;
-			if (wavHeader.numChannels == 2) p++;
+			block->data[i] = *((int16_t *) p);
+			if(i != buffer_length-1) p+= 3*wavHeader.numChannels;
 		}
 	}
 	if (block)

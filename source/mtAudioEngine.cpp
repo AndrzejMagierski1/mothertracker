@@ -8,6 +8,7 @@ AudioRecordQueue         queue;
 
 AudioPlaySdWav           playSdWav;
 AudioPlaySdWavFloat		 playSdWavFloat;
+AudioPlaySdWav24bit 	 playSdWav24Bit;
 AudioPlayMemory          playMem[8];
 AudioEffectEnvelope      envelopeAmp[8];
 envelopeGenerator		 envelopeFilter[8];
@@ -98,6 +99,9 @@ AudioConnection          connect62(&playSdWav, 0, &mixerSourceR, 1);
 AudioConnection 		 connect63(&playSdWavFloat,0,&mixerSourceL,2);
 AudioConnection 		 connect64(&playSdWavFloat,0,&mixerSourceR,2);
 
+AudioConnection 		 connect65(&playSdWav24Bit,0,&mixerSourceL,3);
+AudioConnection 		 connect66(&playSdWav24Bit,0,&mixerSourceR,3);
+
 AudioConnection          connect59(&mixerSourceL, 0, &i2sOut, 0);
 AudioConnection          connect60(&mixerSourceR, 0, &i2sOut, 1);
 
@@ -132,12 +136,12 @@ void audioEngine::init()
 
 	setIn(inputSelectMic);
 	setOut(outputSelectHeadphones);
-	mixerSourceR.gain(0,1.0);
-	mixerSourceR.gain(1,1.0);
-	mixerSourceR.gain(2,1.0);
-	mixerSourceL.gain(0,1.0);
-	mixerSourceL.gain(1,1.0);
-	mixerSourceL.gain(2,1.0);
+	for(uint8_t i = 0; i < 4 ; i ++)
+	{
+		mixerSourceR.gain(i,1.0);
+		mixerSourceL.gain(i,1.0);
+	}
+
 	audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
 	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 	mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
