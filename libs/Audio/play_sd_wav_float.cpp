@@ -1,7 +1,5 @@
 #include "play_sd_wav_float.h"
 
-
-
 /* Audio Library for Teensy 3.X
  * Copyright (c) 2014, Paul Stoffregen, paul@pjrc.com
  *
@@ -34,10 +32,6 @@
 constexpr uint8_t STATE_STOP = 0;
 constexpr uint8_t STATE_PLAY = 1;
 
-
-
-
-
 void AudioPlaySdWavFloat::begin(void)
 {
 	state = STATE_STOP;
@@ -48,7 +42,6 @@ void AudioPlaySdWavFloat::begin(void)
 	}
 }
 
-
 bool AudioPlaySdWavFloat::play(const char *filename)
 {
 	stop();
@@ -57,19 +50,21 @@ bool AudioPlaySdWavFloat::play(const char *filename)
 #else
 	AudioStartUsingSPI();
 #endif
-	__disable_irq();
+	__disable_irq()
+	;
 	wavfile = SD.open(filename);
-	__enable_irq();
+	__enable_irq()
+	;
 	if (!wavfile)
 	{
-	#if defined(HAS_KINETIS_SDHC)
+#if defined(HAS_KINETIS_SDHC)
 		if (!(SIM_SCGC3 & SIM_SCGC3_SDHC)) AudioStopUsingSPI();
-	#else
+#else
 		AudioStopUsingSPI();
-	#endif
+#endif
 		return false;
 	}
-	readHeader(&wavHeader,&wavfile);
+	readHeader(&wavHeader, &wavfile);
 
 	if (wavHeader.chunkId == 0x46464952 && wavHeader.format == 0x45564157 && wavHeader.subchunk1Id == 0x20746D66 && wavHeader.subchunk1Size >= 16 && wavHeader.AudioFormat == 3)
 	{
@@ -85,27 +80,29 @@ bool AudioPlaySdWavFloat::play(const char *filename)
 
 void AudioPlaySdWavFloat::stop(void)
 {
-	__disable_irq();
+	__disable_irq()
+	;
 	if (state == STATE_PLAY)
 	{
 		audio_block_t *b1 = block;
 		block = NULL;
 		state = STATE_STOP;
-		__enable_irq();
+		__enable_irq()
+		;
 		if (b1) release(b1);
 		wavfile.close();
-	#if defined(HAS_KINETIS_SDHC)
+#if defined(HAS_KINETIS_SDHC)
 		if (!(SIM_SCGC3 & SIM_SCGC3_SDHC)) AudioStopUsingSPI();
-	#else
+#else
 		AudioStopUsingSPI();
-	#endif
+#endif
 	}
 	else
 	{
-		__enable_irq();
+		__enable_irq()
+		;
 	}
 }
-
 
 void AudioPlaySdWavFloat::update(void)
 {
@@ -115,42 +112,41 @@ void AudioPlaySdWavFloat::update(void)
 	block = allocate();
 	if (block == NULL) return;
 
-	if(wavfile.available())
+	if (wavfile.available())
 	{
-		if(wavHeader.numChannels == 1)
+		if (wavHeader.numChannels == 1)
 		{
-			buffer_length = wavfile.read(buffer,512) / 4;
+			buffer_length = wavfile.read(buffer, 512) / 4;
 		}
-		else if(wavHeader.numChannels == 2)
+		else if (wavHeader.numChannels == 2)
 		{
-			buffer_length = wavfile.read(buffer,1024) / 8;
+			buffer_length = wavfile.read(buffer, 1024) / 8;
 		}
 	}
 	else
 	{
 		state = STATE_STOP;
 		wavfile.close();
-		#if defined(HAS_KINETIS_SDHC)
+#if defined(HAS_KINETIS_SDHC)
 		if (!(SIM_SCGC3 & SIM_SCGC3_SDHC)) AudioStopUsingSPI();
-		#else
+#else
 		AudioStopUsingSPI();
-		#endif
+#endif
 		return;
 	}
 
+	float * p = buffer;
 
-	float *p = buffer;
-
-	for(uint8_t i = 0; i< buffer_length; i++)
+	for (uint8_t i = 0; i < buffer_length; i++)
 	{
-		block->data[i] = ( ( (*p + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
+		block->data[i] = (((*p + 1.0) * 65535.0) / 2.0) - 32768.0;
 		p++;
-		if(wavHeader.numChannels == 2) p++;
+		if (wavHeader.numChannels == 2) p++;
 	}
 
-	if(block)
+	if (block)
 	{
-		transmit(block,0);
+		transmit(block, 0);
 		release(block);
 		block = NULL;
 	}
