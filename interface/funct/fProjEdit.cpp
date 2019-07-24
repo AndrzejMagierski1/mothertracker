@@ -123,7 +123,7 @@ void cProjectEditor::update()
 				listOnlyFolderNames("/Projects/");
 
 				fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
-				fileManager.samplesLoader.start(0);
+				fileManager.samplesLoader.start(0,1);
 
 				functSwitchModule(interfaceButtonPattern);
 				break;
@@ -303,7 +303,7 @@ uint8_t functOpenProject()
 */
 
 
-	fileManager.samplesLoader.start(0);
+	fileManager.samplesLoader.start(0,1);
 	//PE->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
 
 

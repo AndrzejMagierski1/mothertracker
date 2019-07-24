@@ -109,8 +109,48 @@ uint8_t cBar::update()
 
 
 
-	if(style & controlStyleCompareTwoValues && value >= 0 && value <= 100)
+	if(style & controlStyleCompareTwoValues && value >= 0 && value <= 100 && data->value >= 0 && data->value <= 100 )
 	{
+	    uint16_t barFillY = barHeight - (barHeight * value) / 100;
+	    int8_t valueSub = data->value - value;
+	    int8_t absValueSub = (valueSub >= 0) ? valueSub: -valueSub;
+	    uint16_t compareBarHeight = (barHeight * absValueSub) / 100;
+
+		API_COLOR(colors[0]);
+
+		API_LINE_WIDTH(8);
+		API_BEGIN(RECTS);
+		API_VERTEX2F(barX+1, barY+barFillY+1);
+		API_VERTEX2F(barX+barWidth-1, barY+barHeight-1);
+		API_END();
+
+		API_LINE_WIDTH(8);
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2F(barX, barY);
+		API_VERTEX2F(barX+barWidth, barY);
+		API_VERTEX2F(barX+barWidth, barY+barHeight);
+		API_VERTEX2F(barX, barY+barHeight);
+		API_VERTEX2F(barX, barY);
+		API_END();
+
+		if( valueSub > 0)
+		{
+			API_COLOR(colors[1]);
+			API_BEGIN(RECTS);
+			API_VERTEX2F(barX+1, barY+barFillY);
+			API_VERTEX2F(barX+barWidth-1, barY+barFillY-compareBarHeight-1);
+
+			API_END();
+		}
+		else if( valueSub < 0)
+		{
+			API_COLOR(colors[2]);
+			API_BEGIN(RECTS);
+			API_VERTEX2F(barX+barWidth-1, barY+barFillY+compareBarHeight-1);
+			API_VERTEX2F(barX+1, barY+barFillY+1);
+			API_END();
+		}
+
 
 	}
 	if(style & controlStyleValue_0_100 && value >= 0 && value <= 100)

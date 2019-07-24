@@ -45,6 +45,10 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 void cSampleImporter::update()
 {
+	if(fileManager.samplesLoader.getFirstLoadFlag())
+	{
+		loadFlag = 1;
+	}
 	if(fileManager.samplesLoader.getMemoryUsageChangeFlag())
 	{
 		fileManager.samplesLoader.clearMemoryUsageChangeFlag();
@@ -423,6 +427,10 @@ uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 	display.setControlValue(instrumentListControl, selectedSlot);
 	display.refreshControl(instrumentListControl);
 
+	calculateCurrentSelectMemorySize();
+	calculateMemoryUsage();
+	showMemoryUsage();
+
 	return 1;
 }
 
@@ -516,18 +524,18 @@ void cSampleImporter::listOnlyWavFromActualPath()
 	sdLocation.close();
 
 
-	uint8_t foundFilesCount = 0;
-	for(uint8_t i = 0; i < locationFileCount; i++)
-	{
-		if(isWavFile(&locationFileList[i][0]))	//tylko jesli plik wav
-		{
-			strcpy(&locationFileList[foundFilesCount][0],&locationFileList[i][0]);
-			foundFilesCount++;
-		}
-	}
-
-
-	locationFileCount = foundFilesCount;
+//	uint8_t foundFilesCount = 0;
+//	for(uint8_t i = 0; i < locationFileCount; i++)
+//	{
+////		if(isWavFile(&locationFileList[i][0]))	//tylko jesli plik wav
+//		{
+//			strcpy(&locationFileList[foundFilesCount][0],&locationFileList[i][0]);
+//			foundFilesCount++;
+//		}
+//	}
+//
+//
+//	locationFileCount = foundFilesCount;
 
 	for(uint8_t i = 0; i < locationFileCount; i++)
 	{
@@ -704,7 +712,7 @@ void cSampleImporter::calculateMemoryUsage()
 
 void cSampleImporter::calculateCurrentSelectMemorySize()
 {
-	if(!isWavFile(&locationFileList[selectedFile][0])) return;
+//	if(!isWavFile(&locationFileList[selectedFile][0])) return;
 
 	char file_path[255];
 
@@ -713,7 +721,7 @@ void cSampleImporter::calculateCurrentSelectMemorySize()
 	strcat(file_path, &locationFileList[selectedFile][0]);
 
 	currentSelectMemorySize = 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(file_path);
-//	if(mtProject.instrument[selectedSlot].sample.loaded) currentSelectMemorySize -= 2*mtProject.instrument[selectedSlot].sample.length;
+	if(mtProject.instrument[selectedSlot].sample.loaded) currentSelectMemorySize -= 2*mtProject.instrument[selectedSlot].sample.length;
 }
 
 void cSampleImporter::calculateLoadProgress()
@@ -730,7 +738,7 @@ void cSampleImporter::calculateCopyingProgress()
 void cSampleImporter::playSdFile()
 {
 	if(currentCopyStatusFlag || loadFlag) return;
-	if(!isWavFile(&locationFileList[selectedFile][0])) return;
+//	if(!isWavFile(&locationFileList[selectedFile][0])) return;
 
 	char file_path[255];
 
@@ -754,10 +762,14 @@ void cSampleImporter::playSdFile()
 
 	FsFile wavHeader = SD.open(file_path);
 	strWavFileHeader header;
-	wavHeader.read(&header,44);
+	readHeader(&header,&wavHeader);
 	wavHeader.close();
 	if(header.AudioFormat == 3) playSdWavFloat.play(file_path);
-	else playSdWav.play(file_path);
+	else
+	{
+		if(header.bitsPerSample == 16) playSdWav.play(file_path);
+		else if (header.bitsPerSample == 24) playSdWav24Bit.play(file_path);
+	}
 
 
 
@@ -777,6 +789,8 @@ void cSampleImporter::playSampleFromBank()
 	if(playMode != playModeSampleBank)
 	{
 		playSdWav.stop();
+		playSdWavFloat.stop();
+		playSdWav24Bit.stop();
 		engine.prevSdDisconnect();
 	}
 
@@ -795,6 +809,7 @@ void cSampleImporter::stopPlaying()
 	{
 		playSdWav.stop();
 		playSdWavFloat.stop();
+		playSdWav24Bit.stop();
 		engine.prevSdDisconnect();
 	}
 	else if(playMode == playModeSampleBank)
@@ -804,3 +819,7 @@ void cSampleImporter::stopPlaying()
 
 	playMode = playModeStop;
 }
+
+
+
+

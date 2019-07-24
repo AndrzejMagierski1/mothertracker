@@ -11,6 +11,30 @@
 
 
 //********************************************************************SAMPLE LOADER************************************************************************************//
+uint32_t SamplesLoader::calcSamplesFolderSize()
+{
+	char currentPatch[PATCH_SIZE];
+	char number[3];
+
+	uint32_t size = 0;
+
+	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
+	{
+		number[0] = ((i-i%10)/10) + 48;
+		number[1] = i%10 + 48;
+		number[2] = 0;
+
+		strcpy(currentPatch, fileManager.currentProjectPatch);
+		strcat(currentPatch, "/samples/instr");
+		strcat(currentPatch, number);
+		strcat(currentPatch, ".wav");
+
+		size += waveLoader.getInfoAboutWave(currentPatch);
+	}
+
+	return size;
+}
+
 
 void SamplesLoader::update()
 {
@@ -89,6 +113,7 @@ void SamplesLoader::update()
 			else
 			{
 				memoryUsageChange = 1;
+				if(firstLoadFlag) firstLoadFlag = 0;
 				state = loaderStateTypeEnded;
 			}
 			currentStepLoadSize = 0;
@@ -109,6 +134,7 @@ void SamplesLoader::update()
 			else
 			{
 				memoryUsageChange = 1;
+				if(firstLoadFlag) firstLoadFlag = 0;
 				state = loaderStateTypeEnded;
 			}
 
@@ -142,10 +168,15 @@ uint8_t SamplesLoader::getStateFlag()
 {
 	return state;
 }
+uint8_t  SamplesLoader::getFirstLoadFlag()
+{
+	return firstLoadFlag;
+}
 
-void SamplesLoader::start(uint8_t startIndex)
+void SamplesLoader::start(uint8_t startIndex, uint8_t firstLoad)
 {
 	state =  loaderStateTypeInProgress;
+	firstLoadFlag = firstLoad;
 	currentLoadSize = 0;
 	currentStepLoadSize = 0;
 	sizeAllFiles = 0;
@@ -170,6 +201,8 @@ void SamplesLoader::start(uint8_t startIndex)
 		}
 
 	}
+	if(firstLoad) sizeAllFiles = calcSamplesFolderSize();
+
 	char currentPatch[PATCH_SIZE];
 	char number [3];
 

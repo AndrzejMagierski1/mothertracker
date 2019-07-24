@@ -99,20 +99,23 @@ class SamplesLoader
 {
 public:
 //	uint8_t loadSamplesMemory();
+
 	void update();
-	void start(uint8_t startIndex);
+	void start(uint8_t startIndex, uint8_t firstLoad = 0);
 	uint8_t getMemoryUsageChangeFlag();
 	void clearMemoryUsageChangeFlag();
 	uint8_t getLoadChangeFlag();
 	void clearLoadChangeFlag();
 	uint8_t getCurrentProgress();
 	uint8_t getStateFlag();
+	uint8_t getFirstLoadFlag();
 	WaveLoader waveLoader;
 	WavetableLoader wavetableLoader;
 private:
-
+	uint32_t calcSamplesFolderSize();
 	uint8_t currentIndex;
 	uint8_t state;
+	uint8_t firstLoadFlag;
 	uint8_t lastIndex;
 	int32_t currentSize;
 	uint8_t memoryUsageChange = 0;
