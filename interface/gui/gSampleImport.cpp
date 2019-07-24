@@ -79,21 +79,11 @@ void cSampleImporter::initDisplayControls()
 //	prop.colors = &color[1];
 	//prop.y = 10;
 	//prop.w = 800/4-10;
-	prop.style = controlStyleValue_0_100;
+	prop.style = controlStyleCompareTwoValues;
 	prop.h = 400;
+	prop.data = &memoryUsageAdd;
 	//prop.value = memoryUsage;
 	if(memoryBarControl == nullptr)  memoryBarControl = display.createControl<cBar>(&prop);
-
-
-	prop.x = (800/4)*3+5;
-//	prop.colors = &color[0];
-	//prop.y = 10;
-	//prop.w = 800/4-10;
-	prop.style = controlStyleValue_0_100;
-	prop.h = 400;
-	//prop.value = memoryUsage;
-	if(addMemoryBarControl == nullptr)  addMemoryBarControl = display.createControl<cBar>(&prop);
-
 
 
 	prop.x = 190;
@@ -140,9 +130,6 @@ void cSampleImporter::destroyDisplayControls()
 
 	display.destroyControl(memoryBarControl);
 	memoryBarControl = nullptr;
-
-	display.destroyControl(addMemoryBarControl);
-	addMemoryBarControl = nullptr;
 
 	display.destroyControl(loadHorizontalBarControl);
 	loadHorizontalBarControl = nullptr;
@@ -227,20 +214,11 @@ void cSampleImporter::showInstrumentsList()
 void cSampleImporter::showMemoryUsage()
 {
 
-	if(!fullMemoryFlag) display.setControlColors(addMemoryBarControl, defaultColors);
-	else
-	{
-		display.setControlColors(addMemoryBarControl, barColorsRed);
-	}
-
-	display.setControlValue(addMemoryBarControl, memoryUsageAdd.value);
-	display.setControlShow(addMemoryBarControl);
-	display.refreshControl(addMemoryBarControl);
-
 	if(!fullMemoryFlag)
 	{
 		display.setControlColors(memoryBarControl, defaultColors);
 		display.setControlValue(memoryBarControl, memoryUsage);
+		display.setControlData(memoryBarControl,&memoryUsageAdd);
 		display.setControlShow(memoryBarControl);
 		display.refreshControl(memoryBarControl);
 	}
@@ -248,10 +226,11 @@ void cSampleImporter::showMemoryUsage()
 	{
 		display.setControlColors(memoryBarControl, barColorsRed);
 		display.setControlValue(memoryBarControl, 100);
+
+		display.setControlData(memoryBarControl,(strCompareValue *)&memoryUsageAddOnMemoryFull);
 		display.setControlShow(memoryBarControl);
 		display.refreshControl(memoryBarControl);
 	}
-
 }
 
 void cSampleImporter::showLoadHorizontalBar()

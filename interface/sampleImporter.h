@@ -47,7 +47,6 @@ public:
 	hControl fileListControl;
 	hControl instrumentListControl;
 	hControl memoryBarControl;
-	hControl addMemoryBarControl;
 	hControl frameControl;
 
 	hControl loadHorizontalBarControl;
@@ -76,7 +75,7 @@ public:
 	void listOnlyFolderNames(char* path);
 
 	uint16_t locationFolderCount;
-	char locationFolderList[list_length_max][20];
+	char locationFolderList[list_length_max][40];
 	char *folderNames[list_length_max];
 	uint8_t selectedFolder = 0;
 	//char *folderPath;
@@ -89,7 +88,7 @@ public:
 	uint8_t isWavFile(char* fileName);
 
 	uint16_t locationFileCount;
-	char locationFileList[list_length_max][20];
+	char locationFileList[list_length_max][40];
 	char *fileNames[list_length_max];
 	uint8_t selectedFile = 0;
 
@@ -115,6 +114,7 @@ public:
 	void calculateCopyingProgress();
 	uint8_t memoryUsage;
 	strCompareValue memoryUsageAdd;
+	const strCompareValue memoryUsageAddOnMemoryFull = {100};
 	uint32_t currentSelectMemorySize;
 	uint8_t fullMemoryFlag = 0;
 	uint8_t loadProgress = 0;
@@ -139,12 +139,12 @@ public:
 
 	};
 
-	uint32_t barColorsRed[3] = { 0xFF0000, 0xFF0000, 0x000000};
+	uint32_t barColorsRed[3] = { 0xFF0000, 0xFF0000, 0xFF0000};
 	uint32_t defaultColors[3] =
 	{
 		0xFFFFFF, // tekst
-		0x222222, // tło
-		0xFFFFFF, // ramka
+		0xFF0000, // tło
+		0x00FF00, // ramka
 	};
 	uint32_t barColorsCyan[3] = { 0x00FFFF, 0x00FFFF, 0x00FFFF};
 };
