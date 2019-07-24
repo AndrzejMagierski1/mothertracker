@@ -177,7 +177,7 @@ void initHardware()
 	tactButtons.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,TACTILE_INT,tactileToKeyMapping,IO7326_TACT_INT_FUNCT);
 	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,gridToKeyMapping,IO7326_INT_FUNCT_A);
 
-	tactButtons.testMode(1);
+	tactButtons.testMode(0);
 
 	//LEDS
 	leds.begin();
