@@ -45,6 +45,10 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 void cSampleImporter::update()
 {
+	if(fileManager.samplesLoader.getFirstLoadFlag())
+	{
+		loadFlag = 1;
+	}
 	if(fileManager.samplesLoader.getMemoryUsageChangeFlag())
 	{
 		fileManager.samplesLoader.clearMemoryUsageChangeFlag();
