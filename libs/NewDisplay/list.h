@@ -48,16 +48,13 @@ public:
 
 	strList* list;
 
-	//uint16_t listLinesCount;
 	uint16_t listPosition;
 
+	uint16_t barPos;
+	uint16_t textListPos;
 
-	uint16_t listCount;
-	//uint16_t listStart;
-	int8_t 	 listState;
-	uint8_t  listRowLength;
-	uint8_t  listBlockWidth;
-	uint8_t  listBlock;
+
+
 	int8_t   listAnimationStep = 0;
 
 	uint8_t selfRefresh;
