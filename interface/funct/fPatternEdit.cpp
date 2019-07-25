@@ -3,7 +3,8 @@
 #include "mtStructs.h"
 
 
-#include "AnalogInputs.h"  // dla isButtonPressed()
+#include "keyScanner.h"
+extern keyScanner tactButtons; // dla isButtonPressed()
 
 cPatternEditor patternEditor;
 static  cPatternEditor* PTE = &patternEditor;
@@ -588,7 +589,7 @@ static  uint8_t functShift(uint8_t state)
 
 static  uint8_t functLeft()
 {
-	uint8_t shiftPressed = AnalogInputs.isButtonPressed(interfaceButtonShift);
+	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
 	PTE->selectedLabel = -1; // usun ramke z labeli przyciskow pod ekranem
 	PTE->activateLabelsBorder();
@@ -626,7 +627,7 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
-	uint8_t shiftPressed = AnalogInputs.isButtonPressed(interfaceButtonShift);
+	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
 	PTE->selectedLabel = -1;
 	PTE->activateLabelsBorder();
@@ -671,7 +672,7 @@ static  uint8_t functUp()
 		if(sequencer.getSeqState() == 1) return 1;
 	}
 
-	uint8_t shiftPressed = AnalogInputs.isButtonPressed(interfaceButtonShift);
+	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
 	PTE->selectedLabel = -1;
 	PTE->activateLabelsBorder();
@@ -708,7 +709,7 @@ static  uint8_t functDown()
 		if(sequencer.getSeqState() == 1) return 1;
 	}
 
-	uint8_t shiftPressed = AnalogInputs.isButtonPressed(interfaceButtonShift);
+	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
 	PTE->selectedLabel = -1;
 	PTE->activateLabelsBorder();
@@ -841,7 +842,7 @@ static  uint8_t functPasteInsert()
 	if (PTE->editMode == 1)
 	{
 		// INSERT
-		if (AnalogInputs.isButtonPressed(interfaceButtonShift))
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
 			// czy istnieje zaznaczenie
 			if ((PTE->trackerPattern.selectStartStep != PTE->trackerPattern.selectEndStep) ||
@@ -904,7 +905,7 @@ static uint8_t functCopyDelete()
 	if (0)
 	{
 		// DELETE
-		if (AnalogInputs.isButtonPressed(interfaceButtonShift))
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
 			sendSelection();
 			sequencer.clearSelected();
@@ -920,7 +921,7 @@ static uint8_t functCopyDelete()
 	else if (PTE->editMode == 1)
 	{
 		// SHIFT
-		if (AnalogInputs.isButtonPressed(interfaceButtonShift))
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
 			sendSelection();
 			sequencer.transposeSelection(1);

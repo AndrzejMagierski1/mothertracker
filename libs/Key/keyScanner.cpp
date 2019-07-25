@@ -522,15 +522,32 @@ void keyScanner::action_button_double(uint8_t num)
 	}
 }
 
+bool keyScanner::isButtonPressed(uint8_t number)
+{
+	int8_t index = mapIndexToHwIndex(number);
+	if (index >= 0)
+	{
+		return button_still_pressing[index] > 0;
+	}
+	return 0;
+}
+
+int8_t keyScanner::mapIndexToHwIndex(uint8_t mapIndex)
+{
+	for (int8_t i = 0; i < 64; i++)
+	{
+		if (keyMap[i] == mapIndex)
+			return i;
+	}
+	return -1; //error
+}
+
 /*uint8_t keyScanner::getButtonState(uint8_t number)
 {
 	return button[number];
 }
 
-bool keyScanner::isButtonPressed(uint8_t number)
-{
-	return button[number] > 0;
-}
+
 
 bool keyScanner::isButtonHold(uint8_t number)
 {
