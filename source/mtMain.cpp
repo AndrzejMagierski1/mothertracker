@@ -53,7 +53,7 @@ void loop()
 	powerModeUpdate();
 
 	sequencer.handle();
-	//handle_chatBot();
+	handle_chatBot();
 
 	padsBacklight.update();
 
