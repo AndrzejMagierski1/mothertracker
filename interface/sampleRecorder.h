@@ -190,7 +190,7 @@ public:
 	void drawGainBar();
 
 	void changeRadioFreqBar(int16_t val);
-	void changeLevelBar(float val);
+	void changeLevelBar();
 	void changeGainBar(int16_t val);
 
 

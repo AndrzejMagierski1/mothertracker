@@ -23,6 +23,7 @@ AudioMixer4              mixerRec;
 AudioMixer4              mixerSourceL,mixerSourceR;
 AudioEffectFreeverb		 reverb;
 AudioEffectLimiter		 limiter[2];
+AudioAnalyzeRMS			 rms;
 
 AudioRecordQueue		 exportL, exportR;
 
@@ -109,7 +110,7 @@ AudioConnection          connect54(&i2sIn, 0, &mixerRec, 0);
 AudioConnection          connect55(&i2sIn, 1, &mixerRec, 1);
 
 AudioConnection          connect56(&mixerRec, &queue);
-
+AudioConnection          connect67(&mixerRec, &rms);
 
 playerEngine instrumentPlayer[8];
 
