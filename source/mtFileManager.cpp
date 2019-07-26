@@ -278,7 +278,7 @@ uint8_t FileManager::createNewProject(char * name)
 	strcpy(currentProjectPatch,"Projects/");
 	strcat(currentProjectPatch,name);
 
-	if(!SD.exists(currentProjectPatch)) return 2;
+	if(SD.exists(currentProjectPatch)) return 2;
 	strcpy(currentProjectName,name);
 
 	if(!SD.exists("Projects")) SD.mkdir("Projects");
