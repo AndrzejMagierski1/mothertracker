@@ -108,6 +108,7 @@ void cSampleRecorder::update()
 	}
 	lastPrevievFlag = previevFlag;
 
+	changeLevelBar();
 }
 
 void cSampleRecorder::start(uint32_t options)
@@ -912,7 +913,11 @@ void cSampleRecorder::calcRadioFreqBarVal()
 }
 void cSampleRecorder::calcLevelBarVal()
 {
-	//levelBarVal; odczyt z kodeka
+	if(rms.available())
+	{
+		levelBarVal = 100.0 * rms.read();
+	}
+
 }
 void cSampleRecorder::calcGainBarVal()
 {
@@ -935,7 +940,7 @@ void cSampleRecorder::changeRadioFreqBar(int16_t val)
 	drawRadioFreqBar();
 	//todo: tu fizyczna zmiana czestotliwosci
 }
-void cSampleRecorder::changeLevelBar(float val)
+void cSampleRecorder::changeLevelBar()
 {
 	calcLevelBarVal();
 	drawLevelBar();
