@@ -75,7 +75,7 @@ public:
 	uint8_t selectedLocation;
 	uint16_t locationFilesCount;
 	static const uint8_t files_list_length_max = 100;
-	char locationFilesList[files_list_length_max][20];
+	char locationFilesList[files_list_length_max][40];
 	char *filesNames[files_list_length_max];
 
 //-------------------------------------------------------------

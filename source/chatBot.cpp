@@ -36,16 +36,14 @@ void handle_chatBot(void)
 			sequencer.pause();
 			Serial.println("OK");
 		}
-		else if (incomingString.indexOf("printnotes") >= 0)
+		else if (incomingString.indexOf("siema") >= 0)
 		{
-			sequencer.printNotes(1);
-			Serial.println("OK");
+			Serial.println("hej!");
 		}
 
 		else
 		{
-			// Serial.println("unknown message:");
-			// Serial.println(incomingString);
+
 			Serial.println("O_o");
 			Serial.println();
 		}

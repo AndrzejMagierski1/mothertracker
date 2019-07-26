@@ -108,6 +108,8 @@ extern playerEngine instrumentPlayer[8];
 extern audioEngine engine;
 extern AudioEffectLimiter		limiter[2];
 extern AudioPlaySdWav           playSdWav;
+extern AudioPlaySdWavFloat 		playSdWavFloat;
+extern AudioPlaySdWav24bit 	 	playSdWav24Bit;
 extern AudioPlayMemory          playMem[8];
 extern AudioEffectEnvelope      envelopeAmp[8];
 extern envelopeGenerator		envelopeFilter[8];

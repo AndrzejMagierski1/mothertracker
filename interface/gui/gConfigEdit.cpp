@@ -60,7 +60,7 @@ void cConfigEditor::initDisplayControls()
 
 
 	// ramka
-	frameData.placesCount = 8;
+	frameData.placesCount = 7;
 	frameData.startPlace = 0;
 	frameData.places[0] = &framesPlaces[0][0];
 	frameData.places[1] = &framesPlaces[1][0];

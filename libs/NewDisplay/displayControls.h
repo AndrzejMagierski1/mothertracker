@@ -33,6 +33,7 @@ enum controlsStyle
 	controlStyleValueLeftRight_24_24 	= (1<<17),
 	controlStyleValue_0_100 			= (1<<18),
 	controlStyleValueNumberOnly			= (1<<19),
+	controlStyleCompareTwoValues 		= (1<<20)
 };
 
 

@@ -1,24 +1,21 @@
 
 
-#ifndef LIBS_NEWDISPLAY_TEMPLETE_H_
-#define LIBS_NEWDISPLAY_TEMPLETE_H_
+#ifndef LIBS_NEWDISPLAY_HORIZONTAL_BAR_H_
+#define LIBS_NEWDISPLAY_HORIZONTAL_BAR_H_
 
 #include "displayControls.h"
 
-struct strCompareValue
-{
-	int value;
-};
+
 
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
-class cBar: public cDisplayControl
+class cHorizontalBar: public cDisplayControl
 {
 public:
 
-	cBar(strControlProperties* properties = nullptr);
-	virtual ~cBar();
+	cHorizontalBar(strControlProperties* properties = nullptr);
+	virtual ~cHorizontalBar();
 
 	virtual uint8_t update();
 	virtual uint8_t memCpy(uint32_t address);
@@ -31,7 +28,6 @@ public:
 	virtual void setDefaultColors(uint32_t colors[]);
 	virtual void setData(void* data);
 
-	strCompareValue * data;
 
 	uint16_t textStyle;
 	int16_t textFont;

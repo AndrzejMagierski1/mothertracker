@@ -1,7 +1,7 @@
 
 
 #include "sampleRecorder.h"
-
+#include "mtRecorder.h"
 
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
@@ -445,7 +445,7 @@ static  uint8_t functSelectStart()
 	}
 
 	SR->refreshPoints = 1;
-
+	recorder.startRecording(sdram_effectsBank);
 	return 1;
 }
 
@@ -460,7 +460,7 @@ static  uint8_t functSelectLoop1()
 		SR->refreshSpectrum = 1;
 	}
 	SR->refreshPoints = 1;
-
+	recorder.stopRecording();
 	return 1;
 }
 
@@ -475,7 +475,7 @@ static  uint8_t functSelectLoop2()
 		SR->refreshSpectrum = 1;
 	}
 	SR->refreshPoints = 1;
-
+	recorder.play(0, MAX_16BIT);
 
 	return 1;
 }

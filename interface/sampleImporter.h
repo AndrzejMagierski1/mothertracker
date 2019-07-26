@@ -29,6 +29,8 @@ public:
 	void showFilesTree();
 	void showInstrumentsList();
 	void showMemoryUsage();
+	void showLoadHorizontalBar();
+	void showCopyingHorizontalBar();
 	void activateLabelsBorder();
 
 	strList folderList;
@@ -46,6 +48,8 @@ public:
 	hControl instrumentListControl;
 	hControl memoryBarControl;
 	hControl frameControl;
+
+	hControl loadHorizontalBarControl;
 
 
 	uint8_t selectedPlace = 0;
@@ -71,7 +75,7 @@ public:
 	void listOnlyFolderNames(char* path);
 
 	uint16_t locationFolderCount;
-	char locationFolderList[list_length_max][20];
+	char locationFolderList[list_length_max][40];
 	char *folderNames[list_length_max];
 	uint8_t selectedFolder = 0;
 	//char *folderPath;
@@ -84,7 +88,7 @@ public:
 	uint8_t isWavFile(char* fileName);
 
 	uint16_t locationFileCount;
-	char locationFileList[list_length_max][20];
+	char locationFileList[list_length_max][40];
 	char *fileNames[list_length_max];
 	uint8_t selectedFile = 0;
 
@@ -105,9 +109,19 @@ public:
 //--------------------------------------------------------------
 //memory
 	void calculateMemoryUsage();
-
+	void calculateCurrentSelectMemorySize();
+	void calculateLoadProgress();
+	void calculateCopyingProgress();
 	uint8_t memoryUsage;
-
+	strCompareValue memoryUsageAdd;
+	const strCompareValue memoryUsageAddOnMemoryFull = {100};
+	uint32_t currentSelectMemorySize;
+	uint8_t fullMemoryFlag = 0;
+	uint8_t loadProgress = 0;
+	uint8_t loadFlag = 0;
+	uint8_t copyingProgress = 0;
+	uint8_t lastCopyStatusFlag = 0;
+	uint8_t currentCopyStatusFlag = 0;
 //--------------------------------------------------------------
 //odsluch
 	void playSdFile();
@@ -124,6 +138,15 @@ public:
 		playModeSampleBank,
 
 	};
+
+	uint32_t barColorsRed[3] = { 0xFF0000, 0xFF0000, 0xFF0000};
+	uint32_t defaultColors[3] =
+	{
+		0xFFFFFF, // tekst
+		0xFF0000, // tło
+		0x00FF00, // ramka
+	};
+	uint32_t barColorsCyan[3] = { 0x00FFFF, 0x00FFFF, 0x00FFFF};
 };
 
 

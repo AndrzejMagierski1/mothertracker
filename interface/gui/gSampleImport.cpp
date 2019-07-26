@@ -10,6 +10,8 @@ static uint16_t framesPlaces[3][4] =
 	{(800/4)*2, 0, 800/4, 480},
 };
 
+static uint32_t color[3] = {0xFF00FF, 0x0000ff, 0xff0000};
+
 
 void cSampleImporter::initDisplayControls()
 {
@@ -74,12 +76,27 @@ void cSampleImporter::initDisplayControls()
 
 
 	prop.x = (800/4)*3+5;
+//	prop.colors = &color[1];
 	//prop.y = 10;
 	//prop.w = 800/4-10;
-	prop.style = controlStyleValue_0_100;
+	prop.style = controlStyleCompareTwoValues;
 	prop.h = 400;
+	prop.data = &memoryUsageAdd;
 	//prop.value = memoryUsage;
 	if(memoryBarControl == nullptr)  memoryBarControl = display.createControl<cBar>(&prop);
+
+
+	prop.x = 190;
+//	prop.colors = &color[0];
+	prop.y = 170;
+	//prop.w = 800/4-10;
+	prop.style = controlStyleValue_0_100;
+	prop.h = 100;
+	prop.w = 420;
+//	prop.value = 70;
+//	prop.text = "loading...";
+	if(loadHorizontalBarControl == nullptr)  loadHorizontalBarControl = display.createControl<cHorizontalBar>(&prop);
+
 
 	frameData.placesCount = 3;
 	frameData.startPlace = 0;
@@ -114,6 +131,9 @@ void cSampleImporter::destroyDisplayControls()
 	display.destroyControl(memoryBarControl);
 	memoryBarControl = nullptr;
 
+	display.destroyControl(loadHorizontalBarControl);
+	loadHorizontalBarControl = nullptr;
+
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
 }
@@ -126,9 +146,9 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlText(topLabel[2], "Instruments");
 	display.setControlText(topLabel[3], "Memory");
 
-	display.setControlText(bottomLabel[0], " /\\\           \\\/ ");
-	display.setControlText(bottomLabel[1], " /\\\           \\\/ ");
-	display.setControlText(bottomLabel[2], " /\\\           \\\/ ");
+	display.setControlText(bottomLabel[0], " /\\           \\/ ");
+	display.setControlText(bottomLabel[1], " /\\           \\/ ");
+	display.setControlText(bottomLabel[2], " /\\           \\/ ");
 	display.setControlText(bottomLabel[3], " Add       Delete");
 
 	for(uint8_t i = 0; i<4; i++)
@@ -139,6 +159,9 @@ void cSampleImporter::showDefaultScreen()
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
 	}
+
+	display.setControlHide(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
 
 	display.synchronizeRefresh();
 
@@ -156,6 +179,7 @@ void cSampleImporter::showFolderTree()
 	display.setControlData(folderListControl,  &folderList);
 	display.setControlShow(folderListControl);
 	display.refreshControl(folderListControl);
+
 
 	display.setControlText(topLabel[0],actualPath);
 	display.refreshControl(topLabel[0]);
@@ -189,9 +213,40 @@ void cSampleImporter::showInstrumentsList()
 
 void cSampleImporter::showMemoryUsage()
 {
-	display.setControlValue(memoryBarControl, memoryUsage);
-	display.setControlShow(memoryBarControl);
-	display.refreshControl(memoryBarControl);
+
+	if(!fullMemoryFlag)
+	{
+		display.setControlColors(memoryBarControl, defaultColors);
+		display.setControlValue(memoryBarControl, memoryUsage);
+		display.setControlData(memoryBarControl,&memoryUsageAdd);
+		display.setControlShow(memoryBarControl);
+		display.refreshControl(memoryBarControl);
+	}
+	else
+	{
+		display.setControlColors(memoryBarControl, barColorsRed);
+		display.setControlValue(memoryBarControl, 100);
+
+		display.setControlData(memoryBarControl,(strCompareValue *)&memoryUsageAddOnMemoryFull);
+		display.setControlShow(memoryBarControl);
+		display.refreshControl(memoryBarControl);
+	}
+}
+
+void cSampleImporter::showLoadHorizontalBar()
+{
+	display.setControlValue(loadHorizontalBarControl, loadProgress);
+	display.setControlText(loadHorizontalBarControl, "loading...");
+	display.setControlShow(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+}
+
+void cSampleImporter::showCopyingHorizontalBar()
+{
+	display.setControlValue(loadHorizontalBarControl, copyingProgress);
+	display.setControlText(loadHorizontalBarControl, "copying...");
+	display.setControlShow(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
 }
 
 //==============================================================================================================

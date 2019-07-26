@@ -7,6 +7,8 @@ AudioInputI2S            i2sIn;
 AudioRecordQueue         queue;
 
 AudioPlaySdWav           playSdWav;
+AudioPlaySdWavFloat		 playSdWavFloat;
+AudioPlaySdWav24bit 	 playSdWav24Bit;
 AudioPlayMemory          playMem[8];
 AudioEffectEnvelope      envelopeAmp[8];
 envelopeGenerator		 envelopeFilter[8];
@@ -94,6 +96,12 @@ AudioConnection          connect53(&limiter[1], 0, &mixerSourceR, 0);
 AudioConnection          connect61(&playSdWav, 0, &mixerSourceL, 1);
 AudioConnection          connect62(&playSdWav, 0, &mixerSourceR, 1);
 
+AudioConnection 		 connect63(&playSdWavFloat,0,&mixerSourceL,2);
+AudioConnection 		 connect64(&playSdWavFloat,0,&mixerSourceR,2);
+
+AudioConnection 		 connect65(&playSdWav24Bit,0,&mixerSourceL,3);
+AudioConnection 		 connect66(&playSdWav24Bit,0,&mixerSourceR,3);
+
 AudioConnection          connect59(&mixerSourceL, 0, &i2sOut, 0);
 AudioConnection          connect60(&mixerSourceR, 0, &i2sOut, 1);
 
@@ -128,13 +136,17 @@ void audioEngine::init()
 
 	setIn(inputSelectMic);
 	setOut(outputSelectHeadphones);
-	mixerSourceR.gain(0,1.0);
-	mixerSourceR.gain(1,1.0);
-	mixerSourceL.gain(0,1.0);
-	mixerSourceL.gain(1,1.0);
+	for(uint8_t i = 0; i < 4 ; i ++)
+	{
+		mixerSourceR.gain(i,1.0);
+		mixerSourceL.gain(i,1.0);
+	}
+
 	audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
-	audioShield.inputSelect(AUDIO_INPUT_MIC);
-	audioShield.micGain(35);
+	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+	mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
+//	audioShield.micGain(25);
+	audioShield.lineInLevel(3);
 	limiter[0].begin(30000, 300, 20);
 	limiter[1].begin(30000, 300, 20);
 	for(int i=0;i<8; i++)
@@ -732,6 +744,12 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
 	mixerR.gain(numPanChannel,1.0);
 	mixerReverb.gain(numPanChannel,0.0);
 	/*======================================================================================================*/
+	limiter[0].setAttack(300);
+	limiter[0].setRelease(10);
+	limiter[0].setThreshold(32000);
+	limiter[1].setAttack(300);
+	limiter[1].setRelease(10);
+	limiter[1].setThreshold(32000);
 
 	status = playMemPtr->playForPrev(addr,len);
 	envelopeAmpPtr->noteOn();

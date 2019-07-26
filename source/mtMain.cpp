@@ -19,17 +19,19 @@
 
 
 
+
 //extern Sequencer seq[2];
 extern void initHardware();
 extern void updateHardware();
 
 
-
+;;
 //=======================================================================
 void setup()
 {
 	// inicjalizacja hardware jako pierwsza
 	initHardware();
+
 	engine.init();
 
 	sequencer.init();
@@ -47,10 +49,11 @@ void setup()
 //=======================================================================
 void loop()
 {
+
 	powerModeUpdate();
 
 	sequencer.handle();
-	//handle_chatBot();
+	handle_chatBot();
 
 	padsBacklight.update();
 
@@ -60,6 +63,5 @@ void loop()
 	engine.update();
 	fileManager.update();
 	mtInterface.update();
-
 
 }

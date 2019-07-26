@@ -132,10 +132,7 @@ void onPotChange(uint8_t n, int16_t value)
 // 3 - double click
 void onButtonChange(uint8_t n, uint8_t value)
 {
-
 	mtInterface.buttonChange(n,value);
-
-
 }
 //-----------------------------------------------------------------
 //----------------------|   POWER BUTTON   |-----------------------
@@ -152,7 +149,7 @@ void onPowerButtonChange(uint8_t value)
 
 
 //--------------------------------- BUTTONS SEQ ----------------------------
-void onButtonPush (uint8_t x)
+void onButtonPush (uint8_t x,uint8_t state)
 {	
 	mtInterface.padPressed(x,0,0,0);
 
@@ -162,7 +159,7 @@ void onButtonPush (uint8_t x)
 
 }
 
-void onButtonRelease(uint8_t x)
+void onButtonRelease(uint8_t x,uint8_t state)
 {	
 	mtInterface.padReleased(x);
 
@@ -172,7 +169,7 @@ void onButtonRelease(uint8_t x)
 
 }
 
-void onButtonHold(uint8_t x)
+void onButtonHold(uint8_t x,uint8_t state)
 {	
 //	mtInterface.seqButtonHold(x,y);
 
@@ -182,7 +179,7 @@ void onButtonHold(uint8_t x)
 
 }
 
-void onButtonDouble	(uint8_t x)
+void onButtonDouble(uint8_t x,uint8_t state)
 {	
 //	mtInterface.seqButtonDouble(x,y);
 
