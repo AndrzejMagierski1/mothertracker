@@ -56,6 +56,8 @@ public:
 	void setDoubleTime(uint16_t time);
 	void testMode(uint8_t set);
 
+	bool isButtonPressed(uint8_t number);
+
 /*	uint8_t buttonToX(uint8_t number);
 	uint8_t buttonToY(uint8_t number);
 	bool (uint8_t number);
@@ -76,6 +78,8 @@ private:
 	void action_button_hold(uint8_t num);
 	void action_button_release(uint8_t num);
 	void action_button_double(uint8_t num);
+	int8_t mapIndexToHwIndex(uint8_t mapIndex);
+
 
 
 	uint8_t test_mode = 0;
