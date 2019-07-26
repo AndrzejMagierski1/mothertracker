@@ -3,7 +3,19 @@
 #include "sampleRecorder.h"
 
 
-static uint16_t framesPlaces[7][4] =
+static  uint16_t framesPlacesS1[8][4] =
+{
+	{0, 		0, 800/8, 480},
+	{(800/8)*1, 0, 800/8, 480},
+	{(800/8)*2, 412, 800/8, 68},
+	{(800/8)*3, 412, 800/8, 68},
+	{(800/8)*4, 0, 800/8, 480},
+	{(800/8)*5, 0, 800/8, 480},
+	{(800/8)*6, 0, 800/8, 480},
+	{(800/8)*7, 412, 800/8, 68}
+};
+
+static  uint16_t framesPlacesS2[8][4] =
 {
 	{0, 		412, 800/8, 68},
 	{(800/8)*1, 412, 800/8, 68},
@@ -11,7 +23,8 @@ static uint16_t framesPlaces[7][4] =
 	{(800/8)*3, 412, 800/8, 68},
 	{(800/8)*4, 412, 800/8, 68},
 	{(800/8)*5, 412, 800/8, 68},
-	{(800/8)*6, 0, 800/4, 480},
+	{(800/8)*6, 412, 800/8, 68},
+	{(800/8)*7, 412, 800/8, 68},
 };
 
 
@@ -19,9 +32,24 @@ static uint16_t framesPlaces[7][4] =
 void cSampleRecorder::initDisplayControls()
 {
 	// inicjalizacja kontrolek
+
+	strControlProperties prop;
+
+	prop.x = 100;
+	prop.y = 75;
+	prop.w = 600;
+	prop.h = 300;
+	prop.data = &spectrum;
+	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
+
+
+	prop.data = &points;
+	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
+
 	strControlProperties prop2;
 
-	for(uint8_t i = 0; i<6; i++)
+
+	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.text = (char*)"";
 		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
@@ -38,54 +66,70 @@ void cSampleRecorder::initDisplayControls()
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 	}
 
-	prop2.x = (800/4)*3+(800/8);
-	prop2.y = 450;
-	prop2.w = 800/4-10;
-	prop2.h = 30;
-	if(bottomLabel[6] == nullptr) bottomLabel[6] = display.createControl<cLabel>(&prop2);
-
-	prop2.y = 415;
-	prop2.h = 26;
-	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
-
-
-	playModeList.linesCount = 5;
-	playModeList.start = editorInstrument->playMode;
-	playModeList.length = playModeCount;
-	playModeList.data = playModeNames;
-	strControlProperties prop;
-	prop.x = (800/8)*6+5;
-	prop.y = 140;
-	prop.w = 800/4-10;
-	prop.h = 25;
-	prop.data = &playModeList;
-	if(playModeListControl == nullptr)  playModeListControl = display.createControl<cList>(&prop);
-
-	// spectrum + points
-	prop.x = 0;
-	prop.y = 75;
-	prop.w = 600;
-	prop.h = 300;
-	prop.data = &spectrum;
-	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
-
-	prop.data = &points;
-	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
-
+	strControlProperties prop3;
 	// ramka
-	frameData.placesCount = 7;
+	frameData.placesCount = 8;
 	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
-	frameData.places[3] = &framesPlaces[3][0];
-	frameData.places[4] = &framesPlaces[4][0];
-	frameData.places[5] = &framesPlaces[5][0];
-	frameData.places[6] = &framesPlaces[6][0];
-	prop.style = 0;
-	prop.value = 0;
-	prop.data  = &frameData;
-	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
+	frameData.places[0] = &framesPlacesS1[0][0];
+	frameData.places[1] = &framesPlacesS1[1][0];
+	frameData.places[2] = &framesPlacesS1[2][0];
+	frameData.places[3] = &framesPlacesS1[3][0];
+	frameData.places[4] = &framesPlacesS1[4][0];
+	frameData.places[5] = &framesPlacesS1[5][0];
+	frameData.places[6] = &framesPlacesS1[6][0];
+	frameData.places[7] = &framesPlacesS1[7][0];
+	prop3.style = 0;
+	prop3.value = 0;
+	prop3.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop3);
+
+	strControlProperties prop4;
+	sourceList.linesCount = 3;
+	sourceList.start = recorderConfig.source;
+	sourceList.length = 3;
+	sourceList.data = sourceNames;
+	prop4.x = (800/8)*(0)+5;
+	prop4.y = 152;
+	prop4.w = 800/8-10;
+	prop4.h = 25;
+	prop4.data = &sourceList;
+	if(sourceListControl == nullptr)  sourceListControl = display.createControl<cList>(&prop4);
+
+	monitorList.linesCount = 2;
+	monitorList.start = recorderConfig.monitor;
+	monitorList.length = 2;
+	monitorList.data = monitorNames;
+	prop4.x = (800/8)*(6)+5;
+	prop4.y = 165;
+	prop4.w = 800/8-10;
+	prop4.h = 25;
+	prop4.data = &monitorList;
+	if(monitorListControl == nullptr)  monitorListControl = display.createControl<cList>(&prop4);
+
+
+	strControlProperties prop5;
+	prop5.x = (800/8)*(4)+5;
+	prop5.y = 30;
+	prop5.w = 800/8-10;
+	prop5.style =  controlStyleShow | controlStyleValue_0_100;
+	prop5.h = 380;
+	if(levelBarControl == nullptr)  levelBarControl = display.createControl<cBar>(&prop5);
+
+	prop5.x = (800/8)*(5)+5;
+	prop5.y = 30;
+	prop5.w = 800/8-10;
+	prop5.style =  controlStyleShow | controlStyleValue_0_100;
+	prop5.h = 380;
+	if(gainBarControl == nullptr)  gainBarControl = display.createControl<cBar>(&prop5);
+
+	prop5.x = (800/8)*(1)+5;
+	prop5.y = 30;
+	prop5.w = 800/8-10;
+	prop5.style =  controlStyleShow | controlStyleValue_0_100;
+	prop5.h = 380;
+	if(radioFreqBarControl == nullptr)  radioFreqBarControl = display.createControl<cBar>(&prop5);
+
+
 
 }
 
@@ -94,61 +138,117 @@ void cSampleRecorder::destroyDisplayControls()
 {
 	display.destroyControl(spectrumControl);
 	spectrumControl = nullptr;
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.destroyControl(topLabel[i]);
+		topLabel[i] = nullptr;
+
+		display.destroyControl(bottomLabel[i]);
+		bottomLabel[i] = nullptr;
+	}
+
+	display.destroyControl(frameControl);
+	frameControl = nullptr;
+
+	display.destroyControl(sourceListControl);
+	sourceListControl = nullptr;
+
+	display.destroyControl(monitorListControl);
+	monitorListControl = nullptr;
+
+	display.destroyControl(levelBarControl);
+	levelBarControl = nullptr;
+
+	display.destroyControl(gainBarControl);
+	gainBarControl = nullptr;
+
+	display.destroyControl(radioFreqBarControl);
+	radioFreqBarControl = nullptr;
 
 	display.destroyControl(pointsControl);
 	pointsControl = nullptr;
 
-	display.destroyControl(playModeListControl);
-	playModeListControl = nullptr;
 
-	for(uint8_t i = 0; i<8; i++)
-	{
-		display.destroyControl(bottomLabel[i]);
-		bottomLabel[i] = nullptr;
-
-		display.destroyControl(topLabel[i]);
-		topLabel[i] = nullptr;
-	}
-
-
-	display.destroyControl(frameControl);
-	frameControl = nullptr;
 }
 
 void cSampleRecorder::showDefaultScreen()
 {
 
-	//spectrum
-	display.setControlShow(spectrumControl);
-	display.refreshControl(spectrumControl);
+	if(currentScreen == screenTypeConfig)
+	{
+		//spectrum
+		display.setControlHide(spectrumControl);
+		display.refreshControl(spectrumControl);
 
-	//points
+		//points
 
-	display.setControlShow(pointsControl);
-	display.refreshControl(pointsControl);
+		display.setControlHide(pointsControl);
+		display.refreshControl(pointsControl);
 
-	//lista
-	//display.setControlShow(playModeListControl);
-	//display.refreshControl(playModeListControl);
+	//	listy
+		display.setControlShow(sourceListControl);
+		display.setControlValue(sourceListControl,recorderConfig.source);
+		display.refreshControl(sourceListControl);
 
-	// bottom labels
-	display.setControlText(bottomLabel[0], "Preview");
-	display.setControlText(bottomLabel[1], "Apply");
-	display.setControlText(bottomLabel[2], "Undo");
-	display.setControlText(bottomLabel[3], "");
-	display.setControlText(bottomLabel[4], "");
-	display.setControlText(bottomLabel[5], "");
-	display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
-	//display.setControlText(bottomLabel[7], "");
+		display.setControlShow(monitorListControl);
+		display.setControlValue(monitorListControl,recorderConfig.monitor);
+		display.refreshControl(monitorListControl);
+
+	//bar
+		display.setControlValue(levelBarControl,levelBarVal);
+		display.setControlShow(levelBarControl);
+		display.refreshControl(levelBarControl);
+
+		display.setControlValue(gainBarControl,gainBarVal);
+		display.setControlShow(gainBarControl);
+		display.refreshControl(gainBarControl);
+
+		if(recorderConfig.source == sourceTypeRadio)
+		{
+			display.setControlValue(radioFreqBarControl,radioFreqBarVal);
+			display.setControlShow(radioFreqBarControl);
+			display.refreshControl(radioFreqBarControl);
+			display.setControlText(bottomLabel[1], "Radio Freq");
+			display.setControlText(bottomLabel[2], "<<");
+			display.setControlText(bottomLabel[3], ">>");
+
+			calcRadioFreqBarVal();
+			drawRadioFreqBar();
+		}
+		else
+		{
+			display.setControlValue(radioFreqBarControl,radioFreqBarVal);
+			display.setControlHide(radioFreqBarControl);
+			display.refreshControl(radioFreqBarControl);
+			display.setControlText(bottomLabel[1], "");
+			display.setControlText(bottomLabel[2], "");
+			display.setControlText(bottomLabel[3], "");
+		}
 
 
-	display.setControlText(topLabel[6], "Effect");
+		// bottom labels
+		display.setControlText(bottomLabel[0], "Source");
+
+		display.setControlText(bottomLabel[4], "Level");
+		display.setControlText(bottomLabel[5], "Gain");
+		display.setControlText(bottomLabel[6], "Monitor");
+		display.setControlText(bottomLabel[7], "Record");
 
 
 
+		calcLevelBarVal();
+		drawLevelBar();
+
+		calcGainBarVal();
+		drawGainBar();
+	}
+	else if(currentScreen == screenTypeRecord)
+	{
+
+	}
 
 
-	for(uint8_t i = 0; i<7; i++)
+	for(uint8_t i = 0; i<8; i++)
 	{
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
@@ -158,9 +258,41 @@ void cSampleRecorder::showDefaultScreen()
 	}
 
 
+
 	display.synchronizeRefresh();
 
 }
+
+void cSampleRecorder::showRadio()
+{
+	display.setControlValue(radioFreqBarControl,radioFreqBarVal);
+	display.setControlShow(radioFreqBarControl);
+	display.setControlText(bottomLabel[1], "Radio Freq");
+	display.setControlText(bottomLabel[2], "<<");
+	display.setControlText(bottomLabel[3], ">>");
+
+	display.refreshControl(bottomLabel[1]);
+	display.refreshControl(bottomLabel[2]);
+	display.refreshControl(bottomLabel[3]);
+	display.refreshControl(radioFreqBarControl);
+	showFreqValue();
+}
+void cSampleRecorder::hideRadio()
+{
+	display.setControlValue(radioFreqBarControl,radioFreqBarVal);
+	display.setControlHide(radioFreqBarControl);
+	display.setControlText(bottomLabel[1], "");
+	display.setControlText(bottomLabel[2], "");
+	display.setControlText(bottomLabel[3], "");
+	display.setControlText(topLabel[1], "");
+
+	display.refreshControl(bottomLabel[1]);
+	display.refreshControl(bottomLabel[2]);
+	display.refreshControl(bottomLabel[3]);
+	display.refreshControl(topLabel[1]);
+	display.refreshControl(radioFreqBarControl);
+}
+
 
 
 //==============================================================================================================
@@ -194,21 +326,64 @@ void cSampleRecorder::showZoomValue()
 		zoomTextValue[4] = 0;
 	}
 
-	display.setControlText(topLabel[5], zoomTextValue);
-	display.setControlShow(topLabel[5]);
-	display.refreshControl(topLabel[5]);
+//	display.setControlText(topLabel[5], zoomTextValue);
+//	display.setControlShow(topLabel[5]);
+//	display.refreshControl(topLabel[5]);
 }
 
-void cSampleRecorder::showPlayModeList()
+void cSampleRecorder::showFreqValue()
 {
-	playModeList.start = editorInstrument->playMode;
-	playModeList.length = playModeCount;
-	playModeList.linesCount = 5;
-	playModeList.data = playModeNames;
+	snprintf(freqTextValue, 5, "%f", recorderConfig.radioFreq);
 
-	display.setControlData(playModeListControl,  &playModeList);
-	display.setControlShow(playModeListControl);
-	display.refreshControl(playModeListControl);
+	display.setControlText(topLabel[1], freqTextValue);
+	display.setControlShow(topLabel[1]);
+	display.refreshControl(topLabel[1]);
+}
+
+void cSampleRecorder::showSourceList()
+{
+	sourceList.start = recorderConfig.source;
+	sourceList.length = sourceCount;
+	sourceList.linesCount = 3;
+	sourceList.data = sourceNames;
+
+	display.setControlData(sourceListControl,  &sourceList);
+	display.setControlShow(sourceListControl);
+	display.refreshControl(sourceListControl);
 
 
+}
+
+void cSampleRecorder::showMonitorList()
+{
+	monitorList.start = recorderConfig.monitor;
+	monitorList.length = monitorCount;
+	monitorList.linesCount = 2;
+	monitorList.data = monitorNames;
+
+	display.setControlData(monitorListControl,  &monitorList);
+	display.setControlShow(monitorListControl);
+	display.refreshControl(monitorListControl);
+
+
+}
+
+void cSampleRecorder::drawRadioFreqBar()
+{
+	display.setControlValue(radioFreqBarControl,radioFreqBarVal);
+	display.setControlShow(radioFreqBarControl);
+	display.refreshControl(radioFreqBarControl);
+	showFreqValue();
+}
+void cSampleRecorder::drawLevelBar()
+{
+	display.setControlValue(levelBarControl,levelBarVal);
+	display.setControlShow(levelBarControl);
+	display.refreshControl(levelBarControl);
+}
+void cSampleRecorder::drawGainBar()
+{
+	display.setControlValue(gainBarControl,gainBarVal);
+	display.setControlShow(gainBarControl);
+	display.refreshControl(gainBarControl);
 }
