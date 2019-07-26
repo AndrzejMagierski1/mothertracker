@@ -12,18 +12,29 @@
 
 
 
-const uint8_t recordsCount = 5;
-const char recordsNamesLabels[recordsCount][15] =
-{
-		"rec",
-		"rec",
-		"rec",
-		"rec",
-		"rec",
+const uint8_t sourceCount = 3;
+const uint8_t monitorCount = 2;
 
+const char sourcesNamesLabels[sourceCount][10] =
+{
+		"line in",
+		"mic",
+		"radio",
 };
 
+const char monitorNamesLabels[monitorCount][5] =
+{
+		"on",
+		"off",
+};
 
+struct strRecorderConfig
+{
+	uint8_t source;
+	uint8_t gain;
+	uint8_t monitor;
+	float radioFreq = 87.0;
+};
 
 
 class cSampleRecorder: public cModuleBase
@@ -46,16 +57,28 @@ public:
 //		openedInstrFromActive = 0;
 //		openedInstrumentIndex = 0;
 
-		spectrumControl = nullptr;
-		pointsControl = nullptr;
-		topLabel[8] = {nullptr};
-		bottomLabel[8] = {nullptr};
+		 spectrumControl = nullptr;
+
+		 topLabel[8] = {nullptr};
+		 bottomLabel[8] = {nullptr};
+		 frameControl = nullptr;
+		 sourceListControl = nullptr;
+		 monitorListControl = nullptr;
+		 levelBarControl = nullptr;
+		 gainBarControl = nullptr;
+		 radioFreqBarControl = nullptr;
+		 pointsControl = nullptr;
 	}
 	virtual ~cSampleRecorder() {}
 
 	void showDefaultScreen();
 	void showZoomValue();
-	void showPlayModeList();
+	void showSourceList();
+	void showMonitorList();
+
+	void showFreqValue();
+	void showRadio();
+	void hideRadio();
 
 	void setDefaultScreenFunct();
 
@@ -65,23 +88,54 @@ public:
 	void modStartPoint(int16_t value);
 	void modEndPoint(int16_t value);
 	void changeZoom(int16_t value);
+	void changeMonitorSelection(int16_t value);
+	void changeSourceSelection(int16_t value);
+
 	void changePlayModeSelection(int16_t value);
 
 	void activateLabelsBorder();
 
+	void setPrevievFlag(uint8_t s);
+
 	strFrameData frameData;
 
+//*********************************************
+	hControl spectrumControl;
 	hControl topLabel[8];
 	hControl bottomLabel[8];
-	hControl playModeListControl;
-	hControl spectrumControl;
-	hControl pointsControl;
 	hControl frameControl;
+	hControl sourceListControl;
+	hControl monitorListControl;
+	hControl levelBarControl;
+	hControl gainBarControl;
+	hControl radioFreqBarControl;
+	hControl pointsControl;
+
+//*********************************************
 
 
 	uint8_t selectedPlace = 0;
+	uint8_t currentScreen = 0;
+	strRecorderConfig recorderConfig;
+	char freqTextValue[6];
 
+	enum sourceType
+	{
+		sourceTypeLineIn,
+		sourceTypeMic,
+		sourceTypeRadio
+	};
 
+	enum screenType
+	{
+		screenTypeConfig,
+		screenTypeRecord,
+		screenTypeKeyboard
+	};
+
+	//odsluch in
+	uint8_t previevFlag = 0;
+	uint8_t lastPrevievFlag = 0;
 //----------------------------------
 // spectrum + punkty
 	uint8_t refreshSpectrum = 0;
@@ -96,18 +150,23 @@ public:
 	uint8_t lastChangedPoint = 0;
 	float zoomValue = 1;
 	char zoomTextValue[6];
+
 	uint16_t zoomPosition = 0;
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;
 
 //----------------------------------
-// lista play mode
-	strList playModeList;
+// listy
+	strList sourceList;
+	strList monitorList;
 
-	void listPlayMode();
+	void listSource();
+	void listMonitor();
 
-	char *playModeNames[recordsCount];
+
+	char *sourceNames[sourceCount];
+	char *monitorNames[monitorCount];
 
 
 //----------------------------------
@@ -117,6 +176,23 @@ public:
 	uint8_t glidePreviewDif = 0;
 
 //----------------------------------
+// bar
+	uint8_t radioFreqBarVal;
+	uint8_t levelBarVal;
+	uint8_t gainBarVal;
+
+	void calcRadioFreqBarVal();
+	void calcLevelBarVal();
+	void calcGainBarVal();
+
+	void drawRadioFreqBar();
+	void drawLevelBar();
+	void drawGainBar();
+
+	void changeRadioFreqBar(int16_t val);
+	void changeLevelBar(float val);
+	void changeGainBar(int16_t val);
+
 
 
 
