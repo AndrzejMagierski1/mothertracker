@@ -962,8 +962,8 @@ static void sendSelection()
 
 static uint8_t isMultiSelection()
 {
-	return ((PTE->trackerPattern.selectStartStep != PTE->trackerPattern.selectEndStep) ||
-			(PTE->trackerPattern.selectStartTrack != PTE->trackerPattern.selectEndTrack));
+	return PTE->trackerPattern.selectState == 2;
+
 }
 
 static  uint8_t functChangeTempo(uint8_t button)
