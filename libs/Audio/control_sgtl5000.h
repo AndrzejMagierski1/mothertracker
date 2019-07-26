@@ -54,6 +54,17 @@ public:
 			return false;
 		}
 	}
+	bool headphoneSourceSelect(int n)
+	{
+		if(n == HEADPHONE_IN_SOURCE_INPUTS)
+		{
+			 return write(0x0024, ana_ctrl | (1<<6));
+		}
+		else if(n == HEADPHONE_IN_SOURCE_AUDIO)
+		{
+			return write(0x0024, ana_ctrl & ~(1<<6));
+		}
+	}
 	bool volume(float left, float right);
 	bool micGain(unsigned int dB);
 	bool lineInLevel(uint8_t n) { return lineInLevel(n, n); }

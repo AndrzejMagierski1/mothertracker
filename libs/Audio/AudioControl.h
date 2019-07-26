@@ -35,6 +35,9 @@
 #define AUDIO_INPUT_LINEIN  0
 #define AUDIO_INPUT_MIC     1
 
+#define HEADPHONE_IN_SOURCE_AUDIO 0
+#define HEADPHONE_IN_SOURCE_INPUTS 1
+
 class AudioControl
 {
 public:
