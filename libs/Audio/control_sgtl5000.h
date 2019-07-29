@@ -58,11 +58,11 @@ public:
 	{
 		if(n == HEADPHONE_IN_SOURCE_INPUTS)
 		{
-			 return write(0x0024, ana_ctrl | (1<<6));
+			 return write(0x000A, 0x0000); // ADC->I2S, ADC->DAC
 		}
 		else if(n == HEADPHONE_IN_SOURCE_AUDIO)
 		{
-			return write(0x0024, ana_ctrl & ~(1<<6));
+			return write(0x000A, 0x0010); // ADC->I2S, I2S->DAC
 		}
 	}
 	bool volume(float left, float right);
