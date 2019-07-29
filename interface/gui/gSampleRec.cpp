@@ -27,8 +27,8 @@ static  uint16_t framesPlacesS2[8][4] =
 	{(800/8)*7, 412, 800/8, 68},
 };
 
-static uint32_t colorRed[3] = { 0xFF0000, 0xFF0000,0xFF0000 };
-static uint32_t colorGreen[3] = { 0x00FF00, 0x00FF00,0x00FF00 };
+uint32_t colorRed[3] = { 0xFF0000, 0xFFFFFF,0xFF0000 };
+uint32_t colorGreen[3] = { 0x00FF00, 0xFFFFFF,0x00FF00 };
 
 void cSampleRecorder::initDisplayControls()
 {
@@ -378,8 +378,31 @@ void cSampleRecorder::drawRadioFreqBar()
 }
 void cSampleRecorder::drawLevelBar()
 {
-	if(levelBarVal < 75) display.setControlColors(levelBarControl, colorGreen);
-	else display.setControlColors(levelBarControl, colorRed);
+	if(levelBarVal < 85)
+	{
+
+
+		if(redColorTim < 350) display.setControlColors(levelBarControl, colorRed);
+		else
+		{
+			if(levelBarVal > 60)
+			{
+				uint8_t green = map(levelBarVal,60,85,255,0);
+
+				colorGreen[0] = (0xFF << 16)| (green << 8);
+			}
+			else colorGreen[0] = 0x00FF00;
+			display.setControlColors(levelBarControl, colorGreen);
+		}
+
+		if(redColorTim > 3000000) redColorTim = 201;
+	}
+	else
+	{
+		redColorTim = 0;
+		display.setControlColors(levelBarControl, colorRed);
+
+	}
 	display.setControlValue(levelBarControl,levelBarVal);
 	display.setControlShow(levelBarControl);
 	display.refreshControl(levelBarControl);

@@ -179,7 +179,12 @@ public:
 // bar
 	uint8_t radioFreqBarVal;
 	uint8_t levelBarVal;
+	uint8_t lastLevelBarVal;
+	elapsedMicros levelBarTim;
+	float measureSum = 0;
+	uint8_t levelBarMeasureCounter;
 	uint8_t gainBarVal;
+	elapsedMillis redColorTim;
 
 	void calcRadioFreqBarVal();
 	void calcLevelBarVal();

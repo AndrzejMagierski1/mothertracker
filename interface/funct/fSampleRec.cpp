@@ -109,6 +109,7 @@ void cSampleRecorder::update()
 	lastPrevievFlag = previevFlag;
 
 	changeLevelBar();
+
 }
 
 void cSampleRecorder::start(uint32_t options)
@@ -915,8 +916,28 @@ void cSampleRecorder::calcLevelBarVal()
 {
 	if(rms.available())
 	{
-		levelBarVal = 100.0 * rms.read();
+		measureSum += rms.read();
+		levelBarMeasureCounter++;
 	}
+	if(levelBarMeasureCounter == 10)
+	{
+		levelBarMeasureCounter = 0;
+
+		float localMeasureSum = (measureSum/10)/0.85;
+		if(localMeasureSum < 0.001f) localMeasureSum = 0.001f;
+		uint8_t localLevelToConvert = (((log10(localMeasureSum) + 3.0) * 100.0)/ 3.0);
+		uint8_t localLevel = map(localLevelToConvert,0,117,0,100);
+
+		if(((levelBarTim > 500 )) && (levelBarVal != 0 ))
+		{
+			levelBarTim = 0;
+			levelBarVal--;
+		}
+		if(localLevel > levelBarVal) levelBarVal = localLevel;
+
+		measureSum = 0;
+	}
+
 
 }
 void cSampleRecorder::calcGainBarVal()
@@ -943,17 +964,45 @@ void cSampleRecorder::changeRadioFreqBar(int16_t val)
 void cSampleRecorder::changeLevelBar()
 {
 	calcLevelBarVal();
-	drawLevelBar();
+	if(lastLevelBarVal != levelBarVal) 	drawLevelBar();
+	lastLevelBarVal = levelBarVal;
 }
 void cSampleRecorder::changeGainBar(int16_t val)
 {
 	if(val > 0)
 	{
-		if(recorderConfig.gain < 100) recorderConfig.gain++;
+		if(recorderConfig.gain < 100)
+		{
+			recorderConfig.gain++;
+			if(recorderConfig.source == sourceTypeLineIn)
+			{
+				uint8_t localMap = recorderConfig.gain *15/100;
+				audioShield.lineInLevel(localMap);
+			}
+			else if((recorderConfig.source == sourceTypeMic) || (recorderConfig.source == sourceTypeRadio))
+			{
+				float localMap = recorderConfig.gain* 63.0 / 100.0;
+				audioShield.micGain(localMap);
+			}
+		}
+
 	}
 	else if(val < 0)
 	{
-		if(recorderConfig.gain > 0) recorderConfig.gain--;
+		if(recorderConfig.gain > 0)
+		{
+			recorderConfig.gain--;
+			if(recorderConfig.source == sourceTypeLineIn)
+			{
+				uint8_t localMap = recorderConfig.gain *15/100;
+				audioShield.lineInLevel(localMap);
+			}
+			else if((recorderConfig.source == sourceTypeMic) || (recorderConfig.source == sourceTypeRadio))
+			{
+				float localMap = recorderConfig.gain* 63.0 / 100.0;
+				audioShield.micGain(localMap);
+			}
+		}
 	}
 	calcGainBarVal();
 	drawGainBar();
