@@ -13,9 +13,7 @@ inline void timerExternalVector()
 
 }
 
-/*
- * PUBLIC
- */
+
 void Sequencer::init()
 {
 	init_player_timer();
@@ -824,13 +822,13 @@ void Sequencer::loadDefaultBank(uint8_t bank)
 void Sequencer::initPattern(uint8_t pattern) // czyści pattern z flasha
 {
 // czyścimy bank 3
-	loadDefaultBank(3);
+	loadDefaultBank(pattern);
 
-	if (pattern == player.actualBank)
-	{
-		loadDefaultBank(1);
-		loadDefaultBank(0);
-	}
+//	if (pattern == player.actualBank)
+//	{
+//		loadDefaultBank(1);
+//		loadDefaultBank(0);
+//	}
 
 // flashuje pattern ramem z 3 pozycji
 // 	TODO
@@ -1047,7 +1045,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			player.row[x].makeJump = 0;
 		}
 		// switch_bank_with_reset();
-		player.jumpNOW = 1;
+		player.jump.jumpNOW = 1;
 	}
 	else
 	{
@@ -2002,5 +2000,19 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 
 		}
 	}
+}
+
+
+void Sequencer::loadNextPattern(uint8_t patternNumber)
+{
+	player.jump.nextPattern = patternNumber;
+	player.jump.jumpNOW = 0;
+
+
+}
+
+void Sequencer::switchNextPatternNow()
+{
+
 }
 

@@ -209,6 +209,16 @@ public:
 
 	struct strPattern
 	{
+
+		struct strFileHeader
+		{
+			char id_file[2];
+			uint16_t type;
+			char version[4];
+			char id_data[4];
+			uint16_t size;
+		} header;
+
 		float tempo = DEFAULT_TEMPO;
 		float swing = DEFAULT_SWING;
 
@@ -286,6 +296,9 @@ public:
 			} step[MAXSTEP + 1];
 
 		} track[8];
+
+		// poniżej nie brać pod uwagę licząc CRC
+		uint32_t crc;
 
 	};
 	struct strSelection
@@ -472,8 +485,8 @@ public:
 		uint16_t rec_intro_timer_max = 48 * 4;
 		uint16_t uStep = 0;
 		uint8_t actualBank = 0;
-		uint8_t bank2change = 0;
-		uint8_t bank2load = 0;
+		//		uint8_t bank2change = 0;
+//		uint8_t bank2load = 0;
 
 		struct strBlink
 		{
@@ -483,7 +496,12 @@ public:
 			bool isOpen = 0;
 		} blink;
 
-		uint8_t jumpNOW = 0;
+		struct strJump
+		{
+			uint8_t jumpNOW = 0;
+			uint8_t nextPattern = 0;
+
+		} jump;
 
 		struct strPlayerTrack
 		{
@@ -588,9 +606,12 @@ public:
 	}
 	void loadFromFileOK()
 	{
+		Serial.println("ok");
 	}
 	void loadFromFileERROR()
 	{
+		loadDefaultBank(0);
+		loadDefaultBank(1);
 	}
 	uint16_t getPatternSize()
 	{
@@ -609,7 +630,6 @@ public:
 
 	void insert(strSelection *selection);
 	void insertReversed(strSelection *selection);
-
 
 	// SELECTION
 	void copy(strSelection *from, strSelection *to);
@@ -634,9 +654,6 @@ public:
 
 	void changeSelectionVolume(int16_t value);
 	void changeSelectionInstrument(int16_t value);
-
-
-
 
 	void clearRow(uint8_t row);
 	void clearRow(uint8_t row, uint8_t bank);
@@ -666,6 +683,9 @@ public:
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 					uint8_t track);
 	void randomExisting();
+
+	void loadNextPattern(uint8_t patternNumber);
+	void switchNextPatternNow();
 
 };
 

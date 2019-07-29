@@ -27,17 +27,15 @@ struct strInstrumentFile
 	uint32_t crc;
 };
 
-struct strPatternFile
-{
-	struct strPatternDataAndHeader
-	{
-		strProjectFileHeader patternHeader;
-		Sequencer::strPattern pattern;
-
-	} patternDataAndHeader;
-
-	uint32_t crc;
-};
+//struct strPatternFile
+//{
+//
+//	strProjectFileHeader patternHeader;
+//
+//	// > tutaj w pliku jest sekwencja <
+//	uint32_t crc;
+//
+//};
 
 struct strProjectFile
 {

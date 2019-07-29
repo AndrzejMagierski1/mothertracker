@@ -51,34 +51,23 @@ void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 
 void FileManager::writePatternFile(char * name)
 {
-	if(SD.exists(name)) SD.remove(name); //todo: do ustalenia czy nadpisujemy czy nie
+
+	// todo: może do wyjebania jeśli .open załatwi sprawę
+	if (SD.exists(name)) SD.remove(name);
 
 	FsFile file;
 	FastCRC32 crcCalc;
-	strPatternFile patternFile;
-	Sequencer::strPattern * patt;
-	patt=(Sequencer::strPattern *)sequencer.getPatternToSaveToFile();
 
-	patternFile.patternDataAndHeader.pattern = * patt;
+	uint8_t * sourcePattern;
+	sourcePattern = sequencer.getPatternToSaveToFile();
 
+	((Sequencer::strPattern*) sourcePattern)->crc =
+			crcCalc.crc32(sourcePattern,
+							sizeof(Sequencer::strPattern) - sizeof(uint32_t));
 
-	patternFile.patternDataAndHeader.patternHeader.id_file[0]='I';
-	patternFile.patternDataAndHeader.patternHeader.id_file[1]='D';
-	patternFile.patternDataAndHeader.patternHeader.type = fileTypePattern;
-	patternFile.patternDataAndHeader.patternHeader.version[0] = '0';
-	patternFile.patternDataAndHeader.patternHeader.version[1] = '.';
-	patternFile.patternDataAndHeader.patternHeader.version[2] = '0';
-	patternFile.patternDataAndHeader.patternHeader.version[3] = '1';
-	patternFile.patternDataAndHeader.patternHeader.id_data[0] = 'D';
-	patternFile.patternDataAndHeader.patternHeader.id_data[1] = 'A';
-	patternFile.patternDataAndHeader.patternHeader.id_data[2] = 'T';
-	patternFile.patternDataAndHeader.patternHeader.id_data[3] = 'A';
-	patternFile.patternDataAndHeader.patternHeader.size = sizeof(*patt);
-
-	patternFile.crc = crcCalc.crc32((uint8_t *)&patternFile.patternDataAndHeader,sizeof(patternFile.patternDataAndHeader));
-
-	file=SD.open(name,FILE_WRITE);
-	file.write((uint8_t *)&patternFile,sizeof(patternFile));
+	file = SD.open(name, FILE_WRITE);
+	file.write(sourcePattern,
+				sizeof(Sequencer::strPattern));
 	file.close();
 
 	sequencer.saveToFileDone();
@@ -155,33 +144,31 @@ uint8_t FileManager::readPatternFile(char * name)
 	uint32_t checkCRC=0;
 
 
-	strPatternFile patternFile;
-	Sequencer::strPattern * patt;
-	patt=(Sequencer::strPattern *)sequencer.getPatternToLoadFromFile();
-	file=SD.open(name);
-	file.read((uint8_t*)&patternFile, sizeof(patternFile));
+//	strPatternFile patternFile;
+
+	uint8_t * patternDest = sequencer.getPatternToLoadFromFile();
+
+
+	// na końcu struktury jest crc
+	file = SD.open(name);
+	file.read(patternDest, sizeof(Sequencer::strPattern));
 	file.close();
 
-	if(patternFile.patternDataAndHeader.patternHeader.type != fileTypePattern)
-	{
-		return 0;
-		sequencer.loadFromFileERROR();
-	}
+	checkCRC = crcCalc.crc32(
+			patternDest, sizeof(Sequencer::strPattern) - sizeof(uint32_t));
 
-	checkCRC=crcCalc.crc32((uint8_t *)&patternFile.patternDataAndHeader,sizeof(patternFile.patternDataAndHeader));
-	if(checkCRC == patternFile.crc)
+	if (checkCRC == (((Sequencer::strPattern *) patternDest)->crc))
 	{
-		*patt=patternFile.patternDataAndHeader.pattern;
+		// ok
 		sequencer.loadFromFileOK();
-		return 1;
 	}
 	else
 	{
-		return 0;
+		// not ok
 		sequencer.loadFromFileERROR();
 	}
 
-
+	return 1;
 }
 
 uint8_t FileManager::readProjectFile(char * name, strMtProjectRemote * proj)
@@ -278,7 +265,7 @@ uint8_t FileManager::createNewProject(char * name)
 	strcpy(currentProjectPatch,"Projects/");
 	strcat(currentProjectPatch,name);
 
-	if(!SD.exists(currentProjectPatch)) return 2;
+	if(SD.exists(currentProjectPatch)) return 2;
 	strcpy(currentProjectName,name);
 
 	if(!SD.exists("Projects")) SD.mkdir("Projects");
