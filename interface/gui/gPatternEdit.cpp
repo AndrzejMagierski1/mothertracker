@@ -10,18 +10,24 @@ void cPatternEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
 
-	for(uint8_t i = 0; i<4; i++)
+	for(uint8_t i = 0; i<8; i++)
 	{
 		strControlProperties prop2;
 		prop2.text = (char*)"";
 		prop2.data =  &bottomValuesConfig;
-		prop2.style = 	( controlStyleShowValue | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
-		prop2.x = (800/4)*i+(800/8);
-		prop2.y = 450;
-		prop2.w = 800/4-10;
-		prop2.h = 30;
+		prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+		prop2.x = (800/8)*i+(800/16);
+		prop2.y = 460;
+		prop2.w = 800/8-10;
+		prop2.h = 20;
+
 
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+
+		prop2.y = 431;
+		prop2.h = 20;
+
+		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 	}
 
 
@@ -49,6 +55,9 @@ void cPatternEditor::destroyDisplayControls()
 	{
 		display.destroyControl(bottomLabel[i]);
 		bottomLabel[i] = nullptr;
+
+		display.destroyControl(topLabel[i]);
+		topLabel[i] = nullptr;
 	}
 }
 
@@ -62,25 +71,36 @@ void cPatternEditor::showDefaultScreen()
 	display.refreshControl(patternControl);
 
 	// bottom labels
-	display.setControlText(bottomLabel[0], "-     BPM:         +");
-	display.setControlText(bottomLabel[1], "-    Pattern:      +");
-	display.setControlText(bottomLabel[2], "-    Length:       +");
-	display.setControlText(bottomLabel[3], "-      Step:       +");
+	display.setControlText(bottomLabel[0], "Tempo");
+	display.setControlText(bottomLabel[1], "Pattern");
+	display.setControlText(bottomLabel[2], "Length");
+	display.setControlText(bottomLabel[3], "Step");
+	display.setControlText(bottomLabel[4], "Fill");
+	display.setControlText(bottomLabel[5], "Random");
+	display.setControlText(bottomLabel[6], "Invert");
+	display.setControlText(bottomLabel[7], "");
 
-	display.setControlValue(bottomLabel[0], pattern->tempo);
-	display.setControlValue(bottomLabel[1], 1);
-	display.setControlValue(bottomLabel[2], pattern->track[0].length+1);
-	display.setControlValue(bottomLabel[3], mtProject.values.patternEditStep);
+	display.setControlText(topLabel[0], "");
+	display.setControlText(topLabel[1], "");
+	display.setControlText(topLabel[2], "");
+	display.setControlText(topLabel[3], "");
+	display.setControlText(topLabel[4], "");
+	display.setControlText(topLabel[5], "");
+	display.setControlText(topLabel[6], "");
+	display.setControlText(topLabel[7], "");
+
+//	display.setControlValue(bottomLabel[0], pattern->tempo);
+//	display.setControlValue(bottomLabel[1], 1);
+//	display.setControlValue(bottomLabel[2], pattern->track[0].length+1);
+//	display.setControlValue(bottomLabel[3], mtProject.values.patternEditStep);
 
 
-	display.setControlShow(bottomLabel[0]);
-	display.setControlShow(bottomLabel[1]);
-	display.setControlShow(bottomLabel[2]);
-	display.setControlShow(bottomLabel[3]);
+
 
 	for(uint8_t i = 0; i<8; i++)
 	{
 		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
 	}
 
 	display.synchronizeRefresh();

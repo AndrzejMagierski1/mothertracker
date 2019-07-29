@@ -176,6 +176,8 @@ void cPatternEditor::refreshPattern()
 	if(editMode == 0)
 	{
 		trackerPattern.selectState = 0;
+
+		trackerPattern.actualStep = trackerPattern.playheadPosition;
 	}
 
 
