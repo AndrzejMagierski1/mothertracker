@@ -9,8 +9,8 @@
 static uint32_t defaultColors[] =
 {
 	0xFFFFFF, // tekst
-	0x222222, // tło
 	0xFFFFFF, // ramka
+	0x222222, // tło
 };
 
 //--------------------------------------------------------------------------------
@@ -165,6 +165,7 @@ uint8_t cBar::update()
 		API_VERTEX2F(barX+barWidth-1, barY+barHeight-1);
 		API_END();
 
+		API_COLOR(colors[1]);
 		API_LINE_WIDTH(8);
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2F(barX, barY);
