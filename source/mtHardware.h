@@ -7,7 +7,7 @@
 #include "Arduino.h"
 #include "Wire.h"
 
-
+#define HW_WITH_RADIO
 
 
 
@@ -138,6 +138,13 @@
 
 // ENCODER SWITCH
 #define ENC_SWITCH		41 			//PTD29			pin-80
+
+
+#define SI4703_KLUCZ		24
+#define SI4703_RST			67
+#define SI4703_SEN			68
+#define SI4703_GPIO_1		66
+#define SI4703_GPIO_2		79
 
 
 

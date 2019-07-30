@@ -20,8 +20,11 @@
 #include "sdram.h"
 #include "hidConnection.h"
 #include "sdCardDetect.h"
+#include "SparkFunSi4703.h"
 
-
+#ifdef HW_WITH_RADIO
+Si4703_Breakout radio(SI4703_RST, 48, 47, SI4703_SEN);
+#endif
 
 
 
@@ -178,6 +181,20 @@ void initHardware()
 	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,gridToKeyMapping,IO7326_INT_FUNCT_A);
 
 	tactButtons.testMode(0);
+
+#ifdef HW_WITH_RADIO
+	pinMode(SI4703_KLUCZ,OUTPUT);
+	digitalWrite(SI4703_KLUCZ,HIGH);
+	radio.powerOn();
+	radio.setVolume(10);
+	radio.setChannel(899);
+	audioShield.headphoneSourceSelect(HEADPHONE_IN_SOURCE_INPUTS);
+	/* Reset,SEN trzeba dodac do core teensy
+	 *
+	 * Wysterowac klucz na sztywno narazie
+	 * */
+#endif
+
 
 	//LEDS
 	leds.begin();

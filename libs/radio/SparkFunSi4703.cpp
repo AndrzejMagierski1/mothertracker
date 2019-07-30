@@ -1,12 +1,13 @@
 #include "Arduino.h"
+#include "i2c_t3.h"
 #include "SparkFunSi4703.h"
-#include "Wire.h"
 
-Si4703_Breakout::Si4703_Breakout(int resetPin, int sdioPin, int sclkPin)
+Si4703_Breakout::Si4703_Breakout(int resetPin, int sdioPin, int sclkPin, int senPin)
 {
   _resetPin = resetPin;
   _sdioPin = sdioPin;
   _sclkPin = sclkPin;
+  _senPin = senPin;
 }
 
 void Si4703_Breakout::powerOn()
@@ -71,7 +72,7 @@ void Si4703_Breakout::setVolume(int volume)
 
 void Si4703_Breakout::readRDS(char* buffer, long timeout)
 { 
-	long endTime = millis() + timeout;
+  uint32_t endTime = millis() + timeout;
   boolean completed[] = {false, false, false, false};
   int completedCount = 0;
   while(completedCount < 4 && millis() < endTime) {
@@ -113,20 +114,22 @@ void Si4703_Breakout::readRDS(char* buffer, long timeout)
 
 
 
-//To get the Si4703 inito 2-wire mode, SEN needs to be high and SDIO needs to be low after a reset
+//To get the Si4703 inito 2-Wire mode, SEN needs to be high and SDIO needs to be low after a reset
 //The breakout board has SEN pulled high, but also has SDIO pulled high. Therefore, after a normal power up
 //The Si4703 will be in an unknown state. RST must be controlled
 void Si4703_Breakout::si4703_init() 
 {
   pinMode(_resetPin, OUTPUT);
   pinMode(_sdioPin, OUTPUT); //SDIO is connected to A4 for I2C
-  digitalWrite(_sdioPin, LOW); //A low SDIO indicates a 2-wire interface
+  pinMode(_senPin,OUTPUT);
+  digitalWrite(_sdioPin, LOW); //A low SDIO indicates a 2-Wire interface
+  digitalWrite(_senPin,HIGH);
   digitalWrite(_resetPin, LOW); //Put Si4703 into reset
   delay(1); //Some delays while we allow pins to settle
   digitalWrite(_resetPin, HIGH); //Bring Si4703 out of reset with SDIO set to low and SEN pulled high with on-board resistor
   delay(1); //Allow Si4703 to come out of reset
 
-  Wire.begin(); //Now that the unit is reset and I2C inteface mode, we need to begin I2C
+  Wire.begin(I2C_MASTER, 0x00,  I2C_PINS_47_48, I2C_PULLUP_EXT, 400000,I2C_OP_MODE_IMM);
 
   readRegisters(); //Read the current register set
   //si4703_registers[0x07] = 0xBC04; //Enable the oscillator, from AN230 page 9, rev 0.5 (DOES NOT WORK, wtf Silicon Labs datasheet?)
@@ -154,6 +157,7 @@ void Si4703_Breakout::si4703_init()
 void Si4703_Breakout::readRegisters(){
 
   //Si4703 begins reading from register upper register of 0x0A and reads to 0x0F, then loops to 0x00.
+  //Wire.beginTransmission(SI4703);
   Wire.requestFrom(SI4703, 32); //We want to read the entire register set from 0x0A to 0x09 = 32 bytes.
 
   while(Wire.available() < 32) ; //Wait for 16 words/32 bytes to come back from slave I2C device
@@ -166,6 +170,8 @@ void Si4703_Breakout::readRegisters(){
     si4703_registers[x] |= Wire.read();
     if(x == 0x09) break; //We're done!
   }
+
+	Wire.endTransmission();
 }
 
 //Write the current 9 control registers (0x02 to 0x07) to the Si4703
@@ -173,10 +179,12 @@ void Si4703_Breakout::readRegisters(){
 //The Si4703 assumes you are writing to 0x02 first, then increments
 byte Si4703_Breakout::updateRegisters() {
 
-  Wire.beginTransmission(SI4703);
+
   //A write command automatically begins with register 0x02 so no need to send a write-to address
   //First we send the 0x02 to 0x07 control registers
   //In general, we should not write to registers 0x08 and 0x09
+
+  Wire.beginTransmission(SI4703);
   for(int regSpot = 0x02 ; regSpot < 0x08 ; regSpot++) {
     byte high_byte = si4703_registers[regSpot] >> 8;
     byte low_byte = si4703_registers[regSpot] & 0x00FF;

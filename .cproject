@@ -38,6 +38,7 @@
 								<option id="com.crt.advproject.cpp.fpu.779188972" name="Floating point" superClass="com.crt.advproject.cpp.fpu" useByScannerDiscovery="false" value="com.crt.advproject.cpp.fpu.fpv4.hard" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1702633537" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../source"/>
+									<listOptionValue builtIn="false" value="../libs/radio"/>
 									<listOptionValue builtIn="false" value="../libs/MIDI"/>
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
@@ -95,6 +96,7 @@
 								<option id="com.crt.advproject.gcc.fpu.534876620" name="Floating point" superClass="com.crt.advproject.gcc.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gcc.fpu.fpv4.hard" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1607126998" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../source"/>
+									<listOptionValue builtIn="false" value="../libs/radio"/>
 									<listOptionValue builtIn="false" value="../libs/MIDI"/>
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
@@ -131,6 +133,7 @@
 								<option id="com.crt.advproject.gas.specs.1642914133" name="Specs" superClass="com.crt.advproject.gas.specs" useByScannerDiscovery="false" value="com.crt.advproject.gas.specs.newlibnano" valueType="enumerated"/>
 								<option id="gnu.both.asm.option.include.paths.863797007" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../source"/>
+									<listOptionValue builtIn="false" value="../libs/radio"/>
 									<listOptionValue builtIn="false" value="../libs/MIDI"/>
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
@@ -539,6 +542,6 @@
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="com.nxp.mcuxpresso.core.datamodels">
 		<sdkName>SDK_2.x_MK66FX1M0xxx18</sdkName>
-		<sdkVersion>2.5.0</sdkVersion>
+		<sdkVersion>2.4.1</sdkVersion>
 	</storageModule>
 </cproject>

@@ -249,10 +249,10 @@ void FT812_Init(void)
 
     lcdPclk    = 2;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
-    lcdPclkpol = 0;                                                             // Define active edge of PCLK
+    lcdPclkpol = 1;                                                             // Define active edge of PCLK
 
     lcdCsSpread = 0;
-    lcdRotate   = 1;
+    lcdRotate   = 4;
     //lcdRotate   = 4;
     lcdDither = 0;
 
