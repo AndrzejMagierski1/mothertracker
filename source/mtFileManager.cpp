@@ -161,14 +161,26 @@ uint8_t FileManager::readPatternFile(char * name)
 	{
 		// ok
 		sequencer.loadFromFileOK();
+		return 1;
 	}
 	else
 	{
 		// not ok
 		sequencer.loadFromFileERROR();
+		return 0;
 	}
 
 	return 1;
+}
+
+uint8_t FileManager::loadPattern(uint8_t index)
+{
+
+	char patternToLoad[PATCH_SIZE] { 0 };
+
+	sprintf(patternToLoad, "%s%spattern_%02d.mtp", currentProjectPatch, "/patterns/",
+			index);
+	return readPatternFile(patternToLoad);
 }
 
 uint8_t FileManager::readProjectFile(char * name, strMtProjectRemote * proj)
@@ -216,6 +228,9 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 		strcpy(currentProjectPatch,currentPatch);
 	}
 
+//	strcpy(mtProject.path, currentPatch); // aktualna ścieżka projektu z nazwą
+//	strcat(mtProject.path, "/"); // aktualna ścieżka projektu z nazwą
+
 	strcat(currentPatch,"/project.bin");
 
 	status = readProjectFile(currentPatch, &mtProject.mtProjectRemote);
@@ -241,19 +256,20 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 		 }
 	}
 
-	for(int i=0; i< PATTERNS_COUNT;i++)
-	{
-		if(mtProject.mtProjectRemote.patternFile[i].index != - 1)
-		{
-			memset(currentPatch,0,PATCH_SIZE);
-			strcpy(currentPatch,currentProjectPatch);
-			strcat(currentPatch,"/patterns/");
-			strcat(currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
-			status=readPatternFile(currentPatch);
-			if(!status) return status;
-			else break;
-		}
-	}
+//	for(int i=0; i< PATTERNS_COUNT;i++)
+//	{
+//		if(mtProject.mtProjectRemote.patternFile[i].index != - 1)
+//		{
+//			memset(currentPatch,0,PATCH_SIZE);
+//			strcpy(currentPatch,currentProjectPatch);
+//			strcat(currentPatch,"/patterns/");
+//			strcat(currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
+//			status=readPatternFile(currentPatch);
+//			if(!status) return status;
+//			else break;
+//		}
+//	}
+	loadPattern(0);
 
 	return status;
 }

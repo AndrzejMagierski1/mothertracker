@@ -142,6 +142,8 @@ public:
 	void updateImportSampleToProject();
 	uint8_t getStateImportSampleToProject();
 	uint8_t getProgressImportSampleToProject();
+
+	uint8_t loadPattern(uint8_t index);
 	/////////////////////////////////////////////////////////////////////////
 
 	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
