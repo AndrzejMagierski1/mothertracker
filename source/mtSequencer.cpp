@@ -726,7 +726,7 @@ void Sequencer::clearRow(uint8_t row, uint8_t bank)
 void Sequencer::loadDefaultTrack(uint8_t row, uint8_t bank)
 {
 
-	for (uint8_t x = 1; x <= MAXSTEP; x++)
+	for (uint8_t x = 0; x <= MAXSTEP; x++)
 	{
 		seq[bank].track[row].length = DEFAULT_ROW_LEN;
 		seq[bank].track[row].rootNote = DEFAULT_ROW_NOTE;
