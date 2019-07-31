@@ -1512,6 +1512,7 @@ void Sequencer::copy()
 void Sequencer::copy(strSelection *from, strSelection *to)
 {
 	if (!isSelectionCorrect(from)) return;
+	if (!isSelectionCorrect(to)) return;
 
 	uint8_t tracksToCopy, rowsToCopy;
 	uint8_t trackOff = 0, stepOff = 0;
@@ -1530,7 +1531,7 @@ void Sequencer::copy(strSelection *from, strSelection *to)
 				t++)
 		{
 			stepOff = rowsToCopy - 1;
-			for (uint8_t s = to->firstStep + stepOff;
+			for (int16_t s = to->firstStep + stepOff;
 					s >= to->firstStep;
 					s--)
 			{
@@ -1718,11 +1719,27 @@ void Sequencer::setPasteSelection(uint8_t stepFrom,
 									uint8_t stepTo,
 									uint8_t trackTo)
 {
-	selectionPaste.firstStep = stepFrom;
-	selectionPaste.firstTrack = trackFrom;
+	if (stepTo < stepFrom)
+		{
+			selectionPaste.firstStep = stepTo;
+			selectionPaste.lastStep = stepFrom;
+		}
+		else
+		{
+			selectionPaste.firstStep = stepFrom;
+			selectionPaste.lastStep = stepTo;
+		}
 
-	selectionPaste.lastStep = stepTo;
-	selectionPaste.lastTrack = trackTo;
+		if (trackTo < trackFrom)
+		{
+			selectionPaste.firstTrack = trackTo;
+			selectionPaste.lastTrack = trackFrom;
+		}
+		else
+		{
+			selectionPaste.firstTrack = trackFrom;
+			selectionPaste.lastTrack = trackTo;
+		}
 
 }
 //
@@ -1919,15 +1936,18 @@ void Sequencer::transposeSelection(int16_t value)
 				s++, offset++)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
-
-			step->note = constrain(step->note + value, MIN_NOTE_STEP,
-									MAX_NOTE_STEP);
-			if (isSingleSelection(sel) && step->note >= 0)
+			if (step->note >= 0)
 			{
-				blinkNote(step->instrument,
-							step->note,
-							step->velocity,
-							t);
+
+				step->note = constrain(step->note + value, 0,
+										MAX_NOTE_STEP);
+				if (isSingleSelection(sel) && step->note >= 0)
+				{
+					blinkNote(step->instrument,
+								step->note,
+								step->velocity,
+								t);
+				}
 			}
 
 		}

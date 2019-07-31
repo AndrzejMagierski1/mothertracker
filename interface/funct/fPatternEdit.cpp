@@ -50,6 +50,7 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 static uint8_t isMultiSelection();
 static void sendSelection();
+static void sendPasteSelection();
 
 char getHexFromInt(int16_t val, uint8_t index);
 
@@ -307,7 +308,7 @@ void cPatternEditor::refreshPattern()
 	display.refreshControl(bottomLabel[1]);
 	display.setControlValue(bottomLabel[1], mtProject.values.actualPattern+1);
 	display.refreshControl(bottomLabel[2]);
-	display.setControlValue(bottomLabel[2], seq->track[0].length);
+	display.setControlValue(bottomLabel[2], seq->track[0].length+1);
 	display.refreshControl(bottomLabel[3]);
 	display.setControlValue(bottomLabel[3], mtProject.values.patternEditStep);
 
@@ -857,49 +858,15 @@ static  uint8_t functPasteInsert()
 		// INSERT
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
-			// czy istnieje zaznaczenie
-			if ((PTE->trackerPattern.selectStartStep != PTE->trackerPattern.selectEndStep) ||
-					(PTE->trackerPattern.selectStartTrack != PTE->trackerPattern.selectEndTrack))
-			{
-				sequencer.setSelection(PTE->trackerPattern.selectStartStep,
-										PTE->trackerPattern.selectStartTrack,
-										PTE->trackerPattern.selectEndStep,
-										PTE->trackerPattern.selectEndTrack);
-
-				sequencer.insert(&sequencer.selection);
-			}
-			else
-			{
-				sequencer.setSelection(PTE->trackerPattern.actualStep,
-										PTE->trackerPattern.actualTrack,
-										PTE->trackerPattern.actualStep,
-										PTE->trackerPattern.actualTrack);
-
-				sequencer.insert(&sequencer.selection);
-			}
+			sendSelection();
+			sequencer.insert(&sequencer.selection);
 		}
 		// PASTE
 		else
 		{
-			if ((PTE->trackerPattern.selectStartStep != PTE->trackerPattern.selectEndStep) ||
-					(PTE->trackerPattern.selectStartTrack != PTE->trackerPattern.selectEndTrack))
-			{
-				sequencer.setPasteSelection(
-						PTE->trackerPattern.selectStartStep,
-						PTE->trackerPattern.selectStartTrack,
-						PTE->trackerPattern.selectEndStep,
-						PTE->trackerPattern.selectEndTrack);
 
-				sequencer.copy();
-			}
-			else
-			{
-				sequencer.setPasteSelection(PTE->trackerPattern.actualStep,
-											PTE->trackerPattern.actualTrack,
-											PTE->trackerPattern.actualStep,
-											PTE->trackerPattern.actualTrack);
-				sequencer.copy();
-			}
+			sendPasteSelection();
+			sequencer.copy();
 		}
 
 	}
@@ -914,8 +881,7 @@ static uint8_t functCopyDelete()
 
 //	sequencer.copy();
 
-//	if (PTE->editMode == 1)
-	if (0)
+	if (PTE->editMode == 1)
 	{
 		// DELETE
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
@@ -931,24 +897,24 @@ static uint8_t functCopyDelete()
 		}
 
 	}
-	else if (PTE->editMode == 1)
-	{
-		// SHIFT
-		if (tactButtons.isButtonPressed(interfaceButtonShift))
-		{
-			sendSelection();
-			sequencer.transposeSelection(1);
-
-		}
-		// NO SHIFT
-		else
-		{
-			sendSelection();
-			sequencer.transposeSelection(-1);
-
-		}
-
-	}
+//	else if (PTE->editMode == 1)
+//	{
+//		// SHIFT
+//		if (tactButtons.isButtonPressed(interfaceButtonShift))
+//		{
+//			sendSelection();
+//			sequencer.transposeSelection(1);
+//
+//		}
+//		// NO SHIFT
+//		else
+//		{
+//			sendSelection();
+//			sequencer.transposeSelection(-1);
+//
+//		}
+//
+//	}
 
 	PTE->refreshPattern();
 
@@ -957,7 +923,7 @@ static uint8_t functCopyDelete()
 
 static void sendSelection()
 {
-	if (isMultiSelection())
+ 	if (isMultiSelection())
 	{
 		sequencer.setSelection(PTE->trackerPattern.selectStartStep,
 								PTE->trackerPattern.selectStartTrack,
@@ -970,6 +936,23 @@ static void sendSelection()
 								PTE->trackerPattern.actualTrack,
 								PTE->trackerPattern.actualStep,
 								PTE->trackerPattern.actualTrack);
+	}
+}
+static void sendPasteSelection()
+{
+	if (isMultiSelection())
+	{
+		sequencer.setPasteSelection(PTE->trackerPattern.selectStartStep,
+									PTE->trackerPattern.selectStartTrack,
+									PTE->trackerPattern.selectEndStep,
+									PTE->trackerPattern.selectEndTrack);
+	}
+	else
+	{
+		sequencer.setPasteSelection(PTE->trackerPattern.actualStep,
+									PTE->trackerPattern.actualTrack,
+									PTE->trackerPattern.actualStep,
+									PTE->trackerPattern.actualTrack);
 	}
 }
 
