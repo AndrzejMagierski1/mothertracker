@@ -17,15 +17,15 @@ const uint8_t monitorCount = 2;
 
 const char sourcesNamesLabels[sourceCount][10] =
 {
-		"line in",
-		"mic",
-		"radio",
+		"Line in",
+		"Mic",
+		"Radio",
 };
 
 const char monitorNamesLabels[monitorCount][5] =
 {
-		"on",
-		"off",
+		"On",
+		"Off",
 };
 
 struct strRecorderConfig
@@ -53,7 +53,6 @@ public:
 	{
 //		inActiveInstrumentsCount = 0;
 //		inActiveInstrumentIndex = 0;
-		editorInstrument = nullptr;
 //		openedInstrFromActive = 0;
 //		openedInstrumentIndex = 0;
 
@@ -76,6 +75,7 @@ public:
 	void showSourceList();
 	void showMonitorList();
 
+	void showRecTimeValue();
 	void showFreqValue();
 	void showRadio();
 	void hideRadio();
@@ -117,7 +117,10 @@ public:
 	uint8_t selectedPlace = 0;
 	uint8_t currentScreen = 0;
 	strRecorderConfig recorderConfig;
+	uint32_t spectrumTimerConstrains = 100;
 	char freqTextValue[6];
+	char recTimeValueText[8];
+	float recTimeValue;
 
 	enum sourceType
 	{
@@ -142,7 +145,9 @@ public:
 	uint8_t refreshPoints = 0;
 
 
-	strInstrument * editorInstrument;
+
+	uint16_t startPoint;
+	uint16_t endPoint = MAX_16BIT;
 
 	uint16_t zoomWidth = MAX_16BIT;
 	int32_t zoomStart =  0;
@@ -155,6 +160,8 @@ public:
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;
+
+	elapsedMillis refreshSpectrumTimer;
 
 //----------------------------------
 // listy
@@ -174,6 +181,12 @@ public:
 	uint8_t isPlayingSample = 0;
 	int8_t playNote = 24;
 	uint8_t glidePreviewDif = 0;
+
+//----------------------------------
+//rec
+
+uint8_t recordInProgressFlag = 0;
+
 
 //----------------------------------
 // bar

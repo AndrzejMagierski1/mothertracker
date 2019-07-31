@@ -38,7 +38,7 @@ static  uint8_t functSelectButton6();
 static  uint8_t functSelectButton7();
 
 
-static  uint8_t functActionButton0();
+static  uint8_t functActionButton0(uint8_t s);
 static  uint8_t functActionButton1();
 static  uint8_t functActionButton2();
 static  uint8_t functActionButton3();
@@ -55,6 +55,7 @@ static  uint8_t functActionRadioFreq();
 static  uint8_t functActionRadioLeft();
 static  uint8_t functActionRadioRight();
 static  uint8_t functActionPreview();
+static 	uint8_t functActionStopPreview();
 static  uint8_t functActionCrop();
 static  uint8_t functActionUndo();
 static  uint8_t functActionGoBack();
@@ -87,15 +88,14 @@ void cSampleRecorder::update()
 		processSpectrum();
 
 		display.refreshControl(SR->spectrumControl);
-
+		if(recordInProgressFlag) spectrumTimerConstrains+=50;
 		refreshSpectrum = 0;
 	}
 
 	if(refreshPoints)
 	{
 		processPoints();
-
-
+//
 		display.refreshControl(SR->pointsControl);
 
 		refreshPoints = 0;
@@ -107,6 +107,17 @@ void cSampleRecorder::update()
 		else audioShield.headphoneSourceSelect(0);
 	}
 	lastPrevievFlag = previevFlag;
+
+	if(recordInProgressFlag)
+	{
+		showRecTimeValue();
+		if(refreshSpectrumTimer > spectrumTimerConstrains)
+		{
+			refreshSpectrumTimer = 0;
+			refreshSpectrum = 1;
+		}
+	}
+
 
 	changeLevelBar();
 
@@ -177,7 +188,7 @@ void cSampleRecorder::setDefaultScreenFunct()
 //	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
 
-	FM->setButtonObj(interfaceButton0, buttonPress, functActionButton0);
+	FM->setButtonObj(interfaceButton0, functActionButton0);
 	FM->setButtonObj(interfaceButton1, buttonPress, functActionButton1);
 	FM->setButtonObj(interfaceButton2, buttonPress, functActionButton2);
 	FM->setButtonObj(interfaceButton3, buttonPress, functActionButton3);
@@ -199,31 +210,19 @@ void cSampleRecorder::setDefaultScreenFunct()
 void cSampleRecorder::processPoints()
 {
 
-	points.pointsType = editorInstrument->playMode;
+	points.pointsType = 0;
 
-	if(editorInstrument->startPoint >= zoomStart && editorInstrument->startPoint <= zoomEnd)
+	if(startPoint >= zoomStart && startPoint <= zoomEnd)
 	{
-		points.startPoint = ((editorInstrument->startPoint-zoomStart) * 599) / zoomWidth;
+		points.startPoint = ((startPoint-zoomStart) * 599) / zoomWidth;
 	}
 	else points.startPoint = -1;
 
-	if(editorInstrument->endPoint >= zoomStart && editorInstrument->endPoint <= zoomEnd)
+	if(endPoint >= zoomStart && endPoint <= zoomEnd)
 	{
-		points.endPoint = ((editorInstrument->endPoint-zoomStart) * 599) / zoomWidth;
+		points.endPoint = ((endPoint-zoomStart) * 599) / zoomWidth;
 	}
 	else points.endPoint = -1;
-
-	if(editorInstrument->loopPoint1 >= zoomStart && editorInstrument->loopPoint1 <= zoomEnd)
-	{
-		points.loopPoint1 = ((editorInstrument->loopPoint1-zoomStart) * 599) / zoomWidth;
-	}
-	else points.loopPoint1 = -1;
-
-	if(editorInstrument->loopPoint2 >= zoomStart && editorInstrument->loopPoint2 <= zoomEnd)
-	{
-		points.loopPoint2 = ((editorInstrument->loopPoint2-zoomStart) * 599) / zoomWidth;
-	}
-	else points.loopPoint2 = -1;
 
 }
 
@@ -231,11 +230,7 @@ void cSampleRecorder::processPoints()
 void cSampleRecorder::processSpectrum()
 {
 
-	//refreshSpectrum = 1;
-
-
-	// uwaga tu wazna kolejnosc + do sprawdzenia
-	if(mtProject.values.lastUsedInstrument < 0 || mtProject.instrument[mtProject.values.lastUsedInstrument].isActive == 0 )
+	if(recorder.getLength() == 0)
 	{
 		for(uint16_t i = 0; i < 600; i++)
 		{
@@ -245,34 +240,31 @@ void cSampleRecorder::processSpectrum()
 
 		return;
 	}
-
-	uint16_t offset_pixel;
-	int16_t * sampleData;
-
-	if(editorInstrument->sample.type == mtSampleTypeWavetable)
+	if(recordInProgressFlag)
 	{
+		int16_t * sampleData = sdram_effectsBank;
+		uint32_t resolution = recorder.getLength() / 600;
+
+		if(resolution < 1) resolution = 1;
+
+		uint16_t offset_pixel = 0;
+
 		zoomWidth = MAX_16BIT;
 		zoomStart = 0;
-		zoomValue = 1;
 		zoomEnd = MAX_16BIT;
-		uint16_t windowSize = editorInstrument->sample.wavetable_window_size;
-
-		sampleData = editorInstrument->sample.address
-				+ (mtProject.instrument[mtProject.values.lastUsedInstrument].wavetableCurrentWindow * windowSize);
-
-		float resolution = windowSize / 600.0;
 
 		int16_t up = 0;
 		int16_t low = 0;
-		float step = 0;
+		uint32_t step = 0;
 
-		for(uint16_t i = 0; i < 600; i++)
+		for(uint16_t i = offset_pixel; i < 600; i++)
 		{
 			low = up = 0; //*(sampleData+step);
 
 			for(uint16_t j = 0; j < resolution; j++)
 			{
-				int16_t sample = *(sampleData+(uint32_t)step+j);
+				int16_t sample = *(sampleData+step+j);
+
 
 				if(sample > up)  up = sample;
 				else if(sample < low) low = sample;
@@ -285,37 +277,47 @@ void cSampleRecorder::processSpectrum()
 
 			spectrum.upperData[i] =  up;
 			spectrum.lowerData[i] = low;
+
 		}
 
-		//if(resolution <= 1)
-		spectrum.spectrumType = 1;
-		//else spectrum.spectrumType = 0;
-
-
+		if(resolution <= 1) spectrum.spectrumType = 1;
+		else spectrum.spectrumType = 0;
 		return;
 	}
+
+
+	// uwaga tu wazna kolejnosc + do sprawdzenia
+//	if()
+//	{
+//		for(uint16_t i = 0; i < 600; i++)
+//		{
+//			spectrum.upperData[i] = 0;
+//			spectrum.lowerData[i] = 0;
+//		}
+//
+//		return;
+//	}
+
+	uint16_t offset_pixel;
+	int16_t * sampleData;
+
+
 
 	uint32_t resolution;
 
 
 	switch(lastChangedPoint)
 	{
-		case 0: zoomPosition = editorInstrument->startPoint; break; //MAX_16BIT/2; break;
+		case 0: zoomPosition = startPoint; break; //MAX_16BIT/2; break;
 
 		case 1:
-			zoomPosition = editorInstrument->startPoint;
+			zoomPosition = startPoint;
 		break;
 		case 2:
-			zoomPosition = editorInstrument->endPoint;
-		break;
-		case 3:
-			zoomPosition = editorInstrument->loopPoint1;
-		break;
-		case 4:
-			zoomPosition = editorInstrument->loopPoint2;
+			zoomPosition = endPoint;
 		break;
 
-		default: zoomPosition = editorInstrument->startPoint; break; //MAX_16BIT/2; break;
+		default: zoomPosition = startPoint; break; //MAX_16BIT/2; break;
 	}
 
 
@@ -348,11 +350,11 @@ void cSampleRecorder::processSpectrum()
 		}
 
 
-		uint32_t offset = ((float)zoomPosition/MAX_16BIT) * editorInstrument->sample.length;
+		uint32_t offset = ((float)zoomPosition/MAX_16BIT) * recorder.getLength();
 
-		sampleData = editorInstrument->sample.address + offset;
+		sampleData = sdram_effectsBank + offset;
 
-		resolution = (((float)zoomWidth/MAX_16BIT) * editorInstrument->sample.length ) / 600;
+		resolution = (((float)zoomWidth/MAX_16BIT) * recorder.getLength() ) / 600;
 
 
 //		Serial.print(zoomValue);
@@ -372,8 +374,8 @@ void cSampleRecorder::processSpectrum()
 		zoomWidth = MAX_16BIT;
 		zoomStart = 0;
 		zoomEnd = MAX_16BIT;
-		sampleData = editorInstrument->sample.address;
-		resolution = editorInstrument->sample.length / 600;
+		sampleData = sdram_effectsBank;
+		resolution = recorder.getLength() / 600;
 	}
 
 
@@ -468,28 +470,53 @@ void cSampleRecorder::listMonitor()
 //==============================================================================================================
 static  uint8_t functSelectButton0()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
 	SR->selectedPlace = 0;
 	SR->activateLabelsBorder();
 	return 1;
 }
 static  uint8_t functSelectButton1()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
 	if ((SR->currentScreen == cSampleRecorder::screenTypeConfig) &&
 	(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio)) return 1;
 	SR->selectedPlace = 1;
 	SR->activateLabelsBorder();
+
+	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
+		SR->points.selected = 1;
+		if(SR->zoomValue > 1.0)
+		{
+			SR->refreshSpectrum = 1;
+		}
+		SR->refreshPoints = 1;
+	}
+
 	return 1;
 }
 static  uint8_t functSelectButton2()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
 	if ((SR->currentScreen == cSampleRecorder::screenTypeConfig) &&
 	(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio)) return 1;
 	SR->selectedPlace = 2;
 	SR->activateLabelsBorder();
+
+	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
+		SR->points.selected = 2;
+		if(SR->zoomValue > 1.0)
+		{
+			SR->refreshSpectrum = 1;
+		}
+		SR->refreshPoints = 1;
+	}
 	return 1;
 }
 static  uint8_t functSelectButton3()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
 	if ((SR->currentScreen == cSampleRecorder::screenTypeConfig) &&
 	(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio)) return 1;
 	SR->selectedPlace = 3;
@@ -498,6 +525,7 @@ static  uint8_t functSelectButton3()
 }
 static  uint8_t functSelectButton4()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig) return 1;
 	SR->selectedPlace = 4;
 	SR->activateLabelsBorder();
@@ -505,12 +533,14 @@ static  uint8_t functSelectButton4()
 }
 static  uint8_t functSelectButton5()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
 	SR->selectedPlace = 5;
 	SR->activateLabelsBorder();
 	return 1;
 }
 static  uint8_t functSelectButton6()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
 	SR->selectedPlace = 6;
 	SR->activateLabelsBorder();
 	return 1;
@@ -523,16 +553,30 @@ static  uint8_t functSelectButton7()
 }
 
 
-static  uint8_t functActionButton0()
+static  uint8_t functActionButton0(uint8_t s)
 {
-	functSelectButton0();
-	switch(SR->currentScreen)
+	if(s == 1)
 	{
-		case cSampleRecorder::screenTypeConfig:		functActionSource(); 			break;
-		case cSampleRecorder::screenTypeRecord: 	functActionPreview();			break;
-		case cSampleRecorder::screenTypeKeyboard: break;
-		default: break;
+		functSelectButton0();
+		switch(SR->currentScreen)
+		{
+			case cSampleRecorder::screenTypeConfig:		functActionSource(); 			break;
+			case cSampleRecorder::screenTypeRecord: 	functActionPreview();			break;
+			case cSampleRecorder::screenTypeKeyboard: break;
+			default: break;
+		}
 	}
+	else if ( s == 0)
+	{
+		switch(SR->currentScreen)
+		{
+			case cSampleRecorder::screenTypeConfig:	break;
+			case cSampleRecorder::screenTypeRecord:  functActionStopPreview(); break;
+			case cSampleRecorder::screenTypeKeyboard: break;
+			default: break;
+		}
+	}
+
 	return 1;
 }
 
@@ -644,6 +688,11 @@ static  uint8_t functActionMonitor()
 
 static  uint8_t functActionRecord()
 {
+	SR->recordInProgressFlag = 1;
+	SR->currentScreen = SR->screenTypeRecord;
+	SR->showDefaultScreen();
+	recorder.startRecording(sdram_effectsBank);
+	SR->spectrumTimerConstrains = 100;
 	return 1;
 }
 
@@ -664,43 +713,77 @@ static  uint8_t functActionRadioRight()
 
 static  uint8_t functActionPreview()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
+	recorder.play(SR->startPoint,SR->endPoint);
+	return 1;
+}
+
+static uint8_t functActionStopPreview()
+{
+	recorder.stop();
 	return 1;
 }
 
 static  uint8_t functActionCrop()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
 	return 1;
 }
 
 static  uint8_t functActionUndo()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
 	return 1;
 }
 
 static  uint8_t functActionGoBack()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
+	//todo: okienko pytajace czy zapisac o ile nie zapisano nic wczesniej
+	SR->currentScreen = cSampleRecorder::screenTypeConfig;
+	if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
+	SR->showDefaultScreen();
+
 	return 1;
 }
 
 static  uint8_t functActionSave()
 {
+
+	if(SR->recordInProgressFlag == 1)
+	{
+		SR->recordInProgressFlag = 0;
+		SR->showDefaultScreen();
+		recorder.stopRecording();
+		audioShield.headphoneSourceSelect(0);
+		return 1;
+	}
+
 	return 1;
 }
 
 static  uint8_t functActionEndPoint()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
+	SR->points.selected = 2;
+	if(SR->zoomValue > 1.0)
+	{
+		SR->refreshSpectrum = 1;
+	}
+	SR->refreshPoints = 1;
 	return 1;
 }
 
 static  uint8_t functActionStartPoint()
 {
+	if(SR->recordInProgressFlag == 1) return 1;
 
 	return 1;
 }
 
 static  uint8_t functActionZoom()
 {
-
+	if(SR->recordInProgressFlag == 1) return 1;
 
 
 	return 1;
@@ -712,17 +795,30 @@ static  uint8_t functActionZoom()
 static  uint8_t functEncoder(int16_t value)
 {
 
-
-	switch(SR->selectedPlace)
+	if(SR->currentScreen == cSampleRecorder::screenTypeConfig)
 	{
-	case 0: 	SR->changeSourceSelection(value);			break;
-	case 1: 	SR->changeRadioFreqBar(value);				break;
-	case 2: 	 											break;
-	case 3: 												break;
-	case 5: 	SR->changeGainBar(value);					break;
-	case 6: 	SR->changeMonitorSelection(value);			break;
+		switch(SR->selectedPlace)
+		{
+		case 0: 	SR->changeSourceSelection(value);			break;
+		case 1: 	SR->changeRadioFreqBar(value);				break;
+		case 2: 	 											break;
+		case 3: 												break;
+		case 5: 	SR->changeGainBar(value);					break;
+		case 6: 	SR->changeMonitorSelection(value);			break;
+		}
 	}
-
+	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
+		switch(SR->selectedPlace)
+		{
+		case 0: 	break;
+		case 1: 	SR->modStartPoint(value);					break;
+		case 2: 	SR->modEndPoint(value); 					break;
+		case 3: 	SR->changeZoom(value);						break;
+		case 5: 	break;
+		case 6: 	break;
+		}
+	}
 
 
 
@@ -735,42 +831,74 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functLeft()
 {
+	if(SR->recordInProgressFlag) return 1;
+
 	if(SR->selectedPlace > 0) SR->selectedPlace--;
 
-	switch(SR->selectedPlace)
+	if(SR->currentScreen == cSampleRecorder::screenTypeConfig)
 	{
-		case 0:
-			functSelectButton0();
-			break;
-		case 1:
-			functSelectButton1();
-			break;
-		case 2:
-			functSelectButton2();
-			break;
-		case 3:
-			functSelectButton3();
-			break;
-		case 4:
-			if(SR->recorderConfig.source == cSampleRecorder::sourceTypeRadio)
-			{
-				SR->selectedPlace = 3;
-				functSelectButton3();
-			}
-			else
-			{
-				SR->selectedPlace = 0;
+		switch(SR->selectedPlace)
+		{
+			case 0:
 				functSelectButton0();
-			}
-			break;
-		case 5:
-			functSelectButton5();
-			break;
-		case 6:
-			functSelectButton6();
-			break;
-
+				break;
+			case 1:
+				functSelectButton1();
+				break;
+			case 2:
+				functSelectButton2();
+				break;
+			case 3:
+				functSelectButton3();
+				break;
+			case 4:
+				if(SR->recorderConfig.source == cSampleRecorder::sourceTypeRadio)
+				{
+					SR->selectedPlace = 3;
+					functSelectButton3();
+				}
+				else
+				{
+					SR->selectedPlace = 0;
+					functSelectButton0();
+				}
+				break;
+			case 5:
+				functSelectButton5();
+				break;
+			case 6:
+				functSelectButton6();
+				break;
+		}
 	}
+	else if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
+		switch(SR->selectedPlace)
+		{
+			case 0:
+				functSelectButton0();
+				break;
+			case 1:
+				functSelectButton1();
+				break;
+			case 2:
+				functSelectButton2();
+				break;
+			case 3:
+				functSelectButton3();
+				break;
+			case 4:
+				functSelectButton4();
+				break;
+			case 5:
+				functSelectButton5();
+				break;
+			case 6:
+				functSelectButton6();
+				break;
+		}
+	}
+
 
 
 	return 1;
@@ -779,6 +907,8 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(SR->recordInProgressFlag) return 1;
+
 	if(SR->selectedPlace < SR->frameData.placesCount-1) SR->selectedPlace++;
 
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig )
@@ -819,7 +949,34 @@ static  uint8_t functRight()
 
 		}
 	}
+	else if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
 
+		switch(SR->selectedPlace)
+		{
+			case 1:
+				functSelectButton1();
+				break;
+			case 2:
+				functSelectButton2();
+				break;
+			case 3:
+				functSelectButton3();
+				break;
+			case 4:
+				functSelectButton4();
+				break;
+			case 5:
+				functSelectButton5();
+				break;
+			case 6:
+				functSelectButton6();
+				break;
+			case 7:
+				functSelectButton7();
+				break;
+		}
+	}
 
 
 
@@ -1038,6 +1195,18 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
 		if(recorderConfig.source > 0) recorderConfig.source--;
 	}
 
+	if((recorderConfig.source == sourceTypeLineIn) || (recorderConfig.source == sourceTypeRadio))
+	{
+		audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+		mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
+		audioShield.lineInLevel(map(recorderConfig.gain,0,100,0,15));
+	}
+	else if(recorderConfig.source == sourceTypeMic)
+	{
+		audioShield.inputSelect(AUDIO_INPUT_MIC);
+		mtConfig.audioCodecConfig.inSelect = inputSelectMic;
+		audioShield.micGain(recorderConfig.gain*63.0/100);
+	}
 	display.setControlValue(sourceListControl, recorderConfig.source);
 	display.refreshControl(sourceListControl);
 
@@ -1054,6 +1223,8 @@ void cSampleRecorder::changeMonitorSelection(int16_t value)
 		if(recorderConfig.monitor > 0) recorderConfig.monitor--;
 	}
 
+	if(recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
+	else audioShield.headphoneSourceSelect(1);
 
 	display.setControlValue(monitorListControl, recorderConfig.monitor);
 	display.refreshControl(monitorListControl);
@@ -1064,41 +1235,18 @@ void cSampleRecorder::modStartPoint(int16_t value)
 {
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
 	uint16_t move_step = zoomWidth / 480;
-	uint16_t dif;
 	value = value * move_step;
 
-	if(editorInstrument->startPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument->startPoint  = 0;
-	else if(editorInstrument->startPoint + value > SAMPLE_POINT_POS_MAX ) editorInstrument->startPoint  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument->startPoint += value;
+	if(startPoint + value < SAMPLE_POINT_POS_MIN) startPoint  = 0;
+	else if(startPoint + value > SAMPLE_POINT_POS_MAX ) startPoint  = SAMPLE_POINT_POS_MAX;
+	else startPoint += value;
 
-	if(editorInstrument->startPoint > editorInstrument->endPoint) editorInstrument->startPoint = editorInstrument->endPoint-1;
+	if(startPoint > endPoint) startPoint = endPoint-1;
 
-	if(editorInstrument->playMode != singleShot)
-	{
-		if(editorInstrument->startPoint > editorInstrument->loopPoint1)
-		{
-			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
-			editorInstrument->loopPoint1 = editorInstrument->startPoint;
 
-			if(editorInstrument->loopPoint1 + dif > editorInstrument->endPoint)
-			{
-				editorInstrument->loopPoint2 = editorInstrument->endPoint;
-				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
-				editorInstrument->startPoint = editorInstrument->loopPoint1;
-				instrumentPlayer[0].setStatusBytes(LP1_MASK);
-				instrumentPlayer[0].setStatusBytes(LP2_MASK);
-			}
-			else
-			{
-				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
-				instrumentPlayer[0].setStatusBytes(LP2_MASK);
-			}
-		}
-	}
 
 	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
-	if(zoomValue > 1 && lastChangedPoint != 1
-		&& (editorInstrument->startPoint < zoomStart || editorInstrument->startPoint > zoomEnd)) refreshSpectrum = 1;
+	if(zoomValue > 1 && lastChangedPoint != 1 && (startPoint < zoomStart || startPoint > zoomEnd)) refreshSpectrum = 1;
 
 	lastChangedPoint = 1;
 	refreshPoints = 1;
@@ -1107,41 +1255,16 @@ void cSampleRecorder::modStartPoint(int16_t value)
 void cSampleRecorder::modEndPoint(int16_t value)
 {
 	uint16_t move_step = zoomWidth / 480;
-	uint16_t dif;
 	value = value * move_step;
 
-	if(editorInstrument->endPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument->endPoint  = 0;
-	else if(editorInstrument->endPoint + value > SAMPLE_POINT_POS_MAX ) editorInstrument->endPoint  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument->endPoint += value;
+	if(endPoint + value < SAMPLE_POINT_POS_MIN) endPoint  = 0;
+	else if(endPoint + value > SAMPLE_POINT_POS_MAX ) endPoint  = SAMPLE_POINT_POS_MAX;
+	else endPoint += value;
 
-	if(editorInstrument->endPoint < editorInstrument->startPoint) editorInstrument->endPoint = editorInstrument->startPoint+1;
+	if(endPoint < startPoint) endPoint = startPoint+1;
 
-	if(editorInstrument->playMode != singleShot)
-	{
-		if(editorInstrument->endPoint < editorInstrument->loopPoint2)
-		{
-			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
 
-			editorInstrument->loopPoint2 = editorInstrument->endPoint;
-
-			if(editorInstrument->loopPoint2 - dif < editorInstrument->startPoint)
-			{
-				editorInstrument->loopPoint1 = editorInstrument->startPoint;
-				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
-				editorInstrument->endPoint = editorInstrument->loopPoint2;
-				instrumentPlayer[0].setStatusBytes(LP1_MASK);
-				instrumentPlayer[0].setStatusBytes(LP2_MASK);
-			}
-			else
-			{
-				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
-				instrumentPlayer[0].setStatusBytes(LP1_MASK);
-			}
-		}
-	}
-
-	if(zoomValue > 1 && lastChangedPoint != 2
-			&& (editorInstrument->endPoint < zoomStart || editorInstrument->endPoint > zoomEnd)) refreshSpectrum = 1;
+	if(zoomValue > 1 && lastChangedPoint != 2 && (endPoint < zoomStart || endPoint > zoomEnd)) refreshSpectrum = 1;
 
 	lastChangedPoint = 2;
 	refreshPoints = 1;

@@ -1,7 +1,7 @@
 
 
 #include "sampleRecorder.h"
-
+#include "mtRecorder.h"
 
 static  uint16_t framesPlacesS1[8][4] =
 {
@@ -43,7 +43,9 @@ void cSampleRecorder::initDisplayControls()
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
 
-
+	points.pointsType = 0;
+	points.endPoint = MAX_16BIT;
+	points.startPoint = 0;
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
 
@@ -235,7 +237,18 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlText(bottomLabel[6], "Monitor");
 		display.setControlText(bottomLabel[7], "Record");
 
+		frameData.placesCount = 8;
+		frameData.startPlace = 0;
+		frameData.places[0] = &framesPlacesS1[0][0];
+		frameData.places[1] = &framesPlacesS1[1][0];
+		frameData.places[2] = &framesPlacesS1[2][0];
+		frameData.places[3] = &framesPlacesS1[3][0];
+		frameData.places[4] = &framesPlacesS1[4][0];
+		frameData.places[5] = &framesPlacesS1[5][0];
+		frameData.places[6] = &framesPlacesS1[6][0];
+		frameData.places[7] = &framesPlacesS1[7][0];
 
+		display.setControlData(frameControl, &frameData);
 
 		calcLevelBarVal();
 		drawLevelBar();
@@ -245,6 +258,76 @@ void cSampleRecorder::showDefaultScreen()
 	}
 	else if(currentScreen == screenTypeRecord)
 	{
+		display.setControlShow(spectrumControl);
+		display.refreshControl(spectrumControl);
+
+		if(recordInProgressFlag == 1)
+		{
+			display.setControlHide(pointsControl);
+			display.refreshControl(pointsControl);
+		}
+		else
+		{
+			display.setControlShow(pointsControl);
+			display.refreshControl(pointsControl);
+		}
+
+
+	//	listy
+		display.setControlHide(sourceListControl);
+		display.refreshControl(sourceListControl);
+
+		display.setControlHide(monitorListControl);
+		display.refreshControl(monitorListControl);
+
+	//bar
+		display.setControlHide(levelBarControl);
+		display.refreshControl(levelBarControl);
+
+		display.setControlHide(gainBarControl);
+		display.refreshControl(gainBarControl);
+
+		display.setControlHide(radioFreqBarControl);
+		display.refreshControl(radioFreqBarControl);
+
+		frameData.placesCount = 8;
+		frameData.startPlace = 0;
+		frameData.places[0] = &framesPlacesS2[0][0];
+		frameData.places[1] = &framesPlacesS2[1][0];
+		frameData.places[2] = &framesPlacesS2[2][0];
+		frameData.places[3] = &framesPlacesS2[3][0];
+		frameData.places[4] = &framesPlacesS2[4][0];
+		frameData.places[5] = &framesPlacesS2[5][0];
+		frameData.places[6] = &framesPlacesS2[6][0];
+		frameData.places[7] = &framesPlacesS2[7][0];
+
+		display.setControlData(frameControl, &frameData);
+
+		if(recordInProgressFlag == 1)
+		{
+			display.setControlText(bottomLabel[0], "");
+			display.setControlText(bottomLabel[1], "");
+			display.setControlText(bottomLabel[2], "");
+			display.setControlText(bottomLabel[3], "");
+			display.setControlText(bottomLabel[4], "");
+			display.setControlText(bottomLabel[5], "");
+			display.setControlText(bottomLabel[6], "");
+			display.setControlText(bottomLabel[7], "Stop");
+		}
+		else
+		{
+			display.setControlText(bottomLabel[0], "Preview");
+			display.setControlText(bottomLabel[1], "Start Point");
+			display.setControlText(bottomLabel[2], "End Point");
+			display.setControlText(bottomLabel[3], "Zoom");
+			display.setControlText(bottomLabel[4], "Crop");
+			display.setControlText(bottomLabel[5], "Undo");
+			display.setControlText(bottomLabel[6], "Go Back");
+			display.setControlText(bottomLabel[7], "Save");
+
+			showZoomValue();
+
+		}
 
 	}
 
@@ -254,6 +337,7 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
 
+		display.setControlText(topLabel[i], "");
 		display.setControlShow(topLabel[i]);
 		display.refreshControl(topLabel[i]);
 	}
@@ -327,9 +411,54 @@ void cSampleRecorder::showZoomValue()
 		zoomTextValue[4] = 0;
 	}
 
-//	display.setControlText(topLabel[5], zoomTextValue);
-//	display.setControlShow(topLabel[5]);
-//	display.refreshControl(topLabel[5]);
+	display.setControlText(topLabel[3], zoomTextValue);
+	display.setControlShow(topLabel[3]);
+	display.refreshControl(topLabel[3]);
+}
+
+void cSampleRecorder::showRecTimeValue()
+{
+
+	recTimeValue = recorder.getLength()/44100.0;
+
+	if(recTimeValue > 100)
+	{
+		recTimeValueText[0] = (uint8_t)recTimeValue /100 + 48;
+		recTimeValueText[1] = (uint8_t)recTimeValue /10 + 48;
+		recTimeValueText[2] = (uint8_t)recTimeValue %10 + 48;
+		recTimeValueText[3] = '.';
+		recTimeValueText[4] = (uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) /100 + 48;
+		recTimeValueText[5] = (uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) /10 + 48;
+		recTimeValueText[6] = (uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) %10 + 48;
+		recTimeValueText[7] = 's';
+		recTimeValueText[8] = 0;
+	}
+	else if(recTimeValue > 10 && recTimeValue < 100)
+	{
+		recTimeValueText[0] = (uint8_t)recTimeValue /10 + 48;
+		recTimeValueText[1] = (uint8_t)recTimeValue %10 + 48;
+		recTimeValueText[2] = '.';
+		recTimeValueText[3] = (uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) /100 + 48;
+		recTimeValueText[4] = (uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) /10 + 48;
+		recTimeValueText[5] = (uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) %10 + 48;
+		recTimeValueText[6] = 's';
+		recTimeValueText[7] = 0;
+	}
+	else if(recTimeValue < 10)
+	{
+		recTimeValueText[0] = (uint8_t)recTimeValue %10 + 48;
+		recTimeValueText[1] = '.';
+		recTimeValueText[2] = (uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) /100 + 48;
+		recTimeValueText[3] = (uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) /10 + 48;
+		recTimeValueText[4] = (uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) %10 + 48;
+		recTimeValueText[5] = 's';
+		recTimeValueText[6] = 0;
+	}
+
+
+	display.setControlText(topLabel[2], recTimeValueText);
+	display.setControlShow(topLabel[2]);
+	display.refreshControl(topLabel[2]);
 }
 
 void cSampleRecorder::showFreqValue()
@@ -378,6 +507,7 @@ void cSampleRecorder::drawRadioFreqBar()
 }
 void cSampleRecorder::drawLevelBar()
 {
+	if(currentScreen != screenTypeConfig ) return ;
 	if(levelBarVal < 85)
 	{
 
