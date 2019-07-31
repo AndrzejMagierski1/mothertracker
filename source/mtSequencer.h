@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "scales.h"
 #include "mtStructs.h"
+//#include "mtfil"
 
 /*
  definicje na potrzeby portu programu na mniejsze seczki
@@ -586,7 +587,7 @@ public:
 
 	uint8_t * getPatternToSaveToFile()
 	{
-		return (uint8_t *) &seq[0];
+		return (uint8_t *) &seq[player.ramBank];
 	}
 	void saveToFileDone()
 	{
@@ -602,7 +603,7 @@ public:
 
 	uint8_t * getPatternToLoadFromFile()
 	{
-		return (uint8_t *) &seq[0];
+		return (uint8_t *) &seq[!player.ramBank];
 	}
 	void loadFromFileOK()
 	{
@@ -620,7 +621,12 @@ public:
 
 	strPattern * getPatternToUI()
 	{
-		return &seq[0];
+		return &seq[player.ramBank];
+	}
+
+	void switchNextPatternNow()
+	{
+		player.ramBank = !player.ramBank;
 	}
 
 	void play(void);
@@ -685,7 +691,7 @@ public:
 	void randomExisting();
 
 	void loadNextPattern(uint8_t patternNumber);
-	void switchNextPatternNow();
+
 
 };
 

@@ -2,6 +2,8 @@
 #include <patternEditor.h>
 #include "mtStructs.h"
 
+#include "mtFileManager.h"
+
 
 #include "keyScanner.h"
 extern keyScanner tactButtons; // dla isButtonPressed()
@@ -173,6 +175,8 @@ void cPatternEditor::setDefaultScreenFunct()
 // przeniesienie danych z sekewncji  do struktury wyswietlania
 void cPatternEditor::refreshPattern()
 {
+	seq = sequencer.getPatternToUI();
+
 	if(editMode == 0)
 	{
 		trackerPattern.selectState = 0;
@@ -296,7 +300,16 @@ void cPatternEditor::refreshPattern()
 		}
 	}
 
+
 	display.refreshControl(patternControl);
+	display.refreshControl(bottomLabel[0]);
+	display.setControlValue(bottomLabel[0], seq->tempo);
+	display.refreshControl(bottomLabel[1]);
+	display.setControlValue(bottomLabel[1], mtProject.values.actualPattern+1);
+	display.refreshControl(bottomLabel[2]);
+	display.setControlValue(bottomLabel[2], seq->track[0].length);
+	display.refreshControl(bottomLabel[3]);
+	display.setControlValue(bottomLabel[3], mtProject.values.patternEditStep);
 
 }
 
@@ -990,18 +1003,26 @@ static  uint8_t functChangePattern(uint8_t button)
 
 	if(button == interfaceButton2)
 	{
-
+		if (fileManager.loadPattern(--mtProject.values.actualPattern))
+		{
+			sequencer.switchNextPatternNow();
+		}
 	}
-	else //if(button == interfaceButton3)
+	else if(button == interfaceButton3)
 	{
-
+		if (fileManager.loadPattern(++mtProject.values.actualPattern))
+		{
+			sequencer.switchNextPatternNow();
+		}
 	}
 
 	PTE->selectedLabel = 1;
 	PTE->activateLabelsBorder();
 
-	display.setControlValue(PTE->bottomLabel[1], 1);
+	display.setControlValue(PTE->bottomLabel[1], mtProject.values.actualPattern+1);
 	display.refreshControl(PTE->bottomLabel[1]);
+
+	PTE->refreshPattern();
 
 	return 1;
 }

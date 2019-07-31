@@ -2008,11 +2008,7 @@ void Sequencer::loadNextPattern(uint8_t patternNumber)
 	player.jump.nextPattern = patternNumber;
 	player.jump.jumpNOW = 0;
 
+//	fileManager.loadPattern(patternNumber);
+
 
 }
-
-void Sequencer::switchNextPatternNow()
-{
-
-}
-

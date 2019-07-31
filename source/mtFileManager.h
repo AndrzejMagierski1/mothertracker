@@ -144,6 +144,7 @@ public:
 	uint8_t getProgressImportSampleToProject();
 
 	uint8_t loadPattern(uint8_t index);
+	uint8_t savePattern(uint8_t index);
 	/////////////////////////////////////////////////////////////////////////
 
 	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
@@ -167,7 +168,7 @@ private:
 	void copyPattern(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
 	void writeInstrumentFile(char * name, strInstrument * instr);
 	uint8_t readInstrumentFile(char * name, strInstrument * instr);
-	void writePatternFile(char * name);
+	uint8_t writePatternFile(char * name);
 	uint8_t readPatternFile(char * name);
 	void writeProjectFile(char * name,strMtProjectRemote * proj);
 	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
@@ -184,7 +185,7 @@ private:
 	};
 
 	char currentProjectName[PROJECT_NAME_SIZE];
-	uint8_t currentPattern;
+//	uint8_t currentPattern;
 };
 
 
