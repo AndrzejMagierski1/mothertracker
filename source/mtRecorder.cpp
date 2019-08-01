@@ -76,9 +76,15 @@ void Recorder::trim(uint16_t a, uint16_t b)
 	uint32_t addressShift;
 	uint32_t lengthShift;
 	addressShift = (uint32_t)( (uint32_t)a * (float)(recByteSaved/2)/MAX_16BIT);
-	lengthShift =(uint32_t)((uint32_t)b * (float)(recByteSaved/2)/MAX_16BIT);
+	lengthShift =(uint32_t)((uint32_t)b * (float)(recByteSaved)/MAX_16BIT);
 	startAddress+=addressShift;
-	recByteSaved -= 2*lengthShift; //zamieniam probki na bajty
+	recByteSaved = lengthShift - 2*addressShift; //zamieniam probki na bajty
+}
+
+void Recorder::undo(int16_t * address, uint32_t length)
+{
+	startAddress=address;
+	recByteSaved = 2*length; //zamieniam probki na bajty
 }
 
 void Recorder::save()
@@ -143,6 +149,10 @@ int16_t * Recorder::getAddress()
 	return currentAddress;
 }
 
+int16_t * Recorder::getStartAddress()
+{
+	return startAddress;
+}
 uint32_t Recorder::getLength()
 {
 	return recByteSaved/2;

@@ -13,7 +13,9 @@ public:
 	void stop();
 	void trim(uint16_t a, uint16_t b);
 	void save();
+	void undo(int16_t * address, uint32_t length);
 	int16_t * getAddress();
+	int16_t * getStartAddress();
 	uint32_t getLength();
 	uint8_t mode = recorderModeStop;
 private:
