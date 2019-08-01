@@ -7,6 +7,91 @@
 #include "mtAudioEngine.h"
 
 
+enum valueMapDirecion
+{
+	valueMapDirectionLeft,
+	valueMapDirectionRight,
+	valueMapDirectionUp,
+	valueMapDirectionDown
+};
+
+constexpr char smallKeyboard[KEYBOARD_SIZE] =
+{
+		 	 '1', '2', '3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9' ,'0' , 0 ,
+		 	 'q', 'w', 'e' ,'r' ,'t' ,'y' ,'u' ,'i' ,'o' ,'p' ,'-' ,'+',
+			 'a', 's', 'd' ,'f' ,'g' ,'h' ,'j' ,'k' ,'l' ,'@' , 1 ,
+			 'z', 'x', 'c' ,'v' ,'b' ,'n' ,'m' , ' '
+};
+
+constexpr char bigKeyboard[KEYBOARD_SIZE] =
+{
+			 '1', '2', '3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9' ,'0' , 0 ,
+		 	 'Q', 'W', 'E' ,'R' ,'T' ,'Y' ,'U' ,'I' ,'O' ,'P' ,'-' ,'+',
+			 'A', 'S', 'D' ,'F' ,'G' ,'H' ,'J' ,'K' ,'L', '@', 1 ,
+			 'Z', 'X', 'C' ,'V' ,'B' ,'N' ,'M' , ' '
+};
+
+//constexpr uint8_t valueMap[4][42] = przechodzenie przez sciany
+//{
+//		{
+//			10,0,1,2,3,4,5,6,7,8,9,
+//			22,11,12,13,14,15,16,17,18,19,20,21,
+//			33,23,24,25,26,27,28,29,30,31,32,
+//			41,34,35,36,37,38,39,40
+//		},
+//
+//		{
+//			1,2,3,4,5,6,7,8,9,10,0,
+//			12,13,14,15,16,17,18,19,20,21,22,11,
+//			24,25,26,27,28,29,30,31,32,33,23,
+//			35,36,37,38,39,40,41,34
+//		},
+//
+//		{
+//			34,35,36,37,38,39,40,41,41,41,41,
+//			0,1,2,3,4,5,6,7,8,9,10,10,
+//			11,12,13,14,15,16,17,18,19,20,21,
+//			23,24,25,26,27,28,29,30,
+//		},
+//
+//		{
+//			11,12,13,14,15,16,17,18,19,20,21,
+//			23,24,25,26,27,28,29,30,31,32,33,33,
+//			34,35,36,37,38,39,40,41,41,41,41,
+//			0,1,2,3,4,5,6,7
+//		},
+//};
+
+constexpr uint8_t valueMap[4][42] =
+{
+		{
+			0,0,1,2,3,4,5,6,7,8,9,
+			11,11,12,13,14,15,16,17,18,19,20,21,
+			23,23,24,25,26,27,28,29,30,31,32,
+			34,34,35,36,37,38,39,40
+		},
+
+		{
+			1,2,3,4,5,6,7,8,9,10,10,
+			12,13,14,15,16,17,18,19,20,21,22,22,
+			24,25,26,27,28,29,30,31,32,33,33,
+			35,36,37,38,39,40,41,41
+		},
+
+		{
+			0,1,2,3,4,5,6,7,8,9,10,
+			0,1,2,3,4,5,6,7,8,9,10,10,
+			11,12,13,14,15,16,17,18,19,20,21,
+			23,24,25,26,27,28,29,30,
+		},
+
+		{
+			11,12,13,14,15,16,17,18,19,20,21,
+			23,24,25,26,27,28,29,30,31,32,33,33,
+			34,35,36,37,38,39,40,41,41,41,41,
+			34,35,36,37,38,39,40,41
+		},
+};
 
 
 extern AudioControlSGTL5000 audioShield;
@@ -16,17 +101,12 @@ static cSampleRecorder* SR = &sampleRecorder;
 
 extern strMtProject mtProject;
 
-
-static  uint8_t functPlayAction(uint8_t state);
-static  uint8_t functRecAction();
-
-
-
 static  uint8_t functLeft();
 static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
+static uint8_t functEnter();
 
 static  uint8_t functSelectButton0();
 static  uint8_t functSelectButton1();
@@ -59,18 +139,13 @@ static 	uint8_t functActionStopPreview();
 static  uint8_t functActionCrop();
 static  uint8_t functActionUndo();
 static  uint8_t functActionGoBack();
+static  uint8_t functActionStopRec();
 static  uint8_t functActionSave();
+static  uint8_t functActionConfirmSave();
 static  uint8_t functActionEndPoint();
 static  uint8_t functActionStartPoint();
 static  uint8_t functActionZoom();
-
-
-
-
-
-static uint8_t functShift(uint8_t value);
-
-
+static uint8_t functConfirmKey();
 
 static  uint8_t functEncoder(int16_t value);
 
@@ -118,6 +193,18 @@ void cSampleRecorder::update()
 		}
 	}
 
+	if(saveInProgressFlag)
+	{
+		recorder.updateSave();
+		showSaveHorizontalBar();
+		if(recorder.getSaveState() == 0)
+		{
+			saveInProgressFlag = 0;
+			hideSaveHorizontalBar();
+			currentScreen = screenTypeRecord;
+			showDefaultScreen();
+		}
+	}
 
 	changeLevelBar();
 
@@ -163,7 +250,7 @@ void cSampleRecorder::start(uint32_t options)
 
 void cSampleRecorder::stop()
 {
-
+	audioShield.headphoneSourceSelect(0);
 	moduleRefresh = 0;
 }
 
@@ -175,16 +262,14 @@ void cSampleRecorder::setDefaultScreenFunct()
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
 
-	FM->setButtonObj(interfaceButtonPlay,functPlayAction);
-	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
+
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-//	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
-	FM->setButtonObj(interfaceButtonShift, functShift);
+	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
 //	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
 
@@ -686,7 +771,7 @@ static  uint8_t functActionButton6()
 	{
 		case cSampleRecorder::screenTypeConfig: 	functActionMonitor();			break;
 		case cSampleRecorder::screenTypeRecord: 	functActionGoBack();			break;
-		case cSampleRecorder::screenTypeKeyboard: break;
+		case cSampleRecorder::screenTypeKeyboard: 	functActionGoBack();			break;
 		default: break;
 	}
 	return 1;
@@ -698,8 +783,8 @@ static  uint8_t functActionButton7()
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: 	functActionRecord();			break;
-		case cSampleRecorder::screenTypeRecord: 	functActionSave();				break;
-		case cSampleRecorder::screenTypeKeyboard: break;
+		case cSampleRecorder::screenTypeRecord: 	functActionStopRec();			break;
+		case cSampleRecorder::screenTypeKeyboard: 	functActionConfirmSave();		break;
 		default: break;
 	}
 	return 1;
@@ -737,11 +822,15 @@ static  uint8_t functActionRadioFreq()
 
 static  uint8_t functActionRadioLeft()
 {
+	if(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio) return 1;
+
 	return 1;
 }
 
 static  uint8_t functActionRadioRight()
 {
+	if(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio) return 1;
+
 	return 1;
 }
 
@@ -769,7 +858,8 @@ static  uint8_t functActionCrop()
 
 	SR->undo[0].address = recorder.getStartAddress();
 	SR->undo[0].length = recorder.getLength();
-
+	SR->undo[0].startPoint = SR->startPoint;
+	SR->undo[0].endPoint = SR->endPoint;
 
 	if(SR->cropCounter < undoCount) SR->cropCounter++;
 
@@ -790,14 +880,14 @@ static  uint8_t functActionUndo()
 	if(!SR->cropCounter) return 1;
 	SR->cropCounter--;
 	recorder.undo(SR->undo[0].address,SR->undo[0].length);
-
+	SR->startPoint = SR->undo[0].startPoint;
+	SR->endPoint = SR->undo[0].endPoint;
 	for(uint8_t i = 0 ; i< (undoCount-1); i++)
 	{
 		SR->undo[i] = SR->undo[i+1];
 
 	}
-	SR->startPoint = 0;
-	SR->endPoint = MAX_16BIT;
+
 
 	SR->showEndPointValue();
 	SR->showStartPointValue();
@@ -810,15 +900,63 @@ static  uint8_t functActionUndo()
 static  uint8_t functActionGoBack()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
-	//todo: okienko pytajace czy zapisac o ile nie zapisano nic wczesniej
-	SR->currentScreen = cSampleRecorder::screenTypeConfig;
-	if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
-	SR->showDefaultScreen();
-
+	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
+		//todo: okienko pytajace czy zapisac o ile nie zapisano nic wczesniej
+		SR->currentScreen = cSampleRecorder::screenTypeConfig;
+		if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
+		SR->showDefaultScreen();
+	}
+	else if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
+	{
+		SR->currentScreen = cSampleRecorder::screenTypeRecord;
+		SR->showDefaultScreen();
+	}
 	return 1;
 }
 
 static  uint8_t functActionSave()
+{
+	SR->currentScreen = cSampleRecorder::screenTypeKeyboard;
+
+	char localPatch[128];
+	uint16_t cnt=1;
+	char cntBuf[5];
+
+	do
+	{
+	   memset(cntBuf,0,5);
+	   sprintf(cntBuf, "%d", cnt);
+	   strcpy(SR->name,"recording");
+	   strcat(SR->name,cntBuf);
+
+	   strcpy(localPatch,"Projects/");
+	   strcat(localPatch, SR->name);
+
+	   cnt++;
+	   if(cnt > 9999)
+	   {
+		   memset(SR->name,0,33);
+		   break;
+	   }
+	} while(SD.exists(localPatch));
+
+	SR->editPosition = strlen(SR->name);
+	SR->keyboardPosition = 10;
+	SR->keyboardActiveFlag = 1;
+
+	SR->showDefaultScreen();
+	return 1;
+}
+
+static  uint8_t functActionConfirmSave()
+{
+	 SR->keyboardActiveFlag = 0;
+	 SR->saveInProgressFlag = 1;
+	 recorder.startSave(SR->name);
+}
+
+static  uint8_t functActionStopRec()
 {
 
 	if(SR->recordInProgressFlag == 1)
@@ -833,7 +971,7 @@ static  uint8_t functActionSave()
 
 		return 1;
 	}
-
+	functActionSave();
 	return 1;
 }
 
@@ -906,6 +1044,13 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functLeft()
 {
+	if(SR->keyboardActiveFlag)
+	{
+		SR->keyboardPosition = valueMap[valueMapDirectionLeft][SR->keyboardPosition];
+		SR->showKeyboard();
+		return 1;
+	}
+
 	if(SR->recordInProgressFlag) return 1;
 
 	if(SR->selectedPlace > 0) SR->selectedPlace--;
@@ -982,6 +1127,13 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(SR->keyboardActiveFlag)
+	{
+		SR->keyboardPosition = valueMap[valueMapDirectionRight][SR->keyboardPosition];
+		SR->showKeyboard();
+		return 1;
+	}
+
 	if(SR->recordInProgressFlag) return 1;
 
 	if(SR->selectedPlace < SR->frameData.placesCount-1) SR->selectedPlace++;
@@ -1062,6 +1214,15 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+
+	if(SR->keyboardActiveFlag)
+	{
+		SR->keyboardPosition = valueMap[valueMapDirectionUp][SR->keyboardPosition];
+		SR->showKeyboard();
+		return 1;
+	}
+	if(	SR->currentScreen != SR->screenTypeConfig) return 1;
+
 	switch(SR->selectedPlace)
 	{
 	case 0:  		SR->changeSourceSelection(-1);			break;
@@ -1078,6 +1239,14 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	if(SR->keyboardActiveFlag)
+	{
+		SR->keyboardPosition = valueMap[valueMapDirectionDown][SR->keyboardPosition];
+		SR->showKeyboard();
+		return 1;
+	}
+	if(	SR->currentScreen != SR->screenTypeConfig) return 1;
+
 	switch(SR->selectedPlace)
 	{
 	case 0: 		SR->changeSourceSelection(1);			break;
@@ -1094,39 +1263,13 @@ static  uint8_t functDown()
 
 
 
-static  uint8_t functPlayAction(uint8_t state)
-{
-	if(state == 1)
-	{
-		if(sequencer.getSeqState() == 0)
-		{
-			sequencer.play();
-		}
-		else if(sequencer.getSeqState() == 1)
-		{
-			sequencer.stop();
-		}
-		SR->setPrevievFlag(0);
-		recorder.play(0, MAX_16BIT);
-	}
-	else if(state == 0)
-	{
-		recorder.stop();
-		SR->setPrevievFlag(1);
-	}
-	return 1;
-}
+
 
 void cSampleRecorder::setPrevievFlag(uint8_t s)
 {
 	previevFlag = s;
 }
 
-static  uint8_t functRecAction()
-{
-	recorder.startRecording(sdram_effectsBank);
-	return 1;
-}
 
 
 
@@ -1134,7 +1277,6 @@ static  uint8_t functRecAction()
 static uint8_t functSwitchModule(uint8_t button)
 {
 	SR->eventFunct(eventSwitchModule,SR,&button,0);
-	SR->setPrevievFlag(0);
 	return 1;
 }
 
@@ -1352,17 +1494,7 @@ void cSampleRecorder::modEndPoint(int16_t value)
 
 
 
-static uint8_t functShift(uint8_t value)
-{
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
-	{
-		sequencer.stop();
-	}
 
-	recorder.stopRecording();
-
-	return 1;
-}
 /*
 static uint8_t stopPlaying(uint8_t value)
 {
@@ -1373,3 +1505,52 @@ static uint8_t stopPlaying(uint8_t value)
 	return 1;
 }
 */
+
+static uint8_t functEnter()
+{
+	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) functConfirmKey();
+}
+static uint8_t functConfirmKey()
+{
+	if(SR->keyboardActiveFlag)
+	{
+		if(SR->editPosition > 31) return 1;
+		if(smallKeyboard[SR->keyboardPosition] > 1)
+		{
+			if(SR->editPosition == 31) return 1;
+			uint8_t localNameLen = strlen(SR->name);
+			if(SR->editPosition < localNameLen)
+			{
+				for(uint8_t i = localNameLen; i >= SR->editPosition ; i-- )
+				{
+					SR->name[i+1] = SR->name[i];
+				}
+			}
+
+			SR->name[SR->editPosition] = SR->keyboardShiftFlag ? bigKeyboard[SR->keyboardPosition] : smallKeyboard[SR->keyboardPosition];
+
+			SR->editPosition++;
+		}
+		else if(smallKeyboard[SR->keyboardPosition] == 0)
+		{
+			if(SR->editPosition == 0 ) return 1;
+
+			SR->name[SR->editPosition-1] = 0;
+			SR->editPosition--;
+
+
+		}
+		else if(smallKeyboard[SR->keyboardPosition] == 1)
+		{
+			SR->keyboardShiftFlag = ! SR->keyboardShiftFlag;
+			SR->showKeyboard();
+
+		}
+
+		SR->showKeyboardEditName();
+		return 1;
+	}
+	return 0;
+}
+
+

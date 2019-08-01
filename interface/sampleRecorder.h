@@ -40,6 +40,8 @@ struct strUndoCrop
 {
 	int16_t * address;
 	uint32_t length;
+	uint16_t startPoint;
+	uint16_t endPoint;
 };
 
 class cSampleRecorder: public cModuleBase
@@ -86,6 +88,10 @@ public:
 	void showFreqValue();
 	void showRadio();
 	void hideRadio();
+	void showKeyboard();
+	void hideKeyboard();
+	void showKeyboardEditName();
+	void hideKeyboardEditName();
 
 	void setDefaultScreenFunct();
 
@@ -117,6 +123,9 @@ public:
 	hControl gainBarControl;
 	hControl radioFreqBarControl;
 	hControl pointsControl;
+	hControl keyboardControl;
+	hControl editName;
+	hControl saveHorizontalBarControl;
 
 //*********************************************
 
@@ -221,8 +230,18 @@ uint8_t cropCounter = 0;
 	void changeLevelBar();
 	void changeGainBar(int16_t val);
 
+//keyboard
 
-
+	char name[33];
+	uint8_t keyboardPosition;
+	int8_t editPosition;
+	uint8_t keyboardActiveFlag = 0;
+	uint8_t keyboardShiftFlag = 0;
+//save
+	uint8_t saveInProgressFlag = 0;
+	uint8_t saveProgress;
+	void showSaveHorizontalBar();
+	void hideSaveHorizontalBar();
 
 };
 

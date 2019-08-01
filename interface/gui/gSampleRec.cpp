@@ -132,7 +132,32 @@ void cSampleRecorder::initDisplayControls()
 	prop5.h = 380;
 	if(radioFreqBarControl == nullptr)  radioFreqBarControl = display.createControl<cBar>(&prop5);
 
+	strControlProperties prop6;
+	prop6.x = 80;
+	prop6.y = 170;
+	prop6.w = 650;
+	prop6.h = 210;
+	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cKeyboard>(&prop6);
 
+	strControlProperties prop7;
+	prop7.text = (char*)"";
+	prop7.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+	prop7.x = 398;
+	prop7.y = 120;
+	prop7.w = 635;
+	prop7.h = 30;
+	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop7);
+
+	prop.x = 190;
+//	prop.colors = &color[0];
+	prop.y = 170;
+	//prop.w = 800/4-10;
+	prop.style = controlStyleValue_0_100;
+	prop.h = 100;
+	prop.w = 420;
+//	prop.value = 70;
+//	prop.text = "loading...";
+	if(saveHorizontalBarControl == nullptr)  saveHorizontalBarControl = display.createControl<cHorizontalBar>(&prop);
 
 }
 
@@ -171,13 +196,20 @@ void cSampleRecorder::destroyDisplayControls()
 	display.destroyControl(pointsControl);
 	pointsControl = nullptr;
 
+	display.destroyControl(keyboardControl);
+	keyboardControl = nullptr;
 
+	display.destroyControl(editName);
+	editName = nullptr;
+
+	display.destroyControl(saveHorizontalBarControl);
+	saveHorizontalBarControl = nullptr;
 }
 
 void cSampleRecorder::showDefaultScreen()
 {
 
-	if(currentScreen == screenTypeConfig)
+	if (currentScreen == screenTypeConfig)
 	{
 		//spectrum
 		display.setControlHide(spectrumControl);
@@ -188,27 +220,27 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlHide(pointsControl);
 		display.refreshControl(pointsControl);
 
-	//	listy
+		//	listy
 		display.setControlShow(sourceListControl);
-		display.setControlValue(sourceListControl,recorderConfig.source);
+		display.setControlValue(sourceListControl, recorderConfig.source);
 		display.refreshControl(sourceListControl);
 
 		display.setControlShow(monitorListControl);
-		display.setControlValue(monitorListControl,recorderConfig.monitor);
+		display.setControlValue(monitorListControl, recorderConfig.monitor);
 		display.refreshControl(monitorListControl);
 
-	//bar
-		display.setControlValue(levelBarControl,levelBarVal);
+		//bar
+		display.setControlValue(levelBarControl, levelBarVal);
 		display.setControlShow(levelBarControl);
 		display.refreshControl(levelBarControl);
 
-		display.setControlValue(gainBarControl,gainBarVal);
+		display.setControlValue(gainBarControl, gainBarVal);
 		display.setControlShow(gainBarControl);
 		display.refreshControl(gainBarControl);
 
-		if(recorderConfig.source == sourceTypeRadio)
+		if (recorderConfig.source == sourceTypeRadio)
 		{
-			display.setControlValue(radioFreqBarControl,radioFreqBarVal);
+			display.setControlValue(radioFreqBarControl, radioFreqBarVal);
 			display.setControlShow(radioFreqBarControl);
 			display.refreshControl(radioFreqBarControl);
 			display.setControlText(bottomLabel[1], "Radio Freq");
@@ -220,14 +252,13 @@ void cSampleRecorder::showDefaultScreen()
 		}
 		else
 		{
-			display.setControlValue(radioFreqBarControl,radioFreqBarVal);
+			display.setControlValue(radioFreqBarControl, radioFreqBarVal);
 			display.setControlHide(radioFreqBarControl);
 			display.refreshControl(radioFreqBarControl);
 			display.setControlText(bottomLabel[1], "");
 			display.setControlText(bottomLabel[2], "");
 			display.setControlText(bottomLabel[3], "");
 		}
-
 
 		// bottom labels
 		display.setControlText(bottomLabel[0], "Source");
@@ -255,13 +286,19 @@ void cSampleRecorder::showDefaultScreen()
 
 		calcGainBarVal();
 		drawGainBar();
+
+		display.setControlHide(keyboardControl);
+		display.refreshControl(keyboardControl);
+
+		display.setControlHide(editName);
+		display.refreshControl(editName);
 	}
-	else if(currentScreen == screenTypeRecord)
+	else if (currentScreen == screenTypeRecord)
 	{
 		display.setControlShow(spectrumControl);
 		display.refreshControl(spectrumControl);
 
-		if(recordInProgressFlag == 1)
+		if (recordInProgressFlag == 1)
 		{
 			display.setControlHide(pointsControl);
 			display.refreshControl(pointsControl);
@@ -272,15 +309,14 @@ void cSampleRecorder::showDefaultScreen()
 			display.refreshControl(pointsControl);
 		}
 
-
-	//	listy
+		//	listy
 		display.setControlHide(sourceListControl);
 		display.refreshControl(sourceListControl);
 
 		display.setControlHide(monitorListControl);
 		display.refreshControl(monitorListControl);
 
-	//bar
+		//bar
 		display.setControlHide(levelBarControl);
 		display.refreshControl(levelBarControl);
 
@@ -303,7 +339,7 @@ void cSampleRecorder::showDefaultScreen()
 
 		display.setControlData(frameControl, &frameData);
 
-		if(recordInProgressFlag == 1)
+		if (recordInProgressFlag == 1)
 		{
 			display.setControlText(bottomLabel[0], "");
 			display.setControlText(bottomLabel[1], "");
@@ -326,10 +362,39 @@ void cSampleRecorder::showDefaultScreen()
 			display.setControlText(bottomLabel[7], "Save");
 		}
 
+		display.setControlHide(keyboardControl);
+		display.refreshControl(keyboardControl);
+
+		display.setControlHide(editName);
+		display.refreshControl(editName);
+	}
+	else if(currentScreen == screenTypeKeyboard)
+	{
+		//spectrum
+		display.setControlHide(spectrumControl);
+		display.refreshControl(spectrumControl);
+
+		//points
+
+		display.setControlHide(pointsControl);
+		display.refreshControl(pointsControl);
+
+		display.setControlShow(keyboardControl);
+		display.refreshControl(keyboardControl);
+
+		showKeyboardEditName();
+
+		display.setControlText(bottomLabel[0], "");
+		display.setControlText(bottomLabel[1], "");
+		display.setControlText(bottomLabel[2], "");
+		display.setControlText(bottomLabel[3], "");
+		display.setControlText(bottomLabel[4], "");
+		display.setControlText(bottomLabel[5], "");
+		display.setControlText(bottomLabel[6], "Go Back");
+		display.setControlText(bottomLabel[7], "Save");
 	}
 
-
-	for(uint8_t i = 0; i<8; i++)
+	for (uint8_t i = 0; i < 8; i++)
 	{
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
@@ -339,13 +404,12 @@ void cSampleRecorder::showDefaultScreen()
 		display.refreshControl(topLabel[i]);
 	}
 
-	if((currentScreen == screenTypeRecord) && !recordInProgressFlag)
+	if ((currentScreen == screenTypeRecord) && !recordInProgressFlag)
 	{
 		showZoomValue();
 		showEndPointValue();
 		showStartPointValue();
 	}
-
 
 	display.synchronizeRefresh();
 
@@ -381,7 +445,38 @@ void cSampleRecorder::hideRadio()
 	display.refreshControl(radioFreqBarControl);
 }
 
+void cSampleRecorder::showKeyboard()
+{
 
+	if(keyboardShiftFlag) display.setControlValue(keyboardControl, keyboardPosition + 42);
+	else display.setControlValue(keyboardControl, keyboardPosition);
+
+	display.setControlShow(keyboardControl);
+	display.refreshControl(keyboardControl);
+}
+
+void cSampleRecorder::hideKeyboard()
+{
+	display.setControlHide(keyboardControl);
+	display.refreshControl(keyboardControl);
+}
+
+void cSampleRecorder::showKeyboardEditName()
+{
+
+
+	display.setControlValue(editName, editPosition);
+
+	display.setControlText(editName, name);
+	display.setControlShow(editName);
+	display.refreshControl(editName);
+}
+
+void cSampleRecorder::hideKeyboardEditName()
+{
+	display.setControlHide(editName);
+	display.refreshControl(editName);
+}
 
 //==============================================================================================================
 void cSampleRecorder::activateLabelsBorder()
@@ -637,4 +732,19 @@ void cSampleRecorder::drawGainBar()
 	display.setControlValue(gainBarControl,gainBarVal);
 	display.setControlShow(gainBarControl);
 	display.refreshControl(gainBarControl);
+}
+
+void cSampleRecorder::showSaveHorizontalBar()
+{
+	saveProgress = recorder.getSaveProgress();
+	display.setControlValue(saveHorizontalBarControl, saveProgress);
+	display.setControlText(saveHorizontalBarControl, "saveing...");
+	display.setControlShow(saveHorizontalBarControl);
+	display.refreshControl(saveHorizontalBarControl);
+}
+
+void cSampleRecorder::hideSaveHorizontalBar()
+{
+	display.setControlHide(saveHorizontalBarControl);
+	display.refreshControl(saveHorizontalBarControl);
 }
