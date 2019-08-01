@@ -48,9 +48,7 @@ static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
 
 
-static uint8_t isMultiSelection();
-static void sendSelection();
-static void sendPasteSelection();
+
 
 char getHexFromInt(int16_t val, uint8_t index);
 
@@ -921,7 +919,7 @@ static uint8_t functCopyDelete()
 	return 1;
 }
 
-static void sendSelection()
+ void sendSelection()
 {
  	if (isMultiSelection())
 	{
@@ -938,7 +936,7 @@ static void sendSelection()
 								PTE->trackerPattern.actualTrack);
 	}
 }
-static void sendPasteSelection()
+ void sendPasteSelection()
 {
 	if (isMultiSelection())
 	{
@@ -956,7 +954,7 @@ static void sendPasteSelection()
 	}
 }
 
-static uint8_t isMultiSelection()
+uint8_t isMultiSelection()
 {
 	return PTE->trackerPattern.selectState == 2;
 

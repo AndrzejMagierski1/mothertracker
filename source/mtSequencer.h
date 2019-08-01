@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "scales.h"
 #include "mtStructs.h"
+//#include "patternEditor.h"
 //#include "mtfil"
 
 /*
@@ -691,6 +692,7 @@ public:
 	void randomExisting();
 
 	void loadNextPattern(uint8_t patternNumber);
+	void handleNote(byte channel, byte pitch, byte velocity);
 
 
 };

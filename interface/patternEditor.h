@@ -7,7 +7,9 @@
 
 #include "mtSequencer.h"
 
-
+uint8_t isMultiSelection();
+void sendSelection();
+void sendPasteSelection();
 
 class cPatternEditor: public cModuleBase
 {

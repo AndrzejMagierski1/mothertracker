@@ -4,7 +4,11 @@
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
 #include "seqDisplay.h"
+
+
+#include "patternEditor.h"
 Sequencer sequencer;
+
 
 inline void timerExternalVector()
 {
@@ -12,7 +16,6 @@ inline void timerExternalVector()
 	sequencer.handle_uStep_timer();
 
 }
-
 
 void Sequencer::init()
 {
@@ -1720,26 +1723,26 @@ void Sequencer::setPasteSelection(uint8_t stepFrom,
 									uint8_t trackTo)
 {
 	if (stepTo < stepFrom)
-		{
-			selectionPaste.firstStep = stepTo;
-			selectionPaste.lastStep = stepFrom;
-		}
-		else
-		{
-			selectionPaste.firstStep = stepFrom;
-			selectionPaste.lastStep = stepTo;
-		}
+	{
+		selectionPaste.firstStep = stepTo;
+		selectionPaste.lastStep = stepFrom;
+	}
+	else
+	{
+		selectionPaste.firstStep = stepFrom;
+		selectionPaste.lastStep = stepTo;
+	}
 
-		if (trackTo < trackFrom)
-		{
-			selectionPaste.firstTrack = trackTo;
-			selectionPaste.lastTrack = trackFrom;
-		}
-		else
-		{
-			selectionPaste.firstTrack = trackFrom;
-			selectionPaste.lastTrack = trackTo;
-		}
+	if (trackTo < trackFrom)
+	{
+		selectionPaste.firstTrack = trackTo;
+		selectionPaste.lastTrack = trackFrom;
+	}
+	else
+	{
+		selectionPaste.firstTrack = trackFrom;
+		selectionPaste.lastTrack = trackTo;
+	}
 
 }
 //
@@ -2022,7 +2025,6 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 	}
 }
 
-
 void Sequencer::loadNextPattern(uint8_t patternNumber)
 {
 	player.jump.nextPattern = patternNumber;
@@ -2030,5 +2032,26 @@ void Sequencer::loadNextPattern(uint8_t patternNumber)
 
 //	fileManager.loadPattern(patternNumber);
 
+}
+
+void Sequencer::handleNote(byte channel, byte note, byte velocity)
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	// NOTE ON
+	if(velocity != 0){
+		if(!isMultiSelection()){
+//			sel->firstStep
+			strPattern::strTrack::strStep *step = &seq[player.ramBank].track[sel->firstTrack].step[sel->firstStep];
+			step->note = note;
+			step->velocity = velocity;
+
+			blinkNote(step->instrument,
+						step->note,
+						step->velocity,
+						sel->firstTrack);
+		}
+	}
 
 }
