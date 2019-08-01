@@ -2,7 +2,6 @@
 
 void Recorder:: startRecording(int16_t * addr)
 {
-	strcpy(currentName,"rec_001.wav");
 	currentAddress = addr;
 	startAddress = addr;
 
@@ -87,38 +86,18 @@ void Recorder::undo(int16_t * address, uint32_t length)
 	recByteSaved = 2*length; //zamieniam probki na bajty
 }
 
-void Recorder::save()
+void Recorder::startSave(char * name)
 {
 	char currentPatch[PATCH_SIZE];
-	uint16_t rec_cnt=1;
-	uint32_t length;
+
+
 	if(!SD.exists("Recorded")) SD.mkdir("Recorded");
 
 	strcpy(currentPatch,"Recorded/");
-	strcat(currentPatch,currentName);
+	strcat(currentPatch,name);
+	strcat(currentPatch,".wav");
 
-	while(SD.exists(currentPatch))
-	{
-		rec_cnt++;
-
-		if(rec_cnt<10) currentName[6] = rec_cnt+48;
-		if(rec_cnt>=10 && rec_cnt < 100 )
-		{
-			currentName[6] = rec_cnt%10 + 48;
-			currentName[5] = rec_cnt/10 + 48;
-		}
-		if(rec_cnt>=100 && rec_cnt < 1000 )
-		{
-			currentName[6] = rec_cnt%10 + 48;
-			currentName[5] = (rec_cnt/10)%10 + 48;
-			currentName[4] = rec_cnt/100 + 48;
-		}
-
-		strcpy(currentPatch,"Recorded/");
-		strcat(currentPatch,currentName);
-	}
-
-	length=recByteSaved;
+	saveLength=recByteSaved;
 
 	if (SD.exists(currentPatch)) SD.remove(currentPatch);
 
@@ -127,22 +106,38 @@ void Recorder::save()
 
 	rec.seek(44);
 	currentAddress=startAddress;
-	while(length)
+}
+void Recorder::updateSave()
+{
+	if(saveLength)
 	{
-		if(length >= 2048)
+		if(saveLength >= 2048)
 		{
 			rec.write(currentAddress,2048);
 			currentAddress+=1024;
-			length-=2048;
+			saveLength-=2048;
 		}
 		else
 		{
-			rec.write(currentAddress,length);
-			length=0;
+			rec.write(currentAddress,saveLength);
+			saveLength=0;
+			stopSave();
 		}
 	}
+}
+void Recorder::stopSave()
+{
 	writeOutHeader();
 }
+uint8_t Recorder::getSaveProgress()
+{
+	return recByteSaved > 0 ? ((recByteSaved - saveLength)*100)/recByteSaved : 0;
+}
+uint8_t Recorder::getSaveState()
+{
+	return saveLength > 0 ? 1:0;
+}
+
 
 int16_t * Recorder::getAddress()
 {
