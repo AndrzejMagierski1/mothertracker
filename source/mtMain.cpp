@@ -23,7 +23,7 @@
 //extern Sequencer seq[2];
 extern void initHardware();
 extern void updateHardware();
-
+extern AudioControlSGTL5000 audioShield;
 
 ;;
 //=======================================================================
@@ -44,6 +44,7 @@ void setup()
 	// inincjalizacja interfejsu na koncu
 	mtInterface.begin();
 	//sequencer.printNotes(1);		// printuje nuty w trakcie sekwencji
+	audioShield.headphoneSourceSelect(HEADPHONE_IN_SOURCE_INPUTS);
 }
 
 //=======================================================================

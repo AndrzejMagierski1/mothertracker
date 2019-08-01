@@ -119,10 +119,10 @@ uint8_t	playerEngine::activeAmpEnvelopes=0;
 
 void audioEngine::init()
 {
-	pinMode(AUDIO_IN_MUX, OUTPUT);
+/*	pinMode(AUDIO_IN_MUX, OUTPUT);
 	pinMode(AUDIO_OUT_MUX, OUTPUT);
 	digitalWrite(AUDIO_IN_MUX, LOW);
-	digitalWrite(AUDIO_OUT_MUX, LOW);
+	digitalWrite(AUDIO_OUT_MUX, LOW);*/
 	i2sConnect[0]= &connect59;
 	i2sConnect[1]= &connect60;
 
@@ -146,7 +146,7 @@ void audioEngine::init()
 	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 	mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
 //	audioShield.micGain(25);
-	audioShield.lineInLevel(3);
+	audioShield.lineInLevel(10);
 	limiter[0].begin(30000, 300, 20);
 	limiter[1].begin(30000, 300, 20);
 	for(int i=0;i<8; i++)

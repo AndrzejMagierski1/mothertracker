@@ -11,6 +11,7 @@
 #include <SPI.h>
 #include <SD.h>
 #include <SerialFlash.h>
+#include <Si4703.h>
 
 #include "Encoder.h"
 
@@ -20,11 +21,7 @@
 #include "sdram.h"
 #include "hidConnection.h"
 #include "sdCardDetect.h"
-#include "SparkFunSi4703.h"
 
-#ifdef HW_WITH_RADIO
-Si4703_Breakout radio(SI4703_RST, 48, 47, SI4703_SEN);
-#endif
 
 
 
@@ -68,7 +65,28 @@ void ENC_SW_INT_FUNCT() { }
 hidConnection hid(0);
 void hidSendButtonState(uint16_t button, uint16_t state);
 
+char textBuffer[100];
 
+char nazwaStacji[64];
+char textStacji[64];
+uint8_t godzina;
+uint8_t minuta;
+
+void serviceName(char *servname)
+{
+	strcpy(nazwaStacji,servname);
+}
+
+void text(char *servname)
+{
+	strcpy(textStacji,servname);
+}
+
+void time(uint8_t hour,uint8_t minute)
+{
+	godzina=hour;
+	minuta=minute;
+}
 
 void initHardware()
 {
@@ -95,6 +113,7 @@ void initHardware()
 
 	audioShield.enable();
 	AudioMemory(200);
+
 
 	//engine.setOut(1);
 
@@ -182,13 +201,20 @@ void initHardware()
 
 	tactButtons.testMode(0);
 
+
 #ifdef HW_WITH_RADIO
 	pinMode(SI4703_KLUCZ,OUTPUT);
-	digitalWrite(SI4703_KLUCZ,HIGH);
+	digitalWrite(SI4703_KLUCZ,LOW);
 	radio.powerOn();
-	radio.setVolume(10);
-	radio.setChannel(899);
-	audioShield.headphoneSourceSelect(HEADPHONE_IN_SOURCE_INPUTS);
+	radio.setVolume(15);
+	//radio.seekUp();
+	radio.setFrequency(105.7);
+
+	radio.rds.attachServicenNameCallback(serviceName);
+	radio.rds.attachTextCallback(text);
+	radio.rds.attachTimeCallback(time);
+
+
 	/* Reset,SEN trzeba dodac do core teensy
 	 *
 	 * Wysterowac klucz na sztywno narazie
@@ -210,6 +236,7 @@ void initHardware()
 	sdCardDetector.begin();
 
 	BlinkLed.blinkOnce();
+
 
 }
 
@@ -256,6 +283,8 @@ void updateHardware()
 	TactSwitchRead();
 	hid.handle();
 	sdCardDetector.update();
+
+	radio.update_RDS();
 }
 
 elapsedMillis encTimer;
