@@ -242,7 +242,7 @@ void cSampleRecorder::processSpectrum()
 	}
 	if(recordInProgressFlag)
 	{
-		int16_t * sampleData = sdram_effectsBank;
+		int16_t * sampleData = recorder.getStartAddress();
 		uint32_t resolution = recorder.getLength() / 600;
 
 		if(resolution < 1) resolution = 1;
@@ -352,7 +352,7 @@ void cSampleRecorder::processSpectrum()
 
 		uint32_t offset = ((float)zoomPosition/MAX_16BIT) * recorder.getLength();
 
-		sampleData = sdram_effectsBank + offset;
+		sampleData = recorder.getStartAddress() + offset;
 
 		resolution = (((float)zoomWidth/MAX_16BIT) * recorder.getLength() ) / 600;
 
@@ -374,7 +374,7 @@ void cSampleRecorder::processSpectrum()
 		zoomWidth = MAX_16BIT;
 		zoomStart = 0;
 		zoomEnd = MAX_16BIT;
-		sampleData = sdram_effectsBank;
+		sampleData = recorder.getStartAddress();;
 		resolution = recorder.getLength() / 600;
 	}
 
@@ -473,6 +473,12 @@ static  uint8_t functSelectButton0()
 	if(SR->recordInProgressFlag == 1) return 1;
 	SR->selectedPlace = 0;
 	SR->activateLabelsBorder();
+	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
+		SR->points.selected = 0;
+		SR->refreshPoints = 1;
+	}
+
 	return 1;
 }
 static  uint8_t functSelectButton1()
@@ -521,6 +527,12 @@ static  uint8_t functSelectButton3()
 	(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio)) return 1;
 	SR->selectedPlace = 3;
 	SR->activateLabelsBorder();
+
+	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
+		SR->points.selected = 0;
+		SR->refreshPoints = 1;
+	}
 	return 1;
 }
 static  uint8_t functSelectButton4()
@@ -529,6 +541,12 @@ static  uint8_t functSelectButton4()
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig) return 1;
 	SR->selectedPlace = 4;
 	SR->activateLabelsBorder();
+
+	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
+		SR->points.selected = 0;
+		SR->refreshPoints = 1;
+	}
 	return 1;
 }
 static  uint8_t functSelectButton5()
@@ -536,6 +554,12 @@ static  uint8_t functSelectButton5()
 	if(SR->recordInProgressFlag == 1) return 1;
 	SR->selectedPlace = 5;
 	SR->activateLabelsBorder();
+
+	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
+		SR->points.selected = 0;
+		SR->refreshPoints = 1;
+	}
 	return 1;
 }
 static  uint8_t functSelectButton6()
@@ -543,12 +567,22 @@ static  uint8_t functSelectButton6()
 	if(SR->recordInProgressFlag == 1) return 1;
 	SR->selectedPlace = 6;
 	SR->activateLabelsBorder();
+	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
+		SR->points.selected = 0;
+		SR->refreshPoints = 1;
+	}
 	return 1;
 }
 static  uint8_t functSelectButton7()
 {
 	SR->selectedPlace = 7;
 	SR->activateLabelsBorder();
+	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
+	{
+		SR->points.selected = 0;
+		SR->refreshPoints = 1;
+	}
 	return 1;
 }
 
@@ -727,12 +761,49 @@ static uint8_t functActionStopPreview()
 static  uint8_t functActionCrop()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
+	for(int8_t i = (undoCount-2); i>=0 ; i--)
+	{
+		SR->undo[i+1] = SR->undo[i];
+	}
+
+
+	SR->undo[0].address = recorder.getStartAddress();
+	SR->undo[0].length = recorder.getLength();
+
+
+	if(SR->cropCounter < undoCount) SR->cropCounter++;
+
+	recorder.trim(SR->startPoint,SR->endPoint);
+	SR->startPoint = 0;
+	SR->endPoint = MAX_16BIT;
+
+	SR->showEndPointValue();
+	SR->showStartPointValue();
+	SR->refreshSpectrum = 1;
+	SR->refreshPoints = 1;
 	return 1;
 }
 
 static  uint8_t functActionUndo()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
+	if(!SR->cropCounter) return 1;
+	SR->cropCounter--;
+	recorder.undo(SR->undo[0].address,SR->undo[0].length);
+
+	for(uint8_t i = 0 ; i< (undoCount-1); i++)
+	{
+		SR->undo[i] = SR->undo[i+1];
+
+	}
+	SR->startPoint = 0;
+	SR->endPoint = MAX_16BIT;
+
+	SR->showEndPointValue();
+	SR->showStartPointValue();
+	SR->refreshSpectrum = 1;
+	SR->refreshPoints = 1;
+
 	return 1;
 }
 
@@ -753,9 +824,13 @@ static  uint8_t functActionSave()
 	if(SR->recordInProgressFlag == 1)
 	{
 		SR->recordInProgressFlag = 0;
+		SR->startPoint = 0;
+		SR->endPoint = MAX_16BIT;
 		SR->showDefaultScreen();
 		recorder.stopRecording();
 		audioShield.headphoneSourceSelect(0);
+
+
 		return 1;
 	}
 
@@ -1250,6 +1325,8 @@ void cSampleRecorder::modStartPoint(int16_t value)
 
 	lastChangedPoint = 1;
 	refreshPoints = 1;
+
+	showStartPointValue();
 }
 
 void cSampleRecorder::modEndPoint(int16_t value)
@@ -1268,6 +1345,8 @@ void cSampleRecorder::modEndPoint(int16_t value)
 
 	lastChangedPoint = 2;
 	refreshPoints = 1;
+
+	showEndPointValue();
 }
 
 

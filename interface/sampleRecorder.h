@@ -14,7 +14,7 @@
 
 const uint8_t sourceCount = 3;
 const uint8_t monitorCount = 2;
-
+constexpr uint8_t undoCount = 5;
 const char sourcesNamesLabels[sourceCount][10] =
 {
 		"Line in",
@@ -36,6 +36,11 @@ struct strRecorderConfig
 	float radioFreq = 87.0;
 };
 
+struct strUndoCrop
+{
+	int16_t * address;
+	uint32_t length;
+};
 
 class cSampleRecorder: public cModuleBase
 {
@@ -75,6 +80,8 @@ public:
 	void showSourceList();
 	void showMonitorList();
 
+	void showEndPointValue();
+	void showStartPointValue();
 	void showRecTimeValue();
 	void showFreqValue();
 	void showRadio();
@@ -120,6 +127,8 @@ public:
 	uint32_t spectrumTimerConstrains = 100;
 	char freqTextValue[6];
 	char recTimeValueText[8];
+	char startPointValueText[8];
+	char endPointValueText[8];
 	float recTimeValue;
 
 	enum sourceType
@@ -186,7 +195,8 @@ public:
 //rec
 
 uint8_t recordInProgressFlag = 0;
-
+strUndoCrop undo[undoCount];
+uint8_t cropCounter = 0;
 
 //----------------------------------
 // bar
