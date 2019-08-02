@@ -14,6 +14,8 @@ enum controlsStyle
 	controlStyleHide = 0,
 	controlStyleShow = 1,
 
+	controlStyleCreateSubcontrols = 2,
+
 	controlStyleCenterX = 4,
 	controlStyleCenterY = 8,
 	controlStyleRightX 	= 16,

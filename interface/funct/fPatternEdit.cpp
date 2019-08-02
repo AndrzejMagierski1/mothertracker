@@ -9,7 +9,6 @@ extern keyScanner tactButtons; // dla isButtonPressed()
 cPatternEditor patternEditor;
 static  cPatternEditor* PTE = &patternEditor;
 
-
 extern strMtProject mtProject;
 
 static  uint8_t functPlayAction();
@@ -17,10 +16,14 @@ static  uint8_t functRecAction();
 static  uint8_t functPasteInsert();
 static  uint8_t functCopyDelete();
 
-static  uint8_t functChangeTempo(uint8_t button);
-static  uint8_t functChangePattern(uint8_t button);
-static  uint8_t functChangePatternLength(uint8_t button);
-static  uint8_t functChangePatternEditStep(uint8_t button);
+static  uint8_t functChangeTempo();
+static  uint8_t functChangePattern();
+static  uint8_t functChangePatternLength();
+static  uint8_t functChangePatternEditStep();
+
+static  uint8_t functFill();
+static  uint8_t functRandom();
+static  uint8_t functInvert();
 
 
 static  uint8_t functLeft();
@@ -110,6 +113,8 @@ void cPatternEditor::start(uint32_t options)
 
 void cPatternEditor::stop()
 {
+	if(fillState) fillState = 0;
+
 
 	moduleRefresh = 0;
 }
@@ -146,16 +151,15 @@ void cPatternEditor::setDefaultScreenFunct()
 
 
 	FM->setButtonObj(interfaceButton0, buttonPress, functChangeTempo);
-	FM->setButtonObj(interfaceButton1, buttonPress, functChangeTempo);
+	FM->setButtonObj(interfaceButton1, buttonPress, functChangePattern);
+	FM->setButtonObj(interfaceButton2, buttonPress, functChangePatternLength);
+	FM->setButtonObj(interfaceButton3, buttonPress, functChangePatternEditStep);
 
-	FM->setButtonObj(interfaceButton2, buttonPress, functChangePattern);
-	FM->setButtonObj(interfaceButton3, buttonPress, functChangePattern);
 
-	FM->setButtonObj(interfaceButton4, buttonPress, functChangePatternLength);
-	FM->setButtonObj(interfaceButton5, buttonPress, functChangePatternLength);
-
-	FM->setButtonObj(interfaceButton6, buttonPress, functChangePatternEditStep);
-	FM->setButtonObj(interfaceButton7, buttonPress, functChangePatternEditStep);
+	FM->setButtonObj(interfaceButton4, buttonPress, functFill);
+	FM->setButtonObj(interfaceButton5, buttonPress, functRandom);
+	FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
+	//FM->setButtonObj(interfaceButton7, buttonPress, );
 
 
 	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
@@ -433,12 +437,12 @@ void cPatternEditor::changeActualTempo(int16_t value)
 	else if(pattern->tempo+value > 1000) pattern->tempo = 400;
 	else  pattern->tempo += value;
 
-	display.setControlValue(bottomLabel[0], pattern->tempo);
-	display.refreshControl(bottomLabel[0]);
+	showTempo();
 }
 
 void cPatternEditor::changeActualPattern(int16_t value)
 {
+	showPattern();
 
 }
 
@@ -458,8 +462,7 @@ void cPatternEditor::changeActualPatternLength(int16_t value)
 	if(trackerPattern.actualStep > trackerPattern.patternLength-1) trackerPattern.actualStep = trackerPattern.patternLength-1;
 
 
-	display.setControlValue(PTE->bottomLabel[2], trackerPattern.patternLength);
-	display.refreshControl(PTE->bottomLabel[2]);
+	showLength();
 
 	refreshPattern();
 
@@ -468,7 +471,103 @@ void cPatternEditor::changeActualPatternLength(int16_t value)
 void cPatternEditor::changeActualPatternEditStep(int16_t value)
 {
 
+	showStep();
 }
+
+
+void cPatternEditor::changeFillData(int16_t value)
+{
+	if(fillState)
+	{
+
+		uint16_t max;
+		if(fillPopup.column[fillPlace].type == 1)
+		{
+			max = ((strList*)(fillPopup.column[fillPlace].data))->length - 1;
+
+			value = value*(-1);
+
+			if(fillPopup.column[fillPlace].value + value < 0) fillPopup.column[fillPlace].value = 0;
+			else if(fillPopup.column[fillPlace].value + value > max) fillPopup.column[fillPlace].value = max;
+			else fillPopup.column[fillPlace].value += value;
+
+		}
+		else if(fillPopup.column[fillPlace].type == 2)
+		{
+			if(trackerPattern.selectedParam == 0)
+			{
+				if(fillPopup.column[fillPlace].value + value < 0) fillPopup.column[fillPlace].value  = 0;
+				else if(fillPopup.column[fillPlace].value + value > 127) fillPopup.column[fillPlace].value  = 127;
+				else fillPopup.column[fillPlace].value += value;
+
+				fillPopup.column[fillPlace].text = (char*)&mtNotes[fillPopup.column[fillPlace].value][0];
+			}
+			else if (trackerPattern.selectedParam == 1 || trackerPattern.selectedParam == 2 || trackerPattern.selectedParam == 3)
+			{
+				max = (trackerPattern.selectedParam == 1 ? 48 : 127);
+
+				if(fillPopup.column[fillPlace].value + value < 0) fillPopup.column[fillPlace].value  = 0;
+				else if(fillPopup.column[fillPlace].value + value > max) fillPopup.column[fillPlace].value  = max;
+				else fillPopup.column[fillPlace].value += value;
+
+				char inst0 = (fillPopup.column[fillPlace].value + 1) / 10;
+				char inst1 = (fillPopup.column[fillPlace].value + 1) % 10;
+
+				fillText2[0] = inst0 + 48;
+				fillText2[1] = inst1 + 48;
+				fillText2[2] = 0;
+
+				fillPopup.column[fillPlace].text = fillText2;
+			}
+		}
+
+
+		if(fillPopup.column[0].value == 0)
+		{
+			fillPopup.column[1].title = "Value";
+			fillPopup.column[2].title = "";
+			fillPopup.column[2].text = "";
+		}
+		else
+		{
+			if(trackerPattern.selectedParam == 0)
+			{
+				fillPopup.column[2].text = (char*)&mtNotes[fillPopup.column[2].value][0];
+			}
+			if (trackerPattern.selectedParam == 1 || trackerPattern.selectedParam == 2 || trackerPattern.selectedParam == 3)
+			{
+				fillPopup.column[2].text = fillText2;
+			}
+
+			fillPopup.column[1].title = "From";
+			fillPopup.column[2].title = "To";
+		}
+
+
+		lastFillValues[trackerPattern.selectedParam][fillPlace] = fillPopup.column[fillPlace].value;
+
+
+		display.setControlData(patternPopupControl,  &fillPopup);
+		display.refreshControl(patternPopupControl);
+	}
+
+}
+
+void cPatternEditor::changeFillPlace(int16_t value)
+{
+	if(fillState)
+	{
+		if(fillPlace+value < 0) fillPlace = 0;
+		else if(fillPlace+value >= fillPopup.columnsCount) fillPlace = fillPopup.columnsCount-1;
+		else fillPlace += value;
+
+		display.setControlValue(patternPopupControl, fillPlace);
+		display.refreshControl(patternPopupControl);
+	}
+
+}
+
+
 
 uint8_t cPatternEditor::isCursorInSelection()
 {
@@ -512,14 +611,17 @@ uint8_t cPatternEditor::isCursorInSelection()
 
 uint8_t functEncoder(int16_t value)
 {
-	if(PTE->selectedLabel >= 0)
+	if(PTE->selectedPlace >= 0)
 	{
-		switch(PTE->selectedLabel)
+		switch(PTE->selectedPlace)
 		{
 		case 0: PTE->changeActualTempo(value); break;
 		case 1: PTE->changeActualPattern(value); break;
 		case 2: PTE->changeActualPatternLength(value); break;
 		case 3: PTE->changeActualPatternEditStep(value); break;
+
+		case 4: PTE->changeFillData(value); break;
+
 		}
 
 		return 1;
@@ -555,6 +657,17 @@ uint8_t functEncoder(int16_t value)
 
 static  uint8_t functEnter()
 {
+	// zatwierdzanie wypelnienia
+	if(PTE->fillState)
+	{
+
+
+
+		PTE->hideFillPopup();
+
+		PTE->selectedPlace = -1;
+		PTE->activateLabelsBorder();
+	}
 
 
 
@@ -591,10 +704,24 @@ static  uint8_t functShift(uint8_t state)
 
 static  uint8_t functLeft()
 {
-	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
+	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
+	{
+		if(PTE->fillState > 0 && PTE->selectedPlace == 4)
+		{
+			PTE->changeFillPlace(-1);
+			return 1;
+		}
 
-	PTE->selectedLabel = -1; // usun ramke z labeli przyciskow pod ekranem
-	PTE->activateLabelsBorder();
+		if(PTE->selectedPlace > 0)
+		{
+			PTE->selectedPlace--;
+			PTE->activateLabelsBorder();
+		}
+
+		return 1;
+	}
+
+	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
 	if(PTE->editMode)
 	{
@@ -629,10 +756,24 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
-	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
+	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
+	{
+		if(PTE->fillState > 0 && PTE->selectedPlace == 4)
+		{
+			PTE->changeFillPlace(1);
+			return 1;
+		}
 
-	PTE->selectedLabel = -1;
-	PTE->activateLabelsBorder();
+		if(PTE->selectedPlace < 7)
+		{
+			PTE->selectedPlace++;
+			PTE->activateLabelsBorder();
+		}
+
+		return 1;
+	}
+
+	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
 	if(PTE->editMode)
 	{
@@ -669,6 +810,23 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
+	{
+		switch(PTE->selectedPlace)
+		{
+		case 0: PTE->changeActualTempo(1); 			 return 1;
+		case 1: PTE->changeActualPattern(1); 		 return 1;
+		case 2: PTE->changeActualPatternLength(1); 	 return 1;
+		case 3: PTE->changeActualPatternEditStep(1); return 1;
+		}
+
+		if(PTE->fillState > 0)
+		{
+			PTE->changeFillData(1);
+			return 1;
+		}
+	}
+
 	if(PTE->editMode == 0)
 	{
 		if(sequencer.getSeqState() == 1) return 1;
@@ -676,8 +834,6 @@ static  uint8_t functUp()
 
 	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
-	PTE->selectedLabel = -1;
-	PTE->activateLabelsBorder();
 
 	if(PTE->editMode == 1 && shiftPressed && PTE->isSelectingNow == 0)
 	{
@@ -706,6 +862,23 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
+	{
+		switch(PTE->selectedPlace)
+		{
+		case 0: PTE->changeActualTempo(-1); 			return 1;
+		case 1: PTE->changeActualPattern(-1); 		 	return 1;
+		case 2: PTE->changeActualPatternLength(-1); 	return 1;
+		case 3: PTE->changeActualPatternEditStep(-1);	return 1;
+		}
+
+		if(PTE->fillState > 0)
+		{
+			PTE->changeFillData(-1);
+			return 1;
+		}
+	}
+
 	if(PTE->editMode == 0)
 	{
 		if(sequencer.getSeqState() == 1) return 1;
@@ -713,8 +886,6 @@ static  uint8_t functDown()
 
 	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
-	PTE->selectedLabel = -1;
-	PTE->activateLabelsBorder();
 
 	if(PTE->editMode == 1 && shiftPressed && PTE->isSelectingNow == 0)
 	{
@@ -741,9 +912,15 @@ static  uint8_t functDown()
 static  uint8_t functNote()
 {
 	PTE->trackerPattern.selectedParam = 0;
-	PTE->selectedLabel = -1;
-	PTE->activateLabelsBorder();
 
+	if(PTE->fillState > 0)
+	{
+		PTE->showFillPopup();
+		return 1;
+	}
+
+	PTE->selectedPlace = -1;
+	PTE->activateLabelsBorder();
 	PTE->refreshPattern();
 
 	return 1;
@@ -753,9 +930,16 @@ static  uint8_t functNote()
 static  uint8_t functInstrument()
 {
 	PTE->trackerPattern.selectedParam = 1;
-	PTE->selectedLabel = -1;
-	PTE->activateLabelsBorder();
 
+	if(PTE->fillState > 0)
+	{
+		PTE->showFillPopup();
+		return 1;
+	}
+
+
+	PTE->selectedPlace = -1;
+	PTE->activateLabelsBorder();
 	PTE->refreshPattern();
 
 	return 1;
@@ -764,8 +948,15 @@ static  uint8_t functInstrument()
 static  uint8_t functVolume()
 {
 	PTE->trackerPattern.selectedParam = 2;
-	PTE->selectedLabel = -1;
 
+	if(PTE->fillState > 0)
+	{
+		PTE->showFillPopup();
+		return 1;
+	}
+
+	PTE->selectedPlace= -1;
+	PTE->activateLabelsBorder();
 	PTE->refreshPattern();
 
 	return 1;
@@ -774,8 +965,15 @@ static  uint8_t functVolume()
 static  uint8_t functFx()
 {
 	PTE->trackerPattern.selectedParam = 3;
-	PTE->selectedLabel = -1;
 
+	if(PTE->fillState > 0)
+	{
+		PTE->showFillPopup();
+		return 1;
+	}
+
+	PTE->selectedPlace= -1;
+	PTE->activateLabelsBorder();
 	PTE->refreshPattern();
 
 	return 1;
@@ -791,6 +989,7 @@ static  uint8_t functPlayAction()
 	{
 		sequencer.stop();
 
+		PTE->trackerPattern.playheadPosition = 0;
 		PTE->trackerPattern.actualStep = 0;
 		PTE->refreshPattern();
 	}
@@ -968,85 +1167,86 @@ static uint8_t isMultiSelection()
 			(PTE->trackerPattern.selectStartTrack != PTE->trackerPattern.selectEndTrack));
 }
 
-static  uint8_t functChangeTempo(uint8_t button)
+static  uint8_t functChangeTempo()
 {
-	if(button == interfaceButton0)
-	{
-		PTE->changeActualTempo(-1);
-	}
-	else //if(button == interfaceButton1)
-	{
-		PTE->changeActualTempo(1);
-	}
-
-	PTE->selectedLabel = 0;
+	PTE->selectedPlace = 0;
 	PTE->activateLabelsBorder();
 
 	return 1;
 }
 
-static  uint8_t functChangePattern(uint8_t button)
+static  uint8_t functChangePattern()
 {
-
-	//Sequencer::strPattern * pattern = sequencer.getPatternToUI();
-
-	if(button == interfaceButton2)
-	{
-
-	}
-	else //if(button == interfaceButton3)
-	{
-
-	}
-
-	PTE->selectedLabel = 1;
-	PTE->activateLabelsBorder();
-
-	display.setControlValue(PTE->bottomLabel[1], 1);
-	display.refreshControl(PTE->bottomLabel[1]);
-
-	return 1;
-}
-
-static  uint8_t functChangePatternLength(uint8_t button)
-{
-	if(button == interfaceButton4)
-	{
-		PTE->changeActualPatternLength(-1);
-	}
-	else //if(button == interfaceButton5)
-	{
-		PTE->changeActualPatternLength(+1);
-	}
-
-
-	PTE->selectedLabel = 2;
+	PTE->selectedPlace = 1;
 	PTE->activateLabelsBorder();
 
 	return 1;
 }
-static  uint8_t functChangePatternEditStep(uint8_t button)
+
+static  uint8_t functChangePatternLength()
 {
-	if(button == interfaceButton6)
-	{
-		if(mtProject.values.patternEditStep-1 > 0) mtProject.values.patternEditStep--;
-	}
-	else //if(button == interfaceButton7)
-	{
-		 if(mtProject.values.patternEditStep+1 < 10) mtProject.values.patternEditStep++;
-	}
-
-
-	PTE->selectedLabel = 3;
+	PTE->selectedPlace = 2;
 	PTE->activateLabelsBorder();
 
-	display.setControlValue(PTE->bottomLabel[3], mtProject.values.patternEditStep);
-	display.refreshControl(PTE->bottomLabel[3]);
+	return 1;
+}
+static  uint8_t functChangePatternEditStep()
+{
+	PTE->selectedPlace = 3;
+	PTE->activateLabelsBorder();
 
 	return 1;
 }
 
+static  uint8_t functFill()
+{
+	if(PTE->fillState && PTE->selectedPlace!= 4) // tylko zaznacz przycisk kiedy popop jest wyswietlony
+	{
+		PTE->selectedPlace = 4;
+		PTE->activateLabelsBorder();
 
+		return 1;
+	}
+
+	PTE->fillState = !PTE->fillState;
+
+	if(PTE->fillState)
+	{
+		PTE->showFillPopup();
+
+		PTE->selectedPlace = 4;
+		PTE->activateLabelsBorder();
+	}
+	else
+	{
+		PTE->hideFillPopup();
+
+
+		PTE->selectedPlace = -1;
+		PTE->activateLabelsBorder();
+	}
+
+
+
+
+	return 1;
+}
+
+static  uint8_t functRandom()
+{
+	PTE->selectedPlace = 5;
+	PTE->activateLabelsBorder();
+
+	return 1;
+}
+
+static  uint8_t functInvert()
+{
+	PTE->selectedPlace = 6;
+	PTE->activateLabelsBorder();
+
+	return 1;
+}
 
 
 
