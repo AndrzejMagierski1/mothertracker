@@ -683,8 +683,6 @@ void cSampleRecorder::showMonitorList()
 	display.setControlData(monitorListControl,  &monitorList);
 	display.setControlShow(monitorListControl);
 	display.refreshControl(monitorListControl);
-
-
 }
 
 void cSampleRecorder::drawRadioFreqBar()
@@ -699,8 +697,6 @@ void cSampleRecorder::drawLevelBar()
 	if(currentScreen != screenTypeConfig ) return ;
 	if(levelBarVal < 85)
 	{
-
-
 		if(redColorTim < 350) display.setControlColors(levelBarControl, colorRed);
 		else
 		{

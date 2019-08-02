@@ -104,11 +104,9 @@ public:
 	void changeMonitorSelection(int16_t value);
 	void changeSourceSelection(int16_t value);
 
-	void changePlayModeSelection(int16_t value);
 
 	void activateLabelsBorder();
-
-	void setPrevievFlag(uint8_t s);
+	void refreshConfigLists();
 
 	strFrameData frameData;
 
@@ -154,9 +152,6 @@ public:
 		screenTypeKeyboard
 	};
 
-	//odsluch in
-	uint8_t previevFlag = 0;
-	uint8_t lastPrevievFlag = 0;
 //----------------------------------
 // spectrum + punkty
 	uint8_t refreshSpectrum = 0;

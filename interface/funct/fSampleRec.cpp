@@ -176,12 +176,6 @@ void cSampleRecorder::update()
 		refreshPoints = 0;
 	}
 
-	if(previevFlag != lastPrevievFlag)
-	{
-		if(previevFlag) audioShield.headphoneSourceSelect(1);
-		else audioShield.headphoneSourceSelect(0);
-	}
-	lastPrevievFlag = previevFlag;
 
 	if(recordInProgressFlag)
 	{
@@ -216,6 +210,7 @@ void cSampleRecorder::start(uint32_t options)
 
 //--------------------------------------------------------------------
 
+
 	processSpectrum();
 	processPoints();
 	listMonitor();
@@ -223,6 +218,7 @@ void cSampleRecorder::start(uint32_t options)
 
 	showMonitorList();
 	showSourceList();
+	refreshConfigLists();
 	showZoomValue();
 
 	// ustawienie funkcji
@@ -242,8 +238,6 @@ void cSampleRecorder::start(uint32_t options)
 	setDefaultScreenFunct();
 
 	activateLabelsBorder();
-
-	setPrevievFlag(1);
 
 }
 
@@ -290,7 +284,24 @@ void cSampleRecorder::setDefaultScreenFunct()
 }
 
 //==============================================================================================================
+void cSampleRecorder::refreshConfigLists()
+{
+	if(recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
+	else audioShield.headphoneSourceSelect(1);
 
+	if(recorderConfig.source == sourceTypeLineIn )
+	{
+		audioShield.inputSelect(0);
+	}
+	else if(recorderConfig.source == sourceTypeMic)
+	{
+		audioShield.inputSelect(1);
+	}
+	else if(recorderConfig.source == sourceTypeRadio)
+	{
+		audioShield.inputSelect(0);
+	}
+}
 
 void cSampleRecorder::processPoints()
 {
@@ -676,7 +687,7 @@ static  uint8_t functActionButton0(uint8_t s)
 {
 	if(s == 1)
 	{
-		functSelectButton0();
+		if(SR->currentScreen == cSampleRecorder::screenTypeConfig) functSelectButton0();
 		switch(SR->currentScreen)
 		{
 			case cSampleRecorder::screenTypeConfig:		functActionSource(); 			break;
@@ -701,7 +712,7 @@ static  uint8_t functActionButton0(uint8_t s)
 
 static  uint8_t functActionButton1()
 {
-	functSelectButton1();
+	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton1();
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: 	functActionRadioFreq();			break;
@@ -714,7 +725,7 @@ static  uint8_t functActionButton1()
 
 static  uint8_t functActionButton2()
 {
-	functSelectButton2();
+	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton2();
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig:		functActionRadioLeft();			break;
@@ -727,7 +738,7 @@ static  uint8_t functActionButton2()
 
 static  uint8_t functActionButton3()
 {
-	functSelectButton3();
+	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton3();
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig:		functActionRadioRight(); 		break;
@@ -740,7 +751,6 @@ static  uint8_t functActionButton3()
 
 static  uint8_t functActionButton4()
 {
-	functSelectButton4();
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: break;
@@ -753,7 +763,7 @@ static  uint8_t functActionButton4()
 
 static  uint8_t functActionButton5()
 {
-	functSelectButton5();
+	if(SR->currentScreen == cSampleRecorder::screenTypeConfig) functSelectButton5();
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: 	functActionGain();				break;
@@ -766,7 +776,7 @@ static  uint8_t functActionButton5()
 
 static  uint8_t functActionButton6()
 {
-	functSelectButton6();
+	if(SR->currentScreen != cSampleRecorder::screenTypeRecord) functSelectButton6();
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: 	functActionMonitor();			break;
@@ -930,8 +940,9 @@ static  uint8_t functActionSave()
 	   strcpy(SR->name,"recording");
 	   strcat(SR->name,cntBuf);
 
-	   strcpy(localPatch,"Projects/");
+	   strcpy(localPatch,"Recorded/");
 	   strcat(localPatch, SR->name);
+	   strcat(localPatch, ".wav");
 
 	   cnt++;
 	   if(cnt > 9999)
@@ -953,7 +964,10 @@ static  uint8_t functActionConfirmSave()
 {
 	 SR->keyboardActiveFlag = 0;
 	 SR->saveInProgressFlag = 1;
+	 SR->hideKeyboard();
+	 SR->hideKeyboardEditName();
 	 recorder.startSave(SR->name);
+
 }
 
 static  uint8_t functActionStopRec()
@@ -1261,21 +1275,11 @@ static  uint8_t functDown()
 }
 
 
-
-
-
-
-void cSampleRecorder::setPrevievFlag(uint8_t s)
-{
-	previevFlag = s;
-}
-
-
-
-
-
 static uint8_t functSwitchModule(uint8_t button)
 {
+	if(SR->recordInProgressFlag) return 1;
+	if(SR->saveInProgressFlag) return 1;
+	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;
 	SR->eventFunct(eventSwitchModule,SR,&button,0);
 	return 1;
 }
