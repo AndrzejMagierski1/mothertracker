@@ -107,6 +107,7 @@ public:
 
 	void activateLabelsBorder();
 	void refreshConfigLists();
+	void refreshGain();
 
 	strFrameData frameData;
 

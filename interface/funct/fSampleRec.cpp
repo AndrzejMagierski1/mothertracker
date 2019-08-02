@@ -219,6 +219,7 @@ void cSampleRecorder::start(uint32_t options)
 	showMonitorList();
 	showSourceList();
 	refreshConfigLists();
+	refreshGain();
 	showZoomValue();
 
 	// ustawienie funkcji
@@ -286,6 +287,7 @@ void cSampleRecorder::setDefaultScreenFunct()
 //==============================================================================================================
 void cSampleRecorder::refreshConfigLists()
 {
+	if(currentScreen != screenTypeConfig) return;
 	if(recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
 	else audioShield.headphoneSourceSelect(1);
 
@@ -300,6 +302,20 @@ void cSampleRecorder::refreshConfigLists()
 	else if(recorderConfig.source == sourceTypeRadio)
 	{
 		audioShield.inputSelect(0);
+	}
+}
+
+void cSampleRecorder::refreshGain()
+{
+	if(recorderConfig.source == sourceTypeLineIn)
+	{
+		uint8_t localMap = recorderConfig.gain *15/100;
+		audioShield.lineInLevel(localMap);
+	}
+	else if((recorderConfig.source == sourceTypeMic) || (recorderConfig.source == sourceTypeRadio))
+	{
+		float localMap = recorderConfig.gain* 63.0 / 100.0;
+		audioShield.micGain(localMap);
 	}
 }
 
@@ -591,8 +607,10 @@ static  uint8_t functSelectButton1()
 		if(SR->zoomValue > 1.0)
 		{
 			SR->refreshSpectrum = 1;
+			SR->lastChangedPoint = 1;
 		}
 		SR->refreshPoints = 1;
+
 	}
 
 	return 1;
@@ -611,6 +629,7 @@ static  uint8_t functSelectButton2()
 		if(SR->zoomValue > 1.0)
 		{
 			SR->refreshSpectrum = 1;
+			SR->lastChangedPoint = 2;
 		}
 		SR->refreshPoints = 1;
 	}
@@ -876,7 +895,9 @@ static  uint8_t functActionCrop()
 	recorder.trim(SR->startPoint,SR->endPoint);
 	SR->startPoint = 0;
 	SR->endPoint = MAX_16BIT;
+	SR->zoomValue = 1.0;
 
+	SR->showZoomValue();
 	SR->showEndPointValue();
 	SR->showStartPointValue();
 	SR->refreshSpectrum = 1;
@@ -914,12 +935,15 @@ static  uint8_t functActionGoBack()
 	{
 		//todo: okienko pytajace czy zapisac o ile nie zapisano nic wczesniej
 		SR->currentScreen = cSampleRecorder::screenTypeConfig;
+		SR->selectedPlace = 0;
 		if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
 		SR->showDefaultScreen();
+		SR->activateLabelsBorder();
 	}
 	else if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
 	{
 		SR->currentScreen = cSampleRecorder::screenTypeRecord;
+		SR->selectedPlace = 7;
 		SR->showDefaultScreen();
 	}
 	return 1;
@@ -1352,16 +1376,7 @@ void cSampleRecorder::changeGainBar(int16_t val)
 		if(recorderConfig.gain < 100)
 		{
 			recorderConfig.gain++;
-			if(recorderConfig.source == sourceTypeLineIn)
-			{
-				uint8_t localMap = recorderConfig.gain *15/100;
-				audioShield.lineInLevel(localMap);
-			}
-			else if((recorderConfig.source == sourceTypeMic) || (recorderConfig.source == sourceTypeRadio))
-			{
-				float localMap = recorderConfig.gain* 63.0 / 100.0;
-				audioShield.micGain(localMap);
-			}
+			refreshGain();
 		}
 
 	}
@@ -1370,21 +1385,11 @@ void cSampleRecorder::changeGainBar(int16_t val)
 		if(recorderConfig.gain > 0)
 		{
 			recorderConfig.gain--;
-			if(recorderConfig.source == sourceTypeLineIn)
-			{
-				uint8_t localMap = recorderConfig.gain *15/100;
-				audioShield.lineInLevel(localMap);
-			}
-			else if((recorderConfig.source == sourceTypeMic) || (recorderConfig.source == sourceTypeRadio))
-			{
-				float localMap = recorderConfig.gain* 63.0 / 100.0;
-				audioShield.micGain(localMap);
-			}
+			refreshGain();
 		}
 	}
 	calcGainBarVal();
 	drawGainBar();
-	//tu fizyczna zmiana wzmocnienia
 }
 
 void cSampleRecorder::changeZoom(int16_t value)
