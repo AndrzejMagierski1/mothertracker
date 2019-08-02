@@ -209,6 +209,10 @@ void cSampleRecorder::start(uint32_t options)
 	moduleRefresh = 1;
 
 //--------------------------------------------------------------------
+	if(sequencer.getSeqState() == 1)
+	{
+	   sequencer.stop();
+	}
 
 
 	processSpectrum();
