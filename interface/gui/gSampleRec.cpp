@@ -27,8 +27,8 @@ static  uint16_t framesPlacesS2[8][4] =
 	{(800/8)*7, 412, 800/8, 68},
 };
 
-static uint32_t colorRed[3] = { 0xFF0000, 0xFF0000,0xFF0000 };
-static uint32_t colorGreen[3] = { 0x00FF00, 0x00FF00,0x00FF00 };
+uint32_t colorRed[3] = { 0xFF0000, 0xFFFFFF,0xFF0000 };
+uint32_t colorGreen[3] = { 0x00FF00, 0xFFFFFF,0x00FF00 };
 
 void cSampleRecorder::initDisplayControls()
 {
@@ -334,7 +334,7 @@ void cSampleRecorder::showZoomValue()
 
 void cSampleRecorder::showFreqValue()
 {
-	snprintf(freqTextValue, 5, "%f", recorderConfig.radioFreq);
+	snprintf(freqTextValue, 8, "%.2f", recorderConfig.radioFreq);
 
 	display.setControlText(topLabel[1], freqTextValue);
 	display.setControlShow(topLabel[1]);

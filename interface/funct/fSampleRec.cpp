@@ -5,6 +5,7 @@
 
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
+#include "SI4703.h"
 
 
 
@@ -79,7 +80,6 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 
 
-
 void cSampleRecorder::update()
 {
 	if(refreshSpectrum)
@@ -109,6 +109,7 @@ void cSampleRecorder::update()
 	lastPrevievFlag = previevFlag;
 
 	changeLevelBar();
+
 }
 
 void cSampleRecorder::start(uint32_t options)
@@ -153,6 +154,8 @@ void cSampleRecorder::stop()
 {
 
 	moduleRefresh = 0;
+
+	//radio off
 }
 
 
@@ -564,6 +567,8 @@ static  uint8_t functActionButton2()
 static  uint8_t functActionButton3()
 {
 	functSelectButton3();
+
+	Serial.print(SR->currentScreen);
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig:		functActionRadioRight(); 		break;
@@ -653,11 +658,34 @@ static  uint8_t functActionRadioFreq()
 
 static  uint8_t functActionRadioLeft()
 {
+	float newFreq;
+	newFreq = radio.seekDown();
+
+	if(newFreq !=0)
+	{
+		SR->recorderConfig.radioFreq = newFreq;
+
+		SR->calcRadioFreqBarVal();
+		SR->drawRadioFreqBar();
+	}
+
 	return 1;
 }
 
+
 static  uint8_t functActionRadioRight()
 {
+	float newFreq;
+	newFreq = radio.seekUp();
+
+	if(newFreq !=0)
+	{
+		SR->recorderConfig.radioFreq = newFreq;
+
+		SR->calcRadioFreqBarVal();
+		SR->drawRadioFreqBar();
+	}
+
 	return 1;
 }
 
@@ -909,7 +937,7 @@ static uint8_t functSwitchModule(uint8_t button)
 //======================================================================================================================
 void cSampleRecorder::calcRadioFreqBarVal()
 {
-	radioFreqBarVal = ((recorderConfig.radioFreq - 87.0) * 100)/ (108 - 87);
+	radioFreqBarVal = ((recorderConfig.radioFreq - 87.5) * 100)/ (108 - 87);
 }
 void cSampleRecorder::calcLevelBarVal()
 {
@@ -924,36 +952,67 @@ void cSampleRecorder::calcGainBarVal()
 	gainBarVal = recorderConfig.gain;
 }
 
-
+float currfreq;
 void cSampleRecorder::changeRadioFreqBar(int16_t val)
 {
 	if(val > 0)
 	{
-		if(recorderConfig.radioFreq < 108.0f) recorderConfig.radioFreq += 0.1;
+		if(recorderConfig.radioFreq < 108.0f) recorderConfig.radioFreq += 0.05;
 	}
 	else if(val < 0)
 	{
-		if(recorderConfig.radioFreq > 87.0f) recorderConfig.radioFreq -= 0.1;
+		if(recorderConfig.radioFreq > 87.5f) recorderConfig.radioFreq -= 0.05;
 	}
 
 	calcRadioFreqBarVal();
 	drawRadioFreqBar();
+
+	radio.setFrequency(recorderConfig.radioFreq);
+	currfreq = radio.getFrequency();
 	//todo: tu fizyczna zmiana czestotliwosci
 }
 void cSampleRecorder::changeLevelBar()
 {
 	calcLevelBarVal();
-	drawLevelBar();
+	if(lastLevelBarVal != levelBarVal) 	drawLevelBar();
+	lastLevelBarVal = levelBarVal;
 }
 void cSampleRecorder::changeGainBar(int16_t val)
 {
 	if(val > 0)
 	{
-		if(recorderConfig.gain < 100) recorderConfig.gain++;
+		if(recorderConfig.gain < 100)
+		{
+			recorderConfig.gain++;
+			if(recorderConfig.source == sourceTypeLineIn)
+			{
+				uint8_t localMap = recorderConfig.gain *15/100;
+				audioShield.lineInLevel(localMap);
+			}
+			else if((recorderConfig.source == sourceTypeMic) || (recorderConfig.source == sourceTypeRadio))
+			{
+				float localMap = recorderConfig.gain* 63.0 / 100.0;
+				audioShield.micGain(localMap);
+			}
+		}
+
 	}
 	else if(val < 0)
 	{
-		if(recorderConfig.gain > 0) recorderConfig.gain--;
+		if(recorderConfig.gain > 0)
+		{
+			recorderConfig.gain--;
+			if(recorderConfig.source == sourceTypeLineIn)
+			{
+				uint8_t localMap = recorderConfig.gain *15/100;
+				audioShield.lineInLevel(localMap);
+			}
+			else if((recorderConfig.source == sourceTypeMic) || (recorderConfig.source == sourceTypeRadio))
+			{
+				float localMap = recorderConfig.gain* 63.0 / 100.0;
+				audioShield.micGain(localMap);
+			}
+		}
 	}
 	calcGainBarVal();
 	drawGainBar();
@@ -980,12 +1039,21 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
 {
 	if(value > 0)
 	{
-		if(recorderConfig.source == 1) showRadio();
+		if(recorderConfig.source == 1)
+		{
+			showRadio();
+			digitalWrite(SI4703_KLUCZ,LOW);
+
+		}
 		if(recorderConfig.source < 2) recorderConfig.source++;
 	}
 	else if (value < 0)
 	{
-		if(recorderConfig.source == 2) hideRadio();
+		if(recorderConfig.source == 2)
+		{
+			hideRadio();
+			digitalWrite(SI4703_KLUCZ,HIGH);
+		}
 		if(recorderConfig.source > 0) recorderConfig.source--;
 	}
 

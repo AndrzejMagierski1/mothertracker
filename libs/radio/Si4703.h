@@ -9,6 +9,12 @@
 #define SEEK_UP				1
 #define SEEK_DOWN			0
 
+#define SPACING_200kHz		0
+#define SPACING_100kHz		1
+#define SPACING_50kHz		2
+
+
+
 
 class Si4703
 {
@@ -22,6 +28,9 @@ public:
 
 	void setFrequency(float freq);
 	void update_RDS();
+	float getFrequency();
+	int getRSSI();
+	uint8_t isSTCset();
 
 	uint8_t rdsReadyFlag;
 
@@ -38,7 +47,7 @@ private:
 	void readRegisters();
 	byte updateRegisters();
 	float seek(byte seekDirection);
-	float getFrequency();
+
 
 	uint16_t si4703_registers[16]; //There are 16 registers, each 16 bits large
 

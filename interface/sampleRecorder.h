@@ -33,7 +33,7 @@ struct strRecorderConfig
 	uint8_t source;
 	uint8_t gain;
 	uint8_t monitor;
-	float radioFreq = 87.0;
+	float radioFreq = 87.5;
 };
 
 
@@ -117,7 +117,7 @@ public:
 	uint8_t selectedPlace = 0;
 	uint8_t currentScreen = 0;
 	strRecorderConfig recorderConfig;
-	char freqTextValue[6];
+	char freqTextValue[8];
 
 	enum sourceType
 	{
@@ -179,7 +179,12 @@ public:
 // bar
 	uint8_t radioFreqBarVal;
 	uint8_t levelBarVal;
+	uint8_t lastLevelBarVal;
+	elapsedMicros levelBarTim;
+	float measureSum = 0;
+	uint8_t levelBarMeasureCounter;
 	uint8_t gainBarVal;
+	elapsedMillis redColorTim;
 
 	void calcRadioFreqBarVal();
 	void calcLevelBarVal();

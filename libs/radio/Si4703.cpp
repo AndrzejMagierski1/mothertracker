@@ -140,16 +140,18 @@ void Si4703::si4703_init()
 	si4703_registers[rPOWERCFG] = (ENABLE | DMUTE | DSMUTE | RDSM);
 
 	si4703_registers[rSYSCONFIG1] |= DE; //50kHz Europe setup
-	si4703_registers[rSYSCONFIG2] |= SPACE(0x02); //50kHz channel spacing for Europe
+	si4703_registers[rSYSCONFIG2] |= SPACE(SPACING_50kHz); //50kHz channel spacing for Europe
 
 	si4703_registers[rSYSCONFIG2] &= ~VOLUME_MASK; //Clear volume bits
 	si4703_registers[rSYSCONFIG2] |= VOLUME(0x01); //Set volume to lowest
+	si4703_registers[rSYSCONFIG2] |= SEEKTH(0x19);// Minimalne RSSI prawidlowej stacji dla seek
+	si4703_registers[rSYSCONFIG3] |= (SKCNT(0x08) | SKSNR(0x04));// autoseek snr i impulse detection
 	updateRegisters(); //Update
 
 	delay(110); //Max powerup time, from datasheet page 13
 
 	readRegisters();
-	si4703_registers[rSYSCONFIG1] |= (RDS | RDSIEN | GPIO2(0x01)); //Enable RDS
+	si4703_registers[rSYSCONFIG1] |= (RDS | STCIEN | GPIO2(0x01)); //Enable RDS
 	updateRegisters();
 
 	rds.init();
@@ -212,8 +214,8 @@ float Si4703::seek(byte seekDirection)
 
 	readRegisters();
 	//Set seek mode wrap bit
-	si4703_registers[rPOWERCFG] |= SKMODE; //Allow wrap
-	//si4703_registers[POWERCFG] &= ~(1<<SKMODE); //Disallow wrap - if you disallow wrap, you may want to tune to 87.5 first
+	//si4703_registers[rPOWERCFG] |= SKMODE; //Allow wrap
+	si4703_registers[rPOWERCFG] &= ~SKMODE; //Disallow wrap - if you disallow wrap, you may want to tune to 87.5 first
 	if(seekDirection == SEEK_DOWN)
 	{
 		si4703_registers[rPOWERCFG] &= ~SEEKUP; //Seek down is the default upon reset
@@ -270,7 +272,13 @@ float Si4703::getFrequency()
 
 	channel = READCHANN(si4703_registers[rREADCHAN]);
 
-	freq= (channel * 0.05 + 87.5) + 0.5;//0.5 for rounding
+	freq= (channel * 0.05 + 87.5);
 
 	return freq;
+}
+
+int Si4703::getRSSI()
+{
+	readRegisters();
+	return RSSI(si4703_registers[rSTATUSRSSI]);
 }

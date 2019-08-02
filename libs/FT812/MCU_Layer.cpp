@@ -252,7 +252,7 @@ void FT812_Init(void)
     lcdPclkpol = 1;                                                             // Define active edge of PCLK
 
     lcdCsSpread = 0;
-    lcdRotate   = 4;
+    lcdRotate   = 1;
     //lcdRotate   = 4;
     lcdDither = 0;
 

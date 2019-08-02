@@ -65,7 +65,7 @@ void ENC_SW_INT_FUNCT() { }
 hidConnection hid(0);
 void hidSendButtonState(uint16_t button, uint16_t state);
 
-char textBuffer[100];
+/*char textBuffer[100];
 
 char nazwaStacji[64];
 char textStacji[64];
@@ -86,7 +86,7 @@ void time(uint8_t hour,uint8_t minute)
 {
 	godzina=hour;
 	minuta=minute;
-}
+}*/
 
 void initHardware()
 {
@@ -202,24 +202,19 @@ void initHardware()
 	tactButtons.testMode(0);
 
 
+/*
 #ifdef HW_WITH_RADIO
-	pinMode(SI4703_KLUCZ,OUTPUT);
-	digitalWrite(SI4703_KLUCZ,LOW);
-	radio.powerOn();
-	radio.setVolume(15);
+
 	//radio.seekUp();
 	radio.setFrequency(105.7);
 
 	radio.rds.attachServicenNameCallback(serviceName);
 	radio.rds.attachTextCallback(text);
 	radio.rds.attachTimeCallback(time);
-
-
-	/* Reset,SEN trzeba dodac do core teensy
-	 *
-	 * Wysterowac klucz na sztywno narazie
-	 * */
 #endif
+*/
+	radio.powerOn();
+	radio.setVolume(15);
 
 
 	//LEDS
@@ -237,6 +232,8 @@ void initHardware()
 
 	BlinkLed.blinkOnce();
 
+	pinMode(SI4703_KLUCZ,OUTPUT);
+	digitalWrite(SI4703_KLUCZ,HIGH);
 
 }
 
@@ -284,7 +281,7 @@ void updateHardware()
 	hid.handle();
 	sdCardDetector.update();
 
-	radio.update_RDS();
+	//radio.update_RDS();
 }
 
 elapsedMillis encTimer;
