@@ -151,7 +151,7 @@ void initHardware()
 	// ENCODER
 	Encoder.begin(ENC_SWITCH,onButtonChange);
 	//	Encoder.testMode(1);
-	Encoder.setRes(5);
+	Encoder.setRes(1);
 	Encoder.setSpeedUp(1);
 
 	//....................................................
@@ -221,14 +221,27 @@ void hidSendButtonState(uint16_t button, uint16_t state)
 
 }
 
+
+static elapsedMillis refreshTimer;
+uint8_t keySwitch;
+
 void updateHardware()
 {
 	//AnalogInputs.update();
 
 	updateEncoder();
 	Encoder.switchRead();
-	seqButtonsA.update();
-	tactButtons.update();
+
+	if(refreshTimer > 5)
+	{
+		refreshTimer = 0;
+		keySwitch = !keySwitch;
+
+		if(keySwitch) 	seqButtonsA.update();
+		else 			tactButtons.update();
+	}
+
+
 
 	//		leds.updateSeq();
 	leds.update_all_leds();
