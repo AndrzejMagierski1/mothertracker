@@ -551,7 +551,7 @@ uint8_t functEncoder(int16_t value)
 	sendSelection();
 	switch(PTE->trackerPattern.selectedParam)
 	{
-	case 0: sequencer.transposeSelection(value); break;
+	case 0: sequencer.changeSelectionNote(value); break;
 	case 1: sequencer.changeSelectionInstrument(value); break;
 	case 2: sequencer.changeSelectionVolume(value); break;
 	case 3: break;

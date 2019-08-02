@@ -686,7 +686,7 @@ public:
 	void handle_uStep_timer(void);
 
 	void fillRandomNotes(uint8_t step);
-	void transposeSelection(int16_t value);
+	void changeSelectionNote(int16_t value);
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 					uint8_t track);
 	void randomExisting();

@@ -5,10 +5,8 @@
 #include "mtStructs.h"
 #include "seqDisplay.h"
 
-
 #include "patternEditor.h"
 Sequencer sequencer;
-
 
 inline void timerExternalVector()
 {
@@ -1925,7 +1923,7 @@ void Sequencer::randomExisting()
 	}
 }
 
-void Sequencer::transposeSelection(int16_t value)
+void Sequencer::changeSelectionNote(int16_t value)
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
@@ -1939,17 +1937,44 @@ void Sequencer::transposeSelection(int16_t value)
 				s++, offset++)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
-			if (step->note >= 0)
-			{
 
-				step->note = constrain(step->note + value, 0,
-										MAX_NOTE_STEP);
-				if (isSingleSelection(sel) && step->note >= 0)
+			if (isSingleSelection(sel))
+			{
+				if (step->note == STEP_NOTE_EMPTY && value > 0)
+				{
+					step->instrument = mtProject.values.lastUsedInstrument;
+					step->note = STEP_NOTE_DEFAULT;
+				}
+				else if (step->note == STEP_NOTE_EMPTY)
+				{
+					step->instrument = mtProject.values.lastUsedInstrument;
+					step->note = constrain(step->note + value,
+											-2,
+											MAX_NOTE_STEP);
+				}
+				else
+				{
+					step->note = constrain(step->note + value,
+											-2,
+											MAX_NOTE_STEP);
+				}
+
+				if (step->note >= 0)
 				{
 					blinkNote(step->instrument,
 								step->note,
 								step->velocity,
 								t);
+				}
+				return;
+			}
+			else
+			{
+				if (step->note >= 0)
+				{
+					step->note = constrain(step->note + value,
+											0,
+											MAX_NOTE_STEP);
 				}
 			}
 
@@ -2011,6 +2036,7 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 			if (step->note == STEP_NOTE_EMPTY)
 			{
 				step->note = STEP_NOTE_DEFAULT;
+				step->instrument = mtProject.values.lastUsedInstrument;
 			}
 
 			if (isSingleSelection(sel) && step->note >= 0)
@@ -2019,6 +2045,8 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 							step->note,
 							step->velocity,
 							t);
+
+				mtProject.values.lastUsedInstrument = step->instrument;
 			}
 
 		}
@@ -2040,10 +2068,15 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 	if (!isSelectionCorrect(sel)) return;
 
 	// NOTE ON
-	if(velocity != 0){
-		if(!isMultiSelection()){
-//			sel->firstStep
+	if (velocity != 0)
+	{
+		if (!isMultiSelection())
+		{
 			strPattern::strTrack::strStep *step = &seq[player.ramBank].track[sel->firstTrack].step[sel->firstStep];
+			if (step->note == STEP_NOTE_EMPTY)
+			{
+				step->instrument = mtProject.values.lastUsedInstrument;
+			}
 			step->note = note;
 			step->velocity = velocity;
 
