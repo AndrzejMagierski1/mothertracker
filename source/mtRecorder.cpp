@@ -62,7 +62,7 @@ void Recorder::play(uint16_t start, uint16_t stop)
 
 	addressShift = (uint32_t)( (uint32_t)start * (float)(recByteSaved/2)/MAX_16BIT);
 
-	instrumentPlayer[0].noteOnforPrev(startAddress + addressShift,length);
+	instrumentPlayer[0].noteOnforPrev(startAddress + addressShift,length - addressShift);
 }
 
 void Recorder::stop()
