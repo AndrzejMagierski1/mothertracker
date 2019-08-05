@@ -161,10 +161,15 @@ void cSampleRecorder::update()
 	if(refreshSpectrum)
 	{
 		processSpectrum();
-
-		display.refreshControl(SR->spectrumControl);
+		display.refreshControl(spectrumControl);
 		if(recordInProgressFlag) spectrumTimerConstrains+=50;
 		refreshSpectrum = 0;
+	}
+	if(refreshSpectrumValue)
+	{
+		display.setControlValue(spectrumControl,playProgressInSpectrum);
+		display.refreshControl(spectrumControl);
+		refreshSpectrumValue = 0;
 	}
 
 	if(refreshPoints)
@@ -179,6 +184,14 @@ void cSampleRecorder::update()
 
 	if(recordInProgressFlag)
 	{
+		if(firstPeakFlag)
+		{
+			if(levelBarVal > 20)
+			{
+				firstPeakFlag = 0;
+				firstPeakPlace = recorder.getLength();
+			}
+		}
 		showRecTimeValue();
 		if(refreshSpectrumTimer > spectrumTimerConstrains)
 		{
@@ -198,6 +211,11 @@ void cSampleRecorder::update()
 			currentScreen = screenTypeRecord;
 			showDefaultScreen();
 		}
+	}
+
+	if(playInProgressFlag)
+	{
+		calcPlayProgressValue();
 	}
 
 	changeLevelBar();
@@ -841,6 +859,7 @@ static  uint8_t functActionMonitor()
 static  uint8_t functActionRecord()
 {
 	SR->recordInProgressFlag = 1;
+	SR->firstPeakFlag = 1;
 	SR->currentScreen = SR->screenTypeRecord;
 	SR->showDefaultScreen();
 	recorder.startRecording(sdram_effectsBank);
@@ -871,12 +890,22 @@ static  uint8_t functActionPreview()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
 	recorder.play(SR->startPoint,SR->endPoint);
+
+	SR->playProgresValueTim = (( (recorder.getLength()/44100.0 ) * SR->startPoint) / MAX_16BIT) * 1000;
+	SR->refreshPlayProgressValue = 0;
+
+	SR->playInProgressFlag = 1;
 	return 1;
 }
 
 static uint8_t functActionStopPreview()
 {
 	recorder.stop();
+	SR->playInProgressFlag = 0;
+	SR->playProgressValue = 0;
+	SR->playProgressInSpectrum = 0;
+
+	SR->refreshSpectrumValue = 1;
 	return 1;
 }
 
@@ -941,6 +970,7 @@ static  uint8_t functActionGoBack()
 		SR->currentScreen = cSampleRecorder::screenTypeConfig;
 		SR->selectedPlace = 0;
 		if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
+		SR->zoomValue = 1.0;
 		SR->showDefaultScreen();
 		SR->activateLabelsBorder();
 	}
@@ -996,6 +1026,7 @@ static  uint8_t functActionConfirmSave()
 	 SR->hideKeyboardEditName();
 	 recorder.startSave(SR->name);
 
+	 return 1;
 }
 
 static  uint8_t functActionStopRec()
@@ -1004,11 +1035,20 @@ static  uint8_t functActionStopRec()
 	if(SR->recordInProgressFlag == 1)
 	{
 		SR->recordInProgressFlag = 0;
-		SR->startPoint = 0;
+
 		SR->endPoint = MAX_16BIT;
 		SR->showDefaultScreen();
 		recorder.stopRecording();
+		if(SR->firstPeakFlag)
+		{
+			SR->firstPeakFlag = 0;
+			SR->startPoint = 0;
+		}
+		else SR->startPoint = (uint16_t)(((float)(SR->firstPeakPlace) * MAX_16BIT)/recorder.getLength());
+
+		SR->showStartPointValue();
 		audioShield.headphoneSourceSelect(0);
+		SR->refreshSpectrum = 1;
 
 
 		return 1;
@@ -1504,7 +1544,32 @@ void cSampleRecorder::modEndPoint(int16_t value)
 	showEndPointValue();
 }
 
+void cSampleRecorder::calcPlayProgressValue()
+{
+	uint32_t localRecTimeValue = recTimeValue * 1000;
+	uint32_t localEndTimeValue = (( recTimeValue  * SR->endPoint) / MAX_16BIT) * 1000;
+	if(playProgresValueTim >= localEndTimeValue)
+	{
+		playProgressValue=0;
+		playProgressInSpectrum = 0;
+		playInProgressFlag = 0;
 
+		refreshSpectrumValue = 1;
+		return;
+	}
+	if( refreshPlayProgressValue > PLAY_REFRESH_MS)
+	{
+		refreshPlayProgressValue = 0;
+
+		playProgressValue = (MAX_16BIT*playProgresValueTim)/localRecTimeValue;
+
+		if(zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
+
+		refreshSpectrumValue = 1;
+	}
+
+
+}
 
 
 

@@ -74,6 +74,10 @@ public:
 		 gainBarControl = nullptr;
 		 radioFreqBarControl = nullptr;
 		 pointsControl = nullptr;
+		 keyboardControl = nullptr;
+		 editName = nullptr;
+		 saveHorizontalBarControl = nullptr;
+
 	}
 	virtual ~cSampleRecorder() {}
 
@@ -156,12 +160,22 @@ public:
 //----------------------------------
 // spectrum + punkty
 	uint8_t refreshSpectrum = 0;
+	uint8_t refreshSpectrumValue = 0;
 	uint8_t refreshPoints = 0;
 
 
 
 	uint16_t startPoint;
 	uint16_t endPoint = MAX_16BIT;
+
+	uint16_t playProgressValue = 0; // 0 - MAX_16BIT
+	uint16_t playProgressInSpectrum = 0; // 0 - 600
+	elapsedMillis playProgresValueTim;
+	elapsedMicros refreshPlayProgressValue;
+	const uint32_t PLAY_REFRESH_MS = 5000;
+	uint8_t playInProgressFlag = 0;
+
+	void calcPlayProgressValue();
 
 	uint16_t zoomWidth = MAX_16BIT;
 	int32_t zoomStart =  0;
@@ -190,16 +204,13 @@ public:
 	char *monitorNames[monitorCount];
 
 
-//----------------------------------
-// odtwarzanie
-	uint8_t isPlayingSample = 0;
-	int8_t playNote = 24;
-	uint8_t glidePreviewDif = 0;
 
 //----------------------------------
 //rec
 
 uint8_t recordInProgressFlag = 0;
+uint8_t firstPeakFlag = 0;
+uint32_t firstPeakPlace;
 strUndoCrop undo[undoCount];
 uint8_t cropCounter = 0;
 
