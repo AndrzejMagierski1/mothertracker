@@ -149,8 +149,8 @@ void initHardware()
 	// ENCODER
 	Encoder.begin(ENC_SWITCH,onButtonChange);
 	//	Encoder.testMode(1);
-	Encoder.setRes(1);
-	Encoder.setSpeedUp(1);
+	Encoder.setResolution(24);
+	Encoder.setAcceleration(3);
 
 	//....................................................
 	// Haptic on
@@ -218,30 +218,37 @@ void hidSendButtonState(uint16_t button, uint16_t state)
 }
 
 
-static elapsedMillis refreshTimer;
-uint8_t keySwitch;
+elapsedMicros i2cRefreshTimer;
+uint8_t i2c_switch;
 
 void updateHardware()
 {
-	//AnalogInputs.update();
-
 	updateEncoder();
 	Encoder.switchRead();
 
-	if(refreshTimer > 5)
+	if(i2cRefreshTimer > 500)
 	{
-		refreshTimer = 0;
-		keySwitch = !keySwitch;
+		i2c_switch++;
+		if(i2c_switch >= 3) i2c_switch = 0;
 
-		if(keySwitch) 	seqButtonsA.update();
-		else 			tactButtons.update();
+		if (Wire2.done())
+		{
+			if(i2c_switch == 0)
+			{
+				if(!tactButtons.update()) 	i2c_switch++;
+			}
+			if(i2c_switch == 1)
+			{
+				if(!seqButtonsA.update())  	i2c_switch++;
+			}
+			if(i2c_switch == 2)
+			{
+				if(!leds.update_all_leds())	i2c_switch++;
+			}
+
+			if(i2c_switch < 3) i2cRefreshTimer = 0;
+		}
 	}
-
-
-
-	//		leds.updateSeq();
-	leds.update_all_leds();
-
 
 
 	display.update();
