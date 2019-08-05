@@ -7,7 +7,9 @@
 
 #include "mtSequencer.h"
 
-
+uint8_t isMultiSelection();
+void sendSelection();
+void sendPasteSelection();
 
 const uint8_t fillTypeListCount = 3;
 
@@ -128,7 +130,7 @@ public:
 
 	strLabelData bottomValuesConfig = { 40, 0, 2048UL | 256UL };
 
-	int8_t selectedPlace = 0;
+	int8_t selectedPlace = -1;
 
 	// parametry
 	char tempo[7];

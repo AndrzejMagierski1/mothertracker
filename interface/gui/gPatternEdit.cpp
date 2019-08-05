@@ -26,19 +26,18 @@ void cPatternEditor::initDisplayControls()
 		strControlProperties prop2;
 		prop2.text = (char*)"";
 		prop2.data =  &bottomValuesConfig;
+
 		prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
 		prop2.x = (800/8)*i+(800/16);
 		prop2.y = 450;
 		prop2.w = 800/8-10;
 		prop2.h = 30;
-
-
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
 		prop2.y = 415;
 		prop2.h = 26;
-
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
+
 	}
 
 
@@ -100,9 +99,6 @@ void cPatternEditor::destroyDisplayControls()
 	{
 		display.destroyControl(bottomLabel[i]);
 		bottomLabel[i] = nullptr;
-
-		display.destroyControl(topLabel[i]);
-		topLabel[i] = nullptr;
 	}
 
 
@@ -132,13 +128,13 @@ void cPatternEditor::showDefaultScreen()
 	display.setControlText(bottomLabel[6], "Invert");
 	display.setControlText(bottomLabel[7], "");
 
+
 	showTempo();
 	showPattern();
 	showLength();
 	showStep();
 
-	if(fillState > 0) showFillPopup();
-
+	//if(fillState > 0) showFillPopup();
 
 
 	for(uint8_t i = 0; i<8; i++)

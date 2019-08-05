@@ -12,14 +12,20 @@ public:
 	void update();
 	void stop();
 	void trim(uint16_t a, uint16_t b);
-	void save();
+	void startSave(char * name);
+	void updateSave();
+	void stopSave();
+	uint8_t getSaveProgress();
+	uint8_t getSaveState();
+	void undo(int16_t * address, uint32_t length);
 	int16_t * getAddress();
+	int16_t * getStartAddress();
 	uint32_t getLength();
 	uint8_t mode = recorderModeStop;
 private:
 	void writeOutHeader();
 
-	char currentName[SAMPLE_NAME_SIZE];
+	uint32_t saveLength;
 	int16_t * currentAddress;
 	int16_t * startAddress;
 	uint32_t ChunkSize = 0L;

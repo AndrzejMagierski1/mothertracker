@@ -10,7 +10,7 @@ static uint32_t defaultColors[] =
 {
 	0xFFFFFF, // linie
 	0x111111, // tło
-	0x3F0000, // zaznaczenie
+	0xFF0000, // zaznaczenie
 };
 
 //--------------------------------------------------------------------------------
@@ -149,6 +149,20 @@ uint8_t cPoints::update()
 		if(points->selected == 2) API_COLOR(colors[0]);
 	}
 
+	if(points->pointsType == 0)
+	{
+		uint16_t start = points->startPoint + posX;
+		uint16_t end = points->endPoint + posX;
+		//tlo start - end
+		API_COLOR(colors[1]);
+		API_BLEND_FUNC(SRC_ALPHA, ONE);
+		API_LINE_WIDTH(8);
+		API_BEGIN(RECTS);
+		API_VERTEX2F((points->startPoint >= 0) ? start : posX, posY);
+		API_VERTEX2F((points->endPoint >= 0) ? end : posX+width, posY+height);
+		API_END();
+		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	}
 	if(points->pointsType > 0 && (points->loopPoint1 >= 0 || points->loopPoint2 >= 0))
 	{
 		uint16_t loop1 = points->loopPoint1+posX;

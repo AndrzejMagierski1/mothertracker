@@ -23,6 +23,7 @@ AudioMixer4              mixerRec;
 AudioMixer4              mixerSourceL,mixerSourceR;
 AudioEffectFreeverb		 reverb;
 AudioEffectLimiter		 limiter[2];
+AudioAnalyzeRMS			 rms;
 
 AudioRecordQueue		 exportL, exportR;
 
@@ -109,7 +110,7 @@ AudioConnection          connect54(&i2sIn, 0, &mixerRec, 0);
 AudioConnection          connect55(&i2sIn, 1, &mixerRec, 1);
 
 AudioConnection          connect56(&mixerRec, &queue);
-
+AudioConnection          connect67(&mixerRec, &rms);
 
 playerEngine instrumentPlayer[8];
 
@@ -119,10 +120,7 @@ uint8_t	playerEngine::activeAmpEnvelopes=0;
 
 void audioEngine::init()
 {
-	pinMode(AUDIO_IN_MUX, OUTPUT);
-	pinMode(AUDIO_OUT_MUX, OUTPUT);
-	digitalWrite(AUDIO_IN_MUX, LOW);
-	digitalWrite(AUDIO_OUT_MUX, LOW);
+
 	i2sConnect[0]= &connect59;
 	i2sConnect[1]= &connect60;
 
