@@ -21,6 +21,8 @@
 #include "hidConnection.h"
 #include "sdCardDetect.h"
 
+#include "mtMidi.h"
+
 
 
 
@@ -149,6 +151,7 @@ void initHardware()
 	// ENCODER
 	Encoder.begin(ENC_SWITCH,onButtonChange);
 	//	Encoder.testMode(1);
+
 	Encoder.setResolution(24);
 	Encoder.setAcceleration(3);
 
@@ -192,28 +195,30 @@ void initHardware()
 	hid.set_sendButtonState(hidSendButtonState);
 	sdCardDetector.begin();
 
+	midiInit();
+
 	BlinkLed.blinkOnce();
+
 
 }
 
 void hidSendButtonState(uint16_t button, uint16_t state)
 {
-	if(button < 100)
+	if (button < 100)
 	{
 		onButtonChange(button, state);
 	}
-	else if(button < 102)
+	else if (button < 102)
 	{
-		if(button == 100 && state == 1)
-			onPotChange(0, -1);
-		else if(button == 101 && state == 1)
+		if (button == 100 && state == 1)
+		onPotChange(0, -1);
+		else if (button == 101 && state == 1)
 			onPotChange(0, 1);
 	}
-	else if(button < 103)
+	else if (button < 103)
 	{
 		onButtonChange(33, state);
 	}
-
 
 }
 
@@ -250,7 +255,6 @@ void updateHardware()
 		}
 	}
 
-
 	display.update();
 	//mtDisplay.updateHaptic();
 	BlinkLed.update();
@@ -258,31 +262,31 @@ void updateHardware()
 	TactSwitchRead();
 	hid.handle();
 	sdCardDetector.update();
+
+	midiUpdate();
 }
 
 elapsedMillis encTimer;
 
 void updateEncoder()
 {
-	if(encTimer > 100)
+	if (encTimer > 100)
 	{
 		encTimer = 0;
 		int32_t encValue = Encoder.read();
-		if(encValue != 0) onPotChange(0,encValue);
+		if (encValue != 0) onPotChange(0, encValue);
 	}
 }
 
-
-
 void TactSwitchRead()
 {
-	if(digitalRead(TACT_SWITCH) == LOW)
+	if (digitalRead(TACT_SWITCH) == LOW)
 	{
-		if(powerSwitchDebounce <= 0 && powerSwitchDebounce > (0-10) )
+		if (powerSwitchDebounce <= 0 && powerSwitchDebounce > (0 - 10))
 		{
 			powerSwitchDebounce--;
 		}
-		else if(powerSwitchDebounce <= 0 && powerSwitchLastState != 1)
+		else if (powerSwitchDebounce <= 0 && powerSwitchLastState != 1)
 		{
 			powerSwitchDebounce = 1;
 			powerSwitchLastState = 1;

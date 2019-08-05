@@ -195,7 +195,7 @@ void cTracker::refresh1()
 
 
 	uint16_t x;
-	for(uint8_t i = 1; i < 5; i++)
+	for(uint8_t i = 1; i < 4; i++)
 	{
 		x = (27+186*i);
 		API_VERTEX2F(x, 0);

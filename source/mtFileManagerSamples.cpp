@@ -575,6 +575,7 @@ uint32_t WaveLoader::getCurrentWaveLoadedMemory()
 		}
 	}
 	else return 0;
+	return 0;
 }
 //**********************************************************************WAVETABLE LOADER******************************************************************************//
 void WavetableLoader::update()
