@@ -1,6 +1,7 @@
 
 
 #include "sampleRecorder.h"
+#include "Si4703.h"
 
 
 static  uint16_t framesPlacesS1[8][4] =
@@ -29,6 +30,13 @@ static  uint16_t framesPlacesS2[8][4] =
 
 uint32_t colorRed[3] = { 0xFF0000, 0xFFFFFF,0xFF0000 };
 uint32_t colorGreen[3] = { 0x00FF00, 0xFFFFFF,0x00FF00 };
+
+uint32_t radioLabelColors[3]=
+{
+		0xFFFFFF, // tekst
+		0xFFFFFF, // tło
+		0xFF0000, // ramka
+};
 
 void cSampleRecorder::initDisplayControls()
 {
@@ -131,6 +139,18 @@ void cSampleRecorder::initDisplayControls()
 	if(radioFreqBarControl == nullptr)  radioFreqBarControl = display.createControl<cBar>(&prop5);
 
 
+	strControlProperties prop6;
+	prop6.text = (char*)"";
+	prop6.style = 	(controlStyleCenterX);
+	prop6.x = (800/8)*3;
+	prop6.y = 200;
+	prop6.w = 0;
+	prop6.h = 0;
+
+	prop6.colors = radioLabelColors;
+
+	if(radioRdsLabel == nullptr) radioRdsLabel = display.createControl<cLabel>(&prop6);
+
 
 }
 
@@ -168,6 +188,9 @@ void cSampleRecorder::destroyDisplayControls()
 
 	display.destroyControl(pointsControl);
 	pointsControl = nullptr;
+
+	display.destroyControl(radioRdsLabel);
+	radioRdsLabel = nullptr;
 
 
 }
@@ -215,6 +238,7 @@ void cSampleRecorder::showDefaultScreen()
 
 			calcRadioFreqBarVal();
 			drawRadioFreqBar();
+
 		}
 		else
 		{
@@ -276,6 +300,11 @@ void cSampleRecorder::showRadio()
 	display.refreshControl(bottomLabel[2]);
 	display.refreshControl(bottomLabel[3]);
 	display.refreshControl(radioFreqBarControl);
+
+	display.setControlText(radioRdsLabel, "");
+	display.setControlShow(radioRdsLabel);
+	display.refreshControl(radioRdsLabel);
+
 	showFreqValue();
 }
 void cSampleRecorder::hideRadio()
@@ -292,6 +321,9 @@ void cSampleRecorder::hideRadio()
 	display.refreshControl(bottomLabel[3]);
 	display.refreshControl(topLabel[1]);
 	display.refreshControl(radioFreqBarControl);
+
+	display.setControlHide(radioRdsLabel);
+	display.refreshControl(radioRdsLabel);
 }
 
 
@@ -391,3 +423,25 @@ void cSampleRecorder::drawGainBar()
 	display.setControlShow(gainBarControl);
 	display.refreshControl(gainBarControl);
 }
+
+void cSampleRecorder::refreshRDS()
+{
+	display.setControlText(radioRdsLabel, radio.rds_data.nazwaStacji);
+	display.setControlShow(radioRdsLabel);
+	display.refreshControl(radioRdsLabel);
+}
+
+void cSampleRecorder::displaySeeking()
+{
+	display.setControlText(radioRdsLabel, "Seeking...");
+	display.setControlShow(radioRdsLabel);
+	display.refreshControl(radioRdsLabel);
+}
+
+void cSampleRecorder::displayEmptyRDS()
+{
+	display.setControlText(radioRdsLabel,"");
+	display.setControlShow(radioRdsLabel);
+	display.refreshControl(radioRdsLabel);
+}
+

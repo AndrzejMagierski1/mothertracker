@@ -8,6 +8,8 @@
 
 #ifdef HW_WITH_RADIO
 Si4703 radio(SI4703_RST, 48, 47, SI4703_SEN,SI4703_GPIO_2);
+seek_control_t seek_control;
+user_callback_t callback_func=NULL;
 #endif
 
 Si4703::Si4703(int resetPin, int sdioPin, int sclkPin, int senPin, int interruptPin)
@@ -78,14 +80,14 @@ void Si4703::setFrequency(float freq)
 
 }
 
-float Si4703::seekUp()
+void Si4703::seekUp()
 {
-	return seek(SEEK_UP);
+	initSeek(SEEK_UP);
 }
 
-float Si4703::seekDown()
+void Si4703::seekDown()
 {
-	return seek(SEEK_DOWN);
+	initSeek(SEEK_DOWN);
 }
 
 void Si4703::setVolume(int volume)
@@ -98,19 +100,47 @@ void Si4703::setVolume(int volume)
 	updateRegisters();
 }
 
-void Si4703::update_RDS()
+bool Si4703::update_RDS()
 {
 	if(radio.rdsReadyFlag)
 	{
 		readRegisters();
-		if((si4703_registers[rSTATUSRSSI] & 0x0600)  == 0)
+		if(((si4703_registers[rSTATUSRSSI] & 0x0600)  == 0 ) && (si4703_registers[rSTATUSRSSI] & RDSS))
 		{
-
 			rds.processData(si4703_registers[rRDSA],si4703_registers[rRDSB],si4703_registers[rRDSC], si4703_registers[rRDSD]);
 		}
 
 		radio.rdsReadyFlag=0;
+
+		return 1;
 	}
+
+	return 0;
+}
+
+void Si4703::clearRDS()
+{
+	memset(radio.rds_data.nazwaStacji,0,sizeof(radio.rds_data.nazwaStacji));
+	memset(radio.rds_data.textStacji,0,sizeof(radio.rds_data.textStacji));
+
+	radio.rds_data.godzina =0;
+	radio.rds_data.minuta =0;
+}
+
+void stationName(char *servname)
+{
+	strcpy(radio.rds_data.nazwaStacji,servname);
+}
+
+void stationText(char *servname)
+{
+	strcpy(radio.rds_data.textStacji,servname);
+}
+
+void timeFromRDS(uint8_t hour,uint8_t minute)
+{
+	radio.rds_data.godzina=hour;
+	radio.rds_data.minuta=minute;
 }
 
 //To get the Si4703 inito 2-Wire mode, SEN needs to be high and SDIO needs to be low after a reset
@@ -151,13 +181,17 @@ void Si4703::si4703_init()
 	delay(110); //Max powerup time, from datasheet page 13
 
 	readRegisters();
-	si4703_registers[rSYSCONFIG1] |= (RDS | STCIEN | GPIO2(0x01)); //Enable RDS
+	si4703_registers[rSYSCONFIG1] |= (RDS | RDSIEN | GPIO2(0x01)); //Enable RDS
 	updateRegisters();
 
 	rds.init();
 
 	pinMode(_interruptPin, INPUT_PULLUP);
 	attachInterrupt(digitalPinToInterrupt(_interruptPin), SI4703_interrupt, FALLING);
+
+	radio.rds.attachServicenNameCallback(stationName);
+	radio.rds.attachTextCallback(stationText);
+	radio.rds.attachTimeCallback(timeFromRDS);
 }
 
 //Read the entire register control set from 0x00 to 0x0F
@@ -205,60 +239,107 @@ uint8_t Si4703::updateRegisters()
 	}
 }
 
-//Seeks out the next available station
-//Returns the freq if it made it
-//Returns zero if failed
-float Si4703::seek(byte seekDirection)
+
+void Si4703::initSeek(uint8_t seekDirection)
 {
-	int valueSFBL=0;
+	seek_control.seek_dir = seekDirection;
 
-	readRegisters();
-	//Set seek mode wrap bit
-	//si4703_registers[rPOWERCFG] |= SKMODE; //Allow wrap
-	si4703_registers[rPOWERCFG] &= ~SKMODE; //Disallow wrap - if you disallow wrap, you may want to tune to 87.5 first
-	if(seekDirection == SEEK_DOWN)
+	if(seek_control.seek_state != notInitialized)
 	{
-		si4703_registers[rPOWERCFG] &= ~SEEKUP; //Seek down is the default upon reset
-	}
-	else
-	{
-		si4703_registers[rPOWERCFG] |= SEEKUP; //Set the bit to seek up
+		readRegisters();
+		si4703_registers[rPOWERCFG] &= ~SEEK;
+		updateRegisters();
+		if(callback_func != NULL)
+		{
+			callback_func();
+		}
 	}
 
-	si4703_registers[rPOWERCFG] |= SEEK; //Start seek
-	updateRegisters(); //Seeking will now start
+	seek_control.seek_state = seekInit;
+}
 
-	//Poll to see if STC is set
-	while(1)
+void Si4703::stateMachineSeek()
+{
+	switch(seek_control.seek_state)
 	{
+	case notInitialized:
+		break;
+	case seekInit:
+		readRegisters();
+
+		si4703_registers[rPOWERCFG] &= ~SKMODE;
+		if(seek_control.seek_dir == SEEK_DOWN)
+		{
+			si4703_registers[rPOWERCFG] &= ~SEEKUP; //Seek down is the default upon reset
+		}
+		else
+		{
+			si4703_registers[rPOWERCFG] |= SEEKUP; //Set the bit to seek up
+		}
+
+		si4703_registers[rPOWERCFG] |= SEEK; //Start seek
+		updateRegisters(); //Seeking will now start
+
+		seek_control.seek_state = loopUntilSTC;
+
+		break;
+
+	case loopUntilSTC:
+
 		readRegisters();
 		if((si4703_registers[rSTATUSRSSI] & STC) != 0)
 		{
-			break; //Tuning complete!
+			seek_control.seek_state = stationFound;
 		}
-	}
 
-	readRegisters();
-	valueSFBL=si4703_registers[rSTATUSRSSI] & SF_BL; //Store the value of SFBL
-	si4703_registers[rPOWERCFG] &= ~SEEK; //Clear the seek bit after seek has completed
-	updateRegisters();
+		break;
 
-	//Wait for the si4703 to clear the STC as well
-	while(1)
-	{
+	case stationFound:
+		readRegisters();
+		//valueSFBL=si4703_registers[rSTATUSRSSI] & SF_BL; //Store the value of SFBL
+		si4703_registers[rPOWERCFG] &= ~SEEK; //Clear the seek bit after seek has completed
+		updateRegisters();
+
+		seek_control.seek_state = seekDeinit;
+
+		break;
+
+	case seekDeinit:
 		readRegisters();
 		if((si4703_registers[rSTATUSRSSI] & STC) == 0)
 		{
-			break; //Tuning complete!
+			seek_control.seek_state = callback;
 		}
-	}
 
-	if(valueSFBL)
-	{ //The bit was set indicating we hit a band limit or failed to find a station
-		return 0;
-	}
+		break;
 
-	return getFrequency();
+	case callback:
+
+		if(callback_func != NULL)
+		{
+			callback_func();
+		}
+
+		seek_control.seek_state = notInitialized;
+
+		break;
+
+
+	default:
+		break;
+	}
+}
+
+
+
+void Si4703::setSeekCallback(user_callback_t callback)
+{
+	callback_func = callback;
+}
+
+void Si4703::resetSeekCallback()
+{
+	callback_func = NULL;
 }
 
 //Reads the current channel from READCHAN

@@ -32,7 +32,7 @@ void setup()
 	// inicjalizacja hardware jako pierwsza
 	initHardware();
 
-	engine.init();
+	//engine.init();
 
 	sequencer.init();
 	padsBacklight.init(500);
@@ -61,7 +61,7 @@ void loop()
 	updateExport();
 	updateHardware();
 
-	engine.update();
+	//engine.update();
 	fileManager.update();
 	mtInterface.update();
 

@@ -13,7 +13,34 @@
 #define SPACING_100kHz		1
 #define SPACING_50kHz		2
 
+typedef struct
+{
+	char nazwaStacji[30];
+	char textStacji[64];
+	uint8_t godzina;
+	uint8_t minuta;
 
+}rds_data_t;
+
+typedef enum
+{
+	notInitialized,
+	seekInit,
+	loopUntilSTC,
+	stationFound,
+	seekDeinit,
+	callback,
+
+}seek_state_t;
+
+typedef struct
+{
+	seek_state_t seek_state;
+	uint8_t seek_dir;
+
+}seek_control_t;
+
+typedef void (*user_callback_t)(void);
 
 
 class Si4703
@@ -22,19 +49,28 @@ public:
 	Si4703(int resetPin, int sdioPin, int sclkPin,int senPin, int interruptPin);
 	void powerOn();					// call in setup
 	void powerOff();
-	float seekUp(); 					// returns the tuned channel or 0
-	float seekDown();
+	void seekUp(); 					// returns the tuned channel or 0
+	void seekDown();
 	void setVolume(int volume); 	// 0 to 15
 
 	void setFrequency(float freq);
-	void update_RDS();
+	bool update_RDS();
 	float getFrequency();
 	int getRSSI();
 	uint8_t isSTCset();
 
+	void stateMachineSeek();
+	void initSeek(uint8_t seekDirection);
+
+	void setSeekCallback(user_callback_t callback);
+	void resetSeekCallback();
+
+	void clearRDS();
+
 	uint8_t rdsReadyFlag;
 
 	RDSParser rds;
+	rds_data_t rds_data;
 
 private:
 	int  _resetPin;
@@ -51,8 +87,11 @@ private:
 
 	uint16_t si4703_registers[16]; //There are 16 registers, each 16 bits large
 
+
+
 };
 
 extern Si4703 radio;
+extern seek_control_t seek_control;
 
 #endif

@@ -65,28 +65,7 @@ void ENC_SW_INT_FUNCT() { }
 hidConnection hid(0);
 void hidSendButtonState(uint16_t button, uint16_t state);
 
-/*char textBuffer[100];
 
-char nazwaStacji[64];
-char textStacji[64];
-uint8_t godzina;
-uint8_t minuta;
-
-void serviceName(char *servname)
-{
-	strcpy(nazwaStacji,servname);
-}
-
-void text(char *servname)
-{
-	strcpy(textStacji,servname);
-}
-
-void time(uint8_t hour,uint8_t minute)
-{
-	godzina=hour;
-	minuta=minute;
-}*/
 
 void initHardware()
 {

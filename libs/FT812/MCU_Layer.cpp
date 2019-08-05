@@ -52,7 +52,7 @@ RE-CERTIFICATION AS A RESULT OF MAKING THESE CHANGES.
 
 
 SPI2Settings settingsSLOW(1000000,  MSBFIRST, SPI_MODE0);
-SPI2Settings settingsFAST(20000000, MSBFIRST, SPI_MODE0);
+SPI2Settings settingsFAST(1000000, MSBFIRST, SPI_MODE0);
 
 //############################################################################## 
 //##############################################################################

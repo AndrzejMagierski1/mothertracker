@@ -77,7 +77,7 @@ static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
 
 
-
+void seek_callback(void);
 
 
 void cSampleRecorder::update()
@@ -110,6 +110,12 @@ void cSampleRecorder::update()
 
 	changeLevelBar();
 
+	if(radio.update_RDS())
+	{
+		refreshRDS();
+	}
+
+	radio.stateMachineSeek();
 }
 
 void cSampleRecorder::start(uint32_t options)
@@ -147,6 +153,8 @@ void cSampleRecorder::start(uint32_t options)
 
 	setPrevievFlag(1);
 
+	radio.setSeekCallback(seek_callback);
+
 }
 
 
@@ -154,6 +162,7 @@ void cSampleRecorder::stop()
 {
 
 	moduleRefresh = 0;
+	radio.resetSeekCallback();
 
 	//radio off
 }
@@ -658,16 +667,9 @@ static  uint8_t functActionRadioFreq()
 
 static  uint8_t functActionRadioLeft()
 {
-	float newFreq;
-	newFreq = radio.seekDown();
-
-	if(newFreq !=0)
-	{
-		SR->recorderConfig.radioFreq = newFreq;
-
-		SR->calcRadioFreqBarVal();
-		SR->drawRadioFreqBar();
-	}
+	SR->displaySeeking();
+	radio.clearRDS();
+	radio.seekDown();
 
 	return 1;
 }
@@ -675,16 +677,9 @@ static  uint8_t functActionRadioLeft()
 
 static  uint8_t functActionRadioRight()
 {
-	float newFreq;
-	newFreq = radio.seekUp();
-
-	if(newFreq !=0)
-	{
-		SR->recorderConfig.radioFreq = newFreq;
-
-		SR->calcRadioFreqBarVal();
-		SR->drawRadioFreqBar();
-	}
+	SR->displaySeeking();
+	radio.clearRDS();
+	radio.seekUp();
 
 	return 1;
 }
@@ -952,7 +947,6 @@ void cSampleRecorder::calcGainBarVal()
 	gainBarVal = recorderConfig.gain;
 }
 
-float currfreq;
 void cSampleRecorder::changeRadioFreqBar(int16_t val)
 {
 	if(val > 0)
@@ -967,9 +961,10 @@ void cSampleRecorder::changeRadioFreqBar(int16_t val)
 	calcRadioFreqBarVal();
 	drawRadioFreqBar();
 
+	radio.clearRDS();
+	SR->displayEmptyRDS();
+
 	radio.setFrequency(recorderConfig.radioFreq);
-	currfreq = radio.getFrequency();
-	//todo: tu fizyczna zmiana czestotliwosci
 }
 void cSampleRecorder::changeLevelBar()
 {
@@ -1190,3 +1185,13 @@ static uint8_t stopPlaying(uint8_t value)
 	return 1;
 }
 */
+
+void seek_callback(void)
+{
+	SR->recorderConfig.radioFreq = radio.getFrequency();
+
+	SR->calcRadioFreqBarVal();
+	SR->drawRadioFreqBar();
+
+	SR->displayEmptyRDS();
+}

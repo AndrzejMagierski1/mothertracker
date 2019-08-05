@@ -68,6 +68,7 @@ public:
 		 gainBarControl = nullptr;
 		 radioFreqBarControl = nullptr;
 		 pointsControl = nullptr;
+		 radioRdsLabel = nullptr;
 	}
 	virtual ~cSampleRecorder() {}
 
@@ -97,6 +98,10 @@ public:
 
 	void setPrevievFlag(uint8_t s);
 
+	void refreshRDS();
+	void displaySeeking();
+	void displayEmptyRDS();
+
 	strFrameData frameData;
 
 //*********************************************
@@ -110,6 +115,7 @@ public:
 	hControl gainBarControl;
 	hControl radioFreqBarControl;
 	hControl pointsControl;
+	hControl radioRdsLabel;
 
 //*********************************************
 
