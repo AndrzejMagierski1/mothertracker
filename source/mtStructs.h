@@ -28,6 +28,10 @@ const uint8_t INSTRUMENTS_COUNT =        		48;
 const uint8_t PATTERNS_COUNT 	=				32;
 const uint8_t PATTERN_LENGTH_MAX 	=			255;
 
+
+const uint8_t PATTERN_EDIT_STEP_MAX 	=		10;
+
+
 const uint8_t PROJECT_NAME_SIZE =				32;
 const uint8_t INSTRUMENT_NAME_SIZE =			19;
 const uint8_t PATTERN_NAME_SIZE	=				15;
@@ -349,6 +353,7 @@ struct strInstrument
 struct strMtValues
 {
 	uint8_t lastUsedInstrument = 0;
+	uint8_t actualPattern = 0;
 
 	uint8_t padBoardScale = 3;
 	uint8_t padBoardNoteOffset = 7;

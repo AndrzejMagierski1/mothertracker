@@ -124,7 +124,7 @@ void mtLED::begin(uint8_t addr)
 
 
 
-void mtLED::update_all_leds()
+uint8_t mtLED::update_all_leds()
 {
 	if(leds_need_update)
 	{
@@ -165,7 +165,11 @@ void mtLED::update_all_leds()
 		//Wire.setOpMode(I2C_OP_MODE_DMA);
 
 		leds_need_update = 0;
+
+		return 1;
 	}
+
+	return 0;
 } 
 
 

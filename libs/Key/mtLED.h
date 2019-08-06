@@ -57,7 +57,7 @@ public:
 
 	mtLED();
 	void begin(uint8_t addr = ISSI_ADDR_DEFAULT);
-	void update_all_leds();
+	uint8_t update_all_leds();
 	void update_pads();
 	void setLED(uint8_t num, uint8_t state, uint8_t gamma_pwm);
 	void setLEDpwm(uint8_t num, uint8_t state, uint8_t pwm);

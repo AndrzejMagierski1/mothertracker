@@ -49,39 +49,29 @@ void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 
 }
 
-void FileManager::writePatternFile(char * name)
+uint8_t FileManager::writePatternFile(char * name)
 {
-	if(SD.exists(name)) SD.remove(name); //todo: do ustalenia czy nadpisujemy czy nie
+
+	// todo: może do wyjebania jeśli .open załatwi sprawę
+	if (SD.exists(name)) SD.remove(name);
 
 	FsFile file;
 	FastCRC32 crcCalc;
-	strPatternFile patternFile;
-	Sequencer::strPattern * patt;
-	patt=(Sequencer::strPattern *)sequencer.getPatternToSaveToFile();
 
-	patternFile.patternDataAndHeader.pattern = * patt;
+	uint8_t * sourcePattern;
+	sourcePattern = sequencer.getPatternToSaveToFile();
 
+	((Sequencer::strPattern*) sourcePattern)->crc =
+			crcCalc.crc32(sourcePattern,
+							sizeof(Sequencer::strPattern) - sizeof(uint32_t));
 
-	patternFile.patternDataAndHeader.patternHeader.id_file[0]='I';
-	patternFile.patternDataAndHeader.patternHeader.id_file[1]='D';
-	patternFile.patternDataAndHeader.patternHeader.type = fileTypePattern;
-	patternFile.patternDataAndHeader.patternHeader.version[0] = '0';
-	patternFile.patternDataAndHeader.patternHeader.version[1] = '.';
-	patternFile.patternDataAndHeader.patternHeader.version[2] = '0';
-	patternFile.patternDataAndHeader.patternHeader.version[3] = '1';
-	patternFile.patternDataAndHeader.patternHeader.id_data[0] = 'D';
-	patternFile.patternDataAndHeader.patternHeader.id_data[1] = 'A';
-	patternFile.patternDataAndHeader.patternHeader.id_data[2] = 'T';
-	patternFile.patternDataAndHeader.patternHeader.id_data[3] = 'A';
-	patternFile.patternDataAndHeader.patternHeader.size = sizeof(*patt);
-
-	patternFile.crc = crcCalc.crc32((uint8_t *)&patternFile.patternDataAndHeader,sizeof(patternFile.patternDataAndHeader));
-
-	file=SD.open(name,FILE_WRITE);
-	file.write((uint8_t *)&patternFile,sizeof(patternFile));
+	file = SD.open(name, FILE_WRITE);
+	file.write(sourcePattern,
+				sizeof(Sequencer::strPattern));
 	file.close();
 
 	sequencer.saveToFileDone();
+	return 1;
 }
 
 
@@ -155,34 +145,64 @@ uint8_t FileManager::readPatternFile(char * name)
 	uint32_t checkCRC=0;
 
 
-	strPatternFile patternFile;
-	Sequencer::strPattern * patt;
-	patt=(Sequencer::strPattern *)sequencer.getPatternToLoadFromFile();
-	file=SD.open(name);
-	file.read((uint8_t*)&patternFile, sizeof(patternFile));
+//	strPatternFile patternFile;
+
+	uint8_t * patternDest = sequencer.getPatternToLoadFromFile();
+
+
+	// na końcu struktury jest crc
+	file = SD.open(name);
+	file.read(patternDest, sizeof(Sequencer::strPattern));
 	file.close();
 
-	if(patternFile.patternDataAndHeader.patternHeader.type != fileTypePattern)
-	{
-		return 0;
-		sequencer.loadFromFileERROR();
-	}
+	checkCRC = crcCalc.crc32(
+			patternDest, sizeof(Sequencer::strPattern) - sizeof(uint32_t));
 
-	checkCRC=crcCalc.crc32((uint8_t *)&patternFile.patternDataAndHeader,sizeof(patternFile.patternDataAndHeader));
-	if(checkCRC == patternFile.crc)
+	if (checkCRC == (((Sequencer::strPattern *) patternDest)->crc))
 	{
-		*patt=patternFile.patternDataAndHeader.pattern;
+		// ok
 		sequencer.loadFromFileOK();
 		return 1;
 	}
 	else
 	{
-		return 0;
+		// not ok
 		sequencer.loadFromFileERROR();
+		return 0;
 	}
 
-
+	return 1;
 }
+
+uint8_t FileManager::loadPattern(uint8_t index)
+{
+
+	char patternToLoad[PATCH_SIZE] { 0 };
+
+	sprintf(patternToLoad, "%.200s%spattern_%02d.mtp", currentProjectPatch, "/patterns/",
+			index);
+	mtProject.values.actualPattern = index;
+
+	uint8_t status = readPatternFile(patternToLoad);
+	if (status)
+	{
+		mtProject.mtProjectRemote.patternFile[index].index = index;
+	}
+	return status;
+}
+
+uint8_t FileManager::savePattern(uint8_t index)
+{
+
+	char patternToSave[PATCH_SIZE] { 0 };
+
+	sprintf(patternToSave, "%.200s%spattern_%02d.mtp", currentProjectPatch, "/patterns/",
+			index);
+	mtProject.values.actualPattern = index;
+	return writePatternFile(patternToSave);
+}
+
+
 
 uint8_t FileManager::readProjectFile(char * name, strMtProjectRemote * proj)
 {
@@ -229,6 +249,9 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 		strcpy(currentProjectPatch,currentPatch);
 	}
 
+//	strcpy(mtProject.path, currentPatch); // aktualna ścieżka projektu z nazwą
+//	strcat(mtProject.path, "/"); // aktualna ścieżka projektu z nazwą
+
 	strcat(currentPatch,"/project.bin");
 
 	status = readProjectFile(currentPatch, &mtProject.mtProjectRemote);
@@ -254,17 +277,28 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 		 }
 	}
 
-	for(int i=0; i< PATTERNS_COUNT;i++)
+//	for(int i=0; i< PATTERNS_COUNT;i++)
+//	{
+//		if(mtProject.mtProjectRemote.patternFile[i].index != - 1)
+//		{
+//			memset(currentPatch,0,PATCH_SIZE);
+//			strcpy(currentPatch,currentProjectPatch);
+//			strcat(currentPatch,"/patterns/");
+//			strcat(currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
+//			status=readPatternFile(currentPatch);
+//			if(!status) return status;
+//			else break;
+//		}
+//	}
+
+
+	for (int i = 0; i < PATTERNS_COUNT; i++)
 	{
-		if(mtProject.mtProjectRemote.patternFile[i].index != - 1)
+		if (loadPattern(i))
 		{
-			memset(currentPatch,0,PATCH_SIZE);
-			strcpy(currentPatch,currentProjectPatch);
-			strcat(currentPatch,"/patterns/");
-			strcat(currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
-			status=readPatternFile(currentPatch);
-			if(!status) return status;
-			else break;
+			mtProject.mtProjectRemote.patternFile[i].index = i;
+			sequencer.switchNextPatternNow();
+			break;
 		}
 	}
 
@@ -728,7 +762,7 @@ uint8_t FileManager::saveAsProject(char* name)
 			memset(currentPatch,0,PATCH_SIZE);
 			strcpy(currentPatch,"Projects/");
 			strcat(currentPatch,name);
-			if(mtProject.mtProjectRemote.patternFile[i].index == currentPattern)
+			if(mtProject.mtProjectRemote.patternFile[i].index == mtProject.values.actualPattern)
 			{
 				strcat(currentPatch,"/patterns/");
 				strcat(currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
@@ -779,27 +813,24 @@ void FileManager::saveProject()
 		}
 	}
 
-	for(uint8_t i=0; i< PATTERNS_COUNT; i++)
-	{
-
-		if(mtProject.mtProjectRemote.patternFile[i].index != - 1)
-		{
-			if(mtProject.mtProjectRemote.patternFile[i].index == currentPattern)
-			{
-				memset(currentPatch,0,PATCH_SIZE);
-				strcpy(currentPatch,currentProjectPatch);
-				strcat(currentPatch,"/patterns/");
-				strcat(currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
-
-				writePatternFile(currentPatch);
-			}
-		}
-		else
-		{
-			memset(mtProject.mtProjectRemote.patternFile[i].name,0,PATTERN_NAME_SIZE);
-		}
-
-	}
+	savePattern(mtProject.values.actualPattern);
+//	for(uint8_t i=0; i< PATTERNS_COUNT; i++)
+//	{
+//
+//		if(mtProject.mtProjectRemote.patternFile[i].index != - 1)
+//		{
+//			if(mtProject.mtProjectRemote.patternFile[i].index == mtProject.values.actualPattern)
+//			{
+//
+//
+//			}
+//		}
+//		else
+//		{
+//			memset(mtProject.mtProjectRemote.patternFile[i].name,0,PATTERN_NAME_SIZE);
+//		}
+//
+//	}
 	memset(currentPatch,0,PATCH_SIZE);
 	strcpy(currentPatch,currentProjectPatch);
 	strcat(currentPatch,"/project.bin");

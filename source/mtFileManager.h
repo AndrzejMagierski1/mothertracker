@@ -27,17 +27,15 @@ struct strInstrumentFile
 	uint32_t crc;
 };
 
-struct strPatternFile
-{
-	struct strPatternDataAndHeader
-	{
-		strProjectFileHeader patternHeader;
-		Sequencer::strPattern pattern;
-
-	} patternDataAndHeader;
-
-	uint32_t crc;
-};
+//struct strPatternFile
+//{
+//
+//	strProjectFileHeader patternHeader;
+//
+//	// > tutaj w pliku jest sekwencja <
+//	uint32_t crc;
+//
+//};
 
 struct strProjectFile
 {
@@ -144,6 +142,9 @@ public:
 	void updateImportSampleToProject();
 	uint8_t getStateImportSampleToProject();
 	uint8_t getProgressImportSampleToProject();
+
+	uint8_t loadPattern(uint8_t index);
+	uint8_t savePattern(uint8_t index);
 	/////////////////////////////////////////////////////////////////////////
 
 	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
@@ -167,7 +168,7 @@ private:
 	void copyPattern(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
 	void writeInstrumentFile(char * name, strInstrument * instr);
 	uint8_t readInstrumentFile(char * name, strInstrument * instr);
-	void writePatternFile(char * name);
+	uint8_t writePatternFile(char * name);
 	uint8_t readPatternFile(char * name);
 	void writeProjectFile(char * name,strMtProjectRemote * proj);
 	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
@@ -184,7 +185,7 @@ private:
 	};
 
 	char currentProjectName[PROJECT_NAME_SIZE];
-	uint8_t currentPattern;
+//	uint8_t currentPattern;
 };
 
 
