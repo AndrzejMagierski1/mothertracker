@@ -92,6 +92,6 @@ private:
 };
 
 extern Si4703 radio;
-extern seek_control_t seek_control;
+
 
 #endif

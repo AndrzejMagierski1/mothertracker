@@ -76,8 +76,9 @@ static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
 
-
+#ifdef HW_WITH_RADIO
 void seek_callback(void);
+#endif
 
 
 void cSampleRecorder::update()
@@ -110,12 +111,13 @@ void cSampleRecorder::update()
 
 	changeLevelBar();
 
+#ifdef HW_WITH_RADIO
 	if(radio.update_RDS())
 	{
 		refreshRDS();
 	}
-
 	radio.stateMachineSeek();
+#endif
 }
 
 void cSampleRecorder::start(uint32_t options)
@@ -153,7 +155,9 @@ void cSampleRecorder::start(uint32_t options)
 
 	setPrevievFlag(1);
 
+#ifdef HW_WITH_RADIO
 	radio.setSeekCallback(seek_callback);
+#endif
 
 }
 
@@ -162,9 +166,10 @@ void cSampleRecorder::stop()
 {
 
 	moduleRefresh = 0;
+#ifdef HW_WITH_RADIO
 	radio.resetSeekCallback();
+#endif
 
-	//radio off
 }
 
 
@@ -667,9 +672,11 @@ static  uint8_t functActionRadioFreq()
 
 static  uint8_t functActionRadioLeft()
 {
+#ifdef HW_WITH_RADIO
 	SR->displaySeeking();
 	radio.clearRDS();
 	radio.seekDown();
+#endif
 
 	return 1;
 }
@@ -677,9 +684,11 @@ static  uint8_t functActionRadioLeft()
 
 static  uint8_t functActionRadioRight()
 {
+#ifdef HW_WITH_RADIO
 	SR->displaySeeking();
 	radio.clearRDS();
 	radio.seekUp();
+#endif
 
 	return 1;
 }
@@ -961,10 +970,12 @@ void cSampleRecorder::changeRadioFreqBar(int16_t val)
 	calcRadioFreqBarVal();
 	drawRadioFreqBar();
 
+#ifdef HW_WITH_RADIO
 	radio.clearRDS();
 	SR->displayEmptyRDS();
 
 	radio.setFrequency(recorderConfig.radioFreq);
+#endif
 }
 void cSampleRecorder::changeLevelBar()
 {
@@ -1186,6 +1197,7 @@ static uint8_t stopPlaying(uint8_t value)
 }
 */
 
+#ifdef HW_WITH_RADIO
 void seek_callback(void)
 {
 	SR->recorderConfig.radioFreq = radio.getFrequency();
@@ -1193,5 +1205,5 @@ void seek_callback(void)
 	SR->calcRadioFreqBarVal();
 	SR->drawRadioFreqBar();
 
-	SR->displayEmptyRDS();
 }
+#endif

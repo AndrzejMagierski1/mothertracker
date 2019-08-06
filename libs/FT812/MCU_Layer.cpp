@@ -52,7 +52,7 @@ RE-CERTIFICATION AS A RESULT OF MAKING THESE CHANGES.
 
 
 SPI2Settings settingsSLOW(1000000,  MSBFIRST, SPI_MODE0);
-SPI2Settings settingsFAST(1000000, MSBFIRST, SPI_MODE0);
+SPI2Settings settingsFAST(20000000, MSBFIRST, SPI_MODE0);
 
 //############################################################################## 
 //##############################################################################
@@ -402,11 +402,29 @@ void MCU_CSlow(void)
 {
 	digitalWrite(CS, LOW);                                                          // CS# line low
     asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
 }  
 
 // --------------------- Chip Select line high ---------------------------------
 void MCU_CShigh(void)
 {
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
     asm("nop");
     digitalWrite(CS, HIGH);                                                      // CS# line high
 }

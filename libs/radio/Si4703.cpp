@@ -6,11 +6,36 @@
 #include "mtHardware.h"
 
 
-#ifdef HW_WITH_RADIO
 Si4703 radio(SI4703_RST, 48, 47, SI4703_SEN,SI4703_GPIO_2);
+
 seek_control_t seek_control;
 user_callback_t callback_func=NULL;
-#endif
+
+
+//przerwanie RDS
+void SI4703_interrupt()
+{
+	radio.rdsReadyFlag=1;
+}
+
+//callback RDS
+void stationName(char *servname)
+{
+	strcpy(radio.rds_data.nazwaStacji,servname);
+}
+
+//callback RDS
+void stationText(char *servname)
+{
+	strcpy(radio.rds_data.textStacji,servname);
+}
+
+//callback RDS
+void timeFromRDS(uint8_t hour,uint8_t minute)
+{
+	radio.rds_data.godzina=hour;
+	radio.rds_data.minuta=minute;
+}
 
 Si4703::Si4703(int resetPin, int sdioPin, int sclkPin, int senPin, int interruptPin)
 {
@@ -19,11 +44,6 @@ Si4703::Si4703(int resetPin, int sdioPin, int sclkPin, int senPin, int interrupt
 	_sclkPin = sclkPin;
 	_senPin = senPin;
 	_interruptPin = interruptPin;
-}
-
-void SI4703_interrupt()
-{
-	radio.rdsReadyFlag=1;
 }
 
 void Si4703::powerOn()
@@ -127,22 +147,6 @@ void Si4703::clearRDS()
 	radio.rds_data.minuta =0;
 }
 
-void stationName(char *servname)
-{
-	strcpy(radio.rds_data.nazwaStacji,servname);
-}
-
-void stationText(char *servname)
-{
-	strcpy(radio.rds_data.textStacji,servname);
-}
-
-void timeFromRDS(uint8_t hour,uint8_t minute)
-{
-	radio.rds_data.godzina=hour;
-	radio.rds_data.minuta=minute;
-}
-
 //To get the Si4703 inito 2-Wire mode, SEN needs to be high and SDIO needs to be low after a reset
 //The breakout board has SEN pulled high, but also has SDIO pulled high. Therefore, after a normal power up
 //The Si4703 will be in an unknown state. RST must be controlled
@@ -190,8 +194,8 @@ void Si4703::si4703_init()
 	attachInterrupt(digitalPinToInterrupt(_interruptPin), SI4703_interrupt, FALLING);
 
 	radio.rds.attachServicenNameCallback(stationName);
-	radio.rds.attachTextCallback(stationText);
-	radio.rds.attachTimeCallback(timeFromRDS);
+	//radio.rds.attachTextCallback(stationText);
+	//radio.rds.attachTimeCallback(timeFromRDS);
 }
 
 //Read the entire register control set from 0x00 to 0x0F

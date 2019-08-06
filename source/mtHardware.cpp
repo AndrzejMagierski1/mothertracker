@@ -70,7 +70,7 @@ void hidSendButtonState(uint16_t button, uint16_t state);
 void initHardware()
 {
 
-
+	//noInterrupts();
 	hardwareTest=0;
 
 
@@ -181,19 +181,10 @@ void initHardware()
 	tactButtons.testMode(0);
 
 
-/*
 #ifdef HW_WITH_RADIO
-
-	//radio.seekUp();
-	radio.setFrequency(105.7);
-
-	radio.rds.attachServicenNameCallback(serviceName);
-	radio.rds.attachTextCallback(text);
-	radio.rds.attachTimeCallback(time);
-#endif
-*/
 	radio.powerOn();
 	radio.setVolume(15);
+#endif
 
 
 	//LEDS
@@ -260,7 +251,6 @@ void updateHardware()
 	hid.handle();
 	sdCardDetector.update();
 
-	//radio.update_RDS();
 }
 
 elapsedMillis encTimer;
