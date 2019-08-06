@@ -18,6 +18,7 @@
 #include "barControl.h"
 #include "horizontalBarControl.h"
 #include "keyboardControl.h"
+#include "selectionWindowControl.h"
 
 
 
