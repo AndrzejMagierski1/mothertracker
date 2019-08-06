@@ -790,7 +790,20 @@ static  uint8_t functActionButton2()
 
 static  uint8_t functActionButton3()
 {
-	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->selectionWindowFlag == 1)
+	{
+		SR->selectionWindowFlag = 0;
+
+		SR->currentScreen = cSampleRecorder::screenTypeConfig;
+		SR->selectedPlace = 0;
+		if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
+		SR->zoomValue = 1.0;
+		SR->showDefaultScreen();
+		SR->activateLabelsBorder();
+
+		return 1;
+
+	}
 	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton3();
 	switch(SR->currentScreen)
 	{
@@ -804,7 +817,14 @@ static  uint8_t functActionButton3()
 
 static  uint8_t functActionButton4()
 {
-	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->selectionWindowFlag == 1)
+	{
+		SR->selectionWindowFlag = 0;
+		SR->selectedPlace = 6;
+		SR->showDefaultScreen();
+		SR->activateLabelsBorder();
+		return 1;
+	}
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: break;
@@ -990,6 +1010,7 @@ static  uint8_t functActionGoBack()
 	else if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
 	{
 		SR->currentScreen = cSampleRecorder::screenTypeRecord;
+		SR->keyboardActiveFlag = 0;
 		SR->selectedPlace = 7;
 		SR->showDefaultScreen();
 	}
@@ -1102,7 +1123,7 @@ static  uint8_t functActionZoom()
 
 static  uint8_t functEncoder(int16_t value)
 {
-
+	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig)
 	{
 		switch(SR->selectedPlace)
@@ -1117,13 +1138,7 @@ static  uint8_t functEncoder(int16_t value)
 	}
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
-		if(SR->selectionWindowFlag == 1)
-		{
-			if(value > 0 ) SR->selectionValue = 1;
-			else if(value < 0) SR->selectionValue = 0;
-			SR->showSelectionWindow();
-			return 1;
-		}
+
 		switch(SR->selectedPlace)
 		{
 		case 0: 	break;
@@ -1146,12 +1161,7 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functLeft()
 {
-	if(SR->selectionWindowFlag == 1)
-	{
-		SR->selectionValue = 0;
-		SR->showSelectionWindow();
-		return 1;
-	}
+	if(SR->selectionWindowFlag == 1) return 1;
 
 	if(SR->keyboardActiveFlag)
 	{
@@ -1236,12 +1246,7 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
-	if(SR->selectionWindowFlag == 1)
-	{
-		SR->selectionValue = 1;
-		SR->showSelectionWindow();
-		return 1;
-	}
+	if(SR->selectionWindowFlag == 1) return 1;
 
 	if(SR->keyboardActiveFlag)
 	{
@@ -1630,22 +1635,7 @@ static uint8_t stopPlaying(uint8_t value)
 
 static uint8_t functEnter()
 {
-	if(SR->selectionWindowFlag)
-	{
-		SR->selectionWindowFlag = 0;
-		SR->hideSelectionWindow();
-		if(SR->selectionValue == 0)
-		{
-			SR->currentScreen = cSampleRecorder::screenTypeConfig;
-			SR->selectedPlace = 0;
-			if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
-			SR->zoomValue = 1.0;
-			SR->showDefaultScreen();
-			SR->activateLabelsBorder();
-		}
-
-		return 1;
-	}
+	if(SR->selectionWindowFlag) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) functConfirmKey();
 }
 static uint8_t functConfirmKey()

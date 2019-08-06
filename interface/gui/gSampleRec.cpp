@@ -3,6 +3,13 @@
 #include "sampleRecorder.h"
 #include "mtRecorder.h"
 
+static uint32_t popUpLabelColors[] =
+{
+	0xFFFFFF, // tekst
+	0x222222, // tło
+	0xFF0000, // ramka
+};
+
 static  uint16_t framesPlacesS1[8][4] =
 {
 	{0, 		0, 800/8, 480},
@@ -162,21 +169,17 @@ void cSampleRecorder::initDisplayControls()
 
 	strControlProperties prop9;
 
-
-	strcpy(selectWindowData.textButton1,"Yes");
-	strcpy(selectWindowData.textButton2,"No");
-	strcpy(selectWindowData.secondLine, "Do you want to continue?");
-	prop9.x = 225;
+	prop9.x = 400;
+	prop9.colors = popUpLabelColors;
 //	prop.colors = &color[0];
-	prop9.y = 125;
+	prop9.y = 350;
 	//prop.w = 800/4-10;
 //	prop9.style = controlStyleValue_0_100;
-	prop9.h = 200;
-	prop9.w = 350;
-	prop9.value = 0;
-	prop9.text = "Changes will be lost.";
-	prop9.data = &selectWindowData;
-	if(selectWindow == nullptr)  selectWindow = display.createControl<cSelectionWindow>(&prop9);
+	prop9.h = 100;
+	prop9.w = 800-(10);
+	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
+	prop9.text = "Changes will be lost. Do you want to continue?";
+	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop9);
 
 }
 
@@ -224,8 +227,8 @@ void cSampleRecorder::destroyDisplayControls()
 	display.destroyControl(saveHorizontalBarControl);
 	saveHorizontalBarControl = nullptr;
 
-	display.destroyControl(selectWindow);
-	selectWindow = nullptr;
+	display.destroyControl(selectWindowLabel);
+	selectWindowLabel = nullptr;
 }
 
 void cSampleRecorder::showDefaultScreen()
@@ -315,9 +318,6 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlHide(editName);
 		display.refreshControl(editName);
 
-
-		display.setControlShow(selectWindow);
-		display.refreshControl(selectWindow);
 	}
 	else if (currentScreen == screenTypeRecord)
 	{
@@ -437,7 +437,9 @@ void cSampleRecorder::showDefaultScreen()
 		showStartPointValue();
 	}
 
-	hideSelectionWindow();
+	display.setControlHide(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
 	display.synchronizeRefresh();
 
 }
@@ -774,13 +776,22 @@ void cSampleRecorder::hideSaveHorizontalBar()
 
 void cSampleRecorder::showSelectionWindow()
 {
-	display.setControlValue(selectWindow,selectionValue);
-	display.setControlShow(selectWindow);
-	display.refreshControl(selectWindow);
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.setControlText(topLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+	display.setControlText(bottomLabel[3], "Yes");
+	display.setControlText(bottomLabel[4], "No");
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	display.synchronizeRefresh();
 }
 
-void cSampleRecorder::hideSelectionWindow()
-{
-	display.setControlHide(selectWindow);
-	display.refreshControl(selectWindow);
-}
+

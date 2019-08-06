@@ -77,7 +77,7 @@ public:
 		 keyboardControl = nullptr;
 		 editName = nullptr;
 		 saveHorizontalBarControl = nullptr;
-		 selectWindow = nullptr;
+		 selectWindowLabel = nullptr;
 
 	}
 	virtual ~cSampleRecorder() {}
@@ -131,7 +131,7 @@ public:
 	hControl keyboardControl;
 	hControl editName;
 	hControl saveHorizontalBarControl;
-	hControl selectWindow;
+	hControl selectWindowLabel;
 
 //*********************************************
 
@@ -254,10 +254,8 @@ uint8_t cropCounter = 0;
 	void hideSaveHorizontalBar();
 // selection window
 	void showSelectionWindow();
-	void hideSelectionWindow();
 
 	uint8_t selectionWindowFlag = 0;
-	uint8_t selectionValue = 0;
 
 };
 
