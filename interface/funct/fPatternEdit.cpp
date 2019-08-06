@@ -482,6 +482,9 @@ void cPatternEditor::changeActualPatternLength(int16_t value)
 
 void cPatternEditor::changeActualPatternEditStep(int16_t value)
 {
+	if(mtProject.values.patternEditStep+value < 0) mtProject.values.patternEditStep = 0;
+	else if(mtProject.values.patternEditStep+value > PATTERN_EDIT_STEP_MAX) mtProject.values.patternEditStep = PATTERN_EDIT_STEP_MAX;
+	else  mtProject.values.patternEditStep += value;
 
 	showStep();
 }
@@ -493,74 +496,45 @@ void cPatternEditor::changeFillData(int16_t value)
 	{
 
 		uint16_t max;
-		if(fillPopup.column[fillPlace].type == 1)
+		if(fillPopup.column[fillPlace].type == 1) // zmiana pozycji listy
 		{
 			max = ((strList*)(fillPopup.column[fillPlace].data))->length - 1;
 
 			value = value*(-1);
 
-			if(fillPopup.column[fillPlace].value + value < 0) fillPopup.column[fillPlace].value = 0;
-			else if(fillPopup.column[fillPlace].value + value > max) fillPopup.column[fillPlace].value = max;
-			else fillPopup.column[fillPlace].value += value;
+			uint16_t* ptrVal = &lastFillValues[trackerPattern.selectedParam][fillPlace];
+
+			if(*ptrVal + value < 0) *ptrVal = 0;
+			else if(*ptrVal + value > max) *ptrVal = max;
+			else *ptrVal += value;
 
 		}
-		else if(fillPopup.column[fillPlace].type == 2)
+		else if(fillPopup.column[fillPlace].type == 2) // zmiana wartosci labela
 		{
 			if(trackerPattern.selectedParam == 0)
-			{
-				if(fillPopup.column[fillPlace].value + value < 0) fillPopup.column[fillPlace].value  = 0;
-				else if(fillPopup.column[fillPlace].value + value > 127) fillPopup.column[fillPlace].value  = 127;
-				else fillPopup.column[fillPlace].value += value;
+			{ // zmiana nuty
+				uint16_t* ptrVal = &lastFillValues[trackerPattern.selectedParam][fillPlace];
 
-				fillPopup.column[fillPlace].text = (char*)&mtNotes[fillPopup.column[fillPlace].value][0];
+				if(*ptrVal + value < 0) *ptrVal  = 0;
+				else if(*ptrVal + value > 127) *ptrVal = 127;
+				else *ptrVal += value;
+
+				fillPopup.column[fillPlace].text = (char*)&mtNotes[*ptrVal][0];
 			}
 			else if (trackerPattern.selectedParam == 1 || trackerPattern.selectedParam == 2 || trackerPattern.selectedParam == 3)
-			{
+			{ // zmiana reszty
 				max = (trackerPattern.selectedParam == 1 ? 48 : 127);
 
-				if(fillPopup.column[fillPlace].value + value < 0) fillPopup.column[fillPlace].value  = 0;
-				else if(fillPopup.column[fillPlace].value + value > max) fillPopup.column[fillPlace].value  = max;
-				else fillPopup.column[fillPlace].value += value;
+				uint16_t* ptrVal = &lastFillValues[trackerPattern.selectedParam][fillPlace];
 
-				char inst0 = (fillPopup.column[fillPlace].value + 1) / 10;
-				char inst1 = (fillPopup.column[fillPlace].value + 1) % 10;
-
-				fillText2[0] = inst0 + 48;
-				fillText2[1] = inst1 + 48;
-				fillText2[2] = 0;
-
-				fillPopup.column[fillPlace].text = fillText2;
+				if(*ptrVal + value < 0) *ptrVal  = 0;
+				else if(*ptrVal + value > max) *ptrVal  = max;
+				else *ptrVal += value;
 			}
 		}
 
 
-		if(fillPopup.column[0].value == 0)
-		{
-			fillPopup.column[1].title = "Value";
-			fillPopup.column[2].title = "";
-			fillPopup.column[2].text = "";
-		}
-		else
-		{
-			if(trackerPattern.selectedParam == 0)
-			{
-				fillPopup.column[2].text = (char*)&mtNotes[fillPopup.column[2].value][0];
-			}
-			if (trackerPattern.selectedParam == 1 || trackerPattern.selectedParam == 2 || trackerPattern.selectedParam == 3)
-			{
-				fillPopup.column[2].text = fillText2;
-			}
-
-			fillPopup.column[1].title = "From";
-			fillPopup.column[2].title = "To";
-		}
-
-
-		lastFillValues[trackerPattern.selectedParam][fillPlace] = fillPopup.column[fillPlace].value;
-
-
-		display.setControlData(patternPopupControl,  &fillPopup);
-		display.refreshControl(patternPopupControl);
+		refreshFillPopup();
 	}
 
 }
@@ -672,6 +646,16 @@ static  uint8_t functEnter()
 	// zatwierdzanie wypelnienia
 	if(PTE->fillState)
 	{
+		(void) PTE->lastFillValues[0][0];
+		(void) mtProject.values.patternEditStep;
+		// PTE->lastFillValues[x][y] <= przechowuje dane do konfiguracji fill
+		// x - (0-3) - co wypelnia - nuta , instr , vol , fx
+		// y - (0-3) - kolumna popupu fill - 	0 = typ wypelninia (0-3);
+		//										1 = pierwsza wartosc (0-127 - nuty/vol/fx_val , 0-48 instr)
+		//										2 = druga wartosc (jesli potrzebna)
+		//										3 = scala yes/no (0-1) albo typ efektu (0-xx)
+		//
+		// mtProject.values.patternEditStep <= pattern step
 
 
 

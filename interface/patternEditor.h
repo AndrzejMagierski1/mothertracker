@@ -97,10 +97,14 @@ public:
 	void showPattern();
 	void showLength();
 	void showStep();
-	void showFillPopup();
-	void showRandomPopup();
 
+
+	void showFillPopup();
+	void refreshFillPopup();
 	void hideFillPopup();
+
+
+	void showRandomPopup();
 
 //----------------------------------
 // Funct

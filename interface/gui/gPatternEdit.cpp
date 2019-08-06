@@ -180,7 +180,7 @@ void cPatternEditor::showLength()
 
 void cPatternEditor::showStep()
 {
-	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+//	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
 	sprintf(step, "%d",  mtProject.values.patternEditStep);
 
@@ -215,7 +215,7 @@ void cPatternEditor::showFillPopup()
 
 	fillPopup.column[col].type = 1;
 	fillPopup.column[col].data = &fillTypeList;
-	fillPopup.column[col].title = "Type";
+	fillPopup.column[col].title = (char*)"Type";
 
 
 	//------------------------------
@@ -241,9 +241,9 @@ void cPatternEditor::showFillPopup()
 	}
 
 	if(fillPopup.column[0].value == 0)
-		fillPopup.column[col].title = "Value";
+		fillPopup.column[col].title = (char*)"Value";
 	else
-		fillPopup.column[col].title = "From";
+		fillPopup.column[col].title = (char*)"From";
 
 	//------------------------------
 
@@ -269,15 +269,15 @@ void cPatternEditor::showFillPopup()
 		fillPopup.column[col].text = fillText2;
 	}
 
-	if(fillPopup.column[0].value != 0)
+	if(lastFillValues[trackerPattern.selectedParam][0] != 0)
 	{
-		fillPopup.column[col].text = fillText2;
-		fillPopup.column[col].title = "To";
+		//fillPopup.column[col].text = fillText2;
+		fillPopup.column[col].title = (char*)"To";
 	}
 	else
 	{
-		fillPopup.column[col].text = "";
-		fillPopup.column[col].title = "";
+		fillPopup.column[col].text = (char*)"";
+		fillPopup.column[col].title = (char*)"";
 	}
 
 
@@ -324,7 +324,7 @@ void cPatternEditor::showFillPopup()
 		fillFxTypeList.data = fillFxTypeNames;
 
 		fillPopup.column[col].type = 1;
-		fillPopup.column[col].title = "Fx Type";
+		fillPopup.column[col].title = (char*)"Fx Type";
 		fillPopup.column[col].data = &fillFxTypeList;
 		fillPopup.column[col].options = columnOptionDoubleWide;
 	}
@@ -367,6 +367,64 @@ void cPatternEditor::showFillPopup()
 	display.setControlShow(patternPopupControl);
 	display.refreshControl(patternPopupControl);
 
+}
+
+
+void cPatternEditor::refreshFillPopup()
+{
+
+	fillPopup.column[0].value = lastFillValues[trackerPattern.selectedParam][0];
+
+	if(trackerPattern.selectedParam == 0)
+	{
+		fillPopup.column[1].text = (char*)&mtNotes[lastFillValues[trackerPattern.selectedParam][1]][0];
+		fillPopup.column[2].text = (char*)&mtNotes[lastFillValues[trackerPattern.selectedParam][2]][0];
+	}
+	if (trackerPattern.selectedParam == 1 || trackerPattern.selectedParam == 2 || trackerPattern.selectedParam == 3)
+	{
+		char inst0 = (lastFillValues[trackerPattern.selectedParam][1] + 1) / 10;
+		char inst1 = (lastFillValues[trackerPattern.selectedParam][1] + 1) % 10;
+
+		fillText1[0] = inst0 + 48;
+		fillText1[1] = inst1 + 48;
+		fillText1[2] = 0;
+
+		fillPopup.column[1].text = fillText1;
+
+		inst0 = (lastFillValues[trackerPattern.selectedParam][2] + 1) / 10;
+		inst1 = (lastFillValues[trackerPattern.selectedParam][2] + 1) % 10;
+
+		fillText2[0] = inst0 + 48;
+		fillText2[1] = inst1 + 48;
+		fillText2[2] = 0;
+
+		fillPopup.column[2].text = fillText2;
+	}
+
+	fillPopup.column[3].value = lastFillValues[trackerPattern.selectedParam][3];
+
+
+	if(lastFillValues[trackerPattern.selectedParam][0] == 0)
+	{
+		fillPopup.column[1].title = (char*)"Value";
+
+		fillPopup.column[2].title = (char*)"";
+		fillPopup.column[2].text = (char*)"";
+	}
+	else
+	{
+
+		fillPopup.column[1].title = (char*)"From";
+		fillPopup.column[2].title = (char*)"To";
+	}
+
+
+
+//	lastFillValues[trackerPattern.selectedParam][fillPlace] = fillPopup.column[fillPlace].value;
+
+
+	display.setControlData(patternPopupControl,  &fillPopup);
+	display.refreshControl(patternPopupControl);
 }
 
 void cPatternEditor::hideFillPopup()
