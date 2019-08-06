@@ -148,16 +148,35 @@ void cSampleRecorder::initDisplayControls()
 	prop7.h = 30;
 	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop7);
 
-	prop.x = 190;
+	strControlProperties prop8;
+	prop8.x = 190;
 //	prop.colors = &color[0];
-	prop.y = 170;
+	prop8.y = 170;
 	//prop.w = 800/4-10;
-	prop.style = controlStyleValue_0_100;
-	prop.h = 100;
-	prop.w = 420;
+	prop8.style = controlStyleValue_0_100;
+	prop8.h = 100;
+	prop8.w = 420;
 //	prop.value = 70;
 //	prop.text = "loading...";
-	if(saveHorizontalBarControl == nullptr)  saveHorizontalBarControl = display.createControl<cHorizontalBar>(&prop);
+	if(saveHorizontalBarControl == nullptr)  saveHorizontalBarControl = display.createControl<cHorizontalBar>(&prop8);
+
+	strControlProperties prop9;
+
+
+	strcpy(selectWindowData.textButton1,"Yes");
+	strcpy(selectWindowData.textButton2,"No");
+	strcpy(selectWindowData.secondLine, "Do you want to continue?");
+	prop9.x = 225;
+//	prop.colors = &color[0];
+	prop9.y = 125;
+	//prop.w = 800/4-10;
+//	prop9.style = controlStyleValue_0_100;
+	prop9.h = 200;
+	prop9.w = 350;
+	prop9.value = 0;
+	prop9.text = "Changes will be lost.";
+	prop9.data = &selectWindowData;
+	if(selectWindow == nullptr)  selectWindow = display.createControl<cSelectionWindow>(&prop9);
 
 }
 
@@ -204,6 +223,9 @@ void cSampleRecorder::destroyDisplayControls()
 
 	display.destroyControl(saveHorizontalBarControl);
 	saveHorizontalBarControl = nullptr;
+
+	display.destroyControl(selectWindow);
+	selectWindow = nullptr;
 }
 
 void cSampleRecorder::showDefaultScreen()
@@ -292,6 +314,10 @@ void cSampleRecorder::showDefaultScreen()
 
 		display.setControlHide(editName);
 		display.refreshControl(editName);
+
+
+		display.setControlShow(selectWindow);
+		display.refreshControl(selectWindow);
 	}
 	else if (currentScreen == screenTypeRecord)
 	{
@@ -411,6 +437,7 @@ void cSampleRecorder::showDefaultScreen()
 		showStartPointValue();
 	}
 
+	hideSelectionWindow();
 	display.synchronizeRefresh();
 
 }
@@ -743,4 +770,17 @@ void cSampleRecorder::hideSaveHorizontalBar()
 {
 	display.setControlHide(saveHorizontalBarControl);
 	display.refreshControl(saveHorizontalBarControl);
+}
+
+void cSampleRecorder::showSelectionWindow()
+{
+	display.setControlValue(selectWindow,selectionValue);
+	display.setControlShow(selectWindow);
+	display.refreshControl(selectWindow);
+}
+
+void cSampleRecorder::hideSelectionWindow()
+{
+	display.setControlHide(selectWindow);
+	display.refreshControl(selectWindow);
 }

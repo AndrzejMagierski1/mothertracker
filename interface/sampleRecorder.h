@@ -77,6 +77,7 @@ public:
 		 keyboardControl = nullptr;
 		 editName = nullptr;
 		 saveHorizontalBarControl = nullptr;
+		 selectWindow = nullptr;
 
 	}
 	virtual ~cSampleRecorder() {}
@@ -114,6 +115,7 @@ public:
 	void refreshGain();
 
 	strFrameData frameData;
+	strSelectWindowData selectWindowData;
 
 //*********************************************
 	hControl spectrumControl;
@@ -129,6 +131,7 @@ public:
 	hControl keyboardControl;
 	hControl editName;
 	hControl saveHorizontalBarControl;
+	hControl selectWindow;
 
 //*********************************************
 
@@ -249,6 +252,12 @@ uint8_t cropCounter = 0;
 	uint8_t saveProgress;
 	void showSaveHorizontalBar();
 	void hideSaveHorizontalBar();
+// selection window
+	void showSelectionWindow();
+	void hideSelectionWindow();
+
+	uint8_t selectionWindowFlag = 0;
+	uint8_t selectionValue = 0;
 
 };
 
