@@ -19,6 +19,7 @@
 #include "horizontalBarControl.h"
 #include "keyboardControl.h"
 #include "patternPopupControl.h"
+#include "selectionWindowControl.h"
 
 
 typedef cDisplayControl* hControl;

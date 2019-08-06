@@ -432,7 +432,7 @@ struct strMtConfig
 		uint8_t inSelect;
 		uint8_t outSelect;
 
-		float headphoneVolume = 0.5;
+		float headphoneVolume = 1.0;
 		uint8_t inputGain; // 0-63
 		uint8_t mutedHeadphone;
 		uint8_t mutedLineOut;
