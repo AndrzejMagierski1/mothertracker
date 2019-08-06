@@ -152,8 +152,8 @@ void initHardware()
 	Encoder.begin(ENC_SWITCH,onButtonChange);
 	//	Encoder.testMode(1);
 
-	Encoder.setResolution(24);
-	Encoder.setAcceleration(3);
+	Encoder.setResolution(12);
+	Encoder.setAcceleration(1);
 
 	//....................................................
 	// Haptic on

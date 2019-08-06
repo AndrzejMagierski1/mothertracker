@@ -107,9 +107,6 @@ void cSampleImporter::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-	Encoder.setResolution(12);
-	Encoder.setAcceleration(0);
-
 	selectedFolder = 0;
 	//selectedFile = 0;
 	dirLevel = 0;
@@ -151,9 +148,6 @@ void cSampleImporter::start(uint32_t options)
 
 void cSampleImporter::stop()
 {
-
-	Encoder.setResolution(48);
-	Encoder.setAcceleration(3);
 	moduleRefresh = 0;
 }
 

@@ -291,7 +291,7 @@ void cPatternEditor::showFillPopup()
 
 		fillPopup.column[col].value = lastFillValues[trackerPattern.selectedParam][col];
 
-		for(uint8_t i = 0; i<fillTypeListCount ; i++)
+		for(uint8_t i = 0; i<fillScaleFilterCount ; i++)
 		{
 			fillScaleFilterNames[i] = (char*)&fillScaleFilterLabels[i][0];
 		}
@@ -303,7 +303,7 @@ void cPatternEditor::showFillPopup()
 
 		fillPopup.column[col].type = 1;
 		fillPopup.column[col].data = &fillScaleFilterList;
-		fillPopup.column[col].title = "In Scale";
+		fillPopup.column[col].title = (char*)"In Scale";
 		fillPopup.column[col].options = 0;
 	}
 	//------------------------------
