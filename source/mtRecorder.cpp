@@ -86,7 +86,7 @@ void Recorder::undo(int16_t * address, uint32_t length)
 	recByteSaved = 2*length; //zamieniam probki na bajty
 }
 
-void Recorder::startSave(char * name)
+uint8_t Recorder::startSave(char * name, uint8_t type)
 {
 	char currentPatch[PATCH_SIZE];
 
@@ -99,13 +99,23 @@ void Recorder::startSave(char * name)
 
 	saveLength=recByteSaved;
 
-	if (SD.exists(currentPatch)) SD.remove(currentPatch);
+	if(type == 0)
+	{
+		if (SD.exists(currentPatch)) return 0;
+	}
+	else if(type == 1)
+	{
+		if (SD.exists(currentPatch)) SD.remove(currentPatch);
+	}
+
 
 	rec = SD.open(currentPatch, FILE_WRITE);
 
 
 	rec.seek(44);
 	currentAddress=startAddress;
+
+	return 1;
 }
 void Recorder::updateSave()
 {

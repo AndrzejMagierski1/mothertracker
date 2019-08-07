@@ -12,7 +12,7 @@ public:
 	void update();
 	void stop();
 	void trim(uint16_t a, uint16_t b);
-	void startSave(char * name);
+	uint8_t startSave(char * name, uint8_t type = 0);
 	void updateSave();
 	void stopSave();
 	uint8_t getSaveProgress();
