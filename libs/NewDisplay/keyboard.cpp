@@ -10,7 +10,7 @@ static uint32_t defaultColors[] =
 {
 	0xFFFFFF, // tekst
 	0x222222, // tło
-	0x0000FF, // ramka
+	0xFF0000, // ramka
 };
 
 void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
