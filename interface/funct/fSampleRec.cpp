@@ -167,8 +167,8 @@ void cSampleRecorder::update()
 	}
 	if(refreshSpectrumValue)
 	{
-		display.setControlValue(spectrumControl,playProgressInSpectrum);
-		display.refreshControl(spectrumControl);
+		display.setControlValue(progressCursor,playProgressInSpectrum);
+		display.refreshControl(progressCursor);
 		refreshSpectrumValue = 0;
 	}
 
@@ -941,6 +941,7 @@ static  uint8_t functActionRecord()
 	SR->recordInProgressFlag = 1;
 	SR->firstPeakFlag = 1;
 	SR->currentScreen = SR->screenTypeRecord;
+	SR->cropCounter = 0;
 	SR->showDefaultScreen();
 	recorder.startRecording(sdram_effectsBank);
 	SR->spectrumTimerConstrains = 100;

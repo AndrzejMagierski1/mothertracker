@@ -49,6 +49,7 @@ void cSampleRecorder::initDisplayControls()
 	prop.h = 300;
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
+	if(progressCursor == nullptr) progressCursor = display.createControl<cProgressCursor>(&prop);
 
 	points.pointsType = 0;
 	points.endPoint = MAX_16BIT;
@@ -186,6 +187,9 @@ void cSampleRecorder::initDisplayControls()
 
 void cSampleRecorder::destroyDisplayControls()
 {
+	display.destroyControl(progressCursor);
+	progressCursor = nullptr;
+
 	display.destroyControl(spectrumControl);
 	spectrumControl = nullptr;
 	for(uint8_t i = 0 ; i < 8; i++)
@@ -239,6 +243,10 @@ void cSampleRecorder::showDefaultScreen()
 		//spectrum
 		display.setControlHide(spectrumControl);
 		display.refreshControl(spectrumControl);
+
+		//cursor
+		display.setControlHide(progressCursor);
+		display.refreshControl(progressCursor);
 
 		//points
 
@@ -324,6 +332,9 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlShow(spectrumControl);
 		display.refreshControl(spectrumControl);
 
+		display.setControlShow(progressCursor);
+		display.refreshControl(progressCursor);
+
 		if (recordInProgressFlag == 1)
 		{
 			display.setControlHide(pointsControl);
@@ -399,6 +410,10 @@ void cSampleRecorder::showDefaultScreen()
 		//spectrum
 		display.setControlHide(spectrumControl);
 		display.refreshControl(spectrumControl);
+
+		//cursor
+		display.setControlHide(progressCursor);
+		display.refreshControl(progressCursor);
 
 		//points
 

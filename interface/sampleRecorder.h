@@ -64,7 +64,7 @@ public:
 //		openedInstrumentIndex = 0;
 
 		 spectrumControl = nullptr;
-
+		 progressCursor = nullptr;
 		 topLabel[8] = {nullptr};
 		 bottomLabel[8] = {nullptr};
 		 frameControl = nullptr;
@@ -132,6 +132,7 @@ public:
 	hControl editName;
 	hControl saveHorizontalBarControl;
 	hControl selectWindowLabel;
+	hControl progressCursor;
 
 //*********************************************
 
