@@ -576,21 +576,23 @@ void cDisplay::refreshControl(hControl handle)
 	// jesli juz jest w kolejce to nic nie rob
 
 	//przeszukaj kolejke
-	//przeszukaj kolejke
-	//jesli aktualnie odswiezana - zresetuj proces odswiezania
-	if(refreshQueue[refreshQueueBott] == handle)
-	{
-		refreshQueue[refreshQueueTop] = handle;
-		refreshQueueTop++;
-		if(refreshQueueTop >= controlsRefreshQueueSize) refreshQueueTop = 0;
-		return;
-	}
-	// przeszukaj reszte kolejki
 	uint8_t i = refreshQueueBott;
+	//jesli aktualnie odswiezana - zresetuj proces odswiezania
+	if(refreshQueue[i] == handle)
+	{
+		if(refreshQueueTop != i)
+		{
+			i++;
+			if(i >= controlsRefreshQueueSize) i = 0;
+		}
+	}
 	// przeszukaj reszte kolejki
 	while(i != refreshQueueTop) // ryzykowne ale optymalne
 	{
-		if(handle == refreshQueue[i]) return; // znaleziono w kolejce - wyjdz
+		if(handle == refreshQueue[i])
+		{
+			return; // znaleziono w kolejce - wyjdz
+		}
 		i++;
 		if(i >= controlsRefreshQueueSize) i = 0;
 	}
