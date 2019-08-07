@@ -67,7 +67,7 @@ void Si4703::setFrequency(float freq)
 {
 	int newChannel;
 
-	newChannel= (float)((freq-87.5)/0.05) + 0.5; // 0.5 for ceil rounding
+	newChannel= (float)((freq-87.5f)/0.05f) + 0.5f; // 0.5 for ceil rounding
 
 	readRegisters();
 	si4703_registers[rCHANNEL] &= ~CHANN_MASK; //Clear out the channel bits
@@ -334,8 +334,6 @@ void Si4703::stateMachineSeek()
 	}
 }
 
-
-
 void Si4703::setSeekCallback(user_callback_t callback)
 {
 	callback_func = callback;
@@ -346,8 +344,6 @@ void Si4703::resetSeekCallback()
 	callback_func = NULL;
 }
 
-//Reads the current channel from READCHAN
-//Returns a number like 973 for 97.3MHz
 float Si4703::getFrequency()
 {
 	int channel;
@@ -357,7 +353,7 @@ float Si4703::getFrequency()
 
 	channel = READCHANN(si4703_registers[rREADCHAN]);
 
-	freq= (channel * 0.05 + 87.5);
+	freq= (channel * 0.05f + 87.5f);
 
 	return freq;
 }

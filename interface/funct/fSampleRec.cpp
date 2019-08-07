@@ -114,7 +114,10 @@ void cSampleRecorder::update()
 #ifdef HW_WITH_RADIO
 	if(radio.update_RDS())
 	{
-		refreshRDS();
+		if(recorderConfig.source==2)
+		{
+			refreshRDS();
+		}
 	}
 	radio.stateMachineSeek();
 #endif
@@ -1204,6 +1207,8 @@ void seek_callback(void)
 
 	SR->calcRadioFreqBarVal();
 	SR->drawRadioFreqBar();
+
+	SR->displayEmptyRDS();
 
 }
 #endif
