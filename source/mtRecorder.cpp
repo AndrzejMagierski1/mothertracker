@@ -35,7 +35,11 @@ void Recorder::update()
 			currentAddress += 128;
 			recByteSaved += 256;
 		}
-		if(recByteSaved >= SAMPLE_MEMORY_MAX) stopRecording();
+		if(recByteSaved >= SAMPLE_MEMORY_MAX)
+		{
+			queue.end();
+			mode = recorderModeStop;
+		}
 	}
 }
 
@@ -74,6 +78,7 @@ void Recorder::trim(uint16_t a, uint16_t b)
 {
 	uint32_t addressShift;
 	uint32_t lengthShift;
+
 	addressShift = (uint32_t)( (uint32_t)a * (float)(recByteSaved/2)/MAX_16BIT);
 	lengthShift =(uint32_t)((uint32_t)b * (float)(recByteSaved)/MAX_16BIT);
 	startAddress+=addressShift;
