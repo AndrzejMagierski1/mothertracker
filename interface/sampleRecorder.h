@@ -255,7 +255,11 @@ uint8_t cropCounter = 0;
 // selection window
 	void showSelectionWindow();
 
+
 	uint8_t selectionWindowFlag = 0;
+// selection window  - zapis
+	uint8_t selectionWindowSaveFlag = 0;
+	void showSelectionWindowSave();
 
 };
 

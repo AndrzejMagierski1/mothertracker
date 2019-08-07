@@ -777,6 +777,11 @@ static  uint8_t functActionButton1()
 static  uint8_t functActionButton2()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
+	{
+		functConfirmKey();
+		return 1;
+	}
 	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton2();
 	switch(SR->currentScreen)
 	{
@@ -802,6 +807,14 @@ static  uint8_t functActionButton3()
 		SR->activateLabelsBorder();
 
 		return 1;
+	}
+	if(SR->selectionWindowSaveFlag == 1)
+	{
+		SR->selectionWindowSaveFlag = 0;
+		recorder.startSave(SR->name,1);
+		 SR->saveInProgressFlag = 1;
+		 SR->hideKeyboard();
+		 SR->hideKeyboardEditName();
 
 	}
 	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton3();
@@ -824,6 +837,37 @@ static  uint8_t functActionButton4()
 		SR->showDefaultScreen();
 		SR->activateLabelsBorder();
 		return 1;
+	}
+	if(SR->selectionWindowSaveFlag == 1)
+	{
+		char localPatch[70];
+		uint16_t cnt=1;
+		char cntBuf[5];
+		char localName[32];
+		strcpy(localName,SR->name);
+		do
+		{
+		   memset(cntBuf,0,5);
+		   sprintf(cntBuf, "%d", cnt);
+		   strcpy(SR->name,localName);
+		   strcat(SR->name,cntBuf);
+
+		   strcpy(localPatch,"Recorded/");
+		   strcat(localPatch, SR->name);
+		   strcat(localPatch, ".wav");
+
+		   cnt++;
+		   if(cnt > 9999)
+		   {
+			   memset(SR->name,0,33);
+			   break;
+		   }
+		} while(SD.exists(localPatch));
+		SR->editPosition = strlen(SR->name);
+		SR->keyboardPosition = 10;
+		SR->selectionWindowSaveFlag = 0;
+		SR->keyboardActiveFlag = 1;
+		SR->showDefaultScreen();
 	}
 	switch(SR->currentScreen)
 	{
@@ -1021,7 +1065,7 @@ static  uint8_t functActionSave()
 {
 	SR->currentScreen = cSampleRecorder::screenTypeKeyboard;
 
-	char localPatch[128];
+	char localPatch[70];
 	uint16_t cnt=1;
 	char cntBuf[5];
 
@@ -1046,6 +1090,7 @@ static  uint8_t functActionSave()
 
 	SR->editPosition = strlen(SR->name);
 	SR->keyboardPosition = 10;
+
 	SR->keyboardActiveFlag = 1;
 
 	SR->showDefaultScreen();
@@ -1054,11 +1099,23 @@ static  uint8_t functActionSave()
 
 static  uint8_t functActionConfirmSave()
 {
-	 SR->keyboardActiveFlag = 0;
-	 SR->saveInProgressFlag = 1;
-	 SR->hideKeyboard();
-	 SR->hideKeyboardEditName();
-	 recorder.startSave(SR->name);
+	 if(recorder.startSave(SR->name) == 0)
+	 {
+		 SR->selectionWindowSaveFlag = 1;
+		 SR->keyboardActiveFlag = 0;
+		 SR->showSelectionWindowSave();
+	 }
+	 else
+	 {
+		 SR->keyboardActiveFlag = 0;
+		 SR->saveInProgressFlag = 1;
+		 SR->hideKeyboard();
+		 SR->hideKeyboardEditName();
+	 }
+
+
+
+
 
 	 return 1;
 }

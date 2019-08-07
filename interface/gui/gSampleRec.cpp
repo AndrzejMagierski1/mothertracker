@@ -405,14 +405,13 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlHide(pointsControl);
 		display.refreshControl(pointsControl);
 
-		display.setControlShow(keyboardControl);
-		display.refreshControl(keyboardControl);
+		showKeyboard();
 
 		showKeyboardEditName();
 
 		display.setControlText(bottomLabel[0], "");
 		display.setControlText(bottomLabel[1], "");
-		display.setControlText(bottomLabel[2], "");
+		display.setControlText(bottomLabel[2], "Confirm");
 		display.setControlText(bottomLabel[3], "");
 		display.setControlText(bottomLabel[4], "");
 		display.setControlText(bottomLabel[5], "");
@@ -788,6 +787,30 @@ void cSampleRecorder::showSelectionWindow()
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
+
+	display.setControlText(selectWindowLabel,"Changes will be lost. Do you want to continue?");
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	display.synchronizeRefresh();
+}
+
+void cSampleRecorder::showSelectionWindowSave()
+{
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.setControlText(topLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+	display.setControlText(bottomLabel[3], "Yes");
+	display.setControlText(bottomLabel[4], "No");
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlText(selectWindowLabel,"This name already exists. Do you want to overwrite it?");
 	display.setControlShow(selectWindowLabel);
 	display.refreshControl(selectWindowLabel);
 
