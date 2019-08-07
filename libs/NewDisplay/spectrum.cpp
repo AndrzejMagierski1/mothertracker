@@ -207,14 +207,14 @@ void cSpectrum::refresh1()
 	}
 	API_END();
 
-	if(value > 0 && value < width)
-	{
-		API_COLOR(colors[1]);
-		API_BEGIN(LINES);
-		API_VERTEX2F( posX + value, posY);
-		API_VERTEX2F( posX + value, posY + height);
-		API_END();
-	}
+//	if(value > 0 && value < width)
+//	{
+//		API_COLOR(colors[1]);
+//		API_BEGIN(LINES);
+//		API_VERTEX2F( posX + value, posY);
+//		API_VERTEX2F( posX + value, posY + height);
+//		API_END();
+//	}
 
 }
 
