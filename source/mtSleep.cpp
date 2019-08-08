@@ -38,6 +38,7 @@ void disableAll()
 	//mtDisplay.setSleepMode();
 //	SDRAM_setSleepMode();
 	digitalWrite(79,LOW);
+	BOARD_DeinitPins();
 //todo: sdram...
 
 }
@@ -50,10 +51,10 @@ void powerModeUpdate()
 		if(powerState == powerTypeLow) 				disableAll();
 		else if(powerState == powerTypeNormal)
 		{
-			pinMode(79,OUTPUT);
-			digitalWrite(79,HIGH);
-			Extern_SDRAM_Init();
-//			setup(); //todo: lepszy bedzie software'owy reset
+//			pinMode(79,OUTPUT);
+//			digitalWrite(79,HIGH);
+//			Extern_SDRAM_Init();
+			setup(); //todo: lepszy bedzie software'owy reset
 		}
 	}
 }
