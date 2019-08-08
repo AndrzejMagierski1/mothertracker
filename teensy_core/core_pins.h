@@ -120,9 +120,9 @@
 #define CORE_NUM_ANALOG         27
 #define CORE_NUM_PWM            20
 #elif defined(__MK66FX1M0__)
-#define CORE_NUM_TOTAL_PINS     70
-#define CORE_NUM_DIGITAL        79
-#define CORE_NUM_INTERRUPT      70
+#define CORE_NUM_TOTAL_PINS     71
+#define CORE_NUM_DIGITAL        80
+#define CORE_NUM_INTERRUPT      71
 #define CORE_NUM_ANALOG         25
 #define CORE_NUM_PWM            22
 #endif
@@ -830,6 +830,7 @@
 #define CORE_PIN67_BIT		27
 #define CORE_PIN68_BIT		28
 
+#define CORE_PIN79_BIT		24
 #define CORE_PIN78_BIT		19
 #define CORE_PIN77_BIT		7
 
@@ -904,6 +905,7 @@
 #define CORE_PIN67_BITMASK	(1<<(CORE_PIN67_BIT))
 #define CORE_PIN68_BITMASK	(1<<(CORE_PIN68_BIT))
 #define CORE_PIN78_BITMASK	(1<<(CORE_PIN78_BIT))
+#define CORE_PIN79_BITMASK	(1<<(CORE_PIN79_BIT))
 
 
 #define CORE_PIN0_PORTREG	GPIOB_PDOR
@@ -976,6 +978,7 @@
 #define CORE_PIN67_PORTREG	GPIOE_PDOR
 #define CORE_PIN68_PORTREG	GPIOE_PDOR
 
+#define CORE_PIN79_PORTREG	GPIOA_PDOR
 #define CORE_PIN78_PORTREG	GPIOC_PDOR
 #define CORE_PIN77_PORTREG	GPIOA_PDOR
 
@@ -1051,6 +1054,7 @@
 #define CORE_PIN68_PORTSET	GPIOE_PSOR
 
 #define CORE_PIN78_PORTSET	GPIOC_PSOR
+#define CORE_PIN79_PORTSET	GPIOA_PSOR
 
 #define CORE_PIN0_PORTCLEAR	GPIOB_PCOR
 #define CORE_PIN1_PORTCLEAR	GPIOB_PCOR
@@ -1123,6 +1127,7 @@
 #define CORE_PIN68_PORTCLEAR	GPIOE_PCOR
 
 #define CORE_PIN78_PORTCLEAR	GPIOC_PCOR
+#define CORE_PIN79_PORTCLEAR	GPIOA_PCOR
 
 #define CORE_PIN0_DDRREG	GPIOB_PDDR
 #define CORE_PIN1_DDRREG	GPIOB_PDDR
@@ -1195,6 +1200,7 @@
 #define CORE_PIN68_DDRREG	GPIOE_PDDR
 
 #define CORE_PIN78_DDRREG	GPIOC_PDDR
+#define CORE_PIN79_DDRREG	GPIOA_PDDR
 
 #define CORE_PIN0_PINREG	GPIOB_PDIR
 #define CORE_PIN1_PINREG	GPIOB_PDIR
@@ -1267,6 +1273,7 @@
 #define CORE_PIN68_PINREG	GPIOE_PDIR
 
 #define CORE_PIN78_PINREG	GPIOC_PDIR
+#define CORE_PIN79_PINREG	GPIOA_PDIR
 
 #define CORE_PIN0_CONFIG	PORTB_PCR16
 #define CORE_PIN1_CONFIG	PORTB_PCR17
@@ -1338,6 +1345,7 @@
 #define CORE_PIN67_CONFIG	PORTE_PCR27
 #define CORE_PIN68_CONFIG	PORTE_PCR28
 
+#define CORE_PIN79_CONFIG	PORTA_PCR24
 #define CORE_PIN78_CONFIG	PORTC_PCR19
 #define CORE_PIN77_CONFIG	PORTA_PCR7
 
@@ -1452,6 +1460,7 @@
 #define CORE_INT68_PIN		68
 
 #define CORE_INT78_PIN		78
+#define CORE_INT79_PIN		79
 
 #define CORE_INT_EVERY_PIN	1
 
@@ -1689,6 +1698,8 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 				CORE_PIN65_PORTSET = CORE_PIN65_BITMASK;
 			} else if (pin == 78) {
 				CORE_PIN78_PORTSET = CORE_PIN78_BITMASK;
+			} else if (pin == 79) {
+				CORE_PIN79_PORTSET = CORE_PIN79_BITMASK;
 			}
 
 			#endif
@@ -1832,6 +1843,8 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 				CORE_PIN65_PORTCLEAR = CORE_PIN65_BITMASK;
 			} else if (pin == 78) {
 				CORE_PIN78_PORTCLEAR = CORE_PIN78_BITMASK;
+			} else if (pin == 79) {
+				CORE_PIN79_PORTCLEAR = CORE_PIN79_BITMASK;
 			}
 			#endif
 		}
@@ -1988,6 +2001,8 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 			return (CORE_PIN65_PINREG & CORE_PIN65_BITMASK) ? 1 : 0;
 		} else if (pin == 78) {
 			return (CORE_PIN78_PINREG & CORE_PIN78_BITMASK) ? 1 : 0;
+		} else if (pin == 79) {
+			return (CORE_PIN79_PINREG & CORE_PIN79_BITMASK) ? 1 : 0;
 		}
 		#endif
 		  else {
