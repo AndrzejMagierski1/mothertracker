@@ -135,7 +135,7 @@ void cDisplay::begin()
 }
 
 elapsedMicros testTimer;
-elapsedMillis refreshTimer;
+static elapsedMillis refreshTimer;
 elapsedMillis seqTimer;
 hControl hTrackControl;
 uint8_t created = 0;

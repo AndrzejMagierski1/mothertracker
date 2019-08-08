@@ -149,6 +149,16 @@ uint8_t cList::update()
 {
 	if(list == nullptr) return 0;
 
+	//int16_t posX = this->posX;
+	int16_t posY = this->posY;
+
+
+	if(style & controlStyleCenterY)
+	{
+		posY = this->posY-(list->linesCount*height)/2;
+	}
+
+
 
 	int16_t  x_pos = posX, y_pos;
 	uint8_t lines;
@@ -158,14 +168,17 @@ uint8_t cList::update()
 
 
 	//tlo listy
-	API_COLOR(colors[3]);
-	API_BLEND_FUNC(DST_ALPHA , ZERO);
-	API_LINE_WIDTH(8);
-	API_BEGIN(RECTS);
-	API_VERTEX2F(posX, posY);
-	API_VERTEX2F(posX+width, posY+(height*list->linesCount));
-	API_END();
-	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+    if(style & controlStyleBackground)
+    {
+		API_COLOR(colors[3]);
+		API_BLEND_FUNC(DST_ALPHA , ZERO);
+		API_LINE_WIDTH(8);
+		API_BEGIN(RECTS);
+		API_VERTEX2F(posX, posY);
+		API_VERTEX2F(posX+width, posY+(height*list->linesCount));
+		API_END();
+		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+    }
 
 
 	if(list->start == listPosition)
@@ -350,7 +363,7 @@ uint8_t cList::update()
     API_LIB_EndCoProList();
 
 
-	return 0;
+	return selfRefresh;
 }
 
 uint8_t cList::memCpy(uint32_t address)

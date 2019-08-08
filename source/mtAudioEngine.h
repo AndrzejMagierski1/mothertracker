@@ -125,6 +125,7 @@ extern int16_t					mods[MAX_TARGET][MAX_MOD];
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;
 extern AudioMixer4              mixerRec;
+extern AudioAnalyzeRMS			rms;
 
 extern AudioRecordQueue		 exportL, exportR;
 

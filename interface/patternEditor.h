@@ -11,6 +11,42 @@ uint8_t isMultiSelection();
 void sendSelection();
 void sendPasteSelection();
 
+const uint8_t fillTypeListCount = 3;
+
+const char fillTypeListLabels[fillTypeListCount][11]=
+{
+		"Constant",
+		"From-To",
+		"Random",
+
+};
+
+const uint8_t fillScaleFilterCount = 2;
+
+const char fillScaleFilterLabels[fillScaleFilterCount][5]=
+{
+		"Yes",
+		"No",
+
+};
+
+const uint8_t fillFxTypeCount = 10;
+
+const char fillFxTypeLabels[fillFxTypeCount][20]=
+{
+		"A - Aaaaaaaa",
+		"B - Bbbbbbbb",
+		"C - Cccccccc",
+		"D - Ddddddd",
+		"E - Eeeeeee",
+		"F - Fffff",
+		"G - Gggggggg",
+		"H - Hhhhhhhhhh",
+		"I - Iiiiiiii",
+		"J - Jjjjjjjj",
+
+};
+
 class cPatternEditor: public cModuleBase
 {
 
@@ -51,9 +87,24 @@ public:
 	void changeActualPatternLength(int16_t value);
 	void changeActualPatternEditStep(int16_t value);
 
+	void changeFillData(int16_t value);
+	void changeFillPlace(int16_t value);
+
 //----------------------------------
 	void activateLabelsBorder();
 
+	void showTempo();
+	void showPattern();
+	void showLength();
+	void showStep();
+
+
+	void showFillPopup();
+	void refreshFillPopup();
+	void hideFillPopup();
+
+
+	void showRandomPopup();
 
 //----------------------------------
 // Funct
@@ -72,13 +123,50 @@ public:
 //----------------------------------
 // GUI
 
+	strPatternPopup fillPopup;
+	strFrameData frameData;
+
 	hControl topLabel[8];
 	hControl bottomLabel[8];
 	hControl patternControl;
+	hControl patternPopupControl;
+	hControl frameControl;
 
 	strLabelData bottomValuesConfig = { 40, 0, 2048UL | 256UL };
 
-	int8_t selectedLabel = 0; // -1 = brak zaznaczenia; labele (0-3 ?)
+	int8_t selectedPlace = -1;
+
+	// parametry
+	char tempo[7];
+	char pattern[5];
+	char length[5];
+	char step[5];
+
+
+	//------------------------------------------------------
+	// fill
+	uint8_t fillState;
+	uint8_t fillPlace;
+	//1
+	strList fillTypeList;
+	char *fillTypeListNames[fillTypeListCount];
+	//4
+	strList fillScaleFilterList;
+	char *fillScaleFilterNames[fillScaleFilterCount];
+	//4
+	strList fillFxTypeList;
+	char *fillFxTypeNames[fillFxTypeCount];
+
+	char fillText1[10];
+	char fillText2[10];
+
+
+	uint16_t lastFillValues[4][4] = {0};
+
+	//------------------------------------------------------
+	// random
+	uint8_t randomState;
+
 
 
 };
