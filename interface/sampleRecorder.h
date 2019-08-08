@@ -90,6 +90,8 @@ public:
 	void showEndPointValue();
 	void showStartPointValue();
 	void showRecTimeValue();
+	void showPreviewValue();
+	void hidePreviewValue();
 	void showFreqValue();
 	void showRadio();
 	void hideRadio();
@@ -143,6 +145,7 @@ public:
 	uint32_t spectrumTimerConstrains = 100;
 	char freqTextValue[6];
 	char recTimeValueText[8];
+	char playTimeValueText[8];
 	char startPointValueText[8];
 	char endPointValueText[8];
 	float recTimeValue;
@@ -172,7 +175,7 @@ public:
 	uint16_t startPoint;
 	uint16_t endPoint = MAX_16BIT;
 
-	uint16_t playProgressValue = 0; // 0 - MAX_16BIT
+	uint32_t playProgressValue = 0; // 0 - MAX_LEN_RECORD
 	uint16_t playProgressInSpectrum = 0; // 0 - 600
 	elapsedMillis playProgresValueTim;
 	elapsedMicros refreshPlayProgressValue;
@@ -262,6 +265,9 @@ uint8_t cropCounter = 0;
 	uint8_t selectionWindowSaveFlag = 0;
 	void showSelectionWindowSave();
 
+	uint8_t fullMemoryDuringRecordFlag = 0;
+	uint8_t fullMemoryWindowFlag = 0;
+	void showSelectionWindowFullMemory();
 };
 
 extern cSampleRecorder sampleRecorder;

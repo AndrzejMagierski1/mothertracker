@@ -602,6 +602,56 @@ void cSampleRecorder::showRecTimeValue()
 	display.refreshControl(topLabel[2]);
 }
 
+void cSampleRecorder::showPreviewValue()
+{
+	float playTimeValue = playProgresValueTim/1000.0;
+	float localEndPoint = (recTimeValue * endPoint) / MAX_16BIT;
+	if(playTimeValue >= (localEndPoint - 0.01)) playTimeValue = localEndPoint;
+	if(playTimeValue > 100)
+	{
+		playTimeValueText[0] = (uint8_t)playTimeValue /100 + 48;
+		playTimeValueText[1] = ((uint8_t)playTimeValue /10)%10 + 48;
+		playTimeValueText[2] = (uint8_t)playTimeValue %10 + 48;
+		playTimeValueText[3] = '.';
+		playTimeValueText[4] = (uint8_t)(((playTimeValue-(uint16_t)playTimeValue)*1000) /100) + 48;
+		playTimeValueText[5] = ((uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) /10)%10 + 48;
+		playTimeValueText[6] = (uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) %10 + 48;
+		playTimeValueText[7] = 's';
+		playTimeValueText[8] = 0;
+	}
+	else if(playTimeValue > 10 && playTimeValue < 100)
+	{
+		playTimeValueText[0] = (uint8_t)playTimeValue /10 + 48;
+		playTimeValueText[1] = (uint8_t)playTimeValue %10 + 48;
+		playTimeValueText[2] = '.';
+		playTimeValueText[3] = (uint8_t)(((playTimeValue-(uint16_t)playTimeValue)*1000) /100) + 48;
+		playTimeValueText[4] = ((uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) /10)%10 + 48;
+		playTimeValueText[5] = (uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) %10 + 48;
+		playTimeValueText[6] = 's';
+		playTimeValueText[7] = 0;
+	}
+	else if(recTimeValue < 10)
+	{
+		playTimeValueText[0] = (uint8_t)playTimeValue %10 + 48;
+		playTimeValueText[1] = '.';
+		playTimeValueText[2] = (uint8_t)(((playTimeValue-(uint16_t)playTimeValue)*1000) /100) + 48;
+		playTimeValueText[3] = ((uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) /10)%10 + 48;
+		playTimeValueText[4] = (uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) %10 + 48;
+		playTimeValueText[5] = 's';
+		playTimeValueText[6] = 0;
+	}
+
+	display.setControlText(topLabel[0], playTimeValueText);
+	display.setControlShow(topLabel[0]);
+	display.refreshControl(topLabel[0]);
+}
+void cSampleRecorder::hidePreviewValue()
+{
+	display.setControlText(topLabel[0]," ");
+	display.setControlShow(topLabel[0]);
+	display.refreshControl(topLabel[0]);
+	Serial.println("refresh top label[0 w hide");
+}
 void cSampleRecorder::showStartPointValue()
 {
 	recTimeValue = recorder.getLength()/44100.0;
@@ -797,8 +847,8 @@ void cSampleRecorder::showSelectionWindow()
 		display.refreshControl(bottomLabel[i]);
 		display.refreshControl(topLabel[i]);
 	}
-	display.setControlText(bottomLabel[3], "Yes");
-	display.setControlText(bottomLabel[4], "No");
+	display.setControlText(bottomLabel[0], "Yes");
+	display.setControlText(bottomLabel[7], "No");
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
@@ -819,13 +869,34 @@ void cSampleRecorder::showSelectionWindowSave()
 		display.refreshControl(bottomLabel[i]);
 		display.refreshControl(topLabel[i]);
 	}
-	display.setControlText(bottomLabel[3], "Yes");
-	display.setControlText(bottomLabel[4], "No");
+	display.setControlText(bottomLabel[0], "Yes");
+	display.setControlText(bottomLabel[7], "No");
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
 	display.setControlText(selectWindowLabel,"This name already exists. Do you want to overwrite it?");
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	display.synchronizeRefresh();
+}
+
+void cSampleRecorder::showSelectionWindowFullMemory()
+{
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.setControlText(topLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+	display.setControlText(bottomLabel[7], "OK");
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlText(selectWindowLabel,"The memory is full. Recording was stopped.");
 	display.setControlShow(selectWindowLabel);
 	display.refreshControl(selectWindowLabel);
 

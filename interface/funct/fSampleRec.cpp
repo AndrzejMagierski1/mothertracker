@@ -158,6 +158,15 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 void cSampleRecorder::update()
 {
+	if(fullMemoryDuringRecordFlag)
+	{
+		fullMemoryDuringRecordFlag = 0;
+		functActionStopRec();
+
+		fullMemoryWindowFlag = 1;
+		showSelectionWindowFullMemory();
+	}
+
 	if(refreshSpectrum)
 	{
 		processSpectrum();
@@ -216,6 +225,7 @@ void cSampleRecorder::update()
 	if(playInProgressFlag)
 	{
 		calcPlayProgressValue();
+		showPreviewValue();
 	}
 
 	changeLevelBar();
@@ -734,7 +744,30 @@ static  uint8_t functSelectButton7()
 
 static  uint8_t functActionButton0(uint8_t s)
 {
-	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->fullMemoryWindowFlag) return 1;
+	if(SR->selectionWindowFlag == 1)
+		{
+			SR->selectionWindowFlag = 0;
+
+			SR->currentScreen = cSampleRecorder::screenTypeConfig;
+			SR->selectedPlace = 0;
+			if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
+			SR->zoomValue = 1.0;
+			SR->showDefaultScreen();
+			SR->activateLabelsBorder();
+
+			return 1;
+		}
+		if(SR->selectionWindowSaveFlag == 1)
+		{
+			SR->selectionWindowSaveFlag = 0;
+			recorder.startSave(SR->name,1);
+			 SR->saveInProgressFlag = 1;
+			 SR->hideKeyboard();
+			 SR->hideKeyboardEditName();
+			 return 1;
+		}
+
 	if(s == 1)
 	{
 		if(SR->currentScreen == cSampleRecorder::screenTypeConfig) functSelectButton0();
@@ -762,7 +795,10 @@ static  uint8_t functActionButton0(uint8_t s)
 
 static  uint8_t functActionButton1()
 {
+	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->selectionWindowSaveFlag == 1) return 1;
+
 	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton1();
 	switch(SR->currentScreen)
 	{
@@ -776,7 +812,10 @@ static  uint8_t functActionButton1()
 
 static  uint8_t functActionButton2()
 {
+	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->selectionWindowSaveFlag == 1) return 1;
+
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
 	{
 		functConfirmKey();
@@ -795,28 +834,10 @@ static  uint8_t functActionButton2()
 
 static  uint8_t functActionButton3()
 {
-	if(SR->selectionWindowFlag == 1)
-	{
-		SR->selectionWindowFlag = 0;
+	if(SR->fullMemoryWindowFlag) return 1;
+	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->selectionWindowSaveFlag == 1) return 1;
 
-		SR->currentScreen = cSampleRecorder::screenTypeConfig;
-		SR->selectedPlace = 0;
-		if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
-		SR->zoomValue = 1.0;
-		SR->showDefaultScreen();
-		SR->activateLabelsBorder();
-
-		return 1;
-	}
-	if(SR->selectionWindowSaveFlag == 1)
-	{
-		SR->selectionWindowSaveFlag = 0;
-		recorder.startSave(SR->name,1);
-		 SR->saveInProgressFlag = 1;
-		 SR->hideKeyboard();
-		 SR->hideKeyboardEditName();
-
-	}
 	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton3();
 	switch(SR->currentScreen)
 	{
@@ -829,6 +850,54 @@ static  uint8_t functActionButton3()
 }
 
 static  uint8_t functActionButton4()
+{
+	if(SR->fullMemoryWindowFlag) return 1;
+	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->selectionWindowSaveFlag == 1) return 1;
+
+	switch(SR->currentScreen)
+	{
+		case cSampleRecorder::screenTypeConfig: break;
+		case cSampleRecorder::screenTypeRecord: 	functActionCrop();				break;
+		case cSampleRecorder::screenTypeKeyboard: break;
+		default: break;
+	}
+	return 1;
+}
+
+static  uint8_t functActionButton5()
+{
+	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->fullMemoryWindowFlag) return 1;
+	if(SR->selectionWindowSaveFlag == 1) return 1;
+	if(SR->currentScreen == cSampleRecorder::screenTypeConfig) functSelectButton5();
+	switch(SR->currentScreen)
+	{
+		case cSampleRecorder::screenTypeConfig: 	functActionGain();				break;
+		case cSampleRecorder::screenTypeRecord:		functActionUndo();				break;
+		case cSampleRecorder::screenTypeKeyboard: break;
+		default: break;
+	}
+	return 1;
+}
+
+static  uint8_t functActionButton6()
+{
+	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->fullMemoryWindowFlag) return 1;
+	if(SR->selectionWindowSaveFlag == 1) return 1;
+	if(SR->currentScreen != cSampleRecorder::screenTypeRecord) functSelectButton6();
+	switch(SR->currentScreen)
+	{
+		case cSampleRecorder::screenTypeConfig: 	functActionMonitor();			break;
+		case cSampleRecorder::screenTypeRecord: 	functActionGoBack();			break;
+		case cSampleRecorder::screenTypeKeyboard: 	functActionGoBack();			break;
+		default: break;
+	}
+	return 1;
+}
+
+static  uint8_t functActionButton7()
 {
 	if(SR->selectionWindowFlag == 1)
 	{
@@ -868,48 +937,17 @@ static  uint8_t functActionButton4()
 		SR->selectionWindowSaveFlag = 0;
 		SR->keyboardActiveFlag = 1;
 		SR->showDefaultScreen();
+		return 1;
 	}
-	switch(SR->currentScreen)
-	{
-		case cSampleRecorder::screenTypeConfig: break;
-		case cSampleRecorder::screenTypeRecord: 	functActionCrop();				break;
-		case cSampleRecorder::screenTypeKeyboard: break;
-		default: break;
-	}
-	return 1;
-}
 
-static  uint8_t functActionButton5()
-{
-	if(SR->selectionWindowFlag == 1) return 1;
-	if(SR->currentScreen == cSampleRecorder::screenTypeConfig) functSelectButton5();
-	switch(SR->currentScreen)
+	if(SR->fullMemoryWindowFlag)
 	{
-		case cSampleRecorder::screenTypeConfig: 	functActionGain();				break;
-		case cSampleRecorder::screenTypeRecord:		functActionUndo();				break;
-		case cSampleRecorder::screenTypeKeyboard: break;
-		default: break;
+		SR->fullMemoryWindowFlag = 0;
+		SR->selectedPlace = 7;
+		SR->showDefaultScreen();
+		SR->activateLabelsBorder();
+		return 1;
 	}
-	return 1;
-}
-
-static  uint8_t functActionButton6()
-{
-	if(SR->selectionWindowFlag == 1) return 1;
-	if(SR->currentScreen != cSampleRecorder::screenTypeRecord) functSelectButton6();
-	switch(SR->currentScreen)
-	{
-		case cSampleRecorder::screenTypeConfig: 	functActionMonitor();			break;
-		case cSampleRecorder::screenTypeRecord: 	functActionGoBack();			break;
-		case cSampleRecorder::screenTypeKeyboard: 	functActionGoBack();			break;
-		default: break;
-	}
-	return 1;
-}
-
-static  uint8_t functActionButton7()
-{
-	if(SR->selectionWindowFlag == 1) return 1;
 	functSelectButton7();
 	switch(SR->currentScreen)
 	{
@@ -987,6 +1025,7 @@ static uint8_t functActionStopPreview()
 	SR->playProgressInSpectrum = 0;
 
 	SR->refreshSpectrumValue = 1;
+	SR->hidePreviewValue();
 	return 1;
 }
 
@@ -1652,7 +1691,6 @@ void cSampleRecorder::calcPlayProgressValue()
 		playProgressValue=0;
 		playProgressInSpectrum = 0;
 		playInProgressFlag = 0;
-
 		refreshSpectrumValue = 1;
 		return;
 	}
@@ -1660,9 +1698,9 @@ void cSampleRecorder::calcPlayProgressValue()
 	{
 		refreshPlayProgressValue = 0;
 
-		playProgressValue = (MAX_16BIT*playProgresValueTim)/localRecTimeValue;
+		playProgressValue = (1000*playProgresValueTim)/localRecTimeValue;
 
-		if(zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
+		if(zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/1000;
 		else if(zoomValue > 1.0)
 		{
 			if(playProgressValue < zoomStart || playProgressValue > zoomEnd) playProgressInSpectrum = 0;
