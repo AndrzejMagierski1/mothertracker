@@ -56,28 +56,28 @@ int Extern_SDRAM_Init(void)
 
 void SDRAM_setSleepMode(void)
 {
-	//todo: wrocic gdy zrezygnojemy z klucza
-	PORTD_PCR7=PORT_PCR_MUX(1); // cke
-//	PORTB_PCR0=PORT_PCR_MUX(1); // cas
-//	PORTB_PCR1=PORT_PCR_MUX(1); // ras
-//	PORTB_PCR2=PORT_PCR_MUX(1);	// we
-	PORTB_PCR3=PORT_PCR_MUX(1); // cs
-
-	GPIOD->PDDR |= GPIO_PDDR_PDD(7);
-	GPIOB->PDDR |= GPIO_PDDR_PDD(3);//(GPIO_PDDR_PDD(0)|GPIO_PDDR_PDD(1)|GPIO_PDDR_PDD(2)|GPIO_PDDR_PDD(3));
-
-	GPIOD->PSOR |= GPIO_PSOR_PTSO(7);
-	GPIOB->PCOR |= GPIO_PCOR_PTCO(3);
-
-	for(int i=0; i<0x4FFFF; i++)
-	{
-	asm("nop");
-	}
-
-	GPIOD->PCOR |= GPIO_PCOR_PTCO(7);
-	GPIOB->PSOR |= GPIO_PSOR_PTSO(3);
-	//GPIOB->PDOR &= ~GPIO_PDOR_PDO(3);
-	//GPIOB->PDOR |= (GPIO_PDOR_PDO(0) | GPIO_PDOR_PDO(1) | GPIO_PDOR_PDO(2) ) ;
+//	//todo: wrocic gdy zrezygnojemy z klucza
+//	PORTD_PCR7=PORT_PCR_MUX(1); // cke
+////	PORTB_PCR0=PORT_PCR_MUX(1); // cas
+////	PORTB_PCR1=PORT_PCR_MUX(1); // ras
+////	PORTB_PCR2=PORT_PCR_MUX(1);	// we
+//	PORTB_PCR3=PORT_PCR_MUX(1); // cs
+//
+//	GPIOD->PDDR |= GPIO_PDDR_PDD(7);
+//	GPIOB->PDDR |= GPIO_PDDR_PDD(3);//(GPIO_PDDR_PDD(0)|GPIO_PDDR_PDD(1)|GPIO_PDDR_PDD(2)|GPIO_PDDR_PDD(3));
+//
+//	GPIOD->PSOR |= GPIO_PSOR_PTSO(7);
+//	GPIOB->PCOR |= GPIO_PCOR_PTCO(3);
+//
+//	for(int i=0; i<0x4FFFF; i++)
+//	{
+//	asm("nop");
+//	}
+//
+//	GPIOD->PCOR |= GPIO_PCOR_PTCO(7);
+//	GPIOB->PSOR |= GPIO_PSOR_PTSO(3);
+//	//GPIOB->PDOR &= ~GPIO_PDOR_PDO(3);
+//	//GPIOB->PDOR |= (GPIO_PDOR_PDO(0) | GPIO_PDOR_PDO(1) | GPIO_PDOR_PDO(2) ) ;
 
 
 
