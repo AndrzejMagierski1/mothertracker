@@ -209,3 +209,129 @@ void BOARD_InitPins(void)
     PORTB_PCR17=PORT_PCR_MUX(5);
 
 }
+
+void BOARD_DeinitPins(void)
+{
+
+    /* PORTA6 (pin M10) is configured as CLKOUT */
+    PORTA_PCR6=PORT_PCR_MUX(0);
+
+    /* PORTB0 (pin G13) is configured as SDRAM_CAS_b */
+    PORTB_PCR0=PORT_PCR_MUX(0);
+
+    /* PORTB1 (pin G12) is configured as SDRAM_RAS_b */
+    PORTB_PCR1=PORT_PCR_MUX(0);
+
+    /* PORTB2 (pin G11) is configured as SDRAM_WE */
+    PORTB_PCR2=PORT_PCR_MUX(0);
+
+    /* PORTB3 (pin G10) is configured as SDRAM_CS0_b */
+    PORTB_PCR3=PORT_PCR_MUX(0);
+
+    /* PORTC16 (pin D7) is configured as SDRAM_DQM2 */
+    PORTC_PCR16=PORT_PCR_MUX(0);
+
+    /* PORTC17 (pin C7) is configured as SDRAM_DQM3 */
+    PORTC_PCR17=PORT_PCR_MUX(0);
+
+    /* PORTD7 (pin E5) is configured as SDRAM_CKE */
+    PORTD_PCR7=PORT_PCR_MUX(0);
+
+
+
+
+    /* PORTB18 (pin D12) is configured as SDRAM_A23 */
+    PORTB_PCR18=PORT_PCR_MUX(0);
+
+    /* PORTC0 (pin B13) is configured as SDRAM_A22 */
+    PORTC_PCR0=PORT_PCR_MUX(0);
+
+    /* PORTC1 (pin B12) is configured as SDRAM_A21 */
+    PORTC_PCR1=PORT_PCR_MUX(0);
+
+    /* PORTC2 (pin A13) is configured as SDRAM_A20 */
+    PORTC_PCR2=PORT_PCR_MUX(0);
+
+    /* PORTC4 (pin B11) is configured as SDRAM_A19 */
+    PORTC_PCR4=PORT_PCR_MUX(0);
+
+    /* PORTC5 (pin A11) is configured as SDRAM_A18 */
+    PORTC_PCR5=PORT_PCR_MUX(0);
+
+    /* PORTC6 (pin A10) is configured as SDRAM_A17 */
+    PORTC_PCR6=PORT_PCR_MUX(0);
+
+    /* PORTC7 (pin B10) is configured as SDRAM_A16 */
+    PORTC_PCR7=PORT_PCR_MUX(0);
+
+    /* PORTC8 (pin C10) is configured as SDRAM_A15 */
+    PORTC_PCR8=PORT_PCR_MUX(0);
+
+    /* PORTC9 (pin C9) is configured as SDRAM_A14 */
+    PORTC_PCR9=PORT_PCR_MUX(0);
+
+    /* PORTC10 (pin A8) is configured as SDRAM_A13 */
+    PORTC_PCR10=PORT_PCR_MUX(0);
+
+    /* PORTD2 (pin A4) is configured as SDRAM_A12 */
+    PORTD_PCR2=PORT_PCR_MUX(0);
+
+    /* PORTD3 (pin B4) is configured as SDRAM_A11 */
+    PORTD_PCR3=PORT_PCR_MUX(0);
+
+    /* PORTD4 (pin B5) is configured as SDRAM_A10 */
+    PORTD_PCR4=PORT_PCR_MUX(0);
+
+    /* PORTD5 (pin C4) is configured as SDRAM_A9 */
+    PORTD_PCR5=PORT_PCR_MUX(0);
+
+
+    /* PORTB20 (pin D10) is configured as SDRAM_D31 */
+    PORTB_PCR20=PORT_PCR_MUX(0);
+
+    /* PORTB21 (pin D9) is configured as SDRAM_D30 */
+    PORTB_PCR21=PORT_PCR_MUX(0);
+
+    /* PORTB22 (pin C13) is configured as SDRAM_D29 */
+    PORTB_PCR22=PORT_PCR_MUX(0);
+
+    /* PORTB23 (pin C12) is configured as SDRAM_D28 */
+    PORTB_PCR23=PORT_PCR_MUX(0);
+
+    /* PORTC12 (pin B9) is configured as SDRAM_D27 */
+    PORTC_PCR12=PORT_PCR_MUX(0);
+
+    /* PORTC13 (pin B8) is configured as SDRAM_D26 */
+    PORTC_PCR13=PORT_PCR_MUX(0);
+
+    /* PORTC14 (pin C8) is configured as SDRAM_D25 */
+    PORTC_PCR14=PORT_PCR_MUX(0);
+
+    /* PORTC15 (pin D8) is configured as SDRAM_D24 */
+    PORTC_PCR15=PORT_PCR_MUX(0);
+
+    /* PORTB6 (pin F12) is configured as SDRAM_D23 */
+    PORTB_PCR6=PORT_PCR_MUX(0);
+
+    /* PORTB7 (pin F11) is configured as SDRAM_D22 */
+    PORTB_PCR7=PORT_PCR_MUX(0);
+
+    /* PORTB8 (pin F10) is configured as SDRAM_D21 */
+    PORTB_PCR8=PORT_PCR_MUX(0);
+
+    /* PORTB9 (pin F9) is configured as SDRAM_D20 */
+    PORTB_PCR9=PORT_PCR_MUX(0);
+
+    /* PORTB10 (pin G9) is configured as SDRAM_D19 */
+    PORTB_PCR10=PORT_PCR_MUX(0);
+
+    /* PORTB11 (pin E13) is configured as SDRAM_D18 */
+    PORTB_PCR11=PORT_PCR_MUX(0);
+
+    /* PORTB16 (pin F8) is configured as SDRAM_D17 */
+    PORTB_PCR16=PORT_PCR_MUX(0);
+
+    /* PORTB17 (pin D13) is configured as SDRAM_D16 */
+    PORTB_PCR17=PORT_PCR_MUX(0);
+
+}
