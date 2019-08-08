@@ -24,7 +24,7 @@ void Recorder:: startRecording(int16_t * addr)
 	recByteSaved = 0;
 }
 
-void Recorder::update()
+uint8_t Recorder::update()
 {
 	if(mode == recorderModeRec )
 	{
@@ -39,8 +39,10 @@ void Recorder::update()
 		{
 			queue.end();
 			mode = recorderModeStop;
+			return 0;
 		}
 	}
+	return 1;
 }
 
 

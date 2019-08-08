@@ -9,7 +9,7 @@ public:
 	void startRecording(int16_t * addr);
 	void stopRecording();
 	void play(uint16_t start, uint16_t stop);
-	void update();
+	uint8_t update();
 	void stop();
 	void trim(uint16_t a, uint16_t b);
 	uint8_t startSave(char * name, uint8_t type = 0);
