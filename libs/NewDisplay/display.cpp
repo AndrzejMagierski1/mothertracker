@@ -135,7 +135,7 @@ void cDisplay::begin()
 }
 
 elapsedMicros testTimer;
-elapsedMillis refreshTimer;
+static elapsedMillis refreshTimer;
 elapsedMillis seqTimer;
 hControl hTrackControl;
 uint8_t created = 0;
@@ -577,9 +577,22 @@ void cDisplay::refreshControl(hControl handle)
 
 	//przeszukaj kolejke
 	uint8_t i = refreshQueueBott;
+	//jesli aktualnie odswiezana - zresetuj proces odswiezania
+	if(refreshQueue[i] == handle)
+	{
+		if(refreshQueueTop != i)
+		{
+			i++;
+			if(i >= controlsRefreshQueueSize) i = 0;
+		}
+	}
+	// przeszukaj reszte kolejki
 	while(i != refreshQueueTop) // ryzykowne ale optymalne
 	{
-		if(handle == refreshQueue[i]) return; // znaleziono w kolejce - wyjdz
+		if(handle == refreshQueue[i])
+		{
+			return; // znaleziono w kolejce - wyjdz
+		}
 		i++;
 		if(i >= controlsRefreshQueueSize) i = 0;
 	}

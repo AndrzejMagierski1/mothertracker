@@ -9,17 +9,23 @@ public:
 	void startRecording(int16_t * addr);
 	void stopRecording();
 	void play(uint16_t start, uint16_t stop);
-	void update();
+	uint8_t update();
 	void stop();
 	void trim(uint16_t a, uint16_t b);
-	void save();
+	uint8_t startSave(char * name, uint8_t type = 0);
+	void updateSave();
+	void stopSave();
+	uint8_t getSaveProgress();
+	uint8_t getSaveState();
+	void undo(int16_t * address, uint32_t length);
 	int16_t * getAddress();
+	int16_t * getStartAddress();
 	uint32_t getLength();
 	uint8_t mode = recorderModeStop;
 private:
 	void writeOutHeader();
 
-	char currentName[SAMPLE_NAME_SIZE];
+	uint32_t saveLength;
 	int16_t * currentAddress;
 	int16_t * startAddress;
 	uint32_t ChunkSize = 0L;

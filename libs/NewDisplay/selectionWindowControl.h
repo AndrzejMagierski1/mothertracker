@@ -1,36 +1,26 @@
 
 
-#ifndef LIBS_NEWDISPLAY_LIST_H_
-#define LIBS_NEWDISPLAY_LIST_H_
+#ifndef LIBS_NEWDISPLAY_SELECTION_WINDOW_H_
+#define LIBS_NEWDISPLAY_SELECTION_WINDOW_H_
 
 #include "displayControls.h"
 
-
-#define LIST_LENGTH_MAX 50
-
-
-struct strList
+struct strSelectWindowData
 {
-	uint16_t start;
-	uint16_t length;
-	uint16_t linesCount;
-
-
-	char** data;
-
-
+	char textButton1[10];
+	char textButton2[10];
+	char secondLine[35];
 };
 
-
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
-class cList: public cDisplayControl
+class cSelectionWindow: public cDisplayControl
 {
 public:
 
-	cList(strControlProperties* properties = nullptr);
-	virtual ~cList();
+	cSelectionWindow(strControlProperties* properties = nullptr);
+	virtual ~cSelectionWindow();
 
 	virtual uint8_t update();
 	virtual uint8_t memCpy(uint32_t address);
@@ -40,26 +30,14 @@ public:
 	virtual void setText(char* text);
 	virtual void setValue(int value);
 	virtual void setColors(uint32_t* colors);
-	virtual void setDefaultColors(uint32_t* colors);
+	virtual void setDefaultColors(uint32_t colors[]);
 	virtual void setData(void* data);
+
+	strSelectWindowData * data = nullptr;
 
 	uint16_t textStyle;
 	int16_t textFont;
-
-	strList* list;
-
-	uint16_t listPosition;
-
-	uint16_t barPos;
-	uint16_t textListPos;
-
-
-
-	int8_t   listAnimationStep = 0;
-
-	uint8_t selfRefresh;
-
-
+	uint8_t fontHight;
 };
 
 

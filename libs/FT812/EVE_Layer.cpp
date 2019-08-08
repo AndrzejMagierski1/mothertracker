@@ -341,7 +341,7 @@ uint8_t EVE_IsCmdFifoEmpty(void)
     }
 */
 
-    if(ReadPointer == 0xFFF || error_counter > 1000)
+    if(ReadPointer == 0xFFF || error_counter > 100000)
     {
     	//Set REG_CPURESET to 1, to hold the co-processor engine in the reset condition
     	//Set REG_CMD_READ and REG_CMD_WRITE to zero

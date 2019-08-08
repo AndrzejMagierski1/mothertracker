@@ -22,6 +22,9 @@
 #include "hidConnection.h"
 #include "sdCardDetect.h"
 
+#include "mtMidi.h"
+
+
 
 
 
@@ -81,12 +84,16 @@ void initHardware()
 
 	Serial.begin(9600);
 
+	pinMode(SI4703_KLUCZ,OUTPUT);
+	digitalWrite(SI4703_KLUCZ,LOW);
+
 	//....................................................
 	//CODEC AUDIO
 
-	RAM_CTRL_PCR = PORT_PCR_MUX(1);
-	RAM_CTRL_GPIO_DDR |= (1 << RAM_CTRL);
-	RAM_CTRL_GPIO_SET = (1 << RAM_CTRL);
+//	RAM_CTRL_PCR = PORT_PCR_MUX(1);
+//	RAM_CTRL_GPIO_DDR |= (1 << RAM_CTRL);
+//	RAM_CTRL_GPIO_SET = (1 << RAM_CTRL);
+
 
 
 
@@ -122,6 +129,8 @@ void initHardware()
 
 	//....................................................
 	//SDRAM
+	pinMode(80,OUTPUT);
+	digitalWrite(80,HIGH);
 	Extern_SDRAM_Init();
 
 	//....................................................
@@ -150,8 +159,9 @@ void initHardware()
 	// ENCODER
 	Encoder.begin(ENC_SWITCH,onButtonChange);
 	//	Encoder.testMode(1);
-	Encoder.setRes(5);
-	Encoder.setSpeedUp(1);
+
+	Encoder.setResolution(24);
+	Encoder.setAcceleration(3);
 
 	//....................................................
 	// Haptic on
@@ -183,7 +193,7 @@ void initHardware()
 
 #ifdef HW_WITH_RADIO
 	radio.powerOn();
-	radio.setVolume(15);
+	radio.setVolume(10);
 #endif
 
 
@@ -200,48 +210,65 @@ void initHardware()
 	hid.set_sendButtonState(hidSendButtonState);
 	sdCardDetector.begin();
 
+	midiInit();
+
 	BlinkLed.blinkOnce();
 
-	pinMode(SI4703_KLUCZ,OUTPUT);
-	digitalWrite(SI4703_KLUCZ,HIGH);
 
 }
 
 void hidSendButtonState(uint16_t button, uint16_t state)
 {
-	if(button < 100)
+	if (button < 100)
 	{
 		onButtonChange(button, state);
 	}
-	else if(button < 102)
+	else if (button < 102)
 	{
-		if(button == 100 && state == 1)
-			onPotChange(0, -1);
-		else if(button == 101 && state == 1)
+		if (button == 100 && state == 1)
+		onPotChange(0, -1);
+		else if (button == 101 && state == 1)
 			onPotChange(0, 1);
 	}
-	else if(button < 103)
+	else if (button < 103)
 	{
 		onButtonChange(33, state);
 	}
 
-
 }
 
 
+elapsedMicros i2cRefreshTimer;
+uint8_t i2c_switch;
+
 void updateHardware()
 {
-	//AnalogInputs.update();
-
 	updateEncoder();
 	Encoder.switchRead();
-	seqButtonsA.update();
-	tactButtons.update();
 
-	//		leds.updateSeq();
-	leds.update_all_leds();
+	if(i2cRefreshTimer > 500)
+	{
+		i2c_switch++;
+		if(i2c_switch >= 3) i2c_switch = 0;
 
+		if (Wire2.done())
+		{
+			if(i2c_switch == 0)
+			{
+				if(!tactButtons.update()) 	i2c_switch++;
+			}
+			if(i2c_switch == 1)
+			{
+				if(!seqButtonsA.update())  	i2c_switch++;
+			}
+			if(i2c_switch == 2)
+			{
+				if(!leds.update_all_leds())	i2c_switch++;
+			}
 
+			if(i2c_switch < 3) i2cRefreshTimer = 0;
+		}
+	}
 
 	display.update();
 	//mtDisplay.updateHaptic();
@@ -251,31 +278,30 @@ void updateHardware()
 	hid.handle();
 	sdCardDetector.update();
 
+	midiUpdate();
 }
 
 elapsedMillis encTimer;
 
 void updateEncoder()
 {
-	if(encTimer > 100)
+	if (encTimer > 100)
 	{
 		encTimer = 0;
 		int32_t encValue = Encoder.read();
-		if(encValue != 0) onPotChange(0,encValue);
+		if (encValue != 0) onPotChange(0, encValue);
 	}
 }
 
-
-
 void TactSwitchRead()
 {
-	if(digitalRead(TACT_SWITCH) == LOW)
+	if (digitalRead(TACT_SWITCH) == LOW)
 	{
-		if(powerSwitchDebounce <= 0 && powerSwitchDebounce > (0-10) )
+		if (powerSwitchDebounce <= 0 && powerSwitchDebounce > (0 - 10))
 		{
 			powerSwitchDebounce--;
 		}
-		else if(powerSwitchDebounce <= 0 && powerSwitchLastState != 1)
+		else if (powerSwitchDebounce <= 0 && powerSwitchLastState != 1)
 		{
 			powerSwitchDebounce = 1;
 			powerSwitchLastState = 1;

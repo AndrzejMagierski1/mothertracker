@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "scales.h"
 #include "mtStructs.h"
+//#include "patternEditor.h"
+//#include "mtfil"
 
 /*
  definicje na potrzeby portu programu na mniejsze seczki
@@ -209,6 +211,16 @@ public:
 
 	struct strPattern
 	{
+
+		struct strFileHeader
+		{
+			char id_file[2];
+			uint16_t type;
+			char version[4];
+			char id_data[4];
+			uint16_t size;
+		} header;
+
 		float tempo = DEFAULT_TEMPO;
 		float swing = DEFAULT_SWING;
 
@@ -286,6 +298,9 @@ public:
 			} step[MAXSTEP + 1];
 
 		} track[8];
+
+		// poniżej nie brać pod uwagę licząc CRC
+		uint32_t crc;
 
 	};
 	struct strSelection
@@ -385,13 +400,11 @@ public:
 	void resetAllLearned(void);
 	void resetLastSendMod(void);
 	//	void set_power_mode(uint8_t mode);
-	void trySwitchBank();
+//	void trySwitchBank();
 
-	void setLoadBank2Ram(uint8_t bank);
 	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 					uint8_t midiOut);
 
-	void switch_bank_with_reset(void);
 
 	void flushNotes();
 	void sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step);
@@ -474,8 +487,8 @@ public:
 		uint16_t rec_intro_timer_max = 48 * 4;
 		uint16_t uStep = 0;
 		uint8_t actualBank = 0;
-		uint8_t bank2change = 0;
-		uint8_t bank2load = 0;
+		//		uint8_t bank2change = 0;
+//		uint8_t bank2load = 0;
 
 		struct strBlink
 		{
@@ -485,7 +498,12 @@ public:
 			bool isOpen = 0;
 		} blink;
 
-		uint8_t jumpNOW = 0;
+		struct strJump
+		{
+			uint8_t jumpNOW = 0;
+			uint8_t nextPattern = 0;
+
+		} jump;
 
 		struct strPlayerTrack
 		{
@@ -570,7 +588,7 @@ public:
 
 	uint8_t * getPatternToSaveToFile()
 	{
-		return (uint8_t *) &seq[0];
+		return (uint8_t *) &seq[player.ramBank];
 	}
 	void saveToFileDone()
 	{
@@ -586,13 +604,16 @@ public:
 
 	uint8_t * getPatternToLoadFromFile()
 	{
-		return (uint8_t *) &seq[0];
+		return (uint8_t *) &seq[!player.ramBank];
 	}
 	void loadFromFileOK()
 	{
+		Serial.println("ok");
 	}
 	void loadFromFileERROR()
 	{
+		loadDefaultBank(0);
+		loadDefaultBank(1);
 	}
 	uint16_t getPatternSize()
 	{
@@ -601,7 +622,12 @@ public:
 
 	strPattern * getPatternToUI()
 	{
-		return &seq[0];
+		return &seq[player.ramBank];
+	}
+
+	void switchNextPatternNow()
+	{
+		player.ramBank = !player.ramBank;
 	}
 
 	void play(void);
@@ -611,7 +637,6 @@ public:
 
 	void insert(strSelection *selection);
 	void insertReversed(strSelection *selection);
-
 
 	// SELECTION
 	void copy(strSelection *from, strSelection *to);
@@ -637,15 +662,12 @@ public:
 	void changeSelectionVolume(int16_t value);
 	void changeSelectionInstrument(int16_t value);
 
-
-
-
 	void clearRow(uint8_t row);
 	void clearRow(uint8_t row, uint8_t bank);
 
 	void copy_row(uint8_t from, uint8_t to);
 
-	void toggleStep(uint8_t, uint8_t);
+//	void toggleStep(uint8_t, uint8_t);
 
 	void addNoteOff(uint8_t note, uint8_t velocity, uint8_t channel,
 					uint8_t midiOut);
@@ -664,10 +686,14 @@ public:
 	void handle_uStep_timer(void);
 
 	void fillRandomNotes(uint8_t step);
-	void transposeSelection(int16_t value);
+	void changeSelectionNote(int16_t value);
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 					uint8_t track);
 	void randomExisting();
+
+	void loadNextPattern(uint8_t patternNumber);
+	void handleNote(byte channel, byte pitch, byte velocity);
+
 
 };
 

@@ -33,10 +33,11 @@ void changePowerState()
 
 void disableAll()
 {
-	audioShield.write(0x30, 0);
+//	audioShield.write(0x30, 0);
 //	leds.setSleep();
 	//mtDisplay.setSleepMode();
-	SDRAM_setSleepMode();
+//	SDRAM_setSleepMode();
+	digitalWrite(80,LOW);
 //todo: sdram...
 
 }
@@ -47,7 +48,13 @@ void powerModeUpdate()
 	{
 		powerChanged=0;
 		if(powerState == powerTypeLow) 				disableAll();
-		else if(powerState == powerTypeNormal) 		setup(); //todo: lepszy bedzie software'owy reset
+		else if(powerState == powerTypeNormal)
+		{
+			pinMode(80,OUTPUT);
+			digitalWrite(80,HIGH);
+			Extern_SDRAM_Init();
+//			setup(); //todo: lepszy bedzie software'owy reset
+		}
 	}
 }
 

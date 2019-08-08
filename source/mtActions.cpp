@@ -18,6 +18,7 @@
 #include "mtExporterWAV.h"
 #include "../old_interface/mtInstrumentEditor.h"
 #include "../old_interface/mtProjectEditor.h"
+#include "mtSleep.h"
 
 extern AudioControlSGTL5000 audioShield;
 
@@ -140,8 +141,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 void onPowerButtonChange(uint8_t value)
 {
 	mtInterface.powerButtonChange(value);
-
-
+	if(value == 1 ) changePowerState();
 //	mtPrint("power button: ");
 //	mtPrintln(value);
 }

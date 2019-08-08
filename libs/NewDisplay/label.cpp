@@ -110,6 +110,7 @@ uint8_t cLabel::update()
 
    // uint16_t text_x = posX, text_y = posY;
     int16_t border_x = posX-2;//, border_y = posY-2;
+    int16_t border_y = posY-2;
 
 	if(style & controlStyleCenterX)
 	{
@@ -117,7 +118,10 @@ uint8_t cLabel::update()
 
 		border_x = posX - (width/2);
 	}
-
+	if(style & controlStyleCenterY)
+	{
+		border_y = posY - (height/2);
+	}
 
 	if(style & controlStyleBackground)
 	{
@@ -129,8 +133,8 @@ uint8_t cLabel::update()
 
 
 		API_BEGIN(RECTS);
-		API_VERTEX2F(border_x , posY);
-		API_VERTEX2F(border_x+width , posY+height);
+		API_VERTEX2F(border_x , border_y);
+		API_VERTEX2F(border_x+width , border_y+height);
 		API_END();
 
 		//text_x = posX + 2;
@@ -143,11 +147,11 @@ uint8_t cLabel::update()
 		API_LINE_WIDTH(32);
 
 		API_BEGIN(LINE_STRIP);
-		API_VERTEX2F(border_x-1 , posY-1);
-		API_VERTEX2F(border_x+width+1 , posY-1);
-		API_VERTEX2F(border_x+width+1 , posY+height+1);
-		API_VERTEX2F(border_x-1 , posY+height+1);
-		API_VERTEX2F(border_x-1 , posY-1);
+		API_VERTEX2F(border_x-1 , border_y-1);
+		API_VERTEX2F(border_x+width+1 , border_y-1);
+		API_VERTEX2F(border_x+width+1 , border_y+height+1);
+		API_VERTEX2F(border_x-1 , border_y+height+1);
+		API_VERTEX2F(border_x-1 , border_y-1);
 		API_END();
 
 		//text_x = posX + 2;
