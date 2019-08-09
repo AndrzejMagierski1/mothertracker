@@ -1838,9 +1838,9 @@ void cSampleRecorder::calcPlayProgressValue()
 	{
 		refreshPlayProgressValue = 0;
 
-		playProgressValue = (1000*playProgresValueTim)/localRecTimeValue;
+		playProgressValue = MAX_16BIT*(playProgresValueTim/(float)localRecTimeValue);
 
-		if(zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/1000;
+		if(zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
 		else if(zoomValue > 1.0)
 		{
 			if(playProgressValue < zoomStart || playProgressValue > zoomEnd) playProgressInSpectrum = 0;
