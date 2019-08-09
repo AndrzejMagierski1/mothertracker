@@ -82,6 +82,9 @@ public:
 	void changeActualStepInstrument(int16_t value);
 	void changeActualStepVolume(int16_t value);
 
+	void focusOnPattern();
+	void unfocusPattern();
+
 	void changeActualTempo(int16_t value);
 	void changeActualPattern(int16_t value);
 	void changeActualPatternLength(int16_t value);
@@ -92,6 +95,7 @@ public:
 
 //----------------------------------
 	void activateLabelsBorder();
+	void activatePopupLabelsBorder();
 
 	void showTempo();
 	void showPattern();
@@ -118,19 +122,28 @@ public:
 	strTrackerPattern trackerPattern;
 
 	uint8_t editMode = 0;
+	uint8_t editParam = 0;
 	uint8_t isSelectingNow = 0;
 
 //----------------------------------
 // GUI
 
-	strPatternPopup fillPopup;
 	strFrameData frameData;
 
 	hControl topLabel[8];
 	hControl bottomLabel[8];
 	hControl patternControl;
-	hControl patternPopupControl;
 	hControl frameControl;
+
+	// popups
+	hControl patternPopupLabel;
+	hControl param1PopupListControl;
+	hControl val1PopupLabel;
+	hControl val2PopupLabel;
+	hControl val3PopupLabel;
+	hControl param2PopupListControl;
+
+
 
 	strLabelData bottomValuesConfig = { 40, 0, 2048UL | 256UL };
 
@@ -145,8 +158,8 @@ public:
 
 	//------------------------------------------------------
 	// fill
-	uint8_t fillState;
-	uint8_t fillPlace;
+	uint8_t fillState = 0;
+	uint8_t fillPlace = 0;
 	//1
 	strList fillTypeList;
 	char *fillTypeListNames[fillTypeListCount];
@@ -159,9 +172,10 @@ public:
 
 	char fillText1[10];
 	char fillText2[10];
-
+	char fillText3[10];
 
 	uint16_t lastFillValues[4][4] = {0};
+	uint16_t lastFillStep = 1;
 
 	//------------------------------------------------------
 	// random
