@@ -16,8 +16,7 @@
 
 #include "mtEffector.h"
 #include "mtExporterWAV.h"
-#include "../old_interface/mtInstrumentEditor.h"
-#include "../old_interface/mtProjectEditor.h"
+
 
 extern AudioControlSGTL5000 audioShield;
 
