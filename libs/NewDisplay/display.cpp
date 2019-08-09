@@ -146,6 +146,13 @@ uint16_t refreshF = 20;
 
 void cDisplay::update()
 {
+
+	if(backlightBrightness != lastBacklightBrightness)
+	{
+		lastBacklightBrightness = backlightBrightness;
+	    EVE_MemWrite8(REG_PWM_DUTY, backlightBrightness);
+	}
+
 	//display_table();
 	//return;
 //=================================================================================================
@@ -163,6 +170,7 @@ void cDisplay::update()
 
 
     static int a = 0;
+
 
 
     if(a)
@@ -627,6 +635,14 @@ void cDisplay::resetControlQueue()
 	updateStep = 0;
 	actualUpdating = nullptr;
 }
+
+void cDisplay::setBacklightBrightness(uint8_t value)
+{
+	//
+	backlightBrightness = value;
+
+}
+
 
 
 

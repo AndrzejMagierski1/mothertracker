@@ -115,6 +115,8 @@ public:
 	void setControlDefaultColors(hControl handle, uint32_t colorsTable[]);
 	void setControlData(hControl handle, void* data);
 
+	void setBacklightBrightness(uint8_t value);
+
 
 private:
 
@@ -140,6 +142,9 @@ private:
 	uint8_t fontsCount = displayFontCount;
 
 	int8_t controls_count = 0;
+
+	uint8_t backlightBrightness;
+	uint8_t lastBacklightBrightness;
 };
 
 
