@@ -2,6 +2,7 @@
 
 #include "sampleRecorder.h"
 #include "mtRecorder.h"
+#include "mtLED.h"
 
 static uint32_t popUpLabelColors[] =
 {
@@ -320,8 +321,7 @@ void cSampleRecorder::showDefaultScreen()
 		calcGainBarVal();
 		drawGainBar();
 
-		display.setControlHide(keyboardControl);
-		display.refreshControl(keyboardControl);
+		hideKeyboard();
 
 		display.setControlHide(editName);
 		display.refreshControl(editName);
@@ -399,11 +399,12 @@ void cSampleRecorder::showDefaultScreen()
 			display.setControlText(bottomLabel[7], "Save");
 		}
 
-		display.setControlHide(keyboardControl);
-		display.refreshControl(keyboardControl);
+		hideKeyboard();
 
 		display.setControlHide(editName);
 		display.refreshControl(editName);
+
+
 	}
 	else if(currentScreen == screenTypeKeyboard)
 	{
@@ -421,6 +422,8 @@ void cSampleRecorder::showDefaultScreen()
 		display.refreshControl(pointsControl);
 
 		showKeyboard();
+		leds.setLED(27, 1, 10);
+		leds.setLED(30, 1, 10);
 
 		showKeyboardEditName();
 
@@ -494,12 +497,37 @@ void cSampleRecorder::showKeyboard()
 	if(keyboardShiftFlag) display.setControlValue(keyboardControl, keyboardPosition + 42);
 	else display.setControlValue(keyboardControl, keyboardPosition);
 
+
+
 	display.setControlShow(keyboardControl);
 	display.refreshControl(keyboardControl);
 }
 
 void cSampleRecorder::hideKeyboard()
 {
+	if(lastPressedPad == 10 || lastPressedPad == 11)
+	{
+		leds.setLED(10, 0, 0);
+		leds.setLED(11, 0, 0);
+	}
+	else if(lastPressedPad == 34 || lastPressedPad == 35)
+	{
+		leds.setLED(34, 0, 0);
+		leds.setLED(35, 0, 0);
+	}
+	else if(lastPressedPad >= 43 && lastPressedPad <=47)
+	{
+		for(uint8_t i = 43; i<= 47; i++)
+		{
+			leds.setLED(i, 0, 0);
+		}
+	}
+	else
+	{
+		leds.setLED(lastPressedPad,0,0);
+	}
+	leds.setLED(27, 0, 0);
+	leds.setLED(30, 0, 0);
 	display.setControlHide(keyboardControl);
 	display.refreshControl(keyboardControl);
 }

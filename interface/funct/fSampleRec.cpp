@@ -5,7 +5,7 @@
 
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
-
+#include "mtLED.h"
 
 enum valueMapDirecion
 {
@@ -98,8 +98,16 @@ constexpr uint8_t valueMapPads[48] =
 {
 	0,1,2,3,4,5,6,7,8,9,10,10,
 	11,12,13,14,15,16,17,18,19,20,21,22,
-	23,24,25,26,27,28,29,39,31,32,33,33,
+	23,24,25,26,27,28,29,30,31,32,33,33,
 	34,35,36,37,38,39,40,41,41,41,41,41
+};
+
+constexpr uint8_t keyPositionToPads[42] =
+{
+	0,1,2,3,4,5,6,7,8,9,10,
+	12,13,14,15,16,17,18,19,20,21,22,23,
+	24,25,26,27,28,29,30,31,32,33,34,
+	36,37,38,39,40,41,42,43
 };
 extern AudioControlSGTL5000 audioShield;
 
@@ -971,13 +979,69 @@ static  uint8_t functActionButton7()
 //==============================================================================================================
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(state == 1)
+	if((state == 1) || (state == 2))
 	{
 		if(SR->keyboardActiveFlag)
 		{
+			if(SR->lastPressedPad == 10 || SR->lastPressedPad == 11) //backspace
+			{
+				leds.setLED(10, 0, 0);
+				leds.setLED(11, 0, 0);
+			}
+			else if(SR->lastPressedPad == 34 || SR->lastPressedPad == 35) //capslock
+			{
+				if(SR->keyboardShiftFlag)
+				{
+					leds.setLED(34, 1, 10);
+					leds.setLED(35, 1, 10);
+				}
+				else
+				{
+					leds.setLED(34, 0, 0);
+					leds.setLED(35, 0, 0);
+				}
+
+			}
+			else if(SR->lastPressedPad >= 43 && SR->lastPressedPad <=47) //space
+			{
+				for(uint8_t i = 43; i<= 47; i++)
+				{
+					leds.setLED(i, 0, 0);
+				}
+			}
+			else
+			{
+				if(SR->lastPressedPad != 27 && SR->lastPressedPad != 30) leds.setLED(SR->lastPressedPad,0,0);
+				else leds.setLED(SR->lastPressedPad,1,10);
+			}
+
+
+			SR->lastPressedPad = pad;
+
+			if(pad == 10 || pad == 11) //backspace
+			{
+				leds.setLED(10, 1, 31);
+				leds.setLED(11, 1, 31);
+			}
+			else if(pad == 34 || pad == 35) //capslock
+			{
+				leds.setLED(34, 1, 31);
+				leds.setLED(35, 1, 31);
+			}
+			else if(pad >= 43 && pad <=47) //space
+			{
+				for(uint8_t i = 43; i<= 47; i++)
+				{
+					leds.setLED(i, 1, 31);
+				}
+			}
+			else
+			{
+				leds.setLED(pad,1,31);
+			}
 
 			SR->keyboardPosition = valueMapPads[pad];
-			SR->showKeyboard();
+
 
 			if(SR->editPosition > 31) return 1;
 			if(smallKeyboard[SR->keyboardPosition] > 1)
@@ -993,7 +1057,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				}
 
 				SR->name[SR->editPosition] = SR->keyboardShiftFlag ? bigKeyboard[SR->keyboardPosition] : smallKeyboard[SR->keyboardPosition];
-
+				SR->name[SR->editPosition + 1] = 0;
 				SR->editPosition++;
 			}
 			else if(smallKeyboard[SR->keyboardPosition] == 0)
@@ -1008,15 +1072,22 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			else if(smallKeyboard[SR->keyboardPosition] == 1)
 			{
 				SR->keyboardShiftFlag = ! SR->keyboardShiftFlag;
-				SR->showKeyboard();
+//				SR->showKeyboard();
 
 			}
-
+			SR->showKeyboard();
 			SR->showKeyboardEditName();
 			return 1;
 		}
 
 		return 1;
+	}
+	else if(state == 0)
+	{
+		if(SR->keyboardActiveFlag)
+		{
+
+		}
 	}
 
 
@@ -1197,7 +1268,9 @@ static  uint8_t functActionSave()
 
 	SR->editPosition = strlen(SR->name);
 	SR->keyboardPosition = 10;
-
+	SR->lastPressedPad = 10;
+	leds.setLED(10, 1, 31);
+	leds.setLED(11, 1, 31);
 	SR->keyboardActiveFlag = 1;
 
 	SR->showDefaultScreen();
@@ -1806,6 +1879,65 @@ static uint8_t functConfirmKey()
 	if(SR->keyboardActiveFlag)
 	{
 		if(SR->editPosition > 31) return 1;
+
+//****************************************************ledy
+		if(SR->lastPressedPad == 10 || SR->lastPressedPad == 11) //backspace
+		{
+			leds.setLED(10, 0, 0);
+			leds.setLED(11, 0, 0);
+		}
+		else if(SR->lastPressedPad == 34 || SR->lastPressedPad == 35) //capslock
+		{
+			if(SR->keyboardShiftFlag)
+			{
+				leds.setLED(34, 1, 10);
+				leds.setLED(35, 1, 10);
+			}
+			else
+			{
+				leds.setLED(34, 0, 0);
+				leds.setLED(35, 0, 0);
+			}
+
+		}
+		else if(SR->lastPressedPad >= 43 && SR->lastPressedPad <=47) //space
+		{
+			for(uint8_t i = 43; i<= 47; i++)
+			{
+				leds.setLED(i, 0, 0);
+			}
+		}
+		else
+		{
+			if(SR->lastPressedPad != 27 && SR->lastPressedPad != 30) leds.setLED(SR->lastPressedPad,0,0);
+			else leds.setLED(SR->lastPressedPad,1,10);
+		}
+
+
+		SR->lastPressedPad = keyPositionToPads[SR->keyboardPosition];
+
+		if(keyPositionToPads[SR->keyboardPosition] == 10 || keyPositionToPads[SR->keyboardPosition] == 11) //backspace
+		{
+			leds.setLED(10, 1, 31);
+			leds.setLED(11, 1, 31);
+		}
+		else if(keyPositionToPads[SR->keyboardPosition] == 34 || keyPositionToPads[SR->keyboardPosition] == 35) //capslock
+		{
+			leds.setLED(34, 1, 31);
+			leds.setLED(35, 1, 31);
+		}
+		else if(keyPositionToPads[SR->keyboardPosition] >= 43 && keyPositionToPads[SR->keyboardPosition] <=47) //space
+		{
+			for(uint8_t i = 43; i<= 47; i++)
+			{
+				leds.setLED(i, 1, 31);
+			}
+		}
+		else
+		{
+			leds.setLED(keyPositionToPads[SR->keyboardPosition],1,31);
+		}
+//////////////////////////////////////
 		if(smallKeyboard[SR->keyboardPosition] > 1)
 		{
 			if(SR->editPosition == 31) return 1;
@@ -1819,6 +1951,7 @@ static uint8_t functConfirmKey()
 			}
 
 			SR->name[SR->editPosition] = SR->keyboardShiftFlag ? bigKeyboard[SR->keyboardPosition] : smallKeyboard[SR->keyboardPosition];
+			SR->name[SR->editPosition + 1] = 0;
 
 			SR->editPosition++;
 		}
@@ -1835,7 +1968,6 @@ static uint8_t functConfirmKey()
 		{
 			SR->keyboardShiftFlag = ! SR->keyboardShiftFlag;
 			SR->showKeyboard();
-
 		}
 
 		SR->showKeyboardEditName();

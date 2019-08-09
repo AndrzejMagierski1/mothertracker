@@ -251,6 +251,9 @@ uint8_t cropCounter = 0;
 	int8_t editPosition;
 	uint8_t keyboardActiveFlag = 0;
 	uint8_t keyboardShiftFlag = 0;
+	uint8_t lastPressedPad;
+
+
 //save
 	uint8_t saveInProgressFlag = 0;
 	uint8_t saveProgress;
