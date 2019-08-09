@@ -630,7 +630,7 @@ void cSampleRecorder::showPreviewValue()
 		playTimeValueText[6] = 's';
 		playTimeValueText[7] = 0;
 	}
-	else if(recTimeValue < 10)
+	else if(playTimeValue < 10)
 	{
 		playTimeValueText[0] = (uint8_t)playTimeValue %10 + 48;
 		playTimeValueText[1] = '.';
@@ -650,7 +650,6 @@ void cSampleRecorder::hidePreviewValue()
 	display.setControlText(topLabel[0]," ");
 	display.setControlShow(topLabel[0]);
 	display.refreshControl(topLabel[0]);
-	Serial.println("refresh top label[0 w hide");
 }
 void cSampleRecorder::showStartPointValue()
 {

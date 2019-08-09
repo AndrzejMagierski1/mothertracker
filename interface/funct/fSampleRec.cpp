@@ -12,7 +12,7 @@ enum valueMapDirecion
 	valueMapDirectionLeft,
 	valueMapDirectionRight,
 	valueMapDirectionUp,
-	valueMapDirectionDown
+	valueMapDirectionDown,
 };
 
 constexpr char smallKeyboard[KEYBOARD_SIZE] =
@@ -62,7 +62,7 @@ constexpr char bigKeyboard[KEYBOARD_SIZE] =
 //		},
 //};
 
-constexpr uint8_t valueMap[4][42] =
+constexpr uint8_t valueMap[5][42] =
 {
 		{
 			0,0,1,2,3,4,5,6,7,8,9,
@@ -91,15 +91,24 @@ constexpr uint8_t valueMap[4][42] =
 			34,35,36,37,38,39,40,41,41,41,41,
 			34,35,36,37,38,39,40,41
 		},
+
 };
 
-
+constexpr uint8_t valueMapPads[48] =
+{
+	0,1,2,3,4,5,6,7,8,9,10,10,
+	11,12,13,14,15,16,17,18,19,20,21,22,
+	23,24,25,26,27,28,29,39,31,32,33,33,
+	34,35,36,37,38,39,40,41,41,41,41,41
+};
 extern AudioControlSGTL5000 audioShield;
 
 cSampleRecorder sampleRecorder;
 static cSampleRecorder* SR = &sampleRecorder;
 
 extern strMtProject mtProject;
+
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
@@ -242,6 +251,7 @@ void cSampleRecorder::start(uint32_t options)
 	   sequencer.stop();
 	}
 
+	FM->setPadsGlobal(functPads);
 
 	processSpectrum();
 	processPoints();
@@ -959,6 +969,63 @@ static  uint8_t functActionButton7()
 	return 1;
 }
 //==============================================================================================================
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
+{
+	if(state == 1)
+	{
+		if(SR->keyboardActiveFlag)
+		{
+
+			SR->keyboardPosition = valueMapPads[pad];
+			SR->showKeyboard();
+
+			if(SR->editPosition > 31) return 1;
+			if(smallKeyboard[SR->keyboardPosition] > 1)
+			{
+				if(SR->editPosition == 31) return 1;
+				uint8_t localNameLen = strlen(SR->name);
+				if(SR->editPosition < localNameLen)
+				{
+					for(uint8_t i = localNameLen; i >= SR->editPosition ; i-- )
+					{
+						SR->name[i+1] = SR->name[i];
+					}
+				}
+
+				SR->name[SR->editPosition] = SR->keyboardShiftFlag ? bigKeyboard[SR->keyboardPosition] : smallKeyboard[SR->keyboardPosition];
+
+				SR->editPosition++;
+			}
+			else if(smallKeyboard[SR->keyboardPosition] == 0)
+			{
+				if(SR->editPosition == 0 ) return 1;
+
+				SR->name[SR->editPosition-1] = 0;
+				SR->editPosition--;
+
+
+			}
+			else if(smallKeyboard[SR->keyboardPosition] == 1)
+			{
+				SR->keyboardShiftFlag = ! SR->keyboardShiftFlag;
+				SR->showKeyboard();
+
+			}
+
+			SR->showKeyboardEditName();
+			return 1;
+		}
+
+		return 1;
+	}
+
+
+
+
+	return 1;
+}
+
+
 static uint8_t functActionSource()
 {
 	return 1;
