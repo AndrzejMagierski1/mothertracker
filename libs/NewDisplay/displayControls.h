@@ -21,15 +21,18 @@ enum controlsStyle
 	controlStyleRightX 	= 16,
 
 	controlStyleShowValue	= 32,
+	controlStyleManualText	= 64,
+
 
 	controlStyleFont1 	= 256,
 	controlStyleFont2 	= 512,
 	controlStyleFont3 	= 1024,
 	controlStyleFont4 	= 1280,
 
-	controlStyleBorder 			= 4096,
-	controlStyleBackground 		= 8192,
-	controlStyleRoundedBorder 	= 16384,
+	controlStyleBorder 			= (1<<12),
+	controlStyleBackground 		= (1<<13),
+	controlStyleRoundedBorder 	= (1<<14),
+	controlStyleNoTransparency 	= (1<<15),
 
 	controlStyleValueLeftRight_100_100 	= (1<<16),
 	controlStyleValueLeftRight_24_24 	= (1<<17),
