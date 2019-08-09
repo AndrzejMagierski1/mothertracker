@@ -28,6 +28,10 @@ const uint8_t INSTRUMENTS_COUNT =        		48;
 const uint8_t PATTERNS_COUNT 	=				32;
 const uint8_t PATTERN_LENGTH_MAX 	=			255;
 
+const uint8_t PATTERN_INDEX_MIN 	=			0;
+const uint8_t PATTERN_INDEX_MAX 	=			255;
+
+
 
 const uint8_t PATTERN_EDIT_STEP_MAX 	=		10;
 

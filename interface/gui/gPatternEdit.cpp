@@ -164,7 +164,8 @@ void cPatternEditor::showTempo()
 
 void cPatternEditor::showPattern()
 {
-	display.setControlText(topLabel[1], "1");
+	sprintf(pattern,"%d", mtProject.values.actualPattern+1);
+	display.setControlText(topLabel[1], pattern);
 	display.refreshControl(topLabel[1]);
 }
 
