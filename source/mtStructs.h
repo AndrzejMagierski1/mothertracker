@@ -28,6 +28,14 @@ const uint8_t INSTRUMENTS_COUNT =        		48;
 const uint8_t PATTERNS_COUNT 	=				32;
 const uint8_t PATTERN_LENGTH_MAX 	=			255;
 
+const uint8_t PATTERN_INDEX_MIN 	=			0;
+const uint8_t PATTERN_INDEX_MAX 	=			255;
+
+
+
+
+
+
 
 const uint8_t PATTERN_EDIT_STEP_MAX 	=		10;
 
@@ -296,6 +304,12 @@ enum modyficators
 	sumOfAll = MAX_MOD
 };
 
+enum enSongmode
+{
+	SONGMODE_PATTERN,
+	SONGMODE_SONG,
+};
+
 //=====================================================================
 //-------------------------------------------------
 //-------------------------------------------------
@@ -393,10 +407,16 @@ struct strMtProjectRemote
 	struct strPaternFile
 	{
 		int8_t index= -1;
-		char name[PATTERN_NAME_SIZE];
+//		char name[PATTERN_NAME_SIZE];
 	} patternFile[PATTERNS_COUNT];
 
-	int8_t song[SONG_MAX];
+	struct strSong
+	{
+		int16_t playlist[SONG_MAX];
+		int8_t mode = SONGMODE_PATTERN;
+		int8_t playlistPos = 0;
+	} song;
+
 
 	strMtValues values;
 

@@ -152,8 +152,11 @@ void initHardware()
 	Encoder.begin(ENC_SWITCH,onButtonChange);
 	//	Encoder.testMode(1);
 
+
+
 	Encoder.setResolution(24);
 	Encoder.setAcceleration(3);
+
 
 	//....................................................
 	// Haptic on
@@ -223,13 +226,16 @@ void hidSendButtonState(uint16_t button, uint16_t state)
 }
 
 
+
 elapsedMicros i2cRefreshTimer;
 uint8_t i2c_switch;
+
 
 void updateHardware()
 {
 	updateEncoder();
 	Encoder.switchRead();
+
 
 	if(i2cRefreshTimer > 500)
 	{

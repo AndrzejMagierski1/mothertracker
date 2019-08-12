@@ -180,6 +180,7 @@ uint8_t cList::update()
 		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
     }
 
+
 	if(list->start == listPosition)
 	{
 		// geneorwanie poczatkowego menu

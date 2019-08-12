@@ -625,6 +625,9 @@ void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_
 
 void FileManager::importPatternToProject(char* filePatch, char* name, int8_t index)
 {
+//	TODO: funkcja do przebudowy albo wywalenia
+	return;
+
 	char currentPatch[PATCH_SIZE];
 	FsFile file;
 	FsFile copy;
@@ -638,9 +641,9 @@ void FileManager::importPatternToProject(char* filePatch, char* name, int8_t ind
 		cnt++;
 	}
 	mtProject.mtProjectRemote.patternFile[cnt].index=index;
-	strcpy(mtProject.mtProjectRemote.patternFile[cnt].name,"pattern_00.mtp");
-	mtProject.mtProjectRemote.patternFile[cnt].name[11] = ((index-index%10)/10) + 48;
-	mtProject.mtProjectRemote.patternFile[cnt].name[12] = index%10 + 48;
+//	strcpy(mtProject.mtProjectRemote.patternFile[cnt].name,"pattern_00.mtp");
+//	mtProject.mtProjectRemote.patternFile[cnt].name[11] = ((index-index%10)/10) + 48;
+//	mtProject.mtProjectRemote.patternFile[cnt].name[12] = index%10 + 48;
 
 	if(filePatch!= NULL)
 	{
@@ -656,7 +659,7 @@ void FileManager::importPatternToProject(char* filePatch, char* name, int8_t ind
 
 	strcpy(currentPatch,currentProjectPatch);
 	strcat(currentPatch,"/patterns/");
-	strcat(currentPatch,mtProject.mtProjectRemote.patternFile[cnt].name);
+//	strcat(currentPatch,mtProject.mtProjectRemote.patternFile[cnt].name);
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 	copy= SD.open(currentPatch,FILE_WRITE);
 
@@ -720,13 +723,15 @@ void FileManager::importProject(char* sourceProjectPatch,char* name, char* newNa
 		if(mtProject.mtProjectRemote.patternFile[i].index != -1)
 		{
 			mtProject.patterns_count++;
-			importInstrumentToProject(currentPatch,mtProject.mtProjectRemote.patternFile[i].name,mtProject.mtProjectRemote.patternFile[i].index);
+//			importInstrumentToProject(currentPatch,mtProject.mtProjectRemote.patternFile[i].name,mtProject.mtProjectRemote.patternFile[i].index);
 		}
 	}
 }
 
 uint8_t FileManager::saveAsProject(char* name)
 {
+//	TODO: saveAs i save muszą się wywoływać wzajemnie
+	return 0;
 	char currentPatch [PATCH_SIZE];
 	if(createNewProject(name) == 2) return 2;
 
@@ -765,14 +770,15 @@ uint8_t FileManager::saveAsProject(char* name)
 			if(mtProject.mtProjectRemote.patternFile[i].index == mtProject.values.actualPattern)
 			{
 				strcat(currentPatch,"/patterns/");
-				strcat(currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
+//				strcat(currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
 				writePatternFile(currentPatch);
 
 				memset(currentPatch,0,PATCH_SIZE);
 				strcpy(currentPatch,"Projects/");
 				strcat(currentPatch,name);
 			}
-			copyPattern(currentProjectPatch, mtProject.mtProjectRemote.patternFile[i].name,currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
+//			TODO:
+//			copyPattern(currentProjectPatch, mtProject.mtProjectRemote.patternFile[i].name,currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
 		}
 	}
 	memset(currentPatch,0,PATCH_SIZE);
@@ -913,10 +919,10 @@ void FileManager::createEmptyTemplateProject(char * name)
 {
 	char patchFolder[PATCH_SIZE];
 
-	memset(mtProject.mtProjectRemote.song,-1,SONG_MAX);
-	mtProject.mtProjectRemote.song[0]=0;
+	memset(mtProject.mtProjectRemote.song.playlist,-1,SONG_MAX);
+	mtProject.mtProjectRemote.song.playlist[0]=0;
 	mtProject.mtProjectRemote.patternFile[0].index=0;
-	strcpy(mtProject.mtProjectRemote.patternFile[0].name,"pattern_00.mtp");
+//	strcpy(mtProject.mtProjectRemote.patternFile[0].name,"pattern_00.mtp");
 
 
 	strcpy(currentProjectPatch,"Templates/");
@@ -949,7 +955,7 @@ void FileManager::createEmptyTemplateProject(char * name)
 	strcpy(patchFolder,"Templates/");
 	strcat(patchFolder,name);
 	strcat(patchFolder,"/patterns/");
-	strcat(patchFolder,mtProject.mtProjectRemote.patternFile[0].name);
+//	strcat(patchFolder,mtProject.mtProjectRemote.patternFile[0].name);
 
 	mtProject.patterns_count++;
 	writePatternFile(patchFolder);
@@ -1059,43 +1065,43 @@ void FileManager:: addInstrumentToProject (int8_t index)
 
 void FileManager:: addPatternToProject (int8_t index)
 {
-	char currentPatch[PATCH_SIZE];
-	uint8_t cnt=0;
-	while((mtProject.mtProjectRemote.patternFile[cnt].index != index) && (cnt < PATTERNS_COUNT) )
-	{
-		cnt++;
-	}
-	if(cnt != PATTERNS_COUNT)
-	{
-		mtProject.mtProjectRemote.patternFile[cnt].index=-1;
-		memset(mtProject.mtProjectRemote.patternFile[cnt].name,0,PATTERN_NAME_SIZE);
-	}
-	cnt=0;
-	while((mtProject.mtProjectRemote.patternFile[cnt].index != -1) && (cnt < PATTERNS_COUNT) )
-	{
-		cnt++;
-	}
-	mtProject.mtProjectRemote.patternFile[cnt].index=index;
-	strcpy(mtProject.mtProjectRemote.patternFile[cnt].name,"pattern_00.mti");
-	mtProject.mtProjectRemote.patternFile[cnt].name[8] = ((index-index%10)/10) + 48;
-	mtProject.mtProjectRemote.patternFile[cnt].name[9] = index%10 + 48;
-
-	mtProject.patterns_count++;
-
-	memset(currentPatch,0,PATCH_SIZE);
-	strcpy(currentPatch,currentProjectPatch);
-	strcat(currentPatch,"/patterns/");
-	strcat(currentPatch,mtProject.mtProjectRemote.patternFile[cnt].name);
-
-	if(SD.exists(currentPatch)) SD.remove(currentPatch);
-
-	writePatternFile(currentPatch);
-
-	memset(currentPatch,0,PATCH_SIZE);
-	strcpy(currentPatch,currentProjectPatch);
-	strcat(currentPatch,"/project.bin");
-
-	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
+//	char currentPatch[PATCH_SIZE];
+//	uint8_t cnt=0;
+//	while((mtProject.mtProjectRemote.patternFile[cnt].index != index) && (cnt < PATTERNS_COUNT) )
+//	{
+//		cnt++;
+//	}
+//	if(cnt != PATTERNS_COUNT)
+//	{
+//		mtProject.mtProjectRemote.patternFile[cnt].index=-1;
+////		memset(mtProject.mtProjectRemote.patternFile[cnt].name,0,PATTERN_NAME_SIZE);
+//	}
+//	cnt=0;
+//	while((mtProject.mtProjectRemote.patternFile[cnt].index != -1) && (cnt < PATTERNS_COUNT) )
+//	{
+//		cnt++;
+//	}
+//	mtProject.mtProjectRemote.patternFile[cnt].index=index;
+//	strcpy(mtProject.mtProjectRemote.patternFile[cnt].name,"pattern_00.mti");
+//	mtProject.mtProjectRemote.patternFile[cnt].name[8] = ((index-index%10)/10) + 48;
+//	mtProject.mtProjectRemote.patternFile[cnt].name[9] = index%10 + 48;
+//
+//	mtProject.patterns_count++;
+//
+//	memset(currentPatch,0,PATCH_SIZE);
+//	strcpy(currentPatch,currentProjectPatch);
+//	strcat(currentPatch,"/patterns/");
+//	strcat(currentPatch,mtProject.mtProjectRemote.patternFile[cnt].name);
+//
+//	if(SD.exists(currentPatch)) SD.remove(currentPatch);
+//
+//	writePatternFile(currentPatch);
+//
+//	memset(currentPatch,0,PATCH_SIZE);
+//	strcpy(currentPatch,currentProjectPatch);
+//	strcat(currentPatch,"/project.bin");
+//
+//	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 }
 
 void FileManager::deleteSample(int8_t index)
@@ -1178,19 +1184,19 @@ void FileManager::deletePattern(int8_t index)
 
 	for(uint8_t i=0;i<SONG_MAX; i++)
 	{
-		if(i == index) mtProject.mtProjectRemote.song[i] = -1;
+		if(i == index) mtProject.mtProjectRemote.song.playlist[i] = -1;
 	}
 
 
 	memset(currentPatch,0,PATCH_SIZE);
 	strcpy(currentPatch,currentProjectPatch);
 	strcat(currentPatch,"/patterns/");
-	strcat(currentPatch,mtProject.mtProjectRemote.patternFile[cnt].name);
+//	strcat(currentPatch,mtProject.mtProjectRemote.patternFile[cnt].name);
 
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 
 	mtProject.mtProjectRemote.patternFile[cnt].index=-1;
-	memset(mtProject.mtProjectRemote.patternFile[cnt].name,0,PATTERN_NAME_SIZE);
+//	memset(mtProject.mtProjectRemote.patternFile[cnt].name,0,PATTERN_NAME_SIZE);
 
 	mtProject.patterns_count--;
 
