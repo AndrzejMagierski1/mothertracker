@@ -549,7 +549,7 @@ void cTracker::refresh5()
 		y = 1;
 
 		API_COLOR(0x000000);
-		API_LINE_WIDTH(12);
+		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(x, y);
 		API_VERTEX2F(x+20, y+20);

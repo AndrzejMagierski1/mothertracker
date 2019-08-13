@@ -156,7 +156,7 @@ uint8_t cPoints::update()
 		//tlo start - end
 		API_COLOR(colors[1]);
 		API_BLEND_FUNC(SRC_ALPHA, ONE);
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F((points->startPoint >= 0) ? start : posX, posY);
 		API_VERTEX2F((points->endPoint >= 0) ? end : posX+width, posY+height);
@@ -171,7 +171,7 @@ uint8_t cPoints::update()
 		// tlo loop
 		API_COLOR(colors[1]);
 		API_BLEND_FUNC(SRC_ALPHA, ONE);
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F((points->loopPoint1 >= 0) ? loop1 : posX, posY);
 		API_VERTEX2F((points->loopPoint2 >= 0) ? loop2 : posX+width, posY+height);

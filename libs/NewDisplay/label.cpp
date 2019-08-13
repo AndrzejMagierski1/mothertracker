@@ -115,8 +115,8 @@ uint8_t cLabel::update()
 	//API_COLOR_A(128);
 
    // uint16_t text_x = posX, text_y = posY;
-    int16_t border_x = posX-2;//, border_y = posY-2;
-    int16_t border_y = posY-2;
+    int16_t border_x = posX;//, border_y = posY-2;
+    int16_t border_y = posY;
 
 	if(style & controlStyleCenterX)
 	{
@@ -131,7 +131,7 @@ uint8_t cLabel::update()
 
 	if(style & controlStyleBackground)
 	{
-		if(style & controlStyleBackground)
+		if(style & controlStyleNoTransparency)
 		{
 			API_BLEND_FUNC(SRC_ALPHA, ZERO);
 		}
@@ -139,14 +139,14 @@ uint8_t cLabel::update()
 		API_COLOR(colors[1]);
 
 		if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
-		else API_LINE_WIDTH(8);
+		else API_LINE_WIDTH(16);
 
 		API_BEGIN(RECTS);
 		API_VERTEX2F(border_x , border_y);
 		API_VERTEX2F(border_x+width , border_y+height);
 		API_END();
 
-		if(style & controlStyleBackground)
+		if(style & controlStyleNoTransparency)
 		{
 			API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 		}
@@ -199,11 +199,11 @@ uint8_t cLabel::update()
 	}
 	else
 	{
-		if(text != nullptr) API_CMD_TEXT(posX, posY+5, textFont, textStyle, text);
+		if(text != nullptr) API_CMD_TEXT(posX, posY, textFont, textStyle, text);
 	}
 
 
-	if(style & controlStyleShowValue) API_CMD_NUMBER(posX+data->xValue, posY+5+data->yValue, textFont, data->styleValue, value);
+	if(style & controlStyleShowValue) API_CMD_NUMBER(posX+data->xValue, posY+data->yValue, textFont, data->styleValue, value);
 
 
 

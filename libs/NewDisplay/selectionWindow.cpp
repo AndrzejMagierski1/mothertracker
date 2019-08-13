@@ -149,7 +149,7 @@ uint8_t cSelectionWindow::update()
 //****************************************************** main window
 		API_COLOR(colors[0]);
 
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(frameX+1, frameY+1);
 		API_VERTEX2F(frameX+frameWidth-1, frameY+frameHeight-1);
@@ -157,7 +157,7 @@ uint8_t cSelectionWindow::update()
 
 		API_COLOR(colors[1]);
 
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2F(frameX, frameY);
 		API_VERTEX2F(frameX+frameWidth, frameY);
@@ -170,7 +170,7 @@ uint8_t cSelectionWindow::update()
 		if(value == 0) API_COLOR(colors[5]);
 		else API_COLOR(colors[2]);
 
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(button1X+1, button1Y+1);
 		API_VERTEX2F(button1X+button1Width-1, button1Y+button1Height-1);
@@ -180,7 +180,7 @@ uint8_t cSelectionWindow::update()
 		if(value == 0) API_COLOR(colors[6]);
 		else API_COLOR(colors[3]);
 
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2F(button1X, button1Y);
 		API_VERTEX2F(button1X+button1Width, button1Y);
@@ -195,7 +195,7 @@ uint8_t cSelectionWindow::update()
 		if(value == 0) API_COLOR(colors[2]);
 		else API_COLOR(colors[5]);
 
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(button2X+1, button2Y+1);
 		API_VERTEX2F(button2X+button2Width-1, button2Y+button2Height-1);
@@ -204,7 +204,7 @@ uint8_t cSelectionWindow::update()
 		if(value == 0) API_COLOR(colors[3]);
 		else API_COLOR(colors[6]);
 
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2F(button2X, button2Y);
 		API_VERTEX2F(button2X+button2Width, button2Y);

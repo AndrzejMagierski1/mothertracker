@@ -118,7 +118,7 @@ uint8_t cFrame::update()
 
 
 	if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
-	else API_LINE_WIDTH(8);
+	else API_LINE_WIDTH(16);
 
 
 	if(style & controlStyleBackground)

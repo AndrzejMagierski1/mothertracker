@@ -172,7 +172,7 @@ uint8_t cList::update()
     {
 		API_COLOR(colors[3]);
 		API_BLEND_FUNC(DST_ALPHA , ZERO);
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(posX, posY);
 		API_VERTEX2F(posX+width, posY+(height*list->linesCount));

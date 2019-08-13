@@ -126,7 +126,7 @@ uint8_t cEdit::update()
 	if(style & controlStyleBackground)
 	{
 		if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
-		else API_LINE_WIDTH(8);
+		else API_LINE_WIDTH(16);
 
 		API_COLOR(colors[1]);
 
