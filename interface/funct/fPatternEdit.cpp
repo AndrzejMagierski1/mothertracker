@@ -14,18 +14,36 @@ static  cPatternEditor* PTE = &patternEditor;
 
 extern strMtProject mtProject;
 
-static  uint8_t functPlayAction();
-static  uint8_t functRecAction();
-static  uint8_t functPasteInsert();
-static  uint8_t functCopyDelete();
 
 static  uint8_t functChangeTempo();
 static  uint8_t functChangePattern();
 static  uint8_t functChangePatternLength();
 static  uint8_t functChangePatternEditStep();
 
+static  uint8_t functNote();
+static  uint8_t functInstrument();
+static  uint8_t functVolume();
+static  uint8_t functFx();
+
 static  uint8_t functFill();
-static  uint8_t functRandom();
+static  uint8_t functFillCancel();
+static  uint8_t functFillApply();
+static  uint8_t functFillChangeType();
+static  uint8_t functFillChangeParam1();
+static  uint8_t functFillChangeParam2();
+static  uint8_t functFillChangeParam3();
+static  uint8_t functFillChangeParam4();
+
+
+static  uint8_t functRandomise();
+static  uint8_t functRandomiseCancel();
+static  uint8_t functRandomiseApply();
+static  uint8_t functRandomiseChangeType();
+static  uint8_t functRandomiseChangeParam1();
+static  uint8_t functRandomiseChangeParam2();
+static  uint8_t functRandomiseChangeParam3();
+static  uint8_t functRandomiseChangeParam4();
+
 static  uint8_t functInvert();
 
 
@@ -35,24 +53,14 @@ static  uint8_t functUp();
 static  uint8_t functDown();
 
 
-static  uint8_t functNote();
-static  uint8_t functInstrument();
-static  uint8_t functVolume();
-static  uint8_t functFx();
-
-
-static  uint8_t functFillHide();
-static  uint8_t functFillApply();
-static  uint8_t functFillChangeType();
-static  uint8_t functFillChangeParam1();
-static  uint8_t functFillChangeParam2();
-static  uint8_t functFillChangeParam3();
-static  uint8_t functFillChangeParam4();
-
-
-
 static  uint8_t functEnter();
 static  uint8_t functShift(uint8_t state);
+
+
+static  uint8_t functPlayAction();
+static  uint8_t functRecAction();
+static  uint8_t functPasteInsert();
+static  uint8_t functCopyDelete();
 
 
 static  uint8_t functEncoder(int16_t value);
@@ -61,6 +69,7 @@ static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
 
 
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 
 char getHexFromInt(int16_t val, uint8_t index);
@@ -119,12 +128,16 @@ void cPatternEditor::start(uint32_t options)
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
+	refreshEditState();
+
 	focusOnPattern();
 }
 
 void cPatternEditor::stop()
 {
 	if(fillState) fillState = 0;
+	if(randomiseState) randomiseState = 0;
+
 
 	for(uint8_t i = 0; i < 48; i++)
 	{
@@ -167,9 +180,9 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton3, buttonPress, functChangePatternEditStep);
 
 
-	FM->setButtonObj(interfaceButton4, buttonPress, functFill);
-	FM->setButtonObj(interfaceButton5, buttonPress, functRandom);
-	FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
+	//FM->setButtonObj(interfaceButton4, buttonPress, functFill);
+	//FM->setButtonObj(interfaceButton5, buttonPress, functRandom);
+	//FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
 	//FM->setButtonObj(interfaceButton7, buttonPress, );
 
 
@@ -181,6 +194,7 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
 
+	FM->setPadsGlobal(functPads);
 
 
 }
@@ -500,6 +514,41 @@ void cPatternEditor::changeActualPatternEditStep(int16_t value)
 }
 
 
+void cPatternEditor::refreshEditState()
+{
+	if(editMode)
+	{
+		trackerPattern.selectState = 1;
+
+		showEditModeLabels();
+
+		focusOnActual();
+
+		focusOnPattern();
+
+		FM->setButtonObj(interfaceButton4, buttonPress, functFill);
+		FM->setButtonObj(interfaceButton5, buttonPress, functRandomise);
+		FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
+
+
+	}
+	else
+	{
+		trackerPattern.selectState = 0;
+
+		hideEditModeLabels();
+
+		FM->clearButtonsRange(interfaceButton4, interfaceButton7);
+
+
+
+	}
+
+
+	display.refreshControl(patternControl);
+
+}
+
 void cPatternEditor::changeFillData(int16_t value)
 {
 	if(fillPlace < 0 && fillPlace > 7)
@@ -513,25 +562,25 @@ void cPatternEditor::changeFillData(int16_t value)
 	switch(fillPlace)
 	{
 	case 0:
-		ptrVal = &lastFillValues[editParam][0];
+		ptrVal = &fillData[editParam].type;
 		max = fillTypeList.length - 1;
 		//value = value*(-1);
 		break;
-
 	case 1:
-	case 2:
-		ptrVal = &lastFillValues[editParam][fillPlace];
+		ptrVal = &fillData[editParam].from;
 		max = (trackerPattern.selectedParam == 1 ? 48 : 127);
 		break;
-
+	case 2:
+		ptrVal = &fillData[editParam].to;
+		max = (editParam == 1 ? 48 : 127);
+		break;
 	case 3:
-		ptrVal = &lastFillValues[editParam][0];
-		max = fillTypeList.length - 1;
+		ptrVal = &fillData[editParam].param;
+		max = (editParam == 0 ? fillScaleFilterCount-1 : fillFxTypeCount-1);
 		//value = value*(-1);
 		break;
-
 	case 5:
-		ptrVal = &lastFillStep;
+		ptrVal = &fillStep;
 		max = PATTERN_EDIT_STEP_MAX;
 		break;
 
@@ -543,9 +592,15 @@ void cPatternEditor::changeFillData(int16_t value)
 	else if(*ptrVal + value > max) *ptrVal = max;
 	else *ptrVal += value;
 
-	refreshFillPopup();
-
-
+	switch(fillPlace)
+	{
+		case 0:  refreshFillType(); break;
+		case 1:  refreshFillFrom(); break;
+		case 2:  refreshFillTo(); break;
+		case 3:  refreshFillParam(); break;
+		case 5:  refreshFillStep(); break;
+		default: return;
+	}
 }
 
 
@@ -678,8 +733,9 @@ static  uint8_t functLeft()
 	{
 		if(PTE->fillPlace > 0)
 		{
-			PTE->fillPlace--;
-			PTE->activatePopupLabelsBorder();
+			if(PTE->fillPlace == 5) PTE->fillPlace -= 2;
+			else PTE->fillPlace--;
+			PTE->activateFillPopupBorder();
 		}
 		return 1;
 	}
@@ -732,10 +788,11 @@ static  uint8_t functRight()
 {
 	if(PTE->fillState > 0)
 	{
-		if(PTE->fillPlace < 7)
+		if(PTE->fillPlace < 5)
 		{
-			PTE->fillPlace++;
-			PTE->activatePopupLabelsBorder();
+			if(PTE->fillPlace == 3) PTE->fillPlace += 2;
+			else PTE->fillPlace++;
+			PTE->activateFillPopupBorder();
 		}
 		return 1;
 	}
@@ -763,7 +820,6 @@ static  uint8_t functRight()
 			PTE->isSelectingNow = 1;
 		}
 
-
 		if(PTE->trackerPattern.actualTrack < 7) PTE->trackerPattern.actualTrack++;
 
 		PTE->focusOnActual();
@@ -790,7 +846,7 @@ static  uint8_t functUp()
 {
 	if(PTE->fillState > 0)
 	{
-		PTE->changeFillData(-1);
+		PTE->changeFillData((PTE->fillPlace == 0 || PTE->fillPlace == 3)? -1 : 1);
 		return 1;
 	}
 
@@ -844,7 +900,7 @@ static  uint8_t functDown()
 {
 	if(PTE->fillState > 0)
 	{
-		PTE->changeFillData(1);
+		PTE->changeFillData((PTE->fillPlace == 0 || PTE->fillPlace == 3)? 1 : -1);
 		return 1;
 	}
 
@@ -977,19 +1033,13 @@ static  uint8_t functPlayAction()
 
 static  uint8_t functRecAction()
 {
+	if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
+
 	PTE->editMode = !PTE->editMode;
 
-	if(PTE->editMode)
-	{
-		PTE->trackerPattern.selectState = 1;
-
-		PTE->focusOnActual();
-	}
-	else  PTE->trackerPattern.selectState = 0;
+	PTE->refreshEditState();
 
 
-
-	display.refreshControl(PTE->patternControl);
 
 	return 1;
 }
@@ -1213,7 +1263,7 @@ static  uint8_t functFill()
 
 	PTE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-	PTE->FM->setButtonObj(interfaceButton6, buttonPress, functFillHide);
+	PTE->FM->setButtonObj(interfaceButton6, buttonPress, functFillCancel);
 	PTE->FM->setButtonObj(interfaceButton7, buttonPress, functFillApply);
 
 	PTE->FM->setButtonObj(interfaceButton0, buttonPress, functFillChangeType);
@@ -1226,20 +1276,24 @@ static  uint8_t functFill()
 	return 1;
 }
 
-static  uint8_t functFillHide()
+static  uint8_t functFillCancel()
 {
 	PTE->fillState = 0;
 	PTE->selectedPlace = -1;
 
 	PTE->hideFillPopup();
 
-	PTE->readPatternState();
-	PTE->refreshPattern();
+	PTE->start(0);
 
-	PTE->showDefaultScreen();
-	PTE->setDefaultScreenFunct();
-
-	PTE->focusOnPattern();
+//	PTE->readPatternState();
+//	PTE->refreshPattern();
+//
+//	PTE->showDefaultScreen();
+//	PTE->setDefaultScreenFunct();
+//
+//	PTE->refreshEditState();
+//
+//	PTE->focusOnPattern();
 
 	return 1;
 }
@@ -1249,20 +1303,20 @@ static  uint8_t functFillApply()
 	// zatwierdzanie wypelnienia
 	if(PTE->fillState)
 	{
-		(void) PTE->lastFillValues[0][0];
-		(void) mtProject.values.patternEditStep;
-		// PTE->lastFillValues[x][y] <= przechowuje dane do konfiguracji fill
-		// x - (0-3) - co wypelnia - nuta , instr , vol , fx
-		// y - (0-3) - kolumna popupu fill - 	0 = typ wypelninia (0-3);
-		//										1 = pierwsza wartosc (0-127 - nuty/vol/fx_val , 0-48 instr)
-		//										2 = druga wartosc (jesli potrzebna)
-		//										3 = scala yes/no (0-1) albo typ efektu (0-xx)
+		(void) PTE->fillData[PTE->editParam];
+		(void) PTE->fillStep;
+		// PTE->fillData[x]		<= przechowuje dane do konfiguracji fill
+		// x - (0-3)(PTE->editParam) - co wypelnia - nuta , instr , vol , fx
+		// 							type  	 = typ wypelninia (0-3);
+		//							from	 = pierwsza wartosc (0-127 - nuty/vol/fx_val , 0-48 instr)
+		//							to		 = druga wartosc (jesli potrzebna)
+		//							param	 = scala yes/no (0-1) albo typ efektu (0-xx)
 		//
-		// mtProject.values.patternEditStep <= pattern step
+		// PTE->fillStep 		<= krok dla filowania
+		// PTE->editParam		<= nuta / instr / vol / fx
 
 
-
-		functFillHide();
+		functFillCancel();
 	}
 
 	return 1;
@@ -1271,7 +1325,7 @@ static  uint8_t functFillApply()
 static  uint8_t functFillChangeType()
 {
 	PTE->fillPlace = 0;
-	PTE->activatePopupLabelsBorder();
+	PTE->activateFillPopupBorder();
 
 	return 1;
 }
@@ -1279,7 +1333,7 @@ static  uint8_t functFillChangeType()
 static  uint8_t functFillChangeParam1()
 {
 	PTE->fillPlace = 1;
-	PTE->activatePopupLabelsBorder();
+	PTE->activateFillPopupBorder();
 
 	return 1;
 }
@@ -1287,7 +1341,7 @@ static  uint8_t functFillChangeParam1()
 static  uint8_t functFillChangeParam2()
 {
 	PTE->fillPlace = 2;
-	PTE->activatePopupLabelsBorder();
+	PTE->activateFillPopupBorder();
 
 	return 1;
 }
@@ -1295,7 +1349,7 @@ static  uint8_t functFillChangeParam2()
 static  uint8_t functFillChangeParam3()
 {
 	PTE->fillPlace = 3;
-	PTE->activatePopupLabelsBorder();
+	PTE->activateFillPopupBorder();
 
 	return 1;
 }
@@ -1303,7 +1357,7 @@ static  uint8_t functFillChangeParam3()
 static  uint8_t functFillChangeParam4()
 {
 	PTE->fillPlace = 5;
-	PTE->activatePopupLabelsBorder();
+	PTE->activateFillPopupBorder();
 
 	return 1;
 }
@@ -1312,10 +1366,89 @@ static  uint8_t functFillChangeParam4()
 //##############################################################################################
 //###############################            RANDOM            #################################
 //##############################################################################################
-static  uint8_t functRandom()
+static  uint8_t functRandomise()
 {
-	PTE->selectedPlace = 5;
-	PTE->activateLabelsBorder();
+	PTE->randomiseState = 1;
+
+	PTE->showRandomisePopup();
+
+	PTE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	PTE->FM->setButtonObj(interfaceButton6, buttonPress, functRandomiseCancel);
+	PTE->FM->setButtonObj(interfaceButton7, buttonPress, functRandomiseApply);
+
+	PTE->FM->setButtonObj(interfaceButton1, buttonPress, functRandomiseChangeParam1);
+	PTE->FM->setButtonObj(interfaceButton2, buttonPress, functRandomiseChangeParam2);
+	PTE->FM->setButtonObj(interfaceButton3, buttonPress, functRandomiseChangeParam3);
+	PTE->FM->setButtonObj(interfaceButton5, buttonPress, functRandomiseChangeParam4);
+
+	return 1;
+}
+
+static  uint8_t functRandomiseCancel()
+{
+	PTE->randomiseState = 0;
+	PTE->selectedPlace = -1;
+
+	PTE->hideRandomisePopup();
+
+	PTE->start(0);
+
+	return 1;
+}
+
+static  uint8_t functRandomiseApply()
+{
+	// zatwierdzanie wypelnienia
+	if(PTE->randomiseState)
+	{
+		(void) PTE->randomiseData[PTE->editParam];
+		(void) PTE->randomiseStep;
+		// PTE->fillData[x]		<= przechowuje dane do konfiguracji fill
+		// x - (0-3)(PTE->editParam) - co wypelnia - nuta , instr , vol , fx
+		// 							type  	 = typ wypelninia (0-3);
+		//							from	 = pierwsza wartosc (0-127 - nuty/vol/fx_val , 0-48 instr)
+		//							to		 = druga wartosc (jesli potrzebna)
+		//							param	 = scala yes/no (0-1) albo typ efektu (0-xx)
+		//
+		// PTE->fillStep 		<= krok dla filowania
+		// PTE->editParam		<= nuta / instr / vol / fx
+
+
+
+		functRandomiseCancel();
+	}
+	return 1;
+}
+
+static  uint8_t functRandomiseChangeParam1()
+{
+	PTE->randomisePlace = 1;
+	PTE->activateRandomisePopupBorder();
+
+	return 1;
+}
+
+static  uint8_t functRandomiseChangeParam2()
+{
+	PTE->randomisePlace = 2;
+	PTE->activateRandomisePopupBorder();
+
+	return 1;
+}
+
+static  uint8_t functRandomiseChangeParam3()
+{
+	PTE->randomisePlace = 3;
+	PTE->activateRandomisePopupBorder();
+
+	return 1;
+}
+
+static  uint8_t functRandomiseChangeParam4()
+{
+	PTE->randomisePlace = 5;
+	PTE->activateRandomisePopupBorder();
 
 	return 1;
 }
@@ -1325,17 +1458,19 @@ static  uint8_t functRandom()
 //##############################################################################################
 static  uint8_t functInvert()
 {
-	PTE->selectedPlace = 6;
-	PTE->activateLabelsBorder();
 
-	for(uint8_t i = 0; i < 48; i++)
-	{
-		leds.setLED(i, 1, 31);
-	}
+
+
+
+
+
 
 	return 1;
 }
 
+//##############################################################################################
+//###############################                              #################################
+//##############################################################################################
 
 void cPatternEditor::focusOnPattern()
 {
@@ -1363,6 +1498,8 @@ static uint8_t functSwitchModule(uint8_t button)
 {
 	if(button == interfaceButtonPattern)
 	{
+		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
+
 		PTE->focusOnPattern();
 		return 1;
 	}
@@ -1375,4 +1512,17 @@ static uint8_t functSwitchModule(uint8_t button)
 
 //======================================================================================================================
 
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
+{
 
+	if(state == 1)
+	{
+
+	}
+	else if(state == 0)
+	{
+
+	}
+
+	return 1;
+}
