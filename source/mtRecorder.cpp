@@ -24,7 +24,7 @@ void Recorder:: startRecording(int16_t * addr)
 	recByteSaved = 0;
 }
 
-void Recorder::update()
+uint8_t Recorder::update()
 {
 	if(mode == recorderModeRec )
 	{
@@ -35,8 +35,14 @@ void Recorder::update()
 			currentAddress += 128;
 			recByteSaved += 256;
 		}
-		if(recByteSaved >= SAMPLE_MEMORY_MAX) stopRecording();
+		if(recByteSaved >= SAMPLE_MEMORY_MAX)
+		{
+			queue.end();
+			mode = recorderModeStop;
+			return 0;
+		}
 	}
+	return 1;
 }
 
 
@@ -74,6 +80,7 @@ void Recorder::trim(uint16_t a, uint16_t b)
 {
 	uint32_t addressShift;
 	uint32_t lengthShift;
+
 	addressShift = (uint32_t)( (uint32_t)a * (float)(recByteSaved/2)/MAX_16BIT);
 	lengthShift =(uint32_t)((uint32_t)b * (float)(recByteSaved)/MAX_16BIT);
 	startAddress+=addressShift;
@@ -86,7 +93,7 @@ void Recorder::undo(int16_t * address, uint32_t length)
 	recByteSaved = 2*length; //zamieniam probki na bajty
 }
 
-void Recorder::startSave(char * name)
+uint8_t Recorder::startSave(char * name, uint8_t type)
 {
 	char currentPatch[PATCH_SIZE];
 
@@ -99,13 +106,23 @@ void Recorder::startSave(char * name)
 
 	saveLength=recByteSaved;
 
-	if (SD.exists(currentPatch)) SD.remove(currentPatch);
+	if(type == 0)
+	{
+		if (SD.exists(currentPatch)) return 0;
+	}
+	else if(type == 1)
+	{
+		if (SD.exists(currentPatch)) SD.remove(currentPatch);
+	}
+
 
 	rec = SD.open(currentPatch, FILE_WRITE);
 
 
 	rec.seek(44);
 	currentAddress=startAddress;
+
+	return 1;
 }
 void Recorder::updateSave()
 {

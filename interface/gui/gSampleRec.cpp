@@ -2,6 +2,7 @@
 
 #include "sampleRecorder.h"
 #include "mtRecorder.h"
+#include "mtLED.h"
 
 static uint32_t popUpLabelColors[] =
 {
@@ -49,6 +50,7 @@ void cSampleRecorder::initDisplayControls()
 	prop.h = 300;
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
+	if(progressCursor == nullptr) progressCursor = display.createControl<cProgressCursor>(&prop);
 
 	points.pointsType = 0;
 	points.endPoint = MAX_16BIT;
@@ -187,6 +189,9 @@ void cSampleRecorder::initDisplayControls()
 
 void cSampleRecorder::destroyDisplayControls()
 {
+	display.destroyControl(progressCursor);
+	progressCursor = nullptr;
+
 	display.destroyControl(spectrumControl);
 	spectrumControl = nullptr;
 	for(uint8_t i = 0 ; i < 8; i++)
@@ -240,6 +245,10 @@ void cSampleRecorder::showDefaultScreen()
 		//spectrum
 		display.setControlHide(spectrumControl);
 		display.refreshControl(spectrumControl);
+
+		//cursor
+		display.setControlHide(progressCursor);
+		display.refreshControl(progressCursor);
 
 		//points
 
@@ -313,8 +322,7 @@ void cSampleRecorder::showDefaultScreen()
 		calcGainBarVal();
 		drawGainBar();
 
-		display.setControlHide(keyboardControl);
-		display.refreshControl(keyboardControl);
+		hideKeyboard();
 
 		display.setControlHide(editName);
 		display.refreshControl(editName);
@@ -324,6 +332,9 @@ void cSampleRecorder::showDefaultScreen()
 	{
 		display.setControlShow(spectrumControl);
 		display.refreshControl(spectrumControl);
+
+		display.setControlShow(progressCursor);
+		display.refreshControl(progressCursor);
 
 		if (recordInProgressFlag == 1)
 		{
@@ -389,11 +400,12 @@ void cSampleRecorder::showDefaultScreen()
 			display.setControlText(bottomLabel[7], "Save");
 		}
 
-		display.setControlHide(keyboardControl);
-		display.refreshControl(keyboardControl);
+		hideKeyboard();
 
 		display.setControlHide(editName);
 		display.refreshControl(editName);
+
+
 	}
 	else if(currentScreen == screenTypeKeyboard)
 	{
@@ -401,19 +413,24 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlHide(spectrumControl);
 		display.refreshControl(spectrumControl);
 
+		//cursor
+		display.setControlHide(progressCursor);
+		display.refreshControl(progressCursor);
+
 		//points
 
 		display.setControlHide(pointsControl);
 		display.refreshControl(pointsControl);
 
-		display.setControlShow(keyboardControl);
-		display.refreshControl(keyboardControl);
+		showKeyboard();
+		leds.setLED(27, 1, 10);
+		leds.setLED(30, 1, 10);
 
 		showKeyboardEditName();
 
 		display.setControlText(bottomLabel[0], "");
 		display.setControlText(bottomLabel[1], "");
-		display.setControlText(bottomLabel[2], "");
+		display.setControlText(bottomLabel[2], "Confirm");
 		display.setControlText(bottomLabel[3], "");
 		display.setControlText(bottomLabel[4], "");
 		display.setControlText(bottomLabel[5], "");
@@ -481,12 +498,37 @@ void cSampleRecorder::showKeyboard()
 	if(keyboardShiftFlag) display.setControlValue(keyboardControl, keyboardPosition + 42);
 	else display.setControlValue(keyboardControl, keyboardPosition);
 
+
+
 	display.setControlShow(keyboardControl);
 	display.refreshControl(keyboardControl);
 }
 
 void cSampleRecorder::hideKeyboard()
 {
+	if(lastPressedPad == 10 || lastPressedPad == 11)
+	{
+		leds.setLED(10, 0, 0);
+		leds.setLED(11, 0, 0);
+	}
+	else if(lastPressedPad == 34 || lastPressedPad == 35)
+	{
+		leds.setLED(34, 0, 0);
+		leds.setLED(35, 0, 0);
+	}
+	else if(lastPressedPad >= 43 && lastPressedPad <=47)
+	{
+		for(uint8_t i = 43; i<= 47; i++)
+		{
+			leds.setLED(i, 0, 0);
+		}
+	}
+	else
+	{
+		leds.setLED(lastPressedPad,0,0);
+	}
+	leds.setLED(27, 0, 0);
+	leds.setLED(30, 0, 0);
 	display.setControlHide(keyboardControl);
 	display.refreshControl(keyboardControl);
 }
@@ -589,6 +631,55 @@ void cSampleRecorder::showRecTimeValue()
 	display.refreshControl(topLabel[2]);
 }
 
+void cSampleRecorder::showPreviewValue()
+{
+	float playTimeValue = playProgresValueTim/1000.0;
+	float localEndPoint = (recTimeValue * endPoint) / MAX_16BIT;
+	if(playTimeValue >= (localEndPoint - 0.01)) playTimeValue = localEndPoint;
+	if(playTimeValue > 100)
+	{
+		playTimeValueText[0] = (uint8_t)playTimeValue /100 + 48;
+		playTimeValueText[1] = ((uint8_t)playTimeValue /10)%10 + 48;
+		playTimeValueText[2] = (uint8_t)playTimeValue %10 + 48;
+		playTimeValueText[3] = '.';
+		playTimeValueText[4] = (uint8_t)(((playTimeValue-(uint16_t)playTimeValue)*1000) /100) + 48;
+		playTimeValueText[5] = ((uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) /10)%10 + 48;
+		playTimeValueText[6] = (uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) %10 + 48;
+		playTimeValueText[7] = 's';
+		playTimeValueText[8] = 0;
+	}
+	else if(playTimeValue > 10 && playTimeValue < 100)
+	{
+		playTimeValueText[0] = (uint8_t)playTimeValue /10 + 48;
+		playTimeValueText[1] = (uint8_t)playTimeValue %10 + 48;
+		playTimeValueText[2] = '.';
+		playTimeValueText[3] = (uint8_t)(((playTimeValue-(uint16_t)playTimeValue)*1000) /100) + 48;
+		playTimeValueText[4] = ((uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) /10)%10 + 48;
+		playTimeValueText[5] = (uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) %10 + 48;
+		playTimeValueText[6] = 's';
+		playTimeValueText[7] = 0;
+	}
+	else if(playTimeValue < 10)
+	{
+		playTimeValueText[0] = (uint8_t)playTimeValue %10 + 48;
+		playTimeValueText[1] = '.';
+		playTimeValueText[2] = (uint8_t)(((playTimeValue-(uint16_t)playTimeValue)*1000) /100) + 48;
+		playTimeValueText[3] = ((uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) /10)%10 + 48;
+		playTimeValueText[4] = (uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) %10 + 48;
+		playTimeValueText[5] = 's';
+		playTimeValueText[6] = 0;
+	}
+
+	display.setControlText(topLabel[0], playTimeValueText);
+	display.setControlShow(topLabel[0]);
+	display.refreshControl(topLabel[0]);
+}
+void cSampleRecorder::hidePreviewValue()
+{
+	display.setControlText(topLabel[0]," ");
+	display.setControlShow(topLabel[0]);
+	display.refreshControl(topLabel[0]);
+}
 void cSampleRecorder::showStartPointValue()
 {
 	recTimeValue = recorder.getLength()/44100.0;
@@ -784,11 +875,56 @@ void cSampleRecorder::showSelectionWindow()
 		display.refreshControl(bottomLabel[i]);
 		display.refreshControl(topLabel[i]);
 	}
-	display.setControlText(bottomLabel[3], "Yes");
-	display.setControlText(bottomLabel[4], "No");
+	display.setControlText(bottomLabel[0], "Yes");
+	display.setControlText(bottomLabel[7], "No");
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
+
+	display.setControlText(selectWindowLabel,"Changes will be lost. Do you want to continue?");
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	display.synchronizeRefresh();
+}
+
+void cSampleRecorder::showSelectionWindowSave()
+{
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.setControlText(topLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+	display.setControlText(bottomLabel[0], "Yes");
+	display.setControlText(bottomLabel[7], "No");
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlText(selectWindowLabel,"This name already exists. Do you want to overwrite it?");
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	display.synchronizeRefresh();
+}
+
+void cSampleRecorder::showSelectionWindowFullMemory()
+{
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.setControlText(topLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+	display.setControlText(bottomLabel[7], "OK");
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlText(selectWindowLabel,"The memory is full. Recording was stopped.");
 	display.setControlShow(selectWindowLabel);
 	display.refreshControl(selectWindowLabel);
 

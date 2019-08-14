@@ -64,7 +64,7 @@ public:
 //		openedInstrumentIndex = 0;
 
 		 spectrumControl = nullptr;
-
+		 progressCursor = nullptr;
 		 topLabel[8] = {nullptr};
 		 bottomLabel[8] = {nullptr};
 		 frameControl = nullptr;
@@ -90,6 +90,8 @@ public:
 	void showEndPointValue();
 	void showStartPointValue();
 	void showRecTimeValue();
+	void showPreviewValue();
+	void hidePreviewValue();
 	void showFreqValue();
 	void showRadio();
 	void hideRadio();
@@ -132,6 +134,7 @@ public:
 	hControl editName;
 	hControl saveHorizontalBarControl;
 	hControl selectWindowLabel;
+	hControl progressCursor;
 
 //*********************************************
 
@@ -142,6 +145,7 @@ public:
 	uint32_t spectrumTimerConstrains = 100;
 	char freqTextValue[6];
 	char recTimeValueText[8];
+	char playTimeValueText[8];
 	char startPointValueText[8];
 	char endPointValueText[8];
 	float recTimeValue;
@@ -171,7 +175,7 @@ public:
 	uint16_t startPoint;
 	uint16_t endPoint = MAX_16BIT;
 
-	uint16_t playProgressValue = 0; // 0 - MAX_16BIT
+	uint32_t playProgressValue = 0; // 0 - MAX_LEN_RECORD
 	uint16_t playProgressInSpectrum = 0; // 0 - 600
 	elapsedMillis playProgresValueTim;
 	elapsedMicros refreshPlayProgressValue;
@@ -247,6 +251,9 @@ uint8_t cropCounter = 0;
 	int8_t editPosition;
 	uint8_t keyboardActiveFlag = 0;
 	uint8_t keyboardShiftFlag = 0;
+	uint8_t lastPressedPad;
+
+
 //save
 	uint8_t saveInProgressFlag = 0;
 	uint8_t saveProgress;
@@ -255,8 +262,15 @@ uint8_t cropCounter = 0;
 // selection window
 	void showSelectionWindow();
 
-	uint8_t selectionWindowFlag = 0;
 
+	uint8_t selectionWindowFlag = 0;
+// selection window  - zapis
+	uint8_t selectionWindowSaveFlag = 0;
+	void showSelectionWindowSave();
+
+	uint8_t fullMemoryDuringRecordFlag = 0;
+	uint8_t fullMemoryWindowFlag = 0;
+	void showSelectionWindowFullMemory();
 };
 
 extern cSampleRecorder sampleRecorder;

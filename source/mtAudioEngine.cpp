@@ -1,7 +1,7 @@
 #include "mtAudioEngine.h"
-
+#include "sampleRecorder.h"
 extern AudioControlSGTL5000 audioShield;
-
+extern cSampleRecorder* SR = &sampleRecorder;
 
 AudioInputI2S            i2sIn;
 AudioRecordQueue         queue;
@@ -156,7 +156,8 @@ void audioEngine::init()
 
 void audioEngine::update()
 {
-	recorder.update();
+	if(recorder.update() == 0) SR->fullMemoryDuringRecordFlag = 1;
+
 
 	if(recorder.mode == recorderModeStop)
 	{

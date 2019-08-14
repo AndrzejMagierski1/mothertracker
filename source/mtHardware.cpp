@@ -86,9 +86,12 @@ void initHardware()
 	//....................................................
 	//CODEC AUDIO
 
-	RAM_CTRL_PCR = PORT_PCR_MUX(1);
-	RAM_CTRL_GPIO_DDR |= (1 << RAM_CTRL);
-	RAM_CTRL_GPIO_SET = (1 << RAM_CTRL);
+//	RAM_CTRL_PCR = PORT_PCR_MUX(1);
+//	RAM_CTRL_GPIO_DDR |= (1 << RAM_CTRL);
+//	RAM_CTRL_GPIO_SET = (1 << RAM_CTRL);
+
+		pinMode(79,OUTPUT);
+		digitalWrite(79,HIGH);
 
 
 
@@ -123,6 +126,7 @@ void initHardware()
 
 	//....................................................
 	//SDRAM
+
 	Extern_SDRAM_Init();
 
 	//....................................................

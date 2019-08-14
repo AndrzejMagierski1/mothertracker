@@ -20,6 +20,7 @@
 #include "keyboardControl.h"
 #include "patternPopupControl.h"
 #include "selectionWindowControl.h"
+#include "progressCursorControl.h"
 
 
 typedef cDisplayControl* hControl;
