@@ -402,11 +402,29 @@ void MCU_CSlow(void)
 {
 	digitalWrite(CS, LOW);                                                          // CS# line low
     asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
 }  
 
 // --------------------- Chip Select line high ---------------------------------
 void MCU_CShigh(void)
 {
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
     asm("nop");
     digitalWrite(CS, HIGH);                                                      // CS# line high
 }

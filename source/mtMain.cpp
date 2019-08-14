@@ -23,7 +23,7 @@
 //extern Sequencer seq[2];
 extern void initHardware();
 extern void updateHardware();
-
+extern AudioControlSGTL5000 audioShield;
 
 ;;
 //=======================================================================
