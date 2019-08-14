@@ -35,7 +35,7 @@ void cInstrumentEditor::initDisplayControls()
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+		prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.y = 450;
 		prop2.w = 800/8-10;
@@ -44,7 +44,7 @@ void cInstrumentEditor::initDisplayControls()
 
 
 		prop2.y = 415;
-		prop2.h = 26;
+		prop2.h = 34;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 
 

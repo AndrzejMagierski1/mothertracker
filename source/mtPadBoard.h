@@ -17,19 +17,21 @@ public:
 	void stopInstrument(uint8_t pad);
 
 
+	uint8_t getPadsWithNote(int8_t note, uint8_t* pads);
+
 private:
 
 	uint8_t isInScale(uint8_t note, uint8_t root, uint8_t scale);
 	int8_t getEmptyVoice();
 	int8_t getVoiceTakenByPad(uint8_t pad);
 
-	uint8_t lastScale;
-	uint8_t lastNoteOffset;
-	uint8_t lastRootNote;
+	uint8_t lastScale = 255;
+	uint8_t lastNoteOffset = 255;
+	uint8_t lastRootNote = 255;
 
 	uint8_t voicesCount;
 
-	uint8_t padNotes[32];
+	uint8_t padNotes[48];
 
 	int8_t voices[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
 
