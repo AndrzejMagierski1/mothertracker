@@ -469,6 +469,7 @@ public:
 
 	struct strPlayer
 	{
+		bool songMode =0;
 		bool printNotes = 0;
 		bool changeBank = 0;
 		bool isPlay = 0;
@@ -631,6 +632,8 @@ public:
 	}
 
 	void play(void);
+	void playPattern(void);
+	void playSong(void);
 	void pause(void);
 	void rec(void);
 	void stop(void);

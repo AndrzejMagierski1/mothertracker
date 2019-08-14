@@ -4,6 +4,7 @@
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
 #include "seqDisplay.h"
+#include "mtFileManager.h"
 
 #include "patternEditor.h"
 Sequencer sequencer;
@@ -286,6 +287,15 @@ void Sequencer::play_microStep(uint8_t row)
 	//
 	//		WYSTARTOWAĆ STEPA?
 	//
+
+	if ((playerRow.uStep == 1) && player.isPlay && row == 0)
+	{
+		if (playerRow.actual_pos == patternRow.length && player.songMode)
+		{
+			loadNextPattern(fileManager.getNextSongPattern());
+		}
+	}
+
 	if (patternRow.isOn)
 	{
 		boolean startStep = 0;
@@ -603,6 +613,21 @@ void Sequencer::play(void)
 //	reset_ruler_blink();
 //	init_player_timer();
 
+}
+
+void Sequencer::playPattern(void)
+{
+	player.songMode = 0;
+	play();
+}
+void Sequencer::playSong(void)
+{
+
+	fileManager.loadPattern(fileManager.resetToFirstSongPattern());
+	switchNextPatternNow();
+
+	player.songMode = 1;
+	play();
 }
 
 void Sequencer::pause(void)
@@ -1057,6 +1082,14 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			{
 				// player.row[x].return2start = 0;
 				reset_actual_pos(x);
+
+				if (row == 0 && player.songMode)
+				{
+					switchNextPatternNow();
+					fileManager.switchNextPatternInSong();
+					fileManager.refreshPatternView();
+				}
+
 				if ((player.onPatternEnd != NULL) && (x == MINTRACK))
 					player.onPatternEnd();
 
@@ -2058,7 +2091,9 @@ void Sequencer::loadNextPattern(uint8_t patternNumber)
 	player.jump.nextPattern = patternNumber;
 	player.jump.jumpNOW = 0;
 
-//	fileManager.loadPattern(patternNumber);
+	Serial.printf("loadNextPattern: %d\n", patternNumber);
+
+	fileManager.loadPattern(patternNumber);
 
 }
 

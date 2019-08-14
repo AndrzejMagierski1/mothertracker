@@ -5,6 +5,7 @@
 #include "SD.h"
 #include "mtStructs.h"
 #include "wavHeaderReader.h"
+#include "patternEditor.h"
 
 struct strProjectFileHeader
 {
@@ -155,6 +156,12 @@ public:
 	void deleteSample(int8_t index);
 	void deleteInstrument(int8_t index);
 	void deletePattern(int8_t index);
+	uint8_t getNextSongPattern();
+	uint8_t resetToFirstSongPattern();
+	void switchNextPatternInSong();
+	void refreshPatternView();
+//	uint8_t isSongMode();
+
 	void update();
 
 	friend class cProjectEditor;

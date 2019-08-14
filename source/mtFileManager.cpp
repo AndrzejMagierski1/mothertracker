@@ -292,7 +292,7 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 //	}
 
 
-	for (int i = 0; i < PATTERNS_COUNT; i++)
+	for (int i = PATTERN_INDEX_MIN; i < PATTERN_INDEX_MAX; i++)
 	{
 		if (loadPattern(i))
 		{
@@ -1206,3 +1206,44 @@ void FileManager::deletePattern(int8_t index)
 
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 }
+
+uint8_t FileManager::getNextSongPattern()
+{
+	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
+	return song->playlist[song->playlistPos + 1] > 0 ? song->playlist[song->playlistPos + 1] : song->playlist[0];
+}
+
+uint8_t FileManager::resetToFirstSongPattern()
+{
+	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
+	song->playlistPos = 0;
+	return song->playlist[0];
+}
+
+void FileManager::switchNextPatternInSong()
+{
+	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
+	if (song->playlist[++(song->playlistPos)] != PLAYLIST_EMPTY_SLOT)
+	{
+
+	}
+	else
+	{
+		song->playlistPos = 0;
+	}
+}
+
+void FileManager::refreshPatternView()
+{
+	patternEditor.refreshPattern();
+	patternEditor.showPattern();
+	patternEditor.showLength();
+	patternEditor.showTempo();
+}
+
+//uint8_t FileManager::isSongMode()
+//{
+//	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
+//	return song->mode == SONGMODE_SONG;
+//}
+
