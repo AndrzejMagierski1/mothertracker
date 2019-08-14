@@ -126,7 +126,7 @@ uint8_t cHorizontalBar::update()
 
 		API_COLOR(colors[0]);
 
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(frameX+1, frameY+1);
 		API_VERTEX2F(frameX+frameWidth-1, frameY+frameHeight-1);
@@ -134,7 +134,7 @@ uint8_t cHorizontalBar::update()
 
 		API_COLOR(colors[1]);
 
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2F(frameX, frameY);
 		API_VERTEX2F(frameX+frameWidth, frameY);
@@ -145,7 +145,7 @@ uint8_t cHorizontalBar::update()
 
 		API_COLOR(colors[2]);
 
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(barX+1, barY+1);
 		API_VERTEX2F(barX+barFillY-1, barY+barHeight-1);
@@ -153,7 +153,7 @@ uint8_t cHorizontalBar::update()
 
 		API_COLOR(colors[3]);
 
-		API_LINE_WIDTH(8);
+		API_LINE_WIDTH(16);
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2F(barX, barY);
 		API_VERTEX2F(barX+barWidth, barY);

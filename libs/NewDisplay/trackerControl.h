@@ -32,6 +32,7 @@ struct strTrackerPattern
 
 	int8_t selectState = 0;			// 1 = kursor ; 2 = kursor + zaznaczenie
 	int8_t selectedParam = 0;		// wybrany do modyfikacji parametr (0-4; 4 = wszsytkie)
+	uint32_t selectColor = 0xFF0000;
 
 	int8_t selectStartTrack = 0;	// start zaznaczenia 	//
 	int16_t selectStartStep = 0;							// <= ustawienie obojetne

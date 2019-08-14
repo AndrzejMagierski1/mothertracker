@@ -146,6 +146,13 @@ uint16_t refreshF = 20;
 
 void cDisplay::update()
 {
+
+	if(backlightBrightness != lastBacklightBrightness)
+	{
+		lastBacklightBrightness = backlightBrightness;
+	    EVE_MemWrite8(REG_PWM_DUTY, backlightBrightness);
+	}
+
 	//display_table();
 	//return;
 //=================================================================================================
@@ -163,6 +170,7 @@ void cDisplay::update()
 
 
     static int a = 0;
+
 
 
     if(a)
@@ -577,9 +585,22 @@ void cDisplay::refreshControl(hControl handle)
 
 	//przeszukaj kolejke
 	uint8_t i = refreshQueueBott;
+	//jesli aktualnie odswiezana - zresetuj proces odswiezania
+	if(refreshQueue[i] == handle)
+	{
+		if(refreshQueueTop != i)
+		{
+			i++;
+			if(i >= controlsRefreshQueueSize) i = 0;
+		}
+	}
+	// przeszukaj reszte kolejki
 	while(i != refreshQueueTop) // ryzykowne ale optymalne
 	{
-		if(handle == refreshQueue[i]) return; // znaleziono w kolejce - wyjdz
+		if(handle == refreshQueue[i])
+		{
+			return; // znaleziono w kolejce - wyjdz
+		}
 		i++;
 		if(i >= controlsRefreshQueueSize) i = 0;
 	}
@@ -614,6 +635,14 @@ void cDisplay::resetControlQueue()
 	updateStep = 0;
 	actualUpdating = nullptr;
 }
+
+void cDisplay::setBacklightBrightness(uint8_t value)
+{
+	//
+	backlightBrightness = value;
+
+}
+
 
 
 

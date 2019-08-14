@@ -154,8 +154,8 @@ void initHardware()
 
 
 
-	Encoder.setResolution(24);
-	Encoder.setAcceleration(3);
+	Encoder.setResolution(12);
+	Encoder.setAcceleration(1);
 
 
 	//....................................................

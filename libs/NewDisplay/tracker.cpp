@@ -179,6 +179,8 @@ void cTracker::refresh1()
 	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
 	//API_COLOR_A(128);
 
+	colors[6] = tracks->selectColor;
+
 	// linie
 	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[0]);
@@ -295,10 +297,10 @@ void cTracker::refresh1()
 		select2_x = 27+ select2_x*186 +186;
 
 		select1_y = select1_y - tracks->actualStep+7;
-		select1_y = 25+select1_y*28;
+		select1_y = select1_y*28;
 
 		select2_y = select2_y - tracks->actualStep+7;
-		select2_y = 25+select2_y*28 + 28;
+		select2_y = select2_y*28 + 28;
 
 
 
@@ -306,22 +308,33 @@ void cTracker::refresh1()
 		API_LINE_WIDTH(12);
 		API_BEGIN(LINES);
 
-		if(select1_y >= 25)
+		if(select1_y >= 0) // gorna
 		{
 			API_VERTEX2F(select1_x, select1_y);
 			API_VERTEX2F(select2_x, select1_y);
 		}
-		if(select2_x <= 27+186*4)
+		else
 		{
-			API_VERTEX2F(select2_x, select1_y);
-			API_VERTEX2F(select2_x, select2_y);
+			select1_y = 0;
 		}
-		if(select1_y <= 25+28*15)
+
+		if(select2_y <= 28*15) // dolna
 		{
 			API_VERTEX2F(select2_x, select2_y);
 			API_VERTEX2F(select1_x, select2_y);
 		}
-		if(select1_x >= 27)
+		else
+		{
+			select2_y = 28*15;
+		}
+
+
+		if(select2_x <= 27+186*4) // prawa
+		{
+			API_VERTEX2F(select2_x, select1_y);
+			API_VERTEX2F(select2_x, select2_y);
+		}
+		if(select1_x >= 27) // lewa
 		{
 			API_VERTEX2F(select1_x, select2_y);
 			API_VERTEX2F(select1_x, select1_y);
@@ -536,7 +549,7 @@ void cTracker::refresh5()
 		y = 1;
 
 		API_COLOR(0x000000);
-		API_LINE_WIDTH(12);
+		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(x, y);
 		API_VERTEX2F(x+20, y+20);

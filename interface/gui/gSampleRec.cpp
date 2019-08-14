@@ -3,6 +3,13 @@
 #include "sampleRecorder.h"
 #include "mtRecorder.h"
 
+static uint32_t popUpLabelColors[] =
+{
+	0xFFFFFF, // tekst
+	0x222222, // tło
+	0xFF0000, // ramka
+};
+
 static  uint16_t framesPlacesS1[8][4] =
 {
 	{0, 		0, 800/8, 480},
@@ -55,7 +62,7 @@ void cSampleRecorder::initDisplayControls()
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder | controlStyleFont1);
 		prop2.x = (800/8)*i+(800/16);
 		prop2.y = 450;
 		prop2.w = 800/8-10;
@@ -66,6 +73,7 @@ void cSampleRecorder::initDisplayControls()
 		prop2.x = (800/8)*i+(800/16);
 		prop2.y = 415;
 		prop2.h = 26;
+		prop2.style |= 	controlStyleManualText;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 	}
 
@@ -148,16 +156,31 @@ void cSampleRecorder::initDisplayControls()
 	prop7.h = 30;
 	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop7);
 
-	prop.x = 190;
+	strControlProperties prop8;
+	prop8.x = 190;
 //	prop.colors = &color[0];
-	prop.y = 170;
+	prop8.y = 170;
 	//prop.w = 800/4-10;
-	prop.style = controlStyleValue_0_100;
-	prop.h = 100;
-	prop.w = 420;
+	prop8.style = controlStyleValue_0_100;
+	prop8.h = 100;
+	prop8.w = 420;
 //	prop.value = 70;
 //	prop.text = "loading...";
-	if(saveHorizontalBarControl == nullptr)  saveHorizontalBarControl = display.createControl<cHorizontalBar>(&prop);
+	if(saveHorizontalBarControl == nullptr)  saveHorizontalBarControl = display.createControl<cHorizontalBar>(&prop8);
+
+	strControlProperties prop9;
+
+	prop9.x = 400;
+	prop9.colors = popUpLabelColors;
+//	prop.colors = &color[0];
+	prop9.y = 350;
+	//prop.w = 800/4-10;
+//	prop9.style = controlStyleValue_0_100;
+	prop9.h = 100;
+	prop9.w = 800-(10);
+	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
+	prop9.text = "Changes will be lost. Do you want to continue?";
+	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop9);
 
 }
 
@@ -204,6 +227,9 @@ void cSampleRecorder::destroyDisplayControls()
 
 	display.destroyControl(saveHorizontalBarControl);
 	saveHorizontalBarControl = nullptr;
+
+	display.destroyControl(selectWindowLabel);
+	selectWindowLabel = nullptr;
 }
 
 void cSampleRecorder::showDefaultScreen()
@@ -292,6 +318,7 @@ void cSampleRecorder::showDefaultScreen()
 
 		display.setControlHide(editName);
 		display.refreshControl(editName);
+
 	}
 	else if (currentScreen == screenTypeRecord)
 	{
@@ -410,6 +437,9 @@ void cSampleRecorder::showDefaultScreen()
 		showEndPointValue();
 		showStartPointValue();
 	}
+
+	display.setControlHide(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
 
 	display.synchronizeRefresh();
 
@@ -744,3 +774,25 @@ void cSampleRecorder::hideSaveHorizontalBar()
 	display.setControlHide(saveHorizontalBarControl);
 	display.refreshControl(saveHorizontalBarControl);
 }
+
+void cSampleRecorder::showSelectionWindow()
+{
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.setControlText(topLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+	display.setControlText(bottomLabel[3], "Yes");
+	display.setControlText(bottomLabel[4], "No");
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	display.synchronizeRefresh();
+}
+
+

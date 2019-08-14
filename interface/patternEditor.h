@@ -82,29 +82,49 @@ public:
 	void changeActualStepInstrument(int16_t value);
 	void changeActualStepVolume(int16_t value);
 
+	void focusOnPattern();
+	void unfocusPattern();
+
 	void changeActualTempo(int16_t value);
 	void changeActualPattern(int16_t value);
 	void changeActualPatternLength(int16_t value);
 	void changeActualPatternEditStep(int16_t value);
 
 	void changeFillData(int16_t value);
-	void changeFillPlace(int16_t value);
+	void changeRandomiseData(int16_t value);
 
+	void refreshEditState();
+
+	void lightUpPadBoard();
+	void clearPadBoard();
 //----------------------------------
 	void activateLabelsBorder();
+	void activateFillPopupBorder();
+	void activateRandomisePopupBorder();
 
 	void showTempo();
 	void showPattern();
 	void showLength();
 	void showStep();
 
+	void showEditModeLabels();
+	void hideEditModeLabels();
 
 	void showFillPopup();
-	void refreshFillPopup();
+	void refreshFillType();
+	void refreshFillFrom();
+	void refreshFillTo();
+	void refreshFillParam();
+	void refreshFillStep();
 	void hideFillPopup();
 
 
-	void showRandomPopup();
+	void showRandomisePopup();
+	void refreshRandomiseFrom();
+	void refreshRandomiseTo();
+	void refreshRandomiseParam();
+	void refreshRandomiseStep();
+	void hideRandomisePopup();
 
 //----------------------------------
 // Funct
@@ -118,19 +138,30 @@ public:
 	strTrackerPattern trackerPattern;
 
 	uint8_t editMode = 0;
+	uint8_t editParam = 0;
 	uint8_t isSelectingNow = 0;
+
+	uint8_t padsTempData[48];
 
 //----------------------------------
 // GUI
 
-	strPatternPopup fillPopup;
 	strFrameData frameData;
 
 	hControl topLabel[8];
 	hControl bottomLabel[8];
 	hControl patternControl;
-	hControl patternPopupControl;
 	hControl frameControl;
+
+	// popups
+	hControl patternPopupLabel;
+	hControl param1PopupListControl;
+	hControl val1PopupLabel;
+	hControl val2PopupLabel;
+	hControl val3PopupLabel;
+	hControl param2PopupListControl;
+
+
 
 	strLabelData bottomValuesConfig = { 40, 0, 2048UL | 256UL };
 
@@ -145,27 +176,51 @@ public:
 
 	//------------------------------------------------------
 	// fill
-	uint8_t fillState;
-	uint8_t fillPlace;
-	//1
+	uint8_t fillState = 0;
+	uint8_t fillPlace = 0;
+	//
 	strList fillTypeList;
 	char *fillTypeListNames[fillTypeListCount];
-	//4
+	//
 	strList fillScaleFilterList;
 	char *fillScaleFilterNames[fillScaleFilterCount];
-	//4
+	//
 	strList fillFxTypeList;
 	char *fillFxTypeNames[fillFxTypeCount];
-
+	//
 	char fillText1[10];
 	char fillText2[10];
+	char fillText3[10];
+	//
+	struct strFill
+	{
+		uint16_t type;
+		uint16_t from;
+		uint16_t to;
+		uint16_t param;
 
+	} fillData[4];
 
-	uint16_t lastFillValues[4][4] = {0};
+	uint16_t fillStep = 1;
 
 	//------------------------------------------------------
 	// random
-	uint8_t randomState;
+	uint8_t randomiseState = 0;
+	uint8_t randomisePlace = 1;
+	//
+	// listy wziete z filla
+	//
+	// texty z fill
+	//
+	struct strRandomise
+	{
+		uint16_t from;
+		uint16_t to;
+		uint16_t param;
+
+	} randomiseData[4];
+
+	uint16_t randomiseStep = 1;
 
 
 
@@ -191,3 +246,7 @@ const char mtNotes[128][5] =
 };
 
 #endif /* INTERFACE_PATTERNEDITOR_H_ */
+
+
+
+

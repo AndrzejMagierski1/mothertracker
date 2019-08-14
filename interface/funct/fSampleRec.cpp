@@ -161,10 +161,15 @@ void cSampleRecorder::update()
 	if(refreshSpectrum)
 	{
 		processSpectrum();
-
-		display.refreshControl(SR->spectrumControl);
+		display.refreshControl(spectrumControl);
 		if(recordInProgressFlag) spectrumTimerConstrains+=50;
 		refreshSpectrum = 0;
+	}
+	if(refreshSpectrumValue)
+	{
+		display.setControlValue(spectrumControl,playProgressInSpectrum);
+		display.refreshControl(spectrumControl);
+		refreshSpectrumValue = 0;
 	}
 
 	if(refreshPoints)
@@ -179,6 +184,14 @@ void cSampleRecorder::update()
 
 	if(recordInProgressFlag)
 	{
+		if(firstPeakFlag)
+		{
+			if(levelBarVal > 20)
+			{
+				firstPeakFlag = 0;
+				firstPeakPlace = recorder.getLength();
+			}
+		}
 		showRecTimeValue();
 		if(refreshSpectrumTimer > spectrumTimerConstrains)
 		{
@@ -198,6 +211,11 @@ void cSampleRecorder::update()
 			currentScreen = screenTypeRecord;
 			showDefaultScreen();
 		}
+	}
+
+	if(playInProgressFlag)
+	{
+		calcPlayProgressValue();
 	}
 
 	changeLevelBar();
@@ -587,6 +605,7 @@ void cSampleRecorder::listMonitor()
 static  uint8_t functSelectButton0()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
+	if(SR->selectionWindowFlag == 1) return 1;
 	SR->selectedPlace = 0;
 	SR->activateLabelsBorder();
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
@@ -600,6 +619,7 @@ static  uint8_t functSelectButton0()
 static  uint8_t functSelectButton1()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
+	if(SR->selectionWindowFlag == 1) return 1;
 	if ((SR->currentScreen == cSampleRecorder::screenTypeConfig) &&
 	(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio)) return 1;
 	SR->selectedPlace = 1;
@@ -622,6 +642,7 @@ static  uint8_t functSelectButton1()
 static  uint8_t functSelectButton2()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
+	if(SR->selectionWindowFlag == 1) return 1;
 	if ((SR->currentScreen == cSampleRecorder::screenTypeConfig) &&
 	(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio)) return 1;
 	SR->selectedPlace = 2;
@@ -642,6 +663,7 @@ static  uint8_t functSelectButton2()
 static  uint8_t functSelectButton3()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
+	if(SR->selectionWindowFlag == 1) return 1;
 	if ((SR->currentScreen == cSampleRecorder::screenTypeConfig) &&
 	(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio)) return 1;
 	SR->selectedPlace = 3;
@@ -657,6 +679,7 @@ static  uint8_t functSelectButton3()
 static  uint8_t functSelectButton4()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
+	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig) return 1;
 	SR->selectedPlace = 4;
 	SR->activateLabelsBorder();
@@ -671,6 +694,7 @@ static  uint8_t functSelectButton4()
 static  uint8_t functSelectButton5()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
+	if(SR->selectionWindowFlag == 1) return 1;
 	SR->selectedPlace = 5;
 	SR->activateLabelsBorder();
 
@@ -684,6 +708,7 @@ static  uint8_t functSelectButton5()
 static  uint8_t functSelectButton6()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
+	if(SR->selectionWindowFlag == 1) return 1;
 	SR->selectedPlace = 6;
 	SR->activateLabelsBorder();
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
@@ -695,6 +720,7 @@ static  uint8_t functSelectButton6()
 }
 static  uint8_t functSelectButton7()
 {
+	if(SR->selectionWindowFlag == 1) return 1;
 	SR->selectedPlace = 7;
 	SR->activateLabelsBorder();
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
@@ -708,6 +734,7 @@ static  uint8_t functSelectButton7()
 
 static  uint8_t functActionButton0(uint8_t s)
 {
+	if(SR->selectionWindowFlag == 1) return 1;
 	if(s == 1)
 	{
 		if(SR->currentScreen == cSampleRecorder::screenTypeConfig) functSelectButton0();
@@ -735,6 +762,7 @@ static  uint8_t functActionButton0(uint8_t s)
 
 static  uint8_t functActionButton1()
 {
+	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton1();
 	switch(SR->currentScreen)
 	{
@@ -748,6 +776,7 @@ static  uint8_t functActionButton1()
 
 static  uint8_t functActionButton2()
 {
+	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton2();
 	switch(SR->currentScreen)
 	{
@@ -761,6 +790,20 @@ static  uint8_t functActionButton2()
 
 static  uint8_t functActionButton3()
 {
+	if(SR->selectionWindowFlag == 1)
+	{
+		SR->selectionWindowFlag = 0;
+
+		SR->currentScreen = cSampleRecorder::screenTypeConfig;
+		SR->selectedPlace = 0;
+		if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
+		SR->zoomValue = 1.0;
+		SR->showDefaultScreen();
+		SR->activateLabelsBorder();
+
+		return 1;
+
+	}
 	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton3();
 	switch(SR->currentScreen)
 	{
@@ -774,6 +817,14 @@ static  uint8_t functActionButton3()
 
 static  uint8_t functActionButton4()
 {
+	if(SR->selectionWindowFlag == 1)
+	{
+		SR->selectionWindowFlag = 0;
+		SR->selectedPlace = 6;
+		SR->showDefaultScreen();
+		SR->activateLabelsBorder();
+		return 1;
+	}
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: break;
@@ -786,6 +837,7 @@ static  uint8_t functActionButton4()
 
 static  uint8_t functActionButton5()
 {
+	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig) functSelectButton5();
 	switch(SR->currentScreen)
 	{
@@ -799,6 +851,7 @@ static  uint8_t functActionButton5()
 
 static  uint8_t functActionButton6()
 {
+	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->currentScreen != cSampleRecorder::screenTypeRecord) functSelectButton6();
 	switch(SR->currentScreen)
 	{
@@ -812,6 +865,7 @@ static  uint8_t functActionButton6()
 
 static  uint8_t functActionButton7()
 {
+	if(SR->selectionWindowFlag == 1) return 1;
 	functSelectButton7();
 	switch(SR->currentScreen)
 	{
@@ -841,6 +895,7 @@ static  uint8_t functActionMonitor()
 static  uint8_t functActionRecord()
 {
 	SR->recordInProgressFlag = 1;
+	SR->firstPeakFlag = 1;
 	SR->currentScreen = SR->screenTypeRecord;
 	SR->showDefaultScreen();
 	recorder.startRecording(sdram_effectsBank);
@@ -871,12 +926,22 @@ static  uint8_t functActionPreview()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
 	recorder.play(SR->startPoint,SR->endPoint);
+
+	SR->playProgresValueTim = (( (recorder.getLength()/44100.0 ) * SR->startPoint) / MAX_16BIT) * 1000;
+	SR->refreshPlayProgressValue = 0;
+
+	SR->playInProgressFlag = 1;
 	return 1;
 }
 
 static uint8_t functActionStopPreview()
 {
 	recorder.stop();
+	SR->playInProgressFlag = 0;
+	SR->playProgressValue = 0;
+	SR->playProgressInSpectrum = 0;
+
+	SR->refreshSpectrumValue = 1;
 	return 1;
 }
 
@@ -935,18 +1000,17 @@ static  uint8_t functActionUndo()
 static  uint8_t functActionGoBack()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
+	if(SR->selectionWindowFlag == 1) return 1;
+
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
-		//todo: okienko pytajace czy zapisac o ile nie zapisano nic wczesniej
-		SR->currentScreen = cSampleRecorder::screenTypeConfig;
-		SR->selectedPlace = 0;
-		if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
-		SR->showDefaultScreen();
-		SR->activateLabelsBorder();
+		SR->selectionWindowFlag = 1;
+		SR->showSelectionWindow();
 	}
 	else if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
 	{
 		SR->currentScreen = cSampleRecorder::screenTypeRecord;
+		SR->keyboardActiveFlag = 0;
 		SR->selectedPlace = 7;
 		SR->showDefaultScreen();
 	}
@@ -996,6 +1060,7 @@ static  uint8_t functActionConfirmSave()
 	 SR->hideKeyboardEditName();
 	 recorder.startSave(SR->name);
 
+	 return 1;
 }
 
 static  uint8_t functActionStopRec()
@@ -1004,11 +1069,20 @@ static  uint8_t functActionStopRec()
 	if(SR->recordInProgressFlag == 1)
 	{
 		SR->recordInProgressFlag = 0;
-		SR->startPoint = 0;
+
 		SR->endPoint = MAX_16BIT;
 		SR->showDefaultScreen();
 		recorder.stopRecording();
+		if(SR->firstPeakFlag)
+		{
+			SR->firstPeakFlag = 0;
+			SR->startPoint = 0;
+		}
+		else SR->startPoint = (uint16_t)(((float)(SR->firstPeakPlace) * MAX_16BIT)/recorder.getLength());
+
+		SR->showStartPointValue();
 		audioShield.headphoneSourceSelect(0);
+		SR->refreshSpectrum = 1;
 
 
 		return 1;
@@ -1049,7 +1123,7 @@ static  uint8_t functActionZoom()
 
 static  uint8_t functEncoder(int16_t value)
 {
-
+	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig)
 	{
 		switch(SR->selectedPlace)
@@ -1064,6 +1138,7 @@ static  uint8_t functEncoder(int16_t value)
 	}
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
+
 		switch(SR->selectedPlace)
 		{
 		case 0: 	break;
@@ -1086,6 +1161,8 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functLeft()
 {
+	if(SR->selectionWindowFlag == 1) return 1;
+
 	if(SR->keyboardActiveFlag)
 	{
 		SR->keyboardPosition = valueMap[valueMapDirectionLeft][SR->keyboardPosition];
@@ -1169,6 +1246,8 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(SR->selectionWindowFlag == 1) return 1;
+
 	if(SR->keyboardActiveFlag)
 	{
 		SR->keyboardPosition = valueMap[valueMapDirectionRight][SR->keyboardPosition];
@@ -1256,7 +1335,7 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
-
+	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->keyboardActiveFlag)
 	{
 		SR->keyboardPosition = valueMap[valueMapDirectionUp][SR->keyboardPosition];
@@ -1281,6 +1360,7 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->keyboardActiveFlag)
 	{
 		SR->keyboardPosition = valueMap[valueMapDirectionDown][SR->keyboardPosition];
@@ -1305,6 +1385,7 @@ static  uint8_t functDown()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
+	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->recordInProgressFlag) return 1;
 	if(SR->saveInProgressFlag) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;
@@ -1504,7 +1585,40 @@ void cSampleRecorder::modEndPoint(int16_t value)
 	showEndPointValue();
 }
 
+void cSampleRecorder::calcPlayProgressValue()
+{
+	uint32_t localRecTimeValue = recTimeValue * 1000;
+	uint32_t localEndTimeValue = (( recTimeValue  * SR->endPoint) / MAX_16BIT) * 1000;
+	if(playProgresValueTim >= localEndTimeValue)
+	{
+		playProgressValue=0;
+		playProgressInSpectrum = 0;
+		playInProgressFlag = 0;
 
+		refreshSpectrumValue = 1;
+		return;
+	}
+	if( refreshPlayProgressValue > PLAY_REFRESH_MS)
+	{
+		refreshPlayProgressValue = 0;
+
+		playProgressValue = (MAX_16BIT*playProgresValueTim)/localRecTimeValue;
+
+		if(zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
+		else if(zoomValue > 1.0)
+		{
+			if(playProgressValue < zoomStart || playProgressValue > zoomEnd) playProgressInSpectrum = 0;
+			else
+			{
+				playProgressInSpectrum = map(playProgressValue, zoomStart,zoomEnd, 0 , 600);
+			}
+		}
+
+		refreshSpectrumValue = 1;
+	}
+
+
+}
 
 
 
@@ -1521,6 +1635,7 @@ static uint8_t stopPlaying(uint8_t value)
 
 static uint8_t functEnter()
 {
+	if(SR->selectionWindowFlag) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) functConfirmKey();
 }
 static uint8_t functConfirmKey()

@@ -484,13 +484,20 @@ void cInstrumentEditor::changeFilterFilterType(int16_t value)
 	//showFilterFilterType();
 }
 
+uint8_t bgB = 128;
+
 void cInstrumentEditor::changeFilterCutOff(int16_t value)
 {
+//	if(bgB + value < 0) bgB = 0;
+//	else if(bgB + value > 128 ) bgB = 128;
+//	else bgB += value;
 	float fVal = value * 0.01;
 
 	if(editorInstrument->cutOff + fVal < MIN_CUTOFF) editorInstrument->cutOff = MIN_CUTOFF;
 	else if(editorInstrument->cutOff + fVal > MAX_CUTOFF ) editorInstrument->cutOff = MAX_CUTOFF;
 	else editorInstrument->cutOff += fVal;
+
+	display.setBacklightBrightness(map(editorInstrument->cutOff,MIN_CUTOFF,MAX_CUTOFF,0,128));
 
 	instrumentPlayer[0].setStatusBytes(CUTOFF_MASK);
 

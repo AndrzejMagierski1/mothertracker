@@ -16,10 +16,10 @@ cMtPadBoard mtPadBoard;
 
 const uint8_t padBoard[48] =
 {
-	24,25,26,27,28,29,30,31,
-	16,17,18,19,20,21,22,23,
-	8,9,10,11,12,13,14,15,
-	0,1,2,3,4,5,6,7,
+	36,37,38,39,40,41,42,43,44,45,46,47,
+	24,25,26,27,28,29,30,31,32,33,34,35,
+	12,13,14,15,16,17,18,19,20,21,22,23,
+	0,1,2,3,4,5,6,7,8,9,10,11,
 };
 
 
@@ -131,26 +131,22 @@ void cMtPadBoard::setPadNotes(uint8_t scale, uint8_t noteOffset, uint8_t rootNot
 	 || lastNoteOffset	!= noteOffset
 	 || lastRootNote	!= rootNote)
 	{
-		// ptrPreset->scale = 3;
-		// Serial.print("scale: ");
-		// Serial.println(ptrPreset->scale);
-		// Serial.print("rootNote: ");
-		// Serial.println(ptrPreset->rootNote);
 
 		if(noteOffset > MAX_NOTE_OFFSET) noteOffset = MAX_NOTE_OFFSET;
 		//noteOffset = constrain(noteOffset, MIN_NOTE_OFFSET, MAX_NOTE_OFFSET);
-		// synth.lastNoteOffset = constrain(synth.lastNoteOffset, 1, 7);
 
 		uint16_t tempNote = rootNote; // nuta do podstawiania
-		for (int8_t a = 0; a < 32; a++)
+		for (int8_t a = 0; a < 48; a++)
 		{
-			if ((a > 7) && (a % 8 == 0))
+			if ((a > 11) && (a % 12 == 0))
 			{
-				if(noteOffset < 8) tempNote = padNotes[a - (8 - noteOffset)]; // delta wiersza
+				if(noteOffset < 12) tempNote = padNotes[a - (12 - noteOffset)]; // delta wiersza
+				else if(noteOffset == 12) tempNote = padNotes[a - 1] + 1; // delta wiersza
 				else if(noteOffset == MAX_NOTE_OFFSET)
 				{
-					if(a == 48)	tempNote = padNotes[a - (8 - 4)]; // delta 4
-					else		tempNote = padNotes[a - (8 - 5)]; // delta 5
+					//if(a == 48)	tempNote = padNotes[a - (8 - 4)]; // delta 4
+					//else
+					tempNote = padNotes[a - (12 - 5)]; // delta 5
 				}
 			}
 
@@ -162,14 +158,6 @@ void cMtPadBoard::setPadNotes(uint8_t scale, uint8_t noteOffset, uint8_t rootNot
 			}
 			padNotes[a] = tempNote;
 			tempNote++;
-
-			//if(tempNote > MAX_MEDUSA_NOTE) synth.padNotes[a] = -1;
-			// Serial.println(tempNote);
-
-			// Serial.print("a: ");
-			// Serial.print(a);
-			// Serial.print(" tempNote: ");
-			// Serial.println(tempNote);
 		}
 		lastNoteOffset 	= noteOffset;
 		lastScale 		= scale;
@@ -179,6 +167,22 @@ void cMtPadBoard::setPadNotes(uint8_t scale, uint8_t noteOffset, uint8_t rootNot
 
 
 
+uint8_t cMtPadBoard::getPadsWithNote(int8_t note, uint8_t* pads)
+{
+	uint8_t count = 0;
+
+	for(uint8_t i = 0; i < 48; i++)
+	{
+		if(padNotes[padBoard[i]] == note)
+		{
+			pads[i] = 1;
+			count++;
+		}
+		else pads[i] = 0;
+	}
+
+	return count;
+}
 
 
 

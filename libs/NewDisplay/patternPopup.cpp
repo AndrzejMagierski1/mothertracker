@@ -278,7 +278,7 @@ void cPatternPopup::refresh1()
 	//API_COLOR_A(128);
 	API_BLEND_FUNC(SRC_ALPHA, ZERO);
 	//API_BLEND_FUNC(DST_ALPHA , ZERO);
-	API_LINE_WIDTH(8);
+	API_LINE_WIDTH(16);
 	API_BEGIN(RECTS);
 	API_VERTEX2F(x, y);
 	API_VERTEX2F(x+bg_width, y+height);
@@ -305,7 +305,7 @@ void cPatternPopup::refresh1()
 		API_COLOR(colors[0]);
 
 		if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
-		else API_LINE_WIDTH(8);
+		else API_LINE_WIDTH(16);
 
 		API_BEGIN(RECTS);
 		API_VERTEX2F(border_x , border_y);

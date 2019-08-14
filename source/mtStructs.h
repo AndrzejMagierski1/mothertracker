@@ -111,7 +111,7 @@ const uint8_t RESONANCE_MASK =					128;
 const uint16_t REVERB_SEND_MASK =				256;
 
 const uint8_t MIN_NOTE_OFFSET =					0;
-const uint8_t MAX_NOTE_OFFSET =					9;
+const uint8_t MAX_NOTE_OFFSET =					13;
 
 
 
@@ -368,8 +368,8 @@ struct strMtValues
 	uint8_t lastUsedInstrument = 0;
 	uint8_t actualPattern = 0;
 
-	uint8_t padBoardScale = 3;
-	uint8_t padBoardNoteOffset = 7;
+	uint8_t padBoardScale = 0;
+	uint8_t padBoardNoteOffset = 12;
 	uint8_t padBoardRootNote = 0;
 	uint8_t padBoardMaxVoices = 8;
 
@@ -451,7 +451,7 @@ struct strMtConfig
 		uint8_t inSelect;
 		uint8_t outSelect;
 
-		float headphoneVolume = 0.5;
+		float headphoneVolume = 0.6;
 		uint8_t inputGain; // 0-63
 		uint8_t mutedHeadphone;
 		uint8_t mutedLineOut;

@@ -371,13 +371,13 @@ void FT812_Init(void)
 
 
 
-//    for(PWM = 0; PWM <= 128; PWM ++)
-//    {
-//        EVE_MemWrite8(REG_PWM_DUTY, PWM);
-//        delay(1);
-//    }
-//
-    EVE_MemWrite8(REG_PWM_DUTY, 128);
+    for(PWM = 0; PWM <= 128; PWM ++)
+    {
+        EVE_MemWrite8(REG_PWM_DUTY, PWM);
+        delayMicroseconds(3);
+    }
+
+//    EVE_MemWrite8(REG_PWM_DUTY, 128);
 
 
 // TOUCH
