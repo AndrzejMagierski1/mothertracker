@@ -987,9 +987,16 @@ static  uint8_t functFx()
 
 static  uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == 0)
+	if (sequencer.getSeqState() == 0)
 	{
-		sequencer.play();
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			sequencer.playSong();
+		}
+		else
+		{
+			sequencer.playPattern();
+		}
 	}
 	else if(sequencer.getSeqState() == 1)
 	{
