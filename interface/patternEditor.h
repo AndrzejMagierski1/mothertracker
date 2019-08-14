@@ -91,9 +91,12 @@ public:
 	void changeActualPatternEditStep(int16_t value);
 
 	void changeFillData(int16_t value);
+	void changeRandomiseData(int16_t value);
 
 	void refreshEditState();
 
+	void lightUpPadBoard();
+	void clearPadBoard();
 //----------------------------------
 	void activateLabelsBorder();
 	void activateFillPopupBorder();
@@ -137,6 +140,8 @@ public:
 	uint8_t editMode = 0;
 	uint8_t editParam = 0;
 	uint8_t isSelectingNow = 0;
+
+	uint8_t padsTempData[48];
 
 //----------------------------------
 // GUI
@@ -200,8 +205,8 @@ public:
 
 	//------------------------------------------------------
 	// random
-	uint8_t randomiseState;
-	uint8_t randomisePlace = 0;
+	uint8_t randomiseState = 0;
+	uint8_t randomisePlace = 1;
 	//
 	// listy wziete z filla
 	//
@@ -241,3 +246,7 @@ const char mtNotes[128][5] =
 };
 
 #endif /* INTERFACE_PATTERNEDITOR_H_ */
+
+
+
+

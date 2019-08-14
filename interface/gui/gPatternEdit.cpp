@@ -768,6 +768,7 @@ void cPatternEditor::showRandomisePopup()
 	}
 
 
+	display.setControlText(bottomLabel[0], "");
 	display.setControlText(bottomLabel[6], "Cancel");
 	display.setControlText(bottomLabel[7], "Randomise");
 
