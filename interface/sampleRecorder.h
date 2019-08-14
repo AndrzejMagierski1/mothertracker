@@ -63,6 +63,7 @@ public:
 //		openedInstrFromActive = 0;
 //		openedInstrumentIndex = 0;
 
+		 radioRdsLabel = nullptr;
 		 spectrumControl = nullptr;
 		 progressCursor = nullptr;
 		 topLabel[8] = {nullptr};
@@ -116,6 +117,12 @@ public:
 	void refreshConfigLists();
 	void refreshGain();
 
+	void setPrevievFlag(uint8_t s);
+
+	void refreshRDS();
+	void displaySeeking();
+	void displayEmptyRDS();
+
 	strFrameData frameData;
 	strSelectWindowData selectWindowData;
 
@@ -135,6 +142,7 @@ public:
 	hControl saveHorizontalBarControl;
 	hControl selectWindowLabel;
 	hControl progressCursor;
+	hControl radioRdsLabel;
 
 //*********************************************
 
@@ -209,8 +217,6 @@ public:
 
 	char *sourceNames[sourceCount];
 	char *monitorNames[monitorCount];
-
-
 
 //----------------------------------
 //rec

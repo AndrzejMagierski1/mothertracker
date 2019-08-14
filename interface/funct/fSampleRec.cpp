@@ -2,7 +2,7 @@
 
 #include "sampleRecorder.h"
 #include "mtRecorder.h"
-
+#include "Si4703.h"
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
 #include "mtLED.h"
@@ -168,9 +168,9 @@ static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
 
-
-
-
+#ifdef HW_WITH_RADIO
+void seek_callback(void);
+#endif
 
 
 void cSampleRecorder::update()
@@ -207,7 +207,6 @@ void cSampleRecorder::update()
 		refreshPoints = 0;
 	}
 
-
 	if(recordInProgressFlag)
 	{
 		if(firstPeakFlag)
@@ -226,6 +225,16 @@ void cSampleRecorder::update()
 		}
 	}
 
+#ifdef HW_WITH_RADIO
+	if(radio.update_RDS())
+	{
+		if(recorderConfig.source==sourceTypeRadio && currentScreen == screenTypeConfig)
+		{
+			refreshRDS();
+		}
+	}
+	radio.stateMachineSeek();
+#endif
 	if(saveInProgressFlag)
 	{
 		recorder.updateSave();
@@ -289,6 +298,11 @@ void cSampleRecorder::start(uint32_t options)
 	setDefaultScreenFunct();
 
 	activateLabelsBorder();
+#ifdef HW_WITH_RADIO
+	radio.setSeekCallback(seek_callback);
+#endif
+
+
 
 }
 
@@ -297,6 +311,10 @@ void cSampleRecorder::stop()
 {
 	audioShield.headphoneSourceSelect(0);
 	moduleRefresh = 0;
+#ifdef HW_WITH_RADIO
+	radio.resetSeekCallback();
+#endif
+
 }
 
 
@@ -344,6 +362,7 @@ void cSampleRecorder::refreshConfigLists()
 	if(recorderConfig.source == sourceTypeLineIn )
 	{
 		audioShield.inputSelect(0);
+		digitalWrite(SI4703_KLUCZ,HIGH);
 	}
 	else if(recorderConfig.source == sourceTypeMic)
 	{
@@ -352,6 +371,7 @@ void cSampleRecorder::refreshConfigLists()
 	else if(recorderConfig.source == sourceTypeRadio)
 	{
 		audioShield.inputSelect(0);
+		digitalWrite(SI4703_KLUCZ,LOW);
 	}
 }
 
@@ -641,9 +661,9 @@ static  uint8_t functSelectButton0()
 		SR->points.selected = 0;
 		SR->refreshPoints = 1;
 	}
-
 	return 1;
 }
+
 static  uint8_t functSelectButton1()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
@@ -810,6 +830,8 @@ static  uint8_t functActionButton0(uint8_t s)
 
 	return 1;
 }
+//==============================================================================================================
+
 
 static  uint8_t functActionButton1()
 {
@@ -1133,6 +1155,13 @@ static  uint8_t functActionRadioLeft()
 {
 	if(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio) return 1;
 
+#ifdef HW_WITH_RADIO
+	SR->displaySeeking();
+	radio.clearRDS();
+	radio.seekDown();
+#endif
+
+
 	return 1;
 }
 
@@ -1140,7 +1169,14 @@ static  uint8_t functActionRadioRight()
 {
 	if(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio) return 1;
 
+#ifdef HW_WITH_RADIO
+	SR->displaySeeking();
+	radio.clearRDS();
+	radio.seekUp();
+#endif
+
 	return 1;
+
 }
 
 static  uint8_t functActionPreview()
@@ -1634,7 +1670,7 @@ static uint8_t functSwitchModule(uint8_t button)
 //======================================================================================================================
 void cSampleRecorder::calcRadioFreqBarVal()
 {
-	radioFreqBarVal = ((recorderConfig.radioFreq - 87.0) * 100)/ (108 - 87);
+	radioFreqBarVal = ((recorderConfig.radioFreq - 87.5) * 100)/ (108 - 87);
 }
 void cSampleRecorder::calcLevelBarVal()
 {
@@ -1674,16 +1710,22 @@ void cSampleRecorder::changeRadioFreqBar(int16_t val)
 {
 	if(val > 0)
 	{
-		if(recorderConfig.radioFreq < 108.0f) recorderConfig.radioFreq += 0.1;
+		if(recorderConfig.radioFreq < 108.0f) recorderConfig.radioFreq += 0.05;
 	}
 	else if(val < 0)
 	{
-		if(recorderConfig.radioFreq > 87.0f) recorderConfig.radioFreq -= 0.1;
+		if(recorderConfig.radioFreq > 87.5f) recorderConfig.radioFreq -= 0.05;
 	}
 
 	calcRadioFreqBarVal();
 	drawRadioFreqBar();
-	//todo: tu fizyczna zmiana czestotliwosci
+
+#ifdef HW_WITH_RADIO
+	radio.clearRDS();
+	SR->displayEmptyRDS();
+
+	radio.setFrequency(recorderConfig.radioFreq);
+#endif
 }
 void cSampleRecorder::changeLevelBar()
 {
@@ -1732,32 +1774,38 @@ void cSampleRecorder::changeZoom(int16_t value)
 
 void cSampleRecorder::changeSourceSelection(int16_t value)
 {
-	if(value > 0)
-	{
-		if(recorderConfig.source == 1) showRadio();
-		if(recorderConfig.source < 2) recorderConfig.source++;
-	}
-	else if (value < 0)
-	{
-		if(recorderConfig.source == 2) hideRadio();
-		if(recorderConfig.source > 0) recorderConfig.source--;
-	}
-
-	if((recorderConfig.source == sourceTypeLineIn) || (recorderConfig.source == sourceTypeRadio))
-	{
-		audioShield.inputSelect(AUDIO_INPUT_LINEIN);
-		mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
-		audioShield.lineInLevel(map(recorderConfig.gain,0,100,0,15));
-	}
-	else if(recorderConfig.source == sourceTypeMic)
-	{
-		audioShield.inputSelect(AUDIO_INPUT_MIC);
-		mtConfig.audioCodecConfig.inSelect = inputSelectMic;
-		audioShield.micGain(recorderConfig.gain*63.0/100);
-	}
-	display.setControlValue(sourceListControl, recorderConfig.source);
-	display.refreshControl(sourceListControl);
-
+    if(value > 0)
+    {
+        if(recorderConfig.source == 1)
+        {
+        	digitalWrite(SI4703_KLUCZ,LOW);
+        	showRadio();
+        }
+        if(recorderConfig.source < 2) recorderConfig.source++;
+    }
+    else if (value < 0)
+    {
+        if(recorderConfig.source == 2)
+        {
+        	digitalWrite(SI4703_KLUCZ,HIGH);
+        	hideRadio();
+        }
+        if(recorderConfig.source > 0) recorderConfig.source--;
+    }
+    if((recorderConfig.source == sourceTypeLineIn) || (recorderConfig.source == sourceTypeRadio))
+    {
+        audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+        mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
+        audioShield.lineInLevel(map(recorderConfig.gain,0,100,0,15));
+    }
+    else if(recorderConfig.source == sourceTypeMic)
+    {
+        audioShield.inputSelect(AUDIO_INPUT_MIC);
+        mtConfig.audioCodecConfig.inSelect = inputSelectMic;
+        audioShield.micGain(recorderConfig.gain*63.0/100);
+    }
+    display.setControlValue(sourceListControl, recorderConfig.source);
+    display.refreshControl(sourceListControl);
 }
 
 void cSampleRecorder::changeMonitorSelection(int16_t value)
@@ -1977,3 +2025,16 @@ static uint8_t functConfirmKey()
 }
 
 
+
+#ifdef HW_WITH_RADIO
+void seek_callback(void)
+{
+	SR->recorderConfig.radioFreq = radio.getFrequency();
+
+	SR->calcRadioFreqBarVal();
+	SR->drawRadioFreqBar();
+
+	SR->displayEmptyRDS();
+
+}
+#endif

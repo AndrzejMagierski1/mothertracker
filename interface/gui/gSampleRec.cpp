@@ -1,6 +1,7 @@
 
 
 #include "sampleRecorder.h"
+#include "Si4703.h"
 #include "mtRecorder.h"
 #include "mtLED.h"
 
@@ -37,6 +38,13 @@ static  uint16_t framesPlacesS2[8][4] =
 
 uint32_t colorRed[3] = { 0xFF0000, 0xFFFFFF,0xFF0000 };
 uint32_t colorGreen[3] = { 0x00FF00, 0xFFFFFF,0x00FF00 };
+
+uint32_t radioLabelColors[3]=
+{
+		0xFFFFFF, // tekst
+		0xFFFFFF, // tło
+		0xFF0000, // ramka
+};
 
 void cSampleRecorder::initDisplayControls()
 {
@@ -184,6 +192,20 @@ void cSampleRecorder::initDisplayControls()
 	prop9.text = "Changes will be lost. Do you want to continue?";
 	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop9);
 
+
+	strControlProperties prop10;
+	prop10.text = (char*)"";
+	prop10.style = 	(controlStyleCenterX);
+	prop10.x = (800/8)*3;
+	prop10.y = 200;
+	prop10.w = 0;
+	prop10.h = 0;
+
+	prop10.colors = radioLabelColors;
+
+	if(radioRdsLabel == nullptr) radioRdsLabel = display.createControl<cLabel>(&prop10);
+
+
 }
 
 
@@ -330,6 +352,9 @@ void cSampleRecorder::showDefaultScreen()
 	}
 	else if (currentScreen == screenTypeRecord)
 	{
+		display.setControlHide(radioRdsLabel);
+		display.refreshControl(radioRdsLabel);
+
 		display.setControlShow(spectrumControl);
 		display.refreshControl(spectrumControl);
 
@@ -409,6 +434,9 @@ void cSampleRecorder::showDefaultScreen()
 	}
 	else if(currentScreen == screenTypeKeyboard)
 	{
+		display.setControlHide(radioRdsLabel);
+		display.refreshControl(radioRdsLabel);
+
 		//spectrum
 		display.setControlHide(spectrumControl);
 		display.refreshControl(spectrumControl);
@@ -474,6 +502,11 @@ void cSampleRecorder::showRadio()
 	display.refreshControl(bottomLabel[2]);
 	display.refreshControl(bottomLabel[3]);
 	display.refreshControl(radioFreqBarControl);
+
+	display.refreshControl(radioRdsLabel);
+	display.setControlShow(radioRdsLabel);
+	display.setControlText(radioRdsLabel, "");
+
 	showFreqValue();
 }
 void cSampleRecorder::hideRadio()
@@ -490,6 +523,9 @@ void cSampleRecorder::hideRadio()
 	display.refreshControl(bottomLabel[3]);
 	display.refreshControl(topLabel[1]);
 	display.refreshControl(radioFreqBarControl);
+
+	display.refreshControl(radioRdsLabel);
+	display.setControlHide(radioRdsLabel);
 }
 
 void cSampleRecorder::showKeyboard()
@@ -549,7 +585,6 @@ void cSampleRecorder::hideKeyboardEditName()
 	display.setControlHide(editName);
 	display.refreshControl(editName);
 }
-
 //==============================================================================================================
 void cSampleRecorder::activateLabelsBorder()
 {
@@ -773,7 +808,7 @@ void cSampleRecorder::showEndPointValue()
 
 void cSampleRecorder::showFreqValue()
 {
-	snprintf(freqTextValue, 5, "%f", recorderConfig.radioFreq);
+	snprintf(freqTextValue, 7, "%.2f", recorderConfig.radioFreq);
 
 	display.setControlText(topLabel[1], freqTextValue);
 	display.setControlShow(topLabel[1]);
@@ -932,3 +967,22 @@ void cSampleRecorder::showSelectionWindowFullMemory()
 }
 
 
+
+void cSampleRecorder::refreshRDS()
+{
+	display.setControlText(radioRdsLabel, radio.rds_data.nazwaStacji);
+	display.setControlShow(radioRdsLabel);
+	display.refreshControl(radioRdsLabel);
+}
+void cSampleRecorder::displaySeeking()
+{
+	display.setControlText(radioRdsLabel, "Seeking...");
+	display.setControlShow(radioRdsLabel);
+	display.refreshControl(radioRdsLabel);
+}
+void cSampleRecorder::displayEmptyRDS()
+{
+	display.setControlText(radioRdsLabel,"");
+	display.setControlShow(radioRdsLabel);
+	display.refreshControl(radioRdsLabel);
+}

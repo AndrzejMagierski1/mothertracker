@@ -11,6 +11,7 @@
 #include <SPI.h>
 #include <SD.h>
 #include <SerialFlash.h>
+#include <Si4703.h>
 
 #include "Encoder.h"
 
@@ -72,7 +73,7 @@ void hidSendButtonState(uint16_t button, uint16_t state);
 void initHardware()
 {
 
-
+	//noInterrupts();
 	hardwareTest=0;
 
 
@@ -83,6 +84,9 @@ void initHardware()
 
 	Serial.begin(9600);
 
+	pinMode(SI4703_KLUCZ,OUTPUT);
+	digitalWrite(SI4703_KLUCZ,LOW);
+
 	//....................................................
 	//CODEC AUDIO
 
@@ -90,13 +94,14 @@ void initHardware()
 //	RAM_CTRL_GPIO_DDR |= (1 << RAM_CTRL);
 //	RAM_CTRL_GPIO_SET = (1 << RAM_CTRL);
 
-		pinMode(79,OUTPUT);
-		digitalWrite(79,HIGH);
+		pinMode(80,OUTPUT);
+		digitalWrite(80,HIGH);
 
 
 
 	audioShield.enable();
 	AudioMemory(200);
+
 
 	//engine.setOut(1);
 
@@ -159,7 +164,7 @@ void initHardware()
 
 
 	Encoder.setResolution(12);
-	Encoder.setAcceleration(1);
+	Encoder.setAcceleration(3);
 
 
 	//....................................................
@@ -188,6 +193,13 @@ void initHardware()
 	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,gridToKeyMapping,IO7326_INT_FUNCT_A);
 
 	tactButtons.testMode(0);
+
+
+#ifdef HW_WITH_RADIO
+	radio.powerOn();
+	radio.setVolume(10);
+#endif
+
 
 	//LEDS
 	leds.begin();
