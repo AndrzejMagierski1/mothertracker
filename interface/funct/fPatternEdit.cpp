@@ -1453,6 +1453,7 @@ static  uint8_t functFillApply()
 	// zatwierdzanie wypelnienia
 	if(PTE->fillState)
 	{
+		cPatternEditor::strFill * fillData = &PTE->fillData[PTE->editParam];
 		(void) PTE->fillData[PTE->editParam];
 		(void) PTE->fillStep;
 		// PTE->fillData[x]		<= przechowuje dane do konfiguracji fill
@@ -1466,6 +1467,33 @@ static  uint8_t functFillApply()
 		// PTE->editParam		<= nuta / instr / vol / fx
 		//--------------------------------------------------------
 		//TU
+		sendSelection();
+		switch (PTE->editParam)
+		{
+		case 0:
+			if (fillData->type == 2)
+			{
+				sequencer.fillRandomNotes(PTE->fillStep,
+											fillData->from,
+											fillData->to);
+			}
+			else if (fillData->type == 1)
+			{
+				sequencer.fillLinearNotes(PTE->fillStep,
+											fillData->from,
+											fillData->to);
+			}
+			else if (fillData->type == 0)
+			{
+				sequencer.fillLinearNotes(PTE->fillStep,
+											fillData->from,
+											fillData->from);
+			}
+
+			break;
+		default:
+			break;
+		}
 
 
 		//--------------------------------------------------------

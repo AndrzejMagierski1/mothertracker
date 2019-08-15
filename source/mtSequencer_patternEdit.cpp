@@ -9,10 +9,11 @@
 #include "patternEditor.h"
 extern Sequencer sequencer;
 
-void Sequencer::fillRandomNotes(uint8_t step)
+void Sequencer::fillRandomNotes(uint8_t fillStep, uint8_t from, uint8_t to)
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
 
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
 	{
@@ -20,10 +21,34 @@ void Sequencer::fillRandomNotes(uint8_t step)
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % step == 0)
+			if (offset % fillStep == 0)
 			{
-				seq[player.ramBank].track[t].step[s].note =
-						random(0, MAX_NOTE_STEP + 1);
+				step = &seq[player.ramBank].track[t].step[s];
+				step->note = random(from, to + 1);
+				step->instrument = mtProject.values.lastUsedInstrument;
+			}
+		}
+	}
+}
+void Sequencer::fillLinearNotes(uint8_t fillStep, uint8_t from, uint8_t to)
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			if (offset % fillStep == 0)
+			{
+				step = &seq[player.ramBank].track[t].step[s];
+				step->note = float(from + ((to - from) * offset)) /
+						float(sel->lastStep - sel->firstStep);
+				// todo dziel/0
+				step->instrument = mtProject.values.lastUsedInstrument;
 			}
 		}
 	}

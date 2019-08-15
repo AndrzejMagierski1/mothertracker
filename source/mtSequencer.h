@@ -688,7 +688,8 @@ public:
 	// inne
 	void handle_uStep_timer(void);
 
-	void fillRandomNotes(uint8_t step);
+	void fillRandomNotes(uint8_t step, uint8_t from, uint8_t to);
+	void fillLinearNotes(uint8_t step, uint8_t from, uint8_t to);
 	void changeSelectionNote(int16_t value);
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 					uint8_t track);
