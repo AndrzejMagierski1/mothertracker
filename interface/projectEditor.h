@@ -91,7 +91,7 @@ public:
 
 	uint8_t keyboardActiveFlag = 0;
 	uint8_t keyboardShiftFlag = 0;
-
+	uint8_t lastPressedPad;
 
 //-------------------------------------------------------------
 

@@ -1,6 +1,23 @@
 #include <projectEditor.h>
 
+#include "mtLED.h"
 
+
+constexpr uint8_t BACKSPACE_PAD_1 = 10;
+constexpr uint8_t BACKSPACE_PAD_2 = 11;
+
+constexpr uint8_t CAPS_LOCK_PAD_1 = 34;
+constexpr uint8_t CAPS_LOCK_PAD_2 = 35;
+
+constexpr uint8_t SPACE_PAD_1 = 43;
+constexpr uint8_t SPACE_PAD_2 = 44;
+constexpr uint8_t SPACE_PAD_3 = 45;
+constexpr uint8_t SPACE_PAD_4 = 46;
+constexpr uint8_t SPACE_PAD_5 = 47;
+
+constexpr uint8_t F_PAD = 27;
+
+constexpr uint8_t J_PAD = 30;
 
 void cProjectEditor::initDisplayControls()
 {
@@ -24,9 +41,9 @@ void cProjectEditor::initDisplayControls()
 	{
 		strControlProperties prop2;
 		prop2.text = (char*)"";
-		prop2.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+		prop2.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleRoundedBorder);
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 450;
+		prop2.y = 450 + 30/2;
 		prop2.w = 800/8-10;
 		prop2.h = 30;
 
@@ -111,10 +128,10 @@ void cProjectEditor::showDefaultScreen()
 		display.refreshControl(bottomLabel[i]);
 	}
 
-
-	display.setControlHide(keyboardControl);
-	display.refreshControl(keyboardControl);
-
+	hideKeyboard();
+//	display.setControlHide(keyboardControl);
+//	display.refreshControl(keyboardControl);
+//
 	display.setControlHide(editName);
 	display.refreshControl(editName);
 
@@ -218,6 +235,9 @@ void cProjectEditor::showEnterNameKeyboard()
 void cProjectEditor::showKeyboard()
 {
 
+	leds.setLED(F_PAD, 1, 10);
+	leds.setLED(J_PAD, 1, 10);
+
 	if(keyboardShiftFlag) display.setControlValue(keyboardControl, keyboardPosition + 42);
 	else display.setControlValue(keyboardControl, keyboardPosition);
 
@@ -227,6 +247,30 @@ void cProjectEditor::showKeyboard()
 
 void cProjectEditor::hideKeyboard()
 {
+	if(lastPressedPad == BACKSPACE_PAD_1 || lastPressedPad == BACKSPACE_PAD_2)
+	{
+		leds.setLED(BACKSPACE_PAD_1, 0, 0);
+		leds.setLED(BACKSPACE_PAD_2, 0, 0);
+	}
+	else if(lastPressedPad == CAPS_LOCK_PAD_1 || lastPressedPad == CAPS_LOCK_PAD_2)
+	{
+		leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
+		leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
+	}
+	else if(lastPressedPad >= SPACE_PAD_1 && lastPressedPad <=SPACE_PAD_5)
+	{
+		for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
+		{
+			leds.setLED(i, 0, 0);
+		}
+	}
+	else
+	{
+		leds.setLED(lastPressedPad,0,0);
+	}
+	leds.setLED(F_PAD, 0, 0);
+	leds.setLED(J_PAD, 0, 0);
+
 	display.setControlHide(keyboardControl);
 	display.refreshControl(keyboardControl);
 }
