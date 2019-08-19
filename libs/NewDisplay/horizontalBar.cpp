@@ -8,11 +8,11 @@
 
 static uint32_t defaultColors[] =
 {
-	0xFFFFFF, // ramka okna
+	0x222222, // ramka okna
 	0x222222, // tło okna
 	0xFFFFFF, // ramka kontrolki
 	0xFFFFFF,  // tło kontrolki
-	0x000000  // tekst
+	0xFFFFFF  // tekst
 };
 
 //--------------------------------------------------------------------------------
