@@ -94,8 +94,8 @@ void initHardware()
 //	RAM_CTRL_GPIO_DDR |= (1 << RAM_CTRL);
 //	RAM_CTRL_GPIO_SET = (1 << RAM_CTRL);
 
-		pinMode(80,OUTPUT);
-		digitalWrite(80,HIGH);
+		pinMode(EXTERNAL_RAM_KEY,OUTPUT);
+		digitalWrite(EXTERNAL_RAM_KEY,HIGH);
 
 
 
