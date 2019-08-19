@@ -5,6 +5,22 @@
 #include "mtRecorder.h"
 #include "mtLED.h"
 
+constexpr uint8_t BACKSPACE_PAD_1 = 10;
+constexpr uint8_t BACKSPACE_PAD_2 = 11;
+
+constexpr uint8_t CAPS_LOCK_PAD_1 = 34;
+constexpr uint8_t CAPS_LOCK_PAD_2 = 35;
+
+constexpr uint8_t SPACE_PAD_1 = 43;
+constexpr uint8_t SPACE_PAD_2 = 44;
+constexpr uint8_t SPACE_PAD_3 = 45;
+constexpr uint8_t SPACE_PAD_4 = 46;
+constexpr uint8_t SPACE_PAD_5 = 47;
+
+constexpr uint8_t F_PAD = 27;
+
+constexpr uint8_t J_PAD = 30;
+
 static uint32_t popUpLabelColors[] =
 {
 	0xFFFFFF, // tekst
@@ -451,8 +467,8 @@ void cSampleRecorder::showDefaultScreen()
 		display.refreshControl(pointsControl);
 
 		showKeyboard();
-		leds.setLED(27, 1, 10);
-		leds.setLED(30, 1, 10);
+		leds.setLED(F_PAD, 1, 10);
+		leds.setLED(J_PAD, 1, 10);
 
 		showKeyboardEditName();
 
@@ -542,19 +558,19 @@ void cSampleRecorder::showKeyboard()
 
 void cSampleRecorder::hideKeyboard()
 {
-	if(lastPressedPad == 10 || lastPressedPad == 11)
+	if(lastPressedPad == BACKSPACE_PAD_1 || lastPressedPad == BACKSPACE_PAD_2)
 	{
-		leds.setLED(10, 0, 0);
-		leds.setLED(11, 0, 0);
+		leds.setLED(BACKSPACE_PAD_1, 0, 0);
+		leds.setLED(BACKSPACE_PAD_2, 0, 0);
 	}
-	else if(lastPressedPad == 34 || lastPressedPad == 35)
+	else if(lastPressedPad == CAPS_LOCK_PAD_1 || lastPressedPad == CAPS_LOCK_PAD_2)
 	{
-		leds.setLED(34, 0, 0);
-		leds.setLED(35, 0, 0);
+		leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
+		leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
 	}
-	else if(lastPressedPad >= 43 && lastPressedPad <=47)
+	else if(lastPressedPad >= SPACE_PAD_1 && lastPressedPad <=SPACE_PAD_5)
 	{
-		for(uint8_t i = 43; i<= 47; i++)
+		for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 		{
 			leds.setLED(i, 0, 0);
 		}
@@ -563,8 +579,8 @@ void cSampleRecorder::hideKeyboard()
 	{
 		leds.setLED(lastPressedPad,0,0);
 	}
-	leds.setLED(27, 0, 0);
-	leds.setLED(30, 0, 0);
+	leds.setLED(F_PAD, 0, 0);
+	leds.setLED(J_PAD, 0, 0);
 	display.setControlHide(keyboardControl);
 	display.refreshControl(keyboardControl);
 }

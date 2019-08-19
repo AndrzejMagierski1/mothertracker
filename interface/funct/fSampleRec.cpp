@@ -1319,10 +1319,10 @@ static  uint8_t functActionSave()
 	} while(SD.exists(localPatch));
 
 	SR->editPosition = strlen(SR->name);
-	SR->keyboardPosition = 10;
-	SR->lastPressedPad = 10;
-	leds.setLED(10, 1, 31);
-	leds.setLED(11, 1, 31);
+	SR->keyboardPosition = BACKSPACE_PAD_1;
+	SR->lastPressedPad = BACKSPACE_PAD_1;
+	leds.setLED(BACKSPACE_PAD_1, 1, 31);
+	leds.setLED(BACKSPACE_PAD_2, 1, 31);
 	SR->keyboardActiveFlag = 1;
 
 	SR->showDefaultScreen();
