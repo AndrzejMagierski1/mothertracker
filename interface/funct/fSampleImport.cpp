@@ -782,6 +782,7 @@ void cSampleImporter::playSdFile()
 void cSampleImporter::playSampleFromBank()
 {
 	if(currentCopyStatusFlag || loadFlag) return;
+	if(!mtProject.instrument[selectedSlot].sample.loaded) return;
 
 	if(sequencer.getSeqState() == 1)
 	{
