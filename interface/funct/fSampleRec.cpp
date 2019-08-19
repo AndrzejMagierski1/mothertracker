@@ -109,6 +109,23 @@ constexpr uint8_t keyPositionToPads[42] =
 	24,25,26,27,28,29,30,31,32,33,34,
 	36,37,38,39,40,41,42,43
 };
+
+constexpr uint8_t BACKSPACE_PAD_1 = 10;
+constexpr uint8_t BACKSPACE_PAD_2 = 11;
+
+constexpr uint8_t CAPS_LOCK_PAD_1 = 34;
+constexpr uint8_t CAPS_LOCK_PAD_2 = 35;
+
+constexpr uint8_t SPACE_PAD_1 = 43;
+constexpr uint8_t SPACE_PAD_2 = 44;
+constexpr uint8_t SPACE_PAD_3 = 45;
+constexpr uint8_t SPACE_PAD_4 = 46;
+constexpr uint8_t SPACE_PAD_5 = 47;
+
+constexpr uint8_t F_PAD = 27;
+
+constexpr uint8_t J_PAD = 30;
+
 extern AudioControlSGTL5000 audioShield;
 
 cSampleRecorder sampleRecorder;
@@ -1005,54 +1022,54 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	{
 		if(SR->keyboardActiveFlag)
 		{
-			if(SR->lastPressedPad == 10 || SR->lastPressedPad == 11) //backspace
+			if(SR->lastPressedPad == BACKSPACE_PAD_1 || SR->lastPressedPad == BACKSPACE_PAD_2) //backspace
 			{
-				leds.setLED(10, 0, 0);
-				leds.setLED(11, 0, 0);
+				leds.setLED(BACKSPACE_PAD_1, 0, 0);
+				leds.setLED(BACKSPACE_PAD_2, 0, 0);
 			}
-			else if(SR->lastPressedPad == 34 || SR->lastPressedPad == 35) //capslock
+			else if(SR->lastPressedPad == CAPS_LOCK_PAD_1 || SR->lastPressedPad == CAPS_LOCK_PAD_2) //capslock
 			{
 				if(SR->keyboardShiftFlag)
 				{
-					leds.setLED(34, 1, 10);
-					leds.setLED(35, 1, 10);
+					leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
+					leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
 				}
 				else
 				{
-					leds.setLED(34, 0, 0);
-					leds.setLED(35, 0, 0);
+					leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
+					leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
 				}
 
 			}
-			else if(SR->lastPressedPad >= 43 && SR->lastPressedPad <=47) //space
+			else if(SR->lastPressedPad >= SPACE_PAD_1 && SR->lastPressedPad <=SPACE_PAD_5) //space
 			{
-				for(uint8_t i = 43; i<= 47; i++)
+				for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 				{
 					leds.setLED(i, 0, 0);
 				}
 			}
 			else
 			{
-				if(SR->lastPressedPad != 27 && SR->lastPressedPad != 30) leds.setLED(SR->lastPressedPad,0,0);
+				if(SR->lastPressedPad != F_PAD && SR->lastPressedPad != J_PAD) leds.setLED(SR->lastPressedPad,0,0);
 				else leds.setLED(SR->lastPressedPad,1,10);
 			}
 
 
 			SR->lastPressedPad = pad;
 
-			if(pad == 10 || pad == 11) //backspace
+			if(pad == BACKSPACE_PAD_1 || pad == BACKSPACE_PAD_2) //backspace
 			{
-				leds.setLED(10, 1, 31);
-				leds.setLED(11, 1, 31);
+				leds.setLED(BACKSPACE_PAD_1, 1, 31);
+				leds.setLED(BACKSPACE_PAD_2, 1, 31);
 			}
-			else if(pad == 34 || pad == 35) //capslock
+			else if(pad == CAPS_LOCK_PAD_1 || pad == CAPS_LOCK_PAD_2) //capslock
 			{
-				leds.setLED(34, 1, 31);
-				leds.setLED(35, 1, 31);
+				leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
+				leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
 			}
-			else if(pad >= 43 && pad <=47) //space
+			else if(pad >= SPACE_PAD_1 && pad <=SPACE_PAD_5) //space
 			{
-				for(uint8_t i = 43; i<= 47; i++)
+				for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 				{
 					leds.setLED(i, 1, 31);
 				}
@@ -1095,7 +1112,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			{
 				SR->keyboardShiftFlag = ! SR->keyboardShiftFlag;
 //				SR->showKeyboard();
-
 			}
 			SR->showKeyboard();
 			SR->showKeyboardEditName();
@@ -1929,54 +1945,54 @@ static uint8_t functConfirmKey()
 		if(SR->editPosition > 31) return 1;
 
 //****************************************************ledy
-		if(SR->lastPressedPad == 10 || SR->lastPressedPad == 11) //backspace
+		if(SR->lastPressedPad == BACKSPACE_PAD_1 || SR->lastPressedPad == BACKSPACE_PAD_2) //backspace
 		{
-			leds.setLED(10, 0, 0);
-			leds.setLED(11, 0, 0);
+			leds.setLED(BACKSPACE_PAD_1, 0, 0);
+			leds.setLED(BACKSPACE_PAD_2, 0, 0);
 		}
-		else if(SR->lastPressedPad == 34 || SR->lastPressedPad == 35) //capslock
+		else if(SR->lastPressedPad == CAPS_LOCK_PAD_1 || SR->lastPressedPad == CAPS_LOCK_PAD_2) //capslock
 		{
 			if(SR->keyboardShiftFlag)
 			{
-				leds.setLED(34, 1, 10);
-				leds.setLED(35, 1, 10);
+				leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
+				leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
 			}
 			else
 			{
-				leds.setLED(34, 0, 0);
-				leds.setLED(35, 0, 0);
+				leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
+				leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
 			}
 
 		}
-		else if(SR->lastPressedPad >= 43 && SR->lastPressedPad <=47) //space
+		else if(SR->lastPressedPad >= SPACE_PAD_1 && SR->lastPressedPad <= SPACE_PAD_5) //space
 		{
-			for(uint8_t i = 43; i<= 47; i++)
+			for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 			{
 				leds.setLED(i, 0, 0);
 			}
 		}
 		else
 		{
-			if(SR->lastPressedPad != 27 && SR->lastPressedPad != 30) leds.setLED(SR->lastPressedPad,0,0);
+			if(SR->lastPressedPad != F_PAD && SR->lastPressedPad != J_PAD) leds.setLED(SR->lastPressedPad,0,0);
 			else leds.setLED(SR->lastPressedPad,1,10);
 		}
 
 
 		SR->lastPressedPad = keyPositionToPads[SR->keyboardPosition];
 
-		if(keyPositionToPads[SR->keyboardPosition] == 10 || keyPositionToPads[SR->keyboardPosition] == 11) //backspace
+		if(keyPositionToPads[SR->keyboardPosition] == BACKSPACE_PAD_1 || keyPositionToPads[SR->keyboardPosition] == BACKSPACE_PAD_2) //backspace
 		{
-			leds.setLED(10, 1, 31);
-			leds.setLED(11, 1, 31);
+			leds.setLED(BACKSPACE_PAD_1, 1, 31);
+			leds.setLED(BACKSPACE_PAD_2, 1, 31);
 		}
-		else if(keyPositionToPads[SR->keyboardPosition] == 34 || keyPositionToPads[SR->keyboardPosition] == 35) //capslock
+		else if(keyPositionToPads[SR->keyboardPosition] == CAPS_LOCK_PAD_1 || keyPositionToPads[SR->keyboardPosition] == CAPS_LOCK_PAD_2) //capslock
 		{
-			leds.setLED(34, 1, 31);
-			leds.setLED(35, 1, 31);
+			leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
+			leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
 		}
-		else if(keyPositionToPads[SR->keyboardPosition] >= 43 && keyPositionToPads[SR->keyboardPosition] <=47) //space
+		else if(keyPositionToPads[SR->keyboardPosition] >= SPACE_PAD_1 && keyPositionToPads[SR->keyboardPosition] <=SPACE_PAD_5) //space
 		{
-			for(uint8_t i = 43; i<= 47; i++)
+			for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 			{
 				leds.setLED(i, 1, 31);
 			}
