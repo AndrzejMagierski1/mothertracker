@@ -151,19 +151,19 @@ void cSampleRecorder::initDisplayControls()
 	if(radioFreqBarControl == nullptr)  radioFreqBarControl = display.createControl<cBar>(&prop5);
 
 	strControlProperties prop6;
-	prop6.x = 80;
-	prop6.y = 170;
-	prop6.w = 650;
-	prop6.h = 210;
+	prop6.x = 10;
+	prop6.y = 120;
+	prop6.w = 780;
+	prop6.h = 280;
 	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cKeyboard>(&prop6);
 
 	strControlProperties prop7;
 	prop7.text = (char*)"";
-	prop7.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
-	prop7.x = 398;
-	prop7.y = 120;
-	prop7.w = 635;
-	prop7.h = 30;
+	prop7.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleRoundedBorder);
+	prop7.x = 393;
+	prop7.y = 60;
+	prop7.w = 765;
+	prop7.h = 40;
 	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop7);
 
 	strControlProperties prop8;
