@@ -273,6 +273,7 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 
 			 memcpy(mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.file_name,mtProject.mtProjectRemote.instrumentFile[i].sample.name, SAMPLE_NAME_SIZE);
 			 mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.type=mtProject.mtProjectRemote.instrumentFile[i].sample.type;
+			 mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].isActive = 1;
 			 mtProject.instruments_count++;
 		 }
 	}
@@ -450,7 +451,6 @@ uint8_t FileManager::startImportSampleToProject(char* filePatch, char* name, int
 
 	if(mtProject.instrument[instrumentIndex].isActive == 0)
 	{
-		mtProject.instrument[instrumentIndex].isActive = 1;
 		mtProject.mtProjectRemote.instrumentFile[instrumentIndex].index = instrumentIndex;
 
 		strcpy(mtProject.mtProjectRemote.instrumentFile[instrumentIndex].name,"instrument_00.mti");
@@ -1141,23 +1141,45 @@ void FileManager::deleteInstrument(int8_t index)
 {
 	char currentPatch[PATCH_SIZE];
 
-	uint8_t cnt=0;
 
-	while((mtProject.mtProjectRemote.instrumentFile[cnt].index != index) && (cnt < INSTRUMENTS_COUNT) )
-	{
-			cnt++;
-	}
-	if((cnt == INSTRUMENTS_COUNT) && (!mtProject.instrument[index].isActive)) return;
+//	uint8_t cnt=0;
+//
+//	while((mtProject.mtProjectRemote.instrumentFile[cnt].index != index) && (cnt < INSTRUMENTS_COUNT) )
+//	{
+//			cnt++;
+//	}
+//	if((cnt == INSTRUMENTS_COUNT) && (!mtProject.instrument[index].isActive)) return;
+//
+//	strcpy(currentPatch,currentProjectPatch);
+//	strcat(currentPatch,"/instruments/");
+//	strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[cnt].name);
+//
+//	if(SD.exists(currentPatch)) SD.remove(currentPatch);
+//
+//
+//	mtProject.mtProjectRemote.instrumentFile[cnt].index=-1;
+//	memset(mtProject.mtProjectRemote.instrumentFile[cnt].name,0,INSTRUMENT_NAME_SIZE);
+//	memset(&mtProject.instrument[index],0,sizeof(mtProject.instrument[index]));
+//
+//	deleteSample(index);
+//	mtProject.instruments_count--;
+//
+//	memset(currentPatch,0,PATCH_SIZE);
+//	strcpy(currentPatch,currentProjectPatch);
+//	strcat(currentPatch,"/project.bin");
+//
+//	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 
+//********************* tam bylo zalozenie ze w slotach instrumentow moga byc rozne indeksy ***********//
 	strcpy(currentPatch,currentProjectPatch);
 	strcat(currentPatch,"/instruments/");
-	strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[cnt].name);
+	strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[index].name);
 
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 
 
-	mtProject.mtProjectRemote.instrumentFile[cnt].index=-1;
-	memset(mtProject.mtProjectRemote.instrumentFile[cnt].name,0,INSTRUMENT_NAME_SIZE);
+	mtProject.mtProjectRemote.instrumentFile[index].index=-1;
+	memset(mtProject.mtProjectRemote.instrumentFile[index].name,0,INSTRUMENT_NAME_SIZE);
 	memset(&mtProject.instrument[index],0,sizeof(mtProject.instrument[index]));
 
 	deleteSample(index);

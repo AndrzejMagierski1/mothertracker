@@ -59,6 +59,27 @@ void SamplesLoader::update()
 				strcat(currentPatch, ".wav");
 			}
 
+			if(mtProject.instrument[currentIndex].isActive == 0)
+			{
+				mtProject.instrument[currentIndex].sample.loaded = 0;
+				mtProject.instrument[currentIndex].sample.length = 0;
+				mtProject.instrument[currentIndex].sample.wavetable_window_size = 0;
+
+
+				if(currentIndex + 1 < INSTRUMENTS_COUNT)
+				{
+					mtProject.instrument[currentIndex+1].sample.address = mtProject.instrument[currentIndex].sample.address;
+					currentIndex++;
+				}
+				else
+				{
+					memoryUsageChange = 1;
+					if(firstLoadFlag) firstLoadFlag = 0;
+					state = loaderStateTypeEnded;
+				}
+				currentStepLoadSize = 0;
+				return;
+			}
 			if(mtProject.instrument[currentIndex].sample.type == mtSampleTypeWavetable)
 			{
 
