@@ -170,7 +170,7 @@ static  uint8_t functAddSlot()
 
 	mtProject.mtProjectRemote.song.playlist[SE->selectedPattern+1] =mtProject.mtProjectRemote.song.playlist[SE->selectedPattern];
 
-	if(SE->songLength < (PATTERNS_COUNT-1))
+	if(SE->songLength < 15)//if(SE->songLength < (PATTERNS_COUNT-1))// 15 do czasu poprawy obslugi listy w interfejsie
 	{
 		if(SE->songLength)
 		{
