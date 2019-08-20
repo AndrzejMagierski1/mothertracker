@@ -55,8 +55,8 @@ void cPatternEditor::initDisplayControls()
 		prop2.h = 30;
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.y = i>3 ? 450 : 435;
-		prop2.h = i>3 ? 60 : 30;
+		prop2.y = i>3 ? 452 : 437;
+		prop2.h = i>3 ? 59 : 28;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 
 	}
