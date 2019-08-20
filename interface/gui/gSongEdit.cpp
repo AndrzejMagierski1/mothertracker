@@ -120,7 +120,7 @@ void cSongEditor::showDefaultScreen()
 void cSongEditor::showPatternsList()
 {
 	patternsList.length = songLength;
-	patternsList.linesCount = 12;
+	patternsList.linesCount = 15;
 	patternsList.data = patternNames;
 	patternsList.start=selectedPattern;
 

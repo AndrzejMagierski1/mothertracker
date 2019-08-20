@@ -174,6 +174,11 @@ static  uint8_t functAddSlot()
 		}
 
 		SE->songLength++;
+
+		if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern]==0)
+		{
+			mtProject.mtProjectRemote.song.playlist[SE->selectedPattern]=1;
+		}
 	}
 
 	SE->listPatterns();
@@ -194,6 +199,8 @@ static  uint8_t functDeleteSlot()
 	Serial.println(SE->selectedPattern);
 	Serial.println(SE->songLength);
 
+	mtProject.mtProjectRemote.song.playlist[SE->songLength]=0;
+
 	for(int i = SE->selectedPattern; i < SE->songLength ; i++)
 	{
 		mtProject.mtProjectRemote.song.playlist[i] = mtProject.mtProjectRemote.song.playlist[i+1];
@@ -207,10 +214,13 @@ static  uint8_t functDeleteSlot()
 		{
 			if(SE->selectedPattern)
 			{
+
 				SE->selectedPattern--;
 			}
 		}
 	}
+
+
 
 	SE->listPatterns();
 	SE->showPatternsList();
