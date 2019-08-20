@@ -757,4 +757,36 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
 
 }
 
+uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note)
+{
+	uint8_t status=0;
+	envelopeAmpPtr->delay(0);
+	envelopeAmpPtr->attack(0);
+	envelopeAmpPtr->hold(0);
+	envelopeAmpPtr->decay(0);
+	envelopeAmpPtr->sustain(1.0);
+	envelopeAmpPtr->release(0.0f);
+
+
+	filterDisconnect();
+	ampPtr->gain(1.0);
+
+	mixerL.gain(numPanChannel,1.0);
+	mixerR.gain(numPanChannel,1.0);
+	mixerReverb.gain(numPanChannel,0.0);
+	/*======================================================================================================*/
+	limiter[0].setAttack(300);
+	limiter[0].setRelease(10);
+	limiter[0].setThreshold(32000);
+	limiter[1].setAttack(300);
+	limiter[1].setRelease(10);
+	limiter[1].setThreshold(32000);
+
+	status = playMemPtr->playForPrev(addr,len,note);
+	envelopeAmpPtr->noteOn();
+
+	return status;
+
+}
+
 

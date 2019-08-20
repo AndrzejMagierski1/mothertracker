@@ -666,3 +666,60 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len)
 	return successInit;
 
 }
+
+uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n)
+{
+	uint32_t startPoint,endPoint;
+	int8_t note=n;
+	playing = 0;
+	prior = 0;
+	stopLoop=0;
+	loopBackwardFlag=0;
+	iPitchCounter=0;
+	fPitchCounter=0;
+	glideCounter=0;
+	slideCounter=0;
+
+	glide=0;
+	currentTune=0;
+	lastNote=-1;
+
+	if( (note + currentTune) > (MAX_NOTE-1))
+	{
+		if(lastNote>note) currentTune=(MAX_NOTE-1)-lastNote;
+		else currentTune=(MAX_NOTE-1)-note;
+	}
+	if( (note + currentTune) < MIN_NOTE)
+	{
+		if((lastNote>=0) && (lastNote<note)) currentTune=MIN_NOTE-lastNote;
+		else currentTune=MIN_NOTE-note;
+	}
+
+	if(lastNote>=0) pitchControl=notes[lastNote + currentTune];
+	else pitchControl=notes[note+ currentTune];
+
+	int16_t * data = addr;
+
+	playMode=singleShot;
+
+	startLen=len;
+
+	startPoint=0;
+	endPoint=MAX_16BIT;
+	currentFineTune=0;
+	fineTuneControl=0;
+
+
+	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
+	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
+	sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
+
+	next = data+samplePoints.start;
+	beginning = data+samplePoints.start;
+	length =startLen-samplePoints.start;
+
+	playing = 0x81;
+
+	return successInit;
+
+}
