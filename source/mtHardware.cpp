@@ -1,6 +1,5 @@
 
 #include "mtHardware.h"
-#include "AnalogInputs.h"
 
 #include "keyScanner.h"
 #include "mtLED.h"
