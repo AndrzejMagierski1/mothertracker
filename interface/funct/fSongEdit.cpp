@@ -131,7 +131,11 @@ void cSongEditor::setDefaultScreenFunct()
 
 static  uint8_t functIncPattern()
 {
-	mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] += 1;
+	if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] < 99)
+	{
+		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] += 1;
+	}
+
 	SE->selectedPlace = 0;
 
 	SE->listPatterns();
@@ -143,7 +147,7 @@ static  uint8_t functIncPattern()
 
 static  uint8_t functDecPattern()
 {
-	if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern])
+	if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern]>1)
 	{
 		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] -= 1;
 	}
