@@ -168,7 +168,7 @@ void Si4703::si4703_init()
 	delay(500); //Wait for clock to settle - from AN230 page 9
 
 	readRegisters(); //Read the current register set
-	si4703_registers[rPOWERCFG] = (ENABLE | DMUTE | DSMUTE | RDSM);
+	si4703_registers[rPOWERCFG] = (ENABLE | DMUTE | DSMUTE | RDSM | MONO);
 
 	si4703_registers[rSYSCONFIG1] |= DE; //50kHz Europe setup
 	si4703_registers[rSYSCONFIG2] |= SPACE(SPACING_50kHz); //50kHz channel spacing for Europe
