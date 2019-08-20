@@ -46,7 +46,7 @@ typedef void (*user_callback_t)(void);
 class Si4703
 {
 public:
-	Si4703(int resetPin, int sdioPin, int sclkPin,int senPin, int interruptPin);
+	Si4703(int resetPin, int sdioPin, int sclkPin, int interruptPin);
 	void powerOn();					// call in setup
 	void powerOff();
 	void seekUp(); 					// returns the tuned channel or 0
@@ -76,7 +76,6 @@ private:
 	int  _resetPin;
 	int  _sdioPin;
 	int  _sclkPin;
-	int _senPin;
 	int _interruptPin;
 
 	void si4703_init();

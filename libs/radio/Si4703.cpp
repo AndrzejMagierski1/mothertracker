@@ -6,7 +6,7 @@
 #include "mtHardware.h"
 
 
-Si4703 radio(SI4703_RST, 48, 47, SI4703_SEN,SI4703_GPIO_2);
+Si4703 radio(SI4703_RST, 48, 47,SI4703_GPIO_2);
 
 seek_control_t seek_control;
 user_callback_t callback_func=NULL;
@@ -37,12 +37,11 @@ void timeFromRDS(uint8_t hour,uint8_t minute)
 	radio.rds_data.minuta=minute;
 }
 
-Si4703::Si4703(int resetPin, int sdioPin, int sclkPin, int senPin, int interruptPin)
+Si4703::Si4703(int resetPin, int sdioPin, int sclkPin, int interruptPin)
 {
 	_resetPin = resetPin;
 	_sdioPin = sdioPin;
 	_sclkPin = sclkPin;
-	_senPin = senPin;
 	_interruptPin = interruptPin;
 }
 
@@ -154,9 +153,7 @@ void Si4703::si4703_init()
 {
 	pinMode(_resetPin, OUTPUT);
 	pinMode(_sdioPin, OUTPUT); //SDIO is connected to A4 for I2C
-	pinMode(_senPin,OUTPUT);
 	digitalWrite(_sdioPin, LOW); //A low SDIO indicates a 2-Wire interface
-	digitalWrite(_senPin,HIGH);
 	digitalWrite(_resetPin, LOW); //Put Si4703 into reset
 	delay(1); //Some delays while we allow pins to settle
 	digitalWrite(_resetPin, HIGH); //Bring Si4703 out of reset with SDIO set to low and SEN pulled high with on-board resistor
