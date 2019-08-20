@@ -16,6 +16,7 @@ static uint32_t defaultColors[] =
 	0xFFFFFF, // volume
 	0xFFFFFF, // effekt
 	0xFF0000, // zaznaczenie
+	0x111111, // podzialka
 };
 
 
@@ -169,18 +170,40 @@ uint8_t cTracker::append(uint32_t address)
 //--------------------------------------------------------------------------------
 void cTracker::refresh1()
 {
-/*
-	posX = tracks->part;
-
-	firstVisibleTrack = tracks->part/186;
-	visibleTracksOffset = tracks->part%186;
-	visibleCharOffset = visibleTracksOffset/12;  // font width = 12
-*/
-	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
-	//API_COLOR_A(128);
-
 	colors[6] = tracks->selectColor;
 
+
+	//--------------------
+	// podzialka
+	int16_t div_row = tracks->actualStep-7;
+
+	API_COLOR(colors[7]);
+	//API_BLEND_FUNC(DST_ALPHA , ZERO);
+	API_LINE_WIDTH(16);
+	API_BEGIN(RECTS);
+
+	for(uint16_t i = 0; i < 15; i++)
+	{
+		if(div_row < 0 || div_row > tracks->patternLength-1)
+		{
+			div_row++;
+			continue;
+		}
+
+		if(div_row % tracks->stepDevider == 0)
+		{
+			API_VERTEX2F(0, (i*28)+1);
+			API_VERTEX2F(799, (i*28)+27);
+		}
+
+		div_row++;
+	}
+
+	API_END();
+	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+
+
+	//--------------------
 	// linie
 	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[0]);
@@ -210,7 +233,6 @@ void cTracker::refresh1()
 	//API_VERTEX2F(799, posY+25);
 
 
-
 	//--------------------
 	//playhead
 	if(tracks->playheadPosition > tracks->actualStep-8 &&  tracks->playheadPosition < tracks->actualStep+8)
@@ -227,11 +249,9 @@ void cTracker::refresh1()
 	}
 	//--------------------
 
-
-//	API_VERTEX2F(0, posY+28*15);
-//	API_VERTEX2F(799, posY+28*15);
-
 	API_END();
+
+
 
 	//--------------------
 	// RAMKA ACTUAL
@@ -347,6 +367,8 @@ void cTracker::refresh1()
 
 
 
+
+	// numery stepow
 	int16_t row = tracks->actualStep-6;
 
 	API_COLOR(colors[1]);
