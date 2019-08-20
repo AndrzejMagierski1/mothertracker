@@ -394,14 +394,16 @@ void cSampleRecorder::refreshConfigLists()
 
 void cSampleRecorder::refreshGain()
 {
-	if(recorderConfig.source == sourceTypeLineIn)
+	if((recorderConfig.source == sourceTypeLineIn) || (recorderConfig.source == sourceTypeRadio))
 	{
-		uint8_t localMap = recorderConfig.gain *15/100;
+		uint8_t localMap;
+		if(recorderConfig.source == sourceTypeLineIn) localMap = recorderConfig.gainLineIn *15/100;
+		else if(recorderConfig.source == sourceTypeRadio) localMap = recorderConfig.gainRadio *15/100;
 		audioShield.lineInLevel(localMap);
 	}
-	else if((recorderConfig.source == sourceTypeMic) || (recorderConfig.source == sourceTypeRadio))
+	else if(recorderConfig.source == sourceTypeMic)
 	{
-		float localMap = recorderConfig.gain* 63.0 / 100.0;
+		float localMap = recorderConfig.gainMic* 63.0 / 100.0;
 		audioShield.micGain(localMap);
 	}
 }
@@ -1117,6 +1119,20 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			SR->showKeyboardEditName();
 			return 1;
 		}
+		else
+		{
+			if(state == 1)
+			{
+				uint32_t length;
+				uint32_t addressShift;
+				length =(uint32_t)((uint32_t)SR->endPoint * (float)(recorder.getLength()/2)/MAX_16BIT);
+
+				addressShift = (uint32_t)( (uint32_t)SR->startPoint * (float)(recorder.getLength()/2)/MAX_16BIT);
+
+				mtPadBoard.startInstrument(pad,recorder.getStartAddress()+ addressShift,length - addressShift );
+			}
+
+		}
 
 		return 1;
 	}
@@ -1125,6 +1141,10 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		if(SR->keyboardActiveFlag)
 		{
 
+		}
+		else
+		{
+			mtPadBoard.stopInstrument(pad);
 		}
 	}
 
@@ -1718,7 +1738,10 @@ void cSampleRecorder::calcLevelBarVal()
 }
 void cSampleRecorder::calcGainBarVal()
 {
-	gainBarVal = recorderConfig.gain;
+	if(recorderConfig.source == sourceTypeLineIn) gainBarVal = recorderConfig.gainLineIn;
+	else if(recorderConfig.source == sourceTypeRadio) gainBarVal = recorderConfig.gainRadio;
+	else if(recorderConfig.source == sourceTypeMic) gainBarVal = recorderConfig.gainMic;
+
 }
 
 
@@ -1751,23 +1774,67 @@ void cSampleRecorder::changeLevelBar()
 }
 void cSampleRecorder::changeGainBar(int16_t val)
 {
-	if(val > 0)
+	if(recorderConfig.source == sourceTypeLineIn)
 	{
-		if(recorderConfig.gain < 100)
+		if(val > 0)
 		{
-			recorderConfig.gain++;
-			refreshGain();
-		}
+			if(recorderConfig.gainLineIn < 100)
+			{
+				recorderConfig.gainLineIn++;
+				refreshGain();
+			}
 
-	}
-	else if(val < 0)
-	{
-		if(recorderConfig.gain > 0)
+		}
+		else if(val < 0)
 		{
-			recorderConfig.gain--;
-			refreshGain();
+			if(recorderConfig.gainLineIn > 0)
+			{
+				recorderConfig.gainLineIn--;
+				refreshGain();
+			}
 		}
 	}
+	else if(recorderConfig.source == sourceTypeRadio)
+	{
+		if(val > 0)
+		{
+			if(recorderConfig.gainRadio < 100)
+			{
+				recorderConfig.gainRadio++;
+				refreshGain();
+			}
+
+		}
+		else if(val < 0)
+		{
+			if(recorderConfig.gainRadio > 0)
+			{
+				recorderConfig.gainRadio--;
+				refreshGain();
+			}
+		}
+	}
+	else if(recorderConfig.source == sourceTypeMic)
+	{
+		if(val > 0)
+		{
+			if(recorderConfig.gainMic < 100)
+			{
+				recorderConfig.gainMic++;
+				refreshGain();
+			}
+
+		}
+		else if(val < 0)
+		{
+			if(recorderConfig.gainMic > 0)
+			{
+				recorderConfig.gainMic--;
+				refreshGain();
+			}
+		}
+	}
+
 	calcGainBarVal();
 	drawGainBar();
 }
@@ -1812,16 +1879,19 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
     {
         audioShield.inputSelect(AUDIO_INPUT_LINEIN);
         mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
-        audioShield.lineInLevel(map(recorderConfig.gain,0,100,0,15));
+        if(recorderConfig.source == sourceTypeLineIn)  audioShield.lineInLevel(map(recorderConfig.gainLineIn,0,100,0,15));
+        else if(recorderConfig.source == sourceTypeRadio) audioShield.lineInLevel(map(recorderConfig.gainRadio,0,100,0,15));
     }
     else if(recorderConfig.source == sourceTypeMic)
     {
         audioShield.inputSelect(AUDIO_INPUT_MIC);
         mtConfig.audioCodecConfig.inSelect = inputSelectMic;
-        audioShield.micGain(recorderConfig.gain*63.0/100);
+        audioShield.micGain(recorderConfig.gainMic*63.0/100);
     }
     display.setControlValue(sourceListControl, recorderConfig.source);
     display.refreshControl(sourceListControl);
+    calcGainBarVal();
+    drawGainBar();
 }
 
 void cSampleRecorder::changeMonitorSelection(int16_t value)
