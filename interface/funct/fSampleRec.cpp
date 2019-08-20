@@ -313,6 +313,7 @@ void cSampleRecorder::stop()
 	moduleRefresh = 0;
 #ifdef HW_WITH_RADIO
 	radio.resetSeekCallback();
+	hideRadio();
 #endif
 
 }
