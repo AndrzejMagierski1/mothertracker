@@ -19,8 +19,6 @@ void Recorder:: startRecording(int16_t * addr)
 
 	queue.begin();
 	mode = recorderModeRec;
-
-	mode = recorderModeRec;
 	recByteSaved = 0;
 }
 
