@@ -1491,6 +1491,49 @@ static  uint8_t functFillApply()
 			}
 
 			break;
+		case 1:
+			if (fillData->type == 0)
+			{
+				sequencer.fillLinearInstruments(PTE->fillStep,
+												fillData->from,
+												fillData->from);
+			}
+			else if (fillData->type == 1)
+			{
+				sequencer.fillLinearInstruments(PTE->fillStep,
+												fillData->from,
+												fillData->to);
+			}
+			else if (fillData->type == 2)
+			{
+				sequencer.fillRandomInstruments(PTE->fillStep,
+												fillData->from,
+												fillData->to);
+			}
+
+			break;
+
+		case 2:
+			if (fillData->type == 0)
+			{
+				sequencer.fillLinearVelocity(PTE->fillStep,
+											fillData->from,
+											fillData->from);
+			}
+			else if (fillData->type == 1)
+			{
+				sequencer.fillLinearVelocity(PTE->fillStep,
+											fillData->from,
+											fillData->to);
+			}
+			else if (fillData->type == 2)
+			{
+				sequencer.fillRandomVelocity(PTE->fillStep,
+											fillData->from,
+											fillData->to);
+			}
+
+			break;
 		default:
 			break;
 		}

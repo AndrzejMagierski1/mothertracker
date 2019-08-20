@@ -45,16 +45,125 @@ void Sequencer::fillLinearNotes(uint8_t fillStep, uint8_t from, uint8_t to)
 			if (offset % fillStep == 0)
 			{
 				step = &seq[player.ramBank].track[t].step[s];
-				step->note = float(from + ((to - from) * offset)) /
-						float(sel->lastStep - sel->firstStep);
-				// todo dziel/0
+				step->note = map(offset + sel->firstStep,
+									sel->firstStep,
+									sel->lastStep,
+									from,
+									to);
 				step->instrument = mtProject.values.lastUsedInstrument;
 			}
 		}
 	}
 }
+void Sequencer::fillLinearInstruments(uint8_t fillStep, uint8_t from,
+										uint8_t to)
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
 
-void Sequencer::randomExisting()
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			if (offset % fillStep == 0)
+			{
+				step = &seq[player.ramBank].track[t].step[s];
+				step->instrument = map(offset + sel->firstStep,
+										sel->firstStep,
+										sel->lastStep,
+										from,
+										to);
+				if (step->note == STEP_NOTE_EMPTY)
+				{
+					step->note = STEP_NOTE_DEFAULT;
+				}
+
+			}
+		}
+	}
+}
+
+void Sequencer::fillRandomInstruments(uint8_t fillStep, uint8_t from,
+										uint8_t to)
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			if (offset % fillStep == 0)
+			{
+				step = &seq[player.ramBank].track[t].step[s];
+				step->instrument = random(from, to + 1);
+
+				if (step->note == STEP_NOTE_EMPTY)
+				{
+					step->note = STEP_NOTE_DEFAULT;
+				}
+			}
+		}
+	}
+}
+
+void Sequencer::fillLinearVelocity(uint8_t fillStep, uint8_t from,
+									uint8_t to)
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			if (offset % fillStep == 0)
+			{
+				step = &seq[player.ramBank].track[t].step[s];
+				step->velocity = map(offset + sel->firstStep,
+										sel->firstStep,
+										sel->lastStep,
+										from,
+										to);
+
+			}
+		}
+	}
+}
+
+void Sequencer::fillRandomVelocity(uint8_t fillStep, uint8_t from,
+									uint8_t to)
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			if (offset % fillStep == 0)
+			{
+				step = &seq[player.ramBank].track[t].step[s];
+				step->velocity = random(from, to + 1);
+
+			}
+		}
+	}
+}
+
+void Sequencer::randomSelection(uint8_t from, uint8_t to, uint8_t byStep, uint8_t scale)
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
@@ -69,7 +178,7 @@ void Sequencer::randomExisting()
 			step = &seq[player.ramBank].track[t].step[s];
 			if (step->note >= 0)
 			{
-				step->note = random(0, MAX_NOTE_STEP + 1);
+				step->note = random(from, to + 1);
 			}
 		}
 	}
@@ -195,22 +304,38 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 				s++, offset++)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
-			step->instrument = constrain(step->instrument + value, 0,
-											INSTRUMENTS_COUNT);
-			if (step->note == STEP_NOTE_EMPTY)
+
+			if (isSingleSelection(sel))
 			{
-				step->note = STEP_NOTE_DEFAULT;
-				step->instrument = mtProject.values.lastUsedInstrument;
+				if (step->note >= 0)
+				{
+					step->instrument = constrain(step->instrument + value, 0,
+													INSTRUMENTS_COUNT);
+
+					blinkNote(step->instrument,
+								step->note,
+								step->velocity,
+								t);
+
+					mtProject.values.lastUsedInstrument = step->instrument;
+				}
+				else if (step->note == STEP_NOTE_EMPTY)
+				{
+					step->note = STEP_NOTE_DEFAULT;
+					step->instrument = mtProject.values.lastUsedInstrument;
+				}
+
+				return;
 			}
-
-			if (isSingleSelection(sel) && step->note >= 0)
+			else
 			{
-				blinkNote(step->instrument,
-							step->note,
-							step->velocity,
-							t);
+				if (step->note >= 0)
+				{
+					step->instrument = constrain(step->instrument + value, 0,
+													INSTRUMENTS_COUNT);
 
-				mtProject.values.lastUsedInstrument = step->instrument;
+				}
+
 			}
 
 		}

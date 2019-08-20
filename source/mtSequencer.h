@@ -690,10 +690,15 @@ public:
 
 	void fillRandomNotes(uint8_t step, uint8_t from, uint8_t to);
 	void fillLinearNotes(uint8_t step, uint8_t from, uint8_t to);
+	void fillRandomInstruments(uint8_t step, uint8_t from, uint8_t to);
+	void fillLinearInstruments(uint8_t step, uint8_t from, uint8_t to);
+	void fillRandomVelocity(uint8_t step, uint8_t from, uint8_t to);
+	void fillLinearVelocity(uint8_t step, uint8_t from, uint8_t to);
+
 	void changeSelectionNote(int16_t value);
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 					uint8_t track);
-	void randomExisting();
+	void randomSelection(uint8_t from, uint8_t to, uint8_t step, uint8_t scale);
 
 	void loadNextPattern(uint8_t patternNumber);
 	void handleNote(byte channel, byte pitch, byte velocity);
