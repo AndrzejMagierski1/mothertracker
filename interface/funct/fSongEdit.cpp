@@ -193,16 +193,11 @@ static  uint8_t functAddSlot()
 	SE->selectedPlace = 0;
 	SE->activateLabelsBorder();
 
-	Serial.println(SE->selectedPattern);
-	Serial.println(SE->songLength);
 	return 1;
 }
 
 static  uint8_t functDeleteSlot()
 {
-	Serial.println(SE->selectedPattern);
-	Serial.println(SE->songLength);
-
 	mtProject.mtProjectRemote.song.playlist[SE->songLength]=0;
 
 	for(int i = SE->selectedPattern; i < SE->songLength ; i++)
