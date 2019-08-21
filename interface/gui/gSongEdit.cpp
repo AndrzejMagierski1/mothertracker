@@ -60,7 +60,7 @@ void cSongEditor::initDisplayControls()
 	strControlProperties prop;
 	prop.x = 0+5;
 	prop.y = 30;
-	prop.w = (800/4-10)-5;
+	prop.w = (800/4-10);
 	prop.h = 25;
 	prop.data = &patternsList;
 	if(patternsListControl == nullptr)  patternsListControl = display.createControl<cList>(&prop);
@@ -75,7 +75,9 @@ void cSongEditor::destroyDisplayControls()
 	for(uint8_t i=0;i<7;i++)
 	{
 		display.destroyControl(topLabel[i]);
+		display.destroyControl(bottomLabel[i]);
 		topLabel[i] = nullptr;
+		bottomLabel[i]=nullptr;
 	}
 
 	display.destroyControl(patternsListControl);
