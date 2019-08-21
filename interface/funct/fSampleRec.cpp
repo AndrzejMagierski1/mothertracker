@@ -1278,11 +1278,6 @@ static  uint8_t functActionGoBack()
 		SR->showDefaultScreen();
 	}
 
-/*	if(SR->recorderConfig.source == SR->sourceTypeRadio)
-	{
-		SR->showRadio();
-	}*/
-
 	return 1;
 }
 
