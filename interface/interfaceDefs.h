@@ -178,7 +178,7 @@ enum interfaceEvents
 	eventLoadSampleBank,
 
 	eventSwitchModule,
-
+	eventSwitchToPreviousModule,
 
 	interfaceEventsCount
 };

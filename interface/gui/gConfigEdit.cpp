@@ -300,8 +300,9 @@ void cConfigEditor::showConfigGroupList()
 
 void cConfigEditor::showVolume()
 {
-	//display.setControlValue(barControl[0], mtProject.values.volume);
-	//display.setControlShow(barControl[0]);
+	display.setControlValue(barControl[0], mtConfig.audioCodecConfig.headphoneVolume*100);
+//	display.setControlValue(barControl[0], mtProject.values.volume);
+	display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[0]);
 }
 

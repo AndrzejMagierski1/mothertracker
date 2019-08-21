@@ -41,6 +41,8 @@ static  uint8_t functSelectLimiterAttack();
 static  uint8_t functSelectLimiterRelease();
 static  uint8_t functSelectLimiterTreshold();
 
+static  uint8_t functMasterHold();
+
 //master tracks
 
 
@@ -49,7 +51,9 @@ static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
 
-static  uint8_t functSwitchMode(uint8_t button);
+
+static  uint8_t functSwitchModeConfig(uint8_t state);
+static  uint8_t functSwitchModeMaster(uint8_t state);
 
 
 
@@ -66,7 +70,7 @@ void cConfigEditor::start(uint32_t options)
 	moduleRefresh = 1;
 
 	mode = options;
-
+	exitOnButtonRelease = 0;
 //--------------------------------------------------------------------
 
 //--------------------------------------------------------------------
@@ -79,8 +83,8 @@ void cConfigEditor::start(uint32_t options)
 	//FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
 	//FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
 
-	FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchMode);
-	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchMode);
+	FM->setButtonObj(interfaceButtonConfig, functSwitchModeConfig);
+	FM->setButtonObj(interfaceButtonMaster, functSwitchModeMaster);
 
 	FM->setButtonObj(interfaceButtonSamplePlay, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonSampleEdit, buttonPress, functSwitchModule);
@@ -102,8 +106,6 @@ void cConfigEditor::start(uint32_t options)
 	}
 	case mtConfigModeMaster:
 	{
-
-
 		showMasterScreen();
 		setMasterScreenFunct();
 		break;
@@ -125,7 +127,7 @@ void cConfigEditor::start(uint32_t options)
 
 void cConfigEditor::stop()
 {
-
+	exitOnButtonRelease = 0;
 	moduleRefresh = 0;
 }
 
@@ -146,12 +148,11 @@ void cConfigEditor::setConfigScreenFunct()
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-
-
 	FM->setButtonObj(interfaceButton6, buttonPress, functConfigGroup);
 	FM->setButtonObj(interfaceButton7, buttonPress, functConfigGroup);
 
-
+	FM->setButtonObj(interfaceButtonConfig, functSwitchModeConfig);
+	FM->setButtonObj(interfaceButtonMaster, functSwitchModeMaster);
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
@@ -216,7 +217,8 @@ void cConfigEditor::setMasterTracksScreenFunct()
 	FM->setButtonObj(interfaceButton6, buttonPress, functConfigGroup);
 	FM->setButtonObj(interfaceButton7, buttonPress, functConfigGroup);
 
-
+	FM->setButtonObj(interfaceButtonConfig, functSwitchModeConfig);
+	FM->setButtonObj(interfaceButtonMaster, functSwitchModeMaster);
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
@@ -476,42 +478,59 @@ static  uint8_t functSelectLimiterTreshold()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-
 	CE->eventFunct(eventSwitchModule,CE,&button,0);
 
 	return 1;
 }
 
-static  uint8_t functSwitchMode(uint8_t button)
+static  uint8_t functSwitchModeConfig(uint8_t state)
 {
-	switch(button)
+	if(state == buttonPress)
 	{
-	case interfaceButtonConfig:
-	{
+
 		if(CE->mode != mtConfigModeDefault)
 		{
 			CE->mode = 0;
 			CE->showDefaultConfigScreen();
 			CE->setConfigScreenFunct();
 		}
-		break;
+
+		CE->activateLabelsBorder();
 	}
-	case interfaceButtonMaster:
+
+	return 1;
+}
+
+static  uint8_t functSwitchModeMaster(uint8_t state)
+{
+	if(state == buttonPress)
 	{
+
 		if(CE->mode != mtConfigModeMaster)
 		{
 			CE->mode = 1;
 			CE->showMasterScreen();
 			CE->setMasterScreenFunct();
+			//FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+			CE->activateLabelsBorder();
+
+			return 0;
 		}
-		break;
-	}
 
 
 
 	}
-
-	CE->activateLabelsBorder();
+	else if(state == buttonHold)
+	{
+		CE->exitOnButtonRelease = 1;
+		CE->selectedPlace[mtConfigModeMaster] = 0;
+		CE->activateLabelsBorder();
+	}
+	else if(state == buttonRelease)
+	{
+		if(CE->exitOnButtonRelease) CE->eventFunct(eventSwitchToPreviousModule,CE,0,0);
+	}
 
 	return 1;
 }
@@ -528,7 +547,6 @@ void cConfigEditor::changeConfigGroupSelection(int16_t value)
 
 	display.setControlValue(configGroupsListControl, selectedConfigGroup);
 	display.refreshControl(configGroupsListControl);
-
 }
 
 
@@ -536,14 +554,22 @@ void cConfigEditor::changeConfigGroupSelection(int16_t value)
 //master
 void cConfigEditor::changeVolume(int16_t value)
 {
-/*	if(mtProject.values.volume + value < MASTER_VOLUME_MIN) mtProject.values.volume = MASTER_VOLUME_MIN;
+/*
+	if(mtProject.values.volume + value < MASTER_VOLUME_MIN) mtProject.values.volume = MASTER_VOLUME_MIN;
 	else if(mtProject.values.volume + value > MASTER_VOLUME_MAX) mtProject.values.volume = MASTER_VOLUME_MAX;
 	else mtProject.values.volume += value;
-
-	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
 */
-	showVolume();
+	float fValue = value*0.01;
 
+	if(mtConfig.audioCodecConfig.headphoneVolume + fValue < MASTER_VOLUME_MIN) mtConfig.audioCodecConfig.headphoneVolume = MASTER_VOLUME_MIN;
+	else if(mtConfig.audioCodecConfig.headphoneVolume + fValue > MASTER_VOLUME_MAX) mtConfig.audioCodecConfig.headphoneVolume = MASTER_VOLUME_MAX;
+	else mtConfig.audioCodecConfig.headphoneVolume += fValue;
+
+	mtConfig.audioCodecConfig.changeFlag = 1;
+
+	mtConfig.audioCodecConfig.outSelect = outputSelectHeadphones;
+
+	showVolume();
 }
 
 void cConfigEditor::changeReverbRoomSize(int16_t value)
@@ -555,7 +581,6 @@ void cConfigEditor::changeReverbRoomSize(int16_t value)
 	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
 
 	showReverbSize();
-
 }
 
 void cConfigEditor::changeReverbDamping(int16_t value)
@@ -578,7 +603,6 @@ void cConfigEditor::changeLimiterAttack(int16_t value)
 	engine.setLimiterAttack(mtProject.values.limiterAttack);
 
 	showLimiterAttack();
-
 }
 
 void cConfigEditor::changeLimiterRelease(int16_t value)
@@ -590,7 +614,6 @@ void cConfigEditor::changeLimiterRelease(int16_t value)
 	engine.setLimiterRelease(mtProject.values.limiterRelease);
 */
 	showLimiterRelease();
-
 }
 
 void cConfigEditor::changeLimiterTreshold(int16_t value)
