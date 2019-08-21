@@ -301,6 +301,10 @@ void cSampleRecorder::start(uint32_t options)
 #ifdef HW_WITH_RADIO
 	radio.setSeekCallback(seek_callback);
 #endif
+	if(recorderConfig.source == sourceTypeRadio)
+	{
+		showRadio();
+	}
 
 
 
@@ -1273,6 +1277,12 @@ static  uint8_t functActionGoBack()
 		SR->selectedPlace = 7;
 		SR->showDefaultScreen();
 	}
+
+/*	if(SR->recorderConfig.source == SR->sourceTypeRadio)
+	{
+		SR->showRadio();
+	}*/
+
 	return 1;
 }
 
@@ -1671,7 +1681,7 @@ static uint8_t functSwitchModule(uint8_t button)
 //======================================================================================================================
 void cSampleRecorder::calcRadioFreqBarVal()
 {
-	radioFreqBarVal = ((recorderConfig.radioFreq - 87.5) * 100)/ (108 - 87);
+	radioFreqBarVal = ((recorderConfig.radioFreq - 87.5f) * 100)/ (108 - 87.5f);
 }
 void cSampleRecorder::calcLevelBarVal()
 {

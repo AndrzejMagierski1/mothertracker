@@ -476,13 +476,17 @@ void cSampleRecorder::showDefaultScreen()
 		display.refreshControl(topLabel[i]);
 	}
 
+	if ((currentScreen == screenTypeConfig) && recorderConfig.source == sourceTypeRadio)
+	{
+		showFreqValue();
+	}
+
 	if ((currentScreen == screenTypeRecord) && !recordInProgressFlag)
 	{
 		showZoomValue();
 		showEndPointValue();
 		showStartPointValue();
 	}
-
 	display.setControlHide(selectWindowLabel);
 	display.refreshControl(selectWindowLabel);
 

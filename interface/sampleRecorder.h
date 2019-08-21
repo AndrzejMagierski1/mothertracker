@@ -33,7 +33,7 @@ struct strRecorderConfig
 	uint8_t source;
 	uint8_t gain;
 	uint8_t monitor;
-	float radioFreq = 87.0;
+	float radioFreq = 87.5;
 };
 
 struct strUndoCrop
