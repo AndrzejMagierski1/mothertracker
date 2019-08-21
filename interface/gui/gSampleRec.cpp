@@ -528,6 +528,12 @@ void cSampleRecorder::hideRadio()
 	display.setControlHide(radioRdsLabel);
 }
 
+void cSampleRecorder::hideRDS()
+{
+	display.setControlHide(radioRdsLabel);
+	display.refreshControl(radioRdsLabel);
+}
+
 void cSampleRecorder::showKeyboard()
 {
 

@@ -122,6 +122,7 @@ public:
 	void refreshRDS();
 	void displaySeeking();
 	void displayEmptyRDS();
+	void hideRDS();
 
 	strFrameData frameData;
 	strSelectWindowData selectWindowData;
