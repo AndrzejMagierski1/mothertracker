@@ -403,7 +403,7 @@ void cSampleRecorder::refreshGain()
 	}
 	else if(recorderConfig.source == sourceTypeMic)
 	{
-		float localMap = recorderConfig.gainMic* 63.0 / 100.0;
+		float localMap = recorderConfig.gainMic* 30.0 / 100.0;
 		audioShield.micGain(localMap);
 	}
 }
@@ -1886,7 +1886,7 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
     {
         audioShield.inputSelect(AUDIO_INPUT_MIC);
         mtConfig.audioCodecConfig.inSelect = inputSelectMic;
-        audioShield.micGain(recorderConfig.gainMic*63.0/100);
+        audioShield.micGain(recorderConfig.gainMic*30.0/100);
     }
     display.setControlValue(sourceListControl, recorderConfig.source);
     display.refreshControl(sourceListControl);
