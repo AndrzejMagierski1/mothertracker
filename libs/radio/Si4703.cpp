@@ -10,6 +10,7 @@ Si4703 radio(SI4703_RST, 48, 47,SI4703_GPIO_2);
 
 seek_control_t seek_control;
 user_callback_t callback_func=NULL;
+elapsedMillis i2c_timeout;
 
 
 //przerwanie RDS
@@ -64,36 +65,39 @@ void Si4703::powerOff()
 
 void Si4703::setFrequency(float freq)
 {
-	int newChannel;
-
-	newChannel= (float)((freq-87.5f)/0.05f) + 0.5f; // 0.5 for ceil rounding
-
-	readRegisters();
-	si4703_registers[rCHANNEL] &= ~CHANN_MASK; //Clear out the channel bits
-	si4703_registers[rCHANNEL] |= newChannel; //Mask in the new channel
-	si4703_registers[rCHANNEL] |= TUNE; //Set the TUNE bit to start
-	updateRegisters();
-
-	while(1)
+	if(isInitializedProperly)
 	{
+		int newChannel;
+
+		newChannel= (float)((freq-87.5f)/0.05f) + 0.5f; // 0.5 for ceil rounding
+
 		readRegisters();
-		if((si4703_registers[rSTATUSRSSI] & STC) != 0)
+		si4703_registers[rCHANNEL] &= ~CHANN_MASK; //Clear out the channel bits
+		si4703_registers[rCHANNEL] |= newChannel; //Mask in the new channel
+		si4703_registers[rCHANNEL] |= TUNE; //Set the TUNE bit to start
+		updateRegisters();
+
+		while(1)
 		{
-			break; //Tuning complete!
+			readRegisters();
+			if((si4703_registers[rSTATUSRSSI] & STC) != 0)
+			{
+				break; //Tuning complete!
+			}
 		}
-	}
 
-	readRegisters();
-	si4703_registers[rCHANNEL] &= ~TUNE; //Clear the tune after a tune has completed
-	updateRegisters();
-
-	//Wait for the si4703 to clear the STC as well
-	while(1)
-	{
 		readRegisters();
-		if((si4703_registers[rSTATUSRSSI] & STC) == 0)
+		si4703_registers[rCHANNEL] &= ~TUNE; //Clear the tune after a tune has completed
+		updateRegisters();
+
+		//Wait for the si4703 to clear the STC as well
+		while(1)
 		{
-			break; //Tuning complete!
+			readRegisters();
+			if((si4703_registers[rSTATUSRSSI] & STC) == 0)
+			{
+				break; //Tuning complete!
+			}
 		}
 	}
 
@@ -101,37 +105,49 @@ void Si4703::setFrequency(float freq)
 
 void Si4703::seekUp()
 {
-	initSeek(SEEK_UP);
+	if(isInitializedProperly)
+	{
+		initSeek(SEEK_UP);
+	}
 }
 
 void Si4703::seekDown()
 {
-	initSeek(SEEK_DOWN);
+	if(isInitializedProperly)
+	{
+		initSeek(SEEK_DOWN);
+	}
 }
 
 void Si4703::setVolume(int volume)
 {
-	readRegisters();
-	if(volume < 0) volume = 0;
-	if (volume > 15) volume = 15;
-	si4703_registers[rSYSCONFIG2] &= ~VOLUME_MASK; //Clear volume bits
-	si4703_registers[rSYSCONFIG2] |= volume; //Set new volume
-	updateRegisters();
+	if(isInitializedProperly)
+	{
+		readRegisters();
+		if(volume < 0) volume = 0;
+		if (volume > 15) volume = 15;
+		si4703_registers[rSYSCONFIG2] &= ~VOLUME_MASK; //Clear volume bits
+		si4703_registers[rSYSCONFIG2] |= volume; //Set new volume
+		updateRegisters();
+	}
 }
 
 bool Si4703::update_RDS()
 {
-	if(radio.rdsReadyFlag)
+	if(isInitializedProperly)
 	{
-		readRegisters();
-		if(((si4703_registers[rSTATUSRSSI] & 0x0600)  == 0 ) && (si4703_registers[rSTATUSRSSI] & RDSS))
+		if(radio.rdsReadyFlag)
 		{
-			rds.processData(si4703_registers[rRDSA],si4703_registers[rRDSB],si4703_registers[rRDSC], si4703_registers[rRDSD]);
+			readRegisters();
+			if(((si4703_registers[rSTATUSRSSI] & 0x0600)  == 0 ) && (si4703_registers[rSTATUSRSSI] & RDSS))
+			{
+				rds.processData(si4703_registers[rRDSA],si4703_registers[rRDSB],si4703_registers[rRDSC], si4703_registers[rRDSD]);
+			}
+
+			radio.rdsReadyFlag=0;
+
+			return 1;
 		}
-
-		radio.rdsReadyFlag=0;
-
-		return 1;
 	}
 
 	return 0;
@@ -162,46 +178,65 @@ void Si4703::si4703_init()
 	Wire.begin(I2C_MASTER, 0x00, I2C_PINS_47_48, I2C_PULLUP_EXT, 400000,I2C_OP_MODE_IMM);
 
 	readRegisters(); //Read the current register set
-	si4703_registers[rTEST1] = 0x8100; //Enable the oscillator, from AN230 page 9, rev 0.61 (works)
-	updateRegisters(); //Update
 
-	delay(500); //Wait for clock to settle - from AN230 page 9
+	if(isInitializedProperly)
+	{
+		si4703_registers[rTEST1] = 0x8100; //Enable the oscillator, from AN230 page 9, rev 0.61 (works)
+		updateRegisters(); //Update
 
-	readRegisters(); //Read the current register set
-	si4703_registers[rPOWERCFG] = (ENABLE | DMUTE | DSMUTE | RDSM | MONO);
+		delay(500); //Wait for clock to settle - from AN230 page 9
 
-	si4703_registers[rSYSCONFIG1] |= DE; //50kHz Europe setup
-	si4703_registers[rSYSCONFIG2] |= SPACE(SPACING_50kHz); //50kHz channel spacing for Europe
+		readRegisters(); //Read the current register set
+		si4703_registers[rPOWERCFG] = (ENABLE | DMUTE | DSMUTE | RDSM | MONO);
 
-	si4703_registers[rSYSCONFIG2] &= ~VOLUME_MASK; //Clear volume bits
-	si4703_registers[rSYSCONFIG2] |= VOLUME(0x01); //Set volume to lowest
-	si4703_registers[rSYSCONFIG2] |= SEEKTH(0x19);// Minimalne RSSI prawidlowej stacji dla seek
-	si4703_registers[rSYSCONFIG3] |= (SKCNT(0x08) | SKSNR(0x04));// autoseek snr i impulse detection
-	updateRegisters(); //Update
+		si4703_registers[rSYSCONFIG1] |= DE; //50kHz Europe setup
+		si4703_registers[rSYSCONFIG2] |= SPACE(SPACING_50kHz); //50kHz channel spacing for Europe
 
-	delay(110); //Max powerup time, from datasheet page 13
+		si4703_registers[rSYSCONFIG2] &= ~VOLUME_MASK; //Clear volume bits
+		si4703_registers[rSYSCONFIG2] |= VOLUME(0x01); //Set volume to lowest
+		si4703_registers[rSYSCONFIG2] |= SEEKTH(0x19);// Minimalne RSSI prawidlowej stacji dla seek
+		si4703_registers[rSYSCONFIG3] |= (SKCNT(0x08) | SKSNR(0x04));// autoseek snr i impulse detection
+		updateRegisters(); //Update
 
-	readRegisters();
-	si4703_registers[rSYSCONFIG1] |= (RDS | RDSIEN | GPIO2(0x01)); //Enable RDS
-	updateRegisters();
+		delay(110); //Max powerup time, from datasheet page 13
 
-	rds.init();
+		readRegisters();
+		si4703_registers[rSYSCONFIG1] |= (RDS | RDSIEN | GPIO2(0x01)); //Enable RDS
+		updateRegisters();
 
-	pinMode(_interruptPin, INPUT_PULLUP);
-	attachInterrupt(digitalPinToInterrupt(_interruptPin), SI4703_interrupt, FALLING);
+		rds.init();
 
-	radio.rds.attachServicenNameCallback(stationName);
-	//radio.rds.attachTextCallback(stationText);
-	//radio.rds.attachTimeCallback(timeFromRDS);
+		pinMode(_interruptPin, INPUT_PULLUP);
+		attachInterrupt(digitalPinToInterrupt(_interruptPin), SI4703_interrupt, FALLING);
+
+		radio.rds.attachServicenNameCallback(stationName);
+		//radio.rds.attachTextCallback(stationText);
+		//radio.rds.attachTimeCallback(timeFromRDS);
+	}
 }
 
 //Read the entire register control set from 0x00 to 0x0F
 void Si4703::readRegisters()
+
 {
 	//Si4703 begins reading from register upper register of 0x0A and reads to 0x0F, then loops to 0x00.
 	Wire.requestFrom(SI4703_I2C_ADDR, 32); //We want to read the entire register set from 0x0A to 0x09 = 32 bytes.
+	i2c_timeout = 0;
 
-	while(Wire.available() < 32) ;
+	while(Wire.available() < 32)
+	{
+		if(i2c_timeout > RADIO_I2C_TIMEOUT_MS)
+		{
+			if(!firstReadFlag)
+			{
+				firstReadFlag=1;
+				isInitializedProperly=0;
+				detachInterrupt(SI4703_GPIO_2);
+			}
+
+			break;
+		}
+	}
 
 	//Remember, register 0x0A comes in first so we have to shuffle the array around a bit
 	for(int x = 0x0A ; ; x++)
@@ -261,73 +296,76 @@ void Si4703::initSeek(uint8_t seekDirection)
 
 void Si4703::stateMachineSeek()
 {
-	switch(seek_control.seek_state)
+	if(isInitializedProperly)
 	{
-	case notInitialized:
-		break;
-	case seekInit:
-		readRegisters();
-
-		si4703_registers[rPOWERCFG] &= ~SKMODE;
-		if(seek_control.seek_dir == SEEK_DOWN)
+		switch(seek_control.seek_state)
 		{
-			si4703_registers[rPOWERCFG] &= ~SEEKUP; //Seek down is the default upon reset
+		case notInitialized:
+			break;
+		case seekInit:
+			readRegisters();
+
+			si4703_registers[rPOWERCFG] &= ~SKMODE;
+			if(seek_control.seek_dir == SEEK_DOWN)
+			{
+				si4703_registers[rPOWERCFG] &= ~SEEKUP; //Seek down is the default upon reset
+			}
+			else
+			{
+				si4703_registers[rPOWERCFG] |= SEEKUP; //Set the bit to seek up
+			}
+
+			si4703_registers[rPOWERCFG] |= SEEK; //Start seek
+			updateRegisters(); //Seeking will now start
+
+			seek_control.seek_state = loopUntilSTC;
+
+			break;
+
+		case loopUntilSTC:
+
+			readRegisters();
+			if((si4703_registers[rSTATUSRSSI] & STC) != 0)
+			{
+				seek_control.seek_state = stationFound;
+			}
+
+			break;
+
+		case stationFound:
+			readRegisters();
+			//valueSFBL=si4703_registers[rSTATUSRSSI] & SF_BL; //Store the value of SFBL
+			si4703_registers[rPOWERCFG] &= ~SEEK; //Clear the seek bit after seek has completed
+			updateRegisters();
+
+			seek_control.seek_state = seekDeinit;
+
+			break;
+
+		case seekDeinit:
+			readRegisters();
+			if((si4703_registers[rSTATUSRSSI] & STC) == 0)
+			{
+				seek_control.seek_state = callback;
+			}
+
+			break;
+
+		case callback:
+
+			if(callback_func != NULL)
+			{
+				callback_func();
+			}
+
+			seek_control.seek_state = notInitialized;
+
+			break;
+
+
+		default:
+			break;
 		}
-		else
-		{
-			si4703_registers[rPOWERCFG] |= SEEKUP; //Set the bit to seek up
-		}
-
-		si4703_registers[rPOWERCFG] |= SEEK; //Start seek
-		updateRegisters(); //Seeking will now start
-
-		seek_control.seek_state = loopUntilSTC;
-
-		break;
-
-	case loopUntilSTC:
-
-		readRegisters();
-		if((si4703_registers[rSTATUSRSSI] & STC) != 0)
-		{
-			seek_control.seek_state = stationFound;
-		}
-
-		break;
-
-	case stationFound:
-		readRegisters();
-		//valueSFBL=si4703_registers[rSTATUSRSSI] & SF_BL; //Store the value of SFBL
-		si4703_registers[rPOWERCFG] &= ~SEEK; //Clear the seek bit after seek has completed
-		updateRegisters();
-
-		seek_control.seek_state = seekDeinit;
-
-		break;
-
-	case seekDeinit:
-		readRegisters();
-		if((si4703_registers[rSTATUSRSSI] & STC) == 0)
-		{
-			seek_control.seek_state = callback;
-		}
-
-		break;
-
-	case callback:
-
-		if(callback_func != NULL)
-		{
-			callback_func();
-		}
-
-		seek_control.seek_state = notInitialized;
-
-		break;
-
-
-	default:
-		break;
 	}
 }
 
@@ -343,20 +381,36 @@ void Si4703::resetSeekCallback()
 
 float Si4703::getFrequency()
 {
-	int channel;
-	float freq;
+	if(isInitializedProperly)
+	{
+		int channel;
+		float freq;
 
-	readRegisters();
+		readRegisters();
 
-	channel = READCHANN(si4703_registers[rREADCHAN]);
+		channel = READCHANN(si4703_registers[rREADCHAN]);
 
-	freq= (channel * 0.05f + 87.5f);
+		freq= (channel * 0.05f + 87.5f);
 
-	return freq;
+		return freq;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 int Si4703::getRSSI()
 {
-	readRegisters();
-	return RSSI(si4703_registers[rSTATUSRSSI]);
+	if(isInitializedProperly)
+	{
+		readRegisters();
+		return RSSI(si4703_registers[rSTATUSRSSI]);
+	}
+
+	return 0;
+}
+uint8_t Si4703::getInitializationStatus()
+{
+	return isInitializedProperly;
 }

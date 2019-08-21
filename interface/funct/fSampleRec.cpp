@@ -1161,9 +1161,12 @@ static  uint8_t functActionRadioLeft()
 	if(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio) return 1;
 
 #ifdef HW_WITH_RADIO
-	SR->displaySeeking();
-	radio.clearRDS();
-	radio.seekDown();
+	if(radio.getInitializationStatus())
+	{
+		SR->displaySeeking();
+		radio.clearRDS();
+		radio.seekDown();
+	}
 #endif
 
 
@@ -1175,9 +1178,12 @@ static  uint8_t functActionRadioRight()
 	if(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio) return 1;
 
 #ifdef HW_WITH_RADIO
-	SR->displaySeeking();
-	radio.clearRDS();
-	radio.seekUp();
+	if(radio.getInitializationStatus())
+	{
+		SR->displaySeeking();
+		radio.clearRDS();
+		radio.seekUp();
+	}
 #endif
 
 	return 1;
@@ -1714,24 +1720,27 @@ void cSampleRecorder::calcGainBarVal()
 
 void cSampleRecorder::changeRadioFreqBar(int16_t val)
 {
-	if(val > 0)
+	if(radio.getInitializationStatus())
 	{
-		if(recorderConfig.radioFreq < 108.0f) recorderConfig.radioFreq += 0.05;
-	}
-	else if(val < 0)
-	{
-		if(recorderConfig.radioFreq > 87.5f) recorderConfig.radioFreq -= 0.05;
-	}
+		if(val > 0)
+		{
+			if(recorderConfig.radioFreq < 108.0f) recorderConfig.radioFreq += 0.05;
+		}
+		else if(val < 0)
+		{
+			if(recorderConfig.radioFreq > 87.5f) recorderConfig.radioFreq -= 0.05;
+		}
 
-	calcRadioFreqBarVal();
-	drawRadioFreqBar();
+		calcRadioFreqBarVal();
+		drawRadioFreqBar();
 
 #ifdef HW_WITH_RADIO
-	radio.clearRDS();
-	SR->displayEmptyRDS();
+		radio.clearRDS();
+		SR->displayEmptyRDS();
 
-	radio.setFrequency(recorderConfig.radioFreq);
+		radio.setFrequency(recorderConfig.radioFreq);
 #endif
+	}
 }
 void cSampleRecorder::changeLevelBar()
 {
