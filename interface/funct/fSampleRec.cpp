@@ -6,6 +6,7 @@
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
 #include "mtLED.h"
+#include "mtFileManager.h"
 
 enum valueMapDirecion
 {
@@ -175,6 +176,7 @@ static  uint8_t functActionUndo();
 static  uint8_t functActionGoBack();
 static  uint8_t functActionStopRec();
 static  uint8_t functActionSave();
+static  uint8_t functActionConfirmSaveLoad();
 static  uint8_t functActionConfirmSave();
 static  uint8_t functActionEndPoint();
 static  uint8_t functActionStartPoint();
@@ -259,11 +261,46 @@ void cSampleRecorder::update()
 		if(recorder.getSaveState() == 0)
 		{
 			saveInProgressFlag = 0;
+			if(saveLoadFlag == 1)
+			{
+				saveLoadFlag = 0;
+
+				int8_t firstFree = -1;
+				char localName[37];
+
+				for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
+				{
+					if(!mtProject.instrument[i].isActive)
+					{
+						firstFree = i;
+						break;
+					}
+				}
+				if(firstFree == -1)
+				{
+					notEnoughInstrumentsFlag = 1;
+				}
+				else
+				{
+					strcpy(localName,SR->name);
+					strcat(localName,".wav");
+					forceSwitchModule = 1;
+					fileManager.startImportSampleToProject("/Recorded",localName, firstFree);
+					functSwitchModule(interfaceButtonSampleLoad);
+				}
+
+			}
+
+
+
 			hideSaveHorizontalBar();
 			currentScreen = screenTypeRecord;
 			showDefaultScreen();
+
+			if(notEnoughInstrumentsFlag) 	showSelectionNotEnoughInstruments();
 		}
 	}
+
 
 	if(playInProgressFlag)
 	{
@@ -929,12 +966,12 @@ static  uint8_t functActionButton5()
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
-	if(SR->currentScreen == cSampleRecorder::screenTypeConfig) functSelectButton5();
+	if((SR->currentScreen == cSampleRecorder::screenTypeConfig) && (SR->currentScreen != cSampleRecorder::screenTypeKeyboard)) functSelectButton5();
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: 	functActionGain();				break;
 		case cSampleRecorder::screenTypeRecord:		functActionUndo();				break;
-		case cSampleRecorder::screenTypeKeyboard: break;
+		case cSampleRecorder::screenTypeKeyboard: 	functActionGoBack();			break;
 		default: break;
 	}
 	return 1;
@@ -945,12 +982,12 @@ static  uint8_t functActionButton6()
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
-	if(SR->currentScreen != cSampleRecorder::screenTypeRecord) functSelectButton6();
+	if((SR->currentScreen != cSampleRecorder::screenTypeRecord) && (SR->currentScreen != cSampleRecorder::screenTypeKeyboard))	functSelectButton6();
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: 	functActionMonitor();			break;
 		case cSampleRecorder::screenTypeRecord: 	functActionGoBack();			break;
-		case cSampleRecorder::screenTypeKeyboard: 	functActionGoBack();			break;
+		case cSampleRecorder::screenTypeKeyboard: 	functActionConfirmSaveLoad();	break;
 		default: break;
 	}
 	return 1;
@@ -1007,7 +1044,14 @@ static  uint8_t functActionButton7()
 		SR->activateLabelsBorder();
 		return 1;
 	}
-	functSelectButton7();
+	if(SR->notEnoughInstrumentsFlag)
+	{
+		SR->notEnoughInstrumentsFlag = 0;
+		SR->selectedPlace = 7;
+		SR->showDefaultScreen();
+		return 1;
+	}
+	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton7();
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: 	functActionRecord();			break;
@@ -1364,12 +1408,15 @@ static  uint8_t functActionConfirmSave()
 		 SR->hideKeyboard();
 		 SR->hideKeyboardEditName();
 	 }
-
-
-
-
-
 	 return 1;
+}
+
+static  uint8_t functActionConfirmSaveLoad()
+{
+	functActionConfirmSave();
+	SR->saveLoadFlag = 1;
+
+
 }
 
 static  uint8_t functActionStopRec()
@@ -1694,10 +1741,17 @@ static  uint8_t functDown()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(SR->selectionWindowFlag == 1) return 1;
-	if(SR->recordInProgressFlag) return 1;
-	if(SR->saveInProgressFlag) return 1;
-	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;
+	if(SR->forceSwitchModule == 0)
+	{
+		if(SR->selectionWindowFlag == 1) return 1;
+		if(SR->recordInProgressFlag) return 1;
+		if(SR->saveInProgressFlag) return 1;
+		if(SR->notEnoughInstrumentsFlag) return 1;
+		if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;
+	}
+	else SR->forceSwitchModule = 0;
+
+
 	SR->eventFunct(eventSwitchModule,SR,&button,0);
 	return 1;
 }

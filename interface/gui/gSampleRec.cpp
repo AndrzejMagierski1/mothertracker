@@ -353,6 +353,8 @@ void cSampleRecorder::showDefaultScreen()
 		frameData.places[7] = &framesPlacesS1[7][0];
 
 		display.setControlData(frameControl, &frameData);
+		display.setControlShow(frameControl);
+		display.refreshControl(frameControl);
 
 		calcLevelBarVal();
 		drawLevelBar();
@@ -417,6 +419,8 @@ void cSampleRecorder::showDefaultScreen()
 		frameData.places[7] = &framesPlacesS2[7][0];
 
 		display.setControlData(frameControl, &frameData);
+		display.setControlShow(frameControl);
+		display.refreshControl(frameControl);
 
 		if (recordInProgressFlag == 1)
 		{
@@ -461,6 +465,8 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlHide(progressCursor);
 		display.refreshControl(progressCursor);
 
+		display.setControlHide(frameControl);
+		display.refreshControl(frameControl);
 		//points
 
 		display.setControlHide(pointsControl);
@@ -477,8 +483,8 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlText(bottomLabel[2], "Confirm");
 		display.setControlText(bottomLabel[3], "");
 		display.setControlText(bottomLabel[4], "");
-		display.setControlText(bottomLabel[5], "");
-		display.setControlText(bottomLabel[6], "Go Back");
+		display.setControlText(bottomLabel[5], "Go Back");
+		display.setControlText(bottomLabel[6], "Save & Load");
 		display.setControlText(bottomLabel[7], "Save");
 	}
 
@@ -976,6 +982,27 @@ void cSampleRecorder::showSelectionWindowFullMemory()
 	display.refreshControl(frameControl);
 
 	display.setControlText(selectWindowLabel,"The memory is full. Recording was stopped.");
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	display.synchronizeRefresh();
+}
+
+void cSampleRecorder::showSelectionNotEnoughInstruments()
+{
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.setControlText(topLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+	display.setControlText(bottomLabel[7], "OK");
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlText(selectWindowLabel,"There are not enough instruments");
 	display.setControlShow(selectWindowLabel);
 	display.refreshControl(selectWindowLabel);
 

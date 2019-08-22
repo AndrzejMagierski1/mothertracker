@@ -264,11 +264,15 @@ uint8_t cropCounter = 0;
 
 //save
 	uint8_t saveInProgressFlag = 0;
+	uint8_t saveLoadFlag = 0;
 	uint8_t saveProgress;
+	uint8_t forceSwitchModule = 0;
 	void showSaveHorizontalBar();
 	void hideSaveHorizontalBar();
 // selection window
 	void showSelectionWindow();
+	void showSelectionNotEnoughInstruments();
+	uint8_t notEnoughInstrumentsFlag = 0;
 
 
 	uint8_t selectionWindowFlag = 0;
