@@ -121,9 +121,9 @@ void cSampleRecorder::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop3);
 
 	strControlProperties prop4;
-	sourceList.linesCount = 3;
+	sourceList.linesCount = 4;
 	sourceList.start = recorderConfig.source;
-	sourceList.length = 3;
+	sourceList.length = 4;
 	sourceList.data = sourceNames;
 	prop4.x = (800/8)*(0)+5;
 	prop4.y = 152;
@@ -841,7 +841,7 @@ void cSampleRecorder::showSourceList()
 {
 	sourceList.start = recorderConfig.source;
 	sourceList.length = sourceCount;
-	sourceList.linesCount = 3;
+	sourceList.linesCount = 4;
 	sourceList.data = sourceNames;
 
 	display.setControlData(sourceListControl,  &sourceList);

@@ -418,7 +418,7 @@ void cSampleRecorder::refreshConfigLists()
 		audioShield.inputSelect(0);
 		digitalWrite(SI4703_KLUCZ,HIGH);
 	}
-	else if(recorderConfig.source == sourceTypeMic)
+	else if((recorderConfig.source == sourceTypeMicLG) || (recorderConfig.source == sourceTypeMicHG))
 	{
 		audioShield.inputSelect(1);
 	}
@@ -438,9 +438,11 @@ void cSampleRecorder::refreshGain()
 		else if(recorderConfig.source == sourceTypeRadio) localMap = recorderConfig.gainRadio *15/100;
 		audioShield.lineInLevel(localMap);
 	}
-	else if(recorderConfig.source == sourceTypeMic)
+	else if((recorderConfig.source == sourceTypeMicLG) || (recorderConfig.source == sourceTypeMicHG))
 	{
-		float localMap = recorderConfig.gainMic* 30.0 / 100.0;
+		float localMap;
+		if((recorderConfig.source == sourceTypeMicLG))  localMap= recorderConfig.gainMicLow* 25.0 / 100.0;
+		else if(recorderConfig.source == sourceTypeMicHG) localMap= recorderConfig.gainMicHigh* 44.0 / 100.0;
 		audioShield.micGain(localMap);
 	}
 }
@@ -1794,7 +1796,8 @@ void cSampleRecorder::calcGainBarVal()
 {
 	if(recorderConfig.source == sourceTypeLineIn) gainBarVal = recorderConfig.gainLineIn;
 	else if(recorderConfig.source == sourceTypeRadio) gainBarVal = recorderConfig.gainRadio;
-	else if(recorderConfig.source == sourceTypeMic) gainBarVal = recorderConfig.gainMic;
+	else if(recorderConfig.source == sourceTypeMicLG) gainBarVal = recorderConfig.gainMicLow;
+	else if(recorderConfig.source == sourceTypeMicHG) gainBarVal = recorderConfig.gainMicHigh;
 
 }
 
@@ -1868,22 +1871,42 @@ void cSampleRecorder::changeGainBar(int16_t val)
 			}
 		}
 	}
-	else if(recorderConfig.source == sourceTypeMic)
+	else if(recorderConfig.source == sourceTypeMicLG)
 	{
 		if(val > 0)
 		{
-			if(recorderConfig.gainMic < 100)
+			if(recorderConfig.gainMicLow < 100)
 			{
-				recorderConfig.gainMic++;
+				recorderConfig.gainMicLow++;
 				refreshGain();
 			}
 
 		}
 		else if(val < 0)
 		{
-			if(recorderConfig.gainMic > 0)
+			if(recorderConfig.gainMicLow > 0)
 			{
-				recorderConfig.gainMic--;
+				recorderConfig.gainMicLow--;
+				refreshGain();
+			}
+		}
+	}
+	else if(recorderConfig.source == sourceTypeMicHG)
+	{
+		if(val > 0)
+		{
+			if(recorderConfig.gainMicHigh < 100)
+			{
+				recorderConfig.gainMicHigh++;
+				refreshGain();
+			}
+
+		}
+		else if(val < 0)
+		{
+			if(recorderConfig.gainMicHigh > 0)
+			{
+				recorderConfig.gainMicHigh--;
 				refreshGain();
 			}
 		}
@@ -1913,19 +1936,29 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
 {
     if(value > 0)
     {
-        if(recorderConfig.source == 1)
+        if(recorderConfig.source == 0)
         {
         	digitalWrite(SI4703_KLUCZ,LOW);
         	showRadio();
         }
-        if(recorderConfig.source < 2) recorderConfig.source++;
-    }
-    else if (value < 0)
-    {
-        if(recorderConfig.source == 2)
+        else if(recorderConfig.source == 1)
         {
         	digitalWrite(SI4703_KLUCZ,HIGH);
         	hideRadio();
+        }
+        if(recorderConfig.source < 3) recorderConfig.source++;
+    }
+    else if (value < 0)
+    {
+        if(recorderConfig.source == 1)
+        {
+        	digitalWrite(SI4703_KLUCZ,HIGH);
+        	hideRadio();
+        }
+        else if(recorderConfig.source == 2)
+        {
+        	digitalWrite(SI4703_KLUCZ,LOW);
+        	showRadio();
         }
         if(recorderConfig.source > 0) recorderConfig.source--;
     }
@@ -1936,11 +1969,17 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
         if(recorderConfig.source == sourceTypeLineIn)  audioShield.lineInLevel(map(recorderConfig.gainLineIn,0,100,0,15));
         else if(recorderConfig.source == sourceTypeRadio) audioShield.lineInLevel(map(recorderConfig.gainRadio,0,100,0,15));
     }
-    else if(recorderConfig.source == sourceTypeMic)
+    else if(recorderConfig.source == sourceTypeMicLG)
     {
         audioShield.inputSelect(AUDIO_INPUT_MIC);
         mtConfig.audioCodecConfig.inSelect = inputSelectMic;
-        audioShield.micGain(recorderConfig.gainMic*30.0/100);
+        audioShield.micGain(recorderConfig.gainMicLow*25.0/100);
+    }
+    else if(recorderConfig.source == sourceTypeMicHG)
+    {
+        audioShield.inputSelect(AUDIO_INPUT_MIC);
+        mtConfig.audioCodecConfig.inSelect = inputSelectMic;
+        audioShield.micGain(recorderConfig.gainMicHigh*44.0/100);
     }
     display.setControlValue(sourceListControl, recorderConfig.source);
     display.refreshControl(sourceListControl);

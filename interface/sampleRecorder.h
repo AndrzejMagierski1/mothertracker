@@ -12,14 +12,15 @@
 
 
 
-const uint8_t sourceCount = 3;
+const uint8_t sourceCount = 4;
 const uint8_t monitorCount = 2;
 constexpr uint8_t undoCount = 5;
 const char sourcesNamesLabels[sourceCount][10] =
 {
 		"Line in",
-		"Mic",
 		"Radio",
+		"Mic LG",
+		"Mic HG"
 };
 
 const char monitorNamesLabels[monitorCount][5] =
@@ -32,7 +33,8 @@ struct strRecorderConfig
 {
 	uint8_t source;
 	uint8_t gainLineIn;
-	uint8_t gainMic;
+	uint8_t gainMicLow;
+	uint8_t gainMicHigh;
 	uint8_t gainRadio;
 	uint8_t monitor;
 	float radioFreq = 87.0;
@@ -163,8 +165,10 @@ public:
 	enum sourceType
 	{
 		sourceTypeLineIn,
-		sourceTypeMic,
-		sourceTypeRadio
+		sourceTypeRadio,
+		sourceTypeMicLG,
+		sourceTypeMicHG,
+
 	};
 
 	enum screenType
