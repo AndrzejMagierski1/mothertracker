@@ -22,7 +22,7 @@ void cMtPadsBacklight:: update()
 			if(toggler == 1) toggler = 0;
 			else if(toggler == 0) toggler =1;
 
-			for(uint8_t i=0; i < 64 ; i ++)
+			for(uint8_t i=0; i < 48 ; i ++)
 			{
 				if(blinkLayer[i]) setFrontLayer(toggler, blinkLayer[i], i );
 			}
@@ -31,30 +31,30 @@ void cMtPadsBacklight:: update()
 
 }
 
-void cMtPadsBacklight::setBackLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n )
+void cMtPadsBacklight::setBackLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n)
 {
 	if(state)
 	{
-//		leds.setLEDgrid(n,state,gamma_pwm);
+		leds.setLED(n,state,gamma_pwm);
 		backLayer[n]=gamma_pwm;
 	}
 	else
 	{
-//		leds.setLEDgrid(n,state,gamma_pwm);
+		leds.setLED(n,state,gamma_pwm);
 		backLayer[n]=0;
 	}
 }
 
-void cMtPadsBacklight::setFrontLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n )
+void cMtPadsBacklight::setFrontLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n)
 {
 	if(state)
 	{
-//		leds.setLEDgrid(n,state,gamma_pwm);
+		leds.setLED(n,state,gamma_pwm);
 	}
 	else
 	{
-//		if(backLayer[n] != 0) leds.setLEDgrid(n,1,backLayer[n]);
-//		else leds.setLEDgrid(n,state,gamma_pwm);
+		if(backLayer[n] != 0) leds.setLED(n,1,backLayer[n]);
+		else leds.setLED(n,state,gamma_pwm);
 	}
 }
 
@@ -73,7 +73,7 @@ void cMtPadsBacklight::stopBlink(uint8_t n)
 
 void cMtPadsBacklight::clearAllPads(uint8_t front, uint8_t back, uint8_t blink)
 {
-	for(uint8_t i=0;i<64;i++)
+	for(uint8_t i=0;i<48;i++)
 	{
 		if(front) setFrontLayer(0,0,i);
 		if(back) setBackLayer(0,0,i);
