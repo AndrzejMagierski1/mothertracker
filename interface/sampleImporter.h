@@ -122,6 +122,7 @@ public:
 	uint8_t copyingProgress = 0;
 	uint8_t lastCopyStatusFlag = 0;
 	uint8_t currentCopyStatusFlag = 0;
+	uint8_t firstUpdateFlag = 1;
 //--------------------------------------------------------------
 //odsluch
 	void playSdFile();

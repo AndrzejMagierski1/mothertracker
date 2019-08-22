@@ -84,7 +84,11 @@ void cSampleImporter::update()
 
 
 
-
+	if(firstUpdateFlag)
+	{
+		fileManager.clearForcedSampleProcessingFlag();
+		firstUpdateFlag = 0;
+	}
 	lastCopyStatusFlag = currentCopyStatusFlag;
 /////////////////////////////////////////////////////////////////////////
 
@@ -115,7 +119,7 @@ void cSampleImporter::start(uint32_t options)
 
 	actualPath[0] = '/';
 	actualPath[1] = 0;
-
+	firstUpdateFlag = 1;
 	listOnlyFolderNames(actualPath);
 	showFolderTree();
 
@@ -640,7 +644,7 @@ void cSampleImporter::SelectFile()
 {
 	if(currentCopyStatusFlag || loadFlag) return;
 	fileManager.startImportSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot);
-
+	fileManager.clearForcedSampleProcessingFlag();
 
 
 //	calculateMemoryUsage(); przeniesione do update - memory usage zostanie zwiekszone dopiero po poprawnym zaladowaniu pliku w update;
