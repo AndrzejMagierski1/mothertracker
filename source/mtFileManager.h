@@ -143,6 +143,7 @@ public:
 	void updateImportSampleToProject();
 	uint8_t getStateImportSampleToProject();
 	uint8_t getProgressImportSampleToProject();
+	void clearForcedSampleProcessingFlag();
 
 	uint8_t loadPattern(uint8_t index);
 	uint8_t savePattern(uint8_t index);
@@ -184,6 +185,7 @@ private:
 	uint32_t currentCopyingSize = 0;
 	uint32_t copyFileSize;
 	uint8_t importSampleState = importingSampleEnded;
+	uint8_t forcedSampleProcessingFlag = 0;
 
 	enum importSampleStateType
 	{

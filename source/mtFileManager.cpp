@@ -446,6 +446,7 @@ uint8_t FileManager::startImportSampleToProject(char* filePatch, char* name, int
 	copyImportSample= SD.open(currentPatch,FILE_WRITE);
 	currentCopyingSize = 0;
 	importSampleState =importingSampleInProgress;
+	forcedSampleProcessingFlag = 1;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -541,7 +542,13 @@ void FileManager::stopImportSampleToProject()
 
 uint8_t FileManager::getStateImportSampleToProject()
 {
+	if(forcedSampleProcessingFlag) return 1;
 	return importSampleState;
+}
+
+void FileManager::clearForcedSampleProcessingFlag()
+{
+	forcedSampleProcessingFlag = 0;
 }
 
 uint8_t FileManager::getProgressImportSampleToProject()
