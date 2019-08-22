@@ -1945,6 +1945,7 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
         {
         	digitalWrite(SI4703_KLUCZ,HIGH);
         	hideRadio();
+        	audioShield.inputSelect(AUDIO_INPUT_MIC);
         }
         if(recorderConfig.source < 3) recorderConfig.source++;
     }
@@ -1959,25 +1960,23 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
         {
         	digitalWrite(SI4703_KLUCZ,LOW);
         	showRadio();
+        	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
         }
         if(recorderConfig.source > 0) recorderConfig.source--;
     }
     if((recorderConfig.source == sourceTypeLineIn) || (recorderConfig.source == sourceTypeRadio))
     {
-        audioShield.inputSelect(AUDIO_INPUT_LINEIN);
         mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
         if(recorderConfig.source == sourceTypeLineIn)  audioShield.lineInLevel(map(recorderConfig.gainLineIn,0,100,0,15));
         else if(recorderConfig.source == sourceTypeRadio) audioShield.lineInLevel(map(recorderConfig.gainRadio,0,100,0,15));
     }
     else if(recorderConfig.source == sourceTypeMicLG)
     {
-        audioShield.inputSelect(AUDIO_INPUT_MIC);
         mtConfig.audioCodecConfig.inSelect = inputSelectMic;
         audioShield.micGain(recorderConfig.gainMicLow*25.0/100);
     }
     else if(recorderConfig.source == sourceTypeMicHG)
     {
-        audioShield.inputSelect(AUDIO_INPUT_MIC);
         mtConfig.audioCodecConfig.inSelect = inputSelectMic;
         audioShield.micGain(recorderConfig.gainMicHigh*44.0/100);
     }
