@@ -676,7 +676,7 @@ void cSampleImporter::listInstrumentSlots()
 
 		if(mtProject.instrument[i].sample.loaded)
 		{
-			strcat(&slotNames[i][0], mtProject.instrument[i].sample.file_name);
+			strncat(&slotNames[i][0], mtProject.instrument[i].sample.file_name,SAMPLES_FILENAME_LENGTH_MAX);
 		}
 
 		ptrSlotNames[i] = &slotNames[i][0];

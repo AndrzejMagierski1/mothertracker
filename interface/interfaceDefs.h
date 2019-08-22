@@ -179,6 +179,7 @@ enum interfaceEvents
 
 	eventSwitchModule,
 	eventSwitchToPreviousModule,
+	eventSwitchModuleWithOptions,
 
 	interfaceEventsCount
 };

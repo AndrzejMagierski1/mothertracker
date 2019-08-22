@@ -19,6 +19,8 @@ static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
 
 
+static  uint8_t functInstrument(uint8_t state);
+
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
@@ -158,7 +160,7 @@ void cSamplePlayback::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton6, buttonPress, functPlayMode);
 	FM->setButtonObj(interfaceButton7, buttonPress, functPlayMode);
 
-
+	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
@@ -869,13 +871,18 @@ static uint8_t functShift(uint8_t value)
 
 	return 1;
 }
-/*
-static uint8_t stopPlaying(uint8_t value)
-{
-	if(SP->isPlayingSample) instrumentPlayer[0].noteOff();
 
-	SP->isPlayingSample = 0;
+static  uint8_t functInstrument(uint8_t state)
+{
+	if(state == buttonPress)
+	{
+		uint8_t buttonId  = interfaceButtonInstr;
+		SP->eventFunct(eventSwitchModule, SP, &buttonId, 0);
+	}
+	else if(state == buttonHold)
+	{
+
+	}
 
 	return 1;
 }
-*/

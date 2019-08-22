@@ -22,7 +22,7 @@ static  uint8_t functChangePatternLength(uint8_t state);
 static  uint8_t functChangePatternEditStep(uint8_t state);
 
 static  uint8_t functNote();
-static  uint8_t functInstrument();
+static  uint8_t functInstrument(uint8_t state);
 static  uint8_t functVolume();
 static  uint8_t functFx();
 
@@ -39,7 +39,6 @@ static  uint8_t functFillChangeParam4();
 static  uint8_t functRandomise();
 static  uint8_t functRandomiseCancel();
 static  uint8_t functRandomiseApply();
-static  uint8_t functRandomiseChangeType();
 static  uint8_t functRandomiseChangeParam1();
 static  uint8_t functRandomiseChangeParam2();
 static  uint8_t functRandomiseChangeParam3();
@@ -179,7 +178,7 @@ void cPatternEditor::setDefaultScreenFunct()
 
 
 	FM->setButtonObj(interfaceButtonNote, buttonPress, functNote);
-	FM->setButtonObj(interfaceButtonInstr, buttonPress, functInstrument);
+	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 	FM->setButtonObj(interfaceButtonVol, buttonPress, functVolume);
 	FM->setButtonObj(interfaceButtonFx, buttonPress, functFx);
 
@@ -1142,24 +1141,32 @@ static  uint8_t functNote()
 }
 
 
-static  uint8_t functInstrument()
+static  uint8_t functInstrument(uint8_t state)
 {
-	PTE->editParam = 1;
-
-	if(PTE->fillState > 0)
+	if(state == buttonPress)
 	{
-		PTE->showFillPopup();
-		return 1;
-	}
-	if(PTE->randomiseState > 0)
-	{
-		PTE->showRandomisePopup();
-		return 1;
-	}
+		PTE->editParam = 1;
 
-	PTE->focusOnPattern();
-	PTE->lightUpPadBoard();
-	PTE->refreshPattern();
+		if(PTE->fillState > 0)
+		{
+			PTE->showFillPopup();
+			return 1;
+		}
+		if(PTE->randomiseState > 0)
+		{
+			PTE->showRandomisePopup();
+			return 1;
+		}
+
+		PTE->focusOnPattern();
+		PTE->lightUpPadBoard();
+		PTE->refreshPattern();
+	}
+	else if(state == buttonHold)
+	{
+		uint8_t buttonId  = interfaceButtonInstr;
+		PTE->eventFunct(eventSwitchModule, PTE, &buttonId, 0);
+	}
 
 	return 1;
 }

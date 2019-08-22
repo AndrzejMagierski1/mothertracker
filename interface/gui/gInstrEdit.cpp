@@ -17,16 +17,23 @@ static uint16_t framesPlaces[8][4] =
 	{(800/8)*7, 30, 800/8, 380},
 };
 
-
+static uint32_t instrListColors[] =
+{
+	0xFF0000,	//	 listItemFrame
+	0x000000,	//	 listItemFrameBG
+	0xFFFFFF,	//	 listScrollBar
+	0x554A19,	//	 listBG
+	0xFFFFFF,	//	 fontList
+};
 
 
 void cInstrumentEditor::initDisplayControls()
 {
 	strControlProperties prop2;
 	prop2.text = (char*)"";
-	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX);
+	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 	prop2.x = 400;
-	prop2.y = 0;
+	prop2.y = 12;
 	prop2.w = 800;
 	prop2.h = 25;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
@@ -35,7 +42,7 @@ void cInstrumentEditor::initDisplayControls()
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX );
+		prop2.style = 	( controlStyleBackground | controlStyleCenterX );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.y = 450;
 		prop2.w = 800/8-10;
@@ -51,7 +58,7 @@ void cInstrumentEditor::initDisplayControls()
 		prop2.x = (800/8)*i+5;
 		prop2.y = 30;
 		prop2.w = 800/8-10;
-		prop2.style =  controlStyleShow | controlStyleValue_0_100;
+		prop2.style =  controlStyleValue_0_100;
 		prop2.h = 380;
 		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
 	}
@@ -104,7 +111,22 @@ void cInstrumentEditor::initDisplayControls()
 	prop.data = &envLoopList;
 	if(envLoopListControl == nullptr)  envLoopListControl = display.createControl<cList>(&prop);
 
-
+	// inicjalizacja list instrumentow
+	for(uint8_t i = 0; i<4; i++)
+	{
+		intrumentsList[i].start = 0;
+		intrumentsList[i].linesCount = 12;
+		intrumentsList[i].length = 12;
+		intrumentsList[i].data = &ptrintrumentsNames[i*12];
+		prop.style = controlStyleCenterY;
+		prop.x = (800/4)*(i)+5;
+		prop.y = 240;
+		prop.w = 800/4-10;
+		prop.h = 25;
+		prop.colors = instrListColors;
+		prop.data = &intrumentsList[i];
+		if(intrumentsListControl[i] == nullptr)  intrumentsListControl[i] = display.createControl<cList>(&prop);
+	}
 
 	// ramka
 	//strControlProperties prop;
@@ -118,8 +140,9 @@ void cInstrumentEditor::initDisplayControls()
 	frameData.places[5] = &framesPlaces[5][0];
 	frameData.places[6] = &framesPlaces[6][0];
 	frameData.places[7] = &framesPlaces[7][0];
-	prop.style = controlStyleShow;
+	prop.style = 0;
 	prop.value = 0;
+	prop.colors = nullptr;
 	prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
@@ -154,6 +177,13 @@ void cInstrumentEditor::destroyDisplayControls()
 
 	display.destroyControl(envLoopListControl);
 	envLoopListControl = nullptr;
+
+	for(uint8_t i = 0; i<4; i++)
+	{
+		display.destroyControl(intrumentsListControl[i]);
+		intrumentsListControl[i] = nullptr;
+	}
+
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
@@ -224,16 +254,23 @@ void cInstrumentEditor::showInstrumentEnv()
 
 	display.setControlHide(barControl[0]);
 	display.setControlHide(barControl[1]);
+	display.setControlShow(barControl[2]);
+	display.setControlShow(barControl[3]);
+	display.setControlShow(barControl[4]);
+	display.setControlShow(barControl[5]);
+	display.setControlShow(barControl[6]);
 	display.setControlHide(barControl[7]);
 
-	display.setControlShow(barControl[4]);
 
 	display.setControlHide(filterModeListControl);
-
-
 	display.setControlShow(envelopesListControl);
 	display.setControlShow(envStateListControl);
 	display.setControlShow(envLoopListControl);
+
+	for(uint8_t i = 0; i<4; i++)
+	{
+		display.setControlHide(intrumentsListControl[i]);
+	}
 
 
 	//display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValue_0_100));
@@ -247,6 +284,8 @@ void cInstrumentEditor::showInstrumentEnv()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
+		display.setControlShow(topLabel[i]);
+		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
 		display.refreshControl(topLabel[i]);
 		display.refreshControl(barControl[i]);
@@ -283,18 +322,25 @@ void cInstrumentEditor::showInstrumentParams()
 
 //-------------------------------------
 
-
-	display.setControlHide(barControl[4]);
-
 	display.setControlShow(barControl[0]);
+	display.setControlShow(barControl[1]);
+	display.setControlShow(barControl[2]);
+	display.setControlShow(barControl[3]);
+	display.setControlHide(barControl[4]);
+	display.setControlShow(barControl[5]);
+	display.setControlShow(barControl[6]);
 	display.setControlShow(barControl[7]);
-
 
 	display.setControlHide(envelopesListControl);
 	display.setControlHide(envStateListControl);
 	display.setControlHide(envLoopListControl);
-
 	display.setControlShow(filterModeListControl);
+
+
+	for(uint8_t i = 0; i<4; i++)
+	{
+		display.setControlHide(intrumentsListControl[i]);
+	}
 
 
 	display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValueLeftRight_100_100));
@@ -307,12 +353,75 @@ void cInstrumentEditor::showInstrumentParams()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
+		display.setControlShow(topLabel[i]);
+		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
 		display.refreshControl(topLabel[i]);
 		display.refreshControl(barControl[i]);
 	}
 
 	display.synchronizeRefresh();
+}
+
+
+
+void cInstrumentEditor::showInstrumentList()
+{
+	display.setControlText(titleLabel, "Instruments");
+	display.refreshControl(titleLabel);
+
+//	display.setControlText(bottomLabel[0], "");
+//	display.setControlText(bottomLabel[1], "");
+//	display.setControlText(bottomLabel[2], "");
+//	display.setControlText(bottomLabel[3], "");
+//	display.setControlText(bottomLabel[4], "");
+//	display.setControlText(bottomLabel[5], "");
+//	display.setControlText(bottomLabel[6], "");
+//	display.setControlText(bottomLabel[7], "");
+
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		//display.refreshControl(bottomLabel[i]);
+		display.setControlHide(barControl[i]);
+		display.setControlHide(bottomLabel[i]);
+		display.setControlHide(topLabel[i]);
+	}
+
+	display.setControlHide(filterModeListControl);
+	display.setControlHide(envelopesListControl);
+	display.setControlHide(envStateListControl);
+	display.setControlHide(envLoopListControl);
+	display.setControlHide(frameControl);
+
+
+
+	listInstruments();
+
+	for(uint8_t i = 0; i<4; i++)
+	{
+		if(selectedInstrument >= i*12 && selectedInstrument < (i+1)*12)
+		{
+			intrumentsList[i].start = selectedInstrument%12;
+		}
+		else
+		{
+			intrumentsList[i].start = -1;
+		}
+
+		intrumentsList[i].length = 12;
+		intrumentsList[i].linesCount = 12;
+		intrumentsList[i].data = &ptrintrumentsNames[i*12];
+
+		display.setControlData(intrumentsListControl[i], &intrumentsList[i]);
+
+		display.setControlShow(intrumentsListControl[i]);
+
+		showInstrList(i);
+	}
+
+	display.synchronizeRefresh();
+
 }
 
 //==============================================================================================================
@@ -446,8 +555,46 @@ void cInstrumentEditor::showParamsGlide()
 
 
 
+void cInstrumentEditor::showInstrList(uint8_t n)
+{
+	int8_t position = -1;
 
+	if(selectedInstrument >= n*12 && selectedInstrument < (n+1)*12)
+	{
+		position = selectedInstrument%12;
+	}
 
+	display.setControlValue(intrumentsListControl[n], position);
+	display.refreshControl(intrumentsListControl[n]);
+}
 
+void cInstrumentEditor::listInstruments()
+{
+	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
+	{
+		if(i<9)
+		{
+			intrumentsNames[i][0] = (i+1)%10 + 48;
+			intrumentsNames[i][1] = '.';
+			intrumentsNames[i][2] = ' ';
+			intrumentsNames[i][3] = 0;
+		}
+		else
+		{
+			intrumentsNames[i][0] = ((i+1)/10) + 48;
+			intrumentsNames[i][1] = (i+1)%10 + 48;
+			intrumentsNames[i][2] = '.';
+			intrumentsNames[i][3] = ' ';
+			intrumentsNames[i][4] = 0;
+		}
+
+		if(mtProject.instrument[i].sample.loaded)
+		{
+			strncat(&intrumentsNames[i][0], mtProject.instrument[i].sample.file_name, SAMPLES_FILENAME_LENGTH_MAX);
+		}
+
+		ptrintrumentsNames[i] = &intrumentsNames[i][0];
+	}
+}
 
 
