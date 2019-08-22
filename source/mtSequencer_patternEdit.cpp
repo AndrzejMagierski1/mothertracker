@@ -9,8 +9,21 @@
 #include "patternEditor.h"
 extern Sequencer sequencer;
 
+void fromToSwap(uint8_t & from, uint8_t & to)
+{
+	if (to < from)
+	{
+		uint8_t buff;
+		buff = from;
+		from = to;
+		to = buff;
+	}
+}
+
 void Sequencer::fillRandomNotes(uint8_t fillStep, uint8_t from, uint8_t to)
 {
+	fromToSwap(from, to);
+
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
@@ -89,6 +102,8 @@ void Sequencer::fillLinearInstruments(uint8_t fillStep, uint8_t from,
 void Sequencer::fillRandomInstruments(uint8_t fillStep, uint8_t from,
 										uint8_t to)
 {
+	fromToSwap(from, to);
+
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
@@ -143,6 +158,7 @@ void Sequencer::fillLinearVelocity(uint8_t fillStep, uint8_t from,
 void Sequencer::fillRandomVelocity(uint8_t fillStep, uint8_t from,
 									uint8_t to)
 {
+	fromToSwap(from, to);
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
@@ -163,8 +179,10 @@ void Sequencer::fillRandomVelocity(uint8_t fillStep, uint8_t from,
 	}
 }
 
-void Sequencer::randomSelection(uint8_t from, uint8_t to, uint8_t byStep, uint8_t scale)
+void Sequencer::randomSelectedNotes(uint8_t from, uint8_t to, uint8_t scale)
 {
+	fromToSwap(from, to);
+
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
@@ -184,6 +202,73 @@ void Sequencer::randomSelection(uint8_t from, uint8_t to, uint8_t byStep, uint8_
 	}
 }
 
+void Sequencer::randomSelectedInstruments(uint8_t from, uint8_t to)
+{
+	fromToSwap(from, to);
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+			if (step->note >= 0)
+			{
+				step->instrument = random(from, to + 1);
+			}
+		}
+	}
+}
+void Sequencer::randomSelectedVelo(uint8_t from, uint8_t to)
+{
+	fromToSwap(from, to);
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+			if (step->velocity >= 0 || step->note >= 0)
+			{
+				step->velocity = random(from, to + 1);
+			}
+		}
+	}
+}
+void Sequencer::invertSelectedSteps()
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *stepA;
+	strPattern::strTrack::strStep *stepB;
+	strPattern::strTrack::strStep buffStep;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t a = sel->firstStep, b = sel->lastStep;
+				a <= (sel->lastStep - sel->firstStep) / 2;
+				a++, b--)
+		{
+			stepA = &seq[player.ramBank].track[t].step[a];
+			stepB = &seq[player.ramBank].track[t].step[b];
+			buffStep = *stepA;
+			*stepA = *stepB;
+			*stepB = buffStep;
+		}
+	}
+
+}
 void Sequencer::loadDefaultTrack(uint8_t row, uint8_t bank)
 {
 

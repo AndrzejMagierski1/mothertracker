@@ -698,7 +698,10 @@ public:
 	void changeSelectionNote(int16_t value);
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 					uint8_t track);
-	void randomSelection(uint8_t from, uint8_t to, uint8_t step, uint8_t scale);
+	void randomSelectedNotes(uint8_t from, uint8_t to, uint8_t scale);
+	void randomSelectedInstruments(uint8_t from, uint8_t to);
+	void randomSelectedVelo(uint8_t from, uint8_t to);
+	void invertSelectedSteps();
 
 	void loadNextPattern(uint8_t patternNumber);
 	void handleNote(byte channel, byte pitch, byte velocity);

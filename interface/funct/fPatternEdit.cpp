@@ -1447,7 +1447,6 @@ static  uint8_t functFillCancel()
 	return 1;
 }
 
-//TODO: podpiac fill z seq
 static  uint8_t functFillApply()
 {
 	// zatwierdzanie wypelnienia
@@ -1623,12 +1622,12 @@ static  uint8_t functRandomiseCancel()
 	return 1;
 }
 
-//TODO: podpiac random z seq
 static  uint8_t functRandomiseApply()
 {
 	// zatwierdzanie wypelnienia
 	if(PTE->randomiseState)
 	{
+		cPatternEditor::strRandomise * randomiseData = &PTE->randomiseData[PTE->editParam];
 		(void) PTE->randomiseData[PTE->editParam];
 		(void) PTE->randomiseStep;
 		// PTE->randomiseData[x]	<= przechowuje dane do konfiguracji randomise
@@ -1641,6 +1640,27 @@ static  uint8_t functRandomiseApply()
 		// PTE->editParam			<= nuta / instr / vol / fx
 		//--------------------------------------------------------
 		//TU
+		sendSelection();
+		switch (PTE->editParam)
+		{
+		case 0:
+			sequencer.randomSelectedNotes(randomiseData->from,
+											randomiseData->to,
+											randomiseData->param);
+			break;
+		case 1:
+			sequencer.randomSelectedInstruments(randomiseData->from,
+												randomiseData->to);
+			break;
+		case 2:
+			sequencer.randomSelectedVelo(randomiseData->from,
+											randomiseData->to);
+			break;
+
+		break;
+		}
+
+
 
 
 		//--------------------------------------------------------
@@ -1685,13 +1705,15 @@ static  uint8_t functRandomiseChangeParam4()
 //###############################            INVERT            #################################
 //##############################################################################################
 //TODO: podpiac invert z seq
-static  uint8_t functInvert()
+static uint8_t functInvert()
 {
 	//--------------------------------------------------------
 	//TU
 
+	sendSelection();
+	sequencer.invertSelectedSteps();
 
-
+	PTE->refreshPattern();
 
 	//--------------------------------------------------------
 	return 1;
