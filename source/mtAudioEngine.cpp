@@ -233,7 +233,6 @@ void audioEngine::setReverbRoomsize(uint8_t value)
 
 void audioEngine::setReverbDamping(uint8_t value)
 {
-	if(value > 100) value == 100;
 	reverb.damping(value/100.0);
 }
 
