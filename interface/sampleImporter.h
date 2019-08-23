@@ -48,6 +48,7 @@ public:
 	hControl instrumentListControl;
 	hControl memoryBarControl;
 	hControl frameControl;
+	hControl titleLabel;
 
 	hControl loadHorizontalBarControl;
 
@@ -96,7 +97,7 @@ public:
 
 // instrumenty
 	void listInstrumentSlots();
-	char slotNames[INSTRUMENTS_COUNT][SAMPLES_FILENAME_LENGTH_MAX+4];
+	char slotNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
 	char *ptrSlotNames[INSTRUMENTS_COUNT];
 	uint8_t selectedSlot = 0;
 

@@ -564,8 +564,9 @@ void cInstrumentEditor::changeSelectedInstrument(int16_t value, uint8_t type)
 		showInstrList(oldList);
 	}
 
-
 	showInstrList(newList);
+
+	showActualInstrument();
 
 	lightUpPadBoard();
 }

@@ -101,7 +101,6 @@ public:
 
 	void showParamsGlide();
 
-
 	void showInstrList(uint8_t n);
 //----------------------------------
 
@@ -142,20 +141,22 @@ public:
 
 	strFrameData frameData;
 
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
 
-	hControl titleLabel;
-	hControl topLabel[8];
-	hControl bottomLabel[8];
-	hControl barControl[8];
+	hControl topLabel[8] = {nullptr};
+	hControl bottomLabel[8] = {nullptr};
+	hControl barControl[8] = {nullptr};
 
-	hControl filterModeListControl;
-	hControl envelopesListControl;
-	hControl envStateListControl;
-	hControl envLoopListControl;
+	hControl filterModeListControl = nullptr;
+	hControl envelopesListControl = nullptr;
+	hControl envStateListControl = nullptr;
+	hControl envLoopListControl = nullptr;
 
-	hControl intrumentsListControl[4];
+	hControl intrumentsListControl[4] = {nullptr};
 
-	hControl frameControl;
+	hControl frameControl = nullptr;
 
 
 	uint8_t selectedPlace[3] = {0};
@@ -168,6 +169,11 @@ public:
 
 
 	uint8_t selectedEnvelope = 0;
+
+//----------------------------------
+// aktualny instrument na belce tytułowej
+	void showActualInstrument();
+	//char actualInstrName[SAMPLE_NAME_SIZE+4];
 
 //----------------------------------
 // lista play mode
@@ -202,7 +208,7 @@ public:
 
 	uint8_t selectedInstrument = 0;
 
-	char intrumentsNames[INSTRUMENTS_COUNT][SAMPLES_FILENAME_LENGTH_MAX+4];
+	char intrumentsNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
 	char *ptrintrumentsNames[INSTRUMENTS_COUNT];
 
 	void listInstruments();
