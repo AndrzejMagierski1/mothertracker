@@ -20,6 +20,14 @@ void cConfigEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
+	prop2.text = (char*)"";
+	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+	prop2.x = 400;
+	prop2.y = 12;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -80,6 +88,8 @@ void cConfigEditor::initDisplayControls()
 
 void cConfigEditor::destroyDisplayControls()
 {
+	display.destroyControl(titleLabel);
+	titleLabel = nullptr;
 
 	display.destroyControl(configGroupsListControl);
 	configGroupsListControl = nullptr;
@@ -103,6 +113,9 @@ void cConfigEditor::destroyDisplayControls()
 
 void cConfigEditor::showDefaultConfigScreen()
 {
+	display.setControlText(titleLabel, "Config");
+	display.refreshControl(titleLabel);
+
 	listConfigGroups();
 	//lista
 	showConfigGroupList();
@@ -156,6 +169,8 @@ void cConfigEditor::showDefaultConfigScreen()
 
 void cConfigEditor::showMasterScreen()
 {
+	display.setControlText(titleLabel, "Master");
+	display.refreshControl(titleLabel);
 
 	// bottom labels
 	display.setControlText(bottomLabel[0], "Volume");
@@ -219,6 +234,8 @@ void cConfigEditor::showMasterScreen()
 
 void cConfigEditor::showMasterTracksScreen()
 {
+	display.setControlText(titleLabel, "");
+	display.refreshControl(titleLabel);
 
 	// bottom labels
 	display.setControlText(bottomLabel[0], "On");

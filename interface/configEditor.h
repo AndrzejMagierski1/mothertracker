@@ -123,8 +123,9 @@ public:
 	hControl bottomLabel[8];
 	hControl barControl[8];
 
-
 	hControl configGroupsListControl;
+
+	hControl titleLabel;
 
 	hControl frameControl;
 

@@ -18,7 +18,8 @@ class cModuleBase
 public:
 	cModuleBase()
 	{
-
+		eventFunct = nullptr;
+		FM = nullptr;
 	}
 	~cModuleBase(){	}
 

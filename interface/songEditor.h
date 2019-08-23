@@ -47,6 +47,7 @@ public:
 	hControl patternsListControl;
 	hControl barControl[4];
 	hControl frameControl;
+	hControl titleLabel;
 
 
 	uint8_t selectedPlace = 0;

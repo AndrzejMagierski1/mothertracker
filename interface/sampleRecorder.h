@@ -143,6 +143,7 @@ public:
 	hControl selectWindowLabel;
 	hControl progressCursor;
 	hControl radioRdsLabel;
+	hControl titleLabel;
 
 //*********************************************
 

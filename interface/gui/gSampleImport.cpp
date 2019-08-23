@@ -5,9 +5,9 @@
 
 static uint16_t framesPlaces[3][4] =
 {
-	{0, 0, 800/4, 480},
-	{(800/4)*1, 0, 800/4, 480},
-	{(800/4)*2, 0, 800/4, 480},
+	{0, 		30, 800/4, 385},
+	{(800/4)*1, 30, 800/4, 385},
+	{(800/4)*2, 30, 800/4, 385},
 };
 
 static uint32_t color[3] = {0xFF00FF, 0x0000ff, 0xff0000};
@@ -17,7 +17,15 @@ void cSampleImporter::initDisplayControls()
 {
 	strControlProperties prop2;
 	prop2.text = (char*)"";
-	prop2.style = 	( controlStyleBackground | controlStyleCenterX /*| controlStyleRoundedBorder*/);
+	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+	prop2.x = 400;
+	prop2.y = 12;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+
+
+	prop2.style = 	( controlStyleBackground | controlStyleCenterX );
 
 	// inicjalizacja kontrolek
 	for(uint8_t i = 0; i<4; i++)
@@ -44,7 +52,7 @@ void cSampleImporter::initDisplayControls()
 	folderList.data = folderNames;
 	strControlProperties prop;
 	prop.x = 0+5;
-	prop.y = 10;
+	prop.y = 35;
 	prop.w = 800/4-10;
 	prop.h = 25;
 	prop.data = &folderList;
@@ -112,6 +120,9 @@ void cSampleImporter::initDisplayControls()
 
 void cSampleImporter::destroyDisplayControls()
 {
+	display.destroyControl(titleLabel);
+	titleLabel = nullptr;
+
 	display.destroyControl(folderListControl);
 	folderListControl = nullptr;
 	display.destroyControl(fileListControl);
@@ -140,6 +151,8 @@ void cSampleImporter::destroyDisplayControls()
 
 void cSampleImporter::showDefaultScreen()
 {
+	display.setControlText(titleLabel, "Sample Loader");
+	display.refreshControl(titleLabel);
 
 	display.setControlText(topLabel[0], "SD");
 	display.setControlText(topLabel[1], "");
@@ -173,7 +186,7 @@ void cSampleImporter::showFolderTree()
 {
 	folderList.start = 0;
 	folderList.length = locationFolderCount;
-	folderList.linesCount = 16;
+	folderList.linesCount = 15;
 	folderList.data = folderNames;
 
 	display.setControlData(folderListControl,  &folderList);
@@ -190,7 +203,7 @@ void cSampleImporter::showFilesTree()
 {
 	instrumentList.start = 0;
 	instrumentList.length = locationFileCount;
-	instrumentList.linesCount = 16;
+	instrumentList.linesCount = 15;
 	instrumentList.data = fileNames;
 
 	display.setControlData(fileListControl,  &instrumentList);
@@ -203,7 +216,7 @@ void cSampleImporter::showInstrumentsList()
 {
 	fileList.start = selectedSlot;
 	fileList.length = INSTRUMENTS_COUNT;
-	fileList.linesCount = 16;
+	fileList.linesCount = 15;
 	fileList.data = ptrSlotNames;
 
 	display.setControlData(instrumentListControl,  &fileList);

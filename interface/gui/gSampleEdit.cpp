@@ -20,6 +20,14 @@ void cSampleEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
+	prop2.text = (char*)"";
+	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+	prop2.x = 400;
+	prop2.y = 12;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+
 
 	for(uint8_t i = 0; i<6; i++)
 	{
@@ -92,6 +100,9 @@ void cSampleEditor::initDisplayControls()
 
 void cSampleEditor::destroyDisplayControls()
 {
+	display.destroyControl(titleLabel);
+	titleLabel = nullptr;
+
 	display.destroyControl(spectrumControl);
 	spectrumControl = nullptr;
 
@@ -117,6 +128,8 @@ void cSampleEditor::destroyDisplayControls()
 
 void cSampleEditor::showDefaultScreen()
 {
+	display.setControlText(titleLabel, "Sample Editor");
+	display.refreshControl(titleLabel);
 
 	//spectrum
 	display.setControlShow(spectrumControl);

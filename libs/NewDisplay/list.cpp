@@ -260,7 +260,8 @@ uint8_t cList::update()
 		if(list->start > listPosition) {dir = -1;	diffrence = list->start - listPosition; }
 		else {dir = 1;	diffrence = listPosition - list->start; }
 
-		if(diffrence > 5) diffrence = 8;
+		if(diffrence > 3) diffrence = 12;
+		else if(diffrence > 2) diffrence = 8;
 		else if(diffrence > 1) diffrence = 4;
 		else diffrence = 2;
 

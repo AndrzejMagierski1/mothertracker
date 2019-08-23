@@ -56,6 +56,7 @@ public:
 	hControl editName;
 	hControl fileListControl;
 	hControl keyboardControl;
+	hControl titleLabel;
 
 	uint32_t topLabelColors[3] =
 	{

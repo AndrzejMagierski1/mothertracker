@@ -17,6 +17,14 @@ void cSongEditor::initDisplayControls()
 {
 	strControlProperties prop2;
 	prop2.text = (char*)"";
+	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+	prop2.x = 400;
+	prop2.y = 12;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+
+	prop2.text = (char*)"";
 	prop2.style = 	( controlStyleBackground | controlStyleCenterX /*| controlStyleRoundedBorder*/);
 
 	// inicjalizacja kontrolek
@@ -78,6 +86,9 @@ void cSongEditor::initDisplayControls()
 
 void cSongEditor::destroyDisplayControls()
 {
+	display.destroyControl(titleLabel);
+	titleLabel = nullptr;
+
 	display.destroyControl(patternsListControl);
 	patternsListControl = nullptr;
 
@@ -99,6 +110,8 @@ void cSongEditor::destroyDisplayControls()
 
 void cSongEditor::showDefaultScreen()
 {
+	display.setControlText(titleLabel, "Song");
+	display.refreshControl(titleLabel);
 /*
 	display.setControlText(topLabel[0], "Song Length");
 	display.setControlText(topLabel[1], "Pattern");

@@ -14,13 +14,13 @@ static uint32_t popUpLabelColors[] =
 
 static  uint16_t framesPlacesS1[8][4] =
 {
-	{0, 		0, 800/8, 480},
-	{(800/8)*1, 0, 800/8, 480},
+	{0, 		30, 800/8, 380},
+	{(800/8)*1, 30, 800/8, 380},
 	{(800/8)*2, 412, 800/8, 68},
 	{(800/8)*3, 412, 800/8, 68},
-	{(800/8)*4, 0, 800/8, 480},
-	{(800/8)*5, 0, 800/8, 480},
-	{(800/8)*6, 0, 800/8, 480},
+	{(800/8)*4, 30, 800/8, 380},
+	{(800/8)*5, 30, 800/8, 380},
+	{(800/8)*6, 30, 800/8, 380},
 	{(800/8)*7, 412, 800/8, 68}
 };
 
@@ -48,10 +48,16 @@ uint32_t radioLabelColors[3]=
 
 void cSampleRecorder::initDisplayControls()
 {
-	// inicjalizacja kontrolek
+	strControlProperties prop2;
+	prop2.text = (char*)"";
+	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+	prop2.x = 400;
+	prop2.y = 12;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 
 	strControlProperties prop;
-
 	prop.x = 100;
 	prop.y = 75;
 	prop.w = 600;
@@ -65,8 +71,6 @@ void cSampleRecorder::initDisplayControls()
 	points.startPoint = 0;
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
-
-	strControlProperties prop2;
 
 
 	for(uint8_t i = 0; i<8; i++)
@@ -211,6 +215,9 @@ void cSampleRecorder::initDisplayControls()
 
 void cSampleRecorder::destroyDisplayControls()
 {
+	display.destroyControl(titleLabel);
+	titleLabel = nullptr;
+
 	display.destroyControl(progressCursor);
 	progressCursor = nullptr;
 
@@ -261,6 +268,8 @@ void cSampleRecorder::destroyDisplayControls()
 
 void cSampleRecorder::showDefaultScreen()
 {
+	display.setControlText(titleLabel, "Sampel Recorder");
+	display.refreshControl(titleLabel);
 
 	if (currentScreen == screenTypeConfig)
 	{

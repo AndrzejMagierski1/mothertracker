@@ -83,6 +83,7 @@ public:
 	hControl spectrumControl;
 	hControl pointsControl;
 	hControl frameControl;
+	hControl titleLabel;
 
 
 	uint8_t selectedPlace = 0;

@@ -30,13 +30,20 @@ static uint32_t instrListColors[] =
 void cInstrumentEditor::initDisplayControls()
 {
 	strControlProperties prop2;
-	prop2.text = (char*)"";
-	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
-	prop2.x = 400;
-	prop2.y = 12;
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
 	prop2.w = 800;
 	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
+	prop2.x = 769;
+	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
+
 
 	// inicjalizacja kontrolek
 	for(uint8_t i = 0; i<8; i++)
@@ -151,8 +158,14 @@ void cInstrumentEditor::initDisplayControls()
 
 void cInstrumentEditor::destroyDisplayControls()
 {
+	display.destroyControl(titleBar);
+	titleBar = nullptr;
+
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
+
+	display.destroyControl(instrumentLabel);
+	instrumentLabel = nullptr;
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -219,7 +232,12 @@ void cInstrumentEditor::showDefaultScreen()
 
 void cInstrumentEditor::showInstrumentEnv()
 {
+	display.refreshControl(titleBar);
+
 	display.setControlText(titleLabel, "Instrument Envelopes");
+	display.refreshControl(titleLabel);
+
+	showActualInstrument();
 
 	display.setControlText(bottomLabel[0], "Envelopes");
 	display.setControlText(bottomLabel[1], "State");
@@ -280,8 +298,6 @@ void cInstrumentEditor::showInstrumentEnv()
 
 //-------------------------------------
 
-	display.refreshControl(titleLabel);
-
 	for(uint8_t i = 0; i<8; i++)
 	{
 		display.setControlShow(topLabel[i]);
@@ -299,7 +315,11 @@ void cInstrumentEditor::showInstrumentEnv()
 
 void cInstrumentEditor::showInstrumentParams()
 {
+	display.refreshControl(titleBar);
+
 	display.setControlText(titleLabel, "Instrument Parameters");
+
+	showActualInstrument();
 
 	display.setControlText(bottomLabel[0], "Volume");
 	display.setControlText(bottomLabel[1], "Panning");
@@ -367,9 +387,12 @@ void cInstrumentEditor::showInstrumentParams()
 
 void cInstrumentEditor::showInstrumentList()
 {
+	display.refreshControl(titleBar);
+
 	display.setControlText(titleLabel, "Instruments");
 	display.refreshControl(titleLabel);
 
+	showActualInstrument();
 //	display.setControlText(bottomLabel[0], "");
 //	display.setControlText(bottomLabel[1], "");
 //	display.setControlText(bottomLabel[2], "");
@@ -566,7 +589,40 @@ void cInstrumentEditor::showInstrList(uint8_t n)
 
 	display.setControlValue(intrumentsListControl[n], position);
 	display.refreshControl(intrumentsListControl[n]);
+
+
 }
+
+void cInstrumentEditor::showActualInstrument()
+{
+	static char actualInstrName[SAMPLE_NAME_SIZE+4];
+
+	uint8_t i = mtProject.values.lastUsedInstrument;
+
+	if(i<9)
+	{
+		actualInstrName[0] = (i+1)%10 + 48;
+		actualInstrName[1] = '.';
+		actualInstrName[2] = ' ';
+		actualInstrName[3] = 0;
+	}
+	else
+	{
+		actualInstrName[0] = ((i+1)/10) + 48;
+		actualInstrName[1] = (i+1)%10 + 48;
+		actualInstrName[2] = '.';
+		actualInstrName[3] = ' ';
+		actualInstrName[4] = 0;
+	}
+
+
+	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+
+
+	display.setControlText(instrumentLabel,  actualInstrName);
+	display.refreshControl(instrumentLabel);
+}
+
 
 void cInstrumentEditor::listInstruments()
 {
@@ -590,7 +646,7 @@ void cInstrumentEditor::listInstruments()
 
 		if(mtProject.instrument[i].sample.loaded)
 		{
-			strncat(&intrumentsNames[i][0], mtProject.instrument[i].sample.file_name, SAMPLES_FILENAME_LENGTH_MAX);
+			strncat(&intrumentsNames[i][0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 		}
 
 		ptrintrumentsNames[i] = &intrumentsNames[i][0];

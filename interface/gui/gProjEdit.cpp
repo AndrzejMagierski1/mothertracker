@@ -4,6 +4,14 @@
 
 void cProjectEditor::initDisplayControls()
 {
+	strControlProperties prop2;
+	prop2.text = (char*)"";
+	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+	prop2.x = 400;
+	prop2.y = 12;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 
 	// inicjalizacja kontrolek
 	for(uint8_t i = 0; i<4; i++)
@@ -22,7 +30,6 @@ void cProjectEditor::initDisplayControls()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		strControlProperties prop2;
 		prop2.text = (char*)"";
 		prop2.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
 		prop2.x = (800/8)*i+(800/16);
@@ -68,6 +75,9 @@ void cProjectEditor::initDisplayControls()
 
 void cProjectEditor::destroyDisplayControls()
 {
+	display.destroyControl(titleLabel);
+	titleLabel = nullptr;
+
 	for(uint8_t i = 0; i<4; i++)
 	{
 		display.destroyControl(topLabel[i]);
@@ -93,6 +103,9 @@ void cProjectEditor::destroyDisplayControls()
 
 void cProjectEditor::showDefaultScreen()
 {
+	display.setControlText(titleLabel, "File");
+	display.refreshControl(titleLabel);
+
 	//lista
 	display.setControlHide(fileListControl);
 
