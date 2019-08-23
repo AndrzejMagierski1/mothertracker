@@ -127,6 +127,8 @@ constexpr uint8_t F_PAD = 27;
 
 constexpr uint8_t J_PAD = 30;
 
+constexpr uint16_t POP_TIME = 200; // czas po jakim nie ma pykniecia przy zmianie z lineIn na mic
+
 extern AudioControlSGTL5000 audioShield;
 
 cSampleRecorder sampleRecorder;
@@ -301,6 +303,14 @@ void cSampleRecorder::update()
 		}
 	}
 
+	if(changeSourceToMicFlag == 1)
+	{
+		if(changeSourceToMicTimer > POP_TIME)
+		{
+			changeSourceToMicFlag = 0;
+			audioShield.unmuteHeadphone();
+		}
+	}
 
 	if(playInProgressFlag)
 	{
@@ -355,7 +365,7 @@ void cSampleRecorder::start(uint32_t options)
 #ifdef HW_WITH_RADIO
 	radio.setSeekCallback(seek_callback);
 #endif
-	if(recorderConfig.source == sourceTypeRadio)
+	if((recorderConfig.source == sourceTypeRadio) && (currentScreen == screenTypeConfig))
 	{
 		showRadio();
 	}
@@ -425,7 +435,11 @@ void cSampleRecorder::refreshConfigLists()
 	}
 	else if((recorderConfig.source == sourceTypeMicLG) || (recorderConfig.source == sourceTypeMicHG))
 	{
+		audioShield.muteHeadphone();
 		audioShield.inputSelect(1);
+		changeSourceToMicTimer = 0;
+		changeSourceToMicFlag = 1;
+
 	}
 	else if(recorderConfig.source == sourceTypeRadio)
 	{
@@ -1960,7 +1974,13 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
         {
         	digitalWrite(SI4703_KLUCZ,HIGH);
         	hideRadio();
+
+        	audioShield.muteHeadphone();
+
         	audioShield.inputSelect(AUDIO_INPUT_MIC);
+    		changeSourceToMicTimer = 0;
+    		changeSourceToMicFlag = 1;
+
         }
         if(recorderConfig.source < 3) recorderConfig.source++;
     }
@@ -1975,6 +1995,7 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
         {
         	digitalWrite(SI4703_KLUCZ,LOW);
         	showRadio();
+
         	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
         }
         if(recorderConfig.source > 0) recorderConfig.source--;

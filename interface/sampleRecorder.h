@@ -225,6 +225,9 @@ public:
 	char *sourceNames[sourceCount];
 	char *monitorNames[monitorCount];
 
+	elapsedMillis changeSourceToMicTimer = 0;
+	uint8_t changeSourceToMicFlag = 0;
+
 //----------------------------------
 //rec
 
