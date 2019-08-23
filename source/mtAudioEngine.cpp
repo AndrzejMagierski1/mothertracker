@@ -132,8 +132,6 @@ void audioEngine::init()
 //	audioShield.lineOutLevel(17,17);
 //	audioShield.inputSelect(AUDIO_INPUT_MIC);
 
-	setIn(inputSelectMic);
-	setOut(outputSelectHeadphones);
 	for(uint8_t i = 0; i < 4 ; i ++)
 	{
 		mixerSourceR.gain(i,1.0);
@@ -180,51 +178,16 @@ void audioEngine::update()
 				if(mtConfig.audioCodecConfig.mutedHeadphone) audioShield.muteHeadphone();
 				else
 				{
-					audioShield.unmuteHeadphone();
-					setOut(outputSelectHeadphones);
 					audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
 				}
 
-			}
-			else if(mtConfig.audioCodecConfig.outSelect == outputSelectLineOut)
-			{
-				if(mtConfig.audioCodecConfig.mutedLineOut) audioShield.muteLineout();
-				else
-				{
-					audioShield.unmuteLineout();
-					setOut(outputSelectLineOut);
-					audioShield.lineOutLevel(mtConfig.audioCodecConfig.lineOutLeft,mtConfig.audioCodecConfig.lineOutRight);
-				}
-			}
-
-			if(mtConfig.audioCodecConfig.inSelect == inputSelectMic)
-			{
-				setIn(inputSelectMic);
-				audioShield.inputSelect(AUDIO_INPUT_MIC);
-				audioShield.micGain(mtConfig.audioCodecConfig.inputGain);
-			}
-			else if(mtConfig.audioCodecConfig.inSelect == inputSelectLineIn)
-			{
-				setIn(inputSelectLineIn);
-				audioShield.inputSelect(AUDIO_INPUT_LINEIN);
-				audioShield.lineInLevel(mtConfig.audioCodecConfig.lineInLeft, mtConfig.audioCodecConfig.lineInRight);
 			}
 		}
 	}
 
 }
 
-void audioEngine::setOut(uint8_t audioOutStatus)
-{
-	if(audioOutStatus) digitalWrite(AUDIO_OUT_MUX, HIGH);
-	else digitalWrite(AUDIO_OUT_MUX, LOW);
-}
 
-void audioEngine::setIn(uint8_t audioInStatus)
-{
-	if(audioInStatus) digitalWrite(AUDIO_IN_MUX, HIGH);
-	else digitalWrite(AUDIO_IN_MUX, LOW);
-}
 
 void audioEngine::setReverbRoomsize(uint8_t value)
 {

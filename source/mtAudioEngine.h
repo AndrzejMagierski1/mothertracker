@@ -19,8 +19,6 @@ class audioEngine
 public:
 	void init();
 	void update();
-	void setOut(uint8_t audioOutStatus);
-	void setIn(uint8_t audioInStatus);
 	void prevSdConnect();
 	void prevSdDisconnect();
 	void setReverbRoomsize(uint8_t value);
