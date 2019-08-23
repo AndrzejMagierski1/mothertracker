@@ -562,25 +562,43 @@ void cTracker::refresh5()
 
 
 
-	uint16_t x, y;
+	uint16_t x, y,h ,w;
+
+	w = 19;
+	h = 28;
 
 	for(uint8_t i = 0; i < 4; i++)
 	{
+		x = 27+(i*186);
+		y = 0;
 
-		x = 33+(i*186);
-		y = 1;
-
+		//pole/tlo
 		API_COLOR(0x000000);
 		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(x, y);
-		API_VERTEX2F(x+20, y+20);
+		API_VERTEX2F(x+w, y+h);
 		API_END();
+
+		//ramka
+		API_COLOR(colors[0]);
+		API_LINE_WIDTH(8);
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2F(x, y);
+		API_VERTEX2F(x + w, y);
+		API_VERTEX2F(x + w, y + h);
+		API_VERTEX2F(x, y + h);
+		API_VERTEX2F(x, y);
+		API_END();
+
 
 		API_COLOR(colors[1]);
 
 		API_BITMAP_HANDLE(fonts[1].handle);
 		API_BEGIN(BITMAPS);
+
+		x += 3;
+		y = 1;
 
 
 		if(x > 511 || y > 511)

@@ -16,11 +16,10 @@ static uint16_t framesPlaces[5][4] =
 void cSongEditor::initDisplayControls()
 {
 	strControlProperties prop1;
-
 	prop1.text = (char*)"";
-	prop1.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX);
+	prop1.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 	prop1.x = 400;
-	prop1.y = 0;
+	prop1.y = 12;
 	prop1.w = 800;
 	prop1.h = 25;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop1);
@@ -72,6 +71,10 @@ void cSongEditor::destroyDisplayControls()
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
 
+	display.destroyControl(patternsListControl);
+	patternsListControl = nullptr;
+
+
 	for(uint8_t i=0;i<7;i++)
 	{
 		display.destroyControl(topLabel[i]);
@@ -79,9 +82,6 @@ void cSongEditor::destroyDisplayControls()
 		topLabel[i] = nullptr;
 		bottomLabel[i]=nullptr;
 	}
-
-	display.destroyControl(patternsListControl);
-	patternsListControl = nullptr;
 }
 
 void cSongEditor::showDefaultScreen()

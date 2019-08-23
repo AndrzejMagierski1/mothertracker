@@ -21,7 +21,6 @@ const uint32_t SAMPLE_MEMORY_MAX =      		(8*1024*1024);
 
 const uint8_t INSTRUMENTS_MAX =        			47;
 //const uint8_t SAMPLES_MAX =            			31;
-const uint8_t SAMPLES_FILENAME_LENGTH_MAX =     32;
 
 const uint8_t INSTRUMENTS_COUNT =        		48;
 //const uint8_t SAMPLES_COUNT =            		32;
@@ -30,8 +29,6 @@ const uint8_t PATTERN_LENGTH_MAX 	=			255;
 
 const uint8_t PATTERN_INDEX_MIN 	=			1;
 const uint8_t PATTERN_INDEX_MAX 	=			255;
-
-
 
 
 
@@ -432,6 +429,7 @@ struct strMtProject
 
 	strMtValues values;
 
+	// dynamiczne
 	uint32_t max_memory = SAMPLE_MEMORY_MAX;
 	uint32_t used_memory;
 	uint8_t samples_count;

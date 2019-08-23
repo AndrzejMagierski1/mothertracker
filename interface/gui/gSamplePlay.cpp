@@ -19,9 +19,16 @@ static uint16_t framesPlaces[7][4] =
 void cSamplePlayback::initDisplayControls()
 {
 	// inicjalizacja kontrolek
+	strControlProperties prop2;
+	prop2.text = (char*)"";
+	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+	prop2.x = 400;
+	prop2.y = 12;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 
 	strControlProperties prop;
-	strControlProperties prop2;
 
 	for(uint8_t i = 0; i<6; i++)
 	{
@@ -105,6 +112,9 @@ void cSamplePlayback::initDisplayControls()
 
 void cSamplePlayback::destroyDisplayControls()
 {
+	display.destroyControl(titleLabel);
+	titleLabel = nullptr;
+
 	display.destroyControl(spectrumControl);
 	spectrumControl = nullptr;
 
@@ -130,6 +140,8 @@ void cSamplePlayback::destroyDisplayControls()
 
 void cSamplePlayback::showDefaultScreen()
 {
+	display.setControlText(titleLabel, "Sample Playback");
+	display.refreshControl(titleLabel);
 
 	//spectrum
 	display.setControlShow(spectrumControl);
