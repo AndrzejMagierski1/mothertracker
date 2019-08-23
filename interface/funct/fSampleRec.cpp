@@ -365,7 +365,7 @@ void cSampleRecorder::start(uint32_t options)
 #ifdef HW_WITH_RADIO
 	radio.setSeekCallback(seek_callback);
 #endif
-	if(recorderConfig.source == sourceTypeRadio)
+	if((recorderConfig.source == sourceTypeRadio) && (currentScreen == screenTypeConfig))
 	{
 		showRadio();
 	}
