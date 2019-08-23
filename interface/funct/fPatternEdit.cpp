@@ -1550,12 +1550,12 @@ static  uint8_t functFillCancel()
 	return 1;
 }
 
-//TODO: podpiac fill z seq
 static  uint8_t functFillApply()
 {
 	// zatwierdzanie wypelnienia
 	if(PTE->fillState)
 	{
+		cPatternEditor::strFill * fillData = &PTE->fillData[PTE->editParam];
 		(void) PTE->fillData[PTE->editParam];
 		(void) PTE->fillStep;
 		// PTE->fillData[x]		<= przechowuje dane do konfiguracji fill
@@ -1569,6 +1569,76 @@ static  uint8_t functFillApply()
 		// PTE->editParam		<= nuta / instr / vol / fx
 		//--------------------------------------------------------
 		//TU
+		sendSelection();
+		switch (PTE->editParam)
+		{
+		case 0:
+			if (fillData->type == 2)
+			{
+				sequencer.fillRandomNotes(PTE->fillStep,
+											fillData->from,
+											fillData->to);
+			}
+			else if (fillData->type == 1)
+			{
+				sequencer.fillLinearNotes(PTE->fillStep,
+											fillData->from,
+											fillData->to);
+			}
+			else if (fillData->type == 0)
+			{
+				sequencer.fillLinearNotes(PTE->fillStep,
+											fillData->from,
+											fillData->from);
+			}
+
+			break;
+		case 1:
+			if (fillData->type == 0)
+			{
+				sequencer.fillLinearInstruments(PTE->fillStep,
+												fillData->from,
+												fillData->from);
+			}
+			else if (fillData->type == 1)
+			{
+				sequencer.fillLinearInstruments(PTE->fillStep,
+												fillData->from,
+												fillData->to);
+			}
+			else if (fillData->type == 2)
+			{
+				sequencer.fillRandomInstruments(PTE->fillStep,
+												fillData->from,
+												fillData->to);
+			}
+
+			break;
+
+		case 2:
+			if (fillData->type == 0)
+			{
+				sequencer.fillLinearVelocity(PTE->fillStep,
+											fillData->from,
+											fillData->from);
+			}
+			else if (fillData->type == 1)
+			{
+				sequencer.fillLinearVelocity(PTE->fillStep,
+											fillData->from,
+											fillData->to);
+			}
+			else if (fillData->type == 2)
+			{
+				sequencer.fillRandomVelocity(PTE->fillStep,
+											fillData->from,
+											fillData->to);
+			}
+
+			break;
+		default:
+			break;
+		}
 
 
 		//--------------------------------------------------------
@@ -1655,12 +1725,12 @@ static  uint8_t functRandomiseCancel()
 	return 1;
 }
 
-//TODO: podpiac random z seq
 static  uint8_t functRandomiseApply()
 {
 	// zatwierdzanie wypelnienia
 	if(PTE->randomiseState)
 	{
+		cPatternEditor::strRandomise * randomiseData = &PTE->randomiseData[PTE->editParam];
 		(void) PTE->randomiseData[PTE->editParam];
 		(void) PTE->randomiseStep;
 		// PTE->randomiseData[x]	<= przechowuje dane do konfiguracji randomise
@@ -1673,6 +1743,27 @@ static  uint8_t functRandomiseApply()
 		// PTE->editParam			<= nuta / instr / vol / fx
 		//--------------------------------------------------------
 		//TU
+		sendSelection();
+		switch (PTE->editParam)
+		{
+		case 0:
+			sequencer.randomSelectedNotes(randomiseData->from,
+											randomiseData->to,
+											randomiseData->param);
+			break;
+		case 1:
+			sequencer.randomSelectedInstruments(randomiseData->from,
+												randomiseData->to);
+			break;
+		case 2:
+			sequencer.randomSelectedVelo(randomiseData->from,
+											randomiseData->to);
+			break;
+
+		break;
+		}
+
+
 
 
 		//--------------------------------------------------------
@@ -1717,13 +1808,15 @@ static  uint8_t functRandomiseChangeParam4()
 //###############################            INVERT            #################################
 //##############################################################################################
 //TODO: podpiac invert z seq
-static  uint8_t functInvert()
+static uint8_t functInvert()
 {
 	//--------------------------------------------------------
 	//TU
 
+	sendSelection();
+	sequencer.invertSelectedSteps();
 
-
+	PTE->refreshPattern();
 
 	//--------------------------------------------------------
 	return 1;

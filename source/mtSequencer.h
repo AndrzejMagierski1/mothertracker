@@ -108,38 +108,34 @@ public:
 		SEQ_STATE_STOP = 0,
 		SEQ_STATE_PLAY = 1,
 		SEQ_STATE_PAUSE = 2,
+		MIN_MICROMOVE_STEP = -1000,
+		MAX_MICROMOVE_STEP = 1000,
+		CHANNEL_IN_ALL = 0,
+
+		MIN_GATEMODE = 0,
+		MAX_GATEMODE = 3,
+		NULL_MOD = 128, // TODO: co to kurwa za null jak nie null
+		DEFAULT_MOD = 128, //NULL_MOD
+
+		MAX_NOTE_STEP = 127,
+		MIN_NOTE_STEP = -2,
 	};
-	static const int16_t MIN_MICROMOVE_STEP = -1000,
-			MAX_MICROMOVE_STEP = 1000;
-
-	static const uint8_t RANDOM_VELO_MIN = 20,
-			RANDOM_VELO_MAX = 127,
-			RANDOM_MOD_MIN = 20,
-			RANDOM_MOD_MAX = 127,
-			RANDOM_NOTE_DOWN = 12,
-			RANDOM_NOTE_UP = 12;
-
-	static const uint8_t CHANNEL_IN_ALL = 0;
-
-	static const uint8_t MIN_GATEMODE = 0,
-			MAX_GATEMODE = 3,
-			NULL_MOD = 128, // TODO: co to kurwa za null jak nie null
-			DEFAULT_MOD = 128; //NULL_MOD
-
-	static const int8_t MAX_NOTE_STEP = 127;
-	static const int8_t MIN_NOTE_STEP = -2;
-
-	static const uint8_t PLAYMODE_MIN = 0,
-			PLAYMODE_FORWARD = 0,
-			PLAYMODE_BACKWARD = 1,
-			PLAYMODE_PINGPONG = 2,
-			PLAYMODE_RANDOM = 3,
-			PLAYMODE_POLY = 4,
-			PLAYMODE_MAX = 3;
-
-	const int8_t MIN_TEMPO_DIV = -3;
-	const int8_t MAX_TEMPO_DIV = 3;
-	static const int8_t TEMPODIV_1_1 = 0;
+	enum enPlaymode
+	{
+		PLAYMODE_MIN = 0,
+		PLAYMODE_FORWARD = 0,
+		PLAYMODE_BACKWARD = 1,
+		PLAYMODE_PINGPONG = 2,
+		PLAYMODE_RANDOM = 3,
+		PLAYMODE_POLY = 4,
+		PLAYMODE_MAX = 3
+	};
+	enum enTempoDiv
+	{
+		MIN_TEMPO_DIV = -3,
+		MAX_TEMPO_DIV = 3,
+		TEMPODIV_1_1 = 0,
+	};
 
 	static constexpr float MAX_TEMPO = 400.0,
 			MIN_TEMPO = 10.0,
@@ -207,7 +203,7 @@ public:
 
 	} fx;
 
-	// KONIEC STAŁYCH
+// KONIEC STAŁYCH
 
 	struct strPattern
 	{
@@ -405,7 +401,6 @@ public:
 	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 					uint8_t midiOut);
 
-
 	void flushNotes();
 	void sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step);
 	void sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step);
@@ -469,7 +464,7 @@ public:
 
 	struct strPlayer
 	{
-		bool songMode =0;
+		bool songMode = 0;
 		bool printNotes = 0;
 		bool changeBank = 0;
 		bool isPlay = 0;
@@ -571,7 +566,7 @@ public:
 
 public:
 
-	// klasowe
+// klasowe
 	void handle();
 	void init();
 	void loadDefaultSequence(void);
@@ -581,7 +576,7 @@ public:
 		player.printNotes = !player.printNotes;
 	}
 
-	// sekwencerowe
+// sekwencerowe
 
 //	strPattern const * pattern = &seq[0];
 
@@ -641,7 +636,7 @@ public:
 	void insert(strSelection *selection);
 	void insertReversed(strSelection *selection);
 
-	// SELECTION
+// SELECTION
 	void copy(strSelection *from, strSelection *to);
 	void copy();
 	bool isSelectionCorrect(strSelection *selection);
@@ -685,18 +680,26 @@ public:
 		player.onPatternEnd = action;
 	}
 
-	// inne
+// inne
 	void handle_uStep_timer(void);
 
-	void fillRandomNotes(uint8_t step);
+	void fillRandomNotes(uint8_t step, uint8_t from, uint8_t to);
+	void fillLinearNotes(uint8_t step, uint8_t from, uint8_t to);
+	void fillRandomInstruments(uint8_t step, uint8_t from, uint8_t to);
+	void fillLinearInstruments(uint8_t step, uint8_t from, uint8_t to);
+	void fillRandomVelocity(uint8_t step, uint8_t from, uint8_t to);
+	void fillLinearVelocity(uint8_t step, uint8_t from, uint8_t to);
+
 	void changeSelectionNote(int16_t value);
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 					uint8_t track);
-	void randomExisting();
+	void randomSelectedNotes(uint8_t from, uint8_t to, uint8_t scale);
+	void randomSelectedInstruments(uint8_t from, uint8_t to);
+	void randomSelectedVelo(uint8_t from, uint8_t to);
+	void invertSelectedSteps();
 
 	void loadNextPattern(uint8_t patternNumber);
 	void handleNote(byte channel, byte pitch, byte velocity);
-
 
 };
 
