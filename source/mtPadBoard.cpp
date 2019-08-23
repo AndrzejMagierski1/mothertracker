@@ -49,6 +49,19 @@ void cMtPadBoard::startInstrument(uint8_t pad, uint8_t index, int8_t velocity)
 	instrumentPlayer[voiceToTake].noteOn(index, convertPadToNote(pad), velocity);
 }
 
+void cMtPadBoard::startInstrument(uint8_t pad,int16_t * addres, uint32_t length)
+{
+	int8_t voiceToTake = getEmptyVoice();
+	if(voiceToTake < 0) return;
+
+	voices[voiceToTake] = pad;
+
+	//mtPrint("start: ");
+	//mtPrintln(voiceToTake);
+
+	instrumentPlayer[voiceToTake].noteOnforPrev(addres, length, convertPadToNote(pad) );
+}
+
 int8_t cMtPadBoard::getEmptyVoice()
 {
 	for(uint8_t i = 0; i < voicesCount; i++)

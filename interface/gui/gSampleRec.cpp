@@ -5,6 +5,22 @@
 #include "mtRecorder.h"
 #include "mtLED.h"
 
+constexpr uint8_t BACKSPACE_PAD_1 = 10;
+constexpr uint8_t BACKSPACE_PAD_2 = 11;
+
+constexpr uint8_t CAPS_LOCK_PAD_1 = 34;
+constexpr uint8_t CAPS_LOCK_PAD_2 = 35;
+
+constexpr uint8_t SPACE_PAD_1 = 43;
+constexpr uint8_t SPACE_PAD_2 = 44;
+constexpr uint8_t SPACE_PAD_3 = 45;
+constexpr uint8_t SPACE_PAD_4 = 46;
+constexpr uint8_t SPACE_PAD_5 = 47;
+
+constexpr uint8_t F_PAD = 27;
+
+constexpr uint8_t J_PAD = 30;
+
 static uint32_t popUpLabelColors[] =
 {
 	0xFFFFFF, // tekst
@@ -105,9 +121,9 @@ void cSampleRecorder::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop3);
 
 	strControlProperties prop4;
-	sourceList.linesCount = 3;
+	sourceList.linesCount = 4;
 	sourceList.start = recorderConfig.source;
-	sourceList.length = 3;
+	sourceList.length = 4;
 	sourceList.data = sourceNames;
 	prop4.x = (800/8)*(0)+5;
 	prop4.y = 152;
@@ -151,19 +167,19 @@ void cSampleRecorder::initDisplayControls()
 	if(radioFreqBarControl == nullptr)  radioFreqBarControl = display.createControl<cBar>(&prop5);
 
 	strControlProperties prop6;
-	prop6.x = 80;
-	prop6.y = 170;
-	prop6.w = 650;
-	prop6.h = 210;
+	prop6.x = 10;
+	prop6.y = 120;
+	prop6.w = 780;
+	prop6.h = 280;
 	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cKeyboard>(&prop6);
 
 	strControlProperties prop7;
 	prop7.text = (char*)"";
-	prop7.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
-	prop7.x = 398;
-	prop7.y = 120;
-	prop7.w = 635;
-	prop7.h = 30;
+	prop7.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleRoundedBorder);
+	prop7.x = 393;
+	prop7.y = 60;
+	prop7.w = 765;
+	prop7.h = 40;
 	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop7);
 
 	strControlProperties prop8;
@@ -337,6 +353,8 @@ void cSampleRecorder::showDefaultScreen()
 		frameData.places[7] = &framesPlacesS1[7][0];
 
 		display.setControlData(frameControl, &frameData);
+		display.setControlShow(frameControl);
+		display.refreshControl(frameControl);
 
 		calcLevelBarVal();
 		drawLevelBar();
@@ -401,6 +419,8 @@ void cSampleRecorder::showDefaultScreen()
 		frameData.places[7] = &framesPlacesS2[7][0];
 
 		display.setControlData(frameControl, &frameData);
+		display.setControlShow(frameControl);
+		display.refreshControl(frameControl);
 
 		if (recordInProgressFlag == 1)
 		{
@@ -445,14 +465,16 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlHide(progressCursor);
 		display.refreshControl(progressCursor);
 
+		display.setControlHide(frameControl);
+		display.refreshControl(frameControl);
 		//points
 
 		display.setControlHide(pointsControl);
 		display.refreshControl(pointsControl);
 
 		showKeyboard();
-		leds.setLED(27, 1, 10);
-		leds.setLED(30, 1, 10);
+		leds.setLED(F_PAD, 1, 10);
+		leds.setLED(J_PAD, 1, 10);
 
 		showKeyboardEditName();
 
@@ -461,8 +483,8 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlText(bottomLabel[2], "Confirm");
 		display.setControlText(bottomLabel[3], "");
 		display.setControlText(bottomLabel[4], "");
-		display.setControlText(bottomLabel[5], "");
-		display.setControlText(bottomLabel[6], "Go Back");
+		display.setControlText(bottomLabel[5], "Go Back");
+		display.setControlText(bottomLabel[6], "Save & Load");
 		display.setControlText(bottomLabel[7], "Save");
 	}
 
@@ -542,19 +564,19 @@ void cSampleRecorder::showKeyboard()
 
 void cSampleRecorder::hideKeyboard()
 {
-	if(lastPressedPad == 10 || lastPressedPad == 11)
+	if(lastPressedPad == BACKSPACE_PAD_1 || lastPressedPad == BACKSPACE_PAD_2)
 	{
-		leds.setLED(10, 0, 0);
-		leds.setLED(11, 0, 0);
+		leds.setLED(BACKSPACE_PAD_1, 0, 0);
+		leds.setLED(BACKSPACE_PAD_2, 0, 0);
 	}
-	else if(lastPressedPad == 34 || lastPressedPad == 35)
+	else if(lastPressedPad == CAPS_LOCK_PAD_1 || lastPressedPad == CAPS_LOCK_PAD_2)
 	{
-		leds.setLED(34, 0, 0);
-		leds.setLED(35, 0, 0);
+		leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
+		leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
 	}
-	else if(lastPressedPad >= 43 && lastPressedPad <=47)
+	else if(lastPressedPad >= SPACE_PAD_1 && lastPressedPad <=SPACE_PAD_5)
 	{
-		for(uint8_t i = 43; i<= 47; i++)
+		for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 		{
 			leds.setLED(i, 0, 0);
 		}
@@ -563,8 +585,8 @@ void cSampleRecorder::hideKeyboard()
 	{
 		leds.setLED(lastPressedPad,0,0);
 	}
-	leds.setLED(27, 0, 0);
-	leds.setLED(30, 0, 0);
+	leds.setLED(F_PAD, 0, 0);
+	leds.setLED(J_PAD, 0, 0);
 	display.setControlHide(keyboardControl);
 	display.refreshControl(keyboardControl);
 }
@@ -819,7 +841,7 @@ void cSampleRecorder::showSourceList()
 {
 	sourceList.start = recorderConfig.source;
 	sourceList.length = sourceCount;
-	sourceList.linesCount = 3;
+	sourceList.linesCount = 4;
 	sourceList.data = sourceNames;
 
 	display.setControlData(sourceListControl,  &sourceList);
@@ -960,6 +982,27 @@ void cSampleRecorder::showSelectionWindowFullMemory()
 	display.refreshControl(frameControl);
 
 	display.setControlText(selectWindowLabel,"The memory is full. Recording was stopped.");
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	display.synchronizeRefresh();
+}
+
+void cSampleRecorder::showSelectionNotEnoughInstruments()
+{
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.setControlText(topLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+	display.setControlText(bottomLabel[7], "OK");
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlText(selectWindowLabel,"There are not enough instruments");
 	display.setControlShow(selectWindowLabel);
 	display.refreshControl(selectWindowLabel);
 

@@ -122,6 +122,8 @@ void AudioEffectFreeverb::update()
 	int i;
 	int16_t input, bufout, output;
 	int32_t sum;
+	uint8_t valueRepeat = 0;
+	uint8_t valueSmall = 0;
 
 	outblock = allocate();
 	if (!outblock) {
@@ -131,6 +133,7 @@ void AudioEffectFreeverb::update()
 	}
 	block = receiveReadOnly(0);
 	if (!block) block = &zeroblock;
+	else stopFlag = 0;
 
 	for (i=0; i < AUDIO_BLOCK_SAMPLES; i++) {
 		// TODO: scale numerical range depending on roomsize & damping
@@ -208,7 +211,15 @@ void AudioEffectFreeverb::update()
 		if (++allpass4index >= sizeof(allpass4buf)/sizeof(int16_t)) allpass4index = 0;
 
 		outblock->data[i] = sat16(output * 30, 0);
+
+		if(i>1) // bieda rozwiazanie - w debbugingu przy burczeniu wartosci sie powtarzaly - w buforze bylo kilkadziesiat powtorzen
+		{
+			if(outblock->data[i] == outblock->data[i-1]) valueRepeat++;
+			if(outblock->data[i] < 100 && outblock->data[i] > -100) valueSmall++;
+		}
 	}
+	if(valueRepeat > 100 && valueSmall > 100) stopFlag = 1;
+	if(stopFlag == 1) memset(outblock->data,0,AUDIO_BLOCK_SAMPLES*2);
 	transmit(outblock);
 	release(outblock);
 	if (block != &zeroblock) release((audio_block_t *)block);

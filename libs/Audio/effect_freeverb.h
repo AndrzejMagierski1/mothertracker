@@ -86,6 +86,7 @@ private:
 	uint16_t allpass2index;
 	uint16_t allpass3index;
 	uint16_t allpass4index;
+	uint8_t stopFlag = 0;
 };
 
 

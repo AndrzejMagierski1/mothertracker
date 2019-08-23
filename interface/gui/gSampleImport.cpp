@@ -86,6 +86,17 @@ void cSampleImporter::initDisplayControls()
 	if(memoryBarControl == nullptr)  memoryBarControl = display.createControl<cBar>(&prop);
 
 
+	frameData.placesCount = 3;
+	frameData.startPlace = 0;
+	frameData.places[0] = &framesPlaces[0][0];
+	frameData.places[1] = &framesPlaces[1][0];
+	frameData.places[2] = &framesPlaces[2][0];
+	prop.style = 0;
+	prop.value = 0;
+	prop.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
+
+
 	prop.x = 190;
 //	prop.colors = &color[0];
 	prop.y = 170;
@@ -96,17 +107,6 @@ void cSampleImporter::initDisplayControls()
 //	prop.value = 70;
 //	prop.text = "loading...";
 	if(loadHorizontalBarControl == nullptr)  loadHorizontalBarControl = display.createControl<cHorizontalBar>(&prop);
-
-
-	frameData.placesCount = 3;
-	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
-	prop.style = 0;
-	prop.value = 0;
-	prop.data  = &frameData;
-	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 }
 
 

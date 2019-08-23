@@ -6,6 +6,7 @@
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
 #include "mtLED.h"
+#include "mtFileManager.h"
 
 enum valueMapDirecion
 {
@@ -109,6 +110,23 @@ constexpr uint8_t keyPositionToPads[42] =
 	24,25,26,27,28,29,30,31,32,33,34,
 	36,37,38,39,40,41,42,43
 };
+
+constexpr uint8_t BACKSPACE_PAD_1 = 10;
+constexpr uint8_t BACKSPACE_PAD_2 = 11;
+
+constexpr uint8_t CAPS_LOCK_PAD_1 = 34;
+constexpr uint8_t CAPS_LOCK_PAD_2 = 35;
+
+constexpr uint8_t SPACE_PAD_1 = 43;
+constexpr uint8_t SPACE_PAD_2 = 44;
+constexpr uint8_t SPACE_PAD_3 = 45;
+constexpr uint8_t SPACE_PAD_4 = 46;
+constexpr uint8_t SPACE_PAD_5 = 47;
+
+constexpr uint8_t F_PAD = 27;
+
+constexpr uint8_t J_PAD = 30;
+
 extern AudioControlSGTL5000 audioShield;
 
 cSampleRecorder sampleRecorder;
@@ -158,6 +176,7 @@ static  uint8_t functActionUndo();
 static  uint8_t functActionGoBack();
 static  uint8_t functActionStopRec();
 static  uint8_t functActionSave();
+static  uint8_t functActionConfirmSaveLoad();
 static  uint8_t functActionConfirmSave();
 static  uint8_t functActionEndPoint();
 static  uint8_t functActionStartPoint();
@@ -242,11 +261,46 @@ void cSampleRecorder::update()
 		if(recorder.getSaveState() == 0)
 		{
 			saveInProgressFlag = 0;
+			if(saveLoadFlag == 1)
+			{
+				saveLoadFlag = 0;
+
+				int8_t firstFree = -1;
+				char localName[37];
+
+				for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
+				{
+					if(!mtProject.instrument[i].isActive)
+					{
+						firstFree = i;
+						break;
+					}
+				}
+				if(firstFree == -1)
+				{
+					notEnoughInstrumentsFlag = 1;
+				}
+				else
+				{
+					strcpy(localName,SR->name);
+					strcat(localName,".wav");
+					forceSwitchModule = 1;
+					fileManager.startImportSampleToProject("/Recorded",localName, firstFree);
+					functSwitchModule(interfaceButtonSampleLoad);
+				}
+
+			}
+
+
+
 			hideSaveHorizontalBar();
 			currentScreen = screenTypeRecord;
 			showDefaultScreen();
+
+			if(notEnoughInstrumentsFlag) 	showSelectionNotEnoughInstruments();
 		}
 	}
+
 
 	if(playInProgressFlag)
 	{
@@ -364,7 +418,7 @@ void cSampleRecorder::refreshConfigLists()
 		audioShield.inputSelect(0);
 		digitalWrite(SI4703_KLUCZ,HIGH);
 	}
-	else if(recorderConfig.source == sourceTypeMic)
+	else if((recorderConfig.source == sourceTypeMicLG) || (recorderConfig.source == sourceTypeMicHG))
 	{
 		audioShield.inputSelect(1);
 	}
@@ -377,14 +431,18 @@ void cSampleRecorder::refreshConfigLists()
 
 void cSampleRecorder::refreshGain()
 {
-	if(recorderConfig.source == sourceTypeLineIn)
+	if((recorderConfig.source == sourceTypeLineIn) || (recorderConfig.source == sourceTypeRadio))
 	{
-		uint8_t localMap = recorderConfig.gain *15/100;
+		uint8_t localMap;
+		if(recorderConfig.source == sourceTypeLineIn) localMap = recorderConfig.gainLineIn *15/100;
+		else if(recorderConfig.source == sourceTypeRadio) localMap = recorderConfig.gainRadio *15/100;
 		audioShield.lineInLevel(localMap);
 	}
-	else if((recorderConfig.source == sourceTypeMic) || (recorderConfig.source == sourceTypeRadio))
+	else if((recorderConfig.source == sourceTypeMicLG) || (recorderConfig.source == sourceTypeMicHG))
 	{
-		float localMap = recorderConfig.gain* 63.0 / 100.0;
+		float localMap;
+		if((recorderConfig.source == sourceTypeMicLG))  localMap= recorderConfig.gainMicLow* 25.0 / 100.0;
+		else if(recorderConfig.source == sourceTypeMicHG) localMap= recorderConfig.gainMicHigh* 44.0 / 100.0;
 		audioShield.micGain(localMap);
 	}
 }
@@ -910,12 +968,12 @@ static  uint8_t functActionButton5()
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
-	if(SR->currentScreen == cSampleRecorder::screenTypeConfig) functSelectButton5();
+	if((SR->currentScreen == cSampleRecorder::screenTypeConfig) && (SR->currentScreen != cSampleRecorder::screenTypeKeyboard)) functSelectButton5();
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: 	functActionGain();				break;
 		case cSampleRecorder::screenTypeRecord:		functActionUndo();				break;
-		case cSampleRecorder::screenTypeKeyboard: break;
+		case cSampleRecorder::screenTypeKeyboard: 	functActionGoBack();			break;
 		default: break;
 	}
 	return 1;
@@ -926,12 +984,12 @@ static  uint8_t functActionButton6()
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
-	if(SR->currentScreen != cSampleRecorder::screenTypeRecord) functSelectButton6();
+	if((SR->currentScreen != cSampleRecorder::screenTypeRecord) && (SR->currentScreen != cSampleRecorder::screenTypeKeyboard))	functSelectButton6();
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: 	functActionMonitor();			break;
 		case cSampleRecorder::screenTypeRecord: 	functActionGoBack();			break;
-		case cSampleRecorder::screenTypeKeyboard: 	functActionGoBack();			break;
+		case cSampleRecorder::screenTypeKeyboard: 	functActionConfirmSaveLoad();	break;
 		default: break;
 	}
 	return 1;
@@ -988,7 +1046,14 @@ static  uint8_t functActionButton7()
 		SR->activateLabelsBorder();
 		return 1;
 	}
-	functSelectButton7();
+	if(SR->notEnoughInstrumentsFlag)
+	{
+		SR->notEnoughInstrumentsFlag = 0;
+		SR->selectedPlace = 7;
+		SR->showDefaultScreen();
+		return 1;
+	}
+	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton7();
 	switch(SR->currentScreen)
 	{
 		case cSampleRecorder::screenTypeConfig: 	functActionRecord();			break;
@@ -1005,54 +1070,54 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	{
 		if(SR->keyboardActiveFlag)
 		{
-			if(SR->lastPressedPad == 10 || SR->lastPressedPad == 11) //backspace
+			if(SR->lastPressedPad == BACKSPACE_PAD_1 || SR->lastPressedPad == BACKSPACE_PAD_2) //backspace
 			{
-				leds.setLED(10, 0, 0);
-				leds.setLED(11, 0, 0);
+				leds.setLED(BACKSPACE_PAD_1, 0, 0);
+				leds.setLED(BACKSPACE_PAD_2, 0, 0);
 			}
-			else if(SR->lastPressedPad == 34 || SR->lastPressedPad == 35) //capslock
+			else if(SR->lastPressedPad == CAPS_LOCK_PAD_1 || SR->lastPressedPad == CAPS_LOCK_PAD_2) //capslock
 			{
 				if(SR->keyboardShiftFlag)
 				{
-					leds.setLED(34, 1, 10);
-					leds.setLED(35, 1, 10);
+					leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
+					leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
 				}
 				else
 				{
-					leds.setLED(34, 0, 0);
-					leds.setLED(35, 0, 0);
+					leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
+					leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
 				}
 
 			}
-			else if(SR->lastPressedPad >= 43 && SR->lastPressedPad <=47) //space
+			else if(SR->lastPressedPad >= SPACE_PAD_1 && SR->lastPressedPad <=SPACE_PAD_5) //space
 			{
-				for(uint8_t i = 43; i<= 47; i++)
+				for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 				{
 					leds.setLED(i, 0, 0);
 				}
 			}
 			else
 			{
-				if(SR->lastPressedPad != 27 && SR->lastPressedPad != 30) leds.setLED(SR->lastPressedPad,0,0);
+				if(SR->lastPressedPad != F_PAD && SR->lastPressedPad != J_PAD) leds.setLED(SR->lastPressedPad,0,0);
 				else leds.setLED(SR->lastPressedPad,1,10);
 			}
 
 
 			SR->lastPressedPad = pad;
 
-			if(pad == 10 || pad == 11) //backspace
+			if(pad == BACKSPACE_PAD_1 || pad == BACKSPACE_PAD_2) //backspace
 			{
-				leds.setLED(10, 1, 31);
-				leds.setLED(11, 1, 31);
+				leds.setLED(BACKSPACE_PAD_1, 1, 31);
+				leds.setLED(BACKSPACE_PAD_2, 1, 31);
 			}
-			else if(pad == 34 || pad == 35) //capslock
+			else if(pad == CAPS_LOCK_PAD_1 || pad == CAPS_LOCK_PAD_2) //capslock
 			{
-				leds.setLED(34, 1, 31);
-				leds.setLED(35, 1, 31);
+				leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
+				leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
 			}
-			else if(pad >= 43 && pad <=47) //space
+			else if(pad >= SPACE_PAD_1 && pad <=SPACE_PAD_5) //space
 			{
-				for(uint8_t i = 43; i<= 47; i++)
+				for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 				{
 					leds.setLED(i, 1, 31);
 				}
@@ -1095,11 +1160,24 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			{
 				SR->keyboardShiftFlag = ! SR->keyboardShiftFlag;
 //				SR->showKeyboard();
-
 			}
 			SR->showKeyboard();
 			SR->showKeyboardEditName();
 			return 1;
+		}
+		else
+		{
+			if(state == 1)
+			{
+				uint32_t length;
+				uint32_t addressShift;
+				length =(uint32_t)((uint32_t)SR->endPoint * (float)(recorder.getLength()/2)/MAX_16BIT);
+
+				addressShift = (uint32_t)( (uint32_t)SR->startPoint * (float)(recorder.getLength()/2)/MAX_16BIT);
+
+				mtPadBoard.startInstrument(pad,recorder.getStartAddress()+ addressShift,length - addressShift );
+			}
+
 		}
 
 		return 1;
@@ -1109,6 +1187,10 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		if(SR->keyboardActiveFlag)
 		{
 
+		}
+		else
+		{
+			mtPadBoard.stopInstrument(pad);
 		}
 	}
 
@@ -1303,10 +1385,10 @@ static  uint8_t functActionSave()
 	} while(SD.exists(localPatch));
 
 	SR->editPosition = strlen(SR->name);
-	SR->keyboardPosition = 10;
-	SR->lastPressedPad = 10;
-	leds.setLED(10, 1, 31);
-	leds.setLED(11, 1, 31);
+	SR->keyboardPosition = BACKSPACE_PAD_1;
+	SR->lastPressedPad = BACKSPACE_PAD_1;
+	leds.setLED(BACKSPACE_PAD_1, 1, 31);
+	leds.setLED(BACKSPACE_PAD_2, 1, 31);
 	SR->keyboardActiveFlag = 1;
 
 	SR->showDefaultScreen();
@@ -1328,12 +1410,15 @@ static  uint8_t functActionConfirmSave()
 		 SR->hideKeyboard();
 		 SR->hideKeyboardEditName();
 	 }
-
-
-
-
-
 	 return 1;
+}
+
+static  uint8_t functActionConfirmSaveLoad()
+{
+	functActionConfirmSave();
+	SR->saveLoadFlag = 1;
+
+
 }
 
 static  uint8_t functActionStopRec()
@@ -1658,10 +1743,17 @@ static  uint8_t functDown()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(SR->selectionWindowFlag == 1) return 1;
-	if(SR->recordInProgressFlag) return 1;
-	if(SR->saveInProgressFlag) return 1;
-	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;
+	if(SR->forceSwitchModule == 0)
+	{
+		if(SR->selectionWindowFlag == 1) return 1;
+		if(SR->recordInProgressFlag) return 1;
+		if(SR->saveInProgressFlag) return 1;
+		if(SR->notEnoughInstrumentsFlag) return 1;
+		if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;
+	}
+	else SR->forceSwitchModule = 0;
+
+
 	SR->eventFunct(eventSwitchModule,SR,&button,0);
 	return 1;
 }
@@ -1702,7 +1794,11 @@ void cSampleRecorder::calcLevelBarVal()
 }
 void cSampleRecorder::calcGainBarVal()
 {
-	gainBarVal = recorderConfig.gain;
+	if(recorderConfig.source == sourceTypeLineIn) gainBarVal = recorderConfig.gainLineIn;
+	else if(recorderConfig.source == sourceTypeRadio) gainBarVal = recorderConfig.gainRadio;
+	else if(recorderConfig.source == sourceTypeMicLG) gainBarVal = recorderConfig.gainMicLow;
+	else if(recorderConfig.source == sourceTypeMicHG) gainBarVal = recorderConfig.gainMicHigh;
+
 }
 
 
@@ -1735,23 +1831,87 @@ void cSampleRecorder::changeLevelBar()
 }
 void cSampleRecorder::changeGainBar(int16_t val)
 {
-	if(val > 0)
+	if(recorderConfig.source == sourceTypeLineIn)
 	{
-		if(recorderConfig.gain < 100)
+		if(val > 0)
 		{
-			recorderConfig.gain++;
-			refreshGain();
-		}
+			if(recorderConfig.gainLineIn < 100)
+			{
+				recorderConfig.gainLineIn++;
+				refreshGain();
+			}
 
-	}
-	else if(val < 0)
-	{
-		if(recorderConfig.gain > 0)
+		}
+		else if(val < 0)
 		{
-			recorderConfig.gain--;
-			refreshGain();
+			if(recorderConfig.gainLineIn > 0)
+			{
+				recorderConfig.gainLineIn--;
+				refreshGain();
+			}
 		}
 	}
+	else if(recorderConfig.source == sourceTypeRadio)
+	{
+		if(val > 0)
+		{
+			if(recorderConfig.gainRadio < 100)
+			{
+				recorderConfig.gainRadio++;
+				refreshGain();
+			}
+
+		}
+		else if(val < 0)
+		{
+			if(recorderConfig.gainRadio > 0)
+			{
+				recorderConfig.gainRadio--;
+				refreshGain();
+			}
+		}
+	}
+	else if(recorderConfig.source == sourceTypeMicLG)
+	{
+		if(val > 0)
+		{
+			if(recorderConfig.gainMicLow < 100)
+			{
+				recorderConfig.gainMicLow++;
+				refreshGain();
+			}
+
+		}
+		else if(val < 0)
+		{
+			if(recorderConfig.gainMicLow > 0)
+			{
+				recorderConfig.gainMicLow--;
+				refreshGain();
+			}
+		}
+	}
+	else if(recorderConfig.source == sourceTypeMicHG)
+	{
+		if(val > 0)
+		{
+			if(recorderConfig.gainMicHigh < 100)
+			{
+				recorderConfig.gainMicHigh++;
+				refreshGain();
+			}
+
+		}
+		else if(val < 0)
+		{
+			if(recorderConfig.gainMicHigh > 0)
+			{
+				recorderConfig.gainMicHigh--;
+				refreshGain();
+			}
+		}
+	}
+
 	calcGainBarVal();
 	drawGainBar();
 }
@@ -1776,36 +1936,54 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
 {
     if(value > 0)
     {
-        if(recorderConfig.source == 1)
+        if(recorderConfig.source == 0)
         {
         	digitalWrite(SI4703_KLUCZ,LOW);
         	showRadio();
         }
-        if(recorderConfig.source < 2) recorderConfig.source++;
-    }
-    else if (value < 0)
-    {
-        if(recorderConfig.source == 2)
+        else if(recorderConfig.source == 1)
         {
         	digitalWrite(SI4703_KLUCZ,HIGH);
         	hideRadio();
+        	audioShield.inputSelect(AUDIO_INPUT_MIC);
+        }
+        if(recorderConfig.source < 3) recorderConfig.source++;
+    }
+    else if (value < 0)
+    {
+        if(recorderConfig.source == 1)
+        {
+        	digitalWrite(SI4703_KLUCZ,HIGH);
+        	hideRadio();
+        }
+        else if(recorderConfig.source == 2)
+        {
+        	digitalWrite(SI4703_KLUCZ,LOW);
+        	showRadio();
+        	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
         }
         if(recorderConfig.source > 0) recorderConfig.source--;
     }
     if((recorderConfig.source == sourceTypeLineIn) || (recorderConfig.source == sourceTypeRadio))
     {
-        audioShield.inputSelect(AUDIO_INPUT_LINEIN);
         mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
-        audioShield.lineInLevel(map(recorderConfig.gain,0,100,0,15));
+        if(recorderConfig.source == sourceTypeLineIn)  audioShield.lineInLevel(map(recorderConfig.gainLineIn,0,100,0,15));
+        else if(recorderConfig.source == sourceTypeRadio) audioShield.lineInLevel(map(recorderConfig.gainRadio,0,100,0,15));
     }
-    else if(recorderConfig.source == sourceTypeMic)
+    else if(recorderConfig.source == sourceTypeMicLG)
     {
-        audioShield.inputSelect(AUDIO_INPUT_MIC);
         mtConfig.audioCodecConfig.inSelect = inputSelectMic;
-        audioShield.micGain(recorderConfig.gain*63.0/100);
+        audioShield.micGain(recorderConfig.gainMicLow*25.0/100);
+    }
+    else if(recorderConfig.source == sourceTypeMicHG)
+    {
+        mtConfig.audioCodecConfig.inSelect = inputSelectMic;
+        audioShield.micGain(recorderConfig.gainMicHigh*44.0/100);
     }
     display.setControlValue(sourceListControl, recorderConfig.source);
     display.refreshControl(sourceListControl);
+    calcGainBarVal();
+    drawGainBar();
 }
 
 void cSampleRecorder::changeMonitorSelection(int16_t value)
@@ -1929,54 +2107,54 @@ static uint8_t functConfirmKey()
 		if(SR->editPosition > 31) return 1;
 
 //****************************************************ledy
-		if(SR->lastPressedPad == 10 || SR->lastPressedPad == 11) //backspace
+		if(SR->lastPressedPad == BACKSPACE_PAD_1 || SR->lastPressedPad == BACKSPACE_PAD_2) //backspace
 		{
-			leds.setLED(10, 0, 0);
-			leds.setLED(11, 0, 0);
+			leds.setLED(BACKSPACE_PAD_1, 0, 0);
+			leds.setLED(BACKSPACE_PAD_2, 0, 0);
 		}
-		else if(SR->lastPressedPad == 34 || SR->lastPressedPad == 35) //capslock
+		else if(SR->lastPressedPad == CAPS_LOCK_PAD_1 || SR->lastPressedPad == CAPS_LOCK_PAD_2) //capslock
 		{
 			if(SR->keyboardShiftFlag)
 			{
-				leds.setLED(34, 1, 10);
-				leds.setLED(35, 1, 10);
+				leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
+				leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
 			}
 			else
 			{
-				leds.setLED(34, 0, 0);
-				leds.setLED(35, 0, 0);
+				leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
+				leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
 			}
 
 		}
-		else if(SR->lastPressedPad >= 43 && SR->lastPressedPad <=47) //space
+		else if(SR->lastPressedPad >= SPACE_PAD_1 && SR->lastPressedPad <= SPACE_PAD_5) //space
 		{
-			for(uint8_t i = 43; i<= 47; i++)
+			for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 			{
 				leds.setLED(i, 0, 0);
 			}
 		}
 		else
 		{
-			if(SR->lastPressedPad != 27 && SR->lastPressedPad != 30) leds.setLED(SR->lastPressedPad,0,0);
+			if(SR->lastPressedPad != F_PAD && SR->lastPressedPad != J_PAD) leds.setLED(SR->lastPressedPad,0,0);
 			else leds.setLED(SR->lastPressedPad,1,10);
 		}
 
 
 		SR->lastPressedPad = keyPositionToPads[SR->keyboardPosition];
 
-		if(keyPositionToPads[SR->keyboardPosition] == 10 || keyPositionToPads[SR->keyboardPosition] == 11) //backspace
+		if(keyPositionToPads[SR->keyboardPosition] == BACKSPACE_PAD_1 || keyPositionToPads[SR->keyboardPosition] == BACKSPACE_PAD_2) //backspace
 		{
-			leds.setLED(10, 1, 31);
-			leds.setLED(11, 1, 31);
+			leds.setLED(BACKSPACE_PAD_1, 1, 31);
+			leds.setLED(BACKSPACE_PAD_2, 1, 31);
 		}
-		else if(keyPositionToPads[SR->keyboardPosition] == 34 || keyPositionToPads[SR->keyboardPosition] == 35) //capslock
+		else if(keyPositionToPads[SR->keyboardPosition] == CAPS_LOCK_PAD_1 || keyPositionToPads[SR->keyboardPosition] == CAPS_LOCK_PAD_2) //capslock
 		{
-			leds.setLED(34, 1, 31);
-			leds.setLED(35, 1, 31);
+			leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
+			leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
 		}
-		else if(keyPositionToPads[SR->keyboardPosition] >= 43 && keyPositionToPads[SR->keyboardPosition] <=47) //space
+		else if(keyPositionToPads[SR->keyboardPosition] >= SPACE_PAD_1 && keyPositionToPads[SR->keyboardPosition] <=SPACE_PAD_5) //space
 		{
-			for(uint8_t i = 43; i<= 47; i++)
+			for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 			{
 				leds.setLED(i, 1, 31);
 			}

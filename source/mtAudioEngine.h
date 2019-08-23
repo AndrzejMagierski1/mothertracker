@@ -72,6 +72,7 @@ public:
 
 	void update();
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
+	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note);
 private:
 
 	AudioPlayMemory *        	playMemPtr;
