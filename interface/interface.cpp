@@ -74,7 +74,7 @@ const hModule cInterface::modules[modulesCount] =
 };
 
 
-const uint8_t cInterface::modulesButtonsCount = 11;
+const uint8_t cInterface::modulesButtonsCount = 12;
 const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 {
 	{interfaceButtonEnvelopes,  5, mtInstEditModeEnv},
@@ -88,6 +88,7 @@ const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 	{interfaceButtonSampleLoad, 1, 0},
 	{interfaceButtonSong, 		4, 0},
 	{interfaceButtonConfig, 	7, mtConfigModeDefault},
+	{interfaceButtonInstr, 		5, mtInstEditModeInstrList},
 };
 
 //	case interfaceButton10: activateModule(modules[0], 0); break;
@@ -198,7 +199,7 @@ void cInterface::activateModule(hModule module, uint32_t options)
 	module->initDisplayControls();
 	module->start(options);
 	onScreenModule = module;
-
+	lastOptions = options;
 }
 
 
@@ -212,6 +213,8 @@ void cInterface::deactivateModule(hModule module)
 	module->stop();
 	module->destroyDisplayControls();
 	if(module == onScreenModule) onScreenModule = nullptr;
+	previousModule = module;
+	previousModuleOptions = lastOptions;
 }
 
 void cInterface::switchModuleByButton(hModule module, uint8_t button)
@@ -222,6 +225,17 @@ void cInterface::switchModuleByButton(hModule module, uint8_t button)
 
 	deactivateModule(module);
 	activateModule(modules[modulesButtons[index][1]], modulesButtons[index][2]);
+}
+
+void cInterface::switchModuleToPrevious(hModule module)
+{
+	if(previousModule == module) return;
+
+	hModule prevModule = previousModule;
+	uint32_t prevModuleOptions = previousModuleOptions;
+
+	deactivateModule(module);
+	activateModule(prevModule, prevModuleOptions);
 }
 
 int8_t cInterface::getButtonIndex(uint8_t button)
@@ -249,6 +263,12 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 		{
 			// param1 = uchwyt do modułu, param2 = index przycisku
 			mtInterface.switchModuleByButton((hModule)param1, *((uint8_t*)param2));
+			break;
+		}
+		case eventSwitchToPreviousModule:
+		{
+			// param1 = uchwyt do modułu, param2 = index przycisku
+			mtInterface.switchModuleToPrevious((hModule)param1);
 			break;
 		}
 

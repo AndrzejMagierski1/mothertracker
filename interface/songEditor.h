@@ -41,14 +41,15 @@ public:
 
 	strFrameData frameData;
 
-	hControl topLabel[4];
-	hControl bottomLabel[4];
+	hControl titleLabel;
+	hControl topLabel[7];
+	hControl bottomLabel[7];
 
 	hControl patternsListControl;
 	hControl barControl[4];
 	hControl frameControl;
 
-
+	uint8_t slotToPattern[255];
 	uint8_t selectedPlace = 0;
 
 	void setDefaultScreenFunct();
@@ -60,7 +61,7 @@ public:
 	void listPatterns();
 
 	uint16_t songLength = 0;
-	char patternsNamesList[PATTERNS_COUNT][35];
+	char patternsNamesList[PATTERNS_COUNT][23];
 	char *patternNames[PATTERNS_COUNT];
 	uint8_t selectedPattern = 0;
 

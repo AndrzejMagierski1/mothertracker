@@ -13,6 +13,7 @@ enum mtInstrumentEditorMode
 {
 	mtInstEditModeParams,
 	mtInstEditModeEnv,
+	mtInstEditModeInstrList,
 
 
 };
@@ -72,9 +73,12 @@ public:
 
 	void showInstrumentEnv();
 	void showInstrumentParams();
+	void showInstrumentList();
+
 
 	void activateLabelsBorder();
-
+	void lightUpPadBoard();
+	void clearPadBoard();
 
 	void showEnvList();
 	void showEnvState();
@@ -97,12 +101,15 @@ public:
 
 	void showParamsGlide();
 
+
+	void showInstrList(uint8_t n);
 //----------------------------------
 
 	void setDefaultScreenFunct();
 
 	void setInstrumentEnvFunct();
 	void setInstrumentParamsFunct();
+	void setInstrumentListFunct();
 
 //----------------------------------
 
@@ -128,6 +135,8 @@ public:
 
 
 	void changeParamsGlide(int16_t value);
+
+	void changeSelectedInstrument(int16_t value, uint8_t type = 0);
 //----------------------------------
 
 
@@ -144,10 +153,12 @@ public:
 	hControl envStateListControl;
 	hControl envLoopListControl;
 
+	hControl intrumentsListControl[4];
+
 	hControl frameControl;
 
 
-	uint8_t selectedPlace[2] = {0};
+	uint8_t selectedPlace[3] = {0};
 
 	// typ trybu/ekranu
 	uint8_t mode;
@@ -180,11 +191,21 @@ public:
 	strList envStateList;
 	strList envLoopList;
 
-
-
 	char *envelopeNames[2];
 	char *envStateNames[2];
 	char *envLoopNames[2];
+
+	//----------------------------------
+	// instruments lists
+
+	strList intrumentsList[4];
+
+	uint8_t selectedInstrument = 0;
+
+	char intrumentsNames[INSTRUMENTS_COUNT][SAMPLES_FILENAME_LENGTH_MAX+4];
+	char *ptrintrumentsNames[INSTRUMENTS_COUNT];
+
+	void listInstruments();
 
 
 };

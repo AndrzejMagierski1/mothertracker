@@ -142,9 +142,7 @@
 
 #define SI4703_KLUCZ		24
 #define SI4703_RST			67
-#define SI4703_SEN			68
-#define SI4703_GPIO_1		66
-#define SI4703_GPIO_2		79
+#define SI4703_GPIO_2		68
 
 #define EXTERNAL_RAM_KEY	80
 

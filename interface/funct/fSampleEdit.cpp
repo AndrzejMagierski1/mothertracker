@@ -18,7 +18,7 @@ extern strMtProject mtProject;
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
 
-
+static  uint8_t functInstrument(uint8_t state);
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
@@ -147,6 +147,7 @@ void cSampleEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonShift, functShift);
 //	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
+	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 
 	FM->setButtonObj(interfaceButton0, buttonPress, functSelectStart);
 	FM->setButtonObj(interfaceButton1, buttonPress, functSelectLoop1);
@@ -869,13 +870,19 @@ static uint8_t functShift(uint8_t value)
 
 	return 1;
 }
-/*
-static uint8_t stopPlaying(uint8_t value)
-{
-	if(SE->isPlayingSample) instrumentPlayer[0].noteOff();
 
-	SE->isPlayingSample = 0;
+
+static  uint8_t functInstrument(uint8_t state)
+{
+	if(state == buttonPress)
+	{
+		uint8_t buttonId  = interfaceButtonInstr;
+		SE->eventFunct(eventSwitchModule, SE, &buttonId, 0);
+	}
+	else if(state == buttonHold)
+	{
+
+	}
 
 	return 1;
 }
-*/

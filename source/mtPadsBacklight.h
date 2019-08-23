@@ -23,8 +23,8 @@ public:
 private:
 
 	elapsedMillis blinkTimer;
-	uint8_t backLayer[64];
-	uint8_t blinkLayer[64];
+	uint8_t backLayer[48];
+	uint8_t blinkLayer[48];
 	uint16_t blinkConstrain;
 	uint8_t blinkCounter;
 	uint8_t toggler;

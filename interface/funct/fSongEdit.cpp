@@ -1,7 +1,10 @@
 
 
 #include <songEditor.h>
-//#include "mtFileManager.h"
+#include "mtFileManager.h"
+#include "Encoder.h"
+
+
 
 #include "mtAudioEngine.h"
 
@@ -14,15 +17,13 @@ static cSongEditor* SE = &songEditor;
 
 
 
-static  uint8_t functChangePattern(uint8_t button);
 
 
-static  uint8_t functAddPattern();
-static  uint8_t functRemovePattern();
+static  uint8_t functIncPattern();
+static  uint8_t functDecPattern();
+static  uint8_t functDeleteSlot();
+static  uint8_t functAddSlot();
 
-
-static  uint8_t functLeft();
-static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
@@ -56,9 +57,11 @@ void cSongEditor::start(uint32_t options)
 
 	showPatternsList();
 
+	Encoder.setResolution(12);
+	Encoder.setAcceleration(0);
+
 
 	listPatterns();
-	showPatternsList();
 
 	//selectedPlace = 0;
 	activateLabelsBorder();
@@ -79,12 +82,15 @@ void cSongEditor::start(uint32_t options)
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
+	 //mtProject.mtProjectRemote.song.
+
 
 }
 
 void cSongEditor::stop()
 {
-
+	Encoder.setResolution(48);
+	Encoder.setAcceleration(3);
 
 	moduleRefresh = 0;
 }
@@ -99,8 +105,8 @@ void cSongEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
 	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functDecPattern);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functIncPattern);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
@@ -108,12 +114,11 @@ void cSongEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonShift, functShift);
 	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
+	FM->setButtonObj(interfaceButton2, buttonPress, functDeleteSlot);
+	FM->setButtonObj(interfaceButton3, buttonPress, functAddSlot);
+	FM->setButtonObj(interfaceButton4, buttonPress, functDecPattern);
+	FM->setButtonObj(interfaceButton5, buttonPress, functIncPattern);
 
-	FM->setButtonObj(interfaceButton0, buttonPress, functAddPattern);
-	FM->setButtonObj(interfaceButton1, buttonPress, functRemovePattern);
-
-	FM->setButtonObj(interfaceButton2, buttonPress, functChangePattern);
-	FM->setButtonObj(interfaceButton3, buttonPress, functChangePattern);
 
 
 
@@ -124,16 +129,66 @@ void cSongEditor::setDefaultScreenFunct()
 
 //==============================================================================================================
 
-static  uint8_t functChangePattern(uint8_t button)
+static  uint8_t functIncPattern()
 {
-	if(button == interfaceButton2)
+	if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] < 99)
 	{
-		SE->changePatternsSelection(-1);
+		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] += 1;
 	}
-	else //if(button == interfaceButton3)
+
+	SE->selectedPlace = 0;
+
+	SE->listPatterns();
+	SE->showPatternsList();
+
+	SE->activateLabelsBorder();
+	return 1;
+}
+
+static  uint8_t functDecPattern()
+{
+	if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern]>1)
 	{
-		SE->changePatternsSelection(1);
+		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] -= 1;
 	}
+
+	SE->selectedPlace = 0;
+
+	SE->listPatterns();
+	SE->showPatternsList();
+
+	SE->activateLabelsBorder();
+	return 1;
+}
+
+static  uint8_t functAddSlot()
+{
+	if(SE->songLength < 15)//if(SE->songLength < (PATTERNS_COUNT-1))// 15 do czasu poprawy obslugi listy w interfejsie
+	{
+		for(int i = SE->songLength; i > SE->selectedPattern; i--)
+		{
+			mtProject.mtProjectRemote.song.playlist[i] = mtProject.mtProjectRemote.song.playlist[i-1];
+		}
+
+		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern+1] =mtProject.mtProjectRemote.song.playlist[SE->selectedPattern];
+
+		if(SE->songLength)
+		{
+			SE->selectedPattern++;
+		}
+
+		SE->songLength++;
+
+		if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern]==0)
+		{
+			mtProject.mtProjectRemote.song.playlist[SE->selectedPattern]=1;
+		}
+	}
+
+	SE->listPatterns();
+	SE->showPatternsList();
+
+
 
 	SE->selectedPlace = 0;
 	SE->activateLabelsBorder();
@@ -141,21 +196,33 @@ static  uint8_t functChangePattern(uint8_t button)
 	return 1;
 }
 
-
-static  uint8_t functAddPattern()
+static  uint8_t functDeleteSlot()
 {
+	mtProject.mtProjectRemote.song.playlist[SE->songLength]=0;
+
+	for(int i = SE->selectedPattern; i < SE->songLength ; i++)
+	{
+		mtProject.mtProjectRemote.song.playlist[i] = mtProject.mtProjectRemote.song.playlist[i+1];
+	}
+
+	if(SE->songLength)
+	{
+		SE->songLength--;
+
+		if(SE->songLength)
+		{
+			if(SE->selectedPattern)
+			{
+
+				SE->selectedPattern--;
+			}
+		}
+	}
 
 
 
-
-	SE->selectedPlace = 0;
-	SE->activateLabelsBorder();
-	return 1;
-}
-
-static  uint8_t functRemovePattern()
-{
-
+	SE->listPatterns();
+	SE->showPatternsList();
 
 
 	SE->selectedPlace = 0;
@@ -172,7 +239,7 @@ static  uint8_t functEncoder(int16_t value)
 {
 	switch(SE->selectedPlace)
 	{
-	case 0: break;
+	case 0: SE->changePatternsSelection(value); break;
 	case 1: break;
 	case 2: break;
 	case 3: break;
@@ -200,27 +267,11 @@ static  uint8_t functShift(uint8_t state)
 }
 
 
-static  uint8_t functLeft()
-{
-	if(SE->selectedPlace > 0) SE->selectedPlace--;
-	SE->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functRight()
-{
-	if(SE->selectedPlace < 4) SE->selectedPlace++;
-	SE->activateLabelsBorder();
-
-	return 1;
-}
-
 static  uint8_t functUp()
 {
 	switch(SE->selectedPlace)
 	{
-	case 0: break;
+	case 0:SE->changePatternsSelection(-1); break;
 	case 1: break;
 	case 2: break;
 	case 3: break;
@@ -234,7 +285,7 @@ static  uint8_t functDown()
 {
 	switch(SE->selectedPlace)
 	{
-	case 0: break;
+	case 0:SE->changePatternsSelection(1); break;
 	case 1: break;
 	case 2: break;
 	case 3: break;
@@ -278,9 +329,12 @@ static uint8_t functSwitchModule(uint8_t button)
 //======================================================================================================================
 void cSongEditor::changePatternsSelection(int16_t value)
 {
+
 	if(selectedPattern + value < 0) selectedPattern = 0;
 	else if(selectedPattern + value > songLength-1) selectedPattern = songLength-1;
 	else  selectedPattern += value;
+
+	listPatterns();
 
 	display.setControlValue(patternsListControl, selectedPattern);
 	display.refreshControl(patternsListControl);
@@ -294,13 +348,33 @@ void cSongEditor::changePatternsSelection(int16_t value)
 //==============================================================================================
 void cSongEditor::listPatterns()
 {
+	for(uint8_t i=0;i<songLength;i++)
+	{
+		if(i<9)
+		{
+			if(i == selectedPattern)
+			{
+				sprintf(&patternsNamesList[i][0],"   %u         < %u >   ",i+1,mtProject.mtProjectRemote.song.playlist[i]);
+			}
+			else
+			{
+				sprintf(&patternsNamesList[i][0],"   %u           %u     ",i+1,mtProject.mtProjectRemote.song.playlist[i]);
+			}
+		}
+		else if(i<99)
+		{
+			if(i == selectedPattern)
+			{
+				sprintf(&patternsNamesList[i][0],"  %u         < %u >   ",i+1,mtProject.mtProjectRemote.song.playlist[i]);
+			}
+			else
+			{
+				sprintf(&patternsNamesList[i][0],"  %u           %u     ",i+1,mtProject.mtProjectRemote.song.playlist[i]);
+			}
+		}
 
-	songLength = 1;
-	strcpy(	&patternsNamesList[0][0], "             1                    1");
-	patternNames[0] = &patternsNamesList[0][0];
-
-
-
+		patternNames[i] = &patternsNamesList[i][0];
+	}
 }
 
 

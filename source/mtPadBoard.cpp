@@ -92,6 +92,16 @@ void cMtPadBoard::stopInstrument(uint8_t pad)
 	instrumentPlayer[voiceToClear].noteOff();
 }
 
+void cMtPadBoard::releaseAllInstrument()
+{
+	for(uint8_t i = 0; i<8; i++)
+	{
+		voices[i] = -1;
+		instrumentPlayer[i].noteOff();
+	}
+}
+
+
 
 // zwraca 1 jeśli jest w skali
 uint8_t cMtPadBoard::isInScale(uint8_t note,		// nuta do sprawdzenia ,

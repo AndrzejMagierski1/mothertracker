@@ -23,14 +23,14 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 cList::cList(strControlProperties* properties)
 {
-	colorsCount = 3;
-	colors = defaultColors;
+	colorsCount = 5;
+	colors = (properties->colors == nullptr) ? defaultColors : properties->colors;
 	selfRefresh = 0;
 
 	listPosition = 0;
 
 	listAnimationStep = 0;
-
+	disableBar = 0;
 
 	if(properties == nullptr)
 	{
@@ -92,9 +92,18 @@ void cList::setValue(int value)
 		if(list->length > 0) listPosition = list->length-1;
 		else listPosition = 0;
 
+		disableBar = 0;
 	}
-	else if(value < 0) listPosition = 0;
-	else  listPosition = value;
+	else if(value < 0)
+	{
+		listPosition = 0;
+		disableBar = 1;
+	}
+	else
+	{
+		listPosition = value;
+		disableBar = 0;
+	}
 }
 
 void cList::setColors(uint32_t* colors)
@@ -112,7 +121,17 @@ void cList::setData(void* data)
 	if(data == nullptr) return;
 	list = (strList*)data;
 
-	listPosition = list->start;
+	if(list->start < 0)
+	{
+		list->start = 0;
+		listPosition = 0;
+		disableBar = 1;
+	}
+	else
+	{
+		listPosition = list->start;
+		disableBar = 0;
+	}
 
 	if(listPosition == 0) 		//pierwsza pozycja listy*
 	{
@@ -187,19 +206,23 @@ uint8_t cList::update()
 		listAnimationStep = 0;
 		selfRefresh = 0;
 
-		x_pos = posX;
-		y_pos = posY + (barPos * height);
+		if(!disableBar)
+		{
+			x_pos = posX;
+			y_pos = posY + (barPos * height);
 
-		//ramka
-		API_COLOR(colors[0]);
-		API_LINE_WIDTH(4);
-		API_BEGIN(LINE_STRIP);
-		API_VERTEX2F(x_pos, y_pos);
-		API_VERTEX2F(x_pos + width, y_pos);
-		API_VERTEX2F(x_pos + width, y_pos + height);
-		API_VERTEX2F(x_pos, y_pos + height);
-		API_VERTEX2F(x_pos, y_pos);
-		API_END();
+			//ramka
+			API_COLOR(colors[0]);
+			API_LINE_WIDTH(16);
+			API_BEGIN(LINE_STRIP);
+			API_VERTEX2F(x_pos, y_pos);
+			API_VERTEX2F(x_pos + width, y_pos);
+			API_VERTEX2F(x_pos + width, y_pos + height);
+			API_VERTEX2F(x_pos, y_pos + height);
+			API_VERTEX2F(x_pos, y_pos);
+			API_END();
+		}
+
 
 		//lista tekstow
 		x_pos = posX+5;
@@ -207,8 +230,14 @@ uint8_t cList::update()
 
 		lines = (list->length >= list->linesCount)  ? list->linesCount : list->length;
 
+		API_SAVE_CONTEXT();
+
 		//uint8_t txt_offset;
 		API_COLOR(colors[4]);
+
+		API_SCISSOR_XY(posX, posY);
+		API_SCISSOR_SIZE(width, height*list->linesCount);
+
 		for(uint8_t i = 0; i < lines; i++)
 		{
 			API_CMD_TEXT(x_pos,
@@ -217,6 +246,8 @@ uint8_t cList::update()
 					textStyle | OPT_CENTERY,
 					*(list->data + (i +  textListPos)));
 		}
+
+		API_RESTORE_CONTEXT();
 	}
 	else
 	{
@@ -275,20 +306,22 @@ uint8_t cList::update()
 
 		selfRefresh = 2;
 
-		x_pos = posX;
-		y_pos = posY + (barPos * height) + (mode ? 0 : listAnimationStep);
+		if(!disableBar)
+		{
+			x_pos = posX;
+			y_pos = posY + (barPos * height) + (mode ? 0 : listAnimationStep);
 
-		//ramka
-		API_COLOR(colors[0]);
-		API_LINE_WIDTH(4);
-		API_BEGIN(LINE_STRIP);
-		API_VERTEX2F(x_pos, y_pos);
-		API_VERTEX2F(x_pos + width, y_pos);
-		API_VERTEX2F(x_pos + width, y_pos + height);
-		API_VERTEX2F(x_pos, y_pos + height);
-		API_VERTEX2F(x_pos, y_pos);
-		API_END();
-
+			//ramka
+			API_COLOR(colors[0]);
+			API_LINE_WIDTH(16);
+			API_BEGIN(LINE_STRIP);
+			API_VERTEX2F(x_pos, y_pos);
+			API_VERTEX2F(x_pos + width, y_pos);
+			API_VERTEX2F(x_pos + width, y_pos + height);
+			API_VERTEX2F(x_pos, y_pos + height);
+			API_VERTEX2F(x_pos, y_pos);
+			API_END();
+		}
 
 		x_pos = posX+5;
 		y_pos = posY + height/2 + (mode ? ((-1*height) - listAnimationStep) : 0);

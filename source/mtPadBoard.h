@@ -18,6 +18,9 @@ public:
 	void stopInstrument(uint8_t pad);
 
 
+	void releaseAllInstrument();
+
+
 	uint8_t getPadsWithNote(int8_t note, uint8_t* pads);
 
 private:

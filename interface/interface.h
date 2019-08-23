@@ -49,6 +49,7 @@ public:
 	void activateModule(hModule module, uint32_t options);
 	void deactivateModule(hModule module);
 	void switchModuleByButton(hModule module, uint8_t button);
+	void switchModuleToPrevious(hModule module);
 	int8_t getButtonIndex(uint8_t button);
 
 private:
@@ -70,8 +71,10 @@ private:
 
 
 	hModule onScreenModule = nullptr;
+	uint32_t lastOptions = 0;
 
-
+	hModule previousModule = nullptr;
+	uint32_t previousModuleOptions = 0;
 };
 
 

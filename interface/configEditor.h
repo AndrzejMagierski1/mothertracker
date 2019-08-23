@@ -150,8 +150,7 @@ public:
 
 //----------------------------------
 
-
-
+	uint8_t exitOnButtonRelease = 0;
 };
 
 extern cConfigEditor configEditor;

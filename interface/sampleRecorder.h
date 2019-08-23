@@ -37,7 +37,7 @@ struct strRecorderConfig
 	uint8_t gainMicHigh;
 	uint8_t gainRadio;
 	uint8_t monitor;
-	float radioFreq = 87.0;
+	float radioFreq = 87.5;
 };
 
 struct strUndoCrop
@@ -126,6 +126,7 @@ public:
 	void refreshRDS();
 	void displaySeeking();
 	void displayEmptyRDS();
+	void hideRDS();
 
 	strFrameData frameData;
 	strSelectWindowData selectWindowData;
