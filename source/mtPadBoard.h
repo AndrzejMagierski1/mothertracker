@@ -25,7 +25,7 @@ public:
 
 private:
 
-	uint8_t isInScale(uint8_t note, uint8_t root, uint8_t scale);
+
 	int8_t getEmptyVoice();
 	int8_t getVoiceTakenByPad(uint8_t pad);
 
