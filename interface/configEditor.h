@@ -19,10 +19,23 @@ enum mtConfigMode
 
 };
 
+enum mtConfigSpecific
+{
+	configDefaultGeneral,
+	configDefaultAudio,
+	configDefaultMIDI,
+	configDefaultInterface,
+	configDefaultSD,
+	configDefaultFirmware,
+
+};
 
 
+const uint8_t firmware_list_max=10;
+const uint8_t firmware_name_length=13;// 8.3 format +1 for null terminator
 
-const uint8_t groupCount = 5;
+
+const uint8_t groupCount = 6;
 const char groupNamesLabels[groupCount][15] =
 {
 		"General",
@@ -30,6 +43,7 @@ const char groupNamesLabels[groupCount][15] =
 		"MIDI",
 		"Interface",
 		"SD",
+		"Firmware"
 
 };
 
@@ -68,7 +82,7 @@ public:
 	void showMasterScreen();
 	void showMasterTracksScreen();
 
-
+	void changeSelectionInGroup(int16_t value);
 
 
 	//config
@@ -113,6 +127,21 @@ public:
 
 	//
 	void activateLabelsBorder();
+
+	// firmware
+	uint8_t firmwareSelect;
+	uint8_t listInitFlag=0;
+	char firmwareNamesList[firmware_list_max][firmware_name_length];
+	char *firmwareNames[firmware_list_max];
+	hControl firmwareListControl;
+	strList firmwareList;
+	void showFirmwareMenu();
+
+	void createFirmwareList();
+	void hideFirmwareList();
+	void showFirmwareList();
+	void changeFirmwareSelection(int16_t value);
+
 
 
 //----------------------------------

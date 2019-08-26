@@ -55,6 +55,8 @@ static  uint8_t functSwitchModule(uint8_t button);
 static  uint8_t functSwitchModeConfig(uint8_t state);
 static  uint8_t functSwitchModeMaster(uint8_t state);
 
+static uint8_t prepareDataForBootloader();
+
 
 
 
@@ -261,7 +263,7 @@ static  uint8_t functEncoder(int16_t value)
 
 	switch(mode_places)
 	{
-	case 0: 	 break;
+	case 0: CE->changeSelectionInGroup(value);		 break;
 	case 1:		 break;
 	case 2: 	 break;
 	case 3: 	 break;
@@ -288,6 +290,8 @@ static  uint8_t functEncoder(int16_t value)
 
 	return 1;
 }
+
+
 
 
 
@@ -547,6 +551,29 @@ void cConfigEditor::changeConfigGroupSelection(int16_t value)
 
 	display.setControlValue(configGroupsListControl, selectedConfigGroup);
 	display.refreshControl(configGroupsListControl);
+
+	switch(selectedConfigGroup)
+	{
+	case configDefaultGeneral: break;
+	case configDefaultAudio: break;
+	case configDefaultMIDI: break;
+	case configDefaultInterface: break;
+	case configDefaultSD: break;
+	case configDefaultFirmware: showFirmwareMenu(); break;
+	}
+}
+
+void cConfigEditor::changeSelectionInGroup(int16_t value)
+{
+	switch(selectedConfigGroup)
+	{
+	case configDefaultGeneral: break;
+	case configDefaultAudio: break;
+	case configDefaultMIDI: break;
+	case configDefaultInterface: break;
+	case configDefaultSD: break;
+	case configDefaultFirmware: changeFirmwareSelection(value); break;
+	}
 }
 
 
@@ -628,5 +655,37 @@ void cConfigEditor::changeLimiterTreshold(int16_t value)
 
 	showLimiterTreshold();
 }
+
+void cConfigEditor::showFirmwareMenu()
+{
+	FM->setButtonObj(interfaceButton0, buttonPress, prepareDataForBootloader);
+
+	if(!listInitFlag)
+	{
+		listInitFlag=1;
+		createFirmwareList();
+	}
+
+	showFirmwareList();
+}
+
+static uint8_t prepareDataForBootloader()
+{
+	CE->selectedPlace[mtConfigModeDefault]=0;
+	CE->activateLabelsBorder();
+
+	return 1;
+}
+
+void cConfigEditor::changeFirmwareSelection(int16_t value)
+{
+	if(firmwareSelect + value < 0) firmwareSelect = 0;
+	else if(firmwareSelect + value > 5) firmwareSelect = 5;
+	else  firmwareSelect+= value;
+
+	display.setControlValue(firmwareListControl, firmwareSelect);
+	display.refreshControl(firmwareListControl);
+}
+
 
 

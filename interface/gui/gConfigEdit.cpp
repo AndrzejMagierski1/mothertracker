@@ -109,6 +109,9 @@ void cConfigEditor::destroyDisplayControls()
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
+
+	display.destroyControl(firmwareListControl);
+	firmwareListControl = nullptr;
 }
 
 void cConfigEditor::showDefaultConfigScreen()
@@ -127,7 +130,7 @@ void cConfigEditor::showDefaultConfigScreen()
 	display.setControlText(bottomLabel[3], "4");
 	display.setControlText(bottomLabel[4], "5");
 	display.setControlText(bottomLabel[5], "6");
-	display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
+	display.setControlText(bottomLabel[6], " /\\           \\/ ");
 	//display.setControlText(bottomLabel[7], "");
 
 
@@ -356,6 +359,44 @@ void cConfigEditor::showLimiterTreshold()
 	display.setControlValue(barControl[5], (mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
 	//display.setControlShow(barControl[3]);
 	display.refreshControl(barControl[5]);
+}
+
+void cConfigEditor::createFirmwareList()
+{
+	firmwareList.linesCount = 20;
+	firmwareList.start = 0;
+	firmwareList.length = 255;
+	firmwareList.data = firmwareNames;
+	strControlProperties prop;
+	prop.x = 0+5;
+	prop.y = 30;
+	prop.w = (800/4-10);
+	prop.h = 25;
+	prop.data = &firmwareList;
+	if(firmwareListControl == nullptr)  firmwareListControl = display.createControl<cList>(&prop);
+
+	framesPlaces[0][0] = 0;
+	framesPlaces[0][1] = 30;
+	framesPlaces[0][2] = 800/4;
+	framesPlaces[0][3] = 380;
+}
+
+void cConfigEditor::showFirmwareList()
+{
+	firmwareList.length = 5;
+	firmwareList.linesCount = 15;
+	firmwareList.data = firmwareNames;
+	firmwareList.start= 0;
+
+	display.setControlData(firmwareListControl,  &firmwareList);
+	display.setControlShow(firmwareListControl);
+	display.refreshControl(firmwareListControl);
+}
+
+void cConfigEditor:: hideFirmwareList()
+{
+	display.setControlHide(firmwareListControl);
+	display.refreshControl(firmwareListControl);
 }
 
 
