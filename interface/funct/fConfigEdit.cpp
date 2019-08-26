@@ -700,8 +700,9 @@ void cConfigEditor::listAllFirmwares()
 		{
 			invalidFileCount++;
 			strcpy(&firmwareNamesList[i][0],&firmwareNamesList[invalidFileCount][0]);
+			memset(&firmwareNamesList[invalidFileCount][0],0,sizeof(firmwareNamesList[invalidFileCount][0]));
 
-			if(invalidFileCount == firmware_list_max)
+			if(invalidFileCount == (firmware_list_max-1))
 			{
 				break;
 			}
@@ -767,8 +768,15 @@ uint8_t prepareDataForBootloader()
 	}
 
 	fwinfo = SD.open("/firmware/_fwinfo", FILE_WRITE);
-	fwinfo.write(&CE->firmwareNamesList[CE->firmwareSelect][0], strlen(&CE->firmwareNamesList[CE->firmwareSelect][0]));
+	fwinfo.write(&CE->firmwareNamesList[CE->firmwareSelect][0], 13);
 	fwinfo.close();
+
+	//TODO: popup potwierdzenia czy na pewno zflashowac
+
+	pinMode(BOOTLOADER_PIN,OUTPUT);
+	digitalWrite(BOOTLOADER_PIN,LOW);
+
+	while(1);// program sie zatrzymuje do czasu przejecia kontroli przez bootloader
 
 	return 1;
 }
@@ -776,7 +784,7 @@ uint8_t prepareDataForBootloader()
 void cConfigEditor::changeFirmwareSelection(int16_t value)
 {
 	if(firmwareSelect + value < 0) firmwareSelect = 0;
-	else if(firmwareSelect + value > firmwareFoundNum) firmwareSelect = firmwareFoundNum;
+	else if(firmwareSelect + value > firmwareFoundNum) firmwareSelect = firmwareFoundNum-1;
 	else  firmwareSelect+= value;
 
 	display.setControlValue(firmwareListControl, firmwareSelect);
