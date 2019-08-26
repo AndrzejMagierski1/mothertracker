@@ -15,40 +15,41 @@ static uint16_t framesPlaces[5][4] =
 
 void cSongEditor::initDisplayControls()
 {
+	strControlProperties prop2;
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+
 	strControlProperties prop1;
 	prop1.text = (char*)"";
-	prop1.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
-	prop1.x = 400;
-	prop1.y = 12;
-	prop1.w = 800;
-	prop1.h = 25;
-	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop1);
-
-
-	prop1.text = (char*)"";
-	prop1.style = (controlStyleShow | controlStyleCenterY  | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+	prop1.style = (controlStyleShow | controlStyleCenterY  | controlStyleBackground | controlStyleCenterX );
 	prop1.x = (800/8);
-	prop1.w = 800/4-10;
-	prop1.y = 415;
-	prop1.h = 65;
+	prop1.w = 800/4-6;
+	prop1.y = 452;
+	prop1.h = 59;
+
 	if(topLabel[0] == nullptr) topLabel[0] = display.createControl<cLabel>(&prop1);
 
-	prop1.style = (controlStyleShow| controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+	prop1.style = (controlStyleShow | controlStyleBackground | controlStyleCenterY | controlStyleCenterX );
 	// inicjalizacja kontrolek
 	for(uint8_t i=2; i<8; i++)
 	{
 		prop1.x = (800/8)*i+(800/16);
-		prop1.y = 415;
-		prop1.w = 800/8-10;
-		prop1.h = 32;
+		prop1.w = 800/8-6;
+		prop1.y = 437;
+		prop1.h = 28;
 
 		if(topLabel[i-1] == nullptr) topLabel[i-1] = display.createControl<cLabel>(&prop1);
 
-		//prop2.x = (800/4)*i+(800/8);
-		prop1.y = 450;
-		//prop2.w = 800/4-10;
+		prop1.y = 465;
 		prop1.h = 30;
-
 		if(bottomLabel[i-1] == nullptr) bottomLabel[i-1] = display.createControl<cLabel>(&prop1);
 	}
 
@@ -68,6 +69,9 @@ void cSongEditor::initDisplayControls()
 
 void cSongEditor::destroyDisplayControls()
 {
+	display.destroyControl(titleBar);
+	titleBar = nullptr;
+
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
 
@@ -86,8 +90,11 @@ void cSongEditor::destroyDisplayControls()
 
 void cSongEditor::showDefaultScreen()
 {
+	display.refreshControl(titleBar);
+
 	display.setControlText(titleLabel, "Song");
 	display.refreshControl(titleLabel);
+
 
 	display.setControlText(topLabel[0], "Slot / Pattern");
 	display.setControlText(topLabel[1], "Delete");

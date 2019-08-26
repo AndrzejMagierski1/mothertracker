@@ -3,6 +3,7 @@
 
 #include <projectEditor.h>
 #include "mtFileManager.h"
+#include "mtAudioEngine.h"
 #include "mtLED.h"
 
 enum valueMapDirecion
@@ -158,6 +159,8 @@ void cProjectEditor::update()
 				fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
 				fileManager.samplesLoader.start(0,1);
 
+				loadProjectValues();
+
 				functSwitchModule(interfaceButtonPattern);
 				break;
 			}
@@ -245,6 +248,22 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
 }
+//==============================================================================================================
+//==============================================================================================================
+
+uint8_t cProjectEditor::loadProjectValues()
+{
+	engine.setHeadphonesVolume(mtProject.values.volume);
+	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
+	engine.setReverbDamping(mtProject.values.reverbDamping);
+	engine.setLimiterAttack(mtProject.values.limiterAttack);
+	engine.setLimiterRelease(mtProject.values.limiterRelease);
+	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
+
+}
+
+//==============================================================================================================
+//==============================================================================================================
 //==============================================================================================================
 
 uint8_t functShowProjectsList()
@@ -340,6 +359,9 @@ uint8_t functOpenProject()
 
 	fileManager.samplesLoader.start(0,1);
 	//PE->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
+
+
+	PE->loadProjectValues();
 
 
 	PE->showDefaultScreen();

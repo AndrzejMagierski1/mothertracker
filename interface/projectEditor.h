@@ -46,7 +46,7 @@ public:
 
 	uint8_t loadSamplesBank();
 
-
+	uint8_t loadProjectValues();
 //-------------------------------------------------------------
 
 	strList projectList;
@@ -56,7 +56,9 @@ public:
 	hControl editName;
 	hControl fileListControl;
 	hControl keyboardControl;
-	hControl titleLabel;
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
 
 	uint32_t topLabelColors[3] =
 	{

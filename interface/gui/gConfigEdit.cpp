@@ -20,14 +20,16 @@ void cConfigEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
-	prop2.text = (char*)"";
-	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
-	prop2.x = 400;
-	prop2.y = 12;
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
 	prop2.w = 800;
 	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -88,6 +90,9 @@ void cConfigEditor::initDisplayControls()
 
 void cConfigEditor::destroyDisplayControls()
 {
+	display.destroyControl(titleBar);
+	titleBar = nullptr;
+
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
 
@@ -113,8 +118,11 @@ void cConfigEditor::destroyDisplayControls()
 
 void cConfigEditor::showDefaultConfigScreen()
 {
+	display.refreshControl(titleBar);
+
 	display.setControlText(titleLabel, "Config");
 	display.refreshControl(titleLabel);
+
 
 	listConfigGroups();
 	//lista
@@ -169,6 +177,8 @@ void cConfigEditor::showDefaultConfigScreen()
 
 void cConfigEditor::showMasterScreen()
 {
+	display.refreshControl(titleBar);
+
 	display.setControlText(titleLabel, "Master");
 	display.refreshControl(titleLabel);
 
@@ -234,7 +244,9 @@ void cConfigEditor::showMasterScreen()
 
 void cConfigEditor::showMasterTracksScreen()
 {
-	display.setControlText(titleLabel, "");
+	display.refreshControl(titleBar);
+
+	display.setControlText(titleLabel, "Tracks");
 	display.refreshControl(titleLabel);
 
 	// bottom labels
@@ -300,7 +312,6 @@ void cConfigEditor::listConfigGroups()
 }
 //==============================================================================================================
 
-
 void cConfigEditor::showConfigGroupList()
 {
 	configGroupList.start = selectedConfigGroup;
@@ -317,9 +328,9 @@ void cConfigEditor::showConfigGroupList()
 
 void cConfigEditor::showVolume()
 {
-	display.setControlValue(barControl[0], mtConfig.audioCodecConfig.headphoneVolume*100);
+	display.setControlValue(barControl[0], mtProject.values.volume);
 //	display.setControlValue(barControl[0], mtProject.values.volume);
-	display.setControlShow(barControl[0]);
+//	display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[0]);
 }
 
@@ -346,7 +357,7 @@ void cConfigEditor::showLimiterAttack()
 
 void cConfigEditor::showLimiterRelease()
 {
-	//display.setControlValue(barControl[4], (mtProject.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
+	display.setControlValue(barControl[4], (mtProject.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
 	//display.setControlShow(barControl[2]);
 	display.refreshControl(barControl[4]);
 }

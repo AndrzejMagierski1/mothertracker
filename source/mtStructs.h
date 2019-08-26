@@ -113,8 +113,8 @@ const uint8_t MAX_NOTE_OFFSET =					13;
 
 
 
-const float MASTER_VOLUME_MIN 				=	0;
-const float MASTER_VOLUME_MAX 				=	1.0;
+const uint8_t MASTER_VOLUME_MIN 			=	0;
+const uint8_t MASTER_VOLUME_MAX 			=	100;
 
 const uint8_t INPUT_MIC_GAIN_DEFAULT 		=	35;
 
@@ -370,15 +370,14 @@ struct strMtValues
 	uint8_t padBoardRootNote = 0;
 	uint8_t padBoardMaxVoices = 8;
 
-
-//	uint8_t volume;
+	uint8_t volume;
 
 	uint8_t reverbRoomSize;
 	uint8_t reverbDamping;
 	int8_t reverbPanning;
 
 	uint16_t limiterAttack;
-//	uint16_t limiterRelease;
+	uint16_t limiterRelease;
 	uint16_t limiterTreshold;
 
 	int8_t patternEditStep = 1;

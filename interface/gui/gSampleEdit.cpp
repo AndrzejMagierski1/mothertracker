@@ -20,14 +20,19 @@ void cSampleEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
-	prop2.text = (char*)"";
-	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
-	prop2.x = 400;
-	prop2.y = 12;
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
 	prop2.w = 800;
 	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-
+	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
+	prop2.x = 769;
+	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 
 	for(uint8_t i = 0; i<6; i++)
 	{
@@ -100,8 +105,14 @@ void cSampleEditor::initDisplayControls()
 
 void cSampleEditor::destroyDisplayControls()
 {
+	display.destroyControl(titleBar);
+	titleBar = nullptr;
+
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
+
+	display.destroyControl(instrumentLabel);
+	instrumentLabel = nullptr;
 
 	display.destroyControl(spectrumControl);
 	spectrumControl = nullptr;
@@ -128,8 +139,12 @@ void cSampleEditor::destroyDisplayControls()
 
 void cSampleEditor::showDefaultScreen()
 {
+	display.refreshControl(titleBar);
+
 	display.setControlText(titleLabel, "Sample Editor");
 	display.refreshControl(titleLabel);
+
+	showActualInstrument();
 
 	//spectrum
 	display.setControlShow(spectrumControl);
@@ -225,3 +240,37 @@ void cSampleEditor::showPlayModeList()
 
 
 }
+
+//==============================================================================================================
+void cSampleEditor::showActualInstrument()
+{
+	static char actualInstrName[SAMPLE_NAME_SIZE+4];
+
+	uint8_t i = mtProject.values.lastUsedInstrument;
+
+	if(i<9)
+	{
+		actualInstrName[0] = (i+1)%10 + 48;
+		actualInstrName[1] = '.';
+		actualInstrName[2] = ' ';
+		actualInstrName[3] = 0;
+	}
+	else
+	{
+		actualInstrName[0] = ((i+1)/10) + 48;
+		actualInstrName[1] = (i+1)%10 + 48;
+		actualInstrName[2] = '.';
+		actualInstrName[3] = ' ';
+		actualInstrName[4] = 0;
+	}
+
+
+	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+
+
+	display.setControlText(instrumentLabel,  actualInstrName);
+	display.refreshControl(instrumentLabel);
+}
+
+//==============================================================================================================
+

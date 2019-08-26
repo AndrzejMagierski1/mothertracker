@@ -41,7 +41,9 @@ public:
 
 	strFrameData frameData;
 
-	hControl titleLabel;
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
 	hControl topLabel[7];
 	hControl bottomLabel[7];
 

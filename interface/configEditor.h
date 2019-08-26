@@ -125,7 +125,9 @@ public:
 
 	hControl configGroupsListControl;
 
-	hControl titleLabel;
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
 
 	hControl frameControl;
 

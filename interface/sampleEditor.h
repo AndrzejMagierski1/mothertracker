@@ -83,7 +83,9 @@ public:
 	hControl spectrumControl;
 	hControl pointsControl;
 	hControl frameControl;
-	hControl titleLabel;
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
 
 
 	uint8_t selectedPlace = 0;
@@ -108,6 +110,10 @@ public:
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;
 
+//----------------------------------
+// aktualny instrument na belce tytułowej
+	void showActualInstrument();
+	//char actualInstrName[SAMPLE_NAME_SIZE+4];
 //----------------------------------
 // lista play mode
 	strList playModeList;

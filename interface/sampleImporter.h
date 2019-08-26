@@ -48,7 +48,9 @@ public:
 	hControl instrumentListControl;
 	hControl memoryBarControl;
 	hControl frameControl;
-	hControl titleLabel;
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
 
 	hControl loadHorizontalBarControl;
 
@@ -149,6 +151,12 @@ public:
 		0x00FF00, // ramka
 	};
 	uint32_t barColorsCyan[3] = { 0x00FFFF, 0x00FFFF, 0x00FFFF};
+
+//----------------------------------
+// aktualny instrument na belce tytułowej
+	void showActualInstrument();
+//char actualInstrName[SAMPLE_NAME_SIZE+4];
+
 };
 
 

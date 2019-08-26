@@ -65,12 +65,15 @@ uint32_t radioLabelColors[3]=
 void cSampleRecorder::initDisplayControls()
 {
 	strControlProperties prop2;
-	prop2.text = (char*)"";
-	prop2.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
-	prop2.x = 400;
-	prop2.y = 12;
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
 	prop2.w = 800;
 	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 
 	strControlProperties prop;
@@ -231,6 +234,9 @@ void cSampleRecorder::initDisplayControls()
 
 void cSampleRecorder::destroyDisplayControls()
 {
+	display.destroyControl(titleBar);
+	titleBar = nullptr;
+
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
 
@@ -284,8 +290,11 @@ void cSampleRecorder::destroyDisplayControls()
 
 void cSampleRecorder::showDefaultScreen()
 {
-	display.setControlText(titleLabel, "Sampel Recorder");
+	display.refreshControl(titleBar);
+
+	display.setControlText(titleLabel, "Sample Recorder");
 	display.refreshControl(titleLabel);
+
 
 	if (currentScreen == screenTypeConfig)
 	{

@@ -554,20 +554,12 @@ void cConfigEditor::changeConfigGroupSelection(int16_t value)
 //master
 void cConfigEditor::changeVolume(int16_t value)
 {
-/*
 	if(mtProject.values.volume + value < MASTER_VOLUME_MIN) mtProject.values.volume = MASTER_VOLUME_MIN;
 	else if(mtProject.values.volume + value > MASTER_VOLUME_MAX) mtProject.values.volume = MASTER_VOLUME_MAX;
 	else mtProject.values.volume += value;
-*/
-	float fValue = value*0.01;
 
-	if(mtConfig.audioCodecConfig.headphoneVolume + fValue < MASTER_VOLUME_MIN) mtConfig.audioCodecConfig.headphoneVolume = MASTER_VOLUME_MIN;
-	else if(mtConfig.audioCodecConfig.headphoneVolume + fValue > MASTER_VOLUME_MAX) mtConfig.audioCodecConfig.headphoneVolume = MASTER_VOLUME_MAX;
-	else mtConfig.audioCodecConfig.headphoneVolume += fValue;
 
-	mtConfig.audioCodecConfig.changeFlag = 1;
-
-	mtConfig.audioCodecConfig.outSelect = outputSelectHeadphones;
+	engine.setHeadphonesVolume(mtProject.values.volume);
 
 	showVolume();
 }
@@ -596,6 +588,8 @@ void cConfigEditor::changeReverbDamping(int16_t value)
 
 void cConfigEditor::changeLimiterAttack(int16_t value)
 {
+	value *= LIMITER_ATTACK_MAX/100;
+
 	if(mtProject.values.limiterAttack + value < LIMITER_ATTACK_MIN) mtProject.values.limiterAttack = LIMITER_ATTACK_MIN;
 	else if(mtProject.values.limiterAttack + value > LIMITER_ATTACK_MAX) mtProject.values.limiterAttack = LIMITER_ATTACK_MAX;
 	else mtProject.values.limiterAttack += value;
@@ -607,18 +601,20 @@ void cConfigEditor::changeLimiterAttack(int16_t value)
 
 void cConfigEditor::changeLimiterRelease(int16_t value)
 {
-/*	if(mtProject.values.limiterRelease + value < LIMITER_ATTACK_MIN) mtProject.values.limiterRelease = LIMITER_ATTACK_MIN;
-	else if(mtProject.values.limiterRelease + value > LIMITER_ATTACK_MAX) mtProject.values.limiterRelease = LIMITER_ATTACK_MAX;
+	value *= LIMITER_RELEASE_MAX/100;
+
+	if(mtProject.values.limiterRelease + value < LIMITER_RELEASE_MIN) mtProject.values.limiterRelease = LIMITER_RELEASE_MIN;
+	else if(mtProject.values.limiterRelease + value > LIMITER_RELEASE_MAX) mtProject.values.limiterRelease = LIMITER_RELEASE_MAX;
 	else mtProject.values.limiterRelease += value;
 
 	engine.setLimiterRelease(mtProject.values.limiterRelease);
-*/
+
 	showLimiterRelease();
 }
 
 void cConfigEditor::changeLimiterTreshold(int16_t value)
 {
-	value = value*100;
+	value *= LIMITER_TRESHOLD_MAX/100;
 
 	if(mtProject.values.limiterTreshold + value < LIMITER_TRESHOLD_MIN) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MIN;
 	else if(mtProject.values.limiterTreshold + value > LIMITER_TRESHOLD_MAX) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MAX;
