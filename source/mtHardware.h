@@ -146,6 +146,8 @@
 
 #define EXTERNAL_RAM_KEY	80
 
+#define BOOTLOADER_PIN		81
+
 
 
 
