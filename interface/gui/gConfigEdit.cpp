@@ -383,7 +383,7 @@ void cConfigEditor::createFirmwareList()
 
 void cConfigEditor::showFirmwareList()
 {
-	firmwareList.length = 5;
+	firmwareList.length = firmwareFoundNum;
 	firmwareList.linesCount = 15;
 	firmwareList.data = firmwareNames;
 	firmwareList.start= 0;
@@ -397,6 +397,11 @@ void cConfigEditor:: hideFirmwareList()
 {
 	display.setControlHide(firmwareListControl);
 	display.refreshControl(firmwareListControl);
+
+	framesPlaces[0][0] = 0;
+	framesPlaces[0][1] = 30;
+	framesPlaces[0][2] = 800/8;
+	framesPlaces[0][3] = 380;
 }
 
 

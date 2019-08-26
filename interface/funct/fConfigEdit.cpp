@@ -55,7 +55,9 @@ static  uint8_t functSwitchModule(uint8_t button);
 static  uint8_t functSwitchModeConfig(uint8_t state);
 static  uint8_t functSwitchModeMaster(uint8_t state);
 
-static uint8_t prepareDataForBootloader();
+uint8_t checkIfFirmwareValid(char *name);
+static uint8_t selectFirmware();
+uint8_t prepareDataForBootloader();
 
 
 
@@ -561,6 +563,11 @@ void cConfigEditor::changeConfigGroupSelection(int16_t value)
 	case configDefaultSD: break;
 	case configDefaultFirmware: showFirmwareMenu(); break;
 	}
+
+	if(selectedConfigGroup != configDefaultFirmware)
+	{
+		hideFirmwareMenu();
+	}
 }
 
 void cConfigEditor::changeSelectionInGroup(int16_t value)
@@ -658,18 +665,91 @@ void cConfigEditor::changeLimiterTreshold(int16_t value)
 
 void cConfigEditor::showFirmwareMenu()
 {
-	FM->setButtonObj(interfaceButton0, buttonPress, prepareDataForBootloader);
+	FM->setButtonObj(interfaceButton0, buttonPress, selectFirmware);
+	FM->setButtonObj(interfaceButton1, buttonPress, selectFirmware);
+	FM->setButtonObj(interfaceButton2, buttonPress, prepareDataForBootloader);
 
-	if(!listInitFlag)
-	{
-		listInitFlag=1;
-		createFirmwareList();
-	}
+	listAllFirmwares();
+	createFirmwareList();
 
 	showFirmwareList();
 }
 
-static uint8_t prepareDataForBootloader()
+void cConfigEditor::listAllFirmwares()
+{
+	uint8_t locationFileCount=0;
+	uint8_t validFilesCount=0;
+	uint8_t invalidFileCount=0;
+
+	sdLocation.close();
+	if(sdLocation.open("/firmware", O_READ))
+	{
+		locationFileCount = sdLocation.createFilesList(0,firmwareNamesList, firmware_list_max,0);
+	}
+
+	sdLocation.close();
+
+	for(uint8_t i = 0; i < locationFileCount;)
+	{
+		if(checkIfFirmwareValid(&firmwareNamesList[i][0]))
+		{
+			validFilesCount++;
+			i++;
+		}
+		else
+		{
+			invalidFileCount++;
+			strcpy(&firmwareNamesList[i][0],&firmwareNamesList[invalidFileCount][0]);
+
+			if(invalidFileCount == firmware_list_max)
+			{
+				break;
+			}
+		}
+	}
+
+	locationFileCount = validFilesCount;
+
+	for(uint8_t i = 0; i < locationFileCount; i++)
+	{
+		firmwareNames[i] = &firmwareNamesList[i][0];
+	}
+
+	firmwareFoundNum=locationFileCount;
+}
+
+uint8_t checkIfFirmwareValid(char *name)
+{
+	uint8_t nameLength;
+
+	nameLength=strlen(name);
+
+	if(name[0] != 'm' || name[1] != 't')
+	{
+		return 0;
+	}
+
+	if(name[nameLength-1] != 'x' || name[nameLength-2] != 'e' || name[nameLength-3] != 'h')
+	{
+		return 0;
+	}
+
+	return 1;
+
+}
+
+void cConfigEditor:: hideFirmwareMenu()
+{
+/*
+	FM->setButtonObj(interfaceButton0, buttonPress, nullptr);
+	FM->setButtonObj(interfaceButton1, buttonPress, nullptr);
+*/
+
+	hideFirmwareList();
+
+}
+
+static uint8_t selectFirmware()
 {
 	CE->selectedPlace[mtConfigModeDefault]=0;
 	CE->activateLabelsBorder();
@@ -677,10 +757,26 @@ static uint8_t prepareDataForBootloader()
 	return 1;
 }
 
+uint8_t prepareDataForBootloader()
+{
+	FsFile fwinfo;
+
+	if(SD.exists("/firmware/_fwinfo")) // plik nie powinien istniec, bootloader sam go usunie
+	{
+		SD.remove("/firmware/_fwinfo");
+	}
+
+	fwinfo = SD.open("/firmware/_fwinfo", FILE_WRITE);
+	fwinfo.write(&CE->firmwareNamesList[CE->firmwareSelect][0], strlen(&CE->firmwareNamesList[CE->firmwareSelect][0]));
+	fwinfo.close();
+
+	return 1;
+}
+
 void cConfigEditor::changeFirmwareSelection(int16_t value)
 {
 	if(firmwareSelect + value < 0) firmwareSelect = 0;
-	else if(firmwareSelect + value > 5) firmwareSelect = 5;
+	else if(firmwareSelect + value > firmwareFoundNum) firmwareSelect = firmwareFoundNum;
 	else  firmwareSelect+= value;
 
 	display.setControlValue(firmwareListControl, firmwareSelect);
