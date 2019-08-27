@@ -118,6 +118,8 @@ audioEngine engine;
 uint8_t playerEngine::onVoices=0;
 uint8_t	playerEngine::activeAmpEnvelopes=0;
 
+constexpr uint16_t releaseNoteOnVal = 5;
+
 void audioEngine::init()
 {
 
@@ -252,6 +254,7 @@ void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,A
 	lfoAmpPtr=lfoAmp;
 	lfoFilterPtr=lfoFilter;
 	lfoPitchPtr=lfoPitch;
+	envelopeAmpPtr->releaseNoteOn(releaseNoteOnVal);
 
 }
 
