@@ -113,12 +113,12 @@ void cSampleImporter::start(uint32_t options)
 
 	selectedFolder = 0;
 	//selectedFile = 0;
-	dirLevel = 0;
+//	dirLevel = 0;
 
 	selectedSlot = mtProject.values.lastUsedInstrument;
 
-	actualPath[0] = '/';
-	actualPath[1] = 0;
+//	actualPath[0] = '/';
+//	actualPath[1] = 0;
 	firstUpdateFlag = 1;
 	listOnlyFolderNames(actualPath);
 	showFolderTree();
