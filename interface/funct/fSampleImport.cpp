@@ -767,8 +767,16 @@ void cSampleImporter::playSdFile()
 	playMode = playModeSdFile;
 
 	FsFile wavHeader = SD.open(file_path);
+	if(!wavHeader)
+	{
+		wavHeader.close();
+		SD.begin(SdioConfig(DMA_SDIO));
+		return;
+	}
+
 	strWavFileHeader header;
 	readHeader(&header,&wavHeader);
+
 	wavHeader.close();
 	if(header.AudioFormat == 3) playSdWavFloat.play(file_path);
 	else
@@ -791,14 +799,6 @@ void cSampleImporter::playSampleFromBank()
 	if(sequencer.getSeqState() == 1)
 	{
 		sequencer.stop();
-	}
-
-	if(playMode != playModeSampleBank)
-	{
-		playSdWav.stop();
-		playSdWavFloat.stop();
-		playSdWav24Bit.stop();
-		engine.prevSdDisconnect();
 	}
 
 	stopPlaying();
