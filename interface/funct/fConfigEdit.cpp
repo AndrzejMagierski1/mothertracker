@@ -667,6 +667,8 @@ void cConfigEditor::changeLimiterTreshold(int16_t value)
 
 void cConfigEditor::showFirmwareMenu()
 {
+	firmwareSelect=0;
+
 	FM->setButtonObj(interfaceButton0, buttonPress, selectFirmware);
 	FM->setButtonObj(interfaceButton1, buttonPress, selectFirmware);
 	FM->setButtonObj(interfaceButton2, buttonPress, flashFirmware);
