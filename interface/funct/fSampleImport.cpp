@@ -347,7 +347,7 @@ static  uint8_t functUp()
 	case 1: SI->changeFileSelection(-1); break;
 	case 2: SI->changeInstrumentSelection(-1); break;
 	}
-
+	SI->stopPlaying();
 	return 1;
 }
 
@@ -359,7 +359,7 @@ static  uint8_t functDown()
 	case 1: SI->changeFileSelection(1); break;
 	case 2: SI->changeInstrumentSelection(1); break;
 	}
-
+	SI->stopPlaying();
 	return 1;
 }
 
@@ -817,7 +817,6 @@ void cSampleImporter::stopPlaying()
 		playSdWav.stop();
 		playSdWavFloat.stop();
 		playSdWav24Bit.stop();
-		engine.prevSdDisconnect();
 	}
 	else if(playMode == playModeSampleBank)
 	{
