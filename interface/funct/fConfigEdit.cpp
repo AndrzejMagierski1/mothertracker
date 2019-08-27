@@ -379,7 +379,7 @@ static  uint8_t functUp()
 {
 	switch(CE->selectedPlace[CE->mode])
 	{
-	case 0: 	break;
+	case 0: CE->changeFirmwareSelection(-1);break;
 	case 1: 	break;
 	case 2: 	break;
 	case 3: 	break;
@@ -395,7 +395,7 @@ static  uint8_t functDown()
 {
 	switch(CE->selectedPlace[CE->mode])
 	{
-	case 0: 	break;
+	case 0: 	CE->changeFirmwareSelection(1); break;
 	case 1: 	break;
 	case 2: 	break;
 	case 3: 	break;
