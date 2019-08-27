@@ -85,8 +85,11 @@ void AudioPlaySdWav24bit::stop(void)
 	;
 	if (state == STATE_PLAY)
 	{
-		release(block);
-		block = NULL;
+		if(block)
+		{
+			release(block);
+			block = NULL;
+		}
 		state = STATE_STOP;
 		wavfile.close();
 		__enable_irq()
