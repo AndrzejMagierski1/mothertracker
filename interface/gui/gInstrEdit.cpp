@@ -96,7 +96,7 @@ void cInstrumentEditor::initDisplayControls()
 
 
 	envStateList.linesCount = 5;
-	envStateList.start = editorInstrument->envelope[selectedEnvelope].enable;
+	envStateList.start = !editorInstrument->envelope[selectedEnvelope].enable;
 	envStateList.length = 2;
 	envStateList.data = envStateNames;
 	prop.x = (800/8)*(1)+5;
@@ -468,7 +468,7 @@ void cInstrumentEditor::showEnvList()
 
 void cInstrumentEditor::showEnvState()
 {
-	display.setControlValue(envStateListControl, 0);
+	display.setControlValue(envStateListControl, !editorInstrument->envelope[selectedEnvelope].enable);
 	display.refreshControl(envStateListControl);
 }
 

@@ -133,7 +133,7 @@ void cSongEditor::showPatternsList()
 	patternsList.data = patternNames;
 	patternsList.start=selectedPattern;
 
-	display.setControlData(patternsListControl,  &patternsList);
+    display.setControlData(patternsListControl,  &patternsList);
 	//display.setControlValue(patternsListControl, selectedPattern);
 	display.setControlShow(patternsListControl);
 	display.refreshControl(patternsListControl);

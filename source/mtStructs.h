@@ -132,7 +132,7 @@ const uint8_t REVERB_PANNING_MAX 			=	100;
 
 
 const uint8_t LIMITER_ATTACK_MIN 			=	0;
-const uint16_t LIMITER_ATTACK_MAX  			=	5000;
+const uint16_t LIMITER_ATTACK_MAX  			=	1000;
 const uint8_t LIMITER_RELEASE_MIN  			=	0;
 const uint16_t LIMITER_RELEASE_MAX  		=	5000;
 const uint8_t LIMITER_TRESHOLD_MIN 			=	0;

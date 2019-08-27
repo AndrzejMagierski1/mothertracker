@@ -146,17 +146,17 @@ void cList::setData(void* data)
 	else if(listPosition >= list->length-1) // ostatnia pozycja listy
 	{
 		barPos  = (list->length > list->linesCount ? list->linesCount-1 : list->length-1);
-		textListPos = (list->length > list->linesCount ? list->length-list->linesCount-1 : 0);
+		textListPos = (list->length > list->linesCount ? list->length-(list->linesCount) : 0);
 	}
 	else if(listPosition >= list->length-2) // przed ostatnia pozycja listy
 	{
 		barPos  = (list->length > list->linesCount ? list->linesCount-2 : list->length-2);
-		textListPos = (list->length > list->linesCount ? list->length-list->linesCount-2 : 0);
+		textListPos = (list->length > list->linesCount ? list->length-(list->linesCount-2) : 0);
 	}
 	else
 	{
-		barPos  = (list->length > list->linesCount ? (listPosition>list->linesCount-2 ? list->linesCount-2 : listPosition) : listPosition);
-		textListPos = (list->length > list->linesCount ? (listPosition>list->linesCount-2 ? listPosition-(list->linesCount-2) : 0) : 0);
+		barPos  = (list->length > list->linesCount ? (listPosition > list->linesCount-2 ? list->linesCount-2 : listPosition) : listPosition);
+		textListPos = (list->length > list->linesCount ? (listPosition > list->linesCount-2 ? listPosition-(list->linesCount-2) : 0) : 0);
 	}
 
 }
