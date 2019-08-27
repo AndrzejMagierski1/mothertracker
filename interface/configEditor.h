@@ -140,9 +140,13 @@ public:
 	void showFirmwareMenu();
 	void hideFirmwareMenu();
 
-	void createFirmwareList();
-	void hideFirmwareList();
 	void showFirmwareList();
+	void hideFirmwareList();
+
+	void createFirmwareList();
+	void showFirmwareUpdateLabels();
+	void hideFirmwareUpdateLabels();
+
 	void changeFirmwareSelection(int16_t value);
 
 	void listAllFirmwares();

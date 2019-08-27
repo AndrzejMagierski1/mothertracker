@@ -57,7 +57,7 @@ static  uint8_t functSwitchModeMaster(uint8_t state);
 
 uint8_t checkIfFirmwareValid(char *name);
 static uint8_t selectFirmware();
-uint8_t prepareDataForBootloader();
+uint8_t flashFirmware();
 
 
 
@@ -546,6 +546,11 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 
 void cConfigEditor::changeConfigGroupSelection(int16_t value)
 {
+	if(selectedConfigGroup == configDefaultFirmware && value < 0)
+	{
+		hideFirmwareMenu();
+	}
+
 	if(selectedConfigGroup + value < 0) selectedConfigGroup = 0;
 	else if(selectedConfigGroup + value > groupCount-1) selectedConfigGroup = groupCount-1;
 	else  selectedConfigGroup += value;
@@ -564,10 +569,7 @@ void cConfigEditor::changeConfigGroupSelection(int16_t value)
 	case configDefaultFirmware: showFirmwareMenu(); break;
 	}
 
-	if(selectedConfigGroup != configDefaultFirmware)
-	{
-		hideFirmwareMenu();
-	}
+
 }
 
 void cConfigEditor::changeSelectionInGroup(int16_t value)
@@ -667,12 +669,19 @@ void cConfigEditor::showFirmwareMenu()
 {
 	FM->setButtonObj(interfaceButton0, buttonPress, selectFirmware);
 	FM->setButtonObj(interfaceButton1, buttonPress, selectFirmware);
-	FM->setButtonObj(interfaceButton2, buttonPress, prepareDataForBootloader);
+	FM->setButtonObj(interfaceButton2, buttonPress, flashFirmware);
 
 	listAllFirmwares();
 	createFirmwareList();
 
-	showFirmwareList();
+	showFirmwareUpdateLabels();
+}
+
+void cConfigEditor:: hideFirmwareMenu()
+{
+	FM->clearButtonsRange(interfaceButton0, interfaceButton2);
+
+	hideFirmwareUpdateLabels();
 }
 
 void cConfigEditor::listAllFirmwares()
@@ -739,17 +748,6 @@ uint8_t checkIfFirmwareValid(char *name)
 
 }
 
-void cConfigEditor:: hideFirmwareMenu()
-{
-/*
-	FM->setButtonObj(interfaceButton0, buttonPress, nullptr);
-	FM->setButtonObj(interfaceButton1, buttonPress, nullptr);
-*/
-
-	hideFirmwareList();
-
-}
-
 static uint8_t selectFirmware()
 {
 	CE->selectedPlace[mtConfigModeDefault]=0;
@@ -758,7 +756,7 @@ static uint8_t selectFirmware()
 	return 1;
 }
 
-uint8_t prepareDataForBootloader()
+uint8_t flashFirmware()
 {
 	FsFile fwinfo;
 
@@ -784,7 +782,7 @@ uint8_t prepareDataForBootloader()
 void cConfigEditor::changeFirmwareSelection(int16_t value)
 {
 	if(firmwareSelect + value < 0) firmwareSelect = 0;
-	else if(firmwareSelect + value > firmwareFoundNum) firmwareSelect = firmwareFoundNum-1;
+	else if(firmwareSelect + value >= firmwareFoundNum) firmwareSelect = firmwareFoundNum-1;
 	else  firmwareSelect+= value;
 
 	display.setControlValue(firmwareListControl, firmwareSelect);

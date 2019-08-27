@@ -374,11 +374,6 @@ void cConfigEditor::createFirmwareList()
 	prop.h = 25;
 	prop.data = &firmwareList;
 	if(firmwareListControl == nullptr)  firmwareListControl = display.createControl<cList>(&prop);
-
-	framesPlaces[0][0] = 0;
-	framesPlaces[0][1] = 30;
-	framesPlaces[0][2] = 800/4;
-	framesPlaces[0][3] = 380;
 }
 
 void cConfigEditor::showFirmwareList()
@@ -397,11 +392,57 @@ void cConfigEditor:: hideFirmwareList()
 {
 	display.setControlHide(firmwareListControl);
 	display.refreshControl(firmwareListControl);
+}
+
+void cConfigEditor::showFirmwareUpdateLabels()
+{
+	display.setControlText(topLabel[0], "Firmware");
+	display.setControlText(topLabel[2], "Update");
+
+	display.refreshControl(topLabel[0]);
+	display.refreshControl(topLabel[2]);
+
+	for(int i=0;i<6;i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	framesPlaces[0][0] = 0;
+	framesPlaces[0][1] = 30;
+	framesPlaces[0][2] = 800/4;
+	framesPlaces[0][3] = 380;
+
+	showFirmwareList();
+
+}
+
+void cConfigEditor::hideFirmwareUpdateLabels()
+{
+	display.setControlText(topLabel[0], "");
+	display.setControlText(topLabel[2], "");
+
+	display.refreshControl(topLabel[0]);
+	display.refreshControl(topLabel[2]);
+
+	display.setControlText(bottomLabel[0], "1");
+	display.setControlText(bottomLabel[1], "2");
+	display.setControlText(bottomLabel[2], "3");
+	display.setControlText(bottomLabel[3], "4");
+	display.setControlText(bottomLabel[4], "5");
+	display.setControlText(bottomLabel[5], "6");
+
+	for(int i=0;i<6;i++)
+	{
+		display.refreshControl(bottomLabel[i]);
+	}
 
 	framesPlaces[0][0] = 0;
 	framesPlaces[0][1] = 30;
 	framesPlaces[0][2] = 800/8;
 	framesPlaces[0][3] = 380;
+
+	hideFirmwareList();
 }
 
 
