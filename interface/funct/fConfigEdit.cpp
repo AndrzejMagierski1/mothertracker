@@ -680,7 +680,6 @@ void cConfigEditor::showFirmwareMenu()
 void cConfigEditor:: hideFirmwareMenu()
 {
 	FM->clearButtonsRange(interfaceButton0, interfaceButton2);
-
 	hideFirmwareUpdateLabels();
 }
 
@@ -733,6 +732,11 @@ uint8_t checkIfFirmwareValid(char *name)
 	uint8_t nameLength;
 
 	nameLength=strlen(name);
+
+	if(nameLength>12)//8.3 convetion
+	{
+		return 0;
+	}
 
 	if(name[0] != 'm' || name[1] != 't')
 	{
