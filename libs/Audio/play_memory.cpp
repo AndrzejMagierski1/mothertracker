@@ -27,13 +27,14 @@
 #include "play_memory.h"
 #include "utility/dspinst.h"
 
-
+constexpr uint8_t SMOOTHING_SIZE = 100;
 
 uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 {
 	__disable_irq();
 	/*========================================================INIT=============================================================*/
 	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
+	if(playing == 0x81) needSmoothingFlag = 1;
 	playing = 0;
 	prior = 0;
 	stopLoop=0;
@@ -215,7 +216,7 @@ void AudioPlayMemory::update(void)
 		{
 			waveTablePosition = wavetableWindowSize * currentWindow;
 		}
-		castPitchControl = (uint32_t) pitchControl;
+		castPitchControl = (uint32_t) pitchControl; //todo: monitorować czy przez tą linijke nie wyjezdza za bufor
 		length += castPitchControl; //maksymalnie moze wyjsc za length i nie wiecej niz pitch control
 		for (i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
@@ -249,12 +250,29 @@ void AudioPlayMemory::update(void)
 					}
 
 				}
+				if(needSmoothingFlag && i == 0)
+				{
+					needSmoothingFlag = 0;
+					for(uint8_t j = 0; j < SMOOTHING_SIZE; j++ )
+					{
+						*out++ = ((int32_t)(((int32_t)((*(in + iPitchCounter) )*j) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j)) ) )/(SMOOTHING_SIZE - 1));
+						iPitchCounter += castPitchControl;
+						fPitchCounter += pitchControl - castPitchControl;
+						if (fPitchCounter >= 1.0f)
+						{
+							fPitchCounter -= 1.0f;
+							iPitchCounter++;
+						}
+					}
+					i = SMOOTHING_SIZE;
+				}
 				if (localType != mtSampleTypeWavetable)
 				{
 					switch (playMode)
 					{
 					case singleShot:
 						*out++ = *(in + iPitchCounter);
+						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 						iPitchCounter += castPitchControl;
 						fPitchCounter += pitchControl - castPitchControl;
 						if (fPitchCounter >= 1.0f)
@@ -265,6 +283,7 @@ void AudioPlayMemory::update(void)
 						break;
 					case loopForward:
 						*out++ = *(in + iPitchCounter);
+						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 						iPitchCounter += castPitchControl;
 						fPitchCounter += pitchControl - castPitchControl;
 						if (fPitchCounter >= 1.0f)
@@ -275,6 +294,7 @@ void AudioPlayMemory::update(void)
 						break;
 					case loopBackward:
 						*out++ = *(in + iPitchCounter);
+						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 						if (!loopBackwardFlag)
 						{
 							iPitchCounter += castPitchControl;
@@ -300,6 +320,7 @@ void AudioPlayMemory::update(void)
 						break;
 					case loopPingPong:
 						*out++ = *(in + iPitchCounter);
+						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 						if (!loopBackwardFlag)
 						{
 							iPitchCounter += castPitchControl;
@@ -370,6 +391,7 @@ void AudioPlayMemory::update(void)
 				else
 				{
 					*out++ = *(in + (uint32_t) iPitchCounter + waveTablePosition);
+					if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + (uint32_t) iPitchCounter + waveTablePosition);
 					iPitchCounter += castPitchControl;
 					fPitchCounter += pitchControl - castPitchControl;
 					if ((iPitchCounter >= wavetableWindowSize))
@@ -386,6 +408,7 @@ void AudioPlayMemory::update(void)
 				*out++ = 0;
 				playing = 0;
 			}
+
 		}
 		prior = s0;
 		next = in;

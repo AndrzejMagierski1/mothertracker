@@ -106,6 +106,8 @@ private:
 
 	uint32_t startLen;
 	uint8_t  stopLoop;
+	int16_t  lastSample = 0;
+	uint8_t needSmoothingFlag = 0;
 };
 
 
