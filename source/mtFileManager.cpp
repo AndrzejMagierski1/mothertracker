@@ -428,7 +428,11 @@ uint8_t FileManager::startImportSampleToProject(char* filePatch, char* name, int
 
 
 	fileImportSample = SD.open(currentPatch);
-
+	if(!fileImportSample)
+	{
+		fileImportSample.close();
+		return 0;
+	}
 	strWavFileHeader importFileHeader;
 	readHeader(&importFileHeader,&fileImportSample);
 
