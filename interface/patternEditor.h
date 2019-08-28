@@ -75,6 +75,8 @@ public:
 
 	void focusOnActual();
 
+	void moveCursorByStep();
+
 	void refreshPattern();
 	void readPatternState();
 
@@ -178,8 +180,8 @@ public:
 	char step[5];
 
 
-	//------------------------------------------------------
-	// fill
+//------------------------------------------------------
+// fill
 	uint8_t fillState = 0;
 	uint8_t fillPlace = 0;
 	//
@@ -207,8 +209,8 @@ public:
 
 	uint16_t fillStep = 1;
 
-	//------------------------------------------------------
-	// random
+//------------------------------------------------------
+// random
 	uint8_t randomiseState = 0;
 	uint8_t randomisePlace = 1;
 	//

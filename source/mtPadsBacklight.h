@@ -1,7 +1,5 @@
 #ifndef _MT_PADS_BACKLIGHT_H
 #define _MT_PADS_BACKLIGHT_H
-#include "mtLED.h"
-#include "Arduino.h"
 
 
 
@@ -23,6 +21,7 @@ public:
 private:
 
 	elapsedMillis blinkTimer;
+	uint8_t frontLayer[48];
 	uint8_t backLayer[48];
 	uint8_t blinkLayer[48];
 	uint16_t blinkConstrain;

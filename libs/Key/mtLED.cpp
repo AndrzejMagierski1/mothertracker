@@ -181,6 +181,8 @@ void mtLED::update_pads()
 
 void mtLED::setLED(uint8_t num, uint8_t state, uint8_t gamma_pwm)
 {
+
+	if(gamma_pwm > 31) gamma_pwm = 31;
 	//ledState[num] = 1;
 	num+= 4*(num/12); // special for tracker 12 x 4 grid
 

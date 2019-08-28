@@ -126,7 +126,7 @@ void cInstrumentEditor::stop()
 {
 	moduleRefresh = 0;
 	mtPadBoard.releaseAllInstrument();
-	clearPadBoard();
+	padsBacklight.clearAllPads(1, 1, 1);
 }
 
 void cInstrumentEditor::setDefaultScreenFunct()
@@ -190,6 +190,8 @@ void cInstrumentEditor::setInstrumentEnvFunct()
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
 	activateLabelsBorder();
+
+	padsBacklight.clearAllPads(0, 1, 1);
 }
 
 void cInstrumentEditor::setInstrumentParamsFunct()
@@ -207,6 +209,8 @@ void cInstrumentEditor::setInstrumentParamsFunct()
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
 	activateLabelsBorder();
+
+	padsBacklight.clearAllPads(0, 1, 1);
 }
 
 
@@ -743,7 +747,7 @@ static uint8_t functShift(uint8_t value)
 
 void cInstrumentEditor::lightUpPadBoard()
 {
-	clearPadBoard();
+	padsBacklight.clearAllPads(0, 1, 1);
 
 
 	if(mtProject.values.lastUsedInstrument >= 0 && mtProject.values.lastUsedInstrument <= 48)
@@ -757,15 +761,7 @@ void cInstrumentEditor::lightUpPadBoard()
 
 }
 
-void cInstrumentEditor::clearPadBoard()
-{
-	for(uint8_t i = 0; i < 48; i++)
-	{
-		leds.setLED(i, 0, 0);
-	}
 
-
-}
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)

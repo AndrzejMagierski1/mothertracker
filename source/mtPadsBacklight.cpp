@@ -1,5 +1,8 @@
 
 
+#include "Arduino.h"
+
+
 #include "mtLED.h"
 
 #include "mtPadsBacklight.h"
@@ -35,12 +38,14 @@ void cMtPadsBacklight::setBackLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n)
 {
 	if(state)
 	{
-		leds.setLED(n,state,gamma_pwm);
+		leds.setLED(n,state, (gamma_pwm > frontLayer[n] ? gamma_pwm : frontLayer[n]) );
 		backLayer[n]=gamma_pwm;
 	}
 	else
 	{
-		leds.setLED(n,state,gamma_pwm);
+		if(frontLayer[n] != 0) leds.setLED(n,1,frontLayer[n]);
+		else leds.setLED(n,state,gamma_pwm);
+
 		backLayer[n]=0;
 	}
 }
@@ -49,12 +54,15 @@ void cMtPadsBacklight::setFrontLayer(uint8_t state, uint8_t gamma_pwm, uint8_t n
 {
 	if(state)
 	{
-		leds.setLED(n,state,gamma_pwm);
+		leds.setLED(n,state, (gamma_pwm > backLayer[n] ? gamma_pwm : backLayer[n]));
+		frontLayer[n] = gamma_pwm;
 	}
 	else
 	{
 		if(backLayer[n] != 0) leds.setLED(n,1,backLayer[n]);
 		else leds.setLED(n,state,gamma_pwm);
+
+		frontLayer[n] = 0;
 	}
 }
 
