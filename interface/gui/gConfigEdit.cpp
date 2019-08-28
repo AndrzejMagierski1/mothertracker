@@ -15,13 +15,14 @@ static uint16_t framesPlaces[8][4] =
 	{(800/8)*7, 30, 800/8, 380},
 };
 
-static uint16_t firmwareFramesPlaces[6][4] =
+static uint16_t firmwareFramesPlaces[8][4] =
 {
 	{0, 30, 200, 380},
 	{200, 30, 100, 380},
 	{300, 30, 100, 380},
 	{400, 30, 100, 380},
 	{500, 30, 100, 380},
+	{600, 30, 200, 380},
 	{600, 30, 200, 380},
 };
 
@@ -423,7 +424,7 @@ void cConfigEditor::showFirmwareUpdateLabels()
 	}
 
 	// zmiana ramkowania
-	frameData.placesCount = 6;
+	frameData.placesCount = 7;
 	frameData.startPlace = 0;
 	frameData.places[0] = &firmwareFramesPlaces[0][0];
 	frameData.places[1] = &firmwareFramesPlaces[1][0];
@@ -431,6 +432,7 @@ void cConfigEditor::showFirmwareUpdateLabels()
 	frameData.places[3] = &firmwareFramesPlaces[3][0];
 	frameData.places[4] = &firmwareFramesPlaces[4][0];
 	frameData.places[5] = &firmwareFramesPlaces[5][0];
+	frameData.places[6] = &firmwareFramesPlaces[5][0];
 
 	display.setControlHide(popoutWindowLabel);
 	display.refreshControl(popoutWindowLabel);

@@ -112,7 +112,6 @@ void cConfigEditor::start(uint32_t options)
 		if(CE->selectedConfigGroup == configDefaultFirmware)
 		{
 			showFirmwareMenu();
-			selectedPlace[0] = 5;
 		}
 
 		break;
@@ -398,7 +397,12 @@ static  uint8_t functUp()
 
 	switch(CE->selectedPlace[CE->mode])
 	{
-	case 0: CE->changeFirmwareSelection(-1);break;
+	case 0:
+		if(CE->selectedConfigGroup == configDefaultFirmware)
+		{
+			CE->changeFirmwareSelection(-1);
+		}
+		break;
 	case 1: 	break;
 	case 2: 	break;
 	case 3: 	break;
@@ -416,7 +420,12 @@ static  uint8_t functDown()
 
 	switch(CE->selectedPlace[CE->mode])
 	{
-	case 0: 	CE->changeFirmwareSelection(1); break;
+	case 0:
+		if(CE->selectedConfigGroup == configDefaultFirmware)
+		{
+			CE->changeFirmwareSelection(1);
+		}
+		break;
 	case 1: 	break;
 	case 2: 	break;
 	case 3: 	break;
@@ -618,30 +627,33 @@ static uint8_t functAction5()
 void cConfigEditor::changeConfigGroupSelection(int16_t value)
 {
 
-	if(selectedConfigGroup == configDefaultFirmware && value < 0)
-	{
-		hideFirmwareMenu();
-	}
 
 	if(selectedConfigGroup + value < 0) selectedConfigGroup = 0;
 	else if(selectedConfigGroup + value > groupCount-1) selectedConfigGroup = groupCount-1;
 	else  selectedConfigGroup += value;
 
-
-	display.setControlValue(configGroupsListControl, selectedConfigGroup);
-	display.refreshControl(configGroupsListControl);
-
-	switch(selectedConfigGroup)
+	if(selectedConfigGroup != previousSelectedConfigGroup)
 	{
-	case configDefaultGeneral: break;
-	case configDefaultAudio: break;
-	case configDefaultMIDI: break;
-	case configDefaultInterface: break;
-	case configDefaultSD: break;
-	case configDefaultFirmware: showFirmwareMenu(); break;
+		if(selectedConfigGroup == (configDefaultFirmware-1) && value < 0)
+		{
+			hideFirmwareMenu();
+		}
+
+		display.setControlValue(configGroupsListControl, selectedConfigGroup);
+		display.refreshControl(configGroupsListControl);
+
+		switch(selectedConfigGroup)
+		{
+		case configDefaultGeneral: break;
+		case configDefaultAudio: break;
+		case configDefaultMIDI: break;
+		case configDefaultInterface: break;
+		case configDefaultSD: break;
+		case configDefaultFirmware: showFirmwareMenu(); break;
+		}
+
+		previousSelectedConfigGroup = selectedConfigGroup;
 	}
-
-
 }
 
 void cConfigEditor::changeSelectionInGroup(int16_t value)
@@ -740,6 +752,7 @@ void cConfigEditor::changeLimiterTreshold(int16_t value)
 void cConfigEditor::showFirmwareMenu()
 {
 	//firmwareSelect=0;
+	//selectedPlace[0] -=1;
 
 	FM->setButtonObj(interfaceButton0, buttonPress, selectFirmware);
 	FM->setButtonObj(interfaceButton1, buttonPress, selectFirmware);

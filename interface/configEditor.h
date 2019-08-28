@@ -190,6 +190,7 @@ public:
 	char *configGroupsNames[groupCount];
 
 	uint8_t selectedConfigGroup;
+	uint8_t previousSelectedConfigGroup=UINT8_MAX;
 
 //----------------------------------
 
