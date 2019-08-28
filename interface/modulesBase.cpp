@@ -43,7 +43,7 @@ void cFunctionMachine::clearButtonsRange(uint8_t from, uint8_t to)
 
 	if(from >= buttonsCount || to >= buttonsCount || from > to) return;
 
-	memset(buttons+from,0,sizeof(strButtonObject)*(to-from));
+	memset(buttons+from,0,(sizeof(strButtonObject)*((to+1)-from)));
 }
 
 void cFunctionMachine::clearAllPots()
