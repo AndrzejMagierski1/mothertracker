@@ -14,7 +14,8 @@ static uint32_t defaultColors[] =
 
 {
 	0xFFFFFF, // linie
-	0xFF0000
+	0xFF0000, // czerowne
+	0x777777, // srodkowa linia
 };
 
 
@@ -23,7 +24,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 cSpectrum::cSpectrum(strControlProperties* properties)
 {
-	colorsCount = 2;
+	colorsCount = 3;
 	colors = defaultColors;
 
 	refreshStep =  0;
@@ -174,7 +175,17 @@ void cSpectrum::refresh1()
 	}
 	else if(spectrum->spectrumType == 1)
 	{
+		//srodek
+		API_COLOR(colors[2]);
+		API_LINE_WIDTH(8);
+		API_BEGIN(LINES);
+		API_VERTEX2F(posX, center);
+		API_VERTEX2F(posX+width-1, center);
+		API_END();
+
 		//jedna lamana linia
+		API_COLOR(colors[0]);
+		API_LINE_WIDTH(12);
 		API_BEGIN(LINE_STRIP);
 
 		for(uint16_t i = 0; i < width-1; i++)
