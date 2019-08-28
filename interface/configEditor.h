@@ -71,6 +71,8 @@ public:
 		configGroupsListControl = nullptr;
 		editorInstrument = nullptr;
 		frameControl = nullptr;
+		firmwareListControl = nullptr;
+		popoutWindowLabel = nullptr;
 
 	}
 	virtual ~cConfigEditor() {}
@@ -136,20 +138,24 @@ public:
 	char firmwareNamesList[firmware_list_max][firmware_name_length];
 	char *firmwareNames[firmware_list_max];
 	hControl firmwareListControl;
+	hControl popoutWindowLabel;
+
 	strList firmwareList;
+	uint8_t selectionActive;
 	void showFirmwareMenu();
 	void hideFirmwareMenu();
 
-	void showFirmwareList();
-	void hideFirmwareList();
-
-	void createFirmwareList();
 	void showFirmwareUpdateLabels();
 	void hideFirmwareUpdateLabels();
 
 	void changeFirmwareSelection(int16_t value);
 
 	void listAllFirmwares();
+
+	void showWarning();
+	void hideWarning();
+	void showFirmwareUpdatePopout();
+	void hideFirmwareUpdatePopout();
 
 
 

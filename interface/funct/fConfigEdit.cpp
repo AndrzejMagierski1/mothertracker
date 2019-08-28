@@ -26,6 +26,9 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
+static  uint8_t functAction0();
+static  uint8_t functAction5();
+
 
 // config
 static  uint8_t functConfigGroup(uint8_t button);
@@ -243,6 +246,8 @@ void cConfigEditor::setMasterTracksScreenFunct()
 
 static  uint8_t functConfigGroup(uint8_t button)
 {
+	if(CE->selectionActive) return 1;
+
 	if(button == interfaceButton6)
 	{
 		CE->changeConfigGroupSelection(-1);
@@ -261,6 +266,8 @@ static  uint8_t functConfigGroup(uint8_t button)
 
 static  uint8_t functEncoder(int16_t value)
 {
+	if(CE->selectionActive) return 1;
+
 	uint8_t mode_places = CE->selectedPlace[CE->mode] + CE->mode*10;
 
 	switch(mode_places)
@@ -300,6 +307,8 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functLeft()
 {
+	if(CE->selectionActive) return 1;
+
 	if(CE->selectedPlace[CE->mode] > 0) CE->selectedPlace[CE->mode]--;
 
 	uint8_t mode_places = CE->selectedPlace[CE->mode] + CE->mode*10;
@@ -339,6 +348,8 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(CE->selectionActive) return 1;
+
 	if(CE->selectedPlace[CE->mode] < CE->frameData.placesCount-1) CE->selectedPlace[CE->mode]++;
 
 	uint8_t mode_places = CE->selectedPlace[CE->mode] + CE->mode*10;
@@ -377,6 +388,8 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	if(CE->selectionActive) return 1;
+
 	switch(CE->selectedPlace[CE->mode])
 	{
 	case 0: CE->changeFirmwareSelection(-1);break;
@@ -393,6 +406,8 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	if(CE->selectionActive) return 1;
+
 	switch(CE->selectedPlace[CE->mode])
 	{
 	case 0: 	CE->changeFirmwareSelection(1); break;
@@ -411,6 +426,8 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
+	if(CE->selectionActive) return 1;
+
 	if(sequencer.getSeqState() == 0)
 	{
 		sequencer.play();
@@ -427,7 +444,7 @@ static  uint8_t functPlayAction()
 
 static  uint8_t functRecAction()
 {
-
+	if(CE->selectionActive) return 1;
 
 	return 1;
 }
@@ -484,6 +501,8 @@ static  uint8_t functSelectLimiterTreshold()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
+	if(CE->selectionActive) return 1;
+
 	CE->eventFunct(eventSwitchModule,CE,&button,0);
 
 	return 1;
@@ -491,6 +510,8 @@ static uint8_t functSwitchModule(uint8_t button)
 
 static  uint8_t functSwitchModeConfig(uint8_t state)
 {
+	if(CE->selectionActive) return 1;
+
 	if(state == buttonPress)
 	{
 
@@ -509,6 +530,8 @@ static  uint8_t functSwitchModeConfig(uint8_t state)
 
 static  uint8_t functSwitchModeMaster(uint8_t state)
 {
+	if(CE->selectionActive) return 1;
+
 	if(state == buttonPress)
 	{
 
@@ -541,11 +564,42 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 	return 1;
 }
 
+static uint8_t functAction0()
+{
+	if(CE->selectedConfigGroup == configDefaultFirmware)
+	{
+		if(CE->selectionActive)
+		{
+			pinMode(BOOTLOADER_PIN,OUTPUT);
+			digitalWrite(BOOTLOADER_PIN,LOW);
+
+			while(1);// program sie zatrzymuje do czasu przejecia kontroli przez bootloader
+		}
+	}
+
+	return 1;
+}
+
+static uint8_t functAction5()
+{
+	if(CE->selectedConfigGroup == configDefaultFirmware)
+	{
+		if(CE->selectionActive)
+		{
+			CE->hideWarning();
+		}
+	}
+
+	return 1;
+}
+
+
 //======================================================================================================================
 
 
 void cConfigEditor::changeConfigGroupSelection(int16_t value)
 {
+
 	if(selectedConfigGroup == configDefaultFirmware && value < 0)
 	{
 		hideFirmwareMenu();
@@ -667,14 +721,13 @@ void cConfigEditor::changeLimiterTreshold(int16_t value)
 
 void cConfigEditor::showFirmwareMenu()
 {
-	firmwareSelect=0;
+	//firmwareSelect=0;
 
 	FM->setButtonObj(interfaceButton0, buttonPress, selectFirmware);
 	FM->setButtonObj(interfaceButton1, buttonPress, selectFirmware);
 	FM->setButtonObj(interfaceButton2, buttonPress, flashFirmware);
 
 	listAllFirmwares();
-	createFirmwareList();
 
 	showFirmwareUpdateLabels();
 }
@@ -775,14 +828,33 @@ uint8_t flashFirmware()
 	fwinfo.write(&CE->firmwareNamesList[CE->firmwareSelect][0], 13);
 	fwinfo.close();
 
-	//TODO: popup potwierdzenia czy na pewno zflashowac
 
-	pinMode(BOOTLOADER_PIN,OUTPUT);
-	digitalWrite(BOOTLOADER_PIN,LOW);
-
-	while(1);// program sie zatrzymuje do czasu przejecia kontroli przez bootloader
+	CE->showWarning();
 
 	return 1;
+}
+
+void cConfigEditor::showWarning()
+{
+	FM->clearButtonsRange(interfaceButton0, interfaceButton5);
+
+	FM->setButtonObj(interfaceButton0, buttonPress, functAction0);
+	FM->setButtonObj(interfaceButton5, buttonPress, functAction5);
+
+	CE->selectionActive=1;
+	CE->showFirmwareUpdatePopout();
+}
+
+void cConfigEditor::hideWarning()
+{
+	FM->clearButtonsRange(interfaceButton0, interfaceButton5);
+
+	FM->setButtonObj(interfaceButton0, buttonPress, selectFirmware);
+	FM->setButtonObj(interfaceButton1, buttonPress, selectFirmware);
+	FM->setButtonObj(interfaceButton2, buttonPress, flashFirmware);
+
+	CE->selectionActive=0;
+	CE->hideFirmwareUpdatePopout();
 }
 
 void cConfigEditor::changeFirmwareSelection(int16_t value)
