@@ -462,18 +462,34 @@ void cInstrumentEditor::activateLabelsBorder()
 
 void cInstrumentEditor::showEnvList()
 {
+	display.setControlText(topLabel[0], envelopesLabels[selectedEnvelope]);
+	display.refreshControl(topLabel[0]);
+
 	display.setControlValue(envelopesListControl, selectedEnvelope);
 	display.refreshControl(envelopesListControl);
 }
 
 void cInstrumentEditor::showEnvState()
 {
+	display.setControlText(topLabel[1], envStateLabels[!editorInstrument->envelope[selectedEnvelope].enable]);
+	display.refreshControl(topLabel[1]);
+
 	display.setControlValue(envStateListControl, !editorInstrument->envelope[selectedEnvelope].enable);
 	display.refreshControl(envStateListControl);
 }
 
 void cInstrumentEditor::showEnvAttack()
 {
+	uint8_t length;
+
+	sprintf(envAttack,"%.3f",(float)(editorInstrument->envelope[selectedEnvelope].attack/1000.0f));
+	length=strlen(envAttack);
+	envAttack[length]='s';
+	envAttack[length+1]=0;
+
+	display.setControlText(topLabel[2], envAttack);
+	display.refreshControl(topLabel[2]);
+
 	display.setControlValue(barControl[2], (editorInstrument->envelope[selectedEnvelope].attack*100)/ATTACK_MAX);
 	display.refreshControl(barControl[2]);
 
@@ -481,31 +497,61 @@ void cInstrumentEditor::showEnvAttack()
 
 void cInstrumentEditor::showEnvDecay()
 {
+	uint8_t length;
+
+	sprintf(envDecay,"%.3f",(float)(editorInstrument->envelope[selectedEnvelope].decay/1000.0f));
+	length=strlen(envDecay);
+	envDecay[length]='s';
+	envDecay[length+1]=0;
+
+	display.setControlText(topLabel[3], envDecay);
+	display.refreshControl(topLabel[3]);
+
 	display.setControlValue(barControl[3], (editorInstrument->envelope[selectedEnvelope].decay*100)/DECAY_MAX);
 	display.refreshControl(barControl[3]);
-
 }
 
 void cInstrumentEditor::showEnvSustain()
 {
+	sprintf(envSustain,"%.0f",(float)(editorInstrument->envelope[selectedEnvelope].sustain*100));
+	display.setControlText(topLabel[4], envSustain);
+	display.refreshControl(topLabel[4]);
+
 	display.setControlValue(barControl[4], (editorInstrument->envelope[selectedEnvelope].sustain*100));
 	display.refreshControl(barControl[4]);
 }
 
 void cInstrumentEditor::showEnvRelease()
 {
+	uint8_t length;
+
+	sprintf(envRelease,"%.3f",(float)(editorInstrument->envelope[selectedEnvelope].release/1000.0f));
+	length=strlen(envRelease);
+	envRelease[length]='s';
+	envRelease[length+1]=0;
+
+	display.setControlText(topLabel[5], envRelease);
+	display.refreshControl(topLabel[5]);
+
 	display.setControlValue(barControl[5], (editorInstrument->envelope[selectedEnvelope].release*100)/RELEASE_MAX);
 	display.refreshControl(barControl[5]);
 }
 
 void cInstrumentEditor::showEnvAmount()
 {
+	sprintf(envAmount,"%.0f",(float)(editorInstrument->envelope[selectedEnvelope].amount*100));
+	display.setControlText(topLabel[6], envAmount);
+	display.refreshControl(topLabel[6]);
+
 	display.setControlValue(barControl[6],(editorInstrument->envelope[selectedEnvelope].amount*100) );
 	display.refreshControl(barControl[6]);
 }
 
 void cInstrumentEditor::showEnvLoop()
 {
+	display.setControlText(topLabel[7], envLoopLabels[0]);
+	display.refreshControl(topLabel[7]);
+
 	display.setControlValue(envLoopListControl, 0);
 	display.refreshControl(envLoopListControl);
 }
@@ -514,24 +560,40 @@ void cInstrumentEditor::showEnvLoop()
 
 void cInstrumentEditor::showParamsVolume()
 {
+	sprintf(volumeVal,"%d",editorInstrument->volume);
+	display.setControlText(topLabel[0], volumeVal);
+	display.refreshControl(topLabel[0]);
+
 	display.setControlValue(barControl[0], editorInstrument->volume);
 	display.refreshControl(barControl[0]);
 }
 
 void cInstrumentEditor::showParamsPanning()
 {
+	sprintf(panningVal,"%d",editorInstrument->panning);
+	display.setControlText(topLabel[1], panningVal);
+	display.refreshControl(topLabel[1]);
+
 	display.setControlValue(barControl[1], editorInstrument->panning);
 	display.refreshControl(barControl[1]);
 }
 
 void cInstrumentEditor::showParamsTune()
 {
+	sprintf(tuneVal,"%d",editorInstrument->tune);
+	display.setControlText(topLabel[2], tuneVal);
+	display.refreshControl(topLabel[2]);
+
 	display.setControlValue(barControl[2], (editorInstrument->tune*100)/24);
 	display.refreshControl(barControl[2]);
 }
 
 void cInstrumentEditor::showParamsFineTune()
 {
+	sprintf(fineTuneVal,"%d",editorInstrument->fineTune);
+	display.setControlText(topLabel[3], fineTuneVal);
+	display.refreshControl(topLabel[3]);
+
 	display.setControlValue(barControl[3], editorInstrument->fineTune);
 	display.refreshControl(barControl[3]);
 }
@@ -551,18 +613,30 @@ void cInstrumentEditor::showFilterFilterType()
 
 void cInstrumentEditor::showFilterCutOff()
 {
+	sprintf(cutoffVal,"%.2f",editorInstrument->cutOff);
+	display.setControlText(topLabel[5], cutoffVal);
+	display.refreshControl(topLabel[5]);
+
 	display.setControlValue(barControl[5], (editorInstrument->cutOff*100));
 	display.refreshControl(barControl[5]);
 }
 
 void cInstrumentEditor::showFilterResonance()
 {
+	sprintf(resonanceVal,"%.2f",editorInstrument->resonance);
+	display.setControlText(topLabel[6], resonanceVal);
+	display.refreshControl(topLabel[6]);
+
 	display.setControlValue(barControl[6], ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100);
 	display.refreshControl(barControl[6]);
 }
 
 void cInstrumentEditor::showParamsReverbSend()
 {
+	sprintf(revSendVal,"%d",editorInstrument->reverbSend);
+	display.setControlText(topLabel[7], revSendVal);
+	display.refreshControl(topLabel[7]);
+
 	display.setControlValue(barControl[7], editorInstrument->reverbSend);
 	display.refreshControl(barControl[7]);
 }

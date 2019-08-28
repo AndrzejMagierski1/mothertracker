@@ -211,6 +211,19 @@ public:
 	char intrumentsNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
 	char *ptrintrumentsNames[INSTRUMENTS_COUNT];
 
+	char volumeVal[4];
+	char panningVal[4];
+	char tuneVal[4];
+	char fineTuneVal[4];
+	char cutoffVal[8];
+	char resonanceVal[8];
+	char revSendVal[4];
+	char envAttack[8];
+	char envDecay[8];
+	char envSustain[8];
+	char envRelease[8];
+	char envAmount[8];
+
 	void listInstruments();
 
 

@@ -211,6 +211,8 @@ void cInstrumentEditor::setInstrumentParamsFunct()
 	activateLabelsBorder();
 
 	padsBacklight.clearAllPads(0, 1, 1);
+
+	changeFilterFilterType(0);
 }
 
 
@@ -604,6 +606,8 @@ void cInstrumentEditor::changeFilterFilterType(int16_t value)
 		editorInstrument->filterType = bandPass;
 	}
 
+	display.setControlText(topLabel[4], filterModeFunctLabels[filterModeListPos]);
+	display.refreshControl(topLabel[4]);
 
 	display.setControlValue(filterModeListControl, filterModeListPos);
 	display.refreshControl(filterModeListControl);
