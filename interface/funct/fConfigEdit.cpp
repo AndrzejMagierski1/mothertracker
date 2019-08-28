@@ -109,6 +109,12 @@ void cConfigEditor::start(uint32_t options)
 	{
 		showDefaultConfigScreen();
 		setConfigScreenFunct();
+		if(CE->selectedConfigGroup == configDefaultFirmware)
+		{
+			showFirmwareMenu();
+			selectedPlace[0] = 5;
+		}
+
 		break;
 	}
 	case mtConfigModeMaster:
@@ -518,8 +524,15 @@ static  uint8_t functSwitchModeConfig(uint8_t state)
 		if(CE->mode != mtConfigModeDefault)
 		{
 			CE->mode = 0;
+
+
 			CE->showDefaultConfigScreen();
 			CE->setConfigScreenFunct();
+
+			if(CE->selectedConfigGroup == configDefaultFirmware)
+			{
+				CE->showFirmwareMenu();
+			}
 		}
 
 		CE->activateLabelsBorder();
@@ -537,12 +550,17 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 
 		if(CE->mode != mtConfigModeMaster)
 		{
+			if(CE->selectedConfigGroup == configDefaultFirmware)
+			{
+				CE->hideFirmwareMenu();
+			}
 			CE->mode = 1;
 			CE->showMasterScreen();
 			CE->setMasterScreenFunct();
 			//FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 			CE->activateLabelsBorder();
+
 
 			return 0;
 		}
