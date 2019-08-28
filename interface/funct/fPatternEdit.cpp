@@ -81,21 +81,21 @@ elapsedMillis patternRefreshTimer;
 void cPatternEditor::update()
 {
 	if(patternRefreshTimer < 20) return;
-/*
-	if(editMode && fillState == 0 && randomiseState == 0)
-	{
-		if(tactButtons.isButtonPressed(interfaceButton0))
-		{
 
-		}
-	}
-*/
 	uint8_t sequencerState = sequencer.getSeqState();
 
 	if(sequencerState != 1 ) return;
 
 	readPatternState();
 
+	if(lastPlayedPattern != mtProject.mtProjectRemote.song.playlist[mtProject.mtProjectRemote.song.playlistPos])
+	{
+		lastPlayedPattern = mtProject.mtProjectRemote.song.playlist[mtProject.mtProjectRemote.song.playlistPos];
+
+		mtProject.values.actualPattern = mtProject.mtProjectRemote.song.playlist[mtProject.mtProjectRemote.song.playlistPos];
+
+		refreshPatternParams();
+	}
 
 	if(trackerPattern.playheadPosition == lastPatternPosition || (!isPleyheadOnScreen() && editMode))  return;
 
@@ -500,7 +500,8 @@ void cPatternEditor::changeActualPattern(int16_t value)
 	sequencer.switchNextPatternNow();
 
 
-	showPattern();
+	readPatternState();
+	refreshPatternParams();
 	refreshPattern();
 
 }
@@ -1227,6 +1228,8 @@ static  uint8_t functPlayAction()
 		{
 			sequencer.playPattern();
 		}
+
+		PTE->lastPlayedPattern = 0;
 	}
 	else if(sequencer.getSeqState() == 1)
 	{

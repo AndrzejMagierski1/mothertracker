@@ -321,6 +321,13 @@ void cPatternEditor::showStep()
 	display.refreshControl(topLabel[3]);
 }
 
+void cPatternEditor::refreshPatternParams()
+{
+	showTempo();
+	showPattern();
+	showLength();
+}
+
 
 //##############################################################################################
 //###############################             FILL             #################################

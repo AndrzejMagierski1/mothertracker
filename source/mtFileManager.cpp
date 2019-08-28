@@ -1263,12 +1263,13 @@ void FileManager::switchNextPatternInSong()
 	}
 }
 
+// TODO: NIE UZYWAC TEGO I NIE ROBIC WIECEJ TAKICH RZECZY!
 void FileManager::refreshPatternView()
 {
-	patternEditor.refreshPattern();
-	patternEditor.showPattern();
-	patternEditor.showLength();
-	patternEditor.showTempo();
+//	patternEditor.refreshPattern();
+//	patternEditor.showPattern();
+//	patternEditor.showLength();
+//	patternEditor.showTempo();
 }
 
 //uint8_t FileManager::isSongMode()

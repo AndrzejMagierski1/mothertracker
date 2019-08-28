@@ -107,6 +107,8 @@ public:
 	void showLength();
 	void showStep();
 
+	void refreshPatternParams();
+
 	void showEditModeLabels();
 	void hideEditModeLabels();
 
@@ -130,6 +132,8 @@ public:
 // Funct
 	uint16_t lastPatternPosition;
 	uint8_t isPleyheadOnScreen();
+
+	uint16_t lastPlayedPattern = 0;
 
 	uint8_t isCursorInSelection();
 

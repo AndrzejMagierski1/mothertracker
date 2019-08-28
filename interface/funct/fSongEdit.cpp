@@ -355,7 +355,7 @@ void cSongEditor::readSong()
 		}
 		if(i==SONG_MAX) // nie znaleziono
 		{
-			songLength = 0;
+			songLength = 1;
 			selectedPattern = 0;
 		}
 	}
