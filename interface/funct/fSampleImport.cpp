@@ -767,6 +767,8 @@ void cSampleImporter::playSdFile()
 	playMode = playModeSdFile;
 
 	FsFile wavHeader = SD.open(file_path);
+	if(!wavHeader) return;
+
 	strWavFileHeader header;
 	readHeader(&header,&wavHeader);
 	wavHeader.close();
@@ -776,8 +778,6 @@ void cSampleImporter::playSdFile()
 		if(header.bitsPerSample == 16) playSdWav.play(file_path);
 		else if (header.bitsPerSample == 24) playSdWav24Bit.play(file_path);
 	}
-
-
 
 
 }

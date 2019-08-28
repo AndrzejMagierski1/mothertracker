@@ -517,6 +517,7 @@ uint32_t WaveLoader::getInfoAboutWave(const char *filename)
 	strWavFileHeader localSampleHead;
 
 	wavfile = SD.open(filename);
+	if(!wavfile) return 0;
 	readHeader(&localSampleHead,&wavfile);
 	wavfile.close();
 
