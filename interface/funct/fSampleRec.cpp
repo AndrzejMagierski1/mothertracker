@@ -287,7 +287,7 @@ void cSampleRecorder::update()
 					strcpy(localName,SR->name);
 					strcat(localName,".wav");
 					forceSwitchModule = 1;
-					fileManager.startImportSampleToProject("/Recorded",localName, firstFree);
+					fileManager.startImportSampleToProject((char*)"/Recorded",localName, firstFree);
 					functSwitchModule(interfaceButtonSampleLoad);
 				}
 
@@ -1444,7 +1444,7 @@ static  uint8_t functActionConfirmSaveLoad()
 	functActionConfirmSave();
 	SR->saveLoadFlag = 1;
 
-
+	return 0;
 }
 
 static  uint8_t functActionStopRec()
