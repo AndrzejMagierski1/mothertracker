@@ -170,50 +170,24 @@ uint32_t Recorder::getLength()
 
 void Recorder::writeOutHeader()
 {
-	Subchunk2Size = recByteSaved;
-	ChunkSize = Subchunk2Size + 36;
+
+	header.chunkId = 0x46464952; 																// "RIFF"
+	header.chunkSize = recByteSaved + 36;
+	header.format = 0x45564157;																	// "WAVE"
+	header.subchunk1Id = 0x20746d66;															// "fmt "
+	header.subchunk1Size = 16;
+	header.AudioFormat = 1;
+	header.numChannels = 1;
+	header.sampleRate = 44100;
+	header.bitsPerSample = 16;
+	header.byteRate = header.sampleRate * header.numChannels * (header.bitsPerSample/8);
+	header.blockAlign = header.numChannels * (header.bitsPerSample/8);
+	header.subchunk2Id = 0x61746164;															// "data"
+	header.subchunk2Size = recByteSaved;
+
+
 	rec.seek(0);
-	rec.write("RIFF",4);
-	byte1 = ChunkSize & 0xff;
-	byte2 = (ChunkSize >> 8) & 0xff;
-	byte3 = (ChunkSize >> 16) & 0xff;
-	byte4 = (ChunkSize >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	rec.write("WAVE",4);
-	rec.write("fmt ",4);
-	byte1 = Subchunk1Size & 0xff;
-	byte2 = (Subchunk1Size >> 8) & 0xff;
-	byte3 = (Subchunk1Size >> 16) & 0xff;
-	byte4 = (Subchunk1Size >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	byte1 = AudioFormat & 0xff;
-	byte2 = (AudioFormat >> 8) & 0xff;
-	rec.write(byte1);  rec.write(byte2);
-	byte1 = numChannels & 0xff;
-	byte2 = (numChannels >> 8) & 0xff;
-	rec.write(byte1);  rec.write(byte2);
-	byte1 = sampleRate & 0xff;
-	byte2 = (sampleRate >> 8) & 0xff;
-	byte3 = (sampleRate >> 16) & 0xff;
-	byte4 = (sampleRate >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	byte1 = byteRate & 0xff;
-	byte2 = (byteRate >> 8) & 0xff;
-	byte3 = (byteRate >> 16) & 0xff;
-	byte4 = (byteRate >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	byte1 = blockAlign & 0xff;
-	byte2 = (blockAlign >> 8) & 0xff;
-	rec.write(byte1);  rec.write(byte2);
-	byte1 = bitsPerSample & 0xff;
-	byte2 = (bitsPerSample >> 8) & 0xff;
-	rec.write(byte1);  rec.write(byte2);
-	rec.write("data",4);
-	byte1 = Subchunk2Size & 0xff;
-	byte2 = (Subchunk2Size >> 8) & 0xff;
-	byte3 = (Subchunk2Size >> 16) & 0xff;
-	byte4 = (Subchunk2Size >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
+	rec.write(&header,sizeof(header));
 	rec.close();
 }
 
