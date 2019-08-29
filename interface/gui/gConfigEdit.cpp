@@ -166,6 +166,19 @@ void cConfigEditor::destroyDisplayControls()
 
 void cConfigEditor::showDefaultConfigScreen()
 {
+	for(uint8_t i = 0; i<7; i++)
+	{
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+
+		display.setControlText(topLabel[i], "");
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+
+		display.setControlHide(barControl[i]);
+		display.refreshControl(barControl[i]);
+	}
+
 	display.refreshControl(titleBar);
 
 	display.setControlText(titleLabel, "Config");
@@ -194,18 +207,6 @@ void cConfigEditor::showDefaultConfigScreen()
 
 	display.setControlText(topLabel[6], "Config");
 
-
-	for(uint8_t i = 0; i<7; i++)
-	{
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
-
-		display.setControlHide(barControl[i]);
-		display.refreshControl(barControl[i]);
-	}
 
 	display.setControlHide(bottomLabel[7]);
 	display.setControlHide(topLabel[7]);
