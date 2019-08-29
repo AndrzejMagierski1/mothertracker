@@ -30,26 +30,25 @@ void cSampleImporter::initDisplayControls()
 	prop2.x = 769;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 
-	prop2.style = 	( controlStyleBackground | controlStyleCenterX );
+	prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 
 	// inicjalizacja kontrolek
 	for(uint8_t i = 0; i<4; i++)
 	{
 		prop2.x = (800/4)*i+(800/8);
-		prop2.y = 420;
-		prop2.w = 800/4-10;
-		prop2.h = 26;
+		prop2.y = 437;
+		prop2.w = 800/4-6;
+		prop2.h = 28;
 
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 
 		//prop2.x = (800/4)*i+(800/8);
-		prop2.y = 450;
+		prop2.y = 465;
 		//prop2.w = 800/4-10;
 		prop2.h = 30;
 
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 	}
-
 
 	folderList.linesCount = 5;
 	folderList.start = 0;
@@ -93,7 +92,7 @@ void cSampleImporter::initDisplayControls()
 	//prop.y = 10;
 	//prop.w = 800/4-10;
 	prop.style = controlStyleCompareTwoValues;
-	prop.h = 400;
+	prop.h = 380;
 	prop.data = &memoryUsageAdd;
 	//prop.value = memoryUsage;
 	if(memoryBarControl == nullptr)  memoryBarControl = display.createControl<cBar>(&prop);
