@@ -116,8 +116,7 @@ uint8_t Recorder::startSave(char * name, uint8_t type)
 
 	rec = SD.open(currentPatch, FILE_WRITE);
 
-
-	rec.seek(44);
+	rec.write(currentPatch,sizeof(header)); //tablica ktora byla pod reka aby ustawic seek na 44 - funkcja seek powodowala blad
 	currentAddress=startAddress;
 
 	return 1;
