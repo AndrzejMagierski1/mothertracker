@@ -398,8 +398,19 @@ static  uint8_t functUp()
 
 	switch(mode_places)
 	{
-	case 0: CE->changeFirmwareSelection(-1);	 break;
-	case 1:	CE->changeFirmwareSelection(-1);	 break;
+	case 0:
+		if(CE->selectedConfigGroup == configDefaultFirmware)
+		{
+			CE->changeFirmwareSelection(-1);
+		}
+		break;
+
+	case 1:
+		if(CE->selectedConfigGroup == configDefaultFirmware)
+		{
+			CE->changeFirmwareSelection(-1);
+		}
+		break;
 	case 2: 	 break;
 	case 3: 	 break;
 	case 4: 	 break;
@@ -430,8 +441,20 @@ static  uint8_t functDown()
 
 	switch(mode_places)
 	{
-	case 0: CE->changeFirmwareSelection(1);	 break;
-	case 1:	CE->changeFirmwareSelection(1);	 break;
+	case 0:
+		if(CE->selectedConfigGroup == configDefaultFirmware)
+		{
+			CE->changeFirmwareSelection(1);
+
+		}
+		break;
+	case 1:
+		if(CE->selectedConfigGroup == configDefaultFirmware)
+		{
+			CE->changeFirmwareSelection(1);
+
+		}
+		break;
 	case 2: 	 break;
 	case 3: 	 break;
 	case 4: 	 break;
