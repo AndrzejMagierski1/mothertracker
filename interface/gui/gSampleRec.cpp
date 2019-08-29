@@ -30,13 +30,13 @@ static uint32_t popUpLabelColors[] =
 
 static  uint16_t framesPlacesS1[8][4] =
 {
-	{0+1, 		30, 800/8-1, 380},
-	{(800/8)*1+1, 30, 800/8-1, 380},
+	{0+2, 		31, 800/8-5, 387},
+	{(800/8)*1+2, 31, 800/8-5, 387},
 	{(800/8)*2+1, 421, 800/8-1, 65},
 	{(800/8)*3+1, 421, 800/8-1, 65},
-	{(800/8)*4+1, 30, 800/8-1, 380},
-	{(800/8)*5+1, 30, 800/8-1, 380},
-	{(800/8)*6+1, 30, 800/8-1, 380},
+	{(800/8)*4+2, 31, 800/8-5, 387},
+	{(800/8)*5+2, 31, 800/8-5, 387},
+	{(800/8)*6+2, 31, 800/8-5, 387},
 	{(800/8)*7+1, 421, 800/8-1, 65}
 };
 
@@ -48,8 +48,10 @@ static  uint16_t framesPlacesS2[8][4] =
 		{(800/8)*3+1, 421, 800/8-1, 65},
 		{(800/8)*4+1, 421, 800/8-1, 65},
 		{(800/8)*5+1, 421, 800/8-1, 65},
-		{(800/8)*6+1, 26, 800/4-1, 485},
+		{(800/8)*6+2, 31, 800/4-5, 487},
 };
+
+
 
 
 uint32_t colorRed[3] = { 0xFF0000, 0xFFFFFF,0xFF0000 };
@@ -157,21 +159,21 @@ void cSampleRecorder::initDisplayControls()
 	prop5.y = 30;
 	prop5.w = 800/8-10;
 	prop5.style =  controlStyleShow | controlStyleValue_0_100;
-	prop5.h = 380;
+	prop5.h = 389;
 	if(levelBarControl == nullptr)  levelBarControl = display.createControl<cBar>(&prop5);
 
 	prop5.x = (800/8)*(5)+5;
 	prop5.y = 30;
 	prop5.w = 800/8-10;
 	prop5.style =  controlStyleShow | controlStyleValue_0_100;
-	prop5.h = 380;
+	prop5.h = 389;
 	if(gainBarControl == nullptr)  gainBarControl = display.createControl<cBar>(&prop5);
 
 	prop5.x = (800/8)*(1)+5;
 	prop5.y = 30;
 	prop5.w = 800/8-10;
 	prop5.style =  controlStyleShow | controlStyleValue_0_100;
-	prop5.h = 380;
+	prop5.h = 389;
 	if(radioFreqBarControl == nullptr)  radioFreqBarControl = display.createControl<cBar>(&prop5);
 
 	strControlProperties prop6;

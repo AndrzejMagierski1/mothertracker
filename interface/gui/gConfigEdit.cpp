@@ -5,14 +5,14 @@
 
 static uint16_t framesPlaces[8][4] =
 {
-	{0, 		30, 800/8, 380},
-	{(800/8)*1, 30, 800/8, 380},
-	{(800/8)*2, 30, 800/8, 380},
-	{(800/8)*3, 30, 800/8, 380},
-	{(800/8)*4, 30, 800/8, 380},
-	{(800/8)*5, 30, 800/8, 380},
-	{(800/8)*6, 30, 800/8, 380},
-	{(800/8)*7, 30, 800/8, 380},
+	{0+2, 		31, 800/8-5, 387},
+	{(800/8)*1+2, 31, 800/8-5, 387},
+	{(800/8)*2+2, 31, 800/8-5, 387},
+	{(800/8)*3+2, 31, 800/8-5, 387},
+	{(800/8)*4+2, 31, 800/8-5, 387},
+	{(800/8)*5+2, 31, 800/8-5, 387},
+	{(800/8)*6+2, 31, 800/8-5, 387},
+	{(800/8)*7+2, 31, 800/8-5, 387},
 };
 
 static uint32_t popUpLabelColors[] =
@@ -57,7 +57,7 @@ void cConfigEditor::initDisplayControls()
 		prop2.y = 30;
 		prop2.w = 800/8-10;
 		prop2.style =  controlStyleValue_0_100;
-		prop2.h = 380;
+		prop2.h = 388;
 		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
 
 	}
@@ -109,9 +109,9 @@ void cConfigEditor::initDisplayControls()
 	firmwareList.data = firmwareNames;
 
 	strControlProperties prop10;
-	prop10.x = 0+5;
-	prop10.y = 30;
-	prop10.w = (800/4-10);
+	prop10.x = 9;
+	prop10.y = 38;
+	prop10.w = (800/4-18);
 	prop10.h = 25;
 	prop10.data = &firmwareList;
 	if(firmwareListControl == nullptr)  firmwareListControl = display.createControl<cList>(&prop10);
@@ -200,10 +200,10 @@ void cConfigEditor::showDefaultConfigScreen()
 	display.setControlHide(topLabel[7]);
 
 
-	framesPlaces[6][0] = (800/8)*6;
-	framesPlaces[6][1] = 30;
-	framesPlaces[6][2] = 800/4;
-	framesPlaces[6][3] = 380;
+	framesPlaces[6][0] = (800/8)*6+2;
+	framesPlaces[6][1] = 31;
+	framesPlaces[6][2] = 800/4-5;
+	framesPlaces[6][3] = 387;
 
 	display.setControlHide(popoutWindowLabel);
 	display.refreshControl(popoutWindowLabel);
@@ -271,10 +271,10 @@ void cConfigEditor::showMasterScreen()
 	display.setControlHide(configGroupsListControl);
 
 
-	framesPlaces[6][0] = (800/8)*6;
-	framesPlaces[6][1] = 30;
-	framesPlaces[6][2] = 800/8;
-	framesPlaces[6][3] = 380;
+	framesPlaces[6][0] = (800/8)*6+2;
+	framesPlaces[6][1] = 31;
+	framesPlaces[6][2] = 800/8-5;
+	framesPlaces[6][3] = 387;
 
 
 	display.synchronizeRefresh();
@@ -462,15 +462,15 @@ void cConfigEditor::showFirmwareUpdateLabels()
 		display.refreshControl(bottomLabel[i]);
 	}
 
-	framesPlaces[0][0] = 0;
-	framesPlaces[0][1] = 30;
-	framesPlaces[0][2] = 800/4;
-	framesPlaces[0][3] = 380;
+	framesPlaces[0][0] = 0+2;
+	framesPlaces[0][1] = 31;
+	framesPlaces[0][2] = 800/4-5;
+	framesPlaces[0][3] = 387;
 
-	framesPlaces[1][0] = 0;
-	framesPlaces[1][1] = 30;
-	framesPlaces[1][2] = 800/4;
-	framesPlaces[1][3] = 380;
+	framesPlaces[1][0] = 0+2;
+	framesPlaces[1][1] = 31;
+	framesPlaces[1][2] = 800/4-5;
+	framesPlaces[1][3] = 387;
 
 	display.setControlHide(popoutWindowLabel);
 	display.refreshControl(popoutWindowLabel);
@@ -507,15 +507,15 @@ void cConfigEditor::hideFirmwareUpdateLabels()
 
 	//przywrocenie ramki
 
-	framesPlaces[0][0] = 0;
-	framesPlaces[0][1] = 30;
-	framesPlaces[0][2] = 800/8;
-	framesPlaces[0][3] = 380;
+	framesPlaces[0][0] = 0+2;
+	framesPlaces[0][1] = 31;
+	framesPlaces[0][2] = 800/8-5;
+	framesPlaces[0][3] = 387;
 
-	framesPlaces[1][0] = (800/8)*1;
-	framesPlaces[1][1] = 30;
-	framesPlaces[1][2] = 800/8;
-	framesPlaces[1][3] = 380;
+	framesPlaces[1][0] = (800/8)*1+2;
+	framesPlaces[1][1] = 31;
+	framesPlaces[1][2] = 800/8-5;
+	framesPlaces[1][3] = 387;
 
 	display.setControlHide(popoutWindowLabel);
 	display.refreshControl(popoutWindowLabel);
