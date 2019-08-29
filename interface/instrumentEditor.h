@@ -212,7 +212,7 @@ public:
 	char *ptrintrumentsNames[INSTRUMENTS_COUNT];
 
 	char volumeVal[4];
-	char panningVal[4];
+	char panningVal[5];
 	char tuneVal[4];
 	char fineTuneVal[4];
 	char cutoffVal[8];

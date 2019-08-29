@@ -569,7 +569,24 @@ void cInstrumentEditor::showParamsVolume()
 
 void cInstrumentEditor::showParamsPanning()
 {
-	sprintf(panningVal,"%d",editorInstrument->panning);
+	if(editorInstrument->panning > 0)
+	{
+		panningVal[0]='R';
+		sprintf(&panningVal[1],"%d",editorInstrument->panning);
+	}
+	else if(editorInstrument->panning < 0)
+	{
+		uint8_t positiveValue;
+		positiveValue =  editorInstrument->panning * (-1);
+
+		panningVal[0]='L';
+		sprintf(&panningVal[1],"%d",positiveValue);
+	}
+	else
+	{
+		sprintf(panningVal,"%d",editorInstrument->panning);
+	}
+
 	display.setControlText(topLabel[1], panningVal);
 	display.refreshControl(topLabel[1]);
 
@@ -580,6 +597,7 @@ void cInstrumentEditor::showParamsPanning()
 void cInstrumentEditor::showParamsTune()
 {
 	sprintf(tuneVal,"%d",editorInstrument->tune);
+
 	display.setControlText(topLabel[2], tuneVal);
 	display.refreshControl(topLabel[2]);
 
