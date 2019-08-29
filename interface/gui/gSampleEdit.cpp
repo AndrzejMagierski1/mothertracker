@@ -83,9 +83,9 @@ void cSampleEditor::initDisplayControls()
 	playModeList.length = effectsCount;
 	playModeList.data = playModeNames;
 	strControlProperties prop;
-	prop.x = (800/8)*6+5;
+	prop.x = (800/8)*6+8;
 	prop.y = 140;
-	prop.w = 800/4-10;
+	prop.w = 800/4-16;
 	prop.h = 25;
 	prop.data = &playModeList;
 	if(playModeListControl == nullptr)  playModeListControl = display.createControl<cList>(&prop);

@@ -135,9 +135,9 @@ void cSampleRecorder::initDisplayControls()
 	sourceList.start = recorderConfig.source;
 	sourceList.length = 4;
 	sourceList.data = sourceNames;
-	prop4.x = (800/8)*(0)+5;
+	prop4.x = 0+8;
 	prop4.y = 152;
-	prop4.w = 800/8-10;
+	prop4.w = 800/8-16;
 	prop4.h = 25;
 	prop4.data = &sourceList;
 	if(sourceListControl == nullptr)  sourceListControl = display.createControl<cList>(&prop4);
@@ -146,9 +146,9 @@ void cSampleRecorder::initDisplayControls()
 	monitorList.start = recorderConfig.monitor;
 	monitorList.length = 2;
 	monitorList.data = monitorNames;
-	prop4.x = (800/8)*(6)+5;
+	prop4.x = (800/8)*(6)+8;
 	prop4.y = 165;
-	prop4.w = 800/8-10;
+	prop4.w = 800/8-16;
 	prop4.h = 25;
 	prop4.data = &monitorList;
 	if(monitorListControl == nullptr)  monitorListControl = display.createControl<cList>(&prop4);

@@ -74,9 +74,9 @@ void cInstrumentEditor::initDisplayControls()
 	filterModeList.length = filterModeCount;
 	filterModeList.data = filterModeNames;
 	strControlProperties prop;
-	prop.x = (800/8)*(4)+5;
+	prop.x = (800/8)*(4)+8;
 	prop.y = 140;
-	prop.w = 800/8-10;
+	prop.w = 800/8-16;
 	prop.h = 25;
 	prop.data = &filterModeList;
 	if(filterModeListControl == nullptr)  filterModeListControl = display.createControl<cList>(&prop);
@@ -86,9 +86,9 @@ void cInstrumentEditor::initDisplayControls()
 	envelopesList.start = selectedEnvelope;
 	envelopesList.length = 2;
 	envelopesList.data = envelopeNames;
-	prop.x = (800/8)*(0)+5;
+	prop.x = (800/8)*(0)+8;
 	prop.y = 140;
-	prop.w = 800/8-10;
+	prop.w = 800/8-16;
 	prop.h = 25;
 	prop.data = &envelopesList;
 	if(envelopesListControl == nullptr)  envelopesListControl = display.createControl<cList>(&prop);
@@ -98,9 +98,9 @@ void cInstrumentEditor::initDisplayControls()
 	envStateList.start = !editorInstrument->envelope[selectedEnvelope].enable;
 	envStateList.length = 2;
 	envStateList.data = envStateNames;
-	prop.x = (800/8)*(1)+5;
+	prop.x = (800/8)*(1)+8;
 	prop.y = 140;
-	prop.w = 800/8-10;
+	prop.w = 800/8-16;
 	prop.h = 25;
 	prop.data = &envStateList;
 	if(envStateListControl == nullptr)  envStateListControl = display.createControl<cList>(&prop);
@@ -110,9 +110,9 @@ void cInstrumentEditor::initDisplayControls()
 	envLoopList.start = editorInstrument->envelope[selectedEnvelope].loop;
 	envLoopList.length = 2;
 	envLoopList.data = envLoopNames;
-	prop.x = (800/8)*(7)+5;
+	prop.x = (800/8)*(7)+8;
 	prop.y = 140;
-	prop.w = 800/8-10;
+	prop.w = 800/8-16;
 	prop.h = 25;
 	prop.data = &envLoopList;
 	if(envLoopListControl == nullptr)  envLoopListControl = display.createControl<cList>(&prop);

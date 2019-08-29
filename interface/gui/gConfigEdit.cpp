@@ -68,9 +68,9 @@ void cConfigEditor::initDisplayControls()
 	configGroupList.length = groupCount;
 	configGroupList.data = configGroupsNames;
 	strControlProperties prop;
-	prop.x = (800/8)*6+5;
+	prop.x = (800/8)*6+8;
 	prop.y = 140;
-	prop.w = 800/4-10;
+	prop.w = 800/4-16;
 	prop.h = 25;
 	prop.data = &configGroupList;
 	if(configGroupsListControl == nullptr)  configGroupsListControl = display.createControl<cList>(&prop);
@@ -109,9 +109,9 @@ void cConfigEditor::initDisplayControls()
 	firmwareList.data = firmwareNames;
 
 	strControlProperties prop10;
-	prop10.x = 9;
+	prop10.x = 8;
 	prop10.y = 38;
-	prop10.w = (800/4-18);
+	prop10.w = (800/4-16);
 	prop10.h = 25;
 	prop10.data = &firmwareList;
 	if(firmwareListControl == nullptr)  firmwareListControl = display.createControl<cList>(&prop10);
