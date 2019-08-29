@@ -30,27 +30,27 @@ static uint32_t popUpLabelColors[] =
 
 static  uint16_t framesPlacesS1[8][4] =
 {
-	{0, 		30, 800/8, 380},
-	{(800/8)*1, 30, 800/8, 380},
-	{(800/8)*2, 412, 800/8, 68},
-	{(800/8)*3, 412, 800/8, 68},
-	{(800/8)*4, 30, 800/8, 380},
-	{(800/8)*5, 30, 800/8, 380},
-	{(800/8)*6, 30, 800/8, 380},
-	{(800/8)*7, 412, 800/8, 68}
+	{0+1, 		30, 800/8-1, 380},
+	{(800/8)*1+1, 30, 800/8-1, 380},
+	{(800/8)*2+1, 421, 800/8-1, 65},
+	{(800/8)*3+1, 421, 800/8-1, 65},
+	{(800/8)*4+1, 30, 800/8-1, 380},
+	{(800/8)*5+1, 30, 800/8-1, 380},
+	{(800/8)*6+1, 30, 800/8-1, 380},
+	{(800/8)*7+1, 421, 800/8-1, 65}
 };
 
 static  uint16_t framesPlacesS2[8][4] =
 {
-	{0, 		412, 800/8, 68},
-	{(800/8)*1, 412, 800/8, 68},
-	{(800/8)*2, 412, 800/8, 68},
-	{(800/8)*3, 412, 800/8, 68},
-	{(800/8)*4, 412, 800/8, 68},
-	{(800/8)*5, 412, 800/8, 68},
-	{(800/8)*6, 412, 800/8, 68},
-	{(800/8)*7, 412, 800/8, 68},
+		{0+1, 		421, 800/8-1, 65},
+		{(800/8)*1+1, 421, 800/8-1, 65},
+		{(800/8)*2+1, 421, 800/8-1, 65},
+		{(800/8)*3+1, 421, 800/8-1, 65},
+		{(800/8)*4+1, 421, 800/8-1, 65},
+		{(800/8)*5+1, 421, 800/8-1, 65},
+		{(800/8)*6+1, 26, 800/4-1, 485},
 };
+
 
 uint32_t colorRed[3] = { 0xFF0000, 0xFFFFFF,0xFF0000 };
 uint32_t colorGreen[3] = { 0x00FF00, 0xFFFFFF,0x00FF00 };
@@ -95,19 +95,20 @@ void cSampleRecorder::initDisplayControls()
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder | controlStyleFont1);
+		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 450;
-		prop2.w = 800/8-10;
+		prop2.y = 465;
+		prop2.w = 800/8-6;
 		prop2.h = 30;
 
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 415;
-		prop2.h = 26;
-		prop2.style |= 	controlStyleManualText;
+		prop2.y = 437;
+		prop2.h = 28;
+		//prop2.style |= 	controlStyleManualText;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
+
 	}
 
 	strControlProperties prop3;
