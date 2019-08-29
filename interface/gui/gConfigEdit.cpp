@@ -53,17 +53,16 @@ void cConfigEditor::initDisplayControls()
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 450;
-		prop2.w = 800/8-10;
+		prop2.y = 465;
+		prop2.w = 800/8-6;
 		prop2.h = 30;
 
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 415;
-		prop2.h = 26;
+		prop2.y = 437;
+		prop2.h = 28;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 
 		prop2.x = (800/8)*i+5;
@@ -72,6 +71,7 @@ void cConfigEditor::initDisplayControls()
 		prop2.style =  controlStyleValue_0_100;
 		prop2.h = 380;
 		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
+
 	}
 
 
@@ -186,12 +186,10 @@ void cConfigEditor::showDefaultConfigScreen()
 	display.setControlText(bottomLabel[6], " /\\           \\/ ");
 	//display.setControlText(bottomLabel[7], "");
 
-
-
-	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/8),  450);
-	display.setControlPosition(topLabel[6],  (800/8)*6+(800/8),  415);
-	display.setControlSize(bottomLabel[6],  800/4-10,  30);
-	display.setControlSize(topLabel[6],  800/4-10,  26);
+	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/8),  465);
+	display.setControlPosition(topLabel[6],  (800/8)*6+(800/8),  437);
+	display.setControlSize(bottomLabel[6],  800/4-6,  30);
+	display.setControlSize(topLabel[6],  800/4-6,  28);
 
 
 	display.setControlText(topLabel[6], "Config");
@@ -243,10 +241,11 @@ void cConfigEditor::showMasterScreen()
 	display.setControlText(bottomLabel[6], " ");
 	display.setControlText(bottomLabel[7], " ");
 
-	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/16),  450);
-	display.setControlPosition(topLabel[6],  (800/8)*6+(800/16),  415);
-	display.setControlSize(bottomLabel[6],  800/8-10,  30);
-	display.setControlSize(topLabel[6],  800/8-10,  26);
+	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/16),  465);
+	display.setControlPosition(topLabel[6],  (800/8)*6+(800/16),  437);
+	display.setControlSize(bottomLabel[6],  800/8-6,  30);
+	display.setControlSize(topLabel[6],  800/8-6,  28);
+
 
 
 	display.setControlText(topLabel[6], " ");
