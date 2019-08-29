@@ -62,6 +62,21 @@ public:
 	void modLoopPoint2(int16_t value);
 	void changeZoom(int16_t value);
 	void changePlayModeSelection(int16_t value);
+	void showPreviewValue();
+	void hidePreviewValue();
+
+	char startPointValueText[8];
+	char endPointValueText[8];
+	char loopPoint1ValueText[8];
+	char loopPoint2ValueText[8];
+	char playTimeValueText[8];
+	void showStartPointValue();
+	void showEndPointValue();
+	void showLoopPoint1Value();
+	void showLoopPoint2Value();
+
+	void hideLoopPoints();
+	void showLoopPoints();
 
 	void calcPlayProgressValue();
 	void activateLabelsBorder();

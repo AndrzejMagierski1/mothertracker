@@ -79,6 +79,7 @@ void cSamplePlayback::update()
 	if(isPlayingSample)
 	{
 		calcPlayProgressValue();
+		showPreviewValue();
 		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
 		{
 			instrumentPlayer[0].clearInterfaceEndReleaseFlag();
@@ -88,6 +89,7 @@ void cSamplePlayback::update()
 			SP->playProgressInSpectrum = 0;
 			SP->isPlayingSample = 0;
 			SP->refreshSpectrumProgress = 1;
+			SP->hidePreviewValue();
 		}
 
 	}
@@ -469,10 +471,10 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 		if(mtPadBoard.getEmptyVoice() == 0)
 		{
-			SP->playProgresValueTim = (( (SP->editorInstrument->sample.length/44100.0 ) * SP->editorInstrument->startPoint) / MAX_16BIT) * 1000;
+			SP->playPitch = notes[mtPadBoard.convertPadToNote(pad)];
+			SP->playProgresValueTim = ((( (SP->editorInstrument->sample.length/44100.0 ) * SP->editorInstrument->startPoint) / MAX_16BIT) * 1000) /SP->playPitch;
 			SP->refreshPlayProgressValue = 0;
 			SP->loopDirection = 0;
-			SP->playPitch = notes[mtPadBoard.convertPadToNote(pad)];
 			SP->isPlayingSample = 1;
 		}
 
@@ -495,6 +497,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				SP->playProgressInSpectrum = 0;
 				SP->isPlayingSample = 0;
 				SP->refreshSpectrumProgress = 1;
+				SP->hidePreviewValue();
 			}
 		}
 
@@ -763,10 +766,14 @@ void cSamplePlayback::changeZoom(int16_t value)
 
 void cSamplePlayback::changePlayModeSelection(int16_t value)
 {
+
+
 	if(editorInstrument->playMode + value < 0) editorInstrument->playMode = 0;
 	else if(editorInstrument->playMode + value > playModeCount-1) editorInstrument->playMode = playModeCount-1;
 	else  editorInstrument->playMode += value;
 
+	if((editorInstrument->playMode == singleShot) && (value < 0 )) hideLoopPoints();
+	else if((editorInstrument->playMode == loopForward) && (value > 0) ) showLoopPoints();
 
 
 	refreshPoints = 1;
@@ -818,6 +825,8 @@ void cSamplePlayback::modStartPoint(int16_t value)
 
 	lastChangedPoint = 1;
 	refreshPoints = 1;
+
+	showStartPointValue();
 }
 
 void cSamplePlayback::modEndPoint(int16_t value)
@@ -861,6 +870,8 @@ void cSamplePlayback::modEndPoint(int16_t value)
 
 	lastChangedPoint = 2;
 	refreshPoints = 1;
+
+	showEndPointValue();
 }
 
 void cSamplePlayback::modLoopPoint1(int16_t value)
@@ -883,6 +894,8 @@ void cSamplePlayback::modLoopPoint1(int16_t value)
 
 	lastChangedPoint = 3;
 	refreshPoints = 1;
+
+	showLoopPoint1Value();
 }
 
 void cSamplePlayback::modLoopPoint2(int16_t value)
@@ -904,6 +917,7 @@ void cSamplePlayback::modLoopPoint2(int16_t value)
 
 	lastChangedPoint = 4;
 	refreshPoints = 1;
+	showLoopPoint2Value();
 }
 
 
