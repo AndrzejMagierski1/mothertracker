@@ -15,18 +15,6 @@ static uint16_t framesPlaces[8][4] =
 	{(800/8)*7, 30, 800/8, 380},
 };
 
-static uint16_t firmwareFramesPlaces[8][4] =
-{
-	{0, 30, 200, 380},
-	{200, 30, 100, 380},
-	{300, 30, 100, 380},
-	{400, 30, 100, 380},
-	{500, 30, 100, 380},
-	{600, 30, 200, 380},
-	{600, 30, 200, 380},
-};
-
-
 static uint32_t popUpLabelColors[] =
 {
 	0xFFFFFF, // tekst
@@ -474,16 +462,15 @@ void cConfigEditor::showFirmwareUpdateLabels()
 		display.refreshControl(bottomLabel[i]);
 	}
 
-	// zmiana ramkowania
-	frameData.placesCount = 7;
-	frameData.startPlace = 0;
-	frameData.places[0] = &firmwareFramesPlaces[0][0];
-	frameData.places[1] = &firmwareFramesPlaces[1][0];
-	frameData.places[2] = &firmwareFramesPlaces[2][0];
-	frameData.places[3] = &firmwareFramesPlaces[3][0];
-	frameData.places[4] = &firmwareFramesPlaces[4][0];
-	frameData.places[5] = &firmwareFramesPlaces[5][0];
-	frameData.places[6] = &firmwareFramesPlaces[5][0];
+	framesPlaces[0][0] = 0;
+	framesPlaces[0][1] = 30;
+	framesPlaces[0][2] = 800/4;
+	framesPlaces[0][3] = 380;
+
+	framesPlaces[1][0] = 0;
+	framesPlaces[1][1] = 30;
+	framesPlaces[1][2] = 800/4;
+	framesPlaces[1][3] = 380;
 
 	display.setControlHide(popoutWindowLabel);
 	display.refreshControl(popoutWindowLabel);
@@ -519,17 +506,16 @@ void cConfigEditor::hideFirmwareUpdateLabels()
 	}
 
 	//przywrocenie ramki
-	// ramka
-	frameData.placesCount = 7;
-	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
-	frameData.places[3] = &framesPlaces[3][0];
-	frameData.places[4] = &framesPlaces[4][0];
-	frameData.places[5] = &framesPlaces[5][0];
-	frameData.places[6] = &framesPlaces[6][0];
-	frameData.places[7] = &framesPlaces[7][0];
+
+	framesPlaces[0][0] = 0;
+	framesPlaces[0][1] = 30;
+	framesPlaces[0][2] = 800/8;
+	framesPlaces[0][3] = 380;
+
+	framesPlaces[1][0] = (800/8)*1;
+	framesPlaces[1][1] = 30;
+	framesPlaces[1][2] = 800/8;
+	framesPlaces[1][3] = 380;
 
 	display.setControlHide(popoutWindowLabel);
 	display.refreshControl(popoutWindowLabel);
