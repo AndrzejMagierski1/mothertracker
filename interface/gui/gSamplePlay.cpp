@@ -217,6 +217,8 @@ void cSamplePlayback::activateLabelsBorder()
 //==============================================================================================================
 void cSamplePlayback::showZoomValue()
 {
+	sprintf(zoomTextValue, "%.2f", zoomValue);
+/*
 	if(zoomValue >= 10.0)
 	{
 		zoomTextValue[0] = (uint8_t)zoomValue /10 + 48;
@@ -234,6 +236,7 @@ void cSamplePlayback::showZoomValue()
 		zoomTextValue[3] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) %10 + 48;
 		zoomTextValue[4] = 0;
 	}
+*/
 
 	display.setControlText(topLabel[5], zoomTextValue);
 	display.setControlShow(topLabel[5]);
