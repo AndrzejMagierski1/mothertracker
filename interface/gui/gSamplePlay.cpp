@@ -71,7 +71,7 @@ void cSamplePlayback::initDisplayControls()
 	prop.h = 300;
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
-
+	if(progressCursor == nullptr) progressCursor = display.createControl<cProgressCursor>(&prop);
 
 
 	prop.x = 0;
@@ -80,6 +80,7 @@ void cSamplePlayback::initDisplayControls()
 	prop.h = 300;
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
+
 
 	// ramka
 	frameData.placesCount = 7;
@@ -126,6 +127,9 @@ void cSamplePlayback::destroyDisplayControls()
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
+
+	display.destroyControl(progressCursor);
+	progressCursor = nullptr;
 }
 
 void cSamplePlayback::showDefaultScreen()
@@ -134,6 +138,10 @@ void cSamplePlayback::showDefaultScreen()
 	//spectrum
 	display.setControlShow(spectrumControl);
 	display.refreshControl(spectrumControl);
+
+	//cursor
+	display.setControlShow(progressCursor);
+	display.refreshControl(progressCursor);
 
 	//points
 	display.setControlShow(pointsControl);
