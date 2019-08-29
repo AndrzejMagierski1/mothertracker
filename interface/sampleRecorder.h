@@ -194,7 +194,7 @@ public:
 	uint16_t playProgressInSpectrum = 0; // 0 - 600
 	elapsedMillis playProgresValueTim;
 	elapsedMicros refreshPlayProgressValue;
-	const uint32_t PLAY_REFRESH_MS = 5000;
+
 	uint8_t playInProgressFlag = 0;
 
 	void calcPlayProgressValue();
