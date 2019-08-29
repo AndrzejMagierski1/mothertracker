@@ -196,6 +196,13 @@ public:
 
 //----------------------------------
 
+	char volumeVal[4];
+	char reverbSizeVal[4];
+	char reverbDampVal[4];
+	char limitAttackVal[8];
+	char limitReleaseVal[8];
+	char limitThresholdVal[4];
+
 //----------------------------------
 
 	uint8_t exitOnButtonRelease = 0;

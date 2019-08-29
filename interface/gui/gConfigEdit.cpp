@@ -378,45 +378,85 @@ void cConfigEditor::showConfigGroupList()
 
 void cConfigEditor::showVolume()
 {
+	sprintf(volumeVal,"%d",mtProject.values.volume);
+
 	display.setControlValue(barControl[0], mtProject.values.volume);
 //	display.setControlValue(barControl[0], mtProject.values.volume);
 //	display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[0]);
+
+	display.setControlText(topLabel[0], volumeVal);
+	display.refreshControl(topLabel[0]);
 }
 
 void cConfigEditor::showReverbSize()
 {
+	sprintf(reverbSizeVal,"%d",mtProject.values.reverbRoomSize);
+
 	display.setControlValue(barControl[1], mtProject.values.reverbRoomSize);
 	//display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[1]);
+
+	display.setControlText(topLabel[1], reverbSizeVal);
+	display.refreshControl(topLabel[1]);
 }
 
 void cConfigEditor::showReverbDamping()
 {
+	sprintf(reverbDampVal,"%d",mtProject.values.reverbDamping);
+
 	display.setControlValue(barControl[2], mtProject.values.reverbDamping);
 	//display.setControlShow(barControl[1]);
 	display.refreshControl(barControl[2]);
+
+	display.setControlText(topLabel[2], reverbDampVal);
+	display.refreshControl(topLabel[2]);
 }
 
 void cConfigEditor::showLimiterAttack()
 {
+	uint8_t length;
+
+	sprintf(limitAttackVal,"%.3f",(float)(mtProject.values.limiterAttack/1000.0f));
+	length=strlen(limitAttackVal);
+	limitAttackVal[length]='s';
+	limitAttackVal[length+1]=0;
+
 	display.setControlValue(barControl[3], (mtProject.values.limiterAttack*100)/LIMITER_ATTACK_MAX);
 	//display.setControlShow(barControl[2]);
 	display.refreshControl(barControl[3]);
+
+	display.setControlText(topLabel[3], limitAttackVal);
+	display.refreshControl(topLabel[3]);
 }
 
 void cConfigEditor::showLimiterRelease()
 {
+	uint8_t length;
+
+	sprintf(limitReleaseVal,"%.2f",(float)(mtProject.values.limiterRelease/1000.0f));
+	length=strlen(limitReleaseVal);
+	limitReleaseVal[length]='s';
+	limitReleaseVal[length+1]=0;
+
 	display.setControlValue(barControl[4], (mtProject.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
 	//display.setControlShow(barControl[2]);
 	display.refreshControl(barControl[4]);
+
+	display.setControlText(topLabel[4], limitReleaseVal);
+	display.refreshControl(topLabel[4]);
 }
 
 void cConfigEditor::showLimiterTreshold()
 {
+	sprintf(limitThresholdVal,"%d",(mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
+
 	display.setControlValue(barControl[5], (mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
 	//display.setControlShow(barControl[3]);
 	display.refreshControl(barControl[5]);
+
+	display.setControlText(topLabel[5], limitThresholdVal);
+	display.refreshControl(topLabel[5]);
 }
 
 void cConfigEditor::showFirmwareUpdateLabels()
