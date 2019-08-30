@@ -1904,36 +1904,62 @@ void cPatternEditor::clearPadBoard()
 //TODO: podpiac modyfikacje patternu na akcje wcisniecia padów
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(state != 1) return 1;
-	if(PTE->editMode != 1) return 1;
+	if(state > 1) return 1;
+	Serial.println(state);
+	if (PTE->editMode != 1) return 1;
 
 	//Sequencer::strPattern * seq = sequencer.getPatternToUI();
 
-	switch(PTE->editParam)
+	switch (PTE->editParam)
 	{
 	case 0: // nuta
 	{
-
+		sendSelection();
+		if (state == 1)
+		{
+			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+			sequencer.handleNote(0, noteFromPad, 127);
+		}
+		else if (state == 0)
+		{
+			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+			sequencer.handleNote(0, noteFromPad, 0);
+		}
 		break;
 	}
 
 	case 1: // instrument
 	{
-
+		if (state == 1)
+		{
+			sendSelection();
+			sequencer.setSelectionInstrument(pad);
+		}
+		else if (state == 0)
+		{
+			sequencer.handleNote(0, 0, 0);
+		}
 		break;
 	}
 
 	case 2: // volume
 	{
-
+		if (state == 1)
+		{
+			sendSelection();
+			sequencer.setSelectionVelocity(map(pad, 0, 47, 0, 127));
+		}
 		break;
 	}
 
-	case 3:  break; //fx
-	default: break;
+	case 3:
+		break; //fx
+	default:
+		break;
 	}
 
 	PTE->lightUpPadBoard();
+	PTE->refreshPattern();
 
 	return 1;
 }
