@@ -103,48 +103,7 @@ void cMtPadBoard::releaseAllInstrument()
 
 
 
-// zwraca 1 jeśli jest w skali
-uint8_t cMtPadBoard::isInScale(uint8_t note,		// nuta do sprawdzenia ,
-                  uint8_t root,		// root note
-                  uint8_t scale)	// numer skali
-{
-	//note = constrain(note, 0, 255);
-	//root = constrain(root, 0, 127);
-	//scale = constrain(scale, MIN_SCALE, MAX_SCALE);
 
-	//if(note > MAX_NOTE_OFFSET) note = MAX_NOTE_OFFSET;
-	//if(root > 127) root = 127;
-	if(scale > MAX_SCALE) scale = MAX_SCALE;
-
-	uint8_t noteName = note % 12;
-	uint8_t rootName = root % 12;
-
-
-	if(noteName == rootName)
-	{
-		//Serial.println(" - yes");
-		return 1;
-	}
-	else if(noteName > rootName)
-	{
-		if(scaleDef[scale] & (1 << (noteName - rootName)))
-		{
-			//Serial.println(" - yes");
-			return 1;
-		}
-	}
-	else
-	{
-		if(scaleDef[scale] & (1 << ((12-rootName)+noteName)))
-		{
-			//Serial.println(" - yes");
-			return 1;
-		}
-	}
-
-	//Serial.println(" - no");
-	return 0;
-}
 
 
 
@@ -205,6 +164,11 @@ uint8_t cMtPadBoard::getPadsWithNote(int8_t note, uint8_t* pads)
 	}
 
 	return count;
+}
+
+uint8_t cMtPadBoard::getNoteFromPad(int8_t pad)
+{
+	return padNotes[padBoard[pad]];
 }
 
 

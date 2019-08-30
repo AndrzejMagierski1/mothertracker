@@ -659,6 +659,8 @@ public:
 
 	void changeSelectionVolume(int16_t value);
 	void changeSelectionInstrument(int16_t value);
+	void setSelectionInstrument(int16_t value);
+	void setSelectionVelocity(int16_t value);
 
 	void clearRow(uint8_t row);
 	void clearRow(uint8_t row, uint8_t bank);

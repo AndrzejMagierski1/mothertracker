@@ -1,9 +1,14 @@
 #ifndef _SCALES_H_
 #define _SCALES_H_
 
+#include <stdint.h>
+
 #define MIN_SCALE 0
 #define MAX_SCALE 39
 
+uint8_t isInScale(uint8_t note,		// nuta do sprawdzenia ,
+                  uint8_t root,		// root note
+                  uint8_t scale);	// numer skali
 
 
 const uint16_t scaleDef[] =

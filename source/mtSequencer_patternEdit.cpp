@@ -426,7 +426,98 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 		}
 	}
 }
+void Sequencer::setSelectionInstrument(int16_t value)
+{
 
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+
+			if (isSingleSelection(sel))
+			{
+				if (step->note >= 0)
+				{
+					step->instrument = value;
+
+					blinkNote(step->instrument,
+								step->note,
+								step->velocity,
+								t);
+
+					mtProject.values.lastUsedInstrument = step->instrument;
+				}
+				else if (step->note == STEP_NOTE_EMPTY)
+				{
+					step->note = STEP_NOTE_DEFAULT;
+//					step->instrument = mtProject.values.lastUsedInstrument;
+				}
+				return;
+			}
+			else
+			{
+				if (step->note >= 0)
+				{
+					step->instrument = value;
+
+				}
+			}
+		}
+	}
+}
+void Sequencer::setSelectionVelocity(int16_t value)
+{
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+
+			if (isSingleSelection(sel))
+			{
+				step->velocity = value;
+
+				if (step->note >= 0)
+				{
+					blinkNote(step->instrument,
+								step->note,
+								step->velocity,
+								t);
+				}
+//				else if (step->note == STEP_NOTE_EMPTY)
+//				{
+//					step->note = STEP_NOTE_DEFAULT;
+//					step->instrument = mtProject.values.lastUsedInstrument;
+//				}
+				return;
+			}
+			else
+			{
+				if (step->note >= 0)
+				{
+					step->velocity = value;
+
+				}
+			}
+		}
+	}
+}
 //void Sequencer::action_buttonClear(void)
 //{
 //	//set_LCD_mode(LCDVIEW_CLEAR_TRACK, 0);

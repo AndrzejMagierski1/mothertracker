@@ -1917,42 +1917,68 @@ void cPatternEditor::lightUpPadBoard()
 //TODO: podpiac modyfikacje patternu na akcje wcisniecia padów
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(PTE->editMode != 1) return 1;
 
-	if(state == buttonRelease)
+	if (state > 1) return 1;
+	if (PTE->editMode != 1) return 1;
+
+	if (state == buttonRelease)
 	{
 		padsBacklight.setFrontLayer(0, 0, pad);
 		return 1;
 	}
 
-	if(state != buttonPress) return 1;
+	if (state != buttonPress) return 1;
 
 	padsBacklight.setFrontLayer(1, 31, pad);
 
 	//Sequencer::strPattern * seq = sequencer.getPatternToUI();
 
-	switch(PTE->editParam)
+	switch (PTE->editParam)
 	{
 	case 0: // nuta
 	{
-
+		sendSelection();
+		if (state == buttonPress)
+		{
+			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+			sequencer.handleNote(0, noteFromPad, 127);
+		}
+		else if (state == buttonRelease)
+		{
+			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+			sequencer.handleNote(0, noteFromPad, 0);
+		}
 		break;
 	}
 
 	case 1: // instrument
 	{
-
+		if (state == buttonPress)
+		{
+			sendSelection();
+			sequencer.setSelectionInstrument(pad);
+		}
+		else if (state == buttonRelease)
+		{
+			sequencer.handleNote(0, 0, 0);
+		}
 		break;
 	}
 
 	case 2: // volume
 	{
-
+		if (state == buttonPress)
+		{
+			sendSelection();
+			sequencer.setSelectionVelocity(map(pad, 0, 47, 0, 127));
+		}
 		break;
 	}
 
-	case 3:  break; //fx
-	default: break;
+	case 3:
+		break; //fx
+	default:
+		break;
 	}
 
 	PTE->moveCursorByStep();
