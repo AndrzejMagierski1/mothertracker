@@ -85,7 +85,7 @@ void cSamplePlayback::initDisplayControls()
 	prop.h = 300;
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
-
+	if(progressCursor == nullptr) progressCursor = display.createControl<cProgressCursor>(&prop);
 
 
 	prop.x = 0;
@@ -94,6 +94,7 @@ void cSamplePlayback::initDisplayControls()
 	prop.h = 300;
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
+
 
 	// ramka
 	frameData.placesCount = 7;
@@ -149,6 +150,9 @@ void cSamplePlayback::destroyDisplayControls()
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
+
+	display.destroyControl(progressCursor);
+	progressCursor = nullptr;
 }
 
 void cSamplePlayback::showDefaultScreen()
@@ -164,6 +168,10 @@ void cSamplePlayback::showDefaultScreen()
 	//spectrum
 	display.setControlShow(spectrumControl);
 	display.refreshControl(spectrumControl);
+
+	//cursor
+	display.setControlShow(progressCursor);
+	display.refreshControl(progressCursor);
 
 	//points
 	display.setControlShow(pointsControl);
@@ -186,9 +194,13 @@ void cSamplePlayback::showDefaultScreen()
 
 	display.setControlText(topLabel[6], "Play Mode");
 
+	if(editorInstrument->playMode == singleShot) hideLoopPoints();
+	else showLoopPoints();
 
-
-
+	showStartPointValue();
+	showEndPointValue();
+	showLoopPoint1Value();
+	showLoopPoint2Value();
 
 	for(uint8_t i = 0; i<7; i++)
 	{
@@ -254,7 +266,274 @@ void cSamplePlayback::showPlayModeList()
 	display.setControlData(playModeListControl,  &playModeList);
 	display.setControlShow(playModeListControl);
 	display.refreshControl(playModeListControl);
+}
 
+void cSamplePlayback::showStartPointValue()
+{
+	float recTimeValue = editorInstrument->sample.length/44100.0;
+	float localStartPoint = (recTimeValue * editorInstrument->startPoint) / MAX_16BIT;
+
+	if(localStartPoint > 100)
+	{
+		startPointValueText[0] = (uint8_t)localStartPoint /100 + 48;
+		startPointValueText[1] = ((uint8_t)localStartPoint /10)%10 + 48;
+		startPointValueText[2] = (uint8_t)localStartPoint %10 + 48;
+		startPointValueText[3] = '.';
+		startPointValueText[4] = (uint8_t)(((localStartPoint-(uint16_t)localStartPoint)*1000) /100) + 48;
+		startPointValueText[5] = ((uint8_t)((localStartPoint-(uint16_t)localStartPoint)*1000) /10)%10 + 48;
+		startPointValueText[6] = (uint8_t)((localStartPoint-(uint16_t)localStartPoint)*1000) %10 + 48;
+		startPointValueText[7] = 's';
+		startPointValueText[8] = 0;
+	}
+	else if(localStartPoint > 10 && localStartPoint < 100)
+	{
+		startPointValueText[0] = (uint8_t)localStartPoint /10 + 48;
+		startPointValueText[1] = (uint8_t)localStartPoint %10 + 48;
+		startPointValueText[2] = '.';
+		startPointValueText[3] = (uint8_t)(((localStartPoint-(uint16_t)localStartPoint)*1000) /100) + 48;
+		startPointValueText[4] = ((uint8_t)((localStartPoint-(uint16_t)localStartPoint)*1000) /10)%10 + 48;
+		startPointValueText[5] = (uint8_t)((localStartPoint-(uint16_t)localStartPoint)*1000) %10 + 48;
+		startPointValueText[6] = 's';
+		startPointValueText[7] = 0;
+	}
+	else if(localStartPoint < 10)
+	{
+		startPointValueText[0] = (uint8_t)localStartPoint %10 + 48;
+		startPointValueText[1] = '.';
+		startPointValueText[2] = (uint8_t)(((localStartPoint-(uint16_t)localStartPoint)*1000) /100) + 48;
+		startPointValueText[3] = ((uint8_t)((localStartPoint-(uint16_t)localStartPoint)*1000) /10)%10 + 48;
+		startPointValueText[4] = (uint8_t)((localStartPoint-(uint16_t)localStartPoint)*1000) %10 + 48;
+		startPointValueText[5] = 's';
+		startPointValueText[6] = 0;
+	}
+
+
+	display.setControlText(topLabel[0], startPointValueText);
+	display.setControlShow(topLabel[0]);
+	display.refreshControl(topLabel[0]);
+}
+
+void cSamplePlayback::showEndPointValue()
+{
+
+	float recTimeValue = editorInstrument->sample.length/44100.0;
+	float localEndPoint = (recTimeValue * editorInstrument->endPoint) / MAX_16BIT;
+
+	if(localEndPoint > 100)
+	{
+		endPointValueText[0] = (uint8_t)localEndPoint /100 + 48;
+		endPointValueText[1] = ((uint8_t)localEndPoint /10)%10 + 48;
+		endPointValueText[2] = (uint8_t)localEndPoint %10 + 48;
+		endPointValueText[3] = '.';
+		endPointValueText[4] = (uint8_t)(((localEndPoint-(uint16_t)localEndPoint)*1000) /100) + 48;
+		endPointValueText[5] = ((uint8_t)((localEndPoint-(uint16_t)localEndPoint)*1000) /10)%10 + 48;
+		endPointValueText[6] = (uint8_t)((localEndPoint-(uint16_t)localEndPoint)*1000) %10 + 48;
+		endPointValueText[7] = 's';
+		endPointValueText[8] = 0;
+	}
+	else if(localEndPoint > 10 && localEndPoint < 100)
+	{
+		endPointValueText[0] = (uint8_t)localEndPoint /10 + 48;
+		endPointValueText[1] = (uint8_t)localEndPoint %10 + 48;
+		endPointValueText[2] = '.';
+		endPointValueText[3] = (uint8_t)(((localEndPoint-(uint16_t)localEndPoint)*1000) /100) + 48;
+		endPointValueText[4] = ((uint8_t)((localEndPoint-(uint16_t)localEndPoint)*1000) /10)%10 + 48;
+		endPointValueText[5] = (uint8_t)((localEndPoint-(uint16_t)localEndPoint)*1000) %10 + 48;
+		endPointValueText[6] = 's';
+		endPointValueText[7] = 0;
+	}
+	else if(localEndPoint < 10)
+	{
+		endPointValueText[0] = (uint8_t)localEndPoint %10 + 48;
+		endPointValueText[1] = '.';
+		endPointValueText[2] = (uint8_t)(((localEndPoint-(uint16_t)localEndPoint)*1000) /100) + 48;
+		endPointValueText[3] = ((uint8_t)((localEndPoint-(uint16_t)localEndPoint)*1000) /10)%10 + 48;
+		endPointValueText[4] = (uint8_t)((localEndPoint-(uint16_t)localEndPoint)*1000) %10 + 48;
+		endPointValueText[5] = 's';
+		endPointValueText[6] = 0;
+	}
+
+
+	display.setControlText(topLabel[3], endPointValueText);
+	display.setControlShow(topLabel[3]);
+	display.refreshControl(topLabel[3]);
+}
+
+void cSamplePlayback::showLoopPoint1Value()
+{
+	if(editorInstrument->playMode == singleShot) return;
+
+	float recTimeValue = editorInstrument->sample.length/44100.0;
+	float localLoopPoint1 = (recTimeValue * editorInstrument->loopPoint1) / MAX_16BIT;
+
+	if(localLoopPoint1 > 100)
+	{
+		loopPoint1ValueText[0] = (uint8_t)localLoopPoint1 /100 + 48;
+		loopPoint1ValueText[1] = ((uint8_t)localLoopPoint1 /10)%10 + 48;
+		loopPoint1ValueText[2] = (uint8_t)localLoopPoint1 %10 + 48;
+		loopPoint1ValueText[3] = '.';
+		loopPoint1ValueText[4] = (uint8_t)(((localLoopPoint1-(uint16_t)localLoopPoint1)*1000) /100) + 48;
+		loopPoint1ValueText[5] = ((uint8_t)((localLoopPoint1-(uint16_t)localLoopPoint1)*1000) /10)%10 + 48;
+		loopPoint1ValueText[6] = (uint8_t)((localLoopPoint1-(uint16_t)localLoopPoint1)*1000) %10 + 48;
+		loopPoint1ValueText[7] = 's';
+		loopPoint1ValueText[8] = 0;
+	}
+	else if(localLoopPoint1 > 10 && localLoopPoint1 < 100)
+	{
+		loopPoint1ValueText[0] = (uint8_t)localLoopPoint1 /10 + 48;
+		loopPoint1ValueText[1] = (uint8_t)localLoopPoint1 %10 + 48;
+		loopPoint1ValueText[2] = '.';
+		loopPoint1ValueText[3] = (uint8_t)(((localLoopPoint1-(uint16_t)localLoopPoint1)*1000) /100) + 48;
+		loopPoint1ValueText[4] = ((uint8_t)((localLoopPoint1-(uint16_t)localLoopPoint1)*1000) /10)%10 + 48;
+		loopPoint1ValueText[5] = (uint8_t)((localLoopPoint1-(uint16_t)localLoopPoint1)*1000) %10 + 48;
+		loopPoint1ValueText[6] = 's';
+		loopPoint1ValueText[7] = 0;
+	}
+	else if(localLoopPoint1 < 10)
+	{
+		loopPoint1ValueText[0] = (uint8_t)localLoopPoint1 %10 + 48;
+		loopPoint1ValueText[1] = '.';
+		loopPoint1ValueText[2] = (uint8_t)(((localLoopPoint1-(uint16_t)localLoopPoint1)*1000) /100) + 48;
+		loopPoint1ValueText[3] = ((uint8_t)((localLoopPoint1-(uint16_t)localLoopPoint1)*1000) /10)%10 + 48;
+		loopPoint1ValueText[4] = (uint8_t)((localLoopPoint1-(uint16_t)localLoopPoint1)*1000) %10 + 48;
+		loopPoint1ValueText[5] = 's';
+		loopPoint1ValueText[6] = 0;
+	}
+
+
+	display.setControlText(topLabel[1], loopPoint1ValueText);
+	display.setControlShow(topLabel[1]);
+	display.refreshControl(topLabel[1]);
+}
+void cSamplePlayback::showLoopPoint2Value()
+{
+	if(editorInstrument->playMode == singleShot) return;
+
+	float recTimeValue = editorInstrument->sample.length/44100.0;
+	float localLoopPoint2 = (recTimeValue * editorInstrument->loopPoint2) / MAX_16BIT;
+
+	if(localLoopPoint2 > 100)
+	{
+		loopPoint2ValueText[0] = (uint8_t)localLoopPoint2 /100 + 48;
+		loopPoint2ValueText[1] = ((uint8_t)localLoopPoint2 /10)%10 + 48;
+		loopPoint2ValueText[2] = (uint8_t)localLoopPoint2 %10 + 48;
+		loopPoint2ValueText[3] = '.';
+		loopPoint2ValueText[4] = (uint8_t)(((localLoopPoint2-(uint16_t)localLoopPoint2)*1000) /100) + 48;
+		loopPoint2ValueText[5] = ((uint8_t)((localLoopPoint2-(uint16_t)localLoopPoint2)*1000) /10)%10 + 48;
+		loopPoint2ValueText[6] = (uint8_t)((localLoopPoint2-(uint16_t)localLoopPoint2)*1000) %10 + 48;
+		loopPoint2ValueText[7] = 's';
+		loopPoint2ValueText[8] = 0;
+	}
+	else if(localLoopPoint2 > 10 && localLoopPoint2 < 100)
+	{
+		loopPoint2ValueText[0] = (uint8_t)localLoopPoint2 /10 + 48;
+		loopPoint2ValueText[1] = (uint8_t)localLoopPoint2 %10 + 48;
+		loopPoint2ValueText[2] = '.';
+		loopPoint2ValueText[3] = (uint8_t)(((localLoopPoint2-(uint16_t)localLoopPoint2)*1000) /100) + 48;
+		loopPoint2ValueText[4] = ((uint8_t)((localLoopPoint2-(uint16_t)localLoopPoint2)*1000) /10)%10 + 48;
+		loopPoint2ValueText[5] = (uint8_t)((localLoopPoint2-(uint16_t)localLoopPoint2)*1000) %10 + 48;
+		loopPoint2ValueText[6] = 's';
+		loopPoint2ValueText[7] = 0;
+	}
+	else if(localLoopPoint2 < 10)
+	{
+		loopPoint2ValueText[0] = (uint8_t)localLoopPoint2 %10 + 48;
+		loopPoint2ValueText[1] = '.';
+		loopPoint2ValueText[2] = (uint8_t)(((localLoopPoint2-(uint16_t)localLoopPoint2)*1000) /100) + 48;
+		loopPoint2ValueText[3] = ((uint8_t)((localLoopPoint2-(uint16_t)localLoopPoint2)*1000) /10)%10 + 48;
+		loopPoint2ValueText[4] = (uint8_t)((localLoopPoint2-(uint16_t)localLoopPoint2)*1000) %10 + 48;
+		loopPoint2ValueText[5] = 's';
+		loopPoint2ValueText[6] = 0;
+	}
+
+
+	display.setControlText(topLabel[2], loopPoint2ValueText);
+	display.setControlShow(topLabel[2]);
+	display.refreshControl(topLabel[2]);
+
+}
+
+void cSamplePlayback::showPreviewValue()
+{
+	float playTimeValue = ((playProgressValue * ((float)editorInstrument->sample.length /MAX_16BIT) )/44100.0);
+	float localEndPoint = (editorInstrument->sample.length * editorInstrument->endPoint) / MAX_16BIT;
+	if(playTimeValue >= (localEndPoint - 0.01)) playTimeValue = localEndPoint;
+	if(playTimeValue > 100)
+	{
+		playTimeValueText[0] = (uint8_t)playTimeValue /100 + 48;
+		playTimeValueText[1] = ((uint8_t)playTimeValue /10)%10 + 48;
+		playTimeValueText[2] = (uint8_t)playTimeValue %10 + 48;
+		playTimeValueText[3] = '.';
+		playTimeValueText[4] = (uint8_t)(((playTimeValue-(uint16_t)playTimeValue)*1000) /100) + 48;
+		playTimeValueText[5] = ((uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) /10)%10 + 48;
+		playTimeValueText[6] = (uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) %10 + 48;
+		playTimeValueText[7] = 's';
+		playTimeValueText[8] = 0;
+	}
+	else if(playTimeValue > 10 && playTimeValue < 100)
+	{
+		playTimeValueText[0] = (uint8_t)playTimeValue /10 + 48;
+		playTimeValueText[1] = (uint8_t)playTimeValue %10 + 48;
+		playTimeValueText[2] = '.';
+		playTimeValueText[3] = (uint8_t)(((playTimeValue-(uint16_t)playTimeValue)*1000) /100) + 48;
+		playTimeValueText[4] = ((uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) /10)%10 + 48;
+		playTimeValueText[5] = (uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) %10 + 48;
+		playTimeValueText[6] = 's';
+		playTimeValueText[7] = 0;
+	}
+	else if(playTimeValue < 10)
+	{
+		playTimeValueText[0] = (uint8_t)playTimeValue %10 + 48;
+		playTimeValueText[1] = '.';
+		playTimeValueText[2] = (uint8_t)(((playTimeValue-(uint16_t)playTimeValue)*1000) /100) + 48;
+		playTimeValueText[3] = ((uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) /10)%10 + 48;
+		playTimeValueText[4] = (uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) %10 + 48;
+		playTimeValueText[5] = 's';
+		playTimeValueText[6] = 0;
+	}
+
+	display.setControlText(topLabel[4], playTimeValueText);
+	display.setControlShow(topLabel[4]);
+	display.refreshControl(topLabel[4]);
+}
+
+void cSamplePlayback::hidePreviewValue()
+{
+	display.setControlText(topLabel[4], "");
+	display.setControlShow(topLabel[4]);
+	display.refreshControl(topLabel[4]);
+}
+void cSamplePlayback::hideLoopPoints()
+{
+	display.setControlText(bottomLabel[1], "");
+	display.setControlShow(bottomLabel[1]);
+	display.refreshControl(bottomLabel[1]);
+
+	display.setControlText(bottomLabel[2], "");
+	display.setControlShow(bottomLabel[2]);
+	display.refreshControl(bottomLabel[2]);
+
+	display.setControlText(topLabel[1], "");
+	display.setControlShow(topLabel[1]);
+	display.refreshControl(topLabel[1]);
+
+	display.setControlText(topLabel[2], "");
+	display.setControlShow(topLabel[2]);
+	display.refreshControl(topLabel[2]);
+}
+
+void cSamplePlayback::showLoopPoints()
+{
+	display.setControlText(bottomLabel[1],"Loop Start");
+	display.setControlShow(bottomLabel[1]);
+	display.refreshControl(bottomLabel[1]);
+
+	display.setControlText(bottomLabel[2], "Loop End");
+	display.setControlShow(bottomLabel[2]);
+	display.refreshControl(bottomLabel[2]);
+
+	showLoopPoint1Value();
+	showLoopPoint2Value();
 
 }
 

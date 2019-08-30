@@ -216,7 +216,8 @@ void AudioPlayMemory::update(void)
 		{
 			waveTablePosition = wavetableWindowSize * currentWindow;
 		}
-		castPitchControl = (uint32_t) pitchControl; //todo: monitorować czy przez tą linijke nie wyjezdza za bufor
+		castPitchControl = (uint32_t) pitchControl;
+		//todo: monitorować czy przez tą linijke nie wyjezdza za bufor
 		length += castPitchControl; //maksymalnie moze wyjsc za length i nie wiecej niz pitch control
 		for (i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
@@ -413,6 +414,7 @@ void AudioPlayMemory::update(void)
 		prior = s0;
 		next = in;
 		transmit(block);
+		length -= castPitchControl; //powrot do bazowej dlugosci
 	}
 	release(block);
 

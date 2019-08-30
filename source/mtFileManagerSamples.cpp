@@ -439,6 +439,11 @@ uint32_t WaveLoader::start(const char *filename, int16_t * buf)
 	}
 	accBufferLength = 0;
 	wavfile = SD.open(filename);
+	if(!wavfile)
+	{
+		wavfile.close();
+		return 0;
+	}
 	readHeader(&sampleHead,&wavfile);
 	currentAddress = buf;
 //	if ( (sampleHead.numChannels == 1 && (sampleHead.subchunk2Size > 8388608 )) &&  (sampleHead.numChannels == 2 && (sampleHead.subchunk2Size > 16777216)))
@@ -517,7 +522,13 @@ uint32_t WaveLoader::getInfoAboutWave(const char *filename)
 	strWavFileHeader localSampleHead;
 
 	wavfile = SD.open(filename);
-	if(!wavfile) return 0;
+	if(!wavfile)
+	{
+//		SD.begin(SdioConfig(DMA_SDIO));
+		wavfile.close();
+		return 0;
+
+	}
 	readHeader(&localSampleHead,&wavfile);
 	wavfile.close();
 

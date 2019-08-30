@@ -487,6 +487,7 @@ void playerEngine:: update()
 	if(envelopeAmpPtr->endRelease())
 	{
 		envelopeAmpPtr->clearEndReleaseFlag();
+		interfaceEndReleaseFlag = 1;
 		//Serial.print("Przed: ");
 		//Serial.print(activeAmpEnvelopes);
 		//Serial.print(" po: ");
@@ -744,5 +745,12 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	return status;
 
 }
-
+uint8_t playerEngine ::getInterfaceEndReleaseFlag()
+{
+	return interfaceEndReleaseFlag;
+}
+void playerEngine ::clearInterfaceEndReleaseFlag()
+{
+	interfaceEndReleaseFlag = 0;
+}
 

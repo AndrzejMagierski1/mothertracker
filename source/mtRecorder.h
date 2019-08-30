@@ -2,6 +2,7 @@
 #define MTRECORDER_H_
 
 #include "mtAudioEngine.h"
+#include "wavHeaderReader.h"
 
 class Recorder
 {
@@ -28,18 +29,11 @@ private:
 	uint32_t saveLength;
 	int16_t * currentAddress;
 	int16_t * startAddress;
-	uint32_t ChunkSize = 0L;
-	uint32_t Subchunk1Size = 16;
-	uint32_t AudioFormat = 1;
-	uint32_t numChannels = 1;
-	uint32_t sampleRate = 44100;
-	uint32_t bitsPerSample = 16;
-	uint32_t byteRate = sampleRate*numChannels*(bitsPerSample/8);
-	uint32_t blockAlign = numChannels*bitsPerSample/8;
-	uint32_t Subchunk2Size = 0;
+
+	strWavFileHeader header;
+
+
 	uint32_t recByteSaved = 0;
-	uint32_t NumSamples = 0;
-	uint8_t byte1, byte2, byte3, byte4;
 
 	FsFile rec;
 };
