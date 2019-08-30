@@ -168,7 +168,6 @@ void cConfigEditor::setConfigScreenFunct()
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
-
 }
 
 void cConfigEditor::setMasterScreenFunct()
@@ -395,7 +394,9 @@ static  uint8_t functUp()
 {
 	if(CE->selectionActive) return 1;
 
-	switch(CE->selectedPlace[CE->mode])
+	uint8_t mode_places = CE->selectedPlace[CE->mode] + CE->mode*10;
+
+	switch(mode_places)
 	{
 	case 0:
 		if(CE->selectedConfigGroup == configDefaultFirmware)
@@ -403,11 +404,29 @@ static  uint8_t functUp()
 			CE->changeFirmwareSelection(-1);
 		}
 		break;
-	case 1: 	break;
-	case 2: 	break;
-	case 3: 	break;
-	case 5: 	break;
-	case 6: CE->changeConfigGroupSelection(-1);	break;
+
+	case 1:
+		if(CE->selectedConfigGroup == configDefaultFirmware)
+		{
+			CE->changeFirmwareSelection(-1);
+		}
+		break;
+	case 2: 	 break;
+	case 3: 	 break;
+	case 4: 	 break;
+	case 5: 	 break;
+	case 6: CE->changeConfigGroupSelection(-1);	 break;
+	case 7: 	 break;
+
+	case 10: CE->changeVolume(1);			break;
+	case 11: CE->changeReverbRoomSize(1);	break;
+	case 12: CE->changeReverbDamping(1);	break;
+	case 13: CE->changeLimiterAttack(1);	break;
+	case 14: CE->changeLimiterRelease(1);	break;
+	case 15: CE->changeLimiterTreshold(1);	break;
+	case 16: 	break;
+	case 17: 	break;
+
 	}
 
 	return 1;
@@ -418,19 +437,40 @@ static  uint8_t functDown()
 {
 	if(CE->selectionActive) return 1;
 
-	switch(CE->selectedPlace[CE->mode])
+	uint8_t mode_places = CE->selectedPlace[CE->mode] + CE->mode*10;
+
+	switch(mode_places)
 	{
 	case 0:
 		if(CE->selectedConfigGroup == configDefaultFirmware)
 		{
 			CE->changeFirmwareSelection(1);
+
 		}
 		break;
-	case 1: 	break;
-	case 2: 	break;
-	case 3: 	break;
-	case 5: 	break;
-	case 6: CE->changeConfigGroupSelection(1);	break;
+	case 1:
+		if(CE->selectedConfigGroup == configDefaultFirmware)
+		{
+			CE->changeFirmwareSelection(1);
+
+		}
+		break;
+	case 2: 	 break;
+	case 3: 	 break;
+	case 4: 	 break;
+	case 5: 	 break;
+	case 6: CE->changeConfigGroupSelection(1);	 break;
+	case 7: 	 break;
+
+	case 10: CE->changeVolume(-1);			break;
+	case 11: CE->changeReverbRoomSize(-1);	break;
+	case 12: CE->changeReverbDamping(-1);	break;
+	case 13: CE->changeLimiterAttack(-1);	break;
+	case 14: CE->changeLimiterRelease(-1);	break;
+	case 15: CE->changeLimiterTreshold(-1);	break;
+	case 16: 	break;
+	case 17: 	break;
+
 	}
 
 	return 1;

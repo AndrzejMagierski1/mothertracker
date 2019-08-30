@@ -3,7 +3,7 @@
 #include <samplePlayback.h>
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
-
+#include "mtPadsBacklight.h"
 
 
 
@@ -35,7 +35,7 @@ static  uint8_t functSelectEnd();
 static  uint8_t functSelectZoom();
 static  uint8_t functPlayMode(uint8_t button);
 
-
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 static uint8_t functShift(uint8_t value);
 
@@ -47,7 +47,7 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 
 
-
+constexpr uint32_t PLAY_REFRESH_US = 5000;
 
 
 void cSamplePlayback::update()
@@ -70,8 +70,29 @@ void cSamplePlayback::update()
 
 		refreshPoints = 0;
 	}
+	if(refreshSpectrumProgress)
+	{
+		display.setControlValue(progressCursor,playProgressInSpectrum);
+		display.refreshControl(progressCursor);
+		refreshSpectrumProgress = 0;
+	}
+	if(isPlayingSample)
+	{
+		calcPlayProgressValue();
+		showPreviewValue();
+		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
+		{
+			instrumentPlayer[0].clearInterfaceEndReleaseFlag();
 
 
+			SP->playProgressValue=0;
+			SP->playProgressInSpectrum = 0;
+			SP->isPlayingSample = 0;
+			SP->refreshSpectrumProgress = 1;
+			SP->hidePreviewValue();
+		}
+
+	}
 
 }
 
@@ -84,6 +105,7 @@ void cSamplePlayback::start(uint32_t options)
 
 //--------------------------------------------------------------------
 
+
 	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
 			mtProject.values.padBoardNoteOffset,
 			mtProject.values.padBoardRootNote);
@@ -91,8 +113,37 @@ void cSamplePlayback::start(uint32_t options)
 	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
 
 
-
 	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
+
+
+	// wykrywanie czy wczytywany inny niz poprzednio/nowy sampel
+	// patrzy na dlugosc sampla
+	if(editorInstrument->sample.length != lastSampleLength)
+	{
+		lastSampleLength = editorInstrument->sample.length;
+
+
+		uint16_t start_end_width = editorInstrument->endPoint - editorInstrument->startPoint;
+
+		if(start_end_width < MAX_16BIT/4) // wysrodkowanie startPoint z zoomem jesli
+		{
+			start_end_width += start_end_width/20; // dodatkowe po 10% po bokach
+			zoomResolution = ((( start_end_width)/MAX_16BIT) * editorInstrument->sample.length) / 600;
+
+			uint16_t min_resolution = editorInstrument->sample.length/MAX_16BIT + 1;
+			if(zoomResolution < min_resolution) zoomResolution  = min_resolution;
+
+			zoomValue = editorInstrument->sample.length/((zoomResolution)*600.0);
+		}
+		else
+		{
+			zoomResolution = editorInstrument->sample.length / 600;
+			zoomValue = 1.0;
+		}
+	}
+
+
+	FM->setPadsGlobal(functPads);
 
 //--------------------------------------------------------------------
 
@@ -301,6 +352,14 @@ void cSamplePlayback::processSpectrum()
 	if(zoomValue > 1.0)
 	{
 		zoomWidth = (MAX_16BIT/zoomValue);
+/*
+		if(zoomWidth < 600)
+		{
+			zoomWidth = 600;
+			//zoomValue =
+		}
+*/
+
 		zoomStart =  zoomPosition - zoomWidth/2;
 		zoomEnd = zoomPosition + zoomWidth/2;
 
@@ -326,17 +385,9 @@ void cSamplePlayback::processSpectrum()
 
 		sampleData = editorInstrument->sample.address + offset;
 
-		resolution = (((float)zoomWidth/MAX_16BIT) * editorInstrument->sample.length ) / 600;
+		//resolution = (((float)zoomWidth/MAX_16BIT) * editorInstrument->sample.length ) / 600;
 
-
-//		Serial.print(zoomValue);
-//		Serial.print("   ");
-//		Serial.print(zoomStart);
-//		Serial.print("   ");
-//		Serial.print(zoomEnd);
-//		Serial.print("   ");
-//
-//		Serial.println();
+		resolution = zoomResolution;
 
 	}
 	else
@@ -412,7 +463,8 @@ void cSamplePlayback::processSpectrum()
 		spectrum.lowerData[i] = low;
 	}
 
-	if(resolution <= 1) spectrum.spectrumType = 1;
+	// dobrany doswiadczalnie warunek kiedy najlepiej zmienic tryb wyswietlania
+	if(editorInstrument->sample.length*zoomValue > 131000) spectrum.spectrumType = 1;
 	else spectrum.spectrumType = 0;
 
 }
@@ -431,7 +483,57 @@ void cSamplePlayback::listPlayMode()
 
 
 //==============================================================================================================
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
+{
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	{
+		sequencer.stop();
+	}
 
+	if(state == 1)
+	{
+		//uint8_t note = mtPadBoard.convertPadToNote(pad);
+		//if(note > 48) note = 48;
+		//editorInstrument->tune = note;
+
+		if(mtPadBoard.getEmptyVoice() < 0) return 1;
+
+		if(mtPadBoard.getEmptyVoice() == 0)
+		{
+			SP->playPitch = notes[mtPadBoard.convertPadToNote(pad)];
+			SP->playProgresValueTim = ((( (SP->editorInstrument->sample.length/44100.0 ) * SP->editorInstrument->startPoint) / MAX_16BIT) * 1000) /SP->playPitch;
+			SP->refreshPlayProgressValue = 0;
+			SP->loopDirection = 0;
+			SP->isPlayingSample = 1;
+		}
+
+
+
+		padsBacklight.setFrontLayer(1,20, pad);
+		mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+
+
+	}
+	else if(state == 0)
+	{
+		padsBacklight.setFrontLayer(0,0, pad);
+		mtPadBoard.stopInstrument(pad);
+		if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))
+		{
+			if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
+			{
+				SP->playProgressValue=0;
+				SP->playProgressInSpectrum = 0;
+				SP->isPlayingSample = 0;
+				SP->refreshSpectrumProgress = 1;
+				SP->hidePreviewValue();
+			}
+		}
+
+	}
+
+	return 1;
+}
 
 static  uint8_t functSelectStart()
 {
@@ -678,11 +780,19 @@ static uint8_t functSwitchModule(uint8_t button)
 void cSamplePlayback::changeZoom(int16_t value)
 {
 
-	float fVal = value * ZOOM_FACTOR;
 
-	if(zoomValue + fVal < ZOOM_MIN) zoomValue  = ZOOM_MIN;
-	else if(zoomValue + fVal > ZOOM_MAX ) zoomValue  = ZOOM_MAX;
-	else zoomValue += fVal;
+	uint16_t max_resolution = editorInstrument->sample.length / 600;
+	//uint16_t max_resolution = ((600/MAX_16BIT)*editorInstrument->sample.length) / 600;
+	uint16_t min_resolution = editorInstrument->sample.length/MAX_16BIT + 1;
+
+	if(zoomResolution - value < min_resolution) zoomResolution  = min_resolution;
+	else if(zoomResolution - value > max_resolution ) zoomResolution = max_resolution;
+	else zoomResolution -= value;
+
+	if(zoomResolution == max_resolution) zoomValue = 1.0;
+	else zoomValue = editorInstrument->sample.length/((zoomResolution)*600.0);
+
+
 
 	refreshSpectrum = 1;
 	refreshPoints = 1;
@@ -693,10 +803,14 @@ void cSamplePlayback::changeZoom(int16_t value)
 
 void cSamplePlayback::changePlayModeSelection(int16_t value)
 {
+
+
 	if(editorInstrument->playMode + value < 0) editorInstrument->playMode = 0;
 	else if(editorInstrument->playMode + value > playModeCount-1) editorInstrument->playMode = playModeCount-1;
 	else  editorInstrument->playMode += value;
 
+	if((editorInstrument->playMode == singleShot) && (value < 0 )) hideLoopPoints();
+	else if((editorInstrument->playMode == loopForward) && (value > 0) ) showLoopPoints();
 
 
 	refreshPoints = 1;
@@ -709,7 +823,7 @@ void cSamplePlayback::changePlayModeSelection(int16_t value)
 void cSamplePlayback::modStartPoint(int16_t value)
 {
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoomWidth / 600;
 	uint16_t dif;
 	value = value * move_step;
 
@@ -748,11 +862,13 @@ void cSamplePlayback::modStartPoint(int16_t value)
 
 	lastChangedPoint = 1;
 	refreshPoints = 1;
+
+	showStartPointValue();
 }
 
 void cSamplePlayback::modEndPoint(int16_t value)
 {
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoomWidth / 600;
 	uint16_t dif;
 	value = value * move_step;
 
@@ -791,11 +907,13 @@ void cSamplePlayback::modEndPoint(int16_t value)
 
 	lastChangedPoint = 2;
 	refreshPoints = 1;
+
+	showEndPointValue();
 }
 
 void cSamplePlayback::modLoopPoint1(int16_t value)
 {
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoomWidth / 600;
 	value = value * move_step;
 
 	if(editorInstrument->loopPoint1 + value < SAMPLE_POINT_POS_MIN) editorInstrument->loopPoint1  = 0;
@@ -813,11 +931,13 @@ void cSamplePlayback::modLoopPoint1(int16_t value)
 
 	lastChangedPoint = 3;
 	refreshPoints = 1;
+
+	showLoopPoint1Value();
 }
 
 void cSamplePlayback::modLoopPoint2(int16_t value)
 {
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoomWidth / 600;
 	value = value * move_step;
 
 	if(editorInstrument->loopPoint2 + value < SAMPLE_POINT_POS_MIN) editorInstrument->loopPoint2  = 0;
@@ -834,6 +954,7 @@ void cSamplePlayback::modLoopPoint2(int16_t value)
 
 	lastChangedPoint = 4;
 	refreshPoints = 1;
+	showLoopPoint2Value();
 }
 
 
@@ -850,6 +971,10 @@ static uint8_t functShift(uint8_t value)
 		sequencer.stop();
 
 		SP->isPlayingSample = 1;
+		SP->playProgresValueTim = (( (SP->editorInstrument->sample.length/44100.0 ) * SP->editorInstrument->startPoint) / MAX_16BIT) * 1000;
+		SP->refreshPlayProgressValue = 0;
+		SP->loopDirection = 0;
+		SP->playPitch = 1.0;
 		if(SP->editorInstrument->glide > 0)
 		{
 			switch(	SP->glidePreviewDif)
@@ -867,6 +992,13 @@ static uint8_t functShift(uint8_t value)
 	{
 		if(SP->isPlayingSample) instrumentPlayer[0].noteOff();
 		SP->isPlayingSample = 0;
+		SP->playProgressValue = 0;
+		SP->playProgressInSpectrum = 0;
+
+		SP->refreshSpectrumProgress = 1;
+
+		//todo: jezeli shift ma byc uzywany rownolegle z klawiaturą trzeba bedzie dodac flage poniewaz shift zajmuje voice 0 ktory moze zajac takze padboard
+		// releasy moglyby sie nie zgadzac - dlatego na razie nie ma tu obsługi
 	}
 
 	return 1;
@@ -885,4 +1017,86 @@ static  uint8_t functInstrument(uint8_t state)
 	}
 
 	return 1;
+}
+
+void cSamplePlayback::calcPlayProgressValue()
+{
+	float  recTimeValue = editorInstrument->sample.length/44100.0;
+	uint32_t localRecTimeValue = recTimeValue * 1000;
+	uint32_t localEndTimeValue = ((( recTimeValue  * editorInstrument->endPoint) / MAX_16BIT) * 1000)/playPitch;
+	uint32_t localLoopPoint1Value = 0;
+	uint32_t localLoopPoint2Value = 0;
+	if(editorInstrument->playMode != singleShot)
+	{
+		localLoopPoint1Value = ((( recTimeValue  * editorInstrument->loopPoint1) / MAX_16BIT) * 1000)/playPitch;
+		localLoopPoint2Value = ((( recTimeValue  * editorInstrument->loopPoint2) / MAX_16BIT) * 1000)/playPitch;
+	}
+
+	if(editorInstrument->playMode == loopForward)
+	{
+		if(playProgresValueTim >= localLoopPoint2Value ) playProgresValueTim = localLoopPoint1Value;
+	}
+	else if(editorInstrument->playMode == loopBackward)
+	{
+		if((playProgresValueTim >= localLoopPoint2Value ) && (loopDirection == 0 ))
+		{
+			loopDirection = 1;
+			playProgresValueBackwardTim = 0;
+		}
+		else if((localLoopPoint2Value - playProgresValueBackwardTim) <= localLoopPoint1Value )
+		{
+			playProgresValueBackwardTim = 0;
+		}
+	}
+	else if(editorInstrument->playMode == loopPingPong)
+	{
+		if((playProgresValueTim >= localLoopPoint2Value ) && (!loopDirection))
+		{
+			loopDirection = 1;
+			playProgresValueBackwardTim = 0;
+		}
+		else if(((localLoopPoint2Value - playProgresValueBackwardTim) <= localLoopPoint1Value ) && (loopDirection))
+		{
+			loopDirection = 0;
+			playProgresValueTim = localLoopPoint1Value;
+		}
+	}
+
+	if((playProgresValueTim >= localEndTimeValue) && (!loopDirection))
+	{
+		playProgressValue=0;
+		playProgressInSpectrum = 0;
+		isPlayingSample = 0;
+		refreshSpectrumProgress = 1;
+		return;
+	}
+	if( refreshPlayProgressValue > PLAY_REFRESH_US)
+	{
+		refreshPlayProgressValue = 0;
+
+		if(!loopDirection)
+		{
+			playProgressValue = playPitch * MAX_16BIT*(playProgresValueTim/(float)localRecTimeValue);
+		}
+		else
+		{
+			playProgressValue = playPitch * MAX_16BIT*((localLoopPoint2Value - playProgresValueBackwardTim)/(float)localRecTimeValue);
+		}
+
+
+		if(zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
+		else if(zoomValue > 1.0)
+		{
+			if(playProgressValue < zoomStart || playProgressValue > zoomEnd) playProgressInSpectrum = 0;
+			else
+			{
+				playProgressInSpectrum = map(playProgressValue, zoomStart,zoomEnd, 0 , 600);
+			}
+		}
+
+
+		refreshSpectrumProgress = 1;
+	}
+
+
 }

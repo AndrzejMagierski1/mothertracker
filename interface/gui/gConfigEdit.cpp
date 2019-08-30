@@ -5,27 +5,15 @@
 
 static uint16_t framesPlaces[8][4] =
 {
-	{0, 		30, 800/8, 380},
-	{(800/8)*1, 30, 800/8, 380},
-	{(800/8)*2, 30, 800/8, 380},
-	{(800/8)*3, 30, 800/8, 380},
-	{(800/8)*4, 30, 800/8, 380},
-	{(800/8)*5, 30, 800/8, 380},
-	{(800/8)*6, 30, 800/8, 380},
-	{(800/8)*7, 30, 800/8, 380},
+	{0+2, 		31, 800/8-5, 387},
+	{(800/8)*1+2, 31, 800/8-5, 387},
+	{(800/8)*2+2, 31, 800/8-5, 387},
+	{(800/8)*3+2, 31, 800/8-5, 387},
+	{(800/8)*4+2, 31, 800/8-5, 387},
+	{(800/8)*5+2, 31, 800/8-5, 387},
+	{(800/8)*6+2, 31, 800/8-5, 387},
+	{(800/8)*7+2, 31, 800/8-5, 387},
 };
-
-static uint16_t firmwareFramesPlaces[8][4] =
-{
-	{0, 30, 200, 380},
-	{200, 30, 100, 380},
-	{300, 30, 100, 380},
-	{400, 30, 100, 380},
-	{500, 30, 100, 380},
-	{600, 30, 200, 380},
-	{600, 30, 200, 380},
-};
-
 
 static uint32_t popUpLabelColors[] =
 {
@@ -53,25 +41,25 @@ void cConfigEditor::initDisplayControls()
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 450;
-		prop2.w = 800/8-10;
+		prop2.y = 465;
+		prop2.w = 800/8-6;
 		prop2.h = 30;
 
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 415;
-		prop2.h = 26;
+		prop2.y = 437;
+		prop2.h = 28;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 
 		prop2.x = (800/8)*i+5;
 		prop2.y = 30;
 		prop2.w = 800/8-10;
 		prop2.style =  controlStyleValue_0_100;
-		prop2.h = 380;
+		prop2.h = 388;
 		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
+
 	}
 
 
@@ -80,9 +68,9 @@ void cConfigEditor::initDisplayControls()
 	configGroupList.length = groupCount;
 	configGroupList.data = configGroupsNames;
 	strControlProperties prop;
-	prop.x = (800/8)*6+5;
+	prop.x = (800/8)*6+8;
 	prop.y = 140;
-	prop.w = 800/4-10;
+	prop.w = 800/4-16;
 	prop.h = 25;
 	prop.data = &configGroupList;
 	if(configGroupsListControl == nullptr)  configGroupsListControl = display.createControl<cList>(&prop);
@@ -121,9 +109,9 @@ void cConfigEditor::initDisplayControls()
 	firmwareList.data = firmwareNames;
 
 	strControlProperties prop10;
-	prop10.x = 0+5;
-	prop10.y = 30;
-	prop10.w = (800/4-10);
+	prop10.x = 8;
+	prop10.y = 38;
+	prop10.w = (800/4-16);
 	prop10.h = 25;
 	prop10.data = &firmwareList;
 	if(firmwareListControl == nullptr)  firmwareListControl = display.createControl<cList>(&prop10);
@@ -166,6 +154,19 @@ void cConfigEditor::destroyDisplayControls()
 
 void cConfigEditor::showDefaultConfigScreen()
 {
+	for(uint8_t i = 0; i<7; i++)
+	{
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+
+		display.setControlText(topLabel[i], "");
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+
+		display.setControlHide(barControl[i]);
+		display.refreshControl(barControl[i]);
+	}
+
 	display.refreshControl(titleBar);
 
 	display.setControlText(titleLabel, "Config");
@@ -186,37 +187,23 @@ void cConfigEditor::showDefaultConfigScreen()
 	display.setControlText(bottomLabel[6], " /\\           \\/ ");
 	//display.setControlText(bottomLabel[7], "");
 
-
-
-	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/8),  450);
-	display.setControlPosition(topLabel[6],  (800/8)*6+(800/8),  415);
-	display.setControlSize(bottomLabel[6],  800/4-10,  30);
-	display.setControlSize(topLabel[6],  800/4-10,  26);
+	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/8),  465);
+	display.setControlPosition(topLabel[6],  (800/8)*6+(800/8),  437);
+	display.setControlSize(bottomLabel[6],  800/4-6,  30);
+	display.setControlSize(topLabel[6],  800/4-6,  28);
 
 
 	display.setControlText(topLabel[6], "Config");
 
 
-	for(uint8_t i = 0; i<7; i++)
-	{
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
-
-		display.setControlHide(barControl[i]);
-		display.refreshControl(barControl[i]);
-	}
-
 	display.setControlHide(bottomLabel[7]);
 	display.setControlHide(topLabel[7]);
 
 
-	framesPlaces[6][0] = (800/8)*6;
-	framesPlaces[6][1] = 30;
-	framesPlaces[6][2] = 800/4;
-	framesPlaces[6][3] = 380;
+	framesPlaces[6][0] = (800/8)*6+2;
+	framesPlaces[6][1] = 31;
+	framesPlaces[6][2] = 800/4-5;
+	framesPlaces[6][3] = 387;
 
 	display.setControlHide(popoutWindowLabel);
 	display.refreshControl(popoutWindowLabel);
@@ -243,10 +230,11 @@ void cConfigEditor::showMasterScreen()
 	display.setControlText(bottomLabel[6], " ");
 	display.setControlText(bottomLabel[7], " ");
 
-	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/16),  450);
-	display.setControlPosition(topLabel[6],  (800/8)*6+(800/16),  415);
-	display.setControlSize(bottomLabel[6],  800/8-10,  30);
-	display.setControlSize(topLabel[6],  800/8-10,  26);
+	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/16),  465);
+	display.setControlPosition(topLabel[6],  (800/8)*6+(800/16),  437);
+	display.setControlSize(bottomLabel[6],  800/8-6,  30);
+	display.setControlSize(topLabel[6],  800/8-6,  28);
+
 
 
 	display.setControlText(topLabel[6], " ");
@@ -283,10 +271,10 @@ void cConfigEditor::showMasterScreen()
 	display.setControlHide(configGroupsListControl);
 
 
-	framesPlaces[6][0] = (800/8)*6;
-	framesPlaces[6][1] = 30;
-	framesPlaces[6][2] = 800/8;
-	framesPlaces[6][3] = 380;
+	framesPlaces[6][0] = (800/8)*6+2;
+	framesPlaces[6][1] = 31;
+	framesPlaces[6][2] = 800/8-5;
+	framesPlaces[6][3] = 387;
 
 
 	display.synchronizeRefresh();
@@ -379,45 +367,85 @@ void cConfigEditor::showConfigGroupList()
 
 void cConfigEditor::showVolume()
 {
+	sprintf(volumeVal,"%d",mtProject.values.volume);
+
 	display.setControlValue(barControl[0], mtProject.values.volume);
 //	display.setControlValue(barControl[0], mtProject.values.volume);
 //	display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[0]);
+
+	display.setControlText(topLabel[0], volumeVal);
+	display.refreshControl(topLabel[0]);
 }
 
 void cConfigEditor::showReverbSize()
 {
+	sprintf(reverbSizeVal,"%d",mtProject.values.reverbRoomSize);
+
 	display.setControlValue(barControl[1], mtProject.values.reverbRoomSize);
 	//display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[1]);
+
+	display.setControlText(topLabel[1], reverbSizeVal);
+	display.refreshControl(topLabel[1]);
 }
 
 void cConfigEditor::showReverbDamping()
 {
+	sprintf(reverbDampVal,"%d",mtProject.values.reverbDamping);
+
 	display.setControlValue(barControl[2], mtProject.values.reverbDamping);
 	//display.setControlShow(barControl[1]);
 	display.refreshControl(barControl[2]);
+
+	display.setControlText(topLabel[2], reverbDampVal);
+	display.refreshControl(topLabel[2]);
 }
 
 void cConfigEditor::showLimiterAttack()
 {
+	uint8_t length;
+
+	sprintf(limitAttackVal,"%.3f",(float)(mtProject.values.limiterAttack/1000.0f));
+	length=strlen(limitAttackVal);
+	limitAttackVal[length]='s';
+	limitAttackVal[length+1]=0;
+
 	display.setControlValue(barControl[3], (mtProject.values.limiterAttack*100)/LIMITER_ATTACK_MAX);
 	//display.setControlShow(barControl[2]);
 	display.refreshControl(barControl[3]);
+
+	display.setControlText(topLabel[3], limitAttackVal);
+	display.refreshControl(topLabel[3]);
 }
 
 void cConfigEditor::showLimiterRelease()
 {
+	uint8_t length;
+
+	sprintf(limitReleaseVal,"%.3f",(float)(mtProject.values.limiterRelease/1000.0f));
+	length=strlen(limitReleaseVal);
+	limitReleaseVal[length]='s';
+	limitReleaseVal[length+1]=0;
+
 	display.setControlValue(barControl[4], (mtProject.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
 	//display.setControlShow(barControl[2]);
 	display.refreshControl(barControl[4]);
+
+	display.setControlText(topLabel[4], limitReleaseVal);
+	display.refreshControl(topLabel[4]);
 }
 
 void cConfigEditor::showLimiterTreshold()
 {
+	sprintf(limitThresholdVal,"%d",(mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
+
 	display.setControlValue(barControl[5], (mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
 	//display.setControlShow(barControl[3]);
 	display.refreshControl(barControl[5]);
+
+	display.setControlText(topLabel[5], limitThresholdVal);
+	display.refreshControl(topLabel[5]);
 }
 
 void cConfigEditor::showFirmwareUpdateLabels()
@@ -434,16 +462,15 @@ void cConfigEditor::showFirmwareUpdateLabels()
 		display.refreshControl(bottomLabel[i]);
 	}
 
-	// zmiana ramkowania
-	frameData.placesCount = 7;
-	frameData.startPlace = 0;
-	frameData.places[0] = &firmwareFramesPlaces[0][0];
-	frameData.places[1] = &firmwareFramesPlaces[1][0];
-	frameData.places[2] = &firmwareFramesPlaces[2][0];
-	frameData.places[3] = &firmwareFramesPlaces[3][0];
-	frameData.places[4] = &firmwareFramesPlaces[4][0];
-	frameData.places[5] = &firmwareFramesPlaces[5][0];
-	frameData.places[6] = &firmwareFramesPlaces[5][0];
+	framesPlaces[0][0] = 0+2;
+	framesPlaces[0][1] = 31;
+	framesPlaces[0][2] = 800/4-5;
+	framesPlaces[0][3] = 387;
+
+	framesPlaces[1][0] = 0+2;
+	framesPlaces[1][1] = 31;
+	framesPlaces[1][2] = 800/4-5;
+	framesPlaces[1][3] = 387;
 
 	display.setControlHide(popoutWindowLabel);
 	display.refreshControl(popoutWindowLabel);
@@ -479,17 +506,16 @@ void cConfigEditor::hideFirmwareUpdateLabels()
 	}
 
 	//przywrocenie ramki
-	// ramka
-	frameData.placesCount = 7;
-	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
-	frameData.places[3] = &framesPlaces[3][0];
-	frameData.places[4] = &framesPlaces[4][0];
-	frameData.places[5] = &framesPlaces[5][0];
-	frameData.places[6] = &framesPlaces[6][0];
-	frameData.places[7] = &framesPlaces[7][0];
+
+	framesPlaces[0][0] = 0+2;
+	framesPlaces[0][1] = 31;
+	framesPlaces[0][2] = 800/8-5;
+	framesPlaces[0][3] = 387;
+
+	framesPlaces[1][0] = (800/8)*1+2;
+	framesPlaces[1][1] = 31;
+	framesPlaces[1][2] = 800/8-5;
+	framesPlaces[1][3] = 387;
 
 	display.setControlHide(popoutWindowLabel);
 	display.refreshControl(popoutWindowLabel);

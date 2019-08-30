@@ -129,6 +129,8 @@ constexpr uint8_t J_PAD = 30;
 
 constexpr uint16_t POP_TIME = 200; // czas po jakim nie ma pykniecia przy zmianie z lineIn na mic
 
+constexpr uint32_t PLAY_REFRESH_US = 5000;
+
 extern AudioControlSGTL5000 audioShield;
 
 cSampleRecorder sampleRecorder;
@@ -287,7 +289,7 @@ void cSampleRecorder::update()
 					strcpy(localName,SR->name);
 					strcat(localName,".wav");
 					forceSwitchModule = 1;
-					fileManager.startImportSampleToProject("/Recorded",localName, firstFree);
+					fileManager.startImportSampleToProject((char*)"/Recorded",localName, firstFree);
 					functSwitchModule(interfaceButtonSampleLoad);
 				}
 
@@ -1444,7 +1446,7 @@ static  uint8_t functActionConfirmSaveLoad()
 	functActionConfirmSave();
 	SR->saveLoadFlag = 1;
 
-
+	return 0;
 }
 
 static  uint8_t functActionStopRec()
@@ -2096,7 +2098,7 @@ void cSampleRecorder::calcPlayProgressValue()
 		refreshSpectrumValue = 1;
 		return;
 	}
-	if( refreshPlayProgressValue > PLAY_REFRESH_MS)
+	if( refreshPlayProgressValue > PLAY_REFRESH_US)
 	{
 		refreshPlayProgressValue = 0;
 

@@ -16,18 +16,18 @@ public:
 	void startInstrument(uint8_t pad, uint8_t index, int8_t velocity);
 	void startInstrument(uint8_t pad,int16_t * addres, uint32_t length);
 	void stopInstrument(uint8_t pad);
-
+	int8_t getVoiceTakenByPad(uint8_t pad);
 
 	void releaseAllInstrument();
 
 
 	uint8_t getPadsWithNote(int8_t note, uint8_t* pads);
+	int8_t getEmptyVoice();
 
 private:
 
 	uint8_t isInScale(uint8_t note, uint8_t root, uint8_t scale);
-	int8_t getEmptyVoice();
-	int8_t getVoiceTakenByPad(uint8_t pad);
+
 
 	uint8_t lastScale = 255;
 	uint8_t lastNoteOffset = 255;

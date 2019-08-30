@@ -5,14 +5,16 @@
 
 static uint16_t framesPlaces[7][4] =
 {
-	{0, 		412, 800/8, 68},
-	{(800/8)*1, 412, 800/8, 68},
-	{(800/8)*2, 412, 800/8, 68},
-	{(800/8)*3, 412, 800/8, 68},
-	{(800/8)*4, 412, 800/8, 68},
-	{(800/8)*5, 412, 800/8, 68},
-	{(800/8)*6, 0, 800/4, 480},
+	{0+1, 		421, 800/8-1, 65},
+	{(800/8)*1+1, 421, 800/8-1, 65},
+	{(800/8)*2+1, 421, 800/8-1, 65},
+	{(800/8)*3+1, 421, 800/8-1, 65},
+	{(800/8)*4+1, 421, 800/8-1, 65},
+	{(800/8)*5+1, 421, 800/8-1, 65},
+	{(800/8)*6+2, 31, 800/4-5, 387},
 };
+
+
 
 
 
@@ -37,28 +39,42 @@ void cSampleEditor::initDisplayControls()
 	for(uint8_t i = 0; i<6; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 450;
-		prop2.w = 800/8-10;
+		prop2.y = 465;
+		prop2.w = 800/8-6;
 		prop2.h = 30;
 
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 415;
-		prop2.h = 26;
+		prop2.y = 437;
+		prop2.h = 28;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
+
+		prop2.text = (char*)"";
+		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+		prop2.x = (800/8)*i+(800/16);
+		prop2.y = 465;
+		prop2.w = 800/8-6;
+		prop2.h = 30;
+		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+
+		prop2.y = 437;
+		prop2.h = 28;
+
+		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
+
 	}
 
 	prop2.x = (800/4)*3+(800/8);
-	prop2.y = 450;
-	prop2.w = 800/4-10;
+	prop2.y = 465;
+	prop2.w = 800/4-6;
 	prop2.h = 30;
 	if(bottomLabel[6] == nullptr) bottomLabel[6] = display.createControl<cLabel>(&prop2);
 
-	prop2.y = 415;
-	prop2.h = 26;
+	prop2.y = 437;
+	prop2.h = 28;
 	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
 
 
@@ -67,9 +83,9 @@ void cSampleEditor::initDisplayControls()
 	playModeList.length = effectsCount;
 	playModeList.data = playModeNames;
 	strControlProperties prop;
-	prop.x = (800/8)*6+5;
+	prop.x = (800/8)*6+8;
 	prop.y = 140;
-	prop.w = 800/4-10;
+	prop.w = 800/4-16;
 	prop.h = 25;
 	prop.data = &playModeList;
 	if(playModeListControl == nullptr)  playModeListControl = display.createControl<cList>(&prop);

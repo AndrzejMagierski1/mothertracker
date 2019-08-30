@@ -68,14 +68,15 @@ public:
 	void modReverbSend(uint8_t value);
 	void setStatusBytes(uint16_t value);
 //	void resetMods();
-
+	uint8_t getInterfaceEndReleaseFlag();
+	void clearInterfaceEndReleaseFlag();
 	void update();
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note);
+	AudioEffectEnvelope *       envelopeAmpPtr;
 private:
 
 	AudioPlayMemory *        	playMemPtr;
-	AudioEffectEnvelope *       envelopeAmpPtr;
 	AudioAmplifier *			ampPtr;
 	envelopeGenerator* 			envelopeFilterPtr;
 	AudioFilterStateVariable *	filterPtr;
@@ -92,6 +93,7 @@ private:
 	uint16_t 					statusBytes; // 8- reverbSend 7-resonance, 6-cutoff, 5-panning ,4-volume,3-tune,2-fineTune, 1-LP1 , 0-LP2
 	static uint8_t				onVoices;
 	static uint8_t				activeAmpEnvelopes;
+	uint8_t 					interfaceEndReleaseFlag = 0;
 
 	void changeFilterType(uint8_t type);
 	void filterConnect();

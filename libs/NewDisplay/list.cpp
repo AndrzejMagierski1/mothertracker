@@ -151,7 +151,7 @@ void cList::setData(void* data)
 	else if(listPosition >= list->length-2) // przed ostatnia pozycja listy
 	{
 		barPos  = (list->length > list->linesCount ? list->linesCount-2 : list->length-2);
-		textListPos = (list->length > list->linesCount ? list->length-(list->linesCount-2) : 0);
+		textListPos = (list->length > list->linesCount ? list->length-(list->linesCount) : 0);
 	}
 	else
 	{
