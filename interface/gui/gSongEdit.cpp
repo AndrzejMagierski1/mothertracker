@@ -3,13 +3,9 @@
 #include <songEditor.h>
 
 
-static uint16_t framesPlaces[5][4] =
+static uint16_t framesPlaces[1][4] =
 {
-	{0, 0, 800/2, 480},
-	{(800/8)*4, 0, 800/8, 480},
-	{(800/8)*5, 0, 800/8, 480},
-	{(800/8)*6, 0, 800/8, 480},
-	{(800/8)*7, 0, 800/8, 480},
+	{0+2, 31, 800/4-5, 387},
 };
 
 
@@ -58,12 +54,24 @@ void cSongEditor::initDisplayControls()
 	patternsList.length = 255;
 	patternsList.data = patternNames;
 	strControlProperties prop;
-	prop.x = 0+5;
-	prop.y = 30;
-	prop.w = (800/4-10);
+	prop.x = 0+8;
+	prop.y = 37;
+	prop.w = (800/4-16);
 	prop.h = 25;
 	prop.data = &patternsList;
 	if(patternsListControl == nullptr)  patternsListControl = display.createControl<cList>(&prop);
+
+
+	// ramka
+	//strControlProperties prop;
+	frameData.placesCount = 1;
+	frameData.startPlace = 0;
+	frameData.places[0] = &framesPlaces[0][0];
+	prop.style = 0;
+	prop.value = 0;
+	prop.colors = nullptr;
+	prop.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 }
 
 
@@ -86,6 +94,9 @@ void cSongEditor::destroyDisplayControls()
 		topLabel[i] = nullptr;
 		bottomLabel[i]=nullptr;
 	}
+
+	display.destroyControl(frameControl);
+	frameControl = nullptr;
 }
 
 void cSongEditor::showDefaultScreen()
@@ -120,6 +131,7 @@ void cSongEditor::showDefaultScreen()
 	}
 
 	showPatternsList();
+	activateLabelsBorder();
 
 	display.synchronizeRefresh();
 }

@@ -211,6 +211,8 @@ void cInstrumentEditor::setInstrumentParamsFunct()
 	activateLabelsBorder();
 
 	padsBacklight.clearAllPads(0, 1, 1);
+
+	changeFilterFilterType(0);
 }
 
 
@@ -309,7 +311,29 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
 
+	switch(mode_places)
+	{
+	case 0: IE->changeParamsVolume(1); 		 break;
+	case 1:	IE->changeParamsPanning(1); 	 break;
+	case 2: IE->changeParamsTune(1); 		 break;
+	case 3: IE->changeParamsFineTune(1); 	 break;
+	case 4: IE->changeFilterFilterType(-1); 	 break;
+	case 5: IE->changeFilterCutOff(1); 		 break;
+	case 6: IE->changeFilterResonance(1); 	 break;
+	case 7: IE->changeParamsReverbSend(1); 	 break;
+
+	case 10: IE->changeEnvList(-1); 		break;
+	case 11: IE->changeEnvState(-1); 	break;
+	case 12: IE->changeEnvAttack(1); 	break;
+	case 13: IE->changeEnvDecay(1); 	break;
+	case 14: IE->changeEnvSustain(1); 	break;
+	case 15: IE->changeEnvRelease(1); 	break;
+	case 16: IE->changeEnvAmount(1); 	break;
+	case 17: IE->changeEnvLoop(-1); 		break;
+
+	}
 
 	return 1;
 }
@@ -317,6 +341,29 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
+
+	switch(mode_places)
+	{
+	case 0: IE->changeParamsVolume(-1);      break;
+	case 1:	IE->changeParamsPanning(-1); 	 break;
+	case 2: IE->changeParamsTune(-1); 		 break;
+	case 3: IE->changeParamsFineTune(-1); 	 break;
+	case 4: IE->changeFilterFilterType(1);  break;
+	case 5: IE->changeFilterCutOff(-1); 	 break;
+	case 6: IE->changeFilterResonance(-1); 	 break;
+	case 7: IE->changeParamsReverbSend(-1);  break;
+
+	case 10: IE->changeEnvList(1); 		break;
+	case 11: IE->changeEnvState(1); 	    break;
+	case 12: IE->changeEnvAttack(-1); 		break;
+	case 13: IE->changeEnvDecay(-1); 		break;
+	case 14: IE->changeEnvSustain(-1); 		break;
+	case 15: IE->changeEnvRelease(-1); 		break;
+	case 16: IE->changeEnvAmount(-1); 		break;
+	case 17: IE->changeEnvLoop(1); 		break;
+
+	}
 
 
 	return 1;
@@ -604,6 +651,8 @@ void cInstrumentEditor::changeFilterFilterType(int16_t value)
 		editorInstrument->filterType = bandPass;
 	}
 
+	display.setControlText(topLabel[4], filterModeFunctLabels[filterModeListPos]);
+	display.refreshControl(topLabel[4]);
 
 	display.setControlValue(filterModeListControl, filterModeListPos);
 	display.refreshControl(filterModeListControl);
