@@ -5,14 +5,16 @@
 
 static uint16_t framesPlaces[7][4] =
 {
-	{0, 		412, 800/8, 68},
-	{(800/8)*1, 412, 800/8, 68},
-	{(800/8)*2, 412, 800/8, 68},
-	{(800/8)*3, 412, 800/8, 68},
-	{(800/8)*4, 412, 800/8, 68},
-	{(800/8)*5, 412, 800/8, 68},
-	{(800/8)*6, 0, 800/4, 480},
+	{0+1, 		421, 800/8-1, 65},
+	{(800/8)*1+1, 421, 800/8-1, 65},
+	{(800/8)*2+1, 421, 800/8-1, 65},
+	{(800/8)*3+1, 421, 800/8-1, 65},
+	{(800/8)*4+1, 421, 800/8-1, 65},
+	{(800/8)*5+1, 421, 800/8-1, 65},
+	{(800/8)*6+2, 31, 800/4-5, 387},
 };
+
+
 
 
 
@@ -20,32 +22,59 @@ void cSampleEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
+	prop2.x = 769;
+	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 
 	for(uint8_t i = 0; i<6; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 450;
-		prop2.w = 800/8-10;
+		prop2.y = 465;
+		prop2.w = 800/8-6;
 		prop2.h = 30;
 
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 415;
-		prop2.h = 26;
+		prop2.y = 437;
+		prop2.h = 28;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
+
+		prop2.text = (char*)"";
+		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+		prop2.x = (800/8)*i+(800/16);
+		prop2.y = 465;
+		prop2.w = 800/8-6;
+		prop2.h = 30;
+		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+
+		prop2.y = 437;
+		prop2.h = 28;
+
+		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
+
 	}
 
 	prop2.x = (800/4)*3+(800/8);
-	prop2.y = 450;
-	prop2.w = 800/4-10;
+	prop2.y = 465;
+	prop2.w = 800/4-6;
 	prop2.h = 30;
 	if(bottomLabel[6] == nullptr) bottomLabel[6] = display.createControl<cLabel>(&prop2);
 
-	prop2.y = 415;
-	prop2.h = 26;
+	prop2.y = 437;
+	prop2.h = 28;
 	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
 
 
@@ -54,9 +83,9 @@ void cSampleEditor::initDisplayControls()
 	playModeList.length = effectsCount;
 	playModeList.data = playModeNames;
 	strControlProperties prop;
-	prop.x = (800/8)*6+5;
+	prop.x = (800/8)*6+8;
 	prop.y = 140;
-	prop.w = 800/4-10;
+	prop.w = 800/4-16;
 	prop.h = 25;
 	prop.data = &playModeList;
 	if(playModeListControl == nullptr)  playModeListControl = display.createControl<cList>(&prop);
@@ -92,6 +121,15 @@ void cSampleEditor::initDisplayControls()
 
 void cSampleEditor::destroyDisplayControls()
 {
+	display.destroyControl(titleBar);
+	titleBar = nullptr;
+
+	display.destroyControl(titleLabel);
+	titleLabel = nullptr;
+
+	display.destroyControl(instrumentLabel);
+	instrumentLabel = nullptr;
+
 	display.destroyControl(spectrumControl);
 	spectrumControl = nullptr;
 
@@ -117,6 +155,12 @@ void cSampleEditor::destroyDisplayControls()
 
 void cSampleEditor::showDefaultScreen()
 {
+	display.refreshControl(titleBar);
+
+	display.setControlText(titleLabel, "Sample Editor");
+	display.refreshControl(titleLabel);
+
+	showActualInstrument();
 
 	//spectrum
 	display.setControlShow(spectrumControl);
@@ -212,3 +256,37 @@ void cSampleEditor::showPlayModeList()
 
 
 }
+
+//==============================================================================================================
+void cSampleEditor::showActualInstrument()
+{
+	static char actualInstrName[SAMPLE_NAME_SIZE+4];
+
+	uint8_t i = mtProject.values.lastUsedInstrument;
+
+	if(i<9)
+	{
+		actualInstrName[0] = (i+1)%10 + 48;
+		actualInstrName[1] = '.';
+		actualInstrName[2] = ' ';
+		actualInstrName[3] = 0;
+	}
+	else
+	{
+		actualInstrName[0] = ((i+1)/10) + 48;
+		actualInstrName[1] = (i+1)%10 + 48;
+		actualInstrName[2] = '.';
+		actualInstrName[3] = ' ';
+		actualInstrName[4] = 0;
+	}
+
+
+	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+
+
+	display.setControlText(instrumentLabel,  actualInstrName);
+	display.refreshControl(instrumentLabel);
+}
+
+//==============================================================================================================
+

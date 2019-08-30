@@ -45,6 +45,8 @@ public:
 		pointsControl = nullptr;
 		topLabel[8] = {nullptr};
 		bottomLabel[8] = {nullptr};
+
+		lastSampleLength = 0;
 	}
 	virtual ~cSamplePlayback() {}
 
@@ -89,7 +91,11 @@ public:
 	hControl spectrumControl;
 	hControl pointsControl;
 	hControl frameControl;
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
 	hControl progressCursor;
+
 
 
 	uint8_t selectedPlace = 0;
@@ -113,18 +119,26 @@ public:
 //	int8_t activeInstruments[INSTRUMENTS_COUNT];
 //	uint8_t inActiveInstrumentsCount;
 	strInstrument * editorInstrument;
+	uint32_t lastSampleLength;
 
 	uint16_t zoomWidth = MAX_16BIT;
 	int32_t zoomStart =  0;
 	int32_t zoomEnd = MAX_16BIT;
 	uint8_t lastChangedPoint = 0;
 	float zoomValue = 1;
-	char zoomTextValue[6];
+	int32_t zoomResolution;
+
+	char zoomTextValue[7];
 	uint16_t zoomPosition = 0;
 	uint8_t voiceCounter = 0;
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;
+
+//----------------------------------
+// aktualny instrument na belce tytułowej
+	void showActualInstrument();
+	//char actualInstrName[SAMPLE_NAME_SIZE+4];
 
 //----------------------------------
 // lista play mode

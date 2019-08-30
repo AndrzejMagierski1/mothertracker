@@ -220,7 +220,8 @@ uint8_t FileManager::readProjectFile(char * name, strMtProjectRemote * proj)
 	if(projectFile.projectDataAndHeader.projectHeader.type != fileTypeProject) return 0;
 
 	checkCRC=crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
-	if(checkCRC == projectFile.crc)
+//TODO:	if(checkCRC == projectFile.crc) // wylaczone sprawdzanie crc pliku projektu
+	if(1)
 	{
 		*proj=projectFile.projectDataAndHeader.project;
 		mtProject.values=projectFile.projectDataAndHeader.project.values;
@@ -1266,12 +1267,13 @@ void FileManager::switchNextPatternInSong()
 	}
 }
 
+// TODO: NIE UZYWAC TEGO I NIE ROBIC WIECEJ TAKICH RZECZY!
 void FileManager::refreshPatternView()
 {
-	patternEditor.refreshPattern();
-	patternEditor.showPattern();
-	patternEditor.showLength();
-	patternEditor.showTempo();
+//	patternEditor.refreshPattern();
+//	patternEditor.showPattern();
+//	patternEditor.showLength();
+//	patternEditor.showTempo();
 }
 
 //uint8_t FileManager::isSongMode()

@@ -52,7 +52,8 @@ void cSongEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-	selectedPattern = 0;
+
+	readSong();
 
 
 	showPatternsList();
@@ -60,8 +61,6 @@ void cSongEditor::start(uint32_t options)
 	Encoder.setResolution(12);
 	Encoder.setAcceleration(0);
 
-
-	listPatterns();
 
 	//selectedPlace = 0;
 	activateLabelsBorder();
@@ -163,7 +162,8 @@ static  uint8_t functDecPattern()
 
 static  uint8_t functAddSlot()
 {
-	if(SE->songLength < 15)//if(SE->songLength < (PATTERNS_COUNT-1))// 15 do czasu poprawy obslugi listy w interfejsie
+	//if(SE->songLength < 15)//if(SE->songLength < (PATTERNS_COUNT-1))// 15 do czasu poprawy obslugi listy w interfejsie
+	if(SE->songLength < SONG_MAX)
 	{
 		for(int i = SE->songLength; i > SE->selectedPattern; i--)
 		{
@@ -309,7 +309,6 @@ static  uint8_t functPlayAction()
 	return 1;
 }
 
-
 static  uint8_t functRecAction()
 {
 
@@ -324,7 +323,6 @@ static uint8_t functSwitchModule(uint8_t button)
 
 	return 1;
 }
-
 
 //======================================================================================================================
 void cSongEditor::changePatternsSelection(int16_t value)
@@ -346,6 +344,29 @@ void cSongEditor::changePatternsSelection(int16_t value)
 
 //======================================================================================================================
 //==============================================================================================
+void cSongEditor::readSong()
+{
+	for(uint8_t i=0;i<SONG_MAX;i++)
+	{
+		if(mtProject.mtProjectRemote.song.playlist[i] == 0)
+		{
+			songLength = i;
+			break;
+		}
+		if(i==SONG_MAX) // nie znaleziono
+		{
+			songLength = 1;
+			selectedPattern = 0;
+		}
+	}
+
+
+
+	if(selectedPattern >= songLength) selectedPattern = 0;
+
+	listPatterns();
+}
+
 void cSongEditor::listPatterns()
 {
 	for(uint8_t i=0;i<songLength;i++)

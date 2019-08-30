@@ -168,28 +168,15 @@ void audioEngine::update()
 		{
 			instrumentPlayer[i].update();
 		}
-
-		if(mtConfig.audioCodecConfig.changeFlag)
-		{
-			mtConfig.audioCodecConfig.changeFlag=0;
-
-
-
-			if(mtConfig.audioCodecConfig.outSelect == outputSelectHeadphones)
-			{
-				if(mtConfig.audioCodecConfig.mutedHeadphone) audioShield.muteHeadphone();
-				else
-				{
-					audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
-				}
-
-			}
-		}
 	}
 
 }
 
 
+void audioEngine::setHeadphonesVolume(uint8_t value)
+{
+	audioShield.volume(value/100.0);
+}
 
 void audioEngine::setReverbRoomsize(uint8_t value)
 {

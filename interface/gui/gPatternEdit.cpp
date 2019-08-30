@@ -5,14 +5,14 @@
 
 static uint16_t framesPlaces[8][4] =
 {
-	{0, 		417, 800/8, 68},
-	{(800/8)*1, 417, 800/8, 68},
-	{(800/8)*2, 417, 800/8, 68},
-	{(800/8)*3, 417, 800/8, 68},
-	{(800/8)*4, 417, 800/8, 68},
-	{(800/8)*5, 417, 800/8, 68},
-	{(800/8)*6, 417, 800/8, 68},
-	{(800/8)*7, 417, 800/8, 68},
+	{0+1, 		  421, 800/8-1, 65},
+	{(800/8)*1+1, 421, 800/8-1, 65},
+	{(800/8)*2+1, 421, 800/8-1, 65},
+	{(800/8)*3+1, 421, 800/8-1, 65},
+	{(800/8)*4+1, 421, 800/8-1, 65},
+	{(800/8)*5+1, 421, 800/8-1, 65},
+	{(800/8)*6+1, 421, 800/8-1, 65},
+	{(800/8)*7+1, 421, 800/8-1, 65},
 };
 
 static uint16_t framesPopupPlaces[9][4] =
@@ -48,10 +48,10 @@ void cPatternEditor::initDisplayControls()
 		prop2.text = (char*)"";
 		prop2.data =  &bottomValuesConfig;
 
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleRoundedBorder);
+		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.y = 465;
-		prop2.w = 800/8-10;
+		prop2.w = 800/8-6;
 		prop2.h = 30;
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
@@ -319,6 +319,13 @@ void cPatternEditor::showStep()
 
 	display.setControlText(topLabel[3],step);
 	display.refreshControl(topLabel[3]);
+}
+
+void cPatternEditor::refreshPatternParams()
+{
+	showTempo();
+	showPattern();
+	showLength();
 }
 
 

@@ -146,17 +146,17 @@ void cList::setData(void* data)
 	else if(listPosition >= list->length-1) // ostatnia pozycja listy
 	{
 		barPos  = (list->length > list->linesCount ? list->linesCount-1 : list->length-1);
-		textListPos = (list->length > list->linesCount ? list->length-list->linesCount-1 : 0);
+		textListPos = (list->length > list->linesCount ? list->length-(list->linesCount) : 0);
 	}
 	else if(listPosition >= list->length-2) // przed ostatnia pozycja listy
 	{
 		barPos  = (list->length > list->linesCount ? list->linesCount-2 : list->length-2);
-		textListPos = (list->length > list->linesCount ? list->length-list->linesCount-2 : 0);
+		textListPos = (list->length > list->linesCount ? list->length-(list->linesCount) : 0);
 	}
 	else
 	{
-		barPos  = (list->length > list->linesCount ? (listPosition>list->linesCount-2 ? list->linesCount-2 : listPosition) : listPosition);
-		textListPos = (list->length > list->linesCount ? (listPosition>list->linesCount-2 ? listPosition-(list->linesCount-2) : 0) : 0);
+		barPos  = (list->length > list->linesCount ? (listPosition > list->linesCount-2 ? list->linesCount-2 : listPosition) : listPosition);
+		textListPos = (list->length > list->linesCount ? (listPosition > list->linesCount-2 ? listPosition-(list->linesCount-2) : 0) : 0);
 	}
 
 }
@@ -260,7 +260,8 @@ uint8_t cList::update()
 		if(list->start > listPosition) {dir = -1;	diffrence = list->start - listPosition; }
 		else {dir = 1;	diffrence = listPosition - list->start; }
 
-		if(diffrence > 5) diffrence = 8;
+		if(diffrence > 3) diffrence = 12;
+		else if(diffrence > 2) diffrence = 8;
 		else if(diffrence > 1) diffrence = 4;
 		else diffrence = 2;
 

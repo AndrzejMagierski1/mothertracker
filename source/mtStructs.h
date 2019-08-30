@@ -21,7 +21,6 @@ const uint32_t SAMPLE_MEMORY_MAX =      		(8*1024*1024);
 
 const uint8_t INSTRUMENTS_MAX =        			47;
 //const uint8_t SAMPLES_MAX =            			31;
-const uint8_t SAMPLES_FILENAME_LENGTH_MAX =     32;
 
 const uint8_t INSTRUMENTS_COUNT =        		48;
 //const uint8_t SAMPLES_COUNT =            		32;
@@ -30,8 +29,6 @@ const uint8_t PATTERN_LENGTH_MAX 	=			255;
 
 const uint8_t PATTERN_INDEX_MIN 	=			1;
 const uint8_t PATTERN_INDEX_MAX 	=			255;
-
-
 
 
 
@@ -116,8 +113,8 @@ const uint8_t MAX_NOTE_OFFSET =					13;
 
 
 
-const float MASTER_VOLUME_MIN 				=	0;
-const float MASTER_VOLUME_MAX 				=	1.0;
+const uint8_t MASTER_VOLUME_MIN 			=	0;
+const uint8_t MASTER_VOLUME_MAX 			=	100;
 
 const uint8_t INPUT_MIC_GAIN_DEFAULT 		=	35;
 
@@ -135,7 +132,7 @@ const uint8_t REVERB_PANNING_MAX 			=	100;
 
 
 const uint8_t LIMITER_ATTACK_MIN 			=	0;
-const uint16_t LIMITER_ATTACK_MAX  			=	5000;
+const uint16_t LIMITER_ATTACK_MAX  			=	1000;
 const uint8_t LIMITER_RELEASE_MIN  			=	0;
 const uint16_t LIMITER_RELEASE_MAX  		=	5000;
 const uint8_t LIMITER_TRESHOLD_MIN 			=	0;
@@ -373,15 +370,14 @@ struct strMtValues
 	uint8_t padBoardRootNote = 0;
 	uint8_t padBoardMaxVoices = 8;
 
-
-//	uint8_t volume;
+	uint8_t volume;
 
 	uint8_t reverbRoomSize;
 	uint8_t reverbDamping;
 	int8_t reverbPanning;
 
 	uint16_t limiterAttack;
-//	uint16_t limiterRelease;
+	uint16_t limiterRelease;
 	uint16_t limiterTreshold;
 
 	int8_t patternEditStep = 1;
@@ -432,6 +428,7 @@ struct strMtProject
 
 	strMtValues values;
 
+	// dynamiczne
 	uint32_t max_memory = SAMPLE_MEMORY_MAX;
 	uint32_t used_memory;
 	uint8_t samples_count;

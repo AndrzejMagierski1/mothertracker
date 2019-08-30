@@ -41,7 +41,9 @@ public:
 
 	strFrameData frameData;
 
-	hControl titleLabel;
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
 	hControl topLabel[7];
 	hControl bottomLabel[7];
 
@@ -56,13 +58,17 @@ public:
 
 	void changePatternsSelection(int16_t value);
 
+
+	void readSong();
+
 //--------------------------------------------------------------
 // patterns
 	void listPatterns();
 
-	uint16_t songLength = 0;
-	char patternsNamesList[PATTERNS_COUNT][23];
-	char *patternNames[PATTERNS_COUNT];
+
+	uint16_t songLength = 1;
+	char patternsNamesList[SONG_MAX][28];
+	char *patternNames[SONG_MAX];
 	uint8_t selectedPattern = 0;
 
 //--------------------------------------------------------------

@@ -8,6 +8,7 @@
 #include "mtPadsBacklight.h"
 
 #include "keyScanner.h"
+
 extern keyScanner tactButtons; // dla isButtonPressed()
 
 cPatternEditor patternEditor;
@@ -81,21 +82,21 @@ elapsedMillis patternRefreshTimer;
 void cPatternEditor::update()
 {
 	if(patternRefreshTimer < 20) return;
-/*
-	if(editMode && fillState == 0 && randomiseState == 0)
-	{
-		if(tactButtons.isButtonPressed(interfaceButton0))
-		{
 
-		}
-	}
-*/
 	uint8_t sequencerState = sequencer.getSeqState();
 
 	if(sequencerState != 1 ) return;
 
 	readPatternState();
 
+	if(lastPlayedPattern != mtProject.mtProjectRemote.song.playlist[mtProject.mtProjectRemote.song.playlistPos])
+	{
+		lastPlayedPattern = mtProject.mtProjectRemote.song.playlist[mtProject.mtProjectRemote.song.playlistPos];
+
+		mtProject.values.actualPattern = mtProject.mtProjectRemote.song.playlist[mtProject.mtProjectRemote.song.playlistPos];
+
+		refreshPatternParams();
+	}
 
 	if(trackerPattern.playheadPosition == lastPatternPosition || (!isPleyheadOnScreen() && editMode))  return;
 
@@ -152,7 +153,7 @@ void cPatternEditor::stop()
 	if(fillState) fillState = 0;
 	if(randomiseState) randomiseState = 0;
 
-	clearPadBoard();
+	padsBacklight.clearAllPads(1, 1, 1);
 
 	moduleRefresh = 0;
 }
@@ -408,6 +409,19 @@ void cPatternEditor::focusOnActual()
 	}
 }
 
+void cPatternEditor::moveCursorByStep()
+{
+	if(mtProject.values.patternEditStep <= 0 ) return;
+
+	int16_t patternLength  = sequencer.getPatternToUI()->track[0].length;
+
+	if(trackerPattern.actualStep + mtProject.values.patternEditStep <= patternLength)
+	{
+		trackerPattern.actualStep += mtProject.values.patternEditStep;
+	}
+}
+
+
 // sprawdza czy w danym mencie playhead sekwencji jest na ktoryms ze stepow wyswietlanych na ekranie
 uint8_t cPatternEditor::isPleyheadOnScreen()
 {
@@ -500,7 +514,8 @@ void cPatternEditor::changeActualPattern(int16_t value)
 	sequencer.switchNextPatternNow();
 
 
-	showPattern();
+	readPatternState();
+	refreshPatternParams();
 	refreshPattern();
 
 }
@@ -564,7 +579,7 @@ void cPatternEditor::refreshEditState()
 
 		FM->clearButtonsRange(interfaceButton4, interfaceButton7);
 
-		clearPadBoard();
+		padsBacklight.clearAllPads(0, 1, 0);
 
 	}
 
@@ -1227,6 +1242,8 @@ static  uint8_t functPlayAction()
 		{
 			sequencer.playPattern();
 		}
+
+		PTE->lastPlayedPattern = 0;
 	}
 	else if(sequencer.getSeqState() == 1)
 	{
@@ -1829,25 +1846,26 @@ static uint8_t functInvert()
 
 void cPatternEditor::lightUpPadBoard()
 {
-	clearPadBoard();
+	padsBacklight.clearAllPads(0, 1, 0);
 
 	Sequencer::strPattern * seq = sequencer.getPatternToUI();
 
 
 	if(editMode > 0)
 	{
+		int8_t show_note = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note;
+
 		switch(editParam)
 		{
 		case 0:
 		{
-			int8_t show_note = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note;
+			if(show_note < 0) break;
 
 			if(mtPadBoard.getPadsWithNote(show_note, padsTempData))
 			{
 				for(uint8_t i = 0; i < 48; i++)
 				{
-					if(padsTempData[i])	leds.setLED(i, 1, 20);
-					//else 				leds.setLED(i, 0, 0);
+					if(padsTempData[i]) padsBacklight.setBackLayer(1, 20, i);
 				}
 			}
 
@@ -1856,11 +1874,13 @@ void cPatternEditor::lightUpPadBoard()
 
 		case 1:
 		{
+			if(show_note < 0) break;
+
 			int8_t show_instr = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].instrument;
 
 			if(show_instr >= 0 && show_instr <= 48)
 			{
-				leds.setLED(show_instr, 1, 20);
+				padsBacklight.setBackLayer(1, 20, show_instr);
 			}
 
 			break;
@@ -1869,10 +1889,12 @@ void cPatternEditor::lightUpPadBoard()
 		case 2:
 		{
 			int8_t show_vol = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity;
-			if(show_vol < 0) show_vol = 0;
-			else show_vol = map(show_vol,0,127,0,47);
 
-			leds.setLED(show_vol, 1, 20);
+			if(show_vol < 0) break;
+
+			show_vol = map(show_vol,0,127,0,47);
+
+			padsBacklight.setBackLayer(1, 20, show_vol);
 
 			break;
 		}
@@ -1891,21 +1913,21 @@ void cPatternEditor::lightUpPadBoard()
 
 }
 
-void cPatternEditor::clearPadBoard()
-{
-	for(uint8_t i = 0; i < 48; i++)
-	{
-		leds.setLED(i, 0, 0);
-	}
-
-
-}
 
 //TODO: podpiac modyfikacje patternu na akcje wcisniecia padów
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(state != 1) return 1;
 	if(PTE->editMode != 1) return 1;
+
+	if(state == buttonRelease)
+	{
+		padsBacklight.setFrontLayer(0, 0, pad);
+		return 1;
+	}
+
+	if(state != buttonPress) return 1;
+
+	padsBacklight.setFrontLayer(1, 31, pad);
 
 	//Sequencer::strPattern * seq = sequencer.getPatternToUI();
 
@@ -1933,7 +1955,9 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	default: break;
 	}
 
+	PTE->moveCursorByStep();
 	PTE->lightUpPadBoard();
+	PTE->refreshPattern();
 
 	return 1;
 }

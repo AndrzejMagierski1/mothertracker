@@ -680,7 +680,7 @@ void cSampleImporter::listInstrumentSlots()
 
 		if(mtProject.instrument[i].sample.loaded)
 		{
-			strncat(&slotNames[i][0], mtProject.instrument[i].sample.file_name,SAMPLES_FILENAME_LENGTH_MAX);
+			strncat(&slotNames[i][0], mtProject.instrument[i].sample.file_name,SAMPLE_NAME_SIZE);
 		}
 
 		ptrSlotNames[i] = &slotNames[i][0];
@@ -767,6 +767,7 @@ void cSampleImporter::playSdFile()
 	playMode = playModeSdFile;
 
 	FsFile wavHeader = SD.open(file_path);
+
 	if(!wavHeader)
 	{
 		wavHeader.close();
@@ -784,8 +785,6 @@ void cSampleImporter::playSdFile()
 		if(header.bitsPerSample == 16) playSdWav.play(file_path);
 		else if (header.bitsPerSample == 24) playSdWav24Bit.play(file_path);
 	}
-
-
 
 
 }

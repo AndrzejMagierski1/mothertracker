@@ -113,10 +113,38 @@ void cSamplePlayback::start(uint32_t options)
 	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
 
 
-
 	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
+
+	// wykrywanie czy wczytywany inny niz poprzednio/nowy sampel
+	// patrzy na dlugosc sampla
+	if(editorInstrument->sample.length != lastSampleLength)
+	{
+		lastSampleLength = editorInstrument->sample.length;
+
+
+		uint16_t start_end_width = editorInstrument->endPoint - editorInstrument->startPoint;
+
+		if(start_end_width < MAX_16BIT/4) // wysrodkowanie startPoint z zoomem jesli
+		{
+			start_end_width += start_end_width/20; // dodatkowe po 10% po bokach
+			zoomResolution = ((( start_end_width)/MAX_16BIT) * editorInstrument->sample.length) / 600;
+
+			uint16_t min_resolution = editorInstrument->sample.length/MAX_16BIT + 1;
+			if(zoomResolution < min_resolution) zoomResolution  = min_resolution;
+
+			zoomValue = editorInstrument->sample.length/((zoomResolution)*600.0);
+		}
+		else
+		{
+			zoomResolution = editorInstrument->sample.length / 600;
+			zoomValue = 1.0;
+		}
+	}
+
+
 	FM->setPadsGlobal(functPads);
+
 //--------------------------------------------------------------------
 
 	processSpectrum();
@@ -324,6 +352,14 @@ void cSamplePlayback::processSpectrum()
 	if(zoomValue > 1.0)
 	{
 		zoomWidth = (MAX_16BIT/zoomValue);
+/*
+		if(zoomWidth < 600)
+		{
+			zoomWidth = 600;
+			//zoomValue =
+		}
+*/
+
 		zoomStart =  zoomPosition - zoomWidth/2;
 		zoomEnd = zoomPosition + zoomWidth/2;
 
@@ -349,17 +385,9 @@ void cSamplePlayback::processSpectrum()
 
 		sampleData = editorInstrument->sample.address + offset;
 
-		resolution = (((float)zoomWidth/MAX_16BIT) * editorInstrument->sample.length ) / 600;
+		//resolution = (((float)zoomWidth/MAX_16BIT) * editorInstrument->sample.length ) / 600;
 
-
-//		Serial.print(zoomValue);
-//		Serial.print("   ");
-//		Serial.print(zoomStart);
-//		Serial.print("   ");
-//		Serial.print(zoomEnd);
-//		Serial.print("   ");
-//
-//		Serial.println();
+		resolution = zoomResolution;
 
 	}
 	else
@@ -435,7 +463,8 @@ void cSamplePlayback::processSpectrum()
 		spectrum.lowerData[i] = low;
 	}
 
-	if(resolution <= 1) spectrum.spectrumType = 1;
+	// dobrany doswiadczalnie warunek kiedy najlepiej zmienic tryb wyswietlania
+	if(editorInstrument->sample.length*zoomValue > 131000) spectrum.spectrumType = 1;
 	else spectrum.spectrumType = 0;
 
 }
@@ -751,11 +780,19 @@ static uint8_t functSwitchModule(uint8_t button)
 void cSamplePlayback::changeZoom(int16_t value)
 {
 
-	float fVal = value * ZOOM_FACTOR;
 
-	if(zoomValue + fVal < ZOOM_MIN) zoomValue  = ZOOM_MIN;
-	else if(zoomValue + fVal > ZOOM_MAX ) zoomValue  = ZOOM_MAX;
-	else zoomValue += fVal;
+	uint16_t max_resolution = editorInstrument->sample.length / 600;
+	//uint16_t max_resolution = ((600/MAX_16BIT)*editorInstrument->sample.length) / 600;
+	uint16_t min_resolution = editorInstrument->sample.length/MAX_16BIT + 1;
+
+	if(zoomResolution - value < min_resolution) zoomResolution  = min_resolution;
+	else if(zoomResolution - value > max_resolution ) zoomResolution = max_resolution;
+	else zoomResolution -= value;
+
+	if(zoomResolution == max_resolution) zoomValue = 1.0;
+	else zoomValue = editorInstrument->sample.length/((zoomResolution)*600.0);
+
+
 
 	refreshSpectrum = 1;
 	refreshPoints = 1;
@@ -786,7 +823,7 @@ void cSamplePlayback::changePlayModeSelection(int16_t value)
 void cSamplePlayback::modStartPoint(int16_t value)
 {
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoomWidth / 600;
 	uint16_t dif;
 	value = value * move_step;
 
@@ -831,7 +868,7 @@ void cSamplePlayback::modStartPoint(int16_t value)
 
 void cSamplePlayback::modEndPoint(int16_t value)
 {
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoomWidth / 600;
 	uint16_t dif;
 	value = value * move_step;
 
@@ -876,7 +913,7 @@ void cSamplePlayback::modEndPoint(int16_t value)
 
 void cSamplePlayback::modLoopPoint1(int16_t value)
 {
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoomWidth / 600;
 	value = value * move_step;
 
 	if(editorInstrument->loopPoint1 + value < SAMPLE_POINT_POS_MIN) editorInstrument->loopPoint1  = 0;
@@ -900,7 +937,7 @@ void cSamplePlayback::modLoopPoint1(int16_t value)
 
 void cSamplePlayback::modLoopPoint2(int16_t value)
 {
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoomWidth / 600;
 	value = value * move_step;
 
 	if(editorInstrument->loopPoint2 + value < SAMPLE_POINT_POS_MIN) editorInstrument->loopPoint2  = 0;

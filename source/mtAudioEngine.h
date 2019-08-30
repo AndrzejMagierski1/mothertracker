@@ -21,6 +21,7 @@ public:
 	void update();
 	void prevSdConnect();
 	void prevSdDisconnect();
+	void setHeadphonesVolume(uint8_t value);
 	void setReverbRoomsize(uint8_t value);
 	void setReverbDamping(uint8_t value);
 	void setReverbPanning(int8_t value);

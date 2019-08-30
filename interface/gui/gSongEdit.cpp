@@ -3,53 +3,49 @@
 #include <songEditor.h>
 
 
-static uint16_t framesPlaces[5][4] =
+static uint16_t framesPlaces[1][4] =
 {
-	{0, 0, 800/2, 480},
-	{(800/8)*4, 0, 800/8, 480},
-	{(800/8)*5, 0, 800/8, 480},
-	{(800/8)*6, 0, 800/8, 480},
-	{(800/8)*7, 0, 800/8, 480},
+	{0+2, 31, 800/4-5, 387},
 };
 
 
 void cSongEditor::initDisplayControls()
 {
+	strControlProperties prop2;
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+
 	strControlProperties prop1;
-
 	prop1.text = (char*)"";
-	prop1.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX);
-	prop1.x = 400;
-	prop1.y = 0;
-	prop1.w = 800;
-	prop1.h = 25;
-	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop1);
-
-
-	prop1.text = (char*)"";
-	prop1.style = (controlStyleShow | controlStyleCenterY  | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+	prop1.style = (controlStyleShow | controlStyleCenterY  | controlStyleBackground | controlStyleCenterX );
 	prop1.x = (800/8);
-	prop1.w = 800/4-10;
-	prop1.y = 415;
-	prop1.h = 65;
+	prop1.w = 800/4-6;
+	prop1.y = 452;
+	prop1.h = 59;
+
 	if(topLabel[0] == nullptr) topLabel[0] = display.createControl<cLabel>(&prop1);
 
-	prop1.style = (controlStyleShow| controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+	prop1.style = (controlStyleShow | controlStyleBackground | controlStyleCenterY | controlStyleCenterX );
 	// inicjalizacja kontrolek
 	for(uint8_t i=2; i<8; i++)
 	{
 		prop1.x = (800/8)*i+(800/16);
-		prop1.y = 415;
-		prop1.w = 800/8-10;
-		prop1.h = 32;
+		prop1.w = 800/8-6;
+		prop1.y = 437;
+		prop1.h = 28;
 
 		if(topLabel[i-1] == nullptr) topLabel[i-1] = display.createControl<cLabel>(&prop1);
 
-		//prop2.x = (800/4)*i+(800/8);
-		prop1.y = 450;
-		//prop2.w = 800/4-10;
+		prop1.y = 465;
 		prop1.h = 30;
-
 		if(bottomLabel[i-1] == nullptr) bottomLabel[i-1] = display.createControl<cLabel>(&prop1);
 	}
 
@@ -58,19 +54,38 @@ void cSongEditor::initDisplayControls()
 	patternsList.length = 255;
 	patternsList.data = patternNames;
 	strControlProperties prop;
-	prop.x = 0+5;
-	prop.y = 30;
-	prop.w = (800/4-10);
+	prop.x = 0+8;
+	prop.y = 37;
+	prop.w = (800/4-16);
 	prop.h = 25;
 	prop.data = &patternsList;
 	if(patternsListControl == nullptr)  patternsListControl = display.createControl<cList>(&prop);
+
+
+	// ramka
+	//strControlProperties prop;
+	frameData.placesCount = 1;
+	frameData.startPlace = 0;
+	frameData.places[0] = &framesPlaces[0][0];
+	prop.style = 0;
+	prop.value = 0;
+	prop.colors = nullptr;
+	prop.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 }
 
 
 void cSongEditor::destroyDisplayControls()
 {
+	display.destroyControl(titleBar);
+	titleBar = nullptr;
+
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
+
+	display.destroyControl(patternsListControl);
+	patternsListControl = nullptr;
+
 
 	for(uint8_t i=0;i<7;i++)
 	{
@@ -80,14 +95,17 @@ void cSongEditor::destroyDisplayControls()
 		bottomLabel[i]=nullptr;
 	}
 
-	display.destroyControl(patternsListControl);
-	patternsListControl = nullptr;
+	display.destroyControl(frameControl);
+	frameControl = nullptr;
 }
 
 void cSongEditor::showDefaultScreen()
 {
+	display.refreshControl(titleBar);
+
 	display.setControlText(titleLabel, "Song");
 	display.refreshControl(titleLabel);
+
 
 	display.setControlText(topLabel[0], "Slot / Pattern");
 	display.setControlText(topLabel[1], "Delete");
@@ -113,6 +131,7 @@ void cSongEditor::showDefaultScreen()
 	}
 
 	showPatternsList();
+	activateLabelsBorder();
 
 	display.synchronizeRefresh();
 }
@@ -126,7 +145,7 @@ void cSongEditor::showPatternsList()
 	patternsList.data = patternNames;
 	patternsList.start=selectedPattern;
 
-	display.setControlData(patternsListControl,  &patternsList);
+    display.setControlData(patternsListControl,  &patternsList);
 	//display.setControlValue(patternsListControl, selectedPattern);
 	display.setControlShow(patternsListControl);
 	display.refreshControl(patternsListControl);

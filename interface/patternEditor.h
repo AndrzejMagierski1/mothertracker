@@ -75,6 +75,8 @@ public:
 
 	void focusOnActual();
 
+	void moveCursorByStep();
+
 	void refreshPattern();
 	void readPatternState();
 
@@ -107,6 +109,8 @@ public:
 	void showLength();
 	void showStep();
 
+	void refreshPatternParams();
+
 	void showEditModeLabels();
 	void hideEditModeLabels();
 
@@ -130,6 +134,8 @@ public:
 // Funct
 	uint16_t lastPatternPosition;
 	uint8_t isPleyheadOnScreen();
+
+	uint16_t lastPlayedPattern = 0;
 
 	uint8_t isCursorInSelection();
 
@@ -174,8 +180,8 @@ public:
 	char step[5];
 
 
-	//------------------------------------------------------
-	// fill
+//------------------------------------------------------
+// fill
 	uint8_t fillState = 0;
 	uint8_t fillPlace = 0;
 	//
@@ -203,8 +209,8 @@ public:
 
 	uint16_t fillStep = 1;
 
-	//------------------------------------------------------
-	// random
+//------------------------------------------------------
+// random
 	uint8_t randomiseState = 0;
 	uint8_t randomisePlace = 1;
 	//

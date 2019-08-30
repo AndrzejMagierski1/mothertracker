@@ -148,6 +148,9 @@ public:
 	hControl selectWindowLabel;
 	hControl progressCursor;
 	hControl radioRdsLabel;
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
 
 //*********************************************
 
