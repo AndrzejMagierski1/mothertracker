@@ -558,11 +558,16 @@ void cPatternEditor::refreshEditState()
 	{
 		trackerPattern.selectState = 1;
 
-		showEditModeLabels();
 
-		focusOnActual();
+
+		//focusOnActual();
+		trackerPattern.actualTrack =  trackerPattern.firstVisibleTrack;
+		trackerPattern.selectedParam = 4;
+		editParam = 4;
 
 		focusOnPattern();
+
+		showEditModeLabels();
 
 		FM->setButtonObj(interfaceButton4, buttonPress, functFill);
 		FM->setButtonObj(interfaceButton5, buttonPress, functRandomise);
@@ -1994,6 +1999,15 @@ static uint8_t functSwitchModule(uint8_t button)
 	if(button == interfaceButtonPattern)
 	{
 		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
+
+		if(PTE->editParam != 4)
+		{
+			PTE->editParam = 4;
+			PTE->trackerPattern.selectedParam = 4;
+			//PTE->refreshPattern();
+			display.refreshControl(PTE->patternControl);
+		}
+
 
 		PTE->focusOnPattern();
 		return 1;
