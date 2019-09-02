@@ -207,6 +207,11 @@ uint8_t cMtPadBoard::getPadsWithNote(int8_t note, uint8_t* pads)
 	return count;
 }
 
+uint8_t cMtPadBoard::getNoteFromPad(int8_t pad)
+{
+	return padNotes[padBoard[pad]];
+}
+
 
 
 

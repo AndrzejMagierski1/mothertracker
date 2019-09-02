@@ -47,6 +47,9 @@ static  uint8_t functSelectParams(uint8_t button);
 
 static uint8_t functShift(uint8_t value);
 
+static uint8_t functStepNote(uint8_t value);
+
+
 
 
 
@@ -127,6 +130,7 @@ void cInstrumentEditor::stop()
 	moduleRefresh = 0;
 	mtPadBoard.releaseAllInstrument();
 	padsBacklight.clearAllPads(1, 1, 1);
+	IE->hideNotePopout();
 }
 
 void cInstrumentEditor::setDefaultScreenFunct()
@@ -207,6 +211,7 @@ void cInstrumentEditor::setInstrumentParamsFunct()
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+	FM->setButtonObj(interfaceButtonNote, functStepNote);
 
 	activateLabelsBorder();
 
@@ -860,6 +865,8 @@ static  uint8_t functInstrument(uint8_t state)
 	}
 	else if(state == buttonPress)
 	{
+		IE->hideNotePopout();
+
 		if(IE->mode != mtInstEditModeInstrList)
 		{
 			IE->showInstrumentList();
@@ -870,4 +877,28 @@ static  uint8_t functInstrument(uint8_t state)
 
 	return 1;
 }
+
+static uint8_t functStepNote(uint8_t value)
+{
+	if(IE->mode==0)
+	{
+		if(value == buttonPress)
+		{
+			for(uint8_t i = 0; i < 48; i++)
+			{
+				IE->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
+			}
+
+			IE->showNotePopout();
+		}
+		else if(value == buttonRelease)
+		{
+			IE->hideNotePopout();
+		}
+	}
+
+	return 1;
+}
+
+
 

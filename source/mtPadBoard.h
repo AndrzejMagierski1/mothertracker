@@ -22,6 +22,7 @@ public:
 
 
 	uint8_t getPadsWithNote(int8_t note, uint8_t* pads);
+	uint8_t getNoteFromPad(int8_t pad);
 	int8_t getEmptyVoice();
 
 private:
