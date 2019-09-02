@@ -444,6 +444,11 @@ void Sequencer::setSelectionInstrument(int16_t value)
 
 			if (isSingleSelection(sel))
 			{
+				if (step->note == STEP_NOTE_EMPTY)
+				{
+					step->note = STEP_NOTE_DEFAULT;
+				}
+
 				if (step->note >= 0)
 				{
 					step->instrument = value;
@@ -455,11 +460,7 @@ void Sequencer::setSelectionInstrument(int16_t value)
 
 					mtProject.values.lastUsedInstrument = step->instrument;
 				}
-				else if (step->note == STEP_NOTE_EMPTY)
-				{
-					step->note = STEP_NOTE_DEFAULT;
-//					step->instrument = mtProject.values.lastUsedInstrument;
-				}
+
 				return;
 			}
 			else

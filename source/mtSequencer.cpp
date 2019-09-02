@@ -1320,8 +1320,6 @@ uint8_t Sequencer::get_fxValType(uint8_t fxType)
 	}
 }
 
-//strMtModAudioEngine  playMod = {0};
-
 void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 {
 	if (player.printNotes)
@@ -1413,11 +1411,24 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 			step->note = note;
 			step->velocity = velocity;
 
-			blinkNote(step->instrument,
-						step->note,
-						step->velocity,
-						sel->firstTrack);
+//			blinkNote(step->instrument,
+//						step->note,
+//						step->velocity,
+//						sel->firstTrack);
+
+			instrumentPlayer[sel->firstTrack].noteOff();
+			instrumentPlayer[sel->firstTrack].noteOn(step->instrument,
+														step->note,
+														step->velocity);
 		}
+	}
+	else
+	{
+		if (!isMultiSelection())
+		{
+			instrumentPlayer[sel->firstTrack].noteOff();
+		}
+
 	}
 
 }
