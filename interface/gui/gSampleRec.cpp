@@ -231,6 +231,21 @@ void cSampleRecorder::initDisplayControls()
 
 	if(radioRdsLabel == nullptr) radioRdsLabel = display.createControl<cLabel>(&prop10);
 
+	padNamesStruct.length=5;
+	padNamesStruct.name = padNamesPointer;
+
+	strControlProperties prop11;
+	prop11.x = 10;
+	prop11.y = 130;
+	prop11.w = 780;
+	prop11.h = 280;
+	prop11.value=-1;
+	prop11.data=&padNamesStruct;
+
+	if(notePopoutControl== nullptr)  notePopoutControl = display.createControl<cNotePopout>(&prop11);
+
+	display.setControlData(notePopoutControl, &padNamesStruct);
+
 
 }
 
@@ -289,6 +304,9 @@ void cSampleRecorder::destroyDisplayControls()
 
 	display.destroyControl(selectWindowLabel);
 	selectWindowLabel = nullptr;
+
+	display.destroyControl(notePopoutControl);
+	notePopoutControl = nullptr;
 }
 
 void cSampleRecorder::showDefaultScreen()
@@ -1059,4 +1077,82 @@ void cSampleRecorder::displayEmptyRDS()
 	display.setControlText(radioRdsLabel,"");
 	display.setControlShow(radioRdsLabel);
 	display.refreshControl(radioRdsLabel);
+}
+
+void cSampleRecorder::showNotePopout()
+{
+	display.setControlText(titleLabel, "Notes");
+	display.refreshControl(titleLabel);
+
+	display.setControlShow(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
+	for(int i=0;i<8;i++)
+	{
+		display.setControlHide(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+
+		display.setControlHide(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	display.setControlHide(sourceListControl);
+	display.refreshControl(sourceListControl);
+
+	display.setControlHide(monitorListControl);
+	display.refreshControl(monitorListControl);
+
+	display.setControlHide(levelBarControl);
+	display.refreshControl(levelBarControl);
+
+	display.setControlHide(gainBarControl);
+	display.refreshControl(gainBarControl);
+
+	if(recorderConfig.source == sourceTypeRadio)
+	{
+		display.setControlHide(radioFreqBarControl);
+		display.refreshControl(radioFreqBarControl);
+	}
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+}
+
+void cSampleRecorder::hideNotePopout()
+{
+	display.setControlText(titleLabel, "Sample Recoder");
+	display.refreshControl(titleLabel);
+
+	display.setControlHide(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
+	for(int i=0;i<8;i++)
+	{
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	display.setControlShow(sourceListControl);
+	display.refreshControl(sourceListControl);
+
+	display.setControlShow(monitorListControl);
+	display.refreshControl(monitorListControl);
+
+	display.setControlShow(levelBarControl);
+	display.refreshControl(levelBarControl);
+
+	display.setControlShow(gainBarControl);
+	display.refreshControl(gainBarControl);
+
+	if(recorderConfig.source == sourceTypeRadio)
+	{
+		display.setControlShow(radioFreqBarControl);
+		display.refreshControl(radioFreqBarControl);
+	}
+
+	display.setControlShow(frameControl);
+	display.refreshControl(frameControl);
 }

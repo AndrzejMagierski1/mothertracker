@@ -191,6 +191,8 @@ static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
 
+static uint8_t functStepNote(uint8_t value);
+
 #ifdef HW_WITH_RADIO
 void seek_callback(void);
 #endif
@@ -415,6 +417,8 @@ void cSampleRecorder::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton5, buttonPress, functActionButton5);
 	FM->setButtonObj(interfaceButton6, buttonPress, functActionButton6);
 	FM->setButtonObj(interfaceButton7, buttonPress, functActionButton7);
+
+	FM->setButtonObj(interfaceButtonNote, functStepNote);
 
 
 
@@ -2254,3 +2258,27 @@ void seek_callback(void)
 
 }
 #endif
+
+static uint8_t functStepNote(uint8_t value)
+{
+	if(value == buttonRelease)
+	{
+		if(SR->currentScreen==0)
+		{
+			SR->hideNotePopout();
+		}
+	}
+	else if(value == buttonHold)
+	{
+		if(SR->currentScreen <1)
+		{
+			for(uint8_t i = 0; i < 48; i++)
+			{
+				SR->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
+			}
+
+			SR->showNotePopout();
+		}
+	}
+	return 1;
+}
