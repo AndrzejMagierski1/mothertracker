@@ -363,7 +363,7 @@ struct strInstrument
 struct strMtValues
 {
 	uint8_t lastUsedInstrument = 0;
-	uint8_t actualPattern = 0;
+	uint8_t actualPattern = 1;
 
 	uint8_t padBoardScale = 0;
 	uint8_t padBoardNoteOffset = 12;

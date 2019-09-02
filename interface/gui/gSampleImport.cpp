@@ -197,7 +197,7 @@ void cSampleImporter::showDefaultScreen()
 //==============================================================================================================
 void cSampleImporter::showFolderTree()
 {
-	folderList.start = 0;
+	folderList.start = selectedFolder;
 	folderList.length = locationFolderCount;
 	folderList.linesCount = 15;
 	folderList.data = folderNames;
@@ -214,7 +214,7 @@ void cSampleImporter::showFolderTree()
 
 void cSampleImporter::showFilesTree()
 {
-	instrumentList.start = 0;
+	instrumentList.start = selectedFile;
 	instrumentList.length = locationFileCount;
 	instrumentList.linesCount = 15;
 	instrumentList.data = fileNames;
