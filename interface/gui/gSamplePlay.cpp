@@ -115,7 +115,7 @@ void cSamplePlayback::initDisplayControls()
 	padNamesStruct.name = padNamesPointer;
 
 	strControlProperties prop11;
-	prop11.x = 10;
+	prop11.x = 16;
 	prop11.y = 130;
 	prop11.w = 780;
 	prop11.h = 280;
