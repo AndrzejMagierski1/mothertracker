@@ -14,7 +14,7 @@ enum mtInstrumentEditorMode
 	mtInstEditModeParams,
 	mtInstEditModeEnv,
 	mtInstEditModeInstrList,
-
+	mtInstEditModeNotes,
 
 };
 

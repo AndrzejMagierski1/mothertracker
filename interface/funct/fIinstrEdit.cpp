@@ -864,8 +864,6 @@ static  uint8_t functInstrument(uint8_t state)
 	}
 	else if(state == buttonPress)
 	{
-		IE->hideNotePopout();
-
 		if(IE->mode != mtInstEditModeInstrList)
 		{
 			IE->showInstrumentList();
@@ -873,15 +871,32 @@ static  uint8_t functInstrument(uint8_t state)
 		}
 	}
 
-
 	return 1;
 }
 
 static uint8_t functStepNote(uint8_t value)
 {
-	if(IE->mode==0)
+	if(value == buttonRelease)
 	{
-		if(value == buttonPress)
+		if(IE->mode == mtInstEditModeNotes)	IE->eventFunct(eventSwitchToPreviousModule,IE,0,0);
+		else
+		{
+			if(IE->mode == mtInstEditModeParams)
+			{
+				IE->showInstrumentParams();
+				IE->setInstrumentParamsFunct();
+			}
+			else //mtInstEditModeEnv
+			{
+				IE->showInstrumentEnv();
+				IE->setInstrumentEnvFunct();
+
+			}
+		}
+	}
+	else if(value == buttonPress)
+	{
+		if(IE->mode != mtInstEditModeNotes)
 		{
 			for(uint8_t i = 0; i < 48; i++)
 			{
@@ -890,12 +905,7 @@ static uint8_t functStepNote(uint8_t value)
 
 			IE->showNotePopout();
 		}
-		else if(value == buttonRelease)
-		{
-			IE->hideNotePopout();
-		}
 	}
-
 	return 1;
 }
 

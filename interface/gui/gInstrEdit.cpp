@@ -396,6 +396,9 @@ void cInstrumentEditor::showInstrumentParams()
 		display.refreshControl(barControl[i]);
 	}
 
+	display.setControlHide(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
 	display.synchronizeRefresh();
 }
 
@@ -458,6 +461,9 @@ void cInstrumentEditor::showInstrumentList()
 
 		showInstrList(i);
 	}
+
+	display.setControlHide(notePopoutControl);
+	display.refreshControl(notePopoutControl);
 
 	display.synchronizeRefresh();
 
@@ -786,6 +792,12 @@ void cInstrumentEditor::showNotePopout()
 
 	display.setControlHide(filterModeListControl);
 	display.refreshControl(filterModeListControl);
+
+	for(int i=0;i<4;i++)
+	{
+		display.setControlHide(intrumentsListControl[i]);
+		display.refreshControl(intrumentsListControl[i]);
+	}
 
 /*	display.setControlHide(envelopesListControl);
 	display.refreshControl(envStateListControl);
