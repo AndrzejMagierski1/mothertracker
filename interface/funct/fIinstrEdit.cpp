@@ -191,6 +191,7 @@ void cInstrumentEditor::setInstrumentEnvFunct()
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+	FM->setButtonObj(interfaceButtonNote, functStepNote);
 
 	activateLabelsBorder();
 
@@ -876,7 +877,7 @@ static  uint8_t functInstrument(uint8_t state)
 
 static uint8_t functStepNote(uint8_t value)
 {
-	if(IE->mode==0)
+	if(IE->mode<2)
 	{
 		if(value == buttonRelease)
 		{

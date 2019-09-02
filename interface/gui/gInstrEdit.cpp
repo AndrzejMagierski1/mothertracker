@@ -802,7 +802,7 @@ void cInstrumentEditor::showNotePopout()
 		display.refreshControl(intrumentsListControl[i]);
 	}
 
-/*	display.setControlHide(envelopesListControl);
+	display.setControlHide(envelopesListControl);
 	display.refreshControl(envStateListControl);
 
 	display.setControlHide(envStateListControl);
@@ -815,7 +815,7 @@ void cInstrumentEditor::showNotePopout()
 	{
 		display.setControlHide(intrumentsListControl[i]);
 		display.refreshControl(intrumentsListControl[i]);
-	}*/
+	}
 }
 
 
