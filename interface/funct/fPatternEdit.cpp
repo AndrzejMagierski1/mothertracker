@@ -1163,12 +1163,16 @@ static  uint8_t functNote(uint8_t state)
 			PTE->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
 		}
 
+		PTE->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
+		PTE->FM->clearAllPots();
+
 		PTE->showNotePopout();
 	}
 	else if(state==buttonRelease)
 	{
 		if(PTE->noteButtonHoldFlag==1)
 		{
+			PTE->setDefaultScreenFunct();
 			PTE->noteButtonHoldFlag=0;
 			PTE->hideNotePopout();
 		}

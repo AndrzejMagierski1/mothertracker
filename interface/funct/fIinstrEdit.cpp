@@ -905,6 +905,10 @@ static uint8_t functStepNote(uint8_t value)
 					IE->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
 				}
 
+				IE->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
+				IE->FM->clearButtonsRange(interfaceButtonUp, interfaceButtonRight);
+				IE->FM->clearAllPots();
+
 				IE->showNotePopout();
 			}
 		}

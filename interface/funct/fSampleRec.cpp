@@ -1514,6 +1514,7 @@ static  uint8_t functActionZoom()
 static  uint8_t functEncoder(int16_t value)
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig)
 	{
 		switch(SR->selectedPlace)
@@ -1539,6 +1540,7 @@ static  uint8_t functEncoder(int16_t value)
 		case 6: 	break;
 		}
 	}
+
 
 
 
@@ -1726,6 +1728,7 @@ static  uint8_t functRight()
 static  uint8_t functUp()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+
 	if(SR->keyboardActiveFlag)
 	{
 		SR->keyboardPosition = valueMap[valueMapDirectionUp][SR->keyboardPosition];
@@ -1751,6 +1754,7 @@ static  uint8_t functUp()
 static  uint8_t functDown()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+
 	if(SR->keyboardActiveFlag)
 	{
 		SR->keyboardPosition = valueMap[valueMapDirectionDown][SR->keyboardPosition];
@@ -1861,7 +1865,8 @@ void cSampleRecorder::changeRadioFreqBar(int16_t val)
 void cSampleRecorder::changeLevelBar()
 {
 	calcLevelBarVal();
-	if(lastLevelBarVal != levelBarVal) 	drawLevelBar();
+	if(lastLevelBarVal != levelBarVal) drawLevelBar();
+
 	lastLevelBarVal = levelBarVal;
 }
 void cSampleRecorder::changeGainBar(int16_t val)
@@ -2265,6 +2270,7 @@ static uint8_t functStepNote(uint8_t value)
 	{
 		if(SR->currentScreen==0)
 		{
+			SR->setDefaultScreenFunct();
 			SR->hideNotePopout();
 		}
 	}
@@ -2276,6 +2282,10 @@ static uint8_t functStepNote(uint8_t value)
 			{
 				SR->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
 			}
+
+			SR->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
+			SR->FM->clearButtonsRange(interfaceButtonUp, interfaceButtonRight);
+			SR->FM->clearAllPots();
 
 			SR->showNotePopout();
 		}

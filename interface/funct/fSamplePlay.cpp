@@ -1108,6 +1108,7 @@ static uint8_t functStepNote(uint8_t value)
 	if(value == buttonRelease)
 	{
 		SP->hideNotePopout();
+		SP->setDefaultScreenFunct();
 	}
 	else if(value == buttonHold)
 	{
@@ -1115,6 +1116,10 @@ static uint8_t functStepNote(uint8_t value)
 		{
 			SP->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
 		}
+
+		SP->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
+		SP->FM->clearButtonsRange(interfaceButtonUp, interfaceButtonRight);
+		SP->FM->clearAllPots();
 
 		SP->showNotePopout();
 	}
