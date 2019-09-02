@@ -111,9 +111,20 @@ void cSamplePlayback::initDisplayControls()
 	prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
+	padNamesStruct.length=5;
+	padNamesStruct.name = padNamesPointer;
 
+	strControlProperties prop11;
+	prop11.x = 10;
+	prop11.y = 130;
+	prop11.w = 780;
+	prop11.h = 280;
+	prop11.value=-1;
+	prop11.data=&padNamesStruct;
 
+	if(notePopoutControl== nullptr)  notePopoutControl = display.createControl<cNotePopout>(&prop11);
 
+	display.setControlData(notePopoutControl, &padNamesStruct);
 
 }
 
@@ -153,6 +164,9 @@ void cSamplePlayback::destroyDisplayControls()
 
 	display.destroyControl(progressCursor);
 	progressCursor = nullptr;
+
+	display.destroyControl(notePopoutControl);
+	notePopoutControl = nullptr;
 }
 
 void cSamplePlayback::showDefaultScreen()
@@ -567,6 +581,73 @@ void cSamplePlayback::showActualInstrument()
 
 	display.setControlText(instrumentLabel,  actualInstrName);
 	display.refreshControl(instrumentLabel);
+}
+
+void cSamplePlayback::showNotePopout()
+{
+	display.setControlText(titleLabel, "Notes");
+	display.refreshControl(titleLabel);
+
+	display.setControlShow(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
+	for(int i=0;i<7;i++)
+	{
+		display.setControlHide(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+
+		display.setControlHide(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	display.setControlHide(playModeListControl);
+	display.refreshControl(playModeListControl);
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlHide(spectrumControl);
+	display.refreshControl(spectrumControl);
+
+	display.setControlHide(pointsControl);
+	display.refreshControl(pointsControl);
+
+	display.setControlHide(progressCursor);
+	display.refreshControl(progressCursor);
+}
+
+void cSamplePlayback::hideNotePopout()
+{
+	display.setControlText(titleLabel, "Sample Playback");
+	display.refreshControl(titleLabel);
+
+	display.setControlHide(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
+	for(int i=0;i<7;i++)
+	{
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	display.setControlShow(playModeListControl);
+	display.refreshControl(playModeListControl);
+
+	display.setControlShow(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlShow(spectrumControl);
+	display.refreshControl(spectrumControl);
+
+	display.setControlShow(pointsControl);
+	display.refreshControl(pointsControl);
+
+	display.setControlShow(progressCursor);
+	display.refreshControl(progressCursor);
+
 }
 
 //==============================================================================================================
