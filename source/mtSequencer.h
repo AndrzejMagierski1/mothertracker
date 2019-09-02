@@ -314,6 +314,8 @@ public:
 
 	strPattern seq[2];
 
+	strPattern::strTrack copyTrackBuffer[8];
+
 	struct strGlobalConfig
 	{
 		uint8_t mode = MODE_MIDICLOCK.INTERNAL_;
@@ -637,8 +639,10 @@ public:
 	void insertReversed(strSelection *selection);
 
 // SELECTION
-	void copy(strSelection *from, strSelection *to);
-	void copy();
+	void copySelectionToBuffer(strSelection *from, strSelection *to);
+	void pasteSelectionFromBuffer(strSelection *from, strSelection *to);
+	void copyToBuffer();
+	void pasteFromBuffer();
 	bool isSelectionCorrect(strSelection *selection);
 	bool isSingleSelection(strSelection *selection);
 
