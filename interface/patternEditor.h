@@ -166,6 +166,9 @@ public:
 	hControl val2PopupLabel;
 	hControl val3PopupLabel;
 	hControl param2PopupListControl;
+	hControl notePopoutControl = nullptr;
+	hControl titleBar;
+	hControl titleLabel;
 
 
 
@@ -228,8 +231,13 @@ public:
 
 	uint16_t randomiseStep = 1;
 
+	strPadNames padNamesStruct;
+	char *padNamesPointer[48];
+	char padNames[48][5];
+	void showNotePopout();
+	void hideNotePopout();
 
-
+	uint8_t noteButtonHoldFlag;
 };
 
 extern cPatternEditor patternEditor;

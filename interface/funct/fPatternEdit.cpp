@@ -22,7 +22,7 @@ static  uint8_t functChangePattern(uint8_t state);
 static  uint8_t functChangePatternLength(uint8_t state);
 static  uint8_t functChangePatternEditStep(uint8_t state);
 
-static  uint8_t functNote();
+static  uint8_t functNote(uint8_t state);
 static  uint8_t functInstrument(uint8_t state);
 static  uint8_t functVolume();
 static  uint8_t functFx();
@@ -178,7 +178,7 @@ void cPatternEditor::setDefaultScreenFunct()
 
 
 
-	FM->setButtonObj(interfaceButtonNote, buttonPress, functNote);
+	FM->setButtonObj(interfaceButtonNote,functNote);
 	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 	FM->setButtonObj(interfaceButtonVol, buttonPress, functVolume);
 	FM->setButtonObj(interfaceButtonFx, buttonPress, functFx);
@@ -1133,24 +1133,46 @@ static  uint8_t functDown()
 	return 1;
 }
 
-static  uint8_t functNote()
+static  uint8_t functNote(uint8_t state)
 {
-	PTE->editParam = 0;
-
-	if(PTE->fillState > 0)
+	if(state == buttonPress)
 	{
-		PTE->showFillPopup();
-		return 1;
-	}
-	if(PTE->randomiseState > 0)
-	{
-		PTE->showRandomisePopup();
-		return 1;
-	}
+		PTE->editParam = 0;
 
-	PTE->focusOnPattern();
-	PTE->lightUpPadBoard();
-	PTE->refreshPattern();
+		if(PTE->fillState > 0)
+		{
+			PTE->showFillPopup();
+			return 1;
+		}
+		if(PTE->randomiseState > 0)
+		{
+			PTE->showRandomisePopup();
+			return 1;
+		}
+
+		PTE->focusOnPattern();
+		PTE->lightUpPadBoard();
+		PTE->refreshPattern();
+	}
+	else if(state==buttonHold)
+	{
+		PTE->noteButtonHoldFlag=1;
+
+		for(uint8_t i = 0; i < 48; i++)
+		{
+			PTE->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
+		}
+
+		PTE->showNotePopout();
+	}
+	else if(state==buttonRelease)
+	{
+		if(PTE->noteButtonHoldFlag==1)
+		{
+			PTE->noteButtonHoldFlag=0;
+			PTE->hideNotePopout();
+		}
+	}
 
 	return 1;
 }
