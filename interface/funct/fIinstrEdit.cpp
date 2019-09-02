@@ -130,7 +130,6 @@ void cInstrumentEditor::stop()
 	moduleRefresh = 0;
 	mtPadBoard.releaseAllInstrument();
 	padsBacklight.clearAllPads(1, 1, 1);
-	IE->hideNotePopout();
 }
 
 void cInstrumentEditor::setDefaultScreenFunct()
