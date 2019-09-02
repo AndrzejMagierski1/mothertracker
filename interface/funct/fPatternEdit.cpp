@@ -1293,18 +1293,18 @@ static  uint8_t functPasteInsert()
 
 	if (PTE->editMode == 1)
 	{
-		// INSERT
+		// PASTE
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			sendPasteSelection();
+			sequencer.copy();
+		}
+		// INSERT
+		else
 		{
 			sendSelection();
 			sequencer.insert(&sequencer.selection);
-		}
-		// PASTE
-		else
-		{
 
-			sendPasteSelection();
-			sequencer.copy();
 		}
 
 	}
@@ -1325,13 +1325,12 @@ static uint8_t functCopyDelete()
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
 			sendSelection();
-			sequencer.clearSelected();
-
 		}
 		// COPY
 		else
 		{
 			sendSelection();
+			sequencer.clearSelected();
 		}
 
 	}
@@ -1927,7 +1926,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		return 1;
 	}
 
-	if (state != buttonPress) return 1;
 
 	padsBacklight.setFrontLayer(1, 31, pad);
 
