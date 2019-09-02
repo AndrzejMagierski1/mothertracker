@@ -109,8 +109,8 @@ public:
 	uint32_t playProgressValue = 0; // 0 - MAX_LEN_RECORD
 	uint16_t playProgressInSpectrum = 0; // 0 - 600
 	uint8_t loopDirection = 0;
-	elapsedMillis playProgresValueBackwardTim = 0;
-	elapsedMillis playProgresValueTim = 0;
+	elapsedMicros playProgresValueBackwardTim = 0;
+	elapsedMicros playProgresValueTim = 0;
 	elapsedMicros refreshPlayProgressValue = 0;
 	float playPitch = 1.0 ;
 //	int8_t openedInstrumentIndex; // index w globalnej liscie instrumentow
