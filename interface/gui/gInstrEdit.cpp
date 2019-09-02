@@ -323,6 +323,9 @@ void cInstrumentEditor::showInstrumentEnv()
 		display.refreshControl(barControl[i]);
 	}
 
+	display.setControlHide(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
 
 	display.synchronizeRefresh();
 
