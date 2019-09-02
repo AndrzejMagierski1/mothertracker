@@ -876,34 +876,37 @@ static  uint8_t functInstrument(uint8_t state)
 
 static uint8_t functStepNote(uint8_t value)
 {
-	if(value == buttonRelease)
+	if(IE->mode==0)
 	{
-		if(IE->mode == mtInstEditModeNotes)	IE->eventFunct(eventSwitchToPreviousModule,IE,0,0);
-		else
+		if(value == buttonRelease)
 		{
-			if(IE->mode == mtInstEditModeParams)
+			if(IE->mode == mtInstEditModeNotes)	IE->eventFunct(eventSwitchToPreviousModule,IE,0,0);
+			else
 			{
-				IE->showInstrumentParams();
-				IE->setInstrumentParamsFunct();
-			}
-			else //mtInstEditModeEnv
-			{
-				IE->showInstrumentEnv();
-				IE->setInstrumentEnvFunct();
+				if(IE->mode == mtInstEditModeParams)
+				{
+					IE->showInstrumentParams();
+					IE->setInstrumentParamsFunct();
+				}
+				else //mtInstEditModeEnv
+				{
+					IE->showInstrumentEnv();
+					IE->setInstrumentEnvFunct();
 
+				}
 			}
 		}
-	}
-	else if(value == buttonPress)
-	{
-		if(IE->mode != mtInstEditModeNotes)
+		else if(value == buttonPress)
 		{
-			for(uint8_t i = 0; i < 48; i++)
+			if(IE->mode != mtInstEditModeNotes)
 			{
-				IE->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
-			}
+				for(uint8_t i = 0; i < 48; i++)
+				{
+					IE->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
+				}
 
-			IE->showNotePopout();
+				IE->showNotePopout();
+			}
 		}
 	}
 	return 1;

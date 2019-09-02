@@ -815,62 +815,6 @@ void cInstrumentEditor::showNotePopout()
 	}*/
 }
 
-void cInstrumentEditor::hideNotePopout()
-{
-	if(mode==0)
-	{
-		display.setControlText(titleLabel, "Instrument Parameters");
-		display.refreshControl(titleLabel);
-	}
-
-	display.setControlHide(notePopoutControl);
-	display.refreshControl(notePopoutControl);
-
-	for(int i=0;i<8;i++)
-	{
-		if(mode==0)
-		{
-			if(i==4)
-			{
-				continue;
-			}
-		}
-
-		display.setControlShow(barControl[i]);
-		display.refreshControl(barControl[i]);
-	}
-
-	for(int i=0;i<8;i++)
-	{
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
-
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-	}
-
-	display.setControlShow(frameControl);
-	display.refreshControl(frameControl);
-
-	display.setControlShow(filterModeListControl);
-	display.refreshControl(filterModeListControl);
-
-
-/*	display.setControlShow(envelopesListControl);
-	display.refreshControl(envStateListControl);
-
-	display.setControlShow(envStateListControl);
-	display.refreshControl(envStateListControl);
-
-	display.setControlShow(envLoopListControl);
-	display.refreshControl(envLoopListControl);
-
-	for(uint8_t i = 0; i<4; i++)
-	{
-		display.setControlShow(intrumentsListControl[i]);
-		display.refreshControl(intrumentsListControl[i]);
-	}*/
-}
 
 
 

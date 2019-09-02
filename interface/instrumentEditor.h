@@ -103,7 +103,6 @@ public:
 
 	void showInstrList(uint8_t n);
 	void showNotePopout();
-	void hideNotePopout();
 //----------------------------------
 
 	void setDefaultScreenFunct();
