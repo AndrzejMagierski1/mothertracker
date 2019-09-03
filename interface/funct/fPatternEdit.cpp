@@ -1302,14 +1302,13 @@ static  uint8_t functPasteInsert()
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
 			sendPasteSelection();
-			sequencer.copy();
+			sequencer.pasteFromBuffer();
 		}
 		// INSERT
 		else
 		{
 			sendSelection();
 			sequencer.insert(&sequencer.selection);
-
 		}
 
 	}
@@ -1326,12 +1325,13 @@ static uint8_t functCopyDelete()
 
 	if (PTE->editMode == 1)
 	{
-		// DELETE
+		// COPY
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
 			sendSelection();
+			sequencer.copyToBuffer();
 		}
-		// COPY
+		// DELETE
 		else
 		{
 			sendSelection();
