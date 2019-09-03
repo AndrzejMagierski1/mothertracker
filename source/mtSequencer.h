@@ -332,15 +332,15 @@ public:
 
 	};
 
-	struct strChangeBuffer
-	{
-		int8_t transpose = 0;
-		int16_t uMoveStep = 0;
-		int16_t moveStep = IDLE_MOVE_STEP;
-		int16_t uMoveTrack = 1;
-		uint8_t trackRoll = 1;
-
-	};
+//	struct strChangeBuffer
+//	{
+//		int8_t transpose = 0;
+//		int16_t uMoveStep = 0;
+//		int16_t moveStep = IDLE_MOVE_STEP;
+//		int16_t uMoveTrack = 1;
+//		uint8_t trackRoll = 1;
+//
+//	};
 
 	struct strNoteHandler
 	{
@@ -415,7 +415,7 @@ public:
 	IntervalTimer midiReceiveTimer;
 	IntervalTimer playTimer;
 
-	strChangeBuffer change_buffer;
+//	strChangeBuffer change_buffer;
 	strGhost ghost;
 	strGlobalConfig config;
 
@@ -472,7 +472,7 @@ public:
 		bool isPlay = 0;
 		bool isREC = 0;
 		bool isStop = 1;
-		bool loadBank = 0;
+//		bool loadBank = 0;
 		bool ramBank = 0;
 		bool swingToogle = 0;
 		float externalTempo = 120.0;
@@ -519,40 +519,13 @@ public:
 			uint8_t rollMode = 0;
 
 			bool pingPongToogle = 0;
-			// do zakonczenia stepa
-
-//			uint8_t lastMod = 0;			// ostatnio wyslany parametr
 
 			uint8_t return2start = 0;// po zakonczonym stepie wraca do pocatku
 			uint8_t makeJump = 0;// flaga przeskoku do odpowiedniego patternu po odegraniu stepu
 
-			uint8_t goToStep = 0;		// odpala odpowiedni step jako kolejny
-			bool isGoToStep = 0;		// odpala odpowiedni step jako kolejny
 
-			uint8_t recNoteOpen = 0;// czy otwarta nuta? w trakcie nagrywania
-			uint8_t recNoteLength = 0;	// aktualna długość otwartej nuty
-			uint8_t recNote = 0;
-			uint8_t recChannel = 0;
-			uint8_t recNoteStep = 0;
-
-//			int8_t lastRollNote = 0;
-
-//			uint8_t learned = 0;
 
 			bool divChange = 0;
-			bool divChangeIncr = 0;
-
-			struct strPlayerStep
-			{
-
-				uint8_t wasModification = 0;
-				uint8_t justPressed = 0;
-				uint8_t learned = 0;
-				uint8_t isGhost = 0;// jeśli > 0 to ma numer stepa którego jest ghostem
-				uint8_t isMoving = 0;	// jest przemieszczany
-				uint8_t isBlinking = 0;	// jest podświetlany jako ruch
-
-			} step[MAXSTEP + 1];
 
 		} row[MAXTRACK + 1];
 
