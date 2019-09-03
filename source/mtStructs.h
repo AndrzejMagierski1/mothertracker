@@ -407,7 +407,7 @@ struct strMtProjectRemote
 
 	struct strSong
 	{
-		int16_t playlist[SONG_MAX] { 1, 2, 3, 4, 0 };
+		uint8_t playlist[SONG_MAX] { 1, 2, 3, 4, 0 };
 //		int8_t mode = SONGMODE_PATTERN;
 		int8_t playlistPos = 0;
 	} song;
