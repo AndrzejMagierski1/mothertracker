@@ -95,6 +95,7 @@ public:
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 	hControl progressCursor;
+	hControl notePopoutControl = nullptr;
 
 
 
@@ -157,6 +158,11 @@ public:
 
 //----------------------------------
 
+	strPadNames padNamesStruct;
+	char *padNamesPointer[48];
+	char padNames[48][5];
+	void showNotePopout();
+	void hideNotePopout();
 
 
 };

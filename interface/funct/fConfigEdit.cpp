@@ -674,7 +674,7 @@ void cConfigEditor::changeConfigGroupSelection(int16_t value)
 
 	if(selectedConfigGroup != previousSelectedConfigGroup)
 	{
-		if(selectedConfigGroup == (configDefaultFirmware-1) && value < 0)
+		if(previousSelectedConfigGroup == configDefaultFirmware && value < 0)
 		{
 			hideFirmwareMenu();
 		}

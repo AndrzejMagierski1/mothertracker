@@ -21,6 +21,7 @@
 #include "patternPopupControl.h"
 #include "selectionWindowControl.h"
 #include "progressCursorControl.h"
+#include "notePopoutControl.h"
 
 
 typedef cDisplayControl* hControl;

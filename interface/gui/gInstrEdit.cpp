@@ -152,6 +152,20 @@ void cInstrumentEditor::initDisplayControls()
 	prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
+	padNamesStruct.length=5;
+	padNamesStruct.name = padNamesPointer;
+
+	strControlProperties prop11;
+	prop11.x = 16;
+	prop11.y = 130;
+	prop11.w = 780;
+	prop11.h = 280;
+	prop11.value=-1;
+	prop11.data=&padNamesStruct;
+
+	if(notePopoutControl== nullptr)  notePopoutControl = display.createControl<cNotePopout>(&prop11);
+
+	display.setControlData(notePopoutControl, &padNamesStruct);
 }
 
 
@@ -199,6 +213,9 @@ void cInstrumentEditor::destroyDisplayControls()
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
+
+	display.destroyControl(notePopoutControl);
+	notePopoutControl = nullptr;
 }
 /*
 void cInstrumentEditor::showDefaultScreen()
@@ -306,6 +323,9 @@ void cInstrumentEditor::showInstrumentEnv()
 		display.refreshControl(barControl[i]);
 	}
 
+	display.setControlHide(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
 
 	display.synchronizeRefresh();
 
@@ -379,6 +399,9 @@ void cInstrumentEditor::showInstrumentParams()
 		display.refreshControl(barControl[i]);
 	}
 
+	display.setControlHide(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
 	display.synchronizeRefresh();
 }
 
@@ -441,6 +464,9 @@ void cInstrumentEditor::showInstrumentList()
 
 		showInstrList(i);
 	}
+
+	display.setControlHide(notePopoutControl);
+	display.refreshControl(notePopoutControl);
 
 	display.synchronizeRefresh();
 
@@ -743,5 +769,55 @@ void cInstrumentEditor::listInstruments()
 		ptrintrumentsNames[i] = &intrumentsNames[i][0];
 	}
 }
+
+void cInstrumentEditor::showNotePopout()
+{
+	display.setControlText(titleLabel, "Notes");
+	display.refreshControl(titleLabel);
+
+	display.setControlShow(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
+	for(int i=0;i<8;i++)
+	{
+		display.setControlHide(barControl[i]);
+		display.refreshControl(barControl[i]);
+
+		display.setControlHide(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+
+		display.setControlHide(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlHide(filterModeListControl);
+	display.refreshControl(filterModeListControl);
+
+	for(int i=0;i<4;i++)
+	{
+		display.setControlHide(intrumentsListControl[i]);
+		display.refreshControl(intrumentsListControl[i]);
+	}
+
+	display.setControlHide(envelopesListControl);
+	display.refreshControl(envStateListControl);
+
+	display.setControlHide(envStateListControl);
+	display.refreshControl(envStateListControl);
+
+	display.setControlHide(envLoopListControl);
+	display.refreshControl(envLoopListControl);
+
+	for(uint8_t i = 0; i<4; i++)
+	{
+		display.setControlHide(intrumentsListControl[i]);
+		display.refreshControl(intrumentsListControl[i]);
+	}
+}
+
+
 
 

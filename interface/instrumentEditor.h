@@ -14,7 +14,7 @@ enum mtInstrumentEditorMode
 	mtInstEditModeParams,
 	mtInstEditModeEnv,
 	mtInstEditModeInstrList,
-
+	mtInstEditModeNotes,
 
 };
 
@@ -102,6 +102,7 @@ public:
 	void showParamsGlide();
 
 	void showInstrList(uint8_t n);
+	void showNotePopout();
 //----------------------------------
 
 	void setDefaultScreenFunct();
@@ -157,6 +158,7 @@ public:
 	hControl intrumentsListControl[4] = {nullptr};
 
 	hControl frameControl = nullptr;
+	hControl notePopoutControl = nullptr;
 
 
 	uint8_t selectedPlace[3] = {0};
@@ -223,6 +225,11 @@ public:
 	char envSustain[8];
 	char envRelease[8];
 	char envAmount[8];
+
+	strPadNames padNamesStruct;
+	char *padNamesPointer[48];
+	char padNames[48][5];
+
 
 	void listInstruments();
 

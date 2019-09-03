@@ -159,6 +159,32 @@ void cPatternEditor::initDisplayControls()
 	prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
+	padNamesStruct.length=5;
+	padNamesStruct.name = padNamesPointer;
+
+	strControlProperties prop11;
+	prop11.x = 16;
+	prop11.y = 130;
+	prop11.w = 780;
+	prop11.h = 280;
+	prop11.value=-1;
+	prop11.data=&padNamesStruct;
+
+	if(notePopoutControl== nullptr)  notePopoutControl = display.createControl<cNotePopout>(&prop11);
+
+	display.setControlData(notePopoutControl, &padNamesStruct);
+
+	strControlProperties prop2;
+	prop2.style = 	(controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 
 }
 
@@ -199,6 +225,15 @@ void cPatternEditor::destroyDisplayControls()
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
+
+	display.destroyControl(notePopoutControl);
+	notePopoutControl = nullptr;
+
+	display.destroyControl(titleBar);
+	titleBar = nullptr;
+
+	display.destroyControl(titleLabel);
+	titleLabel = nullptr;
 }
 
 
@@ -949,4 +984,80 @@ void cPatternEditor::activateLabelsBorder()
 	display.setControlValue(frameControl, selectedPlace);
 	display.setControlShow(frameControl);
 	display.refreshControl(frameControl);
+}
+
+void cPatternEditor::showNotePopout()
+{
+	display.setControlText(titleLabel, "Notes");
+	display.setControlShow(titleLabel);
+	display.refreshControl(titleLabel);
+
+	display.setControlShow(titleBar);
+	display.refreshControl(titleBar);
+
+	display.setControlShow(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
+	for(int i=0;i<8;i++)
+	{
+		display.setControlHide(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+
+		display.setControlHide(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlHide(patternControl);
+	display.refreshControl(patternControl);
+
+	if(fillState==1)
+	{
+		hideFillPopup();
+	}
+
+	if(randomiseState == 1)
+	{
+		hideRandomisePopup();
+	}
+}
+
+void cPatternEditor::hideNotePopout()
+{
+	display.setControlHide(titleLabel);
+	display.refreshControl(titleLabel);
+
+	display.setControlHide(titleBar);
+	display.refreshControl(titleBar);
+
+
+	display.setControlHide(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
+	for(int i=0;i<8;i++)
+	{
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	display.setControlShow(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlShow(patternControl);
+	display.refreshControl(patternControl);
+
+	if(fillState ==1)
+	{
+		showFillPopup();
+	}
+
+	if(randomiseState==1)
+	{
+		showRandomisePopup();
+	}
 }
