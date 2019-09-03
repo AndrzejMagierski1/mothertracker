@@ -7,7 +7,7 @@
 
 
 #include "configEditor.h"
-
+#include "mtSequencer.h"
 
 
 cConfigEditor configEditor;

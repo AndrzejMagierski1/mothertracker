@@ -5,10 +5,22 @@
 #include <stdint.h>
 #include "mtEnvelopeGenerator.h"
 #include "mtLFO.h"
-#include "mtSequencer.h"
+
 //=====================================================================
 //=====================================================================
 //=====================================================================
+
+
+
+const uint8_t FV_VER_1	=					0;		// device version
+const uint8_t FV_VER_2 =					5;		// official update
+const uint8_t FV_VER_3 =					0;		// fix version  100 = brak 3 litery
+const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
+const uint8_t MEMORY_STRUCT_VER =			2;
+
+
+
+const uint32_t CONFIG_EEPROM_ADRESS =        	0;
 
 const uint16_t MAX_16BIT =              		65535;
 const int16_t MAX_SIGNED_16BIT =				32767;
@@ -306,6 +318,16 @@ enum enPlaylist
 	PLAYLIST_EMPTY_SLOT = 0,
 };
 
+
+enum interfaceCommands
+{
+	interfaceDoNothing,
+	interfaceOpenLastProject,
+
+	interfaceCommandsCount
+};
+
+
 //=====================================================================
 //-------------------------------------------------
 //-------------------------------------------------
@@ -438,6 +460,12 @@ struct strMtProject
 //-------------------------------------------------
 struct strMtConfig
 {
+	struct strStartup
+	{
+		uint8_t startMode = interfaceOpenLastProject;
+		char lastProjectName[PROJECT_NAME_SIZE];
+	} startup;
+
 	struct strGlobalValues
 	{
 		uint8_t masterVolume = 50;
@@ -448,7 +476,7 @@ struct strMtConfig
 		uint8_t inSelect;
 		uint8_t outSelect;
 
-		float headphoneVolume = 0.6;
+		float headphoneVolume;
 		uint8_t inputGain; // 0-63
 		uint8_t mutedHeadphone;
 		uint8_t mutedLineOut;
@@ -462,6 +490,18 @@ struct strMtConfig
 		uint8_t changeFlag;
 
 	} audioCodecConfig;
+
+	struct strVersion
+	{
+		uint8_t ver_1;
+		uint8_t ver_2;
+		uint8_t ver_3;
+		uint8_t beta;
+		uint8_t memoryStructVer;
+
+	} firmware;
+
+
 };
 
 //-------------------------------------------------

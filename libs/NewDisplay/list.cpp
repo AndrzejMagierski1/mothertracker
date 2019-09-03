@@ -305,7 +305,7 @@ uint8_t cList::update()
 			}
 		}
 
-		selfRefresh = 2;
+		selfRefresh = 3;
 
 		if(!disableBar)
 		{
