@@ -201,6 +201,30 @@ uint16_t FatFile::createFilesList(uint8_t start_line, char list[][40], uint8_t l
 	return count;
 }
 
+uint16_t FatFile::createFilesListShort(uint8_t start_line, char *list, uint8_t list_length, uint8_t name_length)
+{
+	uint16_t count = start_line;
+	FatFile file;
+	rewind();
+
+	while(file.openNext(this, O_READ))
+	{
+		if(!file.isHidden())
+		{
+			if(!file.isDir())
+			{
+				file.getName(&list[count*name_length], name_length);
+				count++;
+			}
+		}
+		file.close();
+
+		if(count >= list_length) break;
+	}
+
+	return count;
+}
+
 //------------------------------------------------------------------------------
 size_t FatFile::printCreateDateTime(print_t* pr) {
   dir_t dir;

@@ -233,7 +233,6 @@ public:
 
 	strPadNames padNamesStruct;
 	char *padNamesPointer[48];
-	char padNames[48][5];
 	void showNotePopout();
 	void hideNotePopout();
 

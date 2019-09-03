@@ -192,6 +192,31 @@ uint16_t ExFatFile::createFilesList(uint8_t start_line, char list[][40], uint8_t
 	return count;
 }
 
+uint16_t ExFatFile::createFilesListShort(uint8_t start_line, char *list, uint8_t list_length, uint8_t name_length)
+{
+	uint16_t count = start_line;
+	ExFatFile file;
+	rewind();
+
+	while(file.openNext(this, O_READ))
+	{
+		if(!file.isHidden())
+		{
+			if(!file.isDir())
+			{
+				file.getName(&list[count*name_length], name_length);
+				count++;
+			}
+			break;
+		}
+		file.close();
+
+		if(count >= list_length) break;
+	}
+
+	return count;
+}
+
 //------------------------------------------------------------------------------
 int ExFatFile::printf(const char* fmt, ...) {
   va_list ap;
