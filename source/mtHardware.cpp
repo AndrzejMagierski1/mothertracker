@@ -22,6 +22,7 @@
 #include "sdCardDetect.h"
 
 #include "mtMidi.h"
+#include "tca8418.h"
 
 
 
@@ -49,6 +50,11 @@ void onButtonPush			(uint8_t x,uint8_t state);
 void onButtonRelease		(uint8_t x,uint8_t state);
 void onButtonHold			(uint8_t x,uint8_t state);
 void onButtonDouble			(uint8_t x,uint8_t state);
+
+
+// tca8418 new pad driver
+void onPadPush(uint8_t n);
+void onPadRelease(uint8_t n);
 
 keyScanner seqButtonsA;
 keyScanner tactButtons;
@@ -178,7 +184,7 @@ void initHardware()
 	seqButtonsA.setButtonDoubleFunc(onButtonDouble);
 	seqButtonsA.setHoldTime(200);
 	seqButtonsA.setDoubleTime(300);
-
+//
 	tactButtons.setButtonPushFunc(onButtonChange);
 	tactButtons.setButtonReleaseFunc(onButtonChange);
 	tactButtons.setButtonHoldFunc(onButtonChange);
@@ -186,12 +192,21 @@ void initHardware()
 	tactButtons.setHoldTime(200);
 	tactButtons.setDoubleTime(300);
 
+	Keypad.setOnPush(onPadPush);
+	Keypad.setOnRelease(onPadRelease);
 
+//	Keypad.begin(ROW0 | ROW1 | ROW2 | ROW3 | ROW4 | ROW5 | ROW6 | ROW7 , COL0 | COL1 | COL2 | COL3 | COL4 | COL5 | COL6 | COL7 ,
+//	CFG_KE_IEN | CFG_OVR_FLOW_IEN | CFG_INT_CFG | CFG_OVR_FLOW_M);
+//
+//
+//	Keypad.enableInterrupt(GRID_A, KeyISR); //Arg1= Arduino Pin number INT is connected to. Arg2= Interrupt Routine
 	////////////////// IO7326
 	tactButtons.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,TACTILE_INT,tactileToKeyMapping,IO7326_TACT_INT_FUNCT);
 	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,gridToKeyMapping,IO7326_INT_FUNCT_A);
 
 	tactButtons.testMode(0);
+
+
 
 
 #ifdef HW_WITH_RADIO
@@ -261,15 +276,19 @@ void updateHardware()
 		{
 			if(i2c_switch == 0)
 			{
-				if(!tactButtons.update()) 	i2c_switch++;
+				if(!tactButtons.update())
+				i2c_switch++;
 			}
 			if(i2c_switch == 1)
 			{
+//				Keypad.update();
+				i2c_switch++;
 				if(!seqButtonsA.update())  	i2c_switch++;
 			}
 			if(i2c_switch == 2)
 			{
-				if(!leds.update_all_leds())	i2c_switch++;
+				if(!leds.update_all_leds())
+				i2c_switch++;
 			}
 
 			if(i2c_switch < 3) i2cRefreshTimer = 0;

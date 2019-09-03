@@ -55,13 +55,9 @@ void cSamplePlayback::initDisplayControls()
 
 
 	prop2.x = (800/4)*3+(800/8);
-	prop2.y = 465;
 	prop2.w = 800/4-6;
-	prop2.h = 30;
-	if(bottomLabel[6] == nullptr) bottomLabel[6] = display.createControl<cLabel>(&prop2);
-
-	prop2.y = 437;
-	prop2.h = 28;
+	prop2.y = 452;
+	prop2.h = 58;
 	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
 
 
@@ -111,9 +107,20 @@ void cSamplePlayback::initDisplayControls()
 	prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
+	padNamesStruct.length=5;
+	padNamesStruct.name = padNamesPointer;
 
+	strControlProperties prop11;
+	prop11.x = 16;
+	prop11.y = 130;
+	prop11.w = 780;
+	prop11.h = 280;
+	prop11.value=-1;
+	prop11.data=&padNamesStruct;
 
+	if(notePopoutControl== nullptr)  notePopoutControl = display.createControl<cNotePopout>(&prop11);
 
+	display.setControlData(notePopoutControl, &padNamesStruct);
 
 }
 
@@ -138,13 +145,15 @@ void cSamplePlayback::destroyDisplayControls()
 	display.destroyControl(playModeListControl);
 	playModeListControl = nullptr;
 
-	for(uint8_t i = 0; i<8; i++)
+	for(uint8_t i = 0; i<7; i++)
 	{
-		display.destroyControl(bottomLabel[i]);
-		bottomLabel[i] = nullptr;
-
 		display.destroyControl(topLabel[i]);
 		topLabel[i] = nullptr;
+
+		if(i == 6) break;
+
+		display.destroyControl(bottomLabel[i]);
+		bottomLabel[i] = nullptr;
 	}
 
 
@@ -153,6 +162,9 @@ void cSamplePlayback::destroyDisplayControls()
 
 	display.destroyControl(progressCursor);
 	progressCursor = nullptr;
+
+	display.destroyControl(notePopoutControl);
+	notePopoutControl = nullptr;
 }
 
 void cSamplePlayback::showDefaultScreen()
@@ -186,9 +198,8 @@ void cSamplePlayback::showDefaultScreen()
 	display.setControlText(bottomLabel[1], "Loop Start");
 	display.setControlText(bottomLabel[2], "Loop End");
 	display.setControlText(bottomLabel[3], "End");
-	//display.setControlText(bottomLabel[4], "Play Mode");
+	display.setControlText(bottomLabel[4], "Position");
 	display.setControlText(bottomLabel[5], "Zoom");
-	display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
 	//display.setControlText(bottomLabel[7], "");
 
 
@@ -204,13 +215,17 @@ void cSamplePlayback::showDefaultScreen()
 
 	for(uint8_t i = 0; i<7; i++)
 	{
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-
 		display.setControlShow(topLabel[i]);
 		display.refreshControl(topLabel[i]);
+
+		if(i == 6) break;
+
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
 	}
 
+
+	display.setControlText(topLabel[4], startPointValueText);
 
 	display.synchronizeRefresh();
 
@@ -499,7 +514,7 @@ void cSamplePlayback::showPreviewValue()
 
 void cSamplePlayback::hidePreviewValue()
 {
-	display.setControlText(topLabel[4], "");
+	display.setControlText(topLabel[4], startPointValueText);
 	display.setControlShow(topLabel[4]);
 	display.refreshControl(topLabel[4]);
 }
@@ -567,6 +582,73 @@ void cSamplePlayback::showActualInstrument()
 
 	display.setControlText(instrumentLabel,  actualInstrName);
 	display.refreshControl(instrumentLabel);
+}
+
+void cSamplePlayback::showNotePopout()
+{
+	display.setControlText(titleLabel, "Notes");
+	display.refreshControl(titleLabel);
+
+	display.setControlShow(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
+	for(int i=0;i<7;i++)
+	{
+		display.setControlHide(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+
+		display.setControlHide(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	display.setControlHide(playModeListControl);
+	display.refreshControl(playModeListControl);
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlHide(spectrumControl);
+	display.refreshControl(spectrumControl);
+
+	display.setControlHide(pointsControl);
+	display.refreshControl(pointsControl);
+
+	display.setControlHide(progressCursor);
+	display.refreshControl(progressCursor);
+}
+
+void cSamplePlayback::hideNotePopout()
+{
+	display.setControlText(titleLabel, "Sample Playback");
+	display.refreshControl(titleLabel);
+
+	display.setControlHide(notePopoutControl);
+	display.refreshControl(notePopoutControl);
+
+	for(int i=0;i<7;i++)
+	{
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	display.setControlShow(playModeListControl);
+	display.refreshControl(playModeListControl);
+
+	display.setControlShow(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlShow(spectrumControl);
+	display.refreshControl(spectrumControl);
+
+	display.setControlShow(pointsControl);
+	display.refreshControl(pointsControl);
+
+	display.setControlShow(progressCursor);
+	display.refreshControl(progressCursor);
+
 }
 
 //==============================================================================================================

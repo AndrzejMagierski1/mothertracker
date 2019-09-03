@@ -444,6 +444,11 @@ void Sequencer::setSelectionInstrument(int16_t value)
 
 			if (isSingleSelection(sel))
 			{
+				if (step->note == STEP_NOTE_EMPTY)
+				{
+					step->note = STEP_NOTE_DEFAULT;
+				}
+
 				if (step->note >= 0)
 				{
 					step->instrument = value;
@@ -455,11 +460,7 @@ void Sequencer::setSelectionInstrument(int16_t value)
 
 					mtProject.values.lastUsedInstrument = step->instrument;
 				}
-				else if (step->note == STEP_NOTE_EMPTY)
-				{
-					step->note = STEP_NOTE_DEFAULT;
-//					step->instrument = mtProject.values.lastUsedInstrument;
-				}
+
 				return;
 			}
 			else
@@ -661,154 +662,91 @@ void Sequencer::insertReversed(strSelection *selection)
 	}
 
 }
-void Sequencer::copy()
+void Sequencer::copyToBuffer()
 {
-	copy(&sequencer.selection, &sequencer.selectionPaste);
+	copySelectionToBuffer(&sequencer.selection, &sequencer.selectionPaste);
+}
+void Sequencer::pasteFromBuffer()
+{
+	pasteSelectionFromBuffer(&sequencer.selection, &sequencer.selectionPaste);
 }
 
-void Sequencer::copy(strSelection *from, strSelection *to)
+void Sequencer::copySelectionToBuffer(strSelection *from, strSelection *to)
+{
+	if (!isSelectionCorrect(from)) return;
+	if (!isSelectionCorrect(to)) return;
+
+//	uint8_t tracksToCopy, rowsToCopy;
+//	uint8_t trackOff = 0, stepOff = 0;
+
+//	copyTrackBuffer[0].step[0].note = 10;
+
+//	tracksToCopy = from->lastTrack - from->firstTrack + 1;
+//	rowsToCopy = from->lastStep - from->firstStep + 1;
+//	Sequencer::strPattern::strTrack::strStep *stepFrom, *stepTo;
+
+	Sequencer::strPattern::strTrack *trackToCopy, *trackToPaste;
+
+	for (uint8_t a = 0; a <= MAXTRACK; a++)
+	{
+		trackToCopy = &seq[player.ramBank].track[a];
+		trackToPaste = &copyTrackBuffer[a];
+
+		*trackToPaste = *trackToCopy;
+	}
+
+}
+void Sequencer::pasteSelectionFromBuffer(strSelection *from, strSelection *to)
 {
 	if (!isSelectionCorrect(from)) return;
 	if (!isSelectionCorrect(to)) return;
 
 	uint8_t tracksToCopy, rowsToCopy;
-	uint8_t trackOff = 0, stepOff = 0;
+	uint8_t trackOff = 0, stepOff = 0; //offsety
 
 	tracksToCopy = from->lastTrack - from->firstTrack + 1;
 	rowsToCopy = from->lastStep - from->firstStep + 1;
 	Sequencer::strPattern::strTrack::strStep *stepFrom, *stepTo;
 
-// I cwiartka FROM
-	if (to->firstStep >= from->firstStep && from->firstTrack >= to->firstTrack)
+//	Sequencer::strPattern::strTrack::strStep *stepToCopy, *stepToPaste;
+
+	trackOff = 0;
+	for (uint8_t t = to->firstTrack;
+			t <= to->firstTrack + tracksToCopy - 1;
+			t++)
 	{
-		trackOff = 0;
-
-		for (uint8_t t = to->firstTrack;
-				t <= to->firstTrack + tracksToCopy - 1;
-				t++)
+		stepOff = 0;
+		for (uint8_t s = to->firstStep;
+				s <= to->firstStep + rowsToCopy - 1;
+				s++)
 		{
-			stepOff = rowsToCopy - 1;
-			for (int16_t s = to->firstStep + stepOff;
-					s >= to->firstStep;
-					s--)
+			uint8_t trackNoFrom, stepNoFrom;
+			trackNoFrom = from->firstTrack + trackOff;
+			stepNoFrom = from->firstStep + stepOff;
+
+			// czy step istnieje?
+			if (stepNoFrom <= MAXSTEP
+					&& trackNoFrom <= MAXTRACK
+					&& s <= MAXSTEP
+					&& t <= MAXTRACK)
 			{
-				uint8_t trackNoFrom, stepNoFrom;
-				trackNoFrom = from->firstTrack + trackOff;
-				stepNoFrom = from->firstStep + stepOff;
-				// czy step istnieje?
-				if (stepNoFrom <= MAXSTEP && trackNoFrom <= MAXTRACK)
-				{
 
-					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
-					stepTo = &seq[player.ramBank].track[t].step[s];
-					*stepTo = *stepFrom;
-//					clearStep(stepFrom);
-				}
-				stepOff--;
-
+				stepFrom = &copyTrackBuffer[trackNoFrom].step[stepNoFrom];
+				stepTo = &seq[player.ramBank].track[t].step[s];
+				*stepTo = *stepFrom;
 			}
-			trackOff++;
+			stepOff++;
+
 		}
-	}
-// II cwiartka FROM
-	else if (to->firstStep >= from->firstStep && from->firstTrack < to->firstTrack)
-	{
-		trackOff = tracksToCopy - 1;
-
-		for (uint8_t t = to->firstTrack + trackOff;
-				t >= to->firstTrack;
-				t--)
-		{
-			stepOff = rowsToCopy - 1;
-			for (uint8_t s = to->firstStep + stepOff;
-					s >= to->firstStep;
-					s--)
-			{
-				uint8_t trackNoFrom, stepNoFrom;
-				trackNoFrom = from->firstTrack + trackOff;
-				stepNoFrom = from->firstStep + stepOff;
-				// czy step istnieje?
-				if (stepNoFrom <= MAXSTEP && trackNoFrom <= MAXTRACK)
-				{
-
-					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
-					stepTo = &seq[player.ramBank].track[t].step[s];
-					*stepTo = *stepFrom;
-//					clearStep(stepFrom);
-				}
-				stepOff--;
-
-			}
-			trackOff--;
-		}
-	}
-
-// III cwiartka FROM
-	else if (to->firstStep <= from->firstStep && from->firstTrack < to->firstTrack)
-	{
-		trackOff = tracksToCopy - 1;
-
-		for (uint8_t t = to->firstTrack + trackOff;
-				t >= to->firstTrack;
-				t--)
-		{
-			stepOff = 0;
-			for (uint8_t s = to->firstStep;
-					s <= to->firstStep + rowsToCopy - 1;
-					s++)
-			{
-				uint8_t trackNoFrom, stepNoFrom;
-				trackNoFrom = from->firstTrack + trackOff;
-				stepNoFrom = from->firstStep + stepOff;
-				// czy step istnieje?
-				if (stepNoFrom <= MAXSTEP && trackNoFrom <= MAXTRACK)
-				{
-
-					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
-					stepTo = &seq[player.ramBank].track[t].step[s];
-					*stepTo = *stepFrom;
-//					clearStep(stepFrom);
-				}
-				stepOff++;
-
-			}
-			trackOff--;
-		}
-	}
-// IV cwiartka FROM
-	else if (to->firstStep <= from->firstStep && from->firstTrack >= to->firstTrack)
-	{
-		trackOff = 0;
-
-		for (uint8_t t = to->firstTrack;
-				t <= to->firstTrack + tracksToCopy - 1;
-				t++)
-		{
-			stepOff = 0;
-			for (uint8_t s = to->firstStep;
-					s <= to->firstStep + rowsToCopy - 1;
-					s++)
-			{
-				uint8_t trackNoFrom, stepNoFrom;
-				trackNoFrom = from->firstTrack + trackOff;
-				stepNoFrom = from->firstStep + stepOff;
-				// czy step istnieje?
-				if (stepNoFrom <= MAXSTEP && trackNoFrom <= MAXTRACK)
-				{
-
-					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
-					stepTo = &seq[player.ramBank].track[t].step[s];
-					*stepTo = *stepFrom;
-//					clearStep(stepFrom);
-				}
-				stepOff++;
-
-			}
-			trackOff++;
-		}
+		trackOff++;
 	}
 
 }
+
+//		stepToCopy = &seq[player.ramBank].track[a];
+//		stepToPaste = &copyTrackBuffer[a];
+//
+//		*trackToPaste = *trackToCopy;
 
 bool Sequencer::isSelectionCorrect(strSelection *selection)
 {
