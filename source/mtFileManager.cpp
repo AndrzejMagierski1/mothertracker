@@ -931,7 +931,7 @@ void FileManager::createEmptyTemplateProject(char * name)
 {
 	char patchFolder[PATCH_SIZE];
 
-	memset(mtProject.mtProjectRemote.song.playlist,-1,SONG_MAX);
+	memset(mtProject.mtProjectRemote.song.playlist,0,SONG_MAX);
 	mtProject.mtProjectRemote.song.playlist[0]=0;
 	mtProject.mtProjectRemote.patternFile[0].index=0;
 //	strcpy(mtProject.mtProjectRemote.patternFile[0].name,"pattern_00.mtp");
@@ -1218,7 +1218,7 @@ void FileManager::deletePattern(int8_t index)
 
 	for(uint8_t i=0;i<SONG_MAX; i++)
 	{
-		if(i == index) mtProject.mtProjectRemote.song.playlist[i] = -1;
+		if(i == index) mtProject.mtProjectRemote.song.playlist[i] = 0;
 	}
 
 
