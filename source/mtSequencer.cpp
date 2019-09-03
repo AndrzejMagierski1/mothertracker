@@ -3,7 +3,6 @@
 #include "mtSequencer.h"
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
-#include "seqDisplay.h"
 #include "mtFileManager.h"
 
 #include "patternEditor.h"
