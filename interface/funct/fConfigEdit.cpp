@@ -815,38 +815,43 @@ void cConfigEditor::listAllFirmwares()
 	if(sdLocation.open("/firmware", O_READ))
 	{
 		locationFileCount = sdLocation.createFilesListShort(0,&firmwareNamesList[0][0], firmware_list_max,firmware_name_length);
-	}
 
-	sdLocation.close();
+		sdLocation.close();
 
-	for(uint8_t i = 0; i < locationFileCount;)
-	{
-		if(checkIfFirmwareValid(&firmwareNamesList[i][0]))
+		for(uint8_t i = 0; i < locationFileCount;)
 		{
-			validFilesCount++;
-			i++;
-		}
-		else
-		{
-			invalidFileCount++;
-			strcpy(&firmwareNamesList[i][0],&firmwareNamesList[invalidFileCount][0]);
-			memset(&firmwareNamesList[invalidFileCount][0],0,sizeof(firmwareNamesList[invalidFileCount][0]));
-
-			if(invalidFileCount == (firmware_list_max-1))
+			if(checkIfFirmwareValid(&firmwareNamesList[i][0]))
 			{
-				break;
+				validFilesCount++;
+				i++;
+			}
+			else
+			{
+				invalidFileCount++;
+				strcpy(&firmwareNamesList[i][0],&firmwareNamesList[invalidFileCount][0]);
+				memset(&firmwareNamesList[invalidFileCount][0],0,sizeof(firmwareNamesList[invalidFileCount][0]));
+
+				if(invalidFileCount == (firmware_list_max-1))
+				{
+					break;
+				}
 			}
 		}
+
+		locationFileCount = validFilesCount;
+
+		for(uint8_t i = 0; i < locationFileCount; i++)
+		{
+			firmwareNames[i] = &firmwareNamesList[i][0];
+		}
+
+		firmwareFoundNum=locationFileCount;
 	}
-
-	locationFileCount = validFilesCount;
-
-	for(uint8_t i = 0; i < locationFileCount; i++)
+	else
 	{
-		firmwareNames[i] = &firmwareNamesList[i][0];
+		firmwareFoundNum=0;
+		firmwareSelect=0;
 	}
-
-	firmwareFoundNum=locationFileCount;
 }
 
 uint8_t checkIfFirmwareValid(char *name)
