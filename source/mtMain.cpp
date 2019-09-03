@@ -8,7 +8,6 @@
 #include "Snooze.h" // tymczasowo
 
 #include "mtSequencer.h"
-#include "seqDisplay.h"
 #include "chatBot.h"
 #include "mtPadsBacklight.h"
 #include "mtSleep.h"
