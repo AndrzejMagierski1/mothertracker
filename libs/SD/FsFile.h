@@ -195,6 +195,15 @@ class FsFile {
 	    return 0;
   }
 
+  uint16_t createFilesListShort(uint8_t start_line, char * list,uint8_t list_length,uint8_t nameLength)
+  {
+	  if (m_fFile) return m_fFile->createFilesListShort(start_line, list, list_length,nameLength);
+	  if (m_xFile) return m_xFile->createFilesListShort(start_line, list, list_length,nameLength);
+	 // m_xFile->createFilesListShort(start_line, list, list_length, name_length)
+
+	  return 0;
+  }
+
 
 #endif  // ENABLE_ARDUINO_FEATURES
   /** List directory contents.
