@@ -43,8 +43,8 @@ public:
 		progressCursor = nullptr;
 		spectrumControl = nullptr;
 		pointsControl = nullptr;
-		topLabel[8] = {nullptr};
-		bottomLabel[8] = {nullptr};
+		topLabel[7] = {nullptr};
+		bottomLabel[6] = {nullptr};
 
 		lastSampleLength = 0;
 	}

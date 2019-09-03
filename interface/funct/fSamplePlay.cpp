@@ -501,7 +501,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		if(mtPadBoard.getEmptyVoice() == 0)
 		{
 			SP->playPitch = notes[mtPadBoard.convertPadToNote(pad)];
-			SP->playProgresValueTim = ((( (SP->editorInstrument->sample.length/44100.0 ) * SP->editorInstrument->startPoint) / MAX_16BIT) * 1000) /SP->playPitch;
+			SP->playProgresValueTim = ((( (SP->editorInstrument->sample.length/44100.0 ) * SP->editorInstrument->startPoint) / MAX_16BIT) * 1000000) /SP->playPitch;
 			SP->refreshPlayProgressValue = 0;
 			SP->loopDirection = 0;
 			SP->isPlayingSample = 1;
@@ -541,10 +541,15 @@ static  uint8_t functSelectStart()
 	SP->selectedPlace = 0;
 	SP->activateLabelsBorder();
 
-	if(SP->zoomValue > 1.0)
+
+
+	if(SP->zoomValue > 1.0 )
 	{
 		SP->refreshSpectrum = 1;
+		SP->lastChangedPoint = 1;
 	}
+
+
 
 	SP->refreshPoints = 1;
 
@@ -553,13 +558,15 @@ static  uint8_t functSelectStart()
 
 static  uint8_t functSelectLoop1()
 {
+	if(SP->editorInstrument->playMode == singleShot) return 1;
 	SP->points.selected = 3;
 	SP->selectedPlace = 1;
 	SP->activateLabelsBorder();
 
-	if(SP->zoomValue > 1.0)
+	if(SP->zoomValue > 1.0 )
 	{
 		SP->refreshSpectrum = 1;
+		SP->lastChangedPoint = 3;
 	}
 	SP->refreshPoints = 1;
 
@@ -568,13 +575,15 @@ static  uint8_t functSelectLoop1()
 
 static  uint8_t functSelectLoop2()
 {
+	if(SP->editorInstrument->playMode == singleShot) return 1;
 	SP->points.selected = 4;
 	SP->selectedPlace = 2;
 	SP->activateLabelsBorder();
 
-	if(SP->zoomValue > 1.0)
+	if(SP->zoomValue > 1.0 )
 	{
 		SP->refreshSpectrum = 1;
+		SP->lastChangedPoint = 4;
 	}
 	SP->refreshPoints = 1;
 
@@ -588,8 +597,9 @@ static  uint8_t functSelectEnd()
 	SP->selectedPlace = 3;
 	SP->activateLabelsBorder();
 
-	if(SP->zoomValue > 1.0)
+	if(SP->zoomValue > 1.0 )
 	{
+		SP->lastChangedPoint = 2;
 		SP->refreshSpectrum = 1;
 	}
 	SP->refreshPoints = 1;
@@ -610,14 +620,14 @@ static  uint8_t functSelectZoom()
 
 static  uint8_t functPlayMode(uint8_t button)
 {
-	if(button == interfaceButton6)
-	{
-		SP->changePlayModeSelection(-1);
-	}
-	else //if(button == interfaceButton7)
-	{
-		SP->changePlayModeSelection(1);
-	}
+//	if(button == interfaceButton6)
+//	{
+//		SP->changePlayModeSelection(-1);
+//	}
+//	else //if(button == interfaceButton7)
+//	{
+//		SP->changePlayModeSelection(1);
+//	}
 
 	SP->selectedPlace = 6;
 	SP->activateLabelsBorder();
@@ -661,8 +671,28 @@ static  uint8_t functLeft()
 	switch(SP->selectedPlace)
 	{
 		case 0: functSelectStart();		break;
-		case 1: functSelectLoop1(); 	break;
-		case 2: functSelectLoop2();		break;
+		case 1:
+			if(SP->editorInstrument->playMode == singleShot)
+			{
+				SP->selectedPlace = 0;
+				functSelectStart();
+			}
+			else
+			{
+				functSelectLoop1();
+			}
+			break;
+		case 2:
+			if(SP->editorInstrument->playMode == singleShot)
+			{
+				SP->selectedPlace = 0;
+				functSelectStart();
+			}
+			else
+			{
+				functSelectLoop2();
+			}
+			break;
 		case 3: functSelectEnd();		break;
 		case 4: SP->selectedPlace--;	functSelectEnd();break;
 		case 5: functSelectZoom();		break;
@@ -687,8 +717,28 @@ static  uint8_t functRight()
 	switch(SP->selectedPlace)
 	{
 		case 0: functSelectStart();		break;
-		case 1: functSelectLoop1(); 	break;
-		case 2: functSelectLoop2();		break;
+		case 1:
+			if(SP->editorInstrument->playMode == singleShot)
+			{
+				SP->selectedPlace = 3;
+				functSelectEnd();
+			}
+			else
+			{
+				functSelectLoop1();
+			}
+			break;
+		case 2:
+			if(SP->editorInstrument->playMode == singleShot)
+			{
+				SP->selectedPlace = 3;
+				functSelectEnd();
+			}
+			else
+			{
+				functSelectLoop2();
+			}
+			break;
 		case 3: functSelectEnd();		break;
 		case 4: SP->selectedPlace++;	functSelectZoom();		break;
 		case 5: functSelectZoom();		break;
@@ -971,7 +1021,7 @@ static uint8_t functShift(uint8_t value)
 		sequencer.stop();
 
 		SP->isPlayingSample = 1;
-		SP->playProgresValueTim = (( (SP->editorInstrument->sample.length/44100.0 ) * SP->editorInstrument->startPoint) / MAX_16BIT) * 1000;
+		SP->playProgresValueTim = (( (SP->editorInstrument->sample.length/44100.0 ) * SP->editorInstrument->startPoint) / MAX_16BIT) * 1000000;
 		SP->refreshPlayProgressValue = 0;
 		SP->loopDirection = 0;
 		SP->playPitch = 1.0;
@@ -1022,14 +1072,14 @@ static  uint8_t functInstrument(uint8_t state)
 void cSamplePlayback::calcPlayProgressValue()
 {
 	float  recTimeValue = editorInstrument->sample.length/44100.0;
-	uint32_t localRecTimeValue = recTimeValue * 1000;
-	uint32_t localEndTimeValue = ((( recTimeValue  * editorInstrument->endPoint) / MAX_16BIT) * 1000)/playPitch;
+	uint32_t localRecTimeValue = recTimeValue * 1000000;
+	uint32_t localEndTimeValue = ((( recTimeValue  * editorInstrument->endPoint) / MAX_16BIT) * 1000000)/playPitch;
 	uint32_t localLoopPoint1Value = 0;
 	uint32_t localLoopPoint2Value = 0;
 	if(editorInstrument->playMode != singleShot)
 	{
-		localLoopPoint1Value = ((( recTimeValue  * editorInstrument->loopPoint1) / MAX_16BIT) * 1000)/playPitch;
-		localLoopPoint2Value = ((( recTimeValue  * editorInstrument->loopPoint2) / MAX_16BIT) * 1000)/playPitch;
+		localLoopPoint1Value = ((( recTimeValue  * editorInstrument->loopPoint1) / MAX_16BIT) * 1000000)/playPitch;
+		localLoopPoint2Value = ((( recTimeValue  * editorInstrument->loopPoint2) / MAX_16BIT) * 1000000)/playPitch;
 	}
 
 	if(editorInstrument->playMode == loopForward)
