@@ -171,13 +171,27 @@ void cInterface::processOperatingMode()
 {
 	if(operatingMode == mtOperatingModeStartup)
 	{
-		if(startupTimer > MT_INTERFACE_STARTUP_TIME)
+		if(doOnStart)
 		{
+			doOnStart = 0;
+			readConfig();
+			openStartupProject();
+			initStartScreen();
+		}
+
+
+
+
+		if(detectStartState())
+		{
+			destroyStartScreen();
 			operatingMode = mtOperatingModeRun;
 
-			//activateModule(projectEditor);
-			activateModule(&projectEditor, mtProjectStartModeOpenLast);
+			activateModule(&patternEditor, 0);
 		}
+
+		showStartScreen();
+
 	}
 //	else if(operatingMode == mtOperatingModeRun)
 //	{
@@ -249,6 +263,10 @@ int8_t cInterface::getButtonIndex(uint8_t button)
 	}
 	return -1;
 }
+//=======================================================================
+//=======================================================================
+//=======================================================================
+
 
 //=======================================================================
 //=======================================================================

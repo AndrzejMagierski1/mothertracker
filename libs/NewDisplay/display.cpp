@@ -8,6 +8,10 @@
 #include "core_pins.h"
 #include "elapsedMillis.h"
 
+
+#include "poly_inv_290.h"
+
+
 #include "poly_logo_inv.h"
 
 
@@ -48,14 +52,25 @@ strFont fonts[displayFontCount] =
 strBitmap bitmaps[displayBitmapsCount] =
 {
 	{
+		poly_logo_inv_290x290,
+		50000,
+		42050,
+		290,
+		290,
+		L4,
+		145,
+	},
+/*
+	{
 		poly_logo_inv_128x128,
 		50000,
+		0,
 		128,
 		128,
 		L4,
 		64,
 	},
-
+*/
 };
 
 
@@ -82,7 +97,7 @@ void cDisplay::begin()
 
 	for(uint8_t i = 0; i < displayBitmapsCount; i++)
 	{
-		API_LIB_WriteDataRAMG(bitmaps[i].data, sizeof(bitmaps[i].data), bitmaps[i].address);
+		API_LIB_WriteDataRAMG(bitmaps[i].data, bitmaps[i].source, bitmaps[i].address);
 	}
 
 //	API_LIB_WriteDataRAMG(Roboto_Mono_14_L4, sizeof(Roboto_Mono_14_L4), 1000);
@@ -106,6 +121,9 @@ void cDisplay::begin()
 	}
 
 
+
+
+
 //	API_BITMAP_HANDLE(14);
 //	API_BITMAP_SOURCE(14324);
 //	API_BITMAP_LAYOUT(L4, 7, 26);
@@ -119,8 +137,8 @@ void cDisplay::begin()
 //	API_CMD_SETFONT(13, 1000);
 
 
-	API_RESTORE_CONTEXT();
-	API_RESTORE_CONTEXT();
+//	API_RESTORE_CONTEXT();
+//	API_RESTORE_CONTEXT();
 
 	API_DISPLAY();
     API_CMD_SWAP();
@@ -345,21 +363,18 @@ if(refreshTimer > refreshF)
 				updateStep = 0; // jesli obslugiwana kontrolka potrzebuje odswiezenia
 				return;			// wiekszej ilosci blokow
 			}
-/*			else if(result == 2)
+			else if(result == 3) // high prioryty kontrolki - odswieza tylko ją
 			{
-			    refreshQueueBott++;
-				if(refreshQueueBott >= controlsRefreshQueueSize) refreshQueueBott = 0;
-				refreshControl(actualUpdating);
 				actualUpdating = nullptr;
-				updateStep = 2; // jesli kontrolka jest animowana i potzebuje sie automatycznie dalej odswiezac
-				return;			// dodawana jest automatycznie na koniec kolejki
+				updateStep = 2;
+				return;
 			}
-*/
+
 			// przesun kolejke odswieznania
 		    refreshQueueBott++;
 			if(refreshQueueBott >= controlsRefreshQueueSize) refreshQueueBott = 0;
 
-			// jesli bot kolejki dogonil zapisana pozycje synch refreschu
+			// jesli bottom kolejki dogonil zapisana pozycje synch refreschu
 			if(stopAppend && synchQueuePosition == refreshQueueBott)
 			{
 				stopAppend = 0;

@@ -3,7 +3,7 @@
 #define MT_INTERFACE_DEFS_H
 
 
-#define MT_INTERFACE_STARTUP_TIME 200
+#define MT_INTERFACE_STARTUP_TIME 10000
 
 
 //-------------------------------------------------------------

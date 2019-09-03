@@ -2,13 +2,15 @@
 #define SOURCE_MTCONFIG_H_
 
 
-#include "mtStructs.h"
 
 
-void saveConfig(int16_t address, strMtConfig * config);
-void readConfig(int16_t address, strMtConfig * config);
+void readConfigOnce();
 
-void checkConfig(strMtConfig * config);
+void forceSaveConfig();
+void saveConfig();
+void readConfig();
+
+void checkConfig();
 
 
 #endif /* SOURCE_MTCONFIG_H_ */

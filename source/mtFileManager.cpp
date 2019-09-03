@@ -1,7 +1,7 @@
 
 
 #include "mtStructs.h"
-
+#include "mtConfig.h"
 
 #include <FastCRC.h>
 #include <FastCRC_cpu.h>
@@ -235,6 +235,8 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 	uint8_t status;
 	char currentPatch[PATCH_SIZE];
 
+
+
 	if(type == projectTypeExample)
 	{
 		strcpy(currentPatch,"Templates/");
@@ -250,6 +252,8 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 		strcpy(currentProjectPatch,currentPatch);
 	}
 
+
+	strcpy(currentProjectName, name);
 //	strcpy(mtProject.path, currentPatch); // aktualna ścieżka projektu z nazwą
 //	strcat(mtProject.path, "/"); // aktualna ścieżka projektu z nazwą
 
@@ -854,6 +858,20 @@ void FileManager::saveProject()
 	strcat(currentPatch,"/project.bin");
 
 	writeProjectFile(currentPatch,&mtProject.mtProjectRemote);
+
+
+	// TODO
+	// dodany zapis ostatnio uzywanego projektu do configu
+	//if(strcmp(currentProjectName, mtConfig.startup.lastProjectName) != 0)
+	//{
+
+
+		strcpy(mtConfig.startup.lastProjectName, currentProjectName);
+
+		forceSaveConfig();
+	//}
+
+
 
 }
 

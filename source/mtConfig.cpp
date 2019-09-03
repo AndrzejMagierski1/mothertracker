@@ -1,30 +1,81 @@
 
 #include "EEPROM.h"
 
+#include "mtStructs.h"
+
+
 #include "mtConfig.h"
+
+void firmwareVersionChange();
+void memoryStructureChange();
 
 
 elapsedMillis save_delay;
 
-void saveConfig(int16_t address, strMtConfig * config)
+void saveConfig()
 {
 	if(save_delay > 1000)
 	{
 		save_delay = 0;
-		EEPROM.put(address, config);
+		EEPROM.put(CONFIG_EEPROM_ADRESS, &mtConfig);
 	}
 
 }
 
-void readConfig(int16_t address, strMtConfig * config)
+void forceSaveConfig()
 {
-	EEPROM.get(address, config);
+	EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
+}
 
-	checkConfig(config);
+void readConfig()
+{
+	EEPROM.get(CONFIG_EEPROM_ADRESS, mtConfig);
+
+	checkConfig();
+
+	if ((mtConfig.firmware.ver_1 != FV_VER_1) ||
+	    (mtConfig.firmware.ver_2 != FV_VER_2)||
+	    (mtConfig.firmware.ver_3 != FV_VER_3)||
+	    (mtConfig.firmware.beta != FV_BETA))
+	{
+		firmwareVersionChange();
+
+		mtConfig.firmware.ver_1		= FV_VER_1;
+		mtConfig.firmware.ver_2		= FV_VER_2;
+		mtConfig.firmware.ver_3		= FV_VER_3;
+		mtConfig.firmware.beta 		= FV_BETA;
+
+		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
+	}
+
+	if (mtConfig.firmware.memoryStructVer != MEMORY_STRUCT_VER)
+	{
+		memoryStructureChange();
+
+		mtConfig.firmware.memoryStructVer = MEMORY_STRUCT_VER;
+
+		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
+	}
+
+
 }
 
 
-void checkConfig(strMtConfig * config)
+uint8_t onceReaded = 1;
+
+void readConfigOnce()
+{
+	if(onceReaded)
+	{
+		onceReaded = 0;
+		readConfig();
+	}
+
+}
+
+
+
+void checkConfig()
 {
 
 	if(mtConfig.audioCodecConfig.headphoneVolume < MASTER_VOLUME_MIN)
@@ -60,21 +111,32 @@ void checkConfig(strMtConfig * config)
 	else if(mtConfig.audioCodecConfig.lineOutRight < 13)
 			mtConfig.audioCodecConfig.lineOutRight = LINE_OUT_LEVEL_DEFAULT;
 
-/*
-	mtConfig.audioCodecConfig.inSelect = 0;
-	mtConfig.audioCodecConfig.outSelect = 1;
 
-	mtConfig.audioCodecConfig.inputGain = 35; // 0-63
 
-	mtConfig.audioCodecConfig.mutedHeadphone = 0;
 
-	mtConfig.audioCodecConfig.mutedLineOut = 0;
 
-	mtConfig.audioCodecConfig.lineInLeft = 0; // 0-15
-	mtConfig.audioCodecConfig.lineInRight = 0; // 0-15
+	mtConfig.startup.lastProjectName[PROJECT_NAME_SIZE-1] = 0;
+	if(mtConfig.startup.startMode >= interfaceCommandsCount) mtConfig.startup.startMode = interfaceOpenLastProject;
 
-	mtConfig.audioCodecConfig.lineOutLeft = 15; // 13-31
-	mtConfig.audioCodecConfig.lineOutRight = 15; //13-31
-*/
-	mtConfig.audioCodecConfig.changeFlag = 1;
+
+
+
+
+
+}
+
+
+
+void firmwareVersionChange()
+{
+
+	Serial.println("Firmware changed!");
+
+}
+
+void memoryStructureChange()
+{
+
+	Serial.println("MEMO_STRUCT changed!");
+
 }

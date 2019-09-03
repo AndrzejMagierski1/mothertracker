@@ -11,10 +11,13 @@
  definicje na potrzeby portu programu na mniejsze seczki
  */
 
+//TODO - przeniesione do mtStructs.h
+/*
 #define FV_VER_1 0	// device version
 #define FV_VER_2 1	// official update
 #define FV_VER_3 0	// fix version
 #define MEMORY_STRUCT_VER 2
+*/
 
 class Sequencer
 {

@@ -225,6 +225,10 @@ void cPatternEditor::refreshPattern()
 		}
 	}
 
+
+	if(trackerPattern.actualStep > seq->track[0].length) trackerPattern.actualStep = seq->track[0].length;
+
+
 	trackerPattern.selectedParam = editParam;
 
 	uint8_t steps_down = trackerPattern.patternLength - trackerPattern.actualStep;
