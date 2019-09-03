@@ -55,13 +55,9 @@ void cSamplePlayback::initDisplayControls()
 
 
 	prop2.x = (800/4)*3+(800/8);
-	prop2.y = 465;
 	prop2.w = 800/4-6;
-	prop2.h = 30;
-	if(bottomLabel[6] == nullptr) bottomLabel[6] = display.createControl<cLabel>(&prop2);
-
-	prop2.y = 437;
-	prop2.h = 28;
+	prop2.y = 452;
+	prop2.h = 58;
 	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
 
 
@@ -138,13 +134,15 @@ void cSamplePlayback::destroyDisplayControls()
 	display.destroyControl(playModeListControl);
 	playModeListControl = nullptr;
 
-	for(uint8_t i = 0; i<8; i++)
+	for(uint8_t i = 0; i<7; i++)
 	{
-		display.destroyControl(bottomLabel[i]);
-		bottomLabel[i] = nullptr;
-
 		display.destroyControl(topLabel[i]);
 		topLabel[i] = nullptr;
+
+		if(i == 6) break;
+
+		display.destroyControl(bottomLabel[i]);
+		bottomLabel[i] = nullptr;
 	}
 
 
@@ -186,9 +184,8 @@ void cSamplePlayback::showDefaultScreen()
 	display.setControlText(bottomLabel[1], "Loop Start");
 	display.setControlText(bottomLabel[2], "Loop End");
 	display.setControlText(bottomLabel[3], "End");
-	//display.setControlText(bottomLabel[4], "Play Mode");
+	display.setControlText(bottomLabel[4], "Position");
 	display.setControlText(bottomLabel[5], "Zoom");
-	display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
 	//display.setControlText(bottomLabel[7], "");
 
 
@@ -204,13 +201,17 @@ void cSamplePlayback::showDefaultScreen()
 
 	for(uint8_t i = 0; i<7; i++)
 	{
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-
 		display.setControlShow(topLabel[i]);
 		display.refreshControl(topLabel[i]);
+
+		if(i == 6) break;
+
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
 	}
 
+
+	display.setControlText(topLabel[4], startPointValueText);
 
 	display.synchronizeRefresh();
 
@@ -499,7 +500,7 @@ void cSamplePlayback::showPreviewValue()
 
 void cSamplePlayback::hidePreviewValue()
 {
-	display.setControlText(topLabel[4], "");
+	display.setControlText(topLabel[4], startPointValueText);
 	display.setControlShow(topLabel[4]);
 	display.refreshControl(topLabel[4]);
 }

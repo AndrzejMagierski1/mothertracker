@@ -49,13 +49,13 @@ void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f)
 }
 
 //-----------------------------------------------------------------
-void onPadRelease(uint8_t n)
-{
-	//mtInterface.padReleased(n);
-	//padsBacklight.setFrontLayer(0, 31, n);
-	//padsBacklight.setFrontLayer(0,0,n);
-
-}
+//void onPadRelease(uint8_t n)
+//{
+//	//mtInterface.padReleased(n);
+//	//padsBacklight.setFrontLayer(0, 31, n);
+//	//padsBacklight.setFrontLayer(0,0,n);
+//
+//}
 
 //-----------------------------------------------------------------
 //-------------------------|   POTS   |----------------------------
@@ -186,5 +186,16 @@ void onButtonDouble(uint8_t x,uint8_t state)
 //	`Serial.print("ButtonDouble: x = ");
 //	Serial.print(x);
 
+}
+// TCA8418 NEW DRIVER PADS
+
+void onPadPush(uint8_t n)
+{
+	padsBacklight.setFrontLayer(1, 31, n);
+}
+
+void onPadRelease(uint8_t n)
+{
+	padsBacklight.setFrontLayer(0,0,n);
 }
 
