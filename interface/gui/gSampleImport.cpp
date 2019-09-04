@@ -230,7 +230,7 @@ void cSampleImporter::showInstrumentsList()
 	fileList.start = selectedSlot;
 	fileList.length = INSTRUMENTS_COUNT;
 	fileList.linesCount = 15;
-	fileList.data = ptrSlotNames;
+	fileList.data = interfaceGlobals.ptrIntrumentsNames;
 
 	display.setControlData(instrumentListControl,  &fileList);
 	display.setControlShow(instrumentListControl);
@@ -293,22 +293,7 @@ void cSampleImporter::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	if(i<9)
-	{
-		actualInstrName[0] = (i+1)%10 + 48;
-		actualInstrName[1] = '.';
-		actualInstrName[2] = ' ';
-		actualInstrName[3] = 0;
-	}
-	else
-	{
-		actualInstrName[0] = ((i+1)/10) + 48;
-		actualInstrName[1] = (i+1)%10 + 48;
-		actualInstrName[2] = '.';
-		actualInstrName[3] = ' ';
-		actualInstrName[4] = 0;
-	}
-
+	sprintf(actualInstrName, "%d. ", i);
 
 	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 

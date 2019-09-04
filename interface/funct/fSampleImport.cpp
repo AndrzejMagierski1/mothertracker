@@ -662,28 +662,14 @@ void cSampleImporter::listInstrumentSlots()
 
 	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
-		if(i<9)
-		{
-			slotNames[i][0] = (i+1)%10 + 48;
-			slotNames[i][1] = '.';
-			slotNames[i][2] = ' ';
-			slotNames[i][3] = 0;
-		}
-		else
-		{
-			slotNames[i][0] = ((i+1)/10) + 48;
-			slotNames[i][1] = (i+1)%10 + 48;
-			slotNames[i][2] = '.';
-			slotNames[i][3] = ' ';
-			slotNames[i][4] = 0;
-		}
+		sprintf(&interfaceGlobals.intrumentsNames[i][0], "%d. ", i);
 
 		if(mtProject.instrument[i].sample.loaded)
 		{
-			strncat(&slotNames[i][0], mtProject.instrument[i].sample.file_name,SAMPLE_NAME_SIZE);
+			strncat(&interfaceGlobals.intrumentsNames[i][0], mtProject.instrument[i].sample.file_name,SAMPLE_NAME_SIZE);
 		}
 
-		ptrSlotNames[i] = &slotNames[i][0];
+		interfaceGlobals.ptrIntrumentsNames[i] = &interfaceGlobals.intrumentsNames[i][0];
 	}
 }
 

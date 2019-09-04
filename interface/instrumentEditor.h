@@ -210,8 +210,9 @@ public:
 
 	uint8_t selectedInstrument = 0;
 
-	char intrumentsNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
-	char *ptrintrumentsNames[INSTRUMENTS_COUNT];
+	// przenisone do interfaceGlobals
+	//char intrumentsNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
+	//char *ptrIntrumentsNames[INSTRUMENTS_COUNT];
 
 	char volumeVal[4];
 	char panningVal[5];
@@ -227,7 +228,7 @@ public:
 	char envAmount[8];
 
 	strPadNames padNamesStruct;
-	char *padNamesPointer[48];
+	//char *padNamesPointer[48];
 	char padNames[48][5];
 
 

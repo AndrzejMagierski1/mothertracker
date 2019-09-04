@@ -47,7 +47,7 @@ elapsedMillis ramInfoTimer;
 
 strMtConfig mtConfig;
 strMtProject mtProject;
-
+strInterfaceGlobals interfaceGlobals;
 
 __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[4*1024*1024];
 __NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[4*1024*1024];
