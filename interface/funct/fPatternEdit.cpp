@@ -1891,7 +1891,11 @@ void cPatternEditor::lightUpPadBoard()
 			{
 				for(uint8_t i = 0; i < 48; i++)
 				{
-					if(padsTempData[i]) padsBacklight.setBackLayer(1, 20, i);
+					if(padsTempData[i])
+					{
+						padsBacklight.setBackLayer(1, 20, i);
+						selectNoteOnPopout(i);
+					}
 				}
 			}
 

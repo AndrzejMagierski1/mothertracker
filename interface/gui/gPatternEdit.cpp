@@ -186,6 +186,10 @@ void cPatternEditor::initDisplayControls()
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 
+	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
+	prop2.x = 769;
+	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
+
 }
 
 
@@ -234,6 +238,9 @@ void cPatternEditor::destroyDisplayControls()
 
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
+
+	display.destroyControl(instrumentLabel);
+	instrumentLabel = nullptr;
 }
 
 
@@ -1022,6 +1029,8 @@ void cPatternEditor::showNotePopout()
 	{
 		hideRandomisePopup();
 	}
+
+	showActualInstrument();
 }
 
 void cPatternEditor::hideNotePopout()
@@ -1060,4 +1069,42 @@ void cPatternEditor::hideNotePopout()
 	{
 		showRandomisePopup();
 	}
+
+	display.setControlHide(instrumentLabel);
+	display.refreshControl(instrumentLabel);
+}
+
+void cPatternEditor::selectNoteOnPopout(uint8_t pad)
+{
+	display.setControlValue(notePopoutControl, pad);
+	display.refreshControl(notePopoutControl);
+}
+
+void cPatternEditor::showActualInstrument()
+{
+	static char actualInstrName[SAMPLE_NAME_SIZE+4];
+
+	uint8_t i = mtProject.values.lastUsedInstrument;
+
+	if(i<9)
+	{
+		actualInstrName[0] = (i+1)%10 + 48;
+		actualInstrName[1] = '.';
+		actualInstrName[2] = ' ';
+		actualInstrName[3] = 0;
+	}
+	else
+	{
+		actualInstrName[0] = ((i+1)/10) + 48;
+		actualInstrName[1] = (i+1)%10 + 48;
+		actualInstrName[2] = '.';
+		actualInstrName[3] = ' ';
+		actualInstrName[4] = 0;
+	}
+
+	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+
+	display.setControlText(instrumentLabel,  actualInstrName);
+	display.setControlShow(instrumentLabel);
+	display.refreshControl(instrumentLabel);
 }

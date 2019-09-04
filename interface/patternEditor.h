@@ -169,6 +169,7 @@ public:
 	hControl notePopoutControl = nullptr;
 	hControl titleBar;
 	hControl titleLabel;
+	hControl instrumentLabel;
 
 
 
@@ -235,6 +236,8 @@ public:
 	char *padNamesPointer[48];
 	void showNotePopout();
 	void hideNotePopout();
+	void selectNoteOnPopout(uint8_t pad);
+	void showActualInstrument();
 
 	uint8_t noteButtonHoldFlag;
 };
