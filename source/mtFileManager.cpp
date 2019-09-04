@@ -747,7 +747,7 @@ void FileManager::importProject(char* sourceProjectPatch,char* name, char* newNa
 uint8_t FileManager::saveAsProject(char* name)
 {
 //	TODO: saveAs i save muszą się wywoływać wzajemnie
-	return 0;
+//	return 0;
 	char currentPatch [PATCH_SIZE];
 	if(createNewProject(name) == 2) return 2;
 
