@@ -81,10 +81,29 @@ void cMtPadsBacklight::stopBlink(uint8_t n)
 
 void cMtPadsBacklight::clearAllPads(uint8_t front, uint8_t back, uint8_t blink)
 {
-	for(uint8_t i=0;i<48;i++)
+	if(front)
 	{
-		if(front) setFrontLayer(0,0,i);
-		if(back) setBackLayer(0,0,i);
-		if(blink) stopBlink(i);
+		for(uint8_t i=0;i<48;i++)
+		{
+			setFrontLayer(0,0,i);
+			frontLayer[i]=0;
+		}
 	}
+
+	if(back)
+	{
+		for(uint8_t i=0;i<48;i++)
+		{
+			setBackLayer(0,0,i);
+			backLayer[i]=0;
+		}
+	}
+	if(blink)
+	{
+		for(uint8_t i=0;i<48;i++)
+		{
+			stopBlink(i);
+		}
+	}
+
 }

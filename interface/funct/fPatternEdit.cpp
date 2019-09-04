@@ -101,7 +101,6 @@ void cPatternEditor::update()
 	if(trackerPattern.playheadPosition == lastPatternPosition || (!isPleyheadOnScreen() && editMode))  return;
 
 
-
 	refreshPattern();
 
 	lastPatternPosition = trackerPattern.playheadPosition;
@@ -1047,6 +1046,7 @@ static  uint8_t functUp()
 	}
 
 	if(PTE->trackerPattern.actualStep > 0 ) PTE->trackerPattern.actualStep--; // zmiana pozycji kursora
+	else if(!shiftPressed) PTE->trackerPattern.actualStep = PTE->trackerPattern.patternLength;
 
 	if(PTE->editMode == 1 && shiftPressed && PTE->trackerPattern.selectColumn == 0) // kontynuacja zaznaczania
 	{
@@ -1116,7 +1116,8 @@ static  uint8_t functDown()
 		PTE->isSelectingNow = 1;
 	}
 
-	if(PTE->trackerPattern.actualStep <  PTE->trackerPattern.patternLength-1) PTE->trackerPattern.actualStep++;
+	if(PTE->trackerPattern.actualStep < PTE->trackerPattern.patternLength-1) PTE->trackerPattern.actualStep++;
+	else if(!shiftPressed) PTE->trackerPattern.actualStep = 0;
 
 	if(PTE->editMode == 1 && shiftPressed)
 	{
@@ -1283,14 +1284,14 @@ static  uint8_t functPlayAction()
 			sequencer.playPattern();
 		}
 
-		PTE->lastPlayedPattern = 0;
+		//PTE->lastPlayedPattern = 0;
 	}
 	else if(sequencer.getSeqState() == 1)
 	{
 		sequencer.stop();
 
 		PTE->trackerPattern.playheadPosition = 0;
-		PTE->trackerPattern.actualStep = 0;
+		//PTE->trackerPattern.actualStep = 0;
 		PTE->refreshPattern();
 	}
 

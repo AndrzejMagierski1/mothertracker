@@ -105,13 +105,13 @@ uint8_t cStartScreen::update()
 
 	#define bitmap_index 0
 
-    API_BITMAP_HANDLE(0);
+   // API_BITMAP_HANDLE(0);
 	API_BITMAP_SOURCE(bitmaps[bitmap_index].address);
 	API_BITMAP_LAYOUT(bitmaps[bitmap_index].format, bitmaps[bitmap_index].linestride, bitmaps[bitmap_index].height);
 	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[bitmap_index].width, bitmaps[bitmap_index].height);
 
 	API_BEGIN(BITMAPS);
-	API_VERTEX2F((800/2)-(bitmaps[bitmap_index].width/2), 50);
+	API_VERTEX2F((800/2)-(bitmaps[bitmap_index].width/2), 150);
 	API_END();
 
 
