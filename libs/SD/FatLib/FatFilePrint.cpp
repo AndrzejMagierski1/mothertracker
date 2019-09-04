@@ -198,7 +198,7 @@ uint16_t FatFile::createFilesList(uint8_t start_line, char list[][40], uint8_t l
 		if(count >= list_length) break;
 	}
 
-	return count;
+	return (count-start_line);
 }
 
 uint16_t FatFile::createFilesListShort(uint8_t start_line, char *list, uint8_t list_length, uint8_t name_length)

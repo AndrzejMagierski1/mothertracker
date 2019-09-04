@@ -3,15 +3,12 @@
 #include <sampleImporter.h>
 
 
-static uint16_t framesPlaces[3][4] =
+static uint16_t framesPlaces[2][4] =
 {
 	{0+2, 		31, 800/4-5, 387},
-	{(800/4)*1+2, 31, 800/4-5, 387},
-	{(800/4)*2+2, 31, 800/4-5, 387},
+	{(800/4)*3+2, 31, 800/4-5, 387},
 };
 
-
-static uint32_t color[3] = {0xFF00FF, 0x0000ff, 0xff0000};
 
 
 void cSampleImporter::initDisplayControls()
@@ -33,62 +30,54 @@ void cSampleImporter::initDisplayControls()
 
 	prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 
-	// inicjalizacja kontrolek
-	for(uint8_t i = 0; i<4; i++)
+	prop2.x = (800/8);
+	prop2.y = 452;
+	prop2.w = 800/4-6;
+	prop2.h = 58;
+
+	if(topLabel[0] == nullptr) topLabel[0] = display.createControl<cLabel>(&prop2);
+
+	for(uint8_t i = 2; i<6; i++)
 	{
-		prop2.x = (800/4)*i+(800/8);
-		prop2.y = 437;
-		prop2.w = 800/4-6;
-		prop2.h = 28;
+		prop2.x = (800/8)*i+(800/16);
+		prop2.y = 452;
+		prop2.w = 800/8-6;
+		prop2.h = 58;
 
-		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
-
-		//prop2.x = (800/4)*i+(800/8);
-		prop2.y = 465;
-		//prop2.w = 800/4-10;
-		prop2.h = 30;
-
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+		if(topLabel[i-1] == nullptr) topLabel[i-1] = display.createControl<cLabel>(&prop2);
 	}
 
-	folderList.linesCount = 5;
-	folderList.start = 0;
-	folderList.length = locationFolderCount;
-	folderList.data = folderNames;
+	prop2.x = (800/8)*6+(800/8);
+	prop2.y = 452;
+	prop2.w = 800/4-6;
+	prop2.h = 58;
+
+	if(topLabel[5] == nullptr) topLabel[5] = display.createControl<cLabel>(&prop2);
+
+	explorerList.linesCount = 5;
+	explorerList.start = 0;
+	explorerList.length = locationExplorerCount;
+	explorerList.data = explorerNames;
 	strControlProperties prop;
 	prop.x = 0+8;
 	prop.y = 37;
 	prop.w = 800/4-16;
 	prop.h = 25;
-	prop.data = &folderList;
-	if(folderListControl == nullptr)  folderListControl = display.createControl<cList>(&prop);
-
-
-	fileList.linesCount = 5;
-	fileList.start = 0;
-	fileList.length = 0;
-	//strControlProperties prop;
-	prop.x = (800/4)*1+8;
-	//prop.y = 10;
-	//prop.w = 800/4-10;
-	//prop.h = 25;
-	prop.data = &fileList;
-	if(fileListControl == nullptr)  fileListControl = display.createControl<cList>(&prop);
-
+	prop.data = &explorerList;
+	if(explorerListControl == nullptr)  explorerListControl = display.createControl<cList>(&prop);
 
 	instrumentList.linesCount = 5;
 	instrumentList.start = 0;
 	instrumentList.length = 0;
 	//strControlProperties prop;
-	prop.x = (800/4)*2+8;
+	prop.x = (800/4)*3+8;
 	//prop.y = 10;
 	//prop.w = 800/4-10;
 	//prop.h = 25;
 	prop.data = &instrumentList;
 	if(instrumentListControl == nullptr)  instrumentListControl = display.createControl<cList>(&prop);
 
-
-	prop.x = (800/4)*3+5;
+	prop.x = 458;
 //	prop.colors = &color[1];
 	//prop.y = 10;
 	//prop.w = 800/4-10;
@@ -99,11 +88,10 @@ void cSampleImporter::initDisplayControls()
 	if(memoryBarControl == nullptr)  memoryBarControl = display.createControl<cBar>(&prop);
 
 
-	frameData.placesCount = 3;
+	frameData.placesCount = 2;
 	frameData.startPlace = 0;
 	frameData.places[0] = &framesPlaces[0][0];
 	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
 	prop.style = 0;
 	prop.value = 0;
 	prop.data  = &frameData;
@@ -131,20 +119,16 @@ void cSampleImporter::destroyDisplayControls()
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
 
-	display.destroyControl(folderListControl);
-	folderListControl = nullptr;
-	display.destroyControl(fileListControl);
-	fileListControl = nullptr;
+	display.destroyControl(explorerListControl);
+	explorerListControl = nullptr;
+
 	display.destroyControl(instrumentListControl);
 	instrumentListControl = nullptr;
 
-	for(uint8_t i = 0; i<4; i++)
+	for(uint8_t i = 0; i<6; i++)
 	{
 		display.destroyControl(topLabel[i]);
 		topLabel[i] = nullptr;
-
-		display.destroyControl(bottomLabel[i]);
-		bottomLabel[i] = nullptr;
 	}
 
 	display.destroyControl(memoryBarControl);
@@ -167,23 +151,17 @@ void cSampleImporter::showDefaultScreen()
 	showActualInstrument();
 
 
-	display.setControlText(topLabel[0], "SD");
+	display.setControlText(topLabel[0], "Micro SD");
 	display.setControlText(topLabel[1], "");
-	display.setControlText(topLabel[2], "Instruments");
-	display.setControlText(topLabel[3], "Memory");
+	display.setControlText(topLabel[2], "");
+	display.setControlText(topLabel[3], "");
+	display.setControlText(topLabel[4], "Delete");
+	display.setControlText(topLabel[5], "Instruments");
 
-	display.setControlText(bottomLabel[0], " /\\           \\/ ");
-	display.setControlText(bottomLabel[1], " /\\           \\/ ");
-	display.setControlText(bottomLabel[2], " /\\           \\/ ");
-	display.setControlText(bottomLabel[3], " Add       Delete");
-
-	for(uint8_t i = 0; i<4; i++)
+	for(uint8_t i = 0; i<6; i++)
 	{
 		display.setControlShow(topLabel[i]);
 		display.refreshControl(topLabel[i]);
-
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
 	}
 
 	display.setControlHide(loadHorizontalBarControl);
@@ -191,48 +169,35 @@ void cSampleImporter::showDefaultScreen()
 
 	display.synchronizeRefresh();
 
+	AddOrEnter();
+
 }
 
 
 //==============================================================================================================
-void cSampleImporter::showFolderTree()
-{
-	folderList.start = 0;
-	folderList.length = locationFolderCount;
-	folderList.linesCount = 15;
-	folderList.data = folderNames;
-
-	display.setControlData(folderListControl,  &folderList);
-	display.setControlShow(folderListControl);
-	display.refreshControl(folderListControl);
-
-
-	display.setControlText(topLabel[0],actualPath);
-	display.refreshControl(topLabel[0]);
-}
-
-
 void cSampleImporter::showFilesTree()
 {
-	instrumentList.start = 0;
-	instrumentList.length = locationFileCount;
-	instrumentList.linesCount = 15;
-	instrumentList.data = fileNames;
+	explorerList.start = 0;
+	explorerList.length = locationExplorerCount;
+	explorerList.linesCount = 15;
+	explorerList.data = explorerNames;
 
-	display.setControlData(fileListControl,  &instrumentList);
-	display.setControlShow(fileListControl);
-	display.refreshControl(fileListControl);
+	display.setControlData(explorerListControl,  &explorerList);
+	display.setControlShow(explorerListControl);
+	display.refreshControl(explorerListControl);
+
+
 }
 
 
 void cSampleImporter::showInstrumentsList()
 {
-	fileList.start = selectedSlot;
-	fileList.length = INSTRUMENTS_COUNT;
-	fileList.linesCount = 15;
-	fileList.data = ptrSlotNames;
+	instrumentList.start = selectedSlot;
+	instrumentList.length = INSTRUMENTS_COUNT;
+	instrumentList.linesCount = 15;
+	instrumentList.data = ptrSlotNames;
 
-	display.setControlData(instrumentListControl,  &fileList);
+	display.setControlData(instrumentListControl,  &instrumentList);
 	display.setControlShow(instrumentListControl);
 	display.refreshControl(instrumentListControl);
 }
@@ -315,6 +280,27 @@ void cSampleImporter::showActualInstrument()
 
 	display.setControlText(instrumentLabel,  actualInstrName);
 	display.refreshControl(instrumentLabel);
+}
+
+void cSampleImporter::AddOrEnter()
+{
+	if(locationExplorerList[selectedFile][0] == '/')
+	{
+		display.setControlText(topLabel[1], "Enter");
+	}
+	else
+	{
+		display.setControlText(topLabel[1], "Add");
+	}
+
+	display.refreshControl(topLabel[1]);
+}
+
+void cSampleImporter::rewindListToBeggining()
+{
+	selectedFile=0;
+	display.setControlValue(explorerListControl, selectedFile);
+	display.refreshControl(explorerListControl);
 }
 
 //==============================================================================================================
