@@ -1358,7 +1358,7 @@ static uint8_t functCopyDelete()
 		// COPY
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
-			sendSelection();
+			sendCopySelection();
 			sequencer.copyToBuffer();
 		}
 		// DELETE
@@ -1393,7 +1393,7 @@ static uint8_t functCopyDelete()
 	return 1;
 }
 
- void sendSelection()
+void sendSelection()
 {
  	if (isMultiSelection())
 	{
@@ -1408,6 +1408,23 @@ static uint8_t functCopyDelete()
 								PTE->trackerPattern.actualTrack,
 								PTE->trackerPattern.actualStep,
 								PTE->trackerPattern.actualTrack);
+	}
+}
+void sendCopySelection()
+{
+	if (isMultiSelection())
+	{
+		sequencer.setCopySelection(PTE->trackerPattern.selectStartStep,
+									PTE->trackerPattern.selectStartTrack,
+									PTE->trackerPattern.selectEndStep,
+									PTE->trackerPattern.selectEndTrack);
+	}
+	else
+	{
+		sequencer.setCopySelection(PTE->trackerPattern.actualStep,
+									PTE->trackerPattern.actualTrack,
+									PTE->trackerPattern.actualStep,
+									PTE->trackerPattern.actualTrack);
 	}
 }
  void sendPasteSelection()

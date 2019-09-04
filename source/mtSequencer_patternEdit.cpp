@@ -663,11 +663,12 @@ void Sequencer::insertReversed(strSelection *selection)
 }
 void Sequencer::copyToBuffer()
 {
-	copySelectionToBuffer(&sequencer.selection, &sequencer.selectionPaste);
+	copySelectionToBuffer(&sequencer.copySelection, &sequencer.pasteSelection);
 }
 void Sequencer::pasteFromBuffer()
 {
-	pasteSelectionFromBuffer(&sequencer.selection, &sequencer.selectionPaste);
+	pasteSelectionFromBuffer(&sequencer.copySelection,
+								&sequencer.pasteSelection);
 }
 
 void Sequencer::copySelectionToBuffer(strSelection *from, strSelection *to)
@@ -727,7 +728,8 @@ void Sequencer::pasteSelectionFromBuffer(strSelection *from, strSelection *to)
 			if (stepNoFrom <= MAXSTEP
 					&& trackNoFrom <= MAXTRACK
 					&& s <= MAXSTEP
-					&& t <= MAXTRACK)
+					&& t <= MAXTRACK
+					&& s <= seq[player.ramBank].track[t].length)
 			{
 
 				stepFrom = &copyTrackBuffer[trackNoFrom].step[stepNoFrom];
@@ -779,6 +781,34 @@ bool Sequencer::isSingleSelection(strSelection *selection)
 	}
 }
 
+void Sequencer::setCopySelection(uint8_t stepFrom,
+									uint8_t trackFrom,
+									uint8_t stepTo,
+									uint8_t trackTo)
+{
+	if (stepTo < stepFrom)
+	{
+		copySelection.firstStep = stepTo;
+		copySelection.lastStep = stepFrom;
+	}
+	else
+	{
+		copySelection.firstStep = stepFrom;
+		copySelection.lastStep = stepTo;
+	}
+
+	if (trackTo < trackFrom)
+	{
+		copySelection.firstTrack = trackTo;
+		copySelection.lastTrack = trackFrom;
+	}
+	else
+	{
+		copySelection.firstTrack = trackFrom;
+		copySelection.lastTrack = trackTo;
+	}
+
+}
 void Sequencer::setSelection(uint8_t stepFrom,
 								uint8_t trackFrom,
 								uint8_t stepTo,
@@ -815,24 +845,24 @@ void Sequencer::setPasteSelection(uint8_t stepFrom,
 {
 	if (stepTo < stepFrom)
 	{
-		selectionPaste.firstStep = stepTo;
-		selectionPaste.lastStep = stepFrom;
+		pasteSelection.firstStep = stepTo;
+		pasteSelection.lastStep = stepFrom;
 	}
 	else
 	{
-		selectionPaste.firstStep = stepFrom;
-		selectionPaste.lastStep = stepTo;
+		pasteSelection.firstStep = stepFrom;
+		pasteSelection.lastStep = stepTo;
 	}
 
 	if (trackTo < trackFrom)
 	{
-		selectionPaste.firstTrack = trackTo;
-		selectionPaste.lastTrack = trackFrom;
+		pasteSelection.firstTrack = trackTo;
+		pasteSelection.lastTrack = trackFrom;
 	}
 	else
 	{
-		selectionPaste.firstTrack = trackFrom;
-		selectionPaste.lastTrack = trackTo;
+		pasteSelection.firstTrack = trackFrom;
+		pasteSelection.lastTrack = trackTo;
 	}
 
 }

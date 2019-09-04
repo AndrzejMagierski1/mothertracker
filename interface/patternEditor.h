@@ -9,6 +9,7 @@
 
 uint8_t isMultiSelection();
 void sendSelection();
+void sendCopySelection();
 void sendPasteSelection();
 
 const uint8_t fillTypeListCount = 3;
