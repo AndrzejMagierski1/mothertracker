@@ -291,7 +291,7 @@ void cPatternEditor::refreshPattern()
 				trackerPattern.track[i].row[j].note[1] = 'F';
 				trackerPattern.track[i].row[j].note[2] = 'F';
 				trackerPattern.track[i].row[j].note[3] = 0;
-				showInstrument = 1;
+				showInstrument = 0;
 			}
 
 			if (showInstrument)
