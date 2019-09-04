@@ -49,8 +49,8 @@ void cConfigEditor::initDisplayControls()
 
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.y = 437;
-		prop2.h = 28;
+		prop2.y = 452;
+		prop2.h = 58;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 
 		prop2.x = (800/8)*i+5;
@@ -178,19 +178,19 @@ void cConfigEditor::showDefaultConfigScreen()
 	showConfigGroupList();
 
 	// bottom labels
-	display.setControlText(bottomLabel[0], "1");
-	display.setControlText(bottomLabel[1], "2");
-	display.setControlText(bottomLabel[2], "3");
-	display.setControlText(bottomLabel[3], "4");
-	display.setControlText(bottomLabel[4], "5");
-	display.setControlText(bottomLabel[5], "6");
-	display.setControlText(bottomLabel[6], " /\\           \\/ ");
+	display.setControlText(topLabel[0], "1");
+	display.setControlText(topLabel[1], "2");
+	display.setControlText(topLabel[2], "3");
+	display.setControlText(topLabel[3], "4");
+	display.setControlText(topLabel[4], "5");
+	display.setControlText(topLabel[5], "6");
+	display.setControlText(topLabel[6], " /\\           \\/ ");
 	//display.setControlText(bottomLabel[7], "");
 
 	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/8),  465);
-	display.setControlPosition(topLabel[6],  (800/8)*6+(800/8),  437);
+	display.setControlPosition(topLabel[6],  (800/8)*6+(800/8),  452);
 	display.setControlSize(bottomLabel[6],  800/4-6,  30);
-	display.setControlSize(topLabel[6],  800/4-6,  28);
+	display.setControlSize(topLabel[6],  800/4-6,  58);
 
 
 	display.setControlText(topLabel[6], "Config");
@@ -450,17 +450,18 @@ void cConfigEditor::showLimiterTreshold()
 
 void cConfigEditor::showFirmwareUpdateLabels()
 {
+	for(int i=0;i<6;i++)
+	{
+		display.setControlText(topLabel[i], "");
+		display.refreshControl(topLabel[i]);
+	}
+
 	display.setControlText(topLabel[0], "Firmware");
 	display.setControlText(topLabel[2], "Update");
 
 	display.refreshControl(topLabel[0]);
 	display.refreshControl(topLabel[2]);
 
-	for(int i=0;i<6;i++)
-	{
-		display.setControlText(bottomLabel[i], "");
-		display.refreshControl(bottomLabel[i]);
-	}
 
 	framesPlaces[0][0] = 0+2;
 	framesPlaces[0][1] = 31;
@@ -487,22 +488,16 @@ void cConfigEditor::showFirmwareUpdateLabels()
 
 void cConfigEditor::hideFirmwareUpdateLabels()
 {
-	display.setControlText(topLabel[0], "");
-	display.setControlText(topLabel[2], "");
-
-	display.refreshControl(topLabel[0]);
-	display.refreshControl(topLabel[2]);
-
-	display.setControlText(bottomLabel[0], "1");
-	display.setControlText(bottomLabel[1], "2");
-	display.setControlText(bottomLabel[2], "3");
-	display.setControlText(bottomLabel[3], "4");
-	display.setControlText(bottomLabel[4], "5");
-	display.setControlText(bottomLabel[5], "6");
+	display.setControlText(topLabel[0], "1");
+	display.setControlText(topLabel[1], "2");
+	display.setControlText(topLabel[2], "3");
+	display.setControlText(topLabel[3], "4");
+	display.setControlText(topLabel[4], "5");
+	display.setControlText(topLabel[5], "6");
 
 	for(int i=0;i<6;i++)
 	{
-		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
 	}
 
 	//przywrocenie ramki
@@ -568,6 +563,31 @@ void cConfigEditor::hideFirmwareUpdatePopout()
 
 	display.synchronizeRefresh();
 }
+
+void cConfigEditor::resizeLabelConfigDefault()
+{
+	for(int i=0;i<8;i++)
+	{
+		display.setControlText(topLabel[i],"");
+		display.setControlText(bottomLabel[i],"");
+		display.setControlSize(topLabel[i], (800/8)-6, 58);
+		display.setControlPosition(topLabel[i], (800/8)*i+(800/16), 452);
+		display.refreshControl(topLabel[i]);
+	}
+}
+
+void cConfigEditor::resizeLabelConfigMaster()
+{
+	for(int i=0;i<8;i++)
+	{
+		display.setControlText(topLabel[i],"");
+		display.setControlText(bottomLabel[i],"");
+		display.setControlSize(topLabel[i], (800/8)-6, 28);
+		display.setControlPosition(topLabel[i], (800/8)*i+(800/16), 437);
+		display.refreshControl(topLabel[i]);
+	}
+}
+
 
 
 

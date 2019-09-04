@@ -107,6 +107,8 @@ void cConfigEditor::start(uint32_t options)
 	{
 	case mtConfigModeDefault:
 	{
+		resizeLabelConfigDefault();
+
 		showDefaultConfigScreen();
 		setConfigScreenFunct();
 		if(CE->selectedConfigGroup == configDefaultFirmware)
@@ -114,12 +116,18 @@ void cConfigEditor::start(uint32_t options)
 			showFirmwareMenu();
 		}
 
+
+
 		break;
 	}
 	case mtConfigModeMaster:
 	{
+		resizeLabelConfigMaster();
+
 		showMasterScreen();
 		setMasterScreenFunct();
+
+
 		break;
 	}
 	case mtConfigModeMasterTracks:
@@ -574,7 +582,7 @@ static  uint8_t functSwitchModeConfig(uint8_t state)
 		{
 			CE->mode = 0;
 
-
+			CE->resizeLabelConfigDefault();
 			CE->showDefaultConfigScreen();
 			CE->setConfigScreenFunct();
 
@@ -599,6 +607,8 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 
 		if(CE->mode != mtConfigModeMaster)
 		{
+			CE->resizeLabelConfigMaster();
+
 			if(CE->selectedConfigGroup == configDefaultFirmware)
 			{
 				CE->hideFirmwareMenu();
@@ -611,6 +621,8 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 			CE->activateLabelsBorder();
 
 
+
+
 			return 0;
 		}
 
@@ -619,6 +631,8 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 	}
 	else if(state == buttonHold)
 	{
+		CE->resizeLabelConfigMaster();
+
 		CE->exitOnButtonRelease = 1;
 		CE->selectedPlace[mtConfigModeMaster] = 0;
 		CE->activateLabelsBorder();
