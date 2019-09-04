@@ -117,7 +117,7 @@ void cPatternEditor::start(uint32_t options)
 
 	mtProject.values.padBoardScale = 0;
 	mtProject.values.padBoardNoteOffset = 12;
-	mtProject.values.padBoardRootNote = 0;
+	mtProject.values.padBoardRootNote = 36;
 
 	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
 			mtProject.values.padBoardNoteOffset,

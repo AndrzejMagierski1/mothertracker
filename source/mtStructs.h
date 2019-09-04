@@ -60,7 +60,7 @@ const uint8_t SONG_MAX =						100;
 const uint8_t SAMPLE_POINT_POS_MIN =            0;
 const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
 
-const  int8_t MAX_NOTE =						49;
+const  int8_t MAX_NOTE =						120;
 const  int8_t MIN_NOTE =						0;
 
 const uint8_t INSTRUMEN_ENVELOPES_MAX 		=	3;
@@ -389,7 +389,7 @@ struct strMtValues
 
 	uint8_t padBoardScale = 0;
 	uint8_t padBoardNoteOffset = 12;
-	uint8_t padBoardRootNote = 0;
+	uint8_t padBoardRootNote = 36;
 	uint8_t padBoardMaxVoices = 8;
 
 	uint8_t volume;
