@@ -4,20 +4,6 @@
 #include <stdint.h>
 #include "scales.h"
 #include "mtStructs.h"
-//#include "patternEditor.h"
-//#include "mtfil"
-
-/*
- definicje na potrzeby portu programu na mniejsze seczki
- */
-
-//TODO - przeniesione do mtStructs.h
-/*
-#define FV_VER_1 0	// device version
-#define FV_VER_2 1	// official update
-#define FV_VER_3 0	// fix version
-#define MEMORY_STRUCT_VER 2
-*/
 
 class Sequencer
 {
@@ -25,7 +11,6 @@ class Sequencer
 public:
 	enum
 	{
-		//static const uint8_t
 		MAXTRACK = 7,
 		MINTRACK = 0,
 		MINSTEP = 0,
@@ -310,7 +295,7 @@ public:
 		uint8_t lastStep = 0;
 		uint8_t lastTrack = 0;
 
-	} selection, selectionPaste;
+	} selection, copySelection, pasteSelection;
 
 	uint8_t get_fxValType(uint8_t fxType);
 	private:
@@ -475,7 +460,7 @@ public:
 		bool isPlay = 0;
 		bool isREC = 0;
 		bool isStop = 1;
-//		bool loadBank = 0;
+		//		bool loadBank = 0;
 		bool ramBank = 0;
 		bool swingToogle = 0;
 		float externalTempo = 120.0;
@@ -626,6 +611,10 @@ public:
 						uint8_t trackFrom,
 						uint8_t stepTo,
 						uint8_t trackTo);
+	void setCopySelection(uint8_t stepFrom,
+							uint8_t trackFrom,
+							uint8_t stepTo,
+							uint8_t trackTo);
 	void setPasteSelection(uint8_t stepFrom,
 							uint8_t trackFrom,
 							uint8_t stepTo,
