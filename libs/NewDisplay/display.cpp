@@ -14,6 +14,7 @@
 
 #include "poly_logo_inv.h"
 
+#include "poly_logo_inv_128x128_L8.h"
 
 #include "Roboto_Mono_14_L4.h"
 #include "Roboto_Mono_20_L4.h"
@@ -51,6 +52,7 @@ strFont fonts[displayFontCount] =
 
 strBitmap bitmaps[displayBitmapsCount] =
 {
+/*
 	{
 		poly_logo_inv_290x290,
 		50000,
@@ -60,17 +62,27 @@ strBitmap bitmaps[displayBitmapsCount] =
 		L4,
 		145,
 	},
+*/
 /*
 	{
 		poly_logo_inv_128x128,
 		50000,
-		0,
+		8192,
 		128,
 		128,
 		L4,
 		64,
 	},
 */
+	{
+		poly_logo_inv_128x128_l8,
+		50000,
+		16384,
+		128,
+		128,
+		L8,
+		128,
+	},
 };
 
 

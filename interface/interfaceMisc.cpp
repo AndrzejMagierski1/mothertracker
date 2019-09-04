@@ -56,7 +56,7 @@ void cInterface::initStartScreen()
 
 	strControlProperties prop;
 	prop.x = 190;
-	prop.y = 350;
+	prop.y = 280;
 	//prop.w = 800/4-10;
 	prop.style = controlStyleShow;
 	prop.h = 100;
