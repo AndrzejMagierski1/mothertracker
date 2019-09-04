@@ -435,6 +435,7 @@ uint32_t WaveLoader::start(const char *filename, int16_t * buf)
 	if(buf == NULL)
 	{
 		stopFlag = 0;
+		state = loaderStateTypeEnded;
 		return 0;
 	}
 	accBufferLength = 0;
@@ -442,6 +443,9 @@ uint32_t WaveLoader::start(const char *filename, int16_t * buf)
 	if(!wavfile)
 	{
 		wavfile.close();
+
+		state = loaderStateTypeEnded;
+		stopFlag = 0;
 		return 0;
 	}
 	readHeader(&sampleHead,&wavfile);
