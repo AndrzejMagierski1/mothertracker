@@ -92,6 +92,12 @@ void cMtPadBoard::stopInstrument(uint8_t pad)
 	instrumentPlayer[voiceToClear].noteOff();
 }
 
+void cMtPadBoard::clearVoice(uint8_t voice)
+{
+	if(voice < 0) return;
+	voices[voice] = -1;
+}
+
 void cMtPadBoard::releaseAllInstrument()
 {
 	for(uint8_t i = 0; i<8; i++)

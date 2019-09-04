@@ -17,6 +17,7 @@ public:
 	void startInstrument(uint8_t pad,int16_t * addres, uint32_t length);
 	void stopInstrument(uint8_t pad);
 	int8_t getVoiceTakenByPad(uint8_t pad);
+	void clearVoice(uint8_t voice);
 
 	void releaseAllInstrument();
 
