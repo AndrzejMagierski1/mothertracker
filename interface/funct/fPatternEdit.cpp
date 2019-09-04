@@ -1169,7 +1169,7 @@ static  uint8_t functNote(uint8_t state)
 
 		for(uint8_t i = 0; i < 48; i++)
 		{
-			PTE->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
+			interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
 		}
 
 		PTE->FM->clearButtonsRange(interfaceButton0, interfaceButton7);

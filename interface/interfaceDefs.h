@@ -3,6 +3,10 @@
 #define MT_INTERFACE_DEFS_H
 
 
+
+#include "mtStructs.h"
+
+
 #define MT_INTERFACE_STARTUP_TIME 10000
 
 
@@ -192,6 +196,24 @@ enum enumMtOperatingMode
 	mtOperatingModeStartup,
 	mtOperatingModeRun,
 };
+
+
+struct strInterfaceGlobals
+{
+	char *padNamesPointer[48];
+
+	char intrumentsNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
+	char *ptrIntrumentsNames[INSTRUMENTS_COUNT];
+
+};
+
+extern strInterfaceGlobals interfaceGlobals;
+
+
+
+
+
+
 
 
 #endif

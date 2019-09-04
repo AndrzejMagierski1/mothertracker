@@ -1194,7 +1194,7 @@ static uint8_t functStepNote(uint8_t value)
 	{
 		for(uint8_t i = 0; i < 48; i++)
 		{
-			SP->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
+			interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
 		}
 
 		SP->FM->clearButtonsRange(interfaceButton0, interfaceButton7);

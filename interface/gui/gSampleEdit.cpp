@@ -117,7 +117,7 @@ void cSampleEditor::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 	padNamesStruct.length=5;
-	padNamesStruct.name = padNamesPointer;
+	padNamesStruct.name = interfaceGlobals.padNamesPointer;
 
 	strControlProperties prop11;
 	prop11.x = 16;
@@ -238,23 +238,7 @@ void cSampleEditor::activateLabelsBorder()
 //==============================================================================================================
 void cSampleEditor::showZoomValue()
 {
-	if(zoomValue >= 10.0)
-	{
-		zoomTextValue[0] = (uint8_t)zoomValue /10 + 48;
-		zoomTextValue[1] = (uint8_t)zoomValue %10 + 48;
-		zoomTextValue[2] = '.';
-		zoomTextValue[3] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) /10 + 48;
-		zoomTextValue[4] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) %10 + 48;
-		zoomTextValue[5] = 0;
-	}
-	else
-	{
-		zoomTextValue[0] = (uint8_t)zoomValue + 48;
-		zoomTextValue[1] = '.';
-		zoomTextValue[2] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) /10 + 48;
-		zoomTextValue[3] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) %10 + 48;
-		zoomTextValue[4] = 0;
-	}
+	sprintf(zoomTextValue, "%.2f", zoomValue);
 
 	display.setControlText(topLabel[5], zoomTextValue);
 	display.setControlShow(topLabel[5]);
@@ -282,22 +266,7 @@ void cSampleEditor::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	if(i<9)
-	{
-		actualInstrName[0] = (i+1)%10 + 48;
-		actualInstrName[1] = '.';
-		actualInstrName[2] = ' ';
-		actualInstrName[3] = 0;
-	}
-	else
-	{
-		actualInstrName[0] = ((i+1)/10) + 48;
-		actualInstrName[1] = (i+1)%10 + 48;
-		actualInstrName[2] = '.';
-		actualInstrName[3] = ' ';
-		actualInstrName[4] = 0;
-	}
-
+	sprintf(actualInstrName, "%d. ", i);
 
 	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 

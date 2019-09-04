@@ -108,7 +108,7 @@ void cSamplePlayback::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 	padNamesStruct.length=5;
-	padNamesStruct.name = padNamesPointer;
+	padNamesStruct.name = interfaceGlobals.padNamesPointer;
 
 	strControlProperties prop11;
 	prop11.x = 16;
@@ -560,22 +560,7 @@ void cSamplePlayback::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	if(i<9)
-	{
-		actualInstrName[0] = (i+1)%10 + 48;
-		actualInstrName[1] = '.';
-		actualInstrName[2] = ' ';
-		actualInstrName[3] = 0;
-	}
-	else
-	{
-		actualInstrName[0] = ((i+1)/10) + 48;
-		actualInstrName[1] = (i+1)%10 + 48;
-		actualInstrName[2] = '.';
-		actualInstrName[3] = ' ';
-		actualInstrName[4] = 0;
-	}
-
+	sprintf(actualInstrName, "%d. ", i);
 
 	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 

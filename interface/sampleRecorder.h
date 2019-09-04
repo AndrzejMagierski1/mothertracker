@@ -297,7 +297,10 @@ uint8_t cropCounter = 0;
 	void showSelectionWindowFullMemory();
 
 	strPadNames padNamesStruct;
-	char *padNamesPointer[48];
+
+	//char *padNamesPointer[48];
+
+
 	void showNotePopout();
 	void hideNotePopout();
 };
