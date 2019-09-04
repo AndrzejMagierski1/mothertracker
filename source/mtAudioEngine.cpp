@@ -484,6 +484,10 @@ void playerEngine:: update()
 	float filterMod=0;
 	float ampMod=0;
 
+	currentPlayState = playMemPtr->isPlaying();
+	if(currentPlayState == 0 && lastPlayState == 1) interfacePlayingEndFlag = 1;
+	lastPlayState = currentPlayState;
+
 	if(envelopeAmpPtr->endRelease())
 	{
 		envelopeAmpPtr->clearEndReleaseFlag();
@@ -752,5 +756,14 @@ uint8_t playerEngine ::getInterfaceEndReleaseFlag()
 void playerEngine ::clearInterfaceEndReleaseFlag()
 {
 	interfaceEndReleaseFlag = 0;
+}
+
+uint8_t playerEngine ::getInterfacePlayingEndFlag()
+{
+	return interfacePlayingEndFlag;
+}
+void playerEngine ::clearInterfacePlayingEndFlag()
+{
+	interfacePlayingEndFlag = 0;
 }
 

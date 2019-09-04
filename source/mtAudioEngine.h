@@ -70,6 +70,8 @@ public:
 //	void resetMods();
 	uint8_t getInterfaceEndReleaseFlag();
 	void clearInterfaceEndReleaseFlag();
+	uint8_t getInterfacePlayingEndFlag();
+	void clearInterfacePlayingEndFlag();
 	void update();
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note);
@@ -94,6 +96,9 @@ private:
 	static uint8_t				onVoices;
 	static uint8_t				activeAmpEnvelopes;
 	uint8_t 					interfaceEndReleaseFlag = 0;
+	uint8_t 					interfacePlayingEndFlag = 0;
+	uint8_t 					currentPlayState = 0;
+	uint8_t 					lastPlayState = 0;
 
 	void changeFilterType(uint8_t type);
 	void filterConnect();
