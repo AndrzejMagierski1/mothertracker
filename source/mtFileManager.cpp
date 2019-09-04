@@ -254,6 +254,10 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 
 
 	strcpy(currentProjectName, name);
+	strcpy(mtConfig.startup.lastProjectName, currentProjectName);
+
+	forceSaveConfig();
+
 //	strcpy(mtProject.path, currentPatch); // aktualna ścieżka projektu z nazwą
 //	strcat(mtProject.path, "/"); // aktualna ścieżka projektu z nazwą
 
@@ -273,13 +277,20 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 			 strcat(currentPatch,"/instruments/");
 			 strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[i].name);
 
-			 status=readInstrumentFile(currentPatch,&mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index]);
+			 status=readInstrumentFile(currentPatch,&mtProject.instrument[i]);
 			 if(!status) return status;
 
-			 memcpy(mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.file_name,mtProject.mtProjectRemote.instrumentFile[i].sample.name, SAMPLE_NAME_SIZE);
-			 mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.type=mtProject.mtProjectRemote.instrumentFile[i].sample.type;
-			 mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].isActive = 1;
+			 memcpy(mtProject.instrument[i].sample.file_name,mtProject.mtProjectRemote.instrumentFile[i].sample.name, SAMPLE_NAME_SIZE);
+			 mtProject.instrument[i].sample.type=mtProject.mtProjectRemote.instrumentFile[i].sample.type;
+			 mtProject.instrument[i].isActive = 1;
 			 mtProject.instruments_count++;
+		 }
+		 else
+		 {
+			 memset(mtProject.instrument[i].sample.file_name,0, SAMPLE_NAME_SIZE);
+			 mtProject.instrument[i].sample.loaded = 0;
+			 mtProject.instrument[i].sample.length = 0;
+			 mtProject.instrument[i].isActive = 0;
 		 }
 	}
 
@@ -756,18 +767,12 @@ uint8_t FileManager::saveAsProject(char* name)
 
 		if(mtProject.mtProjectRemote.instrumentFile[i].index != -1)
 		{
-			memset(currentPatch,0,PATCH_SIZE);
-			strcpy(currentPatch,"Projects/");
-			strcat(currentPatch,name);
-			strcat(currentPatch,"/instruments/");
-			strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[i].name);
+			sprintf(currentPatch,"Projects/%s/instruments/%s",name,mtProject.mtProjectRemote.instrumentFile[i].name);
 
 			memcpy(mtProject.mtProjectRemote.instrumentFile[i].sample.name,mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.file_name, SAMPLE_NAME_SIZE);
 			mtProject.mtProjectRemote.instrumentFile[i].sample.type=mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.type;
 
-			memset(currentPatch,0,PATCH_SIZE);
-			strcpy(currentPatch,"Projects/");
-			strcat(currentPatch,name);
+			sprintf(currentPatch,"Projects/%s", name);
 
 			copySample(currentProjectPatch,mtProject.mtProjectRemote.instrumentFile[i].sample.name,currentPatch,mtProject.mtProjectRemote.instrumentFile[i].sample.name);
 
@@ -780,27 +785,18 @@ uint8_t FileManager::saveAsProject(char* name)
 
 		if(mtProject.mtProjectRemote.patternFile[i].index != - 1)
 		{
-			memset(currentPatch,0,PATCH_SIZE);
-			strcpy(currentPatch,"Projects/");
-			strcat(currentPatch,name);
-			if(mtProject.mtProjectRemote.patternFile[i].index == mtProject.values.actualPattern)
-			{
-				strcat(currentPatch,"/patterns/");
-//				strcat(currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
-				writePatternFile(currentPatch);
 
-				memset(currentPatch,0,PATCH_SIZE);
-				strcpy(currentPatch,"Projects/");
-				strcat(currentPatch,name);
+			if(i == mtProject.values.actualPattern)
+			{
+				savePattern(i);
+
+				sprintf(currentPatch,"Projects/%s", name);
 			}
 //			TODO:
 //			copyPattern(currentProjectPatch, mtProject.mtProjectRemote.patternFile[i].name,currentPatch,mtProject.mtProjectRemote.patternFile[i].name);
 		}
 	}
-	memset(currentPatch,0,PATCH_SIZE);
-	strcpy(currentPatch,"Projects/");
-	strcat(currentPatch,name);
-	strcat(currentPatch,"/project.bin");
+	sprintf(currentPatch,"Projects/%s/project.bin", name);
 
 	writeProjectFile(currentPatch,&mtProject.mtProjectRemote);
 	return 1;
@@ -819,10 +815,7 @@ void FileManager::saveProject()
 
 		if(mtProject.mtProjectRemote.instrumentFile[i].index != -1)
 		{
-			memset(currentPatch,0,PATCH_SIZE);
-			strcpy(currentPatch,currentProjectPatch);
-			strcat(currentPatch,"/instruments/");
-			strcat(currentPatch,mtProject.mtProjectRemote.instrumentFile[i].name);
+
 
 			memcpy(mtProject.mtProjectRemote.instrumentFile[i].sample.name,mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.file_name, SAMPLE_NAME_SIZE);
 			mtProject.mtProjectRemote.instrumentFile[i].sample.type=mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.type;
@@ -853,9 +846,7 @@ void FileManager::saveProject()
 //		}
 //
 //	}
-	memset(currentPatch,0,PATCH_SIZE);
-	strcpy(currentPatch,currentProjectPatch);
-	strcat(currentPatch,"/project.bin");
+	sprintf(currentPatch,"%s/project.bin", currentProjectPatch);
 
 	writeProjectFile(currentPatch,&mtProject.mtProjectRemote);
 
@@ -955,8 +946,7 @@ void FileManager::createEmptyTemplateProject(char * name)
 //	strcpy(mtProject.mtProjectRemote.patternFile[0].name,"pattern_00.mtp");
 
 
-	strcpy(currentProjectPatch,"Templates/");
-	strcat(currentProjectPatch,name);
+	sprintf(currentProjectPatch,"Templates/%s",name);
 
 	strcpy(currentProjectName,name);
 
@@ -964,36 +954,27 @@ void FileManager::createEmptyTemplateProject(char * name)
 	if(!SD.exists("Templates")) SD.mkdir("Templates");
 	if(!SD.exists(currentProjectPatch)) SD.mkdir(currentProjectPatch);
 
-	strcpy(patchFolder,"Templates/");
-	strcat(patchFolder,name);
-	strcat(patchFolder,"/instruments");
+	sprintf(patchFolder,"Templates/%s/instruments", name);
 	SD.mkdir(patchFolder);
 
-	memset(patchFolder,0,PATCH_SIZE);
-	strcpy(patchFolder,"Templates/");
-	strcat(patchFolder,name);
-	strcat(patchFolder,"/patterns");
+	sprintf(patchFolder,"Templates/%s/patterns", name);
 	SD.mkdir(patchFolder);
 
-	memset(patchFolder,0,PATCH_SIZE);
-	strcpy(patchFolder,"Templates/");
-	strcat(patchFolder,name);
-	strcat(patchFolder,"/samples");
+	sprintf(patchFolder,"Templates/%s/samples", name);
 	SD.mkdir(patchFolder);
 
-	memset(patchFolder,0,PATCH_SIZE);
-	strcpy(patchFolder,"Templates/");
-	strcat(patchFolder,name);
-	strcat(patchFolder,"/patterns/");
+	savePattern(0);
+
+//	memset(patchFolder,0,PATCH_SIZE);
+//	strcpy(patchFolder,"Templates/");
+//	strcat(patchFolder,name);
+//	strcat(patchFolder,"/patterns/");
 //	strcat(patchFolder,mtProject.mtProjectRemote.patternFile[0].name);
 
 	mtProject.patterns_count++;
 	writePatternFile(patchFolder);
 
-	memset(patchFolder,0,PATCH_SIZE);
-	strcpy(patchFolder,"Templates/");
-	strcat(patchFolder,name);
-	strcat(patchFolder,"/project.bin");
+	sprintf(patchFolder,"Templates/%s/project.bin", name);
 
 	writeProjectFile(patchFolder, &mtProject.mtProjectRemote);
 

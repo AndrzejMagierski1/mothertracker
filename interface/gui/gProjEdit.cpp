@@ -209,7 +209,7 @@ void cProjectEditor::showTemplatesList()
 // bottom labels
 	display.setControlText(bottomLabel[0], "Create");
 	display.setControlText(bottomLabel[1], "Cancel");
-	display.setControlText(bottomLabel[4], "New");
+	display.setControlText(bottomLabel[4], "Test");
 
 	display.refreshControl(bottomLabel[0]);
 	display.refreshControl(bottomLabel[1]);
@@ -233,7 +233,7 @@ void cProjectEditor::showEnterNameKeyboard()
 // bottom labels
 	display.setControlText(bottomLabel[0], "Create");
 	display.setControlText(bottomLabel[1], "Cancel");
-	display.setControlText(bottomLabel[4], "New");
+	display.setControlText(bottomLabel[4], "Test");
 
 	display.refreshControl(bottomLabel[0]);
 	display.refreshControl(bottomLabel[1]);
