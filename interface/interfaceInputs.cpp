@@ -29,18 +29,14 @@ void cInterface::potChange(uint8_t n, int16_t value)
 //=======================================================================
 void cInterface::buttonChange(uint8_t n, uint8_t value)
 {
-	if(value==2)
+	if(value==2 && (n == 26 || n == 30 || n == 31 || n == 32 || n == 29))
 	{
-		if(n == 26 || n == 30 || n == 31 || n == 32)
-		{
-			uiFM.processButtonsInput(n, 1);
-		}
+		uiFM.processButtonsInput(n, 1);
 	}
 	else
 	{
 		uiFM.processButtonsInput(n, value);
 	}
-
 }
 
 //=======================================================================
@@ -66,6 +62,10 @@ void cInterface::padReleased(uint8_t n)
 	uiFM.processPadsInput(n, 0, 0);
 
 //	leds.setLEDgrid(n,0,31);
+}
+void cInterface::padHold(uint8_t n)
+{
+	uiFM.processPadsInput(n, 2, 0);
 }
 
 //=======================================================================

@@ -2,7 +2,6 @@
 
 void Recorder:: startRecording(int16_t * addr)
 {
-	strcpy(currentName,"rec_001.wav");
 	currentAddress = addr;
 	startAddress = addr;
 
@@ -20,12 +19,10 @@ void Recorder:: startRecording(int16_t * addr)
 
 	queue.begin();
 	mode = recorderModeRec;
-
-	mode = recorderModeRec;
 	recByteSaved = 0;
 }
 
-void Recorder::update()
+uint8_t Recorder::update()
 {
 	if(mode == recorderModeRec )
 	{
@@ -36,8 +33,14 @@ void Recorder::update()
 			currentAddress += 128;
 			recByteSaved += 256;
 		}
-		if(recByteSaved >= SAMPLE_MEMORY_MAX) stopRecording();
+		if(recByteSaved >= SAMPLE_MEMORY_MAX)
+		{
+			queue.end();
+			mode = recorderModeStop;
+			return 0;
+		}
 	}
+	return 1;
 }
 
 
@@ -63,7 +66,7 @@ void Recorder::play(uint16_t start, uint16_t stop)
 
 	addressShift = (uint32_t)( (uint32_t)start * (float)(recByteSaved/2)/MAX_16BIT);
 
-	instrumentPlayer[0].noteOnforPrev(startAddress + addressShift,length);
+	instrumentPlayer[0].noteOnforPrev(startAddress + addressShift,length - addressShift);
 }
 
 void Recorder::stop()
@@ -75,74 +78,90 @@ void Recorder::trim(uint16_t a, uint16_t b)
 {
 	uint32_t addressShift;
 	uint32_t lengthShift;
+
 	addressShift = (uint32_t)( (uint32_t)a * (float)(recByteSaved/2)/MAX_16BIT);
-	lengthShift =(uint32_t)((uint32_t)b * (float)(recByteSaved/2)/MAX_16BIT);
+	lengthShift =(uint32_t)((uint32_t)b * (float)(recByteSaved)/MAX_16BIT);
 	startAddress+=addressShift;
-	recByteSaved -= 2*lengthShift; //zamieniam probki na bajty
+	recByteSaved = lengthShift - 2*addressShift; //zamieniam probki na bajty
 }
 
-void Recorder::save()
+void Recorder::undo(int16_t * address, uint32_t length)
+{
+	startAddress=address;
+	recByteSaved = 2*length; //zamieniam probki na bajty
+}
+
+uint8_t Recorder::startSave(char * name, uint8_t type)
 {
 	char currentPatch[PATCH_SIZE];
-	uint16_t rec_cnt=1;
-	uint32_t length;
+
+
 	if(!SD.exists("Recorded")) SD.mkdir("Recorded");
 
 	strcpy(currentPatch,"Recorded/");
-	strcat(currentPatch,currentName);
+	strcat(currentPatch,name);
+	strcat(currentPatch,".wav");
 
-	while(SD.exists(currentPatch))
+	saveLength=recByteSaved;
+
+	if(type == 0)
 	{
-		rec_cnt++;
-
-		if(rec_cnt<10) currentName[6] = rec_cnt+48;
-		if(rec_cnt>=10 && rec_cnt < 100 )
-		{
-			currentName[6] = rec_cnt%10 + 48;
-			currentName[5] = rec_cnt/10 + 48;
-		}
-		if(rec_cnt>=100 && rec_cnt < 1000 )
-		{
-			currentName[6] = rec_cnt%10 + 48;
-			currentName[5] = (rec_cnt/10)%10 + 48;
-			currentName[4] = rec_cnt/100 + 48;
-		}
-
-		strcpy(currentPatch,"Recorded/");
-		strcat(currentPatch,currentName);
+		if (SD.exists(currentPatch)) return 0;
+	}
+	else if(type == 1)
+	{
+		if (SD.exists(currentPatch)) SD.remove(currentPatch);
 	}
 
-	length=recByteSaved;
-
-	if (SD.exists(currentPatch)) SD.remove(currentPatch);
 
 	rec = SD.open(currentPatch, FILE_WRITE);
 
-
-	rec.seek(44);
+	rec.write(currentPatch,sizeof(header)); //tablica ktora byla pod reka aby ustawic seek na 44 - funkcja seek powodowala blad
 	currentAddress=startAddress;
-	while(length)
+
+	return 1;
+}
+void Recorder::updateSave()
+{
+	if(saveLength)
 	{
-		if(length >= 2048)
+		if(saveLength >= 2048)
 		{
 			rec.write(currentAddress,2048);
 			currentAddress+=1024;
-			length-=2048;
+			saveLength-=2048;
 		}
 		else
 		{
-			rec.write(currentAddress,length);
-			length=0;
+			rec.write(currentAddress,saveLength);
+			saveLength=0;
+			stopSave();
 		}
 	}
+}
+void Recorder::stopSave()
+{
 	writeOutHeader();
 }
+uint8_t Recorder::getSaveProgress()
+{
+	return recByteSaved > 0 ? ((recByteSaved - saveLength)*100)/recByteSaved : 0;
+}
+uint8_t Recorder::getSaveState()
+{
+	return saveLength > 0 ? 1:0;
+}
+
 
 int16_t * Recorder::getAddress()
 {
 	return currentAddress;
 }
 
+int16_t * Recorder::getStartAddress()
+{
+	return startAddress;
+}
 uint32_t Recorder::getLength()
 {
 	return recByteSaved/2;
@@ -150,50 +169,24 @@ uint32_t Recorder::getLength()
 
 void Recorder::writeOutHeader()
 {
-	Subchunk2Size = recByteSaved;
-	ChunkSize = Subchunk2Size + 36;
+
+	header.chunkId = 0x46464952; 																// "RIFF"
+	header.chunkSize = recByteSaved + 36;
+	header.format = 0x45564157;																	// "WAVE"
+	header.subchunk1Id = 0x20746d66;															// "fmt "
+	header.subchunk1Size = 16;
+	header.AudioFormat = 1;
+	header.numChannels = 1;
+	header.sampleRate = 44100;
+	header.bitsPerSample = 16;
+	header.byteRate = header.sampleRate * header.numChannels * (header.bitsPerSample/8);
+	header.blockAlign = header.numChannels * (header.bitsPerSample/8);
+	header.subchunk2Id = 0x61746164;															// "data"
+	header.subchunk2Size = recByteSaved;
+
+
 	rec.seek(0);
-	rec.write("RIFF",4);
-	byte1 = ChunkSize & 0xff;
-	byte2 = (ChunkSize >> 8) & 0xff;
-	byte3 = (ChunkSize >> 16) & 0xff;
-	byte4 = (ChunkSize >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	rec.write("WAVE",4);
-	rec.write("fmt ",4);
-	byte1 = Subchunk1Size & 0xff;
-	byte2 = (Subchunk1Size >> 8) & 0xff;
-	byte3 = (Subchunk1Size >> 16) & 0xff;
-	byte4 = (Subchunk1Size >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	byte1 = AudioFormat & 0xff;
-	byte2 = (AudioFormat >> 8) & 0xff;
-	rec.write(byte1);  rec.write(byte2);
-	byte1 = numChannels & 0xff;
-	byte2 = (numChannels >> 8) & 0xff;
-	rec.write(byte1);  rec.write(byte2);
-	byte1 = sampleRate & 0xff;
-	byte2 = (sampleRate >> 8) & 0xff;
-	byte3 = (sampleRate >> 16) & 0xff;
-	byte4 = (sampleRate >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	byte1 = byteRate & 0xff;
-	byte2 = (byteRate >> 8) & 0xff;
-	byte3 = (byteRate >> 16) & 0xff;
-	byte4 = (byteRate >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
-	byte1 = blockAlign & 0xff;
-	byte2 = (blockAlign >> 8) & 0xff;
-	rec.write(byte1);  rec.write(byte2);
-	byte1 = bitsPerSample & 0xff;
-	byte2 = (bitsPerSample >> 8) & 0xff;
-	rec.write(byte1);  rec.write(byte2);
-	rec.write("data",4);
-	byte1 = Subchunk2Size & 0xff;
-	byte2 = (Subchunk2Size >> 8) & 0xff;
-	byte3 = (Subchunk2Size >> 16) & 0xff;
-	byte4 = (Subchunk2Size >> 24) & 0xff;
-	rec.write(byte1);  rec.write(byte2);  rec.write(byte3);  rec.write(byte4);
+	rec.write(&header,sizeof(header));
 	rec.close();
 }
 

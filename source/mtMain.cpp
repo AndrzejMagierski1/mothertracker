@@ -8,7 +8,6 @@
 #include "Snooze.h" // tymczasowo
 
 #include "mtSequencer.h"
-#include "seqDisplay.h"
 #include "chatBot.h"
 #include "mtPadsBacklight.h"
 #include "mtSleep.h"
@@ -23,7 +22,7 @@
 //extern Sequencer seq[2];
 extern void initHardware();
 extern void updateHardware();
-
+extern AudioControlSGTL5000 audioShield;
 
 ;;
 //=======================================================================

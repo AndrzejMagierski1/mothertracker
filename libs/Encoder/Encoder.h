@@ -13,6 +13,8 @@
 enum prevInt_t{prevIntTOF, prevIntCompLow, prevIntCompHigh};
 
 
+#define ENCODER_PPR 96.0
+
 class cEncoder
 {
 public:
@@ -20,8 +22,8 @@ public:
 
 	void switchRead();
 	void begin(uint8_t intPin, void (*func)(uint8_t n, uint8_t value));
-	void setRes(uint8_t step_res);
-	void setSpeedUp(uint8_t speed);
+	void setResolution(uint16_t value);
+	void setAcceleration(uint8_t value);
 	int32_t read();
 	void testMode(uint8_t state);
 
@@ -34,8 +36,8 @@ public:
 
 private:
 
-	uint8_t resolution_ratio = 5;
-	uint8_t resolution = resolution_ratio*4;
+	uint8_t resolution_ratio = 1;
+	uint8_t resolution = resolution_ratio*8;
 	uint8_t test_mode = 0;
 	uint8_t speed_up = 0;
 	int16_t difference = 0;	
@@ -44,6 +46,24 @@ private:
 	uint8_t switchPin = 0;
 	uint8_t powerSwitchLastState = 0;
 	int8_t powerSwitchDebounce;
+
+	struct strEncoder
+	{
+		int16_t position;
+		int16_t last_position;
+		uint8_t part;
+		uint8_t last_part;
+
+		uint8_t last_direction;
+
+		int16_t diffrence_blur;
+
+		uint16_t resolution = 24;
+		uint8_t speed = 0;
+
+		int16_t  global_diff = 0;
+
+	} encoder;
 
 
 
@@ -130,6 +150,15 @@ private:
 	volatile uint8_t v_intStatus;	// For interrupt routine debugging
 
 
+};
+
+const uint16_t potAcc[5][50]=
+{
+/*1*/	{0,1,2,3,4,5,8,12,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,},
+/*2*/	{0,1,2,3,4,5,8,12,17,23,2,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,},
+/*3*/	{0,1,2,4,5,6,7,8,9,10,38,47,57,68,80,93,107,122,138,155,173,192,212,233,255,278,302,327,353,380,408,437,467,498,530,563,597,632,668,705,743,782,822,863,905,948},
+/*4*/	{0,1,2,4,5,8,12,17,23,30,38,47,57,68,80,93,107,122,138,155,173,192,212,233,255,278,302,327,353,380,408,437,467,498,530,563,597,632,668,705,743,782,822,863,905,948},
+/*5*/	{0,1,2,4,5},
 };
 
 

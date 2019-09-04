@@ -13,7 +13,8 @@ enum mtInstrumentEditorMode
 {
 	mtInstEditModeParams,
 	mtInstEditModeEnv,
-
+	mtInstEditModeInstrList,
+	mtInstEditModeNotes,
 
 };
 
@@ -72,9 +73,12 @@ public:
 
 	void showInstrumentEnv();
 	void showInstrumentParams();
+	void showInstrumentList();
+
 
 	void activateLabelsBorder();
-
+	void lightUpPadBoard();
+	void clearPadBoard();
 
 	void showEnvList();
 	void showEnvState();
@@ -97,12 +101,15 @@ public:
 
 	void showParamsGlide();
 
+	void showInstrList(uint8_t n);
+	void showNotePopout();
 //----------------------------------
 
 	void setDefaultScreenFunct();
 
 	void setInstrumentEnvFunct();
 	void setInstrumentParamsFunct();
+	void setInstrumentListFunct();
 
 //----------------------------------
 
@@ -128,26 +135,33 @@ public:
 
 
 	void changeParamsGlide(int16_t value);
+
+	void changeSelectedInstrument(int16_t value, uint8_t type = 0);
 //----------------------------------
 
 
 	strFrameData frameData;
 
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
 
-	hControl titleLabel;
-	hControl topLabel[8];
-	hControl bottomLabel[8];
-	hControl barControl[8];
+	hControl topLabel[8] = {nullptr};
+	hControl bottomLabel[8] = {nullptr};
+	hControl barControl[8] = {nullptr};
 
-	hControl filterModeListControl;
-	hControl envelopesListControl;
-	hControl envStateListControl;
-	hControl envLoopListControl;
+	hControl filterModeListControl = nullptr;
+	hControl envelopesListControl = nullptr;
+	hControl envStateListControl = nullptr;
+	hControl envLoopListControl = nullptr;
 
-	hControl frameControl;
+	hControl intrumentsListControl[4] = {nullptr};
+
+	hControl frameControl = nullptr;
+	hControl notePopoutControl = nullptr;
 
 
-	uint8_t selectedPlace[2] = {0};
+	uint8_t selectedPlace[3] = {0};
 
 	// typ trybu/ekranu
 	uint8_t mode;
@@ -157,6 +171,11 @@ public:
 
 
 	uint8_t selectedEnvelope = 0;
+
+//----------------------------------
+// aktualny instrument na belce tytułowej
+	void showActualInstrument();
+	//char actualInstrName[SAMPLE_NAME_SIZE+4];
 
 //----------------------------------
 // lista play mode
@@ -180,11 +199,38 @@ public:
 	strList envStateList;
 	strList envLoopList;
 
-
-
 	char *envelopeNames[2];
 	char *envStateNames[2];
 	char *envLoopNames[2];
+
+	//----------------------------------
+	// instruments lists
+
+	strList intrumentsList[4];
+
+	uint8_t selectedInstrument = 0;
+
+	char intrumentsNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
+	char *ptrintrumentsNames[INSTRUMENTS_COUNT];
+
+	char volumeVal[4];
+	char panningVal[5];
+	char tuneVal[4];
+	char fineTuneVal[4];
+	char cutoffVal[8];
+	char resonanceVal[8];
+	char revSendVal[4];
+	char envAttack[8];
+	char envDecay[8];
+	char envSustain[8];
+	char envRelease[8];
+	char envAmount[8];
+
+	strPadNames padNamesStruct;
+	char *padNamesPointer[48];
+
+
+	void listInstruments();
 
 
 };

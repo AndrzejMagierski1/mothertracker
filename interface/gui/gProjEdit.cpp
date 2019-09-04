@@ -1,38 +1,63 @@
 #include <projectEditor.h>
 
+#include "mtLED.h"
 
+
+constexpr uint8_t BACKSPACE_PAD_1 = 10;
+constexpr uint8_t BACKSPACE_PAD_2 = 11;
+
+constexpr uint8_t CAPS_LOCK_PAD_1 = 34;
+constexpr uint8_t CAPS_LOCK_PAD_2 = 35;
+
+constexpr uint8_t SPACE_PAD_1 = 43;
+constexpr uint8_t SPACE_PAD_2 = 44;
+constexpr uint8_t SPACE_PAD_3 = 45;
+constexpr uint8_t SPACE_PAD_4 = 46;
+constexpr uint8_t SPACE_PAD_5 = 47;
+
+constexpr uint8_t F_PAD = 27;
+
+constexpr uint8_t J_PAD = 30;
 
 void cProjectEditor::initDisplayControls()
 {
+	strControlProperties prop2;
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+
+	strControlProperties prop1;
+	prop1.style = 	(/*controlStyleShow |*/ controlStyleCenterX);
+	prop1.y = 5;
+	prop1.w = 800/4;
+	prop1.h = 25;
+	prop1.colors = &topLabelColors[0];
 
 	// inicjalizacja kontrolek
 	for(uint8_t i = 0; i<4; i++)
 	{
-		strControlProperties prop1;
-		prop1.text = (char*)"";
-		prop1.style = 	(/*controlStyleShow |*/ controlStyleCenterX);
 		prop1.x = (800/4)*i+(800/8);
-		prop1.y = 5;
-		prop1.w = 800/4;
-		prop1.h = 25;
-		prop1.colors = &topLabelColors[0];
-
 		if(topLabel[0] == nullptr) topLabel[0] = display.createControl<cLabel>(&prop1);
 	}
 
+	prop1.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleRoundedBorder);
+	prop1.y = 450 + 30/2;
+	prop1.w = 800/8-10;
+	prop1.h = 30;
+	prop1.colors = nullptr;
+
 	for(uint8_t i = 0; i<8; i++)
 	{
-		strControlProperties prop2;
-		prop2.text = (char*)"";
-		prop2.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
-		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 450;
-		prop2.w = 800/8-10;
-		prop2.h = 30;
-
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+		prop1.x = (800/8)*i+(800/16);
+		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop1);
 	}
-
 
 	projectList.linesCount = 5;
 	projectList.start = 0;
@@ -45,21 +70,20 @@ void cProjectEditor::initDisplayControls()
 	prop.data = &projectList;
 	if(fileListControl == nullptr)  fileListControl = display.createControl<cList>(&prop);
 
-
 	strControlProperties prop3;
-	prop3.x = 80;
-	prop3.y = 240;
-	prop3.w = 650;
-	prop3.h = 210;
+	prop3.x = 10;
+	prop3.y = 120;
+	prop3.w = 780;
+	prop3.h = 280;
 	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cKeyboard>(&prop3);
 
 	strControlProperties prop4;
 	prop4.text = (char*)"";
-	prop4.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
-	prop4.x = 398;
-	prop4.y = 190;
-	prop4.w = 635;
-	prop4.h = 30;
+	prop4.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleRoundedBorder);
+	prop4.x = 393;
+	prop4.y = 60;
+	prop4.w = 765;
+	prop4.h = 40;
 	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop4);
 
 
@@ -68,6 +92,12 @@ void cProjectEditor::initDisplayControls()
 
 void cProjectEditor::destroyDisplayControls()
 {
+	display.destroyControl(titleBar);
+	titleBar = nullptr;
+
+	display.destroyControl(titleLabel);
+	titleLabel = nullptr;
+
 	for(uint8_t i = 0; i<4; i++)
 	{
 		display.destroyControl(topLabel[i]);
@@ -93,6 +123,11 @@ void cProjectEditor::destroyDisplayControls()
 
 void cProjectEditor::showDefaultScreen()
 {
+	display.refreshControl(titleBar);
+
+	display.setControlText(titleLabel, "File");
+	display.refreshControl(titleLabel);
+
 	//lista
 	display.setControlHide(fileListControl);
 
@@ -111,10 +146,10 @@ void cProjectEditor::showDefaultScreen()
 		display.refreshControl(bottomLabel[i]);
 	}
 
-
-	display.setControlHide(keyboardControl);
-	display.refreshControl(keyboardControl);
-
+	hideKeyboard();
+//	display.setControlHide(keyboardControl);
+//	display.refreshControl(keyboardControl);
+//
 	display.setControlHide(editName);
 	display.refreshControl(editName);
 
@@ -218,6 +253,9 @@ void cProjectEditor::showEnterNameKeyboard()
 void cProjectEditor::showKeyboard()
 {
 
+	leds.setLED(F_PAD, 1, 10);
+	leds.setLED(J_PAD, 1, 10);
+
 	if(keyboardShiftFlag) display.setControlValue(keyboardControl, keyboardPosition + 42);
 	else display.setControlValue(keyboardControl, keyboardPosition);
 
@@ -227,6 +265,30 @@ void cProjectEditor::showKeyboard()
 
 void cProjectEditor::hideKeyboard()
 {
+	if(lastPressedPad == BACKSPACE_PAD_1 || lastPressedPad == BACKSPACE_PAD_2)
+	{
+		leds.setLED(BACKSPACE_PAD_1, 0, 0);
+		leds.setLED(BACKSPACE_PAD_2, 0, 0);
+	}
+	else if(lastPressedPad == CAPS_LOCK_PAD_1 || lastPressedPad == CAPS_LOCK_PAD_2)
+	{
+		leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
+		leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
+	}
+	else if(lastPressedPad >= SPACE_PAD_1 && lastPressedPad <=SPACE_PAD_5)
+	{
+		for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
+		{
+			leds.setLED(i, 0, 0);
+		}
+	}
+	else
+	{
+		leds.setLED(lastPressedPad,0,0);
+	}
+	leds.setLED(F_PAD, 0, 0);
+	leds.setLED(J_PAD, 0, 0);
+
 	display.setControlHide(keyboardControl);
 	display.refreshControl(keyboardControl);
 }

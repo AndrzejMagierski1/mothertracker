@@ -5,6 +5,7 @@
 #include "SD.h"
 #include "mtStructs.h"
 #include "wavHeaderReader.h"
+#include "patternEditor.h"
 
 struct strProjectFileHeader
 {
@@ -27,17 +28,15 @@ struct strInstrumentFile
 	uint32_t crc;
 };
 
-struct strPatternFile
-{
-	struct strPatternDataAndHeader
-	{
-		strProjectFileHeader patternHeader;
-		Sequencer::strPattern pattern;
-
-	} patternDataAndHeader;
-
-	uint32_t crc;
-};
+//struct strPatternFile
+//{
+//
+//	strProjectFileHeader patternHeader;
+//
+//	// > tutaj w pliku jest sekwencja <
+//	uint32_t crc;
+//
+//};
 
 struct strProjectFile
 {
@@ -144,6 +143,10 @@ public:
 	void updateImportSampleToProject();
 	uint8_t getStateImportSampleToProject();
 	uint8_t getProgressImportSampleToProject();
+	void clearForcedSampleProcessingFlag();
+
+	uint8_t loadPattern(uint8_t index);
+	uint8_t savePattern(uint8_t index);
 	/////////////////////////////////////////////////////////////////////////
 
 	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
@@ -154,6 +157,12 @@ public:
 	void deleteSample(int8_t index);
 	void deleteInstrument(int8_t index);
 	void deletePattern(int8_t index);
+	uint8_t getNextSongPattern();
+	uint8_t resetToFirstSongPattern();
+	void switchNextPatternInSong();
+	void refreshPatternView();
+//	uint8_t isSongMode();
+
 	void update();
 
 	friend class cProjectEditor;
@@ -167,7 +176,7 @@ private:
 	void copyPattern(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
 	void writeInstrumentFile(char * name, strInstrument * instr);
 	uint8_t readInstrumentFile(char * name, strInstrument * instr);
-	void writePatternFile(char * name);
+	uint8_t writePatternFile(char * name);
 	uint8_t readPatternFile(char * name);
 	void writeProjectFile(char * name,strMtProjectRemote * proj);
 	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
@@ -176,6 +185,7 @@ private:
 	uint32_t currentCopyingSize = 0;
 	uint32_t copyFileSize;
 	uint8_t importSampleState = importingSampleEnded;
+	uint8_t forcedSampleProcessingFlag = 0;
 
 	enum importSampleStateType
 	{
@@ -184,7 +194,7 @@ private:
 	};
 
 	char currentProjectName[PROJECT_NAME_SIZE];
-	uint8_t currentPattern;
+//	uint8_t currentPattern;
 };
 
 

@@ -173,8 +173,8 @@ void AudioEffectEnvelope::update(void)
 			}
 		}
 
-		int32_t mult = mult_hires >> 14;
-		int32_t inc = inc_hires >> 17;
+		int32_t mult = mult_hires >> 14; // przeskalowanie na 16 bitow bo 0x40000000 zajmuje 30 bitow
+		int32_t inc = inc_hires >> 17; // podejrzewam ze przeskalowanie na 13 bitow aby suma takich osmiu (3bity) nie byla wieksza od wartosci 16bitowej
 		// process 8 samples, using only mult and inc (16 bit resolution)
 		sample12 = *p++;
 		sample34 = *p++;

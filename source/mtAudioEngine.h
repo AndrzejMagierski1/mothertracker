@@ -19,10 +19,9 @@ class audioEngine
 public:
 	void init();
 	void update();
-	void setOut(uint8_t audioOutStatus);
-	void setIn(uint8_t audioInStatus);
 	void prevSdConnect();
 	void prevSdDisconnect();
+	void setHeadphonesVolume(uint8_t value);
 	void setReverbRoomsize(uint8_t value);
 	void setReverbDamping(uint8_t value);
 	void setReverbPanning(int8_t value);
@@ -69,13 +68,17 @@ public:
 	void modReverbSend(uint8_t value);
 	void setStatusBytes(uint16_t value);
 //	void resetMods();
-
+	uint8_t getInterfaceEndReleaseFlag();
+	void clearInterfaceEndReleaseFlag();
+	uint8_t getInterfacePlayingEndFlag();
+	void clearInterfacePlayingEndFlag();
 	void update();
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
+	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note);
+	AudioEffectEnvelope *       envelopeAmpPtr;
 private:
 
 	AudioPlayMemory *        	playMemPtr;
-	AudioEffectEnvelope *       envelopeAmpPtr;
 	AudioAmplifier *			ampPtr;
 	envelopeGenerator* 			envelopeFilterPtr;
 	AudioFilterStateVariable *	filterPtr;
@@ -92,6 +95,10 @@ private:
 	uint16_t 					statusBytes; // 8- reverbSend 7-resonance, 6-cutoff, 5-panning ,4-volume,3-tune,2-fineTune, 1-LP1 , 0-LP2
 	static uint8_t				onVoices;
 	static uint8_t				activeAmpEnvelopes;
+	uint8_t 					interfaceEndReleaseFlag = 0;
+	uint8_t 					interfacePlayingEndFlag = 0;
+	uint8_t 					currentPlayState = 0;
+	uint8_t 					lastPlayState = 0;
 
 	void changeFilterType(uint8_t type);
 	void filterConnect();
@@ -125,6 +132,7 @@ extern int16_t					mods[MAX_TARGET][MAX_MOD];
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;
 extern AudioMixer4              mixerRec;
+extern AudioAnalyzeRMS			rms;
 
 extern AudioRecordQueue		 exportL, exportR;
 

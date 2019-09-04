@@ -5,10 +5,11 @@
 
 static uint16_t framesPlaces[3][4] =
 {
-	{0, 0, 800/4, 480},
-	{(800/4)*1, 0, 800/4, 480},
-	{(800/4)*2, 0, 800/4, 480},
+	{0+2, 		31, 800/4-5, 387},
+	{(800/4)*1+2, 31, 800/4-5, 387},
+	{(800/4)*2+2, 31, 800/4-5, 387},
 };
+
 
 static uint32_t color[3] = {0xFF00FF, 0x0000ff, 0xff0000};
 
@@ -16,36 +17,48 @@ static uint32_t color[3] = {0xFF00FF, 0x0000ff, 0xff0000};
 void cSampleImporter::initDisplayControls()
 {
 	strControlProperties prop2;
-	prop2.text = (char*)"";
-	prop2.style = 	( controlStyleBackground | controlStyleCenterX /*| controlStyleRoundedBorder*/);
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
+	prop2.x = 769;
+	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
+
+	prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 
 	// inicjalizacja kontrolek
 	for(uint8_t i = 0; i<4; i++)
 	{
 		prop2.x = (800/4)*i+(800/8);
-		prop2.y = 420;
-		prop2.w = 800/4-10;
-		prop2.h = 26;
+		prop2.y = 437;
+		prop2.w = 800/4-6;
+		prop2.h = 28;
 
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 
 		//prop2.x = (800/4)*i+(800/8);
-		prop2.y = 450;
+		prop2.y = 465;
 		//prop2.w = 800/4-10;
 		prop2.h = 30;
 
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 	}
 
-
 	folderList.linesCount = 5;
 	folderList.start = 0;
 	folderList.length = locationFolderCount;
 	folderList.data = folderNames;
 	strControlProperties prop;
-	prop.x = 0+5;
-	prop.y = 10;
-	prop.w = 800/4-10;
+	prop.x = 0+8;
+	prop.y = 37;
+	prop.w = 800/4-16;
 	prop.h = 25;
 	prop.data = &folderList;
 	if(folderListControl == nullptr)  folderListControl = display.createControl<cList>(&prop);
@@ -55,7 +68,7 @@ void cSampleImporter::initDisplayControls()
 	fileList.start = 0;
 	fileList.length = 0;
 	//strControlProperties prop;
-	prop.x = (800/4)*1+5;
+	prop.x = (800/4)*1+8;
 	//prop.y = 10;
 	//prop.w = 800/4-10;
 	//prop.h = 25;
@@ -67,7 +80,7 @@ void cSampleImporter::initDisplayControls()
 	instrumentList.start = 0;
 	instrumentList.length = 0;
 	//strControlProperties prop;
-	prop.x = (800/4)*2+5;
+	prop.x = (800/4)*2+8;
 	//prop.y = 10;
 	//prop.w = 800/4-10;
 	//prop.h = 25;
@@ -80,10 +93,21 @@ void cSampleImporter::initDisplayControls()
 	//prop.y = 10;
 	//prop.w = 800/4-10;
 	prop.style = controlStyleCompareTwoValues;
-	prop.h = 400;
+	prop.h = 380;
 	prop.data = &memoryUsageAdd;
 	//prop.value = memoryUsage;
 	if(memoryBarControl == nullptr)  memoryBarControl = display.createControl<cBar>(&prop);
+
+
+	frameData.placesCount = 3;
+	frameData.startPlace = 0;
+	frameData.places[0] = &framesPlaces[0][0];
+	frameData.places[1] = &framesPlaces[1][0];
+	frameData.places[2] = &framesPlaces[2][0];
+	prop.style = 0;
+	prop.value = 0;
+	prop.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 
 	prop.x = 190;
@@ -96,22 +120,17 @@ void cSampleImporter::initDisplayControls()
 //	prop.value = 70;
 //	prop.text = "loading...";
 	if(loadHorizontalBarControl == nullptr)  loadHorizontalBarControl = display.createControl<cHorizontalBar>(&prop);
-
-
-	frameData.placesCount = 3;
-	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
-	prop.style = 0;
-	prop.value = 0;
-	prop.data  = &frameData;
-	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 }
 
 
 void cSampleImporter::destroyDisplayControls()
 {
+	display.destroyControl(titleBar);
+	titleBar = nullptr;
+
+	display.destroyControl(titleLabel);
+	titleLabel = nullptr;
+
 	display.destroyControl(folderListControl);
 	folderListControl = nullptr;
 	display.destroyControl(fileListControl);
@@ -140,6 +159,13 @@ void cSampleImporter::destroyDisplayControls()
 
 void cSampleImporter::showDefaultScreen()
 {
+	display.refreshControl(titleBar);
+
+	display.setControlText(titleLabel, "Sample Loader");
+	display.refreshControl(titleLabel);
+
+	showActualInstrument();
+
 
 	display.setControlText(topLabel[0], "SD");
 	display.setControlText(topLabel[1], "");
@@ -171,9 +197,9 @@ void cSampleImporter::showDefaultScreen()
 //==============================================================================================================
 void cSampleImporter::showFolderTree()
 {
-	folderList.start = 0;
+	folderList.start = selectedFolder;
 	folderList.length = locationFolderCount;
-	folderList.linesCount = 16;
+	folderList.linesCount = 15;
 	folderList.data = folderNames;
 
 	display.setControlData(folderListControl,  &folderList);
@@ -188,9 +214,9 @@ void cSampleImporter::showFolderTree()
 
 void cSampleImporter::showFilesTree()
 {
-	instrumentList.start = 0;
+	instrumentList.start = selectedFile;
 	instrumentList.length = locationFileCount;
-	instrumentList.linesCount = 16;
+	instrumentList.linesCount = 15;
 	instrumentList.data = fileNames;
 
 	display.setControlData(fileListControl,  &instrumentList);
@@ -203,7 +229,7 @@ void cSampleImporter::showInstrumentsList()
 {
 	fileList.start = selectedSlot;
 	fileList.length = INSTRUMENTS_COUNT;
-	fileList.linesCount = 16;
+	fileList.linesCount = 15;
 	fileList.data = ptrSlotNames;
 
 	display.setControlData(instrumentListControl,  &fileList);
@@ -259,3 +285,37 @@ void cSampleImporter::activateLabelsBorder()
 	display.setControlShow(frameControl);
 	display.refreshControl(frameControl);
 }
+
+//==============================================================================================================
+void cSampleImporter::showActualInstrument()
+{
+	static char actualInstrName[SAMPLE_NAME_SIZE+4];
+
+	uint8_t i = mtProject.values.lastUsedInstrument;
+
+	if(i<9)
+	{
+		actualInstrName[0] = (i+1)%10 + 48;
+		actualInstrName[1] = '.';
+		actualInstrName[2] = ' ';
+		actualInstrName[3] = 0;
+	}
+	else
+	{
+		actualInstrName[0] = ((i+1)/10) + 48;
+		actualInstrName[1] = (i+1)%10 + 48;
+		actualInstrName[2] = '.';
+		actualInstrName[3] = ' ';
+		actualInstrName[4] = 0;
+	}
+
+
+	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+
+
+	display.setControlText(instrumentLabel,  actualInstrName);
+	display.refreshControl(instrumentLabel);
+}
+
+//==============================================================================================================
+

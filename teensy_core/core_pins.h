@@ -120,9 +120,9 @@
 #define CORE_NUM_ANALOG         27
 #define CORE_NUM_PWM            20
 #elif defined(__MK66FX1M0__)
-#define CORE_NUM_TOTAL_PINS     70
-#define CORE_NUM_DIGITAL        79
-#define CORE_NUM_INTERRUPT      70
+#define CORE_NUM_TOTAL_PINS     73
+#define CORE_NUM_DIGITAL        82
+#define CORE_NUM_INTERRUPT      73
 #define CORE_NUM_ANALOG         25
 #define CORE_NUM_PWM            22
 #endif
@@ -830,8 +830,11 @@
 #define CORE_PIN67_BIT		27
 #define CORE_PIN68_BIT		28
 
+#define CORE_PIN80_BIT		24
 #define CORE_PIN78_BIT		19
 #define CORE_PIN77_BIT		7
+#define CORE_PIN79_BIT		2
+#define CORE_PIN81_BIT		1
 
 
 #define CORE_PIN0_BITMASK	(1<<(CORE_PIN0_BIT))
@@ -904,6 +907,9 @@
 #define CORE_PIN67_BITMASK	(1<<(CORE_PIN67_BIT))
 #define CORE_PIN68_BITMASK	(1<<(CORE_PIN68_BIT))
 #define CORE_PIN78_BITMASK	(1<<(CORE_PIN78_BIT))
+#define CORE_PIN79_BITMASK	(1<<(CORE_PIN79_BIT))
+#define CORE_PIN80_BITMASK	(1<<(CORE_PIN80_BIT))
+#define CORE_PIN81_BITMASK	(1<<(CORE_PIN81_BIT))
 
 
 #define CORE_PIN0_PORTREG	GPIOB_PDOR
@@ -976,8 +982,11 @@
 #define CORE_PIN67_PORTREG	GPIOE_PDOR
 #define CORE_PIN68_PORTREG	GPIOE_PDOR
 
+#define CORE_PIN79_PORTREG	GPIOA_PDOR
 #define CORE_PIN78_PORTREG	GPIOC_PDOR
 #define CORE_PIN77_PORTREG	GPIOA_PDOR
+#define CORE_PIN80_PORTREG	GPIOA_PDOR
+#define CORE_PIN81_PORTREG	GPIOA_PDOR
 
 
 #define CORE_PIN0_PORTSET	GPIOB_PSOR
@@ -1051,6 +1060,9 @@
 #define CORE_PIN68_PORTSET	GPIOE_PSOR
 
 #define CORE_PIN78_PORTSET	GPIOC_PSOR
+#define CORE_PIN79_PORTSET	GPIOA_PSOR
+#define CORE_PIN80_PORTSET	GPIOA_PSOR
+#define CORE_PIN81_PORTSET	GPIOA_PSOR
 
 #define CORE_PIN0_PORTCLEAR	GPIOB_PCOR
 #define CORE_PIN1_PORTCLEAR	GPIOB_PCOR
@@ -1123,6 +1135,9 @@
 #define CORE_PIN68_PORTCLEAR	GPIOE_PCOR
 
 #define CORE_PIN78_PORTCLEAR	GPIOC_PCOR
+#define CORE_PIN79_PORTCLEAR	GPIOA_PCOR
+#define CORE_PIN80_PORTCLEAR	GPIOA_PCOR
+#define CORE_PIN81_PORTCLEAR	GPIOA_PCOR
 
 #define CORE_PIN0_DDRREG	GPIOB_PDDR
 #define CORE_PIN1_DDRREG	GPIOB_PDDR
@@ -1195,6 +1210,9 @@
 #define CORE_PIN68_DDRREG	GPIOE_PDDR
 
 #define CORE_PIN78_DDRREG	GPIOC_PDDR
+#define CORE_PIN79_DDRREG	GPIOA_PDDR
+#define CORE_PIN80_DDRREG	GPIOA_PDDR
+#define CORE_PIN81_DDRREG	GPIOA_PDDR
 
 #define CORE_PIN0_PINREG	GPIOB_PDIR
 #define CORE_PIN1_PINREG	GPIOB_PDIR
@@ -1267,6 +1285,9 @@
 #define CORE_PIN68_PINREG	GPIOE_PDIR
 
 #define CORE_PIN78_PINREG	GPIOC_PDIR
+#define CORE_PIN79_PINREG	GPIOA_PDIR
+#define CORE_PIN80_PINREG	GPIOA_PDIR
+#define CORE_PIN81_PINREG	GPIOA_PDIR
 
 #define CORE_PIN0_CONFIG	PORTB_PCR16
 #define CORE_PIN1_CONFIG	PORTB_PCR17
@@ -1338,8 +1359,11 @@
 #define CORE_PIN67_CONFIG	PORTE_PCR27
 #define CORE_PIN68_CONFIG	PORTE_PCR28
 
+#define CORE_PIN79_CONFIG	PORTA_PCR2
 #define CORE_PIN78_CONFIG	PORTC_PCR19
 #define CORE_PIN77_CONFIG	PORTA_PCR7
+#define CORE_PIN80_CONFIG	PORTA_PCR24
+#define CORE_PIN81_CONFIG	PORTA_PCR1
 
 
 #define CORE_ADC0_PIN		14
@@ -1452,6 +1476,9 @@
 #define CORE_INT68_PIN		68
 
 #define CORE_INT78_PIN		78
+#define CORE_INT79_PIN		79
+#define CORE_INT80_PIN		80
+#define CORE_INT81_PIN		81
 
 #define CORE_INT_EVERY_PIN	1
 
@@ -1687,9 +1714,22 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 				CORE_PIN64_PORTSET = CORE_PIN64_BITMASK;
 			} else if (pin == 65) {
 				CORE_PIN65_PORTSET = CORE_PIN65_BITMASK;
+			} else if (pin == 66) {
+				CORE_PIN66_PORTSET = CORE_PIN66_BITMASK;
+			} else if (pin == 67) {
+				CORE_PIN67_PORTSET = CORE_PIN67_BITMASK;
+			} else if (pin == 68) {
+				CORE_PIN68_PORTSET = CORE_PIN68_BITMASK;
 			} else if (pin == 78) {
 				CORE_PIN78_PORTSET = CORE_PIN78_BITMASK;
+			} else if (pin == 79) {
+				CORE_PIN79_PORTSET = CORE_PIN79_BITMASK;
+			} else if (pin == 80) {
+				CORE_PIN80_PORTSET = CORE_PIN80_BITMASK;
+			} else if (pin == 81) {
+				CORE_PIN81_PORTSET = CORE_PIN81_BITMASK;
 			}
+
 
 			#endif
 		} else {
@@ -1830,8 +1870,20 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 				CORE_PIN64_PORTCLEAR = CORE_PIN64_BITMASK;
 			} else if (pin == 65) {
 				CORE_PIN65_PORTCLEAR = CORE_PIN65_BITMASK;
+			} else if (pin == 66) {
+				CORE_PIN66_PORTCLEAR = CORE_PIN66_BITMASK;
+			} else if (pin == 67) {
+				CORE_PIN67_PORTCLEAR = CORE_PIN67_BITMASK;
+			} else if (pin == 68) {
+				CORE_PIN68_PORTCLEAR = CORE_PIN68_BITMASK;
 			} else if (pin == 78) {
 				CORE_PIN78_PORTCLEAR = CORE_PIN78_BITMASK;
+			} else if (pin == 79) {
+				CORE_PIN79_PORTCLEAR = CORE_PIN79_BITMASK;
+			} else if (pin == 80) {
+				CORE_PIN80_PORTCLEAR = CORE_PIN80_BITMASK;
+			} else if (pin == 81) {
+				CORE_PIN81_PORTCLEAR = CORE_PIN81_BITMASK;
 			}
 			#endif
 		}
@@ -1986,8 +2038,20 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 			return (CORE_PIN64_PINREG & CORE_PIN64_BITMASK) ? 1 : 0;
 		} else if (pin == 65) {
 			return (CORE_PIN65_PINREG & CORE_PIN65_BITMASK) ? 1 : 0;
+		} else if (pin == 66) {
+			return (CORE_PIN66_PINREG & CORE_PIN66_BITMASK) ? 1 : 0;
+		} else if (pin == 67) {
+			return (CORE_PIN67_PINREG & CORE_PIN67_BITMASK) ? 1 : 0;
+		} else if (pin == 68) {
+			return (CORE_PIN68_PINREG & CORE_PIN68_BITMASK) ? 1 : 0;
 		} else if (pin == 78) {
 			return (CORE_PIN78_PINREG & CORE_PIN78_BITMASK) ? 1 : 0;
+		} else if (pin == 79) {
+			return (CORE_PIN79_PINREG & CORE_PIN79_BITMASK) ? 1 : 0;
+		} else if (pin == 80) {
+			return (CORE_PIN80_PINREG & CORE_PIN80_BITMASK) ? 1 : 0;
+		} else if (pin == 81) {
+			return (CORE_PIN81_PINREG & CORE_PIN81_BITMASK) ? 1 : 0;
 		}
 		#endif
 		  else {

@@ -1,7 +1,7 @@
 
 
-#ifndef LIBS_NEWDISPLAY_TEMPLETE_H_
-#define LIBS_NEWDISPLAY_TEMPLETE_H_
+#ifndef LIBS_BAR_CONTROL_H_
+#define LIBS_BAR_CONTROL_H_
 
 #include "displayControls.h"
 

@@ -46,7 +46,7 @@ public:
 
 	uint8_t loadSamplesBank();
 
-
+	uint8_t loadProjectValues();
 //-------------------------------------------------------------
 
 	strList projectList;
@@ -56,6 +56,9 @@ public:
 	hControl editName;
 	hControl fileListControl;
 	hControl keyboardControl;
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
 
 	uint32_t topLabelColors[3] =
 	{
@@ -91,7 +94,7 @@ public:
 
 	uint8_t keyboardActiveFlag = 0;
 	uint8_t keyboardShiftFlag = 0;
-
+	uint8_t lastPressedPad;
 
 //-------------------------------------------------------------
 

@@ -5,14 +5,21 @@
 
 static uint16_t framesPlaces[8][4] =
 {
-	{0, 		30, 800/8, 380},
-	{(800/8)*1, 30, 800/8, 380},
-	{(800/8)*2, 30, 800/8, 380},
-	{(800/8)*3, 30, 800/8, 380},
-	{(800/8)*4, 30, 800/8, 380},
-	{(800/8)*5, 30, 800/8, 380},
-	{(800/8)*6, 30, 800/8, 380},
-	{(800/8)*7, 30, 800/8, 380},
+	{0+2, 		31, 800/8-5, 387},
+	{(800/8)*1+2, 31, 800/8-5, 387},
+	{(800/8)*2+2, 31, 800/8-5, 387},
+	{(800/8)*3+2, 31, 800/8-5, 387},
+	{(800/8)*4+2, 31, 800/8-5, 387},
+	{(800/8)*5+2, 31, 800/8-5, 387},
+	{(800/8)*6+2, 31, 800/8-5, 387},
+	{(800/8)*7+2, 31, 800/8-5, 387},
+};
+
+static uint32_t popUpLabelColors[] =
+{
+	0xFFFFFF, // tekst
+	0x222222, // tło
+	0xFF0000, // ramka
 };
 
 
@@ -20,29 +27,39 @@ void cConfigEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
+		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 450;
-		prop2.w = 800/8-10;
+		prop2.y = 465;
+		prop2.w = 800/8-6;
 		prop2.h = 30;
 
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 415;
-		prop2.h = 26;
+		prop2.y = 437;
+		prop2.h = 28;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 
 		prop2.x = (800/8)*i+5;
 		prop2.y = 30;
 		prop2.w = 800/8-10;
 		prop2.style =  controlStyleValue_0_100;
-		prop2.h = 380;
+		prop2.h = 388;
 		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
+
 	}
 
 
@@ -51,9 +68,9 @@ void cConfigEditor::initDisplayControls()
 	configGroupList.length = groupCount;
 	configGroupList.data = configGroupsNames;
 	strControlProperties prop;
-	prop.x = (800/8)*6+5;
+	prop.x = (800/8)*6+8;
 	prop.y = 140;
-	prop.w = 800/4-10;
+	prop.w = 800/4-16;
 	prop.h = 25;
 	prop.data = &configGroupList;
 	if(configGroupsListControl == nullptr)  configGroupsListControl = display.createControl<cList>(&prop);
@@ -75,11 +92,39 @@ void cConfigEditor::initDisplayControls()
 	prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
+
+	strControlProperties prop9;
+	prop9.x = 300;
+	prop9.colors = popUpLabelColors;
+	prop9.y = 350;
+	prop9.h = 100;
+	prop9.w = 600-(10);
+	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
+	prop9.text = (char*)"";
+	if(popoutWindowLabel == nullptr)  popoutWindowLabel = display.createControl<cLabel>(&prop9);
+
+	firmwareList.linesCount = 20;
+	firmwareList.start = 0;
+	firmwareList.length = 255;
+	firmwareList.data = firmwareNames;
+
+	strControlProperties prop10;
+	prop10.x = 8;
+	prop10.y = 38;
+	prop10.w = (800/4-16);
+	prop10.h = 25;
+	prop10.data = &firmwareList;
+	if(firmwareListControl == nullptr)  firmwareListControl = display.createControl<cList>(&prop10);
 }
 
 
 void cConfigEditor::destroyDisplayControls()
 {
+	display.destroyControl(titleBar);
+	titleBar = nullptr;
+
+	display.destroyControl(titleLabel);
+	titleLabel = nullptr;
 
 	display.destroyControl(configGroupsListControl);
 	configGroupsListControl = nullptr;
@@ -99,10 +144,35 @@ void cConfigEditor::destroyDisplayControls()
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
+
+	display.destroyControl(firmwareListControl);
+	firmwareListControl = nullptr;
+
+	display.destroyControl(popoutWindowLabel);
+	popoutWindowLabel = nullptr;
 }
 
 void cConfigEditor::showDefaultConfigScreen()
 {
+	for(uint8_t i = 0; i<7; i++)
+	{
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+
+		display.setControlText(topLabel[i], "");
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+
+		display.setControlHide(barControl[i]);
+		display.refreshControl(barControl[i]);
+	}
+
+	display.refreshControl(titleBar);
+
+	display.setControlText(titleLabel, "Config");
+	display.refreshControl(titleLabel);
+
+
 	listConfigGroups();
 	//lista
 	showConfigGroupList();
@@ -114,40 +184,29 @@ void cConfigEditor::showDefaultConfigScreen()
 	display.setControlText(bottomLabel[3], "4");
 	display.setControlText(bottomLabel[4], "5");
 	display.setControlText(bottomLabel[5], "6");
-	display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
+	display.setControlText(bottomLabel[6], " /\\           \\/ ");
 	//display.setControlText(bottomLabel[7], "");
 
-
-
-	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/8),  450);
-	display.setControlPosition(topLabel[6],  (800/8)*6+(800/8),  415);
-	display.setControlSize(bottomLabel[6],  800/4-10,  30);
-	display.setControlSize(topLabel[6],  800/4-10,  26);
+	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/8),  465);
+	display.setControlPosition(topLabel[6],  (800/8)*6+(800/8),  437);
+	display.setControlSize(bottomLabel[6],  800/4-6,  30);
+	display.setControlSize(topLabel[6],  800/4-6,  28);
 
 
 	display.setControlText(topLabel[6], "Config");
 
 
-	for(uint8_t i = 0; i<7; i++)
-	{
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
-
-		display.setControlHide(barControl[i]);
-		display.refreshControl(barControl[i]);
-	}
-
 	display.setControlHide(bottomLabel[7]);
 	display.setControlHide(topLabel[7]);
 
 
-	framesPlaces[6][0] = (800/8)*6;
-	framesPlaces[6][1] = 30;
-	framesPlaces[6][2] = 800/4;
-	framesPlaces[6][3] = 380;
+	framesPlaces[6][0] = (800/8)*6+2;
+	framesPlaces[6][1] = 31;
+	framesPlaces[6][2] = 800/4-5;
+	framesPlaces[6][3] = 387;
+
+	display.setControlHide(popoutWindowLabel);
+	display.refreshControl(popoutWindowLabel);
 
 
 	display.synchronizeRefresh();
@@ -156,6 +215,10 @@ void cConfigEditor::showDefaultConfigScreen()
 
 void cConfigEditor::showMasterScreen()
 {
+	display.refreshControl(titleBar);
+
+	display.setControlText(titleLabel, "Master");
+	display.refreshControl(titleLabel);
 
 	// bottom labels
 	display.setControlText(bottomLabel[0], "Volume");
@@ -167,10 +230,11 @@ void cConfigEditor::showMasterScreen()
 	display.setControlText(bottomLabel[6], " ");
 	display.setControlText(bottomLabel[7], " ");
 
-	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/16),  450);
-	display.setControlPosition(topLabel[6],  (800/8)*6+(800/16),  415);
-	display.setControlSize(bottomLabel[6],  800/8-10,  30);
-	display.setControlSize(topLabel[6],  800/8-10,  26);
+	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/16),  465);
+	display.setControlPosition(topLabel[6],  (800/8)*6+(800/16),  437);
+	display.setControlSize(bottomLabel[6],  800/8-6,  30);
+	display.setControlSize(topLabel[6],  800/8-6,  28);
+
 
 
 	display.setControlText(topLabel[6], " ");
@@ -207,10 +271,10 @@ void cConfigEditor::showMasterScreen()
 	display.setControlHide(configGroupsListControl);
 
 
-	framesPlaces[6][0] = (800/8)*6;
-	framesPlaces[6][1] = 30;
-	framesPlaces[6][2] = 800/8;
-	framesPlaces[6][3] = 380;
+	framesPlaces[6][0] = (800/8)*6+2;
+	framesPlaces[6][1] = 31;
+	framesPlaces[6][2] = 800/8-5;
+	framesPlaces[6][3] = 387;
 
 
 	display.synchronizeRefresh();
@@ -219,6 +283,10 @@ void cConfigEditor::showMasterScreen()
 
 void cConfigEditor::showMasterTracksScreen()
 {
+	display.refreshControl(titleBar);
+
+	display.setControlText(titleLabel, "Tracks");
+	display.refreshControl(titleLabel);
 
 	// bottom labels
 	display.setControlText(bottomLabel[0], "On");
@@ -283,7 +351,6 @@ void cConfigEditor::listConfigGroups()
 }
 //==============================================================================================================
 
-
 void cConfigEditor::showConfigGroupList()
 {
 	configGroupList.start = selectedConfigGroup;
@@ -300,44 +367,206 @@ void cConfigEditor::showConfigGroupList()
 
 void cConfigEditor::showVolume()
 {
-	//display.setControlValue(barControl[0], mtProject.values.volume);
-	//display.setControlShow(barControl[0]);
+	sprintf(volumeVal,"%d",mtProject.values.volume);
+
+	display.setControlValue(barControl[0], mtProject.values.volume);
+//	display.setControlValue(barControl[0], mtProject.values.volume);
+//	display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[0]);
+
+	display.setControlText(topLabel[0], volumeVal);
+	display.refreshControl(topLabel[0]);
 }
 
 void cConfigEditor::showReverbSize()
 {
+	sprintf(reverbSizeVal,"%d",mtProject.values.reverbRoomSize);
+
 	display.setControlValue(barControl[1], mtProject.values.reverbRoomSize);
 	//display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[1]);
+
+	display.setControlText(topLabel[1], reverbSizeVal);
+	display.refreshControl(topLabel[1]);
 }
 
 void cConfigEditor::showReverbDamping()
 {
+	sprintf(reverbDampVal,"%d",mtProject.values.reverbDamping);
+
 	display.setControlValue(barControl[2], mtProject.values.reverbDamping);
 	//display.setControlShow(barControl[1]);
 	display.refreshControl(barControl[2]);
+
+	display.setControlText(topLabel[2], reverbDampVal);
+	display.refreshControl(topLabel[2]);
 }
 
 void cConfigEditor::showLimiterAttack()
 {
+	uint8_t length;
+
+	sprintf(limitAttackVal,"%.3f",(float)(mtProject.values.limiterAttack/1000.0f));
+	length=strlen(limitAttackVal);
+	limitAttackVal[length]='s';
+	limitAttackVal[length+1]=0;
+
 	display.setControlValue(barControl[3], (mtProject.values.limiterAttack*100)/LIMITER_ATTACK_MAX);
 	//display.setControlShow(barControl[2]);
 	display.refreshControl(barControl[3]);
+
+	display.setControlText(topLabel[3], limitAttackVal);
+	display.refreshControl(topLabel[3]);
 }
 
 void cConfigEditor::showLimiterRelease()
 {
-	//display.setControlValue(barControl[4], (mtProject.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
+	uint8_t length;
+
+	sprintf(limitReleaseVal,"%.3f",(float)(mtProject.values.limiterRelease/1000.0f));
+	length=strlen(limitReleaseVal);
+	limitReleaseVal[length]='s';
+	limitReleaseVal[length+1]=0;
+
+	display.setControlValue(barControl[4], (mtProject.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
 	//display.setControlShow(barControl[2]);
 	display.refreshControl(barControl[4]);
+
+	display.setControlText(topLabel[4], limitReleaseVal);
+	display.refreshControl(topLabel[4]);
 }
 
 void cConfigEditor::showLimiterTreshold()
 {
+	sprintf(limitThresholdVal,"%d",(mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
+
 	display.setControlValue(barControl[5], (mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
 	//display.setControlShow(barControl[3]);
 	display.refreshControl(barControl[5]);
+
+	display.setControlText(topLabel[5], limitThresholdVal);
+	display.refreshControl(topLabel[5]);
+}
+
+void cConfigEditor::showFirmwareUpdateLabels()
+{
+	display.setControlText(topLabel[0], "Firmware");
+	display.setControlText(topLabel[2], "Update");
+
+	display.refreshControl(topLabel[0]);
+	display.refreshControl(topLabel[2]);
+
+	for(int i=0;i<6;i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	framesPlaces[0][0] = 0+2;
+	framesPlaces[0][1] = 31;
+	framesPlaces[0][2] = 800/4-5;
+	framesPlaces[0][3] = 387;
+
+	framesPlaces[1][0] = 0+2;
+	framesPlaces[1][1] = 31;
+	framesPlaces[1][2] = 800/4-5;
+	framesPlaces[1][3] = 387;
+
+	display.setControlHide(popoutWindowLabel);
+	display.refreshControl(popoutWindowLabel);
+
+	firmwareList.length = firmwareFoundNum;
+	firmwareList.linesCount = 15;
+	firmwareList.data = firmwareNames;
+	firmwareList.start= firmwareSelect;
+
+	display.setControlData(firmwareListControl,  &firmwareList);
+	display.setControlShow(firmwareListControl);
+	display.refreshControl(firmwareListControl);
+}
+
+void cConfigEditor::hideFirmwareUpdateLabels()
+{
+	display.setControlText(topLabel[0], "");
+	display.setControlText(topLabel[2], "");
+
+	display.refreshControl(topLabel[0]);
+	display.refreshControl(topLabel[2]);
+
+	display.setControlText(bottomLabel[0], "1");
+	display.setControlText(bottomLabel[1], "2");
+	display.setControlText(bottomLabel[2], "3");
+	display.setControlText(bottomLabel[3], "4");
+	display.setControlText(bottomLabel[4], "5");
+	display.setControlText(bottomLabel[5], "6");
+
+	for(int i=0;i<6;i++)
+	{
+		display.refreshControl(bottomLabel[i]);
+	}
+
+	//przywrocenie ramki
+
+	framesPlaces[0][0] = 0+2;
+	framesPlaces[0][1] = 31;
+	framesPlaces[0][2] = 800/8-5;
+	framesPlaces[0][3] = 387;
+
+	framesPlaces[1][0] = (800/8)*1+2;
+	framesPlaces[1][1] = 31;
+	framesPlaces[1][2] = 800/8-5;
+	framesPlaces[1][3] = 387;
+
+	display.setControlHide(popoutWindowLabel);
+	display.refreshControl(popoutWindowLabel);
+
+	display.setControlHide(firmwareListControl);
+	display.refreshControl(firmwareListControl);
+}
+
+void cConfigEditor::showFirmwareUpdatePopout()
+{
+	for(uint8_t i = 0 ; i < 6; i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.setControlText(topLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+
+	display.setControlText(bottomLabel[0], "Yes");
+	display.setControlText(bottomLabel[5], "No");
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlText(popoutWindowLabel,"Do you want to flash new firmware?");
+	display.setControlShow(popoutWindowLabel);
+	display.refreshControl(popoutWindowLabel);
+
+	display.synchronizeRefresh();
+}
+
+void cConfigEditor::hideFirmwareUpdatePopout()
+{
+	for(uint8_t i = 0 ; i < 6; i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.setControlText(topLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+
+	display.setControlText(topLabel[0], "Firmware");
+	display.setControlText(topLabel[2], "Update");
+
+	display.setControlShow(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlHide(popoutWindowLabel);
+	display.refreshControl(popoutWindowLabel);
+
+	display.synchronizeRefresh();
 }
 
 

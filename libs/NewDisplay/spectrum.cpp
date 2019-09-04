@@ -14,12 +14,8 @@ static uint32_t defaultColors[] =
 
 {
 	0xFFFFFF, // linie
-	0xFFFFFF, // numery wierszy
-	0xFFFFFF, // nuta
-	0xFFFFFF, // instrument
-	0xFFFFFF, // volume
-	0xFFFFFF, // effekt
-	0x3F0F00, // zaznaczenie
+	0xFF0000, // czerowne
+	0x777777, // srodkowa linia
 };
 
 
@@ -28,7 +24,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 cSpectrum::cSpectrum(strControlProperties* properties)
 {
-	colorsCount = 7;
+	colorsCount = 3;
 	colors = defaultColors;
 
 	refreshStep =  0;
@@ -74,7 +70,7 @@ void cSpectrum::setText(char* text)
 
 void cSpectrum::setValue(int value)
 {
-
+	this->value = value;
 }
 
 void cSpectrum::setColors(uint32_t* colors)
@@ -179,7 +175,17 @@ void cSpectrum::refresh1()
 	}
 	else if(spectrum->spectrumType == 1)
 	{
+		//srodek
+		API_COLOR(colors[2]);
+		API_LINE_WIDTH(8);
+		API_BEGIN(LINES);
+		API_VERTEX2F(posX, center);
+		API_VERTEX2F(posX+width-1, center);
+		API_END();
+
 		//jedna lamana linia
+		API_COLOR(colors[0]);
+		API_LINE_WIDTH(12);
 		API_BEGIN(LINE_STRIP);
 
 		for(uint16_t i = 0; i < width-1; i++)
@@ -211,6 +217,16 @@ void cSpectrum::refresh1()
 		//elementsState.waitSpinner = 1;
 	}
 	API_END();
+
+//	if(value > 0 && value < width)
+//	{
+//		API_COLOR(colors[1]);
+//		API_BEGIN(LINES);
+//		API_VERTEX2F( posX + value, posY);
+//		API_VERTEX2F( posX + value, posY + height);
+//		API_END();
+//	}
+
 }
 
 //------------------------------------------------------------------------------------------

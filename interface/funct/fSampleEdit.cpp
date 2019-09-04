@@ -18,7 +18,7 @@ extern strMtProject mtProject;
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
 
-
+static  uint8_t functInstrument(uint8_t state);
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
@@ -42,6 +42,7 @@ static uint8_t functShift(uint8_t value);
 static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
+static uint8_t functStepNote(uint8_t value);
 
 
 
@@ -147,6 +148,7 @@ void cSampleEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonShift, functShift);
 //	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
+	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 
 	FM->setButtonObj(interfaceButton0, buttonPress, functSelectStart);
 	FM->setButtonObj(interfaceButton1, buttonPress, functSelectLoop1);
@@ -157,6 +159,7 @@ void cSampleEditor::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButton6, buttonPress, functPlayMode);
 	FM->setButtonObj(interfaceButton7, buttonPress, functPlayMode);
+	FM->setButtonObj(interfaceButtonNote, functStepNote);
 
 
 
@@ -869,13 +872,43 @@ static uint8_t functShift(uint8_t value)
 
 	return 1;
 }
-/*
-static uint8_t stopPlaying(uint8_t value)
-{
-	if(SE->isPlayingSample) instrumentPlayer[0].noteOff();
 
-	SE->isPlayingSample = 0;
+
+static  uint8_t functInstrument(uint8_t state)
+{
+	if(state == buttonPress)
+	{
+		uint8_t buttonId  = interfaceButtonInstr;
+		SE->eventFunct(eventSwitchModule, SE, &buttonId, 0);
+	}
+	else if(state == buttonHold)
+	{
+
+	}
 
 	return 1;
 }
-*/
+
+static uint8_t functStepNote(uint8_t value)
+{
+	if(value == buttonRelease)
+	{
+		SE->hideNotePopout();
+		SE->setDefaultScreenFunct();
+	}
+	else if(value == buttonHold)
+	{
+		for(uint8_t i = 0; i < 48; i++)
+		{
+			SE->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
+		}
+
+		SE->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
+		SE->FM->clearButtonsRange(interfaceButtonUp, interfaceButtonRight);
+		SE->FM->clearAllPots();
+
+		SE->showNotePopout();
+	}
+
+	return 1;
+}

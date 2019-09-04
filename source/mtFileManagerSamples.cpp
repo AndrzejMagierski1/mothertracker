@@ -59,6 +59,27 @@ void SamplesLoader::update()
 				strcat(currentPatch, ".wav");
 			}
 
+			if(mtProject.instrument[currentIndex].isActive == 0)
+			{
+				mtProject.instrument[currentIndex].sample.loaded = 0;
+				mtProject.instrument[currentIndex].sample.length = 0;
+				mtProject.instrument[currentIndex].sample.wavetable_window_size = 0;
+
+
+				if(currentIndex + 1 < INSTRUMENTS_COUNT)
+				{
+					mtProject.instrument[currentIndex+1].sample.address = mtProject.instrument[currentIndex].sample.address;
+					currentIndex++;
+				}
+				else
+				{
+					memoryUsageChange = 1;
+					if(firstLoadFlag) firstLoadFlag = 0;
+					state = loaderStateTypeEnded;
+				}
+				currentStepLoadSize = 0;
+				return;
+			}
 			if(mtProject.instrument[currentIndex].sample.type == mtSampleTypeWavetable)
 			{
 
@@ -418,6 +439,11 @@ uint32_t WaveLoader::start(const char *filename, int16_t * buf)
 	}
 	accBufferLength = 0;
 	wavfile = SD.open(filename);
+	if(!wavfile)
+	{
+		wavfile.close();
+		return 0;
+	}
 	readHeader(&sampleHead,&wavfile);
 	currentAddress = buf;
 //	if ( (sampleHead.numChannels == 1 && (sampleHead.subchunk2Size > 8388608 )) &&  (sampleHead.numChannels == 2 && (sampleHead.subchunk2Size > 16777216)))
@@ -496,6 +522,13 @@ uint32_t WaveLoader::getInfoAboutWave(const char *filename)
 	strWavFileHeader localSampleHead;
 
 	wavfile = SD.open(filename);
+	if(!wavfile)
+	{
+//		SD.begin(SdioConfig(DMA_SDIO));
+		wavfile.close();
+		return 0;
+
+	}
 	readHeader(&localSampleHead,&wavfile);
 	wavfile.close();
 
@@ -575,6 +608,7 @@ uint32_t WaveLoader::getCurrentWaveLoadedMemory()
 		}
 	}
 	else return 0;
+	return 0;
 }
 //**********************************************************************WAVETABLE LOADER******************************************************************************//
 void WavetableLoader::update()

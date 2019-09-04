@@ -1,5 +1,7 @@
 #include "mtExporterWAV.h"
 #include "mtAudioEngine.h"
+#include "mtSequencer.h"
+
 
 exportStatus status;
 uint32_t byteRecorded;

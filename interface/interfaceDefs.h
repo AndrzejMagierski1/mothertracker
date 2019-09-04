@@ -3,7 +3,7 @@
 #define MT_INTERFACE_DEFS_H
 
 
-#define MT_INTERFACE_STARTUP_TIME 200
+#define MT_INTERFACE_STARTUP_TIME 10000
 
 
 //-------------------------------------------------------------
@@ -135,10 +135,10 @@ enum mtInterfaceButtonsFunctions
 	interfaceButtonFile 		= interfaceButton10,
 	interfaceButtonConfig		= interfaceButton11,
 	interfaceButtonMaster 		= interfaceButton12,
-	interfaceButtonSamplePlay 	= interfaceButton13,
-	interfaceButtonSampleEdit 	= interfaceButton14,
-	interfaceButtonSampleRec 	= interfaceButton15,
-	interfaceButtonSampleLoad 	= interfaceButton16,
+	interfaceButtonSampleLoad 	= interfaceButton13,
+	interfaceButtonSamplePlay 	= interfaceButton14,
+	interfaceButtonSampleEdit 	= interfaceButton15,
+	interfaceButtonSampleRec 	= interfaceButton16,
 	interfaceButtonSong			= interfaceButton17,
 	interfaceButtonNote 		= interfaceButton18,
 	interfaceButtonInstr 		= interfaceButton19,
@@ -178,7 +178,8 @@ enum interfaceEvents
 	eventLoadSampleBank,
 
 	eventSwitchModule,
-
+	eventSwitchToPreviousModule,
+	eventSwitchModuleWithOptions,
 
 	interfaceEventsCount
 };

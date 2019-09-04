@@ -3,7 +3,9 @@
 #include "mtSequencer.h"
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
-#include "seqDisplay.h"
+#include "mtFileManager.h"
+
+#include "patternEditor.h"
 Sequencer sequencer;
 
 inline void timerExternalVector()
@@ -13,9 +15,6 @@ inline void timerExternalVector()
 
 }
 
-/*
- * PUBLIC
- */
 void Sequencer::init()
 {
 	init_player_timer();
@@ -23,8 +22,6 @@ void Sequencer::init()
 }
 void Sequencer::handle()
 {
-//	uint32_t size;
-//	size = sizeof(strBank);
 //	handle_ghosts();
 
 	if (player.blink.isOpen && player.blink.timer > 500)
@@ -117,7 +114,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 							incr_uStep(a);
 						}
 					}
-					trySwitchBank();
+//					trySwitchBank();
 					if (tempTick == 1)
 					{
 						break;
@@ -151,7 +148,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 						incr_uStep(a);
 					}
 				}
-				trySwitchBank();
+//				trySwitchBank();
 
 			}
 			else
@@ -165,7 +162,7 @@ void Sequencer::handle_nanoStep(uint8_t step)
 						incr_uStep(a);
 					}
 				}
-				trySwitchBank();
+//				trySwitchBank();
 			}
 		}
 
@@ -287,6 +284,15 @@ void Sequencer::play_microStep(uint8_t row)
 	//
 	//		WYSTARTOWAĆ STEPA?
 	//
+
+	if ((playerRow.uStep == 1) && player.isPlay && row == 0)
+	{
+		if (playerRow.actual_pos == patternRow.length && player.songMode)
+		{
+			loadNextPattern(fileManager.getNextSongPattern());
+		}
+	}
+
 	if (patternRow.isOn)
 	{
 		boolean startStep = 0;
@@ -414,11 +420,11 @@ void Sequencer::play_microStep(uint8_t row)
 			}
 		}
 		// odpalamy efekty po-nutowe
-		if (isJumpToStep)
-		{
-			playerRow.isGoToStep = 1;
-			playerRow.goToStep = jumpToStep;
-		}
+//		if (isJumpToStep)
+//		{
+//			playerRow.isGoToStep = 1;
+//			playerRow.goToStep = jumpToStep;
+//		}
 
 	}
 
@@ -606,6 +612,21 @@ void Sequencer::play(void)
 
 }
 
+void Sequencer::playPattern(void)
+{
+	player.songMode = 0;
+	play();
+}
+void Sequencer::playSong(void)
+{
+
+	fileManager.loadPattern(fileManager.resetToFirstSongPattern());
+	switchNextPatternNow();
+
+	player.songMode = 1;
+	play();
+}
+
 void Sequencer::pause(void)
 {
 	player.isPlay = 0;
@@ -674,7 +695,7 @@ void Sequencer::resetAllLearned(void)
 	{
 		for (uint8_t y = MINTRACK; y <= MAXTRACK; y++)
 		{
-			player.row[y].step[x].learned = 0;
+//			player.row[y].step[x].learned = 0;
 		}
 	}
 }
@@ -696,145 +717,6 @@ void Sequencer::rec(void)
 //rekonfig timera
 	init_player_timer();
 
-}
-
-//void Sequencer::action_buttonClear(void)
-//{
-//	//set_LCD_mode(LCDVIEW_CLEAR_TRACK, 0);
-//
-//	for (uint8_t y = 1; y <= 8; y++)
-//	{
-//		if (isButtonPressed(0, y))
-//		{
-//			clearRow(y);
-//		}
-//	}
-//}
-
-void Sequencer::clearRow(uint8_t row)
-{
-	clearRow(row, player.ramBank);
-}
-
-void Sequencer::clearRow(uint8_t row, uint8_t bank)
-{
-// TODO: ograniczyć ba
-	for (uint8_t x = MINSTEP; x <= MAXSTEP; x++)
-	{
-		clearStep(x, row, bank);
-	}
-}
-
-void Sequencer::loadDefaultTrack(uint8_t row, uint8_t bank)
-{
-
-	for (uint8_t x = 1; x <= MAXSTEP; x++)
-	{
-		seq[bank].track[row].length = DEFAULT_ROW_LEN;
-		seq[bank].track[row].rootNote = DEFAULT_ROW_NOTE;
-		seq[bank].track[row].trackVelo = MAX_VELO_TRACK;
-		seq[bank].track[row].defaultMod = DEFAULT_MOD;
-		seq[bank].track[row].channel = DEFAULT_ROW_CHANNEL;
-		seq[bank].track[row].cc = DEFAULT_CC;
-//		seq[bank].row[row].flags = 1;
-		seq[bank].track[row].isOn = 1;
-		seq[bank].track[row].trackScale = 0;
-		seq[bank].track[row].midiOut = MIDIOUT_USB;
-		seq[bank].track[row].playMode = PLAYMODE_FORWARD;
-		seq[bank].track[row].gateMode = GATEMODE.NORMAL;
-		seq[bank].track[row].tempoDiv = TEMPODIV_1_1;
-		seq[bank].track[row].channelIn = CHANNEL_IN_ALL;
-		seq[bank].track[row].rezerwa4 = 0;
-
-		clearStep(x, row, bank);
-	}
-}
-
-void Sequencer::clearStep(uint8_t x, uint8_t row)
-{
-	clearStep(x, row, player.ramBank);
-}
-
-void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
-{
-	strPattern::strTrack * tempRow = &seq[bank].track[row];
-	strPattern::strTrack::strStep * step = &tempRow->step[x];
-
-	clearStep(step);
-}
-
-void Sequencer::clearStep(strPattern::strTrack::strStep * step)
-{
-//	step->isOn = 0;
-	step->velocity = MAX_VELO_STEP;
-
-	step->note = STEP_NOTE_EMPTY;
-	step->instrument = 0;
-	step->velocity = -1;
-	step->fx[0].isOn = 0;
-
-}
-
-void Sequencer::clearSelected()
-{
-	clearSelected(&selection);
-}
-void Sequencer::clearSelected(strSelection * selection)
-{
-	if (!isSelectionCorrect(selection)) return;
-
-	for (uint8_t t = selection->firstTrack; t <= selection->lastTrack; t++)
-	{
-		for (uint8_t s = selection->firstStep; s <= selection->lastStep; s++)
-		{
-			clearStep(&seq[player.ramBank].track[t].step[s]);
-		}
-	}
-}
-
-// void Sequencer::clearBank(uint8_t pattern)
-// {
-// 	for (uint8_t row = 1; row <= 8; row++)
-// 	{
-// 		clearRow(row, 3);
-
-// 		for (uint8_t step = 1; step <= 32; step++)
-// 		{
-// 			clearStep(step, row, 3);
-// 		}
-// 	}
-// }
-
-void Sequencer::loadDefaultBank(uint8_t bank)
-{
-	seq[bank].tempo = DEFAULT_TEMPO;
-	seq[bank].swing = DEFAULT_SWING;
-	seq[bank].structVer = MEMORY_STRUCT_VER;
-	seq[bank].structVerControl = MEMORY_STRUCT_VER;
-	seq[bank].rezerwa3 = 0;
-	seq[bank].rezerwa4 = 0;
-
-	for (uint8_t row = MINTRACK; row <= MAXTRACK; row++)
-	{
-		loadDefaultTrack(row, bank);
-	}
-
-}
-
-void Sequencer::initPattern(uint8_t pattern) // czyści pattern z flasha
-{
-// czyścimy bank 3
-	loadDefaultBank(3);
-
-	if (pattern == player.actualBank)
-	{
-		loadDefaultBank(1);
-		loadDefaultBank(0);
-	}
-
-// flashuje pattern ramem z 3 pozycji
-// 	TODO
-//	flash_bank(pattern, 3);
 }
 
 uint8_t Sequencer::isInScale(uint8_t note, uint8_t root, uint8_t scale)
@@ -888,123 +770,9 @@ void Sequencer::loadDefaultSequence(void)
 		for (uint8_t y = MINSTEP; y <= MAXSTEP; y++)
 		{
 			seq[player.ramBank].track[x].step[y].note = STEP_NOTE_EMPTY;
-
-//			seq[player.ramBank].track[x].step[y].length1 = 48;
 		}
 	}
-	//seq[player.ramBank].track[0].tempoDiv=1;
-	/*
-	 seq[player.ramBank].track[0].step[0].isOn = 1;
-	 seq[player.ramBank].track[0].step[0].velocity = 100;
-	 seq[player.ramBank].track[0].step[0].instrument = 0;
-	 seq[player.ramBank].track[0].step[0].note = 24;
-	 seq[player.ramBank].track[0].step[0].length1 = 100;
 
-	 seq[player.ramBank].track[1].step[1].isOn = 1;
-	 seq[player.ramBank].track[1].step[1].velocity = 100;
-	 seq[player.ramBank].track[1].step[1].instrument = 1;
-	 seq[player.ramBank].track[1].step[1].note = 24;
-	 seq[player.ramBank].track[1].step[1].length1 = 100;
-
-	 seq[player.ramBank].track[2].step[2].isOn = 1;
-	 seq[player.ramBank].track[2].step[2].velocity = 100;
-	 seq[player.ramBank].track[2].step[2].instrument = 2;
-	 seq[player.ramBank].track[2].step[2].note = 29;
-	 seq[player.ramBank].track[2].step[2].length1 = 100;
-
-	 seq[player.ramBank].track[3].step[3].isOn = 1;
-	 seq[player.ramBank].track[3].step[3].velocity = 100;
-	 seq[player.ramBank].track[3].step[3].instrument = 3;
-	 seq[player.ramBank].track[3].step[3].note = 11;
-	 seq[player.ramBank].track[3].step[3].length1 = 50;
-
-	 seq[player.ramBank].track[4].step[4].isOn = 1;
-	 seq[player.ramBank].track[4].step[4].velocity = 100;
-	 seq[player.ramBank].track[4].step[4].instrument = 4;
-	 seq[player.ramBank].track[4].step[4].note = 14;
-	 seq[player.ramBank].track[4].step[4].length1 = 50;
-
-	 seq[player.ramBank].track[5].step[5].isOn = 1;
-	 seq[player.ramBank].track[5].step[5].velocity = 100;
-	 seq[player.ramBank].track[5].step[5].instrument = 5;
-	 seq[player.ramBank].track[5].step[5].note = 13;
-	 seq[player.ramBank].track[5].step[5].length1 = 50;
-
-	 seq[player.ramBank].track[6].step[6].isOn = 1;
-	 seq[player.ramBank].track[6].step[6].velocity = 100;
-	 seq[player.ramBank].track[6].step[6].instrument = 1;
-	 seq[player.ramBank].track[6].step[6].note = 12;
-	 seq[player.ramBank].track[6].step[6].length1 = 50;
-
-
-	 seq[player.ramBank].track[7].step[7].isOn = 1;
-	 seq[player.ramBank].track[7].step[7].velocity = 100;
-	 seq[player.ramBank].track[7].step[7].instrument = 2;
-	 seq[player.ramBank].track[7].step[7].note = 21;
-	 seq[player.ramBank].track[7].step[7].length1 = 100;
-
-
-	 seq[player.ramBank].track[0].step[8].isOn = 1;
-	 seq[player.ramBank].track[0].step[8].velocity = 100;
-	 seq[player.ramBank].track[0].step[8].instrument = 3;
-	 seq[player.ramBank].track[0].step[8].note = 28;
-	 seq[player.ramBank].track[0].step[8].length1 = 100;
-
-	 seq[player.ramBank].track[1].step[9].isOn = 1;
-	 seq[player.ramBank].track[1].step[9].velocity = 100;
-	 seq[player.ramBank].track[1].step[9].instrument = 4;
-	 seq[player.ramBank].track[1].step[9].note = 24;
-	 seq[player.ramBank].track[1].step[9].length1 = 100;
-
-	 seq[player.ramBank].track[2].step[10].isOn = 1;
-	 seq[player.ramBank].track[2].step[10].velocity = 100;
-	 seq[player.ramBank].track[2].step[10].instrument = 5;
-	 seq[player.ramBank].track[2].step[10].note = 29;
-	 seq[player.ramBank].track[2].step[10].length1 = 100;
-
-	 seq[player.ramBank].track[3].step[11].isOn = 1;
-	 seq[player.ramBank].track[3].step[11].velocity = 100;
-	 seq[player.ramBank].track[3].step[11].instrument = 1;
-	 seq[player.ramBank].track[3].step[11].note = 11;
-	 seq[player.ramBank].track[3].step[11].length1 = 50;
-
-	 seq[player.ramBank].track[4].step[12].isOn = 1;
-	 seq[player.ramBank].track[4].step[12].velocity = 100;
-	 seq[player.ramBank].track[4].step[12].instrument = 2;
-	 seq[player.ramBank].track[4].step[12].note = 14;
-	 seq[player.ramBank].track[4].step[12].length1 = 50;
-
-	 seq[player.ramBank].track[5].step[13].isOn = 1;
-	 seq[player.ramBank].track[5].step[13].velocity = 100;
-	 seq[player.ramBank].track[5].step[13].instrument = 3;
-	 seq[player.ramBank].track[5].step[13].note = 13;
-	 seq[player.ramBank].track[5].step[13].length1 = 50;
-
-	 seq[player.ramBank].track[6].step[14].isOn = 1;
-	 seq[player.ramBank].track[6].step[14].velocity = 100;
-	 seq[player.ramBank].track[6].step[14].instrument = 4;
-	 seq[player.ramBank].track[6].step[14].note = 12;
-	 seq[player.ramBank].track[6].step[14].length1 = 50;
-
-
-	 seq[player.ramBank].track[7].step[15].isOn = 1;
-	 seq[player.ramBank].track[7].step[15].velocity = 100;
-	 seq[player.ramBank].track[7].step[15].instrument = 0;
-	 seq[player.ramBank].track[7].step[15].note = 21;
-	 seq[player.ramBank].track[7].step[15].length1 = 100;
-	 */
-//	seq[player.ramBank].track[0].step[5].isOn = 1;
-////	seq[player.ramBank].row[0].step[1].hitMode = 1;
-//	seq[player.ramBank].track[0].step[5].note = 36;
-//	seq[player.ramBank].track[0].step[5].length1 = 100;
-//
-//	seq[player.ramBank].track[0].step[10].isOn = 1;
-////	seq[player.ramBank].row[0].step[2].hitMode = 1;
-//	seq[player.ramBank].track[0].step[10].note = 28;
-//	seq[player.ramBank].track[0].step[10].length1 = 150;
-//	seq[player.ramBank].track[0].step[10].fx[0].isOn = 1;
-//	seq[player.ramBank].track[0].step[10].fx[0].type = fx.FX_TYPE_OFFSET;
-//	seq[player.ramBank].track[0].step[10].fx[0].value_u16 = 10;
 }
 
 void Sequencer::allNoteOffs(void)
@@ -1028,26 +796,26 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 {
 	uint8_t x = constrain(row, MINTRACK, MAXTRACK);
 
-	if (player.isREC && player.row[x].recNoteOpen)
-	{
-		player.row[x].recNoteLength++;
+//	if (player.isREC && player.row[x].recNoteOpen)
+//	{
+//		player.row[x].recNoteLength++;
 //		seq[player.ramBank].track[x].step[player.row[x].recNoteStep].length1 = player.row[x].recNoteLength - 1;
 
-	}
+//	}
 
-	if (player.row[x].isGoToStep)
-	{
-		player.row[x].actual_pos = player.row[x].goToStep;
-		player.row[x].isGoToStep = 0;
-	}
-	else if (player.row[x].makeJump)
+//	if (player.row[x].isGoToStep)
+//	{
+//		player.row[x].actual_pos = player.row[x].goToStep;
+//		player.row[x].isGoToStep = 0;
+//	}
+	if (player.row[x].makeJump)
 	{
 		for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 		{
 			player.row[x].makeJump = 0;
 		}
 		// switch_bank_with_reset();
-		player.jumpNOW = 1;
+		player.jump.jumpNOW = 1;
 	}
 	else
 	{
@@ -1058,6 +826,14 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			{
 				// player.row[x].return2start = 0;
 				reset_actual_pos(x);
+
+				if (row == 0 && player.songMode)
+				{
+					switchNextPatternNow();
+					fileManager.switchNextPatternInSong();
+					fileManager.refreshPatternView();
+				}
+
 				if ((player.onPatternEnd != NULL) && (x == MINTRACK))
 					player.onPatternEnd();
 
@@ -1359,14 +1135,14 @@ void Sequencer::divChangeQuantize(uint8_t row)
 	}
 }
 
-void Sequencer::trySwitchBank()
-{
-	if (player.jumpNOW)
-	{
-		switch_bank_with_reset();
-		player.jumpNOW = 0;
-	}
-}
+//void Sequencer::trySwitchBank()
+//{
+//	if (player.jumpNOW)
+//	{
+//		switch_bank_with_reset();
+//		player.jumpNOW = 0;
+//	}
+//}
 
 uint8_t Sequencer::getTempoDiv(int8_t val)
 {
@@ -1409,21 +1185,6 @@ uint8_t Sequencer::getTempoDiv(int8_t val)
 
 	return 12;
 }
-
-//uint8_t Sequencer::val2roll(uint8_t val)
-//{
-//	if (val <= sizeof(arrVal2roll))
-//	{
-//		return arrVal2roll[val];
-//	}
-//	else if (val == HITMODE_OFFSET)
-//	return HITMODE_OFFSET; // wyjatek dla nudge //TODO
-//	else
-//	{
-//		return 1;
-//	}
-//
-//}
 
 inline uint8_t Sequencer::isPlay(void)
 {
@@ -1471,285 +1232,10 @@ void Sequencer::midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 
 }
 
-void Sequencer::setLoadBank2Ram(uint8_t bank)
-{
-// Serial.print("change bank to:");
-// Serial.println(bank);
-//	bank = constrain(bank, 0, 255);
-//	set_updateLCD();
-//
-//	player.changeBank  = 1;
-//	player.loadBank = 1;
-//	player.bank2load = bank;
-
-}
-
-void Sequencer::switch_bank_with_reset(void)
-{
-
-}
-
 void Sequencer::send_clock(uint8_t arg)
 {
 // TODO: wypełnić
 
-}
-
-void Sequencer::insert(strSelection *selection)
-{
-	if (!isSelectionCorrect(selection)) return;
-
-	for (uint8_t t = selection->firstTrack; t <= selection->lastTrack; t++)
-	{
-		for (uint8_t s = MAXSTEP; s > selection->firstStep; s--)
-		{
-			seq[player.ramBank].track[t].step[s] = seq[player.ramBank].track[t].step[s - 1];
-		}
-		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep]);
-	}
-
-}
-
-void Sequencer::insertReversed(strSelection *selection)
-{
-	if (!isSelectionCorrect(selection)) return;
-
-	for (uint8_t t = selection->firstTrack; t <= selection->lastTrack; t++)
-	{
-		for (uint8_t s = MINSTEP; s < selection->firstStep; s++)
-		{
-			seq[player.ramBank].track[t].step[s] = seq[player.ramBank].track[t].step[s + 1];
-		}
-		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep]);
-	}
-
-}
-void Sequencer::copy()
-{
-	copy(&sequencer.selection, &sequencer.selectionPaste);
-}
-
-void Sequencer::copy(strSelection *from, strSelection *to)
-{
-	if (!isSelectionCorrect(from)) return;
-
-	uint8_t tracksToCopy, rowsToCopy;
-	uint8_t trackOff = 0, stepOff = 0;
-
-	tracksToCopy = from->lastTrack - from->firstTrack + 1;
-	rowsToCopy = from->lastStep - from->firstStep + 1;
-	Sequencer::strPattern::strTrack::strStep *stepFrom, *stepTo;
-
-// I cwiartka FROM
-	if (to->firstStep >= from->firstStep && from->firstTrack >= to->firstTrack)
-	{
-		trackOff = 0;
-
-		for (uint8_t t = to->firstTrack;
-				t <= to->firstTrack + tracksToCopy - 1;
-				t++)
-		{
-			stepOff = rowsToCopy - 1;
-			for (uint8_t s = to->firstStep + stepOff;
-					s >= to->firstStep;
-					s--)
-			{
-				uint8_t trackNoFrom, stepNoFrom;
-				trackNoFrom = from->firstTrack + trackOff;
-				stepNoFrom = from->firstStep + stepOff;
-				// czy step istnieje?
-				if (stepNoFrom <= MAXSTEP && trackNoFrom <= MAXTRACK)
-				{
-
-					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
-					stepTo = &seq[player.ramBank].track[t].step[s];
-					*stepTo = *stepFrom;
-//					clearStep(stepFrom);
-				}
-				stepOff--;
-
-			}
-			trackOff++;
-		}
-	}
-// II cwiartka FROM
-	else if (to->firstStep >= from->firstStep && from->firstTrack < to->firstTrack)
-	{
-		trackOff = tracksToCopy - 1;
-
-		for (uint8_t t = to->firstTrack + trackOff;
-				t >= to->firstTrack;
-				t--)
-		{
-			stepOff = rowsToCopy - 1;
-			for (uint8_t s = to->firstStep + stepOff;
-					s >= to->firstStep;
-					s--)
-			{
-				uint8_t trackNoFrom, stepNoFrom;
-				trackNoFrom = from->firstTrack + trackOff;
-				stepNoFrom = from->firstStep + stepOff;
-				// czy step istnieje?
-				if (stepNoFrom <= MAXSTEP && trackNoFrom <= MAXTRACK)
-				{
-
-					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
-					stepTo = &seq[player.ramBank].track[t].step[s];
-					*stepTo = *stepFrom;
-//					clearStep(stepFrom);
-				}
-				stepOff--;
-
-			}
-			trackOff--;
-		}
-	}
-
-// III cwiartka FROM
-	else if (to->firstStep <= from->firstStep && from->firstTrack < to->firstTrack)
-	{
-		trackOff = tracksToCopy - 1;
-
-		for (uint8_t t = to->firstTrack + trackOff;
-				t >= to->firstTrack;
-				t--)
-		{
-			stepOff = 0;
-			for (uint8_t s = to->firstStep;
-					s <= to->firstStep + rowsToCopy - 1;
-					s++)
-			{
-				uint8_t trackNoFrom, stepNoFrom;
-				trackNoFrom = from->firstTrack + trackOff;
-				stepNoFrom = from->firstStep + stepOff;
-				// czy step istnieje?
-				if (stepNoFrom <= MAXSTEP && trackNoFrom <= MAXTRACK)
-				{
-
-					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
-					stepTo = &seq[player.ramBank].track[t].step[s];
-					*stepTo = *stepFrom;
-//					clearStep(stepFrom);
-				}
-				stepOff++;
-
-			}
-			trackOff--;
-		}
-	}
-// IV cwiartka FROM
-	else if (to->firstStep <= from->firstStep && from->firstTrack >= to->firstTrack)
-	{
-		trackOff = 0;
-
-		for (uint8_t t = to->firstTrack;
-				t <= to->firstTrack + tracksToCopy - 1;
-				t++)
-		{
-			stepOff = 0;
-			for (uint8_t s = to->firstStep;
-					s <= to->firstStep + rowsToCopy - 1;
-					s++)
-			{
-				uint8_t trackNoFrom, stepNoFrom;
-				trackNoFrom = from->firstTrack + trackOff;
-				stepNoFrom = from->firstStep + stepOff;
-				// czy step istnieje?
-				if (stepNoFrom <= MAXSTEP && trackNoFrom <= MAXTRACK)
-				{
-
-					stepFrom = &seq[player.ramBank].track[trackNoFrom].step[stepNoFrom];
-					stepTo = &seq[player.ramBank].track[t].step[s];
-					*stepTo = *stepFrom;
-//					clearStep(stepFrom);
-				}
-				stepOff++;
-
-			}
-			trackOff++;
-		}
-	}
-
-}
-
-bool Sequencer::isSelectionCorrect(strSelection *selection)
-{
-	if (selection->firstStep > selection->lastStep ||
-			selection->firstTrack > selection->lastTrack ||
-			selection->firstStep > MAXSTEP ||
-			selection->firstTrack > MAXTRACK ||
-			selection->lastStep > MAXSTEP ||
-			selection->lastTrack > MAXTRACK)
-	{
-		return 0;
-	}
-	else
-	{
-		return 1;
-	}
-}
-
-bool Sequencer::isSingleSelection(strSelection *selection)
-{
-	if (selection->firstStep == selection->lastStep &&
-			selection->firstTrack == selection->lastTrack &&
-			isSelectionCorrect(selection))
-
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-void Sequencer::setSelection(uint8_t stepFrom,
-								uint8_t trackFrom,
-								uint8_t stepTo,
-								uint8_t trackTo)
-{
-	if (stepTo < stepFrom)
-	{
-		selection.firstStep = stepTo;
-		selection.lastStep = stepFrom;
-	}
-	else
-	{
-		selection.firstStep = stepFrom;
-		selection.lastStep = stepTo;
-	}
-
-	if (trackTo < trackFrom)
-	{
-		selection.firstTrack = trackTo;
-		selection.lastTrack = trackFrom;
-	}
-	else
-	{
-		selection.firstTrack = trackFrom;
-		selection.lastTrack = trackTo;
-	}
-
-}
-
-void Sequencer::setPasteSelection(uint8_t stepFrom,
-									uint8_t trackFrom,
-									uint8_t stepTo,
-									uint8_t trackTo)
-{
-	selectionPaste.firstStep = stepFrom;
-	selectionPaste.firstTrack = trackFrom;
-
-	selectionPaste.lastStep = stepTo;
-	selectionPaste.lastTrack = trackTo;
-
-}
-
-void Sequencer::toggleStep(uint8_t row, uint8_t step)
-{
-//	seq[player.ramBank].track[row].step[step].isOn = !seq[player.ramBank].track[row].step[step].isOn;
-	seq[player.ramBank].track[row].step[step].note = DEFAULT_ROW_NOTE;
 }
 
 uint8_t Sequencer::get_fxValType(uint8_t fxType)
@@ -1833,8 +1319,6 @@ uint8_t Sequencer::get_fxValType(uint8_t fxType)
 	}
 }
 
-//strMtModAudioEngine  playMod = {0};
-
 void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 {
 	if (player.printNotes)
@@ -1884,76 +1368,6 @@ void Sequencer::sendNoteOff(uint8_t track)
 	instrumentPlayer[track].noteOff();
 }
 
-void Sequencer::fillRandomNotes(uint8_t step)
-{
-	strSelection *sel = &selection;
-	if (!isSelectionCorrect(sel)) return;
-
-	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
-	{
-		for (uint8_t s = sel->firstStep, offset = 0;
-				s <= sel->lastStep;
-				s++, offset++)
-		{
-			if (offset % step == 0)
-			{
-				seq[player.ramBank].track[t].step[s].note =
-						random(0, MAX_NOTE_STEP + 1);
-			}
-		}
-	}
-}
-
-void Sequencer::randomExisting()
-{
-	strSelection *sel = &selection;
-	if (!isSelectionCorrect(sel)) return;
-	strPattern::strTrack::strStep *step;
-
-	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
-	{
-		for (uint8_t s = sel->firstStep, offset = 0;
-				s <= sel->lastStep;
-				s++, offset++)
-		{
-			step = &seq[player.ramBank].track[t].step[s];
-			if (step->note >= 0)
-			{
-				step->note = random(0, MAX_NOTE_STEP + 1);
-			}
-		}
-	}
-}
-
-void Sequencer::transposeSelection(int16_t value)
-{
-	strSelection *sel = &selection;
-	if (!isSelectionCorrect(sel)) return;
-
-	strPattern::strTrack::strStep *step;
-
-	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
-	{
-		for (uint8_t s = sel->firstStep, offset = 0;
-				s <= sel->lastStep;
-				s++, offset++)
-		{
-			step = &seq[player.ramBank].track[t].step[s];
-
-			step->note = constrain(step->note + value, MIN_NOTE_STEP,
-									MAX_NOTE_STEP);
-			if (isSingleSelection(sel) && step->note >= 0)
-			{
-				blinkNote(step->instrument,
-							step->note,
-							step->velocity,
-							t);
-			}
-
-		}
-	}
-}
-
 void Sequencer::blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 							uint8_t track)
 {
@@ -1967,58 +1381,53 @@ void Sequencer::blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 									velocity);
 }
 
-void Sequencer::changeSelectionVolume(int16_t value)
+void Sequencer::loadNextPattern(uint8_t patternNumber)
 {
+	player.jump.nextPattern = patternNumber;
+	player.jump.jumpNOW = 0;
 
-	strSelection *sel = &selection;
-	if (!isSelectionCorrect(sel)) return;
+	Serial.printf("loadNextPattern: %d\n", patternNumber);
 
-	strPattern::strTrack::strStep *step;
+	fileManager.loadPattern(patternNumber);
 
-	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
-	{
-		for (uint8_t s = sel->firstStep, offset = 0;
-				s <= sel->lastStep;
-				s++, offset++)
-		{
-			step = &seq[player.ramBank].track[t].step[s];
-			step->velocity = constrain(step->velocity + value, 0,
-										MAX_VELO_STEP);
-		}
-	}
 }
 
-void Sequencer::changeSelectionInstrument(int16_t value)
+void Sequencer::handleNote(byte channel, byte note, byte velocity)
 {
-
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 
-	strPattern::strTrack::strStep *step;
-
-	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	// NOTE ON
+	if (velocity != 0)
 	{
-		for (uint8_t s = sel->firstStep, offset = 0;
-				s <= sel->lastStep;
-				s++, offset++)
+		if (!isMultiSelection())
 		{
-			step = &seq[player.ramBank].track[t].step[s];
-			step->instrument = constrain(step->instrument + value, 0,
-											INSTRUMENTS_COUNT);
+			strPattern::strTrack::strStep *step = &seq[player.ramBank].track[sel->firstTrack].step[sel->firstStep];
 			if (step->note == STEP_NOTE_EMPTY)
 			{
-				step->note = STEP_NOTE_DEFAULT;
+				step->instrument = mtProject.values.lastUsedInstrument;
 			}
+			step->note = note;
+			step->velocity = velocity;
 
-			if (isSingleSelection(sel) && step->note >= 0)
-			{
-				blinkNote(step->instrument,
-							step->note,
-							step->velocity,
-							t);
-			}
+//			blinkNote(step->instrument,
+//						step->note,
+//						step->velocity,
+//						sel->firstTrack);
 
+			instrumentPlayer[sel->firstTrack].noteOff();
+			instrumentPlayer[sel->firstTrack].noteOn(step->instrument,
+														step->note,
+														step->velocity);
 		}
 	}
-}
+	else
+	{
+		if (!isMultiSelection())
+		{
+			instrumentPlayer[sel->firstTrack].noteOff();
+		}
 
+	}
+
+}

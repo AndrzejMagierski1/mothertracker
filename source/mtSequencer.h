@@ -4,15 +4,20 @@
 #include <stdint.h>
 #include "scales.h"
 #include "mtStructs.h"
+//#include "patternEditor.h"
+//#include "mtfil"
 
 /*
  definicje na potrzeby portu programu na mniejsze seczki
  */
 
+//TODO - przeniesione do mtStructs.h
+/*
 #define FV_VER_1 0	// device version
 #define FV_VER_2 1	// official update
 #define FV_VER_3 0	// fix version
 #define MEMORY_STRUCT_VER 2
+*/
 
 class Sequencer
 {
@@ -106,38 +111,34 @@ public:
 		SEQ_STATE_STOP = 0,
 		SEQ_STATE_PLAY = 1,
 		SEQ_STATE_PAUSE = 2,
+		MIN_MICROMOVE_STEP = -1000,
+		MAX_MICROMOVE_STEP = 1000,
+		CHANNEL_IN_ALL = 0,
+
+		MIN_GATEMODE = 0,
+		MAX_GATEMODE = 3,
+		NULL_MOD = 128, // TODO: co to kurwa za null jak nie null
+		DEFAULT_MOD = 128, //NULL_MOD
+
+		MAX_NOTE_STEP = 127,
+		MIN_NOTE_STEP = -2,
 	};
-	static const int16_t MIN_MICROMOVE_STEP = -1000,
-			MAX_MICROMOVE_STEP = 1000;
-
-	static const uint8_t RANDOM_VELO_MIN = 20,
-			RANDOM_VELO_MAX = 127,
-			RANDOM_MOD_MIN = 20,
-			RANDOM_MOD_MAX = 127,
-			RANDOM_NOTE_DOWN = 12,
-			RANDOM_NOTE_UP = 12;
-
-	static const uint8_t CHANNEL_IN_ALL = 0;
-
-	static const uint8_t MIN_GATEMODE = 0,
-			MAX_GATEMODE = 3,
-			NULL_MOD = 128, // TODO: co to kurwa za null jak nie null
-			DEFAULT_MOD = 128; //NULL_MOD
-
-	static const int8_t MAX_NOTE_STEP = 127;
-	static const int8_t MIN_NOTE_STEP = -2;
-
-	static const uint8_t PLAYMODE_MIN = 0,
-			PLAYMODE_FORWARD = 0,
-			PLAYMODE_BACKWARD = 1,
-			PLAYMODE_PINGPONG = 2,
-			PLAYMODE_RANDOM = 3,
-			PLAYMODE_POLY = 4,
-			PLAYMODE_MAX = 3;
-
-	const int8_t MIN_TEMPO_DIV = -3;
-	const int8_t MAX_TEMPO_DIV = 3;
-	static const int8_t TEMPODIV_1_1 = 0;
+	enum enPlaymode
+	{
+		PLAYMODE_MIN = 0,
+		PLAYMODE_FORWARD = 0,
+		PLAYMODE_BACKWARD = 1,
+		PLAYMODE_PINGPONG = 2,
+		PLAYMODE_RANDOM = 3,
+		PLAYMODE_POLY = 4,
+		PLAYMODE_MAX = 3
+	};
+	enum enTempoDiv
+	{
+		MIN_TEMPO_DIV = -3,
+		MAX_TEMPO_DIV = 3,
+		TEMPODIV_1_1 = 0,
+	};
 
 	static constexpr float MAX_TEMPO = 400.0,
 			MIN_TEMPO = 10.0,
@@ -205,10 +206,20 @@ public:
 
 	} fx;
 
-	// KONIEC STAŁYCH
+// KONIEC STAŁYCH
 
 	struct strPattern
 	{
+
+		struct strFileHeader
+		{
+			char id_file[2];
+			uint16_t type;
+			char version[4];
+			char id_data[4];
+			uint16_t size;
+		} header;
+
 		float tempo = DEFAULT_TEMPO;
 		float swing = DEFAULT_SWING;
 
@@ -287,6 +298,9 @@ public:
 
 		} track[8];
 
+		// poniżej nie brać pod uwagę licząc CRC
+		uint32_t crc;
+
 	};
 	struct strSelection
 
@@ -302,6 +316,8 @@ public:
 	private:
 
 	strPattern seq[2];
+
+	strPattern::strTrack copyTrackBuffer[8];
 
 	struct strGlobalConfig
 	{
@@ -319,15 +335,15 @@ public:
 
 	};
 
-	struct strChangeBuffer
-	{
-		int8_t transpose = 0;
-		int16_t uMoveStep = 0;
-		int16_t moveStep = IDLE_MOVE_STEP;
-		int16_t uMoveTrack = 1;
-		uint8_t trackRoll = 1;
-
-	};
+//	struct strChangeBuffer
+//	{
+//		int8_t transpose = 0;
+//		int16_t uMoveStep = 0;
+//		int16_t moveStep = IDLE_MOVE_STEP;
+//		int16_t uMoveTrack = 1;
+//		uint8_t trackRoll = 1;
+//
+//	};
 
 	struct strNoteHandler
 	{
@@ -385,13 +401,10 @@ public:
 	void resetAllLearned(void);
 	void resetLastSendMod(void);
 	//	void set_power_mode(uint8_t mode);
-	void trySwitchBank();
+//	void trySwitchBank();
 
-	void setLoadBank2Ram(uint8_t bank);
 	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 					uint8_t midiOut);
-
-	void switch_bank_with_reset(void);
 
 	void flushNotes();
 	void sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step);
@@ -405,7 +418,7 @@ public:
 	IntervalTimer midiReceiveTimer;
 	IntervalTimer playTimer;
 
-	strChangeBuffer change_buffer;
+//	strChangeBuffer change_buffer;
 	strGhost ghost;
 	strGlobalConfig config;
 
@@ -456,12 +469,13 @@ public:
 
 	struct strPlayer
 	{
+		bool songMode = 0;
 		bool printNotes = 0;
 		bool changeBank = 0;
 		bool isPlay = 0;
 		bool isREC = 0;
 		bool isStop = 1;
-		bool loadBank = 0;
+//		bool loadBank = 0;
 		bool ramBank = 0;
 		bool swingToogle = 0;
 		float externalTempo = 120.0;
@@ -474,8 +488,8 @@ public:
 		uint16_t rec_intro_timer_max = 48 * 4;
 		uint16_t uStep = 0;
 		uint8_t actualBank = 0;
-		uint8_t bank2change = 0;
-		uint8_t bank2load = 0;
+		//		uint8_t bank2change = 0;
+//		uint8_t bank2load = 0;
 
 		struct strBlink
 		{
@@ -485,7 +499,12 @@ public:
 			bool isOpen = 0;
 		} blink;
 
-		uint8_t jumpNOW = 0;
+		struct strJump
+		{
+			uint8_t jumpNOW = 0;
+			uint8_t nextPattern = 0;
+
+		} jump;
 
 		struct strPlayerTrack
 		{
@@ -503,40 +522,13 @@ public:
 			uint8_t rollMode = 0;
 
 			bool pingPongToogle = 0;
-			// do zakonczenia stepa
-
-//			uint8_t lastMod = 0;			// ostatnio wyslany parametr
 
 			uint8_t return2start = 0;// po zakonczonym stepie wraca do pocatku
 			uint8_t makeJump = 0;// flaga przeskoku do odpowiedniego patternu po odegraniu stepu
 
-			uint8_t goToStep = 0;		// odpala odpowiedni step jako kolejny
-			bool isGoToStep = 0;		// odpala odpowiedni step jako kolejny
 
-			uint8_t recNoteOpen = 0;// czy otwarta nuta? w trakcie nagrywania
-			uint8_t recNoteLength = 0;	// aktualna długość otwartej nuty
-			uint8_t recNote = 0;
-			uint8_t recChannel = 0;
-			uint8_t recNoteStep = 0;
-
-//			int8_t lastRollNote = 0;
-
-//			uint8_t learned = 0;
 
 			bool divChange = 0;
-			bool divChangeIncr = 0;
-
-			struct strPlayerStep
-			{
-
-				uint8_t wasModification = 0;
-				uint8_t justPressed = 0;
-				uint8_t learned = 0;
-				uint8_t isGhost = 0;// jeśli > 0 to ma numer stepa którego jest ghostem
-				uint8_t isMoving = 0;	// jest przemieszczany
-				uint8_t isBlinking = 0;	// jest podświetlany jako ruch
-
-			} step[MAXSTEP + 1];
 
 		} row[MAXTRACK + 1];
 
@@ -552,7 +544,7 @@ public:
 
 public:
 
-	// klasowe
+// klasowe
 	void handle();
 	void init();
 	void loadDefaultSequence(void);
@@ -562,7 +554,7 @@ public:
 		player.printNotes = !player.printNotes;
 	}
 
-	// sekwencerowe
+// sekwencerowe
 
 //	strPattern const * pattern = &seq[0];
 
@@ -570,7 +562,7 @@ public:
 
 	uint8_t * getPatternToSaveToFile()
 	{
-		return (uint8_t *) &seq[0];
+		return (uint8_t *) &seq[player.ramBank];
 	}
 	void saveToFileDone()
 	{
@@ -586,13 +578,16 @@ public:
 
 	uint8_t * getPatternToLoadFromFile()
 	{
-		return (uint8_t *) &seq[0];
+		return (uint8_t *) &seq[!player.ramBank];
 	}
 	void loadFromFileOK()
 	{
+		Serial.println("ok");
 	}
 	void loadFromFileERROR()
 	{
+		loadDefaultBank(0);
+		loadDefaultBank(1);
 	}
 	uint16_t getPatternSize()
 	{
@@ -601,10 +596,17 @@ public:
 
 	strPattern * getPatternToUI()
 	{
-		return &seq[0];
+		return &seq[player.ramBank];
+	}
+
+	void switchNextPatternNow()
+	{
+		player.ramBank = !player.ramBank;
 	}
 
 	void play(void);
+	void playPattern(void);
+	void playSong(void);
 	void pause(void);
 	void rec(void);
 	void stop(void);
@@ -612,10 +614,11 @@ public:
 	void insert(strSelection *selection);
 	void insertReversed(strSelection *selection);
 
-
-	// SELECTION
-	void copy(strSelection *from, strSelection *to);
-	void copy();
+// SELECTION
+	void copySelectionToBuffer(strSelection *from, strSelection *to);
+	void pasteSelectionFromBuffer(strSelection *from, strSelection *to);
+	void copyToBuffer();
+	void pasteFromBuffer();
 	bool isSelectionCorrect(strSelection *selection);
 	bool isSingleSelection(strSelection *selection);
 
@@ -636,16 +639,15 @@ public:
 
 	void changeSelectionVolume(int16_t value);
 	void changeSelectionInstrument(int16_t value);
-
-
-
+	void setSelectionInstrument(int16_t value);
+	void setSelectionVelocity(int16_t value);
 
 	void clearRow(uint8_t row);
 	void clearRow(uint8_t row, uint8_t bank);
 
 	void copy_row(uint8_t from, uint8_t to);
 
-	void toggleStep(uint8_t, uint8_t);
+//	void toggleStep(uint8_t, uint8_t);
 
 	void addNoteOff(uint8_t note, uint8_t velocity, uint8_t channel,
 					uint8_t midiOut);
@@ -660,14 +662,26 @@ public:
 		player.onPatternEnd = action;
 	}
 
-	// inne
+// inne
 	void handle_uStep_timer(void);
 
-	void fillRandomNotes(uint8_t step);
-	void transposeSelection(int16_t value);
+	void fillRandomNotes(uint8_t step, uint8_t from, uint8_t to);
+	void fillLinearNotes(uint8_t step, uint8_t from, uint8_t to);
+	void fillRandomInstruments(uint8_t step, uint8_t from, uint8_t to);
+	void fillLinearInstruments(uint8_t step, uint8_t from, uint8_t to);
+	void fillRandomVelocity(uint8_t step, uint8_t from, uint8_t to);
+	void fillLinearVelocity(uint8_t step, uint8_t from, uint8_t to);
+
+	void changeSelectionNote(int16_t value);
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 					uint8_t track);
-	void randomExisting();
+	void randomSelectedNotes(uint8_t from, uint8_t to, uint8_t scale);
+	void randomSelectedInstruments(uint8_t from, uint8_t to);
+	void randomSelectedVelo(uint8_t from, uint8_t to);
+	void invertSelectedSteps();
+
+	void loadNextPattern(uint8_t patternNumber);
+	void handleNote(byte channel, byte pitch, byte velocity);
 
 };
 

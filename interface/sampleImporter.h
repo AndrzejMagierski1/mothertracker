@@ -48,6 +48,9 @@ public:
 	hControl instrumentListControl;
 	hControl memoryBarControl;
 	hControl frameControl;
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
 
 	hControl loadHorizontalBarControl;
 
@@ -64,8 +67,8 @@ public:
 //--------------------------------------------------------------
 	FsFile sdLocation;
 	static const uint8_t list_length_max = 100;
-	char actualPath[255] = {0};
-	uint8_t dirLevel;
+	char actualPath[255] = {'/',0};
+	uint8_t dirLevel = 0;
 
 	void BrowseFolder();
 	void SelectFile();
@@ -96,7 +99,7 @@ public:
 
 // instrumenty
 	void listInstrumentSlots();
-	char slotNames[INSTRUMENTS_COUNT][36];
+	char slotNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
 	char *ptrSlotNames[INSTRUMENTS_COUNT];
 	uint8_t selectedSlot = 0;
 
@@ -122,6 +125,7 @@ public:
 	uint8_t copyingProgress = 0;
 	uint8_t lastCopyStatusFlag = 0;
 	uint8_t currentCopyStatusFlag = 0;
+	uint8_t firstUpdateFlag = 1;
 //--------------------------------------------------------------
 //odsluch
 	void playSdFile();
@@ -147,6 +151,12 @@ public:
 		0x00FF00, // ramka
 	};
 	uint32_t barColorsCyan[3] = { 0x00FFFF, 0x00FFFF, 0x00FFFF};
+
+//----------------------------------
+// aktualny instrument na belce tytułowej
+	void showActualInstrument();
+//char actualInstrName[SAMPLE_NAME_SIZE+4];
+
 };
 
 

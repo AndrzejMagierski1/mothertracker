@@ -4,7 +4,7 @@
 
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
-
+#include "mtPadsBacklight.h"
 
 
 
@@ -17,7 +17,7 @@ static cInstrumentEditor* IE = &instrumentEditor;
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
 
-
+static  uint8_t functInstrument(uint8_t state);
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
@@ -25,8 +25,14 @@ static  uint8_t functUp();
 static  uint8_t functDown();
 
 
-static  uint8_t functEncoder(int16_t value);
+static  uint8_t functLeftInstr();
+static  uint8_t functRightInstr();
+static  uint8_t functUpInstr();
+static  uint8_t functDownInstr();
 
+
+static  uint8_t functEncoder(int16_t value);
+static  uint8_t functEncoderInstr(int16_t value);
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
@@ -40,6 +46,9 @@ static  uint8_t functSelectParams(uint8_t button);
 
 
 static uint8_t functShift(uint8_t value);
+
+static uint8_t functStepNote(uint8_t value);
+
 
 
 
@@ -57,6 +66,7 @@ void cInstrumentEditor::start(uint32_t options)
 
 	mode = options;
 
+	selectedInstrument = mtProject.values.lastUsedInstrument;
 
 	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
 			mtProject.values.padBoardNoteOffset,
@@ -106,17 +116,20 @@ void cInstrumentEditor::start(uint32_t options)
 		setInstrumentEnvFunct();
 		break;
 	}
+	case mtInstEditModeInstrList:
+	{
+		showInstrumentList();
+		setInstrumentListFunct();
+		return;
 	}
-
-	activateLabelsBorder();
-
+	}
 }
 
 void cInstrumentEditor::stop()
 {
-
-
-
+	moduleRefresh = 0;
+	mtPadBoard.releaseAllInstrument();
+	padsBacklight.clearAllPads(1, 1, 1);
 }
 
 void cInstrumentEditor::setDefaultScreenFunct()
@@ -129,17 +142,10 @@ void cInstrumentEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
 	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
-
 	FM->setButtonObj(interfaceButtonShift, functShift);
 
 
-
-
-	FM->setPotObj(interfacePot0, functEncoder, nullptr);
+	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 
 
 
@@ -179,6 +185,17 @@ void cInstrumentEditor::setInstrumentEnvFunct()
 		FM->setButtonObj(i, buttonPress, functSelectEnv);
 	}
 
+	FM->setPotObj(interfacePot0, functEncoder, nullptr);
+
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+	FM->setButtonObj(interfaceButtonNote, functStepNote);
+
+	activateLabelsBorder();
+
+	padsBacklight.clearAllPads(0, 1, 1);
 }
 
 void cInstrumentEditor::setInstrumentParamsFunct()
@@ -187,6 +204,37 @@ void cInstrumentEditor::setInstrumentParamsFunct()
 	{
 		FM->setButtonObj(i, buttonPress, functSelectParams);
 	}
+
+	FM->setPotObj(interfacePot0, functEncoder, nullptr);
+
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+	FM->setButtonObj(interfaceButtonNote, functStepNote);
+
+	activateLabelsBorder();
+
+	padsBacklight.clearAllPads(0, 1, 1);
+
+	changeFilterFilterType(0);
+}
+
+
+void cInstrumentEditor::setInstrumentListFunct()
+{
+
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	FM->setPotObj(interfacePot0, functEncoderInstr, nullptr);
+
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftInstr);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightInstr);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpInstr);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownInstr);
+
+
+	lightUpPadBoard();
 }
 
 
@@ -209,8 +257,6 @@ static  uint8_t functSelectParams(uint8_t button)
 
 
 //==============================================================================================================
-
-
 static  uint8_t functEncoder(int16_t value)
 {
 	uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
@@ -240,7 +286,16 @@ static  uint8_t functEncoder(int16_t value)
 	return 1;
 }
 
+static  uint8_t functEncoderInstr(int16_t value)
+{
+	//if(IE->mode == mtInstEditModeInstrList)
+	//{
+		IE->changeSelectedInstrument(value);
+	//}
+	return 1;
+}
 
+//=========================================================================================================
 static  uint8_t functLeft()
 {
 	if(IE->selectedPlace[IE->mode] > 0) IE->selectedPlace[IE->mode]--;
@@ -252,7 +307,6 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
-
 	if(IE->selectedPlace[IE->mode] < IE->frameData.placesCount-1) IE->selectedPlace[IE->mode]++;
 	IE->activateLabelsBorder();
 
@@ -262,6 +316,29 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
+
+	switch(mode_places)
+	{
+	case 0: IE->changeParamsVolume(1); 		 break;
+	case 1:	IE->changeParamsPanning(1); 	 break;
+	case 2: IE->changeParamsTune(1); 		 break;
+	case 3: IE->changeParamsFineTune(1); 	 break;
+	case 4: IE->changeFilterFilterType(-1); 	 break;
+	case 5: IE->changeFilterCutOff(1); 		 break;
+	case 6: IE->changeFilterResonance(1); 	 break;
+	case 7: IE->changeParamsReverbSend(1); 	 break;
+
+	case 10: IE->changeEnvList(-1); 		break;
+	case 11: IE->changeEnvState(-1); 	break;
+	case 12: IE->changeEnvAttack(1); 	break;
+	case 13: IE->changeEnvDecay(1); 	break;
+	case 14: IE->changeEnvSustain(1); 	break;
+	case 15: IE->changeEnvRelease(1); 	break;
+	case 16: IE->changeEnvAmount(1); 	break;
+	case 17: IE->changeEnvLoop(-1); 		break;
+
+	}
 
 	return 1;
 }
@@ -269,14 +346,72 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
+
+	switch(mode_places)
+	{
+	case 0: IE->changeParamsVolume(-1);      break;
+	case 1:	IE->changeParamsPanning(-1); 	 break;
+	case 2: IE->changeParamsTune(-1); 		 break;
+	case 3: IE->changeParamsFineTune(-1); 	 break;
+	case 4: IE->changeFilterFilterType(1);  break;
+	case 5: IE->changeFilterCutOff(-1); 	 break;
+	case 6: IE->changeFilterResonance(-1); 	 break;
+	case 7: IE->changeParamsReverbSend(-1);  break;
+
+	case 10: IE->changeEnvList(1); 		break;
+	case 11: IE->changeEnvState(1); 	    break;
+	case 12: IE->changeEnvAttack(-1); 		break;
+	case 13: IE->changeEnvDecay(-1); 		break;
+	case 14: IE->changeEnvSustain(-1); 		break;
+	case 15: IE->changeEnvRelease(-1); 		break;
+	case 16: IE->changeEnvAmount(-1); 		break;
+	case 17: IE->changeEnvLoop(1); 		break;
+
+	}
 
 
 	return 1;
 }
 
+//=========================================================================================================
+static  uint8_t functLeftInstr()
+{
+	//if(IE->mode == mtInstEditModeInstrList)
+	//{
+		if(IE->selectedInstrument >= 12) IE->changeSelectedInstrument(-12,1);
+		return 1;
+	//}
+	return 1;
+}
+
+static  uint8_t functRightInstr()
+{
+	//if(IE->mode == mtInstEditModeInstrList)
+	//{
+		if(IE->selectedInstrument < 36) IE->changeSelectedInstrument(12,1);
+		return 1;
+	//}
+	return 1;
+}
+
+static  uint8_t functUpInstr()
+{
+	if(IE->selectedInstrument > 0) IE->changeSelectedInstrument(-1);
+
+	return 1;
+}
+
+static  uint8_t functDownInstr()
+{
+
+	if(IE->selectedInstrument < 47) IE->changeSelectedInstrument(1);
+
+	return 1;
+}
 
 
-
+//=========================================================================================================
 static  uint8_t functPlayAction()
 {
 	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
@@ -447,7 +582,50 @@ void cInstrumentEditor::changeEnvLoop(int16_t value)
 }
 
 
+void cInstrumentEditor::changeSelectedInstrument(int16_t value, uint8_t type)
+{
+	uint8_t oldList = selectedInstrument/12;
 
+	if(selectedInstrument + value < 0) selectedInstrument = 0;
+	else if(selectedInstrument + value > INSTRUMENTS_MAX) selectedInstrument = INSTRUMENTS_MAX;
+	else selectedInstrument += value;
+
+	uint8_t newList = selectedInstrument/12;
+
+	mtProject.values.lastUsedInstrument = selectedInstrument;
+	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
+
+
+	if(oldList != newList)
+	{
+		if(oldList < newList)
+		{
+			intrumentsList[newList].start = 0;
+			if(type) intrumentsList[newList].start = selectedInstrument%12;
+			//intrumentsList[oldList].start = 11;
+			intrumentsList[oldList].start = -1;
+		}
+		else
+		{
+			//intrumentsList[oldList].start = 0;
+			intrumentsList[oldList].start = -1;
+
+			intrumentsList[newList].start = 11;
+			if(type) intrumentsList[newList].start = selectedInstrument%12;
+		}
+
+		display.setControlData(intrumentsListControl[newList], &intrumentsList[newList]);
+		display.setControlData(intrumentsListControl[oldList], &intrumentsList[oldList]);
+
+		showInstrList(oldList);
+	}
+
+	showInstrList(newList);
+
+	showActualInstrument();
+
+	lightUpPadBoard();
+}
 
 
 void cInstrumentEditor::changeFilterFilterType(int16_t value)
@@ -478,19 +656,28 @@ void cInstrumentEditor::changeFilterFilterType(int16_t value)
 		editorInstrument->filterType = bandPass;
 	}
 
+	display.setControlText(topLabel[4], filterModeFunctLabels[filterModeListPos]);
+	display.refreshControl(topLabel[4]);
 
 	display.setControlValue(filterModeListControl, filterModeListPos);
 	display.refreshControl(filterModeListControl);
 	//showFilterFilterType();
 }
 
+uint8_t bgB = 128;
+
 void cInstrumentEditor::changeFilterCutOff(int16_t value)
 {
+//	if(bgB + value < 0) bgB = 0;
+//	else if(bgB + value > 128 ) bgB = 128;
+//	else bgB += value;
 	float fVal = value * 0.01;
 
 	if(editorInstrument->cutOff + fVal < MIN_CUTOFF) editorInstrument->cutOff = MIN_CUTOFF;
 	else if(editorInstrument->cutOff + fVal > MAX_CUTOFF ) editorInstrument->cutOff = MAX_CUTOFF;
 	else editorInstrument->cutOff += fVal;
+
+	display.setBacklightBrightness(map(editorInstrument->cutOff,MIN_CUTOFF,MAX_CUTOFF,0,128));
 
 	instrumentPlayer[0].setStatusBytes(CUTOFF_MASK);
 
@@ -607,6 +794,28 @@ static uint8_t functShift(uint8_t value)
 }
 
 
+//##############################################################################################
+//###############################          PAD BOARD           #################################
+//##############################################################################################
+
+
+void cInstrumentEditor::lightUpPadBoard()
+{
+	padsBacklight.clearAllPads(0, 1, 1);
+
+
+	if(mtProject.values.lastUsedInstrument >= 0 && mtProject.values.lastUsedInstrument <= 48)
+	{
+		padsBacklight.setBackLayer(1, 20, mtProject.values.lastUsedInstrument);
+	}
+
+
+
+
+
+}
+
+
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
@@ -619,15 +828,94 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		//uint8_t note = mtPadBoard.convertPadToNote(pad);
 		//if(note > 48) note = 48;
 		//editorInstrument->tune = note;
+
+		padsBacklight.setFrontLayer(1,20, pad);
 		mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
 
 	}
 	else if(state == 0)
 	{
+		padsBacklight.setFrontLayer(0,0, pad);
 		mtPadBoard.stopInstrument(pad);
 
 	}
 
 	return 1;
 }
+
+static  uint8_t functInstrument(uint8_t state)
+{
+	if(state == buttonRelease)
+	{
+		if(IE->mode == mtInstEditModeInstrList)	IE->eventFunct(eventSwitchToPreviousModule,IE,0,0);
+		else
+		{
+			if(IE->mode == mtInstEditModeParams)
+			{
+				IE->showInstrumentParams();
+				IE->setInstrumentParamsFunct();
+			}
+			else //mtInstEditModeEnv
+			{
+				IE->showInstrumentEnv();
+				IE->setInstrumentEnvFunct();
+
+			}
+		}
+	}
+	else if(state == buttonPress)
+	{
+		if(IE->mode != mtInstEditModeInstrList)
+		{
+			IE->showInstrumentList();
+			IE->setInstrumentListFunct();
+		}
+	}
+
+	return 1;
+}
+
+static uint8_t functStepNote(uint8_t value)
+{
+	if(IE->mode<2)
+	{
+		if(value == buttonRelease)
+		{
+			if(IE->mode == mtInstEditModeNotes)	IE->eventFunct(eventSwitchToPreviousModule,IE,0,0);
+			else
+			{
+				if(IE->mode == mtInstEditModeParams)
+				{
+					IE->showInstrumentParams();
+					IE->setInstrumentParamsFunct();
+				}
+				else //mtInstEditModeEnv
+				{
+					IE->showInstrumentEnv();
+					IE->setInstrumentEnvFunct();
+
+				}
+			}
+		}
+		else if(value == buttonPress)
+		{
+			if(IE->mode != mtInstEditModeNotes)
+			{
+				for(uint8_t i = 0; i < 48; i++)
+				{
+					IE->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
+				}
+
+				IE->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
+				IE->FM->clearButtonsRange(interfaceButtonUp, interfaceButtonRight);
+				IE->FM->clearAllPots();
+
+				IE->showNotePopout();
+			}
+		}
+	}
+	return 1;
+}
+
+
 

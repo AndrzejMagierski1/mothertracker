@@ -1,7 +1,7 @@
 #include "mtAudioEngine.h"
-
+#include "sampleRecorder.h"
 extern AudioControlSGTL5000 audioShield;
-
+extern cSampleRecorder* SR = &sampleRecorder;
 
 AudioInputI2S            i2sIn;
 AudioRecordQueue         queue;
@@ -23,6 +23,7 @@ AudioMixer4              mixerRec;
 AudioMixer4              mixerSourceL,mixerSourceR;
 AudioEffectFreeverb		 reverb;
 AudioEffectLimiter		 limiter[2];
+AudioAnalyzeRMS			 rms;
 
 AudioRecordQueue		 exportL, exportR;
 
@@ -73,14 +74,14 @@ AudioConnection          connect38(&amp[5], 0, &mixerR, 5);
 AudioConnection          connect39(&amp[6], 0, &mixerR, 6);
 AudioConnection          connect40(&amp[7], 0, &mixerR, 7);
 
-AudioConnection          connect41(&envelopeAmp[0], 0, &mixerReverb, 0);
-AudioConnection          connect42(&envelopeAmp[1], 0, &mixerReverb, 1);
-AudioConnection          connect43(&envelopeAmp[2], 0, &mixerReverb, 2);
-AudioConnection          connect44(&envelopeAmp[3], 0, &mixerReverb, 3);
-AudioConnection          connect45(&envelopeAmp[4], 0, &mixerReverb, 4);
-AudioConnection          connect46(&envelopeAmp[5], 0, &mixerReverb, 5);
-AudioConnection          connect47(&envelopeAmp[6], 0, &mixerReverb, 6);
-AudioConnection          connect48(&envelopeAmp[7], 0, &mixerReverb, 7);
+AudioConnection          connect41(&amp[0], 0, &mixerReverb, 0);
+AudioConnection          connect42(&amp[1], 0, &mixerReverb, 1);
+AudioConnection          connect43(&amp[2], 0, &mixerReverb, 2);
+AudioConnection          connect44(&amp[3], 0, &mixerReverb, 3);
+AudioConnection          connect45(&amp[4], 0, &mixerReverb, 4);
+AudioConnection          connect46(&amp[5], 0, &mixerReverb, 5);
+AudioConnection          connect47(&amp[6], 0, &mixerReverb, 6);
+AudioConnection          connect48(&amp[7], 0, &mixerReverb, 7);
 
 AudioConnection          connect49(&mixerReverb,&reverb);
 
@@ -109,7 +110,7 @@ AudioConnection          connect54(&i2sIn, 0, &mixerRec, 0);
 AudioConnection          connect55(&i2sIn, 1, &mixerRec, 1);
 
 AudioConnection          connect56(&mixerRec, &queue);
-
+AudioConnection          connect67(&mixerRec, &rms);
 
 playerEngine instrumentPlayer[8];
 
@@ -117,12 +118,11 @@ audioEngine engine;
 uint8_t playerEngine::onVoices=0;
 uint8_t	playerEngine::activeAmpEnvelopes=0;
 
+constexpr uint16_t releaseNoteOnVal = 5;
+
 void audioEngine::init()
 {
-	pinMode(AUDIO_IN_MUX, OUTPUT);
-	pinMode(AUDIO_OUT_MUX, OUTPUT);
-	digitalWrite(AUDIO_IN_MUX, LOW);
-	digitalWrite(AUDIO_OUT_MUX, LOW);
+
 	i2sConnect[0]= &connect59;
 	i2sConnect[1]= &connect60;
 
@@ -134,8 +134,6 @@ void audioEngine::init()
 //	audioShield.lineOutLevel(17,17);
 //	audioShield.inputSelect(AUDIO_INPUT_MIC);
 
-	setIn(inputSelectMic);
-	setOut(outputSelectHeadphones);
 	for(uint8_t i = 0; i < 4 ; i ++)
 	{
 		mixerSourceR.gain(i,1.0);
@@ -149,6 +147,9 @@ void audioEngine::init()
 	audioShield.lineInLevel(3);
 	limiter[0].begin(30000, 300, 20);
 	limiter[1].begin(30000, 300, 20);
+
+	setReverbDamping(mtProject.values.reverbDamping);
+	setReverbRoomsize(mtProject.values.reverbRoomSize);
 	for(int i=0;i<8; i++)
 	{
 		instrumentPlayer[i].init(&playMem[i],&envelopeFilter[i],&filter[i],&envelopeAmp[i], &amp[i], i, &lfoAmp[i],&lfoFilter[i],&lfoPitch[i]);
@@ -158,7 +159,8 @@ void audioEngine::init()
 
 void audioEngine::update()
 {
-	recorder.update();
+	if(recorder.update() == 0) SR->fullMemoryDuringRecordFlag = 1;
+
 
 	if(recorder.mode == recorderModeStop)
 	{
@@ -166,62 +168,14 @@ void audioEngine::update()
 		{
 			instrumentPlayer[i].update();
 		}
-
-		if(mtConfig.audioCodecConfig.changeFlag)
-		{
-			mtConfig.audioCodecConfig.changeFlag=0;
-
-
-
-			if(mtConfig.audioCodecConfig.outSelect == outputSelectHeadphones)
-			{
-				if(mtConfig.audioCodecConfig.mutedHeadphone) audioShield.muteHeadphone();
-				else
-				{
-					audioShield.unmuteHeadphone();
-					setOut(outputSelectHeadphones);
-					audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
-				}
-
-			}
-			else if(mtConfig.audioCodecConfig.outSelect == outputSelectLineOut)
-			{
-				if(mtConfig.audioCodecConfig.mutedLineOut) audioShield.muteLineout();
-				else
-				{
-					audioShield.unmuteLineout();
-					setOut(outputSelectLineOut);
-					audioShield.lineOutLevel(mtConfig.audioCodecConfig.lineOutLeft,mtConfig.audioCodecConfig.lineOutRight);
-				}
-			}
-
-			if(mtConfig.audioCodecConfig.inSelect == inputSelectMic)
-			{
-				setIn(inputSelectMic);
-				audioShield.inputSelect(AUDIO_INPUT_MIC);
-				audioShield.micGain(mtConfig.audioCodecConfig.inputGain);
-			}
-			else if(mtConfig.audioCodecConfig.inSelect == inputSelectLineIn)
-			{
-				setIn(inputSelectLineIn);
-				audioShield.inputSelect(AUDIO_INPUT_LINEIN);
-				audioShield.lineInLevel(mtConfig.audioCodecConfig.lineInLeft, mtConfig.audioCodecConfig.lineInRight);
-			}
-		}
 	}
 
 }
 
-void audioEngine::setOut(uint8_t audioOutStatus)
-{
-	if(audioOutStatus) digitalWrite(AUDIO_OUT_MUX, HIGH);
-	else digitalWrite(AUDIO_OUT_MUX, LOW);
-}
 
-void audioEngine::setIn(uint8_t audioInStatus)
+void audioEngine::setHeadphonesVolume(uint8_t value)
 {
-	if(audioInStatus) digitalWrite(AUDIO_IN_MUX, HIGH);
-	else digitalWrite(AUDIO_IN_MUX, LOW);
+	audioShield.volume(value/100.0);
 }
 
 void audioEngine::setReverbRoomsize(uint8_t value)
@@ -287,6 +241,7 @@ void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,A
 	lfoAmpPtr=lfoAmp;
 	lfoFilterPtr=lfoFilter;
 	lfoPitchPtr=lfoPitch;
+	envelopeAmpPtr->releaseNoteOn(releaseNoteOnVal);
 
 }
 
@@ -529,9 +484,14 @@ void playerEngine:: update()
 	float filterMod=0;
 	float ampMod=0;
 
+	currentPlayState = playMemPtr->isPlaying();
+	if(currentPlayState == 0 && lastPlayState == 1) interfacePlayingEndFlag = 1;
+	lastPlayState = currentPlayState;
+
 	if(envelopeAmpPtr->endRelease())
 	{
 		envelopeAmpPtr->clearEndReleaseFlag();
+		interfaceEndReleaseFlag = 1;
 		//Serial.print("Przed: ");
 		//Serial.print(activeAmpEnvelopes);
 		//Serial.print(" po: ");
@@ -758,4 +718,52 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
 
 }
 
+uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note)
+{
+	uint8_t status=0;
+	envelopeAmpPtr->delay(0);
+	envelopeAmpPtr->attack(0);
+	envelopeAmpPtr->hold(0);
+	envelopeAmpPtr->decay(0);
+	envelopeAmpPtr->sustain(1.0);
+	envelopeAmpPtr->release(0.0f);
+
+
+	filterDisconnect();
+	ampPtr->gain(1.0);
+
+	mixerL.gain(numPanChannel,1.0);
+	mixerR.gain(numPanChannel,1.0);
+	mixerReverb.gain(numPanChannel,0.0);
+	/*======================================================================================================*/
+	limiter[0].setAttack(300);
+	limiter[0].setRelease(10);
+	limiter[0].setThreshold(32000);
+	limiter[1].setAttack(300);
+	limiter[1].setRelease(10);
+	limiter[1].setThreshold(32000);
+
+	status = playMemPtr->playForPrev(addr,len,note);
+	envelopeAmpPtr->noteOn();
+
+	return status;
+
+}
+uint8_t playerEngine ::getInterfaceEndReleaseFlag()
+{
+	return interfaceEndReleaseFlag;
+}
+void playerEngine ::clearInterfaceEndReleaseFlag()
+{
+	interfaceEndReleaseFlag = 0;
+}
+
+uint8_t playerEngine ::getInterfacePlayingEndFlag()
+{
+	return interfacePlayingEndFlag;
+}
+void playerEngine ::clearInterfacePlayingEndFlag()
+{
+	interfacePlayingEndFlag = 0;
+}
 

@@ -10,7 +10,7 @@ static uint32_t defaultColors[] =
 {
 	0xFFFFFF, // tekst
 	0x222222, // tło
-	0x0000FF, // ramka
+	0xFF0000, // ramka
 };
 
 void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
@@ -113,9 +113,16 @@ uint8_t cKeyboard::update()
 	localString[1] = 0;
 	for(uint8_t i = 0 ; i < KEYBOARD_SIZE; i++)
 	{
+		if( i == 26 || i == 29)
+		{
+			API_COLOR(colors[1]);
+		}
 		API_VERTEX2F(keyboard[i].x, keyboard[i].y);
 		API_VERTEX2F(keyboard[i].x + keyboard[i].w , keyboard[i].y + keyboard[i].h);
-
+		if( i == 26 || i == 29)
+		{
+			API_COLOR(colors[0]);
+		}
 	}
 	API_END();
 	API_COLOR(colors[1]);
@@ -127,6 +134,10 @@ uint8_t cKeyboard::update()
 	}
 	for(uint8_t i = 0 ; i < KEYBOARD_SIZE; i++)
 	{
+		if( i == 26 || i == 29)
+		{
+			API_COLOR(colors[0]);
+		}
 		if(keyboardShift)
 		{
 			if(charOnKeyboardBig[i] > 2)
@@ -150,6 +161,10 @@ uint8_t cKeyboard::update()
 			else if(charOnKeyboardSmall[i] == 2) API_CMD_TEXT(keyboard[i].x + keyboard[i].w/2, keyboard[i].y + keyboard[i].h/2, textFont, OPT_CENTER, "Space");
 		}
 
+		if( i == 26 || i == 29)
+		{
+			API_COLOR(colors[1]);
+		}
 	}
 
 	if(value >= 0)

@@ -11,7 +11,7 @@
 
 struct strList
 {
-	uint16_t start;
+	int16_t start;
 	uint16_t length;
 	uint16_t linesCount;
 
@@ -48,12 +48,12 @@ public:
 
 	strList* list;
 
-	uint16_t listPosition;
+	int16_t listPosition;
 
 	uint16_t barPos;
 	uint16_t textListPos;
 
-
+	uint8_t disableBar;
 
 	int8_t   listAnimationStep = 0;
 

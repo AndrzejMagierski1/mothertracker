@@ -3,8 +3,12 @@
 #include <sampleImporter.h>
 #include "mtFileManager.h"
 
+#include "Encoder.h"
+
 #include "mtAudioEngine.h"
 #include <projectEditor.h>
+
+
 
 cSampleImporter sampleImporter;
 static cSampleImporter* SI = &sampleImporter;
@@ -80,7 +84,11 @@ void cSampleImporter::update()
 
 
 
-
+	if(firstUpdateFlag)
+	{
+		fileManager.clearForcedSampleProcessingFlag();
+		firstUpdateFlag = 0;
+	}
 	lastCopyStatusFlag = currentCopyStatusFlag;
 /////////////////////////////////////////////////////////////////////////
 
@@ -103,15 +111,15 @@ void cSampleImporter::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-	selectedFolder = 0;
+//	selectedFolder = 0;
 	//selectedFile = 0;
-	dirLevel = 0;
+//	dirLevel = 0;
 
 	selectedSlot = mtProject.values.lastUsedInstrument;
 
-	actualPath[0] = '/';
-	actualPath[1] = 0;
-
+//	actualPath[0] = '/';
+//	actualPath[1] = 0;
+	firstUpdateFlag = 1;
 	listOnlyFolderNames(actualPath);
 	showFolderTree();
 
@@ -144,8 +152,6 @@ void cSampleImporter::start(uint32_t options)
 
 void cSampleImporter::stop()
 {
-
-
 	moduleRefresh = 0;
 }
 
@@ -341,7 +347,7 @@ static  uint8_t functUp()
 	case 1: SI->changeFileSelection(-1); break;
 	case 2: SI->changeInstrumentSelection(-1); break;
 	}
-
+	SI->stopPlaying();
 	return 1;
 }
 
@@ -353,7 +359,7 @@ static  uint8_t functDown()
 	case 1: SI->changeFileSelection(1); break;
 	case 2: SI->changeInstrumentSelection(1); break;
 	}
-
+	SI->stopPlaying();
 	return 1;
 }
 
@@ -638,7 +644,7 @@ void cSampleImporter::SelectFile()
 {
 	if(currentCopyStatusFlag || loadFlag) return;
 	fileManager.startImportSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot);
-
+	fileManager.clearForcedSampleProcessingFlag();
 
 
 //	calculateMemoryUsage(); przeniesione do update - memory usage zostanie zwiekszone dopiero po poprawnym zaladowaniu pliku w update;
@@ -674,7 +680,7 @@ void cSampleImporter::listInstrumentSlots()
 
 		if(mtProject.instrument[i].sample.loaded)
 		{
-			strcat(&slotNames[i][0], mtProject.instrument[i].sample.file_name);
+			strncat(&slotNames[i][0], mtProject.instrument[i].sample.file_name,SAMPLE_NAME_SIZE);
 		}
 
 		ptrSlotNames[i] = &slotNames[i][0];
@@ -761,8 +767,17 @@ void cSampleImporter::playSdFile()
 	playMode = playModeSdFile;
 
 	FsFile wavHeader = SD.open(file_path);
+
+	if(!wavHeader)
+	{
+		wavHeader.close();
+		SD.begin(SdioConfig(DMA_SDIO));
+		return;
+	}
+
 	strWavFileHeader header;
 	readHeader(&header,&wavHeader);
+
 	wavHeader.close();
 	if(header.AudioFormat == 3) playSdWavFloat.play(file_path);
 	else
@@ -772,26 +787,17 @@ void cSampleImporter::playSdFile()
 	}
 
 
-
-
 }
 
 
 void cSampleImporter::playSampleFromBank()
 {
 	if(currentCopyStatusFlag || loadFlag) return;
+	if(!mtProject.instrument[selectedSlot].sample.loaded) return;
 
 	if(sequencer.getSeqState() == 1)
 	{
 		sequencer.stop();
-	}
-
-	if(playMode != playModeSampleBank)
-	{
-		playSdWav.stop();
-		playSdWavFloat.stop();
-		playSdWav24Bit.stop();
-		engine.prevSdDisconnect();
 	}
 
 	stopPlaying();
@@ -810,7 +816,6 @@ void cSampleImporter::stopPlaying()
 		playSdWav.stop();
 		playSdWavFloat.stop();
 		playSdWav24Bit.stop();
-		engine.prevSdDisconnect();
 	}
 	else if(playMode == playModeSampleBank)
 	{

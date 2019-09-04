@@ -12,19 +12,41 @@
 
 
 
-const uint8_t recordsCount = 5;
-const char recordsNamesLabels[recordsCount][15] =
+const uint8_t sourceCount = 4;
+const uint8_t monitorCount = 2;
+constexpr uint8_t undoCount = 5;
+const char sourcesNamesLabels[sourceCount][10] =
 {
-		"rec",
-		"rec",
-		"rec",
-		"rec",
-		"rec",
-
+		"Line in",
+		"Radio",
+		"Mic LG",
+		"Mic HG"
 };
 
+const char monitorNamesLabels[monitorCount][5] =
+{
+		"On",
+		"Off",
+};
 
+struct strRecorderConfig
+{
+	uint8_t source;
+	uint8_t gainLineIn;
+	uint8_t gainMicLow;
+	uint8_t gainMicHigh;
+	uint8_t gainRadio;
+	uint8_t monitor;
+	float radioFreq = 87.5;
+};
 
+struct strUndoCrop
+{
+	int16_t * address;
+	uint32_t length;
+	uint16_t startPoint;
+	uint16_t endPoint;
+};
 
 class cSampleRecorder: public cModuleBase
 {
@@ -42,20 +64,46 @@ public:
 	{
 //		inActiveInstrumentsCount = 0;
 //		inActiveInstrumentIndex = 0;
-		editorInstrument = nullptr;
 //		openedInstrFromActive = 0;
 //		openedInstrumentIndex = 0;
 
-		spectrumControl = nullptr;
-		pointsControl = nullptr;
-		topLabel[8] = {nullptr};
-		bottomLabel[8] = {nullptr};
+		 radioRdsLabel = nullptr;
+		 spectrumControl = nullptr;
+		 progressCursor = nullptr;
+		 topLabel[8] = {nullptr};
+		 bottomLabel[8] = {nullptr};
+		 frameControl = nullptr;
+		 sourceListControl = nullptr;
+		 monitorListControl = nullptr;
+		 levelBarControl = nullptr;
+		 gainBarControl = nullptr;
+		 radioFreqBarControl = nullptr;
+		 pointsControl = nullptr;
+		 keyboardControl = nullptr;
+		 editName = nullptr;
+		 saveHorizontalBarControl = nullptr;
+		 selectWindowLabel = nullptr;
+
 	}
 	virtual ~cSampleRecorder() {}
 
 	void showDefaultScreen();
 	void showZoomValue();
-	void showPlayModeList();
+	void showSourceList();
+	void showMonitorList();
+
+	void showEndPointValue();
+	void showStartPointValue();
+	void showRecTimeValue();
+	void showPreviewValue();
+	void hidePreviewValue();
+	void showFreqValue();
+	void showRadio();
+	void hideRadio();
+	void showKeyboard();
+	void hideKeyboard();
+	void showKeyboardEditName();
+	void hideKeyboardEditName();
 
 	void setDefaultScreenFunct();
 
@@ -65,30 +113,95 @@ public:
 	void modStartPoint(int16_t value);
 	void modEndPoint(int16_t value);
 	void changeZoom(int16_t value);
-	void changePlayModeSelection(int16_t value);
+	void changeMonitorSelection(int16_t value);
+	void changeSourceSelection(int16_t value);
+
 
 	void activateLabelsBorder();
+	void refreshConfigLists();
+	void refreshGain();
+
+	void setPrevievFlag(uint8_t s);
+
+	void refreshRDS();
+	void displaySeeking();
+	void displayEmptyRDS();
+	void hideRDS();
 
 	strFrameData frameData;
+	strSelectWindowData selectWindowData;
 
+//*********************************************
+	hControl spectrumControl;
 	hControl topLabel[8];
 	hControl bottomLabel[8];
-	hControl playModeListControl;
-	hControl spectrumControl;
-	hControl pointsControl;
 	hControl frameControl;
+	hControl sourceListControl;
+	hControl monitorListControl;
+	hControl levelBarControl;
+	hControl gainBarControl;
+	hControl radioFreqBarControl;
+	hControl pointsControl;
+	hControl keyboardControl;
+	hControl editName;
+	hControl saveHorizontalBarControl;
+	hControl selectWindowLabel;
+	hControl progressCursor;
+	hControl radioRdsLabel;
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
+	hControl notePopoutControl = nullptr;
+
+//*********************************************
 
 
 	uint8_t selectedPlace = 0;
+	uint8_t currentScreen = 0;
+	strRecorderConfig recorderConfig;
+	uint32_t spectrumTimerConstrains = 100;
+	char freqTextValue[6];
+	char recTimeValueText[8];
+	char playTimeValueText[8];
+	char startPointValueText[8];
+	char endPointValueText[8];
+	float recTimeValue;
 
+	enum sourceType
+	{
+		sourceTypeLineIn,
+		sourceTypeRadio,
+		sourceTypeMicLG,
+		sourceTypeMicHG,
+
+	};
+
+	enum screenType
+	{
+		screenTypeConfig,
+		screenTypeRecord,
+		screenTypeKeyboard
+	};
 
 //----------------------------------
 // spectrum + punkty
 	uint8_t refreshSpectrum = 0;
+	uint8_t refreshSpectrumValue = 0;
 	uint8_t refreshPoints = 0;
 
 
-	strInstrument * editorInstrument;
+
+	uint16_t startPoint;
+	uint16_t endPoint = MAX_16BIT;
+
+	uint32_t playProgressValue = 0; // 0 - MAX_LEN_RECORD
+	uint16_t playProgressInSpectrum = 0; // 0 - 600
+	elapsedMillis playProgresValueTim;
+	elapsedMicros refreshPlayProgressValue;
+
+	uint8_t playInProgressFlag = 0;
+
+	void calcPlayProgressValue();
 
 	uint16_t zoomWidth = MAX_16BIT;
 	int32_t zoomStart =  0;
@@ -96,30 +209,97 @@ public:
 	uint8_t lastChangedPoint = 0;
 	float zoomValue = 1;
 	char zoomTextValue[6];
+
 	uint16_t zoomPosition = 0;
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;
 
-//----------------------------------
-// lista play mode
-	strList playModeList;
-
-	void listPlayMode();
-
-	char *playModeNames[recordsCount];
-
+	elapsedMillis refreshSpectrumTimer;
 
 //----------------------------------
-// odtwarzanie
-	uint8_t isPlayingSample = 0;
-	int8_t playNote = 24;
-	uint8_t glidePreviewDif = 0;
+// listy
+	strList sourceList;
+	strList monitorList;
+
+	void listSource();
+	void listMonitor();
+
+
+	char *sourceNames[sourceCount];
+	char *monitorNames[monitorCount];
+
+	elapsedMillis changeSourceToMicTimer = 0;
+	uint8_t changeSourceToMicFlag = 0;
 
 //----------------------------------
+//rec
+
+uint8_t recordInProgressFlag = 0;
+uint8_t firstPeakFlag = 0;
+uint32_t firstPeakPlace;
+strUndoCrop undo[undoCount];
+uint8_t cropCounter = 0;
+
+//----------------------------------
+// bar
+	uint8_t radioFreqBarVal;
+	uint8_t levelBarVal;
+	uint8_t lastLevelBarVal;
+	elapsedMicros levelBarTim;
+	float measureSum = 0;
+	uint8_t levelBarMeasureCounter;
+	uint8_t gainBarVal;
+	elapsedMillis redColorTim;
+
+	void calcRadioFreqBarVal();
+	void calcLevelBarVal();
+	void calcGainBarVal();
+
+	void drawRadioFreqBar();
+	void drawLevelBar();
+	void drawGainBar();
+
+	void changeRadioFreqBar(int16_t val);
+	void changeLevelBar();
+	void changeGainBar(int16_t val);
+
+//keyboard
+
+	char name[33];
+	uint8_t keyboardPosition;
+	int8_t editPosition;
+	uint8_t keyboardActiveFlag = 0;
+	uint8_t keyboardShiftFlag = 0;
+	uint8_t lastPressedPad;
 
 
+//save
+	uint8_t saveInProgressFlag = 0;
+	uint8_t saveLoadFlag = 0;
+	uint8_t saveProgress;
+	uint8_t forceSwitchModule = 0;
+	void showSaveHorizontalBar();
+	void hideSaveHorizontalBar();
+// selection window
+	void showSelectionWindow();
+	void showSelectionNotEnoughInstruments();
+	uint8_t notEnoughInstrumentsFlag = 0;
 
+
+	uint8_t selectionWindowFlag = 0;
+// selection window  - zapis
+	uint8_t selectionWindowSaveFlag = 0;
+	void showSelectionWindowSave();
+
+	uint8_t fullMemoryDuringRecordFlag = 0;
+	uint8_t fullMemoryWindowFlag = 0;
+	void showSelectionWindowFullMemory();
+
+	strPadNames padNamesStruct;
+	char *padNamesPointer[48];
+	void showNotePopout();
+	void hideNotePopout();
 };
 
 extern cSampleRecorder sampleRecorder;

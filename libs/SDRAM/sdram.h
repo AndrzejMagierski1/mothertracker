@@ -15,6 +15,7 @@
 
 
 int Extern_SDRAM_Init(void);
+void BOARD_DeinitPins(void);
 void BOARD_InitPins(void);
 void SDRAM_setSleepMode(void);
 

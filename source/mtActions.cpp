@@ -8,6 +8,7 @@
 #include "mtAudioEngine.h"
 
 #include "mtSequencer.h"
+#include "mtSleep.h"
 
 
 
@@ -16,8 +17,7 @@
 
 #include "mtEffector.h"
 #include "mtExporterWAV.h"
-#include "../old_interface/mtInstrumentEditor.h"
-#include "../old_interface/mtProjectEditor.h"
+
 
 extern AudioControlSGTL5000 audioShield;
 
@@ -49,13 +49,13 @@ void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f)
 }
 
 //-----------------------------------------------------------------
-void onPadRelease(uint8_t n)
-{
-	//mtInterface.padReleased(n);
-	//padsBacklight.setFrontLayer(0, 31, n);
-	//padsBacklight.setFrontLayer(0,0,n);
-
-}
+//void onPadRelease(uint8_t n)
+//{
+//	//mtInterface.padReleased(n);
+//	//padsBacklight.setFrontLayer(0, 31, n);
+//	//padsBacklight.setFrontLayer(0,0,n);
+//
+//}
 
 //-----------------------------------------------------------------
 //-------------------------|   POTS   |----------------------------
@@ -140,8 +140,7 @@ void onButtonChange(uint8_t n, uint8_t value)
 void onPowerButtonChange(uint8_t value)
 {
 	mtInterface.powerButtonChange(value);
-
-
+	if(value == 1 ) changePowerState();
 //	mtPrint("power button: ");
 //	mtPrintln(value);
 }
@@ -153,7 +152,7 @@ void onButtonPush (uint8_t x,uint8_t state)
 {	
 	mtInterface.padPressed(x,0,0,0);
 
-	leds.setLED(x, 1, 31);
+//	leds.setLED(x, 1, 31);
 	//Serial.print("ButtonPush: x = ");
 	//Serial.print(x);
 
@@ -163,7 +162,7 @@ void onButtonRelease(uint8_t x,uint8_t state)
 {	
 	mtInterface.padReleased(x);
 
-	leds.setLED(x, 0, 0);
+//	leds.setLED(x, 0, 0);
 	//Serial.print("ButtonRelease: x = ");
 	//Serial.print(x);
 
@@ -172,7 +171,7 @@ void onButtonRelease(uint8_t x,uint8_t state)
 void onButtonHold(uint8_t x,uint8_t state)
 {	
 //	mtInterface.seqButtonHold(x,y);
-
+	mtInterface.padHold(x);
 
 //	Serial.print("ButtonHold: x = ");
 //	Serial.print(x);
@@ -187,5 +186,16 @@ void onButtonDouble(uint8_t x,uint8_t state)
 //	`Serial.print("ButtonDouble: x = ");
 //	Serial.print(x);
 
+}
+// TCA8418 NEW DRIVER PADS
+
+void onPadPush(uint8_t n)
+{
+	padsBacklight.setFrontLayer(1, 31, n);
+}
+
+void onPadRelease(uint8_t n)
+{
+	padsBacklight.setFrontLayer(0,0,n);
 }
 

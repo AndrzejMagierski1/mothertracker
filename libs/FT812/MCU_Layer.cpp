@@ -249,7 +249,7 @@ void FT812_Init(void)
 
     lcdPclk    = 2;                                                             // Pixel Clock
     lcdSwizzle = 0;                                                             // Define RGB output pins
-    lcdPclkpol = 0;                                                             // Define active edge of PCLK
+    lcdPclkpol = 1;                                                             // Define active edge of PCLK
 
     lcdCsSpread = 0;
     lcdRotate   = 1;
@@ -371,13 +371,13 @@ void FT812_Init(void)
 
 
 
-//    for(PWM = 0; PWM <= 128; PWM ++)
-//    {
-//        EVE_MemWrite8(REG_PWM_DUTY, PWM);
-//        delay(1);
-//    }
-//
-    EVE_MemWrite8(REG_PWM_DUTY, 128);
+    for(PWM = 0; PWM <= 128; PWM ++)
+    {
+        EVE_MemWrite8(REG_PWM_DUTY, PWM);
+        delayMicroseconds(3);
+    }
+
+//    EVE_MemWrite8(REG_PWM_DUTY, 128);
 
 
 // TOUCH
@@ -402,11 +402,29 @@ void MCU_CSlow(void)
 {
 	digitalWrite(CS, LOW);                                                          // CS# line low
     asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
 }  
 
 // --------------------- Chip Select line high ---------------------------------
 void MCU_CShigh(void)
 {
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
+    asm("nop");
     asm("nop");
     digitalWrite(CS, HIGH);                                                      // CS# line high
 }

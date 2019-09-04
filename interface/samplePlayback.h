@@ -40,11 +40,13 @@ public:
 		editorInstrument = nullptr;
 //		openedInstrFromActive = 0;
 //		openedInstrumentIndex = 0;
-
+		progressCursor = nullptr;
 		spectrumControl = nullptr;
 		pointsControl = nullptr;
-		topLabel[8] = {nullptr};
-		bottomLabel[8] = {nullptr};
+		topLabel[7] = {nullptr};
+		bottomLabel[6] = {nullptr};
+
+		lastSampleLength = 0;
 	}
 	virtual ~cSamplePlayback() {}
 
@@ -54,7 +56,6 @@ public:
 
 	void setDefaultScreenFunct();
 
-
 	void processSpectrum();
 	void processPoints();
 	void modStartPoint(int16_t value);
@@ -63,7 +64,23 @@ public:
 	void modLoopPoint2(int16_t value);
 	void changeZoom(int16_t value);
 	void changePlayModeSelection(int16_t value);
+	void showPreviewValue();
+	void hidePreviewValue();
 
+	char startPointValueText[8];
+	char endPointValueText[8];
+	char loopPoint1ValueText[8];
+	char loopPoint2ValueText[8];
+	char playTimeValueText[8];
+	void showStartPointValue();
+	void showEndPointValue();
+	void showLoopPoint1Value();
+	void showLoopPoint2Value();
+
+	void hideLoopPoints();
+	void showLoopPoints();
+
+	void calcPlayProgressValue();
 	void activateLabelsBorder();
 
 	strFrameData frameData;
@@ -74,6 +91,12 @@ public:
 	hControl spectrumControl;
 	hControl pointsControl;
 	hControl frameControl;
+	hControl titleBar = nullptr;
+	hControl titleLabel = nullptr;
+	hControl instrumentLabel = nullptr;
+	hControl progressCursor;
+	hControl notePopoutControl = nullptr;
+
 
 
 	uint8_t selectedPlace = 0;
@@ -83,24 +106,40 @@ public:
 // spectrum + punkty
 	uint8_t refreshSpectrum = 0;
 	uint8_t refreshPoints = 0;
-
+	uint8_t refreshSpectrumProgress = 0;
+	uint32_t playProgressValue = 0; // 0 - MAX_LEN_RECORD
+	uint16_t playProgressInSpectrum = 0; // 0 - 600
+	uint8_t loopDirection = 0;
+	elapsedMicros playProgresValueBackwardTim = 0;
+	elapsedMicros playProgresValueTim = 0;
+	elapsedMicros refreshPlayProgressValue = 0;
+	float playPitch = 1.0 ;
 //	int8_t openedInstrumentIndex; // index w globalnej liscie instrumentow
 //	int8_t openedInstrFromActive; // index z listy tylko aktywnych ( activeInstruments[] )
 //	int8_t inActiveInstrumentIndex;
 //	int8_t activeInstruments[INSTRUMENTS_COUNT];
 //	uint8_t inActiveInstrumentsCount;
 	strInstrument * editorInstrument;
+	uint32_t lastSampleLength;
 
 	uint16_t zoomWidth = MAX_16BIT;
 	int32_t zoomStart =  0;
 	int32_t zoomEnd = MAX_16BIT;
 	uint8_t lastChangedPoint = 0;
 	float zoomValue = 1;
-	char zoomTextValue[6];
+	int32_t zoomResolution;
+
+	char zoomTextValue[7];
 	uint16_t zoomPosition = 0;
+	uint8_t voiceCounter = 0;
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;
+
+//----------------------------------
+// aktualny instrument na belce tytułowej
+	void showActualInstrument();
+	//char actualInstrName[SAMPLE_NAME_SIZE+4];
 
 //----------------------------------
 // lista play mode
@@ -119,6 +158,10 @@ public:
 
 //----------------------------------
 
+	strPadNames padNamesStruct;
+	char *padNamesPointer[48];
+	void showNotePopout();
+	void hideNotePopout();
 
 
 };

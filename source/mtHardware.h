@@ -7,7 +7,7 @@
 #include "Arduino.h"
 #include "Wire.h"
 
-
+//#define HW_WITH_RADIO
 
 
 
@@ -140,6 +140,13 @@
 #define ENC_SWITCH		41 			//PTD29			pin-80
 
 
+#define SI4703_KLUCZ		24
+#define SI4703_RST			67
+#define SI4703_GPIO_2		68
+
+#define EXTERNAL_RAM_KEY	80
+
+#define BOOTLOADER_PIN		81
 
 
 

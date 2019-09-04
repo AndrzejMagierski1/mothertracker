@@ -16,10 +16,10 @@ cMtPadBoard mtPadBoard;
 
 const uint8_t padBoard[48] =
 {
-	24,25,26,27,28,29,30,31,
-	16,17,18,19,20,21,22,23,
-	8,9,10,11,12,13,14,15,
-	0,1,2,3,4,5,6,7,
+	36,37,38,39,40,41,42,43,44,45,46,47,
+	24,25,26,27,28,29,30,31,32,33,34,35,
+	12,13,14,15,16,17,18,19,20,21,22,23,
+	0,1,2,3,4,5,6,7,8,9,10,11,
 };
 
 
@@ -47,6 +47,19 @@ void cMtPadBoard::startInstrument(uint8_t pad, uint8_t index, int8_t velocity)
 	//mtPrintln(voiceToTake);
 
 	instrumentPlayer[voiceToTake].noteOn(index, convertPadToNote(pad), velocity);
+}
+
+void cMtPadBoard::startInstrument(uint8_t pad,int16_t * addres, uint32_t length)
+{
+	int8_t voiceToTake = getEmptyVoice();
+	if(voiceToTake < 0) return;
+
+	voices[voiceToTake] = pad;
+
+	//mtPrint("start: ");
+	//mtPrintln(voiceToTake);
+
+	instrumentPlayer[voiceToTake].noteOnforPrev(addres, length, convertPadToNote(pad) );
 }
 
 int8_t cMtPadBoard::getEmptyVoice()
@@ -79,49 +92,24 @@ void cMtPadBoard::stopInstrument(uint8_t pad)
 	instrumentPlayer[voiceToClear].noteOff();
 }
 
-
-// zwraca 1 jeśli jest w skali
-uint8_t cMtPadBoard::isInScale(uint8_t note,		// nuta do sprawdzenia ,
-                  uint8_t root,		// root note
-                  uint8_t scale)	// numer skali
+void cMtPadBoard::clearVoice(uint8_t voice)
 {
-	//note = constrain(note, 0, 255);
-	//root = constrain(root, 0, 127);
-	//scale = constrain(scale, MIN_SCALE, MAX_SCALE);
-
-	//if(note > MAX_NOTE_OFFSET) note = MAX_NOTE_OFFSET;
-	//if(root > 127) root = 127;
-	if(scale > MAX_SCALE) scale = MAX_SCALE;
-
-	uint8_t noteName = note % 12;
-	uint8_t rootName = root % 12;
-
-
-	if(noteName == rootName)
-	{
-		//Serial.println(" - yes");
-		return 1;
-	}
-	else if(noteName > rootName)
-	{
-		if(scaleDef[scale] & (1 << (noteName - rootName)))
-		{
-			//Serial.println(" - yes");
-			return 1;
-		}
-	}
-	else
-	{
-		if(scaleDef[scale] & (1 << ((12-rootName)+noteName)))
-		{
-			//Serial.println(" - yes");
-			return 1;
-		}
-	}
-
-	//Serial.println(" - no");
-	return 0;
+	if(voice < 0) return;
+	voices[voice] = -1;
 }
+
+void cMtPadBoard::releaseAllInstrument()
+{
+	for(uint8_t i = 0; i<8; i++)
+	{
+		voices[i] = -1;
+		instrumentPlayer[i].noteOff();
+	}
+}
+
+
+
+
 
 
 
@@ -131,26 +119,22 @@ void cMtPadBoard::setPadNotes(uint8_t scale, uint8_t noteOffset, uint8_t rootNot
 	 || lastNoteOffset	!= noteOffset
 	 || lastRootNote	!= rootNote)
 	{
-		// ptrPreset->scale = 3;
-		// Serial.print("scale: ");
-		// Serial.println(ptrPreset->scale);
-		// Serial.print("rootNote: ");
-		// Serial.println(ptrPreset->rootNote);
 
 		if(noteOffset > MAX_NOTE_OFFSET) noteOffset = MAX_NOTE_OFFSET;
 		//noteOffset = constrain(noteOffset, MIN_NOTE_OFFSET, MAX_NOTE_OFFSET);
-		// synth.lastNoteOffset = constrain(synth.lastNoteOffset, 1, 7);
 
 		uint16_t tempNote = rootNote; // nuta do podstawiania
-		for (int8_t a = 0; a < 32; a++)
+		for (int8_t a = 0; a < 48; a++)
 		{
-			if ((a > 7) && (a % 8 == 0))
+			if ((a > 11) && (a % 12 == 0))
 			{
-				if(noteOffset < 8) tempNote = padNotes[a - (8 - noteOffset)]; // delta wiersza
+				if(noteOffset < 12) tempNote = padNotes[a - (12 - noteOffset)]; // delta wiersza
+				else if(noteOffset == 12) tempNote = padNotes[a - 1] + 1; // delta wiersza
 				else if(noteOffset == MAX_NOTE_OFFSET)
 				{
-					if(a == 48)	tempNote = padNotes[a - (8 - 4)]; // delta 4
-					else		tempNote = padNotes[a - (8 - 5)]; // delta 5
+					//if(a == 48)	tempNote = padNotes[a - (8 - 4)]; // delta 4
+					//else
+					tempNote = padNotes[a - (12 - 5)]; // delta 5
 				}
 			}
 
@@ -162,14 +146,6 @@ void cMtPadBoard::setPadNotes(uint8_t scale, uint8_t noteOffset, uint8_t rootNot
 			}
 			padNotes[a] = tempNote;
 			tempNote++;
-
-			//if(tempNote > MAX_MEDUSA_NOTE) synth.padNotes[a] = -1;
-			// Serial.println(tempNote);
-
-			// Serial.print("a: ");
-			// Serial.print(a);
-			// Serial.print(" tempNote: ");
-			// Serial.println(tempNote);
 		}
 		lastNoteOffset 	= noteOffset;
 		lastScale 		= scale;
@@ -179,6 +155,27 @@ void cMtPadBoard::setPadNotes(uint8_t scale, uint8_t noteOffset, uint8_t rootNot
 
 
 
+uint8_t cMtPadBoard::getPadsWithNote(int8_t note, uint8_t* pads)
+{
+	uint8_t count = 0;
+
+	for(uint8_t i = 0; i < 48; i++)
+	{
+		if(padNotes[padBoard[i]] == note)
+		{
+			pads[i] = 1;
+			count++;
+		}
+		else pads[i] = 0;
+	}
+
+	return count;
+}
+
+uint8_t cMtPadBoard::getNoteFromPad(int8_t pad)
+{
+	return padNotes[padBoard[pad]];
+}
 
 
 

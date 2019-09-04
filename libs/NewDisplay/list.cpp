@@ -23,14 +23,14 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 cList::cList(strControlProperties* properties)
 {
-	colorsCount = 3;
-	colors = defaultColors;
+	colorsCount = 5;
+	colors = (properties->colors == nullptr) ? defaultColors : properties->colors;
 	selfRefresh = 0;
 
 	listPosition = 0;
 
 	listAnimationStep = 0;
-
+	disableBar = 0;
 
 	if(properties == nullptr)
 	{
@@ -92,9 +92,18 @@ void cList::setValue(int value)
 		if(list->length > 0) listPosition = list->length-1;
 		else listPosition = 0;
 
+		disableBar = 0;
 	}
-	else if(value < 0) listPosition = 0;
-	else  listPosition = value;
+	else if(value < 0)
+	{
+		listPosition = 0;
+		disableBar = 1;
+	}
+	else
+	{
+		listPosition = value;
+		disableBar = 0;
+	}
 }
 
 void cList::setColors(uint32_t* colors)
@@ -112,7 +121,17 @@ void cList::setData(void* data)
 	if(data == nullptr) return;
 	list = (strList*)data;
 
-	listPosition = list->start;
+	if(list->start < 0)
+	{
+		list->start = 0;
+		listPosition = 0;
+		disableBar = 1;
+	}
+	else
+	{
+		listPosition = list->start;
+		disableBar = 0;
+	}
 
 	if(listPosition == 0) 		//pierwsza pozycja listy*
 	{
@@ -127,17 +146,17 @@ void cList::setData(void* data)
 	else if(listPosition >= list->length-1) // ostatnia pozycja listy
 	{
 		barPos  = (list->length > list->linesCount ? list->linesCount-1 : list->length-1);
-		textListPos = (list->length > list->linesCount ? list->length-list->linesCount-1 : 0);
+		textListPos = (list->length > list->linesCount ? list->length-(list->linesCount) : 0);
 	}
 	else if(listPosition >= list->length-2) // przed ostatnia pozycja listy
 	{
 		barPos  = (list->length > list->linesCount ? list->linesCount-2 : list->length-2);
-		textListPos = (list->length > list->linesCount ? list->length-list->linesCount-2 : 0);
+		textListPos = (list->length > list->linesCount ? list->length-(list->linesCount) : 0);
 	}
 	else
 	{
-		barPos  = (list->length > list->linesCount ? (listPosition>list->linesCount-2 ? list->linesCount-2 : listPosition) : listPosition);
-		textListPos = (list->length > list->linesCount ? (listPosition>list->linesCount-2 ? listPosition-(list->linesCount-2) : 0) : 0);
+		barPos  = (list->length > list->linesCount ? (listPosition > list->linesCount-2 ? list->linesCount-2 : listPosition) : listPosition);
+		textListPos = (list->length > list->linesCount ? (listPosition > list->linesCount-2 ? listPosition-(list->linesCount-2) : 0) : 0);
 	}
 
 }
@@ -149,6 +168,16 @@ uint8_t cList::update()
 {
 	if(list == nullptr) return 0;
 
+	//int16_t posX = this->posX;
+	int16_t posY = this->posY;
+
+
+	if(style & controlStyleCenterY)
+	{
+		posY = this->posY-(list->linesCount*height)/2;
+	}
+
+
 
 	int16_t  x_pos = posX, y_pos;
 	uint8_t lines;
@@ -158,14 +187,17 @@ uint8_t cList::update()
 
 
 	//tlo listy
-	API_COLOR(colors[3]);
-	API_BLEND_FUNC(DST_ALPHA , ZERO);
-	API_LINE_WIDTH(8);
-	API_BEGIN(RECTS);
-	API_VERTEX2F(posX, posY);
-	API_VERTEX2F(posX+width, posY+(height*list->linesCount));
-	API_END();
-	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+    if(style & controlStyleBackground)
+    {
+		API_COLOR(colors[3]);
+		API_BLEND_FUNC(DST_ALPHA , ZERO);
+		API_LINE_WIDTH(16);
+		API_BEGIN(RECTS);
+		API_VERTEX2F(posX, posY);
+		API_VERTEX2F(posX+width, posY+(height*list->linesCount));
+		API_END();
+		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+    }
 
 
 	if(list->start == listPosition)
@@ -174,19 +206,23 @@ uint8_t cList::update()
 		listAnimationStep = 0;
 		selfRefresh = 0;
 
-		x_pos = posX;
-		y_pos = posY + (barPos * height);
+		if(!disableBar)
+		{
+			x_pos = posX;
+			y_pos = posY + (barPos * height);
 
-		//ramka
-		API_COLOR(colors[0]);
-		API_LINE_WIDTH(4);
-		API_BEGIN(LINE_STRIP);
-		API_VERTEX2F(x_pos, y_pos);
-		API_VERTEX2F(x_pos + width, y_pos);
-		API_VERTEX2F(x_pos + width, y_pos + height);
-		API_VERTEX2F(x_pos, y_pos + height);
-		API_VERTEX2F(x_pos, y_pos);
-		API_END();
+			//ramka
+			API_COLOR(colors[0]);
+			API_LINE_WIDTH(16);
+			API_BEGIN(LINE_STRIP);
+			API_VERTEX2F(x_pos, y_pos);
+			API_VERTEX2F(x_pos + width, y_pos);
+			API_VERTEX2F(x_pos + width, y_pos + height);
+			API_VERTEX2F(x_pos, y_pos + height);
+			API_VERTEX2F(x_pos, y_pos);
+			API_END();
+		}
+
 
 		//lista tekstow
 		x_pos = posX+5;
@@ -194,8 +230,14 @@ uint8_t cList::update()
 
 		lines = (list->length >= list->linesCount)  ? list->linesCount : list->length;
 
+		API_SAVE_CONTEXT();
+
 		//uint8_t txt_offset;
 		API_COLOR(colors[4]);
+
+		API_SCISSOR_XY(posX, posY);
+		API_SCISSOR_SIZE(width, height*list->linesCount);
+
 		for(uint8_t i = 0; i < lines; i++)
 		{
 			API_CMD_TEXT(x_pos,
@@ -204,6 +246,8 @@ uint8_t cList::update()
 					textStyle | OPT_CENTERY,
 					*(list->data + (i +  textListPos)));
 		}
+
+		API_RESTORE_CONTEXT();
 	}
 	else
 	{
@@ -216,7 +260,8 @@ uint8_t cList::update()
 		if(list->start > listPosition) {dir = -1;	diffrence = list->start - listPosition; }
 		else {dir = 1;	diffrence = listPosition - list->start; }
 
-		if(diffrence > 5) diffrence = 8;
+		if(diffrence > 3) diffrence = 12;
+		else if(diffrence > 2) diffrence = 8;
 		else if(diffrence > 1) diffrence = 4;
 		else diffrence = 2;
 
@@ -260,22 +305,24 @@ uint8_t cList::update()
 			}
 		}
 
-		selfRefresh = 2;
+		selfRefresh = 3;
 
-		x_pos = posX;
-		y_pos = posY + (barPos * height) + (mode ? 0 : listAnimationStep);
+		if(!disableBar)
+		{
+			x_pos = posX;
+			y_pos = posY + (barPos * height) + (mode ? 0 : listAnimationStep);
 
-		//ramka
-		API_COLOR(colors[0]);
-		API_LINE_WIDTH(4);
-		API_BEGIN(LINE_STRIP);
-		API_VERTEX2F(x_pos, y_pos);
-		API_VERTEX2F(x_pos + width, y_pos);
-		API_VERTEX2F(x_pos + width, y_pos + height);
-		API_VERTEX2F(x_pos, y_pos + height);
-		API_VERTEX2F(x_pos, y_pos);
-		API_END();
-
+			//ramka
+			API_COLOR(colors[0]);
+			API_LINE_WIDTH(16);
+			API_BEGIN(LINE_STRIP);
+			API_VERTEX2F(x_pos, y_pos);
+			API_VERTEX2F(x_pos + width, y_pos);
+			API_VERTEX2F(x_pos + width, y_pos + height);
+			API_VERTEX2F(x_pos, y_pos + height);
+			API_VERTEX2F(x_pos, y_pos);
+			API_END();
+		}
 
 		x_pos = posX+5;
 		y_pos = posY + height/2 + (mode ? ((-1*height) - listAnimationStep) : 0);
@@ -350,7 +397,7 @@ uint8_t cList::update()
     API_LIB_EndCoProList();
 
 
-	return 0;
+	return selfRefresh;
 }
 
 uint8_t cList::memCpy(uint32_t address)

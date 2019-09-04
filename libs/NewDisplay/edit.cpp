@@ -126,7 +126,7 @@ uint8_t cEdit::update()
 	if(style & controlStyleBackground)
 	{
 		if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
-		else API_LINE_WIDTH(8);
+		else API_LINE_WIDTH(16);
 
 		API_COLOR(colors[1]);
 
@@ -179,7 +179,7 @@ uint8_t cEdit::update()
 	API_COLOR(colors[0]);
 	API_BITMAP_HANDLE(fonts[0].handle);
 	API_BEGIN(BITMAPS);
-	if(text != nullptr) localString2Bitmaps(posX - textWidth * (localTextLength/2) , posY+15, 10, 18, text, localTextLength);
+	if(text != nullptr) localString2Bitmaps(posX - textWidth * (localTextLength/2) , posY+height/2, 10, 18, text, localTextLength);
 	API_END();
 //	API_CMD_TEXT(posX, posY+5, textFont, textStyle, text);
 

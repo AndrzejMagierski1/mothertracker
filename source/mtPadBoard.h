@@ -14,22 +14,31 @@ public:
 	void setPadNotes(uint8_t scale, uint8_t noteOffset, uint8_t rootNote);
 	void configureInstrumentPlayer(uint8_t maxVoices);
 	void startInstrument(uint8_t pad, uint8_t index, int8_t velocity);
+	void startInstrument(uint8_t pad,int16_t * addres, uint32_t length);
 	void stopInstrument(uint8_t pad);
+	int8_t getVoiceTakenByPad(uint8_t pad);
+	void clearVoice(uint8_t voice);
 
+	void releaseAllInstrument();
+
+
+	uint8_t getPadsWithNote(int8_t note, uint8_t* pads);
+	uint8_t getNoteFromPad(int8_t pad);
+	int8_t getEmptyVoice();
 
 private:
 
-	uint8_t isInScale(uint8_t note, uint8_t root, uint8_t scale);
-	int8_t getEmptyVoice();
-	int8_t getVoiceTakenByPad(uint8_t pad);
+//	uint8_t isInScale(uint8_t note, uint8_t root, uint8_t scale);
+//	int8_t getVoiceTakenByPad(uint8_t pad);
 
-	uint8_t lastScale;
-	uint8_t lastNoteOffset;
-	uint8_t lastRootNote;
+
+	uint8_t lastScale = 255;
+	uint8_t lastNoteOffset = 255;
+	uint8_t lastRootNote = 255;
 
 	uint8_t voicesCount;
 
-	uint8_t padNotes[32];
+	uint8_t padNotes[48];
 
 	int8_t voices[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
 
