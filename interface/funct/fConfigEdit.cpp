@@ -889,20 +889,22 @@ static uint8_t selectFirmware()
 
 uint8_t flashFirmware()
 {
-	FsFile fwinfo;
-
-	if(SD.exists("/firmware/_fwinfo")) // plik nie powinien istniec, bootloader sam go usunie
+	if(CE->firmwareFoundNum)
 	{
-		SD.remove("/firmware/_fwinfo");
+		FsFile fwinfo;
+
+		if(SD.exists("/firmware/_fwinfo")) // plik nie powinien istniec, bootloader sam go usunie
+		{
+			SD.remove("/firmware/_fwinfo");
+		}
+
+		fwinfo = SD.open("/firmware/_fwinfo", FILE_WRITE);
+		fwinfo.write(&CE->firmwareNamesList[CE->firmwareSelect][0], 13);
+		fwinfo.close();
+
+
+		CE->showWarning();
 	}
-
-	fwinfo = SD.open("/firmware/_fwinfo", FILE_WRITE);
-	fwinfo.write(&CE->firmwareNamesList[CE->firmwareSelect][0], 13);
-	fwinfo.close();
-
-
-	CE->showWarning();
-
 	return 1;
 }
 
