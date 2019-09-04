@@ -79,19 +79,41 @@ void cSamplePlayback::update()
 	if(isPlayingSample)
 	{
 		calcPlayProgressValue();
-		showPreviewValue();
+		if(isPlayingSample)	showPreviewValue(); // w calcPlayProgress jest mozliwosc wyzerowania tej flagi wtedy nie chcemy wyswietlac wartosci;
+		else
+		{
+			hidePreviewValue();
+			mtPadBoard.clearVoice(0);
+		}
 		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
 		{
 			instrumentPlayer[0].clearInterfaceEndReleaseFlag();
 
-
-			SP->playProgressValue=0;
-			SP->playProgressInSpectrum = 0;
-			SP->isPlayingSample = 0;
-			SP->refreshSpectrumProgress = 1;
-			SP->hidePreviewValue();
+			playProgressValue=0;
+			playProgressInSpectrum = 0;
+			isPlayingSample = 0;
+			refreshSpectrumProgress = 1;
+			hidePreviewValue();
+			mtPadBoard.clearVoice(0);
 		}
+		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
+		{
+			instrumentPlayer[0].clearInterfacePlayingEndFlag();
 
+			playProgressValue=0;
+			playProgressInSpectrum = 0;
+			isPlayingSample = 0;
+			refreshSpectrumProgress = 1;
+			hidePreviewValue();
+			mtPadBoard.clearVoice(0);
+		}
+	}
+	else
+	{
+		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
+		{
+			instrumentPlayer[0].clearInterfacePlayingEndFlag();
+		}
 	}
 
 }
@@ -860,7 +882,15 @@ void cSamplePlayback::changePlayModeSelection(int16_t value)
 	else  editorInstrument->playMode += value;
 
 	if((editorInstrument->playMode == singleShot) && (value < 0 )) hideLoopPoints();
-	else if((editorInstrument->playMode == loopForward) && (value > 0) ) showLoopPoints();
+	else if((editorInstrument->playMode == loopForward) && (value > 0) )
+	{
+
+		if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - 1;
+
+		if(editorInstrument->loopPoint1 <= editorInstrument->startPoint) editorInstrument->loopPoint1 = editorInstrument->startPoint+1;
+		if(editorInstrument->loopPoint2 >= editorInstrument->endPoint) editorInstrument->loopPoint2 = editorInstrument->endPoint-1;
+		showLoopPoints();
+	}
 
 
 	refreshPoints = 1;
@@ -934,13 +964,13 @@ void cSamplePlayback::modEndPoint(int16_t value)
 		{
 			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
 
-			editorInstrument->loopPoint2 = editorInstrument->endPoint;
+			editorInstrument->loopPoint2 = editorInstrument->endPoint - 1;
 
-			if(editorInstrument->loopPoint2 - dif < editorInstrument->startPoint)
+			if(editorInstrument->loopPoint2 - dif <= editorInstrument->startPoint)
 			{
-				editorInstrument->loopPoint1 = editorInstrument->startPoint;
+				editorInstrument->loopPoint1 = editorInstrument->startPoint + 1;
 				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
-				editorInstrument->endPoint = editorInstrument->loopPoint2;
+				editorInstrument->endPoint = editorInstrument->loopPoint2 + 1;
 				instrumentPlayer[0].setStatusBytes(LP1_MASK);
 				instrumentPlayer[0].setStatusBytes(LP2_MASK);
 			}
@@ -970,7 +1000,7 @@ void cSamplePlayback::modLoopPoint1(int16_t value)
 	else if(editorInstrument->loopPoint1 + value > SAMPLE_POINT_POS_MAX ) editorInstrument->loopPoint1  = SAMPLE_POINT_POS_MAX;
 	else editorInstrument->loopPoint1 += value;
 
-	if(editorInstrument->loopPoint1 < editorInstrument->startPoint) editorInstrument->loopPoint1 = editorInstrument->startPoint;
+	if(editorInstrument->loopPoint1 <= editorInstrument->startPoint) editorInstrument->loopPoint1 = editorInstrument->startPoint+1;
 	if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2-1;
 
 	if(zoomValue > 1 && lastChangedPoint != 3
@@ -994,7 +1024,7 @@ void cSamplePlayback::modLoopPoint2(int16_t value)
 	else if(editorInstrument->loopPoint2 + value > SAMPLE_POINT_POS_MAX ) editorInstrument->loopPoint2  = SAMPLE_POINT_POS_MAX;
 	else editorInstrument->loopPoint2 += value;
 
-	if(editorInstrument->loopPoint2 > editorInstrument->endPoint) editorInstrument->loopPoint2 = editorInstrument->endPoint;
+	if(editorInstrument->loopPoint2 >= editorInstrument->endPoint) editorInstrument->loopPoint2 = editorInstrument->endPoint - 1;
 	if(editorInstrument->loopPoint2 <= editorInstrument->loopPoint1) editorInstrument->loopPoint2 = editorInstrument->loopPoint1+1;
 
 	if(zoomValue > 1 && lastChangedPoint != 4
@@ -1010,46 +1040,46 @@ void cSamplePlayback::modLoopPoint2(int16_t value)
 
 static uint8_t functShift(uint8_t value)
 {
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
-	{
-		sequencer.stop();
-	}
-
-	if(value == 1)
-	{
-		//eventFunct(mtInstrumentEditorEventPadPress, &interfacePadStop, 0, 0);
-		sequencer.stop();
-
-		SP->isPlayingSample = 1;
-		SP->playProgresValueTim = (( (SP->editorInstrument->sample.length/44100.0 ) * SP->editorInstrument->startPoint) / MAX_16BIT) * 1000000;
-		SP->refreshPlayProgressValue = 0;
-		SP->loopDirection = 0;
-		SP->playPitch = 1.0;
-		if(SP->editorInstrument->glide > 0)
-		{
-			switch(	SP->glidePreviewDif)
-			{
-				case 0: SP->playNote = 24;	break;
-				case 1: SP->playNote = (SP->playNote == 24)? 25 : 24; 	break;
-				case 2: SP->playNote = (SP->playNote == 24)? 36 : 24; 	break;
-				case 3: SP->playNote = (SP->playNote == 24)? 47 : 24; 	break;
-			}
-		}
-
-		instrumentPlayer[0].noteOn(mtProject.values.lastUsedInstrument, SP->playNote, -1);
-	}
-	else if(value == 0)
-	{
-		if(SP->isPlayingSample) instrumentPlayer[0].noteOff();
-		SP->isPlayingSample = 0;
-		SP->playProgressValue = 0;
-		SP->playProgressInSpectrum = 0;
-
-		SP->refreshSpectrumProgress = 1;
-
-		//todo: jezeli shift ma byc uzywany rownolegle z klawiaturą trzeba bedzie dodac flage poniewaz shift zajmuje voice 0 ktory moze zajac takze padboard
-		// releasy moglyby sie nie zgadzac - dlatego na razie nie ma tu obsługi
-	}
+//	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+//	{
+//		sequencer.stop();
+//	}
+//
+//	if(value == 1)
+//	{
+//		//eventFunct(mtInstrumentEditorEventPadPress, &interfacePadStop, 0, 0);
+//		sequencer.stop();
+//
+//		SP->isPlayingSample = 1;
+//		SP->playProgresValueTim = (( (SP->editorInstrument->sample.length/44100.0 ) * SP->editorInstrument->startPoint) / MAX_16BIT) * 1000000;
+//		SP->refreshPlayProgressValue = 0;
+//		SP->loopDirection = 0;
+//		SP->playPitch = 1.0;
+//		if(SP->editorInstrument->glide > 0)
+//		{
+//			switch(	SP->glidePreviewDif)
+//			{
+//				case 0: SP->playNote = 24;	break;
+//				case 1: SP->playNote = (SP->playNote == 24)? 25 : 24; 	break;
+//				case 2: SP->playNote = (SP->playNote == 24)? 36 : 24; 	break;
+//				case 3: SP->playNote = (SP->playNote == 24)? 47 : 24; 	break;
+//			}
+//		}
+//
+//		instrumentPlayer[0].noteOn(mtProject.values.lastUsedInstrument, SP->playNote, -1);
+//	}
+//	else if(value == 0)
+//	{
+//		if(SP->isPlayingSample) instrumentPlayer[0].noteOff();
+//		SP->isPlayingSample = 0;
+//		SP->playProgressValue = 0;
+//		SP->playProgressInSpectrum = 0;
+//
+//		SP->refreshSpectrumProgress = 1;
+//
+//		//todo: jezeli shift ma byc uzywany rownolegle z klawiaturą trzeba bedzie dodac flage poniewaz shift zajmuje voice 0 ktory moze zajac takze padboard
+//		// releasy moglyby sie nie zgadzac - dlatego na razie nie ma tu obsługi
+//	}
 
 	return 1;
 }
