@@ -276,19 +276,18 @@ void updateHardware()
 		{
 			if(i2c_switch == 0)
 			{
-				if(!tactButtons.update())
-				i2c_switch++;
+				if(!tactButtons.update())	i2c_switch++;
+
 			}
 			if(i2c_switch == 1)
 			{
 //				Keypad.update();
-				i2c_switch++;
 				if(!seqButtonsA.update())  	i2c_switch++;
 			}
 			if(i2c_switch == 2)
 			{
-				if(!leds.update_all_leds())
-				i2c_switch++;
+				if(!leds.update_all_leds())	i2c_switch++;
+
 			}
 
 			if(i2c_switch < 3) i2cRefreshTimer = 0;
