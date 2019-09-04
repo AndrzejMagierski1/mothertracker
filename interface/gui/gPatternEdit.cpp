@@ -160,7 +160,7 @@ void cPatternEditor::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 	padNamesStruct.length=5;
-	padNamesStruct.name = padNamesPointer;
+	padNamesStruct.name = interfaceGlobals.padNamesPointer;
 
 	strControlProperties prop11;
 	prop11.x = 16;

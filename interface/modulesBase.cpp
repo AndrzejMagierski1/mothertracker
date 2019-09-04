@@ -266,13 +266,11 @@ void cFunctionMachine::processPotsInput(uint8_t pot, int16_t value)
 
 void cFunctionMachine::processPadsInput(uint8_t pad, uint8_t state, int16_t velo)
 {
+	uint8_t result = 0;
 
 	if(padsGlobalMode == 1)
 	{
-		uint8_t result = 0;
-
 		if(padsGlobalFunct != nullptr) result = padsGlobalFunct(pad,state,velo);
-
 	}
 
 /*
@@ -284,16 +282,18 @@ void cFunctionMachine::processPadsInput(uint8_t pad, uint8_t state, int16_t velo
 	else if(pads[pad].funct2 != nullptr) result = pads[pad].funct2(state,velo);
 
 	if(pads[pad].control != nullptr) display.refreshControl(pads[pad].control);
-
+*/
 	if(result == 0)
 	{
+		padsGlobalFunct = nullptr;
+
 		pads[pad].mode = 0;
 		pads[pad].funct1 = nullptr;
 		pads[pad].funct2 = nullptr;
 
 	}
 
-	*/
+
 }
 
 
