@@ -562,12 +562,9 @@ void cPatternEditor::refreshEditState()
 	{
 		trackerPattern.selectState = 1;
 
+		trackerPattern.selectedParam = editParam;
 
-
-		//focusOnActual();
-		trackerPattern.actualTrack =  trackerPattern.firstVisibleTrack;
-		trackerPattern.selectedParam = 4;
-		editParam = 4;
+		focusOnActual();
 
 		focusOnPattern();
 
@@ -678,12 +675,12 @@ void cPatternEditor::changeRandomiseData(int16_t value)
 		max = (editParam == 0 ? fillScaleFilterCount-1 : fillFxTypeCount-1);
 		//value = value*(-1);
 		break;
-	case 5:
+/*	case 5:
 		ptrVal = &randomiseStep;
 		min = 1;
 		max = PATTERN_EDIT_STEP_MAX;
 		break;
-
+*/
 	default: return;
 
 	}
@@ -1147,6 +1144,8 @@ static  uint8_t functNote(uint8_t state)
 	if(state == buttonPress)
 	{
 		PTE->editParam = 0;
+		PTE->trackerPattern.selectedParam = 0;
+		display.refreshControl(PTE->patternControl);
 
 		if(PTE->fillState > 0)
 		{
@@ -1161,7 +1160,7 @@ static  uint8_t functNote(uint8_t state)
 
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
-		PTE->refreshPattern();
+		//PTE->refreshPattern();
 	}
 	else if(state==buttonHold)
 	{
@@ -1196,6 +1195,8 @@ static  uint8_t functInstrument(uint8_t state)
 	if(state == buttonPress)
 	{
 		PTE->editParam = 1;
+		PTE->trackerPattern.selectedParam = 1;
+		display.refreshControl(PTE->patternControl);
 
 		if(PTE->fillState > 0)
 		{
@@ -1210,7 +1211,7 @@ static  uint8_t functInstrument(uint8_t state)
 
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
-		PTE->refreshPattern();
+		//PTE->refreshPattern();
 	}
 	else if(state == buttonHold)
 	{
@@ -1224,6 +1225,8 @@ static  uint8_t functInstrument(uint8_t state)
 static  uint8_t functVolume()
 {
 	PTE->editParam = 2;
+	PTE->trackerPattern.selectedParam = 2;
+	display.refreshControl(PTE->patternControl);
 
 	if(PTE->fillState > 0)
 	{
@@ -1238,7 +1241,7 @@ static  uint8_t functVolume()
 
 	PTE->focusOnPattern();
 	PTE->lightUpPadBoard();
-	PTE->refreshPattern();
+	//PTE->refreshPattern();
 
 	return 1;
 }
@@ -1246,6 +1249,8 @@ static  uint8_t functVolume()
 static  uint8_t functFx()
 {
 	PTE->editParam = 3;
+	PTE->trackerPattern.selectedParam = 3;
+	display.refreshControl(PTE->patternControl);
 
 	if(PTE->fillState > 0)
 	{
@@ -1260,7 +1265,7 @@ static  uint8_t functFx()
 
 	PTE->focusOnPattern();
 	PTE->lightUpPadBoard();
-	PTE->refreshPattern();
+	//PTE->refreshPattern();
 
 	return 1;
 }
@@ -1624,8 +1629,8 @@ static  uint8_t functFillApply()
 	if(PTE->fillState)
 	{
 		cPatternEditor::strFill * fillData = &PTE->fillData[PTE->editParam];
-		(void) PTE->fillData[PTE->editParam];
-		(void) PTE->fillStep;
+		//(void) PTE->fillData[PTE->editParam];
+		//(void) PTE->fillStep;
 		// PTE->fillData[x]		<= przechowuje dane do konfiguracji fill
 		// x - (0-3)(PTE->editParam) - co wypelnia - nuta , instr , vol , fx
 		// 							type  	 = typ wypelninia (0-3);
@@ -1776,7 +1781,7 @@ static  uint8_t functRandomise()
 	PTE->FM->setButtonObj(interfaceButton1, buttonPress, functRandomiseChangeParam1);
 	PTE->FM->setButtonObj(interfaceButton2, buttonPress, functRandomiseChangeParam2);
 	PTE->FM->setButtonObj(interfaceButton3, buttonPress, functRandomiseChangeParam3);
-	PTE->FM->setButtonObj(interfaceButton5, buttonPress, functRandomiseChangeParam4);
+	//PTE->FM->setButtonObj(interfaceButton5, buttonPress, functRandomiseChangeParam4);
 
 	return 1;
 }
@@ -1799,8 +1804,8 @@ static  uint8_t functRandomiseApply()
 	if(PTE->randomiseState)
 	{
 		cPatternEditor::strRandomise * randomiseData = &PTE->randomiseData[PTE->editParam];
-		(void) PTE->randomiseData[PTE->editParam];
-		(void) PTE->randomiseStep;
+		//(void) PTE->randomiseData[PTE->editParam];
+		//(void) PTE->randomiseStep;
 		// PTE->randomiseData[x]	<= przechowuje dane do konfiguracji randomise
 		// x - (0-3)(PTE->editParam) - co wypelnia - nuta , instr , vol , fx
 		//							from	 = pierwsza wartosc (0-127 - nuty/vol/fx_val , 0-47 instr)
@@ -1864,6 +1869,7 @@ static  uint8_t functRandomiseChangeParam3()
 	return 1;
 }
 
+/*
 static  uint8_t functRandomiseChangeParam4()
 {
 	PTE->randomisePlace = 5;
@@ -1871,11 +1877,11 @@ static  uint8_t functRandomiseChangeParam4()
 
 	return 1;
 }
+*/
 
 //##############################################################################################
 //###############################            INVERT            #################################
 //##############################################################################################
-//TODO: podpiac invert z seq
 static uint8_t functInvert()
 {
 	//--------------------------------------------------------
@@ -1965,24 +1971,31 @@ void cPatternEditor::lightUpPadBoard()
 }
 
 
-//TODO: podpiac modyfikacje patternu na akcje wcisniecia padów
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-
 	if (state > 1) return 1;
 	if (PTE->editMode != 1) return 1;
 
+	// obsluga podswietlenia
 	if (state == buttonRelease)
 	{
 		padsBacklight.setFrontLayer(0, 0, pad);
 		return 1;
 	}
 
-
 	padsBacklight.setFrontLayer(1, 31, pad);
 
-	//Sequencer::strPattern * seq = sequencer.getPatternToUI();
+	//obluga popupow fill/randomise
+	if(PTE->fillState > 0)
+	{
+		return 1;
+	}
+	if(PTE->randomiseState > 0)
+	{
+		return 1;
+	}
 
+	// wprowadzanie danych
 	switch (PTE->editParam)
 	{
 	case 0: // nuta
@@ -2071,16 +2084,8 @@ static uint8_t functSwitchModule(uint8_t button)
 	{
 		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
 
-		if(PTE->editParam != 4)
-		{
-			PTE->editParam = 4;
-			PTE->trackerPattern.selectedParam = 4;
-			//PTE->refreshPattern();
-			display.refreshControl(PTE->patternControl);
-		}
 
-
-		PTE->focusOnPattern();
+		//PTE->focusOnPattern();
 		return 1;
 	}
 

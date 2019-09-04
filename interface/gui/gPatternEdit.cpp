@@ -778,7 +778,7 @@ void cPatternEditor::showRandomisePopup()
 
 	//------------------------------
 	// step
-
+/*
 	fillText3[0]  = 0;
 	sprintf(fillText3, "%d", randomiseStep);
 
@@ -788,7 +788,7 @@ void cPatternEditor::showRandomisePopup()
 	display.setControlText(bottomLabel[5], "Step");
 	display.setControlText(bottomLabel[4], "");
 
-
+*/
 
 	switch(editParam)
 	{
@@ -910,12 +910,13 @@ void cPatternEditor::refreshRandomiseStep()
 {
 	//------------------------------
 	// step
-	fillText3[0]  = 0;
+/*	fillText3[0]  = 0;
 	sprintf(fillText3, "%d", randomiseStep);
 	display.setControlText(val3PopupLabel, fillText3);
 	display.setControlText(bottomLabel[5], "Step");
 
 	display.refreshControl(val3PopupLabel);
+*/
 }
 
 void cPatternEditor::hideRandomisePopup()
