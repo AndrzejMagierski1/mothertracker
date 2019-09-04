@@ -123,7 +123,7 @@ void cInstrumentEditor::initDisplayControls()
 		intrumentsList[i].start = 0;
 		intrumentsList[i].linesCount = 12;
 		intrumentsList[i].length = 12;
-		intrumentsList[i].data = &ptrintrumentsNames[i*12];
+		intrumentsList[i].data = &interfaceGlobals.ptrIntrumentsNames[i*12];
 		prop.style = controlStyleCenterY;
 		prop.x = (800/4)*(i)+5;
 		prop.y = 240;
@@ -153,7 +153,7 @@ void cInstrumentEditor::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 	padNamesStruct.length=5;
-	padNamesStruct.name = padNamesPointer;
+	padNamesStruct.name = interfaceGlobals.padNamesPointer;
 
 	strControlProperties prop11;
 	prop11.x = 16;
@@ -456,7 +456,7 @@ void cInstrumentEditor::showInstrumentList()
 
 		intrumentsList[i].length = 12;
 		intrumentsList[i].linesCount = 12;
-		intrumentsList[i].data = &ptrintrumentsNames[i*12];
+		intrumentsList[i].data = &interfaceGlobals.ptrIntrumentsNames[i*12];
 
 		display.setControlData(intrumentsListControl[i], &intrumentsList[i]);
 
@@ -716,22 +716,7 @@ void cInstrumentEditor::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	if(i<9)
-	{
-		actualInstrName[0] = (i+1)%10 + 48;
-		actualInstrName[1] = '.';
-		actualInstrName[2] = ' ';
-		actualInstrName[3] = 0;
-	}
-	else
-	{
-		actualInstrName[0] = ((i+1)/10) + 48;
-		actualInstrName[1] = (i+1)%10 + 48;
-		actualInstrName[2] = '.';
-		actualInstrName[3] = ' ';
-		actualInstrName[4] = 0;
-	}
-
+	sprintf(actualInstrName, "%d. ", i);
 
 	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 
@@ -745,28 +730,14 @@ void cInstrumentEditor::listInstruments()
 {
 	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
-		if(i<9)
-		{
-			intrumentsNames[i][0] = (i+1)%10 + 48;
-			intrumentsNames[i][1] = '.';
-			intrumentsNames[i][2] = ' ';
-			intrumentsNames[i][3] = 0;
-		}
-		else
-		{
-			intrumentsNames[i][0] = ((i+1)/10) + 48;
-			intrumentsNames[i][1] = (i+1)%10 + 48;
-			intrumentsNames[i][2] = '.';
-			intrumentsNames[i][3] = ' ';
-			intrumentsNames[i][4] = 0;
-		}
+		sprintf(&interfaceGlobals.intrumentsNames[i][0], "%d. ", i+1);
 
 		if(mtProject.instrument[i].sample.loaded)
 		{
-			strncat(&intrumentsNames[i][0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+			strncat(&interfaceGlobals.intrumentsNames[i][0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 		}
 
-		ptrintrumentsNames[i] = &intrumentsNames[i][0];
+		interfaceGlobals.ptrIntrumentsNames[i] = &interfaceGlobals.intrumentsNames[i][0];
 	}
 }
 

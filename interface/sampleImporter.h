@@ -40,19 +40,19 @@ public:
 	strFrameData frameData;
 
 
-	hControl topLabel[4];
-	hControl bottomLabel[4];
+	hControl topLabel[4] = {nullptr};
+	hControl bottomLabel[4] = {nullptr};
 
-	hControl folderListControl;
-	hControl fileListControl;
-	hControl instrumentListControl;
-	hControl memoryBarControl;
-	hControl frameControl;
+	hControl folderListControl = nullptr;
+	hControl fileListControl = nullptr;
+	hControl instrumentListControl = nullptr;
+	hControl memoryBarControl = nullptr;
+	hControl frameControl = nullptr;
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 
-	hControl loadHorizontalBarControl;
+	hControl loadHorizontalBarControl = nullptr;
 
 
 	uint8_t selectedPlace = 0;
@@ -99,8 +99,9 @@ public:
 
 // instrumenty
 	void listInstrumentSlots();
-	char slotNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
-	char *ptrSlotNames[INSTRUMENTS_COUNT];
+	// przenisone do interfaceGlobals
+	//char slotNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
+	//char *ptrSlotNames[INSTRUMENTS_COUNT];
 	uint8_t selectedSlot = 0;
 
 //	uint16_t instrumentsCount;
