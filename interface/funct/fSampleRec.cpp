@@ -338,6 +338,8 @@ void cSampleRecorder::start(uint32_t options)
 
 	FM->setPadsGlobal(functPads);
 
+	resizer.buttonsToResize=8;
+
 	processSpectrum();
 	processPoints();
 	listMonitor();
@@ -373,8 +375,6 @@ void cSampleRecorder::start(uint32_t options)
 	{
 		showRadio();
 	}
-
-
 
 }
 
@@ -1954,6 +1954,8 @@ void cSampleRecorder::changeGainBar(int16_t val)
 
 	calcGainBarVal();
 	drawGainBar();
+
+	showGain();
 }
 
 void cSampleRecorder::changeZoom(int16_t value)
@@ -2031,6 +2033,9 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
     display.refreshControl(sourceListControl);
     calcGainBarVal();
     drawGainBar();
+
+    showSource();
+    showGain();
 }
 
 void cSampleRecorder::changeMonitorSelection(int16_t value)
@@ -2049,6 +2054,8 @@ void cSampleRecorder::changeMonitorSelection(int16_t value)
 
 	display.setControlValue(monitorListControl, recorderConfig.monitor);
 	display.refreshControl(monitorListControl);
+
+	showMonitor();
 
 }
 

@@ -8,7 +8,19 @@
 
 #include "mtStructs.h"
 
+typedef enum
+{
+	makeBigger,
+	makeSmaller,
 
+}resize_style_t;
+
+typedef struct
+{
+	resize_style_t resizeStyle[8];
+	uint8_t buttonsToResize;
+
+}button_resize_t;
 
 
 
@@ -303,6 +315,17 @@ uint8_t cropCounter = 0;
 
 	void showNotePopout();
 	void hideNotePopout();
+
+	void resizeLabel(button_resize_t *handle);
+	button_resize_t resizer;
+
+	char sourceName[8];
+	char monitorVal[4];
+	char gainVal[4];
+
+	void showSource();
+	void showMonitor();
+	void showGain();
 };
 
 extern cSampleRecorder sampleRecorder;

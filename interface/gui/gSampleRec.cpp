@@ -108,6 +108,8 @@ void cSampleRecorder::initDisplayControls()
 		prop2.x = (800/8)*i+(800/16);
 		prop2.y = 437;
 		prop2.h = 28;
+
+
 		//prop2.style |= 	controlStyleManualText;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 
@@ -316,9 +318,17 @@ void cSampleRecorder::showDefaultScreen()
 	display.setControlText(titleLabel, "Sample Recorder");
 	display.refreshControl(titleLabel);
 
+	for(int i=0;i<8;i++)
+	{
+		display.setControlText(topLabel[i], "");
+		display.setControlText(bottomLabel[i], "");
+	}
 
 	if (currentScreen == screenTypeConfig)
 	{
+		showGain();
+		showSource();
+		showMonitor();
 		//spectrum
 		display.setControlHide(spectrumControl);
 		display.refreshControl(spectrumControl);
@@ -350,14 +360,26 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlShow(gainBarControl);
 		display.refreshControl(gainBarControl);
 
+
+		resizer.resizeStyle[0]=makeSmaller;
+		resizer.resizeStyle[1]=makeSmaller;
+		resizer.resizeStyle[2]=makeBigger;
+		resizer.resizeStyle[3]=makeBigger;
+		resizer.resizeStyle[4]=makeBigger;
+		resizer.resizeStyle[5]=makeSmaller;
+		resizer.resizeStyle[6]=makeSmaller;
+		resizer.resizeStyle[7]=makeBigger;
+
+		resizeLabel(&resizer);
+
 		if (recorderConfig.source == sourceTypeRadio)
 		{
 			display.setControlValue(radioFreqBarControl, radioFreqBarVal);
 			display.setControlShow(radioFreqBarControl);
 			display.refreshControl(radioFreqBarControl);
 			display.setControlText(bottomLabel[1], "Radio Freq");
-			display.setControlText(bottomLabel[2], "<<");
-			display.setControlText(bottomLabel[3], ">>");
+			display.setControlText(topLabel[2], "<<");
+			display.setControlText(topLabel[3], ">>");
 
 			calcRadioFreqBarVal();
 			drawRadioFreqBar();
@@ -375,10 +397,11 @@ void cSampleRecorder::showDefaultScreen()
 		// bottom labels
 		display.setControlText(bottomLabel[0], "Source");
 
-		display.setControlText(bottomLabel[4], "Level");
+
+		display.setControlText(topLabel[4], "Level");
 		display.setControlText(bottomLabel[5], "Gain");
 		display.setControlText(bottomLabel[6], "Monitor");
-		display.setControlText(bottomLabel[7], "Record");
+		display.setControlText(topLabel[7], "Record");
 
 		frameData.placesCount = 8;
 		frameData.startPlace = 0;
@@ -463,25 +486,38 @@ void cSampleRecorder::showDefaultScreen()
 
 		if (recordInProgressFlag == 1)
 		{
-			display.setControlText(bottomLabel[0], "");
-			display.setControlText(bottomLabel[1], "");
-			display.setControlText(bottomLabel[2], "");
-			display.setControlText(bottomLabel[3], "");
-			display.setControlText(bottomLabel[4], "");
-			display.setControlText(bottomLabel[5], "");
-			display.setControlText(bottomLabel[6], "");
-			display.setControlText(bottomLabel[7], "Stop");
+			for(int i=0;i<7;i++)
+			{
+				display.setControlText(bottomLabel[i], "");
+				display.setControlText(topLabel[i], "");
+			}
+
+			resizer.resizeStyle[7]=makeBigger;
+			resizer.resizeStyle[2]=makeBigger;
+			resizeLabel(&resizer);
+
+			display.setControlText(topLabel[7], "Stop");
 		}
 		else
 		{
-			display.setControlText(bottomLabel[0], "Preview");
+			resizer.resizeStyle[0]=makeBigger;
+			resizer.resizeStyle[1]=makeSmaller;
+			resizer.resizeStyle[2]=makeSmaller;
+			resizer.resizeStyle[3]=makeSmaller;
+			resizer.resizeStyle[4]=makeBigger;
+			resizer.resizeStyle[5]=makeBigger;
+			resizer.resizeStyle[6]=makeBigger;
+
+			resizeLabel(&resizer);
+
+			display.setControlText(topLabel[0], "Preview");
 			display.setControlText(bottomLabel[1], "Start Point");
 			display.setControlText(bottomLabel[2], "End Point");
 			display.setControlText(bottomLabel[3], "Zoom");
-			display.setControlText(bottomLabel[4], "Crop");
-			display.setControlText(bottomLabel[5], "Undo");
-			display.setControlText(bottomLabel[6], "Go Back");
-			display.setControlText(bottomLabel[7], "Save");
+			display.setControlText(topLabel[4], "Crop");
+			display.setControlText(topLabel[5], "Undo");
+			display.setControlText(topLabel[6], "Go Back");
+			display.setControlText(topLabel[7], "Save");
 		}
 
 		hideKeyboard();
@@ -517,14 +553,17 @@ void cSampleRecorder::showDefaultScreen()
 
 		showKeyboardEditName();
 
+		resizer.resizeStyle[2]=makeBigger;
+		resizeLabel(&resizer);
+
 		display.setControlText(bottomLabel[0], "");
 		display.setControlText(bottomLabel[1], "");
-		display.setControlText(bottomLabel[2], "Confirm");
+		display.setControlText(topLabel[2], "Confirm");
 		display.setControlText(bottomLabel[3], "");
 		display.setControlText(bottomLabel[4], "");
-		display.setControlText(bottomLabel[5], "Go Back");
-		display.setControlText(bottomLabel[6], "Save & Load");
-		display.setControlText(bottomLabel[7], "Save");
+		display.setControlText(topLabel[5], "Go Back");
+		display.setControlText(topLabel[6], "Save & Load");
+		display.setControlText(topLabel[7], "Save");
 	}
 
 	for (uint8_t i = 0; i < 8; i++)
@@ -532,7 +571,7 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
 
-		display.setControlText(topLabel[i], "");
+		//display.setControlText(topLabel[i], "");
 		display.setControlShow(topLabel[i]);
 		display.refreshControl(topLabel[i]);
 	}
@@ -557,15 +596,21 @@ void cSampleRecorder::showDefaultScreen()
 
 void cSampleRecorder::showRadio()
 {
+	resizer.resizeStyle[1]=makeSmaller;
+	resizer.resizeStyle[2]=makeBigger;
+	resizer.resizeStyle[3]=makeBigger;
+
+	resizeLabel(&resizer);
+
 	display.setControlValue(radioFreqBarControl,radioFreqBarVal);
 	display.setControlShow(radioFreqBarControl);
 	display.setControlText(bottomLabel[1], "Radio Freq");
-	display.setControlText(bottomLabel[2], "<<");
-	display.setControlText(bottomLabel[3], ">>");
+	display.setControlText(topLabel[2], "<<");
+	display.setControlText(topLabel[3], ">>");
 
 	display.refreshControl(bottomLabel[1]);
-	display.refreshControl(bottomLabel[2]);
-	display.refreshControl(bottomLabel[3]);
+	display.refreshControl(topLabel[2]);
+	display.refreshControl(topLabel[3]);
 	display.refreshControl(radioFreqBarControl);
 
 	display.refreshControl(radioRdsLabel);
@@ -576,16 +621,22 @@ void cSampleRecorder::showRadio()
 }
 void cSampleRecorder::hideRadio()
 {
+	resizer.resizeStyle[1]=makeBigger;
+	resizer.resizeStyle[2]=makeSmaller;
+	resizer.resizeStyle[3]=makeSmaller;
+
+	resizeLabel(&resizer);
+
 	display.setControlValue(radioFreqBarControl,radioFreqBarVal);
 	display.setControlHide(radioFreqBarControl);
 	display.setControlText(bottomLabel[1], "");
-	display.setControlText(bottomLabel[2], "");
-	display.setControlText(bottomLabel[3], "");
+	display.setControlText(topLabel[2], "");
+	display.setControlText(topLabel[3], "");
 	display.setControlText(topLabel[1], "");
 
 	display.refreshControl(bottomLabel[1]);
-	display.refreshControl(bottomLabel[2]);
-	display.refreshControl(bottomLabel[3]);
+	display.refreshControl(topLabel[2]);
+	display.refreshControl(topLabel[3]);
 	display.refreshControl(topLabel[1]);
 	display.refreshControl(radioFreqBarControl);
 
@@ -782,7 +833,7 @@ void cSampleRecorder::showPreviewValue()
 }
 void cSampleRecorder::hidePreviewValue()
 {
-	display.setControlText(topLabel[0]," ");
+	display.setControlText(topLabel[0],"Preview");
 	display.setControlShow(topLabel[0]);
 	display.refreshControl(topLabel[0]);
 }
@@ -981,8 +1032,8 @@ void cSampleRecorder::showSelectionWindow()
 		display.refreshControl(bottomLabel[i]);
 		display.refreshControl(topLabel[i]);
 	}
-	display.setControlText(bottomLabel[0], "Yes");
-	display.setControlText(bottomLabel[7], "No");
+	display.setControlText(topLabel[0], "Yes");
+	display.setControlText(topLabel[7], "No");
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
@@ -1003,8 +1054,8 @@ void cSampleRecorder::showSelectionWindowSave()
 		display.refreshControl(bottomLabel[i]);
 		display.refreshControl(topLabel[i]);
 	}
-	display.setControlText(bottomLabel[0], "Yes");
-	display.setControlText(bottomLabel[7], "No");
+	display.setControlText(topLabel[0], "Yes");
+	display.setControlText(topLabel[7], "No");
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
@@ -1025,7 +1076,7 @@ void cSampleRecorder::showSelectionWindowFullMemory()
 		display.refreshControl(bottomLabel[i]);
 		display.refreshControl(topLabel[i]);
 	}
-	display.setControlText(bottomLabel[7], "OK");
+	display.setControlText(topLabel[7], "OK");
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
@@ -1046,7 +1097,7 @@ void cSampleRecorder::showSelectionNotEnoughInstruments()
 		display.refreshControl(bottomLabel[i]);
 		display.refreshControl(topLabel[i]);
 	}
-	display.setControlText(bottomLabel[7], "OK");
+	display.setControlText(topLabel[7], "OK");
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
@@ -1156,3 +1207,73 @@ void cSampleRecorder::hideNotePopout()
 	display.setControlShow(frameControl);
 	display.refreshControl(frameControl);
 }
+
+void cSampleRecorder::resizeLabel(button_resize_t *handle)
+{
+	for(int i=0;i<handle->buttonsToResize;i++)
+	{
+		//display.setControlText(topLabel[i],"");
+		//display.setControlText(bottomLabel[i],"");
+
+		if(handle->resizeStyle[i]==makeBigger)
+		{
+			display.setControlSize(topLabel[i], (800/8)-6, 58);
+			display.setControlPosition(topLabel[i], (800/8)*i+(800/16), 452);
+			display.refreshControl(topLabel[i]);
+		}
+		else
+		{
+			display.setControlSize(topLabel[i], (800/8)-6, 28);
+			display.setControlPosition(topLabel[i], (800/8)*i+(800/16), 437);
+			display.refreshControl(topLabel[i]);
+		}
+	}
+
+}
+
+void cSampleRecorder::showSource()
+{
+	if (currentScreen == screenTypeConfig)
+	{
+		strcpy(sourceName,sourcesNamesLabels[recorderConfig.source]);
+		display.setControlText(topLabel[0],sourceName);
+		display.setControlShow(topLabel[0]);
+		display.refreshControl(topLabel[0]);
+	}
+}
+
+void cSampleRecorder::showMonitor()
+{
+	if (currentScreen == screenTypeConfig)
+	{
+	strcpy(monitorVal,monitorNamesLabels[recorderConfig.monitor]);
+	display.setControlText(topLabel[6],monitorVal);
+	display.setControlShow(topLabel[6]);
+	display.refreshControl(topLabel[6]);
+	}
+}
+
+void cSampleRecorder::showGain()
+{
+	if(recorderConfig.source == sourceTypeLineIn)
+	{
+		sprintf(gainVal,"%d",recorderConfig.gainLineIn);
+	}
+	else if(recorderConfig.source == sourceTypeRadio)
+	{
+		sprintf(gainVal,"%d",recorderConfig.gainRadio);
+	}
+	else if(recorderConfig.source == sourceTypeMicLG)
+	{
+		sprintf(gainVal,"%d",recorderConfig.gainMicLow);
+	}
+	else if(recorderConfig.source == sourceTypeMicHG)
+	{
+		sprintf(gainVal,"%d",recorderConfig.gainMicHigh);
+	}
+
+	display.setControlText(topLabel[5],gainVal);
+	display.setControlShow(topLabel[5]);
+	display.refreshControl(topLabel[5]);
+}
+

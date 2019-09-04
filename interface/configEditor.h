@@ -157,6 +157,9 @@ public:
 	void showFirmwareUpdatePopout();
 	void hideFirmwareUpdatePopout();
 
+	void resizeLabelConfigDefault();
+	void resizeLabelConfigMaster();
+
 
 
 //----------------------------------

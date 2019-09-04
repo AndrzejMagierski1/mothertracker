@@ -25,7 +25,6 @@ public:
 	virtual ~cSampleImporter() {}
 
 	void showDefaultScreen();
-	void showFolderTree();
 	void showFilesTree();
 	void showInstrumentsList();
 	void showMemoryUsage();
@@ -33,21 +32,28 @@ public:
 	void showCopyingHorizontalBar();
 	void activateLabelsBorder();
 
-	strList folderList;
-	strList fileList;
+	strList explorerList;
 	strList instrumentList;
 
 	strFrameData frameData;
 
 
-	hControl topLabel[4] = {nullptr};
+
+	hControl topLabel[6] = {nullptr};
 	hControl bottomLabel[4] = {nullptr};
+
+
 
 	hControl folderListControl = nullptr;
 	hControl fileListControl = nullptr;
 	hControl instrumentListControl = nullptr;
 	hControl memoryBarControl = nullptr;
 	hControl frameControl = nullptr;
+
+	hControl explorerListControl = nullptr;
+
+
+
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
@@ -60,9 +66,10 @@ public:
 	void setDefaultScreenFunct();
 
 
-	uint8_t changeFolderSelection(int16_t value);
 	uint8_t changeFileSelection(int16_t value);
 	uint8_t changeInstrumentSelection(int16_t value);
+
+	void AddOrEnter();
 
 //--------------------------------------------------------------
 	FsFile sdLocation;
@@ -70,29 +77,29 @@ public:
 	char actualPath[255] = {'/',0};
 	uint8_t dirLevel = 0;
 
-	void BrowseFolder();
+	void BrowseOrAdd();
 	void SelectFile();
 	void goUpInActualPath();
 
 // foldery
-	void listOnlyFolderNames(char* path);
+	void listOnlyFolderNames(char* path, uint8_t startPoint);
 
-	uint16_t locationFolderCount;
+/*	uint16_t locationFolderCount;
 	char locationFolderList[list_length_max][40];
 	char *folderNames[list_length_max];
-	uint8_t selectedFolder = 0;
+	uint8_t selectedFolder = 0;*/
 	//char *folderPath;
 
 // pliki wave w wybranym folderze
 
 
-	void listOnlyWaveNames(char* folder);
-	void listOnlyWavFromActualPath();
+	void listOnlyWaveNames(char* folder,uint8_t startPoint);
+	void listOnlyWavFromActualPath(uint8_t startPoint);
 	uint8_t isWavFile(char* fileName);
 
-	uint16_t locationFileCount;
-	char locationFileList[list_length_max][40];
-	char *fileNames[list_length_max];
+	uint16_t locationExplorerCount;
+	char locationExplorerList[list_length_max][40];
+	char *explorerNames[list_length_max];
 	uint8_t selectedFile = 0;
 
 //--------------------------------------------------------------
@@ -157,6 +164,9 @@ public:
 // aktualny instrument na belce tytułowej
 	void showActualInstrument();
 //char actualInstrName[SAMPLE_NAME_SIZE+4];
+
+	void listAllFoldersFirst();
+	void rewindListToBeggining();
 
 };
 
