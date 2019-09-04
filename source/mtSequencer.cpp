@@ -420,11 +420,11 @@ void Sequencer::play_microStep(uint8_t row)
 			}
 		}
 		// odpalamy efekty po-nutowe
-		if (isJumpToStep)
-		{
-			playerRow.isGoToStep = 1;
-			playerRow.goToStep = jumpToStep;
-		}
+//		if (isJumpToStep)
+//		{
+//			playerRow.isGoToStep = 1;
+//			playerRow.goToStep = jumpToStep;
+//		}
 
 	}
 
@@ -695,7 +695,7 @@ void Sequencer::resetAllLearned(void)
 	{
 		for (uint8_t y = MINTRACK; y <= MAXTRACK; y++)
 		{
-			player.row[y].step[x].learned = 0;
+//			player.row[y].step[x].learned = 0;
 		}
 	}
 }
@@ -796,19 +796,19 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 {
 	uint8_t x = constrain(row, MINTRACK, MAXTRACK);
 
-	if (player.isREC && player.row[x].recNoteOpen)
-	{
-		player.row[x].recNoteLength++;
+//	if (player.isREC && player.row[x].recNoteOpen)
+//	{
+//		player.row[x].recNoteLength++;
 //		seq[player.ramBank].track[x].step[player.row[x].recNoteStep].length1 = player.row[x].recNoteLength - 1;
 
-	}
+//	}
 
-	if (player.row[x].isGoToStep)
-	{
-		player.row[x].actual_pos = player.row[x].goToStep;
-		player.row[x].isGoToStep = 0;
-	}
-	else if (player.row[x].makeJump)
+//	if (player.row[x].isGoToStep)
+//	{
+//		player.row[x].actual_pos = player.row[x].goToStep;
+//		player.row[x].isGoToStep = 0;
+//	}
+	if (player.row[x].makeJump)
 	{
 		for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 		{
@@ -1319,8 +1319,6 @@ uint8_t Sequencer::get_fxValType(uint8_t fxType)
 	}
 }
 
-//strMtModAudioEngine  playMod = {0};
-
 void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 {
 	if (player.printNotes)
@@ -1412,11 +1410,24 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 			step->note = note;
 			step->velocity = velocity;
 
-			blinkNote(step->instrument,
-						step->note,
-						step->velocity,
-						sel->firstTrack);
+//			blinkNote(step->instrument,
+//						step->note,
+//						step->velocity,
+//						sel->firstTrack);
+
+			instrumentPlayer[sel->firstTrack].noteOff();
+			instrumentPlayer[sel->firstTrack].noteOn(step->instrument,
+														step->note,
+														step->velocity);
 		}
+	}
+	else
+	{
+		if (!isMultiSelection())
+		{
+			instrumentPlayer[sel->firstTrack].noteOff();
+		}
+
 	}
 
 }

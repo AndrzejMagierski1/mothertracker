@@ -365,6 +365,7 @@ uint8_t functOpenProject()
 
 
 	PE->showDefaultScreen();
+	PE->setDefaultScreenFunct();
 
 	return 1;
 }

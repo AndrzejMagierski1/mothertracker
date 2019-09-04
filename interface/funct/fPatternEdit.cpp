@@ -22,7 +22,7 @@ static  uint8_t functChangePattern(uint8_t state);
 static  uint8_t functChangePatternLength(uint8_t state);
 static  uint8_t functChangePatternEditStep(uint8_t state);
 
-static  uint8_t functNote();
+static  uint8_t functNote(uint8_t state);
 static  uint8_t functInstrument(uint8_t state);
 static  uint8_t functVolume();
 static  uint8_t functFx();
@@ -178,7 +178,7 @@ void cPatternEditor::setDefaultScreenFunct()
 
 
 
-	FM->setButtonObj(interfaceButtonNote, buttonPress, functNote);
+	FM->setButtonObj(interfaceButtonNote,functNote);
 	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 	FM->setButtonObj(interfaceButtonVol, buttonPress, functVolume);
 	FM->setButtonObj(interfaceButtonFx, buttonPress, functFx);
@@ -224,6 +224,10 @@ void cPatternEditor::refreshPattern()
 			trackerPattern.actualStep = trackerPattern.playheadPosition;
 		}
 	}
+
+
+	if(trackerPattern.actualStep > seq->track[0].length) trackerPattern.actualStep = seq->track[0].length;
+
 
 	trackerPattern.selectedParam = editParam;
 
@@ -558,11 +562,16 @@ void cPatternEditor::refreshEditState()
 	{
 		trackerPattern.selectState = 1;
 
-		showEditModeLabels();
 
-		focusOnActual();
+
+		//focusOnActual();
+		trackerPattern.actualTrack =  trackerPattern.firstVisibleTrack;
+		trackerPattern.selectedParam = 4;
+		editParam = 4;
 
 		focusOnPattern();
+
+		showEditModeLabels();
 
 		FM->setButtonObj(interfaceButton4, buttonPress, functFill);
 		FM->setButtonObj(interfaceButton5, buttonPress, functRandomise);
@@ -1133,24 +1142,50 @@ static  uint8_t functDown()
 	return 1;
 }
 
-static  uint8_t functNote()
+static  uint8_t functNote(uint8_t state)
 {
-	PTE->editParam = 0;
-
-	if(PTE->fillState > 0)
+	if(state == buttonPress)
 	{
-		PTE->showFillPopup();
-		return 1;
-	}
-	if(PTE->randomiseState > 0)
-	{
-		PTE->showRandomisePopup();
-		return 1;
-	}
+		PTE->editParam = 0;
 
-	PTE->focusOnPattern();
-	PTE->lightUpPadBoard();
-	PTE->refreshPattern();
+		if(PTE->fillState > 0)
+		{
+			PTE->showFillPopup();
+			return 1;
+		}
+		if(PTE->randomiseState > 0)
+		{
+			PTE->showRandomisePopup();
+			return 1;
+		}
+
+		PTE->focusOnPattern();
+		PTE->lightUpPadBoard();
+		PTE->refreshPattern();
+	}
+	else if(state==buttonHold)
+	{
+		PTE->noteButtonHoldFlag=1;
+
+		for(uint8_t i = 0; i < 48; i++)
+		{
+			PTE->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
+		}
+
+		PTE->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
+		PTE->FM->clearAllPots();
+
+		PTE->showNotePopout();
+	}
+	else if(state==buttonRelease)
+	{
+		if(PTE->noteButtonHoldFlag==1)
+		{
+			PTE->setDefaultScreenFunct();
+			PTE->noteButtonHoldFlag=0;
+			PTE->hideNotePopout();
+		}
+	}
 
 	return 1;
 }
@@ -1293,18 +1328,17 @@ static  uint8_t functPasteInsert()
 
 	if (PTE->editMode == 1)
 	{
-		// INSERT
+		// PASTE
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			sendPasteSelection();
+			sequencer.pasteFromBuffer();
+		}
+		// INSERT
+		else
 		{
 			sendSelection();
 			sequencer.insert(&sequencer.selection);
-		}
-		// PASTE
-		else
-		{
-
-			sendPasteSelection();
-			sequencer.copy();
 		}
 
 	}
@@ -1321,17 +1355,17 @@ static uint8_t functCopyDelete()
 
 	if (PTE->editMode == 1)
 	{
-		// DELETE
+		// COPY
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
 			sendSelection();
-			sequencer.clearSelected();
-
+			sequencer.copyToBuffer();
 		}
-		// COPY
+		// DELETE
 		else
 		{
 			sendSelection();
+			sequencer.clearSelected();
 		}
 
 	}
@@ -1917,42 +1951,67 @@ void cPatternEditor::lightUpPadBoard()
 //TODO: podpiac modyfikacje patternu na akcje wcisniecia padów
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(PTE->editMode != 1) return 1;
 
-	if(state == buttonRelease)
+	if (state > 1) return 1;
+	if (PTE->editMode != 1) return 1;
+
+	if (state == buttonRelease)
 	{
 		padsBacklight.setFrontLayer(0, 0, pad);
 		return 1;
 	}
 
-	if(state != buttonPress) return 1;
 
 	padsBacklight.setFrontLayer(1, 31, pad);
 
 	//Sequencer::strPattern * seq = sequencer.getPatternToUI();
 
-	switch(PTE->editParam)
+	switch (PTE->editParam)
 	{
 	case 0: // nuta
 	{
-
+		sendSelection();
+		if (state == buttonPress)
+		{
+			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+			sequencer.handleNote(0, noteFromPad, 127);
+		}
+		else if (state == buttonRelease)
+		{
+			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+			sequencer.handleNote(0, noteFromPad, 0);
+		}
 		break;
 	}
 
 	case 1: // instrument
 	{
-
+		if (state == buttonPress)
+		{
+			sendSelection();
+			sequencer.setSelectionInstrument(pad);
+		}
+		else if (state == buttonRelease)
+		{
+			sequencer.handleNote(0, 0, 0);
+		}
 		break;
 	}
 
 	case 2: // volume
 	{
-
+		if (state == buttonPress)
+		{
+			sendSelection();
+			sequencer.setSelectionVelocity(map(pad, 0, 47, 0, 127));
+		}
 		break;
 	}
 
-	case 3:  break; //fx
-	default: break;
+	case 3:
+		break; //fx
+	default:
+		break;
 	}
 
 	PTE->moveCursorByStep();
@@ -1994,6 +2053,15 @@ static uint8_t functSwitchModule(uint8_t button)
 	if(button == interfaceButtonPattern)
 	{
 		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
+
+		if(PTE->editParam != 4)
+		{
+			PTE->editParam = 4;
+			PTE->trackerPattern.selectedParam = 4;
+			//PTE->refreshPattern();
+			display.refreshControl(PTE->patternControl);
+		}
+
 
 		PTE->focusOnPattern();
 		return 1;

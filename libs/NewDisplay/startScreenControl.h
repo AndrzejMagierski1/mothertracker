@@ -1,24 +1,26 @@
 
 
-#ifndef LIBS_BAR_CONTROL_H_
-#define LIBS_BAR_CONTROL_H_
+#ifndef LIBS_STARTSCREEN_CONTROL_H_
+#define LIBS_STARTSCREEN_CONTROL_H_
 
 #include "displayControls.h"
 
-struct strCompareValue
+
+
+struct strStartScreenData
 {
-	int value;
+	char versionLabel[15] = {0};
 };
 
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
-class cBar: public cDisplayControl
+class cStartScreen: public cDisplayControl
 {
 public:
 
-	cBar(strControlProperties* properties = nullptr);
-	virtual ~cBar();
+	cStartScreen(strControlProperties* properties = nullptr);
+	virtual ~cStartScreen();
 
 	virtual uint8_t update();
 	virtual uint8_t memCpy(uint32_t address);
@@ -31,7 +33,7 @@ public:
 	virtual void setDefaultColors(uint32_t colors[]);
 	virtual void setData(void* data);
 
-	strCompareValue * data;
+	strStartScreenData * data;
 
 	uint16_t textStyle;
 	int16_t textFont;

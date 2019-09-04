@@ -1,7 +1,7 @@
 
 
 #include "mtStructs.h"
-
+#include "mtConfig.h"
 
 #include <FastCRC.h>
 #include <FastCRC_cpu.h>
@@ -235,6 +235,8 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 	uint8_t status;
 	char currentPatch[PATCH_SIZE];
 
+
+
 	if(type == projectTypeExample)
 	{
 		strcpy(currentPatch,"Templates/");
@@ -250,6 +252,8 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 		strcpy(currentProjectPatch,currentPatch);
 	}
 
+
+	strcpy(currentProjectName, name);
 //	strcpy(mtProject.path, currentPatch); // aktualna ścieżka projektu z nazwą
 //	strcat(mtProject.path, "/"); // aktualna ścieżka projektu z nazwą
 
@@ -855,6 +859,20 @@ void FileManager::saveProject()
 
 	writeProjectFile(currentPatch,&mtProject.mtProjectRemote);
 
+
+	// TODO
+	// dodany zapis ostatnio uzywanego projektu do configu
+	//if(strcmp(currentProjectName, mtConfig.startup.lastProjectName) != 0)
+	//{
+
+
+		strcpy(mtConfig.startup.lastProjectName, currentProjectName);
+
+		forceSaveConfig();
+	//}
+
+
+
 }
 
 
@@ -931,7 +949,7 @@ void FileManager::createEmptyTemplateProject(char * name)
 {
 	char patchFolder[PATCH_SIZE];
 
-	memset(mtProject.mtProjectRemote.song.playlist,-1,SONG_MAX);
+	memset(mtProject.mtProjectRemote.song.playlist,0,SONG_MAX);
 	mtProject.mtProjectRemote.song.playlist[0]=0;
 	mtProject.mtProjectRemote.patternFile[0].index=0;
 //	strcpy(mtProject.mtProjectRemote.patternFile[0].name,"pattern_00.mtp");
@@ -1218,7 +1236,7 @@ void FileManager::deletePattern(int8_t index)
 
 	for(uint8_t i=0;i<SONG_MAX; i++)
 	{
-		if(i == index) mtProject.mtProjectRemote.song.playlist[i] = -1;
+		if(i == index) mtProject.mtProjectRemote.song.playlist[i] = 0;
 	}
 
 

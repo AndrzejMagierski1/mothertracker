@@ -151,6 +151,7 @@ public:
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
+	hControl notePopoutControl = nullptr;
 
 //*********************************************
 
@@ -294,6 +295,11 @@ uint8_t cropCounter = 0;
 	uint8_t fullMemoryDuringRecordFlag = 0;
 	uint8_t fullMemoryWindowFlag = 0;
 	void showSelectionWindowFullMemory();
+
+	strPadNames padNamesStruct;
+	char *padNamesPointer[48];
+	void showNotePopout();
+	void hideNotePopout();
 };
 
 extern cSampleRecorder sampleRecorder;

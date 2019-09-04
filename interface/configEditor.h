@@ -32,7 +32,7 @@ enum mtConfigSpecific
 
 
 const uint8_t firmware_list_max=10;
-const uint8_t firmware_name_length=40;
+const uint8_t firmware_name_length=15;
 
 
 const uint8_t groupCount = 6;

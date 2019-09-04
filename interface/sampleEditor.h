@@ -86,6 +86,7 @@ public:
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
+	hControl notePopoutControl = nullptr;
 
 
 	uint8_t selectedPlace = 0;
@@ -130,6 +131,11 @@ public:
 	uint8_t glidePreviewDif = 0;
 
 //----------------------------------
+
+	strPadNames padNamesStruct;
+	char *padNamesPointer[48];
+	void showNotePopout();
+	void hideNotePopout();
 
 
 

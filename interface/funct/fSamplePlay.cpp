@@ -44,6 +44,7 @@ static uint8_t functShift(uint8_t value);
 static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
+static uint8_t functStepNote(uint8_t value);
 
 
 
@@ -234,6 +235,7 @@ void cSamplePlayback::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton7, buttonPress, functPlayMode);
 
 	FM->setButtonObj(interfaceButtonInstr, functInstrument);
+	FM->setButtonObj(interfaceButtonNote, functStepNote);
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
@@ -1179,4 +1181,28 @@ void cSamplePlayback::calcPlayProgressValue()
 	}
 
 
+}
+
+static uint8_t functStepNote(uint8_t value)
+{
+	if(value == buttonRelease)
+	{
+		SP->hideNotePopout();
+		SP->setDefaultScreenFunct();
+	}
+	else if(value == buttonHold)
+	{
+		for(uint8_t i = 0; i < 48; i++)
+		{
+			SP->padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
+		}
+
+		SP->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
+		SP->FM->clearButtonsRange(interfaceButtonUp, interfaceButtonRight);
+		SP->FM->clearAllPots();
+
+		SP->showNotePopout();
+	}
+
+	return 1;
 }

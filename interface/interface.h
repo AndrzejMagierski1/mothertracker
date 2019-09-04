@@ -24,16 +24,26 @@ class cInterface
 {
 public:
 
-	// mtInterface.cpp -----------------------------
+	// interface.cpp -----------------------------
 	void begin();
 	void update();
 	void setOperatingMode(uint8_t mode);
 
-	// mtInterface.cpp -----------------------------
+	void activateModule(hModule module, uint32_t options);
+	void deactivateModule(hModule module);
+	void switchModuleByButton(hModule module, uint8_t button);
+	void switchModuleToPrevious(hModule module);
+	int8_t getButtonIndex(uint8_t button);
 
+	// gInterface.cpp -----------------------------
+	void initStartScreen();
+	void showStartScreen();
+	void destroyStartScreen();
 
+	uint8_t detectStartState();
+	void openStartupProject();
 
-	// mtInterfaceInputs.cpp -----------------------------
+	// interfaceInputs.cpp -----------------------------
 	void potChange(uint8_t n, int16_t value);
 	void buttonChange(uint8_t n, uint8_t value);
 	void powerButtonChange(uint8_t value);
@@ -44,13 +54,10 @@ public:
 	void seqButtonReleased(uint8_t x, uint8_t y);
 	void seqButtonHold(uint8_t x, uint8_t y);
 	void seqButtonDouble(uint8_t x, uint8_t y);
-	// mtInterfaceInputs.cpp -----------------------------
 
-	void activateModule(hModule module, uint32_t options);
-	void deactivateModule(hModule module);
-	void switchModuleByButton(hModule module, uint8_t button);
-	void switchModuleToPrevious(hModule module);
-	int8_t getButtonIndex(uint8_t button);
+
+
+
 
 private:
 
@@ -75,6 +82,19 @@ private:
 
 	hModule previousModule = nullptr;
 	uint32_t previousModuleOptions = 0;
+
+
+	uint8_t doOnStart = 1;
+
+	// gInterface.cpp -----------------------------
+
+	uint8_t startSampleLoadingFlag = 0;
+	uint8_t startSampleLoadingProgress = 0;
+	hControl startScreenControl = nullptr;
+	strStartScreenData startScreenData;
+
+
+
 };
 
 

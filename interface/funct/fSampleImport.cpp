@@ -111,7 +111,7 @@ void cSampleImporter::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-	selectedFolder = 0;
+//	selectedFolder = 0;
 	//selectedFile = 0;
 //	dirLevel = 0;
 
