@@ -213,7 +213,7 @@ public:
 	uint16_t fillStep = 1;
 
 //------------------------------------------------------
-// random
+// randomise
 	uint8_t randomiseState = 0;
 	uint8_t randomisePlace = 1;
 	//
@@ -229,7 +229,7 @@ public:
 
 	} randomiseData[4];
 
-	uint16_t randomiseStep = 1;
+	//uint16_t randomiseStep = 1;
 
 	strPadNames padNamesStruct;
 
