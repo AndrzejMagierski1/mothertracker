@@ -1,7 +1,7 @@
 #include "mtAudioEngine.h"
 #include "sampleRecorder.h"
 extern AudioControlSGTL5000 audioShield;
-extern cSampleRecorder* SR = &sampleRecorder;
+static cSampleRecorder* SR = &sampleRecorder;
 
 AudioInputI2S            i2sIn;
 AudioRecordQueue         queue;
@@ -312,17 +312,17 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	else ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
 	/*======================================================================================================*/
 	/*===============================================PANNING================================================*/
-	if(mtProject.instrument[instr_idx].panning < 0)
+	if(mtProject.instrument[instr_idx].panning < 50)
 	{
-		gainR=(100+mtProject.instrument[instr_idx].panning)/100.0;
+		gainR=(0+mtProject.instrument[instr_idx].panning)/50.0;
 		gainL=1.0;
 	}
-	else if(mtProject.instrument[instr_idx].panning > 0)
+	else if(mtProject.instrument[instr_idx].panning > 50)
 	{
 		gainR=1.0;
-		gainL=(100-mtProject.instrument[instr_idx].panning)/100.0;
+		gainL=(100-mtProject.instrument[instr_idx].panning)/50.0;
 	}
-	else if(mtProject.instrument[instr_idx].panning == 0)
+	else if(mtProject.instrument[instr_idx].panning == 50)
 	{
 		gainL=1.0; gainR=1.0;
 	}
@@ -400,17 +400,17 @@ void playerEngine :: modPanning(int16_t value)
 {
 	//mods[targetPanning][manualMod]=value;
 	float gainL=0,gainR=0;
-	if(value < 0)
+	if(value < 50)
 	{
-		gainR=(100 + value)/100.0;
+		gainR=(0 + value)/50.0;
 		gainL=1.0;
 	}
-	else if(value> 0)
+	else if(value > 50)
 	{
 		gainR=1.0;
-		gainL=(100 - value)/100.0;
+		gainL=(100 - value)/50.0;
 	}
-	else if(value == 0)
+	else if(value == 50)
 	{
 		gainL=1.0; gainR=1.0;
 	}

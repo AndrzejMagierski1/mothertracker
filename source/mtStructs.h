@@ -69,7 +69,7 @@ const uint8_t INSTRUMEN_ENVELOPES_MAX 		=	3;
 const float MIN_PITCH 						=	0.25;
 const float MAX_PITCH 						=	4.0;
 
-const int8_t  PANNING_MIN 					=	-100;
+const int8_t  PANNING_MIN 					=	0;
 const uint8_t  PANNING_MAX 					=   100;
 const uint8_t  GLIDE_MIN 					=	0;
 const uint16_t  GLIDE_MAX 					=	15000;
