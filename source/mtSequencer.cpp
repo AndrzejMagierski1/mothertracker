@@ -326,6 +326,7 @@ void Sequencer::play_microStep(uint8_t row)
 						isJumpToStep = 1;
 						jumpToStep = _fx.value_u16;
 					}
+					break;
 
 				case fx.FX_TYPE_ROLL:
 					if (!isRoll)
@@ -333,6 +334,17 @@ void Sequencer::play_microStep(uint8_t row)
 						isRoll = 1;
 						valRoll = _fx.rollType;
 					}
+					break;
+				case fx.FX_TYPE_CUTOFF:
+					if (!isRoll)
+					{
+						instrumentPlayer[row].modCutoff(
+								map((float) _fx.val1_u8, (float) 0,
+									(float) 255,
+									(float) 0,
+									(float) 1));
+					}
+					break;
 
 				default:
 					break;
