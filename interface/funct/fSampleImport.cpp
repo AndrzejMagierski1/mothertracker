@@ -468,6 +468,11 @@ void cSampleImporter::listOnlyFolderNames(char* path, uint8_t startPoint)
 		}
 	}
 
+	if(foundFolderCount == 0 && dirLevel !=0) // /.. na poczatku jak nie znajdzie zadnego pliku
+	{
+		foundFolderCount =1;
+	}
+
 	locationExplorerCount += foundFolderCount;
 
 	for(uint8_t i = startPoint; i < (startPoint+locationExplorerCount); i++)
