@@ -372,6 +372,67 @@ void Sequencer::changeSelectionVolume(int16_t value)
 		}
 	}
 }
+void Sequencer::changeSelectionFxValue(int16_t value)
+{
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+
+			step->fx[0].val1_u8 = constrain(step->fx[0].val1_u8 + value, 0,
+											255);
+		}
+	}
+}
+void Sequencer::changeSelectionFxType(int16_t value)
+{
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+
+			// jeśli off
+			if (!step->fx[0].isOn)
+			{
+				if (value > 0)
+				{
+					step->fx[0].isOn = 1;
+				}
+			}
+			else
+			{
+				if (step->fx[0].type == 0 && value < 0)
+				{
+					step->fx[0].isOn = 0;
+				}
+				else
+				{
+					step->fx[0].type = constrain(step->fx[0].type + value,
+													0,
+													200);
+				}
+			}
+		}
+	}
+}
 
 void Sequencer::changeSelectionInstrument(int16_t value)
 {
