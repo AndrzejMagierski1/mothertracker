@@ -670,7 +670,7 @@ void cSampleImporter::listInstrumentSlots()
 
 	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
-		sprintf(&interfaceGlobals.intrumentsNames[i][0], "%d. ", i);
+		sprintf(&interfaceGlobals.intrumentsNames[i][0], "%d. ", i+1);
 
 		if(mtProject.instrument[i].sample.loaded)
 		{
