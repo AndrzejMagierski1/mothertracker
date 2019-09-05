@@ -200,7 +200,7 @@ void cSampleEditor::showDefaultScreen()
 	display.setControlText(bottomLabel[3], "");
 	display.setControlText(bottomLabel[4], "");
 	display.setControlText(bottomLabel[5], "");
-	display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
+	display.setControlText(bottomLabel[6], "     ");
 	//display.setControlText(bottomLabel[7], "");
 
 
@@ -238,7 +238,7 @@ void cSampleEditor::activateLabelsBorder()
 //==============================================================================================================
 void cSampleEditor::showZoomValue()
 {
-	sprintf(zoomTextValue, "%.2f", zoomValue);
+	sprintf(zoomTextValue, "%.2f", zoom.zoomValue);
 
 	display.setControlText(topLabel[5], zoomTextValue);
 	display.setControlShow(topLabel[5]);

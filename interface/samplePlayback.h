@@ -117,13 +117,11 @@ public:
 
 
 	strInstrument * editorInstrument;
-	uint32_t lastSampleLength;
+	uint32_t lastSampleLength = 0xFFFFFFFF;
 
 	strZoomParams zoom;
 
 	char zoomTextValue[7];
-
-	//uint8_t voiceCounter = 0;
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;

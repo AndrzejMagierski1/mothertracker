@@ -123,21 +123,20 @@ void cSamplePlayback::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-	points.selected = (selectedPlace >= 0 && selectedPlace <= 3) ? selectedPlace+1 : 0;
-
-
-//--------------------------------------------------------------------
-
+	//--------------------------------------------------------------------
 
 	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
 			mtProject.values.padBoardNoteOffset,
 			mtProject.values.padBoardRootNote = 36);
 
-//	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
+	//mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
 	mtPadBoard.configureInstrumentPlayer(8);
 
 	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
+	//--------------------------------------------------------------------
+
+	points.selected = (selectedPlace >= 0 && selectedPlace <= 3) ? selectedPlace+1 : 0;
 
 	// wykrywanie czy wczytywany inny niz poprzednio/nowy sampel
 	// patrzy na dlugosc sampla
@@ -166,16 +165,10 @@ void cSamplePlayback::start(uint32_t options)
 	}
 
 
-	FM->setPadsGlobal(functPads);
-
 //--------------------------------------------------------------------
 
 	processSpectrum(editorInstrument, &zoom, &spectrum);
 	processPoints();
-	listPlayMode();
-
-	showPlayModeList();
-	showZoomValue();
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -190,19 +183,22 @@ void cSamplePlayback::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
+	FM->setPadsGlobal(functPads);
+
+	listPlayMode();
+	showPlayModeList();
+	showZoomValue();
+
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
 	activateLabelsBorder();
 }
 
-
 void cSamplePlayback::stop()
 {
-
 	moduleRefresh = 0;
 }
-
 
 void cSamplePlayback::setDefaultScreenFunct()
 {
