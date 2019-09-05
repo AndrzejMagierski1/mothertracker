@@ -611,6 +611,7 @@ void cSampleImporter::BrowseOrAdd()
 
 			strcpy(actualPath, &locationExplorerList[selectedFile][0]);
 
+			selectedFile = 0;
 			listAllFoldersFirst();
 		}
 		else
@@ -621,6 +622,7 @@ void cSampleImporter::BrowseOrAdd()
 
 				strcat(actualPath, &locationExplorerList[selectedFile][0]);
 
+				selectedFile = 0;
 				listAllFoldersFirst();
 			}
 			else
@@ -636,11 +638,10 @@ void cSampleImporter::BrowseOrAdd()
 					strcpy(actualPath, "/");
 				}
 
+				selectedFile = 0;
 				listAllFoldersFirst();
 			}
 		}
-
-		selectedFile = 0;
 	}
 	else
 	{
