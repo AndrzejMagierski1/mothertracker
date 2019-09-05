@@ -197,6 +197,17 @@ enum enumMtOperatingMode
 	mtOperatingModeRun,
 };
 
+struct strZoomParams
+{
+	uint16_t zoomPosition = 0;
+	uint16_t zoomWidth = MAX_16BIT;
+	int32_t zoomStart =  0;
+	int32_t zoomEnd = MAX_16BIT;
+	float zoomValue = 1;
+	int32_t zoomResolution;
+	uint8_t lastChangedPoint = 0;
+};
+
 
 struct strInterfaceGlobals
 {
@@ -208,7 +219,6 @@ struct strInterfaceGlobals
 };
 
 extern strInterfaceGlobals interfaceGlobals;
-
 
 
 

@@ -245,7 +245,7 @@ void cSamplePlayback::activateLabelsBorder()
 //==============================================================================================================
 void cSamplePlayback::showZoomValue()
 {
-	sprintf(zoomTextValue, "%.2f", zoomValue);
+	sprintf(zoomTextValue, "%.2f", zoom.zoomValue);
 /*
 	if(zoomValue >= 10.0)
 	{
