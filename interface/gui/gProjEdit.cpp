@@ -33,30 +33,20 @@ void cProjectEditor::initDisplayControls()
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 
-	strControlProperties prop1;
-	prop1.style = 	(/*controlStyleShow |*/ controlStyleCenterX);
-	prop1.y = 5;
-	prop1.w = 800/4;
-	prop1.h = 25;
-	prop1.colors = &topLabelColors[0];
-
-	// inicjalizacja kontrolek
-	for(uint8_t i = 0; i<4; i++)
-	{
-		prop1.x = (800/4)*i+(800/8);
-		if(topLabel[0] == nullptr) topLabel[0] = display.createControl<cLabel>(&prop1);
-	}
-
-	prop1.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleRoundedBorder);
-	prop1.y = 450 + 30/2;
-	prop1.w = 800/8-10;
-	prop1.h = 30;
-	prop1.colors = nullptr;
-
 	for(uint8_t i = 0; i<8; i++)
 	{
-		prop1.x = (800/8)*i+(800/16);
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop1);
+		prop2.text = (char*)"";
+		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+		prop2.x = (800/8)*i+(800/16);
+		prop2.y = 465;
+		prop2.w = 800/8-6;
+		prop2.h = 30;
+
+		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+
+		prop2.y = 452;
+		prop2.h = 58;
+		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 	}
 
 	projectList.linesCount = 5;
@@ -98,7 +88,7 @@ void cProjectEditor::destroyDisplayControls()
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
 
-	for(uint8_t i = 0; i<4; i++)
+	for(uint8_t i = 0; i<8; i++)
 	{
 		display.destroyControl(topLabel[i]);
 		topLabel[i] = nullptr;
@@ -137,13 +127,14 @@ void cProjectEditor::showDefaultScreen()
 	display.refreshControl(topLabel[0]);
 
 	// bottom labels
-	display.setControlText(bottomLabel[0], "New");
-	display.setControlText(bottomLabel[1], "Open");
-	display.setControlText(bottomLabel[4], "Save");
+	display.setControlText(topLabel[0], "New");
+	display.setControlText(topLabel[1], "Open");
+	display.setControlText(topLabel[4], "Save");
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.refreshControl(bottomLabel[i]);
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
 	}
 
 	hideKeyboard();
@@ -179,11 +170,11 @@ void cProjectEditor::showProjectsList()
 	display.refreshControl(topLabel[0]);
 
 // bottom labels
-	display.setControlText(bottomLabel[0], "Open");
-	display.setControlText(bottomLabel[1], "Cancel");
+	display.setControlText(topLabel[0], "Open");
+	display.setControlText(topLabel[1], "Cancel");
 
-	display.refreshControl(bottomLabel[0]);
-	display.refreshControl(bottomLabel[1]);
+	display.refreshControl(topLabel[0]);
+	display.refreshControl(topLabel[1]);
 
 	display.synchronizeRefresh();
 }
@@ -207,13 +198,13 @@ void cProjectEditor::showTemplatesList()
 	display.refreshControl(topLabel[0]);
 
 // bottom labels
-	display.setControlText(bottomLabel[0], "Create");
-	display.setControlText(bottomLabel[1], "Cancel");
-	display.setControlText(bottomLabel[4], "Test");
+	display.setControlText(topLabel[0], "Create");
+	display.setControlText(topLabel[1], "Cancel");
+	display.setControlText(topLabel[4], "Test");
 
-	display.refreshControl(bottomLabel[0]);
-	display.refreshControl(bottomLabel[1]);
-	display.refreshControl(bottomLabel[4]);
+	display.refreshControl(topLabel[0]);
+	display.refreshControl(topLabel[1]);
+	display.refreshControl(topLabel[4]);
 
 	display.synchronizeRefresh();
 
@@ -227,17 +218,17 @@ void cProjectEditor::showEnterNameKeyboard()
 	display.refreshControl(fileListControl);
 
 // top label listy
-	display.setControlHide(topLabel[0]);
-	display.refreshControl(topLabel[0]);
+	//display.setControlHide(topLabel[0]);
+	//display.refreshControl(topLabel[0]);
 
 // bottom labels
-	display.setControlText(bottomLabel[0], "Create");
-	display.setControlText(bottomLabel[1], "Cancel");
-	display.setControlText(bottomLabel[4], "Test");
+	display.setControlText(topLabel[0], "Create");
+	display.setControlText(topLabel[1], "Cancel");
+	display.setControlText(topLabel[4], "Test");
 
-	display.refreshControl(bottomLabel[0]);
-	display.refreshControl(bottomLabel[1]);
-	display.refreshControl(bottomLabel[4]);
+	display.refreshControl(topLabel[0]);
+	display.refreshControl(topLabel[1]);
+	display.refreshControl(topLabel[4]);
 
 
 	showKeyboard();
