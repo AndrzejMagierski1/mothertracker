@@ -4,11 +4,14 @@ void readHeader(strWavFileHeader* header, FsFile * wavfile)
 {
 	uint8_t tab[200];
 	uint8_t headerSize = 0;
+
+
+
 	wavfile->read(tab, 200);
 	header->chunkId = *((uint32_t *) (&tab[0]));
 	header->chunkSize = *((uint32_t *) (&tab[4]));
 	header->format = *((uint32_t *) (&tab[8]));
-	for (int i = 12; i < 200; i++)
+	for (int i = 12; i < 197; i++)
 	{
 		if ((tab[i] == 'f') && (tab[i + 1] == 'm') && (tab[i + 2] == 't') && (tab[i + 3] == ' '))
 		{
@@ -31,6 +34,7 @@ void readHeader(strWavFileHeader* header, FsFile * wavfile)
 			break;
 		}
 
+		if(i == 196) memset(header,0,sizeof(*header));
 	}
 }
 
@@ -41,7 +45,7 @@ void readHeader(strWavFileHeader* header, ExFatFile * wavfile)
 	header->chunkId = *((uint32_t *) (&tab[0]));
 	header->chunkSize = *((uint32_t *) (&tab[4]));
 	header->format = *((uint32_t *) (&tab[8]));
-	for (int i = 12; i < 200; i++)
+	for (int i = 12; i < 197; i++)
 	{
 		if ((tab[i] == 'f') && (tab[i + 1] == 'm') && (tab[i + 2] == 't') && (tab[i + 3] == ' '))
 		{
@@ -61,7 +65,7 @@ void readHeader(strWavFileHeader* header, ExFatFile * wavfile)
 			header->subchunk2Size = *((uint32_t *) (&tab[i + 4]));
 			break;
 		}
-
+		if(i == 196) memset(header,0,sizeof(*header));
 	}
 }
 
@@ -72,7 +76,7 @@ void readHeader(strWavFileHeader* header, FatFile * wavfile)
 	header->chunkId = *((uint32_t *) (&tab[0]));
 	header->chunkSize = *((uint32_t *) (&tab[4]));
 	header->format = *((uint32_t *) (&tab[8]));
-	for (int i = 12; i < 200; i++)
+	for (int i = 12; i < 197; i++)
 	{
 		if ((tab[i] == 'f') && (tab[i + 1] == 'm') && (tab[i + 2] == 't') && (tab[i + 3] == ' '))
 		{
@@ -92,7 +96,7 @@ void readHeader(strWavFileHeader* header, FatFile * wavfile)
 			header->subchunk2Size = *((uint32_t *) (&tab[i + 4]));
 			break;
 		}
-
+		if(i == 196) memset(header,0,sizeof(*header));
 	}
 }
 
