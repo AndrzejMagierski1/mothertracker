@@ -1184,6 +1184,39 @@ static  uint8_t functNote(uint8_t state)
 			PTE->setDefaultScreenFunct();
 			PTE->noteButtonHoldFlag=0;
 			PTE->hideNotePopout();
+
+			if(PTE->editMode)
+			{
+				PTE->FM->setButtonObj(interfaceButton4, buttonPress, functFill);
+				PTE->FM->setButtonObj(interfaceButton5, buttonPress, functRandomise);
+				PTE->FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
+			}
+
+			if(PTE->fillState)
+			{
+				PTE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+				PTE->FM->setButtonObj(interfaceButton6, buttonPress, functFillCancel);
+				PTE->FM->setButtonObj(interfaceButton7, buttonPress, functFillApply);
+
+				PTE->FM->setButtonObj(interfaceButton0, buttonPress, functFillChangeType);
+				PTE->FM->setButtonObj(interfaceButton1, buttonPress, functFillChangeParam1);
+				PTE->FM->setButtonObj(interfaceButton2, buttonPress, functFillChangeParam2);
+				PTE->FM->setButtonObj(interfaceButton3, buttonPress, functFillChangeParam3);
+				PTE->FM->setButtonObj(interfaceButton5, buttonPress, functFillChangeParam4);
+			}
+
+			if(PTE->randomiseState)
+			{
+				PTE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+				PTE->FM->setButtonObj(interfaceButton6, buttonPress, functRandomiseCancel);
+				PTE->FM->setButtonObj(interfaceButton7, buttonPress, functRandomiseApply);
+
+				PTE->FM->setButtonObj(interfaceButton1, buttonPress, functRandomiseChangeParam1);
+				PTE->FM->setButtonObj(interfaceButton2, buttonPress, functRandomiseChangeParam2);
+				PTE->FM->setButtonObj(interfaceButton3, buttonPress, functRandomiseChangeParam3);
+			}
 		}
 	}
 
