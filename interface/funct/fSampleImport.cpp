@@ -48,10 +48,6 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 void cSampleImporter::update()
 {
-	if(fileManager.samplesLoader.getFirstLoadFlag())
-	{
-		loadFlag = 1;
-	}
 	if(fileManager.samplesLoader.getMemoryUsageChangeFlag())
 	{
 		fileManager.samplesLoader.clearMemoryUsageChangeFlag();
@@ -66,7 +62,7 @@ void cSampleImporter::update()
 	}
 
 //////////////////////////////////////COPYING////////////////////////////
-	currentCopyStatusFlag = fileManager.getStateImportSampleToProject();
+	currentCopyStatusFlag = fileManager.samplesImporter.getState();
 
 	if(currentCopyStatusFlag)
 	{
@@ -77,32 +73,22 @@ void cSampleImporter::update()
 	if( (!currentCopyStatusFlag ) && (lastCopyStatusFlag) )
 	{
 		showDefaultScreen();
-		fileManager.samplesLoader.start(selectedSlot);
-		loadFlag = 1;
 	}
 
-
-
-	if(firstUpdateFlag)
-	{
-		fileManager.clearForcedSampleProcessingFlag();
-		firstUpdateFlag = 0;
-	}
 	lastCopyStatusFlag = currentCopyStatusFlag;
 /////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////LOADING////////////////////////////
-	if(loadFlag)
+	currentLoadStatusFlag = fileManager.samplesLoader.getStateFlag();
+	if(currentLoadStatusFlag)
 	{
 		calculateLoadProgress();
 		showLoadHorizontalBar();
-
-		if(!fileManager.samplesLoader.getStateFlag())
-		{
-			loadFlag = 0;
-			showDefaultScreen();
-		}
 	}
+	if( (!currentLoadStatusFlag) && (lastLoadStatusFlag)) showDefaultScreen();
+
+	lastLoadStatusFlag = currentLoadStatusFlag;
+
 /////////////////////////////////////////////////////////////////////////
 }
 
@@ -117,7 +103,6 @@ void cSampleImporter::start(uint32_t options)
 	selectedSlot = mtProject.values.lastUsedInstrument;
 
 
-	firstUpdateFlag = 1;
 
 	listAllFoldersFirst();
 
@@ -611,6 +596,7 @@ void cSampleImporter::BrowseOrAdd()
 
 			strcpy(actualPath, &locationExplorerList[selectedFile][0]);
 
+			selectedFile = 0;
 			listAllFoldersFirst();
 		}
 		else
@@ -621,6 +607,7 @@ void cSampleImporter::BrowseOrAdd()
 
 				strcat(actualPath, &locationExplorerList[selectedFile][0]);
 
+				selectedFile = 0;
 				listAllFoldersFirst();
 			}
 			else
@@ -635,12 +622,10 @@ void cSampleImporter::BrowseOrAdd()
 				{
 					strcpy(actualPath, "/");
 				}
-
+				selectedFile = 0;
 				listAllFoldersFirst();
 			}
 		}
-
-		selectedFile = 0;
 	}
 	else
 	{
@@ -650,9 +635,9 @@ void cSampleImporter::BrowseOrAdd()
 
 void cSampleImporter::SelectFile()
 {
-	if(currentCopyStatusFlag || loadFlag) return;
-	fileManager.startImportSampleToProject(actualPath,&locationExplorerList[selectedFile][0], selectedSlot);
-	fileManager.clearForcedSampleProcessingFlag();
+	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
+	fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[selectedFile][0], selectedSlot);
+//	fileManager.SampleImporter.startImportSampleToProject(actualPath,&locationExplorerList[selectedFile][0], selectedSlot);
 
 
 //	calculateMemoryUsage(); przeniesione do update - memory usage zostanie zwiekszone dopiero po poprawnym zaladowaniu pliku w update;
@@ -731,13 +716,13 @@ void cSampleImporter::calculateLoadProgress()
 
 void cSampleImporter::calculateCopyingProgress()
 {
-	copyingProgress = fileManager.getProgressImportSampleToProject();
+	copyingProgress = fileManager.samplesImporter.getProgress();
 }
 
 //==============================================================================================
 void cSampleImporter::playSdFile()
 {
-	if(currentCopyStatusFlag || loadFlag) return;
+	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
 //	if(!isWavFile(&locationFileList[selectedFile][0])) return;
 
 	char file_path[255];
@@ -786,7 +771,7 @@ void cSampleImporter::playSdFile()
 
 void cSampleImporter::playSampleFromBank()
 {
-	if(currentCopyStatusFlag || loadFlag) return;
+	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
 	if(!mtProject.instrument[selectedSlot].sample.loaded) return;
 
 	if(sequencer.getSeqState() == 1)

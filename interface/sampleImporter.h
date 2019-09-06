@@ -129,11 +129,12 @@ public:
 	uint32_t currentSelectMemorySize;
 	uint8_t fullMemoryFlag = 0;
 	uint8_t loadProgress = 0;
-	uint8_t loadFlag = 0;
 	uint8_t copyingProgress = 0;
 	uint8_t lastCopyStatusFlag = 0;
 	uint8_t currentCopyStatusFlag = 0;
-	uint8_t firstUpdateFlag = 1;
+
+	uint8_t lastLoadStatusFlag = 0;
+	uint8_t currentLoadStatusFlag = 0;
 //--------------------------------------------------------------
 //odsluch
 	void playSdFile();
