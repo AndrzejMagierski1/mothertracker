@@ -157,7 +157,6 @@ void cProjectEditor::update()
 				listOnlyFolderNames("/Projects/");
 
 				fileManager.openProject(&locationFilesList[selectedLocation][0],projectTypeUserMade);
-				fileManager.samplesLoader.start(0,1);
 
 				loadProjectValues();
 
@@ -357,7 +356,7 @@ uint8_t functOpenProject()
 */
 
 
-	fileManager.samplesLoader.start(0,1);
+
 	//PE->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
 
 
