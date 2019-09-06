@@ -175,6 +175,7 @@ void cInterface::processOperatingMode()
 		{
 			doOnStart = 0;
 			readConfig();
+			readSdConfig();
 			openStartupProject();
 			initStartScreen();
 		}
