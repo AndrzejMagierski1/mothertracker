@@ -98,7 +98,6 @@ void cInterface::openStartupProject()
 	{
 		if(fileManager.openProject(mtConfig.startup.lastProjectName, projectTypeUserMade))
 		{
-			fileManager.samplesLoader.start(0,1);
 			projectEditor.loadProjectValues();
 		}
 	}
