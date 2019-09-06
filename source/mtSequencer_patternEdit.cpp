@@ -784,10 +784,11 @@ void Sequencer::copyToBuffer()
 {
 	copySelectionToBuffer(&sequencer.copySelection, &sequencer.pasteSelection);
 }
-void Sequencer::pasteFromBuffer()
+void Sequencer::pasteFromBuffer(uint8_t elements)
 {
 	pasteSelectionFromBuffer(&sequencer.copySelection,
-								&sequencer.pasteSelection);
+								&sequencer.pasteSelection,
+								elements);
 }
 
 void Sequencer::copySelectionToBuffer(strSelection *from, strSelection *to)
@@ -815,7 +816,8 @@ void Sequencer::copySelectionToBuffer(strSelection *from, strSelection *to)
 	}
 
 }
-void Sequencer::pasteSelectionFromBuffer(strSelection *from, strSelection *to)
+void Sequencer::pasteSelectionFromBuffer(strSelection *from, strSelection *to,
+											uint8_t elements)
 {
 	if (!isSelectionCorrect(from)) return;
 	if (!isSelectionCorrect(to)) return;
@@ -853,7 +855,33 @@ void Sequencer::pasteSelectionFromBuffer(strSelection *from, strSelection *to)
 
 				stepFrom = &copyTrackBuffer[trackNoFrom].step[stepNoFrom];
 				stepTo = &seq[player.ramBank].track[t].step[s];
-				*stepTo = *stepFrom;
+
+				switch (elements)
+				{
+				case ELEMENTS_ALL:
+					*stepTo = *stepFrom;
+					break;
+				case ELEMENTS_NOTES:
+					stepTo->note = stepFrom->note;
+					stepTo->instrument = mtProject.values.lastUsedInstrument;
+					break;
+				case ELEMENTS_INSTRUMENTS:
+					stepTo->instrument = stepFrom->instrument;
+					if (stepTo->note == STEP_NOTE_EMPTY)
+					{
+						stepTo->note = STEP_NOTE_DEFAULT;
+					}
+					break;
+				case ELEMENTS_VELO:
+					stepTo->velocity = stepFrom->velocity;
+					break;
+				case ELEMENTS_FXes:
+					stepTo->fx[0] = stepFrom->fx[0];
+					break;
+				default:
+					break;
+				}
+
 			}
 			stepOff++;
 

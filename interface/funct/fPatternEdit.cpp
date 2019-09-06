@@ -61,6 +61,7 @@ static  uint8_t functShift(uint8_t state);
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
 static  uint8_t functPasteInsert();
+static  uint8_t functPasteInsertRelease();
 static  uint8_t functCopyDelete();
 
 
@@ -168,6 +169,7 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 
 	FM->setButtonObj(interfaceButtonPaste, buttonPress, functPasteInsert);
+	FM->setButtonObj(interfaceButtonPaste, buttonRelease, functPasteInsertRelease);
 	FM->setButtonObj(interfaceButtonCopy, buttonPress, functCopyDelete);
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
@@ -1173,7 +1175,7 @@ static  uint8_t functNote(uint8_t state)
 		PTE->lightUpPadBoard();
 		//PTE->refreshPattern();
 	}
-	else if(state==buttonHold)
+	else if(state==buttonHold && !tactButtons.isButtonPressed(interfaceButtonShift))
 	{
 		PTE->noteButtonHoldFlag=1;
 
@@ -1224,7 +1226,7 @@ static  uint8_t functInstrument(uint8_t state)
 		PTE->lightUpPadBoard();
 		//PTE->refreshPattern();
 	}
-	else if(state == buttonHold)
+	else if(state == buttonHold && !tactButtons.isButtonPressed(interfaceButtonShift))
 	{
 		uint8_t buttonId  = interfaceButtonInstr;
 		PTE->eventFunct(eventSwitchModule, PTE, &buttonId, 0);
@@ -1324,31 +1326,13 @@ static  uint8_t functRecAction()
 
 
 
-static  uint8_t functPasteInsert()
+static uint8_t functPasteInsert()
 {
-//	// test I cwiartki
-//	sequencer.setSelection(0, 2, 7, 4);
-//	sequencer.setPasteSelection(4, 0, 11, 2);
-
-//	// test II cwiartki
-//	sequencer.setSelection(0, 0, 7, 2);
-//	sequencer.setPasteSelection(4, 2, 11, 4);
-
-//	// test III cwiartki
-//	sequencer.setSelection(4, 0, 11, 2);
-//	sequencer.setPasteSelection(0, 2, 7, 4);
-
-	// test IV cwiartki
-//	sequencer.setSelection(4, 2, 11, 4);
-//	sequencer.setPasteSelection(0, 0, 7, 2);
-
 	if (PTE->editMode == 1)
 	{
-		// PASTE
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
-			sendPasteSelection();
-			sequencer.pasteFromBuffer();
+
 		}
 		// INSERT
 		else
@@ -1356,13 +1340,51 @@ static  uint8_t functPasteInsert()
 			sendSelection();
 			sequencer.insert(&sequencer.selection);
 		}
-
 	}
 
 	PTE->refreshPattern();
 
 	return 1;
 }
+static uint8_t functPasteInsertRelease()
+{
+	if (PTE->editMode == 1)
+	{
+		// PASTE
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			sendPasteSelection();
+			if (tactButtons.isButtonPressed(interfaceButtonNote))
+			{
+				sequencer.pasteFromBuffer(Sequencer::ELEMENTS_NOTES);
+			}
+			else if (tactButtons.isButtonPressed(interfaceButtonInstr))
+			{
+				sequencer.pasteFromBuffer(Sequencer::ELEMENTS_INSTRUMENTS);
+			}
+			else if (tactButtons.isButtonPressed(interfaceButtonVol))
+			{
+				sequencer.pasteFromBuffer(Sequencer::ELEMENTS_VELO);
+			}
+			else if (tactButtons.isButtonPressed(interfaceButtonFx))
+			{
+				sequencer.pasteFromBuffer(Sequencer::ELEMENTS_FXes);
+			}
+			else
+			{
+				sequencer.pasteFromBuffer(Sequencer::ELEMENTS_ALL);
+			}
+		}
+	}
+
+	PTE->refreshPattern();
+
+	return 1;
+}
+
+
+
+
 
 static uint8_t functCopyDelete()
 {

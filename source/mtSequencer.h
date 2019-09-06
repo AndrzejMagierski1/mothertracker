@@ -288,6 +288,14 @@ public:
 		uint32_t crc;
 
 	};
+
+	enum enSelectionElements{
+		ELEMENTS_ALL,
+		ELEMENTS_NOTES,
+		ELEMENTS_INSTRUMENTS,
+		ELEMENTS_VELO,
+		ELEMENTS_FXes,
+	};
 	struct strSelection
 
 	{
@@ -602,9 +610,9 @@ public:
 
 // SELECTION
 	void copySelectionToBuffer(strSelection *from, strSelection *to);
-	void pasteSelectionFromBuffer(strSelection *from, strSelection *to);
+	void pasteSelectionFromBuffer(strSelection *from, strSelection *to, uint8_t elements);
 	void copyToBuffer();
-	void pasteFromBuffer();
+	void pasteFromBuffer(uint8_t);
 	bool isSelectionCorrect(strSelection *selection);
 	bool isSingleSelection(strSelection *selection);
 
