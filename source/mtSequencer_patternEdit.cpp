@@ -444,7 +444,7 @@ void Sequencer::changeSelectionFxValue(int16_t value)
 			step = &seq[player.ramBank].track[t].step[s];
 
 			step->fx[0].value = constrain(step->fx[0].value + value, 0,
-											255);
+											127);
 		}
 	}
 }
