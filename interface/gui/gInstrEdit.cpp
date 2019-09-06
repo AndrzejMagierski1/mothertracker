@@ -698,7 +698,7 @@ void cInstrumentEditor::showActualInstrument()
 {
 	static char actualInstrName[SAMPLE_NAME_SIZE+4];
 
-	uint8_t i = mtProject.values.lastUsedInstrument;
+	uint8_t i = mtProject.values.lastUsedInstrument+1;
 
 	sprintf(actualInstrName, "%d. ", i);
 
