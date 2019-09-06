@@ -36,11 +36,10 @@ const uint8_t INSTRUMENTS_MAX =        			47;
 
 const uint8_t INSTRUMENTS_COUNT =        		48;
 //const uint8_t SAMPLES_COUNT =            		32;
-const uint8_t PATTERNS_COUNT 	=				32;
 const uint8_t PATTERN_LENGTH_MAX 	=			255;
 
 const uint8_t PATTERN_INDEX_MIN 	=			1;
-const uint8_t PATTERN_INDEX_MAX 	=			255;
+const uint8_t PATTERN_INDEX_MAX 	=			32;
 
 
 
@@ -327,7 +326,11 @@ enum interfaceCommands
 	interfaceCommandsCount
 };
 
-
+enum loaderStateType
+{
+	loaderStateTypeEnded,
+	loaderStateTypeInProgress
+};
 //=====================================================================
 //-------------------------------------------------
 //-------------------------------------------------
@@ -425,7 +428,7 @@ struct strMtProjectRemote
 	{
 		int8_t index= -1;
 //		char name[PATTERN_NAME_SIZE];
-	} patternFile[PATTERNS_COUNT];
+	} patternFile[PATTERN_INDEX_MAX];
 
 	struct strSong
 	{
