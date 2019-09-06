@@ -339,7 +339,7 @@ void Sequencer::play_microStep(uint8_t row)
 				{
 					instrumentPlayer[row].modCutoff(
 							map((float) _fx.value, (float) 0,
-								(float) 255,
+								(float) 127,
 								(float) 0,
 								(float) 1));
 				}
