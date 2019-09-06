@@ -26,7 +26,7 @@ public:
 
 		STEP_NOTE_EMPTY = -1,
 		STEP_NOTE_OFF = -2,
-		STEP_NOTE_DEFAULT = 24,
+		STEP_NOTE_DEFAULT = 60,
 
 //	static const uint8_t
 		MIDIOUT_DIN1 = 0,
@@ -143,6 +143,7 @@ public:
 		{
 			FX_TYPE_NONE,
 			FX_TYPE_OFFSET,             // 	przesuniecie wewnątrz stepa 0-48
+			FX_TYPE_CUTOFF,             // 	przesuniecie wewnątrz stepa 0-48
 			FX_TYPE_GLIDE,	// 	czas płynnego przejścia do kolejnej nuty/pitcha
 			FX_TYPE_SLIDE,	            // 	podciągnięcie do nuty w czasie
 			FX_TYPE_ROLL,
@@ -260,7 +261,7 @@ public:
 						////////////OR////////////
 						struct						// FX_VAL_U8_U8
 						{
-							uint8_t val1_u8;
+							uint8_t value;
 							uint8_t val2_u8;
 						};
 						////////////OR////////////
@@ -627,6 +628,8 @@ public:
 	void clearSelected();
 
 	void changeSelectionVolume(int16_t value);
+	void changeSelectionFxValue(int16_t value);
+	void changeSelectionFxType(int16_t value);
 	void changeSelectionInstrument(int16_t value);
 	void setSelectionInstrument(int16_t value);
 	void setSelectionVelocity(int16_t value);
@@ -660,6 +663,10 @@ public:
 	void fillLinearInstruments(uint8_t step, uint8_t from, uint8_t to);
 	void fillRandomVelocity(uint8_t step, uint8_t from, uint8_t to);
 	void fillLinearVelocity(uint8_t step, uint8_t from, uint8_t to);
+	void fillLinearFx(uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
+						uint8_t toVal);
+	void fillRandomFx(uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
+						uint8_t toVal);
 
 	void changeSelectionNote(int16_t value);
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,

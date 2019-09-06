@@ -13,4 +13,8 @@ void readConfig();
 void checkConfig();
 
 
+void readSdConfig();
+void executeSdConfig(char* buff);
+
+
 #endif /* SOURCE_MTCONFIG_H_ */

@@ -327,8 +327,8 @@ static  uint8_t functLeft()
 
 	switch(mode_places)
 	{
-		case 0: break;
-		case 1: break;
+		case 0:	CE->selectedPlace[CE->mode] = 1; break;
+		case 1:	break;
 		case 2: break;
 		case 3: break;
 		case 4: break;
@@ -895,7 +895,7 @@ uint8_t checkIfFirmwareValid(char *name)
 
 static uint8_t selectFirmware()
 {
-	CE->selectedPlace[mtConfigModeDefault]=0;
+	CE->selectedPlace[mtConfigModeDefault]=1;
 	CE->activateLabelsBorder();
 
 	return 1;

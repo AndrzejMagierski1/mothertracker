@@ -100,7 +100,7 @@ void cSampleEditor::start(uint32_t options)
 	listPlayMode();
 
 	showPlayModeList();
-	showZoomValue();
+
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -117,6 +117,7 @@ void cSampleEditor::start(uint32_t options)
 
 	showDefaultScreen();
 	setDefaultScreenFunct();
+	showZoomValue();
 
 	activateLabelsBorder();
 }

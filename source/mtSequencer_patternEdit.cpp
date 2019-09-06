@@ -97,6 +97,61 @@ void Sequencer::fillLinearInstruments(uint8_t fillStep, uint8_t from,
 		}
 	}
 }
+void Sequencer::fillLinearFx(uint8_t fillStep,
+								uint8_t fxType,
+								uint8_t fromVal,
+								uint8_t toVal)
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			if (offset % fillStep == 0)
+			{
+				step = &seq[player.ramBank].track[t].step[s];
+
+				step->fx[0].value = map(offset + sel->firstStep,
+										sel->firstStep,
+										sel->lastStep,
+										fromVal,
+										toVal);
+				step->fx[0].type = fxType;
+
+			}
+		}
+	}
+}
+void Sequencer::fillRandomFx(uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
+								uint8_t toVal)
+{
+	fromToSwap(fromVal, toVal);
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			if (offset % fillStep == 0)
+			{
+				step = &seq[player.ramBank].track[t].step[s];
+
+				step->fx[0].value = random(fromVal, toVal + 1);
+				step->fx[0].type = fxType;
+			}
+		}
+	}
+}
 
 void Sequencer::fillRandomInstruments(uint8_t fillStep, uint8_t from,
 										uint8_t to)
@@ -372,6 +427,70 @@ void Sequencer::changeSelectionVolume(int16_t value)
 		}
 	}
 }
+void Sequencer::changeSelectionFxValue(int16_t value)
+{
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+
+			step->fx[0].value = constrain(step->fx[0].value + value, 0,
+											127);
+		}
+	}
+}
+void Sequencer::changeSelectionFxType(int16_t value)
+{
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+
+			// jeśli off
+			step->fx[0].type = constrain(step->fx[0].type + value,
+											0,
+											200);
+//			if (step->fx[0].type==0)
+//			{
+//				if (value > 0)
+//				{
+//					step->fx[0].isOn = 1;
+//				}
+//			}
+//			else
+//			{
+//				if (step->fx[0].type == 0 && value < 0)
+//				{
+//					step->fx[0].type = 1;
+//				}
+//				else
+//				{
+//					step->fx[0].type = constrain(step->fx[0].type + value,
+//													0,
+//													200);
+//				}
+//			}
+		}
+	}
+}
 
 void Sequencer::changeSelectionInstrument(int16_t value)
 {
@@ -566,7 +685,7 @@ void Sequencer::clearStep(strPattern::strTrack::strStep * step)
 	step->note = STEP_NOTE_EMPTY;
 	step->instrument = 0;
 	step->velocity = -1;
-	step->fx[0].isOn = 0;
+	step->fx[0].type = 0;
 
 }
 

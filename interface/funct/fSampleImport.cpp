@@ -453,6 +453,11 @@ void cSampleImporter::listOnlyFolderNames(char* path, uint8_t startPoint)
 		}
 	}
 
+	if(foundFolderCount == 0 && dirLevel !=0) // /.. na poczatku jak nie znajdzie zadnego pliku
+	{
+		foundFolderCount =1;
+	}
+
 	locationExplorerCount += foundFolderCount;
 
 	for(uint8_t i = startPoint; i < (startPoint+locationExplorerCount); i++)
@@ -596,19 +601,34 @@ void cSampleImporter::BrowseOrAdd()
 
 			strcpy(actualPath, &locationExplorerList[selectedFile][0]);
 
-			selectedFile = 0;
+
+			explorerPositionTable[explorerCurrentPosition]=selectedFile;
+			explorerCurrentPosition++;
+
+			selectedFile=0;
+
+
 			listAllFoldersFirst();
 		}
 		else
 		{
 			if(selectedFile > 0)
 			{
-				dirLevel++;
+				if(explorerCurrentPosition<PREVIOUS_POSITION_LIFO)
+				{
+					dirLevel++;
 
-				strcat(actualPath, &locationExplorerList[selectedFile][0]);
+					explorerPositionTable[explorerCurrentPosition]=selectedFile;
+					explorerCurrentPosition++;
 
-				selectedFile = 0;
-				listAllFoldersFirst();
+
+					strcat(actualPath, &locationExplorerList[selectedFile][0]);
+
+					selectedFile=0;
+
+					listAllFoldersFirst();
+				}
+
 			}
 			else
 			{
@@ -622,7 +642,11 @@ void cSampleImporter::BrowseOrAdd()
 				{
 					strcpy(actualPath, "/");
 				}
-				selectedFile = 0;
+
+				explorerCurrentPosition--;
+				selectedFile=explorerPositionTable[explorerCurrentPosition];
+
+
 				listAllFoldersFirst();
 			}
 		}
@@ -655,7 +679,7 @@ void cSampleImporter::listInstrumentSlots()
 
 	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
-		sprintf(&interfaceGlobals.intrumentsNames[i][0], "%d. ", i);
+		sprintf(&interfaceGlobals.intrumentsNames[i][0], "%d. ", i+1);
 
 		if(mtProject.instrument[i].sample.loaded)
 		{

@@ -300,7 +300,7 @@ void Sequencer::play_microStep(uint8_t row)
 		uint16_t offsetValue = 0;
 
 		boolean isJumpToStep = 0;
-		uint16_t jumpToStep = 0;
+//		uint16_t jumpToStep = 0;
 
 		boolean isRoll = 0;
 		int8_t valRoll = 0;
@@ -308,38 +308,48 @@ void Sequencer::play_microStep(uint8_t row)
 		// przerabiamy FXy
 		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
 		{
-			if (_fx.isOn)
+
+			switch (_fx.type)
 			{
-				switch (_fx.type)
+			case fx.FX_TYPE_OFFSET:
+				if (!isOffset)
 				{
-				case fx.FX_TYPE_OFFSET:
-					if (!isOffset)
-					{
-						isOffset = 1;
-						offsetValue = _fx.value_u16;
-					}
-					break;
-
-				case fx.FX_TYPE_JUMP_TO_STEP:
-					if (!isJumpToStep)
-					{
-						isJumpToStep = 1;
-						jumpToStep = _fx.value_u16;
-					}
-
-				case fx.FX_TYPE_ROLL:
-					if (!isRoll)
-					{
-						isRoll = 1;
-						valRoll = _fx.rollType;
-					}
-
-				default:
-					break;
+					isOffset = 1;
+					offsetValue = _fx.value_u16;
 				}
+				break;
+
+			case fx.FX_TYPE_JUMP_TO_STEP:
+				if (!isJumpToStep)
+				{
+					isJumpToStep = 1;
+//						jumpToStep = _fx.value_u16;
+				}
+				break;
+
+			case fx.FX_TYPE_ROLL:
+				if (!isRoll)
+				{
+					isRoll = 1;
+					valRoll = _fx.rollType;
+				}
+				break;
+			case fx.FX_TYPE_CUTOFF:
+				if (!isRoll)
+				{
+					instrumentPlayer[row].modCutoff(
+							map((float) _fx.value, (float) 0,
+								(float) 127,
+								(float) 0,
+								(float) 1));
+				}
+				break;
+
+			default:
+				break;
 			}
 
-			else if (_fx.isOn && !isJumpToStep && _fx.type == fx.FX_TYPE_OFFSET)
+			if (_fx.type && !isJumpToStep && _fx.type == fx.FX_TYPE_OFFSET)
 			{
 				isOffset = 1;
 				offsetValue = _fx.value_u16;

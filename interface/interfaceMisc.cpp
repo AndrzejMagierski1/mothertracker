@@ -45,14 +45,16 @@ uint8_t cInterface::detectStartState()
 //==================================================================================================
 void cInterface::initStartScreen()
 {
-	if(mtConfig.firmware.beta)
-	{
-		sprintf(startScreenData.versionLabel, "v%d.%d.%db", mtConfig.firmware.ver_1, mtConfig.firmware.ver_2, mtConfig.firmware.ver_3);
-	}
-	else
-	{
-		sprintf(startScreenData.versionLabel, "v%d.%d.%d", mtConfig.firmware.ver_1, mtConfig.firmware.ver_2, mtConfig.firmware.ver_3);
-	}
+	char beta[2];
+
+	if(mtConfig.firmware.beta) beta[0] = 'b';
+	else 						beta[0] = 0;
+
+	beta[1] = 0;
+
+
+	sprintf(startScreenData.versionLabel, "v%d.%d.%d%s", mtConfig.firmware.ver_1, mtConfig.firmware.ver_2, mtConfig.firmware.ver_3, beta);
+
 
 	strControlProperties prop;
 	prop.x = 190;
