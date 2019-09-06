@@ -116,13 +116,12 @@ void Sequencer::fillLinearFx(uint8_t fillStep,
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 
-				step->fx[0].val1_u8 = map(offset + sel->firstStep,
+				step->fx[0].value = map(offset + sel->firstStep,
 										sel->firstStep,
 										sel->lastStep,
 										fromVal,
 										toVal);
 				step->fx[0].type = fxType;
-				step->fx[0].isOn = 1;
 
 			}
 		}
@@ -147,10 +146,8 @@ void Sequencer::fillRandomFx(uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 
-				step->fx[0].val1_u8 = random(fromVal, toVal + 1);
+				step->fx[0].value = random(fromVal, toVal + 1);
 				step->fx[0].type = fxType;
-				step->fx[0].isOn = 1;
-
 			}
 		}
 	}
@@ -446,7 +443,7 @@ void Sequencer::changeSelectionFxValue(int16_t value)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
 
-			step->fx[0].val1_u8 = constrain(step->fx[0].val1_u8 + value, 0,
+			step->fx[0].value = constrain(step->fx[0].value + value, 0,
 											255);
 		}
 	}
@@ -468,26 +465,29 @@ void Sequencer::changeSelectionFxType(int16_t value)
 			step = &seq[player.ramBank].track[t].step[s];
 
 			// jeśli off
-			if (!step->fx[0].isOn)
-			{
-				if (value > 0)
-				{
-					step->fx[0].isOn = 1;
-				}
-			}
-			else
-			{
-				if (step->fx[0].type == 0 && value < 0)
-				{
-					step->fx[0].isOn = 0;
-				}
-				else
-				{
-					step->fx[0].type = constrain(step->fx[0].type + value,
-													0,
-													200);
-				}
-			}
+			step->fx[0].type = constrain(step->fx[0].type + value,
+											0,
+											200);
+//			if (step->fx[0].type==0)
+//			{
+//				if (value > 0)
+//				{
+//					step->fx[0].isOn = 1;
+//				}
+//			}
+//			else
+//			{
+//				if (step->fx[0].type == 0 && value < 0)
+//				{
+//					step->fx[0].type = 1;
+//				}
+//				else
+//				{
+//					step->fx[0].type = constrain(step->fx[0].type + value,
+//													0,
+//													200);
+//				}
+//			}
 		}
 	}
 }
@@ -685,7 +685,7 @@ void Sequencer::clearStep(strPattern::strTrack::strStep * step)
 	step->note = STEP_NOTE_EMPTY;
 	step->instrument = 0;
 	step->velocity = -1;
-	step->fx[0].isOn = 0;
+	step->fx[0].type = 0;
 
 }
 

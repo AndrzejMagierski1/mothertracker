@@ -329,12 +329,12 @@ void cPatternEditor::refreshPattern()
 
 
 
-			if(seq->track[i].step[patternPosition-7+j].fx[0].isOn)
+			if(seq->track[i].step[patternPosition-7+j].fx[0].type)
 			{
 				trackerPattern.track[i].row[j].fx[0] = seq->track[i].step[patternPosition - 7 + j].fx[0].type + 65;
 				sprintf(&trackerPattern.track[i].row[j].fx[1],
 						"%2.2x",
-						seq->track[i].step[patternPosition - 7 + j].fx[0].val1_u8);
+						seq->track[i].step[patternPosition - 7 + j].fx[0].value);
 				trackerPattern.track[i].row[j].fx[3] = 0;
 			}
 			else
@@ -1731,14 +1731,14 @@ static  uint8_t functFillApply()
 			else if (fillData->type == 1)
 			{
 				sequencer.fillLinearFx(PTE->fillStep,
-									   fillData->type,
+									   fillData->param,
 										fillData->from,
 										fillData->to);
 			}
 			else if (fillData->type == 2)
 			{
 				sequencer.fillRandomFx(PTE->fillStep,
-									   fillData->type,
+									   fillData->param ,
 										fillData->from,
 										fillData->to);
 			}

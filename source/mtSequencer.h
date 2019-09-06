@@ -261,7 +261,7 @@ public:
 						////////////OR////////////
 						struct						// FX_VAL_U8_U8
 						{
-							uint8_t val1_u8;
+							uint8_t value;
 							uint8_t val2_u8;
 						};
 						////////////OR////////////
