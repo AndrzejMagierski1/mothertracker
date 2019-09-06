@@ -119,7 +119,7 @@ public:
 	void setControlData(hControl handle, void* data);
 
 	void setBacklightBrightness(uint8_t value);
-
+	void setRotate(uint8_t value);
 
 private:
 
@@ -146,8 +146,14 @@ private:
 
 	int8_t controls_count = 0;
 
+
+	uint8_t updateDisplaySettings = 0;
+
 	uint8_t backlightBrightness;
 	uint8_t lastBacklightBrightness;
+
+	uint8_t rotateValue;
+	uint8_t lastRotateValue = 1;
 };
 
 

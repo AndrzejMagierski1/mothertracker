@@ -1,5 +1,8 @@
 
 #include "EEPROM.h"
+#include "SD.h"
+#include <display.h>
+
 
 #include "mtStructs.h"
 
@@ -140,3 +143,111 @@ void memoryStructureChange()
 	Serial.println("MEMO_STRUCT changed!");
 
 }
+
+
+
+
+
+//===============================================================================================================
+//====================================         SD CONFIG         ================================================
+//===============================================================================================================
+
+
+const uint8_t sd_comannds_count = 2;
+uint8_t buffSize = 128;
+
+void readSdConfig()
+{
+
+
+	if(SD.exists("/mtconfig.txt"))
+	{
+		FsFile fConfig;
+		char buff[buffSize+1];
+
+		fConfig = SD.open("/mtconfig.txt", FILE_READ);
+		buffSize = fConfig.read(buff, buffSize);
+		//fConfig.write(&CE->firmwareNamesList[CE->firmwareSelect][0], 13);
+		fConfig.close();
+
+		executeSdConfig(buff);
+
+	}
+
+
+
+
+
+
+}
+
+
+void executeSdConfig(char* buff)
+{
+	buff[buffSize] = 0;
+
+	for(uint8_t i = 0; i<sd_comannds_count; i++)
+	{
+		char* equal = strchr(buff, '=');
+		if(equal)
+		{
+			char cmd[10], param[32];
+			strncpy(cmd,buff,equal-buff);
+			cmd[(equal-buff<10)?equal-buff:9] = 0;
+
+			char* lineEnd = strchr(equal, '\r');
+			if(lineEnd == nullptr)
+			{
+				char* lineEnd = strchr(equal, '\n');
+				if(lineEnd == nullptr)
+				{
+					lineEnd = strchr(equal, 0);
+					if(lineEnd == nullptr) return;
+				}
+			}
+
+			equal+=1;
+			strncpy(param, equal, lineEnd-equal);
+			param[(lineEnd-equal<32)?lineEnd-equal:31] = 0;
+
+			//-------------------------------------------------------------------
+			if(strcmp(cmd,"rotate") == 0)
+			{
+				char value = param[0]-48;
+				if(value >= 0 && value <= 7) display.setRotate(value);
+			}
+			else if(strcmp(cmd,"oproject") == 0)
+			{
+				mtConfig.startup.startMode = interfaceOpenLastProject;
+
+				if(mtConfig.startup.lastProjectName[0] == 0 || mtConfig.startup.lastProjectName[0] == 255)
+				{
+					strcpy(mtConfig.startup.lastProjectName,param);
+				}
+			}
+
+
+
+
+
+			//-------------------------------------------------------------------
+
+			for(uint8_t i = 0; i<10; i++)
+			{
+				if(*lineEnd == '\n' || *lineEnd == '\r' ) lineEnd++;
+				else break;
+			}
+
+			buff = lineEnd;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+
+
+}
+
+

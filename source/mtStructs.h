@@ -504,11 +504,11 @@ struct strMtConfig
 
 };
 
+
 //-------------------------------------------------
 
 extern strMtProject mtProject;
 extern strMtConfig 	mtConfig;
-
 
 
 struct strMtDispSpectrum

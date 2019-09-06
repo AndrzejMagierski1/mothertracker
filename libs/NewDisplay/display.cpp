@@ -176,13 +176,21 @@ uint16_t refreshF = 20;
 
 void cDisplay::update()
 {
-
-	if(backlightBrightness != lastBacklightBrightness)
+	if(updateDisplaySettings)
 	{
-		lastBacklightBrightness = backlightBrightness;
-	    EVE_MemWrite8(REG_PWM_DUTY, backlightBrightness);
-	}
+		updateDisplaySettings = 0;
 
+		if(backlightBrightness != lastBacklightBrightness)
+		{
+			lastBacklightBrightness = backlightBrightness;
+			EVE_MemWrite8(REG_PWM_DUTY, backlightBrightness);
+		}
+		if(rotateValue !=  lastRotateValue)
+		{
+			lastRotateValue = rotateValue;
+			EVE_MemWrite8(REG_ROTATE, rotateValue);
+		}
+	}
 	//display_table();
 	//return;
 //=================================================================================================
@@ -667,9 +675,16 @@ void cDisplay::setBacklightBrightness(uint8_t value)
 {
 	//
 	backlightBrightness = value;
-
+	updateDisplaySettings = 1;
 }
 
+void cDisplay::setRotate(uint8_t value)
+{
+	//
+	rotateValue = value;
+	updateDisplaySettings = 1;
+
+}
 
 
 
