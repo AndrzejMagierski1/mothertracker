@@ -287,9 +287,15 @@ uint8_t cropCounter = 0;
 
 
 //save
+	enum saveType
+	{
+		saveTypeNormal = 1,
+		saveTypeLoad
+
+	};
 	uint8_t saveInProgressFlag = 0;
-	uint8_t saveLoadFlag = 0;
 	uint8_t saveProgress;
+	uint8_t saveOrSaveloadFlag = 0;
 	uint8_t forceSwitchModule = 0;
 	void showSaveHorizontalBar();
 	void hideSaveHorizontalBar();

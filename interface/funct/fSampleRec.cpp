@@ -262,42 +262,11 @@ void cSampleRecorder::update()
 #endif
 	if(saveInProgressFlag)
 	{
-		recorder.updateSave();
+//		recorder.updateSave();
 		showSaveHorizontalBar();
 		if(recorder.getSaveState() == 0)
 		{
 			saveInProgressFlag = 0;
-			if(saveLoadFlag == 1)
-			{
-				saveLoadFlag = 0;
-
-				int8_t firstFree = -1;
-				char localName[37];
-
-				for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
-				{
-					if(!mtProject.instrument[i].isActive)
-					{
-						firstFree = i;
-						break;
-					}
-				}
-				if(firstFree == -1)
-				{
-					notEnoughInstrumentsFlag = 1;
-				}
-				else
-				{
-					strcpy(localName,SR->name);
-					strcat(localName,".wav");
-					forceSwitchModule = 1;
-					fileManager.startImportSampleToProject((char*)"/Recorded",localName, firstFree);
-					functSwitchModule(interfaceButtonSampleLoad);
-				}
-
-			}
-
-
 
 			hideSaveHorizontalBar();
 			currentScreen = screenTypeRecord;
@@ -882,7 +851,30 @@ static  uint8_t functActionButton0(uint8_t s)
 		if(SR->selectionWindowSaveFlag == 1)
 		{
 			SR->selectionWindowSaveFlag = 0;
-			recorder.startSave(SR->name,1);
+			if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeNormal)
+			{
+				recorder.startSave(SR->name,1);
+			}
+			else if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
+			{
+				uint8_t firstFree = -1;
+				for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
+				{
+					if(!mtProject.instrument[i].isActive)
+					{
+						firstFree = i;
+						break;
+					}
+				}
+				if(firstFree == -1)
+				{
+					SR->notEnoughInstrumentsFlag = 1;
+					return 0;
+				}
+
+				recorder.startSaveLoad(SR->name, firstFree, 1 );
+			}
+
 			 SR->saveInProgressFlag = 1;
 			 SR->hideKeyboard();
 			 SR->hideKeyboardEditName();
@@ -1429,7 +1421,8 @@ static  uint8_t functActionSave()
 
 static  uint8_t functActionConfirmSave()
 {
-	 if(recorder.startSave(SR->name) == 0)
+	SR->saveOrSaveloadFlag = cSampleRecorder::saveTypeNormal;
+	if(recorder.startSave(SR->name) == 0)
 	 {
 		 SR->selectionWindowSaveFlag = 1;
 		 SR->keyboardActiveFlag = 0;
@@ -1442,13 +1435,58 @@ static  uint8_t functActionConfirmSave()
 		 SR->hideKeyboard();
 		 SR->hideKeyboardEditName();
 	 }
+
+
 	 return 1;
 }
 
 static  uint8_t functActionConfirmSaveLoad()
 {
-	functActionConfirmSave();
-	SR->saveLoadFlag = 1;
+
+	SR->saveOrSaveloadFlag = cSampleRecorder::saveTypeLoad;
+
+	int8_t firstFree = -1;
+	char localName[37];
+
+	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
+	{
+		if(!mtProject.instrument[i].isActive)
+		{
+			firstFree = i;
+			break;
+		}
+	}
+	if(firstFree == -1)
+	{
+		SR->notEnoughInstrumentsFlag = 1;
+		return 0;
+	}
+	else
+	{
+		 sprintf(localName,"%s.wav",SR->name);
+
+		 if(recorder.startSaveLoad(SR->name, firstFree) == 0)
+		 {
+			 SR->selectionWindowSaveFlag = 1;
+			 SR->keyboardActiveFlag = 0;
+			 SR->showSelectionWindowSave();
+			 return 0 ;
+		 }
+		 else
+		 {
+			 SR->keyboardActiveFlag = 0;
+			 SR->saveInProgressFlag = 1;
+			 SR->hideKeyboard();
+			 SR->hideKeyboardEditName();
+		 }
+
+
+		SR->forceSwitchModule = 1;
+
+
+
+		functSwitchModule(interfaceButtonSampleLoad);
+	}
 
 	return 0;
 }
