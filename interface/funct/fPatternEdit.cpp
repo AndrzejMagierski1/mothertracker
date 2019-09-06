@@ -1720,6 +1720,30 @@ static  uint8_t functFillApply()
 			}
 
 			break;
+		case 3:
+			if (fillData->type == 0)
+			{
+				sequencer.fillLinearFx(PTE->fillStep,
+									   fillData->type,
+										fillData->from,
+										fillData->from);
+			}
+			else if (fillData->type == 1)
+			{
+				sequencer.fillLinearFx(PTE->fillStep,
+									   fillData->type,
+										fillData->from,
+										fillData->to);
+			}
+			else if (fillData->type == 2)
+			{
+				sequencer.fillRandomFx(PTE->fillStep,
+									   fillData->type,
+										fillData->from,
+										fillData->to);
+			}
+
+			break;
 		default:
 			break;
 		}

@@ -97,6 +97,64 @@ void Sequencer::fillLinearInstruments(uint8_t fillStep, uint8_t from,
 		}
 	}
 }
+void Sequencer::fillLinearFx(uint8_t fillStep,
+								uint8_t fxType,
+								uint8_t fromVal,
+								uint8_t toVal)
+{
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			if (offset % fillStep == 0)
+			{
+				step = &seq[player.ramBank].track[t].step[s];
+
+				step->fx[0].val1_u8 = map(offset + sel->firstStep,
+										sel->firstStep,
+										sel->lastStep,
+										fromVal,
+										toVal);
+				step->fx[0].type = fxType;
+				step->fx[0].isOn = 1;
+
+			}
+		}
+	}
+}
+void Sequencer::fillRandomFx(uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
+								uint8_t toVal)
+{
+	fromToSwap(fromVal, toVal);
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			if (offset % fillStep == 0)
+			{
+				step = &seq[player.ramBank].track[t].step[s];
+
+				step->fx[0].val1_u8 = random(fromVal, toVal + 1);
+				step->fx[0].type = fxType;
+				step->fx[0].isOn = 1;
+
+			}
+		}
+	}
+}
 
 void Sequencer::fillRandomInstruments(uint8_t fillStep, uint8_t from,
 										uint8_t to)

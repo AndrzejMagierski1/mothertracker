@@ -300,7 +300,7 @@ void Sequencer::play_microStep(uint8_t row)
 		uint16_t offsetValue = 0;
 
 		boolean isJumpToStep = 0;
-		uint16_t jumpToStep = 0;
+//		uint16_t jumpToStep = 0;
 
 		boolean isRoll = 0;
 		int8_t valRoll = 0;
@@ -324,7 +324,7 @@ void Sequencer::play_microStep(uint8_t row)
 					if (!isJumpToStep)
 					{
 						isJumpToStep = 1;
-						jumpToStep = _fx.value_u16;
+//						jumpToStep = _fx.value_u16;
 					}
 					break;
 
