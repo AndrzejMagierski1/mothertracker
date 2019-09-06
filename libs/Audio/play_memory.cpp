@@ -638,7 +638,7 @@ void AudioPlayMemory::clean(void)
 uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len)
 {
 	uint32_t startPoint,endPoint;
-	int8_t note=24;
+	int8_t note=60;
 	playing = 0;
 	prior = 0;
 	stopLoop=0;
