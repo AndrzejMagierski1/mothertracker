@@ -61,6 +61,7 @@ void loop()
 
 	engine.update();
 	fileManager.update();
+	recorder.updateSave();
 	mtInterface.update();
 
 }
