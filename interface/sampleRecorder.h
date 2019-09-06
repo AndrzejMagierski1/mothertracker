@@ -229,6 +229,13 @@ public:
 
 	elapsedMillis refreshSpectrumTimer;
 
+
+	strInstrument * editorInstrument;
+	uint8_t refreshSpectrumProgress = 0;
+	uint8_t loopDirection = 0;
+	float playPitch = 1.0 ;
+	elapsedMicros playProgresValueBackwardTim = 0;
+
 //----------------------------------
 // listy
 	strList sourceList;

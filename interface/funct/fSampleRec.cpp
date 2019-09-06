@@ -7,6 +7,7 @@
 #include "mtAudioEngine.h"
 #include "mtLED.h"
 #include "mtFileManager.h"
+#include "mtPadsBacklight.h"
 
 enum valueMapDirecion
 {
@@ -319,7 +320,12 @@ void cSampleRecorder::update()
 	if(playInProgressFlag)
 	{
 		calcPlayProgressValue();
-		showPreviewValue();
+		if(playInProgressFlag)	showPreviewValue(); // w calcPlayProgress jest mozliwosc wyzerowania tej flagi wtedy nie chcemy wyswietlac wartosci;
+		else
+		{
+			hidePreviewValue();
+			mtPadBoard.clearVoice(0);
+		}
 	}
 
 	changeLevelBar();
@@ -375,6 +381,15 @@ void cSampleRecorder::start(uint32_t options)
 	{
 		showRadio();
 	}
+
+	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
+			mtProject.values.padBoardNoteOffset,
+			mtProject.values.padBoardRootNote = 36);
+
+//	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
+	mtPadBoard.configureInstrumentPlayer(8);
+
+
 
 }
 
@@ -1088,6 +1103,7 @@ static  uint8_t functActionButton7()
 	}
 	return 1;
 }
+
 //==============================================================================================================
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
@@ -1190,37 +1206,55 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			SR->showKeyboardEditName();
 			return 1;
 		}
-		else
+	}
+
+	if(SR->currentScreen == SR->screenTypeRecord)
+	{
+		if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
 		{
-			if(state == 1)
+			sequencer.stop();
+		}
+
+		if(state == 1)
+		{
+			if(mtPadBoard.getEmptyVoice() < 0) return 1;
+
+			if(mtPadBoard.getEmptyVoice() == 0)
 			{
-				uint32_t length;
-				uint32_t addressShift;
-				length =(uint32_t)((uint32_t)SR->endPoint * (float)(recorder.getLength()/2)/MAX_16BIT);
-
-				addressShift = (uint32_t)( (uint32_t)SR->startPoint * (float)(recorder.getLength()/2)/MAX_16BIT);
-
-				mtPadBoard.startInstrument(pad,recorder.getStartAddress()+ addressShift,length - addressShift );
+				SR->playPitch = notes[mtPadBoard.convertPadToNote(pad)];
+				SR->playProgresValueTim = (((((recorder.getLength()/44100.0 ) * SR->startPoint) / MAX_16BIT) * 1000) / SR->playPitch);
+				SR->refreshPlayProgressValue = 0;
+				SR->loopDirection = 0;
+				SR->playInProgressFlag = 1;
 			}
 
-		}
+			padsBacklight.setFrontLayer(1,20, pad);
 
-		return 1;
-	}
-	else if(state == 0)
-	{
-		if(SR->keyboardActiveFlag)
-		{
+			uint32_t length;
+			uint32_t addressShift;
+			length =(uint32_t)((uint32_t)SR->endPoint * (float)(recorder.getLength())/MAX_16BIT);
 
+			addressShift = (uint32_t)( (uint32_t)SR->startPoint * (float)(recorder.getLength())/MAX_16BIT);
+
+			mtPadBoard.startInstrument(pad,recorder.getStartAddress()+ addressShift,length - addressShift );
 		}
-		else
+		else if(state == 0)
 		{
+			padsBacklight.setFrontLayer(0,0, pad);
+
+			if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
+			{
+				SR->playProgressValue=0;
+				SR->playProgressInSpectrum = 0;
+				SR->playInProgressFlag = 0;
+				SR->refreshSpectrumProgress = 1;
+				SR->refreshSpectrumValue = 1;
+				SR->hidePreviewValue();
+			}
+
 			mtPadBoard.stopInstrument(pad);
 		}
 	}
-
-
-
 
 	return 1;
 }
@@ -1295,10 +1329,29 @@ static  uint8_t functActionRadioRight()
 static  uint8_t functActionPreview()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
-	recorder.play(SR->startPoint,SR->endPoint);
 
-	SR->playProgresValueTim = (( (recorder.getLength()/44100.0 ) * SR->startPoint) / MAX_16BIT) * 1000;
-	SR->refreshPlayProgressValue = 0;
+	if(mtPadBoard.getEmptyVoice() < 0) return 1;
+
+	if(mtPadBoard.getEmptyVoice() == 0)
+	{
+		SR->playPitch=1.0;
+		SR->playProgresValueTim = ((((recorder.getLength()/44100.0 ) * SR->startPoint) / MAX_16BIT) * 1000) / SR->playPitch;
+		SR->refreshPlayProgressValue = 0;
+	}
+
+	uint32_t length;
+	uint32_t addressShift;
+
+	Serial.print("end point");
+	Serial.println(SR->endPoint);
+	Serial.print("start point");
+	Serial.println(SR->startPoint);
+
+	length =(uint32_t)((uint32_t)SR->endPoint * (float)(recorder.getLength())/MAX_16BIT);
+	addressShift = (uint32_t)( (uint32_t)SR->startPoint * (float)(recorder.getLength())/MAX_16BIT);
+
+	mtPadBoard.startInstrument(12,recorder.getStartAddress()+ addressShift,length - addressShift );
+
 
 	SR->playInProgressFlag = 1;
 	return 1;
@@ -1306,13 +1359,18 @@ static  uint8_t functActionPreview()
 
 static uint8_t functActionStopPreview()
 {
-	recorder.stop();
-	SR->playInProgressFlag = 0;
-	SR->playProgressValue = 0;
-	SR->playProgressInSpectrum = 0;
+	if(mtPadBoard.getVoiceTakenByPad(12) == 0)
+	{
+		SR->playProgressValue=0;
+		SR->playProgressInSpectrum = 0;
+		SR->playInProgressFlag = 0;
+		SR->refreshSpectrumProgress = 1;
+		SR->refreshSpectrumValue = 1;
+		SR->hidePreviewValue();
+	}
 
-	SR->refreshSpectrumValue = 1;
-	SR->hidePreviewValue();
+	mtPadBoard.stopInstrument(12);
+
 	return 1;
 }
 
@@ -2105,7 +2163,8 @@ void cSampleRecorder::modEndPoint(int16_t value)
 void cSampleRecorder::calcPlayProgressValue()
 {
 	uint32_t localRecTimeValue = recTimeValue * 1000;
-	uint32_t localEndTimeValue = (( recTimeValue  * SR->endPoint) / MAX_16BIT) * 1000;
+	uint32_t localEndTimeValue = ((( recTimeValue  * SR->endPoint) / MAX_16BIT) * 1000)/ SR->playPitch;
+
 	if(playProgresValueTim >= localEndTimeValue)
 	{
 		playProgressValue=0;
@@ -2118,7 +2177,7 @@ void cSampleRecorder::calcPlayProgressValue()
 	{
 		refreshPlayProgressValue = 0;
 
-		playProgressValue = MAX_16BIT*(playProgresValueTim/(float)localRecTimeValue);
+		playProgressValue = SR->playPitch*MAX_16BIT*(playProgresValueTim/(float)localRecTimeValue);
 
 		if(zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
 		else if(zoomValue > 1.0)
@@ -2132,8 +2191,6 @@ void cSampleRecorder::calcPlayProgressValue()
 
 		refreshSpectrumValue = 1;
 	}
-
-
 }
 
 
@@ -2299,3 +2356,4 @@ static uint8_t functStepNote(uint8_t value)
 	}
 	return 1;
 }
+
