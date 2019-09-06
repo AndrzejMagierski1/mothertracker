@@ -7,7 +7,7 @@
 
 #include "mtStructs.h"
 
-
+#define PREVIOUS_POSITION_LIFO	25
 
 class cSampleImporter: public cModuleBase
 {
@@ -167,6 +167,9 @@ public:
 
 	void listAllFoldersFirst();
 	void rewindListToBeggining();
+
+	uint8_t explorerPositionTable[PREVIOUS_POSITION_LIFO];
+	uint8_t explorerCurrentPosition;
 
 };
 

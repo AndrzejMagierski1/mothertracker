@@ -48,11 +48,20 @@ void cSampleEditor::initDisplayControls()
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 437;
-		prop2.h = 28;
+		if(i !=5)
+		{
+			prop2.y = 452;
+			prop2.h = 58;
+		}
+		else
+		{
+			prop2.y = 437;
+			prop2.h = 28;
+		}
+
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.text = (char*)"";
+/*		prop2.text = (char*)"";
 		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 		prop2.x = (800/8)*i+(800/16);
 		prop2.y = 465;
@@ -63,7 +72,7 @@ void cSampleEditor::initDisplayControls()
 		prop2.y = 437;
 		prop2.h = 28;
 
-		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
+		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);*/
 
 	}
 
@@ -73,8 +82,8 @@ void cSampleEditor::initDisplayControls()
 	prop2.h = 30;
 	if(bottomLabel[6] == nullptr) bottomLabel[6] = display.createControl<cLabel>(&prop2);
 
-	prop2.y = 437;
-	prop2.h = 28;
+	prop2.y = 452;
+	prop2.h = 58;
 	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
 
 
@@ -194,13 +203,13 @@ void cSampleEditor::showDefaultScreen()
 	//display.refreshControl(playModeListControl);
 
 	// bottom labels
-	display.setControlText(bottomLabel[0], "Preview");
-	display.setControlText(bottomLabel[1], "Apply");
-	display.setControlText(bottomLabel[2], "Undo");
-	display.setControlText(bottomLabel[3], "");
-	display.setControlText(bottomLabel[4], "");
-	display.setControlText(bottomLabel[5], "");
-	display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
+	display.setControlText(topLabel[0], "Preview");
+	display.setControlText(topLabel[1], "Apply");
+	display.setControlText(topLabel[2], "Undo");
+	display.setControlText(topLabel[3], "");
+	display.setControlText(topLabel[4], "");
+	display.setControlText(bottomLabel[5], "Zoom");
+	//display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
 	//display.setControlText(bottomLabel[7], "");
 
 

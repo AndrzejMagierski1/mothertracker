@@ -529,8 +529,8 @@ void cConfigEditor::showFirmwareUpdatePopout()
 		display.refreshControl(topLabel[i]);
 	}
 
-	display.setControlText(bottomLabel[0], "Yes");
-	display.setControlText(bottomLabel[5], "No");
+	display.setControlText(topLabel[0], "Yes");
+	display.setControlText(topLabel[5], "No");
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
