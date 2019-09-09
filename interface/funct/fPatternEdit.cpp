@@ -60,9 +60,10 @@ static  uint8_t functShift(uint8_t state);
 
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
-static  uint8_t functPasteInsert();
-static  uint8_t functPasteInsertRelease();
-static  uint8_t functCopyDelete();
+static  uint8_t functPasteInsert(uint8_t state);
+static  uint8_t functCopyDelete(uint8_t state);
+
+static uint8_t getSelectedElement();
 
 
 static  uint8_t functEncoder(int16_t value);
@@ -168,9 +169,10 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
 	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 
-	FM->setButtonObj(interfaceButtonPaste, buttonPress, functPasteInsert);
-	FM->setButtonObj(interfaceButtonPaste, buttonRelease, functPasteInsertRelease);
-	FM->setButtonObj(interfaceButtonCopy, buttonPress, functCopyDelete);
+	FM->setButtonObj(interfaceButtonPaste, functPasteInsert);
+//	FM->setButtonObj(interfaceButtonPaste, buttonRelease, functPasteInsertRelease);
+	FM->setButtonObj(interfaceButtonCopy, functCopyDelete);
+//	FM->setButtonObj(interfaceButtonCopy, buttonRelease, functCopyDeleteRelease);
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
@@ -351,14 +353,6 @@ void cPatternEditor::refreshPattern()
 
 
 	display.refreshControl(patternControl);
-//	display.refreshControl(bottomLabel[0]);
-//	display.setControlValue(bottomLabel[0], seq->tempo);
-//	display.refreshControl(bottomLabel[1]);
-//	display.setControlValue(bottomLabel[1], mtProject.values.actualPattern+1);
-//	display.refreshControl(bottomLabel[2]);
-//	display.setControlValue(bottomLabel[2], seq->track[0].length+1);
-//	display.refreshControl(bottomLabel[3]);
-//	display.setControlValue(bottomLabel[3], mtProject.values.patternEditStep);
 
 }
 
@@ -562,7 +556,7 @@ void cPatternEditor::refreshEditState()
 {
 	if(editMode)
 	{
-		trackerPattern.selectState = 1;
+		if(trackerPattern.selectState == 0) trackerPattern.selectState = 1;
 
 		trackerPattern.selectedParam = editParam;
 
@@ -1175,7 +1169,9 @@ static  uint8_t functNote(uint8_t state)
 		PTE->lightUpPadBoard();
 		//PTE->refreshPattern();
 	}
-	else if(state==buttonHold && !tactButtons.isButtonPressed(interfaceButtonShift))
+	else if(state==buttonHold
+			&& !tactButtons.isButtonPressed(interfaceButtonShift)
+			&& !tactButtons.isButtonPressed(interfaceButtonCopy))
 	{
 		PTE->noteButtonHoldFlag=1;
 
@@ -1326,8 +1322,11 @@ static  uint8_t functRecAction()
 
 
 
-static uint8_t functPasteInsert()
+static uint8_t functPasteInsert(uint8_t state)
 {
+	if(state == buttonPress)
+	{
+
 	if (PTE->editMode == 1)
 	{
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
@@ -1343,91 +1342,110 @@ static uint8_t functPasteInsert()
 	}
 
 	PTE->refreshPattern();
+	}
+	else if(state == buttonRelease)
+	{
+		if (PTE->editMode == 1)
+			{
+				// PASTE
+				if (tactButtons.isButtonPressed(interfaceButtonShift))
+				{
+					sendPasteSelection();
+
+					sequencer.pasteFromBuffer(getSelectedElement());
+
+				}
+			}
+
+			PTE->refreshPattern();
+	}
 
 	return 1;
 }
-static uint8_t functPasteInsertRelease()
+
+
+static uint8_t getSelectedElement()
 {
-	if (PTE->editMode == 1)
+	if (tactButtons.isButtonPressed(interfaceButtonNote))
 	{
-		// PASTE
-		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		return Sequencer::ELEMENTS_NOTES;
+	}
+	else if (tactButtons.isButtonPressed(interfaceButtonInstr))
+	{
+		return Sequencer::ELEMENTS_INSTRUMENTS;
+	}
+	else if (tactButtons.isButtonPressed(interfaceButtonVol))
+	{
+		return Sequencer::ELEMENTS_VELO;
+	}
+	else if (tactButtons.isButtonPressed(interfaceButtonFx))
+	{
+		return Sequencer::ELEMENTS_FXes;
+	}
+	else
+	{
+		return Sequencer::ELEMENTS_ALL;
+	}
+	return Sequencer::ELEMENTS_ALL;
+}
+
+
+
+
+
+static uint8_t functCopyDelete(uint8_t state)
+{
+
+	if (state == buttonPress)
+	{
+
+		if (PTE->editMode == 1)
 		{
-			sendPasteSelection();
-			if (tactButtons.isButtonPressed(interfaceButtonNote))
+			// COPY
+			if (tactButtons.isButtonPressed(interfaceButtonShift))
 			{
-				sequencer.pasteFromBuffer(Sequencer::ELEMENTS_NOTES);
+				sendCopySelection();
+				sequencer.copyToBuffer();
 			}
-			else if (tactButtons.isButtonPressed(interfaceButtonInstr))
-			{
-				sequencer.pasteFromBuffer(Sequencer::ELEMENTS_INSTRUMENTS);
-			}
-			else if (tactButtons.isButtonPressed(interfaceButtonVol))
-			{
-				sequencer.pasteFromBuffer(Sequencer::ELEMENTS_VELO);
-			}
-			else if (tactButtons.isButtonPressed(interfaceButtonFx))
-			{
-				sequencer.pasteFromBuffer(Sequencer::ELEMENTS_FXes);
-			}
+			// DELETE
 			else
 			{
-				sequencer.pasteFromBuffer(Sequencer::ELEMENTS_ALL);
+//			sendSelection();
+//			sequencer.clearSelected();
 			}
+
+			if (PTE->noteButtonHoldFlag == 1)
+			{
+				PTE->setDefaultScreenFunct();
+				PTE->noteButtonHoldFlag = 0;
+				PTE->hideNotePopout();
+			}
+
 		}
+
+		PTE->refreshPattern();
 	}
-
-	PTE->refreshPattern();
-
-	return 1;
-}
-
-
-
-
-
-static uint8_t functCopyDelete()
-{
-
-//	sequencer.copy();
-
-	if (PTE->editMode == 1)
+	else if (state == buttonRelease)
 	{
-		// COPY
-		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		if (PTE->editMode == 1)
 		{
-			sendCopySelection();
-			sequencer.copyToBuffer();
-		}
-		// DELETE
-		else
-		{
-			sendSelection();
-			sequencer.clearSelected();
+			// COPY
+			if (tactButtons.isButtonPressed(interfaceButtonShift))
+			{
+				//			sendCopySelection();
+				//			sequencer.copyToBuffer();
+			}
+			// DELETE
+			else
+			{
+				sendSelection();
+				sequencer.clearSelected(getSelectedElement());
+			}
+
 		}
 
+		PTE->refreshPattern();
 	}
-//	else if (PTE->editMode == 1)
-//	{
-//		// SHIFT
-//		if (tactButtons.isButtonPressed(interfaceButtonShift))
-//		{
-//			sendSelection();
-//			sequencer.transposeSelection(1);
-//
-//		}
-//		// NO SHIFT
-//		else
-//		{
-//			sendSelection();
-//			sequencer.transposeSelection(-1);
-//
-//		}
-//
-//	}
-
-	PTE->refreshPattern();
-
 	return 1;
 }
 

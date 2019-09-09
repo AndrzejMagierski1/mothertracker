@@ -289,7 +289,8 @@ public:
 
 	};
 
-	enum enSelectionElements{
+	enum enSelectionElements
+	{
 		ELEMENTS_ALL,
 		ELEMENTS_NOTES,
 		ELEMENTS_INSTRUMENTS,
@@ -610,7 +611,8 @@ public:
 
 // SELECTION
 	void copySelectionToBuffer(strSelection *from, strSelection *to);
-	void pasteSelectionFromBuffer(strSelection *from, strSelection *to, uint8_t elements);
+	void pasteSelectionFromBuffer(strSelection *from, strSelection *to,
+									uint8_t elements);
 	void copyToBuffer();
 	void pasteFromBuffer(uint8_t);
 	bool isSelectionCorrect(strSelection *selection);
@@ -631,9 +633,10 @@ public:
 
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
-	void clearStep(strPattern::strTrack::strStep * step);
-	void clearSelected(strSelection * sel);
+	void clearStep(strPattern::strTrack::strStep * step, uint8_t);
+	void clearSelected(strSelection * sel, uint8_t elements);
 	void clearSelected();
+	void clearSelected(uint8_t);
 
 	void changeSelectionVolume(int16_t value);
 	void changeSelectionFxValue(int16_t value);

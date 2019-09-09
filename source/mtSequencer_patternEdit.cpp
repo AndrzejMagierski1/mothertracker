@@ -650,19 +650,19 @@ void Sequencer::setSelectionVelocity(int16_t value)
 //	}
 //}
 
-void Sequencer::clearRow(uint8_t row, uint8_t bank)
-{
-// TODO: ograniczyć ba
-	for (uint8_t x = MINSTEP; x <= MAXSTEP; x++)
-	{
-		clearStep(x, row, bank);
-	}
-}
-
-void Sequencer::clearRow(uint8_t row)
-{
-	clearRow(row, player.ramBank);
-}
+//void Sequencer::clearRow(uint8_t row, uint8_t bank)
+//{
+//// TODO: ograniczyć ba
+//	for (uint8_t x = MINSTEP; x <= MAXSTEP; x++)
+//	{
+//		clearStep(x, row, bank);
+//	}
+//}
+//
+//void Sequencer::clearRow(uint8_t row)
+//{
+//	clearRow(row, player.ramBank);
+//}
 
 void Sequencer::clearStep(uint8_t x, uint8_t row)
 {
@@ -674,26 +674,47 @@ void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 	strPattern::strTrack * tempRow = &seq[bank].track[row];
 	strPattern::strTrack::strStep * step = &tempRow->step[x];
 
-	clearStep(step);
+	clearStep(step,0);
 }
 
-void Sequencer::clearStep(strPattern::strTrack::strStep * step)
+void Sequencer::clearStep(strPattern::strTrack::strStep * step,
+							uint8_t elements)
 {
-//	step->isOn = 0;
-	step->velocity = MAX_VELO_STEP;
-
-	step->note = STEP_NOTE_EMPTY;
-	step->instrument = 0;
-	step->velocity = -1;
-	step->fx[0].type = 0;
+	switch (elements)
+	{
+	case ELEMENTS_ALL:
+		step->velocity = MAX_VELO_STEP;
+		step->note = STEP_NOTE_EMPTY;
+		step->instrument = 0;
+		step->velocity = -1;
+		step->fx[0].type = 0;
+		break;
+	case ELEMENTS_FXes:
+		step->fx[0].type = 0;
+		break;
+	case ELEMENTS_INSTRUMENTS:
+	case ELEMENTS_NOTES:
+		step->note = STEP_NOTE_EMPTY;
+		step->instrument = 0;
+		break;
+	case ELEMENTS_VELO:
+		step->velocity = -1;
+		break;
+	default:
+		break;
+	}
 
 }
 
 void Sequencer::clearSelected()
 {
-	clearSelected(&selection);
+	clearSelected(&selection, 0);
 }
-void Sequencer::clearSelected(strSelection * selection)
+void Sequencer::clearSelected(uint8_t elements)
+{
+	clearSelected(&selection, elements);
+}
+void Sequencer::clearSelected(strSelection * selection, uint8_t elements)
 {
 	if (!isSelectionCorrect(selection)) return;
 
@@ -701,7 +722,7 @@ void Sequencer::clearSelected(strSelection * selection)
 	{
 		for (uint8_t s = selection->firstStep; s <= selection->lastStep; s++)
 		{
-			clearStep(&seq[player.ramBank].track[t].step[s]);
+			clearStep(&seq[player.ramBank].track[t].step[s], elements);
 		}
 	}
 }
@@ -761,7 +782,7 @@ void Sequencer::insert(strSelection *selection)
 		{
 			seq[player.ramBank].track[t].step[s] = seq[player.ramBank].track[t].step[s - 1];
 		}
-		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep]);
+		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep], ELEMENTS_ALL);
 	}
 
 }
@@ -776,7 +797,7 @@ void Sequencer::insertReversed(strSelection *selection)
 		{
 			seq[player.ramBank].track[t].step[s] = seq[player.ramBank].track[t].step[s + 1];
 		}
-		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep]);
+		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep], ELEMENTS_ALL);
 	}
 
 }
