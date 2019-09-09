@@ -816,7 +816,7 @@ void FileManager::saveProject()
 		if(mtProject.mtProjectRemote.instrumentFile[i].index != -1)
 		{
 
-
+			sprintf(currentPatch,"%s/instruments/%s",currentProjectPatch,mtProject.mtProjectRemote.instrumentFile[i].name);
 			memcpy(mtProject.mtProjectRemote.instrumentFile[i].sample.name,mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.file_name, SAMPLE_NAME_SIZE);
 			mtProject.mtProjectRemote.instrumentFile[i].sample.type=mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index].sample.type;
 			writeInstrumentFile(currentPatch, &mtProject.instrument[mtProject.mtProjectRemote.instrumentFile[i].index]);

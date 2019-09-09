@@ -641,10 +641,12 @@ void cSampleImporter::BrowseOrAdd()
 
 			strcpy(actualPath, &locationExplorerList[selectedFile][0]);
 
+
 			explorerPositionTable[explorerCurrentPosition]=selectedFile;
 			explorerCurrentPosition++;
 
 			selectedFile=0;
+
 
 			listAllFoldersFirst();
 		}
@@ -659,12 +661,14 @@ void cSampleImporter::BrowseOrAdd()
 					explorerPositionTable[explorerCurrentPosition]=selectedFile;
 					explorerCurrentPosition++;
 
+
 					strcat(actualPath, &locationExplorerList[selectedFile][0]);
 
 					selectedFile=0;
 
 					listAllFoldersFirst();
 				}
+
 			}
 			else
 			{
@@ -682,11 +686,10 @@ void cSampleImporter::BrowseOrAdd()
 				explorerCurrentPosition--;
 				selectedFile=explorerPositionTable[explorerCurrentPosition];
 
+
 				listAllFoldersFirst();
 			}
 		}
-
-		//selectedFile = 0;
 	}
 	else
 	{

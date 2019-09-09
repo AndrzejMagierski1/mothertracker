@@ -331,9 +331,10 @@ void cPatternEditor::refreshPattern()
 
 			if(seq->track[i].step[patternPosition-7+j].fx[0].isOn)
 			{
-				trackerPattern.track[i].row[j].fx[0] = seq->track[i].step[patternPosition-7+j].fx[0].type + 59;
-				trackerPattern.track[i].row[j].fx[1] = '0';
-				trackerPattern.track[i].row[j].fx[2] = '0';
+				trackerPattern.track[i].row[j].fx[0] = seq->track[i].step[patternPosition - 7 + j].fx[0].type + 65;
+				sprintf(&trackerPattern.track[i].row[j].fx[1],
+						"%2.2x",
+						seq->track[i].step[patternPosition - 7 + j].fx[0].val1_u8);
 				trackerPattern.track[i].row[j].fx[3] = 0;
 			}
 			else
@@ -783,7 +784,16 @@ uint8_t functEncoder(int16_t value)
 	case 0: sequencer.changeSelectionNote(value); break;
 	case 1: sequencer.changeSelectionInstrument(value); break;
 	case 2: sequencer.changeSelectionVolume(value); break;
-	case 3: break;
+	case 3:
+		if (tactButtons.isButtonPressed(interfaceButtonFx))
+		{
+			sequencer.changeSelectionFxType(value);
+		}
+		else
+		{
+			sequencer.changeSelectionFxValue(value);
+		}
+		break;
 	}
 
 	PTE->lightUpPadBoard();
