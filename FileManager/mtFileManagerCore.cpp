@@ -16,15 +16,17 @@ void FileManager::update()
 {
 	samplesLoader.update();
 	samplesImporter.update();
-//////////////////////////////////////COPYING////////////////////////////
 	currentCopyStatusFlag = fileManager.samplesImporter.getState();
 
 
 
 	if( (!currentCopyStatusFlag ) && (lastCopyStatusFlag) )
 	{
-		uint8_t startIndex = samplesImporter.getCurrentStartIndex();
-		if(startIndex != -1) samplesLoader.start(startIndex,currentProjectPatch);
+		if(autoLoadFlag)
+		{
+			uint8_t startIndex = samplesImporter.getCurrentStartIndex();
+			if(startIndex != -1) samplesLoader.start(startIndex,currentProjectPatch);
+		}
 	}
 
 	lastCopyStatusFlag = currentCopyStatusFlag;

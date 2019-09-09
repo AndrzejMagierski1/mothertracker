@@ -42,11 +42,10 @@ uint8_t SamplesImporter::start(char* filePatch, char* name, char* projectPatch, 
 
 	mtProject.mtProjectRemote.instrumentFile[instrumentIndex].sample.type = type;
 
-	if(mtProject.instrument[instrumentIndex].isActive)
-	{
-		sprintf(currentPatch,"%s/samples/%s",currentProjectPatch,localName);
-		if(SD.exists(currentPatch)) SD.remove(currentPatch);
-	}
+
+	sprintf(currentPatch,"%s/samples/%s",currentProjectPatch,localName);
+	if(SD.exists(currentPatch)) SD.remove(currentPatch);
+
 
 	strcpy(mtProject.instrument[instrumentIndex].sample.file_name,name);
 	mtProject.instrument[instrumentIndex].sample.type = type;

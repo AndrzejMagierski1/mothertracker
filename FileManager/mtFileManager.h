@@ -30,15 +30,6 @@ struct strInstrumentFile
 	uint32_t crc;
 };
 
-//struct strPatternFile
-//{
-//
-//	strProjectFileHeader patternHeader;
-//
-//	// > tutaj w pliku jest sekwencja <
-//	uint32_t crc;
-//
-//};
 
 struct strProjectFile
 {
@@ -59,56 +50,66 @@ class FileManager
 {
 
 public:
-
+//************************************************ FileManagerProject*******************************************************
 	uint8_t openProject(char * name, uint8_t type);
 	void importProject(char* sourceProjectPatch,char* name, char* newName);
 	uint8_t saveAsProject(char* name);
 	void saveProject();
 	uint8_t createNewProject(char * name);
-
-	/////////////////////////////////////////////////////////////////////////
-	uint8_t loadPattern(uint8_t index);
-	uint8_t savePattern(uint8_t index);
-	/////////////////////////////////////////////////////////////////////////
-
-	uint8_t assignSampleToInstrument(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type  = mtSampleTypeWaveFile);
-	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
-	void importPatternToProject(char* filePatch, char* name, int8_t index);
 	void createEmptyTemplateProject(char * name);
-//	void addInstrumentToProject (int8_t index);
-	void addPatternToProject (int8_t index);
+
+//**************************************************************************************************************************
+//************************************************ FileManagerInstrument****************************************************
+	uint8_t assignSampleToInstrument(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type  = mtSampleTypeWaveFile);
+	void setAutoLoadFlag();
+	void clearAutoLoadFlag();
+	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
 	void deleteSample(int8_t index);
 	void deleteInstrument(int8_t index);
+	SamplesLoader samplesLoader;
+	SamplesImporter samplesImporter;
+//**************************************************************************************************************************
+//************************************************ FileManagerPattern*******************************************************
+	uint8_t loadPattern(uint8_t index);
+	uint8_t savePattern(uint8_t index);
+	void importPatternToProject(char* filePatch, char* name, int8_t index);
 	void deletePattern(int8_t index);
 	uint8_t getNextSongPattern();
 	uint8_t resetToFirstSongPattern();
+	void addPatternToProject (int8_t index);
 	void switchNextPatternInSong();
 	void refreshPatternView();
-//	uint8_t isSongMode();
 
+//**************************************************************************************************************************
+//************************************************ FileManagerCore**********************************************************
 	void update();
-
-	friend class cProjectEditor;
-	SamplesLoader samplesLoader;
-	SamplesImporter samplesImporter;
 	char currentProjectPatch[PATCH_SIZE-PROJECT_NAME_SIZE];
+//**************************************************************************************************************************
+	friend class cProjectEditor;
+
 private:
+//************************************************ FileManagerCore**********************************************************
 	void formatSDCard();
-
-
 	void copySample(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
-	void copyPattern(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
 	void writeInstrumentFile(char * name, strInstrument * instr);
 	uint8_t readInstrumentFile(char * name, strInstrument * instr);
 	uint8_t writePatternFile(char * name);
 	uint8_t readPatternFile(char * name);
 	void writeProjectFile(char * name,strMtProjectRemote * proj);
 	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
-
+	char currentProjectName[PROJECT_NAME_SIZE];
+//**************************************************************************************************************************
+//************************************************ FileManagerInstrument****************************************************
 	uint8_t currentCopyStatusFlag;
 	uint8_t lastCopyStatusFlag;
-	char currentProjectName[PROJECT_NAME_SIZE];
-//	uint8_t currentPattern;
+	uint8_t autoLoadFlag = 1;
+//**************************************************************************************************************************
+//************************************************ FileManagerPattern*******************************************************
+	void copyPattern(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
+//**************************************************************************************************************************
+
+
+
 };
 
 

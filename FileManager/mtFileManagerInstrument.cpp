@@ -1,6 +1,15 @@
 #include "mtFileManager.h"
 
 
+void FileManager::setAutoLoadFlag()
+{
+	autoLoadFlag = 1;
+}
+void FileManager::clearAutoLoadFlag()
+{
+	autoLoadFlag = 0;
+}
+
 uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type)
 {
 	uint8_t status =  samplesImporter.start(filePatch, name, currentProjectPatch, instrumentIndex, type);
@@ -168,11 +177,6 @@ void FileManager::deleteInstrument(int8_t index)
 void FileManager::deleteSample(int8_t index)
 {
 	char currentPatch[PATCH_SIZE];
-	char number[3];
-
-	number[0] = ((index-index%10)/10) + 48;
-	number[1] = index%10 + 48;
-	number[2] = 0;
 
 	if(mtProject.instrument[index].sample.loaded) mtProject.samples_count--;
 
