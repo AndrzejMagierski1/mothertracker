@@ -827,7 +827,14 @@ static  uint8_t functShift(uint8_t state)
 			display.refreshControl(PTE->patternControl);
 		}
 
+		if(PTE->editMode && !isMultiSelection() && !PTE->shiftAction )
+		{
+			sendSelection();
+			sequencer.blinkSelectedStep();
+		}
 
+
+		PTE->shiftAction = 0;
 	}
 
 	return 1;
@@ -1286,6 +1293,7 @@ static  uint8_t functPlayAction()
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
 			sequencer.playSong();
+			PTE->shiftAction = 1;
 		}
 		else
 		{
@@ -1406,6 +1414,7 @@ static uint8_t functCopyDelete(uint8_t state)
 			{
 				sendCopySelection();
 				sequencer.copyToBuffer();
+				PTE->shiftAction = 1;
 			}
 			// DELETE
 			else
@@ -1440,6 +1449,7 @@ static uint8_t functCopyDelete(uint8_t state)
 			{
 				sendSelection();
 				sequencer.clearSelected(getSelectedElement());
+				PTE->shiftAction = 1;
 			}
 
 		}
