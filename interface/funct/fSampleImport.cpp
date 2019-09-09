@@ -73,6 +73,20 @@ void cSampleImporter::update()
 
 	if( (!currentCopyStatusFlag ) && (lastCopyStatusFlag) )
 	{
+		if(copyQueue > 1 )
+		{
+			copyQueue--;
+			fileManager.clearAutoLoadFlag();
+			fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[getSelectionStart() + copyQueue][0], selectedSlot + copyQueue);
+
+		}
+		else if(copyQueue == 1)
+		{
+			copyQueue = 0;
+			fileManager.setAutoLoadFlag();
+			fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[getSelectionStart()][0], selectedSlot);
+
+		}
 		showDefaultScreen();
 	}
 
@@ -379,7 +393,7 @@ static  uint8_t functRecAction()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-
+	if(SI->currentLoadStatusFlag || SI->currentCopyStatusFlag) return 1;
 	SI->eventFunct(eventSwitchModule,SI,&button,0);
 
 	return 1;
@@ -685,7 +699,20 @@ void cSampleImporter::BrowseOrAdd()
 void cSampleImporter::SelectFile()
 {
 	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
-	fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[selectedFile][0], selectedSlot);
+	if(fileSelectionLength > 1)
+	{
+		fileManager.clearAutoLoadFlag();
+		copyQueue = fileSelectionLength-1;
+		fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[getSelectionStart() + copyQueue][0], selectedSlot +  copyQueue);
+
+	}
+	else
+	{
+		fileManager.setAutoLoadFlag();
+		copyQueue = 0;
+		fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[selectedFile][0], selectedSlot);
+	}
+
 //	fileManager.SampleImporter.startImportSampleToProject(actualPath,&locationExplorerList[selectedFile][0], selectedSlot);
 
 

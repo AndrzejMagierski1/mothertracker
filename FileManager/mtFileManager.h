@@ -83,6 +83,8 @@ public:
 //**************************************************************************************************************************
 //************************************************ FileManagerCore**********************************************************
 	void update();
+	uint8_t getEndImportSampleFlag();
+	void clearEndImportSampleFlag();
 	char currentProjectPatch[PATCH_SIZE-PROJECT_NAME_SIZE];
 //**************************************************************************************************************************
 	friend class cProjectEditor;
@@ -98,11 +100,12 @@ private:
 	void writeProjectFile(char * name,strMtProjectRemote * proj);
 	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
 	char currentProjectName[PROJECT_NAME_SIZE];
+	uint8_t endImportSampleFlag = 0;
+	uint8_t autoLoadFlag = 1;
 //**************************************************************************************************************************
 //************************************************ FileManagerInstrument****************************************************
 	uint8_t currentCopyStatusFlag;
 	uint8_t lastCopyStatusFlag;
-	uint8_t autoLoadFlag = 1;
 //**************************************************************************************************************************
 //************************************************ FileManagerPattern*******************************************************
 	void copyPattern(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);

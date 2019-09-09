@@ -1445,18 +1445,11 @@ static  uint8_t functActionSave()
 
 	char localPatch[70];
 	uint16_t cnt=1;
-	char cntBuf[5];
 
 	do
 	{
-	   memset(cntBuf,0,5);
-	   sprintf(cntBuf, "%d", cnt);
-	   strcpy(SR->name,"recording");
-	   strcat(SR->name,cntBuf);
-
-	   strcpy(localPatch,"Recorded/");
-	   strcat(localPatch, SR->name);
-	   strcat(localPatch, ".wav");
+	   sprintf(SR->name, "recording%d",cnt);
+	   sprintf(localPatch,"Recorded/%s.wav",SR->name);
 
 	   cnt++;
 	   if(cnt > 9999)

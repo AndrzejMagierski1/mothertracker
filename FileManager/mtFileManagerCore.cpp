@@ -19,9 +19,9 @@ void FileManager::update()
 	currentCopyStatusFlag = fileManager.samplesImporter.getState();
 
 
-
 	if( (!currentCopyStatusFlag ) && (lastCopyStatusFlag) )
 	{
+		endImportSampleFlag = 1;
 		if(autoLoadFlag)
 		{
 			uint8_t startIndex = samplesImporter.getCurrentStartIndex();
@@ -33,6 +33,22 @@ void FileManager::update()
 
 }
 
+uint8_t FileManager::getEndImportSampleFlag()
+{
+	return endImportSampleFlag;
+}
+void FileManager::clearEndImportSampleFlag()
+{
+	endImportSampleFlag = 0;
+}
+void FileManager::setAutoLoadFlag()
+{
+	autoLoadFlag = 1;
+}
+void FileManager::clearAutoLoadFlag()
+{
+	autoLoadFlag = 0;
+}
 void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 {
 	if(SD.exists(name)) SD.remove(name);

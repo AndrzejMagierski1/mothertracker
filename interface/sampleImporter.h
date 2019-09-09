@@ -132,6 +132,7 @@ public:
 	uint8_t copyingProgress = 0;
 	uint8_t lastCopyStatusFlag = 0;
 	uint8_t currentCopyStatusFlag = 0;
+	uint8_t copyQueue = 0;
 
 	uint8_t lastLoadStatusFlag = 0;
 	uint8_t currentLoadStatusFlag = 0;
