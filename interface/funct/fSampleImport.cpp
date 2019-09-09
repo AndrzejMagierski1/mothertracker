@@ -36,6 +36,7 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
+uint8_t preview(uint8_t state);
 
 
 
@@ -176,7 +177,7 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton1, buttonPress, functChangeFolder);
 
 	FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
-	//FM->setButtonObj(interfaceButton3, buttonPress, functChangeFile);
+	FM->setButtonObj(interfaceButton3, preview);
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functChangeInstrument);
 	FM->setButtonObj(interfaceButton5, buttonPress, functInstrumentDelete);
@@ -293,16 +294,23 @@ static  uint8_t functEnter()
 
 static  uint8_t functShift(uint8_t state)
 {
-
-	if(state == 0)  SI->stopPlaying();
-	else if (state == 1)
+	if(SI->selectedPlace==0)
 	{
-
-		switch(SI->selectedPlace)
+		if(state ==0)
 		{
-		case 0: SI->playSdFile(); 			break;
-		case 1: SI->playSampleFromBank(); 	break;
+			SI->selectionActive=0;
+		}
+		else if(state == 1)
+		{
+			if(SI->checkIfValidSelection(SI->selectedFile))// nie mozna zaczac zaznaczac od folderu
+			{
+				SI->selectionActive=1;
+				memset(SI->fileSelection,0,sizeof(SI->fileSelection));
+				SI->fileSelection[SI->selectedFile]=1;
+				SI->fileSelectionLength=1;
 
+				SI->updateSelection();
+			}
 		}
 	}
 
@@ -315,12 +323,18 @@ static  uint8_t functLeft()
 	if(SI->selectedPlace > 0) SI->selectedPlace--;
 	else
 	{
+		if(SI->selectionActive)
+		{
+			SI->cancelSelect();
+		}
+
 		SI->rewindListToBeggining();
 		SI->calculateCurrentSelectMemorySize();
 		SI->calculateMemoryUsage();
 		SI->showMemoryUsage();
 		SI->AddOrEnter();
 	}
+
 	SI->activateLabelsBorder();
 
 	return 1;
@@ -404,9 +418,20 @@ static uint8_t functSwitchModule(uint8_t button)
 
 uint8_t cSampleImporter::changeFileSelection(int16_t value)
 {
-	if(selectedFile+value < 0) selectedFile = 0;
-	else if(selectedFile+value > locationExplorerCount-1) selectedFile = locationExplorerCount-1;
-	else  selectedFile += value;
+	if(selectionActive)
+	{
+		handleSelecting(value);
+	}
+	else
+	{
+		if(selectedFile+value < 0) selectedFile = 0;
+		else if(selectedFile+value > locationExplorerCount-1) selectedFile = locationExplorerCount-1;
+		else  selectedFile += value;
+
+		cancelSelect();
+	}
+
+	updateSelection();
 
 	display.setControlValue(explorerListControl, selectedFile);
 	display.refreshControl(explorerListControl);
@@ -839,6 +864,107 @@ void cSampleImporter::stopPlaying()
 
 	playMode = playModeStop;
 }
+
+uint8_t preview(uint8_t state)
+{
+	if(state == 0)  SI->stopPlaying();
+	else if (state == 1)
+	{
+
+		switch(SI->selectedPlace)
+		{
+		case 0: SI->playSdFile(); 			break;
+		case 1: SI->playSampleFromBank(); 	break;
+
+		}
+	}
+
+	return 1;
+}
+
+void cSampleImporter::updateSelection()
+{
+	display.refreshControl(explorerListControl);
+}
+
+bool cSampleImporter::checkIfValidSelection(uint8_t positionToCheck)
+{
+	if(!(SI->locationExplorerList[positionToCheck][0] == '/'))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void cSampleImporter::handleSelecting(int16_t value)
+{
+	int8_t sign=1;
+	uint8_t position;
+
+	if(value<0)
+	{
+		sign=-1;
+		value *= -1;
+	}
+
+	position = SI->selectedFile;
+
+	for(int i=0;i<value;i++)
+	{
+		position += (1 *sign);
+		if(position > 0 && position < locationExplorerCount)
+		{
+			if(checkIfValidSelection(position))
+			{
+				if(fileSelection[position]==1)
+				{
+					if(sign<0)
+					{
+						fileSelection[position+1]=0;
+					}
+					if(sign>0)
+					{
+						fileSelection[position-1]=0;
+					}
+
+					fileSelectionLength--;
+				}
+				else
+				{
+					fileSelection[position]=1;
+					fileSelectionLength++;
+				}
+
+				selectedFile = position;
+			}
+		}
+	}
+}
+
+void cSampleImporter::cancelSelect()
+{
+	memset(SI->fileSelection,0,sizeof(SI->fileSelection));
+	fileSelectionLength=0;
+	updateSelection();
+}
+
+int16_t cSampleImporter::getSelectionStart()
+{
+	int16_t selStart=-1;
+
+	for(size_t i=0;i<sizeof(fileSelection);i++)
+	{
+		if(fileSelection[i]==1)
+		{
+			selStart=i;
+			break;
+		}
+	}
+
+	return selStart;
+}
+
 
 
 
