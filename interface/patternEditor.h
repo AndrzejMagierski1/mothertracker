@@ -147,6 +147,7 @@ public:
 	uint8_t editMode = 0;
 	uint8_t editParam = 0;
 	uint8_t isSelectingNow = 0;
+	uint8_t shiftAction = 0; // ustawić na 1 jeśli była akcja shift + cokolwiek
 
 	uint8_t padsTempData[48];
 

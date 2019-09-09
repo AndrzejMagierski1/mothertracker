@@ -288,6 +288,15 @@ public:
 		uint32_t crc;
 
 	};
+
+	enum enSelectionElements
+	{
+		ELEMENTS_ALL,
+		ELEMENTS_NOTES,
+		ELEMENTS_INSTRUMENTS,
+		ELEMENTS_VELO,
+		ELEMENTS_FXes,
+	};
 	struct strSelection
 
 	{
@@ -602,9 +611,10 @@ public:
 
 // SELECTION
 	void copySelectionToBuffer(strSelection *from, strSelection *to);
-	void pasteSelectionFromBuffer(strSelection *from, strSelection *to);
+	void pasteSelectionFromBuffer(strSelection *from, strSelection *to,
+									uint8_t elements);
 	void copyToBuffer();
-	void pasteFromBuffer();
+	void pasteFromBuffer(uint8_t);
 	bool isSelectionCorrect(strSelection *selection);
 	bool isSingleSelection(strSelection *selection);
 
@@ -623,9 +633,10 @@ public:
 
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
-	void clearStep(strPattern::strTrack::strStep * step);
-	void clearSelected(strSelection * sel);
+	void clearStep(strPattern::strTrack::strStep * step, uint8_t);
+	void clearSelected(strSelection * sel, uint8_t elements);
 	void clearSelected();
+	void clearSelected(uint8_t);
 
 	void changeSelectionVolume(int16_t value);
 	void changeSelectionFxValue(int16_t value);
@@ -671,6 +682,7 @@ public:
 	void changeSelectionNote(int16_t value);
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 					uint8_t track);
+	void blinkSelectedStep();
 	void randomSelectedNotes(uint8_t from, uint8_t to, uint8_t scale);
 	void randomSelectedInstruments(uint8_t from, uint8_t to);
 	void randomSelectedVelo(uint8_t from, uint8_t to);

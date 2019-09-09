@@ -1391,6 +1391,21 @@ void Sequencer::blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 									velocity);
 }
 
+void Sequencer::blinkSelectedStep()
+{
+	strPattern::strTrack::strStep *step;
+	step = &seq[player.ramBank].track[selection.firstTrack].step[selection.firstStep];
+
+	if (step->note >= 0)
+	{
+		blinkNote(step->instrument,
+					step->note,
+					step->velocity,
+					selection.firstTrack);
+	}
+
+}
+
 void Sequencer::loadNextPattern(uint8_t patternNumber)
 {
 	player.jump.nextPattern = patternNumber;
