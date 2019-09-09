@@ -58,6 +58,7 @@ void cSampleImporter::initDisplayControls()
 	explorerList.start = 0;
 	explorerList.length = locationExplorerCount;
 	explorerList.data = explorerNames;
+	explorerList.selectTab=fileSelection;
 	strControlProperties prop;
 	prop.x = 0+8;
 	prop.y = 37;
@@ -153,7 +154,7 @@ void cSampleImporter::showDefaultScreen()
 
 	display.setControlText(topLabel[0], "Micro SD");
 	display.setControlText(topLabel[1], "");
-	display.setControlText(topLabel[2], "");
+	display.setControlText(topLabel[2], "Preview");
 	display.setControlText(topLabel[3], "");
 	display.setControlText(topLabel[4], "Delete");
 	display.setControlText(topLabel[5], "Instruments");

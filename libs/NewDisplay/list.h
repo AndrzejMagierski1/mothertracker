@@ -15,6 +15,8 @@ struct strList
 	uint16_t length;
 	uint16_t linesCount;
 
+	uint8_t *selectTab;
+
 
 	char** data;
 
