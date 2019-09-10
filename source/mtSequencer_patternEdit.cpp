@@ -422,8 +422,18 @@ void Sequencer::changeSelectionVolume(int16_t value)
 				s++, offset++)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
-			step->velocity = constrain(step->velocity + value, 0,
-										MAX_VELO_STEP);
+
+			if (!isMultiSelection())
+			{
+				step->velocity = constrain(step->velocity + value, -1,
+											MAX_VELO_STEP);
+				return;
+			}
+			else if (step->velocity >= 0)
+			{
+				step->velocity = constrain(step->velocity + value, 0,
+											MAX_VELO_STEP);
+			}
 		}
 	}
 }
@@ -674,7 +684,7 @@ void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 	strPattern::strTrack * tempRow = &seq[bank].track[row];
 	strPattern::strTrack::strStep * step = &tempRow->step[x];
 
-	clearStep(step,0);
+	clearStep(step, 0);
 }
 
 void Sequencer::clearStep(strPattern::strTrack::strStep * step,
@@ -693,7 +703,7 @@ void Sequencer::clearStep(strPattern::strTrack::strStep * step,
 		step->fx[0].type = 0;
 		break;
 	case ELEMENTS_INSTRUMENTS:
-	case ELEMENTS_NOTES:
+		case ELEMENTS_NOTES:
 		step->note = STEP_NOTE_EMPTY;
 		step->instrument = 0;
 		break;
@@ -782,7 +792,8 @@ void Sequencer::insert(strSelection *selection)
 		{
 			seq[player.ramBank].track[t].step[s] = seq[player.ramBank].track[t].step[s - 1];
 		}
-		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep], ELEMENTS_ALL);
+		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep],
+					ELEMENTS_ALL);
 	}
 
 }
@@ -797,7 +808,8 @@ void Sequencer::insertReversed(strSelection *selection)
 		{
 			seq[player.ramBank].track[t].step[s] = seq[player.ramBank].track[t].step[s + 1];
 		}
-		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep], ELEMENTS_ALL);
+		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep],
+					ELEMENTS_ALL);
 	}
 
 }
