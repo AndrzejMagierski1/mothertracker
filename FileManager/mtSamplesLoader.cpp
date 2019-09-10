@@ -37,7 +37,6 @@ void SamplesLoader::update()
 
 			if(mtProject.instrument[currentIndex].isActive == 0)
 			{
-				mtProject.instrument[currentIndex].sample.loaded = 0;
 				mtProject.instrument[currentIndex].sample.length = 0;
 				mtProject.instrument[currentIndex].sample.wavetable_window_size = 0;
 
@@ -97,7 +96,8 @@ void SamplesLoader::update()
 
 		if(waveLoader.getStopStatus() == 0)
 		{
-			mtProject.instrument[currentIndex].sample.loaded = 0;
+			mtProject.instrument[currentIndex].isActive = 0;
+			mtProject.mtProjectRemote.instrumentFile[currentIndex].isActive = 0;
 			mtProject.instrument[currentIndex].sample.length = 0;
 			mtProject.instrument[currentIndex].sample.wavetable_window_size = 0;
 
@@ -119,14 +119,14 @@ void SamplesLoader::update()
 		else if(waveLoader.getStopStatus() == 1)
 		{
 			mtProject.used_memory += currentSize*2;
-			mtProject.instrument[currentIndex].sample.loaded = 1;
+			mtProject.mtProjectRemote.instrumentFile[currentIndex].isActive = 1;
+			mtProject.instrument[currentIndex].isActive=1;
 			mtProject.instrument[currentIndex].sample.length = currentSize;
 			loadedFlagChange = 1;
 			if( (currentIndex+1) < INSTRUMENTS_COUNT)
 			{
 				mtProject.instrument[currentIndex+1].sample.address = mtProject.instrument[currentIndex].sample.address+currentSize;
 				currentIndex++;
-				mtProject.samples_count++;
 			}
 			else
 			{
@@ -136,6 +136,7 @@ void SamplesLoader::update()
 			}
 
 			currentStepLoadSize = 0;
+			mtProject.instruments_count++;
 			waveLoader.setStopStatus(2); // status readed
 		}
 
@@ -180,20 +181,20 @@ void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t first
 	sizeAllFiles = 0;
 	currentIndex = startIndex;
 	mtProject.used_memory = 0;
-	mtProject.samples_count = 0;
+	mtProject.instruments_count = 0;
+
 	for(uint8_t i = 0; i < startIndex; i++)
 	{
-		if(mtProject.instrument[i].sample.loaded)
+		if(mtProject.instrument[i].isActive)
 		{
 			mtProject.used_memory += 2*mtProject.instrument[i].sample.length;
 			mtProject.instrument[startIndex].sample.address = mtProject.instrument[i].sample.address + mtProject.instrument[i].sample.length;
-
-			mtProject.samples_count ++;
+			mtProject.instruments_count++;
 		}
 	}
 	for(uint8_t i = startIndex + 1; i < INSTRUMENTS_COUNT; i ++)
 	{
-		if(mtProject.instrument[i].sample.loaded)
+		if(mtProject.instrument[i].isActive)
 		{
 			sizeAllFiles += mtProject.instrument[i].sample.length;
 		}
@@ -214,7 +215,7 @@ void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t first
 		sizeAllFiles+= waveLoader.getInfoAboutWave(currentPatch);
 	}
 
-	if(mtProject.samples_count == 0)  mtProject.instrument[startIndex].sample.address = sdram_sampleBank;
+	if(mtProject.instruments_count == 0)  mtProject.instrument[startIndex].sample.address = sdram_sampleBank;
 }
 
 uint8_t SamplesLoader::getCurrentProgress()

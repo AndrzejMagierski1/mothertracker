@@ -243,7 +243,7 @@ static  uint8_t functInstrumentDelete()
 {
 	if(SI->selectedPlace==1)
 	{
-		if(mtProject.instrument[SI->selectedSlot].sample.loaded)
+		if(mtProject.instrument[SI->selectedSlot].isActive)
 		{
 			mtProject.used_memory -= 2* mtProject.instrument[SI->selectedSlot].sample.length;
 		}
@@ -733,7 +733,7 @@ void cSampleImporter::listInstrumentSlots()
 	{
 		sprintf(&interfaceGlobals.intrumentsNames[i][0], "%d. ", i+1);
 
-		if(mtProject.instrument[i].sample.loaded)
+		if(mtProject.instrument[i].isActive)
 		{
 			strncat(&interfaceGlobals.intrumentsNames[i][0], mtProject.instrument[i].sample.file_name,SAMPLE_NAME_SIZE);
 		}
@@ -782,7 +782,7 @@ void cSampleImporter::calculateCurrentSelectMemorySize()
 	strcat(file_path, &locationExplorerList[selectedFile][0]);
 
 	currentSelectMemorySize = 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(file_path);
-	if(mtProject.instrument[selectedSlot].sample.loaded) currentSelectMemorySize -= 2*mtProject.instrument[selectedSlot].sample.length;
+	if(mtProject.instrument[selectedSlot].isActive) currentSelectMemorySize -= 2*mtProject.instrument[selectedSlot].sample.length;
 }
 
 void cSampleImporter::calculateLoadProgress()
@@ -848,7 +848,7 @@ void cSampleImporter::playSdFile()
 void cSampleImporter::playSampleFromBank()
 {
 	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
-	if(!mtProject.instrument[selectedSlot].sample.loaded) return;
+	if(!mtProject.instrument[selectedSlot].isActive) return;
 
 	if(sequencer.getSeqState() == 1)
 	{

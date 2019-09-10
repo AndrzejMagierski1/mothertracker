@@ -21,7 +21,7 @@ uint8_t SamplesImporter::start(char* filePatch, char* name, char* projectPatch, 
 	uint32_t locaUsedMemory;
 	if(localFileSize == 0) return 0;
 
-	if(mtProject.instrument[instrumentIndex].sample.loaded)
+	if(mtProject.instrument[instrumentIndex].isActive)
 	{
 		locaUsedMemory=mtProject.used_memory - 2* mtProject.instrument[instrumentIndex].sample.length;
 	}
@@ -34,13 +34,12 @@ uint8_t SamplesImporter::start(char* filePatch, char* name, char* projectPatch, 
 
 
 /*********************************************************SAMPLE****************************************************************/
-	strcpy(mtProject.mtProjectRemote.instrumentFile[instrumentIndex].sample.name,name);
 
 	if(instrumentIndex < 10) sprintf(localName,"instr0%d.wav",instrumentIndex);
 	else sprintf(localName,"instr%d.wav",instrumentIndex);
 
 
-	mtProject.mtProjectRemote.instrumentFile[instrumentIndex].sample.type = type;
+	mtProject.mtProjectRemote.instrumentFile[instrumentIndex].sampleType = type;
 
 
 	sprintf(currentPatch,"%s/samples/%s",currentProjectPatch,localName);

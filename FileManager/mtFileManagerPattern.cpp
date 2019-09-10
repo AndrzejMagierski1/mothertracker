@@ -13,7 +13,7 @@ uint8_t FileManager::loadPattern(uint8_t index)
 	uint8_t status = readPatternFile(patternToLoad);
 	if (status)
 	{
-		mtProject.mtProjectRemote.patternFile[index].index = index;
+		mtProject.mtProjectRemote.patternFile[index].isActive = 1;
 	}
 	return status;
 }
@@ -37,16 +37,12 @@ void FileManager::importPatternToProject(char* filePatch, char* name, int8_t ind
 	char currentPatch[PATCH_SIZE];
 	FsFile file;
 	FsFile copy;
-	uint8_t cnt=0;
 	uint8_t currentBuf[1024];
 	uint16_t lengthData=0;
 
 
-	while((mtProject.mtProjectRemote.patternFile[cnt].index != -1) && (cnt < PATTERN_INDEX_MAX))
-	{
-		cnt++;
-	}
-	mtProject.mtProjectRemote.patternFile[cnt].index=index;
+
+	mtProject.mtProjectRemote.patternFile[index].isActive=1;
 //	strcpy(mtProject.mtProjectRemote.patternFile[cnt].name,"pattern_00.mtp");
 //	mtProject.mtProjectRemote.patternFile[cnt].name[11] = ((index-index%10)/10) + 48;
 //	mtProject.mtProjectRemote.patternFile[cnt].name[12] = index%10 + 48;
@@ -147,13 +143,7 @@ void FileManager:: addPatternToProject (int8_t index)
 void FileManager::deletePattern(int8_t index)
 {
 	char currentPatch[PATCH_SIZE];
-	uint8_t cnt=0;
 
-	while((mtProject.mtProjectRemote.patternFile[cnt].index != index) && (cnt < PATTERN_INDEX_MAX) )
-	{
-		cnt++;
-	}
-	if(cnt == PATTERN_INDEX_MAX) return;
 
 	for(uint8_t i=0;i<SONG_MAX; i++)
 	{
@@ -165,7 +155,7 @@ void FileManager::deletePattern(int8_t index)
 
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 
-	mtProject.mtProjectRemote.patternFile[cnt].index=-1;
+	mtProject.mtProjectRemote.patternFile[index].isActive=-1;
 //	memset(mtProject.mtProjectRemote.patternFile[cnt].name,0,PATTERN_NAME_SIZE);
 
 	mtProject.patterns_count--;

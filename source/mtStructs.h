@@ -39,7 +39,7 @@ const uint8_t INSTRUMENTS_COUNT =        		48;
 const uint8_t PATTERN_LENGTH_MAX 	=			255;
 
 const uint8_t PATTERN_INDEX_MIN 	=			1;
-const uint8_t PATTERN_INDEX_MAX 	=			32;
+const uint8_t PATTERN_INDEX_MAX 	=			255;
 
 
 
@@ -343,7 +343,6 @@ struct strInstrument
 		uint8_t type = 0;
 		char file_name[32];
 
-		uint8_t loaded = 0;
 		int16_t *address;
 		uint32_t length = 0;
 
@@ -414,26 +413,18 @@ struct strMtProjectRemote
 {
 	struct strInstrumentFile
 	{
-		int8_t index= -1;
-		char name[INSTRUMENT_NAME_SIZE];
-		struct strSample
-		{
-			uint8_t type;
-			char name[SAMPLE_NAME_SIZE];
-		} sample;
-
+		int8_t isActive = -1;
+		uint8_t sampleType;
 	} instrumentFile[INSTRUMENTS_COUNT];
 
 	struct strPaternFile
 	{
-		int8_t index= -1;
-//		char name[PATTERN_NAME_SIZE];
+		int8_t isActive= -1;
 	} patternFile[PATTERN_INDEX_MAX];
 
 	struct strSong
 	{
 		uint8_t playlist[SONG_MAX] { 1, 2, 3, 4, 0 };
-//		int8_t mode = SONGMODE_PATTERN;
 		int8_t playlistPos = 0;
 	} song;
 
@@ -456,7 +447,6 @@ struct strMtProject
 	// dynamiczne
 	uint32_t max_memory = SAMPLE_MEMORY_MAX;
 	uint32_t used_memory;
-	uint8_t samples_count;
 
 };
 
