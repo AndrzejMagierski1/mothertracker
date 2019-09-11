@@ -103,11 +103,10 @@ void cSampleImporter::update()
 		calculateLoadProgress();
 		showLoadHorizontalBar();
 	}
-	if( (!currentLoadStatusFlag) && (lastLoadStatusFlag)) showDefaultScreen();
-
+	if((!currentLoadStatusFlag) && (lastLoadStatusFlag))
+	{
 		if(!fileManager.samplesLoader.getStateFlag())
 		{
-			loadFlag = 0;
 			firstMemBarLoadFlag=2;
 			showDefaultScreen();
 		}
@@ -116,16 +115,15 @@ void cSampleImporter::update()
 		{
 			firstMemBarLoadFlag = 1;
 		}
-
 	}
+
+	lastLoadStatusFlag=currentLoadStatusFlag;
 
 	if(firstMemBarLoadFlag==1)
 	{
 		handleMemoryBar();
 	}
 
-
-	lastLoadStatusFlag = currentLoadStatusFlag;
 
 /////////////////////////////////////////////////////////////////////////
 }
@@ -272,7 +270,7 @@ static  uint8_t functInstrumentDelete()
 	{
 		if(SI->selectionLength<2)
 		{
-			if(mtProject.instrument[SI->selectedSlot].sample.loaded)
+			if(mtProject.instrument[SI->selectedSlot].isActive)
 			{
 				mtProject.used_memory -= 2* mtProject.instrument[SI->selectedSlot].sample.length;
 			}
@@ -287,7 +285,7 @@ static  uint8_t functInstrumentDelete()
 
 				for(int i=0;i<SI->selectionLength;i++)
 				{
-					if(mtProject.instrument[selectionStart+i].sample.loaded)
+					if(mtProject.instrument[selectionStart+i].isActive)
 					{
 						mtProject.used_memory -= 2* mtProject.instrument[selectionStart+i].sample.length;
 					}
@@ -839,10 +837,10 @@ void cSampleImporter::BrowseOrAdd()
 void cSampleImporter::SelectFile()
 {
 	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
-	if(fileSelectionLength > 1)
+	if(selectionLength > 1)
 	{
 		fileManager.clearAutoLoadFlag();
-		copyQueue = fileSelectionLength-1;
+		copyQueue = selectionLength-1;
 		fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[getSelectionStart() + copyQueue][0], selectedSlot +  copyQueue);
 
 	}
@@ -925,7 +923,7 @@ void cSampleImporter::calculateFileMemUsage()
 
 		for(int i=selectedSlot;i<selectedSlot+tempSelectionLength;i++)//get size when pasted on current isntrument slot
 		{
-			if(mtProject.instrument[i].sample.loaded)
+			if(mtProject.instrument[i].isActive)
 			{
 				tempInstrumentMemorySize += 2*mtProject.instrument[i].sample.length;
 			}
@@ -937,7 +935,7 @@ void cSampleImporter::calculateFileMemUsage()
 	{
 		currentSelectMemorySize = currentFolderMemoryFileUsage[selectedFile];
 
-		if(mtProject.instrument[selectedSlot].sample.loaded)
+		if(mtProject.instrument[selectedSlot].isActive)
 		{
 			currentSelectMemorySize -= 2*mtProject.instrument[selectedSlot].sample.length;
 		}
@@ -977,7 +975,7 @@ void cSampleImporter::calculateMemUsage()
 	}
 }
 
-void cSampleImporter::calculateCurrentSelectMemorySize()
+/*void cSampleImporter::calculateCurrentSelectMemorySize()
 {
 //	if(!isWavFile(&locationFileList[selectedFile][0])) return;
 
@@ -989,7 +987,7 @@ void cSampleImporter::calculateCurrentSelectMemorySize()
 
 	currentSelectMemorySize = 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(file_path);
 	if(mtProject.instrument[selectedSlot].isActive) currentSelectMemorySize -= 2*mtProject.instrument[selectedSlot].sample.length;
-}
+}*/
 
 void cSampleImporter::calculateLoadProgress()
 {
