@@ -721,7 +721,7 @@ void cSampleRecorder::activateLabelsBorder()
 //==============================================================================================================
 void cSampleRecorder::showZoomValue()
 {
-	sprintf(zoomTextValue,"%.3f",zoomValue);
+	sprintf(zoomTextValue, "%.2f", zoom.zoomValue);
 
 	display.setControlText(topLabel[3], zoomTextValue);
 	display.setControlShow(topLabel[3]);

@@ -198,6 +198,26 @@ enum enumMtOperatingMode
 };
 
 
+struct strSpectrumParams
+{
+	int16_t* address = nullptr;
+	uint32_t length = 0;
+	uint8_t recordInProgressFlag = 0;
+};
+
+
+struct strZoomParams
+{
+	uint16_t zoomPosition = 0;
+	uint16_t zoomWidth = MAX_16BIT;
+	int32_t zoomStart =  0;
+	int32_t zoomEnd = MAX_16BIT;
+	float zoomValue = 1;
+	int32_t zoomResolution;
+	uint8_t lastChangedPoint = 0;
+};
+
+
 struct strInterfaceGlobals
 {
 	char *padNamesPointer[48];
@@ -208,7 +228,6 @@ struct strInterfaceGlobals
 };
 
 extern strInterfaceGlobals interfaceGlobals;
-
 
 
 

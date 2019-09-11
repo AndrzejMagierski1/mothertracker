@@ -14,11 +14,10 @@
 
 
 
-const uint8_t effectsCount = 7;
+const uint8_t effectsCount = 6;
 const char effectNamesLabels[effectsCount][15] =
 {
-		"Sample",
-		"Config",
+		"Crop",
 		"Reverse",
 		"Echo",
 		"Flanger",
@@ -64,7 +63,7 @@ public:
 	void setDefaultScreenFunct();
 
 
-	void processSpectrum();
+//	void processSpectrum();
 	void processPoints();
 	void modStartPoint(int16_t value);
 	void modEndPoint(int16_t value);
@@ -100,13 +99,10 @@ public:
 
 	strInstrument * editorInstrument;
 
-	uint16_t zoomWidth = MAX_16BIT;
-	int32_t zoomStart =  0;
-	int32_t zoomEnd = MAX_16BIT;
-	uint8_t lastChangedPoint = 0;
-	float zoomValue = 1;
+	strZoomParams zoom;
+
 	char zoomTextValue[6];
-	uint16_t zoomPosition = 0;
+
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;

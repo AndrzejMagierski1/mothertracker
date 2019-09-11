@@ -8,6 +8,10 @@
 #include "mtLED.h"
 #include "mtFileManager.h"
 #include "mtPadsBacklight.h"
+#include "graphicProcessing.h"
+
+
+
 
 enum valueMapDirecion
 {
@@ -212,7 +216,13 @@ void cSampleRecorder::update()
 
 	if(refreshSpectrum)
 	{
-		processSpectrum();
+		//processSpectrum();
+		params.length = recorder.getLength();
+		params.address = recorder.getAddress();
+		params.recordInProgressFlag = recordInProgressFlag;
+		GP.processSpectrum(&params, &zoom, &spectrum);
+
+
 		display.refreshControl(spectrumControl);
 		if(recordInProgressFlag) spectrumTimerConstrains+=50;
 		refreshSpectrum = 0;
@@ -315,7 +325,11 @@ void cSampleRecorder::start(uint32_t options)
 
 	resizer.buttonsToResize=8;
 
-	processSpectrum();
+	params.length = recorder.getLength();
+	params.address = recorder.getAddress();
+	params.recordInProgressFlag = recordInProgressFlag;
+	GP.processSpectrum(&params, &zoom, &spectrum);
+
 	processPoints();
 	listMonitor();
 	listSource();
@@ -461,23 +475,24 @@ void cSampleRecorder::processPoints()
 
 	points.pointsType = 0;
 
-	if(startPoint >= zoomStart && startPoint <= zoomEnd)
+	if(startPoint >= zoom.zoomStart && startPoint <= zoom.zoomEnd)
 	{
-		points.startPoint = ((startPoint-zoomStart) * 599) / zoomWidth;
+		points.startPoint = ((startPoint-zoom.zoomStart) * 599) / zoom.zoomWidth;
 	}
 	else points.startPoint = -1;
 
-	if(endPoint >= zoomStart && endPoint <= zoomEnd)
+	if(endPoint >= zoom.zoomStart && endPoint <= zoom.zoomEnd)
 	{
-		points.endPoint = ((endPoint-zoomStart) * 599) / zoomWidth;
+		points.endPoint = ((endPoint-zoom.zoomStart) * 599) / zoom.zoomWidth;
 	}
 	else points.endPoint = -1;
 
 }
 
-
-void cSampleRecorder::processSpectrum()
+/*
+void cSampleRecorder::processSpectrum1()
 {
+
 
 	if(recorder.getLength() == 0)
 	{
@@ -692,7 +707,7 @@ void cSampleRecorder::processSpectrum()
 	if(resolution <= 1) spectrum.spectrumType = 1;
 	else spectrum.spectrumType = 0;
 
-}
+}*/
 
 void cSampleRecorder::listSource()
 {
@@ -743,10 +758,11 @@ static  uint8_t functSelectButton1()
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
 		SR->points.selected = 1;
-		if(SR->zoomValue > 1.0)
+		if(SR->zoom.zoomValue > 1.0 && SR->zoom.lastChangedPoint != 1)
 		{
 			SR->refreshSpectrum = 1;
-			SR->lastChangedPoint = 1;
+			SR->zoom.lastChangedPoint = 1;
+			SR->zoom.zoomPosition = SR->startPoint;
 		}
 		SR->refreshPoints = 1;
 
@@ -766,10 +782,11 @@ static  uint8_t functSelectButton2()
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
 		SR->points.selected = 2;
-		if(SR->zoomValue > 1.0)
+		if(SR->zoom.zoomValue > 1.0 && SR->zoom.lastChangedPoint != 2 )
 		{
 			SR->refreshSpectrum = 1;
-			SR->lastChangedPoint = 2;
+			SR->zoom.lastChangedPoint = 2;
+			SR->zoom.zoomPosition = SR->endPoint;
 		}
 		SR->refreshPoints = 1;
 	}
@@ -857,7 +874,9 @@ static  uint8_t functActionButton0(uint8_t s)
 			SR->currentScreen = cSampleRecorder::screenTypeConfig;
 			SR->selectedPlace = 0;
 			if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
-			SR->zoomValue = 1.0;
+
+			GP.spectrumResetZoom(0, recorder.getLength(), &SR->zoom);
+
 			SR->showDefaultScreen();
 			SR->activateLabelsBorder();
 
@@ -1275,6 +1294,7 @@ static  uint8_t functActionRecord()
 	SR->cropCounter = 0;
 	SR->showDefaultScreen();
 	recorder.startRecording(sdram_effectsBank);
+	GP.spectrumResetZoom(0, 0, &SR->zoom);
 	SR->spectrumTimerConstrains = 100;
 	return 1;
 }
@@ -1385,7 +1405,8 @@ static  uint8_t functActionCrop()
 	recorder.trim(SR->startPoint,SR->endPoint);
 	SR->startPoint = 0;
 	SR->endPoint = MAX_16BIT;
-	SR->zoomValue = 1.0;
+
+	GP.spectrumResetZoom(SR->startPoint, recorder.getLength(), &SR->zoom);
 
 	SR->showZoomValue();
 	SR->showEndPointValue();
@@ -1574,7 +1595,7 @@ static  uint8_t functActionEndPoint()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
 	SR->points.selected = 2;
-	if(SR->zoomValue > 1.0)
+	if(SR->zoom.zoomValue > 1.0 )
 	{
 		SR->refreshSpectrum = 1;
 	}
@@ -2050,17 +2071,12 @@ void cSampleRecorder::changeGainBar(int16_t val)
 void cSampleRecorder::changeZoom(int16_t value)
 {
 
-	float fVal = value * ZOOM_FACTOR;
-
-	if(zoomValue + fVal < ZOOM_MIN) zoomValue  = ZOOM_MIN;
-	else if(zoomValue + fVal > ZOOM_MAX ) zoomValue  = ZOOM_MAX;
-	else zoomValue += fVal;
+	GP.spectrumChangeZoom(value, recorder.getLength(), &zoom);
 
 	refreshSpectrum = 1;
 	refreshPoints = 1;
 
 	showZoomValue();
-
 }
 
 void cSampleRecorder::changeSourceSelection(int16_t value)
@@ -2151,7 +2167,7 @@ void cSampleRecorder::changeMonitorSelection(int16_t value)
 void cSampleRecorder::modStartPoint(int16_t value)
 {
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoom.zoomWidth / 480;
 	value = value * move_step;
 
 	if(startPoint + value < SAMPLE_POINT_POS_MIN) startPoint  = 0;
@@ -2163,9 +2179,10 @@ void cSampleRecorder::modStartPoint(int16_t value)
 
 
 	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
-	if(zoomValue > 1 && lastChangedPoint != 1 && (startPoint < zoomStart || startPoint > zoomEnd)) refreshSpectrum = 1;
+	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 1 || (startPoint < zoom.zoomStart || startPoint > zoom.zoomEnd))) refreshSpectrum = 1;
 
-	lastChangedPoint = 1;
+	zoom.zoomPosition = startPoint;
+	zoom.lastChangedPoint = 1;
 	refreshPoints = 1;
 
 	showStartPointValue();
@@ -2173,7 +2190,7 @@ void cSampleRecorder::modStartPoint(int16_t value)
 
 void cSampleRecorder::modEndPoint(int16_t value)
 {
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoom.zoomWidth / 480;
 	value = value * move_step;
 
 	if(endPoint + value < SAMPLE_POINT_POS_MIN) endPoint  = 0;
@@ -2183,9 +2200,10 @@ void cSampleRecorder::modEndPoint(int16_t value)
 	if(endPoint < startPoint) endPoint = startPoint+1;
 
 
-	if(zoomValue > 1 && lastChangedPoint != 2 && (endPoint < zoomStart || endPoint > zoomEnd)) refreshSpectrum = 1;
+	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 2 || (endPoint < zoom.zoomStart || endPoint > zoom.zoomEnd))) refreshSpectrum = 1;
 
-	lastChangedPoint = 2;
+	zoom.zoomPosition = endPoint;
+	zoom.lastChangedPoint = 2;
 	refreshPoints = 1;
 
 	showEndPointValue();
@@ -2210,13 +2228,13 @@ void cSampleRecorder::calcPlayProgressValue()
 
 		playProgressValue = SR->playPitch*MAX_16BIT*(playProgresValueTim/(float)localRecTimeValue);
 
-		if(zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
-		else if(zoomValue > 1.0)
+		if(zoom.zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
+		else if(zoom.zoomValue > 1.0)
 		{
-			if(playProgressValue < zoomStart || playProgressValue > zoomEnd) playProgressInSpectrum = 0;
+			if(playProgressValue < zoom.zoomStart || playProgressValue > zoom.zoomEnd) playProgressInSpectrum = 0;
 			else
 			{
-				playProgressInSpectrum = map(playProgressValue, zoomStart,zoomEnd, 0 , 600);
+				playProgressInSpectrum = map(playProgressValue, zoom.zoomStart, zoom.zoomEnd, 0 , 600);
 			}
 		}
 

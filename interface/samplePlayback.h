@@ -56,7 +56,6 @@ public:
 
 	void setDefaultScreenFunct();
 
-	void processSpectrum();
 	void processPoints();
 	void modStartPoint(int16_t value);
 	void modEndPoint(int16_t value);
@@ -104,6 +103,7 @@ public:
 
 //----------------------------------
 // spectrum + punkty
+
 	uint8_t refreshSpectrum = 0;
 	uint8_t refreshPoints = 0;
 	uint8_t refreshSpectrumProgress = 0;
@@ -114,24 +114,14 @@ public:
 	elapsedMicros playProgresValueTim = 0;
 	elapsedMicros refreshPlayProgressValue = 0;
 	float playPitch = 1.0 ;
-//	int8_t openedInstrumentIndex; // index w globalnej liscie instrumentow
-//	int8_t openedInstrFromActive; // index z listy tylko aktywnych ( activeInstruments[] )
-//	int8_t inActiveInstrumentIndex;
-//	int8_t activeInstruments[INSTRUMENTS_COUNT];
-//	uint8_t inActiveInstrumentsCount;
-	strInstrument * editorInstrument;
-	uint32_t lastSampleLength;
 
-	uint16_t zoomWidth = MAX_16BIT;
-	int32_t zoomStart =  0;
-	int32_t zoomEnd = MAX_16BIT;
-	uint8_t lastChangedPoint = 0;
-	float zoomValue = 1;
-	int32_t zoomResolution;
+
+	strInstrument * editorInstrument;
+	uint32_t lastSampleLength = 0xFFFFFFFF;
+
+	strZoomParams zoom;
 
 	char zoomTextValue[7];
-	uint16_t zoomPosition = 0;
-	uint8_t voiceCounter = 0;
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;

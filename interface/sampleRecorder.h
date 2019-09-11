@@ -120,7 +120,7 @@ public:
 	void setDefaultScreenFunct();
 
 
-	void processSpectrum();
+	void processSpectrum1();
 	void processPoints();
 	void modStartPoint(int16_t value);
 	void modEndPoint(int16_t value);
@@ -215,14 +215,11 @@ public:
 
 	void calcPlayProgressValue();
 
-	uint16_t zoomWidth = MAX_16BIT;
-	int32_t zoomStart =  0;
-	int32_t zoomEnd = MAX_16BIT;
-	uint8_t lastChangedPoint = 0;
-	float zoomValue = 1;
+	strZoomParams zoom;
+	strSpectrumParams params;
+
 	char zoomTextValue[6];
 
-	uint16_t zoomPosition = 0;
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;

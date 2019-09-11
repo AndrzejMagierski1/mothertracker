@@ -5,7 +5,7 @@
 #include "mtAudioEngine.h"
 
 
-
+#include "graphicProcessing.h"
 
 
 
@@ -53,7 +53,7 @@ void cSampleEditor::update()
 {
 	if(refreshSpectrum)
 	{
-		processSpectrum();
+		GP.processSpectrum(editorInstrument, &zoom, &spectrum);
 
 		display.refreshControl(SE->spectrumControl);
 
@@ -78,28 +78,25 @@ void cSampleEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-	points.selected = (selectedPlace >= 0 && selectedPlace <= 3) ? selectedPlace+1 : 0;
-
-
-//--------------------------------------------------------------------
+	//--------------------------------------------------------------------
 
 	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
 			mtProject.values.padBoardNoteOffset,
 			mtProject.values.padBoardRootNote = 36);
 
-//	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
+	//mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
 	mtPadBoard.configureInstrumentPlayer(8);
-
 
 	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
-//--------------------------------------------------------------------
+	//--------------------------------------------------------------------
 
-	processSpectrum();
+	points.selected = (selectedPlace >= 0 && selectedPlace <= 3) ? selectedPlace+1 : 0;
+
+	GP.spectrumResetZoom(editorInstrument->startPoint, editorInstrument->sample.length ,&zoom);
+
+	GP.processSpectrum(editorInstrument, &zoom, &spectrum);
 	processPoints();
-	listPlayMode();
-
-	showPlayModeList();
 
 
 	// ustawienie funkcji
@@ -115,6 +112,10 @@ void cSampleEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
+	listPlayMode();
+	showPlayModeList();
+	showZoomValue();
+
 	showDefaultScreen();
 	setDefaultScreenFunct();
 	showZoomValue();
@@ -122,13 +123,10 @@ void cSampleEditor::start(uint32_t options)
 	activateLabelsBorder();
 }
 
-
 void cSampleEditor::stop()
 {
-
 	moduleRefresh = 0;
 }
-
 
 void cSampleEditor::setDefaultScreenFunct()
 {
@@ -151,10 +149,8 @@ void cSampleEditor::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 
-	FM->setButtonObj(interfaceButton0, buttonPress, functSelectStart);
-	FM->setButtonObj(interfaceButton1, buttonPress, functSelectLoop1);
-	FM->setButtonObj(interfaceButton2, buttonPress, functSelectLoop2);
-	FM->setButtonObj(interfaceButton3, buttonPress, functSelectEnd);
+	FM->setButtonObj(interfaceButton3, buttonPress, functSelectStart);
+	FM->setButtonObj(interfaceButton4, buttonPress, functSelectEnd);
 
 	FM->setButtonObj(interfaceButton5, buttonPress, functSelectZoom);
 
@@ -177,247 +173,32 @@ void cSampleEditor::processPoints()
 
 	points.pointsType = editorInstrument->playMode;
 
-	if(editorInstrument->startPoint >= zoomStart && editorInstrument->startPoint <= zoomEnd)
+	if(editorInstrument->startPoint >= zoom.zoomStart && editorInstrument->startPoint <= zoom.zoomEnd)
 	{
-		points.startPoint = ((editorInstrument->startPoint-zoomStart) * 599) / zoomWidth;
+		points.startPoint = ((editorInstrument->startPoint-zoom.zoomStart) * 599) / zoom.zoomWidth;
 	}
 	else points.startPoint = -1;
 
-	if(editorInstrument->endPoint >= zoomStart && editorInstrument->endPoint <= zoomEnd)
+	if(editorInstrument->endPoint >= zoom.zoomStart && editorInstrument->endPoint <= zoom.zoomEnd)
 	{
-		points.endPoint = ((editorInstrument->endPoint-zoomStart) * 599) / zoomWidth;
+		points.endPoint = ((editorInstrument->endPoint-zoom.zoomStart) * 599) / zoom.zoomWidth;
 	}
 	else points.endPoint = -1;
 
-	if(editorInstrument->loopPoint1 >= zoomStart && editorInstrument->loopPoint1 <= zoomEnd)
+	if(editorInstrument->loopPoint1 >= zoom.zoomStart && editorInstrument->loopPoint1 <= zoom.zoomEnd)
 	{
-		points.loopPoint1 = ((editorInstrument->loopPoint1-zoomStart) * 599) / zoomWidth;
+		points.loopPoint1 = ((editorInstrument->loopPoint1-zoom.zoomStart) * 599) / zoom.zoomWidth;
 	}
 	else points.loopPoint1 = -1;
 
-	if(editorInstrument->loopPoint2 >= zoomStart && editorInstrument->loopPoint2 <= zoomEnd)
+	if(editorInstrument->loopPoint2 >= zoom.zoomStart && editorInstrument->loopPoint2 <= zoom.zoomEnd)
 	{
-		points.loopPoint2 = ((editorInstrument->loopPoint2-zoomStart) * 599) / zoomWidth;
+		points.loopPoint2 = ((editorInstrument->loopPoint2-zoom.zoomStart) * 599) / zoom.zoomWidth;
 	}
 	else points.loopPoint2 = -1;
 
 }
 
-
-void cSampleEditor::processSpectrum()
-{
-
-	//refreshSpectrum = 1;
-
-
-	// uwaga tu wazna kolejnosc + do sprawdzenia
-	if(mtProject.values.lastUsedInstrument < 0 || mtProject.instrument[mtProject.values.lastUsedInstrument].isActive == 0 )
-	{
-		for(uint16_t i = 0; i < 600; i++)
-		{
-			spectrum.upperData[i] = 0;
-			spectrum.lowerData[i] = 0;
-		}
-
-		return;
-	}
-
-	uint16_t offset_pixel;
-	int16_t * sampleData;
-
-	if(editorInstrument->sample.type == mtSampleTypeWavetable)
-	{
-		zoomWidth = MAX_16BIT;
-		zoomStart = 0;
-		zoomValue = 1;
-		zoomEnd = MAX_16BIT;
-		uint16_t windowSize = editorInstrument->sample.wavetable_window_size;
-
-		sampleData = editorInstrument->sample.address
-				+ (mtProject.instrument[mtProject.values.lastUsedInstrument].wavetableCurrentWindow * windowSize);
-
-		float resolution = windowSize / 600.0;
-
-		int16_t up = 0;
-		int16_t low = 0;
-		float step = 0;
-
-		for(uint16_t i = 0; i < 600; i++)
-		{
-			low = up = 0; //*(sampleData+step);
-
-			for(uint16_t j = 0; j < resolution; j++)
-			{
-				int16_t sample = *(sampleData+(uint32_t)step+j);
-
-				if(sample > up)  up = sample;
-				else if(sample < low) low = sample;
-
-			}
-			step+= resolution;
-
-			up = up/300;
-			low = low/300;
-
-			spectrum.upperData[i] =  up;
-			spectrum.lowerData[i] = low;
-		}
-
-		//if(resolution <= 1)
-		spectrum.spectrumType = 1;
-		//else spectrum.spectrumType = 0;
-
-
-		return;
-	}
-
-	uint32_t resolution;
-
-
-	switch(lastChangedPoint)
-	{
-		case 0: zoomPosition = editorInstrument->startPoint; break; //MAX_16BIT/2; break;
-
-		case 1:
-			zoomPosition = editorInstrument->startPoint;
-		break;
-		case 2:
-			zoomPosition = editorInstrument->endPoint;
-		break;
-		case 3:
-			zoomPosition = editorInstrument->loopPoint1;
-		break;
-		case 4:
-			zoomPosition = editorInstrument->loopPoint2;
-		break;
-
-		default: zoomPosition = editorInstrument->startPoint; break; //MAX_16BIT/2; break;
-	}
-
-
-
-
-
-
-
-	if(zoomValue > 1.0)
-	{
-		zoomWidth = (MAX_16BIT/zoomValue);
-		zoomStart =  zoomPosition - zoomWidth/2;
-		zoomEnd = zoomPosition + zoomWidth/2;
-
-		if(zoomStart < 0)
-		{
-			zoomEnd = zoomWidth;
-			zoomStart = 0;
-			offset_pixel = ((zoomPosition-zoomStart) * 599) / zoomWidth;
-		}
-		else if(zoomEnd > MAX_16BIT)
-		{
-			zoomEnd = MAX_16BIT;
-			zoomStart = MAX_16BIT-zoomWidth;
-			offset_pixel = ((zoomPosition-zoomStart) * 599) / zoomWidth;
-		}
-		else
-		{
-			offset_pixel = ((zoomPosition-zoomStart) * 599) / zoomWidth;
-		}
-
-
-		uint32_t offset = ((float)zoomPosition/MAX_16BIT) * editorInstrument->sample.length;
-
-		sampleData = editorInstrument->sample.address + offset;
-
-		resolution = (((float)zoomWidth/MAX_16BIT) * editorInstrument->sample.length ) / 600;
-
-
-//		Serial.print(zoomValue);
-//		Serial.print("   ");
-//		Serial.print(zoomStart);
-//		Serial.print("   ");
-//		Serial.print(zoomEnd);
-//		Serial.print("   ");
-//
-//		Serial.println();
-
-	}
-	else
-	{
-
-		offset_pixel = 0;
-		zoomWidth = MAX_16BIT;
-		zoomStart = 0;
-		zoomEnd = MAX_16BIT;
-		sampleData = editorInstrument->sample.address;
-		resolution = editorInstrument->sample.length / 600;
-	}
-
-
-	if(resolution < 1) resolution = 1;
-
-
-	int16_t up = 0;
-	int16_t low = 0;
-
-	uint32_t step = 0;
-
-
-
-	if(offset_pixel > 0)
-	{
-		for(int16_t i = offset_pixel-1; i >= 0; i--)
-		{
-			low = up = 0; //*(sampleData+step);
-
-			for(uint16_t j = 0; j < resolution; j++)
-			{
-				int16_t sample = *(sampleData-step+j);
-
-				if(sample > up)  up = sample;
-				else if(sample < low) low = sample;
-
-			}
-			step+= resolution;
-
-			up = up/300;
-			low = low/300;
-
-			spectrum.upperData[i] =  up;
-			spectrum.lowerData[i] = low;
-		}
-	}
-
-	up = 0;
-	low = 0;
-	step = 0;
-
-
-	for(uint16_t i = offset_pixel; i < 600; i++)
-	{
-		low = up = 0; //*(sampleData+step);
-
-		for(uint16_t j = 0; j < resolution; j++)
-		{
-			int16_t sample = *(sampleData+step+j);
-
-
-			if(sample > up)  up = sample;
-			else if(sample < low) low = sample;
-
-		}
-		step+= resolution;
-
-		up = up/300;
-		low = low/300;
-
-		spectrum.upperData[i] =  up;
-		spectrum.lowerData[i] = low;
-	}
-
-	if(resolution <= 1) spectrum.spectrumType = 1;
-	else spectrum.spectrumType = 0;
-
-}
 
 void cSampleEditor::listPlayMode()
 {
@@ -441,8 +222,10 @@ static  uint8_t functSelectStart()
 	SE->selectedPlace = 0;
 	SE->activateLabelsBorder();
 
-	if(SE->zoomValue > 1.0)
+	if(SE->zoom.zoomValue > 1.0 && SE->zoom.lastChangedPoint != 1)
 	{
+		SE->zoom.lastChangedPoint = 1;
+		SE->zoom.zoomPosition = SE->editorInstrument->startPoint;
 		SE->refreshSpectrum = 1;
 	}
 
@@ -457,10 +240,13 @@ static  uint8_t functSelectLoop1()
 	SE->selectedPlace = 1;
 	SE->activateLabelsBorder();
 
-	if(SE->zoomValue > 1.0)
+	if(SE->zoom.zoomValue > 1.0 && SE->zoom.lastChangedPoint != 3)
 	{
+		SE->zoom.lastChangedPoint = 3;
+		SE->zoom.zoomPosition = SE->editorInstrument->loopPoint1;
 		SE->refreshSpectrum = 1;
 	}
+
 	SE->refreshPoints = 1;
 
 	return 1;
@@ -472,12 +258,14 @@ static  uint8_t functSelectLoop2()
 	SE->selectedPlace = 2;
 	SE->activateLabelsBorder();
 
-	if(SE->zoomValue > 1.0)
+	if(SE->zoom.zoomValue > 1.0 && SE->zoom.lastChangedPoint != 4)
 	{
+		SE->zoom.lastChangedPoint = 4;
+		SE->zoom.zoomPosition = SE->editorInstrument->loopPoint2;
 		SE->refreshSpectrum = 1;
 	}
-	SE->refreshPoints = 1;
 
+	SE->refreshPoints = 1;
 
 	return 1;
 }
@@ -488,10 +276,13 @@ static  uint8_t functSelectEnd()
 	SE->selectedPlace = 3;
 	SE->activateLabelsBorder();
 
-	if(SE->zoomValue > 1.0)
+	if(SE->zoom.zoomValue > 1.0 && SE->zoom.lastChangedPoint != 2)
 	{
+		SE->zoom.lastChangedPoint = 2;
+		SE->zoom.zoomPosition = SE->editorInstrument->endPoint;
 		SE->refreshSpectrum = 1;
 	}
+
 	SE->refreshPoints = 1;
 
 	return 1;
@@ -679,18 +470,12 @@ static uint8_t functSwitchModule(uint8_t button)
 //======================================================================================================================
 void cSampleEditor::changeZoom(int16_t value)
 {
-
-	float fVal = value * ZOOM_FACTOR;
-
-	if(zoomValue + fVal < ZOOM_MIN) zoomValue  = ZOOM_MIN;
-	else if(zoomValue + fVal > ZOOM_MAX ) zoomValue  = ZOOM_MAX;
-	else zoomValue += fVal;
+	GP.spectrumChangeZoom(value, editorInstrument->sample.length, &zoom);
 
 	refreshSpectrum = 1;
 	refreshPoints = 1;
 
 	showZoomValue();
-
 }
 
 void cSampleEditor::changePlayModeSelection(int16_t value)
@@ -711,7 +496,7 @@ void cSampleEditor::changePlayModeSelection(int16_t value)
 void cSampleEditor::modStartPoint(int16_t value)
 {
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoom.zoomWidth / 480;
 	uint16_t dif;
 	value = value * move_step;
 
@@ -745,16 +530,16 @@ void cSampleEditor::modStartPoint(int16_t value)
 	}
 
 	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
-	if(zoomValue > 1 && lastChangedPoint != 1
-		&& (editorInstrument->startPoint < zoomStart || editorInstrument->startPoint > zoomEnd)) refreshSpectrum = 1;
+	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 1
+		|| (editorInstrument->startPoint < zoom.zoomStart || editorInstrument->startPoint > zoom.zoomEnd))) refreshSpectrum = 1;
 
-	lastChangedPoint = 1;
+	zoom.lastChangedPoint = 1;
 	refreshPoints = 1;
 }
 
 void cSampleEditor::modEndPoint(int16_t value)
 {
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoom.zoomWidth / 480;
 	uint16_t dif;
 	value = value * move_step;
 
@@ -788,16 +573,16 @@ void cSampleEditor::modEndPoint(int16_t value)
 		}
 	}
 
-	if(zoomValue > 1 && lastChangedPoint != 2
-			&& (editorInstrument->endPoint < zoomStart || editorInstrument->endPoint > zoomEnd)) refreshSpectrum = 1;
+	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 2
+			|| (editorInstrument->endPoint < zoom.zoomStart || editorInstrument->endPoint > zoom.zoomEnd))) refreshSpectrum = 1;
 
-	lastChangedPoint = 2;
+	zoom.lastChangedPoint = 2;
 	refreshPoints = 1;
 }
 
 void cSampleEditor::modLoopPoint1(int16_t value)
 {
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoom.zoomWidth / 480;
 	value = value * move_step;
 
 	if(editorInstrument->loopPoint1 + value < SAMPLE_POINT_POS_MIN) editorInstrument->loopPoint1  = 0;
@@ -807,19 +592,19 @@ void cSampleEditor::modLoopPoint1(int16_t value)
 	if(editorInstrument->loopPoint1 < editorInstrument->startPoint) editorInstrument->loopPoint1 = editorInstrument->startPoint;
 	if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2-1;
 
-	if(zoomValue > 1 && lastChangedPoint != 3
-			&& (editorInstrument->loopPoint1 < zoomStart || editorInstrument->loopPoint1 > zoomEnd)) refreshSpectrum = 1;
+	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 3
+			|| (editorInstrument->loopPoint1 < zoom.zoomStart || editorInstrument->loopPoint1 > zoom.zoomEnd))) refreshSpectrum = 1;
 
 	instrumentPlayer[0].setStatusBytes(LP1_MASK);
 
 
-	lastChangedPoint = 3;
+	zoom.lastChangedPoint = 3;
 	refreshPoints = 1;
 }
 
 void cSampleEditor::modLoopPoint2(int16_t value)
 {
-	uint16_t move_step = zoomWidth / 480;
+	uint16_t move_step = zoom.zoomWidth / 480;
 	value = value * move_step;
 
 	if(editorInstrument->loopPoint2 + value < SAMPLE_POINT_POS_MIN) editorInstrument->loopPoint2  = 0;
@@ -829,12 +614,12 @@ void cSampleEditor::modLoopPoint2(int16_t value)
 	if(editorInstrument->loopPoint2 > editorInstrument->endPoint) editorInstrument->loopPoint2 = editorInstrument->endPoint;
 	if(editorInstrument->loopPoint2 <= editorInstrument->loopPoint1) editorInstrument->loopPoint2 = editorInstrument->loopPoint1+1;
 
-	if(zoomValue > 1 && lastChangedPoint != 4
-			&& (editorInstrument->loopPoint2 < zoomStart || editorInstrument->loopPoint2 > zoomEnd)) refreshSpectrum = 1;
+	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 4
+			|| (editorInstrument->loopPoint2 < zoom.zoomStart || editorInstrument->loopPoint2 > zoom.zoomEnd))) refreshSpectrum = 1;
 
 	instrumentPlayer[0].setStatusBytes(LP2_MASK);
 
-	lastChangedPoint = 4;
+	zoom.lastChangedPoint = 4;
 	refreshPoints = 1;
 }
 

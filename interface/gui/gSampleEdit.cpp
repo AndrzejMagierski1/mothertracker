@@ -203,13 +203,15 @@ void cSampleEditor::showDefaultScreen()
 	//display.refreshControl(playModeListControl);
 
 	// bottom labels
-	display.setControlText(topLabel[0], "Preview");
-	display.setControlText(topLabel[1], "Apply");
-	display.setControlText(topLabel[2], "Undo");
-	display.setControlText(topLabel[3], "");
-	display.setControlText(topLabel[4], "");
+
+	display.setControlText(bottomLabel[0], "Preview");
+	display.setControlText(bottomLabel[1], "Apply");
+	display.setControlText(bottomLabel[2], "Undo");
+	display.setControlText(bottomLabel[3], "Start");
+	display.setControlText(bottomLabel[4], "End");
 	display.setControlText(bottomLabel[5], "Zoom");
-	//display.setControlText(bottomLabel[6], " /\\\           \\\/ ");
+	display.setControlText(bottomLabel[6], "     ");
+
 	//display.setControlText(bottomLabel[7], "");
 
 
@@ -247,7 +249,7 @@ void cSampleEditor::activateLabelsBorder()
 //==============================================================================================================
 void cSampleEditor::showZoomValue()
 {
-	sprintf(zoomTextValue, "%.2f", zoomValue);
+	sprintf(zoomTextValue, "%.2f", zoom.zoomValue);
 
 	display.setControlText(topLabel[5], zoomTextValue);
 	display.setControlShow(topLabel[5]);
