@@ -613,6 +613,7 @@ void cSampleImporter::listOnlyFolderNames(char* path, uint8_t startPoint)
 	else
 	{
 		allFilesNum = sdLocation.createFilesList(1,locationExplorerList, list_length_max);
+		allFilesNum+=1;
 		strcpy(&locationExplorerList[0][0], "/..");
 	}
 
