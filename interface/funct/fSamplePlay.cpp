@@ -55,7 +55,7 @@ void cSamplePlayback::update()
 {
 	if(refreshSpectrum)
 	{
-		processSpectrum(editorInstrument, &zoom, &spectrum);
+		GP.processSpectrum(editorInstrument, &zoom, &spectrum);
 
 		display.refreshControl(SP->spectrumControl);
 
@@ -144,30 +144,24 @@ void cSamplePlayback::start(uint32_t options)
 	{
 		lastSampleLength = editorInstrument->sample.length;
 
-
 		uint16_t start_end_width = editorInstrument->endPoint - editorInstrument->startPoint;
 
-		if(start_end_width < MAX_16BIT/4) // wysrodkowanie startPoint z zoomem jesli
+		if(start_end_width < MAX_16BIT/4) // wysrodkowanie startPoint z zoomem jesli waski loop
 		{
 			start_end_width += start_end_width/20; // dodatkowe po 10% po bokach
-			zoom.zoomResolution = ((( start_end_width)/MAX_16BIT) * editorInstrument->sample.length) / 600;
 
-			uint16_t min_resolution = editorInstrument->sample.length/MAX_16BIT + 1;
-			if(zoom.zoomResolution < min_resolution) zoom.zoomResolution  = min_resolution;
-
-			zoom.zoomValue = editorInstrument->sample.length/((zoom.zoomResolution)*600.0);
+			GP.spectrumAutoZoomIn(editorInstrument->startPoint, start_end_width, editorInstrument->sample.length, &zoom);
 		}
 		else
 		{
-			zoom.zoomResolution = editorInstrument->sample.length / 600;
-			zoom.zoomValue = 1.0;
+			GP.spectrumResetZoom(editorInstrument->startPoint, editorInstrument->sample.length ,&zoom);
 		}
 	}
 
 
 //--------------------------------------------------------------------
 
-	processSpectrum(editorInstrument, &zoom, &spectrum);
+	GP.processSpectrum(editorInstrument, &zoom, &spectrum);
 	processPoints();
 
 	// ustawienie funkcji
@@ -347,14 +341,12 @@ static  uint8_t functSelectStart()
 	SP->activateLabelsBorder();
 
 
-
-	if(SP->zoom.zoomValue > 1.0 )
+	if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 1)
 	{
-		SP->refreshSpectrum = 1;
 		SP->zoom.lastChangedPoint = 1;
+		SP->zoom.zoomPosition = SP->editorInstrument->startPoint;
+		SP->refreshSpectrum = 1;
 	}
-
-
 
 	SP->refreshPoints = 1;
 
@@ -368,11 +360,13 @@ static  uint8_t functSelectLoop1()
 	SP->selectedPlace = 1;
 	SP->activateLabelsBorder();
 
-	if(SP->zoom.zoomValue > 1.0 )
+	if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 3)
 	{
-		SP->refreshSpectrum = 1;
 		SP->zoom.lastChangedPoint = 3;
+		SP->zoom.zoomPosition = SP->editorInstrument->loopPoint1;
+		SP->refreshSpectrum = 1;
 	}
+
 	SP->refreshPoints = 1;
 
 	return 1;
@@ -385,13 +379,14 @@ static  uint8_t functSelectLoop2()
 	SP->selectedPlace = 2;
 	SP->activateLabelsBorder();
 
-	if(SP->zoom.zoomValue > 1.0 )
+	if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 4)
 	{
-		SP->refreshSpectrum = 1;
 		SP->zoom.lastChangedPoint = 4;
+		SP->zoom.zoomPosition = SP->editorInstrument->loopPoint2;
+		SP->refreshSpectrum = 1;
 	}
-	SP->refreshPoints = 1;
 
+	SP->refreshPoints = 1;
 
 	return 1;
 }
@@ -402,11 +397,13 @@ static  uint8_t functSelectEnd()
 	SP->selectedPlace = 3;
 	SP->activateLabelsBorder();
 
-	if(SP->zoom.zoomValue > 1.0 )
+	if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 2)
 	{
 		SP->zoom.lastChangedPoint = 2;
+		SP->zoom.zoomPosition = SP->editorInstrument->endPoint;
 		SP->refreshSpectrum = 1;
 	}
+
 	SP->refreshPoints = 1;
 
 	return 1;
@@ -634,26 +631,12 @@ static uint8_t functSwitchModule(uint8_t button)
 //======================================================================================================================
 void cSamplePlayback::changeZoom(int16_t value)
 {
-
-
-	uint16_t max_resolution = editorInstrument->sample.length / 600;
-	//uint16_t max_resolution = ((600/MAX_16BIT)*editorInstrument->sample.length) / 600;
-	uint16_t min_resolution = editorInstrument->sample.length/MAX_16BIT + 1;
-
-	if(zoom.zoomResolution - value < min_resolution) zoom.zoomResolution  = min_resolution;
-	else if(zoom.zoomResolution - value > max_resolution ) zoom.zoomResolution = max_resolution;
-	else zoom.zoomResolution -= value;
-
-	if(zoom.zoomResolution == max_resolution) zoom.zoomValue = 1.0;
-	else zoom.zoomValue = editorInstrument->sample.length/((zoom.zoomResolution)*600.0);
-
-
+	GP.spectrumChangeZoom(value, editorInstrument->sample.length, &zoom);
 
 	refreshSpectrum = 1;
 	refreshPoints = 1;
 
 	showZoomValue();
-
 }
 
 void cSamplePlayback::changePlayModeSelection(int16_t value)
@@ -720,9 +703,13 @@ void cSamplePlayback::modStartPoint(int16_t value)
 	}
 
 	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
-	if(zoom.zoomValue > 1 && zoom.lastChangedPoint != 1
-		&& (editorInstrument->startPoint < zoom.zoomStart || editorInstrument->startPoint > zoom.zoomEnd)) refreshSpectrum = 1;
+	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 1
+	   || (editorInstrument->startPoint < zoom.zoomStart || editorInstrument->startPoint > zoom.zoomEnd)))
+	{
+		refreshSpectrum = 1;
+	}
 
+	zoom.zoomPosition = editorInstrument->startPoint;
 	zoom.lastChangedPoint = 1;
 	refreshPoints = 1;
 
@@ -765,9 +752,10 @@ void cSamplePlayback::modEndPoint(int16_t value)
 		}
 	}
 
-	if(zoom.zoomValue > 1 && zoom.lastChangedPoint != 2
-			&& (editorInstrument->endPoint < zoom.zoomStart || editorInstrument->endPoint > zoom.zoomEnd)) refreshSpectrum = 1;
+	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 2
+			|| (editorInstrument->endPoint < zoom.zoomStart || editorInstrument->endPoint > zoom.zoomEnd))) refreshSpectrum = 1;
 
+	zoom.zoomPosition = editorInstrument->endPoint;
 	zoom.lastChangedPoint = 2;
 	refreshPoints = 1;
 
@@ -786,12 +774,12 @@ void cSamplePlayback::modLoopPoint1(int16_t value)
 	if(editorInstrument->loopPoint1 <= editorInstrument->startPoint) editorInstrument->loopPoint1 = editorInstrument->startPoint+1;
 	if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2-1;
 
-	if(zoom.zoomValue > 1 && zoom.lastChangedPoint != 3
-			&& (editorInstrument->loopPoint1 < zoom.zoomStart || editorInstrument->loopPoint1 > zoom.zoomEnd)) refreshSpectrum = 1;
+	if(zoom.zoomValue > 1 && ( zoom.lastChangedPoint != 3
+			|| (editorInstrument->loopPoint1 < zoom.zoomStart || editorInstrument->loopPoint1 > zoom.zoomEnd))) refreshSpectrum = 1;
 
 	instrumentPlayer[0].setStatusBytes(LP1_MASK);
 
-
+	zoom.zoomPosition = editorInstrument->loopPoint1;
 	zoom.lastChangedPoint = 3;
 	refreshPoints = 1;
 
@@ -810,11 +798,12 @@ void cSamplePlayback::modLoopPoint2(int16_t value)
 	if(editorInstrument->loopPoint2 >= editorInstrument->endPoint) editorInstrument->loopPoint2 = editorInstrument->endPoint - 1;
 	if(editorInstrument->loopPoint2 <= editorInstrument->loopPoint1) editorInstrument->loopPoint2 = editorInstrument->loopPoint1+1;
 
-	if(zoom.zoomValue > 1 && zoom.lastChangedPoint != 4
-			&& (editorInstrument->loopPoint2 < zoom.zoomStart || editorInstrument->loopPoint2 > zoom.zoomEnd)) refreshSpectrum = 1;
+	if(zoom.zoomValue > 1 && ( zoom.lastChangedPoint != 4
+			|| (editorInstrument->loopPoint2 < zoom.zoomStart || editorInstrument->loopPoint2 > zoom.zoomEnd))) refreshSpectrum = 1;
 
 	instrumentPlayer[0].setStatusBytes(LP2_MASK);
 
+	zoom.zoomPosition = editorInstrument->loopPoint2;
 	zoom.lastChangedPoint = 4;
 	refreshPoints = 1;
 	showLoopPoint2Value();

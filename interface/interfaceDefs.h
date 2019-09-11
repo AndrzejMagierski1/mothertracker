@@ -197,6 +197,15 @@ enum enumMtOperatingMode
 	mtOperatingModeRun,
 };
 
+
+struct strSpectrumParams
+{
+	int16_t* address = nullptr;
+	uint32_t length = 0;
+	uint8_t recordInProgressFlag = 0;
+};
+
+
 struct strZoomParams
 {
 	uint16_t zoomPosition = 0;

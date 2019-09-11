@@ -720,23 +720,7 @@ void cSampleRecorder::activateLabelsBorder()
 //==============================================================================================================
 void cSampleRecorder::showZoomValue()
 {
-	if(zoomValue >= 10.0)
-	{
-		zoomTextValue[0] = (uint8_t)zoomValue /10 + 48;
-		zoomTextValue[1] = (uint8_t)zoomValue %10 + 48;
-		zoomTextValue[2] = '.';
-		zoomTextValue[3] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) /10 + 48;
-		zoomTextValue[4] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) %10 + 48;
-		zoomTextValue[5] = 0;
-	}
-	else
-	{
-		zoomTextValue[0] = (uint8_t)zoomValue + 48;
-		zoomTextValue[1] = '.';
-		zoomTextValue[2] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) /10 + 48;
-		zoomTextValue[3] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) %10 + 48;
-		zoomTextValue[4] = 0;
-	}
+	sprintf(zoomTextValue, "%.2f", zoom.zoomValue);
 
 	display.setControlText(topLabel[3], zoomTextValue);
 	display.setControlShow(topLabel[3]);

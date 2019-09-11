@@ -14,11 +14,10 @@
 
 
 
-const uint8_t effectsCount = 7;
+const uint8_t effectsCount = 6;
 const char effectNamesLabels[effectsCount][15] =
 {
-		"Sample",
-		"Config",
+		"Crop",
 		"Reverse",
 		"Echo",
 		"Flanger",

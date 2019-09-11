@@ -9,10 +9,23 @@
 #define INTERFACE_GRAPHICPROCESSING_H_
 
 
+class cGraphicProcessing
+{
+public:
 
-void processSpectrum(strInstrument* instrument, strZoomParams* zoom, strTrackerSpectrum* spectrum);
+
+	void spectrumResetZoom(uint16_t position, uint32_t sampleLength, strZoomParams* zoom);
+	void spectrumAutoZoomIn(uint16_t position, uint16_t zoomWidth, uint32_t sampleLength, strZoomParams* zoom);
+	void spectrumChangeZoom(int16_t value, uint32_t sampleLength, strZoomParams* zoom);
 
 
+	void processSpectrum(strSpectrumParams* params, strZoomParams* zoom, strTrackerSpectrum* spectrum);
+	void processSpectrum(strInstrument* instrument, strZoomParams* zoom, strTrackerSpectrum* spectrum);
+	void processSpectrum(int16_t* address, uint32_t length, strZoomParams* zoom, strTrackerSpectrum* spectrum);
 
+};
+
+
+extern cGraphicProcessing GP;
 
 #endif /* INTERFACE_GRAPHICPROCESSING_H_ */

@@ -197,9 +197,9 @@ void cSampleEditor::showDefaultScreen()
 	display.setControlText(bottomLabel[0], "Preview");
 	display.setControlText(bottomLabel[1], "Apply");
 	display.setControlText(bottomLabel[2], "Undo");
-	display.setControlText(bottomLabel[3], "");
-	display.setControlText(bottomLabel[4], "");
-	display.setControlText(bottomLabel[5], "");
+	display.setControlText(bottomLabel[3], "Start");
+	display.setControlText(bottomLabel[4], "End");
+	display.setControlText(bottomLabel[5], "Zoom");
 	display.setControlText(bottomLabel[6], "     ");
 	//display.setControlText(bottomLabel[7], "");
 
