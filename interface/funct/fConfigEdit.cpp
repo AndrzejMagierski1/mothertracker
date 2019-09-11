@@ -768,21 +768,22 @@ void cConfigEditor::changeLimiterAttack(int16_t value)
 	else if(mtProject.values.limiterAttack + value > LIMITER_ATTACK_MAX) mtProject.values.limiterAttack = LIMITER_ATTACK_MAX;
 	else mtProject.values.limiterAttack += value;
 
-	engine.setLimiterAttack(mtProject.values.limiterAttack);
+	engine.setLimiterAttack(mtProject.values.limiterRelease);
+
 
 	showLimiterAttack();
 }
 
 void cConfigEditor::changeLimiterRelease(int16_t value)
 {
-	value *= LIMITER_RELEASE_MAX/100;
+	float fvalue = value * (LIMITER_RELEASE_MAX/100);
 
-	if(mtProject.values.limiterRelease + value < LIMITER_RELEASE_MIN) mtProject.values.limiterRelease = LIMITER_RELEASE_MIN;
-	else if(mtProject.values.limiterRelease + value > LIMITER_RELEASE_MAX) mtProject.values.limiterRelease = LIMITER_RELEASE_MAX;
-	else mtProject.values.limiterRelease += value;
+	if(mtProject.values.limiterRelease + fvalue < LIMITER_RELEASE_MIN) mtProject.values.limiterRelease = LIMITER_RELEASE_MIN;
+	else if(mtProject.values.limiterRelease + fvalue > LIMITER_RELEASE_MAX) mtProject.values.limiterRelease = LIMITER_RELEASE_MAX;
+	else mtProject.values.limiterRelease += fvalue;
 
-	engine.setLimiterRelease(mtProject.values.limiterRelease);
 
+	engine.setLimiterRelease(mtProject.values.limiterAttack);
 	showLimiterRelease();
 }
 
