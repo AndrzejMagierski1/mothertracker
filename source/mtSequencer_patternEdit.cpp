@@ -6,7 +6,9 @@
 #include "mtFileManager.h"
 
 #include "patternEditor.h"
+#include "keyScanner.h"
 extern Sequencer sequencer;
+extern keyScanner tactButtons; // dla isButtonPressed()
 
 void fromToSwap(uint8_t & from, uint8_t & to)
 {
@@ -522,13 +524,25 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 			{
 				if (step->note >= 0)
 				{
-					step->instrument = constrain(step->instrument + value, 0,
-													INSTRUMENTS_COUNT);
+					if (tactButtons.isButtonPressed(interfaceButtonShift))
+					{
 
-					blinkNote(step->instrument,
-								step->note,
-								step->velocity,
-								t);
+						step->instrument = constrain(
+								step->instrument + value,
+								INSTRUMENTS_COUNT + 1,
+								INSTRUMENTS_COUNT + 1 + 16);
+					}
+					else
+					{
+
+						step->instrument = constrain(step->instrument + value,
+														0,
+														INSTRUMENTS_COUNT);
+						blinkNote(step->instrument,
+									step->note,
+									step->velocity,
+									t);
+					}
 
 					mtProject.values.lastUsedInstrument = step->instrument;
 				}
@@ -544,8 +558,22 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 			{
 				if (step->note >= 0)
 				{
-					step->instrument = constrain(step->instrument + value, 0,
-													INSTRUMENTS_COUNT);
+					if (tactButtons.isButtonPressed(interfaceButtonShift))
+					{
+
+						step->instrument = constrain(
+								step->instrument + value,
+								INSTRUMENTS_COUNT + 1,
+								INSTRUMENTS_COUNT + 1 + 16);
+					}
+					else
+					{
+
+						step->instrument = constrain(step->instrument + value,
+														0,
+														INSTRUMENTS_COUNT);
+
+					}
 
 				}
 

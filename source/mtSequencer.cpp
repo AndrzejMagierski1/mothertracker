@@ -1339,11 +1339,16 @@ void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 						step->velocity,
 						step->instrument);
 	}
-
-	usbMIDI.sendNoteOn(step->note, step->velocity, 1);
-
-	instrumentPlayer[track].noteOn(step->instrument, step->note,
-									step->velocity);
+	if (step->instrument > INSTRUMENTS_COUNT)
+	{
+		usbMIDI.sendNoteOn(step->note, step->velocity,
+							step->instrument - INSTRUMENTS_COUNT);
+	}
+	else
+	{
+		instrumentPlayer[track].noteOn(step->instrument, step->note,
+										step->velocity);
+	}
 
 }
 
@@ -1358,9 +1363,16 @@ void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
 				step->velocity,
 				step->instrument);
 	}
-	usbMIDI.sendNoteOff(step->note, 0, 1);
 
-	instrumentPlayer[track].noteOff();
+	if (step->instrument > INSTRUMENTS_COUNT)
+	{
+		usbMIDI.sendNoteOff(step->note, 0,
+							step->instrument - INSTRUMENTS_COUNT);
+	}
+	else
+	{
+		instrumentPlayer[track].noteOff();
+	}
 }
 void Sequencer::sendNoteOff(uint8_t track)
 {
