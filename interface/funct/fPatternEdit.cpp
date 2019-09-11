@@ -436,60 +436,6 @@ uint8_t cPatternEditor::isPleyheadOnScreen()
 }
 
 
-void cPatternEditor::changeActualStepNote(int16_t value)
-{
-	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
-	Sequencer::strPattern::strTrack::strStep *step = &(pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep]);
-
-	uint16_t dupa =pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note;
-	Serial.println(dupa);
-
-
-	step->note =
-			constrain(step->note + value,
-						Sequencer::MIN_NOTE_STEP,
-						Sequencer::MAX_NOTE_STEP);
-
-}
-
-void cPatternEditor::changeActualStepInstrument(int16_t value)
-{
-	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
-	Sequencer::strPattern::strTrack::strStep *step = &(pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep]);
-
-	if (pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note >= 0)
-	{
-		step->instrument = constrain(step->instrument + value,
-								0,
-								INSTRUMENTS_COUNT - 1);
-
-		mtProject.values.lastUsedInstrument = step->instrument;
-	}
-	else
-	{
-		step->note = 24;
-		step->instrument = mtProject.values.lastUsedInstrument;
-		step->velocity = -1;
-	}
-
-}
-
-void cPatternEditor::changeActualStepVolume(int16_t value)
-{
-	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
-
-//	if(pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].isOn)
-//	{
-		int8_t step_volume = pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity;
-
-		if(step_volume + value > Sequencer::MAX_VELO_STEP)
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity = Sequencer::MAX_VELO_STEP;
-		else if(step_volume + value < Sequencer::MIN_VELO_STEP-1)
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity = Sequencer::MIN_VELO_STEP-1;
-		else
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity += value;
-//	}
-}
 
 
 void cPatternEditor::changeActualTempo(int16_t value)
