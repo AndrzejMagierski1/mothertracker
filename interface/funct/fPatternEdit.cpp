@@ -46,6 +46,7 @@ static  uint8_t functRandomiseChangeParam3();
 static  uint8_t functRandomiseChangeParam4();
 
 static  uint8_t functInvert();
+static  uint8_t functTranspose();
 
 
 static  uint8_t functLeft();
@@ -515,6 +516,7 @@ void cPatternEditor::refreshEditState()
 		FM->setButtonObj(interfaceButton4, buttonPress, functFill);
 		FM->setButtonObj(interfaceButton5, buttonPress, functRandomise);
 		FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
+		FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
 
 		lightUpPadBoard();
 
@@ -696,6 +698,7 @@ uint8_t functEncoder(int16_t value)
 
 	if(PTE->selectedPlace >= 0)
 	{
+
 		switch(PTE->selectedPlace)
 		{
 		case 0: PTE->changeActualTempo(value); break;
@@ -721,21 +724,24 @@ uint8_t functEncoder(int16_t value)
 
 
 	sendSelection();
-	switch(PTE->editParam)
+	if(tactButtons.isButtonPressed(interfaceButton7))
 	{
-	case 0: sequencer.changeSelectionNote(value); break;
-	case 1: sequencer.changeSelectionInstrument(value); break;
-	case 2: sequencer.changeSelectionVolume(value); break;
-	case 3:
-		if (tactButtons.isButtonPressed(interfaceButtonFx))
+		switch(PTE->editParam)
 		{
-			sequencer.changeSelectionFxType(value);
+		case 0: sequencer.changeSelectionNote(value); break;
+		case 1: sequencer.changeSelectionInstrument(value); break;
+		case 2: sequencer.changeSelectionVolume(value); break;
+		case 3:
+			if (tactButtons.isButtonPressed(interfaceButtonFx))
+			{
+				sequencer.changeSelectionFxType(value);
+			}
+			else
+			{
+				sequencer.changeSelectionFxValue(value);
+			}
+			break;
 		}
-		else
-		{
-			sequencer.changeSelectionFxValue(value);
-		}
-		break;
 	}
 
 	PTE->lightUpPadBoard();
@@ -1922,6 +1928,19 @@ static uint8_t functInvert()
 	sequencer.invertSelectedSteps();
 
 	PTE->refreshPattern();
+
+	//--------------------------------------------------------
+	return 1;
+}
+//##############################################################################################
+//###############################            TRANSPOSE		   #################################
+//##############################################################################################
+static uint8_t functTranspose()
+{
+	//--------------------------------------------------------
+	//TU
+
+
 
 	//--------------------------------------------------------
 	return 1;

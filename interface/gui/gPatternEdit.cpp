@@ -302,10 +302,12 @@ void cPatternEditor::showEditModeLabels()
 	display.setControlText(topLabel[4], "Fill");
 	display.setControlText(topLabel[5], "Randomise");
 	display.setControlText(topLabel[6], "Invert");
+	display.setControlText(topLabel[7], "Transpose");
 
 	display.refreshControl(topLabel[4]);
 	display.refreshControl(topLabel[5]);
 	display.refreshControl(topLabel[6]);
+	display.refreshControl(topLabel[7]);
 
 	display.synchronizeRefresh();
 
@@ -316,10 +318,12 @@ void cPatternEditor::hideEditModeLabels()
 	display.setControlText(topLabel[4], "");
 	display.setControlText(topLabel[5], "");
 	display.setControlText(topLabel[6], "");
+	display.setControlText(topLabel[7], "");
 
 	display.refreshControl(topLabel[4]);
 	display.refreshControl(topLabel[5]);
 	display.refreshControl(topLabel[6]);
+	display.refreshControl(topLabel[7]);
 
 	display.synchronizeRefresh();
 }
