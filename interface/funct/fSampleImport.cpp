@@ -36,6 +36,9 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
+static uint8_t functShiftCopy();
+static uint8_t functShiftPaste();
+
 uint8_t preview(uint8_t state);
 
 
@@ -56,7 +59,7 @@ void cSampleImporter::update()
 	if(fileManager.samplesLoader.getMemoryUsageChangeFlag())
 	{
 		fileManager.samplesLoader.clearMemoryUsageChangeFlag();
-		calculateMemoryUsage();
+		handleMemoryBar();
 	}
 
 	if(fileManager.samplesLoader.getLoadChangeFlag())
@@ -101,9 +104,23 @@ void cSampleImporter::update()
 		if(!fileManager.samplesLoader.getStateFlag())
 		{
 			loadFlag = 0;
+			firstMemBarLoadFlag=2;
 			showDefaultScreen();
 		}
+
+		if(firstMemBarLoadFlag == 0)
+		{
+			firstMemBarLoadFlag = 1;
+		}
+
 	}
+
+	if(firstMemBarLoadFlag==1)
+	{
+		handleMemoryBar();
+	}
+
+
 /////////////////////////////////////////////////////////////////////////
 }
 
@@ -125,7 +142,7 @@ void cSampleImporter::start(uint32_t options)
 	listInstrumentSlots();
 	showInstrumentsList();
 
-	calculateMemoryUsage();
+	handleMemoryBar();
 
 	activateLabelsBorder();
 
@@ -146,6 +163,8 @@ void cSampleImporter::start(uint32_t options)
 	setDefaultScreenFunct();
 
 	AddOrEnter();
+
+	displayDelete(selectedPlace);
 }
 
 void cSampleImporter::stop()
@@ -185,6 +204,8 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton6, buttonPress, functChangeInstrument);
 	FM->setButtonObj(interfaceButton7, buttonPress, functChangeInstrument);
 
+	FM->setButtonObj(interfaceButtonCopy, buttonPress, functShiftCopy);
+	FM->setButtonObj(interfaceButtonPaste, buttonPress, functShiftPaste);
 
 
 
@@ -244,19 +265,41 @@ static  uint8_t functInstrumentDelete()
 {
 	if(SI->selectedPlace==1)
 	{
-		if(mtProject.instrument[SI->selectedSlot].sample.loaded)
+		if(SI->selectionLength<2)
 		{
-			mtProject.used_memory -= 2* mtProject.instrument[SI->selectedSlot].sample.length;
+			if(mtProject.instrument[SI->selectedSlot].sample.loaded)
+			{
+				mtProject.used_memory -= 2* mtProject.instrument[SI->selectedSlot].sample.length;
+			}
+
+			fileManager.deleteInstrument(SI->selectedSlot);
+		}
+		else
+		{
+			if(SI->currSelectPlace==1)
+			{
+				uint8_t selectionStart = SI->getSelectionStart();
+
+				for(int i=0;i<SI->selectionLength;i++)
+				{
+					if(mtProject.instrument[selectionStart+i].sample.loaded)
+					{
+						mtProject.used_memory -= 2* mtProject.instrument[selectionStart+i].sample.length;
+					}
+
+					fileManager.deleteInstrument(selectionStart+i);
+				}
+			}
 		}
 
-		fileManager.deleteInstrument(SI->selectedSlot);
+		SI->handleMemoryBar();
+
 		//importSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot);
 		//fileManager.loadSamplesMemory();
 
 		SI->listInstrumentSlots();
 		SI->showInstrumentsList();
 
-		SI->calculateMemoryUsage();
 	}
 
 	return 1;
@@ -285,8 +328,36 @@ static  uint8_t functEnter()
 	switch(SI->selectedPlace)
 	{
 	case 0: SI->BrowseOrAdd(); break;
-	//case 1: SI->SelectFile(); break;
+	case 1: SI->BrowseOrAdd(); break;
 
+	}
+
+	return 1;
+}
+
+static uint8_t functShiftCopy()
+{
+	if(SI->selectionActive)
+	{
+		if(SI->selectedPlace == 1 && SI->currSelectPlace == 1)
+		{
+
+
+		}
+	}
+
+	return 1;
+}
+
+static uint8_t functShiftPaste()
+{
+	if(SI->selectionActive)
+	{
+		if(SI->selectedPlace == 1 && SI->currSelectPlace == 1)
+		{
+
+
+		}
 	}
 
 	return 1;
@@ -294,25 +365,63 @@ static  uint8_t functEnter()
 
 static  uint8_t functShift(uint8_t state)
 {
-	if(SI->selectedPlace==0)
+	if(state ==0)
 	{
-		if(state ==0)
-		{
-			SI->selectionActive=0;
-		}
-		else if(state == 1)
-		{
-			if(SI->checkIfValidSelection(SI->selectedFile))// nie mozna zaczac zaznaczac od folderu
-			{
-				SI->selectionActive=1;
-				memset(SI->fileSelection,0,sizeof(SI->fileSelection));
-				SI->fileSelection[SI->selectedFile]=1;
-				SI->fileSelectionLength=1;
+		SI->selectionActive=0;
 
-				SI->updateSelection();
-			}
+		if(SI->selectionLength == 1)
+		{
+			SI->cancelSelect();
 		}
 	}
+	else if(state == 1)
+	{
+		if(SI->currSelectPlace != SI->selectedPlace)
+		{
+			SI->currSelectPlace = SI->selectedPlace;
+			SI->setSelect(SI->selectedPlace);
+
+			memset(SI->selectionTab,0,sizeof(SI->selectionTab));
+		}
+
+		if(SI->selectedPlace==0)
+		{
+			SI->selectionActive=1;
+
+			if(SI->checkIfValidSelection(SI->selectedFile))// nie mozna zaczac zaznaczac od folderu
+			{
+				SI->selectionTab[SI->selectedFile]=1;
+
+				if(!SI->selectionLength)
+				{
+					SI->selectionLength=1;
+				}
+				else
+				{
+					SI->selectionLength++;
+				}
+			}
+		}
+		else
+		{
+			SI->selectionTab[SI->selectedSlot]=1;
+
+			SI->selectionActive=1;
+
+			if(!SI->selectionLength)
+			{
+				SI->selectionLength=1;
+			}
+			else
+			{
+				SI->selectionLength++;
+			}
+		}
+
+		SI->updateSelection();
+	}
+
+	SI->handleMemoryBar();
 
 	return 1;
 }
@@ -320,18 +429,24 @@ static  uint8_t functShift(uint8_t state)
 
 static  uint8_t functLeft()
 {
-	if(SI->selectedPlace > 0) SI->selectedPlace--;
-	else
+	if(SI->selectedPlace > 0)
 	{
-		if(SI->selectionActive)
+		SI->selectedPlace--;
+
+		if(SI->currSelectPlace == 1)
 		{
 			SI->cancelSelect();
 		}
 
+		SI->handleMemoryBar();
+		SI->displayDelete(0);
+	}
+	else
+	{
+		SI->cancelSelect();
+
 		SI->rewindListToBeggining();
-		SI->calculateCurrentSelectMemorySize();
-		SI->calculateMemoryUsage();
-		SI->showMemoryUsage();
+		SI->handleMemoryBar();
 		SI->AddOrEnter();
 	}
 
@@ -342,7 +457,12 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
-	if(SI->selectedPlace < 1) SI->selectedPlace++;
+	if(SI->selectedPlace < 1)
+	{
+		SI->displayDelete(1);
+		SI->selectedPlace++;
+	}
+
 	SI->activateLabelsBorder();
 
 	return 1;
@@ -420,7 +540,8 @@ uint8_t cSampleImporter::changeFileSelection(int16_t value)
 {
 	if(selectionActive)
 	{
-		handleSelecting(value);
+		selectedFile=handleSelecting(selectedFile, locationExplorerCount, value, 1);
+		updateSelection();
 	}
 	else
 	{
@@ -428,37 +549,49 @@ uint8_t cSampleImporter::changeFileSelection(int16_t value)
 		else if(selectedFile+value > locationExplorerCount-1) selectedFile = locationExplorerCount-1;
 		else  selectedFile += value;
 
-		cancelSelect();
+		if(selectedPlace == currSelectPlace && selectionLength !=0)
+		{
+			cancelSelect();
+		}
 	}
 
-	updateSelection();
 
 	display.setControlValue(explorerListControl, selectedFile);
 	display.refreshControl(explorerListControl);
 
 	AddOrEnter();
 
-	calculateCurrentSelectMemorySize();
-	calculateMemoryUsage();
-	showMemoryUsage();
+	handleMemoryBar();
 
 	return 1;
 }
 
 uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 {
-	if(selectedSlot+value < 0) selectedSlot = 0;
-	else if(selectedSlot+value > INSTRUMENTS_COUNT-1) selectedSlot = INSTRUMENTS_COUNT-1;
-	else  selectedSlot += value;
+	if(selectionActive)
+	{
+		selectedSlot=handleSelecting(selectedSlot, 48, value, 0);
+	}
+	else
+	{
+		if(selectedSlot+value < 0) selectedSlot = 0;
+		else if(selectedSlot+value > INSTRUMENTS_COUNT-1) selectedSlot = INSTRUMENTS_COUNT-1;
+		else  selectedSlot += value;
+
+		if(selectedPlace == currSelectPlace)
+		{
+			cancelSelect();
+		}
+	}
+
+	updateSelection();
 
 	mtProject.values.lastUsedInstrument = selectedSlot;
 
 	display.setControlValue(instrumentListControl, selectedSlot);
 	display.refreshControl(instrumentListControl);
 
-	calculateCurrentSelectMemorySize();
-	calculateMemoryUsage();
-	showMemoryUsage();
+	handleMemoryBar();
 
 	return 1;
 }
@@ -545,31 +678,29 @@ void cSampleImporter::listOnlyWaveNames(char* folder, uint8_t startPoint)
 
 void cSampleImporter::listOnlyWavFromActualPath(uint8_t startPoint)
 {
+	char filePath[255];
 
 	sdLocation.close();
 	sdLocation.open(actualPath, O_READ);
 
-
 	locationExplorerCount += sdLocation.createFilesList(startPoint,locationExplorerList, (list_length_max-startPoint),2);
 
+	for(int i=startPoint;i<locationExplorerCount;i++)
+	{
+		strcpy(filePath, actualPath);
+		if(dirLevel > 0)
+		{
+			strcat(filePath, "/");
+		}
+
+		strcat(filePath, &locationExplorerList[i][0]);
+
+		currentFolderMemoryFileUsage[i]= 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
+	}
 
 	sdLocation.close();
 
-
-//	uint8_t foundFilesCount = 0;
-//	for(uint8_t i = 0; i < locationFileCount; i++)
-//	{
-////		if(isWavFile(&locationFileList[i][0]))	//tylko jesli plik wav
-//		{
-//			strcpy(&locationFileList[foundFilesCount][0],&locationFileList[i][0]);
-//			foundFilesCount++;
-//		}
-//	}
-//
-//
-//	locationFileCount = foundFilesCount;ocationFolderList[selectedFolder][0]
-
-	for(uint8_t i = startPoint; i < (startPoint+locationExplorerCount); i++)
+	for(uint8_t i = startPoint; i < locationExplorerCount; i++)
 	{
 		explorerNames[i] = &locationExplorerList[i][0];
 	}
@@ -635,59 +766,62 @@ void cSampleImporter::BrowseOrAdd()
 {
 	if(locationExplorerList[selectedFile][0] == '/')
 	{
-		if(dirLevel == 0)
+		if(selectedPlace ==0)
 		{
-			dirLevel = 1;
-
-			strcpy(actualPath, &locationExplorerList[selectedFile][0]);
-
-
-			explorerPositionTable[explorerCurrentPosition]=selectedFile;
-			explorerCurrentPosition++;
-
-			selectedFile=0;
-
-
-			listAllFoldersFirst();
-		}
-		else
-		{
-			if(selectedFile > 0)
+			if(dirLevel == 0)
 			{
-				if(explorerCurrentPosition<PREVIOUS_POSITION_LIFO)
-				{
-					dirLevel++;
+				dirLevel = 1;
 
-					explorerPositionTable[explorerCurrentPosition]=selectedFile;
-					explorerCurrentPosition++;
+				strcpy(actualPath, &locationExplorerList[selectedFile][0]);
 
 
-					strcat(actualPath, &locationExplorerList[selectedFile][0]);
+				explorerPositionTable[explorerCurrentPosition]=selectedFile;
+				explorerCurrentPosition++;
 
-					selectedFile=0;
-
-					listAllFoldersFirst();
-				}
-
-			}
-			else
-			{
-				dirLevel--;
-
-				if(dirLevel > 0)
-				{
-					goUpInActualPath();
-				}
-				else
-				{
-					strcpy(actualPath, "/");
-				}
-
-				explorerCurrentPosition--;
-				selectedFile=explorerPositionTable[explorerCurrentPosition];
+				selectedFile=0;
 
 
 				listAllFoldersFirst();
+			}
+			else
+			{
+				if(selectedFile > 0)
+				{
+					if(explorerCurrentPosition<PREVIOUS_POSITION_LIFO)
+					{
+						dirLevel++;
+
+						explorerPositionTable[explorerCurrentPosition]=selectedFile;
+						explorerCurrentPosition++;
+
+
+						strcat(actualPath, &locationExplorerList[selectedFile][0]);
+
+						selectedFile=0;
+
+						listAllFoldersFirst();
+					}
+
+				}
+				else
+				{
+					dirLevel--;
+
+					if(dirLevel > 0)
+					{
+						goUpInActualPath();
+					}
+					else
+					{
+						strcpy(actualPath, "/");
+					}
+
+					explorerCurrentPosition--;
+					selectedFile=explorerPositionTable[explorerCurrentPosition];
+
+
+					listAllFoldersFirst();
+				}
 			}
 		}
 	}
@@ -730,10 +864,72 @@ void cSampleImporter::listInstrumentSlots()
 	}
 }
 
-
-//==============================================================================================
-void cSampleImporter::calculateMemoryUsage()
+void cSampleImporter::handleMemoryBar()
 {
+
+	if(checkIfValidSelection(selectedFile))
+	{
+		calculateFileMemUsage();
+	}
+	else
+	{
+		currentSelectMemorySize=0;
+		fullMemoryFlag = 0;
+	}
+
+	calculateMemUsage();
+	showMemoryUsage();
+}
+
+void cSampleImporter::calculateFileMemUsage()
+{
+	uint32_t tempSelectMemorySize=0;
+	uint32_t tempInstrumentMemorySize=0;
+	uint8_t tempSelectionLength;
+
+	if(selectionLength && currSelectPlace == 0)
+	{
+		uint8_t selectionStart = getSelectionStart();
+
+		if(selectedSlot+selectionLength>48)
+		{
+			tempSelectionLength= selectionLength - (selectedSlot + selectionLength - 48);
+		}
+		else
+		{
+			tempSelectionLength = selectionLength;
+		}
+
+		for(int i=selectionStart;i<(selectionStart+tempSelectionLength);i++)//get file selection size
+		{
+			tempSelectMemorySize += currentFolderMemoryFileUsage[i];
+		}
+
+		for(int i=selectedSlot;i<selectedSlot+tempSelectionLength;i++)//get size when pasted on current isntrument slot
+		{
+			if(mtProject.instrument[i].sample.loaded)
+			{
+				tempInstrumentMemorySize += 2*mtProject.instrument[i].sample.length;
+			}
+		}
+
+		currentSelectMemorySize = tempSelectMemorySize - tempInstrumentMemorySize;
+	}
+	else
+	{
+		currentSelectMemorySize = currentFolderMemoryFileUsage[selectedFile];
+
+		if(mtProject.instrument[selectedSlot].sample.loaded)
+		{
+			currentSelectMemorySize -= 2*mtProject.instrument[selectedSlot].sample.length;
+		}
+	}
+
+}
+
+void cSampleImporter::calculateMemUsage()
+{
+	int32_t memoryUsageAddCurrentSelect=0;
 
 	if(mtProject.used_memory > mtProject.max_memory)
 	{
@@ -744,8 +940,14 @@ void cSampleImporter::calculateMemoryUsage()
 		memoryUsage = (mtProject.used_memory*100.0)/mtProject.max_memory;
 	}
 
-	uint32_t memoryUsageAddCurrentSelect = mtProject.used_memory + currentSelectMemorySize;
-	if(memoryUsageAddCurrentSelect > mtProject.max_memory)
+	memoryUsageAddCurrentSelect= mtProject.used_memory + currentSelectMemorySize;
+
+	if(memoryUsageAddCurrentSelect < 0)
+	{
+		memoryUsageAddCurrentSelect=0;
+	}
+
+	if((uint32_t)memoryUsageAddCurrentSelect > mtProject.max_memory)
 	{
 		memoryUsageAdd.value = 100;
 		fullMemoryFlag = 1;
@@ -755,22 +957,6 @@ void cSampleImporter::calculateMemoryUsage()
 		memoryUsageAdd.value = (memoryUsageAddCurrentSelect*100.0)/mtProject.max_memory;
 		fullMemoryFlag = 0;
 	}
-	showMemoryUsage();
-
-}
-
-void cSampleImporter::calculateCurrentSelectMemorySize()
-{
-//	if(!isWavFile(&locationFileList[selectedFile][0])) return;
-
-	char file_path[255];
-
-	strcpy(file_path, actualPath);
-	if(dirLevel > 0)strcat(file_path, "/");
-	strcat(file_path, &locationExplorerList[selectedFile][0]);
-
-	currentSelectMemorySize = 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(file_path);
-	if(mtProject.instrument[selectedSlot].sample.loaded) currentSelectMemorySize -= 2*mtProject.instrument[selectedSlot].sample.length;
 }
 
 void cSampleImporter::calculateLoadProgress()
@@ -888,6 +1074,7 @@ uint8_t preview(uint8_t state)
 void cSampleImporter::updateSelection()
 {
 	display.refreshControl(explorerListControl);
+	display.refreshControl(instrumentListControl);
 }
 
 bool cSampleImporter::checkIfValidSelection(uint8_t positionToCheck)
@@ -900,10 +1087,10 @@ bool cSampleImporter::checkIfValidSelection(uint8_t positionToCheck)
 	return false;
 }
 
-void cSampleImporter::handleSelecting(int16_t value)
+uint8_t cSampleImporter::handleSelecting(uint8_t selectStart, uint8_t selectMax, int16_t value, uint8_t fileCheck)
 {
 	int8_t sign=1;
-	uint8_t position;
+	int16_t position;
 
 	if(value<0)
 	{
@@ -911,44 +1098,61 @@ void cSampleImporter::handleSelecting(int16_t value)
 		value *= -1;
 	}
 
-	position = SI->selectedFile;
+	position = selectStart;
 
 	for(int i=0;i<value;i++)
 	{
-		position += (1 *sign);
-		if(position > 0 && position < locationExplorerCount)
+		if((position + (1*sign)) >= 0 && (position + (1*sign)) < selectMax)
 		{
-			if(checkIfValidSelection(position))
+			position += (1 *sign);
+
+			if(!fileCheck || checkIfValidSelection(position))
 			{
-				if(fileSelection[position]==1)
+				if(selectionTab[position]==1)
 				{
 					if(sign<0)
 					{
-						fileSelection[position+1]=0;
+						selectionTab[position+1]=0;
 					}
 					if(sign>0)
 					{
-						fileSelection[position-1]=0;
+						selectionTab[position-1]=0;
 					}
 
-					fileSelectionLength--;
+					selectionLength--;
 				}
 				else
 				{
-					fileSelection[position]=1;
-					fileSelectionLength++;
+					if(selectionLength < MAX_SELECT)
+					{
+						selectionLength++;
+						selectionTab[position]=1;
+					}
+					else
+					{
+						break;
+					}
 				}
-
-				selectedFile = position;
+			}
+			else
+			{
+				break;
 			}
 		}
+		else
+		{
+			break;
+		}
 	}
+
+	return position;
 }
 
 void cSampleImporter::cancelSelect()
 {
-	memset(SI->fileSelection,0,sizeof(SI->fileSelection));
-	fileSelectionLength=0;
+	memset(SI->selectionTab,0,sizeof(SI->selectionTab));
+	selectionLength=0;
+
 	updateSelection();
 }
 
@@ -956,9 +1160,9 @@ int16_t cSampleImporter::getSelectionStart()
 {
 	int16_t selStart=-1;
 
-	for(size_t i=0;i<sizeof(fileSelection);i++)
+	for(size_t i=0;i<sizeof(selectionTab);i++)
 	{
-		if(fileSelection[i]==1)
+		if(selectionTab[i]==1)
 		{
 			selStart=i;
 			break;

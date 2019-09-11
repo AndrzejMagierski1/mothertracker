@@ -58,7 +58,7 @@ void cSampleImporter::initDisplayControls()
 	explorerList.start = 0;
 	explorerList.length = locationExplorerCount;
 	explorerList.data = explorerNames;
-	explorerList.selectTab=fileSelection;
+	explorerList.selectTab=selectionTab;
 	strControlProperties prop;
 	prop.x = 0+8;
 	prop.y = 37;
@@ -70,6 +70,8 @@ void cSampleImporter::initDisplayControls()
 	instrumentList.linesCount = 5;
 	instrumentList.start = 0;
 	instrumentList.length = 0;
+	//instrumentList.selectTab=inSelection;
+
 	//strControlProperties prop;
 	prop.x = (800/4)*3+8;
 	//prop.y = 10;
@@ -156,7 +158,7 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlText(topLabel[1], "");
 	display.setControlText(topLabel[2], "Preview");
 	display.setControlText(topLabel[3], "");
-	display.setControlText(topLabel[4], "Delete");
+	display.setControlText(topLabel[4], "");
 	display.setControlText(topLabel[5], "Instruments");
 
 	for(uint8_t i = 0; i<6; i++)
@@ -171,6 +173,7 @@ void cSampleImporter::showDefaultScreen()
 	display.synchronizeRefresh();
 
 	AddOrEnter();
+	displayDelete(selectedPlace);
 
 }
 
@@ -286,6 +289,37 @@ void cSampleImporter::rewindListToBeggining()
 	selectedFile=0;
 	display.setControlValue(explorerListControl, selectedFile);
 	display.refreshControl(explorerListControl);
+}
+
+void cSampleImporter::setSelect(uint8_t place)
+{
+	if(place == 0)
+	{
+		explorerList.selectTab=selectionTab;
+		instrumentList.selectTab=NULL;
+	}
+	else
+	{
+		instrumentList.selectTab=selectionTab;
+		explorerList.selectTab=NULL;
+	}
+
+	//display.setControlData(explorerListControl, &explorerList);
+	//display.setControlData(instrumentListControl, &instrumentList);
+}
+
+void cSampleImporter::displayDelete(uint8_t onOff)
+{
+	if(onOff)
+	{
+		display.setControlText(topLabel[4], "Delete");
+	}
+	else
+	{
+		display.setControlText(topLabel[4], "");
+	}
+
+	display.refreshControl(topLabel[4]);
 }
 
 //==============================================================================================================
