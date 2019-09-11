@@ -221,7 +221,7 @@ void AudioPlayMemory::update(void)
 		length += castPitchControl; //maksymalnie moze wyjsc za length i nie wiecej niz pitch control
 		for (i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			if (length > iPitchCounter)
+			if (length >= iPitchCounter)
 			{
 				if (sampleConstrains.glide)
 				{
@@ -363,6 +363,7 @@ void AudioPlayMemory::update(void)
 					case loopBackward:
 						if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
 						{
+							iPitchCounter = sampleConstrains.loopPoint2;
 							loopBackwardFlag = 1;
 							fPitchCounter = 0;
 
@@ -376,11 +377,13 @@ void AudioPlayMemory::update(void)
 					case loopPingPong:
 						if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
 						{
+							iPitchCounter = sampleConstrains.loopPoint2;
 							loopBackwardFlag = 1;
 							fPitchCounter = 0;
 						}
 						if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
 						{
+							iPitchCounter = sampleConstrains.loopPoint1;
 							loopBackwardFlag = 0;
 							fPitchCounter = 0;
 						}
@@ -401,7 +404,7 @@ void AudioPlayMemory::update(void)
 						fPitchCounter = 0;
 					}
 				}
-				if ((iPitchCounter >= sampleConstrains.endPoint) && (sampleConstrains.endPoint != sampleConstrains.loopPoint2))
+				if ((iPitchCounter >= (sampleConstrains.endPoint + castPitchControl)) && (sampleConstrains.endPoint != (sampleConstrains.loopPoint2)))
 					iPitchCounter = length;
 			}
 			else
