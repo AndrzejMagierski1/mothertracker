@@ -1,5 +1,5 @@
 #include  "mtRecorder.h"
-
+#include "mtFileManager.h"
 void Recorder:: startRecording(int16_t * addr)
 {
 	currentAddress = addr;
@@ -113,7 +113,7 @@ uint8_t Recorder::startSave(char * name, uint8_t type)
 		if (SD.exists(currentPatch)) SD.remove(currentPatch);
 	}
 
-
+	saveInProgressFlag = 1;
 	rec = SD.open(currentPatch, FILE_WRITE);
 
 	rec.write(currentPatch,sizeof(header)); //tablica ktora byla pod reka aby ustawic seek na 44 - funkcja seek powodowala blad
@@ -121,15 +121,32 @@ uint8_t Recorder::startSave(char * name, uint8_t type)
 
 	return 1;
 }
+
+uint8_t Recorder::startSaveLoad(char * name, uint8_t idx, uint8_t type)
+{
+	uint8_t status = startSave(name,type);
+
+
+	if(!status) return 0;
+
+	sprintf(currentName,"%s.wav",name);
+	currentIndex = idx;
+	loadAfterSaveFlag = 1;
+
+	return 1;
+}
+
 void Recorder::updateSave()
 {
+	if(!saveInProgressFlag) return;
 	if(saveLength)
 	{
-		if(saveLength >= 2048)
+		if(saveLength > 2048)
 		{
 			rec.write(currentAddress,2048);
 			currentAddress+=1024;
 			saveLength-=2048;
+
 		}
 		else
 		{
@@ -141,7 +158,14 @@ void Recorder::updateSave()
 }
 void Recorder::stopSave()
 {
+	saveInProgressFlag = 0;
 	writeOutHeader();
+	if(loadAfterSaveFlag)
+	{
+		loadAfterSaveFlag = 0;
+		fileManager.setAutoLoadFlag();
+		fileManager.assignSampleToInstrument("Recorded", currentName, currentIndex);
+	}
 }
 uint8_t Recorder::getSaveProgress()
 {

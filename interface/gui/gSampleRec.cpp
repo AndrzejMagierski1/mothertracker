@@ -721,23 +721,7 @@ void cSampleRecorder::activateLabelsBorder()
 //==============================================================================================================
 void cSampleRecorder::showZoomValue()
 {
-	if(zoomValue >= 10.0)
-	{
-		zoomTextValue[0] = (uint8_t)zoomValue /10 + 48;
-		zoomTextValue[1] = (uint8_t)zoomValue %10 + 48;
-		zoomTextValue[2] = '.';
-		zoomTextValue[3] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) /10 + 48;
-		zoomTextValue[4] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) %10 + 48;
-		zoomTextValue[5] = 0;
-	}
-	else
-	{
-		zoomTextValue[0] = (uint8_t)zoomValue + 48;
-		zoomTextValue[1] = '.';
-		zoomTextValue[2] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) /10 + 48;
-		zoomTextValue[3] = (uint8_t)((zoomValue-(uint16_t)zoomValue)*100) %10 + 48;
-		zoomTextValue[4] = 0;
-	}
+	sprintf(zoomTextValue,"%.3f",zoomValue);
 
 	display.setControlText(topLabel[3], zoomTextValue);
 	display.setControlShow(topLabel[3]);
@@ -746,43 +730,10 @@ void cSampleRecorder::showZoomValue()
 
 void cSampleRecorder::showRecTimeValue()
 {
-
 	recTimeValue = recorder.getLength()/44100.0;
 
-	if(recTimeValue > 100)
-	{
-		recTimeValueText[0] = (uint8_t)recTimeValue /100 + 48;
-		recTimeValueText[1] = ((uint8_t)recTimeValue /10)%10 + 48;
-		recTimeValueText[2] = (uint8_t)recTimeValue %10 + 48;
-		recTimeValueText[3] = '.';
-		recTimeValueText[4] = (uint8_t)(((recTimeValue-(uint16_t)recTimeValue)*1000) /100) + 48;
-		recTimeValueText[5] = ((uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) /10)%10 + 48;
-		recTimeValueText[6] = (uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) %10 + 48;
-		recTimeValueText[7] = 's';
-		recTimeValueText[8] = 0;
-	}
-	else if(recTimeValue > 10 && recTimeValue < 100)
-	{
-		recTimeValueText[0] = (uint8_t)recTimeValue /10 + 48;
-		recTimeValueText[1] = (uint8_t)recTimeValue %10 + 48;
-		recTimeValueText[2] = '.';
-		recTimeValueText[3] = (uint8_t)(((recTimeValue-(uint16_t)recTimeValue)*1000) /100) + 48;
-		recTimeValueText[4] = ((uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) /10)%10 + 48;
-		recTimeValueText[5] = (uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) %10 + 48;
-		recTimeValueText[6] = 's';
-		recTimeValueText[7] = 0;
-	}
-	else if(recTimeValue < 10)
-	{
-		recTimeValueText[0] = (uint8_t)recTimeValue %10 + 48;
-		recTimeValueText[1] = '.';
-		recTimeValueText[2] = (uint8_t)(((recTimeValue-(uint16_t)recTimeValue)*1000) /100) + 48;
-		recTimeValueText[3] = ((uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) /10)%10 + 48;
-		recTimeValueText[4] = (uint8_t)((recTimeValue-(uint16_t)recTimeValue)*1000) %10 + 48;
-		recTimeValueText[5] = 's';
-		recTimeValueText[6] = 0;
-	}
-
+	sprintf(recTimeValueText,"%.3f",recTimeValue);
+	recTimeValueText[strlen(recTimeValueText)]='s';
 
 	display.setControlText(topLabel[2], recTimeValueText);
 	display.setControlShow(topLabel[2]);
@@ -791,42 +742,14 @@ void cSampleRecorder::showRecTimeValue()
 
 void cSampleRecorder::showPreviewValue()
 {
-	float playTimeValue = playProgresValueTim/1000.0;
-	float localEndPoint = (recTimeValue * endPoint) / MAX_16BIT;
+	float playTimeValue = ((playProgressValue * ((float) recorder.getLength()/MAX_16BIT) )/44100.0);
+	float localEndPoint = (recorder.getLength()  * endPoint) / MAX_16BIT;
+
 	if(playTimeValue >= (localEndPoint - 0.01)) playTimeValue = localEndPoint;
-	if(playTimeValue > 100)
-	{
-		playTimeValueText[0] = (uint8_t)playTimeValue /100 + 48;
-		playTimeValueText[1] = ((uint8_t)playTimeValue /10)%10 + 48;
-		playTimeValueText[2] = (uint8_t)playTimeValue %10 + 48;
-		playTimeValueText[3] = '.';
-		playTimeValueText[4] = (uint8_t)(((playTimeValue-(uint16_t)playTimeValue)*1000) /100) + 48;
-		playTimeValueText[5] = ((uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) /10)%10 + 48;
-		playTimeValueText[6] = (uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) %10 + 48;
-		playTimeValueText[7] = 's';
-		playTimeValueText[8] = 0;
-	}
-	else if(playTimeValue > 10 && playTimeValue < 100)
-	{
-		playTimeValueText[0] = (uint8_t)playTimeValue /10 + 48;
-		playTimeValueText[1] = (uint8_t)playTimeValue %10 + 48;
-		playTimeValueText[2] = '.';
-		playTimeValueText[3] = (uint8_t)(((playTimeValue-(uint16_t)playTimeValue)*1000) /100) + 48;
-		playTimeValueText[4] = ((uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) /10)%10 + 48;
-		playTimeValueText[5] = (uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) %10 + 48;
-		playTimeValueText[6] = 's';
-		playTimeValueText[7] = 0;
-	}
-	else if(playTimeValue < 10)
-	{
-		playTimeValueText[0] = (uint8_t)playTimeValue %10 + 48;
-		playTimeValueText[1] = '.';
-		playTimeValueText[2] = (uint8_t)(((playTimeValue-(uint16_t)playTimeValue)*1000) /100) + 48;
-		playTimeValueText[3] = ((uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) /10)%10 + 48;
-		playTimeValueText[4] = (uint8_t)((playTimeValue-(uint16_t)playTimeValue)*1000) %10 + 48;
-		playTimeValueText[5] = 's';
-		playTimeValueText[6] = 0;
-	}
+
+	sprintf(playTimeValueText,"%.3f",playTimeValue);
+	playTimeValueText[strlen(playTimeValueText)]='s';
+
 
 	display.setControlText(topLabel[0], playTimeValueText);
 	display.setControlShow(topLabel[0]);
@@ -843,40 +766,8 @@ void cSampleRecorder::showStartPointValue()
 	recTimeValue = recorder.getLength()/44100.0;
 	float localStartPoint = (recTimeValue * startPoint) / MAX_16BIT;
 
-	if(localStartPoint > 100)
-	{
-		startPointValueText[0] = (uint8_t)localStartPoint /100 + 48;
-		startPointValueText[1] = ((uint8_t)localStartPoint /10)%10 + 48;
-		startPointValueText[2] = (uint8_t)localStartPoint %10 + 48;
-		startPointValueText[3] = '.';
-		startPointValueText[4] = (uint8_t)(((localStartPoint-(uint16_t)localStartPoint)*1000) /100) + 48;
-		startPointValueText[5] = ((uint8_t)((localStartPoint-(uint16_t)localStartPoint)*1000) /10)%10 + 48;
-		startPointValueText[6] = (uint8_t)((localStartPoint-(uint16_t)localStartPoint)*1000) %10 + 48;
-		startPointValueText[7] = 's';
-		startPointValueText[8] = 0;
-	}
-	else if(localStartPoint > 10 && localStartPoint < 100)
-	{
-		startPointValueText[0] = (uint8_t)localStartPoint /10 + 48;
-		startPointValueText[1] = (uint8_t)localStartPoint %10 + 48;
-		startPointValueText[2] = '.';
-		startPointValueText[3] = (uint8_t)(((localStartPoint-(uint16_t)localStartPoint)*1000) /100) + 48;
-		startPointValueText[4] = ((uint8_t)((localStartPoint-(uint16_t)localStartPoint)*1000) /10)%10 + 48;
-		startPointValueText[5] = (uint8_t)((localStartPoint-(uint16_t)localStartPoint)*1000) %10 + 48;
-		startPointValueText[6] = 's';
-		startPointValueText[7] = 0;
-	}
-	else if(localStartPoint < 10)
-	{
-		startPointValueText[0] = (uint8_t)localStartPoint %10 + 48;
-		startPointValueText[1] = '.';
-		startPointValueText[2] = (uint8_t)(((localStartPoint-(uint16_t)localStartPoint)*1000) /100) + 48;
-		startPointValueText[3] = ((uint8_t)((localStartPoint-(uint16_t)localStartPoint)*1000) /10)%10 + 48;
-		startPointValueText[4] = (uint8_t)((localStartPoint-(uint16_t)localStartPoint)*1000) %10 + 48;
-		startPointValueText[5] = 's';
-		startPointValueText[6] = 0;
-	}
-
+	sprintf(startPointValueText,"%.3f",localStartPoint);
+	startPointValueText[strlen(startPointValueText)]='s';
 
 	display.setControlText(topLabel[1], startPointValueText);
 	display.setControlShow(topLabel[1]);
@@ -885,44 +776,11 @@ void cSampleRecorder::showStartPointValue()
 
 void cSampleRecorder::showEndPointValue()
 {
-
 	recTimeValue = recorder.getLength()/44100.0;
 	float localEndPoint = (recTimeValue * endPoint) / MAX_16BIT;
 
-	if(localEndPoint > 100)
-	{
-		endPointValueText[0] = (uint8_t)localEndPoint /100 + 48;
-		endPointValueText[1] = ((uint8_t)localEndPoint /10)%10 + 48;
-		endPointValueText[2] = (uint8_t)localEndPoint %10 + 48;
-		endPointValueText[3] = '.';
-		endPointValueText[4] = (uint8_t)(((localEndPoint-(uint16_t)localEndPoint)*1000) /100) + 48;
-		endPointValueText[5] = ((uint8_t)((localEndPoint-(uint16_t)localEndPoint)*1000) /10)%10 + 48;
-		endPointValueText[6] = (uint8_t)((localEndPoint-(uint16_t)localEndPoint)*1000) %10 + 48;
-		endPointValueText[7] = 's';
-		endPointValueText[8] = 0;
-	}
-	else if(localEndPoint > 10 && localEndPoint < 100)
-	{
-		endPointValueText[0] = (uint8_t)localEndPoint /10 + 48;
-		endPointValueText[1] = (uint8_t)localEndPoint %10 + 48;
-		endPointValueText[2] = '.';
-		endPointValueText[3] = (uint8_t)(((localEndPoint-(uint16_t)localEndPoint)*1000) /100) + 48;
-		endPointValueText[4] = ((uint8_t)((localEndPoint-(uint16_t)localEndPoint)*1000) /10)%10 + 48;
-		endPointValueText[5] = (uint8_t)((localEndPoint-(uint16_t)localEndPoint)*1000) %10 + 48;
-		endPointValueText[6] = 's';
-		endPointValueText[7] = 0;
-	}
-	else if(localEndPoint < 10)
-	{
-		endPointValueText[0] = (uint8_t)localEndPoint %10 + 48;
-		endPointValueText[1] = '.';
-		endPointValueText[2] = (uint8_t)(((localEndPoint-(uint16_t)localEndPoint)*1000) /100) + 48;
-		endPointValueText[3] = ((uint8_t)((localEndPoint-(uint16_t)localEndPoint)*1000) /10)%10 + 48;
-		endPointValueText[4] = (uint8_t)((localEndPoint-(uint16_t)localEndPoint)*1000) %10 + 48;
-		endPointValueText[5] = 's';
-		endPointValueText[6] = 0;
-	}
-
+	sprintf(endPointValueText,"%.3f",localEndPoint);
+	endPointValueText[strlen(endPointValueText)]='s';
 
 	display.setControlText(topLabel[2], endPointValueText);
 	display.setControlShow(topLabel[2]);

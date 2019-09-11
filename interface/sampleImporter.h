@@ -129,11 +129,13 @@ public:
 	uint32_t currentSelectMemorySize;
 	uint8_t fullMemoryFlag = 0;
 	uint8_t loadProgress = 0;
-	uint8_t loadFlag = 0;
 	uint8_t copyingProgress = 0;
 	uint8_t lastCopyStatusFlag = 0;
 	uint8_t currentCopyStatusFlag = 0;
-	uint8_t firstUpdateFlag = 1;
+	uint8_t copyQueue = 0;
+
+	uint8_t lastLoadStatusFlag = 0;
+	uint8_t currentLoadStatusFlag = 0;
 //--------------------------------------------------------------
 //odsluch
 	void playSdFile();
@@ -170,6 +172,16 @@ public:
 
 	uint8_t explorerPositionTable[PREVIOUS_POSITION_LIFO];
 	uint8_t explorerCurrentPosition;
+
+	uint8_t selectionActive;
+	uint8_t fileSelection[255];
+	uint8_t fileSelectionLength;
+
+	void updateSelection();
+	void handleSelecting(int16_t value);
+	void cancelSelect();
+	bool checkIfValidSelection(uint8_t positionToCheck);
+	int16_t getSelectionStart();
 
 };
 

@@ -12,6 +12,7 @@ static uint32_t defaultColors[] =
 	0xFFFFFF,	//	uint32_t listScrollBar 			= DISP_RGB(255,255,255);
 	0x554A19,	//	uint32_t listBG 				= DISP_RGB(85,74,25);
 	0xFFFFFF,	//	uint32_t fontList 				= DISP_RGB(255,255,255);
+	0xFF0000,   //  select color
 };
 
 
@@ -240,6 +241,18 @@ uint8_t cList::update()
 
 		for(uint8_t i = 0; i < lines; i++)
 		{
+			if(list->selectTab != NULL)
+			{
+				if(list->selectTab[i+textListPos])
+				{
+					API_COLOR(colors[5]);
+				}
+				else
+				{
+					API_COLOR(colors[0]);
+				}
+			}
+
 			API_CMD_TEXT(x_pos,
 					y_pos + (i * height),
 					textFont,
@@ -344,6 +357,18 @@ uint8_t cList::update()
 
 				for(int8_t i = 0; i < (lines+1); i++)
 				{
+					if(list->selectTab != NULL)
+					{
+						if(list->selectTab[i+textListPos])
+						{
+							API_COLOR(colors[5]);
+						}
+						else
+						{
+							API_COLOR(colors[0]);
+						}
+					}
+
 					API_CMD_TEXT(x_pos,
 							y_pos + (i * height),
 							textFont,
@@ -355,6 +380,18 @@ uint8_t cList::update()
 			{
 				for(int8_t i = 0; i < (lines+1); i++)
 				{
+					if(list->selectTab != NULL)
+					{
+						if(list->selectTab[i+textListPos-1])
+						{
+							API_COLOR(colors[5]);
+						}
+						else
+						{
+							API_COLOR(colors[0]);
+						}
+					}
+
 					API_CMD_TEXT(x_pos,
 							y_pos + (i * height),
 							textFont,
@@ -365,8 +402,20 @@ uint8_t cList::update()
 		}
 		else
 		{
-			for(uint8_t i = 0; i < lines; i++) // belka porusa sie - teks bez ruchu
+			for(uint8_t i = 0; i < lines; i++)
 			{
+				if(list->selectTab != NULL)
+				{
+					if(list->selectTab[i+textListPos])
+					{
+						API_COLOR(colors[5]);
+					}
+					else
+					{
+						API_COLOR(colors[0]);
+					}
+				}
+
 				API_CMD_TEXT(x_pos,
 						y_pos + (i * height),
 						textFont,

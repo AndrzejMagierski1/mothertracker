@@ -36,6 +36,7 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
+uint8_t preview(uint8_t state);
 
 
 
@@ -48,10 +49,6 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 void cSampleImporter::update()
 {
-	if(fileManager.samplesLoader.getFirstLoadFlag())
-	{
-		loadFlag = 1;
-	}
 	if(fileManager.samplesLoader.getMemoryUsageChangeFlag())
 	{
 		fileManager.samplesLoader.clearMemoryUsageChangeFlag();
@@ -66,7 +63,7 @@ void cSampleImporter::update()
 	}
 
 //////////////////////////////////////COPYING////////////////////////////
-	currentCopyStatusFlag = fileManager.getStateImportSampleToProject();
+	currentCopyStatusFlag = fileManager.samplesImporter.getState();
 
 	if(currentCopyStatusFlag)
 	{
@@ -76,33 +73,37 @@ void cSampleImporter::update()
 
 	if( (!currentCopyStatusFlag ) && (lastCopyStatusFlag) )
 	{
+		if(copyQueue > 1 )
+		{
+			copyQueue--;
+			fileManager.clearAutoLoadFlag();
+			fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[getSelectionStart() + copyQueue][0], selectedSlot + copyQueue);
+
+		}
+		else if(copyQueue == 1)
+		{
+			copyQueue = 0;
+			fileManager.setAutoLoadFlag();
+			fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[getSelectionStart()][0], selectedSlot);
+
+		}
 		showDefaultScreen();
-		fileManager.samplesLoader.start(selectedSlot);
-		loadFlag = 1;
 	}
 
-
-
-	if(firstUpdateFlag)
-	{
-		fileManager.clearForcedSampleProcessingFlag();
-		firstUpdateFlag = 0;
-	}
 	lastCopyStatusFlag = currentCopyStatusFlag;
 /////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////LOADING////////////////////////////
-	if(loadFlag)
+	currentLoadStatusFlag = fileManager.samplesLoader.getStateFlag();
+	if(currentLoadStatusFlag)
 	{
 		calculateLoadProgress();
 		showLoadHorizontalBar();
-
-		if(!fileManager.samplesLoader.getStateFlag())
-		{
-			loadFlag = 0;
-			showDefaultScreen();
-		}
 	}
+	if( (!currentLoadStatusFlag) && (lastLoadStatusFlag)) showDefaultScreen();
+
+	lastLoadStatusFlag = currentLoadStatusFlag;
+
 /////////////////////////////////////////////////////////////////////////
 }
 
@@ -117,7 +118,6 @@ void cSampleImporter::start(uint32_t options)
 	selectedSlot = mtProject.values.lastUsedInstrument;
 
 
-	firstUpdateFlag = 1;
 
 	listAllFoldersFirst();
 
@@ -176,7 +176,7 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton1, buttonPress, functChangeFolder);
 
 	FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
-	//FM->setButtonObj(interfaceButton3, buttonPress, functChangeFile);
+	FM->setButtonObj(interfaceButton3, preview);
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functChangeInstrument);
 	FM->setButtonObj(interfaceButton5, buttonPress, functInstrumentDelete);
@@ -243,7 +243,7 @@ static  uint8_t functInstrumentDelete()
 {
 	if(SI->selectedPlace==1)
 	{
-		if(mtProject.instrument[SI->selectedSlot].sample.loaded)
+		if(mtProject.instrument[SI->selectedSlot].isActive)
 		{
 			mtProject.used_memory -= 2* mtProject.instrument[SI->selectedSlot].sample.length;
 		}
@@ -293,16 +293,23 @@ static  uint8_t functEnter()
 
 static  uint8_t functShift(uint8_t state)
 {
-
-	if(state == 0)  SI->stopPlaying();
-	else if (state == 1)
+	if(SI->selectedPlace==0)
 	{
-
-		switch(SI->selectedPlace)
+		if(state ==0)
 		{
-		case 0: SI->playSdFile(); 			break;
-		case 1: SI->playSampleFromBank(); 	break;
+			SI->selectionActive=0;
+		}
+		else if(state == 1)
+		{
+			if(SI->checkIfValidSelection(SI->selectedFile))// nie mozna zaczac zaznaczac od folderu
+			{
+				SI->selectionActive=1;
+				memset(SI->fileSelection,0,sizeof(SI->fileSelection));
+				SI->fileSelection[SI->selectedFile]=1;
+				SI->fileSelectionLength=1;
 
+				SI->updateSelection();
+			}
 		}
 	}
 
@@ -315,12 +322,18 @@ static  uint8_t functLeft()
 	if(SI->selectedPlace > 0) SI->selectedPlace--;
 	else
 	{
+		if(SI->selectionActive)
+		{
+			SI->cancelSelect();
+		}
+
 		SI->rewindListToBeggining();
 		SI->calculateCurrentSelectMemorySize();
 		SI->calculateMemoryUsage();
 		SI->showMemoryUsage();
 		SI->AddOrEnter();
 	}
+
 	SI->activateLabelsBorder();
 
 	return 1;
@@ -380,7 +393,7 @@ static  uint8_t functRecAction()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-
+	if(SI->currentLoadStatusFlag || SI->currentCopyStatusFlag) return 1;
 	SI->eventFunct(eventSwitchModule,SI,&button,0);
 
 	return 1;
@@ -404,9 +417,20 @@ static uint8_t functSwitchModule(uint8_t button)
 
 uint8_t cSampleImporter::changeFileSelection(int16_t value)
 {
-	if(selectedFile+value < 0) selectedFile = 0;
-	else if(selectedFile+value > locationExplorerCount-1) selectedFile = locationExplorerCount-1;
-	else  selectedFile += value;
+	if(selectionActive)
+	{
+		handleSelecting(value);
+	}
+	else
+	{
+		if(selectedFile+value < 0) selectedFile = 0;
+		else if(selectedFile+value > locationExplorerCount-1) selectedFile = locationExplorerCount-1;
+		else  selectedFile += value;
+
+		cancelSelect();
+	}
+
+	updateSelection();
 
 	display.setControlValue(explorerListControl, selectedFile);
 	display.refreshControl(explorerListControl);
@@ -674,9 +698,22 @@ void cSampleImporter::BrowseOrAdd()
 
 void cSampleImporter::SelectFile()
 {
-	if(currentCopyStatusFlag || loadFlag) return;
-	fileManager.startImportSampleToProject(actualPath,&locationExplorerList[selectedFile][0], selectedSlot);
-	fileManager.clearForcedSampleProcessingFlag();
+	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
+	if(fileSelectionLength > 1)
+	{
+		fileManager.clearAutoLoadFlag();
+		copyQueue = fileSelectionLength-1;
+		fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[getSelectionStart() + copyQueue][0], selectedSlot +  copyQueue);
+
+	}
+	else
+	{
+		fileManager.setAutoLoadFlag();
+		copyQueue = 0;
+		fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[selectedFile][0], selectedSlot);
+	}
+
+//	fileManager.SampleImporter.startImportSampleToProject(actualPath,&locationExplorerList[selectedFile][0], selectedSlot);
 
 
 //	calculateMemoryUsage(); przeniesione do update - memory usage zostanie zwiekszone dopiero po poprawnym zaladowaniu pliku w update;
@@ -696,7 +733,7 @@ void cSampleImporter::listInstrumentSlots()
 	{
 		sprintf(&interfaceGlobals.intrumentsNames[i][0], "%d. ", i+1);
 
-		if(mtProject.instrument[i].sample.loaded)
+		if(mtProject.instrument[i].isActive)
 		{
 			strncat(&interfaceGlobals.intrumentsNames[i][0], mtProject.instrument[i].sample.file_name,SAMPLE_NAME_SIZE);
 		}
@@ -745,7 +782,7 @@ void cSampleImporter::calculateCurrentSelectMemorySize()
 	strcat(file_path, &locationExplorerList[selectedFile][0]);
 
 	currentSelectMemorySize = 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(file_path);
-	if(mtProject.instrument[selectedSlot].sample.loaded) currentSelectMemorySize -= 2*mtProject.instrument[selectedSlot].sample.length;
+	if(mtProject.instrument[selectedSlot].isActive) currentSelectMemorySize -= 2*mtProject.instrument[selectedSlot].sample.length;
 }
 
 void cSampleImporter::calculateLoadProgress()
@@ -755,13 +792,13 @@ void cSampleImporter::calculateLoadProgress()
 
 void cSampleImporter::calculateCopyingProgress()
 {
-	copyingProgress = fileManager.getProgressImportSampleToProject();
+	copyingProgress = fileManager.samplesImporter.getProgress();
 }
 
 //==============================================================================================
 void cSampleImporter::playSdFile()
 {
-	if(currentCopyStatusFlag || loadFlag) return;
+	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
 //	if(!isWavFile(&locationFileList[selectedFile][0])) return;
 
 	char file_path[255];
@@ -810,8 +847,8 @@ void cSampleImporter::playSdFile()
 
 void cSampleImporter::playSampleFromBank()
 {
-	if(currentCopyStatusFlag || loadFlag) return;
-	if(!mtProject.instrument[selectedSlot].sample.loaded) return;
+	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
+	if(!mtProject.instrument[selectedSlot].isActive) return;
 
 	if(sequencer.getSeqState() == 1)
 	{
@@ -842,6 +879,107 @@ void cSampleImporter::stopPlaying()
 
 	playMode = playModeStop;
 }
+
+uint8_t preview(uint8_t state)
+{
+	if(state == 0)  SI->stopPlaying();
+	else if (state == 1)
+	{
+
+		switch(SI->selectedPlace)
+		{
+		case 0: SI->playSdFile(); 			break;
+		case 1: SI->playSampleFromBank(); 	break;
+
+		}
+	}
+
+	return 1;
+}
+
+void cSampleImporter::updateSelection()
+{
+	display.refreshControl(explorerListControl);
+}
+
+bool cSampleImporter::checkIfValidSelection(uint8_t positionToCheck)
+{
+	if(!(SI->locationExplorerList[positionToCheck][0] == '/'))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void cSampleImporter::handleSelecting(int16_t value)
+{
+	int8_t sign=1;
+	uint8_t position;
+
+	if(value<0)
+	{
+		sign=-1;
+		value *= -1;
+	}
+
+	position = SI->selectedFile;
+
+	for(int i=0;i<value;i++)
+	{
+		position += (1 *sign);
+		if(position > 0 && position < locationExplorerCount)
+		{
+			if(checkIfValidSelection(position))
+			{
+				if(fileSelection[position]==1)
+				{
+					if(sign<0)
+					{
+						fileSelection[position+1]=0;
+					}
+					if(sign>0)
+					{
+						fileSelection[position-1]=0;
+					}
+
+					fileSelectionLength--;
+				}
+				else
+				{
+					fileSelection[position]=1;
+					fileSelectionLength++;
+				}
+
+				selectedFile = position;
+			}
+		}
+	}
+}
+
+void cSampleImporter::cancelSelect()
+{
+	memset(SI->fileSelection,0,sizeof(SI->fileSelection));
+	fileSelectionLength=0;
+	updateSelection();
+}
+
+int16_t cSampleImporter::getSelectionStart()
+{
+	int16_t selStart=-1;
+
+	for(size_t i=0;i<sizeof(fileSelection);i++)
+	{
+		if(fileSelection[i]==1)
+		{
+			selStart=i;
+			break;
+		}
+	}
+
+	return selStart;
+}
+
 
 
 

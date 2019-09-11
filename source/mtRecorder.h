@@ -14,6 +14,7 @@ public:
 	void stop();
 	void trim(uint16_t a, uint16_t b);
 	uint8_t startSave(char * name, uint8_t type = 0);
+	uint8_t startSaveLoad(char * name,uint8_t idx, uint8_t type = 0);
 	void updateSave();
 	void stopSave();
 	uint8_t getSaveProgress();
@@ -25,13 +26,14 @@ public:
 	uint8_t mode = recorderModeStop;
 private:
 	void writeOutHeader();
-
+	char currentName[32];
+	uint8_t currentIndex;
 	uint32_t saveLength;
 	int16_t * currentAddress;
 	int16_t * startAddress;
-
+	uint8_t saveInProgressFlag = 0;
 	strWavFileHeader header;
-
+	uint8_t loadAfterSaveFlag = 0;
 
 	uint32_t recByteSaved = 0;
 

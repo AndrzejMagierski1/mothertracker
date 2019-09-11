@@ -716,7 +716,7 @@ void cInstrumentEditor::listInstruments()
 	{
 		sprintf(&interfaceGlobals.intrumentsNames[i][0], "%d. ", i+1);
 
-		if(mtProject.instrument[i].sample.loaded)
+		if(mtProject.instrument[i].isActive)
 		{
 			strncat(&interfaceGlobals.intrumentsNames[i][0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 		}
