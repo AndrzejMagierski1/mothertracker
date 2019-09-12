@@ -8,6 +8,7 @@
 #include "mtStructs.h"
 
 #define PREVIOUS_POSITION_LIFO	25
+#define MAX_SELECT				48
 
 class cSampleImporter: public cModuleBase
 {
@@ -119,20 +120,20 @@ public:
 
 //--------------------------------------------------------------
 //memory
-	void calculateMemoryUsage();
-	void calculateCurrentSelectMemorySize();
+
 	void calculateLoadProgress();
 	void calculateCopyingProgress();
 	uint8_t memoryUsage;
 	strCompareValue memoryUsageAdd;
 	const strCompareValue memoryUsageAddOnMemoryFull = {100};
-	uint32_t currentSelectMemorySize;
+	int32_t currentSelectMemorySize;
 	uint8_t fullMemoryFlag = 0;
 	uint8_t loadProgress = 0;
 	uint8_t copyingProgress = 0;
 	uint8_t lastCopyStatusFlag = 0;
 	uint8_t currentCopyStatusFlag = 0;
 	uint8_t copyQueue = 0;
+	uint8_t firstMemBarLoadFlag=0;
 
 	uint8_t lastLoadStatusFlag = 0;
 	uint8_t currentLoadStatusFlag = 0;
@@ -174,14 +175,31 @@ public:
 	uint8_t explorerCurrentPosition;
 
 	uint8_t selectionActive;
-	uint8_t fileSelection[255];
-	uint8_t fileSelectionLength;
+	uint8_t shiftPressed;
+	uint8_t selectionTab[255];
+	uint8_t selectionLength;
+	uint8_t currSelectPlace=0;
+
 
 	void updateSelection();
-	void handleSelecting(int16_t value);
+
+	uint8_t handleSelecting(uint8_t selectStart, uint8_t selectMax, int16_t value,uint8_t fileCheck);
+
 	void cancelSelect();
-	bool checkIfValidSelection(uint8_t positionToCheck);
 	int16_t getSelectionStart();
+
+	bool checkIfValidSelection(uint8_t positionToCheck);
+
+
+	void handleMemoryBar();
+	void calculateFileMemUsage();
+	void calculateMemUsage();
+
+	uint32_t currentFolderMemoryFileUsage[255];
+
+	void setSelect(uint8_t place);
+
+	void displayDelete(uint8_t onOff);
 
 };
 
