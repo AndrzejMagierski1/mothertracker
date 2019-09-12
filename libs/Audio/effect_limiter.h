@@ -15,7 +15,7 @@ public:
   void begin(uint16_t ts, uint16_t a, uint16_t r);
   void setThreshold(uint16_t threshold);
   void setAttack(uint16_t attack);
-  void setRelease(uint16_t release);
+  void setRelease(float release);
   virtual void update(void);
 
 private:

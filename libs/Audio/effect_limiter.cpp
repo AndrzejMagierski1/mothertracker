@@ -18,7 +18,7 @@ void AudioEffectLimiter::setAttack(uint16_t a)
 {
 	attack = a/1000.0;
 }
-void AudioEffectLimiter::setRelease(uint16_t r)
+void AudioEffectLimiter::setRelease(float r)
 {
 	releaseTime = r/1000.0;
 }
