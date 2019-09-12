@@ -81,9 +81,6 @@ public:
 	void refreshPattern();
 	void readPatternState();
 
-	void changeActualStepNote(int16_t value);
-	void changeActualStepInstrument(int16_t value);
-	void changeActualStepVolume(int16_t value);
 
 	void focusOnPattern();
 	void unfocusPattern();

@@ -302,10 +302,12 @@ void cPatternEditor::showEditModeLabels()
 	display.setControlText(topLabel[4], "Fill");
 	display.setControlText(topLabel[5], "Randomise");
 	display.setControlText(topLabel[6], "Invert");
+	display.setControlText(topLabel[7], "Transpose");
 
 	display.refreshControl(topLabel[4]);
 	display.refreshControl(topLabel[5]);
 	display.refreshControl(topLabel[6]);
+	display.refreshControl(topLabel[7]);
 
 	display.synchronizeRefresh();
 
@@ -316,10 +318,12 @@ void cPatternEditor::hideEditModeLabels()
 	display.setControlText(topLabel[4], "");
 	display.setControlText(topLabel[5], "");
 	display.setControlText(topLabel[6], "");
+	display.setControlText(topLabel[7], "");
 
 	display.refreshControl(topLabel[4]);
 	display.refreshControl(topLabel[5]);
 	display.refreshControl(topLabel[6]);
+	display.refreshControl(topLabel[7]);
 
 	display.synchronizeRefresh();
 }
@@ -502,7 +506,14 @@ void cPatternEditor::showFillPopup()
 	// step
 
 	fillText3[0]  = 0;
-	sprintf(fillText3, "%d", fillStep);
+	if (fillStep == 0)
+	{
+		sprintf(fillText3, "%s", "random");
+	}
+	else
+	{
+		sprintf(fillText3, "%d", fillStep);
+	}
 
 	display.setControlText(val3PopupLabel, fillText3);
 	display.setControlShow(val3PopupLabel);
@@ -659,7 +670,14 @@ void cPatternEditor::refreshFillStep()
 	//------------------------------
 	// step
 	fillText3[0]  = 0;
-	sprintf(fillText3, "%d", fillStep);
+	if (fillStep == 0)
+	{
+		sprintf(fillText3, "%s", "random");
+	}
+	else
+	{
+		sprintf(fillText3, "%d", fillStep);
+	}
 	display.setControlText(val3PopupLabel, fillText3);
 	display.setControlText(bottomLabel[5], "Step");
 

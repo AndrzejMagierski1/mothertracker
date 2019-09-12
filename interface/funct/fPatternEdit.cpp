@@ -46,6 +46,7 @@ static  uint8_t functRandomiseChangeParam3();
 static  uint8_t functRandomiseChangeParam4();
 
 static  uint8_t functInvert();
+static  uint8_t functTranspose();
 
 
 static  uint8_t functLeft();
@@ -436,60 +437,6 @@ uint8_t cPatternEditor::isPleyheadOnScreen()
 }
 
 
-void cPatternEditor::changeActualStepNote(int16_t value)
-{
-	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
-	Sequencer::strPattern::strTrack::strStep *step = &(pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep]);
-
-	uint16_t dupa =pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note;
-	Serial.println(dupa);
-
-
-	step->note =
-			constrain(step->note + value,
-						Sequencer::MIN_NOTE_STEP,
-						Sequencer::MAX_NOTE_STEP);
-
-}
-
-void cPatternEditor::changeActualStepInstrument(int16_t value)
-{
-	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
-	Sequencer::strPattern::strTrack::strStep *step = &(pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep]);
-
-	if (pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note >= 0)
-	{
-		step->instrument = constrain(step->instrument + value,
-								0,
-								INSTRUMENTS_COUNT - 1);
-
-		mtProject.values.lastUsedInstrument = step->instrument;
-	}
-	else
-	{
-		step->note = 24;
-		step->instrument = mtProject.values.lastUsedInstrument;
-		step->velocity = -1;
-	}
-
-}
-
-void cPatternEditor::changeActualStepVolume(int16_t value)
-{
-	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
-
-//	if(pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].isOn)
-//	{
-		int8_t step_volume = pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity;
-
-		if(step_volume + value > Sequencer::MAX_VELO_STEP)
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity = Sequencer::MAX_VELO_STEP;
-		else if(step_volume + value < Sequencer::MIN_VELO_STEP-1)
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity = Sequencer::MIN_VELO_STEP-1;
-		else
-			pattern->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity += value;
-//	}
-}
 
 
 void cPatternEditor::changeActualTempo(int16_t value)
@@ -569,6 +516,7 @@ void cPatternEditor::refreshEditState()
 		FM->setButtonObj(interfaceButton4, buttonPress, functFill);
 		FM->setButtonObj(interfaceButton5, buttonPress, functRandomise);
 		FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
+		FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
 
 		lightUpPadBoard();
 
@@ -622,7 +570,7 @@ void cPatternEditor::changeFillData(int16_t value)
 		break;
 	case 5:
 		ptrVal = &fillStep;
-		min = 1;
+		min = 0;
 		max = PATTERN_EDIT_STEP_MAX;
 		break;
 
@@ -750,6 +698,7 @@ uint8_t functEncoder(int16_t value)
 
 	if(PTE->selectedPlace >= 0)
 	{
+
 		switch(PTE->selectedPlace)
 		{
 		case 0: PTE->changeActualTempo(value); break;
@@ -775,21 +724,24 @@ uint8_t functEncoder(int16_t value)
 
 
 	sendSelection();
-	switch(PTE->editParam)
+	if(tactButtons.isButtonPressed(interfaceButton7))
 	{
-	case 0: sequencer.changeSelectionNote(value); break;
-	case 1: sequencer.changeSelectionInstrument(value); break;
-	case 2: sequencer.changeSelectionVolume(value); break;
-	case 3:
-		if (tactButtons.isButtonPressed(interfaceButtonFx))
+		switch(PTE->editParam)
 		{
-			sequencer.changeSelectionFxType(value);
+		case 0: sequencer.changeSelectionNote(value); break;
+		case 1: sequencer.changeSelectionInstrument(value); break;
+		case 2: sequencer.changeSelectionVolume(value); break;
+		case 3:
+			if (tactButtons.isButtonPressed(interfaceButtonFx))
+			{
+				sequencer.changeSelectionFxType(value);
+			}
+			else
+			{
+				sequencer.changeSelectionFxValue(value);
+			}
+			break;
 		}
-		else
-		{
-			sequencer.changeSelectionFxValue(value);
-		}
-		break;
 	}
 
 	PTE->lightUpPadBoard();
@@ -2009,6 +1961,19 @@ static uint8_t functInvert()
 	sequencer.invertSelectedSteps();
 
 	PTE->refreshPattern();
+
+	//--------------------------------------------------------
+	return 1;
+}
+//##############################################################################################
+//###############################            TRANSPOSE		   #################################
+//##############################################################################################
+static uint8_t functTranspose()
+{
+	//--------------------------------------------------------
+	//TU
+
+
 
 	//--------------------------------------------------------
 	return 1;
