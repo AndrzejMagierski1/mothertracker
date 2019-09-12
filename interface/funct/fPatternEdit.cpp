@@ -570,7 +570,7 @@ void cPatternEditor::changeFillData(int16_t value)
 		break;
 	case 5:
 		ptrVal = &fillStep;
-		min = 1;
+		min = 0;
 		max = PATTERN_EDIT_STEP_MAX;
 		break;
 

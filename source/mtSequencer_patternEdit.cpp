@@ -35,7 +35,8 @@ void Sequencer::fillRandomNotes(uint8_t fillStep, uint8_t from, uint8_t to)
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 				step->note = random(from, to + 1);
@@ -56,7 +57,8 @@ void Sequencer::fillLinearNotes(uint8_t fillStep, uint8_t from, uint8_t to)
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 				step->note = map(offset + sel->firstStep,
@@ -82,7 +84,8 @@ void Sequencer::fillLinearInstruments(uint8_t fillStep, uint8_t from,
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 				step->instrument = map(offset + sel->firstStep,
@@ -114,7 +117,8 @@ void Sequencer::fillLinearFx(uint8_t fillStep,
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 
@@ -144,7 +148,8 @@ void Sequencer::fillRandomFx(uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 
@@ -170,7 +175,8 @@ void Sequencer::fillRandomInstruments(uint8_t fillStep, uint8_t from,
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 				step->instrument = random(from, to + 1);
@@ -197,7 +203,8 @@ void Sequencer::fillLinearVelocity(uint8_t fillStep, uint8_t from,
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 				step->velocity = map(offset + sel->firstStep,
@@ -225,7 +232,8 @@ void Sequencer::fillRandomVelocity(uint8_t fillStep, uint8_t from,
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 				step->velocity = random(from, to + 1);

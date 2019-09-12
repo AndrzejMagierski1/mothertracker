@@ -506,7 +506,14 @@ void cPatternEditor::showFillPopup()
 	// step
 
 	fillText3[0]  = 0;
-	sprintf(fillText3, "%d", fillStep);
+	if (fillStep == 0)
+	{
+		sprintf(fillText3, "%s", "random");
+	}
+	else
+	{
+		sprintf(fillText3, "%d", fillStep);
+	}
 
 	display.setControlText(val3PopupLabel, fillText3);
 	display.setControlShow(val3PopupLabel);
@@ -663,7 +670,14 @@ void cPatternEditor::refreshFillStep()
 	//------------------------------
 	// step
 	fillText3[0]  = 0;
-	sprintf(fillText3, "%d", fillStep);
+	if (fillStep == 0)
+	{
+		sprintf(fillText3, "%s", "random");
+	}
+	else
+	{
+		sprintf(fillText3, "%d", fillStep);
+	}
 	display.setControlText(val3PopupLabel, fillText3);
 	display.setControlText(bottomLabel[5], "Step");
 
