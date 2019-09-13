@@ -1354,11 +1354,6 @@ static  uint8_t functActionPreview()
 	uint32_t length;
 	uint32_t addressShift;
 
-	Serial.print("end point");
-	Serial.println(SR->endPoint);
-	Serial.print("start point");
-	Serial.println(SR->startPoint);
-
 	length =(uint32_t)((uint32_t)SR->endPoint * (float)(recorder.getLength())/MAX_16BIT);
 	addressShift = (uint32_t)( (uint32_t)SR->startPoint * (float)(recorder.getLength())/MAX_16BIT);
 
