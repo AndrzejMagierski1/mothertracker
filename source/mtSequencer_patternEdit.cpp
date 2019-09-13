@@ -1082,3 +1082,9 @@ void Sequencer::setPasteSelection(uint8_t stepFrom,
 	}
 
 }
+
+void Sequencer::setTempo(float val)
+{
+	seq[player.ramBank].tempo = val;
+}
+
