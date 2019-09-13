@@ -111,9 +111,9 @@ void cSampleImporter::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
+	Encoder.setAcceleration(0);
 
 	//selectedFile = 0;
-
 
 	selectedSlot = mtProject.values.lastUsedInstrument;
 
@@ -149,6 +149,8 @@ void cSampleImporter::start(uint32_t options)
 
 void cSampleImporter::stop()
 {
+	Encoder.setAcceleration(3);
+
 	moduleRefresh = 0;
 }
 

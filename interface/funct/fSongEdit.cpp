@@ -58,8 +58,7 @@ void cSongEditor::start(uint32_t options)
 
 	showPatternsList();
 
-	Encoder.setResolution(12);
-	Encoder.setAcceleration(0);
+
 
 
 	//selectedPlace = 0;
@@ -88,8 +87,7 @@ void cSongEditor::start(uint32_t options)
 
 void cSongEditor::stop()
 {
-	Encoder.setResolution(48);
-	Encoder.setAcceleration(3);
+
 
 	moduleRefresh = 0;
 }
