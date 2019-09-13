@@ -490,22 +490,28 @@ void KEYS::update()
 		uint8_t keyNumber = key & 0x7F;
 		uint8_t keyState = key & 0x80 ;
 
-
-		Serial.print("Keyboard ISR...Key:");
-		Serial.print((key & 0x7F), HEX); //print keycode masking the key down/key up bit (bit7)
 		if (keyState)
 		{
-			Serial.println(" key down");
-			onPush(convertToGridKey4x12[keyNumber]);
+			onPush(convertToGridKey4x12[keyNumber-1]);
+			buttonPush[convertToGridKey4x12[keyNumber-1]] = 1;
+			holdTim[convertToGridKey4x12[keyNumber-1]] = 0;
 		}
 		else
 		{
-			Serial.println(" key up");
-			onRelease(convertToGridKey4x12[keyNumber]);
-
+			onRelease(convertToGridKey4x12[keyNumber-1]);
+			buttonPush[convertToGridKey4x12[keyNumber-1]] = 0;
 		}
 		KeyInt = false; //Reset Our Interrupt flag
 		clearInterruptStatus(); //Reset TCA8418 Interrupt Status Register.
+	}
+
+	for(uint8_t i = 0; i < BUTTON_MAX ; i++)
+	{
+		if(buttonPush[i] && (holdTim[i] > HOLD_TIME))
+		{
+			holdTim[i] = 0;
+			onHold(i);
+		}
 	}
 	//Do other processing
 
@@ -518,4 +524,12 @@ void KEYS::setOnPush(void(*funct)(uint8_t))
 void KEYS::setOnRelease(void(*funct)(uint8_t))
 {
 	onRelease = funct;
+}
+void KEYS::setOnHold(void(*funct)(uint8_t))
+{
+	onHold = funct;
+}
+uint8_t KEYS::isButtonPressed(uint8_t n)
+{
+	return buttonPush[n];
 }

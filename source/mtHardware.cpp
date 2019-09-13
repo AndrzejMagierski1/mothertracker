@@ -40,7 +40,6 @@ void updateEncoder();
 
 void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo);
 void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f);
-void onPadRelease(uint8_t n);
 void onPotChange(uint8_t n, int16_t value);
 void onButtonChange(uint8_t n, uint8_t value);
 void onPowerButtonChange(uint8_t value);
@@ -55,6 +54,7 @@ void onButtonDouble			(uint8_t x,uint8_t state);
 // tca8418 new pad driver
 void onPadPush(uint8_t n);
 void onPadRelease(uint8_t n);
+void onPadHold(uint8_t n);
 
 keyScanner seqButtonsA;
 keyScanner tactButtons;
@@ -194,15 +194,16 @@ void initHardware()
 
 	Keypad.setOnPush(onPadPush);
 	Keypad.setOnRelease(onPadRelease);
+	Keypad.setOnHold(onPadHold);
 
-//	Keypad.begin(ROW0 | ROW1 | ROW2 | ROW3 | ROW4 | ROW5 | ROW6 | ROW7 , COL0 | COL1 | COL2 | COL3 | COL4 | COL5 | COL6 | COL7 ,
-//	CFG_KE_IEN | CFG_OVR_FLOW_IEN | CFG_INT_CFG | CFG_OVR_FLOW_M);
+	Keypad.begin(ROW0 | ROW1 | ROW2 | ROW3 | ROW4 | ROW5 | ROW6 | ROW7 , COL0 | COL1 | COL2 | COL3 | COL4 | COL5 | COL6 | COL7 | COL8 | COL9,
+	CFG_KE_IEN | CFG_OVR_FLOW_IEN | CFG_INT_CFG | CFG_OVR_FLOW_M);
 //
 //
-//	Keypad.enableInterrupt(GRID_A, KeyISR); //Arg1= Arduino Pin number INT is connected to. Arg2= Interrupt Routine
+	Keypad.enableInterrupt(GRID_A, KeyISR); //Arg1= Arduino Pin number INT is connected to. Arg2= Interrupt Routine
 	////////////////// IO7326
 	tactButtons.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,TACTILE_INT,tactileToKeyMapping,IO7326_TACT_INT_FUNCT);
-	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,gridToKeyMapping,IO7326_INT_FUNCT_A);
+//	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,gridToKeyMapping,IO7326_INT_FUNCT_A);
 
 	tactButtons.testMode(0);
 
@@ -280,8 +281,8 @@ void updateHardware()
 			}
 			if(i2c_switch == 1)
 			{
-//				Keypad.update();
-				if(!seqButtonsA.update())  	i2c_switch++;
+				Keypad.update(); i2c_switch++;
+//				if(!seqButtonsA.update())  	i2c_switch++;
 			}
 			if(i2c_switch == 2)
 			{
