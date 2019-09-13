@@ -49,16 +49,18 @@ KEYS::KEYS() :
 {
 }
 
-void KEYS::begin(void)
+void KEYS::begin(i2c_t3 * wire)
 {
+	localWire = wire;
 	_address = 0x34;
-	Wire2.begin(I2C_MASTER, 0x00, I2C_SCL, I2C_SDA, I2C_PULLUP_EXT, 400000);
+	localWire->begin(I2C_MASTER, 0x00, I2C_SCL, I2C_SDA, I2C_PULLUP_EXT, 400000);
 }
 
-void KEYS::begin(uint8_t rows, uint16_t cols, uint8_t config)
+void KEYS::begin(uint8_t rows, uint16_t cols, uint8_t config,i2c_t3 * wire)
 {
+	localWire = wire;
 	_address = 0x34;
-	Wire2.begin(I2C_MASTER, 0x00, I2C_SCL, I2C_SDA, I2C_PULLUP_EXT, 400000);
+	localWire->begin(I2C_MASTER, 0x00, I2C_SCL, I2C_SDA, I2C_PULLUP_EXT, 400000);
 	configureKeys(rows, cols, config);
 }
 
@@ -87,24 +89,24 @@ bool KEYS::configureKeys(uint8_t rows, uint16_t cols, uint8_t config)
 
 void KEYS::writeByte(uint8_t data, uint8_t reg)
 {
-	Wire2.beginTransmission(_address);
+	localWire->beginTransmission(_address);
 	I2CWRITE((uint8_t ) reg);
 
 	I2CWRITE((uint8_t ) data);
-	Wire2.endTransmission();
+	localWire->endTransmission();
 
 	return;
 }
 
 bool KEYS::readByte(uint8_t *data, uint8_t reg)
 {
-	Wire2.beginTransmission(_address);
+	localWire->beginTransmission(_address);
 	I2CWRITE((uint8_t ) reg);
-	Wire2.endTransmission();
+	localWire->endTransmission();
 	uint8_t timeout = 0;
 
-	Wire2.requestFrom(_address, (uint8_t) 0x01);
-	while (Wire2.available() < 1)
+	localWire->requestFrom(_address, (uint8_t) 0x01);
+	while (localWire->available() < 1)
 	{
 		timeout++;
 		if (timeout > I2CTIMEOUT)
@@ -130,14 +132,14 @@ void KEYS::write3Bytes(uint32_t data, uint8_t reg)
 
 	datau.w = data;
 
-	Wire2.beginTransmission(_address);
+	localWire->beginTransmission(_address);
 	I2CWRITE((uint8_t ) reg);
 
 	I2CWRITE((uint8_t ) datau.b[0]);
 	I2CWRITE((uint8_t ) datau.b[1]);
 	I2CWRITE((uint8_t ) datau.b[2]);
 
-	Wire2.endTransmission();
+	localWire->endTransmission();
 	return;
 }
 
@@ -152,13 +154,13 @@ bool KEYS::read3Bytes(uint32_t *data, uint8_t reg)
 
 	datau.w = *data;
 
-	Wire2.beginTransmission(_address);
+	localWire->beginTransmission(_address);
 	I2CWRITE((uint8_t ) reg);
-	Wire2.endTransmission();
+	localWire->endTransmission();
 	uint8_t timeout = 0;
 
-	Wire2.requestFrom(_address, (uint8_t) 0x03);
-	while (Wire2.available() < 3)
+	localWire->requestFrom(_address, (uint8_t) 0x03);
+	while (localWire->available() < 3)
 	{
 		timeout++;
 		if (timeout > I2CTIMEOUT)

@@ -156,8 +156,8 @@ void KeyISR(void);
 class KEYS {
 public:
   KEYS();
-  void begin(void);
-  void begin(uint8_t rows, uint16_t cols, uint8_t config);
+  void begin(i2c_t3 * wire);
+  void begin(uint8_t rows, uint16_t cols, uint8_t config,i2c_t3 * wire);
   uint8_t readKeypad(void);
   bool configureKeys(uint8_t rows, uint16_t cols, uint8_t config);
   void writeByte(uint8_t data, uint8_t reg);
@@ -201,6 +201,7 @@ private:
   void (*onRelease)(uint8_t);
   void (*onHold)(uint8_t);
   uint8_t buttonPush[BUTTON_MAX];
+  i2c_t3 * localWire = &Wire;
 
 protected:
  
