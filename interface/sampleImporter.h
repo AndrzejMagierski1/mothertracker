@@ -201,6 +201,18 @@ public:
 
 	void displayDelete(uint8_t onOff);
 
+	uint8_t instrCopyStart;
+	uint8_t instrCopyLength;
+	uint8_t instrCopied;
+
+	uint8_t copyType;//0- no copy ,1- sd to intr,2 -instr to instr
+
+	char instrToCreate[15];
+	char *parseNewName(uint8_t num);
+	uint8_t willCopyInstrFit(uint8_t length);
+	void handleSequenceCopyingLoading();
+
+
 };
 
 
