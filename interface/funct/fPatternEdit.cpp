@@ -905,7 +905,7 @@ uint8_t functEncoder(int16_t value)
 
 
 	sendSelection();
-	if(tactButtons.isButtonPressed(interfaceButton7))
+	if(tactButtons.isButtonPressed(interfaceButton7) || !isMultiSelection())
 	{
 		switch(PTE->editParam)
 		{
@@ -915,7 +915,7 @@ uint8_t functEncoder(int16_t value)
 		case 3:
 			if (tactButtons.isButtonPressed(interfaceButtonFx))
 			{
-				sequencer.changeSelectionFxType(value);
+				//sequencer.changeSelectionFxType(value);
 			}
 			else
 			{
@@ -2340,7 +2340,7 @@ void cPatternEditor::lightUpPadBoard()
 			}
 			else
 			{
-				if(seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[0].isOn != 0)
+				if(seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[0].type != 0)
 				{
 					show_fx = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[0].value;
 
