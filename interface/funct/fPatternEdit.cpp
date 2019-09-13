@@ -2156,52 +2156,56 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	}
 
 	// wprowadzanie danych
-	switch (PTE->editParam)
+	if (PTE->editMode == 1)
 	{
-	case 0: // nuta
-	{
-		sendSelection();
-		if (state == buttonPress)
-		{
-			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-			sequencer.handleNote(0, noteFromPad, 127);
-		}
-		else if (state == buttonRelease)
-		{
-			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-			sequencer.handleNote(0, noteFromPad, 0);
-		}
-		break;
-	}
 
-	case 1: // instrument
-	{
-		if (state == buttonPress)
+		switch (PTE->editParam)
+		{
+		case 0: // nuta
 		{
 			sendSelection();
-			sequencer.setSelectionInstrument(pad);
+			if (state == buttonPress)
+			{
+				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+				sequencer.handleNote(0, noteFromPad, 127);
+			}
+			else if (state == buttonRelease)
+			{
+				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+				sequencer.handleNote(0, noteFromPad, 0);
+			}
+			break;
 		}
-		else if (state == buttonRelease)
-		{
-			sequencer.handleNote(0, 0, 0);
-		}
-		break;
-	}
 
-	case 2: // volume
-	{
-		if (state == buttonPress)
+		case 1: // instrument
 		{
-			sendSelection();
-			sequencer.setSelectionVelocity(map(pad, 0, 47, 0, 127));
+			if (state == buttonPress)
+			{
+				sendSelection();
+				sequencer.setSelectionInstrument(pad);
+			}
+			else if (state == buttonRelease)
+			{
+				sequencer.handleNote(0, 0, 0);
+			}
+			break;
 		}
-		break;
-	}
 
-	case 3:
-		break; //fx
-	default:
-		break;
+		case 2: // volume
+		{
+			if (state == buttonPress)
+			{
+				sendSelection();
+				sequencer.setSelectionVelocity(map(pad, 0, 47, 0, 127));
+			}
+			break;
+		}
+
+		case 3:
+			break; //fx
+		default:
+			break;
+		}
 	}
 
 	PTE->moveCursorByStep();
