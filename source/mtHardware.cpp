@@ -197,7 +197,7 @@ void initHardware()
 	Keypad.setOnHold(onPadHold);
 
 	Keypad.begin(ROW0 | ROW1 | ROW2 | ROW3 | ROW4 | ROW5 | ROW6 | ROW7 , COL0 | COL1 | COL2 | COL3 | COL4 | COL5 | COL6 | COL7 | COL8 | COL9,
-	CFG_KE_IEN | CFG_OVR_FLOW_IEN | CFG_INT_CFG | CFG_OVR_FLOW_M);
+	CFG_KE_IEN | CFG_OVR_FLOW_IEN | CFG_INT_CFG | CFG_OVR_FLOW_M, &Wire2);
 //
 //
 	Keypad.enableInterrupt(GRID_A, KeyISR); //Arg1= Arduino Pin number INT is connected to. Arg2= Interrupt Routine
