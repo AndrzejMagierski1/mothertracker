@@ -212,7 +212,7 @@ void audioEngine::setLimiterAttack(uint16_t attack)
 	limiter[0].setAttack(attack);
 	limiter[1].setAttack(attack);
 }
-void audioEngine::setLimiterRelease(uint16_t release)
+void audioEngine::setLimiterRelease(float release)
 {
 	limiter[0].setRelease(release);
 	limiter[1].setRelease(release);

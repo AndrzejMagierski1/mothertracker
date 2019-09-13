@@ -32,6 +32,7 @@ void readHeader(strWavFileHeader* header, FsFile * wavfile)
 			memcpy(&header->subchunk1Id,subchunkHeader.id,4);
 			header->subchunk1Size = subchunkHeader.size;
 			wavfile->read(&header->AudioFormat,16);
+			wavfile->seekCur(subchunkHeader.size-16);
 			break;
 		}
 		else
@@ -103,6 +104,7 @@ void readHeader(strWavFileHeader* header, ExFatFile * wavfile)
 			memcpy(&header->subchunk1Id,subchunkHeader.id,4);
 			header->subchunk1Size = subchunkHeader.size;
 			wavfile->read(&header->AudioFormat,16);
+			wavfile->seekCur(subchunkHeader.size-16);
 			break;
 		}
 		else
@@ -174,6 +176,7 @@ void readHeader(strWavFileHeader* header, FatFile * wavfile)
 			memcpy(&header->subchunk1Id,subchunkHeader.id,4);
 			header->subchunk1Size = subchunkHeader.size;
 			wavfile->read(&header->AudioFormat,16);
+			wavfile->seekCur(subchunkHeader.size-16);
 			break;
 		}
 		else
