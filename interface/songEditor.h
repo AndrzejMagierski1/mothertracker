@@ -53,12 +53,13 @@ public:
 
 	uint8_t slotToPattern[255];
 	uint8_t selectedPlace = 0;
+	uint8_t localSongPosition = UINT8_MAX;
 
 	void setDefaultScreenFunct();
 
 	void changePatternsSelection(int16_t value);
 
-
+	void markCurrentPattern();
 	void readSong();
 
 //--------------------------------------------------------------
@@ -70,6 +71,9 @@ public:
 	char patternsNamesList[SONG_MAX][28];
 	char *patternNames[SONG_MAX];
 	uint8_t selectedPattern = 0;
+
+
+
 
 //--------------------------------------------------------------
 //reverb

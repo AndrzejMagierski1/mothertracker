@@ -128,8 +128,8 @@ void FileManager::importProject(char* sourceProjectPatch,char* name, char* newNa
 	{
 		if(mtProject.mtProjectRemote.instrumentFile[i].isActive != -1)
 		{
-			if(i < 10 ) sprintf(currentName,"instr0%d.wav");
-			else sprintf(currentName,"instr%d.wav");
+			if(i < 10 ) sprintf(currentName,"instr0%d.wav",i);
+			else sprintf(currentName,"instr%d.wav",i);
 			samplesImporter.start(currentPatch,currentName,currentProjectPatch,i,mtProject.mtProjectRemote.instrumentFile[i].sampleType);
 		}
 	}
@@ -139,8 +139,8 @@ void FileManager::importProject(char* sourceProjectPatch,char* name, char* newNa
 	{
 		if(mtProject.mtProjectRemote.instrumentFile[i].isActive != -1)
 		{
-			if(i < 10 ) sprintf(currentName,"instrument_0%d.mti");
-			else sprintf(currentName,"instrument_%d.mti");
+			if(i < 10 ) sprintf(currentName,"instrument_0%d.mti",i);
+			else sprintf(currentName,"instrument_%d.mti",i);
 			importInstrumentToProject(currentPatch,currentName,i);
 		}
 	}
@@ -171,8 +171,8 @@ uint8_t FileManager::saveAsProject(char* name)
 
 			sprintf(currentPatch,"Projects/%s", name);
 
-			if(i < 10 ) sprintf(currentName,"instr0%d.wav");
-			else sprintf(currentName,"instr%d.wav");
+			if(i < 10 ) sprintf(currentName,"instr0%d.wav",i);
+			else sprintf(currentName,"instr%d.wav",i);
 			copySample(currentProjectPatch,currentName,currentPatch,currentName);
 
 			if(i<10) sprintf(currentPatch,"%s/instruments/instrument_0%d.mti",currentProjectPatch,i);
