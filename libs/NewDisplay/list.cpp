@@ -273,10 +273,10 @@ uint8_t cList::update()
 		if(list->start > listPosition) {dir = -1;	diffrence = list->start - listPosition; }
 		else {dir = 1;	diffrence = listPosition - list->start; }
 
-		if(diffrence > 3) diffrence = 12;
-		else if(diffrence > 2) diffrence = 8;
-		else if(diffrence > 1) diffrence = 4;
-		else diffrence = 2;
+		if(diffrence > 8) diffrence = 75;
+		else if(diffrence > 4) diffrence = 50;
+		else if(diffrence > 1) diffrence = 25;
+		else diffrence = 8;//2;
 
 		mode = 0;
 		if(barPos == 0 || barPos == list->linesCount-1) 	mode = 0;

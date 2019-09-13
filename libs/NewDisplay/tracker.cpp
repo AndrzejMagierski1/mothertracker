@@ -45,6 +45,8 @@ cTracker::cTracker(strControlProperties* properties)
 		return;
 	}
 
+	colors = (properties->colors == nullptr) ? defaultColors : properties->colors;
+
 	tracks = (strTrackerPattern*)properties->data;
 	posX = properties->x;
 	posY = properties->y;
@@ -484,7 +486,7 @@ void cTracker::refresh3()
 
 			String2Bitmaps(param_x, param_y, 12, 26, tracks->track[tracks->firstVisibleTrack+i].row[j].instr, 2);
 
-			if(change_color) API_COLOR(colors[2]);
+			if(change_color) API_COLOR(colors[3]);
 		}
 	}
 	API_END();
@@ -518,7 +520,7 @@ void cTracker::refresh4()
 
 			String2Bitmaps(param_x, param_y, 12, 26, tracks->track[tracks->firstVisibleTrack+i].row[j].vol, 2);
 
-			if(change_color) API_COLOR(colors[2]);
+			if(change_color) API_COLOR(colors[4]);
 		}
 	}
 	API_END();
@@ -552,7 +554,7 @@ void cTracker::refresh5()
 
 			String2Bitmaps(param_x, param_y, 12, 26, tracks->track[tracks->firstVisibleTrack+i].row[j].fx, 3);
 
-			if(change_color) API_COLOR(colors[2]);
+			if(change_color) API_COLOR(colors[5]);
 		}
 	}
 

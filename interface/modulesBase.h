@@ -71,7 +71,7 @@ public:
 	void clearAllPots();
 	void clearAllPads();
 	void clearButtonsRange(uint8_t from, uint8_t to);
-
+	void clearButton(uint8_t button);
 
 
 	void setPotObj(uint8_t objectID, uint8_t(*funct)(int16_t), hControl control);
