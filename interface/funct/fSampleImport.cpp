@@ -1383,7 +1383,6 @@ uint8_t cSampleImporter::willCopyInstrFit(uint8_t length)
 	if((int32_t)mtProject.used_memory + memoryUsageEstimate<(int32_t)mtProject.max_memory)
 	{
 		retValue=1;
-		//memoryUsageAdd.value = ((mtProject.used_memory+memoryUsageEstimate)*100.0)/mtProject.max_memory;
 	}
 	else
 	{
