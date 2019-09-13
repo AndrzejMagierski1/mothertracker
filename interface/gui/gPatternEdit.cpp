@@ -38,6 +38,22 @@ static uint32_t patternLabelColors[] =
 	0xFF0000, // ramka
 };
 
+
+uint32_t patternTrackerColors[] =
+
+{
+	0xFFFFFF, // linie
+	0xFFFFFF, // numery wierszy
+	0xFFFFFF, // nuta
+	0xFFFFFF, // instrument
+	0xFFFFFF, // volume
+	0xFFFFFF, // effekt
+	0xFF0000, // zaznaczenie
+	0x111111, // podzialka
+};
+
+
+
 void cPatternEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
@@ -70,6 +86,7 @@ void cPatternEditor::initDisplayControls()
 	prop.y = 0;
 	prop.w = 50;
 	prop.h = 25;
+	prop.colors = patternTrackerColors;
 	prop.data = &trackerPattern;
 	if(patternControl == nullptr)  patternControl = display.createControl<cTracker>(&prop);
 	//hTrackControl = display.createControl<cLabel>(&prop);
@@ -135,7 +152,30 @@ void cPatternEditor::initDisplayControls()
 	if(val3PopupLabel == nullptr)  val3PopupLabel = display.createControl<cLabel>(&prop);
 
 
+	//=====================================================================================================
+	//        POPUP FXow
+	//=====================================================================================================
 
+
+	// inicjalizacja list instrumentow
+	for(uint8_t i = 0; i<4; i++)
+	{
+		fxList[i].start = 0;
+		fxList[i].linesCount = 12;
+		fxList[i].length = 12;
+		fxList[i].data = &interfaceGlobals.ptrIntrumentsNames[i*12];
+		prop.style = controlStyleCenterY;
+		prop.x = (800/4)*(i)+5;
+		prop.y = 240;
+		prop.w = 800/4-10;
+		prop.h = 25;
+		prop.colors = nullptr;
+		prop.data = &fxList[i];
+		if(fxListControl[i] == nullptr)  fxListControl[i] = display.createControl<cList>(&prop);
+	}
+
+	//=====================================================================================================
+	//=====================================================================================================
 	//=====================================================================================================
 
 
@@ -233,6 +273,14 @@ void cPatternEditor::destroyDisplayControls()
 	display.destroyControl(notePopoutControl);
 	notePopoutControl = nullptr;
 
+
+	for(uint8_t i = 0; i<4; i++)
+	{
+		display.destroyControl(fxListControl[i]);
+		fxListControl[i] = nullptr;
+	}
+
+
 	display.destroyControl(titleBar);
 	titleBar = nullptr;
 
@@ -294,8 +342,100 @@ void cPatternEditor::showDefaultScreen()
 	}
 
 
+	display.setControlShow(patternControl);
+
 	display.synchronizeRefresh();
 }
+
+void cPatternEditor::showFxListPopup()
+{
+	display.setControlText(titleLabel, "Fx");
+	display.setControlShow(titleLabel);
+	display.refreshControl(titleLabel);
+
+	display.setControlShow(titleBar);
+	display.refreshControl(titleBar);
+
+
+	for(int i=0;i<8;i++)
+	{
+		display.setControlHide(topLabel[i]);
+		display.setControlHide(bottomLabel[i]);
+	}
+
+	display.setControlHide(frameControl);
+	display.setControlHide(patternControl);
+
+
+	if(fillState==1)
+	{
+		hideFillPopup();
+	}
+
+	if(randomiseState == 1)
+	{
+		hideRandomisePopup();
+	}
+
+	showActualInstrument();
+
+	refreshFxListPopup();
+
+	display.synchronizeRefresh();
+}
+
+
+void cPatternEditor::refreshFxListPopup()
+{
+	for(uint8_t i = 0; i<4; i++)
+	{
+		if(selectedFx >= i*12 && selectedFx < (i+1)*12)
+		{
+			fxList[i].start = selectedFx%12;
+		}
+		else
+		{
+			fxList[i].start = -1;
+		}
+
+		fxList[i].length = 12;
+		fxList[i].linesCount = 12;
+		fxList[i].data = (char**)(&interfaceGlobals.ptrFxNames[i*12]);
+
+
+		display.setControlData(fxListControl[i], &fxList[i]);
+		display.setControlShow(fxListControl[i]);
+
+		showFxList(i);
+	}
+}
+
+void cPatternEditor::showFxList(uint8_t n)
+{
+	int8_t position = -1;
+
+	if(selectedFx >= n*12 && selectedFx < (n+1)*12)
+	{
+		position = selectedFx%12;
+	}
+
+	display.setControlValue(fxListControl[n], position);
+	display.refreshControl(fxListControl[n]);
+}
+
+void cPatternEditor::hideFxListPopup()
+{
+	display.setControlHide(titleLabel);
+	display.setControlHide(titleBar);
+	display.setControlHide(instrumentLabel);
+
+	for(uint8_t i = 0; i<4; i++)
+	{
+		display.setControlHide(fxListControl[i]);
+		//display.refreshControl(fxListControl[i]);
+	}
+}
+
 
 void cPatternEditor::showEditModeLabels()
 {
@@ -380,15 +520,10 @@ void cPatternEditor::showFillPopup()
 {
 	//------------------------------
 	// typ
-	for(uint8_t i = 0; i<fillTypeListCount ; i++)
-	{
-		fillTypeListNames[i] = (char*)&fillTypeListLabels[i][0];
-	}
-
-	fillTypeList.linesCount = fillTypeListCount;
+	fillTypeList.linesCount = interfaceGlobals.fillTypeListCount;
 	fillTypeList.start = fillData[editParam].type;
-	fillTypeList.length = fillTypeListCount;
-	fillTypeList.data = fillTypeListNames;
+	fillTypeList.length = interfaceGlobals.fillTypeListCount;
+	fillTypeList.data = (char**)(&interfaceGlobals.ptrfillTypeListNames);
 
 	display.setControlData(param1PopupListControl, &fillTypeList);
 	display.setControlValue(param1PopupListControl, fillData[editParam].type);
@@ -401,7 +536,6 @@ void cPatternEditor::showFillPopup()
 	if(editParam == 0)
 	{
 		display.setControlText(val1PopupLabel, (char*)&mtNotes[fillData[editParam].from][0]);
-
 	}
 	else if (editParam == 1 || editParam == 2 || editParam == 3)
 	{
@@ -450,15 +584,10 @@ void cPatternEditor::showFillPopup()
 	// skala
 	if(editParam == 0)
 	{
-		for(uint8_t i = 0; i<fillScaleFilterCount ; i++)
-		{
-			fillScaleFilterNames[i] = (char*)&fillScaleFilterLabels[i][0];
-		}
-
-		fillScaleFilterList.linesCount = fillScaleFilterCount;
+		fillScaleFilterList.linesCount = interfaceGlobals.fillScaleFilterCount;
 		fillScaleFilterList.start = fillData[editParam].param;
-		fillScaleFilterList.length = fillScaleFilterCount;
-		fillScaleFilterList.data = fillScaleFilterNames;
+		fillScaleFilterList.length = interfaceGlobals.fillScaleFilterCount;
+		fillScaleFilterList.data = (char**)(&interfaceGlobals.ptrfillScaleFilterNames);
 
 		display.setControlData(param2PopupListControl, &fillScaleFilterList);
 		display.setControlValue(param2PopupListControl, fillData[editParam].param);
@@ -473,15 +602,10 @@ void cPatternEditor::showFillPopup()
 	// fx
 	else if(editParam == 3)
 	{
-		for(uint8_t i = 0; i<fillFxTypeCount ; i++)
-		{
-			fillFxTypeNames[i] = (char*)&fillFxTypeLabels[i][0];
-		}
-
 		fillFxTypeList.linesCount = 7;
 		fillFxTypeList.start = fillData[editParam].param;
-		fillFxTypeList.length = fillFxTypeCount;
-		fillFxTypeList.data = fillFxTypeNames;
+		fillFxTypeList.length = FX_COUNT;
+		fillFxTypeList.data = (char**)(&interfaceGlobals.ptrFxNames);
 
 		display.setControlData(param2PopupListControl, &fillFxTypeList);
 		display.setControlValue(param2PopupListControl, fillData[editParam].param);
@@ -629,7 +753,6 @@ void cPatternEditor::refreshFillTo()
 	}
 
 	display.refreshControl(val2PopupLabel);
-	//display.refreshControl(bottomLabel[2]);
 }
 
 void cPatternEditor::refreshFillParam()
@@ -649,9 +772,7 @@ void cPatternEditor::refreshFillParam()
 		display.setControlText(bottomLabel[3], " ");
 	}
 
-	//display.refreshControl(bottomLabel[3]);
 	display.refreshControl(param2PopupListControl);
-
 }
 
 void cPatternEditor::refreshFillStep()
@@ -674,14 +795,14 @@ void cPatternEditor::hideFillPopup()
 	display.setControlHide(val3PopupLabel);
 	display.setControlHide(param2PopupListControl);
 
-	display.refreshControl(param1PopupListControl);
-	display.refreshControl(val1PopupLabel);
-	display.refreshControl(val2PopupLabel);
-	display.refreshControl(val3PopupLabel);
-	display.refreshControl(param2PopupListControl);
+//	display.refreshControl(param1PopupListControl);
+//	display.refreshControl(val1PopupLabel);
+//	display.refreshControl(val2PopupLabel);
+//	display.refreshControl(val3PopupLabel);
+//	display.refreshControl(param2PopupListControl);
 
 	display.setControlHide(patternPopupLabel);
-	display.refreshControl(patternPopupLabel);
+//	display.refreshControl(patternPopupLabel);
 }
 //
 
@@ -735,15 +856,11 @@ void cPatternEditor::showRandomisePopup()
 	// skala
 	if(editParam == 0)
 	{
-		for(uint8_t i = 0; i<fillScaleFilterCount ; i++)
-		{
-			fillScaleFilterNames[i] = (char*)&fillScaleFilterLabels[i][0];
-		}
 
-		fillScaleFilterList.linesCount = fillScaleFilterCount;
+		fillScaleFilterList.linesCount = interfaceGlobals.fillScaleFilterCount;
 		fillScaleFilterList.start = randomiseData[editParam].param;
-		fillScaleFilterList.length = fillScaleFilterCount;
-		fillScaleFilterList.data = fillScaleFilterNames;
+		fillScaleFilterList.length = interfaceGlobals.fillScaleFilterCount;
+		fillScaleFilterList.data = (char**)(&interfaceGlobals.ptrfillScaleFilterNames);
 
 		display.setControlData(param2PopupListControl, &fillScaleFilterList);
 		display.setControlValue(param2PopupListControl, randomiseData[editParam].param);
@@ -758,15 +875,10 @@ void cPatternEditor::showRandomisePopup()
 	// fx
 	else if(editParam == 3)
 	{
-		for(uint8_t i = 0; i<fillFxTypeCount ; i++)
-		{
-			fillFxTypeNames[i] = (char*)&fillFxTypeLabels[i][0];
-		}
-
 		fillFxTypeList.linesCount = 7;
 		fillFxTypeList.start = randomiseData[editParam].param;
-		fillFxTypeList.length = fillFxTypeCount;
-		fillFxTypeList.data = fillFxTypeNames;
+		fillFxTypeList.length = FX_COUNT;
+		fillFxTypeList.data = (char**)(&interfaceGlobals.ptrFxNames);
 
 		display.setControlData(param2PopupListControl, &fillFxTypeList);
 		display.setControlValue(param2PopupListControl, randomiseData[editParam].param);
@@ -935,13 +1047,13 @@ void cPatternEditor::hideRandomisePopup()
 	display.setControlHide(param2PopupListControl);
 
 //	display.refreshControl(param1PopupListControl);
-	display.refreshControl(val1PopupLabel);
-	display.refreshControl(val2PopupLabel);
-	display.refreshControl(val3PopupLabel);
-	display.refreshControl(param2PopupListControl);
+//	display.refreshControl(val1PopupLabel);
+//	display.refreshControl(val2PopupLabel);
+//	display.refreshControl(val3PopupLabel);
+//	display.refreshControl(param2PopupListControl);
 
 	display.setControlHide(patternPopupLabel);
-	display.refreshControl(patternPopupLabel);
+//	display.refreshControl(patternPopupLabel);
 }
 
 
@@ -1037,14 +1149,14 @@ void cPatternEditor::showNotePopout()
 void cPatternEditor::hideNotePopout()
 {
 	display.setControlHide(titleLabel);
-	display.refreshControl(titleLabel);
-
+	//display.refreshControl(titleLabel);
 	display.setControlHide(titleBar);
-	display.refreshControl(titleBar);
-
+	//display.refreshControl(titleBar);
+	display.setControlHide(instrumentLabel);
+	//display.refreshControl(instrumentLabel);
 
 	display.setControlHide(notePopoutControl);
-	display.refreshControl(notePopoutControl);
+	//display.refreshControl(notePopoutControl);
 
 	for(int i=0;i<8;i++)
 	{
@@ -1071,8 +1183,7 @@ void cPatternEditor::hideNotePopout()
 		showRandomisePopup();
 	}
 
-	display.setControlHide(instrumentLabel);
-	display.refreshControl(instrumentLabel);
+
 }
 
 void cPatternEditor::selectNoteOnPopout(uint8_t pad)
@@ -1087,21 +1198,7 @@ void cPatternEditor::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	if(i<9)
-	{
-		actualInstrName[0] = (i+1)%10 + 48;
-		actualInstrName[1] = '.';
-		actualInstrName[2] = ' ';
-		actualInstrName[3] = 0;
-	}
-	else
-	{
-		actualInstrName[0] = ((i+1)/10) + 48;
-		actualInstrName[1] = (i+1)%10 + 48;
-		actualInstrName[2] = '.';
-		actualInstrName[3] = ' ';
-		actualInstrName[4] = 0;
-	}
+	sprintf(actualInstrName, "%d. ", i+1);
 
 	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 

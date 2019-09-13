@@ -1,52 +1,21 @@
+
 #ifndef INTERFACE_PATTERNEDITOR_H_
 #define INTERFACE_PATTERNEDITOR_H_
-
 
 #include <modulesBase.h>
 #include "SD.h"
 
 #include "mtSequencer.h"
 
+
+
 uint8_t isMultiSelection();
 void sendSelection();
 void sendCopySelection();
 void sendPasteSelection();
 
-const uint8_t fillTypeListCount = 3;
 
-const char fillTypeListLabels[fillTypeListCount][11]=
-{
-		"Constant",
-		"From-To",
-		"Random",
 
-};
-
-const uint8_t fillScaleFilterCount = 2;
-
-const char fillScaleFilterLabels[fillScaleFilterCount][5]=
-{
-		"Yes",
-		"No",
-
-};
-
-const uint8_t fillFxTypeCount = 10;
-
-const char fillFxTypeLabels[fillFxTypeCount][20]=
-{
-		"A - Aaaaaaaa",
-		"B - Bbbbbbbb",
-		"C - Cccccccc",
-		"D - Ddddddd",
-		"E - Eeeeeee",
-		"F - Fffff",
-		"G - Gggggggg",
-		"H - Hhhhhhhhhh",
-		"I - Iiiiiiii",
-		"J - Jjjjjjjj",
-
-};
 
 class cPatternEditor: public cModuleBase
 {
@@ -74,6 +43,9 @@ public:
 	void showDefaultScreen();
 	void setDefaultScreenFunct();
 
+	void setNotePopupFunct();
+	void setFxListPopupFunct();
+
 	void focusOnActual();
 
 	void moveCursorByStep();
@@ -95,6 +67,8 @@ public:
 
 	void changeFillData(int16_t value);
 	void changeRandomiseData(int16_t value);
+
+	void changeSelectedFx(int16_t value, uint8_t type = 0);
 
 	void refreshEditState();
 
@@ -131,6 +105,10 @@ public:
 	void refreshRandomiseStep();
 	void hideRandomisePopup();
 
+	void showFxListPopup();
+	void refreshFxListPopup();
+	void showFxList(uint8_t n);
+	void hideFxListPopup();
 //----------------------------------
 // Funct
 	uint16_t lastPatternPosition;
@@ -173,6 +151,7 @@ public:
 	hControl titleLabel;
 	hControl instrumentLabel;
 
+	hControl fxListControl[4];
 
 
 	strLabelData bottomValuesConfig = { 40, 0, 2048UL | 256UL };
@@ -192,13 +171,10 @@ public:
 	uint8_t fillPlace = 0;
 	//
 	strList fillTypeList;
-	char *fillTypeListNames[fillTypeListCount];
 	//
 	strList fillScaleFilterList;
-	char *fillScaleFilterNames[fillScaleFilterCount];
 	//
 	strList fillFxTypeList;
-	char *fillFxTypeNames[fillFxTypeCount];
 	//
 	char fillText1[10];
 	char fillText2[10];
@@ -232,18 +208,32 @@ public:
 
 	} randomiseData[4];
 
-	//uint16_t randomiseStep = 1;
-
 	strPadNames padNamesStruct;
 
-	//char *padNamesPointer[48];
 
+//-------------------------------------------------------
+// fx popup
+	void readStepFx();
+	void setStepFx();
+
+	strList fxList[4];
+	uint8_t selectedFx = 0;
+	uint8_t fxListPopupState = 0;
+
+//-------------------------------------------------------
+// note popup
 	void showNotePopout();
 	void hideNotePopout();
 	void selectNoteOnPopout(uint8_t pad);
 	void showActualInstrument();
 
 	uint8_t noteButtonHoldFlag;
+
+//-------------------------------------------------------
+//
+
+
+
 };
 
 extern cPatternEditor patternEditor;

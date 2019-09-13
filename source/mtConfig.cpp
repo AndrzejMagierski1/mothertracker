@@ -13,6 +13,8 @@ void firmwareVersionChange();
 void memoryStructureChange();
 
 
+extern uint32_t patternTrackerColors[];
+
 elapsedMillis save_delay;
 
 void saveConfig()
@@ -153,7 +155,7 @@ void memoryStructureChange()
 //===============================================================================================================
 
 
-const uint8_t sd_comannds_count = 2;
+const uint8_t sd_comannds_count = 6;
 uint8_t buffSize = 128;
 
 void readSdConfig()
@@ -191,9 +193,9 @@ void executeSdConfig(char* buff)
 		char* equal = strchr(buff, '=');
 		if(equal)
 		{
-			char cmd[10], param[32];
+			char cmd[12], param[32];
 			strncpy(cmd,buff,equal-buff);
-			cmd[(equal-buff<10)?equal-buff:9] = 0;
+			cmd[(equal-buff<12)?equal-buff:11] = 0;
 
 			char* lineEnd = strchr(equal, '\r');
 			if(lineEnd == nullptr)
@@ -224,6 +226,29 @@ void executeSdConfig(char* buff)
 				{
 					strcpy(mtConfig.startup.lastProjectName,param);
 				}
+			}
+
+			//--------------------------------
+
+			else if(strcmp(cmd,"notecolor") == 0)
+			{
+				int temp = strtol(param,NULL,16);
+				if(temp > 0 && temp < 0xffffff) patternTrackerColors[2] = temp;
+			}
+			else if(strcmp(cmd,"instrcolor") == 0)
+			{
+				int temp = strtol(param,NULL,16);
+				if(temp > 0 && temp < 0xffffff) patternTrackerColors[3] = temp;
+			}
+			else if(strcmp(cmd,"volcolor") == 0)
+			{
+				int temp = strtol(param,NULL,16);
+				if(temp > 0 && temp < 0xffffff) patternTrackerColors[4] = temp;
+			}
+			else if(strcmp(cmd,"fxcolor") == 0)
+			{
+				int temp = strtol(param,NULL,16);
+				if(temp > 0 && temp < 0xffffff) patternTrackerColors[5] = temp;
 			}
 
 

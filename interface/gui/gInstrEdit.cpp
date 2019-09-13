@@ -123,7 +123,7 @@ void cInstrumentEditor::initDisplayControls()
 		intrumentsList[i].start = 0;
 		intrumentsList[i].linesCount = 12;
 		intrumentsList[i].length = 12;
-		intrumentsList[i].data = &interfaceGlobals.ptrIntrumentsNames[i*12];
+		intrumentsList[i].data = (char**)(&interfaceGlobals.ptrFxNames[i*12]);
 		prop.style = controlStyleCenterY;
 		prop.x = (800/4)*(i)+5;
 		prop.y = 240;
@@ -466,7 +466,6 @@ void cInstrumentEditor::showInstrumentList()
 	}
 
 	display.setControlHide(notePopoutControl);
-	display.refreshControl(notePopoutControl);
 
 	display.synchronizeRefresh();
 
@@ -698,14 +697,14 @@ void cInstrumentEditor::showActualInstrument()
 {
 	static char actualInstrName[SAMPLE_NAME_SIZE+4];
 
-	uint8_t i = mtProject.values.lastUsedInstrument+1;
+	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	sprintf(actualInstrName, "%d. ", i);
+	sprintf(actualInstrName, "%d. ", i+1);
 
 	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 
-
 	display.setControlText(instrumentLabel,  actualInstrName);
+	display.setControlShow(instrumentLabel);
 	display.refreshControl(instrumentLabel);
 }
 
