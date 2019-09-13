@@ -631,6 +631,8 @@ public:
 							uint8_t stepTo,
 							uint8_t trackTo);
 
+	void setTempo(float val);
+
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
 	void clearStep(strPattern::strTrack::strStep * step, uint8_t);

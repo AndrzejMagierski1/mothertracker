@@ -87,8 +87,11 @@ public:
 
 	void changeActualTempo(int16_t value);
 	void changeActualPattern(int16_t value);
+	void setActualPattern(int16_t value);
 	void changeActualPatternLength(int16_t value);
+	void setActualPatternLength(int16_t value);
 	void changeActualPatternEditStep(int16_t value);
+	void setActualPatternEditStep(int16_t value);
 
 	void changeFillData(int16_t value);
 	void changeRandomiseData(int16_t value);

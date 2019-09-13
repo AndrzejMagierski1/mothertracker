@@ -466,14 +466,48 @@ void cPatternEditor::changeActualPattern(int16_t value)
 	refreshPattern();
 
 }
+void cPatternEditor::setActualPattern(int16_t value)
+{
+
+	mtProject.values.actualPattern = constrain(value,
+												PATTERN_INDEX_MIN,
+												PATTERN_INDEX_MAX);
+
+	fileManager.loadPattern(mtProject.values.actualPattern);
+	sequencer.switchNextPatternNow();
+
+	readPatternState();
+	refreshPatternParams();
+	refreshPattern();
+
+}
 
 void cPatternEditor::changeActualPatternLength(int16_t value)
 {
 	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
 	if(pattern->track[0].length+value < 0) pattern->track[0].length = 0;
-	else if(pattern->track[0].length+value > PATTERN_LENGTH_MAX) pattern->track[0].length = PATTERN_LENGTH_MAX;
+	else if(pattern->track[0].length+value > Sequencer::MAXSTEP) pattern->track[0].length = Sequencer::MAXSTEP;
 	else  pattern->track[0].length += value;
+
+	for(uint8_t i = 1;i < 8; i++)
+		pattern->track[i].length = pattern->track[0].length;
+
+	trackerPattern.patternLength = pattern->track[0].length+1;
+
+	if(trackerPattern.actualStep > trackerPattern.patternLength-1) trackerPattern.actualStep = trackerPattern.patternLength-1;
+
+
+	showLength();
+
+	refreshPattern();
+
+}
+void cPatternEditor::setActualPatternLength(int16_t value)
+{
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+
+	pattern->track[0].length = constrain(value, 0, Sequencer::MAXSTEP);
 
 	for(uint8_t i = 1;i < 8; i++)
 		pattern->track[i].length = pattern->track[0].length;
@@ -491,9 +525,19 @@ void cPatternEditor::changeActualPatternLength(int16_t value)
 
 void cPatternEditor::changeActualPatternEditStep(int16_t value)
 {
-	if(mtProject.values.patternEditStep+value < 0) mtProject.values.patternEditStep = 0;
-	else if(mtProject.values.patternEditStep+value > PATTERN_EDIT_STEP_MAX) mtProject.values.patternEditStep = PATTERN_EDIT_STEP_MAX;
-	else  mtProject.values.patternEditStep += value;
+	mtProject.values.patternEditStep = constrain(
+			mtProject.values.patternEditStep + value,
+			0,
+			PATTERN_EDIT_STEP_MAX);
+
+	showStep();
+}
+void cPatternEditor::setActualPatternEditStep(int16_t value)
+{
+
+	mtProject.values.patternEditStep = constrain(value,
+													0,
+													PATTERN_EDIT_STEP_MAX);
 
 	showStep();
 }
@@ -2061,7 +2105,7 @@ void cPatternEditor::lightUpPadBoard()
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if (state > 1) return 1;
-	if (PTE->editMode != 1) return 1;
+//	if (PTE->editMode != 1) return 1;
 
 	// obsluga podswietlenia
 	if (state == buttonRelease)
@@ -2079,6 +2123,35 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	}
 	if(PTE->randomiseState > 0)
 	{
+		return 1;
+	}
+
+
+	// obsługa przycisków pod ekranem
+
+	if (PTE->selectedPlace >= 0)
+	{
+
+		switch (PTE->selectedPlace)
+		{
+		case 0:
+			sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
+			PTE->showTempo();
+			break;
+		case 1:
+			PTE->setActualPattern(pad+1);
+			PTE->showPattern();
+			break;
+		case 2:
+			PTE->setActualPatternLength(map(pad, 0, 47, 3, 191));
+			PTE->showLength();
+			break;
+		case 3:
+			PTE->setActualPatternEditStep(pad);
+			PTE->showStep();
+			break;
+		}
+
 		return 1;
 	}
 
