@@ -1183,7 +1183,10 @@ uint8_t cSampleImporter::handleSelecting(uint8_t selectStart, uint8_t selectMax,
 						selectionTab[position-1]=0;
 					}
 
-					selectionLength--;
+					if(selectionLength)
+					{
+						selectionLength--;
+					}
 				}
 				else
 				{
