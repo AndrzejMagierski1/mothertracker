@@ -465,7 +465,7 @@ void Sequencer::changeSelectionFxValue(int16_t value)
 
 			step->fx[0].value = constrain(step->fx[0].value + value, 0,
 											127);
-			if(!isMultiSelection() && step->fx[0].type == 0)
+			if (!isMultiSelection() && step->fx[0].type == 0)
 			{
 				step->fx[0].type = mtProject.values.lastUsedFx;
 			}
@@ -536,25 +536,14 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 			{
 				if (step->note >= 0)
 				{
-					if (tactButtons.isButtonPressed(interfaceButtonShift))
-					{
 
-						step->instrument = constrain(
-								step->instrument + value,
-								INSTRUMENTS_COUNT + 1,
-								INSTRUMENTS_COUNT + 1 + 16);
-					}
-					else
-					{
-
-						step->instrument = constrain(step->instrument + value,
-														0,
-														INSTRUMENTS_COUNT);
-						blinkNote(step->instrument,
-									step->note,
-									step->velocity,
-									t);
-					}
+					step->instrument = constrain(step->instrument + value,
+													0,
+													INSTRUMENTS_COUNT + 16);
+					blinkNote(step->instrument,
+								step->note,
+								step->velocity,
+								t);
 
 					mtProject.values.lastUsedInstrument = step->instrument;
 				}

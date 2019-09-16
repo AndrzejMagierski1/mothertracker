@@ -491,6 +491,7 @@ public:
 			elapsedMillis timer = 0;
 			int8_t note = 0;
 			int8_t track = 0;
+			int8_t instrument = 0;
 			bool isOpen = 0;
 		} blink;
 
@@ -685,6 +686,7 @@ public:
 	void changeSelectionNote(int16_t value);
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 					uint8_t track);
+	void closeBlinkNote(void);
 	void blinkSelectedStep();
 	void randomSelectedNotes(uint8_t from, uint8_t to, uint8_t scale);
 	void randomSelectedInstruments(uint8_t from, uint8_t to);
