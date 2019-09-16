@@ -2042,7 +2042,7 @@ static  uint8_t functFillApply()
 			if (fillData->type == 0)
 			{
 				sequencer.fillLinearFx(PTE->fillStep,
-									   fillData->type,
+									   fillData->param,
 										fillData->from,
 										fillData->from);
 			}
