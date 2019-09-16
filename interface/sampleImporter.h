@@ -200,6 +200,7 @@ public:
 	uint32_t currentFolderMemoryFileUsage[255];
 
 	void setSelect(uint8_t place);
+	void frameSelectMode(uint8_t place,uint8_t mode);
 
 	void displayDelete(uint8_t onOff);
 
