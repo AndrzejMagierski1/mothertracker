@@ -65,7 +65,7 @@ void cInstrumentEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-	mode = options;
+	//mode = options;
 
 	selectedInstrument = mtProject.values.lastUsedInstrument;
 
@@ -86,12 +86,11 @@ void cInstrumentEditor::start(uint32_t options)
 	FM->setPadsGlobal(functPads);
 
 
-
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchMode);
-	FM->setButtonObj(interfaceButtonEnvelopes, buttonPress, functSwitchMode);
 
 
+	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
@@ -104,26 +103,35 @@ void cInstrumentEditor::start(uint32_t options)
 
 	setDefaultScreenFunct();
 
-	switch(mode)
-	{
-	case mtInstEditModeParams:
-	{
-		showInstrumentParams();
-		setInstrumentParamsFunct();
-		break;
-	}
-	case mtInstEditModeEnv:
-	{
-		showInstrumentEnv();
-		setInstrumentEnvFunct();
-		break;
-	}
-	case mtInstEditModeInstrList:
+
+	if(options == mtInstEditModeInstrList)
 	{
 		showInstrumentList();
 		setInstrumentListFunct();
+		instrumentListMode = 1;
 		return;
 	}
+
+	switch(mode)
+	{
+		case mtInstEditModeParams:
+		{
+			showInstrumentParams();
+			setInstrumentParamsFunct();
+			break;
+		}
+		case mtInstEditModeEnv:
+		{
+			showInstrumentEnv();
+			setInstrumentEnvFunct();
+			break;
+		}
+		case mtInstEditModeInstrList:
+		{
+			showInstrumentList();
+			setInstrumentListFunct();
+			return;
+		}
 	}
 }
 
@@ -455,7 +463,7 @@ static uint8_t functSwitchModule(uint8_t button)
 
 static  uint8_t functSwitchMode(uint8_t button)
 {
-	switch(button)
+/*	switch(button)
 	{
 	case interfaceButtonParams:
 	{
@@ -477,10 +485,23 @@ static  uint8_t functSwitchMode(uint8_t button)
 		}
 		break;
 	}
-
-
-
 	}
+*/
+
+
+	if(IE->mode == mtInstEditModeParams)
+	{
+		IE->mode = 1;
+		IE->showInstrumentEnv();
+		IE->setInstrumentEnvFunct();
+	}
+	else if(IE->mode == mtInstEditModeEnv)
+	{
+		IE->mode = 0;
+		IE->showInstrumentParams();
+		IE->setInstrumentParamsFunct();
+	}
+
 
 	IE->activateLabelsBorder();
 
@@ -857,7 +878,7 @@ static  uint8_t functInstrument(uint8_t state)
 {
 	if(state == buttonRelease)
 	{
-		if(IE->mode == mtInstEditModeInstrList)	IE->eventFunct(eventSwitchToPreviousModule,IE,0,0);
+		if(IE->instrumentListMode == 1)	IE->eventFunct(eventSwitchToPreviousModule,IE,0,0);
 		else
 		{
 			if(IE->mode == mtInstEditModeParams)
