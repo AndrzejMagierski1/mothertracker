@@ -643,6 +643,7 @@ public:
 	void changeSelectionVolume(int16_t value);
 	void changeSelectionFxValue(int16_t value);
 	void changeSelectionFxType(int16_t value);
+	void setSelectionFxType(int16_t value);
 	void changeSelectionInstrument(int16_t value);
 	void setSelectionInstrument(int16_t value);
 	void setSelectionVelocity(int16_t value);

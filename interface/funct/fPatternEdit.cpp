@@ -422,14 +422,8 @@ void cPatternEditor::readStepFx()
 
 void cPatternEditor::setStepFx()
 {
-	Sequencer::strPattern* seq = sequencer.getPatternToUI();
-
-	if(PTE->selectedFx > 0)
-		seq->track[PTE->trackerPattern.actualTrack].step[PTE->trackerPattern.actualStep].fx[0].isOn = 1;
-	else
-		seq->track[PTE->trackerPattern.actualTrack].step[PTE->trackerPattern.actualStep].fx[0].isOn = 0;
-
-	seq->track[PTE->trackerPattern.actualTrack].step[PTE->trackerPattern.actualStep].fx[0].type = PTE->selectedFx;
+	sendSelection();
+	sequencer.setSelectionFxType(PTE->selectedFx);
 }
 
 // focusowanie trackow na kursorze, jesli jest poza ekranem
@@ -635,7 +629,7 @@ void cPatternEditor::setActualPatternEditStep(int16_t value)
 
 void cPatternEditor::changeSelectedFx(int16_t value, uint8_t type)
 {
-	Serial.println("change fx");
+//	Serial.println("change fx");
 
 	uint8_t oldList = selectedFx/12;
 
