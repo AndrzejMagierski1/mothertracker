@@ -691,7 +691,7 @@ void cPatternEditor::refreshEditState()
 		FM->setButtonObj(interfaceButton4, buttonPress, functFill);
 		FM->setButtonObj(interfaceButton5, buttonPress, functRandomise);
 		FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
-		FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
+		FM->setButtonObj(interfaceButton7, buttonPress, functTranspose);
 
 		lightUpPadBoard();
 
