@@ -16,6 +16,7 @@ struct strList
 	uint16_t linesCount;
 
 	uint8_t *selectTab;
+	uint8_t selectionActive;
 
 
 	char** data;
