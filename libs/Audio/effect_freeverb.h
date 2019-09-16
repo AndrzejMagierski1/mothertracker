@@ -29,6 +29,9 @@
 #include <Arduino.h>
 #include "AudioStream.h"
 
+constexpr uint16_t RELEASE_TIME_MIN = 500;
+constexpr uint16_t RELEASE_TIME_MAX = 2000;
+
 class AudioEffectFreeverb : public AudioStream
 {
 public:
@@ -38,6 +41,8 @@ public:
 		if (n > 1.0f) n = 1.0f;
 		else if (n < 0.0) n = 0.0f;
 		combfeeback = (int)(n * 9175.04f) + 22937;
+
+		releaseTime = RELEASE_TIME_MIN + (RELEASE_TIME_MAX - RELEASE_TIME_MIN) * n;
 	}
 	void damping(float n) {
 		if (n > 1.0f) n = 1.0f;
@@ -87,6 +92,9 @@ private:
 	uint16_t allpass3index;
 	uint16_t allpass4index;
 	uint8_t stopFlag = 0;
+
+	elapsedMillis releaseTim = 0;
+	uint16_t releaseTime = RELEASE_TIME_MIN;
 };
 
 

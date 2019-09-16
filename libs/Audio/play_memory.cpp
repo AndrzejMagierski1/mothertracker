@@ -405,7 +405,7 @@ void AudioPlayMemory::update(void)
 					}
 				}
 				if ((iPitchCounter >= (sampleConstrains.endPoint + castPitchControl)) && (sampleConstrains.endPoint != (sampleConstrains.loopPoint2)))
-					iPitchCounter = length;
+					iPitchCounter = length+1;
 			}
 			else
 			{

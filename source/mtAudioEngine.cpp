@@ -347,6 +347,116 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	return status;
 }
 
+uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx_id, uint8_t fx_val)
+{
+	__disable_irq();
+	uint8_t status;
+	float gainL=0,gainR=0;
+	//Serial.print("Przed: ");
+	////Serial.print(activeAmpEnvelopes);
+	//Serial.print(" Po: ");
+	if(envelopeAmpPtr->getState())
+	{
+		onVoices--;
+		activeAmpEnvelopes--;
+	}
+	onVoices++;
+
+	currentInstrument_idx=instr_idx;
+	currentNote=note;
+	currentVelocity=velocity;
+	/*================================================ENVELOPE AMP==========================================*/
+	lfoAmpPtr->init(&mtProject.instrument[instr_idx].lfo[lfoA]);
+
+	if(mtProject.instrument[instr_idx].envelope[envAmp].enable)
+	{
+		envelopeAmpPtr->delay(mtProject.instrument[instr_idx].envelope[envAmp].delay);
+		envelopeAmpPtr->attack(mtProject.instrument[instr_idx].envelope[envAmp].attack);
+		envelopeAmpPtr->hold(mtProject.instrument[instr_idx].envelope[envAmp].hold);
+		envelopeAmpPtr->decay(mtProject.instrument[instr_idx].envelope[envAmp].decay);
+		envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
+		envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
+		activeAmpEnvelopes++;
+		//Serial.println(activeAmpEnvelopes);
+	}
+	else
+	{
+		envelopeAmpPtr->delay(0);
+		envelopeAmpPtr->attack(0);
+		envelopeAmpPtr->hold(0);
+		envelopeAmpPtr->decay(0);
+		envelopeAmpPtr->sustain(1.0);
+		envelopeAmpPtr->release(0.0f);
+	}
+
+	/*======================================================================================================*/
+	/*================================================ENVELOPE FILTER=======================================*/
+
+	if(mtProject.instrument[instr_idx].filterEnable == filterOn)
+	{
+		envelopeFilterPtr->init(&mtProject.instrument[instr_idx].envelope[envFilter]);
+		lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
+	/*======================================================================================================*/
+	/*================================================FILTER================================================*/
+		filterConnect();
+		changeFilterType(mtProject.instrument[instr_idx].filterType);
+		filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
+
+
+		filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
+
+	}
+	else if(mtProject.instrument[instr_idx].filterEnable == filterOff) filterDisconnect();
+
+	/*======================================================================================================*/
+	/*==================================================GAIN================================================*/
+	if(velocity < 0) ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
+	else ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
+	/*======================================================================================================*/
+	/*===============================================PANNING================================================*/
+	if(mtProject.instrument[instr_idx].panning < 50)
+	{
+		gainR=(0+mtProject.instrument[instr_idx].panning)/50.0;
+		gainL=1.0;
+	}
+	else if(mtProject.instrument[instr_idx].panning > 50)
+	{
+		gainR=1.0;
+		gainL=(100-mtProject.instrument[instr_idx].panning)/50.0;
+	}
+	else if(mtProject.instrument[instr_idx].panning == 50)
+	{
+		gainL=1.0; gainR=1.0;
+	}
+
+
+	mixerL.gain(numPanChannel,gainL);
+	mixerR.gain(numPanChannel,gainR);
+	/*======================================================================================================*/
+	/*===============================================REVERB=================================================*/
+	mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
+	/*======================================================================================================*/
+
+	//*************************************************FX****************************************************
+
+	switch(fx_id)
+	{
+		case fx_ID_cutoff: 			filterPtr->setCutoff(fx_val/(float)MAX_8BIT); 			break;
+
+	}
+
+	//*******************************************************************************************************
+	status = playMemPtr->play(instr_idx,note);
+	envelopeAmpPtr->noteOn();
+
+	if(mtProject.instrument[instr_idx].lfo[lfoA].enable == lfoOn) lfoAmpPtr->start();
+	if(mtProject.instrument[instr_idx].lfo[lfoF].enable == lfoOn) lfoFilterPtr->start();
+	if(mtProject.instrument[instr_idx].envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
+
+	__enable_irq();
+	return status;
+}
+
 
 void playerEngine :: noteOff()
 {

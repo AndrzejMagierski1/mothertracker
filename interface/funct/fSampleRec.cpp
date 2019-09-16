@@ -218,7 +218,6 @@ void cSampleRecorder::update()
 	{
 		//processSpectrum();
 		params.length = recorder.getLength();
-		params.address = recorder.getAddress();
 		params.recordInProgressFlag = recordInProgressFlag;
 		GP.processSpectrum(&params, &zoom, &spectrum);
 
@@ -282,10 +281,20 @@ void cSampleRecorder::update()
 			hideSaveHorizontalBar();
 			currentScreen = screenTypeRecord;
 			showDefaultScreen();
-
-			if(notEnoughInstrumentsFlag) 	showSelectionNotEnoughInstruments();
 		}
 	}
+	if(notEnoughInstrumentsFlag)
+	{
+		notEnoughInstrumentsFlag = 0;
+		showSelectionNotEnoughInstruments();
+	}
+	if(notEnoughMemoryFlag)
+	{
+		notEnoughMemoryFlag = 0;
+		showSelectionNotEnoughMemory();
+	}
+
+
 
 	if(changeSourceToMicFlag == 1)
 	{
@@ -891,6 +900,12 @@ static  uint8_t functActionButton0(uint8_t s)
 			}
 			else if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
 			{
+
+				if((mtProject.used_memory + recorder.getLength() * 2) > mtProject.max_memory)
+				{
+					SR->notEnoughMemoryFlag = 1;
+					return 0;
+				}
 				uint8_t firstFree = -1;
 				for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
 				{
@@ -1099,7 +1114,12 @@ static  uint8_t functActionButton7()
 	}
 	if(SR->notEnoughInstrumentsFlag)
 	{
-		SR->notEnoughInstrumentsFlag = 0;
+		SR->selectedPlace = 7;
+		SR->showDefaultScreen();
+		return 1;
+	}
+	if(SR->notEnoughMemoryFlag)
+	{
 		SR->selectedPlace = 7;
 		SR->showDefaultScreen();
 		return 1;
@@ -1296,6 +1316,7 @@ static  uint8_t functActionRecord()
 	recorder.startRecording(sdram_effectsBank);
 	GP.spectrumResetZoom(0, 0, &SR->zoom);
 	SR->spectrumTimerConstrains = 100;
+	SR->params.address = sdram_effectsBank;
 	return 1;
 }
 
@@ -1353,11 +1374,6 @@ static  uint8_t functActionPreview()
 
 	uint32_t length;
 	uint32_t addressShift;
-
-	Serial.print("end point");
-	Serial.println(SR->endPoint);
-	Serial.print("start point");
-	Serial.println(SR->startPoint);
 
 	length =(uint32_t)((uint32_t)SR->endPoint * (float)(recorder.getLength())/MAX_16BIT);
 	addressShift = (uint32_t)( (uint32_t)SR->startPoint * (float)(recorder.getLength())/MAX_16BIT);
@@ -1514,9 +1530,13 @@ static  uint8_t functActionConfirmSave()
 
 static  uint8_t functActionConfirmSaveLoad()
 {
-
 	SR->saveOrSaveloadFlag = cSampleRecorder::saveTypeLoad;
 
+	if((mtProject.used_memory + recorder.getLength() * 2) > mtProject.max_memory)
+	{
+		SR->notEnoughMemoryFlag = 1;
+		return 0;
+	}
 	int8_t firstFree = -1;
 	char localName[37];
 
@@ -1895,6 +1915,7 @@ static uint8_t functSwitchModule(uint8_t button)
 		if(SR->recordInProgressFlag) return 1;
 		if(SR->saveInProgressFlag) return 1;
 		if(SR->notEnoughInstrumentsFlag) return 1;
+		if(SR->notEnoughMemoryFlag) return 1;
 		if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;
 	}
 	else SR->forceSwitchModule = 0;

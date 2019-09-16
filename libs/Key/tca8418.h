@@ -128,16 +128,27 @@
 #define COL8 0x0100
 #define COL9 0x0200
 
+
+constexpr uint8_t BUTTON_MAX = 48;
+constexpr uint16_t HOLD_TIME = 500;
 constexpr uint8_t convertToGridKey4x12[80] =
 {
-	255,255,255,255,255,255,255,255,255,255,
-	255,255,255,255,255,255,255,255,255,255,
-	255,255,255,255,255,255,255,255,255,255,
-	255,255,255,255,255,255,255,255,255,255,
-	255,255,255,255,255,0,12,24,36,255,
-	255,255,255,255,255,1,13,25,37,255,
-	255,255,255,255,255,2,14,26,38,255,
-	255,255,255,255,255,3,15,27,39,255,
+	0,1,2,3,4,5,6,7,8,9,
+	12,13,14,15,16,17,18,19,20,21,
+	24,25,26,27,28,29,30,31,32,33,
+	36,37,38,39,40,41,42,43,44,45,
+	255,255,255,255,255,255,255,255,11,10,
+	255,255,255,255,255,255,255,255,23,22,
+	255,255,255,255,255,255,255,255,35,34,
+	255,255,255,255,255,255,255,255,47,46
+};
+
+constexpr uint8_t convertGridKey4x12ToTCA8418[48] =
+{
+  1,2,3,4,5,6,7,8,9,10,50,49,
+  11,12,13,14,15,16,17,18,19,20,60,59,
+  21,22,23,24,25,26,27,28,29,30,70,69,
+  31,32,33,34,35,36,37,38,39,40,80,79,
 };
 
 void KeyISR(void);
@@ -145,8 +156,8 @@ void KeyISR(void);
 class KEYS {
 public:
   KEYS();
-  void begin(void);
-  void begin(uint8_t rows, uint16_t cols, uint8_t config);
+  void begin(i2c_t3 * wire);
+  void begin(uint8_t rows, uint16_t cols, uint8_t config,i2c_t3 * wire);
   uint8_t readKeypad(void);
   bool configureKeys(uint8_t rows, uint16_t cols, uint8_t config);
   void writeByte(uint8_t data, uint8_t reg);
@@ -182,9 +193,15 @@ public:
   void update();
   void setOnPush(void(*funct)(uint8_t));
   void setOnRelease(void(*funct)(uint8_t));
+  void setOnHold(void(*funct)(uint8_t));
+  elapsedMillis holdTim[BUTTON_MAX];
+  uint8_t isButtonPressed(uint8_t n);
 private:
   void (*onPush)(uint8_t);
   void (*onRelease)(uint8_t);
+  void (*onHold)(uint8_t);
+  uint8_t buttonPush[BUTTON_MAX];
+  i2c_t3 * localWire = &Wire;
 
 protected:
  

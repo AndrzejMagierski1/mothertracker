@@ -25,6 +25,7 @@ const uint32_t CONFIG_EEPROM_ADRESS =        	0;
 const uint16_t MAX_16BIT =              		65535;
 const int16_t MAX_SIGNED_16BIT =				32767;
 const int16_t MIN_SIGNED_16BIT =				-32768;
+const uint8_t MAX_8BIT = 						255;
 
 const float MAX_WAVE_FLOAT =					1.0;
 const float MIN_WAVE_FLOAT =					-1.0;

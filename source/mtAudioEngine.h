@@ -13,6 +13,10 @@
 #include "mtRecorder.h"
 #include "mtExporterWAV.h"
 
+enum fx_ID
+{
+	fx_ID_cutoff = 1
+};
 
 class audioEngine
 {
@@ -46,6 +50,7 @@ public:
 
 
 	uint8_t noteOn(uint8_t instr_idx,int8_t note, int8_t velocity);
+	uint8_t noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx_id, uint8_t fx_val);
 	void noteOff();
 	void clean();
 

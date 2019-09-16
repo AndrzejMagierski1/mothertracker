@@ -306,7 +306,9 @@ uint8_t cropCounter = 0;
 // selection window
 	void showSelectionWindow();
 	void showSelectionNotEnoughInstruments();
+	void showSelectionNotEnoughMemory();
 	uint8_t notEnoughInstrumentsFlag = 0;
+	uint8_t notEnoughMemoryFlag = 0;
 
 
 	uint8_t selectionWindowFlag = 0;

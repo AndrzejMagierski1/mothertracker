@@ -968,6 +968,26 @@ void cSampleRecorder::showSelectionNotEnoughInstruments()
 	display.synchronizeRefresh();
 }
 
+void cSampleRecorder::showSelectionNotEnoughMemory()
+{
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlText(bottomLabel[i], "");
+		display.setControlText(topLabel[i], "");
+		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+	display.setControlText(topLabel[7], "OK");
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlText(selectWindowLabel,"There are not enough Memory in sample bank.");
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	display.synchronizeRefresh();
+}
 
 
 void cSampleRecorder::refreshRDS()

@@ -160,7 +160,7 @@ void onButtonPush (uint8_t x,uint8_t state)
 
 void onButtonRelease(uint8_t x,uint8_t state)
 {	
-	mtInterface.padReleased(x);
+//	mtInterface.padReleased(x);
 
 //	leds.setLED(x, 0, 0);
 	//Serial.print("ButtonRelease: x = ");
@@ -171,7 +171,7 @@ void onButtonRelease(uint8_t x,uint8_t state)
 void onButtonHold(uint8_t x,uint8_t state)
 {	
 //	mtInterface.seqButtonHold(x,y);
-	mtInterface.padHold(x);
+//	mtInterface.padHold(x);
 
 //	Serial.print("ButtonHold: x = ");
 //	Serial.print(x);
@@ -191,11 +191,14 @@ void onButtonDouble(uint8_t x,uint8_t state)
 
 void onPadPush(uint8_t n)
 {
-	padsBacklight.setFrontLayer(1, 31, n);
+	mtInterface.padPressed(n,0,0,0);
 }
 
 void onPadRelease(uint8_t n)
 {
-	padsBacklight.setFrontLayer(0,0,n);
+	mtInterface.padReleased(n);
 }
-
+void onPadHold(uint8_t n)
+{
+	mtInterface.padHold(n);
+}
