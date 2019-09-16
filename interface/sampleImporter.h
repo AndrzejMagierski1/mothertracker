@@ -132,7 +132,9 @@ public:
 	uint8_t copyingProgress = 0;
 	uint8_t lastCopyStatusFlag = 0;
 	uint8_t currentCopyStatusFlag = 0;
-	uint8_t copyQueue = 0;
+	//uint8_t copyQueue = 0;
+	uint8_t copyElement=0;
+	uint8_t copyElementMax;
 	uint8_t firstMemBarLoadFlag=0;
 
 	uint8_t lastLoadStatusFlag = 0;
@@ -202,8 +204,6 @@ public:
 	void displayDelete(uint8_t onOff);
 
 	uint8_t instrCopyStart;
-	uint8_t instrCopyLength;
-	uint8_t instrCopied;
 
 	uint8_t copyType;//0- no copy ,1- sd to intr,2 -instr to instr
 

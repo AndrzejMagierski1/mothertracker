@@ -130,6 +130,7 @@ void FileManager::importProject(char* sourceProjectPatch,char* name, char* newNa
 		{
 			if(i < 10 ) sprintf(currentName,"instr0%d.wav",i);
 			else sprintf(currentName,"instr%d.wav",i);
+			samplesImporter.setStartIndex(i);
 			samplesImporter.start(currentPatch,currentName,currentProjectPatch,i,mtProject.mtProjectRemote.instrumentFile[i].sampleType);
 		}
 	}

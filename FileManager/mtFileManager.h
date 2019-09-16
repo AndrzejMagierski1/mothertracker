@@ -60,6 +60,7 @@ public:
 
 //**************************************************************************************************************************
 //************************************************ FileManagerInstrument****************************************************
+	void setStart(uint8_t startPoint);
 	uint8_t assignSampleToInstrument(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type  = mtSampleTypeWaveFile);
 	void setAutoLoadFlag();
 	void clearAutoLoadFlag();
