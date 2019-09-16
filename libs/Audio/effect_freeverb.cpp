@@ -32,6 +32,7 @@
 #include "effect_freeverb.h"
 #include "utility/dspinst.h"
 
+
 AudioEffectFreeverb::AudioEffectFreeverb() : AudioStream(1, inputQueueArray)
 {
 	memset(comb1buf, 0, sizeof(comb1buf));
@@ -114,6 +115,8 @@ static const audio_block_t zeroblock = {
 #endif
 } };
 
+
+
 void AudioEffectFreeverb::update()
 {
 #if defined(KINETISK)
@@ -133,7 +136,11 @@ void AudioEffectFreeverb::update()
 	}
 	block = receiveReadOnly(0);
 	if (!block) block = &zeroblock;
-	else stopFlag = 0;
+	else
+		{
+			Serial.println("zerowane stopflag");
+			stopFlag = 0;
+		}
 
 	for (i=0; i < AUDIO_BLOCK_SAMPLES; i++) {
 		// TODO: scale numerical range depending on roomsize & damping
@@ -214,12 +221,31 @@ void AudioEffectFreeverb::update()
 
 		if(i>1) // bieda rozwiazanie - w debbugingu przy burczeniu wartosci sie powtarzaly - w buforze bylo kilkadziesiat powtorzen
 		{
-			if(outblock->data[i] == outblock->data[i-1]) valueRepeat++;
-			if(outblock->data[i] < 100 && outblock->data[i] > -100) valueSmall++;
+//			if(outblock->data[i] == outblock->data[i-1]) valueRepeat++;
+			if(outblock->data[i] < 300 && outblock->data[i] > -300) valueSmall++;
 		}
 	}
-	if(valueRepeat > 100 && valueSmall > 100) stopFlag = 1;
-	if(stopFlag == 1) memset(outblock->data,0,AUDIO_BLOCK_SAMPLES*2);
+	if(valueSmall > 100 && stopFlag == 0)
+	{
+		stopFlag = 1;
+		releaseTim = 0;
+	}
+	if(stopFlag == 1)
+	{
+		for(uint8_t i = 0; i< AUDIO_BLOCK_SAMPLES ; i++)
+		{
+			if((releaseTim < releaseTime))
+			{
+				outblock->data[i] *= ( (releaseTime - releaseTim) /(float) releaseTime);
+			}
+			else
+			{
+				outblock->data[i] = 0;
+			}
+
+		}
+//		memset(outblock->data,0,AUDIO_BLOCK_SAMPLES*2);
+	}
 	transmit(outblock);
 	release(outblock);
 	if (block != &zeroblock) release((audio_block_t *)block);
