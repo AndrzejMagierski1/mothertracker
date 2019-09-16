@@ -465,6 +465,10 @@ void Sequencer::changeSelectionFxValue(int16_t value)
 
 			step->fx[0].value = constrain(step->fx[0].value + value, 0,
 											127);
+			if (!isMultiSelection() && step->fx[0].type == 0)
+			{
+				step->fx[0].type = mtProject.values.lastUsedFx;
+			}
 		}
 	}
 }
@@ -488,26 +492,26 @@ void Sequencer::changeSelectionFxType(int16_t value)
 			step->fx[0].type = constrain(step->fx[0].type + value,
 											0,
 											200);
-//			if (step->fx[0].type==0)
-//			{
-//				if (value > 0)
-//				{
-//					step->fx[0].isOn = 1;
-//				}
-//			}
-//			else
-//			{
-//				if (step->fx[0].type == 0 && value < 0)
-//				{
-//					step->fx[0].type = 1;
-//				}
-//				else
-//				{
-//					step->fx[0].type = constrain(step->fx[0].type + value,
-//													0,
-//													200);
-//				}
-//			}
+		}
+	}
+}
+void Sequencer::setSelectionFxType(int16_t value)
+{
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+
+			step->fx[0].type = value;
 		}
 	}
 }
@@ -532,25 +536,14 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 			{
 				if (step->note >= 0)
 				{
-					if (tactButtons.isButtonPressed(interfaceButtonShift))
-					{
 
-						step->instrument = constrain(
-								step->instrument + value,
-								INSTRUMENTS_COUNT + 1,
-								INSTRUMENTS_COUNT + 1 + 16);
-					}
-					else
-					{
-
-						step->instrument = constrain(step->instrument + value,
-														0,
-														INSTRUMENTS_COUNT);
-						blinkNote(step->instrument,
-									step->note,
-									step->velocity,
-									t);
-					}
+					step->instrument = constrain(step->instrument + value,
+													0,
+													INSTRUMENTS_COUNT + 16);
+					blinkNote(step->instrument,
+								step->note,
+								step->velocity,
+								t);
 
 					mtProject.values.lastUsedInstrument = step->instrument;
 				}
