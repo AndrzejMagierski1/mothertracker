@@ -44,7 +44,7 @@ static  uint8_t functSwitchModule(uint8_t button);
 void cSongEditor::update()
 {
 
-
+	markCurrentPattern();
 
 }
 
@@ -58,8 +58,7 @@ void cSongEditor::start(uint32_t options)
 
 	showPatternsList();
 
-	Encoder.setResolution(12);
-	Encoder.setAcceleration(0);
+
 
 
 	//selectedPlace = 0;
@@ -88,8 +87,7 @@ void cSongEditor::start(uint32_t options)
 
 void cSongEditor::stop()
 {
-	Encoder.setResolution(48);
-	Encoder.setAcceleration(3);
+
 
 	moduleRefresh = 0;
 }
@@ -395,6 +393,28 @@ void cSongEditor::listPatterns()
 		}
 
 		patternNames[i] = &patternsNamesList[i][0];
+	}
+
+	patternsNamesList[mtProject.mtProjectRemote.song.playlistPos][1]='*';
+}
+
+void cSongEditor::markCurrentPattern()
+{
+	if(mtProject.mtProjectRemote.song.playlistPos != localSongPosition)
+	{
+		patternsNamesList[mtProject.mtProjectRemote.song.playlistPos][1]='*';
+
+		if(mtProject.mtProjectRemote.song.playlistPos == 0)
+		{
+			patternsNamesList[songLength-1][1]=' ';
+		}
+		else
+		{
+			patternsNamesList[mtProject.mtProjectRemote.song.playlistPos-1][1]=' ';
+		}
+
+		display.setControlValue(patternsListControl, selectedPattern);
+		display.refreshControl(patternsListControl);
 	}
 }
 

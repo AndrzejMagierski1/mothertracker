@@ -6,7 +6,9 @@
 #include "mtFileManager.h"
 
 #include "patternEditor.h"
+#include "keyScanner.h"
 extern Sequencer sequencer;
+extern keyScanner tactButtons; // dla isButtonPressed()
 
 void fromToSwap(uint8_t & from, uint8_t & to)
 {
@@ -33,7 +35,8 @@ void Sequencer::fillRandomNotes(uint8_t fillStep, uint8_t from, uint8_t to)
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 				step->note = random(from, to + 1);
@@ -54,7 +57,8 @@ void Sequencer::fillLinearNotes(uint8_t fillStep, uint8_t from, uint8_t to)
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 				step->note = map(offset + sel->firstStep,
@@ -80,7 +84,8 @@ void Sequencer::fillLinearInstruments(uint8_t fillStep, uint8_t from,
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 				step->instrument = map(offset + sel->firstStep,
@@ -112,7 +117,8 @@ void Sequencer::fillLinearFx(uint8_t fillStep,
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 
@@ -142,7 +148,8 @@ void Sequencer::fillRandomFx(uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 
@@ -168,7 +175,8 @@ void Sequencer::fillRandomInstruments(uint8_t fillStep, uint8_t from,
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 				step->instrument = random(from, to + 1);
@@ -195,7 +203,8 @@ void Sequencer::fillLinearVelocity(uint8_t fillStep, uint8_t from,
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 				step->velocity = map(offset + sel->firstStep,
@@ -223,7 +232,8 @@ void Sequencer::fillRandomVelocity(uint8_t fillStep, uint8_t from,
 				s <= sel->lastStep;
 				s++, offset++)
 		{
-			if (offset % fillStep == 0)
+			if ((offset % fillStep == 0 && fillStep > 0) ||
+					(random(0, 10) > 6 && fillStep == 0))
 			{
 				step = &seq[player.ramBank].track[t].step[s];
 				step->velocity = random(from, to + 1);
@@ -422,8 +432,18 @@ void Sequencer::changeSelectionVolume(int16_t value)
 				s++, offset++)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
-			step->velocity = constrain(step->velocity + value, 0,
-										MAX_VELO_STEP);
+
+			if (!isMultiSelection())
+			{
+				step->velocity = constrain(step->velocity + value, -1,
+											MAX_VELO_STEP);
+				return;
+			}
+			else if (step->velocity >= 0)
+			{
+				step->velocity = constrain(step->velocity + value, 0,
+											MAX_VELO_STEP);
+			}
 		}
 	}
 }
@@ -445,6 +465,10 @@ void Sequencer::changeSelectionFxValue(int16_t value)
 
 			step->fx[0].value = constrain(step->fx[0].value + value, 0,
 											127);
+			if (!isMultiSelection() && step->fx[0].type == 0)
+			{
+				step->fx[0].type = mtProject.values.lastUsedFx;
+			}
 		}
 	}
 }
@@ -468,26 +492,26 @@ void Sequencer::changeSelectionFxType(int16_t value)
 			step->fx[0].type = constrain(step->fx[0].type + value,
 											0,
 											200);
-//			if (step->fx[0].type==0)
-//			{
-//				if (value > 0)
-//				{
-//					step->fx[0].isOn = 1;
-//				}
-//			}
-//			else
-//			{
-//				if (step->fx[0].type == 0 && value < 0)
-//				{
-//					step->fx[0].type = 1;
-//				}
-//				else
-//				{
-//					step->fx[0].type = constrain(step->fx[0].type + value,
-//													0,
-//													200);
-//				}
-//			}
+		}
+	}
+}
+void Sequencer::setSelectionFxType(int16_t value)
+{
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+
+			step->fx[0].type = value;
 		}
 	}
 }
@@ -512,9 +536,10 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 			{
 				if (step->note >= 0)
 				{
-					step->instrument = constrain(step->instrument + value, 0,
-													INSTRUMENTS_COUNT);
 
+					step->instrument = constrain(step->instrument + value,
+													0,
+													INSTRUMENTS_COUNT + 16);
 					blinkNote(step->instrument,
 								step->note,
 								step->velocity,
@@ -534,8 +559,22 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 			{
 				if (step->note >= 0)
 				{
-					step->instrument = constrain(step->instrument + value, 0,
-													INSTRUMENTS_COUNT);
+					if (tactButtons.isButtonPressed(interfaceButtonShift))
+					{
+
+						step->instrument = constrain(
+								step->instrument + value,
+								INSTRUMENTS_COUNT + 1,
+								INSTRUMENTS_COUNT + 1 + 16);
+					}
+					else
+					{
+
+						step->instrument = constrain(step->instrument + value,
+														0,
+														INSTRUMENTS_COUNT);
+
+					}
 
 				}
 
@@ -674,7 +713,7 @@ void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 	strPattern::strTrack * tempRow = &seq[bank].track[row];
 	strPattern::strTrack::strStep * step = &tempRow->step[x];
 
-	clearStep(step,0);
+	clearStep(step, 0);
 }
 
 void Sequencer::clearStep(strPattern::strTrack::strStep * step,
@@ -693,7 +732,7 @@ void Sequencer::clearStep(strPattern::strTrack::strStep * step,
 		step->fx[0].type = 0;
 		break;
 	case ELEMENTS_INSTRUMENTS:
-	case ELEMENTS_NOTES:
+		case ELEMENTS_NOTES:
 		step->note = STEP_NOTE_EMPTY;
 		step->instrument = 0;
 		break;
@@ -782,7 +821,8 @@ void Sequencer::insert(strSelection *selection)
 		{
 			seq[player.ramBank].track[t].step[s] = seq[player.ramBank].track[t].step[s - 1];
 		}
-		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep], ELEMENTS_ALL);
+		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep],
+					ELEMENTS_ALL);
 	}
 
 }
@@ -797,7 +837,8 @@ void Sequencer::insertReversed(strSelection *selection)
 		{
 			seq[player.ramBank].track[t].step[s] = seq[player.ramBank].track[t].step[s + 1];
 		}
-		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep], ELEMENTS_ALL);
+		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep],
+					ELEMENTS_ALL);
 	}
 
 }
@@ -1034,3 +1075,9 @@ void Sequencer::setPasteSelection(uint8_t stepFrom,
 	}
 
 }
+
+void Sequencer::setTempo(float val)
+{
+	seq[player.ramBank].tempo = val;
+}
+

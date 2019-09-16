@@ -24,11 +24,11 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
-
 static  uint8_t functLeftInstr();
 static  uint8_t functRightInstr();
 static  uint8_t functUpInstr();
 static  uint8_t functDownInstr();
+
 static  uint8_t functCopy();
 
 
@@ -845,12 +845,14 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 	return 1;
 }
+
 static  uint8_t functCopy()
 {
 	// wychodzimy jeśli delete selektywne
 	IE->eventFunct(eventSwitchToPreviousModule,IE,0,0);
 	return 1;
 }
+
 static  uint8_t functInstrument(uint8_t state)
 {
 	if(state == buttonRelease)

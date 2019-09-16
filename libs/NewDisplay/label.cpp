@@ -22,7 +22,6 @@ static uint32_t defaultColors[] =
 cLabel::cLabel(strControlProperties* properties)
 {
 	colorsCount = 3;
-	colors = (properties->colors == nullptr) ? defaultColors : properties->colors;
 
 	if(properties == nullptr)
 	{
@@ -36,6 +35,10 @@ cLabel::cLabel(strControlProperties* properties)
 		value = 0;
 		return;
 	}
+
+	colors = (properties->colors == nullptr) ? defaultColors : properties->colors;
+
+
 
 	posX = properties->x;
 	posY = properties->y;

@@ -38,7 +38,7 @@ void cEncoder::begin(uint8_t intPin, void (*func)(uint8_t n, uint8_t value))
 	FTM_SC = 0;
 
 	// Set registers to count quadrature
-	FTM_FILTER = 0x22;	// 2x4 clock filters on both channels
+	FTM_FILTER = 0x4444;	// 2x4 clock filters on both channels
 	FTM_CNTIN = 0;
 	FTM_MOD = 0xFFFF;	// Maximum value of counter
 	FTM_CNT = 0;		// Updates counter with CNTIN
@@ -80,7 +80,7 @@ void cEncoder::begin(uint8_t intPin, void (*func)(uint8_t n, uint8_t value))
 
 
 
-int16_t raw_delta;
+int16_t raw_delta = 0;
 
 elapsedMillis showtimer;
 
@@ -93,15 +93,16 @@ int32_t cEncoder::read()
 	//resolution od licznika enkoderra zamiast zerowac
 	int16_t diffrence = calcPosn();
 
-	raw_delta +=  diffrence;
+	if(diffrence == 0) return 0;
 
 
-	if(showtimer> 100)
+/*	raw_delta +=  diffrence;
+	if(showtimer> 1000)
 	{
-		//Serial.println(raw_delta);
+		Serial.println(raw_delta);
 		showtimer = 0;
 	}
-
+*/
 	// wygladzenie wartosci delty przed dalszym przetwarzaniem
 	//diffrence = encoder.diffrence_blur = (diffrence + encoder.diffrence_blur * 5) / 6;
 
@@ -127,12 +128,10 @@ int32_t cEncoder::read()
 	else if (diffrence < 0) direction = 2;
 	if (direction != encoder.last_direction) encoder.global_diff = 0;
 	encoder.last_direction = direction;
-	//
 
 	// obliczenie kroku przy aktualnej rozdzielczosci
 	resolution_step = ENCODER_PPR / encoder.resolution;
 	encoder.global_diff = encoder.global_diff + diffrence;
-	//
 
 	if (encoder.global_diff >= resolution_step || encoder.global_diff <= resolution_step * (-1))
 	{

@@ -26,10 +26,23 @@ void Sequencer::handle()
 
 	if (player.blink.isOpen && player.blink.timer > 500)
 	{
+		closeBlinkNote();
+	}
+
+}
+void Sequencer::closeBlinkNote(void)
+{
+	if (player.blink.instrument < INSTRUMENTS_COUNT)
+	{
 		instrumentPlayer[player.blink.track].noteOff();
 		player.blink.isOpen = 0;
 	}
-
+	else
+	{
+		player.blink.isOpen = 0;
+		usbMIDI.sendNoteOff(player.blink.note, 0,
+							player.blink.instrument - INSTRUMENTS_COUNT);
+	}
 }
 
 void Sequencer::handle_uStep_timer(void)
@@ -1339,11 +1352,16 @@ void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 						step->velocity,
 						step->instrument);
 	}
-
-	usbMIDI.sendNoteOn(step->note, step->velocity, 1);
-
-	instrumentPlayer[track].noteOn(step->instrument, step->note,
-									step->velocity);
+	if (step->instrument > INSTRUMENTS_COUNT)
+	{
+		usbMIDI.sendNoteOn(step->note, step->velocity,
+							step->instrument - INSTRUMENTS_COUNT);
+	}
+	else
+	{
+		instrumentPlayer[track].noteOn(step->instrument, step->note,
+										step->velocity);
+	}
 
 }
 
@@ -1358,9 +1376,16 @@ void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
 				step->velocity,
 				step->instrument);
 	}
-	usbMIDI.sendNoteOff(step->note, 0, 1);
 
-	instrumentPlayer[track].noteOff();
+	if (step->instrument > INSTRUMENTS_COUNT)
+	{
+		usbMIDI.sendNoteOff(step->note, 0,
+							step->instrument - INSTRUMENTS_COUNT);
+	}
+	else
+	{
+		instrumentPlayer[track].noteOff();
+	}
 }
 void Sequencer::sendNoteOff(uint8_t track)
 {
@@ -1381,14 +1406,28 @@ void Sequencer::sendNoteOff(uint8_t track)
 void Sequencer::blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 							uint8_t track)
 {
+	if (player.blink.isOpen)
+	{
+		closeBlinkNote();
+	}
+
 	player.blink.isOpen = 1;
 	player.blink.track = track;
 	player.blink.timer = 0;
+	player.blink.instrument = instrument;
+	player.blink.note = note;
 
-	instrumentPlayer[track].noteOff();
-	instrumentPlayer[track].noteOn(instrument,
-									note,
-									velocity);
+	if (instrument < INSTRUMENTS_COUNT)
+	{
+		instrumentPlayer[track].noteOff();
+		instrumentPlayer[track].noteOn(instrument,
+										note,
+										velocity);
+	}
+	else
+	{
+		usbMIDI.sendNoteOn(note, velocity, instrument - INSTRUMENTS_COUNT);
+	}
 }
 
 void Sequencer::blinkSelectedStep()
