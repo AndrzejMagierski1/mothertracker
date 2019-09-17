@@ -1590,7 +1590,12 @@ static uint8_t functPasteInsert(uint8_t state)
 
 		if (PTE->editMode == 1)
 		{
-			if (tactButtons.isButtonPressed(interfaceButtonShift))
+			if(tactButtons.isButtonPressed(interfaceButtonShift) && tactButtons.isButtonPressed(interfaceButtonEnter))
+			{
+				sendSelection();
+				sequencer.insertReversed(&sequencer.selection);
+			}
+			else if(tactButtons.isButtonPressed(interfaceButtonShift))
 			{
 				sendPasteSelection();
 
