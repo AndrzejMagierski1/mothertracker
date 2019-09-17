@@ -61,6 +61,8 @@ void Si4703::powerOff()
 	readRegisters();
 	si4703_registers[rPOWERCFG] |= DISABLE;
 	updateRegisters();
+
+	detachInterrupt(digitalPinToInterrupt(_interruptPin));
 }
 
 void Si4703::setFrequency(float freq)
