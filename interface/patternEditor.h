@@ -108,7 +108,6 @@ public:
 	void showFxListPopup();
 	void refreshFxListPopup();
 	void showFxList(uint8_t n);
-	void hideFxListPopup();
 //----------------------------------
 // Funct
 	uint16_t lastPatternPosition;
@@ -165,6 +164,7 @@ public:
 	char step[5];
 
 
+
 //------------------------------------------------------
 // fill
 	uint8_t fillState = 0;
@@ -215,6 +215,7 @@ public:
 // fx popup
 	void readStepFx();
 	void setStepFx();
+	void cancelFxPopup();
 
 	strList fxList[4];
 	uint8_t selectedFx = 0;
@@ -223,15 +224,14 @@ public:
 //-------------------------------------------------------
 // note popup
 	void showNotePopout();
-	void hideNotePopout();
-	void selectNoteOnPopout(uint8_t pad);
-	void showActualInstrument();
+	void selectNoteOnPopout(int8_t pad);
+	void cancelNonePopup();
 
-	uint8_t noteButtonHoldFlag;
+	uint8_t notePopupState;
 
 //-------------------------------------------------------
 //
-
+	void showActualInstrument();
 
 
 };

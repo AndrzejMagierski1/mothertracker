@@ -39,8 +39,7 @@ static uint32_t patternLabelColors[] =
 };
 
 
-uint32_t patternTrackerColors[] =
-
+volatile uint32_t patternTrackerColors[8] =
 {
 	0xFFFFFF, // linie
 	0xFFFFFF, // numery wierszy
@@ -48,11 +47,11 @@ uint32_t patternTrackerColors[] =
 	0xFFFFFF, // instrument
 	0xFFFFFF, // volume
 	0xFFFFFF, // effekt
-	0xFF0000, // zaznaczenie
+	0xff0000, // zaznaczenie
 	0x111111, // podzialka
 };
 
-
+uint32_t patternTrackerSelectionColor = 0xff0000;
 
 void cPatternEditor::initDisplayControls()
 {
@@ -86,7 +85,8 @@ void cPatternEditor::initDisplayControls()
 	prop.y = 0;
 	prop.w = 50;
 	prop.h = 25;
-	prop.colors = patternTrackerColors;
+	patternTrackerColors[6] = patternTrackerSelectionColor;
+	prop.colors = (uint32_t*)patternTrackerColors;
 	prop.data = &trackerPattern;
 	if(patternControl == nullptr)  patternControl = display.createControl<cTracker>(&prop);
 	//hTrackControl = display.createControl<cLabel>(&prop);
@@ -295,10 +295,16 @@ void cPatternEditor::destroyDisplayControls()
 void cPatternEditor::showDefaultScreen()
 {
 
-//	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+	display.setControlHide(titleLabel);
+	display.setControlHide(titleBar);
+	display.setControlHide(instrumentLabel);
 
-	//display.setControlShow(patternControl);
-	display.refreshControl(patternControl);
+	display.setControlHide(notePopoutControl);
+
+	for(uint8_t i = 0; i<4; i++)
+	{
+		display.setControlHide(fxListControl[i]);
+	}
 
 	// bottom labels
 	display.setControlText(bottomLabel[0], "Tempo");
@@ -327,6 +333,7 @@ void cPatternEditor::showDefaultScreen()
 
 	activateLabelsBorder();
 
+
 	for(uint8_t i = 0; i<4; i++)
 	{
 		display.setControlShow(topLabel[i]);
@@ -343,6 +350,7 @@ void cPatternEditor::showDefaultScreen()
 
 
 	display.setControlShow(patternControl);
+	display.refreshControl(patternControl);
 
 	display.synchronizeRefresh();
 }
@@ -423,18 +431,6 @@ void cPatternEditor::showFxList(uint8_t n)
 	display.refreshControl(fxListControl[n]);
 }
 
-void cPatternEditor::hideFxListPopup()
-{
-	display.setControlHide(titleLabel);
-	display.setControlHide(titleBar);
-	display.setControlHide(instrumentLabel);
-
-	for(uint8_t i = 0; i<4; i++)
-	{
-		display.setControlHide(fxListControl[i]);
-		//display.refreshControl(fxListControl[i]);
-	}
-}
 
 
 void cPatternEditor::showEditModeLabels()
@@ -1164,47 +1160,8 @@ void cPatternEditor::showNotePopout()
 	showActualInstrument();
 }
 
-void cPatternEditor::hideNotePopout()
-{
-	display.setControlHide(titleLabel);
-	//display.refreshControl(titleLabel);
-	display.setControlHide(titleBar);
-	//display.refreshControl(titleBar);
-	display.setControlHide(instrumentLabel);
-	//display.refreshControl(instrumentLabel);
 
-	display.setControlHide(notePopoutControl);
-	//display.refreshControl(notePopoutControl);
-
-	for(int i=0;i<8;i++)
-	{
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
-
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-	}
-
-	display.setControlShow(frameControl);
-	display.refreshControl(frameControl);
-
-	display.setControlShow(patternControl);
-	display.refreshControl(patternControl);
-
-	if(fillState ==1)
-	{
-		showFillPopup();
-	}
-
-	if(randomiseState==1)
-	{
-		showRandomisePopup();
-	}
-
-
-}
-
-void cPatternEditor::selectNoteOnPopout(uint8_t pad)
+void cPatternEditor::selectNoteOnPopout(int8_t pad)
 {
 	display.setControlValue(notePopoutControl, pad);
 	display.refreshControl(notePopoutControl);
