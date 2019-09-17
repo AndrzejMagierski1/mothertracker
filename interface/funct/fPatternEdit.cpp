@@ -55,10 +55,10 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
-static  uint8_t functLeftFx();
-static  uint8_t functRightFx();
-static  uint8_t functUpFx();
-static  uint8_t functDownFx();
+static  uint8_t functLeftPopup();
+static  uint8_t functRightPopup();
+static  uint8_t functUpPopup();
+static  uint8_t functDownPopup();
 
 
 
@@ -75,12 +75,13 @@ static uint8_t getSelectedElement();
 
 
 static  uint8_t functEncoder(int16_t value);
-static  uint8_t functEncoderFx(int16_t value);
+static  uint8_t functEncoderPopup(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
 
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
+static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo);
 
 
 char getHexFromInt(int16_t val, uint8_t index);
@@ -459,9 +460,9 @@ void cPatternEditor::moveCursorByStep()
 
 void cPatternEditor::setNotePopupFunct()
 {
-	PTE->FM->clearButton(interfaceButtonInstr);
-	PTE->FM->clearButton(interfaceButtonVol);
-	PTE->FM->clearButton(interfaceButtonFx);
+	//PTE->FM->clearButton(interfaceButtonInstr);
+	//PTE->FM->clearButton(interfaceButtonVol);
+	//PTE->FM->clearButton(interfaceButtonFx);
 
 	PTE->FM->clearButton(interfaceButtonRec);
 	PTE->FM->clearButton(interfaceButtonShift);
@@ -469,22 +470,27 @@ void cPatternEditor::setNotePopupFunct()
 
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-	FM->setPotObj(interfacePot0, functEncoderFx, nullptr);
+	FM->setPotObj(interfacePot0, functEncoderPopup, nullptr);
 
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftFx);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightFx);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpFx);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownFx);
 
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftPopup);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightPopup);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpPopup);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownPopup);
+
+
+	FM->setPadsGlobal(functPadsPopup);
 
 	lightUpPadBoard();
 }
+
+
 
 void cPatternEditor::setFxListPopupFunct()
 {
-	PTE->FM->clearButton(interfaceButtonNote);
-	PTE->FM->clearButton(interfaceButtonInstr);
-	PTE->FM->clearButton(interfaceButtonVol);
+	//PTE->FM->clearButton(interfaceButtonNote);
+	//PTE->FM->clearButton(interfaceButtonInstr);
+	//PTE->FM->clearButton(interfaceButtonVol);
 
 	PTE->FM->clearButton(interfaceButtonRec);
 	PTE->FM->clearButton(interfaceButtonShift);
@@ -492,19 +498,66 @@ void cPatternEditor::setFxListPopupFunct()
 
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-	FM->setPotObj(interfacePot0, functEncoderFx, nullptr);
+	FM->setPotObj(interfacePot0, functEncoderPopup, nullptr);
 
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftFx);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightFx);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpFx);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownFx);
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftPopup);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightPopup);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpPopup);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownPopup);
 
 
+	FM->setPadsGlobal(functPadsPopup);
 
 	lightUpPadBoard();
 }
 
+void cPatternEditor::cancelNonePopup()
+{
+	if(PTE->notePopupState==1)
+	{
+		PTE->notePopupState=0;
 
+		PTE->setDefaultScreenFunct();
+		PTE->showDefaultScreen();
+		PTE->refreshEditState();
+
+		if(PTE->fillState)
+		{
+			functFill();
+		}
+
+		if(PTE->randomiseState)
+		{
+			functRandomise();
+		}
+	}
+}
+
+void cPatternEditor::cancelFxPopup()
+{
+	if(PTE->fxListPopupState == 1)
+	{
+		PTE->fxListPopupState = 0;
+
+		PTE->showDefaultScreen();
+		PTE->setDefaultScreenFunct();
+		PTE->refreshEditState();
+
+		if(PTE->fillState)
+		{
+			functFill();
+		}
+		else if(PTE->randomiseState)
+		{
+			functRandomise();
+		}
+	}
+
+	//PTE->readPatternState();
+	//PTE->refreshPattern();
+
+	//PTE->focusOnPattern();
+}
 
 
 
@@ -926,9 +979,12 @@ uint8_t functEncoder(int16_t value)
 	return 1;
 }
 
-static  uint8_t functEncoderFx(int16_t value)
+static  uint8_t functEncoderPopup(int16_t value)
 {
-	PTE->changeSelectedFx(value);
+	if(PTE->fxListPopupState)
+	{
+		PTE->changeSelectedFx(value);
+	}
 
 	return 1;
 }
@@ -1303,30 +1359,43 @@ static  uint8_t functDown()
 }
 
 //=========================================================================================================
-static  uint8_t functLeftFx()
+static  uint8_t functLeftPopup()
 {
-	if(PTE->selectedFx >= 12) PTE->changeSelectedFx(-12,1);
+	if(PTE->fxListPopupState)
+	{
+		if(PTE->selectedFx >= 12) PTE->changeSelectedFx(-12,1);
+	}
 
 	return 1;
 }
 
-static  uint8_t functRightFx()
+static  uint8_t functRightPopup()
 {
-	if(PTE->selectedFx < 36) PTE->changeSelectedFx(12,1);
+	if(PTE->fxListPopupState)
+	{
+		if(PTE->selectedFx < 36) PTE->changeSelectedFx(12,1);
+	}
 
 	return 1;
 }
 
-static  uint8_t functUpFx()
+static  uint8_t functUpPopup()
 {
-	if(PTE->selectedFx > 0) PTE->changeSelectedFx(-1);
+	if(PTE->fxListPopupState)
+	{
+		if(PTE->selectedFx > 0) PTE->changeSelectedFx(-1);
+	}
 
 	return 1;
 }
 
-static  uint8_t functDownFx()
+static  uint8_t functDownPopup()
 {
-	if(PTE->selectedFx < 47) PTE->changeSelectedFx(1);
+
+	if(PTE->fxListPopupState)
+	{
+		if(PTE->selectedFx < 47) PTE->changeSelectedFx(1);
+	}
 
 	return 1;
 }
@@ -1343,6 +1412,9 @@ static  uint8_t functNote(uint8_t state)
 		PTE->editParam = 0;
 		PTE->trackerPattern.selectedParam = 0;
 		display.refreshControl(PTE->patternControl);
+
+		PTE->cancelNonePopup();
+		PTE->cancelFxPopup();
 
 		if(PTE->fillState > 0)
 		{
@@ -1362,9 +1434,9 @@ static  uint8_t functNote(uint8_t state)
 			&& !tactButtons.isButtonPressed(interfaceButtonShift)
 			&& !tactButtons.isButtonPressed(interfaceButtonCopy))
 	{
-		if(PTE->noteButtonHoldFlag == 0)
+		if(PTE->notePopupState == 0)
 		{
-			PTE->noteButtonHoldFlag=1;
+			PTE->notePopupState=1;
 
 			for(uint8_t i = 0; i < 48; i++)
 			{
@@ -1386,31 +1458,16 @@ static  uint8_t functNote(uint8_t state)
 					}
 				}
 			}
+			else
+			{
+				PTE->selectNoteOnPopout(-1);
+			}
 
 		}
 	}
-	else if(state==buttonRelease)
+	else if(state == buttonRelease)
 	{
-		if(PTE->noteButtonHoldFlag==1)
-		{
-			PTE->noteButtonHoldFlag=0;
 
-			PTE->setDefaultScreenFunct();
-			PTE->hideNotePopout();
-			PTE->showDefaultScreen();
-			PTE->refreshEditState();
-
-
-			if(PTE->fillState)
-			{
-				functFill();
-			}
-
-			if(PTE->randomiseState)
-			{
-				functRandomise();
-			}
-		}
 	}
 
 	return 1;
@@ -1424,6 +1481,9 @@ static  uint8_t functInstrument(uint8_t state)
 		PTE->editParam = 1;
 		PTE->trackerPattern.selectedParam = 1;
 		display.refreshControl(PTE->patternControl);
+
+		PTE->cancelNonePopup();
+		PTE->cancelFxPopup();
 
 		if(PTE->fillState > 0)
 		{
@@ -1456,6 +1516,9 @@ static  uint8_t functVolume()
 	PTE->trackerPattern.selectedParam = 2;
 	display.refreshControl(PTE->patternControl);
 
+	PTE->cancelNonePopup();
+	PTE->cancelFxPopup();
+
 	if(PTE->fillState > 0)
 	{
 		PTE->showFillPopup();
@@ -1482,6 +1545,9 @@ static  uint8_t functFx(uint8_t state)
 		PTE->editParam = 3;
 		PTE->trackerPattern.selectedParam = 3;
 		display.refreshControl(PTE->patternControl);
+
+		PTE->cancelFxPopup();
+		PTE->cancelNonePopup();
 
 		if(PTE->fillState > 0)
 		{
@@ -1513,36 +1579,7 @@ static  uint8_t functFx(uint8_t state)
 	}
 	else if(state == buttonRelease)
 	{
-		if(PTE->fxListPopupState == 1)
-		{
-			PTE->fxListPopupState = 0;
 
-			PTE->hideFxListPopup();
-			PTE->showDefaultScreen();
-			PTE->setDefaultScreenFunct();
-			PTE->refreshEditState();
-
-			if(PTE->fillState)
-			{
-				functFill();
-			}
-
-			else if(PTE->randomiseState)
-			{
-				functRandomise();
-			}
-
-			else if(PTE->editMode == 1)
-			{
-				PTE->setStepFx();
-				PTE->lightUpPadBoard();
-			}
-		}
-
-		PTE->readPatternState();
-		PTE->refreshPattern();
-
-		PTE->focusOnPattern();
 	}
 
 
@@ -1689,23 +1726,10 @@ static uint8_t functCopyDelete(uint8_t state)
 //			sequencer.clearSelected();
 			}
 
-			if (PTE->noteButtonHoldFlag == 1)
-			{
-				PTE->noteButtonHoldFlag = 0;
-				PTE->setDefaultScreenFunct();
-				PTE->hideNotePopout();
-				PTE->showDefaultScreen();
-				PTE->refreshEditState();
-			}
 
-			if (PTE->fxListPopupState == 1)
-			{
-				PTE->fxListPopupState = 0;
-				PTE->hideFxListPopup();
-				PTE->showDefaultScreen();
-				PTE->setDefaultScreenFunct();
-				PTE->refreshEditState();
-			}
+			PTE->cancelNonePopup();
+			PTE->cancelFxPopup();
+
 
 		}
 
@@ -2346,23 +2370,29 @@ void cPatternEditor::lightUpPadBoard()
 				show_fx = selectedFx;
 
 				if(show_fx > FX_MAX) break;
+
+				padsBacklight.setBackLayer(1, 20, show_fx);
 			}
 			else
 			{
 				if(seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[0].type != 0)
 				{
-					show_fx = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[0].value;
+					// co pokazywac na padach:
+					show_fx = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[0].type;    // typ
+					//show_fx = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[0].value; // wartosc
 
 					if(show_fx > FX_VALUE_MAX) break;
 
 					show_fx = map(show_fx,0,127,0,47);
+
+					padsBacklight.setBackLayer(1, 20, show_fx);
 
 				}
 			}
 
 
 
-			padsBacklight.setBackLayer(1, 20, show_fx);
+
 
 			break;
 		}
@@ -2448,7 +2478,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		case 0: // nuta
 		{
 			sendSelection();
-			if(PTE->noteButtonHoldFlag == 1)
+			if(PTE->notePopupState == 1)
 			{
 				sequencer.blinkSelectedStep();
 				PTE->selectNoteOnPopout(pad);
@@ -2533,6 +2563,44 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	return 1;
 }
 
+static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
+{
+	// wprowadzanie danych
+	if (PTE->editMode == 1)
+	{
+
+		if (state == buttonPress)
+		{
+			if(PTE->notePopupState == 1)
+			{
+				Sequencer::strPattern::strTrack::strStep *step =
+						&(sequencer.getPatternToUI())->track[PTE->trackerPattern.actualTrack].step[PTE->trackerPattern.actualStep];
+
+				uint8_t note =  mtPadBoard.getNoteFromPad(pad);
+
+				if (note >= 0)
+				{
+					sequencer.blinkNote(step->instrument,
+										note,
+								step->velocity,
+								PTE->trackerPattern.actualTrack);
+				}
+				PTE->selectNoteOnPopout(pad);
+			}
+			else if(PTE->fxListPopupState == 1)
+			{
+				PTE->selectedFx = pad;
+				PTE->refreshFxListPopup();
+				PTE->lightUpPadBoard();
+			}
+
+
+		}
+	}
+
+
+	return 1;
+}
 
 //##############################################################################################
 //###############################                              #################################
@@ -2566,8 +2634,12 @@ static uint8_t functSwitchModule(uint8_t button)
 	{
 		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
 
+		PTE->cancelFxPopup();
+		PTE->cancelNonePopup();
 
-		//PTE->focusOnPattern();
+//		PTE->focusOnPattern();
+//		PTE->lightUpPadBoard();
+
 		return 1;
 	}
 
