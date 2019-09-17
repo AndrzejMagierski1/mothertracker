@@ -23,6 +23,7 @@
 
 #include "mtMidi.h"
 #include "tca8418.h"
+#include "mtSleep.h"
 
 
 
@@ -31,9 +32,7 @@
 uint8_t hardwareTest;
 
 //-------- TACT POWER SWITCH -------------
-elapsedMillis powerSwitchHoldTimer;
-uint8_t powerSwitchLastState = 0;
-int8_t powerSwitchDebounce;
+uint8_t lastState;
 
 void TactSwitchRead();
 void updateEncoder();
@@ -223,7 +222,7 @@ void initHardware()
 	//....................................................
 
 	// power switch
-	pinMode(TACT_SWITCH, INPUT);
+	pinMode(TACT_SWITCH, INPUT_PULLUP);
 	//attachInterrupt(TACT_SWITCH, TactSwitchAction, FALLING);
 
 	hid.set_sendButtonState(hidSendButtonState);
@@ -264,44 +263,48 @@ uint8_t i2c_switch;
 
 void updateHardware()
 {
-	updateEncoder();
-	Encoder.switchRead();
-
-
-	if(i2cRefreshTimer > 500)
+	if(!isLowPower())
 	{
-		i2c_switch++;
-		if(i2c_switch >= 3) i2c_switch = 0;
+		updateEncoder();
+		Encoder.switchRead();
 
-		if (Wire2.done())
+		if(i2cRefreshTimer > 500)
 		{
-			if(i2c_switch == 0)
-			{
-				if(!tactButtons.update())  i2c_switch++;
-			}
-			if(i2c_switch == 1)
-			{
-				Keypad.update(); i2c_switch++;
-//				if(!seqButtonsA.update())  	i2c_switch++;
-			}
-			if(i2c_switch == 2)
-			{
-				if(!leds.update_all_leds())	i2c_switch++;
-			}
+			i2c_switch++;
+			if(i2c_switch >= 3) i2c_switch = 0;
 
-			if(i2c_switch < 3) i2cRefreshTimer = 0;
+			if (Wire2.done())
+			{
+				if(i2c_switch == 0)
+				{
+					if(!tactButtons.update())  i2c_switch++;
+				}
+				if(i2c_switch == 1)
+				{
+					Keypad.update(); i2c_switch++;
+					//				if(!seqButtonsA.update())  	i2c_switch++;
+				}
+				if(i2c_switch == 2)
+				{
+					if(!leds.update_all_leds())	i2c_switch++;
+				}
+
+				if(i2c_switch < 3) i2cRefreshTimer = 0;
+			}
 		}
+
+		display.update();
+		//mtDisplay.updateHaptic();
+		BlinkLed.update();
+
+
+		hid.handle();
+		sdCardDetector.update();
+
+		midiUpdate();
 	}
 
-	display.update();
-	//mtDisplay.updateHaptic();
-	BlinkLed.update();
-
 	TactSwitchRead();
-	hid.handle();
-	sdCardDetector.update();
-
-	midiUpdate();
 }
 
 elapsedMillis encTimer;
@@ -318,42 +321,17 @@ void updateEncoder()
 
 void TactSwitchRead()
 {
-	if (digitalRead(TACT_SWITCH) == LOW)
+	if(digitalRead(TACT_SWITCH) == LOW && lastState != LOW)
 	{
-		if (powerSwitchDebounce <= 0 && powerSwitchDebounce > (0 - 10))
+		if(digitalRead(TACT_SWITCH) == LOW)
 		{
-			powerSwitchDebounce--;
-		}
-		else if (powerSwitchDebounce <= 0 && powerSwitchLastState != 1)
-		{
-			powerSwitchDebounce = 1;
-			powerSwitchLastState = 1;
-			powerSwitchHoldTimer = 0;
-			// press
 			onPowerButtonChange(1);
-		}
-		else if(powerSwitchHoldTimer > 800 &&  powerSwitchLastState != 2)
-		{
-			powerSwitchLastState = 2;
-			// hold
-			onPowerButtonChange(2);
+			lastState = LOW;
+			while(digitalRead(TACT_SWITCH) == LOW);
 		}
 	}
 	else
 	{
-		if(powerSwitchLastState > 0 && powerSwitchDebounce < 10)
-		{
-			powerSwitchDebounce++;
-		}
-		else if(powerSwitchDebounce > 0 && powerSwitchLastState != 0)
-		{
-			powerSwitchDebounce = 0;
-			powerSwitchLastState = 0;
-			//buttons[i].hold_time = 0;
-			// release
-			onPowerButtonChange(0);
-		}
-
-
+		lastState = HIGH;
 	}
 }
