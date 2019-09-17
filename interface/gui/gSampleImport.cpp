@@ -24,9 +24,9 @@ void cSampleImporter::initDisplayControls()
 	prop2.x = 30;
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
-	prop2.x = 769;
-	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
+//	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
+//	prop2.x = 769;
+//	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 
 	prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 
@@ -122,6 +122,9 @@ void cSampleImporter::destroyDisplayControls()
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
 
+//	display.destroyControl(instrumentLabel);
+//	instrumentLabel = nullptr;
+
 	display.destroyControl(explorerListControl);
 	explorerListControl = nullptr;
 
@@ -151,7 +154,7 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlText(titleLabel, "Sample Loader");
 	display.refreshControl(titleLabel);
 
-	showActualInstrument();
+//	showActualInstrument();
 
 
 	display.setControlText(topLabel[0], "Micro SD");
@@ -261,7 +264,7 @@ void cSampleImporter::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	sprintf(actualInstrName, "%d. ", i);
+	sprintf(actualInstrName, "%d. ", i+1);
 
 	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 

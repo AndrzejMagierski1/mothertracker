@@ -66,7 +66,7 @@ void cSongEditor::start(uint32_t options)
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonEnvelopes, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);

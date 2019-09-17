@@ -164,7 +164,8 @@ public:
 	uint8_t selectedPlace[3] = {0};
 
 	// typ trybu/ekranu
-	uint8_t mode;
+	uint8_t mode = mtInstEditModeParams;
+	uint8_t instrumentListMode = 0;
 
 	strInstrument * editorInstrument;
 
