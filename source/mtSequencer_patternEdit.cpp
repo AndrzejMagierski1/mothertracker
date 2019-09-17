@@ -721,7 +721,7 @@ void Sequencer::clearStep(strPattern::strTrack::strStep * step,
 {
 	switch (elements)
 	{
-	case ELEMENTS_ALL:
+	case ELEMENTS_ALL_NO_PREFERENCES:
 		step->velocity = MAX_VELO_STEP;
 		step->note = STEP_NOTE_EMPTY;
 		step->instrument = 0;
@@ -822,7 +822,7 @@ void Sequencer::insert(strSelection *selection)
 			seq[player.ramBank].track[t].step[s] = seq[player.ramBank].track[t].step[s - 1];
 		}
 		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep],
-					ELEMENTS_ALL);
+					ELEMENTS_ALL_NO_PREFERENCES);
 	}
 
 }
@@ -838,7 +838,7 @@ void Sequencer::insertReversed(strSelection *selection)
 			seq[player.ramBank].track[t].step[s] = seq[player.ramBank].track[t].step[s + 1];
 		}
 		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep],
-					ELEMENTS_ALL);
+					ELEMENTS_ALL_NO_PREFERENCES);
 	}
 
 }
@@ -858,24 +858,7 @@ void Sequencer::copySelectionToBuffer(strSelection *from, strSelection *to)
 	if (!isSelectionCorrect(from)) return;
 	if (!isSelectionCorrect(to)) return;
 
-//	uint8_t tracksToCopy, rowsToCopy;
-//	uint8_t trackOff = 0, stepOff = 0;
-
-//	copyTrackBuffer[0].step[0].note = 10;
-
-//	tracksToCopy = from->lastTrack - from->firstTrack + 1;
-//	rowsToCopy = from->lastStep - from->firstStep + 1;
-//	Sequencer::strPattern::strTrack::strStep *stepFrom, *stepTo;
-
-	Sequencer::strPattern::strTrack *trackToCopy, *trackToPaste;
-
-	for (uint8_t a = 0; a <= MAXTRACK; a++)
-	{
-		trackToCopy = &seq[player.ramBank].track[a];
-		trackToPaste = &copyTrackBuffer[a];
-
-		*trackToPaste = *trackToCopy;
-	}
+	seq[2] = seq[player.ramBank];
 
 }
 void Sequencer::pasteSelectionFromBuffer(strSelection *from, strSelection *to,
@@ -883,6 +866,12 @@ void Sequencer::pasteSelectionFromBuffer(strSelection *from, strSelection *to,
 {
 	if (!isSelectionCorrect(from)) return;
 	if (!isSelectionCorrect(to)) return;
+
+	if (elements == ELEMENTS_ALL_WITH_PREFERENCES)
+	{
+		seq[player.ramBank] = seq[2];
+		return;
+	}
 
 	uint8_t tracksToCopy, rowsToCopy;
 	uint8_t trackOff = 0, stepOff = 0; //offsety
@@ -915,12 +904,12 @@ void Sequencer::pasteSelectionFromBuffer(strSelection *from, strSelection *to,
 					&& s <= seq[player.ramBank].track[t].length)
 			{
 
-				stepFrom = &copyTrackBuffer[trackNoFrom].step[stepNoFrom];
+				stepFrom = &seq[2].track[trackNoFrom].step[stepNoFrom];
 				stepTo = &seq[player.ramBank].track[t].step[s];
 
 				switch (elements)
 				{
-				case ELEMENTS_ALL:
+				case ELEMENTS_ALL_NO_PREFERENCES:
 					*stepTo = *stepFrom;
 					break;
 				case ELEMENTS_NOTES:
@@ -952,11 +941,6 @@ void Sequencer::pasteSelectionFromBuffer(strSelection *from, strSelection *to,
 	}
 
 }
-
-//		stepToCopy = &seq[player.ramBank].track[a];
-//		stepToPaste = &copyTrackBuffer[a];
-//
-//		*trackToPaste = *trackToCopy;
 
 bool Sequencer::isSelectionCorrect(strSelection *selection)
 {

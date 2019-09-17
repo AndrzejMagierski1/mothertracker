@@ -241,7 +241,7 @@ public:
 //				uint8_t isOn ;
 				int8_t note = STEP_NOTE_EMPTY;
 
-				int8_t velocity = 127;	// jeśli <0 to nie wysyłamy
+				int8_t velocity = -1;	// jeśli <0 to nie wysyłamy
 				uint8_t instrument = 0;
 
 				// 2 x byte
@@ -291,11 +291,15 @@ public:
 
 	enum enSelectionElements
 	{
-		ELEMENTS_ALL,
+		ELEMENTS_ALL_NO_PREFERENCES,
+		ELEMENTS_ALL_WITH_PREFERENCES,
 		ELEMENTS_NOTES,
 		ELEMENTS_INSTRUMENTS,
 		ELEMENTS_VELO,
 		ELEMENTS_FXes,
+	};
+	enum midiChannel{
+		MIDI_CHANNEL_GRID = 20
 	};
 	struct strSelection
 
@@ -310,9 +314,9 @@ public:
 	uint8_t get_fxValType(uint8_t fxType);
 	private:
 
-	strPattern seq[2];
+	strPattern seq[3];
 
-	strPattern::strTrack copyTrackBuffer[8];
+//	strPattern::strTrack copyTrackBuffer[8];
 
 	struct strGlobalConfig
 	{

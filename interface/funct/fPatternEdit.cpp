@@ -538,6 +538,8 @@ void cPatternEditor::changeActualTempo(int16_t value)
 void cPatternEditor::changeActualPattern(int16_t value)
 {
 
+	fileManager.savePattern(mtProject.values.actualPattern);
+
 	mtProject.values.actualPattern = constrain(
 			mtProject.values.actualPattern + value, PATTERN_INDEX_MIN,
 			PATTERN_INDEX_MAX);
@@ -691,7 +693,7 @@ void cPatternEditor::refreshEditState()
 		FM->setButtonObj(interfaceButton4, buttonPress, functFill);
 		FM->setButtonObj(interfaceButton5, buttonPress, functRandomise);
 		FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
-		FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
+		FM->setButtonObj(interfaceButton7, buttonPress, functTranspose);
 
 		lightUpPadBoard();
 
@@ -1583,41 +1585,45 @@ static  uint8_t functRecAction()
 
 static uint8_t functPasteInsert(uint8_t state)
 {
-	if(state == buttonPress)
+	if (state == buttonPress)
 	{
 
-	if (PTE->editMode == 1)
-	{
-		if (tactButtons.isButtonPressed(interfaceButtonShift))
-		{
-
-		}
-		// INSERT
-		else
-		{
-			sendSelection();
-			sequencer.insert(&sequencer.selection);
-		}
-	}
-
-	PTE->refreshPattern();
-	}
-	else if(state == buttonRelease)
-	{
 		if (PTE->editMode == 1)
+		{
+			if(tactButtons.isButtonPressed(interfaceButtonShift) && tactButtons.isButtonPressed(interfaceButtonEnter))
 			{
-				// PASTE
-				if (tactButtons.isButtonPressed(interfaceButtonShift))
-				{
-					sendPasteSelection();
-
-					sequencer.pasteFromBuffer(getSelectedElement());
-
-				}
+				sendSelection();
+				sequencer.insertReversed(&sequencer.selection);
 			}
+			else if(tactButtons.isButtonPressed(interfaceButtonShift))
+			{
+				sendPasteSelection();
 
-			PTE->refreshPattern();
+				sequencer.pasteFromBuffer(getSelectedElement());
+			}
+			// INSERT
+			else
+			{
+				sendSelection();
+				sequencer.insert(&sequencer.selection);
+			}
+		}
+
+		PTE->refreshPattern();
 	}
+//	else if (state == buttonRelease)
+//	{
+//		if (PTE->editMode == 1)
+//		{
+//			// PASTE
+//			if (tactButtons.isButtonPressed(interfaceButtonShift))
+//			{
+//
+//			}
+//		}
+//
+//		PTE->refreshPattern();
+//	}
 
 	return 1;
 }
@@ -1641,11 +1647,15 @@ static uint8_t getSelectedElement()
 	{
 		return Sequencer::ELEMENTS_FXes;
 	}
+	else if (tactButtons.isButtonPressed(interfaceButtonPattern))
+	{
+		return Sequencer::ELEMENTS_ALL_WITH_PREFERENCES;
+	}
 	else
 	{
-		return Sequencer::ELEMENTS_ALL;
+		return Sequencer::ELEMENTS_ALL_NO_PREFERENCES;
 	}
-	return Sequencer::ELEMENTS_ALL;
+	return Sequencer::ELEMENTS_ALL_NO_PREFERENCES;
 }
 
 
@@ -1670,8 +1680,9 @@ static uint8_t functCopyDelete(uint8_t state)
 			// DELETE
 			else
 			{
-//			sendSelection();
-//			sequencer.clearSelected();
+				sendSelection();
+				sequencer.clearSelected(getSelectedElement());
+				PTE->shiftAction = 1;
 			}
 
 			if (PTE->noteButtonHoldFlag == 1)
@@ -1709,9 +1720,9 @@ static uint8_t functCopyDelete(uint8_t state)
 			// DELETE
 			else
 			{
-				sendSelection();
-				sequencer.clearSelected(getSelectedElement());
-				PTE->shiftAction = 1;
+//				sendSelection();
+//				sequencer.clearSelected(getSelectedElement());
+//				PTE->shiftAction = 1;
 			}
 
 		}
@@ -2436,12 +2447,12 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			if (state == buttonPress)
 			{
 				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-				sequencer.handleNote(0, noteFromPad, 127);
+				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 127);
 			}
 			else if (state == buttonRelease)
 			{
 				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-				sequencer.handleNote(0, noteFromPad, 0);
+				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0);
 			}
 			break;
 		}
@@ -2455,7 +2466,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			}
 			else if (state == buttonRelease)
 			{
-				sequencer.handleNote(0, 0, 0);
+				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, 0, 0);
 			}
 			break;
 		}
