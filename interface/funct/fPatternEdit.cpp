@@ -538,6 +538,8 @@ void cPatternEditor::changeActualTempo(int16_t value)
 void cPatternEditor::changeActualPattern(int16_t value)
 {
 
+	fileManager.savePattern(mtProject.values.actualPattern);
+
 	mtProject.values.actualPattern = constrain(
 			mtProject.values.actualPattern + value, PATTERN_INDEX_MIN,
 			PATTERN_INDEX_MAX);
