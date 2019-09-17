@@ -311,6 +311,21 @@ void cSampleImporter::setSelect(uint8_t place)
 	//display.setControlData(instrumentListControl, &instrumentList);
 }
 
+// mode = 0 - bialy , mode = 1 - czerwony
+void cSampleImporter::frameSelectMode(uint8_t place,uint8_t mode)
+{
+	if(place == 0)
+	{
+		explorerList.selectionActive=mode;
+		display.refreshControl(explorerListControl);
+	}
+	else
+	{
+		instrumentList.selectionActive=mode;
+		display.refreshControl(instrumentListControl);
+	}
+}
+
 void cSampleImporter::displayDelete(uint8_t onOff)
 {
 	if(onOff)

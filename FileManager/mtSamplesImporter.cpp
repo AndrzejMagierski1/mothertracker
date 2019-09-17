@@ -5,7 +5,7 @@ uint8_t SamplesImporter::start(char* filePatch, char* name, char* projectPatch, 
 {
 	char currentPatch[PATCH_SIZE];
 	char localName[15];
-	currentStartIndex = instrumentIndex;
+	//currentStartIndex = instrumentIndex;
 	strcpy(currentProjectPatch,projectPatch);
 
 	if(filePatch !=  NULL)
@@ -120,5 +120,10 @@ uint8_t SamplesImporter::getProgress()
 uint8_t SamplesImporter::getCurrentStartIndex()
 {
 	return currentStartIndex;
+}
+
+void SamplesImporter::setStartIndex(uint8_t startIndex)
+{
+	currentStartIndex = startIndex;
 }
 
