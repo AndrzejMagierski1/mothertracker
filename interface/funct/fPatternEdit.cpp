@@ -2440,12 +2440,12 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			if (state == buttonPress)
 			{
 				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-				sequencer.handleNote(0, noteFromPad, 127);
+				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 127);
 			}
 			else if (state == buttonRelease)
 			{
 				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-				sequencer.handleNote(0, noteFromPad, 0);
+				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0);
 			}
 			break;
 		}
@@ -2459,7 +2459,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			}
 			else if (state == buttonRelease)
 			{
-				sequencer.handleNote(0, 0, 0);
+				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, 0, 0);
 			}
 			break;
 		}

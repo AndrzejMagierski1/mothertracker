@@ -298,6 +298,9 @@ public:
 		ELEMENTS_VELO,
 		ELEMENTS_FXes,
 	};
+	enum midiChannel{
+		MIDI_CHANNEL_GRID = 20
+	};
 	struct strSelection
 
 	{
