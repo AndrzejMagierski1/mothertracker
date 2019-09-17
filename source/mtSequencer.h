@@ -291,7 +291,8 @@ public:
 
 	enum enSelectionElements
 	{
-		ELEMENTS_ALL,
+		ELEMENTS_ALL_NO_PREFERENCES,
+		ELEMENTS_ALL_WITH_PREFERENCES,
 		ELEMENTS_NOTES,
 		ELEMENTS_INSTRUMENTS,
 		ELEMENTS_VELO,
@@ -310,9 +311,9 @@ public:
 	uint8_t get_fxValType(uint8_t fxType);
 	private:
 
-	strPattern seq[2];
+	strPattern seq[3];
 
-	strPattern::strTrack copyTrackBuffer[8];
+//	strPattern::strTrack copyTrackBuffer[8];
 
 	struct strGlobalConfig
 	{

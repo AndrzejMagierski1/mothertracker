@@ -1583,41 +1583,40 @@ static  uint8_t functRecAction()
 
 static uint8_t functPasteInsert(uint8_t state)
 {
-	if(state == buttonPress)
+	if (state == buttonPress)
 	{
 
-	if (PTE->editMode == 1)
-	{
-		if (tactButtons.isButtonPressed(interfaceButtonShift))
-		{
-
-		}
-		// INSERT
-		else
-		{
-			sendSelection();
-			sequencer.insert(&sequencer.selection);
-		}
-	}
-
-	PTE->refreshPattern();
-	}
-	else if(state == buttonRelease)
-	{
 		if (PTE->editMode == 1)
+		{
+			if (tactButtons.isButtonPressed(interfaceButtonShift))
 			{
-				// PASTE
-				if (tactButtons.isButtonPressed(interfaceButtonShift))
-				{
-					sendPasteSelection();
+				sendPasteSelection();
 
-					sequencer.pasteFromBuffer(getSelectedElement());
-
-				}
+				sequencer.pasteFromBuffer(getSelectedElement());
 			}
+			// INSERT
+			else
+			{
+				sendSelection();
+				sequencer.insert(&sequencer.selection);
+			}
+		}
 
-			PTE->refreshPattern();
+		PTE->refreshPattern();
 	}
+//	else if (state == buttonRelease)
+//	{
+//		if (PTE->editMode == 1)
+//		{
+//			// PASTE
+//			if (tactButtons.isButtonPressed(interfaceButtonShift))
+//			{
+//
+//			}
+//		}
+//
+//		PTE->refreshPattern();
+//	}
 
 	return 1;
 }
@@ -1641,11 +1640,15 @@ static uint8_t getSelectedElement()
 	{
 		return Sequencer::ELEMENTS_FXes;
 	}
+	else if (tactButtons.isButtonPressed(interfaceButtonPattern))
+	{
+		return Sequencer::ELEMENTS_ALL_WITH_PREFERENCES;
+	}
 	else
 	{
-		return Sequencer::ELEMENTS_ALL;
+		return Sequencer::ELEMENTS_ALL_NO_PREFERENCES;
 	}
-	return Sequencer::ELEMENTS_ALL;
+	return Sequencer::ELEMENTS_ALL_NO_PREFERENCES;
 }
 
 
