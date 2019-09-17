@@ -1673,8 +1673,9 @@ static uint8_t functCopyDelete(uint8_t state)
 			// DELETE
 			else
 			{
-//			sendSelection();
-//			sequencer.clearSelected();
+				sendSelection();
+				sequencer.clearSelected(getSelectedElement());
+				PTE->shiftAction = 1;
 			}
 
 			if (PTE->noteButtonHoldFlag == 1)
@@ -1712,9 +1713,9 @@ static uint8_t functCopyDelete(uint8_t state)
 			// DELETE
 			else
 			{
-				sendSelection();
-				sequencer.clearSelected(getSelectedElement());
-				PTE->shiftAction = 1;
+//				sendSelection();
+//				sequencer.clearSelected(getSelectedElement());
+//				PTE->shiftAction = 1;
 			}
 
 		}
