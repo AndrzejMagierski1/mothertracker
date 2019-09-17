@@ -165,6 +165,7 @@ public:
 	char step[5];
 
 
+
 //------------------------------------------------------
 // fill
 	uint8_t fillState = 0;
@@ -225,13 +226,12 @@ public:
 	void showNotePopout();
 	void hideNotePopout();
 	void selectNoteOnPopout(uint8_t pad);
-	void showActualInstrument();
 
 	uint8_t noteButtonHoldFlag;
 
 //-------------------------------------------------------
 //
-
+	void showActualInstrument();
 
 
 };

@@ -15,6 +15,7 @@ cPatternEditor patternEditor;
 static  cPatternEditor* PTE = &patternEditor;
 
 extern strMtProject mtProject;
+extern uint32_t patternTrackerSelectionColor;
 
 
 static  uint8_t functChangeTempo(uint8_t state);
@@ -1357,7 +1358,7 @@ static  uint8_t functNote(uint8_t state)
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
 	}
-	else if(state==buttonHold
+	else if(state==buttonDouble
 			&& !tactButtons.isButtonPressed(interfaceButtonShift)
 			&& !tactButtons.isButtonPressed(interfaceButtonCopy))
 	{
@@ -1372,6 +1373,20 @@ static  uint8_t functNote(uint8_t state)
 
 			PTE->setNotePopupFunct();
 			PTE->showNotePopout();
+
+			int8_t show_note = sequencer.getPatternToUI()->track[PTE->trackerPattern.actualTrack].step[PTE->trackerPattern.actualStep].note;
+
+			if(show_note >= 0 && mtPadBoard.getPadsWithNote(show_note, PTE->padsTempData))
+			{
+				for(uint8_t i = 0; i < 48; i++)
+				{
+					if(PTE->padsTempData[i])
+					{
+						PTE->selectNoteOnPopout(i);
+					}
+				}
+			}
+
 		}
 	}
 	else if(state==buttonRelease)
@@ -1425,7 +1440,7 @@ static  uint8_t functInstrument(uint8_t state)
 		PTE->lightUpPadBoard();
 		//PTE->refreshPattern();
 	}
-	else if(state == buttonHold && !tactButtons.isButtonPressed(interfaceButtonShift))
+	else if(state == buttonDouble && !tactButtons.isButtonPressed(interfaceButtonShift))
 	{
 		uint8_t buttonId  = interfaceButtonInstr;
 		PTE->eventFunct(eventSwitchModule, PTE, &buttonId, 0);
@@ -1482,7 +1497,7 @@ static  uint8_t functFx(uint8_t state)
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
 	}
-	else if(state == buttonHold
+	else if(state == buttonDouble
 			&& !tactButtons.isButtonPressed(interfaceButtonShift)
 			&& !tactButtons.isButtonPressed(interfaceButtonCopy))
 	{
@@ -2287,7 +2302,7 @@ void cPatternEditor::lightUpPadBoard()
 					if(padsTempData[i])
 					{
 						padsBacklight.setBackLayer(1, 20, i);
-						selectNoteOnPopout(i);
+						//if(noteButtonHoldFlag) selectNoteOnPopout(i);
 					}
 				}
 			}
@@ -2433,6 +2448,15 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		case 0: // nuta
 		{
 			sendSelection();
+			if(PTE->noteButtonHoldFlag == 1)
+			{
+				sequencer.blinkSelectedStep();
+				PTE->selectNoteOnPopout(pad);
+
+				return 1;
+			}
+
+
 			if (state == buttonPress)
 			{
 				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
@@ -2521,7 +2545,7 @@ void cPatternEditor::focusOnPattern()
 
 	//if(PTE->editMode) PTE->trackerPattern.selectState = 1;
 
-	PTE->trackerPattern.selectColor = 0xFF0000;
+	PTE->trackerPattern.selectColor = 0xff5860;
 	display.refreshControl(patternControl);
 	//PTE->refreshPattern();
 }
@@ -2530,7 +2554,7 @@ void cPatternEditor::unfocusPattern()
 {
 	//PTE->trackerPattern.selectState = 0;
 
-	PTE->trackerPattern.selectColor = 0xFFFFFF;
+	PTE->trackerPattern.selectColor = patternTrackerSelectionColor;
 	display.refreshControl(patternControl);
 	//PTE->refreshPattern();
 }

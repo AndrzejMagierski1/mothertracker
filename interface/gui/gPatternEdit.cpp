@@ -39,8 +39,7 @@ static uint32_t patternLabelColors[] =
 };
 
 
-uint32_t patternTrackerColors[] =
-
+volatile uint32_t patternTrackerColors[8] =
 {
 	0xFFFFFF, // linie
 	0xFFFFFF, // numery wierszy
@@ -48,11 +47,11 @@ uint32_t patternTrackerColors[] =
 	0xFFFFFF, // instrument
 	0xFFFFFF, // volume
 	0xFFFFFF, // effekt
-	0xFF0000, // zaznaczenie
+	0xff0000, // zaznaczenie
 	0x111111, // podzialka
 };
 
-
+uint32_t patternTrackerSelectionColor = 0xff0000;
 
 void cPatternEditor::initDisplayControls()
 {
@@ -86,7 +85,8 @@ void cPatternEditor::initDisplayControls()
 	prop.y = 0;
 	prop.w = 50;
 	prop.h = 25;
-	prop.colors = patternTrackerColors;
+	patternTrackerColors[6] = patternTrackerSelectionColor;
+	prop.colors = (uint32_t*)patternTrackerColors;
 	prop.data = &trackerPattern;
 	if(patternControl == nullptr)  patternControl = display.createControl<cTracker>(&prop);
 	//hTrackControl = display.createControl<cLabel>(&prop);
