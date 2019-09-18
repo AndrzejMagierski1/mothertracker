@@ -295,9 +295,22 @@ static  uint8_t functDown()
 	return 1;
 }
 
-static  uint8_t functPlayAction()
+static uint8_t functPlayAction()
 {
-	if (sequencer.getSeqState() == 0)
+	if (SE->songLength == 0)
+	{
+//		sequencer.playPattern();
+
+		if (sequencer.getSeqState() == 0)
+		{
+			sequencer.playPattern();
+		}
+		else if (sequencer.getSeqState() == 1)
+		{
+			sequencer.stop();
+		}
+	}
+	else if (sequencer.getSeqState() == 0)
 	{
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
