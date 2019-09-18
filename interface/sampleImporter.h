@@ -214,6 +214,7 @@ public:
 	char *parseNewName(uint8_t num);
 	uint8_t willCopyInstrFit(uint8_t length);
 	uint8_t getActiveInstrInSelection();
+	void resetInstrSel();
 
 	void handleSequenceCopyingLoading();
 

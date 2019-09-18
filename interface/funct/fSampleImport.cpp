@@ -113,6 +113,9 @@ void cSampleImporter::start(uint32_t options)
 
 	AddOrEnter();
 
+	selectionLength=0;
+	resetInstrSel();
+	setSelect(selectedPlace);
 	displayDelete(selectedPlace);
 }
 
@@ -400,8 +403,6 @@ static  uint8_t functShift(uint8_t state)
 			SI->currSelectPlace = SI->selectedPlace;
 			SI->selectionLength=0;
 			SI->setSelect(SI->selectedPlace);
-
-			memset(SI->selectionTab,0,sizeof(SI->selectionTab));
 		}
 
 		SI->frameSelectMode(SI->currSelectPlace,1);
@@ -455,8 +456,7 @@ static  uint8_t functLeft()
 		SI->handleMemoryBar();
 		SI->displayDelete(0);
 
-		SI->instrCopyStart=0;
-		SI->copyElementMax=0;
+		SI->resetInstrSel();
 	}
 	else
 	{
@@ -1406,6 +1406,12 @@ uint8_t cSampleImporter::willCopyInstrFit(uint8_t length)
 	}
 
 	return retValue;
+}
+
+void cSampleImporter::resetInstrSel()
+{
+	instrCopyStart=0;
+	copyElementMax=0;
 }
 
 

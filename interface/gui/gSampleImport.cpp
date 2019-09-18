@@ -58,7 +58,7 @@ void cSampleImporter::initDisplayControls()
 	explorerList.start = 0;
 	explorerList.length = locationExplorerCount;
 	explorerList.data = explorerNames;
-	explorerList.selectTab=selectionTab;
+	//explorerList.selectTab=selectionTab;
 	strControlProperties prop;
 	prop.x = 0+8;
 	prop.y = 37;
@@ -296,6 +296,8 @@ void cSampleImporter::rewindListToBeggining()
 
 void cSampleImporter::setSelect(uint8_t place)
 {
+	memset(selectionTab,0,sizeof(selectionTab));
+
 	if(place == 0)
 	{
 		explorerList.selectTab=selectionTab;
