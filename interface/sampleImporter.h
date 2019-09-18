@@ -182,6 +182,8 @@ public:
 	uint8_t selectionLength;
 	uint8_t currSelectPlace=0;
 
+	uint8_t instrCopied=0;
+	uint8_t instrActiveInSel =0;
 
 	void updateSelection();
 
@@ -211,6 +213,8 @@ public:
 	char instrToCreate[15];
 	char *parseNewName(uint8_t num);
 	uint8_t willCopyInstrFit(uint8_t length);
+	uint8_t getActiveInstrInSelection();
+
 	void handleSequenceCopyingLoading();
 
 
