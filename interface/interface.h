@@ -54,6 +54,7 @@ public:
 private:
 
 	void processOperatingMode();
+	void doStartTasks();
 
 	static const uint8_t modulesCount;
 	static const hModule modules[];
@@ -97,65 +98,6 @@ extern cInterface mtInterface;
 extern void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3);
 
 
-
-class cInterfacePopups
-{
-public:
-
-	// interfacePopups.cpp -----------------------------
-	void initPopupsDisplayControls();
-	void destroyPopupsDisplayControls();
-
-	void showNotesPopup(int8_t startVal);
-	void showInstrumentsPopup(int8_t startVal);
-	void showVolumesPopup(int8_t startVal);
-	void showFxesPopup(int8_t startVal);
-
-	void showGlobalPopup();
-
-
-
-private:
-
-	void showActualInstrument();
-	void listInstruments();
-
-	void refreshAllList();
-	void refreshList(uint8_t n);
-
-
-	// interfacePopups.cpp -----------------------------
-	hControl listControl[4];
-	hControl keyboardControl;
-
-
-	hControl titleBar;
-	hControl titleLabel;
-	hControl instrumentLabel;
-
-
-
-	strList popupList[4];
-	strPadNames padNamesStruct;
-
-
-
-	int8_t selectedActualItem = 0;
-	char** ptrActualItemsList = nullptr;
-
-
-
-	uint8_t notePopupState = 0;
-	uint8_t intrPopupState = 0;
-	uint8_t volPopupState = 0;
-	uint8_t fxPopupState = 0;
-
-
-
-
-};
-
-extern cInterfacePopups mtPopups;
 
 
 

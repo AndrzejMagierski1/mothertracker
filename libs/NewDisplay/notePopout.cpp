@@ -44,6 +44,8 @@ cNotePopout::cNotePopout(strControlProperties* properties)
 	width = properties->w;
 	height = properties->h;
 
+	padNames = (strPadNames*)properties->data;
+
 	setStyle(properties->style);
 	fillpadMap();
 }
@@ -105,7 +107,7 @@ uint8_t cNotePopout::update()
 	API_COLOR(colors[0]);
 	API_BEGIN(RECTS);
 
-	char localString[10];
+//	char localString[10];
 
 	for(uint8_t i = 0 ; i < PADMAP_SIZE; i++)
 	{
@@ -118,14 +120,14 @@ uint8_t cNotePopout::update()
 
 	for(uint8_t i = 0 ; i < PADMAP_SIZE; i++)
 	{
-		for(int j=0;j<padNames->length;j++)
-		{
-			localString[j] = padNames->name[i][j];
-		}
+//		for(int j=0;j<padNames->length;j++)
+//		{
+//			localString[j] = padNames->name[i][j];
+//		}
 
-		localString[4]=0; // 5 chararacter is max
+//		localString[4]=0; // 5 chararacter is max
 
-		API_CMD_TEXT(padMap[i].x + padMap[i].w/2, padMap[i].y + padMap[i].h/2, textFont, OPT_CENTER, localString);
+		API_CMD_TEXT(padMap[i].x + padMap[i].w/2, padMap[i].y + padMap[i].h/2, textFont, OPT_CENTER, padNames->name[i]);
 	}
 
 	if(value >= 0)

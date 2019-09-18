@@ -11,6 +11,7 @@
 #include "sampleRecorder.h"
 #include "configEditor.h"
 
+#include "interfacePopups.h"
 
 
 #include "mtStructs.h"
@@ -117,8 +118,6 @@ void cInterface::begin()
 	}
 
 
-	//readConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
-
 	//ramMonitor.initialize();
 
 }
@@ -162,10 +161,7 @@ void cInterface::processOperatingMode()
 		if(doOnStart)
 		{
 			doOnStart = 0;
-			readConfig();
-			readSdConfig();
-			openStartupProject();
-			initStartScreen();
+			doStartTasks();
 		}
 
 
@@ -189,6 +185,20 @@ void cInterface::processOperatingMode()
 
 
 }
+
+void cInterface::doStartTasks()
+{
+	mtPopups.initPopupsDisplayControls();
+
+	readConfig();
+	readSdConfig();
+
+	openStartupProject();
+
+	initStartScreen();
+}
+
+
 
 //=======================================================================
 //=======================================================================

@@ -6,14 +6,13 @@
 #include "SD.h"
 
 #include "mtSequencer.h"
-
+#include "interfacePopups.h"
 
 
 uint8_t isMultiSelection();
 void sendSelection();
 void sendCopySelection();
 void sendPasteSelection();
-
 
 
 
@@ -44,15 +43,15 @@ public:
 	void setDefaultScreenFunct();
 
 	void setNotePopupFunct();
+	void setInstrPopupFunct();
+	void setVolPopupFunct();
 	void setFxListPopupFunct();
 
 	void focusOnActual();
-
 	void moveCursorByStep();
 
 	void refreshPattern();
 	void readPatternState();
-
 
 	void focusOnPattern();
 	void unfocusPattern();
@@ -105,9 +104,7 @@ public:
 	void refreshRandomiseStep();
 	void hideRandomisePopup();
 
-	void showFxListPopup();
-	void refreshFxListPopup();
-	void showFxList(uint8_t n);
+
 //----------------------------------
 // Funct
 	uint16_t lastPatternPosition;
@@ -146,9 +143,9 @@ public:
 	hControl val3PopupLabel;
 	hControl param2PopupListControl;
 	hControl notePopoutControl = nullptr;
-	hControl titleBar;
-	hControl titleLabel;
-	hControl instrumentLabel;
+//	hControl titleBar;
+//	hControl titleLabel;
+//	hControl instrumentLabel;
 
 	hControl fxListControl[4];
 
@@ -210,28 +207,25 @@ public:
 
 
 
-//-------------------------------------------------------
-// fx popup
-	void readStepFx();
-	void setStepFx();
-	void cancelFxPopup();
 
-	strList fxList[4];
-	uint8_t selectedFx = 0;
-	uint8_t fxListPopupState = 0;
+//-------------------------------------------------------
+// step popups
+	void cancelPopups();
+
+	uint8_t getStepFx();
+	int8_t getStepVol();
+
+
 
 //-------------------------------------------------------
 // note popup
-	void showNotePopout();
-	void selectNoteOnPopout(int8_t pad);
-	void cancelNonePopup();
 
-	strPadNames padNamesStruct;
-	uint8_t notePopupState;
+
+
+
 
 //-------------------------------------------------------
-//
-	void showActualInstrument();
+
 
 
 };

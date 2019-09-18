@@ -523,17 +523,13 @@ void cDisplay::resetControlQueue()
 //=====================================================================================================
 void cDisplay::hideAllControls()
 {
-	uint8_t i = refreshQueueBott;
-
-	while(i != refreshQueueTop)
+	for(uint8_t i = 0; i < controlsCount; i++)
 	{
-		if(refreshQueue[i] != nullptr)
+		if(controlsTable[i] != nullptr)
 		{
-			refreshQueue[i]->style &= ~(controlStyleShow);
+			controlsTable[i]->style &= ~(controlStyleShow);
 		}
 
-		i++;
-		if(i >= controlsRefreshQueueSize) i = 0;
 	}
 }
 
