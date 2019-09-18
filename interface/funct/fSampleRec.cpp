@@ -279,7 +279,7 @@ void cSampleRecorder::update()
 			saveInProgressFlag = 0;
 
 			hideSaveHorizontalBar();
-			currentScreen = screenTypeRecord;
+			currentScreen = screenTypeConfig;
 			showDefaultScreen();
 		}
 	}
