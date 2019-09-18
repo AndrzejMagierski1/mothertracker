@@ -53,6 +53,10 @@ uint8_t isLowPower()
 
 void disableAll()
 {
+	//wylaczanie usb ze windows nie krzyczal
+    USB0_INTEN = 0;
+    USB0_CTL = 0;
+
 	audioShield.write(0x30, 0);
 	radio.powerOff();
 	Keypad.disableInterrupt();
@@ -78,7 +82,7 @@ void powerModeUpdate()
 static void resetMCU()
 {
 	__DSB();
-	SCB_AIRCR  = (uint32_t)((0x5FAUL << CM4_SCB_AIRCR_VECTKEY_POS) | CM4_SCB_AIRCR_SYSRESETREQ_MASK);
+	CM4_SCB_AIRCR = (uint32_t)((0x5FAUL << CM4_SCB_AIRCR_VECTKEY_POS) | CM4_SCB_AIRCR_SYSRESETREQ_MASK);
 	__DSB();
 
 	for(;;)
