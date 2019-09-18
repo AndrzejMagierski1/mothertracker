@@ -1,10 +1,10 @@
 
 
-#include <interface.h>
-#include <patternEditor.h>
-#include <projectEditor.h>
-#include <sampleImporter.h>
-#include <samplePlayback.h>
+#include "interface.h"
+#include "patternEditor.h"
+#include "projectEditor.h"
+#include "sampleImporter.h"
+#include "samplePlayback.h"
 #include "songEditor.h"
 #include "instrumentEditor.h"
 #include "sampleEditor.h"
@@ -16,19 +16,7 @@
 #include "mtStructs.h"
 
 
-/*
 
-#include "keyScanner.h"
-#include "mtLED.h"
-
-#include "mtInstrumentEditor.h"
-#include "mtInterfaceDefs.h"
-#include "mtProjectEditor.h"
-#include "mtSampleBankEditor.h"
-#include "mtStepEditor.h"
-#include "mtConfigEditor.h"
-
-*/
 
 #include "mtConfig.h"
 #include "mtHardware.h"
@@ -290,6 +278,13 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 			mtInterface.switchModuleToPrevious((hModule)param1);
 			break;
 		}
+/*
+		case eventShowPopup:
+		{
+
+			break;
+		}
+*/
 
 
 

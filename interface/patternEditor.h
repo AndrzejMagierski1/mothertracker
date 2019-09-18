@@ -208,7 +208,6 @@ public:
 
 	} randomiseData[4];
 
-	strPadNames padNamesStruct;
 
 
 //-------------------------------------------------------
@@ -227,6 +226,7 @@ public:
 	void selectNoteOnPopout(int8_t pad);
 	void cancelNonePopup();
 
+	strPadNames padNamesStruct;
 	uint8_t notePopupState;
 
 //-------------------------------------------------------
