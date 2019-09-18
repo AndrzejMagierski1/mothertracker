@@ -364,7 +364,7 @@ static uint8_t functShiftPaste()
 
 				if(mtProject.instrument[SI->instrCopyStart + SI->copyElement].isActive == 1)
 				{
-					fileManager.setStart(SI->instrCopyStart);
+					fileManager.setStart(SI->selectedSlot);
 					fileManager.assignSampleToInstrument(projectSamplePath, SI->parseNewName(SI->instrCopyStart+SI->copyElement), SI->selectedSlot + SI->copyElement);
 					memcpy(&mtProject.instrument[SI->selectedSlot+SI->copyElement],&mtProject.instrument[SI->instrCopyStart+SI->copyElement],sizeof(mtProject.instrument[0]));
 					SI->copyElement++;
