@@ -649,6 +649,17 @@ void Sequencer::playSong(void)
 	player.songMode = 1;
 	play();
 }
+void Sequencer::playSong(uint8_t fromPos)
+{
+
+	fileManager.loadPattern(fileManager.getSongPattern(fromPos));
+	fileManager.setSongPos(fromPos);
+
+	switchNextPatternNow();
+
+	player.songMode = 1;
+	play();
+}
 
 void Sequencer::pause(void)
 {
@@ -854,7 +865,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 				{
 					switchNextPatternNow();
 					fileManager.switchNextPatternInSong();
-					fileManager.refreshPatternView();
+//					fileManager.refreshPatternView();
 				}
 
 				if ((player.onPatternEnd != NULL) && (x == MINTRACK))

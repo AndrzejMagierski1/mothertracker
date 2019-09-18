@@ -170,6 +170,16 @@ uint8_t FileManager::getNextSongPattern()
 	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
 	return song->playlist[song->playlistPos + 1] > 0 ? song->playlist[song->playlistPos + 1] : song->playlist[0];
 }
+uint8_t FileManager::getSongPattern(uint8_t pos)
+{
+	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
+	return song->playlist[pos];
+}
+void FileManager::setSongPos(uint8_t pos)
+{
+	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
+	song->playlistPos = pos;
+}
 
 uint8_t FileManager::resetToFirstSongPattern()
 {

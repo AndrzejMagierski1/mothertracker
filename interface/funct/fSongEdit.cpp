@@ -7,6 +7,8 @@
 
 
 #include "mtAudioEngine.h"
+#include "keyScanner.h"
+extern keyScanner tactButtons; // dla isButtonPressed()
 
 
 cSongEditor songEditor;
@@ -295,14 +297,25 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == 0)
+	if (sequencer.getSeqState() == 0)
 	{
-	sequencer.play();
+		if (tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			sequencer.playSong();
 		}
-	else if(sequencer.getSeqState() == 1)
+		else
+		{
+			sequencer.playSong(SE->selectedPattern);
+		}
+
+	}
+	else if (sequencer.getSeqState() == 1)
 	{
 		sequencer.stop();
+
 	}
+
+//	display.refreshControl(patternsListControl);
 
 	return 1;
 }

@@ -76,10 +76,12 @@ public:
 	void importPatternToProject(char* filePatch, char* name, int8_t index);
 	void deletePattern(int8_t index);
 	uint8_t getNextSongPattern();
+	uint8_t getSongPattern(uint8_t pos);
+	void  setSongPos(uint8_t pos);
 	uint8_t resetToFirstSongPattern();
 	void addPatternToProject (int8_t index);
 	void switchNextPatternInSong();
-	void refreshPatternView();
+//	void refreshPatternView();
 
 //**************************************************************************************************************************
 //************************************************ FileManagerCore**********************************************************
