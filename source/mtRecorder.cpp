@@ -96,7 +96,7 @@ uint8_t Recorder::startSave(char * name, uint8_t type)
 	char currentPatch[PATCH_SIZE];
 
 
-	if(!SD.exists("Recorded")) SD.mkdir("Recorded");
+	if(!SD.exists("Recorded")) SD.mkdir(0,"Recorded");
 
 	strcpy(currentPatch,"Recorded/");
 	strcat(currentPatch,name);
@@ -164,7 +164,7 @@ void Recorder::stopSave()
 	{
 		loadAfterSaveFlag = 0;
 		fileManager.setAutoLoadFlag();
-		fileManager.assignSampleToInstrument("Recorded", currentName, currentIndex);
+		fileManager.assignSampleToInstrument((char*)"Recorded", currentName, currentIndex);
 	}
 }
 uint8_t Recorder::getSaveProgress()

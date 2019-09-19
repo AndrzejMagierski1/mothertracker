@@ -259,6 +259,7 @@ uint8_t cProjectEditor::loadProjectValues()
 	engine.setLimiterRelease(mtProject.values.limiterRelease);
 	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
 
+	return 1;
 }
 
 //==============================================================================================================
@@ -319,7 +320,7 @@ uint8_t functCancelList()
 
 uint8_t functSaveProject()
 {
-	fileManager.saveProject();
+	fileManager.startSaveProject();
 
 	return 1;
 }
@@ -371,12 +372,7 @@ uint8_t functOpenProject()
 
 uint8_t functOpenTemplate()
 {
-	fileManager.openProject(&PE->locationFilesList[PE->selectedLocation][0],projectTypeExample);
-	//loadSamplesBank();
-	if(fileManager.saveAsProject(PE->name) == 2) Serial.println("Zrobic proceduere"); //todo: zrobic procedure
-	fileManager.openProject(PE->name, projectTypeUserMade);
-	//loadSamplesBank();
-	//PE->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
+	fileManager.openTemplateBasedProject(PE->name, &PE->locationFilesList[PE->selectedLocation][0]);
 
 	PE->showDefaultScreen();
 	PE->setDefaultScreenFunct();

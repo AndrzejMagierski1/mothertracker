@@ -344,8 +344,7 @@ static uint8_t functShiftPaste()
 				{
 					SI->copyType = 2;
 
-					strcpy(projectSamplePath,fileManager.currentProjectPatch);
-					strcat(projectSamplePath,"/samples");
+					strcpy(projectSamplePath,"Workspace/samples");
 
 					fileManager.clearAutoLoadFlag();
 
@@ -1303,8 +1302,7 @@ void cSampleImporter::handleSequenceCopyingLoading()
 			{
 				if(mtProject.instrument[instrCopyStart+copyQueue].isActive == 1)
 				{
-					strcpy(projectSamplePath,fileManager.currentProjectPatch);
-					strcat(projectSamplePath,"/samples");
+					strcpy(projectSamplePath,"Workspace/samples");
 
 					fileManager.assignSampleToInstrument(projectSamplePath,SI->parseNewName(instrCopyStart+copyQueue), selectedSlot + copyQueue);
 					instrCopied++;
@@ -1350,7 +1348,7 @@ void cSampleImporter::handleSequenceCopyingLoading()
 
 			instrCopied=0;
 
-			fileManager.saveProject();
+			fileManager.startSaveProject();
 		}
 
 		copyType=0;

@@ -11,10 +11,6 @@ uint8_t FileManager::loadPattern(uint8_t index)
 	mtProject.values.actualPattern = index;
 
 	uint8_t status = readPatternFile(patternToLoad);
-	if (status)
-	{
-		mtProject.mtProjectRemote.patternFile[index].isActive = 1;
-	}
 	return status;
 }
 
@@ -42,7 +38,6 @@ void FileManager::importPatternToProject(char* filePatch, char* name, int8_t ind
 
 
 
-	mtProject.mtProjectRemote.patternFile[index].isActive=1;
 //	strcpy(mtProject.mtProjectRemote.patternFile[cnt].name,"pattern_00.mtp");
 //	mtProject.mtProjectRemote.patternFile[cnt].name[11] = ((index-index%10)/10) + 48;
 //	mtProject.mtProjectRemote.patternFile[cnt].name[12] = index%10 + 48;
@@ -72,7 +67,7 @@ void FileManager::importPatternToProject(char* filePatch, char* name, int8_t ind
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 }
 
-void FileManager::copyPattern(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName)
+void FileManager::copyPattern(char* srcProjectPatch, uint8_t src_idx, char * dstProjectPatch, uint8_t dst_idx)
 {
 	FsFile file;
 	FsFile copy;
@@ -80,12 +75,11 @@ void FileManager::copyPattern(char* srcProjectPatch, char* srcName, char * dstPr
 	uint8_t currentBuffor[1024];
 	uint16_t lengthData=0;
 
-	sprintf(currentPatch,"%s/patterns/%s",srcProjectPatch,srcName);
-
 	if(!SD.exists(currentPatch)) return;
 	file = SD.open(currentPatch);
 
-	sprintf(currentPatch,"%s/patterns/%s",dstProjectPatch,dstName);
+	if(dst_idx < 10) sprintf(currentPatch,"%s/patterns/pattern_0%d",dstProjectPatch,dst_idx);
+	else sprintf(currentPatch,"%s/patterns/pattern_%d",dstProjectPatch,dst_idx);
 
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 	copy= SD.open(currentPatch,FILE_WRITE);
@@ -155,7 +149,6 @@ void FileManager::deletePattern(int8_t index)
 
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 
-	mtProject.mtProjectRemote.patternFile[index].isActive=-1;
 //	memset(mtProject.mtProjectRemote.patternFile[cnt].name,0,PATTERN_NAME_SIZE);
 
 	mtProject.patterns_count--;

@@ -97,7 +97,6 @@ void SamplesLoader::update()
 		if(waveLoader.getStopStatus() == 0)
 		{
 			mtProject.instrument[currentIndex].isActive = 0;
-			mtProject.mtProjectRemote.instrumentFile[currentIndex].isActive = 0;
 			mtProject.instrument[currentIndex].sample.length = 0;
 			mtProject.instrument[currentIndex].sample.wavetable_window_size = 0;
 
@@ -119,7 +118,6 @@ void SamplesLoader::update()
 		else if(waveLoader.getStopStatus() == 1)
 		{
 			mtProject.used_memory += currentSize*2;
-			mtProject.mtProjectRemote.instrumentFile[currentIndex].isActive = 1;
 			mtProject.instrument[currentIndex].isActive=1;
 			mtProject.instrument[currentIndex].sample.length = currentSize;
 			loadedFlagChange = 1;
