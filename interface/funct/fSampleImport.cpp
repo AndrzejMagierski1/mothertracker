@@ -217,9 +217,23 @@ static  uint8_t functInstrumentAdd()
 
 static  uint8_t functInstrumentDelete()
 {
-	if(SI->selectedPlace==1)
+	if(SI->selectedPlace == 1)
 	{
-		if(SI->selectionLength<2)
+		if(SI->currSelectPlace == 1 && SI->selectionLength)
+		{
+			uint8_t selectionStart = SI->getSelectionStart();
+
+			for(int i=0;i<SI->selectionLength;i++)
+			{
+				if(mtProject.instrument[selectionStart+i].isActive)
+				{
+					mtProject.used_memory -= 2* mtProject.instrument[selectionStart+i].sample.length;
+				}
+
+				fileManager.deleteInstrument(selectionStart+i);
+			}
+		}
+		else
 		{
 			if(mtProject.instrument[SI->selectedSlot].isActive)
 			{
@@ -228,29 +242,9 @@ static  uint8_t functInstrumentDelete()
 
 			fileManager.deleteInstrument(SI->selectedSlot);
 		}
-		else
-		{
-			if(SI->currSelectPlace==1)
-			{
-				uint8_t selectionStart = SI->getSelectionStart();
-
-				for(int i=0;i<SI->selectionLength;i++)
-				{
-					if(mtProject.instrument[selectionStart+i].isActive)
-					{
-						mtProject.used_memory -= 2* mtProject.instrument[selectionStart+i].sample.length;
-					}
-
-					fileManager.deleteInstrument(selectionStart+i);
-				}
-			}
-		}
 
 		SI->cancelSelect();
 		SI->handleMemoryBar();
-
-		//importSampleToProject(actualPath,&locationFileList[selectedFile][0], selectedSlot);
-		//fileManager.loadSamplesMemory();
 
 		SI->listInstrumentSlots();
 		SI->showInstrumentsList();
