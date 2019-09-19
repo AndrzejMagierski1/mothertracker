@@ -198,7 +198,8 @@ enum interfaceEvents
 	eventSwitchModuleWithOptions,
 
 
-	eventShowPopup,
+	eventActivateGameModule,
+
 
 
 	interfaceEventsCount

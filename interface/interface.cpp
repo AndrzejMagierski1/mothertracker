@@ -10,6 +10,8 @@
 #include "sampleEditor.h"
 #include "sampleRecorder.h"
 #include "configEditor.h"
+#include "game.h"
+
 
 #include "interfacePopups.h"
 
@@ -47,7 +49,7 @@ __NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[4*1024*1024];
 //=======================================================================
 //=======================================================================
 
-const uint8_t cInterface::modulesCount = 9;
+const uint8_t cInterface::modulesCount = 10;
 const hModule cInterface::modules[modulesCount] =
 {
 		&projectEditor,     // 0
@@ -59,7 +61,7 @@ const hModule cInterface::modules[modulesCount] =
 		&sampleEditor,      // 6
 		&configEditor,      // 7
 		&sampleRecorder,    // 8
-
+		&gameModule,		// 9
 };
 
 
@@ -288,13 +290,12 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 			mtInterface.switchModuleToPrevious((hModule)param1);
 			break;
 		}
-/*
-		case eventShowPopup:
+		case eventActivateGameModule:
 		{
-
+			mtInterface.deactivateModule((hModule)param1);
+			mtInterface.activateModule(&gameModule,0);
 			break;
 		}
-*/
 
 
 

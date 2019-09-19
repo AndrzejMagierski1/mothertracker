@@ -146,6 +146,12 @@ static  uint8_t functUp();
 static  uint8_t functDown();
 static  uint8_t functConfirmKey();
 
+static uint8_t functStartGameModule()
+{
+	PE->eventFunct(eventActivateGameModule,PE,0,0);
+}
+
+
 void cProjectEditor::update()
 {
 	if(projectOptions > 0)
@@ -236,6 +242,7 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
 	FM->setButtonObj(interfaceButtonShift, functShift);
 	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
+
 */
 	FM->setButtonObj(interfaceButton0, buttonPress, functShowTemplatesList);
 	FM->setButtonObj(interfaceButton1, buttonPress, functShowProjectsList);
@@ -245,6 +252,12 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+
+
+	FM->setButtonObj(interfaceButton7, buttonPress, functStartGameModule);
+
+
+
 
 }
 //==============================================================================================================
