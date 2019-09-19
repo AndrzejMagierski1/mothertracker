@@ -55,6 +55,7 @@ public:
 	void showPlayModeList();
 
 	void setDefaultScreenFunct();
+	void cancelPopups();
 
 	void processPoints();
 	void modStartPoint(int16_t value);

@@ -6,7 +6,7 @@
 #include "mtAudioEngine.h"
 #include "mtPadsBacklight.h"
 
-
+#include "interfacePopups.h"
 
 cInstrumentEditor instrumentEditor;
 static cInstrumentEditor* IE = &instrumentEditor;
@@ -24,16 +24,13 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
-static  uint8_t functLeftInstr();
-static  uint8_t functRightInstr();
-static  uint8_t functUpInstr();
-static  uint8_t functDownInstr();
+
 
 static  uint8_t functCopy();
 
 
 static  uint8_t functEncoder(int16_t value);
-static  uint8_t functEncoderInstr(int16_t value);
+
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
@@ -65,9 +62,6 @@ void cInstrumentEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-	//mode = options;
-
-	selectedInstrument = mtProject.values.lastUsedInstrument;
 
 	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
 			mtProject.values.padBoardNoteOffset,
@@ -82,8 +76,6 @@ void cInstrumentEditor::start(uint32_t options)
 
 	listData();
 
-
-	FM->setPadsGlobal(functPads);
 
 
 	// ustawienie funkcji
@@ -104,14 +96,6 @@ void cInstrumentEditor::start(uint32_t options)
 	setDefaultScreenFunct();
 
 
-	if(options == mtInstEditModeInstrList)
-	{
-		showInstrumentList();
-		setInstrumentListFunct();
-		instrumentListMode = 1;
-		return;
-	}
-
 	switch(mode)
 	{
 		case mtInstEditModeParams:
@@ -125,12 +109,6 @@ void cInstrumentEditor::start(uint32_t options)
 			showInstrumentEnv();
 			setInstrumentEnvFunct();
 			break;
-		}
-		case mtInstEditModeInstrList:
-		{
-			showInstrumentList();
-			setInstrumentListFunct();
-			return;
 		}
 	}
 }
@@ -157,7 +135,7 @@ void cInstrumentEditor::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 
-
+	FM->setPadsGlobal(functPads);
 
 }
 
@@ -231,22 +209,6 @@ void cInstrumentEditor::setInstrumentParamsFunct()
 }
 
 
-void cInstrumentEditor::setInstrumentListFunct()
-{
-
-	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-
-	FM->setPotObj(interfacePot0, functEncoderInstr, nullptr);
-
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftInstr);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightInstr);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpInstr);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownInstr);
-	FM->setButtonObj(interfaceButtonCopy, buttonPress, functCopy);
-
-
-	lightUpPadBoard();
-}
 
 
 static  uint8_t functSelectEnv(uint8_t button)
@@ -297,14 +259,7 @@ static  uint8_t functEncoder(int16_t value)
 	return 1;
 }
 
-static  uint8_t functEncoderInstr(int16_t value)
-{
-	//if(IE->mode == mtInstEditModeInstrList)
-	//{
-		IE->changeSelectedInstrument(value);
-	//}
-	return 1;
-}
+
 
 //=========================================================================================================
 static  uint8_t functLeft()
@@ -385,41 +340,6 @@ static  uint8_t functDown()
 	return 1;
 }
 
-//=========================================================================================================
-static  uint8_t functLeftInstr()
-{
-	//if(IE->mode == mtInstEditModeInstrList)
-	//{
-		if(IE->selectedInstrument >= 12) IE->changeSelectedInstrument(-12,1);
-		return 1;
-	//}
-	return 1;
-}
-
-static  uint8_t functRightInstr()
-{
-	//if(IE->mode == mtInstEditModeInstrList)
-	//{
-		if(IE->selectedInstrument < 36) IE->changeSelectedInstrument(12,1);
-		return 1;
-	//}
-	return 1;
-}
-
-static  uint8_t functUpInstr()
-{
-	if(IE->selectedInstrument > 0) IE->changeSelectedInstrument(-1);
-
-	return 1;
-}
-
-static  uint8_t functDownInstr()
-{
-
-	if(IE->selectedInstrument < 47) IE->changeSelectedInstrument(1);
-
-	return 1;
-}
 
 
 //=========================================================================================================
@@ -606,51 +526,6 @@ void cInstrumentEditor::changeEnvLoop(int16_t value)
 }
 
 
-void cInstrumentEditor::changeSelectedInstrument(int16_t value, uint8_t type)
-{
-	uint8_t oldList = selectedInstrument/12;
-
-	if(selectedInstrument + value < 0) selectedInstrument = 0;
-	else if(selectedInstrument + value > INSTRUMENTS_MAX) selectedInstrument = INSTRUMENTS_MAX;
-	else selectedInstrument += value;
-
-	uint8_t newList = selectedInstrument/12;
-
-	mtProject.values.lastUsedInstrument = selectedInstrument;
-	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
-
-
-	if(oldList != newList)
-	{
-		if(oldList < newList)
-		{
-			intrumentsList[newList].start = 0;
-			if(type) intrumentsList[newList].start = selectedInstrument%12;
-			//intrumentsList[oldList].start = 11;
-			intrumentsList[oldList].start = -1;
-		}
-		else
-		{
-			//intrumentsList[oldList].start = 0;
-			intrumentsList[oldList].start = -1;
-
-			intrumentsList[newList].start = 11;
-			if(type) intrumentsList[newList].start = selectedInstrument%12;
-		}
-
-		display.setControlData(intrumentsListControl[newList], &intrumentsList[newList]);
-		display.setControlData(intrumentsListControl[oldList], &intrumentsList[oldList]);
-
-		showInstrList(oldList);
-	}
-
-	showInstrList(newList);
-
-	showActualInstrument();
-
-	lightUpPadBoard();
-}
-
 
 void cInstrumentEditor::changeFilterFilterType(int16_t value)
 {
@@ -791,7 +666,29 @@ void cInstrumentEditor::changeParamsReverbSend(int16_t value)
 //======================================================================================================================
 //==============================================================================================
 
+void cInstrumentEditor::cancelPopups()
+{
+	if(mtPopups.getStepPopupState() != stepPopupNone)
+	{
+		mtPopups.hideStepPopups();
 
+		setDefaultScreenFunct();
+
+		if(IE->mode == mtInstEditModeParams)
+		{
+			IE->showInstrumentParams();
+			IE->setInstrumentParamsFunct();
+		}
+		else //mtInstEditModeEnv
+		{
+			IE->showInstrumentEnv();
+			IE->setInstrumentEnvFunct();
+		}
+	}
+}
+
+//======================================================================================================================
+//==============================================================================================
 static uint8_t functShift(uint8_t value)
 {
 	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
@@ -878,29 +775,12 @@ static  uint8_t functInstrument(uint8_t state)
 {
 	if(state == buttonRelease)
 	{
-		if(IE->instrumentListMode == 1)	IE->eventFunct(eventSwitchToPreviousModule,IE,0,0);
-		else
-		{
-			if(IE->mode == mtInstEditModeParams)
-			{
-				IE->showInstrumentParams();
-				IE->setInstrumentParamsFunct();
-			}
-			else //mtInstEditModeEnv
-			{
-				IE->showInstrumentEnv();
-				IE->setInstrumentEnvFunct();
-
-			}
-		}
+		IE->cancelPopups();
 	}
 	else if(state == buttonPress)
 	{
-		if(IE->mode != mtInstEditModeInstrList)
-		{
-			IE->showInstrumentList();
-			IE->setInstrumentListFunct();
-		}
+		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
+		IE->lightUpPadBoard();
 	}
 
 	return 1;
@@ -908,43 +788,17 @@ static  uint8_t functInstrument(uint8_t state)
 
 static uint8_t functStepNote(uint8_t value)
 {
-	if(IE->mode<2)
+	if(value == buttonRelease)
 	{
-		if(value == buttonRelease)
-		{
-			if(IE->mode == mtInstEditModeNotes)	IE->eventFunct(eventSwitchToPreviousModule,IE,0,0);
-			else
-			{
-				if(IE->mode == mtInstEditModeParams)
-				{
-					IE->showInstrumentParams();
-					IE->setInstrumentParamsFunct();
-				}
-				else //mtInstEditModeEnv
-				{
-					IE->showInstrumentEnv();
-					IE->setInstrumentEnvFunct();
+		IE->cancelPopups();
 
-				}
-			}
-		}
-		else if(value == buttonPress)
-		{
-			if(IE->mode != mtInstEditModeNotes)
-			{
-				for(uint8_t i = 0; i < 48; i++)
-				{
-					interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
-				}
-
-				IE->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
-				IE->FM->clearButtonsRange(interfaceButtonUp, interfaceButtonRight);
-				IE->FM->clearAllPots();
-
-				IE->showNotePopout();
-			}
-		}
 	}
+	else if(value == buttonPress)
+	{
+		mtPopups.showStepPopup(stepPopupNote, -1);
+		IE->lightUpPadBoard();
+	}
+
 	return 1;
 }
 

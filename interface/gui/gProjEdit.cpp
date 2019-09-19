@@ -131,6 +131,10 @@ void cProjectEditor::showDefaultScreen()
 	display.setControlText(topLabel[1], "Open");
 	display.setControlText(topLabel[4], "Save");
 
+
+	display.setControlText(topLabel[7], "Game");
+
+
 	for(uint8_t i = 0; i<8; i++)
 	{
 		display.setControlShow(topLabel[i]);

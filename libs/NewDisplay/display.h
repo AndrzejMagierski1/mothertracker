@@ -118,10 +118,22 @@ public:
 	void setControlDefaultColors(hControl handle, uint32_t colorsTable[]);
 	void setControlData(hControl handle, void* data);
 
+	/// grupowe
+	void hideAllControls();
+
+
+	// hardware
 	void setBacklightBrightness(uint8_t value);
 	void setRotate(uint8_t value);
 
+
+	void disable() {state = 0;}
+	void enable()  {state = 1;}
+	void clear();
+
 private:
+
+	uint8_t state = 1;
 
 	hControl controlsTable[controlsCount] = { nullptr };
 	hControl actualUpdating;

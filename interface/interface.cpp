@@ -1,34 +1,25 @@
 
 
-#include <interface.h>
-#include <patternEditor.h>
-#include <projectEditor.h>
-#include <sampleImporter.h>
-#include <samplePlayback.h>
+#include "interface.h"
+#include "patternEditor.h"
+#include "projectEditor.h"
+#include "sampleImporter.h"
+#include "samplePlayback.h"
 #include "songEditor.h"
 #include "instrumentEditor.h"
 #include "sampleEditor.h"
 #include "sampleRecorder.h"
 #include "configEditor.h"
+#include "game.h"
 
+
+#include "interfacePopups.h"
 
 
 #include "mtStructs.h"
 
 
-/*
 
-#include "keyScanner.h"
-#include "mtLED.h"
-
-#include "mtInstrumentEditor.h"
-#include "mtInterfaceDefs.h"
-#include "mtProjectEditor.h"
-#include "mtSampleBankEditor.h"
-#include "mtStepEditor.h"
-#include "mtConfigEditor.h"
-
-*/
 
 #include "mtConfig.h"
 #include "mtHardware.h"
@@ -58,7 +49,7 @@ __NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[4*1024*1024];
 //=======================================================================
 //=======================================================================
 
-const uint8_t cInterface::modulesCount = 9;
+const uint8_t cInterface::modulesCount = 10;
 const hModule cInterface::modules[modulesCount] =
 {
 		&projectEditor,     // 0
@@ -70,11 +61,11 @@ const hModule cInterface::modules[modulesCount] =
 		&sampleEditor,      // 6
 		&configEditor,      // 7
 		&sampleRecorder,    // 8
-
+		&gameModule,		// 9
 };
 
 
-const uint8_t cInterface::modulesButtonsCount = 12;
+const uint8_t cInterface::modulesButtonsCount = 11;
 const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 {
 	{interfaceButtonPerformance,2, 0},
@@ -88,7 +79,6 @@ const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 	{interfaceButtonSampleLoad, 1, 0},
 	{interfaceButtonSong, 		4, 0},
 	{interfaceButtonConfig, 	7, mtConfigModeDefault},
-	{interfaceButtonInstr, 		5, mtInstEditModeInstrList},
 };
 
 //	case interfaceButton10: activateModule(modules[0], 0); break;
@@ -128,8 +118,6 @@ void cInterface::begin()
 		modules[i]->FM = &uiFM;
 	}
 
-
-	//readConfig(CONFIG_EEPROM_ADDRESS, &mtConfig);
 
 	//ramMonitor.initialize();
 
@@ -174,10 +162,7 @@ void cInterface::processOperatingMode()
 		if(doOnStart)
 		{
 			doOnStart = 0;
-			readConfig();
-			readSdConfig();
-			openStartupProject();
-			initStartScreen();
+			doStartTasks();
 		}
 
 
@@ -201,6 +186,20 @@ void cInterface::processOperatingMode()
 
 
 }
+
+void cInterface::doStartTasks()
+{
+	mtPopups.initPopupsDisplayControls();
+
+	readConfig();
+	readSdConfig();
+
+	openStartupProject();
+
+	initStartScreen();
+}
+
+
 
 //=======================================================================
 //=======================================================================
@@ -226,6 +225,7 @@ void cInterface::deactivateModule(hModule module)
 
 	display.resetControlQueue();
 	module->stop();
+	mtPopups.hideStepPopups();
 	module->destroyDisplayControls();
 	if(module == onScreenModule) onScreenModule = nullptr;
 	previousModule = module;
@@ -288,6 +288,12 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 		{
 			// param1 = uchwyt do modułu, param2 = index przycisku
 			mtInterface.switchModuleToPrevious((hModule)param1);
+			break;
+		}
+		case eventActivateGameModule:
+		{
+			mtInterface.deactivateModule((hModule)param1);
+			mtInterface.activateModule(&gameModule,0);
 			break;
 		}
 
