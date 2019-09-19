@@ -19,15 +19,16 @@ uint8_t FileManager::loadPattern(uint8_t index)
 	return status;
 }
 
-uint8_t FileManager::setLoadPattern(uint8_t index)
+void FileManager::setLoadPattern(uint8_t index)
 {
 	patternToLoad = index;
 }
 
-uint8_t FileManager::handleLoadPattern()
+void FileManager::handleLoadPattern()
 {
 	if (patternToLoad)
 	{
+		savePattern(mtProject.values.actualPattern);
 		loadPattern(patternToLoad);
 		patternToLoad = 0;
 	}

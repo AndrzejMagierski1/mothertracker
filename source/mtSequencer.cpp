@@ -324,13 +324,13 @@ void Sequencer::play_microStep(uint8_t row)
 
 			switch (_fx.type)
 			{
-			case fx.FX_TYPE_OFFSET:
-				if (!isOffset)
-				{
-					isOffset = 1;
-					offsetValue = _fx.value_u16;
-				}
-				break;
+//			case fx.FX_TYPE_OFFSET:
+//				if (!isOffset)
+//				{
+//					isOffset = 1;
+//					offsetValue = _fx.value_u16;
+//				}
+//				break;
 
 			case fx.FX_TYPE_JUMP_TO_STEP:
 				if (!isJumpToStep)
@@ -340,13 +340,13 @@ void Sequencer::play_microStep(uint8_t row)
 				}
 				break;
 
-			case fx.FX_TYPE_ROLL:
-				if (!isRoll)
-				{
-					isRoll = 1;
-					valRoll = _fx.rollType;
-				}
-				break;
+//			case fx.FX_TYPE_ROLL:
+//				if (!isRoll)
+//				{
+//					isRoll = 1;
+//					valRoll = _fx.rollType;
+//				}
+//				break;
 			case fx.FX_TYPE_CUTOFF:
 				if (!isRoll)
 				{
@@ -362,11 +362,11 @@ void Sequencer::play_microStep(uint8_t row)
 				break;
 			}
 
-			if (_fx.type && !isJumpToStep && _fx.type == fx.FX_TYPE_OFFSET)
-			{
-				isOffset = 1;
-				offsetValue = _fx.value_u16;
-			}
+//			if (_fx.type && !isJumpToStep && _fx.type == fx.FX_TYPE_OFFSET)
+//			{
+//				isOffset = 1;
+//				offsetValue = _fx.value_u16;
+//			}
 		}
 
 		if (patternStep.note != STEP_NOTE_EMPTY)
@@ -642,7 +642,7 @@ void Sequencer::playPattern(void)
 }
 void Sequencer::playSong(void)
 {
-
+	fileManager.savePattern(mtProject.values.actualPattern);
 	fileManager.loadPattern(fileManager.resetToFirstSongPattern());
 	switchNextPatternNow();
 

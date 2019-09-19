@@ -250,32 +250,13 @@ public:
 				//FX
 				struct strFx
 				{
-					uint8_t isOn :1;
-					uint8_t type :7;
+//					uint8_t isOn;
+					uint8_t type;
 
-					union
+					struct						// FX_VAL_U8_U8
 					{
-						uint16_t value_u16;		// FX_VAL_U16
-						////////////OR////////////
-						int16_t value_i16;						// FX_VAL_I16
-						////////////OR////////////
-						struct						// FX_VAL_U8_U8
-						{
-							uint8_t value;
-							uint8_t val2_u8;
-						};
-						////////////OR////////////
-						struct						// FX_VAL_I8_I8
-						{
-							int8_t val1_i8;
-							int8_t val2_i8;
-						};
-						////////////OR////////////
-						struct						// FX_VAL_I8_I8
-						{
-							int8_t rollType;
-							int8_t rollVal;
-						};
+						uint8_t value;
+						uint8_t val2_u8;
 					};
 
 				} fx[1];
@@ -298,7 +279,8 @@ public:
 		ELEMENTS_VELO,
 		ELEMENTS_FXes,
 	};
-	enum midiChannel{
+	enum midiChannel
+	{
 		MIDI_CHANNEL_GRID = 20
 	};
 	struct strSelection
@@ -525,8 +507,6 @@ public:
 
 			uint8_t return2start = 0;// po zakonczonym stepie wraca do pocatku
 			uint8_t makeJump = 0;// flaga przeskoku do odpowiedniego patternu po odegraniu stepu
-
-
 
 			bool divChange = 0;
 

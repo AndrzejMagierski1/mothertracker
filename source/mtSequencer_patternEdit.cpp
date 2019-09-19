@@ -465,6 +465,7 @@ void Sequencer::changeSelectionFxValue(int16_t value)
 
 			step->fx[0].value = constrain(step->fx[0].value + value, 0,
 											127);
+			step->fx[0].val2_u8 = 1;
 			if (!isMultiSelection() && step->fx[0].type == 0)
 			{
 				step->fx[0].type = mtProject.values.lastUsedFx;
