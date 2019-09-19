@@ -532,7 +532,7 @@ void cSampleRecorder::processSpectrum1()
 
 		for(uint16_t i = offset_pixel; i < 600; i++)
 		{
-			low = up = 0; //*(sampleData+step);
+			low = up = 0;
 
 			for(uint16_t j = 0; j < resolution; j++)
 			{
@@ -666,7 +666,7 @@ void cSampleRecorder::processSpectrum1()
 	{
 		for(int16_t i = offset_pixel-1; i >= 0; i--)
 		{
-			low = up = 0; //*(sampleData+step);
+			low = up = 0;
 
 			for(uint16_t j = 0; j < resolution; j++)
 			{
@@ -2281,6 +2281,7 @@ static uint8_t functEnter()
 	if(SR->selectionWindowFlag) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) functConfirmKey();
 }
+
 static uint8_t functConfirmKey()
 {
 	if(SR->keyboardActiveFlag)

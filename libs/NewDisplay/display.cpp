@@ -176,6 +176,8 @@ uint16_t refreshF = 20;
 
 void cDisplay::update()
 {
+	if(!state) return;
+
 	if(updateDisplaySettings)
 	{
 		updateDisplaySettings = 0;
@@ -533,7 +535,20 @@ void cDisplay::hideAllControls()
 	}
 }
 
+void cDisplay::clear()
+{
+	API_LIB_BeginCoProList();
 
+    API_CMD_DLSTART();
+
+	API_CLEAR_COLOR(config.bgColor);
+	API_CLEAR(1,1,1);
+
+    API_DISPLAY();
+    API_CMD_SWAP();
+
+	API_LIB_EndCoProList();
+}
 
 //=====================================================================================================
 // hardware
@@ -552,8 +567,6 @@ void cDisplay::setRotate(uint8_t value)
 	updateDisplaySettings = 1;
 
 }
-
-
 
 
 
