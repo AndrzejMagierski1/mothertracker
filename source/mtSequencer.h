@@ -582,7 +582,7 @@ public:
 	}
 	void loadFromFileOK()
 	{
-		Serial.println("ok");
+//		Serial.println("ok");
 	}
 	void loadFromFileERROR()
 	{

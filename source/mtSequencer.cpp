@@ -306,7 +306,7 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 	}
 
-	if (patternRow.isOn)
+	if (1)
 	{
 		boolean startStep = 0;
 		boolean isOffset = 0;
@@ -1461,9 +1461,9 @@ void Sequencer::loadNextPattern(uint8_t patternNumber)
 	player.jump.nextPattern = patternNumber;
 	player.jump.jumpNOW = 0;
 
-	Serial.printf("loadNextPattern: %d\n", patternNumber);
+//	Serial.printf("loadNextPattern: %d\n", patternNumber);
 
-	fileManager.loadPattern(patternNumber);
+	fileManager.setLoadPattern(patternNumber);
 
 }
 

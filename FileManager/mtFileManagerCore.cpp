@@ -18,6 +18,8 @@ void FileManager::update()
 	samplesImporter.update();
 	currentCopyStatusFlag = fileManager.samplesImporter.getState();
 
+	handleLoadPattern();
+
 
 	if( (!currentCopyStatusFlag ) && (lastCopyStatusFlag) )
 	{
