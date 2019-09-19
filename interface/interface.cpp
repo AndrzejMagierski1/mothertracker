@@ -63,7 +63,7 @@ const hModule cInterface::modules[modulesCount] =
 };
 
 
-const uint8_t cInterface::modulesButtonsCount = 12;
+const uint8_t cInterface::modulesButtonsCount = 11;
 const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 {
 	{interfaceButtonPerformance,2, 0},
@@ -77,7 +77,6 @@ const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 	{interfaceButtonSampleLoad, 1, 0},
 	{interfaceButtonSong, 		4, 0},
 	{interfaceButtonConfig, 	7, mtConfigModeDefault},
-	{interfaceButtonInstr, 		5, mtInstEditModeInstrList},
 };
 
 //	case interfaceButton10: activateModule(modules[0], 0); break;
@@ -224,6 +223,7 @@ void cInterface::deactivateModule(hModule module)
 
 	display.resetControlQueue();
 	module->stop();
+	mtPopups.hideStepPopups();
 	module->destroyDisplayControls();
 	if(module == onScreenModule) onScreenModule = nullptr;
 	previousModule = module;

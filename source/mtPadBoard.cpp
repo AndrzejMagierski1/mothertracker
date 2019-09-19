@@ -45,7 +45,7 @@ void cMtPadBoard::startInstrument(uint8_t pad, uint8_t index, int8_t velocity)
 
 	//mtPrint("start: ");
 	//mtPrintln(voiceToTake);
-
+	instrumentPlayer[voiceToTake].noteOff();
 	instrumentPlayer[voiceToTake].noteOn(index, convertPadToNote(pad), velocity);
 }
 

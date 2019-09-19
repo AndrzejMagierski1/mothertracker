@@ -26,14 +26,16 @@ public:
 	void destroyPopupsDisplayControls();
 
 	// step popups funct
-	uint8_t getStepPopupState();
+
 	void showStepPopup(uint8_t stepPopupNone, int8_t initVal);
-	void refreshPopups();
 	void hideStepPopups();
 
-	void changeStepPopupValue(int16_t value);
+	void changeStepPopupValue(int16_t value, uint8_t dir = 0);
 	void setStepPopupValue(int16_t value);
+
+	uint8_t getStepPopupState();
 	int16_t getStepPopupValue();
+
 
 
 	// global popups functs
@@ -45,6 +47,9 @@ public:
 
 
 private:
+
+	void setPopupFunct();
+
 
 	void showNotesPopup();
 	void showInstrumentsPopup();

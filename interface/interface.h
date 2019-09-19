@@ -13,6 +13,7 @@
 
 
 typedef cModuleBase* hModule;
+class cInterfacePopups;
 
 
 class cInterface
@@ -52,6 +53,7 @@ public:
 
 
 private:
+	friend cInterfacePopups;
 
 	void processOperatingMode();
 	void doStartTasks();

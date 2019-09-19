@@ -1,11 +1,38 @@
 
-
+#include "interface.h"
 #include "interfacePopups.h"
-#include "mtPadBoard.h"
 
+
+#include "mtPadBoard.h"
+#include "mtPadsBacklight.h"
+
+#include "mtSequencer.h"
+
+
+
+static  uint8_t functLeftPopup();
+static  uint8_t functRightPopup();
+static  uint8_t functUpPopup();
+static  uint8_t functDownPopup();
+
+static  uint8_t functEncoderPopup(int16_t value);
+
+static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo);
+
+
+
+static uint32_t instrListColors[] =
+{
+	0xFF0000,	//	 listItemFrame
+	0x000000,	//	 listItemFrameBG
+	0xFFFFFF,	//	 listScrollBar
+	0x554A19,	//	 listBG
+	0xFFFFFF,	//	 fontList
+};
 
 
 cInterfacePopups mtPopups;
+static  cInterfacePopups* POP = &mtPopups;
 
 //=====================================================================================================
 //
@@ -26,7 +53,7 @@ void cInterfacePopups::initPopupsDisplayControls()
 		prop.y = 240;
 		prop.w = 800/4-10;
 		prop.h = 25;
-		prop.colors = nullptr;
+		prop.colors = instrListColors;
 		prop.data = &popupList[i];
 		if(listControl[i] == nullptr)  listControl[i] = display.createControl<cList>(&prop);
 	}
@@ -87,26 +114,6 @@ uint8_t cInterfacePopups::getStepPopupState()
 	return stepPopupState;
 }
 
-void cInterfacePopups::showStepPopup(uint8_t stepPopupType, int8_t initVal)
-{
-	if(stepPopupState != stepPopupNone)
-	{
-		hideStepPopups();
-	}
-
-	stepPopupState = stepPopupType;
-	selectedActualItem = initVal;
-
-	switch(stepPopupState)
-	{
-	case stepPopupNone:		break;
-	case stepPopupNote:		showNotesPopup();		break;
-	case stepPopupInstr:	showInstrumentsPopup();	break;
-	case stepPopupVol:		showVolumesPopup();		break;
-	case stepPopupFx:		showFxesPopup();		break;
-	default:	break;
-	}
-}
 
 void cInterfacePopups::showNotesPopup()
 {
@@ -216,8 +223,32 @@ void cInterfacePopups::showGlobalPopup()
 }
 
 //=====================================================================================================
-// hide
+// show / hide
 //=====================================================================================================
+void cInterfacePopups::showStepPopup(uint8_t stepPopupType, int8_t initVal)
+{
+	if(stepPopupState != stepPopupNone)
+	{
+		hideStepPopups();
+	}
+
+	setPopupFunct();
+
+	stepPopupState = stepPopupType;
+	selectedActualItem = initVal;
+
+	switch(stepPopupState)
+	{
+	case stepPopupNone:		break;
+	case stepPopupNote:		showNotesPopup();		break;
+	case stepPopupInstr:	showInstrumentsPopup();	break;
+	case stepPopupVol:		showVolumesPopup();		break;
+	case stepPopupFx:		showFxesPopup();		break;
+	default:	break;
+	}
+}
+
+
 void cInterfacePopups::hideStepPopups()
 {
 	if(stepPopupState)
@@ -233,10 +264,37 @@ void cInterfacePopups::hideStepPopups()
 		display.setControlHide(textLabel1);
 		display.setControlHide(textLabel2);
 
+		mtInterface.uiFM.clearButton(interfaceButtonRec);
+		mtInterface.uiFM.clearButton(interfaceButtonShift);
+		mtInterface.uiFM.clearButton(interfaceButtonEnter);
+
+		mtInterface.uiFM.clearButton(interfaceButtonLeft);
+		mtInterface.uiFM.clearButton(interfaceButtonRight);
+		mtInterface.uiFM.clearButton(interfaceButtonUp);
+		mtInterface.uiFM.clearButton(interfaceButtonDown);
+
+		mtInterface.uiFM.clearAllPots();
+		mtInterface.uiFM.clearAllPads();
 	}
 }
 
+void cInterfacePopups::setPopupFunct()
+{
+	mtInterface.uiFM.clearButton(interfaceButtonRec);
+	mtInterface.uiFM.clearButton(interfaceButtonShift);
+	mtInterface.uiFM.clearButton(interfaceButtonEnter);
 
+	mtInterface.uiFM.clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	mtInterface.uiFM.setPotObj(interfacePot0, functEncoderPopup, nullptr);
+
+	mtInterface.uiFM.setButtonObj(interfaceButtonLeft, buttonPress, functLeftPopup);
+	mtInterface.uiFM.setButtonObj(interfaceButtonRight, buttonPress, functRightPopup);
+	mtInterface.uiFM.setButtonObj(interfaceButtonUp, buttonPress, functUpPopup);
+	mtInterface.uiFM.setButtonObj(interfaceButtonDown, buttonPress, functDownPopup);
+
+	mtInterface.uiFM.setPadsGlobal(functPadsPopup);
+}
 //=====================================================================================================
 //
 //=====================================================================================================
@@ -249,17 +307,36 @@ void cInterfacePopups::setStepPopupValue(int16_t value)
 
 	switch(stepPopupState)
 	{
-	case stepPopupNone:		break;
-	case stepPopupNote:		selectPadOnPopup(selectedActualItem);		return;
-	case stepPopupInstr:	refreshAllList();	break;
-	case stepPopupVol:		selectPadOnPopup(selectedActualItem);		return;
-	case stepPopupFx:		refreshAllList();		break;
+	case stepPopupNote:
+	{
+		selectPadOnPopup(selectedActualItem);
+		mtProject.values.lastUsedNote = mtPadBoard.convertPadToNote(selectedActualItem);
+		return;
+	}
+	case stepPopupInstr:
+	{
+		refreshAllList();
+		mtProject.values.lastUsedInstrument = selectedActualItem;
+		return;
+	}
+	case stepPopupVol:
+	{
+		selectPadOnPopup(selectedActualItem);
+		mtProject.values.lastUsedVolume = map(selectedActualItem, 0, 47, 0, 127);
+		return;
+	}
+	case stepPopupFx:
+	{
+		refreshAllList();
+		mtProject.values.lastUsedFx = selectedActualItem;
+		return;
+	}
 	default:	break;
 	}
 }
 
 
-void cInterfacePopups::changeStepPopupValue(int16_t value)
+void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 {
 	if(stepPopupState == stepPopupNone) return;
 
@@ -268,27 +345,64 @@ void cInterfacePopups::changeStepPopupValue(int16_t value)
 	switch(stepPopupState)
 	{
 	case stepPopupNote:
-	case stepPopupVol:
 	{
+		if(dir > 0)
+		{
+			value = (dir == 1 ? -12 : (dir == 2 ? 1 : (dir == 3 ? 12 : (-1))));
+		}
+
 		if(selectedActualItem + value < 0) selectedActualItem = 0;
 		else if(selectedActualItem + value > 47) selectedActualItem = 47;
 		else selectedActualItem += value;
+
+		mtProject.values.lastUsedNote = mtPadBoard.convertPadToNote(selectedActualItem);
+		selectPadOnPopup(selectedActualItem);
+		return;
+	}
+	case stepPopupVol:
+	{
+		if(dir > 0)
+		{
+			value = (dir == 1 ? -12 : (dir == 2 ? 1 : (dir == 3 ? 12 : (-1))));
+		}
+
+		if(selectedActualItem + value < 0) selectedActualItem = 0;
+		else if(selectedActualItem + value > 47) selectedActualItem = 47;
+		else selectedActualItem += value;
+
+		mtProject.values.lastUsedVolume = map(selectedActualItem, 0, 47, 0, 127);
+		selectPadOnPopup(selectedActualItem);
 		return;
 	}
 
 
 	case stepPopupInstr:
 	{
+		if(dir > 0)
+		{
+			value = (dir == 1 ? -1 : (dir == 2 ? 12 : (dir == 3 ? 1 : (-12))));
+		}
+
 		if(selectedActualItem + value < 0) selectedActualItem = 0;
 		else if(selectedActualItem + value > INSTRUMENTS_MAX) selectedActualItem = INSTRUMENTS_MAX;
 		else selectedActualItem += value;
+
+		mtProject.values.lastUsedInstrument = selectedActualItem;
+		showActualInstrument();
 		break;
 	}
 	case stepPopupFx:
 	{
+		if(dir > 0)
+		{
+			value = (dir == 1 ? -1 : (dir == 2 ? 12 : (dir == 3 ? 1 : (-12))));
+		}
+
 		if(selectedActualItem + value < 0) selectedActualItem = 0;
 		else if(selectedActualItem + value > FX_MAX) selectedActualItem = FX_MAX;
 		else selectedActualItem += value;
+
+		mtProject.values.lastUsedFx = selectedActualItem;
 		break;
 	}
 
@@ -298,14 +412,12 @@ void cInterfacePopups::changeStepPopupValue(int16_t value)
 
 	uint8_t newList = selectedActualItem/12;
 
-	mtProject.values.lastUsedFx = selectedActualItem;
-
 	if(oldList != newList)
 	{
 		if(oldList < newList)
 		{
-			popupList[newList].start = 0;
-			//if(type) popupList[newList].start = selectedFx%12;
+			//popupList[newList].start = 0;
+			popupList[newList].start = selectedActualItem%12; // mozna zrobic tylko jasli dir inny niz 0 dla animacji
 			//intrumentsList[oldList].start = 11;
 			popupList[oldList].start = -1;
 		}
@@ -313,9 +425,8 @@ void cInterfacePopups::changeStepPopupValue(int16_t value)
 		{
 			//intrumentsList[oldList].start = 0;
 			popupList[oldList].start = -1;
-
-			popupList[newList].start = 11;
-			//if(type) popupList[newList].start = selectedFx%12;
+			//popupList[newList].start = 11;
+			popupList[newList].start = selectedActualItem%12; // tu tez
 		}
 
 		display.setControlData(listControl[newList], &popupList[newList]);
@@ -418,7 +529,124 @@ void cInterfacePopups::selectPadOnPopup(int8_t pad)
 
 
 
+//=========================================================================================================
+static  uint8_t functLeftPopup()
+{
+	mtPopups.changeStepPopupValue(0,4);
+
+	return 1;
+}
+
+static  uint8_t functRightPopup()
+{
+	mtPopups.changeStepPopupValue(0,2);
+
+	return 1;
+}
+
+static  uint8_t functUpPopup()
+{
+	mtPopups.changeStepPopupValue(0,1);
+
+	return 1;
+}
+
+static  uint8_t functDownPopup()
+{
+	mtPopups.changeStepPopupValue(0,3);
+
+	return 1;
+}
 
 
+//=========================================================================================================
+static  uint8_t functEncoderPopup(int16_t value)
+{
+	mtPopups.changeStepPopupValue(value);
 
+	return 1;
+}
+
+//=========================================================================================================
+static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
+{
+	// wprowadzanie danych
+	if (state == buttonPress)
+	{
+			//Sequencer::strPattern::strTrack::strStep *step =
+			//		&(sequencer.getPatternToUI())->track[PTE->trackerPattern.actualTrack].step[PTE->trackerPattern.actualStep];
+			//uint8_t note =  mtPadBoard.getNoteFromPad(pad);
+
+			switch(POP->getStepPopupState())
+			{
+			case stepPopupNone:
+			{
+				padsBacklight.setFrontLayer(1,20, pad);
+				break;
+			}
+			case stepPopupNote:
+			{
+				//if (note < 0) break;
+				/*
+				sequencer.blinkNote(mtProject.values.lastUsedInstrument,
+									note,
+									step->velocity,
+									PTE->trackerPattern.actualTrack);
+				 */
+				//uint8_t note = mtPadBoard.convertPadToNote(pad);
+				//if(note > 48) note = 48;
+				//editorInstrument->tune = note;
+
+				padsBacklight.setFrontLayer(1,20, pad);
+				mtPopups.setStepPopupValue(pad);
+				mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+				break;
+			}
+			case stepPopupInstr:
+			{
+				//if (note < 0) break;
+				/*
+				sequencer.blinkNote(mtProject.values.lastUsedInstrument,
+									note,
+									step->velocity,
+									PTE->trackerPattern.actualTrack);
+				*/
+				padsBacklight.setFrontLayer(1,20, pad);
+				mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+				break;
+			}
+			case stepPopupVol:
+			{
+				//note = step->note >= 0 ? step->note : 48;
+				//uint8_t instrument = step->note >= 0 ? step->instrument : mtProject.values.lastUsedInstrument;
+				/*
+				sequencer.blinkNote(mtProject.values.lastUsedInstrument,
+									note,
+									map(pad,0,47,0,127),
+									PTE->trackerPattern.actualTrack);
+				*/
+				padsBacklight.setFrontLayer(1,20, pad);
+				mtPopups.setStepPopupValue(pad);
+				mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument, mtProject.values.lastUsedVolume);
+				break;
+			}
+			case stepPopupFx:
+			{
+				mtPopups.setStepPopupValue(pad);
+				break;
+			}
+			default:	break;
+			}
+	}
+	else if(state == buttonRelease)
+	{
+		padsBacklight.setFrontLayer(0,0, pad);
+		mtPadBoard.stopInstrument(pad);
+	}
+
+	return 1;
+}
+//=========================================================================================================
+//=========================================================================================================
+//=========================================================================================================
 

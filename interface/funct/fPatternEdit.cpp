@@ -7,6 +7,8 @@
 #include "mtPadBoard.h"
 #include "mtPadsBacklight.h"
 
+#include "interfacePopups.h"
+
 #include "keyScanner.h"
 
 extern keyScanner tactButtons; // dla isButtonPressed()
@@ -55,10 +57,7 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
-static  uint8_t functLeftPopup();
-static  uint8_t functRightPopup();
-static  uint8_t functUpPopup();
-static  uint8_t functDownPopup();
+
 
 
 
@@ -75,13 +74,12 @@ static uint8_t getSelectedElement();
 
 
 static  uint8_t functEncoder(int16_t value);
-static  uint8_t functEncoderPopup(int16_t value);
+
 
 static  uint8_t functSwitchModule(uint8_t button);
 
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
-static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo);
 
 
 char getHexFromInt(int16_t val, uint8_t index);
@@ -132,6 +130,7 @@ void cPatternEditor::start(uint32_t options)
 	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
 			mtProject.values.padBoardNoteOffset,
 			mtProject.values.padBoardRootNote);
+	mtPadBoard.configureInstrumentPlayer(8);
 
 	readPatternState();
 	refreshPattern();
@@ -221,6 +220,7 @@ void cPatternEditor::setDefaultScreenFunct()
 
 
 }
+
 //==============================================================================================================
 // przeniesienie danych z sekewncji  do struktury wyswietlania
 void cPatternEditor::refreshPattern()
@@ -464,104 +464,12 @@ void cPatternEditor::moveCursorByStep()
 }
 
 
-void cPatternEditor::setNotePopupFunct()
-{
-	//PTE->FM->clearButton(interfaceButtonInstr);
-	//PTE->FM->clearButton(interfaceButtonVol);
-	//PTE->FM->clearButton(interfaceButtonFx);
-
-	PTE->FM->clearButton(interfaceButtonRec);
-	PTE->FM->clearButton(interfaceButtonShift);
-	PTE->FM->clearButton(interfaceButtonEnter);
-
-	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-
-	FM->setPotObj(interfacePot0, functEncoderPopup, nullptr);
-
-
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftPopup);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightPopup);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpPopup);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownPopup);
-
-
-	FM->setPadsGlobal(functPadsPopup);
-
-	lightUpPadBoard();
-}
-
-void cPatternEditor::setInstrPopupFunct()
-{
-	PTE->FM->clearButton(interfaceButtonRec);
-	PTE->FM->clearButton(interfaceButtonShift);
-	PTE->FM->clearButton(interfaceButtonEnter);
-
-	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-
-	FM->setPotObj(interfacePot0, functEncoderPopup, nullptr);
-
-
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftPopup);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightPopup);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpPopup);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownPopup);
-
-
-	FM->setPadsGlobal(functPadsPopup);
-
-	lightUpPadBoard();
-}
-
-void cPatternEditor::setVolPopupFunct()
-{
-	PTE->FM->clearButton(interfaceButtonRec);
-	PTE->FM->clearButton(interfaceButtonShift);
-	PTE->FM->clearButton(interfaceButtonEnter);
-
-	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-
-	FM->setPotObj(interfacePot0, functEncoderPopup, nullptr);
-
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftPopup);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightPopup);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpPopup);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownPopup);
-
-
-	FM->setPadsGlobal(functPadsPopup);
-
-	lightUpPadBoard();
-}
-
-void cPatternEditor::setFxListPopupFunct()
-{
-	//PTE->FM->clearButton(interfaceButtonNote);
-	//PTE->FM->clearButton(interfaceButtonInstr);
-	//PTE->FM->clearButton(interfaceButtonVol);
-
-	PTE->FM->clearButton(interfaceButtonRec);
-	PTE->FM->clearButton(interfaceButtonShift);
-	PTE->FM->clearButton(interfaceButtonEnter);
-
-	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-
-	FM->setPotObj(interfacePot0, functEncoderPopup, nullptr);
-
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftPopup);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRightPopup);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUpPopup);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDownPopup);
-
-
-	FM->setPadsGlobal(functPadsPopup);
-
-	lightUpPadBoard();
-}
 
 void cPatternEditor::cancelPopups()
 {
 	if(mtPopups.getStepPopupState() != stepPopupNone)
 	{
+		mtPopups.hideStepPopups();
 		setDefaultScreenFunct();
 		showDefaultScreen();
 		refreshEditState();
@@ -577,8 +485,6 @@ void cPatternEditor::cancelPopups()
 		}
 	}
 }
-
-
 
 
 
@@ -1000,14 +906,6 @@ uint8_t functEncoder(int16_t value)
 	return 1;
 }
 
-static  uint8_t functEncoderPopup(int16_t value)
-{
-	mtPopups.changeStepPopupValue(value);
-	PTE->lightUpPadBoard();
-
-	return 1;
-}
-
 
 
 static  uint8_t functEnter()
@@ -1377,38 +1275,6 @@ static  uint8_t functDown()
 	return 1;
 }
 
-//=========================================================================================================
-static  uint8_t functLeftPopup()
-{
-	mtPopups.changeStepPopupValue(-12);
-	PTE->lightUpPadBoard();
-
-	return 1;
-}
-
-static  uint8_t functRightPopup()
-{
-	mtPopups.changeStepPopupValue(-12);
-	PTE->lightUpPadBoard();
-
-	return 1;
-}
-
-static  uint8_t functUpPopup()
-{
-	mtPopups.changeStepPopupValue(-12);
-	PTE->lightUpPadBoard();
-
-	return 1;
-}
-
-static  uint8_t functDownPopup()
-{
-	mtPopups.changeStepPopupValue(-12);
-	PTE->lightUpPadBoard();
-
-	return 1;
-}
 
 //=========================================================================================================
 
@@ -1462,7 +1328,7 @@ static  uint8_t functNote(uint8_t state)
 		}
 
 		mtPopups.showStepPopup(stepPopupNote, show_note);
-		PTE->setNotePopupFunct();
+		PTE->lightUpPadBoard();
 	}
 
 	return 1;
@@ -1496,7 +1362,7 @@ static  uint8_t functInstrument(uint8_t state)
 	else if(state == buttonDouble && !tactButtons.isButtonPressed(interfaceButtonShift))
 	{
 		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
-		PTE->setInstrPopupFunct();
+		PTE->lightUpPadBoard();
 	}
 
 	return 1;
@@ -1530,7 +1396,7 @@ static  uint8_t functVolume(uint8_t state)
 	else if(state == buttonDouble && !tactButtons.isButtonPressed(interfaceButtonShift))
 	{
 		mtPopups.showStepPopup(stepPopupVol, PTE->getStepVol());
-		PTE->setVolPopupFunct();
+		PTE->lightUpPadBoard();
 	}
 
 	return 1;
@@ -1568,7 +1434,7 @@ static  uint8_t functFx(uint8_t state)
 		//if(mtPopups.getStepPopupState() == stepPopupNone)
 		//{
 			mtPopups.showStepPopup(stepPopupFx, PTE->getStepFx());
-			PTE->setFxListPopupFunct();
+			PTE->lightUpPadBoard();
 		//}
 	}
 
@@ -2522,78 +2388,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		}
 
 	}
-
-	return 1;
-}
-
-static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
-{
-	// wprowadzanie danych
-	if (PTE->editMode == 1)
-	{
-
-		if (state == buttonPress)
-		{
-			uint8_t popupType = mtPopups.getStepPopupState();
-
-			if(popupType != stepPopupNone)
-			{
-				Sequencer::strPattern::strTrack::strStep *step =
-						&(sequencer.getPatternToUI())->track[PTE->trackerPattern.actualTrack].step[PTE->trackerPattern.actualStep];
-
-				uint8_t note =  mtPadBoard.getNoteFromPad(pad);
-
-				switch(popupType)
-				{
-				case stepPopupNote:
-				{
-					if (note < 0) break;
-					sequencer.blinkNote(mtProject.values.lastUsedInstrument,
-										note,
-										step->velocity,
-										PTE->trackerPattern.actualTrack);
-
-					mtProject.values.lastUsedNote = note;
-					mtPopups.setStepPopupValue(pad);
-					PTE->lightUpPadBoard();
-					break;
-				}
-				case stepPopupInstr:
-				{
-					if (note < 0) break;
-					sequencer.blinkNote(mtProject.values.lastUsedInstrument,
-										note,
-										step->velocity,
-										PTE->trackerPattern.actualTrack);
-
-					break;
-				}
-				case stepPopupVol:
-				{
-					note = step->note >= 0 ? step->note : 48;
-					//uint8_t instrument = step->note >= 0 ? step->instrument : mtProject.values.lastUsedInstrument;
-					sequencer.blinkNote(mtProject.values.lastUsedInstrument,
-										note,
-										map(pad,0,47,0,127),
-										PTE->trackerPattern.actualTrack);
-					break;
-				}
-				case stepPopupFx:
-				{
-					mtProject.values.lastUsedFx = pad;
-					mtPopups.setStepPopupValue(pad);
-					PTE->lightUpPadBoard();
-					break;
-				}
-				default:	break;
-				}
-
-
-			}
-
-		}
-	}
-
 
 	return 1;
 }

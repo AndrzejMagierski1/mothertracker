@@ -265,7 +265,7 @@ void cPatternEditor::destroyDisplayControls()
 
 void cPatternEditor::showDefaultScreen()
 {
-	mtPopups.hideStepPopups();
+
 
 //	display.setControlHide(titleLabel);
 //	display.setControlHide(titleBar);

@@ -6,7 +6,7 @@
 #include "SD.h"
 
 #include "mtSequencer.h"
-#include "interfacePopups.h"
+
 
 
 uint8_t isMultiSelection();
@@ -66,8 +66,6 @@ public:
 
 	void changeFillData(int16_t value);
 	void changeRandomiseData(int16_t value);
-
-	void changeSelectedFx(int16_t value, uint8_t type = 0);
 
 	void refreshEditState();
 
