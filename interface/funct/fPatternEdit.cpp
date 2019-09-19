@@ -2442,7 +2442,8 @@ static uint8_t functSwitchModule(uint8_t button)
 	}
 
 
-	if(tactButtons.isButtonPressed(interfaceButtonShift) && PTE->editMode == 1)
+//	if(tactButtons.isButtonPressed(interfaceButtonShift) && PTE->editMode == 1)
+	if(PTE->editMode == 1)
 	{
 		Sequencer::strPattern* seq = sequencer.getPatternToUI();
 

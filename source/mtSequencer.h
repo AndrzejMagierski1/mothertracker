@@ -582,7 +582,7 @@ public:
 	}
 	void loadFromFileOK()
 	{
-		Serial.println("ok");
+//		Serial.println("ok");
 	}
 	void loadFromFileERROR()
 	{
@@ -607,6 +607,7 @@ public:
 	void play(void);
 	void playPattern(void);
 	void playSong(void);
+	void playSong(uint8_t);
 	void pause(void);
 	void rec(void);
 	void stop(void);

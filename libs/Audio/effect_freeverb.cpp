@@ -138,7 +138,7 @@ void AudioEffectFreeverb::update()
 	if (!block) block = &zeroblock;
 	else
 		{
-			Serial.println("zerowane stopflag");
+//			Serial.println("zerowane stopflag");
 			stopFlag = 0;
 		}
 
