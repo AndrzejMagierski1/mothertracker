@@ -196,15 +196,15 @@ static  uint8_t functAddSlot()
 
 static  uint8_t functDeleteSlot()
 {
-	mtProject.mtProjectRemote.song.playlist[SE->songLength]=0;
-
-	for(int i = SE->selectedPattern; i < SE->songLength ; i++)
+	if(SE->songLength>1)
 	{
-		mtProject.mtProjectRemote.song.playlist[i] = mtProject.mtProjectRemote.song.playlist[i+1];
-	}
+		mtProject.mtProjectRemote.song.playlist[SE->songLength]=0;
 
-	if(SE->songLength)
-	{
+		for(int i = SE->selectedPattern; i < SE->songLength ; i++)
+		{
+			mtProject.mtProjectRemote.song.playlist[i] = mtProject.mtProjectRemote.song.playlist[i+1];
+		}
+
 		SE->songLength--;
 
 		if(SE->songLength)
@@ -395,23 +395,24 @@ void cSongEditor::listPatterns()
 		patternNames[i] = &patternsNamesList[i][0];
 	}
 
-	patternsNamesList[mtProject.mtProjectRemote.song.playlistPos][1]='*';
+	clearPatternMark();
+	patternsNamesList[mtProject.mtProjectRemote.song.playlistPos][CURR_PATTERN_MARK_POS]='*';
+}
+
+void cSongEditor::clearPatternMark()
+{
+	for(uint32_t i = 0; i < songLength; i++)
+	{
+		patternsNamesList[i][CURR_PATTERN_MARK_POS] = ' ';
+	}
 }
 
 void cSongEditor::markCurrentPattern()
 {
 	if(mtProject.mtProjectRemote.song.playlistPos != localSongPosition)
 	{
-		patternsNamesList[mtProject.mtProjectRemote.song.playlistPos][1]='*';
-
-		if(mtProject.mtProjectRemote.song.playlistPos == 0)
-		{
-			patternsNamesList[songLength-1][1]=' ';
-		}
-		else
-		{
-			patternsNamesList[mtProject.mtProjectRemote.song.playlistPos-1][1]=' ';
-		}
+		clearPatternMark();
+		patternsNamesList[mtProject.mtProjectRemote.song.playlistPos][CURR_PATTERN_MARK_POS] = '*';
 
 		display.setControlValue(patternsListControl, selectedPattern);
 		display.refreshControl(patternsListControl);
