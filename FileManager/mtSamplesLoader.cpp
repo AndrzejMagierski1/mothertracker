@@ -203,6 +203,15 @@ void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t first
 		}
 	}
 
+	for(uint8_t i = startIndex + 1; i < INSTRUMENTS_COUNT; i ++)
+	{
+		if(mtProject.instrument[i].isActive)
+		{
+			sizeAllFiles += mtProject.instrument[i].sample.length;
+		}
+
+	}
+
 	if(firstLoad) sizeAllFiles = calcSamplesFolderSize();
 
 	char currentPatch[PATCH_SIZE];
@@ -235,6 +244,7 @@ uint8_t SamplesLoader::getCurrentProgress()
 	uint8_t progress;
 
 	progress = ((currentLoadSize * 100) / sizeAllFiles);
+
 
 	return progress;
 }
