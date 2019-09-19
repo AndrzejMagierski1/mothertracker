@@ -420,21 +420,13 @@ struct strMtProjectRemote
 {
 	struct strInstrumentFile
 	{
-		int8_t isActive = -1;
 		uint8_t sampleType;
 	} instrumentFile[INSTRUMENTS_COUNT];
-
-	struct strPaternFile
-	{
-		int8_t isActive= -1;
-	} patternFile[PATTERN_INDEX_MAX];
-
 	struct strSong
 	{
 		uint8_t playlist[SONG_MAX] { 1, 2, 3, 4, 0 };
 		int8_t playlistPos = 0;
 	} song;
-
 
 	strMtValues values;
 
