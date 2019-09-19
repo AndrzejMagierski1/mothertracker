@@ -363,7 +363,6 @@ static uint8_t functShiftPaste()
 						fileManager.setAutoLoadFlag();
 					}
 
-
 					fileManager.setStart(SI->selectedSlot);
 					fileManager.assignSampleToInstrument(projectSamplePath, SI->parseNewName(SI->instrCopyStart+SI->copyElement), SI->selectedSlot + SI->copyElement);
 					memcpy(&mtProject.instrument[SI->selectedSlot+SI->copyElement],&mtProject.instrument[SI->instrCopyStart+SI->copyElement],sizeof(mtProject.instrument[0]));
@@ -1300,6 +1299,7 @@ void cSampleImporter::handleSequenceCopyingLoading()
 
 			if((copyElement == (copyElementMax-1)) || (instrCopied == (instrActiveInSel - 1)))
 			{
+				fileManager.setLoadLength(copyElementMax);
 				fileManager.setAutoLoadFlag();
 			}
 

@@ -25,7 +25,12 @@ void FileManager::update()
 		if(autoLoadFlag)
 		{
 			uint8_t startIndex = samplesImporter.getCurrentStartIndex();
+			samplesLoader.setFilesToLoad(loadLength);
+
 			if(startIndex != -1) samplesLoader.start(startIndex,currentProjectPatch);
+
+			loadLength=1;
+
 		}
 	}
 
@@ -49,6 +54,12 @@ void FileManager::clearAutoLoadFlag()
 {
 	autoLoadFlag = 0;
 }
+
+void FileManager::setLoadLength(uint8_t filesNum)
+{
+	loadLength = filesNum;
+}
+
 void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 {
 	if(SD.exists(name)) SD.remove(name);

@@ -21,6 +21,7 @@ public:
 	uint8_t getCurrentProgress();
 	uint8_t getStateFlag();
 	uint8_t getFirstLoadFlag();
+	void setFilesToLoad(uint8_t filesNum);
 	WaveLoader waveLoader;
 	WavetableLoader wavetableLoader;
 private:
@@ -35,6 +36,7 @@ private:
 	uint32_t sizeAllFiles;
 	uint32_t currentLoadSize = 0;
 	uint32_t currentStepLoadSize = 0;
+	uint8_t filesToLoad = 0;
 	char currentProjectPatch[PATCH_SIZE-PROJECT_NAME_SIZE];
 
 };

@@ -67,6 +67,7 @@ public:
 	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
 	void deleteSample(int8_t index);
 	void deleteInstrument(int8_t index);
+	void setLoadLength(uint8_t filesNum);
 	SamplesLoader samplesLoader;
 	SamplesImporter samplesImporter;
 //**************************************************************************************************************************
@@ -103,6 +104,7 @@ private:
 	char currentProjectName[PROJECT_NAME_SIZE];
 	uint8_t endImportSampleFlag = 0;
 	uint8_t autoLoadFlag = 1;
+	uint8_t loadLength = 0;
 //**************************************************************************************************************************
 //************************************************ FileManagerInstrument****************************************************
 	uint8_t currentCopyStatusFlag;
