@@ -14,6 +14,7 @@ public:
 	uint8_t getState();
 	uint8_t getProgress();
 	uint8_t getCurrentStartIndex();
+	void setStartIndex(uint8_t startIndex);
 private:
 	FsFile fileImportSample;
 	FsFile copyImportSample;

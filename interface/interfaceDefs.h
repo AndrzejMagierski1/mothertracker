@@ -135,7 +135,7 @@ enum mtInterfaceButtonsFunctions
 
 
 	interfaceButtonParams 		= interfaceButton8,
-	interfaceButtonEnvelopes 	= interfaceButton9,
+	interfaceButtonPerformance 	= interfaceButton9,
 	interfaceButtonFile 		= interfaceButton10,
 	interfaceButtonConfig		= interfaceButton11,
 	interfaceButtonMaster 		= interfaceButton12,

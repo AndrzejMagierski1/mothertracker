@@ -24,9 +24,9 @@ void cSampleImporter::initDisplayControls()
 	prop2.x = 30;
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
-	prop2.x = 769;
-	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
+//	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
+//	prop2.x = 769;
+//	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 
 	prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 
@@ -58,7 +58,7 @@ void cSampleImporter::initDisplayControls()
 	explorerList.start = 0;
 	explorerList.length = locationExplorerCount;
 	explorerList.data = explorerNames;
-	explorerList.selectTab=selectionTab;
+	//explorerList.selectTab=selectionTab;
 	strControlProperties prop;
 	prop.x = 0+8;
 	prop.y = 37;
@@ -122,6 +122,9 @@ void cSampleImporter::destroyDisplayControls()
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
 
+//	display.destroyControl(instrumentLabel);
+//	instrumentLabel = nullptr;
+
 	display.destroyControl(explorerListControl);
 	explorerListControl = nullptr;
 
@@ -151,7 +154,7 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlText(titleLabel, "Sample Loader");
 	display.refreshControl(titleLabel);
 
-	showActualInstrument();
+//	showActualInstrument();
 
 
 	display.setControlText(topLabel[0], "Micro SD");
@@ -261,7 +264,7 @@ void cSampleImporter::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	sprintf(actualInstrName, "%d. ", i);
+	sprintf(actualInstrName, "%d. ", i+1);
 
 	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 
@@ -293,6 +296,8 @@ void cSampleImporter::rewindListToBeggining()
 
 void cSampleImporter::setSelect(uint8_t place)
 {
+	memset(selectionTab,0,sizeof(selectionTab));
+
 	if(place == 0)
 	{
 		explorerList.selectTab=selectionTab;
@@ -306,6 +311,21 @@ void cSampleImporter::setSelect(uint8_t place)
 
 	//display.setControlData(explorerListControl, &explorerList);
 	//display.setControlData(instrumentListControl, &instrumentList);
+}
+
+// mode = 0 - bialy , mode = 1 - czerwony
+void cSampleImporter::frameSelectMode(uint8_t place,uint8_t mode)
+{
+	if(place == 0)
+	{
+		explorerList.selectionActive=mode;
+		display.refreshControl(explorerListControl);
+	}
+	else
+	{
+		instrumentList.selectionActive=mode;
+		display.refreshControl(instrumentListControl);
+	}
 }
 
 void cSampleImporter::displayDelete(uint8_t onOff)

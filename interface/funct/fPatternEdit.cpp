@@ -137,7 +137,7 @@ void cPatternEditor::start(uint32_t options)
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonEnvelopes, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
@@ -2546,6 +2546,26 @@ static uint8_t functSwitchModule(uint8_t button)
 		//PTE->focusOnPattern();
 		return 1;
 	}
+
+
+	if(tactButtons.isButtonPressed(interfaceButtonShift) && PTE->editMode == 1)
+	{
+		Sequencer::strPattern* seq = sequencer.getPatternToUI();
+
+		mtProject.values.lastUsedNote =
+				seq->track[PTE->trackerPattern.actualTrack].
+				step[PTE->trackerPattern.actualStep].note;
+		mtProject.values.lastUsedInstrument =
+				seq->track[PTE->trackerPattern.actualTrack].
+				step[PTE->trackerPattern.actualStep].instrument;
+		mtProject.values.lastUsedVolume =
+				seq->track[PTE->trackerPattern.actualTrack].
+				step[PTE->trackerPattern.actualStep].velocity;
+		mtProject.values.lastUsedFx =
+				seq->track[PTE->trackerPattern.actualTrack].
+				step[PTE->trackerPattern.actualStep].fx[0].type;
+	}
+
 
 	PTE->eventFunct(eventSwitchModule,PTE,&button,0);
 

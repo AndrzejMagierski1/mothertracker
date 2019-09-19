@@ -53,14 +53,19 @@ void Si4703::powerOn()
 
 void Si4703::powerOff()
 {
-	/*Procesura zgodnie z AN230*/
-	readRegisters();
-	si4703_registers[rSYSCONFIG1] &= ~RDS;
-	updateRegisters();
+	if(isInitializedProperly)
+	{
+		/*Procesura zgodnie z AN230*/
+		readRegisters();
+		si4703_registers[rSYSCONFIG1] &= ~RDS;
+		updateRegisters();
 
-	readRegisters();
-	si4703_registers[rPOWERCFG] |= DISABLE;
-	updateRegisters();
+		readRegisters();
+		si4703_registers[rPOWERCFG] |= DISABLE;
+		updateRegisters();
+	}
+
+	detachInterrupt(digitalPinToInterrupt(_interruptPin));
 }
 
 void Si4703::setFrequency(float freq)

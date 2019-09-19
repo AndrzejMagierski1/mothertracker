@@ -213,7 +213,15 @@ uint8_t cList::update()
 			y_pos = posY + (barPos * height);
 
 			//ramka
-			API_COLOR(colors[0]);
+			if(list->selectionActive)
+			{
+				API_COLOR(colors[5]);
+			}
+			else
+			{
+				API_COLOR(colors[0]);
+			}
+
 			API_LINE_WIDTH(16);
 			API_BEGIN(LINE_STRIP);
 			API_VERTEX2F(x_pos, y_pos);
@@ -326,7 +334,14 @@ uint8_t cList::update()
 			y_pos = posY + (barPos * height) + (mode ? 0 : listAnimationStep);
 
 			//ramka
-			API_COLOR(colors[0]);
+			if(list->selectionActive)
+			{
+				API_COLOR(colors[5]);
+			}
+			else
+			{
+				API_COLOR(colors[0]);
+			}
 			API_LINE_WIDTH(16);
 			API_BEGIN(LINE_STRIP);
 			API_VERTEX2F(x_pos, y_pos);
@@ -355,7 +370,7 @@ uint8_t cList::update()
 			{
 				y_pos+=height;
 
-				for(int8_t i = 0; i < (lines+1); i++)
+				for(int8_t i = 0; i < lines; i++)
 				{
 					if(list->selectTab != NULL)
 					{
@@ -378,7 +393,7 @@ uint8_t cList::update()
 			}
 			else if(dir == -1) // tekst porusza sie w dol (wartosci w gore)
 			{
-				for(int8_t i = 0; i < (lines+1); i++)
+				for(int8_t i = 0; i < lines; i++)
 				{
 					if(list->selectTab != NULL)
 					{

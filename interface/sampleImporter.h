@@ -132,7 +132,9 @@ public:
 	uint8_t copyingProgress = 0;
 	uint8_t lastCopyStatusFlag = 0;
 	uint8_t currentCopyStatusFlag = 0;
-	uint8_t copyQueue = 0;
+	//uint8_t copyQueue = 0;
+	uint8_t copyElement=0;
+	uint8_t copyElementMax;
 	uint8_t firstMemBarLoadFlag=0;
 
 	uint8_t lastLoadStatusFlag = 0;
@@ -180,6 +182,8 @@ public:
 	uint8_t selectionLength;
 	uint8_t currSelectPlace=0;
 
+	uint8_t instrCopied=0;
+	uint8_t instrActiveInSel =0;
 
 	void updateSelection();
 
@@ -198,18 +202,20 @@ public:
 	uint32_t currentFolderMemoryFileUsage[255];
 
 	void setSelect(uint8_t place);
+	void frameSelectMode(uint8_t place,uint8_t mode);
 
 	void displayDelete(uint8_t onOff);
 
 	uint8_t instrCopyStart;
-	uint8_t instrCopyLength;
-	uint8_t instrCopied;
 
 	uint8_t copyType;//0- no copy ,1- sd to intr,2 -instr to instr
 
 	char instrToCreate[15];
 	char *parseNewName(uint8_t num);
 	uint8_t willCopyInstrFit(uint8_t length);
+	uint8_t getActiveInstrInSelection();
+	void resetInstrSel();
+
 	void handleSequenceCopyingLoading();
 
 

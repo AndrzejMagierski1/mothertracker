@@ -48,20 +48,21 @@ void setup()
 //=======================================================================
 void loop()
 {
-
 	powerModeUpdate();
-
-	sequencer.handle();
-	handle_chatBot();
-
-	padsBacklight.update();
-
-	updateExport();
 	updateHardware();
 
-	engine.update();
-	fileManager.update();
-	recorder.updateSave();
-	mtInterface.update();
+	if(!isLowPower())
+	{
+		sequencer.handle();
+		handle_chatBot();
 
+		padsBacklight.update();
+
+		updateExport();
+
+		engine.update();
+		fileManager.update();
+		recorder.updateSave();
+		mtInterface.update();
+	}
 }

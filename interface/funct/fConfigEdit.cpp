@@ -85,7 +85,7 @@ void cConfigEditor::start(uint32_t options)
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonEnvelopes, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
 	//FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
 	//FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
@@ -285,7 +285,7 @@ static  uint8_t functEncoder(int16_t value)
 	switch(mode_places)
 	{
 	case 0: CE->changeSelectionInGroup(value);		 break;
-	case 1:		 break;
+	case 1:	CE->changeSelectionInGroup(value);	 	 break;
 	case 2: 	 break;
 	case 3: 	 break;
 	case 4: 	 break;
@@ -949,7 +949,7 @@ void cConfigEditor::hideWarning()
 void cConfigEditor::changeFirmwareSelection(int16_t value)
 {
 	if(firmwareSelect + value < 0) firmwareSelect = 0;
-	else if(firmwareSelect + value >= firmwareFoundNum) firmwareSelect = firmwareFoundNum-1;
+	else if(firmwareSelect + value >= firmwareFoundNum) firmwareSelect = firmwareFoundNum;
 	else  firmwareSelect+= value;
 
 	display.setControlValue(firmwareListControl, firmwareSelect);

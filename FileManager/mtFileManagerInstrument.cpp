@@ -62,6 +62,11 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 	return 1;
 }
 
+void FileManager::setStart(uint8_t startPoint)
+{
+	samplesImporter.setStartIndex(startPoint);
+}
+
 void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_t index) //todo: to nie dziala ze wzgledu na to ze nie ma sensu robic(na ta chwile nie jest potrzebne, a potem sie wszystko zmieni)
 {
 	char currentPatch[PATCH_SIZE];
@@ -94,6 +99,7 @@ void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_
 
 	sprintf(currentPatch,"%s/samples/",projectPatch);
 
+	samplesImporter.setStartIndex(index);
 	samplesImporter.start(currentPatch,localName,currentProjectPatch,index,mtProject.mtProjectRemote.instrumentFile[index].sampleType);
 
 	if(index < 10 ) sprintf(currentPatch,"%s/instruments/instrument_0%d.mti",currentProjectPatch,index);

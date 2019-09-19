@@ -1472,7 +1472,12 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 				step->instrument = mtProject.values.lastUsedInstrument;
 			}
 			step->note = note;
-			step->velocity = velocity;
+
+			if(step->velocity < 0)
+			{
+				step->velocity = velocity;
+			}
+
 
 //			blinkNote(step->instrument,
 //						step->note,

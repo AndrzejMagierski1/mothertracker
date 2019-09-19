@@ -66,12 +66,14 @@ public:
 
 //**************************************************************************************************************************
 //************************************************ FileManagerInstrument****************************************************
+	void setStart(uint8_t startPoint);
 	uint8_t assignSampleToInstrument(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type  = mtSampleTypeWaveFile);
 	void setAutoLoadFlag();
 	void clearAutoLoadFlag();
 	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
 	void deleteSample(int8_t index);
 	void deleteInstrument(int8_t index);
+	void setLoadLength(uint8_t filesNum);
 	SamplesLoader samplesLoader;
 	SamplesImporter samplesImporter;
 	SamplesCopyier samplesCopyier;
@@ -117,6 +119,7 @@ private:
 	uint8_t openTemplateBasedProjectFlag = 0;
 	uint8_t samplesCopyierCurrentState = 0;
 	uint8_t lastCopyierCurrentState = 0;
+	uint8_t loadLength = 0;
 //**************************************************************************************************************************
 //************************************************ FileManagerInstrument****************************************************
 	uint8_t currentCopyStatusFlag;

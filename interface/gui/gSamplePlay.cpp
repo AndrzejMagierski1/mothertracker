@@ -377,9 +377,9 @@ void cSamplePlayback::showActualInstrument()
 {
 	static char actualInstrName[SAMPLE_NAME_SIZE+4];
 
-	uint8_t i = mtProject.values.lastUsedInstrument+1;
+	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	sprintf(actualInstrName, "%d. ", i);
+	sprintf(actualInstrName, "%d. ", i+1);
 
 	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 
