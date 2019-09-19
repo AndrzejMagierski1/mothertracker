@@ -217,10 +217,7 @@ void cInterfacePopups::showFxesPopup()
 	display.synchronizeRefresh();
 }
 
-void cInterfacePopups::showGlobalPopup()
-{
 
-}
 
 //=====================================================================================================
 // show / hide
@@ -649,4 +646,63 @@ static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
 //=========================================================================================================
 //=========================================================================================================
 //=========================================================================================================
+
+
+void cInterfacePopups::show(uint8_t config_slot, char* line1)
+{
+	textlines[0] = line1;
+
+	show(config_slot, textlines, 1);
+}
+
+void cInterfacePopups::show(uint8_t config_slot, char* line1, char* line2)
+{
+	textlines[0] = line1;
+	textlines[1] = line2;
+
+	show(config_slot, textlines, 2);
+}
+
+void cInterfacePopups::show(uint8_t config_slot, char* line1, char* line2, char* line3)
+{
+	textlines[0] = line1;
+	textlines[1] = line2;
+	textlines[2] = line3;
+
+	show(config_slot, textlines, 3);
+}
+
+void cInterfacePopups::show(uint8_t config_slot, char* line1, char* line2, char* line3, char* line4)
+{
+	textlines[0] = line1;
+	textlines[1] = line2;
+	textlines[2] = line3;
+	textlines[3] = line4;
+
+	show(config_slot, textlines, 4);
+}
+
+
+void cInterfacePopups::show(uint8_t config_slot, char** multiLineText, uint8_t lines_count)
+{
+
+
+
+}
+
+
+void cInterfacePopups::config(uint8_t slot, strPopupStyleConfig* config)
+{
+	if(slot >= configsCount) return;
+
+	memcpy(&configs[slot] ,config, sizeof(strPopupStyleConfig));
+}
+
+void cInterfacePopups::setup(uint8_t time)
+{
+	if(time > 30) return;
+	displayTime = time*1000;
+}
+
+
 
