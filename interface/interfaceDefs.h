@@ -171,7 +171,19 @@ enum padStates
 
 
 //-------------------------------------------------------------
+enum interfacePopups
+{
+	mtNotePopup,
+	mtIntrPopup,
+	mtVolPopup,
+	mtFxPopup,
+	mtGlobalPopup,
 
+
+};
+
+
+//-------------------------------------------------------------
 
 
 enum interfaceEvents
@@ -184,6 +196,10 @@ enum interfaceEvents
 	eventSwitchModule,
 	eventSwitchToPreviousModule,
 	eventSwitchModuleWithOptions,
+
+
+	eventShowPopup,
+
 
 	interfaceEventsCount
 };

@@ -13,8 +13,6 @@ enum mtInstrumentEditorMode
 {
 	mtInstEditModeParams,
 	mtInstEditModeEnv,
-	mtInstEditModeInstrList,
-	mtInstEditModeNotes,
 
 };
 
@@ -155,10 +153,7 @@ public:
 	hControl envStateListControl = nullptr;
 	hControl envLoopListControl = nullptr;
 
-	hControl intrumentsListControl[4] = {nullptr};
-
 	hControl frameControl = nullptr;
-	hControl notePopoutControl = nullptr;
 
 
 	uint8_t selectedPlace[3] = {0};
@@ -204,16 +199,7 @@ public:
 	char *envStateNames[2];
 	char *envLoopNames[2];
 
-	//----------------------------------
-	// instruments lists
 
-	strList intrumentsList[4];
-
-	uint8_t selectedInstrument = 0;
-
-	// przenisone do interfaceGlobals
-	//char intrumentsNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
-	//char *ptrIntrumentsNames[INSTRUMENTS_COUNT];
 
 	char volumeVal[4];
 	char panningVal[5];
@@ -228,10 +214,9 @@ public:
 	char envRelease[8];
 	char envAmount[8];
 
-	strPadNames padNamesStruct;
 
-	//char *padNamesPointer[48];
 
+	void cancelPopups();
 
 
 	void listInstruments();

@@ -16,7 +16,6 @@ void sendPasteSelection();
 
 
 
-
 class cPatternEditor: public cModuleBase
 {
 
@@ -44,15 +43,15 @@ public:
 	void setDefaultScreenFunct();
 
 	void setNotePopupFunct();
+	void setInstrPopupFunct();
+	void setVolPopupFunct();
 	void setFxListPopupFunct();
 
 	void focusOnActual();
-
 	void moveCursorByStep();
 
 	void refreshPattern();
 	void readPatternState();
-
 
 	void focusOnPattern();
 	void unfocusPattern();
@@ -67,8 +66,6 @@ public:
 
 	void changeFillData(int16_t value);
 	void changeRandomiseData(int16_t value);
-
-	void changeSelectedFx(int16_t value, uint8_t type = 0);
 
 	void refreshEditState();
 
@@ -105,9 +102,7 @@ public:
 	void refreshRandomiseStep();
 	void hideRandomisePopup();
 
-	void showFxListPopup();
-	void refreshFxListPopup();
-	void showFxList(uint8_t n);
+
 //----------------------------------
 // Funct
 	uint16_t lastPatternPosition;
@@ -146,9 +141,9 @@ public:
 	hControl val3PopupLabel;
 	hControl param2PopupListControl;
 	hControl notePopoutControl = nullptr;
-	hControl titleBar;
-	hControl titleLabel;
-	hControl instrumentLabel;
+//	hControl titleBar;
+//	hControl titleLabel;
+//	hControl instrumentLabel;
 
 	hControl fxListControl[4];
 
@@ -208,30 +203,27 @@ public:
 
 	} randomiseData[4];
 
-	strPadNames padNamesStruct;
+
 
 
 //-------------------------------------------------------
-// fx popup
-	void readStepFx();
-	void setStepFx();
-	void cancelFxPopup();
+// step popups
+	void cancelPopups();
 
-	strList fxList[4];
-	uint8_t selectedFx = 0;
-	uint8_t fxListPopupState = 0;
+	uint8_t getStepFx();
+	int8_t getStepVol();
+
+
 
 //-------------------------------------------------------
 // note popup
-	void showNotePopout();
-	void selectNoteOnPopout(int8_t pad);
-	void cancelNonePopup();
 
-	uint8_t notePopupState;
+
+
+
 
 //-------------------------------------------------------
-//
-	void showActualInstrument();
+
 
 
 };

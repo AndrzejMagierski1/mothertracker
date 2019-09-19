@@ -13,6 +13,7 @@
 
 
 typedef cModuleBase* hModule;
+class cInterfacePopups;
 
 
 class cInterface
@@ -30,7 +31,7 @@ public:
 	void switchModuleToPrevious(hModule module);
 	int8_t getButtonIndex(uint8_t button);
 
-	// gInterface.cpp -----------------------------
+	// interfaceMisc.cpp -----------------------------
 	void initStartScreen();
 	void showStartScreen();
 	void destroyStartScreen();
@@ -51,12 +52,11 @@ public:
 	void seqButtonDouble(uint8_t x, uint8_t y);
 
 
-
-
-
 private:
+	friend cInterfacePopups;
 
 	void processOperatingMode();
+	void doStartTasks();
 
 	static const uint8_t modulesCount;
 	static const hModule modules[];
@@ -78,15 +78,17 @@ private:
 	hModule previousModule = nullptr;
 	uint32_t previousModuleOptions = 0;
 
-
 	uint8_t doOnStart = 1;
 
-	// gInterface.cpp -----------------------------
 
+	// interfaceMisc.cpp -----------------------------
 	uint8_t startSampleLoadingFlag = 0;
 	uint8_t startSampleLoadingProgress = 0;
 	hControl startScreenControl = nullptr;
 	strStartScreenData startScreenData;
+
+
+
 
 
 

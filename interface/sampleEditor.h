@@ -61,6 +61,7 @@ public:
 	void showPlayModeList();
 
 	void setDefaultScreenFunct();
+	void cancelPopups();
 
 
 //	void processSpectrum();

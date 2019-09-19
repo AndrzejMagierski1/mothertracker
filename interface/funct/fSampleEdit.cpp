@@ -3,7 +3,7 @@
 #include "sampleEditor.h"
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
-
+#include "interfacePopups.h"
 
 #include "graphicProcessing.h"
 
@@ -18,6 +18,7 @@ extern strMtProject mtProject;
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
 
+static  uint8_t functStepNote(uint8_t value);
 static  uint8_t functInstrument(uint8_t state);
 
 static  uint8_t functLeft();
@@ -42,7 +43,7 @@ static uint8_t functShift(uint8_t value);
 static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
-static uint8_t functStepNote(uint8_t value);
+
 
 
 
@@ -165,6 +166,8 @@ void cSampleEditor::setDefaultScreenFunct()
 
 }
 
+
+
 //==============================================================================================================
 
 
@@ -211,7 +214,17 @@ void cSampleEditor::listPlayMode()
 
 }
 
+void cSampleEditor::cancelPopups()
+{
+	if(mtPopups.getStepPopupState() != stepPopupNone)
+	{
+		mtPopups.hideStepPopups();
 
+		setDefaultScreenFunct();
+
+		showDefaultScreen();
+	}
+}
 
 //==============================================================================================================
 
@@ -662,14 +675,14 @@ static uint8_t functShift(uint8_t value)
 
 static  uint8_t functInstrument(uint8_t state)
 {
-	if(state == buttonPress)
+	if(state == buttonRelease)
 	{
-		uint8_t buttonId  = interfaceButtonInstr;
-		SE->eventFunct(eventSwitchModule, SE, &buttonId, 0);
+		SE->cancelPopups();
 	}
-	else if(state == buttonHold)
+	else if(state == buttonPress)
 	{
-
+		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
+		//SE->lightUpPadBoard();
 	}
 
 	return 1;
@@ -679,22 +692,15 @@ static uint8_t functStepNote(uint8_t value)
 {
 	if(value == buttonRelease)
 	{
-		SE->hideNotePopout();
-		SE->setDefaultScreenFunct();
+		SE->cancelPopups();
+
 	}
-	else if(value == buttonHold)
+	else if(value == buttonPress)
 	{
-		for(uint8_t i = 0; i < 48; i++)
-		{
-			interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
-		}
-
-		SE->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
-		SE->FM->clearButtonsRange(interfaceButtonUp, interfaceButtonRight);
-		SE->FM->clearAllPots();
-
-		SE->showNotePopout();
+		mtPopups.showStepPopup(stepPopupNote, -1);
+		//SE->lightUpPadBoard();
 	}
 
 	return 1;
 }
+

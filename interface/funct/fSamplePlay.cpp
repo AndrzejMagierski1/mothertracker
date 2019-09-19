@@ -4,6 +4,7 @@
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
 #include "mtPadsBacklight.h"
+#include "interfacePopups.h"
 
 #include "graphicProcessing.h"
 
@@ -304,6 +305,17 @@ void cSamplePlayback::listPlayMode()
 
 }
 
+void cSamplePlayback::cancelPopups()
+{
+	if(mtPopups.getStepPopupState() != stepPopupNone)
+	{
+		mtPopups.hideStepPopups();
+
+		setDefaultScreenFunct();
+
+		showDefaultScreen();
+	}
+}
 
 
 //==============================================================================================================
@@ -939,20 +951,6 @@ static uint8_t functShift(uint8_t value)
 	return 1;
 }
 
-static  uint8_t functInstrument(uint8_t state)
-{
-	if(state == buttonPress)
-	{
-		uint8_t buttonId  = interfaceButtonInstr;
-		SP->eventFunct(eventSwitchModule, SP, &buttonId, 0);
-	}
-	else if(state == buttonHold)
-	{
-
-	}
-
-	return 1;
-}
 
 void cSamplePlayback::calcPlayProgressValue()
 {
@@ -1036,25 +1034,33 @@ void cSamplePlayback::calcPlayProgressValue()
 
 }
 
+
+static  uint8_t functInstrument(uint8_t state)
+{
+	if(state == buttonRelease)
+	{
+		SP->cancelPopups();
+	}
+	else if(state == buttonPress)
+	{
+		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
+		//SE->lightUpPadBoard();
+	}
+
+	return 1;
+}
+
 static uint8_t functStepNote(uint8_t value)
 {
 	if(value == buttonRelease)
 	{
-		SP->hideNotePopout();
-		SP->setDefaultScreenFunct();
+		SP->cancelPopups();
+
 	}
-	else if(value == buttonHold)
+	else if(value == buttonPress)
 	{
-		for(uint8_t i = 0; i < 48; i++)
-		{
-			interfaceGlobals.padNamesPointer[i] = (char*)mtNotes[mtPadBoard.getNoteFromPad(i)];
-		}
-
-		SP->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
-		SP->FM->clearButtonsRange(interfaceButtonUp, interfaceButtonRight);
-		SP->FM->clearAllPots();
-
-		SP->showNotePopout();
+		mtPopups.showStepPopup(stepPopupNote, -1);
+		//SE->lightUpPadBoard();
 	}
 
 	return 1;
