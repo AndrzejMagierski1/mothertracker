@@ -187,9 +187,9 @@ class FatVolume : public  FatPartition {
    * \return The value true is returned for success and
    * the value false is returned for failure.
    */
-  bool mkdir(const char* path, bool pFlag = true) {
+  bool mkdir(uint8_t hidden, const char* path, bool pFlag = true) {
     FatFile sub;
-    return sub.mkdir(vwd(), path, pFlag);
+    return sub.mkdir(hidden,vwd(), path, pFlag);
   }
   //----------------------------------------------------------------------------
   /** Remove a file from the volume root directory.

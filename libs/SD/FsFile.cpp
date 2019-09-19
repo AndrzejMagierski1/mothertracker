@@ -61,11 +61,11 @@ bool FsFile::close() {
   return false;
 }
 //-----------------------------------------------------------------------------
-bool FsFile::mkdir(FsFile* dir, const char* path, bool pFlag) {
+bool FsFile::mkdir(uint8_t hidden,FsFile* dir, const char* path, bool pFlag) {
   close();
   if (dir->m_fFile) {
     m_fFile = new (m_fileMem) FatFile;
-    if (m_fFile->mkdir(dir->m_fFile, path, pFlag)) {
+    if (m_fFile->mkdir(hidden,dir->m_fFile, path, pFlag)) {
       return true;
     }
     m_fFile = nullptr;
