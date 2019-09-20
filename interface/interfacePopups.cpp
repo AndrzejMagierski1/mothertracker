@@ -87,6 +87,38 @@ void cInterfacePopups::initPopupsDisplayControls()
 	if(textLabel2 == nullptr) textLabel2 = display.createControl<cLabel>(&prop2);
 
 
+	strControlProperties prop3;
+	prop3.style = 	(controlStyleBackground);
+	prop3.x = 0;
+	prop3.y = 0;
+	prop3.w = 50;
+	prop3.h = 50;
+	prop3.data = &popupData;
+	if(textPopup == nullptr) textPopup = display.createControl<cTextPopup>(&prop3);
+
+
+
+	// defultowy config
+	globalConfig[0].time = 1;
+	globalConfig[0].x = 800/2-50;
+	globalConfig[0].y = 480/2-50;
+	globalConfig[0].w = 100;
+	globalConfig[0].h = 100;
+	globalConfig[0].lineColor[0] = 0xffffff;;
+	globalConfig[0].lineStyle[0] = 0;
+	globalConfig[0].lineColor[1] = 0xffffff;;
+	globalConfig[0].lineStyle[1] = 0;
+	globalConfig[0].lineColor[2] = 0xffffff;;
+	globalConfig[0].lineStyle[2] = 0;
+	globalConfig[0].lineColor[3] = 0xffffff;;
+	globalConfig[0].lineStyle[3] = 0;
+
+
+	for(uint8_t i = 1; i < configsCount; i++)
+	{
+		memcpy(&globalConfig[i],&globalConfig[0], sizeof(strPopupStyleConfig));
+	}
+
 }
 
 void cInterfacePopups::destroyPopupsDisplayControls()
@@ -104,6 +136,29 @@ void cInterfacePopups::destroyPopupsDisplayControls()
 
 	 */
 }
+
+void cInterfacePopups::update()
+{
+
+	if(globalPopupDisplayTime > 0)
+	{
+		if(popupTimer > 1000)
+		{
+			popupTimer = 0;
+
+			if(globalPopupDisplayTime == 1)
+			{
+				hide();
+			}
+			else globalPopupDisplayTime--;
+
+
+		}
+	}
+
+
+}
+
 
 //=====================================================================================================
 // show
@@ -647,61 +702,97 @@ static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
 //=========================================================================================================
 //=========================================================================================================
 
+/*
+//	wywolywanie popupu	- max 4 linie tekstu
+void show(config_slot, linia_1_textu);
+void show(config_slot, linia_1_textu,linia_2_textu);
+void show(config_slot, linia_1_textu,linia_1_textu...);
 
+//	 ukrywanie jesli potrzba szybciej niz ustawiony czas
+void hide();
+
+//	configuracja wygladu popupu
+void config(slot, struktura_konfigutracji);
+*/
 void cInterfacePopups::show(uint8_t config_slot, char* line1)
 {
-	textlines[0] = line1;
+	textLines[0] = line1;
 
-	show(config_slot, textlines, 1);
+	show(config_slot, textLines, 1);
 }
 
 void cInterfacePopups::show(uint8_t config_slot, char* line1, char* line2)
 {
-	textlines[0] = line1;
-	textlines[1] = line2;
+	textLines[0] = line1;
+	textLines[1] = line2;
 
-	show(config_slot, textlines, 2);
+	show(config_slot, textLines, 2);
 }
 
 void cInterfacePopups::show(uint8_t config_slot, char* line1, char* line2, char* line3)
 {
-	textlines[0] = line1;
-	textlines[1] = line2;
-	textlines[2] = line3;
+	textLines[0] = line1;
+	textLines[1] = line2;
+	textLines[2] = line3;
 
-	show(config_slot, textlines, 3);
+	show(config_slot, textLines, 3);
 }
 
 void cInterfacePopups::show(uint8_t config_slot, char* line1, char* line2, char* line3, char* line4)
 {
-	textlines[0] = line1;
-	textlines[1] = line2;
-	textlines[2] = line3;
-	textlines[3] = line4;
+	textLines[0] = line1;
+	textLines[1] = line2;
+	textLines[2] = line3;
+	textLines[3] = line4;
 
-	show(config_slot, textlines, 4);
+	show(config_slot, textLines, 4);
 }
 
 
 void cInterfacePopups::show(uint8_t config_slot, char** multiLineText, uint8_t lines_count)
 {
+	// ustawienie czasu
+	popupTimer = 0;
+	globalPopupDisplayTime = globalConfig[config_slot].time;
 
+	// kopiowanie configu
+	popupData.textLinesCount = lines_count;
+	popupData.multiLineText = multiLineText;
 
+	for(uint8_t i = 0; i < textLinesCount; i++)
+	{
+		textStyles[i] = &globalConfig[config_slot].lineStyle[i];
+		textColors[i] = &globalConfig[config_slot].lineColor[i];
+	}
 
+	popupData.multiLineStyle = textStyles;
+	popupData.multiLineColors = textColors;
+
+	// odsiwezenie kontrolki
+	//display.setControlData(textPopup, &popupData);
+	display.setControlPosition(textPopup, globalConfig[config_slot].x, globalConfig[config_slot].y);
+	display.setControlSize(textPopup, globalConfig[config_slot].w, globalConfig[config_slot].h);
+	display.setControlStyle(textPopup, controlStyleShow | controlStyleBackground);
+	display.setControlShow(textPopup);
+	display.refreshControl(textPopup);
 }
 
+void cInterfacePopups::hide()
+{
+	if(globalPopupDisplayTime)
+	{
+		globalPopupDisplayTime = 0;
+
+		display.setControlHide(textPopup);
+		display.refreshControl(textPopup);
+	}
+}
 
 void cInterfacePopups::config(uint8_t slot, strPopupStyleConfig* config)
 {
 	if(slot >= configsCount) return;
 
-	memcpy(&configs[slot] ,config, sizeof(strPopupStyleConfig));
-}
-
-void cInterfacePopups::setup(uint8_t time)
-{
-	if(time > 30) return;
-	displayTime = time*1000;
+	memcpy(&globalConfig[slot] ,config, sizeof(strPopupStyleConfig));
 }
 
 

@@ -1,10 +1,25 @@
 
+/*
+//	wywolywanie popupu	- max 4 linie tekstu
+void show(config_slot, linia_1_textu);
+void show(config_slot, linia_1_textu,linia_2_textu);
+void show(config_slot, linia_1_textu,linia_1_textu...);
+
+//	 ukrywanie jesli potrzba szybciej niz ustawiony czas
+void hide();
+
+//	configuracja wygladu popupu
+void config(slot, struktura_konfigutracji);
+*/
+
 
 #ifndef INTERFACE_INTERFACEPOPUPS_H_
 #define INTERFACE_INTERFACEPOPUPS_H_
 
 
 #include <modulesBase.h>
+#include <elapsedMillis.h>
+
 
 
 enum enumStepPopups
@@ -18,27 +33,24 @@ enum enumStepPopups
 
 struct strPopupStyleConfig
 {
-	uint8_t line1_font;
-	uint8_t line1_style;
-	uint8_t line1_color;
+	uint8_t time;
 
-	uint8_t line2_font;
-	uint8_t line2_style;
-	uint8_t line2_color;
+	uint16_t x;
+	uint16_t y;
+	uint16_t w;
+	uint16_t h;
 
-	uint8_t line3_font;
-	uint8_t line3_style;
-	uint8_t line3_color;
+	uint32_t lineColor[4];
+	uint32_t lineStyle[4];
 
-	uint8_t line4_font;
-	uint8_t line4_style;
-	uint8_t line4_color;
 };
 
 
 class cInterfacePopups
 {
 public:
+
+	void update();
 
 	// gui constrols
 	void initPopupsDisplayControls();
@@ -60,14 +72,25 @@ public:
 	//-------------------------------------
 	// global popups functs
 	void show(uint8_t config_slot, char* line1);
+	void show(uint8_t config_slot, const char* line1)
+	{ show(config_slot, (char*) line1); }
+
 	void show(uint8_t config_slot, char* line1, char* line2);
+	void show(uint8_t config_slot, const char* line1, const char* line2)
+	{ show(config_slot, (char*) line1, (char*) line2); }
+
 	void show(uint8_t config_slot, char* line1, char* line2, char* line3);
+	void show(uint8_t config_slot, const char* line1, const char* line2, const char* line3)
+	{ show(config_slot, (char*) line1, (char*) line2, (char*) line3); }
+
 	void show(uint8_t config_slot, char* line1, char* line2, char* line3, char* line4);
+	void show(uint8_t config_slot, const char* line1, const char* line2, const char* line3, const char* line4)
+	{ show(config_slot, (char*) line1, (char*) line2, (char*) line3, (char*) line4); }
 
 	void show(uint8_t config_slot, char** multiLineText, uint8_t lines_count);
+	void hide();
 
 	void config(uint8_t slot, strPopupStyleConfig* config);
-	void setup(uint8_t time);
 
 
 
@@ -97,8 +120,6 @@ private:
 	hControl textLabel1;
 	hControl textLabel2;
 
-	hControl textPopup;
-
 	strList popupList[4];
 	strPadNames padNamesStruct;
 
@@ -110,12 +131,20 @@ private:
 	//-------------------------------------
 	// global
 
+	hControl textPopup;
+	strTextPopupData popupData;
+
+
+	static const uint8_t textLinesCount = 4;
 	static const uint8_t configsCount = 5;
-	strPopupStyleConfig configs[configsCount];
+	strPopupStyleConfig globalConfig[configsCount];
 
-	char* textlines[4];
+	char* textLines[textLinesCount];
+	uint32_t* textStyles[textLinesCount];
+	uint32_t* textColors[textLinesCount];
 
-	uint16_t displayTime = 1000;
+	elapsedMillis popupTimer;
+	uint8_t globalPopupDisplayTime = 0;
 
 };
 
