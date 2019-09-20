@@ -250,6 +250,8 @@ void cPatternEditor::refreshPattern()
 
 	int16_t patternPosition = trackerPattern.actualStep;
 
+	//mtPopups.show(0, &mtNotes[seq->track[0].step[patternPosition].note][0]);
+
 	for(uint8_t i = 0; i < 8; i++) //track
 	{
 		for(uint8_t j = 0; j < 15; j++) // step
@@ -677,6 +679,21 @@ void cPatternEditor::refreshEditState()
 		FM->setButtonObj(interfaceButton7, buttonPress, functTranspose);
 
 		lightUpPadBoard();
+
+		strPopupStyleConfig config;
+		config.time = 2;
+		config.w = 300;
+		config.h = 100;
+		config.x = 800/2-150;
+		config.y = 480/2-50;
+		config.lineColor[0] = 0xff0000;
+		config.lineColor[1] = 0x00ff00;
+		config.lineStyle[0] = controlStyleCenterX;
+		config.lineStyle[1] = controlStyleCenterX;
+
+
+		mtPopups.config(0, &config);
+		mtPopups.show(0, "Warning!", "Edit mode enabled");
 
 	}
 	else

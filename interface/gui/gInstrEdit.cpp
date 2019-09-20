@@ -204,8 +204,10 @@ void cInstrumentEditor::showDefaultScreen()
 
 void cInstrumentEditor::showInstrumentEnv()
 {
+	display.setControlShow(titleBar);
 	display.refreshControl(titleBar);
 
+	display.setControlShow(titleLabel);
 	display.setControlText(titleLabel, "Instrument Envelopes");
 	display.refreshControl(titleLabel);
 
@@ -281,9 +283,12 @@ void cInstrumentEditor::showInstrumentEnv()
 
 void cInstrumentEditor::showInstrumentParams()
 {
+	display.setControlShow(titleBar);
 	display.refreshControl(titleBar);
 
+	display.setControlShow(titleLabel);
 	display.setControlText(titleLabel, "Instrument Parameters");
+	display.refreshControl(titleLabel);
 
 	showActualInstrument();
 
@@ -331,7 +336,6 @@ void cInstrumentEditor::showInstrumentParams()
 
 //-------------------------------------
 
-	display.refreshControl(titleLabel);
 
 	for(uint8_t i = 0; i<8; i++)
 	{

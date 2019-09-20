@@ -137,6 +137,9 @@ void cInterface::update()
 
 
 
+	mtPopups.update();
+
+
 	if(ramInfoTimer > 5000)
 	{
 		ramInfoTimer = 0;

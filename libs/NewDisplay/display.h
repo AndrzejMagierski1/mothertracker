@@ -23,6 +23,8 @@
 #include "progressCursorControl.h"
 #include "startScreenControl.h"
 #include "notePopoutControl.h"
+#include "textPopupControl.h"
+
 
 
 typedef cDisplayControl* hControl;

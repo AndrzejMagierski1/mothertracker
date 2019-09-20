@@ -125,21 +125,6 @@ void cSampleEditor::initDisplayControls()
 	prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
-	padNamesStruct.length=5;
-	padNamesStruct.name = interfaceGlobals.padNamesPointer;
-
-	strControlProperties prop11;
-	prop11.x = 16;
-	prop11.y = 130;
-	prop11.w = 780;
-	prop11.h = 280;
-	prop11.value=-1;
-	prop11.data=&padNamesStruct;
-
-	if(notePopoutControl== nullptr)  notePopoutControl = display.createControl<cNotePopout>(&prop11);
-
-	display.setControlData(notePopoutControl, &padNamesStruct);
-
 }
 
 
@@ -175,9 +160,6 @@ void cSampleEditor::destroyDisplayControls()
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
-
-	display.destroyControl(notePopoutControl);
-	notePopoutControl = nullptr;
 }
 
 void cSampleEditor::showDefaultScreen()
@@ -284,66 +266,6 @@ void cSampleEditor::showActualInstrument()
 
 	display.setControlText(instrumentLabel,  actualInstrName);
 	display.refreshControl(instrumentLabel);
-}
-
-void cSampleEditor::showNotePopout()
-{
-	display.setControlText(titleLabel, "Notes");
-	display.refreshControl(titleLabel);
-
-	display.setControlShow(notePopoutControl);
-	display.refreshControl(notePopoutControl);
-
-	for(int i=0;i<7;i++)
-	{
-		display.setControlHide(topLabel[i]);
-		display.refreshControl(topLabel[i]);
-
-		display.setControlHide(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-	}
-
-	display.setControlHide(playModeListControl);
-	display.refreshControl(playModeListControl);
-
-	display.setControlHide(frameControl);
-	display.refreshControl(frameControl);
-
-	display.setControlHide(spectrumControl);
-	display.refreshControl(spectrumControl);
-
-	display.setControlHide(pointsControl);
-	display.refreshControl(pointsControl);
-}
-
-void cSampleEditor::hideNotePopout()
-{
-	display.setControlText(titleLabel, "Sample Editor");
-	display.refreshControl(titleLabel);
-
-	display.setControlHide(notePopoutControl);
-	display.refreshControl(notePopoutControl);
-
-	for(int i=0;i<7;i++)
-	{
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
-
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-	}
-
-	display.setControlShow(playModeListControl);
-	display.refreshControl(playModeListControl);
-
-	display.setControlShow(frameControl);
-	display.refreshControl(frameControl);
-
-	display.setControlShow(spectrumControl);
-	display.refreshControl(spectrumControl);
-
-	display.setControlShow(pointsControl);
-	display.refreshControl(pointsControl);
 }
 
 //==============================================================================================================

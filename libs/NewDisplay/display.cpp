@@ -279,13 +279,16 @@ void cDisplay::update()
 
 			API_VERTEX_FORMAT(0);
 
-			// wczytaj elementy w kolejnosci w jakiej byly tworzone
-			for(uint8_t  i = 0; i < controlsCount; i++)
+			// wczytaj elementy w odwrotnej kolejnosci niz w jakiej byly tworzone
+			for(int8_t  i = controlsCount-1; i >= 0; i--)
 			{
 				hControl p = controlsTable[i];
-				if(p == nullptr) break;
-				uint32_t ramAddress = controlsRamStartAddress+(p->ramMapPosition*controlsRamAddressStep);
-				if(p->style & controlStyleShow) p->append(ramAddress);
+				if(p == nullptr) continue;
+				if(p->style & controlStyleShow)
+				{
+					uint32_t ramAddress = controlsRamStartAddress+(p->ramMapPosition*controlsRamAddressStep);
+					p->append(ramAddress);
+				}
 			}
 
 
