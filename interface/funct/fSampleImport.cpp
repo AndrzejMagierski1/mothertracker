@@ -1355,7 +1355,7 @@ void cSampleImporter::handleSequenceCopyingLoading()
 	{
 		if(currSelectPlace==1)
 		{
-			fileManager.saveProject();
+			//fileManager.saveProject(); todo: saveWorkspace
 		}
 
 		copyType=0;

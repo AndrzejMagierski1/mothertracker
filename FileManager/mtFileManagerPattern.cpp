@@ -6,21 +6,20 @@ uint8_t FileManager::loadPattern(uint8_t index)
 
 	char patternToLoad[PATCH_SIZE] { 0 };
 
-	sprintf(patternToLoad, "%.200s%spattern_%02d.mtp", currentProjectPatch, "/patterns/",
-			index);
+	sprintf(patternToLoad, "Workspace/patterns/pattern_%02d.mtp", index);
 	mtProject.values.actualPattern = index;
 
 	uint8_t status = readPatternFile(patternToLoad);
 	return status;
 }
 
+
 uint8_t FileManager::savePattern(uint8_t index)
 {
 
 	char patternToSave[PATCH_SIZE] { 0 };
 
-	sprintf(patternToSave, "%.200s%spattern_%02d.mtp", currentProjectPatch, "/patterns/",
-			index);
+	sprintf(patternToSave, "Workspace/patterns/pattern_%02d.mtp", index);
 	mtProject.values.actualPattern = index;
 	return writePatternFile(patternToSave);
 }
@@ -75,11 +74,12 @@ void FileManager::copyPattern(char* srcProjectPatch, uint8_t src_idx, char * dst
 	uint8_t currentBuffor[1024];
 	uint16_t lengthData=0;
 
+	sprintf(currentPatch,"%s/patterns/pattern_%02d.mtp",srcProjectPatch,src_idx);
+
 	if(!SD.exists(currentPatch)) return;
 	file = SD.open(currentPatch);
 
-	if(dst_idx < 10) sprintf(currentPatch,"%s/patterns/pattern_0%d",dstProjectPatch,dst_idx);
-	else sprintf(currentPatch,"%s/patterns/pattern_%d",dstProjectPatch,dst_idx);
+	sprintf(currentPatch,"%s/patterns/pattern_%02d.mtp",dstProjectPatch,dst_idx);
 
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 	copy= SD.open(currentPatch,FILE_WRITE);
@@ -144,16 +144,13 @@ void FileManager::deletePattern(int8_t index)
 		if(i == index) mtProject.mtProjectRemote.song.playlist[i] = 0;
 	}
 
-	sprintf(currentPatch,"%s/patterns/",currentProjectPatch);
-//	strcat(currentPatch,mtProject.mtProjectRemote.patternFile[cnt].name);
+	sprintf(currentPatch,"Workspace/patterns/pattern_%02d.mtp",index);
 
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 
-//	memset(mtProject.mtProjectRemote.patternFile[cnt].name,0,PATTERN_NAME_SIZE);
-
 	mtProject.patterns_count--;
 
-	sprintf(currentPatch,"%s/project.bin",currentProjectPatch);
+	strcpy(currentPatch,"Workspace/project.bin");
 
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 }

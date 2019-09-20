@@ -16,6 +16,7 @@ void FileManager::update()
 {
 	samplesLoader.update();
 	samplesImporter.update();
+	samplesCopyier.update();
 
 //******************************************************************************************************
 // SAMPLES COPYIER	- kopiuje sample  z patcha do patcha
@@ -69,6 +70,7 @@ void FileManager::update()
 		{
 			for(uint8_t i = currentSaveWave; i < INSTRUMENTS_COUNT; i++)
 			{
+				currentSaveWave = i+1;
 				if(mtProject.instrument[i].isActive == 1)
 				{
 					char currentPatch[PATCH_SIZE];
@@ -78,13 +80,12 @@ void FileManager::update()
 
 					samplesCopyier.start(workspacePatch,currentPatch);
 
-					currentSaveWave = i+1;
-
 					if(i == (INSTRUMENTS_COUNT - 1))
 					{
+						openWorkspaceCreateFlag = 0;
+
 						if(openTemplateBasedProjectFlag)
 						{
-							openWorkspaceCreateFlag = 0;
 							openTemplateBasedProjectFlag = 0;
 							startSaveAsProject(currentProjectNameOpenTemplate);
 						}
@@ -95,7 +96,7 @@ void FileManager::update()
 					}
 					break;
 				}
-				if(i == (INSTRUMENTS_COUNT - 1))
+				if(currentSaveWave == INSTRUMENTS_COUNT)
 				{
 					openWorkspaceCreateFlag = 0;
 
@@ -152,7 +153,7 @@ void FileManager::clearEndImportSampleFlag()
 }
 void FileManager::setAutoLoadFlag()
 {
-	if(saveProjectFlag == 0) autoLoadFlag = 1;
+	autoLoadFlag = 1;
 }
 void FileManager::clearAutoLoadFlag()
 {

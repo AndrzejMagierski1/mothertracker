@@ -51,12 +51,13 @@ uint8_t FileManager::createNewProject(char * name)
 uint8_t FileManager::openTemplateBasedProject(char* projectName, char* templateName)
 {
 	uint8_t status = 0;
+	openTemplateBasedProjectFlag = 1;
 	sprintf(currentProjectNameOpenTemplate,projectName);
 	status = fileManager.openProject(templateName,projectTypeExample);
 	sprintf(currentProjectName,projectName);
 
 
-	openTemplateBasedProjectFlag = 1;
+
 	return status;
 }
 
@@ -119,7 +120,6 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 
 		 if(SD.exists(currentPatch))
 		 {
-
 			 status=readInstrumentFile(currentPatch,&mtProject.instrument[i]);
 			 if(!status) return status;
 
@@ -128,6 +128,10 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 		 }
 		 else
 		 {
+			 sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",i);
+			 if(SD.exists(currentPatch)) SD.remove(currentPatch);
+			 sprintf(currentPatch,"Workspace/samples/instr%02d.wav",i);
+			 if(SD.exists(currentPatch)) SD.remove(currentPatch);
 			 memset(mtProject.instrument[i].sample.file_name,0, SAMPLE_NAME_SIZE);
 			 mtProject.instrument[i].isActive = 0;
 		 }
@@ -137,11 +141,16 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 //**************************************************************************
 	for (int i = PATTERN_INDEX_MIN; i < PATTERN_INDEX_MAX; i++)
 	{
-		 sprintf(currentPatch,"%s/patterns/pattern_%02d.mti",currentProjectPatch,i);
+		 sprintf(currentPatch,"%s/patterns/pattern_%02d.mtp",currentProjectPatch,i);
 
 		 if(SD.exists(currentPatch))
 		 {
 			 copyPattern(currentProjectPatch,i,(char*)"Workspace",i);
+		 }
+		 else
+		 {
+			 sprintf(currentPatch,"Workspace/patterns/pattern_%02d.mtp",i);
+			 if(SD.exists(currentPatch)) SD.remove(currentPatch);
 		 }
 	}
 
@@ -158,17 +167,15 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 //**************************************************************************
 	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
+		currentSaveWave = i+1;
 		if(mtProject.instrument[i].isActive == 1)
 		{
 			sprintf(currentPatch,"%s/samples/instr%02d.wav",currentProjectPatch,i);
 			sprintf(workspacePatch,"Workspace/samples/instr%02d.wav",i);
 
 			samplesCopyier.start(workspacePatch,currentPatch);
-
-			saveProjectFlag = 1;
 			break;
 		}
-		currentSaveWave = i+1;
 	}
 	if(currentSaveWave == (INSTRUMENTS_COUNT))
 	{
@@ -179,6 +186,9 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 		}
 	}
 	else openWorkspaceCreateFlag = 1;
+
+	mtProject.used_memory = 0;
+
 	return status;
 }
 
@@ -412,11 +422,16 @@ void FileManager::startSaveProject()
 
 	for(uint8_t i = PATTERN_INDEX_MIN; i< PATTERN_INDEX_MAX ; i++)
 	{
-		sprintf(currentPatch,"Workspace/patterns/pattern_%02d.mti",i);
+		sprintf(currentPatch,"Workspace/patterns/pattern_%02d.mtp",i);
 
 		if(SD.exists(currentPatch))
 		{
 			copyPattern((char*)"Workspace",i,currentProjectPatch,i);
+		}
+		else
+		{
+			sprintf(currentPatch,"%s/patterns/pattern_%02d.mtp",currentProjectPatch,i);
+			if(SD.exists(currentPatch)) SD.remove(currentPatch);
 		}
 	}
 
@@ -426,6 +441,13 @@ void FileManager::startSaveProject()
 		{
 			sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,i);
 			writeInstrumentFile(currentPatch, &mtProject.instrument[i]);
+		}
+		else
+		{
+			sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,i);
+			if(SD.exists(currentPatch)) SD.remove(currentPatch);
+			sprintf(currentPatch,"%s/samples/instr%02d.wav",currentProjectPatch,i);
+			if(SD.exists(currentPatch)) SD.remove(currentPatch);
 		}
 	}
 
@@ -476,9 +498,6 @@ void FileManager::createEmptyTemplateProject(char * name)
 
 	sprintf(patchFolder,"Templates/%s/samples", name);
 	SD.mkdir(0,patchFolder);
-
-	savePattern(0);
-
 
 	mtProject.patterns_count++;
 	writePatternFile(patchFolder);

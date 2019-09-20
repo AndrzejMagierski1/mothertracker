@@ -52,8 +52,7 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 
 	char currentPatch[PATCH_SIZE];
 
-	if(instrumentIndex < 10 ) sprintf(currentPatch,"Workspace/instruments/instrument_0%d.mti",instrumentIndex);
-	else sprintf(currentPatch,"Workspace/instruments/instrument_%d.mti",instrumentIndex);
+	sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",instrumentIndex);
 	writeInstrumentFile(currentPatch, &mtProject.instrument[instrumentIndex]);
 
 	strcpy(currentPatch,"Workspace/project.bin");
@@ -75,8 +74,7 @@ void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_
 
 	if(mtProject.instrument[index].isActive)
 	{
-		if(index < 10 ) sprintf(currentPatch,"%s/instruments/instrument_0%d.mti",currentProjectPatch,index);
-		else sprintf(currentPatch,"%s/instruments/instrument_%d.mti",currentProjectPatch,index);
+		sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,index);
 
 		if(SD.exists(currentPatch)) SD.remove(currentPatch);
 	}
@@ -94,16 +92,14 @@ void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_
 
 	mtProject.instrument[index].isActive=1;
 
-	if(index<10) sprintf(localName,"instr0%d.wav",index);
-	else sprintf(localName,"instr%d.wav",index);
+	sprintf(localName,"instr%02d.wav",index);
 
 	sprintf(currentPatch,"%s/samples/",projectPatch);
 
 	samplesImporter.setStartIndex(index);
 	samplesImporter.start(currentPatch,localName,currentProjectPatch,index,mtProject.mtProjectRemote.instrumentFile[index].sampleType);
 
-	if(index < 10 ) sprintf(currentPatch,"%s/instruments/instrument_0%d.mti",currentProjectPatch,index);
-	else sprintf(currentPatch,"%s/instruments/instrument_%d.mti",currentProjectPatch,index);
+	sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,index);
 	writeInstrumentFile(currentPatch,&mtProject.instrument[index]);
 
 
@@ -117,16 +113,14 @@ void FileManager::deleteInstrument(int8_t index)
 	char currentPatch[PATCH_SIZE];
 	if(mtProject.instrument[index].isActive != 1)
 	{
-		if(index < 10 ) sprintf(currentPatch,"Workspace/instruments/instrument_0%d.mti",index);
-		else sprintf(currentPatch,"Workspace/instruments/instrument_%d.mti",index);
+		sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",index);
 		if(SD.exists(currentPatch)) SD.remove(currentPatch);
 		deleteSample(index);
 		return;
 	}
 
 
-	if(index < 10 ) sprintf(currentPatch,"Workspace/instruments/instrument_0%d.mti",index);
-	else sprintf(currentPatch,"Workspace/instruments/instrument_%d.mti",index);
+	sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",index);
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 
 	memset(&mtProject.instrument[index],0,sizeof(mtProject.instrument[index]));
@@ -143,8 +137,7 @@ void FileManager::deleteSample(int8_t index)
 {
 	char currentPatch[PATCH_SIZE];
 
-	if(index<10) sprintf(currentPatch,"Workspace/samples/instr0%d.wav",index);
-	else sprintf(currentPatch,"Workspace/samples/instr%d.wav",index);
+	sprintf(currentPatch,"Workspace/samples/instr%02d.wav",index);
 
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 

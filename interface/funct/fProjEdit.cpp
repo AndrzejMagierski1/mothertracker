@@ -5,6 +5,7 @@
 #include "mtFileManager.h"
 #include "mtAudioEngine.h"
 #include "mtLED.h"
+#include "sampleRecorder.h"
 
 enum valueMapDirecion
 {
@@ -258,6 +259,14 @@ uint8_t cProjectEditor::loadProjectValues()
 	engine.setLimiterAttack(mtProject.values.limiterAttack);
 	engine.setLimiterRelease(mtProject.values.limiterRelease);
 	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
+
+	sampleRecorder.recorderConfig.gainLineIn = mtProject.values.gainLineIn;
+	sampleRecorder.recorderConfig.gainMicHigh = mtProject.values.gainMicHigh;
+	sampleRecorder.recorderConfig.gainMicLow = mtProject.values.gainMicLow;
+	sampleRecorder.recorderConfig.gainRadio = mtProject.values.gainRadio;
+	sampleRecorder.recorderConfig.monitor = mtProject.values.monitor;
+	sampleRecorder.recorderConfig.radioFreq = mtProject.values.radioFreq;
+	sampleRecorder.recorderConfig.source = mtProject.values.source;
 
 	return 1;
 }

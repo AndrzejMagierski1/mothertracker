@@ -11,8 +11,7 @@ uint32_t SamplesLoader::calcSamplesFolderSize()
 
 	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
-		if(i<10) sprintf(currentPatch,"%s/samples/instr0%d.wav", currentProjectPatch,i);
-		else sprintf(currentPatch,"%s/samples/instr%d.wav", currentProjectPatch,i);
+		sprintf(currentPatch,"Workspace/samples/instr%02d.wav",i);
 
 		size += waveLoader.getInfoAboutWave(currentPatch);
 	}
@@ -29,11 +28,9 @@ void SamplesLoader::update()
 
 		if(waveLoader.getState() == loaderStateTypeEnded)
 		{
-			if(currentProjectPatch != NULL)
-			{
-				if(currentIndex < 10) sprintf(currentPatch,"%s/samples/instr0%d.wav", currentProjectPatch,currentIndex);
-				else sprintf(currentPatch,"%s/samples/instr%d.wav", currentProjectPatch,currentIndex);
-			}
+
+			sprintf(currentPatch,"Workspace/samples/instr%02d.wav",currentIndex);
+
 
 			if(mtProject.instrument[currentIndex].isActive == 0)
 			{
@@ -216,22 +213,14 @@ void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t first
 
 	for(uint8_t file = 0; file < filesToLoad; file++)
 	{
-		if(currentProjectPatch != NULL)
-		{
-			if(startIndex<10)
-			{
-				sprintf(currentPatch,"%s/samples/instr0%d.wav", currentProjectPatch,startIndex+file);
-			}
-			else
-			{
-				sprintf(currentPatch,"%s/samples/instr%d.wav", currentProjectPatch,startIndex+file);
-			}
 
-			if(SD.exists(currentPatch))
-			{
-				sizeAllFiles+= waveLoader.getInfoAboutWave(currentPatch);
-			}
+		sprintf(currentPatch,"Workspace/samples/instr%02d.wav",startIndex+file);
+
+		if(SD.exists(currentPatch))
+		{
+			sizeAllFiles+= waveLoader.getInfoAboutWave(currentPatch);
 		}
+
 	}
 
 	if(mtProject.instruments_count == 0)  mtProject.instrument[startIndex].sample.address = sdram_sampleBank;
