@@ -413,6 +413,15 @@ struct strMtValues
 
 	int8_t patternEditStep = 1;
 
+//********************************* radio
+	uint8_t source;
+	uint8_t gainLineIn;
+	uint8_t gainMicLow;
+	uint8_t gainMicHigh;
+	uint8_t gainRadio;
+	uint8_t monitor;
+	float radioFreq = 87.5;
+
 };
 
 //-------------------------------------------------
