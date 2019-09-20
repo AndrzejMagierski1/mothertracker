@@ -127,10 +127,6 @@ void cPatternEditor::start(uint32_t options)
 	mtProject.values.padBoardNoteOffset = 12;
 	mtProject.values.padBoardRootNote = 36;
 
-	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
-			mtProject.values.padBoardNoteOffset,
-			mtProject.values.padBoardRootNote);
-	mtPadBoard.configureInstrumentPlayer(8);
 
 	readPatternState();
 	refreshPattern();
@@ -679,7 +675,7 @@ void cPatternEditor::refreshEditState()
 		FM->setButtonObj(interfaceButton7, buttonPress, functTranspose);
 
 		lightUpPadBoard();
-
+/*
 		strPopupStyleConfig config;
 		config.time = 2;
 		config.w = 300;
@@ -694,7 +690,7 @@ void cPatternEditor::refreshEditState()
 
 		mtPopups.config(0, &config);
 		mtPopups.show(0, "Warning!", "Edit mode enabled");
-
+*/
 	}
 	else
 	{

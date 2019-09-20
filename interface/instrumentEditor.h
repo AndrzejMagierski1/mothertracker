@@ -71,7 +71,6 @@ public:
 
 	void showInstrumentEnv();
 	void showInstrumentParams();
-	void showInstrumentList();
 
 
 	void activateLabelsBorder();
@@ -99,8 +98,6 @@ public:
 
 	void showParamsGlide();
 
-	void showInstrList(uint8_t n);
-	void showNotePopout();
 //----------------------------------
 
 	void setDefaultScreenFunct();
@@ -134,7 +131,6 @@ public:
 
 	void changeParamsGlide(int16_t value);
 
-	void changeSelectedInstrument(int16_t value, uint8_t type = 0);
 //----------------------------------
 
 
@@ -218,8 +214,6 @@ public:
 
 	void cancelPopups();
 
-
-	void listInstruments();
 
 
 };

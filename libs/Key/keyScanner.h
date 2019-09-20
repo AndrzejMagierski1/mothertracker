@@ -133,7 +133,7 @@ private:
 
 
 
-extern keyScanner Buttons;
-
+extern keyScanner seqButtonsA;
+extern keyScanner tactButtons;
 
 #endif
