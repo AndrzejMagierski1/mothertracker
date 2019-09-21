@@ -57,6 +57,28 @@ uint32_t patternTrackerSelectionColor = 0xff0000;
 void cPatternEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
+	strControlProperties prop;
+
+	// ramka
+	frameData.placesCount = 8;
+	frameData.startPlace = 0;
+	frameData.places[0] = &framesPlaces[0][0];
+	frameData.places[1] = &framesPlaces[1][0];
+	frameData.places[2] = &framesPlaces[2][0];
+	frameData.places[3] = &framesPlaces[3][0];
+	frameData.places[4] = &framesPlaces[4][0];
+	frameData.places[5] = &framesPlaces[5][0];
+	frameData.places[6] = &framesPlaces[6][0];
+	frameData.places[7] = &framesPlaces[7][0];
+	prop.x = 0;
+	prop.y = 0;
+	prop.w = 0;
+	prop.h = 0;
+	prop.style = 0;
+	prop.value = 0;
+	prop.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
+
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -79,35 +101,12 @@ void cPatternEditor::initDisplayControls()
 
 
 
-	strControlProperties prop;
-	//prop.text = (char*)"";
-	prop.style = 	(controlStyleShow );//| controlStyleFont2 | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
-	prop.x = 0;
-	prop.y = 0;
-	prop.w = 50;
-	prop.h = 25;
-	patternTrackerColors[6] = patternTrackerSelectionColor;
-	prop.colors = (uint32_t*)patternTrackerColors;
-	prop.data = &trackerPattern;
-	if(patternControl == nullptr)  patternControl = display.createControl<cTracker>(&prop);
-	//hTrackControl = display.createControl<cLabel>(&prop);
-	//display.refreshControl(hTrackControl);
-
-
 
 
 	//=====================================================================================================
 	// POPUP
 	//=====================================================================================================
 
-	// label tla
-	prop.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleNoTransparency );
-	prop.colors =  patternLabelColors;
-	prop.x = 400;
-	prop.y = 8*28 + 4;
-	prop.w = 800; // jedna kolumna
-	prop.h = 214;
-	if(patternPopupLabel == nullptr)  patternPopupLabel = display.createControl<cLabel>(&prop);
 
 	// lista 1
 	prop.x = (800/8)*(0)+5;
@@ -152,32 +151,35 @@ void cPatternEditor::initDisplayControls()
 	prop.h = 28;
 	if(val3PopupLabel == nullptr)  val3PopupLabel = display.createControl<cLabel>(&prop);
 
-
+	// label tla
+	prop.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleNoTransparency );
+	prop.colors =  patternLabelColors;
+	prop.x = 400;
+	prop.y = 8*28 + 4;
+	prop.w = 800; // jedna kolumna
+	prop.h = 214;
+	if(patternPopupLabel == nullptr)  patternPopupLabel = display.createControl<cLabel>(&prop);
 
 	//=====================================================================================================
 	//=====================================================================================================
 	//=====================================================================================================
 
 
-	// ramka
-	frameData.placesCount = 8;
-	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
-	frameData.places[3] = &framesPlaces[3][0];
-	frameData.places[4] = &framesPlaces[4][0];
-	frameData.places[5] = &framesPlaces[5][0];
-	frameData.places[6] = &framesPlaces[6][0];
-	frameData.places[7] = &framesPlaces[7][0];
+
+	//prop.text = (char*)"";
+	prop.style = 	(controlStyleShow );//| controlStyleFont2 | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
 	prop.x = 0;
 	prop.y = 0;
-	prop.w = 0;
-	prop.h = 0;
-	prop.style = 0;
-	prop.value = 0;
-	prop.data  = &frameData;
-	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
+	prop.w = 50;
+	prop.h = 25;
+	patternTrackerColors[6] = patternTrackerSelectionColor;
+	prop.colors = (uint32_t*)patternTrackerColors;
+	prop.data = &trackerPattern;
+	if(patternControl == nullptr)  patternControl = display.createControl<cTracker>(&prop);
+	//hTrackControl = display.createControl<cLabel>(&prop);
+	//display.refreshControl(hTrackControl);
+
+
 
 
 

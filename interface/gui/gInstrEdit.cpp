@@ -508,11 +508,24 @@ void cInstrumentEditor::showParamsFineTune()
 
 void cInstrumentEditor::showFilterFilterType()
 {
+	if(editorInstrument->filterEnable)
+	{
+		if(editorInstrument->filterType == lowPass) filterModeListPos = 1;
+		else if(editorInstrument->filterType == highPass) filterModeListPos = 2;
+		else filterModeListPos = 3;
+	}
+	else
+	{
+		filterModeListPos = 0;
+	}
 
 	filterModeList.start = filterModeListPos;
 	filterModeList.length = filterModeCount;
 	filterModeList.linesCount = 5;
 	filterModeList.data = filterModeNames;
+
+	display.setControlText(topLabel[4], filterModeFunctLabels[filterModeListPos]);
+	display.refreshControl(topLabel[4]);
 
 	display.setControlData(filterModeListControl,  &filterModeList);
 	display.setControlShow(filterModeListControl);

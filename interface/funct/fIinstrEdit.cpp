@@ -775,7 +775,12 @@ static  uint8_t functInstrument(uint8_t state)
 {
 	if(state == buttonRelease)
 	{
+
+		IE->editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
+
 		IE->cancelPopups();
+
+
 	}
 	else if(state == buttonPress)
 	{

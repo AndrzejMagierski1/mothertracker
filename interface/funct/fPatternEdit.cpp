@@ -679,7 +679,7 @@ void cPatternEditor::refreshEditState()
 		FM->setButtonObj(interfaceButton7, buttonPress, functTranspose);
 
 		lightUpPadBoard();
-
+/*
 		strPopupStyleConfig config;
 		config.time = 2;
 		config.w = 300;
@@ -694,6 +694,7 @@ void cPatternEditor::refreshEditState()
 
 		mtPopups.config(0, &config);
 		mtPopups.show(0, "Warning!", "Edit mode enabled");
+*/
 
 	}
 	else
@@ -2431,7 +2432,7 @@ void cPatternEditor::focusOnPattern()
 
 	//if(PTE->editMode) PTE->trackerPattern.selectState = 1;
 
-	PTE->trackerPattern.selectColor = 0xff5860;
+	PTE->trackerPattern.selectColor = patternTrackerSelectionColor;
 	display.refreshControl(patternControl);
 	//PTE->refreshPattern();
 }
@@ -2440,7 +2441,7 @@ void cPatternEditor::unfocusPattern()
 {
 	//PTE->trackerPattern.selectState = 0;
 
-	PTE->trackerPattern.selectColor = patternTrackerSelectionColor;
+	PTE->trackerPattern.selectColor = 0xffffff;
 	display.refreshControl(patternControl);
 	//PTE->refreshPattern();
 }
