@@ -164,6 +164,7 @@ void Recorder::stopSave()
 	{
 		loadAfterSaveFlag = 0;
 		fileManager.setAutoLoadFlag();
+		fileManager.setStart(currentIndex);
 		fileManager.assignSampleToInstrument("Recorded", currentName, currentIndex);
 	}
 }

@@ -1359,6 +1359,8 @@ void cSampleImporter::handleSequenceCopyingLoading()
 			fileManager.saveProject();
 		}
 
+		listAllFoldersFirst();
+
 		copyType=0;
 	}
 
