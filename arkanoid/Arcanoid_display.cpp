@@ -84,7 +84,7 @@ void showBlocks(block_t *block_handle)
 		API_COLOR(block_colors[(block_handle->life -1)]);
 
 		API_VERTEX2F(block_handle->xLeftAnchor, block_handle->yAxis);
-		API_VERTEX2F(block_handle->xLeftAnchor + BLOCK_LENGTH, block_handle->yAxis + PADDLE_HEIGTH);
+		API_VERTEX2F(block_handle->xLeftAnchor + BLOCK_LENGTH, block_handle->yAxis + BLOCK_HEIGHT);
 
 		API_END();
 	}
@@ -254,6 +254,12 @@ void updateSideTable(game_params_t *params, round_params_t *roundparams)
 
 	API_CMD_TEXT(SIDE_TABLE_CENTER, 360 , 27, OPT_CENTERX, "Highest Score:");
 	API_CMD_TEXT(SIDE_TABLE_CENTER, 380 , 27, OPT_CENTERX, value);
+
+	if(params->pause == pause)
+	{
+		API_COLOR(0xFF0000);
+		API_CMD_TEXT(SIDE_TABLE_CENTER, 100 , 29, OPT_CENTERX, "PAUSED");
+	}
 }
 
 void moveLaserBullet(laser_bullet_t *bullet_handler,paddle_t *handle_bar)

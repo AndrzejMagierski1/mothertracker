@@ -36,14 +36,14 @@
 #define BALL_SPEED_MODIFIER 			2
 #define BALL_CENTER 					PADDLE_CENTER
 #define BALL_ABOVE_PADDLE_Y 			(PADDLE_Y_ANCHOR  - BALL_RADIUS) + 3
-#define MAGIC_DYNAMIC_NUMBER 			0.05f
-#define ANGLE_MODIFIER_LIMIT 			1
+#define MAGIC_DYNAMIC_NUMBER 			0.015f
+#define ANGLE_MODIFIER_LIMIT 			2
 
 
 
 /*Paddle constants*/
 #define PADDLE_VELOCITY 				16
-#define PADDLE_HEIGTH 					16
+#define PADDLE_HEIGTH 					10
 #define PADDLE_EXTEND_VALUE 			50
 #define PADDLE_SHORTEN_VALUE 			50
 #define PADDLE_CENTER 					305

@@ -20,14 +20,9 @@ uint32_t get_randomNumber(uint32_t maxvalue)
 
 void handle_angleModifier(ball_t *ball, paddle_t *paddle, round_params_t *roundparam)
 {
-	int16_t diff;
-
-	diff = (paddle->prevXanchor - paddle->xLeftAnchor);
-	diff = abs(diff);
-
-	if(paddleDynamicsTimer>100)
+	if(paddleDynamicsTimer > 100)
 	{
-		ball->vector.angle_modifier=diff* MAGIC_DYNAMIC_NUMBER;
+		ball->vector.angle_modifier=paddle->travel* MAGIC_DYNAMIC_NUMBER;
 
 		if(roundparam->ballSpeed == BALL_SPEED_MODIFIER)
 		{
@@ -38,15 +33,13 @@ void handle_angleModifier(ball_t *ball, paddle_t *paddle, round_params_t *roundp
 		}
 		else if(roundparam->ballSpeed == BALL_VELOCITY)
 		{
-			if(ball->vector.angle_modifier>2*ANGLE_MODIFIER_LIMIT)
+			if(ball->vector.angle_modifier > ANGLE_MODIFIER_LIMIT)
 			{
-				ball->vector.angle_modifier=2*ANGLE_MODIFIER_LIMIT;
+				ball->vector.angle_modifier = ANGLE_MODIFIER_LIMIT;
 			}
 		}
 
 		paddleDynamicsTimer =0;
-
-		paddle->prevXanchor = paddle->xLeftAnchor;
 	}
 }
 

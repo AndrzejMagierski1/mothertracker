@@ -49,11 +49,12 @@ void ARKANOID_pauseControl(pause_stage_t pauseControl)
 	{
 		if(round_params.roundStarted == 1 && game.pause == running && pauseControl == pause)
 		{
-			game.pause = pause;
+			game.pause = pauseControl;
 		}
-		else if(game.pause == pause)
+		else if(game.pause == pause && pauseControl == running)
 		{
-			game.pause = running;
+			game.pause = pauseControl;
+			paddle.travel=0;
 		}
 	}
 }
@@ -77,7 +78,14 @@ void ARKANOID_gameStart()
 		}
 	}
 
-	ARKANOID_pauseControl(running);
+	if(game.pause == pause)
+	{
+		ARKANOID_pauseControl(running);
+	}
+	else
+	{
+		ARKANOID_pauseControl(pause);
+	}
 }
 
 void ARKANOID_moveBarLeft(uint8_t movement)
@@ -852,7 +860,7 @@ static void handle_audio()
 {
 	if(play_audio != NULL)
 	{
-		play_audio(43, randomSampleNum());
+		play_audio(60, randomSampleNum());
 	}
 }
 
