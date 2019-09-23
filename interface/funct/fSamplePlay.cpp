@@ -127,12 +127,6 @@ void cSamplePlayback::start(uint32_t options)
 
 	//--------------------------------------------------------------------
 
-	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
-			mtProject.values.padBoardNoteOffset,
-			mtProject.values.padBoardRootNote = 36);
-
-	//mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
-	mtPadBoard.configureInstrumentPlayer(8);
 
 	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 

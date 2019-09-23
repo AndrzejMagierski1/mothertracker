@@ -23,12 +23,6 @@ static uint16_t framesPlaces[8][4] =
 void cInstrumentEditor::initDisplayControls()
 {
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
-	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
-	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleCenterY);
 	prop2.x = 30;
 	prop2.y = 12;
@@ -36,6 +30,32 @@ void cInstrumentEditor::initDisplayControls()
 	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
 	prop2.x = 769;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+
+
+	strControlProperties prop;
+	// ramka
+	//strControlProperties prop;
+	frameData.placesCount = 8;
+	frameData.startPlace = 0;
+	frameData.places[0] = &framesPlaces[0][0];
+	frameData.places[1] = &framesPlaces[1][0];
+	frameData.places[2] = &framesPlaces[2][0];
+	frameData.places[3] = &framesPlaces[3][0];
+	frameData.places[4] = &framesPlaces[4][0];
+	frameData.places[5] = &framesPlaces[5][0];
+	frameData.places[6] = &framesPlaces[6][0];
+	frameData.places[7] = &framesPlaces[7][0];
+	prop.style = 0;
+	prop.value = 0;
+	prop.colors = nullptr;
+	prop.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 
 	// inicjalizacja kontrolek
@@ -66,7 +86,7 @@ void cInstrumentEditor::initDisplayControls()
 	filterModeList.start = editorInstrument->filterEnable ? (editorInstrument->filterType+1) : 0;
 	filterModeList.length = filterModeCount;
 	filterModeList.data = filterModeNames;
-	strControlProperties prop;
+
 	prop.x = (800/8)*(4)+8;
 	prop.y = 140;
 	prop.w = 800/8-16;
@@ -111,23 +131,6 @@ void cInstrumentEditor::initDisplayControls()
 	if(envLoopListControl == nullptr)  envLoopListControl = display.createControl<cList>(&prop);
 
 
-	// ramka
-	//strControlProperties prop;
-	frameData.placesCount = 8;
-	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
-	frameData.places[3] = &framesPlaces[3][0];
-	frameData.places[4] = &framesPlaces[4][0];
-	frameData.places[5] = &framesPlaces[5][0];
-	frameData.places[6] = &framesPlaces[6][0];
-	frameData.places[7] = &framesPlaces[7][0];
-	prop.style = 0;
-	prop.value = 0;
-	prop.colors = nullptr;
-	prop.data  = &frameData;
-	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 
 }

@@ -26,56 +26,8 @@ static uint32_t popUpLabelColors[] =
 void cConfigEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
-	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
-	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
-	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
-	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 
-	for(uint8_t i = 0; i<8; i++)
-	{
-		prop2.text = (char*)"";
-		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
-		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 465;
-		prop2.w = 800/8-6;
-		prop2.h = 30;
-
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
-
-		prop2.y = 452;
-		prop2.h = 58;
-		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
-
-		prop2.x = (800/8)*i+5;
-		prop2.y = 30;
-		prop2.w = 800/8-10;
-		prop2.style =  controlStyleValue_0_100;
-		prop2.h = 388;
-		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
-
-	}
-
-
-	configGroupList.linesCount = groupCount;
-	configGroupList.start = 0;
-	configGroupList.length = groupCount;
-	configGroupList.data = configGroupsNames;
 	strControlProperties prop;
-	prop.x = (800/8)*6+8;
-	prop.y = 140;
-	prop.w = 800/4-16;
-	prop.h = 25;
-	prop.data = &configGroupList;
-	if(configGroupsListControl == nullptr)  configGroupsListControl = display.createControl<cList>(&prop);
-
-
 	// ramka
 	frameData.placesCount = 7;
 	frameData.startPlace = 0;
@@ -102,6 +54,59 @@ void cConfigEditor::initDisplayControls()
 	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
 	prop9.text = (char*)"";
 	if(popoutWindowLabel == nullptr)  popoutWindowLabel = display.createControl<cLabel>(&prop9);
+
+
+	strControlProperties prop2;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		prop2.text = (char*)"";
+		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+		prop2.x = (800/8)*i+(800/16);
+		prop2.w = 800/8-6;
+		prop2.y = 452;
+		prop2.h = 58;
+		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
+
+		prop2.y = 465;
+		prop2.h = 30;
+		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+
+
+		prop2.x = (800/8)*i+5;
+		prop2.y = 30;
+		prop2.w = 800/8-10;
+		prop2.style =  controlStyleValue_0_100;
+		prop2.h = 388;
+		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
+
+	}
+
+
+	configGroupList.linesCount = groupCount;
+	configGroupList.start = 0;
+	configGroupList.length = groupCount;
+	configGroupList.data = configGroupsNames;
+
+	prop.x = (800/8)*6+8;
+	prop.y = 140;
+	prop.w = 800/4-16;
+	prop.h = 25;
+	prop.data = &configGroupList;
+	if(configGroupsListControl == nullptr)  configGroupsListControl = display.createControl<cList>(&prop);
+
+
 
 	firmwareList.linesCount = 20;
 	firmwareList.start = 0;

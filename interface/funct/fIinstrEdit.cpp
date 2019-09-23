@@ -63,14 +63,6 @@ void cInstrumentEditor::start(uint32_t options)
 	moduleRefresh = 1;
 
 
-	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
-			mtProject.values.padBoardNoteOffset,
-			mtProject.values.padBoardRootNote = 36);
-
-//	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
-	mtPadBoard.configureInstrumentPlayer(8);
-
-
 
 	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
@@ -730,10 +722,6 @@ void cInstrumentEditor::lightUpPadBoard()
 		padsBacklight.setBackLayer(1, 20, mtProject.values.lastUsedInstrument);
 	}
 
-
-
-
-
 }
 
 
@@ -764,12 +752,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	return 1;
 }
 
-static  uint8_t functCopy()
-{
-	// wychodzimy jeśli delete selektywne
-	IE->eventFunct(eventSwitchToPreviousModule,IE,0,0);
-	return 1;
-}
+
 
 static  uint8_t functInstrument(uint8_t state)
 {

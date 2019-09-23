@@ -22,12 +22,6 @@ void cSampleEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
-	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
-	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleCenterY);
 	prop2.x = 30;
 	prop2.y = 12;
@@ -35,6 +29,29 @@ void cSampleEditor::initDisplayControls()
 	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
 	prop2.x = 769;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+
+	strControlProperties prop;
+	// ramka
+	frameData.placesCount = 7;
+	frameData.startPlace = 0;
+	frameData.places[0] = &framesPlaces[0][0];
+	frameData.places[1] = &framesPlaces[1][0];
+	frameData.places[2] = &framesPlaces[2][0];
+	frameData.places[3] = &framesPlaces[3][0];
+	frameData.places[4] = &framesPlaces[4][0];
+	frameData.places[5] = &framesPlaces[5][0];
+	frameData.places[6] = &framesPlaces[6][0];
+	prop.style = 0;
+	prop.value = 0;
+	prop.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
+
 
 	for(uint8_t i = 0; i<6; i++)
 	{
@@ -91,7 +108,8 @@ void cSampleEditor::initDisplayControls()
 	playModeList.start = editorInstrument->playMode;
 	playModeList.length = effectsCount;
 	playModeList.data = playModeNames;
-	strControlProperties prop;
+
+	prop2.style = 	( controlStyleShow );
 	prop.x = (800/8)*6+8;
 	prop.y = 140;
 	prop.w = 800/4-16;
@@ -110,20 +128,6 @@ void cSampleEditor::initDisplayControls()
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
 
-	// ramka
-	frameData.placesCount = 7;
-	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
-	frameData.places[3] = &framesPlaces[3][0];
-	frameData.places[4] = &framesPlaces[4][0];
-	frameData.places[5] = &framesPlaces[5][0];
-	frameData.places[6] = &framesPlaces[6][0];
-	prop.style = 0;
-	prop.value = 0;
-	prop.data  = &frameData;
-	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 }
 

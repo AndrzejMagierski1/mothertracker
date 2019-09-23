@@ -11,6 +11,8 @@
 #include "sampleRecorder.h"
 #include "configEditor.h"
 #include "game.h"
+#include "performanceMode.h"
+
 
 
 #include "interfacePopups.h"
@@ -49,7 +51,7 @@ __NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[4*1024*1024];
 //=======================================================================
 //=======================================================================
 
-const uint8_t cInterface::modulesCount = 10;
+const uint8_t cInterface::modulesCount = 11;
 const hModule cInterface::modules[modulesCount] =
 {
 		&projectEditor,     // 0
@@ -61,14 +63,15 @@ const hModule cInterface::modules[modulesCount] =
 		&sampleEditor,      // 6
 		&configEditor,      // 7
 		&sampleRecorder,    // 8
-		&gameModule,		// 9
+		&performanceMode,	// 9
+		&gameModule,		// 10
 };
 
 
 const uint8_t cInterface::modulesButtonsCount = 11;
 const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 {
-	{interfaceButtonPerformance,2, 0},
+	{interfaceButtonPerformance,9, 0},
 	{interfaceButtonMaster,  	7, mtConfigModeMaster},
 	{interfaceButtonParams, 	5, mtInstEditModeParams},
 	{interfaceButtonFile, 		0, 0},

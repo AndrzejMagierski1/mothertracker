@@ -80,6 +80,7 @@ void cPatternEditor::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 
+
 	for(uint8_t i = 0; i<8; i++)
 	{
 		strControlProperties prop2;
@@ -160,6 +161,7 @@ void cPatternEditor::initDisplayControls()
 	prop.h = 214;
 	if(patternPopupLabel == nullptr)  patternPopupLabel = display.createControl<cLabel>(&prop);
 
+
 	//=====================================================================================================
 	//=====================================================================================================
 	//=====================================================================================================
@@ -178,8 +180,6 @@ void cPatternEditor::initDisplayControls()
 	if(patternControl == nullptr)  patternControl = display.createControl<cTracker>(&prop);
 	//hTrackControl = display.createControl<cLabel>(&prop);
 	//display.refreshControl(hTrackControl);
-
-
 
 
 

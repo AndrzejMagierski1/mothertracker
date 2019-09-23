@@ -68,31 +68,31 @@ uint32_t radioLabelColors[3]=
 void cSampleRecorder::initDisplayControls()
 {
 	strControlProperties prop2;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
 	prop2.x = 0;
 	prop2.y = 0;
 	prop2.w = 800;
 	prop2.h = 25;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
-	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 
+	points.pointsType = 0;
+	points.endPoint = MAX_16BIT;
+	points.startPoint = 0;
 	strControlProperties prop;
 	prop.x = 100;
 	prop.y = 75;
 	prop.w = 600;
 	prop.h = 300;
-	prop.data = &spectrum;
-	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
 	if(progressCursor == nullptr) progressCursor = display.createControl<cProgressCursor>(&prop);
-
-	points.pointsType = 0;
-	points.endPoint = MAX_16BIT;
-	points.startPoint = 0;
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
+	prop.data = &spectrum;
+	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
+
 
 
 	for(uint8_t i = 0; i<8; i++)
@@ -103,17 +103,13 @@ void cSampleRecorder::initDisplayControls()
 		prop2.y = 465;
 		prop2.w = 800/8-6;
 		prop2.h = 30;
-
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
 		prop2.x = (800/8)*i+(800/16);
 		prop2.y = 437;
 		prop2.h = 28;
-
-
-		//prop2.style |= 	controlStyleManualText;
+		prop2.style |= 	controlStyleManualText;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
-
 	}
 
 	strControlProperties prop3;
