@@ -28,6 +28,7 @@ static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
 
 static void audio_handler(uint8_t pitch, uint8_t sampleNum);
+static void killGameSounds();
 
 
 
@@ -91,6 +92,7 @@ void cGameModule::stop()
 	moduleRefresh = 0;
 	ARKANOID_resetAudioHandler();
 	ARKANOID_pauseControl(pause);
+	killGameSounds();
 
 	Encoder.setResolution(24);
 	Encoder.setAcceleration(0);
@@ -209,6 +211,14 @@ static void audio_handler(uint8_t pitch, uint8_t sampleNum)
 
 		instrumentNum++;
 		instrumentNum = instrumentNum % 8;
+	}
+}
+
+static void killGameSounds()
+{
+	for(uint32_t i = 0; i<8; i++)
+	{
+		instrumentPlayer[i].noteOff();
 	}
 }
 

@@ -42,7 +42,7 @@
 
 
 /*Paddle constants*/
-#define PADDLE_VELOCITY 				8
+#define PADDLE_VELOCITY 				16
 #define PADDLE_HEIGTH 					16
 #define PADDLE_EXTEND_VALUE 			50
 #define PADDLE_SHORTEN_VALUE 			50

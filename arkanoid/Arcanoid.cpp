@@ -6,7 +6,6 @@
 
 elapsedMillis perkTimer;
 elapsedMillis gameRefresh;
-elapsedMillis paddleTimer;
 
 laser_bullet_t bullets[BULLETS_NUMBER];
 game_params_t game;
@@ -220,15 +219,11 @@ void ARKANOID_gameLoop()
 		gameoverScreen();
 	}
 
-
-
 	if(game.gameRunningFlag)
 	{
 		if(gameRefresh>GAME_REFRESH_MS)
 		{
 			gameRefresh=0;
-
-			gameDisplayBegin();
 
 			/* Logic part of the game*/
 			handle_perks();
@@ -253,9 +248,21 @@ void ARKANOID_gameLoop()
 				}
 			}
 
-
+			if(round_params.blocksToGo == 0)
+			{
+				if(game.level < LEVELS)
+				{
+					game.gameStage=gameWaitingForNewLevel;
+					game.level++;
+					gameCleanup();
+					round_params.roundStarted=FALSE;
+					round_params.nextLevelEntry=FALSE;
+				}
+			}
 
 			/*Display part of the game*/
+			gameDisplayBegin();
+
 			for(int i=0;i<BULLETS_NUMBER;i++)
 			{
 				moveLaserBullet(&bullets[i],&paddle);
@@ -291,18 +298,6 @@ void ARKANOID_gameLoop()
 			}
 
 			updateSideTable(&game,&round_params);
-
-			if(round_params.blocksToGo == 0)
-			{
-				if(game.level < LEVELS)
-				{
-					game.gameStage=gameWaitingForNewLevel;
-					game.level++;
-					gameCleanup();
-					round_params.roundStarted=FALSE;
-					round_params.nextLevelEntry=FALSE;
-				}
-			}
 
 			gameDisplayFinish();
 		}
@@ -406,6 +401,7 @@ static void randomizer()
 static uint8_t randomSampleNum()
 {
 	uint8_t randomNum;
+	uint8_t loopTermination=0;
 	randomNum = get_randomNumber(47);
 
 
@@ -414,10 +410,16 @@ static uint8_t randomSampleNum()
 	while(samplesLoaded[randomNum] == 0)
 	{
 		randomNum++;
+		loopTermination++;
 
 		if(randomNum == 48)
 		{
 			randomNum = 0;
+		}
+
+		if(loopTermination >= 48)
+		{
+			break;
 		}
 	}
 

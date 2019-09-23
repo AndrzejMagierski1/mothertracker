@@ -121,12 +121,12 @@ void moveBar(paddle_t *handle_bar)
 
 	if(game.pause == running)
 	{
-		if(handle_bar->travel >= 8 || handle_bar->travel <= -8)
+		if(handle_bar->travel >= 16 || handle_bar->travel <= -16)
 		{
 			if(handle_bar->travel>0)
 			{
-				handle_bar->xLeftAnchor += 8;
-				handle_bar->travel -= 8;
+				handle_bar->xLeftAnchor += 16;
+				handle_bar->travel -= 16;
 				if(handle_bar->xLeftAnchor + handle_bar->Length > PLAY_AREA_WIDTH)
 				{
 					handle_bar->xLeftAnchor = PLAY_AREA_WIDTH - handle_bar->Length;
@@ -136,8 +136,8 @@ void moveBar(paddle_t *handle_bar)
 			}
 			else
 			{
-				handle_bar->xLeftAnchor -=8;
-				handle_bar->travel +=8;
+				handle_bar->xLeftAnchor -=16;
+				handle_bar->travel +=16;
 				if(handle_bar->xLeftAnchor < 0)
 				{
 					handle_bar->xLeftAnchor = 0;
