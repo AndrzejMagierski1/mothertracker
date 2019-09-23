@@ -72,7 +72,7 @@ void cPerformanceMode::start(uint32_t options)
 
 
 	// ustawienie funkcji
-	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchMode);
+	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchMode);
 
 
 	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);

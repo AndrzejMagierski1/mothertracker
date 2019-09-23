@@ -12,16 +12,27 @@ static uint16_t framesPlaces[1][4] =
 void cSongEditor::initDisplayControls()
 {
 	strControlProperties prop2;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
 	prop2.x = 0;
 	prop2.y = 0;
 	prop2.w = 800;
 	prop2.h = 25;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
-	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+
+	// ramka
+	strControlProperties prop;
+	frameData.placesCount = 1;
+	frameData.startPlace = 0;
+	frameData.places[0] = &framesPlaces[0][0];
+	prop.style = 0;
+	prop.value = 0;
+	prop.colors = nullptr;
+	prop.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 	strControlProperties prop1;
 	prop1.text = (char*)"";
@@ -53,7 +64,6 @@ void cSongEditor::initDisplayControls()
 	patternsList.start = 0;
 	patternsList.length = 255;
 	patternsList.data = patternNames;
-	strControlProperties prop;
 	prop.x = 0+8;
 	prop.y = 37;
 	prop.w = (800/4-16);
@@ -62,16 +72,7 @@ void cSongEditor::initDisplayControls()
 	if(patternsListControl == nullptr)  patternsListControl = display.createControl<cList>(&prop);
 
 
-	// ramka
-	//strControlProperties prop;
-	frameData.placesCount = 1;
-	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	prop.style = 0;
-	prop.value = 0;
-	prop.colors = nullptr;
-	prop.data  = &frameData;
-	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
+
 }
 
 

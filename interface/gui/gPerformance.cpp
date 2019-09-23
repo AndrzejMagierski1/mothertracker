@@ -23,12 +23,6 @@ static uint16_t framesPlaces[8][4] =
 void cPerformanceMode::initDisplayControls()
 {
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
-	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
-	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleCenterY);
 	prop2.x = 30;
 	prop2.y = 12;
@@ -36,15 +30,14 @@ void cPerformanceMode::initDisplayControls()
 	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
 	prop2.x = 769;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
-
+	prop2.style = 	( controlStyleShow | controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 	strControlProperties prop;
-
-
-
-
-
-
 
 	// ramka
 	//strControlProperties prop;

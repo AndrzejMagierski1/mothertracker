@@ -22,16 +22,17 @@ constexpr uint8_t J_PAD = 30;
 void cProjectEditor::initDisplayControls()
 {
 	strControlProperties prop2;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
 	prop2.x = 0;
 	prop2.y = 0;
 	prop2.w = 800;
 	prop2.h = 25;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
-	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+
 
 	for(uint8_t i = 0; i<8; i++)
 	{

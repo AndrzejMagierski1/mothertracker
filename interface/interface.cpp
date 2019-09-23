@@ -63,8 +63,8 @@ const hModule cInterface::modules[modulesCount] =
 		&sampleEditor,      // 6
 		&configEditor,      // 7
 		&sampleRecorder,    // 8
-		&gameModule,		// 9
-		&performanceMode,	// 10
+		&performanceMode,	// 9
+		&gameModule,		// 10
 };
 
 
