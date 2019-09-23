@@ -164,6 +164,18 @@ void cFunctionMachine::setButtonObj(uint8_t objectID, uint8_t(*funct)(uint8_t))
 	buttonsCleared = 0;
 }
 
+// przypisuje funkcje z argumentami w postaci id i stanu przycisku
+void cFunctionMachine::setButtonObj(uint8_t objectID, uint8_t(*funct)(uint8_t,uint8_t))
+{
+	buttons[objectID].funct3 = funct;
+	buttons[objectID].state = 255;
+	//buttons[objectID].control = control;
+
+	buttons[objectID].mode = 4;
+
+	buttonsCleared = 0;
+}
+
 //==================================================================================================================
 void cFunctionMachine::setPadObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(), hControl control)
 {
@@ -212,6 +224,9 @@ void cFunctionMachine::processButtonsInput(uint8_t button, uint8_t state)
 	case 3:
 		if(buttons[button].funct2 != nullptr) result = buttons[button].funct2(state);
 		break;
+	case 4:
+		if(buttons[button].funct3 != nullptr) result = buttons[button].funct3(button,state);
+		break;
 	default: return;
 	}
 
@@ -223,7 +238,6 @@ void cFunctionMachine::processButtonsInput(uint8_t button, uint8_t state)
 		buttons[button].funct1 = nullptr;
 		buttons[button].funct2 = nullptr;
 	}
-
 }
 
 

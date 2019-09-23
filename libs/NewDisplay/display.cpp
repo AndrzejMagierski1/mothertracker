@@ -313,20 +313,20 @@ void cDisplay::update()
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 
-void cDisplay::setControlPosition(hControl handle, uint16_t x, uint16_t y)
+void cDisplay::setControlPosition(hControl handle, int16_t x, int16_t y)
 {
 	if(handle == nullptr) return;
 
-	handle->posX = x;
-	handle->posY = y;
+	if(x >= 0) handle->posX = x;
+	if(y >= 0) handle->posY = y;
 }
 
-void cDisplay::setControlSize(hControl handle, uint16_t w, uint16_t h)
+void cDisplay::setControlSize(hControl handle, int16_t w, int16_t h)
 {
 	if(handle == nullptr) return;
 
-	handle->width = w;
-	handle->height = h;
+	if(w >= 0) handle->width = w;
+	if(h >= 0) handle->height = h;
 }
 
 void cDisplay::setControlStyle(hControl handle, uint32_t style)

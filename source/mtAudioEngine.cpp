@@ -223,10 +223,22 @@ void audioEngine::setLimiterTreshold(uint16_t threshold)
 	 limiter[1].setThreshold(threshold);
 }
 
-
-void audioEngine::muteTrack(uint8_t channel)
+// state = 1 mutuje
+void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 {
-	amp[channel].gain(0.0);
+	if(channel >= 8) return;
+	if(state == 0)
+	{
+		instrumentPlayer[channel].muteState = 0;
+		instrumentPlayer[channel].setStatusBytes(VOLUME_MASK);
+		instrumentPlayer[channel].setStatusBytes(REVERB_SEND_MASK);
+	}
+	else
+	{
+		instrumentPlayer[channel].muteState = 1;
+		amp[channel].gain(0.0);
+		instrumentPlayer[channel].modReverbSend(0);
+	}
 }
 
 void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter,
@@ -308,8 +320,11 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 	/*======================================================================================================*/
 	/*==================================================GAIN================================================*/
-	if(velocity < 0) ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
-	else ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
+	if(muteState == 0)
+	{
+		if(velocity < 0) ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
+		else ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
+	}
 	/*======================================================================================================*/
 	/*===============================================PANNING================================================*/
 	if(mtProject.instrument[instr_idx].panning < 50)
@@ -332,7 +347,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	mixerR.gain(numPanChannel,gainR);
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
-	mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
+	if(muteState == 0)
+	{
+		mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
+	}
 
 
 	/*======================================================================================================*/
@@ -410,8 +428,11 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	/*======================================================================================================*/
 	/*==================================================GAIN================================================*/
-	if(velocity < 0) ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
-	else ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
+	if(muteState == 0)
+	{
+		if(velocity < 0) ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
+		else ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
+	}
 	/*======================================================================================================*/
 	/*===============================================PANNING================================================*/
 	if(mtProject.instrument[instr_idx].panning < 50)
@@ -434,7 +455,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	mixerR.gain(numPanChannel,gainR);
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
-	mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
+	if(muteState == 0)
+	{
+		mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
+	}
 	/*======================================================================================================*/
 
 	//*************************************************FX****************************************************
@@ -665,8 +689,12 @@ void playerEngine:: update()
 		if(statusBytes & VOLUME_MASK)
 		{
 			statusBytes &= (~VOLUME_MASK);
-			if(currentVelocity == -1) ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0));
-			else ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
+
+			if(muteState == 0)
+			{
+				if(currentVelocity == -1) ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0));
+				else ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
+			}
 		}
 		if(statusBytes & PANNING_MASK)
 		{
@@ -686,7 +714,11 @@ void playerEngine:: update()
 		if(statusBytes & REVERB_SEND_MASK)
 		{
 			statusBytes &= (~REVERB_SEND_MASK);
-			modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
+			if(muteState == 0)
+			{
+				modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
+			}
+
 		}
 	}
 

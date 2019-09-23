@@ -259,7 +259,11 @@ void cLabel::string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length)
 		else if((x > 511 || y > 511) && string[strPtr] >=32)
 		{
 			API_CELL(string[strPtr++]);
+			//API_CMD_LOADIDENTITY();
+			//API_CMD_ROTATE(90*65536 / 360);
+			//API_CMD_SETMATRIX();
 			API_VERTEX2F(x, y);
+
 		}
 		else if(string[strPtr] >=32)
 		{

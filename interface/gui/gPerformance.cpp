@@ -17,7 +17,12 @@ static uint16_t framesPlaces[8][4] =
 	{(800/8)*7+2, 31, 800/8-5, 387},
 };
 
-
+static uint32_t textLabelsColors[] =
+{
+	0xFFFFFF, // tekst
+	0x222222, // tło
+	0xFF0000, // ramka
+};
 
 
 void cPerformanceMode::initDisplayControls()
@@ -37,10 +42,10 @@ void cPerformanceMode::initDisplayControls()
 	prop2.h = 25;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
-	strControlProperties prop;
 
+//  	strControlProperties prop;
+/*
 	// ramka
-	//strControlProperties prop;
 	frameData.placesCount = 8;
 	frameData.startPlace = 0;
 	frameData.places[0] = &framesPlaces[0][0];
@@ -56,7 +61,39 @@ void cPerformanceMode::initDisplayControls()
 	prop.colors = nullptr;
 	prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
+*/
 
+	strControlProperties prop;
+	// inicjalizacja kontrolek
+	for(uint8_t i = 0; i<8; i++)
+	{
+		prop2.text = (char*)"";
+		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+		prop2.x = (800/8)*i+(800/16);
+		prop2.y = 465;
+		prop2.w = 800/8-6;
+		prop2.h = 30;
+		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+
+		prop2.y = 437;
+		prop2.h = 28;
+		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
+
+
+	}
+
+
+	for(uint8_t i = 0; i<12; i++)
+	{
+		prop2.text = (char*)"";
+		prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
+		prop.x = (800/8)*i+(800/16);
+		prop.y = 240;
+		prop.colors = textLabelsColors;
+		//prop2.w = 800/8-6;
+		//prop2.h = 30;
+		if(textLabel[i] == nullptr) textLabel[i] = display.createControl<cLabel>(&prop);
+	}
 
 }
 
@@ -73,7 +110,20 @@ void cPerformanceMode::destroyDisplayControls()
 	instrumentLabel = nullptr;
 
 
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.destroyControl(bottomLabel[i]);
+		bottomLabel[i] = nullptr;
 
+		display.destroyControl(topLabel[i]);
+		topLabel[i] = nullptr;
+	}
+
+	for(uint8_t i = 0; i<12; i++)
+	{
+		display.destroyControl(textLabel[i]);
+		textLabel[i] = nullptr;
+	}
 
 
 
@@ -121,36 +171,42 @@ void cPerformanceMode::showPerformanceMaster()
 
 	//showActualInstrument();
 
-	display.setControlText(bottomLabel[0], "Envelopes");
-	display.setControlText(bottomLabel[1], "State");
-	display.setControlText(bottomLabel[2], "Attack");
-	display.setControlText(bottomLabel[3], "Decay");
-	display.setControlText(bottomLabel[4], "Sustain");
-	display.setControlText(bottomLabel[5], "Release");
-	display.setControlText(bottomLabel[6], "Amount");
-	display.setControlText(bottomLabel[7], "Loop");
 
-
-	display.setControlText(topLabel[0], "");
-	display.setControlText(topLabel[1], "");
-	display.setControlText(topLabel[2], "");
-	display.setControlText(topLabel[3], "");
-	display.setControlText(topLabel[4], "");
-	display.setControlText(topLabel[5], "");
-	display.setControlText(topLabel[6], "");
-	display.setControlText(topLabel[7], "");
-
+	display.setControlText(bottomLabel[0], "Track 1");
+	display.setControlText(bottomLabel[1], "Track 2");
+	display.setControlText(bottomLabel[2], "Track 3");
+	display.setControlText(bottomLabel[3], "Track 4");
+	display.setControlText(bottomLabel[4], "Track 5");
+	display.setControlText(bottomLabel[5], "Track 6");
+	display.setControlText(bottomLabel[6], "Track 7");
+	display.setControlText(bottomLabel[7], "Track 8");
 
 
 //-------------------------------------
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.setControlShow(topLabel[i]);
+		display.setControlPosition(bottomLabel[i], -1, 452);
+		display.setControlSize(bottomLabel[i], -1, 59);
+
+		display.setControlHide(topLabel[i]);
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
-		display.refreshControl(topLabel[i]);
+		//display.refreshControl(topLabel[i]);
+
+		//TO DO: nie powinno tu tego być tylko tma gdzie zarzadzanie zmiennymi projektu
+		if(mtProject.values.trackMute[i] >= trackMasterModeCount) mtProject.values.trackMute[i] = 0;
+
+		display.setControlText(textLabel[i], &trackMasterLabels[mtProject.values.trackMute[i]][0]);
+		display.setControlShow(textLabel[i]);
+		display.refreshControl(textLabel[i]);
 	}
+
+	display.setControlHide(textLabel[8]);
+	display.setControlHide(textLabel[9]);
+	display.setControlHide(textLabel[10]);
+	display.setControlHide(textLabel[11]);
+
 
 	display.synchronizeRefresh();
 
@@ -163,26 +219,45 @@ void cPerformanceMode::showPerformanceFxes()
 	display.refreshControl(titleBar);
 
 	display.setControlShow(titleLabel);
-	display.setControlText(titleLabel, "Instrument Fxes");
+	display.setControlText(titleLabel, "Performance Fxes");
 	display.refreshControl(titleLabel);
 
 	//showActualInstrument();
 
-	display.setControlText(bottomLabel[0], "Volume");
-	display.setControlText(bottomLabel[1], "Panning");
-	display.setControlText(bottomLabel[2], "Tune");
-	display.setControlText(bottomLabel[3], "Finetune");
-	display.setControlText(bottomLabel[4], "Filter Type");
-	display.setControlText(bottomLabel[5], "Cutoff");
-	display.setControlText(bottomLabel[6], "Resonance");
-	display.setControlText(bottomLabel[7], "Rev. Send");
 
+	display.setControlText(bottomLabel[0], "Track 1");
+	display.setControlText(bottomLabel[1], "Track 2");
+	display.setControlText(bottomLabel[2], "Track 3");
+	display.setControlText(bottomLabel[3], "Track 4");
+	display.setControlText(bottomLabel[4], "Track 5");
+	display.setControlText(bottomLabel[5], "Track 6");
+	display.setControlText(bottomLabel[6], "Track 7");
+	display.setControlText(bottomLabel[7], "Track 8");
+
+	display.setControlText(topLabel[0], "[ ]");
+	display.setControlText(topLabel[1], "[ ]");
+	display.setControlText(topLabel[2], "[ ]");
+	display.setControlText(topLabel[3], "[ ]");
+	display.setControlText(topLabel[4], "[ ]");
+	display.setControlText(topLabel[5], "[ ]");
+	display.setControlText(topLabel[6], "[ ]");
+	display.setControlText(topLabel[7], "[ ]");
 
 //-------------------------------------
+
+	for(uint8_t i = 0; i<trackFxesCount; i++)
+	{
+		display.setControlText(textLabel[i], &trackFxesLabels[i][0]);
+		display.setControlShow(textLabel[i]);
+		display.refreshControl(textLabel[i]);
+	}
 
 
 	for(uint8_t i = 0; i<8; i++)
 	{
+		display.setControlPosition(bottomLabel[i], -1, 465);
+		display.setControlSize(bottomLabel[i], -1, 30);
+
 		display.setControlShow(topLabel[i]);
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);

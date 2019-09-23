@@ -32,7 +32,7 @@ public:
 	void setLimiterAttack(uint16_t attack);
 	void setLimiterRelease(float release);
 	void setLimiterTreshold(uint16_t threshold);
-	void muteTrack(uint8_t channel);
+	void muteTrack(uint8_t channel, uint8_t state);
 	void wavExportConnect();
 	void wavExportDisconnect();
 private:
@@ -83,6 +83,7 @@ public:
 	AudioEffectEnvelope *       envelopeAmpPtr;
 private:
 
+	friend 						audioEngine;
 	AudioPlayMemory *        	playMemPtr;
 	AudioAmplifier *			ampPtr;
 	envelopeGenerator* 			envelopeFilterPtr;
@@ -104,6 +105,9 @@ private:
 	uint8_t 					interfacePlayingEndFlag = 0;
 	uint8_t 					currentPlayState = 0;
 	uint8_t 					lastPlayState = 0;
+
+	//TODO: *ziejas
+	uint8_t 					muteState = 0;
 
 	void changeFilterType(uint8_t type);
 	void filterConnect();

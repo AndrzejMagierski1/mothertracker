@@ -15,10 +15,31 @@ enum mtPerformanceMode
 
 };
 
+const uint8_t trackMasterModeCount = 2;
+
+const char trackMasterLabels[trackMasterModeCount][5] =
+{
+	"On",
+	"Off",
+};
 
 
-
-
+const uint8_t trackFxesCount = 12;
+const char trackFxesLabels[trackFxesCount][20] =
+{
+	"Cutoff",
+	"Start",
+	"Loop 1",
+	"Loop 2",
+	"asd",
+	"asd",
+	"asd",
+	"sad",
+	"asd",
+	"asd",
+	"asd",
+	"asd",
+};
 
 class cPerformanceMode: public cModuleBase
 {
@@ -81,6 +102,7 @@ public:
 	hControl topLabel[8] = {nullptr};
 	hControl bottomLabel[8] = {nullptr};
 
+	hControl textLabel[12] = {nullptr};
 
 
 	hControl frameControl = nullptr;
@@ -94,7 +116,7 @@ public:
 	// typ trybu/ekranu
 	uint8_t mode = mtPerformanceMaster;
 
-
+	uint8_t refreshMaster = 1;
 
 
 

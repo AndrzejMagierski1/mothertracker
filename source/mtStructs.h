@@ -413,6 +413,9 @@ struct strMtValues
 
 	int8_t patternEditStep = 1;
 
+	uint8_t trackMute[8] = {0,0,0,0,0,0,0,0};
+
+
 };
 
 //-------------------------------------------------
