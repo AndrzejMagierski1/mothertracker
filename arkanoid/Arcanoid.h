@@ -51,7 +51,7 @@
 #define PADDLE_X_ANCHOR 				(PADDLE_CENTER - (PADDLE_LENGTH/2))
 #define PADDLE_Y_ANCHOR 				445
 #define PADDLE_LINE_WIDTH 				48
-#define PADDLE_MAX_TRAVEL				200
+#define PADDLE_MAX_TRAVEL				100
 
 
 /*Bullet constants*/
@@ -180,6 +180,7 @@ typedef struct
 	bar_visual_t visual;
 	int16_t ballCatchPoint[3];
 	int16_t travel;
+	uint8_t movDir;// 0 -left, 1 -right
 
 }paddle_t;
 

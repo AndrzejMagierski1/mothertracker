@@ -96,6 +96,12 @@ void ARKANOID_moveBarLeft(uint8_t movement)
 		{
 			if((paddle.xLeftAnchor - PADDLE_VELOCITY)>0)
 			{
+				if(paddle.movDir != LEFT)
+				{
+					paddle.travel = 0;
+					paddle.movDir = LEFT;
+				}
+
 				paddle.travel -= (PADDLE_VELOCITY*movement);
 
 				if(paddle.travel < -PADDLE_MAX_TRAVEL)
@@ -113,6 +119,12 @@ void ARKANOID_moveBarRight(uint8_t movement)
 	{
 		if((paddle.xLeftAnchor+paddle.Length+PADDLE_VELOCITY) < PLAY_AREA_WIDTH)
 		{
+			if(paddle.movDir != RIGHT)
+			{
+				paddle.travel = 0;
+				paddle.movDir = RIGHT;
+			}
+
 			paddle.travel += (PADDLE_VELOCITY*movement);
 
 			if(paddle.travel > PADDLE_MAX_TRAVEL)
