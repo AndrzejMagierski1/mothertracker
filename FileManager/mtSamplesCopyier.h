@@ -10,7 +10,7 @@ class SamplesCopyier
 public:
 	uint8_t start(char* destPatch, char* sourcePatch);
 	void stop();
-	void update();
+	uint16_t update();
 	uint8_t getState();
 	uint8_t getProgress();
 	uint8_t getCurrentStartIndex();

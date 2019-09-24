@@ -5,16 +5,15 @@ uint8_t FileManager::createNewProject(char * name)
 {
 	char patchFolder[PATCH_SIZE];
 
-	sprintf(currentProjectPatch,"Projects/%s",name);
+	sprintf(patchFolder,"Projects/%s",name);
 
-	if(SD.exists(currentProjectPatch)) return 2;
-	strcpy(currentProjectName,name);
+	if(SD.exists(patchFolder)) return 2;
 
 //****************************************************************************
 // Glówny folder projektu
 //****************************************************************************
 	if(!SD.exists("Projects")) SD.mkdir(0,"Projects");
-	if(!SD.exists(currentProjectPatch)) SD.mkdir(0,currentProjectPatch);
+	if(!SD.exists(patchFolder)) SD.mkdir(0,patchFolder);
 
 	sprintf(patchFolder,"Projects/%s/instruments", name);
 	SD.mkdir(0,patchFolder);
@@ -50,6 +49,8 @@ uint8_t FileManager::createNewProject(char * name)
 
 uint8_t FileManager::openTemplateBasedProject(char* projectName, char* templateName)
 {
+	//todo: ta funckja nieużyteczna
+	return 0;
 	uint8_t status = 0;
 	openTemplateBasedProjectFlag = 1;
 	sprintf(currentProjectNameOpenTemplate,projectName);
@@ -66,13 +67,14 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 	uint8_t status;
 	char currentPatch[PATCH_SIZE];
 	char workspacePatch[PATCH_SIZE];
-
+	allCopyingFileSizeOpen = 0;
+	currentCopyingSizeOpen = 0;
 //**************************************************************************
 //Zapamietanie nazwy projektu
 //Skasowanie starego workspace
 //Utworzenie nowych folderow do workspace
 //**************************************************************************
-	strcpy(currentProjectName,name);
+
 
 	if(type == projectTypeExample)
 	{
@@ -80,11 +82,10 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 	}
 	else if( type == projectTypeUserMade)
 	{
+		strcpy(currentProjectName,name);
+		strcpy(mtConfig.startup.lastProjectName, currentProjectName);
 		sprintf(currentProjectPatch,"Projects/%s",name);
 	}
-
-	strcpy(currentProjectName, name);
-	strcpy(mtConfig.startup.lastProjectName, currentProjectName);
 
 	forceSaveConfig();
 
@@ -123,6 +124,7 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 			 status=readInstrumentFile(currentPatch,&mtProject.instrument[i]);
 			 if(!status) return status;
 
+			 allCopyingFileSizeOpen += 2*mtProject.instrument[i].sample.length;
 			 sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",i);
 			 writeInstrumentFile(currentPatch,&mtProject.instrument[i]);
 		 }
@@ -327,9 +329,10 @@ void FileManager::startSaveAsProject(char *name)
 {
 	sprintf(currentProjectPatch,"Projects/%s",name);
 	strcpy(currentProjectName,name);
-	startSaveProject();
 
-	saveAsFlag = 1;
+	if(SD.exists(currentProjectPatch)) SD.remove(currentProjectPatch); // tymczasowo do testow
+
+	startSaveProject();
 }
 //void FileManager::saveProject()
 //{
@@ -394,12 +397,24 @@ uint8_t FileManager::getOpenProjectState()
 	return openWorkspaceCreateFlag;
 }
 
+uint8_t FileManager::getOpenProjectStateProgress()
+{
+	return (100*currentCopyingSizeOpen)/allCopyingFileSizeOpen;
+}
+
+uint8_t FileManager::getSaveProjectStateProgress()
+{
+	return (100*currentCopyingSizeSave)/allCopyingFileSizeSave;
+}
+
 void FileManager::startSaveProject()
 {
 	char currentPatch[PATCH_SIZE];
 
 	SD.remove(currentProjectPatch);
 
+	allCopyingFileSizeSave = 0;
+	currentCopyingSizeSave = 0;
 	//****************************************************************************
 	// Glówny folder projektu
 	//****************************************************************************
@@ -439,6 +454,7 @@ void FileManager::startSaveProject()
 	{
 		if(mtProject.instrument[i].isActive == 1)
 		{
+			allCopyingFileSizeSave += 2*mtProject.instrument[i].sample.length;
 			sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,i);
 			writeInstrumentFile(currentPatch, &mtProject.instrument[i]);
 		}
@@ -484,20 +500,18 @@ void FileManager::createEmptyTemplateProject(char * name)
 
 	sprintf(currentProjectPatch,"Templates/%s",name);
 
-	strcpy(currentProjectName,name);
-
 	if(!SD.exists("Projects")) SD.mkdir(0,"Projects");
-	if(!SD.exists("Templates")) SD.mkdir(0,"Templates");
+	if(!SD.exists("Templates")) SD.mkdir(1,"Templates");
 	if(!SD.exists(currentProjectPatch)) SD.mkdir(0,currentProjectPatch);
 
 	sprintf(patchFolder,"Templates/%s/instruments", name);
-	SD.mkdir(0,patchFolder);
+	SD.mkdir(1,patchFolder);
 
 	sprintf(patchFolder,"Templates/%s/patterns", name);
-	SD.mkdir(0,patchFolder);
+	SD.mkdir(1,patchFolder);
 
 	sprintf(patchFolder,"Templates/%s/samples", name);
-	SD.mkdir(0,patchFolder);
+	SD.mkdir(1,patchFolder);
 
 	mtProject.patterns_count++;
 	writePatternFile(patchFolder);

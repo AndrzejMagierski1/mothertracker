@@ -61,6 +61,8 @@ public:
 	void startSaveProject();
 	uint8_t getSaveProjectState();
 	uint8_t getOpenProjectState();
+	uint8_t getOpenProjectStateProgress();
+	uint8_t getSaveProjectStateProgress();
 	uint8_t createNewProject(char * name);
 	void createEmptyTemplateProject(char * name);
 
@@ -120,6 +122,11 @@ private:
 	uint8_t samplesCopyierCurrentState = 0;
 	uint8_t lastCopyierCurrentState = 0;
 	uint8_t loadLength = 0;
+	uint32_t allCopyingFileSizeOpen = 0;
+	uint32_t currentCopyingSizeOpen = 0;
+
+	uint32_t allCopyingFileSizeSave = 0;
+	uint32_t currentCopyingSizeSave = 0;
 //**************************************************************************************************************************
 //************************************************ FileManagerInstrument****************************************************
 	uint8_t currentCopyStatusFlag;

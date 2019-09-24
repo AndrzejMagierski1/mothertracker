@@ -32,21 +32,23 @@ uint8_t SamplesCopyier::start(char* destPatch, char* sourcePatch)
 	return 1;
 }
 
-void SamplesCopyier::update()
+uint16_t SamplesCopyier::update()
 {
 	uint16_t lengthData=0;
 	uint8_t currentBuffor[1024];
 
-	if(importSampleState == copyingSampleEnded) return;
+	if(importSampleState == copyingSampleEnded) return 0;
 	if(sourceSample.available())
 	{
 		lengthData=sourceSample.read(currentBuffor,1024);
 		destSample.write(currentBuffor,(size_t)lengthData);
 		currentCopyingSize+=lengthData;
+		return lengthData;
 	}
 	else
 	{
 		stop();
+		return 0;
 	}
 }
 

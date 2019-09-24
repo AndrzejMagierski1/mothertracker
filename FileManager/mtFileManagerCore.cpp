@@ -14,14 +14,19 @@ FileManager fileManager;
 
 void FileManager::update()
 {
+
 	samplesLoader.update();
 	samplesImporter.update();
-	samplesCopyier.update();
+	uint16_t localCopySize = samplesCopyier.update();
 
 //******************************************************************************************************
 // SAMPLES COPYIER	- kopiuje sample  z patcha do patcha
 //******************************************************************************************************
 	samplesCopyierCurrentState = fileManager.samplesCopyier.getState();
+	if(samplesCopyierCurrentState && openWorkspaceCreateFlag) currentCopyingSizeOpen+=localCopySize;
+	if(samplesCopyierCurrentState && saveProjectFlag) currentCopyingSizeSave+=localCopySize;
+
+
 	if( (!samplesCopyierCurrentState ) && (lastCopyierCurrentState) )
 	{
 		if(saveProjectFlag)
@@ -43,24 +48,12 @@ void FileManager::update()
 					if(i == (INSTRUMENTS_COUNT - 1))
 					{
 						saveProjectFlag = 0;
-						if(saveAsFlag)
-						{
-							saveAsFlag = 0;
-							openProject(currentProjectName, projectTypeUserMade);
-						}
 					}
 					break;
 				}
 				if(i == (INSTRUMENTS_COUNT - 1))
 				{
 					saveProjectFlag = 0;
-
-					if(saveAsFlag)
-					{
-						saveAsFlag = 0;
-						openProject(currentProjectName, projectTypeUserMade);
-					}
-
 				}
 
 			}
@@ -84,32 +77,15 @@ void FileManager::update()
 					{
 						openWorkspaceCreateFlag = 0;
 
-						if(openTemplateBasedProjectFlag)
-						{
-							openTemplateBasedProjectFlag = 0;
-							startSaveAsProject(currentProjectNameOpenTemplate);
-						}
-						else
-						{
-							samplesLoader.start(0,(char*)"Workspace");
-						}
+						samplesLoader.start(0,(char*)"Workspace");
+
 					}
 					break;
 				}
 				if(currentSaveWave == INSTRUMENTS_COUNT)
 				{
 					openWorkspaceCreateFlag = 0;
-
-					if(openTemplateBasedProjectFlag)
-					{
-						openTemplateBasedProjectFlag = 0;
-						startSaveAsProject(currentProjectName);
-					}
-					else
-					{
-						samplesLoader.start(0,(char*)"Workspace");
-					}
-
+					samplesLoader.start(0,(char*)"Workspace");
 				}
 			}
 		}
