@@ -294,6 +294,13 @@ void cSampleImporter::rewindListToBeggining()
 	display.refreshControl(explorerListControl);
 }
 
+void cSampleImporter::moveInstrListToEnd()
+{
+	selectedSlot = 47;
+	display.setControlValue(instrumentListControl, selectedSlot);
+	display.refreshControl(instrumentListControl);
+}
+
 void cSampleImporter::setSelect(uint8_t place)
 {
 	memset(selectionTab,0,sizeof(selectionTab));
