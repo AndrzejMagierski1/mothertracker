@@ -247,6 +247,8 @@ void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,A
 
 uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 {
+	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
+
 	__disable_irq();
 	uint8_t status;
 	float gainL=0,gainR=0;
