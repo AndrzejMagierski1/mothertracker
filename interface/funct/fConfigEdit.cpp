@@ -734,7 +734,7 @@ void cConfigEditor::changeVolume(int16_t value)
 
 
 	engine.setHeadphonesVolume(mtProject.values.volume);
-
+	mtProject.values.projectNotSavedFlag = 1;
 	showVolume();
 }
 

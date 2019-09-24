@@ -422,6 +422,8 @@ struct strMtValues
 	uint8_t monitor;
 	float radioFreq = 87.5;
 
+	uint8_t projectNotSavedFlag = 0;
+
 };
 
 //-------------------------------------------------
