@@ -130,14 +130,34 @@ cProjectEditor* PE = &projectEditor;
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
-uint8_t functShowProjectsList();
-uint8_t functShowTemplatesList();
-uint8_t functCancelList();
-uint8_t functSaveProject();
-uint8_t functOpenProject();
-uint8_t functOpenTemplate();
-uint8_t functCreateNewTemplate();
-
+static uint8_t functShowProjectsList();
+static uint8_t functShowTemplatesList();
+static uint8_t functCancelList();
+static uint8_t functOpenTemplate();
+static uint8_t functCreateNewTemplate();
+//****************************************************
+//Nowe podejście - ekran główny
+static uint8_t functNewProject();
+static uint8_t functOpenProject();
+static uint8_t functSaveProject();
+static uint8_t functSaveAsProject();
+static uint8_t functExport();
+//****************************************************
+//New project
+static uint8_t functSaveChangesCancelNewProject();
+static uint8_t functSaveChangesDontSaveNewProject();
+static uint8_t functSaveChangesSaveNewProject();
+//****************************************************
+//Save As
+static uint8_t functSaveAsCancel();
+static uint8_t functSaveAsConfirm();
+//****************************************************
+//Open
+static uint8_t functOpenProjectConfirm();
+static uint8_t functSaveChangesCancelOpen();
+static uint8_t functSaveChangesDontSaveOpen();
+static uint8_t functSaveChangesSaveOpen();
+//****************************************************
 static uint8_t functEnterName();
 static uint8_t functSwitchModule(uint8_t button);
 
@@ -169,6 +189,102 @@ void cProjectEditor::update()
 
 		projectOptions = 0;
 	}
+
+	if(openInProgressFlag)
+	{
+
+		currentOpeningStatus = fileManager.getOpenProjectState();
+
+		if((!currentOpeningStatus) && (!lastOpeningStatus)) // gdy nie ma sampli
+		{
+			openInProgressFlag = 0;
+
+			lastOpeningStatus = currentOpeningStatus;
+			return;
+		}
+
+
+		openingProgress = fileManager.getOpenProjectStateProgress();
+
+		if((!currentOpeningStatus) && (lastOpeningStatus))
+		{
+			showDefaultScreen();
+			openInProgressFlag = 0;
+			lastOpeningStatus = currentOpeningStatus;
+			return;
+		}
+
+		lastOpeningStatus = currentOpeningStatus;
+		showOpeningHorizontalBar();
+	}
+
+	if(saveInProgressFlag)
+	{
+		currentSaveStatus = fileManager.getSaveProjectState();
+
+		if((!currentSaveStatus) && (!lastSaveStatus)) // gdy nie ma sampli
+		{
+			saveInProgressFlag = 0;
+			if(newProjectOnSaveEndFlag)
+			{
+				newProjectOnSaveEndFlag = 0;
+
+				char currentPatch[PATCH_SIZE];
+				strcpy(currentPatch,"Templates/New/project.bin");
+
+				if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
+
+				fileManager.openProject((char*)"New",projectTypeExample); // można to odpalić bez zadnych flag i progresow bo nowy projekt nie ma sampli
+
+				memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
+				memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);
+				newProjectNotSavedFlag = 1;
+			}
+			if(openOnSaveEndFlag)
+			{
+				fileManager.openProject(&PE->locationFilesList[PE->selectedLocation][0],projectTypeUserMade);
+				openInProgressFlag = 1;
+				openOnSaveEndFlag = 0;
+				mtProject.values.projectNotSavedFlag = 0;
+			}
+			lastSaveStatus = currentSaveStatus;
+			return;
+		}
+
+		saveingProgress = fileManager.getSaveProjectStateProgress();
+
+		if((!currentSaveStatus) && (lastSaveStatus))
+		{
+			saveInProgressFlag = 0;
+			showDefaultScreen();
+			if(newProjectOnSaveEndFlag)
+			{
+				newProjectOnSaveEndFlag = 0;
+
+				char currentPatch[PATCH_SIZE];
+				strcpy(currentPatch,"Templates/New/project.bin");
+
+				if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
+
+				fileManager.openProject((char*)"New",projectTypeExample); // można to odpalić bez zadnych flag i progresow bo nowy projekt nie ma sampli
+
+				PE->newProjectNotSavedFlag = 1;
+			}
+			if(openOnSaveEndFlag)
+			{
+				fileManager.openProject(&PE->locationFilesList[PE->selectedLocation][0],projectTypeUserMade);
+				openInProgressFlag = 1;
+				openOnSaveEndFlag = 0;
+				mtProject.values.projectNotSavedFlag = 0;
+			}
+			lastSaveStatus = currentSaveStatus;
+			return;
+		}
+
+		lastSaveStatus = currentSaveStatus;
+		showSaveingHorizontalBar();
+	}
+
 }
 
 void cProjectEditor::start(uint32_t options)
@@ -176,14 +292,7 @@ void cProjectEditor::start(uint32_t options)
 
 	selectedLocation = 0;
 
-	if(options == mtProjectStartModeOpenLast)
-	{
-		moduleRefresh = 1;
-
-		projectOptions = mtProjectStartModeOpenLast;
-
-		return;
-	}
+	moduleRefresh = 1;
 
 	FM->setPadsGlobal(functPads);
 
@@ -238,9 +347,11 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonShift, functShift);
 	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 */
-	FM->setButtonObj(interfaceButton0, buttonPress, functShowTemplatesList);
-	FM->setButtonObj(interfaceButton1, buttonPress, functShowProjectsList);
+	FM->setButtonObj(interfaceButton0, buttonPress, functNewProject);
+	FM->setButtonObj(interfaceButton1, buttonPress, functOpenProject);
 	FM->setButtonObj(interfaceButton4, buttonPress, functSaveProject);
+	FM->setButtonObj(interfaceButton5, buttonPress, functSaveAsProject);
+	FM->setButtonObj(interfaceButton7, buttonPress, functExport);
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
@@ -274,7 +385,260 @@ uint8_t cProjectEditor::loadProjectValues()
 //==============================================================================================================
 //==============================================================================================================
 //==============================================================================================================
+//Nowe podejscie ekran główny
+static uint8_t functNewProject()
+{
+	if(mtProject.values.projectNotSavedFlag)
+	{
+		PE->functShowSaveLastWindow();
+		return 1;
+	}
+	char currentPatch[PATCH_SIZE];
 
+	strcpy(currentPatch,"Templates/New/project.bin");
+
+	if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
+
+	fileManager.openProject((char*)"New",projectTypeExample); // można to odpalić bez zadnych flag i progresow bo nowy projekt nie ma sampli
+
+	PE->newProjectNotSavedFlag = 1;
+	memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
+	memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);
+	PE->showDefaultScreen();
+	return 1;
+}
+static uint8_t functOpenProject()
+{
+
+	PE->listOnlyFolderNames("/Projects/");
+
+
+	PE->showProjectsList();
+
+
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	PE->FM->clearAllPots();
+
+	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
+
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProjectConfirm);
+	PE->FM->setButtonObj(interfaceButton1, buttonPress, functSaveChangesCancelOpen);
+
+	return 1;
+}
+static uint8_t functSaveProject()
+{
+	if(PE->newProjectNotSavedFlag)
+	{
+		functSaveAsProject();
+		return 1;
+	}
+	fileManager.startSaveProject();
+	PE->saveInProgressFlag = 1;
+	mtProject.values.projectNotSavedFlag = 0;
+
+	return 1;
+}
+static uint8_t functSaveAsProject()
+{
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveAsCancel);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveAsConfirm);
+	PE->FM->setButtonObj(interfaceButtonShift, buttonPress, functConfirmKey);
+	char localPatch[PATCH_SIZE];
+	uint16_t cnt=1;
+	strcpy(PE->name,"Untitled");
+	sprintf(localPatch,"Projects/%s",PE->name);
+
+	while(SD.exists(localPatch))
+	{
+	   sprintf(PE->name,"Untitled%d",cnt);
+	   sprintf(localPatch,"Projects/%s",PE->name);
+
+	   cnt++;
+	   if(cnt > 9999)
+	   {
+		   memset(PE->name,0,33);
+		   break;
+	   }
+	}
+
+	PE->editPosition = strlen(PE->name);
+	PE->keyboardPosition = BACKSPACE_PAD_1;
+	PE->lastPressedPad = BACKSPACE_PAD_1;
+	leds.setLED(BACKSPACE_PAD_1, 1, 31);
+	leds.setLED(BACKSPACE_PAD_2, 1, 31);
+
+	PE->keyboardActiveFlag = 1;
+
+	PE->showSaveAsKeyboard();
+
+
+	return 1;
+}
+static uint8_t functExport()
+{
+	return 1;
+}
+
+//===============================================================================================================
+//New Project
+void cProjectEditor::functShowSaveLastWindow()
+{
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveChangesCancelNewProject);
+	PE->FM->setButtonObj(interfaceButton4, buttonPress, functSaveChangesDontSaveNewProject);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveChangesSaveNewProject);
+
+	showSaveLastWindow();
+}
+
+static uint8_t functSaveChangesCancelNewProject()
+{
+
+	PE->setDefaultScreenFunct();
+
+	PE->showDefaultScreen();
+	return 1;
+}
+static uint8_t functSaveChangesDontSaveNewProject()
+{
+	char currentPatch[PATCH_SIZE];
+
+	strcpy(currentPatch,"Templates/New/project.bin");
+
+	if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
+
+	fileManager.openProject((char*)"New",projectTypeExample); // można to odpalić bez zadnych flag i progresow bo nowy projekt nie ma sampli
+	PE->newProjectNotSavedFlag = 1;
+
+	memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
+	memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);
+
+	PE->setDefaultScreenFunct();
+
+	PE->showDefaultScreen();
+
+	return 1;
+}
+static uint8_t functSaveChangesSaveNewProject()
+{
+	if(PE->newProjectNotSavedFlag)
+	{
+		PE->showDefaultScreen();
+		PE->showSaveAsKeyboard();
+		functSaveAsProject();
+		PE->newProjectOnSaveEndFlag = 1; //zostanie skasowana w cancel saveAs jakbyco
+		return 1;
+	}
+	fileManager.startSaveProject();
+
+	PE->saveInProgressFlag = 1;
+	PE->newProjectOnSaveEndFlag = 1;
+
+	PE->setDefaultScreenFunct();
+
+	PE->showDefaultScreen();
+
+	return 1;
+}
+//===============================================================================================================
+//Save AS
+
+static uint8_t functSaveAsCancel()
+{
+	PE->setDefaultScreenFunct();
+
+	PE->showDefaultScreen();
+	PE->newProjectOnSaveEndFlag = 0; // powiazane z new project
+	return 1;
+}
+
+static uint8_t functSaveAsConfirm()
+{
+	fileManager.startSaveAsProject(PE->name);
+	PE->saveInProgressFlag = 1;
+
+	if(PE->newProjectNotSavedFlag) PE->newProjectNotSavedFlag = 0;
+
+	mtProject.values.projectNotSavedFlag = 0;
+	PE->setDefaultScreenFunct();
+	PE->showDefaultScreen();
+	return 1;
+}
+
+//===============================================================================================================
+//open
+//todo: znacznik otwarcia
+static uint8_t functOpenProjectConfirm()
+{
+	if(mtProject.values.projectNotSavedFlag)
+	{
+		PE->functShowSaveLastWindowBeforeOpen();
+		return 1;
+	}
+	fileManager.openProject(&PE->locationFilesList[PE->selectedLocation][0],projectTypeUserMade);
+	mtProject.values.projectNotSavedFlag = 0;
+	PE->newProjectNotSavedFlag = 0;
+	PE->openInProgressFlag = 1;
+	PE->setDefaultScreenFunct();
+	PE->showDefaultScreen();
+	return 1;
+}
+void cProjectEditor::functShowSaveLastWindowBeforeOpen()
+{
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveChangesCancelOpen);
+	PE->FM->setButtonObj(interfaceButton4, buttonPress, functSaveChangesDontSaveOpen);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveChangesSaveOpen);
+
+	showSaveLastWindow();
+}
+
+static uint8_t functSaveChangesCancelOpen()
+{
+	PE->setDefaultScreenFunct();
+	PE->showDefaultScreen();
+	return 1;
+}
+static uint8_t functSaveChangesDontSaveOpen()
+{
+
+	fileManager.openProject(&PE->locationFilesList[PE->selectedLocation][0],projectTypeUserMade);
+	PE->newProjectNotSavedFlag = 0;
+	mtProject.values.projectNotSavedFlag = 0;
+	PE->openInProgressFlag = 1;
+	PE->setDefaultScreenFunct();
+	PE->showDefaultScreen();
+	return 1;
+}
+static uint8_t functSaveChangesSaveOpen()
+{
+	if(PE->newProjectNotSavedFlag)
+	{
+		PE->showDefaultScreen();
+		PE->showSaveAsKeyboard();
+		functSaveAsProject();
+		PE->openOnSaveEndFlag = 1; //zostanie skasowana w cancel saveAs jakbyco
+		return 1;
+	}
+	fileManager.startSaveProject();
+
+	PE->saveInProgressFlag = 1;
+	PE->openOnSaveEndFlag = 1;
+
+	PE->setDefaultScreenFunct();
+
+	PE->showDefaultScreen();
+
+	return 1;
+}
+
+
+//===============================================================================================================
 uint8_t functShowProjectsList()
 {
 	PE->listOnlyFolderNames("/Projects/");
@@ -326,62 +690,9 @@ uint8_t functCancelList()
 	PE->setDefaultScreenFunct();
 	return 1;
 }
-
-uint8_t functSaveProject()
-{
-	fileManager.startSaveProject();
-
-	return 1;
-}
-
-uint8_t functOpenProject()
-{
-
-	fileManager.openProject(&PE->locationFilesList[PE->selectedLocation][0],projectTypeUserMade);
-//
-//			for(uint8_t i=0; i < 8; i++)
-//			{
-//				mtProject.mtProjectRemote.instrumentFile[i].index = -1;
-//			}
-//			for(uint8_t i=0; i < 8; i++)
-//			{
-//				mtProject.mtProjectRemote.sampleFile[i].index = -1;
-//			}
-
-
-/*
-	fileManager.createNewProject("Project_Test1");
-
-	fileManager.importSampleToProject(NULL,"1.WAV","1.WAV",0,0,mtSampleTypeWaveFile);
-	fileManager.importSampleToProject(NULL,"2.WAV","2.WAV",1,1,mtSampleTypeWaveFile);
-	fileManager.importSampleToProject(NULL,"3.WAV","3.WAV",2,2,mtSampleTypeWaveFile);
-	fileManager.importSampleToProject(NULL,"4.WAV","4.WAV",3,3,mtSampleTypeWaveFile);
-	fileManager.importSampleToProject(NULL,"5.WAV","5.WAV",4,4,mtSampleTypeWaveFile);
-	fileManager.importSampleToProject(NULL,"6.WAV","6.WAV",5,5,mtSampleTypeWaveFile);
-	fileManager.importSampleToProject(NULL,"7.WAV","7.WAV",6,6,mtSampleTypeWaveFile);
-	fileManager.importSampleToProject(NULL,"8.WAV","8.WAV",7,7,mtSampleTypeWaveFile);
-
-
-	fileManager.saveProject();
-*/
-
-
-
-	//PE->eventFunct(mtProjectEditorEventLoadSampleBank, 0, 0, 0);
-
-
-	PE->loadProjectValues();
-
-
-	PE->showDefaultScreen();
-	PE->setDefaultScreenFunct();
-
-	return 1;
-}
-
 uint8_t functOpenTemplate()
 {
-	fileManager.openTemplateBasedProject(PE->name, &PE->locationFilesList[PE->selectedLocation][0]);
+
 
 	PE->showDefaultScreen();
 	PE->setDefaultScreenFunct();
@@ -391,7 +702,7 @@ uint8_t functOpenTemplate()
 
 uint8_t functCreateNewTemplate()
 {
-	fileManager.createEmptyTemplateProject((char*)"New");
+
 	functShowTemplatesList();
 
 	return 1;
@@ -454,20 +765,15 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 static uint8_t functEnterName()
 {
 
-	char localPatch[128];
+	char localPatch[PATCH_SIZE];
 	uint16_t cnt=1;
-	char cntBuf[5];
+	strcpy(PE->name,"Untitled");
+	sprintf(localPatch,"Projects/%s",PE->name);
 
-
-	do
+	while(SD.exists(localPatch))
 	{
-	   memset(cntBuf,0,5);
-	   sprintf(cntBuf, "%d", cnt);
-	   strcpy(PE->name,"New Project");
-	   strcat(PE->name,cntBuf);
-
-	   strcpy(localPatch,"Projects/");
-	   strcat(localPatch, PE->name);
+	   sprintf(PE->name,"Untitled%d",cnt);
+	   sprintf(localPatch,"Projects/%s",PE->name);
 
 	   cnt++;
 	   if(cnt > 9999)
@@ -475,7 +781,7 @@ static uint8_t functEnterName()
 		   memset(PE->name,0,33);
 		   break;
 	   }
-	} while(SD.exists(localPatch));
+	}
 
 	PE->editPosition = strlen(PE->name);
 	PE->keyboardPosition = BACKSPACE_PAD_1;
