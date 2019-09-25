@@ -151,3 +151,13 @@ void FileManager::deleteSample(int8_t index)
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 
 }
+
+void FileManager::saveInstrument(int8_t index)
+{
+	char currentPatch[PATCH_SIZE];
+
+	sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",index);
+
+	writeInstrumentFile(currentPatch,&mtProject.instrument[index]);
+
+}

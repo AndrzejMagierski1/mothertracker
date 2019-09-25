@@ -53,9 +53,8 @@ class FileManager
 public:
 //************************************************ FileManagerProject*******************************************************
 	uint8_t openProject(char * name, uint8_t type);
-	uint8_t openTemplateBasedProject(char* projectName, char* templateName);
 	void importProject(char* sourceProjectPatch,char* name, char* newName);
-	void startSaveAsProject(char *name);
+	uint8_t startSaveAsProject(char *name, uint8_t type);
 	uint8_t saveAsProject(char* name);
 //	void saveProject();
 	void startSaveProject();
@@ -65,6 +64,8 @@ public:
 	uint8_t getSaveProjectStateProgress();
 	uint8_t createNewProject(char * name);
 	void createEmptyTemplateProject(char * name);
+	uint8_t loadProjectFromWorkspace();
+	void autoSaveProject();
 
 //**************************************************************************************************************************
 //************************************************ FileManagerInstrument****************************************************
@@ -75,6 +76,7 @@ public:
 	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
 	void deleteSample(int8_t index);
 	void deleteInstrument(int8_t index);
+	void saveInstrument(int8_t index);
 	void setLoadLength(uint8_t filesNum);
 	SamplesLoader samplesLoader;
 	SamplesImporter samplesImporter;
@@ -102,6 +104,11 @@ public:
 //**************************************************************************************************************************
 	friend class cProjectEditor;
 
+	enum
+	{
+		saveAsChecking,
+		saveAsOverwrite
+	};
 private:
 //************************************************ FileManagerCore**********************************************************
 	void formatSDCard();
@@ -118,7 +125,6 @@ private:
 	uint8_t currentSaveWave = 0;
 	uint8_t openWorkspaceCreateFlag = 0;
 	uint8_t saveAsFlag = 0;
-	uint8_t openTemplateBasedProjectFlag = 0;
 	uint8_t samplesCopyierCurrentState = 0;
 	uint8_t lastCopyierCurrentState = 0;
 	uint8_t loadLength = 0;
@@ -135,6 +141,7 @@ private:
 //************************************************ FileManagerPattern*******************************************************
 	void copyPattern(char* srcProjectPatch, uint8_t src_idx, char * dstProjectPatch, uint8_t dst_idx);
 //**************************************************************************************************************************
+
 
 
 
