@@ -112,6 +112,8 @@ public:
 	elapsedMillis configChangedRefresh;
 	uint8_t instrumentIsChangedFlag[48];
 	elapsedMillis instrumentRefresh;
+	uint8_t patternIsChangedFlag;
+	elapsedMillis patternRefresh;
 //**************************************************************************************************************************
 	friend class cProjectEditor;
 
