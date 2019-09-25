@@ -151,6 +151,8 @@ static uint8_t functSaveChangesSaveNewProject();
 //Save As
 static uint8_t functSaveAsCancel();
 static uint8_t functSaveAsConfirm();
+static uint8_t functSaveAsOverwriteYes();
+static uint8_t functSaveAsOverwriteNo();
 //****************************************************
 //Open
 static uint8_t functOpenProjectConfirm();
@@ -558,7 +560,11 @@ static uint8_t functSaveAsCancel()
 
 static uint8_t functSaveAsConfirm()
 {
-	fileManager.startSaveAsProject(PE->name);
+	if(fileManager.startSaveAsProject(PE->name,FileManager::saveAsChecking) == 0 )
+	{
+		PE->functShowOverwriteWindow();
+		return 1;
+	}
 	PE->saveInProgressFlag = 1;
 
 	if(PE->newProjectNotSavedFlag) PE->newProjectNotSavedFlag = 0;
@@ -569,9 +575,72 @@ static uint8_t functSaveAsConfirm()
 	return 1;
 }
 
+void cProjectEditor::functShowOverwriteWindow()
+{
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveAsOverwriteYes);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveAsOverwriteNo);
+
+	PE->showOverwriteWindow();
+}
+
+static uint8_t functSaveAsOverwriteYes()
+{
+	fileManager.startSaveAsProject(PE->name,FileManager::saveAsOverwrite);
+
+	PE->saveInProgressFlag = 1;
+
+	if(PE->newProjectNotSavedFlag) PE->newProjectNotSavedFlag = 0;
+
+	mtProject.values.projectNotSavedFlag = 0;
+	PE->setDefaultScreenFunct();
+	PE->showDefaultScreen();
+	return 1;
+}
+
+static uint8_t functSaveAsOverwriteNo()
+{
+	PE->showDefaultScreen();
+
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveAsCancel);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveAsConfirm);
+	PE->FM->setButtonObj(interfaceButtonShift, buttonPress, functConfirmKey);
+	char localPatch[PATCH_SIZE];
+	char localName[PROJECT_NAME_SIZE];
+	uint16_t cnt=1;
+	sprintf(localPatch,"Projects/%s",PE->name);
+	strcpy(localName,PE->name);
+
+	while(SD.exists(localPatch))
+	{
+	   sprintf(PE->name,"%s%d",localName,cnt);
+	   sprintf(localPatch,"Projects/%s",PE->name);
+
+	   cnt++;
+	   if(cnt > 9999)
+	   {
+		   memset(PE->name,0,33);
+		   break;
+	   }
+	}
+
+	PE->editPosition = strlen(PE->name);
+	PE->keyboardPosition = BACKSPACE_PAD_1;
+	PE->lastPressedPad = BACKSPACE_PAD_1;
+	leds.setLED(BACKSPACE_PAD_1, 1, 31);
+	leds.setLED(BACKSPACE_PAD_2, 1, 31);
+
+	PE->keyboardActiveFlag = 1;
+
+	PE->showSaveAsKeyboard();
+
+	return 1;
+}
 //===============================================================================================================
 //open
-//todo: znacznik otwarcia
 static uint8_t functOpenProjectConfirm()
 {
 	if(mtProject.values.projectNotSavedFlag)

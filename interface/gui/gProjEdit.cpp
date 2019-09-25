@@ -442,6 +442,33 @@ void cProjectEditor::showSaveLastWindow()
 	display.synchronizeRefresh();
 }
 
+void cProjectEditor::showOverwriteWindow()
+{
+	display.setControlText(topLabel[0], "Yes");
+	for(uint8_t i=1 ;i < 7; i++)
+	{
+		display.setControlText(topLabel[i], "");
+	}
+	display.setControlText(topLabel[7], "No");
+
+	char currentInfo[100];
+
+	sprintf(currentInfo,"Do you want overwrite\"%s\" ?", name);
+
+	display.setControlText(selectWindowLabel, currentInfo);
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+
+	display.synchronizeRefresh();
+}
+
+
 void cProjectEditor::showOpeningHorizontalBar()
 {
 	display.setControlValue(loadHorizontalBarControl, openingProgress);
