@@ -8,6 +8,7 @@
 #include "patternEditor.h"
 #include "mtSamplesLoader.h"
 #include "mtSamplesImporter.h"
+#include "mtSamplesCopyier.h"
 
 struct strProjectFileHeader
 {
@@ -53,10 +54,18 @@ public:
 //************************************************ FileManagerProject*******************************************************
 	uint8_t openProject(char * name, uint8_t type);
 	void importProject(char* sourceProjectPatch,char* name, char* newName);
+	uint8_t startSaveAsProject(char *name, uint8_t type);
 	uint8_t saveAsProject(char* name);
-	void saveProject();
+//	void saveProject();
+	void startSaveProject();
+	uint8_t getSaveProjectState();
+	uint8_t getOpenProjectState();
+	uint8_t getOpenProjectStateProgress();
+	uint8_t getSaveProjectStateProgress();
 	uint8_t createNewProject(char * name);
 	void createEmptyTemplateProject(char * name);
+	uint8_t loadProjectFromWorkspace();
+	void autoSaveProject();
 
 //**************************************************************************************************************************
 //************************************************ FileManagerInstrument****************************************************
@@ -67,8 +76,11 @@ public:
 	void importInstrumentToProject(char* projectPatch, char* name, int8_t index);
 	void deleteSample(int8_t index);
 	void deleteInstrument(int8_t index);
+	void saveInstrument(int8_t index);
+	void setLoadLength(uint8_t filesNum);
 	SamplesLoader samplesLoader;
 	SamplesImporter samplesImporter;
+	SamplesCopyier samplesCopyier;
 //**************************************************************************************************************************
 //************************************************ FileManagerPattern*******************************************************
 	uint8_t loadPattern(uint8_t index);
@@ -92,8 +104,23 @@ public:
 	uint8_t getEndImportSampleFlag();
 	void clearEndImportSampleFlag();
 	char currentProjectPatch[PATCH_SIZE-PROJECT_NAME_SIZE];
+	char currentProjectName[PROJECT_NAME_SIZE];
+	char currentProjectNameOpenTemplate[PROJECT_NAME_SIZE];
+//**************************************************************************************************************************
+//******************************************************ChangeFlags*********************************************************
+	uint8_t configIsChangedFlag;
+	elapsedMillis configChangedRefresh;
+	uint8_t instrumentIsChangedFlag[48];
+	elapsedMillis instrumentRefresh;
 //**************************************************************************************************************************
 	friend class cProjectEditor;
+
+	enum
+	{
+		saveAsChecking,
+		saveAsOverwrite
+	};
+
 
 private:
 //************************************************ FileManagerCore**********************************************************
@@ -105,17 +132,29 @@ private:
 	uint8_t readPatternFile(char * name);
 	void writeProjectFile(char * name,strMtProjectRemote * proj);
 	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
-	char currentProjectName[PROJECT_NAME_SIZE];
 	uint8_t endImportSampleFlag = 0;
 	uint8_t autoLoadFlag = 1;
+	uint8_t saveProjectFlag = 0;
+	uint8_t currentSaveWave = 0;
+	uint8_t openWorkspaceCreateFlag = 0;
+	uint8_t saveAsFlag = 0;
+	uint8_t samplesCopyierCurrentState = 0;
+	uint8_t lastCopyierCurrentState = 0;
+	uint8_t loadLength = 0;
+	uint32_t allCopyingFileSizeOpen = 0;
+	uint32_t currentCopyingSizeOpen = 0;
+
+	uint32_t allCopyingFileSizeSave = 0;
+	uint32_t currentCopyingSizeSave = 0;
 //**************************************************************************************************************************
 //************************************************ FileManagerInstrument****************************************************
 	uint8_t currentCopyStatusFlag;
 	uint8_t lastCopyStatusFlag;
 //**************************************************************************************************************************
 //************************************************ FileManagerPattern*******************************************************
-	void copyPattern(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
+	void copyPattern(char* srcProjectPatch, uint8_t src_idx, char * dstProjectPatch, uint8_t dst_idx);
 //**************************************************************************************************************************
+
 
 
 

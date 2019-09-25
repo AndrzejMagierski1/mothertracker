@@ -14,8 +14,88 @@ FileManager fileManager;
 
 void FileManager::update()
 {
+
 	samplesLoader.update();
 	samplesImporter.update();
+	uint16_t localCopySize = samplesCopyier.update();
+
+//******************************************************************************************************
+// SAMPLES COPYIER	- kopiuje sample  z patcha do patcha
+//******************************************************************************************************
+	samplesCopyierCurrentState = fileManager.samplesCopyier.getState();
+	if(samplesCopyierCurrentState && openWorkspaceCreateFlag) currentCopyingSizeOpen+=localCopySize;
+	if(samplesCopyierCurrentState && saveProjectFlag) currentCopyingSizeSave+=localCopySize;
+
+
+	if( (!samplesCopyierCurrentState ) && (lastCopyierCurrentState) )
+	{
+		if(saveProjectFlag)
+		{
+			for(uint8_t i = currentSaveWave; i < INSTRUMENTS_COUNT; i++)
+			{
+
+				if(mtProject.instrument[i].isActive == 1)
+				{
+					char currentPatch[PATCH_SIZE];
+					char workspacePatch[PATCH_SIZE];
+					sprintf(currentPatch,"%s/samples/instr%02d.wav",currentProjectPatch,i);
+					sprintf(workspacePatch,"Workspace/samples/instr%02d.wav",i);
+
+					samplesCopyier.start(currentPatch,workspacePatch);
+
+					currentSaveWave = i+1;
+
+					if(i == (INSTRUMENTS_COUNT - 1))
+					{
+						saveProjectFlag = 0;
+					}
+					break;
+				}
+				if(i == (INSTRUMENTS_COUNT - 1))
+				{
+					saveProjectFlag = 0;
+				}
+
+			}
+		}
+
+		if(openWorkspaceCreateFlag)
+		{
+			for(uint8_t i = currentSaveWave; i < INSTRUMENTS_COUNT; i++)
+			{
+				currentSaveWave = i+1;
+				if(mtProject.instrument[i].isActive == 1)
+				{
+					char currentPatch[PATCH_SIZE];
+					char workspacePatch[PATCH_SIZE];
+					sprintf(currentPatch,"%s/samples/instr%02d.wav",currentProjectPatch,i);
+					sprintf(workspacePatch,"Workspace/samples/instr%02d.wav",i);
+
+					samplesCopyier.start(workspacePatch,currentPatch);
+
+					if(i == (INSTRUMENTS_COUNT - 1))
+					{
+						openWorkspaceCreateFlag = 0;
+
+						samplesLoader.start(0,(char*)"Workspace");
+
+					}
+					break;
+				}
+				if(currentSaveWave == INSTRUMENTS_COUNT)
+				{
+					openWorkspaceCreateFlag = 0;
+					samplesLoader.start(0,(char*)"Workspace");
+				}
+			}
+		}
+	}
+
+	lastCopyierCurrentState = fileManager.samplesCopyier.getState();
+
+//******************************************************************************************************
+// SAMPLES IMPORTER - kopiuje pliki do projektu
+//******************************************************************************************************
 	currentCopyStatusFlag = fileManager.samplesImporter.getState();
 
 	handleLoadPattern();
@@ -24,10 +104,16 @@ void FileManager::update()
 	if( (!currentCopyStatusFlag ) && (lastCopyStatusFlag) )
 	{
 		endImportSampleFlag = 1;
+
 		if(autoLoadFlag)
 		{
 			uint8_t startIndex = samplesImporter.getCurrentStartIndex();
+			samplesLoader.setFilesToLoad(loadLength);
+
 			if(startIndex != -1) samplesLoader.start(startIndex,currentProjectPatch);
+
+			loadLength=1;
+
 		}
 	}
 
@@ -51,6 +137,12 @@ void FileManager::clearAutoLoadFlag()
 {
 	autoLoadFlag = 0;
 }
+
+void FileManager::setLoadLength(uint8_t filesNum)
+{
+	loadLength = filesNum;
+}
+
 void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 {
 	if(SD.exists(name)) SD.remove(name);
@@ -219,7 +311,7 @@ uint8_t FileManager::readProjectFile(char * name, strMtProjectRemote * proj)
 	if(!SD.exists(name)) return 0;
 	FsFile file;
 	FastCRC32 crcCalc;
-	uint32_t checkCRC=0;
+//	uint32_t checkCRC=0;
 
 	strProjectFile projectFile;
 
@@ -229,7 +321,7 @@ uint8_t FileManager::readProjectFile(char * name, strMtProjectRemote * proj)
 
 	if(projectFile.projectDataAndHeader.projectHeader.type != fileTypeProject) return 0;
 
-	checkCRC=crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
+//	checkCRC=crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
 //TODO:	if(checkCRC == projectFile.crc) // wylaczone sprawdzanie crc pliku projektu
 	if(1)
 	{

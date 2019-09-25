@@ -6,7 +6,11 @@
 #include "mtAudioEngine.h"
 #include "mtPadsBacklight.h"
 
+
 #include "interfacePopups.h"
+
+#include "mtFileManager.h"
+
 
 cInstrumentEditor instrumentEditor;
 static cInstrumentEditor* IE = &instrumentEditor;
@@ -450,7 +454,8 @@ void cInstrumentEditor::changeEnvAttack(int16_t value)
 	if(editorInstrument->envelope[selectedEnvelope].attack + value < 0) editorInstrument->envelope[selectedEnvelope].attack = 0;
 	else if(editorInstrument->envelope[selectedEnvelope].attack + value > ATTACK_MAX ) editorInstrument->envelope[selectedEnvelope].attack = ATTACK_MAX;
 	else editorInstrument->envelope[selectedEnvelope].attack += value;
-
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 	showEnvAttack();
 }
 
@@ -461,7 +466,8 @@ void cInstrumentEditor::changeEnvDecay(int16_t value)
 	if(editorInstrument->envelope[selectedEnvelope].decay + value < 0) editorInstrument->envelope[selectedEnvelope].decay = 0;
 	else if(editorInstrument->envelope[selectedEnvelope].decay + value > DECAY_MAX ) editorInstrument->envelope[selectedEnvelope].decay = DECAY_MAX;
 	else editorInstrument->envelope[selectedEnvelope].decay += value;
-
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 	showEnvDecay();
 }
 
@@ -472,7 +478,8 @@ void cInstrumentEditor::changeEnvSustain(int16_t value)
 	if(editorInstrument->envelope[selectedEnvelope].sustain + fVal < 0) editorInstrument->envelope[selectedEnvelope].sustain = 0;
 	else if(editorInstrument->envelope[selectedEnvelope].sustain + fVal > SUSTAIN_MAX ) editorInstrument->envelope[selectedEnvelope].sustain = SUSTAIN_MAX;
 	else editorInstrument->envelope[selectedEnvelope].sustain += fVal;
-
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 	showEnvSustain();
 }
 
@@ -483,7 +490,8 @@ void cInstrumentEditor::changeEnvRelease(int16_t value)
 	if(editorInstrument->envelope[selectedEnvelope].release + value < 0) editorInstrument->envelope[selectedEnvelope].release = 0;
 	else if(editorInstrument->envelope[selectedEnvelope].release + value > RELEASE_MAX ) editorInstrument->envelope[selectedEnvelope].release = RELEASE_MAX;
 	else editorInstrument->envelope[selectedEnvelope].release += value;
-
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 	showEnvRelease();
 }
 
@@ -503,7 +511,8 @@ void cInstrumentEditor::changeEnvAmount(int16_t value)
 	{
 		editorInstrument->envelope[selectedEnvelope].enable = 1;
 	}
-
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 	showEnvAmount();
 }
 
@@ -513,7 +522,8 @@ void cInstrumentEditor::changeEnvLoop(int16_t value)
 {
 
 
-
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 	showEnvLoop();
 }
 
@@ -553,6 +563,8 @@ void cInstrumentEditor::changeFilterFilterType(int16_t value)
 	display.setControlValue(filterModeListControl, filterModeListPos);
 	display.refreshControl(filterModeListControl);
 	//showFilterFilterType();
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 uint8_t bgB = 128;
@@ -573,6 +585,9 @@ void cInstrumentEditor::changeFilterCutOff(int16_t value)
 	instrumentPlayer[0].setStatusBytes(CUTOFF_MASK);
 
 	showFilterCutOff();
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 void cInstrumentEditor::changeFilterResonance(int16_t value)
@@ -586,6 +601,9 @@ void cInstrumentEditor::changeFilterResonance(int16_t value)
 	instrumentPlayer[0].setStatusBytes(RESONANCE_MASK);
 
 	showFilterResonance();
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 void cInstrumentEditor::changeParamsVolume(int16_t value)
@@ -597,6 +615,9 @@ void cInstrumentEditor::changeParamsVolume(int16_t value)
 	instrumentPlayer[0].setStatusBytes(VOLUME_MASK);
 
 	showParamsVolume();
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 void cInstrumentEditor::changeParamsTune(int16_t value)
@@ -608,6 +629,9 @@ void cInstrumentEditor::changeParamsTune(int16_t value)
 	instrumentPlayer[0].setStatusBytes(TUNE_MASK);
 
 	showParamsTune();
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 void cInstrumentEditor::changeParamsFineTune(int16_t value)
@@ -619,6 +643,9 @@ void cInstrumentEditor::changeParamsFineTune(int16_t value)
 	instrumentPlayer[0].setStatusBytes(FINETUNE_MASK);
 
 	showParamsFineTune();
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 void cInstrumentEditor::changeParamsGlide(int16_t value)
@@ -630,6 +657,9 @@ void cInstrumentEditor::changeParamsGlide(int16_t value)
 	else editorInstrument->glide += value;
 
 	showParamsGlide();
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 void cInstrumentEditor::changeParamsPanning(int16_t value)
@@ -641,6 +671,9 @@ void cInstrumentEditor::changeParamsPanning(int16_t value)
 	instrumentPlayer[0].setStatusBytes(PANNING_MASK);
 
 	showParamsPanning();
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 
@@ -653,6 +686,9 @@ void cInstrumentEditor::changeParamsReverbSend(int16_t value)
 	instrumentPlayer[0].setStatusBytes(REVERB_SEND_MASK);
 
 	showParamsReverbSend();
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 //======================================================================================================================

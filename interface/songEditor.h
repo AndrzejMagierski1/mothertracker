@@ -6,6 +6,7 @@
 
 #include "mtStructs.h"
 
+#define CURR_PATTERN_MARK_POS		1
 
 class cSongEditor: public cModuleBase
 {
@@ -59,6 +60,7 @@ public:
 
 	void changePatternsSelection(int16_t value);
 
+	void clearPatternMark();
 	void markCurrentPattern();
 	void readSong();
 

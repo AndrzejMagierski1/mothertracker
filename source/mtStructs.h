@@ -413,7 +413,20 @@ struct strMtValues
 
 	int8_t patternEditStep = 1;
 
+
 	uint8_t trackMute[8] = {0,0,0,0,0,0,0,0};
+
+
+//********************************* radio
+	uint8_t source;
+	uint8_t gainLineIn;
+	uint8_t gainMicLow;
+	uint8_t gainMicHigh;
+	uint8_t gainRadio;
+	uint8_t monitor;
+	float radioFreq = 87.5;
+
+	uint8_t projectNotSavedFlag = 0;
 
 
 };
@@ -423,21 +436,13 @@ struct strMtProjectRemote
 {
 	struct strInstrumentFile
 	{
-		int8_t isActive = -1;
 		uint8_t sampleType;
 	} instrumentFile[INSTRUMENTS_COUNT];
-
-	struct strPaternFile
-	{
-		int8_t isActive= -1;
-	} patternFile[PATTERN_INDEX_MAX];
-
 	struct strSong
 	{
 		uint8_t playlist[SONG_MAX] { 1, 2, 3, 4, 0 };
 		int8_t playlistPos = 0;
 	} song;
-
 
 	strMtValues values;
 

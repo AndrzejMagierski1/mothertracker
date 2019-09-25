@@ -1,7 +1,7 @@
 #include <projectEditor.h>
 
 #include "mtLED.h"
-
+#include "mtFileManager.h"
 
 constexpr uint8_t BACKSPACE_PAD_1 = 10;
 constexpr uint8_t BACKSPACE_PAD_2 = 11;
@@ -19,6 +19,13 @@ constexpr uint8_t F_PAD = 27;
 
 constexpr uint8_t J_PAD = 30;
 
+static uint32_t popUpLabelColors[] =
+{
+	0xFFFFFF, // tekst
+	0x222222, // tło
+	0xFF0000, // ramka
+};
+
 void cProjectEditor::initDisplayControls()
 {
 	strControlProperties prop2;
@@ -32,6 +39,10 @@ void cProjectEditor::initDisplayControls()
 	prop2.w = 800;
 	prop2.h = 25;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 650;
+	prop2.y = 12;
+	if(titleLabelProjectName == nullptr) titleLabelProjectName = display.createControl<cLabel>(&prop2);
 
 
 	for(uint8_t i = 0; i<8; i++)
@@ -77,6 +88,27 @@ void cProjectEditor::initDisplayControls()
 	prop4.h = 40;
 	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop4);
 
+	strControlProperties prop5;
+
+	prop5.x = 400;
+	prop5.colors = popUpLabelColors;
+	prop5.y = 350;
+
+	prop5.h = 100;
+	prop5.w = 800-(10);
+	prop5.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
+	prop5.text = (char*)"";
+	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop5);
+
+	strControlProperties prop6;
+
+	prop6.x = 190;
+	prop6.y = 170;
+	prop6.style = controlStyleValue_0_100;
+	prop6.h = 100;
+	prop6.w = 420;
+
+	if(loadHorizontalBarControl == nullptr)  loadHorizontalBarControl = display.createControl<cHorizontalBar>(&prop6);
 
 }
 
@@ -88,6 +120,10 @@ void cProjectEditor::destroyDisplayControls()
 
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
+
+	display.destroyControl(titleLabelProjectName);
+	titleLabelProjectName = nullptr;
+
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -110,6 +146,12 @@ void cProjectEditor::destroyDisplayControls()
 	display.destroyControl(editName);
 	editName = nullptr;
 
+	display.destroyControl(selectWindowLabel);
+	selectWindowLabel = nullptr;
+
+	display.destroyControl(loadHorizontalBarControl);
+	loadHorizontalBarControl = nullptr;
+
 }
 
 void cProjectEditor::showDefaultScreen()
@@ -118,6 +160,32 @@ void cProjectEditor::showDefaultScreen()
 
 	display.setControlText(titleLabel, "File");
 	display.refreshControl(titleLabel);
+
+	if((fileManager.currentProjectName[0] == 0) || ( newProjectNotSavedFlag == 1 ) )
+	{
+		char currentPatch[PATCH_SIZE];
+		uint16_t i = 0;
+		strcpy(currentPatch,"Projects/Untitled");
+		while((SD.exists(currentPatch)) && (i <= 9999))
+		{
+			i++;
+			sprintf(currentPatch,"Projects/Untitled%d",i);
+		}
+
+		if(i == 0) display.setControlText(titleLabelProjectName, "Untitled");
+		else
+		{
+			sprintf(currentPatch,"Untitled%d",i);
+			display.setControlText(titleLabelProjectName, currentPatch);
+		}
+	}
+	else
+	{
+		display.setControlText(titleLabelProjectName, fileManager.currentProjectName);
+	}
+
+	display.refreshControl(titleLabelProjectName);
+
 
 	//lista
 	display.setControlHide(fileListControl);
@@ -128,9 +196,12 @@ void cProjectEditor::showDefaultScreen()
 	display.refreshControl(topLabel[0]);
 
 	// bottom labels
-	display.setControlText(topLabel[0], "New");
+	display.setControlText(topLabel[0], "New Project");
 	display.setControlText(topLabel[1], "Open");
+
 	display.setControlText(topLabel[4], "Save");
+	display.setControlText(topLabel[5], "Save As");
+	display.setControlText(topLabel[7], "Export");
 
 
 	display.setControlText(topLabel[7], "Game");
@@ -149,8 +220,11 @@ void cProjectEditor::showDefaultScreen()
 	display.setControlHide(editName);
 	display.refreshControl(editName);
 
+	display.setControlHide(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
 
-
+	display.setControlHide(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
 
 	display.synchronizeRefresh();
 
@@ -169,18 +243,20 @@ void cProjectEditor::showProjectsList()
 	display.setControlShow(fileListControl);
 	display.refreshControl(fileListControl);
 
-// top label listy
-	display.setControlText(topLabel[0], "Open project");
-	display.setControlShow(topLabel[0]);
-	display.refreshControl(topLabel[0]);
+	for(uint8_t i = 2; i < 8 ; i++)
+	{
+		display.setControlText(topLabel[i], "");
+	}
 
 // bottom labels
 	display.setControlText(topLabel[0], "Open");
 	display.setControlText(topLabel[1], "Cancel");
 
-	display.refreshControl(topLabel[0]);
-	display.refreshControl(topLabel[1]);
 
+	for(uint8_t i = 0; i < 8 ; i++)
+	{
+		display.refreshControl(topLabel[i]);
+	}
 	display.synchronizeRefresh();
 }
 
@@ -245,6 +321,29 @@ void cProjectEditor::showEnterNameKeyboard()
 
 }
 
+void cProjectEditor::showSaveAsKeyboard()
+{
+	display.setControlText(topLabel[0],"Cancel");
+
+	for(uint8_t i = 1; i < 7 ; i++)
+	{
+		display.setControlText(topLabel[i], "");
+	}
+
+	display.setControlText(topLabel[7],"Save");
+
+	for(uint8_t i = 0; i < 8 ; i++)
+	{
+		display.refreshControl(topLabel[i]);
+	}
+
+	showKeyboard();
+	showKeyboardEditName();
+
+	display.synchronizeRefresh();
+
+}
+
 
 void cProjectEditor::showKeyboard()
 {
@@ -305,3 +404,89 @@ void cProjectEditor::hideKeyboardEditName()
 	display.setControlHide(editName);
 	display.refreshControl(editName);
 }
+
+void cProjectEditor::showSaveLastWindow()
+{
+	display.setControlText(topLabel[0], "Cancel");
+	display.setControlText(topLabel[1], "");
+
+	display.setControlText(topLabel[4], "Don't Save");
+	display.setControlText(topLabel[5], "");
+	display.setControlText(topLabel[7], "Save");
+
+	char currentInfo[100];
+
+	if(( fileManager.currentProjectName[0] ) != 0 && ( newProjectNotSavedFlag == 0 ) )
+	{
+		sprintf(currentInfo,"Do you want to save the changes to \"%s\" ?", fileManager.currentProjectName);
+	}
+	else
+	{
+		uint16_t i = 0;
+		strcpy(currentInfo,"Projects/Untitled");
+		while((SD.exists(currentInfo)) && (i <= 9999))
+		{
+			i++;
+			sprintf(currentInfo,"Projects/Untitled%d",i);
+		}
+
+		if(i == 0) strcpy(currentInfo,"Do you want to save the changes to \"Untitled\" ?");
+		else sprintf(currentInfo,"Do you want to save the changes to \"Untitled%d\" ?",i);
+	}
+
+	display.setControlText(selectWindowLabel, currentInfo);
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+
+	display.synchronizeRefresh();
+}
+
+void cProjectEditor::showOverwriteWindow()
+{
+	display.setControlText(topLabel[0], "Yes");
+	for(uint8_t i=1 ;i < 7; i++)
+	{
+		display.setControlText(topLabel[i], "");
+	}
+	display.setControlText(topLabel[7], "No");
+
+	char currentInfo[100];
+
+	sprintf(currentInfo,"Do you want overwrite\"%s\" ?", name);
+
+	display.setControlText(selectWindowLabel, currentInfo);
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+
+	display.synchronizeRefresh();
+}
+
+
+void cProjectEditor::showOpeningHorizontalBar()
+{
+	display.setControlValue(loadHorizontalBarControl, openingProgress);
+	display.setControlText(loadHorizontalBarControl, "Opening project...");
+	display.setControlShow(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+}
+
+void cProjectEditor::showSaveingHorizontalBar()
+{
+	display.setControlValue(loadHorizontalBarControl, saveingProgress);
+	display.setControlText(loadHorizontalBarControl, "Save project...");
+	display.setControlShow(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+}
+

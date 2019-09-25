@@ -237,7 +237,7 @@ void FatFile::fsetpos(fspos_t* pos) {
   m_curCluster = pos->cluster;
 }
 //------------------------------------------------------------------------------
-bool FatFile::mkdir(FatFile* parent, const char* path, bool pFlag) {
+bool FatFile::mkdir(uint8_t hidden,FatFile* parent, const char* path, bool pFlag) {
   fname_t fname;
   FatFile tmpDir;
 
@@ -264,7 +264,7 @@ bool FatFile::mkdir(FatFile* parent, const char* path, bool pFlag) {
       break;
     }
     if (!open(parent, &fname, O_READ)) {
-      if (!pFlag || !mkdir(parent, &fname)) {
+      if (!pFlag || !mkdir(parent, &fname,hidden)) {
         DBG_FAIL_MACRO;
         goto fail;
       }
@@ -273,13 +273,13 @@ bool FatFile::mkdir(FatFile* parent, const char* path, bool pFlag) {
     parent = &tmpDir;
     close();
   }
-  return mkdir(parent, &fname);
+  return mkdir(parent, &fname,hidden);
 
 fail:
   return false;
 }
 //------------------------------------------------------------------------------
-bool FatFile::mkdir(FatFile* parent, fname_t* fname) {
+bool FatFile::mkdir(FatFile* parent, fname_t* fname, uint8_t hidden) {
   uint32_t sector;
   dir_t dot;
   dir_t* dir;
@@ -318,7 +318,8 @@ bool FatFile::mkdir(FatFile* parent, fname_t* fname) {
     goto fail;
   }
   // change directory entry  attribute
-  dir->attributes = FAT_ATTRIB_DIRECTORY;
+  dir->attributes = FAT_ATTRIB_DIRECTORY ;
+  if(hidden) dir->attributes |= FAT_ATTRIB_HIDDEN;
 
   // make entry for '.'
   memcpy(&dot, dir, sizeof(dot));
@@ -854,7 +855,7 @@ bool FatFile::rename(FatFile* dirFile, const char* newPath) {
     }
   } else {
     // don't create missing path prefix components
-    if (!file.mkdir(dirFile, newPath, false)) {
+    if (!file.mkdir(0,dirFile, newPath, false)) {
       DBG_FAIL_MACRO;
       goto fail;
     }

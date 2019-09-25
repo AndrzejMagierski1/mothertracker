@@ -11,8 +11,7 @@ uint32_t SamplesLoader::calcSamplesFolderSize()
 
 	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
-		if(i<10) sprintf(currentPatch,"%s/samples/instr0%d.wav", currentProjectPatch,i);
-		else sprintf(currentPatch,"%s/samples/instr%d.wav", currentProjectPatch,i);
+		sprintf(currentPatch,"Workspace/samples/instr%02d.wav",i);
 
 		size += waveLoader.getInfoAboutWave(currentPatch);
 	}
@@ -29,11 +28,9 @@ void SamplesLoader::update()
 
 		if(waveLoader.getState() == loaderStateTypeEnded)
 		{
-			if(currentProjectPatch != NULL)
-			{
-				if(currentIndex < 10) sprintf(currentPatch,"%s/samples/instr0%d.wav", currentProjectPatch,currentIndex);
-				else sprintf(currentPatch,"%s/samples/instr%d.wav", currentProjectPatch,currentIndex);
-			}
+
+			sprintf(currentPatch,"Workspace/samples/instr%02d.wav",currentIndex);
+
 
 			if(mtProject.instrument[currentIndex].isActive == 0)
 			{
@@ -97,7 +94,6 @@ void SamplesLoader::update()
 		if(waveLoader.getStopStatus() == 0)
 		{
 			mtProject.instrument[currentIndex].isActive = 0;
-			mtProject.mtProjectRemote.instrumentFile[currentIndex].isActive = 0;
 			mtProject.instrument[currentIndex].sample.length = 0;
 			mtProject.instrument[currentIndex].sample.wavetable_window_size = 0;
 
@@ -119,7 +115,6 @@ void SamplesLoader::update()
 		else if(waveLoader.getStopStatus() == 1)
 		{
 			mtProject.used_memory += currentSize*2;
-			mtProject.mtProjectRemote.instrumentFile[currentIndex].isActive = 1;
 			mtProject.instrument[currentIndex].isActive=1;
 			mtProject.instrument[currentIndex].sample.length = currentSize;
 			loadedFlagChange = 1;
@@ -171,6 +166,11 @@ uint8_t  SamplesLoader::getFirstLoadFlag()
 	return firstLoadFlag;
 }
 
+void SamplesLoader::setFilesToLoad(uint8_t filesNum)
+{
+	filesToLoad = filesNum;
+}
+
 void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t firstLoad  )
 {
 	strcpy(currentProjectPatch,projectPatch);
@@ -183,6 +183,11 @@ void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t first
 	mtProject.used_memory = 0;
 	mtProject.instruments_count = 0;
 
+	if(filesToLoad < 1)
+	{
+		filesToLoad = 1;
+	}
+
 	for(uint8_t i = 0; i < startIndex; i++)
 	{
 		if(mtProject.instrument[i].isActive)
@@ -192,6 +197,7 @@ void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t first
 			mtProject.instruments_count++;
 		}
 	}
+
 	for(uint8_t i = startIndex + 1; i < INSTRUMENTS_COUNT; i ++)
 	{
 		if(mtProject.instrument[i].isActive)
@@ -200,19 +206,21 @@ void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t first
 		}
 
 	}
+
 	if(firstLoad) sizeAllFiles = calcSamplesFolderSize();
 
 	char currentPatch[PATCH_SIZE];
 
-	if(currentProjectPatch != NULL)
+	for(uint8_t file = 0; file < filesToLoad; file++)
 	{
-		if(startIndex<10) sprintf(currentPatch,"%s/samples/instr0%d.wav", currentProjectPatch,startIndex);
-		else sprintf(currentPatch,"%s/samples/instr%d.wav", currentProjectPatch,startIndex);
-	}
 
-	if(SD.exists(currentPatch))
-	{
-		sizeAllFiles+= waveLoader.getInfoAboutWave(currentPatch);
+		sprintf(currentPatch,"Workspace/samples/instr%02d.wav",startIndex+file);
+
+		if(SD.exists(currentPatch))
+		{
+			sizeAllFiles+= waveLoader.getInfoAboutWave(currentPatch);
+		}
+
 	}
 
 	if(mtProject.instruments_count == 0)  mtProject.instrument[startIndex].sample.address = sdram_sampleBank;
@@ -220,6 +228,11 @@ void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t first
 
 uint8_t SamplesLoader::getCurrentProgress()
 {
-	return ((currentLoadSize * 100) / sizeAllFiles);
+	uint8_t progress;
+
+	progress = ((currentLoadSize * 100) / sizeAllFiles);
+
+
+	return progress;
 }
 

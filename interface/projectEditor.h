@@ -58,8 +58,10 @@ public:
 	hControl keyboardControl;
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
+	hControl titleLabelProjectName = nullptr;
 	hControl instrumentLabel = nullptr;
-
+	hControl selectWindowLabel = nullptr;
+	hControl loadHorizontalBarControl = nullptr;
 	uint32_t topLabelColors[3] =
 	{
 			0x3F3F3F, // tekst
@@ -95,8 +97,27 @@ public:
 	uint8_t keyboardActiveFlag = 0;
 	uint8_t keyboardShiftFlag = 0;
 	uint8_t lastPressedPad;
-
 //-------------------------------------------------------------
+	void functShowSaveLastWindow();
+	void functShowSaveLastWindowBeforeOpen();
+	void showSaveLastWindow();
+	void functShowOverwriteWindow();
+	void showOpeningHorizontalBar();
+	void showSaveingHorizontalBar();
+	void showSaveAsKeyboard();
+	void showOverwriteWindow();
+	uint8_t newProjectNotSavedFlag = 0;
+	uint8_t createNewProjectFlag = 0;
+	uint8_t currentOpeningStatus = 0;
+	uint8_t openInProgressFlag = 0;
+	uint8_t lastOpeningStatus = 0;
+	uint8_t openingProgress = 0;
+	uint8_t saveInProgressFlag = 0;
+	uint8_t newProjectOnSaveEndFlag = 0;
+	uint8_t openOnSaveEndFlag = 0;
+	uint8_t saveingProgress = 0;
+	uint8_t currentSaveStatus = 0;
+	uint8_t lastSaveStatus = 0;
 
 };
 

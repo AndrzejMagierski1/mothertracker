@@ -7,7 +7,7 @@
 #include "interfacePopups.h"
 
 #include "graphicProcessing.h"
-
+#include "mtFileManager.h"
 
 
 cSamplePlayback samplePlayback;
@@ -753,6 +753,9 @@ void cSamplePlayback::changePlayModeSelection(int16_t value)
 	display.setControlValue(playModeListControl, editorInstrument->playMode);
 	display.refreshControl(playModeListControl);
 
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
+
 }
 
 void cSamplePlayback::modStartPoint(int16_t value)
@@ -803,6 +806,9 @@ void cSamplePlayback::modStartPoint(int16_t value)
 	refreshPoints = 1;
 
 	showStartPointValue();
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 void cSamplePlayback::modEndPoint(int16_t value)
@@ -849,6 +855,9 @@ void cSamplePlayback::modEndPoint(int16_t value)
 	refreshPoints = 1;
 
 	showEndPointValue();
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 void cSamplePlayback::modLoopPoint1(int16_t value)
@@ -873,6 +882,9 @@ void cSamplePlayback::modLoopPoint1(int16_t value)
 	refreshPoints = 1;
 
 	showLoopPoint1Value();
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 void cSamplePlayback::modLoopPoint2(int16_t value)
@@ -896,6 +908,9 @@ void cSamplePlayback::modLoopPoint2(int16_t value)
 	zoom.lastChangedPoint = 4;
 	refreshPoints = 1;
 	showLoopPoint2Value();
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 

@@ -164,7 +164,7 @@ void cConfigEditor::showDefaultConfigScreen()
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
 
-		display.setControlText(topLabel[i], "");
+		//display.setControlText(topLabel[i], "");
 		display.setControlShow(topLabel[i]);
 		display.refreshControl(topLabel[i]);
 
@@ -239,17 +239,6 @@ void cConfigEditor::showMasterScreen()
 	display.setControlPosition(topLabel[6],  (800/8)*6+(800/16),  437);
 	display.setControlSize(bottomLabel[6],  800/8-6,  30);
 	display.setControlSize(topLabel[6],  800/8-6,  28);
-
-
-
-	display.setControlText(topLabel[6], " ");
-	display.setControlText(topLabel[6], " ");
-	display.setControlText(topLabel[6], " ");
-	display.setControlText(topLabel[6], " ");
-	display.setControlText(topLabel[6], " ");
-	display.setControlText(topLabel[6], " ");
-	display.setControlText(topLabel[6], " ");
-	display.setControlText(topLabel[6], " ");
 
 
 	for(uint8_t i = 0; i<8; i++)
@@ -585,12 +574,14 @@ void cConfigEditor::resizeLabelConfigMaster()
 {
 	for(int i=0;i<8;i++)
 	{
-		display.setControlText(topLabel[i],"");
-		display.setControlText(bottomLabel[i],"");
+
 		display.setControlSize(topLabel[i], (800/8)-6, 28);
 		display.setControlPosition(topLabel[i], (800/8)*i+(800/16), 437);
 		display.refreshControl(topLabel[i]);
 	}
+
+	display.setControlText(topLabel[6],"");
+	display.refreshControl(topLabel[6]);
 }
 
 

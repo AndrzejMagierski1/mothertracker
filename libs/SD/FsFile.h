@@ -241,7 +241,7 @@ class FsFile {
    * \return The value true is returned for success and
    * the value false is returned for failure.
    */
-  bool mkdir(FsFile* dir, const char* path, bool pFlag = true);
+  bool mkdir(uint8_t hidden,FsFile* dir, const char* path, bool pFlag = true);
   /** No longer implemented due to Long File Names.
    *
    * Use getName(char* name, size_t size).

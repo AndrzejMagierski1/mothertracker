@@ -1483,6 +1483,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 				step->instrument = mtProject.values.lastUsedInstrument;
 			}
 			step->note = note;
+
 			if (channel == MIDI_CHANNEL_GRID)
 			{
 			}
@@ -1490,6 +1491,10 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 			{
 				step->velocity = velocity;
 			}
+
+
+
+
 //			blinkNote(step->instrument,
 //						step->note,
 //						step->velocity,

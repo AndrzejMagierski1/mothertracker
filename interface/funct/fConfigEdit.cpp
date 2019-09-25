@@ -4,11 +4,10 @@
 
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
-
+#include "mtFileManager.h"
 
 #include "configEditor.h"
 #include "mtSequencer.h"
-
 
 cConfigEditor configEditor;
 static cConfigEditor* CE = &configEditor;
@@ -285,7 +284,7 @@ static  uint8_t functEncoder(int16_t value)
 	switch(mode_places)
 	{
 	case 0: CE->changeSelectionInGroup(value);		 break;
-	case 1:		 break;
+	case 1:	CE->changeSelectionInGroup(value);	 	 break;
 	case 2: 	 break;
 	case 3: 	 break;
 	case 4: 	 break;
@@ -734,7 +733,8 @@ void cConfigEditor::changeVolume(int16_t value)
 
 
 	engine.setHeadphonesVolume(mtProject.values.volume);
-
+	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.configIsChangedFlag = 1;
 	showVolume();
 }
 
@@ -745,7 +745,8 @@ void cConfigEditor::changeReverbRoomSize(int16_t value)
 	else mtProject.values.reverbRoomSize += value;
 
 	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
-
+	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.configIsChangedFlag = 1;
 	showReverbSize();
 }
 
@@ -756,7 +757,8 @@ void cConfigEditor::changeReverbDamping(int16_t value)
 	else mtProject.values.reverbDamping += value;
 
 	engine.setReverbDamping(mtProject.values.reverbDamping);
-
+	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.configIsChangedFlag = 1;
 	showReverbDamping();
 }
 
@@ -769,7 +771,8 @@ void cConfigEditor::changeLimiterAttack(int16_t value)
 	else mtProject.values.limiterAttack += value;
 
 	engine.setLimiterAttack(mtProject.values.limiterRelease);
-
+	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.configIsChangedFlag = 1;
 
 	showLimiterAttack();
 }
@@ -784,6 +787,8 @@ void cConfigEditor::changeLimiterRelease(int16_t value)
 
 
 	engine.setLimiterRelease(mtProject.values.limiterAttack);
+	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.configIsChangedFlag = 1;
 	showLimiterRelease();
 }
 
@@ -796,7 +801,8 @@ void cConfigEditor::changeLimiterTreshold(int16_t value)
 	else mtProject.values.limiterTreshold += value;
 
 	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
-
+	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.configIsChangedFlag = 1;
 	showLimiterTreshold();
 }
 
@@ -949,7 +955,7 @@ void cConfigEditor::hideWarning()
 void cConfigEditor::changeFirmwareSelection(int16_t value)
 {
 	if(firmwareSelect + value < 0) firmwareSelect = 0;
-	else if(firmwareSelect + value >= firmwareFoundNum) firmwareSelect = firmwareFoundNum-1;
+	else if(firmwareSelect + value >= firmwareFoundNum) firmwareSelect = firmwareFoundNum;
 	else  firmwareSelect+= value;
 
 	display.setControlValue(firmwareListControl, firmwareSelect);

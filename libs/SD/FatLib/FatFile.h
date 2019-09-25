@@ -439,7 +439,7 @@ class FatFile {
    * \return The value true is returned for success and
    * the value false is returned for failure.
    */
-  bool mkdir(FatFile* dir, const char* path, bool pFlag = true);
+  bool mkdir(uint8_t hidden,FatFile* dir, const char* path, bool pFlag = true);
 
   /** Open a file in the volume root directory.
    *
@@ -939,7 +939,7 @@ class FatFile {
   bool lfnUniqueSfn(fname_t* fname);
   bool openCluster(FatFile* file);
   static bool parsePathName(const char* str, fname_t* fname, const char** ptr);
-  bool mkdir(FatFile* parent, fname_t* fname);
+  bool mkdir(FatFile* parent, fname_t* fname, uint8_t hidden );
   bool open(FatFile* dirFile, fname_t* fname, uint8_t oflag);
   bool openCachedEntry(FatFile* dirFile, uint16_t cacheIndex, uint8_t oflag,
                        uint8_t lfnOrd);

@@ -165,8 +165,8 @@ class FsVolume {
    * \return The value true is returned for success and
    * the value false is returned for failure.
    */
-  bool mkdir(const char *path, bool pFlag = true) {
-    return m_fVol ? m_fVol->mkdir(path, pFlag) :
+  bool mkdir(uint8_t hidden, const char *path, bool pFlag = true) {
+    return m_fVol ? m_fVol->mkdir(hidden,path, pFlag) :
            m_xVol ? m_xVol->mkdir(path, pFlag) : false;
   }
 
@@ -275,8 +275,8 @@ class FsVolume {
    * \return The value true is returned for success and
    * the value false is returned for failure.
    */
-  bool mkdir(const String &path, bool pFlag = true) {
-    return mkdir(path.c_str(), pFlag);
+  bool mkdir(uint8_t hidden,const String &path, bool pFlag = true) {
+    return mkdir(hidden,path.c_str(), pFlag);
   }
   /** open a file
    *
