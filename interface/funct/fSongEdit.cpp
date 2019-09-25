@@ -139,6 +139,9 @@ static  uint8_t functIncPattern()
 	SE->showPatternsList();
 
 	SE->activateLabelsBorder();
+
+	fileManager.configIsChangedFlag = 1;
+	mtProject.values.projectNotSavedFlag = 1;
 	return 1;
 }
 
@@ -155,6 +158,9 @@ static  uint8_t functDecPattern()
 	SE->showPatternsList();
 
 	SE->activateLabelsBorder();
+
+	fileManager.configIsChangedFlag = 1;
+	mtProject.values.projectNotSavedFlag = 1;
 	return 1;
 }
 
@@ -191,6 +197,9 @@ static  uint8_t functAddSlot()
 	SE->selectedPlace = 0;
 	SE->activateLabelsBorder();
 
+	fileManager.configIsChangedFlag = 1;
+	mtProject.values.projectNotSavedFlag = 1;
+
 	return 1;
 }
 
@@ -225,6 +234,9 @@ static  uint8_t functDeleteSlot()
 
 	SE->selectedPlace = 0;
 	SE->activateLabelsBorder();
+
+	fileManager.configIsChangedFlag = 1;
+	mtProject.values.projectNotSavedFlag = 1;
 	return 1;
 }
 

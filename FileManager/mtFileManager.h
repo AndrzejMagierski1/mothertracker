@@ -102,6 +102,12 @@ public:
 	char currentProjectName[PROJECT_NAME_SIZE];
 	char currentProjectNameOpenTemplate[PROJECT_NAME_SIZE];
 //**************************************************************************************************************************
+//******************************************************ChangeFlags*********************************************************
+	uint8_t configIsChangedFlag;
+	elapsedMillis configChangedRefresh;
+	uint8_t instrumentIsChangedFlag[48];
+	elapsedMillis instrumentRefresh;
+//**************************************************************************************************************************
 	friend class cProjectEditor;
 
 	enum
@@ -109,6 +115,8 @@ public:
 		saveAsChecking,
 		saveAsOverwrite
 	};
+
+
 private:
 //************************************************ FileManagerCore**********************************************************
 	void formatSDCard();
