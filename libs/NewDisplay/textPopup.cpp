@@ -2,7 +2,7 @@
 #include "FT812.h"
 
 #include "displayControls.h"
-#include "commonControls.h"
+#include "textPopupControl.h"
 
 #include <string.h>
 
@@ -12,14 +12,14 @@ void labelString2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, c
 static uint32_t defaultColors[] =
 {
 	0x000000, // tekst
-	0xFFFFFF, // tło
+	0x222222, // tło
 	0xFF0000, // ramka
 };
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cLabel::cLabel(strControlProperties* properties)
+cTextPopup::cTextPopup(strControlProperties* properties)
 {
 	colorsCount = 3;
 
@@ -47,7 +47,7 @@ cLabel::cLabel(strControlProperties* properties)
 
 	value = properties->value;
 
-	data = (strLabelData*)(properties->data);
+	data = (strTextPopupData*)(properties->data);
 
 	width = properties->w;
 	height = properties->h;
@@ -55,7 +55,7 @@ cLabel::cLabel(strControlProperties* properties)
 	setStyle(properties->style);
 }
 
-cLabel::~cLabel()
+cTextPopup::~cTextPopup()
 {
 
 }
@@ -63,7 +63,7 @@ cLabel::~cLabel()
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-void cLabel::setStyle(uint32_t style)
+void cTextPopup::setStyle(uint32_t style)
 {
 	this->style = style;
 
@@ -79,35 +79,35 @@ void cLabel::setStyle(uint32_t style)
 	textFont =  fonts[textFont].handle;
 }
 
-void cLabel::setText(char* text)
+void cTextPopup::setText(char* text)
 {
 	this->text = text;
 }
 
-void cLabel::setValue(int value)
+void cTextPopup::setValue(int value)
 {
 	this->value = value;
 }
 
-void cLabel::setColors(uint32_t* colors)
+void cTextPopup::setColors(uint32_t* colors)
 {
 	this->colors = colors;
 }
 
-void cLabel::setDefaultColors(uint32_t colors[])
+void cTextPopup::setDefaultColors(uint32_t colors[])
 {
 	memcpy(defaultColors, colors, colorsCount*4);
 }
 
-void cLabel::setData(void* data)
+void cTextPopup::setData(void* data)
 {
-
+	this->data = (strTextPopupData*)(data);
 }
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-uint8_t cLabel::update()
+uint8_t cTextPopup::update()
 {
 
 	API_LIB_BeginCoProListNoCheck();
@@ -170,44 +170,80 @@ uint8_t cLabel::update()
 	}
 
 
-	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	uint16_t line_textStyle;
+	uint8_t line_fontWidth;
+	uint8_t line_fontHeight;
+	int16_t line_textFont;
+	int16_t line_posX;
+	int16_t line_posY = posY;
 
-	//API_RESTORE_CONTEXT();
-	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
-	//API_COLOR_A(128);
-
-	//API_LINE_WIDTH(16);
-
-	API_COLOR(colors[0]);
-
-	if(style & controlStyleManualText)
+	for(uint8_t i = 0; i < data->textLinesCount; i++)
 	{
-		if(text != nullptr)
+		if(data->multiLineText[i] != nullptr)
 		{
-			int16_t tempX = posX, tempY = posY;
-			int16_t txtLen = strlen(text);
+			// color
+			if(*data->multiLineColors[i] <= 0xffffff) API_COLOR(*data->multiLineColors[i]);
+			else API_COLOR(colors[0]);
 
-			if(style & controlStyleCenterX)
+			// styl :OOOOOOOOO
+			line_textStyle = 0;
+			line_fontWidth = fontWidth;
+			line_fontHeight = fontHeight;
+			line_textFont = textFont;
+
+			uint32_t tempStyle = *data->multiLineStyle[i];
+			if(tempStyle > 0)
 			{
-				tempX = posX-(txtLen*fontWidth)/2;
+				line_textStyle =    ( tempStyle & controlStyleCenterX ? OPT_CENTERX : 0)
+									|(tempStyle & controlStyleCenterY ? OPT_CENTERY : 0)
+									|(tempStyle & controlStyleRightX  ? OPT_RIGHTX  : 0);
+
+				line_textFont = (((tempStyle >> 8) & 15)-1);
+				line_textFont = (line_textFont>=0) ? line_textFont : 0;
+				line_fontWidth = fonts[line_textFont].width;
+				line_fontHeight = fonts[line_textFont].height;
+				line_textFont =  fonts[line_textFont].handle;
 			}
 
-			if(style & controlStyleCenterX)
-			{
-				tempY = posY + ((height/2) - fontHeight/2);
-			}
+			// pozycja z uwzglednieniem stylu
+			if(line_textStyle & OPT_CENTERX) line_posX = posX+(width/2);
+			else if(line_textStyle & OPT_RIGHTX) line_posX = posX+width-10;
+			else line_posX = posX+10;
 
-			string2Bitmaps(tempX, tempY, text, txtLen);
+
+			line_posY += (10+line_fontHeight);
+
+
+			// wkoncu text
+			API_CMD_TEXT(line_posX, line_posY, line_textFont, line_textStyle, data->multiLineText[i]);
+
+/*
+			if(style & controlStyleManualText)
+			{
+				int16_t tempX = posX, tempY = posY;
+				int16_t txtLen = strlen(text);
+
+				if(style & controlStyleCenterX)
+				{
+					tempX = posX-(txtLen*line_fontWidth)/2;
+				}
+
+				if(style & controlStyleCenterX)
+				{
+					tempY = posY + ((height/2) - line_fontHeight/2);
+				}
+
+				string2Bitmaps(tempX, tempY, data->multiLineText[i], txtLen);
+			}
+			else
+			{
+				API_CMD_TEXT(line_posX, line_posY, line_textFont, line_textStyle, data->multiLineText[i]);
+			}
+*/
+
 		}
+
 	}
-	else
-	{
-		if(text != nullptr) API_CMD_TEXT(posX, posY, textFont, textStyle, text);
-	}
-
-
-	if(style & controlStyleShowValue) API_CMD_NUMBER(posX+data->xValue, posY+data->yValue, textFont, data->styleValue, value);
-
 
 
 
@@ -218,7 +254,7 @@ uint8_t cLabel::update()
 	return 0;
 }
 
-uint8_t cLabel::memCpy(uint32_t address)
+uint8_t cTextPopup::memCpy(uint32_t address)
 {
 	uint32_t dlOffset = EVE_MemRead32(REG_CMD_DL);
 
@@ -235,14 +271,14 @@ uint8_t cLabel::memCpy(uint32_t address)
 }
 
 
-uint8_t cLabel::append(uint32_t address)
+uint8_t cTextPopup::append(uint32_t address)
 {
 	API_CMD_APPEND(address, ramSize);
 
 	return 0;
 }
 
-void cLabel::string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length)
+void cTextPopup::string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length)
 {
 	//y = y - fontHeight/2;
 	uint8_t strPtr = 0;
@@ -259,11 +295,7 @@ void cLabel::string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length)
 		else if((x > 511 || y > 511) && string[strPtr] >=32)
 		{
 			API_CELL(string[strPtr++]);
-			//API_CMD_LOADIDENTITY();
-			//API_CMD_ROTATE(90*65536 / 360);
-			//API_CMD_SETMATRIX();
 			API_VERTEX2F(x, y);
-
 		}
 		else if(string[strPtr] >=32)
 		{

@@ -102,7 +102,7 @@ public:
 	void setButtonObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(void));
 	void setButtonObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(uint8_t));
 	void setButtonObj(uint8_t objectID, uint8_t(*funct)(uint8_t));
-
+	void setButtonObj(uint8_t objectID, uint8_t(*funct)(uint8_t,uint8_t));
 
 
 	void setPadObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(), hControl control);
@@ -124,6 +124,7 @@ private:
 
 		uint8_t (*funct1)(void) = nullptr;
 		uint8_t (*funct2)(uint8_t) = nullptr;
+		uint8_t (*funct3)(uint8_t,uint8_t) = nullptr;
 		uint8_t state = 0;
 		hControl control = nullptr;
 	};

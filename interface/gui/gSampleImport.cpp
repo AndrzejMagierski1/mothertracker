@@ -14,28 +14,39 @@ static uint16_t framesPlaces[2][4] =
 void cSampleImporter::initDisplayControls()
 {
 	strControlProperties prop2;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 30;
+	prop2.y = 12;
+	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+	//	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
+	//	prop2.x = 769;
+	//	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
 	prop2.x = 0;
 	prop2.y = 0;
 	prop2.w = 800;
 	prop2.h = 25;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
-	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-//	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
-//	prop2.x = 769;
-//	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
+
+
+	strControlProperties prop;
+	frameData.placesCount = 2;
+	frameData.startPlace = 0;
+	frameData.places[0] = &framesPlaces[0][0];
+	frameData.places[1] = &framesPlaces[1][0];
+	prop.style = 0;
+	prop.value = 0;
+	prop.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
+
 
 	prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
-
 	prop2.x = (800/8);
 	prop2.y = 452;
 	prop2.w = 800/4-6;
 	prop2.h = 58;
-
 	if(topLabel[0] == nullptr) topLabel[0] = display.createControl<cLabel>(&prop2);
+
 
 	for(uint8_t i = 2; i<6; i++)
 	{
@@ -43,7 +54,6 @@ void cSampleImporter::initDisplayControls()
 		prop2.y = 452;
 		prop2.w = 800/8-6;
 		prop2.h = 58;
-
 		if(topLabel[i-1] == nullptr) topLabel[i-1] = display.createControl<cLabel>(&prop2);
 	}
 
@@ -51,15 +61,15 @@ void cSampleImporter::initDisplayControls()
 	prop2.y = 452;
 	prop2.w = 800/4-6;
 	prop2.h = 58;
-
 	if(topLabel[5] == nullptr) topLabel[5] = display.createControl<cLabel>(&prop2);
 
 	explorerList.linesCount = 5;
 	explorerList.start = 0;
 	explorerList.length = locationExplorerCount;
 	explorerList.data = explorerNames;
+
 	//explorerList.selectTab=selectionTab;
-	strControlProperties prop;
+
 	prop.x = 0+8;
 	prop.y = 37;
 	prop.w = 800/4-16;
@@ -91,14 +101,6 @@ void cSampleImporter::initDisplayControls()
 	if(memoryBarControl == nullptr)  memoryBarControl = display.createControl<cBar>(&prop);
 
 
-	frameData.placesCount = 2;
-	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	prop.style = 0;
-	prop.value = 0;
-	prop.data  = &frameData;
-	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 
 	prop.x = 190;

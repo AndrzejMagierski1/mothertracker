@@ -176,6 +176,8 @@ uint16_t refreshF = 20;
 
 void cDisplay::update()
 {
+	if(!state) return;
+
 	if(updateDisplaySettings)
 	{
 		updateDisplaySettings = 0;
@@ -191,160 +193,6 @@ void cDisplay::update()
 			EVE_MemWrite8(REG_ROTATE, rotateValue);
 		}
 	}
-	//display_table();
-	//return;
-//=================================================================================================
-//=================================================================================================
-
-/*
-	if(seqTimer < 3000) return;
-
-		seqTimer = 0;
-
-	if(!API_LIB_IsCoProEmpty()) return;
-	API_LIB_BeginCoProListNoCheck();
-    API_CMD_DLSTART();
-
-
-
-    static int a = 0;
-
-
-
-    if(a)
-    {
-    API_CLEAR_COLOR_RGB(63,63,63);
-	API_CLEAR(1,1,1);
-
-
-	//API_COLOR_A(128);
-
-
-	API_COLOR(0x000000);
-	API_CMD_TEXT(100, 40, 29, 0, "TEST");
-    }
-    else
-
-    {
-        API_CLEAR_COLOR_RGB(0,0,255);
-    	API_CLEAR(1,1,1);
-    }
-
-
-	uint8_t blend[6] =
-	{
-			ONE,
-			ZERO,
-			SRC_ALPHA,
-			DST_ALPHA,
-			ONE_MINUS_SRC_ALPHA,
-			ONE_MINUS_DST_ALPHA,
-	};
-
-//	for(uint8_t i = 0; i<6;i++)
-//	{
-//		for(uint8_t j = 0; j<6;j++)
-//		{
-//			API_RESTORE_CONTEXT();
-//			API_COLOR(0x000000);
-//			API_BLEND_FUNC(blend[i], blend[j]);
-//			API_CMD_TEXT(70*i, 20*j, 28, 0, "TEST");
-//
-//		}
-//	}
-
-
-    a = !a;
-
-	API_DISPLAY();
-	API_CMD_SWAP();
-
-	API_LIB_EndCoProList();
-
-return;
-
-*/
-
-
-/*
-if(seqTimer > 125)
-{
-	seqTimer = 0;
-
-	trackerSeqDisplay.position++;
-	if(trackerSeqDisplay.position > 256) trackerSeqDisplay.position = 1;
-
-	uint8_t value = trackerSeqDisplay.position;
-
-	for(uint8_t i = 0; i < 8; i++)
-	{
-
-		for(uint8_t j = 0; j < 15; j++)
-		{
-			value+=j;
-
-			trackerSeqDisplay.track[i].row[j].vol[0] =  48 + (value%100)/10;
-			trackerSeqDisplay.track[i].row[j].vol[1] =  48 + (value%100)%10;
-
-		}
-
-
-		value = trackerSeqDisplay.position;
-
-	}
-
-
-
-
-	if(hTrackControl != nullptr) display.refreshControl(hTrackControl);
-
-}
-
-
-
-if(refreshTimer > refreshF)
-{
-	refreshTimer = 0;
-	if(!created)
-	{
-		strControlProperties prop;
-		prop.text = (char*)"Test";
-		prop.style = 	(controlStyleShow );//| controlStyleFont2 | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
-		prop.x = 0;
-		prop.y = 0;
-		prop.w = 50;
-		prop.h = 25;
-		prop.data = &trackerSeqDisplay;
-		hTrackControl = display.createControl<cTracker>(&prop);
-		//hTrackControl = display.createControl<cLabel>(&prop);
-		//display.refreshControl(hTrackControl);
-
-		created = 1;
-	}
-
-	trackerSeqDisplay.part += moveStep;
-
-	if(trackerSeqDisplay.part >= 744)
-	{
-		trackerSeqDisplay.part = 744;
-
-		moveStep = -1;
-		refreshF = 5000;
-	}
-	else if (trackerSeqDisplay.part <= 0)
-	{
-		trackerSeqDisplay.part = 0;
-		moveStep = 10;
-		refreshF = 5000;
-	}
-	else
-	{
-		refreshF = 20;
-	}
-
-	display.refreshControl(hTrackControl);
-}
-*/
 
 
 //=================================================================================================
@@ -431,13 +279,16 @@ if(refreshTimer > refreshF)
 
 			API_VERTEX_FORMAT(0);
 
-			// wczytaj elementy w kolejnosci w jakiej byly tworzone
-			for(uint8_t  i = 0; i < controlsCount; i++)
+			// wczytaj elementy w odwrotnej kolejnosci niz w jakiej byly tworzone
+			for(int8_t  i = controlsCount-1; i >= 0; i--)
 			{
 				hControl p = controlsTable[i];
-				if(p == nullptr) break;
-				uint32_t ramAddress = controlsRamStartAddress+(p->ramMapPosition*controlsRamAddressStep);
-				if(p->style & controlStyleShow) p->append(ramAddress);
+				if(p == nullptr) continue;
+				if(p->style & controlStyleShow)
+				{
+					uint32_t ramAddress = controlsRamStartAddress+(p->ramMapPosition*controlsRamAddressStep);
+					p->append(ramAddress);
+				}
 			}
 
 
@@ -462,20 +313,20 @@ if(refreshTimer > refreshF)
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 
-void cDisplay::setControlPosition(hControl handle, uint16_t x, uint16_t y)
+void cDisplay::setControlPosition(hControl handle, int16_t x, int16_t y)
 {
 	if(handle == nullptr) return;
 
-	handle->posX = x;
-	handle->posY = y;
+	if(x >= 0) handle->posX = x;
+	if(y >= 0) handle->posY = y;
 }
 
-void cDisplay::setControlSize(hControl handle, uint16_t w, uint16_t h)
+void cDisplay::setControlSize(hControl handle, int16_t w, int16_t h)
 {
 	if(handle == nullptr) return;
 
-	handle->width = w;
-	handle->height = h;
+	if(w >= 0) handle->width = w;
+	if(h >= 0) handle->height = h;
 }
 
 void cDisplay::setControlStyle(hControl handle, uint32_t style)
@@ -671,6 +522,40 @@ void cDisplay::resetControlQueue()
 	actualUpdating = nullptr;
 }
 
+
+//=====================================================================================================
+// grupowe
+//=====================================================================================================
+void cDisplay::hideAllControls()
+{
+	for(uint8_t i = 0; i < controlsCount; i++)
+	{
+		if(controlsTable[i] != nullptr)
+		{
+			controlsTable[i]->style &= ~(controlStyleShow);
+		}
+
+	}
+}
+
+void cDisplay::clear()
+{
+	API_LIB_BeginCoProList();
+
+    API_CMD_DLSTART();
+
+	API_CLEAR_COLOR(config.bgColor);
+	API_CLEAR(1,1,1);
+
+    API_DISPLAY();
+    API_CMD_SWAP();
+
+	API_LIB_EndCoProList();
+}
+
+//=====================================================================================================
+// hardware
+//=====================================================================================================
 void cDisplay::setBacklightBrightness(uint8_t value)
 {
 	//
@@ -685,8 +570,6 @@ void cDisplay::setRotate(uint8_t value)
 	updateDisplaySettings = 1;
 
 }
-
-
 
 
 

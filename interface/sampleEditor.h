@@ -61,6 +61,7 @@ public:
 	void showPlayModeList();
 
 	void setDefaultScreenFunct();
+	void cancelPopups();
 
 
 //	void processSpectrum();
@@ -85,7 +86,6 @@ public:
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
-	hControl notePopoutControl = nullptr;
 
 
 	uint8_t selectedPlace = 0;
@@ -128,12 +128,6 @@ public:
 
 //----------------------------------
 
-	strPadNames padNamesStruct;
-
-	//char *padNamesPointer[48];
-
-	void showNotePopout();
-	void hideNotePopout();
 
 
 

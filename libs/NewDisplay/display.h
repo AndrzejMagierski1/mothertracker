@@ -23,6 +23,8 @@
 #include "progressCursorControl.h"
 #include "startScreenControl.h"
 #include "notePopoutControl.h"
+#include "textPopupControl.h"
+
 
 
 typedef cDisplayControl* hControl;
@@ -104,8 +106,8 @@ public:
 	void synchronizeRefresh();
 	void resetControlQueue();
 
-	void setControlPosition(hControl handle, uint16_t x, uint16_t y);
-	void setControlSize(hControl handle, uint16_t w, uint16_t h);
+	void setControlPosition(hControl handle, int16_t x, int16_t y);
+	void setControlSize(hControl handle, int16_t w, int16_t h);
 	void setControlStyle(hControl handle, uint32_t style);
 	void setControlShow(hControl handle);
 	void setControlHide(hControl handle);
@@ -118,10 +120,22 @@ public:
 	void setControlDefaultColors(hControl handle, uint32_t colorsTable[]);
 	void setControlData(hControl handle, void* data);
 
+	/// grupowe
+	void hideAllControls();
+
+
+	// hardware
 	void setBacklightBrightness(uint8_t value);
 	void setRotate(uint8_t value);
 
+
+	void disable() {state = 0;}
+	void enable()  {state = 1;}
+	void clear();
+
 private:
+
+	uint8_t state = 1;
 
 	hControl controlsTable[controlsCount] = { nullptr };
 	hControl actualUpdating;

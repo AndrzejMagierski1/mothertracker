@@ -5,7 +5,11 @@
 #include "mtFileManager.h"
 #include "mtAudioEngine.h"
 #include "mtLED.h"
+
+#include "mtPadBoard.h"
+
 #include "sampleRecorder.h"
+
 
 enum valueMapDirecion
 {
@@ -168,6 +172,12 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 static  uint8_t functConfirmKey();
+
+static uint8_t functStartGameModule()
+{
+	PE->eventFunct(eventActivateGameModule,PE,0,0);
+}
+
 
 void cProjectEditor::update()
 {
@@ -348,6 +358,7 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
 	FM->setButtonObj(interfaceButtonShift, functShift);
 	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
+
 */
 	FM->setButtonObj(interfaceButton0, buttonPress, functNewProject);
 	FM->setButtonObj(interfaceButton1, buttonPress, functOpenProject);
@@ -359,6 +370,12 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+
+
+	FM->setButtonObj(interfaceButton7, buttonPress, functStartGameModule);
+
+
+
 
 }
 //==============================================================================================================
@@ -373,6 +390,15 @@ uint8_t cProjectEditor::loadProjectValues()
 	engine.setLimiterRelease(mtProject.values.limiterRelease);
 	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
 
+
+
+	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
+			mtProject.values.padBoardNoteOffset,
+			mtProject.values.padBoardRootNote = 36);
+
+//	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
+	mtPadBoard.configureInstrumentPlayer(8);
+
 	sampleRecorder.recorderConfig.gainLineIn = mtProject.values.gainLineIn;
 	sampleRecorder.recorderConfig.gainMicHigh = mtProject.values.gainMicHigh;
 	sampleRecorder.recorderConfig.gainMicLow = mtProject.values.gainMicLow;
@@ -382,6 +408,7 @@ uint8_t cProjectEditor::loadProjectValues()
 	sampleRecorder.recorderConfig.source = mtProject.values.source;
 
 	return 1;
+
 }
 
 //==============================================================================================================
