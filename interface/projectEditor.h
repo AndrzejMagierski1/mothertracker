@@ -101,9 +101,11 @@ public:
 	void functShowSaveLastWindow();
 	void functShowSaveLastWindowBeforeOpen();
 	void showSaveLastWindow();
+	void functShowOverwriteWindow();
 	void showOpeningHorizontalBar();
 	void showSaveingHorizontalBar();
 	void showSaveAsKeyboard();
+	void showOverwriteWindow();
 	uint8_t newProjectNotSavedFlag = 0;
 	uint8_t createNewProjectFlag = 0;
 	uint8_t currentOpeningStatus = 0;

@@ -9,6 +9,7 @@
 
 elapsedMillis startScreenRefresh;
 
+extern cProjectEditor* PE;
 
 static uint8_t functHide();
 
@@ -98,9 +99,41 @@ void cInterface::openStartupProject()
 {
 	if(mtConfig.startup.startMode == interfaceOpenLastProject)
 	{
-		if(fileManager.openProject(mtConfig.startup.lastProjectName, projectTypeUserMade))
+		char currentPatch[PATCH_SIZE];
+
+		sprintf(currentPatch,"Projects/%s",mtConfig.startup.lastProjectName);
+		if(SD.exists(currentPatch))
 		{
-			projectEditor.loadProjectValues();
+			if(fileManager.loadProjectFromWorkspace())
+			{
+				projectEditor.loadProjectValues();
+				strcpy(fileManager.currentProjectName,mtConfig.startup.lastProjectName);
+				sprintf(fileManager.currentProjectPatch,"Projects/%s",mtConfig.startup.lastProjectName);
+			}
+			else
+			{
+				strcpy(currentPatch,"Templates/New/project.bin");
+
+				if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
+
+				fileManager.openProject((char*)"New",projectTypeExample); // można to odpalić bez zadnych flag i progresow bo nowy projekt nie ma sampli
+
+				PE->newProjectNotSavedFlag = 1;
+				memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
+				memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);
+			}
+		}
+		else
+		{
+			strcpy(currentPatch,"Templates/New/project.bin");
+
+			if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
+
+			fileManager.openProject((char*)"New",projectTypeExample); // można to odpalić bez zadnych flag i progresow bo nowy projekt nie ma sampli
+
+			PE->newProjectNotSavedFlag = 1;
+			memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
+			memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);
 		}
 	}
 
