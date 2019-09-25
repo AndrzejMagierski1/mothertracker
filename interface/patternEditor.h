@@ -16,6 +16,8 @@ void sendPasteSelection();
 
 
 
+
+
 class cPatternEditor: public cModuleBase
 {
 
@@ -71,7 +73,11 @@ public:
 
 	void lightUpPadBoard();
 	void clearPadBoard();
+
+	void toggleMasterTracks();
+
 //----------------------------------
+
 	void activateLabelsBorder();
 	void activateFillPopupBorder();
 	void activateRandomisePopupBorder();
@@ -103,6 +109,8 @@ public:
 	void hideRandomisePopup();
 
 
+	void showTracksMaster();
+	void refreshTracksMaster();
 //----------------------------------
 // Funct
 	uint16_t lastPatternPosition;
@@ -207,7 +215,7 @@ public:
 
 
 //-------------------------------------------------------
-// step popups
+// popups
 	void cancelPopups();
 
 	uint8_t getStepFx();
@@ -216,8 +224,8 @@ public:
 
 
 //-------------------------------------------------------
-// note popup
-
+// mute track master mode
+	uint8_t masterTrackState = 0;
 
 
 

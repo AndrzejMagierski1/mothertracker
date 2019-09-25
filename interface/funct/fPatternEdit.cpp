@@ -3,7 +3,7 @@
 #include "mtStructs.h"
 
 #include "mtFileManager.h"
-
+#include "mtAudioEngine.h"
 #include "mtPadBoard.h"
 #include "mtPadsBacklight.h"
 
@@ -81,6 +81,7 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
+static uint8_t functActionButton(uint8_t button, uint8_t state);
 
 char getHexFromInt(int16_t val, uint8_t index);
 
@@ -214,7 +215,7 @@ void cPatternEditor::setDefaultScreenFunct()
 
 	FM->setPadsGlobal(functPads);
 
-
+	masterTrackState = 0;
 }
 
 //==============================================================================================================
@@ -850,6 +851,42 @@ uint8_t cPatternEditor::isCursorInSelection()
 
 	return 1;
 }
+
+
+
+void cPatternEditor::toggleMasterTracks()
+{
+
+	if(masterTrackState == 0)
+	{
+		masterTrackState = 1;
+
+		FM->setButtonObj(interfaceButton0, functActionButton);
+		FM->setButtonObj(interfaceButton1, functActionButton);
+		FM->setButtonObj(interfaceButton2, functActionButton);
+		FM->setButtonObj(interfaceButton3, functActionButton);
+		FM->setButtonObj(interfaceButton4, functActionButton);
+		FM->setButtonObj(interfaceButton5, functActionButton);
+		FM->setButtonObj(interfaceButton6, functActionButton);
+		FM->setButtonObj(interfaceButton7, functActionButton);
+
+		focusOnPattern();
+		showTracksMaster();
+
+	}
+	else
+	{
+		showDefaultScreen();
+		setDefaultScreenFunct();
+	}
+
+
+
+
+
+}
+
+
 
 //==============================================================================================================
 //==============================================================================================================
@@ -1494,6 +1531,8 @@ static  uint8_t functRecAction()
 	if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
 
 	PTE->editMode = !PTE->editMode;
+
+	if(PTE->masterTrackState == 1) PTE->toggleMasterTracks();
 
 	PTE->refreshEditState();
 
@@ -2172,6 +2211,9 @@ static uint8_t functTranspose()
 
 
 
+
+
+
 //##############################################################################################
 //###############################          PAD BOARD           #################################
 //##############################################################################################
@@ -2451,6 +2493,11 @@ static uint8_t functSwitchModule(uint8_t button)
 
 		PTE->cancelPopups();
 
+		if(tactButtons.isButtonPressed(interfaceButtonShift))
+		{
+			PTE->toggleMasterTracks();
+		}
+		else if(PTE->masterTrackState == 1) PTE->toggleMasterTracks();
 
 		return 1;
 	}
@@ -2483,4 +2530,35 @@ static uint8_t functSwitchModule(uint8_t button)
 
 
 //======================================================================================================================
+static uint8_t functActionButton(uint8_t button, uint8_t state)
+{
+	if(PTE->masterTrackState == 1)
+	{
+		if(state == buttonPress)
+		{
+			 if(mtProject.values.trackMute[button] == 0) mtProject.values.trackMute[button] = 1;
+			 else mtProject.values.trackMute[button] = 0;
+
+			 engine.muteTrack(button, mtProject.values.trackMute[button]);
+
+			 PTE->refreshTracksMaster();
+		}
+		else if(state == buttonRelease)
+		{
+			if(tactButtons.isButtonPressed(interfaceButtonShift))
+			{
+				 if(mtProject.values.trackMute[button] == 0) mtProject.values.trackMute[button] = 1;
+				 else mtProject.values.trackMute[button] = 0;
+
+				 engine.muteTrack(button, mtProject.values.trackMute[button]);
+
+				 PTE->refreshTracksMaster();
+			}
+		}
+	}
+
+	return 1;
+}
+
+
 

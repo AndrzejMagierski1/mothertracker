@@ -54,6 +54,19 @@ volatile uint32_t patternTrackerColors[8] =
 
 uint32_t patternTrackerSelectionColor = 0xff0000;
 
+
+
+static const uint8_t trackMasterModeCount = 2;
+static const char trackMasterLabels[trackMasterModeCount][5] =
+{
+	"On",
+	"Off",
+};
+
+
+
+
+
 void cPatternEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
@@ -89,14 +102,17 @@ void cPatternEditor::initDisplayControls()
 
 		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 465;
 		prop2.w = 800/8-6;
-		prop2.h = 30;
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
 		prop2.y = i>3 ? 452 : 437;
 		prop2.h = i>3 ? 59 : 28;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
+
+		prop2.y = 465;
+		prop2.h = 30;
+		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+
+
 
 	}
 
@@ -290,6 +306,10 @@ void cPatternEditor::showDefaultScreen()
 	display.setControlText(bottomLabel[6], "");
 	display.setControlText(bottomLabel[7], "");
 
+	display.setControlText(topLabel[4], "");
+	display.setControlText(topLabel[5], "");
+	display.setControlText(topLabel[6], "");
+	display.setControlText(topLabel[7], "");
 
 	showTempo();
 	showPattern();
@@ -308,8 +328,12 @@ void cPatternEditor::showDefaultScreen()
 	activateLabelsBorder();
 
 
+
 	for(uint8_t i = 0; i<4; i++)
 	{
+		display.setControlPosition(topLabel[i+4], -1, 452);
+		display.setControlSize(topLabel[i+4], -1, 59);
+
 		display.setControlShow(topLabel[i]);
 		display.setControlShow(topLabel[i+4]);
 
@@ -317,7 +341,7 @@ void cPatternEditor::showDefaultScreen()
 		display.setControlHide(bottomLabel[i+4]);
 
 		display.refreshControl(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i+4]);
+		//display.refreshControl(bottomLabel[i+4]);
 		display.refreshControl(topLabel[i]);
 		display.refreshControl(topLabel[i+4]);
 	}
@@ -1022,5 +1046,59 @@ void cPatternEditor::activateLabelsBorder()
 
 
 //-----------------------------------------------------------
+void cPatternEditor::showTracksMaster()
+{
+
+	display.setControlText(bottomLabel[0], "Track 1");
+	display.setControlText(bottomLabel[1], "Track 2");
+	display.setControlText(bottomLabel[2], "Track 3");
+	display.setControlText(bottomLabel[3], "Track 4");
+	display.setControlText(bottomLabel[4], "Track 5");
+	display.setControlText(bottomLabel[5], "Track 6");
+	display.setControlText(bottomLabel[6], "Track 7");
+	display.setControlText(bottomLabel[7], "Track 8");
+
+
+//-------------------------------------
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlPosition(topLabel[i], -1, 437);
+		display.setControlSize(topLabel[i], -1, 28);
+
+		display.setControlPosition(bottomLabel[i], -1, 465);
+		display.setControlSize(bottomLabel[i], -1, 30);
+
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
+
+		//TO DO: nie powinno tu tego być tylko tma gdzie zarzadzanie zmiennymi projektu
+		if(mtProject.values.trackMute[i] >= trackMasterModeCount) mtProject.values.trackMute[i] = 0;
+
+		display.setControlText(topLabel[i], &trackMasterLabels[mtProject.values.trackMute[i]][0]);
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+
+	display.synchronizeRefresh();
+
+}
+
+void cPatternEditor::refreshTracksMaster()
+{
+	for(uint8_t i = 0; i<8; i++)
+	{
+
+		if(mtProject.values.trackMute[i] >= trackMasterModeCount) mtProject.values.trackMute[i] = 0;
+
+		display.setControlText(topLabel[i], &trackMasterLabels[mtProject.values.trackMute[i]][0]);
+		display.refreshControl(topLabel[i]);
+
+	}
+
+	display.synchronizeRefresh();
+}
+
+
 
 

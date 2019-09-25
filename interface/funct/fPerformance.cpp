@@ -298,7 +298,7 @@ static uint8_t functSwitchModule(uint8_t button)
 
 static  uint8_t functSwitchMode(uint8_t button)
 {
-
+/*
 	if(PM->mode == mtPerformanceMaster)
 	{
 		PM->mode = 1;
@@ -315,6 +315,9 @@ static  uint8_t functSwitchMode(uint8_t button)
 
 
 	PM->activateLabelsBorder();
+*/
+
+
 
 	return 1;
 }
@@ -389,25 +392,17 @@ void cPerformanceMode::lightUpPadBoard()
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
-	{
-		sequencer.stop();
-	}
 
 	if(state == 1)
 	{
-		//uint8_t note = mtPadBoard.convertPadToNote(pad);
-		//if(note > 48) note = 48;
-		//editorInstrument->tune = note;
-
 		padsBacklight.setFrontLayer(1,20, pad);
-		mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
+
 
 	}
 	else if(state == 0)
 	{
 		padsBacklight.setFrontLayer(0,0, pad);
-		mtPadBoard.stopInstrument(pad);
+
 
 	}
 

@@ -114,7 +114,7 @@ public:
 
 
 	// typ trybu/ekranu
-	uint8_t mode = mtPerformanceMaster;
+	uint8_t mode = mtPerformanceFxes;
 
 	uint8_t refreshMaster = 1;
 
