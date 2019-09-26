@@ -464,6 +464,8 @@ static uint8_t functOpenProject()
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProjectConfirm);
 	PE->FM->setButtonObj(interfaceButton1, buttonPress, functSaveChangesCancelOpen);
 
+	PE->projectListActiveFlag = 1;
+
 	return 1;
 }
 static uint8_t functSaveProject()
@@ -712,6 +714,7 @@ static uint8_t functOpenProjectConfirm()
 	mtProject.values.projectNotSavedFlag = 0;
 	PE->newProjectNotSavedFlag = 0;
 	PE->openInProgressFlag = 1;
+	PE->projectListActiveFlag = 0;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 	return 1;
@@ -730,6 +733,7 @@ void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 static uint8_t functSaveChangesCancelOpen()
 {
 	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+	PE->projectListActiveFlag = 0;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 	return 1;
@@ -741,6 +745,7 @@ static uint8_t functSaveChangesDontSaveOpen()
 	PE->newProjectNotSavedFlag = 0;
 	mtProject.values.projectNotSavedFlag = 0;
 	PE->openInProgressFlag = 1;
+	PE->projectListActiveFlag = 0;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 	return 1;
@@ -760,7 +765,7 @@ static uint8_t functSaveChangesSaveOpen()
 
 	PE->saveInProgressFlag = 1;
 	PE->openOnSaveEndFlag = 1;
-
+	PE->projectListActiveFlag = 0;
 	PE->setDefaultScreenFunct();
 
 	PE->showDefaultScreen();
@@ -986,7 +991,7 @@ static  uint8_t functLeft()
 		PE->showKeyboard();
 		return 1;
 	}
-	return 0;
+	return 1;
 }
 static  uint8_t functRight()
 {
@@ -996,27 +1001,41 @@ static  uint8_t functRight()
 		PE->showKeyboard();
 		return 1;
 	}
-	return 0;
+	return 1;
 }
 static  uint8_t functUp()
 {
+	if(PE->projectListActiveFlag)
+	{
+		if(PE->selectedLocation > 0 ) PE->selectedLocation--;
+		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.refreshControl(PE->fileListControl);
+		return 1;
+	}
 	if(PE->keyboardActiveFlag)
 	{
 		PE->keyboardPosition = valueMap[valueMapDirectionUp][PE->keyboardPosition];
 		PE->showKeyboard();
 		return 1;
 	}
-	return 0;
+	return 1;
 }
 static  uint8_t functDown()
 {
+	if(PE->projectListActiveFlag)
+	{
+		if(PE->selectedLocation < PE->locationFilesCount-1 ) PE->selectedLocation++;
+		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.refreshControl(PE->fileListControl);
+		return 1;
+	}
 	if(PE->keyboardActiveFlag)
 	{
 		PE->keyboardPosition = valueMap[valueMapDirectionDown][PE->keyboardPosition];
 		PE->showKeyboard();
 		return 1;
 	}
-	return 0;
+	return 1;
 }
 
 static uint8_t functConfirmKey()

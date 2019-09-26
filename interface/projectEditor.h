@@ -121,6 +121,7 @@ public:
 	uint8_t saveingProgress = 0;
 	uint8_t currentSaveStatus = 0;
 	uint8_t lastSaveStatus = 0;
+	uint8_t projectListActiveFlag = 1;
 
 };
 

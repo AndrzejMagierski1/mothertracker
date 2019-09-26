@@ -62,7 +62,7 @@ void cProjectEditor::initDisplayControls()
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 	}
 
-	projectList.linesCount = 5;
+	projectList.linesCount = 13;
 	projectList.start = 0;
 	projectList.length = 0;
 	strControlProperties prop;
@@ -237,7 +237,7 @@ void cProjectEditor::showProjectsList()
 // lista
 	projectList.start = 0;
 	projectList.length = locationFilesCount;
-	projectList.linesCount = 5;
+	projectList.linesCount = 13;
 	projectList.data = filesNames;
 
 	display.setControlData(fileListControl,  &projectList);
