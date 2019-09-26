@@ -113,11 +113,11 @@ void Sequencer::handle_nanoStep(uint8_t step)
 
 				for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 				{/*
-					int8_t tTempoOption = constrain(
-							seq[player.ramBank].track[a].tempoDiv,
-							MIN_TEMPO_DIV,
-							MAX_TEMPO_DIV);
-					uint8_t tDiv = getTempoDiv(tTempoOption);*/
+				 int8_t tTempoOption = constrain(
+				 seq[player.ramBank].track[a].tempoDiv,
+				 MIN_TEMPO_DIV,
+				 MAX_TEMPO_DIV);
+				 uint8_t tDiv = getTempoDiv(tTempoOption);*/
 					uint8_t tDiv = getTempoDiv(0);
 
 					if (nanoStep % tDiv == 1)
@@ -251,7 +251,7 @@ void Sequencer::play_microStep(uint8_t row)
 //	strPlayer::strPlayerTrack::strPlayerStep & playerStep = playerRow.step[playerRow.actual_pos];
 
 	//
-	// odliczamy odpaloną nutę
+	// odliczamy odpaloną nutę i stepa, step może zawierać kilka nut
 	//
 
 	if (playerRow.stepOpen)
@@ -293,10 +293,7 @@ void Sequencer::play_microStep(uint8_t row)
 			send_clock(row);
 	}
 
-	//
-	//		WYSTARTOWAĆ STEPA?
-	//
-
+	// jeśli ostatni step, zażądaj ładowania kolejnego patterny
 	if ((playerRow.uStep == 1) && player.isPlay && row == 0)
 	{
 		if (playerRow.actual_pos == patternRow.length && player.songMode)
@@ -305,163 +302,130 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 	}
 
-	if (1)
+	boolean startStep = 0;
+	boolean cancelStep = 0;
+	boolean isOffset = 0;
+	uint16_t offsetValue = 0;
+
+	boolean isRoll = 0;
+	int8_t valRoll = 0;
+
+	switch (patternStep.fx[0].type)
 	{
-		boolean startStep = 0;
-		boolean cancelStep = 0;
-		boolean isOffset = 0;
-		uint16_t offsetValue = 0;
-
-		boolean isJumpToStep = 0;
-//		uint16_t jumpToStep = 0;
-
-		boolean isRoll = 0;
-		int8_t valRoll = 0;
-
-		// przerabiamy FXy
-		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
+	case fx.FX_TYPE_ROLL:
+		if (!isRoll)
 		{
-
-			switch (_fx.type)
-			{
-//			case fx.FX_TYPE_OFFSET:
-//				if (!isOffset)
-//				{
-//					isOffset = 1;
-//					offsetValue = _fx.value_u16;
-//				}
-//				break;
-
-//			case fx.FX_TYPE_JUMP_TO_STEP:
-//				if (!isJumpToStep)
-//				{
-//					isJumpToStep = 1;
-////						jumpToStep = _fx.value_u16;
-//				}
-//				break;
-
-			case fx.FX_TYPE_ROLL:
-				if (!isRoll)
-				{
-					isRoll = 1;
-					valRoll = _fx.value;
-				}
-				break;
-			case fx.FX_TYPE_CUTOFF:
-				if (!isRoll)
-				{
-					instrumentPlayer[row].modCutoff(
-							map((float) _fx.value, (float) 0,
-								(float) 127,
-								(float) 0,
-								(float) 1));
-				}
-				break;
-			case fx.FX_TYPE_NUDGE:
-				if (!isRoll)
-				{
-					isOffset = 1;
-					offsetValue = _fx.value + 1;
-				}
-				break;
-			case fx.FX_TYPE_STEP_CHANCE:
-				if (random(0, 128) > _fx.value)
-					cancelStep = 1;
-
-				break;
-
-			default:
-				break;
-			}
-
-//			if (_fx.type && !isJumpToStep && _fx.type == fx.FX_TYPE_OFFSET)
-//			{
-//				isOffset = 1;
-//				offsetValue = _fx.value_u16;
-//			}
+			isRoll = 1;
+			valRoll = _fx.value;
 		}
-
-		if (patternStep.note != STEP_NOTE_EMPTY)
+		break;
+	case fx.FX_TYPE_CUTOFF:
+		if (!isRoll)
 		{
+			instrumentPlayer[row].modCutoff(
+											map((float) _fx.value, (float) 0,
+												(float) 127,
+												(float) 0,
+												(float) 1));
+		}
+		break;
+	case fx.FX_TYPE_NUDGE:
+		if (!isRoll)
+		{
+			isOffset = 1;
+			offsetValue = _fx.value + 1;
+		}
+		break;
+	case fx.FX_TYPE_STEP_CHANCE:
+		if (random(0, 128) > _fx.value)
+			cancelStep = 1;
 
-			// nie-offset
-			if (!isOffset &&
-					playerRow.uStep == 1)
+		break;
+	case fx.FX_TYPE_RANDOM_NOTE:
+
+	default:
+		break;
+	}
+
+	if (patternStep.note != STEP_NOTE_EMPTY)
+	{
+
+		// nie-offset
+		if (!isOffset &&
+				playerRow.uStep == 1)
+		{
+			// wystartuj stepa
+			startStep = 1;
+			if (playerRow.noteOpen)
 			{
-				// wystartuj stepa
-				startStep = 1;
-				if (playerRow.noteOpen)
-				{
-					// zeruj wiszącą nutę
-					playerRow.noteOpen = 0;
-					sendNoteOff(row, &playerRow.stepSent);
-					playerRow.rollMode = fx.ROLL_TYPE_NONE;
-				}
-				if (playerRow.stepOpen)
-				{
-					// zeruj wiszący step
-					playerRow.stepOpen = 0;
-					playerRow.rollMode = fx.ROLL_TYPE_NONE;
-				}
-
+				// zeruj wiszącą nutę
+				playerRow.noteOpen = 0;
+				sendNoteOff(row, &playerRow.stepSent);
+				playerRow.rollMode = fx.ROLL_TYPE_NONE;
 			}
-			// offset
-			else if (isOffset &&
-					playerRow.uStep == offsetValue)
+			if (playerRow.stepOpen)
 			{
-				startStep = 1;
-				if (playerRow.noteOpen)
-				{
-					playerRow.noteOpen = 0;
-					sendNoteOff(row, &playerRow.stepSent);
-					playerRow.rollMode = fx.ROLL_TYPE_NONE;
-				}
-				if (playerRow.stepOpen)
-				{
-					playerRow.stepOpen = 0;
-					playerRow.rollMode = fx.ROLL_TYPE_NONE;
-				}
+				// zeruj wiszący step
+				playerRow.stepOpen = 0;
+				playerRow.rollMode = fx.ROLL_TYPE_NONE;
+			}
+
+		}
+		// offset
+		else if (isOffset &&
+				playerRow.uStep == offsetValue)
+		{
+			startStep = 1;
+			if (playerRow.noteOpen)
+			{
+				playerRow.noteOpen = 0;
+				sendNoteOff(row, &playerRow.stepSent);
+				playerRow.rollMode = fx.ROLL_TYPE_NONE;
+			}
+			if (playerRow.stepOpen)
+			{
+				playerRow.stepOpen = 0;
+				playerRow.rollMode = fx.ROLL_TYPE_NONE;
 			}
 		}
+	}
 
-		// odpalamy stepa
-		if (startStep && !cancelStep)
+	// odpalamy stepa
+	if (startStep && !cancelStep)
+	{
+		// ustawiamy całego stepa
+		playerRow.stepOpen = 1;
+		playerRow.stepTimer = 0; // od tej pory timer liczy w górę
+
+		// ustawiamy nute
+		playerRow.noteOpen = 1;
+		playerRow.noteLength = 9999; // w MT nie ma dugości stepa
+		playerRow.noteTimer = 0; // od tej pory timer liczy w górę
+
+		playerRow.stepSent = patternStep; // buforujemy wysłanego stepa
+
+		// jeśli rolka to nuty są krótsze od stepa
+		if (isRoll)
 		{
-			// ustawiamy całego stepa
-			playerRow.stepOpen = 1;
-			playerRow.stepTimer = 0; // od tej pory timer liczy w górę
-//			playerRow.stepLength = patternStep.length1;
-			// ustawiamy nute
-			playerRow.noteOpen = 1;
-			playerRow.noteLength = 9999; // w MT nie ma dugości stepa
-			playerRow.noteTimer = 0; // od tej pory timer liczy w górę
-
-			playerRow.stepSent = patternStep; // buforujemy wysłanego stepa
-
-			// jeśli rolka to nuty są krótsze od stepa
-			if (isRoll)
-			{
-				playerRow.rollMode = valRoll;
-				playerRow.noteLength = rollTypeToVal(playerRow.rollMode) / 2; // TODO: wyliczyć długość rolki
-			}
-			if (patternStep.note >= 0)
-			{
-				sendNoteOn(row, &patternStep);
-			}
-			else if (patternStep.note == STEP_NOTE_OFF)
-			{
-				sendNoteOff(row, &patternStep);
-
-			}
+			playerRow.rollMode = valRoll;
+			playerRow.noteLength = rollTypeToVal(playerRow.rollMode) / 2; // TODO: wyliczyć długość rolki
 		}
-		// odpalamy efekty po-nutowe
+		if (patternStep.note >= 0)
+		{
+			sendNoteOn(row, &patternStep);
+		}
+		else if (patternStep.note == STEP_NOTE_OFF)
+		{
+			sendNoteOff(row, &patternStep);
+
+		}
+	}
+	// odpalamy efekty po-nutowe
 //		if (isJumpToStep)
 //		{
 //			playerRow.isGoToStep = 1;
 //			playerRow.goToStep = jumpToStep;
 //		}
-
-	}
 
 //
 //	kontynuowanie nuty

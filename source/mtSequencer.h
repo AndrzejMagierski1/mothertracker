@@ -146,6 +146,7 @@ public:
 			FX_TYPE_CUTOFF,
 			FX_TYPE_ROLL,
 			FX_TYPE_STEP_CHANCE,
+			FX_TYPE_RANDOM_NOTE,
 
 		};
 		enum enFxVal
@@ -224,14 +225,10 @@ public:
 
 			struct strStep
 			{
-//				uint8_t isOn ;
 				int8_t note = STEP_NOTE_EMPTY;
 
 				int8_t velocity = -1;	// jeśli <0 to nie wysyłamy
 				uint8_t instrument = 0;
-
-				// 2 x byte
-//				uint16_t length1;	//długość w microstepach, 1 step = 48uStepów
 
 				//FX
 				struct strFx
@@ -242,7 +239,7 @@ public:
 					struct						// FX_VAL_U8_U8
 					{
 						uint8_t value;
-						uint8_t val2_u8;
+						uint8_t value2;
 					};
 
 				} fx[1];
