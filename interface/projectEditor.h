@@ -37,7 +37,7 @@ public:
 
 	void showDefaultScreen();
 	void showProjectsList();
-	void showTemplatesList();
+//	void showTemplatesList();
 
 
 	void setDefaultScreenFunct();
@@ -72,7 +72,8 @@ public:
 
 	uint32_t projectOptions = 0;
 
-
+	void makeSmallBottomLabel(uint8_t i);
+	void makeBigBottomLabel(uint8_t i);
 
 	void listOnlyFolderNames(const char* folder);
 
@@ -84,6 +85,7 @@ public:
 	char *filesNames[files_list_length_max];
 
 //-------------------------------------------------------------
+
 
 	char name[33];
 	uint8_t keyboardPosition;
@@ -106,6 +108,7 @@ public:
 	void showSaveingHorizontalBar();
 	void showSaveAsKeyboard();
 	void showOverwriteWindow();
+	void showExportWindow();
 	uint8_t newProjectNotSavedFlag = 0;
 	uint8_t createNewProjectFlag = 0;
 	uint8_t currentOpeningStatus = 0;

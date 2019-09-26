@@ -33,16 +33,17 @@ void cProjectEditor::initDisplayControls()
 	prop2.x = 30;
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.x = 650;
+	prop2.y = 12;
+	if(titleLabelProjectName == nullptr) titleLabelProjectName = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
 	prop2.x = 0;
 	prop2.y = 0;
 	prop2.w = 800;
 	prop2.h = 25;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 650;
-	prop2.y = 12;
-	if(titleLabelProjectName == nullptr) titleLabelProjectName = display.createControl<cLabel>(&prop2);
+
 
 
 	for(uint8_t i = 0; i<8; i++)
@@ -56,8 +57,8 @@ void cProjectEditor::initDisplayControls()
 
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.y = 452;
-		prop2.h = 58;
+		prop2.y = 437;
+		prop2.h = 28;
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 	}
 
@@ -190,27 +191,22 @@ void cProjectEditor::showDefaultScreen()
 	//lista
 	display.setControlHide(fileListControl);
 
-	// top label listy
-	//display.setControlText(PE->topLabel[0], "");
-	display.setControlHide(topLabel[0]);
-	display.refreshControl(topLabel[0]);
 
-	// bottom labels
-	display.setControlText(topLabel[0], "New Project");
-	display.setControlText(topLabel[1], "Open");
-
-	display.setControlText(topLabel[4], "Save");
-	display.setControlText(topLabel[5], "Save As");
-	display.setControlText(topLabel[7], "Export");
-
-
-	display.setControlText(topLabel[7], "Game");
+	display.setControlText(topLabel[0], "New");
+	display.setControlText(bottomLabel[0], "Project");
+	display.setControlText(bottomLabel[1], "Open");
+	display.setControlText(bottomLabel[2], "");
+	display.setControlText(bottomLabel[3], "");
+	display.setControlText(bottomLabel[4], "Save");
+	display.setControlText(bottomLabel[5], "Save As");
+	display.setControlText(bottomLabel[6], "Export");
+	display.setControlText(bottomLabel[7], "Game");
 
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
 	}
 
 	hideKeyboard();
@@ -226,6 +222,11 @@ void cProjectEditor::showDefaultScreen()
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
 
+	for(uint8_t i = 1; i<8; i++)
+	{
+		makeBigBottomLabel(i);
+	}
+	makeSmallBottomLabel(0);
 	display.synchronizeRefresh();
 
 }
@@ -245,51 +246,52 @@ void cProjectEditor::showProjectsList()
 
 	for(uint8_t i = 2; i < 8 ; i++)
 	{
-		display.setControlText(topLabel[i], "");
+		display.setControlText(bottomLabel[i], "");
 	}
 
 // bottom labels
-	display.setControlText(topLabel[0], "Open");
-	display.setControlText(topLabel[1], "Cancel");
+	display.setControlText(bottomLabel[0], "Open");
+	display.setControlText(bottomLabel[1], "Cancel");
 
 
 	for(uint8_t i = 0; i < 8 ; i++)
 	{
-		display.refreshControl(topLabel[i]);
+		display.refreshControl(bottomLabel[i]);
 	}
+	makeBigBottomLabel(0);
 	display.synchronizeRefresh();
 }
 
 
-void cProjectEditor::showTemplatesList()
-{
-// lista
-	projectList.start = 0;
-	projectList.length = locationFilesCount;
-	projectList.linesCount = 5;
-	projectList.data = filesNames;
-
-	display.setControlData(fileListControl,  &projectList);
-	display.setControlShow(fileListControl);
-	display.refreshControl(fileListControl);
-
-// top label listy
-	display.setControlText(topLabel[0], "Choose template");
-	display.setControlShow(topLabel[0]);
-	display.refreshControl(topLabel[0]);
-
-// bottom labels
-	display.setControlText(topLabel[0], "Create");
-	display.setControlText(topLabel[1], "Cancel");
-	display.setControlText(topLabel[4], "Test");
-
-	display.refreshControl(topLabel[0]);
-	display.refreshControl(topLabel[1]);
-	display.refreshControl(topLabel[4]);
-
-	display.synchronizeRefresh();
-
-}
+//void cProjectEditor::showTemplatesList()
+//{
+//// lista
+//	projectList.start = 0;
+//	projectList.length = locationFilesCount;
+//	projectList.linesCount = 5;
+//	projectList.data = filesNames;
+//
+//	display.setControlData(fileListControl,  &projectList);
+//	display.setControlShow(fileListControl);
+//	display.refreshControl(fileListControl);
+//
+//// top label listy
+//	display.setControlText(bottomLabel[0], "Choose template");
+//	display.setControlShow(bottomLabel[0]);
+//	display.refreshControl(bottomLabel[0]);
+//
+//// bottom labels
+//	display.setControlText(bottomLabel[0], "Create");
+//	display.setControlText(bottomLabel[1], "Cancel");
+//	display.setControlText(bottomLabel[4], "Test");
+//
+//	display.refreshControl(bottomLabel[0]);
+//	display.refreshControl(bottomLabel[1]);
+//	display.refreshControl(bottomLabel[4]);
+//
+//	display.synchronizeRefresh();
+//
+//}
 
 
 void cProjectEditor::showEnterNameKeyboard()
@@ -303,19 +305,19 @@ void cProjectEditor::showEnterNameKeyboard()
 	//display.refreshControl(topLabel[0]);
 
 // bottom labels
-	display.setControlText(topLabel[0], "Create");
-	display.setControlText(topLabel[1], "Cancel");
-	display.setControlText(topLabel[4], "Test");
+	display.setControlText(bottomLabel[0], "Create");
+	display.setControlText(bottomLabel[1], "Cancel");
+	display.setControlText(bottomLabel[4], "Test");
 
-	display.refreshControl(topLabel[0]);
-	display.refreshControl(topLabel[1]);
-	display.refreshControl(topLabel[4]);
+	display.refreshControl(bottomLabel[0]);
+	display.refreshControl(bottomLabel[1]);
+	display.refreshControl(bottomLabel[4]);
 
 
 	showKeyboard();
 	showKeyboardEditName();
 
-
+	makeBigBottomLabel(0);
 	display.synchronizeRefresh();
 
 
@@ -323,23 +325,23 @@ void cProjectEditor::showEnterNameKeyboard()
 
 void cProjectEditor::showSaveAsKeyboard()
 {
-	display.setControlText(topLabel[0],"Cancel");
+	display.setControlText(bottomLabel[0],"Cancel");
 
 	for(uint8_t i = 1; i < 7 ; i++)
 	{
-		display.setControlText(topLabel[i], "");
+		display.setControlText(bottomLabel[i], "");
 	}
 
-	display.setControlText(topLabel[7],"Save");
+	display.setControlText(bottomLabel[7],"Save");
 
 	for(uint8_t i = 0; i < 8 ; i++)
 	{
-		display.refreshControl(topLabel[i]);
+		display.refreshControl(bottomLabel[i]);
 	}
 
 	showKeyboard();
 	showKeyboardEditName();
-
+	makeBigBottomLabel(0);
 	display.synchronizeRefresh();
 
 }
@@ -407,12 +409,12 @@ void cProjectEditor::hideKeyboardEditName()
 
 void cProjectEditor::showSaveLastWindow()
 {
-	display.setControlText(topLabel[0], "Cancel");
-	display.setControlText(topLabel[1], "");
+	display.setControlText(bottomLabel[0], "Cancel");
+	display.setControlText(bottomLabel[1], "");
 
-	display.setControlText(topLabel[4], "Don't Save");
-	display.setControlText(topLabel[5], "");
-	display.setControlText(topLabel[7], "Save");
+	display.setControlText(bottomLabel[4], "Don't Save");
+	display.setControlText(bottomLabel[5], "");
+	display.setControlText(bottomLabel[7], "Save");
 
 	char currentInfo[100];
 
@@ -440,21 +442,21 @@ void cProjectEditor::showSaveLastWindow()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
 	}
-
+	makeBigBottomLabel(0);
 	display.synchronizeRefresh();
 }
 
 void cProjectEditor::showOverwriteWindow()
 {
-	display.setControlText(topLabel[0], "Yes");
+	display.setControlText(bottomLabel[0], "Yes");
 	for(uint8_t i=1 ;i < 7; i++)
 	{
-		display.setControlText(topLabel[i], "");
+		display.setControlText(bottomLabel[i], "");
 	}
-	display.setControlText(topLabel[7], "No");
+	display.setControlText(bottomLabel[7], "No");
 
 	char currentInfo[100];
 
@@ -466,10 +468,10 @@ void cProjectEditor::showOverwriteWindow()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
 	}
-
+	makeBigBottomLabel(0);
 	display.synchronizeRefresh();
 }
 
@@ -490,3 +492,52 @@ void cProjectEditor::showSaveingHorizontalBar()
 	display.refreshControl(loadHorizontalBarControl);
 }
 
+void cProjectEditor::makeSmallBottomLabel(uint8_t i)
+{
+	display.setControlPosition(bottomLabel[i], -1, 465);
+	display.setControlSize(bottomLabel[i], -1, 30);
+
+	display.setControlShow(topLabel[i]);
+	display.setControlShow(bottomLabel[i]);
+	display.refreshControl(bottomLabel[i]);
+	display.refreshControl(topLabel[i]);
+}
+void cProjectEditor::makeBigBottomLabel(uint8_t i)
+{
+	display.setControlPosition(bottomLabel[i], -1, 452);
+	display.setControlSize(bottomLabel[i], -1, 59);
+
+	display.setControlHide(topLabel[i]);
+	display.setControlShow(bottomLabel[i]);
+	display.refreshControl(bottomLabel[i]);
+	display.refreshControl(topLabel[i]);
+}
+
+void cProjectEditor::showExportWindow()
+{
+	display.setControlText(topLabel[0], "Export");
+	display.setControlText(bottomLabel[0], "Song");
+	display.setControlText(topLabel[1], "Export");
+	display.setControlText(bottomLabel[1], "Song Stems");
+	display.setControlText(topLabel[2], "Export");
+	display.setControlText(bottomLabel[2], "Pattern");
+	display.setControlText(topLabel[3], "Export");
+	display.setControlText(bottomLabel[3], "Patt Stems");
+	display.setControlText(topLabel[4], "Export");
+	display.setControlText(bottomLabel[4], "To MOD");
+	display.setControlText(bottomLabel[5], "");
+	display.setControlText(bottomLabel[6], "");
+	display.setControlText(bottomLabel[7], "Go Back");
+
+	for(uint8_t i=0; i<5 ; i++)
+	{
+		makeSmallBottomLabel(i);
+	}
+
+	for(uint8_t i = 5; i <8; i++)
+	{
+		makeBigBottomLabel(i);
+	}
+	//refreshe są w make
+	display.synchronizeRefresh();
+}
