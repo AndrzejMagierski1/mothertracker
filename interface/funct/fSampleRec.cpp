@@ -375,7 +375,7 @@ void cSampleRecorder::start(uint32_t options)
 		showRadio();
 	}
 
-
+	engine.setHeadphonesVolume(80);
 }
 
 
@@ -387,7 +387,7 @@ void cSampleRecorder::stop()
 	radio.resetSeekCallback();
 	hideRDS();
 #endif
-
+	engine.setHeadphonesVolume(mtProject.values.volume);
 }
 
 
