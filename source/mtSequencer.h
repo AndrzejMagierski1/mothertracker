@@ -142,11 +142,10 @@ public:
 		enum enFxType
 		{
 			FX_TYPE_NONE,
-			FX_TYPE_OFFSET,             // 	przesuniecie wewnątrz stepa 0-48
+			FX_TYPE_NUDGE,             // 	przesuniecie wewnątrz stepa 0-48
 			FX_TYPE_CUTOFF,             // 	przesuniecie wewnątrz stepa 0-48
-			FX_TYPE_GLIDE,	// 	czas płynnego przejścia do kolejnej nuty/pitcha
+			FX_TYPE_ROLL,	// 	czas płynnego przejścia do kolejnej nuty/pitcha
 			FX_TYPE_SLIDE,	            // 	podciągnięcie do nuty w czasie
-			FX_TYPE_ROLL,
 			FX_TYPE_ARP_UP,	            // 	arpeggio w górę
 			FX_TYPE_ARP_DOWN,			//
 			FX_TYPE_SP,		            //	start point
@@ -628,6 +627,7 @@ public:
 
 	void changeSelectionVolume(int16_t value);
 	void changeSelectionFxValue(int16_t value);
+	void setSelectionFxValue(int16_t value);
 	void changeSelectionFxType(int16_t value);
 	void setSelectionFxType(int16_t value);
 	void changeSelectionInstrument(int16_t value);

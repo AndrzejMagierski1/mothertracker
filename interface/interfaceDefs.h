@@ -276,9 +276,9 @@ struct strInterfaceGlobals
 	const char fxNames[FX_COUNT][FX_NAME_SIZE+4] =
 	{
 			"--- None",
-			"A - Aaaaaaaaaaaaaaaaaaaaa",
-			"B - Bbbbbbbbbbbbbbbbbbbbb",
-			"C - Ccccccccccccccccccccc",
+			"A - Nudge",
+			"B - Cutoff",
+			"C - Roll",
 			"D - Ddddddddddddddddddddd",
 			"E - Eeeeeeeeeeeeeeeeeeeee",
 			"F - Fffffffffffffffffffff",

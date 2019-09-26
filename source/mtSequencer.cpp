@@ -332,21 +332,21 @@ void Sequencer::play_microStep(uint8_t row)
 //				}
 //				break;
 
-			case fx.FX_TYPE_JUMP_TO_STEP:
-				if (!isJumpToStep)
-				{
-					isJumpToStep = 1;
-//						jumpToStep = _fx.value_u16;
-				}
-				break;
-
-//			case fx.FX_TYPE_ROLL:
-//				if (!isRoll)
+//			case fx.FX_TYPE_JUMP_TO_STEP:
+//				if (!isJumpToStep)
 //				{
-//					isRoll = 1;
-//					valRoll = _fx.rollType;
+//					isJumpToStep = 1;
+////						jumpToStep = _fx.value_u16;
 //				}
 //				break;
+
+			case fx.FX_TYPE_ROLL:
+				if (!isRoll)
+				{
+					isRoll = 1;
+					valRoll = _fx.value;
+				}
+				break;
 			case fx.FX_TYPE_CUTOFF:
 				if (!isRoll)
 				{
@@ -355,6 +355,13 @@ void Sequencer::play_microStep(uint8_t row)
 								(float) 127,
 								(float) 0,
 								(float) 1));
+				}
+				break;
+			case fx.FX_TYPE_NUDGE:
+				if (!isRoll)
+				{
+					isOffset = 1;
+					offsetValue = _fx.value+1;
 				}
 				break;
 
@@ -1272,86 +1279,6 @@ void Sequencer::send_clock(uint8_t arg)
 
 }
 
-uint8_t Sequencer::get_fxValType(uint8_t fxType)
-{
-	switch (fxType)
-	{
-	case fx.FX_TYPE_NONE:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_OFFSET:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_GLIDE:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_SLIDE:
-		return fx.FX_VAL_TYPE_U8_U8;
-		break;
-
-	case fx.FX_TYPE_ARP_UP:
-		return fx.FX_VAL_TYPE_U8_U8;
-		break;
-
-	case fx.FX_TYPE_ARP_DOWN:
-		return fx.FX_VAL_TYPE_U8_U8;
-		break;
-
-	case fx.FX_TYPE_SP:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_LP1:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_LP2:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_MICROTUNE:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_SAMPLE_PLAYMODE:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_JUMP_TO_STEP:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_JUMP_TO_PATTERN:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_PANNING:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_PANNING_ROLL:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_SLICE_NUMBER:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-
-	case fx.FX_TYPE_PROBABILITY:
-		return fx.FX_VAL_TYPE_U16;
-		break;
-	case fx.FX_TYPE_ROLL:
-		return fx.FX_VAL_TYPE_R8_I8;
-		break;
-
-	default:
-		return fx.FX_VAL_TYPE_UNKNOWN;
-		break;
-	}
-}
 
 void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 {

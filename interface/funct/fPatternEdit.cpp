@@ -2380,7 +2380,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			if (state == buttonPress)
 			{
 				sendSelection();
-				sequencer.changeSelectionFxValue(map(pad, 0, 47, 0, 127));
+				sequencer.setSelectionFxValue(map(pad, 0, 47, 0, 47));
 			}
 
 			break;
