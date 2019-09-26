@@ -155,7 +155,6 @@ void cPerformanceMode::setPerformanceMaster()
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
 
-	activateLabelsBorder();
 
 
 	padsBacklight.clearAllPads(0, 1, 1);
@@ -171,7 +170,6 @@ void cPerformanceMode::setPerformanceFxes()
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-	activateLabelsBorder();
 
 
 	padsBacklight.clearAllPads(0, 1, 1);
@@ -186,13 +184,71 @@ void cPerformanceMode::setPerformanceFxes()
 //==============================================================================================================
 static  uint8_t functEncoder(int16_t value)
 {
-	uint8_t mode_places = PM->selectedPlace[PM->mode] + PM->mode*10;
 
-	switch(mode_places)
+	for(uint8_t i = 0; i<performanceFxesCount; i++)
 	{
-	case 0:  		 break;
+		if(PM->fxPerformanceState[i])
+		{
+			switch(i)
+			{
+			case mtPerfFxVolume:
+			case mtPerfPanning:
+			case mtPerfLowPass:
+			case mtPerfHighPass:
+			case mtPerfBandPass:
+			case mtPerfReverbSend:
+			case mtPerfSampleStart:
+			{
+				if(PM->fxValues[i] + value > 100) PM->fxValues[i] = 100;
+				else if(PM->fxValues[i] + value < -100) PM->fxValues[i] = -100;
+				else PM->fxValues[i] += value;
 
+				break;
+			}
+			case mtPerfTune:
+			{
+				if(PM->fxValues[i] + value > 24) PM->fxValues[i] = 24;
+				else if(PM->fxValues[i] + value < -24) PM->fxValues[i] = -24;
+				else PM->fxValues[i] += value;
+
+				break;
+			}
+			case mtPerfSamplePlayback:
+			{
+				if(PM->fxValues[i] + value > 1) PM->fxValues[i] = 1;
+				else if(PM->fxValues[i] + value < 0) PM->fxValues[i] = 0;
+				else PM->fxValues[i] += value;
+
+				break;
+			}
+			case mtPerfStepStutter:
+			{
+				if(PM->fxValues[i] + value > 10) PM->fxValues[i] = 10;
+				else if(PM->fxValues[i] + value < 0) PM->fxValues[i] = 0;
+				else PM->fxValues[i] += value;
+
+				break;
+			}
+			case mtPerfPatternPlayMode:
+			{
+				if(PM->fxValues[i] + value > 2) PM->fxValues[i] = 2;
+				else if(PM->fxValues[i] + value < 0) PM->fxValues[i] = 0;
+				else PM->fxValues[i] += value;
+
+				break;
+			}
+			case mtPerfFx11:
+			{
+
+			}
+			default: break;
+			}
+
+			PM->showPerformaceValue(i);
+		}
 	}
+
+
 
 	return 1;
 }
@@ -202,8 +258,7 @@ static  uint8_t functEncoder(int16_t value)
 //=========================================================================================================
 static  uint8_t functLeft()
 {
-	if(PM->selectedPlace[PM->mode] > 0) PM->selectedPlace[PM->mode]--;
-	PM->activateLabelsBorder();
+
 
 	return 1;
 }
@@ -211,8 +266,7 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
-	if(PM->selectedPlace[PM->mode] < PM->frameData.placesCount-1) PM->selectedPlace[PM->mode]++;
-	PM->activateLabelsBorder();
+
 
 	return 1;
 }
@@ -220,14 +274,7 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
-	uint8_t mode_places = PM->selectedPlace[PM->mode] + PM->mode*10;
 
-	switch(mode_places)
-	{
-	case 0:	 break;
-
-
-	}
 
 	return 1;
 }
@@ -235,13 +282,7 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
-	uint8_t mode_places = PM->selectedPlace[PM->mode] + PM->mode*10;
 
-	switch(mode_places)
-	{
-	case 0:    break;
-
-	}
 
 
 	return 1;
@@ -360,10 +401,16 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 	}
 	else
 	{
+		if(state == buttonPress)
+		{
+			PM->tracksPerformanceState[button] = !PM->tracksPerformanceState[button];
 
+			PM->refreshTracksState();
+		}
+		else if(state == buttonRelease)
+		{
 
-
-
+		}
 	}
 
 
@@ -381,12 +428,10 @@ void cPerformanceMode::lightUpPadBoard()
 {
 	padsBacklight.clearAllPads(0, 1, 1);
 
-
 	if(mtProject.values.lastUsedInstrument >= 0 && mtProject.values.lastUsedInstrument <= 48)
 	{
 		padsBacklight.setBackLayer(1, 20, mtProject.values.lastUsedInstrument);
 	}
-
 }
 
 
@@ -397,13 +442,13 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	{
 		padsBacklight.setFrontLayer(1,20, pad);
 
-
+		PM->fxPerformanceState[pad%12] = pad/12;
 	}
 	else if(state == 0)
 	{
 		padsBacklight.setFrontLayer(0,0, pad);
 
-
+		PM->fxPerformanceState[pad%12] = 0;
 	}
 
 	return 1;

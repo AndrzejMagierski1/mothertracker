@@ -15,6 +15,29 @@ enum mtPerformanceMode
 
 };
 
+
+enum mtPerformanceFxes
+{
+	mtPerfFxVolume,
+	mtPerfPanning,
+	mtPerfTune,
+	mtPerfLowPass,
+	mtPerfHighPass,
+	mtPerfBandPass,
+	mtPerfReverbSend,
+	mtPerfSampleStart,
+	mtPerfSamplePlayback,
+	mtPerfStepStutter,
+	mtPerfPatternPlayMode,
+	mtPerfFx11,
+
+	performanceFxesCount
+};
+
+
+
+
+
 const uint8_t trackMasterModeCount = 2;
 
 const char trackMasterLabels[trackMasterModeCount][5] =
@@ -24,21 +47,21 @@ const char trackMasterLabels[trackMasterModeCount][5] =
 };
 
 
-const uint8_t trackFxesCount = 12;
-const char trackFxesLabels[trackFxesCount][20] =
+
+const char performanceFxesLabels[performanceFxesCount][20] =
 {
-	"Cutoff",
-	"Start",
-	"Loop 1",
-	"Loop 2",
-	"asd",
-	"asd",
-	"asd",
-	"sad",
-	"asd",
-	"asd",
-	"asd",
-	"asd",
+	"Volume",
+	"Panning",
+	"Tune",
+	"Low-pass cutoff",
+	"High-Pass cutoff",
+	"Band-pass cutoff",
+	"Reverb sent",
+	"Sample start",
+	"Sample playback",
+	"Step stutter",
+	"Pattern play mode",
+	"mtPerfFx11",
 };
 
 class cPerformanceMode: public cModuleBase
@@ -60,32 +83,23 @@ public:
 	~cPerformanceMode() {}
 
 
+	//----------------------------------
+	void setDefaultScreenFunct();
+
+	void setPerformanceMaster();
+	void setPerformanceFxes();
+	void lightUpPadBoard();
 
 
-
+	//----------------------------------
 	void showDefaultScreen();
 
 	void showPerformanceMaster();
 	void showPerformanceFxes();
 
 
-
-
-
-
-
-	void setDefaultScreenFunct();
-
-	void setPerformanceMaster();
-	void setPerformanceFxes();
-
-
-
-
-	void lightUpPadBoard();
-
-
-	void activateLabelsBorder();
+	void showPerformaceValue(uint8_t fx);
+	void refreshTracksState();
 
 //----------------------------------
 
@@ -97,29 +111,29 @@ public:
 	hControl instrumentLabel = nullptr;
 
 
-
-
 	hControl topLabel[8] = {nullptr};
 	hControl bottomLabel[8] = {nullptr};
 
 	hControl textLabel[12] = {nullptr};
+	hControl value1Label[12] = {nullptr};
 
-
-	hControl frameControl = nullptr;
-
-
-
-	uint8_t selectedPlace[2] = {0};
 
 
 
 	// typ trybu/ekranu
 	uint8_t mode = mtPerformanceFxes;
-
 	uint8_t refreshMaster = 1;
 
 
 
+	//--------performance values
+	// g
+	int8_t fxValues[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
+	char fxValuesText[12][7] = {0};
+
+	// f
+	int8_t tracksPerformanceState[8] = {0};
+	int8_t fxPerformanceState[12] = {};
 
 
 
