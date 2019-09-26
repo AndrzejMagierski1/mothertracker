@@ -1966,15 +1966,12 @@ void cSampleRecorder::changeRadioFreqBar(int16_t val)
 {
 	if(radio.getInitializationStatus())
 	{
-		if(val > 0)
+		if((recorderConfig.radioFreq + (val*0.05)) > 108.0f ) recorderConfig.radioFreq = 108.0f;
+		else if((recorderConfig.radioFreq + (val*0.05)) < 87.5f) recorderConfig.radioFreq = 87.5f;
+		else
 		{
-			if(recorderConfig.radioFreq < 108.0f) recorderConfig.radioFreq += 0.05;
+			recorderConfig.radioFreq+=(val*0.05);
 		}
-		else if(val < 0)
-		{
-			if(recorderConfig.radioFreq > 87.5f) recorderConfig.radioFreq -= 0.05;
-		}
-
 		calcRadioFreqBarVal();
 		drawRadioFreqBar();
 
@@ -2000,86 +1997,48 @@ void cSampleRecorder::changeGainBar(int16_t val)
 {
 	if(recorderConfig.source == sourceTypeLineIn)
 	{
-		if(val > 0)
+		if(recorderConfig.gainLineIn + val > 100) recorderConfig.gainLineIn = 100;
+		else if ((int16_t) (recorderConfig.gainLineIn + val) < 0) recorderConfig.gainLineIn = 0;
+		else
 		{
-			if(recorderConfig.gainLineIn < 100)
-			{
-				recorderConfig.gainLineIn++;
-				refreshGain();
-			}
-
+			recorderConfig.gainLineIn += val;
 		}
-		else if(val < 0)
-		{
-			if(recorderConfig.gainLineIn > 0)
-			{
-				recorderConfig.gainLineIn--;
-				refreshGain();
-			}
-		}
+		refreshGain();
 		mtProject.values.gainLineIn = sampleRecorder.recorderConfig.gainLineIn;
 	}
 	else if(recorderConfig.source == sourceTypeRadio)
 	{
-		if(val > 0)
+		if(recorderConfig.gainRadio + val > 100) recorderConfig.gainRadio = 100;
+		else if ((int16_t) (recorderConfig.gainRadio + val) < 0) recorderConfig.gainRadio = 0;
+		else
 		{
-			if(recorderConfig.gainRadio < 100)
-			{
-				recorderConfig.gainRadio++;
-				refreshGain();
-			}
+			recorderConfig.gainRadio += val;
+		}
+		refreshGain();
 
-		}
-		else if(val < 0)
-		{
-			if(recorderConfig.gainRadio > 0)
-			{
-				recorderConfig.gainRadio--;
-				refreshGain();
-			}
-		}
 		mtProject.values.gainRadio = sampleRecorder.recorderConfig.gainRadio;
 	}
 	else if(recorderConfig.source == sourceTypeMicLG)
 	{
-		if(val > 0)
+		if(recorderConfig.gainMicLow + val > 100) recorderConfig.gainMicLow = 100;
+		else if ((int16_t) (recorderConfig.gainMicLow + val) < 0) recorderConfig.gainMicLow = 0;
+		else
 		{
-			if(recorderConfig.gainMicLow < 100)
-			{
-				recorderConfig.gainMicLow++;
-				refreshGain();
-			}
+			recorderConfig.gainMicLow += val;
+		}
+		refreshGain();
 
-		}
-		else if(val < 0)
-		{
-			if(recorderConfig.gainMicLow > 0)
-			{
-				recorderConfig.gainMicLow--;
-				refreshGain();
-			}
-		}
 		mtProject.values.gainMicLow = sampleRecorder.recorderConfig.gainMicLow;
 	}
 	else if(recorderConfig.source == sourceTypeMicHG)
 	{
-		if(val > 0)
+		if(recorderConfig.gainMicHigh + val > 100) recorderConfig.gainMicHigh = 100;
+		else if ((int16_t) (recorderConfig.gainMicHigh + val) < 0) recorderConfig.gainMicHigh = 0;
+		else
 		{
-			if(recorderConfig.gainMicHigh < 100)
-			{
-				recorderConfig.gainMicHigh++;
-				refreshGain();
-			}
-
+			recorderConfig.gainMicHigh += val;
 		}
-		else if(val < 0)
-		{
-			if(recorderConfig.gainMicHigh > 0)
-			{
-				recorderConfig.gainMicHigh--;
-				refreshGain();
-			}
-		}
+		refreshGain();
 		mtProject.values.gainMicHigh = sampleRecorder.recorderConfig.gainMicHigh;
 	}
 
