@@ -52,7 +52,7 @@ void finishExport()
 		}
 		exportL.end();
 		exportR.end();
-		engine.wavExportDisconnect();
+//		engine.wavExportDisconnect(); todo:
 		status = exportStatus::exportFinished;
 
 		Subchunk2Size = byteRecorded;
@@ -117,7 +117,7 @@ void startExport(char * patch)
 		byteRecorded=0;
 		status = exportStatus::exportDuring;
 
-		engine.wavExportConnect();
+		//		engine.wavExportConnect(); todo:
 
 		exportL.begin();
 		exportR.begin();

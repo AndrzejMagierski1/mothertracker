@@ -81,6 +81,16 @@ public:
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note);
 	AudioEffectEnvelope *       envelopeAmpPtr;
+//**********************************************************************************************************************************
+//PERFORMANCE MODE
+	void changeVolumePerformanceMode(int8_t value);
+	void changePanningPerformanceMode(int8_t value);
+	void changeTunePerformanceMode(int8_t value);
+	void changeReverbSendPerformanceMode(int8_t value);
+	void changeStartPointPerformanceMode(int8_t value);
+	void changeCutoffPerformanceMode(int8_t value);
+	void changeFilterTypePerformanceMode(uint8_t mode);
+
 private:
 
 	friend 						audioEngine;
@@ -105,6 +115,8 @@ private:
 	uint8_t 					interfacePlayingEndFlag = 0;
 	uint8_t 					currentPlayState = 0;
 	uint8_t 					lastPlayState = 0;
+	int8_t						filterTypeSequencer = -1;
+	int8_t 						filterTypePerformanceMode = -1;
 
 	//TODO: *ziejas
 	uint8_t 					muteState = 0;
@@ -136,7 +148,6 @@ extern AudioOutputI2S           i2s1;
 extern LFO						lfoAmp[8];
 extern LFO						lfoFilter[8];
 extern LFO						lfoPitch[8];
-extern int16_t					mods[MAX_TARGET][MAX_MOD];
 
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;
