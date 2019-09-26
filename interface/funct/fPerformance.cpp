@@ -203,6 +203,13 @@ static  uint8_t functEncoder(int16_t value)
 				else if(PM->fxValues[i] + value < -100) PM->fxValues[i] = -100;
 				else PM->fxValues[i] += value;
 
+				for(uint8_t j = 0; j < 8; j++)
+				{
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeVolumePerformanceMode(PM->fxValues[i]);
+				}
+
+
+
 				break;
 			}
 			case mtPerfTune:
@@ -446,9 +453,18 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	}
 	else if(state == 0)
 	{
+
+		if(pad/12 == 0)
+		{
+			PM->fxValues[pad%12] = 0;
+			PM->showPerformaceValue(pad%12);
+		}
+
 		padsBacklight.setFrontLayer(0,0, pad);
 
 		PM->fxPerformanceState[pad%12] = 0;
+
+
 	}
 
 	return 1;
