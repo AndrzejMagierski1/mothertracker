@@ -84,75 +84,41 @@ void Sequencer::handle_uStep_timer(void)
 
 void Sequencer::handle_nanoStep(uint8_t step)
 {
-	if (isPlay())
+
+	if ((step == 1))// to znaczy że wywoładnie funkcji przyszło z midi clocka
 	{
-		if ((step == 1))// to znaczy że wywoładnie funkcji przyszło z midi clocka
+		player.uStep = 1;
+
+		// podciągamy tick do wielokrotności całego stepa czyli 576 +1
+		uint16_t tickBefore = nanoStep;
+		uint16_t tickAfter = nanoStep;
+		if (nanoStep % 576 != 1)
 		{
-			player.uStep = 1;
-
-			// podciągamy tick do wielokrotności całego stepa czyli 576 +1
-			uint16_t tickBefore = nanoStep;
-			uint16_t tickAfter = nanoStep;
-			if (nanoStep % 576 != 1)
-			{
-				uint16_t tempTick = nanoStep;
-				while (tempTick % 576 != 1)
-					tempTick++;
-				tickAfter = tempTick;
-			}
-
-			if (tickAfter >= tickBefore)
-			{
-				for (uint16_t tempTick = tickBefore; tempTick <= tickAfter;
-						tempTick++)
-				{
-					if (tempTick > 6912)
-					{
-						tempTick = 1;
-					}
-					nanoStep = tempTick;
-
-					for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
-					{
-						int8_t tTempoOption = constrain(
-								seq[player.ramBank].track[a].tempoDiv,
-								MIN_TEMPO_DIV,
-								MAX_TEMPO_DIV);
-						uint8_t tDiv = getTempoDiv(tTempoOption);
-
-						if (nanoStep % tDiv == 1)
-						{
-							divChangeQuantize(a);
-							play_microStep(a);
-							incr_uStep(a);
-						}
-					}
-//					trySwitchBank();
-					if (tempTick == 1)
-					{
-						break;
-					}
-				}
-			}
-
-			else
-			{
-				Serial.println("a jednak");
-			}
-
+			uint16_t tempTick = nanoStep;
+			while (tempTick % 576 != 1)
+				tempTick++;
+			tickAfter = tempTick;
 		}
 
-		else // wywoładnie z timera wewnętrznego
+		if (tickAfter >= tickBefore)
 		{
-			if (!player.isREC)
+			for (uint16_t tempTick = tickBefore; tempTick <= tickAfter;
+					tempTick++)
 			{
-				for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
+				if (tempTick > 6912)
 				{
-					int8_t tTempoDiv = constrain(
+					tempTick = 1;
+				}
+				nanoStep = tempTick;
+
+				for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
+				{/*
+					int8_t tTempoOption = constrain(
 							seq[player.ramBank].track[a].tempoDiv,
 							MIN_TEMPO_DIV,
 							MAX_TEMPO_DIV);
-					uint8_t tDiv = getTempoDiv(tTempoDiv);
+					uint8_t tDiv = getTempoDiv(tTempoOption);*/
+					uint8_t tDiv = getTempoDiv(0);
 
 					if (nanoStep % tDiv == 1)
 					{
@@ -161,83 +127,116 @@ void Sequencer::handle_nanoStep(uint8_t step)
 						incr_uStep(a);
 					}
 				}
+//					trySwitchBank();
+				if (tempTick == 1)
+				{
+					break;
+				}
+			}
+		}
+
+		else
+		{
+			Serial.println("a jednak");
+		}
+
+	}
+
+	else // wywoładnie z timera wewnętrznego
+	{
+		if (!player.isREC)
+		{
+			for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
+			{
+				int8_t tTempoDiv = constrain(
+						seq[player.ramBank].track[a].tempoDiv,
+						MIN_TEMPO_DIV,
+						MAX_TEMPO_DIV);
+				uint8_t tDiv = getTempoDiv(tTempoDiv);
+
+				if (nanoStep % tDiv == 1)
+				{
+					divChangeQuantize(a);
+					play_microStep(a);
+					incr_uStep(a);
+				}
+			}
 //				trySwitchBank();
 
+		}
+		else
+		{
+			for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
+			{
+				if (nanoStep % 12 == 1)
+				{
+					divChangeQuantize(a);
+					play_microStep(a);
+					incr_uStep(a);
+				}
+			}
+//				trySwitchBank();
+		}
+	}
+
+	// stary mechanizm, na potrzeby startowania timera
+	if ((nanoStep % 12 == 1) || step)
+	{
+		if (player.uStep == 1)
+		{
+			// if (config.mode == MODE_MIDICLOCK_INTERNAL)
+			// {
+			//konfig timera do zmiany czasu trwania kroku na swing
+			if (!player.isREC)
+			{
+				float tempSwing;
+				if (config.mode == MODE_MIDICLOCK.INTERNAL_)
+				tempSwing = seq[player.ramBank].swing;
+				else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
+				tempSwing = config.swingLock;
+				else
+					tempSwing = 50.0;
+
+				if ((player.swingToogle))
+				player.swing_offset = 0 + tempSwing;
+				else
+					player.swing_offset = 100 - tempSwing;
+				player.swingToogle = !player.swingToogle;
 			}
 			else
 			{
-				for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
-				{
-					if (nanoStep % 12 == 1)
-					{
-						divChangeQuantize(a);
-						play_microStep(a);
-						incr_uStep(a);
-					}
-				}
-//				trySwitchBank();
+				player.swing_offset = 50.0;
 			}
+
+			//rekonfig timera
+			init_player_timer();
 		}
 
-		// stary mechanizm, na potrzeby startowania timera
-		if ((nanoStep % 12 == 1) || step)
+		if (player.isPlay)
 		{
-			if (player.uStep == 1)
+			if (player.uStep > 0)
 			{
-				// if (config.mode == MODE_MIDICLOCK_INTERNAL)
-				// {
-				//konfig timera do zmiany czasu trwania kroku na swing
-				if (!player.isREC)
+				player.uStep++;
+
+				if (player.uStep > 48)
 				{
-					float tempSwing;
-					if (config.mode == MODE_MIDICLOCK.INTERNAL_)
-					tempSwing = seq[player.ramBank].swing;
-					else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
-					tempSwing = config.swingLock;
-					else
-						tempSwing = 50.0;
-
-					if ((player.swingToogle))
-					player.swing_offset = 0 + tempSwing;
-					else
-						player.swing_offset = 100 - tempSwing;
-					player.swingToogle = !player.swingToogle;
-				}
-				else
-				{
-					player.swing_offset = 50.0;
-				}
-
-				//rekonfig timera
-				init_player_timer();
-			}
-
-			if (player.isPlay)
-			{
-				if (player.uStep > 0)
-				{
-					player.uStep++;
-
-					if (player.uStep > 48)
-					{
-						player.uStep = 1;
-					}
+					player.uStep = 1;
 				}
 			}
 		}
+	}
 
-		if (step == 1)
-		{
-			nanoStep++;
-			if (nanoStep > 6912)
-				nanoStep = 1;
-		}
+	if (step == 1)
+	{
+		nanoStep++;
+		if (nanoStep > 6912)
+			nanoStep = 1;
 	}
 
 	if ((nanoStep % 12 == 1) || step)
 		rec_metronome();
 
-	flushNotes();
+//	flushNotes();
 
 }
 
@@ -309,6 +308,7 @@ void Sequencer::play_microStep(uint8_t row)
 	if (1)
 	{
 		boolean startStep = 0;
+		boolean cancelStep = 0;
 		boolean isOffset = 0;
 		uint16_t offsetValue = 0;
 
@@ -361,8 +361,13 @@ void Sequencer::play_microStep(uint8_t row)
 				if (!isRoll)
 				{
 					isOffset = 1;
-					offsetValue = _fx.value+1;
+					offsetValue = _fx.value + 1;
 				}
+				break;
+			case fx.FX_TYPE_STEP_CHANCE:
+				if (random(0, 128) > _fx.value)
+					cancelStep = 1;
+
 				break;
 
 			default:
@@ -420,7 +425,7 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 
 		// odpalamy stepa
-		if (startStep)
+		if (startStep && !cancelStep)
 		{
 			// ustawiamy całego stepa
 			playerRow.stepOpen = 1;
@@ -1278,7 +1283,6 @@ void Sequencer::send_clock(uint8_t arg)
 // TODO: wypełnić
 
 }
-
 
 void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 {

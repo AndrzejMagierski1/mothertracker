@@ -142,23 +142,10 @@ public:
 		enum enFxType
 		{
 			FX_TYPE_NONE,
-			FX_TYPE_NUDGE,             // 	przesuniecie wewnątrz stepa 0-48
-			FX_TYPE_CUTOFF,             // 	przesuniecie wewnątrz stepa 0-48
-			FX_TYPE_ROLL,	// 	czas płynnego przejścia do kolejnej nuty/pitcha
-			FX_TYPE_SLIDE,	            // 	podciągnięcie do nuty w czasie
-			FX_TYPE_ARP_UP,	            // 	arpeggio w górę
-			FX_TYPE_ARP_DOWN,			//
-			FX_TYPE_SP,		            //	start point
-			FX_TYPE_LP1,		        // 	loop point 1
-			FX_TYPE_LP2,		        //	loop point 2
-			FX_TYPE_MICROTUNE,
-			FX_TYPE_SAMPLE_PLAYMODE,
-			FX_TYPE_JUMP_TO_STEP,
-			FX_TYPE_JUMP_TO_PATTERN,
-			FX_TYPE_PANNING,
-			FX_TYPE_PANNING_ROLL,
-			FX_TYPE_SLICE_NUMBER,
-			FX_TYPE_PROBABILITY,
+			FX_TYPE_NUDGE,
+			FX_TYPE_CUTOFF,
+			FX_TYPE_ROLL,
+			FX_TYPE_STEP_CHANCE,
 
 		};
 		enum enFxVal

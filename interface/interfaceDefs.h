@@ -279,7 +279,7 @@ struct strInterfaceGlobals
 			"A - Nudge",
 			"B - Cutoff",
 			"C - Roll",
-			"D - Ddddddddddddddddddddd",
+			"D - Chance",
 			"E - Eeeeeeeeeeeeeeeeeeeee",
 			"F - Fffffffffffffffffffff",
 			"G - Ggggggggggggggggggggg",

@@ -892,7 +892,7 @@ uint8_t functEncoder(int16_t value)
 		case 3:
 			if (tactButtons.isButtonPressed(interfaceButtonFx))
 			{
-				//sequencer.changeSelectionFxType(value);
+				sequencer.changeSelectionFxType(value);
 			}
 			else
 			{
