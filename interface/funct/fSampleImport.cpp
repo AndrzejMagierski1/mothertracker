@@ -1049,10 +1049,7 @@ void cSampleImporter::playSdFile()
 
 	stopPlaying();
 
-	if(playMode != playModeSdFile)
-	{
-		engine.prevSdConnect();
-	}
+
 	playMode = playModeSdFile;
 
 	FsFile wavHeader = SD.open(file_path);
