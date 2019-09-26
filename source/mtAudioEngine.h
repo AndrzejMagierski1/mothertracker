@@ -13,6 +13,17 @@
 #include "mtRecorder.h"
 #include "mtExporterWAV.h"
 
+struct strActiveValuePerformance
+{
+	  uint8_t volume;
+	  int16_t panning;
+	  int8_t tune;
+	  uint8_t reverbSend;
+	  uint16_t startPoint;
+	  float cutOff;
+
+} ;
+
 enum fx_ID
 {
 	fx_ID_cutoff = 1
@@ -92,7 +103,7 @@ public:
 	void changeFilterTypePerformanceMode(uint8_t mode);
 
 private:
-
+	strActiveValuePerformance 	activeValuePerformance;
 	friend 						audioEngine;
 	AudioPlayMemory *        	playMemPtr;
 	AudioAmplifier *			ampPtr;
