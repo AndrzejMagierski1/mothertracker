@@ -120,16 +120,7 @@ uint8_t	playerEngine::activeAmpEnvelopes=0;
 constexpr uint16_t releaseNoteOnVal = 5;
 
 
-struct strActiveValuePerformance
-{
-	  uint8_t volume;
-	  int16_t panning;
-	  int8_t tune;
-	  uint8_t reverbSend;
-	  uint16_t startPoint;
-	  float cutOff;
 
-} activeValuePerformance;
 
 
 
