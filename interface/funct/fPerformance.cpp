@@ -449,7 +449,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	{
 		padsBacklight.setFrontLayer(1,20, pad);
 
-		PM->fxPerformanceState[pad%12] = pad/12;
+		PM->fxPerformanceState[pad%12] = pad/12 + 1;
 	}
 	else if(state == 0)
 	{
