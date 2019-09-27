@@ -8,7 +8,7 @@
 
 #include "mtPadsBacklight.h"
 
-#include "mtAudioEngine.h"
+//#include "mtAudioEngine.h"
 
 #include "interfacePopups.h"
 
@@ -97,6 +97,14 @@ void cPerformanceMode::start(uint32_t options)
 	setDefaultScreenFunct();
 
 
+	padsBacklight.clearAllPads(0, 1, 1);
+	for(uint8_t i = 0; i < 48; i+=2)
+	{
+		padsBacklight.setBackLayer(1, 8, i);
+	}
+
+
+
 	if(mode == mtPerformanceMaster)
 	{
 		PM->showPerformanceMaster();
@@ -179,6 +187,81 @@ void cPerformanceMode::setPerformanceFxes()
 
 
 
+void cPerformanceMode::clearPerformanceValues(uint8_t fx)
+{
+
+	for(uint8_t j = 0; j < 8; j++)
+	{
+		switch(fx)
+		{
+		case mtPerfFxVolume:
+		{
+			instrumentPlayer[j].changeVolumePerformanceMode(0);
+			break;
+		}
+		case mtPerfPanning:
+		{
+			instrumentPlayer[j].changePanningPerformanceMode(0);
+			break;
+		}
+		case mtPerfLowPass:
+		{
+			instrumentPlayer[j].changeCutoffPerformanceMode(0);
+			instrumentPlayer[j].changeFilterTypePerformanceMode(0);
+			break;
+		}
+		case mtPerfHighPass:
+		{
+			instrumentPlayer[j].changeCutoffPerformanceMode(0);
+			instrumentPlayer[j].changeFilterTypePerformanceMode(0);
+			break;
+		}
+		case mtPerfBandPass:
+		{
+			instrumentPlayer[j].changeCutoffPerformanceMode(0);
+			instrumentPlayer[j].changeFilterTypePerformanceMode(0);
+			break;
+		}
+		case mtPerfReverbSend:
+		{
+			instrumentPlayer[j].changeReverbSendPerformanceMode(0);
+			break;
+		}
+		case mtPerfSampleStart:
+		{
+			instrumentPlayer[j].changeStartPointPerformanceMode(0);
+			break;
+		}
+		case mtPerfTune:
+		{
+			instrumentPlayer[j].changeTunePerformanceMode(0);
+			break;
+		}
+		case mtPerfSamplePlayback:
+		{
+
+			break;
+		}
+		case mtPerfStepStutter:
+		{
+
+			break;
+		}
+		case mtPerfPatternPlayMode:
+		{
+
+		}
+		case mtPerfFx11:
+		{
+
+		}
+		default: break;
+		}
+
+	}
+
+	fxValues[fx] = 0;
+}
 
 
 //==============================================================================================================
@@ -192,12 +275,6 @@ static  uint8_t functEncoder(int16_t value)
 			switch(i)
 			{
 			case mtPerfFxVolume:
-			case mtPerfPanning:
-			case mtPerfLowPass:
-			case mtPerfHighPass:
-			case mtPerfBandPass:
-			case mtPerfReverbSend:
-			case mtPerfSampleStart:
 			{
 				if(PM->fxValues[i] + value > 100) PM->fxValues[i] = 100;
 				else if(PM->fxValues[i] + value < -100) PM->fxValues[i] = -100;
@@ -207,16 +284,96 @@ static  uint8_t functEncoder(int16_t value)
 				{
 					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeVolumePerformanceMode(PM->fxValues[i]);
 				}
+				break;
+			}
+			case mtPerfPanning:
+			{
+				if(PM->fxValues[i] + value > 100) PM->fxValues[i] = 100;
+				else if(PM->fxValues[i] + value < -100) PM->fxValues[i] = -100;
+				else PM->fxValues[i] += value;
 
+				for(uint8_t j = 0; j < 8; j++)
+				{
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changePanningPerformanceMode(PM->fxValues[i]);
+				}
+				break;
+			}
+			case mtPerfLowPass:
+			{
+				if(PM->fxValues[i] + value > 100) PM->fxValues[i] = 100;
+				else if(PM->fxValues[i] + value < -100) PM->fxValues[i] = -100;
+				else PM->fxValues[i] += value;
+
+				for(uint8_t j = 0; j < 8; j++)
+				{
+					if(PM->tracksPerformanceState[j])
+					{
+						instrumentPlayer[j].changeFilterTypePerformanceMode(1);
+						instrumentPlayer[j].changeCutoffPerformanceMode(PM->fxValues[i]);
+					}
+				}
+				break;
+			}
+			case mtPerfHighPass:
+			{
+				if(PM->fxValues[i] + value > 100) PM->fxValues[i] = 100;
+				else if(PM->fxValues[i] + value < -100) PM->fxValues[i] = -100;
+				else PM->fxValues[i] += value;
+
+				for(uint8_t j = 0; j < 8; j++)
+				{
+					if(PM->tracksPerformanceState[j])
+					{
+						instrumentPlayer[j].changeFilterTypePerformanceMode(2);
+						instrumentPlayer[j].changeCutoffPerformanceMode(PM->fxValues[i]);
+					}
+				}
+				break;
+			}
+			case mtPerfBandPass:
+			{
+				if(PM->fxValues[i] + value > 100) PM->fxValues[i] = 100;
+				else if(PM->fxValues[i] + value < -100) PM->fxValues[i] = -100;
+				else PM->fxValues[i] += value;
+
+				for(uint8_t j = 0; j < 8; j++)
+				{
+					if(PM->tracksPerformanceState[j])
+					{
+						instrumentPlayer[j].changeFilterTypePerformanceMode(3);
+						instrumentPlayer[j].changeCutoffPerformanceMode(PM->fxValues[i]);
+					}
+				}
+				break;
+			}
+			case mtPerfReverbSend:
+			{
+				if(PM->fxValues[i] + value > 100) PM->fxValues[i] = 100;
+				else if(PM->fxValues[i] + value < -100) PM->fxValues[i] = -100;
+				else PM->fxValues[i] += value;
+
+				for(uint8_t j = 0; j < 8; j++)
+				{
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeReverbSendPerformanceMode(PM->fxValues[i]);
+				}
+				break;
+			}
+			case mtPerfSampleStart:
+			{
 
 
 				break;
 			}
 			case mtPerfTune:
 			{
-				if(PM->fxValues[i] + value > 24) PM->fxValues[i] = 24;
-				else if(PM->fxValues[i] + value < -24) PM->fxValues[i] = -24;
+				if(PM->fxValues[i] + value > 48) PM->fxValues[i] = 48;
+				else if(PM->fxValues[i] + value < -48) PM->fxValues[i] = -48;
 				else PM->fxValues[i] += value;
+
+				for(uint8_t j = 0; j < 8; j++)
+				{
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeTunePerformanceMode(PM->fxValues[i]);
+				}
 
 				break;
 			}
@@ -456,7 +613,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 		if(pad/12 == 0)
 		{
-			PM->fxValues[pad%12] = 0;
+			PM->clearPerformanceValues(pad%12);
 			PM->showPerformaceValue(pad%12);
 		}
 

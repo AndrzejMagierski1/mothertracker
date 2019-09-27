@@ -6,6 +6,7 @@
 
 #include "mtStructs.h"
 
+#include "mtAudioEngine.h"
 
 
 enum mtPerformanceMode
@@ -33,7 +34,6 @@ enum mtPerformanceFxes
 
 	performanceFxesCount
 };
-
 
 
 
@@ -90,6 +90,7 @@ public:
 	void setPerformanceFxes();
 	void lightUpPadBoard();
 
+	void clearPerformanceValues(uint8_t fx);
 
 	//----------------------------------
 	void showDefaultScreen();
