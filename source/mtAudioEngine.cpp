@@ -281,18 +281,21 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	/*======================================================================================================*/
 	/*================================================ENVELOPE FILTER=======================================*/
 
-	if(mtProject.instrument[instr_idx].filterEnable == filterOn)
+	if((mtProject.instrument[instr_idx].filterEnable == filterOn) || (activeValuePerformance.filterForcedEnableFlag))
 	{
 		envelopeFilterPtr->init(&mtProject.instrument[instr_idx].envelope[envFilter]);
 		lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
 	/*======================================================================================================*/
 	/*================================================FILTER================================================*/
 		filterConnect();
-		changeFilterType(mtProject.instrument[instr_idx].filterType);
+
+		if(activeValuePerformance.filterForcedType == -1 ) changeFilterType(mtProject.instrument[instr_idx].filterType);
+		else changeFilterType(activeValuePerformance.filterForcedType);
+
 		filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
 
 
-		filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
+		if(!activeValuePerformance.cutOffForceFlag) filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
 		activeValuePerformance.cutOff =  mtProject.instrument[instr_idx].cutOff;
 	}
 	else if(mtProject.instrument[instr_idx].filterEnable == filterOff) filterDisconnect();
@@ -345,13 +348,12 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	/*===============================================REVERB=================================================*/
 	if(muteState == 0)
 	{
-		mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
+		if(!activeValuePerformance.reverbSendForceFlag)	mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
 		activeValuePerformance.reverbSend=mtProject.instrument[instr_idx].reverbSend;
 	}
 
 
 	/*======================================================================================================*/
-	activeValuePerformance.startPoint = mtProject.instrument[instr_idx].startPoint;
 	activeValuePerformance.tune = mtProject.instrument[instr_idx].tune;
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();
@@ -406,18 +408,19 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	/*======================================================================================================*/
 	/*================================================ENVELOPE FILTER=======================================*/
 
-	if(mtProject.instrument[instr_idx].filterEnable == filterOn)
+	if((mtProject.instrument[instr_idx].filterEnable == filterOn) || (activeValuePerformance.filterForcedEnableFlag))
 	{
 		envelopeFilterPtr->init(&mtProject.instrument[instr_idx].envelope[envFilter]);
 		lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
 	/*======================================================================================================*/
 	/*================================================FILTER================================================*/
 		filterConnect();
-		changeFilterType(mtProject.instrument[instr_idx].filterType);
+		if(activeValuePerformance.filterForcedType == -1 ) changeFilterType(mtProject.instrument[instr_idx].filterType);
+		else changeFilterType(activeValuePerformance.filterForcedType);
 		filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
 
 
-		filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
+		if(!activeValuePerformance.cutOffForceFlag) filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
 		activeValuePerformance.cutOff =  mtProject.instrument[instr_idx].cutOff;
 	}
 	else if(mtProject.instrument[instr_idx].filterEnable == filterOff) filterDisconnect();
@@ -471,7 +474,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	/*===============================================REVERB=================================================*/
 	if(muteState == 0)
 	{
-		mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
+		if(!activeValuePerformance.reverbSendForceFlag) mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
 		activeValuePerformance.reverbSend=	mtProject.instrument[instr_idx].reverbSend;
 	}
 	/*======================================================================================================*/
@@ -489,7 +492,6 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	}
 
 	//*******************************************************************************************************
-	activeValuePerformance.startPoint = mtProject.instrument[instr_idx].startPoint;
 	activeValuePerformance.tune = mtProject.instrument[instr_idx].tune;
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();
@@ -590,7 +592,7 @@ void playerEngine :: modCutoff(float value)
 {
 	if(mtProject.instrument[currentInstrument_idx].filterEnable == filterOn)
 	{
-		filterPtr->setCutoff(value);
+		if(!activeValuePerformance.cutOffForceFlag) filterPtr->setCutoff(value);
 		activeValuePerformance.cutOff = value;
 	}
 
@@ -610,14 +612,19 @@ void playerEngine :: modWavetableWindow(uint16_t value)
 
 void playerEngine :: modTune(int8_t value)
 {
-	playMemPtr->setTune(value,currentNote);
 	activeValuePerformance.tune = value;
+	if(activeValuePerformance.tuneForceFlag) return;
+
+	playMemPtr->setTune(value,currentNote);
+
 }
 
 void playerEngine :: modReverbSend(uint8_t value)
 {
-	mixerReverb.gain(numPanChannel,value/100.0);
 	activeValuePerformance.reverbSend = value;
+	if(activeValuePerformance.reverbSendForceFlag) return;
+	mixerReverb.gain(numPanChannel,value/100.0);
+
 }
 
 void playerEngine:: update()
@@ -922,23 +929,59 @@ void playerEngine ::changePanningPerformanceMode(int8_t value)
 }
 void playerEngine ::changeTunePerformanceMode(int8_t value)
 {
+	if(activeValuePerformance.tune + value > MAX_INSTRUMENT_TUNE) playMemPtr->setTune(MAX_INSTRUMENT_TUNE,currentNote);
+	else if(activeValuePerformance.tune + value < MIN_INSTRUMENT_TUNE) playMemPtr->setTune(MIN_INSTRUMENT_TUNE,currentNote);
+	else playMemPtr->setTune(activeValuePerformance.tune + value,currentNote);
 
+	if(value != 0 )
+	{
+		activeValuePerformance.tuneForceFlag = 1;
+		playMemPtr->setTuneForceFlag();
+	}
+	else
+	{
+		activeValuePerformance.tuneForceFlag = 0;
+		playMemPtr->clearTuneForceFlag();
+	}
 }
 void playerEngine ::changeReverbSendPerformanceMode(int8_t value)
 {
+	if(activeValuePerformance.reverbSend + value > REVERB_SEND_MAX) mixerReverb.gain(numPanChannel,REVERB_SEND_MAX/100.0);
+	else if(activeValuePerformance.reverbSend + value < REVERB_SEND_MIN) mixerReverb.gain(numPanChannel,REVERB_SEND_MIN/100.0);
+	else mixerReverb.gain(numPanChannel,(activeValuePerformance.reverbSend + value)/100.0);
 
+	if(value != 0 ) activeValuePerformance.reverbSendForceFlag = 1;
+	else activeValuePerformance.reverbSendForceFlag = 0;
 }
 void playerEngine ::changeStartPointPerformanceMode(int8_t value)
 {
 
+
 }
 void playerEngine ::changeCutoffPerformanceMode(int8_t value)
 {
+	if(activeValuePerformance.cutOff + value > 100) filterPtr->setCutoff(1.0);
+	else if(activeValuePerformance.cutOff + value < 0) filterPtr->setCutoff(0.0);
+	else filterPtr->setCutoff((activeValuePerformance.cutOff + value)/100.0);
 
+
+	if(value != 0 ) activeValuePerformance.cutOffForceFlag = 1;
+	else activeValuePerformance.cutOffForceFlag = 0;
 }
 void playerEngine ::changeFilterTypePerformanceMode(uint8_t mode)
 {
+	if(mode != 0 ) activeValuePerformance.filterForcedEnableFlag = 1;
+	else
+	{
+		activeValuePerformance.filterForcedEnableFlag = 0;
+		changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+		if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
+		activeValuePerformance.filterForcedType = -1;
+		return;
+	}
 
+	activeValuePerformance.filterForcedType = mode-1;
+	changeFilterType(mode-1); //lowpass
 }
 
 //************************************************************************************************************
