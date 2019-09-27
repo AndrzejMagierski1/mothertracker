@@ -250,9 +250,9 @@ void Sequencer::play_microStep(uint8_t row)
 	strPattern::strTrack::strStep & patternStep = patternRow.step[playerRow.actual_pos];
 //	strPlayer::strPlayerTrack::strPlayerStep & playerStep = playerRow.step[playerRow.actual_pos];
 
-	//
-	// odliczamy odpaloną nutę i stepa, step może zawierać kilka nut
-	//
+	//	******************************************************************************
+	// 	odliczamy odpaloną nutę i stepa, step może zawierać kilka nut
+	//	******************************************************************************
 
 	if (playerRow.stepOpen)
 	{
@@ -285,10 +285,10 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 	}
 
-	//
-	// wysyłamy zegar
-	// TODO: ogarnąć warunek na mniej skomplikowany
-	//
+	//	**************************
+	// 	wysyłamy zegar
+	// 	TODO: ogarnąć warunek na mniej skomplikowany
+	//	**************************
 
 	if ((playerRow.uStep > 0) && player.isPlay)
 	{
@@ -296,7 +296,7 @@ void Sequencer::play_microStep(uint8_t row)
 			send_clock(row);
 	}
 
-	// jeśli ostatni step, zażądaj ładowania kolejnego patterny
+	// jeśli ostatni step, zażądaj ładowania kolejnego patternu
 	if ((playerRow.uStep == 1) && player.isPlay && row == 0)
 	{
 		if (playerRow.actual_pos == patternRow.length && player.songMode)
@@ -312,9 +312,12 @@ void Sequencer::play_microStep(uint8_t row)
 
 	boolean isRoll = 0;
 	int8_t valRoll = 0;
+	int8_t randomNote = 0;
 
+	// **************************
+	// 		sprawdzamy efekty
+	// **************************
 	strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
-
 	switch (_fx.type)
 	{
 	case fx.FX_TYPE_ROLL:
@@ -346,6 +349,9 @@ void Sequencer::play_microStep(uint8_t row)
 
 		break;
 	case fx.FX_TYPE_RANDOM_NOTE:
+		randomNote = random(patternStep.note - _fx.value,
+							patternStep.note + _fx.value + 1);
+		break;
 
 	default:
 		break;
@@ -401,8 +407,9 @@ void Sequencer::play_microStep(uint8_t row)
 			}
 		}
 	}
-
-	// odpalamy stepa
+	// **************************
+	// 		odpalamy stepa
+	// **************************
 	if (startStep && !cancelStep)
 	{
 		// ustawiamy całego stepa
@@ -438,17 +445,10 @@ void Sequencer::play_microStep(uint8_t row)
 
 		}
 	}
-	// odpalamy efekty po-nutowe
-//		if (isJumpToStep)
-//		{
-//			playerRow.isGoToStep = 1;
-//			playerRow.goToStep = jumpToStep;
-//		}
 
-//
-//	kontynuowanie nuty
-//
-
+	// **************************
+	// 		kontynuowanie nuty
+	// **************************
 	if (playerRow.stepOpen)
 	{
 		if (playerRow.rollMode != fx.ROLL_TYPE_NONE)
@@ -456,7 +456,6 @@ void Sequencer::play_microStep(uint8_t row)
 			// sprawdzamy timer microstepów, czy jest wielokrotrością rolki
 			if (((playerRow.stepTimer % rollTypeToVal(playerRow.rollMode)) == 1) && playerRow.stepTimer != 1)
 			{
-//				Serial.println("rolka!");
 
 				playerRow.noteOpen = 1;
 				playerRow.noteTimer = 0; // od tej pory timer liczy w górę
@@ -466,7 +465,6 @@ void Sequencer::play_microStep(uint8_t row)
 							playerRow.stepSent.note,
 							playerRow.stepSent.velocity,
 							playerRow.stepSent.instrument);
-//				playerRow.stepSent = patternStep; // buforujemy wysłanego stepa
 			}
 		}
 	}
