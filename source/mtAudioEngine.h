@@ -22,6 +22,12 @@ struct strActiveValuePerformance
 	  uint16_t startPoint;
 	  float cutOff;
 
+	  uint8_t volumeForceFlag;
+	  uint8_t panningForceFlag;
+	  uint8_t tuneForceFlag;
+	  uint8_t reverbSendForceFlag;
+	  uint8_t startPointForceFlag;
+	  uint8_t cutOffForceFlag;
 } ;
 
 enum fx_ID

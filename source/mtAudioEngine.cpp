@@ -303,12 +303,18 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	{
 		if(velocity < 0)
 		{
-			ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
+			if(!activeValuePerformance.volumeForceFlag)
+			{
+				ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
+			}
 			activeValuePerformance.volume=(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0))*100;
 		}
 		else
 		{
-			ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
+			if(!activeValuePerformance.volumeForceFlag)
+			{
+				ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
+			}
 			activeValuePerformance.volume=((velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount)*100;
 		}
 	}
@@ -330,9 +336,11 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	}
 
 	activeValuePerformance.panning = mtProject.instrument[instr_idx].panning;
-
-	mixerL.gain(numPanChannel,gainL);
-	mixerR.gain(numPanChannel,gainR);
+	if(!activeValuePerformance.panningForceFlag)
+	{
+		mixerL.gain(numPanChannel,gainL);
+		mixerR.gain(numPanChannel,gainR);
+	}
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
 	if(muteState == 0)
@@ -420,15 +428,20 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	{
 		if(velocity < 0)
 		{
-			ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
+			if(!activeValuePerformance.volumeForceFlag)
+			{
+				ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
+			}
 			activeValuePerformance.volume=(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0))*100;
 		}
 		else
 		{
-			ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
+			if(!activeValuePerformance.volumeForceFlag)
+			{
+				ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
+			}
 			activeValuePerformance.volume=((velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount)*100;
 		}
-
 	}
 	/*======================================================================================================*/
 	/*===============================================PANNING================================================*/
@@ -448,8 +461,12 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	}
 
 	activeValuePerformance.panning = mtProject.instrument[instr_idx].panning;
-	mixerL.gain(numPanChannel,gainL);
-	mixerR.gain(numPanChannel,gainR);
+	if(!activeValuePerformance.panningForceFlag)
+	{
+		mixerL.gain(numPanChannel,gainL);
+		mixerR.gain(numPanChannel,gainR);
+	}
+
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
 	if(muteState == 0)
@@ -532,6 +549,8 @@ void playerEngine :: modFineTune(int8_t value)
 
 void playerEngine :: modPanning(int16_t value)
 {
+	activeValuePerformance.panning = value;
+	if(activeValuePerformance.panningForceFlag) return;
 	float gainL=0,gainR=0;
 	if(value < 50)
 	{
@@ -550,7 +569,7 @@ void playerEngine :: modPanning(int16_t value)
 
 	mixerL.gain(numPanChannel,gainL);
 	mixerR.gain(numPanChannel,gainR);
-	activeValuePerformance.panning = value;
+
 }
 
 void playerEngine :: modPlayMode(uint8_t value)
@@ -677,8 +696,20 @@ void playerEngine:: update()
 
 			if(muteState == 0)
 			{
-				if(currentVelocity == -1) ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0));
-				else ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
+				if(currentVelocity == -1)
+				{
+					if(!activeValuePerformance.volumeForceFlag)
+					{
+						ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0));
+					}
+				}
+				else
+				{
+					if(!activeValuePerformance.volumeForceFlag)
+					{
+						ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
+					}
+				}
 				activeValuePerformance.volume=((currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod))*100;
 			}
 		}
@@ -856,7 +887,10 @@ void playerEngine ::changeVolumePerformanceMode(int8_t value)
 		if(activeValuePerformance.volume + value > MAX_INSTRUMENT_VOLUME) ampPtr->gain(MAX_INSTRUMENT_VOLUME/100.0);
 		else if(activeValuePerformance.volume + value < MIN_INSTRUMENT_VOLUME) ampPtr->gain(MIN_INSTRUMENT_VOLUME/100.0);
 		else ampPtr->gain((activeValuePerformance.volume + value)/100.0);
+		if(value != 0 ) activeValuePerformance.volumeForceFlag = 1;
+		else activeValuePerformance.volumeForceFlag = 0;
 	}
+
 }
 void playerEngine ::changePanningPerformanceMode(int8_t value)
 {
@@ -883,6 +917,8 @@ void playerEngine ::changePanningPerformanceMode(int8_t value)
 
 	mixerL.gain(numPanChannel,gainL);
 	mixerR.gain(numPanChannel,gainR);
+	if(value != 0 ) activeValuePerformance.panningForceFlag = 1;
+	else activeValuePerformance.panningForceFlag = 0;
 }
 void playerEngine ::changeTunePerformanceMode(int8_t value)
 {
