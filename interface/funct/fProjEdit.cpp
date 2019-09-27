@@ -134,11 +134,11 @@ cProjectEditor* PE = &projectEditor;
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
-static uint8_t functShowProjectsList();
-static uint8_t functShowTemplatesList();
-static uint8_t functCancelList();
-static uint8_t functOpenTemplate();
-static uint8_t functCreateNewTemplate();
+//static uint8_t functShowProjectsList();
+//static uint8_t functShowTemplatesList();
+//static uint8_t functCancelList();
+//static uint8_t functOpenTemplate();
+//static uint8_t functCreateNewTemplate();
 //****************************************************
 //Nowe podejście - ekran główny
 static uint8_t functNewProject();
@@ -163,6 +163,15 @@ static uint8_t functOpenProjectConfirm();
 static uint8_t functSaveChangesCancelOpen();
 static uint8_t functSaveChangesDontSaveOpen();
 static uint8_t functSaveChangesSaveOpen();
+//****************************************************
+//Export
+static uint8_t functExportSong();
+static uint8_t functExportSongStems();
+static uint8_t functExportPattern();
+static uint8_t functExportPatternStems();
+static uint8_t functExportToMOD();
+static uint8_t functExportGoBack();
+
 //****************************************************
 static uint8_t functEnterName();
 static uint8_t functSwitchModule(uint8_t button);
@@ -364,7 +373,7 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton1, buttonPress, functOpenProject);
 	FM->setButtonObj(interfaceButton4, buttonPress, functSaveProject);
 	FM->setButtonObj(interfaceButton5, buttonPress, functSaveAsProject);
-	FM->setButtonObj(interfaceButton7, buttonPress, functExport);
+	FM->setButtonObj(interfaceButton6, buttonPress, functExport);
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
@@ -417,6 +426,7 @@ uint8_t cProjectEditor::loadProjectValues()
 //Nowe podejscie ekran główny
 static uint8_t functNewProject()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	if(mtProject.values.projectNotSavedFlag)
 	{
 		PE->functShowSaveLastWindow();
@@ -439,6 +449,7 @@ static uint8_t functNewProject()
 static uint8_t functOpenProject()
 {
 
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	PE->listOnlyFolderNames("/Projects/");
 
 
@@ -453,10 +464,13 @@ static uint8_t functOpenProject()
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProjectConfirm);
 	PE->FM->setButtonObj(interfaceButton1, buttonPress, functSaveChangesCancelOpen);
 
+	PE->projectListActiveFlag = 1;
+
 	return 1;
 }
 static uint8_t functSaveProject()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	if(PE->newProjectNotSavedFlag)
 	{
 		functSaveAsProject();
@@ -470,6 +484,7 @@ static uint8_t functSaveProject()
 }
 static uint8_t functSaveAsProject()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveAsCancel);
@@ -506,8 +521,21 @@ static uint8_t functSaveAsProject()
 
 	return 1;
 }
+
+
 static uint8_t functExport()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functExportSong);
+	PE->FM->setButtonObj(interfaceButton1, buttonPress, functExportSongStems);
+	PE->FM->setButtonObj(interfaceButton2, buttonPress, functExportPattern);
+	PE->FM->setButtonObj(interfaceButton3, buttonPress, functExportPatternStems);
+	PE->FM->setButtonObj(interfaceButton4, buttonPress, functExportToMOD);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functExportGoBack);
+
+	PE->showExportWindow();
 	return 1;
 }
 
@@ -526,7 +554,7 @@ void cProjectEditor::functShowSaveLastWindow()
 
 static uint8_t functSaveChangesCancelNewProject()
 {
-
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	PE->setDefaultScreenFunct();
 
 	PE->showDefaultScreen();
@@ -534,6 +562,7 @@ static uint8_t functSaveChangesCancelNewProject()
 }
 static uint8_t functSaveChangesDontSaveNewProject()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	char currentPatch[PATCH_SIZE];
 
 	strcpy(currentPatch,"Templates/New/project.bin");
@@ -554,6 +583,7 @@ static uint8_t functSaveChangesDontSaveNewProject()
 }
 static uint8_t functSaveChangesSaveNewProject()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	if(PE->newProjectNotSavedFlag)
 	{
 		PE->showDefaultScreen();
@@ -578,6 +608,7 @@ static uint8_t functSaveChangesSaveNewProject()
 
 static uint8_t functSaveAsCancel()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	PE->setDefaultScreenFunct();
 
 	PE->showDefaultScreen();
@@ -587,6 +618,7 @@ static uint8_t functSaveAsCancel()
 
 static uint8_t functSaveAsConfirm()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	if(fileManager.startSaveAsProject(PE->name,FileManager::saveAsChecking) == 0 )
 	{
 		PE->functShowOverwriteWindow();
@@ -614,6 +646,7 @@ void cProjectEditor::functShowOverwriteWindow()
 
 static uint8_t functSaveAsOverwriteYes()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	fileManager.startSaveAsProject(PE->name,FileManager::saveAsOverwrite);
 
 	PE->saveInProgressFlag = 1;
@@ -628,6 +661,7 @@ static uint8_t functSaveAsOverwriteYes()
 
 static uint8_t functSaveAsOverwriteNo()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	PE->showDefaultScreen();
 
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
@@ -670,6 +704,7 @@ static uint8_t functSaveAsOverwriteNo()
 //open
 static uint8_t functOpenProjectConfirm()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	if(mtProject.values.projectNotSavedFlag)
 	{
 		PE->functShowSaveLastWindowBeforeOpen();
@@ -679,6 +714,7 @@ static uint8_t functOpenProjectConfirm()
 	mtProject.values.projectNotSavedFlag = 0;
 	PE->newProjectNotSavedFlag = 0;
 	PE->openInProgressFlag = 1;
+	PE->projectListActiveFlag = 0;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 	return 1;
@@ -696,23 +732,27 @@ void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 
 static uint8_t functSaveChangesCancelOpen()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+	PE->projectListActiveFlag = 0;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 	return 1;
 }
 static uint8_t functSaveChangesDontSaveOpen()
 {
-
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	fileManager.openProject(&PE->locationFilesList[PE->selectedLocation][0],projectTypeUserMade);
 	PE->newProjectNotSavedFlag = 0;
 	mtProject.values.projectNotSavedFlag = 0;
 	PE->openInProgressFlag = 1;
+	PE->projectListActiveFlag = 0;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 	return 1;
 }
 static uint8_t functSaveChangesSaveOpen()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	if(PE->newProjectNotSavedFlag)
 	{
 		PE->showDefaultScreen();
@@ -725,88 +765,126 @@ static uint8_t functSaveChangesSaveOpen()
 
 	PE->saveInProgressFlag = 1;
 	PE->openOnSaveEndFlag = 1;
-
+	PE->projectListActiveFlag = 0;
 	PE->setDefaultScreenFunct();
 
 	PE->showDefaultScreen();
 
 	return 1;
 }
-
-
 //===============================================================================================================
-uint8_t functShowProjectsList()
+//export
+static uint8_t functExportSong()
 {
-	PE->listOnlyFolderNames("/Projects/");
-
-
-	PE->showProjectsList();
-
-
-// funkcje
-	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-	PE->FM->clearAllPots();
-
-	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
-
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProject);
-	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList);
-
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 
 	return 1;
 }
-
-
-uint8_t functShowTemplatesList()
+static uint8_t functExportSongStems()
 {
-	PE->listOnlyFolderNames("/Templates/");
-
-
-	PE->showTemplatesList();
-
-
-
-
-// funkcje
-	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-	PE->FM->clearAllPots();
-
-	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
-
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functEnterName);
-	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList);
-	PE->FM->setButtonObj(interfaceButton4, buttonPress, functCreateNewTemplate);
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 
 	return 1;
 }
-
-uint8_t functCancelList()
+static uint8_t functExportPattern()
 {
-	PE->showDefaultScreen();
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+
+	return 1;
+}
+static uint8_t functExportPatternStems()
+{
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+
+	return 1;
+}
+static uint8_t functExportToMOD()
+{
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+
+	return 1;
+}
+static uint8_t functExportGoBack()
+{
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	PE->setDefaultScreenFunct();
-	return 1;
-}
-uint8_t functOpenTemplate()
-{
-
-
 	PE->showDefaultScreen();
-	PE->setDefaultScreenFunct();
-
 	return 1;
 }
+//===============================================================================================================
+//uint8_t functShowProjectsList()
+//{
+//	PE->listOnlyFolderNames("/Projects/");
+//
+//
+//	PE->showProjectsList();
+//
+//
+//// funkcje
+//	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+//	PE->FM->clearAllPots();
+//
+//	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
+//
+//	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProject);
+//	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList);
+//
+//
+//	return 1;
+//}
 
-uint8_t functCreateNewTemplate()
-{
 
-	functShowTemplatesList();
+//uint8_t functShowTemplatesList()
+//{
+//	PE->listOnlyFolderNames("/Templates/");
+//
+//
+//	PE->showTemplatesList();
+//
+//
+//
+//
+//// funkcje
+//	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+//	PE->FM->clearAllPots();
+//
+//	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
+//
+//	PE->FM->setButtonObj(interfaceButton0, buttonPress, functEnterName);
+//	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList);
+//	PE->FM->setButtonObj(interfaceButton4, buttonPress, functCreateNewTemplate);
+//
+//	return 1;
+//}
 
-	return 1;
-}
+//uint8_t functCancelList()
+//{
+//	PE->showDefaultScreen();
+//	PE->setDefaultScreenFunct();
+//	return 1;
+//}
+//uint8_t functOpenTemplate()
+//{
+//
+//
+//	PE->showDefaultScreen();
+//	PE->setDefaultScreenFunct();
+//
+//	return 1;
+//}
+
+//uint8_t functCreateNewTemplate()
+//{
+//
+//	functShowTemplatesList();
+//
+//	return 1;
+//}
 
 static uint8_t functSwitchModule(uint8_t button)
 {
 
+	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 	PE->eventFunct(eventSwitchModule,PE,&button,0);
 
 	return 1;
@@ -858,52 +936,52 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 
 }
 
-static uint8_t functEnterName()
-{
-
-	char localPatch[PATCH_SIZE];
-	uint16_t cnt=1;
-	strcpy(PE->name,"Untitled");
-	sprintf(localPatch,"Projects/%s",PE->name);
-
-	while(SD.exists(localPatch))
-	{
-	   sprintf(PE->name,"Untitled%d",cnt);
-	   sprintf(localPatch,"Projects/%s",PE->name);
-
-	   cnt++;
-	   if(cnt > 9999)
-	   {
-		   memset(PE->name,0,33);
-		   break;
-	   }
-	}
-
-	PE->editPosition = strlen(PE->name);
-	PE->keyboardPosition = BACKSPACE_PAD_1;
-	PE->lastPressedPad = BACKSPACE_PAD_1;
-	leds.setLED(BACKSPACE_PAD_1, 1, 31);
-	leds.setLED(BACKSPACE_PAD_2, 1, 31);
-
-
-	PE->showEnterNameKeyboard();
-	PE->keyboardActiveFlag = 1;
-
-
-// funkcje
-	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-	PE->FM->clearAllPots();
-
-//	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
-
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenTemplate);
-	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList);
-	PE->FM->setButtonObj(interfaceButton4, buttonPress, functCreateNewTemplate);
-	PE->FM->setButtonObj(interfaceButtonEnter, buttonPress, functConfirmKey);
-
-
-	return 1;
-}
+//static uint8_t functEnterName()
+//{
+//
+//	char localPatch[PATCH_SIZE];
+//	uint16_t cnt=1;
+//	strcpy(PE->name,"Untitled");
+//	sprintf(localPatch,"Projects/%s",PE->name);
+//
+//	while(SD.exists(localPatch))
+//	{
+//	   sprintf(PE->name,"Untitled%d",cnt);
+//	   sprintf(localPatch,"Projects/%s",PE->name);
+//
+//	   cnt++;
+//	   if(cnt > 9999)
+//	   {
+//		   memset(PE->name,0,33);
+//		   break;
+//	   }
+//	}
+//
+//	PE->editPosition = strlen(PE->name);
+//	PE->keyboardPosition = BACKSPACE_PAD_1;
+//	PE->lastPressedPad = BACKSPACE_PAD_1;
+//	leds.setLED(BACKSPACE_PAD_1, 1, 31);
+//	leds.setLED(BACKSPACE_PAD_2, 1, 31);
+//
+//
+//	PE->showEnterNameKeyboard();
+//	PE->keyboardActiveFlag = 1;
+//
+//
+//// funkcje
+//	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+//	PE->FM->clearAllPots();
+//
+////	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
+//
+//	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenTemplate);
+//	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList);
+//	PE->FM->setButtonObj(interfaceButton4, buttonPress, functCreateNewTemplate);
+//	PE->FM->setButtonObj(interfaceButtonEnter, buttonPress, functConfirmKey);
+//
+//
+//	return 1;
+//}
 
 static  uint8_t functLeft()
 {
@@ -913,7 +991,7 @@ static  uint8_t functLeft()
 		PE->showKeyboard();
 		return 1;
 	}
-	return 0;
+	return 1;
 }
 static  uint8_t functRight()
 {
@@ -923,27 +1001,41 @@ static  uint8_t functRight()
 		PE->showKeyboard();
 		return 1;
 	}
-	return 0;
+	return 1;
 }
 static  uint8_t functUp()
 {
+	if(PE->projectListActiveFlag)
+	{
+		if(PE->selectedLocation > 0 ) PE->selectedLocation--;
+		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.refreshControl(PE->fileListControl);
+		return 1;
+	}
 	if(PE->keyboardActiveFlag)
 	{
 		PE->keyboardPosition = valueMap[valueMapDirectionUp][PE->keyboardPosition];
 		PE->showKeyboard();
 		return 1;
 	}
-	return 0;
+	return 1;
 }
 static  uint8_t functDown()
 {
+	if(PE->projectListActiveFlag)
+	{
+		if(PE->selectedLocation < PE->locationFilesCount-1 ) PE->selectedLocation++;
+		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.refreshControl(PE->fileListControl);
+		return 1;
+	}
 	if(PE->keyboardActiveFlag)
 	{
 		PE->keyboardPosition = valueMap[valueMapDirectionDown][PE->keyboardPosition];
 		PE->showKeyboard();
 		return 1;
 	}
-	return 0;
+	return 1;
 }
 
 static uint8_t functConfirmKey()

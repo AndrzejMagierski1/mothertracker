@@ -180,7 +180,62 @@ uint8_t cLabel::update()
 
 	API_COLOR(colors[0]);
 
-	if(style & controlStyleManualText)
+
+	if(style & controlStyleVerticalText)
+	{
+		API_SAVE_CONTEXT();
+
+		API_BITMAP_HANDLE(textFont);
+		API_BEGIN(BITMAPS);
+
+		API_BITMAP_SIZE(NEAREST, BORDER, BORDER, fontHeight, fontHeight);
+
+		API_CMD_LOADIDENTITY();
+		API_CMD_TRANSLATE(65536 * (fontHeight/2), 65536 * (fontHeight/2));
+		API_CMD_ROTATE(270*65536 / 360);
+		API_CMD_TRANSLATE(65536 * (-fontHeight/2), 65536 * (-fontHeight/2));
+		API_CMD_SETMATRIX();
+
+
+		uint8_t strPtr = 0;
+		int16_t x = posX, y = posY;
+		int16_t txtLen = strlen(text);
+
+		if(style & controlStyleCenterX)
+		{
+			x-=fontHeight/2;
+		}
+		if(style & controlStyleCenterY)
+		{
+
+		}
+
+		API_BITMAP_HANDLE(textFont);
+		API_BEGIN(BITMAPS);
+
+		for(uint8_t i = 0; i < txtLen; i++)
+		{
+			if(x > 799 || y > 479 || x < 0 || y < 0)
+			{
+				strPtr++;
+			}
+			else if((x > 511 || y > 511) && text[strPtr] >=32)
+			{
+				API_CELL(text[strPtr++]);
+				API_VERTEX2F(x, y);
+			}
+			else if(text[strPtr] >=32)
+			{
+				API_VERTEX2II(x,y, textFont, (char)text[strPtr++]);
+			}
+
+			y-=fontWidth;
+		}
+
+		API_END();
+		API_RESTORE_CONTEXT();
+	}
+	else if(style & controlStyleManualText)
 	{
 		if(text != nullptr)
 		{

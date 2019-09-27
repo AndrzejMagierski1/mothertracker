@@ -47,7 +47,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	/*=========================================================================================================================*/
 	/*========================================PRZEPISANIE WARTOSCI ============================================================*/
 	glide=mtProject.instrument[instr_idx].glide;
-	currentTune=mtProject.instrument[instr_idx].tune;
+	if(!tuneForceFlag) currentTune=mtProject.instrument[instr_idx].tune;
 
 	if( (note + currentTune) > (MAX_NOTE-1))
 	{
@@ -585,6 +585,15 @@ void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)
 	pitchControl+=notes[currentNote+value];
 	currentTune=value;
 	setFineTune(currentFineTune,currentNote);
+}
+
+void AudioPlayMemory::setTuneForceFlag()
+{
+	tuneForceFlag = 1;
+}
+void AudioPlayMemory::clearTuneForceFlag()
+{
+	tuneForceFlag = 0;
 }
 
 void AudioPlayMemory::clean(void)

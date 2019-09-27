@@ -34,7 +34,7 @@ typedef cDisplayControl* hControl;
 //							DEFINICJE
 //#########################################################################
 
-const uint8_t controlsCount = 50;
+const uint8_t controlsCount = 55;
 const uint32_t controlsRamStartAddress = 100000;
 const uint32_t controlsRamAddressStep = 10000;
 

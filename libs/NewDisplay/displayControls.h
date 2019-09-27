@@ -20,9 +20,9 @@ enum controlsStyle
 	controlStyleCenterY = 8,
 	controlStyleRightX 	= 16,
 
-	controlStyleShowValue	= 32,
-	controlStyleManualText	= 64,
-
+	controlStyleShowValue		= 32,
+	controlStyleManualText		= 64,
+	controlStyleVerticalText 	= 128,
 
 	controlStyleFont1 	= 256,
 	controlStyleFont2 	= 512,

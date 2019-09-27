@@ -20,7 +20,7 @@ static uint16_t framesPlaces[8][4] =
 static uint32_t textLabelsColors[] =
 {
 	0xFFFFFF, // tekst
-	0x222222, // tło
+	0x111111, // tło
 	0xFF0000, // ramka
 };
 
@@ -43,57 +43,44 @@ void cPerformanceMode::initDisplayControls()
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 
-//  	strControlProperties prop;
-/*
-	// ramka
-	frameData.placesCount = 8;
-	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
-	frameData.places[3] = &framesPlaces[3][0];
-	frameData.places[4] = &framesPlaces[4][0];
-	frameData.places[5] = &framesPlaces[5][0];
-	frameData.places[6] = &framesPlaces[6][0];
-	frameData.places[7] = &framesPlaces[7][0];
-	prop.style = 0;
-	prop.value = 0;
-	prop.colors = nullptr;
-	prop.data  = &frameData;
-	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
-*/
-
 	strControlProperties prop;
+
 	// inicjalizacja kontrolek
 	for(uint8_t i = 0; i<8; i++)
 	{
-		prop2.text = (char*)"";
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
-		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 465;
-		prop2.w = 800/8-6;
-		prop2.h = 30;
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+		prop.text = (char*)"";
+		prop.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+		prop.x = (800/8)*i+(800/16);
+		prop.y = 465;
+		prop.w = 800/8-6;
+		prop.h = 30;
+		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop);
 
-		prop2.y = 437;
-		prop2.h = 28;
-		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
-
-
+		prop.y = 437;
+		prop.h = 28;
+		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop);
 	}
 
 
 	for(uint8_t i = 0; i<12; i++)
 	{
-		prop2.text = (char*)"";
-		prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
-		prop.x = (800/8)*i+(800/16);
-		prop.y = 240;
+		prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleVerticalText);
+		prop.x = (800/12)*i+(800/24);
+		prop.y = 220;
 		prop.colors = textLabelsColors;
-		//prop2.w = 800/8-6;
-		//prop2.h = 30;
+
 		if(textLabel[i] == nullptr) textLabel[i] = display.createControl<cLabel>(&prop);
+
+		prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
+		if(i%2 == 0) prop.style |= controlStyleBackground;
+		prop.x = (800/12)*i+(800/24);
+		prop.y = 280;
+		prop.colors = textLabelsColors;
+		prop.w = (800/12);
+		prop.h = 510;
+		if(value1Label[i] == nullptr) value1Label[i] = display.createControl<cLabel>(&prop);
 	}
+
 
 }
 
@@ -123,12 +110,12 @@ void cPerformanceMode::destroyDisplayControls()
 	{
 		display.destroyControl(textLabel[i]);
 		textLabel[i] = nullptr;
+
+		display.destroyControl(value1Label[i]);
+		value1Label[i] = nullptr;
 	}
 
 
-
-	display.destroyControl(frameControl);
-	frameControl = nullptr;
 
 
 }
@@ -222,9 +209,6 @@ void cPerformanceMode::showPerformanceFxes()
 	display.setControlText(titleLabel, "Performance Fxes");
 	display.refreshControl(titleLabel);
 
-	//showActualInstrument();
-
-
 	display.setControlText(bottomLabel[0], "Track 1");
 	display.setControlText(bottomLabel[1], "Track 2");
 	display.setControlText(bottomLabel[2], "Track 3");
@@ -234,50 +218,69 @@ void cPerformanceMode::showPerformanceFxes()
 	display.setControlText(bottomLabel[6], "Track 7");
 	display.setControlText(bottomLabel[7], "Track 8");
 
-	display.setControlText(topLabel[0], "[ ]");
-	display.setControlText(topLabel[1], "[ ]");
-	display.setControlText(topLabel[2], "[ ]");
-	display.setControlText(topLabel[3], "[ ]");
-	display.setControlText(topLabel[4], "[ ]");
-	display.setControlText(topLabel[5], "[ ]");
-	display.setControlText(topLabel[6], "[ ]");
-	display.setControlText(topLabel[7], "[ ]");
 
-//-------------------------------------
+	//-------------------------------------
 
-	for(uint8_t i = 0; i<trackFxesCount; i++)
+	for(uint8_t i = 0; i<performanceFxesCount; i++)
 	{
-		display.setControlText(textLabel[i], &trackFxesLabels[i][0]);
+		display.setControlText(textLabel[i], &performanceFxesLabels[i][0]);
 		display.setControlShow(textLabel[i]);
 		display.refreshControl(textLabel[i]);
+
+		showPerformaceValue(i);
 	}
 
 
 	for(uint8_t i = 0; i<8; i++)
 	{
+		refreshTracksState();
+
 		display.setControlPosition(bottomLabel[i], -1, 465);
 		display.setControlSize(bottomLabel[i], -1, 30);
 
-		display.setControlShow(topLabel[i]);
+		//display.setControlShow(topLabel[i]);
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
-		display.refreshControl(topLabel[i]);
+		//	display.refreshControl(topLabel[i]);
 	}
-
 
 	display.synchronizeRefresh();
 }
 
 
-
-//==============================================================================================================
-void cPerformanceMode::activateLabelsBorder()
+//====================================================================================================
+void cPerformanceMode::refreshTracksState()
 {
-	if(selectedPlace[mode] > frameData.placesCount-1) return;
+	for(uint8_t i = 0; i<8; i++)
+	{
+		if(tracksPerformanceState[i] == 1)
+		{
+			display.setControlText(topLabel[i], "[x]");
+		}
+		else
+		{
+			display.setControlText(topLabel[i], "[ ]");
+		}
 
-	display.setControlValue(frameControl, selectedPlace[mode]);
-	display.setControlShow(frameControl);
-	display.refreshControl(frameControl);
+		display.setControlShow(topLabel[i]);
+		display.refreshControl(topLabel[i]);
+	}
+
 }
 
-//==============================================================================================================
+
+void cPerformanceMode::showPerformaceValue(uint8_t fx)
+{
+	if(fx >= performanceFxesCount) return;
+
+//	switch(fx)
+//	{
+//	}
+
+
+	sprintf(&fxValuesText[fx][0],"%d", fxValues[fx]);
+
+	display.setControlText(value1Label[fx], &fxValuesText[fx][0]);
+	display.setControlShow(value1Label[fx]);
+	display.refreshControl(value1Label[fx]);
+}

@@ -100,7 +100,7 @@ void cSampleRecorder::initDisplayControls()
 		prop2.x = (800/8)*i+(800/16);
 		prop2.y = 437;
 		prop2.h = 28;
-		prop2.style = (controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleManualText);
+		prop2.style = (controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 
 		prop2.text = (char*)"";
@@ -110,7 +110,6 @@ void cSampleRecorder::initDisplayControls()
 		prop2.w = 800/8-6;
 		prop2.h = 30;
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
-
 
 	}
 

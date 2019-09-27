@@ -175,6 +175,17 @@ void cInterface::update()
 			}
 		}
 	}
+	if(fileManager.patternRefresh > 10000)
+	{
+		fileManager.patternRefresh = 0;
+
+		if(fileManager.patternIsChangedFlag == 1 )
+		{
+			fileManager.patternIsChangedFlag = 0;
+			fileManager.savePattern(mtProject.values.actualPattern);
+		}
+
+	}
 }
 
 
