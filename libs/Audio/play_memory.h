@@ -54,7 +54,8 @@ public:
 	void setTune(int8_t value, int8_t currentNote);
 	uint8_t playForPrev(int16_t * addr,uint32_t len);
 	uint8_t playForPrev(int16_t * addr,uint32_t len, uint8_t n);
-
+	void setTuneForceFlag();
+	void clearTuneForceFlag();
 private:
 	int16_t *next;
 	int16_t *beginning;
@@ -83,6 +84,7 @@ private:
 //    uint16_t wavetableQuantize;
 	uint8_t currentInstr_idx;
 	int8_t currentFineTune;
+	uint8_t tuneForceFlag;
 
 	struct strSamplePoints
 	{

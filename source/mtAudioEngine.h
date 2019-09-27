@@ -15,19 +15,24 @@
 
 struct strActiveValuePerformance
 {
+//****************************************************************************
+// aktualna aktywna wartosc
 	  uint8_t volume;
 	  int16_t panning;
 	  int8_t tune;
 	  uint8_t reverbSend;
-	  uint16_t startPoint;
 	  float cutOff;
-
+//****************************************************************************
 	  uint8_t volumeForceFlag;
 	  uint8_t panningForceFlag;
 	  uint8_t tuneForceFlag;
 	  uint8_t reverbSendForceFlag;
-	  uint8_t startPointForceFlag;
 	  uint8_t cutOffForceFlag;
+
+	  uint32_t startPointForcedModValue;
+	  uint8_t filterForcedEnableFlag;
+	  int8_t filterForcedType = -1;
+
 } ;
 
 enum fx_ID
