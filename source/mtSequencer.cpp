@@ -277,7 +277,10 @@ void Sequencer::play_microStep(uint8_t row)
 		if ((playerRow.noteTimer >= playerRow.noteLength))
 		{
 			sendNoteOff(row,
-						&playerRow.stepSent);
+						playerRow.stepSent.note,
+						playerRow.stepSent.velocity,
+						playerRow.stepSent.instrument);
+
 			playerRow.noteOpen = 0;
 		}
 	}
@@ -310,7 +313,9 @@ void Sequencer::play_microStep(uint8_t row)
 	boolean isRoll = 0;
 	int8_t valRoll = 0;
 
-	switch (patternStep.fx[0].type)
+	strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
+
+	switch (_fx.type)
 	{
 	case fx.FX_TYPE_ROLL:
 		if (!isRoll)
@@ -322,8 +327,7 @@ void Sequencer::play_microStep(uint8_t row)
 	case fx.FX_TYPE_CUTOFF:
 		if (!isRoll)
 		{
-			instrumentPlayer[row].modCutoff(
-											map((float) _fx.value, (float) 0,
+			instrumentPlayer[row].modCutoff(map((float) _fx.value, (float) 0,
 												(float) 127,
 												(float) 0,
 												(float) 1));
@@ -360,7 +364,11 @@ void Sequencer::play_microStep(uint8_t row)
 			{
 				// zeruj wiszącą nutę
 				playerRow.noteOpen = 0;
-				sendNoteOff(row, &playerRow.stepSent);
+				sendNoteOff(row,
+							playerRow.stepSent.note,
+							playerRow.stepSent.velocity,
+							playerRow.stepSent.instrument);
+
 				playerRow.rollMode = fx.ROLL_TYPE_NONE;
 			}
 			if (playerRow.stepOpen)
@@ -379,7 +387,11 @@ void Sequencer::play_microStep(uint8_t row)
 			if (playerRow.noteOpen)
 			{
 				playerRow.noteOpen = 0;
-				sendNoteOff(row, &playerRow.stepSent);
+				sendNoteOff(row,
+							playerRow.stepSent.note,
+							playerRow.stepSent.velocity,
+							playerRow.stepSent.instrument);
+
 				playerRow.rollMode = fx.ROLL_TYPE_NONE;
 			}
 			if (playerRow.stepOpen)
@@ -412,11 +424,17 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 		if (patternStep.note >= 0)
 		{
-			sendNoteOn(row, &patternStep);
+			sendNoteOn(row,
+						patternStep.note,
+						patternStep.velocity,
+						patternStep.instrument);
 		}
 		else if (patternStep.note == STEP_NOTE_OFF)
 		{
-			sendNoteOff(row, &patternStep);
+			sendNoteOff(row,
+						patternStep.note,
+						patternStep.velocity,
+						patternStep.instrument);
 
 		}
 	}
@@ -444,7 +462,10 @@ void Sequencer::play_microStep(uint8_t row)
 				playerRow.noteTimer = 0; // od tej pory timer liczy w górę
 				playerRow.noteLength = rollTypeToVal(playerRow.rollMode) / 2; // TODO: wyliczyć długość rolki
 
-				sendNoteOn(row, &playerRow.stepSent);
+				sendNoteOn(row,
+							playerRow.stepSent.note,
+							playerRow.stepSent.velocity,
+							playerRow.stepSent.instrument);
 //				playerRow.stepSent = patternStep; // buforujemy wysłanego stepa
 			}
 		}
@@ -1248,45 +1269,92 @@ void Sequencer::send_clock(uint8_t arg)
 
 }
 
-void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
+//void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
+//{
+//	if (player.printNotes)
+//	{
+//		Serial.printf("track %d\nnoteOn:\t%d\nvelo:\t%d\ninstr:\t%d\n\n",
+//						track,
+//						step->note,
+//						step->velocity,
+//						step->instrument);
+//	}
+//	if (step->instrument > INSTRUMENTS_COUNT)
+//	{
+//		usbMIDI.sendNoteOn(step->note, step->velocity,
+//							step->instrument - INSTRUMENTS_COUNT);
+//	}
+//	else
+//	{
+//		instrumentPlayer[track].noteOn(step->instrument, step->note,
+//										step->velocity);
+//	}
+//
+//}
+void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
+							uint8_t instrument)
 {
 	if (player.printNotes)
 	{
 		Serial.printf("track %d\nnoteOn:\t%d\nvelo:\t%d\ninstr:\t%d\n\n",
 						track,
-						step->note,
-						step->velocity,
-						step->instrument);
+						note,
+						velocity,
+						instrument);
 	}
-	if (step->instrument > INSTRUMENTS_COUNT)
+	if (instrument > INSTRUMENTS_COUNT)
 	{
-		usbMIDI.sendNoteOn(step->note, step->velocity,
-							step->instrument - INSTRUMENTS_COUNT);
+		usbMIDI.sendNoteOn(note, velocity, instrument - INSTRUMENTS_COUNT);
 	}
 	else
 	{
-		instrumentPlayer[track].noteOn(step->instrument, step->note,
-										step->velocity);
+		instrumentPlayer[track].noteOn(instrument, note, velocity);
 	}
 
 }
-
-void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
+//
+//void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
+//{
+//	if (player.printNotes)
+//	{
+//		Serial.printf(
+//				"\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
+//				track,
+//				step->note,
+//				step->velocity,
+//				step->instrument);
+//	}
+//
+//	if (step->instrument > INSTRUMENTS_COUNT)
+//	{
+//		usbMIDI.sendNoteOff(step->note, 0,
+//							step->instrument - INSTRUMENTS_COUNT);
+//	}
+//	else
+//	{
+//		instrumentPlayer[track].noteOff();
+//	}
+//}
+void Sequencer::sendNoteOff(uint8_t track,
+							uint8_t note,
+							uint8_t velocity,
+							uint8_t instrument)
 {
 	if (player.printNotes)
 	{
 		Serial.printf(
 				"\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
 				track,
-				step->note,
-				step->velocity,
-				step->instrument);
+				note,
+				velocity,
+				instrument);
 	}
 
-	if (step->instrument > INSTRUMENTS_COUNT)
+	if (instrument > INSTRUMENTS_COUNT)
 	{
-		usbMIDI.sendNoteOff(step->note, 0,
-							step->instrument - INSTRUMENTS_COUNT);
+		usbMIDI.sendNoteOff(note,
+							0,
+							instrument - INSTRUMENTS_COUNT);
 	}
 	else
 	{

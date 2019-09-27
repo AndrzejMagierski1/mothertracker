@@ -371,8 +371,10 @@ public:
 					uint8_t midiOut);
 
 	void flushNotes();
-	void sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step);
-	void sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step);
+	void sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
+					uint8_t instrument);
+	void sendNoteOff(uint8_t track, uint8_t note, uint8_t velocity,
+						uint8_t instrument);
 	void sendNoteOff(uint8_t track);
 
 	void send_clock(uint8_t);
