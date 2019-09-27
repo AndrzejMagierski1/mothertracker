@@ -292,20 +292,42 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track)
 		}
 		case mtPerfLowPass:
 		{
-			instrumentPlayer[track].changeCutoffPerformanceMode(fxValues[fx]);
-			instrumentPlayer[track].changeFilterTypePerformanceMode(fxValues[fx]);
+			if(fxValues[fx] != 0)
+			{
+				instrumentPlayer[track].changeFilterTypePerformanceMode(1);
+				instrumentPlayer[track].changeCutoffPerformanceMode(fxValues[fx]);
+			}
+			else if(fxValues[mtPerfHighPass] != 0 && fxValues[mtPerfBandPass] != 0)
+			{
+				instrumentPlayer[track].changeFilterTypePerformanceMode(0);
+			}
 			break;
 		}
 		case mtPerfHighPass:
 		{
-			instrumentPlayer[track].changeCutoffPerformanceMode(fxValues[fx]);
-			instrumentPlayer[track].changeFilterTypePerformanceMode(fxValues[fx]);
+			if(fxValues[fx] != 0)
+			{
+				instrumentPlayer[track].changeFilterTypePerformanceMode(2);
+				instrumentPlayer[track].changeCutoffPerformanceMode(fxValues[fx]);
+			}
+			else if(fxValues[mtPerfLowPass] != 0 && fxValues[mtPerfBandPass] != 0)
+			{
+				instrumentPlayer[track].changeFilterTypePerformanceMode(0);
+			}
 			break;
 		}
 		case mtPerfBandPass:
 		{
-			instrumentPlayer[track].changeCutoffPerformanceMode(fxValues[fx]);
-			instrumentPlayer[track].changeFilterTypePerformanceMode(fxValues[fx]);
+			if(fxValues[fx] != 0)
+			{
+				instrumentPlayer[track].changeFilterTypePerformanceMode(3);
+				instrumentPlayer[track].changeCutoffPerformanceMode(fxValues[fx]);
+			}
+			else if(fxValues[mtPerfLowPass] != 0 && fxValues[mtPerfHighPass] != 0)
+			{
+				instrumentPlayer[track].changeFilterTypePerformanceMode(0);
+			}
+
 			break;
 		}
 		case mtPerfReverbSend:
@@ -387,6 +409,10 @@ static  uint8_t functEncoder(int16_t value)
 				if(PM->fxValues[i] + value > 100) PM->fxValues[i] = 100;
 				else if(PM->fxValues[i] + value < -100) PM->fxValues[i] = -100;
 				else PM->fxValues[i] += value;
+				PM->fxValues[mtPerfHighPass] = 0;
+				PM->fxValues[mtPerfBandPass] = 0;
+				PM->showPerformaceValue(mtPerfBandPass);
+				PM->showPerformaceValue(mtPerfHighPass);
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
@@ -403,6 +429,10 @@ static  uint8_t functEncoder(int16_t value)
 				if(PM->fxValues[i] + value > 100) PM->fxValues[i] = 100;
 				else if(PM->fxValues[i] + value < -100) PM->fxValues[i] = -100;
 				else PM->fxValues[i] += value;
+				PM->fxValues[mtPerfLowPass] = 0;
+				PM->fxValues[mtPerfBandPass] = 0;
+				PM->showPerformaceValue(mtPerfBandPass);
+				PM->showPerformaceValue(mtPerfLowPass);
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
@@ -419,6 +449,10 @@ static  uint8_t functEncoder(int16_t value)
 				if(PM->fxValues[i] + value > 100) PM->fxValues[i] = 100;
 				else if(PM->fxValues[i] + value < -100) PM->fxValues[i] = -100;
 				else PM->fxValues[i] += value;
+				PM->fxValues[mtPerfLowPass] = 0;
+				PM->fxValues[mtPerfHighPass] = 0;
+				PM->showPerformaceValue(mtPerfLowPass);
+				PM->showPerformaceValue(mtPerfHighPass);
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
