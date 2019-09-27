@@ -23,6 +23,7 @@ AudioMixer4              mixerRec;
 AudioMixer4              mixerSourceL,mixerSourceR;
 AudioEffectFreeverb		 reverb;
 AudioEffectLimiter		 limiter[2];
+AudioBitDepth			 bitDepthControl[2];
 AudioAnalyzeRMS			 rms;
 
 AudioRecordQueue		 exportL, exportR;
@@ -90,8 +91,11 @@ AudioConnection          connect51(&reverb, 0, &mixerR, 8);
 AudioConnection          connect57(&mixerL, &limiter[0]);
 AudioConnection          connect58(&mixerR, &limiter[1]);
 
-AudioConnection          connect52(&limiter[0], 0, &mixerSourceL, 0);
-AudioConnection          connect53(&limiter[1], 0, &mixerSourceR, 0);
+AudioConnection          connect52(&limiter[0], 0, &bitDepthControl[0], 0);
+AudioConnection          connect53(&limiter[1], 0, &bitDepthControl[1], 0);
+
+AudioConnection          connect68(&bitDepthControl[0], 0, &mixerSourceL, 0);
+AudioConnection          connect69(&bitDepthControl[1], 0, &mixerSourceR, 0);
 
 AudioConnection          connect61(&playSdWav, 0, &mixerSourceL, 1);
 AudioConnection          connect62(&playSdWav, 0, &mixerSourceR, 1);
@@ -144,7 +148,8 @@ void audioEngine::init()
 	audioShield.lineInLevel(3);
 	limiter[0].begin(30000, 300, 20);
 	limiter[1].begin(30000, 300, 20);
-
+	bitDepthControl[0].setBitDepth(16);
+	bitDepthControl[1].setBitDepth(16);
 	setReverbDamping(mtProject.values.reverbDamping);
 	setReverbRoomsize(mtProject.values.reverbRoomSize);
 	for(int i=0;i<8; i++)

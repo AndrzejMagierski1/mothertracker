@@ -170,6 +170,7 @@ extern AudioOutputI2S           i2s1;
 extern LFO						lfoAmp[8];
 extern LFO						lfoFilter[8];
 extern LFO						lfoPitch[8];
+extern AudioBitDepth			bitDepthControl[2];
 
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;
