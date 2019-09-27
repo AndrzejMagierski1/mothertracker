@@ -71,7 +71,7 @@ void cPerformanceMode::initDisplayControls()
 
 		if(textLabel[i] == nullptr) textLabel[i] = display.createControl<cLabel>(&prop);
 
-		prop.style = 	(controlStyleCenterX | controlStyleCenterY );
+		prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2 );
 		prop.x = (800/12)*i+(800/24);
 		prop.y = 270;
 		prop.colors = textLabelsColors;

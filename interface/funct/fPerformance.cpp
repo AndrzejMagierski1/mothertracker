@@ -97,11 +97,6 @@ void cPerformanceMode::start(uint32_t options)
 	setDefaultScreenFunct();
 
 
-	padsBacklight.clearAllPads(0, 1, 1);
-	for(uint8_t i = 0; i < 48; i+=2)
-	{
-		padsBacklight.setBackLayer(1, 8, i);
-	}
 
 
 
@@ -178,63 +173,154 @@ void cPerformanceMode::setPerformanceFxes()
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-
-
 	padsBacklight.clearAllPads(0, 1, 1);
+	for(uint8_t i = 0; i < 48; i+=2)
+	{
+		padsBacklight.setBackLayer(1, 8, i);
+	}
+
 
 }
 
 
-
-
-void cPerformanceMode::clearPerformanceValues(uint8_t fx)
+void cPerformanceMode::toggleTrackPerformanceState(uint8_t track)
 {
+	tracksPerformanceState[track] = !tracksPerformanceState[track];
 
-	for(uint8_t j = 0; j < 8; j++)
+
+	if(tracksPerformanceState[track] == 0)
+	{
+		for(uint8_t i = 0; i < performanceFxesCount; i++)
+		{
+			clearPerformanceValues(track, i);
+		}
+	}
+	else
+	{
+		refreshPerformanceValuesForTrack(track);
+	}
+}
+
+
+void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
+{
+	switch(fx)
+	{
+	case mtPerfFxVolume:
+	{
+		instrumentPlayer[track].changeVolumePerformanceMode(0);
+		break;
+	}
+	case mtPerfPanning:
+	{
+		instrumentPlayer[track].changePanningPerformanceMode(0);
+		break;
+	}
+	case mtPerfLowPass:
+	{
+		instrumentPlayer[track].changeCutoffPerformanceMode(0);
+		instrumentPlayer[track].changeFilterTypePerformanceMode(0);
+		break;
+	}
+	case mtPerfHighPass:
+	{
+		instrumentPlayer[track].changeCutoffPerformanceMode(0);
+		instrumentPlayer[track].changeFilterTypePerformanceMode(0);
+		break;
+	}
+	case mtPerfBandPass:
+	{
+		instrumentPlayer[track].changeCutoffPerformanceMode(0);
+		instrumentPlayer[track].changeFilterTypePerformanceMode(0);
+		break;
+	}
+	case mtPerfReverbSend:
+	{
+		instrumentPlayer[track].changeReverbSendPerformanceMode(0);
+		break;
+	}
+	case mtPerfSampleStart:
+	{
+		instrumentPlayer[track].changeStartPointPerformanceMode(0);
+		break;
+	}
+	case mtPerfTune:
+	{
+		instrumentPlayer[track].changeTunePerformanceMode(0);
+		break;
+	}
+	case mtPerfSamplePlayback:
+	{
+
+		break;
+	}
+	case mtPerfStepStutter:
+	{
+
+		break;
+	}
+	case mtPerfPatternPlayMode:
+	{
+
+	}
+	case mtPerfFx11:
+	{
+
+	}
+	default: break;
+	}
+
+
+}
+
+
+void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track)
+{
+	for(uint8_t fx = 0; fx < performanceFxesCount; fx++)
 	{
 		switch(fx)
 		{
 		case mtPerfFxVolume:
 		{
-			instrumentPlayer[j].changeVolumePerformanceMode(0);
+			instrumentPlayer[track].changeVolumePerformanceMode(fxValues[fx]);
 			break;
 		}
 		case mtPerfPanning:
 		{
-			instrumentPlayer[j].changePanningPerformanceMode(0);
+			instrumentPlayer[track].changePanningPerformanceMode(fxValues[fx]);
 			break;
 		}
 		case mtPerfLowPass:
 		{
-			instrumentPlayer[j].changeCutoffPerformanceMode(0);
-			instrumentPlayer[j].changeFilterTypePerformanceMode(0);
+			instrumentPlayer[track].changeCutoffPerformanceMode(fxValues[fx]);
+			instrumentPlayer[track].changeFilterTypePerformanceMode(fxValues[fx]);
 			break;
 		}
 		case mtPerfHighPass:
 		{
-			instrumentPlayer[j].changeCutoffPerformanceMode(0);
-			instrumentPlayer[j].changeFilterTypePerformanceMode(0);
+			instrumentPlayer[track].changeCutoffPerformanceMode(fxValues[fx]);
+			instrumentPlayer[track].changeFilterTypePerformanceMode(fxValues[fx]);
 			break;
 		}
 		case mtPerfBandPass:
 		{
-			instrumentPlayer[j].changeCutoffPerformanceMode(0);
-			instrumentPlayer[j].changeFilterTypePerformanceMode(0);
+			instrumentPlayer[track].changeCutoffPerformanceMode(fxValues[fx]);
+			instrumentPlayer[track].changeFilterTypePerformanceMode(fxValues[fx]);
 			break;
 		}
 		case mtPerfReverbSend:
 		{
-			instrumentPlayer[j].changeReverbSendPerformanceMode(0);
+			instrumentPlayer[track].changeReverbSendPerformanceMode(fxValues[fx]);
 			break;
 		}
 		case mtPerfSampleStart:
 		{
-			instrumentPlayer[j].changeStartPointPerformanceMode(0);
+			instrumentPlayer[track].changeStartPointPerformanceMode(fxValues[fx]);
 			break;
 		}
 		case mtPerfTune:
 		{
-			instrumentPlayer[j].changeTunePerformanceMode(0);
+			instrumentPlayer[track].changeTunePerformanceMode(fxValues[fx]);
 			break;
 		}
 		case mtPerfSamplePlayback:
@@ -259,8 +345,6 @@ void cPerformanceMode::clearPerformanceValues(uint8_t fx)
 		}
 
 	}
-
-	fxValues[fx] = 0;
 }
 
 
@@ -567,8 +651,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 	{
 		if(state == buttonPress)
 		{
-			PM->tracksPerformanceState[button] = !PM->tracksPerformanceState[button];
-
+			PM->toggleTrackPerformanceState(button);
 			PM->refreshTracksState();
 		}
 		else if(state == buttonRelease)
@@ -613,7 +696,12 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 		if(pad/12 == 0)
 		{
-			PM->clearPerformanceValues(pad%12);
+			PM->fxValues[pad%12] = 0;
+			for(uint8_t j = 0; j < 8; j++)
+			{
+
+				PM->clearPerformanceValues(j, pad%12);
+			}
 			PM->showPerformaceValue(pad%12);
 		}
 
