@@ -130,6 +130,9 @@ const uint8_t MAX_NOTE_OFFSET =					13;
 const uint8_t MASTER_VOLUME_MIN 			=	0;
 const uint8_t MASTER_VOLUME_MAX 			=	100;
 
+const uint8_t BIT_DEPTH_MIN 				=	4;
+const uint8_t BIT_DEPTH_MAX 				=	16;
+
 const uint8_t INPUT_MIC_GAIN_DEFAULT 		=	35;
 
 const uint8_t LINE_IN_SENS_LEVEL_DEFAULT 	=	15;
@@ -404,15 +407,17 @@ struct strMtValues
 	uint8_t padBoardRootNote = 36;
 	uint8_t padBoardMaxVoices = 8;
 
-	uint8_t volume;
+	uint8_t volume = 50;
 
 	uint8_t reverbRoomSize;
 	uint8_t reverbDamping;
 	int8_t reverbPanning;
 
-	uint16_t limiterAttack;
-	float limiterRelease;
-	uint16_t limiterTreshold;
+	uint16_t limiterAttack = LIMITER_ATTACK_MAX;
+	float limiterRelease = LIMITER_RELEASE_MAX;
+	uint16_t limiterTreshold = LIMITER_TRESHOLD_MAX;
+
+	uint8_t bitDepth = 16;
 
 	int8_t patternEditStep = 1;
 
