@@ -54,6 +54,7 @@ public:
 	void setLimiterAttack(uint16_t attack);
 	void setLimiterRelease(float release);
 	void setLimiterTreshold(uint16_t threshold);
+	void setBitDepth(uint16_t bitDepth);
 	void muteTrack(uint8_t channel, uint8_t state);
 	void wavExportConnect();
 	void wavExportDisconnect();

@@ -6,13 +6,13 @@
 class AudioBitDepth : public AudioStream
 {
 public:
-	AudioBitDepth(void) : AudioStream(1, inputQueueArray) {}
+	AudioBitDepth(void) : AudioStream(1, &inputQueueArray) {}
 	virtual void update(void);
 	void setBitDepth(uint8_t val);
 private:
 	uint8_t bitDepth = 16;
 	uint16_t bitMask = 0;
-	audio_block_t *inputQueueArray[1];
+	audio_block_t * inputQueueArray;
 };
 
 

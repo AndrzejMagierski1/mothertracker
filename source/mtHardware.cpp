@@ -104,7 +104,7 @@ void initHardware()
 
 
 	audioShield.enable();
-	AudioMemory(205);
+	AudioMemory(200);
 
 
 	//engine.setOut(1);

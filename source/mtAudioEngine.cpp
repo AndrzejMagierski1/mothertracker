@@ -5,6 +5,7 @@ static cSampleRecorder* SR = &sampleRecorder;
 
 AudioInputI2S            i2sIn;
 AudioRecordQueue         queue;
+AudioOutputI2S           i2sOut;
 
 AudioPlaySdWav           playSdWav;
 AudioPlaySdWavFloat		 playSdWavFloat;
@@ -18,14 +19,13 @@ LFO						 lfoPitch[8];
 AudioFilterStateVariable filter[8];
 AudioAmplifier           amp[8];
 AudioMixer9				 mixerL,mixerR,mixerReverb;
-AudioOutputI2S           i2sOut;
+
 AudioMixer4              mixerRec;
 AudioMixer4              mixerSourceL,mixerSourceR;
 AudioEffectFreeverb		 reverb;
 AudioEffectLimiter		 limiter[2];
 AudioBitDepth			 bitDepthControl[2];
 AudioAnalyzeRMS			 rms;
-
 AudioRecordQueue		 exportL, exportR;
 
 
@@ -141,15 +141,15 @@ void audioEngine::init()
 		mixerSourceL.gain(i,1.0);
 	}
 
-	audioShield.volume(mtConfig.audioCodecConfig.headphoneVolume);
+	audioShield.volume(mtProject.values.volume/100.0);
 	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 	mtConfig.audioCodecConfig.inSelect = inputSelectLineIn;
 
 	audioShield.lineInLevel(3);
-	limiter[0].begin(30000, 300, 20);
-	limiter[1].begin(30000, 300, 20);
-	bitDepthControl[0].setBitDepth(16);
-	bitDepthControl[1].setBitDepth(16);
+	limiter[0].begin(mtProject.values.limiterTreshold, mtProject.values.limiterAttack/1000.0, mtProject.values.limiterRelease/1000.0);
+	limiter[1].begin(mtProject.values.limiterTreshold, mtProject.values.limiterAttack/1000.0, mtProject.values.limiterRelease/1000.0);
+	bitDepthControl[0].setBitDepth(mtProject.values.bitDepth);
+	bitDepthControl[1].setBitDepth(mtProject.values.bitDepth);
 	setReverbDamping(mtProject.values.reverbDamping);
 	setReverbRoomsize(mtProject.values.reverbRoomSize);
 	for(int i=0;i<8; i++)
@@ -223,6 +223,12 @@ void audioEngine::setLimiterTreshold(uint16_t threshold)
 {
 	 limiter[0].setThreshold(threshold);
 	 limiter[1].setThreshold(threshold);
+}
+
+void audioEngine::setBitDepth(uint16_t bitDepth)
+{
+	bitDepthControl[0].setBitDepth(bitDepth);
+	bitDepthControl[1].setBitDepth(bitDepth);
 }
 
 
@@ -816,7 +822,8 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
 	limiter[1].setAttack(300);
 	limiter[1].setRelease(10);
 	limiter[1].setThreshold(32000);
-
+	bitDepthControl[0].setBitDepth(16);
+	bitDepthControl[1].setBitDepth(16);
 	status = playMemPtr->playForPrev(addr,len);
 	envelopeAmpPtr->noteOn();
 
@@ -848,6 +855,8 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	limiter[1].setAttack(300);
 	limiter[1].setRelease(10);
 	limiter[1].setThreshold(32000);
+	bitDepthControl[0].setBitDepth(16);
+	bitDepthControl[1].setBitDepth(16);
 
 	status = playMemPtr->playForPrev(addr,len,note);
 	envelopeAmpPtr->noteOn();

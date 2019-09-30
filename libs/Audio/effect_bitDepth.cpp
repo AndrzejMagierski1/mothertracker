@@ -2,7 +2,7 @@
 
 void AudioBitDepth::update(void)
 {
-	audio_block_t *in;
+	audio_block_t *in = NULL;
 
 	in = receiveWritable(0);
 
