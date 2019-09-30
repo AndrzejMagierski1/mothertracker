@@ -393,7 +393,7 @@ uint8_t cList::update()
 			}
 			else if(dir == -1) // tekst porusza sie w dol (wartosci w gore)
 			{
-				for(int8_t i = 0; i < lines; i++)
+				for(int8_t i = 0; i < (lines+1); i++)
 				{
 					if(list->selectTab != NULL)
 					{

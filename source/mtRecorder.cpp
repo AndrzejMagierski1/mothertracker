@@ -164,7 +164,8 @@ void Recorder::stopSave()
 	{
 		loadAfterSaveFlag = 0;
 		fileManager.setAutoLoadFlag();
-		fileManager.assignSampleToInstrument((char*)"Recorded", currentName, currentIndex);
+		fileManager.setStart(currentIndex);
+		fileManager.assignSampleToInstrument("Recorded", currentName, currentIndex);
 	}
 }
 uint8_t Recorder::getSaveProgress()

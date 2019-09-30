@@ -6,7 +6,6 @@
 
 elapsedMillis perkTimer;
 elapsedMillis gameRefresh;
-elapsedMillis paddleTimer;
 
 laser_bullet_t bullets[BULLETS_NUMBER];
 game_params_t game;
@@ -23,10 +22,6 @@ perk_t perk[PERKS_NUM];
 
 audio_p play_audio = NULL;
 
-static uint8_t paddleOneSoundFlag;
-static uint8_t movementModifier;
-static uint8_t paddleDirection;
-static uint32_t lastSavedTime;
 static uint8_t samplesLoaded[48];//samples loaded flags
 
 static uint8_t isColliding(ball_t * ball, block_t *block , collision_type_t type);
@@ -44,8 +39,25 @@ static void randomizer();
 static void gameCleanup();
 static void randomStartVector(ball_t *ball_handle);
 static uint8_t randomSampleNum();
+static void handle_audio();
 
 
+
+void ARKANOID_pauseControl(pause_stage_t pauseControl)
+{
+	if(game.gameRunningFlag == 1)
+	{
+		if(round_params.roundStarted == 1 && game.pause == running && pauseControl == pause)
+		{
+			game.pause = pauseControl;
+		}
+		else if(game.pause == pause && pauseControl == running)
+		{
+			game.pause = pauseControl;
+			paddle.travel=0;
+		}
+	}
+}
 
 void ARKANOID_updateSamplesLoaded(uint8_t sample,uint8_t value)
 {
@@ -66,73 +78,59 @@ void ARKANOID_gameStart()
 		}
 	}
 
+	if(game.pause == pause)
+	{
+		ARKANOID_pauseControl(running);
+	}
+	else
+	{
+		ARKANOID_pauseControl(pause);
+	}
 }
 
-void ARKANOID_moveBarLeft()
+void ARKANOID_moveBarLeft(uint8_t movement)
 {
-	if(paddleDirection == 1)
-	{
-		paddleDirection=0;
-		movementModifier=0;
-		paddle.travel=0;
-	}
-
 	if(game.gameRunningFlag)
 	{
 		if(paddle.xLeftAnchor)
 		{
 			if((paddle.xLeftAnchor - PADDLE_VELOCITY)>0)
 			{
-				if(millis()-lastSavedTime < PADDLE_SPEEDUP_TIMEBASE_MS)
+				if(paddle.movDir != LEFT)
 				{
-					if(movementModifier<PADDLE_MAX_SPEED_MODIFIER)
-					{
-						movementModifier +=PADDLE_SPEED_MODIFIER;
-					}
-				}
-				else
-				{
-					movementModifier=1;
+					paddle.travel = 0;
+					paddle.movDir = LEFT;
 				}
 
-				lastSavedTime = millis();
+				paddle.travel -= (PADDLE_VELOCITY*movement);
 
-				paddle.travel-= (movementModifier * PADDLE_VELOCITY);
-
+				if(paddle.travel < -PADDLE_MAX_TRAVEL)
+				{
+					paddle.travel = -PADDLE_MAX_TRAVEL;
+				}
 			}
 		}
 	}
 }
 
-void ARKANOID_moveBarRight()
+void ARKANOID_moveBarRight(uint8_t movement)
 {
-	if(paddleDirection == LEFT)
-	{
-		paddleDirection=RIGHT;
-		movementModifier=0;
-		paddle.travel=0;
-	}
-
 	if(game.gameRunningFlag)
 	{
 		if((paddle.xLeftAnchor+paddle.Length+PADDLE_VELOCITY) < PLAY_AREA_WIDTH)
 		{
-			if(millis()-lastSavedTime < PADDLE_SPEEDUP_TIMEBASE_MS)
+			if(paddle.movDir != RIGHT)
 			{
-				if(movementModifier<PADDLE_MAX_SPEED_MODIFIER)
-				{
-					movementModifier +=PADDLE_SPEED_MODIFIER;
-				}
-			}
-			else
-			{
-				movementModifier=1;
+				paddle.travel = 0;
+				paddle.movDir = RIGHT;
 			}
 
-			lastSavedTime = millis();
+			paddle.travel += (PADDLE_VELOCITY*movement);
 
-			paddle.travel += (movementModifier * PADDLE_VELOCITY);
-
+			if(paddle.travel > PADDLE_MAX_TRAVEL)
+			{
+				paddle.travel = PADDLE_MAX_TRAVEL;
+			}
 		}
 		else
 		{
@@ -201,34 +199,29 @@ void ARKANOID_releaseFromPaddle()
 
 static void arcanoidGameInit()
 {
-	if((game.gameStage == initialized && !game.gameRunningFlag) || game.gameStage == gameWaitingForNewLevel)
+	if(game.pause == running)
 	{
-		uint8_t indestructibleBlocks=0;
-		game.gameStage=initialized;
-
-		round_params.blocksOnRound=load_level(game.level);
-
-		if(game.gameStage == gameWaitingForNewLevel)
+		if((game.gameStage == initialized && !game.gameRunningFlag) || game.gameStage == gameWaitingForNewLevel)
 		{
-			if(play_audio != NULL)
+			uint8_t indestructibleBlocks=0;
+			game.gameStage=initialized;
+
+			round_params.blocksOnRound=load_level(game.level);
+
+			for(int i=0;i<round_params.blocksOnRound;i++)
 			{
-				play_audio(bullet_block,30);
+				if(!blocks[i].isDestructible)
+				{
+					indestructibleBlocks++;
+				}
 			}
+
+			round_params.blocksToGo = round_params.blocksOnRound - indestructibleBlocks;
+
+			prepareGameData();
+
+			game.gameRunningFlag=TRUE;
 		}
-
-		for(int i=0;i<round_params.blocksOnRound;i++)
-		{
-			if(!blocks[i].isDestructible)
-			{
-				indestructibleBlocks++;
-			}
-		}
-
-		round_params.blocksToGo = round_params.blocksOnRound - indestructibleBlocks;
-
-		prepareGameData();
-
-		game.gameRunningFlag=TRUE;
 	}
 }
 
@@ -241,13 +234,16 @@ void ARKANOID_gameLoop()
 		entryScreen();
 	}
 
+	if(game.gameStage == gameoverWaitingForReinit)
+	{
+		gameoverScreen();
+	}
+
 	if(game.gameRunningFlag)
 	{
 		if(gameRefresh>GAME_REFRESH_MS)
 		{
 			gameRefresh=0;
-
-			gameDisplayBegin();
 
 			/* Logic part of the game*/
 			handle_perks();
@@ -260,8 +256,33 @@ void ARKANOID_gameLoop()
 			}
 
 			handle_blocks();
+			for(int i = 0; i < BALLS_NUM; i++)
+			{
+				if(ball[i].isActive)
+				{
+					if(ball[i].glue == ballWaitingForRelease && (ball[i].vector.x_vect != 0 || ball[i].vector.y_vect != 0))
+					{
+						ball[i].vector.x_vect = 0;
+						ball[i].vector.y_vect = 0;
+					}
+				}
+			}
+
+			if(round_params.blocksToGo == 0)
+			{
+				if(game.level < LEVELS)
+				{
+					game.gameStage=gameWaitingForNewLevel;
+					game.level++;
+					gameCleanup();
+					round_params.roundStarted=FALSE;
+					round_params.nextLevelEntry=FALSE;
+				}
+			}
 
 			/*Display part of the game*/
+			gameDisplayBegin();
+
 			for(int i=0;i<BULLETS_NUMBER;i++)
 			{
 				moveLaserBullet(&bullets[i],&paddle);
@@ -297,18 +318,6 @@ void ARKANOID_gameLoop()
 			}
 
 			updateSideTable(&game,&round_params);
-
-			if(round_params.blocksToGo == 0)
-			{
-				if(game.level < LEVELS)
-				{
-					game.gameStage=gameWaitingForNewLevel;
-					game.level++;
-					gameCleanup();
-					round_params.roundStarted=FALSE;
-					round_params.nextLevelEntry=FALSE;
-				}
-			}
 
 			gameDisplayFinish();
 		}
@@ -360,7 +369,6 @@ static void randomStartVector(ball_t *ball_handle)
 	uint8_t diff;
 	uint8_t sign=1;
 
-
 	vector = get_randomNumber(BALL_VELOCITY);
 
 	if(vector < BALL_SPEED_MODIFIER)
@@ -388,24 +396,24 @@ static void randomStartVector(ball_t *ball_handle)
 static void randomizer()
 {
 	uint8_t randomBlockNumber=0;
-	uint8_t randomPerkNum=0;
+	uint8_t perkNum=0;
 	uint8_t perksTaken=0;
 
 	while(perksTaken < PERKS_NUM)
 	{
-		randomPerkNum=perksTaken;
+		perkNum=perksTaken;
 		if(perksTaken == 6)
 		{
 			if(!(get_randomNumber(100) < LEVELUP_CHANCE))
 			{
-				randomPerkNum=NO_PERK;
+				perkNum=NO_PERK;
 				break;
 			}
 		}
 
 		randomBlockNumber=get_randomNumber(round_params.blocksOnRound);
 
-		blocks[randomBlockNumber].perkNum=randomPerkNum;
+		blocks[randomBlockNumber].perkNum=perkNum;
 		perksTaken++;
 	}
 }
@@ -413,15 +421,25 @@ static void randomizer()
 static uint8_t randomSampleNum()
 {
 	uint8_t randomNum;
+	uint8_t loopTermination=0;
 	randomNum = get_randomNumber(47);
 
-	while(samplesLoaded[randomNum] == 1)
+
+	// Jesli losowy sampel akurat nie jest zaladowany to podbijany jest do najblizszego aktywnego
+	//
+	while(samplesLoaded[randomNum] == 0)
 	{
 		randomNum++;
+		loopTermination++;
 
-		if(randomNum==48)
+		if(randomNum == 48)
 		{
-			randomNum=0;
+			randomNum = 0;
+		}
+
+		if(loopTermination >= 48)
+		{
+			break;
 		}
 	}
 
@@ -459,20 +477,16 @@ static void handle_paddle()
 		/* Hitting the paddle */
 		if(isOverlaping(&ball[i],&paddle,ball_paddle))
 		{
-			if(play_audio != NULL)
+			if(ball[i].glue != ballWaitingForRelease)
 			{
-				if(ball[i].glue != ballWaitingForRelease && !paddleOneSoundFlag)
-				{
-					play_audio(ball_paddle,2);
-					paddleOneSoundFlag=1;
-				}
+				handle_audio();
 			}
 
 			if(ball[i].allowGlue == FALSE && round_params.roundStarted)
 			{
 				ball[i].vector.y_vect = -round_params.ballSpeed + ball[i].vector.angle_modifier;
 
-				if(ball[i].xAxisAnchor <(paddle.xLeftAnchor+(paddle.Length/2)))
+				if(ball[i].xAxisAnchor < (paddle.xLeftAnchor+(paddle.Length/2)))
 				{
 					ball[i].vector.x_vect = - round_params.ballSpeed - ball[i].vector.angle_modifier;
 				}
@@ -490,7 +504,6 @@ static void handle_paddle()
 					ball[i].vector.x_vect = 0;
 					ball[i].glue=ballWaitingForRelease;
 					paddle.ballCatchPoint[i]=ball[i].xAxisAnchor - paddle.xLeftAnchor;
-
 				}
 			}
 
@@ -519,10 +532,7 @@ static void handle_laser()
 		{
 			if(isOverlaping(&bullets[i],&blocks[j],bullet_block))
 			{
-				if(play_audio != NULL)
-				{
-					play_audio(bullet_block,randomSampleNum());
-				}
+				handle_audio();
 
 				if(bullets[i].shoot==bulletOngoing)
 				{
@@ -567,10 +577,7 @@ static void handle_blocks()
 		{
 			if(isColliding(&ball[k],&blocks[i],ball_block))
 			{
-				if(play_audio != NULL)
-				{
-					play_audio(ball_block,randomSampleNum());
-				}
+				handle_audio();
 
 				if(handle_block_destroying(&blocks[i], &game, &round_params))
 				{
@@ -592,10 +599,7 @@ static void handle_perks()
 		{
 			if(perk[i].isActive)
 			{
-				if(play_audio != NULL)
-				{
-					play_audio(perk_paddle,randomSampleNum());
-				}
+				handle_audio();
 
 				perk[i].isActive=FALSE;
 				perk[i].stage=perkWaitingDeactivation;
@@ -831,45 +835,44 @@ static void handleLCDBorders(ball_t *handle_ball)
 {
 	if(handle_ball->isActive)
 	{
+		uint8_t playAudioFlag = 0;
+
 		if(getLeftEdge(handle_ball,tBall)<0)
 		{
 			handle_ball->vector.x_vect = round_params.ballSpeed;
-			paddleOneSoundFlag=0;
-
-			if(play_audio != NULL)
-			{
-				play_audio((collision_type_t)6,0);
-			}
+			playAudioFlag=1;
 		}
 		else if(getRightEdge(handle_ball,tBall) > PLAY_AREA_WIDTH)
 		{
 			handle_ball->vector.x_vect = - round_params.ballSpeed;
-
-			if(play_audio != NULL)
-			{
-				play_audio((collision_type_t)6,0);
-			}
+			playAudioFlag=1;
 		}
 
 		if(getTopEdge(handle_ball,tBall)<0)
 		{
 			handle_ball->vector.y_vect = round_params.ballSpeed;
-
-			if(play_audio != NULL)
-			{
-				play_audio((collision_type_t)6,0);
-			}
+			playAudioFlag=1;
 		}
 		else if(getBottomEdge(handle_ball,tBall) > PLAY_AREA_HEIGHT)
 		{
 			handle_ball->vector.y_vect = - round_params.ballSpeed;
-			if(play_audio != NULL)
-			{
-				play_audio((collision_type_t)6,0);
-			}
+			playAudioFlag=1;
+
 			handleBallConsuming(handle_ball);
-			paddleOneSoundFlag=0;
 		}
+
+		if(playAudioFlag)
+		{
+			handle_audio();
+		}
+	}
+}
+
+static void handle_audio()
+{
+	if(play_audio != NULL)
+	{
+		play_audio(60, randomSampleNum());
 	}
 }
 
@@ -892,7 +895,7 @@ static void handle_gameover()
 		game.currentScore=0;
 		round_params.roundStarted=FALSE;
 		round_params.nextLevelEntry=0;
-		game.level=1;
+		//game.level=1;
 	}
 
 	gameCleanup();

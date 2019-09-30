@@ -4,6 +4,13 @@
 #include "Arduino.h"
 #include "Arcanoid.h"
 
+typedef struct
+{
+	int16_t x_axis;
+	int16_t y_axis;
+}corner_t;
+
+
 uint32_t get_randomNumber(uint32_t maxvalue);
 
 void handle_angleModifier(ball_t *ball, paddle_t *paddle, round_params_t *roundparam);

@@ -20,7 +20,7 @@ static uint16_t framesPlaces[8][4] =
 static uint32_t textLabelsColors[] =
 {
 	0xFFFFFF, // tekst
-	0x222222, // tło
+	0x111111, // tło
 	0xFF0000, // ramka
 };
 
@@ -71,12 +71,13 @@ void cPerformanceMode::initDisplayControls()
 
 		if(textLabel[i] == nullptr) textLabel[i] = display.createControl<cLabel>(&prop);
 
-		prop.style = 	(controlStyleCenterX | controlStyleCenterY );
+		prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
+		if(i%2 == 0) prop.style |= controlStyleBackground;
 		prop.x = (800/12)*i+(800/24);
-		prop.y = 270;
+		prop.y = 280;
 		prop.colors = textLabelsColors;
-		//prop2.w = 800/8-6;
-		//prop2.h = 30;
+		prop.w = (800/12);
+		prop.h = 510;
 		if(value1Label[i] == nullptr) value1Label[i] = display.createControl<cLabel>(&prop);
 	}
 

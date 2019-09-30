@@ -471,6 +471,10 @@ static  uint8_t functRight()
 		SI->displayDelete(1);
 		SI->selectedPlace++;
 	}
+	else
+	{
+		SI->moveInstrListToEnd();
+	}
 
 	SI->activateLabelsBorder();
 
@@ -1354,6 +1358,8 @@ void cSampleImporter::handleSequenceCopyingLoading()
 		{
 			//fileManager.saveProject(); todo: saveWorkspace
 		}
+
+		listAllFoldersFirst();
 
 		copyType=0;
 	}

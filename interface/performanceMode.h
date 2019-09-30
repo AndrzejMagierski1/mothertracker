@@ -90,7 +90,9 @@ public:
 	void setPerformanceFxes();
 	void lightUpPadBoard();
 
-	void clearPerformanceValues(uint8_t fx);
+	void toggleTrackPerformanceState(uint8_t track);
+	void clearPerformanceValues(uint8_t track, uint8_t fx);
+	void refreshPerformanceValuesForTrack(uint8_t track);
 
 	//----------------------------------
 	void showDefaultScreen();

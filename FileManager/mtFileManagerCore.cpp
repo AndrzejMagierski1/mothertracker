@@ -107,7 +107,8 @@ void FileManager::update()
 
 		if(autoLoadFlag)
 		{
-			uint8_t startIndex = samplesImporter.getCurrentStartIndex();
+			int8_t startIndex = samplesImporter.getCurrentStartIndex();
+
 			samplesLoader.setFilesToLoad(loadLength);
 
 			if(startIndex != -1) samplesLoader.start(startIndex,currentProjectPatch);
