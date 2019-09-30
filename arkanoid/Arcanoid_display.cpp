@@ -8,6 +8,8 @@ const uint32_t perks_colors[] ={0x00FF00,0xFF0000,0x0000FF,0xFFFF00,0x00FFFF,0xF
 
 const char perks_letter[PERKS_NUM][2] ={{"E"},{"R"},{"M"},{"G"},{"S"},{"L"},{"X"}};
 
+extern game_params_t game;
+
 
 void gameDisplayBegin()
 {
@@ -54,7 +56,7 @@ void entryScreen()
 	API_END();
 
 	API_CMD_TEXT(400, 210 , 30, OPT_CENTERX, "POLYEND ARKANOID GAME");
-	API_CMD_TEXT(400, 245 , 27, OPT_CENTERX, "(Press the button to begin)");
+	API_CMD_TEXT(400, 245 , 27, OPT_CENTERX, "(Press SHIFT to begin)");
 
 	gameDisplayFinish();
 
@@ -66,10 +68,11 @@ void gameoverScreen()
 
 	API_COLOR(0xFFFFFF);
 	API_CMD_TEXT(400, 210 , 30, OPT_CENTERX, "GAME OVER");
-	API_CMD_TEXT(400, 245 , 27, OPT_CENTERX, "(Press the button to start over)");
+	API_CMD_TEXT(400, 245 , 27, OPT_CENTERX, "(Press SHIFT to start over)");
 
 	gameDisplayFinish();
 }
+
 
 void showBlocks(block_t *block_handle)
 {
@@ -81,7 +84,7 @@ void showBlocks(block_t *block_handle)
 		API_COLOR(block_colors[(block_handle->life -1)]);
 
 		API_VERTEX2F(block_handle->xLeftAnchor, block_handle->yAxis);
-		API_VERTEX2F(block_handle->xLeftAnchor + BLOCK_LENGTH, block_handle->yAxis + PADDLE_HEIGTH);
+		API_VERTEX2F(block_handle->xLeftAnchor + BLOCK_LENGTH, block_handle->yAxis + BLOCK_HEIGHT);
 
 		API_END();
 	}
@@ -96,15 +99,15 @@ void moveBall(ball_t *handle_ball)
 
 		API_BEGIN(FTPOINTS);
 
-		/* LCD BORDERS handling*/
-
-		handle_ball->xAxisAnchor += handle_ball->vector.x_vect;
-		handle_ball->yAxisAnchor += handle_ball->vector.y_vect;
+		if(game.pause == running)
+		{
+			handle_ball->xAxisAnchor += handle_ball->vector.x_vect;
+			handle_ball->yAxisAnchor += handle_ball->vector.y_vect;
+		}
 
 		API_VERTEX2F(handle_ball->xAxisAnchor,handle_ball->yAxisAnchor);
 
 		API_END();
-
 	}
 }
 
@@ -116,27 +119,30 @@ void moveBar(paddle_t *handle_bar)
 
 	API_LINE_WIDTH(PADDLE_LINE_WIDTH);
 
-	if(handle_bar->travel >=4 || handle_bar->travel <= -4)
+	if(game.pause == running)
 	{
-		if(handle_bar->travel>0)
+		if(handle_bar->travel >= 16 || handle_bar->travel <= -16)
 		{
-			handle_bar->xLeftAnchor += 4;
-			handle_bar->travel -=4;
-			if(handle_bar->xLeftAnchor + handle_bar->Length > PLAY_AREA_WIDTH)
+			if(handle_bar->travel>0)
 			{
-				handle_bar->xLeftAnchor = PLAY_AREA_WIDTH - handle_bar->Length;
-				handle_bar->travel=0;
-			}
+				handle_bar->xLeftAnchor += 16;
+				handle_bar->travel -= 16;
+				if(handle_bar->xLeftAnchor + handle_bar->Length > PLAY_AREA_WIDTH)
+				{
+					handle_bar->xLeftAnchor = PLAY_AREA_WIDTH - handle_bar->Length;
+					handle_bar->travel=0;
+				}
 
-		}
-		else
-		{
-			handle_bar->xLeftAnchor -=4;
-			handle_bar->travel +=4;
-			if(handle_bar->xLeftAnchor < 0)
+			}
+			else
 			{
-				handle_bar->xLeftAnchor = 0;
-				handle_bar->travel=0;
+				handle_bar->xLeftAnchor -=16;
+				handle_bar->travel +=16;
+				if(handle_bar->xLeftAnchor < 0)
+				{
+					handle_bar->xLeftAnchor = 0;
+					handle_bar->travel=0;
+				}
 			}
 		}
 	}
@@ -179,7 +185,10 @@ void movePerk(perk_t *handle_perk)
 		API_VERTEX2F(handle_perk->xLeftAnchor, handle_perk->yAxis);
 		API_VERTEX2F(handle_perk->xLeftAnchor + handle_perk->size, handle_perk->yAxis + handle_perk->size);
 
-		handle_perk->yAxis += PERK_VELOCITY;
+		if(game.pause == running)
+		{
+			handle_perk->yAxis += PERK_VELOCITY;
+		}
 
 		API_END();
 
@@ -245,6 +254,12 @@ void updateSideTable(game_params_t *params, round_params_t *roundparams)
 
 	API_CMD_TEXT(SIDE_TABLE_CENTER, 360 , 27, OPT_CENTERX, "Highest Score:");
 	API_CMD_TEXT(SIDE_TABLE_CENTER, 380 , 27, OPT_CENTERX, value);
+
+	if(params->pause == pause)
+	{
+		API_COLOR(0xFF0000);
+		API_CMD_TEXT(SIDE_TABLE_CENTER, 100 , 29, OPT_CENTERX, "PAUSED");
+	}
 }
 
 void moveLaserBullet(laser_bullet_t *bullet_handler,paddle_t *handle_bar)
@@ -277,7 +292,10 @@ void moveLaserBullet(laser_bullet_t *bullet_handler,paddle_t *handle_bar)
 		API_VERTEX2F(bullet_handler->xAnchor, bullet_handler->yAnchor);
 		API_VERTEX2F(bullet_handler->xAnchor+BULLET_LENGTH, bullet_handler->yAnchor - BULLET_HEIGHT);
 
-		bullet_handler->yAnchor -= BULLET_VELOCITY;
+		if(game.pause == running)
+		{
+			bullet_handler->yAnchor -= BULLET_VELOCITY;
+		}
 
 		API_END();
 	}

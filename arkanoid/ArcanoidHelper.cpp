@@ -20,14 +20,9 @@ uint32_t get_randomNumber(uint32_t maxvalue)
 
 void handle_angleModifier(ball_t *ball, paddle_t *paddle, round_params_t *roundparam)
 {
-	int16_t diff;
-
-	diff = (paddle->prevXanchor - paddle->xLeftAnchor);
-	diff = abs(diff);
-
-	if(paddleDynamicsTimer>100)
+	if(paddleDynamicsTimer > 100)
 	{
-		ball->vector.angle_modifier=diff* MAGIC_DYNAMIC_NUMBER;
+		ball->vector.angle_modifier=paddle->travel* MAGIC_DYNAMIC_NUMBER;
 
 		if(roundparam->ballSpeed == BALL_SPEED_MODIFIER)
 		{
@@ -38,15 +33,13 @@ void handle_angleModifier(ball_t *ball, paddle_t *paddle, round_params_t *roundp
 		}
 		else if(roundparam->ballSpeed == BALL_VELOCITY)
 		{
-			if(ball->vector.angle_modifier>2*ANGLE_MODIFIER_LIMIT)
+			if(ball->vector.angle_modifier > ANGLE_MODIFIER_LIMIT)
 			{
-				ball->vector.angle_modifier=2*ANGLE_MODIFIER_LIMIT;
+				ball->vector.angle_modifier = ANGLE_MODIFIER_LIMIT;
 			}
 		}
 
 		paddleDynamicsTimer =0;
-
-		paddle->prevXanchor = paddle->xLeftAnchor;
 	}
 }
 
@@ -285,6 +278,27 @@ int16_t getBottomEdge(const void *p, const basic_type_t type)
 
 	return 0;
 }
+
+static corner_t getLeftDownCorner(ball_t *ball)
+{
+	corner_t localCorner;
+
+	localCorner.x_axis = (ball->xAxisAnchor - BALL_RADIUS*cos(((45*M_PI)/180)));
+	localCorner.y_axis = (ball->yAxisAnchor + BALL_RADIUS*sin(((45*M_PI)/180)));
+
+	return localCorner;
+}
+
+static corner_t getRightDownCorner(ball_t *ball)
+{
+	corner_t localCorner;
+
+	localCorner.x_axis = (ball->xAxisAnchor + BALL_RADIUS*cos(((45*M_PI)/180)));
+	localCorner.y_axis = (ball->yAxisAnchor + BALL_RADIUS*sin(((45*M_PI)/180)));
+
+	return localCorner;
+}
+
 /*! Check if 2 objests specified by collistion type are overlaping on each other*/
 uint8_t isOverlaping(const void *p1,const  void *p2 , const collision_type_t type)
 {
@@ -295,8 +309,40 @@ uint8_t isOverlaping(const void *p1,const  void *p2 , const collision_type_t typ
 
 		if(ball->isActive)
 		{
-			return (getRightEdge(paddle,tPaddle) >= getLeftEdge(ball,tBall)) && (getLeftEdge(paddle,tPaddle) <= getRightEdge(ball,tBall))
-					&& (getTopEdge(paddle, tPaddle) <= getBottomEdge(ball, tBall));
+			uint8_t firstCheck = 0;
+
+			firstCheck = (getRightEdge(paddle,tPaddle) >= getLeftEdge(ball,tBall)) && (getLeftEdge(paddle,tPaddle) <= getRightEdge(ball,tBall))
+							&& (getTopEdge(paddle, tPaddle) <= getBottomEdge(ball, tBall));
+			if(firstCheck)
+			{
+				uint8_t secondCheck = 0;
+				corner_t localLeftDownCorner;
+				corner_t localRightDownCorner;
+
+				localLeftDownCorner = getLeftDownCorner(ball);
+				localRightDownCorner = getRightDownCorner(ball);
+
+				//Left down corner check
+				//
+				if((getRightEdge(paddle,tPaddle) > localLeftDownCorner.x_axis) && (getLeftEdge(paddle,tPaddle) <= localLeftDownCorner.x_axis)
+						&& (getTopEdge(paddle, tPaddle) <= localLeftDownCorner.y_axis))
+				{
+					secondCheck = 1;
+				}
+
+				//Right down corner check
+				//
+				if((getRightEdge(paddle,tPaddle) > localRightDownCorner.x_axis) && (getLeftEdge(paddle,tPaddle) <= localRightDownCorner.x_axis)
+						&& (getTopEdge(paddle, tPaddle) <= localRightDownCorner.y_axis))
+				{
+					secondCheck = 1;
+				}
+
+				firstCheck = secondCheck;
+
+			}
+
+			return firstCheck;
 		}
 	}
 	else if(type == ball_block)

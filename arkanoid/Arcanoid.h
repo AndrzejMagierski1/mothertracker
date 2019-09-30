@@ -36,14 +36,14 @@
 #define BALL_SPEED_MODIFIER 			2
 #define BALL_CENTER 					PADDLE_CENTER
 #define BALL_ABOVE_PADDLE_Y 			(PADDLE_Y_ANCHOR  - BALL_RADIUS) + 3
-#define MAGIC_DYNAMIC_NUMBER 			0.05f
-#define ANGLE_MODIFIER_LIMIT 			1
+#define MAGIC_DYNAMIC_NUMBER 			0.015f
+#define ANGLE_MODIFIER_LIMIT 			2
 
 
 
 /*Paddle constants*/
-#define PADDLE_VELOCITY 				2
-#define PADDLE_HEIGTH 					16
+#define PADDLE_VELOCITY 				16
+#define PADDLE_HEIGTH 					10
 #define PADDLE_EXTEND_VALUE 			50
 #define PADDLE_SHORTEN_VALUE 			50
 #define PADDLE_CENTER 					305
@@ -51,9 +51,7 @@
 #define PADDLE_X_ANCHOR 				(PADDLE_CENTER - (PADDLE_LENGTH/2))
 #define PADDLE_Y_ANCHOR 				445
 #define PADDLE_LINE_WIDTH 				48
-#define PADDLE_MAX_SPEED_MODIFIER		16
-#define PADDLE_SPEED_MODIFIER			4
-#define PADDLE_SPEEDUP_TIMEBASE_MS		300
+#define PADDLE_MAX_TRAVEL				100
 
 
 /*Bullet constants*/
@@ -70,7 +68,7 @@
 
 
 /*Other constants*/
-#define GAME_REFRESH_MS 				15
+#define GAME_REFRESH_MS 				10
 #define PLAY_AREA_HEIGHT 				LCD_HEIGTH
 #define PLAY_AREA_WIDTH  				610
 #define POINTS_PER_HIT 					5
@@ -165,6 +163,12 @@ typedef enum
 
 }bar_visual_t;
 
+typedef enum
+{
+	running,
+	pause,
+}pause_stage_t;
+
 typedef struct
 {
 	uint16_t yAxis;
@@ -176,6 +180,7 @@ typedef struct
 	bar_visual_t visual;
 	int16_t ballCatchPoint[3];
 	int16_t travel;
+	uint8_t movDir;// 0 -left, 1 -right
 
 }paddle_t;
 
@@ -227,6 +232,7 @@ typedef struct
 
 	game_stage_t gameStage;
 	uint8_t gameRunningFlag;
+	pause_stage_t pause;
 
 	uint8_t forcePerkOff;
 
@@ -267,14 +273,15 @@ typedef struct
 
 }laser_bullet_t;
 
-typedef void (*audio_p)(uint8_t type, uint32_t sampleNum);
+typedef void (*audio_p)(uint8_t pitch, uint8_t sampleNum);
 
 
-void ARKANOID_moveBarLeft();
-void ARKANOID_moveBarRight();
+void ARKANOID_moveBarLeft(uint8_t movement);
+void ARKANOID_moveBarRight(uint8_t movement);
 void ARKANOID_releaseFromPaddle();
 void ARKANOID_gameLoop();
 void ARKANOID_gameStart();
+void ARKANOID_pauseControl(pause_stage_t pauseControl);
 
 void ARKANOID_setAudioHandler(audio_p middlewarePointer);
 void ARKANOID_resetAudioHandler();
