@@ -343,6 +343,24 @@ void Sequencer::play_microStep(uint8_t row)
 									0,
 									127);
 		break;
+	case fx.FX_TYPE_RANDOM_INSTRUMENT:
+		if (stepToSend.instrument < INSTRUMENTS_COUNT)
+		{
+			stepToSend.instrument = constrain(
+					random(patternStep.instrument - _fx.value,
+							patternStep.instrument + _fx.value + 1),
+					0,
+					INSTRUMENTS_COUNT - 1);
+		}
+		else
+		{
+			stepToSend.instrument = constrain(
+					random(patternStep.instrument - _fx.value,
+							patternStep.instrument + _fx.value + 1),
+					INSTRUMENTS_COUNT,
+					INSTRUMENTS_COUNT + 16 + 1);
+		}
+		break;
 
 	default:
 		break;

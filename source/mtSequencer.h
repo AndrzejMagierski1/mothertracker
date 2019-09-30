@@ -147,6 +147,7 @@ public:
 			FX_TYPE_ROLL,
 			FX_TYPE_STEP_CHANCE,
 			FX_TYPE_RANDOM_NOTE,
+			FX_TYPE_RANDOM_INSTRUMENT,
 
 		};
 		enum enFxVal

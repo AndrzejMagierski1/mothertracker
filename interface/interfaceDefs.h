@@ -281,7 +281,7 @@ struct strInterfaceGlobals
 			"C - Roll",
 			"D - Chance",
 			"E - Random note",
-			"F - Fffffffffffffffffffff",
+			"F - Random instrument",
 			"G - Ggggggggggggggggggggg",
 			"H - Hhhhhhhhhhhhhhhhhhhhh",
 			"I - Iiiiiiiiiiiiiiiiiiiii",
