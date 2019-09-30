@@ -238,6 +238,9 @@ void Sequencer::play_microStep(uint8_t row)
 	strPlayer::strPlayerTrack & playerRow = player.row[row];
 
 	strPattern::strTrack::strStep & patternStep = patternRow.step[playerRow.actual_pos];
+	strPattern::strTrack::strStep & stepToSend = player.row[row].stepToSend;
+	stepToSend = patternStep;
+
 //	strPlayer::strPlayerTrack::strPlayerStep & playerStep = playerRow.step[playerRow.actual_pos];
 
 	//	******************************************************************************
@@ -317,20 +320,17 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 		break;
 	case fx.FX_TYPE_CUTOFF:
-		if (!isRoll)
-		{
-			instrumentPlayer[row].modCutoff(map((float) _fx.value, (float) 0,
-												(float) 127,
-												(float) 0,
-												(float) 1));
-		}
+		instrumentPlayer[row].modCutoff(map((float) _fx.value,
+											(float) 0,
+											(float) 127,
+											(float) 0,
+											(float) 1));
 		break;
 	case fx.FX_TYPE_NUDGE:
-		if (!isRoll)
-		{
-			isOffset = 1;
-			offsetValue = _fx.value + 1;
-		}
+
+		isOffset = 1;
+		offsetValue = _fx.value + 1;
+
 		break;
 	case fx.FX_TYPE_STEP_CHANCE:
 		if (random(0, 128) > _fx.value)
@@ -338,8 +338,10 @@ void Sequencer::play_microStep(uint8_t row)
 
 		break;
 	case fx.FX_TYPE_RANDOM_NOTE:
-		randomNote = random(patternStep.note - _fx.value,
-							patternStep.note + _fx.value + 1);
+		stepToSend.note = constrain(random(patternStep.note - _fx.value,
+											patternStep.note + _fx.value + 1),
+									0,
+									127);
 		break;
 
 	default:
@@ -410,7 +412,7 @@ void Sequencer::play_microStep(uint8_t row)
 		playerRow.noteLength = 9999; // w MT nie ma dugości stepa
 		playerRow.noteTimer = 0; // od tej pory timer liczy w górę
 
-		playerRow.stepSent = patternStep; // buforujemy wysłanego stepa
+		playerRow.stepSent = stepToSend; // buforujemy wysłanego stepa
 
 		// jeśli rolka to nuty są krótsze od stepa
 		if (isRoll)
@@ -421,16 +423,16 @@ void Sequencer::play_microStep(uint8_t row)
 		if (patternStep.note >= 0)
 		{
 			sendNoteOn(row,
-						patternStep.note,
-						patternStep.velocity,
-						patternStep.instrument);
+						stepToSend.note,
+						stepToSend.velocity,
+						stepToSend.instrument);
 		}
 		else if (patternStep.note == STEP_NOTE_OFF)
 		{
 			sendNoteOff(row,
-						patternStep.note,
-						patternStep.velocity,
-						patternStep.instrument);
+						playerRow.stepSent.note,
+						playerRow.stepSent.velocity,
+						playerRow.stepSent.instrument);
 
 		}
 	}

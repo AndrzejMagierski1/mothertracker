@@ -280,7 +280,7 @@ struct strInterfaceGlobals
 			"B - Cutoff",
 			"C - Roll",
 			"D - Chance",
-			"E - Eeeeeeeeeeeeeeeeeeeee",
+			"E - Random note",
 			"F - Fffffffffffffffffffff",
 			"G - Ggggggggggggggggggggg",
 			"H - Hhhhhhhhhhhhhhhhhhhhh",
