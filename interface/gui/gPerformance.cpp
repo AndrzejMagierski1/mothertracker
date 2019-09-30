@@ -273,9 +273,34 @@ void cPerformanceMode::showPerformaceValue(uint8_t fx)
 {
 	if(fx >= performanceFxesCount) return;
 
-//	switch(fx)
-//	{
-//	}
+	switch(fx)
+	{
+	case mtPerfSamplePlayback:
+	{
+		if(fxValues[fx] == 1) display.setControlText(value1Label[fx], "<<<");
+		else 					 display.setControlText(value1Label[fx], ">>>");
+		display.setControlShow(value1Label[fx]);
+		display.refreshControl(value1Label[fx]);
+		return;
+	}
+	case mtPerfStepStutter:
+	{
+		display.setControlText(value1Label[fx], &performanceStutterLabels[fxValues[fx]][0]);
+		display.setControlShow(value1Label[fx]);
+		display.refreshControl(value1Label[fx]);
+		return;
+	}
+	case mtPerfPatternPlayMode:
+	{
+		if(fxValues[fx] == 1) 		display.setControlText(value1Label[fx], "Back");
+		else if(fxValues[fx] == 2) 	display.setControlText(value1Label[fx], "Rnd");
+		else 							display.setControlText(value1Label[fx], "Fwd");
+		display.setControlShow(value1Label[fx]);
+		display.refreshControl(value1Label[fx]);
+		return;
+	}
+
+	}
 
 
 	sprintf(&fxValuesText[fx][0],"%d", fxValues[fx]);

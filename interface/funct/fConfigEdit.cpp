@@ -67,7 +67,15 @@ uint8_t flashFirmware();
 void cConfigEditor::update()
 {
 
+	if(processUpdate)
+	{
+		processUpdate = 0;
 
+		pinMode(BOOTLOADER_PIN,OUTPUT);
+		digitalWrite(BOOTLOADER_PIN,LOW);
+
+		while(1);
+	}
 
 }
 
@@ -650,10 +658,11 @@ static uint8_t functAction0()
 	{
 		if(CE->selectionActive)
 		{
-			pinMode(BOOTLOADER_PIN,OUTPUT);
-			digitalWrite(BOOTLOADER_PIN,LOW);
+			CE->processUpdate = 1;
 
-			while(1);// program sie zatrzymuje do czasu przejecia kontroli przez bootloader
+
+
+			//while(1);// program sie zatrzymuje do czasu przejecia kontroli przez bootloader
 		}
 	}
 
@@ -926,6 +935,8 @@ uint8_t flashFirmware()
 
 		CE->showWarning();
 	}
+
+
 	return 1;
 }
 
@@ -933,7 +944,7 @@ void cConfigEditor::showWarning()
 {
 	FM->clearButtonsRange(interfaceButton0, interfaceButton5);
 
-	FM->setButtonObj(interfaceButton0, buttonPress, functAction0);
+	FM->setButtonObj(interfaceButton0, buttonRelease, functAction0);
 	FM->setButtonObj(interfaceButton5, buttonPress, functAction5);
 
 	CE->selectionActive=1;
