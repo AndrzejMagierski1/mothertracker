@@ -172,6 +172,7 @@ public:
 
 	void listAllFoldersFirst();
 	void rewindListToBeggining();
+	void moveInstrListToEnd();
 
 	uint8_t explorerPositionTable[PREVIOUS_POSITION_LIFO];
 	uint8_t explorerCurrentPosition;
