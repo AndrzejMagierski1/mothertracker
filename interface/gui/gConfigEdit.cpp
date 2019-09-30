@@ -232,7 +232,7 @@ void cConfigEditor::showMasterScreen()
 	display.setControlText(bottomLabel[3], "Limit. A");
 	display.setControlText(bottomLabel[4], "Limit. R");
 	display.setControlText(bottomLabel[5], "Limit. T");
-	display.setControlText(bottomLabel[6], " ");
+	display.setControlText(bottomLabel[6], "Bit Depth");
 	display.setControlText(bottomLabel[7], " ");
 
 	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/16),  465);
@@ -260,6 +260,7 @@ void cConfigEditor::showMasterScreen()
 	showLimiterAttack();
 	showLimiterRelease();
 	showLimiterTreshold();
+	showBitDepth();
 
 
 	display.setControlHide(configGroupsListControl);
@@ -440,6 +441,19 @@ void cConfigEditor::showLimiterTreshold()
 
 	display.setControlText(topLabel[5], limitThresholdVal);
 	display.refreshControl(topLabel[5]);
+}
+
+void cConfigEditor::showBitDepth()
+{
+	sprintf(bitDepthVal,"%d",mtProject.values.bitDepth);
+
+	uint8_t localVal = map(mtProject.values.bitDepth,BIT_DEPTH_MIN,BIT_DEPTH_MAX,0,100);
+	display.setControlValue(barControl[6], localVal);
+	display.setControlShow(barControl[6]);
+	display.refreshControl(barControl[6]);
+
+	display.setControlText(topLabel[6], bitDepthVal);
+	display.refreshControl(topLabel[6]);
 }
 
 void cConfigEditor::showFirmwareUpdateLabels()

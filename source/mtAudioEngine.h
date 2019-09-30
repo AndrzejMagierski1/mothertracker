@@ -54,6 +54,7 @@ public:
 	void setLimiterAttack(uint16_t attack);
 	void setLimiterRelease(float release);
 	void setLimiterTreshold(uint16_t threshold);
+	void setBitDepth(uint16_t bitDepth);
 	void muteTrack(uint8_t channel, uint8_t state);
 	void wavExportConnect();
 	void wavExportDisconnect();
@@ -170,6 +171,7 @@ extern AudioOutputI2S           i2s1;
 extern LFO						lfoAmp[8];
 extern LFO						lfoFilter[8];
 extern LFO						lfoPitch[8];
+extern AudioBitDepth			bitDepthControl[2];
 
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;

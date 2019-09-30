@@ -101,14 +101,26 @@ void cInterface::openStartupProject()
 	{
 		char currentPatch[PATCH_SIZE];
 
-		sprintf(currentPatch,"Projects/%s",mtConfig.startup.lastProjectName);
+
+		strcpy(currentPatch,"Workspace/project.bin");
 		if(SD.exists(currentPatch))
 		{
 			if(fileManager.loadProjectFromWorkspace())
 			{
 				projectEditor.loadProjectValues();
-				strcpy(fileManager.currentProjectName,mtConfig.startup.lastProjectName);
-				sprintf(fileManager.currentProjectPatch,"Projects/%s",mtConfig.startup.lastProjectName);
+				sprintf(currentPatch,"Projects/%s",mtConfig.startup.lastProjectName);
+				if(SD.exists(currentPatch))
+				{
+					strcpy(fileManager.currentProjectName,mtConfig.startup.lastProjectName);
+					sprintf(fileManager.currentProjectPatch,"Projects/%s",mtConfig.startup.lastProjectName);
+				}
+				else
+				{
+					PE->newProjectNotSavedFlag = 1;
+					memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
+					memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);
+				}
+
 			}
 			else
 			{

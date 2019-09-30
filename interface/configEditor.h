@@ -97,6 +97,7 @@ public:
 	void showLimiterAttack();
 	void showLimiterRelease();
 	void showLimiterTreshold();
+	void showBitDepth();
 
 	//master tracks
 
@@ -121,6 +122,7 @@ public:
 	void changeLimiterAttack(int16_t value);
 	void changeLimiterRelease(int16_t value);
 	void changeLimiterTreshold(int16_t value);
+	void changeBitDepth(int16_t value);
 
 
 	//master tracks
@@ -205,6 +207,7 @@ public:
 	char limitAttackVal[8];
 	char limitReleaseVal[8];
 	char limitThresholdVal[4];
+	char bitDepthVal[3];
 
 //----------------------------------
 

@@ -42,6 +42,7 @@ static  uint8_t functSelectReverbDamping();
 static  uint8_t functSelectLimiterAttack();
 static  uint8_t functSelectLimiterRelease();
 static  uint8_t functSelectLimiterTreshold();
+static  uint8_t functSelectBitDepth();
 
 static  uint8_t functMasterHold();
 
@@ -213,7 +214,7 @@ void cConfigEditor::setMasterScreenFunct()
 	FM->setButtonObj(interfaceButton3, buttonPress, functSelectLimiterAttack);
 	FM->setButtonObj(interfaceButton4, buttonPress, functSelectLimiterRelease);
 	FM->setButtonObj(interfaceButton5, buttonPress, functSelectLimiterTreshold);
-
+	FM->setButtonObj(interfaceButton6, buttonPress, functSelectBitDepth);
 
 
 
@@ -306,7 +307,7 @@ static  uint8_t functEncoder(int16_t value)
 	case 13: CE->changeLimiterAttack(value);	break;
 	case 14: CE->changeLimiterRelease(value);	break;
 	case 15: CE->changeLimiterTreshold(value);	break;
-	case 16: 	break;
+	case 16: CE->changeBitDepth(value);			break;
 	case 17: 	break;
 
 	}
@@ -439,7 +440,7 @@ static  uint8_t functUp()
 	case 13: CE->changeLimiterAttack(1);	break;
 	case 14: CE->changeLimiterRelease(1);	break;
 	case 15: CE->changeLimiterTreshold(1);	break;
-	case 16: 	break;
+	case 16: CE->changeBitDepth(1);			break;
 	case 17: 	break;
 
 	}
@@ -483,7 +484,7 @@ static  uint8_t functDown()
 	case 13: CE->changeLimiterAttack(-1);	break;
 	case 14: CE->changeLimiterRelease(-1);	break;
 	case 15: CE->changeLimiterTreshold(-1);	break;
-	case 16: 	break;
+	case 16: CE->changeBitDepth(-1);		break;
 	case 17: 	break;
 
 	}
@@ -568,6 +569,11 @@ static  uint8_t functSelectLimiterTreshold()
 	return 1;
 }
 
+static  uint8_t functSelectBitDepth()
+{
+	CE->selectedPlace[mtConfigModeMaster] = 6;
+	CE->activateLabelsBorder();
+}
 
 static uint8_t functSwitchModule(uint8_t button)
 {
@@ -779,7 +785,7 @@ void cConfigEditor::changeLimiterAttack(int16_t value)
 	else if(mtProject.values.limiterAttack + value > LIMITER_ATTACK_MAX) mtProject.values.limiterAttack = LIMITER_ATTACK_MAX;
 	else mtProject.values.limiterAttack += value;
 
-	engine.setLimiterAttack(mtProject.values.limiterRelease);
+	engine.setLimiterAttack(mtProject.values.limiterAttack);
 	mtProject.values.projectNotSavedFlag = 1;
 	fileManager.configIsChangedFlag = 1;
 
@@ -795,7 +801,7 @@ void cConfigEditor::changeLimiterRelease(int16_t value)
 	else mtProject.values.limiterRelease += fvalue;
 
 
-	engine.setLimiterRelease(mtProject.values.limiterAttack);
+	engine.setLimiterRelease(mtProject.values.limiterRelease);
 	mtProject.values.projectNotSavedFlag = 1;
 	fileManager.configIsChangedFlag = 1;
 	showLimiterRelease();
@@ -813,6 +819,25 @@ void cConfigEditor::changeLimiterTreshold(int16_t value)
 	mtProject.values.projectNotSavedFlag = 1;
 	fileManager.configIsChangedFlag = 1;
 	showLimiterTreshold();
+}
+
+void cConfigEditor::changeBitDepth(int16_t value)
+{
+	float localValf = value * (BIT_DEPTH_MAX - BIT_DEPTH_MIN)/100.0;
+	int8_t localVal;
+
+	if(localValf < 1.0f && localValf > 0.0f ) localVal = 1;
+	else if(localValf > -1.0f && localValf < 0.0f ) localVal = -1;
+	else localVal = round(localValf);
+
+	if(mtProject.values.bitDepth + localVal < BIT_DEPTH_MIN) mtProject.values.bitDepth = BIT_DEPTH_MIN;
+	else if(mtProject.values.bitDepth + localVal > BIT_DEPTH_MAX) mtProject.values.bitDepth = BIT_DEPTH_MAX;
+	else mtProject.values.bitDepth += localVal;
+
+	engine.setBitDepth(mtProject.values.bitDepth);
+	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.configIsChangedFlag = 1;
+	showBitDepth();
 }
 
 void cConfigEditor::showFirmwareMenu()
