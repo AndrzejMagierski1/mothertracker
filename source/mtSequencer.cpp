@@ -362,6 +362,22 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 		break;
 
+	case fx.FX_TYPE_RANDOM_VELOCITY:
+		if (stepToSend.velocity >= 0)
+		{
+			stepToSend.velocity = constrain(
+					random(patternStep.velocity - _fx.value,
+							patternStep.velocity + _fx.value + 1),
+					0,
+					127);
+		}
+		else
+		{
+			stepToSend.velocity = random(0, _fx.value + 1);
+
+		}
+		break;
+
 	default:
 		break;
 	}
