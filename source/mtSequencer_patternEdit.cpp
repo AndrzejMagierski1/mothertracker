@@ -463,8 +463,47 @@ void Sequencer::changeSelectionFxValue(int16_t value)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
 
-			step->fx[0].value = constrain(step->fx[0].value + value, 0,
-											127);
+			switch (step->fx[0].type)
+			{
+			case fx.FX_TYPE_NUDGE:
+				step->fx[0].value = constrain(step->fx[0].value + value, 0,
+												47);
+				break;
+			default:
+				step->fx[0].value = constrain(step->fx[0].value + value, 0,
+												127);
+			}
+
+			step->fx[0].value2 = 1;
+			if (!isMultiSelection() && step->fx[0].type == 0)
+			{
+				step->fx[0].type = mtProject.values.lastUsedFx;
+			}
+			else
+			{
+				mtProject.values.lastUsedFx = step->fx[0].type;
+			}
+		}
+	}
+}
+void Sequencer::setSelectionFxValue(int16_t value)
+{
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep, offset = 0;
+				s <= sel->lastStep;
+				s++, offset++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+
+			step->fx[0].value = value;
+			step->fx[0].value2 = 1;
 			if (!isMultiSelection() && step->fx[0].type == 0)
 			{
 				step->fx[0].type = mtProject.values.lastUsedFx;
@@ -559,23 +598,9 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 			{
 				if (step->note >= 0)
 				{
-					if (tactButtons.isButtonPressed(interfaceButtonShift))
-					{
-
-						step->instrument = constrain(
-								step->instrument + value,
-								INSTRUMENTS_COUNT + 1,
-								INSTRUMENTS_COUNT + 1 + 16);
-					}
-					else
-					{
-
-						step->instrument = constrain(step->instrument + value,
-														0,
-														INSTRUMENTS_COUNT);
-
-					}
-
+					step->instrument = constrain(step->instrument + value,
+													INSTRUMENTS_COUNT + 1,
+													INSTRUMENTS_COUNT + 1 + 16);
 				}
 
 			}

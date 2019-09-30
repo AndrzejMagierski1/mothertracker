@@ -142,24 +142,13 @@ public:
 		enum enFxType
 		{
 			FX_TYPE_NONE,
-			FX_TYPE_OFFSET,             // 	przesuniecie wewnątrz stepa 0-48
-			FX_TYPE_CUTOFF,             // 	przesuniecie wewnątrz stepa 0-48
-			FX_TYPE_GLIDE,	// 	czas płynnego przejścia do kolejnej nuty/pitcha
-			FX_TYPE_SLIDE,	            // 	podciągnięcie do nuty w czasie
+			FX_TYPE_NUDGE,
+			FX_TYPE_CUTOFF,
 			FX_TYPE_ROLL,
-			FX_TYPE_ARP_UP,	            // 	arpeggio w górę
-			FX_TYPE_ARP_DOWN,			//
-			FX_TYPE_SP,		            //	start point
-			FX_TYPE_LP1,		        // 	loop point 1
-			FX_TYPE_LP2,		        //	loop point 2
-			FX_TYPE_MICROTUNE,
-			FX_TYPE_SAMPLE_PLAYMODE,
-			FX_TYPE_JUMP_TO_STEP,
-			FX_TYPE_JUMP_TO_PATTERN,
-			FX_TYPE_PANNING,
-			FX_TYPE_PANNING_ROLL,
-			FX_TYPE_SLICE_NUMBER,
-			FX_TYPE_PROBABILITY,
+			FX_TYPE_STEP_CHANCE,
+			FX_TYPE_RANDOM_NOTE,
+			FX_TYPE_RANDOM_INSTRUMENT,
+			FX_TYPE_RANDOM_VELOCITY,
 
 		};
 		enum enFxVal
@@ -238,44 +227,21 @@ public:
 
 			struct strStep
 			{
-//				uint8_t isOn ;
 				int8_t note = STEP_NOTE_EMPTY;
 
 				int8_t velocity = -1;	// jeśli <0 to nie wysyłamy
 				uint8_t instrument = 0;
 
-				// 2 x byte
-//				uint16_t length1;	//długość w microstepach, 1 step = 48uStepów
-
 				//FX
 				struct strFx
 				{
-					uint8_t isOn :1;
-					uint8_t type :7;
+//					uint8_t isOn;
+					uint8_t type;
 
-					union
+					struct						// FX_VAL_U8_U8
 					{
-						uint16_t value_u16;		// FX_VAL_U16
-						////////////OR////////////
-						int16_t value_i16;						// FX_VAL_I16
-						////////////OR////////////
-						struct						// FX_VAL_U8_U8
-						{
-							uint8_t value;
-							uint8_t val2_u8;
-						};
-						////////////OR////////////
-						struct						// FX_VAL_I8_I8
-						{
-							int8_t val1_i8;
-							int8_t val2_i8;
-						};
-						////////////OR////////////
-						struct						// FX_VAL_I8_I8
-						{
-							int8_t rollType;
-							int8_t rollVal;
-						};
+						uint8_t value;
+						uint8_t value2;
 					};
 
 				} fx[1];
@@ -298,7 +264,8 @@ public:
 		ELEMENTS_VELO,
 		ELEMENTS_FXes,
 	};
-	enum midiChannel{
+	enum midiChannel
+	{
 		MIDI_CHANNEL_GRID = 20
 	};
 	struct strSelection
@@ -406,8 +373,10 @@ public:
 					uint8_t midiOut);
 
 	void flushNotes();
-	void sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step);
-	void sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step);
+	void sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
+					uint8_t instrument);
+	void sendNoteOff(uint8_t track, uint8_t note, uint8_t velocity,
+						uint8_t instrument);
 	void sendNoteOff(uint8_t track);
 
 	void send_clock(uint8_t);
@@ -508,7 +477,7 @@ public:
 
 		struct strPlayerTrack
 		{
-			strPattern::strTrack::strStep stepSent;
+			strPattern::strTrack::strStep stepSent, stepToSend;
 			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
 
@@ -525,8 +494,6 @@ public:
 
 			uint8_t return2start = 0;// po zakonczonym stepie wraca do pocatku
 			uint8_t makeJump = 0;// flaga przeskoku do odpowiedniego patternu po odegraniu stepu
-
-
 
 			bool divChange = 0;
 
@@ -648,6 +615,7 @@ public:
 
 	void changeSelectionVolume(int16_t value);
 	void changeSelectionFxValue(int16_t value);
+	void setSelectionFxValue(int16_t value);
 	void changeSelectionFxType(int16_t value);
 	void setSelectionFxType(int16_t value);
 	void changeSelectionInstrument(int16_t value);

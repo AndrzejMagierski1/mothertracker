@@ -84,8 +84,8 @@ public:
 //**************************************************************************************************************************
 //************************************************ FileManagerPattern*******************************************************
 	uint8_t loadPattern(uint8_t index);
-	uint8_t setLoadPattern(uint8_t index);
-	uint8_t handleLoadPattern();
+	void setLoadPattern(uint8_t index);
+	void handleLoadPattern();
 
 	uint8_t savePattern(uint8_t index);
 	void importPatternToProject(char* filePatch, char* name, int8_t index);
