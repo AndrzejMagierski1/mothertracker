@@ -1021,9 +1021,9 @@ void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
 						velocity,
 						instrument);
 	}
-	if (instrument > INSTRUMENTS_COUNT)
+	if (instrument > INSTRUMENTS_MAX)
 	{
-		usbMIDI.sendNoteOn(note, velocity, instrument - INSTRUMENTS_COUNT);
+		usbMIDI.sendNoteOn(note, velocity, instrument - INSTRUMENTS_MAX);
 	}
 	else
 	{
@@ -1047,11 +1047,11 @@ void Sequencer::sendNoteOff(uint8_t track,
 				instrument);
 	}
 
-	if (instrument > INSTRUMENTS_COUNT)
+	if (instrument > INSTRUMENTS_MAX)
 	{
 		usbMIDI.sendNoteOff(note,
 							0,
-							instrument - INSTRUMENTS_COUNT);
+							instrument - INSTRUMENTS_MAX);
 	}
 	else
 	{

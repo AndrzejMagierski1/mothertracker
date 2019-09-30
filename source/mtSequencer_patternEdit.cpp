@@ -598,23 +598,9 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 			{
 				if (step->note >= 0)
 				{
-					if (tactButtons.isButtonPressed(interfaceButtonShift))
-					{
-
-						step->instrument = constrain(
-								step->instrument + value,
-								INSTRUMENTS_COUNT + 1,
-								INSTRUMENTS_COUNT + 1 + 16);
-					}
-					else
-					{
-
-						step->instrument = constrain(step->instrument + value,
-														0,
-														INSTRUMENTS_COUNT);
-
-					}
-
+					step->instrument = constrain(step->instrument + value,
+													INSTRUMENTS_COUNT + 1,
+													INSTRUMENTS_COUNT + 1 + 16);
 				}
 
 			}
