@@ -83,6 +83,8 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 static uint8_t functActionButton(uint8_t button, uint8_t state);
 
+static void setPatternChangeFlag();
+
 char getHexFromInt(int16_t val, uint8_t index);
 
 
@@ -156,6 +158,8 @@ void cPatternEditor::start(uint32_t options)
 
 void cPatternEditor::stop()
 {
+	setPatternChangeFlag();
+
 	if(fillState) fillState = 0;
 	if(randomiseState) randomiseState = 0;
 
@@ -907,6 +911,7 @@ uint8_t functEncoder(int16_t value)
 
 	if(PTE->selectedPlace >= 0)
 	{
+		setPatternChangeFlag();
 
 		switch(PTE->selectedPlace)
 		{
@@ -935,6 +940,7 @@ uint8_t functEncoder(int16_t value)
 	sendSelection();
 	if(tactButtons.isButtonPressed(interfaceButton7) || !isMultiSelection())
 	{
+		setPatternChangeFlag();
 		switch(PTE->editParam)
 		{
 		case 0: sequencer.changeSelectionNote(value); break;
@@ -1188,7 +1194,7 @@ static  uint8_t functUp()
 		case 2: PTE->changeActualPatternLength(1); 	 return 1;
 		case 3: PTE->changeActualPatternEditStep(1); return 1;
 		}
-
+		setPatternChangeFlag();
 		return 1;
 	}
 
@@ -1272,6 +1278,7 @@ static  uint8_t functDown()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
+		setPatternChangeFlag();
 		switch(PTE->selectedPlace)
 		{
 		case 0: PTE->changeActualTempo(-1); 			return 1;
@@ -1570,20 +1577,8 @@ static uint8_t functPasteInsert(uint8_t state)
 		}
 
 		PTE->refreshPattern();
+		setPatternChangeFlag();
 	}
-//	else if (state == buttonRelease)
-//	{
-//		if (PTE->editMode == 1)
-//		{
-//			// PASTE
-//			if (tactButtons.isButtonPressed(interfaceButtonShift))
-//			{
-//
-//			}
-//		}
-//
-//		PTE->refreshPattern();
-//	}
 
 	return 1;
 }
@@ -1648,29 +1643,9 @@ static uint8_t functCopyDelete(uint8_t state)
 		}
 
 		PTE->refreshPattern();
+		setPatternChangeFlag();
 	}
-	else if (state == buttonRelease)
-	{
-		if (PTE->editMode == 1)
-		{
-			// COPY
-			if (tactButtons.isButtonPressed(interfaceButtonShift))
-			{
-				//			sendCopySelection();
-				//			sequencer.copyToBuffer();
-			}
-			// DELETE
-			else
-			{
-//				sendSelection();
-//				sequencer.clearSelected(getSelectedElement());
-//				PTE->shiftAction = 1;
-			}
 
-		}
-
-		PTE->refreshPattern();
-	}
 	return 1;
 }
 
@@ -2018,6 +1993,7 @@ static  uint8_t functFillApply()
 		functFillCancel();
 	}
 
+	setPatternChangeFlag();
 	return 1;
 }
 
@@ -2141,6 +2117,7 @@ static  uint8_t functRandomiseApply()
 
 		//--------------------------------------------------------
 		functRandomiseCancel();
+		setPatternChangeFlag();
 	}
 	return 1;
 }
@@ -2189,6 +2166,7 @@ static uint8_t functInvert()
 
 	sendSelection();
 	sequencer.invertSelectedSteps();
+	setPatternChangeFlag();
 
 	PTE->refreshPattern();
 
@@ -2381,6 +2359,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			PTE->showStep();
 			break;
 		}
+		setPatternChangeFlag();
 
 		return 1;
 	}
@@ -2454,6 +2433,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			PTE->refreshPattern();
 		}
 
+		setPatternChangeFlag();
 	}
 
 	return 1;
@@ -2561,4 +2541,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 }
 
 
-
+static void setPatternChangeFlag()
+{
+	fileManager.patternIsChangedFlag = 1;
+}
