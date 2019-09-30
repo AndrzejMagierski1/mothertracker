@@ -475,7 +475,7 @@ public:
 
 		struct strPlayerTrack
 		{
-			strPattern::strTrack::strStep stepSent;
+			strPattern::strTrack::strStep stepSent, stepToSend;
 			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
 

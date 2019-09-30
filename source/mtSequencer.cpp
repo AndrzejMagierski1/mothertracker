@@ -10,9 +10,7 @@ Sequencer sequencer;
 
 inline void timerExternalVector()
 {
-
 	sequencer.handle_uStep_timer();
-
 }
 
 void Sequencer::init()
@@ -22,13 +20,10 @@ void Sequencer::init()
 }
 void Sequencer::handle()
 {
-//	handle_ghosts();
-
 	if (player.blink.isOpen && player.blink.timer > 500)
 	{
 		closeBlinkNote();
 	}
-
 }
 void Sequencer::closeBlinkNote(void)
 {
@@ -233,11 +228,6 @@ void Sequencer::handle_nanoStep(uint8_t step)
 			nanoStep = 1;
 	}
 
-	if ((nanoStep % 12 == 1) || step)
-		rec_metronome();
-
-//	flushNotes();
-
 }
 
 void Sequencer::play_microStep(uint8_t row)
@@ -312,7 +302,6 @@ void Sequencer::play_microStep(uint8_t row)
 
 	boolean isRoll = 0;
 	int8_t valRoll = 0;
-	int8_t randomNote = 0;
 
 	// **************************
 	// 		sprawdzamy efekty
@@ -513,91 +502,6 @@ uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
 	return 0;
 }
 
-void Sequencer::rec_metronome(void)
-{
-	if (player.isREC && player.rec_intro_timer)
-	{
-		player.rec_intro_timer++;
-
-		if (player.rec_intro_timer >= player.rec_intro_timer_max)
-		{
-
-			player.rec_intro_timer = 1;
-			player.rec_intro_step++;
-
-			if (player.rec_intro_step == 5)
-			{
-				if (debug.player)
-					Serial.println("zaraz...");
-
-				player.isPlay = 1;
-				player.uStep = 1;
-				for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
-				{
-					player.row[a].uStep = 1;
-				}
-				//player.metronome_timer = 1;
-
-				player.rec_intro_step = 0;
-				player.rec_intro_timer = 0;
-
-//				change_grid_view_mode(VIEWMODE_SEQUENCE);
-
-				if (debug.player)
-					Serial.println("nagrywam");
-
-//				reset_ruler_blink();
-			}
-		}
-
-	}
-	else if (!player.isREC)
-	{
-		player.rec_intro_timer = 0;
-		player.rec_intro_step = 0;
-	}
-}
-
-void Sequencer::handle_ghosts(void)
-{
-	// ghosty nie potrzebne w MT
-	/*
-	 for (int8_t col = 1; col <= seq[player.ramBank].track[ghost.cnt1].length;
-	 col++)
-	 {
-	 int8_t motherGhost = col; // numer stepa który jest matką ghostów
-	 uint8_t temp_row_lenght = seq[player.ramBank].track[ghost.cnt1].length;
-	 //		uint8_t temp_hitMode = seq[player.ramBank].row[ghost.cnt1].step[col].hitMode;
-	 uint8_t temp_isOn = seq[player.ramBank].track[ghost.cnt1].step[col].isOn;
-
-	 uint8_t temp_length = seq[player.ramBank].track[ghost.cnt1].step[col].length1 + 1;
-
-	 if (temp_length > 1 && temp_isOn)
-	 {
-	 while (temp_length > 1 && !seq[player.ramBank].track[ghost.cnt1].step[col + 1 + ((col + 1 > temp_row_lenght) * -temp_row_lenght)].isOn)
-	 {
-	 player.row[ghost.cnt1].step[col + 1 + ((col + 1 > temp_row_lenght) * (-(temp_row_lenght)))].isGhost = motherGhost;
-	 temp_length--;
-	 col++;
-	 }
-	 }
-	 else
-	 {
-	 player.row[ghost.cnt1].step[col].isGhost = 0;
-	 }
-	 }
-
-	 ghost.cnt1++;
-	 {
-	 if (ghost.cnt1 > ghost.cnt1_max)
-	 {
-	 ghost.cnt1 = 1;
-	 // ghost.cnt2++;
-	 // if(ghost.cnt2>ghost.cnt2_max) ghost.cnt2=1;
-	 }
-	 }*/
-}
-
 void Sequencer::play(void)
 {
 	if (debug.player)
@@ -613,20 +517,9 @@ void Sequencer::play(void)
 	for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 	{
 		player.row[a].uStep = 1;
-
-//		player.row[a].rollStep = 0;
 	}
 
 	player.metronome_timer = 1;
-
-//	send_play();
-//
-//	set_playLed(1);
-//	set_stopLed(0);
-//
-//	set_grid_view_mode(VIEWMODE_SEQUENCE_PLAY);
-//	reset_ruler_blink();
-//	init_player_timer();
 
 }
 
@@ -689,44 +582,15 @@ void Sequencer::stop(void)
 	for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 	{
 		player.row[a].uStep = 0;
-//		player.row[a].rollStep = 0;
-
 		player.row[a].makeJump = 0;
 	}
 	player.changeBank = 0;
 
 	player.swingToogle = 1;
 
-//	set_stopLed(1);
-//	set_playLed(0);
-
-//	set_grid_view_mode(VIEWMODE_SEQUENCE);
-
 	reset_actual_pos();
-//	resetLastSendMod();
 
 	allNoteOffs();
-	resetAllLearned();
-// flash_bank(player.actualBank, player.ramBank);
-}
-
-//void Sequencer::resetLastSendMod(void)
-//{
-//	for (uint8_t y = MINROW; y <= MAXROW; y++)
-//	{
-//		player.row[y].lastMod = 128;
-//	}
-//}
-
-void Sequencer::resetAllLearned(void)
-{
-	for (uint8_t x = MINSTEP; x <= MAXSTEP; x++)
-	{
-		for (uint8_t y = MINTRACK; y <= MAXTRACK; y++)
-		{
-//			player.row[y].step[x].learned = 0;
-		}
-	}
 }
 
 void Sequencer::rec(void)
@@ -738,46 +602,10 @@ void Sequencer::rec(void)
 	player.rec_intro_timer = 1;
 	player.rec_intro_step = 1;
 
-//	change_grid_view_mode(VIEWMODE_METRONOME);
-
-//	send_play();
-
 	player.swing_offset = 50.0;
-//rekonfig timera
+
 	init_player_timer();
 
-}
-
-uint8_t Sequencer::isInScale(uint8_t note, uint8_t root, uint8_t scale)
-{
-	uint8_t noteName = note % 12; //24 -> 0
-	uint8_t rootName = root % 12; //13 -> 1
-
-// Serial.print("isInScale: note: ");
-// Serial.print(noteName);
-// Serial.print("root: ");
-// Serial.print(rootName);
-// Serial.print("scale: ");
-// Serial.print(scale);
-
-	if (rootName <= noteName)
-	{
-		if (scaleDef[scale] & (1 << (noteName - rootName)))
-		{
-			// Serial.println(" <=yes!");
-			return 1;
-		}
-	}
-	else
-	{
-		if (scaleDef[scale] & (0b000000000001 << (12 - rootName + noteName)))
-		{
-			// Serial.println(" >yes!");
-			return 1;
-		}
-	}
-// Serial.println(" no...");
-	return 0;
 }
 
 uint8_t Sequencer::isRowOn(uint8_t row)
@@ -939,27 +767,6 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 		}
 	}
 
-	/*
-	 if (player.row[x].return2start)
-	 {
-	 Serial.print("ret to start ");
-	 Serial.println(x);
-	 reset_actual_pos();
-	 for (uint8_t a = 1 ; a <= 8; a++)
-	 {
-	 // player.row[x].actual_pos = 1;
-	 player.row[x].return2start = 0;
-	 timerTick = 1;
-
-	 player.uStepInd[x] = 1;
-	 }
-	 player.uStep = 1;
-
-	 // action_buttonPlay();
-
-
-	 }*/
-
 }
 
 void Sequencer::reset_actual_pos(void)
@@ -1061,79 +868,6 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 	playTimer.begin(timerExternalVector, timer_var);
 
 }
-//void Sequencer::print_uSteps()
-//{
-//	for (uint8_t a = MINROW; a <= MAXROW; a++)
-//	{
-//		Serial.println(player.row[a].uStep);
-//	}
-//}
-
-void Sequencer::addNoteOn(uint8_t note, uint8_t velocity, uint8_t channel,
-							uint8_t midiOut)
-{
-// Serial.println("add");
-
-	for (uint8_t a = 0; a < 100; a++)
-	{
-		if (noteHandler[a].free)
-		{
-			noteHandler[a].note = note;
-			noteHandler[a].velocity = velocity;
-			noteHandler[a].channel = channel;
-			noteHandler[a].midiOut = midiOut;
-
-			noteHandler[a].free = 0;
-			noteHandler[a].onOff = 1;
-			// Serial.println("addNoteOn");
-			break;
-		}
-	}
-}
-void Sequencer::addNoteOff(uint8_t note, uint8_t velocity, uint8_t channel,
-							uint8_t midiOut)
-{
-	for (uint8_t a = 0; a < 100; a++)
-	{
-		if (noteHandler[a].free)
-		{
-			noteHandler[a].note = note;
-			noteHandler[a].velocity = velocity;
-			noteHandler[a].channel = channel;
-			noteHandler[a].midiOut = midiOut;
-
-			noteHandler[a].free = 0;
-			noteHandler[a].onOff = 0;
-
-			// Serial.println("addNotefOrf");
-			break;
-		}
-	}
-}
-
-void Sequencer::flushNotes()
-{
-	flushTimer = 0;
-
-	for (uint8_t a = 0; a < 100; a++)
-	{
-		if (!noteHandler[a].free && noteHandler[a].onOff)
-		{
-//			if 		((noteHandler[a].midiOut == MIDIOUT_USB)  || (noteHandler[a].midiOut == MIDIOUT_USB_C)) 		usbMIDI.sendNoteOn(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
-//			else if ((noteHandler[a].midiOut == MIDIOUT_DIN1) || (noteHandler[a].midiOut == MIDIOUT_DIN1_C)) 		MIDI2.sendNoteOn(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
-//			else if ((noteHandler[a].midiOut == MIDIOUT_DIN2) || (noteHandler[a].midiOut == MIDIOUT_DIN2_C))		MIDI.sendNoteOn(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
-			noteHandler[a].free = 1;
-		}
-		else if (!noteHandler[a].free && !noteHandler[a].onOff)
-		{
-//			if 		((noteHandler[a].midiOut == MIDIOUT_USB)  || (noteHandler[a].midiOut == MIDIOUT_USB_C)) 		usbMIDI.sendNoteOff(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
-//			else if ((noteHandler[a].midiOut == MIDIOUT_DIN1) || (noteHandler[a].midiOut == MIDIOUT_DIN1_C)) 		MIDI2.sendNoteOff(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
-//			else if ((noteHandler[a].midiOut == MIDIOUT_DIN2) || (noteHandler[a].midiOut == MIDIOUT_DIN2_C))		MIDI.sendNoteOff(noteHandler[a].note, noteHandler[a].velocity, noteHandler[a].channel);
-			noteHandler[a].free = 1;
-		}
-	}
-	usbMIDI.send_now();
-}
 
 void Sequencer::incr_uStep(uint8_t row)
 {
@@ -1163,15 +897,6 @@ void Sequencer::divChangeQuantize(uint8_t row)
 		switchStep(row);
 	}
 }
-
-//void Sequencer::trySwitchBank()
-//{
-//	if (player.jumpNOW)
-//	{
-//		switch_bank_with_reset();
-//		player.jumpNOW = 0;
-//	}
-//}
 
 uint8_t Sequencer::getTempoDiv(int8_t val)
 {
@@ -1243,52 +968,12 @@ void Sequencer::copy_step(uint8_t from_step, uint8_t from_track,
 	seq[player.ramBank].track[to_track].step[to_step] = seq[player.ramBank].track[from_track].step[from_step];
 }
 
-void Sequencer::copy_row(uint8_t from, uint8_t to)
-{
-	from = constrain(from, MINTRACK, MAXTRACK);
-	to = constrain(to, MINTRACK, MAXTRACK);
-	seq[player.ramBank].track[to] = seq[player.ramBank].track[from];
-}
-
-void Sequencer::midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
-							uint8_t midiOut)
-{
-//	if 		((midiOut == MIDIOUT_USB)  || (midiOut == MIDIOUT_USB_C)) 		usbMIDI.sendControlChange(channel, control, value);
-//	else if ((midiOut == MIDIOUT_DIN1) || (midiOut == MIDIOUT_DIN1_C)) 		MIDI2.sendControlChange(channel, control, value);
-//	else if ((midiOut == MIDIOUT_DIN2) || (midiOut == MIDIOUT_DIN2_C))		MIDI.sendControlChange(channel, control, value);
-
-// usbMIDI.send_now();
-
-}
-
 void Sequencer::send_clock(uint8_t arg)
 {
 // TODO: wypełnić
 
 }
 
-//void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
-//{
-//	if (player.printNotes)
-//	{
-//		Serial.printf("track %d\nnoteOn:\t%d\nvelo:\t%d\ninstr:\t%d\n\n",
-//						track,
-//						step->note,
-//						step->velocity,
-//						step->instrument);
-//	}
-//	if (step->instrument > INSTRUMENTS_COUNT)
-//	{
-//		usbMIDI.sendNoteOn(step->note, step->velocity,
-//							step->instrument - INSTRUMENTS_COUNT);
-//	}
-//	else
-//	{
-//		instrumentPlayer[track].noteOn(step->instrument, step->note,
-//										step->velocity);
-//	}
-//
-//}
 void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
 							uint8_t instrument)
 {
@@ -1310,29 +995,7 @@ void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
 	}
 
 }
-//
-//void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
-//{
-//	if (player.printNotes)
-//	{
-//		Serial.printf(
-//				"\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
-//				track,
-//				step->note,
-//				step->velocity,
-//				step->instrument);
-//	}
-//
-//	if (step->instrument > INSTRUMENTS_COUNT)
-//	{
-//		usbMIDI.sendNoteOff(step->note, 0,
-//							step->instrument - INSTRUMENTS_COUNT);
-//	}
-//	else
-//	{
-//		instrumentPlayer[track].noteOff();
-//	}
-//}
+
 void Sequencer::sendNoteOff(uint8_t track,
 							uint8_t note,
 							uint8_t velocity,
@@ -1422,10 +1085,7 @@ void Sequencer::loadNextPattern(uint8_t patternNumber)
 	player.jump.nextPattern = patternNumber;
 	player.jump.jumpNOW = 0;
 
-//	Serial.printf("loadNextPattern: %d\n", patternNumber);
-
 	fileManager.setLoadPattern(patternNumber);
-
 }
 
 void Sequencer::handleNote(byte channel, byte note, byte velocity)
@@ -1451,10 +1111,6 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 			{
 				step->velocity = velocity;
 			}
-//			blinkNote(step->instrument,
-//						step->note,
-//						step->velocity,
-//						sel->firstTrack);
 
 			instrumentPlayer[sel->firstTrack].noteOff();
 			instrumentPlayer[sel->firstTrack].noteOn(step->instrument,
@@ -1468,7 +1124,5 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 		{
 			instrumentPlayer[sel->firstTrack].noteOff();
 		}
-
 	}
-
 }
