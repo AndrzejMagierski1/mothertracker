@@ -299,15 +299,77 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 	}
 
+	// **************************
+	// 		sprawdzamy PRE EFEKTY
+	// **************************
+
 	boolean startStep = 0;
 	boolean cancelStep = 0;
 
-	// **************************
-	// 		sprawdzamy efekty
-	// **************************
 	if (playerRow.uStep == 1)
 	{
 
+		strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
+		switch (_fx.type)
+		{
+
+		case fx.FX_TYPE_NUDGE:
+
+			playerRow.isOffset = 1;
+			playerRow.offsetValue = _fx.value + 1;
+
+			break;
+		case fx.FX_TYPE_STEP_CHANCE:
+			if (random(0, 128) > _fx.value)
+				cancelStep = 1;
+
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	// **************************
+	// 		odpalamy step?
+	// **************************
+
+	if (patternStep.note != STEP_NOTE_EMPTY)
+	{
+
+		// nie-offset
+		if (!playerRow.isOffset &&
+				playerRow.uStep == 1)
+		{
+			// wystartuj stepa
+			startStep = 1;
+		}
+		// offset
+		else if (playerRow.isOffset &&
+				playerRow.uStep == playerRow.offsetValue)
+		{
+			startStep = 1;
+		}
+	}
+
+	// **************************
+	// 		odpalamy stepa
+	// **************************
+	if (startStep && !cancelStep)
+	{
+		if (playerRow.stepOpen || playerRow.stepOpen)
+		{
+			sendNoteOff(row,
+						playerRow.stepSent.note,
+						playerRow.stepSent.velocity,
+						playerRow.stepSent.instrument);
+			playerRow.stepOpen = 0;
+			playerRow.noteOpen = 0;
+			playerRow.isRoll = 0;
+			playerRow.rollMode = fx.ROLL_TYPE_NONE;
+		}
+
+		// EFEKTY WŁAŚCIWE
 		strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
 		switch (_fx.type)
 		{
@@ -323,17 +385,6 @@ void Sequencer::play_microStep(uint8_t row)
 												(float) 127,
 												(float) 0,
 												(float) 1));
-			break;
-		case fx.FX_TYPE_NUDGE:
-
-			playerRow.isOffset = 1;
-			playerRow.offsetValue = _fx.value + 1;
-
-			break;
-		case fx.FX_TYPE_STEP_CHANCE:
-			if (random(0, 128) > _fx.value)
-				cancelStep = 1;
-
 			break;
 		case fx.FX_TYPE_RANDOM_NOTE:
 			stepToSend.note = constrain(
@@ -380,63 +431,7 @@ void Sequencer::play_microStep(uint8_t row)
 		default:
 			break;
 		}
-	}
 
-	if (patternStep.note != STEP_NOTE_EMPTY)
-	{
-
-		// nie-offset
-		if (!playerRow.isOffset &&
-				playerRow.uStep == 1)
-		{
-			// wystartuj stepa
-			startStep = 1;
-			if (playerRow.noteOpen)
-			{
-				// zeruj wiszącą nutę
-				playerRow.noteOpen = 0;
-				sendNoteOff(row,
-							playerRow.stepSent.note,
-							playerRow.stepSent.velocity,
-							playerRow.stepSent.instrument);
-
-				playerRow.rollMode = fx.ROLL_TYPE_NONE;
-			}
-			if (playerRow.stepOpen)
-			{
-				// zeruj wiszący step
-				playerRow.stepOpen = 0;
-				playerRow.rollMode = fx.ROLL_TYPE_NONE;
-			}
-
-		}
-		// offset
-		else if (playerRow.isOffset &&
-				playerRow.uStep == playerRow.offsetValue)
-		{
-			startStep = 1;
-			if (playerRow.noteOpen)
-			{
-				playerRow.noteOpen = 0;
-				sendNoteOff(row,
-							playerRow.stepSent.note,
-							playerRow.stepSent.velocity,
-							playerRow.stepSent.instrument);
-
-				playerRow.rollMode = fx.ROLL_TYPE_NONE;
-			}
-			if (playerRow.stepOpen)
-			{
-				playerRow.stepOpen = 0;
-				playerRow.rollMode = fx.ROLL_TYPE_NONE;
-			}
-		}
-	}
-	// **************************
-	// 		odpalamy stepa
-	// **************************
-	if (startStep && !cancelStep)
-	{
 		// ustawiamy całego stepa
 		playerRow.stepOpen = 1;
 		playerRow.stepTimer = 0; // od tej pory timer liczy w górę
@@ -457,11 +452,13 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 		if (patternStep.note >= 0)
 		{
+
 			sendNoteOn(row,
 						stepToSend.note,
 						stepToSend.velocity,
 						stepToSend.instrument);
 			playerRow.stepOpen = 1;
+			playerRow.noteOpen = 1;
 			playerRow.stepLength = 9999;
 		}
 		else if (patternStep.note == STEP_NOTE_OFF)
