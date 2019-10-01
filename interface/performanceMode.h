@@ -122,7 +122,7 @@ public:
 	void showEditFrame(uint8_t place);
 	void hideEditFrame();
 
-	void refreshFxNames();
+	void refreshFxNames(uint8_t place);
 
 	void showPerformaceValue(uint8_t fx);
 	void refreshTracksState();
@@ -157,13 +157,13 @@ public:
 	//--------performance values
 	// g
 	uint8_t fxPlaces[12] = {0,1,2,3,4,5,6,7,8,9,10,11};
-	int8_t fxValues[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
 	char fxValuesText[12][7] = {0};
 
 	// f
 	int8_t tracksPerformanceState[8] = {0};
-	int8_t fxPerformanceState[12] = {};
+	int8_t placePerformanceState[12];
 
+	int8_t fxValues[performanceFxesCount] = {0};
 
 
 };

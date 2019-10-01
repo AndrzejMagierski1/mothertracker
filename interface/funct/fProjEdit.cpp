@@ -416,6 +416,9 @@ uint8_t cProjectEditor::loadProjectValues()
 	sampleRecorder.recorderConfig.radioFreq = mtProject.values.radioFreq;
 	sampleRecorder.recorderConfig.source = mtProject.values.source;
 
+	//performanceMode.
+	//uint8_t fxPlaces[12]
+
 	return 1;
 
 }

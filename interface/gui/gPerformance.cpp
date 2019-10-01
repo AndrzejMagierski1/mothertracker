@@ -293,8 +293,16 @@ void cPerformanceMode::hideEditFrame()
 }
 
 
-void cPerformanceMode::refreshFxNames()
+void cPerformanceMode::refreshFxNames(uint8_t place)
 {
+	if(place < 12)
+	{
+		display.setControlText(textLabel[place], &performanceFxesLabels[fxPlaces[place]][0]);
+		display.setControlShow(textLabel[place]);
+		display.refreshControl(textLabel[place]);
+		return;
+	}
+
 	for(uint8_t i = 0; i<performanceFxesCount; i++)
 	{
 		display.setControlText(textLabel[i], &performanceFxesLabels[fxPlaces[i]][0]);
@@ -328,39 +336,48 @@ void cPerformanceMode::showPerformaceValue(uint8_t fx)
 {
 	if(fx >= performanceFxesCount) return;
 
-	switch(fx)
+	for(uint8_t place = 0; place < 12; place++)
 	{
-	case mtPerfSamplePlayback:
-	{
-		if(fxValues[fx] == 1) display.setControlText(value1Label[fx], "<<<");
-		else 					 display.setControlText(value1Label[fx], ">>>");
-		display.setControlShow(value1Label[fx]);
-		display.refreshControl(value1Label[fx]);
-		return;
-	}
-	case mtPerfStepStutter:
-	{
-		display.setControlText(value1Label[fx], &performanceStutterLabels[fxValues[fx]][0]);
-		display.setControlShow(value1Label[fx]);
-		display.refreshControl(value1Label[fx]);
-		return;
-	}
-	case mtPerfPatternPlayMode:
-	{
-		if(fxValues[fx] == 1) 		display.setControlText(value1Label[fx], "Back");
-		else if(fxValues[fx] == 2) 	display.setControlText(value1Label[fx], "Rnd");
-		else 							display.setControlText(value1Label[fx], "Fwd");
-		display.setControlShow(value1Label[fx]);
-		display.refreshControl(value1Label[fx]);
-		return;
-	}
 
-	}
+		if(fx != fxPlaces[place]) continue;
 
 
-	sprintf(&fxValuesText[fx][0],"%d", fxValues[fx]);
+		switch(fxPlaces[place])
+		{
+		case mtPerfSamplePlayback:
+		{
+			if(fxValues[fx] == 1) display.setControlText(value1Label[place], "<<<");
+			else 					 display.setControlText(value1Label[place], ">>>");
+			display.setControlShow(value1Label[place]);
+			display.refreshControl(value1Label[place]);
+			continue;
+		}
+		case mtPerfStepStutter:
+		{
+			display.setControlText(value1Label[place], &performanceStutterLabels[fxValues[fx]][0]);
+			display.setControlShow(value1Label[place]);
+			display.refreshControl(value1Label[place]);
+			continue;
+		}
+		case mtPerfPatternPlayMode:
+		{
+			if(fxValues[fx] == 1) 		display.setControlText(value1Label[place], "Back");
+			else if(fxValues[fx] == 2) 	display.setControlText(value1Label[place], "Rnd");
+			else 							display.setControlText(value1Label[place], "Fwd");
+			display.setControlShow(value1Label[place]);
+			display.refreshControl(value1Label[place]);
+			continue;
+		}
 
-	display.setControlText(value1Label[fx], &fxValuesText[fx][0]);
-	display.setControlShow(value1Label[fx]);
-	display.refreshControl(value1Label[fx]);
+		}
+
+
+		sprintf(&fxValuesText[place][0],"%d", fxValues[fx]);
+
+		display.setControlText(value1Label[place], &fxValuesText[place][0]);
+		display.setControlShow(value1Label[place]);
+		display.refreshControl(value1Label[place]);
+	}
+
+
 }

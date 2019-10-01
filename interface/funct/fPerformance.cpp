@@ -392,10 +392,11 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track)
 static  uint8_t functEncoder(int16_t value)
 {
 
-	for(uint8_t i = 0; i<performanceFxesCount; i++)
+	for(uint8_t place = 0; place < 12; place++)
 	{
-		if(PM->fxPerformanceState[i])
+		if(PM->placePerformanceState[place])
 		{
+			uint8_t i = PM->fxPlaces[place];
 			switch(i)
 			{
 			case mtPerfFxVolume:
@@ -567,8 +568,11 @@ static  uint8_t functLeft()
 		PM->fxPlaces[PM->performanceEditPlace] = target_fx;
 		PM->fxPlaces[PM->performanceEditPlace+1] = dest_fx;
 
-		PM->refreshFxNames();
 		PM->showEditFrame(PM->performanceEditPlace);
+		PM->refreshFxNames(PM->performanceEditPlace);
+		PM->refreshFxNames(PM->performanceEditPlace+1);
+		PM->showPerformaceValue(target_fx);
+		PM->showPerformaceValue(dest_fx);
 	}
 	else if(PM->performanceEditState)
 	{
@@ -591,8 +595,11 @@ static  uint8_t functRight()
 		PM->fxPlaces[PM->performanceEditPlace] = target_fx;
 		PM->fxPlaces[PM->performanceEditPlace-1] = dest_fx;
 
-		PM->refreshFxNames();
 		PM->showEditFrame(PM->performanceEditPlace);
+		PM->refreshFxNames(PM->performanceEditPlace);
+		PM->refreshFxNames(PM->performanceEditPlace-1);
+		PM->showPerformaceValue(target_fx);
+		PM->showPerformaceValue(dest_fx);
 	}
 	else if(PM->performanceEditState)
 	{
@@ -606,7 +613,17 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	if(PM->performanceEditState)
+	{
+		uint8_t new_fx = PM->fxPlaces[PM->performanceEditPlace]+1;
 
+		if(new_fx >= performanceFxesCount) new_fx = performanceFxesCount-1;
+
+		PM->fxPlaces[PM->performanceEditPlace] = new_fx;
+
+		PM->refreshFxNames(PM->performanceEditPlace);
+		PM->showPerformaceValue(new_fx);
+	}
 
 	return 1;
 }
@@ -614,8 +631,17 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	if(PM->performanceEditState)
+	{
+		int8_t new_fx = PM->fxPlaces[PM->performanceEditPlace]-1;
 
+		if(new_fx < 0) new_fx = 0;
 
+		PM->fxPlaces[PM->performanceEditPlace] = new_fx;
+
+		PM->refreshFxNames(PM->performanceEditPlace);
+		PM->showPerformaceValue(new_fx);
+	}
 
 	return 1;
 }
@@ -780,25 +806,24 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	{
 		padsBacklight.setFrontLayer(1,20, pad);
 
-		PM->fxPerformanceState[pad%12] = pad/12 + 1;
+		PM->placePerformanceState[pad%12] = pad/12 + 1;
 	}
 	else if(state == 0)
 	{
 
 		if(pad/12 == 0)
 		{
-			PM->fxValues[pad%12] = 0;
+			PM->fxValues[PM->fxPlaces[pad%12]] = 0;
 			for(uint8_t j = 0; j < 8; j++)
 			{
-
-				PM->clearPerformanceValues(j, pad%12);
+				PM->clearPerformanceValues(j, PM->fxPlaces[pad%12]);
 			}
-			PM->showPerformaceValue(pad%12);
+			PM->showPerformaceValue(PM->fxPlaces[pad%12]);
 		}
 
 		padsBacklight.setFrontLayer(0,0, pad);
 
-		PM->fxPerformanceState[pad%12] = 0;
+		PM->placePerformanceState[pad%12] = 0;
 
 
 	}
