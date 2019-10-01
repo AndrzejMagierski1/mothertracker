@@ -55,6 +55,9 @@ public:
 	uint8_t playForPrev(int16_t * addr,uint32_t len, uint8_t n);
 	void setTuneForceFlag();
 	void clearTuneForceFlag();
+	void setPointsForceFlag();
+	void clearPointsForceFlag();
+	void setForcedPoints(int32_t sp, int32_t lp1, int32_t lp2, int32_t ep); // -1 nie nadpisuje
 private:
 	int16_t *next;
 	int16_t *beginning;
@@ -83,7 +86,13 @@ private:
 	uint8_t currentInstr_idx;
 	int8_t currentFineTune;
 	uint8_t tuneForceFlag;
+	uint8_t pointsForceFlag;
 	uint8_t reverseDirectionFlag;
+
+	uint16_t forcedStartPoint;
+	uint16_t forcedLoopPoint1;
+	uint16_t forcedLoopPoint2;
+	uint16_t forcedEndPoint;
 
 	struct strSamplePoints
 	{

@@ -363,6 +363,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		activeValuePerformance.reverbSend=mtProject.instrument[instr_idx].reverbSend;
 	}
 
+	activeValuePerformance.startPoint = mtProject.instrument[instr_idx].startPoint;
+	activeValuePerformance.loopPoint1 = mtProject.instrument[instr_idx].loopPoint1;
+	activeValuePerformance.loopPoint2 = mtProject.instrument[instr_idx].loopPoint2;
+	activeValuePerformance.endPoint = mtProject.instrument[instr_idx].endPoint;
 
 	/*======================================================================================================*/
 	activeValuePerformance.tune = mtProject.instrument[instr_idx].tune;
@@ -905,6 +909,7 @@ void playerEngine ::changeVolumePerformanceMode(int8_t value)
 {
 	if(muteState == 0)
 	{
+		activeValuePerformance.performanceModVolume = value;
 		if(activeValuePerformance.volume + value > MAX_INSTRUMENT_VOLUME) ampPtr->gain(MAX_INSTRUMENT_VOLUME/100.0);
 		else if(activeValuePerformance.volume + value < MIN_INSTRUMENT_VOLUME) ampPtr->gain(MIN_INSTRUMENT_VOLUME/100.0);
 		else ampPtr->gain((activeValuePerformance.volume + value)/100.0);
@@ -915,6 +920,7 @@ void playerEngine ::changeVolumePerformanceMode(int8_t value)
 }
 void playerEngine ::changePanningPerformanceMode(int8_t value)
 {
+	activeValuePerformance.performanceModPanning = value;
 	int16_t localPanning;
 	if(activeValuePerformance.panning + value > PANNING_MAX) localPanning = PANNING_MAX;
 	else if(activeValuePerformance.panning + value < PANNING_MIN) localPanning = PANNING_MIN;
@@ -943,6 +949,7 @@ void playerEngine ::changePanningPerformanceMode(int8_t value)
 }
 void playerEngine ::changeTunePerformanceMode(int8_t value)
 {
+	activeValuePerformance.performanceModTune = value;
 	if(activeValuePerformance.tune + value > MAX_INSTRUMENT_TUNE) playMemPtr->setTune(MAX_INSTRUMENT_TUNE,currentNote);
 	else if(activeValuePerformance.tune + value < MIN_INSTRUMENT_TUNE) playMemPtr->setTune(MIN_INSTRUMENT_TUNE,currentNote);
 	else playMemPtr->setTune(activeValuePerformance.tune + value,currentNote);
@@ -960,6 +967,7 @@ void playerEngine ::changeTunePerformanceMode(int8_t value)
 }
 void playerEngine ::changeReverbSendPerformanceMode(int8_t value)
 {
+	activeValuePerformance.performanceModReverbSend = value;
 	if(activeValuePerformance.reverbSend + value > REVERB_SEND_MAX) mixerReverb.gain(numPanChannel,REVERB_SEND_MAX/100.0);
 	else if(activeValuePerformance.reverbSend + value < REVERB_SEND_MIN) mixerReverb.gain(numPanChannel,REVERB_SEND_MIN/100.0);
 	else mixerReverb.gain(numPanChannel,(activeValuePerformance.reverbSend + value)/100.0);
@@ -967,13 +975,90 @@ void playerEngine ::changeReverbSendPerformanceMode(int8_t value)
 	if(value != 0 ) activeValuePerformance.reverbSendForceFlag = 1;
 	else activeValuePerformance.reverbSendForceFlag = 0;
 }
-void playerEngine ::changeStartPointPerformanceMode(int8_t value)
+void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 {
+	if(value == 0)
+	{
+		playMemPtr->clearPointsForceFlag();
+		playMemPtr->setForcedPoints(-1, -1, -1, -1);
+		return;
+	}
+	if(mtProject.instrument[currentInstrument_idx].playMode != singleShot)
+	{
+		if(activeValuePerformance.startPoint + value >= activeValuePerformance.endPoint )
+		{
+			activeValuePerformance.performanceModStartPoint = value;
+			activeValuePerformance.performanceModLoopPoint1 = activeValuePerformance.endPoint - activeValuePerformance.loopPoint1;
+			activeValuePerformance.performanceModLoopPoint2 = activeValuePerformance.endPoint - activeValuePerformance.loopPoint2;
+			activeValuePerformance.performanceModEndPoint = 0;
+			playMemPtr->setForcedPoints(activeValuePerformance.endPoint, activeValuePerformance.endPoint,
+										activeValuePerformance.endPoint, activeValuePerformance.endPoint);
+			playMemPtr->setPointsForceFlag();
+		}
+		else if(activeValuePerformance.startPoint + value <= SAMPLE_POINT_POS_MIN)
+		{
+			activeValuePerformance.performanceModStartPoint = value;
+			activeValuePerformance.performanceModLoopPoint1 = 0;
+			activeValuePerformance.performanceModLoopPoint2 = 0;
+			activeValuePerformance.performanceModEndPoint = 0;
+			playMemPtr->setForcedPoints(SAMPLE_POINT_POS_MIN, activeValuePerformance.loopPoint1,
+										activeValuePerformance.loopPoint2, activeValuePerformance.endPoint);
+			playMemPtr->setPointsForceFlag();
+		}
+		else
+		{
+			if(activeValuePerformance.startPoint + value >= activeValuePerformance.loopPoint1)
+			{
+				int32_t loopMod = activeValuePerformance.startPoint + value - 1 - activeValuePerformance.loopPoint1;
+				if(activeValuePerformance.loopPoint2 + loopMod > activeValuePerformance.endPoint)
+				{
+					loopMod =  activeValuePerformance.endPoint - activeValuePerformance.loopPoint2 - 1;
+					if(loopMod < 0 ) loopMod = 0;
+				}
+				activeValuePerformance.performanceModStartPoint = value;
+				activeValuePerformance.performanceModLoopPoint1 = loopMod;
+				activeValuePerformance.performanceModLoopPoint2 = loopMod;
+				activeValuePerformance.performanceModEndPoint = 0;
+			}
+			else
+			{
+				activeValuePerformance.performanceModStartPoint = value;
+			}
+			playMemPtr->setForcedPoints(activeValuePerformance.loopPoint1,
+										activeValuePerformance.loopPoint1 + activeValuePerformance.performanceModLoopPoint1,
+										activeValuePerformance.loopPoint2 + activeValuePerformance.performanceModLoopPoint2,
+										-1);
+
+			playMemPtr->setPointsForceFlag();
+		}
+	}
+	else
+	{
+		activeValuePerformance.performanceModStartPoint = value;
+		if(activeValuePerformance.startPoint + value >= activeValuePerformance.endPoint )
+		{
+			playMemPtr->setForcedPoints(activeValuePerformance.endPoint,-1,-1,-1);
+			playMemPtr->setPointsForceFlag();
+		}
+		else if(activeValuePerformance.startPoint + value <= SAMPLE_POINT_POS_MIN)
+		{
+
+			playMemPtr->setForcedPoints(SAMPLE_POINT_POS_MIN,-1,-1,-1);
+			playMemPtr->setPointsForceFlag();
+		}
+		else
+		{
+			playMemPtr->setForcedPoints(activeValuePerformance.startPoint + activeValuePerformance.performanceModStartPoint,-1,-1,-1);
+			playMemPtr->setPointsForceFlag();
+		}
+
+	}
 
 
 }
 void playerEngine ::changeCutoffPerformanceMode(int8_t value)
 {
+	activeValuePerformance.performanceModCutOff = value/100.0;
 	if(activeValuePerformance.cutOff + value > 100) filterPtr->setCutoff(1.0);
 	else if(activeValuePerformance.cutOff + value < 0) filterPtr->setCutoff(0.0);
 	else filterPtr->setCutoff((activeValuePerformance.cutOff + value)/100.0);

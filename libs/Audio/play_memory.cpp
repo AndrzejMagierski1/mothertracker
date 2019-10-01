@@ -71,12 +71,25 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
 	{
-		startPoint=mtProject.instrument[instr_idx].startPoint;
-		endPoint=mtProject.instrument[instr_idx].endPoint;
-		if(playMode != singleShot) //loopMode
+		if(pointsForceFlag)
 		{
-			loopPoint1=mtProject.instrument[instr_idx].loopPoint1;
-			loopPoint2=mtProject.instrument[instr_idx].loopPoint2;
+			startPoint=forcedStartPoint;
+			endPoint=forcedEndPoint;
+			if(playMode != singleShot) //loopMode
+			{
+				loopPoint1=forcedLoopPoint1;
+				loopPoint2=forcedLoopPoint2;
+			}
+		}
+		else
+		{
+			startPoint=mtProject.instrument[instr_idx].startPoint;
+			endPoint=mtProject.instrument[instr_idx].endPoint;
+			if(playMode != singleShot) //loopMode
+			{
+				loopPoint1=mtProject.instrument[instr_idx].loopPoint1;
+				loopPoint2=mtProject.instrument[instr_idx].loopPoint2;
+			}
 		}
 	}
 	else
@@ -433,7 +446,7 @@ void AudioPlayMemory::setPlayMode(uint8_t value)
 	playMode=value;
 }
 
-void AudioPlayMemory::setLP1(uint16_t value)
+void AudioPlayMemory::setLP1(uint16_t value) // w audio engine zadba zeby zapodac odpowiednia wartosc gdy force
 {
 	if(playMode != singleShot) samplePoints.loop1= (uint32_t)((float)value*((float)startLen/MAX_16BIT));
 	if ((samplePoints.loop1 < samplePoints.start)||(samplePoints.loop1 > samplePoints.loop2) || (samplePoints.loop1 > samplePoints.end)) return;
@@ -443,7 +456,7 @@ void AudioPlayMemory::setLP1(uint16_t value)
 			sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
 	}
 }
-void AudioPlayMemory::setLP2(uint16_t value)
+void AudioPlayMemory::setLP2(uint16_t value) // w audio engine zadba zeby zapodac odpowiednia wartosc gdy force
 {
 	if(playMode != singleShot) samplePoints.loop2= (uint32_t)((float)value*((float)startLen/MAX_16BIT));
 	if ((samplePoints.loop2 < samplePoints.start)||(samplePoints.loop2 < samplePoints.loop1) || (samplePoints.loop1 > samplePoints.end)) return;
@@ -523,6 +536,27 @@ void AudioPlayMemory::setTuneForceFlag()
 void AudioPlayMemory::clearTuneForceFlag()
 {
 	tuneForceFlag = 0;
+}
+
+void AudioPlayMemory::setPointsForceFlag()
+{
+	pointsForceFlag = 1;
+}
+void AudioPlayMemory::clearPointsForceFlag()
+{
+	pointsForceFlag = 0;
+}
+
+void AudioPlayMemory::setForcedPoints(int32_t sp, int32_t lp1, int32_t lp2, int32_t ep)
+{
+	if(sp != -1) forcedStartPoint = sp;
+	else forcedStartPoint = mtProject.instrument[currentInstr_idx].startPoint;
+	if(lp1 != -1) forcedLoopPoint1 = lp1;
+	else forcedLoopPoint1 = mtProject.instrument[currentInstr_idx].loopPoint1;
+	if(lp2 != -1) forcedLoopPoint2 = lp2;
+	else forcedLoopPoint2 = mtProject.instrument[currentInstr_idx].loopPoint2;
+	if(ep != -1) forcedEndPoint = ep;
+	else forcedEndPoint = mtProject.instrument[currentInstr_idx].endPoint;
 }
 
 void AudioPlayMemory::setReverse()
