@@ -315,8 +315,8 @@ void cSampleRecorder::update()
 			mtPadBoard.clearVoice(0);
 		}
 	}
+	if(!notePopoutFlag) changeLevelBar();
 
-	changeLevelBar();
 
 }
 
@@ -2377,7 +2377,9 @@ static uint8_t functStepNote(uint8_t value)
 		if(SR->currentScreen==0)
 		{
 			SR->setDefaultScreenFunct();
+			SR->notePopoutFlag = 0;
 			SR->hideNotePopout();
+			SR->showRadio();
 		}
 	}
 	else if(value == buttonHold)
@@ -2392,8 +2394,9 @@ static uint8_t functStepNote(uint8_t value)
 			SR->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
 			SR->FM->clearButtonsRange(interfaceButtonUp, interfaceButtonRight);
 			SR->FM->clearAllPots();
-
+			SR->notePopoutFlag = 1;
 			SR->showNotePopout();
+			SR->hideRDS();
 		}
 	}
 	return 1;
