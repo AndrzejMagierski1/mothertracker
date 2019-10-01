@@ -39,10 +39,7 @@ public:
 	void clean(void);
 	void stop(void);
 	bool isPlaying(void) { return playing; }
-	uint32_t positionMillis(void);
-	uint32_t lengthMillis(void);
 	virtual void update(void);
-	void stopLoopMode(void);
 	void setPlayMode(uint8_t value); //global
 	void setLP1(uint16_t value); //global
 	void setLP2(uint16_t value); //global
@@ -52,6 +49,8 @@ public:
 	void setFineTune(int8_t value, int8_t currentNote);
 	void setWavetableWindow(uint16_t value);
 	void setTune(int8_t value, int8_t currentNote);
+	void setReverse();
+	void clearReverse();
 	uint8_t playForPrev(int16_t * addr,uint32_t len);
 	uint8_t playForPrev(int16_t * addr,uint32_t len, uint8_t n);
 	void setTuneForceFlag();
@@ -60,7 +59,6 @@ private:
 	int16_t *next;
 	int16_t *beginning;
 	uint32_t length;
-	int16_t prior;
 	float pitchControl = 1;
 	float fPitchCounter;
 	uint32_t iPitchCounter;
@@ -85,6 +83,7 @@ private:
 	uint8_t currentInstr_idx;
 	int8_t currentFineTune;
 	uint8_t tuneForceFlag;
+	uint8_t reverseDirectionFlag;
 
 	struct strSamplePoints
 	{
@@ -107,7 +106,6 @@ private:
 	} sampleConstrains;
 
 	uint32_t startLen;
-	uint8_t  stopLoop;
 	int16_t  lastSample = 0;
 	uint8_t needSmoothingFlag = 0;
 };
