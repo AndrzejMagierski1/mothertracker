@@ -5,16 +5,20 @@
 #include <performanceMode.h>
 
 
-static uint16_t framesPlaces[8][4] =
+static uint16_t framesPlaces[12][4] =
 {
-	{0+2, 		31, 800/8-5, 387},
-	{(800/8)*1+2, 31, 800/8-5, 387},
-	{(800/8)*2+2, 31, 800/8-5, 387},
-	{(800/8)*3+2, 31, 800/8-5, 387},
-	{(800/8)*4+2, 31, 800/8-5, 387},
-	{(800/8)*5+2, 31, 800/8-5, 387},
-	{(800/8)*6+2, 31, 800/8-5, 387},
-	{(800/8)*7+2, 31, 800/8-5, 387},
+	{0,			 31, 800/12, 387},
+	{(800/12)*1, 31, 800/12, 387},
+	{(800/12)*2, 31, 800/12, 387},
+	{(800/12)*3, 31, 800/12, 387},
+	{(800/12)*4, 31, 800/12, 387},
+	{(800/12)*5, 31, 800/12, 387},
+	{(800/12)*6, 31, 800/12, 387},
+	{(800/12)*7, 31, 800/12, 387},
+	{(800/12)*8, 31, 800/12, 387},
+	{(800/12)*9, 31, 800/12, 387},
+	{(800/12)*10, 31, 800/12, 387},
+	{(800/12)*11, 31, 800/12, 387},
 };
 
 static uint32_t textLabelsColors[] =
@@ -44,6 +48,30 @@ void cPerformanceMode::initDisplayControls()
 
 
 	strControlProperties prop;
+	// ramka
+	//strControlProperties prop;
+	frameData.placesCount = 12;
+	frameData.startPlace = 0;
+	frameData.places[0] = &framesPlaces[0][0];
+	frameData.places[1] = &framesPlaces[1][0];
+	frameData.places[2] = &framesPlaces[2][0];
+	frameData.places[3] = &framesPlaces[3][0];
+	frameData.places[4] = &framesPlaces[4][0];
+	frameData.places[5] = &framesPlaces[5][0];
+	frameData.places[6] = &framesPlaces[6][0];
+	frameData.places[7] = &framesPlaces[7][0];
+	frameData.places[8] = &framesPlaces[8][0];
+	frameData.places[9] = &framesPlaces[9][0];
+	frameData.places[10] = &framesPlaces[10][0];
+	frameData.places[11] = &framesPlaces[11][0];
+	prop.style = 0;
+	prop.value = 0;
+	prop.colors = nullptr;
+	prop.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
+
+
+	//strControlProperties prop;
 
 	// inicjalizacja kontrolek
 	for(uint8_t i = 0; i<8; i++)
@@ -116,7 +144,8 @@ void cPerformanceMode::destroyDisplayControls()
 	}
 
 
-
+	display.destroyControl(frameControl);
+	frameControl = nullptr;
 
 }
 
@@ -223,7 +252,7 @@ void cPerformanceMode::showPerformanceFxes()
 
 	for(uint8_t i = 0; i<performanceFxesCount; i++)
 	{
-		display.setControlText(textLabel[i], &performanceFxesLabels[i][0]);
+		display.setControlText(textLabel[i], &performanceFxesLabels[fxPlaces[i]][0]);
 		display.setControlShow(textLabel[i]);
 		display.refreshControl(textLabel[i]);
 
@@ -249,6 +278,32 @@ void cPerformanceMode::showPerformanceFxes()
 
 
 //====================================================================================================
+
+void cPerformanceMode::showEditFrame(uint8_t place)
+{
+	display.setControlValue(frameControl, place);
+	display.setControlShow(frameControl);
+	display.refreshControl(frameControl);
+}
+
+void cPerformanceMode::hideEditFrame()
+{
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+}
+
+
+void cPerformanceMode::refreshFxNames()
+{
+	for(uint8_t i = 0; i<performanceFxesCount; i++)
+	{
+		display.setControlText(textLabel[i], &performanceFxesLabels[fxPlaces[i]][0]);
+		display.setControlShow(textLabel[i]);
+		display.refreshControl(textLabel[i]);
+	}
+}
+
+
 void cPerformanceMode::refreshTracksState()
 {
 	for(uint8_t i = 0; i<8; i++)
