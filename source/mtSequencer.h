@@ -488,7 +488,13 @@ public:
 			uint16_t noteTimer = 0;
 			uint16_t noteLength = 0;
 
+			boolean isOffset = 0;
+			uint16_t offsetValue = 0;
+
 			uint8_t rollMode = 0;
+
+			boolean isRoll = 0;
+			int8_t valRoll = 0;
 
 			bool pingPongToogle = 0;
 
