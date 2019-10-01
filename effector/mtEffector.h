@@ -59,7 +59,7 @@ private:
 	FsFile file;
 };
 
-extern int16_t sdram_effectsBank[4*1024*1024];
-extern int16_t sdram_sampleBank[4*1024*1024];
+extern int16_t sdram_effectsBank[15*256*1024];
+extern int16_t sdram_sampleBank[15*256*1024];
 extern mtEffector effector;
 #endif /* SOURCE_MTEFFECTOR_H_ */
