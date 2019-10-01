@@ -886,6 +886,11 @@ void playerEngine ::clearInterfacePlayingEndFlag()
 	interfacePlayingEndFlag = 0;
 }
 
+uint16_t playerEngine ::getWavePosition()
+{
+	return playMemPtr->getPosition();
+}
+
 //PERFORMANCE MODE
 
 // state = 1 mutuje

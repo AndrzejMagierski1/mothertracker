@@ -568,6 +568,11 @@ void AudioPlayMemory::clearReverse()
 	reverseDirectionFlag = 0;
 }
 
+uint16_t AudioPlayMemory::getPosition()
+{
+	return  (uint16_t)(65535 * ((samplePoints.start + iPitchCounter)/(float)startLen));
+}
+
 void AudioPlayMemory::clean(void)
 {
 	if(!playing)

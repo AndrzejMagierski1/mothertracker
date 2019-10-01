@@ -120,6 +120,8 @@ public:
 	void clearInterfaceEndReleaseFlag();
 	uint8_t getInterfacePlayingEndFlag();
 	void clearInterfacePlayingEndFlag();
+
+	uint16_t getWavePosition();
 	void update();
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note);

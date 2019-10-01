@@ -963,68 +963,68 @@ static uint8_t functShift(uint8_t value)
 
 void cSamplePlayback::calcPlayProgressValue()
 {
-	float  recTimeValue = editorInstrument->sample.length/44100.0;
-	uint32_t localRecTimeValue = recTimeValue * 1000000;
-	uint32_t localEndTimeValue = ((( recTimeValue  * editorInstrument->endPoint) / MAX_16BIT) * 1000000)/playPitch;
-	uint32_t localLoopPoint1Value = 0;
-	uint32_t localLoopPoint2Value = 0;
-	if(editorInstrument->playMode != singleShot)
-	{
-		localLoopPoint1Value = ((( recTimeValue  * editorInstrument->loopPoint1) / MAX_16BIT) * 1000000)/playPitch;
-		localLoopPoint2Value = ((( recTimeValue  * editorInstrument->loopPoint2) / MAX_16BIT) * 1000000)/playPitch;
-	}
-
-	if(editorInstrument->playMode == loopForward)
-	{
-		if(playProgresValueTim >= localLoopPoint2Value ) playProgresValueTim = localLoopPoint1Value;
-	}
-	else if(editorInstrument->playMode == loopBackward)
-	{
-		if((playProgresValueTim >= localLoopPoint2Value ) && (loopDirection == 0 ))
-		{
-			loopDirection = 1;
-			playProgresValueBackwardTim = 0;
-		}
-		else if((int32_t)(localLoopPoint2Value - playProgresValueBackwardTim) <= (int32_t)localLoopPoint1Value )
-		{
-			playProgresValueBackwardTim = 0;
-		}
-	}
-	else if(editorInstrument->playMode == loopPingPong)
-	{
-		if((playProgresValueTim >= localLoopPoint2Value ) && (!loopDirection))
-		{
-			loopDirection = 1;
-			playProgresValueBackwardTim = 0;
-		}
-		else if(( (int32_t)(localLoopPoint2Value - playProgresValueBackwardTim) <= (int32_t)localLoopPoint1Value ) && (loopDirection))
-		{
-			loopDirection = 0;
-			playProgresValueTim = localLoopPoint1Value;
-		}
-	}
-
-	if((playProgresValueTim >= localEndTimeValue) && (!loopDirection))
-	{
-		playProgressValue=0;
-		playProgressInSpectrum = 0;
-		isPlayingSample = 0;
-		refreshSpectrumProgress = 1;
-		return;
-	}
+//	float  recTimeValue = editorInstrument->sample.length/44100.0;
+//	uint32_t localRecTimeValue = recTimeValue * 1000000;
+//	uint32_t localEndTimeValue = ((( recTimeValue  * editorInstrument->endPoint) / MAX_16BIT) * 1000000)/playPitch;
+//	uint32_t localLoopPoint1Value = 0;
+//	uint32_t localLoopPoint2Value = 0;
+//	if(editorInstrument->playMode != singleShot)
+//	{
+//		localLoopPoint1Value = ((( recTimeValue  * editorInstrument->loopPoint1) / MAX_16BIT) * 1000000)/playPitch;
+//		localLoopPoint2Value = ((( recTimeValue  * editorInstrument->loopPoint2) / MAX_16BIT) * 1000000)/playPitch;
+//	}
+//
+//	if(editorInstrument->playMode == loopForward)
+//	{
+//		if(playProgresValueTim >= localLoopPoint2Value ) playProgresValueTim = localLoopPoint1Value;
+//	}
+//	else if(editorInstrument->playMode == loopBackward)
+//	{
+//		if((playProgresValueTim >= localLoopPoint2Value ) && (loopDirection == 0 ))
+//		{
+//			loopDirection = 1;
+//			playProgresValueBackwardTim = 0;
+//		}
+//		else if((int32_t)(localLoopPoint2Value - playProgresValueBackwardTim) <= (int32_t)localLoopPoint1Value )
+//		{
+//			playProgresValueBackwardTim = 0;
+//		}
+//	}
+//	else if(editorInstrument->playMode == loopPingPong)
+//	{
+//		if((playProgresValueTim >= localLoopPoint2Value ) && (!loopDirection))
+//		{
+//			loopDirection = 1;
+//			playProgresValueBackwardTim = 0;
+//		}
+//		else if(( (int32_t)(localLoopPoint2Value - playProgresValueBackwardTim) <= (int32_t)localLoopPoint1Value ) && (loopDirection))
+//		{
+//			loopDirection = 0;
+//			playProgresValueTim = localLoopPoint1Value;
+//		}
+//	}
+//
+//	if((playProgresValueTim >= localEndTimeValue) && (!loopDirection))
+//	{
+//		playProgressValue=0;
+//		playProgressInSpectrum = 0;
+//		isPlayingSample = 0;
+//		refreshSpectrumProgress = 1;
+//		return;
+//	}
 	if( refreshPlayProgressValue > PLAY_REFRESH_US)
 	{
 		refreshPlayProgressValue = 0;
 
-		if(!loopDirection)
-		{
-			playProgressValue = playPitch * MAX_16BIT*(playProgresValueTim/(float)localRecTimeValue);
-		}
-		else
-		{
-			playProgressValue = playPitch * MAX_16BIT*((int32_t)(localLoopPoint2Value - playProgresValueBackwardTim)/(float)localRecTimeValue);
-		}
-
+//		if(!loopDirection)
+//		{
+//			playProgressValue = playPitch * MAX_16BIT*(playProgresValueTim/(float)localRecTimeValue);
+//		}
+//		else
+//		{
+//			playProgressValue = playPitch * MAX_16BIT*((int32_t)(localLoopPoint2Value - playProgresValueBackwardTim)/(float)localRecTimeValue);
+//		}
+		playProgressValue = instrumentPlayer[0].getWavePosition();
 
 		if(zoom.zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
 		else if(zoom.zoomValue > 1.0)

@@ -2200,22 +2200,11 @@ void cSampleRecorder::modEndPoint(int16_t value)
 
 void cSampleRecorder::calcPlayProgressValue()
 {
-	uint32_t localRecTimeValue = recTimeValue * 1000;
-	uint32_t localEndTimeValue = ((( recTimeValue  * SR->endPoint) / MAX_16BIT) * 1000)/ SR->playPitch;
-
-	if(playProgresValueTim >= localEndTimeValue)
-	{
-		playProgressValue=0;
-		playProgressInSpectrum = 0;
-		playInProgressFlag = 0;
-		refreshSpectrumValue = 1;
-		return;
-	}
 	if( refreshPlayProgressValue > PLAY_REFRESH_US)
 	{
 		refreshPlayProgressValue = 0;
 
-		playProgressValue = SR->playPitch*MAX_16BIT*(playProgresValueTim/(float)localRecTimeValue);
+		playProgressValue = instrumentPlayer[0].getWavePosition();
 
 		if(zoom.zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
 		else if(zoom.zoomValue > 1.0)
