@@ -374,6 +374,8 @@ void cSampleRecorder::start(uint32_t options)
 	{
 		showRadio();
 	}
+	if(recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
+	else audioShield.headphoneSourceSelect(1);
 
 	engine.setHeadphonesVolume(80);
 }
