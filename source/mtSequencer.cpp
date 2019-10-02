@@ -259,8 +259,8 @@ void Sequencer::play_microStep(uint8_t row)
 		{
 
 			playerRow.stepOpen = 0;
-			playerRow.isRoll = 0;
-			playerRow.rollMode = fx.ROLL_TYPE_NONE;
+			playerRow.rollIsOn = 0;
+			playerRow.rollType = fx.ROLL_TYPE_NONE;
 
 		}
 	}
@@ -299,9 +299,9 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 	}
 
-	// **************************
+	// ************************************
 	// 		sprawdzamy PRE EFEKTY
-	// **************************
+	// ************************************
 
 	boolean startStep = 0;
 	boolean cancelStep = 0;
@@ -365,8 +365,8 @@ void Sequencer::play_microStep(uint8_t row)
 						playerRow.stepSent.instrument);
 			playerRow.stepOpen = 0;
 			playerRow.noteOpen = 0;
-			playerRow.isRoll = 0;
-			playerRow.rollMode = fx.ROLL_TYPE_NONE;
+			playerRow.rollIsOn = 0;
+			playerRow.rollType = fx.ROLL_TYPE_NONE;
 		}
 
 		// EFEKTY WŁAŚCIWE
@@ -375,7 +375,7 @@ void Sequencer::play_microStep(uint8_t row)
 		{
 		case fx.FX_TYPE_ROLL:
 
-			playerRow.isRoll = 1;
+			playerRow.rollIsOn = 1;
 			playerRow.valRoll = _fx.value;
 
 			break;
@@ -444,10 +444,10 @@ void Sequencer::play_microStep(uint8_t row)
 		playerRow.stepSent = stepToSend; // buforujemy wysłanego stepa
 
 		// jeśli rolka to nuty są krótsze od stepa
-		if (playerRow.isRoll)
+		if (playerRow.rollIsOn)
 		{
-			playerRow.rollMode = playerRow.valRoll;
-			playerRow.noteLength = rollTypeToVal(playerRow.rollMode) / 2; // TODO: wyliczyć długość rolki
+			playerRow.rollType = playerRow.valRoll;
+			playerRow.noteLength = rollTypeToVal(playerRow.rollType) / 2; // TODO: wyliczyć długość rolki
 			playerRow.stepOpen = 1;
 		}
 		if (patternStep.note >= 0)
@@ -468,8 +468,8 @@ void Sequencer::play_microStep(uint8_t row)
 						playerRow.stepSent.velocity,
 						playerRow.stepSent.instrument);
 			playerRow.stepOpen = 0;
-			playerRow.isRoll = 0;
-			playerRow.rollMode = fx.ROLL_TYPE_NONE;
+			playerRow.rollIsOn = 0;
+			playerRow.rollType = fx.ROLL_TYPE_NONE;
 
 		}
 	}
@@ -479,15 +479,15 @@ void Sequencer::play_microStep(uint8_t row)
 	// **************************
 	if (playerRow.stepOpen)
 	{
-		if (playerRow.rollMode != fx.ROLL_TYPE_NONE)
+		if (playerRow.rollType != fx.ROLL_TYPE_NONE)
 		{
 			// sprawdzamy timer microstepów, czy jest wielokrotrością rolki
-			if (((playerRow.stepTimer % rollTypeToVal(playerRow.rollMode)) == 1) && playerRow.stepTimer != 1)
+			if (((playerRow.stepTimer % rollTypeToVal(playerRow.rollType)) == 1) && playerRow.stepTimer != 1)
 			{
 
 				playerRow.noteOpen = 1;
 				playerRow.noteTimer = 0; // od tej pory timer liczy w górę
-				playerRow.noteLength = rollTypeToVal(playerRow.rollMode) / 2; // TODO: wyliczyć długość rolki
+				playerRow.noteLength = rollTypeToVal(playerRow.rollType) / 2; // TODO: wyliczyć długość rolki
 
 				sendNoteOn(row,
 							playerRow.stepSent.note,
