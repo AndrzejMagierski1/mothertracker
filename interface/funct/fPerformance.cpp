@@ -497,7 +497,15 @@ static  uint8_t functEncoder(int16_t value)
 			}
 			case mtPerfSampleStart:
 			{
+				if(PM->fxValues[i] + value > 100) PM->fxValues[i] = 100;
+				else if(PM->fxValues[i] + value < -100) PM->fxValues[i] = -100;
+				else PM->fxValues[i] += value;
 
+				for(uint8_t j = 0; j < 8; j++)
+				{
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeStartPointPerformanceMode(map(PM->fxValues[i],-100,100,-MAX_16BIT,MAX_16BIT));
+				}
+				break;
 
 				break;
 			}

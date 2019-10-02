@@ -315,8 +315,8 @@ void cSampleRecorder::update()
 			mtPadBoard.clearVoice(0);
 		}
 	}
+	if(!notePopoutFlag) changeLevelBar();
 
-	changeLevelBar();
 
 }
 
@@ -2200,22 +2200,11 @@ void cSampleRecorder::modEndPoint(int16_t value)
 
 void cSampleRecorder::calcPlayProgressValue()
 {
-	uint32_t localRecTimeValue = recTimeValue * 1000;
-	uint32_t localEndTimeValue = ((( recTimeValue  * SR->endPoint) / MAX_16BIT) * 1000)/ SR->playPitch;
-
-	if(playProgresValueTim >= localEndTimeValue)
-	{
-		playProgressValue=0;
-		playProgressInSpectrum = 0;
-		playInProgressFlag = 0;
-		refreshSpectrumValue = 1;
-		return;
-	}
 	if( refreshPlayProgressValue > PLAY_REFRESH_US)
 	{
 		refreshPlayProgressValue = 0;
 
-		playProgressValue = SR->playPitch*MAX_16BIT*(playProgresValueTim/(float)localRecTimeValue);
+		playProgressValue = instrumentPlayer[0].getWavePosition();
 
 		if(zoom.zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
 		else if(zoom.zoomValue > 1.0)
@@ -2377,7 +2366,9 @@ static uint8_t functStepNote(uint8_t value)
 		if(SR->currentScreen==0)
 		{
 			SR->setDefaultScreenFunct();
+			SR->notePopoutFlag = 0;
 			SR->hideNotePopout();
+			SR->showRadio();
 		}
 	}
 	else if(value == buttonHold)
@@ -2392,8 +2383,9 @@ static uint8_t functStepNote(uint8_t value)
 			SR->FM->clearButtonsRange(interfaceButton0, interfaceButton7);
 			SR->FM->clearButtonsRange(interfaceButtonUp, interfaceButtonRight);
 			SR->FM->clearAllPots();
-
+			SR->notePopoutFlag = 1;
 			SR->showNotePopout();
+			SR->hideRDS();
 		}
 	}
 	return 1;

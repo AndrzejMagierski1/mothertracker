@@ -338,6 +338,8 @@ uint8_t cropCounter = 0;
 	void showSource();
 	void showMonitor();
 	void showGain();
+
+	uint8_t notePopoutFlag = 0;
 };
 
 extern cSampleRecorder sampleRecorder;
