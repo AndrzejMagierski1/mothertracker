@@ -3,7 +3,7 @@
 #include "sdram.h"
 #include <Audio.h>
 #include "FT812.h"
-#include "tca8418.h"
+#include "keyScanner.h"
 #include "Si4703.h"
 
 extern AudioControlSGTL5000 audioShield;

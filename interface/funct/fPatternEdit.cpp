@@ -11,7 +11,6 @@
 
 #include "keyScanner.h"
 
-extern keyScanner tactButtons; // dla isButtonPressed()
 
 cPatternEditor patternEditor;
 static  cPatternEditor* PTE = &patternEditor;

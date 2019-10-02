@@ -32,13 +32,8 @@
 #ifdef TCA8418_INTERRUPT_SUPPORT
 #endif
 
-KEYS Keypad;
-volatile bool KeyInt = false;
 
-void KeyISR(void)
-{  //Keypad Interrupt Service Routine
-	KeyInt = true;
-}
+
 
 KEYS::KEYS() :
 		_address(0)
@@ -53,14 +48,16 @@ void KEYS::begin(i2c_t3 * wire)
 {
 	localWire = wire;
 	_address = 0x34;
-	localWire->begin(I2C_MASTER, 0x00, I2C_SCL, I2C_SDA, I2C_PULLUP_EXT, 400000);
+	//localWire->begin(I2C_MASTER, 0x00, I2C_SCL, I2C_SDA, I2C_PULLUP_EXT, 400000);
 }
 
-void KEYS::begin(uint8_t rows, uint16_t cols, uint8_t config,i2c_t3 * wire)
+void KEYS::begin(uint8_t rows, uint16_t cols, uint8_t config, i2c_t3 * wire, uint8_t* table)
 {
+	convertTable = table;
 	localWire = wire;
 	_address = 0x34;
-	localWire->begin(I2C_MASTER, 0x00, I2C_SCL, I2C_SDA, I2C_PULLUP_EXT, 400000);
+	// begin poza
+	//localWire->begin(I2C_MASTER, 0x00, I2C_SCL, I2C_SDA, I2C_PULLUP_EXT, 400000);
 	configureKeys(rows, cols, config);
 }
 
@@ -483,27 +480,31 @@ uint8_t KEYS::getKey(void)
 {
 	return (readKeypad() & 0x7F);
 }
-void KEYS::update()
+
+uint8_t KEYS::update()
 {
+	uint8_t result = 0;
 	//Check for Interrupt flag and process
-	if (KeyInt)
+	if (keyInt)
 	{
+		result = 1;
 		uint8_t key = readKeypad(); //Get first keycode from FIFO;
 		uint8_t keyNumber = key & 0x7F;
 		uint8_t keyState = key & 0x80 ;
 
 		if (keyState)
 		{
-			onPush(convertToGridKey4x12[keyNumber-1]);
-			buttonPush[convertToGridKey4x12[keyNumber-1]] = 1;
-			holdTim[convertToGridKey4x12[keyNumber-1]] = 0;
+			onPush(convertTable[keyNumber-1]);
+			buttonPush[convertTable[keyNumber-1]] = 1;
+			holdTim[convertTable[keyNumber-1]] = 0;
 		}
 		else
 		{
-			onRelease(convertToGridKey4x12[keyNumber-1]);
-			buttonPush[convertToGridKey4x12[keyNumber-1]] = 0;
+			onRelease(convertTable[keyNumber-1]);
+			buttonPush[convertTable[keyNumber-1]] = 0;
 		}
-		KeyInt = false; //Reset Our Interrupt flag
+
+		keyInt = 0; //Reset Our Interrupt flag
 		clearInterruptStatus(); //Reset TCA8418 Interrupt Status Register.
 	}
 
@@ -516,7 +517,7 @@ void KEYS::update()
 		}
 	}
 	//Do other processing
-
+	return result;
 }
 
 void KEYS::setOnPush(void(*funct)(uint8_t))

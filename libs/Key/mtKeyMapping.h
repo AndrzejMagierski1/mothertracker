@@ -1,7 +1,7 @@
 #ifndef LIBS_KEY_MTKEYMAPPING_H_
 #define LIBS_KEY_MTKEYMAPPING_H_
 
-#include "Arduino.h"
+#include <stdint.h>
 
 const uint8_t gridToKeyMapping[64] =
 {
