@@ -16,12 +16,28 @@
 struct strActiveValuePerformance
 {
 //****************************************************************************
+// aktualna wartosc modyfikujaca
+	  int8_t 	performanceModVolume;
+	  int16_t 	performanceModPanning;
+	  int8_t 	performanceModTune;
+	  int8_t 	performanceModReverbSend;
+	  float 	performanceModCutOff;
+	  int32_t 	performanceModStartPoint;
+	  int32_t 	performanceModLoopPoint1;
+	  int32_t 	performanceModLoopPoint2;
+	  int32_t 	performanceModEndPoint;
+//****************************************************************************
+//****************************************************************************
 // aktualna aktywna wartosc
 	  uint8_t volume;
 	  int16_t panning;
 	  int8_t tune;
 	  uint8_t reverbSend;
 	  float cutOff;
+	  uint16_t startPoint;
+	  uint16_t loopPoint1;
+	  uint16_t loopPoint2;
+	  uint16_t endPoint;
 //****************************************************************************
 	  uint8_t volumeForceFlag;
 	  uint8_t panningForceFlag;
@@ -29,7 +45,11 @@ struct strActiveValuePerformance
 	  uint8_t reverbSendForceFlag;
 	  uint8_t cutOffForceFlag;
 
-	  uint32_t startPointForcedModValue;
+	  uint16_t startPointForcedValue;
+	  uint16_t loopPoint1ForcedValue;
+	  uint16_t loopPoint2ForcedValue;
+	  uint16_t endPointForcedValue;
+
 	  uint8_t filterForcedEnableFlag;
 	  int8_t filterForcedType = -1;
 
@@ -100,6 +120,8 @@ public:
 	void clearInterfaceEndReleaseFlag();
 	uint8_t getInterfacePlayingEndFlag();
 	void clearInterfacePlayingEndFlag();
+
+	uint16_t getWavePosition();
 	void update();
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note);
@@ -110,7 +132,7 @@ public:
 	void changePanningPerformanceMode(int8_t value);
 	void changeTunePerformanceMode(int8_t value);
 	void changeReverbSendPerformanceMode(int8_t value);
-	void changeStartPointPerformanceMode(int8_t value);
+	void changeStartPointPerformanceMode(int32_t value);
 	void changeCutoffPerformanceMode(int8_t value);
 	void changeFilterTypePerformanceMode(uint8_t mode);
 

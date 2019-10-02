@@ -111,12 +111,18 @@ public:
 	void clearPerformanceValues(uint8_t track, uint8_t fx);
 	void refreshPerformanceValuesForTrack(uint8_t track);
 
+	void toggleEditState();
+
 	//----------------------------------
 	void showDefaultScreen();
 
 	void showPerformanceMaster();
 	void showPerformanceFxes();
 
+	void showEditFrame(uint8_t place);
+	void hideEditFrame();
+
+	void refreshFxNames(uint8_t place);
 
 	void showPerformaceValue(uint8_t fx);
 	void refreshTracksState();
@@ -137,7 +143,7 @@ public:
 	hControl textLabel[12] = {nullptr};
 	hControl value1Label[12] = {nullptr};
 
-
+	hControl frameControl = nullptr;
 
 
 	// typ trybu/ekranu
@@ -145,16 +151,19 @@ public:
 	uint8_t refreshMaster = 1;
 
 
+	uint8_t performanceEditState = 0;
+	uint8_t performanceEditPlace = 0;
 
 	//--------performance values
 	// g
-	int8_t fxValues[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
+	uint8_t fxPlaces[12] = {0,1,2,3,4,5,6,7,8,9,10,11};
 	char fxValuesText[12][7] = {0};
 
 	// f
 	int8_t tracksPerformanceState[8] = {0};
-	int8_t fxPerformanceState[12] = {};
+	int8_t placePerformanceState[12];
 
+	int8_t fxValues[performanceFxesCount] = {0};
 
 
 };

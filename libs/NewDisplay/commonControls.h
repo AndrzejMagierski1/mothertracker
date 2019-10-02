@@ -15,7 +15,7 @@ struct strFrameData
 {
 	uint8_t startPlace;
 	uint16_t placesCount;
-	uint16_t* places[8];
+	uint16_t* places[12];
 };
 
 //--------------------------------------------------------------------
