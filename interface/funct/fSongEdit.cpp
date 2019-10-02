@@ -8,7 +8,6 @@
 
 #include "mtAudioEngine.h"
 #include "keyScanner.h"
-extern keyScanner tactButtons; // dla isButtonPressed()
 
 
 cSongEditor songEditor;

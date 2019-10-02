@@ -22,12 +22,11 @@
 #include "sdCardDetect.h"
 
 #include "mtMidi.h"
-#include "tca8418.h"
 #include "mtSleep.h"
 
 
 
-
+//----------------------------------------------------------
 
 uint8_t hardwareTest;
 
@@ -37,17 +36,17 @@ uint8_t lastState;
 void TactSwitchRead();
 void updateEncoder();
 
-void onPadPress(uint8_t n, int8_t x, int8_t y, uint8_t velo);
-void onPadChange(uint8_t n, int8_t x, int8_t y, uint8_t f);
+
 void onPotChange(uint8_t n, int16_t value);
-void onButtonChange(uint8_t n, uint8_t value);
+void onEncoderButtonChange(uint8_t n, uint8_t value);
+
+
 void onPowerButtonChange(uint8_t value);
 
 //keyScanner
-void onButtonPush			(uint8_t x,uint8_t state);
-void onButtonRelease		(uint8_t x,uint8_t state);
-void onButtonHold			(uint8_t x,uint8_t state);
-void onButtonDouble			(uint8_t x,uint8_t state);
+void onButtonPush(uint8_t n);
+void onButtonRelease(uint8_t n);
+void onButtonHold(uint8_t n);
 
 
 // tca8418 new pad driver
@@ -55,25 +54,37 @@ void onPadPush(uint8_t n);
 void onPadRelease(uint8_t n);
 void onPadHold(uint8_t n);
 
-keyScanner seqButtonsA;
-keyScanner tactButtons;
-
-AudioControlSGTL5000 audioShield;
-
-void IO7326_INT_FUNCT_A() { seqButtonsA.intAction(); }
-void IO7326_TACT_INT_FUNCT() {tactButtons.intAction();}
-//void IO7326_INT_FUNCT_B() { seqButtonsB.intAction(); }
-//void IO7326_INT_FUNCT_C() { seqButtonsC.intAction(); }
-
 
 void ENC_SW_INT_FUNCT() { }
 
-// hid connection
+
+///------------------------------------------------------------------------------------
+
+
+AudioControlSGTL5000 audioShield;
+
+
+///------------------------------------------------------------------------------------
+KEYS Keypad;
+KEYS tactButtons;
+
+void KeypadISR()
+{  //Keypad Interrupt Service Routine
+	Keypad.keyInt = 1;
+}
+
+void ButtonsISR()
+{  //Keypad Interrupt Service Routine
+	tactButtons.keyInt = 1;
+}
+
+
+// hid connection  --------------------------------------------------------------------
 hidConnection hid(0);
 void hidSendButtonState(uint16_t button, uint16_t state);
 
 
-
+///------------------------------------------------------------------------------------
 void initHardware()
 {
 
@@ -88,21 +99,27 @@ void initHardware()
 
 	Serial.begin(9600);
 
+
+
 	pinMode(SI4703_KLUCZ,OUTPUT);
 	digitalWrite(SI4703_KLUCZ,LOW);
 
-	//....................................................
-	//CODEC AUDIO
 
 //	RAM_CTRL_PCR = PORT_PCR_MUX(1);
 //	RAM_CTRL_GPIO_DDR |= (1 << RAM_CTRL);
 //	RAM_CTRL_GPIO_SET = (1 << RAM_CTRL);
 
-		pinMode(EXTERNAL_RAM_KEY,OUTPUT);
-		digitalWrite(EXTERNAL_RAM_KEY,HIGH);
+	pinMode(EXTERNAL_RAM_KEY,OUTPUT);
+	digitalWrite(EXTERNAL_RAM_KEY,HIGH);
+
+	//Wire.begin(I2C_MASTER, 0x00, I2C_PINS_47_48, I2C_PULLUP_EXT, 400000);//,I2C_OP_MODE_IMM);
+	//Wire.begin(I2C_MASTER, 0x00, AUDIO_I2C_SCL, AUDIO_I2C_SDA, I2C_PULLUP_EXT, 400000);
+	//Wire2.begin(I2C_MASTER, 0x00, I2C_PINS_3_4, I2C_PULLUP_EXT, 400000);
+	//Wire2.begin(I2C_MASTER, 0x00, GRID_I2C_SCL, GRID_I2C_SDA, I2C_PULLUP_EXT, 400000);
 
 
-
+	//....................................................
+	//CODEC AUDIO
 	audioShield.enable();
 	AudioMemory(200);
 
@@ -139,30 +156,8 @@ void initHardware()
 	Extern_SDRAM_Init();
 
 	//....................................................
-	// Pady, Poty, Buttony
-	//AnalogInputs.setButtonChangeFunc(onButtonChange);
-
-	//AnalogInputs.testMode(hardwareTest); // (1 = on; 0 = off) test mode
-	//pinMode(MUX_OUT_0, INPUT);
-/*
-	AnalogInputs.setPotResolution(0, 100);
-	AnalogInputs.setPotResolution(1, 100);
-	AnalogInputs.setPotResolution(2, 100);
-	AnalogInputs.setPotResolution(3, 100);
-	AnalogInputs.setPotResolution(4, 100);
-*/
-
-//	AnalogInputs.setPotAcceleration(0, 3);
-//	AnalogInputs.setPotAcceleration(1, 3);
-//	AnalogInputs.setPotAcceleration(2, 3);
-//	AnalogInputs.setPotAcceleration(3, 3);
-//	AnalogInputs.setPotAcceleration(4, 3);
-
-	//AnalogInputs.begin(100);
-
-	//....................................................
 	// ENCODER
-	Encoder.begin(ENC_SWITCH,onButtonChange);
+	Encoder.begin(ENC_SWITCH,onEncoderButtonChange);
 	//	Encoder.testMode(1);
 
 
@@ -174,37 +169,37 @@ void initHardware()
 	//....................................................
 	// Haptic on
 	//mtHaptic.enable();
+
+
 	//....................................................
-	// Seq buttons
-	////////////////// IO7326 A
-	seqButtonsA.setButtonPushFunc(onButtonPush);
-	seqButtonsA.setButtonReleaseFunc(onButtonRelease);
-	seqButtonsA.setButtonHoldFunc(onButtonHold);
-	seqButtonsA.setButtonDoubleFunc(onButtonDouble);
-	seqButtonsA.setHoldTime(200);
-	seqButtonsA.setDoubleTime(300);
-//
-	tactButtons.setButtonPushFunc(onButtonChange);
-	tactButtons.setButtonReleaseFunc(onButtonChange);
-	tactButtons.setButtonHoldFunc(onButtonChange);
-	tactButtons.setButtonDoubleFunc(onButtonChange);
-	tactButtons.setHoldTime(200);
-	tactButtons.setDoubleTime(300);
+	// Buttons
 
 	Keypad.setOnPush(onPadPush);
 	Keypad.setOnRelease(onPadRelease);
 	Keypad.setOnHold(onPadHold);
 
-	Keypad.begin(ROW0 | ROW1 | ROW2 | ROW3 | ROW4 | ROW5 | ROW6 | ROW7 , COL0 | COL1 | COL2 | COL3 | COL4 | COL5 | COL6 | COL7 | COL8 | COL9,
-	CFG_KE_IEN | CFG_OVR_FLOW_IEN | CFG_INT_CFG | CFG_OVR_FLOW_M, &Wire2);
-//
-//
-	Keypad.enableInterrupt(GRID_A, KeyISR); //Arg1= Arduino Pin number INT is connected to. Arg2= Interrupt Routine
-	////////////////// IO7326
-	tactButtons.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,TACTILE_INT,tactileToKeyMapping,IO7326_TACT_INT_FUNCT);
-//	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,gridToKeyMapping,IO7326_INT_FUNCT_A);
+	Wire2.begin(I2C_MASTER, 0x00, GRID_I2C_SCL, GRID_I2C_SDA, I2C_PULLUP_EXT, 400000);
 
-	tactButtons.testMode(0);
+	Keypad.begin(ROW0 | ROW1 | ROW2 | ROW3 | ROW4 | ROW5 | ROW6 | ROW7 , COL0 | COL1 | COL2 | COL3 | COL4 | COL5 | COL6 | COL7 | COL8 | COL9,
+	CFG_KE_IEN | CFG_OVR_FLOW_IEN | CFG_INT_CFG | CFG_OVR_FLOW_M, &Wire2 , (uint8_t*)convertToGridKey4x12);
+
+	Keypad.enableInterrupt(GRID_PADS_INT, KeypadISR);
+
+	tactButtons.setOnPush(onButtonPush);
+	tactButtons.setOnRelease(onButtonRelease);
+	tactButtons.setOnHold(onButtonHold);
+
+
+
+	tactButtons.begin(ROW0 | ROW1 | ROW2 | ROW3 | ROW4 | ROW5 | ROW6 | ROW7 , COL0 | COL1 | COL2 | COL3 | COL4 | COL5 | COL6 | COL7 | COL8 | COL9,
+	CFG_KE_IEN | CFG_OVR_FLOW_IEN | CFG_INT_CFG | CFG_OVR_FLOW_M, &Wire, (uint8_t*)convertToControlButtons);
+
+	tactButtons.enableInterrupt(CONTROL_BUTTONS_INT, ButtonsISR);
+
+	////////////////// IO7326
+//	tactButtons.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,TACTILE_INT,tactileToKeyMapping,IO7326_TACT_INT_FUNCT);
+//	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,gridToKeyMapping,IO7326_INT_FUNCT_A);
+//	tactButtons.testMode(0);
 
 
 
@@ -222,7 +217,7 @@ void initHardware()
 	//....................................................
 
 	// power switch
-	pinMode(TACT_SWITCH, INPUT_PULLUP);
+	pinMode(TACT_SWITCH, INPUT); //INPUT_PULLUP
 	//attachInterrupt(TACT_SWITCH, TactSwitchAction, FALLING);
 
 	hid.set_sendButtonState(hidSendButtonState);
@@ -239,18 +234,18 @@ void hidSendButtonState(uint16_t button, uint16_t state)
 {
 	if (button < 100)
 	{
-		onButtonChange(button, state);
+		if(state == 1)		onButtonPush(button);
+		else if(state == 0)	onButtonRelease(button);
 	}
 	else if (button < 102)
 	{
-		if (button == 100 && state == 1)
-		onPotChange(0, -1);
-		else if (button == 101 && state == 1)
-			onPotChange(0, 1);
+		if (button == 100 && state == 1) 		onPotChange(0, -1);
+		else if (button == 101 && state == 1) 	onPotChange(0, 1);
 	}
 	else if (button < 103)
 	{
-		onButtonChange(33, state);
+		if(state == 1)		onButtonPush(33);
+		else if(state == 0)	onButtonRelease(33);
 	}
 
 }
@@ -271,26 +266,26 @@ void updateHardware()
 		if(i2cRefreshTimer > 500)
 		{
 			i2c_switch++;
-			if(i2c_switch >= 3) i2c_switch = 0;
+			if(i2c_switch >= 2) i2c_switch = 0;
 
 			if (Wire2.done())
 			{
 				if(i2c_switch == 0)
 				{
-					if(!tactButtons.update())  i2c_switch++;
+					if(!Keypad.update()) i2c_switch++;
 				}
 				if(i2c_switch == 1)
-				{
-					Keypad.update(); i2c_switch++;
-					//				if(!seqButtonsA.update())  	i2c_switch++;
-				}
-				if(i2c_switch == 2)
 				{
 					if(!leds.update_all_leds())	i2c_switch++;
 				}
 
-				if(i2c_switch < 3) i2cRefreshTimer = 0;
+				if(i2c_switch < 2) i2cRefreshTimer = 0;
 			}
+		}
+
+		if (Wire.done())
+		{
+			tactButtons.update();
 		}
 
 		display.update();

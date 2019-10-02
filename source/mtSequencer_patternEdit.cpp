@@ -8,7 +8,7 @@
 #include "patternEditor.h"
 #include "keyScanner.h"
 extern Sequencer sequencer;
-extern keyScanner tactButtons; // dla isButtonPressed()
+
 
 void fromToSwap(uint8_t & from, uint8_t & to)
 {
