@@ -414,9 +414,9 @@ void cProjectEditor::showSaveLastWindow()
 
 	display.setControlText(bottomLabel[4], "Don't Save");
 	display.setControlText(bottomLabel[5], "");
+	display.setControlText(bottomLabel[6], "");
 	display.setControlText(bottomLabel[7], "Save");
 
-	char currentInfo[100];
 
 	if(( fileManager.currentProjectName[0] ) != 0 && ( newProjectNotSavedFlag == 0 ) )
 	{
@@ -457,8 +457,6 @@ void cProjectEditor::showOverwriteWindow()
 		display.setControlText(bottomLabel[i], "");
 	}
 	display.setControlText(bottomLabel[7], "No");
-
-	char currentInfo[100];
 
 	sprintf(currentInfo,"Do you want overwrite\"%s\" ?", name);
 
