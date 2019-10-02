@@ -305,9 +305,10 @@ void cSamplePlayback::cancelPopups()
 	{
 		mtPopups.hideStepPopups();
 
-		setDefaultScreenFunct();
+		start(0);
 
-		showDefaultScreen();
+		//setDefaultScreenFunct();
+		//showDefaultScreen();
 	}
 }
 
