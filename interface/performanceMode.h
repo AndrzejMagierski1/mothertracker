@@ -64,12 +64,13 @@ const char performanceFxesLabels[performanceFxesCount][20] =
 	"mtPerfFx11",
 };
 
-const char performanceStutterLabels[12][20] =
+const char performanceStutterLabels[13][20] =
 {
-	"Off",
 	"4",
 	"3",
 	"2",
+	"1",
+	"Off",
 	"1",
 	"1/2",
 	"1/3",
