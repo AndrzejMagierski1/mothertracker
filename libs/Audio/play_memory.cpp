@@ -621,6 +621,157 @@ void AudioPlayMemory::clean(void)
 	}
 
 }
+uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
+{
+	__disable_irq();
+	/*========================================================INIT=============================================================*/
+	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
+	if(playing == 0x81) needSmoothingFlag = 1;
+	playing = 0;
+	loopBackwardFlag=0;
+	iPitchCounter=0;
+	fPitchCounter=0;
+	glideCounter=0;
+	slideCounter=0;
+	currentInstr_idx=instr_idx;
+	lastNote= - 1;
+	/*=========================================================================================================================*/
+	/*========================================PRZEPISANIE WARTOSCI ============================================================*/
+	glide=mtProject.instrument[instr_idx].glide;
+	if(!tuneForceFlag) currentTune=mtProject.instrument[instr_idx].tune;
+
+	if( (n + currentTune) > (MAX_NOTE-1))
+	{
+		if(lastNote>n) currentTune=(MAX_NOTE-1)-lastNote;
+		else currentTune=(MAX_NOTE-1)-n;
+	}
+	if( (n + currentTune) < MIN_NOTE)
+	{
+		if((lastNote>=0) && (lastNote<n)) currentTune=MIN_NOTE-lastNote;
+		else currentTune=MIN_NOTE-n;
+	}
+
+	if(lastNote>=0 && glide != 0 ) pitchControl=notes[lastNote + currentTune];
+	else pitchControl=notes[n+ currentTune];
+
+	int16_t * data = mtProject.instrument[instr_idx].sample.address;
+
+	playMode=mtProject.instrument[instr_idx].playMode;
+
+	startLen=mtProject.instrument[instr_idx].sample.length;
+
+
+
+	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
+	{
+		startPoint=mtProject.instrument[instr_idx].startPoint;
+		endPoint=mtProject.instrument[instr_idx].endPoint;
+		if(playMode != singleShot) //loopMode
+		{
+			loopPoint1=mtProject.instrument[instr_idx].loopPoint1;
+			loopPoint2=mtProject.instrument[instr_idx].loopPoint2;
+		}
+
+	}
+	else
+	{
+		wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;
+		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
+		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
+		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
+		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
+		sampleConstrains.loopLength=wavetableWindowSize;
+	}
+	/*=========================================================================================================================*/
+	/*========================================WARUNKI LOOPPOINTOW==============================================================*/
+	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
+	{
+		if(playMode == singleShot)
+		{
+			if (startPoint >= endPoint) return badStartPoint;
+		}
+		else
+		{
+			if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
+			if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
+			if (loopPoint2 > endPoint) return badLoopPoint2;
+		}
+	}
+
+	/*=========================================================================================================================*/
+	/*====================================================PRZELICZENIA=========================================================*/
+	if(mtProject.instrument[instr_idx].fineTune >= 0)
+	{
+		currentFineTune=mtProject.instrument[instr_idx].fineTune;
+		if((n + mtProject.instrument[instr_idx].tune + 1) <= MAX_NOTE)
+		{
+			fineTuneControl= mtProject.instrument[instr_idx].fineTune * ((notes[n + currentTune + 1] - notes[n + currentTune]) /MAX_INSTRUMENT_FINETUNE);
+		}
+		else fineTuneControl=0;
+	}
+	else
+	{
+		if((n + mtProject.instrument[instr_idx].tune - 1) >= MIN_NOTE)
+		{
+			fineTuneControl= (0 - mtProject.instrument[instr_idx].fineTune) * ((notes[n + currentTune - 1] - notes[n + currentTune] )/MAX_INSTRUMENT_FINETUNE);
+		}
+		else fineTuneControl=0;
+	}
+
+	pitchControl+=fineTuneControl;
+
+	if(glide)
+	{
+		sampleConstrains.glide=(uint32_t)((float)glide*44.1);
+		if((lastNote>=0) && (lastNote != n)) glideControl=(notes[n + currentTune]-notes[lastNote + currentTune] )/sampleConstrains.glide;
+		else glideControl=0;
+	}
+	else
+	{
+		sampleConstrains.glide=0;
+		glideControl=0;
+	}
+
+
+
+	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
+	{
+		samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
+		samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
+		if(playMode != singleShot)
+		{
+			samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
+			samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
+		}
+
+		if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
+
+		if(playMode != singleShot)
+		{
+			sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
+			sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
+			sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+		}
+
+		sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
+	}
+
+
+
+/*===========================================================================================================================*/
+/*============================================PRZEKAZANIE PARAMETROW=========================================================*/
+	next = data+samplePoints.start;
+	beginning = data+samplePoints.start;
+	length =startLen-samplePoints.start;
+
+	playing = 0x81;
+
+	return successInit;
+	__enable_irq();
+
+}
+
+
 
 uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len)
 {
@@ -676,6 +827,8 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len)
 	return successInit;
 
 }
+
+
 
 uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n)
 {

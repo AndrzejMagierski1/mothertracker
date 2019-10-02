@@ -231,7 +231,6 @@ void audioEngine::setBitDepth(uint16_t bitDepth)
 	bitDepthControl[1].setBitDepth(bitDepth);
 }
 
-
 void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter,
 		AudioEffectEnvelope * envAmp, AudioAmplifier * amp, uint8_t panCh, LFO * lfoAmp, LFO * lfoFilter, LFO * lfoPitch)
 {
@@ -689,7 +688,6 @@ void playerEngine:: update()
 		statusBytes |= VOLUME_MASK;
 	}
 
-
 	if(statusBytes)
 	{
 		if(statusBytes & LP1_MASK)
@@ -802,6 +800,39 @@ float playerEngine :: fmap(float x, float in_min, float in_max, float out_min, f
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note)
+{
+	uint8_t status=0;
+	envelopeAmpPtr->delay(0);
+	envelopeAmpPtr->attack(0);
+	envelopeAmpPtr->hold(0);
+	envelopeAmpPtr->decay(0);
+	envelopeAmpPtr->sustain(1.0);
+	envelopeAmpPtr->release(0.0f);
+
+
+	filterDisconnect();
+	ampPtr->gain(1.0);
+
+	mixerL.gain(numPanChannel,1.0);
+	mixerR.gain(numPanChannel,1.0);
+	mixerReverb.gain(numPanChannel,0.0);
+	/*======================================================================================================*/
+	limiter[0].setAttack(300);
+	limiter[0].setRelease(10);
+	limiter[0].setThreshold(32000);
+	limiter[1].setAttack(300);
+	limiter[1].setRelease(10);
+	limiter[1].setThreshold(32000);
+	bitDepthControl[0].setBitDepth(16);
+	bitDepthControl[1].setBitDepth(16);
+
+	status = playMemPtr->playForPrev(instr_idx,note);
+	envelopeAmpPtr->noteOn();
+
+	return status;
+}
+
 uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
 {
 	uint8_t status=0;
@@ -866,7 +897,6 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	envelopeAmpPtr->noteOn();
 
 	return status;
-
 }
 uint8_t playerEngine ::getInterfaceEndReleaseFlag()
 {

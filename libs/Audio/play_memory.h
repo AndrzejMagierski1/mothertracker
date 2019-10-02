@@ -51,6 +51,7 @@ public:
 	void setTune(int8_t value, int8_t currentNote);
 	void setReverse();
 	void clearReverse();
+	uint8_t playForPrev(uint8_t instr_idx,int8_t n);
 	uint8_t playForPrev(int16_t * addr,uint32_t len);
 	uint8_t playForPrev(int16_t * addr,uint32_t len, uint8_t n);
 	void setTuneForceFlag();

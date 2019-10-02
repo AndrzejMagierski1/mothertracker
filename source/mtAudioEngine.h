@@ -123,6 +123,7 @@ public:
 
 	uint16_t getWavePosition();
 	void update();
+	uint8_t noteOnforPrev (uint8_t instr_idx,int8_t note);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note);
 	AudioEffectEnvelope *       envelopeAmpPtr;
