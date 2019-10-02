@@ -7,8 +7,15 @@
 /* Retro-compatibility with arduino 0023 and previous version */
 #if ARDUINO >= 100
 #include "Arduino.h"
-#define I2CWRITE(x) Wire2.write(x)
-#define I2CREAD() Wire2.read()
+#include "Wire.h"
+
+//-------- KONFIGURACJA STEORWNIKOW PRZYCISKOW --------------------------
+constexpr uint8_t BUTTON_MAX = 48;
+constexpr uint16_t HOLD_TIME = 500;
+
+
+#define I2CWRITE(x) localWire->write(x)
+#define I2CREAD() localWire->read()
 #else
 #include "WProgram.h"
 #define I2CWRITE(x) Wire.send(x)
@@ -128,36 +135,24 @@
 #define COL8 0x0100
 #define COL9 0x0200
 
-
-constexpr uint8_t BUTTON_MAX = 48;
-constexpr uint16_t HOLD_TIME = 500;
-constexpr uint8_t convertToGridKey4x12[80] =
+constexpr uint8_t defaultConvert[80] =
 {
 	0,1,2,3,4,5,6,7,8,9,
-	12,13,14,15,16,17,18,19,20,21,
-	24,25,26,27,28,29,30,31,32,33,
-	36,37,38,39,40,41,42,43,44,45,
-	255,255,255,255,255,255,255,255,11,10,
-	255,255,255,255,255,255,255,255,23,22,
-	255,255,255,255,255,255,255,255,35,34,
-	255,255,255,255,255,255,255,255,47,46
+	0,1,2,3,4,5,6,7,8,9,
+	0,1,2,3,4,5,6,7,8,9,
+	0,1,2,3,4,5,6,7,8,9,
+	0,1,2,3,4,5,6,7,8,9,
+	0,1,2,3,4,5,6,7,8,9,
+	0,1,2,3,4,5,6,7,8,9,
+	0,1,2,3,4,5,6,7,8,9,
 };
 
-constexpr uint8_t convertGridKey4x12ToTCA8418[48] =
-{
-  1,2,3,4,5,6,7,8,9,10,50,49,
-  11,12,13,14,15,16,17,18,19,20,60,59,
-  21,22,23,24,25,26,27,28,29,30,70,69,
-  31,32,33,34,35,36,37,38,39,40,80,79,
-};
-
-void KeyISR(void);
 
 class KEYS {
 public:
   KEYS();
   void begin(i2c_t3 * wire);
-  void begin(uint8_t rows, uint16_t cols, uint8_t config,i2c_t3 * wire);
+  void begin(uint8_t rows, uint16_t cols, uint8_t config, i2c_t3 * wire, uint8_t* table);
   uint8_t readKeypad(void);
   bool configureKeys(uint8_t rows, uint16_t cols, uint8_t config);
   void writeByte(uint8_t data, uint8_t reg);
@@ -190,18 +185,21 @@ public:
   bool isKeyDown(uint8_t key);
   bool getKey(uint8_t *key);
   uint8_t getKey(void);
-  void update();
+  uint8_t update();
   void setOnPush(void(*funct)(uint8_t));
   void setOnRelease(void(*funct)(uint8_t));
   void setOnHold(void(*funct)(uint8_t));
   elapsedMillis holdTim[BUTTON_MAX];
   uint8_t isButtonPressed(uint8_t n);
+
+  uint8_t keyInt = 0;
+
 private:
   void (*onPush)(uint8_t);
   void (*onRelease)(uint8_t);
   void (*onHold)(uint8_t);
   uint8_t buttonPush[BUTTON_MAX];
-  i2c_t3 * localWire = &Wire;
+  i2c_t3 * localWire = &Wire2;
 
 protected:
  
@@ -231,6 +229,8 @@ private:
   uint32_t _DDR; //Pin Direction INPUT or OUTPUT
   uint32_t _PUR; //Pull-Up Resistor Selection
   
+ uint8_t* convertTable = (uint8_t*)defaultConvert;
+
  };
-extern KEYS Keypad;
+
 #endif

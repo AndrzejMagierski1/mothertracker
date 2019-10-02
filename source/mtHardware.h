@@ -71,12 +71,10 @@
 #define FLASH_SCK   	27 			//PTA15			pin-67
 #define FLASH_CS    	26 			//PTA14			pin-66
 
-// SEQ GRID
-#define GRID_A			38 			//PTC11			pin-116
+// PAD / BUTTONS INT
+#define GRID_PADS_INT			38 	//PTC11			pin-116
+#define CONTROL_BUTTONS_INT	    14
 
-
-//TACTILE DRIVER INTERRUPT PIN
-#define TACTILE_INT		14
 
 /*
 #define GRID_B			64			//PTE8			pin-11
@@ -86,8 +84,12 @@
 
 
 // I2C
-#define I2C_SDA			4 			//PTA13			pin-65
-#define I2C_SCL			3 			//PTA12			pin-64
+#define GRID_I2C_SDA		4 			//PTA13			pin-65
+#define GRID_I2C_SCL		3 			//PTA12			pin-64
+
+#define AUDIO_I2C_SDA		48 			//PTA13			pin-65
+#define AUDIO_I2C_SCL		47 			//PTA12			pin-64
+
 
 // AUDIO CODEC
 #define AUDIO_OUT_MUX	68 			//PTE28			pin-49
