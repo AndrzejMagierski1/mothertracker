@@ -149,6 +149,8 @@ public:
 			FX_TYPE_RANDOM_NOTE,
 			FX_TYPE_RANDOM_INSTRUMENT,
 			FX_TYPE_RANDOM_VELOCITY,
+			FX_TYPE_ROLL_UP,
+			FX_TYPE_ROLL_DOWN,
 
 		};
 		enum enFxVal
@@ -488,7 +490,13 @@ public:
 			uint16_t noteTimer = 0;
 			uint16_t noteLength = 0;
 
-			uint8_t rollMode = 0;
+			boolean isOffset = 0;
+			uint16_t offsetValue = 0;
+
+			uint8_t rollType = 0; // 1/1, 1/2, 1/4 ...
+
+			boolean rollIsOn = 0;
+			uint8_t valRoll = 0;
 
 			bool pingPongToogle = 0;
 
