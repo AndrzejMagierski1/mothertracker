@@ -163,6 +163,25 @@ public:
 			FX_TYPE_SEND_CC_9,
 			FX_TYPE_SEND_CC_10,
 
+			FX_TYPE_GLIDE,
+			FX_TYPE_SAMPLE_START,
+			FX_TYPE_SAMPLE_LOOP_START,
+			FX_TYPE_SAMPLE_LOOP_END,
+			FX_TYPE_SAMPLE_SLICE,
+			FX_TYPE_REVERSE_PLAYBACK,
+			FX_TYPE_FILTER_LOWPASS,
+			FX_TYPE_FILTER_HIGHPASS,
+			FX_TYPE_FILTER_BANDPASS,
+			FX_TYPE_REVERB_SEND,
+			FX_TYPE_PANNING,
+			FX_TYPE_AMP_ATTACK,
+			FX_TYPE_AMP_RELEASE,
+			FX_TYPE_MICROTUNING,
+			FX_TYPE_TREMOLO_FAST,
+			FX_TYPE_TREMOLO_SLOW,
+			FX_TYPE_VIBRATO_FAST,
+			FX_TYPE_VIBRATO_SLOW,
+
 		};
 		enum enFxVal
 		{
@@ -510,11 +529,10 @@ public:
 			uint8_t rollVal = 0;
 			uint8_t rollDir = 0;
 
-
 			bool pingPongToogle = 0;
 
-			uint8_t return2start = 0;// po zakonczonym stepie wraca do pocatku
-			uint8_t makeJump = 0;// flaga przeskoku do odpowiedniego patternu po odegraniu stepu
+			uint8_t return2start = 0; // po zakonczonym stepie wraca do pocatku
+			uint8_t makeJump = 0; // flaga przeskoku do odpowiedniego patternu po odegraniu stepu
 
 			bool divChange = 0;
 

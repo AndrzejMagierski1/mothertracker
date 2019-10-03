@@ -333,8 +333,6 @@ void Sequencer::play_microStep(uint8_t row)
 			usbMIDI.sendControlChange(2, _fx.value, 1);
 			break;
 
-
-
 		default:
 			break;
 		}
@@ -1061,6 +1059,7 @@ void Sequencer::copy_step(uint8_t from_step, uint8_t from_track,
 
 void Sequencer::send_clock(uint8_t arg)
 {
+// TODO: wypełnić
 // TODO: wypełnić
 
 }
