@@ -102,7 +102,7 @@ public:
 	char locationExplorerList[list_length_max][40];
 	char *explorerNames[list_length_max];
 	uint8_t selectedFile = 0;
-
+	char copyingInfo[20];
 //--------------------------------------------------------------
 
 // instrumenty
