@@ -492,16 +492,18 @@ uint8_t KEYS::update()
 		uint8_t keyNumber = key & 0x7F;
 		uint8_t keyState = key & 0x80 ;
 
+		uint8_t button = convertTable[keyNumber-1];
 		if (keyState)
 		{
-			onPush(convertTable[keyNumber-1]);
-			buttonPush[convertTable[keyNumber-1]] = 1;
-			holdTim[convertTable[keyNumber-1]] = 0;
+			onPush(button);
+			buttonPush[button] = 1;
+			holdTim[button] = 0;
+			holdFactor[button] = 0;
 		}
 		else
 		{
-			onRelease(convertTable[keyNumber-1]);
-			buttonPush[convertTable[keyNumber-1]] = 0;
+			onRelease(button);
+			buttonPush[button] = 0;
 		}
 
 		keyInt = 0; //Reset Our Interrupt flag
@@ -512,10 +514,14 @@ uint8_t KEYS::update()
 	{
 		if(buttonPush[i] && (holdTim[i] > HOLD_TIME))
 		{
-			holdTim[i] = 0;
+			if(holdFactor[i] < holdTimeStepsCount-1) holdFactor[i]++;
+
+			holdTim[i] = holdTimeStep[holdFactor[i]];
 			onHold(i);
 		}
 	}
+
+
 	//Do other processing
 	return result;
 }
