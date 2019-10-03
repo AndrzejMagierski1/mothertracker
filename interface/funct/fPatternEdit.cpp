@@ -1389,6 +1389,10 @@ static  uint8_t functNote(uint8_t state)
 			show_note = -1;
 		}
 
+		PTE->FM->clearButton(interfaceButtonInstr);
+		PTE->FM->clearButton(interfaceButtonVol);
+		PTE->FM->clearButton(interfaceButtonFx);
+
 		mtPopups.showStepPopup(stepPopupNote, show_note);
 		PTE->lightUpPadBoard();
 	}
@@ -1429,6 +1433,10 @@ static  uint8_t functInstrument(uint8_t state)
 			&& mtPopups.getStepPopupState() == stepPopupNone
 			&& !tactButtons.isButtonPressed(interfaceButtonShift))
 	{
+		PTE->FM->clearButton(interfaceButtonNote);
+		PTE->FM->clearButton(interfaceButtonVol);
+		PTE->FM->clearButton(interfaceButtonFx);
+
 		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
 		PTE->lightUpPadBoard();
 	}
@@ -1469,6 +1477,10 @@ static  uint8_t functVolume(uint8_t state)
 			&& mtPopups.getStepPopupState() == stepPopupNone
 			&& !tactButtons.isButtonPressed(interfaceButtonShift))
 	{
+		PTE->FM->clearButton(interfaceButtonNote);
+		PTE->FM->clearButton(interfaceButtonInstr);
+		PTE->FM->clearButton(interfaceButtonFx);
+
 		mtPopups.showStepPopup(stepPopupVol, PTE->getStepVol());
 		PTE->lightUpPadBoard();
 	}
@@ -1510,11 +1522,12 @@ static  uint8_t functFx(uint8_t state)
 			&& !tactButtons.isButtonPressed(interfaceButtonShift)
 			&& !tactButtons.isButtonPressed(interfaceButtonCopy))
 	{
-		//if(mtPopups.getStepPopupState() == stepPopupNone)
-		//{
-			mtPopups.showStepPopup(stepPopupFx, PTE->getStepFx());
-			PTE->lightUpPadBoard();
-		//}
+		PTE->FM->clearButton(interfaceButtonNote);
+		PTE->FM->clearButton(interfaceButtonInstr);
+		PTE->FM->clearButton(interfaceButtonVol);
+
+		mtPopups.showStepPopup(stepPopupFx, PTE->getStepFx());
+		PTE->lightUpPadBoard();
 	}
 	else if(state == buttonRelease)
 	{
