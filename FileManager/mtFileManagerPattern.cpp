@@ -1,6 +1,16 @@
 #include "mtFileManager.h"
+#include "sdram.h"
+
 
 uint8_t patternToLoad = 0;
+//__NOINIT(EXTERNAL_RAM) uint8_t undo_Bank[1024*1024];
+__NOINIT(EXTERNAL_RAM) Sequencer::strPattern undoPatternBuffer[20];
+
+struct strUndo
+{
+	uint8_t actualIndex = 0;
+} undo;
+
 uint8_t FileManager::loadPattern(uint8_t index)
 {
 
@@ -37,6 +47,16 @@ uint8_t FileManager::savePattern(uint8_t index)
 	sprintf(patternToSave, "Workspace/patterns/pattern_%02d.mtp", index);
 	mtProject.values.actualPattern = index;
 	return writePatternFile(patternToSave);
+}
+
+void FileManager::storePatternUndoRevision()
+{
+	undoPatternBuffer[undo.actualIndex] = *sequencer.getActualPattern();
+	undo.actualIndex++;
+}
+void FileManager::undoPattern()
+{
+	*sequencer.getActualPattern() = --undo.actualIndex;
 }
 
 void FileManager::importPatternToProject(char* filePatch, char* name,
