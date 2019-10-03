@@ -13,45 +13,53 @@
 #include "mtRecorder.h"
 #include "mtExporterWAV.h"
 
-struct strActiveValuePerformance
+struct strPerformance
 {
 //****************************************************************************
-// aktualna wartosc modyfikujaca
-	  int8_t 	performanceModVolume;
-	  int16_t 	performanceModPanning;
-	  int8_t 	performanceModTune;
-	  int8_t 	performanceModReverbSend;
-	  float 	performanceModCutOff;
-	  int32_t 	performanceModStartPoint;
-	  int32_t 	performanceModLoopPoint1;
-	  int32_t 	performanceModLoopPoint2;
-	  int32_t 	performanceModEndPoint;
-//****************************************************************************
+// wartosc modyfikujaca
+	struct strMod
+	{
+	  int8_t 	volume;
+	  int8_t 	panning;
+	  int8_t 	tune;
+	  int8_t 	reverbSend;
+	  int8_t 	cutoff;
+	  int32_t 	startPoint;
+	  int32_t 	loopPoint1;
+	  int32_t 	loopPoint2;
+	  int32_t 	endPoint;
+	} mod;
 //****************************************************************************
 // aktualna aktywna wartosc
+	struct strActiveValueSeq
+	{
 	  uint8_t volume;
 	  int16_t panning;
 	  int8_t tune;
 	  uint8_t reverbSend;
-	  float cutOff;
+	  float cutoff;
 	  uint16_t startPoint;
 	  uint16_t loopPoint1;
 	  uint16_t loopPoint2;
 	  uint16_t endPoint;
+	} activeValueSeq;
+
 //****************************************************************************
-	  uint8_t volumeForceFlag;
-	  uint8_t panningForceFlag;
-	  uint8_t tuneForceFlag;
-	  uint8_t reverbSendForceFlag;
-	  uint8_t cutOffForceFlag;
+// flagi wymuszajace użycie performance i wymuszone wartosci
+	struct strForcedFlags
+	{
+	  uint8_t volume;
+	  uint8_t panning;
+	  uint8_t tune;
+	  uint8_t reverbSend;
+	  uint8_t cutoff;
+	} forcedFlags;
 
-	  uint16_t startPointForcedValue;
-	  uint16_t loopPoint1ForcedValue;
-	  uint16_t loopPoint2ForcedValue;
-	  uint16_t endPointForcedValue;
-
-	  uint8_t filterForcedEnableFlag;
-	  int8_t filterForcedType = -1;
+	struct strForcedValues
+	{
+	  uint8_t filterEnable;
+	  int8_t filterType = -1;
+	} forcedValues;
 
 } ;
 
@@ -83,7 +91,6 @@ private:
 };
 
 
-
 class playerEngine
 {
 public:
@@ -96,6 +103,8 @@ public:
 	uint8_t noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx_id, uint8_t fx_val);
 	void noteOff();
 	void clean();
+
+	void seqFx(uint8_t fx_id, uint8_t fx_val);
 
 	void slide(int8_t note, uint16_t time);
 	void modPitch(float value);
@@ -123,7 +132,7 @@ public:
 
 	uint16_t getWavePosition();
 	void update();
-	uint8_t noteOnforPrev (uint8_t instr_idx,int8_t note);
+	uint8_t noteOnforPrev (uint8_t instr_idx,int8_t note, int8_t velocity);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note);
 	AudioEffectEnvelope *       envelopeAmpPtr;
@@ -138,7 +147,7 @@ public:
 	void changeFilterTypePerformanceMode(uint8_t mode);
 
 private:
-	strActiveValuePerformance 	activeValuePerformance;
+	strPerformance 				performance;
 	friend 						audioEngine;
 	AudioPlayMemory *        	playMemPtr;
 	AudioAmplifier *			ampPtr;

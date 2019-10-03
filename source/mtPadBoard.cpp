@@ -46,7 +46,7 @@ void cMtPadBoard::startInstrument(uint8_t pad, uint8_t index, int8_t velocity)
 	//mtPrint("start: ");
 	//mtPrintln(voiceToTake);
 	instrumentPlayer[voiceToTake].noteOff();
-	instrumentPlayer[voiceToTake].noteOnforPrev(index, convertPadToNote(pad));
+	instrumentPlayer[voiceToTake].noteOnforPrev(index, convertPadToNote(pad),velocity);
 }
 
 void cMtPadBoard::startInstrument(uint8_t pad,int16_t * addres, uint32_t length)
