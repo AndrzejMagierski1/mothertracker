@@ -325,6 +325,16 @@ void Sequencer::play_microStep(uint8_t row)
 
 			break;
 
+		case fx.FX_TYPE_SEND_CC_1:
+			usbMIDI.sendControlChange(1, _fx.value, 1);
+			break;
+
+		case fx.FX_TYPE_SEND_CC_2:
+			usbMIDI.sendControlChange(2, _fx.value, 1);
+			break;
+
+
+
 		default:
 			break;
 		}
@@ -376,6 +386,7 @@ void Sequencer::play_microStep(uint8_t row)
 		case fx.FX_TYPE_ROLL:
 			case fx.FX_TYPE_ROLL_UP:
 			case fx.FX_TYPE_ROLL_DOWN:
+			case fx.FX_TYPE_ROLL_RANDOM:
 
 			playerRow.rollIsOn = 1;
 			playerRow.rollVal = _fx.value;
@@ -456,6 +467,16 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 		if (patternStep.note >= 0)
 		{
+			if (playerRow.rollDir == fx.FX_TYPE_ROLL_RANDOM)
+			{
+				playerRow.stepToSend.note = constrain(
+						random(
+								playerRow.stepToSend.note - 12,
+								playerRow.stepToSend.note + 12 + 1),
+						0,
+						127);
+			}
+
 			sendNoteOn(row,
 						stepToSend.note,
 						stepToSend.velocity,
@@ -463,6 +484,8 @@ void Sequencer::play_microStep(uint8_t row)
 			playerRow.stepOpen = 1;
 			playerRow.noteOpen = 1;
 			playerRow.stepLength = 9999;
+
+			playerRow.stepSent = playerRow.stepToSend;
 		}
 		else if (patternStep.note == STEP_NOTE_OFF)
 		{
@@ -495,11 +518,26 @@ void Sequencer::play_microStep(uint8_t row)
 
 				if (playerRow.rollDir == fx.FX_TYPE_ROLL_UP)
 				{
-					playerRow.stepToSend.note++;
+					playerRow.stepToSend.note = constrain(
+							++playerRow.stepToSend.note,
+							0,
+							127);
 				}
 				else if (playerRow.rollDir == fx.FX_TYPE_ROLL_DOWN)
 				{
-					playerRow.stepToSend.note--;
+					playerRow.stepToSend.note = constrain(
+							--playerRow.stepToSend.note,
+							0,
+							127);
+				}
+				else if (playerRow.rollDir == fx.FX_TYPE_ROLL_RANDOM)
+				{
+					playerRow.stepToSend.note = constrain(
+							random(
+									playerRow.stepToSend.note - 12,
+									playerRow.stepToSend.note + 12 + 1),
+							0,
+							127);
 				}
 				sendNoteOn(row,
 							playerRow.stepToSend.note,
