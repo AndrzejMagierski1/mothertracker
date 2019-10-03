@@ -72,12 +72,6 @@ void cInterfacePopups::initPopupsDisplayControls()
 
 
 	strControlProperties prop2;
-	prop2.style = 	(controlStyleBackground);
-	prop2.x = 0;
-	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
-	if(bgLabel == nullptr) bgLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	(controlStyleCenterY);
 	prop2.x = 30;
 	prop2.y = 12;
@@ -85,7 +79,12 @@ void cInterfacePopups::initPopupsDisplayControls()
 	prop2.style = 	(controlStyleRightX | controlStyleCenterY);
 	prop2.x = 769;
 	if(textLabel2 == nullptr) textLabel2 = display.createControl<cLabel>(&prop2);
-
+	prop2.style = 	(controlStyleBackground);
+	prop2.x = 0;
+	prop2.y = 0;
+	prop2.w = 800;
+	prop2.h = 25;
+	if(bgLabel == nullptr) bgLabel = display.createControl<cLabel>(&prop2);
 
 	strControlProperties prop3;
 	prop3.style = 	(controlStyleBackground);
@@ -305,6 +304,8 @@ void cInterfacePopups::hideStepPopups()
 {
 	if(stepPopupState)
 	{
+		stepPopupState = stepPopupNone;
+
 		display.setControlHide(listControl[0]);
 		display.setControlHide(listControl[1]);
 		display.setControlHide(listControl[2]);

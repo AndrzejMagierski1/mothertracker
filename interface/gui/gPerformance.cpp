@@ -354,7 +354,7 @@ void cPerformanceMode::showPerformaceValue(uint8_t fx)
 		}
 		case mtPerfStepStutter:
 		{
-			display.setControlText(value1Label[place], &performanceStutterLabels[fxValues[fx]][0]);
+			display.setControlText(value1Label[place], &performanceStutterLabels[fxValues[fx]+4][0]);
 			display.setControlShow(value1Label[place]);
 			display.refreshControl(value1Label[place]);
 			continue;
