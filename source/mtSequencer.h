@@ -151,6 +151,17 @@ public:
 			FX_TYPE_RANDOM_VELOCITY,
 			FX_TYPE_ROLL_UP,
 			FX_TYPE_ROLL_DOWN,
+			FX_TYPE_ROLL_RANDOM,
+			FX_TYPE_SEND_CC_1,
+			FX_TYPE_SEND_CC_2,
+			FX_TYPE_SEND_CC_3,
+			FX_TYPE_SEND_CC_4,
+			FX_TYPE_SEND_CC_5,
+			FX_TYPE_SEND_CC_6,
+			FX_TYPE_SEND_CC_7,
+			FX_TYPE_SEND_CC_8,
+			FX_TYPE_SEND_CC_9,
+			FX_TYPE_SEND_CC_10,
 
 		};
 		enum enFxVal
@@ -496,7 +507,9 @@ public:
 			uint8_t rollType = 0; // 1/1, 1/2, 1/4 ...
 
 			boolean rollIsOn = 0;
-			uint8_t valRoll = 0;
+			uint8_t rollVal = 0;
+			uint8_t rollDir = 0;
+
 
 			bool pingPongToogle = 0;
 
