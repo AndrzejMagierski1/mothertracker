@@ -496,7 +496,9 @@ public:
 			uint8_t rollType = 0; // 1/1, 1/2, 1/4 ...
 
 			boolean rollIsOn = 0;
-			uint8_t valRoll = 0;
+			uint8_t rollVal = 0;
+			uint8_t rollDir = 0;
+
 
 			bool pingPongToogle = 0;
 
