@@ -532,8 +532,8 @@ static  uint8_t functEncoder(int16_t value)
 			}
 			case mtPerfStepStutter:
 			{
-				if(PM->fxValues[i] + value > 11) PM->fxValues[i] = 11;
-				else if(PM->fxValues[i] + value < 0) PM->fxValues[i] = 0;
+				if(PM->fxValues[i] + value > 8) PM->fxValues[i] = 8;
+				else if(PM->fxValues[i] + value < -4) PM->fxValues[i] = -4;
 				else PM->fxValues[i] += value;
 
 				break;

@@ -423,6 +423,8 @@ uint8_t cPatternEditor::getStepFx()
 
 	if(fx_type < FX_COUNT) selectedFx = fx_type;
 
+	if(selectedFx == 0) selectedFx = mtProject.values.lastUsedFx;
+
 	return selectedFx;
 }
 
@@ -1364,7 +1366,8 @@ static  uint8_t functNote(uint8_t state)
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
 	}
-	else if(state == buttonDouble
+	else if(state == buttonHold
+			&& mtPopups.getStepPopupState() == stepPopupNone
 			&& !tactButtons.isButtonPressed(interfaceButtonShift)
 			&& !tactButtons.isButtonPressed(interfaceButtonCopy))
 	{
@@ -1388,6 +1391,10 @@ static  uint8_t functNote(uint8_t state)
 
 		mtPopups.showStepPopup(stepPopupNote, show_note);
 		PTE->lightUpPadBoard();
+	}
+	else if(state == buttonRelease)
+	{
+		PTE->cancelPopups();
 	}
 
 	return 1;
@@ -1418,10 +1425,16 @@ static  uint8_t functInstrument(uint8_t state)
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
 	}
-	else if(state == buttonDouble && !tactButtons.isButtonPressed(interfaceButtonShift))
+	else if(state == buttonHold
+			&& mtPopups.getStepPopupState() == stepPopupNone
+			&& !tactButtons.isButtonPressed(interfaceButtonShift))
 	{
 		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
 		PTE->lightUpPadBoard();
+	}
+	else if(state == buttonRelease)
+	{
+		PTE->cancelPopups();
 	}
 
 	return 1;
@@ -1452,10 +1465,16 @@ static  uint8_t functVolume(uint8_t state)
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
 	}
-	else if(state == buttonDouble && !tactButtons.isButtonPressed(interfaceButtonShift))
+	else if(state == buttonHold
+			&& mtPopups.getStepPopupState() == stepPopupNone
+			&& !tactButtons.isButtonPressed(interfaceButtonShift))
 	{
 		mtPopups.showStepPopup(stepPopupVol, PTE->getStepVol());
 		PTE->lightUpPadBoard();
+	}
+	else if(state == buttonRelease)
+	{
+		PTE->cancelPopups();
 	}
 
 	return 1;
@@ -1486,7 +1505,8 @@ static  uint8_t functFx(uint8_t state)
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
 	}
-	else if(state == buttonDouble
+	else if(state == buttonHold
+			&& mtPopups.getStepPopupState() == stepPopupNone
 			&& !tactButtons.isButtonPressed(interfaceButtonShift)
 			&& !tactButtons.isButtonPressed(interfaceButtonCopy))
 	{
@@ -1495,6 +1515,10 @@ static  uint8_t functFx(uint8_t state)
 			mtPopups.showStepPopup(stepPopupFx, PTE->getStepFx());
 			PTE->lightUpPadBoard();
 		//}
+	}
+	else if(state == buttonRelease)
+	{
+		PTE->cancelPopups();
 	}
 
 	return 1;
