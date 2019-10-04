@@ -1,7 +1,15 @@
+//********************************************************************
+// Przy aktualizacjach seqwencera w wypadku gdy został użyty performance mode należy pamiętać, że wartości ze struktur performance.activeValue
+// powinny być napisane przed użyciem funkcji z rodziny change...PerformanceMode - żeby funkcje te miały aktualną wartość
+//********************************************************************
+
 #include "mtAudioEngine.h"
 #include "sampleRecorder.h"
+#include "mtSequencer.h"
 extern AudioControlSGTL5000 audioShield;
 static cSampleRecorder* SR = &sampleRecorder;
+
+typedef Sequencer::strFxConsts fx_t;
 
 AudioInputI2S            i2sIn;
 AudioRecordQueue         queue;
@@ -231,7 +239,6 @@ void audioEngine::setBitDepth(uint16_t bitDepth)
 	bitDepthControl[1].setBitDepth(bitDepth);
 }
 
-
 void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter,
 		AudioEffectEnvelope * envAmp, AudioAmplifier * amp, uint8_t panCh, LFO * lfoAmp, LFO * lfoFilter, LFO * lfoPitch)
 {
@@ -292,7 +299,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	/*======================================================================================================*/
 	/*================================================ENVELOPE FILTER=======================================*/
 
-	if((mtProject.instrument[instr_idx].filterEnable == filterOn) || (activeValuePerformance.filterForcedEnableFlag))
+	if((mtProject.instrument[instr_idx].filterEnable == filterOn) || (performance.forcedValues.filterEnable))
 	{
 		envelopeFilterPtr->init(&mtProject.instrument[instr_idx].envelope[envFilter]);
 		lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
@@ -300,36 +307,56 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	/*================================================FILTER================================================*/
 		filterConnect();
 
-		if(activeValuePerformance.filterForcedType == -1 ) changeFilterType(mtProject.instrument[instr_idx].filterType);
-		else changeFilterType(activeValuePerformance.filterForcedType);
+		if(performance.forcedValues.filterType == -1 ) changeFilterType(mtProject.instrument[instr_idx].filterType);
+		else changeFilterType(performance.forcedValues.filterType);
 
 		filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
 
+		performance.activeValueSeq.cutoff =  mtProject.instrument[instr_idx].cutOff;
+		if(!performance.forcedFlags.cutoff) filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
+		else
+		{
+			changeCutoffPerformanceMode(performance.mod.cutoff);
+		}
 
-		if(!activeValuePerformance.cutOffForceFlag) filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
-		activeValuePerformance.cutOff =  mtProject.instrument[instr_idx].cutOff;
 	}
 	else if(mtProject.instrument[instr_idx].filterEnable == filterOff) filterDisconnect();
 
 	/*======================================================================================================*/
 	/*==================================================GAIN================================================*/
+	if(velocity < 0)
+	{
+		performance.activeValueSeq.volume=(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0))*100;
+	}
+	else
+	{
+		performance.activeValueSeq.volume=((velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount)*100;
+	}
+
 	if(muteState == 0)
 	{
 		if(velocity < 0)
 		{
-			if(!activeValuePerformance.volumeForceFlag)
+			if(!performance.forcedFlags.volume)
 			{
 				ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
 			}
-			activeValuePerformance.volume=(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0))*100;
+			else
+			{
+				changeVolumePerformanceMode(performance.mod.volume);
+			}
+
 		}
 		else
 		{
-			if(!activeValuePerformance.volumeForceFlag)
+			if(!performance.forcedFlags.volume)
 			{
 				ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
 			}
-			activeValuePerformance.volume=((velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount)*100;
+			else
+			{
+				changeVolumePerformanceMode(performance.mod.volume);
+			}
 		}
 	}
 	/*======================================================================================================*/
@@ -349,27 +376,32 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		gainL=1.0; gainR=1.0;
 	}
 
-	activeValuePerformance.panning = mtProject.instrument[instr_idx].panning;
-	if(!activeValuePerformance.panningForceFlag)
+	performance.activeValueSeq.panning = mtProject.instrument[instr_idx].panning;
+	if(!performance.forcedFlags.panning)
 	{
 		mixerL.gain(numPanChannel,gainL);
 		mixerR.gain(numPanChannel,gainR);
+	}
+	else
+	{
+		changePanningPerformanceMode(performance.mod.panning);
 	}
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
 	if(muteState == 0)
 	{
-		if(!activeValuePerformance.reverbSendForceFlag)	mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
-		activeValuePerformance.reverbSend=mtProject.instrument[instr_idx].reverbSend;
+		performance.activeValueSeq.reverbSend=mtProject.instrument[instr_idx].reverbSend;
+		if(!performance.forcedFlags.reverbSend)	mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
+		else changeReverbSendPerformanceMode(performance.mod.reverbSend);
 	}
 
-	activeValuePerformance.startPoint = mtProject.instrument[instr_idx].startPoint;
-	activeValuePerformance.loopPoint1 = mtProject.instrument[instr_idx].loopPoint1;
-	activeValuePerformance.loopPoint2 = mtProject.instrument[instr_idx].loopPoint2;
-	activeValuePerformance.endPoint = mtProject.instrument[instr_idx].endPoint;
+	performance.activeValueSeq.startPoint = mtProject.instrument[instr_idx].startPoint;
+	performance.activeValueSeq.loopPoint1 = mtProject.instrument[instr_idx].loopPoint1;
+	performance.activeValueSeq.loopPoint2 = mtProject.instrument[instr_idx].loopPoint2;
+	performance.activeValueSeq.endPoint = mtProject.instrument[instr_idx].endPoint;
 
 	/*======================================================================================================*/
-	activeValuePerformance.tune = mtProject.instrument[instr_idx].tune;
+	performance.activeValueSeq.tune = mtProject.instrument[instr_idx].tune;
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();
 
@@ -423,42 +455,51 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	/*======================================================================================================*/
 	/*================================================ENVELOPE FILTER=======================================*/
 
-	if((mtProject.instrument[instr_idx].filterEnable == filterOn) || (activeValuePerformance.filterForcedEnableFlag))
+	if((mtProject.instrument[instr_idx].filterEnable == filterOn) || (performance.forcedValues.filterEnable))
 	{
 		envelopeFilterPtr->init(&mtProject.instrument[instr_idx].envelope[envFilter]);
 		lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
 	/*======================================================================================================*/
 	/*================================================FILTER================================================*/
 		filterConnect();
-		if(activeValuePerformance.filterForcedType == -1 ) changeFilterType(mtProject.instrument[instr_idx].filterType);
-		else changeFilterType(activeValuePerformance.filterForcedType);
+		if(performance.forcedValues.filterType == -1 ) changeFilterType(mtProject.instrument[instr_idx].filterType);
+		else changeFilterType(performance.forcedValues.filterType);
 		filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
 
-
-		if(!activeValuePerformance.cutOffForceFlag) filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
-		activeValuePerformance.cutOff =  mtProject.instrument[instr_idx].cutOff;
+		performance.activeValueSeq.cutoff =  mtProject.instrument[instr_idx].cutOff;
+		if(!performance.forcedFlags.cutoff) filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
+		else changeCutoffPerformanceMode(performance.mod.cutoff);
 	}
 	else if(mtProject.instrument[instr_idx].filterEnable == filterOff) filterDisconnect();
 
 	/*======================================================================================================*/
 	/*==================================================GAIN================================================*/
+	if(velocity < 0)
+	{
+		performance.activeValueSeq.volume = (mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0))*100;
+	}
+	else
+	{
+		performance.activeValueSeq.volume=((velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount)*100;
+	}
+
 	if(muteState == 0)
 	{
 		if(velocity < 0)
 		{
-			if(!activeValuePerformance.volumeForceFlag)
+			if(!performance.forcedFlags.volume)
 			{
 				ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
 			}
-			activeValuePerformance.volume=(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0))*100;
+			else changeVolumePerformanceMode(performance.mod.volume);
 		}
 		else
 		{
-			if(!activeValuePerformance.volumeForceFlag)
+			if(!performance.forcedFlags.volume)
 			{
 				ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
 			}
-			activeValuePerformance.volume=((velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount)*100;
+			else changeVolumePerformanceMode(performance.mod.volume);
 		}
 	}
 	/*======================================================================================================*/
@@ -478,36 +519,35 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		gainL=1.0; gainR=1.0;
 	}
 
-	activeValuePerformance.panning = mtProject.instrument[instr_idx].panning;
-	if(!activeValuePerformance.panningForceFlag)
+	performance.activeValueSeq.panning = mtProject.instrument[instr_idx].panning;
+	if(!performance.forcedFlags.panning)
 	{
 		mixerL.gain(numPanChannel,gainL);
 		mixerR.gain(numPanChannel,gainR);
+	}
+	else
+	{
+		changePanningPerformanceMode(performance.mod.panning);
 	}
 
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
 	if(muteState == 0)
 	{
-		if(!activeValuePerformance.reverbSendForceFlag) mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
-		activeValuePerformance.reverbSend=	mtProject.instrument[instr_idx].reverbSend;
+		performance.activeValueSeq.reverbSend=	mtProject.instrument[instr_idx].reverbSend;
+		if(!performance.forcedFlags.reverbSend) mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
+		else changeReverbSendPerformanceMode(performance.mod.reverbSend);
 	}
 	/*======================================================================================================*/
+	performance.activeValueSeq.startPoint = mtProject.instrument[instr_idx].startPoint;
+	performance.activeValueSeq.loopPoint1 = mtProject.instrument[instr_idx].loopPoint1;
+	performance.activeValueSeq.loopPoint2 = mtProject.instrument[instr_idx].loopPoint2;
+	performance.activeValueSeq.endPoint = mtProject.instrument[instr_idx].endPoint;
 
+	performance.activeValueSeq.tune = mtProject.instrument[instr_idx].tune;
 	//*************************************************FX****************************************************
-
-	switch(fx_id)
-	{
-		case fx_ID_cutoff:
-
-			filterPtr->setCutoff(fx_val/(float)MAX_8BIT);
-			activeValuePerformance.cutOff = fx_val/(float)MAX_8BIT;
-			break;
-
-	}
-
+	seqFx(fx_id,fx_val);
 	//*******************************************************************************************************
-	activeValuePerformance.tune = mtProject.instrument[instr_idx].tune;
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();
 
@@ -549,6 +589,115 @@ void playerEngine :: noteOff()
 	__enable_irq();
 }
 
+void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
+{
+	switch(fx_id)
+	{
+		case 0:
+			endFx(lastSeqFx);
+		break;
+		case fx_t::FX_TYPE_AMP_ATTACK:
+		break;
+		case fx_t::FX_TYPE_AMP_RELEASE :
+		break;
+		case fx_t::FX_TYPE_FILTER_BANDPASS :
+			modCutoff(fx_val/(float)MAX_8BIT);
+			changeFilterType(bandPass);
+			filterConnect();
+		break;
+		case fx_t::FX_TYPE_FILTER_HIGHPASS :
+			modCutoff(fx_val/(float)MAX_8BIT);
+			changeFilterType(highPass);
+			filterConnect();
+		break;
+		case fx_t::FX_TYPE_FILTER_LOWPASS :
+			modCutoff(fx_val/(float)MAX_8BIT);
+			changeFilterType(lowPass);
+			filterConnect();
+		break;
+		case fx_t::FX_TYPE_GLIDE :
+			modGlide(map(fx_val,0,MAX_8BIT,GLIDE_MIN,GLIDE_MAX));
+		break;
+		case fx_t::FX_TYPE_MICROTUNING :
+			modFineTune(map(fx_val,0,MAX_8BIT,MIN_INSTRUMENT_FINETUNE,MAX_INSTRUMENT_FINETUNE));
+		break;
+		case fx_t::FX_TYPE_PANNING :
+			modPanning(map(fx_val,0,MAX_8BIT,PANNING_MIN,PANNING_MAX));
+		break;
+		case fx_t::FX_TYPE_REVERB_SEND :
+			modReverbSend(map(fx_val,0,MAX_8BIT,REVERB_SEND_MIN,REVERB_SEND_MAX));
+		break;
+		case fx_t::FX_TYPE_REVERSE_PLAYBACK :
+		break;
+		case fx_t::FX_TYPE_SAMPLE_START :
+		break;
+		case fx_t::FX_TYPE_TREMOLO_FAST :
+		break;
+		case fx_t::FX_TYPE_TREMOLO_SLOW :
+		break;
+		case fx_t::FX_TYPE_VIBRATO_FAST :
+		break;
+		case fx_t::FX_TYPE_VIBRATO_SLOW :
+		break;
+	}
+	lastSeqFx = fx_id;
+}
+
+void playerEngine::endFx(uint8_t fx_id)
+{
+	switch(fx_id)
+	{
+		case 0:
+
+			break;
+		case fx_t::FX_TYPE_AMP_ATTACK:
+		break;
+		case fx_t::FX_TYPE_AMP_RELEASE :
+		break;
+		case fx_t::FX_TYPE_FILTER_BANDPASS :
+			modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+			changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+			if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
+			else filterConnect();
+		break;
+		case fx_t::FX_TYPE_FILTER_HIGHPASS :
+			modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+			changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+			if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
+			else filterConnect();
+		break;
+		case fx_t::FX_TYPE_FILTER_LOWPASS :
+			modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+			changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+			if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
+			else filterConnect();
+		break;
+		case fx_t::FX_TYPE_GLIDE :
+			modGlide(mtProject.instrument[currentInstrument_idx].glide);
+		break;
+		case fx_t::FX_TYPE_MICROTUNING :
+			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
+		break;
+		case fx_t::FX_TYPE_PANNING :
+			modPanning(mtProject.instrument[currentInstrument_idx].panning);
+		break;
+		case fx_t::FX_TYPE_REVERB_SEND :
+			modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
+		break;
+		case fx_t::FX_TYPE_REVERSE_PLAYBACK :
+		break;
+		case fx_t::FX_TYPE_SAMPLE_START :
+		break;
+		case fx_t::FX_TYPE_TREMOLO_FAST :
+		break;
+		case fx_t::FX_TYPE_TREMOLO_SLOW :
+		break;
+		case fx_t::FX_TYPE_VIBRATO_FAST :
+		break;
+		case fx_t::FX_TYPE_VIBRATO_SLOW :
+		break;
+	}
+}
 
 void playerEngine :: modGlide(uint16_t value)
 {
@@ -566,8 +715,12 @@ void playerEngine :: modFineTune(int8_t value)
 
 void playerEngine :: modPanning(int16_t value)
 {
-	activeValuePerformance.panning = value;
-	if(activeValuePerformance.panningForceFlag) return;
+	performance.activeValueSeq.panning = value;
+	if(performance.forcedFlags.panning)
+	{
+		changePanningPerformanceMode(performance.mod.panning);
+		return;
+	}
 	float gainL=0,gainR=0;
 	if(value < 50)
 	{
@@ -605,12 +758,12 @@ void playerEngine :: modLP2(uint16_t value)
 
 void playerEngine :: modCutoff(float value)
 {
+	performance.activeValueSeq.cutoff = value;
 	if(mtProject.instrument[currentInstrument_idx].filterEnable == filterOn)
 	{
-		if(!activeValuePerformance.cutOffForceFlag) filterPtr->setCutoff(value);
-		activeValuePerformance.cutOff = value;
+		if(!performance.forcedFlags.cutoff) filterPtr->setCutoff(value);
+		else changeCutoffPerformanceMode(performance.mod.cutoff);
 	}
-
 }
 void playerEngine :: modResonance(float value)
 {
@@ -627,8 +780,12 @@ void playerEngine :: modWavetableWindow(uint16_t value)
 
 void playerEngine :: modTune(int8_t value)
 {
-	activeValuePerformance.tune = value;
-	if(activeValuePerformance.tuneForceFlag) return;
+	performance.activeValueSeq.tune = value;
+	if(performance.forcedFlags.tune)
+	{
+		changeTunePerformanceMode(performance.mod.tune);
+		return;
+	}
 
 	playMemPtr->setTune(value,currentNote);
 
@@ -636,8 +793,12 @@ void playerEngine :: modTune(int8_t value)
 
 void playerEngine :: modReverbSend(uint8_t value)
 {
-	activeValuePerformance.reverbSend = value;
-	if(activeValuePerformance.reverbSendForceFlag) return;
+	performance.activeValueSeq.reverbSend = value;
+	if(performance.forcedFlags.reverbSend)
+	{
+		changeReverbSendPerformanceMode(performance.mod.reverbSend);
+		return;
+	}
 	mixerReverb.gain(numPanChannel,value/100.0);
 
 }
@@ -648,7 +809,11 @@ void playerEngine:: update()
 	float ampMod=0;
 
 	currentPlayState = playMemPtr->isPlaying();
-	if(currentPlayState == 0 && lastPlayState == 1) interfacePlayingEndFlag = 1;
+	if(currentPlayState == 0 && lastPlayState == 1)
+	{
+		envelopeAmpPtr->noteOff();
+		interfacePlayingEndFlag = 1;
+	}
 	lastPlayState = currentPlayState;
 
 	if(envelopeAmpPtr->endRelease())
@@ -689,7 +854,6 @@ void playerEngine:: update()
 		statusBytes |= VOLUME_MASK;
 	}
 
-
 	if(statusBytes)
 	{
 		if(statusBytes & LP1_MASK)
@@ -716,23 +880,31 @@ void playerEngine:: update()
 		{
 			statusBytes &= (~VOLUME_MASK);
 
+			performance.activeValueSeq.volume=((currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod))*100;
 			if(muteState == 0)
 			{
 				if(currentVelocity == -1)
 				{
-					if(!activeValuePerformance.volumeForceFlag)
+					if(!performance.forcedFlags.volume)
 					{
 						ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0));
+					}
+					else
+					{
+						changeVolumePerformanceMode(performance.mod.volume);
 					}
 				}
 				else
 				{
-					if(!activeValuePerformance.volumeForceFlag)
+					if(!performance.forcedFlags.volume)
 					{
 						ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
 					}
+					else
+					{
+						changeVolumePerformanceMode(performance.mod.volume);
+					}
 				}
-				activeValuePerformance.volume=((currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod))*100;
 			}
 		}
 		if(statusBytes & PANNING_MASK)
@@ -802,6 +974,112 @@ float playerEngine :: fmap(float x, float in_min, float in_max, float out_min, f
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velocity)
+{
+	__disable_irq();
+	uint8_t status;
+	float gainL=0,gainR=0;
+
+	if(envelopeAmpPtr->getState())
+	{
+		onVoices--;
+		activeAmpEnvelopes--;
+	}
+	onVoices++;
+	currentInstrument_idx=instr_idx;
+	currentNote=note;
+	currentVelocity=velocity;
+	/*================================================ENVELOPE AMP==========================================*/
+	lfoAmpPtr->init(&mtProject.instrument[instr_idx].lfo[lfoA]);
+
+	if(mtProject.instrument[instr_idx].envelope[envAmp].enable)
+	{
+		envelopeAmpPtr->delay(mtProject.instrument[instr_idx].envelope[envAmp].delay);
+		envelopeAmpPtr->attack(mtProject.instrument[instr_idx].envelope[envAmp].attack);
+		envelopeAmpPtr->hold(mtProject.instrument[instr_idx].envelope[envAmp].hold);
+		envelopeAmpPtr->decay(mtProject.instrument[instr_idx].envelope[envAmp].decay);
+		envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
+		envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
+		activeAmpEnvelopes++;
+		//Serial.println(activeAmpEnvelopes);
+	}
+	else
+	{
+		envelopeAmpPtr->delay(0);
+		envelopeAmpPtr->attack(0);
+		envelopeAmpPtr->hold(0);
+		envelopeAmpPtr->decay(0);
+		envelopeAmpPtr->sustain(1.0);
+		envelopeAmpPtr->release(0.0f);
+	}
+
+	/*======================================================================================================*/
+	/*================================================ENVELOPE FILTER=======================================*/
+
+	if(mtProject.instrument[instr_idx].filterEnable == filterOn)
+	{
+		envelopeFilterPtr->init(&mtProject.instrument[instr_idx].envelope[envFilter]);
+		lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
+	/*======================================================================================================*/
+	/*================================================FILTER================================================*/
+		filterConnect();
+		changeFilterType(mtProject.instrument[instr_idx].filterType);
+		filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
+		filterPtr->setCutoff(mtProject.instrument[instr_idx].cutOff);
+	}
+	else if(mtProject.instrument[instr_idx].filterEnable == filterOff) filterDisconnect();
+
+	/*======================================================================================================*/
+	/*==================================================GAIN================================================*/
+
+	if(velocity < 0)
+	{
+		ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
+	}
+	else
+	{
+		ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
+	}
+	/*======================================================================================================*/
+	/*===============================================PANNING================================================*/
+	if(mtProject.instrument[instr_idx].panning < 50)
+	{
+		gainR=(0+mtProject.instrument[instr_idx].panning)/50.0;
+		gainL=1.0;
+	}
+	else if(mtProject.instrument[instr_idx].panning > 50)
+	{
+		gainR=1.0;
+		gainL=(100-mtProject.instrument[instr_idx].panning)/50.0;
+	}
+	else if(mtProject.instrument[instr_idx].panning == 50)
+	{
+		gainL=1.0; gainR=1.0;
+	}
+
+	mixerL.gain(numPanChannel,gainL);
+	mixerR.gain(numPanChannel,gainR);
+
+	/*======================================================================================================*/
+	/*===============================================REVERB=================================================*/
+
+	mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
+
+
+	/*======================================================================================================*/
+
+	if(mtProject.instrument[instr_idx].lfo[lfoA].enable == lfoOn) lfoAmpPtr->start();
+	if(mtProject.instrument[instr_idx].lfo[lfoF].enable == lfoOn) lfoFilterPtr->start();
+	if(mtProject.instrument[instr_idx].envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
+
+
+	status = playMemPtr->playForPrev(instr_idx,note);
+	envelopeAmpPtr->noteOn();
+
+	return status;
+	__enable_irq();
+}
+
 uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
 {
 	uint8_t status=0;
@@ -866,7 +1144,6 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	envelopeAmpPtr->noteOn();
 
 	return status;
-
 }
 uint8_t playerEngine ::getInterfaceEndReleaseFlag()
 {
@@ -912,24 +1189,26 @@ void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 }
 void playerEngine ::changeVolumePerformanceMode(int8_t value)
 {
+	performance.mod.volume = value;
 	if(muteState == 0)
 	{
-		activeValuePerformance.performanceModVolume = value;
-		if(activeValuePerformance.volume + value > MAX_INSTRUMENT_VOLUME) ampPtr->gain(MAX_INSTRUMENT_VOLUME/100.0);
-		else if(activeValuePerformance.volume + value < MIN_INSTRUMENT_VOLUME) ampPtr->gain(MIN_INSTRUMENT_VOLUME/100.0);
-		else ampPtr->gain((activeValuePerformance.volume + value)/100.0);
-		if(value != 0 ) activeValuePerformance.volumeForceFlag = 1;
-		else activeValuePerformance.volumeForceFlag = 0;
+		if(performance.activeValueSeq.volume + value > MAX_INSTRUMENT_VOLUME) ampPtr->gain(MAX_INSTRUMENT_VOLUME/100.0);
+		else if(performance.activeValueSeq.volume+ value < MIN_INSTRUMENT_VOLUME) ampPtr->gain(MIN_INSTRUMENT_VOLUME/100.0);
+		else ampPtr->gain((performance.activeValueSeq.volume + value)/100.0);
+		if(value != 0 ) performance.forcedFlags.volume= 1;
+		else performance.forcedFlags.volume = 0;
 	}
 
 }
 void playerEngine ::changePanningPerformanceMode(int8_t value)
 {
-	activeValuePerformance.performanceModPanning = value;
 	int16_t localPanning;
-	if(activeValuePerformance.panning + value > PANNING_MAX) localPanning = PANNING_MAX;
-	else if(activeValuePerformance.panning + value < PANNING_MIN) localPanning = PANNING_MIN;
-	else localPanning = activeValuePerformance.panning + value;
+
+	performance.mod.panning = value;
+
+	if(performance.activeValueSeq.panning + value > PANNING_MAX) localPanning = PANNING_MAX;
+	else if(performance.activeValueSeq.panning + value < PANNING_MIN) localPanning = PANNING_MIN;
+	else localPanning = performance.activeValueSeq.panning + value;
 
 	float gainL=0,gainR=0;
 	if(localPanning < 50)
@@ -949,36 +1228,42 @@ void playerEngine ::changePanningPerformanceMode(int8_t value)
 
 	mixerL.gain(numPanChannel,gainL);
 	mixerR.gain(numPanChannel,gainR);
-	if(value != 0 ) activeValuePerformance.panningForceFlag = 1;
-	else activeValuePerformance.panningForceFlag = 0;
+	if(value != 0 ) performance.forcedFlags.panning= 1;
+	else performance.forcedFlags.panning = 0;
 }
 void playerEngine ::changeTunePerformanceMode(int8_t value)
 {
-	activeValuePerformance.performanceModTune = value;
-	if(activeValuePerformance.tune + value > MAX_INSTRUMENT_TUNE) playMemPtr->setTune(MAX_INSTRUMENT_TUNE,currentNote);
-	else if(activeValuePerformance.tune + value < MIN_INSTRUMENT_TUNE) playMemPtr->setTune(MIN_INSTRUMENT_TUNE,currentNote);
-	else playMemPtr->setTune(activeValuePerformance.tune + value,currentNote);
+	performance.mod.tune = value;
+	if(performance.activeValueSeq.tune + value > MAX_INSTRUMENT_TUNE) playMemPtr->setTune(MAX_INSTRUMENT_TUNE,currentNote);
+	else if(performance.activeValueSeq.tune + value < MIN_INSTRUMENT_TUNE) playMemPtr->setTune(MIN_INSTRUMENT_TUNE,currentNote);
+	else playMemPtr->setTune(performance.activeValueSeq.tune + value,currentNote);
 
 	if(value != 0 )
 	{
-		activeValuePerformance.tuneForceFlag = 1;
+		performance.forcedFlags.tune = 1;
 		playMemPtr->setTuneForceFlag();
+
+		if(performance.activeValueSeq.tune + value > MAX_INSTRUMENT_TUNE) playMemPtr->setForcedTune(MAX_INSTRUMENT_TUNE);
+		else if(performance.activeValueSeq.tune + value < MIN_INSTRUMENT_TUNE) playMemPtr->setForcedTune(MIN_INSTRUMENT_TUNE);
+		else playMemPtr->setForcedTune(performance.activeValueSeq.tune + value );
+
 	}
 	else
 	{
-		activeValuePerformance.tuneForceFlag = 0;
+		performance.forcedFlags.tune = 0;
 		playMemPtr->clearTuneForceFlag();
+		playMemPtr->setForcedTune(127);
 	}
 }
 void playerEngine ::changeReverbSendPerformanceMode(int8_t value)
 {
-	activeValuePerformance.performanceModReverbSend = value;
-	if(activeValuePerformance.reverbSend + value > REVERB_SEND_MAX) mixerReverb.gain(numPanChannel,REVERB_SEND_MAX/100.0);
-	else if(activeValuePerformance.reverbSend + value < REVERB_SEND_MIN) mixerReverb.gain(numPanChannel,REVERB_SEND_MIN/100.0);
-	else mixerReverb.gain(numPanChannel,(activeValuePerformance.reverbSend + value)/100.0);
+	performance.mod.reverbSend = value;
+	if(performance.activeValueSeq.reverbSend + value > REVERB_SEND_MAX) mixerReverb.gain(numPanChannel,REVERB_SEND_MAX/100.0);
+	else if(performance.activeValueSeq.reverbSend + value < REVERB_SEND_MIN) mixerReverb.gain(numPanChannel,REVERB_SEND_MIN/100.0);
+	else mixerReverb.gain(numPanChannel,(performance.activeValueSeq.reverbSend + value)/100.0);
 
-	if(value != 0 ) activeValuePerformance.reverbSendForceFlag = 1;
-	else activeValuePerformance.reverbSendForceFlag = 0;
+	if(value != 0 ) performance.forcedFlags.reverbSend= 1;
+	else performance.forcedFlags.reverbSend = 0;
 }
 void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 {
@@ -990,48 +1275,48 @@ void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 	}
 	if(mtProject.instrument[currentInstrument_idx].playMode != singleShot)
 	{
-		if(activeValuePerformance.startPoint + value >= activeValuePerformance.endPoint )
+		if(performance.activeValueSeq.startPoint + value >= performance.activeValueSeq.endPoint )
 		{
-			activeValuePerformance.performanceModStartPoint = value;
-			activeValuePerformance.performanceModLoopPoint1 = activeValuePerformance.endPoint - activeValuePerformance.loopPoint1;
-			activeValuePerformance.performanceModLoopPoint2 = activeValuePerformance.endPoint - activeValuePerformance.loopPoint2;
-			activeValuePerformance.performanceModEndPoint = 0;
-			playMemPtr->setForcedPoints(activeValuePerformance.endPoint, activeValuePerformance.endPoint,
-										activeValuePerformance.endPoint, activeValuePerformance.endPoint);
+			performance.mod.startPoint = value;
+			performance.mod.loopPoint1 = performance.activeValueSeq.endPoint - performance.activeValueSeq.loopPoint1;
+			performance.mod.loopPoint2 = performance.activeValueSeq.endPoint - performance.activeValueSeq.loopPoint2;
+			performance.mod.endPoint = 0;
+			playMemPtr->setForcedPoints(performance.activeValueSeq.endPoint, performance.activeValueSeq.endPoint,
+										performance.activeValueSeq.endPoint, performance.activeValueSeq.endPoint);
 			playMemPtr->setPointsForceFlag();
 		}
-		else if(activeValuePerformance.startPoint + value <= SAMPLE_POINT_POS_MIN)
+		else if(performance.activeValueSeq.startPoint + value <= SAMPLE_POINT_POS_MIN)
 		{
-			activeValuePerformance.performanceModStartPoint = value;
-			activeValuePerformance.performanceModLoopPoint1 = 0;
-			activeValuePerformance.performanceModLoopPoint2 = 0;
-			activeValuePerformance.performanceModEndPoint = 0;
-			playMemPtr->setForcedPoints(SAMPLE_POINT_POS_MIN, activeValuePerformance.loopPoint1,
-										activeValuePerformance.loopPoint2, activeValuePerformance.endPoint);
+			performance.mod.startPoint = value;
+			performance.mod.loopPoint1 = 0;
+			performance.mod.loopPoint2 = 0;
+			performance.mod.endPoint = 0;
+			playMemPtr->setForcedPoints(SAMPLE_POINT_POS_MIN, performance.activeValueSeq.loopPoint1,
+										performance.activeValueSeq.loopPoint2, performance.activeValueSeq.endPoint);
 			playMemPtr->setPointsForceFlag();
 		}
 		else
 		{
-			if(activeValuePerformance.startPoint + value >= activeValuePerformance.loopPoint1)
+			if(performance.activeValueSeq.startPoint + value >= performance.activeValueSeq.loopPoint1)
 			{
-				int32_t loopMod = activeValuePerformance.startPoint + value - 1 - activeValuePerformance.loopPoint1;
-				if(activeValuePerformance.loopPoint2 + loopMod > activeValuePerformance.endPoint)
+				int32_t loopMod = performance.activeValueSeq.startPoint + value - 1 - performance.activeValueSeq.loopPoint1;
+				if(performance.activeValueSeq.loopPoint2 + loopMod > performance.activeValueSeq.endPoint)
 				{
-					loopMod =  activeValuePerformance.endPoint - activeValuePerformance.loopPoint2 - 1;
+					loopMod =  performance.activeValueSeq.endPoint - performance.activeValueSeq.loopPoint2 - 1;
 					if(loopMod < 0 ) loopMod = 0;
 				}
-				activeValuePerformance.performanceModStartPoint = value;
-				activeValuePerformance.performanceModLoopPoint1 = loopMod;
-				activeValuePerformance.performanceModLoopPoint2 = loopMod;
-				activeValuePerformance.performanceModEndPoint = 0;
+				performance.mod.startPoint = value;
+				performance.mod.loopPoint1 = loopMod;
+				performance.mod.loopPoint2 = loopMod;
+				performance.mod.endPoint = 0;
 			}
 			else
 			{
-				activeValuePerformance.performanceModStartPoint = value;
+				performance.mod.startPoint = value;
 			}
-			playMemPtr->setForcedPoints(activeValuePerformance.loopPoint1,
-										activeValuePerformance.loopPoint1 + activeValuePerformance.performanceModLoopPoint1,
-										activeValuePerformance.loopPoint2 + activeValuePerformance.performanceModLoopPoint2,
+			playMemPtr->setForcedPoints(performance.activeValueSeq.loopPoint1,
+										performance.activeValueSeq.loopPoint1 + performance.mod.loopPoint1,
+										performance.activeValueSeq.loopPoint2 + performance.mod.loopPoint2,
 										-1);
 
 			playMemPtr->setPointsForceFlag();
@@ -1039,13 +1324,13 @@ void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 	}
 	else
 	{
-		activeValuePerformance.performanceModStartPoint = value;
-		if(activeValuePerformance.startPoint + value >= activeValuePerformance.endPoint )
+		performance.mod.startPoint = value;
+		if(performance.activeValueSeq.startPoint + value >= performance.activeValueSeq.endPoint )
 		{
-			playMemPtr->setForcedPoints(activeValuePerformance.endPoint,-1,-1,-1);
+			playMemPtr->setForcedPoints(performance.activeValueSeq.endPoint,-1,-1,-1);
 			playMemPtr->setPointsForceFlag();
 		}
-		else if(activeValuePerformance.startPoint + value <= SAMPLE_POINT_POS_MIN)
+		else if(performance.activeValueSeq.startPoint + value <= SAMPLE_POINT_POS_MIN)
 		{
 
 			playMemPtr->setForcedPoints(SAMPLE_POINT_POS_MIN,-1,-1,-1);
@@ -1053,7 +1338,7 @@ void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 		}
 		else
 		{
-			playMemPtr->setForcedPoints(activeValuePerformance.startPoint + activeValuePerformance.performanceModStartPoint,-1,-1,-1);
+			playMemPtr->setForcedPoints(performance.activeValueSeq.startPoint + performance.mod.startPoint,-1,-1,-1);
 			playMemPtr->setPointsForceFlag();
 		}
 
@@ -1063,28 +1348,28 @@ void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 }
 void playerEngine ::changeCutoffPerformanceMode(int8_t value)
 {
-	activeValuePerformance.performanceModCutOff = value/100.0;
-	if(activeValuePerformance.cutOff + value > 100) filterPtr->setCutoff(1.0);
-	else if(activeValuePerformance.cutOff + value < 0) filterPtr->setCutoff(0.0);
-	else filterPtr->setCutoff((activeValuePerformance.cutOff + value)/100.0);
+	performance.mod.cutoff = value;
+	if(performance.activeValueSeq.cutoff*100 + value > 100) filterPtr->setCutoff(1.0);
+	else if(performance.activeValueSeq.cutoff*100 + value < 0) filterPtr->setCutoff(0.0);
+	else filterPtr->setCutoff(performance.activeValueSeq.cutoff + (value/100.0));
 
 
-	if(value != 0 ) activeValuePerformance.cutOffForceFlag = 1;
-	else activeValuePerformance.cutOffForceFlag = 0;
+	if(value != 0 ) performance.forcedFlags.cutoff = 1;
+	else performance.forcedFlags.cutoff = 0;
 }
 void playerEngine ::changeFilterTypePerformanceMode(uint8_t mode)
 {
-	if(mode != 0 ) activeValuePerformance.filterForcedEnableFlag = 1;
+	if(mode != 0 ) performance.forcedValues.filterEnable = 1;
 	else
 	{
-		activeValuePerformance.filterForcedEnableFlag = 0;
+		performance.forcedValues.filterEnable = 0;
 		changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
 		if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
-		activeValuePerformance.filterForcedType = -1;
+		performance.forcedValues.filterType = -1;
 		return;
 	}
 
-	activeValuePerformance.filterForcedType = mode-1;
+	performance.forcedValues.filterType = mode-1;
 	changeFilterType(mode-1); //lowpass
 }
 

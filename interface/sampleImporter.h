@@ -61,6 +61,9 @@ public:
 
 	hControl loadHorizontalBarControl = nullptr;
 
+	hControl editName;
+	hControl keyboardControl;
+
 
 	uint8_t selectedPlace = 0;
 
@@ -102,7 +105,7 @@ public:
 	char locationExplorerList[list_length_max][40];
 	char *explorerNames[list_length_max];
 	uint8_t selectedFile = 0;
-
+	char copyingInfo[20];
 //--------------------------------------------------------------
 
 // instrumenty
@@ -206,7 +209,7 @@ public:
 	void frameSelectMode(uint8_t place,uint8_t mode);
 
 	void displayDelete(uint8_t onOff);
-
+	void displayRename(uint8_t onOff);
 	uint8_t instrCopyStart;
 
 	uint8_t copyType;//0- no copy ,1- sd to intr,2 -instr to instr
@@ -219,7 +222,19 @@ public:
 
 	void handleSequenceCopyingLoading();
 
+	char name[33];
+	uint8_t keyboardPosition;
+	int8_t editPosition;
+	void showKeyboard();
+	void hideKeyboard();
+	void showKeyboardEditName();
+	void hideKeyboardEditName();
+	void showEnterNameKeyboard();
+	void showRenameKeyboard();
 
+	uint8_t keyboardActiveFlag = 0;
+	uint8_t keyboardShiftFlag = 0;
+	uint8_t lastPressedPad;
 };
 
 
