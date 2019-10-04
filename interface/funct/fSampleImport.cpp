@@ -1538,8 +1538,8 @@ void cSampleImporter::handleSequenceCopyingLoading()
 				{
 					if(mtProject.instrument[instrCopyStart + copyElement].isActive == 1)
 					{
-						strcpy(projectSamplePath,fileManager.currentProjectPatch);
-						strcat(projectSamplePath,"/samples");
+						strcpy(projectSamplePath,"Workspace/samples");
+//						strcat(projectSamplePath,"/samples");
 
 						fileManager.assignSampleToInstrument(projectSamplePath,SI->parseNewName(instrCopyStart + copyElement), selectedSlot + copyElement);
 						memcpy(&mtProject.instrument[selectedSlot+copyElement],&mtProject.instrument[instrCopyStart+copyElement],sizeof(mtProject.instrument[0]));
