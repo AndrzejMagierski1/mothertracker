@@ -2532,19 +2532,22 @@ static uint8_t functSwitchModule(uint8_t button)
 	if(PTE->editMode == 1)
 	{
 		Sequencer::strPattern* seq = sequencer.getPatternToUI();
+		Sequencer::strPattern::strTrack::strStep *actualStep = &seq->track[PTE->trackerPattern.actualTrack].
+				step[PTE->trackerPattern.actualStep];
 
-		mtProject.values.lastUsedNote =
-				seq->track[PTE->trackerPattern.actualTrack].
-				step[PTE->trackerPattern.actualStep].note;
-		mtProject.values.lastUsedInstrument =
-				seq->track[PTE->trackerPattern.actualTrack].
-				step[PTE->trackerPattern.actualStep].instrument;
-		mtProject.values.lastUsedVolume =
-				seq->track[PTE->trackerPattern.actualTrack].
-				step[PTE->trackerPattern.actualStep].velocity;
-		mtProject.values.lastUsedFx =
-				seq->track[PTE->trackerPattern.actualTrack].
-				step[PTE->trackerPattern.actualStep].fx[0].type;
+		if (actualStep->note >= 0)
+		{
+			mtProject.values.lastUsedNote = actualStep->note;
+			mtProject.values.lastUsedInstrument = actualStep->instrument;
+		}
+		if (actualStep->velocity >= 0)
+		{
+			mtProject.values.lastUsedVolume = actualStep->velocity;
+		}
+		if (actualStep->fx[0].type > 0)
+		{
+			mtProject.values.lastUsedFx = actualStep->fx[0].type;
+		}
 	}
 
 
