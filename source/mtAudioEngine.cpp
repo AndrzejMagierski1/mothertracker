@@ -593,6 +593,9 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 {
 	switch(fx_id)
 	{
+		case 0:
+			endFx(lastSeqFx);
+		break;
 		case fx_t::FX_TYPE_AMP_ATTACK:
 		break;
 		case fx_t::FX_TYPE_AMP_RELEASE :
@@ -600,14 +603,17 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 		case fx_t::FX_TYPE_FILTER_BANDPASS :
 			modCutoff(fx_val/(float)MAX_8BIT);
 			changeFilterType(bandPass);
+			filterConnect();
 		break;
 		case fx_t::FX_TYPE_FILTER_HIGHPASS :
 			modCutoff(fx_val/(float)MAX_8BIT);
 			changeFilterType(highPass);
+			filterConnect();
 		break;
 		case fx_t::FX_TYPE_FILTER_LOWPASS :
 			modCutoff(fx_val/(float)MAX_8BIT);
 			changeFilterType(lowPass);
+			filterConnect();
 		break;
 		case fx_t::FX_TYPE_GLIDE :
 			modGlide(map(fx_val,0,MAX_8BIT,GLIDE_MIN,GLIDE_MAX));
@@ -620,6 +626,63 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 		break;
 		case fx_t::FX_TYPE_REVERB_SEND :
 			modReverbSend(map(fx_val,0,MAX_8BIT,REVERB_SEND_MIN,REVERB_SEND_MAX));
+		break;
+		case fx_t::FX_TYPE_REVERSE_PLAYBACK :
+		break;
+		case fx_t::FX_TYPE_SAMPLE_START :
+		break;
+		case fx_t::FX_TYPE_TREMOLO_FAST :
+		break;
+		case fx_t::FX_TYPE_TREMOLO_SLOW :
+		break;
+		case fx_t::FX_TYPE_VIBRATO_FAST :
+		break;
+		case fx_t::FX_TYPE_VIBRATO_SLOW :
+		break;
+	}
+	lastSeqFx = fx_id;
+}
+
+void playerEngine::endFx(uint8_t fx_id)
+{
+	switch(fx_id)
+	{
+		case 0:
+
+			break;
+		case fx_t::FX_TYPE_AMP_ATTACK:
+		break;
+		case fx_t::FX_TYPE_AMP_RELEASE :
+		break;
+		case fx_t::FX_TYPE_FILTER_BANDPASS :
+			modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+			changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+			if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
+			else filterConnect();
+		break;
+		case fx_t::FX_TYPE_FILTER_HIGHPASS :
+			modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+			changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+			if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
+			else filterConnect();
+		break;
+		case fx_t::FX_TYPE_FILTER_LOWPASS :
+			modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+			changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+			if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
+			else filterConnect();
+		break;
+		case fx_t::FX_TYPE_GLIDE :
+			modGlide(mtProject.instrument[currentInstrument_idx].glide);
+		break;
+		case fx_t::FX_TYPE_MICROTUNING :
+			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
+		break;
+		case fx_t::FX_TYPE_PANNING :
+			modPanning(mtProject.instrument[currentInstrument_idx].panning);
+		break;
+		case fx_t::FX_TYPE_REVERB_SEND :
+			modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
 		break;
 		case fx_t::FX_TYPE_REVERSE_PLAYBACK :
 		break;

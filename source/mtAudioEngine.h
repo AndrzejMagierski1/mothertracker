@@ -105,7 +105,7 @@ public:
 	void clean();
 
 	void seqFx(uint8_t fx_id, uint8_t fx_val);
-
+	void endFx(uint8_t fx_id);
 	void slide(int8_t note, uint16_t time);
 	void modPitch(float value);
 	void modGlide(uint16_t value);
@@ -114,7 +114,7 @@ public:
 
 	void modPanning(int16_t value);
 	void modPlayMode(uint8_t value);
-//	void modSP(uint16_t value);
+	void modSP(uint16_t value);
 	void modLP1(uint16_t value);
 	void modLP2(uint16_t value);
 	void modCutoff(float value);
@@ -159,7 +159,7 @@ private:
 	LFO *						lfoFilterPtr;
 	LFO *						lfoPitchPtr;
 	uint8_t 					numPanChannel;
-
+	uint8_t						lastSeqFx = 0;
 	uint8_t 					currentInstrument_idx;
 	int8_t						currentNote;
 	int8_t						currentVelocity;
