@@ -7,13 +7,130 @@
 
 #include "mtAudioEngine.h"
 #include <projectEditor.h>
+#include "mtLED.h"
 
+enum valueMapDirecion
+{
+	valueMapDirectionLeft,
+	valueMapDirectionRight,
+	valueMapDirectionUp,
+	valueMapDirectionDown
+};
 
+constexpr char smallKeyboard[KEYBOARD_SIZE] =
+{
+		 	 '1', '2', '3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9' ,'0' , 0 ,
+		 	 'q', 'w', 'e' ,'r' ,'t' ,'y' ,'u' ,'i' ,'o' ,'p' ,'-' ,'+',
+			 'a', 's', 'd' ,'f' ,'g' ,'h' ,'j' ,'k' ,'l' ,'@' , 1 ,
+			 'z', 'x', 'c' ,'v' ,'b' ,'n' ,'m' , ' '
+};
+
+constexpr char bigKeyboard[KEYBOARD_SIZE] =
+{
+			 '1', '2', '3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9' ,'0' , 0 ,
+		 	 'Q', 'W', 'E' ,'R' ,'T' ,'Y' ,'U' ,'I' ,'O' ,'P' ,'-' ,'+',
+			 'A', 'S', 'D' ,'F' ,'G' ,'H' ,'J' ,'K' ,'L', '@', 1 ,
+			 'Z', 'X', 'C' ,'V' ,'B' ,'N' ,'M' , ' '
+};
+
+//constexpr uint8_t valueMap[4][42] = przechodzenie przez sciany
+//{
+//		{
+//			10,0,1,2,3,4,5,6,7,8,9,
+//			22,11,12,13,14,15,16,17,18,19,20,21,
+//			33,23,24,25,26,27,28,29,30,31,32,
+//			41,34,35,36,37,38,39,40
+//		},
+//
+//		{
+//			1,2,3,4,5,6,7,8,9,10,0,
+//			12,13,14,15,16,17,18,19,20,21,22,11,
+//			24,25,26,27,28,29,30,31,32,33,23,
+//			35,36,37,38,39,40,41,34
+//		},
+//
+//		{
+//			34,35,36,37,38,39,40,41,41,41,41,
+//			0,1,2,3,4,5,6,7,8,9,10,10,
+//			11,12,13,14,15,16,17,18,19,20,21,
+//			23,24,25,26,27,28,29,30,
+//		},
+//
+//		{
+//			11,12,13,14,15,16,17,18,19,20,21,
+//			23,24,25,26,27,28,29,30,31,32,33,33,
+//			34,35,36,37,38,39,40,41,41,41,41,
+//			0,1,2,3,4,5,6,7
+//		},
+//};
+
+constexpr uint8_t valueMap[4][42] =
+{
+		{
+			0,0,1,2,3,4,5,6,7,8,9,
+			11,11,12,13,14,15,16,17,18,19,20,21,
+			23,23,24,25,26,27,28,29,30,31,32,
+			34,34,35,36,37,38,39,40
+		},
+
+		{
+			1,2,3,4,5,6,7,8,9,10,10,
+			12,13,14,15,16,17,18,19,20,21,22,22,
+			24,25,26,27,28,29,30,31,32,33,33,
+			35,36,37,38,39,40,41,41
+		},
+
+		{
+			0,1,2,3,4,5,6,7,8,9,10,
+			0,1,2,3,4,5,6,7,8,9,10,10,
+			11,12,13,14,15,16,17,18,19,20,21,
+			23,24,25,26,27,28,29,30,
+		},
+
+		{
+			11,12,13,14,15,16,17,18,19,20,21,
+			23,24,25,26,27,28,29,30,31,32,33,33,
+			34,35,36,37,38,39,40,41,41,41,41,
+			34,35,36,37,38,39,40,41
+		},
+};
+
+constexpr uint8_t valueMapPads[48] =
+{
+	0,1,2,3,4,5,6,7,8,9,10,10,
+	11,12,13,14,15,16,17,18,19,20,21,22,
+	23,24,25,26,27,28,29,30,31,32,33,33,
+	34,35,36,37,38,39,40,41,41,41,41,41
+};
+
+constexpr uint8_t keyPositionToPads[42] =
+{
+	0,1,2,3,4,5,6,7,8,9,10,
+	12,13,14,15,16,17,18,19,20,21,22,23,
+	24,25,26,27,28,29,30,31,32,33,34,
+	36,37,38,39,40,41,42,43
+};
+
+constexpr uint8_t BACKSPACE_PAD_1 = 10;
+constexpr uint8_t BACKSPACE_PAD_2 = 11;
+
+constexpr uint8_t CAPS_LOCK_PAD_1 = 34;
+constexpr uint8_t CAPS_LOCK_PAD_2 = 35;
+
+constexpr uint8_t SPACE_PAD_1 = 43;
+constexpr uint8_t SPACE_PAD_2 = 44;
+constexpr uint8_t SPACE_PAD_3 = 45;
+constexpr uint8_t SPACE_PAD_4 = 46;
+constexpr uint8_t SPACE_PAD_5 = 47;
+
+constexpr uint8_t F_PAD = 27;
+
+constexpr uint8_t J_PAD = 30;
 
 cSampleImporter sampleImporter;
 static cSampleImporter* SI = &sampleImporter;
 
-
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 static  uint8_t functPlayAction();
 static  uint8_t functStopAction();
@@ -25,6 +142,7 @@ static  uint8_t functChangeFolder(uint8_t button);
 static  uint8_t functChangeInstrument(uint8_t button);
 
 static  uint8_t functEnter();
+static  uint8_t functRename();
 static  uint8_t functShift(uint8_t state);
 
 static  uint8_t functInstrumentAdd();
@@ -39,6 +157,8 @@ static  uint8_t functDown();
 static uint8_t functShiftCopy();
 static uint8_t functShiftPaste();
 
+static uint8_t functConfirmKey();
+
 uint8_t preview(uint8_t state);
 
 
@@ -48,8 +168,8 @@ static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
 
-
-
+static  uint8_t functConfirmRename();
+static  uint8_t functCancelRename();
 
 void cSampleImporter::update()
 {
@@ -108,6 +228,8 @@ void cSampleImporter::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
+	FM->setPadsGlobal(functPads);
+
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
@@ -149,7 +271,9 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton0, buttonPress, functChangeFolder);
 	FM->setButtonObj(interfaceButton1, buttonPress, functChangeFolder);
 
-	FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
+	if(selectedPlace == 1) FM->setButtonObj(interfaceButton2, buttonPress, functRename);
+	else FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
+
 	FM->setButtonObj(interfaceButton3, preview);
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functChangeInstrument);
@@ -160,8 +284,6 @@ void cSampleImporter::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButtonCopy, buttonPress, functShiftCopy);
 	FM->setButtonObj(interfaceButtonPaste, buttonPress, functShiftPaste);
-
-
 
 }
 
@@ -260,6 +382,7 @@ static  uint8_t functInstrumentDelete()
 
 static  uint8_t functEncoder(int16_t value)
 {
+	if(SI->keyboardActiveFlag == 1) return 1;
 	switch(SI->selectedPlace)
 	{
 	case 0: SI->changeFileSelection(value); break;
@@ -281,6 +404,72 @@ static  uint8_t functEnter()
 
 	}
 
+	return 1;
+}
+
+static  uint8_t functRename()
+{
+
+	strncpy(SI->name,mtProject.instrument[SI->selectedSlot].sample.file_name,32);
+	SI->editPosition = strlen(SI->name);
+	SI->keyboardPosition = BACKSPACE_PAD_1;
+	SI->lastPressedPad = BACKSPACE_PAD_1;
+	leds.setLED(BACKSPACE_PAD_1, 1, 31);
+	leds.setLED(BACKSPACE_PAD_2, 1, 31);
+
+	SI->keyboardActiveFlag = 1;
+
+	SI->FM->clearButton(interfaceButton2);
+	SI->FM->clearButton(interfaceButton5);
+
+	SI->FM->setButtonObj(interfaceButton2, buttonPress, functCancelRename);
+	SI->FM->setButtonObj(interfaceButton5, buttonPress, functConfirmRename);
+
+	SI->showRenameKeyboard();
+	return 1;
+}
+
+static  uint8_t functConfirmRename()
+{
+	strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,SI->name,32);
+
+	SI->listAllFoldersFirst();
+
+	SI->listInstrumentSlots();
+	SI->showInstrumentsList();
+
+	SI->handleMemoryBar();
+
+	SI->activateLabelsBorder();
+
+	SI->setDefaultScreenFunct();
+	SI->showDefaultScreen();
+
+	SI->displayDelete(SI->selectedPlace);
+	fileManager.instrumentIsChangedFlag[SI->selectedSlot] = 1;
+	mtProject.values.projectNotSavedFlag = 1;
+	SI->keyboardActiveFlag = 0;
+
+	return 1;
+}
+static  uint8_t functCancelRename()
+{
+	SI->listAllFoldersFirst();
+
+	SI->listInstrumentSlots();
+	SI->showInstrumentsList();
+
+	SI->handleMemoryBar();
+
+	SI->activateLabelsBorder();
+	SI->keyboardActiveFlag = 0;
+
+	SI->setDefaultScreenFunct();
+	SI->showDefaultScreen();
+
+	SI->displayDelete(SI->selectedPlace);
+
+	SI->keyboardActiveFlag = 0;
 	return 1;
 }
 
@@ -380,6 +569,10 @@ static  uint8_t functShift(uint8_t state)
 {
 	if(state ==0)
 	{
+		if(SI->keyboardActiveFlag == 1)
+		{
+			return 1;
+		}
 		SI->selectionActive=0;
 		SI->frameSelectMode(SI->currSelectPlace,0);
 
@@ -390,6 +583,12 @@ static  uint8_t functShift(uint8_t state)
 	}
 	else if(state == 1)
 	{
+		if(SI->keyboardActiveFlag == 1)
+		{
+			functConfirmKey();
+			return 1;
+		}
+
 		if(SI->currSelectPlace != SI->selectedPlace)
 		{
 			SI->currSelectPlace = SI->selectedPlace;
@@ -436,6 +635,12 @@ static  uint8_t functShift(uint8_t state)
 
 static  uint8_t functLeft()
 {
+	if(SI->keyboardActiveFlag)
+	{
+		SI->keyboardPosition = valueMap[valueMapDirectionLeft][SI->keyboardPosition];
+		SI->showKeyboard();
+		return 1;
+	}
 	if(SI->selectedPlace > 0)
 	{
 		SI->selectedPlace--;
@@ -447,8 +652,11 @@ static  uint8_t functLeft()
 
 		SI->handleMemoryBar();
 		SI->displayDelete(0);
-
+		SI->displayRename(0);
 		SI->resetInstrSel();
+		SI->FM->clearButton(interfaceButton2);
+		SI->FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
+
 	}
 	else
 	{
@@ -466,14 +674,19 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(SI->keyboardActiveFlag)
+	{
+		SI->keyboardPosition = valueMap[valueMapDirectionRight][SI->keyboardPosition];
+		SI->showKeyboard();
+		return 1;
+	}
 	if(SI->selectedPlace < 1)
 	{
+		SI->displayRename(1);
 		SI->displayDelete(1);
+		SI->FM->clearButton(interfaceButton2);
+		SI->FM->setButtonObj(interfaceButton2, buttonPress, functRename);
 		SI->selectedPlace++;
-	}
-	else
-	{
-		SI->moveInstrListToEnd();
 	}
 
 	SI->activateLabelsBorder();
@@ -483,6 +696,12 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	if(SI->keyboardActiveFlag)
+	{
+		SI->keyboardPosition = valueMap[valueMapDirectionUp][SI->keyboardPosition];
+		SI->showKeyboard();
+		return 1;
+	}
 	switch(SI->selectedPlace)
 	{
 	case 0: SI->changeFileSelection(-1); break;
@@ -494,6 +713,12 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	if(SI->keyboardActiveFlag)
+	{
+		SI->keyboardPosition = valueMap[valueMapDirectionDown][SI->keyboardPosition];
+		SI->showKeyboard();
+		return 1;
+	}
 	switch(SI->selectedPlace)
 	{
 	case 0: SI->changeFileSelection(1); break;
@@ -1410,7 +1635,225 @@ void cSampleImporter::resetInstrSel()
 	copyElementMax=0;
 }
 
+static uint8_t functConfirmKey()
+{
+	if(SI->keyboardActiveFlag)
+	{
+		if(SI->editPosition > 31) return 1;
 
+		//****************************************************ledy
+		if(SI->lastPressedPad == BACKSPACE_PAD_1 || SI->lastPressedPad == BACKSPACE_PAD_2) //backspace
+		{
+			leds.setLED(BACKSPACE_PAD_1, 0, 0);
+			leds.setLED(BACKSPACE_PAD_2, 0, 0);
+		}
+		else if(SI->lastPressedPad == CAPS_LOCK_PAD_1 || SI->lastPressedPad == CAPS_LOCK_PAD_2) //capslock
+		{
+			if(SI->keyboardShiftFlag)
+			{
+				leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
+				leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
+			}
+			else
+			{
+				leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
+				leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
+			}
+
+		}
+		else if(SI->lastPressedPad >= SPACE_PAD_1 && SI->lastPressedPad <= SPACE_PAD_5) //space
+		{
+			for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
+			{
+				leds.setLED(i, 0, 0);
+			}
+		}
+		else
+		{
+			if(SI->lastPressedPad != F_PAD && SI->lastPressedPad != J_PAD) leds.setLED(SI->lastPressedPad,0,0);
+			else leds.setLED(SI->lastPressedPad,1,10);
+		}
+
+
+		SI->lastPressedPad = keyPositionToPads[SI->keyboardPosition];
+
+		if(keyPositionToPads[SI->keyboardPosition] == BACKSPACE_PAD_1 || keyPositionToPads[SI->keyboardPosition] == BACKSPACE_PAD_2) //backspace
+		{
+			leds.setLED(BACKSPACE_PAD_1, 1, 31);
+			leds.setLED(BACKSPACE_PAD_2, 1, 31);
+		}
+		else if(keyPositionToPads[SI->keyboardPosition] == CAPS_LOCK_PAD_1 || keyPositionToPads[SI->keyboardPosition] == CAPS_LOCK_PAD_2) //capslock
+		{
+			leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
+			leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
+		}
+		else if(keyPositionToPads[SI->keyboardPosition] >= SPACE_PAD_1 && keyPositionToPads[SI->keyboardPosition] <=SPACE_PAD_5) //space
+		{
+			for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
+			{
+				leds.setLED(i, 1, 31);
+			}
+		}
+		else
+		{
+			leds.setLED(keyPositionToPads[SI->keyboardPosition],1,31);
+		}
+		//////////////////////////////////////
+		if(smallKeyboard[SI->keyboardPosition] > 1)
+		{
+			if(SI->editPosition == 31) return 1;
+			uint8_t localNameLen = strlen(SI->name);
+			if(SI->editPosition < localNameLen)
+			{
+				for(uint8_t i = localNameLen; i >= SI->editPosition ; i-- )
+				{
+					SI->name[i+1] = SI->name[i];
+				}
+			}
+
+			SI->name[SI->editPosition] = SI->keyboardShiftFlag ? bigKeyboard[SI->keyboardPosition] : smallKeyboard[SI->keyboardPosition];
+
+			SI->editPosition++;
+		}
+		else if(smallKeyboard[SI->keyboardPosition] == 0)
+		{
+			if(SI->editPosition == 0 ) return 1;
+
+			SI->name[SI->editPosition-1] = 0;
+			SI->editPosition--;
+
+
+		}
+		else if(smallKeyboard[SI->keyboardPosition] == 1)
+		{
+			SI->keyboardShiftFlag = ! SI->keyboardShiftFlag;
+			SI->showKeyboard();
+
+		}
+
+		SI->showKeyboardEditName();
+		return 1;
+	}
+	return 0;
+}
+
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
+{
+	if((state == 1) || (state == 2))
+	{
+		if(SI->keyboardActiveFlag)
+		{
+			if(SI->lastPressedPad == BACKSPACE_PAD_1 || SI->lastPressedPad == BACKSPACE_PAD_2) //backspace
+			{
+				leds.setLED(BACKSPACE_PAD_1, 0, 0);
+				leds.setLED(BACKSPACE_PAD_2, 0, 0);
+			}
+			else if(SI->lastPressedPad == CAPS_LOCK_PAD_1 || SI->lastPressedPad == CAPS_LOCK_PAD_2) //capslock
+			{
+				if(SI->keyboardShiftFlag)
+				{
+					leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
+					leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
+				}
+				else
+				{
+					leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
+					leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
+				}
+
+			}
+			else if(SI->lastPressedPad >= SPACE_PAD_1 && SI->lastPressedPad <= SPACE_PAD_5) //space
+			{
+				for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
+				{
+					leds.setLED(i, 0, 0);
+				}
+			}
+			else
+			{
+				if(SI->lastPressedPad != F_PAD && SI->lastPressedPad != J_PAD) leds.setLED(SI->lastPressedPad,0,0);
+				else leds.setLED(SI->lastPressedPad,1,10);
+			}
+
+
+			SI->lastPressedPad = pad;
+
+			if(pad == BACKSPACE_PAD_1 || pad == BACKSPACE_PAD_2) //backspace
+			{
+				leds.setLED(BACKSPACE_PAD_1, 1, 31);
+				leds.setLED(BACKSPACE_PAD_2, 1, 31);
+			}
+			else if(pad == CAPS_LOCK_PAD_1 || pad == CAPS_LOCK_PAD_2) //capslock
+			{
+				leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
+				leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
+			}
+			else if(pad >= SPACE_PAD_1 && pad <=SPACE_PAD_5) //space
+			{
+				for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
+				{
+					leds.setLED(i, 1, 31);
+				}
+			}
+			else
+			{
+				leds.setLED(pad,1,31);
+			}
+
+			SI->keyboardPosition = valueMapPads[pad];
+
+
+			if(SI->editPosition > 31) return 1;
+			if(smallKeyboard[SI->keyboardPosition] > 1)
+			{
+				if(SI->editPosition == 31) return 1;
+				uint8_t localNameLen = strlen(SI->name);
+				if(SI->editPosition < localNameLen)
+				{
+					for(uint8_t i = localNameLen; i >= SI->editPosition ; i-- )
+					{
+						SI->name[i+1] = SI->name[i];
+					}
+				}
+
+				SI->name[SI->editPosition] = SI->keyboardShiftFlag ? bigKeyboard[SI->keyboardPosition] : smallKeyboard[SI->keyboardPosition];
+				SI->name[SI->editPosition + 1] = 0;
+				SI->editPosition++;
+			}
+			else if(smallKeyboard[SI->keyboardPosition] == 0)
+			{
+				if(SI->editPosition == 0 ) return 1;
+
+				SI->name[SI->editPosition-1] = 0;
+				SI->editPosition--;
+
+
+			}
+			else if(smallKeyboard[SI->keyboardPosition] == 1)
+			{
+				SI->keyboardShiftFlag = ! SI->keyboardShiftFlag;
+//				PE->showKeyboard();
+			}
+			SI->showKeyboard();
+			SI->showKeyboardEditName();
+			return 1;
+		}
+
+		return 1;
+	}
+	else if(state == 0)
+	{
+		if(SI->keyboardActiveFlag)
+		{
+
+		}
+	}
+
+
+
+
+	return 1;
+}
 
 
 
