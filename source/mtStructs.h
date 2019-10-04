@@ -436,6 +436,8 @@ struct strMtValues
 
 	uint8_t projectNotSavedFlag = 0;
 
+// performance
+	uint16_t perfTracksPatterns[8] =  {1,1,1,1,1,1,1,1};
 
 };
 

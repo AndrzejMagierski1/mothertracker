@@ -158,8 +158,16 @@ uint8_t cLabel::update()
 	{
 		API_COLOR(colors[2]);
 
-		API_LINE_WIDTH(32);
+		API_LINE_WIDTH(24);
 
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2F(border_x , border_y);
+		API_VERTEX2F(border_x+width , border_y);
+		API_VERTEX2F(border_x+width , border_y+height);
+		API_VERTEX2F(border_x , border_y+height);
+		API_VERTEX2F(border_x , border_y);
+		API_END();
+/*
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2F(border_x-1 , border_y-1);
 		API_VERTEX2F(border_x+width+1 , border_y-1);
@@ -167,6 +175,7 @@ uint8_t cLabel::update()
 		API_VERTEX2F(border_x-1 , border_y+height+1);
 		API_VERTEX2F(border_x-1 , border_y-1);
 		API_END();
+*/
 	}
 
 
