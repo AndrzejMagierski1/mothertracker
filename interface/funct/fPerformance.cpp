@@ -69,7 +69,16 @@ void cPerformanceMode::update()
 		refreshMaster = 0;
 		if(mode == mtPerformanceMaster) showPerformanceMaster();
 	}
-
+	if(refreshTrackState == 1)
+	{
+		refreshTrackState = 0;
+		refreshTracksState();
+	}
+	if(refreshTrackPattern == 1)
+	{
+		refreshTrackPattern = 0;
+		refreshTracksPatterns();
+	}
 
 
 }
@@ -200,6 +209,11 @@ void cPerformanceMode::toggleEditState()
 
 }
 
+
+uint8_t cPerformanceMode::wasPatternOntrackChenged(uint8_t track)
+{
+	return trackPatternChange[track] > 0;
+}
 
 void cPerformanceMode::toggleTrackPerformanceState(uint8_t track)
 {
@@ -633,6 +647,23 @@ static  uint8_t functUp()
 		PM->showPerformaceValue(new_fx);
 	}
 
+	if(PM->patternChanging)
+	{
+		for(uint8_t i = 0; i<8; i++)
+		{
+			if(tactButtons.isButtonPressed(i))
+			{
+				PM->trackPatternChange[i] = 1;
+				//if(mtProject.values.perfTracksPatterns[i] >= 255)	PM->trackPatternChange[i] = 0; 	//jednak brak zmiany
+				//else
+				if(mtProject.values.perfTracksPatterns[i] < 255)
+					mtProject.values.perfTracksPatterns[i]++;			//zmiana o 1
+			}
+		}
+
+		PM->refreshTrackPattern = 1;
+	}
+
 	return 1;
 }
 
@@ -649,6 +680,23 @@ static  uint8_t functDown()
 
 		PM->refreshFxNames(PM->performanceEditPlace);
 		PM->showPerformaceValue(new_fx);
+	}
+
+	if(PM->patternChanging)
+	{
+		for(uint8_t i = 0; i<8; i++)
+		{
+			if(tactButtons.isButtonPressed(i))
+			{
+				PM->trackPatternChange[i] = 1;
+				//if(mtProject.values.perfTracksPatterns[i] <= 1)	PM->trackPatternChange[i] = 0; 	//jednak brak zmiany
+				//else
+				if(mtProject.values.perfTracksPatterns[i] > 1)
+					mtProject.values.perfTracksPatterns[i]--;			//zmiana o 1
+			}
+		}
+
+		PM->refreshTrackPattern = 1;
 	}
 
 	return 1;
@@ -715,21 +763,18 @@ static  uint8_t functSwitchMode(uint8_t button)
 /*
 	if(PM->mode == mtPerformanceMaster)
 	{
-		PM->mode = 1;
+		PM->mode = mtPerformanceFxes;
 		PM->showPerformanceFxes();
 		PM->setPerformanceFxes();
-
 	}
 	else
 	{
-		PM->mode = 0;
+		PM->mode = mtPerformanceMaster;
 		PM->showPerformanceMaster();
 		PM->setPerformanceMaster();
 	}
-
-
-	PM->activateLabelsBorder();
 */
+
 
 
 
@@ -776,12 +821,39 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 	{
 		if(state == buttonPress)
 		{
-			PM->toggleTrackPerformanceState(button);
-			PM->refreshTracksState();
+			if(tactButtons.isButtonPressed(interfaceButtonShift))
+			{
+				if(mtProject.values.trackMute[button] == 0) mtProject.values.trackMute[button] = 1;
+				else mtProject.values.trackMute[button] = 0;
+
+				engine.muteTrack(button, mtProject.values.trackMute[button]);
+
+				PM->refreshTrackState = 1;
+			}
+			else
+			{
+				PM->patternChanging = 1;
+			}
 		}
 		else if(state == buttonRelease)
 		{
+			if(!tactButtons.isButtonPressed(interfaceButtonShift))
+			{
+				if(PM->wasPatternOntrackChenged(button))
+				{
+					// TODO: Miejsce wywolania funkcji odpowiedzialnej za zmiane paternu na tracku
+					// button <= numer tracka
+					// trackPatern[button] <= pattern tracka
 
+
+				}
+				else
+				{
+					PM->toggleTrackPerformanceState(button);
+
+					PM->refreshTrackState = 1;
+				}
+			}
 		}
 	}
 

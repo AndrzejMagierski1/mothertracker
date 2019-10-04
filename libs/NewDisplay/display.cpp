@@ -410,7 +410,10 @@ void cDisplay::setControlColors(hControl handle, uint32_t colorsTable[])
 void cDisplay::setControlDefaultColors(hControl handle, uint32_t colorsTable[])
 {
 	if(handle == nullptr) return;
-	for(uint8_t i = 0; i < handle->colorsCount; i++) if(colorsTable+i == nullptr || colorsTable[i] > 0xFFFFFF) return;
+	for(uint8_t i = 0; i < handle->colorsCount; i++)
+	{
+		if(colorsTable+i == nullptr || colorsTable[i] > 0xFFFFFF) return;
+	}
 
 	handle->setDefaultColors(colorsTable);
 }

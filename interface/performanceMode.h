@@ -112,6 +112,8 @@ public:
 	void clearPerformanceValues(uint8_t track, uint8_t fx);
 	void refreshPerformanceValuesForTrack(uint8_t track);
 
+	uint8_t wasPatternOntrackChenged(uint8_t track);
+
 	void toggleEditState();
 
 	//----------------------------------
@@ -127,6 +129,8 @@ public:
 
 	void showPerformaceValue(uint8_t fx);
 	void refreshTracksState();
+	void refreshTracksPatterns();
+
 
 //----------------------------------
 
@@ -150,7 +154,8 @@ public:
 	// typ trybu/ekranu
 	uint8_t mode = mtPerformanceFxes;
 	uint8_t refreshMaster = 1;
-
+	uint8_t refreshTrackState = 1;
+	uint8_t refreshTrackPattern = 1;
 
 	uint8_t performanceEditState = 0;
 	uint8_t performanceEditPlace = 0;
@@ -165,8 +170,11 @@ public:
 	int8_t placePerformanceState[12];
 
 	int8_t fxValues[performanceFxesCount] = {0};
+	//uint8_t trackPatern[8] =  {1,1,1,1,1,1,1,1};
+	char trackPaternText[8][13];
 
-
+	uint8_t trackPatternChange[8] = {0};
+	uint8_t patternChanging = 0;
 };
 
 extern cPerformanceMode performanceMode;
