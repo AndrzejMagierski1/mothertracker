@@ -90,6 +90,7 @@ public:
 	uint8_t savePattern(uint8_t index);
 	void storePatternUndoRevision();
 	void undoPattern();
+	void redoPattern();
 	void importPatternToProject(char* filePatch, char* name, int8_t index);
 	void deletePattern(int8_t index);
 	uint8_t getNextSongPattern();

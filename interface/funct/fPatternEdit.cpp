@@ -157,7 +157,7 @@ void cPatternEditor::start(uint32_t options)
 
 void cPatternEditor::stop()
 {
-	setPatternChangeFlag();
+//	setPatternChangeFlag();
 
 	if(fillState) fillState = 0;
 	if(randomiseState) randomiseState = 0;
@@ -913,6 +913,7 @@ uint8_t functEncoder(int16_t value)
 	if(PTE->selectedPlace >= 0)
 	{
 		setPatternChangeFlag();
+		fileManager.storePatternUndoRevision();
 
 		switch(PTE->selectedPlace)
 		{
@@ -942,6 +943,7 @@ uint8_t functEncoder(int16_t value)
 	if(tactButtons.isButtonPressed(interfaceButton7) || !isMultiSelection())
 	{
 		setPatternChangeFlag();
+		fileManager.storePatternUndoRevision();
 		switch(PTE->editParam)
 		{
 		case 0: sequencer.changeSelectionNote(value); break;
@@ -970,7 +972,15 @@ uint8_t functEncoder(int16_t value)
 
 static  uint8_t functEnter()
 {
-
+	if (tactButtons.isButtonPressed(interfaceButtonShift))
+	{
+		fileManager.redoPattern();
+	}
+	else
+	{
+		fileManager.undoPattern();
+	}
+	PTE->refreshPattern();
 	return 1;
 }
 
@@ -1188,6 +1198,8 @@ static  uint8_t functUp()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
+		setPatternChangeFlag();
+		fileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
 		case 0: PTE->changeActualTempo(1); 			 return 1;
@@ -1195,7 +1207,6 @@ static  uint8_t functUp()
 		case 2: PTE->changeActualPatternLength(1); 	 return 1;
 		case 3: PTE->changeActualPatternEditStep(1); return 1;
 		}
-		setPatternChangeFlag();
 		return 1;
 	}
 
@@ -1280,6 +1291,7 @@ static  uint8_t functDown()
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
 		setPatternChangeFlag();
+		fileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
 		case 0: PTE->changeActualTempo(-1); 			return 1;
@@ -1580,6 +1592,8 @@ static uint8_t functPasteInsert(uint8_t state)
 
 		if (PTE->editMode == 1)
 		{
+			fileManager.storePatternUndoRevision();
+			setPatternChangeFlag();
 			if(tactButtons.isButtonPressed(interfaceButtonShift) && tactButtons.isButtonPressed(interfaceButtonEnter))
 			{
 				sendSelection();
@@ -1600,7 +1614,7 @@ static uint8_t functPasteInsert(uint8_t state)
 		}
 
 		PTE->refreshPattern();
-		setPatternChangeFlag();
+
 	}
 
 	return 1;
@@ -1648,6 +1662,8 @@ static uint8_t functCopyDelete(uint8_t state)
 
 		if (PTE->editMode == 1)
 		{
+			setPatternChangeFlag();
+			fileManager.storePatternUndoRevision();
 			// COPY
 			if (tactButtons.isButtonPressed(interfaceButtonShift))
 			{
@@ -1666,7 +1682,6 @@ static uint8_t functCopyDelete(uint8_t state)
 		}
 
 		PTE->refreshPattern();
-		setPatternChangeFlag();
 	}
 
 	return 1;
@@ -1902,6 +1917,8 @@ static  uint8_t functFillApply()
 	// zatwierdzanie wypelnienia
 	if(PTE->fillState)
 	{
+		setPatternChangeFlag();
+		fileManager.storePatternUndoRevision();
 		cPatternEditor::strFill * fillData = &PTE->fillData[PTE->editParam];
 		//(void) PTE->fillData[PTE->editParam];
 		//(void) PTE->fillStep;
@@ -2016,7 +2033,7 @@ static  uint8_t functFillApply()
 		functFillCancel();
 	}
 
-	setPatternChangeFlag();
+
 	return 1;
 }
 
@@ -2102,6 +2119,8 @@ static  uint8_t functRandomiseApply()
 	// zatwierdzanie wypelnienia
 	if(PTE->randomiseState)
 	{
+		setPatternChangeFlag();
+		fileManager.storePatternUndoRevision();
 		cPatternEditor::strRandomise * randomiseData = &PTE->randomiseData[PTE->editParam];
 		//(void) PTE->randomiseData[PTE->editParam];
 		//(void) PTE->randomiseStep;
@@ -2140,7 +2159,6 @@ static  uint8_t functRandomiseApply()
 
 		//--------------------------------------------------------
 		functRandomiseCancel();
-		setPatternChangeFlag();
 	}
 	return 1;
 }
@@ -2187,9 +2205,11 @@ static uint8_t functInvert()
 	//--------------------------------------------------------
 	//TU
 
+	setPatternChangeFlag();
+	fileManager.storePatternUndoRevision();
+
 	sendSelection();
 	sequencer.invertSelectedSteps();
-	setPatternChangeFlag();
 
 	PTE->refreshPattern();
 
@@ -2362,6 +2382,8 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 	if (PTE->selectedPlace >= 0)
 	{
+		setPatternChangeFlag();
+		fileManager.storePatternUndoRevision();
 
 		switch (PTE->selectedPlace)
 		{
@@ -2382,7 +2404,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			PTE->showStep();
 			break;
 		}
-		setPatternChangeFlag();
 
 		return 1;
 	}
@@ -2390,6 +2411,8 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// wprowadzanie danych
 	if (PTE->editMode == 1)
 	{
+		setPatternChangeFlag();
+		fileManager.storePatternUndoRevision();
 
 		switch (PTE->editParam)
 		{
@@ -2456,7 +2479,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			PTE->refreshPattern();
 		}
 
-		setPatternChangeFlag();
 	}
 
 	return 1;
@@ -2567,5 +2589,5 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 static void setPatternChangeFlag()
 {
 	fileManager.patternIsChangedFlag = 1;
-	fileManager.storePatternUndoRevision();
+
 }
