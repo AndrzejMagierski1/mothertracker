@@ -1,6 +1,35 @@
 #include "mtFileManager.h"
+#include "sdram.h"
+#include "interfacePopups.h"
+
 
 uint8_t patternToLoad = 0;
+//__NOINIT(EXTERNAL_RAM) uint8_t undo_Bank[1024*1024];
+#define UNDO_CAPACITY 20
+__NOINIT(EXTERNAL_RAM) Sequencer::strPattern undoPatternBuffer[UNDO_CAPACITY] { 0 };
+
+struct strUndo
+{
+	uint8_t actualIndex = 0; // gdzie jesteśmy w tablicy
+	uint8_t storedCount = 0; // ile razy zrzuciliśmy
+	uint8_t redoPossibility = 0; // ile razy zrzuciliśmy
+	strPopupStyleConfig popupConfig {
+			2,					// time
+			800 / 2 - 150,		// x
+			480 / 2 - 50,		// y
+			300,				// w
+			100,				// h
+			0xffffff,			// lineColor[4];
+			0xffffff,
+			0xffffff,
+			0xffffff,
+			controlStyleCenterX,//lineStyle[4];
+			controlStyleCenterX,
+			controlStyleCenterX,
+			controlStyleCenterX };
+
+} undo;
+
 uint8_t FileManager::loadPattern(uint8_t index)
 {
 
@@ -37,6 +66,99 @@ uint8_t FileManager::savePattern(uint8_t index)
 	sprintf(patternToSave, "Workspace/patterns/pattern_%02d.mtp", index);
 	mtProject.values.actualPattern = index;
 	return writePatternFile(patternToSave);
+}
+
+void FileManager::storePatternUndoRevision()
+{
+	undoPatternBuffer[undo.actualIndex] = *sequencer.getActualPattern();
+	undo.redoPossibility = 0;
+	if (undo.actualIndex >= UNDO_CAPACITY)
+	{
+		undo.actualIndex = 0;
+		undo.storedCount++;
+	}
+	else
+	{
+		undo.actualIndex++;
+		undo.storedCount++;
+	}
+	if (undo.storedCount > UNDO_CAPACITY) undo.storedCount = UNDO_CAPACITY;
+
+//	Serial.printf(
+//			">>>pattern stored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
+//			undo.actualIndex,
+//			undo.storedCount,
+//			undo.redoPossibility);
+
+}
+void FileManager::undoPattern()
+{
+	bool doUndo = 0;
+	uint8_t oldIndex = undo.actualIndex;
+	if (undo.actualIndex > 0)
+	{
+		undo.actualIndex--;
+		undo.storedCount--;
+		doUndo = 1;
+	}
+	else if (undo.actualIndex == 0 && undo.storedCount > 0)
+	{
+		undo.actualIndex = UNDO_CAPACITY - 1;
+		doUndo = 1;
+	}
+	else
+	{
+//		Serial.printf("no more undo data\n");
+
+		mtPopups.config(0, &undo.popupConfig);
+		mtPopups.show(0, "No undo data :(");
+	}
+
+	if (doUndo)
+	{
+
+		undoPatternBuffer[oldIndex] = *sequencer.getActualPattern();
+		*sequencer.getActualPattern() = undoPatternBuffer[undo.actualIndex];
+		undo.redoPossibility++;
+//		Serial.printf(
+//				"<<<pattern restored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
+//				undo.actualIndex,
+//				undo.storedCount,
+//				undo.redoPossibility);
+	}
+}
+void FileManager::redoPattern()
+{
+	bool doRedo = 0;
+	if (undo.actualIndex < UNDO_CAPACITY - 1 && undo.redoPossibility > 0)
+	{
+		undo.actualIndex++;
+		undo.storedCount++;
+		doRedo = 1;
+	}
+	else if (undo.actualIndex == UNDO_CAPACITY - 1 && undo.redoPossibility > 0)
+	{
+		undo.actualIndex = 0;
+		doRedo = 1;
+	}
+	else
+	{
+//		Serial.printf("no more redo possibility\n");
+		mtPopups.config(0, &undo.popupConfig);
+		mtPopups.show(0, "No redo data :(");
+	}
+
+	if (doRedo)
+	{
+		undo.redoPossibility--;
+		*sequencer.getActualPattern() = undoPatternBuffer[undo.actualIndex];
+//		Serial.printf(
+//				">>>pattern redo\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
+//				undo.actualIndex,
+//				undo.storedCount,
+//				undo.redoPossibility);
+	}
+
 }
 
 void FileManager::importPatternToProject(char* filePatch, char* name,

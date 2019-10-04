@@ -570,6 +570,12 @@ public:
 	{
 		return (uint8_t *) &seq[player.ramBank];
 	}
+
+	strPattern * getActualPattern()
+	{
+		return &seq[player.ramBank];
+	}
+
 	void saveToFileDone()
 	{
 	}
