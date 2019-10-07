@@ -421,7 +421,7 @@ uint8_t cProjectEditor::loadProjectValues()
 	for(uint8_t i = 0; i<8; i++)
 	{
 
-		if(mtProject.values.perfTracksPatterns[i] < 1 && mtProject.values.perfTracksPatterns[i] > 255)
+		if(mtProject.values.perfTracksPatterns[i] < 1 || mtProject.values.perfTracksPatterns[i] > 255)
 		{
 			mtProject.values.perfTracksPatterns[i] = 1;
 		}
