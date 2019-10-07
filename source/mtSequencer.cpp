@@ -475,10 +475,8 @@ void Sequencer::play_microStep(uint8_t row)
 						127);
 			}
 
-			sendNoteOn(row,
-						stepToSend.note,
-						stepToSend.velocity,
-						stepToSend.instrument);
+			sendNoteOn(row, &stepToSend);
+
 			playerRow.stepOpen = 1;
 			playerRow.noteOpen = 1;
 			playerRow.stepLength = 9999;
@@ -487,14 +485,10 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 		else if (patternStep.note == STEP_NOTE_OFF)
 		{
-			sendNoteOff(row,
-						playerRow.stepSent.note,
-						playerRow.stepSent.velocity,
-						playerRow.stepSent.instrument);
+			sendNoteOff(row, &playerRow.stepSent);
 			playerRow.stepOpen = 0;
 			playerRow.rollIsOn = 0;
 			playerRow.rollType = fx.ROLL_TYPE_NONE;
-
 		}
 	}
 
@@ -1085,6 +1079,32 @@ void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
 	}
 
 }
+void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
+{
+	if (player.printNotes)
+	{
+		Serial.printf("track %d\nnoteOn:\t%d\nvelo:\t%d\ninstr:\t%d\n\n",
+						track,
+						step->note,
+						step->velocity,
+						step->instrument);
+	}
+	if (step->instrument > INSTRUMENTS_MAX)
+	{
+		usbMIDI.sendNoteOn(step->note,
+							step->velocity,
+							step->instrument - INSTRUMENTS_MAX);
+	}
+	else
+	{
+		instrumentPlayer[track].noteOn(step->instrument,
+										step->note,
+										step->velocity,
+										step->fx[0].type,
+										step->fx[0].value);
+	}
+
+}
 
 void Sequencer::sendNoteOff(uint8_t track,
 							uint8_t note,
@@ -1112,6 +1132,32 @@ void Sequencer::sendNoteOff(uint8_t track,
 		instrumentPlayer[track].noteOff();
 	}
 }
+void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
+{
+	if (player.printNotes)
+	{
+		Serial.printf(
+				"\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
+				track,
+				step->note,
+				step->velocity,
+				step->instrument);
+	}
+
+	if (step->instrument > INSTRUMENTS_MAX)
+	{
+		usbMIDI.sendNoteOff(step->note,
+							0,
+							step->instrument - INSTRUMENTS_MAX);
+	}
+	else
+	{
+		instrumentPlayer[track].noteOff();
+	}
+}
+
+
+
 void Sequencer::sendNoteOff(uint8_t track)
 {
 //	if (player.printNotes)
