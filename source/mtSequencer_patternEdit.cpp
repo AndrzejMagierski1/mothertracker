@@ -321,7 +321,7 @@ void Sequencer::invertSelectedSteps()
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
 	{
 		for (uint8_t a = sel->firstStep, b = sel->lastStep;
-				a <= (sel->lastStep - sel->firstStep) / 2;
+				a <= ((sel->lastStep - sel->firstStep) / 2) + sel->firstStep;
 				a++, b--)
 		{
 			stepA = &seq[player.ramBank].track[t].step[a];
