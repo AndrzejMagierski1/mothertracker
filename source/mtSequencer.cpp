@@ -336,6 +336,12 @@ void Sequencer::play_microStep(uint8_t row)
 		default:
 			break;
 		}
+
+		if (patternStep.note == STEP_NOTE_EMPTY && _fx.type > fx.FX_TYPE_NOT_SEQ_FX)
+		{
+			// wysyłam tylko fxa jeśli nie ma nuty
+			instrumentPlayer[row].seqFx(_fx.type, _fx.value);
+		}
 	}
 
 	// **************************
@@ -392,13 +398,6 @@ void Sequencer::play_microStep(uint8_t row)
 
 			break;
 
-		case fx.FX_TYPE_CUTOFF:
-			instrumentPlayer[row].modCutoff(map((float) _fx.value,
-												(float) 0,
-												(float) 127,
-												(float) 0,
-												(float) 1));
-			break;
 		case fx.FX_TYPE_RANDOM_NOTE:
 			stepToSend.note = constrain(
 					random(patternStep.note - _fx.value,
