@@ -203,7 +203,7 @@ void cSampleImporter::start(uint32_t options)
 	Encoder.setAcceleration(0);
 
 	//selectedFile = 0;
-
+	mtProject.values.lastUsedInstrument = constrain(mtProject.values.lastUsedInstrument, 0, INSTRUMENTS_MAX);
 	selectedSlot = mtProject.values.lastUsedInstrument;
 
 

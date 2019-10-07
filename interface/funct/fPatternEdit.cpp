@@ -2575,7 +2575,10 @@ static uint8_t functSwitchModule(uint8_t button)
 		if (actualStep->note >= 0)
 		{
 			mtProject.values.lastUsedNote = actualStep->note;
-			mtProject.values.lastUsedInstrument = actualStep->instrument;
+			mtProject.values.lastUsedInstrument = constrain(
+					actualStep->instrument,
+					0,
+					INSTRUMENTS_MAX);
 		}
 		if (actualStep->velocity >= 0)
 		{
