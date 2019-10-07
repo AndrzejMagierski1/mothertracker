@@ -20,6 +20,12 @@
 #include "Roboto_Mono_20_L4.h"
 
 
+#include "arrow_d1_50x50_L1.h"
+#include "arrow_d2_50x50_L1.h"
+#include "arrow_u1_50x50_L1.h"
+#include "arrow_u2_50x50_L1.h"
+
+
 // OBRAZY
 
 // CZCIONKI
@@ -83,6 +89,16 @@ strBitmap bitmaps[displayBitmapsCount] =
 		L8,
 		128,
 	},
+
+	{ arrow_u2_50x50_L1, 71500, 350, 50, 50, L1, 7 },
+	{ arrow_u1_50x50_L1, 71000, 350, 50, 50, L1, 7 },
+	{ arrow_d1_50x50_L1, 70000, 350, 50, 50, L1, 7 },
+	{ arrow_d2_50x50_L1, 70500, 350, 50, 50, L1, 7 },
+
+
+
+
+
 };
 
 

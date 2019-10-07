@@ -19,6 +19,7 @@ enum mtPerformanceMode
 
 enum mtPerformanceFxes
 {
+	mtPerfFxNone,
 	mtPerfFxVolume,
 	mtPerfPanning,
 	mtPerfTune,
@@ -30,7 +31,6 @@ enum mtPerformanceFxes
 	mtPerfSamplePlayback,
 	mtPerfStepStutter,
 	mtPerfPatternPlayMode,
-	mtPerfFx11,
 
 	performanceFxesCount
 };
@@ -50,6 +50,7 @@ const char trackMasterLabels[trackMasterModeCount][5] =
 
 const char performanceFxesLabels[performanceFxesCount][20] =
 {
+	"",
 	"Volume",
 	"Panning",
 	"Tune",
@@ -61,7 +62,6 @@ const char performanceFxesLabels[performanceFxesCount][20] =
 	"Sample playback",
 	"Step stutter",
 	"Pattern play mode",
-	"mtPerfFx11",
 };
 
 const char performanceStutterLabels[13][20] =
@@ -131,9 +131,13 @@ public:
 	void refreshTracksState();
 	void refreshTracksPatterns();
 
+	void showArrow(uint8_t place, uint8_t type);
+	void hideArrow(uint8_t place);
 
 //----------------------------------
 
+
+	strLabelData textLabelData[12];
 
 	strFrameData frameData;
 
@@ -162,7 +166,7 @@ public:
 
 	//--------performance values
 	// g
-	uint8_t fxPlaces[12] = {0,1,2,3,4,5,6,7,8,9,10,11};
+	//uint8_t fxPlaces[12] = {0,1,2,3,4,5,6,7,8,9,10,11};
 	char fxValuesText[12][7] = {0};
 
 	// f
@@ -174,7 +178,6 @@ public:
 	char trackPaternText[8][13];
 
 	uint8_t trackPatternChange[8] = {0};
-	uint8_t patternChanging = 0;
 };
 
 extern cPerformanceMode performanceMode;
