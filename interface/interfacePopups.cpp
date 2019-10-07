@@ -319,7 +319,7 @@ void cInterfacePopups::hideStepPopups()
 
 		mtInterface.uiFM.clearButton(interfaceButtonRec);
 		mtInterface.uiFM.clearButton(interfaceButtonShift);
-		mtInterface.uiFM.clearButton(interfaceButtonEnter);
+//		mtInterface.uiFM.clearButton(interfaceButtonEnter);
 
 		mtInterface.uiFM.clearButton(interfaceButtonLeft);
 		mtInterface.uiFM.clearButton(interfaceButtonRight);
@@ -335,7 +335,7 @@ void cInterfacePopups::setPopupFunct()
 {
 	mtInterface.uiFM.clearButton(interfaceButtonRec);
 	mtInterface.uiFM.clearButton(interfaceButtonShift);
-	mtInterface.uiFM.clearButton(interfaceButtonEnter);
+//	mtInterface.uiFM.clearButton(interfaceButtonEnter);
 
 	mtInterface.uiFM.clearButtonsRange(interfaceButton0,interfaceButton7);
 

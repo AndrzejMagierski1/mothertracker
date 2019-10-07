@@ -66,8 +66,9 @@ static  uint8_t functShift(uint8_t state);
 
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
-static  uint8_t functPasteInsert(uint8_t state);
-static  uint8_t functCopyDelete(uint8_t state);
+static  uint8_t functInsertHome(uint8_t state);
+static  uint8_t functCopyPaste(uint8_t state);
+static  uint8_t functDeleteBackspace(uint8_t state);
 
 static uint8_t getSelectedElement();
 
@@ -175,12 +176,14 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->clearAllPots();
 
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
+	FM->setButtonObj(interfaceButtonCopy, functCopyPaste);
+	FM->setButtonObj(interfaceButtonInsert, functInsertHome);
+	FM->setButtonObj(interfaceButtonDelete, functDeleteBackspace);
 
-	FM->setButtonObj(interfaceButtonPaste, functPasteInsert);
-//	FM->setButtonObj(interfaceButtonPaste, buttonRelease, functPasteInsertRelease);
-	FM->setButtonObj(interfaceButtonCopy, functCopyDelete);
-//	FM->setButtonObj(interfaceButtonCopy, buttonRelease, functCopyDeleteRelease);
+
+	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
+	FM->setButtonObj(interfaceButtonShift, functShift);
+
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
@@ -208,9 +211,6 @@ void cPatternEditor::setDefaultScreenFunct()
 	//FM->setButtonObj(interfaceButton7, buttonPress, );
 
 
-	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
-	FM->setButtonObj(interfaceButtonShift, functShift);
-	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
@@ -1598,7 +1598,7 @@ static  uint8_t functRecAction()
 
 
 
-static uint8_t functPasteInsert(uint8_t state)
+static uint8_t functInsertHome(uint8_t state)
 {
 	if (state == buttonPress)
 	{
@@ -1607,16 +1607,11 @@ static uint8_t functPasteInsert(uint8_t state)
 		{
 			fileManager.storePatternUndoRevision();
 			setPatternChangeFlag();
-			if(tactButtons.isButtonPressed(interfaceButtonShift) && tactButtons.isButtonPressed(interfaceButtonEnter))
-			{
-				sendSelection();
-				sequencer.insertReversed(&sequencer.selection);
-			}
-			else if(tactButtons.isButtonPressed(interfaceButtonShift))
-			{
-				sendPasteSelection();
 
-				sequencer.pasteFromBuffer(getSelectedElement());
+			// HOME
+			if(tactButtons.isButtonPressed(interfaceButtonShift))
+			{
+
 			}
 			// INSERT
 			else
@@ -1667,7 +1662,7 @@ static uint8_t getSelectedElement()
 
 
 
-static uint8_t functCopyDelete(uint8_t state)
+static uint8_t functCopyPaste(uint8_t state)
 {
 
 	if (state == buttonPress)
@@ -1677,14 +1672,42 @@ static uint8_t functCopyDelete(uint8_t state)
 		{
 			setPatternChangeFlag();
 			fileManager.storePatternUndoRevision();
-			// COPY
+
 			if (tactButtons.isButtonPressed(interfaceButtonShift))
+			{
+				sendPasteSelection();
+				sequencer.pasteFromBuffer(getSelectedElement());
+			}
+			else
 			{
 				sendCopySelection();
 				sequencer.copyToBuffer();
 				PTE->shiftAction = 1;
 			}
-			// DELETE
+
+		}
+
+		PTE->refreshPattern();
+	}
+
+	return 1;
+}
+static uint8_t functDeleteBackspace(uint8_t state)
+{
+
+	if (state == buttonPress)
+	{
+
+		if (PTE->editMode == 1)
+		{
+			setPatternChangeFlag();
+			fileManager.storePatternUndoRevision();
+
+			// backspace
+			if (tactButtons.isButtonPressed(interfaceButtonShift))
+			{
+
+			}
 			else
 			{
 				sendSelection();
@@ -2359,6 +2382,7 @@ void cPatternEditor::lightUpPadBoard()
 
 
 }
+
 
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)

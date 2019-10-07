@@ -407,7 +407,7 @@ void cSampleRecorder::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
+//	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
 //	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
 
