@@ -420,14 +420,27 @@ uint8_t cProjectEditor::loadProjectValues()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-
+		// paterny na trakach w performance mode
 		if(mtProject.values.perfTracksPatterns[i] < 1 || mtProject.values.perfTracksPatterns[i] > 255)
 		{
 			mtProject.values.perfTracksPatterns[i] = 1;
 		}
 
-
+		// globalne mute trackow
+		if(mtProject.values.trackMute[i] >= trackMasterModeCount) mtProject.values.trackMute[i] = 0;
 	}
+
+	for(uint8_t i = 0; i<12; i++)
+	{
+		if(mtProject.values.perfFxPlaces[i] > performanceFxesCount-1)
+		{
+			mtProject.values.perfFxPlaces[i] = (i+1 < performanceFxesCount) ? i+1 : 0;
+		}
+	}
+
+
+
+
 
 
 	//performanceMode.

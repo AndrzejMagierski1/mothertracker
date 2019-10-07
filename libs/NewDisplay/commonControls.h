@@ -9,6 +9,8 @@ struct strLabelData
 
 	uint16_t styleValue;
 
+	uint8_t bitmapIndex;
+
 };
 
 struct strFrameData

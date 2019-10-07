@@ -20,14 +20,14 @@ enum controlsStyle
 	controlStyleCenterY = 8,
 	controlStyleRightX 	= 16,
 
-	controlStyleShowValue		= 32,
+	controlStyleShowBitmap		= 32,
 	controlStyleManualText		= 64,
 	controlStyleVerticalText 	= 128,
 
 	controlStyleFont1 	= 256,
 	controlStyleFont2 	= 512,
 	controlStyleFont3 	= 1024,
-	controlStyleFont4 	= 1280,
+	controlStyleFont4 	= 2048,
 
 	controlStyleBorder 			= (1<<12),
 	controlStyleBackground 		= (1<<13),
@@ -38,7 +38,9 @@ enum controlsStyle
 	controlStyleValueLeftRight_24_24 	= (1<<17),
 	controlStyleValue_0_100 			= (1<<18),
 	controlStyleValueNumberOnly			= (1<<19),
-	controlStyleCompareTwoValues 		= (1<<20)
+	controlStyleCompareTwoValues 		= (1<<20),
+
+	//controlStylexzcszczc  			= (1<<21)
 };
 
 
