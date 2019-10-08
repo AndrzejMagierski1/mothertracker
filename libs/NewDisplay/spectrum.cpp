@@ -86,6 +86,9 @@ void cSpectrum::setDefaultColors(uint32_t colors[])
 void cSpectrum::setData(void* data)
 {
 	spectrum = (strTrackerSpectrum*)data;
+
+	width = spectrum->width;
+
 }
 
 //--------------------------------------------------------------------------------
@@ -199,7 +202,7 @@ void cSpectrum::refresh1()
 	{
 		API_BEGIN(LINES);
 
-		uint16_t length = (width>200) ? 300 : width;
+		uint16_t length = width/2;
 
 		uint8_t odd = 0;
 

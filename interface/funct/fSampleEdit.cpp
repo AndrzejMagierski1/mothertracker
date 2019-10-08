@@ -6,6 +6,7 @@
 #include "interfacePopups.h"
 
 #include "graphicProcessing.h"
+#include "mtEffector.h"
 
 
 
@@ -26,13 +27,8 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
+static uint8_t functSelectPlace(uint8_t button);
 
-static  uint8_t functSelectStart();
-static  uint8_t functSelectLoop1();
-static  uint8_t functSelectLoop2();
-static  uint8_t functSelectEnd();
-static  uint8_t functSelectZoom();
-static  uint8_t functPlayMode(uint8_t button);
 
 
 
@@ -44,8 +40,26 @@ static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
 
+static uint8_t functPreview(uint8_t state);
+static uint8_t functApply();
+static uint8_t functUndo();
 
 
+
+// ------ EDIT FUNCTIONS PROTOTYPES -----
+uint8_t modStartPoint(int16_t value);
+uint8_t modEndPoint(int16_t value);
+uint8_t changeZoom(int16_t value);
+
+uint8_t editChorusLength(int16_t value);
+uint8_t editChorusStrength(int16_t value);
+
+uint8_t editDelayFeedback(int16_t value);
+uint8_t editDelayTime(int16_t value);
+
+uint8_t editFlangerOffset(int16_t value);
+uint8_t editFlangerDepth(int16_t value);
+uint8_t editFlangerDelay(int16_t value);
 
 
 
@@ -54,9 +68,7 @@ void cSampleEditor::update()
 {
 	if(refreshSpectrum)
 	{
-		GP.processSpectrum(editorInstrument, &zoom, &spectrum);
-
-		display.refreshControl(SE->spectrumControl);
+		showCurrentSpectrum(effector.getLength()/2, effector.getAddress());
 
 		refreshSpectrum = 0;
 	}
@@ -65,15 +77,62 @@ void cSampleEditor::update()
 	{
 		processPoints();
 
-
-		display.refreshControl(SE->pointsControl);
+		display.refreshControl(pointsControl);
 
 		refreshPoints = 0;
 	}
 
+	refreshSampleLoading();
+	refreshSampleApplying();
 
-
+	updateEffectProcessing();
 }
+
+void cSampleEditor::refreshSampleApplying()
+{
+	save_stages_t status;
+
+	status = effector.getSaveStatus();
+
+	if(status == saving)
+	{
+		showApplying(effector.saveUpdate());
+	}
+	else if(status == saveDone)
+	{
+		hideHorizontalBar();
+		refreshSpectrum = 1;
+		effector.setSaveStatus(waitingForSaveInit);
+	}
+}
+
+void cSampleEditor::refreshSampleLoading()
+{
+	sampleLoadedState = fileManager.samplesLoader.waveLoader.getState();
+
+	if(sampleLoadedState == loaderStateTypeInProgress) // refresh update when in progress
+	{
+		fileManager.samplesLoader.waveLoader.update();
+		showSampleLoading(fileManager.samplesLoader.waveLoader.getCurrentWaveProgress());
+	}
+
+	if((sampleLoadedState == loaderStateTypeEnded) && (lastSampleLoadedState == loaderStateTypeInProgress)) // do when loaded
+	{
+		showCurrentSpectrum(effector.getLength()/2, effector.getAddress());
+		hideHorizontalBar();
+	}
+
+	lastSampleLoadedState = sampleLoadedState;
+}
+
+void cSampleEditor::showCurrentSpectrum(uint32_t length, int16_t *source)
+{
+	spectrumParams.length = length;
+	spectrumParams.address = source;
+	GP.processSpectrum(&spectrumParams, &zoom, &spectrum);
+	display.refreshControl(spectrumControl);
+}
+
 
 void cSampleEditor::start(uint32_t options)
 {
@@ -81,17 +140,22 @@ void cSampleEditor::start(uint32_t options)
 
 	//--------------------------------------------------------------------
 
+	//editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
-	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
+	localInstrNum = mtProject.values.lastUsedInstrument;
+	sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);
+	effector.loadSample(instrumentPath);
+
+
+	initEffectsScreenStructs();
 
 	//--------------------------------------------------------------------
 
-	points.selected = (selectedPlace >= 0 && selectedPlace <= 3) ? selectedPlace+1 : 0;
-
-	GP.spectrumResetZoom(editorInstrument->startPoint, editorInstrument->sample.length ,&zoom);
-
-	GP.processSpectrum(editorInstrument, &zoom, &spectrum);
-	processPoints();
+	//points.selected = (selectedPlace >= 0 && selectedPlace <= 3) ? selectedPlace+1 : 0;
+	startPoint = 0;
+	endPoint = MAX_16BIT;
+	points.endPoint = endPoint;
+	points.startPoint = startPoint;
 
 
 	// ustawienie funkcji
@@ -107,15 +171,127 @@ void cSampleEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
-	listPlayMode();
-	showPlayModeList();
-	showZoomValue();
+	listEffects();
 
 	showDefaultScreen();
+
 	setDefaultScreenFunct();
-	showZoomValue();
+
+	GP.spectrumResetZoom(startPoint, effector.getLength()/2 ,&zoom);
+	processPoints();
 
 	activateLabelsBorder();
+
+}
+
+
+void cSampleEditor::initEffectsScreenStructs()
+{
+	//!< Crop effect
+	//
+	effectScreen[effectCrop].screen = fullSpectrum;
+
+	effectScreen[effectCrop].paramNum = 3;
+	effectScreen[effectCrop].barNum = 0;
+
+	effectScreen[effectCrop].bar[0].name = "Start";
+	effectScreen[effectCrop].bar[0].editFunct = modStartPoint;
+	effectScreen[effectCrop].bar[0].dataSource = &startPoint;
+	effectScreen[effectCrop].bar[0].dataFormat = tUNSIGNED16,
+
+	effectScreen[effectCrop].bar[1].name = "End";
+	effectScreen[effectCrop].bar[1].editFunct = modEndPoint;
+	effectScreen[effectCrop].bar[1].dataSource = &endPoint;
+	effectScreen[effectCrop].bar[1].dataFormat = tUNSIGNED16,
+
+	effectScreen[effectCrop].bar[2].name = "Zoom";
+	effectScreen[effectCrop].bar[2].editFunct = changeZoom;
+	effectScreen[effectCrop].bar[2].dataSource = &zoom.zoomValue;
+	effectScreen[effectCrop].bar[2].dataFormat = tFLOAT,
+	effectScreen[effectCrop].undoActive = 1;
+
+	//!< Reverse effect
+	//
+	effectScreen[effectReverse].screen = fullSpectrum;
+
+	effectScreen[effectReverse].paramNum = 3;
+	effectScreen[effectReverse].barNum = 0;
+
+	effectScreen[effectReverse].bar[0].name = "Start";
+	effectScreen[effectReverse].bar[0].editFunct = modStartPoint;
+	effectScreen[effectReverse].bar[0].dataSource = &startPoint;
+	effectScreen[effectReverse].bar[0].dataFormat = tUNSIGNED16,
+
+	effectScreen[effectReverse].bar[1].name = "End";
+	effectScreen[effectReverse].bar[1].editFunct = modEndPoint;
+	effectScreen[effectReverse].bar[1].dataSource = &endPoint;
+	effectScreen[effectReverse].bar[1].dataFormat = tUNSIGNED16,
+
+	effectScreen[effectReverse].bar[2].name = "Zoom";
+	effectScreen[effectReverse].bar[2].editFunct = changeZoom;
+	effectScreen[effectReverse].bar[2].dataSource = &zoom.zoomValue;
+	effectScreen[effectReverse].bar[2].dataFormat = tFLOAT,
+	effectScreen[effectReverse].undoActive = 1;
+
+	//!< Flanger effect
+	//
+	effectScreen[effectFlanger].screen = spectrumWithBars;
+
+	effectScreen[effectFlanger].paramNum = 3;
+	effectScreen[effectFlanger].barNum = 3;
+
+	effectScreen[effectFlanger].bar[0].name = "Offset";
+	effectScreen[effectFlanger].bar[0].editFunct = editFlangerOffset;
+	effectScreen[effectFlanger].bar[0].dataSource = &flangerOffset;
+	effectScreen[effectFlanger].bar[0].dataFormat = tUNSIGNED8,
+
+	effectScreen[effectFlanger].bar[1].name = "Depth";
+	effectScreen[effectFlanger].bar[1].editFunct = editFlangerDepth;
+	effectScreen[effectFlanger].bar[1].dataSource = &flangerDepth;
+	effectScreen[effectFlanger].bar[1].dataFormat = tUNSIGNED8,
+
+	effectScreen[effectFlanger].bar[2].name = "Delay";
+	effectScreen[effectFlanger].bar[2].editFunct = editFlangerDelay;
+	effectScreen[effectFlanger].bar[2].dataSource = &flangerDelay;
+	effectScreen[effectFlanger].bar[2].dataFormat = tFLOAT,
+	effectScreen[effectFlanger].undoActive = 0;
+
+	//!< Chorus effect
+	//
+	effectScreen[effectChorus].screen = spectrumWithBars;
+
+	effectScreen[effectChorus].paramNum = 2;
+	effectScreen[effectChorus].barNum = 2;
+
+	effectScreen[effectChorus].bar[1].name = "Length";
+	effectScreen[effectChorus].bar[1].editFunct = editChorusLength;
+	effectScreen[effectChorus].bar[1].dataSource = &chorusLength;
+	effectScreen[effectChorus].bar[1].dataFormat = tUNSIGNED16;
+
+	effectScreen[effectChorus].bar[2].name = "Strength";
+	effectScreen[effectChorus].bar[2].editFunct = editChorusStrength;
+	effectScreen[effectChorus].bar[2].dataSource = &chorusStrength;
+	effectScreen[effectChorus].bar[2].dataFormat = tUNSIGNED8;
+	effectScreen[effectChorus].undoActive = 0;
+
+	//!< Delay effect
+	//
+	effectScreen[effectDelay].screen = spectrumWithBars;
+
+	effectScreen[effectDelay].paramNum = 2;
+	effectScreen[effectDelay].barNum = 2;
+
+	effectScreen[effectDelay].bar[1].name = "Time";
+	effectScreen[effectDelay].bar[1].editFunct = editDelayTime;
+	effectScreen[effectDelay].bar[1].dataSource = &delayTime;
+	effectScreen[effectDelay].bar[1].dataFormat = tUNSIGNED16;
+
+	effectScreen[effectDelay].bar[2].name = "Feedback";
+	effectScreen[effectDelay].bar[2].editFunct = editDelayFeedback;
+	effectScreen[effectDelay].bar[2].dataSource = &delayFeedback;
+	effectScreen[effectDelay].bar[2].dataFormat = tFLOAT;
+	effectScreen[effectDelay].undoActive = 0;
+
 }
 
 void cSampleEditor::stop()
@@ -144,13 +320,16 @@ void cSampleEditor::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 
-	FM->setButtonObj(interfaceButton3, buttonPress, functSelectStart);
-	FM->setButtonObj(interfaceButton4, buttonPress, functSelectEnd);
+	FM->setButtonObj(interfaceButton0, functPreview);
+	FM->setButtonObj(interfaceButton1, buttonPress, functApply);
+	FM->setButtonObj(interfaceButton2, buttonPress, functUndo);
 
-	FM->setButtonObj(interfaceButton5, buttonPress, functSelectZoom);
+	FM->setButtonObj(interfaceButton3, buttonPress, functSelectPlace);
+	FM->setButtonObj(interfaceButton4, buttonPress, functSelectPlace);
+	FM->setButtonObj(interfaceButton5, buttonPress, functSelectPlace);
+	FM->setButtonObj(interfaceButton6, buttonPress, functSelectPlace);
+	FM->setButtonObj(interfaceButton7, buttonPress, functSelectPlace);
 
-	FM->setButtonObj(interfaceButton6, buttonPress, functPlayMode);
-	FM->setButtonObj(interfaceButton7, buttonPress, functPlayMode);
 	FM->setButtonObj(interfaceButtonNote, functStepNote);
 
 
@@ -167,45 +346,27 @@ void cSampleEditor::setDefaultScreenFunct()
 
 void cSampleEditor::processPoints()
 {
+	points.pointsType = 0;
 
-	points.pointsType = editorInstrument->playMode;
-
-	if(editorInstrument->startPoint >= zoom.zoomStart && editorInstrument->startPoint <= zoom.zoomEnd)
+	if(startPoint >= zoom.zoomStart && startPoint <= zoom.zoomEnd)
 	{
-		points.startPoint = ((editorInstrument->startPoint-zoom.zoomStart) * 599) / zoom.zoomWidth;
+		points.startPoint = ((startPoint-zoom.zoomStart) * (spectrum.width - 1)) / zoom.zoomWidth;
 	}
 	else points.startPoint = -1;
 
-	if(editorInstrument->endPoint >= zoom.zoomStart && editorInstrument->endPoint <= zoom.zoomEnd)
+	if(endPoint >= zoom.zoomStart && endPoint <= zoom.zoomEnd)
 	{
-		points.endPoint = ((editorInstrument->endPoint-zoom.zoomStart) * 599) / zoom.zoomWidth;
+		points.endPoint = ((endPoint-zoom.zoomStart) * (spectrum.width - 1)) / zoom.zoomWidth;
 	}
 	else points.endPoint = -1;
-
-	if(editorInstrument->loopPoint1 >= zoom.zoomStart && editorInstrument->loopPoint1 <= zoom.zoomEnd)
-	{
-		points.loopPoint1 = ((editorInstrument->loopPoint1-zoom.zoomStart) * 599) / zoom.zoomWidth;
-	}
-	else points.loopPoint1 = -1;
-
-	if(editorInstrument->loopPoint2 >= zoom.zoomStart && editorInstrument->loopPoint2 <= zoom.zoomEnd)
-	{
-		points.loopPoint2 = ((editorInstrument->loopPoint2-zoom.zoomStart) * 599) / zoom.zoomWidth;
-	}
-	else points.loopPoint2 = -1;
-
 }
 
-
-void cSampleEditor::listPlayMode()
+void cSampleEditor::listEffects()
 {
-
 	for(uint8_t i = 0; i < effectsCount; i++)
 	{
-		playModeNames[i] = (char*)&effectNamesLabels[i][0];
+		effectNames[i] = (char*)&effectNamesLabels[i][0];
 	}
-
-
 }
 
 void cSampleEditor::cancelPopups()
@@ -221,223 +382,167 @@ void cSampleEditor::cancelPopups()
 }
 
 //==============================================================================================================
-
-
-static  uint8_t functSelectStart()
+uint8_t cSampleEditor::previewNewEffectRequested()
 {
-	SE->points.selected = 1;
+	uint8_t retVal = 0;
+
+	if((SE->lastPreviewEffect != (effect_t)SE->currSelEffect))
+	{
+		retVal=1;
+	}
+
+	return retVal;
+}
+
+
+
+static uint8_t functPreview(uint8_t state)
+{
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	{
+		sequencer.stop();
+	}
+
+	if(state == 1)
+	{
+		SE->makeEffect();
+
+		if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
+		{
+			effector.play(SE->startPoint, SE->endPoint);
+		}
+		else
+		{
+			if(SE->previewReadyFlag)
+			{
+				effector.playPrev();
+			}
+		}
+
+		SE->lastPreviewEffect = (effect_t)SE->currSelEffect;
+	}
+	else if(state == 0)
+	{
+		effector.stop();
+	}
+
 	SE->selectedPlace = 0;
 	SE->activateLabelsBorder();
 
-	if(SE->zoom.zoomValue > 1.0 && SE->zoom.lastChangedPoint != 1)
-	{
-		SE->zoom.lastChangedPoint = 1;
-		SE->zoom.zoomPosition = SE->editorInstrument->startPoint;
-		SE->refreshSpectrum = 1;
-	}
-
-	SE->refreshPoints = 1;
-
 	return 1;
 }
 
-static  uint8_t functSelectLoop1()
+static uint8_t functApply()
 {
-	SE->points.selected = 3;
+	sprintf(SE->instrumentPath, "Workspace/samples/instr%02d.wav", SE->localInstrNum);
+	effector.save(SE->instrumentPath);
+
 	SE->selectedPlace = 1;
 	SE->activateLabelsBorder();
 
-	if(SE->zoom.zoomValue > 1.0 && SE->zoom.lastChangedPoint != 3)
-	{
-		SE->zoom.lastChangedPoint = 3;
-		SE->zoom.zoomPosition = SE->editorInstrument->loopPoint1;
-		SE->refreshSpectrum = 1;
-	}
-
-	SE->refreshPoints = 1;
-
 	return 1;
 }
 
-static  uint8_t functSelectLoop2()
+static uint8_t functUndo()
 {
-	SE->points.selected = 4;
 	SE->selectedPlace = 2;
 	SE->activateLabelsBorder();
 
-	if(SE->zoom.zoomValue > 1.0 && SE->zoom.lastChangedPoint != 4)
-	{
-		SE->zoom.lastChangedPoint = 4;
-		SE->zoom.zoomPosition = SE->editorInstrument->loopPoint2;
-		SE->refreshSpectrum = 1;
-	}
-
-	SE->refreshPoints = 1;
-
 	return 1;
 }
 
-static  uint8_t functSelectEnd()
+static uint8_t functSelectPlace(uint8_t button)
 {
-	SE->points.selected = 2;
-	SE->selectedPlace = 3;
-	SE->activateLabelsBorder();
-
-	if(SE->zoom.zoomValue > 1.0 && SE->zoom.lastChangedPoint != 2)
+	if(button < interfaceButton7)
 	{
-		SE->zoom.lastChangedPoint = 2;
-		SE->zoom.zoomPosition = SE->editorInstrument->endPoint;
-		SE->refreshSpectrum = 1;
+		SE->selectedPlace = button;
+	}
+	else
+	{
+		SE->selectedPlace = 6;
 	}
 
-	SE->refreshPoints = 1;
-
-	return 1;
-}
-
-
-static  uint8_t functSelectZoom()
-{
-
-	SE->selectedPlace = 5;
 	SE->activateLabelsBorder();
-
-	return 1;
-}
-
-
-static  uint8_t functPlayMode(uint8_t button)
-{
-	if(button == interfaceButton6)
-	{
-		SE->changePlayModeSelection(-1);
-	}
-	else //if(button == interfaceButton7)
-	{
-		SE->changePlayModeSelection(1);
-	}
-
-	SE->selectedPlace = 6;
-	SE->activateLabelsBorder();
-	SE->points.selected = 0;
-
-	SE->refreshPoints = 1;
 
 	return 1;
 }
 
 static  uint8_t functEncoder(int16_t value)
 {
-
-
 	switch(SE->selectedPlace)
 	{
-	case 0: SE->modStartPoint(value); 			break;
-	case 1: SE->modLoopPoint1(value); 			break;
-	case 2: SE->modLoopPoint2(value); 			break;
-	case 3: SE->modEndPoint(value); 			break;
-	case 5: SE->changeZoom(value);				break;
-	case 6: SE->changePlayModeSelection(value);	break;
+	case 0: break;
+	case 1: break;
+	case 2: break;
+	case 3: SE->editParamFunction(0, value);	break;
+	case 4: SE->editParamFunction(1, value);    break;
+	case 5: SE->editParamFunction(2, value);	break;
+	case 6: SE->changeEffectSelection(value);	break;
 	}
-
-
-
 
 	return 1;
 }
 
-static  uint8_t functSelectStart();
-static  uint8_t functSelectLoop1();
-static  uint8_t functSelectLoop2();
-
-
+void cSampleEditor::editParamFunction(uint8_t paramNum, int16_t value)
+{
+	if(effectScreen[currSelEffect].bar[paramNum].editFunct != NULL)
+	{
+		effectScreen[currSelEffect].bar[paramNum].effectPercentage = effectScreen[currSelEffect].bar[paramNum].editFunct(value);
+		updateEffectValues(&effectScreen[currSelEffect], paramNum);
+	}
+}
 
 static  uint8_t functLeft()
 {
 	if(SE->selectedPlace > 0) SE->selectedPlace--;
 
-	switch(SE->selectedPlace)
-	{
-		case 0: functSelectStart();		break;
-		case 1: functSelectLoop1(); 	break;
-		case 2: functSelectLoop2();		break;
-		case 3: functSelectEnd();		break;
-		case 4: SE->selectedPlace--;	functSelectEnd();break;
-		case 5: functSelectZoom();		break;
-		case 6:
-		{
-		SE->selectedPlace = 6;
-		SE->activateLabelsBorder();
-		SE->points.selected = 0;
-		break;
-		}
-	}
-
+	SE->activateLabelsBorder();
 
 	return 1;
 }
-
 
 static  uint8_t functRight()
 {
 	if(SE->selectedPlace < SE->frameData.placesCount-1) SE->selectedPlace++;
 
-	switch(SE->selectedPlace)
-	{
-		case 0: functSelectStart();		break;
-		case 1: functSelectLoop1(); 	break;
-		case 2: functSelectLoop2();		break;
-		case 3: functSelectEnd();		break;
-		case 4: SE->selectedPlace++;	functSelectZoom();		break;
-		case 5: functSelectZoom();		break;
-		case 6:
-		{
-		SE->selectedPlace = 6;
-		SE->activateLabelsBorder();
-		SE->points.selected = 0;
-		break;
-		}
-	}
-
-
+	SE->activateLabelsBorder();
 
 	return 1;
 }
-
 
 static  uint8_t functUp()
 {
 	switch(SE->selectedPlace)
 	{
-	case 0: SE->modStartPoint(1); 			break;
-	case 1: SE->modLoopPoint1(1); 			break;
-	case 2: SE->modLoopPoint2(1); 			break;
-	case 3: SE->modEndPoint(1); 			break;
-	case 5: SE->changeZoom(1);				break;
-	case 6: SE->changePlayModeSelection(-1);	break;
+	case 0: break;
+	case 1: break;
+	case 2: break;
+	case 3: SE->editParamFunction(0, 1);	break;
+	case 4: SE->editParamFunction(1, 1);    break;
+	case 5: SE->editParamFunction(2, 1);	break;
+	case 6: SE->changeEffectSelection(-1);	break;
 	}
 
 	return 1;
-}
 
+	return 1;
+}
 
 static  uint8_t functDown()
 {
 	switch(SE->selectedPlace)
 	{
-	case 0: SE->modStartPoint(-1); 			break;
-	case 1: SE->modLoopPoint1(-1); 			break;
-	case 2: SE->modLoopPoint2(-1); 			break;
-	case 3: SE->modEndPoint(-1); 			break;
-	case 5: SE->changeZoom(-1);				break;
-	case 6: SE->changePlayModeSelection(1);	break;
+	case 0: break;
+	case 1: break;
+	case 2: break;
+	case 3: SE->editParamFunction(0, -1);	break;
+	case 4: SE->editParamFunction(1, -1);    break;
+	case 5: SE->editParamFunction(2, -1);	break;
+	case 6: SE->changeEffectSelection(1);	break;
 	}
 
 	return 1;
 }
-
-
-
 
 static  uint8_t functPlayAction()
 {
@@ -453,17 +558,12 @@ static  uint8_t functPlayAction()
 	return 1;
 }
 
-
-
 static  uint8_t functRecAction()
 {
 
 
 	return 1;
 }
-
-
-
 
 static uint8_t functSwitchModule(uint8_t button)
 {
@@ -473,163 +573,20 @@ static uint8_t functSwitchModule(uint8_t button)
 	return 1;
 }
 
-
 //======================================================================================================================
-void cSampleEditor::changeZoom(int16_t value)
+void cSampleEditor::changeEffectSelection(int16_t value)
 {
-	GP.spectrumChangeZoom(value, editorInstrument->sample.length, &zoom);
-
-	refreshSpectrum = 1;
-	refreshPoints = 1;
-
-	showZoomValue();
-}
-
-void cSampleEditor::changePlayModeSelection(int16_t value)
-{
-	if(editorInstrument->playMode + value < 0) editorInstrument->playMode = 0;
-	else if(editorInstrument->playMode + value > playModeCount-1) editorInstrument->playMode = playModeCount-1;
-	else  editorInstrument->playMode += value;
-
-
+	if(currSelEffect + value < 0) currSelEffect = 0;
+	else if(currSelEffect + value > effectsCount - 1) currSelEffect = effectsCount-1;
+	else currSelEffect += value;
 
 	refreshPoints = 1;
 
-	display.setControlValue(playModeListControl, editorInstrument->playMode);
-	display.refreshControl(playModeListControl);
+	display.setControlValue(effectListControl, currSelEffect);
+	display.refreshControl(effectListControl);
 
+	showEffectScreen(&effectScreen[currSelEffect]);
 }
-
-void cSampleEditor::modStartPoint(int16_t value)
-{
-	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
-	uint16_t move_step = zoom.zoomWidth / 480;
-	uint16_t dif;
-	value = value * move_step;
-
-	if(editorInstrument->startPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument->startPoint  = 0;
-	else if(editorInstrument->startPoint + value > SAMPLE_POINT_POS_MAX ) editorInstrument->startPoint  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument->startPoint += value;
-
-	if(editorInstrument->startPoint > editorInstrument->endPoint) editorInstrument->startPoint = editorInstrument->endPoint-1;
-
-	if(editorInstrument->playMode != singleShot)
-	{
-		if(editorInstrument->startPoint > editorInstrument->loopPoint1)
-		{
-			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
-			editorInstrument->loopPoint1 = editorInstrument->startPoint;
-
-			if(editorInstrument->loopPoint1 + dif > editorInstrument->endPoint)
-			{
-				editorInstrument->loopPoint2 = editorInstrument->endPoint;
-				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
-				editorInstrument->startPoint = editorInstrument->loopPoint1;
-				instrumentPlayer[0].setStatusBytes(LP1_MASK);
-				instrumentPlayer[0].setStatusBytes(LP2_MASK);
-			}
-			else
-			{
-				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
-				instrumentPlayer[0].setStatusBytes(LP2_MASK);
-			}
-		}
-	}
-
-	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
-	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 1
-		|| (editorInstrument->startPoint < zoom.zoomStart || editorInstrument->startPoint > zoom.zoomEnd))) refreshSpectrum = 1;
-
-	zoom.lastChangedPoint = 1;
-	refreshPoints = 1;
-}
-
-void cSampleEditor::modEndPoint(int16_t value)
-{
-	uint16_t move_step = zoom.zoomWidth / 480;
-	uint16_t dif;
-	value = value * move_step;
-
-	if(editorInstrument->endPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument->endPoint  = 0;
-	else if(editorInstrument->endPoint + value > SAMPLE_POINT_POS_MAX ) editorInstrument->endPoint  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument->endPoint += value;
-
-	if(editorInstrument->endPoint < editorInstrument->startPoint) editorInstrument->endPoint = editorInstrument->startPoint+1;
-
-	if(editorInstrument->playMode != singleShot)
-	{
-		if(editorInstrument->endPoint < editorInstrument->loopPoint2)
-		{
-			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
-
-			editorInstrument->loopPoint2 = editorInstrument->endPoint;
-
-			if(editorInstrument->loopPoint2 - dif < editorInstrument->startPoint)
-			{
-				editorInstrument->loopPoint1 = editorInstrument->startPoint;
-				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
-				editorInstrument->endPoint = editorInstrument->loopPoint2;
-				instrumentPlayer[0].setStatusBytes(LP1_MASK);
-				instrumentPlayer[0].setStatusBytes(LP2_MASK);
-			}
-			else
-			{
-				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
-				instrumentPlayer[0].setStatusBytes(LP1_MASK);
-			}
-		}
-	}
-
-	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 2
-			|| (editorInstrument->endPoint < zoom.zoomStart || editorInstrument->endPoint > zoom.zoomEnd))) refreshSpectrum = 1;
-
-	zoom.lastChangedPoint = 2;
-	refreshPoints = 1;
-}
-
-void cSampleEditor::modLoopPoint1(int16_t value)
-{
-	uint16_t move_step = zoom.zoomWidth / 480;
-	value = value * move_step;
-
-	if(editorInstrument->loopPoint1 + value < SAMPLE_POINT_POS_MIN) editorInstrument->loopPoint1  = 0;
-	else if(editorInstrument->loopPoint1 + value > SAMPLE_POINT_POS_MAX ) editorInstrument->loopPoint1  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument->loopPoint1 += value;
-
-	if(editorInstrument->loopPoint1 < editorInstrument->startPoint) editorInstrument->loopPoint1 = editorInstrument->startPoint;
-	if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2-1;
-
-	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 3
-			|| (editorInstrument->loopPoint1 < zoom.zoomStart || editorInstrument->loopPoint1 > zoom.zoomEnd))) refreshSpectrum = 1;
-
-	instrumentPlayer[0].setStatusBytes(LP1_MASK);
-
-
-	zoom.lastChangedPoint = 3;
-	refreshPoints = 1;
-}
-
-void cSampleEditor::modLoopPoint2(int16_t value)
-{
-	uint16_t move_step = zoom.zoomWidth / 480;
-	value = value * move_step;
-
-	if(editorInstrument->loopPoint2 + value < SAMPLE_POINT_POS_MIN) editorInstrument->loopPoint2  = 0;
-	else if(editorInstrument->loopPoint2 + value > SAMPLE_POINT_POS_MAX ) editorInstrument->loopPoint2  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument->loopPoint2 += value;
-
-	if(editorInstrument->loopPoint2 > editorInstrument->endPoint) editorInstrument->loopPoint2 = editorInstrument->endPoint;
-	if(editorInstrument->loopPoint2 <= editorInstrument->loopPoint1) editorInstrument->loopPoint2 = editorInstrument->loopPoint1+1;
-
-	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 4
-			|| (editorInstrument->loopPoint2 < zoom.zoomStart || editorInstrument->loopPoint2 > zoom.zoomEnd))) refreshSpectrum = 1;
-
-	instrumentPlayer[0].setStatusBytes(LP2_MASK);
-
-	zoom.lastChangedPoint = 4;
-	refreshPoints = 1;
-}
-
 
 static uint8_t functShift(uint8_t value)
 {
@@ -672,6 +629,12 @@ static  uint8_t functInstrument(uint8_t state)
 	if(state == buttonRelease)
 	{
 		SE->cancelPopups();
+
+		if(SE->localInstrNum != mtProject.values.lastUsedInstrument)
+		{
+			SE->localInstrNum = mtProject.values.lastUsedInstrument;
+			SE->start(0);
+		}
 	}
 	else if(state == buttonPress)
 	{
@@ -692,9 +655,300 @@ static uint8_t functStepNote(uint8_t value)
 	else if(value == buttonPress)
 	{
 		mtPopups.showStepPopup(stepPopupNote, -1);
+
 		//SE->lightUpPadBoard();
 	}
 
 	return 1;
 }
+
+void cSampleEditor::updateEffectValues(effect_screen_t *effect, uint8_t barNum)
+{
+	printNewValue(effect->bar[barNum].dataSource, barNum, effect->bar[barNum].dataFormat);
+	showValueLabels(barNum);
+
+	refreshBarsValue(barNum,effect->bar[barNum].effectPercentage);
+}
+
+void cSampleEditor::printNewValue(const void *data, uint8_t whichBar, source_datatype_t sourceType)
+{
+	char format[6] ="%d";
+
+	if(data != NULL)
+	{
+		switch(sourceType)
+		{
+		case tUNSIGNED8:
+			sprintf(&SE->dataBarText[whichBar][0], format, *((uint8_t*)data));
+			break;
+		case tUNSIGNED16:
+			sprintf(&SE->dataBarText[whichBar][0], format, *((uint16_t*)data));
+			break;
+		case tUNSIGNED32:
+			sprintf(&SE->dataBarText[whichBar][0], format, *((uint32_t*)data));
+			break;
+		case tSIGNED8:
+			sprintf(&SE->dataBarText[whichBar][0], format, *((int8_t*)data));
+			break;
+		case tSIGNED16:
+			sprintf(&SE->dataBarText[whichBar][0], format, *((int16_t*)data));
+			break;
+		case tSIGNED32:
+			sprintf(&SE->dataBarText[whichBar][0], format, *((int32_t*)data));
+			break;
+		case tFLOAT:
+			strncpy(format,"%.2f",6);
+			sprintf(&SE->dataBarText[whichBar][0], format, *((float_t*)data));
+			break;
+		}
+	}
+	else
+	{
+		memset(&SE->dataBarText[whichBar][0],0,6);
+	}
+}
+
+void cSampleEditor::makeEffect()
+{
+	uint8_t newPreviewFlag = SE->previewNewEffectRequested();
+
+	switch((effect_t)SE->currSelEffect)
+	{
+	case effectCrop:
+			effector.trim(startPoint, endPoint);
+			startPoint = 0;
+			endPoint = MAX_16BIT;
+			points.endPoint = endPoint;
+			points.startPoint = startPoint;
+
+			GP.spectrumResetZoom(startPoint, effector.getLength()/2 ,&zoom);
+
+			updateEffectValues(&effectScreen[currSelEffect], 0);
+			updateEffectValues(&effectScreen[currSelEffect], 1);
+			updateEffectValues(&effectScreen[currSelEffect], 2);
+
+			refreshSpectrum = 1;
+			refreshPoints = 1;
+		break;
+	case effectReverse:
+
+		effector.reverse(startPoint, endPoint);
+		refreshSpectrum = 1;
+		break;
+	case effectFlanger:
+		if(effectorFlanger.makeFlanger(FLANGER_LENGTH_MAX, SE->flangerOffset, SE->flangerDepth, SE->flangerDelay, newPreviewFlag))
+		{
+			SE->previewReadyFlag = 0;
+			SE->showProcessingBar(0);
+		}
+		break;
+	case effectChorus:
+
+		if(effectorChorus.makeChorus(SE->chorusLength, SE->chorusStrength, newPreviewFlag))
+		{
+			SE->previewReadyFlag = 0;
+			SE->showProcessingBar(0);
+		}
+
+		break;
+	case effectDelay:
+		if(effectorDelay.makeDelay(SE->delayFeedback, SE->delayTime, newPreviewFlag))
+		{
+			SE->previewReadyFlag = 0;
+			SE->showProcessingBar(0);
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
+void cSampleEditor::updateEffectProcessing()
+{
+	if(previewReadyFlag == 0)
+	{
+		if(currSelEffect == effectChorus)
+		{
+			if(effectorChorus.requireProcess())
+			{
+				uint8_t progress = effectorChorus.getProgress();
+				effectorChorus.process();
+				showProcessingBar(progress);
+			}
+			else
+			{
+				previewReadyFlag = 1;
+				hideHorizontalBar();
+			}
+		}
+		else if(currSelEffect == effectDelay)
+		{
+			if(effectorDelay.requireProcess())
+			{
+				uint8_t progress = effectorDelay.getProgress();
+				effectorDelay.process();
+				showProcessingBar(progress);
+			}
+			else
+			{
+				previewReadyFlag = 1;
+				hideHorizontalBar();
+			}
+		}
+		else if(currSelEffect == effectFlanger)
+		{
+			if(effectorFlanger.requireProcess())
+			{
+				uint8_t progress = effectorFlanger.getProgress();
+				effectorFlanger.process();
+				showProcessingBar(progress);
+			}
+			else
+			{
+				previewReadyFlag = 1;
+				hideHorizontalBar();
+			}
+		}
+	}
+}
+
+//------------------- EDIT FUNCTIONS --------------------
+//
+uint8_t changeZoom(int16_t value)
+{
+	GP.spectrumChangeZoom(value, effector.getLength()/2, &SE->zoom);
+
+	SE->refreshSpectrum = 1;
+	SE->refreshPoints = 1;
+
+	return 0;
+}
+
+uint8_t modStartPoint(int16_t value)
+{
+	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
+	uint16_t move_step = SE->zoom.zoomWidth / 480;
+	value = value * move_step;
+
+	if(SE->startPoint + value < SAMPLE_POINT_POS_MIN) SE->startPoint  = 0;
+	else if(SE->startPoint + value > SAMPLE_POINT_POS_MAX ) SE->startPoint  = SAMPLE_POINT_POS_MAX;
+	else SE->startPoint += value;
+
+	if(SE->startPoint > SE->endPoint)
+	{
+		SE->startPoint = SE->endPoint-1;
+	}
+
+	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
+	if(SE->zoom.zoomValue > 1 && (SE->zoom.lastChangedPoint != 1
+			|| (SE->startPoint < SE->zoom.zoomStart || SE->startPoint > SE->zoom.zoomEnd)))
+	{
+		SE->refreshSpectrum = 1;
+	}
+
+	SE->zoom.lastChangedPoint = 1;
+	SE->refreshPoints = 1;
+
+	return 0;
+}
+
+uint8_t modEndPoint(int16_t value)
+{
+	uint16_t move_step = SE->zoom.zoomWidth / 480;
+	value = value * move_step;
+
+	if(SE->endPoint + value < SAMPLE_POINT_POS_MIN) SE->endPoint  = 0;
+	else if(SE->endPoint + value > SAMPLE_POINT_POS_MAX ) SE->endPoint  = SAMPLE_POINT_POS_MAX;
+	else SE->endPoint += value;
+
+	if(SE->endPoint < SE->startPoint)
+	{
+		SE->endPoint = SE->startPoint+1;
+	}
+
+	if(SE->zoom.zoomValue > 1 && (SE->zoom.lastChangedPoint != 2
+			|| (SE->endPoint < SE-> zoom.zoomStart || SE->endPoint > SE->zoom.zoomEnd)))
+	{
+		SE->refreshSpectrum = 1;
+	}
+
+	SE->zoom.lastChangedPoint = 2;
+	SE->refreshPoints = 1;
+
+	return 0;
+}
+
+uint8_t editChorusLength(int16_t value)
+{
+	if(SE->chorusLength + (value * AUDIO_BLOCK_SAMPLES) < 0) SE->chorusLength = 0;
+	else if(SE->chorusLength + (value * AUDIO_BLOCK_SAMPLES) > CHORUS_BUF_SIZE) SE->chorusLength = CHORUS_BUF_SIZE;
+	else SE->chorusLength += (value * AUDIO_BLOCK_SAMPLES);
+
+
+	return ((SE->chorusLength * 100)/(CHORUS_BUF_SIZE));
+}
+
+uint8_t editChorusStrength(int16_t value)
+{
+	if(SE->chorusStrength + value < CHORUS_STRENGTH_MIN) SE->chorusStrength = CHORUS_STRENGTH_MIN;
+	else if(SE->chorusStrength + value > CHORUS_STRENGTH_MAX) SE->chorusStrength = CHORUS_STRENGTH_MAX;
+	else SE->chorusStrength += value;
+
+
+	return (((SE->chorusStrength - CHORUS_STRENGTH_MIN) * 100)/(CHORUS_STRENGTH_MAX - CHORUS_STRENGTH_MIN));
+}
+
+uint8_t editDelayFeedback(int16_t value)
+{
+	float delayStep = DELAY_FEEDBACK_STEP;
+
+	if(SE->delayFeedback + (value * delayStep) < 0) SE->delayFeedback = 0;
+	else if(SE->delayFeedback + (value * delayStep) > DELAY_FEEDBACK_MAX) SE->delayFeedback = DELAY_FEEDBACK_MAX;
+	else SE->delayFeedback += (value * delayStep);
+
+	return (SE->delayFeedback * 100)/DELAY_FEEDBACK_MAX;
+}
+
+uint8_t editDelayTime(int16_t value)
+{
+	uint8_t timeStep_ms = DELAY_TIME_STEP;
+
+	if(SE->delayTime + (value * timeStep_ms) < 0) SE->delayTime = 0;
+	else if(SE->delayTime + (value * timeStep_ms) > DELAY_TIME_MAX) SE->delayTime = DELAY_TIME_MAX;
+	else SE->delayTime += (value * timeStep_ms);
+
+	return (SE->delayTime * 100)/DELAY_TIME_MAX;
+}
+
+uint8_t editFlangerOffset(int16_t value)
+{
+	if(SE->flangerOffset + value < 0) SE->flangerOffset = 0;
+	else if(SE->flangerOffset + value  > FLANGER_OFFSET_MAX) SE->flangerOffset = FLANGER_OFFSET_MAX;
+	else SE->flangerOffset += value;
+
+
+	return ((SE->flangerOffset * 100)/(FLANGER_OFFSET_MAX));
+}
+
+uint8_t editFlangerDepth(int16_t value)
+{
+	if(SE->flangerDepth + value < 0) SE->flangerDepth = 0;
+	else if(SE->flangerDepth + value > FLANGER_DEPTH_MAX) SE->flangerDepth = FLANGER_DEPTH_MAX;
+	else SE->flangerDepth += value;
+
+
+	return ((SE->flangerDepth * 100)/FLANGER_DEPTH_MAX);
+}
+
+uint8_t editFlangerDelay(int16_t value)
+{
+	if(SE->flangerDelay + value < 0) SE->flangerDelay = 0;
+	else if(SE->flangerDelay + value > FLANGER_DELAYRATE_MAX) SE->flangerDelay = FLANGER_DELAYRATE_MAX;
+	else SE->flangerDelay += value;
+
+
+	return ((SE->flangerDelay * 100)/FLANGER_DELAYRATE_MAX);
+}
+
 

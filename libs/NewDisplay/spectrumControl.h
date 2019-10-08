@@ -12,6 +12,8 @@ struct strTrackerSpectrum
 	int8_t lowerData[600];
 
 	uint16_t loadProgress = 0;
+
+	uint32_t width = 0;
 };
 
 

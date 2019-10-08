@@ -12,8 +12,17 @@
 #include "mtEffectorAmplifier.h"
 #include "mtEffectorBitcrusher.h"
 
+typedef enum
+{
+	waitingForSaveInit,
+	saving,
+	saveDone
+}save_stages_t;
+
 class mtEffector
 {
+
+
 public:
 
 	void loadSample(const char *patch);
@@ -21,7 +30,11 @@ public:
 	void playPrev();
 	void stop();
 	void trim(uint16_t a, uint16_t b);
+	void reverse(uint16_t start, uint16_t end);
 	void save(const char *patch);
+	uint8_t saveUpdate();
+	save_stages_t getSaveStatus();
+	void setSaveStatus(save_stages_t status);
 	void setEffects();
 
 	friend class mtChorus;
@@ -36,6 +49,7 @@ public:
 	int32_t getLength();
 
 private:
+	void swap(int16_t *p1, int16_t *p2);
 	void writeOutHeader();
 	int16_t * currentAddress;
 	int16_t * startAddress;
@@ -55,6 +69,10 @@ private:
 	int32_t fileByteSaved = 0; // w bajtach
 	uint32_t NumSamples = 0;
 	uint8_t byte1, byte2, byte3, byte4;
+
+	uint32_t saveLength;
+	uint32_t saveLengthMax;
+	save_stages_t saveStage;
 
 	FsFile file;
 };

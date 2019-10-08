@@ -35,51 +35,98 @@ void mtEffector::trim(uint16_t a, uint16_t b)
 {
 	uint32_t addressShift;
 	uint32_t lengthShift;
-	int16_t * localAddress;
-	int16_t * localEffectAddress = startAddressEffect;
-	uint32_t localLength;
-	addressShift = (uint32_t)( (uint32_t)a * (float)(fileByteSaved/2)/MAX_16BIT);
-	lengthShift =(uint32_t)((uint32_t)b * (float)(fileByteSaved/2)/MAX_16BIT);
+	int16_t * localEffectAddress = sdram_effectsBank;
 
-	localAddress = startAddress+addressShift;
-	localLength = fileByteSaved - 2*lengthShift; //zamieniam probki na bajty
 
-	affterEffectLength = localLength;
+	addressShift = (uint32_t)((uint32_t)a * (float)(fileByteSaved/2)/MAX_16BIT);
+	lengthShift = (uint32_t)((uint32_t)b * (float)(fileByteSaved)/MAX_16BIT);
 
-	memcpy(localEffectAddress,localAddress,localLength);
+	startAddress += addressShift;
+	fileByteSaved = (lengthShift - 2*addressShift);
 
+	affterEffectLength = fileByteSaved;
+
+	memcpy(localEffectAddress,startAddress,fileByteSaved);
+}
+
+void mtEffector::reverse(uint16_t start, uint16_t end)
+{
+	int16_t *localStartAddress;
+	int16_t *localEndAddress;
+
+	uint32_t localStartShift;
+	uint32_t localEndShift;
+
+	localStartShift = (uint32_t)((uint32_t)start * (float)(fileByteSaved/2)/MAX_16BIT);
+	localEndShift = (uint32_t)((uint32_t)end * (float)(fileByteSaved/2)/MAX_16BIT);
+
+	localStartAddress = startAddress + localStartShift;
+	localEndAddress = startAddress + localEndShift;
+
+	while((localEndAddress - localStartAddress) >= 4)
+	{
+		swap(localStartAddress,localEndAddress);
+		localStartAddress++;
+		localEndAddress--;
+	}
 }
 
 void mtEffector::save(const char *patch)
 {
-	uint32_t length;
-	if(SD.exists(patch)) SD.remove(patch);
-
-
-
-	length=fileByteSaved;
-
-
-	file = SD.open(patch, FILE_WRITE);
-
-
-	file.seek(44);
-	currentAddress=startAddress;
-	while(length)
+	if((saveStage == waitingForSaveInit) || (saveStage == saveDone))
 	{
-		if(length >= 2048)
+		setEffects();
+
+		if(SD.exists(patch)) SD.remove(patch);
+
+		saveLength=fileByteSaved;
+		saveLengthMax=fileByteSaved;
+
+		file = SD.open(patch, FILE_WRITE);
+
+		file.seek(44);
+		currentAddress=startAddress;
+		saveStage = saving;
+	}
+}
+
+uint8_t mtEffector::saveUpdate()
+{
+	uint8_t progress = 0;
+
+	if(saveStage == saving)
+	{
+		if(saveLength)
 		{
-			file.write(currentAddress,2048);
-			currentAddress+=1024;
-			length-=2048;
-		}
-		else
-		{
-			file.write(currentAddress,length);
-			length=0;
+			if(saveLength >= 2048)
+			{
+				file.write(currentAddress,2048);
+				currentAddress+=1024;
+				saveLength-=2048;
+			}
+			else
+			{
+				file.write(currentAddress,saveLength);
+				writeOutHeader();
+				saveStage = saveDone;
+				saveLength = 0;
+			}
+
+			progress = ((saveLengthMax - saveLength) * 100) / saveLengthMax;
 		}
 	}
-	writeOutHeader();
+
+	return progress;
+}
+
+save_stages_t mtEffector::getSaveStatus()
+{
+	return saveStage;
+}
+
+void mtEffector::setSaveStatus(save_stages_t status)
+{
+	saveStage = status;
 }
 
 void mtEffector::setEffects()
@@ -152,4 +199,13 @@ int32_t mtEffector::getLength()
 int16_t * mtEffector:: getAddress()
 {
 	return startAddress;
+}
+
+void mtEffector::swap(int16_t *p1, int16_t *p2)
+{
+	int16_t temp;
+
+	temp = *p1;
+	*p1 = *p2;
+	*p2 = temp;
 }
