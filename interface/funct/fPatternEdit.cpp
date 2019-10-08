@@ -1611,7 +1611,16 @@ static uint8_t functInsertHome(uint8_t state)
 			// HOME
 			if(tactButtons.isButtonPressed(interfaceButtonShift))
 			{
-
+				if (isMultiSelection())
+				{
+					PTE->trackerPattern.selectStartStep=0;
+					PTE->trackerPattern.selectEndStep=0;
+					PTE->trackerPattern.actualStep=0; // zmiana pozycji kursora
+				}
+				else
+				{
+					PTE->trackerPattern.actualStep=0; // zmiana pozycji kursora
+				}
 			}
 			// INSERT
 			else
