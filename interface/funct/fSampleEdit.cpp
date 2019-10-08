@@ -81,7 +81,7 @@ void cSampleEditor::start(uint32_t options)
 
 	//--------------------------------------------------------------------
 
-
+	mtProject.values.lastUsedInstrument = constrain(mtProject.values.lastUsedInstrument, 0, INSTRUMENTS_MAX);
 	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
 	//--------------------------------------------------------------------

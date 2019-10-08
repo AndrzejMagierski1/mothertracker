@@ -114,7 +114,7 @@ void cGameModule::setDefaultScreenFunct()
 
 
 
-	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
+//	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
 	FM->setButtonObj(interfaceButtonShift, functShift);
 
 

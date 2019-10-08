@@ -9,6 +9,8 @@
 #include <projectEditor.h>
 #include "mtLED.h"
 
+#include "keyScanner.h"
+
 enum valueMapDirecion
 {
 	valueMapDirectionLeft,
@@ -154,8 +156,8 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
-static uint8_t functShiftCopy();
-static uint8_t functShiftPaste();
+static uint8_t functCopyPaste();
+static uint8_t functPaste();
 
 static uint8_t functConfirmKey();
 
@@ -201,7 +203,7 @@ void cSampleImporter::start(uint32_t options)
 	Encoder.setAcceleration(0);
 
 	//selectedFile = 0;
-
+	mtProject.values.lastUsedInstrument = constrain(mtProject.values.lastUsedInstrument, 0, INSTRUMENTS_MAX);
 	selectedSlot = mtProject.values.lastUsedInstrument;
 
 
@@ -282,8 +284,8 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton6, buttonPress, functChangeInstrument);
 	FM->setButtonObj(interfaceButton7, buttonPress, functChangeInstrument);
 
-	FM->setButtonObj(interfaceButtonCopy, buttonPress, functShiftCopy);
-	FM->setButtonObj(interfaceButtonPaste, buttonPress, functShiftPaste);
+	FM->setButtonObj(interfaceButtonCopy, buttonPress, functCopyPaste);
+//	FM->setButtonObj(interfaceButtonPaste, buttonPress, functPaste);
 
 }
 
@@ -473,21 +475,28 @@ static  uint8_t functCancelRename()
 	return 1;
 }
 
-static uint8_t functShiftCopy()
+static uint8_t functCopyPaste()
 {
-	if(SI->selectionActive)
+	if (tactButtons.isButtonPressed(interfaceButtonShift))
 	{
-		if(SI->selectedPlace == 1 && SI->currSelectPlace == 1)
+		functPaste();
+	}
+	else
+	{
+		if (SI->selectionActive)
 		{
-			SI->instrCopyStart=SI->getSelectionStart();
-			SI->copyElementMax=SI->selectionLength;
+			if (SI->selectedPlace == 1 && SI->currSelectPlace == 1)
+			{
+				SI->instrCopyStart = SI->getSelectionStart();
+				SI->copyElementMax = SI->selectionLength;
+			}
 		}
 	}
 
 	return 1;
 }
 
-static uint8_t functShiftPaste()
+static uint8_t functPaste()
 {
 	if(SI->currentCopyStatusFlag || SI->currentLoadStatusFlag) return 1;
 

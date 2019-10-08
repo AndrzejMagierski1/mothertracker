@@ -67,7 +67,7 @@ void cInstrumentEditor::start(uint32_t options)
 	moduleRefresh = 1;
 
 
-
+	mtProject.values.lastUsedInstrument = constrain(mtProject.values.lastUsedInstrument, 0, INSTRUMENTS_MAX);
 	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
 	listData();

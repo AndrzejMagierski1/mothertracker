@@ -141,9 +141,9 @@ public:
 		};
 		enum enFxType
 		{
+			// powiązane z listą tekstów w interfaceDefs.h
 			FX_TYPE_NONE,
 			FX_TYPE_NUDGE,
-			FX_TYPE_CUTOFF,
 			FX_TYPE_ROLL,
 			FX_TYPE_STEP_CHANCE,
 			FX_TYPE_RANDOM_NOTE,
@@ -163,6 +163,7 @@ public:
 			FX_TYPE_SEND_CC_9,
 			FX_TYPE_SEND_CC_10,
 
+			FX_TYPE_NOT_SEQ_FX,
 			FX_TYPE_GLIDE,
 			FX_TYPE_SAMPLE_START,
 			FX_TYPE_SAMPLE_LOOP_START,
@@ -409,6 +410,8 @@ public:
 					uint8_t instrument);
 	void sendNoteOff(uint8_t track, uint8_t note, uint8_t velocity,
 						uint8_t instrument);
+	void sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step);
+	void sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step);
 	void sendNoteOff(uint8_t track);
 
 	void send_clock(uint8_t);
@@ -626,6 +629,7 @@ public:
 
 	void insert(strSelection *selection);
 	void insertReversed(strSelection *selection);
+	void backspace();
 
 // SELECTION
 	void copySelectionToBuffer(strSelection *from, strSelection *to);

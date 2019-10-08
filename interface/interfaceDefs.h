@@ -118,15 +118,27 @@ enum mtInterfacePotsDef
 
 enum mtInterfaceButtonsFunctions
 {
+//  stary układ
+//	interfaceButtonPlay 		= interfaceButton23,
+//	interfaceButtonRec 			= interfaceButton24,
+//	interfaceButtonCopy 		= interfaceButton25,
+//	interfaceButtonUp			= interfaceButton26,
+//	interfaceButtonPaste 		= interfaceButton27,
+//
+//	interfaceButtonShift 		= interfaceButton28,
+//	interfaceButtonEnter 		= interfaceButton29,
+//	interfaceButtonLeft 		= interfaceButton30,
+//	interfaceButtonDown 		= interfaceButton31,
+//	interfaceButtonRight 		= interfaceButton32,
 
 	interfaceButtonPlay 		= interfaceButton23,
-	interfaceButtonRec 			= interfaceButton24,
-	interfaceButtonCopy 		= interfaceButton25,
+	interfaceButtonCopy 		= interfaceButton24,
+	interfaceButtonInsert		= interfaceButton25,
 	interfaceButtonUp			= interfaceButton26,
-	interfaceButtonPaste 		= interfaceButton27,
+	interfaceButtonDelete		= interfaceButton27,
 
-	interfaceButtonShift 		= interfaceButton28,
-	interfaceButtonEnter 		= interfaceButton29,
+	interfaceButtonRec 			= interfaceButton28,
+	interfaceButtonShift		= interfaceButton29,
 	interfaceButtonLeft 		= interfaceButton30,
 	interfaceButtonDown 		= interfaceButton31,
 	interfaceButtonRight 		= interfaceButton32,
