@@ -629,6 +629,7 @@ public:
 
 	void insert(strSelection *selection);
 	void insertReversed(strSelection *selection);
+	void backspace();
 
 // SELECTION
 	void copySelectionToBuffer(strSelection *from, strSelection *to);

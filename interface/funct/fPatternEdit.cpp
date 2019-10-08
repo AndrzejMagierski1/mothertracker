@@ -1706,7 +1706,22 @@ static uint8_t functDeleteBackspace(uint8_t state)
 			// backspace
 			if (tactButtons.isButtonPressed(interfaceButtonShift))
 			{
-
+				sendSelection();
+				sequencer.backspace();
+				if (isMultiSelection())
+				{
+					if (PTE->trackerPattern.selectStartStep > 0)
+					{
+						PTE->trackerPattern.selectStartStep--;
+						PTE->trackerPattern.selectEndStep--;
+						PTE->trackerPattern.actualStep--; // zmiana pozycji kursora
+					}
+				}
+				else
+				{
+					if (PTE->trackerPattern.actualStep > 0)
+						PTE->trackerPattern.actualStep--; // zmiana pozycji kursora
+				}
 			}
 			else
 			{
