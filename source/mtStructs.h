@@ -38,6 +38,7 @@ const uint8_t INSTRUMENTS_MAX =        			47;
 const uint8_t INSTRUMENTS_COUNT =        		48;
 //const uint8_t SAMPLES_COUNT =            		32;
 const uint8_t PATTERN_LENGTH_MAX 	=			255;
+const float   GLOBAL_TEMPO_MAX 		=			1000;
 
 const uint8_t PATTERN_INDEX_MIN 	=			1;
 const uint8_t PATTERN_INDEX_MAX 	=			255;
@@ -439,6 +440,10 @@ struct strMtValues
 // performance
 	uint16_t perfTracksPatterns[8] =  {1,1,1,1,1,1,1,1};
 	uint8_t perfFxPlaces[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
+
+// song
+	float globalTempo = 120.0;
+	uint16_t patternLength = 32;
 
 };
 

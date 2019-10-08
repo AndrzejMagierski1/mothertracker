@@ -19,14 +19,21 @@ static cSongEditor* SE = &songEditor;
 
 
 
+static  uint8_t functPatternSlot();
 
 static  uint8_t functIncPattern();
 static  uint8_t functDecPattern();
 static  uint8_t functDeleteSlot();
 static  uint8_t functAddSlot();
 
+static  uint8_t functTempo();
+static  uint8_t functPatternLength();
+
+
 static  uint8_t functUp();
 static  uint8_t functDown();
+static  uint8_t functRight();
+static  uint8_t functLeft();
 
 static  uint8_t functEnter();
 static  uint8_t functShift(uint8_t state);
@@ -39,6 +46,9 @@ static  uint8_t functEncoder(int16_t value);
 
 
 static  uint8_t functSwitchModule(uint8_t button);
+
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
+
 
 
 
@@ -103,8 +113,8 @@ void cSongEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
 	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functDecPattern);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functIncPattern);
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
@@ -112,20 +122,32 @@ void cSongEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonShift, functShift);
 	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
+
+
+	FM->setButtonObj(interfaceButton0, buttonPress, functPatternSlot);
+	FM->setButtonObj(interfaceButton1, buttonPress, functPatternSlot);
 	FM->setButtonObj(interfaceButton2, buttonPress, functDeleteSlot);
 	FM->setButtonObj(interfaceButton3, buttonPress, functAddSlot);
 	FM->setButtonObj(interfaceButton4, buttonPress, functDecPattern);
 	FM->setButtonObj(interfaceButton5, buttonPress, functIncPattern);
+	FM->setButtonObj(interfaceButton6, buttonPress, functTempo);
+	FM->setButtonObj(interfaceButton7, buttonPress, functPatternLength);
 
 
 
-
+	FM->setPadsGlobal(functPads);
 
 
 }
 
 
 //==============================================================================================================
+
+static  uint8_t functPatternSlot()
+{
+	SE->selectedPlace = 0;
+	SE->activateLabelsBorder();
+}
 
 static  uint8_t functIncPattern()
 {
@@ -242,7 +264,17 @@ static  uint8_t functDeleteSlot()
 }
 
 
+static  uint8_t functTempo()
+{
+	SE->selectedPlace = 1;
+	SE->activateLabelsBorder();
+}
 
+static  uint8_t functPatternLength()
+{
+	SE->selectedPlace = 2;
+	SE->activateLabelsBorder();
+}
 
 //==============================================================================================================
 
@@ -250,14 +282,13 @@ static  uint8_t functEncoder(int16_t value)
 {
 	switch(SE->selectedPlace)
 	{
-	case 0: SE->changePatternsSelection(value); break;
-	case 1: break;
-	case 2: break;
-	case 3: break;
-	case 4: break;
+	case 0: SE->changePatternsSelection(value); 	break;
+	case 1: SE->changeGlobalTempo(value);			break;
+	case 2: SE->changeGlobalPatternLength(value); 	break;
+
+	default: break;
 
 	}
-
 
 	return 1;
 }
@@ -282,11 +313,9 @@ static  uint8_t functUp()
 {
 	switch(SE->selectedPlace)
 	{
-	case 0:SE->changePatternsSelection(-1); break;
-	case 1: break;
-	case 2: break;
-	case 3: break;
-	case 4: break;
+	case 0:	SE->changePatternsSelection(-1); 	break;
+	case 1:	SE->changeGlobalTempo(1); 			break;
+	case 2:	SE->changeGlobalPatternLength(1);	break;
 	}
 
 	return 1;
@@ -296,15 +325,43 @@ static  uint8_t functDown()
 {
 	switch(SE->selectedPlace)
 	{
-	case 0:SE->changePatternsSelection(1); break;
-	case 1: break;
-	case 2: break;
-	case 3: break;
-	case 4: break;
+	case 0:	SE->changePatternsSelection(1); 	break;
+	case 1:	SE->changeGlobalTempo(-1); 			break;
+	case 2:	SE->changeGlobalPatternLength(-1); 	break;
 	}
 
 	return 1;
 }
+
+static  uint8_t functLeft()
+{
+	if(SE->selectedPlace == 0)
+	{
+		functDecPattern();
+		return 1;
+	}
+
+	if(SE->selectedPlace > 0) SE->selectedPlace--;
+	SE->activateLabelsBorder();
+
+	return 1;
+}
+
+
+static  uint8_t functRight()
+{
+	if(SE->selectedPlace == 0)
+	{
+		functIncPattern();
+		return 1;
+	}
+
+	if(SE->selectedPlace < SE->frameData.placesCount-1) SE->selectedPlace++;
+	SE->activateLabelsBorder();
+
+	return 1;
+}
+
 
 static uint8_t functPlayAction()
 {
@@ -454,6 +511,56 @@ void cSongEditor::markCurrentPattern()
 		display.setControlValue(patternsListControl, selectedPattern);
 		display.refreshControl(patternsListControl);
 	}
+}
+
+void cSongEditor::changeGlobalTempo(int16_t value)
+{
+	if(mtProject.values.globalTempo+value < Sequencer::MIN_TEMPO) mtProject.values.globalTempo = Sequencer::MIN_TEMPO;
+	else if(mtProject.values.globalTempo+value > Sequencer::MAX_TEMPO) mtProject.values.globalTempo = Sequencer::MAX_TEMPO;
+	else  mtProject.values.globalTempo += value;
+
+	showTempoValue();
+}
+
+void cSongEditor::changeGlobalPatternLength(int16_t value)
+{
+	if(mtProject.values.patternLength+value < Sequencer::MINSTEP) mtProject.values.patternLength = Sequencer::MINSTEP;
+	else if(mtProject.values.patternLength+value > Sequencer::MAXSTEP) mtProject.values.patternLength = Sequencer::MAXSTEP;
+	else  mtProject.values.patternLength += value;
+
+	showPatternLengthValue();
+}
+
+
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
+{
+
+	// obsługa przycisków pod ekranem
+
+	if (SE->selectedPlace >= 0)
+	{
+		fileManager.patternIsChangedFlag = 1;
+		fileManager.storePatternUndoRevision();
+
+		switch (SE->selectedPlace)
+		{
+		case 0:
+
+			break;
+		case 1:
+			sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
+			SE->showTempoValue();
+			break;
+		case 2:
+			SE->changeGlobalPatternLength(map(pad, 0, 47, 3, 191));
+			SE->showPatternLengthValue();
+			break;
+		}
+
+		return 1;
+	}
+
+	return 1;
 }
 
 
