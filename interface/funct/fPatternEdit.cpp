@@ -1732,11 +1732,13 @@ static uint8_t functDeleteBackspace(uint8_t state)
 						PTE->trackerPattern.actualStep--; // zmiana pozycji kursora
 				}
 			}
+			// DELETE
 			else
 			{
 				sendSelection();
 				sequencer.clearSelected(getSelectedElement());
 				PTE->shiftAction = 1;
+				PTE->moveCursorByStep();
 			}
 
 		}
