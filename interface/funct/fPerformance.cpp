@@ -908,7 +908,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 				{
 					// TODO: Miejsce wywolania funkcji odpowiedzialnej za zmiane paternu na tracku
 					// button <= numer tracka
-					// trackPatern[button] <= pattern tracka
+					// mtProject.values.perfTracksPatterns[button] <= pattern tracka
 
 
 

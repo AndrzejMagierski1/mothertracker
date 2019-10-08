@@ -592,7 +592,6 @@ void cPatternEditor::setActualPatternLength(int16_t value)
 	showLength();
 
 	refreshPattern();
-
 }
 
 void cPatternEditor::changeActualPatternEditStep(int16_t value)

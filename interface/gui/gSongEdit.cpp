@@ -2,10 +2,14 @@
 
 #include <songEditor.h>
 
+#include "mtSequencer.h"
 
-static uint16_t framesPlaces[1][4] =
+
+static uint16_t framesPlaces[3][4] =
 {
 	{0+2, 31, 800/4-5, 387},
+	{(800/8)*6+2, 31, 800/8-5, 387},
+	{(800/8)*7+2, 31, 800/8-5, 387},
 };
 
 
@@ -25,9 +29,11 @@ void cSongEditor::initDisplayControls()
 
 	// ramka
 	strControlProperties prop;
-	frameData.placesCount = 1;
+	frameData.placesCount = 3;
 	frameData.startPlace = 0;
 	frameData.places[0] = &framesPlaces[0][0];
+	frameData.places[1] = &framesPlaces[1][0];
+	frameData.places[2] = &framesPlaces[2][0];
 	prop.style = 0;
 	prop.value = 0;
 	prop.colors = nullptr;
@@ -36,13 +42,23 @@ void cSongEditor::initDisplayControls()
 
 	strControlProperties prop1;
 	prop1.text = (char*)"";
-	prop1.style = (controlStyleShow | controlStyleCenterY  | controlStyleBackground | controlStyleCenterX );
+	prop1.style = (controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleCenterX );
 	prop1.x = (800/8);
 	prop1.w = 800/4-6;
 	prop1.y = 452;
 	prop1.h = 59;
-
 	if(topLabel[0] == nullptr) topLabel[0] = display.createControl<cLabel>(&prop1);
+
+
+	prop1.x = (800/8)*6+5;
+	prop1.y = 30;
+	prop1.w = 800/8-10;
+	prop1.style =  controlStyleValue_0_100 | controlStyleShow;
+	prop1.h = 389;
+	if(barControl[0] == nullptr)  barControl[0] = display.createControl<cBar>(&prop1);
+	prop1.x = (800/8)*7+5;
+	if(barControl[1] == nullptr)  barControl[1] = display.createControl<cBar>(&prop1);
+
 
 	prop1.style = (controlStyleShow | controlStyleBackground | controlStyleCenterY | controlStyleCenterX );
 	// inicjalizacja kontrolek
@@ -72,7 +88,6 @@ void cSongEditor::initDisplayControls()
 	if(patternsListControl == nullptr)  patternsListControl = display.createControl<cList>(&prop);
 
 
-
 }
 
 
@@ -87,6 +102,10 @@ void cSongEditor::destroyDisplayControls()
 	display.destroyControl(patternsListControl);
 	patternsListControl = nullptr;
 
+	display.destroyControl(barControl[0]);
+	barControl[0] = nullptr;
+	display.destroyControl(barControl[1]);
+	barControl[1] = nullptr;
 
 	for(uint8_t i=0;i<7;i++)
 	{
@@ -113,14 +132,20 @@ void cSongEditor::showDefaultScreen()
 	display.setControlText(topLabel[2], "Add");
 	display.setControlText(topLabel[3], "Dec");
 	display.setControlText(topLabel[4], "Inc");
+
 	display.setControlText(topLabel[5], "");
 	display.setControlText(topLabel[6], "");
+
 	display.setControlText(bottomLabel[1], "slot");
 	display.setControlText(bottomLabel[2], "slot");
 	display.setControlText(bottomLabel[3], "pattern");
 	display.setControlText(bottomLabel[4], "pattern");
-	display.setControlText(bottomLabel[5], "");
-	display.setControlText(bottomLabel[6], "");
+
+	display.setControlText(bottomLabel[5], "Tempo");
+	display.setControlText(bottomLabel[6], "Pat. Length");
+
+	showTempoValue();
+	showPatternLengthValue();
 
 	for(uint8_t i = 0; i<7; i++)
 	{
@@ -163,4 +188,27 @@ void cSongEditor::activateLabelsBorder()
 	display.setControlValue(frameControl, selectedPlace);
 	display.setControlShow(frameControl);
 	display.refreshControl(frameControl);
+}
+
+
+
+void cSongEditor::showTempoValue()
+{
+	sprintf(globalTempoVal,"%.1f", mtProject.values.globalTempo);
+	display.setControlText(topLabel[5], globalTempoVal);
+	display.refreshControl(topLabel[5]);
+
+	display.setControlValue(barControl[0], (mtProject.values.globalTempo*100)/Sequencer::MAX_TEMPO);
+	display.refreshControl(barControl[0]);
+}
+
+
+void cSongEditor::showPatternLengthValue()
+{
+	sprintf(patternLengthVal,"%d", mtProject.values.patternLength+1);
+	display.setControlText(topLabel[6], patternLengthVal);
+	display.refreshControl(topLabel[6]);
+
+	display.setControlValue(barControl[1], (mtProject.values.patternLength*100)/Sequencer::MAXSTEP);
+	display.refreshControl(barControl[1]);
 }

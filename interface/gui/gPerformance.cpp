@@ -401,7 +401,8 @@ void cPerformanceMode::showPerformaceValue(uint8_t fx)
 		{
 		case mtPerfFxNone:
 		{
-			display.setControlHide(value1Label[place]);
+			display.setControlText(value1Label[place], "");
+			display.setControlShow(value1Label[place]);
 			display.refreshControl(value1Label[place]);
 			continue;
 		}
@@ -445,6 +446,8 @@ void cPerformanceMode::showPerformaceValue(uint8_t fx)
 
 void cPerformanceMode::showArrow(uint8_t place, uint8_t type)
 {
+	if(mtProject.values.perfFxPlaces[place] == mtPerfFxNone) return;
+
 	textLabelData[place].bitmapIndex = type;
 	display.setAddControlStyle(value1Label[place], controlStyleShowBitmap);
 	display.refreshControl(value1Label[place]);

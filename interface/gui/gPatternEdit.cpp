@@ -340,8 +340,6 @@ void cPatternEditor::showDefaultScreen()
 
 	activateLabelsBorder();
 
-
-
 	for(uint8_t i = 0; i<4; i++)
 	{
 		display.setControlColors(topLabel[i], activeLabelsColors);
