@@ -440,15 +440,26 @@ void cSongEditor::readSong()
 {
 	for(uint8_t i=0;i<SONG_MAX;i++)
 	{
+		uint8_t breakFlag = 0;
 		if(mtProject.mtProjectRemote.song.playlist[i] == 0)
 		{
 			songLength = i;
-			break;
+			breakFlag = 1;
 		}
-		if(i==SONG_MAX) // nie znaleziono
+		if((i == SONG_MAX) || (i == 0)) // nie znaleziono
 		{
 			songLength = 1;
 			selectedPattern = 0;
+
+			if(i == 0)
+			{
+				mtProject.mtProjectRemote.song.playlist[i] = 1;
+			}
+		}
+
+		if(breakFlag)
+		{
+			break;
 		}
 	}
 
