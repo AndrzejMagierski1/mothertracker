@@ -6,6 +6,10 @@
 #include "keyScanner.h"
 #include "Si4703.h"
 
+// for displaying end screen
+#include "FT812.h"
+#include "FT8xx.h"
+
 extern AudioControlSGTL5000 audioShield;
 SnoozeDigital digital;
 SnoozeBlock config(digital);
@@ -13,10 +17,12 @@ SnoozeBlock config(digital);
 uint8_t powerChanged;
 uint8_t powerState = powerTypeNormal;
 
+static void countDownDisplay();
 static void resetMCU();
 
 void goLowPower()
 {
+	countDownDisplay();
 	disableAll();
 	Snooze.sleep(config);
 	powerState=powerTypeLow;
@@ -89,6 +95,41 @@ static void resetMCU()
 	for(;;)
 	{
 		__NOP();
+	}
+}
+
+static void countDownDisplay()
+{
+	uint32_t elapsedTime = 0;
+	uint32_t startTime = millis();
+	int32_t toGo;
+
+	char text[30];
+
+	while(true)
+	{
+		API_LIB_BeginCoProList();
+		API_CMD_DLSTART();
+		API_VERTEX_FORMAT(0);
+		API_CLEAR_COLOR(0);
+		API_CLEAR(1,1,1);
+
+		elapsedTime = (millis() - startTime)/1000; // calculate and convert to seconds
+
+		toGo = (TURN_OFF_TIME_S - elapsedTime);
+
+		sprintf(text, "Turning off in: %d", (int)toGo);
+
+		API_CMD_TEXT(400, 220 , 30, OPT_CENTERX, text);
+
+		API_DISPLAY();
+		API_CMD_SWAP();
+		API_LIB_EndCoProList();
+
+		if(toGo <= 0)
+		{
+			break;
+		}
 	}
 }
 
