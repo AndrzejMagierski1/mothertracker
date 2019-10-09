@@ -451,7 +451,7 @@ void cSongEditor::readSong()
 			songLength = 1;
 			selectedPattern = 0;
 
-			if(i == 0)
+			if((i == 0) && (mtProject.mtProjectRemote.song.playlist[i] == 0))
 			{
 				mtProject.mtProjectRemote.song.playlist[i] = 1;
 			}
