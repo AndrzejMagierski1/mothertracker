@@ -49,6 +49,7 @@ static  uint8_t functRandomiseChangeParam4();
 
 static  uint8_t functInvert();
 static  uint8_t functTranspose();
+static  uint8_t functUndo();
 
 
 static  uint8_t functLeft();
@@ -199,7 +200,7 @@ void cPatternEditor::setDefaultScreenFunct()
 
 
 
-	FM->setButtonObj(interfaceButton0, functChangeTempo);
+	FM->setButtonObj(interfaceButton0, buttonPress, functUndo);
 	FM->setButtonObj(interfaceButton1, functChangePattern);
 	FM->setButtonObj(interfaceButton2, functChangePatternLength);
 	FM->setButtonObj(interfaceButton3, functChangePatternEditStep);
@@ -517,7 +518,7 @@ void cPatternEditor::changeActualTempo(int16_t value)
 	else if(pattern->tempo+value > 1000) pattern->tempo = 400;
 	else  pattern->tempo += value;
 
-	showTempo();
+//	showTempo();
 }
 
 void cPatternEditor::changeActualPattern(int16_t value)
@@ -2290,6 +2291,22 @@ static uint8_t functTranspose()
 	//--------------------------------------------------------
 	return 1;
 }
+//##############################################################################################
+//###############################            UNDO		   #################################
+//##############################################################################################
+static uint8_t functUndo()
+{
+	if (tactButtons.isButtonPressed(interfaceButtonShift))
+	{
+		fileManager.redoPattern();
+	}
+	else
+	{
+		fileManager.undoPattern();
+	}
+	PTE->refreshPattern();
+	return 1;
+}
 
 
 
@@ -2450,8 +2467,8 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		switch (PTE->selectedPlace)
 		{
 		case 0:
-			sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
-			PTE->showTempo();
+//			sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
+//			PTE->showTempo();
 			break;
 		case 1:
 			PTE->setActualPattern(pad+1);

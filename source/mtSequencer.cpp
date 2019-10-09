@@ -956,7 +956,8 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 	float temp_Tempo;
 
 	if (config.mode == MODE_MIDICLOCK.INTERNAL_)
-	temp_Tempo = seq[player.ramBank].tempo;
+//	temp_Tempo = seq[player.ramBank].tempo;
+	temp_Tempo = mtProject.values.globalTempo;
 	else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
 	temp_Tempo = config.tempoLock;
 	else
