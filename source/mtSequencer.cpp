@@ -337,10 +337,28 @@ void Sequencer::play_microStep(uint8_t row)
 			break;
 		}
 
-		if (patternStep.note == STEP_NOTE_EMPTY && _fx.type > fx.FX_TYPE_NOT_SEQ_FX)
+		if (patternStep.note == STEP_NOTE_EMPTY)
 		{
 			// wysyłam tylko fxa jeśli nie ma nuty
-			instrumentPlayer[row].seqFx(_fx.type, _fx.value);
+			if (_fx.type > fx.FX_TYPE_NOT_SEQ_FX)
+			{
+				instrumentPlayer[row].seqFx(_fx.type, _fx.value);
+			}
+			strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
+			switch (_fx.type)
+			{
+			case fx.FX_TYPE_ROLL:
+				case fx.FX_TYPE_ROLL_UP:
+				case fx.FX_TYPE_ROLL_DOWN:
+				case fx.FX_TYPE_ROLL_RANDOM:
+
+				playerRow.rollIsOn = 1;
+				playerRow.rollVal = _fx.value;
+				playerRow.rollDir = _fx.type;
+				playerRow.rollType = _fx.value;
+
+				break;
+			}
 		}
 	}
 
@@ -394,6 +412,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 			playerRow.rollIsOn = 1;
 			playerRow.rollVal = _fx.value;
+			playerRow.rollType = _fx.value;
 			playerRow.rollDir = _fx.type;
 
 			break;
@@ -539,7 +558,6 @@ void Sequencer::play_microStep(uint8_t row)
 			}
 		}
 	}
-
 }
 
 uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
@@ -1154,8 +1172,6 @@ void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
 		instrumentPlayer[track].noteOff();
 	}
 }
-
-
 
 void Sequencer::sendNoteOff(uint8_t track)
 {
