@@ -63,6 +63,14 @@ typedef enum
 
 }effect_t;
 
+typedef enum
+{
+	sampleLoadingActive = 0x01U,
+	processingActive = 0x02U,
+	applyingActive = 0x04U,
+	onExitReloadActive = 0x08U,
+}flags_t;
+
 
 const uint8_t effectsCount = 5;
 const char effectNamesLabels[effectsCount][15] =
@@ -193,6 +201,8 @@ public:
 	void showCurrentSpectrum(uint32_t length, int16_t *source);
 	void refreshSampleLoading();
 	void refreshSampleApplying();
+	void resetSpectrumAndPoints();
+	void onExitRaload();
 
 
 	void undoDisplayControl(uint8_t onOff);
@@ -219,10 +229,17 @@ public:
 	uint8_t sampleLoadedState;
 	uint8_t lastSampleLoadedState;
 
+	uint16_t moduleFlags;
 
+	bool isAnyEffectActive;
 
+	uint8_t onExitFlag;
+	uint8_t exitButton;
 
+	uint8_t firstSampleLoadFlag;
 
+	uint8_t undoCropFlag;
+	uint8_t undoReverseFlag;
 
 };
 

@@ -37,9 +37,11 @@ void mtEffector::trim(uint16_t a, uint16_t b)
 	uint32_t lengthShift;
 	int16_t * localEffectAddress = sdram_effectsBank;
 
-
 	addressShift = (uint32_t)((uint32_t)a * (float)(fileByteSaved/2)/MAX_16BIT);
 	lengthShift = (uint32_t)((uint32_t)b * (float)(fileByteSaved)/MAX_16BIT);
+
+	undoCropLength = fileByteSaved;
+	undoCropStart = startAddress;
 
 	startAddress += addressShift;
 	fileByteSaved = (lengthShift - 2*addressShift);
@@ -49,6 +51,17 @@ void mtEffector::trim(uint16_t a, uint16_t b)
 	memcpy(localEffectAddress,startAddress,fileByteSaved);
 }
 
+void mtEffector::undoTrim()
+{
+	fileByteSaved = undoCropLength;
+	startAddress = undoCropStart;
+}
+
+void mtEffector::undoReverse()
+{
+	reverse(undoReverseStart,undoReverseEnd);
+}
+
 void mtEffector::reverse(uint16_t start, uint16_t end)
 {
 	int16_t *localStartAddress;
@@ -56,6 +69,9 @@ void mtEffector::reverse(uint16_t start, uint16_t end)
 
 	uint32_t localStartShift;
 	uint32_t localEndShift;
+
+	undoReverseStart = start;
+	undoReverseEnd = end;
 
 	localStartShift = (uint32_t)((uint32_t)start * (float)(fileByteSaved/2)/MAX_16BIT);
 	localEndShift = (uint32_t)((uint32_t)end * (float)(fileByteSaved/2)/MAX_16BIT);
@@ -69,14 +85,14 @@ void mtEffector::reverse(uint16_t start, uint16_t end)
 		localStartAddress++;
 		localEndAddress--;
 	}
+
+	affterEffectLength = fileByteSaved;
 }
 
 void mtEffector::save(const char *patch)
 {
 	if((saveStage == waitingForSaveInit) || (saveStage == saveDone))
 	{
-		setEffects();
-
 		if(SD.exists(patch)) SD.remove(patch);
 
 		saveLength=fileByteSaved;
@@ -139,7 +155,6 @@ void mtEffector::setEffects()
 	fileByteSaved = 2*affterEffectLength;
 
 	memcpy(localAddress,localEffectAddress,2*localLength);
-
 }
 
 void mtEffector::writeOutHeader()

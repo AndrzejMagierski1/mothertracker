@@ -86,6 +86,23 @@ void cSampleEditor::update()
 	refreshSampleApplying();
 
 	updateEffectProcessing();
+
+	onExitRaload();
+}
+
+void cSampleEditor::onExitRaload()
+{
+	if(onExitFlag == 1)
+	{
+		showSampleLoading(fileManager.samplesLoader.getCurrentProgress());
+
+		if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
+		{
+			hideHorizontalBar();
+			onExitFlag = 2;
+			functSwitchModule(exitButton);
+		}
+	}
 }
 
 void cSampleEditor::refreshSampleApplying()
@@ -100,29 +117,37 @@ void cSampleEditor::refreshSampleApplying()
 	}
 	else if(status == saveDone)
 	{
+		SE->moduleFlags &= ~applyingActive;
 		hideHorizontalBar();
 		refreshSpectrum = 1;
 		effector.setSaveStatus(waitingForSaveInit);
+		SE->isAnyEffectActive = false;
 	}
 }
 
 void cSampleEditor::refreshSampleLoading()
 {
-	sampleLoadedState = fileManager.samplesLoader.waveLoader.getState();
-
-	if(sampleLoadedState == loaderStateTypeInProgress) // refresh update when in progress
+	if(firstSampleLoadFlag == 0)
 	{
-		fileManager.samplesLoader.waveLoader.update();
-		showSampleLoading(fileManager.samplesLoader.waveLoader.getCurrentWaveProgress());
-	}
+		sampleLoadedState = fileManager.samplesLoader.waveLoader.getState();
 
-	if((sampleLoadedState == loaderStateTypeEnded) && (lastSampleLoadedState == loaderStateTypeInProgress)) // do when loaded
-	{
-		showCurrentSpectrum(effector.getLength()/2, effector.getAddress());
-		hideHorizontalBar();
-	}
+		if(sampleLoadedState == loaderStateTypeInProgress) // refresh update when in progress
+		{
+			fileManager.samplesLoader.waveLoader.update();
+			showSampleLoading(fileManager.samplesLoader.waveLoader.getCurrentWaveProgress());
+		}
 
-	lastSampleLoadedState = sampleLoadedState;
+		if((sampleLoadedState == loaderStateTypeEnded) && (lastSampleLoadedState == loaderStateTypeInProgress)) // do when loaded
+		{
+			showCurrentSpectrum(effector.getLength()/2, effector.getAddress());
+			hideHorizontalBar();
+			moduleFlags &= ~sampleLoadingActive;
+
+			firstSampleLoadFlag = 1;
+		}
+
+		lastSampleLoadedState = sampleLoadedState;
+	}
 }
 
 void cSampleEditor::showCurrentSpectrum(uint32_t length, int16_t *source)
@@ -137,6 +162,7 @@ void cSampleEditor::showCurrentSpectrum(uint32_t length, int16_t *source)
 void cSampleEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
+	firstSampleLoadFlag = 0;
 
 	//--------------------------------------------------------------------
 
@@ -145,7 +171,9 @@ void cSampleEditor::start(uint32_t options)
 	localInstrNum = mtProject.values.lastUsedInstrument;
 	sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);
 	effector.loadSample(instrumentPath);
+	moduleFlags |= sampleLoadingActive;
 
+	SE->isAnyEffectActive = 0;
 
 	initEffectsScreenStructs();
 
@@ -434,17 +462,76 @@ static uint8_t functPreview(uint8_t state)
 
 static uint8_t functApply()
 {
-	sprintf(SE->instrumentPath, "Workspace/samples/instr%02d.wav", SE->localInstrNum);
-	effector.save(SE->instrumentPath);
+	if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
+	{
+		SE->isAnyEffectActive = true;
+	}
 
-	SE->selectedPlace = 1;
-	SE->activateLabelsBorder();
+	if(SE->moduleFlags == 0 && SE->isAnyEffectActive)
+	{
+		sprintf(SE->instrumentPath, "Workspace/samples/instr%02d.wav", SE->localInstrNum);
+
+		if(SE->currSelEffect == effectCrop)
+		{
+			effector.trim(SE->startPoint, SE->endPoint);
+			SE->resetSpectrumAndPoints();
+			SE->isAnyEffectActive = true;
+			SE->undoCropFlag = 1;
+
+		}
+		else if(SE->currSelEffect == effectReverse)
+		{
+			effector.reverse(SE->startPoint, SE->endPoint);
+			SE->isAnyEffectActive = true;
+			SE->refreshSpectrum = 1;
+			SE->undoReverseFlag = 1;
+		}
+		else
+		{
+			SE->undoReverseFlag = 0;
+			SE->undoCropFlag = 0;
+			effector.setEffects();
+		}
+
+		effector.save(SE->instrumentPath);
+
+		SE->moduleFlags |= applyingActive;
+
+		SE->selectedPlace = 1;
+		SE->activateLabelsBorder();
+	}
 
 	return 1;
 }
 
 static uint8_t functUndo()
 {
+	if(SE->currSelEffect == effectCrop)
+	{
+		if(SE->undoCropFlag)
+		{
+			SE->undoCropFlag = 0;
+
+			effector.undoTrim();
+
+			effector.save(SE->instrumentPath);
+			SE->moduleFlags |= applyingActive;
+
+			SE->resetSpectrumAndPoints();
+		}
+	}
+	else if(SE->currSelEffect == effectReverse)
+	{
+		if(SE->undoReverseFlag)
+		{
+			SE->undoReverseFlag = 0;
+			effector.undoReverse();
+
+			effector.save(SE->instrumentPath);
+			SE->moduleFlags |= applyingActive;
+		}
+	}
+
 	SE->selectedPlace = 2;
 	SE->activateLabelsBorder();
 
@@ -567,8 +654,21 @@ static  uint8_t functRecAction()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
+	if(SE->onExitFlag == 0)
+	{
+		SE->exitButton = button;
+		SE->moduleFlags |= onExitReloadActive;
+		SE->onExitFlag = 1;
 
-	SE->eventFunct(eventSwitchModule,SE,&button,0);
+		fileManager.samplesLoader.start(0, (char*)"Workspace/samples");
+	}
+
+	if(SE->onExitFlag == 2)
+	{
+		SE->moduleFlags &= ~onExitReloadActive;
+		SE->onExitFlag = 0;
+		SE->eventFunct(eventSwitchModule,SE,&button,0);
+	}
 
 	return 1;
 }
@@ -708,36 +808,43 @@ void cSampleEditor::printNewValue(const void *data, uint8_t whichBar, source_dat
 	}
 }
 
+void cSampleEditor::resetSpectrumAndPoints()
+{
+	startPoint = 0;
+	endPoint = MAX_16BIT;
+	points.endPoint = endPoint;
+	points.startPoint = startPoint;
+
+	GP.spectrumResetZoom(startPoint, effector.getLength()/2 ,&zoom);
+
+	updateEffectValues(&effectScreen[currSelEffect], 0);
+	updateEffectValues(&effectScreen[currSelEffect], 1);
+	updateEffectValues(&effectScreen[currSelEffect], 2);
+
+	refreshSpectrum = 1;
+	refreshPoints = 1;
+}
+
 void cSampleEditor::makeEffect()
 {
+	if(SE->moduleFlags != 0)
+	{
+		return;
+	}
+
 	uint8_t newPreviewFlag = SE->previewNewEffectRequested();
 
 	switch((effect_t)SE->currSelEffect)
 	{
 	case effectCrop:
-			effector.trim(startPoint, endPoint);
-			startPoint = 0;
-			endPoint = MAX_16BIT;
-			points.endPoint = endPoint;
-			points.startPoint = startPoint;
-
-			GP.spectrumResetZoom(startPoint, effector.getLength()/2 ,&zoom);
-
-			updateEffectValues(&effectScreen[currSelEffect], 0);
-			updateEffectValues(&effectScreen[currSelEffect], 1);
-			updateEffectValues(&effectScreen[currSelEffect], 2);
-
-			refreshSpectrum = 1;
-			refreshPoints = 1;
 		break;
 	case effectReverse:
-
-		effector.reverse(startPoint, endPoint);
-		refreshSpectrum = 1;
 		break;
 	case effectFlanger:
 		if(effectorFlanger.makeFlanger(FLANGER_LENGTH_MAX, SE->flangerOffset, SE->flangerDepth, SE->flangerDelay, newPreviewFlag))
 		{
+			SE->isAnyEffectActive = true;
+			SE->moduleFlags |= processingActive;
 			SE->previewReadyFlag = 0;
 			SE->showProcessingBar(0);
 		}
@@ -746,6 +853,8 @@ void cSampleEditor::makeEffect()
 
 		if(effectorChorus.makeChorus(SE->chorusLength, SE->chorusStrength, newPreviewFlag))
 		{
+			SE->isAnyEffectActive = true;
+			SE->moduleFlags |= processingActive;
 			SE->previewReadyFlag = 0;
 			SE->showProcessingBar(0);
 		}
@@ -754,6 +863,8 @@ void cSampleEditor::makeEffect()
 	case effectDelay:
 		if(effectorDelay.makeDelay(SE->delayFeedback, SE->delayTime, newPreviewFlag))
 		{
+			SE->isAnyEffectActive = true;
+			SE->moduleFlags |= processingActive;
 			SE->previewReadyFlag = 0;
 			SE->showProcessingBar(0);
 		}
@@ -778,6 +889,7 @@ void cSampleEditor::updateEffectProcessing()
 			}
 			else
 			{
+				SE->moduleFlags &= ~processingActive;
 				previewReadyFlag = 1;
 				hideHorizontalBar();
 			}
@@ -792,6 +904,7 @@ void cSampleEditor::updateEffectProcessing()
 			}
 			else
 			{
+				SE->moduleFlags &= ~processingActive;
 				previewReadyFlag = 1;
 				hideHorizontalBar();
 			}
@@ -806,6 +919,7 @@ void cSampleEditor::updateEffectProcessing()
 			}
 			else
 			{
+				SE->moduleFlags &= ~processingActive;
 				previewReadyFlag = 1;
 				hideHorizontalBar();
 			}

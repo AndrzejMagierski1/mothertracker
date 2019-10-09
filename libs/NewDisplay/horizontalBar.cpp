@@ -120,7 +120,7 @@ uint8_t cHorizontalBar::update()
 
 
 
-	if(style & controlStyleValue_0_100 && value >= 0 && value <= 100)
+	if((style & controlStyleValue_0_100) && value <= 100)
 	{
 	    uint16_t barFillY = (barWidth * value) / 100;
 

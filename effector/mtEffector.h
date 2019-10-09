@@ -12,6 +12,8 @@
 #include "mtEffectorAmplifier.h"
 #include "mtEffectorBitcrusher.h"
 
+#define UNDO_QUEUE		10
+
 typedef enum
 {
 	waitingForSaveInit,
@@ -30,7 +32,9 @@ public:
 	void playPrev();
 	void stop();
 	void trim(uint16_t a, uint16_t b);
+	void undoTrim();
 	void reverse(uint16_t start, uint16_t end);
+	void undoReverse();
 	void save(const char *patch);
 	uint8_t saveUpdate();
 	save_stages_t getSaveStatus();
@@ -73,6 +77,12 @@ private:
 	uint32_t saveLength;
 	uint32_t saveLengthMax;
 	save_stages_t saveStage;
+
+	uint32_t undoCropLength;
+	int16_t *undoCropStart;
+
+	uint16_t undoReverseStart;
+	uint16_t undoReverseEnd;
 
 	FsFile file;
 };
