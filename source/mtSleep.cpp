@@ -60,6 +60,7 @@ void disableAll()
 	audioShield.write(0x30, 0);
 	radio.powerOff();
 	Keypad.disableInterrupt();
+	tactButtons.disableInterrupt();
 	leds.setAllLEDPWM(leds.ledPWM, 0);
 	MCU_set_sleepMode();
 	digitalWrite(EXTERNAL_RAM_KEY,LOW);//RAM power off
