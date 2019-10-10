@@ -601,6 +601,10 @@ void Sequencer::setPerformanceStutter(uint8_t track, int8_t stutter)
 {
 	player.track[track].performanceStutter = stutter;
 }
+void Sequencer::setPerformancePlayMode(uint8_t track, int8_t playmode)
+{
+	player.track[track].performancePlayMode = playmode;
+}
 
 Sequencer::strPattern *Sequencer::getPattern()
 {
@@ -799,6 +803,7 @@ void Sequencer::allNoteOffs(void)
 void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od trybu grania
 {
 	uint8_t x = constrain(row, MINTRACK, MAXTRACK);
+	int8_t playMode = player.track[row].performancePlayMode;
 
 //	if (player.isREC && player.row[x].recNoteOpen)
 //	{
@@ -823,7 +828,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	}
 	else
 	{
-		if (seq[player.ramBank].track[x].playMode == PLAYMODE_FORWARD)
+		if (playMode == PLAYMODE_FORWARD)
 		{
 			player.track[x].actual_pos++;
 			if ((player.track[x].actual_pos > seq[player.ramBank].track[x].length) || player.track[x].return2start)
@@ -848,10 +853,10 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 				// }
 			}
 		}
-		else if (seq[player.ramBank].track[x].playMode == PLAYMODE_BACKWARD)
+		else if (playMode == PLAYMODE_BACKWARD)
 		{
 			player.track[x].actual_pos--;
-			if ((player.track[x].actual_pos < 1) || player.track[x].return2start)
+			if ((player.track[x].actual_pos < 0) || player.track[x].return2start)
 			{
 				// player.row[x].return2start = 0;
 				reset_actual_pos(x);
@@ -865,7 +870,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 				// }
 			}
 		}
-		else if (seq[player.ramBank].track[x].playMode == PLAYMODE_PINGPONG)
+		else if (playMode == PLAYMODE_PINGPONG)
 		{
 			if (!player.track[x].pingPongToogle)
 			{
@@ -907,7 +912,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			}
 		}
 
-		else if (seq[player.ramBank].track[x].playMode == PLAYMODE_RANDOM)
+		else if (playMode == PLAYMODE_RANDOM)
 		{
 			player.track[x].actual_pos = random(
 					1, seq[player.ramBank].track[x].length + 1);
@@ -928,17 +933,17 @@ void Sequencer::reset_actual_pos(void)
 void Sequencer::reset_actual_pos(uint8_t row)
 {
 
-	if (seq[player.ramBank].track[row].playMode == PLAYMODE_FORWARD)
+	if (player.track[row].performancePlayMode== PLAYMODE_FORWARD)
 	{
 		player.track[row].actual_pos = MINSTEP;
 	}
 
-	else if (seq[player.ramBank].track[row].playMode == PLAYMODE_BACKWARD)
+	else if (player.track[row].performancePlayMode == PLAYMODE_BACKWARD)
 	{
 		player.track[row].actual_pos = seq[player.ramBank].track[row].length;
 	}
 
-	else if (seq[player.ramBank].track[row].playMode == PLAYMODE_PINGPONG)
+	else if (player.track[row].performancePlayMode == PLAYMODE_PINGPONG)
 	{
 		player.track[row].actual_pos = MINSTEP;
 	}

@@ -112,10 +112,10 @@ public:
 	{
 		PLAYMODE_MIN = 0,
 		PLAYMODE_FORWARD = 0,
-		PLAYMODE_BACKWARD = 1,
-		PLAYMODE_PINGPONG = 2,
-		PLAYMODE_RANDOM = 3,
-		PLAYMODE_POLY = 4,
+		PLAYMODE_BACKWARD,
+		PLAYMODE_RANDOM,
+		PLAYMODE_PINGPONG,
+		PLAYMODE_POLY,
 		PLAYMODE_MAX = 3
 	};
 	enum enTempoDiv
@@ -541,6 +541,7 @@ public:
 			bool divChange = 0;
 
 			int8_t performanceStutter = 0;
+			int8_t performancePlayMode = 0;
 
 		} track[MAXTRACK + 1];
 
@@ -675,6 +676,7 @@ public:
 	void setSelectionVelocity(int16_t value);
 
 	void setPerformanceStutter(uint8_t track, int8_t stutter);
+	void setPerformancePlayMode(uint8_t track, int8_t stutter);
 
 	void clearRow(uint8_t row);
 	void clearRow(uint8_t row, uint8_t bank);
