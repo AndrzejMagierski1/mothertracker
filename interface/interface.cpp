@@ -47,7 +47,7 @@ strInterfaceGlobals interfaceGlobals;
 
 __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[15*256*1024];
 __NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[15*256*1024];
-__NOINIT(EXTERNAL_RAM) uint8_t undo_Bank[1024*1024];
+//__NOINIT(EXTERNAL_RAM) uint8_t undo_Bank[1024*1024];
 
 //=======================================================================
 //							SETUP INTERFEJSU

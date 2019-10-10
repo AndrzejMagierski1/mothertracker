@@ -10,6 +10,7 @@
 
 #include "sampleRecorder.h"
 
+#include "performanceMode.h"
 
 enum valueMapDirecion
 {
@@ -415,6 +416,35 @@ uint8_t cProjectEditor::loadProjectValues()
 	sampleRecorder.recorderConfig.monitor = mtProject.values.monitor;
 	sampleRecorder.recorderConfig.radioFreq = mtProject.values.radioFreq;
 	sampleRecorder.recorderConfig.source = mtProject.values.source;
+
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		// paterny na trakach w performance mode
+		if(mtProject.values.perfTracksPatterns[i] < 1 || mtProject.values.perfTracksPatterns[i] > 255)
+		{
+			mtProject.values.perfTracksPatterns[i] = 1;
+		}
+
+		// globalne mute trackow
+		if(mtProject.values.trackMute[i] >= trackMasterModeCount) mtProject.values.trackMute[i] = 0;
+	}
+
+	for(uint8_t i = 0; i<12; i++)
+	{
+		if(mtProject.values.perfFxPlaces[i] > performanceFxesCount-1)
+		{
+			mtProject.values.perfFxPlaces[i] = (i+1 < performanceFxesCount) ? i+1 : 0;
+		}
+	}
+
+
+	if(mtProject.values.globalTempo > 1000) mtProject.values.globalTempo = 120.0;
+
+	if(mtProject.values.patternLength > 255) mtProject.values.globalTempo = 32;
+
+
+
 
 	//performanceMode.
 	//uint8_t fxPlaces[12]

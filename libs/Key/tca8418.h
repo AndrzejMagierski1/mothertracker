@@ -11,7 +11,7 @@
 
 //-------- KONFIGURACJA STEORWNIKOW PRZYCISKOW --------------------------
 constexpr uint8_t BUTTON_MAX = 48;
-constexpr uint16_t HOLD_TIME = 500;
+constexpr uint16_t HOLD_TIME = 400;
 
 
 #define I2CWRITE(x) localWire->write(x)
@@ -189,17 +189,23 @@ public:
   void setOnPush(void(*funct)(uint8_t));
   void setOnRelease(void(*funct)(uint8_t));
   void setOnHold(void(*funct)(uint8_t));
-  elapsedMillis holdTim[BUTTON_MAX];
   uint8_t isButtonPressed(uint8_t n);
 
   uint8_t keyInt = 0;
 
 private:
+  i2c_t3 * localWire = &Wire2;
+
   void (*onPush)(uint8_t);
   void (*onRelease)(uint8_t);
   void (*onHold)(uint8_t);
-  uint8_t buttonPush[BUTTON_MAX];
-  i2c_t3 * localWire = &Wire2;
+
+  uint8_t buttonPush[BUTTON_MAX] = {0};
+  elapsedMillis holdTim[BUTTON_MAX];
+  uint8_t holdFactor[BUTTON_MAX] = {0};
+
+  static const uint8_t holdTimeStepsCount = 6;
+  uint16_t holdTimeStep[holdTimeStepsCount] = {0,100,200,250,300,320}; // kolejne wartosci skracajace czas do kolejnej akcji holda
 
 protected:
  

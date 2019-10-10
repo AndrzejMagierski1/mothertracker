@@ -321,7 +321,7 @@ void Sequencer::invertSelectedSteps()
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
 	{
 		for (uint8_t a = sel->firstStep, b = sel->lastStep;
-				a <= (sel->lastStep - sel->firstStep) / 2;
+				a <= ((sel->lastStep - sel->firstStep) / 2) + sel->firstStep;
 				a++, b--)
 		{
 			stepA = &seq[player.ramBank].track[t].step[a];
@@ -864,6 +864,32 @@ void Sequencer::insertReversed(strSelection *selection)
 		}
 		clearStep(&seq[player.ramBank].track[t].step[selection->firstStep],
 					ELEMENTS_ALL_NO_PREFERENCES);
+	}
+
+}
+void Sequencer::backspace()
+{
+	if (!isSelectionCorrect(&selection)) return;
+
+	if (selection.firstStep < 1) return;
+
+	strPattern::strTrack::strStep *stepFrom, *stepTo;
+
+	for (uint8_t t = selection.firstTrack; t <= selection.lastTrack; t++)
+	{
+		for (uint8_t s = selection.firstStep - 1;
+				s < seq[player.ramBank].track[t].length;
+				s++)
+		{
+			stepFrom = &seq[player.ramBank].track[t].step[s + 1];
+			stepTo = &seq[player.ramBank].track[t].step[s];
+
+			*stepTo = *stepFrom;
+		}
+
+		clearStep(
+				&seq[player.ramBank].track[t].step[seq[player.ramBank].track[t].length],
+				ELEMENTS_ALL_NO_PREFERENCES);
 	}
 
 }

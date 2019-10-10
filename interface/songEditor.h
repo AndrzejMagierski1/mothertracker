@@ -22,12 +22,7 @@ public:
 
 	cSongEditor()
 	{
-		topLabel[4] = {nullptr};
-		bottomLabel[4] = {nullptr};
 
-		patternsListControl = nullptr;
-		barControl[4] = {nullptr};
-		frameControl = nullptr;
 	}
 	virtual ~cSongEditor() {}
 
@@ -38,6 +33,9 @@ public:
 
 	void activateLabelsBorder();
 
+	void showTempoValue();
+	void showPatternLengthValue();
+
 	strList patternsList;
 
 	strFrameData frameData;
@@ -45,12 +43,12 @@ public:
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
-	hControl topLabel[7];
-	hControl bottomLabel[7];
+	hControl topLabel[7] = {nullptr};
+	hControl bottomLabel[7] = {nullptr};
+	hControl barControl[2] = {nullptr};
 
-	hControl patternsListControl;
-	hControl barControl[4];
-	hControl frameControl;
+	hControl patternsListControl = nullptr;
+	hControl frameControl = nullptr;
 
 	uint8_t slotToPattern[255];
 	uint8_t selectedPlace = 0;
@@ -63,6 +61,9 @@ public:
 	void clearPatternMark();
 	void markCurrentPattern();
 	void readSong();
+
+	void changeGlobalTempo(int16_t value);
+	void changeGlobalPatternLength(int16_t value);
 
 //--------------------------------------------------------------
 // patterns
@@ -78,11 +79,14 @@ public:
 
 
 //--------------------------------------------------------------
-//reverb
+//  global params
+	char globalTempoVal[10];
+	char patternLengthVal[5];
+
 
 
 //--------------------------------------------------------------
-//limiter
+
 
 
 //--------------------------------------------------------------

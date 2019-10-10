@@ -9,17 +9,74 @@
 
 #include "mtStructs.h"
 
+#define MAX_DATA_BARS	3
+
+typedef enum
+{
+	spectrumWithBars,
+	fullSpectrum,
+
+}screen_type_t;
+
+typedef enum
+{
+	tUNSIGNED8,
+	tUNSIGNED16,
+	tUNSIGNED32,
+	tSIGNED8,
+	tSIGNED16,
+	tSIGNED32,
+	tFLOAT,
+
+}source_datatype_t;
 
 
+typedef uint8_t (*paramEditFunct_t)(int16_t);
+
+typedef struct
+{
+	const char* 		name;
+	paramEditFunct_t	editFunct;
+	void*				dataSource;
+	source_datatype_t	dataFormat;
+	uint8_t 			effectPercentage;
+
+}effect_bar_t;
+
+typedef struct
+{
+	uint8_t				paramNum;
+	screen_type_t 		screen;// screen type
+	uint8_t 			barNum;// number of active data bars
+	effect_bar_t		bar[MAX_DATA_BARS];
+	uint8_t 			undoActive;
+
+}effect_screen_t;
+
+typedef enum
+{
+	effectCrop,
+	effectReverse,
+	effectFlanger,
+	effectChorus,
+	effectDelay,
+
+}effect_t;
+
+typedef enum
+{
+	sampleLoadingActive = 0x01U,
+	processingActive = 0x02U,
+	applyingActive = 0x04U,
+	onExitReloadActive = 0x08U,
+}flags_t;
 
 
-
-const uint8_t effectsCount = 6;
+const uint8_t effectsCount = 5;
 const char effectNamesLabels[effectsCount][15] =
 {
 		"Crop",
 		"Reverse",
-		"Echo",
 		"Flanger",
 		"Chorus",
 		"Delay",
@@ -57,8 +114,7 @@ public:
 	virtual ~cSampleEditor() {}
 
 	void showDefaultScreen();
-	void showZoomValue();
-	void showPlayModeList();
+	void showEffectsList();
 
 	void setDefaultScreenFunct();
 	void cancelPopups();
@@ -66,12 +122,7 @@ public:
 
 //	void processSpectrum();
 	void processPoints();
-	void modStartPoint(int16_t value);
-	void modEndPoint(int16_t value);
-	void modLoopPoint1(int16_t value);
-	void modLoopPoint2(int16_t value);
-	void changeZoom(int16_t value);
-	void changePlayModeSelection(int16_t value);
+	void changeEffectSelection(int16_t value);
 
 	void activateLabelsBorder();
 
@@ -79,13 +130,15 @@ public:
 
 	hControl topLabel[8];
 	hControl bottomLabel[8];
-	hControl playModeListControl;
+	hControl effectListControl;
 	hControl spectrumControl;
 	hControl pointsControl;
 	hControl frameControl;
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
+	hControl barControl[3];
+	hControl processHorizontalBarControl = nullptr;
 
 
 	uint8_t selectedPlace = 0;
@@ -101,11 +154,11 @@ public:
 
 	strZoomParams zoom;
 
-	char zoomTextValue[6];
-
+	char dataBarText[3][6];
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;
+	strSpectrumParams spectrumParams;
 
 //----------------------------------
 // aktualny instrument na belce tytułowej
@@ -113,12 +166,9 @@ public:
 	//char actualInstrName[SAMPLE_NAME_SIZE+4];
 //----------------------------------
 // lista play mode
-	strList playModeList;
-
-	void listPlayMode();
-
-	char *playModeNames[effectsCount];
-
+	strList effectList;
+	void listEffects();
+	char *effectNames[effectsCount];
 
 //----------------------------------
 // odtwarzanie
@@ -128,10 +178,71 @@ public:
 
 //----------------------------------
 
+	char instrumentPath[PATCH_SIZE];
+	uint8_t localInstrNum;
+	effect_screen_t effectScreen[effectsCount];
+	uint8_t currSelEffect;
+
+	void showEffectScreen(effect_screen_t *screenCfg);
+	void initEffectsScreenStructs();
+	void editParamFunction(uint8_t paramNum, int16_t value);
+
+	void showValueLabels(uint8_t whichBar);
+	void updateEffectValues(effect_screen_t *effect, uint8_t barNum);
+	void printNewValue(const void *data, uint8_t whichBar, source_datatype_t sourceType);
+	void refreshBarsValue(uint8_t whichBar, uint8_t newValue);
+	void showProcessingBar(uint8_t progress);
+	void showSampleLoading(uint8_t progress);
+	void showApplying(uint8_t progress);
+	void hideHorizontalBar();
+	void updateEffectProcessing();
+	uint8_t previewNewEffectRequested();
+	void makeEffect();
+	void showCurrentSpectrum(uint32_t length, int16_t *source);
+	void refreshSampleLoading();
+	void refreshSampleApplying();
+	void resetSpectrumAndPoints();
+	void onExitRaload();
 
 
+	void undoDisplayControl(uint8_t onOff);
+
+	uint16_t startPoint;
+	uint16_t endPoint = MAX_16BIT;
+
+	// Chorus inputs
+	uint16_t chorusLength;
+	uint8_t chorusStrength;
+
+	// Delay inputs
+	float delayFeedback;
+	uint16_t delayTime;
+
+	// Flanger inputs
+	float flangerDelay;
+	uint8_t flangerDepth;
+	uint8_t flangerOffset;
+
+	effect_t lastPreviewEffect;
+	uint8_t previewReadyFlag;
+
+	uint8_t sampleLoadedState;
+	uint8_t lastSampleLoadedState;
+
+	uint16_t moduleFlags;
+
+	bool isAnyEffectActive;
+
+	uint8_t onExitFlag;
+	uint8_t exitButton;
+
+	uint8_t firstSampleLoadFlag;
+
+	uint8_t undoCropFlag;
+	uint8_t undoReverseFlag;
 
 };
+
 
 extern cSampleEditor sampleEditor;
 

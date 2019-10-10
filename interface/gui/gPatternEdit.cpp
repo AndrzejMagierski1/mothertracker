@@ -54,7 +54,19 @@ volatile uint32_t patternTrackerColors[8] =
 
 uint32_t patternTrackerSelectionColor = 0xff0000;
 
+static uint32_t activeLabelsColors[] =
+{
+	0x000000, // tekst
+	0xFFFFFF, // tło
+	0xFF0000, // ramka
+};
 
+static uint32_t inactiveLabelsColors[] =
+{
+	0x000000, // tekst
+	0x555555, // tło
+	0xFF0000, // ramka
+};
 
 static const uint8_t trackMasterModeCount = 2;
 static const char trackMasterLabels[trackMasterModeCount][5] =
@@ -93,12 +105,13 @@ void cPatternEditor::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 
+	strControlProperties prop2;
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		strControlProperties prop2;
 		prop2.text = (char*)"";
 		prop2.data =  &bottomValuesConfig;
+		prop2.colors = activeLabelsColors;
 
 		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );
 		prop2.x = (800/8)*i+(800/16);
@@ -173,7 +186,7 @@ void cPatternEditor::initDisplayControls()
 	prop.colors =  patternLabelColors;
 	prop.x = 400;
 	prop.y = 8*28 + 4;
-	prop.w = 800; // jedna kolumna
+	prop.w = 800;
 	prop.h = 214;
 	if(patternPopupLabel == nullptr)  patternPopupLabel = display.createControl<cLabel>(&prop);
 
@@ -327,10 +340,13 @@ void cPatternEditor::showDefaultScreen()
 
 	activateLabelsBorder();
 
-
-
 	for(uint8_t i = 0; i<4; i++)
 	{
+		display.setControlColors(topLabel[i], activeLabelsColors);
+		display.setControlColors(bottomLabel[i], activeLabelsColors);
+		display.setControlColors(topLabel[i+4], activeLabelsColors);
+		display.setControlColors(bottomLabel[i+4], activeLabelsColors);
+
 		display.setControlPosition(topLabel[i+4], -1, 452);
 		display.setControlSize(topLabel[i+4], -1, 59);
 
@@ -1063,6 +1079,12 @@ void cPatternEditor::showTracksMaster()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
+		uint32_t* ptrColors = activeLabelsColors;
+		if(mtProject.values.trackMute[i]) ptrColors = inactiveLabelsColors;
+
+		display.setControlColors(topLabel[i], ptrColors);
+		display.setControlColors(bottomLabel[i], ptrColors);
+
 		display.setControlPosition(topLabel[i], -1, 437);
 		display.setControlSize(topLabel[i], -1, 28);
 
@@ -1071,9 +1093,6 @@ void cPatternEditor::showTracksMaster()
 
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
-
-		//TO DO: nie powinno tu tego być tylko tma gdzie zarzadzanie zmiennymi projektu
-		if(mtProject.values.trackMute[i] >= trackMasterModeCount) mtProject.values.trackMute[i] = 0;
 
 		display.setControlText(topLabel[i], &trackMasterLabels[mtProject.values.trackMute[i]][0]);
 		display.setControlShow(topLabel[i]);
@@ -1088,17 +1107,24 @@ void cPatternEditor::refreshTracksMaster()
 {
 	for(uint8_t i = 0; i<8; i++)
 	{
+		uint32_t* ptrColors = activeLabelsColors;
 
-		if(mtProject.values.trackMute[i] >= trackMasterModeCount) mtProject.values.trackMute[i] = 0;
+		if(mtProject.values.trackMute[i]) ptrColors = inactiveLabelsColors;
+
 
 		display.setControlText(topLabel[i], &trackMasterLabels[mtProject.values.trackMute[i]][0]);
+		display.setControlColors(topLabel[i], ptrColors);
+		display.setControlColors(bottomLabel[i], ptrColors);
+
+		display.setControlShow(topLabel[i]);
 		display.refreshControl(topLabel[i]);
+		display.setControlShow(bottomLabel[i]);
+		display.refreshControl(bottomLabel[i]);
 
 	}
 
 	display.synchronizeRefresh();
 }
-
 
 
 

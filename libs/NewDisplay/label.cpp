@@ -158,8 +158,16 @@ uint8_t cLabel::update()
 	{
 		API_COLOR(colors[2]);
 
-		API_LINE_WIDTH(32);
+		API_LINE_WIDTH(24);
 
+		API_BEGIN(LINE_STRIP);
+		API_VERTEX2F(border_x , border_y);
+		API_VERTEX2F(border_x+width , border_y);
+		API_VERTEX2F(border_x+width , border_y+height);
+		API_VERTEX2F(border_x , border_y+height);
+		API_VERTEX2F(border_x , border_y);
+		API_END();
+/*
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2F(border_x-1 , border_y-1);
 		API_VERTEX2F(border_x+width+1 , border_y-1);
@@ -167,6 +175,7 @@ uint8_t cLabel::update()
 		API_VERTEX2F(border_x-1 , border_y+height+1);
 		API_VERTEX2F(border_x-1 , border_y-1);
 		API_END();
+*/
 	}
 
 
@@ -260,12 +269,27 @@ uint8_t cLabel::update()
 		if(text != nullptr) API_CMD_TEXT(posX, posY, textFont, textStyle, text);
 	}
 
+/*
+	if(style & controlStyleShowValue)
+	{
+		API_CMD_NUMBER(posX+data->xValue, posY+data->yValue, textFont, data->styleValue, value);
+	}
+	else
+*/
+	if(style & controlStyleShowBitmap)
+	{
 
-	if(style & controlStyleShowValue) API_CMD_NUMBER(posX+data->xValue, posY+data->yValue, textFont, data->styleValue, value);
 
+		// API_BITMAP_HANDLE(0);
+		API_BITMAP_SOURCE(bitmaps[data->bitmapIndex].address);
+		API_BITMAP_LAYOUT(bitmaps[data->bitmapIndex].format, bitmaps[data->bitmapIndex].linestride, bitmaps[data->bitmapIndex].height);
+		API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[data->bitmapIndex].width, bitmaps[data->bitmapIndex].height);
 
+		API_BEGIN(BITMAPS);
+		API_VERTEX2F(data->xValue-(bitmaps[data->bitmapIndex].width/2), data->yValue);
+		API_END();
 
-
+	}
 
     API_LIB_EndCoProList();
 
