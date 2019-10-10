@@ -5,12 +5,25 @@
 int16_t flangerBuf[FLANGE_BUF_SIZE];
 mtFlanger effectorFlanger;
 
-int32_t mtFlanger::makeFlanger(int d_length,int delay_offset,int d_depth,float delay_rate)
+uint8_t mtFlanger::makeFlanger(int d_length,int delay_offset,int d_depth,float delay_rate, uint8_t forceEffect)
 {
-	int32_t localLength = effector.getLength();
-	int32_t	returnLength = localLength;
-	int16_t * localAddress = effector.getAddress();
-	int16_t * destAddress = sdram_effectsBank;
+	if(forceEffect == 0)
+	{
+		if((delay_offset == last_delay_offset) && (d_depth == last_d_depth) && (delay_rate == last_delay_rate))
+		{
+			return 0;
+		}
+	}
+
+	if(d_length == 0 || delay_offset == 0 || d_depth == 0 || delay_rate == 0)
+	{
+		return 0;
+	}
+
+	localLength = effector.getLength();
+	returnLength = localLength;
+	localAddress = effector.getAddress();
+	destAddress = sdram_effectsBank;
 
 	delay_length = d_length/2;
 	l_delayline = flangerBuf;
@@ -37,27 +50,51 @@ int32_t mtFlanger::makeFlanger(int d_length,int delay_offset,int d_depth,float d
 
 	memset(flangerBuf,0,d_length);
 
+	requireProcessing = 1;
+	loadProgress = 0;
+	startLength = localLength;
+	last_delay_offset= delay_offset;
+	last_d_depth = d_depth;
+	last_delay_rate = delay_rate;
 
-	while ( localLength )
-	{
-
-/*		todo: jakby byly jakies problemy mozna na 0 ustawic wartosci wykraczajace poza bufor w ostatnim buforze
-		if(localLength<AUDIO_BLOCK_SAMPLES) memset(localAddress+localLength,0,AUDIO_BLOCK_SAMPLES-localLength);*/
-		calculate(localAddress,destAddress);
-		localAddress += AUDIO_BLOCK_SAMPLES;
-		destAddress += AUDIO_BLOCK_SAMPLES;
-		if(localLength> AUDIO_BLOCK_SAMPLES) localLength -= AUDIO_BLOCK_SAMPLES;
-		else localLength=0;
-	}
-
-	effector.affterEffectLength=returnLength/2;
 	return 1;
-
 }
 
+void mtFlanger::process()
+{
+	if(requireProcessing == 1 && localLength != 0)
+	{
+		calculate(localAddress, destAddress);
+		localAddress += AUDIO_BLOCK_SAMPLES;
+		destAddress += AUDIO_BLOCK_SAMPLES;
+		if(localLength > AUDIO_BLOCK_SAMPLES) localLength -= AUDIO_BLOCK_SAMPLES;
+		else localLength = 0;
 
+		loadProgress = ((startLength-localLength) * 100) / startLength;
 
+		if(localLength == 0)
+		{
+			requireProcessing = 0;
+			effector.affterEffectLength = returnLength / 2;
+		}
+	}
+}
 
+uint8_t mtFlanger::getProgress()
+{
+	return loadProgress;
+}
+
+uint8_t mtFlanger::requireProcess()
+{
+	return requireProcessing;
+}
+
+void mtFlanger::cancelProcessing()
+{
+	requireProcessing = 0;
+	loadProgress = 0;
+}
 
 void mtFlanger::calculate(int16_t * sbuf, int16_t * dbuf)
 {

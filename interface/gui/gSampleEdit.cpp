@@ -17,7 +17,6 @@ static uint16_t framesPlaces[7][4] =
 
 
 
-
 void cSampleEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
@@ -52,20 +51,25 @@ void cSampleEditor::initDisplayControls()
 	prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
+	strControlProperties prop6;
+
+	prop6.x = 190;
+	prop6.y = 170;
+	prop6.style = controlStyleValue_0_100;
+	prop6.h = 100;
+	prop6.w = 420;
+
+	if(processHorizontalBarControl == nullptr)  processHorizontalBarControl = display.createControl<cHorizontalBar>(&prop6);
 
 	for(uint8_t i = 0; i<6; i++)
 	{
 		prop2.text = (char*)"";
 		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
-		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 465;
 		prop2.w = 800/8-6;
 		prop2.h = 30;
 
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
-
 		prop2.x = (800/8)*i+(800/16);
-		if(i !=5)
+		if(i < 3)
 		{
 			prop2.y = 452;
 			prop2.h = 58;
@@ -78,44 +82,36 @@ void cSampleEditor::initDisplayControls()
 
 		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
 
-/*		prop2.text = (char*)"";
-		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 		prop2.x = (800/8)*i+(800/16);
 		prop2.y = 465;
-		prop2.w = 800/8-6;
-		prop2.h = 30;
+
 		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
-
-		prop2.y = 437;
-		prop2.h = 28;
-
-		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);*/
-
 	}
 
 	prop2.x = (800/4)*3+(800/8);
-	prop2.y = 465;
 	prop2.w = 800/4-6;
-	prop2.h = 30;
-	if(bottomLabel[6] == nullptr) bottomLabel[6] = display.createControl<cLabel>(&prop2);
 
 	prop2.y = 452;
 	prop2.h = 58;
 	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
 
+	prop2.y = 465;
+	prop2.h = 30;
+	if(bottomLabel[6] == nullptr) bottomLabel[6] = display.createControl<cLabel>(&prop2);
 
-	playModeList.linesCount = 5;
-	playModeList.start = editorInstrument->playMode;
-	playModeList.length = effectsCount;
-	playModeList.data = playModeNames;
+
+	effectList.linesCount = 5;
+	effectList.start = 0;
+	effectList.length = effectsCount;
+	effectList.data = effectNames;
 
 	prop2.style = 	( controlStyleShow );
 	prop.x = (800/8)*6+8;
 	prop.y = 140;
 	prop.w = 800/4-16;
 	prop.h = 25;
-	prop.data = &playModeList;
-	if(playModeListControl == nullptr)  playModeListControl = display.createControl<cList>(&prop);
+	prop.data = &effectList;
+	if(effectListControl == nullptr)  effectListControl = display.createControl<cList>(&prop);
 
 	// spectrum + points
 	prop.x = 0;
@@ -127,6 +123,18 @@ void cSampleEditor::initDisplayControls()
 
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
+
+
+	for(int i = 3; i < 6; i++)
+	{
+		prop2.x = (800/8)*i+5;
+		prop2.y = 30;
+		prop2.w = 800/8-10;
+		prop2.style =  controlStyleValue_0_100;
+		prop2.h = 389;
+		if(barControl[i-3] == nullptr)  barControl[i-3] = display.createControl<cBar>(&prop2);
+	}
+
 
 
 }
@@ -149,8 +157,8 @@ void cSampleEditor::destroyDisplayControls()
 	display.destroyControl(pointsControl);
 	pointsControl = nullptr;
 
-	display.destroyControl(playModeListControl);
-	playModeListControl = nullptr;
+	display.destroyControl(effectListControl);
+	effectListControl = nullptr;
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -164,47 +172,42 @@ void cSampleEditor::destroyDisplayControls()
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
+
+	for(uint8_t i = 0; i < 3 ; i++)
+	{
+		display.destroyControl(barControl[i]);
+		barControl[i]=nullptr;
+	}
+
+	display.destroyControl(processHorizontalBarControl);
+	processHorizontalBarControl = nullptr;
 }
 
 void cSampleEditor::showDefaultScreen()
 {
+	display.setControlShow(titleBar);
 	display.refreshControl(titleBar);
 
+	display.setControlShow(titleLabel);
 	display.setControlText(titleLabel, "Sample Editor");
 	display.refreshControl(titleLabel);
 
 	showActualInstrument();
 
-	//spectrum
-	display.setControlShow(spectrumControl);
-	display.refreshControl(spectrumControl);
-
-	//points
-
-	display.setControlShow(pointsControl);
-	display.refreshControl(pointsControl);
-
-	//lista
-	//display.setControlShow(playModeListControl);
-	//display.refreshControl(playModeListControl);
-
 	// bottom labels
 
-	display.setControlText(bottomLabel[0], "Preview");
-	display.setControlText(bottomLabel[1], "Apply");
-	display.setControlText(bottomLabel[2], "Undo");
+	display.setControlText(topLabel[0], "Preview");
+	display.setControlText(topLabel[1], "Apply");
 	display.setControlText(bottomLabel[3], "Start");
 	display.setControlText(bottomLabel[4], "End");
 	display.setControlText(bottomLabel[5], "Zoom");
-	display.setControlText(bottomLabel[6], "     ");
 
 	//display.setControlText(bottomLabel[7], "");
 
 
 	display.setControlText(topLabel[6], "Effect");
 
-
-
+	showEffectScreen(&effectScreen[currSelEffect]);
 
 
 	for(uint8_t i = 0; i<7; i++)
@@ -216,10 +219,70 @@ void cSampleEditor::showDefaultScreen()
 		display.refreshControl(topLabel[i]);
 	}
 
+	showEffectsList();
 
 	display.synchronizeRefresh();
 
 }
+
+void cSampleEditor::showEffectScreen(effect_screen_t *screenCfg)
+{
+	display.setControlShow(spectrumControl);
+
+	if(screenCfg->screen == fullSpectrum)
+	{
+		display.setControlShow(pointsControl);
+
+		spectrum.width = 600;
+		screenCfg->barNum=0;
+	}
+	else
+	{
+		display.setControlHide(pointsControl);
+
+		spectrum.width = 300;
+	}
+
+
+	display.refreshControl(pointsControl);
+
+	display.setControlData(spectrumControl, &spectrum);
+	display.refreshControl(spectrumControl);
+
+	for(int i = 0; i < MAX_DATA_BARS; i++)
+	{
+		display.setControlHide(barControl[i]);
+		display.setControlText(topLabel[3+i], "");
+		display.setControlText(bottomLabel[3+i], "");
+	}
+
+	for(int i = (MAX_DATA_BARS - screenCfg->barNum); i < MAX_DATA_BARS; i++)
+	{
+		display.setControlShow(barControl[i]);
+	}
+
+	for(int i = (3 - screenCfg->paramNum); i < 3; i++)
+	{
+		display.setControlText(bottomLabel[3+i], screenCfg->bar[i].name);
+	}
+
+	for(int i=0;i<MAX_DATA_BARS;i++)
+	{
+		updateEffectValues(&effectScreen[currSelEffect], i);
+	}
+
+	for(int i=0;i<3;i++)
+	{
+		display.refreshControl(barControl[i]);
+		display.refreshControl(bottomLabel[3+i]);
+		display.refreshControl(topLabel[3+i]);
+	}
+
+	undoDisplayControl(effectScreen[currSelEffect].undoActive);
+
+	display.synchronizeRefresh();
+}
+
 
 
 //==============================================================================================================
@@ -233,27 +296,17 @@ void cSampleEditor::activateLabelsBorder()
 }
 
 //==============================================================================================================
-void cSampleEditor::showZoomValue()
+
+void cSampleEditor::showEffectsList()
 {
-	sprintf(zoomTextValue, "%.2f", zoom.zoomValue);
+	effectList.start = currSelEffect;
+	effectList.length = effectsCount;
+	effectList.linesCount = 6;
+	effectList.data = effectNames;
 
-	display.setControlText(topLabel[5], zoomTextValue);
-	display.setControlShow(topLabel[5]);
-	display.refreshControl(topLabel[5]);
-}
-
-void cSampleEditor::showPlayModeList()
-{
-	playModeList.start = editorInstrument->playMode;
-	playModeList.length = effectsCount;
-	playModeList.linesCount = 5;
-	playModeList.data = playModeNames;
-
-	display.setControlData(playModeListControl,  &playModeList);
-	display.setControlShow(playModeListControl);
-	display.refreshControl(playModeListControl);
-
-
+	display.setControlData(effectListControl,  &effectList);
+	display.setControlShow(effectListControl);
+	display.refreshControl(effectListControl);
 }
 
 //==============================================================================================================
@@ -267,10 +320,68 @@ void cSampleEditor::showActualInstrument()
 
 	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 
-
+	display.setControlShow(instrumentLabel);
 	display.setControlText(instrumentLabel,  actualInstrName);
 	display.refreshControl(instrumentLabel);
 }
 
 //==============================================================================================================
+
+void cSampleEditor::showValueLabels(uint8_t whichBar)
+{
+	display.setControlText(topLabel[3+whichBar], &dataBarText[whichBar][0]);
+	display.setControlShow(topLabel[3+whichBar]);
+	display.refreshControl(topLabel[3+whichBar]);
+}
+
+void cSampleEditor::refreshBarsValue(uint8_t whichBar, uint8_t newValue)
+{
+	display.setControlValue(barControl[whichBar], newValue);
+	display.refreshControl(barControl[whichBar]);
+}
+
+void cSampleEditor::showProcessingBar(uint8_t progress)
+{
+	display.setControlValue(processHorizontalBarControl, progress);
+	display.setControlText(processHorizontalBarControl, "Processing...");
+	display.setControlShow(processHorizontalBarControl);
+	display.refreshControl(processHorizontalBarControl);
+}
+
+void cSampleEditor::showSampleLoading(uint8_t progress)
+{
+	display.setControlValue(processHorizontalBarControl, progress);
+	display.setControlText(processHorizontalBarControl, "Loading...");
+	display.setControlShow(processHorizontalBarControl);
+	display.refreshControl(processHorizontalBarControl);
+}
+
+void cSampleEditor::showApplying(uint8_t progress)
+{
+	display.setControlValue(processHorizontalBarControl, progress);
+	display.setControlText(processHorizontalBarControl, "Applying...");
+	display.setControlShow(processHorizontalBarControl);
+	display.refreshControl(processHorizontalBarControl);
+}
+
+void cSampleEditor::hideHorizontalBar()
+{
+	display.setControlHide(processHorizontalBarControl);
+	display.refreshControl(processHorizontalBarControl);
+}
+
+void cSampleEditor::undoDisplayControl(uint8_t onOff)
+{
+	if(onOff)
+	{
+		display.setControlText(topLabel[2], "Undo");
+	}
+	else
+	{
+		display.setControlText(topLabel[2], "");
+	}
+
+	display.refreshControl(topLabel[2]);
+}
+
 

@@ -5,20 +5,28 @@
 int16_t chorusBuffer[CHORUS_BUF_SIZE];
 mtChorus effectorChorus;
 
-int32_t mtChorus::makeChorus(int d_length,int n_chorus)
+uint8_t mtChorus::makeChorus(int d_length, int n_chorus, uint8_t forceEffect)
 {
-	uint32_t localLength = effector.getLength();
-	int32_t returnLength = (int32_t) localLength;
+	if(forceEffect == 0)
+	{
+		if(d_length == last_d_length && n_chorus == last_n_chorus)
+		{
+			return 0;
+		}
+	}
 
-	int16_t * localAddress = effector.getAddress();
-	int16_t * destAddress = sdram_effectsBank;
+	localLength = effector.getLength();
+	returnLength = (int32_t) localLength;
+
+	localAddress = effector.getAddress();
+	destAddress = sdram_effectsBank;
 
 	l_delayline = NULL;
 	delay_length = 0;
 	l_circ_idx = 0;
 
-	if( (d_length%AUDIO_BLOCK_SAMPLES) || (d_length > CHORUS_BUF_SIZE) ) return -1;
-	if(n_chorus < 1) return -1;
+	if( (d_length%AUDIO_BLOCK_SAMPLES) || (d_length > CHORUS_BUF_SIZE) ) return 0;
+	if(n_chorus < 1) return 0;
 
 	l_delayline = chorusBuffer;
 	delay_length = d_length/2;
@@ -26,21 +34,51 @@ int32_t mtChorus::makeChorus(int d_length,int n_chorus)
 
 	memset(chorusBuffer,0,d_length);
 
-	while ( localLength )
-	{
-/*		todo: jakby byly jakies problemy mozna na 0 ustawic wartosci wykraczajace poza bufor w ostatnim buforze
-		if(localLength<AUDIO_BLOCK_SAMPLES) memset(localAddress+localLength,0,AUDIO_BLOCK_SAMPLES-localLength);*/
-		calculate(localAddress,destAddress);
-		localAddress += AUDIO_BLOCK_SAMPLES;
-		destAddress += AUDIO_BLOCK_SAMPLES;
-		if(localLength> AUDIO_BLOCK_SAMPLES) localLength -= AUDIO_BLOCK_SAMPLES;
-		else localLength=0;
-	}
-	effector.affterEffectLength=returnLength/2;
+	requireProcessing = 1;
+	startLength = localLength;
+	loadProgress = 0;
+	last_d_length = d_length;
+	last_n_chorus = n_chorus;
+
 	return 1;
 }
 
 
+void mtChorus::process()
+{
+	if(requireProcessing == 1 && localLength != 0)
+	{
+		calculate(localAddress, destAddress);
+		localAddress += AUDIO_BLOCK_SAMPLES;
+		destAddress += AUDIO_BLOCK_SAMPLES;
+		if(localLength > AUDIO_BLOCK_SAMPLES) localLength -= AUDIO_BLOCK_SAMPLES;
+		else localLength = 0;
+
+		loadProgress = ((startLength-localLength) * 100) / startLength;
+
+		if(localLength == 0)
+		{
+			requireProcessing = 0;
+			effector.affterEffectLength = returnLength / 2;
+		}
+	}
+}
+
+uint8_t mtChorus::getProgress()
+{
+	return loadProgress;
+}
+
+uint8_t mtChorus::requireProcess()
+{
+	return requireProcessing;
+}
+
+void mtChorus::cancelProcessing()
+{
+	requireProcessing = 0;
+	loadProgress = 0;
+}
 
 void mtChorus::calculate(int16_t * sbuf, int16_t * dbuf)
 {
