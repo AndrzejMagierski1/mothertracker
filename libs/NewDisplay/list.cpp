@@ -266,6 +266,22 @@ uint8_t cList::update()
 					textFont,
 					textStyle | OPT_CENTERY,
 					*(list->data + (i +  textListPos)));
+
+			if(list->icon.useSpecialIcons)
+			{
+				if((list->icon.iconPositionInList) == i+textListPos)
+				{
+					uint8_t idx = BITMAP_ICON_OFFSET + list->icon.iconNum;
+
+					API_BITMAP_SOURCE(bitmaps[idx].address);
+					API_BITMAP_LAYOUT(bitmaps[idx].format, bitmaps[idx].linestride, bitmaps[idx].height);
+					API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[idx].width, bitmaps[idx].height);
+
+					API_BEGIN(BITMAPS);
+					API_VERTEX2F(x_pos, y_pos + ((i*height) - bitmaps[idx].height/2) + 1);
+					API_END();
+				}
+			}
 		}
 
 		API_RESTORE_CONTEXT();
@@ -389,6 +405,22 @@ uint8_t cList::update()
 							textFont,
 							textStyle | OPT_CENTERY,
 							*(list->data +  i + textListPos ) );
+
+					if(list->icon.useSpecialIcons)
+					{
+						if((list->icon.iconPositionInList) == i+textListPos)
+						{
+							uint8_t idx = BITMAP_ICON_OFFSET + list->icon.iconNum;
+
+							API_BITMAP_SOURCE(bitmaps[idx].address);
+							API_BITMAP_LAYOUT(bitmaps[idx].format, bitmaps[idx].linestride, bitmaps[idx].height);
+							API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[idx].width, bitmaps[idx].height);
+
+							API_BEGIN(BITMAPS);
+							API_VERTEX2F(x_pos, y_pos + ((i*height) - bitmaps[idx].height/2 + 1));
+							API_END();
+						}
+					}
 				}
 			}
 			else if(dir == -1) // tekst porusza sie w dol (wartosci w gore)
@@ -412,6 +444,22 @@ uint8_t cList::update()
 							textFont,
 							textStyle | OPT_CENTERY,
 							*(list->data + i + textListPos -1) );
+
+					if(list->icon.useSpecialIcons)
+					{
+						if((list->icon.iconPositionInList) == i+textListPos)
+						{
+							uint8_t idx = BITMAP_ICON_OFFSET + list->icon.iconNum;
+
+							API_BITMAP_SOURCE(bitmaps[idx].address);
+							API_BITMAP_LAYOUT(bitmaps[idx].format, bitmaps[idx].linestride, bitmaps[idx].height);
+							API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[idx].width, bitmaps[idx].height);
+
+							API_BEGIN(BITMAPS);
+							API_VERTEX2F(x_pos, y_pos + ((i*height) - bitmaps[idx].height/2 + 1));
+							API_END();
+						}
+					}
 				}
 			}
 		}
@@ -436,6 +484,22 @@ uint8_t cList::update()
 						textFont,
 						textStyle | OPT_CENTERY,
 						*(list->data + i  + textListPos ) );
+
+				if(list->icon.useSpecialIcons)
+				{
+					if((list->icon.iconPositionInList) == i+textListPos)
+					{
+						uint8_t idx = BITMAP_ICON_OFFSET + list->icon.iconNum;
+
+						API_BITMAP_SOURCE(bitmaps[idx].address);
+						API_BITMAP_LAYOUT(bitmaps[idx].format, bitmaps[idx].linestride, bitmaps[idx].height);
+						API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[idx].width, bitmaps[idx].height);
+
+						API_BEGIN(BITMAPS);
+						API_VERTEX2F(x_pos, y_pos + ((i*height) - bitmaps[idx].height/2 + 1));
+						API_END();
+					}
+				}
 			}
 		}
 
