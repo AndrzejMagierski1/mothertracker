@@ -233,8 +233,6 @@ void cSampleImporter::start(uint32_t options)
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
-	AddOrEnter();
-
 	selectionLength=0;
 	resetInstrSel();
 	setSelect(selectedPlace);
@@ -489,7 +487,7 @@ static uint8_t functShiftCopy()
 
 static uint8_t functShiftPaste()
 {
-	if(SI->currentCopyStatusFlag || SI->currentLoadStatusFlag) return 1;
+	if(SI->currentCopyStatusFlag || SI->currentLoadStatusFlag || SI->keyboardActiveFlag) return 1;
 
 	if(SI->selectionActive)
 	{
@@ -752,7 +750,7 @@ static  uint8_t functRecAction()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(SI->currentLoadStatusFlag || SI->currentCopyStatusFlag) return 1;
+	if(SI->currentLoadStatusFlag || SI->currentCopyStatusFlag || SI->keyboardActiveFlag) return 1;
 	SI->eventFunct(eventSwitchModule,SI,&button,0);
 
 	return 1;
