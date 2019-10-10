@@ -1008,6 +1008,12 @@ static  uint8_t functRight()
 }
 static  uint8_t functUp()
 {
+	if(PE->keyboardActiveFlag)
+	{
+		PE->keyboardPosition = valueMap[valueMapDirectionUp][PE->keyboardPosition];
+		PE->showKeyboard();
+		return 1;
+	}
 	if(PE->projectListActiveFlag)
 	{
 		if(PE->selectedLocation > 0 ) PE->selectedLocation--;
@@ -1015,27 +1021,22 @@ static  uint8_t functUp()
 		display.refreshControl(PE->fileListControl);
 		return 1;
 	}
-	if(PE->keyboardActiveFlag)
-	{
-		PE->keyboardPosition = valueMap[valueMapDirectionUp][PE->keyboardPosition];
-		PE->showKeyboard();
-		return 1;
-	}
+
 	return 1;
 }
 static  uint8_t functDown()
 {
+	if(PE->keyboardActiveFlag)
+	{
+		PE->keyboardPosition = valueMap[valueMapDirectionDown][PE->keyboardPosition];
+		PE->showKeyboard();
+		return 1;
+	}
 	if(PE->projectListActiveFlag)
 	{
 		if(PE->selectedLocation < PE->locationFilesCount-1 ) PE->selectedLocation++;
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);
 		display.refreshControl(PE->fileListControl);
-		return 1;
-	}
-	if(PE->keyboardActiveFlag)
-	{
-		PE->keyboardPosition = valueMap[valueMapDirectionDown][PE->keyboardPosition];
-		PE->showKeyboard();
 		return 1;
 	}
 	return 1;
