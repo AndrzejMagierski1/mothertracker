@@ -206,6 +206,7 @@ void cPatternEditor::initDisplayControls()
 	patternTrackerColors[6] = patternTrackerSelectionColor;
 	prop.colors = (uint32_t*)patternTrackerColors;
 	prop.data = &trackerPattern;
+	prop.value = patternViewMode;
 	if(patternControl == nullptr)  patternControl = display.createControl<cTracker>(&prop);
 	//hTrackControl = display.createControl<cLabel>(&prop);
 	//display.refreshControl(hTrackControl);

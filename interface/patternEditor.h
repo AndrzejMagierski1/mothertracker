@@ -230,8 +230,16 @@ public:
 
 
 
-//-------------------------------------------------------
 
+//-------------------------------------------------------
+// pojedyncze parametry / 8 trackow
+	uint8_t patternViewMode = 0;  // przechowuje bitowo pokazywane parametry dla 8 trackow
+	uint8_t patternViewChanged = 0;
+	uint8_t selectedParams[2];
+
+	uint8_t disabledPatternButtonRelease = 0;
+
+	void setPatternViewMode(uint8_t param);
 
 
 };
