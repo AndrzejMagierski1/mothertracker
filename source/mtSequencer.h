@@ -315,6 +315,7 @@ public:
 	private:
 
 	strPattern seq[3];
+	Sequencer::strPattern *getPattern();
 
 //	strPattern::strTrack copyTrackBuffer[8];
 
@@ -539,7 +540,9 @@ public:
 
 			bool divChange = 0;
 
-		} row[MAXTRACK + 1];
+			int8_t performanceStutter = 0;
+
+		} track[MAXTRACK + 1];
 
 		void (*onPatternEnd)(void) = NULL;
 
@@ -670,6 +673,8 @@ public:
 	void changeSelectionInstrument(int16_t value);
 	void setSelectionInstrument(int16_t value);
 	void setSelectionVelocity(int16_t value);
+
+	void setPerformanceStutter(uint8_t track, int8_t stutter);
 
 	void clearRow(uint8_t row);
 	void clearRow(uint8_t row, uint8_t bank);

@@ -289,8 +289,7 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 	}
 	case mtPerfStepStutter:
 	{
-		//TODO:
-
+		sequencer.setPerformanceStutter(track, 0);
 		break;
 	}
 	case mtPerfPatternPlayMode:
@@ -389,8 +388,7 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track)
 		}
 		case mtPerfStepStutter:
 		{
-			//TODO:
-
+			sequencer.setPerformanceStutter(track, fxValues[fx]);
 			break;
 		}
 		case mtPerfPatternPlayMode:
@@ -595,9 +593,9 @@ static  uint8_t functEncoder(int16_t value)
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j])
+					if (PM->tracksPerformanceState[j])
 					{
-						//TODO: tutaj funkcja modyfikujaca na podstawie: PM->fxValues[i] = wartosc , j = track
+						sequencer.setPerformanceStutter(j, PM->fxValues[i]);
 					}
 				}
 

@@ -411,7 +411,7 @@ void cPatternEditor::readPatternState()
 
 
 	trackerPattern.patternLength = seq->track[0].length+1;
-	trackerPattern.playheadPosition = sequencer.ptrPlayer->row[0].actual_pos;
+	trackerPattern.playheadPosition = sequencer.ptrPlayer->track[0].actual_pos;
 
 
 }
