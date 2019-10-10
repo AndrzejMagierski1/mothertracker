@@ -87,7 +87,6 @@ void cSongEditor::initDisplayControls()
 	prop.data = &patternsList;
 	if(patternsListControl == nullptr)  patternsListControl = display.createControl<cList>(&prop);
 
-
 }
 
 
@@ -212,3 +211,25 @@ void cSongEditor::showPatternLengthValue()
 	display.setControlValue(barControl[1], (mtProject.values.patternLength*100)/Sequencer::MAXSTEP);
 	display.refreshControl(barControl[1]);
 }
+
+void cSongEditor::showIcon(icon_t iconType,uint8_t position)
+{
+	patternsList.icon.useSpecialIcons = 1;
+
+	patternsList.icon.iconPositionInList = position;
+	patternsList.icon.iconNum = iconType;
+
+	display.setControlValue(patternsListControl, selectedPattern);
+	display.refreshControl(patternsListControl);
+}
+
+void cSongEditor::hideIcon()
+{
+	patternsList.icon.useSpecialIcons = 0;
+	patternsList.icon.iconNum = 0;
+	patternsList.icon.iconPositionInList = 0;
+
+	display.setControlValue(patternsListControl, selectedPattern);
+	display.refreshControl(patternsListControl);
+}
+
