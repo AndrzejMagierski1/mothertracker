@@ -235,8 +235,6 @@ void cSampleImporter::start(uint32_t options)
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
-	AddOrEnter();
-
 	selectionLength=0;
 	resetInstrSel();
 	setSelect(selectedPlace);
@@ -498,7 +496,7 @@ static uint8_t functCopyPaste()
 
 static uint8_t functPaste()
 {
-	if(SI->currentCopyStatusFlag || SI->currentLoadStatusFlag) return 1;
+	if(SI->currentCopyStatusFlag || SI->currentLoadStatusFlag || SI->keyboardActiveFlag) return 1;
 
 	if(SI->selectionActive)
 	{
@@ -761,7 +759,7 @@ static  uint8_t functRecAction()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(SI->currentLoadStatusFlag || SI->currentCopyStatusFlag) return 1;
+	if(SI->currentLoadStatusFlag || SI->currentCopyStatusFlag || SI->keyboardActiveFlag) return 1;
 	SI->eventFunct(eventSwitchModule,SI,&button,0);
 
 	return 1;
@@ -1547,8 +1545,8 @@ void cSampleImporter::handleSequenceCopyingLoading()
 				{
 					if(mtProject.instrument[instrCopyStart + copyElement].isActive == 1)
 					{
-						strcpy(projectSamplePath,fileManager.currentProjectPatch);
-						strcat(projectSamplePath,"/samples");
+						strcpy(projectSamplePath,"Workspace/samples");
+//						strcat(projectSamplePath,"/samples");
 
 						fileManager.assignSampleToInstrument(projectSamplePath,SI->parseNewName(instrCopyStart + copyElement), selectedSlot + copyElement);
 						memcpy(&mtProject.instrument[selectedSlot+copyElement],&mtProject.instrument[instrCopyStart+copyElement],sizeof(mtProject.instrument[0]));

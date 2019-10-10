@@ -13,60 +13,8 @@
 #include "mtRecorder.h"
 #include "mtExporterWAV.h"
 
-struct strPerformance
-{
-//****************************************************************************
-// wartosc modyfikujaca
-	struct strMod
-	{
-	  int8_t 	volume;
-	  int8_t 	panning;
-	  int8_t 	tune;
-	  int8_t 	reverbSend;
-	  int8_t 	cutoff;
-	  int32_t 	startPoint;
-	  int32_t 	loopPoint1;
-	  int32_t 	loopPoint2;
-	  int32_t 	endPoint;
-	} mod;
-//****************************************************************************
-// aktualna aktywna wartosc
-	struct strActiveValueSeq
-	{
-	  uint8_t volume;
-	  int16_t panning;
-	  int8_t tune;
-	  uint8_t reverbSend;
-	  float cutoff;
-	  uint16_t startPoint;
-	  uint16_t loopPoint1;
-	  uint16_t loopPoint2;
-	  uint16_t endPoint;
-	} activeValueSeq;
 
-//****************************************************************************
-// flagi wymuszajace użycie performance i wymuszone wartosci
-	struct strForcedFlags
-	{
-	  uint8_t volume;
-	  uint8_t panning;
-	  uint8_t tune;
-	  uint8_t reverbSend;
-	  uint8_t cutoff;
-	} forcedFlags;
 
-	struct strForcedValues
-	{
-	  uint8_t filterEnable;
-	  int8_t filterType = -1;
-	} forcedValues;
-
-} ;
-
-enum fx_ID
-{
-	fx_ID_cutoff = 1
-};
 
 class audioEngine
 {
@@ -136,6 +84,105 @@ public:
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note);
 	AudioEffectEnvelope *       envelopeAmpPtr;
+
+	enum struct controlType
+	{
+		sequencerMode,
+		performanceMode,
+
+		length
+	};
+
+	enum struct parameterList
+	{
+		startPoint,
+		loopPoint1,
+		loopPoint2,
+		filterCutoff,
+		filterType,
+		filterEnable,
+		reverbSend,
+		panning,
+		ampAttack,
+		ampRelease,
+		filterAttack,
+		filterRelease,
+		fineTune,
+		tune,
+		fastTremolo,
+		slowTremolo,
+		fastVibrato,
+		slowVibrato,
+		volume,
+		samplePlaybeckDirection,
+		sampleSlice,
+		glide,
+
+		length
+	};
+
+	struct strCurrentSeqModValues
+	{
+	    uint16_t startPoint;
+	    uint16_t loopPoint1;
+	    uint16_t loopPoint2;
+	    uint8_t sampleSlice; //todo: ustalic co to ma byc
+	    uint8_t reversePlayback; //todo: jak sie zrobi to ogarnac
+	    float filterCutoff;
+		uint8_t filterType;
+		uint8_t filterEnable;
+		uint8_t reverbSend;
+		int16_t panning;
+
+		uint16_t ampAttack;
+		uint16_t ampRelease;
+		uint16_t filterAttack;
+		uint16_t filterRelease;
+
+		int8_t fineTune;
+		LFO::strLfo vibrato; //todo: do ogarniecia
+		LFO::strLfo tremolo; //todo: do ogarniecia
+
+		uint16_t glide;
+
+
+	} currentSeqModValues;
+
+	struct strCurrentPerformanceValues
+	{
+		uint16_t startPoint;
+		uint16_t loopPoint1;
+		uint16_t loopPoint2;
+		uint8_t reversePlayback; //todo: jak sie zrobi to ogarnac
+		float filterCutoff;
+		uint8_t filterType;
+		uint8_t filterEnable;
+		uint8_t reverbSend;
+		int16_t panning;
+		int8_t tune;
+		uint8_t volume;
+	} currentPerformanceValues;
+
+
+	struct strPerformanceMod
+	{
+		  int8_t 	volume;
+		  int8_t 	panning;
+		  int8_t 	tune;
+		  int8_t 	reverbSend;
+		  int8_t 	cutoff;
+		  uint8_t 	filterType;
+		  int32_t 	startPoint;
+	} performanceMod;
+
+	struct strInstrumentBasedModValue
+	{
+		int8_t fineTune;
+		uint8_t volume;
+		float cutoff;
+	} instrumentBasedMod;
+
+	uint8_t trackControlParameter[(int)controlType::length][(int)parameterList::length];
 //**********************************************************************************************************************************
 //PERFORMANCE MODE
 	void changeVolumePerformanceMode(int8_t value);
@@ -147,8 +194,9 @@ public:
 	void changeFilterTypePerformanceMode(uint8_t mode);
 
 private:
-	strPerformance 				performance;
+
 	friend 						audioEngine;
+
 	AudioPlayMemory *        	playMemPtr;
 	AudioAmplifier *			ampPtr;
 	envelopeGenerator* 			envelopeFilterPtr;

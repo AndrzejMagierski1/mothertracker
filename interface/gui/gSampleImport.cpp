@@ -218,7 +218,6 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlHide(editName);
 	display.refreshControl(editName);
 
-	AddOrEnter();
 	displayDelete(selectedPlace);
 	displayRename(selectedPlace);
 
