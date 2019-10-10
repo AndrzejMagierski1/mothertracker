@@ -96,14 +96,14 @@ AudioConnection          connect49(&mixerReverb,&reverb);
 AudioConnection          connect50(&reverb, 0, &mixerL, 8);
 AudioConnection          connect51(&reverb, 0, &mixerR, 8);
 
-AudioConnection          connect57(&mixerL, &limiter[0]);
-AudioConnection          connect58(&mixerR, &limiter[1]);
+AudioConnection          connect57(&mixerL, &bitDepthControl[0]);
+AudioConnection          connect58(&mixerR, &bitDepthControl[1]);
 
-AudioConnection          connect52(&limiter[0], 0, &bitDepthControl[0], 0);
-AudioConnection          connect53(&limiter[1], 0, &bitDepthControl[1], 0);
+AudioConnection          connect52(&bitDepthControl[0], 0, &limiter[0], 0);
+AudioConnection          connect53(&bitDepthControl[1], 0, &limiter[1], 0);
 
-AudioConnection          connect68(&bitDepthControl[0], 0, &mixerSourceL, 0);
-AudioConnection          connect69(&bitDepthControl[1], 0, &mixerSourceR, 0);
+AudioConnection          connect68(&limiter[0], 0, &mixerSourceL, 0);
+AudioConnection          connect69(&limiter[1], 0, &mixerSourceR, 0);
 
 AudioConnection          connect61(&playSdWav, 0, &mixerSourceL, 1);
 AudioConnection          connect62(&playSdWav, 0, &mixerSourceR, 1);
