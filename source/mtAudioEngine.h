@@ -173,8 +173,6 @@ public:
 		  int8_t 	cutoff;
 		  uint8_t 	filterType;
 		  int32_t 	startPoint;
-		  int32_t 	loopPoint1;
-		  int32_t 	loopPoint2;
 	} performanceMod;
 
 	struct strInstrumentBasedModValue

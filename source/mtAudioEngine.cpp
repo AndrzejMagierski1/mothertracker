@@ -829,6 +829,44 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 		case fx_t::FX_TYPE_REVERSE_PLAYBACK :
 		break;
 		case fx_t::FX_TYPE_SAMPLE_START :
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint] = 1;
+			currentSeqModValues.startPoint = map(fx_val,0,MAX_8BIT,0,MAX_16BIT);
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+			{
+				changeStartPointPerformanceMode(performanceMod.startPoint);
+			}
+			else
+			{
+				if(mtProject.instrument[currentInstrument_idx].playMode != singleShot)
+				{
+					uint16_t loopLength = mtProject.instrument[currentInstrument_idx].loopPoint2 - mtProject.instrument[currentInstrument_idx].loopPoint1;
+					if(currentSeqModValues.startPoint > mtProject.instrument[currentInstrument_idx].loopPoint1)
+					{
+						currentSeqModValues.loopPoint1 = currentSeqModValues.startPoint;
+						if(currentSeqModValues.loopPoint1 +  loopLength > mtProject.instrument[currentInstrument_idx].endPoint )
+						{
+							currentSeqModValues.loopPoint2 = mtProject.instrument[currentInstrument_idx].endPoint;
+						}
+						else currentSeqModValues.loopPoint2 = currentSeqModValues.loopPoint1 +  loopLength;
+
+						playMemPtr->setForcedPoints(currentSeqModValues.startPoint, currentSeqModValues.loopPoint1, currentSeqModValues.loopPoint2, -1);
+						playMemPtr->setPointsForceFlag();
+						trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1] = 1;
+						trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2] = 1;
+					}
+					else
+					{
+						playMemPtr->setForcedPoints(currentSeqModValues.startPoint, -1, -1, -1);
+						playMemPtr->setPointsForceFlag();
+					}
+
+				}
+				else
+				{
+					playMemPtr->setForcedPoints(currentSeqModValues.startPoint, -1, -1, -1);
+					playMemPtr->setPointsForceFlag();
+				}
+			}
 		break;
 		case fx_t::FX_TYPE_TREMOLO_FAST :
 		break;
@@ -956,6 +994,18 @@ void playerEngine::endFx(uint8_t fx_id)
 		case fx_t::FX_TYPE_REVERSE_PLAYBACK :
 		break;
 		case fx_t::FX_TYPE_SAMPLE_START :
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint] = 0;
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1] = 0;
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2] = 0;
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+			{
+				changeStartPointPerformanceMode(performanceMod.startPoint);
+			}
+			else
+			{
+				playMemPtr->clearPointsForceFlag();
+				playMemPtr->setForcedPoints(-1, -1, -1, -1);
+			}
 		break;
 		case fx_t::FX_TYPE_TREMOLO_FAST :
 		break;
@@ -1550,18 +1600,37 @@ void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint]) startPoint = currentSeqModValues.startPoint;
 	else startPoint = mtProject.instrument[currentInstrument_idx].startPoint;
 
-	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1]) loopPoint1 = currentSeqModValues.startPoint;
-	else loopPoint1 = mtProject.instrument[currentInstrument_idx].startPoint;
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1]) loopPoint1 = currentSeqModValues.loopPoint1;
+	else loopPoint1 = mtProject.instrument[currentInstrument_idx].loopPoint1;
 
-	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2]) loopPoint2 = currentSeqModValues.startPoint;
-	else loopPoint2 = mtProject.instrument[currentInstrument_idx].startPoint;
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2]) loopPoint2 = currentSeqModValues.loopPoint2;
+	else loopPoint2 = mtProject.instrument[currentInstrument_idx].loopPoint2;
 
 	endPoint = mtProject.instrument[currentInstrument_idx].endPoint;
 
 	if(value == 0)
 	{
-		playMemPtr->clearPointsForceFlag();
-		playMemPtr->setForcedPoints(-1, -1, -1, -1);
+		if((!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint]) &&
+		  (!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1]) &&
+		  (!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2]))
+		{
+			playMemPtr->clearPointsForceFlag();
+		}
+		else
+		{
+			uint16_t forceStartPoint,forceLoopPoint1,forceLoopPoint2;
+			if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint]) forceStartPoint = currentSeqModValues.startPoint;
+			else forceStartPoint = startPoint;
+			if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1]) forceLoopPoint1 = currentSeqModValues.loopPoint1;
+			else forceLoopPoint1 = loopPoint1;
+			if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2]) forceLoopPoint2 = currentSeqModValues.loopPoint2;
+			else forceLoopPoint2 = loopPoint2;
+
+			playMemPtr->setForcedPoints(forceStartPoint, forceLoopPoint1, forceLoopPoint2, -1);
+			playMemPtr->setPointsForceFlag();
+		}
+
+
 		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint] = 0;
 		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::loopPoint1] = 0;
 		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::loopPoint2] = 0;
@@ -1573,8 +1642,6 @@ void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 	{
 		if(startPoint + value >= endPoint)
 		{
-			performanceMod.loopPoint1 = endPoint - loopPoint1;
-			performanceMod.loopPoint2 = endPoint - loopPoint2;
 			playMemPtr->setForcedPoints(endPoint, endPoint, endPoint, endPoint);
 			playMemPtr->setPointsForceFlag();
 
@@ -1583,26 +1650,23 @@ void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 		}
 		else if(startPoint + value <= SAMPLE_POINT_POS_MIN)
 		{
-			performanceMod.loopPoint1 = 0;
-			performanceMod.loopPoint2 = 0;
-			playMemPtr->setForcedPoints(SAMPLE_POINT_POS_MIN, loopPoint1, loopPoint2, endPoint);
+			playMemPtr->setForcedPoints(SAMPLE_POINT_POS_MIN, loopPoint1, loopPoint2, -1);
 			playMemPtr->setPointsForceFlag();
 		}
 		else
 		{
+			int32_t loopSize = loopPoint2 - loopPoint1;
 			if(startPoint + value >= loopPoint1)
 			{
-				int32_t loopMod = startPoint + value - 1 - loopPoint1;
-				if(loopPoint2 + loopMod > endPoint)
-				{
-					loopMod =  endPoint - loopPoint2 - 1;
-					if(loopMod < 0 ) loopMod = 0;
-				}
-				performanceMod.loopPoint1 = loopMod;
-				performanceMod.loopPoint2 = loopMod;
+				loopPoint1 = startPoint + value - loopPoint1;
+
+				startPoint = loopPoint1 - 1;
+
+				if(loopPoint1 + loopSize> endPoint) loopPoint2 = endPoint - 1;
+				else loopPoint2 = loopPoint1 + loopSize;
 			}
 
-			playMemPtr->setForcedPoints(loopPoint1, loopPoint1 + performanceMod.loopPoint1, loopPoint2 + performanceMod.loopPoint2, -1);
+			playMemPtr->setForcedPoints(startPoint, loopPoint1, loopPoint2, -1);
 			playMemPtr->setPointsForceFlag();
 
 			trackControlParameter[(int)controlType::performanceMode][(int)parameterList::loopPoint1] = 1;
@@ -1614,18 +1678,18 @@ void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 		performanceMod.startPoint = value;
 		if(startPoint + value >= endPoint )
 		{
-			playMemPtr->setForcedPoints(endPoint,-1,-1,-1);
+			playMemPtr->setForcedPoints(endPoint,endPoint,endPoint,endPoint);
 			playMemPtr->setPointsForceFlag();
 		}
 		else if(startPoint + value <= SAMPLE_POINT_POS_MIN)
 		{
 
-			playMemPtr->setForcedPoints(SAMPLE_POINT_POS_MIN,-1,-1,-1);
+			playMemPtr->setForcedPoints(SAMPLE_POINT_POS_MIN,loopPoint1,loopPoint2,-1);
 			playMemPtr->setPointsForceFlag();
 		}
 		else
 		{
-			playMemPtr->setForcedPoints(startPoint + performanceMod.startPoint,-1,-1,-1);
+			playMemPtr->setForcedPoints(startPoint + performanceMod.startPoint,loopPoint1,loopPoint2,-1);
 			playMemPtr->setPointsForceFlag();
 		}
 
