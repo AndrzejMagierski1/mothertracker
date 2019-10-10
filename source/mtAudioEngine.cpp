@@ -830,7 +830,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 		break;
 		case fx_t::FX_TYPE_SAMPLE_START :
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint] = 1;
-			currentSeqModValues.startPoint = map(fx_val,0,MAX_8BIT,0,MAX_16BIT);
+			currentSeqModValues.startPoint = map(fx_val,0,127,0,MAX_16BIT);
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
 			{
 				changeStartPointPerformanceMode(performanceMod.startPoint);
@@ -1658,16 +1658,23 @@ void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 			int32_t loopSize = loopPoint2 - loopPoint1;
 			if(startPoint + value >= loopPoint1)
 			{
-				loopPoint1 = startPoint + value - loopPoint1;
+				loopPoint1 = startPoint + value;
 
-				startPoint = loopPoint1 - 1;
+				startPoint = loopPoint1 ?  loopPoint1 - 1 : 0;
 
-				if(loopPoint1 + loopSize> endPoint) loopPoint2 = endPoint - 1;
+				if(loopPoint1 + loopSize> endPoint) loopPoint2 = endPoint ? endPoint - 1 : 0;
 				else loopPoint2 = loopPoint1 + loopSize;
+
+				playMemPtr->setForcedPoints(startPoint, loopPoint1, loopPoint2, -1);
+				playMemPtr->setPointsForceFlag();
+			}
+			else
+			{
+				playMemPtr->setForcedPoints(startPoint + value, loopPoint1, loopPoint2, -1);
+				playMemPtr->setPointsForceFlag();
 			}
 
-			playMemPtr->setForcedPoints(startPoint, loopPoint1, loopPoint2, -1);
-			playMemPtr->setPointsForceFlag();
+
 
 			trackControlParameter[(int)controlType::performanceMode][(int)parameterList::loopPoint1] = 1;
 			trackControlParameter[(int)controlType::performanceMode][(int)parameterList::loopPoint2] = 1;
