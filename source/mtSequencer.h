@@ -16,7 +16,7 @@ public:
 		MINSTEP = 0,
 		MAXSTEP = 127,
 
-		DEFAULT_ROW_LEN = 32,
+//		DEFAULT_ROW_LEN = 32,
 		DEFAULT_ROW_NOTE = 36,
 		DEFAULT_ROW_CHANNEL = 1,
 
@@ -240,7 +240,7 @@ public:
 		{
 			uint8_t isOn :1;
 
-			uint8_t length = DEFAULT_ROW_LEN;
+			uint8_t length = MAXSTEP;
 			uint8_t rootNote = DEFAULT_ROW_NOTE;
 			uint8_t trackVelo = MAX_VELO_TRACK;
 			uint8_t defaultMod = DEFAULT_MOD;	// rezerwa1

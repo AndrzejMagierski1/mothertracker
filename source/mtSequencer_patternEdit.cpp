@@ -9,7 +9,6 @@
 #include "keyScanner.h"
 extern Sequencer sequencer;
 
-
 void fromToSwap(uint8_t & from, uint8_t & to)
 {
 	if (to < from)
@@ -336,24 +335,23 @@ void Sequencer::invertSelectedSteps()
 void Sequencer::loadDefaultTrack(uint8_t row, uint8_t bank)
 {
 
+	seq[bank].track[row].length = MAXSTEP;
+	seq[bank].track[row].rootNote = DEFAULT_ROW_NOTE;
+	seq[bank].track[row].trackVelo = MAX_VELO_TRACK;
+	seq[bank].track[row].defaultMod = DEFAULT_MOD;
+	seq[bank].track[row].channel = DEFAULT_ROW_CHANNEL;
+	seq[bank].track[row].cc = DEFAULT_CC;
+	seq[bank].track[row].isOn = 1;
+	seq[bank].track[row].trackScale = 0;
+	seq[bank].track[row].midiOut = MIDIOUT_USB;
+	seq[bank].track[row].playMode = PLAYMODE_FORWARD;
+	seq[bank].track[row].gateMode = GATEMODE.NORMAL;
+	seq[bank].track[row].tempoDiv = TEMPODIV_1_1;
+	seq[bank].track[row].channelIn = CHANNEL_IN_ALL;
+	seq[bank].track[row].rezerwa4 = 0;
+
 	for (uint8_t x = 0; x <= MAXSTEP; x++)
 	{
-		seq[bank].track[row].length = DEFAULT_ROW_LEN;
-		seq[bank].track[row].rootNote = DEFAULT_ROW_NOTE;
-		seq[bank].track[row].trackVelo = MAX_VELO_TRACK;
-		seq[bank].track[row].defaultMod = DEFAULT_MOD;
-		seq[bank].track[row].channel = DEFAULT_ROW_CHANNEL;
-		seq[bank].track[row].cc = DEFAULT_CC;
-//		seq[bank].row[row].flags = 1;
-		seq[bank].track[row].isOn = 1;
-		seq[bank].track[row].trackScale = 0;
-		seq[bank].track[row].midiOut = MIDIOUT_USB;
-		seq[bank].track[row].playMode = PLAYMODE_FORWARD;
-		seq[bank].track[row].gateMode = GATEMODE.NORMAL;
-		seq[bank].track[row].tempoDiv = TEMPODIV_1_1;
-		seq[bank].track[row].channelIn = CHANNEL_IN_ALL;
-		seq[bank].track[row].rezerwa4 = 0;
-
 		clearStep(x, row, bank);
 	}
 }
