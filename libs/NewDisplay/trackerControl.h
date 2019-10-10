@@ -36,14 +36,18 @@ struct strTrackerPattern
 	uint32_t selectColor = 0xFF0000;
 
 	int8_t selectStartTrack = 0;	// start zaznaczenia 	//
-	int16_t selectStartStep = 0;							// <= ustawienie obojetne
+	int16_t selectStartStep = 0;							// <= kolejnosc obojetna
 	int8_t selectEndTrack = 0;		// koniec zaznaczenia	//
 	int16_t selectEndStep = 0;
 
 	uint8_t selectColumn = 0;
 };
 
-
+// ilosc znakow parametru
+const uint8_t param_length[4] =
+{
+	3, 2, 2, 3
+};
 
 
 
@@ -75,15 +79,32 @@ private:
 
 	uint16_t ramPartSize[5] = {0};
 	uint8_t refreshStep;
+
 	void refresh1();
 	void refresh2();
 	void refresh3();
 	void refresh4();
 	void refresh5();
 
-//	uint8_t firstVisibleTrack;
-//	int16_t visibleTracksOffset;
-//	uint8_t visibleCharOffset;
+
+	void backgroundDivider();
+	void lines();
+	void playHead();
+	void selection();
+	void rowNumbers();
+	void tracksNumbers();
+
+	void notes();
+	void instruments();
+	void volumes();
+	void fxes();
+
+
+	uint8_t displayMode;
+	uint16_t tracksSpace;
+	uint8_t columnsCount;
+	uint8_t paramCount;
+
 
 };
 

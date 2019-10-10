@@ -519,6 +519,8 @@ void cSongEditor::changeGlobalTempo(int16_t value)
 	else if(mtProject.values.globalTempo+value > Sequencer::MAX_TEMPO) mtProject.values.globalTempo = Sequencer::MAX_TEMPO;
 	else  mtProject.values.globalTempo += value;
 
+	//TODO: podpiąć afektowanie aktulanego odtwarzania
+
 	showTempoValue();
 }
 
@@ -528,39 +530,53 @@ void cSongEditor::changeGlobalPatternLength(int16_t value)
 	else if(mtProject.values.patternLength+value > Sequencer::MAXSTEP) mtProject.values.patternLength = Sequencer::MAXSTEP;
 	else  mtProject.values.patternLength += value;
 
+	//TODO: podpiąć afektowanie aktulanego odtwarzania
+
+
+
+/*
+	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+
+	if(pattern->track[0].length+value < 0) pattern->track[0].length = 0;
+	else if(pattern->track[0].length+value > Sequencer::MAXSTEP) pattern->track[0].length = Sequencer::MAXSTEP;
+	else  pattern->track[0].length += value;
+
+	for(uint8_t i = 1;i < 8; i++)
+		pattern->track[i].length = pattern->track[0].length;
+
+*/
+
 	showPatternLengthValue();
 }
 
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
+	fileManager.patternIsChangedFlag = 1;
+	fileManager.storePatternUndoRevision();
 
-	// obsługa przycisków pod ekranem
-
-	if (SE->selectedPlace >= 0)
+	switch (SE->selectedPlace)
 	{
-		fileManager.patternIsChangedFlag = 1;
-		fileManager.storePatternUndoRevision();
+	case 0:
 
-		switch (SE->selectedPlace)
-		{
-		case 0:
+		break;
+	case 1:
+		// TODO: zmiana tempa z pod padów
 
-			break;
-		case 1:
-			sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
-			SE->showTempoValue();
-			break;
-		case 2:
-			SE->changeGlobalPatternLength(map(pad, 0, 47, 3, 191));
-			SE->showPatternLengthValue();
-			break;
-		}
+		//sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
 
-		return 1;
+		SE->showTempoValue();
+		break;
+	case 2:
+		// TODO: zmiana dlugosci paternu z pod padów
+
+
+		SE->showPatternLengthValue();
+		break;
 	}
 
 	return 1;
+
 }
 
 
