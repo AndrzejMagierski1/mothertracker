@@ -383,13 +383,13 @@ void Sequencer::changeSelectionNote(int16_t value)
 				{
 					step->instrument = mtProject.values.lastUsedInstrument;
 					step->note = constrain(step->note + value,
-											-2,
+											-4,
 											MAX_NOTE_STEP);
 				}
 				else
 				{
 					step->note = constrain(step->note + value,
-											-2,
+											-4,
 											MAX_NOTE_STEP);
 				}
 

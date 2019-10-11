@@ -308,6 +308,22 @@ void cPatternEditor::refreshPattern()
 				trackerPattern.track[i].row[j].note[3] = 0;
 				showInstrument = 0;
 			}
+			else if (seq->track[i].step[patternPosition - 7 + j].note == Sequencer::STEP_NOTE_CUT)
+			{
+				trackerPattern.track[i].row[j].note[0] = 'C';
+				trackerPattern.track[i].row[j].note[1] = 'U';
+				trackerPattern.track[i].row[j].note[2] = 'T';
+				trackerPattern.track[i].row[j].note[3] = 0;
+				showInstrument = 0;
+			}
+			else if (seq->track[i].step[patternPosition - 7 + j].note == Sequencer::STEP_NOTE_FADE)
+			{
+				trackerPattern.track[i].row[j].note[0] = 'F';
+				trackerPattern.track[i].row[j].note[1] = 'A';
+				trackerPattern.track[i].row[j].note[2] = 'D';
+				trackerPattern.track[i].row[j].note[3] = 0;
+				showInstrument = 0;
+			}
 
 			if (showInstrument)
 			{

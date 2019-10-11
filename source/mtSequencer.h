@@ -26,6 +26,8 @@ public:
 
 		STEP_NOTE_EMPTY = -1,
 		STEP_NOTE_OFF = -2,
+		STEP_NOTE_CUT = -3,
+		STEP_NOTE_FADE = -4,
 		STEP_NOTE_DEFAULT = 60,
 
 //	static const uint8_t
