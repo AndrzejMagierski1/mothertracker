@@ -6,7 +6,12 @@
 
 #include "mtStructs.h"
 
-#define CURR_PATTERN_MARK_POS		1
+
+typedef enum
+{
+	iconPlay,
+	iconLoop,
+}icon_t;
 
 class cSongEditor: public cModuleBase
 {
@@ -53,13 +58,13 @@ public:
 	uint8_t slotToPattern[255];
 	uint8_t selectedPlace = 0;
 	uint8_t localSongPosition = UINT8_MAX;
+	uint8_t localPatternToPlay;
 
 	void setDefaultScreenFunct();
 
 	void changePatternsSelection(int16_t value);
 
-	void clearPatternMark();
-	void markCurrentPattern();
+	void markCurrentPattern(uint8_t forceRefresh);
 	void readSong();
 
 	void changeGlobalTempo(int16_t value);
@@ -87,9 +92,17 @@ public:
 
 //--------------------------------------------------------------
 
-
-
+	//Icons
+	int16_t loopPosition = -1;
+	void showIcon(icon_t iconType,uint8_t position);
+	void hideIcon();
+	void handleEntryIcon();
+	int16_t findSlotWithCurrPattern(uint8_t searchDir);
 //--------------------------------------------------------------
+
+	void switchToNewPattern();
+
+
 
 };
 

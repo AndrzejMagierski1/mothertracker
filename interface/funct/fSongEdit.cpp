@@ -52,22 +52,26 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 
 
+
 void cSongEditor::update()
 {
 
-	markCurrentPattern();
+	markCurrentPattern(0);
 
 }
 
 void cSongEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
+	loopPosition = -1;
 
 
 	readSong();
 
 
 	showPatternsList();
+
+
 
 
 
@@ -91,8 +95,7 @@ void cSongEditor::start(uint32_t options)
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
-	 //mtProject.mtProjectRemote.song.
-
+	handleEntryIcon();
 
 }
 
@@ -147,6 +150,8 @@ static  uint8_t functPatternSlot()
 {
 	SE->selectedPlace = 0;
 	SE->activateLabelsBorder();
+
+	return 1;
 }
 
 static  uint8_t functIncPattern()
@@ -154,7 +159,13 @@ static  uint8_t functIncPattern()
 	if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] < 99)
 	{
 		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] += 1;
+
+		if(SE->selectedPattern == SE->loopPosition)
+		{
+			SE->switchToNewPattern();
+		}
 	}
+
 
 	SE->selectedPlace = 0;
 
@@ -173,6 +184,11 @@ static  uint8_t functDecPattern()
 	if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern]>1)
 	{
 		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] -= 1;
+
+		if(SE->selectedPattern == SE->loopPosition)
+		{
+			SE->switchToNewPattern();
+		}
 	}
 
 	SE->selectedPlace = 0;
@@ -246,10 +262,15 @@ static  uint8_t functDeleteSlot()
 
 				SE->selectedPattern--;
 			}
+
+			if((SE->selectedPattern != SE->loopPosition) && (SE->loopPosition> SE->selectedPattern))
+			{
+				SE->loopPosition--;
+				SE->showIcon(iconLoop,SE->loopPosition);
+				SE->switchToNewPattern();
+			}
 		}
 	}
-
-
 
 	SE->listPatterns();
 	SE->showPatternsList();
@@ -268,12 +289,16 @@ static  uint8_t functTempo()
 {
 	SE->selectedPlace = 1;
 	SE->activateLabelsBorder();
+
+	return 1;
 }
 
 static  uint8_t functPatternLength()
 {
 	SE->selectedPlace = 2;
 	SE->activateLabelsBorder();
+
+	return 1;
 }
 
 //==============================================================================================================
@@ -362,41 +387,30 @@ static  uint8_t functRight()
 	return 1;
 }
 
-
 static uint8_t functPlayAction()
 {
-	if (SE->songLength == 0)
-	{
-//		sequencer.playPattern();
-
-		if (sequencer.getSeqState() == 0)
-		{
-			sequencer.playPattern();
-		}
-		else if (sequencer.getSeqState() == 1)
-		{
-			sequencer.stop();
-		}
-	}
-	else if (sequencer.getSeqState() == 0)
+	if(sequencer.getSeqState() == 0)
 	{
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
-			sequencer.playSong();
+			sequencer.playSong(SE->selectedPattern);
+			SE->showIcon(iconPlay,SE->selectedPattern);
 		}
 		else
 		{
-			sequencer.playSong(SE->selectedPattern);
-		}
+			SE->switchToNewPattern();
 
+			sequencer.playPattern();
+			SE->loopPosition = SE->selectedPattern;
+			SE->showIcon(iconLoop,SE->selectedPattern);
+		}
 	}
 	else if (sequencer.getSeqState() == 1)
 	{
+		SE->loopPosition = -1;
 		sequencer.stop();
-
+		SE->hideIcon();
 	}
-
-//	display.refreshControl(patternsListControl);
 
 	return 1;
 }
@@ -445,14 +459,15 @@ void cSongEditor::readSong()
 			songLength = i;
 			break;
 		}
-		if(i==SONG_MAX) // nie znaleziono
-		{
-			songLength = 1;
-			selectedPattern = 0;
-		}
 	}
 
+	if((songLength == (SONG_MAX-1)) || (songLength == 0)) // nie znaleziono
+	{
+		songLength = 1;
+		selectedPattern = 0;
 
+		mtProject.mtProjectRemote.song.playlist[0] = 1;
+	}
 
 	if(selectedPattern >= songLength) selectedPattern = 0;
 
@@ -478,38 +493,31 @@ void cSongEditor::listPatterns()
 		{
 			if(i == selectedPattern)
 			{
-				sprintf(&patternsNamesList[i][0],"  %u         < %u >   ",i+1,mtProject.mtProjectRemote.song.playlist[i]);
+				sprintf(&patternsNamesList[i][0],"   %u        < %u >   ",i+1,mtProject.mtProjectRemote.song.playlist[i]);
 			}
 			else
 			{
-				sprintf(&patternsNamesList[i][0],"  %u           %u     ",i+1,mtProject.mtProjectRemote.song.playlist[i]);
+				sprintf(&patternsNamesList[i][0],"   %u          %u     ",i+1,mtProject.mtProjectRemote.song.playlist[i]);
 			}
 		}
 
 		patternNames[i] = &patternsNamesList[i][0];
 	}
-
-	clearPatternMark();
-	patternsNamesList[mtProject.mtProjectRemote.song.playlistPos][CURR_PATTERN_MARK_POS]='*';
 }
 
-void cSongEditor::clearPatternMark()
+void cSongEditor::markCurrentPattern(uint8_t forceRefresh)
 {
-	for(uint32_t i = 0; i < songLength; i++)
+	if(sequencer.ptrPlayer->songMode == 1)
 	{
-		patternsNamesList[i][CURR_PATTERN_MARK_POS] = ' ';
-	}
-}
+		if((mtProject.mtProjectRemote.song.playlistPos != localSongPosition) || forceRefresh)
+		{
+			localSongPosition = mtProject.mtProjectRemote.song.playlistPos;
 
-void cSongEditor::markCurrentPattern()
-{
-	if(mtProject.mtProjectRemote.song.playlistPos != localSongPosition)
-	{
-		clearPatternMark();
-		patternsNamesList[mtProject.mtProjectRemote.song.playlistPos][CURR_PATTERN_MARK_POS] = '*';
-
-		display.setControlValue(patternsListControl, selectedPattern);
-		display.refreshControl(patternsListControl);
+			if(sequencer.getSeqState() == 1)
+			{
+				showIcon(iconPlay,localSongPosition);
+			}
+		}
 	}
 }
 
@@ -579,5 +587,33 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 }
 
+void cSongEditor::handleEntryIcon()
+{
+	if(sequencer.getSeqState() == 0)
+	{
+		hideIcon();
+	}
+	else
+	{
+		if(sequencer.ptrPlayer->songMode == 1)
+		{
+			markCurrentPattern(1);
+		}
+		else
+		{
+			hideIcon();
+		}
+	}
+}
 
+void cSongEditor::switchToNewPattern()
+{
+	fileManager.savePattern(mtProject.values.actualPattern);
 
+	mtProject.values.actualPattern = constrain(
+			mtProject.mtProjectRemote.song.playlist[SE->selectedPattern], PATTERN_INDEX_MIN,
+			PATTERN_INDEX_MAX);
+
+	fileManager.loadPattern(mtProject.values.actualPattern);
+	sequencer.switchNextPatternNow();
+}

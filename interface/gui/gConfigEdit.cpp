@@ -465,7 +465,11 @@ void cConfigEditor::showFirmwareUpdateLabels()
 	}
 
 	display.setControlText(topLabel[0], "Firmware");
-	display.setControlText(topLabel[2], "Update");
+
+	if(firmwareFoundNum)
+	{
+		display.setControlText(topLabel[2], "Update");
+	}
 
 	display.refreshControl(topLabel[0]);
 	display.refreshControl(topLabel[2]);

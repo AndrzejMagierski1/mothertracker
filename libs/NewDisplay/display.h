@@ -39,7 +39,7 @@ const uint32_t controlsRamStartAddress = 100000;
 const uint32_t controlsRamAddressStep = 10000;
 
 const uint8_t displayFontCount = 2;
-const uint8_t displayBitmapsCount = 5;
+const uint8_t displayBitmapsCount = 7;
 
 // NIE-EDITABLE
 const uint8_t controlsRefreshQueueSize = controlsCount+1;
