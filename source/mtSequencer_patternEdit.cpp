@@ -360,6 +360,7 @@ void Sequencer::changeSelectionNote(int16_t value)
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
+	bool blinkFirst = 1;
 
 	strPattern::strTrack::strStep *step;
 
@@ -408,6 +409,15 @@ void Sequencer::changeSelectionNote(int16_t value)
 					step->note = constrain(step->note + value,
 											0,
 											MAX_NOTE_STEP);
+					if (blinkFirst)
+					{
+						blinkFirst = 0;
+						blinkNote(step->instrument,
+									step->note,
+									step->velocity,
+									t);
+
+					}
 				}
 			}
 

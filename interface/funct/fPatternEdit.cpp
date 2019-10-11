@@ -474,35 +474,37 @@ void cPatternEditor::cancelPopups()
 {
 	if(mtPopups.getStepPopupState() != stepPopupNone)
 	{
+		fileManager.storePatternUndoRevision();
+
 		switch (mtPopups.getStepPopupState())
 		{
 		case stepPopupNote:
-			if (!isMultiSelection())
-			{
+//			if (!isMultiSelection())
+//			{
 				sendSelection();
 				sequencer.setSelectionNote(mtProject.values.lastUsedNote);
-			}
+//			}
 			break;
 		case stepPopupVol:
-			if (!isMultiSelection())
-			{
+//			if (!isMultiSelection())
+//			{
 				sendSelection();
 				sequencer.setSelectionVelocity(mtProject.values.lastUsedVolume);
-			}
+//			}
 			break;
 		case stepPopupFx:
-			if (!isMultiSelection())
-			{
+//			if (!isMultiSelection())
+//			{
 				sendSelection();
 				sequencer.setSelectionFxType(mtProject.values.lastUsedFx);
-			}
+//			}
 			break;
 		case stepPopupInstr:
-			if (!isMultiSelection())
-			{
+//			if (!isMultiSelection())
+//			{
 				sendSelection();
 				sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
-			}
+//			}
 			break;
 
 		default:

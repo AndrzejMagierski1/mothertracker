@@ -144,6 +144,7 @@ public:
 			// powiązane z listą tekstów w interfaceDefs.h
 			FX_TYPE_NONE,
 			FX_TYPE_NUDGE,
+			FX_TYPE_zapas1,
 			FX_TYPE_ROLL,
 			FX_TYPE_STEP_CHANCE,
 			FX_TYPE_RANDOM_NOTE,
