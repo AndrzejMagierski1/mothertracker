@@ -12,12 +12,13 @@ public:
 
 	void begin();
 	void update();
-	void setOnDetectFunction(void (*funct)(void));
+	void setOnDetectFunction(void (*funct)(uint8_t));
 
 private:
-	void (*onDetectSD)(void) = nullptr;
-	uint8_t currentState = 0;
-	uint8_t lastState = 0;
+	void (*onChangeSD)(uint8_t) = nullptr;
+	uint8_t currentState = 1;
+	uint8_t lastState = 1;
+	elapsedMillis measureTimer;
 
 };
 

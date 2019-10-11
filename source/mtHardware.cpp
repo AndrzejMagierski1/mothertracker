@@ -53,7 +53,7 @@ void onButtonHold(uint8_t n);
 void onPadPush(uint8_t n);
 void onPadRelease(uint8_t n);
 void onPadHold(uint8_t n);
-
+void onSDCardSlotChange(uint8_t n);
 
 void ENC_SW_INT_FUNCT() { }
 
@@ -221,11 +221,14 @@ void initHardware()
 	//attachInterrupt(TACT_SWITCH, TactSwitchAction, FALLING);
 
 	hid.set_sendButtonState(hidSendButtonState);
+	sdCardDetector.setOnDetectFunction(onSDCardSlotChange);
 	sdCardDetector.begin();
 
 	midiInit();
 
 	BlinkLed.blinkOnce();
+
+
 
 
 }
