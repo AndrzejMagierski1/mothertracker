@@ -1267,7 +1267,7 @@ static  uint8_t functUp()
 			PTE->trackerPattern.selectStartStep = 0;
 			PTE->trackerPattern.selectStartTrack = 0;
 			PTE->trackerPattern.selectEndStep = PTE->trackerPattern.patternLength-1;
-			PTE->trackerPattern.selectEndTrack = 8;
+			PTE->trackerPattern.selectEndTrack = Sequencer::MAXTRACK;
 			PTE->trackerPattern.selectState = 2;
 			PTE->isSelectingNow = 1;
 		}
