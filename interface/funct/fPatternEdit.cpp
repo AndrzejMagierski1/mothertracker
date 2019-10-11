@@ -174,7 +174,6 @@ void cPatternEditor::stop()
 
 void cPatternEditor::setDefaultScreenFunct()
 {
-
 	//funkcje
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
@@ -375,9 +374,7 @@ void cPatternEditor::refreshPattern()
 		}
 	}
 
-
 	display.refreshControl(patternControl);
-
 }
 
 char getHexFromInt(int16_t val, uint8_t index)
@@ -746,11 +743,11 @@ void cPatternEditor::changeFillData(int16_t value)
 		break;
 	case 1:
 		ptrVal = &fillData[editParam].from;
-		max = (trackerPattern.selectedParam == 1 ? 48 : 127);
+		max = (trackerPattern.selectedParam == 1 ? 47 : 127);
 		break;
 	case 2:
 		ptrVal = &fillData[editParam].to;
-		max = (editParam == 1 ? 48 : 127);
+		max = (editParam == 1 ? 47 : 127);
 		break;
 	case 3:
 		ptrVal = &fillData[editParam].param;
@@ -782,7 +779,6 @@ void cPatternEditor::changeFillData(int16_t value)
 	}
 }
 
-
 void cPatternEditor::changeRandomiseData(int16_t value)
 {
 	if(randomisePlace < 1 && randomisePlace > 5)
@@ -797,11 +793,11 @@ void cPatternEditor::changeRandomiseData(int16_t value)
 	{
 	case 1:
 		ptrVal = &randomiseData[editParam].from;
-		max = (trackerPattern.selectedParam == 1 ? 48 : 127);
+		max = (trackerPattern.selectedParam == 1 ? 47 : 127);
 		break;
 	case 2:
 		ptrVal = &randomiseData[editParam].to;
-		max = (editParam == 1 ? 48 : 127);
+		max = (editParam == 1 ? 47 : 127);
 		break;
 	case 3:
 		ptrVal = &randomiseData[editParam].param;
@@ -821,6 +817,85 @@ void cPatternEditor::changeRandomiseData(int16_t value)
 	if(*ptrVal + value < min) *ptrVal = min;
 	else if(*ptrVal + value > max) *ptrVal = max;
 	else *ptrVal += value;
+
+	switch(randomisePlace)
+	{
+		case 1:  refreshRandomiseFrom(); 	break;
+		case 2:  refreshRandomiseTo(); 		break;
+		case 3:  refreshRandomiseParam();	break;
+		case 5:  refreshRandomiseStep(); 	break;
+		default: return;
+	}
+}
+//TODO
+void cPatternEditor::changneFillDataByPad(uint8_t pad)
+{
+	switch(fillPlace)
+	{
+	case 1:
+	{
+		if(editParam == 0) 		fillData[editParam].from = mtPadBoard.getNoteFromPad(pad);
+		else if(editParam == 1) fillData[editParam].from = pad;
+		else 					fillData[editParam].from = map(pad,0,47,0,127);
+		break;
+	}
+	case 2:
+	{
+		if(editParam == 0) 		fillData[editParam].to = mtPadBoard.getNoteFromPad(pad);
+		else if(editParam == 1) fillData[editParam].to = pad;
+		else 					fillData[editParam].to = map(pad,0,47,0,127);
+		break;
+	}
+	case 3:
+	{
+		if(editParam == 3) fillData[editParam].param = pad;
+		break;
+	}
+	case 5:
+	{
+		if(pad > PATTERN_EDIT_STEP_MAX) fillStep = PATTERN_EDIT_STEP_MAX;
+		else fillStep = pad;
+		break;
+	}
+	default: break;
+	}
+
+	switch(fillPlace)
+	{
+		case 0:  refreshFillType(); break;
+		case 1:  refreshFillFrom(); break;
+		case 2:  refreshFillTo(); break;
+		case 3:  refreshFillParam(); break;
+		case 5:  refreshFillStep(); break;
+		default: return;
+	}
+}
+
+void cPatternEditor::changneRandomiseDataByPad(uint8_t pad)
+{
+	switch(randomisePlace)
+	{
+	case 1:
+	{
+		if(editParam == 0) 		randomiseData[editParam].from = mtPadBoard.getNoteFromPad(pad);
+		else if(editParam == 1) randomiseData[editParam].from = pad;
+		else 					randomiseData[editParam].from = map(pad,0,47,0,127);
+		break;
+	}
+	case 2:
+	{
+		if(editParam == 0) 		randomiseData[editParam].to = mtPadBoard.getNoteFromPad(pad);
+		else if(editParam == 1) randomiseData[editParam].to = pad;
+		else 					randomiseData[editParam].to = map(pad,0,47,0,127);
+		break;
+	}
+	case 3:
+	{
+		if(editParam == 3) randomiseData[editParam].param = pad;
+		break;
+	}
+	default: break;
+	}
 
 	switch(randomisePlace)
 	{
@@ -2501,10 +2576,12 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	//obluga popupow fill/randomise
 	if(PTE->fillState > 0)
 	{
+		if(state == buttonPress) PTE->changneFillDataByPad(pad);
 		return 1;
 	}
 	if(PTE->randomiseState > 0)
 	{
+		if(state == buttonPress) PTE->changneRandomiseDataByPad(pad);
 		return 1;
 	}
 

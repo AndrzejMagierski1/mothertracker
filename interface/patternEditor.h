@@ -68,6 +68,11 @@ public:
 
 	void changeFillData(int16_t value);
 	void changeRandomiseData(int16_t value);
+	void setFillData(uint16_t value);
+	void setRandomiseData(uint16_t value);
+
+	void changneFillDataByPad(uint8_t pad);
+	void changneRandomiseDataByPad(uint8_t pad);
 
 	void refreshEditState();
 
