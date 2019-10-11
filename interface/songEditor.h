@@ -93,7 +93,7 @@ public:
 //--------------------------------------------------------------
 
 	//Icons
-	int16_t iconPos = -1;
+	int16_t loopPosition = -1;
 	void showIcon(icon_t iconType,uint8_t position);
 	void hideIcon();
 	void handleEntryIcon();

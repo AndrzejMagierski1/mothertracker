@@ -63,6 +63,7 @@ void cSongEditor::update()
 void cSongEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
+	loopPosition = -1;
 
 
 	readSong();
@@ -70,7 +71,7 @@ void cSongEditor::start(uint32_t options)
 
 	showPatternsList();
 
-	iconPos = -1;
+
 
 
 
@@ -159,7 +160,7 @@ static  uint8_t functIncPattern()
 	{
 		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] += 1;
 
-		if(SE->selectedPattern == SE->iconPos)
+		if(SE->selectedPattern == SE->loopPosition)
 		{
 			SE->switchToNewPattern();
 		}
@@ -184,7 +185,7 @@ static  uint8_t functDecPattern()
 	{
 		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] -= 1;
 
-		if(SE->selectedPattern == SE->iconPos)
+		if(SE->selectedPattern == SE->loopPosition)
 		{
 			SE->switchToNewPattern();
 		}
@@ -261,12 +262,14 @@ static  uint8_t functDeleteSlot()
 
 				SE->selectedPattern--;
 			}
-		}
-	}
 
-	if(SE->selectedPattern != SE->iconPos)
-	{
-		SE->showIcon(iconLoop,SE->selectedPattern);
+			if((SE->selectedPattern != SE->loopPosition) && (SE->loopPosition> SE->selectedPattern))
+			{
+				SE->loopPosition--;
+				SE->showIcon(iconLoop,SE->loopPosition);
+				SE->switchToNewPattern();
+			}
+		}
 	}
 
 	SE->listPatterns();
@@ -398,11 +401,13 @@ static uint8_t functPlayAction()
 			SE->switchToNewPattern();
 
 			sequencer.playPattern();
+			SE->loopPosition = SE->selectedPattern;
 			SE->showIcon(iconLoop,SE->selectedPattern);
 		}
 	}
 	else if (sequencer.getSeqState() == 1)
 	{
+		SE->loopPosition = -1;
 		sequencer.stop();
 		SE->hideIcon();
 	}
