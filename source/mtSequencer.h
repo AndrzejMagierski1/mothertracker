@@ -674,6 +674,7 @@ public:
 	void changeSelectionInstrument(int16_t value);
 	void setSelectionInstrument(int16_t value);
 	void setSelectionVelocity(int16_t value);
+	void setSelectionNote(int16_t value);
 
 	void setPerformanceStutter(uint8_t track, int8_t stutter);
 	void setPerformancePlayMode(uint8_t track, int8_t stutter);

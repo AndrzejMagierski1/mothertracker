@@ -681,11 +681,6 @@ void Sequencer::setSelectionVelocity(int16_t value)
 								step->velocity,
 								t);
 				}
-//				else if (step->note == STEP_NOTE_EMPTY)
-//				{
-//					step->note = STEP_NOTE_DEFAULT;
-//					step->instrument = mtProject.values.lastUsedInstrument;
-//				}
 				return;
 			}
 			else
@@ -695,6 +690,38 @@ void Sequencer::setSelectionVelocity(int16_t value)
 					step->velocity = value;
 
 				}
+			}
+		}
+	}
+}
+void Sequencer::setSelectionNote(int16_t value)
+{
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep;
+				s <= sel->lastStep;
+				s++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+
+			if (isSingleSelection(sel))
+			{
+				step->note = value;
+
+				if (step->note >= 0)
+				{
+					blinkNote(step->instrument,
+								step->note,
+								step->velocity,
+								t);
+				}
+				return;
 			}
 		}
 	}

@@ -474,6 +474,41 @@ void cPatternEditor::cancelPopups()
 {
 	if(mtPopups.getStepPopupState() != stepPopupNone)
 	{
+		switch (mtPopups.getStepPopupState())
+		{
+		case stepPopupNote:
+			if (!isMultiSelection())
+			{
+				sendSelection();
+				sequencer.setSelectionNote(mtProject.values.lastUsedNote);
+			}
+			break;
+		case stepPopupVol:
+			if (!isMultiSelection())
+			{
+				sendSelection();
+				sequencer.setSelectionVelocity(mtProject.values.lastUsedVolume);
+			}
+			break;
+		case stepPopupFx:
+			if (!isMultiSelection())
+			{
+				sendSelection();
+				sequencer.setSelectionFxType(mtProject.values.lastUsedFx);
+			}
+			break;
+		case stepPopupInstr:
+			if (!isMultiSelection())
+			{
+				sendSelection();
+				sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
+			}
+			break;
+
+		default:
+			break;
+		}
+
 		mtPopups.hideStepPopups();
 		setDefaultScreenFunct();
 		showDefaultScreen();
@@ -488,6 +523,11 @@ void cPatternEditor::cancelPopups()
 		{
 			functRandomise();
 		}
+		refreshPattern();
+
+
+
+
 	}
 }
 
@@ -2613,7 +2653,7 @@ static uint8_t functSwitchModule(uint8_t button)
 		Sequencer::strPattern* seq = sequencer.getPatternToUI();
 		Sequencer::strPattern::strTrack::strStep *actualStep = &seq->track[PTE->trackerPattern.actualTrack].
 				step[PTE->trackerPattern.actualStep];
-
+		// todo: lastusedthings
 		if (actualStep->note >= 0)
 		{
 			mtProject.values.lastUsedNote = actualStep->note;
