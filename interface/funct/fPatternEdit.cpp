@@ -101,11 +101,9 @@ void cPatternEditor::update()
 
 	readPatternState();
 
-	if(lastPlayedPattern != mtProject.mtProjectRemote.song.playlist[mtProject.mtProjectRemote.song.playlistPos])
+	if(lastPlayedPattern != mtProject.values.actualPattern)
 	{
-		lastPlayedPattern = mtProject.mtProjectRemote.song.playlist[mtProject.mtProjectRemote.song.playlistPos];
-
-		mtProject.values.actualPattern = mtProject.mtProjectRemote.song.playlist[mtProject.mtProjectRemote.song.playlistPos];
+		lastPlayedPattern = mtProject.values.actualPattern;
 
 		refreshPatternParams();
 	}
