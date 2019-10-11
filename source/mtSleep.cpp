@@ -63,6 +63,7 @@ void disableAll()
     USB0_INTEN = 0;
     USB0_CTL = 0;
 
+    digitalWrite(BLINK_LED,HIGH);
 	audioShield.write(0x30, 0);
 	radio.powerOff();
 	Keypad.disableInterrupt();
