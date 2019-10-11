@@ -52,10 +52,11 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 
 
+
 void cSongEditor::update()
 {
 
-	markCurrentPattern();
+	markCurrentPattern(0);
 
 }
 
@@ -68,6 +69,8 @@ void cSongEditor::start(uint32_t options)
 
 
 	showPatternsList();
+
+	iconPos = -1;
 
 
 
@@ -91,12 +94,7 @@ void cSongEditor::start(uint32_t options)
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
-	if(sequencer.getSeqState() == 0)
-	{
-		hideIcon();
-	}
-
-	 //mtProject.mtProjectRemote.song.
+	handleEntryIcon();
 
 }
 
@@ -151,6 +149,8 @@ static  uint8_t functPatternSlot()
 {
 	SE->selectedPlace = 0;
 	SE->activateLabelsBorder();
+
+	return 1;
 }
 
 static  uint8_t functIncPattern()
@@ -158,7 +158,13 @@ static  uint8_t functIncPattern()
 	if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] < 99)
 	{
 		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] += 1;
+
+		if(SE->selectedPattern == SE->iconPos)
+		{
+			SE->switchToNewPattern();
+		}
 	}
+
 
 	SE->selectedPlace = 0;
 
@@ -177,6 +183,11 @@ static  uint8_t functDecPattern()
 	if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern]>1)
 	{
 		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] -= 1;
+
+		if(SE->selectedPattern == SE->iconPos)
+		{
+			SE->switchToNewPattern();
+		}
 	}
 
 	SE->selectedPlace = 0;
@@ -253,7 +264,10 @@ static  uint8_t functDeleteSlot()
 		}
 	}
 
-
+	if(SE->selectedPattern != SE->iconPos)
+	{
+		SE->showIcon(iconLoop,SE->selectedPattern);
+	}
 
 	SE->listPatterns();
 	SE->showPatternsList();
@@ -272,12 +286,16 @@ static  uint8_t functTempo()
 {
 	SE->selectedPlace = 1;
 	SE->activateLabelsBorder();
+
+	return 1;
 }
 
 static  uint8_t functPatternLength()
 {
 	SE->selectedPlace = 2;
 	SE->activateLabelsBorder();
+
+	return 1;
 }
 
 //==============================================================================================================
@@ -366,7 +384,6 @@ static  uint8_t functRight()
 	return 1;
 }
 
-
 static uint8_t functPlayAction()
 {
 	if(sequencer.getSeqState() == 0)
@@ -378,6 +395,8 @@ static uint8_t functPlayAction()
 		}
 		else
 		{
+			SE->switchToNewPattern();
+
 			sequencer.playPattern();
 			SE->showIcon(iconLoop,SE->selectedPattern);
 		}
@@ -430,31 +449,20 @@ void cSongEditor::readSong()
 {
 	for(uint8_t i=0;i<SONG_MAX;i++)
 	{
-		uint8_t breakFlag = 0;
 		if(mtProject.mtProjectRemote.song.playlist[i] == 0)
 		{
 			songLength = i;
-			breakFlag = 1;
-		}
-		if((i == SONG_MAX) || (i == 0)) // nie znaleziono
-		{
-			songLength = 1;
-
-			selectedPattern = 0;
-
-			if((i == 0) && (mtProject.mtProjectRemote.song.playlist[i] == 0))
-			{
-				mtProject.mtProjectRemote.song.playlist[i] = 1;
-			}
-		}
-
-		if(breakFlag)
-		{
 			break;
 		}
 	}
 
+	if((songLength == (SONG_MAX-1)) || (songLength == 0)) // nie znaleziono
+	{
+		songLength = 1;
+		selectedPattern = 0;
 
+		mtProject.mtProjectRemote.song.playlist[0] = 1;
+	}
 
 	if(selectedPattern >= songLength) selectedPattern = 0;
 
@@ -492,15 +500,18 @@ void cSongEditor::listPatterns()
 	}
 }
 
-void cSongEditor::markCurrentPattern()
+void cSongEditor::markCurrentPattern(uint8_t forceRefresh)
 {
-	if(mtProject.mtProjectRemote.song.playlistPos != localSongPosition)
+	if(sequencer.ptrPlayer->songMode == 1)
 	{
-		localSongPosition = mtProject.mtProjectRemote.song.playlistPos;
-
-		if(sequencer.getSeqState() == 1)
+		if((mtProject.mtProjectRemote.song.playlistPos != localSongPosition) || forceRefresh)
 		{
-			showIcon(iconPlay,localSongPosition);
+			localSongPosition = mtProject.mtProjectRemote.song.playlistPos;
+
+			if(sequencer.getSeqState() == 1)
+			{
+				showIcon(iconPlay,localSongPosition);
+			}
 		}
 	}
 }
@@ -555,5 +566,33 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	return 1;
 }
 
+void cSongEditor::handleEntryIcon()
+{
+	if(sequencer.getSeqState() == 0)
+	{
+		hideIcon();
+	}
+	else
+	{
+		if(sequencer.ptrPlayer->songMode == 1)
+		{
+			markCurrentPattern(1);
+		}
+		else
+		{
+			hideIcon();
+		}
+	}
+}
 
+void cSongEditor::switchToNewPattern()
+{
+	fileManager.savePattern(mtProject.values.actualPattern);
 
+	mtProject.values.actualPattern = constrain(
+			mtProject.mtProjectRemote.song.playlist[SE->selectedPattern], PATTERN_INDEX_MIN,
+			PATTERN_INDEX_MAX);
+
+	fileManager.loadPattern(mtProject.values.actualPattern);
+	sequencer.switchNextPatternNow();
+}

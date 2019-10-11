@@ -214,6 +214,8 @@ void cSongEditor::showPatternLengthValue()
 
 void cSongEditor::showIcon(icon_t iconType,uint8_t position)
 {
+	iconPos = position;
+
 	patternsList.icon.useSpecialIcons = 1;
 
 	patternsList.icon.iconPositionInList = position;
@@ -225,6 +227,8 @@ void cSongEditor::showIcon(icon_t iconType,uint8_t position)
 
 void cSongEditor::hideIcon()
 {
+	iconPos = -1;
+
 	patternsList.icon.useSpecialIcons = 0;
 	patternsList.icon.iconNum = 0;
 	patternsList.icon.iconPositionInList = 0;
