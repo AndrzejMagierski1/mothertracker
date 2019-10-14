@@ -316,17 +316,15 @@ void updateEncoder()
 
 void TactSwitchRead()
 {
-	if(digitalRead(TACT_SWITCH) == LOW && lastState != LOW)
+	if(digitalRead(TACT_SWITCH) == LOW)
 	{
-		if(digitalRead(TACT_SWITCH) == LOW)
-		{
-			onPowerButtonChange(1);
-			lastState = LOW;
-			while(digitalRead(TACT_SWITCH) == LOW);
-		}
+		onPowerButtonChange(1);
+
+		lastState = LOW;
 	}
 	else
 	{
 		lastState = HIGH;
+		onPowerButtonChange(0);
 	}
 }

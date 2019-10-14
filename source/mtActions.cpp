@@ -55,8 +55,10 @@ void onButtonHold(uint8_t n)
 //-----------------------------------------------------------------
 void onPowerButtonChange(uint8_t value)
 {
-	mtInterface.powerButtonChange(value);
-	if(value == 1 ) changePowerState();
+	//mtInterface.powerButtonChange(value);//?
+
+	changePowerState(value);
+
 //	mtPrint("power button: ");
 //	mtPrintln(value);
 }

@@ -5,10 +5,13 @@
 #include "FT812.h"
 #include "keyScanner.h"
 #include "Si4703.h"
+#include "modulesBase.h"
 
-// for displaying end screen
-#include "FT812.h"
-#include "FT8xx.h"
+hControl turnOffProgressBar = nullptr;
+char turnOffText[20];
+uint32_t firstPressTimestamp;
+uint8_t firstPress;
+elapsedMillis shutdownTimer;
 
 extern AudioControlSGTL5000 audioShield;
 SnoozeDigital digital;
@@ -17,31 +20,63 @@ SnoozeBlock config(digital);
 uint8_t powerChanged;
 uint8_t powerState = powerTypeNormal;
 
-static void countDownDisplay();
+static void initDisplayCountDown();
+static void refreshDisplayCountDown(uint16_t timeLeft_ms);
+static void deinitDisplayCountDown();
+
 static void resetMCU();
 
-void goLowPower()
+void goLowPower(uint8_t value)
 {
-	countDownDisplay();
-	disableAll();
-	Snooze.sleep(config);
-	powerState=powerTypeLow;
-	powerChanged=1;
-	noInterrupts();
+	if(value == 1) // pressed
+	{
+		if(firstPress == 0)
+		{
+			firstPressTimestamp = shutdownTimer;
+			initDisplayCountDown();
+			firstPress = 1;
+		}
+
+		int32_t timeToShutdown_ms = 0;
+
+		timeToShutdown_ms = (TURN_OFF_TIME_MS - (shutdownTimer - firstPressTimestamp));
+
+		refreshDisplayCountDown(timeToShutdown_ms);
+
+		if(timeToShutdown_ms <= 0)
+		{
+			disableAll();
+			Snooze.sleep(config);
+			powerState=powerTypeLow;
+			powerChanged=1;
+			noInterrupts();
+		}
+	}
+	else
+	{
+		if(firstPress)
+		{
+			firstPress = 0;
+			deinitDisplayCountDown();
+		}
+	}
 }
 
-void wakeUp()
+void wakeUp(uint8_t value)
 {
-	interrupts();
-	Snooze.wakeUp(config);
-	powerState=powerTypeNormal;
-	powerChanged=1;
+	if(value)
+	{
+		interrupts();
+		Snooze.wakeUp(config);
+		powerState=powerTypeNormal;
+		powerChanged=1;
+	}
 }
 
-void changePowerState()
+void changePowerState(uint8_t value)
 {
-	if(powerState == powerTypeLow) 					wakeUp();
-	else if (powerState == powerTypeNormal)			goLowPower();
+	if(powerState == powerTypeLow) 					wakeUp(value);
+	else if (powerState == powerTypeNormal)			goLowPower(value);
 }
 
 
@@ -99,38 +134,39 @@ static void resetMCU()
 	}
 }
 
-static void countDownDisplay()
+static void initDisplayCountDown()
 {
-	uint32_t elapsedTime = 0;
-	uint32_t startTime = millis();
-	int32_t toGo;
+	strControlProperties prop;
 
-	char text[30];
+	prop.x = 190;
+	prop.y = 170;
+	prop.style = controlStyleValue_0_100;
+	prop.h = 100;
+	prop.w = 420;
+	prop.text = (char*)"loading...";
 
-	while(true)
-	{
-		API_LIB_BeginCoProList();
-		API_CMD_DLSTART();
-		API_VERTEX_FORMAT(0);
-		API_CLEAR_COLOR(0);
-		API_CLEAR(1,1,1);
+	if(turnOffProgressBar == nullptr)  turnOffProgressBar = display.createControl<cHorizontalBar>(&prop);
+}
 
-		elapsedTime = (millis() - startTime)/1000; // calculate and convert to seconds
+static void refreshDisplayCountDown(uint16_t timeLeft_ms)
+{
+	uint32_t progress = 0;
+	uint8_t timeLeft_s = 0;
+	progress = ((timeLeft_ms * 100)/TURN_OFF_TIME_MS);
 
-		toGo = (TURN_OFF_TIME_S - elapsedTime);
+	timeLeft_s = ceil((timeLeft_ms/1000.0f));
 
-		sprintf(text, "Turning off in: %d", (int)toGo);
+	sprintf(turnOffText, "Shutdown in %ds", timeLeft_s);
 
-		API_CMD_TEXT(400, 220 , 30, OPT_CENTERX, text);
+	display.setControlValue(turnOffProgressBar, progress);
+	display.setControlText(turnOffProgressBar, turnOffText);
+	display.setControlShow(turnOffProgressBar);
+	display.refreshControl(turnOffProgressBar);
+}
 
-		API_DISPLAY();
-		API_CMD_SWAP();
-		API_LIB_EndCoProList();
-
-		if(toGo <= 0)
-		{
-			break;
-		}
-	}
+static void deinitDisplayCountDown()
+{
+	display.destroyControl(turnOffProgressBar);
+	turnOffProgressBar = nullptr;
 }
 
