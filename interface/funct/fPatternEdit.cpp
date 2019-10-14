@@ -51,6 +51,7 @@ static  uint8_t functRandomiseChangeParam4();
 
 static  uint8_t functInvert();
 static  uint8_t functTranspose();
+static  uint8_t functUndo();
 
 
 static  uint8_t functLeft();
@@ -201,7 +202,7 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonPattern, functPattern);
 
 
-	FM->setButtonObj(interfaceButton0, functChangeTempo);
+	FM->setButtonObj(interfaceButton0, buttonPress, functUndo);
 	FM->setButtonObj(interfaceButton1, functChangePattern);
 	FM->setButtonObj(interfaceButton2, functChangePatternLength);
 	FM->setButtonObj(interfaceButton3, functChangePatternEditStep);
@@ -309,6 +310,22 @@ void cPatternEditor::refreshPattern()
 				trackerPattern.track[i].row[j].note[3] = 0;
 				showInstrument = 0;
 			}
+			else if (seq->track[i].step[patternPosition - 7 + j].note == Sequencer::STEP_NOTE_CUT)
+			{
+				trackerPattern.track[i].row[j].note[0] = 'C';
+				trackerPattern.track[i].row[j].note[1] = 'U';
+				trackerPattern.track[i].row[j].note[2] = 'T';
+				trackerPattern.track[i].row[j].note[3] = 0;
+				showInstrument = 0;
+			}
+			else if (seq->track[i].step[patternPosition - 7 + j].note == Sequencer::STEP_NOTE_FADE)
+			{
+				trackerPattern.track[i].row[j].note[0] = 'F';
+				trackerPattern.track[i].row[j].note[1] = 'A';
+				trackerPattern.track[i].row[j].note[2] = 'D';
+				trackerPattern.track[i].row[j].note[3] = 0;
+				showInstrument = 0;
+			}
 
 			if (showInstrument)
 			{
@@ -410,7 +427,7 @@ void cPatternEditor::readPatternState()
 
 
 	trackerPattern.patternLength = seq->track[0].length+1;
-	trackerPattern.playheadPosition = sequencer.ptrPlayer->row[0].actual_pos;
+	trackerPattern.playheadPosition = sequencer.ptrPlayer->track[0].actual_pos;
 
 
 }
@@ -479,6 +496,43 @@ void cPatternEditor::cancelPopups()
 {
 	if(mtPopups.getStepPopupState() != stepPopupNone)
 	{
+		fileManager.storePatternUndoRevision();
+
+		switch (mtPopups.getStepPopupState())
+		{
+		case stepPopupNote:
+//			if (!isMultiSelection())
+//			{
+				sendSelection();
+				sequencer.setSelectionNote(mtProject.values.lastUsedNote);
+//			}
+			break;
+		case stepPopupVol:
+//			if (!isMultiSelection())
+//			{
+				sendSelection();
+				sequencer.setSelectionVelocity(mtProject.values.lastUsedVolume);
+//			}
+			break;
+		case stepPopupFx:
+//			if (!isMultiSelection())
+//			{
+				sendSelection();
+				sequencer.setSelectionFxType(mtProject.values.lastUsedFx);
+//			}
+			break;
+		case stepPopupInstr:
+//			if (!isMultiSelection())
+//			{
+				sendSelection();
+				sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
+//			}
+			break;
+
+		default:
+			break;
+		}
+
 		mtPopups.hideStepPopups();
 		setDefaultScreenFunct();
 		showDefaultScreen();
@@ -493,6 +547,11 @@ void cPatternEditor::cancelPopups()
 		{
 			functRandomise();
 		}
+		refreshPattern();
+
+
+
+
 	}
 }
 
@@ -523,7 +582,7 @@ void cPatternEditor::changeActualTempo(int16_t value)
 	else if(pattern->tempo+value > 1000) pattern->tempo = 400;
 	else  pattern->tempo += value;
 
-	showTempo();
+//	showTempo();
 }
 
 void cPatternEditor::changeActualPattern(int16_t value)
@@ -1312,7 +1371,7 @@ static  uint8_t functUp()
 			PTE->trackerPattern.selectStartStep = 0;
 			PTE->trackerPattern.selectStartTrack = 0;
 			PTE->trackerPattern.selectEndStep = PTE->trackerPattern.patternLength-1;
-			PTE->trackerPattern.selectEndTrack = 7;
+			PTE->trackerPattern.selectEndTrack = Sequencer::MAXTRACK;
 			PTE->trackerPattern.selectState = 2;
 			PTE->isSelectingNow = 1;
 		}
@@ -2432,6 +2491,22 @@ static uint8_t functTranspose()
 	//--------------------------------------------------------
 	return 1;
 }
+//##############################################################################################
+//###############################            UNDO		   #################################
+//##############################################################################################
+static uint8_t functUndo()
+{
+	if (tactButtons.isButtonPressed(interfaceButtonShift))
+	{
+		fileManager.redoPattern();
+	}
+	else
+	{
+		fileManager.undoPattern();
+	}
+	PTE->refreshPattern();
+	return 1;
+}
 
 
 
@@ -2593,8 +2668,8 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		switch (PTE->selectedPlace)
 		{
 		case 0:
-			sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
-			PTE->showTempo();
+//			sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
+//			PTE->showTempo();
 			break;
 		case 1:
 			PTE->setActualPattern(pad+1);
@@ -2784,7 +2859,7 @@ static uint8_t functSwitchModule(uint8_t button)
 		Sequencer::strPattern* seq = sequencer.getPatternToUI();
 		Sequencer::strPattern::strTrack::strStep *actualStep = &seq->track[PTE->trackerPattern.actualTrack].
 				step[PTE->trackerPattern.actualStep];
-
+		// todo: lastusedthings
 		if (actualStep->note >= 0)
 		{
 			mtProject.values.lastUsedNote = actualStep->note;

@@ -16,7 +16,7 @@ public:
 		MINSTEP = 0,
 		MAXSTEP = 127,
 
-		DEFAULT_ROW_LEN = 32,
+//		DEFAULT_ROW_LEN = 32,
 		DEFAULT_ROW_NOTE = 36,
 		DEFAULT_ROW_CHANNEL = 1,
 
@@ -26,6 +26,8 @@ public:
 
 		STEP_NOTE_EMPTY = -1,
 		STEP_NOTE_OFF = -2,
+		STEP_NOTE_CUT = -3,
+		STEP_NOTE_FADE = -4,
 		STEP_NOTE_DEFAULT = 60,
 
 //	static const uint8_t
@@ -112,10 +114,10 @@ public:
 	{
 		PLAYMODE_MIN = 0,
 		PLAYMODE_FORWARD = 0,
-		PLAYMODE_BACKWARD = 1,
-		PLAYMODE_PINGPONG = 2,
-		PLAYMODE_RANDOM = 3,
-		PLAYMODE_POLY = 4,
+		PLAYMODE_BACKWARD,
+		PLAYMODE_RANDOM,
+		PLAYMODE_PINGPONG,
+		PLAYMODE_POLY,
 		PLAYMODE_MAX = 3
 	};
 	enum enTempoDiv
@@ -144,6 +146,7 @@ public:
 			// powiązane z listą tekstów w interfaceDefs.h
 			FX_TYPE_NONE,
 			FX_TYPE_NUDGE,
+			FX_TYPE_zapas1,
 			FX_TYPE_ROLL,
 			FX_TYPE_STEP_CHANCE,
 			FX_TYPE_RANDOM_NOTE,
@@ -240,7 +243,7 @@ public:
 		{
 			uint8_t isOn :1;
 
-			uint8_t length = DEFAULT_ROW_LEN;
+			uint8_t length = MAXSTEP;
 			uint8_t rootNote = DEFAULT_ROW_NOTE;
 			uint8_t trackVelo = MAX_VELO_TRACK;
 			uint8_t defaultMod = DEFAULT_MOD;	// rezerwa1
@@ -315,6 +318,7 @@ public:
 	private:
 
 	strPattern seq[3];
+	Sequencer::strPattern *getPattern();
 
 //	strPattern::strTrack copyTrackBuffer[8];
 
@@ -539,7 +543,10 @@ public:
 
 			bool divChange = 0;
 
-		} row[MAXTRACK + 1];
+			int8_t performanceStutter = 0;
+			int8_t performancePlayMode = 0;
+
+		} track[MAXTRACK + 1];
 
 		void (*onPatternEnd)(void) = NULL;
 
@@ -670,6 +677,10 @@ public:
 	void changeSelectionInstrument(int16_t value);
 	void setSelectionInstrument(int16_t value);
 	void setSelectionVelocity(int16_t value);
+	void setSelectionNote(int16_t value);
+
+	void setPerformanceStutter(uint8_t track, int8_t stutter);
+	void setPerformancePlayMode(uint8_t track, int8_t stutter);
 
 	void clearRow(uint8_t row);
 	void clearRow(uint8_t row, uint8_t bank);

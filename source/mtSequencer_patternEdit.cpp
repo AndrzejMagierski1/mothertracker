@@ -9,7 +9,6 @@
 #include "keyScanner.h"
 extern Sequencer sequencer;
 
-
 void fromToSwap(uint8_t & from, uint8_t & to)
 {
 	if (to < from)
@@ -336,24 +335,23 @@ void Sequencer::invertSelectedSteps()
 void Sequencer::loadDefaultTrack(uint8_t row, uint8_t bank)
 {
 
+	seq[bank].track[row].length = MAXSTEP;
+	seq[bank].track[row].rootNote = DEFAULT_ROW_NOTE;
+	seq[bank].track[row].trackVelo = MAX_VELO_TRACK;
+	seq[bank].track[row].defaultMod = DEFAULT_MOD;
+	seq[bank].track[row].channel = DEFAULT_ROW_CHANNEL;
+	seq[bank].track[row].cc = DEFAULT_CC;
+	seq[bank].track[row].isOn = 1;
+	seq[bank].track[row].trackScale = 0;
+	seq[bank].track[row].midiOut = MIDIOUT_USB;
+	seq[bank].track[row].playMode = PLAYMODE_FORWARD;
+	seq[bank].track[row].gateMode = GATEMODE.NORMAL;
+	seq[bank].track[row].tempoDiv = TEMPODIV_1_1;
+	seq[bank].track[row].channelIn = CHANNEL_IN_ALL;
+	seq[bank].track[row].rezerwa4 = 0;
+
 	for (uint8_t x = 0; x <= MAXSTEP; x++)
 	{
-		seq[bank].track[row].length = DEFAULT_ROW_LEN;
-		seq[bank].track[row].rootNote = DEFAULT_ROW_NOTE;
-		seq[bank].track[row].trackVelo = MAX_VELO_TRACK;
-		seq[bank].track[row].defaultMod = DEFAULT_MOD;
-		seq[bank].track[row].channel = DEFAULT_ROW_CHANNEL;
-		seq[bank].track[row].cc = DEFAULT_CC;
-//		seq[bank].row[row].flags = 1;
-		seq[bank].track[row].isOn = 1;
-		seq[bank].track[row].trackScale = 0;
-		seq[bank].track[row].midiOut = MIDIOUT_USB;
-		seq[bank].track[row].playMode = PLAYMODE_FORWARD;
-		seq[bank].track[row].gateMode = GATEMODE.NORMAL;
-		seq[bank].track[row].tempoDiv = TEMPODIV_1_1;
-		seq[bank].track[row].channelIn = CHANNEL_IN_ALL;
-		seq[bank].track[row].rezerwa4 = 0;
-
 		clearStep(x, row, bank);
 	}
 }
@@ -362,6 +360,7 @@ void Sequencer::changeSelectionNote(int16_t value)
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
+	bool blinkFirst = 1;
 
 	strPattern::strTrack::strStep *step;
 
@@ -384,13 +383,13 @@ void Sequencer::changeSelectionNote(int16_t value)
 				{
 					step->instrument = mtProject.values.lastUsedInstrument;
 					step->note = constrain(step->note + value,
-											-2,
+											-4,
 											MAX_NOTE_STEP);
 				}
 				else
 				{
 					step->note = constrain(step->note + value,
-											-2,
+											-4,
 											MAX_NOTE_STEP);
 				}
 
@@ -410,6 +409,15 @@ void Sequencer::changeSelectionNote(int16_t value)
 					step->note = constrain(step->note + value,
 											0,
 											MAX_NOTE_STEP);
+					if (blinkFirst)
+					{
+						blinkFirst = 0;
+						blinkNote(step->instrument,
+									step->note,
+									step->velocity,
+									t);
+
+					}
 				}
 			}
 
@@ -599,7 +607,7 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 				if (step->note >= 0)
 				{
 					step->instrument = constrain(step->instrument + value,
-													INSTRUMENTS_COUNT + 1,
+													0,
 													INSTRUMENTS_COUNT + 1 + 16);
 				}
 
@@ -683,11 +691,6 @@ void Sequencer::setSelectionVelocity(int16_t value)
 								step->velocity,
 								t);
 				}
-//				else if (step->note == STEP_NOTE_EMPTY)
-//				{
-//					step->note = STEP_NOTE_DEFAULT;
-//					step->instrument = mtProject.values.lastUsedInstrument;
-//				}
 				return;
 			}
 			else
@@ -697,6 +700,38 @@ void Sequencer::setSelectionVelocity(int16_t value)
 					step->velocity = value;
 
 				}
+			}
+		}
+	}
+}
+void Sequencer::setSelectionNote(int16_t value)
+{
+
+	strSelection *sel = &selection;
+	if (!isSelectionCorrect(sel)) return;
+
+	strPattern::strTrack::strStep *step;
+
+	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+	{
+		for (uint8_t s = sel->firstStep;
+				s <= sel->lastStep;
+				s++)
+		{
+			step = &seq[player.ramBank].track[t].step[s];
+
+			if (isSingleSelection(sel))
+			{
+				step->note = value;
+
+				if (step->note >= 0)
+				{
+					blinkNote(step->instrument,
+								step->note,
+								step->velocity,
+								t);
+				}
+				return;
 			}
 		}
 	}
