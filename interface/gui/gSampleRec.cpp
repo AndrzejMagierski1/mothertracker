@@ -744,9 +744,7 @@ void cSampleRecorder::showPreviewValue()
 
 	if(playTimeValue >= (localEndPoint - 0.01)) playTimeValue = localEndPoint;
 
-	sprintf(playTimeValueText,"%.3f",playTimeValue);
-	playTimeValueText[strlen(playTimeValueText)]='s';
-
+	sprintf(playTimeValueText,"%.3f s",playTimeValue);
 
 	display.setControlText(topLabel[0], playTimeValueText);
 	display.setControlShow(topLabel[0]);

@@ -2206,7 +2206,8 @@ void cSampleRecorder::calcPlayProgressValue()
 	{
 		refreshPlayProgressValue = 0;
 
-		playProgressValue = instrumentPlayer[0].getWavePosition();
+		playProgressValue = (uint16_t)((instrumentPlayer[0].getWavePosition() * ((endPoint - startPoint) / (float)MAX_16BIT)) + startPoint);
+
 
 		if(zoom.zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
 		else if(zoom.zoomValue > 1.0)
