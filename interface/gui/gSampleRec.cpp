@@ -67,6 +67,21 @@ uint32_t radioLabelColors[3]=
 
 void cSampleRecorder::initDisplayControls()
 {
+
+	strControlProperties prop9;
+
+	prop9.x = 400;
+	prop9.colors = popUpLabelColors;
+//	prop.colors = &color[0];
+	prop9.y = 350;
+	//prop.w = 800/4-10;
+//	prop9.style = controlStyleValue_0_100;
+	prop9.h = 100;
+	prop9.w = 800-(10);
+	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
+	prop9.text = "Changes will be lost. Do you want to continue?";
+	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop9);
+
 	strControlProperties prop2;
 	prop2.style = 	( controlStyleShow | controlStyleCenterY);
 	prop2.x = 30;
@@ -204,19 +219,6 @@ void cSampleRecorder::initDisplayControls()
 //	prop.text = "loading...";
 	if(saveHorizontalBarControl == nullptr)  saveHorizontalBarControl = display.createControl<cHorizontalBar>(&prop8);
 
-	strControlProperties prop9;
-
-	prop9.x = 400;
-	prop9.colors = popUpLabelColors;
-//	prop.colors = &color[0];
-	prop9.y = 350;
-	//prop.w = 800/4-10;
-//	prop9.style = controlStyleValue_0_100;
-	prop9.h = 100;
-	prop9.w = 800-(10);
-	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
-	prop9.text = "Changes will be lost. Do you want to continue?";
-	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop9);
 
 
 	strControlProperties prop10;
