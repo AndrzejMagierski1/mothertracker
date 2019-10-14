@@ -206,6 +206,7 @@ void cPatternEditor::initDisplayControls()
 	patternTrackerColors[6] = patternTrackerSelectionColor;
 	prop.colors = (uint32_t*)patternTrackerColors;
 	prop.data = &trackerPattern;
+	prop.value = patternViewMode;
 	if(patternControl == nullptr)  patternControl = display.createControl<cTracker>(&prop);
 	//hTrackControl = display.createControl<cLabel>(&prop);
 	//display.refreshControl(hTrackControl);
@@ -310,7 +311,7 @@ void cPatternEditor::showDefaultScreen()
 	}
 
 	// bottom labels
-	display.setControlText(bottomLabel[0], "Tempo");
+	display.setControlText(bottomLabel[0], "Undo");
 	display.setControlText(bottomLabel[1], "Pattern");
 	display.setControlText(bottomLabel[2], "Length");
 	display.setControlText(bottomLabel[3], "Step");
@@ -324,7 +325,7 @@ void cPatternEditor::showDefaultScreen()
 	display.setControlText(topLabel[6], "");
 	display.setControlText(topLabel[7], "");
 
-	showTempo();
+//	showTempo();
 	showPattern();
 	showLength();
 	showStep();
@@ -405,16 +406,16 @@ void cPatternEditor::hideEditModeLabels()
 }
 
 
-void cPatternEditor::showTempo()
-{
-	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
-
-	//itoa(pattern->tempo, tempo, 10);
-	sprintf(tempo,"%.1f",  pattern->tempo);
-
-	display.setControlText(topLabel[0], tempo);
-	display.refreshControl(topLabel[0]);
-}
+//void cPatternEditor::showTempo()
+//{
+//	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+//
+//	//itoa(pattern->tempo, tempo, 10);
+//	sprintf(tempo,"%.1f",  pattern->tempo);
+//
+//	display.setControlText(topLabel[0], tempo);
+//	display.refreshControl(topLabel[0]);
+//}
 
 void cPatternEditor::showPattern()
 {
@@ -445,7 +446,7 @@ void cPatternEditor::showStep()
 
 void cPatternEditor::refreshPatternParams()
 {
-	showTempo();
+//	showTempo();
 	showPattern();
 	showLength();
 }

@@ -7,6 +7,9 @@
 #define CM4_SCB_AIRCR_VECTKEY_POS 		16
 #define CM4_SCB_AIRCR_SYSRESETREQ_MASK	0x04U
 
+
+#define TURN_OFF_TIME_S					3
+
 void goLowPower();
 void wakeUp();
 void changePowerState();

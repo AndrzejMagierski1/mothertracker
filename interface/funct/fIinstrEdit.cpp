@@ -580,7 +580,7 @@ void cInstrumentEditor::changeFilterCutOff(int16_t value)
 	else if(editorInstrument->cutOff + fVal > MAX_CUTOFF ) editorInstrument->cutOff = MAX_CUTOFF;
 	else editorInstrument->cutOff += fVal;
 
-	display.setBacklightBrightness(map(editorInstrument->cutOff,MIN_CUTOFF,MAX_CUTOFF,0,128));
+//	display.setBacklightBrightness(map(editorInstrument->cutOff,MIN_CUTOFF,MAX_CUTOFF,0,128));
 
 	instrumentPlayer[0].setStatusBytes(CUTOFF_MASK);
 

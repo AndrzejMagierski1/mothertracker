@@ -68,6 +68,11 @@ public:
 
 	void changeFillData(int16_t value);
 	void changeRandomiseData(int16_t value);
+	void setFillData(uint16_t value);
+	void setRandomiseData(uint16_t value);
+
+	void changneFillDataByPad(uint8_t pad);
+	void changneRandomiseDataByPad(uint8_t pad);
 
 	void refreshEditState();
 
@@ -230,8 +235,16 @@ public:
 
 
 
-//-------------------------------------------------------
 
+//-------------------------------------------------------
+// pojedyncze parametry / 8 trackow
+	uint8_t patternViewMode = 0;  // przechowuje bitowo pokazywane parametry dla 8 trackow
+	uint8_t patternViewChanged = 0;
+	uint8_t selectedParams[2];
+
+	uint8_t disabledPatternButtonRelease = 0;
+
+	void setPatternViewMode(uint8_t param);
 
 
 };

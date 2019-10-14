@@ -7,6 +7,15 @@
 
 
 #define LIST_LENGTH_MAX 50
+#define BITMAP_ICON_OFFSET 5
+
+typedef struct
+{
+	uint8_t useSpecialIcons;
+	int8_t iconPositionInList;
+	uint8_t iconNum;
+
+}special_icon_t;
 
 
 struct strList
@@ -17,6 +26,8 @@ struct strList
 
 	uint8_t *selectTab;
 	uint8_t selectionActive;
+
+	special_icon_t icon;
 
 
 	char** data;
