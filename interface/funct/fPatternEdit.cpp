@@ -202,10 +202,9 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonPattern, functPattern);
 
 
-	FM->setButtonObj(interfaceButton0, buttonPress, functUndo);
-	FM->setButtonObj(interfaceButton1, functChangePattern);
-	FM->setButtonObj(interfaceButton2, functChangePatternLength);
-	FM->setButtonObj(interfaceButton3, functChangePatternEditStep);
+	FM->setButtonObj(interfaceButton0, functChangePattern);
+	FM->setButtonObj(interfaceButton1, functChangePatternLength);
+	FM->setButtonObj(interfaceButton2, functChangePatternEditStep);
 
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functFill);
@@ -740,10 +739,11 @@ void cPatternEditor::refreshEditState()
 
 		showEditModeLabels();
 
-		FM->setButtonObj(interfaceButton4, buttonPress, functFill);
-		FM->setButtonObj(interfaceButton5, buttonPress, functRandomise);
-		FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
-		FM->setButtonObj(interfaceButton7, buttonPress, functTranspose);
+		FM->setButtonObj(interfaceButton3, buttonPress, functFill);
+		FM->setButtonObj(interfaceButton4, buttonPress, functRandomise);
+		FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
+		FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
+		FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
 
 		lightUpPadBoard();
 /*
@@ -770,7 +770,7 @@ void cPatternEditor::refreshEditState()
 
 		hideEditModeLabels();
 
-		FM->clearButtonsRange(interfaceButton4, interfaceButton7);
+		FM->clearButtonsRange(interfaceButton3, interfaceButton7);
 
 		padsBacklight.clearAllPads(0, 1, 0);
 
@@ -1146,7 +1146,7 @@ static  uint8_t functShift(uint8_t state)
 			PTE->trackerPattern.selectColumn = 0;
 		}
 
-		if(!PTE->isCursorInSelection())
+		if(PTE->editMode && !PTE->isCursorInSelection())
 		{
 			PTE->trackerPattern.selectState = 1;
 			display.refreshControl(PTE->patternControl);
