@@ -30,6 +30,7 @@ public:
 	void switchModuleByButton(hModule module, uint8_t button);
 	void switchModuleToPrevious(hModule module);
 	int8_t getButtonIndex(uint8_t button);
+	void toggleActiveModule();
 
 	// interfaceMisc.cpp -----------------------------
 	void initStartScreen();

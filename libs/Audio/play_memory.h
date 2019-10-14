@@ -59,6 +59,12 @@ public:
 	void setForcedTune(int8_t value);
 	void setPointsForceFlag();
 	void clearPointsForceFlag();
+	void setGlideForceFlag();
+	void clearGlideForceFlag();
+	void setForcedGlide(uint16_t value);
+	void setFineTuneForceFlag();
+	void clearFineTuneForceFlag();
+	void setForcedFineTune(int8_t value);
 	void setForcedPoints(int32_t sp, int32_t lp1, int32_t lp2, int32_t ep); // -1 nie nadpisuje
 	uint16_t getPosition();
 private:
@@ -90,6 +96,10 @@ private:
 	int8_t currentFineTune;
 	uint8_t tuneForceFlag;
 	uint8_t pointsForceFlag;
+	uint8_t glideForceFlag;
+	uint8_t fineTuneForceFlag;
+
+
 	uint8_t reverseDirectionFlag;
 
 	uint16_t forcedStartPoint;
@@ -97,6 +107,8 @@ private:
 	uint16_t forcedLoopPoint2;
 	uint16_t forcedEndPoint;
 	int8_t forcedTune;
+	uint16_t forcedGlide;
+	int8_t forcedFineTune;
 
 	struct strSamplePoints
 	{

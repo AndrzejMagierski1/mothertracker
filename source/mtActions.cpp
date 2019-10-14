@@ -85,3 +85,9 @@ void onPadHold(uint8_t n)
 {
 	mtInterface.padHold(n);
 }
+
+void onSDCardSlotChange(uint8_t n)
+{
+	if(!n) Serial.println("SD OUT");
+	else Serial.println("SD IN");
+}

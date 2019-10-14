@@ -729,7 +729,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterEnable] = 1;
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterType] = 1;
 
-			currentSeqModValues.filterCutoff = fx_val/(float)MAX_8BIT;
+			currentSeqModValues.filterCutoff = fx_val/(float)127;
 			currentSeqModValues.filterType = bandPass;
 			currentSeqModValues.filterEnable = 1;
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
@@ -751,7 +751,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterEnable] = 1;
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterType] = 1;
 
-			currentSeqModValues.filterCutoff = fx_val/(float)MAX_8BIT;
+			currentSeqModValues.filterCutoff = fx_val/(float)127;
 			currentSeqModValues.filterType = highPass;
 			currentSeqModValues.filterEnable = 1;
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
@@ -773,7 +773,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterEnable] = 1;
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterType] = 1;
 
-			currentSeqModValues.filterCutoff = fx_val/(float)MAX_8BIT;
+			currentSeqModValues.filterCutoff = fx_val/(float)127;
 			currentSeqModValues.filterType = lowPass;
 			currentSeqModValues.filterEnable = 1;
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
@@ -792,17 +792,19 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 		break;
 		case fx_t::FX_TYPE_GLIDE :
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::glide] = 1;
-			currentSeqModValues.glide = map(fx_val,0,MAX_8BIT,GLIDE_MIN,GLIDE_MAX);
-			modGlide(currentSeqModValues.glide);
+			currentSeqModValues.glide = map(fx_val,0,127,GLIDE_MIN,GLIDE_MAX);
+			playMemPtr->setGlideForceFlag();
+			playMemPtr->setForcedGlide(currentSeqModValues.glide);
 		break;
 		case fx_t::FX_TYPE_MICROTUNING :
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::fineTune] = 1;
-			currentSeqModValues.fineTune = map(fx_val,0,MAX_8BIT,MIN_INSTRUMENT_FINETUNE,MAX_INSTRUMENT_FINETUNE);
-			modFineTune(currentSeqModValues.fineTune);
+			currentSeqModValues.fineTune = map(fx_val,0,127,MIN_INSTRUMENT_FINETUNE,MAX_INSTRUMENT_FINETUNE);
+			playMemPtr->setFineTuneForceFlag();
+			playMemPtr->setForcedFineTune(currentSeqModValues.fineTune);
 		break;
 		case fx_t::FX_TYPE_PANNING :
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::panning] = 1;
-			currentSeqModValues.panning = map(fx_val,0,MAX_8BIT,PANNING_MIN,PANNING_MAX);
+			currentSeqModValues.panning = map(fx_val,0,127,PANNING_MIN,PANNING_MAX);
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning])
 			{
 				changePanningPerformanceMode(performanceMod.panning);
@@ -815,10 +817,10 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 		break;
 		case fx_t::FX_TYPE_REVERB_SEND :
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend] = 1;
-			currentSeqModValues.reverbSend = map(fx_val,0,MAX_8BIT,REVERB_SEND_MIN,REVERB_SEND_MAX);
+			currentSeqModValues.reverbSend = map(fx_val,0,127,REVERB_SEND_MIN,REVERB_SEND_MAX);
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
 			{
-				changePanningPerformanceMode(performanceMod.reverbSend);
+				changeReverbSendPerformanceMode(performanceMod.reverbSend);
 			}
 			else
 			{
@@ -831,42 +833,49 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 		case fx_t::FX_TYPE_SAMPLE_START :
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint] = 1;
 			currentSeqModValues.startPoint = map(fx_val,0,127,0,MAX_16BIT);
-			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+			if(mtProject.instrument[currentInstrument_idx].playMode != singleShot)
 			{
-				changeStartPointPerformanceMode(performanceMod.startPoint);
-			}
-			else
-			{
-				if(mtProject.instrument[currentInstrument_idx].playMode != singleShot)
+				uint16_t loopLength = mtProject.instrument[currentInstrument_idx].loopPoint2 - mtProject.instrument[currentInstrument_idx].loopPoint1;
+				if(currentSeqModValues.startPoint > mtProject.instrument[currentInstrument_idx].loopPoint1)
 				{
-					uint16_t loopLength = mtProject.instrument[currentInstrument_idx].loopPoint2 - mtProject.instrument[currentInstrument_idx].loopPoint1;
-					if(currentSeqModValues.startPoint > mtProject.instrument[currentInstrument_idx].loopPoint1)
+					currentSeqModValues.loopPoint1 = currentSeqModValues.startPoint;
+					if(currentSeqModValues.loopPoint1 +  loopLength > mtProject.instrument[currentInstrument_idx].endPoint )
 					{
-						currentSeqModValues.loopPoint1 = currentSeqModValues.startPoint;
-						if(currentSeqModValues.loopPoint1 +  loopLength > mtProject.instrument[currentInstrument_idx].endPoint )
-						{
-							currentSeqModValues.loopPoint2 = mtProject.instrument[currentInstrument_idx].endPoint;
-						}
-						else currentSeqModValues.loopPoint2 = currentSeqModValues.loopPoint1 +  loopLength;
+						currentSeqModValues.loopPoint2 = mtProject.instrument[currentInstrument_idx].endPoint;
+					}
+					else currentSeqModValues.loopPoint2 = currentSeqModValues.loopPoint1 +  loopLength;
 
+					if(!trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+					{
 						playMemPtr->setForcedPoints(currentSeqModValues.startPoint, currentSeqModValues.loopPoint1, currentSeqModValues.loopPoint2, -1);
 						playMemPtr->setPointsForceFlag();
-						trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1] = 1;
-						trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2] = 1;
 					}
-					else
+					trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1] = 1;
+					trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2] = 1;
+				}
+				else
+				{
+					if(!trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
 					{
 						playMemPtr->setForcedPoints(currentSeqModValues.startPoint, -1, -1, -1);
 						playMemPtr->setPointsForceFlag();
 					}
-
 				}
-				else
+			}
+			else
+			{
+				if(!trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
 				{
 					playMemPtr->setForcedPoints(currentSeqModValues.startPoint, -1, -1, -1);
 					playMemPtr->setPointsForceFlag();
 				}
+
 			}
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+			{
+				changeStartPointPerformanceMode(performanceMod.startPoint);
+			}
+
 		break;
 		case fx_t::FX_TYPE_TREMOLO_FAST :
 		break;
@@ -969,10 +978,12 @@ void playerEngine::endFx(uint8_t fx_id)
 		break;
 		case fx_t::FX_TYPE_GLIDE :
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::glide] = 0;
+			playMemPtr->clearGlideForceFlag();
 			modGlide(mtProject.instrument[currentInstrument_idx].glide);
 		break;
 		case fx_t::FX_TYPE_MICROTUNING :
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::fineTune] = 0;
+			playMemPtr->clearFineTuneForceFlag();
 			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
 		break;
 		case fx_t::FX_TYPE_PANNING :
@@ -1558,7 +1569,6 @@ void playerEngine ::changeTunePerformanceMode(int8_t value)
 	{
 		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::tune] = 0;
 		playMemPtr->clearTuneForceFlag(); //blokuje zmiane tuna w playMemory
-		playMemPtr->setForcedTune(127);
 		// brak returna - cwartosc zostala obliczona na podstawie aktualnie aktywnej wartości + value równe 0, wiec wykonanie jej nadpisania nadpisze
 		// oczekiwana wartosc
 	}
