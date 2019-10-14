@@ -585,7 +585,16 @@ void cSongEditor::handleEntryIcon()
 		}
 		else
 		{
-			hideIcon();
+			loopPosition = findSlotWithPattern();
+
+			if(loopPosition >= 0)
+			{
+				showIcon(iconLoop,loopPosition);
+			}
+			else
+			{
+				hideIcon();
+			}
 		}
 	}
 }
@@ -600,4 +609,26 @@ void cSongEditor::switchToNewPattern()
 
 	fileManager.loadPattern(mtProject.values.actualPattern);
 	sequencer.switchNextPatternNow();
+}
+
+int16_t cSongEditor::findSlotWithPattern()
+{
+	int32_t slot = 0;
+	uint8_t foundFlag = 0;
+
+	for(slot = 0; slot < songLength; slot++)
+	{
+		if(mtProject.mtProjectRemote.song.playlist[slot] == mtProject.values.actualPattern)
+		{
+			foundFlag = 1;
+			break;
+		}
+	}
+
+	if(!foundFlag)
+	{
+		slot = -1;
+	}
+
+	return slot;
 }

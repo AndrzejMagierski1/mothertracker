@@ -97,7 +97,7 @@ public:
 	void showIcon(icon_t iconType,uint8_t position);
 	void hideIcon();
 	void handleEntryIcon();
-	int16_t findSlotWithCurrPattern(uint8_t searchDir);
+	int16_t findSlotWithPattern();
 //--------------------------------------------------------------
 
 	void switchToNewPattern();
