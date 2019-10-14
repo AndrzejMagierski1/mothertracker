@@ -44,7 +44,9 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	currentInstr_idx=instr_idx;
 	/*=========================================================================================================================*/
 	/*========================================PRZEPISANIE WARTOSCI ============================================================*/
-	glide=mtProject.instrument[instr_idx].glide;
+	if(!glideForceFlag) glide=mtProject.instrument[instr_idx].glide;
+	else glide = forcedGlide;
+
 	if(!tuneForceFlag) currentTune=mtProject.instrument[instr_idx].tune;
 	else currentTune = forcedTune;
 
@@ -123,10 +125,12 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	/*====================================================PRZELICZENIA=========================================================*/
 	if(mtProject.instrument[instr_idx].fineTune >= 0)
 	{
-		currentFineTune=mtProject.instrument[instr_idx].fineTune;
+		if(!fineTuneForceFlag) currentFineTune=mtProject.instrument[instr_idx].fineTune;
+		else currentFineTune = forcedFineTune;
+
 		if((note + mtProject.instrument[instr_idx].tune + 1) <= MAX_NOTE)
 		{
-			fineTuneControl= mtProject.instrument[instr_idx].fineTune * ((notes[note + currentTune + 1] - notes[note + currentTune]) /MAX_INSTRUMENT_FINETUNE);
+			fineTuneControl= currentFineTune * ((notes[note + currentTune + 1] - notes[note + currentTune]) /MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
@@ -134,7 +138,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	{
 		if((note + mtProject.instrument[instr_idx].tune - 1) >= MIN_NOTE)
 		{
-			fineTuneControl= (0 - mtProject.instrument[instr_idx].fineTune) * ((notes[note + currentTune - 1] - notes[note + currentTune] )/MAX_INSTRUMENT_FINETUNE);
+			fineTuneControl= (0 - currentFineTune) * ((notes[note + currentTune - 1] - notes[note + currentTune] )/MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
@@ -542,7 +546,6 @@ void AudioPlayMemory::clearTuneForceFlag()
 void AudioPlayMemory::setForcedTune(int8_t value)
 {
 	forcedTune = value;
-	if(value == 127) forcedTune = mtProject.instrument[currentInstr_idx].tune;
 }
 
 void AudioPlayMemory::setPointsForceFlag()
@@ -552,6 +555,32 @@ void AudioPlayMemory::setPointsForceFlag()
 void AudioPlayMemory::clearPointsForceFlag()
 {
 	pointsForceFlag = 0;
+}
+void AudioPlayMemory::setGlideForceFlag()
+{
+	glideForceFlag = 1;
+}
+void AudioPlayMemory::clearGlideForceFlag()
+{
+	glideForceFlag = 0;
+}
+
+void AudioPlayMemory::setForcedGlide(uint16_t value)
+{
+	forcedGlide = value;
+}
+
+void AudioPlayMemory::setFineTuneForceFlag()
+{
+	fineTuneForceFlag = 1;
+}
+void AudioPlayMemory::clearFineTuneForceFlag()
+{
+	fineTuneForceFlag = 0;
+}
+void AudioPlayMemory::setForcedFineTune(int8_t value)
+{
+	forcedFineTune = value;
 }
 
 void AudioPlayMemory::setForcedPoints(int32_t sp, int32_t lp1, int32_t lp2, int32_t ep)
