@@ -869,7 +869,6 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 					playMemPtr->setForcedPoints(currentSeqModValues.startPoint, -1, -1, -1);
 					playMemPtr->setPointsForceFlag();
 				}
-
 			}
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
 			{
@@ -878,12 +877,40 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 
 		break;
 		case fx_t::FX_TYPE_TREMOLO_FAST :
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp] = 1;
+			currentSeqModValues.tremolo.amount = map(fx_val,0,127,0,4095);
+			currentSeqModValues.tremolo.enable = 1;
+			currentSeqModValues.tremolo.rate = 2048;
+			lfoAmpPtr->init(&currentSeqModValues.tremolo);
+			lfoAmpPtr->start();
 		break;
 		case fx_t::FX_TYPE_TREMOLO_SLOW :
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp] = 1;
+			currentSeqModValues.tremolo.amount = map(fx_val,0,127,0,4095);
+			currentSeqModValues.tremolo.enable = 1;
+			currentSeqModValues.tremolo.rate = 256;
+			lfoAmpPtr->init(&currentSeqModValues.tremolo);
+			lfoAmpPtr->start();
 		break;
 		case fx_t::FX_TYPE_VIBRATO_FAST :
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFineTune] = 1;
+			currentSeqModValues.vibrato.amount = map(fx_val,0,127,0,4095);
+			currentSeqModValues.vibrato.enable = 1;
+			currentSeqModValues.vibrato.rate = 2048;
+			playMemPtr->setFineTuneForceFlag();
+			playMemPtr->setForcedFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
+			lfoPitchPtr->init(&currentSeqModValues.vibrato);
+			lfoPitchPtr->start();
 		break;
 		case fx_t::FX_TYPE_VIBRATO_SLOW :
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFineTune] = 1;
+			currentSeqModValues.vibrato.amount = map(fx_val,0,127,0,4095);
+			currentSeqModValues.vibrato.enable = 1;
+			currentSeqModValues.vibrato.rate = 256;
+			playMemPtr->setFineTuneForceFlag();
+			playMemPtr->setForcedFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
+			lfoPitchPtr->init(&currentSeqModValues.vibrato);
+			lfoPitchPtr->start();
 		break;
 	}
 	lastSeqFx = fx_id;
@@ -1019,12 +1046,25 @@ void playerEngine::endFx(uint8_t fx_id)
 			}
 		break;
 		case fx_t::FX_TYPE_TREMOLO_FAST :
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp] = 0;
+			lfoAmpPtr->stop();
 		break;
 		case fx_t::FX_TYPE_TREMOLO_SLOW :
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp] = 0;
+			lfoAmpPtr->stop();
 		break;
 		case fx_t::FX_TYPE_VIBRATO_FAST :
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFineTune] = 0;
+			playMemPtr->clearFineTuneForceFlag();
+			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
+			lfoPitchPtr->stop();
 		break;
 		case fx_t::FX_TYPE_VIBRATO_SLOW :
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFineTune] = 0;
+			playMemPtr->clearFineTuneForceFlag();
+			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
+			lfoPitchPtr->stop();
+
 		break;
 	}
 }
@@ -1114,6 +1154,7 @@ void playerEngine:: update()
 {
 	float filterMod=0;
 	float ampMod=0;
+	float fineTuneMod = 0;
 
 	currentPlayState = playMemPtr->isPlaying();
 	if(currentPlayState == 0 && lastPlayState == 1)
@@ -1132,9 +1173,9 @@ void playerEngine:: update()
 		activeAmpEnvelopes--;
 
 		playMemPtr->stop();
-		lfoAmpPtr->stop();
-		lfoFilterPtr->stop();
-		lfoPitchPtr->stop();
+//		lfoAmpPtr->stop();
+//		lfoFilterPtr->stop();
+//		lfoPitchPtr->stop();
 		if((getLastExportStep()) && (!onVoices))
 		{
 			clearLastExportStep();
@@ -1159,10 +1200,21 @@ void playerEngine:: update()
 		else instrumentBasedMod.cutoff = filterMod;
 
 	}
-	if(mtProject.instrument[currentInstrument_idx].lfo[lfoA].enable == lfoOn )
+//	if(mtProject.instrument[currentInstrument_idx].lfo[lfoA].enable == lfoOn )
+//	{
+//		ampMod=lfoAmpPtr->getOut();
+//		statusBytes |= VOLUME_MASK;
+//	}
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp])
 	{
 		ampMod=lfoAmpPtr->getOut();
 		statusBytes |= VOLUME_MASK;
+	}
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFineTune])
+	{
+		fineTuneMod = lfoPitchPtr->getOut();
+		statusBytes |= FINETUNE_MASK;
 	}
 
 	if(statusBytes)
@@ -1180,7 +1232,28 @@ void playerEngine:: update()
 		if(statusBytes & FINETUNE_MASK)
 		{
 			statusBytes &= (~FINETUNE_MASK);
-			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
+
+			if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFineTune])
+			{
+				if(mtProject.instrument[currentInstrument_idx].fineTune + fineTuneMod*100 > MAX_INSTRUMENT_FINETUNE)
+				{
+					playMemPtr->setForcedFineTune(MAX_INSTRUMENT_FINETUNE);
+					modFineTune(MAX_INSTRUMENT_FINETUNE);
+				}
+				else if(mtProject.instrument[currentInstrument_idx].fineTune + fineTuneMod*100 < MIN_INSTRUMENT_FINETUNE)
+				{
+					playMemPtr->setForcedFineTune(MIN_INSTRUMENT_FINETUNE);
+					modFineTune(MIN_INSTRUMENT_FINETUNE);
+				}
+				else
+				{
+					playMemPtr->setForcedFineTune(mtProject.instrument[currentInstrument_idx].fineTune+ fineTuneMod*100);
+					modFineTune(mtProject.instrument[currentInstrument_idx].fineTune+ fineTuneMod*100);
+				}
+			}
+			else modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
+
+
 		}
 		if(statusBytes & TUNE_MASK)
 		{
@@ -1195,13 +1268,13 @@ void playerEngine:: update()
 			{
 				if(currentVelocity == -1)
 				{
-					ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0));
-					instrumentBasedMod.volume = ((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0)) * 100;
+					ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount) * (mtProject.instrument[currentInstrument_idx].volume/100.0) + ampMod);
+//					instrumentBasedMod.volume = ((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0)) * 100;
 				}
 				else
 				{
-					ampPtr->gain( (currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod));
-					instrumentBasedMod.volume = ((currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod)) * 100;
+					ampPtr->gain( ((currentVelocity/100.0) + ampMod) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount));
+//					instrumentBasedMod.volume = ((currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod)) * 100;
 				}
 			}
 		}
