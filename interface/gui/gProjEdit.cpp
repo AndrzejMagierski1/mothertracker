@@ -164,20 +164,20 @@ void cProjectEditor::showDefaultScreen()
 
 	if((fileManager.currentProjectName[0] == 0) || ( newProjectNotSavedFlag == 1 ) )
 	{
-		char currentPatch[PATCH_SIZE];
+
 		uint16_t i = 0;
-		strcpy(currentPatch,"Projects/Untitled");
-		while((SD.exists(currentPatch)) && (i <= 9999))
+		strcpy(currentPatchProjectName,"Projects/Untitled");
+		while((SD.exists(currentPatchProjectName)) && (i <= 9999))
 		{
 			i++;
-			sprintf(currentPatch,"Projects/Untitled%d",i);
+			sprintf(currentPatchProjectName,"Projects/Untitled%d",i);
 		}
 
 		if(i == 0) display.setControlText(titleLabelProjectName, "Untitled");
 		else
 		{
-			sprintf(currentPatch,"Untitled%d",i);
-			display.setControlText(titleLabelProjectName, currentPatch);
+			sprintf(currentPatchProjectName,"Untitled%d",i);
+			display.setControlText(titleLabelProjectName, currentPatchProjectName);
 		}
 	}
 	else

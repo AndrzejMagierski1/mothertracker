@@ -2920,5 +2920,6 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 static void setPatternChangeFlag()
 {
 	fileManager.patternIsChangedFlag = 1;
+	mtProject.values.projectNotSavedFlag = 1;
 
 }
