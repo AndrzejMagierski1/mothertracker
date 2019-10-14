@@ -208,7 +208,7 @@ enum interfaceEvents
 	eventSwitchModule,
 	eventSwitchToPreviousModule,
 	eventSwitchModuleWithOptions,
-
+	eventToggleActiveModule,
 
 	eventActivateGameModule,
 
