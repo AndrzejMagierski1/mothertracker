@@ -311,15 +311,16 @@ void cPatternEditor::showDefaultScreen()
 	}
 
 	// bottom labels
-	display.setControlText(bottomLabel[0], "Undo");
-	display.setControlText(bottomLabel[1], "Pattern");
-	display.setControlText(bottomLabel[2], "Length");
-	display.setControlText(bottomLabel[3], "Step");
+	display.setControlText(bottomLabel[0], "Pattern");
+	display.setControlText(bottomLabel[1], "Length");
+	display.setControlText(bottomLabel[2], "Step");
+	display.setControlText(bottomLabel[3], "");
 	display.setControlText(bottomLabel[4], "");
 	display.setControlText(bottomLabel[5], "");
 	display.setControlText(bottomLabel[6], "");
 	display.setControlText(bottomLabel[7], "");
 
+	display.setControlText(topLabel[3], "");
 	display.setControlText(topLabel[4], "");
 	display.setControlText(topLabel[5], "");
 	display.setControlText(topLabel[6], "");
@@ -341,26 +342,29 @@ void cPatternEditor::showDefaultScreen()
 
 	activateLabelsBorder();
 
-	for(uint8_t i = 0; i<4; i++)
+	display.setControlPosition(topLabel[3], -1, 452);
+	display.setControlPosition(topLabel[4], -1, 452);
+	display.setControlPosition(topLabel[5], -1, 452);
+	display.setControlPosition(topLabel[6], -1, 452);
+	display.setControlPosition(topLabel[7], -1, 452);
+	display.setControlSize(topLabel[3], -1, 59);
+	display.setControlSize(topLabel[4], -1, 59);
+	display.setControlSize(topLabel[5], -1, 59);
+	display.setControlSize(topLabel[6], -1, 59);
+	display.setControlSize(topLabel[7], -1, 59);
+
+	for(uint8_t i = 0; i<8; i++)
 	{
 		display.setControlColors(topLabel[i], activeLabelsColors);
 		display.setControlColors(bottomLabel[i], activeLabelsColors);
-		display.setControlColors(topLabel[i+4], activeLabelsColors);
-		display.setControlColors(bottomLabel[i+4], activeLabelsColors);
-
-		display.setControlPosition(topLabel[i+4], -1, 452);
-		display.setControlSize(topLabel[i+4], -1, 59);
 
 		display.setControlShow(topLabel[i]);
-		display.setControlShow(topLabel[i+4]);
 
-		display.setControlShow(bottomLabel[i]);
-		display.setControlHide(bottomLabel[i+4]);
+		if(i>4)	display.setControlHide(bottomLabel[i]);
+		else 	display.setControlShow(bottomLabel[i]);
 
 		display.refreshControl(bottomLabel[i]);
-		//display.refreshControl(bottomLabel[i+4]);
 		display.refreshControl(topLabel[i]);
-		display.refreshControl(topLabel[i+4]);
 	}
 
 
@@ -376,11 +380,14 @@ void cPatternEditor::showDefaultScreen()
 
 void cPatternEditor::showEditModeLabels()
 {
-	display.setControlText(topLabel[4], "Fill");
-	display.setControlText(topLabel[5], "Randomise");
-	display.setControlText(topLabel[6], "Invert");
-	display.setControlText(topLabel[7], "Transpose");
+	display.setControlText(topLabel[3], "Fill");
+	display.setControlText(topLabel[4], "Randomise");
+	display.setControlText(topLabel[5], "Invert");
+	display.setControlText(topLabel[6], "Transpose");
+	display.setControlText(topLabel[7], "Undo");
 
+
+	display.refreshControl(topLabel[3]);
 	display.refreshControl(topLabel[4]);
 	display.refreshControl(topLabel[5]);
 	display.refreshControl(topLabel[6]);
@@ -392,11 +399,13 @@ void cPatternEditor::showEditModeLabels()
 
 void cPatternEditor::hideEditModeLabels()
 {
+	display.setControlText(topLabel[3], "");
 	display.setControlText(topLabel[4], "");
 	display.setControlText(topLabel[5], "");
 	display.setControlText(topLabel[6], "");
 	display.setControlText(topLabel[7], "");
 
+	display.refreshControl(topLabel[3]);
 	display.refreshControl(topLabel[4]);
 	display.refreshControl(topLabel[5]);
 	display.refreshControl(topLabel[6]);
@@ -420,8 +429,8 @@ void cPatternEditor::hideEditModeLabels()
 void cPatternEditor::showPattern()
 {
 	sprintf(pattern,"%d", mtProject.values.actualPattern);
-	display.setControlText(topLabel[1], pattern);
-	display.refreshControl(topLabel[1]);
+	display.setControlText(topLabel[0], pattern);
+	display.refreshControl(topLabel[0]);
 }
 
 void cPatternEditor::showLength()
@@ -430,8 +439,8 @@ void cPatternEditor::showLength()
 
 	sprintf(length, "%d",  pattern->track[0].length+1);
 
-	display.setControlText(topLabel[2], length);
-	display.refreshControl(topLabel[2]);
+	display.setControlText(topLabel[1], length);
+	display.refreshControl(topLabel[1]);
 }
 
 void cPatternEditor::showStep()
@@ -440,8 +449,8 @@ void cPatternEditor::showStep()
 
 	sprintf(step, "%d",  mtProject.values.patternEditStep);
 
-	display.setControlText(topLabel[3],step);
-	display.refreshControl(topLabel[3]);
+	display.setControlText(topLabel[2],step);
+	display.refreshControl(topLabel[2]);
 }
 
 void cPatternEditor::refreshPatternParams()

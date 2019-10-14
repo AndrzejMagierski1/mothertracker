@@ -29,11 +29,10 @@ void cSongEditor::initDisplayControls()
 
 	// ramka
 	strControlProperties prop;
-	frameData.placesCount = 3;
+	frameData.placesCount = 2;
 	frameData.startPlace = 0;
 	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
+	frameData.places[1] = &framesPlaces[2][0];
 	prop.style = 0;
 	prop.value = 0;
 	prop.colors = nullptr;
@@ -140,11 +139,11 @@ void cSongEditor::showDefaultScreen()
 	display.setControlText(bottomLabel[3], "pattern");
 	display.setControlText(bottomLabel[4], "pattern");
 
-	display.setControlText(bottomLabel[5], "Tempo");
-	display.setControlText(bottomLabel[6], "Pat. Length");
+	display.setControlText(bottomLabel[5], "");
+	display.setControlText(bottomLabel[6], "Tempo");
 
 	showTempoValue();
-	showPatternLengthValue();
+	//showPatternLengthValue();
 
 	for(uint8_t i = 0; i<7; i++)
 	{
@@ -194,11 +193,11 @@ void cSongEditor::activateLabelsBorder()
 void cSongEditor::showTempoValue()
 {
 	sprintf(globalTempoVal,"%.1f", mtProject.values.globalTempo);
-	display.setControlText(topLabel[5], globalTempoVal);
-	display.refreshControl(topLabel[5]);
+	display.setControlText(topLabel[6], globalTempoVal);
+	display.refreshControl(topLabel[6]);
 
-	display.setControlValue(barControl[0], (mtProject.values.globalTempo*100)/Sequencer::MAX_TEMPO);
-	display.refreshControl(barControl[0]);
+	display.setControlValue(barControl[1], (mtProject.values.globalTempo*100)/Sequencer::MAX_TEMPO);
+	display.refreshControl(barControl[1]);
 }
 
 

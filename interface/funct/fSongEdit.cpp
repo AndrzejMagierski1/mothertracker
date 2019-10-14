@@ -133,8 +133,8 @@ void cSongEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton3, buttonPress, functAddSlot);
 	FM->setButtonObj(interfaceButton4, buttonPress, functDecPattern);
 	FM->setButtonObj(interfaceButton5, buttonPress, functIncPattern);
-	FM->setButtonObj(interfaceButton6, buttonPress, functTempo);
-	FM->setButtonObj(interfaceButton7, buttonPress, functPatternLength);
+	FM->setButtonObj(interfaceButton7, buttonPress, functTempo);
+	//FM->setButtonObj(interfaceButton7, buttonPress, functPatternLength);
 
 
 
@@ -309,7 +309,7 @@ static  uint8_t functEncoder(int16_t value)
 	{
 	case 0: SE->changePatternsSelection(value); 	break;
 	case 1: SE->changeGlobalTempo(value);			break;
-	case 2: SE->changeGlobalPatternLength(value); 	break;
+	//case 2: SE->changeGlobalPatternLength(value); 	break;
 
 	default: break;
 
@@ -340,7 +340,7 @@ static  uint8_t functUp()
 	{
 	case 0:	SE->changePatternsSelection(-1); 	break;
 	case 1:	SE->changeGlobalTempo(1); 			break;
-	case 2:	SE->changeGlobalPatternLength(1);	break;
+	//case 2:	SE->changeGlobalPatternLength(1);	break;
 	}
 
 	return 1;
@@ -352,7 +352,7 @@ static  uint8_t functDown()
 	{
 	case 0:	SE->changePatternsSelection(1); 	break;
 	case 1:	SE->changeGlobalTempo(-1); 			break;
-	case 2:	SE->changeGlobalPatternLength(-1); 	break;
+	//case 2:	SE->changeGlobalPatternLength(-1); 	break;
 	}
 
 	return 1;
