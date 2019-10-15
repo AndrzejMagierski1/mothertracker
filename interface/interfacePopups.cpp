@@ -37,6 +37,14 @@ static uint32_t listBgLabelColors[] =
 	0xFF0000, // ramka
 };
 
+static uint32_t titleBgLabelColors[] =
+{
+	0x000000, // tekst
+	0xFFFFFF, // tło
+	0xFF0000, // ramka
+};
+
+
 cInterfacePopups mtPopups;
 static  cInterfacePopups* POP = &mtPopups;
 
@@ -182,6 +190,7 @@ void cInterfacePopups::showNotesPopup()
 
 	display.setControlPosition(bgLabel, 0, 0);
 	display.setControlSize(bgLabel, 800, 25);
+	display.setControlColors(bgLabel, titleBgLabelColors);
 	display.setControlStyle(bgLabel, controlStyleShow | controlStyleBackground);
 	display.refreshControl(bgLabel);
 
@@ -234,9 +243,7 @@ void cInterfacePopups::showInstrumentsPopup()
 	instrList.length = 64;
 	instrList.data = interfaceGlobals.ptrIntrumentsNames;
 
-
 	display.setControlPosition(listControl[3], 600, 220);
-	//display.setControlSize(bgLabel, 799-585, 418);
 	display.setControlData(listControl[3], &instrList);
 	display.setControlShow(listControl[3]);
 	display.refreshControl(listControl[3]);
@@ -252,6 +259,7 @@ void cInterfacePopups::showVolumesPopup()
 
 	display.setControlPosition(bgLabel, 0, 0);
 	display.setControlSize(bgLabel, 800, 25);
+	display.setControlColors(bgLabel, titleBgLabelColors);
 	display.setControlStyle(bgLabel, controlStyleShow | controlStyleBackground);
 	display.refreshControl(bgLabel);
 
@@ -276,22 +284,37 @@ void cInterfacePopups::showVolumesPopup()
 
 void cInterfacePopups::showFxesPopup()
 {
-	display.hideAllControls();
+	//display.hideAllControls();
 
-	display.setControlPosition(bgLabel, 0, 0);
-	display.setControlSize(bgLabel, 800, 25);
+	display.setControlPosition(bgLabel, 585, 0);
+	display.setControlSize(bgLabel, 799-585, 419);
+	display.setControlColors(bgLabel, listBgLabelColors);
+
+	//display.setControlPosition(bgLabel, 0, 0);
+	//display.setControlSize(bgLabel, 800, 25);
 	display.setControlStyle(bgLabel, controlStyleShow | controlStyleBackground);
 	display.refreshControl(bgLabel);
 
 	display.setControlText(textLabel1, "Fx");
-	display.setControlPosition(textLabel1, 30, 12);
+	//display.setControlPosition(textLabel1, 30, 12);
+	display.setControlPosition(textLabel1, 600, 12);
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY);
 	display.refreshControl(textLabel1);
 
-	showActualInstrument();
-
+	//showActualInstrument();
 	ptrActualItemsList = (char**)(interfaceGlobals.ptrFxNames);
-	refreshAllList();
+
+	instrList.start = selectedActualItem;
+	instrList.linesCount = 15;
+	instrList.length = 48;
+	instrList.data = (char**)interfaceGlobals.ptrFxNames;
+
+	display.setControlPosition(listControl[3], 600, 220);
+	display.setControlData(listControl[3], &instrList);
+	display.setControlShow(listControl[3]);
+	display.refreshControl(listControl[3]);
+
+	//refreshAllList();
 
 	display.synchronizeRefresh();
 }
@@ -405,8 +428,11 @@ void cInterfacePopups::setStepPopupValue(int16_t value)
 	}
 	case stepPopupFx:
 	{
-		refreshAllList();
+		//refreshAllList();
 		mtProject.values.lastUsedFx = selectedActualItem;
+		display.setControlValue(listControl[3], selectedActualItem);
+		display.refreshControl(listControl[3]);
+
 		return;
 	}
 	default:	break;
@@ -468,7 +494,7 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 		mtProject.values.lastUsedInstrument = selectedActualItem;
 		//showActualInstrument();
 
-		display.setControlValue(listControl[3],selectedActualItem);
+		display.setControlValue(listControl[3], selectedActualItem);
 		display.refreshControl(listControl[3]);
 
 		return;
@@ -485,7 +511,11 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 		else selectedActualItem += value;
 
 		mtProject.values.lastUsedFx = selectedActualItem;
-		break;
+
+		display.setControlValue(listControl[3], selectedActualItem);
+		display.refreshControl(listControl[3]);
+
+		return;
 	}
 
 	default:	return;
@@ -580,7 +610,7 @@ void cInterfacePopups::listInstruments()
 	}
 	for(uint8_t i = 0; i < 16; i++)
 	{
-		sprintf(&interfaceGlobals.intrumentsNames[INSTRUMENTS_COUNT+i][0], "%d. MIDI Channel %d", INSTRUMENTS_COUNT+i+1, i+1);
+		sprintf(&interfaceGlobals.intrumentsNames[INSTRUMENTS_COUNT+i][0], "%d. MIDI Channel %d", /*INSTRUMENTS_COUNT+*/i+1, i+1);
 		interfaceGlobals.ptrIntrumentsNames[INSTRUMENTS_COUNT+i] = &interfaceGlobals.intrumentsNames[INSTRUMENTS_COUNT+i][0];
 	}
 }
