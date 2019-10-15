@@ -477,19 +477,16 @@ static  uint8_t functCancelRename()
 
 static uint8_t functCopyPaste()
 {
-	if (tactButtons.isButtonPressed(interfaceButtonShift))
+	if(tactButtons.isButtonPressed(interfaceButtonShift))
 	{
 		functPaste();
 	}
 	else
 	{
-		if (SI->selectionActive)
+		if((SI->selectedPlace == 1) && (SI->currSelectPlace == 1))
 		{
-			if (SI->selectedPlace == 1 && SI->currSelectPlace == 1)
-			{
-				SI->instrCopyStart = SI->getSelectionStart();
-				SI->copyElementMax = SI->selectionLength;
-			}
+			SI->instrCopyStart = SI->getSelectionStart();
+			SI->copyElementMax = SI->selectionLength;
 		}
 	}
 
@@ -500,73 +497,70 @@ static uint8_t functPaste()
 {
 	if(SI->currentCopyStatusFlag || SI->currentLoadStatusFlag) return 1;
 
-	if(SI->selectionActive)
+	if(SI->copyElementMax && SI->instrCopyStart != SI->selectedSlot)
 	{
 		char projectSamplePath[255];
 		uint8_t willFit = 1;
 		uint8_t selectOverMax = 0;
 
-		if(SI->copyElementMax && SI->instrCopyStart != SI->selectedSlot)
-		{
-			SI->instrActiveInSel = SI->getActiveInstrInSelection();
-			SI->instrCopied=0;
-			SI->copyElement = 0;
+		SI->instrActiveInSel = SI->getActiveInstrInSelection();
+		SI->instrCopied=0;
+		SI->copyElement = 0;
 
-			if(SI->instrActiveInSel)
+		if(SI->instrActiveInSel)
+		{
+			while(SI->selectedSlot + SI->copyElementMax > 48)
 			{
-				while(SI->selectedSlot + SI->copyElementMax > 48)
+				SI->copyElementMax--;
+				selectOverMax++;
+			}
+
+			for(int i = (SI->copyElementMax - selectOverMax); i>0; i--)
+			{
+				willFit=SI->willCopyInstrFit(i);
+
+				if(willFit)
+				{
+					break;
+				}
+				else
 				{
 					SI->copyElementMax--;
-					selectOverMax++;
+					/*TODO: popout ze kopiowanie zostalo uciete*/
 				}
+			}
 
-				for(int i = (SI->copyElementMax - selectOverMax); i>0; i--)
+			if(willFit)
+			{
+				SI->copyType = 2;
+
+				strcpy(projectSamplePath,"Workspace/samples");
+
+				fileManager.clearAutoLoadFlag();
+
+				while(SI->copyElement < SI->copyElementMax)
 				{
-					willFit=SI->willCopyInstrFit(i);
-
-					if(willFit)
+					if(mtProject.instrument[SI->instrCopyStart + SI->copyElement].isActive == 1)
 					{
 						break;
 					}
 					else
 					{
-						SI->copyElementMax--;
-						/*TODO: popout ze kopiowanie zostalo uciete*/
+						SI->copyElement++;
 					}
 				}
 
-				if(willFit)
+				if(SI->copyElement == (SI->copyElementMax-1))
 				{
-					SI->copyType = 2;
-
-					strcpy(projectSamplePath,"Workspace/samples");
-
-					fileManager.clearAutoLoadFlag();
-
-					while(SI->copyElement < SI->copyElementMax)
-					{
-						if(mtProject.instrument[SI->instrCopyStart + SI->copyElement].isActive == 1)
-						{
-							break;
-						}
-						else
-						{
-							SI->copyElement++;
-						}
-					}
-
-					if(SI->copyElement == (SI->copyElementMax-1))
-					{
-						fileManager.setAutoLoadFlag();
-					}
-
-					fileManager.setStart(SI->selectedSlot);
-					fileManager.assignSampleToInstrument(projectSamplePath, SI->parseNewName(SI->instrCopyStart+SI->copyElement), SI->selectedSlot + SI->copyElement);
-					memcpy(&mtProject.instrument[SI->selectedSlot+SI->copyElement],&mtProject.instrument[SI->instrCopyStart+SI->copyElement],sizeof(mtProject.instrument[0]));
-
-					SI->copyElement++;
-					SI->instrCopied++;
+					fileManager.setAutoLoadFlag();
 				}
+
+				fileManager.setStart(SI->selectedSlot);
+				fileManager.assignSampleToInstrument(projectSamplePath, SI->parseNewName(SI->instrCopyStart+SI->copyElement), SI->selectedSlot + SI->copyElement);
+				memcpy(&mtProject.instrument[SI->selectedSlot+SI->copyElement],&mtProject.instrument[SI->instrCopyStart+SI->copyElement],sizeof(mtProject.instrument[0]));
+
+				SI->copyElement++;
+				SI->instrCopied++;
 			}
 		}
 	}
@@ -582,12 +576,16 @@ static  uint8_t functShift(uint8_t state)
 		{
 			return 1;
 		}
+
 		SI->selectionActive=0;
 		SI->frameSelectMode(SI->currSelectPlace,0);
 
 		if(SI->selectionLength == 1)
 		{
-			SI->cancelSelect();
+			if(SI->currSelectPlace == 0)
+			{
+				SI->cancelSelect();
+			}
 		}
 	}
 	else if(state == 1)
@@ -1578,6 +1576,15 @@ void cSampleImporter::handleSequenceCopyingLoading()
 		{
 			firstMemBarLoadFlag=2;
 			showDefaultScreen();
+
+			for(uint32_t i = selectedSlot ; i < (selectedSlot + copyElementMax); i++)
+			{
+				fileManager.instrumentIsChangedFlag[i] = 1;
+			}
+
+			fileManager.instrumentForcedSaveFlag = 1;
+
+			mtProject.values.projectNotSavedFlag = 1;
 		}
 
 		if(firstMemBarLoadFlag == 0)

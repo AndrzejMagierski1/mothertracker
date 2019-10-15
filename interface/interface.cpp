@@ -181,9 +181,9 @@ void cInterface::update()
 
 		for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
 		{
-			if(fileManager.instrumentForcedIsChangedFlag[i] == 1 )
+			if(fileManager.instrumentIsChangedFlag[i] == 1 )
 			{
-				fileManager.instrumentForcedIsChangedFlag[i] = 0;
+				fileManager.instrumentIsChangedFlag[i] = 0;
 				fileManager.saveInstrument(i);
 			}
 		}
