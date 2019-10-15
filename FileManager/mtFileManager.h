@@ -114,6 +114,8 @@ public:
 	uint8_t configIsChangedFlag;
 	elapsedMillis configChangedRefresh;
 	uint8_t instrumentIsChangedFlag[48];
+	uint8_t instrumentForcedIsChangedFlag[48];
+	uint8_t instrumentForcedSaveFlag;
 	elapsedMillis instrumentRefresh;
 	uint8_t patternIsChangedFlag;
 	elapsedMillis patternRefresh;
