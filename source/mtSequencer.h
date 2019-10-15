@@ -9,6 +9,20 @@ class Sequencer
 {
 
 public:
+
+	enum enStep
+	{
+		STEP_NOTE_EMPTY = -1,
+		STEP_NOTE_OFF = -2,
+		STEP_NOTE_CUT = -3,
+		STEP_NOTE_FADE = -4,
+		STEP_NOTE_DEFAULT = 60,
+		STEP_NOTE_MAX = 127,
+
+		STEP_VELO_MIN = 0,
+		STEP_VELO_MAX = 127,
+	};
+
 	enum
 	{
 		MAXTRACK = 7,
@@ -16,99 +30,6 @@ public:
 		MINSTEP = 0,
 		MAXSTEP = 127,
 
-//		DEFAULT_ROW_LEN = 32,
-		DEFAULT_ROW_NOTE = 36,
-		DEFAULT_ROW_CHANNEL = 1,
-
-		MIN_CHORD = 0,
-		MAX_CHORD = 29,
-		NO_CHORD = 0,
-
-		STEP_NOTE_EMPTY = -1,
-		STEP_NOTE_OFF = -2,
-		STEP_NOTE_CUT = -3,
-		STEP_NOTE_FADE = -4,
-		STEP_NOTE_DEFAULT = 60,
-
-//	static const uint8_t
-		MIDIOUT_DIN1 = 0,
-		MIDIOUT_DIN2 = 1,
-		MIDIOUT_USB = 2,
-		MIDIOUT_DIN1_C = 3,
-		MIDIOUT_DIN2_C = 4,
-		MIDIOUT_USB_C = 5,
-
-		MIDIOUT_MIN = 0,
-		MIDIOUT_MAX = 5,
-
-		COPY_MODE_BANK = 0,
-		COPY_MODE_ROW = 0,
-		COPY_MODE_STEP = 0,
-
-		HITMODE_OFFSET = 20,
-		OFFSET_MIN = 1,
-		OFFSET_MAX = 48,
-
-		CC_ALL_NOTES_OFF = 123,
-		CC_VAL_NOTES_OFF = 0,
-
-		DEFAULT_CC = 74, // Generally this CC controls a vibrato effect (pitch, loudness, brighness). What is modulated is based on the patch.
-
-		MAX_NOTE_TRACK = 127,
-		MIN_NOTE_TRACK = 0,
-		MAX_TRACK_LENGTH = 32,
-		MIN_TRACK_LENGTH = 1,
-		MAX_STEP_LENGTH = 31,
-		MIN_STEP_LENGTH = 0,
-		MIN_STEP_ROLL_VAR = 1,
-		MAX_STEP_ROLL_VAR = 9,
-		MIN_STEP_ROLL_NOTE_VAR = 1,
-		MAX_STEP_ROLL_NOTE_VAR = 9,
-		MIN_TRACK_ROLL_VAR = 1,
-		MAX_TRACK_ROLL_VAR = 16,
-
-		MIN_VELO_STEP = 0,
-		MAX_VELO_STEP = 127,
-		MIN_VELO_TRACK = 0,
-		MAX_VELO_TRACK = 100,
-		MIN_MOD = 0,
-		MAX_MOD = 127,
-		MIN_CHANNEL = 1,
-		MAX_CHANNEL = 16,
-		MIN_CC = 1,
-		MAX_CC = 127,
-
-		NOTE_JUMPTO = 128,
-		NOTE_JUMPTO_NEXT = 129,
-
-		MIN_JUMPTO = 0,
-		MAX_JUMPTO = 255,
-
-		MIN_CHANNEL_IN = -1,
-		MAX_CHANNEL_IN = 16,
-		MIN_TRANSPOSE = -100,
-		MAX_TRANSPOSE = 100,
-		MIN_MOVE = -32,
-		MAX_MOVE = 32,
-
-		MIN_MOVE_STEP = 0,
-		MAX_MOVE_STEP = 4000,
-		IDLE_MOVE_STEP = 2016,
-
-//		SEQ_STATE_STOP = 0,
-//		SEQ_STATE_PLAY = 1,
-//		SEQ_STATE_PAUSE = 2,
-		MIN_MICROMOVE_STEP = -1000,
-		MAX_MICROMOVE_STEP = 1000,
-		CHANNEL_IN_ALL = 0,
-
-		MIN_GATEMODE = 0,
-		MAX_GATEMODE = 3,
-		NULL_MOD = 128, // TODO: co to kurwa za null jak nie null
-		DEFAULT_MOD = 128, //NULL_MOD
-
-		MAX_NOTE_STEP = 127,
-		MIN_NOTE_STEP = -2,
 	};
 	enum enPlaymode
 	{
@@ -241,24 +162,23 @@ public:
 
 		struct strTrack
 		{
-			uint8_t isOn :1;
+			uint8_t zapas10 :1;
 
 			uint8_t length = MAXSTEP;
-			uint8_t rootNote = DEFAULT_ROW_NOTE;
-			uint8_t trackVelo = MAX_VELO_TRACK;
-			uint8_t defaultMod = DEFAULT_MOD;	// rezerwa1
 
-			uint8_t channel = DEFAULT_ROW_CHANNEL;	// wiersz ma swoj channel
-			uint8_t cc = DEFAULT_CC;
+			uint8_t zapas5 = 0;
+			uint8_t zapas6 = 0;
+			uint8_t zapas7 = 0;
+			uint8_t zapas9 = 0;
+			uint8_t zapas11 = 0;
+			uint8_t zapas8 = 0;
+			uint8_t zapas1 = 0;
+			uint8_t zapas2 = 0;
+			uint8_t zapas3 = 0;
 
-			uint8_t trackScale = 0;	// skala tracka
-
-			uint8_t midiOut = MIDIOUT_USB;
-			uint8_t playMode = PLAYMODE_FORWARD;
-
-			uint8_t gateMode = GATEMODE.NORMAL;
 			int8_t tempoDiv = TEMPODIV_1_1;
-			int8_t channelIn = CHANNEL_IN_ALL;
+
+			int8_t zapas4 = 0;
 			uint8_t rezerwa4 = 0;
 
 			struct strStep
@@ -271,7 +191,6 @@ public:
 				//FX
 				struct strFx
 				{
-//					uint8_t isOn;
 					uint8_t type;
 
 					struct						// FX_VAL_U8_U8
@@ -320,8 +239,6 @@ public:
 	strPattern seq[3];
 	Sequencer::strPattern *getPattern();
 
-//	strPattern::strTrack copyTrackBuffer[8];
-
 	struct strGlobalConfig
 	{
 		uint8_t mode = MODE_MIDICLOCK.INTERNAL_;
@@ -337,16 +254,6 @@ public:
 		uint8_t cnt1_max = 8;
 
 	};
-
-//	struct strChangeBuffer
-//	{
-//		int8_t transpose = 0;
-//		int16_t uMoveStep = 0;
-//		int16_t moveStep = IDLE_MOVE_STEP;
-//		int16_t uMoveTrack = 1;
-//		uint8_t trackRoll = 1;
-//
-//	};
 
 	struct strNoteHandler
 	{
@@ -365,46 +272,32 @@ public:
 
 	void switchStep(uint8_t row);
 
-	inline uint8_t get_hitMode(uint8_t col, uint8_t row);
-	inline uint8_t get_isOn(uint8_t col, uint8_t row);
-	inline uint8_t get_note(uint8_t col, uint8_t row);
-	inline uint8_t get_row_length(uint8_t row);
-
 	inline uint8_t isPlay(void);
 	inline uint8_t isREC(void);
 	inline uint8_t isStop(void);
-	int8_t getLastRollNoteOffset(uint8_t row);
-	int8_t getNextRollNoteOffset(uint8_t row);
+
 	uint8_t getLongRollVelo(uint8_t rollCurve, float progress);
 	uint8_t getTempoDiv(int8_t val);
-	uint8_t isInScale(uint8_t note, uint8_t root, uint8_t scale);
-	uint8_t isRowOn(uint8_t row);
+
 	void play_microStep(uint8_t row);
-	uint8_t val2roll(uint8_t val);
-
-	void divChangeQuantize(uint8_t row);
-	void handle_ghosts(void);
-	void handle_player(void);
-
 	void handle_nanoStep(uint8_t step);
 	void incr_uStep(uint8_t row);
-
 	void init_player_timer(void);
+
+	inline uint8_t rollTypeToVal(uint8_t rollType);
+
+	void divChangeQuantize(uint8_t row);
 
 	void loadDefaultBank(uint8_t bank);
 	void loadDefaultTrack(uint8_t track, uint8_t bank);
 
-	void send_allNotesOff(void);
-
-	void randomize_row(uint8_t row);
-	void rec_metronome(void);
-
 	void reset_actual_pos(uint8_t row);
 	void reset_actual_pos(void);
-	void resetAllLearned(void);
-	void resetLastSendMod(void);
-	//	void set_power_mode(uint8_t mode);
-//	void trySwitchBank();
+
+	//__________________________________________
+	//
+	//				MIDI
+	//__________________________________________
 
 	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
 					uint8_t midiOut);
@@ -419,8 +312,11 @@ public:
 	void sendNoteOff(uint8_t track);
 
 	void send_clock(uint8_t);
-
-	inline uint8_t rollTypeToVal(uint8_t rollType);
+	void send_allNotesOff(void);
+	//__________________________________________
+	//
+	//
+	//__________________________________________
 
 	IntervalTimer midiReceiveTimer;
 	IntervalTimer playTimer;
@@ -431,10 +327,6 @@ public:
 
 	uint16_t nanoStep = 0;
 
-	elapsedMicros playerTimer;
-	elapsedMicros flushTimer = 0;
-
-	elapsedMicros timeOfTick = 0;
 	const uint8_t arrVal2roll[10] = { 0, 1, 1, 2, 3, 4, 6, 8, 12, 16 };
 
 	static struct strMidiModes
@@ -588,6 +480,11 @@ public:
 
 	void saveToFileDone()
 	{
+	}
+
+	void forcePatternMode()
+	{
+		player.songMode = 0;
 	}
 
 	enum

@@ -759,10 +759,7 @@ void Sequencer::rec(void)
 
 }
 
-uint8_t Sequencer::isRowOn(uint8_t row)
-{
-	return seq[player.ramBank].track[row].isOn;
-}
+
 
 void Sequencer::loadDefaultSequence(void)
 {
@@ -770,9 +767,9 @@ void Sequencer::loadDefaultSequence(void)
 
 	for (uint8_t x = MINTRACK; x <= MAXTRACK; x++)
 	{
-		seq[player.ramBank].track[x].rootNote = 35 + x;
-		seq[player.ramBank].track[x].channel = x;
-		seq[player.ramBank].track[x].isOn = 1;
+//		seq[player.ramBank].track[x].rootNote = 35 + x;
+//		seq[player.ramBank].track[x].channel = x;
+//		seq[player.ramBank].track[x].isOn = 1;
 
 		seq[player.ramBank].track[x].length = 127;
 		for (uint8_t y = MINSTEP; y <= MAXSTEP; y++)
