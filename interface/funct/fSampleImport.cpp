@@ -196,6 +196,7 @@ void cSampleImporter::update()
 	}
 
 	processDeleting();
+	processDirFileSizes();
 }
 
 void cSampleImporter::start(uint32_t options)
@@ -352,7 +353,7 @@ static  uint8_t functInstrumentDelete()
 
 	if(SI->selectedPlace == 1)
 	{
-		SI->isBusy = 1;
+		SI->isBusy = 1; // processDeleting() powinna zdjac blokade
 
 		if(SI->currSelectPlace == 1 && SI->selectionLength)
 		{
@@ -442,7 +443,7 @@ static  uint8_t functConfirmRename()
 {
 	strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,SI->name,32);
 
-	SI->listAllFoldersFirst();
+	SI->showFileList();
 
 	SI->listInstrumentSlots();
 	SI->showInstrumentsList();
@@ -463,7 +464,7 @@ static  uint8_t functConfirmRename()
 }
 static  uint8_t functCancelRename()
 {
-	SI->listAllFoldersFirst();
+	SI->showFileList();
 
 	SI->listInstrumentSlots();
 	SI->showInstrumentsList();
@@ -945,33 +946,65 @@ void cSampleImporter::listOnlyWaveNames(char* folder, uint8_t startPoint)
 
 }*/
 
-void cSampleImporter::listOnlyWavFromActualPath(uint8_t startPoint)
+void cSampleImporter::processDirFileSizes()
 {
-	char filePath[255];
-
-	sdLocation.close();
-	sdLocation.open(actualPath, O_READ);
-
-	locationExplorerCount += sdLocation.createFilesList(startPoint,locationExplorerList, (list_length_max-startPoint),2);
-
-	for(int i=startPoint;i<locationExplorerCount;i++)
+	if(openingInProgress == 1)
 	{
+		char filePath[255];
+
 		strcpy(filePath, actualPath);
 		if(dirLevel > 0)
 		{
 			strcat(filePath, "/");
 		}
 
-		strcat(filePath, &locationExplorerList[i][0]);
+		strcat(filePath, &locationExplorerList[openCurrentPos][0]);
 
-		currentFolderMemoryFileUsage[i]= 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
+		currentFolderMemoryFileUsage[openCurrentPos]= 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
+
+		openCurrentPos++;
+
+		uint8_t progress = (((openCurrentPos - openCalcStart) * 100) / (openCalcEnd-openCalcStart));
+
+		showOpeningHorizontalBar(progress);
+
+		if(openCurrentPos == openCalcEnd)
+		{
+			sdLocation.close();
+
+			for(uint8_t i = openCalcStart; i < openCalcEnd; i++)
+			{
+				explorerNames[i] = &locationExplorerList[i][0];
+			}
+
+			openingInProgress = 0;
+			isBusy = 0;
+
+			hideHorizontalBar();
+			showFilesTree();
+		}
 	}
+}
 
+void cSampleImporter::listOnlyWavFromActualPath(uint8_t startPoint)
+{
 	sdLocation.close();
+	sdLocation.open(actualPath, O_READ);
 
-	for(uint8_t i = startPoint; i < locationExplorerCount; i++)
+	locationExplorerCount += sdLocation.createFilesList(startPoint,locationExplorerList, (list_length_max-startPoint),2);
+
+	if(locationExplorerCount <= startPoint)
 	{
-		explorerNames[i] = &locationExplorerList[i][0];
+		isBusy = 0;
+		openingInProgress = 0;
+		showFilesTree();
+	}
+	else
+	{
+		openCalcStart = startPoint;
+		openCalcEnd = locationExplorerCount;
+
+		openCurrentPos = openCalcStart;
 	}
 }
 
@@ -1018,6 +1051,7 @@ void cSampleImporter::goUpInActualPath()
 
 void cSampleImporter::listAllFoldersFirst()
 {
+	isBusy = 1; // processDirFileSizes() powinna zdjac flage tutaj ustawiona
 	locationExplorerCount=0;
 
 	for(int i=0;i<list_length_max;i++)
@@ -1025,10 +1059,10 @@ void cSampleImporter::listAllFoldersFirst()
 		explorerNames[i]=NULL;
 	}
 
+	openingInProgress = 1;
+
 	listOnlyFolderNames(actualPath,0);
 	listOnlyWavFromActualPath(locationExplorerCount);
-
-	showFilesTree();
 }
 
 void cSampleImporter::BrowseOrAdd()
@@ -1627,7 +1661,7 @@ void cSampleImporter::handleSequenceCopyingLoading()
 			//fileManager.saveProject(); todo: saveWorkspace
 		}
 
-		listAllFoldersFirst();
+		//listAllFoldersFirst();//?
 
 		copyType=0;
 	}

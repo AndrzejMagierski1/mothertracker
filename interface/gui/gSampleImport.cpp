@@ -222,7 +222,6 @@ void cSampleImporter::showDefaultScreen()
 	displayDelete(selectedPlace);
 	displayRename(selectedPlace);
 
-
 }
 
 
@@ -278,14 +277,14 @@ void cSampleImporter::showMemoryUsage()
 void cSampleImporter::showLoadHorizontalBar()
 {
 	display.setControlValue(loadHorizontalBarControl, loadProgress);
-	display.setControlText(loadHorizontalBarControl, "loading...");
+	display.setControlText(loadHorizontalBarControl, "Loading...");
 	display.setControlShow(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
 }
 
 void cSampleImporter::showCopyingHorizontalBar()
 {
-	if(copyElementMax > 1) sprintf(copyingInfo, "copying %d/%d ...",copyElement,copyElementMax);
+	if(copyElementMax > 1) sprintf(copyingInfo, "Copying %d/%d ...",copyElement,copyElementMax);
 	else strcpy(copyingInfo,"copying...");
 	display.setControlValue(loadHorizontalBarControl, copyingProgress);
 	display.setControlText(loadHorizontalBarControl, copyingInfo);
@@ -297,6 +296,14 @@ void cSampleImporter::showDeletingHorizontalBar(uint8_t progress)
 {
 	display.setControlValue(loadHorizontalBarControl, progress);
 	display.setControlText(loadHorizontalBarControl, "Deleting...");
+	display.setControlShow(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+}
+
+void cSampleImporter::showOpeningHorizontalBar(uint8_t progress)
+{
+	display.setControlValue(loadHorizontalBarControl, progress);
+	display.setControlText(loadHorizontalBarControl, "Opening...");
 	display.setControlShow(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
 }
@@ -346,6 +353,12 @@ void cSampleImporter::AddOrEnter()
 	}
 
 	display.refreshControl(topLabel[1]);
+}
+
+void cSampleImporter::showFileList()
+{
+	display.setControlShow(explorerListControl);
+	display.refreshControl(explorerListControl);
 }
 
 void cSampleImporter::rewindListToBeggining()
