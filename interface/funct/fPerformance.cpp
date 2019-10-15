@@ -769,7 +769,7 @@ static  uint8_t functDown()
 static  uint8_t functPlayAction()
 {
 
-	if (sequencer.getSeqState() == 0)
+	if (sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
@@ -782,7 +782,7 @@ static  uint8_t functPlayAction()
 
 		//PTE->lastPlayedPattern = 0;
 	}
-	else if(sequencer.getSeqState() == 1)
+	else
 	{
 		sequencer.stop();
 	}
@@ -906,7 +906,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 					// button <= numer tracka
 					// mtProject.values.perfTracksPatterns[button] <= pattern tracka
 
-
+					Serial.println(sequencer.getSeqState());
 
 				}
 				else

@@ -98,9 +98,7 @@ void cPatternEditor::update()
 {
 	if(patternRefreshTimer < 20) return;
 
-	uint8_t sequencerState = sequencer.getSeqState();
-
-	if(sequencerState != 1 ) return;
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP ) return;
 
 	readPatternState();
 
@@ -234,7 +232,7 @@ void cPatternEditor::refreshPattern()
 	{
 		trackerPattern.selectState = 0;
 
-		if(sequencer.getSeqState() == 1)
+		if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 		{
 			trackerPattern.actualStep = trackerPattern.playheadPosition;
 		}
@@ -1358,7 +1356,7 @@ static  uint8_t functUp()
 
 	if(PTE->editMode == 0)
 	{
-		if(sequencer.getSeqState() == 1) return 1;
+		if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP) return 1;
 	}
 
 	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
@@ -1451,7 +1449,7 @@ static  uint8_t functDown()
 
 	if(PTE->editMode == 0)
 	{
-		if(sequencer.getSeqState() == 1) return 1;
+		if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP) return 1;
 	}
 
 	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
@@ -1754,7 +1752,7 @@ static  uint8_t functPattern(uint8_t state)
 //-----------------------------------------------------------------------------------
 static  uint8_t functPlayAction()
 {
-	if (sequencer.getSeqState() == 0)
+	if (sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
@@ -1768,7 +1766,7 @@ static  uint8_t functPlayAction()
 
 		//PTE->lastPlayedPattern = 0;
 	}
-	else if(sequencer.getSeqState() == 1)
+	else
 	{
 		sequencer.stop();
 

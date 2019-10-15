@@ -316,7 +316,7 @@ void cSamplePlayback::cancelPopups()
 //==============================================================================================================
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
 	}
@@ -626,11 +626,11 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == 0)
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.play();
 	}
-	else if(sequencer.getSeqState() == 1)
+	else
 	{
 		sequencer.stop();
 	}
@@ -660,7 +660,7 @@ static uint8_t functSwitchModule(uint8_t button)
 
 static 	uint8_t functPreview(uint8_t state)
 {
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
 	}

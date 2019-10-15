@@ -345,7 +345,7 @@ static  uint8_t functPlayAction()
 	{
 		sequencer.play();
 	}
-	else if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	else
 	{
 		sequencer.stop();
 	}
@@ -719,7 +719,7 @@ void cInstrumentEditor::cancelPopups()
 //==============================================================================================
 static uint8_t functShift(uint8_t value)
 {
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
 	}
@@ -763,7 +763,7 @@ void cInstrumentEditor::lightUpPadBoard()
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
 	}

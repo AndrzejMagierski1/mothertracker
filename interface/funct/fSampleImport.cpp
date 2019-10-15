@@ -737,11 +737,11 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == 0)
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.play();
 	}
-	else if(sequencer.getSeqState() == 1)
+	else
 	{
 		sequencer.stop();
 	}
@@ -1278,7 +1278,7 @@ void cSampleImporter::playSdFile()
 	strcat(file_path, &locationExplorerList[selectedFile][0]);
 
 
-	if(sequencer.getSeqState() == 1)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
 	}
@@ -1317,7 +1317,7 @@ void cSampleImporter::playSampleFromBank()
 	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
 	if(!mtProject.instrument[selectedSlot].isActive) return;
 
-	if(sequencer.getSeqState() == 1)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
 	}

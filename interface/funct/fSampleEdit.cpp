@@ -426,7 +426,7 @@ uint8_t cSampleEditor::previewNewEffectRequested()
 
 static uint8_t functPreview(uint8_t state)
 {
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
 	}
@@ -633,11 +633,11 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == 0)
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.play();
 	}
-	else if(sequencer.getSeqState() == 1)
+	else
 	{
 		sequencer.stop();
 	}
@@ -690,7 +690,7 @@ void cSampleEditor::changeEffectSelection(int16_t value)
 
 static uint8_t functShift(uint8_t value)
 {
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
 	}

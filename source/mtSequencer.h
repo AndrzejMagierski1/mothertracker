@@ -95,9 +95,9 @@ public:
 		MAX_MOVE_STEP = 4000,
 		IDLE_MOVE_STEP = 2016,
 
-		SEQ_STATE_STOP = 0,
-		SEQ_STATE_PLAY = 1,
-		SEQ_STATE_PAUSE = 2,
+//		SEQ_STATE_STOP = 0,
+//		SEQ_STATE_PLAY = 1,
+//		SEQ_STATE_PAUSE = 2,
 		MIN_MICROMOVE_STEP = -1000,
 		MAX_MICROMOVE_STEP = 1000,
 		CHANNEL_IN_ALL = 0,
@@ -589,13 +589,20 @@ public:
 	void saveToFileDone()
 	{
 	}
+
+	enum
+	{
+		SEQ_STATE_STOP = 0,
+		SEQ_STATE_PLAY_PATTERN,
+		SEQ_STATE_PLAY_SONG,
+	};
 	uint8_t getSeqState()
 	{
-		if (player.isStop) return 0;
-		else if (player.isPlay) return 1;
-		else if (!player.isStop && !player.isPlay) return 2;
+		if (player.isStop) return SEQ_STATE_STOP;
+		else if (player.isPlay && !player.songMode) return SEQ_STATE_PLAY_PATTERN;
+		else if (player.isPlay && player.songMode) return SEQ_STATE_PLAY_SONG;
 		else
-			return 0;
+			return SEQ_STATE_STOP;
 	}
 
 	uint8_t * getPatternToLoadFromFile()

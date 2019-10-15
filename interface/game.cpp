@@ -80,7 +80,7 @@ void cGameModule::start(uint32_t options)
 		ARKANOID_updateSamplesLoaded(i,mtProject.instrument[i].isActive);
 	}
 
-	if(sequencer.getSeqState() == 1)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 	   sequencer.stop();
 	}
