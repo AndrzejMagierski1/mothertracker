@@ -31,7 +31,7 @@
 // OBRAZY
 
 // CZCIONKI
-strFont fonts[displayFontCount] =
+const strFont fonts[displayFontCount] =
 {
 	{
 		Roboto_Mono_14_L4,
@@ -58,7 +58,7 @@ strFont fonts[displayFontCount] =
 };
 // handle nie moze byc wikesze niz 14
 
-strBitmap bitmaps[displayBitmapsCount] =
+const strBitmap bitmaps[displayBitmapsCount] =
 {
 /*
 	{

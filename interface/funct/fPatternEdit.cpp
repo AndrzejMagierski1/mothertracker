@@ -328,18 +328,35 @@ void cPatternEditor::refreshPattern()
 
 			if (showInstrument)
 			{
-				char inst0 = (seq->track[i].step[patternPosition - 7 + j].instrument + 1) / 10;
-				char inst1 = (seq->track[i].step[patternPosition - 7 + j].instrument + 1) % 10;
+				if(seq->track[i].step[patternPosition - 7 + j].instrument > 47)  // midi instr
+				{
+					trackerPattern.track[i].row[j].instr[3] = 1;
 
-				trackerPattern.track[i].row[j].instr[0] = inst0 + 48;
-				trackerPattern.track[i].row[j].instr[1] = inst1 + 48;
-				trackerPattern.track[i].row[j].instr[2] = 0;
+					char inst0 = (seq->track[i].step[patternPosition - 7 + j].instrument - 47) / 10;
+					char inst1 = (seq->track[i].step[patternPosition - 7 + j].instrument - 47) % 10;
+
+					trackerPattern.track[i].row[j].instr[0] = inst0 + 48;
+					trackerPattern.track[i].row[j].instr[1] = inst1 + 48;
+					trackerPattern.track[i].row[j].instr[2] = 0;
+				}
+				else // normal instr
+				{
+					trackerPattern.track[i].row[j].instr[3] = 0;
+
+					char inst0 = (seq->track[i].step[patternPosition - 7 + j].instrument + 1) / 10;
+					char inst1 = (seq->track[i].step[patternPosition - 7 + j].instrument + 1) % 10;
+
+					trackerPattern.track[i].row[j].instr[0] = inst0 + 48;
+					trackerPattern.track[i].row[j].instr[1] = inst1 + 48;
+					trackerPattern.track[i].row[j].instr[2] = 0;
+				}
 			}
 			else
 			{
 				trackerPattern.track[i].row[j].instr[0] = '-';
 				trackerPattern.track[i].row[j].instr[1] = '-';
 				trackerPattern.track[i].row[j].instr[2] = 0;
+				trackerPattern.track[i].row[j].instr[3] = 0;
 			}
 
 			if (seq->track[i].step[patternPosition - 7 + j].velocity >= 0)
@@ -1060,10 +1077,10 @@ uint8_t functEncoder(int16_t value)
 
 		switch(PTE->selectedPlace)
 		{
-		case 0: PTE->changeActualTempo(value); break;
-		case 1: PTE->changeActualPattern(value); break;
-		case 2: PTE->changeActualPatternLength(value); break;
-		case 3: PTE->changeActualPatternEditStep(value); break;
+		//case 0: PTE->changeActualTempo(value); break;
+		case 0: PTE->changeActualPattern(value); break;
+		case 1: PTE->changeActualPatternLength(value); break;
+		case 2: PTE->changeActualPatternEditStep(value); break;
 		}
 
 		return 1;
@@ -1348,10 +1365,10 @@ static  uint8_t functUp()
 		fileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
-		case 0: PTE->changeActualTempo(1); 			 return 1;
-		case 1: PTE->changeActualPattern(1); 		 return 1;
-		case 2: PTE->changeActualPatternLength(1); 	 return 1;
-		case 3: PTE->changeActualPatternEditStep(1); return 1;
+		//case 0: PTE->changeActualTempo(1); 			 return 1;
+		case 0: PTE->changeActualPattern(1); 		 return 1;
+		case 1: PTE->changeActualPatternLength(1); 	 return 1;
+		case 2: PTE->changeActualPatternEditStep(1); return 1;
 		}
 		return 1;
 	}
@@ -1440,10 +1457,10 @@ static  uint8_t functDown()
 		fileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
-		case 0: PTE->changeActualTempo(-1); 			return 1;
-		case 1: PTE->changeActualPattern(-1); 		 	return 1;
-		case 2: PTE->changeActualPatternLength(-1); 	return 1;
-		case 3: PTE->changeActualPatternEditStep(-1);	return 1;
+		//case 0: PTE->changeActualTempo(-1); 			return 1;
+		case 0: PTE->changeActualPattern(-1); 		 	return 1;
+		case 1: PTE->changeActualPatternLength(-1); 	return 1;
+		case 2: PTE->changeActualPatternEditStep(-1);	return 1;
 		}
 
 		return 1;
@@ -2042,6 +2059,34 @@ static  uint8_t functChangePattern(uint8_t state)
 {
 	if(state == buttonPress)
 	{
+		if(PTE->selectedPlace == 0)
+		{
+			PTE->focusOnPattern();
+			return 1;
+		}
+		else
+		{
+			PTE->unfocusPattern();
+		}
+
+		PTE->selectedPlace = 0;
+		PTE->activateLabelsBorder();
+	}
+	else if(state == buttonRelease)
+	{
+		if(PTE->selectedPlace == 0)
+		{
+			PTE->focusOnPattern();
+		}
+	}
+
+	return 1;
+}
+
+static  uint8_t functChangePatternLength(uint8_t state)
+{
+	if(state == buttonPress)
+	{
 		if(PTE->selectedPlace == 1)
 		{
 			PTE->focusOnPattern();
@@ -2065,8 +2110,7 @@ static  uint8_t functChangePattern(uint8_t state)
 
 	return 1;
 }
-
-static  uint8_t functChangePatternLength(uint8_t state)
+static  uint8_t functChangePatternEditStep(uint8_t state)
 {
 	if(state == buttonPress)
 	{
@@ -2086,33 +2130,6 @@ static  uint8_t functChangePatternLength(uint8_t state)
 	else if(state == buttonRelease)
 	{
 		if(PTE->selectedPlace == 2)
-		{
-			PTE->focusOnPattern();
-		}
-	}
-
-	return 1;
-}
-static  uint8_t functChangePatternEditStep(uint8_t state)
-{
-	if(state == buttonPress)
-	{
-		if(PTE->selectedPlace == 3)
-		{
-			PTE->focusOnPattern();
-			return 1;
-		}
-		else
-		{
-			PTE->unfocusPattern();
-		}
-
-		PTE->selectedPlace = 3;
-		PTE->activateLabelsBorder();
-	}
-	else if(state == buttonRelease)
-	{
-		if(PTE->selectedPlace == 3)
 		{
 			PTE->focusOnPattern();
 		}
@@ -2555,7 +2572,7 @@ void cPatternEditor::lightUpPadBoard()
 
 			int8_t show_instr = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].instrument;
 
-			if(show_instr >= 0 && show_instr <= 48)
+			if(show_instr >= 0 && show_instr <= 47)
 			{
 				padsBacklight.setBackLayer(1, 20, show_instr);
 			}

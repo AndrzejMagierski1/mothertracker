@@ -12,10 +12,9 @@ struct strTrackerPattern
 		struct strRow
 		{
 			char note[5] = "";
-			char instr[3] = "";
+			char instr[4] = ""; // ostatni znak jako flaga midi
 			char vol[3] = "";
 			char fx[4] = "";
-
 		} row[21];
 
 	} track[8];

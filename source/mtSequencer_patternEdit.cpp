@@ -586,7 +586,7 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 
 					step->instrument = constrain(step->instrument + value,
 													0,
-													INSTRUMENTS_COUNT + 16);
+													INSTRUMENTS_MAX + 16);
 					blinkNote(step->instrument,
 								step->note,
 								step->velocity,
@@ -608,7 +608,7 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 				{
 					step->instrument = constrain(step->instrument + value,
 													0,
-													INSTRUMENTS_COUNT + 1 + 16);
+													INSTRUMENTS_MAX + 16);
 				}
 
 			}
