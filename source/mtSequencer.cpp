@@ -143,11 +143,12 @@ void Sequencer::handle_nanoStep(uint8_t step)
 		{
 			for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 			{
-				int8_t tTempoDiv = constrain(
-						seq[player.ramBank].track[a].tempoDiv,
-						MIN_TEMPO_DIV,
-						MAX_TEMPO_DIV);
-				uint8_t tDiv = getTempoDiv(tTempoDiv);
+//				int8_t tTempoDiv = constrain(
+//						seq[player.ramBank].track[a].tempoDiv,
+//						MIN_TEMPO_DIV,
+//						MAX_TEMPO_DIV);
+
+				uint8_t tDiv = getTempoDiv(TEMPODIV_1_1);
 
 				if (nanoStep % tDiv == 1)
 				{
@@ -655,8 +656,6 @@ uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
 
 void Sequencer::play(void)
 {
-	if (debug.player)
-		Serial.println("play");
 
 	reset_actual_pos();
 
@@ -735,7 +734,7 @@ void Sequencer::stop(void)
 		player.track[a].uStep = 0;
 		player.track[a].makeJump = 0;
 	}
-	player.changeBank = 0;
+//	player.changeBank = 0;
 
 	player.swingToogle = 1;
 
@@ -747,8 +746,6 @@ void Sequencer::stop(void)
 void Sequencer::rec(void)
 {
 
-	if (debug.player)
-		Serial.println("REC");
 	player.isREC = 1;
 	player.rec_intro_timer = 1;
 	player.rec_intro_step = 1;
@@ -758,8 +755,6 @@ void Sequencer::rec(void)
 	init_player_timer();
 
 }
-
-
 
 void Sequencer::loadDefaultSequence(void)
 {
@@ -930,7 +925,7 @@ void Sequencer::reset_actual_pos(void)
 void Sequencer::reset_actual_pos(uint8_t row)
 {
 
-	if (player.track[row].performancePlayMode== PLAYMODE_FORWARD)
+	if (player.track[row].performancePlayMode == PLAYMODE_FORWARD)
 	{
 		player.track[row].actual_pos = MINSTEP;
 	}
@@ -1035,9 +1030,12 @@ void Sequencer::incr_uStep(uint8_t row)
 
 void Sequencer::divChangeQuantize(uint8_t row)
 {
-	int8_t tTempoOption = constrain(seq[player.ramBank].track[row].tempoDiv,
-									MIN_TEMPO_DIV,
-									MAX_TEMPO_DIV);
+	// tutaj pobieramy tempoDiv - pozostalość po sequ
+//	int8_t tTempoOption = constrain(seq[player.ramBank].track[row].tempoDiv,
+//									MIN_TEMPO_DIV,
+//									MAX_TEMPO_DIV);
+	int8_t tTempoOption = TEMPODIV_1_1;
+
 	uint8_t tDiv = getTempoDiv(tTempoOption);
 
 	if (player.track[row].divChange && ((nanoStep % (tDiv * 48)) == 1))
@@ -1105,18 +1103,7 @@ inline uint8_t Sequencer::isStop(void)
 	return player.isStop;
 }
 
-void Sequencer::copy_step(uint8_t from_step, uint8_t from_track,
-							uint8_t to_step,
-							uint8_t to_track)
-{
-	from_step = constrain(from_step, MINSTEP, MAXSTEP);
-	from_track = constrain(from_track, MINTRACK, MAXTRACK);
 
-	to_step = constrain(to_step, MINSTEP, MAXSTEP);
-	to_track = constrain(to_track, MINTRACK, MAXTRACK);
-
-	seq[player.ramBank].track[to_track].step[to_step] = seq[player.ramBank].track[from_track].step[from_step];
-}
 
 void Sequencer::send_clock(uint8_t arg)
 {
@@ -1128,14 +1115,7 @@ void Sequencer::send_clock(uint8_t arg)
 void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
 							uint8_t instrument)
 {
-	if (player.printNotes)
-	{
-		Serial.printf("track %d\nnoteOn:\t%d\nvelo:\t%d\ninstr:\t%d\n\n",
-						track,
-						note,
-						velocity,
-						instrument);
-	}
+
 	if (instrument > INSTRUMENTS_MAX)
 	{
 		usbMIDI.sendNoteOn(note, velocity, instrument - INSTRUMENTS_MAX);
@@ -1148,14 +1128,7 @@ void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
 }
 void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 {
-	if (player.printNotes)
-	{
-		Serial.printf("track %d\nnoteOn:\t%d\nvelo:\t%d\ninstr:\t%d\n\n",
-						track,
-						step->note,
-						step->velocity,
-						step->instrument);
-	}
+
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
 		usbMIDI.sendNoteOn(step->note,
@@ -1178,15 +1151,6 @@ void Sequencer::sendNoteOff(uint8_t track,
 							uint8_t velocity,
 							uint8_t instrument)
 {
-	if (player.printNotes)
-	{
-		Serial.printf(
-				"\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
-				track,
-				note,
-				velocity,
-				instrument);
-	}
 
 	if (instrument > INSTRUMENTS_MAX)
 	{
@@ -1201,15 +1165,6 @@ void Sequencer::sendNoteOff(uint8_t track,
 }
 void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
 {
-	if (player.printNotes)
-	{
-		Serial.printf(
-				"\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
-				track,
-				step->note,
-				step->velocity,
-				step->instrument);
-	}
 
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
@@ -1225,15 +1180,7 @@ void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
 
 void Sequencer::sendNoteOff(uint8_t track)
 {
-//	if (player.printNotes)
-//	{
-//		Serial.printf(
-//				"\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
-//				track,
-//				step->note,
-//				step->velocity,
-//				step->instrument);
-//	}
+
 //	usbMIDI.sendNoteOff(step->note, 0, 1);
 
 	instrumentPlayer[track].noteOff();

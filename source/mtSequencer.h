@@ -23,7 +23,7 @@ public:
 		STEP_VELO_MAX = 127,
 	};
 
-	enum
+	enum enMisc
 	{
 		MAXTRACK = 7,
 		MINTRACK = 0,
@@ -58,10 +58,6 @@ public:
 
 	struct strFxConsts
 	{
-		enum enMisc
-		{
-			FX_INDEX_MAX = 3
-		};
 		enum enFxType
 		{
 			// powiązane z listą tekstów w interfaceDefs.h
@@ -108,15 +104,15 @@ public:
 			FX_TYPE_VIBRATO_SLOW,
 
 		};
-		enum enFxVal
-		{
-			FX_VAL_TYPE_UNKNOWN,		        // unsigned 16
-			FX_VAL_TYPE_U16,	// unsigned 16
-			FX_VAL_TYPE_I16,	// signed 16
-			FX_VAL_TYPE_U8_U8,	// uint8 i uint8
-			FX_VAL_TYPE_I8_I8,	// int8 i int8
-			FX_VAL_TYPE_R8_I8,	// roll(int8) i int8
-		};
+		//		enum enFxVal
+//		{
+//			FX_VAL_TYPE_UNKNOWN,		        // unsigned 16
+//			FX_VAL_TYPE_U16,	// unsigned 16
+//			FX_VAL_TYPE_I16,	// signed 16
+//			FX_VAL_TYPE_U8_U8,	// uint8 i uint8
+//			FX_VAL_TYPE_I8_I8,	// int8 i int8
+//			FX_VAL_TYPE_R8_I8,	// roll(int8) i int8
+//		};
 
 		enum enRollType
 		{
@@ -137,8 +133,6 @@ public:
 		};
 
 	} fx;
-
-// KONIEC STAŁYCH
 
 	struct strPattern
 	{
@@ -162,24 +156,8 @@ public:
 
 		struct strTrack
 		{
-			uint8_t zapas10 :1;
 
 			uint8_t length = MAXSTEP;
-
-			uint8_t zapas5 = 0;
-			uint8_t zapas6 = 0;
-			uint8_t zapas7 = 0;
-			uint8_t zapas9 = 0;
-			uint8_t zapas11 = 0;
-			uint8_t zapas8 = 0;
-			uint8_t zapas1 = 0;
-			uint8_t zapas2 = 0;
-			uint8_t zapas3 = 0;
-
-			int8_t tempoDiv = TEMPODIV_1_1;
-
-			int8_t zapas4 = 0;
-			uint8_t rezerwa4 = 0;
 
 			struct strStep
 			{
@@ -223,6 +201,7 @@ public:
 	{
 		MIDI_CHANNEL_GRID = 20
 	};
+
 	struct strSelection
 
 	{
@@ -353,24 +332,11 @@ public:
 		const uint8_t MAX = 6;
 	} ROLL_CURVE;
 
-	static struct strGateMode
-	{
-		static const uint8_t NORMAL = 0;
-		static const uint8_t MEDIUM = 1;
-		static const uint8_t SHORT = 2;
-		static const uint8_t EXTRASHORT = 3;
-	} GATEMODE;
-
-	struct strDebug
-	{
-		uint8_t player = 0;
-	} debug;
-
 	struct strPlayer
 	{
 		bool songMode = 0;
-		bool printNotes = 0;
-		bool changeBank = 0;
+		//		bool printNotes = 0;
+//		bool changeBank = 0;
 		bool isPlay = 0;
 		bool isREC = 0;
 		bool isStop = 1;
@@ -457,14 +423,8 @@ public:
 	void init();
 	void loadDefaultSequence(void);
 	void printNotes(bool val);
-	void printNotes(void)
-	{
-		player.printNotes = !player.printNotes;
-	}
 
 // sekwencerowe
-
-//	strPattern const * pattern = &seq[0];
 
 	strPlayer const * ptrPlayer = &player;
 
@@ -487,7 +447,7 @@ public:
 		player.songMode = 0;
 	}
 
-	enum
+	enum enSeqState
 	{
 		SEQ_STATE_STOP = 0,
 		SEQ_STATE_PLAY_PATTERN,
@@ -538,11 +498,11 @@ public:
 	void rec(void);
 	void stop(void);
 
+// SELECTION
 	void insert(strSelection *selection);
 	void insertReversed(strSelection *selection);
 	void backspace();
 
-// SELECTION
 	void copySelectionToBuffer(strSelection *from, strSelection *to);
 	void pasteSelectionFromBuffer(strSelection *from, strSelection *to,
 									uint8_t elements);
@@ -564,8 +524,6 @@ public:
 							uint8_t stepTo,
 							uint8_t trackTo);
 
-	void setTempo(float val);
-
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
 	void clearStep(strPattern::strTrack::strStep * step, uint8_t);
@@ -586,20 +544,9 @@ public:
 	void setPerformanceStutter(uint8_t track, int8_t stutter);
 	void setPerformancePlayMode(uint8_t track, int8_t stutter);
 
-	void clearRow(uint8_t row);
-	void clearRow(uint8_t row, uint8_t bank);
 
-	void copy_row(uint8_t from, uint8_t to);
-
-//	void toggleStep(uint8_t, uint8_t);
-
-	void addNoteOff(uint8_t note, uint8_t velocity, uint8_t channel,
-					uint8_t midiOut);
-	void addNoteOn(uint8_t note, uint8_t velocity, uint8_t channel,
-					uint8_t midiOut);
 	void allNoteOffs(void);
 
-	void copy_step(uint8_t from_x, uint8_t from_y, uint8_t to_x, uint8_t to_y);
 
 	void setOnPatternEnd(void (*action)(void))
 	{

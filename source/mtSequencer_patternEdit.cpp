@@ -336,19 +336,6 @@ void Sequencer::loadDefaultTrack(uint8_t row, uint8_t bank)
 {
 
 	seq[bank].track[row].length = MAXSTEP;
-//	seq[bank].track[row].rootNote = DEFAULT_ROW_NOTE;
-//	seq[bank].track[row].trackVelo = MAX_VELO_TRACK;
-//	seq[bank].track[row].defaultMod = DEFAULT_MOD;
-//	seq[bank].track[row].channel = DEFAULT_ROW_CHANNEL;
-//	seq[bank].track[row].cc = DEFAULT_CC;
-//	seq[bank].track[row].isOn = 1;
-//	seq[bank].track[row].trackScale = 0;
-//	seq[bank].track[row].midiOut = MIDIOUT_USB;
-//	seq[bank].track[row].playMode = PLAYMODE_FORWARD;
-//	seq[bank].track[row].gateMode = GATEMODE.NORMAL;
-	seq[bank].track[row].tempoDiv = TEMPODIV_1_1;
-//	seq[bank].track[row].channelIn = CHANNEL_IN_ALL;
-	seq[bank].track[row].rezerwa4 = 0;
 
 	for (uint8_t x = 0; x <= MAXSTEP; x++)
 	{
@@ -1145,8 +1132,5 @@ void Sequencer::setPasteSelection(uint8_t stepFrom,
 
 }
 
-void Sequencer::setTempo(float val)
-{
-	seq[player.ramBank].tempo = val;
-}
+
 
