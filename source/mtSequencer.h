@@ -517,7 +517,7 @@ public:
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
 
 			uint16_t uStep = 0;		// aktualny microstep
-			int8_t actual_pos = 0;	// aktualna pozycja w stepach
+			int16_t actual_pos = 0;	// aktualna pozycja w stepach
 			uint16_t stepTimer = 0;		// tu liczymy microstepy w górę
 			uint16_t stepLength = 0;	// z tym porównujemy timer
 			uint16_t noteTimer = 0;
