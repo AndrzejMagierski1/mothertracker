@@ -5,28 +5,16 @@
 #include "FT812.h"
 #include "keyScanner.h"
 #include "Si4703.h"
-#include "modulesBase.h"
 
-hControl turnOffProgressBar = nullptr;
-char turnOffText[20];
-uint32_t firstPressTimestamp;
-uint8_t firstPress;
-elapsedMillis shutdownTimer;
+mtSleep lowPower;
+
+extern void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3);
 
 extern AudioControlSGTL5000 audioShield;
 SnoozeDigital digital;
 SnoozeBlock config(digital);
 
-uint8_t powerChanged;
-uint8_t powerState = powerTypeNormal;
-
-static void initDisplayCountDown();
-static void refreshDisplayCountDown(uint16_t timeLeft_ms);
-static void deinitDisplayCountDown();
-
-static void resetMCU();
-
-void goLowPower(uint8_t value)
+void mtSleep::goLowPower(uint8_t value)
 {
 	if(value == 1) // pressed
 	{
@@ -45,11 +33,10 @@ void goLowPower(uint8_t value)
 
 		if(timeToShutdown_ms <= 0)
 		{
+			noInterrupts();
 			disableAll();
 			Snooze.sleep(config);
 			powerState=powerTypeLow;
-			powerChanged=1;
-			noInterrupts();
 		}
 	}
 	else
@@ -60,27 +47,34 @@ void goLowPower(uint8_t value)
 			deinitDisplayCountDown();
 		}
 	}
+
+	lastValue = value;
 }
 
-void wakeUp(uint8_t value)
+void mtSleep::wakeUp(uint8_t value)
 {
-	if(value)
+	if(value && lastValue == 0)
 	{
-		interrupts();
-		Snooze.wakeUp(config);
-		powerState=powerTypeNormal;
-		powerChanged=1;
+		resetMCU();
+	}
+
+	lastValue = value;
+}
+
+void mtSleep::handlePowerState(uint8_t value)
+{
+	if(powerState == powerTypeLow)
+	{
+		wakeUp(value);
+	}
+	else if(powerState == powerTypeNormal)
+	{
+		goLowPower(value);
 	}
 }
 
-void changePowerState(uint8_t value)
-{
-	if(powerState == powerTypeLow) 					wakeUp(value);
-	else if (powerState == powerTypeNormal)			goLowPower(value);
-}
 
-
-uint8_t isLowPower()
+uint8_t mtSleep::isLowPower()
 {
 	uint8_t status=0;
 
@@ -92,7 +86,7 @@ uint8_t isLowPower()
 	return status;
 }
 
-void disableAll()
+void mtSleep::disableAll()
 {
 	//wylaczanie usb ze windows nie krzyczal
     USB0_INTEN = 0;
@@ -109,20 +103,7 @@ void disableAll()
 	BOARD_DeinitPins();// RAM pins deinit
 }
 
-void powerModeUpdate()
-{
-	if(powerChanged)
-	{
-		powerChanged=0;
-		if(powerState == powerTypeLow) 				disableAll();
-		else if(powerState == powerTypeNormal)
-		{
-			resetMCU();
-		}
-	}
-}
-
-static void resetMCU()
+void mtSleep::resetMCU()
 {
 	__DSB();
 	CM4_SCB_AIRCR = (uint32_t)((0x5FAUL << CM4_SCB_AIRCR_VECTKEY_POS) | CM4_SCB_AIRCR_SYSRESETREQ_MASK);
@@ -134,8 +115,9 @@ static void resetMCU()
 	}
 }
 
-static void initDisplayCountDown()
+void mtSleep::initDisplayCountDown()
 {
+	interfaceEnvents(eventToggleActiveModule,0,0,0);
 	strControlProperties prop;
 
 	prop.x = 190;
@@ -143,12 +125,11 @@ static void initDisplayCountDown()
 	prop.style = controlStyleValue_0_100;
 	prop.h = 100;
 	prop.w = 420;
-	prop.text = (char*)"loading...";
 
 	if(turnOffProgressBar == nullptr)  turnOffProgressBar = display.createControl<cHorizontalBar>(&prop);
 }
 
-static void refreshDisplayCountDown(uint16_t timeLeft_ms)
+void mtSleep::refreshDisplayCountDown(uint16_t timeLeft_ms)
 {
 	uint32_t progress = 0;
 	uint8_t timeLeft_s = 0;
@@ -164,9 +145,11 @@ static void refreshDisplayCountDown(uint16_t timeLeft_ms)
 	display.refreshControl(turnOffProgressBar);
 }
 
-static void deinitDisplayCountDown()
+void mtSleep::deinitDisplayCountDown()
 {
 	display.destroyControl(turnOffProgressBar);
 	turnOffProgressBar = nullptr;
+
+	interfaceEnvents(eventToggleActiveModule,0,0,0);
 }
 

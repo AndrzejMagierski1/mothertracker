@@ -261,7 +261,7 @@ uint8_t i2c_switch;
 
 void updateHardware()
 {
-	if(!isLowPower())
+	if(!lowPower.isLowPower())
 	{
 		updateEncoder();
 		Encoder.switchRead();

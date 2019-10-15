@@ -48,10 +48,9 @@ void setup()
 //=======================================================================
 void loop()
 {
-	powerModeUpdate();
 	updateHardware();
 
-	if(!isLowPower())
+	if(!lowPower.isLowPower())
 	{
 		sequencer.handle();
 		handle_chatBot();
