@@ -343,13 +343,20 @@ void cSampleImporter::showActualInstrument()
 
 void cSampleImporter::AddOrEnter()
 {
-	if(locationExplorerList[selectedFile][0] == '/')
+	if(selectedPlace == 0)
 	{
-		display.setControlText(topLabel[1], "Enter");
+		if(locationExplorerList[selectedFile][0] == '/')
+		{
+			display.setControlText(topLabel[1], "Enter");
+		}
+		else
+		{
+			display.setControlText(topLabel[1], "Add");
+		}
 	}
 	else
 	{
-		display.setControlText(topLabel[1], "Add");
+		display.setControlText(topLabel[1], "Rename");
 	}
 
 	display.refreshControl(topLabel[1]);
