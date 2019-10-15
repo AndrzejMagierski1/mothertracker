@@ -454,7 +454,7 @@ static uint8_t functPreview(uint8_t state)
 		effector.stop();
 	}
 
-	SE->selectedPlace = 0;
+	//SE->selectedPlace = 0;
 	SE->activateLabelsBorder();
 
 	return 1;
@@ -497,7 +497,7 @@ static uint8_t functApply()
 
 		SE->moduleFlags |= applyingActive;
 
-		SE->selectedPlace = 1;
+		//SE->selectedPlace = 1;
 		SE->activateLabelsBorder();
 	}
 
@@ -532,7 +532,7 @@ static uint8_t functUndo()
 		}
 	}
 
-	SE->selectedPlace = 2;
+	//SE->selectedPlace = 2;
 	SE->activateLabelsBorder();
 
 	return 1;
