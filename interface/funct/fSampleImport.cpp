@@ -293,6 +293,8 @@ void cSampleImporter::setDefaultScreenFunct()
 //==============================================================================================================
 static  uint8_t functChangeFolder(uint8_t button)
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->selectedPlace == 0)
 	{
 		if(button == interfaceButton0)
@@ -313,6 +315,8 @@ static  uint8_t functChangeFolder(uint8_t button)
 
 static  uint8_t functChangeInstrument(uint8_t button)
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->selectedPlace == 1)
 	{
 		if(button == interfaceButton6)
@@ -333,14 +337,17 @@ static  uint8_t functChangeInstrument(uint8_t button)
 
 static  uint8_t functInstrumentAdd()
 {
-	 SI->SelectFile();
+	if(SI->isBusy) return 1;
 
+	 SI->SelectFile();
 
 	return 1;
 }
 
 static  uint8_t functInstrumentDelete()
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->selectedPlace == 1)
 	{
 		if(SI->currSelectPlace == 1 && SI->selectionLength)
@@ -385,6 +392,8 @@ static  uint8_t functInstrumentDelete()
 static  uint8_t functEncoder(int16_t value)
 {
 	if(SI->keyboardActiveFlag == 1) return 1;
+	if(SI->isBusy) return 1;
+
 	switch(SI->selectedPlace)
 	{
 	case 0: SI->changeFileSelection(value); break;
@@ -398,6 +407,7 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functEnter()
 {
+	if(SI->isBusy) return 1;
 
 	switch(SI->selectedPlace)
 	{
@@ -411,6 +421,7 @@ static  uint8_t functEnter()
 
 static  uint8_t functRename()
 {
+	if(SI->isBusy) return 1;
 
 	strncpy(SI->name,mtProject.instrument[SI->selectedSlot].sample.file_name,32);
 	SI->editPosition = strlen(SI->name);
@@ -477,6 +488,8 @@ static  uint8_t functCancelRename()
 
 static uint8_t functCopyPaste()
 {
+	if(SI->isBusy) return 1;
+
 	if(tactButtons.isButtonPressed(interfaceButtonShift))
 	{
 		functPaste();
@@ -499,6 +512,7 @@ static uint8_t functPaste()
 
 	if(SI->copyElementMax && SI->instrCopyStart != SI->selectedSlot)
 	{
+		SI->isBusy = 1;
 		char projectSamplePath[255];
 		uint8_t willFit = 1;
 		uint8_t selectOverMax = 0;
@@ -642,6 +656,8 @@ static  uint8_t functShift(uint8_t state)
 
 static  uint8_t functLeft()
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->keyboardActiveFlag)
 	{
 		SI->keyboardPosition = valueMap[valueMapDirectionLeft][SI->keyboardPosition];
@@ -681,6 +697,8 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->keyboardActiveFlag)
 	{
 		SI->keyboardPosition = valueMap[valueMapDirectionRight][SI->keyboardPosition];
@@ -703,6 +721,8 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->keyboardActiveFlag)
 	{
 		SI->keyboardPosition = valueMap[valueMapDirectionUp][SI->keyboardPosition];
@@ -720,6 +740,8 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->keyboardActiveFlag)
 	{
 		SI->keyboardPosition = valueMap[valueMapDirectionDown][SI->keyboardPosition];
@@ -737,6 +759,8 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
+	if(SI->isBusy) return 1;
+
 	if(sequencer.getSeqState() == 0)
 	{
 		sequencer.play();
@@ -759,6 +783,8 @@ static  uint8_t functRecAction()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->currentLoadStatusFlag || SI->currentCopyStatusFlag) return 1;
 	SI->eventFunct(eventSwitchModule,SI,&button,0);
 
@@ -1085,6 +1111,7 @@ void cSampleImporter::SelectFile()
 	if(!fullMemoryFlag)
 	{
 		copyType = 1;
+		isBusy = 1;
 
 		fileManager.clearAutoLoadFlag();
 
@@ -1349,6 +1376,8 @@ void cSampleImporter::stopPlaying()
 
 uint8_t preview(uint8_t state)
 {
+	if(SI->isBusy) return 1;
+
 	if(state == 0)  SI->stopPlaying();
 	else if (state == 1)
 	{
@@ -1545,8 +1574,8 @@ void cSampleImporter::handleSequenceCopyingLoading()
 				{
 					if(mtProject.instrument[instrCopyStart + copyElement].isActive == 1)
 					{
-						strcpy(projectSamplePath,fileManager.currentProjectPatch);
-						strcat(projectSamplePath,"/samples");
+						//strcpy(projectSamplePath,fileManager.currentProjectPatch);
+						strcpy(projectSamplePath,"Workspace/samples");
 
 						fileManager.assignSampleToInstrument(projectSamplePath,SI->parseNewName(instrCopyStart + copyElement), selectedSlot + copyElement);
 						memcpy(&mtProject.instrument[selectedSlot+copyElement],&mtProject.instrument[instrCopyStart+copyElement],sizeof(mtProject.instrument[0]));
@@ -1585,6 +1614,8 @@ void cSampleImporter::handleSequenceCopyingLoading()
 			fileManager.instrumentForcedSaveFlag = 1;
 
 			mtProject.values.projectNotSavedFlag = 1;
+
+			isBusy = 0;
 		}
 
 		if(firstMemBarLoadFlag == 0)
