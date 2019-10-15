@@ -59,7 +59,7 @@ public:
 
 	//-------------------------------------
 	// step popups funct
-	void showStepPopup(uint8_t stepPopupNone, int8_t initVal);
+	void showStepPopup(uint8_t stepPopupType, int8_t initVal);
 	void hideStepPopups();
 
 	void changeStepPopupValue(int16_t value, uint8_t dir = 0);
@@ -121,6 +121,7 @@ private:
 	hControl textLabel2;
 
 	strList popupList[4];
+	strList instrList;
 	strPadNames padNamesStruct;
 
 	int8_t selectedActualItem = 0;
