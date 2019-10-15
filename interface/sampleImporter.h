@@ -31,6 +31,8 @@ public:
 	void showMemoryUsage();
 	void showLoadHorizontalBar();
 	void showCopyingHorizontalBar();
+	void showDeletingHorizontalBar(uint8_t progress);
+	void hideHorizontalBar();
 	void activateLabelsBorder();
 
 	strList explorerList;
@@ -237,6 +239,11 @@ public:
 	uint8_t lastPressedPad;
 
 	uint8_t isBusy;
+
+	uint8_t deleteInProgress = 0;
+	uint8_t deleteStart = 0;
+	uint8_t deleteCurrentPos = 0;
+	void processDeleting();
 };
 
 

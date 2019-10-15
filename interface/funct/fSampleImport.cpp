@@ -194,6 +194,8 @@ void cSampleImporter::update()
 	{
 		handleMemoryBar();
 	}
+
+	processDeleting();
 }
 
 void cSampleImporter::start(uint32_t options)
@@ -350,19 +352,13 @@ static  uint8_t functInstrumentDelete()
 
 	if(SI->selectedPlace == 1)
 	{
+		SI->isBusy = 1;
+
 		if(SI->currSelectPlace == 1 && SI->selectionLength)
 		{
-			uint8_t selectionStart = SI->getSelectionStart();
-
-			for(int i=0;i<SI->selectionLength;i++)
-			{
-				if(mtProject.instrument[selectionStart+i].isActive)
-				{
-					mtProject.used_memory -= 2* mtProject.instrument[selectionStart+i].sample.length;
-				}
-
-				fileManager.deleteInstrument(selectionStart+i);
-			}
+			SI->deleteInProgress = 1;
+			SI->deleteStart = SI->getSelectionStart();
+			SI->deleteCurrentPos = SI->deleteStart;
 		}
 		else
 		{
@@ -372,14 +368,14 @@ static  uint8_t functInstrumentDelete()
 			}
 
 			fileManager.deleteInstrument(SI->selectedSlot);
+
+			SI->handleMemoryBar();
+
+			SI->listInstrumentSlots();
+			SI->showInstrumentsList();
+
+			SI->isBusy = 0;
 		}
-
-		SI->cancelSelect();
-		SI->handleMemoryBar();
-
-		SI->listInstrumentSlots();
-		SI->showInstrumentsList();
-
 	}
 
 	return 1;
@@ -1637,6 +1633,39 @@ void cSampleImporter::handleSequenceCopyingLoading()
 	}
 
 	lastLoadStatusFlag=currentLoadStatusFlag;
+}
+
+void cSampleImporter::processDeleting()
+{
+	if(deleteInProgress)
+	{
+		if(mtProject.instrument[deleteCurrentPos].isActive)
+		{
+			mtProject.used_memory -= 2* mtProject.instrument[deleteCurrentPos].sample.length;
+		}
+
+		uint8_t progress = ((deleteCurrentPos - deleteStart) * 100) / selectionLength;
+
+		showDeletingHorizontalBar(progress);
+
+		fileManager.deleteInstrument(deleteCurrentPos);
+
+		deleteCurrentPos++;
+
+		if(deleteCurrentPos == (deleteStart + selectionLength))
+		{
+			hideHorizontalBar();
+
+			cancelSelect();
+			handleMemoryBar();
+
+			listInstrumentSlots();
+			showInstrumentsList();
+
+			deleteInProgress = 0;
+			isBusy = 0;
+		}
+	}
 }
 
 uint8_t cSampleImporter::willCopyInstrFit(uint8_t length)

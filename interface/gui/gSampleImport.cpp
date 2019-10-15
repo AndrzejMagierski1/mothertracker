@@ -27,6 +27,19 @@ constexpr uint8_t J_PAD = 30;
 
 void cSampleImporter::initDisplayControls()
 {
+	strControlProperties prop;
+
+	prop.x = 190;
+//	prop.colors = &color[0];
+	prop.y = 170;
+	//prop.w = 800/4-10;
+	prop.style = controlStyleValue_0_100;
+	prop.h = 100;
+	prop.w = 420;
+//	prop.value = 70;
+//	prop.text = "loading...";
+	if(loadHorizontalBarControl == nullptr)  loadHorizontalBarControl = display.createControl<cHorizontalBar>(&prop);
+
 	strControlProperties prop2;
 	prop2.style = 	( controlStyleShow | controlStyleCenterY);
 	prop2.x = 30;
@@ -43,7 +56,6 @@ void cSampleImporter::initDisplayControls()
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 
-	strControlProperties prop;
 	frameData.placesCount = 2;
 	frameData.startPlace = 0;
 	frameData.places[0] = &framesPlaces[0][0];
@@ -115,18 +127,6 @@ void cSampleImporter::initDisplayControls()
 	if(memoryBarControl == nullptr)  memoryBarControl = display.createControl<cBar>(&prop);
 
 
-
-
-	prop.x = 190;
-//	prop.colors = &color[0];
-	prop.y = 170;
-	//prop.w = 800/4-10;
-	prop.style = controlStyleValue_0_100;
-	prop.h = 100;
-	prop.w = 420;
-//	prop.value = 70;
-//	prop.text = "loading...";
-	if(loadHorizontalBarControl == nullptr)  loadHorizontalBarControl = display.createControl<cHorizontalBar>(&prop);
 
 	strControlProperties prop3;
 	prop3.x = 10;
@@ -290,6 +290,20 @@ void cSampleImporter::showCopyingHorizontalBar()
 	display.setControlValue(loadHorizontalBarControl, copyingProgress);
 	display.setControlText(loadHorizontalBarControl, copyingInfo);
 	display.setControlShow(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+}
+
+void cSampleImporter::showDeletingHorizontalBar(uint8_t progress)
+{
+	display.setControlValue(loadHorizontalBarControl, progress);
+	display.setControlText(loadHorizontalBarControl, "Deleting...");
+	display.setControlShow(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+}
+
+void cSampleImporter::hideHorizontalBar()
+{
+	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
 }
 
