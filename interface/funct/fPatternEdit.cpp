@@ -114,9 +114,11 @@ void cPatternEditor::update()
 	if(trackerPattern.playheadPosition == lastPatternPosition || (!isPleyheadOnScreen() && editMode))  return;
 
 
-	refreshPattern();
-
-	lastPatternPosition = trackerPattern.playheadPosition;
+	if(mtPopups.getStepPopupState() == stepPopupNone) // zatrzymaj odswiezanie kiedy wyswietlany popup
+	{
+		refreshPattern();
+		lastPatternPosition = trackerPattern.playheadPosition;
+	}
 
 	patternRefreshTimer = 0;
 }
@@ -514,39 +516,42 @@ void cPatternEditor::cancelPopups()
 	{
 		fileManager.storePatternUndoRevision();
 
-		switch (mtPopups.getStepPopupState())
+		if(PTE->editMode == 1)
 		{
-		case stepPopupNote:
-//			if (!isMultiSelection())
-//			{
-				sendSelection();
-				sequencer.setSelectionNote(mtProject.values.lastUsedNote);
-//			}
-			break;
-		case stepPopupVol:
-//			if (!isMultiSelection())
-//			{
-				sendSelection();
-				sequencer.setSelectionVelocity(mtProject.values.lastUsedVolume);
-//			}
-			break;
-		case stepPopupFx:
-//			if (!isMultiSelection())
-//			{
-				sendSelection();
-				sequencer.setSelectionFxType(mtProject.values.lastUsedFx);
-//			}
-			break;
-		case stepPopupInstr:
-//			if (!isMultiSelection())
-//			{
-				sendSelection();
-				sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
-//			}
-			break;
+			switch (mtPopups.getStepPopupState())
+			{
+			case stepPopupNote:
+	//			if (!isMultiSelection())
+	//			{
+					sendSelection();
+					sequencer.setSelectionNote(mtProject.values.lastUsedNote);
+	//			}
+				break;
+			case stepPopupVol:
+	//			if (!isMultiSelection())
+	//			{
+					sendSelection();
+					sequencer.setSelectionVelocity(mtProject.values.lastUsedVolume);
+	//			}
+				break;
+			case stepPopupFx:
+	//			if (!isMultiSelection())
+	//			{
+					sendSelection();
+					sequencer.setSelectionFxType(mtProject.values.lastUsedFx);
+	//			}
+				break;
+			case stepPopupInstr:
+	//			if (!isMultiSelection())
+	//			{
+					sendSelection();
+					sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
+	//			}
+				break;
 
-		default:
-			break;
+			default:
+				break;
+			}
 		}
 
 		mtPopups.hideStepPopups();
