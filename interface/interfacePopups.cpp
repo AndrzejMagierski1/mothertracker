@@ -366,7 +366,7 @@ void cInterfacePopups::hideStepPopups()
 		display.setControlHide(textLabel2);
 
 		mtInterface.uiFM.clearButton(interfaceButtonRec);
-		mtInterface.uiFM.clearButton(interfaceButtonShift);
+//		mtInterface.uiFM.clearButton(interfaceButtonShift);
 //		mtInterface.uiFM.clearButton(interfaceButtonEnter);
 
 		mtInterface.uiFM.clearButton(interfaceButtonLeft);
@@ -382,7 +382,7 @@ void cInterfacePopups::hideStepPopups()
 void cInterfacePopups::setPopupFunct()
 {
 	mtInterface.uiFM.clearButton(interfaceButtonRec);
-	mtInterface.uiFM.clearButton(interfaceButtonShift);
+//	mtInterface.uiFM.clearButton(interfaceButtonShift);
 //	mtInterface.uiFM.clearButton(interfaceButtonEnter);
 
 	mtInterface.uiFM.clearButtonsRange(interfaceButton0,interfaceButton7);

@@ -348,7 +348,7 @@ uint8_t EVE_IsCmdFifoEmpty(void)
     	//Set REG_CPURESET to 0, to restart the co-processor engine
     	error_counter = 0;
 
-    	Serial.println("FT812 ERROR!");
+    	//Serial.println("FT812 ERROR!");
 
     	EVE_MemWrite32(REG_CPURESET,1);
     	EVE_MemWrite32(REG_CMD_READ, 0);
