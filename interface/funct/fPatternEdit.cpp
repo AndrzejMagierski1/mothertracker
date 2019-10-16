@@ -516,36 +516,40 @@ void cPatternEditor::cancelPopups()
 	{
 		fileManager.storePatternUndoRevision();
 
-		if(PTE->editMode == 1)
+		if(PTE->editMode == 1 && !insertOnPopupHideDisabled)
 		{
 			switch (mtPopups.getStepPopupState())
 			{
 			case stepPopupNote:
 	//			if (!isMultiSelection())
 	//			{
-					sendSelection();
-					sequencer.setSelectionNote(mtProject.values.lastUsedNote);
+					//sendSelection();
+					//sequencer.setSelectionNote(mtProject.values.lastUsedNote);
 	//			}
 				break;
 			case stepPopupVol:
 	//			if (!isMultiSelection())
 	//			{
-					sendSelection();
-					sequencer.setSelectionVelocity(mtProject.values.lastUsedVolume);
+					//sendSelection();
+					//sequencer.setSelectionVelocity(mtProject.values.lastUsedVolume);
 	//			}
 				break;
 			case stepPopupFx:
-	//			if (!isMultiSelection())
-	//			{
-					sendSelection();
-					sequencer.setSelectionFxType(mtProject.values.lastUsedFx);
-	//			}
+				if (!isMultiSelection())
+				{
+					uint8_t fx_type = sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[0].type;
+					if(fx_type > 0 && fx_type < FX_COUNT)
+					{
+						sendSelection();
+						sequencer.setSelectionFxType(mtProject.values.lastUsedFx);
+					}
+				}
 				break;
 			case stepPopupInstr:
 	//			if (!isMultiSelection())
 	//			{
-					sendSelection();
-					sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
+					//sendSelection();
+					//sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
 	//			}
 				break;
 
@@ -569,9 +573,6 @@ void cPatternEditor::cancelPopups()
 			functRandomise();
 		}
 		refreshPattern();
-
-
-
 
 	}
 }
@@ -906,7 +907,7 @@ void cPatternEditor::changeRandomiseData(int16_t value)
 		default: return;
 	}
 }
-//TODO
+
 void cPatternEditor::changneFillDataByPad(uint8_t pad)
 {
 	switch(fillPlace)
@@ -1108,7 +1109,7 @@ uint8_t functEncoder(int16_t value)
 
 
 	sendSelection();
-	if(tactButtons.isButtonPressed(interfaceButton7) || !isMultiSelection())
+	if(tactButtons.isButtonPressed(interfaceButton6) || !isMultiSelection())
 	{
 		setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
@@ -1157,6 +1158,12 @@ static  uint8_t functShift(uint8_t state)
 
 	if(state == buttonPress)
 	{
+		if(mtPopups.getStepPopupState() != stepPopupNone) // ukrywa popup nuta...fx jesli jest wyswietlany
+		{
+			PTE->insertOnPopupHideDisabled = 1;  // dezaktywuje wstawianie danych na wyjecie z popupow
+			PTE->cancelPopups();
+			PTE->insertOnPopupHideDisabled = 0;  // a tu aktywuje spowrotem
+		}
 
 
 	}
@@ -1554,8 +1561,9 @@ static  uint8_t functNote(uint8_t state)
 	else if(state == buttonHold
 			&& mtPopups.getStepPopupState() == stepPopupNone
 			&& !tactButtons.isButtonPressed(interfaceButtonShift)
-			&& !tactButtons.isButtonPressed(interfaceButtonCopy)
-			&& !tactButtons.isButtonPressed(interfaceButtonPattern))
+			//&& !tactButtons.isButtonPressed(interfaceButtonCopy)
+			&& !tactButtons.isButtonPressed(interfaceButtonPattern)
+			&& !PTE->dontShowPopupsUntilButtonRelease)
 	{
 
 		int8_t show_note = sequencer.getPatternToUI()->track[PTE->trackerPattern.actualTrack].step[PTE->trackerPattern.actualStep].note;
@@ -1585,6 +1593,7 @@ static  uint8_t functNote(uint8_t state)
 	else if(state == buttonRelease)
 	{
 		PTE->cancelPopups();
+		PTE->dontShowPopupsUntilButtonRelease = 0;
 	}
 
 	return 1;
@@ -1623,7 +1632,8 @@ static  uint8_t functInstrument(uint8_t state)
 	else if(state == buttonHold
 			&& mtPopups.getStepPopupState() == stepPopupNone
 			&& !tactButtons.isButtonPressed(interfaceButtonShift)
-			&& !tactButtons.isButtonPressed(interfaceButtonPattern))
+			&& !tactButtons.isButtonPressed(interfaceButtonPattern)
+			&& !PTE->dontShowPopupsUntilButtonRelease)
 	{
 		PTE->FM->clearButton(interfaceButtonNote);
 		PTE->FM->clearButton(interfaceButtonVol);
@@ -1635,6 +1645,7 @@ static  uint8_t functInstrument(uint8_t state)
 	else if(state == buttonRelease)
 	{
 		PTE->cancelPopups();
+		PTE->dontShowPopupsUntilButtonRelease = 0;
 	}
 
 	return 1;
@@ -1673,7 +1684,8 @@ static  uint8_t functVolume(uint8_t state)
 	else if(state == buttonHold
 			&& mtPopups.getStepPopupState() == stepPopupNone
 			&& !tactButtons.isButtonPressed(interfaceButtonShift)
-			&& !tactButtons.isButtonPressed(interfaceButtonPattern))
+			&& !tactButtons.isButtonPressed(interfaceButtonPattern)
+			&& !PTE->dontShowPopupsUntilButtonRelease)
 	{
 		PTE->FM->clearButton(interfaceButtonNote);
 		PTE->FM->clearButton(interfaceButtonInstr);
@@ -1685,6 +1697,7 @@ static  uint8_t functVolume(uint8_t state)
 	else if(state == buttonRelease)
 	{
 		PTE->cancelPopups();
+		PTE->dontShowPopupsUntilButtonRelease = 0;
 	}
 
 	return 1;
@@ -1723,8 +1736,10 @@ static  uint8_t functFx(uint8_t state)
 	else if(state == buttonHold
 			&& mtPopups.getStepPopupState() == stepPopupNone
 			&& !tactButtons.isButtonPressed(interfaceButtonShift)
-			&& !tactButtons.isButtonPressed(interfaceButtonCopy)
-			&& !tactButtons.isButtonPressed(interfaceButtonPattern))
+			//&& !tactButtons.isButtonPressed(interfaceButtonCopy)
+			&& !tactButtons.isButtonPressed(interfaceButton6)
+			&& !tactButtons.isButtonPressed(interfaceButtonPattern)
+			&& !PTE->dontShowPopupsUntilButtonRelease)
 	{
 		PTE->FM->clearButton(interfaceButtonNote);
 		PTE->FM->clearButton(interfaceButtonInstr);
@@ -1736,6 +1751,7 @@ static  uint8_t functFx(uint8_t state)
 	else if(state == buttonRelease)
 	{
 		PTE->cancelPopups();
+		PTE->dontShowPopupsUntilButtonRelease = 0;
 	}
 
 	return 1;
@@ -1957,6 +1973,16 @@ static uint8_t functDeleteBackspace(uint8_t state)
 			// DELETE
 			else
 			{
+				PTE->dontShowPopupsUntilButtonRelease = 1;	// blokuje ponowne pojawianie sie popupu
+															// jesli ciagle wcisniety przycisk popupu
+															// do czasu release note...fx
+				if(mtPopups.getStepPopupState() != stepPopupNone) // ukrywa popup nuta...fx jesli jest wyswietlany
+				{
+					PTE->insertOnPopupHideDisabled = 1;  // dezaktywuje wstawianie danych na wyjecie z popupow
+					PTE->cancelPopups();
+					PTE->insertOnPopupHideDisabled = 0;  // a tu aktywuje spowrotem
+				}
+
 				sendSelection();
 				sequencer.clearSelected(getSelectedElement());
 				PTE->shiftAction = 1;
