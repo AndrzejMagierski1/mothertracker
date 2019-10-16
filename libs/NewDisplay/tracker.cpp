@@ -181,12 +181,13 @@ void cTracker::refresh1()
 	if(displayMode > 0)
 	{
 		tracksSpace = (800 - 2*28) / 8;
-		columnsCount = 8;
+		columnsCount = tracks->popupMode ? 6 : 8;
 		paramCount = (displayMode & 1) + ((displayMode & 2) >> 1) + ((displayMode & 4) >> 2) + ((displayMode & 8) >> 3);
 	}
 	else
 	{
-		columnsCount = 4;
+
+		columnsCount = tracks->popupMode ? 3 : 4;
 		tracksSpace = (800 - 2*28) / 4;
 		paramCount = 4;
 	}
@@ -454,7 +455,7 @@ void cTracker::rowNumbers()
 			continue;
 		}
 		Number2Bitmaps(0, (i*28)+15, 8, 18, row);
-		Number2Bitmaps((799-25), posY+(i*28)+15, 8, 18, row);
+		if(!tracks->popupMode) Number2Bitmaps((799-25), posY+(i*28)+15, 8, 18, row); // nie wyswietla prawego jesli popup go zaslania
 		row++;
 	}
 
