@@ -204,10 +204,10 @@ void initHardware()
 
 
 
-#ifdef HW_WITH_RADIO
+	radio.currentRegion = rEurope;
 	radio.powerOn();
 	radio.setVolume(10);
-#endif
+
 
 
 	//LEDS
