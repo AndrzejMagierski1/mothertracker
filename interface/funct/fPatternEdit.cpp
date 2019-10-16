@@ -516,36 +516,40 @@ void cPatternEditor::cancelPopups()
 	{
 		fileManager.storePatternUndoRevision();
 
-		if(PTE->editMode == 1)
+		if(PTE->editMode == 1 && !insertOnPopupHideDisabled)
 		{
 			switch (mtPopups.getStepPopupState())
 			{
 			case stepPopupNote:
 	//			if (!isMultiSelection())
 	//			{
-					sendSelection();
-					sequencer.setSelectionNote(mtProject.values.lastUsedNote);
+					//sendSelection();
+					//sequencer.setSelectionNote(mtProject.values.lastUsedNote);
 	//			}
 				break;
 			case stepPopupVol:
 	//			if (!isMultiSelection())
 	//			{
-					sendSelection();
-					sequencer.setSelectionVelocity(mtProject.values.lastUsedVolume);
+					//sendSelection();
+					//sequencer.setSelectionVelocity(mtProject.values.lastUsedVolume);
 	//			}
 				break;
 			case stepPopupFx:
-	//			if (!isMultiSelection())
-	//			{
-					sendSelection();
-					sequencer.setSelectionFxType(mtProject.values.lastUsedFx);
-	//			}
+				if (!isMultiSelection())
+				{
+					uint8_t fx_type = sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[0].type;
+					if(fx_type >= 0 && fx_type < FX_COUNT)
+					{
+						sendSelection();
+						sequencer.setSelectionFxType(mtProject.values.lastUsedFx);
+					}
+				}
 				break;
 			case stepPopupInstr:
 	//			if (!isMultiSelection())
 	//			{
-					sendSelection();
-					sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
+					//sendSelection();
+					//sequencer.setSelectionInstrument(mtProject.values.lastUsedInstrument);
 	//			}
 				break;
 
@@ -569,9 +573,6 @@ void cPatternEditor::cancelPopups()
 			functRandomise();
 		}
 		refreshPattern();
-
-
-
 
 	}
 }
@@ -1108,7 +1109,7 @@ uint8_t functEncoder(int16_t value)
 
 
 	sendSelection();
-	if(tactButtons.isButtonPressed(interfaceButton7) || !isMultiSelection())
+	if(tactButtons.isButtonPressed(interfaceButton6) || !isMultiSelection())
 	{
 		setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
@@ -1724,6 +1725,7 @@ static  uint8_t functFx(uint8_t state)
 			&& mtPopups.getStepPopupState() == stepPopupNone
 			&& !tactButtons.isButtonPressed(interfaceButtonShift)
 			&& !tactButtons.isButtonPressed(interfaceButtonCopy)
+			&& !tactButtons.isButtonPressed(interfaceButton6)
 			&& !tactButtons.isButtonPressed(interfaceButtonPattern))
 	{
 		PTE->FM->clearButton(interfaceButtonNote);

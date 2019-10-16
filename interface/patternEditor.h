@@ -226,7 +226,7 @@ public:
 	uint8_t getStepFx();
 	int8_t getStepVol();
 
-
+	uint8_t insertOnPopupHideDisabled = 0;
 
 //-------------------------------------------------------
 // mute track master mode
