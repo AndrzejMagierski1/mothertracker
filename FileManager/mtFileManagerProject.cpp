@@ -103,25 +103,32 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 	for(int i=0; i < INSTRUMENTS_COUNT; i++)
 	{
 
-		 sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,i);
+		sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,i);
 
 		 if(SD.exists(currentPatch))
 		 {
-			 status=readInstrumentFile(currentPatch,&mtProject.instrument[i]);
-			 if(!status) return status;
+			status=readInstrumentFile(currentPatch,&mtProject.instrument[i]);
+			if(!status) return status;
 
-			 allCopyingFileSizeOpen += 2*mtProject.instrument[i].sample.length;
-			 sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",i);
-			 writeInstrumentFile(currentPatch,&mtProject.instrument[i]);
+			sprintf(currentPatch,"%s/samples/instr%02d.wav",currentProjectPatch,i);
+			strWavFileHeader header;
+			FsFile wavfile;
+			wavfile = SD.open(currentPatch);
+			readHeader(&header,&wavfile);
+			wavfile.close();
+
+			allCopyingFileSizeOpen += header.subchunk2Size;
+			sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",i);
+			writeInstrumentFile(currentPatch,&mtProject.instrument[i]);
 		 }
 		 else
 		 {
-			 sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",i);
-			 if(SD.exists(currentPatch)) SD.remove(currentPatch);
-			 sprintf(currentPatch,"Workspace/samples/instr%02d.wav",i);
-			 if(SD.exists(currentPatch)) SD.remove(currentPatch);
-			 memset(mtProject.instrument[i].sample.file_name,0, SAMPLE_NAME_SIZE);
-			 mtProject.instrument[i].isActive = 0;
+			sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",i);
+			if(SD.exists(currentPatch)) SD.remove(currentPatch);
+			sprintf(currentPatch,"Workspace/samples/instr%02d.wav",i);
+			if(SD.exists(currentPatch)) SD.remove(currentPatch);
+			memset(mtProject.instrument[i].sample.file_name,0, SAMPLE_NAME_SIZE);
+			mtProject.instrument[i].isActive = 0;
 		 }
 	}
 //**************************************************************************
@@ -224,8 +231,7 @@ void FileManager::importProject(char* sourceProjectPatch,char* name, char* newNa
 	}
 }
 
-
-uint8_t FileManager::startSaveAsProject(char *name, uint8_t type)
+uint8_t FileManager::prepareSaveAs(char *name, uint8_t type)
 {
 	sprintf(currentProjectPatch,"Projects/%s",name);
 	strcpy(currentProjectName,name);
@@ -237,9 +243,15 @@ uint8_t FileManager::startSaveAsProject(char *name, uint8_t type)
 		else if(type == saveAsChecking) return 0;
 	}
 
-	startSaveProject();
-
 	return 1;
+}
+
+void FileManager::startSaveAsProject(char *name)
+{
+	sprintf(currentProjectPatch,"Projects/%s",name);
+	strcpy(currentProjectName,name);
+
+	startSaveProject();
 }
 
 
@@ -254,12 +266,14 @@ uint8_t FileManager::getOpenProjectState()
 
 uint8_t FileManager::getOpenProjectStateProgress()
 {
-	return (100*currentCopyingSizeOpen)/allCopyingFileSizeOpen;
+	uint8_t result = (100*currentCopyingSizeOpen)/allCopyingFileSizeOpen;
+	return result >= 100 ? 100: result;
 }
 
 uint8_t FileManager::getSaveProjectStateProgress()
 {
-	return (100*currentCopyingSizeSave)/allCopyingFileSizeSave;
+	uint8_t result = (100*currentCopyingSizeSave)/allCopyingFileSizeSave;
+	return  result >= 100 ? 100 : result;
 }
 
 void FileManager::startSaveProject()
@@ -309,7 +323,14 @@ void FileManager::startSaveProject()
 	{
 		if(mtProject.instrument[i].isActive == 1)
 		{
-			allCopyingFileSizeSave += 2*mtProject.instrument[i].sample.length;
+			sprintf(currentPatch,"Workspace/samples/instr%02d.wav",i);
+			strWavFileHeader header;
+			FsFile wavfile;
+			wavfile = SD.open(currentPatch);
+			readHeader(&header,&wavfile);
+			wavfile.close();
+
+			allCopyingFileSizeSave += header.subchunk2Size;
 			sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,i);
 			writeInstrumentFile(currentPatch, &mtProject.instrument[i]);
 
