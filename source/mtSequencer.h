@@ -468,7 +468,7 @@ public:
 	}
 	void loadFromFileOK()
 	{
-//		Serial.println("ok");
+
 	}
 	void loadFromFileERROR()
 	{
@@ -489,6 +489,8 @@ public:
 	{
 		player.ramBank = !player.ramBank;
 	}
+
+// SEQUENCER
 
 	void play(void);
 	void playPattern(void);
@@ -543,19 +545,6 @@ public:
 
 	void setPerformanceStutter(uint8_t track, int8_t stutter);
 	void setPerformancePlayMode(uint8_t track, int8_t stutter);
-
-
-	void allNoteOffs(void);
-
-
-	void setOnPatternEnd(void (*action)(void))
-	{
-		player.onPatternEnd = action;
-	}
-
-// inne
-	void handle_uStep_timer(void);
-
 	void fillRandomNotes(uint8_t step, uint8_t from, uint8_t to);
 	void fillLinearNotes(uint8_t step, uint8_t from, uint8_t to);
 	void fillRandomInstruments(uint8_t step, uint8_t from, uint8_t to);
@@ -566,16 +555,26 @@ public:
 						uint8_t toVal);
 	void fillRandomFx(uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
 						uint8_t toVal);
-
 	void changeSelectionNote(int16_t value);
-	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
-					uint8_t track);
-	void closeBlinkNote(void);
-	void blinkSelectedStep();
 	void randomSelectedNotes(uint8_t from, uint8_t to, uint8_t scale);
 	void randomSelectedInstruments(uint8_t from, uint8_t to);
 	void randomSelectedVelo(uint8_t from, uint8_t to);
 	void invertSelectedSteps();
+
+	void allNoteOffs(void);
+
+	void setOnPatternEnd(void (*action)(void))
+	{
+		player.onPatternEnd = action;
+	}
+
+// inne
+	void handle_uStep_timer(void);
+
+	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
+					uint8_t track);
+	void closeBlinkNote(void);
+	void blinkSelectedStep();
 
 	void loadNextPattern(uint8_t patternNumber);
 	void handleNote(byte channel, byte pitch, byte velocity);
