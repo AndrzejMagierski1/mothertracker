@@ -62,6 +62,7 @@ public:
 	hControl instrumentLabel = nullptr;
 	hControl selectWindowLabel = nullptr;
 	hControl loadHorizontalBarControl = nullptr;
+	hControl popupLabel = nullptr;
 	uint32_t topLabelColors[3] =
 	{
 			0x3F3F3F, // tekst
@@ -109,6 +110,26 @@ public:
 	void showSaveAsKeyboard();
 	void showOverwriteWindow();
 	void showExportWindow();
+//*****************************************newProjectPopup
+	void showPopupLabelNewProject();
+	void hidePopupLabelNewProject();
+	elapsedMillis newProjectPopupDelay;
+	uint8_t newProjectPopupFlag;
+//********************************************************
+//*****************************************savePopup
+	void showPopupLabelSave();
+	void hidePopupLabelSave();
+	elapsedMillis savePopupDelay;
+	uint8_t savePopupFlag;
+	uint8_t prepareSaveValue;
+//********************************************************
+//*****************************************openPopup
+	void showPopupLabelOpen();
+	void hidePopupLabelOpen();
+	elapsedMillis openPopupDelay;
+	uint8_t openPopupFlag;
+	uint8_t prepareOpenValue;
+//********************************************************
 	uint8_t newProjectNotSavedFlag = 0;
 	uint8_t createNewProjectFlag = 0;
 	uint8_t currentOpeningStatus = 0;
