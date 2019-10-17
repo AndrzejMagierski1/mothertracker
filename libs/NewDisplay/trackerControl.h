@@ -40,6 +40,8 @@ struct strTrackerPattern
 	int16_t selectEndStep = 0;
 
 	uint8_t selectColumn = 0;
+
+	uint8_t popupMode = 0;
 };
 
 // ilosc znakow parametru

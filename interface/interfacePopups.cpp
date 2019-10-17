@@ -506,6 +506,8 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 			value = (dir == 1 ? -1 : (dir == 2 ? 12 : (dir == 3 ? 1 : (-12))));
 		}
 
+		padsBacklight.setBackLayer(0, 0, selectedActualItem);
+
 		if(selectedActualItem + value < 0) selectedActualItem = 0;
 		else if(selectedActualItem + value > FX_MAX) selectedActualItem = FX_MAX;
 		else selectedActualItem += value;
@@ -514,6 +516,8 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 
 		display.setControlValue(listControl[3], selectedActualItem);
 		display.refreshControl(listControl[3]);
+
+		padsBacklight.setBackLayer(1, 20, selectedActualItem);
 
 		return;
 	}
@@ -766,6 +770,9 @@ static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
 			}
 			case stepPopupFx:
 			{
+				//if(pad < 0 || pad > FX_MAX) break;
+				padsBacklight.setBackLayer(0, 0, mtProject.values.lastUsedFx);
+				padsBacklight.setBackLayer(1, 20, pad);
 				mtPopups.setStepPopupValue(pad);
 				break;
 			}
