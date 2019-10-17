@@ -132,6 +132,12 @@ void cSampleEditor::refreshSampleApplying()
 	{
 		SE->moduleFlags &= ~applyingActive;
 		hideHorizontalBar();
+
+		if(currSelEffect == effectCrop)
+		{
+			SE->resetSpectrumAndPoints();
+		}
+
 		refreshSpectrum = 1;
 		effector.setSaveStatus(waitingForSaveInit);
 		SE->isAnyEffectActive = false;
@@ -586,7 +592,6 @@ static uint8_t functApply()
 		if(SE->currSelEffect == effectCrop)
 		{
 			effector.trim(SE->startPoint, SE->endPoint);
-			SE->resetSpectrumAndPoints();
 			SE->isAnyEffectActive = true;
 			SE->undoCropFlag = 1;
 
@@ -611,7 +616,7 @@ static uint8_t functApply()
 		SE->effectAppliedFlag = 1;
 
 		//SE->selectedPlace = 1;
-		SE->activateLabelsBorder();
+		//SE->activateLabelsBorder();
 	}
 
 	return 1;
@@ -631,8 +636,6 @@ static uint8_t functUndo()
 
 			effector.save(SE->instrumentPath);
 			SE->moduleFlags |= applyingActive;
-
-			SE->resetSpectrumAndPoints();
 		}
 	}
 	else if(SE->currSelEffect == effectReverse)
@@ -649,7 +652,7 @@ static uint8_t functUndo()
 	}
 
 	//SE->selectedPlace = 2;
-	SE->activateLabelsBorder();
+	//SE->activateLabelsBorder();
 
 	return 1;
 }

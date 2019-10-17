@@ -221,6 +221,8 @@ void cSampleEditor::showDefaultScreen()
 
 	showEffectsList();
 
+	hideHorizontalBar();
+
 	display.synchronizeRefresh();
 
 }
@@ -382,6 +384,7 @@ void cSampleEditor::showApplying(uint8_t progress)
 
 void cSampleEditor::hideHorizontalBar()
 {
+	display.setControlValue(processHorizontalBarControl, 0);
 	display.setControlHide(processHorizontalBarControl);
 	display.refreshControl(processHorizontalBarControl);
 }
