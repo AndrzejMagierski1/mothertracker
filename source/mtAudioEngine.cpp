@@ -715,10 +715,11 @@ void playerEngine :: noteOff()
 
 void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 {
+	endFx(lastSeqFx);
 	switch(fx_id)
 	{
 		case 0:
-			endFx(lastSeqFx);
+			// na 0 mial wywolywac endFx ale wywoluje go zawsze i tak
 		break;
 		case fx_t::FX_TYPE_AMP_ATTACK:
 		break;
@@ -1006,6 +1007,7 @@ void playerEngine::endFx(uint8_t fx_id)
 		case fx_t::FX_TYPE_GLIDE :
 			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::glide] = 0;
 			playMemPtr->clearGlideForceFlag();
+			playMemPtr->setForcedGlide(0);
 			modGlide(mtProject.instrument[currentInstrument_idx].glide);
 		break;
 		case fx_t::FX_TYPE_MICROTUNING :
