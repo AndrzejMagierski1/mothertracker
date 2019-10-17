@@ -71,6 +71,10 @@ uint8_t editBitcrusherRate(int16_t value);
 
 uint8_t editAmplifierAmp(int16_t value);
 
+uint8_t editLimiterThreshold(int16_t value);
+uint8_t editLimiterAttack(int16_t value);
+uint8_t editLimiterRelease(int16_t value);
+
 
 
 void cSampleEditor::update()
@@ -103,7 +107,7 @@ void cSampleEditor::onExitRaload()
 {
 	if(onExitFlag == 1)
 	{
-		showSampleLoading(fileManager.samplesLoader.getCurrentProgress());
+		showSampleReloading(fileManager.samplesLoader.getCurrentProgress());
 
 		if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
 		{
@@ -183,11 +187,21 @@ void cSampleEditor::start(uint32_t options)
 	//editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
 	localInstrNum = mtProject.values.lastUsedInstrument;
-	sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);
-	effector.loadSample(instrumentPath);
-	moduleFlags |= sampleLoadingActive;
+	if(mtProject.instrument[localInstrNum].isActive)
+	{
+		sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);
+		effector.loadSample(instrumentPath);
+		moduleFlags |= sampleLoadingActive;
+		sampleIsValid = 1;
+	}
+	else
+	{
+		sampleIsValid = 0;
+		showCurrentSpectrum(0, effector.getAddress());
+	}
 
 	isAnyEffectActive = 0;
+	effectAppliedFlag = 0;
 
 	initEffectsScreenStructs();
 
@@ -396,6 +410,29 @@ void cSampleEditor::initEffectsScreenStructs()
 
 	effectScreen[effectAmplifier].undoActive = 0;
 
+	//!< Limiter effect
+	//
+	effectScreen[effectLimiter].screen = noSpectrum;
+
+	effectScreen[effectLimiter].paramNum = 3;
+	effectScreen[effectLimiter].barNum = 3;
+
+	effectScreen[effectLimiter].bar[1].name = "Threshold";
+	effectScreen[effectLimiter].bar[1].editFunct = editLimiterThreshold;
+	effectScreen[effectLimiter].bar[1].dataSource = &limiterThreshold;
+	effectScreen[effectLimiter].bar[1].dataFormat = tUNSIGNED16,
+
+	effectScreen[effectLimiter].bar[2].name = "Attack";
+	effectScreen[effectLimiter].bar[2].editFunct = editLimiterAttack;
+	effectScreen[effectLimiter].bar[2].dataSource = &limiterAttack;
+	effectScreen[effectLimiter].bar[2].dataFormat = tUNSIGNED16,
+
+	effectScreen[effectLimiter].bar[3].name = "Release";
+	effectScreen[effectLimiter].bar[3].editFunct = editLimiterRelease;
+	effectScreen[effectLimiter].bar[3].dataSource = &limiterRelease;
+	effectScreen[effectLimiter].bar[3].dataFormat = tUNSIGNED16,
+	effectScreen[effectLimiter].undoActive = 0;
+
 }
 
 void cSampleEditor::stop()
@@ -501,6 +538,7 @@ uint8_t cSampleEditor::previewNewEffectRequested()
 static uint8_t functPreview(uint8_t state)
 {
 	if(SE->moduleFlags != 0) return 1;
+	if(SE->sampleIsValid != 1) return 1;
 
 	if(state == 1)
 	{
@@ -534,6 +572,7 @@ static uint8_t functPreview(uint8_t state)
 static uint8_t functApply()
 {
 	if(SE->moduleFlags != 0) return 1;
+	if(SE->sampleIsValid != 1) return 1;
 
 	if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
 	{
@@ -569,6 +608,7 @@ static uint8_t functApply()
 		effector.save(SE->instrumentPath);
 
 		SE->moduleFlags |= applyingActive;
+		SE->effectAppliedFlag = 1;
 
 		//SE->selectedPlace = 1;
 		SE->activateLabelsBorder();
@@ -579,6 +619,8 @@ static uint8_t functApply()
 
 static uint8_t functUndo()
 {
+	if(SE->sampleIsValid != 1) return 1;
+
 	if(SE->currSelEffect == effectCrop)
 	{
 		if(SE->undoCropFlag)
@@ -598,6 +640,7 @@ static uint8_t functUndo()
 		if(SE->undoReverseFlag)
 		{
 			SE->undoReverseFlag = 0;
+
 			effector.undoReverse();
 
 			effector.save(SE->instrumentPath);
@@ -761,15 +804,25 @@ static  uint8_t functRecAction()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(SE->moduleFlags != 0) return 1;
+	if(SE->onExitFlag == 1) return 1;
 
-	if(SE->onExitFlag == 0)
+	if(SE->moduleFlags != onExitReloadActive)
 	{
-		SE->exitButton = button;
-		SE->moduleFlags |= onExitReloadActive;
-		SE->onExitFlag = 1;
+		if(SE->onExitFlag == 0)
+		{
+			if(SE->effectAppliedFlag)
+			{
+				SE->exitButton = button;
+				SE->moduleFlags |= onExitReloadActive;
+				SE->onExitFlag = 1;
 
-		fileManager.samplesLoader.start(0, (char*)"Workspace/samples");
+				fileManager.samplesLoader.start(0, (char*)"Workspace/samples");
+			}
+			else
+			{
+				SE->onExitFlag = 2; // allows to exit immediately
+			}
+		}
 	}
 
 	if(SE->onExitFlag == 2)
@@ -978,6 +1031,9 @@ void cSampleEditor::makeEffect()
 		effectorAmplifier.makeAmplifier(SE->amplifierAmp, newPreviewFlag);// instant efffect
 		previewReadyFlag = 1;
 		break;
+	case effectLimiter:
+		processingActivated = effectorLimiter.makeLimiter(SE->limiterThreshold, SE->limiterAttack, SE->limiterRelease, newPreviewFlag);
+		break;
 	default:
 		break;
 	}
@@ -1019,7 +1075,7 @@ void cSampleEditor::updateEffectProcessing()
 			}
 			break;
 		case effectFlanger:
-			processingStatus = effectorDelay.requireProcess();
+			processingStatus = effectorFlanger.requireProcess();
 
 			if(processingStatus)
 			{
@@ -1046,6 +1102,15 @@ void cSampleEditor::updateEffectProcessing()
 			}
 			break;
 		case effectAmplifier:
+			break;
+		case effectLimiter:
+			processingStatus = effectorLimiter.requireProcess();
+
+			if(processingStatus)
+			{
+				effectorLimiter.process();
+				progress = effectorLimiter.getProgress();
+			}
 			break;
 		default:
 			break;
@@ -1276,6 +1341,42 @@ uint8_t editAmplifierAmp(int16_t value)
 
 
 	return ((SE->amplifierAmp * 100)/AMPLIFIER_AMP_MAX);
+}
+
+uint8_t editLimiterThreshold(int16_t value)
+{
+	uint8_t step = 10;
+
+	if(SE->limiterThreshold + (value*step) < 0) SE->limiterThreshold = 0;
+	else if(SE->limiterThreshold + (value*step) > LIMITER_THRESHOLD_MAX) SE->limiterThreshold = LIMITER_THRESHOLD_MAX;
+	else SE->limiterThreshold += (value*step);
+
+
+	return ((SE->limiterThreshold * 100)/LIMITER_THRESHOLD_MAX);
+}
+
+uint8_t editLimiterAttack(int16_t value)
+{
+	uint8_t step = 10;
+
+	if(SE->limiterAttack + (value*step) < 0) SE->limiterAttack = 0;
+	else if(SE->limiterAttack + (value*step) > LIMITER_ATTACK_MAX) SE->limiterAttack = LIMITER_ATTACK_MAX;
+	else SE->limiterAttack += (value*step);
+
+
+	return ((SE->limiterAttack * 100)/LIMITER_ATTACK_MAX);
+}
+
+uint8_t editLimiterRelease(int16_t value)
+{
+	uint8_t  step = 10;
+
+	if(SE->limiterRelease + (value*step) < 0) SE->limiterRelease = 0;
+	else if(SE->limiterRelease + (value*step) > LIMITER_RELEASE_MAX) SE->limiterRelease = LIMITER_RELEASE_MAX;
+	else SE->limiterRelease += (value * step);
+
+
+	return ((SE->limiterRelease * 100)/LIMITER_RELEASE_MAX);
 }
 
 

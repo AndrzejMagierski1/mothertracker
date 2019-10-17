@@ -40,6 +40,7 @@ public:
 	save_stages_t getSaveStatus();
 	void setSaveStatus(save_stages_t status);
 	void setEffects();
+	void clearMainBuffer();
 
 	friend class mtChorus;
 	friend class mtFlanger;

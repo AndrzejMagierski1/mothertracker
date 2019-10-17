@@ -16,7 +16,7 @@ int8_t mtCompressor::makeCompressor(uint16_t cT, int16_t cR, uint16_t at, uint16
 	localLength = effector.getLength();
 	returnLength = localLength;
 	localAddress = effector.getAddress();
-	destAddress = sdram_effectsBank;
+	destAddress = effector.previewBuffer;
 
 
 	compressorThreshold=10*log10f(pow(cT,2));

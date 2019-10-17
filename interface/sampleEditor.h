@@ -64,6 +64,7 @@ typedef enum
 	effectCompressor,
 	effectBitcrusher,
 	effectAmplifier,
+	effectLimiter,
 
 }effect_t;
 
@@ -76,7 +77,7 @@ typedef enum
 }flags_t;
 
 
-const uint8_t effectsCount = 8;
+const uint8_t effectsCount = 9;
 const char effectNamesLabels[effectsCount][15] =
 {
 		"Crop",
@@ -87,6 +88,7 @@ const char effectNamesLabels[effectsCount][15] =
 		"Compressor",
 		"Bitcrusher",
 		"Amplifier",
+		"Limiter",
 };
 
 
@@ -201,6 +203,7 @@ public:
 	void refreshBarsValue(uint8_t whichBar, uint8_t newValue);
 	void showProcessingBar(uint8_t progress);
 	void showSampleLoading(uint8_t progress);
+	void showSampleReloading(uint8_t progress);
 	void showApplying(uint8_t progress);
 	void hideHorizontalBar();
 	void updateEffectProcessing();
@@ -244,6 +247,11 @@ public:
 	//Amplifier inputs
 	float amplifierAmp;
 
+	//Limiter inputs
+	uint16_t limiterThreshold;
+	uint16_t limiterAttack;
+	uint16_t limiterRelease;
+
 	effect_t lastPreviewEffect;
 	uint8_t previewReadyFlag;
 
@@ -256,11 +264,14 @@ public:
 
 	uint8_t onExitFlag;
 	uint8_t exitButton;
+	uint8_t effectAppliedFlag;
 
 	uint8_t firstSampleLoadFlag;
 
 	uint8_t undoCropFlag;
 	uint8_t undoReverseFlag;
+
+	uint8_t sampleIsValid;
 
 };
 

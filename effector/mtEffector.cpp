@@ -51,6 +51,15 @@ void mtEffector::trim(uint16_t a, uint16_t b)
 	memcpy(localEffectAddress,startAddress,fileByteSaved);
 }
 
+void mtEffector::clearMainBuffer()
+{
+	uint32_t bytesToClear = 0;
+
+	bytesToClear = (previewBuffer - applyBuffer);
+
+	memset(applyBuffer,0,bytesToClear);
+}
+
 void mtEffector::undoTrim()
 {
 	fileByteSaved = undoCropLength;

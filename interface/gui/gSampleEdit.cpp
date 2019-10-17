@@ -364,6 +364,14 @@ void cSampleEditor::showSampleLoading(uint8_t progress)
 	display.refreshControl(processHorizontalBarControl);
 }
 
+void cSampleEditor::showSampleReloading(uint8_t progress)
+{
+	display.setControlValue(processHorizontalBarControl, progress);
+	display.setControlText(processHorizontalBarControl, "Reloading...");
+	display.setControlShow(processHorizontalBarControl);
+	display.refreshControl(processHorizontalBarControl);
+}
+
 void cSampleEditor::showApplying(uint8_t progress)
 {
 	display.setControlValue(processHorizontalBarControl, progress);
