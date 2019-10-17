@@ -84,8 +84,8 @@ struct strBitmap
 };
 
 
-extern strFont fonts[];
-extern strBitmap bitmaps[];
+extern const strFont fonts[];
+extern const strBitmap bitmaps[];
 
 
 #define FONT_INDEX_FROM_STYLE (((style >> 8) & 15)-1)

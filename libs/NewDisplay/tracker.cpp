@@ -4,7 +4,7 @@
 #include "trackerControl.h"
 
 void Number2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, int16_t number);
-void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
+void String2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length);
 
 static uint32_t defaultColors[] =
 
@@ -181,12 +181,13 @@ void cTracker::refresh1()
 	if(displayMode > 0)
 	{
 		tracksSpace = (800 - 2*28) / 8;
-		columnsCount = 8;
+		columnsCount = tracks->popupMode ? 6 : 8;
 		paramCount = (displayMode & 1) + ((displayMode & 2) >> 1) + ((displayMode & 4) >> 2) + ((displayMode & 8) >> 3);
 	}
 	else
 	{
-		columnsCount = 4;
+
+		columnsCount = tracks->popupMode ? 3 : 4;
 		tracksSpace = (800 - 2*28) / 4;
 		paramCount = 4;
 	}
@@ -454,7 +455,7 @@ void cTracker::rowNumbers()
 			continue;
 		}
 		Number2Bitmaps(0, (i*28)+15, 8, 18, row);
-		Number2Bitmaps((799-25), posY+(i*28)+15, 8, 18, row);
+		if(!tracks->popupMode) Number2Bitmaps((799-25), posY+(i*28)+15, 8, 18, row); // nie wyswietla prawego jesli popup go zaslania
 		row++;
 	}
 
@@ -553,7 +554,7 @@ void cTracker::notes()
 
 			if(change_color) API_COLOR(colors[6]);
 
-			String2Bitmaps(param_x, param_y, 12, 26, tracks->track[tracks->firstVisibleTrack+i].row[j].note, param_length[0]);
+			String2Bitmaps(param_x, param_y, &fonts[1], tracks->track[tracks->firstVisibleTrack+i].row[j].note, param_length[0]);
 
 			if(change_color) API_COLOR(colors[2]);
 		}
@@ -586,15 +587,18 @@ void cTracker::instruments()
 			int16_t param_x = offset_x+i*tracksSpace;
 			int16_t param_y = 15+j*28;
 			uint8_t change_color = 0;
+			uint8_t midi_channel  =  tracks->track[tracks->firstVisibleTrack+i].row[j].instr[3];
 
 			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) change_color = 1;
 			else if(j == 7 && i == mark) change_color = 1;
 
+			//if(midi_channel > 0)	API_BITMAP_HANDLE(fonts[0].handle);
 			if(change_color) API_COLOR(colors[6]);
 
-			String2Bitmaps(param_x, param_y, 12, 26, tracks->track[tracks->firstVisibleTrack+i].row[j].instr, param_length[1]);
+			String2Bitmaps(param_x, param_y, (midi_channel)?&fonts[0]:&fonts[1], tracks->track[tracks->firstVisibleTrack+i].row[j].instr, param_length[1]);
 
 			if(change_color) API_COLOR(colors[3]);
+			//if(midi_channel > 0)	API_BITMAP_HANDLE(fonts[1].handle);
 		}
 	}
 	API_END();
@@ -631,7 +635,7 @@ void cTracker::volumes()
 
 			if(change_color) API_COLOR(colors[6]);
 
-			String2Bitmaps(param_x, param_y, 12, 26, tracks->track[tracks->firstVisibleTrack+i].row[j].vol, param_length[2]);
+			String2Bitmaps(param_x, param_y, &fonts[1], tracks->track[tracks->firstVisibleTrack+i].row[j].vol, param_length[2]);
 
 			if(change_color) API_COLOR(colors[4]);
 		}
@@ -670,7 +674,7 @@ void cTracker::fxes()
 
 			if(change_color) API_COLOR(colors[6]);
 
-			String2Bitmaps(param_x, param_y, 12, 26, tracks->track[tracks->firstVisibleTrack+i].row[j].fx, param_length[3]);
+			String2Bitmaps(param_x, param_y, &fonts[1], tracks->track[tracks->firstVisibleTrack+i].row[j].fx, param_length[3]);
 
 			if(change_color) API_COLOR(colors[5]);
 		}
@@ -694,11 +698,13 @@ inline void draw_char(uint16_t x, uint16_t y, uint8_t charr)
 	}
 }
 
-void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length)
+int16_t lastHandle;
+void String2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length)
 {
-	y = y - font_y/2;
+	y = y - font->height/2;
 	uint8_t strPtr = 0;
 
+	x+=fonts[1].width-font->width;
 
 	for(uint8_t i = 0; i < length; i++)
 	{
@@ -708,14 +714,19 @@ void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* 
 		}
 		else if((x > 511 || y > 511) && string[strPtr] >=32)
 		{
+			if(lastHandle != font->handle)
+			{
+				API_BITMAP_HANDLE(font->handle);
+				lastHandle = font->handle;
+			}
 			API_CELL(string[strPtr++]);
 			API_VERTEX2F(x, y);
 		}
 		else if(string[strPtr] >=32)
 		{
-			API_VERTEX2II(x,y,fonts[1].handle, (char)string[strPtr++]);
+			API_VERTEX2II(x,y,font->handle, (char)string[strPtr++]);
 		}
-		x+=font_x;
+		x+=font->width;
 	}
 }
 

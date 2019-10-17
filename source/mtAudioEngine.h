@@ -189,9 +189,11 @@ public:
 	void changeTunePerformanceMode(int8_t value);
 	void changeReverbSendPerformanceMode(int8_t value);
 	void changeStartPointPerformanceMode(int32_t value);
+	void changeEndPointPerformanceMode(int32_t value);
 	void changeCutoffPerformanceMode(int8_t value);
 	void changeFilterTypePerformanceMode(uint8_t mode);
 //*****************************END
+	void changeSamplePlaybackPerformanceMode(uint8_t value);
 
 	void endVolumePerformanceMode();
 	void endPanningPerformanceMode();

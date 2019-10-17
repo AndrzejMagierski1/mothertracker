@@ -276,6 +276,11 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 		instrumentPlayer[track].endStartPointPerformanceMode();
 		break;
 	}
+	case mtPerfSampleEnd:
+	{
+		instrumentPlayer[track].changeEndPointPerformanceMode(0);
+		break;
+	}
 	case mtPerfTune:
 	{
 		instrumentPlayer[track].endTunePerformanceMode();
@@ -283,8 +288,7 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 	}
 	case mtPerfSamplePlayback:
 	{
-		//TODO:
-
+		instrumentPlayer[track].changeSamplePlaybackPerformanceMode(0);
 		break;
 	}
 	case mtPerfStepStutter:
@@ -374,6 +378,11 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track)
 			instrumentPlayer[track].changeStartPointPerformanceMode(fxValues[fx]);
 			break;
 		}
+		case mtPerfSampleEnd:
+		{
+			instrumentPlayer[track].changeEndPointPerformanceMode(fxValues[fx]);
+			break;
+		}
 		case mtPerfTune:
 		{
 			instrumentPlayer[track].changeTunePerformanceMode(fxValues[fx]);
@@ -381,8 +390,7 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track)
 		}
 		case mtPerfSamplePlayback:
 		{
-			//TODO:
-
+			instrumentPlayer[track].changeSamplePlaybackPerformanceMode(fxValues[fx]);
 			break;
 		}
 		case mtPerfStepStutter:
@@ -554,6 +562,20 @@ static  uint8_t functEncoder(int16_t value)
 
 				break;
 			}
+			case mtPerfSampleEnd:
+			{
+				if(PM->fxValues[i] + mod_value > 100) PM->fxValues[i] = 100;
+				else if(PM->fxValues[i] + mod_value < -100) PM->fxValues[i] = -100;
+				else PM->fxValues[i] += mod_value;
+
+				for(uint8_t j = 0; j < 8; j++)
+				{
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeEndPointPerformanceMode(map(PM->fxValues[i],-100,100,-MAX_16BIT,MAX_16BIT));
+				}
+				break;
+
+				break;
+			}
 			case mtPerfTune:
 			{
 				if(PM->fxValues[i] + mod_value > 48) PM->fxValues[i] = 48;
@@ -577,7 +599,7 @@ static  uint8_t functEncoder(int16_t value)
 				{
 					if(PM->tracksPerformanceState[j])
 					{
-						//TODO: tutaj funkcja modyfikujaca na podstawie: PM->fxValues[i] = wartosc , j = track
+						instrumentPlayer[j].changeSamplePlaybackPerformanceMode(PM->fxValues[i]);
 					}
 				}
 

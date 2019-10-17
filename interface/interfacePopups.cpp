@@ -30,6 +30,20 @@ static uint32_t instrListColors[] =
 	0xFFFFFF,	//	 fontList
 };
 
+static uint32_t listBgLabelColors[] =
+{
+	0xFFFFFF, // tekst
+	0x222222, // tło
+	0xFF0000, // ramka
+};
+
+static uint32_t titleBgLabelColors[] =
+{
+	0x000000, // tekst
+	0xFFFFFF, // tło
+	0xFF0000, // ramka
+};
+
 
 cInterfacePopups mtPopups;
 static  cInterfacePopups* POP = &mtPopups;
@@ -75,6 +89,7 @@ void cInterfacePopups::initPopupsDisplayControls()
 	prop2.style = 	(controlStyleCenterY);
 	prop2.x = 30;
 	prop2.y = 12;
+	prop2.colors = listBgLabelColors;
 	if(textLabel1 == nullptr) textLabel1 = display.createControl<cLabel>(&prop2);
 	prop2.style = 	(controlStyleRightX | controlStyleCenterY);
 	prop2.x = 769;
@@ -175,6 +190,7 @@ void cInterfacePopups::showNotesPopup()
 
 	display.setControlPosition(bgLabel, 0, 0);
 	display.setControlSize(bgLabel, 800, 25);
+	display.setControlColors(bgLabel, titleBgLabelColors);
 	display.setControlStyle(bgLabel, controlStyleShow | controlStyleBackground);
 	display.refreshControl(bgLabel);
 
@@ -199,24 +215,40 @@ void cInterfacePopups::showNotesPopup()
 
 void cInterfacePopups::showInstrumentsPopup()
 {
-	display.hideAllControls();
+	//display.hideAllControls();
 
-	display.setControlPosition(bgLabel, 0, 0);
-	display.setControlSize(bgLabel, 800, 25);
+	display.setControlPosition(bgLabel, 585, 0);
+	display.setControlSize(bgLabel, 799-585, 419);
+	display.setControlColors(bgLabel, listBgLabelColors);
+
+	//display.setControlPosition(bgLabel, 0, 0);
+	//display.setControlSize(bgLabel, 800, 25);
 	display.setControlStyle(bgLabel, controlStyleShow | controlStyleBackground);
 	display.refreshControl(bgLabel);
 
 	display.setControlText(textLabel1, "Instruments");
-	display.setControlPosition(textLabel1, 30, 12);
+	display.setControlPosition(textLabel1, 600, 12);
+	//display.setControlPosition(textLabel1, 30, 12);
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY);
 	display.refreshControl(textLabel1);
 
 
-	showActualInstrument();
+	//showActualInstrument();
 	listInstruments();
 
 	ptrActualItemsList = (char**)(interfaceGlobals.ptrIntrumentsNames);
-	refreshAllList();
+
+	instrList.start = selectedActualItem;
+	instrList.linesCount = 15;
+	instrList.length = 64;
+	instrList.data = interfaceGlobals.ptrIntrumentsNames;
+
+	display.setControlPosition(listControl[3], 600, 220);
+	display.setControlData(listControl[3], &instrList);
+	display.setControlShow(listControl[3]);
+	display.refreshControl(listControl[3]);
+
+	//refreshAllList();
 
 	display.synchronizeRefresh();
 }
@@ -227,6 +259,7 @@ void cInterfacePopups::showVolumesPopup()
 
 	display.setControlPosition(bgLabel, 0, 0);
 	display.setControlSize(bgLabel, 800, 25);
+	display.setControlColors(bgLabel, titleBgLabelColors);
 	display.setControlStyle(bgLabel, controlStyleShow | controlStyleBackground);
 	display.refreshControl(bgLabel);
 
@@ -251,22 +284,37 @@ void cInterfacePopups::showVolumesPopup()
 
 void cInterfacePopups::showFxesPopup()
 {
-	display.hideAllControls();
+	//display.hideAllControls();
 
-	display.setControlPosition(bgLabel, 0, 0);
-	display.setControlSize(bgLabel, 800, 25);
+	display.setControlPosition(bgLabel, 585, 0);
+	display.setControlSize(bgLabel, 799-585, 419);
+	display.setControlColors(bgLabel, listBgLabelColors);
+
+	//display.setControlPosition(bgLabel, 0, 0);
+	//display.setControlSize(bgLabel, 800, 25);
 	display.setControlStyle(bgLabel, controlStyleShow | controlStyleBackground);
 	display.refreshControl(bgLabel);
 
 	display.setControlText(textLabel1, "Fx");
-	display.setControlPosition(textLabel1, 30, 12);
+	//display.setControlPosition(textLabel1, 30, 12);
+	display.setControlPosition(textLabel1, 600, 12);
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY);
 	display.refreshControl(textLabel1);
 
-	showActualInstrument();
-
+	//showActualInstrument();
 	ptrActualItemsList = (char**)(interfaceGlobals.ptrFxNames);
-	refreshAllList();
+
+	instrList.start = selectedActualItem;
+	instrList.linesCount = 15;
+	instrList.length = 48;
+	instrList.data = (char**)interfaceGlobals.ptrFxNames;
+
+	display.setControlPosition(listControl[3], 600, 220);
+	display.setControlData(listControl[3], &instrList);
+	display.setControlShow(listControl[3]);
+	display.refreshControl(listControl[3]);
+
+	//refreshAllList();
 
 	display.synchronizeRefresh();
 }
@@ -318,7 +366,7 @@ void cInterfacePopups::hideStepPopups()
 		display.setControlHide(textLabel2);
 
 		mtInterface.uiFM.clearButton(interfaceButtonRec);
-		mtInterface.uiFM.clearButton(interfaceButtonShift);
+//		mtInterface.uiFM.clearButton(interfaceButtonShift);
 //		mtInterface.uiFM.clearButton(interfaceButtonEnter);
 
 		mtInterface.uiFM.clearButton(interfaceButtonLeft);
@@ -334,7 +382,7 @@ void cInterfacePopups::hideStepPopups()
 void cInterfacePopups::setPopupFunct()
 {
 	mtInterface.uiFM.clearButton(interfaceButtonRec);
-	mtInterface.uiFM.clearButton(interfaceButtonShift);
+//	mtInterface.uiFM.clearButton(interfaceButtonShift);
 //	mtInterface.uiFM.clearButton(interfaceButtonEnter);
 
 	mtInterface.uiFM.clearButtonsRange(interfaceButton0,interfaceButton7);
@@ -380,8 +428,11 @@ void cInterfacePopups::setStepPopupValue(int16_t value)
 	}
 	case stepPopupFx:
 	{
-		refreshAllList();
+		//refreshAllList();
 		mtProject.values.lastUsedFx = selectedActualItem;
+		display.setControlValue(listControl[3], selectedActualItem);
+		display.refreshControl(listControl[3]);
+
 		return;
 	}
 	default:	break;
@@ -437,12 +488,16 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 		}
 
 		if(selectedActualItem + value < 0) selectedActualItem = 0;
-		else if(selectedActualItem + value > INSTRUMENTS_MAX) selectedActualItem = INSTRUMENTS_MAX;
+		else if(selectedActualItem + value > INSTRUMENTS_MAX+16) selectedActualItem = INSTRUMENTS_MAX+16;
 		else selectedActualItem += value;
 
 		mtProject.values.lastUsedInstrument = selectedActualItem;
-		showActualInstrument();
-		break;
+		//showActualInstrument();
+
+		display.setControlValue(listControl[3], selectedActualItem);
+		display.refreshControl(listControl[3]);
+
+		return;
 	}
 	case stepPopupFx:
 	{
@@ -451,12 +506,20 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 			value = (dir == 1 ? -1 : (dir == 2 ? 12 : (dir == 3 ? 1 : (-12))));
 		}
 
+		padsBacklight.setBackLayer(0, 0, selectedActualItem);
+
 		if(selectedActualItem + value < 0) selectedActualItem = 0;
 		else if(selectedActualItem + value > FX_MAX) selectedActualItem = FX_MAX;
 		else selectedActualItem += value;
 
 		mtProject.values.lastUsedFx = selectedActualItem;
-		break;
+
+		display.setControlValue(listControl[3], selectedActualItem);
+		display.refreshControl(listControl[3]);
+
+		padsBacklight.setBackLayer(1, 20, selectedActualItem);
+
+		return;
 	}
 
 	default:	return;
@@ -514,10 +577,27 @@ void cInterfacePopups::showActualInstrument()
 	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
 
 	display.setControlText(textLabel2,  actualInstrName);
+	display.setControlStyle(textLabel2, controlStyleShow  | controlStyleCenterY);
+	display.setControlPosition(textLabel2, 585, 12);
+	display.refreshControl(textLabel2);
+}
+/*
+void cInterfacePopups::showActualInstrument()
+{
+	static char actualInstrName[SAMPLE_NAME_SIZE+4];
+
+	uint8_t i = mtProject.values.lastUsedInstrument;
+
+	sprintf(actualInstrName, "%d. ", i+1);
+
+	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+
+	display.setControlText(textLabel2,  actualInstrName);
 	display.setControlStyle(textLabel2, controlStyleShow | controlStyleRightX | controlStyleCenterY);
 	display.setControlPosition(textLabel2, 769, 12);
 	display.refreshControl(textLabel2);
 }
+*/
 
 void cInterfacePopups::listInstruments()
 {
@@ -531,6 +611,11 @@ void cInterfacePopups::listInstruments()
 		}
 
 		interfaceGlobals.ptrIntrumentsNames[i] = &interfaceGlobals.intrumentsNames[i][0];
+	}
+	for(uint8_t i = 0; i < 16; i++)
+	{
+		sprintf(&interfaceGlobals.intrumentsNames[INSTRUMENTS_COUNT+i][0], "%d. MIDI Channel %d", /*INSTRUMENTS_COUNT+*/i+1, i+1);
+		interfaceGlobals.ptrIntrumentsNames[INSTRUMENTS_COUNT+i] = &interfaceGlobals.intrumentsNames[INSTRUMENTS_COUNT+i][0];
 	}
 }
 
@@ -685,6 +770,9 @@ static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
 			}
 			case stepPopupFx:
 			{
+				//if(pad < 0 || pad > FX_MAX) break;
+				padsBacklight.setBackLayer(0, 0, mtProject.values.lastUsedFx);
+				padsBacklight.setBackLayer(1, 20, pad);
 				mtPopups.setStepPopupValue(pad);
 				break;
 			}

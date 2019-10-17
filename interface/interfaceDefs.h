@@ -208,7 +208,7 @@ enum interfaceEvents
 	eventSwitchModule,
 	eventSwitchToPreviousModule,
 	eventSwitchModuleWithOptions,
-
+	eventToggleActiveModule,
 
 	eventActivateGameModule,
 
@@ -251,8 +251,8 @@ struct strInterfaceGlobals
 {
 	char *padNamesPointer[48];
 
-	char intrumentsNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
-	char *ptrIntrumentsNames[INSTRUMENTS_COUNT];
+	char intrumentsNames[INSTRUMENTS_COUNT+16][SAMPLE_NAME_SIZE+4];
+	char *ptrIntrumentsNames[INSTRUMENTS_COUNT+16];
 
 //-----------------------------------------------------
 	static const uint8_t fillTypeListCount = 3;

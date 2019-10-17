@@ -320,6 +320,21 @@ int8_t cInterface::getButtonIndex(uint8_t button)
 	}
 	return -1;
 }
+
+
+void cInterface::toggleActiveModule()
+{
+	if(onScreenModule == nullptr)
+	{
+		hModule prevModule = previousModule;
+		uint32_t prevModuleOptions = previousModuleOptions;
+
+		activateModule(prevModule, prevModuleOptions);
+		return;
+	}
+
+	mtInterface.deactivateModule(onScreenModule);
+}
 //=======================================================================
 //=======================================================================
 //=======================================================================
@@ -350,6 +365,11 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 		{
 			mtInterface.deactivateModule((hModule)param1);
 			mtInterface.activateModule(&gameModule,0);
+			break;
+		}
+		case eventToggleActiveModule:
+		{
+			mtInterface.toggleActiveModule();
 			break;
 		}
 
