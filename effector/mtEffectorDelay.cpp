@@ -21,7 +21,7 @@ uint8_t mtDelay::makeDelay(float feedback, uint16_t time, uint8_t forceEffect)
 	int16_t * localAddress = effector.getAddress();
 	uint32_t samplesTime = (uint32_t)((float)time*44.1);
 
-	destAddress = sdram_effectsBank;
+	destAddress = effector.previewBuffer;
 	compareAddr = localAddress + localLength/2;
 
 	firstIndex=0;
@@ -61,7 +61,7 @@ void mtDelay::process()
 {
 	if(requireProcessing == 1)
 	{
-		if((sPointer[compareIdx] < compareAddr ) && (sampleCnt <= SAMPLE_MEMORY_MAX))
+		if((sPointer[compareIdx] < compareAddr ) && (sampleCnt <= SAMPLE_EFFECTOR_LENGTH_MAX))
 		{
 			int32_t currentSum = 0;
 

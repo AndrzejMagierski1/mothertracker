@@ -17,7 +17,7 @@ int32_t mtAmplifier::makeAmplifier(float amp, int8_t forceEffect)
 	int32_t returnLength = (int32_t) srcLength;
 
 	int16_t * srcAddress = effector.getAddress();
-	int16_t * destAddress = sdram_effectsBank;
+	int16_t * destAddress = effector.previewBuffer;
 	int32_t currentValue;
 
 	for(uint32_t i = 0; i< srcLength; i++)
