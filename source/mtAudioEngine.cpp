@@ -1540,7 +1540,7 @@ uint16_t playerEngine ::getWavePosition()
 {
 	return playMemPtr->getPosition();
 }
-
+//**************************************************************************************************************************************
 //PERFORMANCE MODE
 
 // state = 1 mutuje
@@ -1560,6 +1560,7 @@ void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 		instrumentPlayer[channel].modReverbSend(0);
 	}
 }
+//*******************************************change
 void playerEngine ::changeVolumePerformanceMode(int8_t value)
 {
 //**************************************************************************************
@@ -1571,13 +1572,7 @@ void playerEngine ::changeVolumePerformanceMode(int8_t value)
 	else if(instrumentBasedMod.volume + value < MIN_INSTRUMENT_VOLUME) currentPerformanceValues.volume = MIN_INSTRUMENT_VOLUME;
 	else currentPerformanceValues.volume = instrumentBasedMod.volume + value;
 
-	if(value != 0 ) trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] = 1;
-	else
-	{
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] = 0;
-		// brak returna - cwartosc zostala obliczona na podstawie aktualnie aktywnej wartości + value równe 0, wiec wykonanie jej nadpisania nadpisze
-		// oczekiwana wartosc
-	}
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] = 1;
 
 	if(muteState == 0)
 	{
@@ -1600,13 +1595,7 @@ void playerEngine ::changePanningPerformanceMode(int8_t value)
 	else if(panning + value < PANNING_MIN) currentPerformanceValues.panning = PANNING_MIN;
 	else currentPerformanceValues.panning = panning + value;
 
-	if(value != 0) trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning] = 1;
-	else
-	{
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning] = 0;
-		// brak returna - cwartosc zostala obliczona na podstawie aktualnie aktywnej wartości + value równe 0, wiec wykonanie jej nadpisania nadpisze
-		// oczekiwana wartosc
-	}
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning] = 1;
 
 	float gainL=0,gainR=0;
 	if(currentPerformanceValues.panning < 50)
@@ -1634,19 +1623,11 @@ void playerEngine ::changeTunePerformanceMode(int8_t value)
 	else if(mtProject.instrument[currentInstrument_idx].tune + value < MIN_INSTRUMENT_TUNE) currentPerformanceValues.tune = MIN_INSTRUMENT_TUNE;
 	else currentPerformanceValues.tune = mtProject.instrument[currentInstrument_idx].tune + value;
 
-	if(value != 0 )
-	{
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::tune] = 1;
-		playMemPtr->setTuneForceFlag();
-		playMemPtr->setForcedTune(currentPerformanceValues.tune);
-	}
-	else
-	{
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::tune] = 0;
-		playMemPtr->clearTuneForceFlag(); //blokuje zmiane tuna w playMemory
-		// brak returna - cwartosc zostala obliczona na podstawie aktualnie aktywnej wartości + value równe 0, wiec wykonanie jej nadpisania nadpisze
-		// oczekiwana wartosc
-	}
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::tune] = 1;
+	playMemPtr->setTuneForceFlag();
+	playMemPtr->setForcedTune(currentPerformanceValues.tune);
+
 
 	playMemPtr->setTune(currentPerformanceValues.tune,currentNote);
 }
@@ -1663,13 +1644,8 @@ void playerEngine ::changeReverbSendPerformanceMode(int8_t value)
 	else if(reverbSend + value < REVERB_SEND_MIN) currentPerformanceValues.reverbSend = REVERB_SEND_MIN;
 	else currentPerformanceValues.reverbSend = reverbSend + value;
 
-	if(value != 0 ) trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] = 1;
-	else
-	{
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] = 0;
-		// brak returna - cwartosc zostala obliczona na podstawie aktualnie aktywnej wartości + value równe 0, wiec wykonanie jej nadpisania nadpisze
-		// oczekiwana wartosc
-	}
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] = 1;
+
 
 	mixerReverb.gain(numPanChannel,currentPerformanceValues.reverbSend/100.0);
 
@@ -1692,35 +1668,6 @@ void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 	else loopPoint2 = mtProject.instrument[currentInstrument_idx].loopPoint2;
 
 	endPoint = mtProject.instrument[currentInstrument_idx].endPoint;
-
-	if(value == 0)
-	{
-		if((!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint]) &&
-		  (!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1]) &&
-		  (!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2]))
-		{
-			playMemPtr->clearPointsForceFlag();
-		}
-		else
-		{
-			uint16_t forceStartPoint,forceLoopPoint1,forceLoopPoint2;
-			if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint]) forceStartPoint = currentSeqModValues.startPoint;
-			else forceStartPoint = startPoint;
-			if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1]) forceLoopPoint1 = currentSeqModValues.loopPoint1;
-			else forceLoopPoint1 = loopPoint1;
-			if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2]) forceLoopPoint2 = currentSeqModValues.loopPoint2;
-			else forceLoopPoint2 = loopPoint2;
-
-			playMemPtr->setForcedPoints(forceStartPoint, forceLoopPoint1, forceLoopPoint2, -1);
-			playMemPtr->setPointsForceFlag();
-		}
-
-
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint] = 0;
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::loopPoint1] = 0;
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::loopPoint2] = 0;
-		return;
-	}
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint] = 1;
 	if(mtProject.instrument[currentInstrument_idx].playMode != singleShot)
@@ -1810,46 +1757,152 @@ void playerEngine ::changeCutoffPerformanceMode(int8_t value) // przed ta funkcj
 	else if(cutoff*100 + value < 0) currentPerformanceValues.filterCutoff = 0.0;
 	else currentPerformanceValues.filterCutoff = cutoff + (value/100.0);
 
-	if(value != 0 )
-	{
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff] = 1;
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterEnable] = 1;
-		currentPerformanceValues.filterEnable = 1;
-		filterConnect();
-	}
-	else
-	{
-		if(!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterCutoff])
-		{
-			if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
-		}
 
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff] = 0;
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterEnable] = 0;
-		currentPerformanceValues.filterEnable = 0;
-		// brak returna - cwartosc zostala obliczona na podstawie aktualnie aktywnej wartości + value równe 0, wiec wykonanie jej nadpisania nadpisze
-		// oczekiwana wartosc
-	}
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff] = 1;
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterEnable] = 1;
+	currentPerformanceValues.filterEnable = 1;
+	filterConnect();
 
 	filterPtr->setCutoff(currentPerformanceValues.filterCutoff);
 
 }
 void playerEngine ::changeFilterTypePerformanceMode(uint8_t mode)
 {
+	if((mode < 1) || (mode > 3)) return;
+
 	performanceMod.filterType = mode;
-	if(mode != 0 )
+
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterType] = 1;
+	currentPerformanceValues.filterType = mode -1;
+	changeFilterType(currentPerformanceValues.filterType);
+}
+//*******************************************end
+void playerEngine::endVolumePerformanceMode()
+{
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] = 0;
+
+	if(muteState == 0)
 	{
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterType] = 1;
-		currentPerformanceValues.filterType = mode -1;
-		changeFilterType(currentPerformanceValues.filterType);
+		ampPtr->gain(instrumentBasedMod.volume/100.0);
+
+	}
+}
+void playerEngine::endPanningPerformanceMode()
+{
+	int16_t panning;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::panning]) panning = currentSeqModValues.panning;
+	else panning = mtProject.instrument[currentInstrument_idx].panning;
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning] = 0;
+
+
+	float gainL=0,gainR=0;
+	if(panning < 50)
+	{
+		gainR=(0 + panning)/50.0;
+		gainL=1.0;
+	}
+	else if(panning> 50)
+	{
+		gainR=1.0;
+		gainL=(100 - panning)/50.0;
+	}
+	else if(panning == 50)
+	{
+		gainL=1.0; gainR=1.0;
+	}
+
+	mixerL.gain(numPanChannel,gainL);
+	mixerR.gain(numPanChannel,gainR);
+}
+void playerEngine::endTunePerformanceMode()
+{
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::tune] = 0;
+	playMemPtr->clearTuneForceFlag(); //blokuje zmiane tuna w playMemory
+
+
+	playMemPtr->setTune(mtProject.instrument[currentInstrument_idx].tune,currentNote);
+}
+void playerEngine::endReverbSendPerformanceMode()
+{
+	uint8_t reverbSend;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend]) reverbSend = currentSeqModValues.reverbSend;
+	else reverbSend = mtProject.instrument[currentInstrument_idx].reverbSend;
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] = 0;
+
+	mixerReverb.gain(numPanChannel,reverbSend/100.0);
+}
+void playerEngine::endStartPointPerformanceMode()
+{
+
+	uint16_t startPoint,loopPoint1,loopPoint2,endPoint;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint]) startPoint = currentSeqModValues.startPoint;
+	else startPoint = mtProject.instrument[currentInstrument_idx].startPoint;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1]) loopPoint1 = currentSeqModValues.loopPoint1;
+	else loopPoint1 = mtProject.instrument[currentInstrument_idx].loopPoint1;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2]) loopPoint2 = currentSeqModValues.loopPoint2;
+	else loopPoint2 = mtProject.instrument[currentInstrument_idx].loopPoint2;
+
+	endPoint = mtProject.instrument[currentInstrument_idx].endPoint;
+
+	if((!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint]) &&
+	  (!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1]) &&
+	  (!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2]))
+	{
+		playMemPtr->clearPointsForceFlag();
 	}
 	else
 	{
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterType] = 0;
-		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterType]) changeFilterType(currentSeqModValues.filterType);
-		else changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+		uint16_t forceStartPoint,forceLoopPoint1,forceLoopPoint2;
+		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint]) forceStartPoint = currentSeqModValues.startPoint;
+		else forceStartPoint = startPoint;
+		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint1]) forceLoopPoint1 = currentSeqModValues.loopPoint1;
+		else forceLoopPoint1 = loopPoint1;
+		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::loopPoint2]) forceLoopPoint2 = currentSeqModValues.loopPoint2;
+		else forceLoopPoint2 = loopPoint2;
+
+		playMemPtr->setForcedPoints(forceStartPoint, forceLoopPoint1, forceLoopPoint2, -1);
+		playMemPtr->setPointsForceFlag();
 	}
 
-}
 
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint] = 0;
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::loopPoint1] = 0;
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::loopPoint2] = 0;
+
+}
+void playerEngine::endCutoffPerformanceMode()
+{
+
+	if(!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterCutoff])
+	{
+		if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
+		filterPtr->setCutoff(instrumentBasedMod.cutoff);
+	}
+	else
+	{
+		filterPtr->setCutoff(currentSeqModValues.filterCutoff);
+	}
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff] = 0;
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterEnable] = 0;
+	currentPerformanceValues.filterEnable = 0;
+
+}
+void playerEngine::endFilterTypePerformanceMode()
+{
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterType] = 0;
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterType]) changeFilterType(currentSeqModValues.filterType);
+	else changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+
+}
 //************************************************************************************************************

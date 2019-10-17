@@ -183,6 +183,7 @@ public:
 	uint8_t trackControlParameter[(int)controlType::length][(int)parameterList::length];
 //**********************************************************************************************************************************
 //PERFORMANCE MODE
+//*****************************CHANGE
 	void changeVolumePerformanceMode(int8_t value);
 	void changePanningPerformanceMode(int8_t value);
 	void changeTunePerformanceMode(int8_t value);
@@ -190,7 +191,15 @@ public:
 	void changeStartPointPerformanceMode(int32_t value);
 	void changeCutoffPerformanceMode(int8_t value);
 	void changeFilterTypePerformanceMode(uint8_t mode);
+//*****************************END
 
+	void endVolumePerformanceMode();
+	void endPanningPerformanceMode();
+	void endTunePerformanceMode();
+	void endReverbSendPerformanceMode();
+	void endStartPointPerformanceMode();
+	void endCutoffPerformanceMode();
+	void endFilterTypePerformanceMode();
 private:
 
 	friend 						audioEngine;

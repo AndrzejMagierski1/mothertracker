@@ -240,45 +240,45 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 	{
 	case mtPerfFxVolume:
 	{
-		instrumentPlayer[track].changeVolumePerformanceMode(0);
+		instrumentPlayer[track].endVolumePerformanceMode();
 		break;
 	}
 	case mtPerfPanning:
 	{
-		instrumentPlayer[track].changePanningPerformanceMode(0);
+		instrumentPlayer[track].endPanningPerformanceMode();
 		break;
 	}
 	case mtPerfLowPass:
 	{
-		instrumentPlayer[track].changeCutoffPerformanceMode(0);
-		instrumentPlayer[track].changeFilterTypePerformanceMode(0);
+		instrumentPlayer[track].endCutoffPerformanceMode();
+		instrumentPlayer[track].endFilterTypePerformanceMode();
 		break;
 	}
 	case mtPerfHighPass:
 	{
-		instrumentPlayer[track].changeCutoffPerformanceMode(0);
-		instrumentPlayer[track].changeFilterTypePerformanceMode(0);
+		instrumentPlayer[track].endCutoffPerformanceMode();
+		instrumentPlayer[track].endFilterTypePerformanceMode();
 		break;
 	}
 	case mtPerfBandPass:
 	{
-		instrumentPlayer[track].changeCutoffPerformanceMode(0);
-		instrumentPlayer[track].changeFilterTypePerformanceMode(0);
+		instrumentPlayer[track].endCutoffPerformanceMode();
+		instrumentPlayer[track].endFilterTypePerformanceMode();
 		break;
 	}
 	case mtPerfReverbSend:
 	{
-		instrumentPlayer[track].changeReverbSendPerformanceMode(0);
+		instrumentPlayer[track].endReverbSendPerformanceMode();
 		break;
 	}
 	case mtPerfSampleStart:
 	{
-		instrumentPlayer[track].changeStartPointPerformanceMode(0);
+		instrumentPlayer[track].endStartPointPerformanceMode();
 		break;
 	}
 	case mtPerfTune:
 	{
-		instrumentPlayer[track].changeTunePerformanceMode(0);
+		instrumentPlayer[track].endTunePerformanceMode();
 		break;
 	}
 	case mtPerfSamplePlayback:
