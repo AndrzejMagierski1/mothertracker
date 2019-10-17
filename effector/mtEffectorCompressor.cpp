@@ -2,17 +2,27 @@
 
 mtCompressor effectorCompressor;
 
-int8_t mtCompressor::makeCompressor(uint16_t cT, int16_t cR, uint16_t eT, int16_t eR, uint16_t at, uint16_t rt)
+
+int8_t mtCompressor::makeCompressor(uint16_t cT, int16_t cR, uint16_t at, uint16_t rt, int8_t forceEffect)
 {
-	int32_t localLength = effector.getLength();
-	int32_t	returnLength = localLength;
-	int16_t * localAddress = effector.getAddress();
-	int16_t * destAddress = sdram_effectsBank;
+	if(forceEffect == 0)
+	{
+		if(last_cT == cT && last_cR == cR && last_at == at && last_rt == rt)
+		{
+			return 0;
+		}
+	}
+
+	localLength = effector.getLength();
+	returnLength = localLength;
+	localAddress = effector.getAddress();
+	destAddress = sdram_effectsBank;
+
 
 	compressorThreshold=10*log10f(pow(cT,2));
-	expanderThreshold= 10*log10f(pow(eT,2));
+	expanderThreshold= 10*log10f(pow(EXPANDER_THRESHOLD_MAX,2));
 	compressorRatio= cR/1000.0;
-	expanderRatio= eR/1000.0;
+	expanderRatio= EXPANDER_RATIO_MAX/1000.0;
 	attackTime= at/1000.0;
 	releaseTime= rt/1000.0;
 	tav = 0.01;
@@ -22,20 +32,49 @@ int8_t mtCompressor::makeCompressor(uint16_t cT, int16_t cR, uint16_t eT, int16_
 
 	memset(buffer,0,delay*2);
 
-	while ( localLength )
+	requireProcessing = 1;
+	startLength = localLength;
+	loadProgress = 0;
+
+	last_cT = cT;
+	last_cR = cR;
+	last_at = at;
+	last_rt = rt;
+
+	return 1;
+}
+
+void mtCompressor::process()
+{
+	if(requireProcessing == 1 && localLength != 0)
 	{
 
-/*		todo: jakby byly jakies problemy mozna na 0 ustawic wartosci wykraczajace poza bufor w ostatnim buforze
-		if(localLength<AUDIO_BLOCK_SAMPLES) memset(localAddress+localLength,0,AUDIO_BLOCK_SAMPLES-localLength);*/
+		/*		todo: jakby byly jakies problemy mozna na 0 ustawic wartosci wykraczajace poza bufor w ostatnim buforze
+			if(localLength<AUDIO_BLOCK_SAMPLES) memset(localAddress+localLength,0,AUDIO_BLOCK_SAMPLES-localLength);*/
 		calculate(localAddress,destAddress);
 		localAddress += AUDIO_BLOCK_SAMPLES;
 		destAddress += AUDIO_BLOCK_SAMPLES;
 		if(localLength> AUDIO_BLOCK_SAMPLES) localLength -= AUDIO_BLOCK_SAMPLES;
 		else localLength=0;
-	}
 
-	effector.affterEffectLength=returnLength/2;
-	return 1;
+		loadProgress = ((startLength-localLength) * 100) / startLength;
+
+		if(localLength == 0)
+		{
+			requireProcessing = 0;
+			effector.affterEffectLength = returnLength / 2;
+		}
+	}
+}
+
+uint8_t mtCompressor::getProgress()
+{
+	return loadProgress;
+}
+
+uint8_t mtCompressor::requireProcess()
+{
+	return requireProcessing;
 }
 
 void mtCompressor::calculate(int16_t * sbuf, int16_t * dbuf)

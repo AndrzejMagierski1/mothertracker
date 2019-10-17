@@ -3,11 +3,15 @@
 
 #include "mtEffector.h"
 
+#define AMPLIFIER_AMP_MAX		100
+
 class mtAmplifier
 {
  public:
-	int32_t makeAmplifier(float amp);
+	int32_t makeAmplifier(float amp, int8_t forceEffect);
  private:
+
+	float lastAmp;
 
 };
 

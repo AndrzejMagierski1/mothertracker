@@ -3,13 +3,21 @@
 
 mtBitcrusher effectorBitcrusher;
 
-int32_t mtBitcrusher::makeBitcrusher(uint8_t cBits, uint16_t sRate)
+int32_t mtBitcrusher::makeBitcrusher(uint8_t cBits, uint16_t sRate, int8_t forceEffect)
 {
-	uint32_t localLength = effector.getLength();
-	int32_t returnLength = (int32_t) localLength;
+	if(forceEffect == 0)
+	{
+		if(cBits == last_cBits && sRate == last_sRate)
+		{
+			return 0;
+		}
+	}
 
-	int16_t * localAddress = effector.getAddress();
-	int16_t * destAddress = sdram_effectsBank;
+	localLength = effector.getLength();
+	returnLength = (int32_t) localLength;
+
+	localAddress = effector.getAddress();
+	destAddress = sdram_effectsBank;
 
 	int n = (AUDIO_SAMPLE_RATE_EXACT / sRate) + 0.5;
 	if (n < 1) n = 1;
@@ -20,19 +28,46 @@ int32_t mtBitcrusher::makeBitcrusher(uint8_t cBits, uint16_t sRate)
 	else if (cBits == 0) cBits = 1;
 	crushBits = cBits;
 
+	requireProcessing = 1;
+	startLength = localLength;
+	loadProgress = 0;
 
-	while ( localLength )
+	last_cBits =cBits;
+	last_sRate = sRate;
+
+	return 1;
+}
+
+void mtBitcrusher::process()
+{
+	if(requireProcessing == 1 && localLength != 0)
 	{
-/*		todo: jakby byly jakies problemy mozna na 0 ustawic wartosci wykraczajace poza bufor w ostatnim buforze
-		if(localLength<AUDIO_BLOCK_SAMPLES) memset(localAddress+localLength,0,AUDIO_BLOCK_SAMPLES-localLength);*/
+		/*		todo: jakby byly jakies problemy mozna na 0 ustawic wartosci wykraczajace poza bufor w ostatnim buforze
+				if(localLength<AUDIO_BLOCK_SAMPLES) memset(localAddress+localLength,0,AUDIO_BLOCK_SAMPLES-localLength);*/
 		calculate(localAddress,destAddress);
 		localAddress += AUDIO_BLOCK_SAMPLES;
 		destAddress += AUDIO_BLOCK_SAMPLES;
 		if(localLength> AUDIO_BLOCK_SAMPLES) localLength -= AUDIO_BLOCK_SAMPLES;
 		else localLength=0;
+
+		loadProgress = ((startLength-localLength) * 100) / startLength;
+
+		if(localLength == 0)
+		{
+			requireProcessing = 0;
+			effector.affterEffectLength = returnLength / 2;
+		}
 	}
-	effector.affterEffectLength=returnLength/2;
-	return 1;
+}
+
+uint8_t mtBitcrusher::getProgress()
+{
+	return loadProgress;
+}
+
+uint8_t mtBitcrusher::requireProcess()
+{
+	return requireProcessing;
 }
 
 void mtBitcrusher::calculate(int16_t * src, int16_t *dst)
@@ -48,7 +83,7 @@ void mtBitcrusher::calculate(int16_t * src, int16_t *dst)
 	{
 		for(uint8_t i=0; i<AUDIO_BLOCK_SAMPLES; i++)
 		{
-			*dst++=0;
+			*dst++=*src++;
 		}
 		return;
 	}
