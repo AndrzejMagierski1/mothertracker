@@ -67,16 +67,20 @@ void cInstrumentEditor::start(uint32_t options)
 	moduleRefresh = 1;
 
 
-	mtProject.values.lastUsedInstrument = constrain(mtProject.values.lastUsedInstrument, 0, INSTRUMENTS_MAX);
-	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
+	//mtProject.values.lastUsedInstrument = constrain(mtProject.values.lastUsedInstrument, 0, INSTRUMENTS_MAX);
 
-	listData();
+
+	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
+	{
+		editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
+	}
+
+	//listData();
 
 
 
 	// ustawienie funkcji
-	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchMode);
-
+	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchMode);  //<<<<<<<<< MODE
 
 	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
@@ -89,9 +93,18 @@ void cInstrumentEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
+	FM->setButtonObj(interfaceButtonInstr, functInstrument);
+
+
+	if(mtProject.values.lastUsedInstrument >= INSTRUMENTS_COUNT)
+	{
+		display.hideAllControls();
+		showTitleBar();
+		display.synchronizeRefresh();
+		return;
+	}
+
 	setDefaultScreenFunct();
-
-
 	switch(mode)
 	{
 		case mtInstEditModeParams:
@@ -118,47 +131,41 @@ void cInstrumentEditor::stop()
 
 void cInstrumentEditor::setDefaultScreenFunct()
 {
-
 	//funkcje
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
 
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
-
-	FM->setButtonObj(interfaceButtonShift, functShift);
-
-
+	//FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
+	//FM->setButtonObj(interfaceButtonShift, functShift);
 	FM->setButtonObj(interfaceButtonInstr, functInstrument);
-
 	FM->setPadsGlobal(functPads);
-
 }
 
-void cInstrumentEditor::listData()
-{
-
-	for(uint8_t i = 0; i < filterModeCount; i++)
-	{
-		filterModeNames[i] = (char*)&filterModeFunctLabels[i][0];
-	}
-
-	for(uint8_t i = 0; i < 2; i++)
-	{
-		envelopeNames[i] = (char*)&envelopesLabels[i][0];
-	}
-
-	for(uint8_t i = 0; i < 2; i++)
-	{
-		envStateNames[i] = (char*)&envStateLabels[i][0];
-	}
-
-	for(uint8_t i = 0; i < 2; i++)
-	{
-		envLoopNames[i] = (char*)&envLoopLabels[i][0];
-	}
-
-}
+//void cInstrumentEditor::listData()
+//{
+//
+//	for(uint8_t i = 0; i < filterModeCount; i++)
+//	{
+//		filterModeNames[i] = (char*)&filterModeFunctLabels[i][0];
+//	}
+//
+//	for(uint8_t i = 0; i < 2; i++)
+//	{
+//		envelopeNames[i] = (char*)&envelopesLabels[i][0];
+//	}
+//
+//	for(uint8_t i = 0; i < 2; i++)
+//	{
+//		envStateNames[i] = (char*)&envStateLabels[i][0];
+//	}
+//
+//	for(uint8_t i = 0; i < 2; i++)
+//	{
+//		envLoopNames[i] = (char*)&envLoopLabels[i][0];
+//	}
+//
+//}
 
 
 //==============================================================================================================
@@ -350,8 +357,6 @@ static  uint8_t functPlayAction()
 		sequencer.stop();
 	}
 
-
-
 	return 1;
 }
 
@@ -370,7 +375,6 @@ static  uint8_t functRecAction()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-
 	IE->eventFunct(eventSwitchModule,IE,&button,0);
 
 	return 1;
@@ -379,47 +383,23 @@ static uint8_t functSwitchModule(uint8_t button)
 
 static  uint8_t functSwitchMode(uint8_t button)
 {
-/*	switch(button)
-	{
-	case interfaceButtonParams:
-	{
-		if(IE->mode != mtInstEditModeParams)
-		{
-			IE->mode = 0;
-			IE->showInstrumentParams();
-			IE->setInstrumentParamsFunct();
-		}
-		break;
-	}
-	case interfaceButtonEnvelopes:
-	{
-		if(IE->mode != mtInstEditModeEnv)
-		{
-			IE->mode = 1;
-			IE->showInstrumentEnv();
-			IE->setInstrumentEnvFunct();
-		}
-		break;
-	}
-	}
-*/
-
-
 	if(IE->mode == mtInstEditModeParams)
 	{
 		IE->mode = 1;
-		IE->showInstrumentEnv();
-		IE->setInstrumentEnvFunct();
+		//IE->showInstrumentEnv();
+		//IE->setInstrumentEnvFunct();
 	}
 	else if(IE->mode == mtInstEditModeEnv)
 	{
 		IE->mode = 0;
-		IE->showInstrumentParams();
-		IE->setInstrumentParamsFunct();
+		//IE->showInstrumentParams();
+		//IE->setInstrumentParamsFunct();
 	}
 
+	//IE->activateLabelsBorder();
 
-	IE->activateLabelsBorder();
+	IE->start(0);
+
 
 	return 1;
 }
@@ -428,7 +408,6 @@ static  uint8_t functSwitchMode(uint8_t button)
 
 void cInstrumentEditor::changeEnvList(int16_t value)
 {
-
 	if(selectedEnvelope + value < 0) selectedEnvelope = 0;
 	else if(selectedEnvelope + value > 1 ) selectedEnvelope = 1;
 	else selectedEnvelope += value;
@@ -436,7 +415,6 @@ void cInstrumentEditor::changeEnvList(int16_t value)
 	showInstrumentEnv();
 
 	showEnvList();
-
 }
 
 void cInstrumentEditor::changeEnvState(int16_t value)
@@ -700,18 +678,7 @@ void cInstrumentEditor::cancelPopups()
 	{
 		mtPopups.hideStepPopups();
 
-		setDefaultScreenFunct();
-
-		if(IE->mode == mtInstEditModeParams)
-		{
-			IE->showInstrumentParams();
-			IE->setInstrumentParamsFunct();
-		}
-		else //mtInstEditModeEnv
-		{
-			IE->showInstrumentEnv();
-			IE->setInstrumentEnvFunct();
-		}
+		start(0);
 	}
 }
 
@@ -719,6 +686,8 @@ void cInstrumentEditor::cancelPopups()
 //==============================================================================================
 static uint8_t functShift(uint8_t value)
 {
+	/*
+
 	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
 	{
 		sequencer.stop();
@@ -739,6 +708,7 @@ static uint8_t functShift(uint8_t value)
 		IE->isPlayingSample = 0;
 	}
 
+	*/
 	return 1;
 }
 

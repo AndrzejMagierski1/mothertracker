@@ -127,62 +127,69 @@ void cSamplePlayback::start(uint32_t options)
 
 	//--------------------------------------------------------------------
 
-
-	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
-
-	//warunki
-	if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - 1;
-
-	if(((editorInstrument->loopPoint1 >= editorInstrument->endPoint) && (editorInstrument->loopPoint2 >= editorInstrument->endPoint))
-	|| ((editorInstrument->loopPoint1 <= editorInstrument->startPoint) && (editorInstrument->loopPoint2 <= editorInstrument->startPoint))
-	|| ((editorInstrument->loopPoint1 <= editorInstrument->startPoint) && (editorInstrument->loopPoint2 >= editorInstrument->endPoint)))
+	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
 	{
-		editorInstrument->loopPoint1 = editorInstrument->startPoint+1;
-		editorInstrument->loopPoint2 = editorInstrument->endPoint-1;
-	}
-	else if((editorInstrument->loopPoint1 >= editorInstrument->startPoint) && (editorInstrument->loopPoint1 <= editorInstrument->endPoint) &&
-	(editorInstrument->loopPoint2 >= editorInstrument->endPoint))
-	{
-		editorInstrument->loopPoint2 = editorInstrument->endPoint - 1;
-	}
-	else if((editorInstrument->loopPoint2 >= editorInstrument->startPoint) && (editorInstrument->loopPoint2 <= editorInstrument->endPoint) &&
-	(editorInstrument->loopPoint1 <= editorInstrument->startPoint))
-	{
-		editorInstrument->loopPoint1 = editorInstrument->startPoint +1;
-	}
-	/////////////////////////////////////////////////////////////////////
 
-	// wykrywanie czy wczytywany inny niz poprzednio/nowy sampel
-	//--------------------------------------------------------------------
-
-	points.selected = (selectedPlace >= 1 && selectedPlace <= 4) ? selectedPlace : 0;
+		editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
 
-	// wykrywanie czy wczytywany inny niz poprzednio/nowy sampel
-	// patrzy na dlugosc sampla
-	if(editorInstrument->sample.length != lastSampleLength)
-	{
-		lastSampleLength = editorInstrument->sample.length;
 
-		uint16_t start_end_width = editorInstrument->endPoint - editorInstrument->startPoint;
+		//warunki
+		if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - 1;
 
-		if(start_end_width < MAX_16BIT/4) // wysrodkowanie startPoint z zoomem jesli waski loop
+		if(((editorInstrument->loopPoint1 >= editorInstrument->endPoint) && (editorInstrument->loopPoint2 >= editorInstrument->endPoint))
+		|| ((editorInstrument->loopPoint1 <= editorInstrument->startPoint) && (editorInstrument->loopPoint2 <= editorInstrument->startPoint))
+		|| ((editorInstrument->loopPoint1 <= editorInstrument->startPoint) && (editorInstrument->loopPoint2 >= editorInstrument->endPoint)))
 		{
-			start_end_width += start_end_width/20; // dodatkowe po 10% po bokach
-
-			GP.spectrumAutoZoomIn(editorInstrument->startPoint, start_end_width, editorInstrument->sample.length, &zoom);
+			editorInstrument->loopPoint1 = editorInstrument->startPoint+1;
+			editorInstrument->loopPoint2 = editorInstrument->endPoint-1;
 		}
-		else
+		else if((editorInstrument->loopPoint1 >= editorInstrument->startPoint) && (editorInstrument->loopPoint1 <= editorInstrument->endPoint) &&
+		(editorInstrument->loopPoint2 >= editorInstrument->endPoint))
 		{
-			GP.spectrumResetZoom(editorInstrument->startPoint, editorInstrument->sample.length ,&zoom);
+			editorInstrument->loopPoint2 = editorInstrument->endPoint - 1;
 		}
+		else if((editorInstrument->loopPoint2 >= editorInstrument->startPoint) && (editorInstrument->loopPoint2 <= editorInstrument->endPoint) &&
+		(editorInstrument->loopPoint1 <= editorInstrument->startPoint))
+		{
+			editorInstrument->loopPoint1 = editorInstrument->startPoint +1;
+		}
+		/////////////////////////////////////////////////////////////////////
+
+		// wykrywanie czy wczytywany inny niz poprzednio/nowy sampel
+		//--------------------------------------------------------------------
+
+		points.selected = (selectedPlace >= 1 && selectedPlace <= 4) ? selectedPlace : 0;
+
+
+		// wykrywanie czy wczytywany inny niz poprzednio/nowy sampel
+		// patrzy na dlugosc sampla
+		if(editorInstrument->sample.length != lastSampleLength)
+		{
+			lastSampleLength = editorInstrument->sample.length;
+
+			uint16_t start_end_width = editorInstrument->endPoint - editorInstrument->startPoint;
+
+			if(start_end_width < MAX_16BIT/4) // wysrodkowanie startPoint z zoomem jesli waski loop
+			{
+				start_end_width += start_end_width/20; // dodatkowe po 10% po bokach
+
+				GP.spectrumAutoZoomIn(editorInstrument->startPoint, start_end_width, editorInstrument->sample.length, &zoom);
+			}
+			else
+			{
+				GP.spectrumResetZoom(editorInstrument->startPoint, editorInstrument->sample.length ,&zoom);
+			}
+		}
+
+
+		//--------------------------------------------------------------------
+
+		GP.processSpectrum(editorInstrument, &zoom, &spectrum);
+		processPoints();
+
 	}
 
-
-//--------------------------------------------------------------------
-
-	GP.processSpectrum(editorInstrument, &zoom, &spectrum);
-	processPoints();
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -197,7 +204,16 @@ void cSamplePlayback::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
-	FM->setPadsGlobal(functPads);
+	FM->setButtonObj(interfaceButtonInstr, functInstrument);
+	FM->setButtonObj(interfaceButtonNote, functStepNote);
+
+	if(mtProject.values.lastUsedInstrument >= INSTRUMENTS_COUNT)
+	{
+		display.hideAllControls();
+		showTitleBar();
+		display.synchronizeRefresh();
+		return;
+	}
 
 	listPlayMode();
 	showPlayModeList();
@@ -244,12 +260,11 @@ void cSamplePlayback::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton6, buttonPress, functPlayMode);
 	FM->setButtonObj(interfaceButton7, buttonPress, functPlayMode);
 
-	FM->setButtonObj(interfaceButtonInstr, functInstrument);
-	FM->setButtonObj(interfaceButtonNote, functStepNote);
+
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
-
+	FM->setPadsGlobal(functPads);
 }
 
 //==============================================================================================================

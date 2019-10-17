@@ -115,6 +115,7 @@ public:
 
 	void showDefaultScreen();
 	void showEffectsList();
+	void showTitleBar();
 
 	void setDefaultScreenFunct();
 	void cancelPopups();

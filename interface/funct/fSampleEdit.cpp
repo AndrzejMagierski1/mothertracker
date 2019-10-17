@@ -165,8 +165,10 @@ void cSampleEditor::start(uint32_t options)
 	firstSampleLoadFlag = 0;
 
 	//--------------------------------------------------------------------
-
-	//editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
+	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
+	{
+		mtProject.values.lastUsedInstrument = 0;
+	}
 
 	localInstrNum = mtProject.values.lastUsedInstrument;
 	sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);

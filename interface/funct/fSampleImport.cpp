@@ -135,7 +135,6 @@ static cSampleImporter* SI = &sampleImporter;
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 static  uint8_t functPlayAction();
-static  uint8_t functStopAction();
 static  uint8_t functRecAction();
 
 
@@ -203,8 +202,18 @@ void cSampleImporter::start(uint32_t options)
 	Encoder.setAcceleration(0);
 
 	//selectedFile = 0;
-	mtProject.values.lastUsedInstrument = constrain(mtProject.values.lastUsedInstrument, 0, INSTRUMENTS_MAX);
-	selectedSlot = mtProject.values.lastUsedInstrument;
+	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
+	{
+		//mtProject.values.lastUsedInstrument = 0;
+		selectedSlot = 0;
+	}
+	else
+	{
+
+		selectedSlot = mtProject.values.lastUsedInstrument;
+	}
+
+
 
 
 

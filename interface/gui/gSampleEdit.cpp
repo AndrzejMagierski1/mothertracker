@@ -183,7 +183,8 @@ void cSampleEditor::destroyDisplayControls()
 	processHorizontalBarControl = nullptr;
 }
 
-void cSampleEditor::showDefaultScreen()
+
+void cSampleEditor::showTitleBar()
 {
 	display.setControlShow(titleBar);
 	display.refreshControl(titleBar);
@@ -193,6 +194,12 @@ void cSampleEditor::showDefaultScreen()
 	display.refreshControl(titleLabel);
 
 	showActualInstrument();
+}
+
+
+void cSampleEditor::showDefaultScreen()
+{
+	showTitleBar();
 
 	// bottom labels
 
@@ -316,9 +323,16 @@ void cSampleEditor::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	sprintf(actualInstrName, "%d. ", i+1);
-
-	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+	if(i < INSTRUMENTS_COUNT)
+	{
+		sprintf(actualInstrName, "%d. ", i+1);
+		strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+	}
+	else
+	{
+		i = i-(INSTRUMENTS_COUNT-1);
+		sprintf(actualInstrName, "%d. MIDI Channel %d", i, i);
+	}
 
 	display.setControlShow(instrumentLabel);
 	display.setControlText(instrumentLabel,  actualInstrName);
