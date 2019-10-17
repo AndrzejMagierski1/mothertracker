@@ -19,7 +19,7 @@ uint8_t mtChorus::makeChorus(int d_length, int n_chorus, uint8_t forceEffect)
 	returnLength = (int32_t) localLength;
 
 	localAddress = effector.getAddress();
-	destAddress = sdram_effectsBank;
+	destAddress = effector.previewBuffer;
 
 	l_delayline = NULL;
 	delay_length = 0;

@@ -84,6 +84,9 @@ private:
 	uint16_t undoReverseStart;
 	uint16_t undoReverseEnd;
 
+	int16_t * const applyBuffer = sdram_effectsBank;
+	int16_t * const previewBuffer = sdram_effectsBank + SAMPLE_EFFECTOR_LENGTH_MAX;
+
 	FsFile file;
 };
 

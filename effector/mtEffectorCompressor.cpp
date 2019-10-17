@@ -7,7 +7,7 @@ int8_t mtCompressor::makeCompressor(uint16_t cT, int16_t cR, uint16_t eT, int16_
 	int32_t localLength = effector.getLength();
 	int32_t	returnLength = localLength;
 	int16_t * localAddress = effector.getAddress();
-	int16_t * destAddress = sdram_effectsBank;
+	int16_t * destAddress = effector.previewBuffer;
 
 	compressorThreshold=10*log10f(pow(cT,2));
 	expanderThreshold= 10*log10f(pow(eT,2));

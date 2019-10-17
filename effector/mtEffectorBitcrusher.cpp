@@ -9,7 +9,7 @@ int32_t mtBitcrusher::makeBitcrusher(uint8_t cBits, uint16_t sRate)
 	int32_t returnLength = (int32_t) localLength;
 
 	int16_t * localAddress = effector.getAddress();
-	int16_t * destAddress = sdram_effectsBank;
+	int16_t * destAddress = effector.previewBuffer;
 
 	int n = (AUDIO_SAMPLE_RATE_EXACT / sRate) + 0.5;
 	if (n < 1) n = 1;
