@@ -1714,6 +1714,14 @@ void playerEngine ::changeStartPointPerformanceMode(int32_t value)
 
 
 }
+
+void playerEngine ::changeEndPointPerformanceMode(int32_t value)
+{
+
+
+
+}
+
 void playerEngine ::changeCutoffPerformanceMode(int8_t value) // przed ta funkcja musi byc wowołana funkcja changeFilterTypePerformanceMode
 {
 	performanceMod.cutoff = value;
@@ -1777,4 +1785,12 @@ void playerEngine ::changeFilterTypePerformanceMode(uint8_t mode)
 
 }
 
+
+void playerEngine ::changeSamplePlaybackPerformanceMode(uint8_t value)
+{
+	//todo
+	//przod - 0 ; tyl - 1;
+
+
+}
 //************************************************************************************************************
