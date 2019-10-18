@@ -175,6 +175,21 @@ void cInterface::update()
 			}
 		}
 	}
+	if(fileManager.instrumentForcedSaveFlag)
+	{
+		fileManager.instrumentForcedSaveFlag = 0;
+
+		for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
+		{
+			if(fileManager.instrumentIsChangedFlag[i] == 1 )
+			{
+				fileManager.instrumentIsChangedFlag[i] = 0;
+				fileManager.saveInstrument(i);
+			}
+		}
+	}
+
+
 	if(fileManager.patternRefresh > 10000)
 	{
 		fileManager.patternRefresh = 0;

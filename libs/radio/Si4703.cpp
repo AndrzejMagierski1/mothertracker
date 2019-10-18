@@ -8,7 +8,7 @@
 
 Si4703 radio(SI4703_RST, 48, 47,SI4703_GPIO_2);
 
-seek_control_t seek_control;
+
 user_callback_t callback_func=NULL;
 elapsedMillis i2c_timeout;
 
@@ -68,13 +68,58 @@ void Si4703::powerOff()
 	detachInterrupt(digitalPinToInterrupt(_interruptPin));
 }
 
+void Si4703::setRegion(radio_region_t region)
+{
+	readRegisters();
+
+	si4703_registers[rSYSCONFIG2] &= ~(SPACE(0x03) | BAND(0x03)); // clear previous setting
+	si4703_registers[rSYSCONFIG1] &= ~DE;
+	regionHasChanged = 1;
+
+	switch(region)
+	{
+	case rEurope:
+		freqSpacing_MHz = 0.1f;
+		freqBottomBase_MHz = 87.5f;
+
+		si4703_registers[rSYSCONFIG1] |= DE;
+		si4703_registers[rSYSCONFIG2] |= (SPACE(SPACING_100kHz) | BAND(BAND_USA_EUROPE));
+		break;
+	case rUSA:
+		freqSpacing_MHz = 0.2f;
+		freqBottomBase_MHz = 87.5f;
+
+		si4703_registers[rSYSCONFIG2] |= (SPACE(SPACING_200kHz) | BAND(BAND_USA_EUROPE));
+		break;
+	case rAustralia:
+		freqSpacing_MHz = 0.2f;
+		freqBottomBase_MHz = 87.5f;
+
+		si4703_registers[rSYSCONFIG1] |= DE;
+		si4703_registers[rSYSCONFIG2] |= (SPACE(SPACING_200kHz) | BAND(BAND_USA_EUROPE));
+
+		break;
+	case rJapan:
+		freqSpacing_MHz = 0.1f;
+		freqBottomBase_MHz = 76.0f;
+
+		si4703_registers[rSYSCONFIG1] |= DE;
+		si4703_registers[rSYSCONFIG2] |= (SPACE(SPACING_100kHz) | BAND(BAND_JAPAN_WIDE));
+		break;
+	}
+
+	currentRegion = region;
+
+	updateRegisters();
+}
+
 void Si4703::setFrequency(float freq)
 {
 	if(isInitializedProperly)
 	{
 		int newChannel;
 
-		newChannel= (float)((freq-87.5f)/0.05f) + 0.5f; // 0.5 for ceil rounding
+		newChannel= (float)((freq-freqBottomBase_MHz)/freqSpacing_MHz) + 0.5f; // 0.5 for ceil rounding
 
 		readRegisters();
 		si4703_registers[rCHANNEL] &= ~CHANN_MASK; //Clear out the channel bits
@@ -194,14 +239,14 @@ void Si4703::si4703_init()
 		readRegisters(); //Read the current register set
 		si4703_registers[rPOWERCFG] = (ENABLE | DMUTE | DSMUTE | RDSM | MONO);
 
-		si4703_registers[rSYSCONFIG1] |= DE; //50kHz Europe setup
-		si4703_registers[rSYSCONFIG2] |= SPACE(SPACING_50kHz); //50kHz channel spacing for Europe
-
 		si4703_registers[rSYSCONFIG2] &= ~VOLUME_MASK; //Clear volume bits
 		si4703_registers[rSYSCONFIG2] |= VOLUME(0x01); //Set volume to lowest
 		si4703_registers[rSYSCONFIG2] |= SEEKTH(0x19);// Minimalne RSSI prawidlowej stacji dla seek
 		si4703_registers[rSYSCONFIG3] |= (SKCNT(0x08) | SKSNR(0x04));// autoseek snr i impulse detection
 		updateRegisters(); //Update
+
+		setRegion(currentRegion);
+		regionHasChanged = 0;//no flag on init
 
 		delay(110); //Max powerup time, from datasheet page 13
 
@@ -222,7 +267,6 @@ void Si4703::si4703_init()
 
 //Read the entire register control set from 0x00 to 0x0F
 void Si4703::readRegisters()
-
 {
 	//Si4703 begins reading from register upper register of 0x0A and reads to 0x0F, then loops to 0x00.
 	Wire.requestFrom(SI4703_I2C_ADDR, 32); //We want to read the entire register set from 0x0A to 0x09 = 32 bytes.
@@ -270,14 +314,7 @@ uint8_t Si4703::updateRegisters()
 		Wire.write(low_byte); //Lower 8 bits
 	}
 
-	if(Wire.endTransmission())
-	{
-		return 0;
-	}
-	else
-	{
-		return 1;
-	}
+	return Wire.endTransmission();
 }
 
 
@@ -395,7 +432,7 @@ float Si4703::getFrequency()
 
 		channel = READCHANN(si4703_registers[rREADCHAN]);
 
-		freq= (channel * 0.05f + 87.5f);
+		freq= (channel * freqSpacing_MHz + freqBottomBase_MHz);
 
 		return freq;
 	}
@@ -403,6 +440,24 @@ float Si4703::getFrequency()
 	{
 		return 0;
 	}
+}
+
+uint8_t Si4703::hasRegionChanged()// flaga automatycznie sie kasuje po odczytaniu
+{
+	uint8_t temp = regionHasChanged;
+
+	regionHasChanged = 0;
+
+	return temp;
+}
+float Si4703::getRadioSpacing()
+{
+	return freqSpacing_MHz;
+}
+
+float Si4703::getRadioBottomBase()
+{
+	return freqBottomBase_MHz;
 }
 
 int Si4703::getRSSI()

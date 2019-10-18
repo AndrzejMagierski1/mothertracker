@@ -14,6 +14,21 @@
 #define SPACING_100kHz			1
 #define SPACING_50kHz			2
 
+#define BAND_USA_EUROPE			0
+#define BAND_JAPAN_WIDE			1
+#define BAND_JAPAN_STANDARD		2
+
+#define MAX_RADIO_FREQ_MHZ		108
+
+typedef enum
+{
+	rEurope,
+	rUSA,
+	rAustralia,
+	rJapan,
+
+}radio_region_t;
+
 typedef struct
 {
 	char nazwaStacji[30];
@@ -58,7 +73,6 @@ public:
 	bool update_RDS();
 	float getFrequency();
 	int getRSSI();
-	uint8_t isSTCset();
 
 	void stateMachineSeek();
 
@@ -74,6 +88,21 @@ public:
 
 	RDSParser rds;
 	rds_data_t rds_data;
+
+	seek_control_t seek_control;
+
+	void setRegion(radio_region_t region);
+	float freqSpacing_MHz;
+	float freqBottomBase_MHz;
+
+	uint8_t regionHasChanged;
+
+	radio_region_t currentRegion;
+
+
+	float getRadioSpacing();
+	float getRadioBottomBase();
+	uint8_t hasRegionChanged();
 
 private:
 	int  _resetPin;
