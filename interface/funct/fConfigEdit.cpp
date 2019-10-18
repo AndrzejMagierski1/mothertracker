@@ -211,10 +211,11 @@ void cConfigEditor::setMasterScreenFunct()
 	FM->setButtonObj(interfaceButton1, buttonPress, functSelectReverbSize);
 	FM->setButtonObj(interfaceButton2, buttonPress, functSelectReverbDamping);
 
-	FM->setButtonObj(interfaceButton3, buttonPress, functSelectLimiterAttack);
-	FM->setButtonObj(interfaceButton4, buttonPress, functSelectLimiterRelease);
-	FM->setButtonObj(interfaceButton5, buttonPress, functSelectLimiterTreshold);
-	FM->setButtonObj(interfaceButton6, buttonPress, functSelectBitDepth);
+	FM->setButtonObj(interfaceButton3, buttonPress, functSelectBitDepth);
+	FM->setButtonObj(interfaceButton4, buttonPress, functSelectLimiterAttack);
+	FM->setButtonObj(interfaceButton5, buttonPress, functSelectLimiterRelease);
+	FM->setButtonObj(interfaceButton6, buttonPress, functSelectLimiterTreshold);
+
 
 
 
@@ -304,10 +305,10 @@ static  uint8_t functEncoder(int16_t value)
 	case 10: CE->changeVolume(value);			break;
 	case 11: CE->changeReverbRoomSize(value);	break;
 	case 12: CE->changeReverbDamping(value);	break;
-	case 13: CE->changeLimiterAttack(value);	break;
-	case 14: CE->changeLimiterRelease(value);	break;
-	case 15: CE->changeLimiterTreshold(value);	break;
-	case 16: CE->changeBitDepth(value);			break;
+	case 13: CE->changeBitDepth(value);			break;
+	case 14: CE->changeLimiterAttack(value);	break;
+	case 15: CE->changeLimiterRelease(value);	break;
+	case 16: CE->changeLimiterTreshold(value);	break;
 	case 17: 	break;
 
 	}
@@ -437,10 +438,10 @@ static  uint8_t functUp()
 	case 10: CE->changeVolume(1);			break;
 	case 11: CE->changeReverbRoomSize(1);	break;
 	case 12: CE->changeReverbDamping(1);	break;
-	case 13: CE->changeLimiterAttack(1);	break;
-	case 14: CE->changeLimiterRelease(1);	break;
-	case 15: CE->changeLimiterTreshold(1);	break;
-	case 16: CE->changeBitDepth(1);			break;
+	case 13: CE->changeBitDepth(1);			break;
+	case 14: CE->changeLimiterAttack(1);	break;
+	case 15: CE->changeLimiterRelease(1);	break;
+	case 16: CE->changeLimiterTreshold(1);	break;
 	case 17: 	break;
 
 	}
@@ -481,10 +482,10 @@ static  uint8_t functDown()
 	case 10: CE->changeVolume(-1);			break;
 	case 11: CE->changeReverbRoomSize(-1);	break;
 	case 12: CE->changeReverbDamping(-1);	break;
-	case 13: CE->changeLimiterAttack(-1);	break;
-	case 14: CE->changeLimiterRelease(-1);	break;
-	case 15: CE->changeLimiterTreshold(-1);	break;
-	case 16: CE->changeBitDepth(-1);		break;
+	case 13: CE->changeBitDepth(-1);		break;
+	case 14: CE->changeLimiterAttack(-1);	break;
+	case 15: CE->changeLimiterRelease(-1);	break;
+	case 16: CE->changeLimiterTreshold(-1);	break;
 	case 17: 	break;
 
 	}
@@ -547,7 +548,7 @@ static  uint8_t functSelectReverbDamping()
 
 static  uint8_t functSelectLimiterAttack()
 {
-	CE->selectedPlace[mtConfigModeMaster] = 3;
+	CE->selectedPlace[mtConfigModeMaster] = 4;
 	CE->activateLabelsBorder();
 
 	return 1;
@@ -555,7 +556,7 @@ static  uint8_t functSelectLimiterAttack()
 
 static  uint8_t functSelectLimiterRelease()
 {
-	CE->selectedPlace[mtConfigModeMaster] = 4;
+	CE->selectedPlace[mtConfigModeMaster] = 5;
 	CE->activateLabelsBorder();
 
 	return 1;
@@ -563,7 +564,7 @@ static  uint8_t functSelectLimiterRelease()
 
 static  uint8_t functSelectLimiterTreshold()
 {
-	CE->selectedPlace[mtConfigModeMaster] = 5;
+	CE->selectedPlace[mtConfigModeMaster] = 6;
 	CE->activateLabelsBorder();
 
 	return 1;
@@ -571,7 +572,7 @@ static  uint8_t functSelectLimiterTreshold()
 
 static  uint8_t functSelectBitDepth()
 {
-	CE->selectedPlace[mtConfigModeMaster] = 6;
+	CE->selectedPlace[mtConfigModeMaster] = 3;
 	CE->activateLabelsBorder();
 }
 
@@ -644,7 +645,7 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 	}
 	else if(state == buttonHold)
 	{
-		CE->resizeLabelConfigMaster();
+//		CE->resizeLabelConfigMaster();
 
 		CE->exitOnButtonRelease = 1;
 		CE->selectedPlace[mtConfigModeMaster] = 0;

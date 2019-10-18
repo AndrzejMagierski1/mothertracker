@@ -159,5 +159,17 @@ void FileManager::saveInstrument(int8_t index)
 	sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",index);
 
 	writeInstrumentFile(currentPatch,&mtProject.instrument[index]);
+}
 
+uint8_t FileManager::getActiveInstrumentsInProject(char * name)
+{
+	uint8_t counter = 0;
+	char currentPatch[PATCH_SIZE];
+	for(uint8_t i =0; i <= INSTRUMENTS_MAX; i++)
+	{
+		sprintf(currentPatch,"Projects/%s/instruments/instrument_%02d.mti", name,i);
+		if(SD.exists(currentPatch)) counter++;
+		if(counter > 1) return 1;
+	}
+	return 0;
 }

@@ -54,7 +54,10 @@ public:
 //************************************************ FileManagerProject*******************************************************
 	uint8_t openProject(char * name, uint8_t type);
 	void importProject(char* sourceProjectPatch,char* name, char* newName);
-	uint8_t startSaveAsProject(char *name, uint8_t type);
+
+	uint8_t prepareSaveAs(char *name, uint8_t type);
+	void startSaveAsProject(char *name);
+
 	uint8_t saveAsProject(char* name);
 //	void saveProject();
 	void startSaveProject();
@@ -78,6 +81,7 @@ public:
 	void deleteInstrument(int8_t index);
 	void saveInstrument(int8_t index);
 	void setLoadLength(uint8_t filesNum);
+	uint8_t getActiveInstrumentsInProject(char * name);
 	SamplesLoader samplesLoader;
 	SamplesImporter samplesImporter;
 	SamplesCopyier samplesCopyier;
