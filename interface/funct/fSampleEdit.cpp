@@ -233,7 +233,7 @@ void cSampleEditor::start(uint32_t options)
 	moduleRefresh = 1;
 	firstSampleLoadFlag = 0;
 
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
 	}
