@@ -40,6 +40,7 @@ public:
 	save_stages_t getSaveStatus();
 	void setSaveStatus(save_stages_t status);
 	void setEffects();
+	void clearMainBuffer();
 
 	friend class mtChorus;
 	friend class mtFlanger;
@@ -83,6 +84,9 @@ private:
 
 	uint16_t undoReverseStart;
 	uint16_t undoReverseEnd;
+
+	int16_t * const applyBuffer = sdram_effectsBank;
+	int16_t * const previewBuffer = sdram_effectsBank + SAMPLE_EFFECTOR_LENGTH_MAX;
 
 	FsFile file;
 };

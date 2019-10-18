@@ -31,6 +31,7 @@ const float MAX_WAVE_FLOAT =					1.0;
 const float MIN_WAVE_FLOAT =					-1.0;
 
 const uint32_t SAMPLE_MEMORY_MAX =      		(15*512*1024); // 7,5 MB
+const uint32_t SAMPLE_EFFECTOR_LENGTH_MAX =     (15*128*1024); // 3,75 MB
 
 const uint8_t INSTRUMENTS_MAX =        			47;
 //const uint8_t SAMPLES_MAX =            			31;

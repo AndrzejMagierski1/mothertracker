@@ -61,6 +61,19 @@ uint8_t editFlangerOffset(int16_t value);
 uint8_t editFlangerDepth(int16_t value);
 uint8_t editFlangerDelay(int16_t value);
 
+uint8_t editCompressorThreshold(int16_t value);
+uint8_t editCompressorRatio(int16_t value);
+uint8_t editCompressorAttack(int16_t value);
+uint8_t editCompressorRelease(int16_t value);
+
+uint8_t editBitcrusherBits(int16_t value);
+uint8_t editBitcrusherRate(int16_t value);
+
+uint8_t editAmplifierAmp(int16_t value);
+
+uint8_t editLimiterThreshold(int16_t value);
+uint8_t editLimiterAttack(int16_t value);
+uint8_t editLimiterRelease(int16_t value);
 
 
 
@@ -84,6 +97,7 @@ void cSampleEditor::update()
 
 	refreshSampleLoading();
 	refreshSampleApplying();
+	refreshInstrumentLoading();
 
 	updateEffectProcessing();
 
@@ -94,7 +108,8 @@ void cSampleEditor::onExitRaload()
 {
 	if(onExitFlag == 1)
 	{
-		showSampleLoading(fileManager.samplesLoader.getCurrentProgress());
+		uint8_t progress = fileManager.samplesLoader.getCurrentProgress();
+		showHorizontalBar(progress, "Reloading Instruments");
 
 		if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
 		{
@@ -113,28 +128,65 @@ void cSampleEditor::refreshSampleApplying()
 
 	if(status == saving)
 	{
-		showApplying(effector.saveUpdate());
+		uint8_t progress = effector.saveUpdate();
+
+		if((moduleFlags & applyingActive))
+		{
+			showHorizontalBar(progress,"Applying effect");
+		}
+		else if((moduleFlags & undoActive))
+		{
+			showHorizontalBar(progress,"Undoing");
+		}
 	}
 	else if(status == saveDone)
 	{
-		SE->moduleFlags &= ~applyingActive;
+		SE->moduleFlags &= ~(applyingActive | undoActive);
 		hideHorizontalBar();
+
+		if(currSelEffect == effectCrop)
+		{
+			SE->resetSpectrumAndPoints();
+		}
+
 		refreshSpectrum = 1;
 		effector.setSaveStatus(waitingForSaveInit);
 		SE->isAnyEffectActive = false;
 	}
 }
 
+void cSampleEditor::refreshInstrumentLoading()
+{
+	if(moduleFlags == onEntryStillLoading)
+	{
+		uint8_t state = fileManager.samplesLoader.getStateFlag();
+
+		if(state == loaderStateTypeInProgress)
+		{
+			uint8_t progress = fileManager.samplesLoader.getCurrentProgress();
+			showHorizontalBar(progress,"Loading Instruments");
+		}
+		else
+		{
+			hideHorizontalBar();
+			moduleFlags &= ~onEntryStillLoading;
+			startLoadingSample();
+		}
+	}
+}
+
 void cSampleEditor::refreshSampleLoading()
 {
-	if(firstSampleLoadFlag == 0)
+	if((firstSampleLoadFlag == 0) && (moduleFlags & sampleLoadingActive))
 	{
 		sampleLoadedState = fileManager.samplesLoader.waveLoader.getState();
 
 		if(sampleLoadedState == loaderStateTypeInProgress) // refresh update when in progress
 		{
 			fileManager.samplesLoader.waveLoader.update();
-			showSampleLoading(fileManager.samplesLoader.waveLoader.getCurrentWaveProgress());
+
+			uint8_t progress = fileManager.samplesLoader.waveLoader.getCurrentWaveProgress();
+			showHorizontalBar(progress,"Loading sample");
 		}
 
 		if((sampleLoadedState == loaderStateTypeEnded) && (lastSampleLoadedState == loaderStateTypeInProgress)) // do when loaded
@@ -144,6 +196,7 @@ void cSampleEditor::refreshSampleLoading()
 			moduleFlags &= ~sampleLoadingActive;
 
 			firstSampleLoadFlag = 1;
+			sampleIsValid = 1;
 		}
 
 		lastSampleLoadedState = sampleLoadedState;
@@ -158,22 +211,53 @@ void cSampleEditor::showCurrentSpectrum(uint32_t length, int16_t *source)
 	display.refreshControl(spectrumControl);
 }
 
+void cSampleEditor::startLoadingSample()
+{
+	if(mtProject.instrument[localInstrNum].isActive)
+	{
+		if(!(moduleFlags & onEntryStillLoading))
+		{
+			sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);
+			effector.loadSample(instrumentPath);
+			moduleFlags |= sampleLoadingActive;
+		}
+	}
+	else
+	{
+		sampleIsValid = 0;
+	}
+}
 
 void cSampleEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 	firstSampleLoadFlag = 0;
 
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+	{
+		sequencer.stop();
+	}
+
 	//--------------------------------------------------------------------
 
 	//editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
-	localInstrNum = mtProject.values.lastUsedInstrument;
-	sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);
-	effector.loadSample(instrumentPath);
-	moduleFlags |= sampleLoadingActive;
+	if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeInProgress)
+	{
+		moduleFlags |= onEntryStillLoading;
+	}
 
-	SE->isAnyEffectActive = 0;
+	localInstrNum = mtProject.values.lastUsedInstrument;
+
+	startLoadingSample();
+
+	if(sampleIsValid == 0)
+	{
+		showCurrentSpectrum(0, effector.getAddress());
+	}
+
+	isAnyEffectActive = 0;
+	effectAppliedFlag = 0;
 
 	initEffectsScreenStructs();
 
@@ -222,20 +306,20 @@ void cSampleEditor::initEffectsScreenStructs()
 	effectScreen[effectCrop].paramNum = 3;
 	effectScreen[effectCrop].barNum = 0;
 
-	effectScreen[effectCrop].bar[0].name = "Start";
-	effectScreen[effectCrop].bar[0].editFunct = modStartPoint;
-	effectScreen[effectCrop].bar[0].dataSource = &startPoint;
-	effectScreen[effectCrop].bar[0].dataFormat = tUNSIGNED16,
-
-	effectScreen[effectCrop].bar[1].name = "End";
-	effectScreen[effectCrop].bar[1].editFunct = modEndPoint;
-	effectScreen[effectCrop].bar[1].dataSource = &endPoint;
+	effectScreen[effectCrop].bar[1].name = "Start";
+	effectScreen[effectCrop].bar[1].editFunct = modStartPoint;
+	effectScreen[effectCrop].bar[1].dataSource = &startPoint;
 	effectScreen[effectCrop].bar[1].dataFormat = tUNSIGNED16,
 
-	effectScreen[effectCrop].bar[2].name = "Zoom";
-	effectScreen[effectCrop].bar[2].editFunct = changeZoom;
-	effectScreen[effectCrop].bar[2].dataSource = &zoom.zoomValue;
-	effectScreen[effectCrop].bar[2].dataFormat = tFLOAT,
+	effectScreen[effectCrop].bar[2].name = "End";
+	effectScreen[effectCrop].bar[2].editFunct = modEndPoint;
+	effectScreen[effectCrop].bar[2].dataSource = &endPoint;
+	effectScreen[effectCrop].bar[2].dataFormat = tUNSIGNED16,
+
+	effectScreen[effectCrop].bar[3].name = "Zoom";
+	effectScreen[effectCrop].bar[3].editFunct = changeZoom;
+	effectScreen[effectCrop].bar[3].dataSource = &zoom.zoomValue;
+	effectScreen[effectCrop].bar[3].dataFormat = tFLOAT,
 	effectScreen[effectCrop].undoActive = 1;
 
 	//!< Reverse effect
@@ -245,80 +329,165 @@ void cSampleEditor::initEffectsScreenStructs()
 	effectScreen[effectReverse].paramNum = 3;
 	effectScreen[effectReverse].barNum = 0;
 
-	effectScreen[effectReverse].bar[0].name = "Start";
-	effectScreen[effectReverse].bar[0].editFunct = modStartPoint;
-	effectScreen[effectReverse].bar[0].dataSource = &startPoint;
-	effectScreen[effectReverse].bar[0].dataFormat = tUNSIGNED16,
-
-	effectScreen[effectReverse].bar[1].name = "End";
-	effectScreen[effectReverse].bar[1].editFunct = modEndPoint;
-	effectScreen[effectReverse].bar[1].dataSource = &endPoint;
+	effectScreen[effectReverse].bar[1].name = "Start";
+	effectScreen[effectReverse].bar[1].editFunct = modStartPoint;
+	effectScreen[effectReverse].bar[1].dataSource = &startPoint;
 	effectScreen[effectReverse].bar[1].dataFormat = tUNSIGNED16,
 
-	effectScreen[effectReverse].bar[2].name = "Zoom";
-	effectScreen[effectReverse].bar[2].editFunct = changeZoom;
-	effectScreen[effectReverse].bar[2].dataSource = &zoom.zoomValue;
-	effectScreen[effectReverse].bar[2].dataFormat = tFLOAT,
+	effectScreen[effectReverse].bar[2].name = "End";
+	effectScreen[effectReverse].bar[2].editFunct = modEndPoint;
+	effectScreen[effectReverse].bar[2].dataSource = &endPoint;
+	effectScreen[effectReverse].bar[2].dataFormat = tUNSIGNED16,
+
+	effectScreen[effectReverse].bar[3].name = "Zoom";
+	effectScreen[effectReverse].bar[3].editFunct = changeZoom;
+	effectScreen[effectReverse].bar[3].dataSource = &zoom.zoomValue;
+	effectScreen[effectReverse].bar[3].dataFormat = tFLOAT,
 	effectScreen[effectReverse].undoActive = 1;
 
 	//!< Flanger effect
 	//
-	effectScreen[effectFlanger].screen = spectrumWithBars;
+	effectScreen[effectFlanger].screen = noSpectrum;
 
 	effectScreen[effectFlanger].paramNum = 3;
 	effectScreen[effectFlanger].barNum = 3;
 
-	effectScreen[effectFlanger].bar[0].name = "Offset";
-	effectScreen[effectFlanger].bar[0].editFunct = editFlangerOffset;
-	effectScreen[effectFlanger].bar[0].dataSource = &flangerOffset;
-	effectScreen[effectFlanger].bar[0].dataFormat = tUNSIGNED8,
-
-	effectScreen[effectFlanger].bar[1].name = "Depth";
-	effectScreen[effectFlanger].bar[1].editFunct = editFlangerDepth;
-	effectScreen[effectFlanger].bar[1].dataSource = &flangerDepth;
+	effectScreen[effectFlanger].bar[1].name = "Offset";
+	effectScreen[effectFlanger].bar[1].editFunct = editFlangerOffset;
+	effectScreen[effectFlanger].bar[1].dataSource = &flangerOffset;
 	effectScreen[effectFlanger].bar[1].dataFormat = tUNSIGNED8,
 
-	effectScreen[effectFlanger].bar[2].name = "Delay";
-	effectScreen[effectFlanger].bar[2].editFunct = editFlangerDelay;
-	effectScreen[effectFlanger].bar[2].dataSource = &flangerDelay;
-	effectScreen[effectFlanger].bar[2].dataFormat = tFLOAT,
+	effectScreen[effectFlanger].bar[2].name = "Depth";
+	effectScreen[effectFlanger].bar[2].editFunct = editFlangerDepth;
+	effectScreen[effectFlanger].bar[2].dataSource = &flangerDepth;
+	effectScreen[effectFlanger].bar[2].dataFormat = tUNSIGNED8,
+
+	effectScreen[effectFlanger].bar[3].name = "Delay";
+	effectScreen[effectFlanger].bar[3].editFunct = editFlangerDelay;
+	effectScreen[effectFlanger].bar[3].dataSource = &flangerDelay;
+	effectScreen[effectFlanger].bar[3].dataFormat = tFLOAT,
 	effectScreen[effectFlanger].undoActive = 0;
 
 	//!< Chorus effect
 	//
-	effectScreen[effectChorus].screen = spectrumWithBars;
+	effectScreen[effectChorus].screen =  noSpectrum;
 
 	effectScreen[effectChorus].paramNum = 2;
 	effectScreen[effectChorus].barNum = 2;
 
-	effectScreen[effectChorus].bar[1].name = "Length";
-	effectScreen[effectChorus].bar[1].editFunct = editChorusLength;
-	effectScreen[effectChorus].bar[1].dataSource = &chorusLength;
-	effectScreen[effectChorus].bar[1].dataFormat = tUNSIGNED16;
+	effectScreen[effectChorus].bar[2].name = "Length";
+	effectScreen[effectChorus].bar[2].editFunct = editChorusLength;
+	effectScreen[effectChorus].bar[2].dataSource = &chorusLength;
+	effectScreen[effectChorus].bar[2].dataFormat = tUNSIGNED16;
 
-	effectScreen[effectChorus].bar[2].name = "Strength";
-	effectScreen[effectChorus].bar[2].editFunct = editChorusStrength;
-	effectScreen[effectChorus].bar[2].dataSource = &chorusStrength;
-	effectScreen[effectChorus].bar[2].dataFormat = tUNSIGNED8;
+	effectScreen[effectChorus].bar[3].name = "Strength";
+	effectScreen[effectChorus].bar[3].editFunct = editChorusStrength;
+	effectScreen[effectChorus].bar[3].dataSource = &chorusStrength;
+	effectScreen[effectChorus].bar[3].dataFormat = tUNSIGNED8;
 	effectScreen[effectChorus].undoActive = 0;
 
 	//!< Delay effect
 	//
-	effectScreen[effectDelay].screen = spectrumWithBars;
+	effectScreen[effectDelay].screen =  noSpectrum;
 
 	effectScreen[effectDelay].paramNum = 2;
 	effectScreen[effectDelay].barNum = 2;
 
-	effectScreen[effectDelay].bar[1].name = "Time";
-	effectScreen[effectDelay].bar[1].editFunct = editDelayTime;
-	effectScreen[effectDelay].bar[1].dataSource = &delayTime;
-	effectScreen[effectDelay].bar[1].dataFormat = tUNSIGNED16;
+	effectScreen[effectDelay].bar[2].name = "Time";
+	effectScreen[effectDelay].bar[2].editFunct = editDelayTime;
+	effectScreen[effectDelay].bar[2].dataSource = &delayTime;
+	effectScreen[effectDelay].bar[2].dataFormat = tUNSIGNED16;
+	effectScreen[effectDelay].bar[2].dataUnit = "ms";
 
-	effectScreen[effectDelay].bar[2].name = "Feedback";
-	effectScreen[effectDelay].bar[2].editFunct = editDelayFeedback;
-	effectScreen[effectDelay].bar[2].dataSource = &delayFeedback;
-	effectScreen[effectDelay].bar[2].dataFormat = tFLOAT;
+	effectScreen[effectDelay].bar[3].name = "Feedback";
+	effectScreen[effectDelay].bar[3].editFunct = editDelayFeedback;
+	effectScreen[effectDelay].bar[3].dataSource = &delayFeedback;
+	effectScreen[effectDelay].bar[3].dataFormat = tFLOAT;
 	effectScreen[effectDelay].undoActive = 0;
+
+	//!< Compressor effect
+	//
+	effectScreen[effectCompressor].screen =  noSpectrum;
+
+	effectScreen[effectCompressor].paramNum = 4;
+	effectScreen[effectCompressor].barNum = 4;
+
+	effectScreen[effectCompressor].bar[0].name = "Threshold";
+	effectScreen[effectCompressor].bar[0].editFunct = editCompressorThreshold;
+	effectScreen[effectCompressor].bar[0].dataSource = &compressorThrs;
+	effectScreen[effectCompressor].bar[0].dataFormat = tUNSIGNED16;
+
+	effectScreen[effectCompressor].bar[1].name = "Ratio";
+	effectScreen[effectCompressor].bar[1].editFunct = editCompressorRatio;
+	effectScreen[effectCompressor].bar[1].dataSource = &compressorRatio;
+	effectScreen[effectCompressor].bar[1].dataFormat = tUNSIGNED16;
+
+	effectScreen[effectCompressor].bar[2].name = "Attack";
+	effectScreen[effectCompressor].bar[2].editFunct = editCompressorAttack;
+	effectScreen[effectCompressor].bar[2].dataSource = &compressorAttack;
+	effectScreen[effectCompressor].bar[2].dataFormat = tUNSIGNED16;
+
+	effectScreen[effectCompressor].bar[3].name = "Release";
+	effectScreen[effectCompressor].bar[3].editFunct = editCompressorRelease;;
+	effectScreen[effectCompressor].bar[3].dataSource = &compressorRelease;
+	effectScreen[effectCompressor].bar[3].dataFormat = tUNSIGNED16;
+	effectScreen[effectCompressor].undoActive = 0;
+
+	//!< Bitcrusher effect
+	//
+	effectScreen[effectBitcrusher].screen =  noSpectrum;
+
+	effectScreen[effectBitcrusher].paramNum = 2;
+	effectScreen[effectBitcrusher].barNum = 2;
+
+	effectScreen[effectBitcrusher].bar[2].name = "Bits";
+	effectScreen[effectBitcrusher].bar[2].editFunct = editBitcrusherBits;
+	effectScreen[effectBitcrusher].bar[2].dataSource = &bitcrusherBits;
+	effectScreen[effectBitcrusher].bar[2].dataFormat = tUNSIGNED8;
+
+	effectScreen[effectBitcrusher].bar[3].name = "Rate";
+	effectScreen[effectBitcrusher].bar[3].editFunct = editBitcrusherRate;
+	effectScreen[effectBitcrusher].bar[3].dataSource = &bitcrusherRate;
+	effectScreen[effectBitcrusher].bar[3].dataFormat = tUNSIGNED16;
+
+	effectScreen[effectBitcrusher].undoActive = 0;
+
+	//!< Amplifier effect
+	//
+	effectScreen[effectAmplifier].screen =  noSpectrum;
+
+	effectScreen[effectAmplifier].paramNum = 1;
+	effectScreen[effectAmplifier].barNum = 1;
+
+	effectScreen[effectAmplifier].bar[3].name = "Amp";
+	effectScreen[effectAmplifier].bar[3].editFunct = editAmplifierAmp;
+	effectScreen[effectAmplifier].bar[3].dataSource = &amplifierAmp;
+	effectScreen[effectAmplifier].bar[3].dataFormat = tFLOAT;
+
+	effectScreen[effectAmplifier].undoActive = 0;
+
+	//!< Limiter effect
+	//
+	effectScreen[effectLimiter].screen = noSpectrum;
+
+	effectScreen[effectLimiter].paramNum = 3;
+	effectScreen[effectLimiter].barNum = 3;
+
+	effectScreen[effectLimiter].bar[1].name = "Threshold";
+	effectScreen[effectLimiter].bar[1].editFunct = editLimiterThreshold;
+	effectScreen[effectLimiter].bar[1].dataSource = &limiterThreshold;
+	effectScreen[effectLimiter].bar[1].dataFormat = tUNSIGNED16,
+
+	effectScreen[effectLimiter].bar[2].name = "Attack";
+	effectScreen[effectLimiter].bar[2].editFunct = editLimiterAttack;
+	effectScreen[effectLimiter].bar[2].dataSource = &limiterAttack;
+	effectScreen[effectLimiter].bar[2].dataFormat = tUNSIGNED16,
+
+	effectScreen[effectLimiter].bar[3].name = "Release";
+	effectScreen[effectLimiter].bar[3].editFunct = editLimiterRelease;
+	effectScreen[effectLimiter].bar[3].dataSource = &limiterRelease;
+	effectScreen[effectLimiter].bar[3].dataFormat = tUNSIGNED16,
+	effectScreen[effectLimiter].undoActive = 0;
 
 }
 
@@ -334,7 +503,7 @@ void cSampleEditor::setDefaultScreenFunct()
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
 
-	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
+	//FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
 	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
@@ -343,14 +512,14 @@ void cSampleEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
 //	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
-	FM->setButtonObj(interfaceButtonShift, functShift);
+	//FM->setButtonObj(interfaceButtonShift, functShift);
 //	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
 	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 
 	FM->setButtonObj(interfaceButton0, functPreview);
 	FM->setButtonObj(interfaceButton1, buttonPress, functApply);
-	FM->setButtonObj(interfaceButton2, buttonPress, functUndo);
+	FM->setButtonObj(interfaceButton2, buttonPress, functSelectPlace);
 
 	FM->setButtonObj(interfaceButton3, buttonPress, functSelectPlace);
 	FM->setButtonObj(interfaceButton4, buttonPress, functSelectPlace);
@@ -422,14 +591,10 @@ uint8_t cSampleEditor::previewNewEffectRequested()
 	return retVal;
 }
 
-
-
 static uint8_t functPreview(uint8_t state)
 {
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
-	{
-		sequencer.stop();
-	}
+	if(SE->moduleFlags != 0) return 1;
+	if(SE->sampleIsValid != 1) return 1;
 
 	if(state == 1)
 	{
@@ -454,7 +619,7 @@ static uint8_t functPreview(uint8_t state)
 		effector.stop();
 	}
 
-	SE->selectedPlace = 0;
+	//SE->selectedPlace = 0;
 	SE->activateLabelsBorder();
 
 	return 1;
@@ -462,6 +627,9 @@ static uint8_t functPreview(uint8_t state)
 
 static uint8_t functApply()
 {
+	if(SE->moduleFlags != 0) return 1;
+	if(SE->sampleIsValid != 1) return 1;
+
 	if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
 	{
 		SE->isAnyEffectActive = true;
@@ -474,7 +642,6 @@ static uint8_t functApply()
 		if(SE->currSelEffect == effectCrop)
 		{
 			effector.trim(SE->startPoint, SE->endPoint);
-			SE->resetSpectrumAndPoints();
 			SE->isAnyEffectActive = true;
 			SE->undoCropFlag = 1;
 
@@ -496,9 +663,10 @@ static uint8_t functApply()
 		effector.save(SE->instrumentPath);
 
 		SE->moduleFlags |= applyingActive;
+		SE->effectAppliedFlag = 1;
 
-		SE->selectedPlace = 1;
-		SE->activateLabelsBorder();
+		//SE->selectedPlace = 1;
+		//SE->activateLabelsBorder();
 	}
 
 	return 1;
@@ -506,6 +674,8 @@ static uint8_t functApply()
 
 static uint8_t functUndo()
 {
+	if(SE->sampleIsValid != 1) return 1;
+
 	if(SE->currSelEffect == effectCrop)
 	{
 		if(SE->undoCropFlag)
@@ -515,9 +685,7 @@ static uint8_t functUndo()
 			effector.undoTrim();
 
 			effector.save(SE->instrumentPath);
-			SE->moduleFlags |= applyingActive;
-
-			SE->resetSpectrumAndPoints();
+			SE->moduleFlags |= undoActive;
 		}
 	}
 	else if(SE->currSelEffect == effectReverse)
@@ -525,45 +693,76 @@ static uint8_t functUndo()
 		if(SE->undoReverseFlag)
 		{
 			SE->undoReverseFlag = 0;
+
 			effector.undoReverse();
 
 			effector.save(SE->instrumentPath);
-			SE->moduleFlags |= applyingActive;
+			SE->moduleFlags |= undoActive;
 		}
 	}
 
-	SE->selectedPlace = 2;
-	SE->activateLabelsBorder();
+	//SE->selectedPlace = 2;
+	//SE->activateLabelsBorder();
 
 	return 1;
 }
 
 static uint8_t functSelectPlace(uint8_t button)
 {
-	if(button < interfaceButton7)
+	if(SE->moduleFlags != 0) return 1;
+
+	uint8_t parameterFlag = 1;
+
+	if(button == interfaceButton2)// Undo
 	{
-		SE->selectedPlace = button;
-	}
-	else
-	{
-		SE->selectedPlace = 6;
+		if(SE->effectScreen[SE->currSelEffect].undoActive)
+		{
+			parameterFlag = 0;
+			functUndo();
+		}
 	}
 
-	SE->activateLabelsBorder();
+	if(SE->selectedPlace == 6) // gora/dol na effekcie
+	{
+		if(button == interfaceButton7)
+		{
+			SE->changeEffectSelection(-1);
+		}
+		else if(button == interfaceButton6)
+		{
+			SE->changeEffectSelection(1);
+		}
+	}
+
+	if(parameterFlag)
+	{
+		if(button < interfaceButton7)
+		{
+			SE->selectedPlace = button;
+		}
+		else
+		{
+			SE->selectedPlace = 6;
+		}
+
+		SE->activateLabelsBorder();
+	}
 
 	return 1;
 }
 
 static  uint8_t functEncoder(int16_t value)
 {
+	if(SE->moduleFlags != 0) return 1;
+
 	switch(SE->selectedPlace)
 	{
 	case 0: break;
 	case 1: break;
-	case 2: break;
-	case 3: SE->editParamFunction(0, value);	break;
-	case 4: SE->editParamFunction(1, value);    break;
-	case 5: SE->editParamFunction(2, value);	break;
+	case 2: SE->editParamFunction(0, value);	break;
+	case 3: SE->editParamFunction(1, value);	break;
+	case 4: SE->editParamFunction(2, value);    break;
+	case 5: SE->editParamFunction(3, value);	break;
 	case 6: SE->changeEffectSelection(value);	break;
 	}
 
@@ -581,6 +780,7 @@ void cSampleEditor::editParamFunction(uint8_t paramNum, int16_t value)
 
 static  uint8_t functLeft()
 {
+	if(SE->moduleFlags != 0) return 1;
 	if(SE->selectedPlace > 0) SE->selectedPlace--;
 
 	SE->activateLabelsBorder();
@@ -590,6 +790,7 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(SE->moduleFlags != 0) return 1;
 	if(SE->selectedPlace < SE->frameData.placesCount-1) SE->selectedPlace++;
 
 	SE->activateLabelsBorder();
@@ -599,32 +800,34 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	if(SE->moduleFlags != 0) return 1;
+
 	switch(SE->selectedPlace)
 	{
 	case 0: break;
 	case 1: break;
-	case 2: break;
-	case 3: SE->editParamFunction(0, 1);	break;
-	case 4: SE->editParamFunction(1, 1);    break;
-	case 5: SE->editParamFunction(2, 1);	break;
+	case 2: SE->editParamFunction(0, -1);	break;
+	case 3: SE->editParamFunction(1, -1);	break;
+	case 4: SE->editParamFunction(2, -1);    break;
+	case 5: SE->editParamFunction(3, -1);	break;
 	case 6: SE->changeEffectSelection(-1);	break;
 	}
-
-	return 1;
 
 	return 1;
 }
 
 static  uint8_t functDown()
 {
+	if(SE->moduleFlags != 0) return 1;
+
 	switch(SE->selectedPlace)
 	{
 	case 0: break;
 	case 1: break;
-	case 2: break;
-	case 3: SE->editParamFunction(0, -1);	break;
-	case 4: SE->editParamFunction(1, -1);    break;
-	case 5: SE->editParamFunction(2, -1);	break;
+	case 2: SE->editParamFunction(0, -1);	break;
+	case 3: SE->editParamFunction(1, -1);	break;
+	case 4: SE->editParamFunction(2, -1);    break;
+	case 5: SE->editParamFunction(3, -1);	break;
 	case 6: SE->changeEffectSelection(1);	break;
 	}
 
@@ -654,13 +857,28 @@ static  uint8_t functRecAction()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(SE->onExitFlag == 0)
-	{
-		SE->exitButton = button;
-		SE->moduleFlags |= onExitReloadActive;
-		SE->onExitFlag = 1;
+	if(SE->onExitFlag == 1) return 1;
 
-		fileManager.samplesLoader.start(0, (char*)"Workspace/samples");
+	if(!(SE->moduleFlags & onExitReloadActive))
+	{
+		if(SE->onExitFlag == 0)
+		{
+			if(SE->effectAppliedFlag)
+			{
+				if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
+				{
+					SE->exitButton = button;
+					SE->moduleFlags |= onExitReloadActive;
+					SE->onExitFlag = 1;
+
+					fileManager.samplesLoader.start(0, (char*)"Workspace/samples");
+				}
+			}
+			else
+			{
+				SE->onExitFlag = 2; // allows to exit immediately
+			}
+		}
 	}
 
 	if(SE->onExitFlag == 2)
@@ -726,6 +944,8 @@ static uint8_t functShift(uint8_t value)
 
 static  uint8_t functInstrument(uint8_t state)
 {
+	if(SE->moduleFlags != 0) return 1;
+
 	if(state == buttonRelease)
 	{
 		SE->cancelPopups();
@@ -747,6 +967,8 @@ static  uint8_t functInstrument(uint8_t state)
 
 static uint8_t functStepNote(uint8_t value)
 {
+	if(SE->moduleFlags != 0) return 1;
+
 	if(value == buttonRelease)
 	{
 		SE->cancelPopups();
@@ -764,13 +986,13 @@ static uint8_t functStepNote(uint8_t value)
 
 void cSampleEditor::updateEffectValues(effect_screen_t *effect, uint8_t barNum)
 {
-	printNewValue(effect->bar[barNum].dataSource, barNum, effect->bar[barNum].dataFormat);
+	printNewValue(effect->bar[barNum].dataSource, barNum, effect->bar[barNum].dataUnit, effect->bar[barNum].dataFormat);
 	showValueLabels(barNum);
 
 	refreshBarsValue(barNum,effect->bar[barNum].effectPercentage);
 }
 
-void cSampleEditor::printNewValue(const void *data, uint8_t whichBar, source_datatype_t sourceType)
+void cSampleEditor::printNewValue(const void *data, uint8_t whichBar, const char* unit, source_datatype_t sourceType)
 {
 	char format[6] ="%d";
 
@@ -801,6 +1023,11 @@ void cSampleEditor::printNewValue(const void *data, uint8_t whichBar, source_dat
 			sprintf(&SE->dataBarText[whichBar][0], format, *((float_t*)data));
 			break;
 		}
+
+		if(*unit != '\0')
+		{
+			strcat(&SE->dataBarText[whichBar][0],unit);
+		}
 	}
 	else
 	{
@@ -817,9 +1044,9 @@ void cSampleEditor::resetSpectrumAndPoints()
 
 	GP.spectrumResetZoom(startPoint, effector.getLength()/2 ,&zoom);
 
-	updateEffectValues(&effectScreen[currSelEffect], 0);
 	updateEffectValues(&effectScreen[currSelEffect], 1);
 	updateEffectValues(&effectScreen[currSelEffect], 2);
+	updateEffectValues(&effectScreen[currSelEffect], 3);
 
 	refreshSpectrum = 1;
 	refreshPoints = 1;
@@ -833,6 +1060,7 @@ void cSampleEditor::makeEffect()
 	}
 
 	uint8_t newPreviewFlag = SE->previewNewEffectRequested();
+	uint8_t processingActivated = 0;
 
 	switch((effect_t)SE->currSelEffect)
 	{
@@ -841,37 +1069,37 @@ void cSampleEditor::makeEffect()
 	case effectReverse:
 		break;
 	case effectFlanger:
-		if(effectorFlanger.makeFlanger(FLANGER_LENGTH_MAX, SE->flangerOffset, SE->flangerDepth, SE->flangerDelay, newPreviewFlag))
-		{
-			SE->isAnyEffectActive = true;
-			SE->moduleFlags |= processingActive;
-			SE->previewReadyFlag = 0;
-			SE->showProcessingBar(0);
-		}
+		processingActivated = effectorFlanger.makeFlanger(FLANGER_LENGTH_MAX, SE->flangerOffset, SE->flangerDepth, SE->flangerDelay, newPreviewFlag);
 		break;
 	case effectChorus:
-
-		if(effectorChorus.makeChorus(SE->chorusLength, SE->chorusStrength, newPreviewFlag))
-		{
-			SE->isAnyEffectActive = true;
-			SE->moduleFlags |= processingActive;
-			SE->previewReadyFlag = 0;
-			SE->showProcessingBar(0);
-		}
-
+		processingActivated = effectorChorus.makeChorus(SE->chorusLength, SE->chorusStrength, newPreviewFlag);
 		break;
 	case effectDelay:
-		if(effectorDelay.makeDelay(SE->delayFeedback, SE->delayTime, newPreviewFlag))
-		{
-			SE->isAnyEffectActive = true;
-			SE->moduleFlags |= processingActive;
-			SE->previewReadyFlag = 0;
-			SE->showProcessingBar(0);
-		}
+		processingActivated = effectorDelay.makeDelay(SE->delayFeedback, SE->delayTime, newPreviewFlag);
 		break;
-
+	case effectCompressor:
+		processingActivated = effectorCompressor.makeCompressor(SE->compressorThrs, SE->compressorRatio, SE->compressorAttack, SE->compressorRelease, newPreviewFlag);
+		break;
+	case effectBitcrusher:
+		processingActivated = effectorBitcrusher.makeBitcrusher(SE->bitcrusherBits, SE->bitcrusherRate, newPreviewFlag);
+		break;
+	case effectAmplifier:
+		effectorAmplifier.makeAmplifier(SE->amplifierAmp, newPreviewFlag);// instant efffect
+		previewReadyFlag = 1;
+		break;
+	case effectLimiter:
+		processingActivated = effectorLimiter.makeLimiter(SE->limiterThreshold, SE->limiterAttack, SE->limiterRelease, newPreviewFlag);
+		break;
 	default:
 		break;
+	}
+
+	if(processingActivated)
+	{
+		SE->isAnyEffectActive = true;
+		SE->moduleFlags |= processingActive;
+		SE->previewReadyFlag = 0;
+		//SE->showProcessingBar(0);
 	}
 }
 
@@ -879,50 +1107,80 @@ void cSampleEditor::updateEffectProcessing()
 {
 	if(previewReadyFlag == 0)
 	{
-		if(currSelEffect == effectChorus)
+		uint8_t processingStatus = 0;
+		uint8_t progress = 0;
+
+		switch(currSelEffect)
 		{
-			if(effectorChorus.requireProcess())
+		case effectChorus:
+			processingStatus = effectorChorus.requireProcess();
+
+			if(processingStatus)
 			{
-				uint8_t progress = effectorChorus.getProgress();
 				effectorChorus.process();
-				showProcessingBar(progress);
+				progress = effectorChorus.getProgress();
 			}
-			else
+			break;
+		case effectDelay:
+			processingStatus = effectorDelay.requireProcess();
+
+			if(processingStatus)
 			{
-				SE->moduleFlags &= ~processingActive;
-				previewReadyFlag = 1;
-				hideHorizontalBar();
-			}
-		}
-		else if(currSelEffect == effectDelay)
-		{
-			if(effectorDelay.requireProcess())
-			{
-				uint8_t progress = effectorDelay.getProgress();
 				effectorDelay.process();
-				showProcessingBar(progress);
+				progress = effectorDelay.getProgress();
 			}
-			else
+			break;
+		case effectFlanger:
+			processingStatus = effectorFlanger.requireProcess();
+
+			if(processingStatus)
 			{
-				SE->moduleFlags &= ~processingActive;
-				previewReadyFlag = 1;
-				hideHorizontalBar();
-			}
-		}
-		else if(currSelEffect == effectFlanger)
-		{
-			if(effectorFlanger.requireProcess())
-			{
-				uint8_t progress = effectorFlanger.getProgress();
 				effectorFlanger.process();
-				showProcessingBar(progress);
+				progress = effectorFlanger.getProgress();
 			}
-			else
+			break;
+		case effectCompressor:
+			processingStatus = effectorCompressor.requireProcess();
+
+			if(processingStatus)
 			{
-				SE->moduleFlags &= ~processingActive;
-				previewReadyFlag = 1;
-				hideHorizontalBar();
+				effectorCompressor.process();
+				progress = effectorCompressor.getProgress();
 			}
+			break;
+		case effectBitcrusher:
+			processingStatus = effectorBitcrusher.requireProcess();
+
+			if(processingStatus)
+			{
+				effectorBitcrusher.process();
+				progress = effectorBitcrusher.getProgress();
+			}
+			break;
+		case effectAmplifier:
+			break;
+		case effectLimiter:
+			processingStatus = effectorLimiter.requireProcess();
+
+			if(processingStatus)
+			{
+				effectorLimiter.process();
+				progress = effectorLimiter.getProgress();
+			}
+			break;
+		default:
+			break;
+		}
+
+		if(processingStatus)
+		{
+			showHorizontalBar(progress,"Processing effect");
+		}
+		else
+		{
+			SE->moduleFlags &= ~processingActive;
+			previewReadyFlag = 1;
+			hideHorizontalBar();
 		}
 	}
 }
@@ -1064,5 +1322,118 @@ uint8_t editFlangerDelay(int16_t value)
 
 	return ((SE->flangerDelay * 100)/FLANGER_DELAYRATE_MAX);
 }
+
+uint8_t editCompressorThreshold(int16_t value)
+{
+	uint8_t step = 10;
+
+	if(SE->compressorThrs + (value*step) < 0) SE->compressorThrs = 0;
+	else if(SE->compressorThrs + (value*step)  > CMPSR_THRESHOLD_MAX) SE->compressorThrs = CMPSR_THRESHOLD_MAX;
+	else SE->compressorThrs += (value*step);
+
+
+	return ((SE->compressorThrs * 100)/(CMPSR_THRESHOLD_MAX));
+}
+
+uint8_t editCompressorRatio(int16_t value)
+{
+	if(SE->compressorRatio + value < 0) SE->compressorRatio = 0;
+	else if(SE->compressorRatio + value > CMPSR_RATIO_MAX) SE->compressorRatio = CMPSR_RATIO_MAX;
+	else SE->compressorRatio += value;
+
+
+	return ((SE->compressorRatio * 100)/CMPSR_RATIO_MAX);
+}
+
+uint8_t editCompressorAttack(int16_t value)
+{
+	if(SE->compressorAttack + value < 0) SE->compressorAttack = 0;
+	else if(SE->compressorAttack + value > CMPSR_ATTACK_MAX_MS) SE->compressorAttack = CMPSR_ATTACK_MAX_MS;
+	else SE->compressorAttack += value;
+
+
+	return ((SE->compressorAttack * 100)/CMPSR_ATTACK_MAX_MS);
+}
+
+uint8_t editCompressorRelease(int16_t value)
+{
+	if(SE->compressorRelease + value < 0) SE->compressorRelease = 0;
+	else if(SE->compressorRelease + value > CMPSR_RELEASE_MAX_MS) SE->compressorRelease = CMPSR_RELEASE_MAX_MS;
+	else SE->compressorRelease += value;
+
+
+	return ((SE->compressorRelease * 100)/CMPSR_RELEASE_MAX_MS);
+}
+
+uint8_t editBitcrusherBits(int16_t value)
+{
+	if(SE->bitcrusherBits + value < 0) SE->bitcrusherBits = 0;
+	else if(SE->bitcrusherBits + value > BITCRUSHER_BITS_MAX) SE->bitcrusherBits = BITCRUSHER_BITS_MAX;
+	else SE->bitcrusherBits += value;
+
+
+	return ((SE->bitcrusherBits * 100)/BITCRUSHER_BITS_MAX);
+}
+
+uint8_t editBitcrusherRate(int16_t value)
+{
+	uint8_t step = 10;
+
+	if(SE->bitcrusherRate + (value*step) < 0) SE->bitcrusherRate = 0;
+	else if(SE->bitcrusherRate + (value*step) > BITCRUSHER_RATE_MAX) SE->bitcrusherRate = BITCRUSHER_RATE_MAX;
+	else SE->bitcrusherRate += (value*step);
+
+
+	return ((SE->bitcrusherRate * 100)/BITCRUSHER_RATE_MAX);
+}
+
+uint8_t editAmplifierAmp(int16_t value)
+{
+	float step = 0.1f;
+
+	if(SE->amplifierAmp + (value*step) < 0) SE->amplifierAmp = 0;
+	else if(SE->amplifierAmp + (value*step) > AMPLIFIER_AMP_MAX) SE->amplifierAmp = AMPLIFIER_AMP_MAX;
+	else SE->amplifierAmp += (value * step);
+
+
+	return ((SE->amplifierAmp * 100)/AMPLIFIER_AMP_MAX);
+}
+
+uint8_t editLimiterThreshold(int16_t value)
+{
+	uint8_t step = 10;
+
+	if(SE->limiterThreshold + (value*step) < 0) SE->limiterThreshold = 0;
+	else if(SE->limiterThreshold + (value*step) > LIMITER_THRESHOLD_MAX) SE->limiterThreshold = LIMITER_THRESHOLD_MAX;
+	else SE->limiterThreshold += (value*step);
+
+
+	return ((SE->limiterThreshold * 100)/LIMITER_THRESHOLD_MAX);
+}
+
+uint8_t editLimiterAttack(int16_t value)
+{
+	uint8_t step = 10;
+
+	if(SE->limiterAttack + (value*step) < 0) SE->limiterAttack = 0;
+	else if(SE->limiterAttack + (value*step) > LIMITER_ATTACK_MAX) SE->limiterAttack = LIMITER_ATTACK_MAX;
+	else SE->limiterAttack += (value*step);
+
+
+	return ((SE->limiterAttack * 100)/LIMITER_ATTACK_MAX);
+}
+
+uint8_t editLimiterRelease(int16_t value)
+{
+	uint8_t  step = 10;
+
+	if(SE->limiterRelease + (value*step) < 0) SE->limiterRelease = 0;
+	else if(SE->limiterRelease + (value*step) > LIMITER_RELEASE_MAX) SE->limiterRelease = LIMITER_RELEASE_MAX;
+	else SE->limiterRelease += (value * step);
+
+
+	return ((SE->limiterRelease * 100)/LIMITER_RELEASE_MAX);
+}
+
 
 

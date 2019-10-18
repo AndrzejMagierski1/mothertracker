@@ -23,7 +23,7 @@ uint8_t mtFlanger::makeFlanger(int d_length,int delay_offset,int d_depth,float d
 	localLength = effector.getLength();
 	returnLength = localLength;
 	localAddress = effector.getAddress();
-	destAddress = sdram_effectsBank;
+	destAddress = effector.previewBuffer;
 
 	delay_length = d_length/2;
 	l_delayline = flangerBuf;

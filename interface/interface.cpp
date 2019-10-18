@@ -45,8 +45,8 @@ strMtConfig mtConfig;
 strMtProject mtProject;
 strInterfaceGlobals interfaceGlobals;
 
-__NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[15*256*1024];
-__NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[15*256*1024];
+__NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[SAMPLE_MEMORY_MAX/2];
+__NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[SAMPLE_MEMORY_MAX/2];
 //__NOINIT(EXTERNAL_RAM) uint8_t undo_Bank[1024*1024];
 
 //=======================================================================

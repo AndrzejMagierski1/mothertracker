@@ -9,11 +9,12 @@
 
 #include "mtStructs.h"
 
-#define MAX_DATA_BARS	3
+#define MAX_DATA_BARS	4
+#define BAR_MIN_POS		2
 
 typedef enum
 {
-	spectrumWithBars,
+	noSpectrum,
 	fullSpectrum,
 
 }screen_type_t;
@@ -30,7 +31,6 @@ typedef enum
 
 }source_datatype_t;
 
-
 typedef uint8_t (*paramEditFunct_t)(int16_t);
 
 typedef struct
@@ -39,6 +39,7 @@ typedef struct
 	paramEditFunct_t	editFunct;
 	void*				dataSource;
 	source_datatype_t	dataFormat;
+	const char*			dataUnit;
 	uint8_t 			effectPercentage;
 
 }effect_bar_t;
@@ -60,6 +61,10 @@ typedef enum
 	effectFlanger,
 	effectChorus,
 	effectDelay,
+	effectCompressor,
+	effectBitcrusher,
+	effectAmplifier,
+	effectLimiter,
 
 }effect_t;
 
@@ -68,11 +73,13 @@ typedef enum
 	sampleLoadingActive = 0x01U,
 	processingActive = 0x02U,
 	applyingActive = 0x04U,
-	onExitReloadActive = 0x08U,
+	undoActive = 0x08U,
+	onExitReloadActive = 0x10U,
+	onEntryStillLoading = 0x20U,
 }flags_t;
 
 
-const uint8_t effectsCount = 5;
+const uint8_t effectsCount = 9;
 const char effectNamesLabels[effectsCount][15] =
 {
 		"Crop",
@@ -80,6 +87,10 @@ const char effectNamesLabels[effectsCount][15] =
 		"Flanger",
 		"Chorus",
 		"Delay",
+		"Compressor",
+		"Bitcrusher",
+		"Amplifier",
+		"Limiter",
 };
 
 
@@ -126,6 +137,8 @@ public:
 
 	void activateLabelsBorder();
 
+	void startLoadingSample();
+
 	strFrameData frameData;
 
 	hControl topLabel[8];
@@ -137,7 +150,7 @@ public:
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
-	hControl barControl[3];
+	hControl barControl[4];
 	hControl processHorizontalBarControl = nullptr;
 
 
@@ -154,7 +167,7 @@ public:
 
 	strZoomParams zoom;
 
-	char dataBarText[3][6];
+	char dataBarText[4][8];
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;
@@ -183,23 +196,23 @@ public:
 	effect_screen_t effectScreen[effectsCount];
 	uint8_t currSelEffect;
 
+	void resizeUndo(uint8_t control);//1 - center 0 - top
 	void showEffectScreen(effect_screen_t *screenCfg);
 	void initEffectsScreenStructs();
 	void editParamFunction(uint8_t paramNum, int16_t value);
 
 	void showValueLabels(uint8_t whichBar);
 	void updateEffectValues(effect_screen_t *effect, uint8_t barNum);
-	void printNewValue(const void *data, uint8_t whichBar, source_datatype_t sourceType);
+	void printNewValue(const void *data, uint8_t whichBar, const char* unit, source_datatype_t sourceType);
 	void refreshBarsValue(uint8_t whichBar, uint8_t newValue);
-	void showProcessingBar(uint8_t progress);
-	void showSampleLoading(uint8_t progress);
-	void showApplying(uint8_t progress);
+	void showHorizontalBar(uint8_t progress , const char* text);
 	void hideHorizontalBar();
 	void updateEffectProcessing();
 	uint8_t previewNewEffectRequested();
 	void makeEffect();
 	void showCurrentSpectrum(uint32_t length, int16_t *source);
 	void refreshSampleLoading();
+	void refreshInstrumentLoading();
 	void refreshSampleApplying();
 	void resetSpectrumAndPoints();
 	void onExitRaload();
@@ -223,6 +236,24 @@ public:
 	uint8_t flangerDepth;
 	uint8_t flangerOffset;
 
+	//Compressor inputs
+	uint16_t compressorThrs;
+	uint16_t compressorRatio;
+	uint16_t compressorAttack;
+	uint16_t compressorRelease;
+
+	//Bitcrusher Inputs
+	uint8_t bitcrusherBits;
+	uint16_t bitcrusherRate;
+
+	//Amplifier inputs
+	float amplifierAmp;
+
+	//Limiter inputs
+	uint16_t limiterThreshold;
+	uint16_t limiterAttack;
+	uint16_t limiterRelease;
+
 	effect_t lastPreviewEffect;
 	uint8_t previewReadyFlag;
 
@@ -235,11 +266,14 @@ public:
 
 	uint8_t onExitFlag;
 	uint8_t exitButton;
+	uint8_t effectAppliedFlag;
 
 	uint8_t firstSampleLoadFlag;
 
 	uint8_t undoCropFlag;
 	uint8_t undoReverseFlag;
+
+	uint8_t sampleIsValid;
 
 };
 

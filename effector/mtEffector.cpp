@@ -4,9 +4,9 @@ mtEffector effector;
 
 void mtEffector::loadSample(const char *patch)
 {
-	fileByteSaved = 2 * fileManager.samplesLoader.waveLoader.start(patch,sdram_sampleBank);
+	fileByteSaved = 2 * fileManager.samplesLoader.waveLoader.start(patch,applyBuffer);
 	if(fileByteSaved == 0) return; //todo: obsluga bledu
-	startAddress=sdram_sampleBank;
+	startAddress=applyBuffer;
 }
 
 void mtEffector::play(uint16_t start, uint16_t stop)
@@ -22,7 +22,7 @@ void mtEffector::play(uint16_t start, uint16_t stop)
 
 void mtEffector::playPrev()
 {
-	startAddressEffect = sdram_effectsBank;
+	startAddressEffect = previewBuffer;
 
 	instrumentPlayer[0].noteOnforPrev(startAddressEffect,affterEffectLength);
 }
@@ -35,7 +35,7 @@ void mtEffector::trim(uint16_t a, uint16_t b)
 {
 	uint32_t addressShift;
 	uint32_t lengthShift;
-	int16_t * localEffectAddress = sdram_effectsBank;
+	int16_t * localEffectAddress = previewBuffer;
 
 	addressShift = (uint32_t)((uint32_t)a * (float)(fileByteSaved/2)/MAX_16BIT);
 	lengthShift = (uint32_t)((uint32_t)b * (float)(fileByteSaved)/MAX_16BIT);
@@ -49,6 +49,15 @@ void mtEffector::trim(uint16_t a, uint16_t b)
 	affterEffectLength = fileByteSaved;
 
 	memcpy(localEffectAddress,startAddress,fileByteSaved);
+}
+
+void mtEffector::clearMainBuffer()
+{
+	uint32_t bytesToClear = 0;
+
+	bytesToClear = (previewBuffer - applyBuffer);
+
+	memset(applyBuffer,0,bytesToClear);
 }
 
 void mtEffector::undoTrim()
