@@ -161,6 +161,7 @@ public:
 
 	void resizeLabelConfigDefault();
 	void resizeLabelConfigMaster();
+	void resizeFirmwareLabel(uint8_t control);// 0 - revert to normal, 1 - rescale to double label;
 
 	uint8_t processUpdate = 0;
 
