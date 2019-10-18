@@ -34,7 +34,7 @@ void cProjectEditor::initDisplayControls()
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 650;
+	prop2.x = 600;
 	prop2.y = 12;
 	if(titleLabelProjectName == nullptr) titleLabelProjectName = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
@@ -73,6 +73,19 @@ void cProjectEditor::initDisplayControls()
 	prop.data = &projectList;
 	if(fileListControl == nullptr)  fileListControl = display.createControl<cList>(&prop);
 
+
+	strControlProperties prop5;
+
+	prop5.x = 400;
+	prop5.colors = popUpLabelColors;
+	prop5.y = 350;
+
+	prop5.h = 100;
+	prop5.w = 800-(10);
+	prop5.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
+	prop5.text = (char*)"";
+	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop5);
+
 	strControlProperties prop3;
 	prop3.x = 10;
 	prop3.y = 120;
@@ -89,17 +102,6 @@ void cProjectEditor::initDisplayControls()
 	prop4.h = 40;
 	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop4);
 
-	strControlProperties prop5;
-
-	prop5.x = 400;
-	prop5.colors = popUpLabelColors;
-	prop5.y = 350;
-
-	prop5.h = 100;
-	prop5.w = 800-(10);
-	prop5.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
-	prop5.text = (char*)"";
-	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop5);
 
 	strControlProperties prop6;
 
@@ -111,6 +113,17 @@ void cProjectEditor::initDisplayControls()
 
 	if(loadHorizontalBarControl == nullptr)  loadHorizontalBarControl = display.createControl<cHorizontalBar>(&prop6);
 
+	strControlProperties prop7;
+
+	prop7.x = 400;
+	prop7.y = 220;
+	prop7.colors = popUpLabelColors;
+	prop7.style = ( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont1 | controlStyleRoundedBorder);
+	prop7.h = 100;
+	prop7.w = 420;
+	prop7.text = (char*)"";
+
+	if(popupLabel == nullptr)  popupLabel = display.createControl<cLabel>(&prop7);
 }
 
 
@@ -153,6 +166,8 @@ void cProjectEditor::destroyDisplayControls()
 	display.destroyControl(loadHorizontalBarControl);
 	loadHorizontalBarControl = nullptr;
 
+	display.destroyControl(popupLabel);
+	popupLabel = nullptr;
 }
 
 void cProjectEditor::showDefaultScreen()
@@ -164,20 +179,20 @@ void cProjectEditor::showDefaultScreen()
 
 	if((fileManager.currentProjectName[0] == 0) || ( newProjectNotSavedFlag == 1 ) )
 	{
-		char currentPatch[PATCH_SIZE];
+
 		uint16_t i = 0;
-		strcpy(currentPatch,"Projects/Untitled");
-		while((SD.exists(currentPatch)) && (i <= 9999))
+		strcpy(currentPatchProjectName,"Projects/Untitled");
+		while((SD.exists(currentPatchProjectName)) && (i <= 9999))
 		{
 			i++;
-			sprintf(currentPatch,"Projects/Untitled%d",i);
+			sprintf(currentPatchProjectName,"Projects/Untitled%d",i);
 		}
 
 		if(i == 0) display.setControlText(titleLabelProjectName, "Untitled");
 		else
 		{
-			sprintf(currentPatch,"Untitled%d",i);
-			display.setControlText(titleLabelProjectName, currentPatch);
+			sprintf(currentPatchProjectName,"Untitled%d",i);
+			display.setControlText(titleLabelProjectName, currentPatchProjectName);
 		}
 	}
 	else
@@ -221,6 +236,9 @@ void cProjectEditor::showDefaultScreen()
 
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
+
+//	display.setControlHide(popupLabel);
+//	display.refreshControl(popupLabel);
 
 	for(uint8_t i = 1; i<8; i++)
 	{
@@ -292,6 +310,44 @@ void cProjectEditor::showProjectsList()
 //	display.synchronizeRefresh();
 //
 //}
+void cProjectEditor::showPopupLabelNewProject()
+{
+	display.setControlText(popupLabel, "Creating new project...");
+	display.setControlShow(popupLabel);
+	display.refreshControl(popupLabel);
+}
+void cProjectEditor::hidePopupLabelNewProject()
+{
+	display.setControlHide(popupLabel);
+	display.refreshControl(popupLabel);
+}
+
+void cProjectEditor::showPopupLabelSave()
+{
+	display.setControlValue(loadHorizontalBarControl, prepareSaveValue);
+	display.setControlText(loadHorizontalBarControl, "Save project...");
+	display.setControlShow(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+}
+void cProjectEditor::hidePopupLabelSave()
+{
+	display.setControlHide(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+}
+
+void cProjectEditor::showPopupLabelOpen()
+{
+	display.setControlValue(loadHorizontalBarControl, prepareOpenValue);
+	display.setControlText(loadHorizontalBarControl, "Opening project...");
+	display.setControlShow(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+}
+void cProjectEditor::hidePopupLabelOpen()
+{
+	display.setControlHide(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+}
+
 
 
 void cProjectEditor::showEnterNameKeyboard()

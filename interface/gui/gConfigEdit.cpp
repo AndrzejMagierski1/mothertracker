@@ -229,10 +229,10 @@ void cConfigEditor::showMasterScreen()
 	display.setControlText(bottomLabel[0], "Volume");
 	display.setControlText(bottomLabel[1], "Rev. Size");
 	display.setControlText(bottomLabel[2], "Rev. Dump");
-	display.setControlText(bottomLabel[3], "Limit. A");
-	display.setControlText(bottomLabel[4], "Limit. R");
-	display.setControlText(bottomLabel[5], "Limit. T");
-	display.setControlText(bottomLabel[6], "Bit Depth");
+	display.setControlText(bottomLabel[3], "Bit Depth");
+	display.setControlText(bottomLabel[4], "Limit. A");
+	display.setControlText(bottomLabel[5], "Limit. R");
+	display.setControlText(bottomLabel[6], "Limit. T");
 	display.setControlText(bottomLabel[7], " ");
 
 	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/16),  465);
@@ -406,12 +406,12 @@ void cConfigEditor::showLimiterAttack()
 	limitAttackVal[length]='s';
 	limitAttackVal[length+1]=0;
 
-	display.setControlValue(barControl[3], (mtProject.values.limiterAttack*100)/LIMITER_ATTACK_MAX);
+	display.setControlValue(barControl[4], (mtProject.values.limiterAttack*100)/LIMITER_ATTACK_MAX);
 	//display.setControlShow(barControl[2]);
-	display.refreshControl(barControl[3]);
+	display.refreshControl(barControl[4]);
 
-	display.setControlText(topLabel[3], limitAttackVal);
-	display.refreshControl(topLabel[3]);
+	display.setControlText(topLabel[4], limitAttackVal);
+	display.refreshControl(topLabel[4]);
 }
 
 void cConfigEditor::showLimiterRelease()
@@ -423,24 +423,24 @@ void cConfigEditor::showLimiterRelease()
 	limitReleaseVal[length]='s';
 	limitReleaseVal[length+1]=0;
 
-	display.setControlValue(barControl[4], (mtProject.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
+	display.setControlValue(barControl[5], (mtProject.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
 	//display.setControlShow(barControl[2]);
-	display.refreshControl(barControl[4]);
+	display.refreshControl(barControl[5]);
 
-	display.setControlText(topLabel[4], limitReleaseVal);
-	display.refreshControl(topLabel[4]);
+	display.setControlText(topLabel[5], limitReleaseVal);
+	display.refreshControl(topLabel[5]);
 }
 
 void cConfigEditor::showLimiterTreshold()
 {
 	sprintf(limitThresholdVal,"%d",(mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
 
-	display.setControlValue(barControl[5], (mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
-	//display.setControlShow(barControl[3]);
-	display.refreshControl(barControl[5]);
+	display.setControlValue(barControl[6], (mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
+	display.setControlShow(barControl[6]);
+	display.refreshControl(barControl[6]);
 
-	display.setControlText(topLabel[5], limitThresholdVal);
-	display.refreshControl(topLabel[5]);
+	display.setControlText(topLabel[6], limitThresholdVal);
+	display.refreshControl(topLabel[6]);
 }
 
 void cConfigEditor::showBitDepth()
@@ -448,12 +448,12 @@ void cConfigEditor::showBitDepth()
 	sprintf(bitDepthVal,"%d",mtProject.values.bitDepth);
 
 	uint8_t localVal = map(mtProject.values.bitDepth,BIT_DEPTH_MIN,BIT_DEPTH_MAX,0,100);
-	display.setControlValue(barControl[6], localVal);
-	display.setControlShow(barControl[6]);
-	display.refreshControl(barControl[6]);
+	display.setControlValue(barControl[3], localVal);
+//	display.setControlShow(barControl[3]);
+	display.refreshControl(barControl[3]);
 
-	display.setControlText(topLabel[6], bitDepthVal);
-	display.refreshControl(topLabel[6]);
+	display.setControlText(topLabel[3], bitDepthVal);
+	display.refreshControl(topLabel[3]);
 }
 
 void cConfigEditor::showFirmwareUpdateLabels()
@@ -598,8 +598,8 @@ void cConfigEditor::resizeLabelConfigMaster()
 		display.refreshControl(topLabel[i]);
 	}
 
-	display.setControlText(topLabel[6],"");
-	display.refreshControl(topLabel[6]);
+//	display.setControlText(topLabel[6],"");
+//	display.refreshControl(topLabel[6]);
 }
 
 

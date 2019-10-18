@@ -279,6 +279,8 @@ void cSampleRecorder::update()
 			hideSaveHorizontalBar();
 			currentScreen = screenTypeConfig;
 			showDefaultScreen();
+			if(SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
+			else audioShield.headphoneSourceSelect(1);
 		}
 	}
 	if(notEnoughInstrumentsFlag)
@@ -333,7 +335,7 @@ void cSampleRecorder::start(uint32_t options)
 	resizer.buttonsToResize=8;
 
 	params.length = recorder.getLength();
-	params.address = recorder.getAddress();
+	params.address = recorder.getStartAddress();
 	params.recordInProgressFlag = recordInProgressFlag;
 	GP.processSpectrum(&params, &zoom, &spectrum);
 
@@ -378,8 +380,12 @@ void cSampleRecorder::start(uint32_t options)
 	{
 		showRadio();
 	}
-	if(recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
-	else audioShield.headphoneSourceSelect(1);
+	if(currentScreen == screenType::screenTypeConfig)
+	{
+		if(recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
+		else audioShield.headphoneSourceSelect(1);
+	}
+	else audioShield.headphoneSourceSelect(0);
 
 	engine.setHeadphonesVolume(mtProject.values.volume * 0.85);
 }
@@ -1518,7 +1524,6 @@ static  uint8_t functActionConfirmSave()
 		 SR->hideKeyboardEditName();
 	 }
 
-
 	 return 1;
 }
 
@@ -2212,7 +2217,8 @@ void cSampleRecorder::calcPlayProgressValue()
 	{
 		refreshPlayProgressValue = 0;
 
-		playProgressValue = instrumentPlayer[0].getWavePosition();
+		playProgressValue = (uint16_t)((instrumentPlayer[0].getWavePosition() * ((endPoint - startPoint) / (float)MAX_16BIT)) + startPoint);
+
 
 		if(zoom.zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
 		else if(zoom.zoomValue > 1.0)
