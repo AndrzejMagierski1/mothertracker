@@ -1785,6 +1785,14 @@ void playerEngine ::changeFilterTypePerformanceMode(uint8_t mode)
 	currentPerformanceValues.filterType = mode -1;
 	changeFilterType(currentPerformanceValues.filterType);
 }
+
+
+void playerEngine::changeSamplePlaybackPerformanceMode(uint8_t value)
+{
+
+}
+
+
 //*******************************************end
 void playerEngine::endVolumePerformanceMode()
 {
@@ -1913,4 +1921,6 @@ void playerEngine::endFilterTypePerformanceMode()
 	else changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
 
 }
+
 //************************************************************************************************************
+
