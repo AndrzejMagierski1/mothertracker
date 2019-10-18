@@ -350,34 +350,10 @@ void cSampleEditor::refreshBarsValue(uint8_t whichBar, uint8_t newValue)
 	display.refreshControl(barControl[whichBar]);
 }
 
-void cSampleEditor::showProcessingBar(uint8_t progress)
+void cSampleEditor::showHorizontalBar(uint8_t progress , const char* text)
 {
 	display.setControlValue(processHorizontalBarControl, progress);
-	display.setControlText(processHorizontalBarControl, "Processing...");
-	display.setControlShow(processHorizontalBarControl);
-	display.refreshControl(processHorizontalBarControl);
-}
-
-void cSampleEditor::showSampleLoading(uint8_t progress)
-{
-	display.setControlValue(processHorizontalBarControl, progress);
-	display.setControlText(processHorizontalBarControl, "Loading...");
-	display.setControlShow(processHorizontalBarControl);
-	display.refreshControl(processHorizontalBarControl);
-}
-
-void cSampleEditor::showSampleReloading(uint8_t progress)
-{
-	display.setControlValue(processHorizontalBarControl, progress);
-	display.setControlText(processHorizontalBarControl, "Reloading...");
-	display.setControlShow(processHorizontalBarControl);
-	display.refreshControl(processHorizontalBarControl);
-}
-
-void cSampleEditor::showApplying(uint8_t progress)
-{
-	display.setControlValue(processHorizontalBarControl, progress);
-	display.setControlText(processHorizontalBarControl, "Applying...");
+	display.setControlText(processHorizontalBarControl, text);
 	display.setControlShow(processHorizontalBarControl);
 	display.refreshControl(processHorizontalBarControl);
 }

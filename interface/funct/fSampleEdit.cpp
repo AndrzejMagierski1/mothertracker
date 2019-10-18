@@ -97,6 +97,7 @@ void cSampleEditor::update()
 
 	refreshSampleLoading();
 	refreshSampleApplying();
+	refreshInstrumentLoading();
 
 	updateEffectProcessing();
 
@@ -107,7 +108,8 @@ void cSampleEditor::onExitRaload()
 {
 	if(onExitFlag == 1)
 	{
-		showSampleReloading(fileManager.samplesLoader.getCurrentProgress());
+		uint8_t progress = fileManager.samplesLoader.getCurrentProgress();
+		showHorizontalBar(progress, "Reloading Instruments");
 
 		if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
 		{
@@ -126,11 +128,20 @@ void cSampleEditor::refreshSampleApplying()
 
 	if(status == saving)
 	{
-		showApplying(effector.saveUpdate());
+		uint8_t progress = effector.saveUpdate();
+
+		if((moduleFlags & applyingActive))
+		{
+			showHorizontalBar(progress,"Applying effect");
+		}
+		else if((moduleFlags & undoActive))
+		{
+			showHorizontalBar(progress,"Undoing");
+		}
 	}
 	else if(status == saveDone)
 	{
-		SE->moduleFlags &= ~applyingActive;
+		SE->moduleFlags &= ~(applyingActive | undoActive);
 		hideHorizontalBar();
 
 		if(currSelEffect == effectCrop)
@@ -144,16 +155,38 @@ void cSampleEditor::refreshSampleApplying()
 	}
 }
 
+void cSampleEditor::refreshInstrumentLoading()
+{
+	if(moduleFlags == onEntryStillLoading)
+	{
+		uint8_t state = fileManager.samplesLoader.getStateFlag();
+
+		if(state == loaderStateTypeInProgress)
+		{
+			uint8_t progress = fileManager.samplesLoader.getCurrentProgress();
+			showHorizontalBar(progress,"Loading Instruments");
+		}
+		else
+		{
+			hideHorizontalBar();
+			moduleFlags &= ~onEntryStillLoading;
+			startLoadingSample();
+		}
+	}
+}
+
 void cSampleEditor::refreshSampleLoading()
 {
-	if(firstSampleLoadFlag == 0)
+	if((firstSampleLoadFlag == 0) && (moduleFlags & sampleLoadingActive))
 	{
 		sampleLoadedState = fileManager.samplesLoader.waveLoader.getState();
 
 		if(sampleLoadedState == loaderStateTypeInProgress) // refresh update when in progress
 		{
 			fileManager.samplesLoader.waveLoader.update();
-			showSampleLoading(fileManager.samplesLoader.waveLoader.getCurrentWaveProgress());
+
+			uint8_t progress = fileManager.samplesLoader.waveLoader.getCurrentWaveProgress();
+			showHorizontalBar(progress,"Loading sample");
 		}
 
 		if((sampleLoadedState == loaderStateTypeEnded) && (lastSampleLoadedState == loaderStateTypeInProgress)) // do when loaded
@@ -163,6 +196,7 @@ void cSampleEditor::refreshSampleLoading()
 			moduleFlags &= ~sampleLoadingActive;
 
 			firstSampleLoadFlag = 1;
+			sampleIsValid = 1;
 		}
 
 		lastSampleLoadedState = sampleLoadedState;
@@ -177,6 +211,22 @@ void cSampleEditor::showCurrentSpectrum(uint32_t length, int16_t *source)
 	display.refreshControl(spectrumControl);
 }
 
+void cSampleEditor::startLoadingSample()
+{
+	if(mtProject.instrument[localInstrNum].isActive)
+	{
+		if(!(moduleFlags & onEntryStillLoading))
+		{
+			sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);
+			effector.loadSample(instrumentPath);
+			moduleFlags |= sampleLoadingActive;
+		}
+	}
+	else
+	{
+		sampleIsValid = 0;
+	}
+}
 
 void cSampleEditor::start(uint32_t options)
 {
@@ -192,17 +242,17 @@ void cSampleEditor::start(uint32_t options)
 
 	//editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
-	localInstrNum = mtProject.values.lastUsedInstrument;
-	if(mtProject.instrument[localInstrNum].isActive)
+	if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeInProgress)
 	{
-		sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);
-		effector.loadSample(instrumentPath);
-		moduleFlags |= sampleLoadingActive;
-		sampleIsValid = 1;
+		moduleFlags |= onEntryStillLoading;
 	}
-	else
+
+	localInstrNum = mtProject.values.lastUsedInstrument;
+
+	startLoadingSample();
+
+	if(sampleIsValid == 0)
 	{
-		sampleIsValid = 0;
 		showCurrentSpectrum(0, effector.getAddress());
 	}
 
@@ -635,7 +685,7 @@ static uint8_t functUndo()
 			effector.undoTrim();
 
 			effector.save(SE->instrumentPath);
-			SE->moduleFlags |= applyingActive;
+			SE->moduleFlags |= undoActive;
 		}
 	}
 	else if(SE->currSelEffect == effectReverse)
@@ -647,7 +697,7 @@ static uint8_t functUndo()
 			effector.undoReverse();
 
 			effector.save(SE->instrumentPath);
-			SE->moduleFlags |= applyingActive;
+			SE->moduleFlags |= undoActive;
 		}
 	}
 
@@ -809,17 +859,20 @@ static uint8_t functSwitchModule(uint8_t button)
 {
 	if(SE->onExitFlag == 1) return 1;
 
-	if(SE->moduleFlags != onExitReloadActive)
+	if(!(SE->moduleFlags & onExitReloadActive))
 	{
 		if(SE->onExitFlag == 0)
 		{
 			if(SE->effectAppliedFlag)
 			{
-				SE->exitButton = button;
-				SE->moduleFlags |= onExitReloadActive;
-				SE->onExitFlag = 1;
+				if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
+				{
+					SE->exitButton = button;
+					SE->moduleFlags |= onExitReloadActive;
+					SE->onExitFlag = 1;
 
-				fileManager.samplesLoader.start(0, (char*)"Workspace/samples");
+					fileManager.samplesLoader.start(0, (char*)"Workspace/samples");
+				}
 			}
 			else
 			{
@@ -1046,7 +1099,7 @@ void cSampleEditor::makeEffect()
 		SE->isAnyEffectActive = true;
 		SE->moduleFlags |= processingActive;
 		SE->previewReadyFlag = 0;
-		SE->showProcessingBar(0);
+		//SE->showProcessingBar(0);
 	}
 }
 
@@ -1121,7 +1174,7 @@ void cSampleEditor::updateEffectProcessing()
 
 		if(processingStatus)
 		{
-			showProcessingBar(progress);
+			showHorizontalBar(progress,"Processing effect");
 		}
 		else
 		{

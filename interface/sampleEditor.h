@@ -73,7 +73,9 @@ typedef enum
 	sampleLoadingActive = 0x01U,
 	processingActive = 0x02U,
 	applyingActive = 0x04U,
-	onExitReloadActive = 0x08U,
+	undoActive = 0x08U,
+	onExitReloadActive = 0x10U,
+	onEntryStillLoading = 0x20U,
 }flags_t;
 
 
@@ -134,6 +136,8 @@ public:
 	void changeEffectSelection(int16_t value);
 
 	void activateLabelsBorder();
+
+	void startLoadingSample();
 
 	strFrameData frameData;
 
@@ -201,16 +205,14 @@ public:
 	void updateEffectValues(effect_screen_t *effect, uint8_t barNum);
 	void printNewValue(const void *data, uint8_t whichBar, const char* unit, source_datatype_t sourceType);
 	void refreshBarsValue(uint8_t whichBar, uint8_t newValue);
-	void showProcessingBar(uint8_t progress);
-	void showSampleLoading(uint8_t progress);
-	void showSampleReloading(uint8_t progress);
-	void showApplying(uint8_t progress);
+	void showHorizontalBar(uint8_t progress , const char* text);
 	void hideHorizontalBar();
 	void updateEffectProcessing();
 	uint8_t previewNewEffectRequested();
 	void makeEffect();
 	void showCurrentSpectrum(uint32_t length, int16_t *source);
 	void refreshSampleLoading();
+	void refreshInstrumentLoading();
 	void refreshSampleApplying();
 	void resetSpectrumAndPoints();
 	void onExitRaload();
