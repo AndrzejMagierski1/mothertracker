@@ -469,7 +469,7 @@ void Sequencer::changeSelectionFxValue(int16_t value)
 												127);
 			}
 
-			step->fx[0].value2 = 1;
+//			step->fx[0].value2 = 1;
 			if (!isMultiSelection() && step->fx[0].type == 0)
 			{
 				step->fx[0].type = mtProject.values.lastUsedFx;
@@ -498,7 +498,7 @@ void Sequencer::setSelectionFxValue(int16_t value)
 			step = &seq[player.ramBank].track[t].step[s];
 
 			step->fx[0].value = value;
-			step->fx[0].value2 = 1;
+//			step->fx[0].value2 = 1;
 			if (!isMultiSelection() && step->fx[0].type == 0)
 			{
 				step->fx[0].type = mtProject.values.lastUsedFx;

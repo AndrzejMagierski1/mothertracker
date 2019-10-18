@@ -174,10 +174,10 @@ public:
 					struct						// FX_VAL_U8_U8
 					{
 						uint8_t value;
-						uint8_t value2;
+//						uint8_t value2;
 					};
 
-				} fx[1];
+				} fx[2];
 
 			} step[MAXSTEP + 1];
 
