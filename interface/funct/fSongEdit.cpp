@@ -19,7 +19,7 @@ static cSongEditor* SE = &songEditor;
 
 
 
-static  uint8_t functPatternSlot();
+static  uint8_t functPatternSlot(uint8_t button);
 
 static  uint8_t functIncPattern();
 static  uint8_t functDecPattern();
@@ -146,8 +146,19 @@ void cSongEditor::setDefaultScreenFunct()
 
 //==============================================================================================================
 
-static  uint8_t functPatternSlot()
+static  uint8_t functPatternSlot(uint8_t button)
 {
+	if(SE->selectedPlace == 0)
+	{
+		if(button == interfaceButton0)
+		{
+			SE->changePatternsSelection(-1);
+		}
+		else if(button == interfaceButton1)
+		{
+			SE->changePatternsSelection(1);
+		}
+	}
 	SE->selectedPlace = 0;
 	SE->activateLabelsBorder();
 
