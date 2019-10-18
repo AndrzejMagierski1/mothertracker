@@ -196,6 +196,8 @@ public:
 	effect_screen_t effectScreen[effectsCount];
 	uint8_t currSelEffect;
 
+	void frameChange(uint8_t control);
+
 	void resizeUndo(uint8_t control);//1 - center 0 - top
 	void showEffectScreen(effect_screen_t *screenCfg);
 	void initEffectsScreenStructs();

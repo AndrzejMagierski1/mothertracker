@@ -3,15 +3,26 @@
 #include "sampleEditor.h"
 
 
-static uint16_t framesPlaces[7][4] =
+static uint16_t framesPlacesNoBars[7][4] =
 {
-	{0+1, 		421, 800/8-1, 65},
-	{(800/8)*1+1, 421, 800/8-1, 65},
-	{(800/8)*2+1, 421, 800/8-1, 65},
-	{(800/8)*3+1, 421, 800/8-1, 65},
-	{(800/8)*4+1, 421, 800/8-1, 65},
-	{(800/8)*5+1, 421, 800/8-1, 65},
-	{(800/8)*6+2, 31, 800/4-5, 387},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{(800/8)*3+1, 421, 800/8-1, 65},
+		{(800/8)*4+1, 421, 800/8-1, 65},
+		{(800/8)*5+1, 421, 800/8-1, 65},
+		{(800/8)*6+2, 31, 800/4-5, 387},
+};
+
+static uint16_t framesPlacesWithBars[7][4] =
+{
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{(800/8)*2+2, 31, 800/8-5, 387},
+		{(800/8)*3+2, 31, 800/8-5, 387},
+		{(800/8)*4+2, 31, 800/8-5, 387},
+		{(800/8)*5+2, 31, 800/8-5, 387},
+		{(800/8)*6+2, 31, 800/4-5, 387},
 };
 
 
@@ -36,19 +47,9 @@ void cSampleEditor::initDisplayControls()
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 	strControlProperties prop;
-	// ramka
-	frameData.placesCount = 7;
-	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
-	frameData.places[3] = &framesPlaces[3][0];
-	frameData.places[4] = &framesPlaces[4][0];
-	frameData.places[5] = &framesPlaces[5][0];
-	frameData.places[6] = &framesPlaces[6][0];
 	prop.style = 0;
 	prop.value = 0;
-	prop.data  = &frameData;
+	//prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 	strControlProperties prop6;
@@ -183,6 +184,28 @@ void cSampleEditor::destroyDisplayControls()
 	processHorizontalBarControl = nullptr;
 }
 
+void cSampleEditor::frameChange(uint8_t control)
+{
+	frameData.placesCount = 7;
+
+	if(control)// bars
+	{
+		for(int i = 0; i< frameData.placesCount ; i++)
+		{
+			frameData.places[i] = &framesPlacesWithBars[i][0];
+		}
+	}
+	else// no bars
+	{
+		for(int i = 0; i< frameData.placesCount ; i++)
+		{
+			frameData.places[i] = &framesPlacesNoBars[i][0];
+		}
+	}
+
+	display.setControlData(frameControl, &frameData);
+}
+
 void cSampleEditor::showDefaultScreen()
 {
 	display.setControlShow(titleBar);
@@ -245,6 +268,7 @@ void cSampleEditor::showEffectScreen(effect_screen_t *screenCfg)
 {
 	if(screenCfg->screen == fullSpectrum)
 	{
+		frameChange(0);
 		spectrum.width = 600;
 
 		display.setControlData(spectrumControl, &spectrum);
@@ -252,7 +276,9 @@ void cSampleEditor::showEffectScreen(effect_screen_t *screenCfg)
 		display.setControlShow(pointsControl);
 	}
 	else
-	{	display.setControlHide(spectrumControl);
+	{
+		frameChange(1);
+		display.setControlHide(spectrumControl);
 		display.setControlHide(pointsControl);
 	}
 

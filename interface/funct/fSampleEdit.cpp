@@ -736,9 +736,33 @@ static uint8_t functSelectPlace(uint8_t button)
 
 	if(parameterFlag)
 	{
-		if(button < interfaceButton7)
+		if(button < interfaceButton6)
 		{
-			SE->selectedPlace = button;
+			if(SE->effectScreen[SE->currSelEffect].paramNum == 4)
+			{
+				SE->selectedPlace = button;
+			}
+			else if(SE->effectScreen[SE->currSelEffect].paramNum == 3)
+			{
+				if(button != interfaceButton2)
+				{
+					SE->selectedPlace = button;
+				}
+			}
+			else if(SE->effectScreen[SE->currSelEffect].paramNum == 2)
+			{
+				if((button != interfaceButton2) && (button != interfaceButton3))
+				{
+					SE->selectedPlace = button;
+				}
+			}
+			else if(SE->effectScreen[SE->currSelEffect].paramNum == 1)
+			{
+				if((button != interfaceButton2) && (button != interfaceButton3) && button != interfaceButton4)
+				{
+					SE->selectedPlace = button;
+				}
+			}
 		}
 		else
 		{
@@ -781,7 +805,11 @@ void cSampleEditor::editParamFunction(uint8_t paramNum, int16_t value)
 static  uint8_t functLeft()
 {
 	if(SE->moduleFlags != 0) return 1;
-	if(SE->selectedPlace > 0) SE->selectedPlace--;
+
+	if(SE->selectedPlace > SE->effectScreen[SE->currSelEffect].paramNum)
+	{
+		SE->selectedPlace--;
+	}
 
 	SE->activateLabelsBorder();
 
