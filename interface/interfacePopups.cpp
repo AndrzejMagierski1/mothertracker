@@ -218,7 +218,7 @@ void cInterfacePopups::showInstrumentsPopup()
 	//display.hideAllControls();
 
 	display.setControlPosition(bgLabel, 585, 0);
-	display.setControlSize(bgLabel, 799-585, 419);
+	display.setControlSize(bgLabel, 799-585, 479); //419
 	display.setControlColors(bgLabel, listBgLabelColors);
 
 	//display.setControlPosition(bgLabel, 0, 0);
@@ -239,11 +239,11 @@ void cInterfacePopups::showInstrumentsPopup()
 	ptrActualItemsList = (char**)(interfaceGlobals.ptrIntrumentsNames);
 
 	instrList.start = selectedActualItem;
-	instrList.linesCount = 15;
+	instrList.linesCount = 17;
 	instrList.length = 64;
 	instrList.data = interfaceGlobals.ptrIntrumentsNames;
 
-	display.setControlPosition(listControl[3], 600, 220);
+	display.setControlPosition(listControl[3], 600, 245);
 	display.setControlData(listControl[3], &instrList);
 	display.setControlShow(listControl[3]);
 	display.refreshControl(listControl[3]);
@@ -287,7 +287,7 @@ void cInterfacePopups::showFxesPopup()
 	//display.hideAllControls();
 
 	display.setControlPosition(bgLabel, 585, 0);
-	display.setControlSize(bgLabel, 799-585, 419);
+	display.setControlSize(bgLabel, 799-585, 479); //419
 	display.setControlColors(bgLabel, listBgLabelColors);
 
 	//display.setControlPosition(bgLabel, 0, 0);
@@ -305,11 +305,11 @@ void cInterfacePopups::showFxesPopup()
 	ptrActualItemsList = (char**)(interfaceGlobals.ptrFxNames);
 
 	instrList.start = selectedActualItem;
-	instrList.linesCount = 15;
+	instrList.linesCount = 17;
 	instrList.length = 48;
 	instrList.data = (char**)interfaceGlobals.ptrFxNames;
 
-	display.setControlPosition(listControl[3], 600, 220);
+	display.setControlPosition(listControl[3], 600, 245);
 	display.setControlData(listControl[3], &instrList);
 	display.setControlShow(listControl[3]);
 	display.refreshControl(listControl[3]);
@@ -614,7 +614,7 @@ void cInterfacePopups::listInstruments()
 	}
 	for(uint8_t i = 0; i < 16; i++)
 	{
-		sprintf(&interfaceGlobals.intrumentsNames[INSTRUMENTS_COUNT+i][0], "%d. MIDI Channel %d", /*INSTRUMENTS_COUNT+*/i+1, i+1);
+		sprintf(&interfaceGlobals.intrumentsNames[INSTRUMENTS_COUNT+i][0], "%d. MIDI Channel %d", INSTRUMENTS_COUNT+i+3, i+1);
 		interfaceGlobals.ptrIntrumentsNames[INSTRUMENTS_COUNT+i] = &interfaceGlobals.intrumentsNames[INSTRUMENTS_COUNT+i][0];
 	}
 }

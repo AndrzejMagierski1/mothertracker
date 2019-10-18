@@ -332,12 +332,12 @@ void cPatternEditor::refreshPattern()
 
 			if (showInstrument)
 			{
-				if(seq->track[i].step[patternPosition - 7 + j].instrument > 47)  // midi instr
+				if(seq->track[i].step[patternPosition - 7 + j].instrument > INSTRUMENTS_MAX)  // midi instr
 				{
 					trackerPattern.track[i].row[j].instr[3] = 1;
 
-					char inst0 = (seq->track[i].step[patternPosition - 7 + j].instrument - 47) / 10;
-					char inst1 = (seq->track[i].step[patternPosition - 7 + j].instrument - 47) % 10;
+					char inst0 = (seq->track[i].step[patternPosition - 7 + j].instrument + 3) / 10;
+					char inst1 = (seq->track[i].step[patternPosition - 7 + j].instrument + 3) % 10;
 
 					trackerPattern.track[i].row[j].instr[0] = inst0 + 48;
 					trackerPattern.track[i].row[j].instr[1] = inst1 + 48;
@@ -2928,7 +2928,7 @@ static uint8_t functSwitchModule(uint8_t button)
 			mtProject.values.lastUsedInstrument = constrain(
 					actualStep->instrument,
 					0,
-					INSTRUMENTS_MAX);
+					INSTRUMENTS_MAX+16);
 		}
 		if (actualStep->velocity >= 0)
 		{

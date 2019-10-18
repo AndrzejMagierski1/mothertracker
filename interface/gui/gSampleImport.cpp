@@ -317,8 +317,8 @@ void cSampleImporter::showActualInstrument()
 	}
 	else
 	{
-		i = i-(INSTRUMENTS_COUNT-1);
-		sprintf(actualInstrName, "%d. MIDI Channel %d", i, i);
+		//i = i-(INSTRUMENTS_COUNT-1);
+		sprintf(actualInstrName, "%d. MIDI Channel %d",  i+3, i);
 	}
 
 	display.setControlText(instrumentLabel,  actualInstrName);
