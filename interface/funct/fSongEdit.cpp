@@ -389,7 +389,7 @@ static  uint8_t functRight()
 
 static uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == 0)
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
@@ -502,7 +502,7 @@ void cSongEditor::markCurrentPattern(uint8_t forceRefresh)
 		{
 			localSongPosition = mtProject.mtProjectRemote.song.playlistPos;
 
-			if(sequencer.getSeqState() == 1)
+			if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 			{
 				showIcon(iconPlay,localSongPosition);
 			}
@@ -578,7 +578,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 void cSongEditor::handleEntryIcon()
 {
-	if(sequencer.getSeqState() == 0)
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
 		hideIcon();
 	}
@@ -613,7 +613,7 @@ void cSongEditor::switchToNewPattern()
 			PATTERN_INDEX_MAX);
 
 	fileManager.loadPattern(mtProject.values.actualPattern);
-	sequencer.switchNextPatternNow();
+	sequencer.switchRamPatternsNow();
 }
 
 int16_t cSongEditor::findSlotWithPattern()

@@ -323,7 +323,7 @@ void cSampleRecorder::start(uint32_t options)
 	moduleRefresh = 1;
 
 //--------------------------------------------------------------------
-	if(sequencer.getSeqState() == 1)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 	   sequencer.stop();
 	}
@@ -1240,7 +1240,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 	if(SR->currentScreen == SR->screenTypeRecord)
 	{
-		if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+		if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 		{
 			sequencer.stop();
 		}
