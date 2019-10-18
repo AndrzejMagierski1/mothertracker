@@ -238,8 +238,6 @@ void cSampleImporter::start(uint32_t options)
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
-	AddOrEnter();
-
 	selectionLength=0;
 	resetInstrSel();
 	setSelect(selectedPlace);
@@ -429,8 +427,7 @@ static  uint8_t functRename()
 
 	SI->keyboardActiveFlag = 1;
 
-	SI->FM->clearButton(interfaceButton2);
-	SI->FM->clearButton(interfaceButton5);
+	SI->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 	SI->FM->setButtonObj(interfaceButton2, buttonPress, functCancelRename);
 	SI->FM->setButtonObj(interfaceButton5, buttonPress, functConfirmRename);
@@ -505,7 +502,7 @@ static uint8_t functCopyPaste()
 
 static uint8_t functPaste()
 {
-	if(SI->currentCopyStatusFlag || SI->currentLoadStatusFlag) return 1;
+	if(SI->currentCopyStatusFlag || SI->currentLoadStatusFlag || SI->keyboardActiveFlag) return 1;
 
 	if(SI->copyElementMax && SI->instrCopyStart != SI->selectedSlot)
 	{
@@ -960,7 +957,7 @@ void cSampleImporter::processDirFileSizes()
 
 		strcat(filePath, &locationExplorerList[openCurrentPos][0]);
 
-		currentFolderMemoryFileUsage[openCurrentPos]= 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
+ 		currentFolderMemoryFileUsage[openCurrentPos]= 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
 
 		openCurrentPos++;
 
