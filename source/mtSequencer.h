@@ -538,10 +538,10 @@ public:
 	void clearSelected(uint8_t);
 
 	void changeSelectionVolume(int16_t value);
-	void changeSelectionFxValue(int16_t value);
-	void setSelectionFxValue(int16_t value);
-	void changeSelectionFxType(int16_t value);
-	void setSelectionFxType(int16_t value);
+	void changeSelectionFxValue(uint8_t index, int16_t value);
+	void setSelectionFxValue(uint8_t index, int16_t value);
+	void changeSelectionFxType(uint8_t index, int16_t value);
+	void setSelectionFxType(uint8_t index, int16_t value);
 	void changeSelectionInstrument(int16_t value);
 	void setSelectionInstrument(int16_t value);
 	void setSelectionVelocity(int16_t value);
@@ -555,9 +555,9 @@ public:
 	void fillLinearInstruments(uint8_t step, uint8_t from, uint8_t to);
 	void fillRandomVelocity(uint8_t step, uint8_t from, uint8_t to);
 	void fillLinearVelocity(uint8_t step, uint8_t from, uint8_t to);
-	void fillLinearFx(uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
+	void fillLinearFx(uint8_t index, uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
 						uint8_t toVal);
-	void fillRandomFx(uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
+	void fillRandomFx(uint8_t index, uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
 						uint8_t toVal);
 	void changeSelectionNote(int16_t value);
 	void randomSelectedNotes(uint8_t from, uint8_t to, uint8_t scale);
