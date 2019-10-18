@@ -309,6 +309,9 @@ static  uint8_t functChangeFolder(uint8_t button)
 	}
 
 	SI->selectedPlace = 0;
+
+	SI->AddOrEnter();
+	SI->displayDelete(SI->selectedPlace);
 	SI->activateLabelsBorder();
 
 	return 1;
@@ -331,6 +334,9 @@ static  uint8_t functChangeInstrument(uint8_t button)
 	}
 
 	SI->selectedPlace = 1;
+
+	SI->AddOrEnter();
+	SI->displayDelete(SI->selectedPlace);
 	SI->activateLabelsBorder();
 
 	return 1;
