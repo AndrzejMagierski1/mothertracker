@@ -682,7 +682,7 @@ void Sequencer::playSong(void)
 {
 	fileManager.savePattern(mtProject.values.actualPattern);
 	fileManager.loadPattern(fileManager.resetToFirstSongPattern());
-	switchNextPatternNow();
+	switchRamPatternsNow();
 
 	player.songMode = 1;
 	play();
@@ -693,7 +693,7 @@ void Sequencer::playSong(uint8_t fromPos)
 	fileManager.loadPattern(fileManager.getSongPattern(fromPos));
 	fileManager.setSongPos(fromPos);
 
-	switchNextPatternNow();
+	switchRamPatternsNow();
 
 	player.songMode = 1;
 	play();
@@ -796,119 +796,71 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 {
 	uint8_t x = constrain(row, MINTRACK, MAXTRACK);
 	int8_t playMode = player.track[row].performancePlayMode;
+	int8_t patternLength = seq[player.ramBank].track[0].length;
 
-//	if (player.isREC && player.row[x].recNoteOpen)
-//	{
-//		player.row[x].recNoteLength++;
-//		seq[player.ramBank].track[x].step[player.row[x].recNoteStep].length1 = player.row[x].recNoteLength - 1;
-
-//	}
-
-//	if (player.row[x].isGoToStep)
-//	{
-//		player.row[x].actual_pos = player.row[x].goToStep;
-//		player.row[x].isGoToStep = 0;
-//	}
-	if (player.track[x].makeJump)
+	if (player.performancePatternLength > -1)
 	{
-		for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
-		{
-			player.track[x].makeJump = 0;
-		}
-		// switch_bank_with_reset();
-		player.jump.jumpNOW = 1;
+		patternLength = player.performancePatternLength;
 	}
-	else
+
+	if (playMode == PLAYMODE_FORWARD)
 	{
-		if (playMode == PLAYMODE_FORWARD)
+		player.track[x].actual_pos++;
+		if ((player.track[x].actual_pos > patternLength))
 		{
-			player.track[x].actual_pos++;
-			if ((player.track[x].actual_pos > seq[player.ramBank].track[x].length) || player.track[x].return2start)
+			reset_actual_pos(x);
+
+			if (row == 0 && player.songMode)
 			{
-				// player.row[x].return2start = 0;
-				reset_actual_pos(x);
-
-				if (row == 0 && player.songMode)
-				{
-					switchNextPatternNow();
-					fileManager.switchNextPatternInSong();
-//					fileManager.refreshPatternView();
-				}
-
-				if ((player.onPatternEnd != NULL) && (x == MINTRACK))
-					player.onPatternEnd();
-
-				// if (player.changeBank)
-				// {
-				// 	switch_bank();
-				// 	// player.row[x].return2start = 1;
-				// }
+				switchRamPatternsNow();
+				fileManager.switchNextPatternInSong();
 			}
+
+			if ((player.onPatternEnd != NULL) && (x == MINTRACK))
+				player.onPatternEnd();
+
 		}
-		else if (playMode == PLAYMODE_BACKWARD)
+	}
+	else if (playMode == PLAYMODE_BACKWARD)
+	{
+		player.track[x].actual_pos--;
+		if ((player.track[x].actual_pos < 0))
 		{
-			player.track[x].actual_pos--;
-			if ((player.track[x].actual_pos < 0) || player.track[x].return2start)
-			{
-				// player.row[x].return2start = 0;
-				reset_actual_pos(x);
-				if ((player.onPatternEnd != NULL) && (x == MINTRACK))
-					player.onPatternEnd();
-
-				// if (player.changeBank)
-				// {
-				// 	switch_bank();
-				// 	// player.row[x].return2start = 1;
-				// }
-			}
+			reset_actual_pos(x);
+			if ((player.onPatternEnd != NULL) && (x == MINTRACK))
+				player.onPatternEnd();
 		}
-		else if (playMode == PLAYMODE_PINGPONG)
+	}
+	else if (playMode == PLAYMODE_PINGPONG)
+	{
+		if (!player.track[x].pingPongToogle)
 		{
-			if (!player.track[x].pingPongToogle)
+			if ((player.track[x].actual_pos >= patternLength))
 			{
-				if ((player.track[x].actual_pos >= seq[player.ramBank].track[x].length) || player.track[x].return2start)
-				{
-					// player.row[x].return2start = 0;
-
-					// if (player.changeBank)
-					// {
-					// 	switch_bank();
-					// 	// player.row[x].return2start = 1;
-					// }
-					player.track[x].pingPongToogle = !player.track[x].pingPongToogle;
-				}
-				else
-				{
-					player.track[x].actual_pos++;
-				}
-
+				player.track[x].pingPongToogle = !player.track[x].pingPongToogle;
 			}
 			else
 			{
-				if ((player.track[x].actual_pos <= 1) || player.track[x].return2start)
-				{
-					// player.row[x].return2start = 0;
+				player.track[x].actual_pos++;
+			}
 
-					// if (player.changeBank)
-					// {
-					// 	switch_bank();
-					// 	// player.row[x].return2start = 1;
-
-					// }
-					player.track[x].pingPongToogle = !player.track[x].pingPongToogle;
-				}
-				else
-				{
-					player.track[x].actual_pos--;
-				}
+		}
+		else
+		{
+			if ((player.track[x].actual_pos <= 1))
+			{
+				player.track[x].pingPongToogle = !player.track[x].pingPongToogle;
+			}
+			else
+			{
+				player.track[x].actual_pos--;
 			}
 		}
+	}
 
-		else if (playMode == PLAYMODE_RANDOM)
-		{
-			player.track[x].actual_pos = random(
-					1, seq[player.ramBank].track[x].length + 1);
-		}
+	else if (playMode == PLAYMODE_RANDOM)
+	{
+		player.track[x].actual_pos = random(1, patternLength + 1);
 	}
 
 }
@@ -1103,8 +1055,6 @@ inline uint8_t Sequencer::isStop(void)
 	return player.isStop;
 }
 
-
-
 void Sequencer::send_clock(uint8_t arg)
 {
 // TODO: wypełnić
@@ -1274,4 +1224,24 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 			instrumentPlayer[sel->firstTrack].noteOff();
 		}
 	}
+}
+void Sequencer::setPerformancePatternLength(int8_t length)
+{
+	player.performancePatternLength = length - 1;
+}
+void Sequencer::setPerformancePatternLengthFromFxVal(int8_t val)
+{
+	uint8_t performancePatternLengthValues[] =
+			{ 1, 2, 4, 8, 16, 32, 64, 128 };
+
+	switch (val)
+	{
+	case -1:
+		setPerformancePatternLength(-1);
+		break;
+	default:
+		setPerformancePatternLength(performancePatternLengthValues[val]);
+
+	}
+
 }

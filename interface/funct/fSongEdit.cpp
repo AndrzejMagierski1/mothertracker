@@ -615,5 +615,5 @@ void cSongEditor::switchToNewPattern()
 			PATTERN_INDEX_MAX);
 
 	fileManager.loadPattern(mtProject.values.actualPattern);
-	sequencer.switchNextPatternNow();
+	sequencer.switchRamPatternsNow();
 }

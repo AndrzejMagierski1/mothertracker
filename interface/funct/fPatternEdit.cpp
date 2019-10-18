@@ -585,15 +585,17 @@ void cPatternEditor::changeActualTempo(int16_t value)
 
 void cPatternEditor::changeActualPattern(int16_t value)
 {
-
-	fileManager.savePattern(mtProject.values.actualPattern);
+	if (sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
+	{
+		fileManager.savePattern(mtProject.values.actualPattern);
+	}
 
 	mtProject.values.actualPattern = constrain(
 			mtProject.values.actualPattern + value, PATTERN_INDEX_MIN,
 			PATTERN_INDEX_MAX);
 
 	fileManager.loadPattern(mtProject.values.actualPattern);
-	sequencer.switchNextPatternNow();
+	sequencer.switchRamPatternsNow();
 
 
 	readPatternState();
@@ -609,7 +611,7 @@ void cPatternEditor::setActualPattern(int16_t value)
 												PATTERN_INDEX_MAX);
 
 	fileManager.loadPattern(mtProject.values.actualPattern);
-	sequencer.switchNextPatternNow();
+	sequencer.switchRamPatternsNow();
 
 	readPatternState();
 	refreshPatternParams();

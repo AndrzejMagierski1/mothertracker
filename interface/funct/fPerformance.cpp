@@ -13,6 +13,9 @@
 #include "interfacePopups.h"
 
 #include "mtSequencer.h"
+#include "mtFileManager.h"
+#include "mtSequencer.h"
+
 
 
 
@@ -297,6 +300,12 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 		sequencer.setPerformancePlayMode(track, 0);
 		break;
 	}
+	case mtPerfPatternLength:
+	{
+		fxValues[fx] = -1;
+		sequencer.setPerformancePatternLengthFromFxVal(fxValues[fx]);
+		break;
+	}
 
 
 
@@ -393,6 +402,11 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track)
 		case mtPerfPatternPlayMode:
 		{
 			sequencer.setPerformancePlayMode(track, fxValues[fx]);
+			break;
+		}
+		case mtPerfPatternLength:
+		{
+			sequencer.setPerformancePatternLengthFromFxVal(fxValues[fx]);
 			break;
 		}
 
@@ -615,6 +629,20 @@ static  uint8_t functEncoder(int16_t value)
 
 				break;
 			}
+			case mtPerfPatternLength:
+				{
+
+				if (PM->fxValues[i] == -1) PM->fxValues[i] = 3;
+				else if (PM->fxValues[i] + mod_value > 7) PM->fxValues[i] = 7;
+				else if (PM->fxValues[i] + mod_value < 0) PM->fxValues[i] = 0;
+				else PM->fxValues[i] += mod_value;
+
+
+
+				sequencer.setPerformancePatternLengthFromFxVal(PM->fxValues[i]);
+
+				break;
+			}
 
 
 
@@ -812,7 +840,11 @@ static uint8_t functShift(uint8_t value)
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY_PERFORMANCE)
+	{
+		fileManager.loadPattern(mtProject.values.actualPattern);
+		sequencer.switchRamPatternsNow();
+	}
 	PM->eventFunct(eventSwitchModule,PM,&button,0);
 
 	return 1;
@@ -902,12 +934,14 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 			{
 				if(PM->wasPatternOntrackChenged(button))
 				{
-					// TODO: Miejsce wywolania funkcji odpowiedzialnej za zmiane paternu na tracku
 					// button <= numer tracka
 					// mtProject.values.perfTracksPatterns[button] <= pattern tracka
+					sequencer.forcePerformanceMode();
 
-					Serial.println(sequencer.getSeqState());
 
+					fileManager.loadTrack(
+							mtProject.values.perfTracksPatterns[button],
+							button);
 				}
 				else
 				{

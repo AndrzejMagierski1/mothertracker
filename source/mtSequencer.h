@@ -335,6 +335,7 @@ public:
 	struct strPlayer
 	{
 		bool songMode = 0;
+		bool performanceMode = 0;
 		//		bool printNotes = 0;
 //		bool changeBank = 0;
 		bool isPlay = 0;
@@ -353,8 +354,8 @@ public:
 		uint16_t rec_intro_timer_max = 48 * 4;
 		uint16_t uStep = 0;
 		uint8_t actualBank = 0;
-		//		uint8_t bank2change = 0;
-//		uint8_t bank2load = 0;
+
+		int8_t performancePatternLength = -1;
 
 		struct strBlink
 		{
@@ -442,9 +443,10 @@ public:
 	{
 	}
 
-	void forcePatternMode()
+	void forcePerformanceMode()
 	{
 		player.songMode = 0;
+		player.performanceMode = 1;
 	}
 
 	enum enSeqState
@@ -452,10 +454,12 @@ public:
 		SEQ_STATE_STOP = 0,
 		SEQ_STATE_PLAY_PATTERN,
 		SEQ_STATE_PLAY_SONG,
+		SEQ_STATE_PLAY_PERFORMANCE,
 	};
 	uint8_t getSeqState()
 	{
 		if (player.isStop) return SEQ_STATE_STOP;
+		else if (player.performanceMode) return SEQ_STATE_PLAY_PERFORMANCE;
 		else if (player.isPlay && !player.songMode) return SEQ_STATE_PLAY_PATTERN;
 		else if (player.isPlay && player.songMode) return SEQ_STATE_PLAY_SONG;
 		else
@@ -485,7 +489,7 @@ public:
 		return &seq[player.ramBank];
 	}
 
-	void switchNextPatternNow()
+	void switchRamPatternsNow()
 	{
 		player.ramBank = !player.ramBank;
 	}
@@ -567,6 +571,11 @@ public:
 	{
 		player.onPatternEnd = action;
 	}
+
+
+	void setPerformancePatternLength(int8_t length);
+	void setPerformancePatternLengthFromFxVal(int8_t val);
+
 
 // inne
 	void handle_uStep_timer(void);
