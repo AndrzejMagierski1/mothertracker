@@ -239,8 +239,10 @@ void cSampleEditor::start(uint32_t options)
 	}
 
 	//--------------------------------------------------------------------
-
-	//editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
+	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
+	{
+		mtProject.values.lastUsedInstrument = 0;
+	}
 
 	if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeInProgress)
 	{

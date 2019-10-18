@@ -7,7 +7,7 @@
 #include "mtPadBoard.h"
 
 
-
+#include "mtSequencer.h"
 
 
 cMtPadBoard mtPadBoard;
@@ -100,6 +100,8 @@ void cMtPadBoard::clearVoice(uint8_t voice)
 
 void cMtPadBoard::releaseAllInstrument()
 {
+	if(sequencer.getSeqState() == 1) return;
+
 	for(uint8_t i = 0; i<8; i++)
 	{
 		voices[i] = -1;

@@ -28,20 +28,20 @@ const char filterModeFunctLabels[filterModeCount][11]=
 };
 
 
-const char envelopesLabels[filterModeCount][11]=
+const char envelopesLabels[2][11]=
 {
 		"Amp",
 		"Filter",
 
 };
 
-const char envStateLabels[filterModeCount][11]=
+const char envStateLabels[2][11]=
 {
 		"On",
 		"Off",
 };
 
-const char envLoopLabels[filterModeCount][11]=
+const char envLoopLabels[2][11]=
 {
 	"On",
 	"Off"
@@ -71,7 +71,7 @@ public:
 
 	void showInstrumentEnv();
 	void showInstrumentParams();
-
+	void showTitleBar();
 
 	void activateLabelsBorder();
 	void lightUpPadBoard();
@@ -174,9 +174,15 @@ public:
 
 	strList filterModeList;
 
-	void listData();
+	//void listData();
 
-	char *filterModeNames[filterModeCount];
+	const char* filterModeNames[filterModeCount] =
+	{
+		&filterModeFunctLabels[0][0],
+		&filterModeFunctLabels[1][0],
+		&filterModeFunctLabels[2][0],
+		&filterModeFunctLabels[3][0],
+	};
 
 	uint8_t filterModeListPos;
 
@@ -191,10 +197,21 @@ public:
 	strList envStateList;
 	strList envLoopList;
 
-	char *envelopeNames[2];
-	char *envStateNames[2];
-	char *envLoopNames[2];
-
+	const char* envelopeNames[2] =
+	{
+		&envelopesLabels[0][0],
+		&envelopesLabels[1][0],
+	};
+	const char* envStateNames[2] =
+	{
+		&envStateLabels[0][0],
+		&envStateLabels[1][0],
+	};
+	const char* envLoopNames[2] =
+	{
+		&envLoopLabels[0][0],
+		&envLoopLabels[1][0],
+	};
 
 
 	char volumeVal[4];

@@ -331,10 +331,16 @@ void cSampleImporter::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	sprintf(actualInstrName, "%d. ", i+1);
-
-	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
-
+	if(i < INSTRUMENTS_COUNT)
+	{
+		sprintf(actualInstrName, "%d. ", i+1);
+		strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+	}
+	else
+	{
+		//i = i-(INSTRUMENTS_COUNT-1);
+		sprintf(actualInstrName, "%d. MIDI Channel %d",  i+3, i);
+	}
 
 	display.setControlText(instrumentLabel,  actualInstrName);
 	display.refreshControl(instrumentLabel);

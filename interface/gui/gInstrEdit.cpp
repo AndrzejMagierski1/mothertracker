@@ -1,7 +1,5 @@
 
 
-
-
 #include <instrumentEditor.h>
 
 
@@ -16,7 +14,6 @@ static uint16_t framesPlaces[8][4] =
 	{(800/8)*6+2, 31, 800/8-5, 387},
 	{(800/8)*7+2, 31, 800/8-5, 387},
 };
-
 
 
 
@@ -85,7 +82,7 @@ void cInstrumentEditor::initDisplayControls()
 	filterModeList.linesCount = 5;
 	filterModeList.start = editorInstrument->filterEnable ? (editorInstrument->filterType+1) : 0;
 	filterModeList.length = filterModeCount;
-	filterModeList.data = filterModeNames;
+	filterModeList.data = (char**)filterModeNames;
 
 	prop.x = (800/8)*(4)+8;
 	prop.y = 140;
@@ -98,7 +95,7 @@ void cInstrumentEditor::initDisplayControls()
 	envelopesList.linesCount = 5;
 	envelopesList.start = selectedEnvelope;
 	envelopesList.length = 2;
-	envelopesList.data = envelopeNames;
+	envelopesList.data = (char**)envelopeNames;
 	prop.x = (800/8)*(0)+8;
 	prop.y = 140;
 	prop.w = 800/8-16;
@@ -110,7 +107,7 @@ void cInstrumentEditor::initDisplayControls()
 	envStateList.linesCount = 5;
 	envStateList.start = !editorInstrument->envelope[selectedEnvelope].enable;
 	envStateList.length = 2;
-	envStateList.data = envStateNames;
+	envStateList.data = (char**)envStateNames;
 	prop.x = (800/8)*(1)+8;
 	prop.y = 140;
 	prop.w = 800/8-16;
@@ -122,17 +119,13 @@ void cInstrumentEditor::initDisplayControls()
 	envLoopList.linesCount = 5;
 	envLoopList.start = editorInstrument->envelope[selectedEnvelope].loop;
 	envLoopList.length = 2;
-	envLoopList.data = envLoopNames;
+	envLoopList.data = (char**)envLoopNames;
 	prop.x = (800/8)*(7)+8;
 	prop.y = 140;
 	prop.w = 800/8-16;
 	prop.h = 25;
 	prop.data = &envLoopList;
 	if(envLoopListControl == nullptr)  envLoopListControl = display.createControl<cList>(&prop);
-
-
-
-
 }
 
 
@@ -178,43 +171,24 @@ void cInstrumentEditor::destroyDisplayControls()
 
 }
 
-/*
-void cInstrumentEditor::showDefaultScreen()
-{
-	// bottom labels
-	display.setControlText(bottomLabel[0], "Start");
-	display.setControlText(bottomLabel[1], "Loop Start");
-	display.setControlText(bottomLabel[2], "Loop End");
-	display.setControlText(bottomLabel[3], "End");
-	display.setControlText(bottomLabel[4], "- Zoom");
-	display.setControlText(bottomLabel[5], "+ Zoom");
-	display.setControlText(bottomLabel[6], "Play Mode");
-	//display.setControlText(bottomLabel[7], "End");
 
-	display.refreshControl(titleLabel);
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		display.refreshControl(bottomLabel[i]);
-		display.refreshControl(topLabel[i]);
-		display.refreshControl(barControl[i]);
-	}
-
-	display.synchronizeRefresh();
-
-}
-*/
-
-void cInstrumentEditor::showInstrumentEnv()
+void cInstrumentEditor::showTitleBar()
 {
 	display.setControlShow(titleBar);
 	display.refreshControl(titleBar);
 
 	display.setControlShow(titleLabel);
-	display.setControlText(titleLabel, "Instrument Envelopes");
+	if(mode == mtInstEditModeParams)	display.setControlText(titleLabel, "Instrument Parameters");
+	else display.setControlText(titleLabel, "Instrument Envelopes");
 	display.refreshControl(titleLabel);
 
 	showActualInstrument();
+}
+
+
+void cInstrumentEditor::showInstrumentEnv()
+{
+	showTitleBar();
 
 	display.setControlText(bottomLabel[0], "Envelopes");
 	display.setControlText(bottomLabel[1], "State");
@@ -286,14 +260,7 @@ void cInstrumentEditor::showInstrumentEnv()
 
 void cInstrumentEditor::showInstrumentParams()
 {
-	display.setControlShow(titleBar);
-	display.refreshControl(titleBar);
-
-	display.setControlShow(titleLabel);
-	display.setControlText(titleLabel, "Instrument Parameters");
-	display.refreshControl(titleLabel);
-
-	showActualInstrument();
+	showTitleBar();
 
 	display.setControlText(bottomLabel[0], "Volume");
 	display.setControlText(bottomLabel[1], "Panning");
@@ -525,7 +492,7 @@ void cInstrumentEditor::showFilterFilterType()
 	filterModeList.start = filterModeListPos;
 	filterModeList.length = filterModeCount;
 	filterModeList.linesCount = 5;
-	filterModeList.data = filterModeNames;
+	filterModeList.data = (char**)filterModeNames;
 
 	display.setControlText(topLabel[4], filterModeFunctLabels[filterModeListPos]);
 	display.refreshControl(topLabel[4]);
@@ -583,12 +550,19 @@ void cInstrumentEditor::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	sprintf(actualInstrName, "%d. ", i+1);
+	if(i < INSTRUMENTS_COUNT)
+	{
+		sprintf(actualInstrName, "%d. ", i+1);
+		strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+	}
+	else
+	{
+		//i = i-(INSTRUMENTS_COUNT-1);
+		sprintf(actualInstrName, "%d. MIDI Channel %d", i+3, i-(INSTRUMENTS_COUNT-1));
+	}
 
-	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
-
-	display.setControlText(instrumentLabel,  actualInstrName);
 	display.setControlShow(instrumentLabel);
+	display.setControlText(instrumentLabel,  actualInstrName);
 	display.refreshControl(instrumentLabel);
 }
 
