@@ -1535,6 +1535,7 @@ static  uint8_t functNote(uint8_t state)
 {
 	if(state == buttonPress)
 	{
+		PTE->wasNotesEditBefore = 0;
 		PTE->editParam = 0;
 		PTE->trackerPattern.selectedParam = 0;
 		display.refreshControl(PTE->patternControl);
@@ -1606,6 +1607,7 @@ static  uint8_t functInstrument(uint8_t state)
 {
 	if(state == buttonPress)
 	{
+		if(PTE->editParam  == 0) PTE->wasNotesEditBefore = 1;
 		PTE->editParam = 1;
 		PTE->trackerPattern.selectedParam = 1;
 		display.refreshControl(PTE->patternControl);
@@ -1651,6 +1653,18 @@ static  uint8_t functInstrument(uint8_t state)
 	}
 	else if(state == buttonRelease)
 	{
+		// powrot do nuty po wybraniu instrumentu
+		if(PTE->wasNotesEditBefore && mtPopups.getStepPopupState() != stepPopupNone)
+		{
+			PTE->wasNotesEditBefore = 0;
+			PTE->editParam = 0;
+			PTE->trackerPattern.selectedParam = 0;
+			display.refreshControl(PTE->patternControl);
+
+			PTE->focusOnPattern();
+			PTE->lightUpPadBoard();
+		}
+
 		PTE->cancelPopups();
 		PTE->dontShowPopupsUntilButtonRelease = 0;
 	}
@@ -1663,6 +1677,7 @@ static  uint8_t functVolume(uint8_t state)
 {
 	if(state == buttonPress)
 	{
+		PTE->wasNotesEditBefore = 0;
 		PTE->editParam = 2;
 		PTE->trackerPattern.selectedParam = 2;
 		display.refreshControl(PTE->patternControl);
@@ -1716,6 +1731,7 @@ static  uint8_t functFx(uint8_t state)
 {
 	if(state == buttonPress)
 	{
+		PTE->wasNotesEditBefore = 0;
 		PTE->editParam = 3;
 		PTE->trackerPattern.selectedParam = 3;
 		display.refreshControl(PTE->patternControl);

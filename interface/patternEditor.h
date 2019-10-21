@@ -229,6 +229,8 @@ public:
 	uint8_t dontShowPopupsUntilButtonRelease = 0;
 	uint8_t insertOnPopupHideDisabled = 0;
 
+	uint8_t wasNotesEditBefore = 0;
+
 //-------------------------------------------------------
 // mute track master mode
 	uint8_t masterTrackState = 0;
