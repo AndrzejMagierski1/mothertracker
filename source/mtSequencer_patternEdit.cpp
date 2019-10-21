@@ -783,9 +783,11 @@ void Sequencer::clearStep(strPattern::strTrack::strStep * step,
 		step->instrument = 0;
 		step->velocity = -1;
 		step->fx[0].type = 0;
+		step->fx[1].type = 0;
 		break;
 	case ELEMENTS_FXes:
 		step->fx[0].type = 0;
+		step->fx[1].type = 0;
 		break;
 	case ELEMENTS_INSTRUMENTS:
 		case ELEMENTS_NOTES:

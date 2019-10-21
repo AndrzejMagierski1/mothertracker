@@ -656,7 +656,7 @@ static  uint8_t functEncoder(int16_t value)
 
 				if (PM->fxValues[i] == -1) PM->fxValues[i] = 3;
 				else if (PM->fxValues[i] + mod_value > 7) PM->fxValues[i] = 7;
-				else if (PM->fxValues[i] + mod_value < 0) PM->fxValues[i] = 0;
+				else if (PM->fxValues[i] + mod_value < -1) PM->fxValues[i] = -1;
 				else PM->fxValues[i] += mod_value;
 
 

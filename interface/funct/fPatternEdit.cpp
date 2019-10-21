@@ -87,7 +87,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 static uint8_t functActionButton(uint8_t button, uint8_t state);
 
-static void setPatternChangeFlag();
+
 
 char getHexFromInt(int16_t val, uint8_t index);
 
@@ -1131,7 +1131,7 @@ uint8_t functEncoder(int16_t value)
 
 	if(PTE->selectedPlace >= 0)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 
 		switch(PTE->selectedPlace)
@@ -1164,7 +1164,7 @@ uint8_t functEncoder(int16_t value)
 	sendSelection();
 	if(tactButtons.isButtonPressed(interfaceButton6) || !isMultiSelection())
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		switch(PTE->editParam)
 		{
@@ -1207,6 +1207,7 @@ static  uint8_t functEnter()
 		fileManager.undoPattern();
 	}
 	PTE->refreshPattern();
+	PTE->showPattern();
 	return 1;
 }
 
@@ -1430,7 +1431,7 @@ static  uint8_t functUp()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
@@ -1522,7 +1523,7 @@ static  uint8_t functDown()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
@@ -1976,7 +1977,7 @@ static uint8_t functInsertHome(uint8_t state)
 		if (PTE->editMode == 1)
 		{
 			fileManager.storePatternUndoRevision();
-			setPatternChangeFlag();
+			fileManager.setPatternChangeFlag();
 
 			// HOME
 			if(tactButtons.isButtonPressed(interfaceButtonShift))
@@ -2049,7 +2050,7 @@ static uint8_t functCopyPaste(uint8_t state)
 
 		if (PTE->editMode == 1)
 		{
-			setPatternChangeFlag();
+			fileManager.setPatternChangeFlag();
 			fileManager.storePatternUndoRevision();
 
 			if (tactButtons.isButtonPressed(interfaceButtonShift))
@@ -2079,7 +2080,7 @@ static uint8_t functDeleteBackspace(uint8_t state)
 
 		if (PTE->editMode == 1)
 		{
-			setPatternChangeFlag();
+			fileManager.setPatternChangeFlag();
 			fileManager.storePatternUndoRevision();
 
 			// backspace
@@ -2359,7 +2360,7 @@ static  uint8_t functFillApply()
 	// zatwierdzanie wypelnienia
 	if(PTE->fillState)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		cPatternEditor::strFill * fillData = &PTE->fillData[PTE->editParam];
 		//(void) PTE->fillData[PTE->editParam];
@@ -2568,7 +2569,7 @@ static  uint8_t functRandomiseApply()
 	// zatwierdzanie wypelnienia
 	if(PTE->randomiseState)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		cPatternEditor::strRandomise * randomiseData = &PTE->randomiseData[PTE->editParam];
 		//(void) PTE->randomiseData[PTE->editParam];
@@ -2654,7 +2655,7 @@ static uint8_t functInvert()
 	//--------------------------------------------------------
 	//TU
 
-	setPatternChangeFlag();
+	fileManager.setPatternChangeFlag();
 	fileManager.storePatternUndoRevision();
 
 	sendSelection();
@@ -2692,6 +2693,7 @@ static uint8_t functUndo()
 		fileManager.undoPattern();
 	}
 	PTE->refreshPattern();
+	PTE->showPattern();
 	return 1;
 }
 
@@ -2852,7 +2854,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// obsługa przycisków pod ekranem
 	if (PTE->selectedPlace >= 0)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 
 		switch (PTE->selectedPlace)
@@ -2885,7 +2887,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// wprowadzanie danych
 	if (PTE->editMode == 1)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 
 		switch (PTE->editParam)
@@ -3108,10 +3110,3 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 	return 1;
 }
 
-
-static void setPatternChangeFlag()
-{
-	fileManager.patternIsChangedFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
-
-}

@@ -104,6 +104,7 @@ public:
 	uint8_t resetToFirstSongPattern();
 	void addPatternToProject (int8_t index);
 	void switchNextPatternInSong();
+	void setPatternChangeFlag();
 //	void refreshPatternView();
 
 //**************************************************************************************************************************
