@@ -2694,6 +2694,7 @@ static uint8_t functUndo()
 	}
 	PTE->refreshPattern();
 	PTE->showPattern();
+	PTE->showLength();
 	return 1;
 }
 

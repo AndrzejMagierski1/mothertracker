@@ -484,7 +484,7 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 		if (patternStep.note >= 0)
 		{
-			if (playerRow.rollDir == fx.FX_TYPE_ROLL_RANDOM)
+			if (playerRow.rollDir == fx.FX_TYPE_ROLL_RANDOM && playerRow.rollIsOn)
 			{
 				playerRow.stepToSend.note = constrain(
 						random(
