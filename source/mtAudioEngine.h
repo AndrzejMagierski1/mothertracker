@@ -98,6 +98,7 @@ public:
 		startPoint,
 		loopPoint1,
 		loopPoint2,
+		endPoint,
 		filterCutoff,
 		filterType,
 		filterEnable,
@@ -124,6 +125,7 @@ public:
 	    uint16_t startPoint;
 	    uint16_t loopPoint1;
 	    uint16_t loopPoint2;
+	    uint16_t endPoint;
 	    uint8_t sampleSlice; //todo: ustalic co to ma byc
 	    uint8_t reversePlayback; //todo: jak sie zrobi to ogarnac
 	    float filterCutoff;
@@ -151,6 +153,7 @@ public:
 		uint16_t startPoint;
 		uint16_t loopPoint1;
 		uint16_t loopPoint2;
+		uint16_t endPoint;
 		uint8_t reversePlayback; //todo: jak sie zrobi to ogarnac
 		float filterCutoff;
 		uint8_t filterType;
@@ -171,6 +174,7 @@ public:
 		  int8_t 	cutoff;
 		  uint8_t 	filterType;
 		  int32_t 	startPoint;
+		  int32_t	endPoint;
 	} performanceMod;
 
 	struct strInstrumentBasedModValue
@@ -193,7 +197,9 @@ public:
 	void changeCutoffPerformanceMode(int8_t value);
 	void changeFilterTypePerformanceMode(uint8_t mode);
 	void changeSamplePlaybackPerformanceMode(uint8_t value);
+
 //*****************************END
+
 
 	void endVolumePerformanceMode();
 	void endPanningPerformanceMode();
@@ -202,6 +208,9 @@ public:
 	void endStartPointPerformanceMode();
 	void endCutoffPerformanceMode();
 	void endFilterTypePerformanceMode();
+	void endSamplePlaybackPerformanceMode();
+	void endEndPointPerformanceMode();
+
 private:
 
 	friend 						audioEngine;
@@ -236,6 +245,9 @@ private:
 	void changeFilterType(uint8_t type);
 	void filterConnect();
 	void filterDisconnect();
+
+	void changePointsPerformanceMode(int32_t spValue, int32_t epValue);
+	void endPointsPerformanceMode();
 
 	float fmap(float x, float in_min, float in_max, float out_min, float out_max);
 

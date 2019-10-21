@@ -37,7 +37,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	if(playing == 0x81) needSmoothingFlag = 1;
 	playing = 0;
 	loopBackwardFlag=0;
-	iPitchCounter=0;
+	iPitchCounter = 0;
 	fPitchCounter=0;
 	glideCounter=0;
 	slideCounter=0;
@@ -188,7 +188,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	next = data+samplePoints.start;
 	beginning = data+samplePoints.start;
 	length =startLen-samplePoints.start;
-
+	iPitchCounter = reverseDirectionFlag ? sampleConstrains.endPoint - 1 : 0;
 	playing = 0x81;
 
 	return successInit;
@@ -211,7 +211,8 @@ void AudioPlayMemory::update(void)
 	int16_t *out=NULL;
 	int16_t s0=0;
 	int i;
-	uint32_t castPitchControl;
+	int32_t castPitchControl;
+	float pitchFraction;
 	uint8_t localType = mtProject.instrument[currentInstr_idx].sample.type ;
 
 	block = allocate();
@@ -232,7 +233,8 @@ void AudioPlayMemory::update(void)
 		{
 			waveTablePosition = wavetableWindowSize * currentWindow;
 		}
-		castPitchControl = (uint32_t) pitchControl;
+		castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
+		pitchFraction = pitchControl - (int32_t)pitchControl;
 //		//todo: monitorować czy przez tą linijke nie wyjezdza za bufor
 //		length += castPitchControl; //maksymalnie moze wyjsc za length i nie wiecej niz pitch control
 		for (i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
@@ -244,7 +246,8 @@ void AudioPlayMemory::update(void)
 					if (glideCounter <= sampleConstrains.glide)
 					{
 						pitchControl += glideControl;
-						castPitchControl = (uint32_t) pitchControl;
+						castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
+						pitchFraction = pitchControl - (int32_t)pitchControl;
 					}
 					glideCounter++;
 				}
@@ -254,27 +257,28 @@ void AudioPlayMemory::update(void)
 					if (slideCounter <= sampleConstrains.slide)
 					{
 						pitchControl += slideControl;
-						castPitchControl = (uint32_t) pitchControl;
+						castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
 						slideCounter++;
 					}
 					else
 					{
 						pitchControl -= (slideControl * slideCounter); // nie bac sie - to sie robi tylko raz
-						castPitchControl = (uint32_t) pitchControl;
+						castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
 						slideControl = 0.0f;
 						slideCounter = 0;
 						sampleConstrains.slide = 0;
 					}
-
+					pitchFraction = pitchControl - (int32_t)pitchControl;
 				}
-				if(needSmoothingFlag && i == 0)
+
+				if(needSmoothingFlag && (i == 0))
 				{
 					needSmoothingFlag = 0;
 					for(uint8_t j = 0; j < SMOOTHING_SIZE; j++ )
 					{
 						*out++ = ((int32_t)(((int32_t)((*(in + iPitchCounter) )*j) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j)) ) )/(SMOOTHING_SIZE - 1));
 						iPitchCounter += castPitchControl;
-						fPitchCounter += pitchControl - castPitchControl;
+						fPitchCounter += pitchFraction;
 						if (fPitchCounter >= 1.0f)
 						{
 							fPitchCounter -= 1.0f;
@@ -291,22 +295,32 @@ void AudioPlayMemory::update(void)
 						*out++ = *(in + iPitchCounter);
 						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 						iPitchCounter += castPitchControl;
-						fPitchCounter += pitchControl - castPitchControl;
+						fPitchCounter += pitchFraction;
 						if (fPitchCounter >= 1.0f)
 						{
 							fPitchCounter -= 1.0f;
 							iPitchCounter++;
+						}
+						else if(fPitchCounter <= -1.0f)
+						{
+							fPitchCounter += 1.0f;
+							iPitchCounter--;
 						}
 						break;
 					case loopForward:
 						*out++ = *(in + iPitchCounter);
 						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 						iPitchCounter += castPitchControl;
-						fPitchCounter += pitchControl - castPitchControl;
+						fPitchCounter += pitchFraction;
 						if (fPitchCounter >= 1.0f)
 						{
 							fPitchCounter -= 1.0f;
 							iPitchCounter++;
+						}
+						else if(fPitchCounter <= -1.0f)
+						{
+							fPitchCounter += 1.0f;
+							iPitchCounter--;
 						}
 						break;
 					case loopBackward:
@@ -315,23 +329,32 @@ void AudioPlayMemory::update(void)
 						if (!loopBackwardFlag)
 						{
 							iPitchCounter += castPitchControl;
-							fPitchCounter += pitchControl - castPitchControl;
+							fPitchCounter += pitchFraction;
 							if (fPitchCounter >= 1.0f)
 							{
 								fPitchCounter -= 1.0f;
 								iPitchCounter++;
 							}
+							else if(fPitchCounter <= -1.0f)
+							{
+								fPitchCounter += 1.0f;
+								iPitchCounter--;
+							}
 						}
 						else
 						{
 							iPitchCounter -= castPitchControl;
-							if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
 
-							fPitchCounter -= pitchControl - castPitchControl;
+							fPitchCounter -= pitchFraction;
 							if (fPitchCounter <= -1.0f)
 							{
 								fPitchCounter += 1.0f;
 								iPitchCounter--;
+							}
+							else if (fPitchCounter >= 1.0f)
+							{
+								fPitchCounter -= 1.0f;
+								iPitchCounter++;
 							}
 						}
 						break;
@@ -341,23 +364,32 @@ void AudioPlayMemory::update(void)
 						if (!loopBackwardFlag)
 						{
 							iPitchCounter += castPitchControl;
-							fPitchCounter += pitchControl - castPitchControl;
+							fPitchCounter += pitchFraction;
 							if (fPitchCounter >= 1.0f)
 							{
 								fPitchCounter -= 1.0f;
 								iPitchCounter++;
 							}
+							else if(fPitchCounter <= -1.0f)
+							{
+								fPitchCounter += 1.0f;
+								iPitchCounter--;
+							}
 						}
 						else
 						{
 							iPitchCounter -= castPitchControl;
-							if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
 
-							fPitchCounter -= pitchControl - castPitchControl;
+							fPitchCounter -= pitchFraction;
 							if (fPitchCounter <= -1.0f)
 							{
 								fPitchCounter += 1.0f;
 								iPitchCounter--;
+							}
+							else if (fPitchCounter >= 1.0f)
+							{
+								fPitchCounter -= 1.0f;
+								iPitchCounter++;
 							}
 						}
 						break;
@@ -365,44 +397,92 @@ void AudioPlayMemory::update(void)
 						break;
 					}
 
-					castPitchControl = (uint32_t) pitchControl;
-
+//					castPitchControl = (int32_t) pitchControl;
+					if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
 					switch (playMode)
 					{
 					case loopForward:
-						if ((iPitchCounter >= sampleConstrains.loopPoint2))
+						if(reverseDirectionFlag)
 						{
-							iPitchCounter = sampleConstrains.loopPoint1;
-							fPitchCounter = 0;
+							if ((iPitchCounter <= sampleConstrains.loopPoint1))
+							{
+								iPitchCounter = sampleConstrains.loopPoint2;
+								fPitchCounter = 0;
+							}
 						}
+						else
+						{
+							if ((iPitchCounter >= sampleConstrains.loopPoint2))
+							{
+								iPitchCounter = sampleConstrains.loopPoint1;
+								fPitchCounter = 0;
+							}
+						}
+
 						break;
 					case loopBackward:
-						if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+						if(reverseDirectionFlag)
 						{
-							iPitchCounter = sampleConstrains.loopPoint2;
-							loopBackwardFlag = 1;
-							fPitchCounter = 0;
+							if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+							{
+								iPitchCounter = sampleConstrains.loopPoint1;
+								loopBackwardFlag = 1;
+								fPitchCounter = 0;
+							}
+							if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+							{
+								iPitchCounter = sampleConstrains.loopPoint1;
+								fPitchCounter = 0;
+							}
+						}
+						else
+						{
+							if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+							{
+								iPitchCounter = sampleConstrains.loopPoint2;
+								loopBackwardFlag = 1;
+								fPitchCounter = 0;
+							}
+							if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+							{
+								iPitchCounter = sampleConstrains.loopPoint2;
+								fPitchCounter = 0;
+							}
+						}
 
-						}
-						if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
-						{
-							iPitchCounter = sampleConstrains.loopPoint2;
-							fPitchCounter = 0;
-						}
 						break;
 					case loopPingPong:
-						if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+						if(reverseDirectionFlag)
 						{
-							iPitchCounter = sampleConstrains.loopPoint2;
-							loopBackwardFlag = 1;
-							fPitchCounter = 0;
+							if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+							{
+								iPitchCounter = sampleConstrains.loopPoint1;
+								loopBackwardFlag = 1;
+								fPitchCounter = 0;
+							}
+							if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+							{
+								iPitchCounter = sampleConstrains.loopPoint2;
+								loopBackwardFlag = 0;
+								fPitchCounter = 0;
+							}
 						}
-						if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+						else
 						{
-							iPitchCounter = sampleConstrains.loopPoint1;
-							loopBackwardFlag = 0;
-							fPitchCounter = 0;
+							if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+							{
+								iPitchCounter = sampleConstrains.loopPoint2;
+								loopBackwardFlag = 1;
+								fPitchCounter = 0;
+							}
+							if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+							{
+								iPitchCounter = sampleConstrains.loopPoint1;
+								loopBackwardFlag = 0;
+								fPitchCounter = 0;
+							}
 						}
+
 						break;
 					default:
 						break;
@@ -413,15 +493,21 @@ void AudioPlayMemory::update(void)
 					*out++ = *(in + (uint32_t) iPitchCounter + waveTablePosition);
 					if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + (uint32_t) iPitchCounter + waveTablePosition);
 					iPitchCounter += castPitchControl;
-					fPitchCounter += pitchControl - castPitchControl;
+					fPitchCounter += pitchFraction;
 					if ((iPitchCounter >= wavetableWindowSize))
 					{
 						iPitchCounter = 0;
 						fPitchCounter = 0;
 					}
 				}
-				if ((iPitchCounter >= (sampleConstrains.endPoint)) && (sampleConstrains.endPoint != (sampleConstrains.loopPoint2)))
+				if ((iPitchCounter >= (sampleConstrains.endPoint)) && (sampleConstrains.endPoint != (sampleConstrains.loopPoint2)) && !reverseDirectionFlag)
+				{
 					iPitchCounter = length;
+				}
+				else if (((iPitchCounter - castPitchControl) <= 0)  && reverseDirectionFlag)
+				{
+					iPitchCounter = 0;
+				}
 			}
 			else
 			{
@@ -914,7 +1000,6 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n)
 	next = data+samplePoints.start;
 	beginning = data+samplePoints.start;
 	length =startLen-samplePoints.start;
-
 	playing = 0x81;
 
 	return successInit;
