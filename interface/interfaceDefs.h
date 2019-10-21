@@ -158,11 +158,12 @@ enum mtInterfaceButtonsFunctions
 	interfaceButtonSong			= interfaceButton17,
 	interfaceButtonNote 		= interfaceButton18,
 	interfaceButtonInstr 		= interfaceButton19,
-	interfaceButtonVol 			= interfaceButton20,
-	interfaceButtonFx 			= interfaceButton21,
+	interfaceButtonVol 			= interfaceButton20, // <<
+	interfaceButtonFx 			= interfaceButton21, // <<
 	interfaceButtonPattern 		= interfaceButton22,
 
-
+	interfaceButtonFx1 			= interfaceButton20,
+	interfaceButtonFx2 			= interfaceButton21,
 };
 
 //-------------------------------------------------------------

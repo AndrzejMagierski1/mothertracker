@@ -1179,7 +1179,7 @@ uint8_t functEncoder(int16_t value)
 		{
 			uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
 
-			if (tactButtons.isButtonPressed(interfaceButtonFx))
+			if (tactButtons.isButtonPressed(interfaceButtonFx1) || tactButtons.isButtonPressed(interfaceButtonFx2))
 			{
 				sequencer.changeSelectionFxType(fx_index, value);
 			}
@@ -1790,6 +1790,7 @@ static  uint8_t functFx1(uint8_t state)
 {
 	if(state == buttonPress)
 	{
+		PTE->wasNotesEditBefore = 0;
 		PTE->editParam = 2;
 		PTE->trackerPattern.selectedParam = 2;
 		display.refreshControl(PTE->patternControl);
@@ -2810,12 +2811,18 @@ void cPatternEditor::lightUpPadBoard()
 				if(seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type != 0)
 				{
 					// co pokazywac na padach:
-					//show_fx = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type;    // typ
-					show_fx = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].value; // wartosc
+					if(tactButtons.isButtonPressed(interfaceButtonFx1) || tactButtons.isButtonPressed(interfaceButtonFx2))
+					{
+						show_fx = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type;    // typ
+						if(show_fx > FX_MAX) break;
+					}
+					else
+					{
+						show_fx = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].value; // wartosc
+						if(show_fx > FX_VALUE_MAX) break;
+						show_fx = map(show_fx,0,127,0,47); // przeskalowanie - dla wartosci!!
+					}
 
-					if(show_fx > FX_VALUE_MAX) break;
-
-					show_fx = map(show_fx,0,127,0,47); // przeskalowanie - dla wartosci!!
 
 					padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, show_fx);
 
@@ -2957,14 +2964,26 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 		case 3: //fx
 		{
-			uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
-
 			if (state == buttonPress)
 			{
-				sendSelection();
-				sequencer.setSelectionFxValue(fx_index, map(pad, 0, 47, 0, 127));
-			}
+				uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
 
+				sendSelection();
+				setPatternChangeFlag();
+				fileManager.storePatternUndoRevision();
+
+				if((tactButtons.isButtonPressed(interfaceButtonFx1) || tactButtons.isButtonPressed(interfaceButtonFx2))
+						)//&& mtPopups.getStepPopupState() == stepPopupNone)
+				{
+					PTE->dontShowPopupsUntilButtonRelease = 1;
+					sequencer.setSelectionFxType(fx_index, pad);
+				}
+				else
+				{
+
+					sequencer.setSelectionFxValue(fx_index, map(pad, 0, 47, 0, 127));
+				}
+			}
 			break;
 		}
 
