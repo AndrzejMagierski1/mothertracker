@@ -168,8 +168,15 @@ const float ZOOM_MIN 						=	1;
 const float ZOOM_MAX 						=	10;
 const float ZOOM_FACTOR 					=	0.05;
 
-const int8_t PERFORMANCE_VALUE_MAX			= 100;
-const int8_t PERFORMANCE_VALUE_MIN			= - 100;
+const int8_t PERFORMANCE_VALUE_MAX			= 	100;
+const int8_t PERFORMANCE_VALUE_MIN			= 	- 100;
+
+
+
+// CONFIG DEFINES
+
+const uint8_t PADS_LIGHT_BACK_DEFAULT 		=	15;
+const uint8_t PADS_LIGHT_FRONT_DEFAULT 		=	31;
 
 
 //=====================================================================
@@ -494,10 +501,7 @@ struct strMtConfig
 		char lastProjectName[PROJECT_NAME_SIZE];
 	} startup;
 
-	struct strGlobalValues
-	{
-		uint8_t masterVolume = 50;
-	} globals;
+	uint8_t emptyByte = 0;
 
 	struct strAudioCodecConfig
 	{
@@ -529,7 +533,12 @@ struct strMtConfig
 
 	} firmware;
 
+	struct strGlobalValues
+	{
+		uint8_t padsLightBack = PADS_LIGHT_BACK_DEFAULT;
+		uint8_t padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
 
+	} values;
 };
 
 

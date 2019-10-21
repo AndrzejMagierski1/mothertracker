@@ -125,9 +125,11 @@ void checkConfig()
 
 
 
+	// VALUES CHECK
 
 
-
+	if(mtConfig.values.padsLightBack > 31)	mtConfig.values.padsLightBack = PADS_LIGHT_BACK_DEFAULT;
+	if(mtConfig.values.padsLightFront > 31)	mtConfig.values.padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
 }
 
 

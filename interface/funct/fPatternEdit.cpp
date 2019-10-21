@@ -387,14 +387,15 @@ void cPatternEditor::refreshPattern()
 				row->vol[2] = 0;
 			}
 */
-			if(seq->track[i].step[patternPosition-7+j].fx[1].type)
+			uint8_t type_temp  = seq->track[i].step[patternPosition-7+j].fx[1].type;
+			if(type_temp > 0 && type_temp < FX_MAX)
 			{
 				trackerPattern.track[i].row[j].fx[0][0] = 0;
 				trackerPattern.track[i].row[j].fx[0][1] = 0;
 				trackerPattern.track[i].row[j].fx[0][2] = 0;
 
 				strncat(&trackerPattern.track[i].row[j].fx[0][0],
-						&interfaceGlobals.fxNames[seq->track[i].step[patternPosition - 7 + j].fx[1].type][0],
+						&interfaceGlobals.fxNames[type_temp][0],
 						1);
 
 				sprintf(&trackerPattern.track[i].row[j].fx[0][1],
@@ -411,14 +412,15 @@ void cPatternEditor::refreshPattern()
 				trackerPattern.track[i].row[j].fx[0][3] = 0;
 			}
 			//--------------------------------------------------------------------------------------------
-			if(seq->track[i].step[patternPosition-7+j].fx[0].type)
+			type_temp  = seq->track[i].step[patternPosition-7+j].fx[0].type;
+			if(type_temp > 0 && type_temp < FX_MAX)
 			{
 				trackerPattern.track[i].row[j].fx[1][0] = 0;
 				trackerPattern.track[i].row[j].fx[1][1] = 0;
 				trackerPattern.track[i].row[j].fx[1][2] = 0;
 
 				strncat(&trackerPattern.track[i].row[j].fx[1][0],
-						&interfaceGlobals.fxNames[seq->track[i].step[patternPosition - 7 + j].fx[0].type][0],
+						&interfaceGlobals.fxNames[type_temp][0],
 						1);
 
 				sprintf(&trackerPattern.track[i].row[j].fx[1][1],
@@ -1141,6 +1143,8 @@ uint8_t functEncoder(int16_t value)
 		case 1: PTE->changeActualPatternLength(value); break;
 		case 2: PTE->changeActualPatternEditStep(value); break;
 		}
+
+		PTE->lightUpPadBoard();
 
 		return 1;
 	}
@@ -2190,7 +2194,7 @@ uint8_t isMultiSelection()
 //##############################################################################################
 //##########################             PATTERN PARAMS             ############################
 //##############################################################################################
-static  uint8_t functChangeTempo(uint8_t state)
+static  uint8_t functChangeTempo(uint8_t state)//todo: do usuniecia przy sprzataniu
 {
 	if(state == buttonPress)
 	{
@@ -2222,17 +2226,8 @@ static  uint8_t functChangePattern(uint8_t state)
 {
 	if(state == buttonPress)
 	{
-		if(PTE->selectedPlace == 0)
-		{
-			PTE->focusOnPattern();
-			return 1;
-		}
-		else
-		{
-			PTE->unfocusPattern();
-		}
-
 		PTE->selectedPlace = 0;
+		PTE->unfocusPattern();
 		PTE->activateLabelsBorder();
 	}
 	else if(state == buttonRelease)
@@ -2250,17 +2245,8 @@ static  uint8_t functChangePatternLength(uint8_t state)
 {
 	if(state == buttonPress)
 	{
-		if(PTE->selectedPlace == 1)
-		{
-			PTE->focusOnPattern();
-			return 1;
-		}
-		else
-		{
-			PTE->unfocusPattern();
-		}
-
 		PTE->selectedPlace = 1;
+		PTE->unfocusPattern();
 		PTE->activateLabelsBorder();
 	}
 	else if(state == buttonRelease)
@@ -2277,17 +2263,8 @@ static  uint8_t functChangePatternEditStep(uint8_t state)
 {
 	if(state == buttonPress)
 	{
-		if(PTE->selectedPlace == 2)
-		{
-			PTE->focusOnPattern();
-			return 1;
-		}
-		else
-		{
-			PTE->unfocusPattern();
-		}
-
 		PTE->selectedPlace = 2;
+		PTE->unfocusPattern();
 		PTE->activateLabelsBorder();
 	}
 	else if(state == buttonRelease)
@@ -2709,11 +2686,45 @@ void cPatternEditor::lightUpPadBoard()
 {
 	padsBacklight.clearAllPads(0, 1, 0);
 
-	Sequencer::strPattern * seq = sequencer.getPatternToUI();
 
+	//--------------------------------------------
+
+	if(selectedPlace >= 0)
+	{
+		//padsBacklight.clearAllPads(0, 1, 0);
+		switch(selectedPlace)
+		{
+			case 0:
+			{
+				if(mtProject.values.actualPattern <= 48)
+				{
+					padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, mtProject.values.actualPattern-1);
+				}
+				break;
+			}
+			case 1:
+			{
+				uint8_t temp_length = sequencer.getPatternToUI()->track[0].length;
+				if(temp_length < 3 || temp_length > 191) break;
+				padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, map(temp_length,3,191,0,47));
+				break;
+			}
+			case 2:
+			{
+				padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack,  mtProject.values.patternEditStep);
+				break;
+			}
+		}
+
+		return;
+	}
+
+	//--------------------------------------------
 
 	if(editMode > 0)
 	{
+		Sequencer::strPattern * seq = sequencer.getPatternToUI();
+
 		int8_t show_note = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].note;
 
 		switch(editParam)
@@ -2728,7 +2739,7 @@ void cPatternEditor::lightUpPadBoard()
 				{
 					if(padsTempData[i])
 					{
-						padsBacklight.setBackLayer(1, 20, i);
+						padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, i);
 					}
 				}
 			}
@@ -2744,21 +2755,21 @@ void cPatternEditor::lightUpPadBoard()
 
 			if(show_instr >= 0 && show_instr <= 47)
 			{
-				padsBacklight.setBackLayer(1, 20, show_instr);
+				padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, show_instr);
 			}
 
 			break;
 		}
 
 		case 2:
-//		{
+//		{//todo : sprzatanie
 //			int8_t show_vol = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity;
 //
 //			if(show_vol < 0) break;
 //
 //			show_vol = map(show_vol,0,127,0,47);
 //
-//			padsBacklight.setBackLayer(1, 20, show_vol);
+//			padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, show_vol);
 //
 //			break;
 //		}
@@ -2774,7 +2785,7 @@ void cPatternEditor::lightUpPadBoard()
 
 				if(show_fx < 0 || show_fx > FX_MAX) break;
 
-				padsBacklight.setBackLayer(1, 20, show_fx);
+				padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, show_fx);
 			}
 			else
 			{
@@ -2790,7 +2801,7 @@ void cPatternEditor::lightUpPadBoard()
 
 					show_fx = map(show_fx,0,127,0,47); // przeskalowanie - dla wartosci!!
 
-					padsBacklight.setBackLayer(1, 20, show_fx);
+					padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, show_fx);
 
 				}
 			}
@@ -2819,6 +2830,34 @@ void cPatternEditor::lightUpPadBoard()
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
+	// obsługa przycisków pod ekranem (na poczatku bo dziala tez bez editmode)
+	if (PTE->selectedPlace >= 0)
+	{
+		setPatternChangeFlag();
+		fileManager.storePatternUndoRevision();
+
+		switch (PTE->selectedPlace)
+		{
+		case 0:
+			PTE->setActualPattern(pad+1);
+			PTE->showPattern();
+			break;
+		case 1:
+			PTE->setActualPatternLength(map(pad, 0, 47, 3, 191));
+			PTE->showLength();
+			break;
+		case 2:
+			PTE->setActualPatternEditStep(pad);
+			PTE->showStep();
+			break;
+		}
+
+		PTE->lightUpPadBoard();
+
+		return 1;
+	}
+
+	// dalej tylko jesli edit (rec)
 	if (PTE->editMode != 1) return 1;
 
 	// obsluga podswietlenia
@@ -2828,13 +2867,12 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	}
 	else if (state == buttonPress)
 	{
-		padsBacklight.setFrontLayer(1, 31, pad);
+		padsBacklight.setFrontLayer(1, mtConfig.values.padsLightFront, pad);
 	}
 	else
 	{
 		return 1;
 	}
-
 
 	//obluga popupow fill/randomise
 	if(PTE->fillState > 0)
@@ -2849,38 +2887,9 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	}
 
 
-	// obsługa przycisków pod ekranem
-	if (PTE->selectedPlace >= 0)
-	{
-		setPatternChangeFlag();
-		fileManager.storePatternUndoRevision();
-
-		switch (PTE->selectedPlace)
-		{
-		case 0:
-//			sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
-//			PTE->showTempo();
-			break;
-		case 1:
-			PTE->setActualPattern(pad+1);
-			PTE->showPattern();
-			break;
-		case 2:
-			PTE->setActualPatternLength(map(pad, 0, 47, 3, 191));
-			PTE->showLength();
-			break;
-		case 3:
-			PTE->setActualPatternEditStep(pad);
-			PTE->showStep();
-			break;
-		}
-
-		return 1;
-	}
-
-
-	//czy parametr widoczny jesli np. pokazywane tylko 2 parametry 8 trackow
+	//czy parametr widoczny jesli np. pokazywane tylko 2 parametry 8 trackow - jesli nie to blokuje jego zmiane
 	if(PTE->patternViewMode > 0 && !(PTE->patternViewMode & (1 << PTE->editParam))) return 1;
+
 
 	// wprowadzanie danych
 	if (PTE->editMode == 1)
@@ -2920,7 +2929,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			break;
 		}
 
-		case 2: // volume
+		case 2: // volume // todo: sprzatanie
 //		{
 //			if (state == buttonPress)
 //			{
@@ -2969,21 +2978,22 @@ void cPatternEditor::focusOnPattern()
 	PTE->selectedPlace = -1;
 	PTE->activateLabelsBorder();
 
-	//if(PTE->editMode) PTE->trackerPattern.selectState = 1;
+	PTE->lightUpPadBoard();
 
 	PTE->trackerPattern.selectColor = patternTrackerSelectionColor;
 	display.refreshControl(patternControl);
-	//PTE->refreshPattern();
 }
 
 void cPatternEditor::unfocusPattern()
 {
-	//PTE->trackerPattern.selectState = 0;
+	lightUpPadBoard();
 
 	PTE->trackerPattern.selectColor = 0xffffff;
 	display.refreshControl(patternControl);
-	//PTE->refreshPattern();
 }
+
+
+
 
 
 void cPatternEditor::setPatternViewMode(uint8_t param)
