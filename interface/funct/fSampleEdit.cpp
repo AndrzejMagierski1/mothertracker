@@ -806,7 +806,8 @@ static  uint8_t functLeft()
 {
 	if(SE->moduleFlags != 0) return 1;
 
-	if(SE->selectedPlace > SE->effectScreen[SE->currSelEffect].paramNum)
+
+	if(SE->selectedPlace > ((SE->frameData.placesCount - 1) - SE->effectScreen[SE->currSelEffect].paramNum))
 	{
 		SE->selectedPlace--;
 	}
@@ -834,10 +835,10 @@ static  uint8_t functUp()
 	{
 	case 0: break;
 	case 1: break;
-	case 2: SE->editParamFunction(0, -1);	break;
-	case 3: SE->editParamFunction(1, -1);	break;
-	case 4: SE->editParamFunction(2, -1);    break;
-	case 5: SE->editParamFunction(3, -1);	break;
+	case 2: SE->editParamFunction(0, 1);	break;
+	case 3: SE->editParamFunction(1, 1);	break;
+	case 4: SE->editParamFunction(2, 1);    break;
+	case 5: SE->editParamFunction(3, 1);	break;
 	case 6: SE->changeEffectSelection(-1);	break;
 	}
 
