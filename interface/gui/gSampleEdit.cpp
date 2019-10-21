@@ -100,15 +100,13 @@ void cSampleEditor::initDisplayControls()
 	prop2.h = 30;
 	if(bottomLabel[6] == nullptr) bottomLabel[6] = display.createControl<cLabel>(&prop2);
 
-
-	effectList.linesCount = 8;
+	effectList.linesCount = 14;
 	effectList.start = 0;
 	effectList.length = effectsCount;
 	effectList.data = effectNames;
 
-	prop2.style = 	( controlStyleShow );
 	prop.x = (800/8)*6+8;
-	prop.y = 140;
+	prop.y = 37;
 	prop.w = 800/4-16;
 	prop.h = 25;
 	prop.data = &effectList;
@@ -337,7 +335,7 @@ void cSampleEditor::showEffectsList()
 {
 	effectList.start = currSelEffect;
 	effectList.length = effectsCount;
-	effectList.linesCount = 6;
+	effectList.linesCount = 14;
 	effectList.data = effectNames;
 
 	display.setControlData(effectListControl,  &effectList);

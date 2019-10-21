@@ -136,7 +136,7 @@ void cSampleRecorder::initDisplayControls()
 	sourceList.length = 4;
 	sourceList.data = sourceNames;
 	prop4.x = 0+8;
-	prop4.y = 152;
+	prop4.y = 37;
 	prop4.w = 800/8-16;
 	prop4.h = 25;
 	prop4.data = &sourceList;
@@ -147,7 +147,7 @@ void cSampleRecorder::initDisplayControls()
 	monitorList.length = 2;
 	monitorList.data = monitorNames;
 	prop4.x = (800/8)*(6)+8;
-	prop4.y = 165;
+	prop4.y = 37;
 	prop4.w = 800/8-16;
 	prop4.h = 25;
 	prop4.data = &monitorList;
