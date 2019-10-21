@@ -46,6 +46,7 @@ static  uint8_t functEncoder(int16_t value);
 
 
 static  uint8_t functSwitchModule(uint8_t button);
+static  uint8_t functSwitchModeSong(uint8_t state);
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
@@ -64,6 +65,8 @@ void cSongEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 	loopPosition = -1;
+
+	exitOnButtonRelease = 0;
 
 
 	readSong();
@@ -89,7 +92,7 @@ void cSongEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonSampleEdit, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonSampleRec, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonSampleLoad, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSong, functSwitchModeSong);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
 	showDefaultScreen();
@@ -148,6 +151,8 @@ void cSongEditor::setDefaultScreenFunct()
 
 static  uint8_t functPatternSlot()
 {
+	if(SE->exitOnButtonRelease) return 1;
+
 	SE->selectedPlace = 0;
 	SE->activateLabelsBorder();
 
@@ -156,6 +161,8 @@ static  uint8_t functPatternSlot()
 
 static  uint8_t functIncPattern()
 {
+	if(SE->exitOnButtonRelease) return 1;
+
 	if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] < 99)
 	{
 		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] += 1;
@@ -181,6 +188,8 @@ static  uint8_t functIncPattern()
 
 static  uint8_t functDecPattern()
 {
+	if(SE->exitOnButtonRelease) return 1;
+
 	if(mtProject.mtProjectRemote.song.playlist[SE->selectedPattern]>1)
 	{
 		mtProject.mtProjectRemote.song.playlist[SE->selectedPattern] -= 1;
@@ -205,6 +214,8 @@ static  uint8_t functDecPattern()
 
 static  uint8_t functAddSlot()
 {
+	if(SE->exitOnButtonRelease) return 1;
+
 	//if(SE->songLength < 15)//if(SE->songLength < (PATTERNS_COUNT-1))// 15 do czasu poprawy obslugi listy w interfejsie
 	if(SE->songLength < SONG_MAX)
 	{
@@ -244,6 +255,8 @@ static  uint8_t functAddSlot()
 
 static  uint8_t functDeleteSlot()
 {
+	if(SE->exitOnButtonRelease) return 1;
+
 	if(SE->songLength>1)
 	{
 		mtProject.mtProjectRemote.song.playlist[SE->songLength]=0;
@@ -360,6 +373,8 @@ static  uint8_t functDown()
 
 static  uint8_t functLeft()
 {
+	if(SE->exitOnButtonRelease) return 1;
+
 	if(SE->selectedPlace == 0)
 	{
 		functDecPattern();
@@ -375,6 +390,8 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(SE->exitOnButtonRelease) return 1;
+
 	if(SE->selectedPlace == 0)
 	{
 		functIncPattern();
@@ -616,4 +633,24 @@ void cSongEditor::switchToNewPattern()
 
 	fileManager.loadPattern(mtProject.values.actualPattern);
 	sequencer.switchNextPatternNow();
+}
+
+static  uint8_t functSwitchModeSong(uint8_t state)
+{
+	if(state == buttonPress)
+	{
+		//SE->activateLabelsBorder();
+	}
+	else if(state == buttonHold)
+	{
+		SE->selectedPlace = 1;
+		SE->exitOnButtonRelease = 1;
+		SE->activateLabelsBorder();
+	}
+	else if(state == buttonRelease)
+	{
+		if(SE->exitOnButtonRelease) SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
+	}
+
+	return 1;
 }

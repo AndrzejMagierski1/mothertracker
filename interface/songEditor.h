@@ -102,6 +102,8 @@ public:
 
 	void switchToNewPattern();
 
+	uint8_t exitOnButtonRelease;
+
 
 
 };
