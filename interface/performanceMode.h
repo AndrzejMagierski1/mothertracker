@@ -68,21 +68,20 @@ const char performanceFxesLabels[performanceFxesCount][20] =
 	"Pattern length",
 };
 
-const char performanceStutterLabels[13][20] =
+const char performanceStutterLabels[12][20] =
 {
+	"Off",
 	"4",
 	"3",
 	"2",
 	"1",
-	"Off",
-	"1",
 	"1/2",
 	"1/3",
 	"1/4",
+	"1/6",
 	"1/8",
+	"1/12",
 	"1/16",
-	"1/32",
-	"1/64",
 };
 
 const uint8_t performancePatternLengthValues[] =

@@ -518,25 +518,9 @@ void Sequencer::play_microStep(uint8_t row)
 	{
 		uint8_t tempRollType = 0;
 
-		switch (playerRow.performanceStutter)
+		if (playerRow.performanceStutter > 0)
 		{
-		case -4:
-			tempRollType = fx.ROLL_TYPE_4_1;
-			break;
-		case -3:
-			tempRollType = fx.ROLL_TYPE_3_1;
-			break;
-		case -2:
-			tempRollType = fx.ROLL_TYPE_2_1;
-			break;
-		case -1:
-			tempRollType = fx.ROLL_TYPE_1_1;
-			break;
-		default:
-			if (playerRow.performanceStutter > 0)
-			{
-				tempRollType = fx.ROLL_TYPE_1_1 + playerRow.performanceStutter - 1;
-			}
+			tempRollType = playerRow.performanceStutter;
 		}
 		if (((playerRow.stepTimer % rollTypeToVal(tempRollType)) == 1))
 		{
