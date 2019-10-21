@@ -278,7 +278,7 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 	}
 	case mtPerfSampleEnd:
 	{
-		instrumentPlayer[track].changeEndPointPerformanceMode(0);
+		instrumentPlayer[track].endEndPointPerformanceMode();
 		break;
 	}
 	case mtPerfTune:
@@ -288,7 +288,7 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 	}
 	case mtPerfSamplePlayback:
 	{
-		instrumentPlayer[track].changeSamplePlaybackPerformanceMode(0);
+		instrumentPlayer[track].endSamplePlaybackPerformanceMode();
 		break;
 	}
 	case mtPerfStepStutter:
