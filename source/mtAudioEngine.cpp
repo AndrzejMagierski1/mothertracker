@@ -1815,7 +1815,17 @@ void playerEngine ::changeFilterTypePerformanceMode(uint8_t mode)
 
 void playerEngine ::changeSamplePlaybackPerformanceMode(uint8_t value)
 {
-
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection] = 1;
+	if(value)
+	{
+		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::samplePlaybeckDirection]) playMemPtr->clearReverse();
+		else playMemPtr->setReverse();
+	}
+	else
+	{
+		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::samplePlaybeckDirection]) playMemPtr->setReverse();
+		else playMemPtr->clearReverse();
+	}
 }
 //*******************************************end
 void playerEngine::endVolumePerformanceMode()
@@ -1955,7 +1965,9 @@ void playerEngine::endFilterTypePerformanceMode()
 }
 void playerEngine ::endSamplePlaybackPerformanceMode()
 {
-
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection] = 0;
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::samplePlaybeckDirection]) playMemPtr->setReverse();
+	else playMemPtr->clearReverse();
 }
 void playerEngine ::endEndPointPerformanceMode()
 {
