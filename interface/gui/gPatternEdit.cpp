@@ -550,7 +550,7 @@ void cPatternEditor::showFillPopup()
 	}
 	//------------------------------
 	// fx
-	else if(editParam == 3)
+	else if(editParam == 3 || editParam == 2)
 	{
 		fillFxTypeList.linesCount = 7;
 		fillFxTypeList.start = fillData[editParam].param;
@@ -602,10 +602,10 @@ void cPatternEditor::showFillPopup()
 		display.setControlText(patternPopupLabel, "Fill Instruments");
 		break;
 	case 2:
-		display.setControlText(patternPopupLabel, "Fill Volumes");
+		display.setControlText(patternPopupLabel, "Fill Fx 1");
 		break;
 	case 3:
-		display.setControlText(patternPopupLabel, "Fill Fx");
+		display.setControlText(patternPopupLabel, "Fill Fx 2");
 		break;
 
 	default:
@@ -720,7 +720,7 @@ void cPatternEditor::refreshFillParam()
 	{
 		display.setControlText(bottomLabel[3], "In Scale");
 	}
-	else if(editParam == 3)
+	else if(editParam == 3 || editParam == 2)
 	{
 		display.setControlText(bottomLabel[3], "Fx Type");
 	}
@@ -837,7 +837,7 @@ void cPatternEditor::showRandomisePopup()
 	}
 	//------------------------------
 	// fx
-	else if(editParam == 3)
+	else if(editParam == 3 || editParam == 2)
 	{
 		fillFxTypeList.linesCount = 7;
 		fillFxTypeList.start = randomiseData[editParam].param;
@@ -882,10 +882,10 @@ void cPatternEditor::showRandomisePopup()
 		display.setControlText(patternPopupLabel, "Randomise Instruments");
 		break;
 	case 2:
-		display.setControlText(patternPopupLabel, "Randomise Volumes");
+		display.setControlText(patternPopupLabel, "Randomise Fx 1");
 		break;
 	case 3:
-		display.setControlText(patternPopupLabel, "Randomise Fx");
+		display.setControlText(patternPopupLabel, "Randomise Fx 2");
 		break;
 
 	default:
@@ -976,7 +976,7 @@ void cPatternEditor::refreshRandomiseParam()
 	{
 		display.setControlText(bottomLabel[3], "In Scale");
 	}
-	else if(editParam == 3)
+	else if(editParam == 3 || editParam == 2)
 	{
 		display.setControlText(bottomLabel[3], "Fx Type");
 	}

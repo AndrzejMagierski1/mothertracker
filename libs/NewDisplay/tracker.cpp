@@ -223,7 +223,9 @@ void cTracker::refresh4()
 {
 	if(displayMode == 0 || displayMode & 4)
 	{
-		volumes();
+		//volumes();
+		fxes1();
+
 	}
 }
 
@@ -231,7 +233,7 @@ void cTracker::refresh5()
 {
 	if(displayMode == 0 || displayMode & 8)
 	{
-		fxes();
+		fxes2();
 	}
 
 	tracksNumbers();
@@ -570,7 +572,7 @@ void cTracker::instruments()
 	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
-	uint8_t offset_x = 27+59;
+	uint8_t offset_x = 27+53; // 59
 	if(paramCount == 1) 		offset_x = 27 + ((tracksSpace/2)-12);
 	else if(paramCount == 2)  	offset_x = (displayMode & 1) ? 27+50 : 27+9;
 
@@ -644,7 +646,44 @@ void cTracker::volumes()
 }
 
 //===============================================================================================================================
-void cTracker::fxes()
+void cTracker::fxes1()
+{
+	API_VERTEX_FORMAT(0);
+	API_COLOR(colors[5]);
+	API_BITMAP_HANDLE(fonts[1].handle);
+	API_BEGIN(BITMAPS);
+
+	uint8_t offset_x = 27+90; // 99
+	if(paramCount == 1) 		offset_x = 27 + ((tracksSpace/2)-12);
+	else if(paramCount == 2)  	offset_x = (displayMode & 8) ? 27+9 : 27+50;
+
+	int8_t mark = -1;
+	if((tracks->selectedParam == 2 || tracks->selectedParam == 4) && tracks->selectState)
+	{
+		mark = tracks->actualTrack - tracks->firstVisibleTrack;
+	}
+
+	for(uint16_t j = 0; j < 15; j++)
+	{
+		for(uint16_t i = 0; i < columnsCount; i++)
+		{
+			int16_t param_x = offset_x+i*tracksSpace;
+			int16_t param_y = 15+j*28;
+			uint8_t change_color = 0;
+
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) change_color = 1;
+			else if(j == 7 && i == mark) change_color = 1;
+
+			if(change_color) API_COLOR(colors[6]);
+
+			String2Bitmaps(param_x, param_y, &fonts[1], &tracks->track[tracks->firstVisibleTrack+i].row[j].fx[0][0], param_length[3]);
+
+			if(change_color) API_COLOR(colors[5]);
+		}
+	}
+
+}
+void cTracker::fxes2()
 {
 	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[5]);
@@ -674,14 +713,13 @@ void cTracker::fxes()
 
 			if(change_color) API_COLOR(colors[6]);
 
-			String2Bitmaps(param_x, param_y, &fonts[1], tracks->track[tracks->firstVisibleTrack+i].row[j].fx, param_length[3]);
+			String2Bitmaps(param_x, param_y, &fonts[1], &tracks->track[tracks->firstVisibleTrack+i].row[j].fx[1][0], param_length[3]);
 
 			if(change_color) API_COLOR(colors[5]);
 		}
 	}
 
 }
-
 //===============================================================================================================================
 //===============================================================================================================================
 //===============================================================================================================================

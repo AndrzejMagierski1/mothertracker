@@ -51,6 +51,9 @@ const uint8_t FX_VALUE_MAX	=					127;
 
 const uint8_t PATTERN_EDIT_STEP_MAX 	=		10;
 
+const uint8_t FX_SLOTS_MAX		 	=       	1;
+const uint8_t FX_SLOTS_COUNT	 	=       	2;
+
 
 const uint8_t PROJECT_NAME_SIZE =				32;
 const uint8_t INSTRUMENT_NAME_SIZE =			19;
