@@ -34,6 +34,10 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	__disable_irq();
 	/*========================================================INIT=============================================================*/
 	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
+
+	if(instr_idx > INSTRUMENTS_MAX) instr_idx = INSTRUMENTS_MAX;
+	if(note > MAX_NOTE) note = MAX_NOTE;
+
 	if(playing == 0x81) needSmoothingFlag = 1;
 	playing = 0;
 	loopBackwardFlag=0;
@@ -163,10 +167,16 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	{
 		samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
 		samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
+
 		if(playMode != singleShot)
 		{
 			samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
 			samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
+		}
+		else
+		{
+			samplePoints.loop1 = 0;
+			samplePoints.loop2 = 0;
 		}
 
 		if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
