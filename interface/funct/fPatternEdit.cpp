@@ -818,29 +818,12 @@ void cPatternEditor::refreshEditState()
 		showEditModeLabels();
 
 		FM->setButtonObj(interfaceButton3, buttonPress, functFill);
-		FM->setButtonObj(interfaceButton4, buttonPress, functRandomise);
+		//FM->setButtonObj(interfaceButton4, buttonPress, functRandomise);
 		FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
 		FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
 		FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
 
 		lightUpPadBoard();
-/*
-		strPopupStyleConfig config;
-		config.time = 2;
-		config.w = 300;
-		config.h = 100;
-		config.x = 800/2-150;
-		config.y = 480/2-50;
-		config.lineColor[0] = 0xff0000;
-		config.lineColor[1] = 0x00ff00;
-		config.lineStyle[0] = controlStyleCenterX;
-		config.lineStyle[1] = controlStyleCenterX;
-
-
-		mtPopups.config(0, &config);
-		mtPopups.show(0, "Warning!", "Edit mode enabled");
-*/
-
 	}
 	else
 	{
@@ -886,7 +869,7 @@ void cPatternEditor::changeFillData(int16_t value)
 		break;
 	case 3:
 		ptrVal = &fillData[editParam].param;
-		max = (editParam == 0 ? interfaceGlobals.fillScaleFilterCount-1 : FX_COUNT-1);
+		max = (editParam == 0 ? interfaceGlobals.fillScaleFilterCount-1 : FX_COUNT);
 		//value = value*(-1);
 		break;
 	case 5:
@@ -936,7 +919,7 @@ void cPatternEditor::changeRandomiseData(int16_t value)
 		break;
 	case 3:
 		ptrVal = &randomiseData[editParam].param;
-		max = (editParam == 0 ? interfaceGlobals.fillScaleFilterCount-1 : FX_COUNT-1);
+		max = (editParam == 0 ? interfaceGlobals.fillScaleFilterCount-1 : FX_COUNT);
 		//value = value*(-1);
 		break;
 /*	case 5:

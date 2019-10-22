@@ -381,7 +381,8 @@ void cPatternEditor::showDefaultScreen()
 void cPatternEditor::showEditModeLabels()
 {
 	display.setControlText(topLabel[3], "Fill");
-	display.setControlText(topLabel[4], "Randomise");
+	//display.setControlText(topLabel[4], "Randomise");
+	display.setControlText(topLabel[4], "");
 	display.setControlText(topLabel[5], "Invert");
 	display.setControlText(topLabel[6], "Transpose");
 	display.setControlText(topLabel[7], "Undo");
@@ -566,8 +567,8 @@ void cPatternEditor::showFillPopup()
 	{
 		fillFxTypeList.linesCount = 7;
 		fillFxTypeList.start = fillData[editParam].param;
-		fillFxTypeList.length = FX_COUNT;
-		fillFxTypeList.data = (char**)(&interfaceGlobals.ptrFxNames);
+		fillFxTypeList.length = FX_COUNT+1;
+		fillFxTypeList.data = (char**)(&interfaceGlobals.ptrAllFxNames);
 
 		display.setControlData(param2PopupListControl, &fillFxTypeList);
 		display.setControlValue(param2PopupListControl, fillData[editParam].param);
@@ -877,8 +878,8 @@ void cPatternEditor::showRandomisePopup()
 	{
 		fillFxTypeList.linesCount = 7;
 		fillFxTypeList.start = randomiseData[editParam].param;
-		fillFxTypeList.length = FX_COUNT;
-		fillFxTypeList.data = (char**)(&interfaceGlobals.ptrFxNames);
+		fillFxTypeList.length = FX_COUNT+1;
+		fillFxTypeList.data = (char**)(&interfaceGlobals.ptrAllFxNames);
 
 		display.setControlData(param2PopupListControl, &fillFxTypeList);
 		display.setControlValue(param2PopupListControl, randomiseData[editParam].param);
