@@ -285,7 +285,8 @@ struct strInterfaceGlobals
 			&fillScaleFilterLabels[1][0],
 	};
 
-//-----------------------------------------------------
+	const char rndFxName[FX_NAME_SIZE+4] = "Random Fx";
+
 	const char fxNames[FX_COUNT][FX_NAME_SIZE+4] =
 	{
 			"--- None",
@@ -338,8 +339,9 @@ struct strInterfaceGlobals
 			"u - ",
 	};
 
-	const char *ptrFxNames[FX_COUNT] =
+	const char *ptrAllFxNames[FX_COUNT+1] =
 	{
+			rndFxName,
 			&fxNames[0][0],
 			&fxNames[1][0],
 			&fxNames[2][0],
@@ -389,6 +391,8 @@ struct strInterfaceGlobals
 			&fxNames[46][0],
 			&fxNames[47][0]
 	};
+
+	const char **ptrFxNames = &ptrAllFxNames[1];
 
 //-----------------------------------------------------
 

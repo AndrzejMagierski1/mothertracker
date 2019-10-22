@@ -47,11 +47,8 @@ public:
 	void padPressed(uint8_t n, int8_t x, int8_t y, uint8_t velo);
 	void padReleased(uint8_t n);
 	void padHold(uint8_t n);
-	void seqButtonPressed(uint8_t x, uint8_t y);
-	void seqButtonReleased(uint8_t x, uint8_t y);
-	void seqButtonHold(uint8_t x, uint8_t y);
-	void seqButtonDouble(uint8_t x, uint8_t y);
 
+	void SDCardChange(uint8_t state);
 
 private:
 	friend cInterfacePopups;

@@ -42,10 +42,7 @@ void cInterface::buttonChange(uint8_t n, uint8_t value)
 //=======================================================================
 void cInterface::powerButtonChange(uint8_t value)
 {
-	if(value == 1)
-	{
-		SD.begin(SdioConfig(DMA_SDIO));
-	}
+
 }
 
 //=======================================================================
@@ -63,31 +60,31 @@ void cInterface::padReleased(uint8_t n)
 
 //	leds.setLEDgrid(n,0,31);
 }
+
+//=======================================================================
 void cInterface::padHold(uint8_t n)
 {
 	uiFM.processPadsInput(n, 2, 0);
 }
 
 //=======================================================================
-void cInterface::seqButtonPressed(uint8_t x, uint8_t y)
+void cInterface::SDCardChange(uint8_t state)
 {
+	/*
+			strPopupStyleConfig config;
+			config.time = 2;
+			config.w = 300;
+			config.h = 100;
+			config.x = 800/2-150;
+			config.y = 480/2-50;
+			config.lineColor[0] = 0xff0000;
+			config.lineColor[1] = 0x00ff00;
+			config.lineStyle[0] = controlStyleCenterX;
+			config.lineStyle[1] = controlStyleCenterX;
 
+
+			mtPopups.config(0, &config);
+			mtPopups.show(0, "Warning!", "Edit mode enabled");
+	*/
 }
 
-//=======================================================================
-void cInterface::seqButtonReleased(uint8_t x, uint8_t y)
-{
-
-}
-
-//=======================================================================
-void cInterface::seqButtonHold(uint8_t x, uint8_t y)
-{
-
-}
-
-//=======================================================================
-void cInterface::seqButtonDouble(uint8_t x, uint8_t y)
-{
-
-}
