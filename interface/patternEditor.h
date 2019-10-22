@@ -190,14 +190,14 @@ public:
 	//
 	struct strFill
 	{
-		uint16_t type;
-		uint16_t from;
-		uint16_t to;
-		uint16_t param;
+		int16_t type;
+		int16_t from;
+		int16_t to;
+		int16_t param;
 
 	} fillData[4];
 
-	uint16_t fillStep = 1;
+	int16_t fillStep = 1;
 
 //------------------------------------------------------
 // randomise

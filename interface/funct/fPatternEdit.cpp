@@ -864,8 +864,8 @@ void cPatternEditor::changeFillData(int16_t value)
 		return;
 	}
 
-	uint16_t* ptrVal;
-	uint16_t min = 0, max;
+	int16_t* ptrVal;
+	int16_t min = 0, max;
 
 	switch(fillPlace)
 	{
@@ -889,7 +889,7 @@ void cPatternEditor::changeFillData(int16_t value)
 		break;
 	case 5:
 		ptrVal = &fillStep;
-		min = 0;
+		min = -2;
 		max = PATTERN_EDIT_STEP_MAX;
 		break;
 
