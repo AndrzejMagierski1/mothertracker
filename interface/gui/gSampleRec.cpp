@@ -427,6 +427,9 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlHide(editName);
 		display.refreshControl(editName);
 
+		clearAllNodes();
+		cancelMultiFrame();
+
 	}
 	else if (currentScreen == screenTypeRecord)
 	{
@@ -589,7 +592,6 @@ void cSampleRecorder::showDefaultScreen()
 	display.refreshControl(selectWindowLabel);
 
 	display.synchronizeRefresh();
-
 }
 
 void cSampleRecorder::showRadio()
