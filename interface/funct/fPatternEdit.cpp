@@ -2861,7 +2861,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// obsługa przycisków pod ekranem (na poczatku bo dziala tez bez editmode)
 	if (PTE->selectedPlace >= 0)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 
 		switch (PTE->selectedPlace)
@@ -3008,7 +3008,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
 
 				sendSelection();
-				setPatternChangeFlag();
+				fileManager.setPatternChangeFlag();
 				fileManager.storePatternUndoRevision();
 
 				if((tactButtons.isButtonPressed(interfaceButtonFx1) || tactButtons.isButtonPressed(interfaceButtonFx2))
