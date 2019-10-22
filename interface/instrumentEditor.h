@@ -47,19 +47,8 @@ const char envLoopLabels[filterModeCount][11]=
 	"Off"
 };
 
+#undef MAX_SELECT_NODES
 #define MAX_SELECT_NODES	8
-
-
-
-typedef void (*editFunct_t)(int16_t);
-
-typedef struct node
-{
-	uint8_t 		isActive;
-	editFunct_t	 	editFunct;
-
-}select_node_t;
-
 
 
 class cInstrumentEditor: public cModuleBase

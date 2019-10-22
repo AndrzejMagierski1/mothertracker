@@ -394,6 +394,15 @@ struct strInterfaceGlobals
 
 };
 
+typedef void (*editFunct_t)(int16_t);
+
+typedef struct node
+{
+	uint8_t 		isActive;
+	editFunct_t	 	editFunct;
+
+}select_node_t;
+
 extern strInterfaceGlobals interfaceGlobals;
 
 
