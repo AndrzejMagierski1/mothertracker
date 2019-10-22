@@ -589,12 +589,14 @@ static uint8_t functSaveAsProject()
 	PE->FM->setButtonObj(interfaceButtonShift, buttonPress, functConfirmKey);
 	char localPatch[PATCH_SIZE];
 	uint16_t cnt=1;
-	strcpy(PE->name,"Untitled");
+	if(fileManager.currentProjectName[0]) strcpy(PE->name,fileManager.currentProjectName);
+	else strcpy(PE->name,"Untitled");
 	sprintf(localPatch,"Projects/%s",PE->name);
 
 	while(SD.exists(localPatch))
 	{
-	   sprintf(PE->name,"Untitled%d",cnt);
+	   if(fileManager.currentProjectName[0]) sprintf(PE->name,"%s%d",fileManager.currentProjectName,cnt);
+	   else sprintf(PE->name,"Untitled%d",cnt);
 	   sprintf(localPatch,"Projects/%s",PE->name);
 
 	   cnt++;
