@@ -878,11 +878,11 @@ void cPatternEditor::changeFillData(int16_t value)
 		break;
 	case 1:
 		ptrVal = &fillData[editParam].from;
-		max = (trackerPattern.selectedParam == 1 ? 47 : 127);
+		max = (trackerPattern.selectedParam == 1 ? 63 : 127);
 		break;
 	case 2:
 		ptrVal = &fillData[editParam].to;
-		max = (editParam == 1 ? 47 : 127);
+		max = (editParam == 1 ? 63 : 127);
 		break;
 	case 3:
 		ptrVal = &fillData[editParam].param;
@@ -928,11 +928,11 @@ void cPatternEditor::changeRandomiseData(int16_t value)
 	{
 	case 1:
 		ptrVal = &randomiseData[editParam].from;
-		max = (trackerPattern.selectedParam == 1 ? 47 : 127);
+		max = (trackerPattern.selectedParam == 1 ? 63 : 127);
 		break;
 	case 2:
 		ptrVal = &randomiseData[editParam].to;
-		max = (editParam == 1 ? 47 : 127);
+		max = (editParam == 1 ? 63 : 127);
 		break;
 	case 3:
 		ptrVal = &randomiseData[editParam].param;
@@ -1675,11 +1675,13 @@ static  uint8_t functInstrument(uint8_t state)
 
 		if(PTE->fillState > 0)
 		{
+			PTE->wasNotesEditBefore = 0;
 			PTE->showFillPopup();
 			return 1;
 		}
 		if(PTE->randomiseState > 0)
 		{
+			PTE->wasNotesEditBefore = 0;
 			PTE->showRandomisePopup();
 			return 1;
 		}
