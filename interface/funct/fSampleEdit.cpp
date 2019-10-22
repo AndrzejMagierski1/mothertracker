@@ -27,7 +27,7 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
-static uint8_t functSelectPlace(uint8_t button);
+static uint8_t functSelectPlace(uint8_t button, uint8_t state);
 
 
 
@@ -43,6 +43,8 @@ static  uint8_t functSwitchModule(uint8_t button);
 static uint8_t functPreview(uint8_t state);
 static uint8_t functApply();
 static uint8_t functUndo();
+
+static uint8_t changeEffect(uint8_t button);
 
 
 
@@ -519,13 +521,13 @@ void cSampleEditor::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButton0, functPreview);
 	FM->setButtonObj(interfaceButton1, buttonPress, functApply);
-	FM->setButtonObj(interfaceButton2, buttonPress, functSelectPlace);
+	FM->setButtonObj(interfaceButton2, functSelectPlace);
 
-	FM->setButtonObj(interfaceButton3, buttonPress, functSelectPlace);
-	FM->setButtonObj(interfaceButton4, buttonPress, functSelectPlace);
-	FM->setButtonObj(interfaceButton5, buttonPress, functSelectPlace);
-	FM->setButtonObj(interfaceButton6, buttonPress, functSelectPlace);
-	FM->setButtonObj(interfaceButton7, buttonPress, functSelectPlace);
+	FM->setButtonObj(interfaceButton3, functSelectPlace);
+	FM->setButtonObj(interfaceButton4, functSelectPlace);
+	FM->setButtonObj(interfaceButton5, functSelectPlace);
+	FM->setButtonObj(interfaceButton6, buttonPress, changeEffect);
+	FM->setButtonObj(interfaceButton7, buttonPress, changeEffect);
 
 	FM->setButtonObj(interfaceButtonNote, functStepNote);
 
@@ -701,19 +703,40 @@ static uint8_t functUndo()
 		}
 	}
 
-	//SE->selectedPlace = 2;
-	//SE->activateLabelsBorder();
+	return 1;
+}
+
+static uint8_t changeEffect(uint8_t button)
+{
+	SE->clearAllNodes();
+	SE->cancelMultiFrame();
+
+	if(button == interfaceButton7)
+	{
+		SE->changeEffectSelection(-1);
+	}
+	else if(button == interfaceButton6)
+	{
+		SE->changeEffectSelection(1);
+	}
+
+	SE->points.selected = 0;
+	SE->refreshPoints = 1;
+
+	SE->selectedPlace = 6;
+	SE->activateLabelsBorder();
 
 	return 1;
 }
 
-static uint8_t functSelectPlace(uint8_t button)
+static uint8_t functSelectPlace(uint8_t button , uint8_t state)
 {
 	if(SE->moduleFlags != 0) return 1;
+	if(state > buttonPress) return 1;
 
 	uint8_t parameterFlag = 1;
 
-	if(button == interfaceButton2)// Undo
+	if(button == interfaceButton2 && state == buttonPress)// Undo
 	{
 		if(SE->effectScreen[SE->currSelEffect].undoActive)
 		{
@@ -722,51 +745,104 @@ static uint8_t functSelectPlace(uint8_t button)
 		}
 	}
 
-	if(SE->selectedPlace == 6) // gora/dol na effekcie
-	{
-		if(button == interfaceButton7)
-		{
-			SE->changeEffectSelection(-1);
-		}
-		else if(button == interfaceButton6)
-		{
-			SE->changeEffectSelection(1);
-		}
-	}
-
 	if(parameterFlag)
 	{
-		if(button < interfaceButton6)
+		uint8_t minSelectedPlace = 0;
+		if(SE->effectScreen[SE->currSelEffect].paramNum == 4)
 		{
-			if(SE->effectScreen[SE->currSelEffect].paramNum == 4)
+			minSelectedPlace = 2;
+		}
+		else if(SE->effectScreen[SE->currSelEffect].paramNum == 3)
+		{
+			minSelectedPlace = 3;
+		}
+		else if(SE->effectScreen[SE->currSelEffect].paramNum == 2)
+		{
+			minSelectedPlace = 4;
+		}
+		else if(SE->effectScreen[SE->currSelEffect].paramNum == 1)
+		{
+			minSelectedPlace = 5;
+		}
+
+		if(state == buttonPress)
+		{
+			SE->selectedPlace = button;
+
+			if(button >= minSelectedPlace)
 			{
-				SE->selectedPlace = button;
+				SE->addNode(SE->effectScreen[SE->currSelEffect].bar[button - 2].editFunct, button - 2);
+
+				SE->frameData.multisel[button].frameNum = button;
+				SE->frameData.multisel[button].isActive = 1;
+				SE->frameData.multiSelActiveNum  += 1;
 			}
-			else if(SE->effectScreen[SE->currSelEffect].paramNum == 3)
+
+			if(SE->currSelEffect == effectCrop || SE->currSelEffect == effectReverse)
 			{
-				if(button != interfaceButton2)
+				if(SE->frameData.multiSelActiveNum == 1)
 				{
-					SE->selectedPlace = button;
+					SE->points.selected = 0;
 				}
-			}
-			else if(SE->effectScreen[SE->currSelEffect].paramNum == 2)
-			{
-				if((button != interfaceButton2) && (button != interfaceButton3))
+
+				if(button == interfaceButton3)
 				{
-					SE->selectedPlace = button;
+					SE->points.selected |= selectStart;
 				}
-			}
-			else if(SE->effectScreen[SE->currSelEffect].paramNum == 1)
-			{
-				if((button != interfaceButton2) && (button != interfaceButton3) && button != interfaceButton4)
+				else if(button == interfaceButton4)
 				{
-					SE->selectedPlace = button;
+					SE->points.selected |= selectEnd;
+				}
+				else if(button == interfaceButton5)
+				{
+					SE->points.selected = 0;
+					SE->clearAllNodes();
+					SE->cancelMultiFrame();
 				}
 			}
 		}
-		else
+		else if(state == buttonRelease)
 		{
-			SE->selectedPlace = 6;
+			if(button >= minSelectedPlace)
+			{
+				if(SE->frameData.multiSelActiveNum)
+				{
+					if(SE->frameData.multisel[button].isActive)
+					{
+						SE->removeNode(button - 2);
+						SE->frameData.multiSelActiveNum  -= 1;
+
+						SE->frameData.multisel[button].isActive = 0;
+
+						if(SE->currSelEffect == effectCrop || SE->currSelEffect == effectReverse)
+						{
+							uint8_t sel = 0;
+
+							if(button == interfaceButton3)
+							{
+								sel = selectStart;
+							}
+							else if(button == interfaceButton4)
+							{
+								sel = selectEnd;
+							}
+
+							SE->points.selected &= ~sel;
+
+							if(SE->frameData.multiSelActiveNum == 0)
+							{
+								SE->points.selected = sel;
+								SE->selectedPlace = button;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if(SE->currSelEffect == effectCrop || SE->currSelEffect == effectReverse)
+		{
+			SE->refreshPoints = 1;
 		}
 
 		SE->activateLabelsBorder();
@@ -779,15 +855,22 @@ static  uint8_t functEncoder(int16_t value)
 {
 	if(SE->moduleFlags != 0) return 1;
 
-	switch(SE->selectedPlace)
+	if(SE->frameData.multiSelActiveNum != 0)
 	{
-	case 0: break;
-	case 1: break;
-	case 2: SE->editParamFunction(0, value);	break;
-	case 3: SE->editParamFunction(1, value);	break;
-	case 4: SE->editParamFunction(2, value);    break;
-	case 5: SE->editParamFunction(3, value);	break;
-	case 6: SE->changeEffectSelection(value);	break;
+		SE->editParamFunctionSelection(value);
+	}
+	else
+	{
+		switch(SE->selectedPlace)
+		{
+		case 0: break;
+		case 1: break;
+		case 2: SE->editParamFunction(0, value);	break;
+		case 3: SE->editParamFunction(1, value);	break;
+		case 4: SE->editParamFunction(2, value);    break;
+		case 5: SE->editParamFunction(3, value);	break;
+		case 6: SE->changeEffectSelection(value);	break;
+		}
 	}
 
 	return 1;
@@ -799,6 +882,22 @@ void cSampleEditor::editParamFunction(uint8_t paramNum, int16_t value)
 	{
 		effectScreen[currSelEffect].bar[paramNum].effectPercentage = effectScreen[currSelEffect].bar[paramNum].editFunct(value);
 		updateEffectValues(&effectScreen[currSelEffect], paramNum);
+	}
+}
+
+void cSampleEditor::editParamFunctionSelection(int16_t value)
+{
+	selection_percentages temp;
+
+	temp = SE->stepThroughNodes(value);
+
+	for(uint8_t i = 0; i < MAX_DATA_BARS; i++)
+	{
+		if(temp.mask & (1 << i))
+		{
+			effectScreen[currSelEffect].bar[i].effectPercentage = temp.percentages[i];
+			updateEffectValues(&effectScreen[currSelEffect], i);
+		}
 	}
 }
 
@@ -831,15 +930,22 @@ static  uint8_t functUp()
 {
 	if(SE->moduleFlags != 0) return 1;
 
-	switch(SE->selectedPlace)
+	if(SE->frameData.multiSelActiveNum != 0)
 	{
-	case 0: break;
-	case 1: break;
-	case 2: SE->editParamFunction(0, 1);	break;
-	case 3: SE->editParamFunction(1, 1);	break;
-	case 4: SE->editParamFunction(2, 1);    break;
-	case 5: SE->editParamFunction(3, 1);	break;
-	case 6: SE->changeEffectSelection(-1);	break;
+		SE->editParamFunctionSelection(1);
+	}
+	else
+	{
+		switch(SE->selectedPlace)
+		{
+		case 0: break;
+		case 1: break;
+		case 2: SE->editParamFunction(0, 1);	break;
+		case 3: SE->editParamFunction(1, 1);	break;
+		case 4: SE->editParamFunction(2, 1);    break;
+		case 5: SE->editParamFunction(3, 1);	break;
+		case 6: SE->changeEffectSelection(1);	break;
+		}
 	}
 
 	return 1;
@@ -849,15 +955,22 @@ static  uint8_t functDown()
 {
 	if(SE->moduleFlags != 0) return 1;
 
-	switch(SE->selectedPlace)
+	if(SE->frameData.multiSelActiveNum != 0)
 	{
-	case 0: break;
-	case 1: break;
-	case 2: SE->editParamFunction(0, -1);	break;
-	case 3: SE->editParamFunction(1, -1);	break;
-	case 4: SE->editParamFunction(2, -1);    break;
-	case 5: SE->editParamFunction(3, -1);	break;
-	case 6: SE->changeEffectSelection(1);	break;
+		SE->editParamFunctionSelection(-1);
+	}
+	else
+	{
+		switch(SE->selectedPlace)
+		{
+		case 0: break;
+		case 1: break;
+		case 2: SE->editParamFunction(0, -1);	break;
+		case 3: SE->editParamFunction(1, -1);	break;
+		case 4: SE->editParamFunction(2, -1);    break;
+		case 5: SE->editParamFunction(3, -1);	break;
+		case 6: SE->changeEffectSelection(-1);	break;
+		}
 	}
 
 	return 1;
@@ -1463,6 +1576,63 @@ static uint8_t editLimiterRelease(int16_t value)
 
 	return ((SE->limiterRelease * 100)/LIMITER_RELEASE_MAX);
 }
+
+/*/////////// MultiSelect Functions ////////////////*/
+void cSampleEditor::addNode(editFunct1_t funct , uint8_t nodeNum)
+{
+	if(selectNodes[nodeNum].isActive == 0)
+	{
+		selectNodes[nodeNum].isActive = 1;
+		selectNodes[nodeNum].editFunct = funct;
+	}
+}
+
+void cSampleEditor::removeNode(uint8_t nodeNum)
+{
+	selectNodes[nodeNum].isActive = 0;
+	selectNodes[nodeNum].editFunct = NULL;
+}
+
+selection_percentages cSampleEditor::stepThroughNodes(int16_t value)
+{
+	selection_percentages temp;
+
+	memset(&temp,0,sizeof(temp));
+
+	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	{
+		if(selectNodes[node].isActive)
+		{
+			if(selectNodes[node].editFunct != NULL)
+			{
+				temp.mask |= (1 << node);
+				temp.percentages[node] = selectNodes[node].editFunct(value);
+			}
+		}
+	}
+
+	return temp;
+}
+
+void cSampleEditor::clearAllNodes()
+{
+	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	{
+		selectNodes[node].isActive = 0;
+		selectNodes[node].editFunct = NULL;
+	}
+}
+
+void cSampleEditor::cancelMultiFrame()
+{
+	for(uint8_t i = 0; i < MAX_SELECT_NODES; i++)
+	{
+		frameData.multisel[i].isActive = 0;
+	}
+
+	frameData.multiSelActiveNum = 0;
+}
+///////////////////////////////////////////////////////////////////////////
 
 
 
