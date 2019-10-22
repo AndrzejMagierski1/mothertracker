@@ -14,7 +14,7 @@
 #include "mtExporterWAV.h"
 
 
-
+constexpr uint32_t NOT_MOD_POINTS = 1000000;
 
 class audioEngine
 {
@@ -67,6 +67,8 @@ public:
 	void modLP2(uint16_t value);
 	void modCutoff(float value);
 	void modResonance(float value);
+
+	void modSeqPoints(uint32_t sp, uint32_t ep);
 
 	void modWavetableWindow(uint16_t value);
 	void modTune(int8_t value);
