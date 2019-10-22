@@ -483,17 +483,23 @@ void cPatternEditor::showFillPopup()
 
 	//------------------------------
 	// value/from
+	fillText1[0]  = 0;
 	if(editParam == 0)
 	{
 		display.setControlText(val1PopupLabel, (char*)&mtNotes[fillData[editParam].from][0]);
 	}
-	else if (editParam == 1 || editParam == 2 || editParam == 3)
+	else if(editParam == 1)
 	{
-		uint8_t offs = (editParam == 1 ? 1 : 0);
-		fillText1[0]  = 0;
+		if(fillData[editParam].from < INSTRUMENTS_COUNT)
+			sprintf(fillText1, "%d", (fillData[editParam].from+1));
+		else
+			sprintf(fillText1, "%d", (fillData[editParam].from+3));
 
-		sprintf(fillText1, "%d", (fillData[editParam].from + offs));
-
+		display.setControlText(val1PopupLabel, fillText1);
+	}
+	else if(editParam == 2 || editParam == 3)
+	{
+		sprintf(fillText1, "%d", (fillData[editParam].from));
 		display.setControlText(val1PopupLabel, fillText1);
 	}
 	display.setControlShow(val1PopupLabel);
@@ -505,17 +511,23 @@ void cPatternEditor::showFillPopup()
 
 	//------------------------------
 	// To
+	fillText2[0]  = 0;
 	if(editParam == 0)
 	{
 		display.setControlText(val2PopupLabel, (char*)&mtNotes[fillData[editParam].to][0]);
 	}
-	else if (editParam == 1 || editParam == 2 || editParam == 3)
+	else if (editParam == 1)
 	{
-		uint8_t offs = (editParam == 1 ? 1 : 0);
-		fillText2[0]  = 0;
+		if(fillData[editParam].to < INSTRUMENTS_COUNT)
+			sprintf(fillText2, "%d", (fillData[editParam].to+1));
+		else
+			sprintf(fillText2, "%d", (fillData[editParam].to+3));
 
-		sprintf(fillText2, "%d", (fillData[editParam].to + offs));
-
+		display.setControlText(val2PopupLabel, fillText2);
+	}
+	else if(editParam == 2 || editParam == 3)
+	{
+		sprintf(fillText2, "%d", (fillData[editParam].to));
 		display.setControlText(val2PopupLabel, fillText2);
 	}
 
@@ -677,35 +689,48 @@ void cPatternEditor::refreshFillType()
 
 void cPatternEditor::refreshFillFrom()
 {
+	fillText1[0]  = 0;
 	if(editParam == 0)
 	{
 		display.setControlText(val1PopupLabel, (char*)&mtNotes[fillData[editParam].from][0]);
 	}
-	else if (editParam == 1 || editParam == 2 || editParam == 3)
+	else if(editParam == 1)
 	{
-		uint8_t offs = (editParam == 1 ? 1 : 0);
+		if(fillData[editParam].from < INSTRUMENTS_COUNT)
+			sprintf(fillText1, "%d", (fillData[editParam].from+1));
+		else
+			sprintf(fillText1, "%d", (fillData[editParam].from+3));
 
-		fillText1[0]  = 0;
-		sprintf(fillText1, "%d", (fillData[editParam].from + offs));
+		display.setControlText(val1PopupLabel, fillText1);
+	}
+	else if(editParam == 2 || editParam == 3)
+	{
+		sprintf(fillText1, "%d", (fillData[editParam].from));
 		display.setControlText(val1PopupLabel, fillText1);
 	}
 
 	display.refreshControl(val1PopupLabel);
-	//display.refreshControl(bottomLabel[1]);
 }
 
 void cPatternEditor::refreshFillTo()
 {
+	fillText2[0]  = 0;
 	if(editParam == 0)
 	{
 		display.setControlText(val2PopupLabel, (char*)&mtNotes[fillData[editParam].to][0]);
 	}
-	else if (editParam == 1 || editParam == 2 || editParam == 3)
+	else if (editParam == 1)
 	{
-		uint8_t offs = (editParam == 1 ? 1 : 0);
+		if(fillData[editParam].to < INSTRUMENTS_COUNT)
+			sprintf(fillText2, "%d", (fillData[editParam].to+1));
+		else
+			sprintf(fillText2, "%d", (fillData[editParam].to+3));
 
-		fillText2[0]  = 0;
-		sprintf(fillText2, "%d", (fillData[editParam].to + offs));
+		display.setControlText(val2PopupLabel, fillText2);
+	}
+	else if(editParam == 2 || editParam == 3)
+	{
+		sprintf(fillText2, "%d", (fillData[editParam].to));
 		display.setControlText(val2PopupLabel, fillText2);
 	}
 
@@ -779,37 +804,48 @@ void cPatternEditor::showRandomisePopup()
 {
 	//------------------------------
 	// from
+	fillText1[0]  = 0;
 	if(editParam == 0)
 	{
 		display.setControlText(val1PopupLabel, (char*)&mtNotes[randomiseData[editParam].from][0]);
 
 	}
-	else if (editParam == 1 || editParam == 2 || editParam == 3)
+	else if (editParam == 1)
 	{
-		uint8_t offs = (editParam == 1 ? 1 : 0);
-		fillText1[0]  = 0;
-
-		sprintf(fillText1, "%d", (randomiseData[editParam].from + offs));
+		if(randomiseData[editParam].from < INSTRUMENTS_COUNT)
+			sprintf(fillText1, "%d", (randomiseData[editParam].from+1));
+		else
+			sprintf(fillText1, "%d", (randomiseData[editParam].from+3));
 
 		display.setControlText(val1PopupLabel, fillText1);
 	}
+	else if(editParam == 2 || editParam == 3)
+	{
+		sprintf(fillText1, "%d", (randomiseData[editParam].from));
+		display.setControlText(val1PopupLabel, fillText1);
+	}
 	display.setControlShow(val1PopupLabel);
-
 	display.setControlText(bottomLabel[1], "From");
 
 	//------------------------------
 	// to
+	fillText2[0]  = 0;
 	if(editParam == 0)
 	{
 		display.setControlText(val2PopupLabel, (char*)&mtNotes[randomiseData[editParam].to][0]);
 	}
-	else if (editParam == 1 || editParam == 2 || editParam == 3)
+	else if (editParam == 1)
 	{
-		uint8_t offs = (editParam == 1 ? 1 : 0);
-		fillText2[0]  = 0;
+		if(randomiseData[editParam].to < INSTRUMENTS_COUNT)
+			sprintf(fillText2, "%d", (randomiseData[editParam].to+1));
+		else
+			sprintf(fillText2, "%d", (randomiseData[editParam].to+3));
 
-		sprintf(fillText2, "%d", (randomiseData[editParam].to + offs));
-
+		display.setControlText(val2PopupLabel, fillText2);
+	}
+	else if(editParam == 2 || editParam == 3)
+	{
+		sprintf(fillText2, "%d", (randomiseData[editParam].to));
 		display.setControlText(val2PopupLabel, fillText2);
 	}
 
@@ -932,16 +968,23 @@ void cPatternEditor::showRandomisePopup()
 
 void cPatternEditor::refreshRandomiseFrom()
 {
+	fillText1[0]  = 0;
 	if(editParam == 0)
 	{
 		display.setControlText(val1PopupLabel, (char*)&mtNotes[randomiseData[editParam].from][0]);
 	}
-	else if (editParam == 1 || editParam == 2 || editParam == 3)
+	else if (editParam == 1)
 	{
-		uint8_t offs = (editParam == 1 ? 1 : 0);
+		if(randomiseData[editParam].from < INSTRUMENTS_COUNT)
+			sprintf(fillText1, "%d", (randomiseData[editParam].from+1));
+		else
+			sprintf(fillText1, "%d", (randomiseData[editParam].from+3));
 
-		fillText1[0]  = 0;
-		sprintf(fillText1, "%d", (randomiseData[editParam].from + offs));
+		display.setControlText(val1PopupLabel, fillText1);
+	}
+	else if(editParam == 2 || editParam == 3)
+	{
+		sprintf(fillText1, "%d", (randomiseData[editParam].from));
 		display.setControlText(val1PopupLabel, fillText1);
 	}
 
@@ -951,16 +994,23 @@ void cPatternEditor::refreshRandomiseFrom()
 
 void cPatternEditor::refreshRandomiseTo()
 {
+	fillText2[0]  = 0;
 	if(editParam == 0)
 	{
 		display.setControlText(val2PopupLabel, (char*)&mtNotes[randomiseData[editParam].to][0]);
 	}
-	else if (editParam == 1 || editParam == 2 || editParam == 3)
+	else if (editParam == 1)
 	{
-		uint8_t offs = (editParam == 1 ? 1 : 0);
+		if(randomiseData[editParam].to < INSTRUMENTS_COUNT)
+			sprintf(fillText2, "%d", (randomiseData[editParam].to+1));
+		else
+			sprintf(fillText2, "%d", (randomiseData[editParam].to+3));
 
-		fillText2[0]  = 0;
-		sprintf(fillText2, "%d", (randomiseData[editParam].to + offs));
+		display.setControlText(val2PopupLabel, fillText2);
+	}
+	else if(editParam == 2 || editParam == 3)
+	{
+		sprintf(fillText2, "%d", (randomiseData[editParam].to));
 		display.setControlText(val2PopupLabel, fillText2);
 	}
 
