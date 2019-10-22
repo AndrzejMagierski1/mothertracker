@@ -587,10 +587,18 @@ void cPatternEditor::showFillPopup()
 	//------------------------------
 	// step
 
-	fillText3[0]  = 0;
+	fillText3[0] = 0;
 	if (fillStep == 0)
 	{
 		sprintf(fillText3, "%s", "random");
+	}
+	else if (fillStep == -1)
+	{
+		sprintf(fillText3, "%s", "occupied");
+	}
+	else if (fillStep == -2)
+	{
+		sprintf(fillText3, "%s", "empty");
 	}
 	else
 	{
@@ -765,6 +773,14 @@ void cPatternEditor::refreshFillStep()
 	if (fillStep == 0)
 	{
 		sprintf(fillText3, "%s", "random");
+	}
+	else if (fillStep == -1)
+	{
+		sprintf(fillText3, "%s", "occupied");
+	}
+	else if (fillStep == -2)
+	{
+		sprintf(fillText3, "%s", "empty");
 	}
 	else
 	{

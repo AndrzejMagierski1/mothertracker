@@ -549,20 +549,22 @@ public:
 
 	void setPerformanceStutter(uint8_t track, int8_t stutter);
 	void setPerformancePlayMode(uint8_t track, int8_t stutter);
-	void fillRandomNotes(uint8_t step, uint8_t from, uint8_t to);
-	void fillLinearNotes(uint8_t step, uint8_t from, uint8_t to);
-	void fillRandomInstruments(uint8_t step, uint8_t from, uint8_t to);
-	void fillLinearInstruments(uint8_t step, uint8_t from, uint8_t to);
-	void fillRandomVelocity(uint8_t step, uint8_t from, uint8_t to);
-	void fillLinearVelocity(uint8_t step, uint8_t from, uint8_t to);
-	void fillLinearFx(uint8_t index, uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
-						uint8_t toVal);
-	void fillRandomFx(uint8_t index, uint8_t fillStep, uint8_t fxType, uint8_t fromVal,
-						uint8_t toVal);
+
+	void fillRandomNotes(int16_t step, int16_t from, int16_t to);
+	void fillLinearNotes(int16_t step, int16_t from, int16_t to);
+	void fillRandomInstruments(int16_t step, int16_t from, int16_t to);
+	void fillLinearInstruments(int16_t step, int16_t from, int16_t to);
+	void fillRandomVelocity(int16_t step, int16_t from, int16_t to);
+	void fillLinearVelocity(int16_t step, int16_t from, int16_t to);
+	void fillLinearFx(int16_t index, int16_t fillStep, int16_t fxType, int16_t fromVal,
+					  int16_t toVal);
+	void fillRandomFx(int16_t index, int16_t fillStep, int16_t fxType, int16_t fromVal,
+					  int16_t toVal);
+
 	void changeSelectionNote(int16_t value);
-	void randomSelectedNotes(uint8_t from, uint8_t to, uint8_t scale);
-	void randomSelectedInstruments(uint8_t from, uint8_t to);
-	void randomSelectedVelo(uint8_t from, uint8_t to);
+	void randomSelectedNotes(int16_t from, int16_t to, int16_t scale);
+	void randomSelectedInstruments(int16_t from, int16_t to);
+	void randomSelectedVelo(int16_t from, int16_t to);
 	void invertSelectedSteps();
 
 	void allNoteOffs(void);

@@ -7,6 +7,7 @@ uint8_t patternToLoad = 0;
 //__NOINIT(EXTERNAL_RAM) uint8_t undo_Bank[1024*1024];
 #define UNDO_CAPACITY 20
 __NOINIT(EXTERNAL_RAM) Sequencer::strPattern undoPatternBuffer[UNDO_CAPACITY] { 0 };
+__NOINIT(EXTERNAL_RAM) uint8_t undoPatternBufferIndexes[UNDO_CAPACITY] { 0 };
 
 struct strUndo
 {
@@ -86,6 +87,9 @@ uint8_t FileManager::savePattern(uint8_t index)
 void FileManager::storePatternUndoRevision()
 {
 	undoPatternBuffer[undo.actualIndex] = *sequencer.getActualPattern();
+	undoPatternBufferIndexes[undo.actualIndex] = mtProject.values.actualPattern;
+
+
 	undo.redoPossibility = 0;
 	if (undo.actualIndex >= UNDO_CAPACITY)
 	{
@@ -133,7 +137,11 @@ void FileManager::undoPattern()
 	{
 
 		undoPatternBuffer[oldIndex] = *sequencer.getActualPattern();
+
 		*sequencer.getActualPattern() = undoPatternBuffer[undo.actualIndex];
+		mtProject.values.actualPattern = undoPatternBufferIndexes[undo.actualIndex];
+		setPatternChangeFlag();
+
 		undo.redoPossibility++;
 //		Serial.printf(
 //				"<<<pattern restored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
@@ -167,6 +175,9 @@ void FileManager::redoPattern()
 	{
 		undo.redoPossibility--;
 		*sequencer.getActualPattern() = undoPatternBuffer[undo.actualIndex];
+		mtProject.values.actualPattern = undoPatternBufferIndexes[undo.actualIndex];
+		setPatternChangeFlag();
+
 //		Serial.printf(
 //				">>>pattern redo\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
 //				undo.actualIndex,
@@ -350,4 +361,13 @@ void FileManager::switchNextPatternInSong()
 		song->playlistPos = 0;
 	}
 }
+
+
+void FileManager::setPatternChangeFlag()
+{
+	fileManager.patternIsChangedFlag = 1;
+	mtProject.values.projectNotSavedFlag = 1;
+
+}
+
 

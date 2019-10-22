@@ -87,7 +87,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 static uint8_t functActionButton(uint8_t button, uint8_t state);
 
-static void setPatternChangeFlag();
+
 
 char getHexFromInt(int16_t val, uint8_t index);
 
@@ -866,8 +866,8 @@ void cPatternEditor::changeFillData(int16_t value)
 		return;
 	}
 
-	uint16_t* ptrVal;
-	uint16_t min = 0, max;
+	int16_t* ptrVal;
+	int16_t min = 0, max;
 
 	switch(fillPlace)
 	{
@@ -891,7 +891,7 @@ void cPatternEditor::changeFillData(int16_t value)
 		break;
 	case 5:
 		ptrVal = &fillStep;
-		min = 0;
+		min = -2;
 		max = PATTERN_EDIT_STEP_MAX;
 		break;
 
@@ -1133,7 +1133,7 @@ uint8_t functEncoder(int16_t value)
 
 	if(PTE->selectedPlace >= 0)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 
 		switch(PTE->selectedPlace)
@@ -1168,7 +1168,7 @@ uint8_t functEncoder(int16_t value)
 	sendSelection();
 	if(tactButtons.isButtonPressed(interfaceButton6) || !isMultiSelection())
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		switch(PTE->editParam)
 		{
@@ -1211,6 +1211,7 @@ static  uint8_t functEnter()
 		fileManager.undoPattern();
 	}
 	PTE->refreshPattern();
+	PTE->showPattern();
 	return 1;
 }
 
@@ -1434,7 +1435,7 @@ static  uint8_t functUp()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
@@ -1526,7 +1527,7 @@ static  uint8_t functDown()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
@@ -1999,7 +2000,7 @@ static uint8_t functInsertHome(uint8_t state)
 		if (PTE->editMode == 1)
 		{
 			fileManager.storePatternUndoRevision();
-			setPatternChangeFlag();
+			fileManager.setPatternChangeFlag();
 
 			// HOME
 			if(tactButtons.isButtonPressed(interfaceButtonShift))
@@ -2072,7 +2073,7 @@ static uint8_t functCopyPaste(uint8_t state)
 
 		if (PTE->editMode == 1)
 		{
-			setPatternChangeFlag();
+			fileManager.setPatternChangeFlag();
 			fileManager.storePatternUndoRevision();
 
 			if (tactButtons.isButtonPressed(interfaceButtonShift))
@@ -2102,7 +2103,7 @@ static uint8_t functDeleteBackspace(uint8_t state)
 
 		if (PTE->editMode == 1)
 		{
-			setPatternChangeFlag();
+			fileManager.setPatternChangeFlag();
 			fileManager.storePatternUndoRevision();
 
 			// backspace
@@ -2355,7 +2356,7 @@ static  uint8_t functFillApply()
 	// zatwierdzanie wypelnienia
 	if(PTE->fillState)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		cPatternEditor::strFill * fillData = &PTE->fillData[PTE->editParam];
 		//(void) PTE->fillData[PTE->editParam];
@@ -2564,7 +2565,7 @@ static  uint8_t functRandomiseApply()
 	// zatwierdzanie wypelnienia
 	if(PTE->randomiseState)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		cPatternEditor::strRandomise * randomiseData = &PTE->randomiseData[PTE->editParam];
 		//(void) PTE->randomiseData[PTE->editParam];
@@ -2650,7 +2651,7 @@ static uint8_t functInvert()
 	//--------------------------------------------------------
 	//TU
 
-	setPatternChangeFlag();
+	fileManager.setPatternChangeFlag();
 	fileManager.storePatternUndoRevision();
 
 	sendSelection();
@@ -2688,6 +2689,8 @@ static uint8_t functUndo()
 		fileManager.undoPattern();
 	}
 	PTE->refreshPattern();
+	PTE->showPattern();
+	PTE->showLength();
 	return 1;
 }
 
@@ -2912,14 +2915,48 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	}
 
 
-	//czy parametr widoczny jesli np. pokazywane tylko 2 parametry 8 trackow - jesli nie to blokuje jego zmiane
+//<<<<<<< HEAD
+//	//czy parametr widoczny jesli np. pokazywane tylko 2 parametry 8 trackow - jesli nie to blokuje jego zmiane
+//=======
+	// obsługa przycisków pod ekranem
+//	if (PTE->selectedPlace >= 0)
+//	{
+//		fileManager.setPatternChangeFlag();
+//		fileManager.storePatternUndoRevision();
+//
+//		switch (PTE->selectedPlace)
+//		{
+//		case 0:
+////			sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
+////			PTE->showTempo();
+//			break;
+//		case 1:
+//			PTE->setActualPattern(pad+1);
+//			PTE->showPattern();
+//			break;
+//		case 2:
+//			PTE->setActualPatternLength(map(pad, 0, 47, 3, 191));
+//			PTE->showLength();
+//			break;
+//		case 3:
+//			PTE->setActualPatternEditStep(pad);
+//			PTE->showStep();
+//			break;
+//		}
+//
+//		return 1;
+//	}
+
+
+	//czy parametr widoczny jesli np. pokazywane tylko 2 parametry 8 trackow
+//>>>>>>> fx_x2
 	if(PTE->patternViewMode > 0 && !(PTE->patternViewMode & (1 << PTE->editParam))) return 1;
 
 
 	// wprowadzanie danych
 	if (PTE->editMode == 1)
 	{
-		setPatternChangeFlag();
+		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 
 		switch (PTE->editParam)
@@ -3155,10 +3192,3 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 	return 1;
 }
 
-
-static void setPatternChangeFlag()
-{
-	fileManager.patternIsChangedFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
-
-}
