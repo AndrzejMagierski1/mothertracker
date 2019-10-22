@@ -31,6 +31,9 @@ public:
 	void showMemoryUsage();
 	void showLoadHorizontalBar();
 	void showCopyingHorizontalBar();
+	void showDeletingHorizontalBar(uint8_t progress);
+	void showOpeningHorizontalBar(uint8_t progress);
+	void hideHorizontalBar();
 	void activateLabelsBorder();
 
 	strList explorerList;
@@ -172,7 +175,7 @@ public:
 // aktualny instrument na belce tytułowej
 	void showActualInstrument();
 //char actualInstrName[SAMPLE_NAME_SIZE+4];
-
+	void showFileList();
 	void listAllFoldersFirst();
 	void rewindListToBeggining();
 	void moveInstrListToEnd();
@@ -235,6 +238,20 @@ public:
 	uint8_t keyboardActiveFlag = 0;
 	uint8_t keyboardShiftFlag = 0;
 	uint8_t lastPressedPad;
+
+	uint8_t isBusy;
+
+	uint8_t deleteInProgress = 0;
+	uint8_t deleteStart = 0;
+	uint8_t deleteCurrentPos = 0;
+	void processDeleting();
+
+	uint8_t openingInProgress = 0;
+	uint8_t openCalcStart = 0;
+	uint8_t openCalcEnd = 0;
+	uint8_t openCurrentPos =0;
+	void processDirFileSizes();
+
 };
 
 

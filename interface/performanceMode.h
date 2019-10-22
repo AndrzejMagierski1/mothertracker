@@ -32,6 +32,7 @@ enum mtPerformanceFxes
 	mtPerfSamplePlayback,
 	mtPerfStepStutter,
 	mtPerfPatternPlayMode,
+	mtPerfPatternLength,
 
 	performanceFxesCount
 };
@@ -64,6 +65,7 @@ const char performanceFxesLabels[performanceFxesCount][20] =
 	"Sample playback",
 	"Step stutter",
 	"Pattern play mode",
+	"Pattern length",
 };
 
 const char performanceStutterLabels[13][20] =
@@ -83,6 +85,9 @@ const char performanceStutterLabels[13][20] =
 	"1/64",
 };
 
+const uint8_t performancePatternLengthValues[] =
+{ 1, 2, 4, 8, 16, 32, 64, 128 };
+
 
 class cPerformanceMode: public cModuleBase
 {
@@ -98,7 +103,7 @@ public:
 
 	cPerformanceMode()
 	{
-
+		fxValues[mtPerfPatternLength] = -1;
 	}
 	~cPerformanceMode() {}
 

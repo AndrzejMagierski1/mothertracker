@@ -309,6 +309,9 @@ void cSampleRecorder::destroyDisplayControls()
 
 	display.destroyControl(notePopoutControl);
 	notePopoutControl = nullptr;
+
+	display.destroyControl(radioRdsLabel);
+	radioRdsLabel = nullptr;
 }
 
 void cSampleRecorder::showDefaultScreen()

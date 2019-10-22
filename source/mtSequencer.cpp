@@ -143,11 +143,12 @@ void Sequencer::handle_nanoStep(uint8_t step)
 		{
 			for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 			{
-				int8_t tTempoDiv = constrain(
-						seq[player.ramBank].track[a].tempoDiv,
-						MIN_TEMPO_DIV,
-						MAX_TEMPO_DIV);
-				uint8_t tDiv = getTempoDiv(tTempoDiv);
+//				int8_t tTempoDiv = constrain(
+//						seq[player.ramBank].track[a].tempoDiv,
+//						MIN_TEMPO_DIV,
+//						MAX_TEMPO_DIV);
+
+				uint8_t tDiv = getTempoDiv(TEMPODIV_1_1);
 
 				if (nanoStep % tDiv == 1)
 				{
@@ -655,8 +656,6 @@ uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
 
 void Sequencer::play(void)
 {
-	if (debug.player)
-		Serial.println("play");
 
 	reset_actual_pos();
 
@@ -683,7 +682,7 @@ void Sequencer::playSong(void)
 {
 	fileManager.savePattern(mtProject.values.actualPattern);
 	fileManager.loadPattern(fileManager.resetToFirstSongPattern());
-	switchNextPatternNow();
+	switchRamPatternsNow();
 
 	player.songMode = 1;
 	play();
@@ -694,7 +693,7 @@ void Sequencer::playSong(uint8_t fromPos)
 	fileManager.loadPattern(fileManager.getSongPattern(fromPos));
 	fileManager.setSongPos(fromPos);
 
-	switchNextPatternNow();
+	switchRamPatternsNow();
 
 	player.songMode = 1;
 	play();
@@ -735,7 +734,7 @@ void Sequencer::stop(void)
 		player.track[a].uStep = 0;
 		player.track[a].makeJump = 0;
 	}
-	player.changeBank = 0;
+//	player.changeBank = 0;
 
 	player.swingToogle = 1;
 
@@ -747,8 +746,6 @@ void Sequencer::stop(void)
 void Sequencer::rec(void)
 {
 
-	if (debug.player)
-		Serial.println("REC");
 	player.isREC = 1;
 	player.rec_intro_timer = 1;
 	player.rec_intro_step = 1;
@@ -759,20 +756,15 @@ void Sequencer::rec(void)
 
 }
 
-uint8_t Sequencer::isRowOn(uint8_t row)
-{
-	return seq[player.ramBank].track[row].isOn;
-}
-
 void Sequencer::loadDefaultSequence(void)
 {
 	seq[player.ramBank].tempo = 120.0;
 
 	for (uint8_t x = MINTRACK; x <= MAXTRACK; x++)
 	{
-		seq[player.ramBank].track[x].rootNote = 35 + x;
-		seq[player.ramBank].track[x].channel = x;
-		seq[player.ramBank].track[x].isOn = 1;
+//		seq[player.ramBank].track[x].rootNote = 35 + x;
+//		seq[player.ramBank].track[x].channel = x;
+//		seq[player.ramBank].track[x].isOn = 1;
 
 		seq[player.ramBank].track[x].length = 127;
 		for (uint8_t y = MINSTEP; y <= MAXSTEP; y++)
@@ -804,119 +796,71 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 {
 	uint8_t x = constrain(row, MINTRACK, MAXTRACK);
 	int8_t playMode = player.track[row].performancePlayMode;
+	int8_t patternLength = seq[player.ramBank].track[0].length;
 
-//	if (player.isREC && player.row[x].recNoteOpen)
-//	{
-//		player.row[x].recNoteLength++;
-//		seq[player.ramBank].track[x].step[player.row[x].recNoteStep].length1 = player.row[x].recNoteLength - 1;
-
-//	}
-
-//	if (player.row[x].isGoToStep)
-//	{
-//		player.row[x].actual_pos = player.row[x].goToStep;
-//		player.row[x].isGoToStep = 0;
-//	}
-	if (player.track[x].makeJump)
+	if (player.performancePatternLength > -1)
 	{
-		for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
-		{
-			player.track[x].makeJump = 0;
-		}
-		// switch_bank_with_reset();
-		player.jump.jumpNOW = 1;
+		patternLength = player.performancePatternLength;
 	}
-	else
+
+	if (playMode == PLAYMODE_FORWARD)
 	{
-		if (playMode == PLAYMODE_FORWARD)
+		player.track[x].actual_pos++;
+		if ((player.track[x].actual_pos > patternLength))
 		{
-			player.track[x].actual_pos++;
-			if ((player.track[x].actual_pos > seq[player.ramBank].track[x].length) || player.track[x].return2start)
+			reset_actual_pos(x);
+
+			if (row == 0 && player.songMode)
 			{
-				// player.row[x].return2start = 0;
-				reset_actual_pos(x);
-
-				if (row == 0 && player.songMode)
-				{
-					switchNextPatternNow();
-					fileManager.switchNextPatternInSong();
-//					fileManager.refreshPatternView();
-				}
-
-				if ((player.onPatternEnd != NULL) && (x == MINTRACK))
-					player.onPatternEnd();
-
-				// if (player.changeBank)
-				// {
-				// 	switch_bank();
-				// 	// player.row[x].return2start = 1;
-				// }
+				switchRamPatternsNow();
+				fileManager.switchNextPatternInSong();
 			}
+
+			if ((player.onPatternEnd != NULL) && (x == MINTRACK))
+				player.onPatternEnd();
+
 		}
-		else if (playMode == PLAYMODE_BACKWARD)
+	}
+	else if (playMode == PLAYMODE_BACKWARD)
+	{
+		player.track[x].actual_pos--;
+		if ((player.track[x].actual_pos < 0))
 		{
-			player.track[x].actual_pos--;
-			if ((player.track[x].actual_pos < 0) || player.track[x].return2start)
-			{
-				// player.row[x].return2start = 0;
-				reset_actual_pos(x);
-				if ((player.onPatternEnd != NULL) && (x == MINTRACK))
-					player.onPatternEnd();
-
-				// if (player.changeBank)
-				// {
-				// 	switch_bank();
-				// 	// player.row[x].return2start = 1;
-				// }
-			}
+			reset_actual_pos(x);
+			if ((player.onPatternEnd != NULL) && (x == MINTRACK))
+				player.onPatternEnd();
 		}
-		else if (playMode == PLAYMODE_PINGPONG)
+	}
+	else if (playMode == PLAYMODE_PINGPONG)
+	{
+		if (!player.track[x].pingPongToogle)
 		{
-			if (!player.track[x].pingPongToogle)
+			if ((player.track[x].actual_pos >= patternLength))
 			{
-				if ((player.track[x].actual_pos >= seq[player.ramBank].track[x].length) || player.track[x].return2start)
-				{
-					// player.row[x].return2start = 0;
-
-					// if (player.changeBank)
-					// {
-					// 	switch_bank();
-					// 	// player.row[x].return2start = 1;
-					// }
-					player.track[x].pingPongToogle = !player.track[x].pingPongToogle;
-				}
-				else
-				{
-					player.track[x].actual_pos++;
-				}
-
+				player.track[x].pingPongToogle = !player.track[x].pingPongToogle;
 			}
 			else
 			{
-				if ((player.track[x].actual_pos <= 1) || player.track[x].return2start)
-				{
-					// player.row[x].return2start = 0;
+				player.track[x].actual_pos++;
+			}
 
-					// if (player.changeBank)
-					// {
-					// 	switch_bank();
-					// 	// player.row[x].return2start = 1;
-
-					// }
-					player.track[x].pingPongToogle = !player.track[x].pingPongToogle;
-				}
-				else
-				{
-					player.track[x].actual_pos--;
-				}
+		}
+		else
+		{
+			if ((player.track[x].actual_pos <= 1))
+			{
+				player.track[x].pingPongToogle = !player.track[x].pingPongToogle;
+			}
+			else
+			{
+				player.track[x].actual_pos--;
 			}
 		}
+	}
 
-		else if (playMode == PLAYMODE_RANDOM)
-		{
-			player.track[x].actual_pos = random(
-					1, seq[player.ramBank].track[x].length + 1);
-		}
+	else if (playMode == PLAYMODE_RANDOM)
+	{
+		player.track[x].actual_pos = random(1, patternLength + 1);
 	}
 
 }
@@ -933,7 +877,7 @@ void Sequencer::reset_actual_pos(void)
 void Sequencer::reset_actual_pos(uint8_t row)
 {
 
-	if (player.track[row].performancePlayMode== PLAYMODE_FORWARD)
+	if (player.track[row].performancePlayMode == PLAYMODE_FORWARD)
 	{
 		player.track[row].actual_pos = MINSTEP;
 	}
@@ -1038,9 +982,12 @@ void Sequencer::incr_uStep(uint8_t row)
 
 void Sequencer::divChangeQuantize(uint8_t row)
 {
-	int8_t tTempoOption = constrain(seq[player.ramBank].track[row].tempoDiv,
-									MIN_TEMPO_DIV,
-									MAX_TEMPO_DIV);
+	// tutaj pobieramy tempoDiv - pozostalość po sequ
+//	int8_t tTempoOption = constrain(seq[player.ramBank].track[row].tempoDiv,
+//									MIN_TEMPO_DIV,
+//									MAX_TEMPO_DIV);
+	int8_t tTempoOption = TEMPODIV_1_1;
+
 	uint8_t tDiv = getTempoDiv(tTempoOption);
 
 	if (player.track[row].divChange && ((nanoStep % (tDiv * 48)) == 1))
@@ -1108,19 +1055,6 @@ inline uint8_t Sequencer::isStop(void)
 	return player.isStop;
 }
 
-void Sequencer::copy_step(uint8_t from_step, uint8_t from_track,
-							uint8_t to_step,
-							uint8_t to_track)
-{
-	from_step = constrain(from_step, MINSTEP, MAXSTEP);
-	from_track = constrain(from_track, MINTRACK, MAXTRACK);
-
-	to_step = constrain(to_step, MINSTEP, MAXSTEP);
-	to_track = constrain(to_track, MINTRACK, MAXTRACK);
-
-	seq[player.ramBank].track[to_track].step[to_step] = seq[player.ramBank].track[from_track].step[from_step];
-}
-
 void Sequencer::send_clock(uint8_t arg)
 {
 // TODO: wypełnić
@@ -1131,14 +1065,7 @@ void Sequencer::send_clock(uint8_t arg)
 void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
 							uint8_t instrument)
 {
-	if (player.printNotes)
-	{
-		Serial.printf("track %d\nnoteOn:\t%d\nvelo:\t%d\ninstr:\t%d\n\n",
-						track,
-						note,
-						velocity,
-						instrument);
-	}
+
 	if (instrument > INSTRUMENTS_MAX)
 	{
 		usbMIDI.sendNoteOn(note, velocity, instrument - INSTRUMENTS_MAX);
@@ -1151,14 +1078,7 @@ void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
 }
 void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 {
-	if (player.printNotes)
-	{
-		Serial.printf("track %d\nnoteOn:\t%d\nvelo:\t%d\ninstr:\t%d\n\n",
-						track,
-						step->note,
-						step->velocity,
-						step->instrument);
-	}
+
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
 		usbMIDI.sendNoteOn(step->note,
@@ -1181,15 +1101,6 @@ void Sequencer::sendNoteOff(uint8_t track,
 							uint8_t velocity,
 							uint8_t instrument)
 {
-	if (player.printNotes)
-	{
-		Serial.printf(
-				"\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
-				track,
-				note,
-				velocity,
-				instrument);
-	}
 
 	if (instrument > INSTRUMENTS_MAX)
 	{
@@ -1204,15 +1115,6 @@ void Sequencer::sendNoteOff(uint8_t track,
 }
 void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
 {
-	if (player.printNotes)
-	{
-		Serial.printf(
-				"\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
-				track,
-				step->note,
-				step->velocity,
-				step->instrument);
-	}
 
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
@@ -1228,15 +1130,7 @@ void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
 
 void Sequencer::sendNoteOff(uint8_t track)
 {
-//	if (player.printNotes)
-//	{
-//		Serial.printf(
-//				"\ttrack %d\n\tnoteOff:\t%d\n\tvelo:\t%d\n\tinstr:\t%d\n\n",
-//				track,
-//				step->note,
-//				step->velocity,
-//				step->instrument);
-//	}
+
 //	usbMIDI.sendNoteOff(step->note, 0, 1);
 
 	instrumentPlayer[track].noteOff();
@@ -1330,4 +1224,24 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 			instrumentPlayer[sel->firstTrack].noteOff();
 		}
 	}
+}
+void Sequencer::setPerformancePatternLength(int8_t length)
+{
+	player.performancePatternLength = length - 1;
+}
+void Sequencer::setPerformancePatternLengthFromFxVal(int8_t val)
+{
+	uint8_t performancePatternLengthValues[] =
+			{ 1, 2, 4, 8, 16, 32, 64, 128 };
+
+	switch (val)
+	{
+	case -1:
+		setPerformancePatternLength(-1);
+		break;
+	default:
+		setPerformancePatternLength(performancePatternLengthValues[val]);
+
+	}
+
 }

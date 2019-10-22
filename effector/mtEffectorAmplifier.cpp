@@ -3,8 +3,16 @@
 mtAmplifier effectorAmplifier;
 
 
-int32_t mtAmplifier::makeAmplifier(float amp)
+int32_t mtAmplifier::makeAmplifier(float amp, int8_t forceEffect)
 {
+	if(forceEffect == 0)
+	{
+		if(lastAmp == amp)
+		{
+			return 0;
+		}
+	}
+
 	uint32_t srcLength = effector.getLength();
 	int32_t returnLength = (int32_t) srcLength;
 
@@ -22,6 +30,7 @@ int32_t mtAmplifier::makeAmplifier(float amp)
 		destAddress++;
 	}
 
+	lastAmp = amp;
 	effector.affterEffectLength=returnLength/2;
 	return 1;
 }

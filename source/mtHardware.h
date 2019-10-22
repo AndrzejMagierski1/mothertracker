@@ -7,7 +7,6 @@
 #include "Arduino.h"
 #include "Wire.h"
 
-#define HW_WITH_RADIO
 
 
 

@@ -431,6 +431,21 @@ void cPerformanceMode::showPerformaceValue(uint8_t fx)
 			continue;
 		}
 
+		case mtPerfPatternLength:
+		{
+			if (fxValues[fx] == -1) display.setControlText(value1Label[place], "---");
+			else
+			{
+				sprintf(&fxValuesText[place][0], "%d", performancePatternLengthValues[fxValues[fx]]);
+				display.setControlText(value1Label[place],&fxValuesText[place][0]);
+			}
+
+
+			display.setControlShow(value1Label[place]);
+			display.refreshControl(value1Label[place]);
+			continue;
+		}
+
 		}
 
 		sprintf(&fxValuesText[place][0],"%d", fxValues[fx]);

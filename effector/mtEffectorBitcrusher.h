@@ -3,15 +3,35 @@
 
 #include "mtEffector.h"
 
+#define BITCRUSHER_BITS_MAX			16
+#define BITCRUSHER_RATE_MAX			44100
+
 class mtBitcrusher
 {
 	public:
-	int32_t makeBitcrusher(uint8_t cBits, uint16_t sRate);
+	int32_t makeBitcrusher(uint8_t cBits, uint16_t sRate, int8_t forceEffect);
+	void process();
+	uint8_t getProgress();
+	uint8_t requireProcess();
 
 	private:
 	void calculate(int16_t * src, int16_t *dst);
 	uint8_t crushBits;
 	uint16_t sampleStep;
+
+
+	uint32_t localLength;
+	int32_t returnLength;
+
+	int16_t * localAddress;
+	int16_t * destAddress;
+
+	uint8_t last_cBits;
+	uint16_t last_sRate;
+
+	uint8_t requireProcessing;
+	uint8_t loadProgress;
+	uint32_t startLength;
 
 };
 

@@ -69,7 +69,7 @@ void cSampleEditor::initDisplayControls()
 		prop2.h = 30;
 
 		prop2.x = (800/8)*i+(800/16);
-		if(i < 3)
+		if(i < 2)
 		{
 			prop2.y = 452;
 			prop2.h = 58;
@@ -100,7 +100,7 @@ void cSampleEditor::initDisplayControls()
 	if(bottomLabel[6] == nullptr) bottomLabel[6] = display.createControl<cLabel>(&prop2);
 
 
-	effectList.linesCount = 5;
+	effectList.linesCount = 8;
 	effectList.start = 0;
 	effectList.length = effectsCount;
 	effectList.data = effectNames;
@@ -125,14 +125,14 @@ void cSampleEditor::initDisplayControls()
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
 
 
-	for(int i = 3; i < 6; i++)
+	for(int i = 2; i < 6; i++)
 	{
 		prop2.x = (800/8)*i+5;
 		prop2.y = 30;
 		prop2.w = 800/8-10;
 		prop2.style =  controlStyleValue_0_100;
 		prop2.h = 389;
-		if(barControl[i-3] == nullptr)  barControl[i-3] = display.createControl<cBar>(&prop2);
+		if(barControl[i-2] == nullptr)  barControl[i-2] = display.createControl<cBar>(&prop2);
 	}
 
 
@@ -173,7 +173,7 @@ void cSampleEditor::destroyDisplayControls()
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
 
-	for(uint8_t i = 0; i < 3 ; i++)
+	for(uint8_t i = 0; i < 4 ; i++)
 	{
 		display.destroyControl(barControl[i]);
 		barControl[i]=nullptr;
@@ -183,7 +183,8 @@ void cSampleEditor::destroyDisplayControls()
 	processHorizontalBarControl = nullptr;
 }
 
-void cSampleEditor::showDefaultScreen()
+
+void cSampleEditor::showTitleBar()
 {
 	display.setControlShow(titleBar);
 	display.refreshControl(titleBar);
@@ -193,6 +194,12 @@ void cSampleEditor::showDefaultScreen()
 	display.refreshControl(titleLabel);
 
 	showActualInstrument();
+}
+
+
+void cSampleEditor::showDefaultScreen()
+{
+	showTitleBar();
 
 	// bottom labels
 
@@ -221,64 +228,74 @@ void cSampleEditor::showDefaultScreen()
 
 	showEffectsList();
 
+	hideHorizontalBar();
+
 	display.synchronizeRefresh();
 
 }
 
-void cSampleEditor::showEffectScreen(effect_screen_t *screenCfg)
+void cSampleEditor::resizeUndo(uint8_t control)//1 - center 0 - top
 {
-	display.setControlShow(spectrumControl);
-
-	if(screenCfg->screen == fullSpectrum)
+	if(control)
 	{
-		display.setControlShow(pointsControl);
-
-		spectrum.width = 600;
-		screenCfg->barNum=0;
+		display.setControlPosition(topLabel[2], (800/8)*2+(800/16), 452);
+		display.setControlSize(topLabel[2], 800/8-6, 58);
 	}
 	else
 	{
-		display.setControlHide(pointsControl);
+		display.setControlPosition(topLabel[2], (800/8)*2+(800/16), 437);
+		display.setControlSize(topLabel[2], 800/8-6, 28);
+	}
+}
 
-		spectrum.width = 300;
+void cSampleEditor::showEffectScreen(effect_screen_t *screenCfg)
+{
+	if(screenCfg->screen == fullSpectrum)
+	{
+		spectrum.width = 600;
+
+		display.setControlData(spectrumControl, &spectrum);
+		display.setControlShow(spectrumControl);
+		display.setControlShow(pointsControl);
+	}
+	else
+	{	display.setControlHide(spectrumControl);
+		display.setControlHide(pointsControl);
 	}
 
-
 	display.refreshControl(pointsControl);
-
-	display.setControlData(spectrumControl, &spectrum);
 	display.refreshControl(spectrumControl);
 
 	for(int i = 0; i < MAX_DATA_BARS; i++)
 	{
 		display.setControlHide(barControl[i]);
-		display.setControlText(topLabel[3+i], "");
-		display.setControlText(bottomLabel[3+i], "");
+		display.setControlText(topLabel[BAR_MIN_POS + i], "");
+		display.setControlText(bottomLabel[BAR_MIN_POS + i], "");
 	}
+
+	undoDisplayControl(effectScreen[currSelEffect].undoActive);
 
 	for(int i = (MAX_DATA_BARS - screenCfg->barNum); i < MAX_DATA_BARS; i++)
 	{
 		display.setControlShow(barControl[i]);
 	}
 
-	for(int i = (3 - screenCfg->paramNum); i < 3; i++)
+	for(int i = (MAX_DATA_BARS - screenCfg->paramNum); i < MAX_DATA_BARS; i++)
 	{
-		display.setControlText(bottomLabel[3+i], screenCfg->bar[i].name);
+		display.setControlText(bottomLabel[BAR_MIN_POS + i], screenCfg->bar[i].name);
 	}
 
-	for(int i=0;i<MAX_DATA_BARS;i++)
+	for(int i = (MAX_DATA_BARS - screenCfg->paramNum); i < MAX_DATA_BARS; i++)
 	{
 		updateEffectValues(&effectScreen[currSelEffect], i);
 	}
 
-	for(int i=0;i<3;i++)
+	for(int i=0;i<4;i++)
 	{
 		display.refreshControl(barControl[i]);
-		display.refreshControl(bottomLabel[3+i]);
-		display.refreshControl(topLabel[3+i]);
+		display.refreshControl(bottomLabel[BAR_MIN_POS + i]);
+		display.refreshControl(topLabel[BAR_MIN_POS + i]);
 	}
-
-	undoDisplayControl(effectScreen[currSelEffect].undoActive);
 
 	display.synchronizeRefresh();
 }
@@ -316,9 +333,16 @@ void cSampleEditor::showActualInstrument()
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 
-	sprintf(actualInstrName, "%d. ", i+1);
-
-	strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+	if(i < INSTRUMENTS_COUNT)
+	{
+		sprintf(actualInstrName, "%d. ", i+1);
+		strncat(&actualInstrName[0], mtProject.instrument[i].sample.file_name, SAMPLE_NAME_SIZE);
+	}
+	else
+	{
+		//i = i-(INSTRUMENTS_COUNT-1);
+		sprintf(actualInstrName, "%d. MIDI Channel %d", i+3, i-(INSTRUMENTS_COUNT-1));
+	}
 
 	display.setControlShow(instrumentLabel);
 	display.setControlText(instrumentLabel,  actualInstrName);
@@ -329,9 +353,9 @@ void cSampleEditor::showActualInstrument()
 
 void cSampleEditor::showValueLabels(uint8_t whichBar)
 {
-	display.setControlText(topLabel[3+whichBar], &dataBarText[whichBar][0]);
-	display.setControlShow(topLabel[3+whichBar]);
-	display.refreshControl(topLabel[3+whichBar]);
+	display.setControlText(topLabel[BAR_MIN_POS + whichBar], &dataBarText[whichBar][0]);
+	display.setControlShow(topLabel[BAR_MIN_POS + whichBar]);
+	display.refreshControl(topLabel[BAR_MIN_POS + whichBar]);
 }
 
 void cSampleEditor::refreshBarsValue(uint8_t whichBar, uint8_t newValue)
@@ -340,38 +364,25 @@ void cSampleEditor::refreshBarsValue(uint8_t whichBar, uint8_t newValue)
 	display.refreshControl(barControl[whichBar]);
 }
 
-void cSampleEditor::showProcessingBar(uint8_t progress)
+void cSampleEditor::showHorizontalBar(uint8_t progress , const char* text)
 {
 	display.setControlValue(processHorizontalBarControl, progress);
-	display.setControlText(processHorizontalBarControl, "Processing...");
-	display.setControlShow(processHorizontalBarControl);
-	display.refreshControl(processHorizontalBarControl);
-}
-
-void cSampleEditor::showSampleLoading(uint8_t progress)
-{
-	display.setControlValue(processHorizontalBarControl, progress);
-	display.setControlText(processHorizontalBarControl, "Loading...");
-	display.setControlShow(processHorizontalBarControl);
-	display.refreshControl(processHorizontalBarControl);
-}
-
-void cSampleEditor::showApplying(uint8_t progress)
-{
-	display.setControlValue(processHorizontalBarControl, progress);
-	display.setControlText(processHorizontalBarControl, "Applying...");
+	display.setControlText(processHorizontalBarControl, text);
 	display.setControlShow(processHorizontalBarControl);
 	display.refreshControl(processHorizontalBarControl);
 }
 
 void cSampleEditor::hideHorizontalBar()
 {
+	display.setControlValue(processHorizontalBarControl, 0);
 	display.setControlHide(processHorizontalBarControl);
 	display.refreshControl(processHorizontalBarControl);
 }
 
 void cSampleEditor::undoDisplayControl(uint8_t onOff)
 {
+	resizeUndo(onOff);
+
 	if(onOff)
 	{
 		display.setControlText(topLabel[2], "Undo");

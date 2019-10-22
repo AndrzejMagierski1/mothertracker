@@ -2,32 +2,73 @@
 
 mtLimiter effectorLimiter;
 
-int8_t mtLimiter::makeLimiter(uint16_t ts, uint16_t a, uint16_t r )
+int8_t mtLimiter::makeLimiter(uint16_t ts, uint16_t a, uint16_t r, int8_t forceEffect)
 {
+	if(forceEffect == 0)
+	{
+		if(last_ts == ts && last_a == a && last_r == r)
+		{
+			return 0;
+		}
+	}
+
 	threshold = ts;
 	attack = a/1000.0;
 	release = r/1000.0;
-	int32_t localLength = effector.getLength();
-	int32_t	returnLength = localLength;
-	int16_t * localAddress = effector.getAddress();
-	int16_t * destAddress = sdram_effectsBank;
+
+	//set defaults?
+	g=1.0;
+	xpeak = 0;
+	delay = 5;
+	coeff = 0;
+	f = 0;
+
+	localLength = effector.getLength();
+	returnLength = localLength;
+	localAddress = effector.getAddress();
+	destAddress = effector.previewBuffer;
 
 	memset(buffer,0,10);
 
-	while ( localLength )
-	{
+	last_ts = ts;
+	last_a = a;
+	last_r = r;
 
-/*		todo: jakby byly jakies problemy mozna na 0 ustawic wartosci wykraczajace poza bufor w ostatnim buforze
-		if(localLength<AUDIO_BLOCK_SAMPLES) memset(localAddress+localLength,0,AUDIO_BLOCK_SAMPLES-localLength);*/
-		calculate(localAddress,destAddress);
+	startLength = localLength;
+	requireProcessing = 1;
+	loadProgress = 0;
+
+	return 1;
+}
+
+void mtLimiter::process()
+{
+	if(requireProcessing == 1 && localLength != 0)
+	{
+		calculate(localAddress, destAddress);
 		localAddress += AUDIO_BLOCK_SAMPLES;
 		destAddress += AUDIO_BLOCK_SAMPLES;
-		if(localLength> AUDIO_BLOCK_SAMPLES) localLength -= AUDIO_BLOCK_SAMPLES;
-		else localLength=0;
-	}
+		if(localLength > AUDIO_BLOCK_SAMPLES) localLength -= AUDIO_BLOCK_SAMPLES;
+		else localLength = 0;
 
-	effector.affterEffectLength=returnLength/2;
-	return 1;
+		loadProgress = ((startLength-localLength) * 100) / startLength;
+
+		if(localLength == 0)
+		{
+			requireProcessing = 0;
+			effector.affterEffectLength = returnLength / 2;
+		}
+	}
+}
+
+uint8_t mtLimiter::getProgress()
+{
+	return loadProgress;
+}
+
+uint8_t mtLimiter::requireProcess()
+{
+	return requireProcessing;
 }
 
 void mtLimiter::calculate(int16_t *sbuf, int16_t *dbuf)

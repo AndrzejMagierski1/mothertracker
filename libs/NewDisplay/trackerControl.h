@@ -14,13 +14,13 @@ struct strTrackerPattern
 			char note[5] = "";
 			char instr[4] = ""; // ostatni znak jako flaga midi
 			char vol[3] = "";
-			char fx[4] = "";
+			char fx[2][4] = {"",""};
 		} row[21];
 
 	} track[8];
 
 	//-------------------------------
-	// aktualna pozycja kursora -
+	// aktualna pozycja kursora :
 	int8_t actualTrack = 0;		// <- ramka bedzie widziana zaleznie od firstVisibleTrack (0-7)
 	int16_t actualStep = 0; 	// <- od tej wartosci zalezy zawsze pozycja w pionie (0-xxx)
 
@@ -47,7 +47,7 @@ struct strTrackerPattern
 // ilosc znakow parametru
 const uint8_t param_length[4] =
 {
-	3, 2, 2, 3
+	3, 2, 3, 3
 };
 
 
@@ -98,8 +98,8 @@ private:
 	void notes();
 	void instruments();
 	void volumes();
-	void fxes();
-
+	void fxes1();
+	void fxes2();
 
 	uint8_t displayMode;
 	uint16_t tracksSpace;

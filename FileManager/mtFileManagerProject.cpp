@@ -153,7 +153,7 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 	{
 		if (loadPattern(i))
 		{
-			sequencer.switchNextPatternNow();
+			sequencer.switchRamPatternsNow();
 			break;
 		}
 	}
@@ -436,7 +436,7 @@ uint8_t FileManager::loadProjectFromWorkspace()
 	{
 		if (loadPattern(i))
 		{
-			sequencer.switchNextPatternNow();
+			sequencer.switchRamPatternsNow();
 			break;
 		}
 	}

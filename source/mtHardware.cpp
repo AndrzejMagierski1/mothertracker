@@ -204,10 +204,10 @@ void initHardware()
 
 
 
-#ifdef HW_WITH_RADIO
+	radio.currentRegion = rEurope;
 	radio.powerOn();
 	radio.setVolume(10);
-#endif
+
 
 
 	//LEDS
@@ -261,7 +261,7 @@ uint8_t i2c_switch;
 
 void updateHardware()
 {
-	if(!isLowPower())
+	if(!lowPower.isLowPower())
 	{
 		updateEncoder();
 		Encoder.switchRead();
@@ -319,17 +319,15 @@ void updateEncoder()
 
 void TactSwitchRead()
 {
-	if(digitalRead(TACT_SWITCH) == LOW && lastState != LOW)
+	if(digitalRead(TACT_SWITCH) == LOW)
 	{
-		if(digitalRead(TACT_SWITCH) == LOW)
-		{
-			onPowerButtonChange(1);
-			lastState = LOW;
-			while(digitalRead(TACT_SWITCH) == LOW);
-		}
+		onPowerButtonChange(1);
+
+		lastState = LOW;
 	}
 	else
 	{
 		lastState = HIGH;
+		onPowerButtonChange(0);
 	}
 }

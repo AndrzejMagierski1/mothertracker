@@ -42,6 +42,21 @@ uint8_t FileManager::loadPattern(uint8_t index)
 	uint8_t status = readPatternFile(patternToLoad);
 	return status;
 }
+uint8_t FileManager::loadTrack(uint8_t pattIndex, uint8_t trackIndex)
+{
+	trackIndex = constrain(trackIndex, 0, 7);
+
+	char patternToLoad[PATCH_SIZE] { 0 };
+	sprintf(patternToLoad, "Workspace/patterns/pattern_%02d.mtp", pattIndex);
+	readPatternFile(patternToLoad);
+
+	Sequencer::strPattern * patternFrom = (Sequencer::strPattern*) sequencer.getPatternToLoadFromFile();
+	Sequencer::strPattern * patternTo = sequencer.getActualPattern();
+
+	patternTo->track[trackIndex] = patternFrom->track[trackIndex];
+
+	return 1;
+}
 
 void FileManager::setLoadPattern(uint8_t index)
 {

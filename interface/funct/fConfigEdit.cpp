@@ -500,11 +500,11 @@ static  uint8_t functPlayAction()
 {
 	if(CE->selectionActive) return 1;
 
-	if(sequencer.getSeqState() == 0)
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.play();
 	}
-	else if(sequencer.getSeqState() == 1)
+	else
 	{
 		sequencer.stop();
 	}

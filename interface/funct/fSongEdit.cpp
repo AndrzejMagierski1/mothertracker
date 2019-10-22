@@ -389,7 +389,7 @@ static  uint8_t functRight()
 
 static uint8_t functPlayAction()
 {
-	if(sequencer.getSeqState() == 0)
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
@@ -489,17 +489,6 @@ void cSongEditor::listPatterns()
 				sprintf(&patternsNamesList[i][0],"   %u           %u     ",i+1,mtProject.mtProjectRemote.song.playlist[i]);
 			}
 		}
-		else if(i<99)
-		{
-			if(i == selectedPattern)
-			{
-				sprintf(&patternsNamesList[i][0],"   %u        < %u >   ",i+1,mtProject.mtProjectRemote.song.playlist[i]);
-			}
-			else
-			{
-				sprintf(&patternsNamesList[i][0],"   %u          %u     ",i+1,mtProject.mtProjectRemote.song.playlist[i]);
-			}
-		}
 
 		patternNames[i] = &patternsNamesList[i][0];
 	}
@@ -513,7 +502,7 @@ void cSongEditor::markCurrentPattern(uint8_t forceRefresh)
 		{
 			localSongPosition = mtProject.mtProjectRemote.song.playlistPos;
 
-			if(sequencer.getSeqState() == 1)
+			if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 			{
 				showIcon(iconPlay,localSongPosition);
 			}
@@ -590,7 +579,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 void cSongEditor::handleEntryIcon()
 {
-	if(sequencer.getSeqState() == 0)
+	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
 		hideIcon();
 	}
@@ -602,7 +591,16 @@ void cSongEditor::handleEntryIcon()
 		}
 		else
 		{
-			hideIcon();
+			loopPosition = findSlotWithPattern();
+
+			if(loopPosition >= 0)
+			{
+				showIcon(iconLoop,loopPosition);
+			}
+			else
+			{
+				hideIcon();
+			}
 		}
 	}
 }
@@ -616,5 +614,27 @@ void cSongEditor::switchToNewPattern()
 			PATTERN_INDEX_MAX);
 
 	fileManager.loadPattern(mtProject.values.actualPattern);
-	sequencer.switchNextPatternNow();
+	sequencer.switchRamPatternsNow();
+}
+
+int16_t cSongEditor::findSlotWithPattern()
+{
+	int32_t slot = 0;
+	uint8_t foundFlag = 0;
+
+	for(slot = 0; slot < songLength; slot++)
+	{
+		if(mtProject.mtProjectRemote.song.playlist[slot] == mtProject.values.actualPattern)
+		{
+			foundFlag = 1;
+			break;
+		}
+	}
+
+	if(!foundFlag)
+	{
+		slot = -1;
+	}
+
+	return slot;
 }

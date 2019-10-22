@@ -53,6 +53,7 @@ public:
 	void showDefaultScreen();
 	void showZoomValue();
 	void showPlayModeList();
+	void showTitleBar();
 
 	void setDefaultScreenFunct();
 	void cancelPopups();

@@ -198,9 +198,7 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 static uint8_t functStepNote(uint8_t value);
 
-#ifdef HW_WITH_RADIO
 void seek_callback(void);
-#endif
 
 
 void cSampleRecorder::update()
@@ -260,7 +258,7 @@ void cSampleRecorder::update()
 		}
 	}
 
-#ifdef HW_WITH_RADIO
+
 	if(radio.update_RDS())
 	{
 		if(recorderConfig.source==sourceTypeRadio && currentScreen == screenTypeConfig)
@@ -269,7 +267,7 @@ void cSampleRecorder::update()
 		}
 	}
 	radio.stateMachineSeek();
-#endif
+
 	if(saveInProgressFlag)
 	{
 //		recorder.updateSave();
@@ -327,7 +325,7 @@ void cSampleRecorder::start(uint32_t options)
 	moduleRefresh = 1;
 
 //--------------------------------------------------------------------
-	if(sequencer.getSeqState() == 1)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 	   sequencer.stop();
 	}
@@ -368,10 +366,16 @@ void cSampleRecorder::start(uint32_t options)
 	setDefaultScreenFunct();
 
 	activateLabelsBorder();
-#ifdef HW_WITH_RADIO
+
 	radio.setSeekCallback(seek_callback);
+
+	if(radio.hasRegionChanged())
+	{
+		recorderConfig.radioFreq = radio.getRadioBottomBase();
+		radioFreqBarVal = 0;
+	}
 	radio.setFrequency(recorderConfig.radioFreq);
-#endif
+
 	if((recorderConfig.source == sourceTypeRadio) && (currentScreen == screenTypeConfig))
 	{
 		showRadio();
@@ -391,10 +395,10 @@ void cSampleRecorder::stop()
 {
 	audioShield.headphoneSourceSelect(0);
 	moduleRefresh = 0;
-#ifdef HW_WITH_RADIO
+
 	radio.resetSeekCallback();
-	hideRDS();
-#endif
+	//hideRDS();
+
 	engine.setHeadphonesVolume(mtProject.values.volume);
 }
 
@@ -1242,7 +1246,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 	if(SR->currentScreen == SR->screenTypeRecord)
 	{
-		if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
+		if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 		{
 			sequencer.stop();
 		}
@@ -1330,15 +1334,12 @@ static  uint8_t functActionRadioLeft()
 {
 	if(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio) return 1;
 
-#ifdef HW_WITH_RADIO
 	if(radio.getInitializationStatus())
 	{
 		SR->displaySeeking();
 		radio.clearRDS();
 		radio.seekDown();
 	}
-#endif
-
 
 	return 1;
 }
@@ -1347,14 +1348,12 @@ static  uint8_t functActionRadioRight()
 {
 	if(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio) return 1;
 
-#ifdef HW_WITH_RADIO
 	if(radio.getInitializationStatus())
 	{
 		SR->displaySeeking();
 		radio.clearRDS();
 		radio.seekUp();
 	}
-#endif
 
 	return 1;
 
@@ -1929,7 +1928,8 @@ static uint8_t functSwitchModule(uint8_t button)
 //======================================================================================================================
 void cSampleRecorder::calcRadioFreqBarVal()
 {
-	radioFreqBarVal = ((recorderConfig.radioFreq - 87.5f) * 100)/ (108 - 87.5f);
+	float radioBottomFreq = radio.getRadioBottomBase();
+	radioFreqBarVal = ((recorderConfig.radioFreq - radioBottomFreq) * 100) / (MAX_RADIO_FREQ_MHZ - radioBottomFreq);
 }
 void cSampleRecorder::calcLevelBarVal()
 {
@@ -1973,24 +1973,30 @@ void cSampleRecorder::changeRadioFreqBar(int16_t val)
 {
 	if(radio.getInitializationStatus())
 	{
-		if((recorderConfig.radioFreq + (val*0.05)) > 108.0f ) recorderConfig.radioFreq = 108.0f;
-		else if((recorderConfig.radioFreq + (val*0.05)) < 87.5f) recorderConfig.radioFreq = 87.5f;
+		float radioBottomFreq = radio.getRadioBottomBase();
+		float radioSpacing = radio.getRadioSpacing();
+		float previousFreq = recorderConfig.radioFreq;
+
+		if((recorderConfig.radioFreq + (val*radioSpacing)) > MAX_RADIO_FREQ_MHZ) recorderConfig.radioFreq = MAX_RADIO_FREQ_MHZ;
+		else if((recorderConfig.radioFreq + (val*radioSpacing)) < radioBottomFreq) recorderConfig.radioFreq = radioBottomFreq;
 		else
 		{
-			recorderConfig.radioFreq+=(val*0.05);
+			recorderConfig.radioFreq+=(val*radioSpacing);
 		}
-		calcRadioFreqBarVal();
-		drawRadioFreqBar();
 
-#ifdef HW_WITH_RADIO
-		radio.clearRDS();
-		SR->displayEmptyRDS();
+		if(previousFreq != recorderConfig.radioFreq)
+		{
+			calcRadioFreqBarVal();
+			drawRadioFreqBar();
 
-		radio.setFrequency(recorderConfig.radioFreq);
-		mtProject.values.radioFreq = sampleRecorder.recorderConfig.radioFreq;
-		fileManager.configIsChangedFlag = 1;
-		mtProject.values.projectNotSavedFlag = 1;
-#endif
+			radio.clearRDS();
+			SR->displayEmptyRDS();
+
+			radio.setFrequency(recorderConfig.radioFreq);
+			mtProject.values.radioFreq = sampleRecorder.recorderConfig.radioFreq;
+			fileManager.configIsChangedFlag = 1;
+			mtProject.values.projectNotSavedFlag = 1;
+		}
 	}
 }
 void cSampleRecorder::changeLevelBar()
@@ -2350,8 +2356,6 @@ static uint8_t functConfirmKey()
 }
 
 
-
-#ifdef HW_WITH_RADIO
 void seek_callback(void)
 {
 	SR->recorderConfig.radioFreq = radio.getFrequency();
@@ -2365,7 +2369,7 @@ void seek_callback(void)
 	fileManager.configIsChangedFlag = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
-#endif
+
 
 static uint8_t functStepNote(uint8_t value)
 {

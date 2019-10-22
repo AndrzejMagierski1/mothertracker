@@ -135,7 +135,6 @@ static cSampleImporter* SI = &sampleImporter;
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 static  uint8_t functPlayAction();
-static  uint8_t functStopAction();
 static  uint8_t functRecAction();
 
 
@@ -194,6 +193,9 @@ void cSampleImporter::update()
 	{
 		handleMemoryBar();
 	}
+
+	processDeleting();
+	processDirFileSizes();
 }
 
 void cSampleImporter::start(uint32_t options)
@@ -203,8 +205,18 @@ void cSampleImporter::start(uint32_t options)
 	Encoder.setAcceleration(0);
 
 	//selectedFile = 0;
-	mtProject.values.lastUsedInstrument = constrain(mtProject.values.lastUsedInstrument, 0, INSTRUMENTS_MAX);
-	selectedSlot = mtProject.values.lastUsedInstrument;
+	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
+	{
+		//mtProject.values.lastUsedInstrument = 0;
+		selectedSlot = 0;
+	}
+	else
+	{
+
+		selectedSlot = mtProject.values.lastUsedInstrument;
+	}
+
+
 
 
 
@@ -291,6 +303,8 @@ void cSampleImporter::setDefaultScreenFunct()
 //==============================================================================================================
 static  uint8_t functChangeFolder(uint8_t button)
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->selectedPlace == 0)
 	{
 		if(button == interfaceButton0)
@@ -311,6 +325,8 @@ static  uint8_t functChangeFolder(uint8_t button)
 
 static  uint8_t functChangeInstrument(uint8_t button)
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->selectedPlace == 1)
 	{
 		if(button == interfaceButton6)
@@ -331,29 +347,26 @@ static  uint8_t functChangeInstrument(uint8_t button)
 
 static  uint8_t functInstrumentAdd()
 {
-	 SI->SelectFile();
+	if(SI->isBusy) return 1;
 
+	 SI->SelectFile();
 
 	return 1;
 }
 
 static  uint8_t functInstrumentDelete()
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->selectedPlace == 1)
 	{
+		SI->isBusy = 1; // processDeleting() powinna zdjac blokade
+
 		if(SI->currSelectPlace == 1 && SI->selectionLength)
 		{
-			uint8_t selectionStart = SI->getSelectionStart();
-
-			for(int i=0;i<SI->selectionLength;i++)
-			{
-				if(mtProject.instrument[selectionStart+i].isActive)
-				{
-					mtProject.used_memory -= 2* mtProject.instrument[selectionStart+i].sample.length;
-				}
-
-				fileManager.deleteInstrument(selectionStart+i);
-			}
+			SI->deleteInProgress = 1;
+			SI->deleteStart = SI->getSelectionStart();
+			SI->deleteCurrentPos = SI->deleteStart;
 		}
 		else
 		{
@@ -363,14 +376,14 @@ static  uint8_t functInstrumentDelete()
 			}
 
 			fileManager.deleteInstrument(SI->selectedSlot);
+
+			SI->handleMemoryBar();
+
+			SI->listInstrumentSlots();
+			SI->showInstrumentsList();
+
+			SI->isBusy = 0;
 		}
-
-		SI->cancelSelect();
-		SI->handleMemoryBar();
-
-		SI->listInstrumentSlots();
-		SI->showInstrumentsList();
-
 	}
 
 	return 1;
@@ -383,6 +396,8 @@ static  uint8_t functInstrumentDelete()
 static  uint8_t functEncoder(int16_t value)
 {
 	if(SI->keyboardActiveFlag == 1) return 1;
+	if(SI->isBusy) return 1;
+
 	switch(SI->selectedPlace)
 	{
 	case 0: SI->changeFileSelection(value); break;
@@ -396,6 +411,7 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functEnter()
 {
+	if(SI->isBusy) return 1;
 
 	switch(SI->selectedPlace)
 	{
@@ -409,6 +425,7 @@ static  uint8_t functEnter()
 
 static  uint8_t functRename()
 {
+	if(SI->isBusy) return 1;
 
 	strncpy(SI->name,mtProject.instrument[SI->selectedSlot].sample.file_name,32);
 	SI->editPosition = strlen(SI->name);
@@ -433,7 +450,7 @@ static  uint8_t functConfirmRename()
 {
 	strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,SI->name,32);
 
-	SI->listAllFoldersFirst();
+	SI->showFileList();
 
 	SI->listInstrumentSlots();
 	SI->showInstrumentsList();
@@ -454,7 +471,7 @@ static  uint8_t functConfirmRename()
 }
 static  uint8_t functCancelRename()
 {
-	SI->listAllFoldersFirst();
+	SI->showFileList();
 
 	SI->listInstrumentSlots();
 	SI->showInstrumentsList();
@@ -475,19 +492,18 @@ static  uint8_t functCancelRename()
 
 static uint8_t functCopyPaste()
 {
-	if (tactButtons.isButtonPressed(interfaceButtonShift))
+	if(SI->isBusy) return 1;
+
+	if(tactButtons.isButtonPressed(interfaceButtonShift))
 	{
 		functPaste();
 	}
 	else
 	{
-		if (SI->selectionActive)
+		if((SI->selectedPlace == 1) && (SI->currSelectPlace == 1))
 		{
-			if (SI->selectedPlace == 1 && SI->currSelectPlace == 1)
-			{
-				SI->instrCopyStart = SI->getSelectionStart();
-				SI->copyElementMax = SI->selectionLength;
-			}
+			SI->instrCopyStart = SI->getSelectionStart();
+			SI->copyElementMax = SI->selectionLength;
 		}
 	}
 
@@ -498,73 +514,71 @@ static uint8_t functPaste()
 {
 	if(SI->currentCopyStatusFlag || SI->currentLoadStatusFlag || SI->keyboardActiveFlag) return 1;
 
-	if(SI->selectionActive)
+	if(SI->copyElementMax && SI->instrCopyStart != SI->selectedSlot)
 	{
+		SI->isBusy = 1;
 		char projectSamplePath[255];
 		uint8_t willFit = 1;
 		uint8_t selectOverMax = 0;
 
-		if(SI->copyElementMax && SI->instrCopyStart != SI->selectedSlot)
-		{
-			SI->instrActiveInSel = SI->getActiveInstrInSelection();
-			SI->instrCopied=0;
-			SI->copyElement = 0;
+		SI->instrActiveInSel = SI->getActiveInstrInSelection();
+		SI->instrCopied=0;
+		SI->copyElement = 0;
 
-			if(SI->instrActiveInSel)
+		if(SI->instrActiveInSel)
+		{
+			while(SI->selectedSlot + SI->copyElementMax > 48)
 			{
-				while(SI->selectedSlot + SI->copyElementMax > 48)
+				SI->copyElementMax--;
+				selectOverMax++;
+			}
+
+			for(int i = (SI->copyElementMax - selectOverMax); i>0; i--)
+			{
+				willFit=SI->willCopyInstrFit(i);
+
+				if(willFit)
+				{
+					break;
+				}
+				else
 				{
 					SI->copyElementMax--;
-					selectOverMax++;
+					/*TODO: popout ze kopiowanie zostalo uciete*/
 				}
+			}
 
-				for(int i = (SI->copyElementMax - selectOverMax); i>0; i--)
+			if(willFit)
+			{
+				SI->copyType = 2;
+
+				strcpy(projectSamplePath,"Workspace/samples");
+
+				fileManager.clearAutoLoadFlag();
+
+				while(SI->copyElement < SI->copyElementMax)
 				{
-					willFit=SI->willCopyInstrFit(i);
-
-					if(willFit)
+					if(mtProject.instrument[SI->instrCopyStart + SI->copyElement].isActive == 1)
 					{
 						break;
 					}
 					else
 					{
-						SI->copyElementMax--;
-						/*TODO: popout ze kopiowanie zostalo uciete*/
+						SI->copyElement++;
 					}
 				}
 
-				if(willFit)
+				if(SI->copyElement == (SI->copyElementMax-1))
 				{
-					SI->copyType = 2;
-
-					strcpy(projectSamplePath,"Workspace/samples");
-
-					fileManager.clearAutoLoadFlag();
-
-					while(SI->copyElement < SI->copyElementMax)
-					{
-						if(mtProject.instrument[SI->instrCopyStart + SI->copyElement].isActive == 1)
-						{
-							break;
-						}
-						else
-						{
-							SI->copyElement++;
-						}
-					}
-
-					if(SI->copyElement == (SI->copyElementMax-1))
-					{
-						fileManager.setAutoLoadFlag();
-					}
-
-					fileManager.setStart(SI->selectedSlot);
-					fileManager.assignSampleToInstrument(projectSamplePath, SI->parseNewName(SI->instrCopyStart+SI->copyElement), SI->selectedSlot + SI->copyElement);
-					memcpy(&mtProject.instrument[SI->selectedSlot+SI->copyElement],&mtProject.instrument[SI->instrCopyStart+SI->copyElement],sizeof(mtProject.instrument[0]));
-
-					SI->copyElement++;
-					SI->instrCopied++;
+					fileManager.setAutoLoadFlag();
 				}
+
+				fileManager.setStart(SI->selectedSlot);
+				fileManager.assignSampleToInstrument(projectSamplePath, SI->parseNewName(SI->instrCopyStart+SI->copyElement), SI->selectedSlot + SI->copyElement);
+				memcpy(&mtProject.instrument[SI->selectedSlot+SI->copyElement],&mtProject.instrument[SI->instrCopyStart+SI->copyElement],sizeof(mtProject.instrument[0]));
+
+				SI->copyElement++;
+				SI->instrCopied++;
 			}
 		}
 	}
@@ -580,12 +594,16 @@ static  uint8_t functShift(uint8_t state)
 		{
 			return 1;
 		}
+
 		SI->selectionActive=0;
 		SI->frameSelectMode(SI->currSelectPlace,0);
 
 		if(SI->selectionLength == 1)
 		{
-			SI->cancelSelect();
+			if(SI->currSelectPlace == 0)
+			{
+				SI->cancelSelect();
+			}
 		}
 	}
 	else if(state == 1)
@@ -642,6 +660,8 @@ static  uint8_t functShift(uint8_t state)
 
 static  uint8_t functLeft()
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->keyboardActiveFlag)
 	{
 		SI->keyboardPosition = valueMap[valueMapDirectionLeft][SI->keyboardPosition];
@@ -681,6 +701,8 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->keyboardActiveFlag)
 	{
 		SI->keyboardPosition = valueMap[valueMapDirectionRight][SI->keyboardPosition];
@@ -703,6 +725,8 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->keyboardActiveFlag)
 	{
 		SI->keyboardPosition = valueMap[valueMapDirectionUp][SI->keyboardPosition];
@@ -720,6 +744,8 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	if(SI->isBusy) return 1;
+
 	if(SI->keyboardActiveFlag)
 	{
 		SI->keyboardPosition = valueMap[valueMapDirectionDown][SI->keyboardPosition];
@@ -737,11 +763,13 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
+	if(SI->isBusy) return 1;
+
 	if(sequencer.getSeqState() == 0)
 	{
 		sequencer.play();
 	}
-	else if(sequencer.getSeqState() == 1)
+	else
 	{
 		sequencer.stop();
 	}
@@ -759,7 +787,9 @@ static  uint8_t functRecAction()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(SI->currentLoadStatusFlag || SI->currentCopyStatusFlag || SI->keyboardActiveFlag) return 1;
+	if(SI->isBusy) return 1;
+
+	if(SI->currentLoadStatusFlag || SI->currentCopyStatusFlag) return 1;
 	SI->eventFunct(eventSwitchModule,SI,&button,0);
 
 	return 1;
@@ -923,33 +953,65 @@ void cSampleImporter::listOnlyWaveNames(char* folder, uint8_t startPoint)
 
 }*/
 
-void cSampleImporter::listOnlyWavFromActualPath(uint8_t startPoint)
+void cSampleImporter::processDirFileSizes()
 {
-	char filePath[255];
-
-	sdLocation.close();
-	sdLocation.open(actualPath, O_READ);
-
-	locationExplorerCount += sdLocation.createFilesList(startPoint,locationExplorerList, (list_length_max-startPoint),2);
-
-	for(int i=startPoint;i<locationExplorerCount;i++)
+	if(openingInProgress == 1)
 	{
+		char filePath[255];
+
 		strcpy(filePath, actualPath);
 		if(dirLevel > 0)
 		{
 			strcat(filePath, "/");
 		}
 
-		strcat(filePath, &locationExplorerList[i][0]);
+		strcat(filePath, &locationExplorerList[openCurrentPos][0]);
 
-		currentFolderMemoryFileUsage[i]= 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
+		currentFolderMemoryFileUsage[openCurrentPos]= 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
+
+		openCurrentPos++;
+
+		uint8_t progress = (((openCurrentPos - openCalcStart) * 100) / (openCalcEnd-openCalcStart));
+
+		showOpeningHorizontalBar(progress);
+
+		if(openCurrentPos == openCalcEnd)
+		{
+			sdLocation.close();
+
+			for(uint8_t i = openCalcStart; i < openCalcEnd; i++)
+			{
+				explorerNames[i] = &locationExplorerList[i][0];
+			}
+
+			openingInProgress = 0;
+			isBusy = 0;
+
+			hideHorizontalBar();
+			showFilesTree();
+		}
 	}
+}
 
+void cSampleImporter::listOnlyWavFromActualPath(uint8_t startPoint)
+{
 	sdLocation.close();
+	sdLocation.open(actualPath, O_READ);
 
-	for(uint8_t i = startPoint; i < locationExplorerCount; i++)
+	locationExplorerCount += sdLocation.createFilesList(startPoint,locationExplorerList, (list_length_max-startPoint),2);
+
+	if(locationExplorerCount <= startPoint)
 	{
-		explorerNames[i] = &locationExplorerList[i][0];
+		isBusy = 0;
+		openingInProgress = 0;
+		showFilesTree();
+	}
+	else
+	{
+		openCalcStart = startPoint;
+		openCalcEnd = locationExplorerCount;
+
+		openCurrentPos = openCalcStart;
 	}
 }
 
@@ -996,6 +1058,7 @@ void cSampleImporter::goUpInActualPath()
 
 void cSampleImporter::listAllFoldersFirst()
 {
+	isBusy = 1; // processDirFileSizes() powinna zdjac flage tutaj ustawiona
 	locationExplorerCount=0;
 
 	for(int i=0;i<list_length_max;i++)
@@ -1003,10 +1066,10 @@ void cSampleImporter::listAllFoldersFirst()
 		explorerNames[i]=NULL;
 	}
 
+	openingInProgress = 1;
+
 	listOnlyFolderNames(actualPath,0);
 	listOnlyWavFromActualPath(locationExplorerCount);
-
-	showFilesTree();
 }
 
 void cSampleImporter::BrowseOrAdd()
@@ -1085,6 +1148,7 @@ void cSampleImporter::SelectFile()
 	if(!fullMemoryFlag)
 	{
 		copyType = 1;
+		isBusy = 1;
 
 		fileManager.clearAutoLoadFlag();
 
@@ -1278,7 +1342,7 @@ void cSampleImporter::playSdFile()
 	strcat(file_path, &locationExplorerList[selectedFile][0]);
 
 
-	if(sequencer.getSeqState() == 1)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
 	}
@@ -1317,7 +1381,7 @@ void cSampleImporter::playSampleFromBank()
 	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
 	if(!mtProject.instrument[selectedSlot].isActive) return;
 
-	if(sequencer.getSeqState() == 1)
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
 	}
@@ -1349,6 +1413,8 @@ void cSampleImporter::stopPlaying()
 
 uint8_t preview(uint8_t state)
 {
+	if(SI->isBusy) return 1;
+
 	if(state == 0)  SI->stopPlaying();
 	else if (state == 1)
 	{
@@ -1545,8 +1611,8 @@ void cSampleImporter::handleSequenceCopyingLoading()
 				{
 					if(mtProject.instrument[instrCopyStart + copyElement].isActive == 1)
 					{
+						//strcpy(projectSamplePath,fileManager.currentProjectPatch);
 						strcpy(projectSamplePath,"Workspace/samples");
-//						strcat(projectSamplePath,"/samples");
 
 						fileManager.assignSampleToInstrument(projectSamplePath,SI->parseNewName(instrCopyStart + copyElement), selectedSlot + copyElement);
 						memcpy(&mtProject.instrument[selectedSlot+copyElement],&mtProject.instrument[instrCopyStart+copyElement],sizeof(mtProject.instrument[0]));
@@ -1576,6 +1642,17 @@ void cSampleImporter::handleSequenceCopyingLoading()
 		{
 			firstMemBarLoadFlag=2;
 			showDefaultScreen();
+
+			for(uint32_t i = selectedSlot ; i < (selectedSlot + copyElementMax); i++)
+			{
+				fileManager.instrumentIsChangedFlag[i] = 1;
+			}
+
+			fileManager.instrumentForcedSaveFlag = 1;
+
+			mtProject.values.projectNotSavedFlag = 1;
+
+			isBusy = 0;
 		}
 
 		if(firstMemBarLoadFlag == 0)
@@ -1591,12 +1668,45 @@ void cSampleImporter::handleSequenceCopyingLoading()
 			//fileManager.saveProject(); todo: saveWorkspace
 		}
 
-		listAllFoldersFirst();
+		//listAllFoldersFirst();//?
 
 		copyType=0;
 	}
 
 	lastLoadStatusFlag=currentLoadStatusFlag;
+}
+
+void cSampleImporter::processDeleting()
+{
+	if(deleteInProgress)
+	{
+		if(mtProject.instrument[deleteCurrentPos].isActive)
+		{
+			mtProject.used_memory -= 2* mtProject.instrument[deleteCurrentPos].sample.length;
+		}
+
+		uint8_t progress = ((deleteCurrentPos - deleteStart) * 100) / selectionLength;
+
+		showDeletingHorizontalBar(progress);
+
+		fileManager.deleteInstrument(deleteCurrentPos);
+
+		deleteCurrentPos++;
+
+		if(deleteCurrentPos == (deleteStart + selectionLength))
+		{
+			hideHorizontalBar();
+
+			cancelSelect();
+			handleMemoryBar();
+
+			listInstrumentSlots();
+			showInstrumentsList();
+
+			deleteInProgress = 0;
+			isBusy = 0;
+		}
+	}
 }
 
 uint8_t cSampleImporter::willCopyInstrFit(uint8_t length)
