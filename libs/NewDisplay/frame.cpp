@@ -99,64 +99,99 @@ uint8_t cFrame::update()
 	if(data == nullptr) return 0;
 
 	API_LIB_BeginCoProListNoCheck();
-    API_CMD_DLSTART();
+	API_CMD_DLSTART();
 
-    if(value > data->placesCount) value = data->placesCount-1;
-    else if(value < 0) value = 0;
+	if(value > data->placesCount) value = data->placesCount-1;
+	else if(value < 0) value = 0;
 
-    int16_t border_x = *(data->places[value]) + 1;
-    int16_t border_y = *((data->places[value]) + 1) + 1;
-    int16_t border_w = *((data->places[value]) + 2) - 2;
-    int16_t border_h = *((data->places[value]) + 3) - 3;
+	uint8_t loopCount = 0;
+	uint8_t foundActive = 0;
 
-	if(style & controlStyleCenterX)
+	if(data->multiSelActiveNum == 0)
 	{
-		//border_x = posX - (getTextWidth(FONT_INDEX_FROM_STYLE,text)/2 + 2);
-
-		border_x = posX - (width/2);
+		loopCount = 1;
+	}
+	else
+	{
+		loopCount =  8;
 	}
 
-
-	if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
-	else API_LINE_WIDTH(16);
-
-
-	if(style & controlStyleBackground)
+	for(uint8_t i = 0 ; i < loopCount; i++)
 	{
-		API_COLOR(colors[1]);
+		if((data->multisel[i].isActive) || (i == 0 && data->multiSelActiveNum  == 0))
+		{
+			if((foundActive == data->multiSelActiveNum) && (data->multiSelActiveNum != 0))
+			{
+				break;
+			}
 
-		API_BEGIN(RECTS);
-		API_VERTEX2F(border_x, border_y);
-		API_VERTEX2F(border_x+border_w, border_y+border_h);
-		API_END();
+			foundActive++;
+			uint8_t source;
+
+			if(data->multiSelActiveNum)
+			{
+				source = data->multisel[i].frameNum;
+			}
+			else
+			{
+				source = value;
+			}
+
+			int16_t border_x = *(data->places[source]) + 1;
+			int16_t border_y = *((data->places[source]) + 1) + 1;
+			int16_t border_w = *((data->places[source]) + 2) - 2;
+			int16_t border_h = *((data->places[source]) + 3) - 3;
+
+			if(style & controlStyleCenterX)
+			{
+				//border_x = posX - (getTextWidth(FONT_INDEX_FROM_STYLE,text)/2 + 2);
+
+				border_x = posX - (width/2);
+			}
+
+
+			if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
+			else API_LINE_WIDTH(16);
+
+
+			if(style & controlStyleBackground)
+			{
+				API_COLOR(colors[1]);
+
+				API_BEGIN(RECTS);
+				API_VERTEX2F(border_x, border_y);
+				API_VERTEX2F(border_x+border_w, border_y+border_h);
+				API_END();
+			}
+
+			API_COLOR(colors[0]);
+
+			API_LINE_WIDTH(16);
+			API_BEGIN(LINE_STRIP);
+			API_VERTEX2F(border_x, border_y);
+			API_VERTEX2F(border_x+border_w, border_y);
+			API_VERTEX2F(border_x+border_w, border_y+border_h);
+			API_VERTEX2F(border_x, border_y+border_h);
+			API_VERTEX2F(border_x, border_y);
+			API_END();
+
+
+
+			//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+
+			//API_RESTORE_CONTEXT();
+			//API_BLEND_FUNC(SRC_ALPHA, ZERO);
+			//API_COLOR_A(128);
+
+			//API_LINE_WIDTH(16);
+			//API_COLOR(colors[0]);
+			//if(text != nullptr) API_CMD_TEXT(posX, posY, textFont, textStyle, text);
+
+		}
+
 	}
 
-	API_COLOR(colors[0]);
-
-	API_LINE_WIDTH(16);
-	API_BEGIN(LINE_STRIP);
-	API_VERTEX2F(border_x, border_y);
-	API_VERTEX2F(border_x+border_w, border_y);
-	API_VERTEX2F(border_x+border_w, border_y+border_h);
-	API_VERTEX2F(border_x, border_y+border_h);
-	API_VERTEX2F(border_x, border_y);
-	API_END();
-
-
-
-	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-
-	//API_RESTORE_CONTEXT();
-	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
-	//API_COLOR_A(128);
-
-	//API_LINE_WIDTH(16);
-	//API_COLOR(colors[0]);
-	//if(text != nullptr) API_CMD_TEXT(posX, posY, textFont, textStyle, text);
-
-
-    API_LIB_EndCoProList();
-
+	API_LIB_EndCoProList();
 
 	return 0;
 }
