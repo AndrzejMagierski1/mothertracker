@@ -47,6 +47,19 @@ const char envLoopLabels[filterModeCount][11]=
 	"Off"
 };
 
+#define MAX_SELECT_NODES	8
+
+
+
+typedef void (*editFunct_t)(int16_t);
+
+typedef struct node
+{
+	uint8_t 		isActive;
+	editFunct_t	 	editFunct;
+
+}select_node_t;
+
 
 
 class cInstrumentEditor: public cModuleBase
@@ -108,25 +121,6 @@ public:
 
 //----------------------------------
 
-
-	void changeEnvList(int16_t value);
-	void changeEnvState(int16_t value);
-	void changeEnvAttack(int16_t value);
-	void changeEnvDecay(int16_t value);
-	void changeEnvSustain(int16_t value);
-	void changeEnvRelease(int16_t value);
-	void changeEnvAmount(int16_t value);
-	void changeEnvLoop(int16_t value);
-
-
-	void changeParamsVolume(int16_t value);
-	void changeParamsPanning(int16_t value);
-	void changeParamsTune(int16_t value);
-	void changeParamsFineTune(int16_t value);
-	void changeFilterFilterType(int16_t value);
-	void changeFilterCutOff(int16_t value);
-	void changeFilterResonance(int16_t value);
-	void changeParamsReverbSend(int16_t value);
 
 
 	void changeParamsGlide(int16_t value);
@@ -213,6 +207,15 @@ public:
 
 
 	void cancelPopups();
+
+	select_node_t selectNodes[MAX_SELECT_NODES];
+
+	void addNode(editFunct_t funct , uint8_t nodeNum);
+	void removeNode(uint8_t nodeNum);
+	void stepThroughNodes(int16_t value);
+	void clearAllNodes();
+	void cancelMultiFrame();
+
 
 
 
