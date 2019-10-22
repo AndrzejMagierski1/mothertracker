@@ -869,6 +869,7 @@ void cPatternEditor::changeFillData(int16_t value)
 		break;
 	case 3:
 		ptrVal = &fillData[editParam].param;
+		min = (editParam == 0 ? 0 : -1);
 		max = (editParam == 0 ? interfaceGlobals.fillScaleFilterCount-1 : FX_COUNT);
 		//value = value*(-1);
 		break;
@@ -919,6 +920,7 @@ void cPatternEditor::changeRandomiseData(int16_t value)
 		break;
 	case 3:
 		ptrVal = &randomiseData[editParam].param;
+		min = (editParam == 0 ? 0 : -1);
 		max = (editParam == 0 ? interfaceGlobals.fillScaleFilterCount-1 : FX_COUNT);
 		//value = value*(-1);
 		break;

@@ -134,7 +134,7 @@ void Sequencer::fillLinearFx(int16_t index,
 											sel->lastStep,
 											fromVal,
 											toVal);
-				step->fx[index].type = fxType;
+				step->fx[index].type = (fxType>=0) ? fxType : random(0, FX_MAX+1);
 
 			}
 		}
@@ -168,7 +168,7 @@ void Sequencer::fillRandomFx(int16_t index,
 			{
 
 				step->fx[index].value = random(fromVal, toVal + 1);
-				step->fx[index].type = fxType;
+				step->fx[index].type = (fxType>=0) ? fxType : random(0, FX_MAX+1);;
 			}
 		}
 	}
