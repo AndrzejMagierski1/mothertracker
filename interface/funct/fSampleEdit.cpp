@@ -47,33 +47,33 @@ static uint8_t functUndo();
 
 
 // ------ EDIT FUNCTIONS PROTOTYPES -----
-uint8_t modStartPoint(int16_t value);
-uint8_t modEndPoint(int16_t value);
-uint8_t changeZoom(int16_t value);
+static uint8_t modStartPoint(int16_t value);
+static uint8_t modEndPoint(int16_t value);
+static uint8_t changeZoom(int16_t value);
 
-uint8_t editChorusLength(int16_t value);
-uint8_t editChorusStrength(int16_t value);
+static uint8_t editChorusLength(int16_t value);
+static uint8_t editChorusStrength(int16_t value);
 
-uint8_t editDelayFeedback(int16_t value);
-uint8_t editDelayTime(int16_t value);
+static uint8_t editDelayFeedback(int16_t value);
+static uint8_t editDelayTime(int16_t value);
 
-uint8_t editFlangerOffset(int16_t value);
-uint8_t editFlangerDepth(int16_t value);
-uint8_t editFlangerDelay(int16_t value);
+static uint8_t editFlangerOffset(int16_t value);
+static uint8_t editFlangerDepth(int16_t value);
+static uint8_t editFlangerDelay(int16_t value);
 
-uint8_t editCompressorThreshold(int16_t value);
-uint8_t editCompressorRatio(int16_t value);
-uint8_t editCompressorAttack(int16_t value);
-uint8_t editCompressorRelease(int16_t value);
+static uint8_t editCompressorThreshold(int16_t value);
+static uint8_t editCompressorRatio(int16_t value);
+static uint8_t editCompressorAttack(int16_t value);
+static uint8_t editCompressorRelease(int16_t value);
 
-uint8_t editBitcrusherBits(int16_t value);
-uint8_t editBitcrusherRate(int16_t value);
+static uint8_t editBitcrusherBits(int16_t value);
+static uint8_t editBitcrusherRate(int16_t value);
 
-uint8_t editAmplifierAmp(int16_t value);
+static uint8_t editAmplifierAmp(int16_t value);
 
-uint8_t editLimiterThreshold(int16_t value);
-uint8_t editLimiterAttack(int16_t value);
-uint8_t editLimiterRelease(int16_t value);
+static uint8_t editLimiterThreshold(int16_t value);
+static uint8_t editLimiterAttack(int16_t value);
+static uint8_t editLimiterRelease(int16_t value);
 
 
 
@@ -1216,7 +1216,7 @@ void cSampleEditor::updateEffectProcessing()
 
 //------------------- EDIT FUNCTIONS --------------------
 //
-uint8_t changeZoom(int16_t value)
+static uint8_t changeZoom(int16_t value)
 {
 	GP.spectrumChangeZoom(value, effector.getLength()/2, &SE->zoom);
 
@@ -1226,7 +1226,7 @@ uint8_t changeZoom(int16_t value)
 	return 0;
 }
 
-uint8_t modStartPoint(int16_t value)
+static uint8_t modStartPoint(int16_t value)
 {
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
 	uint16_t move_step = SE->zoom.zoomWidth / 480;
@@ -1254,7 +1254,7 @@ uint8_t modStartPoint(int16_t value)
 	return 0;
 }
 
-uint8_t modEndPoint(int16_t value)
+static uint8_t modEndPoint(int16_t value)
 {
 	uint16_t move_step = SE->zoom.zoomWidth / 480;
 	value = value * move_step;
@@ -1280,7 +1280,7 @@ uint8_t modEndPoint(int16_t value)
 	return 0;
 }
 
-uint8_t editChorusLength(int16_t value)
+static uint8_t editChorusLength(int16_t value)
 {
 	if(SE->chorusLength + (value * AUDIO_BLOCK_SAMPLES) < 0) SE->chorusLength = 0;
 	else if(SE->chorusLength + (value * AUDIO_BLOCK_SAMPLES) > CHORUS_BUF_SIZE) SE->chorusLength = CHORUS_BUF_SIZE;
@@ -1290,7 +1290,7 @@ uint8_t editChorusLength(int16_t value)
 	return ((SE->chorusLength * 100)/(CHORUS_BUF_SIZE));
 }
 
-uint8_t editChorusStrength(int16_t value)
+static uint8_t editChorusStrength(int16_t value)
 {
 	if(SE->chorusStrength + value < CHORUS_STRENGTH_MIN) SE->chorusStrength = CHORUS_STRENGTH_MIN;
 	else if(SE->chorusStrength + value > CHORUS_STRENGTH_MAX) SE->chorusStrength = CHORUS_STRENGTH_MAX;
@@ -1300,7 +1300,7 @@ uint8_t editChorusStrength(int16_t value)
 	return (((SE->chorusStrength - CHORUS_STRENGTH_MIN) * 100)/(CHORUS_STRENGTH_MAX - CHORUS_STRENGTH_MIN));
 }
 
-uint8_t editDelayFeedback(int16_t value)
+static uint8_t editDelayFeedback(int16_t value)
 {
 	float delayStep = DELAY_FEEDBACK_STEP;
 
@@ -1311,7 +1311,7 @@ uint8_t editDelayFeedback(int16_t value)
 	return (SE->delayFeedback * 100)/DELAY_FEEDBACK_MAX;
 }
 
-uint8_t editDelayTime(int16_t value)
+static uint8_t editDelayTime(int16_t value)
 {
 	uint8_t timeStep_ms = DELAY_TIME_STEP;
 
@@ -1322,7 +1322,7 @@ uint8_t editDelayTime(int16_t value)
 	return (SE->delayTime * 100)/DELAY_TIME_MAX;
 }
 
-uint8_t editFlangerOffset(int16_t value)
+static uint8_t editFlangerOffset(int16_t value)
 {
 	if(SE->flangerOffset + value < 0) SE->flangerOffset = 0;
 	else if(SE->flangerOffset + value  > FLANGER_OFFSET_MAX) SE->flangerOffset = FLANGER_OFFSET_MAX;
@@ -1332,7 +1332,7 @@ uint8_t editFlangerOffset(int16_t value)
 	return ((SE->flangerOffset * 100)/(FLANGER_OFFSET_MAX));
 }
 
-uint8_t editFlangerDepth(int16_t value)
+static uint8_t editFlangerDepth(int16_t value)
 {
 	if(SE->flangerDepth + value < 0) SE->flangerDepth = 0;
 	else if(SE->flangerDepth + value > FLANGER_DEPTH_MAX) SE->flangerDepth = FLANGER_DEPTH_MAX;
@@ -1342,7 +1342,7 @@ uint8_t editFlangerDepth(int16_t value)
 	return ((SE->flangerDepth * 100)/FLANGER_DEPTH_MAX);
 }
 
-uint8_t editFlangerDelay(int16_t value)
+static uint8_t editFlangerDelay(int16_t value)
 {
 	if(SE->flangerDelay + value < 0) SE->flangerDelay = 0;
 	else if(SE->flangerDelay + value > FLANGER_DELAYRATE_MAX) SE->flangerDelay = FLANGER_DELAYRATE_MAX;
@@ -1352,7 +1352,7 @@ uint8_t editFlangerDelay(int16_t value)
 	return ((SE->flangerDelay * 100)/FLANGER_DELAYRATE_MAX);
 }
 
-uint8_t editCompressorThreshold(int16_t value)
+static uint8_t editCompressorThreshold(int16_t value)
 {
 	uint8_t step = 10;
 
@@ -1364,7 +1364,7 @@ uint8_t editCompressorThreshold(int16_t value)
 	return ((SE->compressorThrs * 100)/(CMPSR_THRESHOLD_MAX));
 }
 
-uint8_t editCompressorRatio(int16_t value)
+static uint8_t editCompressorRatio(int16_t value)
 {
 	if(SE->compressorRatio + value < 0) SE->compressorRatio = 0;
 	else if(SE->compressorRatio + value > CMPSR_RATIO_MAX) SE->compressorRatio = CMPSR_RATIO_MAX;
@@ -1374,7 +1374,7 @@ uint8_t editCompressorRatio(int16_t value)
 	return ((SE->compressorRatio * 100)/CMPSR_RATIO_MAX);
 }
 
-uint8_t editCompressorAttack(int16_t value)
+static uint8_t editCompressorAttack(int16_t value)
 {
 	if(SE->compressorAttack + value < 0) SE->compressorAttack = 0;
 	else if(SE->compressorAttack + value > CMPSR_ATTACK_MAX_MS) SE->compressorAttack = CMPSR_ATTACK_MAX_MS;
@@ -1384,7 +1384,7 @@ uint8_t editCompressorAttack(int16_t value)
 	return ((SE->compressorAttack * 100)/CMPSR_ATTACK_MAX_MS);
 }
 
-uint8_t editCompressorRelease(int16_t value)
+static uint8_t editCompressorRelease(int16_t value)
 {
 	if(SE->compressorRelease + value < 0) SE->compressorRelease = 0;
 	else if(SE->compressorRelease + value > CMPSR_RELEASE_MAX_MS) SE->compressorRelease = CMPSR_RELEASE_MAX_MS;
@@ -1394,7 +1394,7 @@ uint8_t editCompressorRelease(int16_t value)
 	return ((SE->compressorRelease * 100)/CMPSR_RELEASE_MAX_MS);
 }
 
-uint8_t editBitcrusherBits(int16_t value)
+static uint8_t editBitcrusherBits(int16_t value)
 {
 	if(SE->bitcrusherBits + value < 0) SE->bitcrusherBits = 0;
 	else if(SE->bitcrusherBits + value > BITCRUSHER_BITS_MAX) SE->bitcrusherBits = BITCRUSHER_BITS_MAX;
@@ -1404,7 +1404,7 @@ uint8_t editBitcrusherBits(int16_t value)
 	return ((SE->bitcrusherBits * 100)/BITCRUSHER_BITS_MAX);
 }
 
-uint8_t editBitcrusherRate(int16_t value)
+static uint8_t editBitcrusherRate(int16_t value)
 {
 	uint8_t step = 10;
 
@@ -1416,7 +1416,7 @@ uint8_t editBitcrusherRate(int16_t value)
 	return ((SE->bitcrusherRate * 100)/BITCRUSHER_RATE_MAX);
 }
 
-uint8_t editAmplifierAmp(int16_t value)
+static uint8_t editAmplifierAmp(int16_t value)
 {
 	float step = 0.1f;
 
@@ -1428,7 +1428,7 @@ uint8_t editAmplifierAmp(int16_t value)
 	return ((SE->amplifierAmp * 100)/AMPLIFIER_AMP_MAX);
 }
 
-uint8_t editLimiterThreshold(int16_t value)
+static uint8_t editLimiterThreshold(int16_t value)
 {
 	uint8_t step = 10;
 
@@ -1440,7 +1440,7 @@ uint8_t editLimiterThreshold(int16_t value)
 	return ((SE->limiterThreshold * 100)/LIMITER_THRESHOLD_MAX);
 }
 
-uint8_t editLimiterAttack(int16_t value)
+static uint8_t editLimiterAttack(int16_t value)
 {
 	uint8_t step = 10;
 
@@ -1452,7 +1452,7 @@ uint8_t editLimiterAttack(int16_t value)
 	return ((SE->limiterAttack * 100)/LIMITER_ATTACK_MAX);
 }
 
-uint8_t editLimiterRelease(int16_t value)
+static uint8_t editLimiterRelease(int16_t value)
 {
 	uint8_t  step = 10;
 
