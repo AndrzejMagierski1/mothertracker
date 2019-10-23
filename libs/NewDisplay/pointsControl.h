@@ -5,7 +5,13 @@
 
 #include "displayControls.h"
 
-
+enum
+{
+	selectStart = 0x01U,
+	selectLoop1 = 0x02U,
+	selectLoop2 = 0x04U,
+	selectEnd = 0x08U,
+};
 
 struct strTrackerPoints
 {

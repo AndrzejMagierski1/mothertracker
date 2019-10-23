@@ -100,7 +100,7 @@ void cConfigEditor::initDisplayControls()
 	configGroupList.data = configGroupsNames;
 
 	prop.x = (800/8)*6+8;
-	prop.y = 140;
+	prop.y = 37;
 	prop.w = 800/4-16;
 	prop.h = 25;
 	prop.data = &configGroupList;

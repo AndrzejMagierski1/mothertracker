@@ -13,11 +13,21 @@ struct strLabelData
 
 };
 
+typedef struct
+{
+	uint8_t isActive;
+	uint8_t frameNum;
+
+}multisel_control_t;
+
 struct strFrameData
 {
 	uint8_t startPlace;
 	uint16_t placesCount;
 	uint16_t* places[12];
+
+	uint8_t multiSelActiveNum;
+	multisel_control_t multisel[8];
 };
 
 //--------------------------------------------------------------------

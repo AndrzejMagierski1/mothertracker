@@ -113,7 +113,8 @@ uint8_t cPoints::update()
 	{
 		uint16_t start = points->startPoint+posX;
 
-		if(points->selected == 1) API_COLOR(colors[2]);
+		if(points->selected & selectStart) API_COLOR(colors[2]);
+		else API_COLOR(colors[0]);
 		// start point
 		API_BEGIN(LINES);
 		API_VERTEX2F(start, posY);
@@ -125,15 +126,14 @@ uint8_t cPoints::update()
 		API_VERTEX2F(start+5, posY+3);
 		API_VERTEX2F(start+1, posY+6);
 		API_END();
-
-		if(points->selected == 1) API_COLOR(colors[0]);
 	}
 
 	if(points->endPoint >= 0)
 	{
 		uint16_t end = points->endPoint+posX;
 
-		if(points->selected == 2) API_COLOR(colors[2]);
+		if(points->selected & selectEnd) API_COLOR(colors[2]);
+		else API_COLOR(colors[0]);
 		// end point
 		API_BEGIN(LINES);
 		API_VERTEX2F(end, posY);
@@ -145,8 +145,6 @@ uint8_t cPoints::update()
 		API_VERTEX2F(end-5, posY+3);
 		API_VERTEX2F(end-1, posY+6);
 		API_END();
-
-		if(points->selected == 2) API_COLOR(colors[0]);
 	}
 
 	if(points->pointsType == 0)
@@ -183,7 +181,7 @@ uint8_t cPoints::update()
 
 		if(points->loopPoint1 >= 0)
 		{
-			if(points->selected == 3) API_COLOR(colors[2]);
+			if(points->selected & selectLoop1) API_COLOR(colors[2]);
 			else API_COLOR(colors[0]);
 
 			// loop point 1
@@ -202,7 +200,7 @@ uint8_t cPoints::update()
 		}
 		if(points->loopPoint2 >= 0)
 		{
-			if(points->selected == 4) API_COLOR(colors[2]);
+			if(points->selected & selectLoop2) API_COLOR(colors[2]);
 			else API_COLOR(colors[0]);
 
 			// loop point 2

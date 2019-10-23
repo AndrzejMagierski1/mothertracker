@@ -85,7 +85,7 @@ void cInstrumentEditor::initDisplayControls()
 	filterModeList.data = (char**)filterModeNames;
 
 	prop.x = (800/8)*(4)+8;
-	prop.y = 140;
+	prop.y = 37;
 	prop.w = 800/8-16;
 	prop.h = 25;
 	prop.data = &filterModeList;
@@ -97,7 +97,7 @@ void cInstrumentEditor::initDisplayControls()
 	envelopesList.length = 2;
 	envelopesList.data = (char**)envelopeNames;
 	prop.x = (800/8)*(0)+8;
-	prop.y = 140;
+	prop.y = 37;
 	prop.w = 800/8-16;
 	prop.h = 25;
 	prop.data = &envelopesList;
@@ -109,7 +109,7 @@ void cInstrumentEditor::initDisplayControls()
 	envStateList.length = 2;
 	envStateList.data = (char**)envStateNames;
 	prop.x = (800/8)*(1)+8;
-	prop.y = 140;
+	prop.y = 37;
 	prop.w = 800/8-16;
 	prop.h = 25;
 	prop.data = &envStateList;
@@ -121,7 +121,7 @@ void cInstrumentEditor::initDisplayControls()
 	envLoopList.length = 2;
 	envLoopList.data = (char**)envLoopNames;
 	prop.x = (800/8)*(7)+8;
-	prop.y = 140;
+	prop.y = 37;
 	prop.w = 800/8-16;
 	prop.h = 25;
 	prop.data = &envLoopList;
