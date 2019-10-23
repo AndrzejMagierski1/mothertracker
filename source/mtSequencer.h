@@ -22,6 +22,13 @@ public:
 		STEP_VELO_MIN = 0,
 		STEP_VELO_MAX = 127,
 	};
+	enum enFillStep
+	{
+		fillStepOccupied = -1,
+		fillStepEmpty = -2,
+		fillStepRandom = 0,
+		fillStepByStep = 1,
+	};
 
 	enum enMisc
 	{
@@ -556,12 +563,22 @@ public:
 	void fillLinearNotes(int16_t step, int16_t from, int16_t to);
 	void fillRandomInstruments(int16_t step, int16_t from, int16_t to);
 	void fillLinearInstruments(int16_t step, int16_t from, int16_t to);
-	void fillRandomVelocity(int16_t step, int16_t from, int16_t to);
-	void fillLinearVelocity(int16_t step, int16_t from, int16_t to);
-	void fillLinearFx(int16_t index, int16_t fillStep, int16_t fxType, int16_t fromVal,
-					  int16_t toVal);
-	void fillRandomFx(int16_t index, int16_t fillStep, int16_t fxType, int16_t fromVal,
-					  int16_t toVal);
+//	void fillRandomVelocity(int16_t step, int16_t from, int16_t to);
+//	void fillLinearVelocity(int16_t step, int16_t from, int16_t to);
+	void fillLinearFx(int16_t index, int16_t fillStep, int16_t fxType,
+						int16_t fromVal,
+						int16_t toVal);
+	void fillRandomFx(int16_t index, int16_t fillStep, int16_t fxType,
+						int16_t fromVal,
+						int16_t toVal);
+
+	bool isStepToFillNote(strPattern::strTrack::strStep *step,
+							uint8_t offset,
+							int16_t fillStep);
+	bool isStepToFillFx(strPattern::strTrack::strStep *step,
+						uint8_t offset,
+						uint8_t fxIndex,
+						int16_t fillStep);
 
 //	void randomSelectedNotes(int16_t from, int16_t to, int16_t scale);
 //	void randomSelectedInstruments(int16_t from, int16_t to);
@@ -575,10 +592,8 @@ public:
 		player.onPatternEnd = action;
 	}
 
-
 	void setPerformancePatternLength(int8_t length);
 	void setPerformancePatternLengthFromFxVal(int8_t val);
-
 
 // inne
 	void handle_uStep_timer(void);

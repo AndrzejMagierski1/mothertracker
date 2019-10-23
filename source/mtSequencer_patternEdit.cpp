@@ -35,10 +35,7 @@ void Sequencer::fillRandomNotes(int16_t fillStep, int16_t from, int16_t to)
 				s++, offset++)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
-			if ((offset % fillStep == 0 && fillStep > 0) ||
-					(random(0, 10) > 6 && fillStep == 0) ||
-					(step->note >= 0 && fillStep == -1) ||
-					(step->note == STEP_NOTE_EMPTY && fillStep == -2))
+			if (isStepToFillNote(step, offset, fillStep))
 			{
 				step->note = random(from, to + 1);
 				step->instrument = mtProject.values.lastUsedInstrument;
@@ -59,10 +56,7 @@ void Sequencer::fillLinearNotes(int16_t fillStep, int16_t from, int16_t to)
 				s++, offset++)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
-			if ((offset % fillStep == 0 && fillStep > 0) ||
-					(random(0, 10) > 6 && fillStep == 0) ||
-					(step->note >= 0 && fillStep == -1) ||
-					(step->note == STEP_NOTE_EMPTY && fillStep == -2))
+			if (isStepToFillNote(step, offset, fillStep))
 			{
 				step->note = map(offset + sel->firstStep,
 									sel->firstStep,
@@ -88,10 +82,7 @@ void Sequencer::fillLinearInstruments(int16_t fillStep, int16_t from,
 				s++, offset++)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
-			if ((offset % fillStep == 0 && fillStep > 0) ||
-					(random(0, 10) > 6 && fillStep == 0) ||
-					(step->note >= 0 && fillStep == -1) ||
-					(step->note == STEP_NOTE_EMPTY && fillStep == -2))
+			if (isStepToFillNote(step, offset, fillStep))
 			{
 				step->instrument = map(offset + sel->firstStep,
 										sel->firstStep,
@@ -127,23 +118,19 @@ void Sequencer::fillLinearFx(int16_t index,
 		{
 			step = &seq[player.ramBank].track[t].step[s];
 
-			if ((offset % fillStep == 0 && fillStep > 0) ||
-					(random(0, 10) > 6 && fillStep == 0) ||
-					(step->note >= 0 && fillStep == -1))
+			if (isStepToFillFx(step, offset, index, fillStep))
 			{
-
 				step->fx[index].value = map(offset + sel->firstStep,
 											sel->firstStep,
 											sel->lastStep,
 											fromVal,
 											toVal);
 				step->fx[index].type = fxType;
-
 			}
 		}
 	}
 }
-void Sequencer::fillRandomFx(int16_t index,
+void Sequencer::fillRandomFx(int16_t fxIndex,
 								int16_t fillStep,
 								int16_t fxType,
 								int16_t fromVal,
@@ -153,7 +140,7 @@ void Sequencer::fillRandomFx(int16_t index,
 
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
-	if (index > FX_SLOTS_MAX) index = 0; //todo
+	if (fxIndex > FX_SLOTS_MAX) fxIndex = 0; //todo
 
 	strPattern::strTrack::strStep *step;
 
@@ -165,16 +152,39 @@ void Sequencer::fillRandomFx(int16_t index,
 		{
 			step = &seq[player.ramBank].track[t].step[s];
 
-			if ((offset % fillStep == 0 && fillStep > 0) ||
-					(random(0, 10) > 6 && fillStep == 0))
-			// todo: multiFX
+			if (isStepToFillFx(step, offset, fxIndex, fillStep))
 			{
-
-				step->fx[index].value = random(fromVal, toVal + 1);
-				step->fx[index].type = fxType;
+				step->fx[fxIndex].value = random(fromVal, toVal + 1);
+				step->fx[fxIndex].type = fxType;
 			}
 		}
 	}
+}
+
+bool Sequencer::isStepToFillFx(strPattern::strTrack::strStep *step,
+								uint8_t offset,
+								uint8_t fxIndex,
+								int16_t fillStep)
+{
+	if (fillStep > 0 && offset % fillStep == 0) return true;
+	else if (fillStep == fillStepRandom && random(0, 10) > 6) return true;
+	else if (fillStep == fillStepOccupied && (step->fx[fxIndex].type > 0 || step->note >= 0)) return true;
+	else if (fillStep == fillStepEmpty && step->fx[fxIndex].type == 0)
+		return true;
+
+	return false;
+}
+bool Sequencer::isStepToFillNote(strPattern::strTrack::strStep *step,
+									uint8_t offset,
+									int16_t fillStep)
+{
+	if (fillStep > 0 && offset % fillStep == 0) return true;
+	else if (fillStep == fillStepRandom && random(0, 10) > 6) return true;
+	else if (fillStep == fillStepOccupied && step->note >= 0) return true;
+	else if (fillStep == fillStepEmpty && step->note == STEP_NOTE_EMPTY)
+		return true;
+
+	return false;
 }
 
 void Sequencer::fillRandomInstruments(int16_t fillStep, int16_t from,
@@ -193,9 +203,8 @@ void Sequencer::fillRandomInstruments(int16_t fillStep, int16_t from,
 				s++, offset++)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
-			if ((offset % fillStep == 0 && fillStep > 0) ||
-					(random(0, 10) > 6 && fillStep == 0) ||
-					(step->instrument > 0 && fillStep == -1))
+
+			if (isStepToFillNote(step, offset, fillStep))
 			{
 				step->instrument = random(from, to + 1);
 
@@ -207,63 +216,59 @@ void Sequencer::fillRandomInstruments(int16_t fillStep, int16_t from,
 		}
 	}
 }
-
-void Sequencer::fillLinearVelocity(int16_t fillStep, int16_t from,
-									int16_t to)
-{
-	// todo: multifx
-	strSelection *sel = &selection;
-	if (!isSelectionCorrect(sel)) return;
-	strPattern::strTrack::strStep *step;
-
-	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
-	{
-		for (uint8_t s = sel->firstStep, offset = 0;
-				s <= sel->lastStep;
-				s++, offset++)
-		{
-			step = &seq[player.ramBank].track[t].step[s];
-			if ((offset % fillStep == 0 && fillStep > 0) ||
-					(random(0, 10) > 6 && fillStep == 0))
-
-			{
-
-				step->velocity = map(offset + sel->firstStep,
-										sel->firstStep,
-										sel->lastStep,
-										from,
-										to);
-
-			}
-		}
-	}
-}
-
-void Sequencer::fillRandomVelocity(int16_t fillStep, int16_t from,
-									int16_t to)
-{
-	// todo: multifx
-	fromToSwap(from, to);
-	strSelection *sel = &selection;
-	if (!isSelectionCorrect(sel)) return;
-	strPattern::strTrack::strStep *step;
-
-	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
-	{
-		for (uint8_t s = sel->firstStep, offset = 0;
-				s <= sel->lastStep;
-				s++, offset++)
-		{
-			if ((offset % fillStep == 0 && fillStep > 0) ||
-					(random(0, 10) > 6 && fillStep == 0))
-			{
-				step = &seq[player.ramBank].track[t].step[s];
-				step->velocity = random(from, to + 1);
-
-			}
-		}
-	}
-}
+//
+//void Sequencer::fillLinearVelocity(int16_t fillStep, int16_t from,
+//									int16_t to)
+//{
+//	// todo: multifx
+//	strSelection *sel = &selection;
+//	if (!isSelectionCorrect(sel)) return;
+//	strPattern::strTrack::strStep *step;
+//
+//	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+//	{
+//		for (uint8_t s = sel->firstStep, offset = 0;
+//				s <= sel->lastStep;
+//				s++, offset++)
+//		{
+//			step = &seq[player.ramBank].track[t].step[s];
+//			if (isStepToFillNote(step, offset, fillStep))
+//			{
+//				step->velocity = map(offset + sel->firstStep,
+//										sel->firstStep,
+//										sel->lastStep,
+//										from,
+//										to);
+//			}
+//		}
+//	}
+//}
+//
+//void Sequencer::fillRandomVelocity(int16_t fillStep, int16_t from,
+//									int16_t to)
+//{
+//	// todo: multifx
+//	fromToSwap(from, to);
+//	strSelection *sel = &selection;
+//	if (!isSelectionCorrect(sel)) return;
+//	strPattern::strTrack::strStep *step;
+//
+//	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+//	{
+//		for (uint8_t s = sel->firstStep, offset = 0;
+//				s <= sel->lastStep;
+//				s++, offset++)
+//		{
+//			if ((offset % fillStep == 0 && fillStep > 0) ||
+//					(random(0, 10) > 6 && fillStep == 0))
+//			{
+//				step = &seq[player.ramBank].track[t].step[s];
+//				step->velocity = random(from, to + 1);
+//
+//			}
+//		}
+//	}
+//}
 
 //void Sequencer::randomSelectedNotes(int16_t from, int16_t to, int16_t scale)
 //{
