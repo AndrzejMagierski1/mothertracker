@@ -563,8 +563,6 @@ public:
 	void fillLinearNotes(int16_t step, int16_t from, int16_t to);
 	void fillRandomInstruments(int16_t step, int16_t from, int16_t to);
 	void fillLinearInstruments(int16_t step, int16_t from, int16_t to);
-//	void fillRandomVelocity(int16_t step, int16_t from, int16_t to);
-//	void fillLinearVelocity(int16_t step, int16_t from, int16_t to);
 	void fillLinearFx(int16_t index, int16_t fillStep, int16_t fxType,
 						int16_t fromVal,
 						int16_t toVal);
@@ -580,9 +578,6 @@ public:
 						uint8_t fxIndex,
 						int16_t fillStep);
 
-//	void randomSelectedNotes(int16_t from, int16_t to, int16_t scale);
-//	void randomSelectedInstruments(int16_t from, int16_t to);
-//	void randomSelectedVelo(int16_t from, int16_t to);
 	void invertSelectedSteps();
 
 	void allNoteOffs(void);
