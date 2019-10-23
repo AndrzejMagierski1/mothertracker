@@ -384,6 +384,8 @@ static  uint8_t functEncoder(int16_t value)
 //=========================================================================================================
 static  uint8_t functLeft()
 {
+	if(IE->frameData.multiSelActiveNum != 0) return 1;
+
 	if(IE->selectedPlace[IE->mode] > 0) IE->selectedPlace[IE->mode]--;
 	IE->activateLabelsBorder();
 
@@ -393,6 +395,8 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(IE->frameData.multiSelActiveNum != 0) return 1;
+
 	if(IE->selectedPlace[IE->mode] < IE->frameData.placesCount-1) IE->selectedPlace[IE->mode]++;
 	IE->activateLabelsBorder();
 

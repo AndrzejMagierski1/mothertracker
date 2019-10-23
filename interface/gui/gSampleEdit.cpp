@@ -243,6 +243,8 @@ void cSampleEditor::showDefaultScreen()
 	showEffectsList();
 
 	hideHorizontalBar();
+	activateLabelsBorder();
+
 
 	display.synchronizeRefresh();
 

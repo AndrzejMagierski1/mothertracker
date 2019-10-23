@@ -162,7 +162,7 @@ public:
 	hControl processHorizontalBarControl = nullptr;
 
 
-	uint8_t selectedPlace = 0;
+	uint8_t selectedPlace = 6;
 
 
 //----------------------------------
