@@ -2584,17 +2584,17 @@ static  uint8_t functRandomiseApply()
 		switch (PTE->editParam)
 		{
 		case 0:
-			sequencer.randomSelectedNotes(randomiseData->from,
-											randomiseData->to,
-											randomiseData->param);
+//			sequencer.randomSelectedNotes(randomiseData->from,
+//											randomiseData->to,
+//											randomiseData->param);
 			break;
 		case 1:
-			sequencer.randomSelectedInstruments(randomiseData->from,
-												randomiseData->to);
+//			sequencer.randomSelectedInstruments(randomiseData->from,
+//												randomiseData->to);
 			break;
 		case 2:
-			sequencer.randomSelectedVelo(randomiseData->from,
-											randomiseData->to);
+//			sequencer.randomSelectedVelo(randomiseData->from,
+//											randomiseData->to);
 			break;
 
 		break;
@@ -3019,7 +3019,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				}
 				else
 				{
-
 					sequencer.setSelectionFxValue(fx_index, map(pad, 0, 47, 0, 127));
 				}
 			}
