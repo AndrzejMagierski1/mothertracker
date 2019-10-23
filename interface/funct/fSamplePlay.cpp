@@ -197,6 +197,9 @@ void cSamplePlayback::start(uint32_t options)
 
 	}
 
+	selectCorrectPoints();
+	clearAllNodes();
+	cancelMultiFrame();
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -405,6 +408,8 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 static  uint8_t functSelectStart(uint8_t state)
 {
+	if(state > buttonPress) return 1;
+
 	if(state == UINT8_MAX || state == buttonPress) // called from inside of this module
 	{
 		if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 1)
@@ -461,6 +466,8 @@ static  uint8_t functSelectStart(uint8_t state)
 
 static  uint8_t functSelectLoop1(uint8_t state)
 {
+	if(state > buttonPress) return 1;
+
 	if(state == UINT8_MAX || state == buttonPress)
 	{
 		if(SP->editorInstrument->playMode == singleShot) return 1;
@@ -519,6 +526,8 @@ static  uint8_t functSelectLoop1(uint8_t state)
 
 static  uint8_t functSelectLoop2(uint8_t state)
 {
+	if(state > buttonPress) return 1;
+
 	if(state == UINT8_MAX || state == buttonPress)
 	{
 		if(SP->editorInstrument->playMode == singleShot) return 1;
@@ -579,6 +588,8 @@ static  uint8_t functSelectLoop2(uint8_t state)
 
 static  uint8_t functSelectEnd(uint8_t state)
 {
+	if(state > buttonPress) return 1;
+
 	if(state == UINT8_MAX || state == buttonPress)
 	{
 		if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 2)

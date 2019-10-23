@@ -201,7 +201,7 @@ static uint8_t functStepNote(uint8_t value);
 static void modStartPoint(int16_t value);
 static void modEndPoint(int16_t value);
 
-#ifdef HW_WITH_RADIO
+
 void seek_callback(void);
 
 

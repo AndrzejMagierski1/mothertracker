@@ -135,6 +135,11 @@ void cInstrumentEditor::start(uint32_t options)
 
 	//mtProject.values.lastUsedInstrument = constrain(mtProject.values.lastUsedInstrument, 0, INSTRUMENTS_MAX);
 
+	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
+	{
+		editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
+	}
+
 
 	clearAllNodes();
 	cancelMultiFrame();

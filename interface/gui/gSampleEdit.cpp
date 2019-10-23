@@ -204,7 +204,7 @@ void cSampleEditor::frameChange(uint8_t control)
 	display.setControlData(frameControl, &frameData);
 }
 
-void cSampleEditor::showDefaultScreen()
+void cSampleEditor::showTitleBar()
 {
 	display.setControlShow(titleBar);
 	display.refreshControl(titleBar);

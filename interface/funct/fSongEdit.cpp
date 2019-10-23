@@ -158,14 +158,16 @@ static  uint8_t functPatternSlot(uint8_t button)
 		if(button == interfaceButton0)
 		{
 			SE->changePatternsSelection(-1);
+		}
 		else if(button == interfaceButton1)
 		{
 			SE->changePatternsSelection(1);
 		}
+
+		SE->selectedPlace = 0;
+		SE->activateLabelsBorder();
+
 	}
-		}
-	SE->selectedPlace = 0;
-	SE->activateLabelsBorder();
 
 	return 1;
 }
