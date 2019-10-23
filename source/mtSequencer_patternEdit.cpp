@@ -292,7 +292,7 @@ void Sequencer::changeSelectionNote(int16_t value)
 				{
 					blinkNote(step->instrument,
 								step->note,
-								step->velocity,
+								STEP_VELO_DEFAULT,
 								t);
 				}
 				return;
@@ -309,7 +309,7 @@ void Sequencer::changeSelectionNote(int16_t value)
 						blinkFirst = 0;
 						blinkNote(step->instrument,
 									step->note,
-									step->velocity,
+									STEP_VELO_DEFAULT,
 									t);
 
 					}
@@ -320,36 +320,36 @@ void Sequencer::changeSelectionNote(int16_t value)
 	}
 }
 
-void Sequencer::changeSelectionVolume(int16_t value)
-{
-
-	strSelection *sel = &selection;
-	if (!isSelectionCorrect(sel)) return;
-
-	strPattern::strTrack::strStep *step;
-
-	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
-	{
-		for (uint8_t s = sel->firstStep, offset = 0;
-				s <= sel->lastStep;
-				s++, offset++)
-		{
-			step = &seq[player.ramBank].track[t].step[s];
-
-			if (!isMultiSelection())
-			{
-				step->velocity = constrain(step->velocity + value, -1,
-											STEP_VELO_MAX);
-				return;
-			}
-			else if (step->velocity >= 0)
-			{
-				step->velocity = constrain(step->velocity + value, 0,
-											STEP_VELO_MAX);
-			}
-		}
-	}
-}
+//void Sequencer::changeSelectionVolume(int16_t value)
+//{
+//
+//	strSelection *sel = &selection;
+//	if (!isSelectionCorrect(sel)) return;
+//
+//	strPattern::strTrack::strStep *step;
+//
+//	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+//	{
+//		for (uint8_t s = sel->firstStep, offset = 0;
+//				s <= sel->lastStep;
+//				s++, offset++)
+//		{
+//			step = &seq[player.ramBank].track[t].step[s];
+//
+//			if (!isMultiSelection())
+//			{
+//				step->velocity = constrain(step->velocity + value, -1,
+//											STEP_VELO_MAX);
+//				return;
+//			}
+//			else if (step->velocity >= 0)
+//			{
+//				step->velocity = constrain(step->velocity + value, 0,
+//											STEP_VELO_MAX);
+//			}
+//		}
+//	}
+//}
 void Sequencer::changeSelectionFxValue(uint8_t fxIndex, int16_t value)
 {
 
@@ -492,7 +492,7 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 													INSTRUMENTS_MAX + 16);
 					blinkNote(step->instrument,
 								step->note,
-								step->velocity,
+								STEP_VELO_DEFAULT,
 								t);
 
 					mtProject.values.lastUsedInstrument = step->instrument;
@@ -548,7 +548,7 @@ void Sequencer::setSelectionInstrument(int16_t value)
 
 					blinkNote(step->instrument,
 								step->note,
-								step->velocity,
+								STEP_VELO_DEFAULT,
 								t);
 
 					mtProject.values.lastUsedInstrument = step->instrument;
@@ -567,46 +567,46 @@ void Sequencer::setSelectionInstrument(int16_t value)
 		}
 	}
 }
-void Sequencer::setSelectionVelocity(int16_t value)
-{
-
-	strSelection *sel = &selection;
-	if (!isSelectionCorrect(sel)) return;
-
-	strPattern::strTrack::strStep *step;
-
-	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
-	{
-		for (uint8_t s = sel->firstStep, offset = 0;
-				s <= sel->lastStep;
-				s++, offset++)
-		{
-			step = &seq[player.ramBank].track[t].step[s];
-
-			if (isSingleSelection(sel))
-			{
-				step->velocity = value;
-
-				if (step->note >= 0)
-				{
-					blinkNote(step->instrument,
-								step->note,
-								step->velocity,
-								t);
-				}
-				return;
-			}
-			else
-			{
-				if (step->note >= 0)
-				{
-					step->velocity = value;
-
-				}
-			}
-		}
-	}
-}
+//void Sequencer::setSelectionVelocity(int16_t value)
+//{
+//
+//	strSelection *sel = &selection;
+//	if (!isSelectionCorrect(sel)) return;
+//
+//	strPattern::strTrack::strStep *step;
+//
+//	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
+//	{
+//		for (uint8_t s = sel->firstStep, offset = 0;
+//				s <= sel->lastStep;
+//				s++, offset++)
+//		{
+//			step = &seq[player.ramBank].track[t].step[s];
+//
+//			if (isSingleSelection(sel))
+//			{
+//				step->velocity = value;
+//
+//				if (step->note >= 0)
+//				{
+//					blinkNote(step->instrument,
+//								step->note,
+//								step->velocity,
+//								t);
+//				}
+//				return;
+//			}
+//			else
+//			{
+//				if (step->note >= 0)
+//				{
+//					step->velocity = value;
+//
+//				}
+//			}
+//		}
+//	}
+//}
 void Sequencer::setSelectionNote(int16_t value)
 {
 
@@ -631,7 +631,7 @@ void Sequencer::setSelectionNote(int16_t value)
 				{
 					blinkNote(step->instrument,
 								step->note,
-								step->velocity,
+								STEP_VELO_DEFAULT,
 								t);
 				}
 				return;
@@ -661,7 +661,7 @@ void Sequencer::clearStep(strPattern::strTrack::strStep * step,
 	case ELEMENTS_ALL_NO_PREFERENCES:
 		step->note = STEP_NOTE_EMPTY;
 		step->instrument = 0;
-		step->velocity = -1;
+//		step->velocity = -1;
 		step->fx[0].type = 0;
 		step->fx[1].type = 0;
 		break;
@@ -675,7 +675,7 @@ void Sequencer::clearStep(strPattern::strTrack::strStep * step,
 		step->instrument = 0;
 		break;
 	case ELEMENTS_VELO:
-		step->velocity = -1;
+//		step->velocity = -1;
 		break;
 	default:
 		break;
@@ -877,9 +877,9 @@ void Sequencer::pasteSelectionFromBuffer(strSelection *from, strSelection *to,
 						stepTo->note = STEP_NOTE_DEFAULT;
 					}
 					break;
-				case ELEMENTS_VELO:
-					stepTo->velocity = stepFrom->velocity;
-					break;
+//				case ELEMENTS_VELO:
+//					stepTo->velocity = stepFrom->velocity;
+//					break;
 				case ELEMENTS_FXes:
 					stepTo->fx[0] = stepFrom->fx[0];
 					break;

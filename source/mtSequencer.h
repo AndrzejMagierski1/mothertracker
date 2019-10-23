@@ -21,6 +21,7 @@ public:
 
 		STEP_VELO_MIN = 0,
 		STEP_VELO_MAX = 127,
+		STEP_VELO_DEFAULT = 120,
 	};
 	enum enFillStep
 	{
@@ -163,29 +164,23 @@ public:
 
 		struct strTrack
 		{
-
 			uint8_t length = MAXSTEP;
 
 			struct strStep
 			{
 				int8_t note = STEP_NOTE_EMPTY;
 
-				int8_t velocity = -1;	// jeśli <0 to nie wysyłamy
 				uint8_t instrument = 0;
 
 				//FX
 				struct strFx
 				{
 					uint8_t type;
-
-					struct						// FX_VAL_U8_U8
-					{
-						uint8_t value;
-//						uint8_t value2;
-					};
+					uint8_t value;
 
 				} fx[2];
 
+//				int8_t velocity = STEP_VELO_DEFAULT;	// jeśli <0 to nie wysyłamy
 			} step[MAXSTEP + 1];
 
 		} track[8];
@@ -282,25 +277,6 @@ public:
 
 	//__________________________________________
 	//
-	//				MIDI
-	//__________________________________________
-
-	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
-					uint8_t midiOut);
-
-	void flushNotes();
-	void sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
-					uint8_t instrument);
-	void sendNoteOff(uint8_t track, uint8_t note, uint8_t velocity,
-						uint8_t instrument);
-	void sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step);
-	void sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step);
-	void sendNoteOff(uint8_t track);
-
-	void send_clock(uint8_t);
-	void send_allNotesOff(void);
-	//__________________________________________
-	//
 	//
 	//__________________________________________
 
@@ -382,7 +358,24 @@ public:
 
 		struct strPlayerTrack
 		{
-			strPattern::strTrack::strStep stepSent, stepToSend;
+//			strPattern::strTrack::strStep
+			struct strSendStep
+			{
+				int8_t note = STEP_NOTE_EMPTY;
+
+				uint8_t instrument = 0;
+
+				//FX
+				struct strFx
+				{
+					uint8_t type;
+					uint8_t value;
+
+				} fx[2];
+
+				int8_t velocity = -1;	// jeśli <0 to nie wysyłamy
+			} stepSent, stepToSend;
+
 			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
 
@@ -417,6 +410,28 @@ public:
 		void (*onPatternEnd)(void) = NULL;
 
 	} player;
+
+	//__________________________________________
+	//
+	//				MIDI
+	//__________________________________________
+
+	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
+					uint8_t midiOut);
+
+	void flushNotes();
+	void sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
+					uint8_t instrument);
+	void sendNoteOff(uint8_t track, uint8_t note, uint8_t velocity,
+						uint8_t instrument);
+	void sendNoteOn(uint8_t track,
+					strPlayer::strPlayerTrack::strSendStep *step);
+	void sendNoteOff(uint8_t track,
+						strPlayer::strPlayerTrack::strSendStep *step);
+	void sendNoteOff(uint8_t track);
+
+	void send_clock(uint8_t);
+	void send_allNotesOff(void);
 
 	/********************************
 	 * ******************************
@@ -544,7 +559,7 @@ public:
 	void clearSelected();
 	void clearSelected(uint8_t);
 
-	void changeSelectionVolume(int16_t value);
+//	void changeSelectionVolume(int16_t value);
 	void changeSelectionFxValue(uint8_t index, int16_t value);
 	void changeSelectionFxType(uint8_t index, int16_t value);
 	void changeSelectionNote(int16_t value);
@@ -553,7 +568,7 @@ public:
 	void setSelectionFxType(uint8_t index, int16_t value);
 	void setSelectionFxValue(uint8_t index, int16_t value);
 	void setSelectionInstrument(int16_t value);
-	void setSelectionVelocity(int16_t value);
+	//	void setSelectionVelocity(int16_t value);
 	void setSelectionNote(int16_t value);
 
 	void setPerformanceStutter(uint8_t track, int8_t stutter);

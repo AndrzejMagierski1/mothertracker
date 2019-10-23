@@ -499,7 +499,8 @@ uint8_t cPatternEditor::getStepFx()
 
 int8_t cPatternEditor::getStepVol()
 {
-	int8_t show_vol = sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity;
+//	int8_t show_vol = sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity;
+	int8_t show_vol = -1;
 
 	if(show_vol < 0) return -1;
 
@@ -3143,10 +3144,10 @@ static uint8_t functSwitchModule(uint8_t button)
 					0,
 					INSTRUMENTS_MAX+16);
 		}
-		if (actualStep->velocity >= 0)
-		{
-			mtProject.values.lastUsedVolume = actualStep->velocity;
-		}
+//		if (actualStep->velocity >= 0)
+//		{
+//			mtProject.values.lastUsedVolume = actualStep->velocity;
+//		}
 		if (actualStep->fx[0].type > 0)
 		{
 			mtProject.values.lastUsedFx = actualStep->fx[0].type;

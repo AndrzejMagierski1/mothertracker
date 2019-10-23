@@ -239,8 +239,9 @@ void Sequencer::play_microStep(uint8_t row)
 	strPlayer::strPlayerTrack & playerRow = player.track[row];
 
 	strPattern::strTrack::strStep & patternStep = patternRow.step[playerRow.actual_pos];
-	strPattern::strTrack::strStep & stepToSend = player.track[row].stepToSend;
-	stepToSend = patternStep;
+	strPlayer::strPlayerTrack::strSendStep & stepToSend = player.track[row].stepToSend;
+
+	memcpy(&stepToSend, &patternStep, sizeof(patternStep));
 
 //	strPlayer::strPlayerTrack::strPlayerStep & playerStep = playerRow.step[playerRow.actual_pos];
 
@@ -273,7 +274,7 @@ void Sequencer::play_microStep(uint8_t row)
 		{
 			sendNoteOff(row,
 						playerRow.stepSent.note,
-						playerRow.stepSent.velocity,
+						0,
 						playerRow.stepSent.instrument);
 
 			playerRow.noteOpen = 0;
@@ -394,7 +395,7 @@ void Sequencer::play_microStep(uint8_t row)
 		{
 			sendNoteOff(row,
 						playerRow.stepSent.note,
-						playerRow.stepSent.velocity,
+						0,
 						playerRow.stepSent.instrument);
 			playerRow.stepOpen = 0;
 			playerRow.noteOpen = 0;
@@ -445,19 +446,20 @@ void Sequencer::play_microStep(uint8_t row)
 			break;
 
 		case fx.FX_TYPE_RANDOM_VELOCITY:
-			if (stepToSend.velocity >= 0)
-			{
-				stepToSend.velocity = constrain(
-						random(patternStep.velocity - _fx.value,
-								patternStep.velocity + _fx.value + 1),
-						0,
-						127);
-			}
-			else
-			{
-				stepToSend.velocity = random(0, _fx.value + 1);
-
-			}
+			//		todo:
+//			if (stepToSend.velocity >= 0)
+//			{
+//				stepToSend.velocity = constrain(
+//						random(patternStep.velocity - _fx.value,
+//								patternStep.velocity + _fx.value + 1),
+//						0,
+//						127);
+//			}
+//			else
+//			{
+//				stepToSend.velocity = random(0, _fx.value + 1);
+//
+//			}
 			break;
 
 		default:
@@ -573,7 +575,7 @@ void Sequencer::play_microStep(uint8_t row)
 				}
 				sendNoteOn(row,
 							playerRow.stepToSend.note,
-							playerRow.stepToSend.velocity,
+							STEP_VELO_DEFAULT,
 							playerRow.stepToSend.instrument);
 
 				playerRow.stepSent = playerRow.stepToSend;
@@ -1060,7 +1062,8 @@ void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
 	}
 
 }
-void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
+void Sequencer::sendNoteOn(uint8_t track,
+							strPlayer::strPlayerTrack::strSendStep *step)
 {
 
 	if (step->instrument > INSTRUMENTS_MAX)
@@ -1097,7 +1100,8 @@ void Sequencer::sendNoteOff(uint8_t track,
 		instrumentPlayer[track].noteOff();
 	}
 }
-void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
+void Sequencer::sendNoteOff(uint8_t track,
+							strPlayer::strPlayerTrack::strSendStep *step)
 {
 
 	if (step->instrument > INSTRUMENTS_MAX)
@@ -1156,7 +1160,7 @@ void Sequencer::blinkSelectedStep()
 	{
 		blinkNote(step->instrument,
 					step->note,
-					step->velocity,
+					STEP_VELO_DEFAULT,
 					selection.firstTrack);
 	}
 
@@ -1187,18 +1191,10 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 			}
 			step->note = note;
 
-			if (channel == MIDI_CHANNEL_GRID)
-			{
-			}
-			else
-			{
-				step->velocity = velocity;
-			}
-
 			instrumentPlayer[sel->firstTrack].noteOff();
 			instrumentPlayer[sel->firstTrack].noteOn(step->instrument,
 														step->note,
-														step->velocity);
+														STEP_VELO_DEFAULT);
 		}
 	}
 	else
