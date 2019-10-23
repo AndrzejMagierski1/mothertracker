@@ -54,6 +54,13 @@ typedef struct
 
 }effect_screen_t;
 
+typedef struct
+{
+	uint8_t percentages[4];
+	uint8_t mask;
+
+}selection_percentages;
+
 typedef enum
 {
 	effectCrop,
@@ -94,7 +101,8 @@ const char effectNamesLabels[effectsCount][15] =
 };
 
 
-
+#undef MAX_SELECT_NODES
+#define MAX_SELECT_NODES	4
 
 
 class cSampleEditor: public cModuleBase
@@ -155,7 +163,7 @@ public:
 	hControl processHorizontalBarControl = nullptr;
 
 
-	uint8_t selectedPlace = 0;
+	uint8_t selectedPlace = 6;
 
 
 //----------------------------------
@@ -197,10 +205,13 @@ public:
 	effect_screen_t effectScreen[effectsCount];
 	uint8_t currSelEffect;
 
+	void frameChange(uint8_t control);
+
 	void resizeUndo(uint8_t control);//1 - center 0 - top
 	void showEffectScreen(effect_screen_t *screenCfg);
 	void initEffectsScreenStructs();
 	void editParamFunction(uint8_t paramNum, int16_t value);
+	void editParamFunctionSelection(int16_t value);
 
 	void showValueLabels(uint8_t whichBar);
 	void updateEffectValues(effect_screen_t *effect, uint8_t barNum);
@@ -275,6 +286,16 @@ public:
 	uint8_t undoReverseFlag;
 
 	uint8_t sampleIsValid;
+
+	//----------------------------------
+	// multisel
+	select_node1_t selectNodes[MAX_SELECT_NODES];
+
+	void addNode(editFunct1_t funct , uint8_t nodeNum);
+	void removeNode(uint8_t nodeNum);
+	selection_percentages stepThroughNodes(int16_t value);
+	void clearAllNodes();
+	void cancelMultiFrame();
 
 };
 

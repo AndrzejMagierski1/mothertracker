@@ -60,6 +60,9 @@ struct strUndoCrop
 	uint16_t endPoint;
 };
 
+#undef MAX_SELECT_NODES
+#define MAX_SELECT_NODES	2
+
 class cSampleRecorder: public cModuleBase
 {
 
@@ -122,8 +125,6 @@ public:
 
 	void processSpectrum1();
 	void processPoints();
-	void modStartPoint(int16_t value);
-	void modEndPoint(int16_t value);
 	void changeZoom(int16_t value);
 	void changeMonitorSelection(int16_t value);
 	void changeSourceSelection(int16_t value);
@@ -341,6 +342,13 @@ uint8_t cropCounter = 0;
 
 	uint8_t notePopoutFlag = 0;
 
+	select_node_t selectNodes[MAX_SELECT_NODES];
+
+	void addNode(editFunct_t funct , uint8_t nodeNum);
+	void removeNode(uint8_t nodeNum);
+	void stepThroughNodes(int16_t value);
+	void clearAllNodes();
+	void cancelMultiFrame();
 };
 
 extern cSampleRecorder sampleRecorder;

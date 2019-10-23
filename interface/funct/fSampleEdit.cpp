@@ -27,7 +27,7 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
-static uint8_t functSelectPlace(uint8_t button);
+static uint8_t functSelectPlace(uint8_t button, uint8_t state);
 
 
 
@@ -44,36 +44,38 @@ static uint8_t functPreview(uint8_t state);
 static uint8_t functApply();
 static uint8_t functUndo();
 
+static uint8_t changeEffect(uint8_t button);
+
 
 
 // ------ EDIT FUNCTIONS PROTOTYPES -----
-uint8_t modStartPoint(int16_t value);
-uint8_t modEndPoint(int16_t value);
-uint8_t changeZoom(int16_t value);
+static uint8_t modStartPoint(int16_t value);
+static uint8_t modEndPoint(int16_t value);
+static uint8_t changeZoom(int16_t value);
 
-uint8_t editChorusLength(int16_t value);
-uint8_t editChorusStrength(int16_t value);
+static uint8_t editChorusLength(int16_t value);
+static uint8_t editChorusStrength(int16_t value);
 
-uint8_t editDelayFeedback(int16_t value);
-uint8_t editDelayTime(int16_t value);
+static uint8_t editDelayFeedback(int16_t value);
+static uint8_t editDelayTime(int16_t value);
 
-uint8_t editFlangerOffset(int16_t value);
-uint8_t editFlangerDepth(int16_t value);
-uint8_t editFlangerDelay(int16_t value);
+static uint8_t editFlangerOffset(int16_t value);
+static uint8_t editFlangerDepth(int16_t value);
+static uint8_t editFlangerDelay(int16_t value);
 
-uint8_t editCompressorThreshold(int16_t value);
-uint8_t editCompressorRatio(int16_t value);
-uint8_t editCompressorAttack(int16_t value);
-uint8_t editCompressorRelease(int16_t value);
+static uint8_t editCompressorThreshold(int16_t value);
+static uint8_t editCompressorRatio(int16_t value);
+static uint8_t editCompressorAttack(int16_t value);
+static uint8_t editCompressorRelease(int16_t value);
 
-uint8_t editBitcrusherBits(int16_t value);
-uint8_t editBitcrusherRate(int16_t value);
+static uint8_t editBitcrusherBits(int16_t value);
+static uint8_t editBitcrusherRate(int16_t value);
 
-uint8_t editAmplifierAmp(int16_t value);
+static uint8_t editAmplifierAmp(int16_t value);
 
-uint8_t editLimiterThreshold(int16_t value);
-uint8_t editLimiterAttack(int16_t value);
-uint8_t editLimiterRelease(int16_t value);
+static uint8_t editLimiterThreshold(int16_t value);
+static uint8_t editLimiterAttack(int16_t value);
+static uint8_t editLimiterRelease(int16_t value);
 
 
 
@@ -521,13 +523,13 @@ void cSampleEditor::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButton0, functPreview);
 	FM->setButtonObj(interfaceButton1, buttonPress, functApply);
-	FM->setButtonObj(interfaceButton2, buttonPress, functSelectPlace);
+	FM->setButtonObj(interfaceButton2, functSelectPlace);
 
-	FM->setButtonObj(interfaceButton3, buttonPress, functSelectPlace);
-	FM->setButtonObj(interfaceButton4, buttonPress, functSelectPlace);
-	FM->setButtonObj(interfaceButton5, buttonPress, functSelectPlace);
-	FM->setButtonObj(interfaceButton6, buttonPress, functSelectPlace);
-	FM->setButtonObj(interfaceButton7, buttonPress, functSelectPlace);
+	FM->setButtonObj(interfaceButton3, functSelectPlace);
+	FM->setButtonObj(interfaceButton4, functSelectPlace);
+	FM->setButtonObj(interfaceButton5, functSelectPlace);
+	FM->setButtonObj(interfaceButton6, buttonPress, changeEffect);
+	FM->setButtonObj(interfaceButton7, buttonPress, changeEffect);
 
 	FM->setButtonObj(interfaceButtonNote, functStepNote);
 
@@ -703,19 +705,40 @@ static uint8_t functUndo()
 		}
 	}
 
-	//SE->selectedPlace = 2;
-	//SE->activateLabelsBorder();
+	return 1;
+}
+
+static uint8_t changeEffect(uint8_t button)
+{
+	SE->clearAllNodes();
+	SE->cancelMultiFrame();
+
+	if(button == interfaceButton7)
+	{
+		SE->changeEffectSelection(-1);
+	}
+	else if(button == interfaceButton6)
+	{
+		SE->changeEffectSelection(1);
+	}
+
+	SE->points.selected = 0;
+	SE->refreshPoints = 1;
+
+	SE->selectedPlace = 6;
+	SE->activateLabelsBorder();
 
 	return 1;
 }
 
-static uint8_t functSelectPlace(uint8_t button)
+static uint8_t functSelectPlace(uint8_t button , uint8_t state)
 {
 	if(SE->moduleFlags != 0) return 1;
+	if(state > buttonPress) return 1;
 
 	uint8_t parameterFlag = 1;
 
-	if(button == interfaceButton2)// Undo
+	if(button == interfaceButton2 && state == buttonPress)// Undo
 	{
 		if(SE->effectScreen[SE->currSelEffect].undoActive)
 		{
@@ -724,27 +747,108 @@ static uint8_t functSelectPlace(uint8_t button)
 		}
 	}
 
-	if(SE->selectedPlace == 6) // gora/dol na effekcie
-	{
-		if(button == interfaceButton7)
-		{
-			SE->changeEffectSelection(-1);
-		}
-		else if(button == interfaceButton6)
-		{
-			SE->changeEffectSelection(1);
-		}
-	}
-
 	if(parameterFlag)
 	{
-		if(button < interfaceButton7)
+		uint8_t minSelectedPlace = 0;
+		if(SE->effectScreen[SE->currSelEffect].paramNum == 4)
+		{
+			minSelectedPlace = 2;
+		}
+		else if(SE->effectScreen[SE->currSelEffect].paramNum == 3)
+		{
+			minSelectedPlace = 3;
+		}
+		else if(SE->effectScreen[SE->currSelEffect].paramNum == 2)
+		{
+			minSelectedPlace = 4;
+		}
+		else if(SE->effectScreen[SE->currSelEffect].paramNum == 1)
+		{
+			minSelectedPlace = 5;
+		}
+
+		if(state == buttonPress)
 		{
 			SE->selectedPlace = button;
+
+			if(button >= minSelectedPlace)
+			{
+				SE->addNode(SE->effectScreen[SE->currSelEffect].bar[button - 2].editFunct, button - 2);
+
+				SE->frameData.multisel[button].frameNum = button;
+				SE->frameData.multisel[button].isActive = 1;
+				SE->frameData.multiSelActiveNum  += 1;
+			}
+
+			if(SE->currSelEffect == effectCrop || SE->currSelEffect == effectReverse)
+			{
+				if(SE->frameData.multiSelActiveNum == 1)
+				{
+					SE->points.selected = 0;
+				}
+
+				if(button == interfaceButton3)
+				{
+					SE->points.selected |= selectStart;
+				}
+				else if(button == interfaceButton4)
+				{
+					SE->points.selected |= selectEnd;
+				}
+				else if(button == interfaceButton5)
+				{
+					SE->points.selected = 0;
+					SE->clearAllNodes();
+					SE->cancelMultiFrame();
+				}
+			}
 		}
-		else
+		else if(state == buttonRelease)
 		{
-			SE->selectedPlace = 6;
+			if(button >= minSelectedPlace)
+			{
+				if(SE->frameData.multiSelActiveNum)
+				{
+					if(SE->frameData.multisel[button].isActive)
+					{
+						SE->removeNode(button - 2);
+						SE->frameData.multiSelActiveNum  -= 1;
+
+						SE->frameData.multisel[button].isActive = 0;
+
+						if(SE->currSelEffect == effectCrop || SE->currSelEffect == effectReverse)
+						{
+							uint8_t sel = 0;
+
+							if(button == interfaceButton3)
+							{
+								sel = selectStart;
+							}
+							else if(button == interfaceButton4)
+							{
+								sel = selectEnd;
+							}
+
+							SE->points.selected &= ~sel;
+
+							if(SE->frameData.multiSelActiveNum == 0)
+							{
+								SE->points.selected = sel;
+							}
+						}
+
+						if(SE->frameData.multiSelActiveNum == 0)
+						{
+							SE->selectedPlace = button;
+						}
+					}
+				}
+			}
+		}
+
+		if(SE->currSelEffect == effectCrop || SE->currSelEffect == effectReverse)
+		{
+			SE->refreshPoints = 1;
 		}
 
 		SE->activateLabelsBorder();
@@ -757,15 +861,22 @@ static  uint8_t functEncoder(int16_t value)
 {
 	if(SE->moduleFlags != 0) return 1;
 
-	switch(SE->selectedPlace)
+	if(SE->frameData.multiSelActiveNum != 0)
 	{
-	case 0: break;
-	case 1: break;
-	case 2: SE->editParamFunction(0, value);	break;
-	case 3: SE->editParamFunction(1, value);	break;
-	case 4: SE->editParamFunction(2, value);    break;
-	case 5: SE->editParamFunction(3, value);	break;
-	case 6: SE->changeEffectSelection(value);	break;
+		SE->editParamFunctionSelection(value);
+	}
+	else
+	{
+		switch(SE->selectedPlace)
+		{
+		case 0: break;
+		case 1: break;
+		case 2: SE->editParamFunction(0, value);	break;
+		case 3: SE->editParamFunction(1, value);	break;
+		case 4: SE->editParamFunction(2, value);    break;
+		case 5: SE->editParamFunction(3, value);	break;
+		case 6: SE->changeEffectSelection(value);	break;
+		}
 	}
 
 	return 1;
@@ -780,10 +891,49 @@ void cSampleEditor::editParamFunction(uint8_t paramNum, int16_t value)
 	}
 }
 
+void cSampleEditor::editParamFunctionSelection(int16_t value)
+{
+	selection_percentages temp;
+
+	temp = SE->stepThroughNodes(value);
+
+	for(uint8_t i = 0; i < MAX_DATA_BARS; i++)
+	{
+		if(temp.mask & (1 << i))
+		{
+			effectScreen[currSelEffect].bar[i].effectPercentage = temp.percentages[i];
+			updateEffectValues(&effectScreen[currSelEffect], i);
+		}
+	}
+}
+
 static  uint8_t functLeft()
 {
 	if(SE->moduleFlags != 0) return 1;
-	if(SE->selectedPlace > 0) SE->selectedPlace--;
+	if(SE->frameData.multiSelActiveNum != 0) return 1;
+
+	if(SE->selectedPlace > ((SE->frameData.placesCount - 1) - SE->effectScreen[SE->currSelEffect].paramNum))
+	{
+		SE->selectedPlace--;
+	}
+
+	if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
+	{
+		if(SE->selectedPlace == 3)
+		{
+			SE->points.selected = selectStart;
+		}
+		else if(SE->selectedPlace == 4)
+		{
+			SE->points.selected = selectEnd;
+		}
+		else
+		{
+			SE->points.selected = 0;
+		}
+
+		SE->refreshPoints = 1;
+	}
 
 	SE->activateLabelsBorder();
 
@@ -793,7 +943,27 @@ static  uint8_t functLeft()
 static  uint8_t functRight()
 {
 	if(SE->moduleFlags != 0) return 1;
-	if(SE->selectedPlace < SE->frameData.placesCount-1) SE->selectedPlace++;
+	if(SE->frameData.multiSelActiveNum != 0) return 1;
+
+	if(SE->selectedPlace < (SE->frameData.placesCount-1)) SE->selectedPlace++;
+
+	if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
+	{
+		if(SE->selectedPlace == 3)
+		{
+			SE->points.selected = selectStart;
+		}
+		else if(SE->selectedPlace == 4)
+		{
+			SE->points.selected = selectEnd;
+		}
+		else
+		{
+			SE->points.selected = 0;
+		}
+
+		SE->refreshPoints = 1;
+	}
 
 	SE->activateLabelsBorder();
 
@@ -804,15 +974,22 @@ static  uint8_t functUp()
 {
 	if(SE->moduleFlags != 0) return 1;
 
-	switch(SE->selectedPlace)
+	if(SE->frameData.multiSelActiveNum != 0)
 	{
-	case 0: break;
-	case 1: break;
-	case 2: SE->editParamFunction(0, -1);	break;
-	case 3: SE->editParamFunction(1, -1);	break;
-	case 4: SE->editParamFunction(2, -1);    break;
-	case 5: SE->editParamFunction(3, -1);	break;
-	case 6: SE->changeEffectSelection(-1);	break;
+		SE->editParamFunctionSelection(1);
+	}
+	else
+	{
+		switch(SE->selectedPlace)
+		{
+		case 0: break;
+		case 1: break;
+		case 2: SE->editParamFunction(0, 1);	break;
+		case 3: SE->editParamFunction(1, 1);	break;
+		case 4: SE->editParamFunction(2, 1);    break;
+		case 5: SE->editParamFunction(3, 1);	break;
+		case 6: SE->changeEffectSelection(-1);	break;
+		}
 	}
 
 	return 1;
@@ -822,15 +999,22 @@ static  uint8_t functDown()
 {
 	if(SE->moduleFlags != 0) return 1;
 
-	switch(SE->selectedPlace)
+	if(SE->frameData.multiSelActiveNum != 0)
 	{
-	case 0: break;
-	case 1: break;
-	case 2: SE->editParamFunction(0, -1);	break;
-	case 3: SE->editParamFunction(1, -1);	break;
-	case 4: SE->editParamFunction(2, -1);    break;
-	case 5: SE->editParamFunction(3, -1);	break;
-	case 6: SE->changeEffectSelection(1);	break;
+		SE->editParamFunctionSelection(-1);
+	}
+	else
+	{
+		switch(SE->selectedPlace)
+		{
+		case 0: break;
+		case 1: break;
+		case 2: SE->editParamFunction(0, -1);	break;
+		case 3: SE->editParamFunction(1, -1);	break;
+		case 4: SE->editParamFunction(2, -1);    break;
+		case 5: SE->editParamFunction(3, -1);	break;
+		case 6: SE->changeEffectSelection(1);	break;
+		}
 	}
 
 	return 1;
@@ -1189,7 +1373,7 @@ void cSampleEditor::updateEffectProcessing()
 
 //------------------- EDIT FUNCTIONS --------------------
 //
-uint8_t changeZoom(int16_t value)
+static uint8_t changeZoom(int16_t value)
 {
 	GP.spectrumChangeZoom(value, effector.getLength()/2, &SE->zoom);
 
@@ -1199,7 +1383,7 @@ uint8_t changeZoom(int16_t value)
 	return 0;
 }
 
-uint8_t modStartPoint(int16_t value)
+static uint8_t modStartPoint(int16_t value)
 {
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
 	uint16_t move_step = SE->zoom.zoomWidth / 480;
@@ -1227,7 +1411,7 @@ uint8_t modStartPoint(int16_t value)
 	return 0;
 }
 
-uint8_t modEndPoint(int16_t value)
+static uint8_t modEndPoint(int16_t value)
 {
 	uint16_t move_step = SE->zoom.zoomWidth / 480;
 	value = value * move_step;
@@ -1253,7 +1437,7 @@ uint8_t modEndPoint(int16_t value)
 	return 0;
 }
 
-uint8_t editChorusLength(int16_t value)
+static uint8_t editChorusLength(int16_t value)
 {
 	if(SE->chorusLength + (value * AUDIO_BLOCK_SAMPLES) < 0) SE->chorusLength = 0;
 	else if(SE->chorusLength + (value * AUDIO_BLOCK_SAMPLES) > CHORUS_BUF_SIZE) SE->chorusLength = CHORUS_BUF_SIZE;
@@ -1263,7 +1447,7 @@ uint8_t editChorusLength(int16_t value)
 	return ((SE->chorusLength * 100)/(CHORUS_BUF_SIZE));
 }
 
-uint8_t editChorusStrength(int16_t value)
+static uint8_t editChorusStrength(int16_t value)
 {
 	if(SE->chorusStrength + value < CHORUS_STRENGTH_MIN) SE->chorusStrength = CHORUS_STRENGTH_MIN;
 	else if(SE->chorusStrength + value > CHORUS_STRENGTH_MAX) SE->chorusStrength = CHORUS_STRENGTH_MAX;
@@ -1273,7 +1457,7 @@ uint8_t editChorusStrength(int16_t value)
 	return (((SE->chorusStrength - CHORUS_STRENGTH_MIN) * 100)/(CHORUS_STRENGTH_MAX - CHORUS_STRENGTH_MIN));
 }
 
-uint8_t editDelayFeedback(int16_t value)
+static uint8_t editDelayFeedback(int16_t value)
 {
 	float delayStep = DELAY_FEEDBACK_STEP;
 
@@ -1284,7 +1468,7 @@ uint8_t editDelayFeedback(int16_t value)
 	return (SE->delayFeedback * 100)/DELAY_FEEDBACK_MAX;
 }
 
-uint8_t editDelayTime(int16_t value)
+static uint8_t editDelayTime(int16_t value)
 {
 	uint8_t timeStep_ms = DELAY_TIME_STEP;
 
@@ -1295,7 +1479,7 @@ uint8_t editDelayTime(int16_t value)
 	return (SE->delayTime * 100)/DELAY_TIME_MAX;
 }
 
-uint8_t editFlangerOffset(int16_t value)
+static uint8_t editFlangerOffset(int16_t value)
 {
 	if(SE->flangerOffset + value < 0) SE->flangerOffset = 0;
 	else if(SE->flangerOffset + value  > FLANGER_OFFSET_MAX) SE->flangerOffset = FLANGER_OFFSET_MAX;
@@ -1305,7 +1489,7 @@ uint8_t editFlangerOffset(int16_t value)
 	return ((SE->flangerOffset * 100)/(FLANGER_OFFSET_MAX));
 }
 
-uint8_t editFlangerDepth(int16_t value)
+static uint8_t editFlangerDepth(int16_t value)
 {
 	if(SE->flangerDepth + value < 0) SE->flangerDepth = 0;
 	else if(SE->flangerDepth + value > FLANGER_DEPTH_MAX) SE->flangerDepth = FLANGER_DEPTH_MAX;
@@ -1315,7 +1499,7 @@ uint8_t editFlangerDepth(int16_t value)
 	return ((SE->flangerDepth * 100)/FLANGER_DEPTH_MAX);
 }
 
-uint8_t editFlangerDelay(int16_t value)
+static uint8_t editFlangerDelay(int16_t value)
 {
 	if(SE->flangerDelay + value < 0) SE->flangerDelay = 0;
 	else if(SE->flangerDelay + value > FLANGER_DELAYRATE_MAX) SE->flangerDelay = FLANGER_DELAYRATE_MAX;
@@ -1325,7 +1509,7 @@ uint8_t editFlangerDelay(int16_t value)
 	return ((SE->flangerDelay * 100)/FLANGER_DELAYRATE_MAX);
 }
 
-uint8_t editCompressorThreshold(int16_t value)
+static uint8_t editCompressorThreshold(int16_t value)
 {
 	uint8_t step = 10;
 
@@ -1337,7 +1521,7 @@ uint8_t editCompressorThreshold(int16_t value)
 	return ((SE->compressorThrs * 100)/(CMPSR_THRESHOLD_MAX));
 }
 
-uint8_t editCompressorRatio(int16_t value)
+static uint8_t editCompressorRatio(int16_t value)
 {
 	if(SE->compressorRatio + value < 0) SE->compressorRatio = 0;
 	else if(SE->compressorRatio + value > CMPSR_RATIO_MAX) SE->compressorRatio = CMPSR_RATIO_MAX;
@@ -1347,7 +1531,7 @@ uint8_t editCompressorRatio(int16_t value)
 	return ((SE->compressorRatio * 100)/CMPSR_RATIO_MAX);
 }
 
-uint8_t editCompressorAttack(int16_t value)
+static uint8_t editCompressorAttack(int16_t value)
 {
 	if(SE->compressorAttack + value < 0) SE->compressorAttack = 0;
 	else if(SE->compressorAttack + value > CMPSR_ATTACK_MAX_MS) SE->compressorAttack = CMPSR_ATTACK_MAX_MS;
@@ -1357,7 +1541,7 @@ uint8_t editCompressorAttack(int16_t value)
 	return ((SE->compressorAttack * 100)/CMPSR_ATTACK_MAX_MS);
 }
 
-uint8_t editCompressorRelease(int16_t value)
+static uint8_t editCompressorRelease(int16_t value)
 {
 	if(SE->compressorRelease + value < 0) SE->compressorRelease = 0;
 	else if(SE->compressorRelease + value > CMPSR_RELEASE_MAX_MS) SE->compressorRelease = CMPSR_RELEASE_MAX_MS;
@@ -1367,7 +1551,7 @@ uint8_t editCompressorRelease(int16_t value)
 	return ((SE->compressorRelease * 100)/CMPSR_RELEASE_MAX_MS);
 }
 
-uint8_t editBitcrusherBits(int16_t value)
+static uint8_t editBitcrusherBits(int16_t value)
 {
 	if(SE->bitcrusherBits + value < 0) SE->bitcrusherBits = 0;
 	else if(SE->bitcrusherBits + value > BITCRUSHER_BITS_MAX) SE->bitcrusherBits = BITCRUSHER_BITS_MAX;
@@ -1377,7 +1561,7 @@ uint8_t editBitcrusherBits(int16_t value)
 	return ((SE->bitcrusherBits * 100)/BITCRUSHER_BITS_MAX);
 }
 
-uint8_t editBitcrusherRate(int16_t value)
+static uint8_t editBitcrusherRate(int16_t value)
 {
 	uint8_t step = 10;
 
@@ -1389,7 +1573,7 @@ uint8_t editBitcrusherRate(int16_t value)
 	return ((SE->bitcrusherRate * 100)/BITCRUSHER_RATE_MAX);
 }
 
-uint8_t editAmplifierAmp(int16_t value)
+static uint8_t editAmplifierAmp(int16_t value)
 {
 	float step = 0.1f;
 
@@ -1401,7 +1585,7 @@ uint8_t editAmplifierAmp(int16_t value)
 	return ((SE->amplifierAmp * 100)/AMPLIFIER_AMP_MAX);
 }
 
-uint8_t editLimiterThreshold(int16_t value)
+static uint8_t editLimiterThreshold(int16_t value)
 {
 	uint8_t step = 10;
 
@@ -1413,7 +1597,7 @@ uint8_t editLimiterThreshold(int16_t value)
 	return ((SE->limiterThreshold * 100)/LIMITER_THRESHOLD_MAX);
 }
 
-uint8_t editLimiterAttack(int16_t value)
+static uint8_t editLimiterAttack(int16_t value)
 {
 	uint8_t step = 10;
 
@@ -1425,7 +1609,7 @@ uint8_t editLimiterAttack(int16_t value)
 	return ((SE->limiterAttack * 100)/LIMITER_ATTACK_MAX);
 }
 
-uint8_t editLimiterRelease(int16_t value)
+static uint8_t editLimiterRelease(int16_t value)
 {
 	uint8_t  step = 10;
 
@@ -1436,6 +1620,63 @@ uint8_t editLimiterRelease(int16_t value)
 
 	return ((SE->limiterRelease * 100)/LIMITER_RELEASE_MAX);
 }
+
+/*/////////// MultiSelect Functions ////////////////*/
+void cSampleEditor::addNode(editFunct1_t funct , uint8_t nodeNum)
+{
+	if(selectNodes[nodeNum].isActive == 0)
+	{
+		selectNodes[nodeNum].isActive = 1;
+		selectNodes[nodeNum].editFunct = funct;
+	}
+}
+
+void cSampleEditor::removeNode(uint8_t nodeNum)
+{
+	selectNodes[nodeNum].isActive = 0;
+	selectNodes[nodeNum].editFunct = NULL;
+}
+
+selection_percentages cSampleEditor::stepThroughNodes(int16_t value)
+{
+	selection_percentages temp;
+
+	memset(&temp,0,sizeof(temp));
+
+	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	{
+		if(selectNodes[node].isActive)
+		{
+			if(selectNodes[node].editFunct != NULL)
+			{
+				temp.mask |= (1 << node);
+				temp.percentages[node] = selectNodes[node].editFunct(value);
+			}
+		}
+	}
+
+	return temp;
+}
+
+void cSampleEditor::clearAllNodes()
+{
+	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	{
+		selectNodes[node].isActive = 0;
+		selectNodes[node].editFunct = NULL;
+	}
+}
+
+void cSampleEditor::cancelMultiFrame()
+{
+	for(uint8_t i = 0; i < MAX_SELECT_NODES; i++)
+	{
+		frameData.multisel[i].isActive = 0;
+	}
+
+	frameData.multiSelActiveNum = 0;
+}
+///////////////////////////////////////////////////////////////////////////
 
 
 

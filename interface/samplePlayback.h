@@ -9,6 +9,9 @@
 
 #include "mtStructs.h"
 
+#undef MAX_SELECT_NODES
+#define MAX_SELECT_NODES	4
+
 
 const char playModeFunctLabels[playModeCount][15]=
 {
@@ -59,12 +62,6 @@ public:
 	void cancelPopups();
 
 	void processPoints();
-	void modStartPoint(int16_t value);
-	void modEndPoint(int16_t value);
-	void modLoopPoint1(int16_t value);
-	void modLoopPoint2(int16_t value);
-	void changeZoom(int16_t value);
-	void changePlayModeSelection(int16_t value);
 	void showPreviewValue();
 	void hidePreviewValue();
 
@@ -80,6 +77,8 @@ public:
 
 	void hideLoopPoints();
 	void showLoopPoints();
+
+	void selectCorrectPoints();
 
 	void calcPlayProgressValue();
 	void activateLabelsBorder();
@@ -99,7 +98,7 @@ public:
 
 
 
-	uint8_t selectedPlace = 0;
+	uint8_t selectedPlace = 6;
 
 
 //----------------------------------
@@ -148,6 +147,14 @@ public:
 	uint8_t glidePreviewDif = 0;
 
 //----------------------------------
+	// multisel
+	select_node_t selectNodes[MAX_SELECT_NODES];
+
+	void addNode(editFunct_t funct , uint8_t nodeNum);
+	void removeNode(uint8_t nodeNum);
+	void stepThroughNodes(int16_t value);
+	void clearAllNodes();
+	void cancelMultiFrame();
 
 
 

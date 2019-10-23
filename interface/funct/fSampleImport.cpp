@@ -318,6 +318,9 @@ static  uint8_t functChangeFolder(uint8_t button)
 	}
 
 	SI->selectedPlace = 0;
+
+	SI->AddOrEnter();
+	SI->displayDelete(SI->selectedPlace);
 	SI->activateLabelsBorder();
 
 	return 1;
@@ -340,6 +343,9 @@ static  uint8_t functChangeInstrument(uint8_t button)
 	}
 
 	SI->selectedPlace = 1;
+
+	SI->AddOrEnter();
+	SI->displayDelete(SI->selectedPlace);
 	SI->activateLabelsBorder();
 
 	return 1;
@@ -436,8 +442,7 @@ static  uint8_t functRename()
 
 	SI->keyboardActiveFlag = 1;
 
-	SI->FM->clearButton(interfaceButton2);
-	SI->FM->clearButton(interfaceButton5);
+	SI->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 	SI->FM->setButtonObj(interfaceButton2, buttonPress, functCancelRename);
 	SI->FM->setButtonObj(interfaceButton5, buttonPress, functConfirmRename);
@@ -967,7 +972,7 @@ void cSampleImporter::processDirFileSizes()
 
 		strcat(filePath, &locationExplorerList[openCurrentPos][0]);
 
-		currentFolderMemoryFileUsage[openCurrentPos]= 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
+ 		currentFolderMemoryFileUsage[openCurrentPos]= 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
 
 		openCurrentPos++;
 

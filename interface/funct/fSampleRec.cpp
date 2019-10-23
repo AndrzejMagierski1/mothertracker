@@ -153,8 +153,8 @@ static  uint8_t functDown();
 static uint8_t functEnter();
 
 static  uint8_t functSelectButton0();
-static  uint8_t functSelectButton1();
-static  uint8_t functSelectButton2();
+static  uint8_t functSelectButton1(uint8_t state);
+static  uint8_t functSelectButton2(uint8_t state);
 static  uint8_t functSelectButton3();
 static  uint8_t functSelectButton4();
 static  uint8_t functSelectButton5();
@@ -163,8 +163,8 @@ static  uint8_t functSelectButton7();
 
 
 static  uint8_t functActionButton0(uint8_t s);
-static  uint8_t functActionButton1();
-static  uint8_t functActionButton2();
+static  uint8_t functActionButton1(uint8_t state);
+static  uint8_t functActionButton2(uint8_t state);
 static  uint8_t functActionButton3();
 static  uint8_t functActionButton4();
 static  uint8_t functActionButton5();
@@ -197,6 +197,10 @@ static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
 
 static uint8_t functStepNote(uint8_t value);
+
+static void modStartPoint(int16_t value);
+static void modEndPoint(int16_t value);
+
 
 void seek_callback(void);
 
@@ -349,6 +353,10 @@ void cSampleRecorder::start(uint32_t options)
 	refreshGain();
 	showZoomValue();
 
+	points.selected = 0;
+	clearAllNodes();
+	cancelMultiFrame();
+
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
@@ -422,8 +430,8 @@ void cSampleRecorder::setDefaultScreenFunct()
 
 
 	FM->setButtonObj(interfaceButton0, functActionButton0);
-	FM->setButtonObj(interfaceButton1, buttonPress, functActionButton1);
-	FM->setButtonObj(interfaceButton2, buttonPress, functActionButton2);
+	FM->setButtonObj(interfaceButton1, functActionButton1);
+	FM->setButtonObj(interfaceButton2, functActionButton2);
 	FM->setButtonObj(interfaceButton3, buttonPress, functActionButton3);
 	FM->setButtonObj(interfaceButton4, buttonPress, functActionButton4);
 	FM->setButtonObj(interfaceButton5, buttonPress, functActionButton5);
@@ -760,50 +768,146 @@ static  uint8_t functSelectButton0()
 	return 1;
 }
 
-static  uint8_t functSelectButton1()
+static  uint8_t functSelectButton1(uint8_t state)
 {
 	if(SR->recordInProgressFlag == 1) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
 	if ((SR->currentScreen == cSampleRecorder::screenTypeConfig) &&
-	(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio)) return 1;
-	SR->selectedPlace = 1;
-	SR->activateLabelsBorder();
+			(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio)) return 1;
 
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
-		SR->points.selected = 1;
-		if(SR->zoom.zoomValue > 1.0 && SR->zoom.lastChangedPoint != 1)
+		if(state == buttonPress || state == UINT8_MAX)
 		{
-			SR->refreshSpectrum = 1;
-			SR->zoom.lastChangedPoint = 1;
-			SR->zoom.zoomPosition = SR->startPoint;
-		}
-		SR->refreshPoints = 1;
+			if(SR->zoom.zoomValue > 1.0 && SR->zoom.lastChangedPoint != 1)
+			{
+				SR->refreshSpectrum = 1;
+				SR->zoom.lastChangedPoint = 1;
+				SR->zoom.zoomPosition = SR->startPoint;
+			}
 
+			if(state == buttonPress)
+			{
+				SR->frameData.multisel[1].frameNum = 1;
+				SR->frameData.multisel[1].isActive = 1;
+				SR->frameData.multiSelActiveNum  += 1;
+				SR->addNode(modStartPoint, 0);
+			}
+
+			if(SR->frameData.multiSelActiveNum < 2)
+			{
+				SR->points.selected = 0;
+			}
+
+			SR->points.selected |= selectStart;
+
+			SR->selectedPlace = 1;
+		}
+		else if(state == buttonRelease)
+		{
+			if(SR->frameData.multiSelActiveNum)
+			{
+				SR->points.selected &= ~selectStart;
+
+				if(SR->frameData.multisel[1].isActive)
+				{
+					SR->removeNode(0);
+					SR->frameData.multiSelActiveNum  -= 1;
+
+					SR->frameData.multisel[1].isActive = 0;
+
+					if(SR->frameData.multiSelActiveNum == 0)
+					{
+						SR->selectedPlace = 1;
+						SR->points.selected |= selectStart;
+					}
+				}
+			}
+		}
+
+		SR->refreshPoints = 1;
 	}
+	else
+	{
+		if(state == buttonPress)
+		{
+			SR->selectedPlace = 1;
+		}
+	}
+
+	SR->activateLabelsBorder();
 
 	return 1;
 }
-static  uint8_t functSelectButton2()
+static  uint8_t functSelectButton2(uint8_t state)
 {
 	if(SR->recordInProgressFlag == 1) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
 	if ((SR->currentScreen == cSampleRecorder::screenTypeConfig) &&
 	(SR->recorderConfig.source != cSampleRecorder::sourceTypeRadio)) return 1;
-	SR->selectedPlace = 2;
-	SR->activateLabelsBorder();
 
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
-		SR->points.selected = 2;
-		if(SR->zoom.zoomValue > 1.0 && SR->zoom.lastChangedPoint != 2 )
+		if(state == buttonPress || state == UINT8_MAX)
 		{
-			SR->refreshSpectrum = 1;
-			SR->zoom.lastChangedPoint = 2;
-			SR->zoom.zoomPosition = SR->endPoint;
+			if(SR->zoom.zoomValue > 1.0 && SR->zoom.lastChangedPoint != 2 )
+			{
+				SR->refreshSpectrum = 1;
+				SR->zoom.lastChangedPoint = 2;
+				SR->zoom.zoomPosition = SR->endPoint;
+			}
+
+			if(state == buttonPress)
+			{
+				SR->frameData.multisel[2].frameNum = 2;
+				SR->frameData.multisel[2].isActive = 1;
+				SR->frameData.multiSelActiveNum  += 1;
+				SR->addNode(modEndPoint, 1);
+			}
+
+			if(SR->frameData.multiSelActiveNum < 2)
+			{
+				SR->points.selected = 0;
+			}
+
+			SR->points.selected |= selectEnd;
+
+			SR->selectedPlace = 2;
 		}
+		else if(state == buttonRelease)
+		{
+			if(SR->frameData.multiSelActiveNum)
+			{
+				SR->points.selected &= ~selectEnd;
+
+				if(SR->frameData.multisel[2].isActive)
+				{
+					SR->removeNode(1);
+					SR->frameData.multiSelActiveNum  -= 1;
+
+					SR->frameData.multisel[2].isActive = 0;
+
+					if(SR->frameData.multiSelActiveNum == 0)
+					{
+						SR->selectedPlace = 2;
+						SR->points.selected |= selectEnd;
+					}
+				}
+			}
+		}
+
 		SR->refreshPoints = 1;
 	}
+	else
+	{
+		if(state == buttonPress)
+		{
+			SR->selectedPlace = 2;
+		}
+	}
+
+	SR->activateLabelsBorder();
+
 	return 1;
 }
 static  uint8_t functSelectButton3()
@@ -817,6 +921,8 @@ static  uint8_t functSelectButton3()
 
 	if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
+		SR->clearAllNodes();
+		SR->cancelMultiFrame();
 		SR->points.selected = 0;
 		SR->refreshPoints = 1;
 	}
@@ -882,7 +988,10 @@ static  uint8_t functActionButton0(uint8_t s)
 {
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowFlag == 1)
-		{
+	{
+			SR->clearAllNodes();
+			SR->cancelMultiFrame();
+
 			SR->selectionWindowFlag = 0;
 
 			SR->currentScreen = cSampleRecorder::screenTypeConfig;
@@ -962,41 +1071,60 @@ static  uint8_t functActionButton0(uint8_t s)
 //==============================================================================================================
 
 
-static  uint8_t functActionButton1()
+static  uint8_t functActionButton1(uint8_t state)
 {
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
 
-	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton1();
-	switch(SR->currentScreen)
+
+	if(state == buttonPress || state == buttonRelease)
 	{
+		if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton1(state);
+	}
+
+	if(state == buttonPress)
+	{
+		switch(SR->currentScreen)
+		{
 		case cSampleRecorder::screenTypeConfig: 	functActionRadioFreq();			break;
 		case cSampleRecorder::screenTypeRecord: 	functActionStartPoint();		break;
 		case cSampleRecorder::screenTypeKeyboard: break;
 		default: break;
+		}
 	}
 	return 1;
 }
 
-static  uint8_t functActionButton2()
+static  uint8_t functActionButton2(uint8_t state)
 {
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
 
-	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
+	if(state == buttonPress)
 	{
-		functConfirmKey();
-		return 1;
+		if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
+		{
+			functConfirmKey();
+			return 1;
+		}
 	}
-	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton2();
-	switch(SR->currentScreen)
+
+	if(state == buttonPress || state == buttonRelease)
 	{
+		if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton2(state);
+	}
+
+	if(state == buttonPress)
+	{
+		switch(SR->currentScreen)
+		{
 		case cSampleRecorder::screenTypeConfig:		functActionRadioLeft();			break;
 		case cSampleRecorder::screenTypeRecord: 	functActionEndPoint();			break;
 		case cSampleRecorder::screenTypeKeyboard: break;
 		default: break;
+		}
 	}
 	return 1;
 }
@@ -1068,10 +1196,20 @@ static  uint8_t functActionButton6()
 
 static  uint8_t functActionButton7()
 {
+	if(SR->selectedPlace == 1)
+	{
+		SR->points.selected = selectStart;
+	}
+	else if(SR->selectedPlace == 2)
+	{
+		SR->points.selected = selectEnd;
+	}
+
 	if(SR->selectionWindowFlag == 1)
 	{
 		SR->selectionWindowFlag = 0;
-		SR->selectedPlace = 6;
+		//SR->selectedPlace = 6;
+
 		SR->showDefaultScreen();
 		SR->activateLabelsBorder();
 		return 1;
@@ -1613,7 +1751,7 @@ static  uint8_t functActionStopRec()
 static  uint8_t functActionEndPoint()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
-	SR->points.selected = 2;
+	//SR->points.selected = 2;
 	if(SR->zoom.zoomValue > 1.0 )
 	{
 		SR->refreshSpectrum = 1;
@@ -1662,8 +1800,26 @@ static  uint8_t functEncoder(int16_t value)
 		switch(SR->selectedPlace)
 		{
 		case 0: 	break;
-		case 1: 	SR->modStartPoint(value);					break;
-		case 2: 	SR->modEndPoint(value); 					break;
+		case 1:
+			if(SR->frameData.multiSelActiveNum)
+			{
+				SR->stepThroughNodes(value);
+			}
+			else
+			{
+				modStartPoint(value);
+			}
+			break;
+		case 2:
+			if(SR->frameData.multiSelActiveNum)
+			{
+				SR->stepThroughNodes(value);
+			}
+			else
+			{
+				modEndPoint(value);
+			}
+			break;
 		case 3: 	SR->changeZoom(value);						break;
 		case 5: 	break;
 		case 6: 	break;
@@ -1683,6 +1839,7 @@ static  uint8_t functEncoder(int16_t value)
 static  uint8_t functLeft()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->frameData.multiSelActiveNum != 0) return 1;
 
 	if(SR->keyboardActiveFlag)
 	{
@@ -1693,20 +1850,22 @@ static  uint8_t functLeft()
 
 	if(SR->recordInProgressFlag) return 1;
 
-	if(SR->selectedPlace > 0) SR->selectedPlace--;
+
 
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig)
 	{
+		if(SR->selectedPlace > 0) SR->selectedPlace--;
+
 		switch(SR->selectedPlace)
 		{
 			case 0:
 				functSelectButton0();
 				break;
 			case 1:
-				functSelectButton1();
+				functSelectButton1(UINT8_MAX);
 				break;
 			case 2:
-				functSelectButton2();
+				functSelectButton2(UINT8_MAX);
 				break;
 			case 3:
 				functSelectButton3();
@@ -1733,16 +1892,18 @@ static  uint8_t functLeft()
 	}
 	else if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
+		if(SR->selectedPlace > 1) SR->selectedPlace--;
+
 		switch(SR->selectedPlace)
 		{
 			case 0:
 				functSelectButton0();
 				break;
 			case 1:
-				functSelectButton1();
+				functSelectButton1(UINT8_MAX);
 				break;
 			case 2:
-				functSelectButton2();
+				functSelectButton2(UINT8_MAX);
 				break;
 			case 3:
 				functSelectButton3();
@@ -1768,6 +1929,7 @@ static  uint8_t functLeft()
 static  uint8_t functRight()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->frameData.multiSelActiveNum != 0) return 1;
 
 	if(SR->keyboardActiveFlag)
 	{
@@ -1778,16 +1940,17 @@ static  uint8_t functRight()
 
 	if(SR->recordInProgressFlag) return 1;
 
-	if(SR->selectedPlace < SR->frameData.placesCount-1) SR->selectedPlace++;
 
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig )
 	{
+		if(SR->selectedPlace < SR->frameData.placesCount-1) SR->selectedPlace++;
+
 		switch(SR->selectedPlace)
 		{
 			case 1:
 				if(SR->recorderConfig.source == cSampleRecorder::sourceTypeRadio)
 				{
-					functSelectButton1();
+					functSelectButton1(UINT8_MAX);
 				}
 				else
 				{
@@ -1796,7 +1959,7 @@ static  uint8_t functRight()
 				}
 				break;
 			case 2:
-				functSelectButton2();
+				functSelectButton2(UINT8_MAX);
 				break;
 			case 3:
 				functSelectButton3();
@@ -1820,14 +1983,15 @@ static  uint8_t functRight()
 	}
 	else if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
+		if(SR->selectedPlace < 3) SR->selectedPlace++;
 
 		switch(SR->selectedPlace)
 		{
 			case 1:
-				functSelectButton1();
+				functSelectButton1(UINT8_MAX);
 				break;
 			case 2:
-				functSelectButton2();
+				functSelectButton2(UINT8_MAX);
 				break;
 			case 3:
 				functSelectButton3();
@@ -2166,49 +2330,49 @@ void cSampleRecorder::changeMonitorSelection(int16_t value)
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
-void cSampleRecorder::modStartPoint(int16_t value)
+static void modStartPoint(int16_t value)
 {
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
-	uint16_t move_step = zoom.zoomWidth / 480;
+	uint16_t move_step = SR->zoom.zoomWidth / 480;
 	value = value * move_step;
 
-	if(startPoint + value < SAMPLE_POINT_POS_MIN) startPoint  = 0;
-	else if(startPoint + value > SAMPLE_POINT_POS_MAX ) startPoint  = SAMPLE_POINT_POS_MAX;
-	else startPoint += value;
+	if(SR->startPoint + value < SAMPLE_POINT_POS_MIN) SR->startPoint  = 0;
+	else if(SR->startPoint + value > SAMPLE_POINT_POS_MAX ) SR->startPoint  = SAMPLE_POINT_POS_MAX;
+	else SR->startPoint += value;
 
-	if(startPoint > endPoint) startPoint = endPoint-1;
+	if(SR->startPoint > SR->endPoint) SR->startPoint = SR->endPoint-1;
 
 
 
 	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
-	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 1 || (startPoint < zoom.zoomStart || startPoint > zoom.zoomEnd))) refreshSpectrum = 1;
+	if(SR->zoom.zoomValue > 1 && (SR->zoom.lastChangedPoint != 1 || (SR->startPoint < SR->zoom.zoomStart || SR->startPoint > SR->zoom.zoomEnd)))SR-> refreshSpectrum = 1;
 
-	zoom.zoomPosition = startPoint;
-	zoom.lastChangedPoint = 1;
-	refreshPoints = 1;
+	SR->zoom.zoomPosition = SR->startPoint;
+	SR->zoom.lastChangedPoint = 1;
+	SR->refreshPoints = 1;
 
-	showStartPointValue();
+	SR->showStartPointValue();
 }
 
-void cSampleRecorder::modEndPoint(int16_t value)
+static void modEndPoint(int16_t value)
 {
-	uint16_t move_step = zoom.zoomWidth / 480;
+	uint16_t move_step = SR->zoom.zoomWidth / 480;
 	value = value * move_step;
 
-	if(endPoint + value < SAMPLE_POINT_POS_MIN) endPoint  = 0;
-	else if(endPoint + value > SAMPLE_POINT_POS_MAX ) endPoint  = SAMPLE_POINT_POS_MAX;
-	else endPoint += value;
+	if(SR->endPoint + value < SAMPLE_POINT_POS_MIN) SR->endPoint  = 0;
+	else if(SR->endPoint + value > SAMPLE_POINT_POS_MAX ) SR->endPoint  = SAMPLE_POINT_POS_MAX;
+	else SR->endPoint += value;
 
-	if(endPoint < startPoint) endPoint = startPoint+1;
+	if(SR->endPoint < SR->startPoint) SR->endPoint = SR->startPoint+1;
 
 
-	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 2 || (endPoint < zoom.zoomStart || endPoint > zoom.zoomEnd))) refreshSpectrum = 1;
+	if(SR->zoom.zoomValue > 1 && (SR->zoom.lastChangedPoint != 2 || (SR->endPoint < SR->zoom.zoomStart ||SR-> endPoint > SR->zoom.zoomEnd))) SR->refreshSpectrum = 1;
 
-	zoom.zoomPosition = endPoint;
-	zoom.lastChangedPoint = 2;
-	refreshPoints = 1;
+	SR->zoom.zoomPosition = SR->endPoint;
+	SR->zoom.lastChangedPoint = 2;
+	SR->refreshPoints = 1;
 
-	showEndPointValue();
+	SR->showEndPointValue();
 }
 
 void cSampleRecorder::calcPlayProgressValue()
@@ -2402,4 +2566,54 @@ static uint8_t functStepNote(uint8_t value)
 	}
 	return 1;
 }
+
+/*/////////// MultiSelect Functions ////////////////*/
+void cSampleRecorder::addNode(editFunct_t funct , uint8_t nodeNum)
+{
+	if(selectNodes[nodeNum].isActive == 0)
+	{
+		selectNodes[nodeNum].isActive = 1;
+		selectNodes[nodeNum].editFunct = funct;
+	}
+}
+
+void cSampleRecorder::removeNode(uint8_t nodeNum)
+{
+	selectNodes[nodeNum].isActive = 0;
+	selectNodes[nodeNum].editFunct = NULL;
+}
+
+void cSampleRecorder::stepThroughNodes(int16_t value)
+{
+	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	{
+		if(selectNodes[node].isActive)
+		{
+			if(selectNodes[node].editFunct != NULL)
+			{
+				selectNodes[node].editFunct(value);
+			}
+		}
+	}
+}
+
+void cSampleRecorder::clearAllNodes()
+{
+	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	{
+		selectNodes[node].isActive = 0;
+		selectNodes[node].editFunct = NULL;
+	}
+}
+
+void cSampleRecorder::cancelMultiFrame()
+{
+	for(uint8_t i = 0; i < MAX_SELECT_NODES; i++)
+	{
+		SR->frameData.multisel[i].isActive = 0;
+	}
+
+	SR->frameData.multiSelActiveNum = 0;
+}
+///////////////////////////////////////////////////////////////////////////
 
