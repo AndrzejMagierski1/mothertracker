@@ -532,7 +532,6 @@ void cConfigEditor::hideFirmwareUpdateLabels()
 	display.setControlHide(firmwareListControl);
 	display.refreshControl(firmwareListControl);
 
-	resizeFirmwareLabel(0);
 }
 
 void cConfigEditor::showFirmwareUpdatePopout()
@@ -596,7 +595,6 @@ void cConfigEditor::resizeLabelConfigMaster()
 {
 	for(int i=0;i<8;i++)
 	{
-
 		display.setControlSize(topLabel[i], (800/8)-6, 28);
 		display.setControlPosition(topLabel[i], (800/8)*i+(800/16), 437);
 		display.refreshControl(topLabel[i]);
