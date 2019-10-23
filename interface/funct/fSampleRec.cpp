@@ -781,23 +781,23 @@ static  uint8_t functSelectButton1(uint8_t state)
 				SR->frameData.multisel[1].isActive = 1;
 				SR->frameData.multiSelActiveNum  += 1;
 				SR->addNode(modStartPoint, 0);
-
-				if(SR->frameData.multiSelActiveNum == 1)
-				{
-					SR->points.selected = 0;
-				}
-
-				SR->points.selected |= selectStart;
 			}
+
+			if(SR->frameData.multiSelActiveNum < 2)
+			{
+				SR->points.selected = 0;
+			}
+
+			SR->points.selected |= selectStart;
 
 			SR->selectedPlace = 1;
 		}
 		else if(state == buttonRelease)
 		{
-			SR->points.selected &= ~selectStart;
-
 			if(SR->frameData.multiSelActiveNum)
 			{
+				SR->points.selected &= ~selectStart;
+
 				if(SR->frameData.multisel[1].isActive)
 				{
 					SR->removeNode(0);
@@ -852,23 +852,23 @@ static  uint8_t functSelectButton2(uint8_t state)
 				SR->frameData.multisel[2].isActive = 1;
 				SR->frameData.multiSelActiveNum  += 1;
 				SR->addNode(modEndPoint, 1);
-
-				if(SR->frameData.multiSelActiveNum == 1)
-				{
-					SR->points.selected = 0;
-				}
-
-				SR->points.selected |= selectEnd;
 			}
+
+			if(SR->frameData.multiSelActiveNum < 2)
+			{
+				SR->points.selected = 0;
+			}
+
+			SR->points.selected |= selectEnd;
 
 			SR->selectedPlace = 2;
 		}
 		else if(state == buttonRelease)
 		{
-			SR->points.selected &= ~selectEnd;
-
 			if(SR->frameData.multiSelActiveNum)
 			{
+				SR->points.selected &= ~selectEnd;
+
 				if(SR->frameData.multisel[2].isActive)
 				{
 					SR->removeNode(1);
@@ -1185,10 +1185,20 @@ static  uint8_t functActionButton6()
 
 static  uint8_t functActionButton7()
 {
+	if(SR->selectedPlace == 1)
+	{
+		SR->points.selected = selectStart;
+	}
+	else if(SR->selectedPlace == 2)
+	{
+		SR->points.selected = selectEnd;
+	}
+
 	if(SR->selectionWindowFlag == 1)
 	{
 		SR->selectionWindowFlag = 0;
 		//SR->selectedPlace = 6;
+
 		SR->showDefaultScreen();
 		SR->activateLabelsBorder();
 		return 1;
@@ -1824,6 +1834,7 @@ static  uint8_t functEncoder(int16_t value)
 static  uint8_t functLeft()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->frameData.multiSelActiveNum != 0) return 1;
 
 	if(SR->keyboardActiveFlag)
 	{
@@ -1834,10 +1845,12 @@ static  uint8_t functLeft()
 
 	if(SR->recordInProgressFlag) return 1;
 
-	if(SR->selectedPlace > 0) SR->selectedPlace--;
+
 
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig)
 	{
+		if(SR->selectedPlace > 0) SR->selectedPlace--;
+
 		switch(SR->selectedPlace)
 		{
 			case 0:
@@ -1874,6 +1887,8 @@ static  uint8_t functLeft()
 	}
 	else if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
+		if(SR->selectedPlace > 1) SR->selectedPlace--;
+
 		switch(SR->selectedPlace)
 		{
 			case 0:
@@ -1909,6 +1924,7 @@ static  uint8_t functLeft()
 static  uint8_t functRight()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->frameData.multiSelActiveNum != 0) return 1;
 
 	if(SR->keyboardActiveFlag)
 	{
@@ -1919,10 +1935,11 @@ static  uint8_t functRight()
 
 	if(SR->recordInProgressFlag) return 1;
 
-	if(SR->selectedPlace < SR->frameData.placesCount-1) SR->selectedPlace++;
 
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig )
 	{
+		if(SR->selectedPlace < SR->frameData.placesCount-1) SR->selectedPlace++;
+
 		switch(SR->selectedPlace)
 		{
 			case 1:
@@ -1961,6 +1978,7 @@ static  uint8_t functRight()
 	}
 	else if(SR->currentScreen == cSampleRecorder::screenTypeRecord)
 	{
+		if(SR->selectedPlace < 3) SR->selectedPlace++;
 
 		switch(SR->selectedPlace)
 		{

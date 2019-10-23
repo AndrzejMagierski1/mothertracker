@@ -164,7 +164,7 @@ void cSamplePlayback::start(uint32_t options)
 
 	//points.selected = (selectedPlace >= 1 && selectedPlace <= 4) ? selectedPlace : 0;
 
-	points.selected = 0;
+	selectCorrectPoints();
 	clearAllNodes();
 	cancelMultiFrame();
 
@@ -297,17 +297,32 @@ void cSamplePlayback::processPoints()
 
 }
 
-
+void cSamplePlayback::selectCorrectPoints()
+{
+	if(selectedPlace == 1)
+	{
+		points.selected = selectStart;
+	}
+	else if(selectedPlace == 2)
+	{
+		points.selected = selectLoop1;
+	}
+	else if(selectedPlace == 3)
+	{
+		points.selected = selectLoop2;
+	}
+	else if(selectedPlace == 4)
+	{
+		points.selected = selectEnd;
+	}
+}
 
 void cSamplePlayback::listPlayMode()
 {
-
 	for(uint8_t i = 0; i < playModeCount; i++)
 	{
 		playModeNames[i] = (char*)&playModeFunctLabels[i][0];
 	}
-
-
 }
 
 void cSamplePlayback::cancelPopups()
@@ -395,11 +410,11 @@ static  uint8_t functSelectStart(uint8_t state)
 			SP->frameData.multisel[1].frameNum = 1;
 			SP->frameData.multisel[1].isActive = 1;
 			SP->frameData.multiSelActiveNum  += 1;
+		}
 
-			if(SP->frameData.multiSelActiveNum == 1)
-			{
-				SP->points.selected = 0;
-			}
+		if(SP->frameData.multiSelActiveNum < 2)
+		{
+			SP->points.selected = 0;
 		}
 
 		SP->points.selected |= selectStart;
@@ -407,10 +422,10 @@ static  uint8_t functSelectStart(uint8_t state)
 	}
 	else if(state == buttonRelease)
 	{
-		SP->points.selected &= ~selectStart;
-
 		if(SP->frameData.multiSelActiveNum)
 		{
+			SP->points.selected &= ~selectStart;
+
 			if(SP->frameData.multisel[1].isActive)
 			{
 				SP->removeNode(0);
@@ -453,22 +468,22 @@ static  uint8_t functSelectLoop1(uint8_t state)
 			SP->frameData.multisel[2].frameNum = 2;
 			SP->frameData.multisel[2].isActive = 1;
 			SP->frameData.multiSelActiveNum  += 1;
-
-			if(SP->frameData.multiSelActiveNum == 1)
-			{
-				SP->points.selected = 0;
-			}
-
-			SP->points.selected |= selectLoop1;
-			SP->selectedPlace = 2;
 		}
+
+		if(SP->frameData.multiSelActiveNum < 2)
+		{
+			SP->points.selected = 0;
+		}
+
+		SP->points.selected |= selectLoop1;
+		SP->selectedPlace = 2;
 	}
 	else if(state == buttonRelease)
 	{
-		SP->points.selected &= ~selectLoop1;
-
 		if(SP->frameData.multiSelActiveNum)
 		{
+			SP->points.selected &= ~selectLoop1;
+
 			if(SP->frameData.multisel[2].isActive)
 			{
 				SP->removeNode(1);
@@ -513,7 +528,7 @@ static  uint8_t functSelectLoop2(uint8_t state)
 			SP->frameData.multiSelActiveNum  += 1;
 		}
 
-		if(SP->frameData.multiSelActiveNum == 1)
+		if(SP->frameData.multiSelActiveNum < 2)
 		{
 			SP->points.selected = 0;
 		}
@@ -524,10 +539,10 @@ static  uint8_t functSelectLoop2(uint8_t state)
 	}
 	else if(state == buttonRelease)
 	{
-		SP->points.selected &= ~selectLoop2;
-
 		if(SP->frameData.multiSelActiveNum)
 		{
+			SP->points.selected &= ~selectLoop2;
+
 			if(SP->frameData.multisel[3].isActive)
 			{
 				SP->removeNode(2);
@@ -571,7 +586,7 @@ static  uint8_t functSelectEnd(uint8_t state)
 			SP->frameData.multiSelActiveNum  += 1;
 		}
 
-		if(SP->frameData.multiSelActiveNum == 1)
+		if(SP->frameData.multiSelActiveNum < 2)
 		{
 			SP->points.selected = 0;
 		}
@@ -581,10 +596,10 @@ static  uint8_t functSelectEnd(uint8_t state)
 	}
 	else if(state == buttonRelease)
 	{
-		SP->points.selected &= ~selectEnd;
-
 		if(SP->frameData.multiSelActiveNum)
 		{
+			SP->points.selected &= ~selectEnd;
+
 			if(SP->frameData.multisel[4].isActive)
 			{
 				SP->removeNode(3);
@@ -614,6 +629,7 @@ static  uint8_t functSelectZoom()
 	SP->cancelMultiFrame();
 	SP->clearAllNodes();
 
+	SP->refreshPoints = 1;
 	SP->points.selected = 0;
 
 	SP->selectedPlace = 5;
@@ -639,8 +655,8 @@ static  uint8_t functPlayMode(uint8_t button)
 
 	SP->selectedPlace = 6;
 	SP->activateLabelsBorder();
-	SP->points.selected = 0;
 
+	SP->points.selected = 0;
 	SP->refreshPoints = 1;
 
 	return 1;
@@ -671,7 +687,8 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functLeft()
 {
-	if(SP->selectedPlace > 0) SP->selectedPlace--;
+	if(SP->frameData.multiSelActiveNum != 0) return 1;
+	if(SP->selectedPlace > 1) SP->selectedPlace--;
 
 	switch(SP->selectedPlace)
 	{
@@ -716,6 +733,7 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(SP->frameData.multiSelActiveNum != 0) return 1;
 	if(SP->selectedPlace < SP->frameData.placesCount-1) SP->selectedPlace++;
 
 	switch(SP->selectedPlace)

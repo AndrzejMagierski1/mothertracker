@@ -832,8 +832,12 @@ static uint8_t functSelectPlace(uint8_t button , uint8_t state)
 							if(SE->frameData.multiSelActiveNum == 0)
 							{
 								SE->points.selected = sel;
-								SE->selectedPlace = button;
 							}
+						}
+
+						if(SE->frameData.multiSelActiveNum == 0)
+						{
+							SE->selectedPlace = button;
 						}
 					}
 				}
@@ -904,11 +908,29 @@ void cSampleEditor::editParamFunctionSelection(int16_t value)
 static  uint8_t functLeft()
 {
 	if(SE->moduleFlags != 0) return 1;
-
+	if(SE->frameData.multiSelActiveNum != 0) return 1;
 
 	if(SE->selectedPlace > ((SE->frameData.placesCount - 1) - SE->effectScreen[SE->currSelEffect].paramNum))
 	{
 		SE->selectedPlace--;
+	}
+
+	if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
+	{
+		if(SE->selectedPlace == 3)
+		{
+			SE->points.selected = selectStart;
+		}
+		else if(SE->selectedPlace == 4)
+		{
+			SE->points.selected = selectEnd;
+		}
+		else
+		{
+			SE->points.selected = 0;
+		}
+
+		SE->refreshPoints = 1;
 	}
 
 	SE->activateLabelsBorder();
@@ -919,7 +941,27 @@ static  uint8_t functLeft()
 static  uint8_t functRight()
 {
 	if(SE->moduleFlags != 0) return 1;
-	if(SE->selectedPlace < SE->frameData.placesCount-1) SE->selectedPlace++;
+	if(SE->frameData.multiSelActiveNum != 0) return 1;
+
+	if(SE->selectedPlace < (SE->frameData.placesCount-1)) SE->selectedPlace++;
+
+	if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
+	{
+		if(SE->selectedPlace == 3)
+		{
+			SE->points.selected = selectStart;
+		}
+		else if(SE->selectedPlace == 4)
+		{
+			SE->points.selected = selectEnd;
+		}
+		else
+		{
+			SE->points.selected = 0;
+		}
+
+		SE->refreshPoints = 1;
+	}
 
 	SE->activateLabelsBorder();
 
@@ -944,7 +986,7 @@ static  uint8_t functUp()
 		case 3: SE->editParamFunction(1, 1);	break;
 		case 4: SE->editParamFunction(2, 1);    break;
 		case 5: SE->editParamFunction(3, 1);	break;
-		case 6: SE->changeEffectSelection(1);	break;
+		case 6: SE->changeEffectSelection(-1);	break;
 		}
 	}
 
@@ -969,7 +1011,7 @@ static  uint8_t functDown()
 		case 3: SE->editParamFunction(1, -1);	break;
 		case 4: SE->editParamFunction(2, -1);    break;
 		case 5: SE->editParamFunction(3, -1);	break;
-		case 6: SE->changeEffectSelection(-1);	break;
+		case 6: SE->changeEffectSelection(1);	break;
 		}
 	}
 

@@ -77,6 +77,8 @@ public:
 	void hideLoopPoints();
 	void showLoopPoints();
 
+	void selectCorrectPoints();
+
 	void calcPlayProgressValue();
 	void activateLabelsBorder();
 
@@ -95,7 +97,7 @@ public:
 
 
 
-	uint8_t selectedPlace = 0;
+	uint8_t selectedPlace = 6;
 
 
 //----------------------------------
