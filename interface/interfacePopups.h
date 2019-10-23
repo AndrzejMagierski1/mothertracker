@@ -138,7 +138,14 @@ private:
 
 	static const uint8_t textLinesCount = 4;
 	static const uint8_t configsCount = 5;
-	strPopupStyleConfig globalConfig[configsCount];
+	strPopupStyleConfig globalConfig[configsCount] =
+	{
+		{1,800/2-50,480/2-50,100,100,0xffffff,0xffffff,0xffffff,0xffffff,0,0,0,0,},
+		{1,800/2-50,480/2-50,100,100,0xffffff,0xffffff,0xffffff,0xffffff,0,0,0,0,},
+		{1,800/2-50,480/2-50,100,100,0xffffff,0xffffff,0xffffff,0xffffff,0,0,0,0,},
+		{1,800/2-50,480/2-50,100,100,0xffffff,0xffffff,0xffffff,0xffffff,0,0,0,0,},
+		{1,800/2-50,480/2-50,100,100,0xffffff,0xffffff,0xffffff,0xffffff,0,0,0,0,},
+	};
 
 	char* textLines[textLinesCount];
 	uint32_t* textStyles[textLinesCount];

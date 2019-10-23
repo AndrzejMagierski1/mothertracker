@@ -10,6 +10,7 @@
 
 #include "mtHardware.h"
 
+#include "interfacePopups.h"
 
 
 typedef cModuleBase* hModule;
@@ -86,7 +87,8 @@ private:
 	strStartScreenData startScreenData;
 
 
-
+	//styl popupu interfejsu
+	strPopupStyleConfig popupConfig;
 
 
 

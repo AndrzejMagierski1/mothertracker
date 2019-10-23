@@ -6,6 +6,7 @@
 #include "SD.h"
 
 
+#include "interfacePopups.h"
 
 /*
 #include "mtInstrumentEditor.h"
@@ -70,21 +71,15 @@ void cInterface::padHold(uint8_t n)
 //=======================================================================
 void cInterface::SDCardChange(uint8_t state)
 {
-	/*
-			strPopupStyleConfig config;
-			config.time = 2;
-			config.w = 300;
-			config.h = 100;
-			config.x = 800/2-150;
-			config.y = 480/2-50;
-			config.lineColor[0] = 0xff0000;
-			config.lineColor[1] = 0x00ff00;
-			config.lineStyle[0] = controlStyleCenterX;
-			config.lineStyle[1] = controlStyleCenterX;
+	if(state == 0)
+	{
+		mtPopups.show(4, "SD card removed");
+	}
+	else
+	{
+		mtPopups.show(4, "SD card inserted");
+	}
 
-
-			mtPopups.config(0, &config);
-			mtPopups.show(0, "Warning!", "Edit mode enabled");
-	*/
+	uiFM.processSdDetectInput(state);
 }
 
