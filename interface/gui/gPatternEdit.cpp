@@ -660,6 +660,8 @@ void cPatternEditor::showFillPopup()
 	frameData.places[6] = &framesPopupPlaces[7][0];
 	frameData.places[7] = &framesPopupPlaces[8][0];
 
+
+	setFillPlace(fillPlace);
 	activateFillPopupBorder();
 
 	display.synchronizeRefresh();

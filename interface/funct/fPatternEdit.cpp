@@ -1027,6 +1027,77 @@ void cPatternEditor::changneRandomiseDataByPad(uint8_t pad)
 	}
 }
 
+void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
+{
+	if(place < 0 || place > 5) return;
+
+	if(place == 2)
+	{
+		if(fillData[editParam].type == 0)
+		{
+			if(dir<0) fillPlace = 1;
+			else if(dir>0) fillPlace = (editParam==1) ? 5 : 3;
+			else if(fillPlace == 2) fillPlace = 0;
+		}
+		else fillPlace = place;
+	}
+	else if(place == 3)
+	{
+		if(dir < 0 && editParam==1)
+		{
+			fillPlace = (fillData[editParam].type == 0) ? 1 : 2;
+		}
+		else if(dir > 0 && editParam==1)
+		{
+			fillPlace = 5;
+		}
+		else if(editParam==1)
+		{
+			if(fillPlace == 3) fillPlace = 0;
+		}
+		else fillPlace = place;
+	}
+	else if(place == 4)
+	{
+		if(dir < 0)
+		{
+			if(editParam==1) fillPlace = (fillData[editParam].type == 0) ? 1 : 2;
+			else fillPlace = 3;
+		}
+		else if(dir > 0)
+		{
+			fillPlace = 5;
+		}
+
+	}
+	else
+	{
+		fillPlace = place;
+	}
+}
+
+void cPatternEditor::changeFillPlace(int8_t diff)
+{
+	//int8_t temp_place = fillPlace+diff;
+	setFillPlace(fillPlace+diff, diff);
+//
+//	if(PTE->fillPlace > 0)
+//	{
+//		if(PTE->fillPlace == 5)
+//		{
+//			if(PTE->editParam != 1) PTE->fillPlace -= 2;
+//			else if(PTE->fillData[PTE->editParam].type == 0) PTE->fillPlace -= 4;
+//			else PTE->fillPlace -= 3;
+//		}
+//		else if(PTE->fillPlace == 3 && PTE->fillData[PTE->editParam].type == 0)
+//		{
+//			PTE->fillPlace -= 2;
+//		}
+//		else PTE->fillPlace--;
+//		PTE->activateFillPopupBorder();
+//	}
+}
+
 uint8_t cPatternEditor::isCursorInSelection()
 {
 	uint8_t x1 = 0, x2 = 0;
@@ -1058,7 +1129,6 @@ uint8_t cPatternEditor::isCursorInSelection()
 	if(trackerPattern.actualStep < y1 || trackerPattern.actualStep > y2
 		|| trackerPattern.actualTrack < x1 || trackerPattern.actualTrack > x2)
 	return 0;
-
 
 	return 1;
 }
@@ -1246,12 +1316,8 @@ static  uint8_t functLeft()
 {
 	if(PTE->fillState > 0)
 	{
-		if(PTE->fillPlace > 0)
-		{
-			if(PTE->fillPlace == 5) PTE->fillPlace -= 2;
-			else PTE->fillPlace--;
-			PTE->activateFillPopupBorder();
-		}
+		PTE->changeFillPlace(-1);
+		PTE->activateFillPopupBorder();
 		return 1;
 	}
 	if(PTE->randomiseState > 0)
@@ -1327,12 +1393,14 @@ static  uint8_t functRight()
 {
 	if(PTE->fillState > 0)
 	{
-		if(PTE->fillPlace < 5)
-		{
-			if(PTE->fillPlace == 3) PTE->fillPlace += 2;
-			else PTE->fillPlace++;
-			PTE->activateFillPopupBorder();
-		}
+		PTE->changeFillPlace(1);
+		PTE->activateFillPopupBorder();
+//		if(PTE->fillPlace < 5)
+//		{
+//			if(PTE->fillPlace == 3) PTE->fillPlace += 2;
+//			else PTE->fillPlace++;
+//			PTE->activateFillPopupBorder();
+//		}
 		return 1;
 	}
 	if(PTE->randomiseState > 0)
@@ -2470,7 +2538,8 @@ static  uint8_t functFillApply()
 
 static  uint8_t functFillChangeType()
 {
-	PTE->fillPlace = 0;
+	//PTE->fillPlace = 0;
+	PTE->setFillPlace(0);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2478,7 +2547,8 @@ static  uint8_t functFillChangeType()
 
 static  uint8_t functFillChangeParam1()
 {
-	PTE->fillPlace = 1;
+	//PTE->fillPlace = 1;
+	PTE->setFillPlace(1);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2486,7 +2556,8 @@ static  uint8_t functFillChangeParam1()
 
 static  uint8_t functFillChangeParam2()
 {
-	PTE->fillPlace = 2;
+	//PTE->fillPlace = 2;
+	PTE->setFillPlace(2);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2494,7 +2565,8 @@ static  uint8_t functFillChangeParam2()
 
 static  uint8_t functFillChangeParam3()
 {
-	PTE->fillPlace = 3;
+	//PTE->fillPlace = 3;
+	PTE->setFillPlace(3);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2502,7 +2574,8 @@ static  uint8_t functFillChangeParam3()
 
 static  uint8_t functFillChangeParam4()
 {
-	PTE->fillPlace = 5;
+	//PTE->fillPlace = 5;
+	PTE->setFillPlace(5);
 	PTE->activateFillPopupBorder();
 
 	return 1;

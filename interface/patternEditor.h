@@ -86,6 +86,8 @@ public:
 	void activateLabelsBorder();
 	void activateFillPopupBorder();
 	void activateRandomisePopupBorder();
+	void setFillPlace(uint8_t place, int8_t dir = 0);
+	void changeFillPlace(int8_t diff);
 
 	void showTempo();
 	void showPattern();
