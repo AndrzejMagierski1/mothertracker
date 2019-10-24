@@ -240,6 +240,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 	strPattern::strTrack::strStep & patternStep = patternRow.step[playerRow.actual_pos];
 	strPlayer::strPlayerTrack::strSendStep & stepToSend = player.track[row].stepToSend;
+	strPlayer::strPlayerTrack::strSendStep & stepSent = player.track[row].stepSent;
 
 	memcpy(&stepToSend, &patternStep, sizeof(patternStep));
 	if (playerRow.uStep == 1)
@@ -332,6 +333,7 @@ void Sequencer::play_microStep(uint8_t row)
 			case fx.FX_TYPE_VELOCITY:
 
 				stepToSend.velocity = _fx.value;
+				stepSent.velocity = stepToSend.velocity;
 
 				break;
 			case fx.FX_TYPE_STEP_CHANCE:
@@ -348,6 +350,15 @@ void Sequencer::play_microStep(uint8_t row)
 				usbMIDI.sendControlChange(2, _fx.value, 1);
 				break;
 
+			case fx.FX_TYPE_RANDOM_VELOCITY:
+				//		todo:
+				stepToSend.velocity = constrain(random(0,
+														_fx.value + 1),
+												0,
+												127);
+				stepSent.velocity = stepToSend.velocity;
+				break;
+
 			default:
 				break;
 			}
@@ -359,7 +370,6 @@ void Sequencer::play_microStep(uint8_t row)
 				{
 					instrumentPlayer[row].seqFx(_fx.type, _fx.value);
 				}
-				strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
 				switch (_fx.type)
 				{
 				case fx.FX_TYPE_ROLL:
@@ -418,66 +428,51 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 
 		// EFEKTY WŁAŚCIWE
-		strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
-		switch (_fx.type)
+		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
 		{
-		case fx.FX_TYPE_ROLL:
-			case fx.FX_TYPE_ROLL_UP:
-			case fx.FX_TYPE_ROLL_DOWN:
-			case fx.FX_TYPE_ROLL_RANDOM:
-
-			playerRow.rollIsOn = 1;
-			playerRow.rollVal = _fx.value;
-			playerRow.rollType = _fx.value;
-			playerRow.rollDir = _fx.type;
-
-			break;
-
-		case fx.FX_TYPE_RANDOM_NOTE:
-			stepToSend.note = constrain(
-					random(patternStep.note - _fx.value,
-							patternStep.note + _fx.value + 1),
-					0,
-					127);
-			break;
-		case fx.FX_TYPE_RANDOM_INSTRUMENT:
-			if (stepToSend.instrument < INSTRUMENTS_COUNT)
+			switch (_fx.type)
 			{
-				stepToSend.instrument = constrain(
-						random(patternStep.instrument - _fx.value,
-								patternStep.instrument + _fx.value + 1),
+			case fx.FX_TYPE_ROLL:
+				case fx.FX_TYPE_ROLL_UP:
+				case fx.FX_TYPE_ROLL_DOWN:
+				case fx.FX_TYPE_ROLL_RANDOM:
+
+				playerRow.rollIsOn = 1;
+				playerRow.rollVal = _fx.value;
+				playerRow.rollType = _fx.value;
+				playerRow.rollDir = _fx.type;
+
+				break;
+
+			case fx.FX_TYPE_RANDOM_NOTE:
+				stepToSend.note = constrain(
+						random(patternStep.note - _fx.value,
+								patternStep.note + _fx.value + 1),
 						0,
-						INSTRUMENTS_COUNT - 1);
-			}
-			else
-			{
-				stepToSend.instrument = constrain(
-						random(patternStep.instrument - _fx.value,
-								patternStep.instrument + _fx.value + 1),
-						INSTRUMENTS_COUNT,
-						INSTRUMENTS_COUNT + 16 + 1);
-			}
-			break;
+						127);
+				break;
+			case fx.FX_TYPE_RANDOM_INSTRUMENT:
+				if (stepToSend.instrument < INSTRUMENTS_COUNT)
+				{
+					stepToSend.instrument = constrain(
+							random(patternStep.instrument - _fx.value,
+									patternStep.instrument + _fx.value + 1),
+							0,
+							INSTRUMENTS_COUNT - 1);
+				}
+				else
+				{
+					stepToSend.instrument = constrain(
+							random(patternStep.instrument - _fx.value,
+									patternStep.instrument + _fx.value + 1),
+							INSTRUMENTS_COUNT,
+							INSTRUMENTS_COUNT + 16 + 1);
+				}
+				break;
 
-		case fx.FX_TYPE_RANDOM_VELOCITY:
-			//		todo:
-//			if (stepToSend.velocity >= 0)
-//			{
-//				stepToSend.velocity = constrain(
-//						random(patternStep.velocity - _fx.value,
-//								patternStep.velocity + _fx.value + 1),
-//						0,
-//						127);
-//			}
-//			else
-//			{
-//				stepToSend.velocity = random(0, _fx.value + 1);
-//
-//			}
-			break;
-
-		default:
-			break;
+			default:
+				break;
+			}
 		}
 
 		// ustawiamy całego stepa
@@ -589,7 +584,7 @@ void Sequencer::play_microStep(uint8_t row)
 				}
 				sendNoteOn(row,
 							playerRow.stepToSend.note,
-							STEP_VELO_DEFAULT,
+							playerRow.stepToSend.velocity,
 							playerRow.stepToSend.instrument);
 
 				playerRow.stepSent = playerRow.stepToSend;
