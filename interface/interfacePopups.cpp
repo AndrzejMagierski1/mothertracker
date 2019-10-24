@@ -304,15 +304,17 @@ void cInterfacePopups::showFxesPopup()
 //=====================================================================================================
 void cInterfacePopups::showStepPopup(uint8_t stepPopupType, int8_t initVal)
 {
+	if(stepPopupType == stepPopupNone) return;
+
 	if(stepPopupState != stepPopupNone)
 	{
 		hideStepPopups();
 	}
 
-	setPopupFunct();
-
 	stepPopupState = stepPopupType;
 	selectedActualItem = initVal;
+
+	setPopupFunct();
 
 	switch(stepPopupState)
 	{
@@ -359,6 +361,31 @@ void cInterfacePopups::hideStepPopups()
 
 void cInterfacePopups::setPopupFunct()
 {
+	switch(stepPopupState)
+	{
+	case stepPopupNote:
+		mtInterface.uiFM.clearButton(interfaceButtonInstr);
+		mtInterface.uiFM.clearButton(interfaceButtonFx1);
+		mtInterface.uiFM.clearButton(interfaceButtonFx2);
+		break;
+	case stepPopupInstr:
+		mtInterface.uiFM.clearButton(interfaceButtonNote);
+		mtInterface.uiFM.clearButton(interfaceButtonFx1);
+		mtInterface.uiFM.clearButton(interfaceButtonFx2);
+		break;
+	case stepPopupVol:
+		mtInterface.uiFM.clearButton(interfaceButtonNote);
+		mtInterface.uiFM.clearButton(interfaceButtonInstr);
+		//mtInterface.uiFM.clearButton(interfaceButtonFx1);
+		mtInterface.uiFM.clearButton(interfaceButtonFx2);
+		break;
+	case stepPopupFx:
+		mtInterface.uiFM.clearButton(interfaceButtonNote);
+		mtInterface.uiFM.clearButton(interfaceButtonInstr);
+		break;
+	default:	break;
+	}
+
 	mtInterface.uiFM.clearButton(interfaceButtonRec);
 //	mtInterface.uiFM.clearButton(interfaceButtonShift);
 //	mtInterface.uiFM.clearButton(interfaceButtonEnter);

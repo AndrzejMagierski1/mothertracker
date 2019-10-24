@@ -60,37 +60,8 @@ const strFont fonts[displayFontCount] =
 
 const strBitmap bitmaps[displayBitmapsCount] =
 {
-/*
-	{
-		poly_logo_inv_290x290,
-		50000,
-		42050,
-		290,
-		290,
-		L4,
-		145,
-	},
-*/
-/*
-	{
-		poly_logo_inv_128x128,
-		50000,
-		8192,
-		128,
-		128,
-		L4,
-		64,
-	},
-*/
-	{
-		poly_logo_inv_128x128_l8,
-		50000,
-		16384,
-		128,
-		128,
-		L8,
-		128,
-	},
+
+	{poly_logo_inv_128x128_l8,50000,16384,128,128,L8,128,},
 
 	{ arrow_u2_50x50_L1, 71500, 350, 50, 50, L1, 7 },
 	{ arrow_u1_50x50_L1, 71000, 350, 50, 50, L1, 7 },
