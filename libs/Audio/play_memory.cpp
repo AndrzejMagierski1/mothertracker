@@ -102,7 +102,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	}
 	else
 	{
-		wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;
+		wavetableWindowSize = SERUM_WAVETABLE_WINDOW_LEN;
 		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
 		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
 		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
@@ -504,10 +504,15 @@ void AudioPlayMemory::update(void)
 					if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + (uint32_t) iPitchCounter + waveTablePosition);
 					iPitchCounter += castPitchControl;
 					fPitchCounter += pitchFraction;
-					if ((iPitchCounter >= wavetableWindowSize))
+					if (fPitchCounter >= 1.0f)
 					{
-						iPitchCounter = 0;
-						fPitchCounter = 0;
+						fPitchCounter -= 1.0f;
+						iPitchCounter++;
+					}
+
+					if (iPitchCounter >= wavetableWindowSize)
+					{
+						iPitchCounter -= wavetableWindowSize;
 					}
 				}
 				if ((iPitchCounter >= (sampleConstrains.endPoint)) && (sampleConstrains.endPoint != (sampleConstrains.loopPoint2)) && !reverseDirectionFlag)
