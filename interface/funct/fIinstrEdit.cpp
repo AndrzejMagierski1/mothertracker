@@ -299,6 +299,8 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 
 	if(state == buttonPress)
 	{
+		IE->selectedPlace[IE->mode] = button;
+
 		switch(mode_places)
 		{
 		case 0: IE->addNode(changeParamsVolume, node); 	    	break;

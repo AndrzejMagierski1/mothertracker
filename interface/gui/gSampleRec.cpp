@@ -531,6 +531,14 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlHide(editName);
 		display.refreshControl(editName);
 
+		if(selectedPlace == 1)
+		{
+			points.selected = selectStart;
+		}
+		else if(selectedPlace == 2)
+		{
+			points.selected = selectEnd;
+		}
 
 		clearAllNodes();
 		cancelMultiFrame();

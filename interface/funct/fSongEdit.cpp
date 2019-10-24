@@ -164,10 +164,10 @@ static  uint8_t functPatternSlot(uint8_t button)
 			SE->changePatternsSelection(1);
 		}
 
-		SE->selectedPlace = 0;
-		SE->activateLabelsBorder();
-
 	}
+
+	SE->selectedPlace = 0;
+	SE->activateLabelsBorder();
 
 	return 1;
 }
