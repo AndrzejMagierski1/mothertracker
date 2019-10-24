@@ -124,6 +124,10 @@ void cSamplePlayback::update()
 		{
 			instrumentPlayer[0].clearInterfacePlayingEndFlag();
 		}
+		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
+		{
+			instrumentPlayer[0].clearInterfaceEndReleaseFlag();
+		}
 	}
 
 }
@@ -233,6 +237,7 @@ void cSamplePlayback::start(uint32_t options)
 	setDefaultScreenFunct();
 
 	activateLabelsBorder();
+
 }
 
 void cSamplePlayback::stop()

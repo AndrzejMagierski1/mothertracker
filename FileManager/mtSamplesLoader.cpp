@@ -52,13 +52,13 @@ void SamplesLoader::update()
 				currentStepLoadSize = 0;
 				return;
 			}
-			if(mtProject.instrument[currentIndex].sample.type == mtSampleTypeWavetable)
-			{
-
-			}
-			else
-			{
-				currentSize = waveLoader.start(currentPatch, mtProject.instrument[currentIndex].sample.address);
+//			if(mtProject.instrument[currentIndex].sample.type == mtSampleTypeWavetable)
+//			{
+//
+//			}
+//			else
+//			{
+			currentSize = waveLoader.start(currentPatch, mtProject.instrument[currentIndex].sample.address);
 //				if(mtProject.used_memory + currentSize*2 > mtProject.max_memory) bieda rozwiazanie
 //				{
 //					waveLoader.stop();
@@ -83,7 +83,7 @@ void SamplesLoader::update()
 //
 //				}
 //				return;
-			}
+//			}
 		}
 
 		waveLoader.update();

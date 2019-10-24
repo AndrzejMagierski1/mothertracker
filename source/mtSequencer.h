@@ -102,6 +102,7 @@ public:
 			FX_TYPE_TREMOLO_SLOW,
 			FX_TYPE_VIBRATO_FAST,
 			FX_TYPE_VIBRATO_SLOW,
+			FX_TYPE_SAMPLE_END
 
 		};
 		//		enum enFxVal
