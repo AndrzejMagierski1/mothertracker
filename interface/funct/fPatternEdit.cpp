@@ -62,9 +62,6 @@ static  uint8_t functDown();
 
 
 
-
-
-static  uint8_t functEnter();
 static  uint8_t functShift(uint8_t state);
 
 
@@ -1254,22 +1251,6 @@ uint8_t functEncoder(int16_t value)
 }
 
 
-
-static  uint8_t functEnter()
-{
-	if (tactButtons.isButtonPressed(interfaceButtonShift))
-	{
-		fileManager.redoPattern();
-	}
-	else
-	{
-		fileManager.undoPattern();
-	}
-	PTE->refreshPattern();
-	PTE->showPattern();
-	return 1;
-}
-
 static  uint8_t functShift(uint8_t state)
 {
 
@@ -1395,12 +1376,6 @@ static  uint8_t functRight()
 	{
 		PTE->changeFillPlace(1);
 		PTE->activateFillPopupBorder();
-//		if(PTE->fillPlace < 5)
-//		{
-//			if(PTE->fillPlace == 3) PTE->fillPlace += 2;
-//			else PTE->fillPlace++;
-//			PTE->activateFillPopupBorder();
-//		}
 		return 1;
 	}
 	if(PTE->randomiseState > 0)
@@ -1699,10 +1674,6 @@ static  uint8_t functNote(uint8_t state)
 			show_note = -1;
 		}
 
-		PTE->FM->clearButton(interfaceButtonInstr);
-		PTE->FM->clearButton(interfaceButtonVol);
-		PTE->FM->clearButton(interfaceButtonFx);
-
 		mtPopups.showStepPopup(stepPopupNote, show_note);
 		PTE->lightUpPadBoard();
 	}
@@ -1754,10 +1725,6 @@ static  uint8_t functInstrument(uint8_t state)
 			&& !tactButtons.isButtonPressed(interfaceButtonPattern)
 			&& !PTE->dontShowPopupsUntilButtonRelease)
 	{
-		PTE->FM->clearButton(interfaceButtonNote);
-		PTE->FM->clearButton(interfaceButtonVol);
-		PTE->FM->clearButton(interfaceButtonFx);
-
 		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
 
 		PTE->lightUpPadBoard();
@@ -1824,10 +1791,6 @@ static  uint8_t functVolume(uint8_t state)
 			&& !tactButtons.isButtonPressed(interfaceButtonPattern)
 			&& !PTE->dontShowPopupsUntilButtonRelease)
 	{
-		PTE->FM->clearButton(interfaceButtonNote);
-		PTE->FM->clearButton(interfaceButtonInstr);
-		PTE->FM->clearButton(interfaceButtonFx);
-
 		mtPopups.showStepPopup(stepPopupVol, PTE->getStepVol());
 
 		PTE->lightUpPadBoard();
@@ -1880,10 +1843,9 @@ static  uint8_t functFx1(uint8_t state)
 			&& !tactButtons.isButtonPressed(interfaceButtonPattern)
 			&& !PTE->dontShowPopupsUntilButtonRelease)
 	{
-		PTE->FM->clearButton(interfaceButtonNote);
-		PTE->FM->clearButton(interfaceButtonInstr);
-		//PTE->FM->clearButton(interfaceButtonVol);
-		PTE->FM->clearButton(interfaceButtonFx);
+		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
+
+		PTE->FM->clearButton(interfaceButtonFx2);
 
 		mtProject.values.lastUsedFx = PTE->getStepFx();
 		mtPopups.showStepPopup(stepPopupFx, mtProject.values.lastUsedFx); //PTE->getStepFx()
@@ -1942,12 +1904,9 @@ static  uint8_t functFx2(uint8_t state)
 			&& !tactButtons.isButtonPressed(interfaceButtonPattern)
 			&& !PTE->dontShowPopupsUntilButtonRelease)
 	{
-
 		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
 
-		PTE->FM->clearButton(interfaceButtonNote);
-		PTE->FM->clearButton(interfaceButtonInstr);
-		PTE->FM->clearButton(interfaceButtonVol);
+		PTE->FM->clearButton(interfaceButtonFx1);
 
 		mtProject.values.lastUsedFx = PTE->getStepFx();
 		mtPopups.showStepPopup(stepPopupFx, mtProject.values.lastUsedFx); //PTE->getStepFx()
@@ -2006,6 +1965,7 @@ static  uint8_t functPlayAction()
 		if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
 			sequencer.playSong();
+			PTE->refreshPatternParams();
 			PTE->shiftAction = 1;
 		}
 		else

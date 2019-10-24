@@ -451,6 +451,7 @@ void cPatternEditor::showStep()
 
 void cPatternEditor::refreshPatternParams()
 {
+	if(masterTrackState) return;
 //	showTempo();
 	showPattern();
 	showLength();
