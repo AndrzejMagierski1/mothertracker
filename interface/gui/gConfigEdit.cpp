@@ -536,6 +536,8 @@ void cConfigEditor::hideFirmwareUpdateLabels()
 
 void cConfigEditor::showFirmwareUpdatePopout()
 {
+	resizeFirmwareLabel(0);
+
 	for(uint8_t i = 0 ; i < 6; i++)
 	{
 		display.setControlText(bottomLabel[i], "");
@@ -559,6 +561,8 @@ void cConfigEditor::showFirmwareUpdatePopout()
 
 void cConfigEditor::hideFirmwareUpdatePopout()
 {
+	resizeFirmwareLabel(1);
+
 	for(uint8_t i = 0 ; i < 6; i++)
 	{
 		display.setControlText(bottomLabel[i], "");

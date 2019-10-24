@@ -2544,7 +2544,11 @@ static uint8_t functStepNote(uint8_t value)
 			SR->setDefaultScreenFunct();
 			SR->notePopoutFlag = 0;
 			SR->hideNotePopout();
-			SR->showRadio();
+
+			if((SR->recorderConfig.source == SR->sourceTypeRadio) && (SR->currentScreen == SR->screenTypeConfig))
+			{
+				SR->showRadio();
+			}
 		}
 	}
 	else if(value == buttonHold)
