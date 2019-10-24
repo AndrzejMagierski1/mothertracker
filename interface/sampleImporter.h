@@ -76,7 +76,11 @@ public:
 	uint8_t changeFileSelection(int16_t value);
 	uint8_t changeInstrumentSelection(int16_t value);
 
+
+	void checkWavetableLabel();
 	void AddOrEnter();
+	void showAddWT();
+	void hideAddWT();
 
 //--------------------------------------------------------------
 	FsFile sdLocation;
@@ -140,6 +144,7 @@ public:
 	uint8_t currentCopyStatusFlag = 0;
 	//uint8_t copyQueue = 0;
 	uint8_t copyElement=0;
+	uint8_t sampleType = 0;
 	uint8_t copyElementMax;
 	uint8_t firstMemBarLoadFlag=0;
 
@@ -207,6 +212,7 @@ public:
 	void calculateMemUsage();
 
 	uint32_t currentFolderMemoryFileUsage[255];
+	uint32_t currentFolderIsWavetableFlag[255];
 
 	void setSelect(uint8_t place);
 	void frameSelectMode(uint8_t place,uint8_t mode);

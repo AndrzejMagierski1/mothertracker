@@ -147,6 +147,7 @@ static  uint8_t functRename();
 static  uint8_t functShift(uint8_t state);
 
 static  uint8_t functInstrumentAdd();
+static  uint8_t functInstrumentWavetableAdd();
 static  uint8_t functInstrumentDelete();
 
 
@@ -286,7 +287,8 @@ void cSampleImporter::setDefaultScreenFunct()
 	if(selectedPlace == 1) FM->setButtonObj(interfaceButton2, buttonPress, functRename);
 	else FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
 
-	FM->setButtonObj(interfaceButton3, preview);
+	FM->setButtonObj(interfaceButton3, buttonPress, functInstrumentWavetableAdd);
+	FM->setButtonObj(interfaceButton4, preview);
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functChangeInstrument);
 	FM->setButtonObj(interfaceButton5, buttonPress, functInstrumentDelete);
@@ -318,6 +320,7 @@ static  uint8_t functChangeFolder(uint8_t button)
 	}
 
 	SI->selectedPlace = 0;
+	SI->checkWavetableLabel();
 	SI->activateLabelsBorder();
 
 	return 1;
@@ -340,6 +343,7 @@ static  uint8_t functChangeInstrument(uint8_t button)
 	}
 
 	SI->selectedPlace = 1;
+	SI->hideAddWT();
 	SI->activateLabelsBorder();
 
 	return 1;
@@ -348,11 +352,32 @@ static  uint8_t functChangeInstrument(uint8_t button)
 static  uint8_t functInstrumentAdd()
 {
 	if(SI->isBusy) return 1;
-
-	 SI->SelectFile();
+	SI->sampleType = mtSampleTypeWaveFile;
+	SI->SelectFile();
 
 	return 1;
 }
+
+static  uint8_t functInstrumentWavetableAdd()
+{
+	if(SI->isBusy) return 1;
+	uint8_t length = SI->selectionLength ? SI->selectionLength : 1;
+
+	for(uint8_t i = 0; i < length; i++ )
+	{
+		if( ! SI->currentFolderIsWavetableFlag[SI->selectedFile + i] ) return 1;
+	}
+
+	for(uint8_t i = 0; i < length; i++ )
+	{
+		mtProject.instrument[SI->selectedSlot + i].sample.type = mtSampleTypeWavetable;
+	}
+	SI->sampleType = mtSampleTypeWavetable;
+	SI->SelectFile();
+
+	return 1;
+}
+
 
 static  uint8_t functInstrumentDelete()
 {
@@ -574,7 +599,7 @@ static uint8_t functPaste()
 				}
 
 				fileManager.setStart(SI->selectedSlot);
-				fileManager.assignSampleToInstrument(projectSamplePath, SI->parseNewName(SI->instrCopyStart+SI->copyElement), SI->selectedSlot + SI->copyElement);
+				fileManager.assignSampleToInstrument(projectSamplePath, SI->parseNewName(SI->instrCopyStart+SI->copyElement), SI->selectedSlot + SI->copyElement,SI->sampleType);
 				memcpy(&mtProject.instrument[SI->selectedSlot+SI->copyElement],&mtProject.instrument[SI->instrCopyStart+SI->copyElement],sizeof(mtProject.instrument[0]));
 
 				SI->copyElement++;
@@ -671,6 +696,11 @@ static  uint8_t functLeft()
 	if(SI->selectedPlace > 0)
 	{
 		SI->selectedPlace--;
+		if(SI->selectedPlace != 0) SI->hideAddWT();
+		else if(SI->selectedPlace == 0)
+		{
+			SI->checkWavetableLabel();
+		}
 
 		if(SI->currSelectPlace == 1)
 		{
@@ -716,6 +746,11 @@ static  uint8_t functRight()
 		SI->FM->clearButton(interfaceButton2);
 		SI->FM->setButtonObj(interfaceButton2, buttonPress, functRename);
 		SI->selectedPlace++;
+	}
+	if(SI->selectedPlace != 0) SI->hideAddWT();
+	else if(SI->selectedPlace == 0)
+	{
+		SI->checkWavetableLabel();
 	}
 
 	SI->activateLabelsBorder();
@@ -830,6 +865,7 @@ uint8_t cSampleImporter::changeFileSelection(int16_t value)
 		}
 	}
 
+	checkWavetableLabel();
 
 	display.setControlValue(explorerListControl, selectedFile);
 	display.refreshControl(explorerListControl);
@@ -968,7 +1004,8 @@ void cSampleImporter::processDirFileSizes()
 		strcat(filePath, &locationExplorerList[openCurrentPos][0]);
 
 		currentFolderMemoryFileUsage[openCurrentPos]= 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
-
+		currentFolderIsWavetableFlag[openCurrentPos] = fileManager.samplesLoader.wavetableLoader.isWavetable(filePath);
+		//todo: wywoływane są dwie funkcje które otwierają 2 razy plik - trzeba to zoptymalizowac
 		openCurrentPos++;
 
 		uint8_t progress = (((openCurrentPos - openCalcStart) * 100) / (openCalcEnd-openCalcStart));
@@ -1179,14 +1216,14 @@ void cSampleImporter::SelectFile()
 			}
 
 			fileManager.setStart(selectedSlot);
-			fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[position + copyElement][0], selectedSlot +  copyElement);
+			fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[position + copyElement][0], selectedSlot +  copyElement,sampleType);
 			copyElement++;
 		}
 		else
 		{
 			fileManager.setAutoLoadFlag();
 			fileManager.setStart(selectedSlot);
-			fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[selectedFile][0], selectedSlot);
+			fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[selectedFile][0], selectedSlot,sampleType);
 		}
 	}
 }
@@ -1605,7 +1642,7 @@ void cSampleImporter::handleSequenceCopyingLoading()
 			{
 				if(copyType == 1)
 				{
-					fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[getSelectionStart() + copyElement][0], selectedSlot + copyElement);
+					fileManager.assignSampleToInstrument(actualPath, &locationExplorerList[getSelectionStart() + copyElement][0], selectedSlot + copyElement,sampleType);
 				}
 				else if(copyType == 2)
 				{
@@ -1614,7 +1651,7 @@ void cSampleImporter::handleSequenceCopyingLoading()
 						//strcpy(projectSamplePath,fileManager.currentProjectPatch);
 						strcpy(projectSamplePath,"Workspace/samples");
 
-						fileManager.assignSampleToInstrument(projectSamplePath,SI->parseNewName(instrCopyStart + copyElement), selectedSlot + copyElement);
+						fileManager.assignSampleToInstrument(projectSamplePath,SI->parseNewName(instrCopyStart + copyElement), selectedSlot + copyElement,sampleType);
 						memcpy(&mtProject.instrument[selectedSlot+copyElement],&mtProject.instrument[instrCopyStart+copyElement],sizeof(mtProject.instrument[0]));
 						instrCopied++;
 					}
@@ -1971,6 +2008,21 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 	return 1;
 }
+void cSampleImporter::checkWavetableLabel()
+{
+	uint8_t length = selectionLength ? selectionLength : 1;
+	uint8_t wavetableFlag = 1;
+	for(uint8_t i = 0; i < length; i++)
+	{
+		if(!currentFolderIsWavetableFlag[selectedFile + i])
+		{
+			wavetableFlag = 0;
+			break;
+		}
+	}
 
+	if(wavetableFlag) showAddWT();
+	else hideAddWT();
+}
 
 

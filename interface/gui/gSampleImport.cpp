@@ -197,8 +197,8 @@ void cSampleImporter::showDefaultScreen()
 
 	display.setControlText(topLabel[0], "Micro SD");
 	display.setControlText(topLabel[1], "");
-	display.setControlText(topLabel[2], "Preview");
-	display.setControlText(topLabel[3], "");
+	display.setControlText(topLabel[2], "");
+	display.setControlText(topLabel[3], "Preview");
 	display.setControlText(topLabel[4], "");
 	display.setControlText(topLabel[5], "Instruments");
 
@@ -220,6 +220,9 @@ void cSampleImporter::showDefaultScreen()
 
 	displayDelete(selectedPlace);
 	displayRename(selectedPlace);
+
+	if(selectedPlace != 0) hideAddWT();
+	else  checkWavetableLabel();
 
 }
 
@@ -365,6 +368,19 @@ void cSampleImporter::AddOrEnter()
 	}
 
 	display.refreshControl(topLabel[1]);
+	display.synchronizeRefresh();
+}
+
+void cSampleImporter::showAddWT()
+{
+	display.setControlText(topLabel[2], "Add WT");
+	display.refreshControl(topLabel[2]);
+}
+
+void cSampleImporter::hideAddWT()
+{
+	display.setControlText(topLabel[2], "");
+	display.refreshControl(topLabel[2]);
 }
 
 void cSampleImporter::showFileList()
