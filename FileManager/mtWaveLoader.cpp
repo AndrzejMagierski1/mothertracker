@@ -178,7 +178,7 @@ void WaveLoader::update()
 }
 uint32_t WaveLoader::start(const char *filename, int16_t * buf)
 {
-	if(buf == NULL)
+	if(buf == nullptr)
 	{
 		stopFlag = 0;
 		state = loaderStateTypeEnded;
@@ -196,61 +196,44 @@ uint32_t WaveLoader::start(const char *filename, int16_t * buf)
 	}
 	readHeader(&sampleHead,&wavfile);
 	currentAddress = buf;
-//	if ( (sampleHead.numChannels == 1 && (sampleHead.subchunk2Size > 8388608 )) &&  (sampleHead.numChannels == 2 && (sampleHead.subchunk2Size > 16777216)))
-//	{
-//		wavfile.close();
-//		if(hardwareTest)
-//		{
-//			Serial.println("too long file");
-//		}
-//		state = loaderStateTypeEnded;
-//		stopFlag = 0;
-//		return 0;
-//	}
+
 	if( (sampleHead.format != 1163280727) || ( (sampleHead.AudioFormat != 1) && (sampleHead.AudioFormat != 3) ) || ( (sampleHead.bitsPerSample != 16) && (sampleHead.bitsPerSample != 24) && (sampleHead.bitsPerSample != 32)) || sampleHead.sampleRate != 44100 )
 	{
 		wavfile.close();
-		if(hardwareTest)
-		{
-			Serial.println("Bad WAV file or External RAM(if SD Card init is Correct");
-		}
 		state = loaderStateTypeEnded;
 		stopFlag = 0;
 		return 0;
 	}
 
-	if(hardwareTest)
-	{
-		Serial.println("load WAV header to SDRAM succesfull");
-	}
 	state = loaderStateTypeInProgress;
 	stopFlag = -1;
-	if(sampleHead.numChannels == 1)
-	{
-		if(sampleHead.AudioFormat == 3) return sampleHead.subchunk2Size/4;
-		else
-		{
-			if(sampleHead.bitsPerSample == 24) return sampleHead.subchunk2Size/3;
-			else return sampleHead.subchunk2Size/2;
-		}
-	}
-	else if(sampleHead.numChannels == 2)
-	{
-		if(sampleHead.AudioFormat == 3) return sampleHead.subchunk2Size/8;
-		else
-		{
-			if(sampleHead.bitsPerSample == 24) return sampleHead.subchunk2Size/6;
-			else return sampleHead.subchunk2Size/4;
-		}
-	}
-	else return 0;
+//	if(sampleHead.numChannels == 1)
+//	{
+//		if(sampleHead.AudioFormat == 3) return sampleHead.subchunk2Size/4;
+//		else
+//		{
+//			if(sampleHead.bitsPerSample == 24) return sampleHead.subchunk2Size/3;
+//			else return sampleHead.subchunk2Size/2;
+//		}
+//	}
+//	else if(sampleHead.numChannels == 2)
+//	{
+//		if(sampleHead.AudioFormat == 3) return sampleHead.subchunk2Size/8;
+//		else
+//		{
+//			if(sampleHead.bitsPerSample == 24) return sampleHead.subchunk2Size/6;
+//			else return sampleHead.subchunk2Size/4;
+//		}
+//	}
+//	else return 0;
+
+	return sampleHead.subchunk2Size/sampleHead.blockAlign;
 }
 uint8_t WaveLoader::stop()
 {
 	wavfile.close();
 	state = loaderStateTypeEnded;
-//	if(accBufferLength == sampleHead.subchunk2Size) return 1;
-//	else return 0;
+
 	return 1;
 }
 
@@ -282,34 +265,31 @@ uint32_t WaveLoader::getInfoAboutWave(const char *filename)
 	readHeader(&localSampleHead,&wavfile);
 	wavfile.close();
 
-//	if ( (localSampleHead.numChannels == 1 && (localSampleHead.subchunk2Size > 8388608 )) &&  (localSampleHead.numChannels == 2 && (localSampleHead.subchunk2Size > 16777216)))
-//	{
-//		return 0;
-//	}
 	if((localSampleHead.format != 1163280727) ||( (localSampleHead.AudioFormat != 1) && (localSampleHead.AudioFormat != 3) )  || ((localSampleHead.bitsPerSample != 16) && (localSampleHead.bitsPerSample != 24) && (localSampleHead.bitsPerSample != 32) )|| localSampleHead.sampleRate != 44100 )
 	{
 		return 0;
 	}
 
-	if(localSampleHead.numChannels == 1)
-	{
-		if(localSampleHead.AudioFormat == 3) return localSampleHead.subchunk2Size/4;
-		else
-		{
-			if(localSampleHead.bitsPerSample == 24) return localSampleHead.subchunk2Size/3;
-			else return localSampleHead.subchunk2Size/2;
-		}
-	}
-	else if(localSampleHead.numChannels == 2)
-	{
-		if(localSampleHead.AudioFormat == 3) return localSampleHead.subchunk2Size/8;
-		else
-		{
-			if(localSampleHead.bitsPerSample == 24) return localSampleHead.subchunk2Size/6;
-			else return localSampleHead.subchunk2Size/4;
-		}
-	}
-	else return 0;
+//	if(localSampleHead.numChannels == 1)
+//	{
+//		if(localSampleHead.AudioFormat == 3) return localSampleHead.subchunk2Size/4;
+//		else
+//		{
+//			if(localSampleHead.bitsPerSample == 24) return localSampleHead.subchunk2Size/3;
+//			else return localSampleHead.subchunk2Size/2;
+//		}
+//	}
+//	else if(localSampleHead.numChannels == 2)
+//	{
+//		if(localSampleHead.AudioFormat == 3) return localSampleHead.subchunk2Size/8;
+//		else
+//		{
+//			if(localSampleHead.bitsPerSample == 24) return localSampleHead.subchunk2Size/6;
+//			else return localSampleHead.subchunk2Size/4;
+//		}
+//	}
+//	else return 0;
+	return localSampleHead.subchunk2Size/localSampleHead.blockAlign;
 }
 
 uint8_t WaveLoader::getCurrentWaveProgress()
@@ -324,39 +304,20 @@ uint32_t WaveLoader::getCurrentWaveLoadedMemory()
 	{
 		if(sampleHead.bitsPerSample == 24)
 		{
-			if(sampleHead.numChannels == 1)
-			{
-				return accBufferLength/3;
-			}
-			else if(sampleHead.numChannels == 2)
-			{
-				return accBufferLength/6;
-			}
+			if(sampleHead.numChannels == 1) return accBufferLength/3;
+			else if(sampleHead.numChannels == 2) return accBufferLength/6;
 		}
 		else
 		{
-			if(sampleHead.numChannels == 1)
-			{
-				return accBufferLength/2;
-			}
-			else if(sampleHead.numChannels == 2)
-			{
-				return accBufferLength/4;
-			}
+			if(sampleHead.numChannels == 1) return accBufferLength/2;
+			else if(sampleHead.numChannels == 2) return accBufferLength/4;
 		}
 
 	}
 	else if(sampleHead.AudioFormat == 3)
 	{
-		if(sampleHead.numChannels == 1)
-		{
-			return accBufferLength/4;
-		}
-		else if(sampleHead.numChannels == 2)
-		{
-			return accBufferLength/8;
-		}
+		if(sampleHead.numChannels == 1) return accBufferLength/4;
+		else if(sampleHead.numChannels == 2) return accBufferLength/8;
 	}
 	else return 0;
-	return 0;
 }
