@@ -2043,13 +2043,13 @@ static uint8_t getSelectedElement()
 	{
 		return Sequencer::ELEMENTS_INSTRUMENTS;
 	}
-	else if (tactButtons.isButtonPressed(interfaceButtonVol))
+	else if (tactButtons.isButtonPressed(interfaceButtonFx1))
 	{
-		return Sequencer::ELEMENTS_VELO;
+		return Sequencer::ELEMENTS_FX1;
 	}
-	else if (tactButtons.isButtonPressed(interfaceButtonFx))
+	else if (tactButtons.isButtonPressed(interfaceButtonFx2))
 	{
-		return Sequencer::ELEMENTS_FXes;
+		return Sequencer::ELEMENTS_FX2;
 	}
 	else if (tactButtons.isButtonPressed(interfaceButtonPattern))
 	{

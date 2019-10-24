@@ -242,6 +242,13 @@ void Sequencer::play_microStep(uint8_t row)
 	strPlayer::strPlayerTrack::strSendStep & stepToSend = player.track[row].stepToSend;
 
 	memcpy(&stepToSend, &patternStep, sizeof(patternStep));
+	if (playerRow.uStep == 1)
+	{
+		stepToSend.velocity = STEP_VELO_DEFAULT;
+
+		// zerujemy zmienne efektowe
+		playerRow.isOffset = 0;
+	}
 
 //	strPlayer::strPlayerTrack::strPlayerStep & playerStep = playerRow.step[playerRow.actual_pos];
 
@@ -310,56 +317,63 @@ void Sequencer::play_microStep(uint8_t row)
 
 	if (playerRow.uStep == 1)
 	{
-
-		strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
-		switch (_fx.type)
+		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
 		{
-
-		case fx.FX_TYPE_NUDGE:
-
-			playerRow.isOffset = 1;
-			playerRow.offsetValue = _fx.value + 1;
-
-			break;
-		case fx.FX_TYPE_STEP_CHANCE:
-			if (random(0, 128) > _fx.value)
-				cancelStep = 1;
-
-			break;
-
-		case fx.FX_TYPE_SEND_CC_1:
-			usbMIDI.sendControlChange(1, _fx.value, 1);
-			break;
-
-		case fx.FX_TYPE_SEND_CC_2:
-			usbMIDI.sendControlChange(2, _fx.value, 1);
-			break;
-
-		default:
-			break;
-		}
-
-		if (patternStep.note == STEP_NOTE_EMPTY)
-		{
-			// wysyłam tylko fxa jeśli nie ma nuty
-			if (_fx.type > fx.FX_TYPE_NOT_SEQ_FX)
-			{
-				instrumentPlayer[row].seqFx(_fx.type, _fx.value);
-			}
-			strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
+			//	strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
 			switch (_fx.type)
 			{
-			case fx.FX_TYPE_ROLL:
-				case fx.FX_TYPE_ROLL_UP:
-				case fx.FX_TYPE_ROLL_DOWN:
-				case fx.FX_TYPE_ROLL_RANDOM:
 
-				playerRow.rollIsOn = 1;
-				playerRow.rollVal = _fx.value;
-				playerRow.rollDir = _fx.type;
-				playerRow.rollType = _fx.value;
+			case fx.FX_TYPE_NUDGE:
+
+				playerRow.isOffset = 1;
+				playerRow.offsetValue = _fx.value + 1;
 
 				break;
+			case fx.FX_TYPE_VELOCITY:
+
+				stepToSend.velocity = _fx.value;
+
+				break;
+			case fx.FX_TYPE_STEP_CHANCE:
+				if (random(0, 128) > _fx.value)
+					cancelStep = 1;
+
+				break;
+
+			case fx.FX_TYPE_SEND_CC_1:
+				usbMIDI.sendControlChange(1, _fx.value, 1);
+				break;
+
+			case fx.FX_TYPE_SEND_CC_2:
+				usbMIDI.sendControlChange(2, _fx.value, 1);
+				break;
+
+			default:
+				break;
+			}
+
+			if (patternStep.note == STEP_NOTE_EMPTY)
+			{
+				// wysyłam tylko fxa jeśli nie ma nuty
+				if (_fx.type > fx.FX_TYPE_NOT_SEQ_FX)
+				{
+					instrumentPlayer[row].seqFx(_fx.type, _fx.value);
+				}
+				strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
+				switch (_fx.type)
+				{
+				case fx.FX_TYPE_ROLL:
+					case fx.FX_TYPE_ROLL_UP:
+					case fx.FX_TYPE_ROLL_DOWN:
+					case fx.FX_TYPE_ROLL_RANDOM:
+
+					playerRow.rollIsOn = 1;
+					playerRow.rollVal = _fx.value;
+					playerRow.rollDir = _fx.type;
+					playerRow.rollType = _fx.value;
+
+					break;
+				}
 			}
 		}
 	}

@@ -71,7 +71,7 @@ public:
 			// powiązane z listą tekstów w interfaceDefs.h
 			FX_TYPE_NONE,
 			FX_TYPE_NUDGE,
-			FX_TYPE_zapas1,
+			FX_TYPE_VELOCITY,
 			FX_TYPE_ROLL,
 			FX_TYPE_STEP_CHANCE,
 			FX_TYPE_RANDOM_NOTE,
@@ -169,9 +169,7 @@ public:
 			struct strStep
 			{
 				int8_t note = STEP_NOTE_EMPTY;
-
 				uint8_t instrument = 0;
-
 				//FX
 				struct strFx
 				{
@@ -180,7 +178,6 @@ public:
 
 				} fx[2];
 
-//				int8_t velocity = STEP_VELO_DEFAULT;	// jeśli <0 to nie wysyłamy
 			} step[MAXSTEP + 1];
 
 		} track[8];
@@ -196,8 +193,9 @@ public:
 		ELEMENTS_ALL_WITH_PREFERENCES,
 		ELEMENTS_NOTES,
 		ELEMENTS_INSTRUMENTS,
-		ELEMENTS_VELO,
-		ELEMENTS_FXes,
+//		ELEMENTS_VELO,
+		ELEMENTS_FX1,
+		ELEMENTS_FX2,
 	};
 	enum midiChannel
 	{

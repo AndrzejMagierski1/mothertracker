@@ -162,8 +162,8 @@ enum mtInterfaceButtonsFunctions
 	interfaceButtonFx 			= interfaceButton21, // <<
 	interfaceButtonPattern 		= interfaceButton22,
 
-	interfaceButtonFx1 			= interfaceButton20,
-	interfaceButtonFx2 			= interfaceButton21,
+	interfaceButtonFx1 			= interfaceButton21,
+	interfaceButtonFx2 			= interfaceButton20,
 };
 
 //-------------------------------------------------------------
@@ -290,7 +290,7 @@ struct strInterfaceGlobals
 	{
 			"--- None",
 			"A - Nudge",
-			"B - pusty",
+			"B - Velocity",
 			"C - Roll",
 			"D - Chance",
 			"E - Random note",

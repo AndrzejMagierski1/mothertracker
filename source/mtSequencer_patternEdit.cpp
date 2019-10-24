@@ -665,17 +665,16 @@ void Sequencer::clearStep(strPattern::strTrack::strStep * step,
 		step->fx[0].type = 0;
 		step->fx[1].type = 0;
 		break;
-	case ELEMENTS_FXes:
+	case ELEMENTS_FX1:
 		step->fx[0].type = 0;
+		break;
+	case ELEMENTS_FX2:
 		step->fx[1].type = 0;
 		break;
 	case ELEMENTS_INSTRUMENTS:
 		case ELEMENTS_NOTES:
 		step->note = STEP_NOTE_EMPTY;
 		step->instrument = 0;
-		break;
-	case ELEMENTS_VELO:
-//		step->velocity = -1;
 		break;
 	default:
 		break;
@@ -877,11 +876,11 @@ void Sequencer::pasteSelectionFromBuffer(strSelection *from, strSelection *to,
 						stepTo->note = STEP_NOTE_DEFAULT;
 					}
 					break;
-//				case ELEMENTS_VELO:
-//					stepTo->velocity = stepFrom->velocity;
-//					break;
-				case ELEMENTS_FXes:
+				case ELEMENTS_FX1:
 					stepTo->fx[0] = stepFrom->fx[0];
+					break;
+				case ELEMENTS_FX2:
+					stepTo->fx[1] = stepFrom->fx[1];
 					break;
 				default:
 					break;
