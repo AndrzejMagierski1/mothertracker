@@ -219,7 +219,6 @@ void AudioPlayMemory::update(void)
 	audio_block_t *block=NULL;
 	int16_t *in=NULL;
 	int16_t *out=NULL;
-	int16_t s0=0;
 	int i;
 	int32_t castPitchControl;
 	float pitchFraction;
@@ -540,11 +539,12 @@ void AudioPlayMemory::update(void)
 }
 
 
-void AudioPlayMemory::setWavetableWindow(uint16_t value)
+void AudioPlayMemory::setWavetableWindow(int16_t value)
 {
 	if(mtProject.instrument[currentInstr_idx].sample.type != mtSampleTypeWavetable) return;
-	if(value > MAX_WAVETABLE_WINDOW) return;
-	currentWindow=value;
+	if(value > MAX_WAVETABLE_WINDOW) currentWindow = MAX_WAVETABLE_WINDOW;
+	else if(value < 0) currentWindow = 0;
+	else currentWindow=value;
 }
 
 void AudioPlayMemory::setPlayMode(uint8_t value)
@@ -694,6 +694,21 @@ void AudioPlayMemory::setForcedPoints(int32_t sp, int32_t lp1, int32_t lp2, int3
 	else forcedLoopPoint2 = mtProject.instrument[currentInstr_idx].loopPoint2;
 	if(ep != -1) forcedEndPoint = ep;
 	else forcedEndPoint = mtProject.instrument[currentInstr_idx].endPoint;
+}
+
+void AudioPlayMemory::setWavetableWindowFlag()
+{
+	wavetableWindowForceFlag = 1;
+}
+void AudioPlayMemory::clearWavetableWindowFlag()
+{
+	wavetableWindowForceFlag = 0;
+}
+void AudioPlayMemory::setForcedWavetableWindow(int16_t val)
+{
+	if(val > MAX_WAVETABLE_WINDOW) forcedWavetableWindow = MAX_WAVETABLE_WINDOW;
+	else if(val < 0) currentWindow = 0;
+	else currentWindow=val;
 }
 
 void AudioPlayMemory::setReverse()

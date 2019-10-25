@@ -47,13 +47,16 @@ public:
 	void setPitch(float value); // incremental
 	void setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx);//incremental
 	void setFineTune(int8_t value, int8_t currentNote);
-	void setWavetableWindow(uint16_t value);
+	void setWavetableWindow(int16_t value);
 	void setTune(int8_t value, int8_t currentNote);
 	void setReverse();
 	void clearReverse();
 	uint8_t playForPrev(uint8_t instr_idx,int8_t n);
 	uint8_t playForPrev(int16_t * addr,uint32_t len);
 	uint8_t playForPrev(int16_t * addr,uint32_t len, uint8_t n);
+	void setWavetableWindowFlag();
+	void clearWavetableWindowFlag();
+	void setForcedWavetableWindow(int16_t val);
 	void setTuneForceFlag();
 	void clearTuneForceFlag();
 	void setForcedTune(int8_t value);
@@ -98,6 +101,7 @@ private:
 	uint8_t pointsForceFlag;
 	uint8_t glideForceFlag;
 	uint8_t fineTuneForceFlag;
+	uint8_t wavetableWindowForceFlag;
 
 
 	uint8_t reverseDirectionFlag;
@@ -109,6 +113,7 @@ private:
 	int8_t forcedTune;
 	uint16_t forcedGlide;
 	int8_t forcedFineTune;
+	uint16_t forcedWavetableWindow;
 
 	struct strSamplePoints
 	{
