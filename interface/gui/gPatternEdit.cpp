@@ -206,26 +206,6 @@ void cPatternEditor::initDisplayControls()
 	//hTrackControl = display.createControl<cLabel>(&prop);
 	//display.refreshControl(hTrackControl);
 
-
-
-	//display.setControlData(notePopoutControl, &padNamesStruct);
-/*
-	strControlProperties prop2;
-	prop2.style = 	(controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
-	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
-	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
-	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-
-	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
-	prop2.x = 769;
-	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
-*/
 }
 
 

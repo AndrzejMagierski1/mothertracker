@@ -2351,16 +2351,6 @@ static  uint8_t functFillCancel()
 
 	PTE->start(0);
 
-//	PTE->readPatternState();
-//	PTE->refreshPattern();
-//
-//	PTE->showDefaultScreen();
-//	PTE->setDefaultScreenFunct();
-//
-//	PTE->refreshEditState();
-//
-//	PTE->focusOnPattern();
-
 	return 1;
 }
 
@@ -2432,26 +2422,6 @@ static  uint8_t functFillApply()
 			break;
 
 		case 2:
-//			if (fillData->type == 0)
-//			{
-//				sequencer.fillLinearVelocity(PTE->fillStep,
-//											fillData->from,
-//											fillData->from);
-//			}
-//			else if (fillData->type == 1)
-//			{
-//				sequencer.fillLinearVelocity(PTE->fillStep,
-//											fillData->from,
-//											fillData->to);
-//			}
-//			else if (fillData->type == 2)
-//			{
-//				sequencer.fillRandomVelocity(PTE->fillStep,
-//											fillData->from,
-//											fillData->to);
-//			}
-//
-//			break;
 		case 3:
 		{
 			uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
