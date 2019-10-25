@@ -1010,10 +1010,8 @@ void cSampleImporter::processDirFileSizes()
 
 		strcat(filePath, &locationExplorerList[openCurrentPos][0]);
 
-
-		currentFolderMemoryFileUsage[openCurrentPos]= 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
-		currentFolderIsWavetableFlag[openCurrentPos] = fileManager.samplesLoader.wavetableLoader.isWavetable(filePath);
-		//todo: wywoływane są dwie funkcje które otwierają 2 razy plik - trzeba to zoptymalizowac
+		fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath,&currentFolderMemoryFileUsage[openCurrentPos],&currentFolderIsWavetableFlag[openCurrentPos]);
+		currentFolderMemoryFileUsage[openCurrentPos] *= 2;
 
 		openCurrentPos++;
 
