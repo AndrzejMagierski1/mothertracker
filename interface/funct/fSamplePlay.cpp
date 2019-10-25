@@ -30,10 +30,10 @@ static  uint8_t functDown();
 
 static 	uint8_t functPreview(uint8_t state);
 
-static  uint8_t functSelectStart();
-static  uint8_t functSelectLoop1();
-static  uint8_t functSelectLoop2();
-static  uint8_t functSelectEnd();
+static  uint8_t functSelectStart(uint8_t state);
+static  uint8_t functSelectLoop1(uint8_t state);
+static  uint8_t functSelectLoop2(uint8_t state);
+static  uint8_t functSelectEnd(uint8_t state);
 static  uint8_t functSelectZoom();
 static  uint8_t functPlayMode(uint8_t button);
 
@@ -47,6 +47,13 @@ static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
 static uint8_t functStepNote(uint8_t value);
+
+static void modStartPoint(int16_t value);
+static void modEndPoint(int16_t value);
+static void modLoopPoint1(int16_t value);
+static void modLoopPoint2(int16_t value);
+static void changeZoom(int16_t value);
+static void changePlayModeSelection(int16_t value);
 
 
 
@@ -194,6 +201,9 @@ void cSamplePlayback::start(uint32_t options)
 
 	}
 
+	selectCorrectPoints();
+	clearAllNodes();
+	cancelMultiFrame();
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -255,10 +265,10 @@ void cSamplePlayback::setDefaultScreenFunct()
 //	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
 	FM->setButtonObj(interfaceButton0, functPreview);
-	FM->setButtonObj(interfaceButton1, buttonPress, functSelectStart);
-	FM->setButtonObj(interfaceButton2, buttonPress, functSelectLoop1);
-	FM->setButtonObj(interfaceButton3, buttonPress, functSelectLoop2);
-	FM->setButtonObj(interfaceButton4, buttonPress, functSelectEnd);
+	FM->setButtonObj(interfaceButton1, functSelectStart);
+	FM->setButtonObj(interfaceButton2, functSelectLoop1);
+	FM->setButtonObj(interfaceButton3, functSelectLoop2);
+	FM->setButtonObj(interfaceButton4, functSelectEnd);
 
 	FM->setButtonObj(interfaceButton5, buttonPress, functSelectZoom);
 
@@ -306,17 +316,32 @@ void cSamplePlayback::processPoints()
 
 }
 
-
+void cSamplePlayback::selectCorrectPoints()
+{
+	if(selectedPlace == 1)
+	{
+		points.selected = selectStart;
+	}
+	else if(selectedPlace == 2)
+	{
+		points.selected = selectLoop1;
+	}
+	else if(selectedPlace == 3)
+	{
+		points.selected = selectLoop2;
+	}
+	else if(selectedPlace == 4)
+	{
+		points.selected = selectEnd;
+	}
+}
 
 void cSamplePlayback::listPlayMode()
 {
-
 	for(uint8_t i = 0; i < playModeCount; i++)
 	{
 		playModeNames[i] = (char*)&playModeFunctLabels[i][0];
 	}
-
-
 }
 
 void cSamplePlayback::cancelPopups()
@@ -386,77 +411,241 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	return 1;
 }
 
-static  uint8_t functSelectStart()
+static  uint8_t functSelectStart(uint8_t state)
 {
-	SP->points.selected = 1;
-	SP->selectedPlace = 1;
-	SP->activateLabelsBorder();
+	if(state > buttonPress) return 1;
 
-
-	if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 1)
+	if(state == UINT8_MAX || state == buttonPress) // called from inside of this module
 	{
-		SP->zoom.lastChangedPoint = 1;
-		SP->zoom.zoomPosition = SP->editorInstrument->startPoint;
-		SP->refreshSpectrum = 1;
+		if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 1)
+		{
+			SP->zoom.lastChangedPoint = 1;
+			SP->zoom.zoomPosition = SP->editorInstrument->startPoint;
+			SP->refreshSpectrum = 1;
+		}
+
+		if(state == buttonPress)
+		{
+			SP->addNode(modStartPoint, 0);
+
+			SP->frameData.multisel[1].frameNum = 1;
+			SP->frameData.multisel[1].isActive = 1;
+			SP->frameData.multiSelActiveNum  += 1;
+		}
+
+		if(SP->frameData.multiSelActiveNum < 2)
+		{
+			SP->points.selected = 0;
+		}
+
+		SP->points.selected |= selectStart;
+		SP->selectedPlace = 1;
+	}
+	else if(state == buttonRelease)
+	{
+		if(SP->frameData.multiSelActiveNum)
+		{
+			SP->points.selected &= ~selectStart;
+
+			if(SP->frameData.multisel[1].isActive)
+			{
+				SP->removeNode(0);
+				SP->frameData.multiSelActiveNum  -= 1;
+
+				SP->frameData.multisel[1].isActive = 0;
+
+				if(SP->frameData.multiSelActiveNum == 0)
+				{
+					SP->selectedPlace = 1;
+					SP->points.selected |= selectStart;
+				}
+			}
+		}
 	}
 
 	SP->refreshPoints = 1;
+	SP->activateLabelsBorder();
 
 	return 1;
 }
 
-static  uint8_t functSelectLoop1()
+static  uint8_t functSelectLoop1(uint8_t state)
 {
-	if(SP->editorInstrument->playMode == singleShot) return 1;
-	SP->points.selected = 3;
-	SP->selectedPlace = 2;
-	SP->activateLabelsBorder();
+	if(state > buttonPress) return 1;
 
-	if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 3)
+	if(state == UINT8_MAX || state == buttonPress)
 	{
-		SP->zoom.lastChangedPoint = 3;
-		SP->zoom.zoomPosition = SP->editorInstrument->loopPoint1;
-		SP->refreshSpectrum = 1;
+		if(SP->editorInstrument->playMode == singleShot) return 1;
+
+		if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 3)
+		{
+			SP->zoom.lastChangedPoint = 3;
+			SP->zoom.zoomPosition = SP->editorInstrument->loopPoint1;
+			SP->refreshSpectrum = 1;
+		}
+
+		if(state == buttonPress)
+		{
+			SP->addNode(modLoopPoint1, 1);
+
+			SP->frameData.multisel[2].frameNum = 2;
+			SP->frameData.multisel[2].isActive = 1;
+			SP->frameData.multiSelActiveNum  += 1;
+		}
+
+		if(SP->frameData.multiSelActiveNum < 2)
+		{
+			SP->points.selected = 0;
+		}
+
+		SP->points.selected |= selectLoop1;
+		SP->selectedPlace = 2;
+	}
+	else if(state == buttonRelease)
+	{
+		if(SP->frameData.multiSelActiveNum)
+		{
+			SP->points.selected &= ~selectLoop1;
+
+			if(SP->frameData.multisel[2].isActive)
+			{
+				SP->removeNode(1);
+				SP->frameData.multiSelActiveNum  -= 1;
+
+				SP->frameData.multisel[2].isActive = 0;
+
+				if(SP->frameData.multiSelActiveNum == 0)
+				{
+					SP->selectedPlace = 2;
+					SP->points.selected |= selectLoop1;
+				}
+			}
+		}
 	}
 
 	SP->refreshPoints = 1;
+	SP->activateLabelsBorder();
 
 	return 1;
 }
 
-static  uint8_t functSelectLoop2()
+static  uint8_t functSelectLoop2(uint8_t state)
 {
-	if(SP->editorInstrument->playMode == singleShot) return 1;
-	SP->points.selected = 4;
-	SP->selectedPlace = 3;
-	SP->activateLabelsBorder();
+	if(state > buttonPress) return 1;
 
-	if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 4)
+	if(state == UINT8_MAX || state == buttonPress)
 	{
-		SP->zoom.lastChangedPoint = 4;
-		SP->zoom.zoomPosition = SP->editorInstrument->loopPoint2;
-		SP->refreshSpectrum = 1;
+		if(SP->editorInstrument->playMode == singleShot) return 1;
+
+		if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 4)
+		{
+			SP->zoom.lastChangedPoint = 4;
+			SP->zoom.zoomPosition = SP->editorInstrument->loopPoint2;
+			SP->refreshSpectrum = 1;
+		}
+
+		if(state == buttonPress)
+		{
+			SP->addNode(modLoopPoint2, 2);
+
+			SP->frameData.multisel[3].frameNum = 3;
+			SP->frameData.multisel[3].isActive = 1;
+			SP->frameData.multiSelActiveNum  += 1;
+		}
+
+		if(SP->frameData.multiSelActiveNum < 2)
+		{
+			SP->points.selected = 0;
+		}
+
+		SP->points.selected |= selectLoop2;
+		SP->selectedPlace = 3;
+
+	}
+	else if(state == buttonRelease)
+	{
+		if(SP->frameData.multiSelActiveNum)
+		{
+			SP->points.selected &= ~selectLoop2;
+
+			if(SP->frameData.multisel[3].isActive)
+			{
+				SP->removeNode(2);
+				SP->frameData.multiSelActiveNum  -= 1;
+
+				SP->frameData.multisel[3].isActive = 0;
+
+				if(SP->frameData.multiSelActiveNum == 0)
+				{
+					SP->selectedPlace = 3;
+					SP->points.selected |= selectLoop2;
+				}
+			}
+		}
 	}
 
 	SP->refreshPoints = 1;
+
+	SP->activateLabelsBorder();
 
 	return 1;
 }
 
-static  uint8_t functSelectEnd()
+static  uint8_t functSelectEnd(uint8_t state)
 {
-	SP->points.selected = 2;
-	SP->selectedPlace = 4;
-	SP->activateLabelsBorder();
+	if(state > buttonPress) return 1;
 
-	if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 2)
+	if(state == UINT8_MAX || state == buttonPress)
 	{
-		SP->zoom.lastChangedPoint = 2;
-		SP->zoom.zoomPosition = SP->editorInstrument->endPoint;
-		SP->refreshSpectrum = 1;
+		if(SP->zoom.zoomValue > 1.0 && SP->zoom.lastChangedPoint != 2)
+		{
+			SP->zoom.lastChangedPoint = 2;
+			SP->zoom.zoomPosition = SP->editorInstrument->endPoint;
+			SP->refreshSpectrum = 1;
+		}
+
+		if(state == buttonPress)
+		{
+			SP->addNode(modEndPoint, 3);
+
+			SP->frameData.multisel[4].frameNum = 4;
+			SP->frameData.multisel[4].isActive = 1;
+			SP->frameData.multiSelActiveNum  += 1;
+		}
+
+		if(SP->frameData.multiSelActiveNum < 2)
+		{
+			SP->points.selected = 0;
+		}
+
+		SP->points.selected |= selectEnd;
+		SP->selectedPlace = 4;
+	}
+	else if(state == buttonRelease)
+	{
+		if(SP->frameData.multiSelActiveNum)
+		{
+			SP->points.selected &= ~selectEnd;
+
+			if(SP->frameData.multisel[4].isActive)
+			{
+				SP->removeNode(3);
+				SP->frameData.multiSelActiveNum  -= 1;
+
+				SP->frameData.multisel[4].isActive = 0;
+
+				if(SP->frameData.multiSelActiveNum == 0)
+				{
+					SP->selectedPlace = 4;
+					SP->points.selected |= selectEnd;
+				}
+			}
+		}
 	}
 
 	SP->refreshPoints = 1;
+
+	SP->activateLabelsBorder();
 
 	return 1;
 }
@@ -464,6 +653,11 @@ static  uint8_t functSelectEnd()
 
 static  uint8_t functSelectZoom()
 {
+	SP->cancelMultiFrame();
+	SP->clearAllNodes();
+
+	SP->refreshPoints = 1;
+	SP->points.selected = 0;
 
 	SP->selectedPlace = 5;
 	SP->activateLabelsBorder();
@@ -483,10 +677,13 @@ static  uint8_t functPlayMode(uint8_t button)
 //		SP->changePlayModeSelection(1);
 //	}
 
+	SP->cancelMultiFrame();
+	SP->clearAllNodes();
+
 	SP->selectedPlace = 6;
 	SP->activateLabelsBorder();
-	SP->points.selected = 0;
 
+	SP->points.selected = 0;
 	SP->refreshPoints = 1;
 
 	return 1;
@@ -494,62 +691,59 @@ static  uint8_t functPlayMode(uint8_t button)
 
 static  uint8_t functEncoder(int16_t value)
 {
-
-
-	switch(SP->selectedPlace)
+	if(SP->frameData.multiSelActiveNum != 0)
 	{
-	case 0: break;
-	case 1: SP->modStartPoint(value); 			break;
-	case 2: SP->modLoopPoint1(value); 			break;
-	case 3: SP->modLoopPoint2(value); 			break;
-	case 4: SP->modEndPoint(value); 			break;
-	case 5: SP->changeZoom(value);				break;
-	case 6: SP->changePlayModeSelection(value);	break;
+		SP->stepThroughNodes(value);
 	}
-
-
-
+	else
+	{
+		switch(SP->selectedPlace)
+		{
+		case 0: break;
+		case 1: modStartPoint(value); 			break;
+		case 2: modLoopPoint1(value); 			break;
+		case 3: modLoopPoint2(value); 			break;
+		case 4: modEndPoint(value); 			break;
+		case 5: changeZoom(value);				break;
+		case 6: changePlayModeSelection(value);	break;
+		}
+	}
 
 	return 1;
 }
 
-static  uint8_t functSelectStart();
-static  uint8_t functSelectLoop1();
-static  uint8_t functSelectLoop2();
-
-
-
 static  uint8_t functLeft()
 {
-	if(SP->selectedPlace > 0) SP->selectedPlace--;
+	if(SP->frameData.multiSelActiveNum != 0) return 1;
+	if(SP->selectedPlace > 1) SP->selectedPlace--;
 
 	switch(SP->selectedPlace)
 	{
 		case 0: break;
-		case 1: functSelectStart();		break;
+		case 1: functSelectStart(UINT8_MAX);		break;
 		case 2:
 			if(SP->editorInstrument->playMode == singleShot)
 			{
 				SP->selectedPlace = 1;
-				functSelectStart();
+				functSelectStart(UINT8_MAX);
 			}
 			else
 			{
-				functSelectLoop1();
+				functSelectLoop1(UINT8_MAX);
 			}
 			break;
 		case 3:
 			if(SP->editorInstrument->playMode == singleShot)
 			{
 				SP->selectedPlace = 1;
-				functSelectStart();
+				functSelectStart(UINT8_MAX);
 			}
 			else
 			{
-				functSelectLoop2();
+				functSelectLoop2(UINT8_MAX);
 			}
 			break;
-		case 4: functSelectEnd();		break;
+		case 4: functSelectEnd(UINT8_MAX);		break;
 		case 5: functSelectZoom();		break;
 		case 6:
 		{
@@ -566,34 +760,35 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(SP->frameData.multiSelActiveNum != 0) return 1;
 	if(SP->selectedPlace < SP->frameData.placesCount-1) SP->selectedPlace++;
 
 	switch(SP->selectedPlace)
 	{
-		case 1: functSelectStart();		break;
+		case 1: functSelectStart(UINT8_MAX);		break;
 		case 2:
 			if(SP->editorInstrument->playMode == singleShot)
 			{
 				SP->selectedPlace = 4;
-				functSelectEnd();
+				functSelectEnd(UINT8_MAX);
 			}
 			else
 			{
-				functSelectLoop1();
+				functSelectLoop1(UINT8_MAX);
 			}
 			break;
 		case 3:
 			if(SP->editorInstrument->playMode == singleShot)
 			{
 				SP->selectedPlace = 4;
-				functSelectEnd();
+				functSelectEnd(UINT8_MAX);
 			}
 			else
 			{
-				functSelectLoop2();
+				functSelectLoop2(UINT8_MAX);
 			}
 			break;
-		case 4: functSelectEnd();		break;
+		case 4: functSelectEnd(UINT8_MAX);		break;
 		case 5: functSelectZoom();		break;
 		case 6:
 		{
@@ -612,14 +807,21 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
-	switch(SP->selectedPlace)
+	if(SP->frameData.multiSelActiveNum != 0)
 	{
-	case 1: SP->modStartPoint(1); 			break;
-	case 2: SP->modLoopPoint1(1); 			break;
-	case 3: SP->modLoopPoint2(1); 			break;
-	case 4: SP->modEndPoint(1); 			break;
-	case 5: SP->changeZoom(1);				break;
-	case 6: SP->changePlayModeSelection(-1);	break;
+		SP->stepThroughNodes(1);
+	}
+	else
+	{
+		switch(SP->selectedPlace)
+		{
+		case 1: modStartPoint(1); 			break;
+		case 2: modLoopPoint1(1); 			break;
+		case 3: modLoopPoint2(1); 			break;
+		case 4: modEndPoint(1); 			break;
+		case 5: changeZoom(1);				break;
+		case 6: changePlayModeSelection(-1);	break;
+		}
 	}
 
 	return 1;
@@ -628,21 +830,24 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
-	switch(SP->selectedPlace)
+	if(SP->frameData.multiSelActiveNum != 0)
 	{
-	case 1: SP->modStartPoint(-1); 			break;
-	case 2: SP->modLoopPoint1(-1); 			break;
-	case 3: SP->modLoopPoint2(-1); 			break;
-	case 4: SP->modEndPoint(-1); 			break;
-	case 5: SP->changeZoom(-1);				break;
-	case 6: SP->changePlayModeSelection(1);	break;
+		SP->stepThroughNodes(-1);
 	}
-
+	else
+	{
+		switch(SP->selectedPlace)
+		{
+		case 1: modStartPoint(-1); 			break;
+		case 2: modLoopPoint1(-1); 			break;
+		case 3: modLoopPoint2(-1); 			break;
+		case 4: modEndPoint(-1); 			break;
+		case 5: changeZoom(-1);				break;
+		case 6: changePlayModeSelection(1);	break;
+		}
+	}
 	return 1;
 }
-
-
-
 
 static  uint8_t functPlayAction()
 {
@@ -699,8 +904,6 @@ static 	uint8_t functPreview(uint8_t state)
 		}
 
 		mtPadBoard.startInstrument(12, mtProject.values.lastUsedInstrument,-1);
-
-
 	}
 	else if(state == 0)
 	{
@@ -724,211 +927,209 @@ static 	uint8_t functPreview(uint8_t state)
 
 
 //======================================================================================================================
-void cSamplePlayback::changeZoom(int16_t value)
+static void changeZoom(int16_t value)
 {
-	GP.spectrumChangeZoom(value, editorInstrument->sample.length, &zoom);
+	GP.spectrumChangeZoom(value, SP->editorInstrument->sample.length, &SP->zoom);
 
-	refreshSpectrum = 1;
-	refreshPoints = 1;
+	SP->refreshSpectrum = 1;
+	SP->refreshPoints = 1;
 
-	showZoomValue();
+	SP->showZoomValue();
 }
 
-void cSamplePlayback::changePlayModeSelection(int16_t value)
+static void changePlayModeSelection(int16_t value)
 {
+	if(SP->editorInstrument->playMode + value < 0) SP->editorInstrument->playMode = 0;
+	else if(SP->editorInstrument->playMode + value > playModeCount-1) SP->editorInstrument->playMode = playModeCount-1;
+	else  SP->editorInstrument->playMode += value;
 
-
-	if(editorInstrument->playMode + value < 0) editorInstrument->playMode = 0;
-	else if(editorInstrument->playMode + value > playModeCount-1) editorInstrument->playMode = playModeCount-1;
-	else  editorInstrument->playMode += value;
-
-	if((editorInstrument->playMode == singleShot) && (value < 0 )) hideLoopPoints();
+	if((SP->editorInstrument->playMode == singleShot) && (value < 0 )) SP->hideLoopPoints();
 	else if(value > 0 )
 	{
-		if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - 1;
+		if(SP->editorInstrument->loopPoint1 >= SP->editorInstrument->loopPoint2) SP->editorInstrument->loopPoint1 = SP->editorInstrument->loopPoint2 - 1;
 
-		if(((editorInstrument->loopPoint1 >= editorInstrument->endPoint) && (editorInstrument->loopPoint2 >= editorInstrument->endPoint))
-		|| ((editorInstrument->loopPoint1 <= editorInstrument->startPoint) && (editorInstrument->loopPoint2 <= editorInstrument->startPoint))
-		|| ((editorInstrument->loopPoint1 <= editorInstrument->startPoint) && (editorInstrument->loopPoint2 >= editorInstrument->endPoint)))
+		if(((SP->editorInstrument->loopPoint1 >= SP->editorInstrument->endPoint) && (SP->editorInstrument->loopPoint2 >= SP->editorInstrument->endPoint))
+		|| ((SP->editorInstrument->loopPoint1 <= SP->editorInstrument->startPoint) && (SP->editorInstrument->loopPoint2 <= SP->editorInstrument->startPoint))
+		|| ((SP->editorInstrument->loopPoint1 <= SP->editorInstrument->startPoint) && (SP->editorInstrument->loopPoint2 >= SP->editorInstrument->endPoint)))
 		{
-			editorInstrument->loopPoint1 = editorInstrument->startPoint+1;
-			editorInstrument->loopPoint2 = editorInstrument->endPoint-1;
+			SP->editorInstrument->loopPoint1 = SP->editorInstrument->startPoint+1;
+			SP->editorInstrument->loopPoint2 = SP->editorInstrument->endPoint-1;
 		}
-		else if((editorInstrument->loopPoint1 >= editorInstrument->startPoint) && (editorInstrument->loopPoint1 <= editorInstrument->endPoint) &&
-		(editorInstrument->loopPoint2 >= editorInstrument->endPoint))
+		else if((SP->editorInstrument->loopPoint1 >= SP->editorInstrument->startPoint) && (SP->editorInstrument->loopPoint1 <= SP->editorInstrument->endPoint) &&
+		(SP->editorInstrument->loopPoint2 >= SP->editorInstrument->endPoint))
 		{
-			editorInstrument->loopPoint2 = editorInstrument->endPoint - 1;
+			SP->editorInstrument->loopPoint2 = SP->editorInstrument->endPoint - 1;
 		}
-		else if((editorInstrument->loopPoint2 >= editorInstrument->startPoint) && (editorInstrument->loopPoint2 <= editorInstrument->endPoint) &&
-		(editorInstrument->loopPoint1 <= editorInstrument->startPoint))
+		else if((SP->editorInstrument->loopPoint2 >= SP->editorInstrument->startPoint) && (SP->editorInstrument->loopPoint2 <= SP->editorInstrument->endPoint) &&
+		(SP->editorInstrument->loopPoint1 <= SP->editorInstrument->startPoint))
 		{
-			editorInstrument->loopPoint1 = editorInstrument->startPoint +1;
+			SP->editorInstrument->loopPoint1 = SP->editorInstrument->startPoint +1;
 		}
 
-		showLoopPoints();
+		SP->showLoopPoints();
 	}
 
 
-	refreshPoints = 1;
+	SP->refreshPoints = 1;
 
-	display.setControlValue(playModeListControl, editorInstrument->playMode);
-	display.refreshControl(playModeListControl);
+	display.setControlValue(SP->playModeListControl, SP->editorInstrument->playMode);
+	display.refreshControl(SP->playModeListControl);
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 
 }
 
-void cSamplePlayback::modStartPoint(int16_t value)
+static void modStartPoint(int16_t value)
 {
 	// obliczenie kroku przesuniecia w zaleznosci od ilosci widzianych probek na wyswietlaczu
-	uint16_t move_step = zoom.zoomWidth / 600;
+	uint16_t move_step = SP->zoom.zoomWidth / 600;
 	uint16_t dif;
 	value = value * move_step;
 
-	if(editorInstrument->startPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument->startPoint  = 0;
-	else if(editorInstrument->startPoint + value > SAMPLE_POINT_POS_MAX ) editorInstrument->startPoint  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument->startPoint += value;
+	if(SP->editorInstrument->startPoint + value < SAMPLE_POINT_POS_MIN)SP-> editorInstrument->startPoint  = 0;
+	else if(SP->editorInstrument->startPoint + value > SAMPLE_POINT_POS_MAX ) SP->editorInstrument->startPoint  = SAMPLE_POINT_POS_MAX;
+	else SP->editorInstrument->startPoint += value;
 
-	if(editorInstrument->startPoint > editorInstrument->endPoint) editorInstrument->startPoint = editorInstrument->endPoint-1;
+	if(SP->editorInstrument->startPoint > SP->editorInstrument->endPoint) SP->editorInstrument->startPoint = SP->editorInstrument->endPoint-1;
 
-	if(editorInstrument->playMode != singleShot)
+	if(SP->editorInstrument->playMode != singleShot)
 	{
-		if(editorInstrument->startPoint > editorInstrument->loopPoint1)
+		if(SP->editorInstrument->startPoint > SP->editorInstrument->loopPoint1)
 		{
-			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
-			editorInstrument->loopPoint1 = editorInstrument->startPoint;
+			dif = SP->editorInstrument->loopPoint2 - SP->editorInstrument->loopPoint1;
+			SP->editorInstrument->loopPoint1 = SP->editorInstrument->startPoint;
 
-			if(editorInstrument->loopPoint1 + dif > editorInstrument->endPoint)
+			if(SP->editorInstrument->loopPoint1 + dif > SP->editorInstrument->endPoint)
 			{
-				editorInstrument->loopPoint2 = editorInstrument->endPoint;
-				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
-				editorInstrument->startPoint = editorInstrument->loopPoint1;
+				SP->editorInstrument->loopPoint2 = SP->editorInstrument->endPoint;
+				SP->editorInstrument->loopPoint1 = SP->editorInstrument->loopPoint2 - dif;
+				SP->editorInstrument->startPoint = SP->editorInstrument->loopPoint1;
 				instrumentPlayer[0].setStatusBytes(LP1_MASK);
 				instrumentPlayer[0].setStatusBytes(LP2_MASK);
 			}
 			else
 			{
-				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
+				SP->editorInstrument->loopPoint2 = SP->editorInstrument->loopPoint1 + dif;
 				instrumentPlayer[0].setStatusBytes(LP2_MASK);
 			}
 		}
 	}
 
 	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
-	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 1
-	   || (editorInstrument->startPoint < zoom.zoomStart || editorInstrument->startPoint > zoom.zoomEnd)))
+	if(SP->zoom.zoomValue > 1 && (SP->zoom.lastChangedPoint != 1
+	   || (SP->editorInstrument->startPoint < SP->zoom.zoomStart || SP->editorInstrument->startPoint > SP->zoom.zoomEnd)))
 	{
-		refreshSpectrum = 1;
+		SP->refreshSpectrum = 1;
 	}
 
-	zoom.zoomPosition = editorInstrument->startPoint;
-	zoom.lastChangedPoint = 1;
-	refreshPoints = 1;
+	SP->zoom.zoomPosition = SP->editorInstrument->startPoint;
+	SP->zoom.lastChangedPoint = 1;
+	SP->refreshPoints = 1;
 
-	showStartPointValue();
+	SP->showStartPointValue();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
-void cSamplePlayback::modEndPoint(int16_t value)
+static void modEndPoint(int16_t value)
 {
-	uint16_t move_step = zoom.zoomWidth / 600;
+	uint16_t move_step = SP->zoom.zoomWidth / 600;
 	uint16_t dif;
 	value = value * move_step;
 
-	if(editorInstrument->endPoint + value < SAMPLE_POINT_POS_MIN) editorInstrument->endPoint  = 0;
-	else if(editorInstrument->endPoint + value > SAMPLE_POINT_POS_MAX ) editorInstrument->endPoint  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument->endPoint += value;
+	if(SP->editorInstrument->endPoint + value < SAMPLE_POINT_POS_MIN) SP->editorInstrument->endPoint  = 0;
+	else if(SP->editorInstrument->endPoint + value > SAMPLE_POINT_POS_MAX ) SP->editorInstrument->endPoint  = SAMPLE_POINT_POS_MAX;
+	else SP->editorInstrument->endPoint += value;
 
-	if(editorInstrument->endPoint < editorInstrument->startPoint) editorInstrument->endPoint = editorInstrument->startPoint+1;
+	if(SP->editorInstrument->endPoint < SP->editorInstrument->startPoint) SP->editorInstrument->endPoint = SP->editorInstrument->startPoint+1;
 
-	if(editorInstrument->playMode != singleShot)
+	if(SP->editorInstrument->playMode != singleShot)
 	{
-		if(editorInstrument->endPoint < editorInstrument->loopPoint2)
+		if(SP->editorInstrument->endPoint < SP->editorInstrument->loopPoint2)
 		{
-			dif = editorInstrument->loopPoint2 - editorInstrument->loopPoint1;
+			dif = SP->editorInstrument->loopPoint2 - SP->editorInstrument->loopPoint1;
 
-			editorInstrument->loopPoint2 = editorInstrument->endPoint - 1;
+			SP->editorInstrument->loopPoint2 = SP->editorInstrument->endPoint - 1;
 
-			if(editorInstrument->loopPoint2 - dif <= editorInstrument->startPoint)
+			if(SP->editorInstrument->loopPoint2 - dif <= SP->editorInstrument->startPoint)
 			{
-				editorInstrument->loopPoint1 = editorInstrument->startPoint + 1;
-				editorInstrument->loopPoint2 = editorInstrument->loopPoint1 + dif;
-				editorInstrument->endPoint = editorInstrument->loopPoint2 + 1;
+				SP->editorInstrument->loopPoint1 = SP->editorInstrument->startPoint + 1;
+				SP->editorInstrument->loopPoint2 = SP->editorInstrument->loopPoint1 + dif;
+				SP->editorInstrument->endPoint = SP->editorInstrument->loopPoint2 + 1;
 				instrumentPlayer[0].setStatusBytes(LP1_MASK);
 				instrumentPlayer[0].setStatusBytes(LP2_MASK);
 			}
 			else
 			{
-				editorInstrument->loopPoint1 = editorInstrument->loopPoint2 - dif;
+				SP->editorInstrument->loopPoint1 = SP->editorInstrument->loopPoint2 - dif;
 				instrumentPlayer[0].setStatusBytes(LP1_MASK);
 			}
 		}
 	}
 
-	if(zoom.zoomValue > 1 && (zoom.lastChangedPoint != 2
-			|| (editorInstrument->endPoint < zoom.zoomStart || editorInstrument->endPoint > zoom.zoomEnd))) refreshSpectrum = 1;
+	if(SP->zoom.zoomValue > 1 && (SP->zoom.lastChangedPoint != 2
+			|| (SP->editorInstrument->endPoint < SP->zoom.zoomStart || SP->editorInstrument->endPoint > SP->zoom.zoomEnd))) SP->refreshSpectrum = 1;
 
-	zoom.zoomPosition = editorInstrument->endPoint;
-	zoom.lastChangedPoint = 2;
-	refreshPoints = 1;
+	SP->zoom.zoomPosition = SP->editorInstrument->endPoint;
+	SP->zoom.lastChangedPoint = 2;
+	SP->refreshPoints = 1;
 
-	showEndPointValue();
+	SP->showEndPointValue();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
-void cSamplePlayback::modLoopPoint1(int16_t value)
+static void modLoopPoint1(int16_t value)
 {
-	uint16_t move_step = zoom.zoomWidth / 600;
+	uint16_t move_step = SP->zoom.zoomWidth / 600;
 	value = value * move_step;
 
-	if(editorInstrument->loopPoint1 + value < SAMPLE_POINT_POS_MIN) editorInstrument->loopPoint1  = 0;
-	else if(editorInstrument->loopPoint1 + value > SAMPLE_POINT_POS_MAX ) editorInstrument->loopPoint1  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument->loopPoint1 += value;
+	if(SP->editorInstrument->loopPoint1 + value < SAMPLE_POINT_POS_MIN) SP->editorInstrument->loopPoint1  = 0;
+	else if(SP->editorInstrument->loopPoint1 + value > SAMPLE_POINT_POS_MAX ) SP->editorInstrument->loopPoint1  = SAMPLE_POINT_POS_MAX;
+	else SP->editorInstrument->loopPoint1 += value;
 
-	if(editorInstrument->loopPoint1 <= editorInstrument->startPoint) editorInstrument->loopPoint1 = editorInstrument->startPoint+1;
-	if(editorInstrument->loopPoint1 >= editorInstrument->loopPoint2) editorInstrument->loopPoint1 = editorInstrument->loopPoint2-1;
+	if(SP->editorInstrument->loopPoint1 <= SP->editorInstrument->startPoint) SP->editorInstrument->loopPoint1 = SP->editorInstrument->startPoint+1;
+	if(SP->editorInstrument->loopPoint1 >= SP->editorInstrument->loopPoint2) SP->editorInstrument->loopPoint1 = SP->editorInstrument->loopPoint2-1;
 
-	if(zoom.zoomValue > 1 && ( zoom.lastChangedPoint != 3
-			|| (editorInstrument->loopPoint1 < zoom.zoomStart || editorInstrument->loopPoint1 > zoom.zoomEnd))) refreshSpectrum = 1;
+	if(SP->zoom.zoomValue > 1 && (SP-> zoom.lastChangedPoint != 3
+			|| (SP->editorInstrument->loopPoint1 < SP->zoom.zoomStart || SP->editorInstrument->loopPoint1 > SP->zoom.zoomEnd))) SP->refreshSpectrum = 1;
 
 	instrumentPlayer[0].setStatusBytes(LP1_MASK);
 
-	zoom.zoomPosition = editorInstrument->loopPoint1;
-	zoom.lastChangedPoint = 3;
-	refreshPoints = 1;
+	SP->zoom.zoomPosition = SP->editorInstrument->loopPoint1;
+	SP->zoom.lastChangedPoint = 3;
+	SP->refreshPoints = 1;
 
-	showLoopPoint1Value();
+	SP->showLoopPoint1Value();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
-void cSamplePlayback::modLoopPoint2(int16_t value)
+static void modLoopPoint2(int16_t value)
 {
-	uint16_t move_step = zoom.zoomWidth / 600;
+	uint16_t move_step = SP->zoom.zoomWidth / 600;
 	value = value * move_step;
 
-	if(editorInstrument->loopPoint2 + value < SAMPLE_POINT_POS_MIN) editorInstrument->loopPoint2  = 0;
-	else if(editorInstrument->loopPoint2 + value > SAMPLE_POINT_POS_MAX ) editorInstrument->loopPoint2  = SAMPLE_POINT_POS_MAX;
-	else editorInstrument->loopPoint2 += value;
+	if(SP->editorInstrument->loopPoint2 + value < SAMPLE_POINT_POS_MIN) SP->editorInstrument->loopPoint2  = 0;
+	else if(SP->editorInstrument->loopPoint2 + value > SAMPLE_POINT_POS_MAX ) SP->editorInstrument->loopPoint2  = SAMPLE_POINT_POS_MAX;
+	else SP->editorInstrument->loopPoint2 += value;
 
-	if(editorInstrument->loopPoint2 >= editorInstrument->endPoint) editorInstrument->loopPoint2 = editorInstrument->endPoint - 1;
-	if(editorInstrument->loopPoint2 <= editorInstrument->loopPoint1) editorInstrument->loopPoint2 = editorInstrument->loopPoint1+1;
+	if(SP->editorInstrument->loopPoint2 >= SP->editorInstrument->endPoint) SP->editorInstrument->loopPoint2 = SP->editorInstrument->endPoint - 1;
+	if(SP->editorInstrument->loopPoint2 <= SP->editorInstrument->loopPoint1) SP->editorInstrument->loopPoint2 = SP->editorInstrument->loopPoint1+1;
 
-	if(zoom.zoomValue > 1 && ( zoom.lastChangedPoint != 4
-			|| (editorInstrument->loopPoint2 < zoom.zoomStart || editorInstrument->loopPoint2 > zoom.zoomEnd))) refreshSpectrum = 1;
+	if(SP->zoom.zoomValue > 1 && ( SP->zoom.lastChangedPoint != 4
+			|| (SP->editorInstrument->loopPoint2 < SP->zoom.zoomStart || SP->editorInstrument->loopPoint2 > SP->zoom.zoomEnd))) SP->refreshSpectrum = 1;
 
 	instrumentPlayer[0].setStatusBytes(LP2_MASK);
 
-	zoom.zoomPosition = editorInstrument->loopPoint2;
-	zoom.lastChangedPoint = 4;
-	refreshPoints = 1;
-	showLoopPoint2Value();
+	SP->zoom.zoomPosition = SP->editorInstrument->loopPoint2;
+	SP->zoom.lastChangedPoint = 4;
+	SP->refreshPoints = 1;
+	SP->showLoopPoint2Value();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
@@ -1095,3 +1296,53 @@ static uint8_t functStepNote(uint8_t value)
 
 	return 1;
 }
+
+/*/////////// MultiSelect Functions ////////////////*/
+void cSamplePlayback::addNode(editFunct_t funct , uint8_t nodeNum)
+{
+	if(selectNodes[nodeNum].isActive == 0)
+	{
+		selectNodes[nodeNum].isActive = 1;
+		selectNodes[nodeNum].editFunct = funct;
+	}
+}
+
+void cSamplePlayback::removeNode(uint8_t nodeNum)
+{
+	selectNodes[nodeNum].isActive = 0;
+	selectNodes[nodeNum].editFunct = NULL;
+}
+
+void cSamplePlayback::stepThroughNodes(int16_t value)
+{
+	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	{
+		if(selectNodes[node].isActive)
+		{
+			if(selectNodes[node].editFunct != NULL)
+			{
+				selectNodes[node].editFunct(value);
+			}
+		}
+	}
+}
+
+void cSamplePlayback::clearAllNodes()
+{
+	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	{
+		selectNodes[node].isActive = 0;
+		selectNodes[node].editFunct = NULL;
+	}
+}
+
+void cSamplePlayback::cancelMultiFrame()
+{
+	for(uint8_t i = 0; i < MAX_SELECT_NODES; i++)
+	{
+		SP->frameData.multisel[i].isActive = 0;
+	}
+
+	SP->frameData.multiSelActiveNum = 0;
+}
+///////////////////////////////////////////////////////////////////////////

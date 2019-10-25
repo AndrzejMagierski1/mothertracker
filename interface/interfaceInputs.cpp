@@ -6,6 +6,7 @@
 #include "SD.h"
 
 
+#include "interfacePopups.h"
 
 /*
 #include "mtInstrumentEditor.h"
@@ -42,10 +43,7 @@ void cInterface::buttonChange(uint8_t n, uint8_t value)
 //=======================================================================
 void cInterface::powerButtonChange(uint8_t value)
 {
-	if(value == 1)
-	{
-		SD.begin(SdioConfig(DMA_SDIO));
-	}
+
 }
 
 //=======================================================================
@@ -63,31 +61,25 @@ void cInterface::padReleased(uint8_t n)
 
 //	leds.setLEDgrid(n,0,31);
 }
+
+//=======================================================================
 void cInterface::padHold(uint8_t n)
 {
 	uiFM.processPadsInput(n, 2, 0);
 }
 
 //=======================================================================
-void cInterface::seqButtonPressed(uint8_t x, uint8_t y)
+void cInterface::SDCardChange(uint8_t state)
 {
+	if(state == 0)
+	{
+		mtPopups.show(4, "SD card removed");
+	}
+	else
+	{
+		mtPopups.show(4, "SD card inserted");
+	}
 
+	uiFM.processSdDetectInput(state);
 }
 
-//=======================================================================
-void cInterface::seqButtonReleased(uint8_t x, uint8_t y)
-{
-
-}
-
-//=======================================================================
-void cInterface::seqButtonHold(uint8_t x, uint8_t y)
-{
-
-}
-
-//=======================================================================
-void cInterface::seqButtonDouble(uint8_t x, uint8_t y)
-{
-
-}

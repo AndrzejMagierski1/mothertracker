@@ -120,6 +120,9 @@ public:
 	void setControlDefaultColors(hControl handle, uint32_t colorsTable[]);
 	void setControlData(hControl handle, void* data);
 
+
+	void writeImageData(void* data);
+
 	/// grupowe
 	void hideAllControls();
 

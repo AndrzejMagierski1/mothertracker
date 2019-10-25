@@ -44,7 +44,7 @@ static  uint8_t functSwitchModule(uint8_t button);
 static  uint8_t functSwitchMode(uint8_t button);
 
 static  uint8_t functSelectEnv(uint8_t button);
-static  uint8_t functSelectParams(uint8_t button);
+static  uint8_t functSelectParams(uint8_t button, uint8_t state);
 
 
 static uint8_t functShift(uint8_t value);
@@ -52,7 +52,73 @@ static uint8_t functShift(uint8_t value);
 static uint8_t functStepNote(uint8_t value);
 
 
+void changeEnvList(int16_t value);
+void changeEnvState(int16_t value);
+void changeEnvAttack(int16_t value);
+void changeEnvDecay(int16_t value);
+void changeEnvSustain(int16_t value);
+void changeEnvRelease(int16_t value);
+void changeEnvAmount(int16_t value);
+void changeEnvLoop(int16_t value);
 
+
+void changeParamsVolume(int16_t value);
+void changeParamsPanning(int16_t value);
+void changeParamsTune(int16_t value);
+void changeParamsFineTune(int16_t value);
+void changeFilterFilterType(int16_t value);
+void changeFilterCutOff(int16_t value);
+void changeFilterResonance(int16_t value);
+void changeParamsReverbSend(int16_t value);
+
+
+void cInstrumentEditor::addNode(editFunct_t funct , uint8_t nodeNum)
+{
+	if(selectNodes[nodeNum].isActive == 0)
+	{
+		selectNodes[nodeNum].isActive = 1;
+		selectNodes[nodeNum].editFunct = funct;
+	}
+}
+
+void cInstrumentEditor::removeNode(uint8_t nodeNum)
+{
+	selectNodes[nodeNum].isActive = 0;
+	selectNodes[nodeNum].editFunct = NULL;
+}
+
+void cInstrumentEditor::stepThroughNodes(int16_t value)
+{
+	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	{
+		if(selectNodes[node].isActive)
+		{
+			if(selectNodes[node].editFunct != NULL)
+			{
+				selectNodes[node].editFunct(value);
+			}
+		}
+	}
+}
+
+void cInstrumentEditor::clearAllNodes()
+{
+	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	{
+		selectNodes[node].isActive = 0;
+		selectNodes[node].editFunct = NULL;
+	}
+}
+
+void cInstrumentEditor::cancelMultiFrame()
+{
+	for(uint8_t i = 0; i < MAX_SELECT_NODES; i++)
+	{
+		IE->frameData.multisel[i].isActive = 0;
+	}
+
+	IE->frameData.multiSelActiveNum = 0;
+}
 
 
 void cInstrumentEditor::update()
@@ -69,11 +135,14 @@ void cInstrumentEditor::start(uint32_t options)
 
 	//mtProject.values.lastUsedInstrument = constrain(mtProject.values.lastUsedInstrument, 0, INSTRUMENTS_MAX);
 
-
 	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
 	{
 		editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 	}
+
+
+	clearAllNodes();
+	cancelMultiFrame();
 
 	//listData();
 
@@ -173,7 +242,7 @@ void cInstrumentEditor::setInstrumentEnvFunct()
 {
 	for(uint8_t i = interfaceButton0; i < interfaceButton8; i++)
 	{
-		FM->setButtonObj(i, buttonPress, functSelectEnv);
+		FM->setButtonObj(i, functSelectParams);
 	}
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
@@ -193,7 +262,7 @@ void cInstrumentEditor::setInstrumentParamsFunct()
 {
 	for(uint8_t i = interfaceButton0; i < interfaceButton8; i++)
 	{
-		FM->setButtonObj(i, buttonPress, functSelectParams);
+		FM->setButtonObj(i, functSelectParams);
 	}
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
@@ -222,9 +291,60 @@ static  uint8_t functSelectEnv(uint8_t button)
 	return 1;
 }
 
-static  uint8_t functSelectParams(uint8_t button)
+static uint8_t functSelectParams(uint8_t button, uint8_t state)
 {
-	IE->selectedPlace[0] = button;
+	uint8_t mode_places = button + IE->mode*10;
+
+	uint8_t node = button;
+
+	if(state == buttonPress)
+	{
+		IE->selectedPlace[IE->mode] = button;
+
+		switch(mode_places)
+		{
+		case 0: IE->addNode(changeParamsVolume, node); 	    	break;
+		case 1:	IE->addNode(changeParamsPanning, node); 	    break;
+		case 2: IE->addNode(changeParamsTune, node); 			break;
+		case 3: IE->addNode(changeParamsFineTune, node); 		break;
+		case 4: IE->addNode(changeFilterFilterType, node);   	break;
+		case 5: IE->addNode(changeFilterCutOff, node); 	    	break;
+		case 6: IE->addNode(changeFilterResonance, node);    	break;
+		case 7: IE->addNode(changeParamsReverbSend, node);   	break;
+
+		case 10: IE->addNode(changeEnvList, node); 		 		break;
+		case 11: IE->addNode(changeEnvState, node); 		 	break;
+		case 12: IE->addNode(changeEnvAttack, node); 	 		break;
+		case 13: IE->addNode(changeEnvDecay, node); 		 	break;
+		case 14: IE->addNode(changeEnvSustain, node); 	 		break;
+		case 15: IE->addNode(changeEnvRelease, node); 	 		break;
+		case 16: IE->addNode(changeEnvAmount, node); 	 		break;
+		case 17: IE->addNode(changeEnvLoop, node); 		 		break;
+		}
+
+		IE->frameData.multisel[button].frameNum = node;
+		IE->frameData.multisel[button].isActive = 1;
+		IE->frameData.multiSelActiveNum  += 1;
+	}
+	else if(state == buttonRelease)
+	{
+		if(IE->frameData.multiSelActiveNum)
+		{
+			if(IE->frameData.multisel[button].isActive)
+			{
+				IE->removeNode(node);
+				IE->frameData.multiSelActiveNum  -= 1;
+
+				IE->frameData.multisel[button].isActive = 0;
+
+				if(IE->frameData.multiSelActiveNum == 0)
+				{
+					IE->selectedPlace[IE->mode] = button;
+				}
+			}
+		}
+	}
+
 	IE->activateLabelsBorder();
 
 	return 1;
@@ -235,28 +355,35 @@ static  uint8_t functSelectParams(uint8_t button)
 //==============================================================================================================
 static  uint8_t functEncoder(int16_t value)
 {
-	uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
-
-	switch(mode_places)
+	if(IE->frameData.multiSelActiveNum != 0)
 	{
-	case 0: IE->changeParamsVolume(value); 		 break;
-	case 1:	IE->changeParamsPanning(value); 	 break;
-	case 2: IE->changeParamsTune(value); 		 break;
-	case 3: IE->changeParamsFineTune(value); 	 break;
-	case 4: IE->changeFilterFilterType(value); 	 break;
-	case 5: IE->changeFilterCutOff(value); 		 break;
-	case 6: IE->changeFilterResonance(value); 	 break;
-	case 7: IE->changeParamsReverbSend(value); 	 break;
+		IE->stepThroughNodes(value);
+	}
+	else
+	{
+		uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
 
-	case 10: IE->changeEnvList(value); 		break;
-	case 11: IE->changeEnvState(value); 	break;
-	case 12: IE->changeEnvAttack(value); 	break;
-	case 13: IE->changeEnvDecay(value); 	break;
-	case 14: IE->changeEnvSustain(value); 	break;
-	case 15: IE->changeEnvRelease(value); 	break;
-	case 16: IE->changeEnvAmount(value); 	break;
-	case 17: IE->changeEnvLoop(value); 		break;
+		switch(mode_places)
+		{
+		case 0: changeParamsVolume(value); 		 break;
+		case 1:	changeParamsPanning(value); 	 break;
+		case 2: changeParamsTune(value); 		 break;
+		case 3: changeParamsFineTune(value); 	 break;
+		case 4: changeFilterFilterType(value); 	 break;
+		case 5: changeFilterCutOff(value); 		 break;
+		case 6: changeFilterResonance(value); 	 break;
+		case 7: changeParamsReverbSend(value); 	 break;
 
+		case 10: changeEnvList(value); 		break;
+		case 11: changeEnvState(value); 	break;
+		case 12: changeEnvAttack(value); 	break;
+		case 13: changeEnvDecay(value); 	break;
+		case 14: changeEnvSustain(value); 	break;
+		case 15: changeEnvRelease(value); 	break;
+		case 16: changeEnvAmount(value); 	break;
+		case 17: changeEnvLoop(value); 		break;
+
+		}
 	}
 
 	return 1;
@@ -267,6 +394,8 @@ static  uint8_t functEncoder(int16_t value)
 //=========================================================================================================
 static  uint8_t functLeft()
 {
+	if(IE->frameData.multiSelActiveNum != 0) return 1;
+
 	if(IE->selectedPlace[IE->mode] > 0) IE->selectedPlace[IE->mode]--;
 	IE->activateLabelsBorder();
 
@@ -276,6 +405,8 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(IE->frameData.multiSelActiveNum != 0) return 1;
+
 	if(IE->selectedPlace[IE->mode] < IE->frameData.placesCount-1) IE->selectedPlace[IE->mode]++;
 	IE->activateLabelsBorder();
 
@@ -285,28 +416,35 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
-	uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
-
-	switch(mode_places)
+	if(IE->frameData.multiSelActiveNum != 0)
 	{
-	case 0: IE->changeParamsVolume(1); 		 break;
-	case 1:	IE->changeParamsPanning(1); 	 break;
-	case 2: IE->changeParamsTune(1); 		 break;
-	case 3: IE->changeParamsFineTune(1); 	 break;
-	case 4: IE->changeFilterFilterType(-1); 	 break;
-	case 5: IE->changeFilterCutOff(1); 		 break;
-	case 6: IE->changeFilterResonance(1); 	 break;
-	case 7: IE->changeParamsReverbSend(1); 	 break;
+		IE->stepThroughNodes(1);
+	}
+	else
+	{
+		uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
 
-	case 10: IE->changeEnvList(-1); 		break;
-	case 11: IE->changeEnvState(-1); 	break;
-	case 12: IE->changeEnvAttack(1); 	break;
-	case 13: IE->changeEnvDecay(1); 	break;
-	case 14: IE->changeEnvSustain(1); 	break;
-	case 15: IE->changeEnvRelease(1); 	break;
-	case 16: IE->changeEnvAmount(1); 	break;
-	case 17: IE->changeEnvLoop(-1); 		break;
+		switch(mode_places)
+		{
+		case 0: changeParamsVolume(1); 		 break;
+		case 1:	changeParamsPanning(1); 	 break;
+		case 2: changeParamsTune(1); 		 break;
+		case 3: changeParamsFineTune(1); 	 break;
+		case 4: changeFilterFilterType(1); 	 break;
+		case 5: changeFilterCutOff(1); 		 break;
+		case 6: changeFilterResonance(1); 	 break;
+		case 7: changeParamsReverbSend(1); 	 break;
 
+		case 10: changeEnvList(1); 		break;
+		case 11: changeEnvState(1); 	break;
+		case 12: changeEnvAttack(1); 	break;
+		case 13: changeEnvDecay(1); 	break;
+		case 14: changeEnvSustain(1); 	break;
+		case 15: changeEnvRelease(1); 	break;
+		case 16: changeEnvAmount(1); 	break;
+		case 17: changeEnvLoop(1); 		break;
+
+		}
 	}
 
 	return 1;
@@ -315,30 +453,36 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
-	uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
-
-	switch(mode_places)
+	if(IE->frameData.multiSelActiveNum != 0)
 	{
-	case 0: IE->changeParamsVolume(-1);      break;
-	case 1:	IE->changeParamsPanning(-1); 	 break;
-	case 2: IE->changeParamsTune(-1); 		 break;
-	case 3: IE->changeParamsFineTune(-1); 	 break;
-	case 4: IE->changeFilterFilterType(1);  break;
-	case 5: IE->changeFilterCutOff(-1); 	 break;
-	case 6: IE->changeFilterResonance(-1); 	 break;
-	case 7: IE->changeParamsReverbSend(-1);  break;
-
-	case 10: IE->changeEnvList(1); 		break;
-	case 11: IE->changeEnvState(1); 	    break;
-	case 12: IE->changeEnvAttack(-1); 		break;
-	case 13: IE->changeEnvDecay(-1); 		break;
-	case 14: IE->changeEnvSustain(-1); 		break;
-	case 15: IE->changeEnvRelease(-1); 		break;
-	case 16: IE->changeEnvAmount(-1); 		break;
-	case 17: IE->changeEnvLoop(1); 		break;
-
+		IE->stepThroughNodes(-1);
 	}
+	else
+	{
+		uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
 
+		switch(mode_places)
+		{
+		case 0: changeParamsVolume(-1); 		 break;
+		case 1:	changeParamsPanning(-1); 		 break;
+		case 2: changeParamsTune(-1); 		 	 break;
+		case 3: changeParamsFineTune(-1); 	 	 break;
+		case 4: changeFilterFilterType(-1); 	 break;
+		case 5: changeFilterCutOff(-1); 		 break;
+		case 6: changeFilterResonance(-1); 	 	 break;
+		case 7: changeParamsReverbSend(-1); 	 break;
+
+		case 10: changeEnvList(-1); 			break;
+		case 11: changeEnvState(-1); 			break;
+		case 12: changeEnvAttack(-1); 			break;
+		case 13: changeEnvDecay(-1); 			break;
+		case 14: changeEnvSustain(-1); 			break;
+		case 15: changeEnvRelease(-1); 			break;
+		case 16: changeEnvAmount(-1); 			break;
+		case 17: changeEnvLoop(-1); 			break;
+
+		}
+	}
 
 	return 1;
 }
@@ -383,14 +527,46 @@ static uint8_t functSwitchModule(uint8_t button)
 
 static  uint8_t functSwitchMode(uint8_t button)
 {
+/*	switch(button)
+	{
+	case interfaceButtonParams:
+	{
+		if(IE->mode != mtInstEditModeParams)
+		{
+			IE->mode = 0;
+			IE->showInstrumentParams();
+			IE->setInstrumentParamsFunct();
+		}
+		break;
+	}
+	case interfaceButtonEnvelopes:
+	{
+		if(IE->mode != mtInstEditModeEnv)
+		{
+			IE->mode = 1;
+			IE->showInstrumentEnv();
+			IE->setInstrumentEnvFunct();
+		}
+		break;
+	}
+	}
+*/
+
+
 	if(IE->mode == mtInstEditModeParams)
 	{
+		IE->clearAllNodes();
+		IE->cancelMultiFrame();
+
 		IE->mode = 1;
 		//IE->showInstrumentEnv();
 		//IE->setInstrumentEnvFunct();
 	}
 	else if(IE->mode == mtInstEditModeEnv)
 	{
+		IE->clearAllNodes();
+		IE->cancelMultiFrame();
+
 		IE->mode = 0;
 		//IE->showInstrumentParams();
 		//IE->setInstrumentParamsFunct();
@@ -406,140 +582,142 @@ static  uint8_t functSwitchMode(uint8_t button)
 
 //======================================================================================================================
 
-void cInstrumentEditor::changeEnvList(int16_t value)
-{
-	if(selectedEnvelope + value < 0) selectedEnvelope = 0;
-	else if(selectedEnvelope + value > 1 ) selectedEnvelope = 1;
-	else selectedEnvelope += value;
-
-	showInstrumentEnv();
-
-	showEnvList();
-}
-
-void cInstrumentEditor::changeEnvState(int16_t value)
+void changeEnvList(int16_t value)
 {
 
+	if(IE->selectedEnvelope + value < 0) IE->selectedEnvelope = 0;
+	else if(IE->selectedEnvelope + value > 1 ) IE->selectedEnvelope = 1;
+	else IE-> selectedEnvelope += value;
 
+	IE->showInstrumentEnv();
 
-	showEnvState();
+	IE->showEnvList();
+
 }
 
-void cInstrumentEditor::changeEnvAttack(int16_t value)
+void changeEnvState(int16_t value)
 {
-	value = value * 100;
 
-	if(editorInstrument->envelope[selectedEnvelope].attack + value < 0) editorInstrument->envelope[selectedEnvelope].attack = 0;
-	else if(editorInstrument->envelope[selectedEnvelope].attack + value > ATTACK_MAX ) editorInstrument->envelope[selectedEnvelope].attack = ATTACK_MAX;
-	else editorInstrument->envelope[selectedEnvelope].attack += value;
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
-	showEnvAttack();
+
+
+	IE->showEnvState();
 }
 
-void cInstrumentEditor::changeEnvDecay(int16_t value)
+void changeEnvAttack(int16_t value)
 {
 	value = value * 100;
 
-	if(editorInstrument->envelope[selectedEnvelope].decay + value < 0) editorInstrument->envelope[selectedEnvelope].decay = 0;
-	else if(editorInstrument->envelope[selectedEnvelope].decay + value > DECAY_MAX ) editorInstrument->envelope[selectedEnvelope].decay = DECAY_MAX;
-	else editorInstrument->envelope[selectedEnvelope].decay += value;
+	if(IE->editorInstrument->envelope[IE->selectedEnvelope].attack + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].attack = 0;
+	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].attack + value > ATTACK_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].attack = ATTACK_MAX;
+	else IE->editorInstrument->envelope[IE->selectedEnvelope].attack += value;
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
-	showEnvDecay();
+	IE->showEnvAttack();
 }
 
-void cInstrumentEditor::changeEnvSustain(int16_t value)
+void changeEnvDecay(int16_t value)
+{
+	value = value * 100;
+
+	if(IE->editorInstrument->envelope[IE->selectedEnvelope].decay + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].decay = 0;
+	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].decay + value > DECAY_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].decay = DECAY_MAX;
+	else IE->editorInstrument->envelope[IE->selectedEnvelope].decay += value;
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
+	IE->showEnvDecay();
+}
+
+void changeEnvSustain(int16_t value)
 {
 	float fVal = value * 0.01;
 
-	if(editorInstrument->envelope[selectedEnvelope].sustain + fVal < 0) editorInstrument->envelope[selectedEnvelope].sustain = 0;
-	else if(editorInstrument->envelope[selectedEnvelope].sustain + fVal > SUSTAIN_MAX ) editorInstrument->envelope[selectedEnvelope].sustain = SUSTAIN_MAX;
-	else editorInstrument->envelope[selectedEnvelope].sustain += fVal;
+	if(IE->editorInstrument->envelope[IE->selectedEnvelope].sustain + fVal < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].sustain = 0;
+	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].sustain + fVal > SUSTAIN_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].sustain = SUSTAIN_MAX;
+	else IE->editorInstrument->envelope[IE->selectedEnvelope].sustain += fVal;
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
-	showEnvSustain();
+	IE->showEnvSustain();
 }
 
-void cInstrumentEditor::changeEnvRelease(int16_t value)
+void changeEnvRelease(int16_t value)
 {
 	value = value * 100;
 
-	if(editorInstrument->envelope[selectedEnvelope].release + value < 0) editorInstrument->envelope[selectedEnvelope].release = 0;
-	else if(editorInstrument->envelope[selectedEnvelope].release + value > RELEASE_MAX ) editorInstrument->envelope[selectedEnvelope].release = RELEASE_MAX;
-	else editorInstrument->envelope[selectedEnvelope].release += value;
+	if(IE->editorInstrument->envelope[IE->selectedEnvelope].release + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].release = 0;
+	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].release + value > RELEASE_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].release = RELEASE_MAX;
+	else IE->editorInstrument->envelope[IE->selectedEnvelope].release += value;
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
-	showEnvRelease();
+	IE->showEnvRelease();
 }
 
-void cInstrumentEditor::changeEnvAmount(int16_t value)
+void changeEnvAmount(int16_t value)
 {
 	float fVal = value * 0.01;
 
-	if(editorInstrument->envelope[selectedEnvelope].amount + fVal < 0) editorInstrument->envelope[selectedEnvelope].amount = 0;
-	else if(editorInstrument->envelope[selectedEnvelope].amount + fVal > AMOUNT_MAX ) editorInstrument->envelope[selectedEnvelope].amount = AMOUNT_MAX;
-	else editorInstrument->envelope[selectedEnvelope].amount += fVal;
+	if(IE->editorInstrument->envelope[IE->selectedEnvelope].amount + fVal < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].amount = 0;
+	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].amount + fVal > AMOUNT_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].amount = AMOUNT_MAX;
+	else IE->editorInstrument->envelope[IE->selectedEnvelope].amount += fVal;
 
-	if(editorInstrument->envelope[selectedEnvelope].amount == 0)
+	if(IE->editorInstrument->envelope[IE->selectedEnvelope].amount == 0)
 	{
-		editorInstrument->envelope[selectedEnvelope].enable = 0;
+		IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
 	}
 	else
 	{
-		editorInstrument->envelope[selectedEnvelope].enable = 1;
+		IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
 	}
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
-	showEnvAmount();
+	IE->showEnvAmount();
 }
 
 
 
-void cInstrumentEditor::changeEnvLoop(int16_t value)
+void changeEnvLoop(int16_t value)
 {
 
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
-	showEnvLoop();
+	IE->showEnvLoop();
 }
 
 
 
-void cInstrumentEditor::changeFilterFilterType(int16_t value)
+void changeFilterFilterType(int16_t value)
 {
 
-	if(filterModeListPos + value < 0) filterModeListPos = 0;
-	else if(filterModeListPos + value > filterModeCount-1) filterModeListPos = filterModeCount-1;
-	else filterModeListPos += value;
+	if(IE->filterModeListPos + value < 0) IE->filterModeListPos = 0;
+	else if(IE->filterModeListPos + value > filterModeCount-1) IE->filterModeListPos = filterModeCount-1;
+	else IE->filterModeListPos += value;
 
-	if(filterModeListPos == 0)
+	if(IE->filterModeListPos == 0)
 	{
-		editorInstrument->filterEnable = 0;
-		editorInstrument->filterType = lowPass;
+		IE->editorInstrument->filterEnable = 0;
+		IE->editorInstrument->filterType = lowPass;
 	}
-	else if(filterModeListPos == 1)
+	else if(IE->filterModeListPos == 1)
 	{
-		editorInstrument->filterEnable = 1;
-		editorInstrument->filterType = lowPass;
+		IE->editorInstrument->filterEnable = 1;
+		IE->editorInstrument->filterType = lowPass;
 	}
-	else if(filterModeListPos == 2)
+	else if(IE->filterModeListPos == 2)
 	{
-		editorInstrument->filterEnable = 1;
-		editorInstrument->filterType = highPass;
+		IE->editorInstrument->filterEnable = 1;
+		IE->editorInstrument->filterType = highPass;
 	}
-	else if(filterModeListPos >= filterModeCount-1)
+	else if(IE->filterModeListPos >= filterModeCount-1)
 	{
-		editorInstrument->filterEnable = 1;
-		editorInstrument->filterType = bandPass;
+		IE->editorInstrument->filterEnable = 1;
+		IE->editorInstrument->filterType = bandPass;
 	}
 
-	display.setControlText(topLabel[4], filterModeFunctLabels[filterModeListPos]);
-	display.refreshControl(topLabel[4]);
+	display.setControlText(IE->topLabel[4], filterModeFunctLabels[IE->filterModeListPos]);
+	display.refreshControl(IE->topLabel[4]);
 
-	display.setControlValue(filterModeListControl, filterModeListPos);
-	display.refreshControl(filterModeListControl);
+	display.setControlValue(IE->filterModeListControl, IE->filterModeListPos);
+	display.refreshControl(IE->filterModeListControl);
 	//showFilterFilterType();
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
@@ -547,123 +725,123 @@ void cInstrumentEditor::changeFilterFilterType(int16_t value)
 
 uint8_t bgB = 128;
 
-void cInstrumentEditor::changeFilterCutOff(int16_t value)
+void changeFilterCutOff(int16_t value)
 {
 //	if(bgB + value < 0) bgB = 0;
 //	else if(bgB + value > 128 ) bgB = 128;
 //	else bgB += value;
 	float fVal = value * 0.01;
 
-	if(editorInstrument->cutOff + fVal < MIN_CUTOFF) editorInstrument->cutOff = MIN_CUTOFF;
-	else if(editorInstrument->cutOff + fVal > MAX_CUTOFF ) editorInstrument->cutOff = MAX_CUTOFF;
-	else editorInstrument->cutOff += fVal;
+	if(IE->editorInstrument->cutOff + fVal < MIN_CUTOFF) IE->editorInstrument->cutOff = MIN_CUTOFF;
+	else if(IE->editorInstrument->cutOff + fVal > MAX_CUTOFF ) IE->editorInstrument->cutOff = MAX_CUTOFF;
+	else IE->editorInstrument->cutOff += fVal;
 
 //	display.setBacklightBrightness(map(editorInstrument->cutOff,MIN_CUTOFF,MAX_CUTOFF,0,128));
 
 	instrumentPlayer[0].setStatusBytes(CUTOFF_MASK);
 
-	showFilterCutOff();
+	IE->showFilterCutOff();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
-void cInstrumentEditor::changeFilterResonance(int16_t value)
+void changeFilterResonance(int16_t value)
 {
 	float fVal = value * 0.05;
 
-	if(editorInstrument->resonance + fVal < RESONANCE_MIN) editorInstrument->resonance = RESONANCE_MIN;
-	else if(editorInstrument->resonance + fVal > RESONANCE_MAX) editorInstrument->resonance = RESONANCE_MAX;
-	else editorInstrument->resonance += fVal;
+	if(IE->editorInstrument->resonance + fVal < RESONANCE_MIN) IE->editorInstrument->resonance = RESONANCE_MIN;
+	else if(IE->editorInstrument->resonance + fVal > RESONANCE_MAX) IE->editorInstrument->resonance = RESONANCE_MAX;
+	else IE->editorInstrument->resonance += fVal;
 
 	instrumentPlayer[0].setStatusBytes(RESONANCE_MASK);
 
-	showFilterResonance();
+	IE->showFilterResonance();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
-void cInstrumentEditor::changeParamsVolume(int16_t value)
+void changeParamsVolume(int16_t value)
 {
-	if(editorInstrument->volume + value < 0) editorInstrument->volume = 0;
-	else if(editorInstrument->volume + value > MAX_INSTRUMENT_VOLUME) editorInstrument->volume = MAX_INSTRUMENT_VOLUME;
-	else editorInstrument->volume += value;
+	if(IE->editorInstrument->volume + value < 0) IE->editorInstrument->volume = 0;
+	else if(IE->editorInstrument->volume + value > MAX_INSTRUMENT_VOLUME) IE->editorInstrument->volume = MAX_INSTRUMENT_VOLUME;
+	else IE->editorInstrument->volume += value;
 
 	instrumentPlayer[0].setStatusBytes(VOLUME_MASK);
 
-	showParamsVolume();
+	IE->showParamsVolume();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
-void cInstrumentEditor::changeParamsTune(int16_t value)
+void changeParamsTune(int16_t value)
 {
-	if(editorInstrument->tune + value < MIN_INSTRUMENT_TUNE) editorInstrument->tune = MIN_INSTRUMENT_TUNE;
-	else if(editorInstrument->tune + value > MAX_INSTRUMENT_TUNE) editorInstrument->tune = MAX_INSTRUMENT_TUNE;
-	else editorInstrument->tune += value;
+	if(IE->editorInstrument->tune + value < MIN_INSTRUMENT_TUNE) IE->editorInstrument->tune = MIN_INSTRUMENT_TUNE;
+	else if(IE->editorInstrument->tune + value > MAX_INSTRUMENT_TUNE) IE->editorInstrument->tune = MAX_INSTRUMENT_TUNE;
+	else IE->editorInstrument->tune += value;
 
 	instrumentPlayer[0].setStatusBytes(TUNE_MASK);
 
-	showParamsTune();
+	IE->showParamsTune();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
-void cInstrumentEditor::changeParamsFineTune(int16_t value)
+void changeParamsFineTune(int16_t value)
 {
-	if(editorInstrument->fineTune + value < MIN_INSTRUMENT_FINETUNE) editorInstrument->fineTune = MIN_INSTRUMENT_FINETUNE;
-	else if(editorInstrument->fineTune + value > MAX_INSTRUMENT_FINETUNE) editorInstrument->fineTune = MAX_INSTRUMENT_FINETUNE;
-	else editorInstrument->fineTune += value;
+	if(IE->editorInstrument->fineTune + value < MIN_INSTRUMENT_FINETUNE) IE->editorInstrument->fineTune = MIN_INSTRUMENT_FINETUNE;
+	else if(IE->editorInstrument->fineTune + value > MAX_INSTRUMENT_FINETUNE) IE->editorInstrument->fineTune = MAX_INSTRUMENT_FINETUNE;
+	else IE->editorInstrument->fineTune += value;
 
 	instrumentPlayer[0].setStatusBytes(FINETUNE_MASK);
 
-	showParamsFineTune();
+	IE->showParamsFineTune();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
-void cInstrumentEditor::changeParamsGlide(int16_t value)
+void changeParamsGlide(int16_t value)
 {
 	value = value * 100;
 
-	if(editorInstrument->glide + value < GLIDE_MIN) editorInstrument->glide = GLIDE_MIN;
-	else if(editorInstrument->glide + value > GLIDE_MAX ) editorInstrument->glide = GLIDE_MAX;
-	else editorInstrument->glide += value;
+	if(IE->editorInstrument->glide + value < GLIDE_MIN) IE->editorInstrument->glide = GLIDE_MIN;
+	else if(IE->editorInstrument->glide + value > GLIDE_MAX ) IE->editorInstrument->glide = GLIDE_MAX;
+	else IE->editorInstrument->glide += value;
 
-	showParamsGlide();
+	IE->showParamsGlide();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
-void cInstrumentEditor::changeParamsPanning(int16_t value)
+void changeParamsPanning(int16_t value)
 {
-	if(editorInstrument->panning + value < PANNING_MIN) editorInstrument->panning = PANNING_MIN;
-	else if(editorInstrument->panning + value > PANNING_MAX ) editorInstrument->panning = PANNING_MAX;
-	else editorInstrument->panning += value;
+	if(IE->editorInstrument->panning + value < PANNING_MIN) IE->editorInstrument->panning = PANNING_MIN;
+	else if(IE->editorInstrument->panning + value > PANNING_MAX ) IE->editorInstrument->panning = PANNING_MAX;
+	else IE->editorInstrument->panning += value;
 
 	instrumentPlayer[0].setStatusBytes(PANNING_MASK);
 
-	showParamsPanning();
+	IE->showParamsPanning();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
 
-void cInstrumentEditor::changeParamsReverbSend(int16_t value)
+void changeParamsReverbSend(int16_t value)
 {
-	if(editorInstrument->reverbSend + value < REVERB_SEND_MIN) editorInstrument->reverbSend = REVERB_SEND_MIN;
-	else if(editorInstrument->reverbSend + value > REVERB_SEND_MAX ) editorInstrument->reverbSend = REVERB_SEND_MAX;
-	else editorInstrument->reverbSend += value;
+	if(IE->editorInstrument->reverbSend + value < REVERB_SEND_MIN) IE->editorInstrument->reverbSend = REVERB_SEND_MIN;
+	else if(IE->editorInstrument->reverbSend + value > REVERB_SEND_MAX ) IE->editorInstrument->reverbSend = REVERB_SEND_MAX;
+	else IE->editorInstrument->reverbSend += value;
 
 	instrumentPlayer[0].setStatusBytes(REVERB_SEND_MASK);
 
-	showParamsReverbSend();
+	IE->showParamsReverbSend();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;

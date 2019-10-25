@@ -627,6 +627,7 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 			{
 				CE->hideFirmwareMenu();
 			}
+
 			CE->mode = 1;
 			CE->showMasterScreen();
 			CE->setMasterScreenFunct();
@@ -706,6 +707,7 @@ void cConfigEditor::changeConfigGroupSelection(int16_t value)
 		if(previousSelectedConfigGroup == configDefaultFirmware && value < 0)
 		{
 			hideFirmwareMenu();
+			resizeFirmwareLabel(0);
 		}
 
 		display.setControlValue(configGroupsListControl, selectedConfigGroup);

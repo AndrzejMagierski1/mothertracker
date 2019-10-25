@@ -100,7 +100,7 @@ void cConfigEditor::initDisplayControls()
 	configGroupList.data = configGroupsNames;
 
 	prop.x = (800/8)*6+8;
-	prop.y = 140;
+	prop.y = 37;
 	prop.w = 800/4-16;
 	prop.h = 25;
 	prop.data = &configGroupList;
@@ -496,6 +496,8 @@ void cConfigEditor::showFirmwareUpdateLabels()
 	display.setControlData(firmwareListControl,  &firmwareList);
 	display.setControlShow(firmwareListControl);
 	display.refreshControl(firmwareListControl);
+
+	resizeFirmwareLabel(1);
 }
 
 void cConfigEditor::hideFirmwareUpdateLabels()
@@ -529,10 +531,13 @@ void cConfigEditor::hideFirmwareUpdateLabels()
 
 	display.setControlHide(firmwareListControl);
 	display.refreshControl(firmwareListControl);
+
 }
 
 void cConfigEditor::showFirmwareUpdatePopout()
 {
+	resizeFirmwareLabel(0);
+
 	for(uint8_t i = 0 ; i < 6; i++)
 	{
 		display.setControlText(bottomLabel[i], "");
@@ -556,6 +561,8 @@ void cConfigEditor::showFirmwareUpdatePopout()
 
 void cConfigEditor::hideFirmwareUpdatePopout()
 {
+	resizeFirmwareLabel(1);
+
 	for(uint8_t i = 0 ; i < 6; i++)
 	{
 		display.setControlText(bottomLabel[i], "");
@@ -592,7 +599,6 @@ void cConfigEditor::resizeLabelConfigMaster()
 {
 	for(int i=0;i<8;i++)
 	{
-
 		display.setControlSize(topLabel[i], (800/8)-6, 28);
 		display.setControlPosition(topLabel[i], (800/8)*i+(800/16), 437);
 		display.refreshControl(topLabel[i]);
@@ -600,6 +606,24 @@ void cConfigEditor::resizeLabelConfigMaster()
 
 //	display.setControlText(topLabel[6],"");
 //	display.refreshControl(topLabel[6]);
+}
+
+void cConfigEditor::resizeFirmwareLabel(uint8_t control)// 0 - revert to normal, 1 - rescale to double label
+{
+	if(control)
+	{
+		//display.setControlPosition(bottomLabel[6],  (800/8)*0+(800/8),  465);
+		display.setControlPosition(topLabel[0],  (800/8)*0+(800/8),  452);
+		//display.setControlSize(bottomLabel[6],  800/4-6,  30);
+		display.setControlSize(topLabel[0],  800/4-6,  58);
+	}
+	else
+	{
+		display.setControlPosition(topLabel[0],  (800/8)*0+(800/16),  452);
+		display.setControlSize(topLabel[0],  800/8-6,  58);
+	}
+
+	display.refreshControl(topLabel[0]);
 }
 
 

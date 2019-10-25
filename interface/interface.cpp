@@ -18,12 +18,11 @@
 
 
 
-#include "interfacePopups.h"
 
 
 #include "mtStructs.h"
 
-
+#include "interfacePopups.h"
 
 
 #include "mtConfig.h"
@@ -124,9 +123,16 @@ void cInterface::begin()
 		modules[i]->FM = &uiFM;
 	}
 
-
 	//ramMonitor.initialize();
 
+	popupConfig.time = 2;
+	popupConfig.w = 300;
+	popupConfig.h = 100;
+	popupConfig.x = 800/2-150;
+	popupConfig.y = 480/2-50;
+	popupConfig.lineColor[0] = 0xffffff;
+	popupConfig.lineStyle[0] = controlStyleCenterX;
+	mtPopups.config(4, &popupConfig);
 }
 
 //=======================================================================
@@ -265,6 +271,7 @@ void cInterface::activateModule(hModule module, uint32_t options)
 	uiFM.clearAllButtons();
 	uiFM.clearAllPots();
 	uiFM.clearAllPads();
+	uiFM.clearSdDetection();
 
 	module->initDisplayControls();
 	module->start(options);
@@ -278,6 +285,7 @@ void cInterface::deactivateModule(hModule module)
 	uiFM.clearAllButtons();
 	uiFM.clearAllPots();
 	uiFM.clearAllPads();
+	uiFM.clearSdDetection();
 
 	display.resetControlQueue();
 	module->stop();

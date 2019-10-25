@@ -320,7 +320,11 @@ static  uint8_t functChangeFolder(uint8_t button)
 	}
 
 	SI->selectedPlace = 0;
+
+	SI->AddOrEnter();
+	SI->displayDelete(SI->selectedPlace);
 	SI->checkWavetableLabel();
+
 	SI->activateLabelsBorder();
 
 	return 1;
@@ -343,7 +347,11 @@ static  uint8_t functChangeInstrument(uint8_t button)
 	}
 
 	SI->selectedPlace = 1;
+
+	SI->AddOrEnter();
+	SI->displayDelete(SI->selectedPlace);
 	SI->hideAddWT();
+
 	SI->activateLabelsBorder();
 
 	return 1;
@@ -461,8 +469,7 @@ static  uint8_t functRename()
 
 	SI->keyboardActiveFlag = 1;
 
-	SI->FM->clearButton(interfaceButton2);
-	SI->FM->clearButton(interfaceButton5);
+	SI->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 	SI->FM->setButtonObj(interfaceButton2, buttonPress, functCancelRename);
 	SI->FM->setButtonObj(interfaceButton5, buttonPress, functConfirmRename);
@@ -1003,9 +1010,11 @@ void cSampleImporter::processDirFileSizes()
 
 		strcat(filePath, &locationExplorerList[openCurrentPos][0]);
 
+
 		currentFolderMemoryFileUsage[openCurrentPos]= 2* fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
 		currentFolderIsWavetableFlag[openCurrentPos] = fileManager.samplesLoader.wavetableLoader.isWavetable(filePath);
 		//todo: wywoływane są dwie funkcje które otwierają 2 razy plik - trzeba to zoptymalizowac
+
 		openCurrentPos++;
 
 		uint8_t progress = (((openCurrentPos - openCalcStart) * 100) / (openCalcEnd-openCalcStart));

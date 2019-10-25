@@ -86,6 +86,8 @@ public:
 	void activateLabelsBorder();
 	void activateFillPopupBorder();
 	void activateRandomisePopupBorder();
+	void setFillPlace(uint8_t place, int8_t dir = 0);
+	void changeFillPlace(int8_t diff);
 
 	void showTempo();
 	void showPattern();
@@ -190,14 +192,14 @@ public:
 	//
 	struct strFill
 	{
-		uint16_t type;
-		uint16_t from;
-		uint16_t to;
-		uint16_t param;
+		int16_t type;
+		int16_t from;
+		int16_t to;
+		int16_t param;
 
 	} fillData[4];
 
-	uint16_t fillStep = 1;
+	int16_t fillStep = 1;
 
 //------------------------------------------------------
 // randomise

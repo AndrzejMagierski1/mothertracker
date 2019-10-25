@@ -111,28 +111,6 @@ void cInterfacePopups::initPopupsDisplayControls()
 	if(textPopup == nullptr) textPopup = display.createControl<cTextPopup>(&prop3);
 
 
-
-	// defultowy config
-	globalConfig[0].time = 1;
-	globalConfig[0].x = 800/2-50;
-	globalConfig[0].y = 480/2-50;
-	globalConfig[0].w = 100;
-	globalConfig[0].h = 100;
-	globalConfig[0].lineColor[0] = 0xffffff;;
-	globalConfig[0].lineStyle[0] = 0;
-	globalConfig[0].lineColor[1] = 0xffffff;;
-	globalConfig[0].lineStyle[1] = 0;
-	globalConfig[0].lineColor[2] = 0xffffff;;
-	globalConfig[0].lineStyle[2] = 0;
-	globalConfig[0].lineColor[3] = 0xffffff;;
-	globalConfig[0].lineStyle[3] = 0;
-
-
-	for(uint8_t i = 1; i < configsCount; i++)
-	{
-		memcpy(&globalConfig[i],&globalConfig[0], sizeof(strPopupStyleConfig));
-	}
-
 }
 
 void cInterfacePopups::destroyPopupsDisplayControls()
@@ -326,15 +304,17 @@ void cInterfacePopups::showFxesPopup()
 //=====================================================================================================
 void cInterfacePopups::showStepPopup(uint8_t stepPopupType, int8_t initVal)
 {
+	if(stepPopupType == stepPopupNone) return;
+
 	if(stepPopupState != stepPopupNone)
 	{
 		hideStepPopups();
 	}
 
-	setPopupFunct();
-
 	stepPopupState = stepPopupType;
 	selectedActualItem = initVal;
+
+	setPopupFunct();
 
 	switch(stepPopupState)
 	{
@@ -381,6 +361,31 @@ void cInterfacePopups::hideStepPopups()
 
 void cInterfacePopups::setPopupFunct()
 {
+	switch(stepPopupState)
+	{
+	case stepPopupNote:
+		mtInterface.uiFM.clearButton(interfaceButtonInstr);
+		mtInterface.uiFM.clearButton(interfaceButtonFx1);
+		mtInterface.uiFM.clearButton(interfaceButtonFx2);
+		break;
+	case stepPopupInstr:
+		mtInterface.uiFM.clearButton(interfaceButtonNote);
+		mtInterface.uiFM.clearButton(interfaceButtonFx1);
+		mtInterface.uiFM.clearButton(interfaceButtonFx2);
+		break;
+	case stepPopupVol:
+		mtInterface.uiFM.clearButton(interfaceButtonNote);
+		mtInterface.uiFM.clearButton(interfaceButtonInstr);
+		//mtInterface.uiFM.clearButton(interfaceButtonFx1);
+		mtInterface.uiFM.clearButton(interfaceButtonFx2);
+		break;
+	case stepPopupFx:
+		mtInterface.uiFM.clearButton(interfaceButtonNote);
+		mtInterface.uiFM.clearButton(interfaceButtonInstr);
+		break;
+	default:	break;
+	}
+
 	mtInterface.uiFM.clearButton(interfaceButtonRec);
 //	mtInterface.uiFM.clearButton(interfaceButtonShift);
 //	mtInterface.uiFM.clearButton(interfaceButtonEnter);
@@ -840,6 +845,7 @@ void cInterfacePopups::show(uint8_t config_slot, char* line1, char* line2, char*
 
 void cInterfacePopups::show(uint8_t config_slot, char** multiLineText, uint8_t lines_count)
 {
+	if(config_slot >= configsCount) return;
 	// ustawienie czasu
 	popupTimer = 0;
 	globalPopupDisplayTime = globalConfig[config_slot].time;

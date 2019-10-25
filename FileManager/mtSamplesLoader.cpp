@@ -183,10 +183,12 @@ void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t first
 	mtProject.used_memory = 0;
 	mtProject.instruments_count = 0;
 
+/*
 	if(filesToLoad < 1)
 	{
 		filesToLoad = 1;
 	}
+*/
 
 	for(uint8_t i = 0; i < startIndex; i++)
 	{

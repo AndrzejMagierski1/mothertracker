@@ -30,14 +30,14 @@ static uint32_t popUpLabelColors[] =
 
 static  uint16_t framesPlacesS1[8][4] =
 {
-	{0+2, 		31, 800/8-5, 387},
-	{(800/8)*1+2, 31, 800/8-5, 387},
-	{(800/8)*2+1, 421, 800/8-1, 65},
-	{(800/8)*3+1, 421, 800/8-1, 65},
-	{(800/8)*4+2, 31, 800/8-5, 387},
-	{(800/8)*5+2, 31, 800/8-5, 387},
-	{(800/8)*6+2, 31, 800/8-5, 387},
-	{(800/8)*7+1, 421, 800/8-1, 65}
+		{0+2, 		31, 800/8-5, 387},
+		{(800/8)*1+2, 31, 800/8-5, 387},
+		{(800/8)*2+1, 421, 800/8-1, 65},
+		{(800/8)*3+1, 421, 800/8-1, 65},
+		{(800/8)*4+2, 31, 800/8-5, 387},
+		{(800/8)*5+2, 31, 800/8-5, 387},
+		{(800/8)*6+2, 31, 800/8-5, 387},
+		{(800/8)*7+1, 421, 800/8-1, 65}
 };
 
 static  uint16_t framesPlacesS2[8][4] =
@@ -151,7 +151,7 @@ void cSampleRecorder::initDisplayControls()
 	sourceList.length = 4;
 	sourceList.data = sourceNames;
 	prop4.x = 0+8;
-	prop4.y = 152;
+	prop4.y = 37;
 	prop4.w = 800/8-16;
 	prop4.h = 25;
 	prop4.data = &sourceList;
@@ -162,7 +162,7 @@ void cSampleRecorder::initDisplayControls()
 	monitorList.length = 2;
 	monitorList.data = monitorNames;
 	prop4.x = (800/8)*(6)+8;
-	prop4.y = 165;
+	prop4.y = 37;
 	prop4.w = 800/8-16;
 	prop4.h = 25;
 	prop4.data = &monitorList;
@@ -432,6 +432,9 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlHide(editName);
 		display.refreshControl(editName);
 
+		clearAllNodes();
+		cancelMultiFrame();
+
 	}
 	else if (currentScreen == screenTypeRecord)
 	{
@@ -528,7 +531,17 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlHide(editName);
 		display.refreshControl(editName);
 
+		if(selectedPlace == 1)
+		{
+			points.selected = selectStart;
+		}
+		else if(selectedPlace == 2)
+		{
+			points.selected = selectEnd;
+		}
 
+		clearAllNodes();
+		cancelMultiFrame();
 	}
 	else if(currentScreen == screenTypeKeyboard)
 	{
@@ -594,7 +607,6 @@ void cSampleRecorder::showDefaultScreen()
 	display.refreshControl(selectWindowLabel);
 
 	display.synchronizeRefresh();
-
 }
 
 void cSampleRecorder::showRadio()
