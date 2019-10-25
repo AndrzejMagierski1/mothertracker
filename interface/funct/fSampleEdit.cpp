@@ -669,6 +669,8 @@ static uint8_t functPreview(uint8_t state)
 			}
 		}
 
+		SE->lastPreviewEffect = (effect_t)SE->currSelEffect;
+
 		//mtPadBoard.startInstrument(pad, SE->localInstrNum,-1);
 	}
 	else if(state == 0)
@@ -1234,6 +1236,7 @@ static uint8_t functStepNote(uint8_t value)
 
 static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
+	if(SE->moduleFlags != 0)
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
@@ -1257,7 +1260,6 @@ static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
 		{
 			effector.play(SE->startPoint, SE->endPoint , pad);
-
 		}
 		else
 		{
@@ -1266,7 +1268,6 @@ static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				effector.playPrev(pad);
 			}
 		}
-
 	}
 	else if(state == 0)
 	{

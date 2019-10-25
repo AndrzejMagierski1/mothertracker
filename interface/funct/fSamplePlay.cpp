@@ -1210,6 +1210,8 @@ static void modWavetablePostion(int16_t value)
 	else if(SP->editorInstrument->wavetableCurrentWindow + value > MAX_WAVETABLE_WINDOW) SP->editorInstrument->wavetableCurrentWindow = MAX_WAVETABLE_WINDOW;
 	else SP->editorInstrument->wavetableCurrentWindow += value;
 
+	instrumentPlayer[0].setStatusBytes(WT_POS_SEND_MASK);
+
 	SP->showWavetablePosition();
 	SP->refreshSpectrum = 1;
 
