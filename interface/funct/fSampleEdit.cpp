@@ -647,13 +647,16 @@ static uint8_t functPreview(uint8_t state)
 
 		if(mtPadBoard.getEmptyVoice() < 0) return 1;
 
-		if(mtPadBoard.getEmptyVoice() == 0)
+		if(SE->effectScreen[SE->currSelEffect].screen == fullSpectrum)
 		{
-			SE->playPitch = notes[mtPadBoard.convertPadToNote(12)];
-			SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
-			SE->refreshPlayProgressValue = 0;
-			SE->loopDirection = 0;
-			SE->isPlayingSample = 1;
+			if(mtPadBoard.getEmptyVoice() == 0)
+			{
+				SE->playPitch = notes[mtPadBoard.convertPadToNote(12)];
+				SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
+				SE->refreshPlayProgressValue = 0;
+				SE->loopDirection = 0;
+				SE->isPlayingSample = 1;
+			}
 		}
 
 		if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
@@ -677,12 +680,15 @@ static uint8_t functPreview(uint8_t state)
 	{
 		effector.stop(12);
 
-		if(mtPadBoard.getVoiceTakenByPad(12) == 0)
+		if(SE->effectScreen[SE->currSelEffect].screen == fullSpectrum)
 		{
-			SE->playProgressValue=0;
-			SE->playProgressInSpectrum = 0;
-			SE->isPlayingSample = 0;
-			SE->refreshSpectrumProgress = 1;
+			if(mtPadBoard.getVoiceTakenByPad(12) == 0)
+			{
+				SE->playProgressValue=0;
+				SE->playProgressInSpectrum = 0;
+				SE->isPlayingSample = 0;
+				SE->refreshSpectrumProgress = 1;
+			}
 		}
 		//SE->hidePreviewValue();
 	}
@@ -774,6 +780,8 @@ static uint8_t functUndo()
 
 static uint8_t changeEffect(uint8_t button)
 {
+	if(SE->moduleFlags != 0) return 1;
+
 	SE->clearAllNodes();
 	SE->cancelMultiFrame();
 
@@ -1236,7 +1244,7 @@ static uint8_t functStepNote(uint8_t value)
 
 static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(SE->moduleFlags != 0)
+	if(SE->moduleFlags != 0) return 1;
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
@@ -1246,13 +1254,16 @@ static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	{
 		if(mtPadBoard.getEmptyVoice() < 0) return 1;
 
-		if(mtPadBoard.getEmptyVoice() == 0)
+		if(SE->effectScreen[SE->currSelEffect].screen == fullSpectrum)
 		{
-			SE->playPitch = notes[mtPadBoard.convertPadToNote(pad)];
-			SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
-			SE->refreshPlayProgressValue = 0;
-			SE->loopDirection = 0;
-			SE->isPlayingSample = 1;
+			if(mtPadBoard.getEmptyVoice() == 0)
+			{
+				SE->playPitch = notes[mtPadBoard.convertPadToNote(pad)];
+				SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
+				SE->refreshPlayProgressValue = 0;
+				SE->loopDirection = 0;
+				SE->isPlayingSample = 1;
+			}
 		}
 
 		padsBacklight.setFrontLayer(1,20, pad);
@@ -1274,13 +1285,16 @@ static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		padsBacklight.setFrontLayer(0,0, pad);
 		effector.stop(pad);
 
-		if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
+		if(SE->effectScreen[SE->currSelEffect].screen == fullSpectrum)
 		{
-			SE->playProgressValue=0;
-			SE->playProgressInSpectrum = 0;
-			SE->isPlayingSample = 0;
-			SE->refreshSpectrumProgress = 1;
-			//SE->hidePreviewValue();
+			if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
+			{
+				SE->playProgressValue=0;
+				SE->playProgressInSpectrum = 0;
+				SE->isPlayingSample = 0;
+				SE->refreshSpectrumProgress = 1;
+				//SE->hidePreviewValue();
+			}
 		}
 	}
 
