@@ -1446,7 +1446,11 @@ void playerEngine:: update()
 			{
 				modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
 			}
-
+		}
+		if(statusBytes & WT_POS_SEND_MASK)
+		{
+			statusBytes &= (~WT_POS_SEND_MASK);
+			playMemPtr->setWavetableWindow(mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow);
 		}
 	}
 
