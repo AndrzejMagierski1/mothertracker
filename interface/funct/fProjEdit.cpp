@@ -362,6 +362,16 @@ void cProjectEditor::update()
 		}
 	}
 
+	if(refreshCover)
+	{
+		if(display.isImgLoaded())
+		{
+			display.setControlShow(coverImg);
+			display.refreshControl(coverImg);
+			refreshCover = 0;
+		}
+	}
+
 }
 
 void cProjectEditor::start(uint32_t options)
@@ -390,7 +400,14 @@ void cProjectEditor::start(uint32_t options)
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
-
+	if((fileManager.currentProjectName[0] == 0) || ( newProjectNotSavedFlag == 1 ) )
+	{
+		showProjectCover(currentPatchProjectName);
+	}
+	else
+	{
+		showProjectCover(fileManager.currentProjectName);
+	}
 
 	//typedef void (cProjectEditor::*funct1) (void);
 	//funct1 = &cProjectEditor::functOpenProject;

@@ -26,6 +26,10 @@ static uint32_t popUpLabelColors[] =
 	0xFF0000, // ramka
 };
 
+
+
+constexpr uint32_t coverRamAddres = 700000;
+
 void cProjectEditor::initDisplayControls()
 {
 	strControlProperties prop2;
@@ -124,6 +128,16 @@ void cProjectEditor::initDisplayControls()
 	prop7.text = (char*)"";
 
 	if(popupLabel == nullptr)  popupLabel = display.createControl<cLabel>(&prop7);
+
+
+	strControlProperties prop8;
+
+	prop8.x = 500;
+	prop8.y = 220;
+	prop8.value = coverRamAddres;
+	prop8.style = (controlStyleCenterX | controlStyleCenterY);
+
+	if(coverImg == nullptr)  coverImg = display.createControl<cImg>(&prop8);
 }
 
 
@@ -594,4 +608,41 @@ void cProjectEditor::showExportWindow()
 	}
 	//refreshe są w make
 	display.synchronizeRefresh();
+}
+
+void cProjectEditor::showProjectCover(char* projectName)
+{
+	char path[PATCH_SIZE];
+
+	sprintf(path,"Projects/%s/cover.jpg", projectName);
+
+	if(!SD.exists(path))
+	{
+		path[strlen(path)-3] = 0;
+		strcat(path,"jpeg");
+
+		if(!SD.exists(path))
+		{
+			path[strlen(path)-4] = 0;
+			strcat(path,"png");
+
+			if(!SD.exists(path))
+			{
+				return;
+			}
+		}
+	}
+
+	if(display.readImgFromSd(path,coverRamAddres))
+	{
+		return;
+	}
+
+	 refreshCover = 1;
+}
+
+void cProjectEditor::hideProjectCover()
+{
+	 refreshCover = 0;
+	 display.setControlHide(coverImg);
 }

@@ -186,6 +186,37 @@ void cDisplay::update()
 		}
 	}
 
+	if(loadImage) // todo
+	{
+		if(imgFile.available())
+		{
+			int32_t readBytes = 0;
+			uint8_t currentBuffor[imgBufforSize];
+			readBytes = imgFile.read(currentBuffor, imgBufforSize);
+			if(readBytes < imgBufforSize)
+			{
+				// eof
+				API_LIB_WriteDataRAMG(currentBuffor, readBytes, img.address + img.loadProgress*imgBufforSize);
+				imgFile.close();
+				loadImage = 0;
+				img.status = 2;
+			}
+			else
+			{
+				API_LIB_WriteDataRAMG(currentBuffor, imgBufforSize, img.address + img.loadProgress*imgBufforSize);
+			}
+
+			img.loadProgress++;
+		}
+		else
+		{
+			imgFile.close();
+
+			img.loadProgress = 0;
+			loadImage = 0;
+		}
+	}
+
 
 //=================================================================================================
 //=================================================================================================
@@ -517,6 +548,45 @@ void cDisplay::resetControlQueue()
 	actualUpdating = nullptr;
 }
 
+
+//=====================================================================================================
+// jpg/png
+//=====================================================================================================
+uint8_t cDisplay::readImgFromSd(char* path, uint32_t gramAddress) //todo
+{
+	if(gramAddress < 700000 || gramAddress > 1000000) return 1;
+
+	loadImage = 0;
+	imgFile = SD.open(path);
+
+	if(!imgFile) return 1;
+
+	img.size = imgFile.size();
+
+	if(img.size  > imgSizeMax) return 1;
+
+	img.type = 0;
+	img.loadProgress = 0;
+	img.progressMax = img.size/imgBufforSize;
+	img.address = gramAddress;
+	img.status = 1;
+
+	loadImage = 1;
+
+	return 0;
+}
+
+void cDisplay::readImgFromMemory(uint8_t* data, uint32_t size) //todo
+{
+	loadImage = 1;
+
+	img.type = 0;
+	img.loadProgress = 0;
+	img.data = data;
+	img.size = size;
+	img.progressMax = img.size/imgBufforSize;
+	img.status = 1;
+}
 
 //=====================================================================================================
 // grupowe
