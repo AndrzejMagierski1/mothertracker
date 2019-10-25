@@ -138,7 +138,7 @@ void cGraphicProcessing::processSpectrum(strInstrument* instrument, strZoomParam
 		zoom->zoomStart = 0;
 		zoom->zoomValue = 1;
 		zoom->zoomEnd = MAX_16BIT;
-		uint16_t windowSize = instrument->sample.wavetable_window_size;
+		uint16_t windowSize = SERUM_WAVETABLE_WINDOW_LEN; //instrument->sample.wavetable_window_size;
 
 		sampleData = instrument->sample.address
 				+ (mtProject.instrument[mtProject.values.lastUsedInstrument].wavetableCurrentWindow * windowSize);
