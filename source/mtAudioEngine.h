@@ -48,7 +48,7 @@ public:
 
 
 	uint8_t noteOn(uint8_t instr_idx,int8_t note, int8_t velocity);
-	uint8_t noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx_id, uint8_t fx_val);
+	uint8_t noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx_id, uint8_t fx_val,uint8_t,uint8_t );
 	void noteOff();
 	void clean();
 
