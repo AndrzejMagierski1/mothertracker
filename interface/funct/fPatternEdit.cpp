@@ -579,7 +579,9 @@ void cPatternEditor::cancelPopups()
 					if(fx_type > 0 && fx_type < FX_COUNT)
 					{
 						sendSelection();
-						sequencer.setSelectionFxType(fx_index, mtProject.values.lastUsedFx);
+						sequencer.setSelectionFxType(
+								fx_index,
+								interfaceGlobals.fxIDs[mtProject.values.lastUsedFx]);
 					}
 				}
 				break;
@@ -3016,7 +3018,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 						)//&& mtPopups.getStepPopupState() == stepPopupNone)
 				{
 					PTE->dontShowPopupsUntilButtonRelease = 1;
-					sequencer.setSelectionFxType(fx_index, pad);
+					sequencer.setSelectionFxType(fx_index, interfaceGlobals.fxIDs[pad]);
 				}
 				else
 				{

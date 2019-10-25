@@ -68,7 +68,8 @@ public:
 	{
 		enum enFxType
 		{
-			// powiązane z listą tekstów w interfaceDefs.h
+			// powiązane z listą tekstów w
+			// #include <interfaceDefs.h>
 			FX_TYPE_NONE,
 			FX_TYPE_NUDGE,
 			FX_TYPE_VELOCITY,
@@ -77,9 +78,9 @@ public:
 			FX_TYPE_RANDOM_NOTE,
 			FX_TYPE_RANDOM_INSTRUMENT,
 			FX_TYPE_RANDOM_VELOCITY,
-			FX_TYPE_ROLL_UP,
-			FX_TYPE_ROLL_DOWN,
-			FX_TYPE_ROLL_RANDOM,
+			FX_TYPE_ROLL_NOTE_UP,
+			FX_TYPE_ROLL_NOTE_DOWN,
+			FX_TYPE_ROLL_NOTE_RANDOM,
 			FX_TYPE_SEND_CC_1,
 			FX_TYPE_SEND_CC_2,
 			FX_TYPE_SEND_CC_3,
@@ -90,9 +91,14 @@ public:
 			FX_TYPE_SEND_CC_8,
 			FX_TYPE_SEND_CC_9,
 			FX_TYPE_SEND_CC_10,
+			FX_TYPE_ROLL_VOL_UP,
+			FX_TYPE_ROLL_VOL_DOWN,
+			FX_TYPE_ROLL_VOL_RANDOM,
 
 			FX_TYPE_NOT_SEQ_FX,
 			FX_TYPE_GLIDE,
+			FX_TYPE_FADE,
+			FX_TYPE_CUT,
 			FX_TYPE_SAMPLE_START,
 			FX_TYPE_SAMPLE_LOOP_START,
 			FX_TYPE_SAMPLE_LOOP_END,
@@ -112,15 +118,6 @@ public:
 			FX_TYPE_VIBRATO_SLOW,
 
 		};
-		//		enum enFxVal
-//		{
-//			FX_VAL_TYPE_UNKNOWN,		        // unsigned 16
-//			FX_VAL_TYPE_U16,	// unsigned 16
-//			FX_VAL_TYPE_I16,	// signed 16
-//			FX_VAL_TYPE_U8_U8,	// uint8 i uint8
-//			FX_VAL_TYPE_I8_I8,	// int8 i int8
-//			FX_VAL_TYPE_R8_I8,	// roll(int8) i int8
-//		};
 
 		enum enRollType
 		{
@@ -193,7 +190,7 @@ public:
 		ELEMENTS_ALL_WITH_PREFERENCES,
 		ELEMENTS_NOTES,
 		ELEMENTS_INSTRUMENTS,
-//		ELEMENTS_VELO,
+		//		ELEMENTS_VELO,
 		ELEMENTS_FX1,
 		ELEMENTS_FX2,
 	};
