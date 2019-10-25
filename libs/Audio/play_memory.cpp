@@ -103,7 +103,8 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	else
 	{
 		wavetableWindowSize = SERUM_WAVETABLE_WINDOW_LEN;
-		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
+		if(wavetableWindowForceFlag) currentWindow = forcedWavetableWindow;
+		else currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
 		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
 		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
 		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
@@ -707,8 +708,8 @@ void AudioPlayMemory::clearWavetableWindowFlag()
 void AudioPlayMemory::setForcedWavetableWindow(int16_t val)
 {
 	if(val > MAX_WAVETABLE_WINDOW) forcedWavetableWindow = MAX_WAVETABLE_WINDOW;
-	else if(val < 0) currentWindow = 0;
-	else currentWindow=val;
+	else if(val < 0) forcedWavetableWindow = 0;
+	else forcedWavetableWindow=val;
 }
 
 void AudioPlayMemory::setReverse()

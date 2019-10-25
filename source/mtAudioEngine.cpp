@@ -454,6 +454,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	{
 		changeStartPointPerformanceMode(performanceMod.startPoint);
 	}
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
+	{
+		changeWavetableWindowPerformanceMode(performanceMod.wavetablePosition);
+	}
 
 
 	/*======================================================================================================*/
@@ -675,6 +679,11 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	{
 		changeStartPointPerformanceMode(performanceMod.startPoint);
 	}
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
+	{
+		changeWavetableWindowPerformanceMode(performanceMod.wavetablePosition);
+	}
+
 
 	/*======================================================================================================*/
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::tune])
@@ -906,6 +915,20 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 				changeEndPointPerformanceMode(performanceMod.endPoint);
 			}
 		break;
+		case fx_t::FX_TYPE_WT_POSITION :
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::wavetablePosition] = 1;
+			currentSeqModValues.wavetablePosition = map(fx_val,0,127,0,MAX_WAVETABLE_WINDOW);
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
+			{
+				changeWavetableWindowPerformanceMode(performanceMod.wavetablePosition);
+			}
+			else
+			{
+				playMemPtr->setWavetableWindowFlag();
+				playMemPtr->setForcedWavetableWindow(currentSeqModValues.wavetablePosition);
+				playMemPtr->setWavetableWindow(currentSeqModValues.wavetablePosition);
+			}
+		break;
 	}
 	lastSeqFx = fx_id;
 }
@@ -1085,6 +1108,18 @@ void playerEngine::endFx(uint8_t fx_id)
 					playMemPtr->setForcedPoints(-1, -1, -1, -1);
 				}
 			}
+		case fx_t::FX_TYPE_WT_POSITION :
+			trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::wavetablePosition] = 0;
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
+			{
+				changeReverbSendPerformanceMode(performanceMod.reverbSend);
+			}
+			else
+			{
+				playMemPtr->clearWavetableWindowFlag();
+				playMemPtr->setWavetableWindow(mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow);
+			}
+			break;
 		break;
 	}
 }
@@ -1927,23 +1962,29 @@ void playerEngine ::changeSamplePlaybackPerformanceMode(uint8_t value)
 	}
 }
 
-void playerEngine::changeWavetableWindowPerformanceMode(uint8_t value)
+void playerEngine::changeWavetableWindowPerformanceMode(int16_t value)
 {
 	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition] != 1) && (value == 0)) return;
 	performanceMod.wavetablePosition = value;
-	if(mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow + value > MAX_WAVETABLE_WINDOW) currentPerformanceValues.wavetablePosition = MAX_WAVETABLE_WINDOW;
-	else if(mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow + value < 0) currentPerformanceValues.wavetablePosition = 0;
-	else currentPerformanceValues.wavetablePosition = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow + value;
+
+	uint16_t wavetableWindow;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::wavetablePosition]) wavetableWindow = currentSeqModValues.wavetablePosition;
+	else wavetableWindow = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+
+	if(wavetableWindow + value > MAX_WAVETABLE_WINDOW) currentPerformanceValues.wavetablePosition = MAX_WAVETABLE_WINDOW;
+	else if(wavetableWindow + value < 0) currentPerformanceValues.wavetablePosition = 0;
+	else currentPerformanceValues.wavetablePosition = wavetableWindow + value;
 
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition] = 1;
 
 	playMemPtr->setWavetableWindowFlag();
-	playMemPtr->setForcedWavetableWindow(currentPerformanceValues.tune);
+	playMemPtr->setForcedWavetableWindow(currentPerformanceValues.wavetablePosition);
 
 
 
-	playMemPtr->setWavetableWindow(currentPerformanceValues.tune);
+	playMemPtr->setWavetableWindow(currentPerformanceValues.wavetablePosition);
 }
 //*******************************************end
 void playerEngine::endVolumePerformanceMode()
@@ -2100,11 +2141,24 @@ void playerEngine ::endEndPointPerformanceMode()
 }
 void playerEngine::endWavetableWindowPerformanceMode()
 {
+
+	uint16_t wavetableWindow;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::wavetablePosition])
+	{
+		wavetableWindow = currentSeqModValues.wavetablePosition;
+		playMemPtr->setForcedWavetableWindow(wavetableWindow);
+	}
+	else
+	{
+		wavetableWindow = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+		playMemPtr->clearWavetableWindowFlag();
+
+	}
+	playMemPtr->setWavetableWindow(wavetableWindow);
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition] = 0;
-	playMemPtr->clearWavetableWindowFlag(); //blokuje zmiane tuna w playMemory
 
 
-	playMemPtr->setWavetableWindow(mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow);
 }
 //************************************************************************************************************
 

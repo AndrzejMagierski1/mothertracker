@@ -177,7 +177,7 @@ public:
 		  int8_t 	tune;
 		  int8_t 	reverbSend;
 		  int8_t 	cutoff;
-		  int8_t 	wavetablePosition;
+		  int16_t 	wavetablePosition;
 		  uint8_t 	filterType;
 		  int32_t 	startPoint;
 		  int32_t	endPoint;
@@ -203,7 +203,7 @@ public:
 	void changeCutoffPerformanceMode(int8_t value);
 	void changeFilterTypePerformanceMode(uint8_t mode);
 	void changeSamplePlaybackPerformanceMode(uint8_t value);
-	void changeWavetableWindowPerformanceMode(uint8_t value);
+	void changeWavetableWindowPerformanceMode(int16_t value);
 
 //*****************************END
 
