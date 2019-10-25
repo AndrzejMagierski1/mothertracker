@@ -16,6 +16,7 @@ enum mtPerformanceMode
 
 };
 
+//------------------------------------------------------------------------------
 
 enum mtPerformanceFxes
 {
@@ -30,24 +31,13 @@ enum mtPerformanceFxes
 	mtPerfSampleStart,
 	mtPerfSampleEnd,
 	mtPerfSamplePlayback,
+	mtPerfWavetablePos,
 	mtPerfStepStutter,
 	mtPerfPatternPlayMode,
 	mtPerfPatternLength,
 
 	performanceFxesCount
 };
-
-
-
-
-const uint8_t trackMasterModeCount = 2;
-
-const char trackMasterLabels[trackMasterModeCount][5] =
-{
-	"On",
-	"Off",
-};
-
 
 
 const char performanceFxesLabels[performanceFxesCount][20] =
@@ -63,9 +53,19 @@ const char performanceFxesLabels[performanceFxesCount][20] =
 	"Sample start",
 	"Sample end",
 	"Sample playback",
+	"Wavetable pos",
 	"Step stutter",
 	"Pattern play mode",
 	"Pattern length",
+};
+
+//------------------------------------------------------------------------------
+
+const uint8_t trackMasterModeCount = 2;
+const char trackMasterLabels[trackMasterModeCount][5] =
+{
+	"On",
+	"Off",
 };
 
 const char performanceStutterLabels[12][20] =
