@@ -8,6 +8,8 @@
 #include "graphicProcessing.h"
 #include "mtEffector.h"
 
+#include "mtPadsBacklight.h"
+
 
 
 cSampleEditor sampleEditor;
@@ -30,7 +32,7 @@ static  uint8_t functDown();
 static uint8_t functSelectPlace(uint8_t button, uint8_t state);
 
 
-
+static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 static uint8_t functShift(uint8_t value);
 
@@ -97,6 +99,7 @@ void cSampleEditor::update()
 		refreshPoints = 0;
 	}
 
+	refreshPlayingProgress();
 	refreshSampleLoading();
 	refreshSampleApplying();
 	refreshInstrumentLoading();
@@ -177,6 +180,42 @@ void cSampleEditor::refreshInstrumentLoading()
 	}
 }
 
+void cSampleEditor::refreshPlayingProgress()
+{
+	if(refreshSpectrumProgress)
+	{
+		display.setControlValue(progressCursor,playProgressInSpectrum);
+		display.refreshControl(progressCursor);
+		refreshSpectrumProgress = 0;
+	}
+
+	if(isPlayingSample)
+	{
+		calcPlayProgressValue();
+		if(isPlayingSample)
+		{
+			//showPreviewValue(); // w calcPlayProgress jest mozliwosc wyzerowania tej flagi wtedy nie chcemy wyswietlac wartosci;
+		}
+		else
+		{
+			//hidePreviewValue();
+			mtPadBoard.clearVoice(0);
+		}
+
+		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
+		{
+			instrumentPlayer[0].clearInterfacePlayingEndFlag();
+
+			playProgressValue=0;
+			playProgressInSpectrum = 0;
+			isPlayingSample = 0;
+			refreshSpectrumProgress = 1;
+			//hidePreviewValue();
+			mtPadBoard.clearVoice(0);
+		}
+	}
+}
+
 void cSampleEditor::refreshSampleLoading()
 {
 	if((firstSampleLoadFlag == 0) && (moduleFlags & sampleLoadingActive))
@@ -215,7 +254,7 @@ void cSampleEditor::showCurrentSpectrum(uint32_t length, int16_t *source)
 
 void cSampleEditor::startLoadingSample()
 {
-	if(mtProject.instrument[localInstrNum].isActive)
+	if((mtProject.instrument[localInstrNum].isActive) && (mtProject.instrument[localInstrNum].sample.type != mtSampleTypeWavetable))
 	{
 		if(!(moduleFlags & onEntryStillLoading))
 		{
@@ -537,6 +576,7 @@ void cSampleEditor::setDefaultScreenFunct()
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
+	FM->setPadsGlobal(functPads);
 
 }
 
@@ -597,6 +637,7 @@ uint8_t cSampleEditor::previewNewEffectRequested()
 
 static uint8_t functPreview(uint8_t state)
 {
+	if(state > buttonPress) return 1;
 	if(SE->moduleFlags != 0) return 1;
 	if(SE->sampleIsValid != 1) return 1;
 
@@ -604,23 +645,44 @@ static uint8_t functPreview(uint8_t state)
 	{
 		SE->makeEffect();
 
+		if(mtPadBoard.getEmptyVoice() < 0) return 1;
+
+		if(mtPadBoard.getEmptyVoice() == 0)
+		{
+			SE->playPitch = notes[mtPadBoard.convertPadToNote(12)];
+			SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
+			SE->refreshPlayProgressValue = 0;
+			SE->loopDirection = 0;
+			SE->isPlayingSample = 1;
+		}
+
 		if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
 		{
-			effector.play(SE->startPoint, SE->endPoint);
+			effector.play(SE->startPoint, SE->endPoint , 12);
+
 		}
 		else
 		{
 			if(SE->previewReadyFlag)
 			{
-				effector.playPrev();
+				effector.playPrev(12);
 			}
 		}
 
-		SE->lastPreviewEffect = (effect_t)SE->currSelEffect;
+		//mtPadBoard.startInstrument(pad, SE->localInstrNum,-1);
 	}
 	else if(state == 0)
 	{
-		effector.stop();
+		effector.stop(12);
+
+		if(mtPadBoard.getVoiceTakenByPad(12) == 0)
+		{
+			SE->playProgressValue=0;
+			SE->playProgressInSpectrum = 0;
+			SE->isPlayingSample = 0;
+			SE->refreshSpectrumProgress = 1;
+		}
+		//SE->hidePreviewValue();
 	}
 
 	//SE->selectedPlace = 0;
@@ -1170,6 +1232,60 @@ static uint8_t functStepNote(uint8_t value)
 	return 1;
 }
 
+static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
+{
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+	{
+		sequencer.stop();
+	}
+
+	if(state == 1)
+	{
+		if(mtPadBoard.getEmptyVoice() < 0) return 1;
+
+		if(mtPadBoard.getEmptyVoice() == 0)
+		{
+			SE->playPitch = notes[mtPadBoard.convertPadToNote(pad)];
+			SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
+			SE->refreshPlayProgressValue = 0;
+			SE->loopDirection = 0;
+			SE->isPlayingSample = 1;
+		}
+
+		padsBacklight.setFrontLayer(1,20, pad);
+
+		if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
+		{
+			effector.play(SE->startPoint, SE->endPoint , pad);
+
+		}
+		else
+		{
+			if(SE->previewReadyFlag)
+			{
+				effector.playPrev(pad);
+			}
+		}
+
+	}
+	else if(state == 0)
+	{
+		padsBacklight.setFrontLayer(0,0, pad);
+		effector.stop(pad);
+
+		if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
+		{
+			SE->playProgressValue=0;
+			SE->playProgressInSpectrum = 0;
+			SE->isPlayingSample = 0;
+			SE->refreshSpectrumProgress = 1;
+			//SE->hidePreviewValue();
+		}
+	}
+
+	return 1;
+}
+
 void cSampleEditor::updateEffectValues(effect_screen_t *effect, uint8_t barNum)
 {
 	printNewValue(effect->bar[barNum].dataSource, barNum, effect->bar[barNum].dataUnit, effect->bar[barNum].dataFormat);
@@ -1677,6 +1793,28 @@ void cSampleEditor::cancelMultiFrame()
 	frameData.multiSelActiveNum = 0;
 }
 ///////////////////////////////////////////////////////////////////////////
+
+void cSampleEditor::calcPlayProgressValue()
+{
+	if(refreshPlayProgressValue > PLAY_REFRESH_US)
+	{
+		refreshPlayProgressValue = 0;
+
+		playProgressValue = (uint16_t)((instrumentPlayer[0].getWavePosition() * ((endPoint - startPoint) / (float)MAX_16BIT)) + startPoint);
+
+		if(zoom.zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
+		else if(zoom.zoomValue > 1.0)
+		{
+			if(playProgressValue < zoom.zoomStart || playProgressValue > zoom.zoomEnd) playProgressInSpectrum = 0;
+			else
+			{
+				playProgressInSpectrum = map(playProgressValue, zoom.zoomStart, zoom.zoomEnd, 0 , 600);
+			}
+		}
+
+		refreshSpectrumProgress = 1;
+	}
+}
 
 
 

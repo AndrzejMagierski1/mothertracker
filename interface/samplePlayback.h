@@ -64,6 +64,7 @@ public:
 	void processPoints();
 	void showPreviewValue();
 	void hidePreviewValue();
+	void previewLabelSize(uint8_t size);
 
 	char startPointValueText[8];
 	char endPointValueText[8];
@@ -155,6 +156,10 @@ public:
 	void stepThroughNodes(int16_t value);
 	void clearAllNodes();
 	void cancelMultiFrame();
+//--------------------------------------
+	uint8_t loadedInstrumentType = 0;
+	char wavetablePositionText[5];
+	void showWavetablePosition();
 
 
 
