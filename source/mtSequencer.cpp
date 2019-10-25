@@ -421,6 +421,7 @@ void Sequencer::play_microStep(uint8_t row)
 						playerRow.stepSent.note,
 						0,
 						playerRow.stepSent.instrument);
+
 			playerRow.stepOpen = 0;
 			playerRow.noteOpen = 0;
 			playerRow.rollIsOn = 0;
@@ -1087,7 +1088,9 @@ void Sequencer::sendNoteOn(uint8_t track,
 										step->note,
 										step->velocity,
 										step->fx[0].type,
-										step->fx[0].value);
+										step->fx[0].value,
+										step->fx[1].type,
+										step->fx[1].value);
 	}
 
 }

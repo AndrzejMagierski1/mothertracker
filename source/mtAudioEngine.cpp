@@ -471,7 +471,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	return status;
 }
 
-uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx_id, uint8_t fx_val)
+uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx1_id, uint8_t fx1_val,
+								uint8_t fx2_id, uint8_t fx2_val)
 {
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
 
@@ -681,7 +682,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		changeTunePerformanceMode(performanceMod.tune);
 	}
 	//*************************************************FX****************************************************
-	seqFx(fx_id,fx_val);
+	seqFx(fx1_id,fx1_val);
 	//*******************************************************************************************************
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();
