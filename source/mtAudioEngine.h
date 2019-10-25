@@ -83,8 +83,8 @@ public:
 	uint16_t getWavePosition();
 	void update();
 	uint8_t noteOnforPrev (uint8_t instr_idx,int8_t note, int8_t velocity);
-	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
-	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note);
+	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t type);
+	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note,uint8_t type);
 	AudioEffectEnvelope *       envelopeAmpPtr;
 
 	enum struct controlType

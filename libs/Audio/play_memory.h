@@ -52,8 +52,8 @@ public:
 	void setReverse();
 	void clearReverse();
 	uint8_t playForPrev(uint8_t instr_idx,int8_t n);
-	uint8_t playForPrev(int16_t * addr,uint32_t len);
-	uint8_t playForPrev(int16_t * addr,uint32_t len, uint8_t n);
+	uint8_t playForPrev(int16_t * addr,uint32_t len,uint8_t type);
+	uint8_t playForPrev(int16_t * addr,uint32_t len, uint8_t n,uint8_t type);
 	void setWavetableWindowFlag();
 	void clearWavetableWindowFlag();
 	void setForcedWavetableWindow(int16_t val);
@@ -91,6 +91,7 @@ private:
 	uint16_t wavetableWindowSize;
 	uint16_t currentWindow;
 	uint32_t waveTablePosition;
+	uint8_t sampleType;
 //    uint16_t wavetableSync;
 //    uint16_t wavetablePWM;
 //    uint16_t wavetableFlip;

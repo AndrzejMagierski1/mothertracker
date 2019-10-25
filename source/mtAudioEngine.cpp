@@ -1597,7 +1597,8 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	__enable_irq();
 }
 
-uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
+
+uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type)
 {
 	uint8_t status=0;
 	envelopeAmpPtr->delay(0);
@@ -1623,14 +1624,15 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len)
 	limiter[1].setThreshold(32000);
 	bitDepthControl[0].setBitDepth(16);
 	bitDepthControl[1].setBitDepth(16);
-	status = playMemPtr->playForPrev(addr,len);
+
+	status = playMemPtr->playForPrev(addr,len,type);
 	envelopeAmpPtr->noteOn();
 
 	return status;
 
 }
 
-uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note)
+uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note, uint8_t type)
 {
 	uint8_t status=0;
 	envelopeAmpPtr->delay(0);
@@ -1657,7 +1659,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	bitDepthControl[0].setBitDepth(16);
 	bitDepthControl[1].setBitDepth(16);
 
-	status = playMemPtr->playForPrev(addr,len,note);
+	status = playMemPtr->playForPrev(addr,len,note,type);
 	envelopeAmpPtr->noteOn();
 
 	return status;

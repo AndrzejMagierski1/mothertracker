@@ -1437,7 +1437,8 @@ void cSampleImporter::playSampleFromBank()
 	playMode = playModeSampleBank;
 
 	instrumentPlayer[0].noteOnforPrev(mtProject.instrument[selectedSlot].sample.address,
-									  mtProject.instrument[selectedSlot].sample.length);
+									  mtProject.instrument[selectedSlot].sample.length,
+									  mtProject.instrument[selectedSlot].sample.type);
 }
 
 

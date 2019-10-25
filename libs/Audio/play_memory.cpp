@@ -54,6 +54,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	if(!tuneForceFlag) currentTune=mtProject.instrument[instr_idx].tune;
 	else currentTune = forcedTune;
 
+	sampleType = mtProject.instrument[instr_idx].sample.type;
 
 	if( (note + currentTune) > (MAX_NOTE-1))
 	{
@@ -223,7 +224,6 @@ void AudioPlayMemory::update(void)
 	int i;
 	int32_t castPitchControl;
 	float pitchFraction;
-	uint8_t localType = mtProject.instrument[currentInstr_idx].sample.type ;
 
 	block = allocate();
 	if (!block) return;
@@ -239,7 +239,7 @@ void AudioPlayMemory::update(void)
 		out = block->data;
 		in = next;
 
-		if (localType == mtSampleTypeWavetable)
+		if (sampleType == mtSampleTypeWavetable)
 		{
 			waveTablePosition = wavetableWindowSize * currentWindow;
 		}
@@ -297,7 +297,7 @@ void AudioPlayMemory::update(void)
 					}
 					i = SMOOTHING_SIZE;
 				}
-				if (localType != mtSampleTypeWavetable)
+				if (sampleType != mtSampleTypeWavetable)
 				{
 					switch (playMode)
 					{
@@ -812,10 +812,10 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	playMode=mtProject.instrument[instr_idx].playMode;
 
 	startLen=mtProject.instrument[instr_idx].sample.length;
+	sampleType = mtProject.instrument[instr_idx].sample.type;
 
 
-
-	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
+	if(sampleType != mtSampleTypeWavetable)
 	{
 		startPoint=mtProject.instrument[instr_idx].startPoint;
 		endPoint=mtProject.instrument[instr_idx].endPoint;
@@ -828,7 +828,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	}
 	else
 	{
-		wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;
+		wavetableWindowSize = SERUM_WAVETABLE_WINDOW_LEN;
 		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
 		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
 		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
@@ -837,7 +837,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	}
 	/*=========================================================================================================================*/
 	/*========================================WARUNKI LOOPPOINTOW==============================================================*/
-	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
+	if(sampleType != mtSampleTypeWavetable)
 	{
 		if(playMode == singleShot)
 		{
@@ -887,7 +887,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 
 
 
-	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
+	if(sampleType != mtSampleTypeWavetable)
 	{
 		samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
 		samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
@@ -926,7 +926,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 
 
 
-uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len)
+uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 {
 	uint32_t startPoint,endPoint;
 	int8_t note=60;
@@ -940,7 +940,7 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len)
 	glide=0;
 	currentTune=0;
 	lastNote=-1;
-
+	sampleType = type;
 	if( (note + currentTune) > (MAX_NOTE-1))
 	{
 		if(lastNote>note) currentTune=(MAX_NOTE-1)-lastNote;
@@ -956,6 +956,18 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len)
 	else pitchControl=notes[note+ currentTune];
 
 	int16_t * data = addr;
+
+	if(sampleType == mtSampleTypeWavetable)
+	{
+		wavetableWindowSize = SERUM_WAVETABLE_WINDOW_LEN;
+		if(wavetableWindowForceFlag) currentWindow = forcedWavetableWindow;
+		else currentWindow=0;
+		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
+		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
+		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
+		sampleConstrains.loopLength=wavetableWindowSize;
+	}
+
 
 	playMode=singleShot;
 
@@ -983,7 +995,7 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len)
 
 
 
-uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n)
+uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uint8_t type)
 {
 	uint32_t startPoint,endPoint;
 	int8_t note=n;
@@ -997,7 +1009,7 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n)
 	glide=0;
 	currentTune=0;
 	lastNote=-1;
-
+	sampleType = type;
 	if( (note + currentTune) > (MAX_NOTE-1))
 	{
 		if(lastNote>note) currentTune=(MAX_NOTE-1)-lastNote;
@@ -1022,7 +1034,16 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n)
 	endPoint=MAX_16BIT;
 	currentFineTune=0;
 	fineTuneControl=0;
-
+	if(sampleType == mtSampleTypeWavetable)
+	{
+		wavetableWindowSize = SERUM_WAVETABLE_WINDOW_LEN;
+		if(wavetableWindowForceFlag) currentWindow = forcedWavetableWindow;
+		else currentWindow=0;;
+		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
+		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
+		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
+		sampleConstrains.loopLength=wavetableWindowSize;
+	}
 
 	samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
 	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));

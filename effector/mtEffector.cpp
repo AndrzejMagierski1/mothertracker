@@ -17,14 +17,14 @@ void mtEffector::play(uint16_t start, uint16_t stop)
 
 	addressShift = (uint32_t)( (uint32_t)start * (float)(fileByteSaved/2)/MAX_16BIT);
 
-	instrumentPlayer[0].noteOnforPrev(startAddress + addressShift,length - addressShift);
+	instrumentPlayer[0].noteOnforPrev(startAddress + addressShift,length - addressShift, mtSampleTypeWaveFile);
 }
 
 void mtEffector::playPrev()
 {
 	startAddressEffect = previewBuffer;
 
-	instrumentPlayer[0].noteOnforPrev(startAddressEffect,affterEffectLength);
+	instrumentPlayer[0].noteOnforPrev(startAddressEffect,affterEffectLength,mtSampleTypeWaveFile);
 }
 void mtEffector::stop()
 {
