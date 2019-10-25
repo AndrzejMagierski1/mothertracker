@@ -284,6 +284,11 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 		instrumentPlayer[track].endEndPointPerformanceMode();
 		break;
 	}
+	case mtPerfWavetablePos:
+	{
+		instrumentPlayer[track].endWavetableWindowPerformanceMode();
+		break;
+	}
 	case mtPerfTune:
 	{
 		instrumentPlayer[track].endTunePerformanceMode();
@@ -390,6 +395,11 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track)
 		case mtPerfSampleEnd:
 		{
 			instrumentPlayer[track].changeEndPointPerformanceMode(fxValues[fx]);
+			break;
+		}
+		case mtPerfWavetablePos:
+		{
+			instrumentPlayer[track].changeWavetableWindowPerformanceMode(fxValues[fx]);
 			break;
 		}
 		case mtPerfTune:
@@ -584,7 +594,21 @@ static  uint8_t functEncoder(int16_t value)
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeEndPointPerformanceMode(map(PM->fxValues[i],-100,100,-MAX_16BIT,MAX_16BIT));
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeEndPointPerformanceMode(PM->fxValues[i]);
+				}
+				break;
+
+				break;
+			}
+			case mtPerfWavetablePos:
+			{
+				if(PM->fxValues[i] + mod_value > 100) PM->fxValues[i] = 100;
+				else if(PM->fxValues[i] + mod_value < -100) PM->fxValues[i] = -100;
+				else PM->fxValues[i] += mod_value;
+
+				for(uint8_t j = 0; j < 8; j++)
+				{
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeWavetableWindowPerformanceMode(map(PM->fxValues[i],-100,100,-MAX_WAVETABLE_WINDOW,MAX_WAVETABLE_WINDOW));
 				}
 				break;
 

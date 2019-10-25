@@ -83,8 +83,8 @@ public:
 	uint16_t getWavePosition();
 	void update();
 	uint8_t noteOnforPrev (uint8_t instr_idx,int8_t note, int8_t velocity);
-	uint8_t noteOnforPrev (int16_t * addr, uint32_t len);
-	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note);
+	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t type);
+	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note,uint8_t type);
 	AudioEffectEnvelope *       envelopeAmpPtr;
 
 	enum struct controlType
@@ -118,6 +118,7 @@ public:
 		samplePlaybeckDirection,
 		sampleSlice,
 		glide,
+		wavetablePosition,
 
 		length
 	};
@@ -129,7 +130,7 @@ public:
 	    uint16_t loopPoint2;
 	    uint16_t endPoint;
 	    uint8_t sampleSlice; //todo: ustalic co to ma byc
-	    uint8_t reversePlayback; //todo: jak sie zrobi to ogarnac
+	    uint8_t reversePlayback;
 	    float filterCutoff;
 		uint8_t filterType;
 		uint8_t filterEnable;
@@ -146,6 +147,7 @@ public:
 		LFO::strLfo tremolo; //todo: do ogarniecia
 
 		uint16_t glide;
+		uint16_t wavetablePosition;
 
 
 	} currentSeqModValues;
@@ -156,7 +158,7 @@ public:
 		uint16_t loopPoint1;
 		uint16_t loopPoint2;
 		uint16_t endPoint;
-		uint8_t reversePlayback; //todo: jak sie zrobi to ogarnac
+		uint8_t reversePlayback;
 		float filterCutoff;
 		uint8_t filterType;
 		uint8_t filterEnable;
@@ -164,6 +166,7 @@ public:
 		int16_t panning;
 		int8_t tune;
 		uint8_t volume;
+		uint16_t wavetablePosition;
 	} currentPerformanceValues;
 
 
@@ -174,6 +177,7 @@ public:
 		  int8_t 	tune;
 		  int8_t 	reverbSend;
 		  int8_t 	cutoff;
+		  int16_t 	wavetablePosition;
 		  uint8_t 	filterType;
 		  int32_t 	startPoint;
 		  int32_t	endPoint;
@@ -199,6 +203,7 @@ public:
 	void changeCutoffPerformanceMode(int8_t value);
 	void changeFilterTypePerformanceMode(uint8_t mode);
 	void changeSamplePlaybackPerformanceMode(uint8_t value);
+	void changeWavetableWindowPerformanceMode(int16_t value);
 
 //*****************************END
 
@@ -212,6 +217,7 @@ public:
 	void endFilterTypePerformanceMode();
 	void endSamplePlaybackPerformanceMode();
 	void endEndPointPerformanceMode();
+	void endWavetableWindowPerformanceMode();
 
 private:
 
