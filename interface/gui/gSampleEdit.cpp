@@ -117,11 +117,12 @@ void cSampleEditor::initDisplayControls()
 	prop.y = 75;
 	prop.w = 600;
 	prop.h = 300;
+	if(progressCursor == nullptr) progressCursor = display.createControl<cProgressCursor>(&prop);
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
-
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
+
 
 
 	for(int i = 2; i < 6; i++)
@@ -180,6 +181,9 @@ void cSampleEditor::destroyDisplayControls()
 
 	display.destroyControl(processHorizontalBarControl);
 	processHorizontalBarControl = nullptr;
+
+	display.destroyControl(progressCursor);
+	progressCursor  = nullptr;
 }
 
 void cSampleEditor::frameChange(uint8_t control)
@@ -280,12 +284,14 @@ void cSampleEditor::showEffectScreen(effect_screen_t *screenCfg)
 		display.setControlData(spectrumControl, &spectrum);
 		display.setControlShow(spectrumControl);
 		display.setControlShow(pointsControl);
+		display.setControlShow(progressCursor);
 	}
 	else
 	{
 		frameChange(1);
 		display.setControlHide(spectrumControl);
 		display.setControlHide(pointsControl);
+		display.setControlHide(progressCursor);
 	}
 
 	display.refreshControl(pointsControl);

@@ -104,6 +104,8 @@ const char effectNamesLabels[effectsCount][15] =
 #undef MAX_SELECT_NODES
 #define MAX_SELECT_NODES	4
 
+constexpr uint32_t PLAY_REFRESH_US = 5000;
+
 
 class cSampleEditor: public cModuleBase
 {
@@ -161,6 +163,7 @@ public:
 	hControl instrumentLabel = nullptr;
 	hControl barControl[4];
 	hControl processHorizontalBarControl = nullptr;
+	hControl progressCursor = nullptr;
 
 
 	uint8_t selectedPlace = 6;
@@ -296,6 +299,19 @@ public:
 	selection_percentages stepThroughNodes(int16_t value);
 	void clearAllNodes();
 	void cancelMultiFrame();
+
+	// linia postepu odgrywania
+	elapsedMicros playProgresValueBackwardTim = 0;
+	elapsedMicros playProgresValueTim = 0;
+	elapsedMicros refreshPlayProgressValue = 0;
+	float playPitch = 1.0 ;
+	uint32_t playProgressValue = 0; // 0 - MAX_LEN_RECORD
+	uint16_t playProgressInSpectrum = 0; // 0 - 600
+	uint8_t loopDirection = 0;
+	uint8_t refreshSpectrumProgress = 0;
+
+	void refreshPlayingProgress();
+	void calcPlayProgressValue();
 
 };
 

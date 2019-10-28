@@ -28,9 +28,9 @@ class mtEffector
 public:
 
 	void loadSample(const char *patch);
-	void play(uint16_t start, uint16_t stop);
-	void playPrev();
-	void stop();
+	void play(uint16_t start, uint16_t stop, uint8_t pad);
+	void playPrev(uint8_t pad);
+	void stop(uint8_t pad);
 	void trim(uint16_t a, uint16_t b);
 	void undoTrim();
 	void reverse(uint16_t start, uint16_t end);
