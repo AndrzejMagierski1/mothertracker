@@ -121,12 +121,12 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 			if (isStepToFillFx(step, offset, fxIndex, fillStep))
 			{
 
-				step->fx[index].value = map(offset + sel->firstStep,
+				step->fx[fxIndex].value = map(offset + sel->firstStep,
 											sel->firstStep,
 											sel->lastStep,
 											fromVal,
 											toVal);
-				step->fx[index].type = (fxType>=0) ? fxType : random(0, FX_MAX+1);
+				step->fx[fxIndex].type = (fxType>=0) ? fxType : random(0, FX_MAX+1);
 
 			}
 		}
@@ -157,8 +157,8 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 			if (isStepToFillFx(step, offset, fxIndex, fillStep))
 			{
 
-				step->fx[index].value = random(fromVal, toVal + 1);
-				step->fx[index].type = (fxType>=0) ? fxType : random(0, FX_MAX+1);;
+				step->fx[fxIndex].value = random(fromVal, toVal + 1);
+				step->fx[fxIndex].type = (fxType>=0) ? fxType : random(0, FX_MAX+1);;
 			}
 		}
 	}
