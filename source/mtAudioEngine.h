@@ -52,8 +52,8 @@ public:
 	void noteOff();
 	void clean();
 
-	void seqFx(uint8_t fx_id, uint8_t fx_val);
-	void endFx(uint8_t fx_id);
+	void seqFx(uint8_t fx_type, uint8_t fx_val, uint8_t);
+	void endFx(uint8_t fx_type);
 	void slide(int8_t note, uint16_t time);
 	void modPitch(float value);
 	void modGlide(uint16_t value);

@@ -318,6 +318,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 	if (playerRow.uStep == 1)
 	{
+		uint8_t fxIndex = 0;
 		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
 		{
 			//	strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
@@ -399,7 +400,7 @@ void Sequencer::play_microStep(uint8_t row)
 				// wysyłam tylko fxa jeśli nie ma nuty
 				if (_fx.type > fx.FX_TYPE_NOT_SEQ_FX)
 				{
-					instrumentPlayer[row].seqFx(_fx.type, _fx.value);
+					instrumentPlayer[row].seqFx(_fx.type, _fx.value,fxIndex);
 				}
 				switch (_fx.type)
 				{
@@ -416,6 +417,7 @@ void Sequencer::play_microStep(uint8_t row)
 					break;
 				}
 			}
+			fxIndex++;
 		}
 	}
 
@@ -460,6 +462,7 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 
 		// EFEKTY WŁAŚCIWE
+		uint8_t fxIndex = 0;
 		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
 		{
 			switch (_fx.type)
@@ -554,11 +557,11 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 		else if (patternStep.note == STEP_NOTE_CUT)
 		{
-			instrumentPlayer[row].seqFx(fx.FX_TYPE_CUT, 1);
+			instrumentPlayer[row].seqFx(fx.FX_TYPE_CUT, 1, 0);
 		}
 		else if (patternStep.note == STEP_NOTE_FADE)
 		{
-			instrumentPlayer[row].seqFx(fx.FX_TYPE_FADE, 1);
+			instrumentPlayer[row].seqFx(fx.FX_TYPE_FADE, 1, 0);
 		}
 	}
 
