@@ -296,7 +296,7 @@ void cSampleEditor::start(uint32_t options)
 		moduleFlags |= onEntryStillLoading;
 	}
 
-	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
+	if((mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT) && (mtProject.instrument[localInstrNum].sample.type != mtSampleTypeWavetable))
 	{
 		editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 		GP.processSpectrum(editorInstrument, &zoom, &spectrum);
@@ -1545,9 +1545,9 @@ static uint8_t modStartPoint(int16_t value)
 	else if(SE->startPoint + value > SAMPLE_POINT_POS_MAX ) SE->startPoint  = SAMPLE_POINT_POS_MAX;
 	else SE->startPoint += value;
 
-	if(SE->startPoint > SE->endPoint)
+	if(SE->startPoint >= SE->endPoint)
 	{
-		SE->startPoint = SE->endPoint-1;
+		SE->startPoint = SE->endPoint - 2;
 	}
 
 	// odswiez spektrum tylko jesli: zoom wiekszy niz 1, ostatnio modyfikowany inny punkt, punkt jest poza widocznym obszarem
@@ -1572,9 +1572,9 @@ static uint8_t modEndPoint(int16_t value)
 	else if(SE->endPoint + value > SAMPLE_POINT_POS_MAX ) SE->endPoint  = SAMPLE_POINT_POS_MAX;
 	else SE->endPoint += value;
 
-	if(SE->endPoint < SE->startPoint)
+	if(SE->endPoint <= SE->startPoint)
 	{
-		SE->endPoint = SE->startPoint+1;
+		SE->endPoint = SE->startPoint + 2;
 	}
 
 	if(SE->zoom.zoomValue > 1 && (SE->zoom.lastChangedPoint != 2
@@ -1795,14 +1795,34 @@ selection_percentages cSampleEditor::stepThroughNodes(int16_t value)
 
 	memset(&temp,0,sizeof(temp));
 
-	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+
+	//kolejnosc wykonywania funkcji w loop pointach ma znaczenie
+	//
+	if(value < 0)
 	{
-		if(selectNodes[node].isActive)
+		for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
 		{
-			if(selectNodes[node].editFunct != NULL)
+			if(selectNodes[node].isActive)
 			{
-				temp.mask |= (1 << node);
-				temp.percentages[node] = selectNodes[node].editFunct(value);
+				if(selectNodes[node].editFunct != NULL)
+				{
+					temp.mask |= (1 << node);
+					temp.percentages[node] = selectNodes[node].editFunct(value);
+				}
+			}
+		}
+	}
+	else if(value > 0)
+	{
+		for(uint8_t node = MAX_SELECT_NODES; node > 0; node--)
+		{
+			if(selectNodes[node-1].isActive)
+			{
+				if(selectNodes[node-1].editFunct != NULL)
+				{
+					temp.mask |= (1 << (node-1));
+					temp.percentages[node-1] = selectNodes[node-1].editFunct(value);
+				}
 			}
 		}
 	}
