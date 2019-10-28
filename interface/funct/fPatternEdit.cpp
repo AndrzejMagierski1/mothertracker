@@ -1851,7 +1851,7 @@ static  uint8_t functFx1(uint8_t state)
 	{
 		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
 
-		PTE->FM->clearButton(interfaceButtonFx2);
+		PTE->FM->clearButton(interfaceButtonFx1);
 
 		mtProject.values.lastUsedFx = PTE->getStepFx();
 		mtPopups.showStepPopup(stepPopupFx, mtProject.values.lastUsedFx); //PTE->getStepFx()
@@ -1912,7 +1912,7 @@ static  uint8_t functFx2(uint8_t state)
 	{
 		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
 
-		PTE->FM->clearButton(interfaceButtonFx1);
+		PTE->FM->clearButton(interfaceButtonFx2);
 
 		mtProject.values.lastUsedFx = PTE->getStepFx();
 		mtPopups.showStepPopup(stepPopupFx, mtProject.values.lastUsedFx); //PTE->getStepFx()
