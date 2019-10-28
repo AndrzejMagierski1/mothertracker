@@ -287,9 +287,21 @@ struct strInterfaceGlobals
 	};
 
 //-----------------------------------------------------
+	uint8_t fxIdToName(uint8_t name)
+	{
+//		uint8_t count;
+		for (uint8_t count = 0; count < FX_COUNT; count++)
+		{
+			if (fxIDs[count] == name) return count;
+		}
 
-	const uint8_t fxIDs[127] = {
+		return 0;
+	}
+	const uint8_t fxIDs[FX_COUNT] = {
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_1,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_2,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_3,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NUDGE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_VELOCITY,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL,
@@ -300,9 +312,6 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_UP,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_DOWN,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_RANDOM,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_1,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_2,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_3,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_4,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_5,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_6,
@@ -339,6 +348,9 @@ struct strInterfaceGlobals
 	const char fxNames[FX_COUNT][FX_NAME_SIZE+4] =
 	{
 			"--- None",
+			"K - Send CC[1]",
+			"L - Send CC[2]",
+			"M - Send CC[3]",
 			"A - Nudge",
 			"B - Velocity",
 			"C - Roll",
@@ -349,9 +361,6 @@ struct strInterfaceGlobals
 			"H - Roll up",
 			"I - Roll down",
 			"J - Roll random",
-			"K - Send CC[1]",
-			"L - Send CC[2]",
-			"M - Send CC[3]",
 			"N - Send CC[4]",
 			"O - Send CC[5]",
 			"P - Send CC[6]",

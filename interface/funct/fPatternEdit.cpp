@@ -387,7 +387,7 @@ void cPatternEditor::refreshPattern()
 				row->vol[2] = 0;
 			}
 */
-			uint8_t type_temp  = seq->track[i].step[patternPosition-7+j].fx[1].type;
+			uint8_t type_temp  = interfaceGlobals.fxIdToName(seq->track[i].step[patternPosition-7+j].fx[1].type);
 			if(type_temp > 0 && type_temp < FX_MAX)
 			{
 				trackerPattern.track[i].row[j].fx[0][0] = 0;
@@ -412,7 +412,7 @@ void cPatternEditor::refreshPattern()
 				trackerPattern.track[i].row[j].fx[0][3] = 0;
 			}
 			//--------------------------------------------------------------------------------------------
-			type_temp  = seq->track[i].step[patternPosition-7+j].fx[0].type;
+			type_temp  = interfaceGlobals.fxIdToName(seq->track[i].step[patternPosition-7+j].fx[0].type);
 			if(type_temp > 0 && type_temp < FX_MAX)
 			{
 				trackerPattern.track[i].row[j].fx[1][0] = 0;
@@ -488,7 +488,8 @@ uint8_t cPatternEditor::getStepFx()
 
 	uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
 
-	uint8_t fx_type =  sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type;
+	uint8_t fx_type =  interfaceGlobals.fxIdToName(
+			sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
 
 	if(fx_type < FX_COUNT) selectedFx = fx_type;
 
@@ -575,9 +576,11 @@ void cPatternEditor::cancelPopups()
 				{
 					uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
 
-					uint8_t fx_type = sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type;
-					if(fx_type > 0 && fx_type < FX_COUNT)
+					uint8_t fx_name = interfaceGlobals.fxIdToName(
+							sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
+					if (fx_name > 0 && fx_name < FX_COUNT)
 					{
+
 						sendSelection();
 						sequencer.setSelectionFxType(
 								fx_index,
@@ -2821,7 +2824,8 @@ void cPatternEditor::lightUpPadBoard()
 					// co pokazywac na padach:
 					if(tactButtons.isButtonPressed(interfaceButtonFx1) || tactButtons.isButtonPressed(interfaceButtonFx2))
 					{
-						show_fx = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type;    // typ
+						show_fx = interfaceGlobals.fxIdToName(
+								seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);    // typ
 						if(show_fx > FX_MAX) break;
 					}
 					else
