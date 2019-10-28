@@ -239,8 +239,17 @@ void Sequencer::play_microStep(uint8_t row)
 	strPlayer::strPlayerTrack & playerRow = player.track[row];
 
 	strPattern::strTrack::strStep & patternStep = patternRow.step[playerRow.actual_pos];
-	strPattern::strTrack::strStep & stepToSend = player.track[row].stepToSend;
-	stepToSend = patternStep;
+	strPlayer::strPlayerTrack::strSendStep & stepToSend = player.track[row].stepToSend;
+	strPlayer::strPlayerTrack::strSendStep & stepSent = player.track[row].stepSent;
+
+	memcpy(&stepToSend, &patternStep, sizeof(patternStep));
+	if (playerRow.uStep == 1)
+	{
+		stepToSend.velocity = STEP_VELO_DEFAULT;
+
+		// zerujemy zmienne efektowe
+		playerRow.isOffset = 0;
+	}
 
 //	strPlayer::strPlayerTrack::strPlayerStep & playerStep = playerRow.step[playerRow.actual_pos];
 
@@ -273,7 +282,7 @@ void Sequencer::play_microStep(uint8_t row)
 		{
 			sendNoteOff(row,
 						playerRow.stepSent.note,
-						playerRow.stepSent.velocity,
+						0,
 						playerRow.stepSent.instrument);
 
 			playerRow.noteOpen = 0;
@@ -309,57 +318,106 @@ void Sequencer::play_microStep(uint8_t row)
 
 	if (playerRow.uStep == 1)
 	{
-
-		strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
-		switch (_fx.type)
+		uint8_t fxIndex = 0;
+		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
 		{
-
-		case fx.FX_TYPE_NUDGE:
-
-			playerRow.isOffset = 1;
-			playerRow.offsetValue = _fx.value + 1;
-
-			break;
-		case fx.FX_TYPE_STEP_CHANCE:
-			if (random(0, 128) > _fx.value)
-				cancelStep = 1;
-
-			break;
-
-		case fx.FX_TYPE_SEND_CC_1:
-			usbMIDI.sendControlChange(1, _fx.value, 1);
-			break;
-
-		case fx.FX_TYPE_SEND_CC_2:
-			usbMIDI.sendControlChange(2, _fx.value, 1);
-			break;
-
-		default:
-			break;
-		}
-
-		if (patternStep.note == STEP_NOTE_EMPTY)
-		{
-			// wysyłam tylko fxa jeśli nie ma nuty
-			if (_fx.type > fx.FX_TYPE_NOT_SEQ_FX)
-			{
-				instrumentPlayer[row].seqFx(_fx.type, _fx.value);
-			}
-			strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
+			//	strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
 			switch (_fx.type)
 			{
-			case fx.FX_TYPE_ROLL:
-				case fx.FX_TYPE_ROLL_UP:
-				case fx.FX_TYPE_ROLL_DOWN:
-				case fx.FX_TYPE_ROLL_RANDOM:
 
-				playerRow.rollIsOn = 1;
-				playerRow.rollVal = _fx.value;
-				playerRow.rollDir = _fx.type;
-				playerRow.rollType = _fx.value;
+			case fx.FX_TYPE_NUDGE:
+
+				playerRow.isOffset = 1;
+				playerRow.offsetValue = _fx.value + 1;
 
 				break;
+			case fx.FX_TYPE_VELOCITY:
+
+				stepToSend.velocity = _fx.value;
+				stepSent.velocity = stepToSend.velocity;
+
+				break;
+			case fx.FX_TYPE_STEP_CHANCE:
+				if (random(0, 128) > _fx.value)
+					cancelStep = 1;
+
+				break;
+
+			case fx.FX_TYPE_SEND_CC_1:
+				usbMIDI.sendControlChange(1, _fx.value, 1);
+				break;
+
+			case fx.FX_TYPE_SEND_CC_2:
+				usbMIDI.sendControlChange(2, _fx.value, 1);
+				break;
+
+			case fx.FX_TYPE_SEND_CC_3:
+				usbMIDI.sendControlChange(3, _fx.value, 1);
+				break;
+
+			case fx.FX_TYPE_SEND_CC_4:
+				usbMIDI.sendControlChange(4, _fx.value, 1);
+				break;
+
+			case fx.FX_TYPE_SEND_CC_5:
+				usbMIDI.sendControlChange(5, _fx.value, 1);
+				break;
+
+			case fx.FX_TYPE_SEND_CC_6:
+				usbMIDI.sendControlChange(6, _fx.value, 1);
+				break;
+
+			case fx.FX_TYPE_SEND_CC_7:
+				usbMIDI.sendControlChange(7, _fx.value, 1);
+				break;
+
+			case fx.FX_TYPE_SEND_CC_8:
+				usbMIDI.sendControlChange(8, _fx.value, 1);
+				break;
+
+			case fx.FX_TYPE_SEND_CC_9:
+				usbMIDI.sendControlChange(9, _fx.value, 1);
+				break;
+			case fx.FX_TYPE_SEND_CC_10:
+				usbMIDI.sendControlChange(10, _fx.value, 1);
+				break;
+
+			case fx.FX_TYPE_RANDOM_VELOCITY:
+				//		todo:
+				stepToSend.velocity = constrain(random(0,
+														_fx.value + 1),
+												0,
+												127);
+				stepSent.velocity = stepToSend.velocity;
+				break;
+
+			default:
+				break;
 			}
+
+			if (patternStep.note == STEP_NOTE_EMPTY)
+			{
+				// wysyłam tylko fxa jeśli nie ma nuty
+				if (_fx.type > fx.FX_TYPE_NOT_SEQ_FX)
+				{
+					instrumentPlayer[row].seqFx(_fx.type, _fx.value,fxIndex);
+				}
+				switch (_fx.type)
+				{
+				case fx.FX_TYPE_ROLL:
+					case fx.FX_TYPE_ROLL_NOTE_UP:
+					case fx.FX_TYPE_ROLL_NOTE_DOWN:
+					case fx.FX_TYPE_ROLL_NOTE_RANDOM:
+
+					playerRow.rollIsOn = 1;
+					playerRow.rollVal = _fx.value;
+					playerRow.rollDir = _fx.type;
+					playerRow.rollType = _fx.value;
+
+					break;
+				}
+			}
+			fxIndex++;
 		}
 	}
 
@@ -394,8 +452,9 @@ void Sequencer::play_microStep(uint8_t row)
 		{
 			sendNoteOff(row,
 						playerRow.stepSent.note,
-						playerRow.stepSent.velocity,
+						0,
 						playerRow.stepSent.instrument);
+
 			playerRow.stepOpen = 0;
 			playerRow.noteOpen = 0;
 			playerRow.rollIsOn = 0;
@@ -403,65 +462,52 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 
 		// EFEKTY WŁAŚCIWE
-		strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
-		switch (_fx.type)
+		uint8_t fxIndex = 0;
+		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
 		{
-		case fx.FX_TYPE_ROLL:
-			case fx.FX_TYPE_ROLL_UP:
-			case fx.FX_TYPE_ROLL_DOWN:
-			case fx.FX_TYPE_ROLL_RANDOM:
-
-			playerRow.rollIsOn = 1;
-			playerRow.rollVal = _fx.value;
-			playerRow.rollType = _fx.value;
-			playerRow.rollDir = _fx.type;
-
-			break;
-
-		case fx.FX_TYPE_RANDOM_NOTE:
-			stepToSend.note = constrain(
-					random(patternStep.note - _fx.value,
-							patternStep.note + _fx.value + 1),
-					0,
-					127);
-			break;
-		case fx.FX_TYPE_RANDOM_INSTRUMENT:
-			if (stepToSend.instrument < INSTRUMENTS_COUNT)
+			switch (_fx.type)
 			{
-				stepToSend.instrument = constrain(
-						random(patternStep.instrument - _fx.value,
-								patternStep.instrument + _fx.value + 1),
-						0,
-						INSTRUMENTS_COUNT - 1);
-			}
-			else
-			{
-				stepToSend.instrument = constrain(
-						random(patternStep.instrument - _fx.value,
-								patternStep.instrument + _fx.value + 1),
-						INSTRUMENTS_COUNT,
-						INSTRUMENTS_COUNT + 16 + 1);
-			}
-			break;
+			case fx.FX_TYPE_ROLL:
+				case fx.FX_TYPE_ROLL_NOTE_UP:
+				case fx.FX_TYPE_ROLL_NOTE_DOWN:
+				case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
-		case fx.FX_TYPE_RANDOM_VELOCITY:
-			if (stepToSend.velocity >= 0)
-			{
-				stepToSend.velocity = constrain(
-						random(patternStep.velocity - _fx.value,
-								patternStep.velocity + _fx.value + 1),
+				playerRow.rollIsOn = 1;
+				playerRow.rollVal = _fx.value;
+				playerRow.rollType = _fx.value;
+				playerRow.rollDir = _fx.type;
+
+				break;
+
+			case fx.FX_TYPE_RANDOM_NOTE:
+				stepToSend.note = constrain(
+						random(patternStep.note - _fx.value,
+								patternStep.note + _fx.value + 1),
 						0,
 						127);
-			}
-			else
-			{
-				stepToSend.velocity = random(0, _fx.value + 1);
+				break;
+			case fx.FX_TYPE_RANDOM_INSTRUMENT:
+				if (stepToSend.instrument < INSTRUMENTS_COUNT)
+				{
+					stepToSend.instrument = constrain(
+							random(patternStep.instrument - _fx.value,
+									patternStep.instrument + _fx.value + 1),
+							0,
+							INSTRUMENTS_COUNT - 1);
+				}
+				else
+				{
+					stepToSend.instrument = constrain(
+							random(patternStep.instrument - _fx.value,
+									patternStep.instrument + _fx.value + 1),
+							INSTRUMENTS_COUNT,
+							INSTRUMENTS_COUNT + 16 + 1);
+				}
+				break;
 
+			default:
+				break;
 			}
-			break;
-
-		default:
-			break;
 		}
 
 		// ustawiamy całego stepa
@@ -484,7 +530,7 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 		if (patternStep.note >= 0)
 		{
-			if (playerRow.rollDir == fx.FX_TYPE_ROLL_RANDOM && playerRow.rollIsOn)
+			if (playerRow.rollDir == fx.FX_TYPE_ROLL_NOTE_RANDOM && playerRow.rollIsOn)
 			{
 				playerRow.stepToSend.note = constrain(
 						random(
@@ -508,6 +554,14 @@ void Sequencer::play_microStep(uint8_t row)
 			playerRow.stepOpen = 0;
 			playerRow.rollIsOn = 0;
 			playerRow.rollType = fx.ROLL_TYPE_NONE;
+		}
+		else if (patternStep.note == STEP_NOTE_CUT)
+		{
+			instrumentPlayer[row].seqFx(fx.FX_TYPE_CUT, 1, 0);
+		}
+		else if (patternStep.note == STEP_NOTE_FADE)
+		{
+			instrumentPlayer[row].seqFx(fx.FX_TYPE_FADE, 1, 0);
 		}
 	}
 
@@ -548,21 +602,21 @@ void Sequencer::play_microStep(uint8_t row)
 				playerRow.noteTimer = 0; // od tej pory timer liczy w górę
 				playerRow.noteLength = rollTypeToVal(playerRow.rollType) / 2; // TODO: wyliczyć długość rolki
 
-				if (playerRow.rollDir == fx.FX_TYPE_ROLL_UP)
+				if (playerRow.rollDir == fx.FX_TYPE_ROLL_NOTE_UP)
 				{
 					playerRow.stepToSend.note = constrain(
 							++playerRow.stepToSend.note,
 							0,
 							127);
 				}
-				else if (playerRow.rollDir == fx.FX_TYPE_ROLL_DOWN)
+				else if (playerRow.rollDir == fx.FX_TYPE_ROLL_NOTE_DOWN)
 				{
 					playerRow.stepToSend.note = constrain(
 							--playerRow.stepToSend.note,
 							0,
 							127);
 				}
-				else if (playerRow.rollDir == fx.FX_TYPE_ROLL_RANDOM)
+				else if (playerRow.rollDir == fx.FX_TYPE_ROLL_NOTE_RANDOM)
 				{
 					playerRow.stepToSend.note = constrain(
 							random(
@@ -1060,7 +1114,8 @@ void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
 	}
 
 }
-void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
+void Sequencer::sendNoteOn(uint8_t track,
+							strPlayer::strPlayerTrack::strSendStep *step)
 {
 
 	if (step->instrument > INSTRUMENTS_MAX)
@@ -1075,7 +1130,9 @@ void Sequencer::sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step)
 										step->note,
 										step->velocity,
 										step->fx[0].type,
-										step->fx[0].value);
+										step->fx[0].value,
+										step->fx[1].type,
+										step->fx[1].value);
 	}
 
 }
@@ -1097,7 +1154,8 @@ void Sequencer::sendNoteOff(uint8_t track,
 		instrumentPlayer[track].noteOff();
 	}
 }
-void Sequencer::sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step)
+void Sequencer::sendNoteOff(uint8_t track,
+							strPlayer::strPlayerTrack::strSendStep *step)
 {
 
 	if (step->instrument > INSTRUMENTS_MAX)
@@ -1156,7 +1214,7 @@ void Sequencer::blinkSelectedStep()
 	{
 		blinkNote(step->instrument,
 					step->note,
-					step->velocity,
+					STEP_VELO_DEFAULT,
 					selection.firstTrack);
 	}
 
@@ -1187,18 +1245,10 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 			}
 			step->note = note;
 
-			if (channel == MIDI_CHANNEL_GRID)
-			{
-			}
-			else
-			{
-				step->velocity = velocity;
-			}
-
 			instrumentPlayer[sel->firstTrack].noteOff();
 			instrumentPlayer[sel->firstTrack].noteOn(step->instrument,
 														step->note,
-														step->velocity);
+														STEP_VELO_DEFAULT);
 		}
 	}
 	else

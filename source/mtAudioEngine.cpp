@@ -476,7 +476,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	return status;
 }
 
-uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx_id, uint8_t fx_val)
+uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx1_id, uint8_t fx1_val,
+								uint8_t fx2_id, uint8_t fx2_val)
 {
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
 
@@ -691,7 +692,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		changeTunePerformanceMode(performanceMod.tune);
 	}
 	//*************************************************FX****************************************************
-	seqFx(fx_id,fx_val);
+	seqFx(fx1_id,fx1_val,0);
+	seqFx(fx2_id,fx2_val,1);
 	//*******************************************************************************************************
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();
@@ -734,10 +736,12 @@ void playerEngine :: noteOff()
 	__enable_irq();
 }
 
-void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
+void playerEngine::seqFx(uint8_t fx_type, // typ fxa
+						 uint8_t fx_val,
+						 uint8_t fx_id) // fx 0/1
 {
 	endFx(lastSeqFx);
-	switch(fx_id)
+	switch(fx_type)
 	{
 		case 0:
 			// na 0 mial wywolywac endFx ale wywoluje go zawsze i tak
@@ -930,7 +934,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val)
 			}
 		break;
 	}
-	lastSeqFx = fx_id;
+	lastSeqFx = fx_type;
 }
 
 void playerEngine::endFx(uint8_t fx_id)

@@ -21,6 +21,14 @@ public:
 
 		STEP_VELO_MIN = 0,
 		STEP_VELO_MAX = 127,
+		STEP_VELO_DEFAULT = 120,
+	};
+	enum enFillStep
+	{
+		fillStepOccupied = -1,
+		fillStepEmpty = -2,
+		fillStepRandom = 0,
+		fillStepByStep = 1,
 	};
 
 	enum enMisc
@@ -60,18 +68,19 @@ public:
 	{
 		enum enFxType
 		{
-			// powiązane z listą tekstów w interfaceDefs.h
+			// powiązane z listą tekstów w
+			// #include <interfaceDefs.h>
 			FX_TYPE_NONE,
 			FX_TYPE_NUDGE,
-			FX_TYPE_zapas1,
+			FX_TYPE_VELOCITY,
 			FX_TYPE_ROLL,
 			FX_TYPE_STEP_CHANCE,
 			FX_TYPE_RANDOM_NOTE,
 			FX_TYPE_RANDOM_INSTRUMENT,
 			FX_TYPE_RANDOM_VELOCITY,
-			FX_TYPE_ROLL_UP,
-			FX_TYPE_ROLL_DOWN,
-			FX_TYPE_ROLL_RANDOM,
+			FX_TYPE_ROLL_NOTE_UP,
+			FX_TYPE_ROLL_NOTE_DOWN,
+			FX_TYPE_ROLL_NOTE_RANDOM,
 			FX_TYPE_SEND_CC_1,
 			FX_TYPE_SEND_CC_2,
 			FX_TYPE_SEND_CC_3,
@@ -82,9 +91,14 @@ public:
 			FX_TYPE_SEND_CC_8,
 			FX_TYPE_SEND_CC_9,
 			FX_TYPE_SEND_CC_10,
+			FX_TYPE_ROLL_VOL_UP,
+			FX_TYPE_ROLL_VOL_DOWN,
+			FX_TYPE_ROLL_VOL_RANDOM,
 
 			FX_TYPE_NOT_SEQ_FX,
 			FX_TYPE_GLIDE,
+			FX_TYPE_FADE,
+			FX_TYPE_CUT,
 			FX_TYPE_SAMPLE_START,
 			FX_TYPE_SAMPLE_LOOP_START,
 			FX_TYPE_SAMPLE_LOOP_END,
@@ -106,15 +120,6 @@ public:
 			FX_TYPE_WT_POSITION
 
 		};
-		//		enum enFxVal
-//		{
-//			FX_VAL_TYPE_UNKNOWN,		        // unsigned 16
-//			FX_VAL_TYPE_U16,	// unsigned 16
-//			FX_VAL_TYPE_I16,	// signed 16
-//			FX_VAL_TYPE_U8_U8,	// uint8 i uint8
-//			FX_VAL_TYPE_I8_I8,	// int8 i int8
-//			FX_VAL_TYPE_R8_I8,	// roll(int8) i int8
-//		};
 
 		enum enRollType
 		{
@@ -158,26 +163,17 @@ public:
 
 		struct strTrack
 		{
-
 			uint8_t length = MAXSTEP;
 
 			struct strStep
 			{
 				int8_t note = STEP_NOTE_EMPTY;
-
-				int8_t velocity = -1;	// jeśli <0 to nie wysyłamy
 				uint8_t instrument = 0;
-
 				//FX
 				struct strFx
 				{
 					uint8_t type;
-
-					struct						// FX_VAL_U8_U8
-					{
-						uint8_t value;
-//						uint8_t value2;
-					};
+					uint8_t value;
 
 				} fx[2];
 
@@ -196,8 +192,9 @@ public:
 		ELEMENTS_ALL_WITH_PREFERENCES,
 		ELEMENTS_NOTES,
 		ELEMENTS_INSTRUMENTS,
-		ELEMENTS_VELO,
-		ELEMENTS_FXes,
+		//		ELEMENTS_VELO,
+		ELEMENTS_FX1,
+		ELEMENTS_FX2,
 	};
 	enum midiChannel
 	{
@@ -275,25 +272,6 @@ public:
 	void reset_actual_pos(uint8_t row);
 	void reset_actual_pos(void);
 
-	//__________________________________________
-	//
-	//				MIDI
-	//__________________________________________
-
-	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
-					uint8_t midiOut);
-
-	void flushNotes();
-	void sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
-					uint8_t instrument);
-	void sendNoteOff(uint8_t track, uint8_t note, uint8_t velocity,
-						uint8_t instrument);
-	void sendNoteOn(uint8_t track, strPattern::strTrack::strStep *step);
-	void sendNoteOff(uint8_t track, strPattern::strTrack::strStep *step);
-	void sendNoteOff(uint8_t track);
-
-	void send_clock(uint8_t);
-	void send_allNotesOff(void);
 	//__________________________________________
 	//
 	//
@@ -377,7 +355,24 @@ public:
 
 		struct strPlayerTrack
 		{
-			strPattern::strTrack::strStep stepSent, stepToSend;
+//			strPattern::strTrack::strStep
+			struct strSendStep
+			{
+				int8_t note = STEP_NOTE_EMPTY;
+
+				uint8_t instrument = 0;
+
+				//FX
+				struct strFx
+				{
+					uint8_t type;
+					uint8_t value;
+
+				} fx[2];
+
+				int8_t velocity = -1;	// jeśli <0 to nie wysyłamy
+			} stepSent, stepToSend;
+
 			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
 
@@ -412,6 +407,28 @@ public:
 		void (*onPatternEnd)(void) = NULL;
 
 	} player;
+
+	//__________________________________________
+	//
+	//				MIDI
+	//__________________________________________
+
+	void midiSendCC(uint8_t channel, uint8_t control, uint8_t value,
+					uint8_t midiOut);
+
+	void flushNotes();
+	void sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
+					uint8_t instrument);
+	void sendNoteOff(uint8_t track, uint8_t note, uint8_t velocity,
+						uint8_t instrument);
+	void sendNoteOn(uint8_t track,
+					strPlayer::strPlayerTrack::strSendStep *step);
+	void sendNoteOff(uint8_t track,
+						strPlayer::strPlayerTrack::strSendStep *step);
+	void sendNoteOff(uint8_t track);
+
+	void send_clock(uint8_t);
+	void send_allNotesOff(void);
 
 	/********************************
 	 * ******************************
@@ -539,14 +556,16 @@ public:
 	void clearSelected();
 	void clearSelected(uint8_t);
 
-	void changeSelectionVolume(int16_t value);
+//	void changeSelectionVolume(int16_t value);
 	void changeSelectionFxValue(uint8_t index, int16_t value);
-	void setSelectionFxValue(uint8_t index, int16_t value);
 	void changeSelectionFxType(uint8_t index, int16_t value);
-	void setSelectionFxType(uint8_t index, int16_t value);
+	void changeSelectionNote(int16_t value);
 	void changeSelectionInstrument(int16_t value);
+
+	void setSelectionFxType(uint8_t index, int16_t value);
+	void setSelectionFxValue(uint8_t index, int16_t value);
 	void setSelectionInstrument(int16_t value);
-	void setSelectionVelocity(int16_t value);
+	//	void setSelectionVelocity(int16_t value);
 	void setSelectionNote(int16_t value);
 
 	void setPerformanceStutter(uint8_t track, int8_t stutter);
@@ -556,17 +575,21 @@ public:
 	void fillLinearNotes(int16_t step, int16_t from, int16_t to);
 	void fillRandomInstruments(int16_t step, int16_t from, int16_t to);
 	void fillLinearInstruments(int16_t step, int16_t from, int16_t to);
-	void fillRandomVelocity(int16_t step, int16_t from, int16_t to);
-	void fillLinearVelocity(int16_t step, int16_t from, int16_t to);
-	void fillLinearFx(int16_t index, int16_t fillStep, int16_t fxType, int16_t fromVal,
-					  int16_t toVal);
-	void fillRandomFx(int16_t index, int16_t fillStep, int16_t fxType, int16_t fromVal,
-					  int16_t toVal);
+	void fillLinearFx(int16_t index, int16_t fillStep, int16_t fxType,
+						int16_t fromVal,
+						int16_t toVal);
+	void fillRandomFx(int16_t index, int16_t fillStep, int16_t fxType,
+						int16_t fromVal,
+						int16_t toVal);
 
-	void changeSelectionNote(int16_t value);
-	void randomSelectedNotes(int16_t from, int16_t to, int16_t scale);
-	void randomSelectedInstruments(int16_t from, int16_t to);
-	void randomSelectedVelo(int16_t from, int16_t to);
+	bool isStepToFillNote(strPattern::strTrack::strStep *step,
+							uint8_t offset,
+							int16_t fillStep);
+	bool isStepToFillFx(strPattern::strTrack::strStep *step,
+						uint8_t offset,
+						uint8_t fxIndex,
+						int16_t fillStep);
+
 	void invertSelectedSteps();
 
 	void allNoteOffs(void);
@@ -576,10 +599,8 @@ public:
 		player.onPatternEnd = action;
 	}
 
-
 	void setPerformancePatternLength(int8_t length);
 	void setPerformancePatternLengthFromFxVal(int8_t val);
-
 
 // inne
 	void handle_uStep_timer(void);
