@@ -297,8 +297,16 @@ struct strInterfaceGlobals
 
 		return 0;
 	}
+	uint8_t fxNameToId(uint8_t name)
+	{
+		return fxIDs[name];
+	}
+
+
+
 	const uint8_t fxIDs[FX_COUNT] = {
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_UP,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NUDGE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_VELOCITY,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL,
@@ -306,7 +314,6 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_NOTE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_INSTRUMENT,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_VELOCITY,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_UP,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_DOWN,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_RANDOM,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_1,
@@ -350,6 +357,7 @@ struct strInterfaceGlobals
 	const char fxNames[FX_COUNT][FX_NAME_SIZE+4] =
 	{
 			"--- None",
+			"H - Roll up",
 			"A - Nudge",
 			"B - Velocity",
 			"C - Roll",
@@ -357,7 +365,6 @@ struct strInterfaceGlobals
 			"E - Random note",
 			"F - Random instrument",
 			"G - Random velocity",
-			"H - Roll up",
 			"I - Roll down",
 			"J - Roll random",
 			"K - Send CC[1]",

@@ -249,6 +249,13 @@ void Sequencer::play_microStep(uint8_t row)
 
 		// zerujemy zmienne efektowe
 		playerRow.isOffset = 0;
+
+		instrumentPlayer[row].seqFx(0, 0, 0);
+		instrumentPlayer[row].seqFx(0, 0, 1);
+
+		playerRow.rollIsOn = 0;
+		playerRow.rollType = fx.ROLL_TYPE_NONE;
+
 	}
 
 //	strPlayer::strPlayerTrack::strPlayerStep & playerStep = playerRow.step[playerRow.actual_pos];
@@ -400,7 +407,7 @@ void Sequencer::play_microStep(uint8_t row)
 				// wysyłam tylko fxa jeśli nie ma nuty
 				if (_fx.type > fx.FX_TYPE_NOT_SEQ_FX)
 				{
-					instrumentPlayer[row].seqFx(_fx.type, _fx.value,fxIndex);
+					instrumentPlayer[row].seqFx(_fx.type, _fx.value, fxIndex);
 				}
 				switch (_fx.type)
 				{
