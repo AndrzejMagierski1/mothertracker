@@ -343,7 +343,7 @@ void Sequencer::play_microStep(uint8_t row)
 			// wysyłam tylko fxa jeśli nie ma nuty
 			if (_fx.type > fx.FX_TYPE_NOT_SEQ_FX)
 			{
-				instrumentPlayer[row].seqFx(_fx.type, _fx.value);
+				instrumentPlayer[row].seqFx(_fx.type, _fx.value, 0);
 			}
 			strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
 			switch (_fx.type)

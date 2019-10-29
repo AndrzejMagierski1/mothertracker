@@ -52,8 +52,8 @@ public:
 	void noteOff();
 	void clean();
 
-	void seqFx(uint8_t fx_id, uint8_t fx_val);
-	void endFx(uint8_t fx_id);
+	void seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n);
+	void endFx(uint8_t fx_id, uint8_t fx_n);
 	void slide(int8_t note, uint16_t time);
 	void modPitch(float value);
 	void modGlide(uint16_t value);
@@ -90,6 +90,7 @@ public:
 	enum struct controlType
 	{
 		sequencerMode,
+		sequencerMode2,
 		performanceMode,
 
 		length
@@ -123,6 +124,9 @@ public:
 		length
 	};
 
+	const uint8_t MOST_SIGNIFICANT_FX = 0;
+	const uint8_t LEAST_SIGNIFICANT_FX = 1;
+
 	struct strCurrentSeqModValues
 	{
 	    uint16_t startPoint;
@@ -150,7 +154,7 @@ public:
 		uint16_t wavetablePosition;
 
 
-	} currentSeqModValues;
+	} currentSeqModValues ;
 
 	struct strCurrentPerformanceValues
 	{
@@ -233,7 +237,8 @@ private:
 	LFO *						lfoFilterPtr;
 	LFO *						lfoPitchPtr;
 	uint8_t 					numPanChannel;
-	uint8_t						lastSeqFx = 0;
+	uint8_t						lastSeqFx[2];
+	uint8_t						lastSeqVal[2];
 	uint8_t 					currentInstrument_idx;
 	int8_t						currentNote;
 	int8_t						currentVelocity;
