@@ -3,6 +3,7 @@
 #include "mtLED.h"
 #include "mtFileManager.h"
 
+
 constexpr uint8_t BACKSPACE_PAD_1 = 10;
 constexpr uint8_t BACKSPACE_PAD_2 = 11;
 
@@ -28,7 +29,7 @@ static uint32_t popUpLabelColors[] =
 
 
 
-constexpr uint32_t coverRamAddres = 700000;
+constexpr uint32_t coverRamAddres = 670000;
 
 void cProjectEditor::initDisplayControls()
 {
@@ -182,6 +183,9 @@ void cProjectEditor::destroyDisplayControls()
 
 	display.destroyControl(popupLabel);
 	popupLabel = nullptr;
+
+	display.destroyControl(coverImg);
+	coverImg = nullptr;
 }
 
 void cProjectEditor::showDefaultScreen()
@@ -202,15 +206,20 @@ void cProjectEditor::showDefaultScreen()
 			sprintf(currentPatchProjectName,"Projects/Untitled%d",i);
 		}
 
-		if(i == 0) display.setControlText(titleLabelProjectName, "Untitled");
+		if(i == 0)
+		{
+			strcpy(projectCoverName, "Untitled");
+			display.setControlText(titleLabelProjectName, "Untitled");
+		}
 		else
 		{
-			sprintf(currentPatchProjectName,"Untitled%d",i);
+			sprintf(projectCoverName, "Untitled%d", i);
 			display.setControlText(titleLabelProjectName, currentPatchProjectName);
 		}
 	}
 	else
 	{
+		strcpy(projectCoverName, fileManager.currentProjectName);
 		display.setControlText(titleLabelProjectName, fileManager.currentProjectName);
 	}
 
@@ -259,8 +268,10 @@ void cProjectEditor::showDefaultScreen()
 		makeBigBottomLabel(i);
 	}
 	makeSmallBottomLabel(0);
-	display.synchronizeRefresh();
 
+	refreshProjectCover(10);
+
+	display.synchronizeRefresh();
 }
 //==============================================================================================================
 
@@ -610,36 +621,7 @@ void cProjectEditor::showExportWindow()
 	display.synchronizeRefresh();
 }
 
-void cProjectEditor::showProjectCover(char* projectName)
-{
-	char path[PATCH_SIZE];
 
-	sprintf(path,"Projects/%s/cover.jpg", projectName);
-
-	if(!SD.exists(path))
-	{
-		path[strlen(path)-3] = 0;
-		strcat(path,"jpeg");
-
-		if(!SD.exists(path))
-		{
-			path[strlen(path)-4] = 0;
-			strcat(path,"png");
-
-			if(!SD.exists(path))
-			{
-				return;
-			}
-		}
-	}
-
-	if(display.readImgFromSd(path,coverRamAddres))
-	{
-		return;
-	}
-
-	 refreshCover = 1;
-}
 
 void cProjectEditor::hideProjectCover()
 {

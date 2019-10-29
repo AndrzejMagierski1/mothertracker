@@ -4,6 +4,7 @@
 #include "displayControls.h"
 #include "imgControl.h"
 
+//extern strGetProps getProps;
 
 
 static uint32_t defaultColors[] =
@@ -97,7 +98,7 @@ void cImg::setData(void* data)
 uint8_t cImg::update()
 {
 	//if(display.)
-	if(value < 700000 || value > 1000000) return 0;
+	if(value < 670000 || value > 1000000) return 0;
 
 	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
@@ -107,18 +108,29 @@ uint8_t cImg::update()
 
 	if(style & controlStyleCenterX)
 	{
-		x = posX-width/2;
+		x = posX-getProps.Width/2;
 	}
 	if(style & controlStyleCenterY)
 	{
 
-		y = posY-height/2;
+		y = posY-getProps.Height/2;
 	}
 
-
-	API_CMD_INT_SWLOADIMAGE(value, 0);
-
+	//API_LIB_WriteDataToCMD
+	//API_CMD_LOADIMAGE(value, 0);
 	//API_CMD_SETBITMAP(value, RGB565, 150, 150);
+
+	//API_BITMAP_HANDLE(12);
+	//API_CMD_SETBITMAP(value, PALETTED4444, 150, 150);
+
+	//API_BITMAP_HANDLE(12);
+	//API_BITMAP_SOURCE(value);
+	API_CMD_SETBITMAP(value, RGB565, getProps.Width, getProps.Height);
+
+//	API_BITMAP_LAYOUT(RGB565, getProps.Width*2, getProps.Height); // Format, Stride, Height
+//	API_BITMAP_SIZE(BILINEAR, BORDER, BORDER, getProps.Width, getProps.Height);
+//	API_BITMAP_LAYOUT_H((getProps.Width * 2) >> 10, getProps.Height >> 9);
+//	API_BITMAP_SIZE_H(getProps.Width >> 9, getProps.Width >> 9);
 
 	API_BEGIN(BITMAPS);
 	API_VERTEX2F(x, y);
@@ -153,3 +165,4 @@ uint8_t cImg::append(uint32_t address)
 
 	return 0;
 }
+

@@ -364,13 +364,29 @@ void cProjectEditor::update()
 
 	if(refreshCover)
 	{
-		if(display.isImgLoaded())
+		if(refreshCover == 1 && coverDelay > 2000)
 		{
-			display.setControlShow(coverImg);
-			display.refreshControl(coverImg);
-			refreshCover = 0;
+			char path[PATCH_SIZE];
+			sprintf(path,"Projects/%s/cover", projectCoverName);
+
+			if(display.readImgFromSd(path))
+			{
+				refreshCover = 0;
+			}
+			else refreshCover = 2;
+		}
+		else if(refreshCover == 2)
+		{
+			if(display.isImgLoaded())
+			{
+				display.setControlShow(coverImg);
+				display.refreshControl(coverImg);
+				refreshCover = 0;
+			}
 		}
 	}
+
+
 
 }
 
@@ -400,14 +416,6 @@ void cProjectEditor::start(uint32_t options)
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
-	if((fileManager.currentProjectName[0] == 0) || ( newProjectNotSavedFlag == 1 ) )
-	{
-		showProjectCover(currentPatchProjectName);
-	}
-	else
-	{
-		showProjectCover(fileManager.currentProjectName);
-	}
 
 	//typedef void (cProjectEditor::*funct1) (void);
 	//funct1 = &cProjectEditor::functOpenProject;
@@ -419,6 +427,7 @@ void cProjectEditor::stop()
 {
 	moduleRefresh = 0;
 	projectOptions = 0;
+	refreshCover = 0;
 
 }
 
@@ -893,6 +902,8 @@ static uint8_t functSaveChangesCancelOpen()
 	PE->projectListActiveFlag = 0;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
+
+
 	return 1;
 }
 static uint8_t functSaveChangesDontSaveOpen()
@@ -1447,9 +1458,26 @@ static  uint8_t functEncoder(int16_t value)
 		{
 			if(PE->selectedLocation > 0 ) PE->selectedLocation--;
 		}
+
+		PE->refreshProjectCover(500);
+		strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);
 		display.refreshControl(PE->fileListControl);
 	}
 	return 1;
 }
+
+
+
+void cProjectEditor::refreshProjectCover(uint16_t delay_ms)
+{
+	if(delay_ms > 2000) delay_ms = 2000;
+
+	PE->refreshCover = 1;
+	PE->coverDelay = 2000-delay_ms;
+
+	display.setControlHide(coverImg);
+}
+
 

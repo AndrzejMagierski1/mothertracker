@@ -150,9 +150,10 @@ public:
 
 	// cover projektu
 	uint8_t refreshCover = 0;
-	void showProjectCover(char* projectName);
+	elapsedMillis coverDelay;
+	char projectCoverName[PROJECT_NAME_SIZE];
 	void hideProjectCover();
-
+	void refreshProjectCover(uint16_t delay_ms);
 };
 
 
