@@ -569,6 +569,9 @@ static uint8_t functOpenProject()
 
 	PE->showProjectsList();
 
+	PE->refreshProjectCover(100);
+	strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+
 
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
@@ -616,13 +619,14 @@ static uint8_t functSaveAsProject()
 	char localPatch[PATCH_SIZE];
 	uint16_t cnt=1;
 	if(fileManager.currentProjectName[0]) strcpy(PE->name,fileManager.currentProjectName);
-	else strcpy(PE->name,"Untitled");
+	else strcpy(PE->name,"New Project");
 	sprintf(localPatch,"Projects/%s",PE->name);
 
+/*
 	while(SD.exists(localPatch))
 	{
 	   if(fileManager.currentProjectName[0]) sprintf(PE->name,"%s%d",fileManager.currentProjectName,cnt);
-	   else sprintf(PE->name,"Untitled%d",cnt);
+	   else sprintf(PE->name,"New Project %d",cnt);
 	   sprintf(localPatch,"Projects/%s",PE->name);
 
 	   cnt++;
@@ -632,6 +636,8 @@ static uint8_t functSaveAsProject()
 		   break;
 	   }
 	}
+*/
+
 
 	PE->editPosition = strlen(PE->name);
 	PE->keyboardPosition = BACKSPACE_PAD_1;
@@ -1126,12 +1132,12 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 //
 //	char localPatch[PATCH_SIZE];
 //	uint16_t cnt=1;
-//	strcpy(PE->name,"Untitled");
+//	strcpy(PE->name,"New Project");
 //	sprintf(localPatch,"Projects/%s",PE->name);
 //
 //	while(SD.exists(localPatch))
 //	{
-//	   sprintf(PE->name,"Untitled%d",cnt);
+//	   sprintf(PE->name,"New Project%d",cnt);
 //	   sprintf(localPatch,"Projects/%s",PE->name);
 //
 //	   cnt++;
@@ -1198,7 +1204,13 @@ static  uint8_t functUp()
 	}
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation > 0 ) PE->selectedLocation--;
+		if(PE->selectedLocation > 0 )
+		{
+			PE->selectedLocation--;
+
+			PE->refreshProjectCover(300);
+			strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+		}
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);
 		display.refreshControl(PE->fileListControl);
 		return 1;
@@ -1216,7 +1228,13 @@ static  uint8_t functDown()
 	}
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation < PE->locationFilesCount-1 ) PE->selectedLocation++;
+		if(PE->selectedLocation < PE->locationFilesCount-1 )
+		{
+			PE->selectedLocation++;
+
+			PE->refreshProjectCover(300);
+			strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+		}
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);
 		display.refreshControl(PE->fileListControl);
 		return 1;
@@ -1459,7 +1477,7 @@ static  uint8_t functEncoder(int16_t value)
 			if(PE->selectedLocation > 0 ) PE->selectedLocation--;
 		}
 
-		PE->refreshProjectCover(500);
+		PE->refreshProjectCover(300);
 		strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
 
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);

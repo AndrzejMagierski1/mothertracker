@@ -38,8 +38,8 @@ void cProjectEditor::initDisplayControls()
 	prop2.x = 30;
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 600;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleRightX);
+	prop2.x = 769;
 	prop2.y = 12;
 	if(titleLabelProjectName == nullptr) titleLabelProjectName = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
@@ -199,21 +199,21 @@ void cProjectEditor::showDefaultScreen()
 	{
 
 		uint16_t i = 0;
-		strcpy(currentPatchProjectName,"Projects/Untitled");
+		strcpy(currentPatchProjectName,"Projects/New Project");
 		while((SD.exists(currentPatchProjectName)) && (i <= 9999))
 		{
 			i++;
-			sprintf(currentPatchProjectName,"Projects/Untitled%d",i);
+			sprintf(currentPatchProjectName,"Projects/New Project %d",i);
 		}
 
 		if(i == 0)
 		{
-			strcpy(projectCoverName, "Untitled");
-			display.setControlText(titleLabelProjectName, "Untitled");
+			strcpy(projectCoverName, "New Project");
+			display.setControlText(titleLabelProjectName, "New Project");
 		}
 		else
 		{
-			sprintf(projectCoverName, "Untitled%d", i);
+			sprintf(projectCoverName, "New Project %d", i);
 			display.setControlText(titleLabelProjectName, currentPatchProjectName);
 		}
 	}
@@ -269,7 +269,7 @@ void cProjectEditor::showDefaultScreen()
 	}
 	makeSmallBottomLabel(0);
 
-	refreshProjectCover(10);
+	refreshProjectCover(200);
 
 	display.synchronizeRefresh();
 }
@@ -278,7 +278,9 @@ void cProjectEditor::showDefaultScreen()
 void cProjectEditor::showProjectsList()
 {
 // lista
-	projectList.start = 0;
+	selectedLocation = 0;
+
+	projectList.start = selectedLocation;
 	projectList.length = locationFilesCount;
 	projectList.linesCount = 13;
 	projectList.data = filesNames;
@@ -420,6 +422,8 @@ void cProjectEditor::showSaveAsKeyboard()
 		display.refreshControl(bottomLabel[i]);
 	}
 
+	hideProjectCover();
+
 	showKeyboard();
 	showKeyboardEditName();
 	makeBigBottomLabel(0);
@@ -506,15 +510,15 @@ void cProjectEditor::showSaveLastWindow()
 	else
 	{
 		uint16_t i = 0;
-		strcpy(currentInfo,"Projects/Untitled");
+		strcpy(currentInfo,"Projects/New Project");
 		while((SD.exists(currentInfo)) && (i <= 9999))
 		{
 			i++;
-			sprintf(currentInfo,"Projects/Untitled%d",i);
+			sprintf(currentInfo,"Projects/New Project %d",i);
 		}
 
-		if(i == 0) strcpy(currentInfo,"Do you want to save the changes to \"Untitled\" ?");
-		else sprintf(currentInfo,"Do you want to save the changes to \"Untitled%d\" ?",i);
+		if(i == 0) strcpy(currentInfo,"Do you want to save the changes to \"New Project\" ?");
+		else sprintf(currentInfo,"Do you want to save the changes to \"New Project %d\" ?",i);
 	}
 
 	display.setControlText(selectWindowLabel, currentInfo);
