@@ -96,6 +96,8 @@ void cPatternEditor::update()
 {
 	if(patternRefreshTimer < 20) return;
 
+	patternRefreshTimer = 0;
+
 	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP ) return;
 
 	readPatternState();
@@ -116,7 +118,6 @@ void cPatternEditor::update()
 		lastPatternPosition = trackerPattern.playheadPosition;
 	}
 
-	patternRefreshTimer = 0;
 }
 
 

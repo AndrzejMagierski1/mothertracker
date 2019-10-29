@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 
+#include "SD.h"
 
 #include "displayControls.h"
 #include "trackerControl.h"
@@ -24,7 +25,7 @@
 #include "startScreenControl.h"
 #include "notePopoutControl.h"
 #include "textPopupControl.h"
-
+#include "imgControl.h"
 
 
 typedef cDisplayControl* hControl;
@@ -38,6 +39,10 @@ const uint8_t controlsCount = 55;
 const uint32_t controlsRamStartAddress = 100000;
 const uint32_t controlsRamAddressStep = 10000;
 
+const uint32_t imgRamAddress = 670000;
+const uint32_t imgSizeMax = 1000000-imgRamAddress;
+const int32_t imgBufforSize = 5000;
+
 const uint8_t displayFontCount = 2;
 const uint8_t displayBitmapsCount = 7;
 
@@ -46,7 +51,7 @@ const uint8_t controlsRefreshQueueSize = controlsCount+1;
 
 #define DISP_RGB(red,green,blue) ((((red)&255UL)<<16)|(((green)&255UL)<<8)|(((blue)&255UL)<<0))
 
-
+uint8_t get_jpeg_size(uint8_t* data, int32_t data_size, uint16_t *width, uint16_t *height);
 //#########################################################################
 //							KLASY
 //#########################################################################
@@ -120,8 +125,11 @@ public:
 	void setControlDefaultColors(hControl handle, uint32_t colorsTable[]);
 	void setControlData(hControl handle, void* data);
 
+	// jpg/png
+	uint8_t readImgFromSd(char* path);
+	void readImgFromMemory(uint8_t* data, uint32_t size);
+	uint8_t isImgLoaded() { return img.status == 3; }
 
-	void writeImageData(void* data);
 
 	/// grupowe
 	void hideAllControls();
@@ -171,6 +179,26 @@ private:
 
 	uint8_t rotateValue;
 	uint8_t lastRotateValue = 1;
+
+	//png/jpg
+	uint8_t loadImage = 0;
+
+	FsFile imgFile;
+
+	struct imgLoader
+	{
+		uint8_t  status = 0; // 0-1-2-3
+		uint8_t  loadProgress = 0;
+		uint32_t progressMax = 0;
+		uint8_t  type;
+		uint8_t* data;
+		uint32_t size;
+
+		uint32_t address;
+
+	} img;
+
+
 };
 
 

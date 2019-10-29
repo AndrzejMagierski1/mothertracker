@@ -3,6 +3,7 @@
 #include "mtLED.h"
 #include "mtFileManager.h"
 
+
 constexpr uint8_t BACKSPACE_PAD_1 = 10;
 constexpr uint8_t BACKSPACE_PAD_2 = 11;
 
@@ -26,6 +27,10 @@ static uint32_t popUpLabelColors[] =
 	0xFF0000, // ramka
 };
 
+
+
+constexpr uint32_t coverRamAddres = 670000;
+
 void cProjectEditor::initDisplayControls()
 {
 	strControlProperties prop2;
@@ -33,8 +38,8 @@ void cProjectEditor::initDisplayControls()
 	prop2.x = 30;
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 600;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleRightX);
+	prop2.x = 769;
 	prop2.y = 12;
 	if(titleLabelProjectName == nullptr) titleLabelProjectName = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
@@ -124,6 +129,16 @@ void cProjectEditor::initDisplayControls()
 	prop7.text = (char*)"";
 
 	if(popupLabel == nullptr)  popupLabel = display.createControl<cLabel>(&prop7);
+
+
+	strControlProperties prop8;
+
+	prop8.x = 500;
+	prop8.y = 220;
+	prop8.value = coverRamAddres;
+	prop8.style = (controlStyleCenterX | controlStyleCenterY);
+
+	if(coverImg == nullptr)  coverImg = display.createControl<cImg>(&prop8);
 }
 
 
@@ -168,6 +183,9 @@ void cProjectEditor::destroyDisplayControls()
 
 	display.destroyControl(popupLabel);
 	popupLabel = nullptr;
+
+	display.destroyControl(coverImg);
+	coverImg = nullptr;
 }
 
 void cProjectEditor::showDefaultScreen()
@@ -181,22 +199,27 @@ void cProjectEditor::showDefaultScreen()
 	{
 
 		uint16_t i = 0;
-		strcpy(currentPatchProjectName,"Projects/Untitled");
+		strcpy(currentPatchProjectName,"Projects/New Project");
 		while((SD.exists(currentPatchProjectName)) && (i <= 9999))
 		{
 			i++;
-			sprintf(currentPatchProjectName,"Projects/Untitled%d",i);
+			sprintf(currentPatchProjectName,"Projects/New Project %d",i);
 		}
 
-		if(i == 0) display.setControlText(titleLabelProjectName, "Untitled");
+		if(i == 0)
+		{
+			strcpy(projectCoverName, "New Project");
+			display.setControlText(titleLabelProjectName, "New Project");
+		}
 		else
 		{
-			sprintf(currentPatchProjectName,"Untitled%d",i);
+			sprintf(projectCoverName, "New Project %d", i);
 			display.setControlText(titleLabelProjectName, currentPatchProjectName);
 		}
 	}
 	else
 	{
+		strcpy(projectCoverName, fileManager.currentProjectName);
 		display.setControlText(titleLabelProjectName, fileManager.currentProjectName);
 	}
 
@@ -245,15 +268,19 @@ void cProjectEditor::showDefaultScreen()
 		makeBigBottomLabel(i);
 	}
 	makeSmallBottomLabel(0);
-	display.synchronizeRefresh();
 
+	refreshProjectCover(200);
+
+	display.synchronizeRefresh();
 }
 //==============================================================================================================
 
 void cProjectEditor::showProjectsList()
 {
 // lista
-	projectList.start = 0;
+	selectedLocation = 0;
+
+	projectList.start = selectedLocation;
 	projectList.length = locationFilesCount;
 	projectList.linesCount = 13;
 	projectList.data = filesNames;
@@ -395,6 +422,8 @@ void cProjectEditor::showSaveAsKeyboard()
 		display.refreshControl(bottomLabel[i]);
 	}
 
+	hideProjectCover();
+
 	showKeyboard();
 	showKeyboardEditName();
 	makeBigBottomLabel(0);
@@ -481,15 +510,15 @@ void cProjectEditor::showSaveLastWindow()
 	else
 	{
 		uint16_t i = 0;
-		strcpy(currentInfo,"Projects/Untitled");
+		strcpy(currentInfo,"Projects/New Project");
 		while((SD.exists(currentInfo)) && (i <= 9999))
 		{
 			i++;
-			sprintf(currentInfo,"Projects/Untitled%d",i);
+			sprintf(currentInfo,"Projects/New Project %d",i);
 		}
 
-		if(i == 0) strcpy(currentInfo,"Do you want to save the changes to \"Untitled\" ?");
-		else sprintf(currentInfo,"Do you want to save the changes to \"Untitled%d\" ?",i);
+		if(i == 0) strcpy(currentInfo,"Do you want to save the changes to \"New Project\" ?");
+		else sprintf(currentInfo,"Do you want to save the changes to \"New Project %d\" ?",i);
 	}
 
 	display.setControlText(selectWindowLabel, currentInfo);
@@ -594,4 +623,12 @@ void cProjectEditor::showExportWindow()
 	}
 	//refreshe są w make
 	display.synchronizeRefresh();
+}
+
+
+
+void cProjectEditor::hideProjectCover()
+{
+	 refreshCover = 0;
+	 display.setControlHide(coverImg);
 }

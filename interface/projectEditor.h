@@ -63,6 +63,7 @@ public:
 	hControl selectWindowLabel = nullptr;
 	hControl loadHorizontalBarControl = nullptr;
 	hControl popupLabel = nullptr;
+	hControl coverImg = nullptr;
 	uint32_t topLabelColors[3] =
 	{
 			0x3F3F3F, // tekst
@@ -145,6 +146,14 @@ public:
 	uint8_t projectListActiveFlag = 1;
 	char currentInfo[100];
 	char currentPatchProjectName[PATCH_SIZE];
+
+
+	// cover projektu
+	uint8_t refreshCover = 0;
+	elapsedMillis coverDelay;
+	char projectCoverName[PROJECT_NAME_SIZE];
+	void hideProjectCover();
+	void refreshProjectCover(uint16_t delay_ms);
 };
 
 
