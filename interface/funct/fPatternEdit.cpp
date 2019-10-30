@@ -388,17 +388,17 @@ void cPatternEditor::refreshPattern()
 						1);
 
 				sprintf(&trackerPattern.track[i].row[j].fx[0][1],
-						"%2.2x",
+						"%.3u",
 						seq->track[i].step[patternPosition - 7 + j].fx[1].value);
 
-				trackerPattern.track[i].row[j].fx[0][3] = 0;
+				//trackerPattern.track[i].row[j].fx[0][3] = '0';
 			}
 			else
 			{
 				trackerPattern.track[i].row[j].fx[0][0] = '-';
 				trackerPattern.track[i].row[j].fx[0][1] = '-';
 				trackerPattern.track[i].row[j].fx[0][2] = '-';
-				trackerPattern.track[i].row[j].fx[0][3] = 0;
+				trackerPattern.track[i].row[j].fx[0][3] = '-';
 			}
 			//--------------------------------------------------------------------------------------------
 			type_temp  = interfaceGlobals.fxIdToName(seq->track[i].step[patternPosition-7+j].fx[0].type);
@@ -413,17 +413,17 @@ void cPatternEditor::refreshPattern()
 						1);
 
 				sprintf(&trackerPattern.track[i].row[j].fx[1][1],
-						"%2.2x",
+						"%.3u",
 						seq->track[i].step[patternPosition - 7 + j].fx[0].value);
 
-				trackerPattern.track[i].row[j].fx[1][3] = 0;
+				//trackerPattern.track[i].row[j].fx[1][3] = '0';
 			}
 			else
 			{
 				trackerPattern.track[i].row[j].fx[1][0] = '-';
 				trackerPattern.track[i].row[j].fx[1][1] = '-';
 				trackerPattern.track[i].row[j].fx[1][2] = '-';
-				trackerPattern.track[i].row[j].fx[1][3] = 0;
+				trackerPattern.track[i].row[j].fx[1][3] = '-';
 			}
 		}
 	}
