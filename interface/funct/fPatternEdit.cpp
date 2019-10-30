@@ -42,14 +42,6 @@ static  uint8_t functFillChangeParam3();
 static  uint8_t functFillChangeParam4();
 
 
-static  uint8_t functRandomise();
-static  uint8_t functRandomiseCancel();
-static  uint8_t functRandomiseApply();
-static  uint8_t functRandomiseChangeParam1();
-static  uint8_t functRandomiseChangeParam2();
-static  uint8_t functRandomiseChangeParam3();
-static  uint8_t functRandomiseChangeParam4();
-
 static  uint8_t functInvert();
 static  uint8_t functTranspose();
 static  uint8_t functUndo();
@@ -163,7 +155,6 @@ void cPatternEditor::stop()
 //	setPatternChangeFlag();
 
 	if(fillState) fillState = 0;
-	if(randomiseState) randomiseState = 0;
 
 	padsBacklight.clearAllPads(1, 1, 1);
 
@@ -617,19 +608,6 @@ void cPatternEditor::cancelPopups()
 			functFill();
 		}
 
-		if(randomiseState)
-		{
-			if(popup_type == stepPopupInstr)
-			{
-				 if(editParam == 1)
-				 {
-					if (PTE->randomisePlace == 1) 		PTE->randomiseData[1].from = mtProject.values.lastUsedInstrument;
-					else if (PTE->randomisePlace == 2) 	PTE->randomiseData[1].to = mtProject.values.lastUsedInstrument;
-				 }
-			}
-			functRandomise();
-		}
-
 		refreshPattern();
 	}
 }
@@ -874,7 +852,7 @@ void cPatternEditor::changeFillData(int16_t value)
 	case 3:
 		ptrVal = &fillData[editParam].param;
 		min = (editParam == 0 ? 0 : -1);
-		max = (editParam == 0 ? interfaceGlobals.fillScaleFilterCount-1 : FX_COUNT);
+		max = (editParam == 0 ? 1 : FX_COUNT);
 		//value = value*(-1);
 		break;
 	case 5:
@@ -898,56 +876,6 @@ void cPatternEditor::changeFillData(int16_t value)
 		case 2:  refreshFillTo(); break;
 		case 3:  refreshFillParam(); break;
 		case 5:  refreshFillStep(); break;
-		default: return;
-	}
-}
-
-void cPatternEditor::changeRandomiseData(int16_t value)
-{
-	if(randomisePlace < 1 && randomisePlace > 5)
-	{
-		return;
-	}
-
-	uint16_t* ptrVal;
-	uint16_t min = 0, max;
-
-	switch(randomisePlace)
-	{
-	case 1:
-		ptrVal = &randomiseData[editParam].from;
-		max = (trackerPattern.selectedParam == 1 ? 63 : 127);
-		break;
-	case 2:
-		ptrVal = &randomiseData[editParam].to;
-		max = (editParam == 1 ? 63 : 127);
-		break;
-	case 3:
-		ptrVal = &randomiseData[editParam].param;
-		min = (editParam == 0 ? 0 : -1);
-		max = (editParam == 0 ? interfaceGlobals.fillScaleFilterCount-1 : FX_COUNT);
-		//value = value*(-1);
-		break;
-/*	case 5:
-		ptrVal = &randomiseStep;
-		min = 1;
-		max = PATTERN_EDIT_STEP_MAX;
-		break;
-*/
-	default: return;
-
-	}
-
-	if(*ptrVal + value < min) *ptrVal = min;
-	else if(*ptrVal + value > max) *ptrVal = max;
-	else *ptrVal += value;
-
-	switch(randomisePlace)
-	{
-		case 1:  refreshRandomiseFrom(); 	break;
-		case 2:  refreshRandomiseTo(); 		break;
-		case 3:  refreshRandomiseParam();	break;
-		case 5:  refreshRandomiseStep(); 	break;
 		default: return;
 	}
 }
@@ -977,8 +905,8 @@ void cPatternEditor::changneFillDataByPad(uint8_t pad)
 	}
 	case 5:
 	{
-		if(pad > PATTERN_EDIT_STEP_MAX) fillStep = PATTERN_EDIT_STEP_MAX;
-		else fillStep = pad;
+		if(pad-2 > PATTERN_EDIT_STEP_MAX) fillStep = PATTERN_EDIT_STEP_MAX;
+		else fillStep = pad-2;
 		break;
 	}
 	default: break;
@@ -995,41 +923,6 @@ void cPatternEditor::changneFillDataByPad(uint8_t pad)
 	}
 }
 
-void cPatternEditor::changneRandomiseDataByPad(uint8_t pad)
-{
-	switch(randomisePlace)
-	{
-	case 1:
-	{
-		if(editParam == 0) 		randomiseData[editParam].from = mtPadBoard.getNoteFromPad(pad);
-		else if(editParam == 1) randomiseData[editParam].from = pad;
-		else 					randomiseData[editParam].from = map(pad,0,47,0,127);
-		break;
-	}
-	case 2:
-	{
-		if(editParam == 0) 		randomiseData[editParam].to = mtPadBoard.getNoteFromPad(pad);
-		else if(editParam == 1) randomiseData[editParam].to = pad;
-		else 					randomiseData[editParam].to = map(pad,0,47,0,127);
-		break;
-	}
-	case 3:
-	{
-		if(editParam == 3) randomiseData[editParam].param = pad;
-		break;
-	}
-	default: break;
-	}
-
-	switch(randomisePlace)
-	{
-		case 1:  refreshRandomiseFrom(); 	break;
-		case 2:  refreshRandomiseTo(); 		break;
-		case 3:  refreshRandomiseParam();	break;
-		case 5:  refreshRandomiseStep(); 	break;
-		default: return;
-	}
-}
 
 void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 {
@@ -1184,11 +1077,6 @@ uint8_t functEncoder(int16_t value)
 		PTE->changeFillData(value);
 		return 1;
 	}
-	if(PTE->randomiseState > 0)
-	{
-		PTE->changeRandomiseData(value);
-		return 1;
-	}
 
 	if(PTE->selectedPlace >= 0)
 	{
@@ -1308,16 +1196,6 @@ static  uint8_t functLeft()
 		PTE->activateFillPopupBorder();
 		return 1;
 	}
-	if(PTE->randomiseState > 0)
-	{
-		if(PTE->randomisePlace > 1)
-		{
-			if(PTE->randomisePlace == 5) PTE->randomisePlace -= 2;
-			else PTE->randomisePlace--;
-			PTE->activateRandomisePopupBorder();
-		}
-		return 1;
-	}
 
 	if(PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
@@ -1385,16 +1263,6 @@ static  uint8_t functRight()
 		PTE->activateFillPopupBorder();
 		return 1;
 	}
-	if(PTE->randomiseState > 0)
-	{
-		if(PTE->randomisePlace < 5)
-		{
-			if(PTE->randomisePlace == 3) PTE->randomisePlace += 2;
-			else PTE->randomisePlace++;
-			PTE->activateRandomisePopupBorder();
-		}
-		return 1;
-	}
 
 	if(PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
@@ -1459,12 +1327,7 @@ static  uint8_t functUp()
 {
 	if(PTE->fillState > 0)
 	{
-		PTE->changeFillData((PTE->fillPlace == 0 || PTE->fillPlace == 3)? -1 : 1);
-		return 1;
-	}
-	if(PTE->randomiseState > 0)
-	{
-		PTE->changeRandomiseData((PTE->randomisePlace == 3)? -1 : 1);
+		PTE->changeFillData((PTE->fillPlace == 1 || PTE->fillPlace == 2)? 1 : -1);
 		return 1;
 	}
 
@@ -1551,12 +1414,7 @@ static  uint8_t functDown()
 {
 	if(PTE->fillState > 0)
 	{
-		PTE->changeFillData((PTE->fillPlace == 0 || PTE->fillPlace == 3)? 1 : -1);
-		return 1;
-	}
-	if(PTE->randomiseState > 0)
-	{
-		PTE->changeRandomiseData((PTE->randomisePlace == 3)? 1 : -1);
+		PTE->changeFillData((PTE->fillPlace == 1 || PTE->fillPlace == 2)? -1 : 1);
 		return 1;
 	}
 
@@ -1642,11 +1500,6 @@ static  uint8_t functNote(uint8_t state)
 			PTE->showFillPopup();
 			return 1;
 		}
-		if(PTE->randomiseState > 0)
-		{
-			PTE->showRandomisePopup();
-			return 1;
-		}
 
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
@@ -1711,12 +1564,6 @@ static  uint8_t functInstrument(uint8_t state)
 			PTE->showFillPopup();
 			return 1;
 		}
-		if(PTE->randomiseState > 0)
-		{
-			PTE->wasNotesEditBefore = 0;
-			PTE->showRandomisePopup();
-			return 1;
-		}
 
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
@@ -1778,11 +1625,6 @@ static  uint8_t functVolume(uint8_t state)
 			PTE->showFillPopup();
 			return 1;
 		}
-		if(PTE->randomiseState > 0)
-		{
-			PTE->showRandomisePopup();
-			return 1;
-		}
 
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
@@ -1828,11 +1670,6 @@ static  uint8_t functFx1(uint8_t state)
 			PTE->showFillPopup();
 			return 1;
 		}
-		if(PTE->randomiseState > 0)
-		{
-			PTE->showRandomisePopup();
-			return 1;
-		}
 
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
@@ -1850,7 +1687,7 @@ static  uint8_t functFx1(uint8_t state)
 			&& !tactButtons.isButtonPressed(interfaceButtonPattern)
 			&& !PTE->dontShowPopupsUntilButtonRelease)
 	{
-		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
+		if(PTE->fillState == 1) return 1;
 
 		PTE->FM->clearButton(interfaceButtonFx1);
 
@@ -1889,11 +1726,6 @@ static  uint8_t functFx2(uint8_t state)
 			PTE->showFillPopup();
 			return 1;
 		}
-		if(PTE->randomiseState > 0)
-		{
-			PTE->showRandomisePopup();
-			return 1;
-		}
 
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
@@ -1911,7 +1743,7 @@ static  uint8_t functFx2(uint8_t state)
 			&& !tactButtons.isButtonPressed(interfaceButtonPattern)
 			&& !PTE->dontShowPopupsUntilButtonRelease)
 	{
-		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
+		if(PTE->fillState == 1) return 1;
 
 		PTE->FM->clearButton(interfaceButtonFx2);
 
@@ -1939,7 +1771,7 @@ static  uint8_t functPattern(uint8_t state)
 	{
 		PTE->disabledPatternButtonRelease = 0;
 
-		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
+		if(PTE->fillState == 1) return 1;
 
 		PTE->cancelPopups();
 
@@ -1997,7 +1829,7 @@ static  uint8_t functPlayAction()
 
 static  uint8_t functRecAction()
 {
-	if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
+	if(PTE->fillState == 1) return 1;
 
 	PTE->editMode = !PTE->editMode;
 
@@ -2520,125 +2352,6 @@ static  uint8_t functFillChangeParam4()
 
 
 //##############################################################################################
-//###############################            RANDOM            #################################
-//##############################################################################################
-static  uint8_t functRandomise()
-{
-	PTE->randomiseState = 1;
-
-	PTE->focusOnPattern();
-
-	PTE->showRandomisePopup();
-
-	PTE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-
-	PTE->FM->setButtonObj(interfaceButton6, buttonPress, functRandomiseCancel);
-	PTE->FM->setButtonObj(interfaceButton7, buttonPress, functRandomiseApply);
-
-	PTE->FM->setButtonObj(interfaceButton1, buttonPress, functRandomiseChangeParam1);
-	PTE->FM->setButtonObj(interfaceButton2, buttonPress, functRandomiseChangeParam2);
-	PTE->FM->setButtonObj(interfaceButton3, buttonPress, functRandomiseChangeParam3);
-	//PTE->FM->setButtonObj(interfaceButton5, buttonPress, functRandomiseChangeParam4);
-
-	return 1;
-}
-
-static  uint8_t functRandomiseCancel()
-{
-	PTE->randomiseState = 0;
-	PTE->selectedPlace = -1;
-
-	PTE->hideRandomisePopup();
-
-	PTE->start(0);
-
-	return 1;
-}
-
-static  uint8_t functRandomiseApply()
-{
-	// zatwierdzanie wypelnienia
-	if(PTE->randomiseState)
-	{
-		fileManager.setPatternChangeFlag();
-		fileManager.storePatternUndoRevision();
-		cPatternEditor::strRandomise * randomiseData = &PTE->randomiseData[PTE->editParam];
-		//(void) PTE->randomiseData[PTE->editParam];
-		//(void) PTE->randomiseStep;
-		// PTE->randomiseData[x]	<= przechowuje dane do konfiguracji randomise
-		// x - (0-3)(PTE->editParam) - co wypelnia - nuta , instr , vol , fx
-		//							from	 = pierwsza wartosc (0-127 - nuty/vol/fx_val , 0-47 instr)
-		//							to		 = druga wartosc (jesli potrzebna)
-		//							param	 = scala yes/no (0-1) albo typ efektu (0-xx)
-		//
-		// PTE->randomiseStep 		<= krok dla filowania
-		// PTE->editParam			<= nuta / instr / vol / fx
-		//--------------------------------------------------------
-		//TU
-		sendSelection();
-		switch (PTE->editParam)
-		{
-		case 0:
-//			sequencer.randomSelectedNotes(randomiseData->from,
-//											randomiseData->to,
-//											randomiseData->param);
-			break;
-		case 1:
-//			sequencer.randomSelectedInstruments(randomiseData->from,
-//												randomiseData->to);
-			break;
-		case 2:
-//			sequencer.randomSelectedVelo(randomiseData->from,
-//											randomiseData->to);
-			break;
-
-		break;
-		}
-
-
-
-
-		//--------------------------------------------------------
-		functRandomiseCancel();
-	}
-	return 1;
-}
-
-static  uint8_t functRandomiseChangeParam1()
-{
-	PTE->randomisePlace = 1;
-	PTE->activateRandomisePopupBorder();
-
-	return 1;
-}
-
-static  uint8_t functRandomiseChangeParam2()
-{
-	PTE->randomisePlace = 2;
-	PTE->activateRandomisePopupBorder();
-
-	return 1;
-}
-
-static  uint8_t functRandomiseChangeParam3()
-{
-	PTE->randomisePlace = 3;
-	PTE->activateRandomisePopupBorder();
-
-	return 1;
-}
-
-/*
-static  uint8_t functRandomiseChangeParam4()
-{
-	PTE->randomisePlace = 5;
-	PTE->activateRandomisePopupBorder();
-
-	return 1;
-}
-*/
-
-//##############################################################################################
 //###############################            INVERT            #################################
 //##############################################################################################
 static uint8_t functInvert()
@@ -2904,50 +2617,8 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		if(state == buttonPress) PTE->changneFillDataByPad(pad);
 		return 1;
 	}
-	if(PTE->randomiseState > 0)
-	{
-		if(state == buttonPress) PTE->changneRandomiseDataByPad(pad);
-		return 1;
-	}
 
-
-//<<<<<<< HEAD
-//	//czy parametr widoczny jesli np. pokazywane tylko 2 parametry 8 trackow - jesli nie to blokuje jego zmiane
-//=======
-	// obsługa przycisków pod ekranem
-//	if (PTE->selectedPlace >= 0)
-//	{
-//		fileManager.setPatternChangeFlag();
-//		fileManager.storePatternUndoRevision();
-//
-//		switch (PTE->selectedPlace)
-//		{
-//		case 0:
-////			sequencer.setTempo(map((float) pad, 0, 47, 10, 480));
-////			PTE->showTempo();
-//			break;
-//		case 1:
-//			PTE->setActualPattern(pad+1);
-//			PTE->showPattern();
-//			break;
-//		case 2:
-//			PTE->setActualPatternLength(map(pad, 0, 47, 3, 191));
-//			PTE->showLength();
-//			break;
-//		case 3:
-//			PTE->setActualPatternEditStep(pad);
-//			PTE->showStep();
-//			break;
-//		}
-//
-//		return 1;
-//	}
-
-
-	//czy parametr widoczny jesli np. pokazywane tylko 2 parametry 8 trackow
-//>>>>>>> fx_x2
 	if(PTE->patternViewMode > 0 && !(PTE->patternViewMode & (1 << PTE->editParam))) return 1;
-
 
 	// wprowadzanie danych
 	if (PTE->editMode == 1)
@@ -2987,17 +2658,8 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			break;
 		}
 
-		case 2: // volume // todo: sprzatanie
-//		{
-//			if (state == buttonPress)
-//			{
-//				sendSelection();
-//				sequencer.setSelectionVelocity(map(pad, 0, 47, 0, 127));
-//			}
-//			break;
-//		}
-
-		case 3: //fx
+		case 2: // fx1
+		case 3: // fx2
 		{
 			if (state == buttonPress)
 			{
@@ -3085,15 +2747,6 @@ void cPatternEditor::setPatternViewMode(uint8_t param)
 		return;
 	}
 
-/*
-	uint8_t bSate[5];
-	bSate[0] = 0;
-	bSate[1] = tactButtons.isButtonPressed(interfaceButtonNote);
-	bSate[2] = tactButtons.isButtonPressed(interfaceButtonInstr);
-	bSate[3] = tactButtons.isButtonPressed(interfaceButtonVol);
-	bSate[4] = tactButtons.isButtonPressed(interfaceButtonFx);
-	if(selectedParams[0] == 0 || (selectedParams[0] > 0 && bSate[selectedParams[0]] == 0))
-*/
 	if(selectedParams[0] == 0 || (selectedParams[0] > 0 && tactButtons.isButtonPressed((interfaceButtonNote-1)+selectedParams[0]) == 0))
 	{
 		selectedParams[0] = param;
@@ -3130,7 +2783,7 @@ static uint8_t functSwitchModule(uint8_t button)
 		Sequencer::strPattern* seq = sequencer.getPatternToUI();
 		Sequencer::strPattern::strTrack::strStep *actualStep = &seq->track[PTE->trackerPattern.actualTrack].
 				step[PTE->trackerPattern.actualStep];
-		// todo: lastusedthings
+
 		if (actualStep->note >= 0)
 		{
 			mtProject.values.lastUsedNote = actualStep->note;
@@ -3139,16 +2792,18 @@ static uint8_t functSwitchModule(uint8_t button)
 					0,
 					INSTRUMENTS_MAX+16);
 		}
-//		if (actualStep->velocity >= 0)
-//		{
-//			mtProject.values.lastUsedVolume = actualStep->velocity;
-//		}
+		/*
+		// fx znacza cos tylko w paternie wiec po co je zmieniac prxzyz wychodzeniu do innych modolow
 		if (actualStep->fx[0].type > 0)
 		{
 			mtProject.values.lastUsedFx = actualStep->fx[0].type;
 		}
+		else if (actualStep->fx[1].type > 0)
+		{
+			mtProject.values.lastUsedFx = actualStep->fx[1].type;
+		}
+		*/
 	}
-
 
 	PTE->eventFunct(eventSwitchModule,PTE,&button,0);
 
