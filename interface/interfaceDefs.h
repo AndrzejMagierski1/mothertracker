@@ -257,34 +257,7 @@ struct strInterfaceGlobals
 	char *ptrIntrumentsNames[INSTRUMENTS_COUNT+16];
 
 //-----------------------------------------------------
-	static const uint8_t fillTypeListCount = 3;
-	static const uint8_t fillScaleFilterCount = 2;
 
-	const char fillTypeListLabels[fillTypeListCount][11] =
-	{
-			"Constant",
-			"From-To",
-			"Random",
-	};
-
-	const char fillScaleFilterLabels[fillScaleFilterCount][5] =
-	{
-			"Yes",
-			"No",
-	};
-
-	const char* ptrfillTypeListNames[fillTypeListCount] =
-	{
-			&fillTypeListLabels[0][0],
-			&fillTypeListLabels[1][0],
-			&fillTypeListLabels[2][0],
-	};
-
-	const char* ptrfillScaleFilterNames[fillScaleFilterCount] =
-	{
-			&fillScaleFilterLabels[0][0],
-			&fillScaleFilterLabels[1][0],
-	};
 
 //-----------------------------------------------------
 	uint8_t fxIdToName(uint8_t id)

@@ -67,16 +67,75 @@ static uint32_t inactiveLabelsColors[] =
 	0x555555, // tło
 	0xFF0000, // ramka
 };
-
+//------------------------------------------------------------
 static const uint8_t trackMasterModeCount = 2;
 static const char trackMasterLabels[trackMasterModeCount][5] =
 {
 	"On",
 	"Off",
 };
+//------------------------------------------------------------
+static const uint8_t fillTypeListCount = 3;
+const char fillTypeListLabels[fillTypeListCount][11] =
+{
+		"Constant",
+		"From-To",
+		"Random",
+};
+const char* ptrfillTypeListNames[fillTypeListCount] =
+{
+		&fillTypeListLabels[0][0],
+		&fillTypeListLabels[1][0],
+		&fillTypeListLabels[2][0],
+};
+//------------------------------------------------------------
+static const uint8_t fillScaleFilterCount = 2;
+const char fillScaleFilterLabels[fillScaleFilterCount][5] =
+{
+		"Yes",
+		"No",
+};
+const char* ptrfillScaleFilterNames[fillScaleFilterCount] =
+{
+		&fillScaleFilterLabels[0][0],
+		&fillScaleFilterLabels[1][0],
+};
+//------------------------------------------------------------
+static const uint8_t fillStepCount = 13;
+const char fillStepLabels[fillStepCount][11] =
+{
+		"Empty",
+		"Occupied",
+		"Random",
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"10",
+};
 
-
-
+const char* ptrfillStepNames[fillStepCount] =
+{
+		&fillStepLabels[0][0],
+		&fillStepLabels[1][0],
+		&fillStepLabels[2][0],
+		&fillStepLabels[3][0],
+		&fillStepLabels[4][0],
+		&fillStepLabels[5][0],
+		&fillStepLabels[6][0],
+		&fillStepLabels[7][0],
+		&fillStepLabels[8][0],
+		&fillStepLabels[9][0],
+		&fillStepLabels[10][0],
+		&fillStepLabels[11][0],
+		&fillStepLabels[12][0],
+};
+//------------------------------------------------------------
 
 
 void cPatternEditor::initDisplayControls()
@@ -151,6 +210,14 @@ void cPatternEditor::initDisplayControls()
 	prop.data = &fillScaleFilterList;
 	if(param2PopupListControl == nullptr)  param2PopupListControl = display.createControl<cList>(&prop);
 
+	// lista 3
+	prop.x = (800/8)*(5)+5;
+	prop.y = 8*28 + 122;
+	prop.w = 800/8-10;
+	prop.h = 25;
+	prop.data = &fillStepList;
+	if(param3PopupListControl == nullptr)  param3PopupListControl = display.createControl<cList>(&prop);
+
 	// label val1
 	prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
 	prop.colors =  patternLabelColors;
@@ -167,14 +234,6 @@ void cPatternEditor::initDisplayControls()
 	prop.w = 800/8-10;
 	prop.h = 28;
 	if(val2PopupLabel == nullptr)  val2PopupLabel = display.createControl<cLabel>(&prop);
-
-	// label val3
-	prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
-	prop.x = (800/8)*(5)+(800/16);
-	prop.y = 8*28 + 130;
-	prop.w = 800/8-10;
-	prop.h = 28;
-	if(val3PopupLabel == nullptr)  val3PopupLabel = display.createControl<cLabel>(&prop);
 
 	// label tla
 	prop.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleNoTransparency );
@@ -233,8 +292,8 @@ void cPatternEditor::destroyDisplayControls()
 	display.destroyControl(val2PopupLabel);
 	val2PopupLabel = nullptr;
 
-	display.destroyControl(val3PopupLabel);
-	val3PopupLabel = nullptr;
+	display.destroyControl(param3PopupListControl);
+	param3PopupListControl = nullptr;
 
 	display.destroyControl(param2PopupListControl);
 	param2PopupListControl = nullptr;
@@ -447,10 +506,10 @@ void cPatternEditor::showFillPopup()
 {
 	//------------------------------
 	// typ
-	fillTypeList.linesCount = interfaceGlobals.fillTypeListCount;
+	fillTypeList.linesCount = fillTypeListCount;
 	fillTypeList.start = fillData[editParam].type;
-	fillTypeList.length = interfaceGlobals.fillTypeListCount;
-	fillTypeList.data = (char**)(&interfaceGlobals.ptrfillTypeListNames);
+	fillTypeList.length = fillTypeListCount;
+	fillTypeList.data = (char**)(&ptrfillTypeListNames);
 
 	display.setControlData(param1PopupListControl, &fillTypeList);
 	display.setControlValue(param1PopupListControl, fillData[editParam].type);
@@ -523,10 +582,10 @@ void cPatternEditor::showFillPopup()
 	// skala
 	if(editParam == 0)
 	{
-		fillScaleFilterList.linesCount = interfaceGlobals.fillScaleFilterCount;
+		fillScaleFilterList.linesCount = fillScaleFilterCount;
 		fillScaleFilterList.start = fillData[editParam].param;
-		fillScaleFilterList.length = interfaceGlobals.fillScaleFilterCount;
-		fillScaleFilterList.data = (char**)(&interfaceGlobals.ptrfillScaleFilterNames);
+		fillScaleFilterList.length = fillScaleFilterCount;
+		fillScaleFilterList.data = (char**)(&ptrfillScaleFilterNames);
 
 		display.setControlData(param2PopupListControl, &fillScaleFilterList);
 		display.setControlValue(param2PopupListControl, fillData[editParam].param);
@@ -564,26 +623,16 @@ void cPatternEditor::showFillPopup()
 	//------------------------------
 	// step
 
-	fillText3[0] = 0;
-	if (fillStep == 0)
-	{
-		sprintf(fillText3, "%s", "random");
-	}
-	else if (fillStep == -1)
-	{
-		sprintf(fillText3, "%s", "occupied");
-	}
-	else if (fillStep == -2)
-	{
-		sprintf(fillText3, "%s", "empty");
-	}
-	else
-	{
-		sprintf(fillText3, "%d", fillStep);
-	}
+	fillStepList.linesCount = 7;
+	fillStepList.start = fillStep+2;
+	fillStepList.length = fillStepCount;
+	fillStepList.data = (char**)(&ptrfillStepNames);
 
-	display.setControlText(val3PopupLabel, fillText3);
-	display.setControlShow(val3PopupLabel);
+	display.setControlData(param3PopupListControl, &fillStepList);
+	//display.setControlValue(param3PopupListControl, fillStep+2);
+	display.setControlShow(param3PopupListControl);
+	//display.setControlSize(param3PopupListControl, 800/8-10, 25);
+
 
 	display.setControlText(bottomLabel[5], "Step");
 	display.setControlText(bottomLabel[4], "");
@@ -617,7 +666,7 @@ void cPatternEditor::showFillPopup()
 	display.refreshControl(param1PopupListControl);
 	display.refreshControl(val1PopupLabel);
 	display.refreshControl(val2PopupLabel);
-	display.refreshControl(val3PopupLabel);
+	display.refreshControl(param3PopupListControl);
 	display.refreshControl(param2PopupListControl);
 
 	display.setControlShow(patternPopupLabel);
@@ -749,27 +798,11 @@ void cPatternEditor::refreshFillStep()
 {
 	//------------------------------
 	// step
-	fillText3[0]  = 0;
-	if (fillStep == 0)
-	{
-		sprintf(fillText3, "%s", "random");
-	}
-	else if (fillStep == -1)
-	{
-		sprintf(fillText3, "%s", "occupied");
-	}
-	else if (fillStep == -2)
-	{
-		sprintf(fillText3, "%s", "empty");
-	}
-	else
-	{
-		sprintf(fillText3, "%d", fillStep);
-	}
-	display.setControlText(val3PopupLabel, fillText3);
-	display.setControlText(bottomLabel[5], "Step");
+	//Serial.println(fillStep+2);
+	display.setControlValue(param3PopupListControl, fillStep+2);
+	//display.setControlText(bottomLabel[5], "Step");
 
-	display.refreshControl(val3PopupLabel);
+	display.refreshControl(param3PopupListControl);
 }
 
 void cPatternEditor::hideFillPopup()
@@ -777,7 +810,7 @@ void cPatternEditor::hideFillPopup()
 	display.setControlHide(param1PopupListControl);
 	display.setControlHide(val1PopupLabel);
 	display.setControlHide(val2PopupLabel);
-	display.setControlHide(val3PopupLabel);
+	display.setControlHide(param3PopupListControl);
 	display.setControlHide(param2PopupListControl);
 
 //	display.refreshControl(param1PopupListControl);
@@ -790,281 +823,6 @@ void cPatternEditor::hideFillPopup()
 //	display.refreshControl(patternPopupLabel);
 }
 //
-
-
-//##############################################################################################
-//###############################            RANDOM            #################################
-//##############################################################################################
-
-void cPatternEditor::showRandomisePopup()
-{
-	//------------------------------
-	// from
-	fillText1[0]  = 0;
-	if(editParam == 0)
-	{
-		display.setControlText(val1PopupLabel, (char*)&mtNotes[randomiseData[editParam].from][0]);
-
-	}
-	else if (editParam == 1)
-	{
-		if(randomiseData[editParam].from < INSTRUMENTS_COUNT)
-			sprintf(fillText1, "%d", (randomiseData[editParam].from+1));
-		else
-			sprintf(fillText1, "%d", (randomiseData[editParam].from+3));
-
-		display.setControlText(val1PopupLabel, fillText1);
-	}
-	else if(editParam == 2 || editParam == 3)
-	{
-		sprintf(fillText1, "%d", (randomiseData[editParam].from));
-		display.setControlText(val1PopupLabel, fillText1);
-	}
-	display.setControlShow(val1PopupLabel);
-	display.setControlText(bottomLabel[1], "From");
-
-	//------------------------------
-	// to
-	fillText2[0]  = 0;
-	if(editParam == 0)
-	{
-		display.setControlText(val2PopupLabel, (char*)&mtNotes[randomiseData[editParam].to][0]);
-	}
-	else if (editParam == 1)
-	{
-		if(randomiseData[editParam].to < INSTRUMENTS_COUNT)
-			sprintf(fillText2, "%d", (randomiseData[editParam].to+1));
-		else
-			sprintf(fillText2, "%d", (randomiseData[editParam].to+3));
-
-		display.setControlText(val2PopupLabel, fillText2);
-	}
-	else if(editParam == 2 || editParam == 3)
-	{
-		sprintf(fillText2, "%d", (randomiseData[editParam].to));
-		display.setControlText(val2PopupLabel, fillText2);
-	}
-
-	display.setControlText(bottomLabel[2], "To");
-	display.setControlShow(val2PopupLabel);
-
-	//------------------------------
-	// skala
-	if(editParam == 0)
-	{
-
-		fillScaleFilterList.linesCount = interfaceGlobals.fillScaleFilterCount;
-		fillScaleFilterList.start = randomiseData[editParam].param;
-		fillScaleFilterList.length = interfaceGlobals.fillScaleFilterCount;
-		fillScaleFilterList.data = (char**)(&interfaceGlobals.ptrfillScaleFilterNames);
-
-		display.setControlData(param2PopupListControl, &fillScaleFilterList);
-		display.setControlValue(param2PopupListControl, randomiseData[editParam].param);
-		display.setControlShow(param2PopupListControl);
-		display.setControlSize(param2PopupListControl, 800/8-10, 25);
-
-		display.setControlText(bottomLabel[3], "In Scale");
-
-		frameData.places[3] = &framesPopupPlaces[3][0];
-	}
-	//------------------------------
-	// fx
-	else if(editParam == 3 || editParam == 2)
-	{
-		fillFxTypeList.linesCount = 7;
-		fillFxTypeList.start = randomiseData[editParam].param+1;
-		fillFxTypeList.length = FX_COUNT+1;
-		fillFxTypeList.data = (char**)(&interfaceGlobals.ptrAllFxNames);
-
-		display.setControlData(param2PopupListControl, &fillFxTypeList);
-		display.setControlValue(param2PopupListControl, randomiseData[editParam].param+1);
-		display.setControlShow(param2PopupListControl);
-		display.setControlSize(param2PopupListControl, 800/4-10, 25);
-
-		display.setControlText(bottomLabel[3], "Fx Type");
-
-		frameData.places[3] = &framesPopupPlaces[4][0];
-	}
-	else
-	{
-		display.setControlHide(param2PopupListControl);
-		display.setControlText(bottomLabel[3], "");
-	}
-
-	//------------------------------
-	// step
-/*
-	fillText3[0]  = 0;
-	sprintf(fillText3, "%d", randomiseStep);
-
-	display.setControlText(val3PopupLabel, fillText3);
-	display.setControlShow(val3PopupLabel);
-
-	display.setControlText(bottomLabel[5], "Step");
-	display.setControlText(bottomLabel[4], "");
-
-*/
-
-	switch(editParam)
-	{
-	case 0:
-		display.setControlText(patternPopupLabel, "Randomise Notes");
-		break;
-	case 1:
-		display.setControlText(patternPopupLabel, "Randomise Instruments");
-		break;
-	case 2:
-		display.setControlText(patternPopupLabel, "Randomise Fx 1");
-		break;
-	case 3:
-		display.setControlText(patternPopupLabel, "Randomise Fx 2");
-		break;
-
-	default:
-		display.setControlText(patternPopupLabel, "Randomise");
-		break;
-	}
-
-
-	display.setControlText(bottomLabel[0], "");
-	display.setControlText(bottomLabel[6], "Cancel");
-	display.setControlText(bottomLabel[7], "Randomise");
-
-	display.refreshControl(param1PopupListControl);
-	display.refreshControl(val1PopupLabel);
-	display.refreshControl(val2PopupLabel);
-	display.refreshControl(val3PopupLabel);
-	display.refreshControl(param2PopupListControl);
-
-	display.setControlShow(patternPopupLabel);
-	display.refreshControl(patternPopupLabel);
-
-	for(uint8_t i = 0; i < 8; i++)
-	{
-		//display.setControlText(topLabel[i], "");
-		display.setControlHide(topLabel[i]);
-		display.setControlShow(bottomLabel[i]);
-		//display.refreshControl(topLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-	}
-
-	frameData.places[0] = &framesPopupPlaces[0][0];
-	frameData.places[1] = &framesPopupPlaces[1][0];
-	frameData.places[2] = &framesPopupPlaces[2][0];
-	// 3 zmienna
-	frameData.places[4] = &framesPopupPlaces[5][0];
-	frameData.places[5] = &framesPopupPlaces[6][0];
-	frameData.places[6] = &framesPopupPlaces[7][0];
-	frameData.places[7] = &framesPopupPlaces[8][0];
-
-	activateRandomisePopupBorder();
-
-	display.synchronizeRefresh();
-}
-
-void cPatternEditor::refreshRandomiseFrom()
-{
-	fillText1[0]  = 0;
-	if(editParam == 0)
-	{
-		display.setControlText(val1PopupLabel, (char*)&mtNotes[randomiseData[editParam].from][0]);
-	}
-	else if (editParam == 1)
-	{
-		if(randomiseData[editParam].from < INSTRUMENTS_COUNT)
-			sprintf(fillText1, "%d", (randomiseData[editParam].from+1));
-		else
-			sprintf(fillText1, "%d", (randomiseData[editParam].from+3));
-
-		display.setControlText(val1PopupLabel, fillText1);
-	}
-	else if(editParam == 2 || editParam == 3)
-	{
-		sprintf(fillText1, "%d", (randomiseData[editParam].from));
-		display.setControlText(val1PopupLabel, fillText1);
-	}
-
-	display.refreshControl(val1PopupLabel);
-	//display.refreshControl(bottomLabel[1]);
-}
-
-void cPatternEditor::refreshRandomiseTo()
-{
-	fillText2[0]  = 0;
-	if(editParam == 0)
-	{
-		display.setControlText(val2PopupLabel, (char*)&mtNotes[randomiseData[editParam].to][0]);
-	}
-	else if (editParam == 1)
-	{
-		if(randomiseData[editParam].to < INSTRUMENTS_COUNT)
-			sprintf(fillText2, "%d", (randomiseData[editParam].to+1));
-		else
-			sprintf(fillText2, "%d", (randomiseData[editParam].to+3));
-
-		display.setControlText(val2PopupLabel, fillText2);
-	}
-	else if(editParam == 2 || editParam == 3)
-	{
-		sprintf(fillText2, "%d", (randomiseData[editParam].to));
-		display.setControlText(val2PopupLabel, fillText2);
-	}
-
-	display.refreshControl(val2PopupLabel);
-	//display.refreshControl(bottomLabel[2]);
-}
-
-void cPatternEditor::refreshRandomiseParam()
-{
-	if(editParam == 0)
-	{
-		display.setControlValue(param2PopupListControl, randomiseData[editParam].param);
-		display.setControlText(bottomLabel[3], "In Scale");
-	}
-	else if(editParam == 3 || editParam == 2)
-	{
-		display.setControlValue(param2PopupListControl, randomiseData[editParam].param+1);
-		display.setControlText(bottomLabel[3], "Fx Type");
-	}
-	else
-	{
-		display.setControlText(bottomLabel[3], " ");
-	}
-
-	//display.refreshControl(bottomLabel[3]);
-	display.refreshControl(param2PopupListControl);
-}
-
-void cPatternEditor::refreshRandomiseStep()
-{
-	//------------------------------
-	// step
-/*	fillText3[0]  = 0;
-	sprintf(fillText3, "%d", randomiseStep);
-	display.setControlText(val3PopupLabel, fillText3);
-	display.setControlText(bottomLabel[5], "Step");
-
-	display.refreshControl(val3PopupLabel);
-*/
-}
-
-void cPatternEditor::hideRandomisePopup()
-{
-//	display.setControlHide(param1PopupListControl);
-	display.setControlHide(val1PopupLabel);
-	display.setControlHide(val2PopupLabel);
-	display.setControlHide(val3PopupLabel);
-	display.setControlHide(param2PopupListControl);
-
-//	display.refreshControl(param1PopupListControl);
-//	display.refreshControl(val1PopupLabel);
-//	display.refreshControl(val2PopupLabel);
-//	display.refreshControl(val3PopupLabel);
-//	display.refreshControl(param2PopupListControl);
-
-	display.setControlHide(patternPopupLabel);
-//	display.refreshControl(patternPopupLabel);
-}
 
 
 //##############################################################################################
@@ -1087,19 +845,6 @@ void cPatternEditor::activateFillPopupBorder()
 }
 
 
-void cPatternEditor::activateRandomisePopupBorder()
-{
-	if(randomisePlace < 0 || randomisePlace > frameData.placesCount-1)
-	{
-		display.setControlHide(frameControl);
-		display.refreshControl(frameControl);
-		return;
-	}
-
-	display.setControlValue(frameControl, randomisePlace);
-	display.setControlShow(frameControl);
-	display.refreshControl(frameControl);
-}
 
 
 void cPatternEditor::activateLabelsBorder()

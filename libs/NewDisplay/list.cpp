@@ -439,11 +439,14 @@ uint8_t cList::update()
 						}
 					}
 
+					int8_t table_offset = textListPos - 1;
+					if(table_offset  < 0) table_offset = 0;
+
 					API_CMD_TEXT(x_pos,
 							y_pos + (i * height),
 							textFont,
 							textStyle | OPT_CENTERY,
-							*(list->data + i + textListPos -1) );
+							*(list->data + i + table_offset) );
 
 					if(list->icon.useSpecialIcons)
 					{

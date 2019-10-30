@@ -14,8 +14,8 @@ struct strTrackerPattern
 			char note[5] = "";
 			char instr[4] = ""; // ostatni znak jako flaga midi
 			char vol[3] = "";
-			char fx[2][4] = {"",""};
-		} row[21];
+			char fx[2][5] = {"",""};
+		} row[15];
 
 	} track[8];
 
@@ -47,7 +47,7 @@ struct strTrackerPattern
 // ilosc znakow parametru
 const uint8_t param_length[4] =
 {
-	3, 2, 3, 3
+	3, 2, 4, 4
 };
 
 
@@ -106,8 +106,12 @@ private:
 	uint8_t columnsCount;
 	uint8_t paramCount;
 
+	uint8_t rightOffset;
+	uint8_t leftOffset;
 
 };
+
+
 
 
 
