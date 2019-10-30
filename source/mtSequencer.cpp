@@ -322,13 +322,23 @@ void Sequencer::play_microStep(uint8_t row)
 
 	boolean startStep = 0;
 	boolean cancelStep = 0;
+	int16_t randomisedValue = -1;
 
 	if (playerRow.uStep == 1)
 	{
+		if (patternStep.fx[0].type == fx.FX_TYPE_RANDOM_VALUE)
+		randomisedValue = random(0, patternStep.fx[0].value + 1);
+		else if (patternStep.fx[1].type == fx.FX_TYPE_RANDOM_VALUE)
+			randomisedValue = random(0, patternStep.fx[1].value + 1);
+
 		uint8_t fxIndex = 0;
-		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
+		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
 		{
-			//	strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
+			strPattern::strTrack::strStep::strFx _fx = _fxStep;
+
+			if (randomisedValue != -1)
+				_fx.value = randomisedValue;
+
 			switch (_fx.type)
 			{
 
@@ -470,8 +480,13 @@ void Sequencer::play_microStep(uint8_t row)
 
 		// EFEKTY WŁAŚCIWE
 		uint8_t fxIndex = 0;
-		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
+		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
 		{
+			strPattern::strTrack::strStep::strFx _fx = _fxStep;
+
+			if (randomisedValue != -1)
+				_fx.value = randomisedValue;
+
 			switch (_fx.type)
 			{
 			case fx.FX_TYPE_ROLL:
@@ -765,7 +780,6 @@ void Sequencer::stop(void)
 
 	send_allNotesOff();
 
-
 	player.isPlay = 0;
 	player.isStop = 1;
 	player.isREC = 0;
@@ -777,7 +791,6 @@ void Sequencer::stop(void)
 	{
 		player.track[a].uStep = 0;
 		player.track[a].makeJump = 0;
-
 
 		player.track[a].rollIsOn = 0;
 	}
