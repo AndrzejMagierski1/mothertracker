@@ -665,12 +665,12 @@ uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
 		return 0;
 		break;
 
-	case fx.ROLL_TYPE_4_1:
-		return 192;
-	case fx.ROLL_TYPE_3_1:
-		return 144;
-	case fx.ROLL_TYPE_2_1:
-		return 96;
+//	case fx.ROLL_TYPE_4_1:
+//		return 192;
+//	case fx.ROLL_TYPE_3_1:
+//		return 144;
+//	case fx.ROLL_TYPE_2_1:
+//		return 96;
 	case fx.ROLL_TYPE_1_1:
 		return 48;
 	case fx.ROLL_TYPE_1_2:

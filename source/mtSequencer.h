@@ -125,9 +125,9 @@ public:
 		{
 			ROLL_TYPE_MIN = 0,
 			ROLL_TYPE_NONE = 0,
-			ROLL_TYPE_4_1,
-			ROLL_TYPE_3_1,
-			ROLL_TYPE_2_1,
+//			ROLL_TYPE_4_1,
+//			ROLL_TYPE_3_1,
+//			ROLL_TYPE_2_1,
 			ROLL_TYPE_1_1,
 			ROLL_TYPE_1_2,
 			ROLL_TYPE_1_3,
