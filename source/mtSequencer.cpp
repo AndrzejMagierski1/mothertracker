@@ -249,6 +249,13 @@ void Sequencer::play_microStep(uint8_t row)
 
 		// zerujemy zmienne efektowe
 		playerRow.isOffset = 0;
+
+		instrumentPlayer[row].seqFx(0, 0, 0);
+		instrumentPlayer[row].seqFx(0, 0, 1);
+
+		playerRow.rollIsOn = 0;
+		playerRow.rollType = fx.ROLL_TYPE_NONE;
+
 	}
 
 //	strPlayer::strPlayerTrack::strPlayerStep & playerStep = playerRow.step[playerRow.actual_pos];
@@ -315,13 +322,23 @@ void Sequencer::play_microStep(uint8_t row)
 
 	boolean startStep = 0;
 	boolean cancelStep = 0;
+	int16_t randomisedValue = -1;
 
 	if (playerRow.uStep == 1)
 	{
+		if (patternStep.fx[0].type == fx.FX_TYPE_RANDOM_VALUE)
+		randomisedValue = random(0, patternStep.fx[0].value + 1);
+		else if (patternStep.fx[1].type == fx.FX_TYPE_RANDOM_VALUE)
+			randomisedValue = random(0, patternStep.fx[1].value + 1);
+
 		uint8_t fxIndex = 0;
-		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
+		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
 		{
-			//	strPattern::strTrack::strStep::strFx &_fx = patternStep.fx[0];
+			strPattern::strTrack::strStep::strFx _fx = _fxStep;
+
+			if (randomisedValue != -1)
+				_fx.value = randomisedValue;
+
 			switch (_fx.type)
 			{
 
@@ -400,7 +417,7 @@ void Sequencer::play_microStep(uint8_t row)
 				// wysyłam tylko fxa jeśli nie ma nuty
 				if (_fx.type > fx.FX_TYPE_NOT_SEQ_FX)
 				{
-					instrumentPlayer[row].seqFx(_fx.type, _fx.value,fxIndex);
+					instrumentPlayer[row].seqFx(_fx.type, _fx.value, fxIndex);
 				}
 				switch (_fx.type)
 				{
@@ -463,8 +480,13 @@ void Sequencer::play_microStep(uint8_t row)
 
 		// EFEKTY WŁAŚCIWE
 		uint8_t fxIndex = 0;
-		for (strPattern::strTrack::strStep::strFx &_fx : patternStep.fx)
+		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
 		{
+			strPattern::strTrack::strStep::strFx _fx = _fxStep;
+
+			if (randomisedValue != -1)
+				_fx.value = randomisedValue;
+
 			switch (_fx.type)
 			{
 			case fx.FX_TYPE_ROLL:
@@ -658,12 +680,12 @@ uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
 		return 0;
 		break;
 
-	case fx.ROLL_TYPE_4_1:
-		return 192;
-	case fx.ROLL_TYPE_3_1:
-		return 144;
-	case fx.ROLL_TYPE_2_1:
-		return 96;
+//	case fx.ROLL_TYPE_4_1:
+//		return 192;
+//	case fx.ROLL_TYPE_3_1:
+//		return 144;
+//	case fx.ROLL_TYPE_2_1:
+//		return 96;
 	case fx.ROLL_TYPE_1_1:
 		return 48;
 	case fx.ROLL_TYPE_1_2:
@@ -758,8 +780,6 @@ void Sequencer::stop(void)
 
 	send_allNotesOff();
 
-//	send_stop();
-
 	player.isPlay = 0;
 	player.isStop = 1;
 	player.isREC = 0;
@@ -771,6 +791,8 @@ void Sequencer::stop(void)
 	{
 		player.track[a].uStep = 0;
 		player.track[a].makeJump = 0;
+
+		player.track[a].rollIsOn = 0;
 	}
 //	player.changeBank = 0;
 
