@@ -175,7 +175,7 @@ bool Sequencer::isStepToFillFx(strPattern::strTrack::strStep *step,
 {
 	if (fillStep > 0 && offset % fillStep == 0) return true;
 	else if (fillStep == fillStepRandom && random(0, 10) > 6) return true;
-	else if (fillStep == fillStepOccupied && (step->fx[fxIndex].type > 0 || step->note >= 0)) return true;
+	else if (fillStep == fillStepOccupied && (step->fx[fxIndex].type > 0)) return true;
 	else if (fillStep == fillStepEmpty && step->fx[fxIndex].type == 0)
 		return true;
 
