@@ -765,7 +765,6 @@ void Sequencer::stop(void)
 
 	send_allNotesOff();
 
-//	send_stop();
 
 	player.isPlay = 0;
 	player.isStop = 1;
@@ -778,6 +777,9 @@ void Sequencer::stop(void)
 	{
 		player.track[a].uStep = 0;
 		player.track[a].makeJump = 0;
+
+
+		player.track[a].rollIsOn = 0;
 	}
 //	player.changeBank = 0;
 
