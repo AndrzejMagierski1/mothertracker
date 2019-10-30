@@ -152,7 +152,7 @@ public:
 
 		uint16_t glide;
 		uint16_t wavetablePosition;
-
+		uint8_t volume;
 
 	} currentSeqModValues ;
 
