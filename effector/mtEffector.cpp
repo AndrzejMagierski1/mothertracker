@@ -1,4 +1,5 @@
 #include "mtEffector.h"
+#include "mtPadBoard.h"
 
 mtEffector effector;
 
@@ -9,26 +10,32 @@ void mtEffector::loadSample(const char *patch)
 	startAddress=applyBuffer;
 }
 
-void mtEffector::play(uint16_t start, uint16_t stop)
+void mtEffector::play(uint16_t start, uint16_t stop, uint8_t pad)
 {
 	uint32_t length;
 	uint32_t addressShift;
-	length =(uint32_t)((uint32_t)stop * (float)(fileByteSaved/2)/MAX_16BIT);
+	int8_t voiceToTake = mtPadBoard.getEmptyVoice();
 
+	if(voiceToTake < 0) return;
+
+	length =(uint32_t)((uint32_t)stop * (float)(fileByteSaved/2)/MAX_16BIT);
 	addressShift = (uint32_t)( (uint32_t)start * (float)(fileByteSaved/2)/MAX_16BIT);
 
-	instrumentPlayer[0].noteOnforPrev(startAddress + addressShift,length - addressShift, mtSampleTypeWaveFile);
+	mtPadBoard.startInstrument(pad, startAddress + addressShift, length - addressShift);
 }
 
-void mtEffector::playPrev()
+void mtEffector::playPrev(uint8_t pad)
 {
+	int8_t voiceToTake = mtPadBoard.getEmptyVoice();
+	if(voiceToTake < 0) return;
+
 	startAddressEffect = previewBuffer;
 
-	instrumentPlayer[0].noteOnforPrev(startAddressEffect,affterEffectLength,mtSampleTypeWaveFile);
+	mtPadBoard.startInstrument(pad, startAddressEffect, affterEffectLength);
 }
-void mtEffector::stop()
+void mtEffector::stop(uint8_t pad)
 {
-	instrumentPlayer[0].noteOff();
+	mtPadBoard.stopInstrument(pad);
 }
 
 void mtEffector::trim(uint16_t a, uint16_t b)

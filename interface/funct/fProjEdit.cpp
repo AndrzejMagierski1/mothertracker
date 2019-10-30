@@ -362,6 +362,32 @@ void cProjectEditor::update()
 		}
 	}
 
+	if(refreshCover)
+	{
+		if(refreshCover == 1 && coverDelay > 2000)
+		{
+			char path[PATCH_SIZE];
+			sprintf(path,"Projects/%s/cover", projectCoverName);
+
+			if(display.readImgFromSd(path))
+			{
+				refreshCover = 0;
+			}
+			else refreshCover = 2;
+		}
+		else if(refreshCover == 2)
+		{
+			if(display.isImgLoaded())
+			{
+				display.setControlShow(coverImg);
+				display.refreshControl(coverImg);
+				refreshCover = 0;
+			}
+		}
+	}
+
+
+
 }
 
 void cProjectEditor::start(uint32_t options)
@@ -391,7 +417,6 @@ void cProjectEditor::start(uint32_t options)
 	setDefaultScreenFunct();
 
 
-
 	//typedef void (cProjectEditor::*funct1) (void);
 	//funct1 = &cProjectEditor::functOpenProject;
 	//(this->*funct1)();
@@ -402,6 +427,7 @@ void cProjectEditor::stop()
 {
 	moduleRefresh = 0;
 	projectOptions = 0;
+	refreshCover = 0;
 
 }
 
@@ -543,6 +569,9 @@ static uint8_t functOpenProject()
 
 	PE->showProjectsList();
 
+	PE->refreshProjectCover(100);
+	strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+
 
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
@@ -590,13 +619,14 @@ static uint8_t functSaveAsProject()
 	char localPatch[PATCH_SIZE];
 	uint16_t cnt=1;
 	if(fileManager.currentProjectName[0]) strcpy(PE->name,fileManager.currentProjectName);
-	else strcpy(PE->name,"Untitled");
+	else strcpy(PE->name,"New Project");
 	sprintf(localPatch,"Projects/%s",PE->name);
 
+/*
 	while(SD.exists(localPatch))
 	{
 	   if(fileManager.currentProjectName[0]) sprintf(PE->name,"%s%d",fileManager.currentProjectName,cnt);
-	   else sprintf(PE->name,"Untitled%d",cnt);
+	   else sprintf(PE->name,"New Project %d",cnt);
 	   sprintf(localPatch,"Projects/%s",PE->name);
 
 	   cnt++;
@@ -606,6 +636,8 @@ static uint8_t functSaveAsProject()
 		   break;
 	   }
 	}
+*/
+
 
 	PE->editPosition = strlen(PE->name);
 	PE->keyboardPosition = BACKSPACE_PAD_1;
@@ -876,6 +908,8 @@ static uint8_t functSaveChangesCancelOpen()
 	PE->projectListActiveFlag = 0;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
+
+
 	return 1;
 }
 static uint8_t functSaveChangesDontSaveOpen()
@@ -1098,12 +1132,12 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 //
 //	char localPatch[PATCH_SIZE];
 //	uint16_t cnt=1;
-//	strcpy(PE->name,"Untitled");
+//	strcpy(PE->name,"New Project");
 //	sprintf(localPatch,"Projects/%s",PE->name);
 //
 //	while(SD.exists(localPatch))
 //	{
-//	   sprintf(PE->name,"Untitled%d",cnt);
+//	   sprintf(PE->name,"New Project%d",cnt);
 //	   sprintf(localPatch,"Projects/%s",PE->name);
 //
 //	   cnt++;
@@ -1170,7 +1204,13 @@ static  uint8_t functUp()
 	}
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation > 0 ) PE->selectedLocation--;
+		if(PE->selectedLocation > 0 )
+		{
+			PE->selectedLocation--;
+
+			PE->refreshProjectCover(300);
+			strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+		}
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);
 		display.refreshControl(PE->fileListControl);
 		return 1;
@@ -1188,7 +1228,13 @@ static  uint8_t functDown()
 	}
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation < PE->locationFilesCount-1 ) PE->selectedLocation++;
+		if(PE->selectedLocation < PE->locationFilesCount-1 )
+		{
+			PE->selectedLocation++;
+
+			PE->refreshProjectCover(300);
+			strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+		}
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);
 		display.refreshControl(PE->fileListControl);
 		return 1;
@@ -1430,9 +1476,26 @@ static  uint8_t functEncoder(int16_t value)
 		{
 			if(PE->selectedLocation > 0 ) PE->selectedLocation--;
 		}
+
+		PE->refreshProjectCover(300);
+		strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);
 		display.refreshControl(PE->fileListControl);
 	}
 	return 1;
 }
+
+
+
+void cProjectEditor::refreshProjectCover(uint16_t delay_ms)
+{
+	if(delay_ms > 2000) delay_ms = 2000;
+
+	PE->refreshCover = 1;
+	PE->coverDelay = 2000-delay_ms;
+
+	display.setControlHide(coverImg);
+}
+
 

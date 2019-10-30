@@ -13,8 +13,8 @@ int32_t mtBitcrusher::makeBitcrusher(uint8_t cBits, uint16_t sRate, int8_t force
 		}
 	}
 
-	//int16_t * localAddress = effector.getAddress();
-	//int16_t * destAddress = effector.previewBuffer;
+	localLength = effector.getLength();
+	returnLength = (int32_t) localLength;
 
 	localAddress = effector.getAddress();
 	destAddress = effector.previewBuffer;

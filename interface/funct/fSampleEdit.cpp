@@ -8,6 +8,8 @@
 #include "graphicProcessing.h"
 #include "mtEffector.h"
 
+#include "mtPadsBacklight.h"
+
 
 
 cSampleEditor sampleEditor;
@@ -30,7 +32,7 @@ static  uint8_t functDown();
 static uint8_t functSelectPlace(uint8_t button, uint8_t state);
 
 
-
+static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 static uint8_t functShift(uint8_t value);
 
@@ -97,6 +99,7 @@ void cSampleEditor::update()
 		refreshPoints = 0;
 	}
 
+	refreshPlayingProgress();
 	refreshSampleLoading();
 	refreshSampleApplying();
 	refreshInstrumentLoading();
@@ -172,7 +175,44 @@ void cSampleEditor::refreshInstrumentLoading()
 		{
 			hideHorizontalBar();
 			moduleFlags &= ~onEntryStillLoading;
-			startLoadingSample();
+			//startLoadingSample();
+		}
+	}
+}
+
+void cSampleEditor::refreshPlayingProgress()
+{
+	if(refreshSpectrumProgress)
+	{
+		display.setControlValue(progressCursor,playProgressInSpectrum);
+		display.refreshControl(progressCursor);
+		refreshSpectrumProgress = 0;
+	}
+
+	if(isPlayingSample)
+	{
+		calcPlayProgressValue();
+		if(isPlayingSample)
+		{
+			//showPreviewValue(); // w calcPlayProgress jest mozliwosc wyzerowania tej flagi wtedy nie chcemy wyswietlac wartosci;
+		}
+		else
+		{
+			//hidePreviewValue();
+			display.setControlHide(progressCursor);
+			display.refreshControl(progressCursor);
+		}
+
+		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
+		{
+			instrumentPlayer[0].clearInterfacePlayingEndFlag();
+
+			playProgressValue=0;
+			playProgressInSpectrum = 0;
+			isPlayingSample = 0;
+			refreshSpectrumProgress = 1;
+			//hidePreviewValue();
+			mtPadBoard.clearVoice(0);
 		}
 	}
 }
@@ -199,6 +239,8 @@ void cSampleEditor::refreshSampleLoading()
 
 			firstSampleLoadFlag = 1;
 			sampleIsValid = 1;
+
+			functPreview(1);
 		}
 
 		lastSampleLoadedState = sampleLoadedState;
@@ -215,7 +257,7 @@ void cSampleEditor::showCurrentSpectrum(uint32_t length, int16_t *source)
 
 void cSampleEditor::startLoadingSample()
 {
-	if(mtProject.instrument[localInstrNum].isActive)
+	if((mtProject.instrument[localInstrNum].isActive) && (mtProject.instrument[localInstrNum].sample.type != mtSampleTypeWavetable))
 	{
 		if(!(moduleFlags & onEntryStillLoading))
 		{
@@ -234,6 +276,9 @@ void cSampleEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 	firstSampleLoadFlag = 0;
+	sampleIsValid = 0;
+	lastPreviewEffect = (effect_t)UINT32_MAX;// this will force new calculation on effect on each entry
+	previewReadyFlag = 0;
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
@@ -251,14 +296,13 @@ void cSampleEditor::start(uint32_t options)
 		moduleFlags |= onEntryStillLoading;
 	}
 
-	localInstrNum = mtProject.values.lastUsedInstrument;
-
-	startLoadingSample();
-
-	if(sampleIsValid == 0)
+	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
 	{
-		showCurrentSpectrum(0, effector.getAddress());
+		editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
+		GP.processSpectrum(editorInstrument, &zoom, &spectrum);
 	}
+
+	localInstrNum = mtProject.values.lastUsedInstrument;
 
 	isAnyEffectActive = 0;
 	effectAppliedFlag = 0;
@@ -537,6 +581,7 @@ void cSampleEditor::setDefaultScreenFunct()
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
+	FM->setPadsGlobal(functPads);
 
 }
 
@@ -597,30 +642,69 @@ uint8_t cSampleEditor::previewNewEffectRequested()
 
 static uint8_t functPreview(uint8_t state)
 {
-	if(SE->moduleFlags != 0) return 1;
-	if(SE->sampleIsValid != 1) return 1;
+	if(state > buttonPress) return 1;
 
-	if(state == 1)
+	if((SE->sampleIsValid != 1) && (state == 1))
+	{
+		if((SE->firstSampleLoadFlag == 0))
+		{
+			SE->startLoadingSample();
+		}
+
+		return 1;
+	}
+
+	if((state == 1) && (SE->moduleFlags == 0))
 	{
 		SE->makeEffect();
 
-		if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
+		if(SE->previewReadyFlag)
 		{
-			effector.play(SE->startPoint, SE->endPoint);
-		}
-		else
-		{
-			if(SE->previewReadyFlag)
+			if(mtPadBoard.getEmptyVoice() < 0) return 1;
+
+			if(SE->effectScreen[SE->currSelEffect].screen == fullSpectrum)
 			{
-				effector.playPrev();
+				if(mtPadBoard.getEmptyVoice() == 0)
+				{
+					SE->playPitch = notes[mtPadBoard.convertPadToNote(12)];
+					SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
+					SE->refreshPlayProgressValue = 0;
+					SE->loopDirection = 0;
+					SE->isPlayingSample = 1;
+
+					instrumentPlayer[0].clearInterfacePlayingEndFlag();
+				}
+			}
+
+			if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
+			{
+				effector.play(SE->startPoint, SE->endPoint , 12);
+
+			}
+			else
+			{
+				effector.playPrev(12);
 			}
 		}
 
 		SE->lastPreviewEffect = (effect_t)SE->currSelEffect;
+
+		//mtPadBoard.startInstrument(pad, SE->localInstrNum,-1);
 	}
 	else if(state == 0)
 	{
-		effector.stop();
+		effector.stop(12);
+
+		if((SE->effectScreen[SE->currSelEffect].screen == fullSpectrum))
+		{
+			if(mtPadBoard.getVoiceTakenByPad(12) == 0)
+			{
+				SE->playProgressValue=0;
+				SE->playProgressInSpectrum = 0;
+				SE->isPlayingSample = 0;
+				SE->refreshSpectrumProgress = 1;
+			}
+		}
 	}
 
 	//SE->selectedPlace = 0;
@@ -710,6 +794,8 @@ static uint8_t functUndo()
 
 static uint8_t changeEffect(uint8_t button)
 {
+	if(SE->moduleFlags != 0) return 1;
+
 	SE->clearAllNodes();
 	SE->cancelMultiFrame();
 
@@ -1170,6 +1256,67 @@ static uint8_t functStepNote(uint8_t value)
 	return 1;
 }
 
+static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
+{
+	if(SE->moduleFlags != 0) return 1;
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+	{
+		sequencer.stop();
+	}
+
+	if(state == 1)
+	{
+		if(SE->previewReadyFlag)
+		{
+			if(mtPadBoard.getEmptyVoice() < 0) return 1;
+
+			if(SE->effectScreen[SE->currSelEffect].screen == fullSpectrum)
+			{
+				if(mtPadBoard.getEmptyVoice() == 0)
+				{
+					SE->playPitch = notes[mtPadBoard.convertPadToNote(pad)];
+					SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
+					SE->refreshPlayProgressValue = 0;
+					SE->loopDirection = 0;
+					SE->isPlayingSample = 1;
+
+					instrumentPlayer[0].clearInterfacePlayingEndFlag();
+				}
+			}
+
+			padsBacklight.setFrontLayer(1,20, pad);
+
+			if((SE->currSelEffect == effectCrop) || (SE->currSelEffect == effectReverse))
+			{
+				effector.play(SE->startPoint, SE->endPoint , pad);
+			}
+			else
+			{
+				effector.playPrev(pad);
+			}
+		}
+	}
+	else if(state == 0)
+	{
+		padsBacklight.setFrontLayer(0,0, pad);
+		effector.stop(pad);
+
+		if((SE->isPlayingSample) && (SE->effectScreen[SE->currSelEffect].screen == fullSpectrum))
+		{
+			if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
+			{
+				SE->playProgressValue=0;
+				SE->playProgressInSpectrum = 0;
+				SE->isPlayingSample = 0;
+				SE->refreshSpectrumProgress = 1;
+				//SE->hidePreviewValue();
+			}
+		}
+	}
+
+	return 1;
+}
+
 void cSampleEditor::updateEffectValues(effect_screen_t *effect, uint8_t barNum)
 {
 	printNewValue(effect->bar[barNum].dataSource, barNum, effect->bar[barNum].dataUnit, effect->bar[barNum].dataFormat);
@@ -1251,8 +1398,10 @@ void cSampleEditor::makeEffect()
 	switch((effect_t)SE->currSelEffect)
 	{
 	case effectCrop:
+		previewReadyFlag = 1;
 		break;
 	case effectReverse:
+		previewReadyFlag = 1;
 		break;
 	case effectFlanger:
 		processingActivated = effectorFlanger.makeFlanger(FLANGER_LENGTH_MAX, SE->flangerOffset, SE->flangerDepth, SE->flangerDelay, newPreviewFlag);
@@ -1291,82 +1440,85 @@ void cSampleEditor::makeEffect()
 
 void cSampleEditor::updateEffectProcessing()
 {
-	if(previewReadyFlag == 0)
+	if(SE->moduleFlags & processingActive)
 	{
-		uint8_t processingStatus = 0;
-		uint8_t progress = 0;
-
-		switch(currSelEffect)
+		if(previewReadyFlag == 0)
 		{
-		case effectChorus:
-			processingStatus = effectorChorus.requireProcess();
+			uint8_t processingStatus = 0;
+			uint8_t progress = 0;
+
+			switch(currSelEffect)
+			{
+			case effectChorus:
+				processingStatus = effectorChorus.requireProcess();
+
+				if(processingStatus)
+				{
+					effectorChorus.process();
+					progress = effectorChorus.getProgress();
+				}
+				break;
+			case effectDelay:
+				processingStatus = effectorDelay.requireProcess();
+
+				if(processingStatus)
+				{
+					effectorDelay.process();
+					progress = effectorDelay.getProgress();
+				}
+				break;
+			case effectFlanger:
+				processingStatus = effectorFlanger.requireProcess();
+
+				if(processingStatus)
+				{
+					effectorFlanger.process();
+					progress = effectorFlanger.getProgress();
+				}
+				break;
+			case effectCompressor:
+				processingStatus = effectorCompressor.requireProcess();
+
+				if(processingStatus)
+				{
+					effectorCompressor.process();
+					progress = effectorCompressor.getProgress();
+				}
+				break;
+			case effectBitcrusher:
+				processingStatus = effectorBitcrusher.requireProcess();
+
+				if(processingStatus)
+				{
+					effectorBitcrusher.process();
+					progress = effectorBitcrusher.getProgress();
+				}
+				break;
+			case effectAmplifier:
+				break;
+			case effectLimiter:
+				processingStatus = effectorLimiter.requireProcess();
+
+				if(processingStatus)
+				{
+					effectorLimiter.process();
+					progress = effectorLimiter.getProgress();
+				}
+				break;
+			default:
+				break;
+			}
 
 			if(processingStatus)
 			{
-				effectorChorus.process();
-				progress = effectorChorus.getProgress();
+				showHorizontalBar(progress,"Processing effect");
 			}
-			break;
-		case effectDelay:
-			processingStatus = effectorDelay.requireProcess();
-
-			if(processingStatus)
+			else
 			{
-				effectorDelay.process();
-				progress = effectorDelay.getProgress();
+				SE->moduleFlags &= ~processingActive;
+				previewReadyFlag = 1;
+				hideHorizontalBar();
 			}
-			break;
-		case effectFlanger:
-			processingStatus = effectorFlanger.requireProcess();
-
-			if(processingStatus)
-			{
-				effectorFlanger.process();
-				progress = effectorFlanger.getProgress();
-			}
-			break;
-		case effectCompressor:
-			processingStatus = effectorCompressor.requireProcess();
-
-			if(processingStatus)
-			{
-				effectorCompressor.process();
-				progress = effectorCompressor.getProgress();
-			}
-			break;
-		case effectBitcrusher:
-			processingStatus = effectorBitcrusher.requireProcess();
-
-			if(processingStatus)
-			{
-				effectorBitcrusher.process();
-				progress = effectorBitcrusher.getProgress();
-			}
-			break;
-		case effectAmplifier:
-			break;
-		case effectLimiter:
-			processingStatus = effectorLimiter.requireProcess();
-
-			if(processingStatus)
-			{
-				effectorLimiter.process();
-				progress = effectorLimiter.getProgress();
-			}
-			break;
-		default:
-			break;
-		}
-
-		if(processingStatus)
-		{
-			showHorizontalBar(progress,"Processing effect");
-		}
-		else
-		{
-			SE->moduleFlags &= ~processingActive;
-			previewReadyFlag = 1;
-			hideHorizontalBar();
 		}
 	}
 }
@@ -1677,6 +1829,28 @@ void cSampleEditor::cancelMultiFrame()
 	frameData.multiSelActiveNum = 0;
 }
 ///////////////////////////////////////////////////////////////////////////
+
+void cSampleEditor::calcPlayProgressValue()
+{
+	if(refreshPlayProgressValue > PLAY_REFRESH_US)
+	{
+		refreshPlayProgressValue = 0;
+
+		playProgressValue = (uint16_t)((instrumentPlayer[0].getWavePosition() * ((endPoint - startPoint) / (float)MAX_16BIT)) + startPoint);
+
+		if(zoom.zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
+		else if(zoom.zoomValue > 1.0)
+		{
+			if(playProgressValue < zoom.zoomStart || playProgressValue > zoom.zoomEnd) playProgressInSpectrum = 0;
+			else
+			{
+				playProgressInSpectrum = map(playProgressValue, zoom.zoomStart, zoom.zoomEnd, 0 , 600);
+			}
+		}
+
+		refreshSpectrumProgress = 1;
+	}
+}
 
 
 

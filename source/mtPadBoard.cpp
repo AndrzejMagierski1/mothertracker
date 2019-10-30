@@ -59,7 +59,7 @@ void cMtPadBoard::startInstrument(uint8_t pad,int16_t * addres, uint32_t length)
 	//mtPrint("start: ");
 	//mtPrintln(voiceToTake);
 
-	instrumentPlayer[voiceToTake].noteOnforPrev(addres, length, convertPadToNote(pad) );
+	instrumentPlayer[voiceToTake].noteOnforPrev(addres, length, convertPadToNote(pad), mtSampleTypeWaveFile);
 }
 
 int8_t cMtPadBoard::getEmptyVoice()

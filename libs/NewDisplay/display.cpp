@@ -72,10 +72,10 @@ const strBitmap bitmaps[displayBitmapsCount] =
 	{ loopIcon20x20,72500 , 200, 20, 20, L4, 10},
 
 
-
-
-
 };
+
+
+strGetProps getProps;
 
 
 
@@ -124,30 +124,9 @@ void cDisplay::begin()
 		API_CMD_SETFONT(fonts[i].handle, fonts[i].address);
 	}
 
-
-
-
-
-//	API_BITMAP_HANDLE(14);
-//	API_BITMAP_SOURCE(14324);
-//	API_BITMAP_LAYOUT(L4, 7, 26);
-//	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 12, 26);
-//	API_CMD_SETFONT(14, 20000);
-//
-//	API_BITMAP_HANDLE(13);
-//	API_BITMAP_SOURCE(-1732);
-//	API_BITMAP_LAYOUT(L4, 5, 18);
-//	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, 10, 18);
-//	API_CMD_SETFONT(13, 1000);
-
-
-//	API_RESTORE_CONTEXT();
-//	API_RESTORE_CONTEXT();
-
 	API_DISPLAY();
     API_CMD_SWAP();
     API_LIB_EndCoProList();
-    //API_LIB_AwaitCoProEmpty();
 
     stopAppend = 0;
     synchQueuePosition = 0;
@@ -156,14 +135,9 @@ void cDisplay::begin()
     updateStep = 0;
 }
 
-elapsedMicros testTimer;
-static elapsedMillis refreshTimer;
-elapsedMillis seqTimer;
-hControl hTrackControl;
-uint8_t created = 0;
-int8_t moveStep = 5;
-uint16_t refreshF = 20;
 
+//=================================================================================================
+//=================================================================================================
 
 
 void cDisplay::update()
@@ -183,6 +157,77 @@ void cDisplay::update()
 		{
 			lastRotateValue = rotateValue;
 			EVE_MemWrite8(REG_ROTATE, rotateValue);
+		}
+	}
+
+	if(loadImage) // todo
+	{
+		if(!API_LIB_IsCoProEmpty()) return;
+
+		if(img.status == 1)
+		{
+			if(imgFile.available())
+			{
+				int32_t readBytes = 0;
+				uint8_t currentBuffer[imgBufforSize];
+				readBytes = imgFile.read(currentBuffer, imgBufforSize);
+
+				if(img.loadProgress == 0)
+				{
+					API_LIB_BeginCoProListNoCheck();
+					API_CMD_LOADIMAGE(img.address, OPT_NODL);
+					API_LIB_EndCoProList();
+				}
+
+				if(readBytes < imgBufforSize)
+				{
+					// eof
+					API_LIB_WriteDataToCMD(currentBuffer,readBytes);
+					//API_LIB_WriteDataRAMG(currentBuffer, readBytes, img.address + img.loadProgress*imgBufforSize);
+					imgFile.close();
+					img.status = 2;
+				}
+				else
+				{
+					API_LIB_WriteDataToCMD(currentBuffer,imgBufforSize);
+					//API_LIB_WriteDataRAMG(currentBuffer, imgBufforSize, img.address + img.loadProgress*imgBufforSize);
+				}
+				//API_LIB_WriteDataToCMD(currentBuffer,imgBufforSize);
+				//API_CMD_LOADIMAGE(img.address, OPT_NODL);
+
+				img.loadProgress++;
+
+				return;
+			}
+			else
+			{
+				imgFile.close();
+				img.status = 0;
+				img.loadProgress = 0;
+				loadImage = 0;
+			}
+		}
+		else if(img.status == 2)
+		{
+			API_LIB_BeginCoProList();
+			API_CMD_GETPROPS(0, 0, 0); // 3 dummy 32-bit values
+			API_LIB_EndCoProList();
+			API_LIB_AwaitCoProEmpty();
+
+			uint16_t Reg_Cmd_Write_Offset;
+			Reg_Cmd_Write_Offset = EVE_MemRead16(REG_CMD_WRITE);
+
+			uint32_t ParameterAddr = ((Reg_Cmd_Write_Offset - 12) & 4095); // 12 bytes back
+			getProps.End_Address = EVE_MemRead32((RAM_CMD+ParameterAddr));
+
+			ParameterAddr = ((Reg_Cmd_Write_Offset - 8) & 4095); // 8 bytes back
+			getProps.Width = EVE_MemRead32((RAM_CMD+ParameterAddr));
+
+			ParameterAddr = ((Reg_Cmd_Write_Offset - 4) & 4095); // 4 bytes back
+			getProps.Height = EVE_MemRead32((RAM_CMD+ParameterAddr));
+
+			img.status = 3;
+			loadImage = 0;
 		}
 	}
 
@@ -517,6 +562,88 @@ void cDisplay::resetControlQueue()
 	actualUpdating = nullptr;
 }
 
+
+//=====================================================================================================
+// jpg/png
+//=====================================================================================================
+uint8_t cDisplay::readImgFromSd(char* path)
+{
+	strcat(path,".jpg");
+
+	if(!SD.exists(path))
+	{
+		path[strlen(path)-3] = 0;
+		strcat(path,"jpeg");
+
+		if(!SD.exists(path))
+		{
+			return 1;
+			//path[strlen(path)-4] = 0;
+			//strcat(path,"png");
+			//if(!SD.exists(path))
+			//{
+			//	return;
+			//}
+		}
+	}
+
+	if(img.status == 1 || img.status == 2) return 1;
+
+	imgFile = SD.open(path);
+	if(!imgFile) return 1;
+
+	int32_t readBytes = 0;
+	uint8_t currentBuffer[5000];
+	readBytes = imgFile.read(currentBuffer, 5000);
+	//imgFile.close();
+
+	uint16_t width = 0;
+	uint16_t height = 0;
+
+	if(get_jpeg_size(currentBuffer, readBytes, &width, &height) == 0)
+	{
+		imgFile.close();
+		return 1;
+	}
+
+	if(width == 0 || width > 400 || height == 0 || height > 400)
+	{
+		imgFile.close();
+		return 1;
+	}
+
+	img.size = imgFile.size();
+
+	if(img.size  > imgSizeMax)
+	{
+		imgFile.close();
+		return 1;
+	}
+
+	imgFile.seek(0);
+
+	img.type = 0;
+	img.loadProgress = 0;
+	img.progressMax = img.size/imgBufforSize;
+	img.address = imgRamAddress;
+	img.status = 1;
+
+	loadImage = 1;
+
+	return 0;
+}
+
+void cDisplay::readImgFromMemory(uint8_t* data, uint32_t size) //todo
+{
+	loadImage = 1;
+
+	img.type = 0;
+	img.loadProgress = 0;
+	img.data = data;
+	img.size = size;
+	img.progressMax = img.size/imgBufforSize;
+	img.status = 1;
+}
 
 //=====================================================================================================
 // grupowe

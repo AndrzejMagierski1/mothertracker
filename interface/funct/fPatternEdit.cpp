@@ -96,6 +96,8 @@ void cPatternEditor::update()
 {
 	if(patternRefreshTimer < 20) return;
 
+	patternRefreshTimer = 0;
+
 	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP ) return;
 
 	readPatternState();
@@ -116,7 +118,6 @@ void cPatternEditor::update()
 		lastPatternPosition = trackerPattern.playheadPosition;
 	}
 
-	patternRefreshTimer = 0;
 }
 
 
@@ -384,7 +385,7 @@ void cPatternEditor::refreshPattern()
 				row->vol[2] = 0;
 			}
 */
-			uint8_t type_temp  = seq->track[i].step[patternPosition-7+j].fx[1].type;
+			uint8_t type_temp  = interfaceGlobals.fxIdToName(seq->track[i].step[patternPosition-7+j].fx[1].type);
 			if(type_temp > 0 && type_temp < FX_MAX)
 			{
 				trackerPattern.track[i].row[j].fx[0][0] = 0;
@@ -409,7 +410,7 @@ void cPatternEditor::refreshPattern()
 				trackerPattern.track[i].row[j].fx[0][3] = 0;
 			}
 			//--------------------------------------------------------------------------------------------
-			type_temp  = seq->track[i].step[patternPosition-7+j].fx[0].type;
+			type_temp  = interfaceGlobals.fxIdToName(seq->track[i].step[patternPosition-7+j].fx[0].type);
 			if(type_temp > 0 && type_temp < FX_MAX)
 			{
 				trackerPattern.track[i].row[j].fx[1][0] = 0;
@@ -485,7 +486,8 @@ uint8_t cPatternEditor::getStepFx()
 
 	uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
 
-	uint8_t fx_type =  sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type;
+	uint8_t fx_type =  interfaceGlobals.fxIdToName(
+			sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
 
 	if(fx_type < FX_COUNT) selectedFx = fx_type;
 
@@ -496,7 +498,8 @@ uint8_t cPatternEditor::getStepFx()
 
 int8_t cPatternEditor::getStepVol()
 {
-	int8_t show_vol = sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity;
+//	int8_t show_vol = sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity;
+	int8_t show_vol = -1;
 
 	if(show_vol < 0) return -1;
 
@@ -571,11 +574,15 @@ void cPatternEditor::cancelPopups()
 				{
 					uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
 
-					uint8_t fx_type = sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type;
-					if(fx_type > 0 && fx_type < FX_COUNT)
+					uint8_t fx_name = interfaceGlobals.fxIdToName(
+							sequencer.getPatternToUI()->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);
+					if (fx_name > 0 && fx_name < FX_COUNT)
 					{
+
 						sendSelection();
-						sequencer.setSelectionFxType(fx_index, mtProject.values.lastUsedFx);
+						sequencer.setSelectionFxType(
+								fx_index,
+								interfaceGlobals.fxIDs[mtProject.values.lastUsedFx]);
 					}
 				}
 				break;
@@ -1845,7 +1852,7 @@ static  uint8_t functFx1(uint8_t state)
 	{
 		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
 
-		PTE->FM->clearButton(interfaceButtonFx2);
+		PTE->FM->clearButton(interfaceButtonFx1);
 
 		mtProject.values.lastUsedFx = PTE->getStepFx();
 		mtPopups.showStepPopup(stepPopupFx, mtProject.values.lastUsedFx); //PTE->getStepFx()
@@ -1906,7 +1913,7 @@ static  uint8_t functFx2(uint8_t state)
 	{
 		if(PTE->fillState == 1 || PTE->randomiseState == 1) return 1;
 
-		PTE->FM->clearButton(interfaceButtonFx1);
+		PTE->FM->clearButton(interfaceButtonFx2);
 
 		mtProject.values.lastUsedFx = PTE->getStepFx();
 		mtPopups.showStepPopup(stepPopupFx, mtProject.values.lastUsedFx); //PTE->getStepFx()
@@ -2055,13 +2062,13 @@ static uint8_t getSelectedElement()
 	{
 		return Sequencer::ELEMENTS_INSTRUMENTS;
 	}
-	else if (tactButtons.isButtonPressed(interfaceButtonVol))
+	else if (tactButtons.isButtonPressed(interfaceButtonFx1))
 	{
-		return Sequencer::ELEMENTS_VELO;
+		return Sequencer::ELEMENTS_FX1;
 	}
-	else if (tactButtons.isButtonPressed(interfaceButtonFx))
+	else if (tactButtons.isButtonPressed(interfaceButtonFx2))
 	{
-		return Sequencer::ELEMENTS_FXes;
+		return Sequencer::ELEMENTS_FX2;
 	}
 	else if (tactButtons.isButtonPressed(interfaceButtonPattern))
 	{
@@ -2572,17 +2579,17 @@ static  uint8_t functRandomiseApply()
 		switch (PTE->editParam)
 		{
 		case 0:
-			sequencer.randomSelectedNotes(randomiseData->from,
-											randomiseData->to,
-											randomiseData->param);
+//			sequencer.randomSelectedNotes(randomiseData->from,
+//											randomiseData->to,
+//											randomiseData->param);
 			break;
 		case 1:
-			sequencer.randomSelectedInstruments(randomiseData->from,
-												randomiseData->to);
+//			sequencer.randomSelectedInstruments(randomiseData->from,
+//												randomiseData->to);
 			break;
 		case 2:
-			sequencer.randomSelectedVelo(randomiseData->from,
-											randomiseData->to);
+//			sequencer.randomSelectedVelo(randomiseData->from,
+//											randomiseData->to);
 			break;
 
 		break;
@@ -2806,7 +2813,8 @@ void cPatternEditor::lightUpPadBoard()
 					// co pokazywac na padach:
 					if(tactButtons.isButtonPressed(interfaceButtonFx1) || tactButtons.isButtonPressed(interfaceButtonFx2))
 					{
-						show_fx = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type;    // typ
+						show_fx = interfaceGlobals.fxIdToName(
+								seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].type);    // typ
 						if(show_fx > FX_MAX) break;
 					}
 					else
@@ -3003,11 +3011,10 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 						)//&& mtPopups.getStepPopupState() == stepPopupNone)
 				{
 					PTE->dontShowPopupsUntilButtonRelease = 1;
-					sequencer.setSelectionFxType(fx_index, pad);
+					sequencer.setSelectionFxType(fx_index, interfaceGlobals.fxIDs[pad]);
 				}
 				else
 				{
-
 					sequencer.setSelectionFxValue(fx_index, map(pad, 0, 47, 0, 127));
 				}
 			}
@@ -3132,10 +3139,10 @@ static uint8_t functSwitchModule(uint8_t button)
 					0,
 					INSTRUMENTS_MAX+16);
 		}
-		if (actualStep->velocity >= 0)
-		{
-			mtProject.values.lastUsedVolume = actualStep->velocity;
-		}
+//		if (actualStep->velocity >= 0)
+//		{
+//			mtProject.values.lastUsedVolume = actualStep->velocity;
+//		}
 		if (actualStep->fx[0].type > 0)
 		{
 			mtProject.values.lastUsedFx = actualStep->fx[0].type;

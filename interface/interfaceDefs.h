@@ -5,6 +5,7 @@
 
 
 #include "mtStructs.h"
+#include "mtSequencer.h"
 
 
 #define MT_INTERFACE_STARTUP_TIME 10000
@@ -162,8 +163,8 @@ enum mtInterfaceButtonsFunctions
 	interfaceButtonFx 			= interfaceButton21, // <<
 	interfaceButtonPattern 		= interfaceButton22,
 
-	interfaceButtonFx1 			= interfaceButton20,
-	interfaceButtonFx2 			= interfaceButton21,
+	interfaceButtonFx1 			= interfaceButton21,
+	interfaceButtonFx2 			= interfaceButton20,
 };
 
 //-------------------------------------------------------------
@@ -285,13 +286,72 @@ struct strInterfaceGlobals
 			&fillScaleFilterLabels[1][0],
 	};
 
+//-----------------------------------------------------
+	uint8_t fxIdToName(uint8_t name)
+	{
+//		uint8_t count;
+		for (uint8_t count = 0; count < FX_COUNT; count++)
+		{
+			if (fxIDs[count] == name) return count;
+		}
+
+		return 0;
+	}
+	const uint8_t fxIDs[FX_COUNT] = {
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NUDGE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_VELOCITY,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_STEP_CHANCE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_NOTE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_INSTRUMENT,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_VELOCITY,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_UP,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_DOWN,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_RANDOM,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_1,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_2,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_3,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_4,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_5,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_6,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_7,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_8,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_9,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_10,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_UP,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_DOWN,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_RANDOM,
+
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NOT_SEQ_FX,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_GLIDE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SAMPLE_START,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SAMPLE_LOOP_START,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SAMPLE_LOOP_END,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_SAMPLE_SLICE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_REVERSE_PLAYBACK,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_FILTER_LOWPASS,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_FILTER_HIGHPASS,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_FILTER_BANDPASS,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_REVERB_SEND,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_PANNING,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_AMP_ATTACK,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_AMP_RELEASE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_MICROTUNING,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_TREMOLO_FAST,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_TREMOLO_SLOW,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_VIBRATO_FAST,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_VIBRATO_SLOW,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_FADE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_CUT,
+	};
 	const char rndFxName[FX_NAME_SIZE+4] = "Random Fx";
 
 	const char fxNames[FX_COUNT][FX_NAME_SIZE+4] =
 	{
 			"--- None",
 			"A - Nudge",
-			"B - pusty",
+			"B - Velocity",
 			"C - Roll",
 			"D - Chance",
 			"E - Random note",
@@ -302,14 +362,14 @@ struct strInterfaceGlobals
 			"J - Roll random",
 			"K - Send CC[1]",
 			"L - Send CC[2]",
-			"M - 3",
-			"N - 4",
-			"O - 5",
-			"P - 6",
-			"Q - 7",
-			"R - 8",
-			"S - 9",
-			"T - 10",
+			"M - Send CC[3]",
+			"N - Send CC[4]",
+			"O - Send CC[5]",
+			"P - Send CC[6]",
+			"Q - Send CC[7]",
+			"R - Send CC[8]",
+			"S - Send CC[9]",
+			"T - Send CC[10]",
 			"U - xyz",
 			"V - glide",
 			"W - sample start",
@@ -329,8 +389,8 @@ struct strInterfaceGlobals
 			"k - tremolo slow",
 			"l - vibrato fast",
 			"m - vibrato slow",
-			"n - ",
-			"o - ",
+			"n - fade",
+			"o - cut",
 			"p - ",
 			"q - ",
 			"r - ",

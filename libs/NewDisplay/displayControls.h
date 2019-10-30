@@ -83,9 +83,18 @@ struct strBitmap
 	uint16_t linestride;
 };
 
+struct strGetProps
+{
+	uint32_t End_Address;
+	uint32_t Width;
+	uint32_t Height;
+};
 
 extern const strFont fonts[];
 extern const strBitmap bitmaps[];
+
+extern const strBitmap bitmaps[];
+extern strGetProps getProps;
 
 
 #define FONT_INDEX_FROM_STYLE (((style >> 8) & 15)-1)
