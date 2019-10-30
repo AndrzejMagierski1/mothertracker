@@ -287,18 +287,27 @@ struct strInterfaceGlobals
 	};
 
 //-----------------------------------------------------
-	uint8_t fxIdToName(uint8_t name)
+	uint8_t fxIdToName(uint8_t id)
 	{
 //		uint8_t count;
 		for (uint8_t count = 0; count < FX_COUNT; count++)
 		{
-			if (fxIDs[count] == name) return count;
+			if (fxIDs[count] == id) return count;
 		}
 
 		return 0;
 	}
+	uint8_t fxNameToId(uint8_t name)
+	{
+		return fxIDs[name];
+	}
+
+
+
 	const uint8_t fxIDs[FX_COUNT] = {
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_VALUE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_UP,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NUDGE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_VELOCITY,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL,
@@ -306,7 +315,6 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_NOTE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_INSTRUMENT,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_VELOCITY,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_UP,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_DOWN,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_RANDOM,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_1,
@@ -322,8 +330,7 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_UP,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_DOWN,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_RANDOM,
-
-			Sequencer::strFxConsts::enFxType::FX_TYPE_NOT_SEQ_FX,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NOT_SEQ_FX,//////////
 			Sequencer::strFxConsts::enFxType::FX_TYPE_GLIDE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SAMPLE_START,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SAMPLE_LOOP_START,
@@ -350,6 +357,8 @@ struct strInterfaceGlobals
 	const char fxNames[FX_COUNT][FX_NAME_SIZE+4] =
 	{
 			"--- None",
+			"r - random next value",
+			"H - Roll up",
 			"A - Nudge",
 			"B - Velocity",
 			"C - Roll",
@@ -357,7 +366,6 @@ struct strInterfaceGlobals
 			"E - Random note",
 			"F - Random instrument",
 			"G - Random velocity",
-			"H - Roll up",
 			"I - Roll down",
 			"J - Roll random",
 			"K - Send CC[1]",
@@ -370,6 +378,9 @@ struct strInterfaceGlobals
 			"R - Send CC[8]",
 			"S - Send CC[9]",
 			"T - Send CC[10]",
+			"p - ",
+			"q - ",
+			"s - ",
 			"U - xyz",
 			"V - glide",
 			"W - sample start",
@@ -391,10 +402,6 @@ struct strInterfaceGlobals
 			"m - vibrato slow",
 			"n - fade",
 			"o - cut",
-			"p - ",
-			"q - ",
-			"r - ",
-			"s - ",
 			"t - ",
 			"u - ",
 	};

@@ -7,6 +7,7 @@
 
 #include "patternEditor.h"
 #include "keyScanner.h"
+#include "interfaceDefs.h"
 extern Sequencer sequencer;
 
 void fromToSwap(int16_t & from, int16_t & to)
@@ -122,11 +123,12 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 			{
 
 				step->fx[fxIndex].value = map(offset + sel->firstStep,
-											sel->firstStep,
-											sel->lastStep,
-											fromVal,
-											toVal);
-				step->fx[fxIndex].type = (fxType>=0) ? fxType : random(0, FX_MAX+1);
+												sel->firstStep,
+												sel->lastStep,
+												fromVal,
+												toVal);
+				step->fx[fxIndex].type =
+						(fxType >= 0) ? fxType : random(0, FX_MAX + 1);
 
 			}
 		}
@@ -158,7 +160,9 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 			{
 
 				step->fx[fxIndex].value = random(fromVal, toVal + 1);
-				step->fx[fxIndex].type = (fxType>=0) ? fxType : random(0, FX_MAX+1);;
+				step->fx[fxIndex].type =
+						(fxType >= 0) ? fxType : random(0, FX_MAX + 1);
+				;
 			}
 		}
 	}
@@ -171,7 +175,7 @@ bool Sequencer::isStepToFillFx(strPattern::strTrack::strStep *step,
 {
 	if (fillStep > 0 && offset % fillStep == 0) return true;
 	else if (fillStep == fillStepRandom && random(0, 10) > 6) return true;
-	else if (fillStep == fillStepOccupied && (step->fx[fxIndex].type > 0 || step->note >= 0)) return true;
+	else if (fillStep == fillStepOccupied && (step->fx[fxIndex].type > 0)) return true;
 	else if (fillStep == fillStepEmpty && step->fx[fxIndex].type == 0)
 		return true;
 
@@ -388,11 +392,13 @@ void Sequencer::changeSelectionFxValue(uint8_t fxIndex, int16_t value)
 //			step->fx[0].value2 = 1;
 			if (!isMultiSelection() && step->fx[fxIndex].type == 0)
 			{
-				step->fx[fxIndex].type = mtProject.values.lastUsedFx;
+				step->fx[fxIndex].type = interfaceGlobals.fxNameToId(
+						mtProject.values.lastUsedFx);
 			}
 			else
 			{
-				mtProject.values.lastUsedFx = step->fx[fxIndex].type;
+				mtProject.values.lastUsedFx = interfaceGlobals.fxIdToName(
+						step->fx[fxIndex].type);
 			}
 		}
 	}
@@ -418,7 +424,8 @@ void Sequencer::setSelectionFxValue(uint8_t fxIndex, int16_t value)
 //			step->fx[0].value2 = 1;
 			if (!isMultiSelection() && step->fx[fxIndex].type == 0)
 			{
-				step->fx[fxIndex].type = mtProject.values.lastUsedFx;
+				step->fx[fxIndex].type = interfaceGlobals.fxNameToId(
+						mtProject.values.lastUsedFx);
 			}
 		}
 	}
