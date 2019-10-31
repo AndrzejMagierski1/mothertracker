@@ -314,6 +314,8 @@ void cSampleEditor::start(uint32_t options)
 
 	lastPreviewEffect = (effect_t)UINT32_MAX;// this will force new calculation on effect on each entry
 
+	zoom.zoomResolution = INT32_MAX;
+
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
@@ -1846,7 +1848,6 @@ static uint8_t changeZoom(int16_t value)
 	}
 	else
 	{
-
 		GP.spectrumChangeZoom(value, SE->editorInstrument->sample.length, &SE->zoom);
 	}
 
