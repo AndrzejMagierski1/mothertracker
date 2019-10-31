@@ -609,6 +609,7 @@ public:
 
 // inne
 	void handle_uStep_timer(void);
+//	void internalFxsOff(void);
 
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 					uint8_t track);
@@ -617,7 +618,9 @@ public:
 
 	void loadNextPattern(uint8_t patternNumber);
 	void handleNote(byte channel, byte pitch, byte velocity);
-
+	int16_t getFxMax(uint8_t fxID);
+	int16_t getFxMin(uint8_t fxID);
+	int16_t getFxDefault(uint8_t fxID);
 };
 
 extern Sequencer sequencer;

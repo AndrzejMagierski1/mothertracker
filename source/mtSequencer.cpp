@@ -451,7 +451,7 @@ void Sequencer::play_microStep(uint8_t row)
 			startStep = 1;
 		}
 		// offset
-		else if (playerRow.isOffset &&	playerRow.uStep == playerRow.offsetValue && !playerRow.cancelStep)
+		else if (playerRow.isOffset && playerRow.uStep == playerRow.offsetValue && !playerRow.cancelStep)
 		{
 			startStep = 1;
 		}
