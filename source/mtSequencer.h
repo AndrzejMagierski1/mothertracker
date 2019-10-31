@@ -385,8 +385,11 @@ public:
 			uint16_t noteTimer = 0;
 			uint16_t noteLength = 0;
 
+
 			boolean isOffset = 0;
 			uint16_t offsetValue = 0;
+
+			boolean cancelStep = 0;
 
 			uint8_t rollType = 0; // 1/1, 1/2, 1/4 ...
 

@@ -249,13 +249,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 		// zerujemy zmienne efektowe
 		playerRow.isOffset = 0;
-//
-//		instrumentPlayer[row].seqFx(0, 0, 0);
-//		instrumentPlayer[row].seqFx(0, 0, 1);
-//
-//		playerRow.rollIsOn = 0;
-//		playerRow.rollType = fx.ROLL_TYPE_NONE;
-
+		playerRow.cancelStep = 0;
 	}
 
 //	strPlayer::strPlayerTrack::strPlayerStep & playerStep = playerRow.step[playerRow.actual_pos];
@@ -321,7 +315,7 @@ void Sequencer::play_microStep(uint8_t row)
 	// ************************************
 
 	boolean startStep = 0;
-	boolean cancelStep = 0;
+
 	int16_t randomisedValue = -1;
 
 	if (playerRow.uStep == 1)
@@ -355,13 +349,13 @@ void Sequencer::play_microStep(uint8_t row)
 
 				break;
 			case fx.FX_TYPE_OFF:
-
+				// todo: internalFxsOff();
 				instrumentPlayer[row].seqFx(0, 0, fxIndex);
 
 				break;
 			case fx.FX_TYPE_STEP_CHANCE:
 				if (random(0, 128) > _fx.value)
-					cancelStep = 1;
+					playerRow.cancelStep = 1;
 
 				break;
 
@@ -451,15 +445,13 @@ void Sequencer::play_microStep(uint8_t row)
 	{
 
 		// nie-offset
-		if (!playerRow.isOffset &&
-				playerRow.uStep == 1)
+		if (!playerRow.isOffset && playerRow.uStep == 1 && !playerRow.cancelStep)
 		{
 			// wystartuj stepa
 			startStep = 1;
 		}
 		// offset
-		else if (playerRow.isOffset &&
-				playerRow.uStep == playerRow.offsetValue)
+		else if (playerRow.isOffset &&	playerRow.uStep == playerRow.offsetValue && !playerRow.cancelStep)
 		{
 			startStep = 1;
 		}
@@ -468,7 +460,7 @@ void Sequencer::play_microStep(uint8_t row)
 	// **************************
 	// 		odpalamy stepa
 	// **************************
-	if (startStep && !cancelStep)
+	if (startStep)
 	{
 		if (playerRow.stepOpen || playerRow.stepOpen)
 		{
@@ -484,7 +476,7 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 
 		// EFEKTY WŁAŚCIWE
-		uint8_t fxIndex = 0;
+//		uint8_t fxIndex = 0;
 		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
 		{
 			strPattern::strTrack::strStep::strFx _fx = _fxStep;
