@@ -40,7 +40,7 @@ static uint32_t patternLabelColors[] =
 };
 
 
-volatile uint32_t patternTrackerColors[8] =
+volatile uint32_t patternTrackerColors[] =
 {
 	0xFFFFFF, // linie
 	0xFFFFFF, // numery wierszy
@@ -50,6 +50,7 @@ volatile uint32_t patternTrackerColors[8] =
 	0xFFFFFF, // effekt
 	0xff0000, // zaznaczenie
 	0x111111, // podzialka
+	0x222222, // nieaktywny
 };
 
 uint32_t patternTrackerSelectionColor = 0xff0000;
