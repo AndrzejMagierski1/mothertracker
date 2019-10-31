@@ -10,6 +10,7 @@
 #include "sampleEditor.h"
 #include "sampleRecorder.h"
 #include "configEditor.h"
+#include "imageViewer.h"
 
 #include "game.h"
 #include "performanceMode.h"
@@ -53,7 +54,7 @@ __NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[SAMPLE_MEMORY_MAX/2];
 //=======================================================================
 //=======================================================================
 
-const uint8_t cInterface::modulesCount = 11;
+const uint8_t cInterface::modulesCount = 12;
 const hModule cInterface::modules[modulesCount] =
 {
 		&projectEditor,     // 0
@@ -66,7 +67,8 @@ const hModule cInterface::modules[modulesCount] =
 		&configEditor,      // 7
 		&sampleRecorder,    // 8
 		&performanceMode,	// 9
-		&gameModule,		// 10
+		&imageViewer,		// 10
+		&gameModule,		// 11
 };
 
 
@@ -373,6 +375,12 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 		{
 			mtInterface.deactivateModule((hModule)param1);
 			mtInterface.activateModule(&gameModule,0);
+			break;
+		}
+		case eventActivateImageViewer:
+		{
+			mtInterface.deactivateModule((hModule)param1);
+			mtInterface.activateModule(&imageViewer,0);
 			break;
 		}
 		case eventToggleActiveModule:

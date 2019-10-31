@@ -94,9 +94,9 @@ void cConfigEditor::initDisplayControls()
 	}
 
 
-	configGroupList.linesCount = groupCount;
+	configGroupList.linesCount = mtConfigGroupsCount;
 	configGroupList.start = 0;
-	configGroupList.length = groupCount;
+	configGroupList.length = mtConfigGroupsCount;
 	configGroupList.data = configGroupsNames;
 
 	prop.x = (800/8)*6+8;
@@ -276,55 +276,6 @@ void cConfigEditor::showMasterScreen()
 
 }
 
-void cConfigEditor::showMasterTracksScreen()
-{
-	display.refreshControl(titleBar);
-
-	display.setControlText(titleLabel, "Tracks");
-	display.refreshControl(titleLabel);
-
-	// bottom labels
-	display.setControlText(bottomLabel[0], "On");
-	display.setControlText(bottomLabel[1], "On");
-	display.setControlText(bottomLabel[2], "On");
-	display.setControlText(bottomLabel[3], "On");
-	display.setControlText(bottomLabel[4], "On");
-	display.setControlText(bottomLabel[5], "On");
-	display.setControlText(bottomLabel[6], "On");
-	display.setControlText(bottomLabel[7], "On");
-
-	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/16),  450);
-	display.setControlPosition(topLabel[6],  (800/8)*6+(800/16),  415);
-	display.setControlSize(bottomLabel[6],  800/8-10,  30);
-	display.setControlSize(topLabel[6],  800/8-10,  26);
-
-	display.setControlText(topLabel[0], "Solo");
-	display.setControlText(topLabel[1], "Solo");
-	display.setControlText(topLabel[2], "Solo");
-	display.setControlText(topLabel[3], "Solo");
-	display.setControlText(topLabel[4], "Solo");
-	display.setControlText(topLabel[5], "Solo");
-	display.setControlText(topLabel[6], "Solo");
-	display.setControlText(topLabel[7], "Solo");
-
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
-
-		display.setControlShow(barControl[i]);
-		display.refreshControl(barControl[i]);
-	}
-
-	display.setControlHide(configGroupsListControl);
-
-	display.synchronizeRefresh();
-
-}
 
 //==============================================================================================================
 void cConfigEditor::activateLabelsBorder()
@@ -339,7 +290,7 @@ void cConfigEditor::activateLabelsBorder()
 void cConfigEditor::listConfigGroups()
 {
 
-	for(uint8_t i = 0; i < groupCount; i++)
+	for(uint8_t i = 0; i < mtConfigGroupsCount; i++)
 	{
 		configGroupsNames[i] = (char*)&groupNamesLabels[i][0];
 	}
@@ -349,8 +300,8 @@ void cConfigEditor::listConfigGroups()
 void cConfigEditor::showConfigGroupList()
 {
 	configGroupList.start = selectedConfigGroup;
-	configGroupList.length = groupCount;
-	configGroupList.linesCount = groupCount;
+	configGroupList.length = mtConfigGroupsCount;
+	configGroupList.linesCount = mtConfigGroupsCount;
 	configGroupList.data = configGroupsNames;
 
 	display.setControlData(configGroupsListControl,  &configGroupList);
@@ -507,7 +458,7 @@ void cConfigEditor::hideFirmwareUpdateLabels()
 	display.setControlText(topLabel[2], "3");
 	display.setControlText(topLabel[3], "4");
 	display.setControlText(topLabel[4], "5");
-	display.setControlText(topLabel[5], "6");
+	display.setControlText(topLabel[5], "Tutorial");
 
 	for(int i=0;i<6;i++)
 	{

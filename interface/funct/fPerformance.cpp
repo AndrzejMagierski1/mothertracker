@@ -12,8 +12,9 @@
 
 #include "interfacePopups.h"
 
-#include "mtSequencer.h"
+
 #include "mtFileManager.h"
+
 #include "mtSequencer.h"
 
 

@@ -14,7 +14,7 @@ enum mtConfigMode
 {
 	mtConfigModeDefault,
 	mtConfigModeMaster,
-	mtConfigModeMasterTracks,
+
 
 
 };
@@ -28,15 +28,10 @@ enum mtConfigSpecific
 	configDefaultSD,
 	configDefaultFirmware,
 
+	mtConfigGroupsCount
 };
 
-
-const uint8_t firmware_list_max=10;
-const uint8_t firmware_name_length=15;
-
-
-const uint8_t groupCount = 6;
-const char groupNamesLabels[groupCount][15] =
+const char groupNamesLabels[mtConfigGroupsCount][15] =
 {
 		"General",
 		"Audio I/O",
@@ -46,6 +41,14 @@ const char groupNamesLabels[groupCount][15] =
 		"Firmware"
 
 };
+
+
+
+const uint8_t firmware_list_max=10;
+const uint8_t firmware_name_length=15;
+
+
+
 
 
 
@@ -82,7 +85,7 @@ public:
 
 	void showDefaultConfigScreen();
 	void showMasterScreen();
-	void showMasterTracksScreen();
+
 
 	void changeSelectionInGroup(int16_t value);
 
@@ -109,7 +112,6 @@ public:
 
 	void setConfigScreenFunct();
 	void setMasterScreenFunct();
-	void setMasterTracksScreenFunct();
 
 
 	// config
@@ -195,7 +197,7 @@ public:
 
 	void listConfigGroups();
 
-	char *configGroupsNames[groupCount];
+	char *configGroupsNames[mtConfigGroupsCount];
 
 	uint8_t selectedConfigGroup;
 	uint8_t previousSelectedConfigGroup=UINT8_MAX;
