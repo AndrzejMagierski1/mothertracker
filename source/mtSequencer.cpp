@@ -248,7 +248,7 @@ void Sequencer::play_microStep(uint8_t row)
 		stepToSend.velocity = STEP_VELO_DEFAULT;
 
 		// zerujemy zmienne efektowe
-//		playerRow.isOffset = 0;
+		playerRow.isOffset = 0;
 //
 //		instrumentPlayer[row].seqFx(0, 0, 0);
 //		instrumentPlayer[row].seqFx(0, 0, 1);
@@ -352,6 +352,11 @@ void Sequencer::play_microStep(uint8_t row)
 
 				stepToSend.velocity = _fx.value;
 				stepSent.velocity = stepToSend.velocity;
+
+				break;
+			case fx.FX_TYPE_OFF:
+
+				instrumentPlayer[row].seqFx(0, 0, fxIndex);
 
 				break;
 			case fx.FX_TYPE_STEP_CHANCE:

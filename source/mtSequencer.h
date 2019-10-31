@@ -71,6 +71,7 @@ public:
 			// powiązane z listą tekstów w
 			// #include <interfaceDefs.h>
 			FX_TYPE_NONE,
+			FX_TYPE_OFF,
 			FX_TYPE_NUDGE,
 			FX_TYPE_VELOCITY,
 			FX_TYPE_ROLL,
