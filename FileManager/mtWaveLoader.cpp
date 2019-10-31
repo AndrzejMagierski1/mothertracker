@@ -268,6 +268,40 @@ uint32_t WaveLoader::getInfoAboutWave(const char *filename)
 	return localSampleHead.subchunk2Size/localSampleHead.blockAlign;
 }
 
+void WaveLoader::getInfoAboutWave(const char *filename , uint32_t * size, uint8_t * isWavetable )
+{
+	if(filename == nullptr)
+	{
+		*size = 0;
+		*isWavetable = 0;
+		return;
+	}
+	wavfile = SD.open(filename);
+	if(!wavfile)
+	{
+		wavfile.close();
+		*size = 0;
+		*isWavetable = 0;
+		return;
+	}
+	strWavFileHeader localSampleHead;
+	readHeader(&localSampleHead,&wavfile);
+	wavfile.close();
+
+	if((localSampleHead.format != 1163280727) ||( (localSampleHead.AudioFormat != 1) && (localSampleHead.AudioFormat != 3) )  || ((localSampleHead.bitsPerSample != 16) && (localSampleHead.bitsPerSample != 24) && (localSampleHead.bitsPerSample != 32) )|| localSampleHead.sampleRate != 44100 )
+	{
+		*size = 0;
+	}
+	else *size = localSampleHead.subchunk2Size/localSampleHead.blockAlign;
+
+	if( (localSampleHead.format != 1163280727) || (localSampleHead.AudioFormat != 3)  || (localSampleHead.bitsPerSample != 32)
+	|| (localSampleHead.sampleRate != 44100) || (localSampleHead.numChannels != 1)
+	|| (localSampleHead.subchunk2Size != 4 * SERUM_WAVETABLE_WINDOW_LEN * STANDARD_WAVETABLE_WINDOWS_NUMBER) ) *isWavetable = 0;
+	else *isWavetable = 1;
+
+	return;
+}
+
 uint8_t WaveLoader::getCurrentWaveProgress()
 {
 	return ((accBufferLength * 100) / sampleHead.subchunk2Size);

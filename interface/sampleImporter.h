@@ -212,7 +212,7 @@ public:
 	void calculateMemUsage();
 
 	uint32_t currentFolderMemoryFileUsage[255];
-	uint32_t currentFolderIsWavetableFlag[255];
+	uint8_t currentFolderIsWavetableFlag[255];
 
 	void setSelect(uint8_t place);
 	void frameSelectMode(uint8_t place,uint8_t mode);
