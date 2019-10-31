@@ -1231,10 +1231,32 @@ void Sequencer::blinkSelectedStep()
 
 	if (step->note >= 0)
 	{
-		blinkNote(step->instrument,
-					step->note,
-					STEP_VELO_DEFAULT,
-					selection.firstTrack);
+		if (player.blink.isOpen)
+		{
+			closeBlinkNote();
+		}
+
+		player.blink.isOpen = 1;
+		player.blink.track = selection.firstTrack;
+		player.blink.timer = 0;
+		player.blink.instrument = step->instrument;
+		player.blink.note = step->note;
+
+		if (step->instrument < INSTRUMENTS_COUNT)
+		{
+			instrumentPlayer[selection.firstTrack].noteOn(step->instrument,
+															step->note,
+															120,
+															step->fx[0].type,
+															step->fx[0].value,
+															step->fx[1].type,
+															step->fx[1].value);
+		}
+		else
+		{
+			usbMIDI.sendNoteOn(step->note, 120,
+								step->instrument - INSTRUMENTS_COUNT);
+		}
 	}
 
 }
