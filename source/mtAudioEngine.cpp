@@ -836,6 +836,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::filterCutoff] = 1;
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::filterEnable] = 1;
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::filterType] = 1;
+
 			if(fx_n == MOST_SIGNIFICANT_FX)
 			{
 				currentSeqModValues.filterCutoff = fx_val/(float)127;
@@ -988,6 +989,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 		break;
 		case fx_t::FX_TYPE_SAMPLE_START :
 
+			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::startPoint] = 1;
 			if(fx_n == MOST_SIGNIFICANT_FX)
 			{
 				currentSeqModValues.startPoint = map(fx_val,0,127,0,MAX_16BIT);
@@ -999,7 +1001,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 					currentSeqModValues.startPoint = map(fx_val,0,127,0,MAX_16BIT);
 				}
 			}
-			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::startPoint] = 1;
+
 
 
 			if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::endPoint]) modSeqPoints(currentSeqModValues.startPoint, currentSeqModValues.endPoint);
@@ -1191,10 +1193,13 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				if( trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::filterCutoff] &&
 					trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::filterEnable] &&
 					trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::filterType])
-				currentSeqModValues.filterCutoff = lastSeqVal[otherFx_n]/(float)127;
-				currentSeqModValues.filterType = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_FILTER_BANDPASS ?  bandPass
-						: lastSeqFx[otherFx_n] == fx_t::FX_TYPE_FILTER_HIGHPASS ? highPass : lowPass;
-				currentSeqModValues.filterEnable = 1;
+				{
+					currentSeqModValues.filterCutoff = lastSeqVal[otherFx_n]/(float)127;
+					currentSeqModValues.filterType = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_FILTER_BANDPASS ?  bandPass
+							: lastSeqFx[otherFx_n] == fx_t::FX_TYPE_FILTER_HIGHPASS ? highPass : lowPass;
+					currentSeqModValues.filterEnable = 1;
+				}
+
 			}
 
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
@@ -1247,10 +1252,13 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				if( trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::filterCutoff] &&
 					trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::filterEnable] &&
 					trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::filterType])
-				currentSeqModValues.filterCutoff = lastSeqVal[otherFx_n]/(float)127;
-				currentSeqModValues.filterType = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_FILTER_BANDPASS ?  bandPass
-						: lastSeqFx[otherFx_n] == fx_t::FX_TYPE_FILTER_HIGHPASS ? highPass : lowPass;
-				currentSeqModValues.filterEnable = 1;
+				{
+					currentSeqModValues.filterCutoff = lastSeqVal[otherFx_n]/(float)127;
+					currentSeqModValues.filterType = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_FILTER_BANDPASS ?  bandPass
+							: lastSeqFx[otherFx_n] == fx_t::FX_TYPE_FILTER_HIGHPASS ? highPass : lowPass;
+					currentSeqModValues.filterEnable = 1;
+				}
+
 			}
 
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
@@ -1302,10 +1310,13 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				if( trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::filterCutoff] &&
 					trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::filterEnable] &&
 					trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::filterType])
-				currentSeqModValues.filterCutoff = lastSeqVal[otherFx_n]/(float)127;
-				currentSeqModValues.filterType = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_FILTER_BANDPASS ?  bandPass
-						: lastSeqFx[otherFx_n] == fx_t::FX_TYPE_FILTER_HIGHPASS ? highPass : lowPass;
-				currentSeqModValues.filterEnable = 1;
+				{
+					currentSeqModValues.filterCutoff = lastSeqVal[otherFx_n]/(float)127;
+					currentSeqModValues.filterType = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_FILTER_BANDPASS ?  bandPass
+							: lastSeqFx[otherFx_n] == fx_t::FX_TYPE_FILTER_HIGHPASS ? highPass : lowPass;
+					currentSeqModValues.filterEnable = 1;
+				}
+
 			}
 
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
@@ -1360,9 +1371,13 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 			}
 			else
 			{
-				playMemPtr->clearGlideForceFlag();
-				playMemPtr->setForcedGlide(0);
-				modGlide(mtProject.instrument[currentInstrument_idx].glide);
+				if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::glide])
+				{
+					playMemPtr->clearGlideForceFlag();
+					playMemPtr->setForcedGlide(0);
+				}
+
+
 			}
 		break;
 		case fx_t::FX_TYPE_MICROTUNING :
@@ -1743,8 +1758,8 @@ void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 	endPoint =  ep != NOT_MOD_POINTS ? currentSeqModValues.endPoint : mtProject.instrument[currentInstrument_idx].endPoint;
 
 
-	if(ep != NOT_MOD_POINTS ) trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::endPoint] = 1;
-	if(sp != NOT_MOD_POINTS ) trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint] = 1;
+//	if(ep != NOT_MOD_POINTS ) trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::endPoint] = 1;
+//	if(sp != NOT_MOD_POINTS ) trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::startPoint] = 1;
 
 
 	if(mtProject.instrument[currentInstrument_idx].playMode != singleShot)
