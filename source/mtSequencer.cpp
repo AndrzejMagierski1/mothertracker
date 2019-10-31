@@ -248,13 +248,13 @@ void Sequencer::play_microStep(uint8_t row)
 		stepToSend.velocity = STEP_VELO_DEFAULT;
 
 		// zerujemy zmienne efektowe
-		playerRow.isOffset = 0;
-
-		instrumentPlayer[row].seqFx(0, 0, 0);
-		instrumentPlayer[row].seqFx(0, 0, 1);
-
-		playerRow.rollIsOn = 0;
-		playerRow.rollType = fx.ROLL_TYPE_NONE;
+//		playerRow.isOffset = 0;
+//
+//		instrumentPlayer[row].seqFx(0, 0, 0);
+//		instrumentPlayer[row].seqFx(0, 0, 1);
+//
+//		playerRow.rollIsOn = 0;
+//		playerRow.rollType = fx.ROLL_TYPE_NONE;
 
 	}
 
