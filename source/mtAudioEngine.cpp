@@ -482,7 +482,6 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 								uint8_t fx2_id, uint8_t fx2_val)
 {
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
-
 	__disable_irq();
 	uint8_t status;
 	float gainL=0,gainR=0;
@@ -787,7 +786,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 			}
 			else
 			{
-				modCutoff(currentSeqModValues.filterCutoff);
+				filterPtr->setCutoff(currentSeqModValues.filterCutoff);
 				changeFilterType(currentSeqModValues.filterType);
 				filterConnect();
 			}
@@ -826,7 +825,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 			}
 			else
 			{
-				modCutoff(currentSeqModValues.filterCutoff);
+				filterPtr->setCutoff(currentSeqModValues.filterCutoff);
 				changeFilterType(currentSeqModValues.filterType);
 				filterConnect();
 			}
@@ -864,7 +863,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 			}
 			else
 			{
-				modCutoff(currentSeqModValues.filterCutoff);
+				filterPtr->setCutoff(currentSeqModValues.filterCutoff);
 				changeFilterType(currentSeqModValues.filterType);
 				filterConnect();
 			}
@@ -1170,7 +1169,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 		break;
 	}
 	lastSeqFx[fx_n] = fx_id;
-	lastSeqVal[fx_n] = fx_id;
+	lastSeqVal[fx_n] = fx_val;
 }
 //*** Jeżeli kończy się mniej znaczący efekt mimo, że aktywny jest bardziej znaczący efekt to nie wykonujemy żadnej akcji poza wyzerowaniem flag ***/
 //*** Jeżeli kończy się bardziej znaczący efekt i aktywny jest mniej znaczący efekt to mniej znaczący efekt przejmuje kontrolę lub performanceMode wykonuje
@@ -1213,12 +1212,12 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				{
 					if(fx_id == MOST_SIGNIFICANT_FX)
 					{
-						modCutoff(currentSeqModValues.filterCutoff);
+						filterPtr->setCutoff(currentSeqModValues.filterCutoff);
 					}
 				}
 				else
 				{
-					modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+					filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
 					if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
 					else filterConnect();
 				}
@@ -1272,12 +1271,12 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				{
 					if(fx_id == MOST_SIGNIFICANT_FX)
 					{
-						modCutoff(currentSeqModValues.filterCutoff);
+						filterPtr->setCutoff(currentSeqModValues.filterCutoff);
 					}
 				}
 				else
 				{
-					modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+					filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
 					if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
 					else filterConnect();
 				}
@@ -1330,12 +1329,12 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				{
 					if(fx_id == MOST_SIGNIFICANT_FX)
 					{
-						modCutoff(currentSeqModValues.filterCutoff);
+						filterPtr->setCutoff(currentSeqModValues.filterCutoff);
 					}
 				}
 				else
 				{
-					modCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+					filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
 					if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
 					else filterConnect();
 				}
@@ -1919,22 +1918,29 @@ void playerEngine:: update()
 		{
 			statusBytes &= (~FINETUNE_MASK);
 
-			if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFineTune])
+			if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFineTune] ||
+			   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoFineTune] )
 			{
-				if(mtProject.instrument[currentInstrument_idx].fineTune + fineTuneMod*100 > MAX_INSTRUMENT_FINETUNE)
+				int8_t fineTune;
+				if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::fineTune] ||
+				   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::fineTune] ) fineTune = currentSeqModValues.fineTune;
+				else fineTune = mtProject.instrument[currentInstrument_idx].fineTune;
+
+
+				if(fineTune + fineTuneMod*100 > MAX_INSTRUMENT_FINETUNE)
 				{
 					playMemPtr->setForcedFineTune(MAX_INSTRUMENT_FINETUNE);
 					modFineTune(MAX_INSTRUMENT_FINETUNE);
 				}
-				else if(mtProject.instrument[currentInstrument_idx].fineTune + fineTuneMod*100 < MIN_INSTRUMENT_FINETUNE)
+				else if(fineTune + fineTuneMod*100 < MIN_INSTRUMENT_FINETUNE)
 				{
 					playMemPtr->setForcedFineTune(MIN_INSTRUMENT_FINETUNE);
 					modFineTune(MIN_INSTRUMENT_FINETUNE);
 				}
 				else
 				{
-					playMemPtr->setForcedFineTune(mtProject.instrument[currentInstrument_idx].fineTune + fineTuneMod*100);
-					modFineTune(mtProject.instrument[currentInstrument_idx].fineTune+ fineTuneMod*100);
+					playMemPtr->setForcedFineTune(fineTune + fineTuneMod*100);
+					modFineTune(fineTune+ fineTuneMod*100);
 				}
 			}
 			else modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
