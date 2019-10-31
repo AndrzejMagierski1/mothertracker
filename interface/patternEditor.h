@@ -108,13 +108,6 @@ public:
 	void hideFillPopup();
 
 
-	void showRandomisePopup();
-	void refreshRandomiseFrom();
-	void refreshRandomiseTo();
-	void refreshRandomiseParam();
-	void refreshRandomiseStep();
-	void hideRandomisePopup();
-
 
 	void showTracksMaster();
 	void refreshTracksMaster();
@@ -153,7 +146,7 @@ public:
 	hControl param1PopupListControl;
 	hControl val1PopupLabel;
 	hControl val2PopupLabel;
-	hControl val3PopupLabel;
+	hControl param3PopupListControl;
 	hControl param2PopupListControl;
 	hControl notePopoutControl = nullptr;
 //	hControl titleBar;
@@ -186,9 +179,10 @@ public:
 	//
 	strList fillFxTypeList;
 	//
+	strList fillStepList;
+	//
 	char fillText1[10];
 	char fillText2[10];
-	char fillText3[10];
 	//
 	struct strFill
 	{
@@ -200,25 +194,6 @@ public:
 	} fillData[4];
 
 	int16_t fillStep = 1;
-
-//------------------------------------------------------
-// randomise
-	uint8_t randomiseState = 0;
-	uint8_t randomisePlace = 1;
-	//
-	// listy wziete z filla
-	//
-	// texty z fill
-	//
-	struct strRandomise
-	{
-		uint16_t from;
-		uint16_t to;
-		uint16_t param;
-
-	} randomiseData[4];
-
-
 
 
 //-------------------------------------------------------

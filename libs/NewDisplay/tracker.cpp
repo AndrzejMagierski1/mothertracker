@@ -20,6 +20,24 @@ static uint32_t defaultColors[] =
 };
 
 
+
+#define ROW_NUM 0
+
+
+
+
+
+#if ROW_NUM
+uint8_t fourParamsOffset[4] =		{	4,44,73,130,	};	// stara koncepcja z numerami wierszy
+uint8_t twoParamsOffsetFirst[4] =	{	9,9,9,9,		};
+uint8_t twoParamsOffsetSecond[4] =	{	50,50,50,50,	};
+#else
+uint8_t fourParamsOffset[4] =		{	9,  55, 88, 145,	};
+uint8_t twoParamsOffsetFirst[4] =	{	9,  9,  3,   0,	};
+uint8_t twoParamsOffsetSecond[4] =	{	0,  65, 52,  52,	};
+#endif
+
+
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
@@ -177,10 +195,18 @@ void cTracker::refresh1()
 	colors[6] = tracks->selectColor;
 	displayMode = value;
 
+	rightOffset = 0;
+	leftOffset = 0;
+
+#if ROW_NUM
+	rightOffset = 27;
+	leftOffset = 27;
+#endif
+
 
 	if(displayMode > 0)
 	{
-		tracksSpace = (800 - 2*28) / 8;
+		tracksSpace = (800 - (rightOffset + leftOffset)) / 8;
 		columnsCount = tracks->popupMode ? 6 : 8;
 		paramCount = (displayMode & 1) + ((displayMode & 2) >> 1) + ((displayMode & 4) >> 2) + ((displayMode & 8) >> 3);
 	}
@@ -188,7 +214,7 @@ void cTracker::refresh1()
 	{
 
 		columnsCount = tracks->popupMode ? 3 : 4;
-		tracksSpace = (800 - 2*28) / 4;
+		tracksSpace = (800 - (rightOffset + leftOffset)) / 4;
 		paramCount = 4;
 	}
 
@@ -197,7 +223,11 @@ void cTracker::refresh1()
 	lines();
 	playHead();
 	selection();
+
+#if ROW_NUM
 	rowNumbers();
+#endif
+
 }
 
 //------------------------------------------------------------------------------------------
@@ -282,16 +312,18 @@ void cTracker::lines()
 	API_BEGIN(LINES);
 
 	// PIONOWE
-	API_VERTEX2F(27, 0);
-	API_VERTEX2F(27, 28*15);
+#if ROW_NUM
+	API_VERTEX2F(rightOffset, 0);
+	API_VERTEX2F(rightOffset, 28*15);
 
-	API_VERTEX2F(799-28, 0);
-	API_VERTEX2F(799-28, 28*15);
+	API_VERTEX2F(799-leftOffset, 0);
+	API_VERTEX2F(799-leftOffset, 28*15);
+#endif
 
 	uint16_t x;
 	for(uint8_t i = 1; i < columnsCount; i++)
 	{
-		x = (27+tracksSpace*i);
+		x = (rightOffset+tracksSpace*i);
 		API_VERTEX2F(x, 0);
 		API_VERTEX2F(x, 28*15);
 	}
@@ -359,10 +391,10 @@ void cTracker::selection()
 		}
 
 		select1_x = select1_x - tracks->firstVisibleTrack;
-		select1_x = 27+select1_x*tracksSpace;
+		select1_x = rightOffset+select1_x*tracksSpace;
 
 		select2_x = select2_x - tracks->firstVisibleTrack;
-		select2_x = 27+ select2_x*tracksSpace + tracksSpace;
+		select2_x = rightOffset+ select2_x*tracksSpace + tracksSpace;
 
 		select1_y = select1_y - tracks->actualStep + 7;
 		select1_y = select1_y*28;
@@ -396,12 +428,12 @@ void cTracker::selection()
 		}
 
 
-		if(select2_x <= 27+tracksSpace*columnsCount) // prawa
+		if(select2_x <= rightOffset+tracksSpace*columnsCount) // prawa
 		{
 			API_VERTEX2F(select2_x, select1_y);
 			API_VERTEX2F(select2_x, select2_y);
 		}
-		if(select1_x >= 27) // lewa
+		if(select1_x >= rightOffset) // lewa
 		{
 			API_VERTEX2F(select1_x, select2_y);
 			API_VERTEX2F(select1_x, select1_y);
@@ -416,11 +448,8 @@ void cTracker::selection()
 	// aktualnie modyfikowany step
 	if(tracks->selectState && tracks->actualTrack >= tracks->firstVisibleTrack && tracks->actualTrack <= tracks->firstVisibleTrack+columnsCount)
 	{
-		uint16_t select_x = 27;
+		uint16_t select_x = rightOffset + (tracks->actualTrack - tracks->firstVisibleTrack) * tracksSpace;
 		uint16_t select_w = tracksSpace;
-
-
-		select_x = 27 + (tracks->actualTrack - tracks->firstVisibleTrack) * tracksSpace;
 
 
 		API_COLOR(colors[6]);
@@ -476,7 +505,7 @@ void cTracker::tracksNumbers()
 
 	for(uint8_t i = 0; i < columnsCount; i++)
 	{
-		x = 27+(i*tracksSpace);
+		x = rightOffset+(i*tracksSpace);
 		y = 0;
 
 		//pole/tlo
@@ -531,11 +560,11 @@ void cTracker::notes()
 	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
-	uint8_t offset_x = 27+9;
+	uint8_t offset_x = rightOffset+fourParamsOffset[0];
 
 	//if(paramCount == 1) 		offset_x = 27 + ((tracksSpace/2)-(param_length[1]*12)/2);
-	if(paramCount == 1) 		offset_x = 27 + ((tracksSpace/2)-18);
-	else if(paramCount == 2)  	offset_x = 27 + 9;
+	if(paramCount == 1) 		offset_x = rightOffset + ((tracksSpace/2)-18);
+	else if(paramCount == 2)  	offset_x = rightOffset + twoParamsOffsetFirst[0];
 
 	int8_t mark = -1;
 	if((tracks->selectedParam == 0 || tracks->selectedParam == 4) && tracks->selectState)
@@ -572,9 +601,9 @@ void cTracker::instruments()
 	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
-	uint8_t offset_x = 27+53; // 59
-	if(paramCount == 1) 		offset_x = 27 + ((tracksSpace/2)-12);
-	else if(paramCount == 2)  	offset_x = (displayMode & 1) ? 27+50 : 27+9;
+	uint8_t offset_x = rightOffset+fourParamsOffset[1]; // 59
+	if(paramCount == 1) 		offset_x = rightOffset + ((tracksSpace/2)-12);
+	else if(paramCount == 2)  	offset_x = (displayMode & 1) ? rightOffset+twoParamsOffsetSecond[1] : rightOffset+twoParamsOffsetFirst[1];
 
 	int8_t mark = -1;
 	if((tracks->selectedParam == 1 || tracks->selectedParam == 4) && tracks->selectState)
@@ -614,9 +643,9 @@ void cTracker::volumes()
 	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
-	uint8_t offset_x = 27+99;
-	if(paramCount == 1) 		offset_x = 27 + ((tracksSpace/2)-12);
-	else if(paramCount == 2)  	offset_x = (displayMode & 8) ? 27+9 : 27+50;
+	uint8_t offset_x = rightOffset+fourParamsOffset[2];
+	if(paramCount == 1) 		offset_x = rightOffset + ((tracksSpace/2)-12);
+	else if(paramCount == 2)  	offset_x = (displayMode & 8) ? rightOffset+9 : rightOffset+50;
 
 	int8_t mark = -1;
 	if((tracks->selectedParam == 2 || tracks->selectedParam == 4) && tracks->selectState)
@@ -649,13 +678,13 @@ void cTracker::volumes()
 void cTracker::fxes1()
 {
 	API_VERTEX_FORMAT(0);
-	API_COLOR(colors[5]);
+	API_COLOR(colors[4]);
 	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
-	uint8_t offset_x = 27+90; // 99
-	if(paramCount == 1) 		offset_x = 27 + ((tracksSpace/2)-12);
-	else if(paramCount == 2)  	offset_x = (displayMode & 8) ? 27+9 : 27+50;
+	uint8_t offset_x = rightOffset+fourParamsOffset[2]; // 99
+	if(paramCount == 1) 		offset_x = rightOffset + ((tracksSpace/2)-24);
+	else if(paramCount == 2)  	offset_x = (displayMode & 8) ? rightOffset+twoParamsOffsetFirst[2] : rightOffset+twoParamsOffsetSecond[2];
 
 	int8_t mark = -1;
 	if((tracks->selectedParam == 2 || tracks->selectedParam == 4) && tracks->selectState)
@@ -678,7 +707,7 @@ void cTracker::fxes1()
 
 			String2Bitmaps(param_x, param_y, &fonts[1], &tracks->track[tracks->firstVisibleTrack+i].row[j].fx[0][0], param_length[3]);
 
-			if(change_color) API_COLOR(colors[5]);
+			if(change_color) API_COLOR(colors[4]);
 		}
 	}
 
@@ -690,9 +719,9 @@ void cTracker::fxes2()
 	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
-	uint8_t offset_x = 27+136;
-	if(paramCount == 1) 		offset_x = 27 + ((tracksSpace/2)-18);
-	else if(paramCount == 2)  	offset_x = 27 + 50;
+	uint8_t offset_x = rightOffset+fourParamsOffset[3];
+	if(paramCount == 1) 		offset_x = rightOffset + ((tracksSpace/2)-24);
+	else if(paramCount == 2)  	offset_x = rightOffset + twoParamsOffsetSecond[3];
 
 	int8_t mark = -1;
 	if((tracks->selectedParam == 3 || tracks->selectedParam == 4) && tracks->selectState)
@@ -745,7 +774,7 @@ void String2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int
 
 	for(uint8_t i = 0; i < length; i++)
 	{
-		if(x > 755 || y > 480 || x < 30 || y < 0)
+		if(x > 799 || y > 480 || x < 0 || y < 0)
 		{
 			strPtr++;
 		}

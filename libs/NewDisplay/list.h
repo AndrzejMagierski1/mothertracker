@@ -11,7 +11,7 @@
 
 typedef struct
 {
-	uint8_t useSpecialIcons;
+	uint8_t useSpecialIcons = 0;
 	int8_t iconPositionInList;
 	uint8_t iconNum;
 

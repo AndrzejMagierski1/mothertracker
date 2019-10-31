@@ -101,13 +101,15 @@ void Sequencer::fillLinearInstruments(int16_t fillStep, int16_t from,
 }
 void Sequencer::fillLinearFx(int16_t fxIndex,
 								int16_t fillStep,
-								int16_t fxType,
+								int16_t fxName,
 								int16_t fromVal,
 								int16_t toVal)
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	if (fxIndex > FX_SLOTS_MAX) fxIndex = 0;
+
+	int16_t fxType = interfaceGlobals.fxNameToId(fxName);
 
 	strPattern::strTrack::strStep *step;
 
@@ -136,7 +138,7 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 }
 void Sequencer::fillRandomFx(int16_t fxIndex,
 								int16_t fillStep,
-								int16_t fxType,
+								int16_t fxName,
 								int16_t fromVal,
 								int16_t toVal)
 {
@@ -145,6 +147,8 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	if (fxIndex > FX_SLOTS_MAX) fxIndex = 0;
+
+	int16_t fxType = interfaceGlobals.fxNameToId(fxName);
 
 	strPattern::strTrack::strStep *step;
 
