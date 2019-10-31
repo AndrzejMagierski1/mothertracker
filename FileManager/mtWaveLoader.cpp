@@ -1,5 +1,6 @@
 #include "mtWaveLoader.h"
 #include "mtHardware.h"
+#include "mtCommonBuffer.h"
 WaveLoader externalWaveLoader;
 
 void WaveLoader::update()
@@ -14,107 +15,91 @@ void WaveLoader::update()
 
 			if(sampleHead.bitsPerSample == 24)
 			{
-				uint8_t buf8[1536];
+				uint8_t *buf = getWriteLoadBufferPointer();
+
 				if(sampleHead.numChannels == 1)
 				{
-					for(uint16_t i = 0 ; i< BUFFER_COUNT; i++)
+					if( wavfile.available() )
 					{
-						if( wavfile.available() )
+						bufferLength = wavfile.read(buf, 32256);
+
+						accBufferLength += bufferLength;
+
+						forConstrain =  bufferLength/3;
+
+						uint8_t * wsk = &buf[1];
+						for(int i=0; i< forConstrain; i++)
 						{
-							bufferLength = wavfile.read(buf8, 1536);
-
-							accBufferLength += bufferLength;
-
-							forConstrain =  bufferLength/3;
-
-							uint8_t * wsk = &buf8[1];
-							for(int i=0; i< forConstrain; i++)
-							{
-								*(currentAddress++)=*((int16_t *) wsk);
-								if(i != (forConstrain-1) ) wsk+=3;
-							}
+							*(currentAddress++)=*((int16_t *) wsk);
+							if(i != (forConstrain-1) ) wsk+=3;
 						}
-						else
-						{
-							stopFlag = stop();
-							break;
-						}
+					}
+					else
+					{
+						stopFlag = stop();
 					}
 				}
 				else if (sampleHead.numChannels == 2)
 				{
-					for(uint16_t i = 0 ; i< BUFFER_COUNT; i++)
+					if( wavfile.available() )
 					{
-						if( wavfile.available() )
+						bufferLength = wavfile.read(buf, 1536);
+
+						accBufferLength += bufferLength;
+
+						forConstrain =  bufferLength/6;
+
+						uint8_t * wsk = &buf[1];
+						for(int i=0; i< forConstrain; i++)
 						{
-							bufferLength = wavfile.read(buf8, 1536);
-
-							accBufferLength += bufferLength;
-
-							forConstrain =  bufferLength/6;
-
-							uint8_t * wsk = &buf8[1];
-							for(int i=0; i< forConstrain; i++)
-							{
-								*(currentAddress++)=*((int16_t *) wsk);
-								if(i != (forConstrain-1) ) wsk+=6;
-							}
+							*(currentAddress++)=*((int16_t *) wsk);
+							if(i != (forConstrain-1) ) wsk+=6;
 						}
-						else
-						{
-							stopFlag = stop();
-							break;
-						}
+					}
+					else
+					{
+						stopFlag = stop();
 					}
 				}
 			}
 			else
 			{
-				int16_t buf16[256];
+				int16_t *buf = (int16_t*)getWriteLoadBufferPointer();
 				if(sampleHead.numChannels == 1)
 				{
-					for(uint16_t i = 0 ; i< BUFFER_COUNT; i++)
+					if( wavfile.available() )
 					{
-						if( wavfile.available() )
-						{
-							bufferLength = wavfile.read(buf16, 512);
+						bufferLength = wavfile.read(buf, COMMON_BUFFER_SIZE);
 
-							accBufferLength += bufferLength;
+						accBufferLength += bufferLength;
 
-							forConstrain =  bufferLength/2;
-							for(int i=0; i< forConstrain; i++)
-							{
-								*(currentAddress++)=buf16[i];
-							}
-						}
-						else
+						forConstrain =  bufferLength/2;
+						for(int i=0; i< forConstrain; i++)
 						{
-							stopFlag = stop();
-							break;
+							*(currentAddress++)=buf[i];
 						}
 					}
-
+					else
+					{
+						stopFlag = stop();
+					}
 				}
 				else if (sampleHead.numChannels == 2)
 				{
-					for(uint16_t i = 0 ; i< BUFFER_COUNT; i++)
+					if (wavfile.available() )
 					{
-						if (wavfile.available() )
-						{
-							bufferLength = wavfile.read(buf16, 512);
+						bufferLength = wavfile.read(buf, COMMON_BUFFER_SIZE);
 
-							accBufferLength += bufferLength;
-							forConstrain =  bufferLength/2;
-							for(int i=0; i< forConstrain; i+=2)
-							{
-								*(currentAddress++)=buf16[i];
-							}
-						}
-						else
+						accBufferLength += bufferLength;
+						forConstrain =  bufferLength/2;
+						for(int i=0; i< forConstrain; i+=2)
 						{
-							stopFlag = stop();
-							break;
+							*(currentAddress++)=buf[i];
 						}
+					}
+					else
+					{
+						stopFlag = stop();
 					}
 				}
 			}
@@ -122,51 +107,42 @@ void WaveLoader::update()
 		}
 		else if(sampleHead.AudioFormat == 3)
 		{
-			float bufFloat[256];
+			float *buf = (float*)getWriteLoadBufferPointer();
 			if(sampleHead.numChannels == 1)
 			{
-				for(uint16_t i = 0 ; i< BUFFER_COUNT; i++)
+				if( wavfile.available() )
 				{
-					if( wavfile.available() )
-					{
-						bufferLength = wavfile.read(bufFloat, 1024);
+					bufferLength = wavfile.read(buf, COMMON_BUFFER_SIZE);
 
-						accBufferLength += bufferLength;
-						forConstrain =  bufferLength/4;
-						for(int i=0; i< forConstrain; i++)
-						{
-							*(currentAddress++) = ( ( (bufFloat[i] + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
-						}
-					}
-					else
+					accBufferLength += bufferLength;
+					forConstrain =  bufferLength/4;
+					for(int i=0; i< forConstrain; i++)
 					{
-						stopFlag = stop();
-						break;
+						*(currentAddress++) = ( ( (buf[i] + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
 					}
 				}
-
+				else
+				{
+					stopFlag = stop();
+				}
 			}
 			else if (sampleHead.numChannels == 2)
 			{
-				for(uint16_t i = 0 ; i< BUFFER_COUNT; i++)
+				if (wavfile.available() )
 				{
-					if (wavfile.available() )
-					{
-						bufferLength = wavfile.read(bufFloat, 1024);
+					bufferLength = wavfile.read(buf, COMMON_BUFFER_SIZE);
 
-						accBufferLength += bufferLength;
-						forConstrain =  bufferLength/4;
-						for(int i=0; i< forConstrain; i+=2)
-						{
-							*(currentAddress++) = ( ((bufFloat[i] + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
-
-						}
-					}
-					else
+					accBufferLength += bufferLength;
+					forConstrain =  bufferLength/4;
+					for(int i=0; i< forConstrain; i+=2)
 					{
-						stopFlag = stop();
-						break;
+						*(currentAddress++) = ( ((buf[i] + 1.0) * 65535.0 ) / 2.0)  - 32768.0 ;
+
 					}
+				}
+				else
+				{
+					stopFlag = stop();
 				}
 			}
 

@@ -45,8 +45,6 @@ struct strProjectFile
 
 
 
-
-
 class FileManager
 {
 
@@ -166,6 +164,9 @@ private:
 //************************************************ FileManagerPattern*******************************************************
 	void copyPattern(char* srcProjectPatch, uint8_t src_idx, char * dstProjectPatch, uint8_t dst_idx);
 //**************************************************************************************************************************
+
+
+
 
 
 
