@@ -26,6 +26,10 @@ class mtEffector
 
 
 public:
+	mtEffector(void)
+	{
+		startAddressEffect = previewBuffer;
+	}
 
 	void loadSample(const char *patch);
 	void play(uint16_t start, uint16_t stop, uint8_t pad);
@@ -52,6 +56,9 @@ public:
 
 	int16_t * getAddress();
 	int32_t getLength();
+
+	int32_t getEffectLength();
+	int16_t *getEffectAddress();
 
 private:
 	void swap(int16_t *p1, int16_t *p2);

@@ -9,7 +9,7 @@
 class mtBitcrusher
 {
 	public:
-	int32_t makeBitcrusher(uint8_t cBits, uint16_t sRate, int8_t forceEffect);
+	int32_t makeBitcrusher(uint8_t cBits, uint16_t sRate);
 	void process();
 	uint8_t getProgress();
 	uint8_t requireProcess();
@@ -26,8 +26,6 @@ class mtBitcrusher
 	int16_t * localAddress;
 	int16_t * destAddress;
 
-	uint8_t last_cBits;
-	uint16_t last_sRate;
 
 	uint8_t requireProcessing;
 	uint8_t loadProgress;

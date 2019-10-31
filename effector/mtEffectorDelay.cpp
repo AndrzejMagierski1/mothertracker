@@ -2,16 +2,8 @@
 
 mtDelay effectorDelay;
 
-uint8_t mtDelay::makeDelay(float feedback, uint16_t time, uint8_t forceEffect)
+uint8_t mtDelay::makeDelay(float feedback, uint16_t time)
 {
-	if(forceEffect == 0)
-	{
-		if(feedback == last_feedback && time == last_time)
-		{
-			return 0;
-		}
-	}
-
 	if(feedback == 0 || time == 0)
 	{
 		return 0;
@@ -51,8 +43,6 @@ uint8_t mtDelay::makeDelay(float feedback, uint16_t time, uint8_t forceEffect)
 
 	requireProcessing = 1;
 	loadProgress = 0;
-	last_feedback = feedback;
-	last_time = time;
 
 	return 1;
 }

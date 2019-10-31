@@ -21,6 +21,13 @@ typedef enum
 
 typedef enum
 {
+	eRequireProcessing,
+	eProcessed,
+	eNotAffecting,
+}effect_state_t;
+
+typedef enum
+{
 	tUNSIGNED8,
 	tUNSIGNED16,
 	tUNSIGNED32,
@@ -51,8 +58,9 @@ typedef struct
 	uint8_t 			barNum;// number of active data bars
 	effect_bar_t		bar[MAX_DATA_BARS];
 	uint8_t 			undoActive;
+	effect_state_t 		effectStage;
 
-}effect_screen_t;
+}effect_handle_t;
 
 typedef struct
 {
@@ -60,6 +68,17 @@ typedef struct
 	uint8_t mask;
 
 }selection_percentages;
+
+typedef struct
+{
+	uint8_t taskQueue;
+	uint8_t tasksInQueue;
+	uint8_t currentTask;
+	uint8_t taskQueueProgress;
+	uint8_t taskQueueActive;
+	uint8_t taskQueueNextFlag;
+
+}taskQueue_t;
 
 typedef enum
 {
@@ -83,7 +102,18 @@ typedef enum
 	undoActive = 0x08U,
 	onExitReloadActive = 0x10U,
 	onEntryStillLoading = 0x20U,
+	previewRunning = 0x40U,
+
 }flags_t;
+
+typedef enum
+{
+	tLoadSample = 0x01U,
+	tProcessEffect = 0x02U,
+	tApply = 0x04U,
+	tUndo = 0x08U,
+
+}tasks_t;
 
 
 const uint8_t effectsCount = 9;
@@ -148,7 +178,7 @@ public:
 
 	void activateLabelsBorder();
 
-	void startLoadingSample();
+	uint8_t startLoadingSample();
 
 	strFrameData frameData;
 
@@ -156,6 +186,7 @@ public:
 	hControl bottomLabel[8];
 	hControl effectListControl;
 	hControl spectrumControl;
+	hControl effectSpectrumControl;
 	hControl pointsControl;
 	hControl frameControl;
 	hControl titleBar = nullptr;
@@ -178,12 +209,15 @@ public:
 	strInstrument * editorInstrument;
 
 	strZoomParams zoom;
+	strZoomParams effectZoom;
 
 	char dataBarText[4][8];
 
 	strTrackerSpectrum spectrum;
+	strTrackerSpectrum effectSpectrum;
 	strTrackerPoints points;
 	strSpectrumParams spectrumParams;
+	strSpectrumParams effectSpectrumParams;
 
 //----------------------------------
 // aktualny instrument na belce tytułowej
@@ -205,35 +239,39 @@ public:
 
 	char instrumentPath[PATCH_SIZE];
 	uint8_t localInstrNum;
-	effect_screen_t effectScreen[effectsCount];
+	effect_handle_t effectControl[effectsCount];
 	uint8_t currSelEffect;
 
 	void frameChange(uint8_t control);
 
 	void resizeUndo(uint8_t control);//1 - center 0 - top
-	void showEffectScreen(effect_screen_t *screenCfg);
+	void showEffectScreen(effect_handle_t *screenCfg);
+	void showPreviewSpectrum();
+	void hidePreviewSpectrum();
 	void initEffectsScreenStructs();
 	void editParamFunction(uint8_t paramNum, int16_t value);
 	void editParamFunctionSelection(int16_t value);
 
 	void showValueLabels(uint8_t whichBar);
-	void updateEffectValues(effect_screen_t *effect, uint8_t barNum);
+	void updateEffectValues(effect_handle_t *effect, uint8_t barNum);
 	void printNewValue(const void *data, uint8_t whichBar, const char* unit, source_datatype_t sourceType);
 	void refreshBarsValue(uint8_t whichBar, uint8_t newValue);
 	void showHorizontalBar(uint8_t progress , const char* text);
 	void hideHorizontalBar();
 	void updateEffectProcessing();
-	uint8_t previewNewEffectRequested();
 	void makeEffect();
 	void showCurrentSpectrum(uint32_t length, int16_t *source);
 	void refreshSampleLoading();
 	void refreshInstrumentLoading();
 	void refreshSampleApplying();
 	void resetSpectrumAndPoints();
-	void onExitRaload();
+	void onExitReload();
 
-
+	void processOrPreview(uint8_t x);
 	void undoDisplayControl(uint8_t onOff);
+
+	void showEffectSpectrum();
+	void hideEffectsSpectrum();
 
 	uint16_t startPoint;
 	uint16_t endPoint = MAX_16BIT;
@@ -270,25 +308,24 @@ public:
 	uint16_t limiterRelease;
 
 	effect_t lastPreviewEffect;
-	uint8_t previewReadyFlag;
 
 	uint8_t sampleLoadedState;
 	uint8_t lastSampleLoadedState;
 
 	uint16_t moduleFlags;
 
-	bool isAnyEffectActive;
-
 	uint8_t onExitFlag;
 	uint8_t exitButton;
 	uint8_t effectAppliedFlag;
-
-	uint8_t firstSampleLoadFlag;
 
 	uint8_t undoCropFlag;
 	uint8_t undoReverseFlag;
 
 	uint8_t sampleIsValid;
+
+	uint8_t previewButtonState = 0;
+
+	uint8_t newSpectrumFlag = 0;
 
 	//----------------------------------
 	// multisel
@@ -301,17 +338,35 @@ public:
 	void cancelMultiFrame();
 
 	// linia postepu odgrywania
-	elapsedMicros playProgresValueBackwardTim = 0;
 	elapsedMicros playProgresValueTim = 0;
 	elapsedMicros refreshPlayProgressValue = 0;
 	float playPitch = 1.0 ;
 	uint32_t playProgressValue = 0; // 0 - MAX_LEN_RECORD
 	uint16_t playProgressInSpectrum = 0; // 0 - 600
-	uint8_t loopDirection = 0;
 	uint8_t refreshSpectrumProgress = 0;
 
 	void refreshPlayingProgress();
 	void calcPlayProgressValue();
+
+	void stopPreview(uint8_t pad);
+	void playPreview(uint8_t pad);
+
+	void applyEffect();
+	void undoEffect();
+
+	void resetAllEffectsState();
+
+	uint8_t applyRequested;
+	uint8_t undoRequested;
+
+	//Common progress bar
+	taskQueue_t taskQueue;
+	uint8_t checkPreConditions(taskQueue_t *queue);
+	void cancelTaskQueue(taskQueue_t *queue);
+	uint8_t handleTasks(taskQueue_t *queue, uint8_t force);
+	void finishTask(taskQueue_t *queue, tasks_t task);
+	void handleQueueProgress(taskQueue_t *queue, uint8_t taskProgress, const char *text);
+	void showQueueHorizontalBar(uint8_t progress , const char* text);
 
 };
 

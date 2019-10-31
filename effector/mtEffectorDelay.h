@@ -16,7 +16,7 @@ class mtDelay
 
  public:
 
-	uint8_t makeDelay(float feedback, uint16_t time, uint8_t forceEffect);
+	uint8_t makeDelay(float feedback, uint16_t time);
 
 	void process();
 	uint8_t getProgress();
@@ -38,9 +38,6 @@ class mtDelay
 
 	uint32_t maxLoad;
 
-
-	float last_feedback;
-	uint16_t last_time;
 
 	uint8_t requireProcessing;
 	uint8_t loadProgress;

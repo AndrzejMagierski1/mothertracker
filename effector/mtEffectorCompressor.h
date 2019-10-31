@@ -15,7 +15,7 @@ class mtCompressor
 {
 public:
 
-int8_t makeCompressor(uint16_t cT, int16_t cR, uint16_t at, uint16_t rt, int8_t forceEffect);
+int8_t makeCompressor(uint16_t cT, int16_t cR, uint16_t at, uint16_t rt);
 
 void process();
 uint8_t getProgress();
@@ -46,10 +46,6 @@ int32_t	returnLength;
 int16_t * localAddress;
 int16_t * destAddress;
 
-uint16_t last_cT;
-int16_t last_cR;
-uint16_t last_at;
-uint16_t last_rt;
 
 uint32_t startLength;
 uint8_t loadProgress;

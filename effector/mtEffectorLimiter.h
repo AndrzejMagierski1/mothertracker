@@ -10,7 +10,7 @@
 class mtLimiter
 {
 public:
-	int8_t makeLimiter(uint16_t ts, uint16_t a, uint16_t r, int8_t forceEffect);
+	int8_t makeLimiter(uint16_t ts, uint16_t a, uint16_t r);
 	void process();
 	uint8_t getProgress();
 	uint8_t requireProcess();
@@ -35,10 +35,6 @@ private:
 	uint8_t requireProcessing;
 	uint8_t loadProgress;
 	uint32_t startLength;
-
-	uint16_t last_ts;
-	uint16_t last_a;
-	uint16_t last_r;
 };
 
 extern mtLimiter effectorLimiter;

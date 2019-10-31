@@ -12,7 +12,7 @@
 class mtChorus
 {
 public:
-	uint8_t makeChorus(int d_length, int n_chorus, uint8_t forceEffect);
+	uint8_t makeChorus(int d_length, int n_chorus);
 
 	uint8_t getProgress();
 	uint8_t requireProcess();
@@ -20,9 +20,6 @@ public:
 	void process();
 
 private:
-	int last_d_length;
-	int last_n_chorus;
-
 	short *l_delayline;
 	short l_circ_idx;
 	int num_chorus;

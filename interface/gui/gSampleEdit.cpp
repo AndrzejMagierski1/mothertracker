@@ -30,6 +30,17 @@ static uint16_t framesPlacesWithBars[7][4] =
 
 void cSampleEditor::initDisplayControls()
 {
+
+	strControlProperties prop6;
+
+	prop6.x = 190;
+	prop6.y = 170;
+	prop6.style = controlStyleValue_0_100;
+	prop6.h = 100;
+	prop6.w = 420;
+
+	if(processHorizontalBarControl == nullptr)  processHorizontalBarControl = display.createControl<cHorizontalBar>(&prop6);
+
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
 	prop2.style = 	( controlStyleShow | controlStyleCenterY);
@@ -51,16 +62,6 @@ void cSampleEditor::initDisplayControls()
 	prop.value = 0;
 	//prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
-
-	strControlProperties prop6;
-
-	prop6.x = 190;
-	prop6.y = 170;
-	prop6.style = controlStyleValue_0_100;
-	prop6.h = 100;
-	prop6.w = 420;
-
-	if(processHorizontalBarControl == nullptr)  processHorizontalBarControl = display.createControl<cHorizontalBar>(&prop6);
 
 	for(uint8_t i = 0; i<6; i++)
 	{
@@ -120,6 +121,8 @@ void cSampleEditor::initDisplayControls()
 	if(progressCursor == nullptr) progressCursor = display.createControl<cProgressCursor>(&prop);
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
+	prop.data = &effectSpectrum;
+	if(effectSpectrumControl == nullptr)  effectSpectrumControl = display.createControl<cSpectrum>(&prop);
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
 
@@ -153,6 +156,9 @@ void cSampleEditor::destroyDisplayControls()
 
 	display.destroyControl(spectrumControl);
 	spectrumControl = nullptr;
+
+	display.destroyControl(effectSpectrumControl);
+	effectSpectrumControl = nullptr;
 
 	display.destroyControl(pointsControl);
 	pointsControl = nullptr;
@@ -227,7 +233,6 @@ void cSampleEditor::showDefaultScreen()
 
 	// bottom labels
 
-	display.setControlText(topLabel[0], "Preview");
 	display.setControlText(topLabel[1], "Apply");
 	display.setControlText(bottomLabel[3], "Start");
 	display.setControlText(bottomLabel[4], "End");
@@ -238,7 +243,7 @@ void cSampleEditor::showDefaultScreen()
 
 	display.setControlText(topLabel[6], "Effect");
 
-	showEffectScreen(&effectScreen[currSelEffect]);
+	showEffectScreen(&effectControl[currSelEffect]);
 
 
 	for(uint8_t i = 0; i<7; i++)
@@ -274,7 +279,7 @@ void cSampleEditor::resizeUndo(uint8_t control)//1 - center 0 - top
 	}
 }
 
-void cSampleEditor::showEffectScreen(effect_screen_t *screenCfg)
+void cSampleEditor::showEffectScreen(effect_handle_t *screenCfg)
 {
 	if(screenCfg->screen == fullSpectrum)
 	{
@@ -304,7 +309,7 @@ void cSampleEditor::showEffectScreen(effect_screen_t *screenCfg)
 		display.setControlText(bottomLabel[BAR_MIN_POS + i], "");
 	}
 
-	undoDisplayControl(effectScreen[currSelEffect].undoActive);
+	undoDisplayControl(effectControl[currSelEffect].undoActive);
 
 	for(int i = (MAX_DATA_BARS - screenCfg->barNum); i < MAX_DATA_BARS; i++)
 	{
@@ -318,8 +323,10 @@ void cSampleEditor::showEffectScreen(effect_screen_t *screenCfg)
 
 	for(int i = (MAX_DATA_BARS - screenCfg->paramNum); i < MAX_DATA_BARS; i++)
 	{
-		updateEffectValues(&effectScreen[currSelEffect], i);
+		updateEffectValues(&effectControl[currSelEffect], i);
 	}
+
+	processOrPreview(effectControl[currSelEffect].effectStage);
 
 	for(int i=0;i<4;i++)
 	{
@@ -327,6 +334,50 @@ void cSampleEditor::showEffectScreen(effect_screen_t *screenCfg)
 		display.refreshControl(bottomLabel[BAR_MIN_POS + i]);
 		display.refreshControl(topLabel[BAR_MIN_POS + i]);
 	}
+
+	display.synchronizeRefresh();
+}
+
+void cSampleEditor::showPreviewSpectrum()
+{
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	if(effectControl[currSelEffect].screen == fullSpectrum)
+	{
+		display.setControlShow(pointsControl);
+	}
+	else
+	{
+		display.setControlHide(pointsControl);
+	}
+
+	display.refreshControl(pointsControl);
+
+	display.setControlShow(progressCursor);
+	display.refreshControl(progressCursor);
+
+	for(int i = 0; i < MAX_DATA_BARS; i++)
+	{
+		display.setControlHide(barControl[i]);
+		display.refreshControl(barControl[i]);
+	}
+
+	display.setControlShow(effectSpectrumControl);
+	display.refreshControl(effectSpectrumControl);
+
+	display.synchronizeRefresh();
+}
+
+void cSampleEditor::hidePreviewSpectrum()
+{
+	showEffectScreen(&effectControl[currSelEffect]);
+
+	display.setControlShow(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlHide(effectSpectrumControl);
+	display.refreshControl(effectSpectrumControl);
 
 	display.synchronizeRefresh();
 }
@@ -403,11 +454,33 @@ void cSampleEditor::showHorizontalBar(uint8_t progress , const char* text)
 	display.refreshControl(processHorizontalBarControl);
 }
 
+void cSampleEditor::showQueueHorizontalBar(uint8_t progress, const char* text)
+{
+	display.setControlValue(processHorizontalBarControl, progress);
+	display.setControlText(processHorizontalBarControl, text);
+	display.setControlShow(processHorizontalBarControl);
+	display.refreshControl(processHorizontalBarControl);
+}
+
 void cSampleEditor::hideHorizontalBar()
 {
 	display.setControlValue(processHorizontalBarControl, 0);
 	display.setControlHide(processHorizontalBarControl);
 	display.refreshControl(processHorizontalBarControl);
+}
+
+void cSampleEditor::processOrPreview(uint8_t x)
+{
+	if(x)
+	{
+		display.setControlText(topLabel[0], "Preview");
+	}
+	else
+	{
+		display.setControlText(topLabel[0], "Process");
+	}
+
+	display.refreshControl(topLabel[0]);
 }
 
 void cSampleEditor::undoDisplayControl(uint8_t onOff)
