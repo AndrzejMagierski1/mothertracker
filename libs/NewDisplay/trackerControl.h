@@ -42,6 +42,8 @@ struct strTrackerPattern
 	uint8_t selectColumn = 0;
 
 	uint8_t popupMode = 0;
+
+	uint8_t inactive[8] = {0,0,0,0,0,0,0,0};
 };
 
 // ilosc znakow parametru
@@ -97,7 +99,6 @@ private:
 
 	void notes();
 	void instruments();
-	void volumes();
 	void fxes1();
 	void fxes2();
 
@@ -108,6 +109,16 @@ private:
 
 	uint8_t rightOffset;
 	uint8_t leftOffset;
+
+
+//
+	void String2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length);
+
+	int16_t lastHandle;
+
+
+	uint32_t actualColor;
+	uint32_t lastColor;
 
 };
 

@@ -19,20 +19,31 @@ extern strMtProject mtProject;
 extern uint32_t patternTrackerSelectionColor;
 
 
-static  uint8_t functChangeTempo(uint8_t state);
+// pod ekranem
 static  uint8_t functChangePattern(uint8_t state);
 static  uint8_t functChangePatternLength(uint8_t state);
 static  uint8_t functChangePatternEditStep(uint8_t state);
+static  uint8_t functFill();
+static  uint8_t functInvert();
+static  uint8_t functTranspose();
+static  uint8_t functUndo();
 
+
+// step buttons
 static  uint8_t functNote(uint8_t state);
 static  uint8_t functInstrument(uint8_t state);
 static  uint8_t functVolume(uint8_t state);
 static  uint8_t functFx1(uint8_t state);
 static  uint8_t functFx2(uint8_t state);
 
+
+// modules
 static  uint8_t functPattern(uint8_t state);
 
-static  uint8_t functFill();
+static  uint8_t functSwitchModule(uint8_t button);
+
+
+// fill
 static  uint8_t functFillCancel();
 static  uint8_t functFillApply();
 static  uint8_t functFillChangeType();
@@ -42,43 +53,39 @@ static  uint8_t functFillChangeParam3();
 static  uint8_t functFillChangeParam4();
 
 
-static  uint8_t functInvert();
-static  uint8_t functTranspose();
-static  uint8_t functUndo();
-
-
 static  uint8_t functLeft();
 static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
 
+static  uint8_t functPlayAction();
+static  uint8_t functRecAction();
 
 static  uint8_t functShift(uint8_t state);
 
-
-static  uint8_t functPlayAction();
-static  uint8_t functRecAction();
 static  uint8_t functInsertHome(uint8_t state);
 static  uint8_t functCopyPaste(uint8_t state);
 static  uint8_t functDeleteBackspace(uint8_t state);
 
-static uint8_t getSelectedElement();
 
 
 static  uint8_t functEncoder(int16_t value);
 
-
-static  uint8_t functSwitchModule(uint8_t button);
-
-
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
+
+//muty
 static uint8_t functActionButton(uint8_t button, uint8_t state);
 
 
 
+//--------------------------------------------
+static uint8_t getSelectedElement();
+
+
 char getHexFromInt(int16_t val, uint8_t index);
+
 
 
 
@@ -201,7 +208,7 @@ void cPatternEditor::setDefaultScreenFunct()
 	//FM->setButtonObj(interfaceButton4, buttonPress, functFill);
 	//FM->setButtonObj(interfaceButton5, buttonPress, functRandom);
 	//FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
-	//FM->setButtonObj(interfaceButton7, buttonPress, );
+	//FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
 
 
 
@@ -1157,7 +1164,17 @@ static  uint8_t functShift(uint8_t state)
 			PTE->cancelPopups();
 			PTE->insertOnPopupHideDisabled = 0;  // a tu aktywuje spowrotem
 		}
-
+		else
+		{
+			PTE->FM->setButtonObj(interfaceButton0, functActionButton);
+			PTE->FM->setButtonObj(interfaceButton1, functActionButton);
+			PTE->FM->setButtonObj(interfaceButton2, functActionButton);
+			PTE->FM->setButtonObj(interfaceButton3, functActionButton);
+			PTE->FM->setButtonObj(interfaceButton4, functActionButton);
+			PTE->FM->setButtonObj(interfaceButton5, functActionButton);
+			PTE->FM->setButtonObj(interfaceButton6, functActionButton);
+			PTE->FM->setButtonObj(interfaceButton7, functActionButton);
+		}
 
 	}
 	else if(state == buttonRelease)
@@ -1180,7 +1197,21 @@ static  uint8_t functShift(uint8_t state)
 			sequencer.blinkSelectedStep();
 		}
 
+		if(!PTE->masterTrackState)
+		{
+			PTE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+			PTE->FM->setButtonObj(interfaceButton0, functChangePattern);
+			PTE->FM->setButtonObj(interfaceButton1, functChangePatternLength);
+			PTE->FM->setButtonObj(interfaceButton2, functChangePatternEditStep);
 
+			if(PTE->editMode)
+			{
+				PTE->FM->setButtonObj(interfaceButton3, buttonPress, functFill);
+				PTE->FM->setButtonObj(interfaceButton5, buttonPress, functTranspose);
+				PTE->FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
+				PTE->FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
+			}
+		}
 		PTE->shiftAction = 0;
 	}
 
@@ -2066,34 +2097,6 @@ uint8_t isMultiSelection()
 //##############################################################################################
 //##########################             PATTERN PARAMS             ############################
 //##############################################################################################
-static  uint8_t functChangeTempo(uint8_t state)//todo: do usuniecia przy sprzataniu
-{
-	if(state == buttonPress)
-	{
-		if(PTE->selectedPlace == 0)
-		{
-			PTE->focusOnPattern();
-			return 1;
-		}
-		else
-		{
-			PTE->unfocusPattern();
-		}
-
-		PTE->selectedPlace = 0;
-		PTE->activateLabelsBorder();
-	}
-	else if(state == buttonRelease)
-	{
-		if(PTE->selectedPlace == 0)
-		{
-			PTE->focusOnPattern();
-		}
-	}
-
-	return 1;
-}
-
 static  uint8_t functChangePattern(uint8_t state)
 {
 	if(state == buttonPress)
@@ -2814,18 +2817,20 @@ static uint8_t functSwitchModule(uint8_t button)
 //======================================================================================================================
 static uint8_t functActionButton(uint8_t button, uint8_t state)
 {
-	if(PTE->masterTrackState == 1)
+	if(state == buttonPress)
 	{
-		if(state == buttonPress)
-		{
-			 if(mtProject.values.trackMute[button] == 0) mtProject.values.trackMute[button] = 1;
-			 else mtProject.values.trackMute[button] = 0;
+		 if(mtProject.values.trackMute[button] == 0) mtProject.values.trackMute[button] = 1;
+		 else mtProject.values.trackMute[button] = 0;
 
-			 engine.muteTrack(button, mtProject.values.trackMute[button]);
+		 engine.muteTrack(button, mtProject.values.trackMute[button]);
+		 PTE->trackerPattern.inactive[button] = mtProject.values.trackMute[button];
 
-			 PTE->refreshTracksMaster();
-		}
-		else if(state == buttonRelease)
+		 display.refreshControl(PTE->patternControl);
+		if(PTE->masterTrackState == 1) PTE->refreshTracksMaster();
+	}
+	else if(state == buttonRelease)
+	{
+		if(PTE->masterTrackState == 1)
 		{
 			if(tactButtons.isButtonPressed(interfaceButtonShift))
 			{
@@ -2833,7 +2838,9 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 				 else mtProject.values.trackMute[button] = 0;
 
 				 engine.muteTrack(button, mtProject.values.trackMute[button]);
+				 PTE->trackerPattern.inactive[button] = mtProject.values.trackMute[button];
 
+				 display.refreshControl(PTE->patternControl);
 				 PTE->refreshTracksMaster();
 			}
 		}
