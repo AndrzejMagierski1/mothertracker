@@ -2,16 +2,8 @@
 
 mtLimiter effectorLimiter;
 
-int8_t mtLimiter::makeLimiter(uint16_t ts, uint16_t a, uint16_t r, int8_t forceEffect)
+int8_t mtLimiter::makeLimiter(uint16_t ts, uint16_t a, uint16_t r)
 {
-	if(forceEffect == 0)
-	{
-		if(last_ts == ts && last_a == a && last_r == r)
-		{
-			return 0;
-		}
-	}
-
 	threshold = ts;
 	attack = a/1000.0;
 	release = r/1000.0;
@@ -29,10 +21,6 @@ int8_t mtLimiter::makeLimiter(uint16_t ts, uint16_t a, uint16_t r, int8_t forceE
 	destAddress = effector.previewBuffer;
 
 	memset(buffer,0,10);
-
-	last_ts = ts;
-	last_a = a;
-	last_r = r;
 
 	startLength = localLength;
 	requireProcessing = 1;

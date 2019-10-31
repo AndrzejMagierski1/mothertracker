@@ -5,16 +5,8 @@
 int16_t flangerBuf[FLANGE_BUF_SIZE];
 mtFlanger effectorFlanger;
 
-uint8_t mtFlanger::makeFlanger(int d_length,int delay_offset,int d_depth,float delay_rate, uint8_t forceEffect)
+uint8_t mtFlanger::makeFlanger(int d_length,int delay_offset,int d_depth,float delay_rate)
 {
-	if(forceEffect == 0)
-	{
-		if((delay_offset == last_delay_offset) && (d_depth == last_d_depth) && (delay_rate == last_delay_rate))
-		{
-			return 0;
-		}
-	}
-
 	if(d_length == 0 || delay_offset == 0 || d_depth == 0 || delay_rate == 0)
 	{
 		return 0;
@@ -53,9 +45,6 @@ uint8_t mtFlanger::makeFlanger(int d_length,int delay_offset,int d_depth,float d
 	requireProcessing = 1;
 	loadProgress = 0;
 	startLength = localLength;
-	last_delay_offset= delay_offset;
-	last_d_depth = d_depth;
-	last_delay_rate = delay_rate;
 
 	return 1;
 }

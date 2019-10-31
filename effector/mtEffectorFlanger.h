@@ -18,7 +18,7 @@ extern int16_t flangerBuf[FLANGE_BUF_SIZE];
 class mtFlanger
 {
 public:
-	uint8_t makeFlanger(int d_length,int delay_offset,int d_depth,float delay_rate, uint8_t forceEffect);
+	uint8_t makeFlanger(int d_length,int delay_offset,int d_depth,float delay_rate);
 	void process();
 	uint8_t getProgress();
 	uint8_t requireProcess();
@@ -26,9 +26,6 @@ public:
 
 
 private:
-	int last_delay_offset;
-	int last_d_depth;
-	float last_delay_rate;
 
 	int32_t localLength;
 	int32_t	returnLength;

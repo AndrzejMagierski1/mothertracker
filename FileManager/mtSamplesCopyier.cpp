@@ -1,5 +1,6 @@
 #include "mtSamplesCopyier.h"
 #include "mtWaveLoader.h"
+#include "mtCommonBuffer.h"
 
 uint8_t SamplesCopyier::start(char* destPatch, char* sourcePatch)
 {
@@ -35,13 +36,13 @@ uint8_t SamplesCopyier::start(char* destPatch, char* sourcePatch)
 uint16_t SamplesCopyier::update()
 {
 	uint16_t lengthData=0;
-	uint8_t currentBuffor[1024];
+	uint8_t * buffer = getWriteLoadBufferPointer();
 
 	if(importSampleState == copyingSampleEnded) return 0;
 	if(sourceSample.available())
 	{
-		lengthData=sourceSample.read(currentBuffor,1024);
-		destSample.write(currentBuffor,(size_t)lengthData);
+		lengthData=sourceSample.read(buffer,COMMON_BUFFER_SIZE);
+		destSample.write(buffer,(size_t)lengthData);
 		currentCopyingSize+=lengthData;
 		return lengthData;
 	}

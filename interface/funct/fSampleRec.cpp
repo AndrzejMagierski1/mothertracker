@@ -2340,7 +2340,10 @@ static void modStartPoint(int16_t value)
 	else if(SR->startPoint + value > SAMPLE_POINT_POS_MAX ) SR->startPoint  = SAMPLE_POINT_POS_MAX;
 	else SR->startPoint += value;
 
-	if(SR->startPoint > SR->endPoint) SR->startPoint = SR->endPoint-1;
+	if(SR->startPoint >= SR->endPoint)
+	{
+		SR->startPoint = SR->endPoint - 2;
+	}
 
 
 
@@ -2363,7 +2366,10 @@ static void modEndPoint(int16_t value)
 	else if(SR->endPoint + value > SAMPLE_POINT_POS_MAX ) SR->endPoint  = SAMPLE_POINT_POS_MAX;
 	else SR->endPoint += value;
 
-	if(SR->endPoint < SR->startPoint) SR->endPoint = SR->startPoint+1;
+	if(SR->endPoint <= SR->startPoint)
+	{
+		SR->endPoint = SR->startPoint + 2;
+	}
 
 
 	if(SR->zoom.zoomValue > 1 && (SR->zoom.lastChangedPoint != 2 || (SR->endPoint < SR->zoom.zoomStart ||SR-> endPoint > SR->zoom.zoomEnd))) SR->refreshSpectrum = 1;
@@ -2589,13 +2595,31 @@ void cSampleRecorder::removeNode(uint8_t nodeNum)
 
 void cSampleRecorder::stepThroughNodes(int16_t value)
 {
-	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	//kolejnosc wykonywania funkcji w loop pointach ma znaczenie
+	//
+	if(value < 0)
 	{
-		if(selectNodes[node].isActive)
+		for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
 		{
-			if(selectNodes[node].editFunct != NULL)
+			if(selectNodes[node].isActive)
 			{
-				selectNodes[node].editFunct(value);
+				if(selectNodes[node].editFunct != NULL)
+				{
+					selectNodes[node].editFunct(value);
+				}
+			}
+		}
+	}
+	else if(value > 0)
+	{
+		for(uint8_t node = MAX_SELECT_NODES; node > 0; node--)
+		{
+			if(selectNodes[node-1].isActive)
+			{
+				if(selectNodes[node-1].editFunct != NULL)
+				{
+					selectNodes[node-1].editFunct(value);
+				}
 			}
 		}
 	}

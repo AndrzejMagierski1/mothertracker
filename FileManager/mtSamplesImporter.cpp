@@ -1,5 +1,6 @@
 #include "mtSamplesImporter.h"
 #include "mtWaveLoader.h"
+#include "mtCommonBuffer.h"
 
 uint8_t SamplesImporter::start(char* filePatch, char* name, char* projectPatch, int8_t instrumentIndex, uint8_t type)
 {
@@ -86,13 +87,13 @@ uint8_t SamplesImporter::start(char* filePatch, char* name, char* projectPatch, 
 void SamplesImporter::update()
 {
 	uint16_t lengthData=0;
-	uint8_t currentBuffor[1024];
+	uint8_t *buff = getWriteLoadBufferPointer();;
 
 	if(importSampleState == importingSampleEnded) return;
 	if(fileImportSample.available())
 	{
-		lengthData=fileImportSample.read(currentBuffor,1024);
-		copyImportSample.write(currentBuffor,(size_t)lengthData);
+		lengthData=fileImportSample.read(buff,COMMON_BUFFER_SIZE);
+		copyImportSample.write(buff,(size_t)lengthData);
 		currentCopyingSize+=lengthData;
 	}
 	else

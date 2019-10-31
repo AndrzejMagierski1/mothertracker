@@ -65,6 +65,7 @@ void cSongEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
 	loopPosition = -1;
+	selectedPlace = 1;
 
 	exitOnButtonRelease = 0;
 
@@ -435,7 +436,7 @@ static uint8_t functPlayAction()
 			SE->showIcon(iconLoop,SE->selectedPattern);
 		}
 	}
-	else if (sequencer.getSeqState() == 1)
+	else if (sequencer.getSeqState() != 0)
 	{
 		SE->loopPosition = -1;
 		sequencer.stop();

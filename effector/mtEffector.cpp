@@ -29,8 +29,6 @@ void mtEffector::playPrev(uint8_t pad)
 	int8_t voiceToTake = mtPadBoard.getEmptyVoice();
 	if(voiceToTake < 0) return;
 
-	startAddressEffect = previewBuffer;
-
 	mtPadBoard.startInstrument(pad, startAddressEffect, affterEffectLength);
 }
 void mtEffector::stop(uint8_t pad)
@@ -230,6 +228,16 @@ int32_t mtEffector::getLength()
 int16_t * mtEffector:: getAddress()
 {
 	return startAddress;
+}
+
+int32_t mtEffector::getEffectLength()
+{
+	return affterEffectLength;
+}
+
+int16_t *mtEffector::getEffectAddress()
+{
+	return previewBuffer;
 }
 
 void mtEffector::swap(int16_t *p1, int16_t *p2)

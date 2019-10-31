@@ -8,10 +8,8 @@
 class mtAmplifier
 {
  public:
-	int32_t makeAmplifier(float amp, int8_t forceEffect);
+	int32_t makeAmplifier(float amp);
  private:
-
-	float lastAmp;
 
 };
 

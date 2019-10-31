@@ -5,15 +5,8 @@
 int16_t chorusBuffer[CHORUS_BUF_SIZE];
 mtChorus effectorChorus;
 
-uint8_t mtChorus::makeChorus(int d_length, int n_chorus, uint8_t forceEffect)
+uint8_t mtChorus::makeChorus(int d_length, int n_chorus)
 {
-	if(forceEffect == 0)
-	{
-		if(d_length == last_d_length && n_chorus == last_n_chorus)
-		{
-			return 0;
-		}
-	}
 
 	localLength = effector.getLength();
 	returnLength = (int32_t) localLength;
@@ -37,8 +30,6 @@ uint8_t mtChorus::makeChorus(int d_length, int n_chorus, uint8_t forceEffect)
 	requireProcessing = 1;
 	startLength = localLength;
 	loadProgress = 0;
-	last_d_length = d_length;
-	last_n_chorus = n_chorus;
 
 	return 1;
 }

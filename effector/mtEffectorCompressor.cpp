@@ -3,16 +3,8 @@
 mtCompressor effectorCompressor;
 
 
-int8_t mtCompressor::makeCompressor(uint16_t cT, int16_t cR, uint16_t at, uint16_t rt, int8_t forceEffect)
+int8_t mtCompressor::makeCompressor(uint16_t cT, int16_t cR, uint16_t at, uint16_t rt)
 {
-	if(forceEffect == 0)
-	{
-		if(last_cT == cT && last_cR == cR && last_at == at && last_rt == rt)
-		{
-			return 0;
-		}
-	}
-
 	localLength = effector.getLength();
 	returnLength = localLength;
 	localAddress = effector.getAddress();
@@ -35,11 +27,6 @@ int8_t mtCompressor::makeCompressor(uint16_t cT, int16_t cR, uint16_t at, uint16
 	requireProcessing = 1;
 	startLength = localLength;
 	loadProgress = 0;
-
-	last_cT = cT;
-	last_cR = cR;
-	last_at = at;
-	last_rt = rt;
 
 	return 1;
 }

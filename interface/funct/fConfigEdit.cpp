@@ -130,6 +130,7 @@ void cConfigEditor::start(uint32_t options)
 	}
 	case mtConfigModeMaster:
 	{
+		selectedPlace[1] = 0;
 		resizeLabelConfigMaster();
 
 		showMasterScreen();
@@ -994,7 +995,7 @@ void cConfigEditor::hideWarning()
 void cConfigEditor::changeFirmwareSelection(int16_t value)
 {
 	if(firmwareSelect + value < 0) firmwareSelect = 0;
-	else if(firmwareSelect + value >= firmwareFoundNum) firmwareSelect = firmwareFoundNum;
+	else if(firmwareSelect + value >= firmwareFoundNum) firmwareSelect = (firmwareFoundNum - 1);
 	else  firmwareSelect+= value;
 
 	display.setControlValue(firmwareListControl, firmwareSelect);

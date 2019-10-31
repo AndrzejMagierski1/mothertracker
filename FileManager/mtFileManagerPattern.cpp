@@ -1,6 +1,7 @@
 #include "mtFileManager.h"
 #include "sdram.h"
 #include "interfacePopups.h"
+#include "mtCommonBuffer.h"
 
 
 uint8_t patternToLoad = 0;
@@ -236,7 +237,7 @@ void FileManager::copyPattern(char* srcProjectPatch, uint8_t src_idx, char * dst
 	FsFile file;
 	FsFile copy;
 	char currentPatch[PATCH_SIZE];
-	uint8_t currentBuffor[1024];
+	uint8_t *buf = getWriteLoadBufferPointer();
 	uint16_t lengthData = 0;
 
 
@@ -253,8 +254,8 @@ void FileManager::copyPattern(char* srcProjectPatch, uint8_t src_idx, char * dst
 
 	while (file.available())
 	{
-		lengthData = file.read(currentBuffor, 1024);
-		copy.write(currentBuffor, (size_t) lengthData);
+		lengthData = file.read(buf, COMMON_BUFFER_SIZE);
+		copy.write(buf, (size_t) lengthData);
 	}
 	file.close();
 	copy.close();

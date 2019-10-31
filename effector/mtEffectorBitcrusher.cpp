@@ -3,16 +3,8 @@
 
 mtBitcrusher effectorBitcrusher;
 
-int32_t mtBitcrusher::makeBitcrusher(uint8_t cBits, uint16_t sRate, int8_t forceEffect)
+int32_t mtBitcrusher::makeBitcrusher(uint8_t cBits, uint16_t sRate)
 {
-	if(forceEffect == 0)
-	{
-		if(cBits == last_cBits && sRate == last_sRate)
-		{
-			return 0;
-		}
-	}
-
 	localLength = effector.getLength();
 	returnLength = (int32_t) localLength;
 
@@ -31,9 +23,6 @@ int32_t mtBitcrusher::makeBitcrusher(uint8_t cBits, uint16_t sRate, int8_t force
 	requireProcessing = 1;
 	startLength = localLength;
 	loadProgress = 0;
-
-	last_cBits =cBits;
-	last_sRate = sRate;
 
 	return 1;
 }
