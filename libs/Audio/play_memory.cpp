@@ -258,8 +258,9 @@ void AudioPlayMemory::update(void)
 						pitchControl += glideControl;
 						castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
 						pitchFraction = pitchControl - (int32_t)pitchControl;
+						glideCounter++;
 					}
-					glideCounter++;
+
 				}
 
 				if (slideControl != 0.0f)

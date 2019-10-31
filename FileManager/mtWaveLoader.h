@@ -18,6 +18,7 @@ public:
 	uint8_t getState();
 	uint8_t getStopStatus();
 	uint32_t getInfoAboutWave(const char *filename);
+	void getInfoAboutWave(const char *filename , uint32_t * size, uint8_t * isWavetable );
 	uint8_t getCurrentWaveProgress();
 	uint32_t getCurrentWaveLoadedMemory();
 	void setStopStatus(uint8_t s);
