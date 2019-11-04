@@ -87,6 +87,11 @@ public:
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note,uint8_t type);
 	AudioEffectEnvelope *       envelopeAmpPtr;
 
+	elapsedMillis ampLfoRefreshTimer;
+	elapsedMillis pitchLfoRefreshTimer;
+
+	const uint8_t LFO_REFRESH_TIME = 5;
+
 	enum struct controlType
 	{
 		sequencerMode,

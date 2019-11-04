@@ -251,6 +251,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
 
 	__disable_irq();
+	AudioNoInterrupts();
 	uint8_t status;
 	float gainL=0,gainR=0;
 
@@ -475,6 +476,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	if(mtProject.instrument[instr_idx].envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
 
 	__enable_irq();
+	AudioInterrupts();
 	return status;
 }
 
@@ -483,6 +485,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 {
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
 	__disable_irq();
+	AudioNoInterrupts();
 	uint8_t status;
 	float gainL=0,gainR=0;
 
@@ -705,11 +708,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();
 
-	if(mtProject.instrument[instr_idx].lfo[lfoA].enable == lfoOn) lfoAmpPtr->start();
-	if(mtProject.instrument[instr_idx].lfo[lfoF].enable == lfoOn) lfoFilterPtr->start();
 	if(mtProject.instrument[instr_idx].envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
 
 	__enable_irq();
+	AudioInterrupts();
 	return status;
 }
 
@@ -717,6 +719,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 void playerEngine :: noteOff()
 {
 	__disable_irq();
+	AudioNoInterrupts();
 	envelopeAmpPtr->noteOff();
 	envelopeFilterPtr->stop();
 	if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
@@ -740,11 +743,14 @@ void playerEngine :: noteOff()
 			}
 		}
 	}
+	AudioInterrupts();
 	__enable_irq();
 }
 
 void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 {
+	AudioNoInterrupts();
+	__disable_irq();
 	endFx(lastSeqFx[fx_n],fx_n);
 
 	uint8_t otherFx_n = !fx_n;
@@ -1170,6 +1176,8 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 	}
 	lastSeqFx[fx_n] = fx_id;
 	lastSeqVal[fx_n] = fx_val;
+	AudioInterrupts();
+	__enable_irq();
 }
 //*** Jeżeli kończy się mniej znaczący efekt mimo, że aktywny jest bardziej znaczący efekt to nie wykonujemy żadnej akcji poza wyzerowaniem flag ***/
 //*** Jeżeli kończy się bardziej znaczący efekt i aktywny jest mniej znaczący efekt to mniej znaczący efekt przejmuje kontrolę lub performanceMode wykonuje
@@ -1892,14 +1900,25 @@ void playerEngine:: update()
 //	}
 	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp] || trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp]  )
 	{
-		ampMod=lfoAmpPtr->getOut();
-		statusBytes |= VOLUME_MASK;
+		if(ampLfoRefreshTimer > LFO_REFRESH_TIME)
+		{
+			ampLfoRefreshTimer = 0;
+			ampMod=lfoAmpPtr->getOut();
+			statusBytes |= VOLUME_MASK;
+		}
+
 	}
 
 	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFineTune] || trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoFineTune])
 	{
-		fineTuneMod = lfoPitchPtr->getOut();
-		statusBytes |= FINETUNE_MASK;
+		if(pitchLfoRefreshTimer > LFO_REFRESH_TIME)
+		{
+			pitchLfoRefreshTimer = 0;
+			fineTuneMod = lfoPitchPtr->getOut();
+			Serial.println(fineTuneMod);
+			statusBytes |= FINETUNE_MASK;
+		}
+
 	}
 
 	if(statusBytes)

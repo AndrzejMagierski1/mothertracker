@@ -666,7 +666,7 @@ static uint8_t functPreview(uint8_t state)
 			{
 				if(mtPadBoard.getEmptyVoice() == 0)
 				{
-					SE->playPitch = notes[mtPadBoard.convertPadToNote(12)];
+					SE->playPitch = (float)notes[mtPadBoard.convertPadToNote(12)];
 					SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
 					SE->refreshPlayProgressValue = 0;
 					SE->loopDirection = 0;
@@ -1274,7 +1274,7 @@ static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			{
 				if(mtPadBoard.getEmptyVoice() == 0)
 				{
-					SE->playPitch = notes[mtPadBoard.convertPadToNote(pad)];
+					SE->playPitch = (float)notes[mtPadBoard.convertPadToNote(pad)];
 					SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
 					SE->refreshPlayProgressValue = 0;
 					SE->loopDirection = 0;
