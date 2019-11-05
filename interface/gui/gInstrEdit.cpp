@@ -178,8 +178,8 @@ void cInstrumentEditor::showTitleBar()
 	display.refreshControl(titleBar);
 
 	display.setControlShow(titleLabel);
-	if(mode == mtInstEditModeParams)	display.setControlText(titleLabel, "Instrument Parameters");
-	else display.setControlText(titleLabel, "Instrument Envelopes");
+	if(mode == mtInstEditModeParams)	display.setControlText(titleLabel, "Instrument Parameters 1/2");
+	else display.setControlText(titleLabel, "Instrument Envelopes 2/2");
 	display.refreshControl(titleLabel);
 
 	showActualInstrument();

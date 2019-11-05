@@ -24,7 +24,7 @@ extern void initHardware();
 extern void updateHardware();
 extern AudioControlSGTL5000 audioShield;
 
-;;
+
 //=======================================================================
 void setup()
 {
