@@ -72,7 +72,6 @@ public:
 			// #include <interfaceDefs.h>
 			FX_TYPE_NONE,
 			FX_TYPE_NUDGE,
-			FX_TYPE_VELOCITY,
 			FX_TYPE_ROLL,
 			FX_TYPE_STEP_CHANCE,
 			FX_TYPE_RANDOM_NOTE,
@@ -97,6 +96,7 @@ public:
 			FX_TYPE_RANDOM_VALUE,
 
 			FX_TYPE_NOT_SEQ_FX,
+			FX_TYPE_VELOCITY,
 			FX_TYPE_GLIDE,
 			FX_TYPE_FADE,
 			FX_TYPE_CUT,
