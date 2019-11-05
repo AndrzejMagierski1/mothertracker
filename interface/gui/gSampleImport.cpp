@@ -221,8 +221,8 @@ void cSampleImporter::showDefaultScreen()
 	displayDelete(selectedPlace);
 	displayRename(selectedPlace);
 
-	if(selectedPlace != 0) hideAddWT();
-	else  checkWavetableLabel();
+//	if(selectedPlace != 0) hideAddWT();
+//	else  checkWavetableLabel();
 
 }
 
@@ -371,17 +371,17 @@ void cSampleImporter::AddOrEnter()
 	display.synchronizeRefresh();
 }
 
-void cSampleImporter::showAddWT()
-{
-	display.setControlText(topLabel[2], "Add WT");
-	display.refreshControl(topLabel[2]);
-}
-
-void cSampleImporter::hideAddWT()
-{
-	display.setControlText(topLabel[2], "");
-	display.refreshControl(topLabel[2]);
-}
+//void cSampleImporter::showAddWT()
+//{
+//	display.setControlText(topLabel[2], "Add WT");
+//	display.refreshControl(topLabel[2]);
+//}
+//
+//void cSampleImporter::hideAddWT()
+//{
+//	display.setControlText(topLabel[2], "");
+//	display.refreshControl(topLabel[2]);
+//}
 
 void cSampleImporter::showFileList()
 {
