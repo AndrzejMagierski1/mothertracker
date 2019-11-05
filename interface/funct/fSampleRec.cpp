@@ -1395,7 +1395,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 			if(mtPadBoard.getEmptyVoice() == 0)
 			{
-				SR->playPitch = notes[mtPadBoard.convertPadToNote(pad)];
+				SR->playPitch = (float)notes[mtPadBoard.convertPadToNote(pad)];
 				SR->playProgresValueTim = (((((recorder.getLength()/44100.0 ) * SR->startPoint) / MAX_16BIT) * 1000) / SR->playPitch);
 				SR->refreshPlayProgressValue = 0;
 				SR->loopDirection = 0;

@@ -702,6 +702,16 @@ void cSampleEditor::playPreview(uint8_t pad)
 		{
 			if((currSelEffect != effectCrop) && (currSelEffect != effectReverse))
 			{
+				if(mtPadBoard.getEmptyVoice() == 0)
+				{
+					SE->playPitch = (float)notes[mtPadBoard.convertPadToNote(12)];
+					SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
+					SE->refreshPlayProgressValue = 0;
+					SE->loopDirection = 0;
+					SE->isPlayingSample = 1;
+
+					instrumentPlayer[0].clearInterfacePlayingEndFlag();
+				}
 				showEffectSpectrum();
 			}
 
@@ -1369,6 +1379,22 @@ static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	{
 		if(SE->effectControl[SE->currSelEffect].effectStage >= eProcessed)
 		{
+			if(mtPadBoard.getEmptyVoice() < 0) return 1;
+
+			if(SE->effectScreen[SE->currSelEffect].screen == fullSpectrum)
+			{
+				if(mtPadBoard.getEmptyVoice() == 0)
+				{
+					SE->playPitch = (float)notes[mtPadBoard.convertPadToNote(pad)];
+					SE->playProgresValueTim = ((((effector.getLength()/44100.0 ) * SE->startPoint) / MAX_16BIT) * 1000000) / SE->playPitch;
+					SE->refreshPlayProgressValue = 0;
+					SE->loopDirection = 0;
+					SE->isPlayingSample = 1;
+
+					instrumentPlayer[0].clearInterfacePlayingEndFlag();
+				}
+			}
+
 			padsBacklight.setFrontLayer(1,20, pad);
 			SE->playPreview(pad);
 		}

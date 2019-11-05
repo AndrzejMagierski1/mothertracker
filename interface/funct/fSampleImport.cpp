@@ -147,7 +147,7 @@ static  uint8_t functRename();
 static  uint8_t functShift(uint8_t state);
 
 static  uint8_t functInstrumentAdd();
-static  uint8_t functInstrumentWavetableAdd();
+//static  uint8_t functInstrumentWavetableAdd();
 static  uint8_t functInstrumentDelete();
 
 
@@ -287,7 +287,7 @@ void cSampleImporter::setDefaultScreenFunct()
 	if(selectedPlace == 1) FM->setButtonObj(interfaceButton2, buttonPress, functRename);
 	else FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
 
-	FM->setButtonObj(interfaceButton3, buttonPress, functInstrumentWavetableAdd);
+//	FM->setButtonObj(interfaceButton3, buttonPress, functInstrumentWavetableAdd);
 	FM->setButtonObj(interfaceButton4, preview);
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functChangeInstrument);
@@ -323,7 +323,7 @@ static  uint8_t functChangeFolder(uint8_t button)
 
 	SI->AddOrEnter();
 	SI->displayDelete(SI->selectedPlace);
-	SI->checkWavetableLabel();
+//	SI->checkWavetableLabel();
 
 	SI->activateLabelsBorder();
 
@@ -350,7 +350,7 @@ static  uint8_t functChangeInstrument(uint8_t button)
 
 	SI->AddOrEnter();
 	SI->displayDelete(SI->selectedPlace);
-	SI->hideAddWT();
+//	SI->hideAddWT();
 
 	SI->activateLabelsBorder();
 
@@ -366,25 +366,25 @@ static  uint8_t functInstrumentAdd()
 	return 1;
 }
 
-static  uint8_t functInstrumentWavetableAdd()
-{
-	if(SI->isBusy) return 1;
-	uint8_t length = SI->selectionLength ? SI->selectionLength : 1;
-
-	for(uint8_t i = 0; i < length; i++ )
-	{
-		if( ! SI->currentFolderIsWavetableFlag[SI->selectedFile + i] ) return 1;
-	}
-
-	for(uint8_t i = 0; i < length; i++ )
-	{
-		mtProject.instrument[SI->selectedSlot + i].sample.type = mtSampleTypeWavetable;
-	}
-	SI->sampleType = mtSampleTypeWavetable;
-	SI->SelectFile();
-
-	return 1;
-}
+//static  uint8_t functInstrumentWavetableAdd()
+//{
+//	if(SI->isBusy) return 1;
+//	uint8_t length = SI->selectionLength ? SI->selectionLength : 1;
+//
+//	for(uint8_t i = 0; i < length; i++ )
+//	{
+//		if( ! SI->currentFolderIsWavetableFlag[SI->selectedFile + i] ) return 1;
+//	}
+//
+//	for(uint8_t i = 0; i < length; i++ )
+//	{
+//		mtProject.instrument[SI->selectedSlot + i].sample.type = mtSampleTypeWavetable;
+//	}
+//	SI->sampleType = mtSampleTypeWavetable;
+//	SI->SelectFile();
+//
+//	return 1;
+//}
 
 
 static  uint8_t functInstrumentDelete()
@@ -703,11 +703,11 @@ static  uint8_t functLeft()
 	if(SI->selectedPlace > 0)
 	{
 		SI->selectedPlace--;
-		if(SI->selectedPlace != 0) SI->hideAddWT();
-		else if(SI->selectedPlace == 0)
-		{
-			SI->checkWavetableLabel();
-		}
+//		if(SI->selectedPlace != 0) SI->hideAddWT();
+//		else if(SI->selectedPlace == 0)
+//		{
+////			SI->checkWavetableLabel();
+//		}
 
 		if(SI->currSelectPlace == 1)
 		{
@@ -754,11 +754,11 @@ static  uint8_t functRight()
 		SI->FM->setButtonObj(interfaceButton2, buttonPress, functRename);
 		SI->selectedPlace++;
 	}
-	if(SI->selectedPlace != 0) SI->hideAddWT();
-	else if(SI->selectedPlace == 0)
-	{
-		SI->checkWavetableLabel();
-	}
+//	if(SI->selectedPlace != 0) SI->hideAddWT();
+//	else if(SI->selectedPlace == 0)
+//	{
+//		SI->checkWavetableLabel();
+//	}
 
 	SI->activateLabelsBorder();
 
@@ -872,7 +872,7 @@ uint8_t cSampleImporter::changeFileSelection(int16_t value)
 		}
 	}
 
-	checkWavetableLabel();
+//	checkWavetableLabel();
 
 	display.setControlValue(explorerListControl, selectedFile);
 	display.refreshControl(explorerListControl);
@@ -1010,8 +1010,9 @@ void cSampleImporter::processDirFileSizes()
 
 		strcat(filePath, &locationExplorerList[openCurrentPos][0]);
 
-		fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath,&currentFolderMemoryFileUsage[openCurrentPos],&currentFolderIsWavetableFlag[openCurrentPos]);
-		currentFolderMemoryFileUsage[openCurrentPos] *= 2;
+//		fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath,&currentFolderMemoryFileUsage[openCurrentPos],&currentFolderIsWavetableFlag[openCurrentPos]);
+
+		currentFolderMemoryFileUsage[openCurrentPos] = 2 * fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
 
 		openCurrentPos++;
 
@@ -2016,21 +2017,21 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 	return 1;
 }
-void cSampleImporter::checkWavetableLabel()
-{
-	uint8_t length = selectionLength ? selectionLength : 1;
-	uint8_t wavetableFlag = 1;
-	for(uint8_t i = 0; i < length; i++)
-	{
-		if(!currentFolderIsWavetableFlag[selectedFile + i])
-		{
-			wavetableFlag = 0;
-			break;
-		}
-	}
-
-	if(wavetableFlag) showAddWT();
-	else hideAddWT();
-}
+//void cSampleImporter::checkWavetableLabel()
+//{
+//	uint8_t length = selectionLength ? selectionLength : 1;
+//	uint8_t wavetableFlag = 1;
+//	for(uint8_t i = 0; i < length; i++)
+//	{
+//		if(!currentFolderIsWavetableFlag[selectedFile + i])
+//		{
+//			wavetableFlag = 0;
+//			break;
+//		}
+//	}
+//
+//	if(wavetableFlag) showAddWT();
+//	else hideAddWT();
+//}
 
 

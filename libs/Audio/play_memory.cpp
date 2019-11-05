@@ -25,6 +25,7 @@
  */
 
 #include "play_memory.h"
+#include "Audio.h"
 #include "utility/dspinst.h"
 
 constexpr uint8_t SMOOTHING_SIZE = 100;
@@ -32,6 +33,8 @@ constexpr uint8_t SMOOTHING_SIZE = 100;
 uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 {
 	__disable_irq();
+	AudioNoInterrupts();
+
 	/*========================================================INIT=============================================================*/
 	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
 
@@ -46,13 +49,12 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	glideCounter=0;
 	slideCounter=0;
 	currentInstr_idx=instr_idx;
+
 	/*=========================================================================================================================*/
 	/*========================================PRZEPISANIE WARTOSCI ============================================================*/
-	if(!glideForceFlag) glide=mtProject.instrument[instr_idx].glide;
-	else glide = forcedGlide;
+	glide= glideForceFlag ? forcedGlide : mtProject.instrument[instr_idx].glide;
 
-	if(!tuneForceFlag) currentTune=mtProject.instrument[instr_idx].tune;
-	else currentTune = forcedTune;
+	currentTune = tuneForceFlag ? forcedTune : mtProject.instrument[instr_idx].tune;
 
 	sampleType = mtProject.instrument[instr_idx].sample.type;
 
@@ -67,8 +69,8 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 		else currentTune=MIN_NOTE-note;
 	}
 
-	if(lastNote>=0 && glide != 0 ) pitchControl=notes[lastNote + currentTune];
-	else pitchControl=notes[note+ currentTune];
+	if(lastNote>=0 && glide != 0 ) pitchControl=(float)notes[lastNote + currentTune];
+	else pitchControl=(float)notes[note+ currentTune];
 
 	int16_t * data = mtProject.instrument[instr_idx].sample.address;
 
@@ -121,9 +123,24 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 		}
 		else
 		{
-			if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) ) return badStartPoint;
-			if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint)) return badLoopPoint1;
-			if (loopPoint2 > endPoint) return badLoopPoint2;
+			if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) )
+			{
+				__enable_irq();
+				AudioInterrupts();
+				return badStartPoint;
+			}
+			if ((loopPoint1 > loopPoint2) || (loopPoint1 > endPoint))
+			{
+				__enable_irq();
+				AudioInterrupts();
+				return badLoopPoint1;
+			}
+			if (loopPoint2 > endPoint)
+			{
+				__enable_irq();
+				AudioInterrupts();
+				return badLoopPoint2;
+			}
 		}
 	}
 
@@ -136,7 +153,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 		if((note + mtProject.instrument[instr_idx].tune + 1) <= MAX_NOTE)
 		{
-			fineTuneControl= currentFineTune * ((notes[note + currentTune + 1] - notes[note + currentTune]) /MAX_INSTRUMENT_FINETUNE);
+			fineTuneControl= currentFineTune * (((float)notes[note + currentTune + 1] - (float)notes[note + currentTune]) /MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
@@ -144,7 +161,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	{
 		if((note + mtProject.instrument[instr_idx].tune - 1) >= MIN_NOTE)
 		{
-			fineTuneControl= (0 - currentFineTune) * ((notes[note + currentTune - 1] - notes[note + currentTune] )/MAX_INSTRUMENT_FINETUNE);
+			fineTuneControl= (0 - currentFineTune) * (((float)notes[note + currentTune - 1] - (float)notes[note + currentTune] )/MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
@@ -154,7 +171,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	if(glide)
 	{
 		sampleConstrains.glide=(uint32_t)((float)glide*44.1);
-		if((lastNote>=0) && (lastNote != note)) glideControl=(notes[note + currentTune]-notes[lastNote + currentTune] )/sampleConstrains.glide;
+		if((lastNote>=0) && (lastNote != note)) glideControl=((float)notes[note + currentTune]-(float)notes[lastNote + currentTune] )/sampleConstrains.glide;
 		else glideControl=0;
 	}
 	else
@@ -181,7 +198,12 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 			samplePoints.loop2 = 0;
 		}
 
-		if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
+		if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen))
+		{
+			__enable_irq();
+			AudioInterrupts();
+			return pointsBeyondFile; // wskazniki za plikiem
+		}
 
 		if(playMode != singleShot)
 		{
@@ -202,9 +224,9 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	length =startLen-samplePoints.start;
 	iPitchCounter = reverseDirectionFlag ? sampleConstrains.endPoint - 1 : 0;
 	playing = 0x81;
-
-	return successInit;
 	__enable_irq();
+	AudioInterrupts();
+	return successInit;
 }
 
 
@@ -578,18 +600,24 @@ void AudioPlayMemory::setLP2(uint16_t value) // w audio engine zadba zeby zapoda
 
 void AudioPlayMemory::setGlide(uint16_t value, int8_t currentNote, uint8_t instr_idx)
 {
-	sampleConstrains.glide=(uint32_t)(value*44.1);
-	if((lastNote>=0) && (lastNote != currentNote)) glideControl=(notes[currentNote + mtProject.instrument[instr_idx].tune] - notes[lastNote + mtProject.instrument[instr_idx].tune] )/sampleConstrains.glide;
+	uint32_t localSampleConstrainsGlide = (uint32_t)(value*44.1);
+	float localGlideControl = ((float)notes[currentNote + mtProject.instrument[instr_idx].tune] - (float)notes[lastNote + mtProject.instrument[instr_idx].tune] )/localSampleConstrainsGlide;
+	AudioNoInterrupts();
+	sampleConstrains.glide = localSampleConstrainsGlide;
+	if((lastNote>=0) && (lastNote != currentNote)) glideControl= localGlideControl;
 	else glideControl=0;
-
+	AudioInterrupts();
 }
 
 void AudioPlayMemory::setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx)
 {
-	pitchControl-=(slideControl * slideCounter);
+	//todo: jezeli bedzie kiedys uzywane zoptymalizowac wspolprace z przerwaniami
+	float localPitchControl = pitchControl;
+	localPitchControl -= (slideControl * slideCounter);
+	pitchControl = localPitchControl;
 	slideCounter=0;
 	sampleConstrains.slide =(uint32_t)(value*44.1);
-	if((slideNote>=0) && (slideNote != currentNote)) slideControl=(notes[slideNote + mtProject.instrument[instr_idx].tune] - notes[currentNote] )/sampleConstrains.slide;
+	if((slideNote>=0) && (slideNote != currentNote)) slideControl=((float)notes[slideNote + mtProject.instrument[instr_idx].tune] - (float)notes[currentNote] )/sampleConstrains.slide;
 	else slideControl=0;
 
 }
@@ -600,30 +628,35 @@ void AudioPlayMemory::setPitch(float value)
 	if(pitchControl < MIN_PITCH) pitchControl=MIN_PITCH;
 	if(pitchControl > MAX_PITCH ) pitchControl=MAX_PITCH;
 }
-
 void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 {
-
-	pitchControl-=fineTuneControl;
+	float localPitchControl = pitchControl;
+	float localFineTuneControl = fineTuneControl;
+	localPitchControl-=localFineTuneControl;
 	if(value >= 0)
 	{
 		if((currentNote + currentTune + 1) <= (MAX_NOTE-1))
 		{
-			fineTuneControl= value * ((notes[currentNote + currentTune + 1] - notes[currentNote + currentTune]) /MAX_INSTRUMENT_FINETUNE);
+			localFineTuneControl= value * (((float)notes[currentNote + currentTune + 1] - (float)notes[currentNote + currentTune]) /MAX_INSTRUMENT_FINETUNE);
 		}
-		else fineTuneControl=0;
+		else localFineTuneControl=0;
 	}
 	else
 	{
 		if((currentNote + currentTune - 1) >= MIN_NOTE)
 		{
-			fineTuneControl= (0-value) * ((notes[currentNote + currentTune - 1] - notes[currentNote + currentTune]) /MAX_INSTRUMENT_FINETUNE);
+			localFineTuneControl= (0-value) * (((float)notes[currentNote + currentTune - 1] - (float)notes[currentNote + currentTune]) /MAX_INSTRUMENT_FINETUNE);
 		}
-		else fineTuneControl=0;
+		else localFineTuneControl=0;
 	}
 
-	pitchControl+=fineTuneControl;
+	localPitchControl+=localFineTuneControl;
+	AudioNoInterrupts();
+	pitchControl=localPitchControl; // przypisanie nowej wartosci pitchControl w jednej instrukcji asm, żeby nie moglo w miedzyczasie wbic sie przerwanie
+	fineTuneControl = localFineTuneControl;
 	currentFineTune=value;
+	AudioInterrupts();
+
 }
 
 void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)
@@ -631,10 +664,13 @@ void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)
 	if( (currentNote + value) > (MAX_NOTE-1)) value=(MAX_NOTE-1)-currentNote;
 	if( (currentNote + value) < MIN_NOTE) value=MIN_NOTE-currentNote;
 
-
-	pitchControl-=notes[currentNote+currentTune];
-	pitchControl+=notes[currentNote+value];
+	float localPitchControl = pitchControl;
+	localPitchControl-=(float)notes[currentNote+currentTune];
+	localPitchControl+=(float)notes[currentNote+value];
+	AudioNoInterrupts();
+	pitchControl = localPitchControl;
 	currentTune=value;
+	AudioInterrupts();
 	setFineTune(currentFineTune,currentNote);
 }
 
@@ -805,8 +841,8 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 		else currentTune=MIN_NOTE-n;
 	}
 
-	if(lastNote>=0 && glide != 0 ) pitchControl=notes[lastNote + currentTune];
-	else pitchControl=notes[n+ currentTune];
+	if(lastNote>=0 && glide != 0 ) pitchControl=(float)notes[lastNote + currentTune];
+	else pitchControl=(float)notes[n+ currentTune];
 
 	int16_t * data = mtProject.instrument[instr_idx].sample.address;
 
@@ -859,7 +895,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 		currentFineTune=mtProject.instrument[instr_idx].fineTune;
 		if((n + mtProject.instrument[instr_idx].tune + 1) <= MAX_NOTE)
 		{
-			fineTuneControl= mtProject.instrument[instr_idx].fineTune * ((notes[n + currentTune + 1] - notes[n + currentTune]) /MAX_INSTRUMENT_FINETUNE);
+			fineTuneControl= mtProject.instrument[instr_idx].fineTune * (((float)notes[n + currentTune + 1] - (float)notes[n + currentTune]) /MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
@@ -867,7 +903,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	{
 		if((n + mtProject.instrument[instr_idx].tune - 1) >= MIN_NOTE)
 		{
-			fineTuneControl= (0 - mtProject.instrument[instr_idx].fineTune) * ((notes[n + currentTune - 1] - notes[n + currentTune] )/MAX_INSTRUMENT_FINETUNE);
+			fineTuneControl= (0 - mtProject.instrument[instr_idx].fineTune) * (((float)notes[n + currentTune - 1] - (float)notes[n + currentTune] )/MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
@@ -877,7 +913,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	if(glide)
 	{
 		sampleConstrains.glide=(uint32_t)((float)glide*44.1);
-		if((lastNote>=0) && (lastNote != n)) glideControl=(notes[n + currentTune]-notes[lastNote + currentTune] )/sampleConstrains.glide;
+		if((lastNote>=0) && (lastNote != n)) glideControl=((float)notes[n + currentTune]-(float)notes[lastNote + currentTune] )/sampleConstrains.glide;
 		else glideControl=0;
 	}
 	else
@@ -953,8 +989,8 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 		else currentTune=MIN_NOTE-note;
 	}
 
-	if(lastNote>=0) pitchControl=notes[lastNote + currentTune];
-	else pitchControl=notes[note+ currentTune];
+	if(lastNote>=0) pitchControl=(float)notes[lastNote + currentTune];
+	else pitchControl=(float)notes[note+ currentTune];
 
 	int16_t * data = addr;
 
@@ -1022,8 +1058,8 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 		else currentTune=MIN_NOTE-note;
 	}
 
-	if(lastNote>=0) pitchControl=notes[lastNote + currentTune];
-	else pitchControl=notes[note+ currentTune];
+	if(lastNote>=0) pitchControl=(float)notes[lastNote + currentTune];
+	else pitchControl=(float)notes[note+ currentTune];
 
 	int16_t * data = addr;
 

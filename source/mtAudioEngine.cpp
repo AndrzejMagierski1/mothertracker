@@ -251,6 +251,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
 
 	__disable_irq();
+	AudioNoInterrupts();
 	uint8_t status;
 	float gainL=0,gainR=0;
 
@@ -475,6 +476,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	if(mtProject.instrument[instr_idx].envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
 
 	__enable_irq();
+	AudioInterrupts();
 	return status;
 }
 
@@ -483,6 +485,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 {
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
 	__disable_irq();
+	AudioNoInterrupts();
 	uint8_t status;
 	float gainL=0,gainR=0;
 
@@ -705,11 +708,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();
 
-	if(mtProject.instrument[instr_idx].lfo[lfoA].enable == lfoOn) lfoAmpPtr->start();
-	if(mtProject.instrument[instr_idx].lfo[lfoF].enable == lfoOn) lfoFilterPtr->start();
 	if(mtProject.instrument[instr_idx].envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
 
 	__enable_irq();
+	AudioInterrupts();
 	return status;
 }
 
@@ -717,6 +719,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 void playerEngine :: noteOff()
 {
 	__disable_irq();
+	AudioNoInterrupts();
 	envelopeAmpPtr->noteOff();
 	envelopeFilterPtr->stop();
 	if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
@@ -740,11 +743,14 @@ void playerEngine :: noteOff()
 			}
 		}
 	}
+	AudioInterrupts();
 	__enable_irq();
 }
 
 void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 {
+	AudioNoInterrupts();
+	__disable_irq();
 	endFx(lastSeqFx[fx_n],fx_n);
 
 	uint8_t otherFx_n = !fx_n;
@@ -1167,9 +1173,37 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 				playMemPtr->setWavetableWindow(currentSeqModValues.wavetablePosition);
 			}
 		break;
+		case fx_t::FX_TYPE_VELOCITY:
+			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::volume] = 1;
+			if(fx_n == MOST_SIGNIFICANT_FX)
+			{
+				currentSeqModValues.volume = map(fx_val,0,127,0,MAX_INSTRUMENT_VOLUME);
+			}
+			else if(fx_n == LEAST_SIGNIFICANT_FX)
+			{
+				if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::volume])
+				{
+					currentSeqModValues.volume = map(fx_val,0,127,0,MAX_INSTRUMENT_VOLUME);
+				}
+			}
+
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
+			{
+
+				changeVolumePerformanceMode(performanceMod.volume);
+			}
+			else
+			{
+				ampPtr->gain( (currentSeqModValues.volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+			}
+		break;
+		default:
+		break;
 	}
 	lastSeqFx[fx_n] = fx_id;
 	lastSeqVal[fx_n] = fx_val;
+	AudioInterrupts();
+	__enable_irq();
 }
 //*** Jeżeli kończy się mniej znaczący efekt mimo, że aktywny jest bardziej znaczący efekt to nie wykonujemy żadnej akcji poza wyzerowaniem flag ***/
 //*** Jeżeli kończy się bardziej znaczący efekt i aktywny jest mniej znaczący efekt to mniej znaczący efekt przejmuje kontrolę lub performanceMode wykonuje
@@ -1660,6 +1694,34 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				}
 			}
 		break;
+		case fx_t::FX_TYPE_VELOCITY:
+
+			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::volume] = 0;
+			if(fx_id == MOST_SIGNIFICANT_FX)
+			{
+				currentSeqModValues.volume = map(lastSeqVal[otherFx_n],0,127,0,MAX_INSTRUMENT_VOLUME);
+			}
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
+			{
+				changeVolumePerformanceMode(performanceMod.volume);
+			}
+			else
+			{
+				if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::volume])
+				{
+					if(fx_id == MOST_SIGNIFICANT_FX)
+					{
+						ampPtr->gain( (currentSeqModValues.volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+					}
+				}
+				else
+				{
+					ampPtr->gain( (instrumentBasedMod.volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+				}
+			}
+		break;
+		default:
+		break;
 	}
 }
 
@@ -1892,14 +1954,24 @@ void playerEngine:: update()
 //	}
 	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp] || trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp]  )
 	{
-		ampMod=lfoAmpPtr->getOut();
-		statusBytes |= VOLUME_MASK;
+		if(ampLfoRefreshTimer > LFO_REFRESH_TIME)
+		{
+			ampLfoRefreshTimer = 0;
+			ampMod=lfoAmpPtr->getOut();
+			statusBytes |= VOLUME_MASK;
+		}
+
 	}
 
 	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFineTune] || trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoFineTune])
 	{
-		fineTuneMod = lfoPitchPtr->getOut();
-		statusBytes |= FINETUNE_MASK;
+		if(pitchLfoRefreshTimer > LFO_REFRESH_TIME)
+		{
+			pitchLfoRefreshTimer = 0;
+			fineTuneMod = lfoPitchPtr->getOut();
+			statusBytes |= FINETUNE_MASK;
+		}
+
 	}
 
 	if(statusBytes)
@@ -1958,25 +2030,25 @@ void playerEngine:: update()
 
 			if(muteState == 0)
 			{
-				if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume] ||
-				   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume]	)
+				if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp] ||
+				   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] )
 				{
-					ampPtr->gain( ((currentPerformanceValues.volume/100.0) + ampMod) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount));
+					uint8_t volume;
+
+					if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume] ||
+					   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume]	) volume = currentSeqModValues.volume;
+					else if (currentVelocity == -1 ) volume = mtProject.instrument[currentInstrument_idx].volume;
+					else volume = currentVelocity;
+
+					if( volume + ampMod*100 > MAX_INSTRUMENT_VOLUME) ampPtr->gain( (MAX_INSTRUMENT_VOLUME/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount));
+					else if( volume + ampMod*100 < MIN_INSTRUMENT_VOLUME)  ampPtr->gain( (MIN_INSTRUMENT_VOLUME/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount));
+					else ampPtr->gain( ( (volume/100.0) + ampMod) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount));
 				}
 				else
 				{
-					if(currentVelocity == -1)
-					{
-						ampPtr->gain((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount) * (mtProject.instrument[currentInstrument_idx].volume/100.0) + ampMod);
-	//					instrumentBasedMod.volume = ((mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod) * (mtProject.instrument[currentInstrument_idx].volume/100.0)) * 100;
-					}
-					else
-					{
-						ampPtr->gain( ((currentVelocity/100.0) + ampMod) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount));
-	//					instrumentBasedMod.volume = ((currentVelocity/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount + ampMod)) * 100;
-					}
+					uint8_t volume = (currentVelocity == -1) ?  mtProject.instrument[currentInstrument_idx].volume : currentVelocity;
+					ampPtr->gain( (volume/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount));
 				}
-
 			}
 		}
 		if(statusBytes & PANNING_MASK)
@@ -2268,14 +2340,18 @@ void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 //*******************************************change
 void playerEngine ::changeVolumePerformanceMode(int8_t value)
 {
-//**************************************************************************************
-// Nie trzeba sprawdzac warunku voluma dla sequencera poniewaz jest uwzględniony w zmiennej instrumentBasedMod.volume
-//**************************************************************************************
 	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] != 1) && (value == 0)) return;
+
+	uint8_t volume;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume] ||
+	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume]) volume = currentSeqModValues.volume;
+	else volume = instrumentBasedMod.volume;
+
 	performanceMod.volume = value;
-	if(instrumentBasedMod.volume + value > MAX_INSTRUMENT_VOLUME) currentPerformanceValues.volume = MAX_INSTRUMENT_VOLUME;
-	else if(instrumentBasedMod.volume + value < MIN_INSTRUMENT_VOLUME) currentPerformanceValues.volume = MIN_INSTRUMENT_VOLUME;
-	else currentPerformanceValues.volume = instrumentBasedMod.volume + value;
+	if(volume + value > MAX_INSTRUMENT_VOLUME) currentPerformanceValues.volume = MAX_INSTRUMENT_VOLUME;
+	else if(volume + value < MIN_INSTRUMENT_VOLUME) currentPerformanceValues.volume = MIN_INSTRUMENT_VOLUME;
+	else currentPerformanceValues.volume = volume + value;
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] = 1;
 
