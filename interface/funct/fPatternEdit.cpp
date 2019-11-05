@@ -846,26 +846,26 @@ void cPatternEditor::changeFillData(int16_t value)
 
 	switch(fillPlace)
 	{
-	case 0:
+	case 1:
 		ptrVal = &fillData[editParam].type;
 		max = fillTypeList.length - 1;
 		//value = value*(-1);
 		break;
-	case 1:
+	case 2:
 		ptrVal = &fillData[editParam].from;
 		max = (trackerPattern.selectedParam == 1 ? 63 : 127);
 		break;
-	case 2:
+	case 3:
 		ptrVal = &fillData[editParam].to;
 		max = (editParam == 1 ? 63 : 127);
 		break;
-	case 3:
+	case 4:
 		ptrVal = &fillData[editParam].param;
 		min = (editParam == 0 ? 0 : -1);
 		max = (editParam == 0 ? 1 : FX_COUNT);
 		//value = value*(-1);
 		break;
-	case 5:
+	case 0:
 		ptrVal = &fillStep;
 		min = -2;
 		max = PATTERN_EDIT_STEP_MAX;
@@ -881,11 +881,11 @@ void cPatternEditor::changeFillData(int16_t value)
 
 	switch(fillPlace)
 	{
-		case 0:  refreshFillType(); break;
-		case 1:  refreshFillFrom(); break;
-		case 2:  refreshFillTo(); break;
-		case 3:  refreshFillParam(); break;
-		case 5:  refreshFillStep(); break;
+		case 1:  refreshFillType(); break;
+		case 2:  refreshFillFrom(); break;
+		case 3:  refreshFillTo(); break;
+		case 4:  refreshFillParam(); break;
+		case 0:  refreshFillStep(); break;
 		default: return;
 	}
 }
@@ -894,26 +894,26 @@ void cPatternEditor::changneFillDataByPad(uint8_t pad)
 {
 	switch(fillPlace)
 	{
-	case 1:
+	case 2:
 	{
 		if(editParam == 0) 		fillData[editParam].from = mtPadBoard.getNoteFromPad(pad);
 		else if(editParam == 1) fillData[editParam].from = pad;
 		else 					fillData[editParam].from = map(pad,0,47,0,127);
 		break;
 	}
-	case 2:
+	case 3:
 	{
 		if(editParam == 0) 		fillData[editParam].to = mtPadBoard.getNoteFromPad(pad);
 		else if(editParam == 1) fillData[editParam].to = pad;
 		else 					fillData[editParam].to = map(pad,0,47,0,127);
 		break;
 	}
-	case 3:
+	case 4:
 	{
 		if(editParam == 3) fillData[editParam].param = pad;
 		break;
 	}
-	case 5:
+	case 0:
 	{
 		if(pad-2 > PATTERN_EDIT_STEP_MAX) fillStep = PATTERN_EDIT_STEP_MAX;
 		else fillStep = pad-2;
@@ -924,11 +924,11 @@ void cPatternEditor::changneFillDataByPad(uint8_t pad)
 
 	switch(fillPlace)
 	{
-		case 0:  refreshFillType(); break;
-		case 1:  refreshFillFrom(); break;
-		case 2:  refreshFillTo(); break;
-		case 3:  refreshFillParam(); break;
-		case 5:  refreshFillStep(); break;
+		case 1:  refreshFillType(); break;
+		case 2:  refreshFillFrom(); break;
+		case 3:  refreshFillTo(); break;
+		case 4:  refreshFillParam(); break;
+		case 0:  refreshFillStep(); break;
 		default: return;
 	}
 }
@@ -938,7 +938,7 @@ void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 {
 	if(place < 0 || place > 5) return;
 
-	if(place == 2)
+	if(place == 3)
 	{
 		if(fillData[editParam].type == 0)
 		{
@@ -948,7 +948,7 @@ void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 		}
 		else fillPlace = place;
 	}
-	else if(place == 3)
+	else if(place == 4)
 	{
 		if(dir < 0 && editParam==1)
 		{
@@ -964,7 +964,7 @@ void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 		}
 		else fillPlace = place;
 	}
-	else if(place == 4)
+	else if(place == 1)
 	{
 		if(dir < 0)
 		{
@@ -1210,8 +1210,8 @@ static  uint8_t functShift(uint8_t state)
 			if(PTE->editMode)
 			{
 				PTE->FM->setButtonObj(interfaceButton3, buttonPress, functFill);
-				PTE->FM->setButtonObj(interfaceButton5, buttonPress, functTranspose);
-				PTE->FM->setButtonObj(interfaceButton6, buttonPress, functInvert);
+				PTE->FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
+				PTE->FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
 				PTE->FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
 			}
 		}
@@ -2177,11 +2177,12 @@ static  uint8_t functFill()
 	PTE->FM->setButtonObj(interfaceButton6, buttonPress, functFillCancel);
 	PTE->FM->setButtonObj(interfaceButton7, buttonPress, functFillApply);
 
-	PTE->FM->setButtonObj(interfaceButton0, buttonPress, functFillChangeType);
-	PTE->FM->setButtonObj(interfaceButton1, buttonPress, functFillChangeParam1);
-	PTE->FM->setButtonObj(interfaceButton2, buttonPress, functFillChangeParam2);
-	PTE->FM->setButtonObj(interfaceButton3, buttonPress, functFillChangeParam3);
-	PTE->FM->setButtonObj(interfaceButton5, buttonPress, functFillChangeParam4);
+
+	PTE->FM->setButtonObj(interfaceButton0, buttonPress, functFillChangeParam4);
+	PTE->FM->setButtonObj(interfaceButton1, buttonPress, functFillChangeType);
+	PTE->FM->setButtonObj(interfaceButton2, buttonPress, functFillChangeParam1);
+	PTE->FM->setButtonObj(interfaceButton3, buttonPress, functFillChangeParam2);
+	PTE->FM->setButtonObj(interfaceButton4, buttonPress, functFillChangeParam3);
 
 
 	return 1;
@@ -2314,7 +2315,7 @@ static  uint8_t functFillApply()
 static  uint8_t functFillChangeType()
 {
 	//PTE->fillPlace = 0;
-	PTE->setFillPlace(0);
+	PTE->setFillPlace(1);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2323,7 +2324,7 @@ static  uint8_t functFillChangeType()
 static  uint8_t functFillChangeParam1()
 {
 	//PTE->fillPlace = 1;
-	PTE->setFillPlace(1);
+	PTE->setFillPlace(2);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2332,7 +2333,7 @@ static  uint8_t functFillChangeParam1()
 static  uint8_t functFillChangeParam2()
 {
 	//PTE->fillPlace = 2;
-	PTE->setFillPlace(2);
+	PTE->setFillPlace(3);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2341,7 +2342,7 @@ static  uint8_t functFillChangeParam2()
 static  uint8_t functFillChangeParam3()
 {
 	//PTE->fillPlace = 3;
-	PTE->setFillPlace(3);
+	PTE->setFillPlace(4);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2350,7 +2351,7 @@ static  uint8_t functFillChangeParam3()
 static  uint8_t functFillChangeParam4()
 {
 	//PTE->fillPlace = 5;
-	PTE->setFillPlace(5);
+	PTE->setFillPlace(0);
 	PTE->activateFillPopupBorder();
 
 	return 1;

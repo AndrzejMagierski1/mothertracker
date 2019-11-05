@@ -194,7 +194,7 @@ void cPatternEditor::initDisplayControls()
 
 
 	// lista 1
-	prop.x = (800/8)*(0)+5;
+	prop.x = (800/8)*(1)+5;
 	prop.y = 8*28 + 122;
 	prop.w = 800/8-10;
 	prop.h = 25;
@@ -204,7 +204,7 @@ void cPatternEditor::initDisplayControls()
 	if(param1PopupListControl == nullptr)  param1PopupListControl = display.createControl<cList>(&prop);
 
 	// lista 2
-	prop.x = (800/8)*(3)+5;
+	prop.x = (800/8)*(4)+5;
 	prop.y = 8*28 + 122;
 	prop.w = 800/8-10;
 	prop.h = 25;
@@ -212,7 +212,7 @@ void cPatternEditor::initDisplayControls()
 	if(param2PopupListControl == nullptr)  param2PopupListControl = display.createControl<cList>(&prop);
 
 	// lista 3
-	prop.x = (800/8)*(5)+5;
+	prop.x = (800/8)*(0)+5;
 	prop.y = 8*28 + 122;
 	prop.w = 800/8-10;
 	prop.h = 25;
@@ -222,7 +222,7 @@ void cPatternEditor::initDisplayControls()
 	// label val1
 	prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
 	prop.colors =  patternLabelColors;
-	prop.x = (800/8)*(1)+(800/16);
+	prop.x = (800/8)*(2)+(800/16);
 	prop.y = 8*28 + 130;
 	prop.w = 800/8-10;
 	prop.h = 28;
@@ -230,7 +230,7 @@ void cPatternEditor::initDisplayControls()
 
 	// label val2
 	prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
-	prop.x = (800/8)*(2)+(800/16);
+	prop.x = (800/8)*(3)+(800/16);
 	prop.y = 8*28 + 130;
 	prop.w = 800/8-10;
 	prop.h = 28;
@@ -516,7 +516,7 @@ void cPatternEditor::showFillPopup()
 	display.setControlValue(param1PopupListControl, fillData[editParam].type);
 	display.setControlShow(param1PopupListControl);
 
-	display.setControlText(bottomLabel[0], "Type");
+	display.setControlText(bottomLabel[1], "Type");
 
 	//------------------------------
 	// value/from
@@ -542,9 +542,9 @@ void cPatternEditor::showFillPopup()
 	display.setControlShow(val1PopupLabel);
 
 	if(fillData[editParam].type == 0)
-		display.setControlText(bottomLabel[1], "Value");
+		display.setControlText(bottomLabel[2], "Value");
 	else
-		display.setControlText(bottomLabel[1], "From");
+		display.setControlText(bottomLabel[2], "From");
 
 	//------------------------------
 	// To
@@ -570,12 +570,12 @@ void cPatternEditor::showFillPopup()
 
 	if(fillData[editParam].type == 0)
 	{
-		display.setControlText(bottomLabel[2], "");
+		display.setControlText(bottomLabel[3], "");
 		display.setControlHide(val2PopupLabel);
 	}
 	else
 	{
-		display.setControlText(bottomLabel[2], "To");
+		display.setControlText(bottomLabel[3], "To");
 		display.setControlShow(val2PopupLabel);
 	}
 
@@ -593,9 +593,9 @@ void cPatternEditor::showFillPopup()
 		display.setControlShow(param2PopupListControl);
 		display.setControlSize(param2PopupListControl, 800/8-10, 25);
 
-		display.setControlText(bottomLabel[3], "In Scale");
+		display.setControlText(bottomLabel[4], "In Scale");
 
-		frameData.places[3] = &framesPopupPlaces[3][0];
+		frameData.places[4] = &framesPopupPlaces[3][0];
 	}
 	//------------------------------
 	// fx
@@ -611,9 +611,9 @@ void cPatternEditor::showFillPopup()
 		display.setControlShow(param2PopupListControl);
 		display.setControlSize(param2PopupListControl, 800/4-10, 25);
 
-		display.setControlText(bottomLabel[3], "Fx Type");
+		display.setControlText(bottomLabel[4], "Fx Type");
 
-		frameData.places[3] = &framesPopupPlaces[4][0];
+		frameData.places[4] = &framesPopupPlaces[4][0];
 	}
 	else
 	{
@@ -635,8 +635,8 @@ void cPatternEditor::showFillPopup()
 	//display.setControlSize(param3PopupListControl, 800/8-10, 25);
 
 
-	display.setControlText(bottomLabel[5], "Step");
-	display.setControlText(bottomLabel[4], "");
+	display.setControlText(bottomLabel[0], "Step");
+	display.setControlText(bottomLabel[5], "");
 
 
 
@@ -706,21 +706,21 @@ void cPatternEditor::refreshFillType()
 
 	if(fillData[editParam].type == 0)
 	{
-		display.setControlText(bottomLabel[1], "Value");
-		display.setControlText(bottomLabel[2], "");
+		display.setControlText(bottomLabel[2], "Value");
+		display.setControlText(bottomLabel[3], "");
 
 		display.setControlHide(val2PopupLabel);
 	}
 	else
 	{
-		display.setControlText(bottomLabel[1], "From");
-		display.setControlText(bottomLabel[2], "To");
+		display.setControlText(bottomLabel[2], "From");
+		display.setControlText(bottomLabel[3], "To");
 
 		display.setControlShow(val2PopupLabel);
 	}
 
-	display.refreshControl(bottomLabel[1]);
 	display.refreshControl(bottomLabel[2]);
+	display.refreshControl(bottomLabel[3]);
 }
 
 
@@ -780,16 +780,16 @@ void cPatternEditor::refreshFillParam()
 	if(editParam == 0)
 	{
 		display.setControlValue(param2PopupListControl, fillData[editParam].param);
-		display.setControlText(bottomLabel[3], "In Scale");
+		display.setControlText(bottomLabel[4], "In Scale");
 	}
 	else if(editParam == 3 || editParam == 2)
 	{
 		display.setControlValue(param2PopupListControl, fillData[editParam].param+1);
-		display.setControlText(bottomLabel[3], "Fx Type");
+		display.setControlText(bottomLabel[4], "Fx Type");
 	}
 	else
 	{
-		display.setControlText(bottomLabel[3], " ");
+		display.setControlText(bottomLabel[4], " ");
 	}
 
 	display.refreshControl(param2PopupListControl);
