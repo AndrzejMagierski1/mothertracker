@@ -71,6 +71,7 @@ public:
 			// powiązane z listą tekstów w
 			// #include <interfaceDefs.h>
 			FX_TYPE_NONE,
+			FX_TYPE_OFF,
 			FX_TYPE_NUDGE,
 			FX_TYPE_VELOCITY,
 			FX_TYPE_ROLL,
@@ -384,8 +385,11 @@ public:
 			uint16_t noteTimer = 0;
 			uint16_t noteLength = 0;
 
+
 			boolean isOffset = 0;
 			uint16_t offsetValue = 0;
+
+			boolean cancelStep = 0;
 
 			uint8_t rollType = 0; // 1/1, 1/2, 1/4 ...
 
@@ -605,6 +609,7 @@ public:
 
 // inne
 	void handle_uStep_timer(void);
+//	void internalFxsOff(void);
 
 	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 					uint8_t track);
@@ -613,7 +618,9 @@ public:
 
 	void loadNextPattern(uint8_t patternNumber);
 	void handleNote(byte channel, byte pitch, byte velocity);
-
+	int16_t getFxMax(uint8_t fxID);
+	int16_t getFxMin(uint8_t fxID);
+	int16_t getFxDefault(uint8_t fxID);
 };
 
 extern Sequencer sequencer;

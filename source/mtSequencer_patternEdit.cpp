@@ -378,20 +378,10 @@ void Sequencer::changeSelectionFxValue(uint8_t fxIndex, int16_t value)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
 
-			switch (step->fx[fxIndex].type)
-			{
-			case fx.FX_TYPE_NUDGE:
-				step->fx[fxIndex].value = constrain(
-						step->fx[fxIndex].value + value,
-						0,
-						47);
-				break;
-			default:
-				step->fx[fxIndex].value = constrain(
-						step->fx[fxIndex].value + value,
-						0,
-						127);
-			}
+			step->fx[fxIndex].value = constrain(
+					step->fx[fxIndex].value + value,
+					getFxMin(step->fx[fxIndex].type),
+					getFxMax(step->fx[fxIndex].type));
 
 //			step->fx[0].value2 = 1;
 			if (!isMultiSelection() && step->fx[fxIndex].type == 0)
@@ -424,7 +414,10 @@ void Sequencer::setSelectionFxValue(uint8_t fxIndex, int16_t value)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
 
-			step->fx[fxIndex].value = value;
+			step->fx[fxIndex].value = constrain(
+					value,
+					getFxMin(step->fx[fxIndex].type),
+					getFxMax(step->fx[fxIndex].type));
 //			step->fx[0].value2 = 1;
 			if (!isMultiSelection() && step->fx[fxIndex].type == 0)
 			{
@@ -455,6 +448,10 @@ void Sequencer::changeSelectionFxType(uint8_t index, int16_t value)
 			step->fx[index].type = constrain(step->fx[index].type + value,
 												0,
 												200);
+			step->fx[index].value = constrain(
+					step->fx[index].value,
+					getFxMin(step->fx[index].type),
+					getFxMax(step->fx[index].type));
 		}
 	}
 }
@@ -476,6 +473,10 @@ void Sequencer::setSelectionFxType(uint8_t fxIndex, int16_t value)
 			step = &seq[player.ramBank].track[t].step[s];
 
 			step->fx[fxIndex].type = value;
+			step->fx[fxIndex].value = constrain(
+					step->fx[fxIndex].value,
+					getFxMin(step->fx[fxIndex].type),
+					getFxMax(step->fx[fxIndex].type));
 		}
 	}
 }
@@ -1025,5 +1026,65 @@ void Sequencer::setPasteSelection(uint8_t stepFrom,
 		pasteSelection.lastTrack = trackTo;
 	}
 
+}
+
+int16_t Sequencer::getFxMax(uint8_t fxID)
+{
+	switch (fxID)
+	{
+	case fx.FX_TYPE_NUDGE:
+		return 47;
+	case fx.FX_TYPE_OFF:
+		return 0;
+	case fx.FX_TYPE_VELOCITY:
+		return 127;
+	case fx.FX_TYPE_RANDOM_INSTRUMENT:
+		return 47;
+	case fx.FX_TYPE_ROLL:
+		case fx.FX_TYPE_ROLL_NOTE_UP:
+		case fx.FX_TYPE_ROLL_NOTE_DOWN:
+		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
+
+		return fx.ROLL_TYPE_MAX;
+
+	case fx.FX_TYPE_SEND_CC_1:
+		case fx.FX_TYPE_SEND_CC_2:
+		case fx.FX_TYPE_SEND_CC_3:
+		case fx.FX_TYPE_SEND_CC_4:
+		case fx.FX_TYPE_SEND_CC_5:
+		case fx.FX_TYPE_SEND_CC_6:
+		case fx.FX_TYPE_SEND_CC_7:
+		case fx.FX_TYPE_SEND_CC_8:
+		case fx.FX_TYPE_SEND_CC_9:
+		case fx.FX_TYPE_SEND_CC_10:
+		return 127;
+
+	default:
+		return 255;
+	}
+}
+
+int16_t Sequencer::getFxMin(uint8_t fxID)
+{
+	switch (fxID)
+	{
+	case fx.FX_TYPE_NUDGE:
+		return 0;
+
+	case fx.FX_TYPE_ROLL:
+		case fx.FX_TYPE_ROLL_NOTE_UP:
+		case fx.FX_TYPE_ROLL_NOTE_DOWN:
+		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
+
+		return fx.ROLL_TYPE_MIN;
+
+	default:
+		return 0;
+	}
+}
+
+int16_t Sequencer::getFxDefault(uint8_t fxID)
+{
+	return 0;
 }
 

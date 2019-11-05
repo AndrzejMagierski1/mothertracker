@@ -280,6 +280,7 @@ struct strInterfaceGlobals
 
 	const uint8_t fxIDs[FX_COUNT] = {
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_OFF,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_VALUE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_UP,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NUDGE,
@@ -331,6 +332,7 @@ struct strInterfaceGlobals
 	const char fxNames[FX_COUNT][FX_NAME_SIZE+4] =
 	{
 			"--- None",
+			"! - OFF",
 			"r - random next value",
 			"H - Roll up",
 			"A - Nudge",
@@ -377,7 +379,6 @@ struct strInterfaceGlobals
 			"n - fade",
 			"o - cut",
 			"t - ",
-			"u - ",
 	};
 
 	const char *ptrAllFxNames[FX_COUNT+1] =
