@@ -2046,7 +2046,7 @@ void playerEngine:: update()
 				}
 				else
 				{
-					uint8_t volume = currentVelocity == -1 ?  mtProject.instrument[currentInstrument_idx].volume : currentVelocity;
+					uint8_t volume = (currentVelocity == -1) ?  mtProject.instrument[currentInstrument_idx].volume : currentVelocity;
 					ampPtr->gain( (volume/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount));
 				}
 			}
