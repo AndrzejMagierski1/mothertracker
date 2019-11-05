@@ -508,10 +508,11 @@ void cDisplay::refreshControl(hControl handle)
 
 	// dorzuc kontrolke do kolejki fifo odtwarzania
 	// jesli juz jest w kolejce to nic nie rob
+	//jesli aktualnie odswiezana - zresetuj proces odswiezania
 
 	//przeszukaj kolejke
 	uint8_t i = refreshQueueBott;
-	//jesli aktualnie odswiezana - zresetuj proces odswiezania
+	//
 	if(refreshQueue[i] == handle)
 	{
 		if(refreshQueueTop != i)
@@ -566,7 +567,7 @@ void cDisplay::resetControlQueue()
 //=====================================================================================================
 // jpg/png
 //=====================================================================================================
-uint8_t cDisplay::readImgFromSd(char* path)
+uint8_t cDisplay::readImgFromSd(char* path, uint32_t address, int16_t max_w, int16_t max_h)
 {
 	strcat(path,".jpg");
 
@@ -606,15 +607,16 @@ uint8_t cDisplay::readImgFromSd(char* path)
 		return 1;
 	}
 
-	if(width == 0 || width > 400 || height == 0 || height > 400)
+	if(width == 0 || width > max_w || height == 0 || height > max_h)
 	{
 		imgFile.close();
 		return 1;
 	}
 
 	img.size = imgFile.size();
+	img.address = address;
 
-	if(img.size  > imgSizeMax)
+	if(img.size  > 1000000-address)
 	{
 		imgFile.close();
 		return 1;
@@ -625,7 +627,6 @@ uint8_t cDisplay::readImgFromSd(char* path)
 	img.type = 0;
 	img.loadProgress = 0;
 	img.progressMax = img.size/imgBufforSize;
-	img.address = imgRamAddress;
 	img.status = 1;
 
 	loadImage = 1;

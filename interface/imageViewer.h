@@ -31,10 +31,17 @@ public:
 
 	//----------------------------------
 
+	void refreshImage();
+	void countImages();
+	void nextImage();
+	void previouseImage();
+	void setImage(uint8_t number);
 
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
+
+	char titleText[32];
 
 
 	hControl topLabel[8] = {nullptr};
@@ -42,6 +49,11 @@ public:
 
 	hControl image = nullptr;
 
+
+	uint8_t imageNumber = 1;
+	uint8_t imagesCount = 0;
+
+	uint8_t refreshImageState = 0;
 };
 
 extern cImageViewer imageViewer;

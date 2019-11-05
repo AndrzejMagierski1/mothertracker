@@ -113,14 +113,14 @@ private:
 
 	void selectPadOnPopup(int8_t pad);
 
-	hControl listControl[4];
+	hControl listControl;
 	hControl keyboardControl;
 
 	hControl bgLabel;
 	hControl textLabel1;
 	hControl textLabel2;
 
-	strList popupList[4];
+	strList popupList;
 	strList instrList;
 	strPadNames padNamesStruct;
 

@@ -188,8 +188,8 @@ void cConfigEditor::showDefaultConfigScreen()
 	display.setControlText(topLabel[2], "3");
 	display.setControlText(topLabel[3], "4");
 	display.setControlText(topLabel[4], "5");
-	display.setControlText(topLabel[5], "6");
-	display.setControlText(topLabel[6], " /\\           \\/ ");
+	display.setControlText(topLabel[5], "Help");
+	display.setControlText(topLabel[6], "Config");
 	//display.setControlText(bottomLabel[7], "");
 
 	display.setControlPosition(bottomLabel[6],  (800/8)*6+(800/8),  465);
@@ -198,7 +198,6 @@ void cConfigEditor::showDefaultConfigScreen()
 	display.setControlSize(topLabel[6],  800/4-6,  58);
 
 
-	display.setControlText(topLabel[6], "Config");
 
 
 	display.setControlHide(bottomLabel[7]);

@@ -5,7 +5,6 @@
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
 #include "mtFileManager.h"
-
 #include "configEditor.h"
 #include "mtSequencer.h"
 
@@ -28,7 +27,7 @@ static  uint8_t functDown();
 static  uint8_t functAction0();
 static  uint8_t functAction5();
 
-static  uint8_t functActionButton(uint8_t button);
+static  uint8_t functActionButton(uint8_t button, uint8_t state);
 
 // config
 static  uint8_t functConfigGroup(uint8_t button);
@@ -235,7 +234,39 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 	if(state == buttonPress)
 	{
 
-		switch()
+		switch(button)
+		{
+		case 0:
+		{
+			break;
+		}
+		case 1:
+		{
+			break;
+		}
+		case 2:
+		{
+			break;
+		}
+		case 3:
+		{
+			break;
+		}
+		case 4:
+		{
+			break;
+		}
+		case 5:
+		{
+
+			CE->eventFunct(eventActivateImageViewer,CE,0,0);
+
+			break;
+		}
+
+
+		default: break;
+		}
 
 
 	}
@@ -562,6 +593,8 @@ static  uint8_t functSelectBitDepth()
 {
 	CE->selectedPlace[mtConfigModeMaster] = 3;
 	CE->activateLabelsBorder();
+
+	return 1;
 }
 
 static uint8_t functSwitchModule(uint8_t button)
