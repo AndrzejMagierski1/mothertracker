@@ -93,7 +93,7 @@ void initHardware()
 
 
 	BlinkLed.begin(BLINK_LED);
-	BlinkLed.blinkOnceWithDelay();
+	//BlinkLed.blinkOnceWithDelay();
 
 
 

@@ -369,7 +369,7 @@ static  uint8_t functEncoder(int16_t value)
 		case 1:	changeParamsPanning(value); 	 break;
 		case 2: changeParamsTune(value); 		 break;
 		case 3: changeParamsFineTune(value); 	 break;
-		case 4: changeFilterFilterType(value); 	 break;
+		case 4: changeFilterFilterType(value);	 break;
 		case 5: changeFilterCutOff(value); 		 break;
 		case 6: changeFilterResonance(value); 	 break;
 		case 7: changeParamsReverbSend(value); 	 break;
@@ -430,19 +430,19 @@ static  uint8_t functUp()
 		case 1:	changeParamsPanning(1); 	 break;
 		case 2: changeParamsTune(1); 		 break;
 		case 3: changeParamsFineTune(1); 	 break;
-		case 4: changeFilterFilterType(1); 	 break;
+		case 4: changeFilterFilterType(-1);  break;
 		case 5: changeFilterCutOff(1); 		 break;
 		case 6: changeFilterResonance(1); 	 break;
 		case 7: changeParamsReverbSend(1); 	 break;
 
-		case 10: changeEnvList(1); 		break;
-		case 11: changeEnvState(1); 	break;
+		case 10: changeEnvList(-1); 		break;
+		case 11: changeEnvState(-1); 	break;
 		case 12: changeEnvAttack(1); 	break;
 		case 13: changeEnvDecay(1); 	break;
 		case 14: changeEnvSustain(1); 	break;
 		case 15: changeEnvRelease(1); 	break;
 		case 16: changeEnvAmount(1); 	break;
-		case 17: changeEnvLoop(1); 		break;
+		case 17: changeEnvLoop(-1); 		break;
 
 		}
 	}
@@ -467,19 +467,19 @@ static  uint8_t functDown()
 		case 1:	changeParamsPanning(-1); 		 break;
 		case 2: changeParamsTune(-1); 		 	 break;
 		case 3: changeParamsFineTune(-1); 	 	 break;
-		case 4: changeFilterFilterType(-1); 	 break;
+		case 4: changeFilterFilterType(1); 		 break;
 		case 5: changeFilterCutOff(-1); 		 break;
 		case 6: changeFilterResonance(-1); 	 	 break;
 		case 7: changeParamsReverbSend(-1); 	 break;
 
-		case 10: changeEnvList(-1); 			break;
-		case 11: changeEnvState(-1); 			break;
+		case 10: changeEnvList(1); 				break;
+		case 11: changeEnvState(1); 			break;
 		case 12: changeEnvAttack(-1); 			break;
 		case 13: changeEnvDecay(-1); 			break;
 		case 14: changeEnvSustain(-1); 			break;
 		case 15: changeEnvRelease(-1); 			break;
 		case 16: changeEnvAmount(-1); 			break;
-		case 17: changeEnvLoop(-1); 			break;
+		case 17: changeEnvLoop(1); 			break;
 
 		}
 	}
