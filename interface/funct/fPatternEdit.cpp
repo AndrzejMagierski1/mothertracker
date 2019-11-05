@@ -256,6 +256,9 @@ void cPatternEditor::refreshPattern()
 
 	for(uint8_t i = 0; i < 8; i++) //track
 	{
+		// sprawdzanie mutow
+		trackerPattern.inactive[i] = mtProject.values.trackMute[i];
+
 		for(uint8_t j = 0; j < 15; j++) // step
 		{
 			strTrackerPattern::strTracks::strRow *row = &trackerPattern.track[i].row[j];

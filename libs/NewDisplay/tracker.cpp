@@ -586,7 +586,7 @@ void cTracker::notes()
 			else if(j == 7 && i == mark) actualColor = colors[6];
 			else
 			{
-				if(tracks->inactive[i]) actualColor = colors[8];
+				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[8];
 				else actualColor = colors[2];
 			}
 
@@ -630,7 +630,7 @@ void cTracker::instruments()
 			else if(j == 7 && i == mark) actualColor =  colors[6];
 			else
 			{
-				if(tracks->inactive[i]) actualColor = colors[8];
+				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[8];
 				else actualColor = colors[3];
 			}
 
@@ -675,7 +675,7 @@ void cTracker::fxes1()
 			else if(j == 7 && i == mark) actualColor =  colors[6];
 			else
 			{
-				if(tracks->inactive[i]) actualColor = colors[8];
+				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[8];
 				else actualColor = colors[4];
 			}
 			String2Bitmaps(param_x, param_y, &fonts[1], &tracks->track[tracks->firstVisibleTrack+i].row[j].fx[0][0], param_length[3]);
@@ -715,7 +715,7 @@ void cTracker::fxes2()
 			else if(j == 7 && i == mark) actualColor =  colors[6];
 			else
 			{
-				if(tracks->inactive[i]) actualColor = colors[8];
+				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[8];
 				else actualColor = colors[5];
 			}
 
