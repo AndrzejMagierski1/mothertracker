@@ -56,21 +56,20 @@ void cInterfacePopups::initPopupsDisplayControls()
 {
 
 	strControlProperties prop;
-	for(uint8_t i = 0; i<4; i++)
-	{
-		popupList[i].start = 0;
-		popupList[i].linesCount = 12;
-		popupList[i].length = 12;
-		popupList[i].data = &interfaceGlobals.ptrIntrumentsNames[i*12];
-		prop.style = controlStyleCenterY;
-		prop.x = (800/4)*(i)+5;
-		prop.y = 240;
-		prop.w = 800/4-10;
-		prop.h = 25;
-		prop.colors = instrListColors;
-		prop.data = &popupList[i];
-		if(listControl[i] == nullptr)  listControl[i] = display.createControl<cList>(&prop);
-	}
+
+	popupList.start = 0;
+	popupList.linesCount = 12;
+	popupList.length = 12;
+	popupList.data = interfaceGlobals.ptrIntrumentsNames;
+	prop.style = controlStyleCenterY;
+	prop.x = (800/4)*(3)+5;
+	prop.y = 240;
+	prop.w = 800/4-10;
+	prop.h = 25;
+	prop.colors = instrListColors;
+	prop.data = &popupList;
+	if(listControl == nullptr)  listControl = display.createControl<cList>(&prop);
+
 
 	padNamesStruct.length = 5;
 	padNamesStruct.name = interfaceGlobals.padNamesPointer;
@@ -221,10 +220,10 @@ void cInterfacePopups::showInstrumentsPopup()
 	instrList.length = 64;
 	instrList.data = interfaceGlobals.ptrIntrumentsNames;
 
-	display.setControlPosition(listControl[3], 600, 245);
-	display.setControlData(listControl[3], &instrList);
-	display.setControlShow(listControl[3]);
-	display.refreshControl(listControl[3]);
+	display.setControlPosition(listControl, 600, 245);
+	display.setControlData(listControl, &instrList);
+	display.setControlShow(listControl);
+	display.refreshControl(listControl);
 
 	//refreshAllList();
 
@@ -287,10 +286,10 @@ void cInterfacePopups::showFxesPopup()
 	instrList.length = 48;
 	instrList.data = (char**)interfaceGlobals.ptrFxNames;
 
-	display.setControlPosition(listControl[3], 600, 245);
-	display.setControlData(listControl[3], &instrList);
-	display.setControlShow(listControl[3]);
-	display.refreshControl(listControl[3]);
+	display.setControlPosition(listControl, 600, 245);
+	display.setControlData(listControl, &instrList);
+	display.setControlShow(listControl);
+	display.refreshControl(listControl);
 
 	//refreshAllList();
 
@@ -334,10 +333,10 @@ void cInterfacePopups::hideStepPopups()
 	{
 		stepPopupState = stepPopupNone;
 
-		display.setControlHide(listControl[0]);
-		display.setControlHide(listControl[1]);
-		display.setControlHide(listControl[2]);
-		display.setControlHide(listControl[3]);
+		display.setControlHide(listControl);
+		display.setControlHide(listControl);
+		display.setControlHide(listControl);
+		display.setControlHide(listControl);
 
 		display.setControlHide(keyboardControl);
 
@@ -435,8 +434,8 @@ void cInterfacePopups::setStepPopupValue(int16_t value)
 	{
 		//refreshAllList();
 		mtProject.values.lastUsedFx = selectedActualItem;
-		display.setControlValue(listControl[3], selectedActualItem);
-		display.refreshControl(listControl[3]);
+		display.setControlValue(listControl, selectedActualItem);
+		display.refreshControl(listControl);
 
 		return;
 	}
@@ -499,8 +498,8 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 		mtProject.values.lastUsedInstrument = selectedActualItem;
 		//showActualInstrument();
 
-		display.setControlValue(listControl[3], selectedActualItem);
-		display.refreshControl(listControl[3]);
+		display.setControlValue(listControl, selectedActualItem);
+		display.refreshControl(listControl);
 
 		return;
 	}
@@ -519,8 +518,8 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 
 		mtProject.values.lastUsedFx = selectedActualItem;
 
-		display.setControlValue(listControl[3], selectedActualItem);
-		display.refreshControl(listControl[3]);
+		display.setControlValue(listControl, selectedActualItem);
+		display.refreshControl(listControl);
 
 		padsBacklight.setBackLayer(1, 20, selectedActualItem);
 
@@ -529,7 +528,7 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 
 	default:	return;
 	}
-
+/*
 
 	uint8_t newList = selectedActualItem/12;
 
@@ -557,7 +556,7 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 	}
 
 	refreshList(newList);
-
+*/
 	//showActualInstrument();
 }
 
@@ -630,20 +629,20 @@ void cInterfacePopups::refreshAllList()
 	{
 		if(selectedActualItem >= i*12 && selectedActualItem < (i+1)*12)
 		{
-			popupList[i].start = selectedActualItem%12;
+			popupList.start = selectedActualItem%12;
 		}
 		else
 		{
-			popupList[i].start = -1;
+			popupList.start = -1;
 		}
 
-		popupList[i].length = 12;
-		popupList[i].linesCount = 12;
-		popupList[i].data = ptrActualItemsList+(i*12);
+		popupList.length = 12;
+		popupList.linesCount = 12;
+		popupList.data = ptrActualItemsList+(i*12);
 
 
-		display.setControlData(listControl[i], &popupList[i]);
-		display.setControlShow(listControl[i]);
+		display.setControlData(listControl, &popupList);
+		display.setControlShow(listControl);
 
 		refreshList(i);
 	}
@@ -659,8 +658,8 @@ void cInterfacePopups::refreshList(uint8_t n)
 		position = selectedActualItem%12;
 	}
 
-	display.setControlValue(listControl[n], position);
-	display.refreshControl(listControl[n]);
+	display.setControlValue(listControl, position);
+	display.refreshControl(listControl);
 }
 
 

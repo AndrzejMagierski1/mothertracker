@@ -126,9 +126,10 @@ public:
 	void setControlData(hControl handle, void* data);
 
 	// jpg/png
-	uint8_t readImgFromSd(char* path);
+	uint8_t readImgFromSd(char* path, uint32_t address, int16_t max_w, int16_t max_h);
 	void readImgFromMemory(uint8_t* data, uint32_t size);
 	uint8_t isImgLoaded() { return img.status == 3; }
+	uint8_t getImgLoadState() { return img.status; }
 
 
 	/// grupowe

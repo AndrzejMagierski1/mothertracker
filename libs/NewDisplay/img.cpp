@@ -98,7 +98,7 @@ void cImg::setData(void* data)
 uint8_t cImg::update()
 {
 	//if(display.)
-	if(value < 670000 || value > 1000000) return 0;
+	if(value < 300000 || value > 1000000) return 0;
 
 	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();

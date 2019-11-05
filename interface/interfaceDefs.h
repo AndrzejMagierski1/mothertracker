@@ -212,6 +212,7 @@ enum interfaceEvents
 	eventSwitchModuleWithOptions,
 	eventToggleActiveModule,
 
+	eventActivateImageViewer,
 	eventActivateGameModule,
 
 

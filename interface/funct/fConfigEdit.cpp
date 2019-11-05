@@ -5,7 +5,6 @@
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
 #include "mtFileManager.h"
-
 #include "configEditor.h"
 #include "mtSequencer.h"
 
@@ -28,6 +27,7 @@ static  uint8_t functDown();
 static  uint8_t functAction0();
 static  uint8_t functAction5();
 
+static  uint8_t functActionButton(uint8_t button, uint8_t state);
 
 // config
 static  uint8_t functConfigGroup(uint8_t button);
@@ -44,7 +44,7 @@ static  uint8_t functSelectLimiterRelease();
 static  uint8_t functSelectLimiterTreshold();
 static  uint8_t functSelectBitDepth();
 
-static  uint8_t functMasterHold();
+
 
 //master tracks
 
@@ -119,7 +119,7 @@ void cConfigEditor::start(uint32_t options)
 
 		showDefaultConfigScreen();
 		setConfigScreenFunct();
-		if(CE->selectedConfigGroup == configDefaultFirmware)
+		if(selectedConfigGroup == configDefaultFirmware)
 		{
 			showFirmwareMenu();
 		}
@@ -137,14 +137,6 @@ void cConfigEditor::start(uint32_t options)
 		setMasterScreenFunct();
 
 
-		break;
-	}
-	case mtConfigModeMasterTracks:
-	{
-
-
-		showMasterTracksScreen();
-		setMasterTracksScreenFunct();
 		break;
 	}
 	}
@@ -185,6 +177,14 @@ void cConfigEditor::setConfigScreenFunct()
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
+	FM->setButtonObj(interfaceButton0, functActionButton);
+	FM->setButtonObj(interfaceButton1, functActionButton);
+	FM->setButtonObj(interfaceButton2, functActionButton);
+	FM->setButtonObj(interfaceButton3, functActionButton);
+	FM->setButtonObj(interfaceButton4, functActionButton);
+	FM->setButtonObj(interfaceButton5, functActionButton);
+	FM->setButtonObj(interfaceButton6, functActionButton);
+
 }
 
 void cConfigEditor::setMasterScreenFunct()
@@ -208,10 +208,8 @@ void cConfigEditor::setMasterScreenFunct()
 
 
 	FM->setButtonObj(interfaceButton0, buttonPress, functSelectVolume);
-
 	FM->setButtonObj(interfaceButton1, buttonPress, functSelectReverbSize);
 	FM->setButtonObj(interfaceButton2, buttonPress, functSelectReverbDamping);
-
 	FM->setButtonObj(interfaceButton3, buttonPress, functSelectBitDepth);
 	FM->setButtonObj(interfaceButton4, buttonPress, functSelectLimiterAttack);
 	FM->setButtonObj(interfaceButton5, buttonPress, functSelectLimiterRelease);
@@ -225,46 +223,67 @@ void cConfigEditor::setMasterScreenFunct()
 
 }
 
-void cConfigEditor::setMasterTracksScreenFunct()
+//##############################################################################################
+//###############################        ACTION BUTTONS        #################################
+//##############################################################################################
+
+
+
+static uint8_t functActionButton(uint8_t button, uint8_t state)
 {
 
-	//funkcje
-	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-	FM->clearAllPots();
+	if(state == buttonPress)
+	{
 
-	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
+		switch(button)
+		{
+		case 0:
+		{
+			break;
+		}
+		case 1:
+		{
+			break;
+		}
+		case 2:
+		{
+			break;
+		}
+		case 3:
+		{
+			break;
+		}
+		case 4:
+		{
+			break;
+		}
+		case 5:
+		{
+
+			CE->eventFunct(eventActivateImageViewer,CE,0,0);
+
+			break;
+		}
 
 
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+		default: break;
+		}
+
+
+	}
+	else if(state == buttonRelease)
+	{
+
+	}
 
 
 
-	FM->setButtonObj(interfaceButton6, buttonPress, functConfigGroup);
-	FM->setButtonObj(interfaceButton7, buttonPress, functConfigGroup);
-
-	FM->setButtonObj(interfaceButtonConfig, functSwitchModeConfig);
-	FM->setButtonObj(interfaceButtonMaster, functSwitchModeMaster);
-
-	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
 
+	return 1;
 }
-//==============================================================================================================
-
-
-
-
-
 
 //==============================================================================================================
-
-
-
-
 
 static  uint8_t functConfigGroup(uint8_t button)
 {
@@ -575,6 +594,8 @@ static  uint8_t functSelectBitDepth()
 {
 	CE->selectedPlace[mtConfigModeMaster] = 3;
 	CE->activateLabelsBorder();
+
+	return 1;
 }
 
 static uint8_t functSwitchModule(uint8_t button)
@@ -700,7 +721,7 @@ void cConfigEditor::changeConfigGroupSelection(int16_t value)
 
 
 	if(selectedConfigGroup + value < 0) selectedConfigGroup = 0;
-	else if(selectedConfigGroup + value > groupCount-1) selectedConfigGroup = groupCount-1;
+	else if(selectedConfigGroup + value > mtConfigGroupsCount-1) selectedConfigGroup = mtConfigGroupsCount-1;
 	else  selectedConfigGroup += value;
 
 	if(selectedConfigGroup != previousSelectedConfigGroup)

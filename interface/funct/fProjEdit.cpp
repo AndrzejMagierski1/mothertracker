@@ -369,7 +369,7 @@ void cProjectEditor::update()
 			char path[PATCH_SIZE];
 			sprintf(path,"Projects/%s/cover", projectCoverName);
 
-			if(display.readImgFromSd(path))
+			if(display.readImgFromSd(path,670000,400,400))
 			{
 				refreshCover = 0;
 			}
