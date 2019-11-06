@@ -102,7 +102,7 @@ const char* ptrfillScaleFilterNames[fillScaleFilterCount] =
 		&fillScaleFilterLabels[1][0],
 };
 //------------------------------------------------------------
-static const uint8_t fillStepCount = 13;
+static const uint8_t fillStepCount = 35;
 const char fillStepLabels[fillStepCount][11] =
 {
 		"Empty",
@@ -118,6 +118,29 @@ const char fillStepLabels[fillStepCount][11] =
 		"8",
 		"9",
 		"10",
+		"11",
+		"12",
+		"13",
+		"14",
+		"15",
+		"16",
+		"17",
+		"18",
+		"19",
+		"20",
+		"21",
+		"22",
+		"23",
+		"24",
+		"25",
+		"26",
+		"27",
+		"28",
+		"29",
+		"30",
+		"31",
+		"32",
+
 };
 
 const char* ptrfillStepNames[fillStepCount] =
@@ -135,6 +158,29 @@ const char* ptrfillStepNames[fillStepCount] =
 		&fillStepLabels[10][0],
 		&fillStepLabels[11][0],
 		&fillStepLabels[12][0],
+		&fillStepLabels[13][0],
+		&fillStepLabels[14][0],
+		&fillStepLabels[15][0],
+		&fillStepLabels[16][0],
+		&fillStepLabels[17][0],
+		&fillStepLabels[18][0],
+		&fillStepLabels[19][0],
+		&fillStepLabels[20][0],
+		&fillStepLabels[21][0],
+		&fillStepLabels[22][0],
+		&fillStepLabels[23][0],
+		&fillStepLabels[24][0],
+		&fillStepLabels[25][0],
+		&fillStepLabels[26][0],
+		&fillStepLabels[27][0],
+		&fillStepLabels[28][0],
+		&fillStepLabels[29][0],
+		&fillStepLabels[30][0],
+		&fillStepLabels[31][0],
+		&fillStepLabels[32][0],
+		&fillStepLabels[33][0],
+		&fillStepLabels[34][0],
+
 };
 //------------------------------------------------------------
 
