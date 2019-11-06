@@ -855,9 +855,9 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	int8_t playMode = player.track[row].performancePlayMode;
 	int8_t patternLength = seq[player.ramBank].track[0].length;
 
-	if (player.performancePatternLength > -1)
+	if (player.performance.patternLength > -1)
 	{
-		patternLength = player.performancePatternLength;
+		patternLength = player.performance.patternLength;
 	}
 
 	if (playMode == PLAYMODE_FORWARD)
@@ -1302,7 +1302,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 }
 void Sequencer::setPerformancePatternLength(int8_t length)
 {
-	player.performancePatternLength = length - 1;
+	player.performance.patternLength = length - 1;
 }
 void Sequencer::setPerformancePatternLengthFromFxVal(int8_t val)
 {
