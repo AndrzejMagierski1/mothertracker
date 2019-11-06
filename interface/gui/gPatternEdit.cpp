@@ -21,11 +21,11 @@ static uint16_t framesPopupPlaces[9][4] =
 	{0, 		255, 800/8, 187},
 	{(800/8)*1, 255, 800/8, 187},
 	{(800/8)*2, 255, 800/8, 187},
-
 	{(800/8)*3, 255, 800/8, 187},
-	{(800/8)*3, 255, 800/4, 187},
 
 	{(800/8)*4, 255, 800/8, 187},
+	{(800/8)*4, 255, 800/4, 187},
+
 	{(800/8)*5, 255, 800/8, 187},
 	{(800/8)*6, 255, 800/8, 187},
 	{(800/8)*7, 255, 800/8, 187},
@@ -595,7 +595,7 @@ void cPatternEditor::showFillPopup()
 
 		display.setControlText(bottomLabel[4], "In Scale");
 
-		frameData.places[4] = &framesPopupPlaces[3][0];
+		frameData.places[4] = &framesPopupPlaces[4][0];
 	}
 	//------------------------------
 	// fx
@@ -613,7 +613,7 @@ void cPatternEditor::showFillPopup()
 
 		display.setControlText(bottomLabel[4], "Fx Type");
 
-		frameData.places[4] = &framesPopupPlaces[4][0];
+		frameData.places[4] = &framesPopupPlaces[5][0];
 	}
 	else
 	{
@@ -685,8 +685,10 @@ void cPatternEditor::showFillPopup()
 	frameData.places[0] = &framesPopupPlaces[0][0];
 	frameData.places[1] = &framesPopupPlaces[1][0];
 	frameData.places[2] = &framesPopupPlaces[2][0];
-	// 3 zmienna
-	frameData.places[4] = &framesPopupPlaces[5][0];
+	frameData.places[3] = &framesPopupPlaces[3][0];
+
+	// 4 zmienna
+	//frameData.places[4] = &framesPopupPlaces[5][0];
 	frameData.places[5] = &framesPopupPlaces[6][0];
 	frameData.places[6] = &framesPopupPlaces[7][0];
 	frameData.places[7] = &framesPopupPlaces[8][0];
