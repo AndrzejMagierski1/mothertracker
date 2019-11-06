@@ -16,6 +16,7 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 		mtProject.instrument[instrumentIndex].endPoint=MAX_16BIT;
 
 		mtProject.instrument[instrumentIndex].wavetableCurrentWindow = 0;
+		mtProject.instrument[instrumentIndex].sample.wavetable_window_size = 2048;
 		mtProject.instrument[instrumentIndex].playMode = 0;
 
 		mtProject.instrument[instrumentIndex].envelope[envAmp].delay = 0;

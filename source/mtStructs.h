@@ -200,6 +200,7 @@ enum instrumentPlayMode
 	loopForward,
 	loopBackward,
 	loopPingPong,
+	playModeWavetable, //tylko na uzytek interface
 
 	playModeCount
 };
@@ -368,7 +369,8 @@ struct strInstrument
 		int16_t *address;
 		uint32_t length = 0;
 
-		uint16_t wavetable_window_size = 0;
+		uint16_t wavetable_window_size = 2048;
+		uint16_t wavetableWindowNumber = 0;
 
 	} sample;
 
