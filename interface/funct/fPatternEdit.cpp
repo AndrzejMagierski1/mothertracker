@@ -836,7 +836,7 @@ void cPatternEditor::refreshEditState()
 
 void cPatternEditor::changeFillData(int16_t value)
 {
-	if(fillPlace < 0 && fillPlace > 5)
+	if(fillPlace < 0 && fillPlace > 4)
 	{
 		return;
 	}
@@ -936,46 +936,35 @@ void cPatternEditor::changneFillDataByPad(uint8_t pad)
 
 void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 {
-	if(place < 0 || place > 5) return;
+	if(place < 0 || place > 4) return;
 
 	if(place == 3)
 	{
 		if(fillData[editParam].type == 0)
 		{
-			if(dir<0) fillPlace = 1;
-			else if(dir>0) fillPlace = (editParam==1) ? 5 : 3;
-			else if(fillPlace == 2) fillPlace = 0;
+			if(dir<0) fillPlace = 2;
+			else if(dir>0) fillPlace = (editParam==1) ? fillPlace : 4;
+			else if(fillPlace == 3) fillPlace = 0;
 		}
 		else fillPlace = place;
 	}
 	else if(place == 4)
 	{
-		if(dir < 0 && editParam==1)
+		if(editParam==1)
 		{
-			fillPlace = (fillData[editParam].type == 0) ? 1 : 2;
-		}
-		else if(dir > 0 && editParam==1)
-		{
-			fillPlace = 5;
-		}
-		else if(editParam==1)
-		{
-			if(fillPlace == 3) fillPlace = 0;
-		}
-		else fillPlace = place;
-	}
-	else if(place == 1)
-	{
-		if(dir < 0)
-		{
-			if(editParam==1) fillPlace = (fillData[editParam].type == 0) ? 1 : 2;
-			else fillPlace = 3;
-		}
-		else if(dir > 0)
-		{
-			fillPlace = 5;
-		}
+			if(dir>0)
+			{
 
+			}
+			else
+			{
+				fillPlace = 0;
+			}
+		}
+		else
+		{
+			fillPlace = place;
+		}
 	}
 	else
 	{
@@ -1361,7 +1350,7 @@ static  uint8_t functUp()
 {
 	if(PTE->fillState > 0)
 	{
-		PTE->changeFillData((PTE->fillPlace == 1 || PTE->fillPlace == 2)? 1 : -1);
+		PTE->changeFillData((PTE->fillPlace == 2 || PTE->fillPlace == 3) ? 1 : -1);
 		return 1;
 	}
 
@@ -1448,7 +1437,7 @@ static  uint8_t functDown()
 {
 	if(PTE->fillState > 0)
 	{
-		PTE->changeFillData((PTE->fillPlace == 1 || PTE->fillPlace == 2)? -1 : 1);
+		PTE->changeFillData((PTE->fillPlace == 2 || PTE->fillPlace == 3)? -1 : 1);
 		return 1;
 	}
 
