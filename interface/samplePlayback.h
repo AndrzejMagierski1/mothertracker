@@ -12,16 +12,17 @@
 #undef MAX_SELECT_NODES
 #define MAX_SELECT_NODES	4
 
-
 const char playModeFunctLabels[playModeCount][15]=
 {
 		"1-Shot",
 		"Forward Loop",
 		"Backward Loop",
 		"Pingpong Loop",
+		"Wavetable"
 };
 
-
+constexpr uint8_t MAX_WAVETABLE_WINDOWS_COUNTER = 11;
+constexpr uint8_t MIN_WAVETABLE_WINDOWS_COUNTER = 5;
 
 
 class cSamplePlayback: public cModuleBase
@@ -144,6 +145,7 @@ public:
 //----------------------------------
 // odtwarzanie
 	uint8_t isPlayingSample = 0;
+	uint8_t isPlayingWavetable = 0;
 	int8_t playNote = 24;
 	uint8_t glidePreviewDif = 0;
 
@@ -158,9 +160,13 @@ public:
 	void cancelMultiFrame();
 //--------------------------------------
 	uint8_t loadedInstrumentType = 0;
-	char wavetablePositionText[5];
+	char wavetablePositionText[7];
+	char wavetableWindowSizeText[7];
 	void showWavetablePosition();
-
+	void showWavetableWindowSize();
+	uint16_t convertWavetableWindowsCounterToSize(uint8_t cnt);
+	uint8_t convertWavetableWindowsSizeToCounter(uint16_t size);
+	uint8_t wavetableWindowsCounter = 11;
 
 
 };

@@ -105,10 +105,10 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	}
 	else
 	{
-		wavetableWindowSize = SERUM_WAVETABLE_WINDOW_LEN;
-		if(wavetableWindowForceFlag) currentWindow = forcedWavetableWindow;
-		else currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
-		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
+		wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;
+		currentWindow = wavetableWindowForceFlag ? forcedWavetableWindow : mtProject.instrument[instr_idx].wavetableCurrentWindow;
+
+		sampleConstrains.endPoint=wavetableWindowSize*mtProject.instrument[instr_idx].sample.wavetableWindowNumber; // nie ma znaczenia
 		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
 		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
 		sampleConstrains.loopLength=wavetableWindowSize;
@@ -566,7 +566,8 @@ void AudioPlayMemory::update(void)
 void AudioPlayMemory::setWavetableWindow(int16_t value)
 {
 	if(mtProject.instrument[currentInstr_idx].sample.type != mtSampleTypeWavetable) return;
-	if(value > MAX_WAVETABLE_WINDOW) currentWindow = MAX_WAVETABLE_WINDOW;
+
+	if(value >= mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber) currentWindow = mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber - 1;
 	else if(value < 0) currentWindow = 0;
 	else currentWindow=value;
 }
@@ -744,7 +745,7 @@ void AudioPlayMemory::clearWavetableWindowFlag()
 }
 void AudioPlayMemory::setForcedWavetableWindow(int16_t val)
 {
-	if(val > MAX_WAVETABLE_WINDOW) forcedWavetableWindow = MAX_WAVETABLE_WINDOW;
+	if(val >= mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber) forcedWavetableWindow = mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber -1;
 	else if(val < 0) forcedWavetableWindow = 0;
 	else forcedWavetableWindow=val;
 }
@@ -865,7 +866,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	}
 	else
 	{
-		wavetableWindowSize = SERUM_WAVETABLE_WINDOW_LEN;
+		wavetableWindowSize = wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;;
 		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
 		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
 		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;

@@ -49,6 +49,7 @@ static  uint8_t functSwitchModule(uint8_t button);
 static uint8_t functStepNote(uint8_t value);
 
 static void modWavetablePostion(int16_t value);
+static void modWavetableWindowSize(int16_t value);
 static void modStartPoint(int16_t value);
 static void modEndPoint(int16_t value);
 static void modLoopPoint1(int16_t value);
@@ -86,6 +87,26 @@ void cSamplePlayback::update()
 		display.setControlValue(progressCursor,playProgressInSpectrum);
 		display.refreshControl(progressCursor);
 		refreshSpectrumProgress = 0;
+	}
+
+	if(isPlayingWavetable)
+	{
+		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
+		{
+			instrumentPlayer[0].clearInterfaceEndReleaseFlag();
+
+			isPlayingWavetable = 0;
+
+			mtPadBoard.clearVoice(0);
+		}
+		if(instrumentPlayer[0].getInterfacePlayingEndFlag())
+		{
+			instrumentPlayer[0].clearInterfacePlayingEndFlag();
+
+			isPlayingWavetable = 0;
+
+			mtPadBoard.clearVoice(0);
+		}
 	}
 	if(isPlayingSample)
 	{
@@ -143,10 +164,10 @@ void cSamplePlayback::start(uint32_t options)
 
 	if(loadedInstrumentType == mtSampleTypeWavetable)
 	{
-		if(selectedPlace != 1)
-		{
-			selectedPlace = 1;
-		}
+		if(selectedPlace == 0) selectedPlace = 1;
+		else if((selectedPlace == 3) || (selectedPlace == 4)) selectedPlace = 2;
+		else if(selectedPlace == 5) selectedPlace == 6;
+		wavetableWindowsCounter = convertWavetableWindowsSizeToCounter(mtProject.instrument[mtProject.values.lastUsedInstrument].sample.wavetable_window_size);
 	}
 
 	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
@@ -243,12 +264,10 @@ void cSamplePlayback::start(uint32_t options)
 		return;
 	}
 
-	if(loadedInstrumentType == mtSampleTypeWaveFile)
-	{
-		listPlayMode();
-		showPlayModeList();
-		showZoomValue();
-	}
+
+
+	listPlayMode();
+
 
 	showDefaultScreen();
 	setDefaultScreenFunct();
@@ -401,7 +420,16 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				SP->loopDirection = 0;
 				SP->isPlayingSample = 1;
 			}
+
 		}
+		else
+		{
+			if(mtPadBoard.getEmptyVoice() == 0)
+			{
+				SP->isPlayingWavetable = 1;
+			}
+		}
+
 
 		padsBacklight.setFrontLayer(1,20, pad);
 		mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
@@ -421,6 +449,16 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 					SP->isPlayingSample = 0;
 					SP->refreshSpectrumProgress = 1;
 					SP->hidePreviewValue();
+				}
+			}
+		}
+		else
+		{
+			if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))
+			{
+				if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
+				{
+					SP->isPlayingWavetable = 0;
 				}
 			}
 		}
@@ -498,7 +536,15 @@ static  uint8_t functSelectStart(uint8_t state)
 static  uint8_t functSelectLoop1(uint8_t state)
 {
 	if((state > buttonPress) && (state != UINT8_MAX)) return 1;
-	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
+	if(SP->loadedInstrumentType != mtSampleTypeWaveFile)
+	{
+		if(state == buttonPress)
+		{
+			SP->selectedPlace = 2;
+			SP->activateLabelsBorder();
+		}
+		return 1;
+	}
 
 	if(state == UINT8_MAX || state == buttonPress)
 	{
@@ -699,7 +745,7 @@ static  uint8_t functSelectZoom()
 
 static  uint8_t functPlayMode(uint8_t button)
 {
-	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
+//	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
 //	if(button == interfaceButton6)
 //	{
 //		SP->changePlayModeSelection(-1);
@@ -742,7 +788,16 @@ static  uint8_t functEncoder(int16_t value)
 				modStartPoint(value);
 			}
 			break;
-		case 2: modLoopPoint1(value); 			break;
+		case 2:
+			if(SP->loadedInstrumentType == mtSampleTypeWavetable)
+			{
+				modWavetableWindowSize(value);
+			}
+			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
+			{
+				modLoopPoint1(value);
+			}
+			break;
 		case 3: modLoopPoint2(value); 			break;
 		case 4: modEndPoint(value); 			break;
 		case 5: changeZoom(value);				break;
@@ -756,7 +811,7 @@ static  uint8_t functEncoder(int16_t value)
 static  uint8_t functLeft()
 {
 	if(SP->frameData.multiSelActiveNum != 0) return 1;
-	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
+//	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
 
 	if(SP->selectedPlace > 1) SP->selectedPlace--;
 
@@ -787,7 +842,16 @@ static  uint8_t functLeft()
 			}
 			break;
 		case 4: functSelectEnd(UINT8_MAX);		break;
-		case 5: functSelectZoom();		break;
+		case 5:
+			if(SP->loadedInstrumentType == mtSampleTypeWavetable)
+			{
+				SP->selectedPlace = 2;
+			}
+			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
+			{
+				functSelectZoom();
+			}
+			break;
 		case 6:
 		{
 		SP->selectedPlace = 6;
@@ -805,7 +869,7 @@ static  uint8_t functLeft()
 static  uint8_t functRight()
 {
 	if(SP->frameData.multiSelActiveNum != 0) return 1;
-	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
+//	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
 
 	if(SP->selectedPlace < SP->frameData.placesCount-1) SP->selectedPlace++;
 
@@ -824,14 +888,21 @@ static  uint8_t functRight()
 			}
 			break;
 		case 3:
-			if(SP->editorInstrument->playMode == singleShot)
+			if(SP->loadedInstrumentType == mtSampleTypeWavetable)
 			{
-				SP->selectedPlace = 4;
-				functSelectEnd(UINT8_MAX);
+				SP->selectedPlace = 6;
 			}
-			else
+			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
-				functSelectLoop2(UINT8_MAX);
+				if(SP->editorInstrument->playMode == singleShot)
+				{
+					SP->selectedPlace = 4;
+					functSelectEnd(UINT8_MAX);
+				}
+				else
+				{
+					functSelectLoop2(UINT8_MAX);
+				}
 			}
 			break;
 		case 4: functSelectEnd(UINT8_MAX);		break;
@@ -870,7 +941,16 @@ static  uint8_t functUp()
 				modStartPoint(1);
 			}
 			break;
-		case 2: modLoopPoint1(1); 			break;
+		case 2:
+			if(SP->loadedInstrumentType == mtSampleTypeWavetable)
+			{
+				modWavetableWindowSize(1);
+			}
+			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
+			{
+				modLoopPoint1(1);
+			}
+			break;
 		case 3: modLoopPoint2(1); 			break;
 		case 4: modEndPoint(1); 			break;
 		case 5: changeZoom(1);				break;
@@ -902,7 +982,16 @@ static  uint8_t functDown()
 				modStartPoint(1);
 			}
 			break;
-		case 2: modLoopPoint1(-1); 			break;
+		case 2:
+			if(SP->loadedInstrumentType == mtSampleTypeWavetable)
+			{
+				modWavetableWindowSize(-1);
+			}
+			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
+			{
+				modLoopPoint1(-1);
+			}
+			break;
 		case 3: modLoopPoint2(-1); 			break;
 		case 4: modEndPoint(-1); 			break;
 		case 5: changeZoom(-1);				break;
@@ -967,6 +1056,14 @@ static 	uint8_t functPreview(uint8_t state)
 				SP->loopDirection = 0;
 				SP->isPlayingSample = 1;
 			}
+
+		}
+		else
+		{
+			if(mtPadBoard.getEmptyVoice() == 0)
+			{
+				SP->isPlayingWavetable = 1;
+			}
 		}
 
 		mtPadBoard.startInstrument(12, mtProject.values.lastUsedInstrument,-1);
@@ -989,6 +1086,16 @@ static 	uint8_t functPreview(uint8_t state)
 				}
 			}
 		}
+		else
+		{
+			if((!SP->editorInstrument->envelope[envAmp].enable) || (SP->editorInstrument->envelope[envAmp].release == 0))
+			{
+				if(mtPadBoard.getVoiceTakenByPad(12) == 0)
+				{
+					SP->isPlayingWavetable = 0;
+				}
+			}
+		}
 	}
 
 	return 1;
@@ -1008,12 +1115,45 @@ static void changeZoom(int16_t value)
 
 static void changePlayModeSelection(int16_t value)
 {
+
+	if(SP->isPlayingSample) return;
+	if(SP->isPlayingWavetable) return;
+
 	if(SP->editorInstrument->playMode + value < 0) SP->editorInstrument->playMode = 0;
 	else if(SP->editorInstrument->playMode + value > playModeCount-1) SP->editorInstrument->playMode = playModeCount-1;
 	else  SP->editorInstrument->playMode += value;
 
-	if((SP->editorInstrument->playMode == singleShot) && (value < 0 )) SP->hideLoopPoints();
-	else if(value > 0 )
+	if((SP->editorInstrument->playMode == playModeWavetable) && (value > 0))
+	{
+		if(SP->editorInstrument->sample.type == 0) SP->refreshSpectrum = 1;
+		SP->editorInstrument->sample.type = 1;
+		SP->editorInstrument->sample.wavetable_window_size =
+				(SP->editorInstrument->sample.length >= SP->editorInstrument->sample.wavetable_window_size) ? SP->editorInstrument->sample.wavetable_window_size : SP->editorInstrument->sample.length;
+		//*******************************wavetable window size moze byc tylko potęgą 2
+		// Jezeli length nie jest potega 2 trzeba go zrownac do najwiekszej mozliwej potegi 2
+		uint16_t localMask = 2048;
+		while( !(SP->editorInstrument->sample.wavetable_window_size & localMask) )
+		{
+			if((SP->editorInstrument->sample.wavetable_window_size == 0 )) break;
+			localMask>>=1;
+		}
+
+		SP->editorInstrument->sample.wavetable_window_size &= localMask;
+		//**************************************************************************
+		SP->wavetableWindowsCounter = SP->convertWavetableWindowsSizeToCounter(SP->editorInstrument->sample.wavetable_window_size);
+		SP->editorInstrument->sample.wavetableWindowNumber = SP->editorInstrument->sample.wavetable_window_size ? SP->editorInstrument->sample.length/SP->editorInstrument->sample.wavetable_window_size : 0;
+		SP->loadedInstrumentType = SP->editorInstrument->sample.type;
+	}
+	else if(value < 0)
+	{
+		if(SP->editorInstrument->sample.type == 1) SP->refreshSpectrum = 1;
+		SP->editorInstrument->sample.type = 0;
+		SP->loadedInstrumentType = SP->editorInstrument->sample.type;
+	}
+
+
+	if(((SP->editorInstrument->playMode == singleShot) && (value < 0 )) || ((SP->editorInstrument->playMode == playModeWavetable) && (value < 0 )) ) SP->hideLoopPoints();
+	else
 	{
 		if(SP->editorInstrument->loopPoint1 >= SP->editorInstrument->loopPoint2) SP->editorInstrument->loopPoint1 = SP->editorInstrument->loopPoint2 - 1;
 
@@ -1041,8 +1181,10 @@ static void changePlayModeSelection(int16_t value)
 
 	SP->refreshPoints = 1;
 
-	display.setControlValue(SP->playModeListControl, SP->editorInstrument->playMode);
+	display.setControlValue(SP->playModeListControl, SP->editorInstrument->playMode + SP->editorInstrument->sample.type);
 	display.refreshControl(SP->playModeListControl);
+
+	SP->showDefaultScreen();
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
@@ -1062,7 +1204,7 @@ static void modStartPoint(int16_t value)
 
 	if(SP->editorInstrument->startPoint > SP->editorInstrument->endPoint) SP->editorInstrument->startPoint = SP->editorInstrument->endPoint-1;
 
-	if(SP->editorInstrument->playMode != singleShot)
+	if( (SP->editorInstrument->playMode != singleShot) && (SP->editorInstrument->playMode != playModeWavetable) )
 	{
 		if(SP->editorInstrument->startPoint > SP->editorInstrument->loopPoint1)
 		{
@@ -1207,12 +1349,45 @@ static void modLoopPoint2(int16_t value)
 static void modWavetablePostion(int16_t value)
 {
 	if(SP->editorInstrument->wavetableCurrentWindow + value < 0) SP->editorInstrument->wavetableCurrentWindow  = 0;
-	else if(SP->editorInstrument->wavetableCurrentWindow + value > MAX_WAVETABLE_WINDOW) SP->editorInstrument->wavetableCurrentWindow = MAX_WAVETABLE_WINDOW;
+	else if(SP->editorInstrument->wavetableCurrentWindow + value > SP->editorInstrument->sample.wavetableWindowNumber - 1) SP->editorInstrument->wavetableCurrentWindow = SP->editorInstrument->sample.wavetableWindowNumber - 1;
 	else SP->editorInstrument->wavetableCurrentWindow += value;
 
 	instrumentPlayer[0].setStatusBytes(WT_POS_SEND_MASK);
 
+
 	SP->showWavetablePosition();
+	SP->refreshSpectrum = 1;
+
+	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
+	mtProject.values.projectNotSavedFlag = 1;
+}
+
+static void modWavetableWindowSize(int16_t value)
+{
+	if(SP->isPlayingWavetable) return;
+
+	uint8_t lastWavetableWindowsCounter = SP->wavetableWindowsCounter;
+	int8_t localDif;
+	if(SP->wavetableWindowsCounter + value < MIN_WAVETABLE_WINDOWS_COUNTER) SP->wavetableWindowsCounter  = MIN_WAVETABLE_WINDOWS_COUNTER;
+	else if(SP->wavetableWindowsCounter + value > MAX_WAVETABLE_WINDOWS_COUNTER) SP->wavetableWindowsCounter  = MAX_WAVETABLE_WINDOWS_COUNTER;
+	else SP->wavetableWindowsCounter += value;
+
+	localDif = lastWavetableWindowsCounter - SP->wavetableWindowsCounter;
+
+	if(localDif > 0) 			SP->editorInstrument->wavetableCurrentWindow <<= localDif;
+	else if(localDif < 0)		SP->editorInstrument->wavetableCurrentWindow >>= (-localDif);
+
+	if(localDif != 0) SP->showWavetablePosition();
+
+	SP->editorInstrument->sample.wavetable_window_size = SP->convertWavetableWindowsCounterToSize(SP->wavetableWindowsCounter);
+	SP->editorInstrument->sample.wavetableWindowNumber = SP->editorInstrument->sample.wavetable_window_size ? SP->editorInstrument->sample.length/SP->editorInstrument->sample.wavetable_window_size : 0;
+
+	if(SP->editorInstrument->wavetableCurrentWindow >= SP->editorInstrument->sample.wavetableWindowNumber )
+	{
+		SP->editorInstrument->wavetableCurrentWindow = SP->editorInstrument->sample.wavetableWindowNumber - 1;
+		SP->showWavetablePosition();
+	}
+	SP->showWavetableWindowSize();
 	SP->refreshSpectrum = 1;
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
@@ -1429,4 +1604,24 @@ void cSamplePlayback::cancelMultiFrame()
 
 	SP->frameData.multiSelActiveNum = 0;
 }
+
+uint16_t cSamplePlayback::convertWavetableWindowsCounterToSize(uint8_t cnt)
+{
+	return (1<<cnt);
+}
+uint8_t cSamplePlayback::convertWavetableWindowsSizeToCounter(uint16_t size)
+{
+	if(!size) return 0;
+
+	uint8_t counter = 0;
+
+	while(size != 1)
+	{
+		size >>= 1;
+		counter++;
+	}
+
+	return counter;
+}
+
 ///////////////////////////////////////////////////////////////////////////

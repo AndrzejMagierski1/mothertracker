@@ -1150,13 +1150,13 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 		case fx_t::FX_TYPE_WT_POSITION :
 			if(fx_n == MOST_SIGNIFICANT_FX)
 			{
-				currentSeqModValues.wavetablePosition = map(fx_val,0,127,0,MAX_WAVETABLE_WINDOW);
+				currentSeqModValues.wavetablePosition = map(fx_val,0,127,0,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber);
 			}
 			else if(fx_n == LEAST_SIGNIFICANT_FX)
 			{
 				if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::wavetablePosition])
 				{
-					currentSeqModValues.wavetablePosition = map(fx_val,0,127,0,MAX_WAVETABLE_WINDOW);
+					currentSeqModValues.wavetablePosition = map(fx_val,0,127,0,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber);
 				}
 			}
 
@@ -1671,7 +1671,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::wavetablePosition] = 0;
 			if(fx_id == MOST_SIGNIFICANT_FX)
 			{
-				currentSeqModValues.wavetablePosition = map(lastSeqVal[otherFx_n],0,127,0,MAX_WAVETABLE_WINDOW);
+				currentSeqModValues.wavetablePosition = map(lastSeqVal[otherFx_n],0,127,0,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber);
 			}
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
 			{
@@ -2618,9 +2618,11 @@ void playerEngine::changeWavetableWindowPerformanceMode(int16_t value)
 	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::wavetablePosition]) wavetableWindow = currentSeqModValues.wavetablePosition;
 	else wavetableWindow = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
 
-	if(wavetableWindow + value > MAX_WAVETABLE_WINDOW) currentPerformanceValues.wavetablePosition = MAX_WAVETABLE_WINDOW;
-	else if(wavetableWindow + value < 0) currentPerformanceValues.wavetablePosition = 0;
-	else currentPerformanceValues.wavetablePosition = wavetableWindow + value;
+	int32_t valueMap = map(value,-255,255,- mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber) ;
+
+	if(wavetableWindow + valueMap >= mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber) currentPerformanceValues.wavetablePosition = mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1;
+	else if(wavetableWindow + valueMap < 0) currentPerformanceValues.wavetablePosition = 0;
+	else currentPerformanceValues.wavetablePosition = wavetableWindow + valueMap;
 
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition] = 1;
