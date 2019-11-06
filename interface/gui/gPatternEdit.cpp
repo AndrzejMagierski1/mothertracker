@@ -395,7 +395,7 @@ void cPatternEditor::showDefaultScreen()
 
 		display.setControlShow(topLabel[i]);
 
-		if(i>4)	display.setControlHide(bottomLabel[i]);
+		if(i>2)	display.setControlHide(bottomLabel[i]);
 		else 	display.setControlShow(bottomLabel[i]);
 
 		display.refreshControl(bottomLabel[i]);
@@ -593,6 +593,9 @@ void cPatternEditor::showFillPopup()
 		display.setControlShow(param2PopupListControl);
 		display.setControlSize(param2PopupListControl, 800/8-10, 25);
 
+
+		display.setControlPosition(bottomLabel[4],  (800/8)*4+(800/16), -1);
+		display.setControlSize(bottomLabel[4], 800/8-6, -1);
 		display.setControlText(bottomLabel[4], "In Scale");
 
 		frameData.places[4] = &framesPopupPlaces[4][0];
@@ -611,6 +614,8 @@ void cPatternEditor::showFillPopup()
 		display.setControlShow(param2PopupListControl);
 		display.setControlSize(param2PopupListControl, 800/4-10, 25);
 
+		display.setControlPosition(bottomLabel[4],  (800/8)*5, -1);
+		display.setControlSize(bottomLabel[4], 800/4-6, -1);
 		display.setControlText(bottomLabel[4], "Fx Type");
 
 		frameData.places[4] = &framesPopupPlaces[5][0];
