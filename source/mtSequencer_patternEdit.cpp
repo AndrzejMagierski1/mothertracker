@@ -254,7 +254,7 @@ void Sequencer::invertSelectedSteps()
 void Sequencer::loadDefaultTrack(uint8_t row, uint8_t bank)
 {
 
-	seq[bank].track[row].length = MAXSTEP;
+	seq[bank].track[row].length = DEFAULT_PATTERN_LENGTH - 1;
 
 	for (uint8_t x = 0; x <= MAXSTEP; x++)
 	{
@@ -731,7 +731,7 @@ void Sequencer::clearSelected(strSelection * selection, uint8_t elements)
 // 	}
 // }
 
-void Sequencer::loadDefaultBank(uint8_t bank)
+void Sequencer::loadDefaultPattern(uint8_t bank)
 {
 	seq[bank].tempo = DEFAULT_TEMPO;
 	seq[bank].swing = DEFAULT_SWING;
@@ -750,7 +750,7 @@ void Sequencer::loadDefaultBank(uint8_t bank)
 void Sequencer::initPattern(uint8_t pattern) // czyści pattern z flasha
 {
 // czyścimy bank 3
-	loadDefaultBank(pattern);
+	loadDefaultPattern(pattern);
 }
 
 void Sequencer::insert(strSelection *selection)

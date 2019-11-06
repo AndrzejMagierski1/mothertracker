@@ -813,24 +813,24 @@ void Sequencer::rec(void)
 
 }
 
-void Sequencer::loadDefaultSequence(void)
-{
-	seq[player.ramBank].tempo = 120.0;
-
-	for (uint8_t x = MINTRACK; x <= MAXTRACK; x++)
-	{
-//		seq[player.ramBank].track[x].rootNote = 35 + x;
-//		seq[player.ramBank].track[x].channel = x;
-//		seq[player.ramBank].track[x].isOn = 1;
-
-		seq[player.ramBank].track[x].length = 127;
-		for (uint8_t y = MINSTEP; y <= MAXSTEP; y++)
-		{
-			seq[player.ramBank].track[x].step[y].note = STEP_NOTE_EMPTY;
-		}
-	}
-
-}
+//void Sequencer::loadDefaultSequence(void)
+//{
+//	seq[player.ramBank].tempo = DEFAULT_TEMPO;
+//
+//	for (uint8_t x = MINTRACK; x <= MAXTRACK; x++)
+//	{
+////		seq[player.ramBank].track[x].rootNote = 35 + x;
+////		seq[player.ramBank].track[x].channel = x;
+////		seq[player.ramBank].track[x].isOn = 1;
+//
+//		seq[player.ramBank].track[x].length = DEFAULT_PATTERN_LENGTH - 1;
+//		for (uint8_t y = MINSTEP; y <= MAXSTEP; y++)
+//		{
+//			seq[player.ramBank].track[x].step[y].note = STEP_NOTE_EMPTY;
+//		}
+//	}
+//
+//}
 
 void Sequencer::allNoteOffs(void)
 {
@@ -1221,7 +1221,7 @@ void Sequencer::blinkNote(uint8_t instrument, uint8_t note, int8_t velocity,
 	else
 	{
 		// todo: pobrać velo z audio engine
-		if(velocity<0) velocity = 120;
+		if (velocity < 0) velocity = 120;
 
 		usbMIDI.sendNoteOn(note, velocity, instrument - INSTRUMENTS_COUNT);
 	}

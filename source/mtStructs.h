@@ -18,7 +18,7 @@ const uint8_t FV_VER_3 =					0;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
 const uint8_t MEMORY_STRUCT_VER =			2;
 
-
+const float DEFAULT_TEMPO = 130;
 
 const uint32_t CONFIG_EEPROM_ADRESS =        	0;
 
@@ -454,7 +454,7 @@ struct strMtValues
 	uint8_t perfFxPlaces[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
 
 // song
-	float globalTempo = 120.0;
+	float globalTempo = DEFAULT_TEMPO;
 	uint16_t patternLength = 32;
 
 };
