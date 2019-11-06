@@ -35,7 +35,7 @@ void setup()
 
 	sequencer.init();
 	padsBacklight.init(500);
-	sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
+//	sequencer.loadDefaultSequence(); // ręcznie ustawiane stepy na potrzeby testów
 	//sequencer.play();
 
 	//seqDisplay.init((Sequencer::strPattern*)sequencer.getPatternToUI());

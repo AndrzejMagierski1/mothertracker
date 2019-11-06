@@ -37,6 +37,7 @@ public:
 		MINTRACK = 0,
 		MINSTEP = 0,
 		MAXSTEP = 127,
+		DEFAULT_PATTERN_LENGTH = 32,
 
 	};
 	enum enPlaymode
@@ -60,7 +61,7 @@ public:
 			MIN_TEMPO = 10.0,
 			MAX_SWING = 75.0,
 			MIN_SWING = 25.0,
-			DEFAULT_TEMPO = 130.0,
+//			DEFAULT_TEMPO = 130.0,
 
 			DEFAULT_SWING = 50.0;
 
@@ -165,7 +166,7 @@ public:
 
 		struct strTrack
 		{
-			uint8_t length = MAXSTEP;
+			uint8_t length = DEFAULT_PATTERN_LENGTH-1; // liczy od 0
 
 			struct strStep
 			{
@@ -268,7 +269,7 @@ public:
 
 	void divChangeQuantize(uint8_t row);
 
-	void loadDefaultBank(uint8_t bank);
+	void loadDefaultPattern(uint8_t bank);
 	void loadDefaultTrack(uint8_t track, uint8_t bank);
 
 	void reset_actual_pos(uint8_t row);
@@ -451,7 +452,7 @@ public:
 // klasowe
 	void handle();
 	void init();
-	void loadDefaultSequence(void);
+//	void loadDefaultSequence(void);
 	void printNotes(bool val);
 
 // sekwencerowe
@@ -515,8 +516,8 @@ public:
 	}
 	void loadFromFileERROR()
 	{
-		loadDefaultBank(0);
-		loadDefaultBank(1);
+		loadDefaultPattern(0);
+		loadDefaultPattern(1);
 	}
 	uint16_t getPatternSize()
 	{

@@ -149,14 +149,16 @@ uint8_t FileManager::openProject(char * name , uint8_t type)
 		 }
 	}
 
-	for (int i = PATTERN_INDEX_MIN; i < PATTERN_INDEX_MAX; i++)
-	{
-		if (loadPattern(i))
-		{
-			sequencer.switchRamPatternsNow();
-			break;
-		}
-	}
+	loadPattern(mtProject.values.actualPattern);
+	sequencer.switchRamPatternsNow();
+
+//	for (int i = PATTERN_INDEX_MIN; i < PATTERN_INDEX_MAX; i++)
+//	{
+//		if (loadPattern(i))
+//		{
+//			break;
+//		}
+//	}
 //**************************************************************************
 //Wyszukanie pierwszego aktywnego instrumentu, żeby odpalić sekwencyjne kopiowanie do workspace
 //**************************************************************************
@@ -395,8 +397,8 @@ void FileManager::createEmptyTemplateProject(char * name)
 	sprintf(patchFolder,"Templates/%s/samples", name);
 	SD.mkdir(1,patchFolder);
 
-	mtProject.patterns_count++;
-	writePatternFile(patchFolder);
+//	mtProject.patterns_count++;
+//	writePatternFile(patchFolder);
 
 	sprintf(patchFolder,"Templates/%s/project.bin", name);
 
