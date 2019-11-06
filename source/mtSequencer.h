@@ -467,7 +467,7 @@ public:
 	{
 	}
 
-	void forcePerformanceMode()
+	void enterPerformanceMode()
 	{
 		player.songMode = 0;
 		player.performanceMode = 1;
@@ -488,6 +488,14 @@ public:
 		else if (player.isPlay && player.songMode) return SEQ_STATE_PLAY_SONG;
 		else
 			return SEQ_STATE_STOP;
+	}
+	uint8_t isPerformanceMode()
+	{
+		return player.performanceMode;
+	}
+	void exitPerformanceMode()
+	{
+		player.performanceMode = 0;
 	}
 
 	uint8_t * getPatternToLoadFromFile()
