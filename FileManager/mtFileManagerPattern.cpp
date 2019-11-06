@@ -57,6 +57,8 @@ uint8_t FileManager::loadTrack(uint8_t pattIndex, uint8_t trackIndex)
 
 	patternTo->track[trackIndex] = patternFrom->track[trackIndex];
 
+	mtProject.values.perfTracksPatterns[trackIndex] = pattIndex;
+
 	return 1;
 }
 

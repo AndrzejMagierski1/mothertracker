@@ -89,6 +89,11 @@ void cPerformanceMode::update()
 
 void cPerformanceMode::start(uint32_t options)
 {
+	for (uint8_t q = 0; q < 8; q++)
+	{
+		mtProject.values.perfTracksPatterns[q] = mtProject.values.actualPattern;
+	}
+
 	moduleRefresh = 1;
 	performanceEditState = 0;
 
@@ -123,6 +128,8 @@ void cPerformanceMode::start(uint32_t options)
 		PM->showPerformanceFxes();
 		PM->setPerformanceFxes();
 	}
+
+
 
 }
 
@@ -887,10 +894,11 @@ static uint8_t functShift(uint8_t value)
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY_PERFORMANCE)
+	if(sequencer.isPerformanceMode())
 	{
 		fileManager.loadPattern(mtProject.values.actualPattern);
 		sequencer.switchRamPatternsNow();
+		sequencer.exitPerformanceMode();
 	}
 	PM->eventFunct(eventSwitchModule,PM,&button,0);
 
@@ -983,7 +991,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 				{
 					// button <= numer tracka
 					// mtProject.values.perfTracksPatterns[button] <= pattern tracka
-					sequencer.forcePerformanceMode();
+					sequencer.enterPerformanceMode();
 
 
 					fileManager.loadTrack(

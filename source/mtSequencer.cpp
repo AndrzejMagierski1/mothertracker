@@ -855,9 +855,9 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	int8_t playMode = player.track[row].performancePlayMode;
 	int8_t patternLength = seq[player.ramBank].track[0].length;
 
-	if (player.performancePatternLength > -1)
+	if (player.performance.patternLength > -1)
 	{
-		patternLength = player.performancePatternLength;
+		patternLength = player.performance.patternLength;
 	}
 
 	if (playMode == PLAYMODE_FORWARD)
@@ -1197,7 +1197,7 @@ void Sequencer::sendNoteOff(uint8_t track)
 	instrumentPlayer[track].noteOff();
 }
 
-void Sequencer::blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
+void Sequencer::blinkNote(uint8_t instrument, uint8_t note, int8_t velocity,
 							uint8_t track)
 {
 	if (player.blink.isOpen)
@@ -1220,6 +1220,9 @@ void Sequencer::blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 	}
 	else
 	{
+		// todo: pobrać velo z audio engine
+		if(velocity<0) velocity = 120;
+
 		usbMIDI.sendNoteOn(note, velocity, instrument - INSTRUMENTS_COUNT);
 	}
 }
@@ -1302,7 +1305,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 }
 void Sequencer::setPerformancePatternLength(int8_t length)
 {
-	player.performancePatternLength = length - 1;
+	player.performance.patternLength = length - 1;
 }
 void Sequencer::setPerformancePatternLengthFromFxVal(int8_t val)
 {

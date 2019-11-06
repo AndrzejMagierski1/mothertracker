@@ -703,7 +703,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	}
 	//*************************************************FX****************************************************
 	seqFx(fx1_id,fx1_val,0);
-	seqFx(fx2_id,fx2_val,1);
+//	seqFx(fx2_id,fx2_val,1);
 	//*******************************************************************************************************
 	status = playMemPtr->play(instr_idx,note);
 	envelopeAmpPtr->noteOn();

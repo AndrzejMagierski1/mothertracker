@@ -21,7 +21,7 @@ public:
 
 		STEP_VELO_MIN = 0,
 		STEP_VELO_MAX = 127,
-		STEP_VELO_DEFAULT = 120,
+		STEP_VELO_DEFAULT = -1,
 	};
 	enum enFillStep
 	{
@@ -127,7 +127,7 @@ public:
 		{
 			ROLL_TYPE_MIN = 0,
 			ROLL_TYPE_NONE = 0,
-//			ROLL_TYPE_4_1,
+			//			ROLL_TYPE_4_1,
 //			ROLL_TYPE_3_1,
 //			ROLL_TYPE_2_1,
 			ROLL_TYPE_1_1,
@@ -318,6 +318,13 @@ public:
 	{
 		bool songMode = 0;
 		bool performanceMode = 0;
+
+		struct strPerformance
+		{
+
+			int8_t patternLength = -1;
+
+		} performance;
 		//		bool printNotes = 0;
 //		bool changeBank = 0;
 		bool isPlay = 0;
@@ -336,8 +343,6 @@ public:
 		uint16_t rec_intro_timer_max = 48 * 4;
 		uint16_t uStep = 0;
 		uint8_t actualBank = 0;
-
-		int8_t performancePatternLength = -1;
 
 		struct strBlink
 		{
@@ -467,10 +472,11 @@ public:
 	{
 	}
 
-	void forcePerformanceMode()
+	void enterPerformanceMode()
 	{
 		player.songMode = 0;
 		player.performanceMode = 1;
+		player.performance.patternLength = getActualPattern()->track[0].length;
 	}
 
 	enum enSeqState
@@ -488,6 +494,15 @@ public:
 		else if (player.isPlay && player.songMode) return SEQ_STATE_PLAY_SONG;
 		else
 			return SEQ_STATE_STOP;
+	}
+	uint8_t isPerformanceMode()
+	{
+		return player.performanceMode;
+	}
+	void exitPerformanceMode()
+	{
+		player.performanceMode = 0;
+		player.performance.patternLength = -1;
 	}
 
 	uint8_t * getPatternToLoadFromFile()
@@ -609,9 +624,9 @@ public:
 
 // inne
 	void handle_uStep_timer(void);
-//	void internalFxsOff(void);
+	//	void internalFxsOff(void);
 
-	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
+	void blinkNote(uint8_t instrument, uint8_t note, int8_t velocity,
 					uint8_t track);
 	void closeBlinkNote(void);
 	void blinkSelectedStep();
