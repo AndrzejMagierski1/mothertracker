@@ -49,7 +49,7 @@ const uint8_t FX_COUNT		 	=        		48;
 
 const uint8_t FX_VALUE_MAX	=					127;
 
-const uint8_t PATTERN_EDIT_STEP_MAX 	=		10;
+const uint8_t PATTERN_EDIT_STEP_MAX 	=		32;
 
 const uint8_t FX_SLOTS_MAX		 	=       	1;
 const uint8_t FX_SLOTS_COUNT	 	=       	2;
