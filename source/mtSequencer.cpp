@@ -1197,7 +1197,7 @@ void Sequencer::sendNoteOff(uint8_t track)
 	instrumentPlayer[track].noteOff();
 }
 
-void Sequencer::blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
+void Sequencer::blinkNote(uint8_t instrument, uint8_t note, int8_t velocity,
 							uint8_t track)
 {
 	if (player.blink.isOpen)
@@ -1220,6 +1220,9 @@ void Sequencer::blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
 	}
 	else
 	{
+		// todo: pobrać velo z audio engine
+		if(velocity<0) velocity = 120;
+
 		usbMIDI.sendNoteOn(note, velocity, instrument - INSTRUMENTS_COUNT);
 	}
 }

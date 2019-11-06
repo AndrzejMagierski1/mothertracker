@@ -21,7 +21,7 @@ public:
 
 		STEP_VELO_MIN = 0,
 		STEP_VELO_MAX = 127,
-		STEP_VELO_DEFAULT = 120,
+		STEP_VELO_DEFAULT = -1,
 	};
 	enum enFillStep
 	{
@@ -626,7 +626,7 @@ public:
 	void handle_uStep_timer(void);
 	//	void internalFxsOff(void);
 
-	void blinkNote(uint8_t instrument, uint8_t note, uint8_t velocity,
+	void blinkNote(uint8_t instrument, uint8_t note, int8_t velocity,
 					uint8_t track);
 	void closeBlinkNote(void);
 	void blinkSelectedStep();
