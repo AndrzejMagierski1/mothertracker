@@ -80,8 +80,10 @@ uint8_t FileManager::savePattern(uint8_t index)
 {
 	char patternToSave[PATCH_SIZE] { 0 };
 
+	fileManager.patternIsChangedFlag[index] = 0;
+
 	sprintf(patternToSave, "Workspace/patterns/pattern_%02d.mtp", index);
-	mtProject.values.actualPattern = index;
+	mtProject.values.actualPattern = index;// to raczej nie jest potrzebne
 	return writePatternFile(patternToSave);
 }
 
@@ -366,9 +368,15 @@ void FileManager::switchNextPatternInSong()
 
 void FileManager::setPatternChangeFlag()
 {
-	fileManager.patternIsChangedFlag = 1;
+	fileManager.patternRefresh = 0;
+	fileManager.patternIsChangedFlag[mtProject.values.actualPattern] = 1;
 	mtProject.values.projectNotSavedFlag = 1;
-
 }
+
+/*void FileManager::setInstrumentChangeFlag()
+{
+	fileManager.instrumentIsChangedFlag[mtProject.values.a] = 1;
+	mtProject.values.projectNotSavedFlag = 1;
+}*/
 
 

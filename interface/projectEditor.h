@@ -18,6 +18,7 @@ enum mtProjectStartMode
 
 
 
+
 class cProjectEditor: public cModuleBase
 {
 
@@ -34,7 +35,6 @@ public:
 	virtual ~cProjectEditor() {}
 
 //-------------------------------------------------------------
-
 	void showDefaultScreen();
 	void showProjectsList();
 //	void showTemplatesList();
@@ -64,6 +64,7 @@ public:
 	hControl loadHorizontalBarControl = nullptr;
 	hControl popupLabel = nullptr;
 	hControl coverImg = nullptr;
+	hControl processControl = nullptr;
 	uint32_t topLabelColors[3] =
 	{
 			0x3F3F3F, // tekst
@@ -106,46 +107,53 @@ public:
 	void functShowSaveLastWindowBeforeOpen();
 	void showSaveLastWindow();
 	void functShowOverwriteWindow();
-	void showOpeningHorizontalBar();
-	void showSaveingHorizontalBar();
+/*	void showOpeningHorizontalBar();
+	void showSaveingHorizontalBar();*/
 	void showSaveAsKeyboard();
 	void showOverwriteWindow();
 	void showExportWindow();
+
+	//*****************************************General popouts
+	uint32_t lastRefreshTime = 0;
+	bool isProcessingOn;
+	void showProcessingPopup(const char *text);
+	void hideProcessingPopup();
+	void refreshProcessingPopup();
 //*****************************************newProjectPopup
-	void showPopupLabelNewProject();
-	void hidePopupLabelNewProject();
+/*	void showPopupLabelNewProject();
+	void hidePopupLabelNewProject();*/
 	elapsedMillis newProjectPopupDelay;
 	uint8_t newProjectPopupFlag;
 //********************************************************
 //*****************************************savePopup
-	void showPopupLabelSave();
-	void hidePopupLabelSave();
+/*	void showPopupLabelSave();
+	void hidePopupLabelSave();*/
 	elapsedMillis savePopupDelay;
 	uint8_t savePopupFlag;
-	uint8_t prepareSaveValue;
+	//uint8_t prepareSaveValue;
 //********************************************************
 //*****************************************openPopup
-	void showPopupLabelOpen();
-	void hidePopupLabelOpen();
+/*	void showPopupLabelOpen();
+	void hidePopupLabelOpen();*/
 	elapsedMillis openPopupDelay;
 	uint8_t openPopupFlag;
-	uint8_t prepareOpenValue;
+	//uint8_t prepareOpenValue;
 //********************************************************
 	uint8_t newProjectNotSavedFlag = 0;
 	uint8_t createNewProjectFlag = 0;
-	uint8_t currentOpeningStatus = 0;
+	//uint8_t currentOpeningStatus = 0;
 	uint8_t openInProgressFlag = 0;
-	uint8_t lastOpeningStatus = 0;
-	uint8_t openingProgress = 0;
+	//uint8_t lastOpeningStatus = 0;
+	//uint8_t openingProgress = 0;
 	uint8_t saveInProgressFlag = 0;
 	uint8_t newProjectOnSaveEndFlag = 0;
 	uint8_t openOnSaveEndFlag = 0;
-	uint8_t saveingProgress = 0;
-	uint8_t currentSaveStatus = 0;
-	uint8_t lastSaveStatus = 0;
+	//uint8_t saveingProgress = 0;
 	uint8_t projectListActiveFlag = 1;
 	char currentInfo[100];
 	char currentPatchProjectName[PATCH_SIZE];
+
+	uint8_t isBusyFlag = 0;
 
 
 	// cover projektu

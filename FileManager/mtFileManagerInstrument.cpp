@@ -58,6 +58,8 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 	strcpy(currentPatch,"Workspace/project.bin");
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 
+	//fileManager.instrumentIsChangedFlag[instrumentIndex] = 1;
+
 	return 1;
 }
 

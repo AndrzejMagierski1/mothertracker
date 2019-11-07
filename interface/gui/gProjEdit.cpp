@@ -118,6 +118,8 @@ void cProjectEditor::initDisplayControls()
 
 	if(loadHorizontalBarControl == nullptr)  loadHorizontalBarControl = display.createControl<cHorizontalBar>(&prop6);
 
+	if(processControl == nullptr) processControl = display.createControl<cProcessingPop>(&prop6);
+
 	strControlProperties prop7;
 
 	prop7.x = 400;
@@ -186,6 +188,9 @@ void cProjectEditor::destroyDisplayControls()
 
 	display.destroyControl(coverImg);
 	coverImg = nullptr;
+
+	display.destroyControl(processControl);
+	processControl = nullptr;
 }
 
 void cProjectEditor::showDefaultScreen()
@@ -195,33 +200,10 @@ void cProjectEditor::showDefaultScreen()
 	display.setControlText(titleLabel, "File");
 	display.refreshControl(titleLabel);
 
-	if((fileManager.currentProjectName[0] == 0) || ( newProjectNotSavedFlag == 1 ) )
-	{
 
-		uint16_t i = 0;
-		strcpy(currentPatchProjectName,"Projects/New Project");
-		while((SD.exists(currentPatchProjectName)) && (i <= 9999))
-		{
-			i++;
-			sprintf(currentPatchProjectName,"Projects/New Project %d",i);
-		}
+	strcpy(projectCoverName, fileManager.currentProjectName);
+	display.setControlText(titleLabelProjectName, fileManager.currentProjectName);
 
-		if(i == 0)
-		{
-			strcpy(projectCoverName, "New Project");
-			display.setControlText(titleLabelProjectName, "New Project");
-		}
-		else
-		{
-			sprintf(projectCoverName, "New Project %d", i);
-			display.setControlText(titleLabelProjectName, currentPatchProjectName);
-		}
-	}
-	else
-	{
-		strcpy(projectCoverName, fileManager.currentProjectName);
-		display.setControlText(titleLabelProjectName, fileManager.currentProjectName);
-	}
 
 	display.refreshControl(titleLabelProjectName);
 
@@ -337,7 +319,42 @@ void cProjectEditor::showProjectsList()
 //	display.synchronizeRefresh();
 //
 //}
-void cProjectEditor::showPopupLabelNewProject()
+
+void cProjectEditor::showProcessingPopup(const char *text)
+{
+	if(isProcessingOn == 0)
+	{
+		display.setControlText(processControl, text);
+		display.setControlShow(processControl);
+		display.refreshControl(processControl);
+		lastRefreshTime = millis();
+		isProcessingOn = 1;
+	}
+}
+
+void cProjectEditor::hideProcessingPopup()
+{
+	if(isProcessingOn == 1)
+	{
+		display.setControlHide(processControl);
+		display.refreshControl(processControl);
+		isProcessingOn = 0;
+	}
+}
+
+void cProjectEditor::refreshProcessingPopup()
+{
+	if(isProcessingOn)
+	{
+		if((millis() - lastRefreshTime) > 250)
+		{
+			display.refreshControl(processControl);
+			lastRefreshTime = millis();
+		}
+	}
+}
+
+/*void cProjectEditor::showPopupLabelNewProject()
 {
 	display.setControlText(popupLabel, "Creating new project...");
 	display.setControlShow(popupLabel);
@@ -373,7 +390,7 @@ void cProjectEditor::hidePopupLabelOpen()
 {
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
-}
+}*/
 
 
 
@@ -502,24 +519,7 @@ void cProjectEditor::showSaveLastWindow()
 	display.setControlText(bottomLabel[6], "");
 	display.setControlText(bottomLabel[7], "Save");
 
-
-	if(( fileManager.currentProjectName[0] ) != 0 && ( newProjectNotSavedFlag == 0 ) )
-	{
-		sprintf(currentInfo,"Do you want to save the changes to \"%s\" ?", fileManager.currentProjectName);
-	}
-	else
-	{
-		uint16_t i = 0;
-		strcpy(currentInfo,"Projects/New Project");
-		while((SD.exists(currentInfo)) && (i <= 9999))
-		{
-			i++;
-			sprintf(currentInfo,"Projects/New Project %d",i);
-		}
-
-		if(i == 0) strcpy(currentInfo,"Do you want to save the changes to \"New Project\" ?");
-		else sprintf(currentInfo,"Do you want to save the changes to \"New Project %d\" ?",i);
-	}
+	sprintf(currentInfo,"Do you want to save the changes to \"%s\" ?", fileManager.currentProjectName);
 
 	display.setControlText(selectWindowLabel, currentInfo);
 	display.setControlShow(selectWindowLabel);
@@ -559,7 +559,7 @@ void cProjectEditor::showOverwriteWindow()
 }
 
 
-void cProjectEditor::showOpeningHorizontalBar()
+/*void cProjectEditor::showOpeningHorizontalBar()
 {
 	display.setControlValue(loadHorizontalBarControl, openingProgress);
 	display.setControlText(loadHorizontalBarControl, "Opening project...");
@@ -573,7 +573,7 @@ void cProjectEditor::showSaveingHorizontalBar()
 	display.setControlText(loadHorizontalBarControl, "Save project...");
 	display.setControlShow(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
-}
+}*/
 
 void cProjectEditor::makeSmallBottomLabel(uint8_t i)
 {

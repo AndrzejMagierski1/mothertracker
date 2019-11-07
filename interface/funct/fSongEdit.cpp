@@ -580,8 +580,7 @@ void cSongEditor::changeGlobalPatternLength(int16_t value)
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	fileManager.patternIsChangedFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setPatternChangeFlag();
 	fileManager.storePatternUndoRevision();
 
 	switch (SE->selectedPlace)

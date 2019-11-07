@@ -164,49 +164,62 @@ void cInterface::update()
 
 	if(fileManager.configChangedRefresh > 10000)
 	{
-		fileManager.configChangedRefresh = 0;
-		if(fileManager.configIsChangedFlag == 1)
+		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
 		{
-			fileManager.autoSaveProject();
-		}
-	}
-	if(fileManager.instrumentRefresh > 10000)
-	{
-		fileManager.instrumentRefresh = 0;
-		for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
-		{
-			if(fileManager.instrumentIsChangedFlag[i] == 1 )
+			fileManager.configChangedRefresh = 0;
+			if(fileManager.configIsChangedFlag == 1)
 			{
-				fileManager.instrumentIsChangedFlag[i] = 0;
-				fileManager.saveInstrument(i);
+				fileManager.autoSaveProject();
 			}
 		}
 	}
+
+	if(fileManager.instrumentRefresh > 10000)
+	{
+		fileManager.instrumentRefresh = 0;
+
+		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
+		{
+			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
+			{
+				if(fileManager.instrumentIsChangedFlag[i] == 1 )
+				{
+					fileManager.instrumentIsChangedFlag[i] = 0;
+					fileManager.saveInstrument(i);
+				}
+			}
+		}
+	}
+
 	if(fileManager.instrumentForcedSaveFlag)
 	{
 		fileManager.instrumentForcedSaveFlag = 0;
 
-		for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
+		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
 		{
-			if(fileManager.instrumentIsChangedFlag[i] == 1 )
+			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
 			{
-				fileManager.instrumentIsChangedFlag[i] = 0;
-				fileManager.saveInstrument(i);
+				if(fileManager.instrumentIsChangedFlag[i] == 1 )
+				{
+					fileManager.instrumentIsChangedFlag[i] = 0;
+					fileManager.saveInstrument(i);
+				}
 			}
 		}
 	}
-
 
 	if(fileManager.patternRefresh > 10000)
 	{
 		fileManager.patternRefresh = 0;
 
-		if(fileManager.patternIsChangedFlag == 1 )
+		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
 		{
-			fileManager.patternIsChangedFlag = 0;
-			fileManager.savePattern(mtProject.values.actualPattern);
+			if(fileManager.patternIsChangedFlag[mtProject.values.actualPattern] == 1)
+			{
+				fileManager.savePattern(mtProject.values.actualPattern);
+				//fileManager.savePattern(i);
+			}
 		}
-
 	}
 }
 

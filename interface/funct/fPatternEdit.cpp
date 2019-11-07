@@ -651,18 +651,26 @@ void cPatternEditor::changeActualTempo(int16_t value)
 
 void cPatternEditor::changeActualPattern(int16_t value)
 {
-	if (sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
+	if(sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
 	{
-		fileManager.savePattern(mtProject.values.actualPattern);
+		if(fileManager.patternIsChangedFlag[mtProject.values.actualPattern] == 1)
+		{
+			fileManager.savePattern(mtProject.values.actualPattern);
+		}
 	}
 
 	mtProject.values.actualPattern = constrain(
 			mtProject.values.actualPattern + value, PATTERN_INDEX_MIN,
 			PATTERN_INDEX_MAX);
 
+
+	// Zapis aktualnego appternu za 10s od ostatniej zmiany
+	fileManager.configChangedRefresh = 0;
+	fileManager.configIsChangedFlag = 1;
+
+
 	fileManager.loadPattern(mtProject.values.actualPattern);
 	sequencer.switchRamPatternsNow();
-
 
 	readPatternState();
 	refreshPatternParams();
@@ -687,6 +695,8 @@ void cPatternEditor::setActualPattern(int16_t value)
 
 void cPatternEditor::changeActualPatternLength(int16_t value)
 {
+	fileManager.setPatternChangeFlag();
+
 	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
 	if(pattern->track[0].length+value < 0) pattern->track[0].length = 0;
@@ -727,6 +737,8 @@ void cPatternEditor::setActualPatternLength(int16_t value)
 
 void cPatternEditor::changeActualPatternEditStep(int16_t value)
 {
+	fileManager.setPatternChangeFlag();
+
 	mtProject.values.patternEditStep = constrain(
 			mtProject.values.patternEditStep + value,
 			0,
@@ -1087,7 +1099,6 @@ uint8_t functEncoder(int16_t value)
 
 	if(PTE->selectedPlace >= 0)
 	{
-		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 
 		switch(PTE->selectedPlace)
@@ -1364,7 +1375,6 @@ static  uint8_t functUp()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
-		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
@@ -1451,7 +1461,6 @@ static  uint8_t functDown()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
-		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{

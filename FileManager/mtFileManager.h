@@ -43,6 +43,50 @@ struct strProjectFile
 	uint32_t crc;
 };
 
+typedef enum
+{
+	sSavePrepare,
+	sSavePatterns,
+	sSaveInstrumentFiles,
+	sSaveSamples,
+	sSaveEppromConfig,
+	sSavingDone,
+
+}saving_status_t;
+
+typedef enum
+{
+	sLoadPrepare,
+	sLoadClearWorkspace,
+	sLoadInstrumentFiles,
+	sLoadPatterns,
+	sLoadSamples,
+	sLoadInstrumentsToMem,
+	sLoadDone,
+
+}loading_status_t;
+
+typedef enum
+{
+	sWspLoadPrepare,
+	sWspLoadInstumentFiles,
+	sWspLoadInstrumentsToMem,
+	sWspLoadDone,
+
+}loadingFromWrsp_status_t;
+
+typedef struct
+{
+	uint8_t stage;
+	uint8_t currPatternIdx;
+	uint8_t currInstrumentFileIdx;
+	uint8_t currSampleIdx;
+	uint8_t nextSampleFlag;
+	uint8_t forcedInstrReload;
+
+}save_load_handle_t;
+
+
 
 
 class FileManager
@@ -50,22 +94,19 @@ class FileManager
 
 public:
 //************************************************ FileManagerProject*******************************************************
-	uint8_t openProject(char * name, uint8_t type);
-	void importProject(char* sourceProjectPatch,char* name, char* newName);
+
+	uint8_t openProjectStart(char * name, uint8_t type);
+	void refreshProjectOpening();
+
+	uint8_t loadProjectFromWorkspaceStart();
+	void refreshLoadProjectFromWorkspace();
 
 	uint8_t prepareSaveAs(char *name, uint8_t type);
-	void startSaveAsProject(char *name);
-
-	uint8_t saveAsProject(char* name);
-//	void saveProject();
 	void startSaveProject();
-	uint8_t getSaveProjectState();
-	uint8_t getOpenProjectState();
-	uint8_t getOpenProjectStateProgress();
-	uint8_t getSaveProjectStateProgress();
-	uint8_t createNewProject(char * name);
+	void refreshSaveProject();
+
 	void createEmptyTemplateProject(char * name);
-	uint8_t loadProjectFromWorkspace();
+
 	void autoSaveProject();
 
 //**************************************************************************************************************************
@@ -120,7 +161,7 @@ public:
 	uint8_t instrumentIsChangedFlag[48];
 	uint8_t instrumentForcedSaveFlag;
 	elapsedMillis instrumentRefresh;
-	uint8_t patternIsChangedFlag;
+	uint8_t patternIsChangedFlag[PATTERN_INDEX_MAX];
 	elapsedMillis patternRefresh;
 //**************************************************************************************************************************
 	friend class cProjectEditor;
@@ -131,6 +172,11 @@ public:
 		saveAsOverwrite
 	};
 
+	uint8_t loadingInProgress = 0;
+	uint8_t savingInProgress = 0;
+
+	uint8_t getSavingStatus();
+	uint8_t getLoadingStatus();
 
 private:
 //************************************************ FileManagerCore**********************************************************
@@ -154,7 +200,7 @@ private:
 	uint32_t allCopyingFileSizeOpen = 0;
 	uint32_t currentCopyingSizeOpen = 0;
 
-	uint32_t allCopyingFileSizeSave = 0;
+	//uint32_t allCopyingFileSizeSave = 0;
 	uint32_t currentCopyingSizeSave = 0;
 //**************************************************************************************************************************
 //************************************************ FileManagerInstrument****************************************************
@@ -167,9 +213,25 @@ private:
 
 
 
+	save_load_handle_t saveHandle;
+	save_load_handle_t loadHandle;
+	save_load_handle_t loadFromWorkspaceHandle;
+	void refreshSaveInstrumentFiles();
+	void refreshSaveSamples();
+	void refreshSavePatterns();
+	void saveEeprom();
 
+	void refreshLoadingInstrumentFiles();
+	void refreshLoadingPatterns();
+	void refreshLoadingSamples();
+	void refreshLoadingInstrToMem();
+	void refreshClearWorkspace();
 
+	void refreshLoadInstrFilesFromWorkspace();
+	void refreshLoadingInstrToMemFromWorkspace();
 
+	void moveToNextStage(save_load_handle_t *handle);
+	void refreshClearDir(const char* dirToClear, save_load_handle_t *handle);
 
 };
 

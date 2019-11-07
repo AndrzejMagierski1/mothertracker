@@ -612,6 +612,10 @@ static uint8_t functPaste()
 				SI->copyElement++;
 				SI->instrCopied++;
 			}
+			else
+			{
+				SI->isBusy = 0;
+			}
 		}
 	}
 

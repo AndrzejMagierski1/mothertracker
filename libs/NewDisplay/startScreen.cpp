@@ -115,16 +115,16 @@ uint8_t cStartScreen::update()
 	API_END();
 
 
-    uint16_t barWidth = (5*width)/7;
+ /*   uint16_t barWidth = (5*width)/7;
     uint16_t barX = posX+ (width/7);
 
     uint16_t barHeight = (2*height)/7 ;
-    uint16_t barY = posY + ((3*height)/7);
+    uint16_t barY = posY + ((3*height)/7);*/
 
     uint16_t textX = posX + (width/2);
     uint16_t textY = posY + ((2*height)/7);
 
-    if(value < 0) value = 0;
+/*    if(value < 0) value = 0;
     else  if(value > 100) value = 100;
 
 	uint16_t barFillY = (barWidth * value) / 100;
@@ -147,17 +147,43 @@ uint8_t cStartScreen::update()
 	API_VERTEX2F(barX+barWidth, barY+barHeight);
 	API_VERTEX2F(barX, barY+barHeight);
 	API_VERTEX2F(barX, barY);
-	API_END();
+	API_END();*/
+
+    dots = dots % 4;
 
 	API_COLOR(colors[0]);
 
-	if(text != nullptr) API_CMD_TEXT(textX, textY, textFont, OPT_CENTER, text);
+	API_POINT_SIZE(100);
+
+	API_BEGIN(FTPOINTS);
+
+	if(dots == 1)
+	{
+		API_VERTEX2F(350, 350);
+	}
+	else if(dots == 2)
+	{
+		API_VERTEX2F(350, 350);
+		API_VERTEX2F(400, 350);
+	}
+	else if(dots == 3)
+	{
+		API_VERTEX2F(350, 350);
+		API_VERTEX2F(400, 350);
+		API_VERTEX2F(450, 350);
+	}
+
+	API_END();
+
+	dots++;
+
+	if(text != nullptr) API_CMD_TEXT(400, textY, textFont, OPT_CENTER, text);
 
 
 	if(data != nullptr) API_CMD_TEXT((800/8)*0+(800/16), 465, textFont, OPT_CENTER, data->versionLabel);
 
 
-	API_CMD_TEXT((800/8)*7+(800/16), 465, textFont, OPT_CENTER, (char*)"Hide");
+	//API_CMD_TEXT((800/8)*7+(800/16), 465, textFont, OPT_CENTER, (char*)"Hide");
 
 
 
