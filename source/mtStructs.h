@@ -246,8 +246,9 @@ enum envelopesType
 {
     envAmp,
     envFilter,
-    envPitch,
 	envWtPos,
+    envPitch,
+
 
 	envMax
 };
@@ -258,8 +259,9 @@ enum envelopeTypes
 {
 	envelopeTypeAmp,
 	envelopeTypeFilter,
-	envelopeTypePitch,
 	envelopeTypeWtPos,
+	envelopeTypePitch,
+
 
 	envelopeTypeMax,
 };

@@ -92,9 +92,9 @@ void cInstrumentEditor::initDisplayControls()
 	if(filterModeListControl == nullptr)  filterModeListControl = display.createControl<cList>(&prop);
 
 
-	envelopesList.linesCount = 5;
+	envelopesList.linesCount = 6;
 	envelopesList.start = selectedEnvelope;
-	envelopesList.length = 2;
+	envelopesList.length = 3;
 	envelopesList.data = (char**)envelopeNames;
 	prop.x = (800/8)*(0)+8;
 	prop.y = 37;
