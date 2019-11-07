@@ -177,7 +177,7 @@ uint8_t cStartScreen::update()
 
 	dots++;
 
-	if(text != nullptr) API_CMD_TEXT(400, textY, textFont, OPT_CENTER, text);
+	if(text != nullptr) API_CMD_TEXT(textX, textY, textFont, OPT_CENTER, text);
 
 
 	if(data != nullptr) API_CMD_TEXT((800/8)*0+(800/16), 465, textFont, OPT_CENTER, data->versionLabel);
