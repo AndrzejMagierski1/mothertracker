@@ -2612,7 +2612,7 @@ void playerEngine::changeWavetableWindowPerformanceMode(int16_t value)
 	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition] != 1) && (value == 0)) return;
 	performanceMod.wavetablePosition = value;
 
-	uint16_t wavetableWindow;
+	uint32_t wavetableWindow;
 
 	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::wavetablePosition] ||
 	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::wavetablePosition]) wavetableWindow = currentSeqModValues.wavetablePosition;

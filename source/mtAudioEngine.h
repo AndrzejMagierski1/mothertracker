@@ -156,7 +156,7 @@ public:
 		LFO::strLfo tremolo; //todo: do ogarniecia
 
 		uint16_t glide;
-		uint16_t wavetablePosition;
+		uint32_t wavetablePosition;
 		uint8_t volume;
 
 	} currentSeqModValues ;
@@ -175,7 +175,7 @@ public:
 		int16_t panning;
 		int8_t tune;
 		uint8_t volume;
-		uint16_t wavetablePosition;
+		uint32_t wavetablePosition;
 	} currentPerformanceValues;
 
 

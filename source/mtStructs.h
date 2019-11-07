@@ -200,7 +200,7 @@ enum instrumentPlayMode
 	loopForward,
 	loopBackward,
 	loopPingPong,
-	playModeWavetable, //tylko na uzytek interface
+	playModeWavetable, //tylko na uzytek interface - sample type obsługuje to w silniku
 
 	playModeCount
 };
@@ -246,7 +246,10 @@ enum envelopesType
 {
     envAmp,
     envFilter,
-    envPitch
+    envPitch,
+	envWtPos,
+
+	envMax
 };
 
 
@@ -255,7 +258,8 @@ enum envelopeTypes
 {
 	envelopeTypeAmp,
 	envelopeTypeFilter,
-	//envelopeTypePitch,
+	envelopeTypePitch,
+	envelopeTypeWtPos,
 
 	envelopeTypeMax,
 };
@@ -303,7 +307,10 @@ enum lfoType
 {
 	lfoA,
 	lfoF,
-	lfoP
+	lfoP,
+
+
+	lfoMax
 };
 
 enum lfoEnable
@@ -312,28 +319,7 @@ enum lfoEnable
 	lfoOn
 };
 
-enum targets
-{
-	noTarget = 0,
-	targetAmp,
-	targetPitch,
-	targetSlide,
-	targetGlide,
-	targetCutoff,
-	targetResonance,
-	targetPanning,
-	targetLP1,
-	targetLP2,
 
-};
-enum modyficators
-{
-	noMod=0,
-	manualMod,
-	envelopeMod,
-	lfoMod,
-	sumOfAll = MAX_MOD
-};
 
 enum enPlaylist
 {
@@ -370,7 +356,7 @@ struct strInstrument
 		uint32_t length = 0;
 
 		uint16_t wavetable_window_size = 2048;
-		uint16_t wavetableWindowNumber = 0;
+		uint32_t wavetableWindowNumber = 0;
 
 	} sample;
 
@@ -383,14 +369,14 @@ struct strInstrument
     uint16_t loopPoint2;
     uint16_t endPoint;
 
-    uint16_t wavetableCurrentWindow;
+    uint32_t wavetableCurrentWindow;
 //    uint16_t wavetableSync;
 //    uint16_t wavetablePWM;
 //    uint16_t wavetableFlip;
 //    uint16_t wavetableQuantize;
 
-	envelopeGenerator::strEnv envelope[3];
-	LFO::strLfo lfo[3];
+	envelopeGenerator::strEnv envelope[envelopeTypeMax];
+	LFO::strLfo lfo[lfoMax];
 
 	float cutOff;
 	float resonance;

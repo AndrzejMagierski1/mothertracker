@@ -48,7 +48,7 @@ static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
 static uint8_t functStepNote(uint8_t value);
 
-static void modWavetablePostion(int16_t value);
+static void modWavetablePostion(int32_t value);
 static void modWavetableWindowSize(int16_t value);
 static void modStartPoint(int16_t value);
 static void modEndPoint(int16_t value);
@@ -1362,10 +1362,10 @@ static void modLoopPoint2(int16_t value)
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
-static void modWavetablePostion(int16_t value)
+static void modWavetablePostion(int32_t value)
 {
-	if(SP->editorInstrument->wavetableCurrentWindow + value < 0) SP->editorInstrument->wavetableCurrentWindow  = 0;
-	else if(SP->editorInstrument->wavetableCurrentWindow + value > SP->editorInstrument->sample.wavetableWindowNumber - 1) SP->editorInstrument->wavetableCurrentWindow = SP->editorInstrument->sample.wavetableWindowNumber - 1;
+	if((int32_t)(SP->editorInstrument->wavetableCurrentWindow + value) < 0) SP->editorInstrument->wavetableCurrentWindow  = 0;
+	else if((SP->editorInstrument->wavetableCurrentWindow + value) > (SP->editorInstrument->sample.wavetableWindowNumber - 1) ) SP->editorInstrument->wavetableCurrentWindow = SP->editorInstrument->sample.wavetableWindowNumber - 1;
 	else SP->editorInstrument->wavetableCurrentWindow += value;
 
 	instrumentPlayer[0].setStatusBytes(WT_POS_SEND_MASK);
