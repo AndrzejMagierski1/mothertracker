@@ -1138,34 +1138,26 @@ void cConfigEditor::listAllFirmwares()
 
 		sdLocation.close();
 
-		for(uint8_t i = 0; i < locationFileCount;)
+		if(locationFileCount > firmware_list_max)
+		{
+			locationFileCount = firmware_list_max;
+		}
+
+		for(uint8_t i = 0; i < locationFileCount; i++)
 		{
 			if(checkIfFirmwareValid(&firmwareNamesList[i][0]))
 			{
+				strcpy(&firmwareNamesList[validFilesCount][0], &firmwareNamesList[i][0]);
 				validFilesCount++;
-				i++;
-			}
-			else
-			{
-				invalidFileCount++;
-				strcpy(&firmwareNamesList[i][0],&firmwareNamesList[invalidFileCount][0]);
-				memset(&firmwareNamesList[invalidFileCount][0],0,sizeof(firmwareNamesList[invalidFileCount][0]));
-
-				if(invalidFileCount == (firmware_list_max-1))
-				{
-					break;
-				}
 			}
 		}
 
-		locationFileCount = validFilesCount;
-
-		for(uint8_t i = 0; i < locationFileCount; i++)
+		for(uint8_t i = 0; i < validFilesCount; i++)
 		{
 			firmwareNames[i] = &firmwareNamesList[i][0];
 		}
 
-		firmwareFoundNum=locationFileCount;
+		firmwareFoundNum = validFilesCount;
 	}
 	else
 	{
