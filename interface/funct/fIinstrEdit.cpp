@@ -597,10 +597,11 @@ void changeEnvList(int16_t value)
 
 void changeEnvState(int16_t value)
 {
-
-	if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
-	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value > 1 ) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
-	else IE->editorInstrument->envelope[IE->selectedEnvelope].enable += value;
+	if(value > 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
+	else if(value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
+//	if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
+//	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value > 1 ) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
+//	else IE->editorInstrument->envelope[IE->selectedEnvelope].enable += value;
 
 	IE->showEnvState();
 }

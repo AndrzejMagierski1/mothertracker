@@ -64,12 +64,27 @@ constexpr uint32_t PLAY_REFRESH_US = 5000;
 
 void cSamplePlayback::update()
 {
+	currentEnvelopeWtPos = instrumentPlayer[0].getEnvelopeWtPosMod();
+
+	if(currentEnvelopeWtPos != lastEnvelopeWtPos)
+	{
+		refreshSpectrum = 1;
+		refreshWavetablePosition = 1;
+	}
+
+	lastEnvelopeWtPos = currentEnvelopeWtPos;
+
 	if(refreshSpectrum)
 	{
 		GP.processSpectrum(editorInstrument, &zoom, &spectrum);
 
 		display.refreshControl(SP->spectrumControl);
 
+		if(refreshWavetablePosition)
+		{
+			showWavetablePosition();
+			refreshWavetablePosition = 0;
+		}
 		refreshSpectrum = 0;
 	}
 

@@ -80,6 +80,9 @@ public:
 	uint8_t getInterfacePlayingEndFlag();
 	void clearInterfacePlayingEndFlag();
 
+	uint32_t getEnvelopeWtPosMod();
+	uint32_t afterEnvelopeWtPos;
+
 	uint16_t getWavePosition();
 	void update();
 	uint8_t noteOnforPrev (uint8_t instr_idx,int8_t note, int8_t velocity);
