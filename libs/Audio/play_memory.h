@@ -89,7 +89,7 @@ private:
 	float fineTuneControl;
 	int8_t currentTune;
 	uint16_t wavetableWindowSize;
-	uint16_t currentWindow;
+	uint32_t currentWindow;
 	uint32_t waveTablePosition;
 	uint8_t sampleType;
 //    uint16_t wavetableSync;

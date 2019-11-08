@@ -44,7 +44,7 @@ class playerEngine
 public:
 
 	void init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter, AudioEffectEnvelope * envAmp, AudioAmplifier * amp,
-			uint8_t panCh, LFO * lfoAmp, LFO * lfoFilter, LFO * lfoPitch );
+			uint8_t panCh, LFO * lfoAmp, LFO * lfoFilter, LFO * lfoPitch, envelopeGenerator* envWtPos );
 
 
 	uint8_t noteOn(uint8_t instr_idx,int8_t note, int8_t velocity);
@@ -79,6 +79,9 @@ public:
 	void clearInterfaceEndReleaseFlag();
 	uint8_t getInterfacePlayingEndFlag();
 	void clearInterfacePlayingEndFlag();
+
+	uint32_t getEnvelopeWtPosMod();
+	uint32_t afterEnvelopeWtPos;
 
 	uint16_t getWavePosition();
 	void update();
@@ -156,7 +159,7 @@ public:
 		LFO::strLfo tremolo; //todo: do ogarniecia
 
 		uint16_t glide;
-		uint16_t wavetablePosition;
+		uint32_t wavetablePosition;
 		uint8_t volume;
 
 	} currentSeqModValues ;
@@ -175,7 +178,7 @@ public:
 		int16_t panning;
 		int8_t tune;
 		uint8_t volume;
-		uint16_t wavetablePosition;
+		uint32_t wavetablePosition;
 	} currentPerformanceValues;
 
 
@@ -197,6 +200,7 @@ public:
 		int8_t fineTune;
 		uint8_t volume;
 		float cutoff;
+		uint32_t wtPos;
 	} instrumentBasedMod;
 
 	uint8_t trackControlParameter[(int)controlType::length][(int)parameterList::length];
@@ -235,6 +239,7 @@ private:
 	AudioPlayMemory *        	playMemPtr;
 	AudioAmplifier *			ampPtr;
 	envelopeGenerator* 			envelopeFilterPtr;
+	envelopeGenerator* 			envelopeWtPos;
 	AudioFilterStateVariable *	filterPtr;
 	AudioConnection*			conFilterToAmpPtr;
 	AudioConnection*			conPlayToFilterPtr;

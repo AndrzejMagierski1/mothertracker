@@ -1,7 +1,7 @@
 
 
 #include "samplePlayback.h"
-
+#include "mtAudioEngine.h"
 
 static uint16_t framesPlaces[7][4] =
 {
@@ -264,7 +264,8 @@ void cSamplePlayback::activateLabelsBorder()
 //==============================================================================================================
 void cSamplePlayback::showWavetablePosition()
 {
-	sprintf(wavetablePositionText, "%d", editorInstrument->wavetableCurrentWindow);
+	if(refreshWavetablePosition) sprintf(wavetablePositionText, "%d",(int) currentEnvelopeWtPos);
+	else sprintf(wavetablePositionText, "%d",(int) editorInstrument->wavetableCurrentWindow);
 
 	display.setControlText(topLabel[1], wavetablePositionText);
 	display.setControlShow(topLabel[1]);

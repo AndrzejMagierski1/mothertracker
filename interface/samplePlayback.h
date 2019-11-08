@@ -146,6 +146,8 @@ public:
 // odtwarzanie
 	uint8_t isPlayingSample = 0;
 	uint8_t isPlayingWavetable = 0;
+	uint32_t currentEnvelopeWtPos;
+	uint32_t lastEnvelopeWtPos;
 	int8_t playNote = 24;
 	uint8_t glidePreviewDif = 0;
 
@@ -167,7 +169,7 @@ public:
 	uint16_t convertWavetableWindowsCounterToSize(uint8_t cnt);
 	uint8_t convertWavetableWindowsSizeToCounter(uint16_t size);
 	uint8_t wavetableWindowsCounter = 11;
-
+	uint8_t refreshWavetablePosition = 1;
 
 };
 

@@ -28,10 +28,11 @@ const char filterModeFunctLabels[filterModeCount][11]=
 };
 
 
-const char envelopesLabels[2][11]=
+const char envelopesLabels[3][11]=
 {
 		"Amp",
 		"Filter",
+		"WT Pos"
 
 };
 
@@ -180,10 +181,11 @@ public:
 	strList envStateList;
 	strList envLoopList;
 
-	const char* envelopeNames[2] =
+	const char* envelopeNames[3] =
 	{
 		&envelopesLabels[0][0],
 		&envelopesLabels[1][0],
+		&envelopesLabels[2][0],
 	};
 	const char* envStateNames[2] =
 	{
