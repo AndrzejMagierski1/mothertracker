@@ -142,7 +142,7 @@ void cInterface::openStartupProject()
 		{
 			strcpy(currentPatch,"Templates/New/project.bin");
 
-			if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
+			fileManager.createEmptyTemplateProject((char*)"New");
 
 			fileManager.openProjectStart((char*)"New", projectTypeExample);
 

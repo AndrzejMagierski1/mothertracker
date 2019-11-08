@@ -485,7 +485,7 @@ static uint8_t functNewProject()
 	char currentPatch[PATCH_SIZE];
 	strcpy(currentPatch,"Templates/New/project.bin");
 
-	if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
+	fileManager.createEmptyTemplateProject((char*)"New");
 
 	strcpy(mtConfig.startup.lastProjectName, fileManager.currentProjectName);
 
@@ -623,7 +623,7 @@ static uint8_t functSaveChangesDontSaveNewProject()
 	char currentPatch[PATCH_SIZE];
 	strcpy(currentPatch,"Templates/New/project.bin");
 
-	if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
+	fileManager.createEmptyTemplateProject((char*)"New");
 
 	strcpy(mtConfig.startup.lastProjectName, fileManager.currentProjectName);
 
