@@ -17,81 +17,9 @@ void FileManager::update()
 
 	samplesLoader.update();
 	samplesImporter.update();
-	uint16_t localCopySize = samplesCopyier.update();
+	samplesCopyier.update();
 
-//******************************************************************************************************
-// SAMPLES COPYIER	- kopiuje sample  z patcha do patcha
-//******************************************************************************************************
-	samplesCopyierCurrentState = fileManager.samplesCopyier.getState();
-	if(samplesCopyierCurrentState && openWorkspaceCreateFlag) currentCopyingSizeOpen+=localCopySize;
-	if(samplesCopyierCurrentState && saveProjectFlag) currentCopyingSizeSave+=localCopySize;
-
-
-	if( (!samplesCopyierCurrentState ) && (lastCopyierCurrentState) )
-	{
-		if(saveProjectFlag)
-		{
-			for(uint8_t i = currentSaveWave; i < INSTRUMENTS_COUNT; i++)
-			{
-
-				if(mtProject.instrument[i].isActive == 1)
-				{
-					char currentPatch[PATCH_SIZE];
-					char workspacePatch[PATCH_SIZE];
-					sprintf(currentPatch,"%s/samples/instr%02d.wav",currentProjectPatch,i);
-					sprintf(workspacePatch,"Workspace/samples/instr%02d.wav",i);
-
-					samplesCopyier.start(currentPatch,workspacePatch);
-
-					currentSaveWave = i+1;
-
-					if(i == (INSTRUMENTS_COUNT - 1))
-					{
-						saveProjectFlag = 0;
-					}
-					break;
-				}
-				if(i == (INSTRUMENTS_COUNT - 1))
-				{
-					saveProjectFlag = 0;
-				}
-
-			}
-		}
-
-		if(openWorkspaceCreateFlag)
-		{
-			for(uint8_t i = currentSaveWave; i < INSTRUMENTS_COUNT; i++)
-			{
-				currentSaveWave = i+1;
-				if(mtProject.instrument[i].isActive == 1)
-				{
-					char currentPatch[PATCH_SIZE];
-					char workspacePatch[PATCH_SIZE];
-					sprintf(currentPatch,"%s/samples/instr%02d.wav",currentProjectPatch,i);
-					sprintf(workspacePatch,"Workspace/samples/instr%02d.wav",i);
-
-					samplesCopyier.start(workspacePatch,currentPatch);
-
-					if(i == (INSTRUMENTS_COUNT - 1))
-					{
-						openWorkspaceCreateFlag = 0;
-
-						samplesLoader.start(0,(char*)"Workspace");
-
-					}
-					break;
-				}
-				if(currentSaveWave == INSTRUMENTS_COUNT)
-				{
-					openWorkspaceCreateFlag = 0;
-					samplesLoader.start(0,(char*)"Workspace");
-				}
-			}
-		}
-	}
-
-	lastCopyierCurrentState = fileManager.samplesCopyier.getState();
+	autoSaveWorkspace();
 
 //******************************************************************************************************
 // SAMPLES IMPORTER - kopiuje pliki do projektu
@@ -373,6 +301,50 @@ void FileManager::copySample(char* srcProjectPatch, char* srcName, char * dstPro
 void FileManager::formatSDCard()
 {
 	//SD.format();
+}
+
+void FileManager::autoSaveWorkspace()
+{
+	if(fileManager.configChangedRefresh > 10000)
+	{
+		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
+		{
+			fileManager.configChangedRefresh = 0;
+			if(fileManager.configIsChangedFlag == 1)
+			{
+				fileManager.autoSaveProject();
+			}
+		}
+	}
+
+	if((fileManager.instrumentRefresh > 10000))
+	{
+		fileManager.instrumentRefresh = 0;
+
+		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
+		{
+			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
+			{
+				if(fileManager.instrumentIsChangedFlag[i] == 1 )
+				{
+					fileManager.saveInstrument(i);
+				}
+			}
+		}
+	}
+
+	if(fileManager.patternRefresh > 10000)
+	{
+		fileManager.patternRefresh = 0;
+
+		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
+		{
+			if(fileManager.patternIsChangedFlag[mtProject.values.actualPattern] == 1)
+			{
+				fileManager.savePattern(mtProject.values.actualPattern);
+			}
+		}
+	}
 }
 
 

@@ -82,8 +82,10 @@ uint8_t FileManager::savePattern(uint8_t index)
 {
 	char patternToSave[PATCH_SIZE] { 0 };
 
+	fileManager.patternIsChangedFlag[index] = 0;
+
 	sprintf(patternToSave, "Workspace/patterns/pattern_%02d.mtp", index);
-	mtProject.values.actualPattern = index;
+
 	return writePatternFile(patternToSave);
 }
 
@@ -143,7 +145,7 @@ void FileManager::undoPattern()
 
 		*sequencer.getActualPattern() = undoPatternBuffer[undo.actualIndex];
 		mtProject.values.actualPattern = undoPatternBufferIndexes[undo.actualIndex];
-		setPatternChangeFlag();
+		setPatternChangeFlag(mtProject.values.actualPattern);
 
 		undo.redoPossibility++;
 //		Serial.printf(
@@ -179,7 +181,7 @@ void FileManager::redoPattern()
 		undo.redoPossibility--;
 		*sequencer.getActualPattern() = undoPatternBuffer[undo.actualIndex];
 		mtProject.values.actualPattern = undoPatternBufferIndexes[undo.actualIndex];
-		setPatternChangeFlag();
+		setPatternChangeFlag(mtProject.values.actualPattern);
 
 //		Serial.printf(
 //				">>>pattern redo\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
@@ -366,11 +368,26 @@ void FileManager::switchNextPatternInSong()
 }
 
 
-void FileManager::setPatternChangeFlag()
+void FileManager::setPatternChangeFlag(uint8_t num)
 {
-	fileManager.patternIsChangedFlag = 1;
+	patternIsChangedFlag[num] = 1;
 	mtProject.values.projectNotSavedFlag = 1;
-
+	mtProject.values.patternsToSave[num] = 1;
+	configIsChangedFlag = 1;
 }
+
+void FileManager::setInstrumentChangeFlag(uint8_t num)
+{
+	instrumentIsChangedFlag[num] = 1;
+	mtProject.values.projectNotSavedFlag = 1;
+	mtProject.values.instrumentsToSave[num] = 1;
+	configIsChangedFlag = 1;
+}
+
+/*void FileManager::setInstrumentChangeFlag()
+{
+	fileManager.instrumentIsChangedFlag[mtProject.values.a] = 1;
+	mtProject.values.projectNotSavedFlag = 1;
+}*/
 
 

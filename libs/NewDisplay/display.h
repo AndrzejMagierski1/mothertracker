@@ -26,6 +26,7 @@
 #include "notePopoutControl.h"
 #include "textPopupControl.h"
 #include "imgControl.h"
+#include "processingPopout.h"
 
 
 typedef cDisplayControl* hControl;

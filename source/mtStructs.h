@@ -459,6 +459,8 @@ struct strMtValues
 	float globalTempo = DEFAULT_TEMPO;
 	uint16_t patternLength = 32;
 
+	uint8_t instrumentsToSave[INSTRUMENTS_COUNT];
+	uint8_t patternsToSave[PATTERN_INDEX_MAX];
 };
 
 //-------------------------------------------------

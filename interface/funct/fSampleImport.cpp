@@ -495,8 +495,9 @@ static  uint8_t functConfirmRename()
 	SI->showDefaultScreen();
 
 	SI->displayDelete(SI->selectedPlace);
-	fileManager.instrumentIsChangedFlag[SI->selectedSlot] = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
 	SI->keyboardActiveFlag = 0;
 
 	return 1;
@@ -611,6 +612,10 @@ static uint8_t functPaste()
 
 				SI->copyElement++;
 				SI->instrCopied++;
+			}
+			else
+			{
+				SI->isBusy = 0;
 			}
 		}
 	}
@@ -1689,12 +1694,12 @@ void cSampleImporter::handleSequenceCopyingLoading()
 			firstMemBarLoadFlag=2;
 			showDefaultScreen();
 
-			for(uint32_t i = selectedSlot ; i < (selectedSlot + copyElementMax); i++)
+/*			for(uint32_t i = selectedSlot ; i < (selectedSlot + copyElementMax); i++)
 			{
-				fileManager.instrumentIsChangedFlag[i] = 1;
-			}
+				fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+			}*/
 
-			fileManager.instrumentForcedSaveFlag = 1;
+			//fileManager.instrumentForcedSaveFlag = 1;
 
 			mtProject.values.projectNotSavedFlag = 1;
 

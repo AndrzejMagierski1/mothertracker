@@ -18,7 +18,7 @@ static  uint8_t functDown();
 
 
 
-static  uint8_t functEnter();
+static  uint8_t functRec();
 static  uint8_t functShift(uint8_t state);
 
 
@@ -114,7 +114,7 @@ void cGameModule::setDefaultScreenFunct()
 
 
 
-//	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
+	FM->setButtonObj(interfaceButtonRec, buttonPress, functRec);
 	FM->setButtonObj(interfaceButtonShift, functShift);
 
 
@@ -153,7 +153,7 @@ uint8_t functEncoder(int16_t value)
 }
 
 
-static  uint8_t functEnter()
+static  uint8_t functRec()
 {
 	ARKANOID_releaseFromPaddle();
 

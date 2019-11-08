@@ -42,7 +42,8 @@ const char groupNamesLabels[mtConfigGroupsCount][15] =
 
 };
 
-
+#undef MAX_SELECT_NODES
+#define MAX_SELECT_NODES	7
 
 const uint8_t firmware_list_max=10;
 const uint8_t firmware_name_length=15;
@@ -117,14 +118,14 @@ public:
 	// config
 	void changeConfigGroupSelection(int16_t value);
 
-	//master
+/*	//master
 	void changeVolume(int16_t value);
 	void changeReverbRoomSize(int16_t value);
 	void changeReverbDamping(int16_t value);
 	void changeLimiterAttack(int16_t value);
 	void changeLimiterRelease(int16_t value);
 	void changeLimiterTreshold(int16_t value);
-	void changeBitDepth(int16_t value);
+	void changeBitDepth(int16_t value);*/
 
 
 	//master tracks
@@ -215,6 +216,15 @@ public:
 //----------------------------------
 
 	uint8_t exitOnButtonRelease = 0;
+
+	// MULTISEL
+	select_node_t selectNodes[MAX_SELECT_NODES];
+
+	void addNode(editFunct_t funct , uint8_t nodeNum);
+	void removeNode(uint8_t nodeNum);
+	void stepThroughNodes(int16_t value);
+	void clearAllNodes();
+	void cancelMultiFrame();
 
 };
 

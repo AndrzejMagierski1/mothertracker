@@ -427,13 +427,19 @@ void cSampleImporter::frameSelectMode(uint8_t place,uint8_t mode)
 {
 	if(place == 0)
 	{
-		explorerList.selectionActive=mode;
+		explorerList.selectionActive = mode;
 		display.refreshControl(explorerListControl);
+
+		instrumentList.selectionActive = 0;
+		display.refreshControl(instrumentListControl);
 	}
 	else
 	{
-		instrumentList.selectionActive=mode;
+		instrumentList.selectionActive = mode;
 		display.refreshControl(instrumentListControl);
+
+		explorerList.selectionActive = 0;
+		display.refreshControl(explorerListControl);
 	}
 }
 

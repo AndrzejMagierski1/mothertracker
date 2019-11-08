@@ -59,6 +59,8 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 	strcpy(currentPatch,"Workspace/project.bin");
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 
+	setInstrumentChangeFlag(instrumentIndex);
+
 	return 1;
 }
 
@@ -132,6 +134,7 @@ void FileManager::deleteInstrument(int8_t index)
 	sprintf(currentPatch,"Workspace/project.bin");
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 
+	setInstrumentChangeFlag(index);
 }
 
 void FileManager::deleteSample(int8_t index)
@@ -156,6 +159,8 @@ void FileManager::deleteSample(int8_t index)
 void FileManager::saveInstrument(int8_t index)
 {
 	char currentPatch[PATCH_SIZE];
+
+	fileManager.instrumentIsChangedFlag[index] = 0;
 
 	sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",index);
 
