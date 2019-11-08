@@ -268,9 +268,14 @@ uint8_t FileManager::prepareSaveAs(char *name, uint8_t type)
 	sprintf(currentProjectPatch,"Projects/%s",name);
 	strcpy(currentProjectName,name);
 
-	for(uint32_t i =  PATTERN_INDEX_MIN; i < PATTERN_INDEX_MAX; i++)
+	for(uint32_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
-		fileManager.patternIsChangedFlag[i] = 1;
+		mtProject.values.instrumentsToSave[i] = 1;
+	}
+
+	for(uint32_t i = PATTERN_INDEX_MIN; i < PATTERN_INDEX_MAX; i++)
+	{
+		mtProject.values.patternsToSave[i] = 1;
 	}
 
 	if(SD.exists(currentProjectPatch))
@@ -285,8 +290,10 @@ void FileManager::refreshSavePatterns()
 {
 	char currentPatch[PATCH_SIZE];
 
-	if(fileManager.patternIsChangedFlag[saveHandle.currPatternIdx+1] == 1)
+	if(mtProject.values.patternsToSave[saveHandle.currPatternIdx+1])
 	{
+		mtProject.values.patternsToSave[saveHandle.currPatternIdx+1] = 0;
+
 		sprintf(currentPatch, "Workspace/patterns/pattern_%02d.mtp", saveHandle.currPatternIdx+1);
 
 		if(SD.exists(currentPatch))
@@ -315,20 +322,23 @@ void FileManager::refreshSaveInstrumentFiles()
 {
 	char currentPatch[PATCH_SIZE];
 
-	if(mtProject.instrument[saveHandle.currInstrumentFileIdx].isActive == 1)
+	if(mtProject.values.instrumentsToSave[saveHandle.currInstrumentFileIdx])
 	{
-		sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,saveHandle.currInstrumentFileIdx);
-		writeInstrumentFile(currentPatch, &mtProject.instrument[saveHandle.currInstrumentFileIdx]);
+		if(mtProject.instrument[saveHandle.currInstrumentFileIdx].isActive == 1)
+		{
+			sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,saveHandle.currInstrumentFileIdx);
+			writeInstrumentFile(currentPatch, &mtProject.instrument[saveHandle.currInstrumentFileIdx]);
 
-		sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",saveHandle.currInstrumentFileIdx);
-		writeInstrumentFile(currentPatch, &mtProject.instrument[saveHandle.currInstrumentFileIdx]);
-	}
-	else
-	{
-		sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,saveHandle.currInstrumentFileIdx);
-		if(SD.exists(currentPatch)) SD.remove(currentPatch);
-		sprintf(currentPatch,"%s/samples/instr%02d.wav", currentProjectPatch, saveHandle.currInstrumentFileIdx);
-		if(SD.exists(currentPatch)) SD.remove(currentPatch);
+			sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",saveHandle.currInstrumentFileIdx);
+			writeInstrumentFile(currentPatch, &mtProject.instrument[saveHandle.currInstrumentFileIdx]);
+		}
+		else
+		{
+			sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,saveHandle.currInstrumentFileIdx);
+			if(SD.exists(currentPatch)) SD.remove(currentPatch);
+			sprintf(currentPatch,"%s/samples/instr%02d.wav", currentProjectPatch, saveHandle.currInstrumentFileIdx);
+			if(SD.exists(currentPatch)) SD.remove(currentPatch);
+		}
 	}
 
 	saveHandle.currInstrumentFileIdx++;
@@ -345,21 +355,30 @@ void FileManager::refreshSaveSamples()
 
 	if(saveHandle.nextSampleFlag)
 	{
-		if(mtProject.instrument[saveHandle.currSampleIdx].isActive == 1)
+		if(mtProject.values.instrumentsToSave[saveHandle.currSampleIdx])
 		{
-			char workspacePatch[PATCH_SIZE];
-			char currentPatch[PATCH_SIZE];
-			sprintf(currentPatch,"%s/samples/instr%02d.wav",currentProjectPatch, saveHandle.currSampleIdx);
-			sprintf(workspacePatch,"Workspace/samples/instr%02d.wav", saveHandle.currSampleIdx);
+			mtProject.values.instrumentsToSave[saveHandle.currSampleIdx] = 0;
 
-			samplesCopyier.start(currentPatch,workspacePatch);
+			if(mtProject.instrument[saveHandle.currSampleIdx].isActive == 1)
+			{
+				char workspacePatch[PATCH_SIZE];
+				char currentPatch[PATCH_SIZE];
+				sprintf(currentPatch,"%s/samples/instr%02d.wav",currentProjectPatch, saveHandle.currSampleIdx);
+				sprintf(workspacePatch,"Workspace/samples/instr%02d.wav", saveHandle.currSampleIdx);
+
+				samplesCopyier.start(currentPatch,workspacePatch);
+			}
+			else
+			{
+				skip = 1;
+			}
+
+			saveHandle.nextSampleFlag = 0;
 		}
 		else
 		{
-			skip = 1;
+			skip =1;
 		}
-
-		saveHandle.nextSampleFlag = 0;
 	}
 
 	if((samplesCopyier.getState() == 0) || skip)
@@ -381,6 +400,18 @@ void FileManager::saveEeprom()
 	moveToNextStage(&saveHandle);
 }
 
+void FileManager::finishSaving()
+{
+	char currentPatch[PATCH_SIZE];
+	savingInProgress = 0;
+
+	sprintf(currentPatch,"%s/project.bin", currentProjectPatch);
+	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
+
+	strcpy(currentPatch,"Workspace/project.bin");
+	writeProjectFile(currentPatch,&mtProject.mtProjectRemote);
+}
+
 void FileManager::refreshSaveProject()
 {
 	switch(saveHandle.stage)
@@ -398,7 +429,7 @@ void FileManager::refreshSaveProject()
 		saveEeprom();
 		break;
 	case sSavingDone:
-		savingInProgress = 0;
+		finishSaving();
 		break;
 	default:
 		break;
@@ -416,8 +447,6 @@ void FileManager::startSaveProject()
 	{
 		savePattern(mtProject.values.actualPattern);// zapisanie workspace
 	}
-
-	fileManager.patternIsChangedFlag[mtProject.values.actualPattern] = 1; // flaga niezbededna do zapisania w folderze projektu
 
 	if(!SD.exists("Projects"))
 	{
@@ -447,12 +476,6 @@ void FileManager::startSaveProject()
 	{
 		SD.mkdir(0,currentPatch);
 	}
-
-	sprintf(currentPatch,"%s/project.bin", currentProjectPatch);
-	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
-
-	strcpy(currentPatch,"Workspace/project.bin");
-	writeProjectFile(currentPatch,&mtProject.mtProjectRemote);
 
 	moveToNextStage(&saveHandle);
 }

@@ -109,6 +109,8 @@ public:
 
 	void autoSaveProject();
 
+	void autoSaveWorkspace();
+
 //**************************************************************************************************************************
 //************************************************ FileManagerInstrument****************************************************
 	void setStart(uint8_t startPoint);
@@ -143,7 +145,8 @@ public:
 	uint8_t resetToFirstSongPattern();
 	void addPatternToProject (int8_t index);
 	void switchNextPatternInSong();
-	void setPatternChangeFlag();
+	void setPatternChangeFlag(uint8_t num);
+	void setInstrumentChangeFlag(uint8_t num);
 //	void refreshPatternView();
 
 //**************************************************************************************************************************
@@ -159,7 +162,7 @@ public:
 	uint8_t configIsChangedFlag;
 	elapsedMillis configChangedRefresh;
 	uint8_t instrumentIsChangedFlag[48];
-	uint8_t instrumentForcedSaveFlag;
+	//uint8_t instrumentForcedSaveFlag;
 	elapsedMillis instrumentRefresh;
 	uint8_t patternIsChangedFlag[PATTERN_INDEX_MAX];
 	elapsedMillis patternRefresh;
@@ -220,6 +223,7 @@ private:
 	void refreshSaveSamples();
 	void refreshSavePatterns();
 	void saveEeprom();
+	void finishSaving();
 
 	void refreshLoadingInstrumentFiles();
 	void refreshLoadingPatterns();
@@ -232,6 +236,8 @@ private:
 
 	void moveToNextStage(save_load_handle_t *handle);
 	void refreshClearDir(const char* dirToClear, save_load_handle_t *handle);
+
+
 
 };
 

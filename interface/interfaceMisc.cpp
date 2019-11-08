@@ -36,26 +36,20 @@ uint8_t cInterface::detectStartState()
 		{
 			char currentPatch[PATCH_SIZE];
 
-			projectEditor.loadProjectValues();
-
 			sprintf(currentPatch,"Projects/%s",mtConfig.startup.lastProjectName);
 			if(SD.exists(currentPatch))
 			{
 				strcpy(fileManager.currentProjectName,mtConfig.startup.lastProjectName);
 				sprintf(fileManager.currentProjectPatch,"Projects/%s",mtConfig.startup.lastProjectName);
+
+				projectEditor.loadProjectValues();
 			}
 			else
 			{
-				strcpy(currentPatch,"Templates/New/project.bin");
-
-				if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
-
-				fileManager.openProjectStart((char*)"New", projectTypeExample);
-				openFromWorkspaceFlag = 0;
 				strcpy(fileManager.currentProjectName, "New Project");
 				PE->newProjectNotSavedFlag = 1;
 
-				return 0;
+				projectEditor.loadProjectValues();
 			}
 		}
 	}

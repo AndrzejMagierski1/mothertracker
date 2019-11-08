@@ -161,66 +161,6 @@ void cInterface::update()
 		//ramMonitor.report_ram();
 
 	}
-
-	if(fileManager.configChangedRefresh > 10000)
-	{
-		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
-		{
-			fileManager.configChangedRefresh = 0;
-			if(fileManager.configIsChangedFlag == 1)
-			{
-				fileManager.autoSaveProject();
-			}
-		}
-	}
-
-	if(fileManager.instrumentRefresh > 10000)
-	{
-		fileManager.instrumentRefresh = 0;
-
-		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
-		{
-			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
-			{
-				if(fileManager.instrumentIsChangedFlag[i] == 1 )
-				{
-					fileManager.instrumentIsChangedFlag[i] = 0;
-					fileManager.saveInstrument(i);
-				}
-			}
-		}
-	}
-
-	if(fileManager.instrumentForcedSaveFlag)
-	{
-		fileManager.instrumentForcedSaveFlag = 0;
-
-		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
-		{
-			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
-			{
-				if(fileManager.instrumentIsChangedFlag[i] == 1 )
-				{
-					fileManager.instrumentIsChangedFlag[i] = 0;
-					fileManager.saveInstrument(i);
-				}
-			}
-		}
-	}
-
-	if(fileManager.patternRefresh > 10000)
-	{
-		fileManager.patternRefresh = 0;
-
-		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
-		{
-			if(fileManager.patternIsChangedFlag[mtProject.values.actualPattern] == 1)
-			{
-				fileManager.savePattern(mtProject.values.actualPattern);
-				//fileManager.savePattern(i);
-			}
-		}
-	}
 }
 
 

@@ -1044,9 +1044,7 @@ static void changePlayModeSelection(int16_t value)
 	display.setControlValue(SP->playModeListControl, SP->editorInstrument->playMode);
 	display.refreshControl(SP->playModeListControl);
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
-
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 static void modStartPoint(int16_t value)
@@ -1104,8 +1102,7 @@ static void modStartPoint(int16_t value)
 
 	SP->showStartPointValue();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 static void modEndPoint(int16_t value)
@@ -1163,8 +1160,7 @@ static void modEndPoint(int16_t value)
 
 	SP->showEndPointValue();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 static void modLoopPoint1(int16_t value)
@@ -1190,8 +1186,7 @@ static void modLoopPoint1(int16_t value)
 
 	SP->showLoopPoint1Value();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 static void modLoopPoint2(int16_t value)
@@ -1216,8 +1211,7 @@ static void modLoopPoint2(int16_t value)
 	SP->refreshPoints = 1;
 	SP->showLoopPoint2Value();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 static void modWavetablePostion(int16_t value)
@@ -1231,8 +1225,8 @@ static void modWavetablePostion(int16_t value)
 	SP->showWavetablePosition();
 	SP->refreshSpectrum = 1;
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 

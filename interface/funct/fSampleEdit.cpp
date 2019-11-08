@@ -187,6 +187,8 @@ void cSampleEditor::refreshSampleApplying()
 
 		refreshSpectrum = 1;
 		effector.setSaveStatus(waitingForSaveInit);
+
+		fileManager.setInstrumentChangeFlag(localInstrNum);
 	}
 }
 
@@ -821,6 +823,7 @@ void cSampleEditor::applyEffect()
 		effectControl[currSelEffect].effectStage = eRequireProcessing;
 		processOrPreview(effectControl[currSelEffect].effectStage);
 	}
+
 
 	moduleFlags |= applyingActive;
 	effectAppliedFlag = 1;
