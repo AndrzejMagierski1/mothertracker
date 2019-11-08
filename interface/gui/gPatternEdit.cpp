@@ -623,6 +623,8 @@ void cPatternEditor::showFillPopup()
 	else
 	{
 		display.setControlHide(param2PopupListControl);
+		display.setControlPosition(bottomLabel[4],  (800/8)*4+(800/16), -1);
+		display.setControlSize(bottomLabel[4], 800/8-6, -1);
 		display.setControlText(bottomLabel[4], "");
 	}
 

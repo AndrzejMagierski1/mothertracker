@@ -101,7 +101,7 @@ void cLabel::setDefaultColors(uint32_t colors[])
 
 void cLabel::setData(void* data)
 {
-
+	this->data = (strLabelData*)(data);
 }
 
 //--------------------------------------------------------------------------------

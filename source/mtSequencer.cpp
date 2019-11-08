@@ -1309,17 +1309,20 @@ void Sequencer::setPerformancePatternLength(int8_t length)
 }
 void Sequencer::setPerformancePatternLengthFromFxVal(int8_t val)
 {
-	uint8_t performancePatternLengthValues[] =
-			{ 1, 2, 4, 8, 16, 32, 64, 128 };
+	int16_t performancePatternLengthValues[] =
+			{-1, 1, 2, 4, 8, 16, 32, 64, 128 };
 
-	switch (val)
-	{
-	case -1:
-		setPerformancePatternLength(-1);
-		break;
-	default:
-		setPerformancePatternLength(performancePatternLengthValues[val]);
 
-	}
+	setPerformancePatternLength(performancePatternLengthValues[val]);
+
+//	switch (val)
+//	{
+//	case -1:
+//		setPerformancePatternLength(-1);
+//		break;
+//	default:
+//		setPerformancePatternLength(performancePatternLengthValues[val]);
+//
+//	}
 
 }
