@@ -26,6 +26,8 @@
 #include "notePopoutControl.h"
 #include "textPopupControl.h"
 #include "imgControl.h"
+#include "multiLabelControl.h"
+
 #include "processingPopout.h"
 
 

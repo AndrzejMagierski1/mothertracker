@@ -453,6 +453,17 @@ uint8_t cProjectEditor::loadProjectValues()
 
 	if(mtProject.values.patternLength > 255) mtProject.values.globalTempo = 32;
 
+	memset(performanceMode.fxValues, 0, performanceFxesCount*2*4);
+
+	for(uint8_t palce = 0; palce<12; palce++)
+	{
+		performanceMode.fxValues[mtProject.values.perfFxPlaces[palce]][0] = mtProject.values.perfFxValues[palce][0];
+		performanceMode.fxValues[mtProject.values.perfFxPlaces[palce]][1] = mtProject.values.perfFxValues[palce][1];
+		performanceMode.fxValues[mtProject.values.perfFxPlaces[palce]][2] = mtProject.values.perfFxValues[palce][2];
+		performanceMode.fxValues[mtProject.values.perfFxPlaces[palce]][3] = mtProject.values.perfFxValues[palce][3];
+	}
+
+
 
 
 
@@ -1345,13 +1356,11 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 static  uint8_t functEncoder(int16_t value)
 {
-
 	if(PE->projectListActiveFlag)
 	{
 		if(value > 0)
 		{
 			if(PE->selectedLocation < PE->locationFilesCount-1 ) PE->selectedLocation++;
-
 		}
 		else if (value < 0)
 		{
