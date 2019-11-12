@@ -48,9 +48,10 @@ volatile uint32_t patternTrackerColors[] =
 	0xFFFFFF, // instrument
 	0xFFFFFF, // volume
 	0xFFFFFF, // effekt
-	0xff0000, // zaznaczenie
+	0xFF0000, // zaznaczenie
 	0x111111, // podzialka
 	0x222222, // nieaktywny
+	0xFFFFFF, // playhead
 };
 
 uint32_t patternTrackerSelectionColor = 0xff0000;
@@ -254,6 +255,7 @@ void cPatternEditor::initDisplayControls()
 	prop.y = 8*28 + 122;
 	prop.w = 800/8-10;
 	prop.h = 25;
+
 	prop.data = &fillScaleFilterList;
 	if(param2PopupListControl == nullptr)  param2PopupListControl = display.createControl<cList>(&prop);
 
@@ -266,8 +268,8 @@ void cPatternEditor::initDisplayControls()
 	if(param3PopupListControl == nullptr)  param3PopupListControl = display.createControl<cList>(&prop);
 
 	// label val1
-	prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
-	prop.colors =  patternLabelColors;
+	prop.style = (controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
+	prop.colors = patternLabelColors;
 	prop.x = (800/8)*(2)+(800/16);
 	prop.y = 8*28 + 130;
 	prop.w = 800/8-10;
@@ -275,16 +277,16 @@ void cPatternEditor::initDisplayControls()
 	if(val1PopupLabel == nullptr)  val1PopupLabel = display.createControl<cLabel>(&prop);
 
 	// label val2
-	prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
+	prop.style = (controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
 	prop.x = (800/8)*(3)+(800/16);
 	prop.y = 8*28 + 130;
 	prop.w = 800/8-10;
 	prop.h = 28;
-	if(val2PopupLabel == nullptr)  val2PopupLabel = display.createControl<cLabel>(&prop);
+	if(val2PopupLabel == nullptr) val2PopupLabel = display.createControl<cLabel>(&prop);
 
 	// label tla
-	prop.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleNoTransparency );
-	prop.colors =  patternLabelColors;
+	prop.style = (controlStyleBackground | controlStyleCenterX | controlStyleNoTransparency );
+	prop.colors = patternLabelColors;
 	prop.x = 400;
 	prop.y = 8*28 + 4;
 	prop.w = 800;
@@ -957,7 +959,6 @@ void cPatternEditor::showTracksMaster()
 	}
 
 	display.synchronizeRefresh();
-
 }
 
 void cPatternEditor::refreshTracksMaster()
@@ -968,7 +969,6 @@ void cPatternEditor::refreshTracksMaster()
 
 		if(mtProject.values.trackMute[i]) ptrColors = inactiveLabelsColors;
 
-
 		display.setControlText(topLabel[i], &trackMasterLabels[mtProject.values.trackMute[i]][0]);
 		display.setControlColors(topLabel[i], ptrColors);
 		display.setControlColors(bottomLabel[i], ptrColors);
@@ -977,11 +977,28 @@ void cPatternEditor::refreshTracksMaster()
 		display.refreshControl(topLabel[i]);
 		display.setControlShow(bottomLabel[i]);
 		display.refreshControl(bottomLabel[i]);
-
 	}
 
 	display.synchronizeRefresh();
 }
 
+void cPatternEditor::activateSelection()
+{
+	patternTrackerColors[6] = patternTrackerSelectionColor;
+}
 
+void cPatternEditor::deactivateSelection()
+{
+	patternTrackerColors[6] = 0xffffff;
+}
+
+void cPatternEditor::playheadRecMode()
+{
+	patternTrackerColors[9] = patternTrackerSelectionColor;
+}
+
+void cPatternEditor::playheadNormalMode()
+{
+	patternTrackerColors[9] = 0xffffff;
+}
 

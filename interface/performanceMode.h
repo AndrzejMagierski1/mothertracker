@@ -131,6 +131,7 @@ public:
 	void showEditFrame(uint8_t place);
 	void hideEditFrame();
 
+	//----------------------------------
 	void refreshFxNames(uint8_t place);
 
 	//

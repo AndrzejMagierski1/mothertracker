@@ -124,7 +124,6 @@ void cPatternEditor::update()
 void cPatternEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
-	disabledPatternButtonRelease = 1;
 
 	mtProject.values.padBoardScale = 0;
 	mtProject.values.padBoardNoteOffset = 12;
@@ -1801,24 +1800,12 @@ static  uint8_t functPattern(uint8_t state)
 {
 	if(state == buttonPress)
 	{
-		PTE->disabledPatternButtonRelease = 0;
-
 		if(PTE->fillState == 1) return 1;
 
 		PTE->cancelPopups();
 
-		if(tactButtons.isButtonPressed(interfaceButtonShift))
-		{
-			PTE->toggleMasterTracks();
-			PTE->disabledPatternButtonRelease = 1;
-		}
-		else if(PTE->masterTrackState == 1)
-		{
-			PTE->toggleMasterTracks();
-			PTE->disabledPatternButtonRelease = 1;
-		}
 	}
-	else if(state == buttonRelease && !PTE->disabledPatternButtonRelease)
+	else if(state == buttonRelease)
 	{
 			PTE->setPatternViewMode(0);
 	}
@@ -2716,7 +2703,8 @@ void cPatternEditor::focusOnPattern()
 
 	PTE->lightUpPadBoard();
 
-	PTE->trackerPattern.selectColor = patternTrackerSelectionColor;
+	activateSelection();
+
 	display.refreshControl(patternControl);
 }
 
@@ -2724,7 +2712,8 @@ void cPatternEditor::unfocusPattern()
 {
 	lightUpPadBoard();
 
-	PTE->trackerPattern.selectColor = 0xffffff;
+	deactivateSelection();
+
 	display.refreshControl(patternControl);
 }
 
