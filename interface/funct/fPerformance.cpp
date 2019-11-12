@@ -825,7 +825,7 @@ static  uint8_t functUp()
 	if(PM->performanceEditState)
 	{
 		uint8_t new_fx = mtProject.values.perfFxPlaces[PM->performanceEditPlace]+1;
-		//uint8_t start_fx = new_fx;
+		if(new_fx > performanceFxesCount-1) new_fx = 0;
 
 		while(fxAlredyTaken(new_fx) &&  new_fx != 0)
 		{

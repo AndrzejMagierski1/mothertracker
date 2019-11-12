@@ -107,7 +107,10 @@ public:
 	void refreshFillStep();
 	void hideFillPopup();
 
-
+	void activateSelection();
+	void deactivateSelection();
+	void playheadRecMode();
+	void playheadNormalMode();
 
 	void showTracksMaster();
 	void refreshTracksMaster();
@@ -222,7 +225,6 @@ public:
 	uint8_t patternViewChanged = 0;
 	uint8_t selectedParams[2];
 
-	uint8_t disabledPatternButtonRelease = 0;
 
 	void setPatternViewMode(uint8_t param);
 
