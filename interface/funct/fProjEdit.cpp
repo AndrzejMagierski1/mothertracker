@@ -226,6 +226,8 @@ void cProjectEditor::update()
 		}
 		else
 		{
+			loadProjectValues();
+
 			hideProcessingPopup();
 
 			showDefaultScreen();
