@@ -412,13 +412,13 @@ struct strMtValues
 
 	uint8_t volume = 50;
 
-	uint8_t reverbRoomSize;
-	uint8_t reverbDamping;
+	uint8_t reverbRoomSize = 80;
+	uint8_t reverbDamping = 25;
 	int8_t reverbPanning;
 
-	uint16_t limiterAttack = LIMITER_ATTACK_MAX;
-	float limiterRelease = LIMITER_RELEASE_MAX;
-	uint16_t limiterTreshold = LIMITER_TRESHOLD_MAX;
+	uint16_t limiterAttack = 100;
+	float limiterRelease = 0.512;
+	uint16_t limiterTreshold = 16384;
 
 	uint8_t bitDepth = 16;
 

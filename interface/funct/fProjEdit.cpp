@@ -226,6 +226,8 @@ void cProjectEditor::update()
 		}
 		else
 		{
+			loadProjectValues();
+
 			hideProcessingPopup();
 
 			showDefaultScreen();
@@ -451,7 +453,7 @@ uint8_t cProjectEditor::loadProjectValues()
 
 	if(mtProject.values.globalTempo > 1000) mtProject.values.globalTempo = DEFAULT_TEMPO;
 
-	if(mtProject.values.patternLength > 255) mtProject.values.globalTempo = 32;
+	if(mtProject.values.patternLength > 255) mtProject.values.patternLength = 32;
 
 	memset(performanceMode.fxValues, 0, performanceFxesCount*2*4);
 

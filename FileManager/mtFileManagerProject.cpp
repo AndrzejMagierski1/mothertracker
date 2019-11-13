@@ -508,6 +508,8 @@ void FileManager::createEmptyTemplateProject(char * name)
 
 	sprintf(patchFolder,"Templates/%s/project.bin", name);
 
+	getDefaultRemote(&mtProject.mtProjectRemote);
+
 	writeProjectFile(patchFolder, &mtProject.mtProjectRemote);
 }
 

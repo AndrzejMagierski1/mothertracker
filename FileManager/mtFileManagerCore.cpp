@@ -142,7 +142,7 @@ void FileManager::writeProjectFile(char * name, strMtProjectRemote * proj)
 	strProjectFile projectFile;
 
 	projectFile.projectDataAndHeader.project = * proj;
-	projectFile.projectDataAndHeader.project.values = mtProject.values;
+	projectFile.projectDataAndHeader.project.values = proj->values;
 
 	projectFile.projectDataAndHeader.projectHeader.id_file[0]='I';
 	projectFile.projectDataAndHeader.projectHeader.id_file[1]='D';
@@ -345,6 +345,87 @@ void FileManager::autoSaveWorkspace()
 			}
 		}
 	}
+}
+
+
+void FileManager::getDefaultRemote(struct strMtProjectRemote *source)
+{
+	for(uint32_t i = 0; i < INSTRUMENTS_COUNT; i++)
+	{
+		source->instrumentFile[i].sampleType = 0;
+	}
+
+	source->song.playlistPos = 0;
+
+	for(uint32_t i = 0; i < 5; i++)
+	{
+		source->song.playlist[i] = i;
+	}
+
+	getDefaultValues(&source->values);
+}
+
+void FileManager::getDefaultValues(struct strMtValues *source)
+{
+	source->lastUsedNote = 0;
+	source->lastUsedInstrument = 0;
+	source->lastUsedVolume = 0;
+	source->lastUsedFx = 0;
+
+	source->actualPattern = 1;
+
+	source->padBoardScale = 0;
+	source->padBoardNoteOffset = 12;
+	source->padBoardRootNote = 36;
+	source->padBoardMaxVoices = 8;
+
+	source->volume = 50;
+
+	source->reverbRoomSize = 80;
+	source->reverbDamping = 25;
+	source->reverbPanning = 0;
+
+	source->limiterAttack = 100;
+	source->limiterRelease = 0.512;
+	source->limiterTreshold = 16384;
+
+	source->bitDepth = 16;
+
+	source->patternEditStep = 1;
+
+	for(uint32_t i = 0; i < 8; i++)
+	{
+		source->trackMute[i] = 0;
+	}
+
+//********************************* radio
+	source->source = 0;
+	source->gainLineIn = 0;
+	source->gainMicLow = 0;
+	source->gainMicHigh = 0;
+	source->gainRadio = 0;
+	source->monitor = 0;
+	source->radioFreq = 87.5;
+
+	source->projectNotSavedFlag = 0;
+
+// performance
+	for(uint32_t i = 0; i < 8; i++)
+	{
+		source->perfTracksPatterns[i] = 1;
+	}
+
+	for(uint32_t i = 0; i < 12; i++)
+	{
+		source->perfTracksPatterns[i] = (i+1);
+	}
+
+// song
+	source->globalTempo = DEFAULT_TEMPO;
+	source->patternLength = 32;
+
+	memset(source->instrumentsToSave, 0, INSTRUMENTS_COUNT);
+	memset(source->patternsToSave, 0, PATTERN_INDEX_MAX);
 }
 
 

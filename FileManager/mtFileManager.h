@@ -181,6 +181,9 @@ public:
 	uint8_t getSavingStatus();
 	uint8_t getLoadingStatus();
 
+	void getDefaultRemote(struct strMtProjectRemote *source);
+	void getDefaultValues(struct strMtValues *source);
+
 private:
 //************************************************ FileManagerCore**********************************************************
 	void formatSDCard();
