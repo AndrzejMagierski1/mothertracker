@@ -312,9 +312,9 @@ void cConfigEditor::showConfigGroupList()
 
 void cConfigEditor::showVolume()
 {
-	sprintf(volumeVal,"%d",mtProject.values.volume);
+	sprintf(volumeVal,"%d", mtProject.mtProjectRemote.values.volume);
 
-	display.setControlValue(barControl[0], mtProject.values.volume);
+	display.setControlValue(barControl[0], mtProject.mtProjectRemote.values.volume);
 //	display.setControlValue(barControl[0], mtProject.values.volume);
 //	display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[0]);
@@ -325,9 +325,9 @@ void cConfigEditor::showVolume()
 
 void cConfigEditor::showReverbSize()
 {
-	sprintf(reverbSizeVal,"%d",mtProject.values.reverbRoomSize);
+	sprintf(reverbSizeVal,"%d",mtProject.mtProjectRemote.values.reverbRoomSize);
 
-	display.setControlValue(barControl[1], mtProject.values.reverbRoomSize);
+	display.setControlValue(barControl[1], mtProject.mtProjectRemote.values.reverbRoomSize);
 	//display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[1]);
 
@@ -337,9 +337,9 @@ void cConfigEditor::showReverbSize()
 
 void cConfigEditor::showReverbDamping()
 {
-	sprintf(reverbDampVal,"%d",mtProject.values.reverbDamping);
+	sprintf(reverbDampVal,"%d",mtProject.mtProjectRemote.values.reverbDamping);
 
-	display.setControlValue(barControl[2], mtProject.values.reverbDamping);
+	display.setControlValue(barControl[2], mtProject.mtProjectRemote.values.reverbDamping);
 	//display.setControlShow(barControl[1]);
 	display.refreshControl(barControl[2]);
 
@@ -351,12 +351,12 @@ void cConfigEditor::showLimiterAttack()
 {
 	uint8_t length;
 
-	sprintf(limitAttackVal,"%.3f",(float)(mtProject.values.limiterAttack/1000.0f));
+	sprintf(limitAttackVal,"%.3f",(float)(mtProject.mtProjectRemote.values.limiterAttack/1000.0f));
 	length=strlen(limitAttackVal);
 	limitAttackVal[length]='s';
 	limitAttackVal[length+1]=0;
 
-	display.setControlValue(barControl[4], (mtProject.values.limiterAttack*100)/LIMITER_ATTACK_MAX);
+	display.setControlValue(barControl[4], (mtProject.mtProjectRemote.values.limiterAttack*100)/LIMITER_ATTACK_MAX);
 	//display.setControlShow(barControl[2]);
 	display.refreshControl(barControl[4]);
 
@@ -368,12 +368,12 @@ void cConfigEditor::showLimiterRelease()
 {
 	uint8_t length;
 
-	sprintf(limitReleaseVal,"%.3f",(float)(mtProject.values.limiterRelease/1000.0f));
+	sprintf(limitReleaseVal,"%.3f",(float)(mtProject.mtProjectRemote.values.limiterRelease/1000.0f));
 	length=strlen(limitReleaseVal);
 	limitReleaseVal[length]='s';
 	limitReleaseVal[length+1]=0;
 
-	display.setControlValue(barControl[5], (mtProject.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
+	display.setControlValue(barControl[5], (mtProject.mtProjectRemote.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
 	//display.setControlShow(barControl[2]);
 	display.refreshControl(barControl[5]);
 
@@ -383,9 +383,9 @@ void cConfigEditor::showLimiterRelease()
 
 void cConfigEditor::showLimiterTreshold()
 {
-	sprintf(limitThresholdVal,"%d",(mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
+	sprintf(limitThresholdVal,"%d",(mtProject.mtProjectRemote.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
 
-	display.setControlValue(barControl[6], (mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
+	display.setControlValue(barControl[6], (mtProject.mtProjectRemote.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
 	display.setControlShow(barControl[6]);
 	display.refreshControl(barControl[6]);
 
@@ -395,9 +395,9 @@ void cConfigEditor::showLimiterTreshold()
 
 void cConfigEditor::showBitDepth()
 {
-	sprintf(bitDepthVal,"%d",mtProject.values.bitDepth);
+	sprintf(bitDepthVal,"%d",mtProject.mtProjectRemote.values.bitDepth);
 
-	uint8_t localVal = map(mtProject.values.bitDepth,BIT_DEPTH_MIN,BIT_DEPTH_MAX,0,100);
+	uint8_t localVal = map(mtProject.mtProjectRemote.values.bitDepth,BIT_DEPTH_MIN,BIT_DEPTH_MAX,0,100);
 	display.setControlValue(barControl[3], localVal);
 //	display.setControlShow(barControl[3]);
 	display.refreshControl(barControl[3]);

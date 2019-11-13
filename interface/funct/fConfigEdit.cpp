@@ -1028,12 +1028,12 @@ void cConfigEditor::changeSelectionInGroup(int16_t value)
 //master
 void changeVolume(int16_t value)
 {
-	if(mtProject.values.volume + value < MASTER_VOLUME_MIN) mtProject.values.volume = MASTER_VOLUME_MIN;
-	else if(mtProject.values.volume + value > MASTER_VOLUME_MAX) mtProject.values.volume = MASTER_VOLUME_MAX;
-	else mtProject.values.volume += value;
+	if(mtProject.mtProjectRemote.values.volume + value < MASTER_VOLUME_MIN) mtProject.mtProjectRemote.values.volume = MASTER_VOLUME_MIN;
+	else if(mtProject.mtProjectRemote.values.volume + value > MASTER_VOLUME_MAX) mtProject.mtProjectRemote.values.volume = MASTER_VOLUME_MAX;
+	else mtProject.mtProjectRemote.values.volume += value;
 
 
-	engine.setHeadphonesVolume(mtProject.values.volume);
+	engine.setHeadphonesVolume(mtProject.mtProjectRemote.values.volume);
 	mtProject.values.projectNotSavedFlag = 1;
 	fileManager.configIsChangedFlag = 1;
 	CE->showVolume();
@@ -1041,11 +1041,11 @@ void changeVolume(int16_t value)
 
 void changeReverbRoomSize(int16_t value)
 {
-	if(mtProject.values.reverbRoomSize + value < REVERB_ROOM_SIZE_MIN) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MIN;
-	else if(mtProject.values.reverbRoomSize + value > REVERB_ROOM_SIZE_MAX) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MAX;
-	else mtProject.values.reverbRoomSize += value;
+	if(mtProject.mtProjectRemote.values.reverbRoomSize + value < REVERB_ROOM_SIZE_MIN) mtProject.mtProjectRemote.values.reverbRoomSize = REVERB_ROOM_SIZE_MIN;
+	else if(mtProject.mtProjectRemote.values.reverbRoomSize + value > REVERB_ROOM_SIZE_MAX) mtProject.mtProjectRemote.values.reverbRoomSize = REVERB_ROOM_SIZE_MAX;
+	else mtProject.mtProjectRemote.values.reverbRoomSize += value;
 
-	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
+	engine.setReverbRoomsize(mtProject.mtProjectRemote.values.reverbRoomSize);
 	mtProject.values.projectNotSavedFlag = 1;
 	fileManager.configIsChangedFlag = 1;
 	CE->showReverbSize();
@@ -1053,11 +1053,11 @@ void changeReverbRoomSize(int16_t value)
 
 void changeReverbDamping(int16_t value)
 {
-	if(mtProject.values.reverbDamping + value < REVERB_DAMPING_MIN) mtProject.values.reverbDamping = REVERB_DAMPING_MIN;
-	else if(mtProject.values.reverbDamping + value > REVERB_DAMPING_MAX) mtProject.values.reverbDamping = REVERB_DAMPING_MAX;
-	else mtProject.values.reverbDamping += value;
+	if(mtProject.mtProjectRemote.values.reverbDamping + value < REVERB_DAMPING_MIN) mtProject.mtProjectRemote.values.reverbDamping = REVERB_DAMPING_MIN;
+	else if(mtProject.mtProjectRemote.values.reverbDamping + value > REVERB_DAMPING_MAX) mtProject.mtProjectRemote.values.reverbDamping = REVERB_DAMPING_MAX;
+	else mtProject.mtProjectRemote.values.reverbDamping += value;
 
-	engine.setReverbDamping(mtProject.values.reverbDamping);
+	engine.setReverbDamping(mtProject.mtProjectRemote.values.reverbDamping);
 	mtProject.values.projectNotSavedFlag = 1;
 	fileManager.configIsChangedFlag = 1;
 	CE->showReverbDamping();
@@ -1067,11 +1067,11 @@ void changeLimiterAttack(int16_t value)
 {
 	value *= LIMITER_ATTACK_MAX/100;
 
-	if(mtProject.values.limiterAttack + value < LIMITER_ATTACK_MIN) mtProject.values.limiterAttack = LIMITER_ATTACK_MIN;
-	else if(mtProject.values.limiterAttack + value > LIMITER_ATTACK_MAX) mtProject.values.limiterAttack = LIMITER_ATTACK_MAX;
-	else mtProject.values.limiterAttack += value;
+	if(mtProject.mtProjectRemote.values.limiterAttack + value < LIMITER_ATTACK_MIN) mtProject.mtProjectRemote.values.limiterAttack = LIMITER_ATTACK_MIN;
+	else if(mtProject.mtProjectRemote.values.limiterAttack + value > LIMITER_ATTACK_MAX) mtProject.mtProjectRemote.values.limiterAttack = LIMITER_ATTACK_MAX;
+	else mtProject.mtProjectRemote.values.limiterAttack += value;
 
-	engine.setLimiterAttack(mtProject.values.limiterAttack);
+	engine.setLimiterAttack(mtProject.mtProjectRemote.values.limiterAttack);
 	mtProject.values.projectNotSavedFlag = 1;
 	fileManager.configIsChangedFlag = 1;
 
@@ -1082,12 +1082,12 @@ void changeLimiterRelease(int16_t value)
 {
 	float fvalue = value * (LIMITER_RELEASE_MAX/100);
 
-	if(mtProject.values.limiterRelease + fvalue < LIMITER_RELEASE_MIN) mtProject.values.limiterRelease = LIMITER_RELEASE_MIN;
-	else if(mtProject.values.limiterRelease + fvalue > LIMITER_RELEASE_MAX) mtProject.values.limiterRelease = LIMITER_RELEASE_MAX;
-	else mtProject.values.limiterRelease += fvalue;
+	if(mtProject.mtProjectRemote.values.limiterRelease + fvalue < LIMITER_RELEASE_MIN) mtProject.mtProjectRemote.values.limiterRelease = LIMITER_RELEASE_MIN;
+	else if(mtProject.mtProjectRemote.values.limiterRelease + fvalue > LIMITER_RELEASE_MAX) mtProject.mtProjectRemote.values.limiterRelease = LIMITER_RELEASE_MAX;
+	else mtProject.mtProjectRemote.values.limiterRelease += fvalue;
 
 
-	engine.setLimiterRelease(mtProject.values.limiterRelease);
+	engine.setLimiterRelease(mtProject.mtProjectRemote.values.limiterRelease);
 	mtProject.values.projectNotSavedFlag = 1;
 	fileManager.configIsChangedFlag = 1;
 	CE->showLimiterRelease();
@@ -1097,11 +1097,11 @@ void changeLimiterTreshold(int16_t value)
 {
 	value *= LIMITER_TRESHOLD_MAX/100;
 
-	if(mtProject.values.limiterTreshold + value < LIMITER_TRESHOLD_MIN) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MIN;
-	else if(mtProject.values.limiterTreshold + value > LIMITER_TRESHOLD_MAX) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MAX;
-	else mtProject.values.limiterTreshold += value;
+	if(mtProject.mtProjectRemote.values.limiterTreshold + value < LIMITER_TRESHOLD_MIN) mtProject.mtProjectRemote.values.limiterTreshold = LIMITER_TRESHOLD_MIN;
+	else if(mtProject.mtProjectRemote.values.limiterTreshold + value > LIMITER_TRESHOLD_MAX) mtProject.mtProjectRemote.values.limiterTreshold = LIMITER_TRESHOLD_MAX;
+	else mtProject.mtProjectRemote.values.limiterTreshold += value;
 
-	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
+	engine.setLimiterTreshold(mtProject.mtProjectRemote.values.limiterTreshold);
 	mtProject.values.projectNotSavedFlag = 1;
 	fileManager.configIsChangedFlag = 1;
 	CE->showLimiterTreshold();
@@ -1116,11 +1116,11 @@ void changeBitDepth(int16_t value)
 	else if(localValf > -1.0f && localValf < 0.0f ) localVal = -1;
 	else localVal = round(localValf);
 
-	if(mtProject.values.bitDepth + localVal < BIT_DEPTH_MIN) mtProject.values.bitDepth = BIT_DEPTH_MIN;
-	else if(mtProject.values.bitDepth + localVal > BIT_DEPTH_MAX) mtProject.values.bitDepth = BIT_DEPTH_MAX;
-	else mtProject.values.bitDepth += localVal;
+	if(mtProject.mtProjectRemote.values.bitDepth + localVal < BIT_DEPTH_MIN) mtProject.mtProjectRemote.values.bitDepth = BIT_DEPTH_MIN;
+	else if(mtProject.mtProjectRemote.values.bitDepth + localVal > BIT_DEPTH_MAX) mtProject.mtProjectRemote.values.bitDepth = BIT_DEPTH_MAX;
+	else mtProject.mtProjectRemote.values.bitDepth += localVal;
 
-	engine.setBitDepth(mtProject.values.bitDepth);
+	engine.setBitDepth(mtProject.mtProjectRemote.values.bitDepth);
 	mtProject.values.projectNotSavedFlag = 1;
 	fileManager.configIsChangedFlag = 1;
 	CE->showBitDepth();

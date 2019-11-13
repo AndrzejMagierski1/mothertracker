@@ -12,9 +12,9 @@ int8_t mtCompressor::makeCompressor(uint16_t cT, int16_t cR, uint16_t at, uint16
 
 
 	compressorThreshold=10*log10f(pow(cT,2));
-	expanderThreshold= 10*log10f(pow(EXPANDER_THRESHOLD_MAX,2));
-	compressorRatio= cR/1000.0;
-	expanderRatio= EXPANDER_RATIO_MAX/1000.0;
+	expanderThreshold= 10*log10f(pow(1,2));
+	compressorRatio= cR;
+	expanderRatio= 1.0/1000.0;
 	attackTime= at/1000.0;
 	releaseTime= rt/1000.0;
 	tav = 0.01;

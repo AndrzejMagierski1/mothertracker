@@ -3,8 +3,8 @@
 
 #include "mtEffector.h"
 
-#define BITCRUSHER_BITS_MAX			16
-#define BITCRUSHER_RATE_MAX			44100
+#define BITCRUSHER_BITS_MAX			16U
+#define BITCRUSHER_RATE_MAX			44100U
 
 class mtBitcrusher
 {

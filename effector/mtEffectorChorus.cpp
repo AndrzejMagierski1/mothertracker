@@ -18,6 +18,7 @@ uint8_t mtChorus::makeChorus(int d_length, int n_chorus)
 	delay_length = 0;
 	l_circ_idx = 0;
 
+
 	if( (d_length%AUDIO_BLOCK_SAMPLES) || (d_length > CHORUS_BUF_SIZE) ) return 0;
 	if(n_chorus < 1) return 0;
 

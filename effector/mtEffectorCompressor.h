@@ -2,13 +2,10 @@
 #define EFFECTOR_MTEFFECTORCOMPRESSOR_H_
 #include "mtEffector.h"
 
-#define EXPANDER_THRESHOLD_MAX		0
-#define EXPANDER_RATIO_MAX			1
-
-#define CMPSR_THRESHOLD_MAX			INT16_MAX
-#define	CMPSR_RATIO_MAX				100
-#define CMPSR_ATTACK_MAX_MS			2600
-#define CMPSR_RELEASE_MAX_MS		5000
+#define CMPSR_THRESHOLD_MAX			32767U
+#define	CMPSR_RATIO_MAX				10
+#define CMPSR_ATTACK_MAX_MS			1.0f
+#define CMPSR_RELEASE_MAX_MS		0.1f
 
 
 class mtCompressor

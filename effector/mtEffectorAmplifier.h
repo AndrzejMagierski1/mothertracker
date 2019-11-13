@@ -3,7 +3,8 @@
 
 #include "mtEffector.h"
 
-#define AMPLIFIER_AMP_MAX		100
+#define AMPLIFIER_AMP_MAX		2
+#define AMPLIFIER_AMP_DEFAULT	1
 
 class mtAmplifier
 {
