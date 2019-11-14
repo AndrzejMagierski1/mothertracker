@@ -388,6 +388,7 @@ void Sequencer::changeSelectionFxValue(uint8_t fxIndex, int16_t value)
 			{
 				step->fx[fxIndex].type = interfaceGlobals.fxNameToId(
 						mtProject.values.lastUsedFx);
+				step->fx[fxIndex].value = getFxDefault(fxIndex);
 			}
 			else
 			{
@@ -1085,6 +1086,21 @@ int16_t Sequencer::getFxMin(uint8_t fxID)
 
 int16_t Sequencer::getFxDefault(uint8_t fxID)
 {
-	return 0;
+
+	switch (fxID)
+	{
+	case fx.FX_TYPE_OFF:
+		return 0;
+
+	case fx.FX_TYPE_ROLL:
+		case fx.FX_TYPE_ROLL_NOTE_UP:
+		case fx.FX_TYPE_ROLL_NOTE_DOWN:
+		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
+
+		return 1;
+
+	default:
+		return 0;
+	}
 }
 
