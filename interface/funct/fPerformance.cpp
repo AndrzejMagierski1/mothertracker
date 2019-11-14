@@ -90,7 +90,7 @@ void cPerformanceMode::start(uint32_t options)
 
 	for(uint8_t track = 0; track < 8; track++)
 	{
-		int8_t tracksPerformanceState[track] = 0; // ustaw na 0
+		tracksPerformanceState[track] = 0; // ustaw na 0
 
 		if(PM->tracksPerformanceState[track] == 1) // a teraz sprawdz czy moze jednak nie jest 1 :>
 		{
