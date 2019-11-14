@@ -414,7 +414,8 @@ void cPerformanceMode::refreshActiveValueForFx(uint8_t fx)
 	{
 		if(fx != mtProject.values.perfFxPlaces[place]) continue;
 
-		multiLabelData[place].selected = activeFxValues[mtProject.values.perfFxPlaces[place]]+1;
+		multiLabelData[place].selected = mtProject.values.perfSelectedValues[place]+1;
+
 		display.refreshControl(value1Label[place]);
 	}
 }
@@ -430,11 +431,11 @@ void cPerformanceMode::showPerformaceValue(uint8_t fx)
 	{
 		if(fx != mtProject.values.perfFxPlaces[place]) continue;
 
-		multiLabelData[place].selected = activeFxValues[mtProject.values.perfFxPlaces[place]]+1;
+		multiLabelData[place].selected = mtProject.values.perfSelectedValues[place]+1;
 
 		for(uint8_t slot = 0; slot < 4; slot++)
 		{
-			int16_t fx_value  = slot==activeFxValues[fx] ?  fxTempValues[fx] : fxValues[fx][slot];
+			int16_t fx_value  = (slot==mtProject.values.perfSelectedValues[place]) ?  fxTempValues[fx] : fxValues[fx][slot];
 
 			// wyjątkowe efejkty (nie liczbowe) obslużyc wyjątkowo
 			switch(mtProject.values.perfFxPlaces[place])

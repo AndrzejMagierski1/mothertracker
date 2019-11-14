@@ -329,5 +329,6 @@ uint32_t WaveLoader::getCurrentWaveLoadedMemory()
 		if(sampleHead.numChannels == 1) return accBufferLength/4;
 		else if(sampleHead.numChannels == 2) return accBufferLength/8;
 	}
-	else return 0;
+
+	return 0;
 }

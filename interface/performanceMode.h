@@ -116,7 +116,7 @@ public:
 
 	void toggleTrackPerformanceState(uint8_t track);
 	void clearPerformanceValues(uint8_t track, uint8_t fx);
-	void refreshPerformanceValuesForTrack(uint8_t track);
+	void refreshPerformanceValuesForTrack(uint8_t track, uint8_t fx);
 
 	uint8_t wasPatternOntrackChenged(uint8_t track);
 
@@ -146,7 +146,7 @@ public:
 	void refreshTracksState();
 	void refreshTracksPatterns();
 
-
+	void setPlaceNewFx(uint8_t newFx);
 	void savePlaceFxValue(uint8_t place, uint8_t slot, int16_t value);
 	void clearHidedFx(uint8_t fx);
 	uint8_t fxAlredyTaken(uint8_t fx);
@@ -185,20 +185,20 @@ public:
 	uint8_t performanceEditPlace = 0;
 
 	//--------performance values
-	// g
+	// gui
 	//uint8_t fxPlaces[12] = {0,1,2,3,4,5,6,7,8,9,10,11};
 	char fxValuesText[12][4][7] = {0};
 
-	// f
-	int8_t tracksPerformanceState[8] = {0};
-	int8_t placePerformanceState[12];
+	// funct
+	uint8_t tracksPerformanceState[8] = {0};
+	int8_t performancePadsState[12];
 
 	int16_t fxValues[performanceFxesCount][4] = {0};
-	uint8_t activeFxValues[performanceFxesCount] = {0};
+	//uint8_t activeFxValues[performanceFxesCount] = {0};
 	int16_t fxTempValues[performanceFxesCount] = {0};
 
 	//uint8_t trackPatern[8] =  {1,1,1,1,1,1,1,1};
-	char trackPaternText[8][13];
+	char trackPaternText[8][14];
 
 	uint8_t trackPatternChange[8] = {0};
 };
