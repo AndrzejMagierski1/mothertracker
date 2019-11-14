@@ -57,7 +57,7 @@ void loop()
 
 		padsBacklight.update();
 
-		updateExport();
+		exporter.update();
 
 		engine.update();
 		fileManager.update();

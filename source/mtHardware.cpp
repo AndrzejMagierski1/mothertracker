@@ -121,7 +121,7 @@ void initHardware()
 	//....................................................
 	//CODEC AUDIO
 	audioShield.enable();
-	AudioMemory(200);
+	AudioMemory(250);
 
 
 	//engine.setOut(1);

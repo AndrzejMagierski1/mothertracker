@@ -5,7 +5,7 @@
 #include "mtFileManager.h"
 #include "mtAudioEngine.h"
 #include "mtLED.h"
-
+#include "mtExporterWAV.h"
 #include "mtPadBoard.h"
 
 #include "sampleRecorder.h"
@@ -969,24 +969,25 @@ static uint8_t functExportSong()
 {
 	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 
+	exporter.start(fileManager.currentProjectName, mtExporter::exportType::song);
 	return 1;
 }
 static uint8_t functExportSongStems()
 {
 	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
-
+	exporter.start(fileManager.currentProjectName, mtExporter::exportType::songStems);
 	return 1;
 }
 static uint8_t functExportPattern()
 {
 	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
-
+	exporter.start(fileManager.currentProjectName, mtExporter::exportType::pattern);
 	return 1;
 }
 static uint8_t functExportPatternStems()
 {
 	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
-
+	exporter.start(fileManager.currentProjectName, mtExporter::exportType::patternStems);
 	return 1;
 }
 static uint8_t functExportToMOD()
