@@ -429,6 +429,12 @@ void cDisplay::setControlText(hControl handle, char* text)
 	handle->setText(text);
 }
 
+void cDisplay::setControlText2(hControl handle, char* text)
+{
+	if(handle == nullptr) return;
+	((cLabel*)handle)->setText2(text);
+}
+
 void cDisplay::setControlValue(hControl handle, int value)
 {
 	if(handle == nullptr) return;

@@ -84,6 +84,11 @@ void cLabel::setText(char* text)
 	this->text = text;
 }
 
+void cLabel::setText2(char* text)
+{
+	this->text2 = text;
+}
+
 void cLabel::setValue(int value)
 {
 	this->value = value;
@@ -117,19 +122,27 @@ uint8_t cLabel::update()
 	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
 	//API_COLOR_A(128);
 
-   // uint16_t text_x = posX, text_y = posY;
     int16_t border_x = posX;//, border_y = posY-2;
     int16_t border_y = posY;
 
+    int16_t lines_step_y = 0;
+    int16_t text_y = posY;
+    int16_t text_h = height;
+
+
+    if(value > 0 && value < 2 && height > fontHeight)
+    {
+    	lines_step_y = (text_h - fontHeight*(value+1)) / (value+2) + fontHeight;
+    }
+
 	if(style & controlStyleCenterX)
 	{
-		//border_x = posX - (getTextWidth(FONT_INDEX_FROM_STYLE,text)/2 + 2);
-
 		border_x = posX - (width/2);
 	}
 	if(style & controlStyleCenterY)
 	{
 		border_y = posY - (height/2);
+		text_y = posY - ((lines_step_y*value)/2);
 	}
 
 	if(style & controlStyleBackground)
@@ -266,10 +279,19 @@ uint8_t cLabel::update()
 	}
 	else
 	{
-		if(text != nullptr) API_CMD_TEXT(posX, posY, textFont, textStyle, text);
+		if(text != nullptr) API_CMD_TEXT(posX, text_y, textFont, textStyle, text);
 	}
 
-/*
+
+	if(value > 0 && text2 != nullptr && text2[0] != 0)
+	{
+		text_y = text_y+lines_step_y;
+
+		API_CMD_TEXT(posX, text_y, textFont, textStyle, text2);
+	}
+
+
+/*-
 	if(style & controlStyleShowValue)
 	{
 		API_CMD_NUMBER(posX+data->xValue, posY+data->yValue, textFont, data->styleValue, value);

@@ -139,8 +139,7 @@ public:
 
 	strFrameData frameData;
 
-	hControl topLabel[8];
-	hControl bottomLabel[8];
+	hControl label[8];
 	hControl patternControl;
 	hControl frameControl;
 
@@ -210,13 +209,6 @@ public:
 	uint8_t insertOnPopupHideDisabled = 0;
 
 	uint8_t wasNotesEditBefore = 0;
-
-//-------------------------------------------------------
-// mute track master mode
-	uint8_t masterTrackState = 0;
-
-
-
 
 
 //-------------------------------------------------------

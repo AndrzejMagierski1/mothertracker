@@ -440,9 +440,9 @@ struct strMtValues
 	uint8_t projectNotSavedFlag = 0;
 
 // performance
-	uint16_t perfTracksPatterns[8] =  {1,1,1,1,1,1,1,1};
-	uint8_t perfFxPlaces[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
-	int16_t perfFxValues[12][4] = {{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}};
+	uint16_t perfTracksPatterns[8]  = {1,1,1,1,1,1,1,1};
+	uint8_t perfFxPlaces[12] 		= {1,2,3,4,5,6,7,8,9,10,11,12}; // jakie efekty w 12 slotach
+	int16_t perfFxValues[12][4] 	= {{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}};
 
 // song
 	float globalTempo = DEFAULT_TEMPO;
@@ -450,6 +450,10 @@ struct strMtValues
 
 	uint8_t instrumentsToSave[INSTRUMENTS_COUNT];
 	uint8_t patternsToSave[PATTERN_INDEX_MAX];
+
+// performance
+	uint8_t perfSelectedValues[12] 	= {0,0,0,0,0,0,0,0,0,0,0,0};
+	uint8_t perfTracksState[8] = {0,0,0,0,0,0,0,0}; // narazie nie uzywana
 };
 
 //-------------------------------------------------
@@ -531,6 +535,8 @@ struct strMtConfig
 	{
 		uint8_t padsLightBack = PADS_LIGHT_BACK_DEFAULT;
 		uint8_t padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
+
+		uint8_t padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
 
 	} values;
 };
