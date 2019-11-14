@@ -225,6 +225,7 @@ void cPatternEditor::setDefaultScreenFunct()
 void cPatternEditor::refreshPattern()
 {
 	seq = sequencer.getPatternToUI();
+	trackerPattern.patternLength = seq->track[0].length+1;
 
 	trackerPattern.popupMode = 0;
 
@@ -1962,6 +1963,8 @@ static uint8_t functCopyPaste(uint8_t state)
 		}
 
 		PTE->refreshPattern();
+		PTE->showPattern();
+		PTE->showLength();
 	}
 
 	return 1;

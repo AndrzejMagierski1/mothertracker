@@ -397,11 +397,11 @@ public:
 
 			boolean cancelStep = 0;
 
-			uint8_t rollType = 0; // 1/1, 1/2, 1/4 ...
-
 			boolean rollIsOn = 0;
+			uint8_t rollType = 0; // 1/1, 1/2, 1/4 ...
 			uint8_t rollVal = 0;
 			uint8_t rollDir = 0;
+			uint8_t rollFxId = 0;
 
 			bool pingPongToogle = 0;
 
@@ -625,7 +625,7 @@ public:
 
 // inne
 	void handle_uStep_timer(void);
-	//	void internalFxsOff(void);
+	void internalFxsOff(uint8_t track);
 
 	void blinkNote(uint8_t instrument, uint8_t note, int8_t velocity,
 					uint8_t track);
