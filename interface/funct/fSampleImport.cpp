@@ -248,6 +248,8 @@ void cSampleImporter::start(uint32_t options)
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
+	previewColorControl();
+
 	selectionLength=0;
 	resetInstrSel();
 	setSelect(selectedPlace);
@@ -322,6 +324,7 @@ static  uint8_t functChangeFolder(uint8_t button)
 	SI->selectedPlace = 0;
 
 	SI->AddOrEnter();
+	SI->previewColorControl();
 	SI->displayDelete(SI->selectedPlace);
 //	SI->checkWavetableLabel();
 
@@ -726,6 +729,8 @@ static  uint8_t functLeft()
 		SI->FM->clearButton(interfaceButton2);
 		SI->FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
 
+		SI->previewColorControl();
+
 	}
 	else
 	{
@@ -758,6 +763,8 @@ static  uint8_t functRight()
 		SI->FM->clearButton(interfaceButton2);
 		SI->FM->setButtonObj(interfaceButton2, buttonPress, functRename);
 		SI->selectedPlace++;
+
+		SI->previewColorControl();
 	}
 //	if(SI->selectedPlace != 0) SI->hideAddWT();
 //	else if(SI->selectedPlace == 0)
@@ -883,6 +890,8 @@ uint8_t cSampleImporter::changeFileSelection(int16_t value)
 	display.refreshControl(explorerListControl);
 
 	AddOrEnter();
+	previewColorControl();
+
 
 	handleMemoryBar();
 
@@ -915,6 +924,7 @@ uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 	display.refreshControl(instrumentListControl);
 
 	handleMemoryBar();
+	previewColorControl();;
 
 	return 1;
 }

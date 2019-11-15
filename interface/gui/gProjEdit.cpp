@@ -54,17 +54,16 @@ void cProjectEditor::initDisplayControls()
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+		//prop2.data =  &bottomValuesConfig;
+		prop2.colors = interfaceGlobals.activeLabelsColors;
+
+		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 465;
 		prop2.w = 800/8-6;
-		prop2.h = 30;
+		prop2.y = 452;
+		prop2.h =  59;
 
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
-
-		prop2.y = 437;
-		prop2.h = 28;
-		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
+		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
 	projectList.linesCount = 13;
@@ -158,14 +157,8 @@ void cProjectEditor::destroyDisplayControls()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.destroyControl(topLabel[i]);
-		topLabel[i] = nullptr;
-	}
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		display.destroyControl(bottomLabel[i]);
-		bottomLabel[i] = nullptr;
+		display.destroyControl(label[i]);
+		label[i] = nullptr;
 	}
 
 	display.destroyControl(fileListControl);
@@ -211,22 +204,31 @@ void cProjectEditor::showDefaultScreen()
 	//lista
 	display.setControlHide(fileListControl);
 
+	display.setControlValue(label[0], 1);
+	display.setControlValue(label[1], 0);
+	display.setControlValue(label[2], 0);
+	display.setControlValue(label[3], 0);
+	display.setControlValue(label[4], 0);
+	display.setControlValue(label[5], 0);
+	display.setControlValue(label[6], 0);
+	display.setControlValue(label[7], 0);
 
-	display.setControlText(topLabel[0], "New");
-	display.setControlText(bottomLabel[0], "Project");
-	display.setControlText(bottomLabel[1], "Open");
-	display.setControlText(bottomLabel[2], "");
-	display.setControlText(bottomLabel[3], "");
-	display.setControlText(bottomLabel[4], "Save");
-	display.setControlText(bottomLabel[5], "Save As");
-	display.setControlText(bottomLabel[6], "Export");
-	display.setControlText(bottomLabel[7], "Game");
+
+	display.setControlText(label[0], "New");
+	display.setControlText2(label[0], "Project");
+	display.setControlText(label[1], "Open");
+	display.setControlText(label[2], "");
+	display.setControlText(label[3], "");
+	display.setControlText(label[4], "Save");
+	display.setControlText(label[5], "Save As");
+	display.setControlText(label[6], "Export");
+	display.setControlText(label[7], "Game");
 
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
 	}
 
 	hideKeyboard();
@@ -245,11 +247,6 @@ void cProjectEditor::showDefaultScreen()
 //	display.setControlHide(popupLabel);
 //	display.refreshControl(popupLabel);
 
-	for(uint8_t i = 1; i<8; i++)
-	{
-		makeBigBottomLabel(i);
-	}
-	makeSmallBottomLabel(0);
 
 	refreshProjectCover(200);
 
@@ -271,21 +268,24 @@ void cProjectEditor::showProjectsList()
 	display.setControlShow(fileListControl);
 	display.refreshControl(fileListControl);
 
+	display.setControlValue(label[0], 0);
+	display.setControlText(label[0], "");
+
 	for(uint8_t i = 2; i < 8 ; i++)
 	{
-		display.setControlText(bottomLabel[i], "");
+		display.setControlText(label[i], "");
 	}
 
 // bottom labels
-	display.setControlText(bottomLabel[0], "Open");
-	display.setControlText(bottomLabel[1], "Cancel");
+	display.setControlText(label[0], "Open");
+	display.setControlText(label[1], "Cancel");
 
 
 	for(uint8_t i = 0; i < 8 ; i++)
 	{
-		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(label[i]);
 	}
-	makeBigBottomLabel(0);
+
 	display.synchronizeRefresh();
 }
 
@@ -396,7 +396,6 @@ void cProjectEditor::hidePopupLabelOpen()
 
 void cProjectEditor::showEnterNameKeyboard()
 {
-
 	display.setControlHide(fileListControl);
 	display.refreshControl(fileListControl);
 
@@ -405,45 +404,45 @@ void cProjectEditor::showEnterNameKeyboard()
 	//display.refreshControl(topLabel[0]);
 
 // bottom labels
-	display.setControlText(bottomLabel[0], "Create");
-	display.setControlText(bottomLabel[1], "Cancel");
-	display.setControlText(bottomLabel[4], "Test");
+	display.setControlValue(label[0], 0);
 
-	display.refreshControl(bottomLabel[0]);
-	display.refreshControl(bottomLabel[1]);
-	display.refreshControl(bottomLabel[4]);
+	display.setControlText(label[0], "Create");
+	display.setControlText(label[1], "Cancel");
+	display.setControlText(label[4], "Test");
+
+	display.refreshControl(label[0]);
+	display.refreshControl(label[1]);
+	display.refreshControl(label[4]);
 
 
 	showKeyboard();
 	showKeyboardEditName();
 
-	makeBigBottomLabel(0);
 	display.synchronizeRefresh();
-
-
 }
 
 void cProjectEditor::showSaveAsKeyboard()
 {
-	display.setControlText(bottomLabel[0],"Cancel");
+	display.setControlValue(label[0], 0);
+
+	display.setControlText(label[0],"Cancel");
 
 	for(uint8_t i = 1; i < 7 ; i++)
 	{
-		display.setControlText(bottomLabel[i], "");
+		display.setControlText(label[i], "");
 	}
 
-	display.setControlText(bottomLabel[7],"Save");
+	display.setControlText(label[7],"Save");
 
 	for(uint8_t i = 0; i < 8 ; i++)
 	{
-		display.refreshControl(bottomLabel[i]);
+		display.refreshControl(label[i]);
 	}
 
 	hideProjectCover();
 
 	showKeyboard();
 	showKeyboardEditName();
-	makeBigBottomLabel(0);
 	display.synchronizeRefresh();
 
 }
@@ -511,13 +510,15 @@ void cProjectEditor::hideKeyboardEditName()
 
 void cProjectEditor::showSaveLastWindow()
 {
-	display.setControlText(bottomLabel[0], "Cancel");
-	display.setControlText(bottomLabel[1], "");
+	display.setControlValue(label[0], 0);
 
-	display.setControlText(bottomLabel[4], "Don't Save");
-	display.setControlText(bottomLabel[5], "");
-	display.setControlText(bottomLabel[6], "");
-	display.setControlText(bottomLabel[7], "Save");
+	display.setControlText(label[0], "Cancel");
+	display.setControlText(label[1], "");
+
+	display.setControlText(label[4], "Don't Save");
+	display.setControlText(label[5], "");
+	display.setControlText(label[6], "");
+	display.setControlText(label[7], "Save");
 
 	sprintf(currentInfo,"Do you want to save the changes to \"%s\" ?", fileManager.currentProjectName);
 
@@ -527,21 +528,23 @@ void cProjectEditor::showSaveLastWindow()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
 	}
-	makeBigBottomLabel(0);
+
 	display.synchronizeRefresh();
 }
 
 void cProjectEditor::showOverwriteWindow()
 {
-	display.setControlText(bottomLabel[0], "Yes");
+	display.setControlValue(label[0], 0);
+
+	display.setControlText(label[0], "Yes");
 	for(uint8_t i=1 ;i < 7; i++)
 	{
-		display.setControlText(bottomLabel[i], "");
+		display.setControlText(label[i], "");
 	}
-	display.setControlText(bottomLabel[7], "No");
+	display.setControlText(label[7], "No");
 
 	sprintf(currentInfo,"Do you want overwrite\"%s\" ?", name);
 
@@ -551,10 +554,10 @@ void cProjectEditor::showOverwriteWindow()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
 	}
-	makeBigBottomLabel(0);
+
 	display.synchronizeRefresh();
 }
 
@@ -575,51 +578,33 @@ void cProjectEditor::showSaveingHorizontalBar()
 	display.refreshControl(loadHorizontalBarControl);
 }*/
 
-void cProjectEditor::makeSmallBottomLabel(uint8_t i)
-{
-	display.setControlPosition(bottomLabel[i], -1, 465);
-	display.setControlSize(bottomLabel[i], -1, 30);
-
-	display.setControlShow(topLabel[i]);
-	display.setControlShow(bottomLabel[i]);
-	display.refreshControl(bottomLabel[i]);
-	display.refreshControl(topLabel[i]);
-}
-void cProjectEditor::makeBigBottomLabel(uint8_t i)
-{
-	display.setControlPosition(bottomLabel[i], -1, 452);
-	display.setControlSize(bottomLabel[i], -1, 59);
-
-	display.setControlHide(topLabel[i]);
-	display.setControlShow(bottomLabel[i]);
-	display.refreshControl(bottomLabel[i]);
-	display.refreshControl(topLabel[i]);
-}
 
 void cProjectEditor::showExportWindow()
 {
-	display.setControlText(topLabel[0], "Export");
-	display.setControlText(bottomLabel[0], "Song");
-	display.setControlText(topLabel[1], "Export");
-	display.setControlText(bottomLabel[1], "Song Stems");
-	display.setControlText(topLabel[2], "Export");
-	display.setControlText(bottomLabel[2], "Pattern");
-	display.setControlText(topLabel[3], "Export");
-	display.setControlText(bottomLabel[3], "Patt Stems");
-	display.setControlText(topLabel[4], "Export");
-	display.setControlText(bottomLabel[4], "To MOD");
-	display.setControlText(bottomLabel[5], "");
-	display.setControlText(bottomLabel[6], "");
-	display.setControlText(bottomLabel[7], "Go Back");
+	display.setControlText(label[0], "Export");
+	display.setControlText2(label[0], "Song");
+	display.setControlText(label[1], "Export");
+	display.setControlText2(label[1], "Song Stems");
+	display.setControlText(label[2], "Export");
+	display.setControlText2(label[2], "Pattern");
+	display.setControlText(label[3], "Export");
+	display.setControlText2(label[3], "Patt Stems");
+	display.setControlText(label[4], "Export");
+	display.setControlText2(label[4], "To MOD");
+	display.setControlText(label[5], "");
+	display.setControlText(label[6], "");
+	display.setControlText(label[7], "Go Back");
 
 	for(uint8_t i=0; i<5 ; i++)
 	{
-		makeSmallBottomLabel(i);
+		display.setControlValue(label[i], 1);
+		display.refreshControl(label[i]);
 	}
 
 	for(uint8_t i = 5; i <8; i++)
 	{
-		makeBigBottomLabel(i);
+		display.setControlValue(label[i], 0);
+		display.refreshControl(label[i]);
 	}
 	//refreshe są w make
 	display.synchronizeRefresh();

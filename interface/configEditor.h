@@ -69,8 +69,7 @@ public:
 	cConfigEditor()
 	{
 		selectedConfigGroup = 0;
-		topLabel[8] = {nullptr};
-		bottomLabel[8] = {nullptr};
+		label[8] = {nullptr};
 		barControl[8] = {nullptr};
 		configGroupsListControl = nullptr;
 		editorInstrument = nullptr;
@@ -172,8 +171,7 @@ public:
 
 	strFrameData frameData;
 
-	hControl topLabel[8];
-	hControl bottomLabel[8];
+	hControl label[8];
 	hControl barControl[8];
 
 	hControl configGroupsListControl;

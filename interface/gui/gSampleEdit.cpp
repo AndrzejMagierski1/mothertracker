@@ -66,40 +66,25 @@ void cSampleEditor::initDisplayControls()
 	for(uint8_t i = 0; i<6; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+		//prop2.data =  &bottomValuesConfig;
+		prop2.colors = interfaceGlobals.activeLabelsColors;
+
+		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );
+		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
-		prop2.h = 30;
+		prop2.y = 452;
+		prop2.h =  59;
 
-		prop2.x = (800/8)*i+(800/16);
-		if(i < 2)
-		{
-			prop2.y = 452;
-			prop2.h = 58;
-		}
-		else
-		{
-			prop2.y = 437;
-			prop2.h = 28;
-		}
-
-		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
-
-		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 465;
-
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
 	prop2.x = (800/4)*3+(800/8);
 	prop2.w = 800/4-6;
 
 	prop2.y = 452;
-	prop2.h = 58;
-	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
+	prop2.h = 59;
+	if(label[6] == nullptr) label[6] = display.createControl<cLabel>(&prop2);
 
-	prop2.y = 465;
-	prop2.h = 30;
-	if(bottomLabel[6] == nullptr) bottomLabel[6] = display.createControl<cLabel>(&prop2);
 
 	effectList.linesCount = 14;
 	effectList.start = 0;
@@ -168,11 +153,8 @@ void cSampleEditor::destroyDisplayControls()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.destroyControl(bottomLabel[i]);
-		bottomLabel[i] = nullptr;
-
-		display.destroyControl(topLabel[i]);
-		topLabel[i] = nullptr;
+		display.destroyControl(label[i]);
+		label[i] = nullptr;
 	}
 
 
@@ -231,28 +213,36 @@ void cSampleEditor::showDefaultScreen()
 {
 	showTitleBar();
 
-	// bottom labels
+	display.setControlValue(label[0], 0);
+	display.setControlValue(label[1], 0);
+	display.setControlValue(label[2], 0);
+	display.setControlValue(label[3], 1);
+	display.setControlValue(label[4], 1);
+	display.setControlValue(label[5], 1);
+	display.setControlValue(label[6], 0);
 
-	display.setControlText(topLabel[1], "Apply");
-	display.setControlText(bottomLabel[3], "Start");
-	display.setControlText(bottomLabel[4], "End");
-	display.setControlText(bottomLabel[5], "Zoom");
+	//display.setControlText(label[0], "Process");
+	display.setControlText(label[1], "Apply");
+	display.setControlText(label[6], "Effect");
+/*	display.setControlText(label[3], "Start");
+	display.setControlText(label[4], "End");
+	display.setControlText(label[5], "Zoom");*/
 
 	//display.setControlText(bottomLabel[7], "");
 
 
-	display.setControlText(topLabel[6], "Effect");
+
 
 	showEffectScreen(&effectControl[currSelEffect]);
 
 
 	for(uint8_t i = 0; i<7; i++)
 	{
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
 
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
 	}
 
 	showEffectsList();
@@ -263,20 +253,6 @@ void cSampleEditor::showDefaultScreen()
 
 	display.synchronizeRefresh();
 
-}
-
-void cSampleEditor::resizeUndo(uint8_t control)//1 - center 0 - top
-{
-	if(control)
-	{
-		display.setControlPosition(topLabel[2], (800/8)*2+(800/16), 452);
-		display.setControlSize(topLabel[2], 800/8-6, 58);
-	}
-	else
-	{
-		display.setControlPosition(topLabel[2], (800/8)*2+(800/16), 437);
-		display.setControlSize(topLabel[2], 800/8-6, 28);
-	}
 }
 
 void cSampleEditor::showEffectScreen(effect_handle_t *screenCfg)
@@ -305,8 +281,8 @@ void cSampleEditor::showEffectScreen(effect_handle_t *screenCfg)
 	for(int i = 0; i < MAX_DATA_BARS; i++)
 	{
 		display.setControlHide(barControl[i]);
-		display.setControlText(topLabel[BAR_MIN_POS + i], "");
-		display.setControlText(bottomLabel[BAR_MIN_POS + i], "");
+		display.setControlText(label[BAR_MIN_POS + i], "");
+		display.setControlText2(label[BAR_MIN_POS + i], "");
 	}
 
 	undoDisplayControl(effectControl[currSelEffect].undoActive);
@@ -318,7 +294,7 @@ void cSampleEditor::showEffectScreen(effect_handle_t *screenCfg)
 
 	for(int i = (MAX_DATA_BARS - screenCfg->paramNum); i < MAX_DATA_BARS; i++)
 	{
-		display.setControlText(bottomLabel[BAR_MIN_POS + i], screenCfg->bar[i].name);
+		display.setControlText2(label[BAR_MIN_POS + i], screenCfg->bar[i].name);
 	}
 
 	for(int i = (MAX_DATA_BARS - screenCfg->paramNum); i < MAX_DATA_BARS; i++)
@@ -331,8 +307,7 @@ void cSampleEditor::showEffectScreen(effect_handle_t *screenCfg)
 	for(int i=0;i<4;i++)
 	{
 		display.refreshControl(barControl[i]);
-		display.refreshControl(bottomLabel[BAR_MIN_POS + i]);
-		display.refreshControl(topLabel[BAR_MIN_POS + i]);
+		display.refreshControl(label[BAR_MIN_POS + i]);
 	}
 
 	display.synchronizeRefresh();
@@ -435,9 +410,9 @@ void cSampleEditor::showActualInstrument()
 
 void cSampleEditor::showValueLabels(uint8_t whichBar)
 {
-	display.setControlText(topLabel[BAR_MIN_POS + whichBar], &dataBarText[whichBar][0]);
-	display.setControlShow(topLabel[BAR_MIN_POS + whichBar]);
-	display.refreshControl(topLabel[BAR_MIN_POS + whichBar]);
+	display.setControlText(label[BAR_MIN_POS + whichBar], &dataBarText[whichBar][0]);
+	display.setControlShow(label[BAR_MIN_POS + whichBar]);
+	display.refreshControl(label[BAR_MIN_POS + whichBar]);
 }
 
 void cSampleEditor::refreshBarsValue(uint8_t whichBar, uint8_t newValue)
@@ -473,30 +448,30 @@ void cSampleEditor::processOrPreview(uint8_t x)
 {
 	if(x)
 	{
-		display.setControlText(topLabel[0], "Preview");
+		display.setControlText(label[0], "Preview");
 	}
 	else
 	{
-		display.setControlText(topLabel[0], "Process");
+		display.setControlText(label[0], "Process");
 	}
 
-	display.refreshControl(topLabel[0]);
+	display.refreshControl(label[0]);
 }
 
 void cSampleEditor::undoDisplayControl(uint8_t onOff)
 {
-	resizeUndo(onOff);
-
 	if(onOff)
 	{
-		display.setControlText(topLabel[2], "Undo");
+		display.setControlValue(label[2], 0);
+		display.setControlText(label[2], "Undo");
 	}
 	else
 	{
-		display.setControlText(topLabel[2], "");
+		display.setControlValue(label[2], 1);
+		display.setControlText(label[2], "");
 	}
 
-	display.refreshControl(topLabel[2]);
+	display.refreshControl(label[2]);
 }
 
 

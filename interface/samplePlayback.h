@@ -47,8 +47,7 @@ public:
 		progressCursor = nullptr;
 		spectrumControl = nullptr;
 		pointsControl = nullptr;
-		topLabel[7] = {nullptr};
-		bottomLabel[6] = {nullptr};
+		label[7] = {nullptr};
 
 		lastSampleLength = 0;
 	}
@@ -65,7 +64,6 @@ public:
 	void processPoints();
 	void showPreviewValue();
 	void hidePreviewValue();
-	void previewLabelSize(uint8_t size);
 
 	char startPointValueText[8];
 	char endPointValueText[8];
@@ -87,8 +85,7 @@ public:
 
 	strFrameData frameData;
 
-	hControl topLabel[8];
-	hControl bottomLabel[8];
+	hControl label[7];
 	hControl playModeListControl;
 	hControl spectrumControl;
 	hControl pointsControl;

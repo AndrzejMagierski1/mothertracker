@@ -336,8 +336,6 @@ void cSampleRecorder::start(uint32_t options)
 
 	FM->setPadsGlobal(functPads);
 
-	resizer.buttonsToResize=8;
-
 	params.length = recorder.getLength();
 	params.address = recorder.getStartAddress();
 	params.recordInProgressFlag = recordInProgressFlag;
