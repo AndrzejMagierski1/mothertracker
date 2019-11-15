@@ -644,7 +644,7 @@ public:
 	}
 	uint8_t getPatternLength()
 	{
-		return getActualPattern().track[0].length+1;
+		return getActualPattern()->track[0].length+1;
 	}
 };
 
