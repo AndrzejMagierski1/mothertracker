@@ -1,8 +1,8 @@
 #ifndef SOURCE_MTEXPORTERWAV_H_
 #define SOURCE_MTEXPORTERWAV_H_
 
-#include "mtSongExporter.h"
-#include "mtSongStemsExporter.h"
+#include <mtPatternExporter.h>
+#include <mtPatternStemsExporter.h>
 
 static constexpr uint32_t SEND_BUF_SIZE = 20 * 1024;
 
@@ -22,13 +22,14 @@ public:
 		patternStems
 	};
 	void start(char * path, exportType t);
+	void begin();
 	void update();
 	friend void setOnLastExportStep();
 private:
 	void setExportType(exportType t);
 	exportType type;
-	mtSongStemsExporter songStemsExporter;
-	mtSongExporter songExporter;
+	mtPatternStemsExporter patternStemsExporter;
+	mtPatternExporter patternExporter;
 };
 
 extern mtExporter exporter;

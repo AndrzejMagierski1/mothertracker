@@ -1,48 +1,50 @@
-#include "mtSongStemsExporter.h"
-
+#include "mtPatternStemsExporter.h"
 #include "mtAudioEngine.h"
-
+#include "mtFileManager.h"
 extern mtExporter exporter;
 
-void mtSongTrackExporter::start(char * path, uint8_t track_n)
+void mtPatternTrackExporter::start(char * path, uint8_t track_n)
 {
-	currentTrack = track_n;
-	setSoloTrack(track_n);
-	localSongExporter.start(path);
+	if(track_n < 9)
+	{
+		currentTrack = track_n;
+		setSoloTrack(track_n);
+	}
+
+
+	localPatternExporter.start(path);
 }
 
-void mtSongTrackExporter::update()
+void mtPatternTrackExporter::update()
 {
-	localSongExporter.update();
+	localPatternExporter.update();
 	//*********************** wykrywanie końca
-	currentStatus = localSongExporter.getStatus();
+	currentStatus = localPatternExporter.getStatus();
 	if((currentStatus == 0) && (currentStatus != lastStatus)) clearSoloTrack(currentTrack);
 	lastStatus = currentStatus;
 	//***********************
 }
 
-uint8_t mtSongTrackExporter::getStatus()
+uint8_t mtPatternTrackExporter::getStatus()
 {
-	return localSongExporter.getStatus();
+	return localPatternExporter.getStatus();
 }
 
 
-void  mtSongTrackExporter::setSoloTrack(uint8_t n)
+void  mtPatternTrackExporter::setSoloTrack(uint8_t n)
 {
 	if(n < 8) engine.soloTrack(n, 1);
-	else if(n == 8) engine.soloReverbSend(0, 1);
-	else if(n == 9) engine.soloReverbSend(1, 1);
+	else if(n == 8) engine.soloReverbSend(1);
 
 }
-void  mtSongTrackExporter::clearSoloTrack(uint8_t n)
+void  mtPatternTrackExporter::clearSoloTrack(uint8_t n)
 {
 	if(n < 8) engine.soloTrack(n, 0);
-	else if(n == 8) engine.soloReverbSend(0, 0);
-	else if(n == 9) engine.soloReverbSend(1, 0);
+	else if(n == 8) engine.soloReverbSend(0);
 }
 
 
-void mtSongStemsExporter::start(char * path)
+void mtPatternStemsExporter::start(char * path)
 {
 	if(!SD.exists("Export")) SD.mkdir(0,"Export");
 
@@ -57,10 +59,10 @@ void mtSongStemsExporter::start(char * path)
 	sprintf(currentPath,"%s/track%d",folderPath, currentTrack + 1);
 
 	status = 1;
-	trackExporter.start(currentPath, currentTrack);
+	trackExporter.start(currentPath, currentTrack); // tablica żyje podczas korzystania z tego wskaznika
 
 }
-void mtSongStemsExporter::update()
+void mtPatternStemsExporter::update()
 {
 	if(status == 1)
 	{
@@ -74,13 +76,13 @@ void mtSongStemsExporter::update()
 			else if(currentTrack == 8)
 			{
 				char currentPath[PATCH_SIZE];
-				sprintf(currentPath,"%s/reverbL%d",folderPath, currentTrack + 1);
+				sprintf(currentPath,"%s/reverb",folderPath);
 				trackExporter.start(currentPath, currentTrack);
 			}
 			else if(currentTrack == 9)
 			{
 				char currentPath[PATCH_SIZE];
-				sprintf(currentPath,"%s/reverbR%d",folderPath, currentTrack + 1);
+				sprintf(currentPath,"%s/song",folderPath);
 				trackExporter.start(currentPath, currentTrack);
 			}
 			else
@@ -96,7 +98,7 @@ void mtSongStemsExporter::update()
 	}
 
 }
-uint8_t mtSongStemsExporter::getStatus()
+uint8_t mtPatternStemsExporter::getStatus()
 {
 	return status;
 }

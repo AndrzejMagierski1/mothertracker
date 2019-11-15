@@ -446,7 +446,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	}
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
-	if((muteState == 0) || (engine.forceSend == 1))
+	if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
 	{
 		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
 		{
@@ -678,7 +678,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	}
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
-	if((muteState == 0) || (engine.forceSend == 1))
+	if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
 	{
 		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
 		{
@@ -2089,7 +2089,7 @@ void playerEngine:: update()
 		if(statusBytes & REVERB_SEND_MASK)
 		{
 			statusBytes &= (~REVERB_SEND_MASK);
-			if(muteState == 0)
+			if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
 			{
 				modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
 			}
@@ -2347,7 +2347,11 @@ void audioEngine::soloTrack(uint8_t channel, uint8_t state)
 	{
 		for(uint8_t i = 0; i < 8; i++)
 		{
-			if(i == channel) continue;
+			if(i == channel)
+			{
+				muteReverbSend(i, 1);
+				continue;
+			}
 			muteTrack(i,1);
 		}
 	}
@@ -2355,14 +2359,18 @@ void audioEngine::soloTrack(uint8_t channel, uint8_t state)
 	{
 		for(uint8_t i = 0; i < 8; i++)
 		{
-			if(i == channel) continue;
+			if(i == channel)
+			{
+				muteReverbSend(i, 0);
+				continue;
+			}
 			muteTrack(i,0);
 		}
 	}
 
 }
 // selectLR :  0 - L, 1- R, state: 1 - solo ON, 0 - solo OFF
-void audioEngine::soloReverbSend(uint8_t selectLR, uint8_t state)
+void audioEngine::soloReverbSend(uint8_t state)
 {
 
 	if(state == 1)
@@ -2372,9 +2380,6 @@ void audioEngine::soloReverbSend(uint8_t selectLR, uint8_t state)
 		{
 			muteTrack(i,1);
 		}
-		if(selectLR == 0) mixerR.gain(8,0.0);
-		else if(selectLR == 1) mixerL.gain(8,0.0);
-
 	}
 	else if(state == 0)
 	{
@@ -2383,10 +2388,23 @@ void audioEngine::soloReverbSend(uint8_t selectLR, uint8_t state)
 		{
 			muteTrack(i,0);
 		}
-		if(selectLR == 0) mixerR.gain(8,1.0);
-		else if(selectLR == 1) mixerL.gain(8,1.0);
 	}
 
+}
+
+void audioEngine::muteReverbSend(uint8_t channel, uint8_t state)
+{
+	if(channel >= 8) return;
+	if(state == 0)
+	{
+		instrumentPlayer[channel].onlyReverbMuteState = 0;
+		instrumentPlayer[channel].setStatusBytes(REVERB_SEND_MASK);
+	}
+	else
+	{
+		instrumentPlayer[channel].onlyReverbMuteState = 1;
+		if(!forceSend) instrumentPlayer[channel].modReverbSend(0);
+	}
 }
 
 //**************************************************************************************************************************************

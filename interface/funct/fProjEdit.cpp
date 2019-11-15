@@ -965,29 +965,80 @@ static uint8_t functSaveChangesSaveOpen()
 }
 //===============================================================================================================
 //export
+char currentExportPath[PATCH_SIZE];
+
 static uint8_t functExportSong()
 {
 	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
 
-	exporter.start(fileManager.currentProjectName, mtExporter::exportType::song);
+	uint16_t fileCounter = 0;
+
+	sprintf(currentExportPath,"Export/%s/song.wav",fileManager.currentProjectName);
+	while(SD.exists(currentExportPath))
+	{
+		sprintf(currentExportPath,"Export/%s/song%d.wav",fileManager.currentProjectName,++fileCounter);
+		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+	}
+	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/song",fileManager.currentProjectName);
+	else sprintf(currentExportPath,"Export/%s/song%d",fileManager.currentProjectName,fileCounter);
+	exporter.start(currentExportPath, mtExporter::exportType::song); //wszystko wykonuje sie w zakresie waznosci tej tablicy
 	return 1;
 }
 static uint8_t functExportSongStems()
 {
 	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
-	exporter.start(fileManager.currentProjectName, mtExporter::exportType::songStems);
+
+	uint16_t fileCounter = 0;
+
+	sprintf(currentExportPath,"Export/%s/SongStems",fileManager.currentProjectName);
+	while(SD.exists(currentExportPath))
+	{
+		sprintf(currentExportPath,"Export/%s/SongStems%d",fileManager.currentProjectName,++fileCounter);
+		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+	}
+	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/SongStems",fileManager.currentProjectName);
+	else sprintf(currentExportPath,"%s/SongStems%d",fileManager.currentProjectName,fileCounter);
+
+
+	exporter.start(currentExportPath, mtExporter::exportType::songStems);
 	return 1;
 }
 static uint8_t functExportPattern()
 {
 	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
-	exporter.start(fileManager.currentProjectName, mtExporter::exportType::pattern);
+
+	uint16_t fileCounter = 0;
+	uint16_t namePattern = mtProject.values.actualPattern + 1;
+
+	sprintf(currentExportPath,"Export/%s/pattern%d.wav",fileManager.currentProjectName,namePattern);
+	while(SD.exists(currentExportPath))
+	{
+		sprintf(currentExportPath,"Export/%s/pattern%d_%d.wav",fileManager.currentProjectName,namePattern,++fileCounter);
+		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+	}
+	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/pattern%d",fileManager.currentProjectName,namePattern);
+	else sprintf(currentExportPath,"Export/%s/pattern%d_%d",fileManager.currentProjectName,namePattern,fileCounter);
+
+	exporter.start(currentExportPath, mtExporter::exportType::pattern);
 	return 1;
 }
 static uint8_t functExportPatternStems()
 {
 	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
-	exporter.start(fileManager.currentProjectName, mtExporter::exportType::patternStems);
+
+	uint16_t fileCounter = 0;
+	uint16_t namePattern = mtProject.values.actualPattern + 1;
+
+	sprintf(currentExportPath,"Export/%s/Pattern%d_Stems",fileManager.currentProjectName,namePattern);
+	while(SD.exists(currentExportPath))
+	{
+		sprintf(currentExportPath,"Export/%s/Pattern%d_Stems%d",fileManager.currentProjectName,namePattern,++fileCounter);
+		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+	}
+	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/Pattern%d_Stems",fileManager.currentProjectName,namePattern);
+	else sprintf(currentExportPath,"%s/Pattern%d_Stems%d",fileManager.currentProjectName,namePattern,fileCounter);
+
+	exporter.start(currentExportPath, mtExporter::exportType::patternStems);
 	return 1;
 }
 static uint8_t functExportToMOD()

@@ -1,5 +1,5 @@
-#ifndef EXPORTER_MTSONGEXPORTER_H_
-#define EXPORTER_MTSONGEXPORTER_H_
+#ifndef EXPORTER_MTPATTERNEXPORTER_H_
+#define EXPORTER_MTPATTERNEXPORTER_H_
 
 
 
@@ -14,7 +14,7 @@ extern int16_t exportBuffer2[];
 
 
 
-class mtSongExporter
+class mtPatternExporter
 {
 
 public:
@@ -51,4 +51,4 @@ private:
 
 
 
-#endif /* EXPORTER_MTSONGEXPORTER_H_ */
+#endif /* EXPORTER_MTPATTERNEXPORTER_H_ */

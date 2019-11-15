@@ -1,11 +1,10 @@
-#include "mtSongExporter.h"
-
+#include "mtPatternExporter.h"
 #include "mtAudioEngine.h"
 #include "mtSequencer.h"
-
+#include "mtFileManager.h"
 void setOnLastExportStep();
 
-void mtSongExporter::setOnLastStep()
+void mtPatternExporter::setOnLastStep()
 {
 	if(status != exportStatus::exportFinished)
 	{
@@ -15,7 +14,7 @@ void mtSongExporter::setOnLastStep()
 
 }
 
-void mtSongExporter::finish()
+void mtPatternExporter::finish()
 {
 	__disable_irq();
 	if(status != exportStatus::exportFinished)
@@ -56,22 +55,26 @@ void mtSongExporter::finish()
 	}
 	__enable_irq()
 }
+char currentSongExportPath[PATCH_SIZE];
 
-void mtSongExporter::start(char * path)
+void mtPatternExporter::start(char * path)
 {
 	__disable_irq();
 	lastStep = 0;
 	recBuf = buf1;
 	sendBuf = buf2;
-	char currentPath[PATCH_SIZE];
-	sprintf(currentPath,"%s.wav",path);
+	if(!SD.exists("Export")) SD.mkdir(0,"Export");
 
-	if(SD.exists(currentPath)) SD.remove(currentPath);
-	wavExport = SD.open(currentPath,FILE_WRITE);
+	sprintf(currentSongExportPath,"Export/%s",fileManager.currentProjectName);
+	if(!SD.exists(currentSongExportPath)) SD.mkdir(0,currentSongExportPath);
+
+	sprintf(currentSongExportPath,"%s.wav",path);
+
+	if(SD.exists(currentSongExportPath)) SD.remove(currentSongExportPath);
+	wavExport = SD.open(currentSongExportPath,FILE_WRITE);
 	wavExport.seek(44);
 	if(wavExport)
 	{
-		sequencer.setOnPatternEnd(setOnLastExportStep);
 		byteRecorded=0;
 		status = exportStatus::exportDuring;
 
@@ -88,7 +91,7 @@ void mtSongExporter::start(char * path)
 
 }
 
-void mtSongExporter::refresh()
+void mtPatternExporter::refresh()
 {
 	if(status == exportStatus::exportDuring)
 	{
@@ -111,12 +114,12 @@ void mtSongExporter::refresh()
 			exportL.freeBuffer();
 			exportR.freeBuffer();
 
-			if(position == SEND_BUF_SIZE)
+			if((position == SEND_BUF_SIZE) || !((exportL.available() >= 1) && (exportR.available() >= 1 )))
 			{
 				switchBuffer();
 
 				__disable_irq();
-				byteRecorded += wavExport.write(sendBuf,SEND_BUF_SIZE*2);
+				byteRecorded += wavExport.write(sendBuf,position*2);
 				__enable_irq();
 
 				position=0;
@@ -126,7 +129,7 @@ void mtSongExporter::refresh()
 }
 
 
-void mtSongExporter::update()
+void mtPatternExporter::update()
 {
 	refresh();
 	if(lastStep)
@@ -151,7 +154,7 @@ void mtSongExporter::update()
 	}
 }
 
-void mtSongExporter::switchBuffer()
+void mtPatternExporter::switchBuffer()
 {
 	int16_t * tmp = recBuf;
 
@@ -160,7 +163,7 @@ void mtSongExporter::switchBuffer()
 }
 
 
-uint8_t mtSongExporter::getStatus()
+uint8_t mtPatternExporter::getStatus()
 {
 	return (uint8_t)status;
 }

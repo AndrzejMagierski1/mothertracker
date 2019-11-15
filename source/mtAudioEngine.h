@@ -33,7 +33,8 @@ public:
 	void setBitDepth(uint16_t bitDepth);
 	void muteTrack(uint8_t channel, uint8_t state);
 	void soloTrack(uint8_t channel, uint8_t state);
-	void soloReverbSend(uint8_t selectLR, uint8_t state);
+	void muteReverbSend(uint8_t channel, uint8_t state);
+	void soloReverbSend(uint8_t state);
 	void wavExportConnect();
 	void wavExportDisconnect();
 
@@ -266,6 +267,7 @@ private:
 	int8_t 						filterTypePerformanceMode = -1;
 
 	uint8_t 					muteState = 0;
+	uint8_t						onlyReverbMuteState = 0;
 
 	void changeFilterType(uint8_t type);
 	void filterConnect();

@@ -1,9 +1,10 @@
-#ifndef EXPORTER_MTSONGSTEMSEXPORTER_H_
-#define EXPORTER_MTSONGSTEMSEXPORTER_H_
+#ifndef EXPORTER_MTPATTERNSTEMSEXPORTER_H_
+#define EXPORTER_MTPATTERNSTEMSEXPORTER_H_
 
-#include "mtSongExporter.h"
+#include "mtPatternExporter.h"
+#include "mtStructs.h"
 
-class mtSongTrackExporter
+class mtPatternTrackExporter
 {
 public:
 	void start(char * path, uint8_t track_n);
@@ -17,12 +18,12 @@ private:
 	uint8_t currentStatus;
 	uint8_t lastStatus;
 	uint8_t currentTrack;
-	mtSongExporter localSongExporter;
+	mtPatternExporter localPatternExporter;
 
 };
 
 
-class mtSongStemsExporter
+class mtPatternStemsExporter
 {
 public:
 	void start(char * path);
@@ -31,8 +32,8 @@ public:
 
 	friend void setOnLastExportStep();
 private:
-	mtSongTrackExporter trackExporter;
-	char folderPath[50];
+	mtPatternTrackExporter trackExporter;
+	char folderPath[PATCH_SIZE];
 	uint8_t currentTrack = 0;
 	uint8_t currentTrackState = 0;
 	uint8_t lastTrackState = 0;
@@ -42,4 +43,4 @@ private:
 
 
 
-#endif /* EXPORTER_MTSONGSTEMSEXPORTER_H_ */
+#endif /* EXPORTER_MTPATTERNSTEMSEXPORTER_H_ */
