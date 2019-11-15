@@ -23,7 +23,7 @@
 
 #include "mtMidi.h"
 #include "mtSleep.h"
-
+#include "MTP.h"
 
 
 //----------------------------------------------------------
@@ -61,6 +61,7 @@ void ENC_SW_INT_FUNCT() { }
 ///------------------------------------------------------------------------------------
 
 
+///------------------------------------------------------------------------------------
 AudioControlSGTL5000 audioShield;
 
 
@@ -134,7 +135,7 @@ void initHardware()
 
 	//SD CARD
 	//....................................................
-	if (!SD.begin(SdioConfig(DMA_SDIO)))	//FIFO_SDIO
+	if (! SD.begin( SdioConfig(DMA_SDIO) ) )	//FIFO_SDIO
 	{
 		if(hardwareTest)
 		{
@@ -150,6 +151,10 @@ void initHardware()
 		 //mtPrint("SD card init succesfull");
 		}
 	}
+
+
+	//mtpd.begin(&storage);
+
 
 
 
@@ -292,6 +297,8 @@ void updateHardware()
 
 		hid.handle();
 		sdCardDetector.update();
+
+	    mtpd.loop();
 
 		midiUpdate();
 	}
