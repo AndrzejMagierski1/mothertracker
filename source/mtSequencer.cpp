@@ -586,11 +586,11 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 		else if (patternStep.note == STEP_NOTE_CUT)
 		{
-			instrumentPlayer[row].seqFx(fx.FX_TYPE_CUT, 1, 0);
+			instrumentPlayer[row].noteOff(STEP_NOTE_CUT);
 		}
 		else if (patternStep.note == STEP_NOTE_FADE)
 		{
-			instrumentPlayer[row].seqFx(fx.FX_TYPE_FADE, 1, 0);
+			instrumentPlayer[row].noteOff(STEP_NOTE_FADE);
 		}
 	}
 
