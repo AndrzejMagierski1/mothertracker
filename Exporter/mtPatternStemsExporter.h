@@ -29,11 +29,13 @@ public:
 	void start(char * path);
 	void update();
 	uint8_t getStatus();
+	uint8_t getProgress();
+	uint8_t getTrack();
 
 	friend void setOnLastExportStep();
 private:
 	mtPatternTrackExporter trackExporter;
-	char folderPath[PATCH_SIZE];
+	char folderPath[PATCH_SIZE - 10];
 	uint8_t currentTrack = 0;
 	uint8_t currentTrackState = 0;
 	uint8_t lastTrackState = 0;

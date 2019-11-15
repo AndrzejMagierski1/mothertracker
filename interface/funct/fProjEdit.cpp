@@ -314,6 +314,27 @@ void cProjectEditor::update()
 		showSaveingHorizontalBar();
 	}
 
+	if(exportInProgress)
+	{
+		currentExportState = exporter.getState();
+		uint8_t localProgress = exporter.getProgress();
+		if(localProgress >  exportProgress )
+		{
+			exportProgress = localProgress;
+		}
+		showExportingHorizontalBar();
+		if((currentExportState == 0) && (lastExportState != currentExportState))
+		{
+			exportInProgress = 0;
+			showExportWindow();
+		}
+
+		lastExportState = currentExportState;
+
+
+
+	}
+
 	if(newProjectPopupDelay > 200)
 	{
 		if(newProjectPopupFlag)
@@ -969,7 +990,11 @@ char currentExportPath[PATCH_SIZE];
 
 static uint8_t functExportSong()
 {
-	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
+
+	PE->exportInProgress = 1;
+	PE->exportProgress = 0;
+	PE->currentExportType = (int)exportType::song;
 
 	uint16_t fileCounter = 0;
 
@@ -986,7 +1011,11 @@ static uint8_t functExportSong()
 }
 static uint8_t functExportSongStems()
 {
-	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
+
+	PE->exportInProgress = 1;
+	PE->exportProgress = 0;
+	PE->currentExportType = (int)exportType::songStems;
 
 	uint16_t fileCounter = 0;
 
@@ -1005,7 +1034,11 @@ static uint8_t functExportSongStems()
 }
 static uint8_t functExportPattern()
 {
-	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
+
+	PE->exportInProgress = 1;
+	PE->exportProgress = 0;
+	PE->currentExportType = (int)exportType::pattern;
 
 	uint16_t fileCounter = 0;
 	uint16_t namePattern = mtProject.values.actualPattern + 1;
@@ -1024,7 +1057,11 @@ static uint8_t functExportPattern()
 }
 static uint8_t functExportPatternStems()
 {
-	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
+
+	PE->exportInProgress = 1;
+	PE->exportProgress = 0;
+	PE->currentExportType = (int)exportType::patternStems;
 
 	uint16_t fileCounter = 0;
 	uint16_t namePattern = mtProject.values.actualPattern + 1;
@@ -1043,13 +1080,13 @@ static uint8_t functExportPatternStems()
 }
 static uint8_t functExportToMOD()
 {
-	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 
 	return 1;
 }
 static uint8_t functExportGoBack()
 {
-	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 	return 1;
@@ -1127,7 +1164,7 @@ static uint8_t functExportGoBack()
 static uint8_t functSwitchModule(uint8_t button)
 {
 
-	if(PE->openInProgressFlag || PE->saveInProgressFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 	PE->eventFunct(eventSwitchModule,PE,&button,0);
 
 	return 1;

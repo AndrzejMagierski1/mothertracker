@@ -29,6 +29,8 @@ public:
 		exportFinished,
 		exportDuring
 	};
+
+	uint8_t getProgress();
 private:
 
 	void switchBuffer();

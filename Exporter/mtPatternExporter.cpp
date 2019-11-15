@@ -168,3 +168,8 @@ uint8_t mtPatternExporter::getStatus()
 	return (uint8_t)status;
 }
 
+uint8_t mtPatternExporter::getProgress()
+{
+	return (sequencer.getActualPos() * 100) / (sequencer.getPatternLength() - 1);
+}
+

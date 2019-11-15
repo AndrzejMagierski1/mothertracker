@@ -82,7 +82,7 @@ void mtPatternStemsExporter::update()
 			else if(currentTrack == 9)
 			{
 				char currentPath[PATCH_SIZE];
-				sprintf(currentPath,"%s/song",folderPath);
+				sprintf(currentPath,"%s/mix",folderPath);
 				trackExporter.start(currentPath, currentTrack);
 			}
 			else
@@ -101,4 +101,14 @@ void mtPatternStemsExporter::update()
 uint8_t mtPatternStemsExporter::getStatus()
 {
 	return status;
+}
+
+uint8_t mtPatternStemsExporter::getProgress()
+{
+	uint16_t patternLength =  sequencer.getPatternLength();
+	return (currentTrack * patternLength  + sequencer.getActualPos()) * 100 / (10*patternLength);
+}
+uint8_t mtPatternStemsExporter::getTrack()
+{
+	return currentTrack;
 }

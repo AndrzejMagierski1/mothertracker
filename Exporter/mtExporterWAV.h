@@ -24,6 +24,9 @@ public:
 	void start(char * path, exportType t);
 	void begin();
 	void update();
+	uint8_t getProgress();
+	uint8_t getState();
+	uint8_t getStemsTrack();
 	friend void setOnLastExportStep();
 private:
 	void setExportType(exportType t);

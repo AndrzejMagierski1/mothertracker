@@ -2,7 +2,7 @@
 
 #include "mtLED.h"
 #include "mtFileManager.h"
-
+#include "mtExporterWAV.h"
 
 constexpr uint8_t BACKSPACE_PAD_1 = 10;
 constexpr uint8_t BACKSPACE_PAD_2 = 11;
@@ -570,7 +570,31 @@ void cProjectEditor::showOpeningHorizontalBar()
 void cProjectEditor::showSaveingHorizontalBar()
 {
 	display.setControlValue(loadHorizontalBarControl, saveingProgress);
-	display.setControlText(loadHorizontalBarControl, "Save project...");
+	display.setControlText(loadHorizontalBarControl, "Saveing project...");
+	display.setControlShow(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+}
+
+void cProjectEditor::showExportingHorizontalBar()
+{
+
+	display.setControlValue(loadHorizontalBarControl, exportProgress);
+	if(currentExportType == (int) exportType::pattern )		sprintf(currentInfo,"Exporting Pattern %d", mtProject.values.actualPattern);
+	else if (currentExportType == (int) exportType::patternStems )
+	{
+		uint8_t track_n = exporter.getStemsTrack();
+		if(track_n < 8) sprintf(currentInfo,"Exporting Pattern Stems: Track%d ", track_n + 1);
+		else if(track_n == 8) strcpy(currentInfo,"Exporting Pattern Stems: Reverb ");
+		else if(track_n == 9) strcpy(currentInfo,"Exporting Pattern Stems: Mix ");
+
+	}
+	else if (currentExportType == (int) exportType::song ) 	sprintf(currentInfo,"Exporting Song");
+	else if (currentExportType == (int) exportType::songStems )
+	{
+		sprintf(currentInfo,"Exporting Song Stems: ");
+	}
+
+	display.setControlText(loadHorizontalBarControl, currentInfo);
 	display.setControlShow(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
 }
@@ -622,6 +646,10 @@ void cProjectEditor::showExportWindow()
 		makeBigBottomLabel(i);
 	}
 	//refreshe są w make
+
+	display.setControlHide(loadHorizontalBarControl);
+	display.refreshControl(loadHorizontalBarControl);
+
 	display.synchronizeRefresh();
 }
 

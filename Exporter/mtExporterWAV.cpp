@@ -53,3 +53,36 @@ void mtExporter::start(char * path, exportType t)
 		default: break;
 	}
 }
+
+uint8_t mtExporter::getProgress()
+{
+	switch(type)
+	{
+		case exportType::song : 													break;
+		case exportType::songStems : 		 										break;
+		case exportType::pattern : 			patternExporter.getProgress();			break;
+		case exportType::patternStems : 	patternStemsExporter.getProgress();		break;
+		default: break;
+	}
+}
+uint8_t mtExporter::getState()
+{
+	switch(type)
+	{
+		case exportType::song : 													break;
+		case exportType::songStems : 		 										break;
+		case exportType::pattern : 			patternExporter.getStatus();			break;
+		case exportType::patternStems : 	patternStemsExporter.getStatus();		break;
+		default: break;
+	}
+}
+
+uint8_t mtExporter::getStemsTrack()
+{
+	switch(type)
+	{
+		case exportType::songStems : 		 										break;
+		case exportType::patternStems : 	patternStemsExporter.getTrack();		break;
+		default: break;
+	}
+}
