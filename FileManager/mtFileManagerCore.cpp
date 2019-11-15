@@ -11,7 +11,6 @@
 
 
 FileManager fileManager;
-strMtProjectRemote projectRemote;
 
 void FileManager::update()
 {
@@ -373,8 +372,6 @@ void FileManager::getDefaultProject(struct strMtProject *source)
 	source->patterns_count = 0;
 	source->max_memory = SAMPLE_MEMORY_MAX;
 	source->used_memory = 0;
-
-	strInstrument instrument[INSTRUMENTS_COUNT];
 
 	for(uint32_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
