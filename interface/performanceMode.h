@@ -102,7 +102,7 @@ public:
 
 	cPerformanceMode()
 	{
-		fxValues[mtPerfPatternLength] = -1;
+
 	}
 	~cPerformanceMode() {}
 
@@ -116,7 +116,7 @@ public:
 
 	void toggleTrackPerformanceState(uint8_t track);
 	void clearPerformanceValues(uint8_t track, uint8_t fx);
-	void refreshPerformanceValuesForTrack(uint8_t track);
+	void refreshPerformanceValuesForTrack(uint8_t track, uint8_t fx);
 
 	uint8_t wasPatternOntrackChenged(uint8_t track);
 
@@ -131,19 +131,33 @@ public:
 	void showEditFrame(uint8_t place);
 	void hideEditFrame();
 
+	//----------------------------------
 	void refreshFxNames(uint8_t place);
 
+	//
+	//void changePerformanceData(int16_t value);
+
+
+	uint8_t getFxFromPlace(uint8_t place);
+
+	void refreshActiveValueForFx(uint8_t fx);
 	void showPerformaceValue(uint8_t fx);
+
 	void refreshTracksState();
 	void refreshTracksPatterns();
+
+	void setPlaceNewFx(uint8_t newFx);
+	void savePlaceFxValue(uint8_t place, uint8_t slot, int16_t value);
+	void clearHidedFx(uint8_t fx);
+	uint8_t fxAlredyTaken(uint8_t fx);
+//----------------------------------
+
 
 	void showArrow(uint8_t place, uint8_t type);
 	void hideArrow(uint8_t place);
 
-//----------------------------------
-
-
-	strLabelData textLabelData[12];
+	//strLabelData textLabelData[12];
+	strMultiLabelData multiLabelData[12];
 
 	strFrameData frameData;
 
@@ -171,23 +185,29 @@ public:
 	uint8_t performanceEditPlace = 0;
 
 	//--------performance values
-	// g
+	// gui
 	//uint8_t fxPlaces[12] = {0,1,2,3,4,5,6,7,8,9,10,11};
-	char fxValuesText[12][7] = {0};
+	char fxValuesText[12][4][7] = {0};
 
-	// f
-	int8_t tracksPerformanceState[8] = {0};
-	int8_t placePerformanceState[12];
+	// funct
+	uint8_t tracksPerformanceState[8] = {0};
+	int8_t performancePadsState[12];
 
-	int8_t fxValues[performanceFxesCount] = {0};
+	int16_t fxValues[performanceFxesCount][4] = {0};
+	//uint8_t activeFxValues[performanceFxesCount] = {0};
+	int16_t fxTempValues[performanceFxesCount] = {0};
+
 	//uint8_t trackPatern[8] =  {1,1,1,1,1,1,1,1};
-	char trackPaternText[8][13];
+	char trackPaternText[8][14];
 
 	uint8_t trackPatternChange[8] = {0};
 };
 
 extern cPerformanceMode performanceMode;
 
+
+//#define FX_VALUE(x) PM->fxValues[x][PM->activeFxValues[x]]
+#define FX_VALUE(x) PM->fxTempValues[x]
 
 
 #endif /* INTERFACE_INSTRUMENTEDITOR_H_ */

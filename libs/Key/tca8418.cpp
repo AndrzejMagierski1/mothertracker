@@ -35,26 +35,24 @@
 
 
 
-KEYS::KEYS() :
-		_address(0)
-					#ifdef TCA8418_INTERRUPT_SUPPORT
-					, _oldPIN(0), _isrIgnore(0), _pcintPin(0), _intMode(),
-			_intCallback()
-#endif
+KEYS::KEYS()
 {
+	_address = 0;
+	_oldPIN = 0;
+	_isrIgnore = 0;
+	_pcintPin = 0;
+
+//	 _intMode(),
+//	_intCallback()
+
+
 }
 
-void KEYS::begin(i2c_t3 * wire)
-{
-	localWire = wire;
-	_address = 0x34;
-	//localWire->begin(I2C_MASTER, 0x00, I2C_SCL, I2C_SDA, I2C_PULLUP_EXT, 400000);
-}
 
-void KEYS::begin(uint8_t rows, uint16_t cols, uint8_t config, i2c_t3 * wire, uint8_t* table)
+void KEYS::begin(uint8_t rows, uint16_t cols, uint8_t config, i2c_t3 * i2c_wire, uint8_t* table)
 {
 	convertTable = table;
-	localWire = wire;
+	localWire = i2c_wire;
 	_address = 0x34;
 	// begin poza
 	//localWire->begin(I2C_MASTER, 0x00, I2C_SCL, I2C_SDA, I2C_PULLUP_EXT, 400000);
@@ -69,7 +67,7 @@ uint8_t KEYS::readKeypad(void)
 /*
  * Configure the TCA8418 for keypad operation
  */
-bool KEYS::configureKeys(uint8_t rows, uint16_t cols, uint8_t config)
+void KEYS::configureKeys(uint8_t rows, uint16_t cols, uint8_t config)
 {
 	//Pins all default to GPIO. pinMode(x, KEYPAD); may be used for individual pins.
 	writeByte(rows, REG_KP_GPIO1);
@@ -84,28 +82,30 @@ bool KEYS::configureKeys(uint8_t rows, uint16_t cols, uint8_t config)
 	writeByte(config, REG_CFG);
 
 	clearInterruptStatus();
+
+
 }
 
 void KEYS::writeByte(uint8_t data, uint8_t reg)
 {
-	localWire->beginTransmission(_address);
-	I2CWRITE((uint8_t ) reg);
+	I2C_BEGINTRANS(_address);
+	I2C_WRITE((uint8_t ) reg);
 
-	I2CWRITE((uint8_t ) data);
-	localWire->endTransmission();
+	I2C_WRITE((uint8_t ) data);
+	I2C_ENDTRANS();
 
 	return;
 }
 
 bool KEYS::readByte(uint8_t *data, uint8_t reg)
 {
-	localWire->beginTransmission(_address);
-	I2CWRITE((uint8_t ) reg);
-	localWire->endTransmission();
+	I2C_BEGINTRANS(_address);
+	I2C_WRITE((uint8_t ) reg);
+	I2C_ENDTRANS();
 	uint8_t timeout = 0;
 
-	localWire->requestFrom(_address, (uint8_t) 0x01);
-	while (localWire->available() < 1)
+	I2C_REQUESTFROM(_address, (uint8_t) 0x01);
+	while (I2C_AVALIBLE() < 1)
 	{
 		timeout++;
 		if (timeout > I2CTIMEOUT)
@@ -115,7 +115,7 @@ bool KEYS::readByte(uint8_t *data, uint8_t reg)
 		delay(1);
 	} 			// Experimental
 
-	*data = I2CREAD();
+	*data = I2C_READ();
 
 	return (false);
 }
@@ -131,14 +131,14 @@ void KEYS::write3Bytes(uint32_t data, uint8_t reg)
 
 	datau.w = data;
 
-	localWire->beginTransmission(_address);
-	I2CWRITE((uint8_t ) reg);
+	I2C_BEGINTRANS(_address);
+	I2C_WRITE((uint8_t ) reg);
 
-	I2CWRITE((uint8_t ) datau.b[0]);
-	I2CWRITE((uint8_t ) datau.b[1]);
-	I2CWRITE((uint8_t ) datau.b[2]);
+	I2C_WRITE((uint8_t ) datau.b[0]);
+	I2C_WRITE((uint8_t ) datau.b[1]);
+	I2C_WRITE((uint8_t ) datau.b[2]);
 
-	localWire->endTransmission();
+	I2C_ENDTRANS();
 	return;
 }
 
@@ -153,13 +153,13 @@ bool KEYS::read3Bytes(uint32_t *data, uint8_t reg)
 
 	datau.w = *data;
 
-	localWire->beginTransmission(_address);
-	I2CWRITE((uint8_t ) reg);
-	localWire->endTransmission();
+	I2C_BEGINTRANS(_address);
+	I2C_WRITE((uint8_t ) reg);
+	I2C_ENDTRANS();
 	uint8_t timeout = 0;
 
-	localWire->requestFrom(_address, (uint8_t) 0x03);
-	while (localWire->available() < 3)
+	I2C_REQUESTFROM(_address, (uint8_t) 0x03);
+	while (I2C_AVALIBLE() < 3)
 	{
 		timeout++;
 		if (timeout > I2CTIMEOUT)
@@ -169,9 +169,9 @@ bool KEYS::read3Bytes(uint32_t *data, uint8_t reg)
 		delay(1);
 	} 		//Experimental
 
-	datau.b[0] = I2CREAD();
-	datau.b[1] = I2CREAD();
-	datau.b[2] = I2CREAD();
+	datau.b[0] = I2C_READ();
+	datau.b[1] = I2C_READ();
+	datau.b[2] = I2C_READ();
 
 	*data = datau.w;
 
@@ -180,7 +180,7 @@ bool KEYS::read3Bytes(uint32_t *data, uint8_t reg)
 
 void KEYS::pinMode(uint32_t pin, uint8_t mode)
 {
-	uint32_t pullUp, dbc;
+	uint32_t dbc;
 
 	readGPIO();
 	switch (mode)

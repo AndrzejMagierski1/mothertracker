@@ -107,7 +107,10 @@ public:
 	void refreshFillStep();
 	void hideFillPopup();
 
-
+	void activateSelection();
+	void deactivateSelection();
+	void playheadRecMode();
+	void playheadNormalMode();
 
 	void showTracksMaster();
 	void refreshTracksMaster();
@@ -136,8 +139,7 @@ public:
 
 	strFrameData frameData;
 
-	hControl topLabel[8];
-	hControl bottomLabel[8];
+	hControl label[8];
 	hControl patternControl;
 	hControl frameControl;
 
@@ -208,13 +210,6 @@ public:
 
 	uint8_t wasNotesEditBefore = 0;
 
-//-------------------------------------------------------
-// mute track master mode
-	uint8_t masterTrackState = 0;
-
-
-
-
 
 //-------------------------------------------------------
 // pojedyncze parametry / 8 trackow
@@ -222,7 +217,6 @@ public:
 	uint8_t patternViewChanged = 0;
 	uint8_t selectedParams[2];
 
-	uint8_t disabledPatternButtonRelease = 0;
 
 	void setPatternViewMode(uint8_t param);
 

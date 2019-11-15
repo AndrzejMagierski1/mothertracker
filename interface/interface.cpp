@@ -19,8 +19,6 @@
 
 
 
-
-
 #include "mtStructs.h"
 
 #include "interfacePopups.h"
@@ -31,19 +29,16 @@
 #include "SD.h"
 #include "sdram.h"
 
-#include "RamMonitor.h"
-
-
 
 
 
 cInterface mtInterface;
 
-elapsedMillis ramInfoTimer;
 
 strMtConfig mtConfig;
 strMtProject mtProject;
 strInterfaceGlobals interfaceGlobals;
+
 
 __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[SAMPLE_MEMORY_MAX/2];
 __NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[SAMPLE_MEMORY_MAX/2];
@@ -51,7 +46,7 @@ __NOINIT(EXTERNAL_RAM) uint8_t sdram_writeLoadBuffer[32768];
 //__NOINIT(EXTERNAL_RAM) uint8_t undo_Bank[1024*1024];
 
 //=======================================================================
-//							SETUP INTERFEJSU
+//							SETAP INTERFEJSU
 //=======================================================================
 //=======================================================================
 
@@ -89,18 +84,6 @@ const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 	{interfaceButtonConfig, 	7, mtConfigModeDefault},
 };
 
-//	case interfaceButton10: activateModule(modules[0], 0); break;
-//	case interfaceButton11: activateModule(modules[4], 0); break;
-//	case interfaceButton12: activateModule(modules[7], 0); break;
-//	case interfaceButton13: activateModule(modules[2], 0); break;
-//	case interfaceButton14: activateModule(modules[3], 0); break;
-//	case interfaceButton15: activateModule(modules[6], 0); break;
-//	case interfaceButton16: activateModule(modules[0], 0); break;
-//	case interfaceButton17: activateModule(modules[1], 0); break;
-//	case interfaceButton23: activateModule(modules[5], mtInstEditModeVolume); break;
-//	case interfaceButton24: activateModule(modules[5], mtInstEditModeFilter); break;
-//	case interfaceButton25: activateModule(modules[5], mtInstEditModeParams); break;
-//	}
 
 uint8_t cFunctionMachine::potsCount = 		interfacePotsCount;
 uint8_t cFunctionMachine::buttonsCount = 	interfaceButtonsCount;
@@ -125,8 +108,6 @@ void cInterface::begin()
 		modules[i]->setEventFunct(interfaceEnvents);
 		modules[i]->FM = &uiFM;
 	}
-
-	//ramMonitor.initialize();
 
 	popupConfig.time = 2;
 	popupConfig.w = 300;
@@ -155,14 +136,6 @@ void cInterface::update()
 	mtPopups.update();
 
 
-	if(ramInfoTimer > 5000)
-	{
-		ramInfoTimer = 0;
-
-		//ramMonitor.run();
-		//ramMonitor.report_ram();
-
-	}
 }
 
 
@@ -182,9 +155,6 @@ void cInterface::processOperatingMode()
 			doOnStart = 0;
 			doStartTasks();
 		}
-
-
-
 
 		if(detectStartState())
 		{

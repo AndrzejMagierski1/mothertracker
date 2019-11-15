@@ -8,7 +8,6 @@
 
 #include "mtPadsBacklight.h"
 
-//#include "mtAudioEngine.h"
 
 #include "interfacePopups.h"
 
@@ -37,7 +36,6 @@ static  uint8_t functUp();
 static  uint8_t functDown();
 
 
-static  uint8_t functCopy();
 static uint8_t functShift(uint8_t value);
 
 
@@ -47,10 +45,6 @@ static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
 static  uint8_t functSwitchMode(uint8_t button);
 
-
-
-static  uint8_t functInstrument(uint8_t state);
-static uint8_t functStepNote(uint8_t value);
 
 
 
@@ -94,6 +88,21 @@ void cPerformanceMode::start(uint32_t options)
 		mtProject.values.perfTracksPatterns[q] = mtProject.values.actualPattern;
 	}
 
+	for(uint8_t track = 0; track < 8; track++)
+	{
+		tracksPerformanceState[track] = 0; // ustaw na 0
+
+		if(PM->tracksPerformanceState[track] == 1) // a teraz sprawdz czy moze jednak nie jest 1 :>
+		{
+			for(uint8_t i = 0; i < 12; i++)
+			{
+				refreshPerformanceValuesForTrack(track,  mtProject.values.perfFxPlaces[i]);
+			}
+		}
+	}
+
+
+
 	moduleRefresh = 1;
 	performanceEditState = 0;
 
@@ -135,6 +144,14 @@ void cPerformanceMode::start(uint32_t options)
 
 void cPerformanceMode::stop()
 {
+	for(uint8_t track = 0; track < 8; track++)
+	{
+		for(uint8_t fx = 0; fx < performanceFxesCount; fx++)
+		{
+			clearPerformanceValues(track, fx);
+		}
+	}
+
 	moduleRefresh = 0;
 	mtPadBoard.releaseAllInstrument();
 	padsBacklight.clearAllPads(1, 1, 1);
@@ -199,7 +216,7 @@ void cPerformanceMode::setPerformanceFxes()
 	padsBacklight.clearAllPads(0, 1, 1);
 	for(uint8_t i = 0; i < 48; i+=2)
 	{
-		padsBacklight.setBackLayer(1, 8, i);
+		padsBacklight.setBackLayer(1, mtConfig.values.padsLightBackWeek, i);
 	}
 
 
@@ -220,7 +237,6 @@ void cPerformanceMode::toggleEditState()
 
 }
 
-
 uint8_t cPerformanceMode::wasPatternOntrackChenged(uint8_t track)
 {
 	return trackPatternChange[track] > 1;
@@ -240,10 +256,12 @@ void cPerformanceMode::toggleTrackPerformanceState(uint8_t track)
 	}
 	else
 	{
-		refreshPerformanceValuesForTrack(track);
+		for(uint8_t i = 0; i < 12; i++)
+		{
+			refreshPerformanceValuesForTrack(track,  mtProject.values.perfFxPlaces[i]);
+		}
 	}
 }
-
 
 void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 {
@@ -319,8 +337,8 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 	}
 	case mtPerfPatternLength:
 	{
-		fxValues[fx] = -1;
-		sequencer.setPerformancePatternLengthFromFxVal(fxValues[fx]);
+		//fxValues[fx][] = -1;
+		sequencer.setPerformancePatternLengthFromFxVal(0);
 		break;
 	}
 
@@ -334,118 +352,159 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 }
 
 
-void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track)
+void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track, uint8_t fx)
 {
-	for(uint8_t fx = 0; fx < performanceFxesCount; fx++)
+	if(fx == 0) return;
+
+	switch(fx)
 	{
-		switch(fx)
+	case mtPerfFxVolume:
+	{
+		instrumentPlayer[track].changeVolumePerformanceMode(FX_VALUE(fx));
+		break;
+	}
+	case mtPerfPanning:
+	{
+		instrumentPlayer[track].changePanningPerformanceMode(FX_VALUE(fx));
+		break;
+	}
+	case mtPerfLowPass:
+	{
+		if(FX_VALUE(fx) != 0)
 		{
-		case mtPerfFxVolume:
-		{
-			instrumentPlayer[track].changeVolumePerformanceMode(fxValues[fx]);
-			break;
+			instrumentPlayer[track].changeFilterTypePerformanceMode(1);
+			instrumentPlayer[track].changeCutoffPerformanceMode(FX_VALUE(fx));
 		}
-		case mtPerfPanning:
+		else if(FX_VALUE(mtPerfHighPass) != 0 && FX_VALUE(mtPerfBandPass) != 0)
 		{
-			instrumentPlayer[track].changePanningPerformanceMode(fxValues[fx]);
-			break;
+			instrumentPlayer[track].changeFilterTypePerformanceMode(0);
 		}
-		case mtPerfLowPass:
+		break;
+	}
+	case mtPerfHighPass:
+	{
+		if(FX_VALUE(fx) != 0)
 		{
-			if(fxValues[fx] != 0)
-			{
-				instrumentPlayer[track].changeFilterTypePerformanceMode(1);
-				instrumentPlayer[track].changeCutoffPerformanceMode(fxValues[fx]);
-			}
-			else if(fxValues[mtPerfHighPass] != 0 && fxValues[mtPerfBandPass] != 0)
-			{
-				instrumentPlayer[track].changeFilterTypePerformanceMode(0);
-			}
-			break;
+			instrumentPlayer[track].changeFilterTypePerformanceMode(2);
+			instrumentPlayer[track].changeCutoffPerformanceMode(FX_VALUE(fx));
 		}
-		case mtPerfHighPass:
+		else if(FX_VALUE(mtPerfLowPass) != 0 && FX_VALUE(mtPerfBandPass) != 0)
 		{
-			if(fxValues[fx] != 0)
-			{
-				instrumentPlayer[track].changeFilterTypePerformanceMode(2);
-				instrumentPlayer[track].changeCutoffPerformanceMode(fxValues[fx]);
-			}
-			else if(fxValues[mtPerfLowPass] != 0 && fxValues[mtPerfBandPass] != 0)
-			{
-				instrumentPlayer[track].changeFilterTypePerformanceMode(0);
-			}
-			break;
+			instrumentPlayer[track].changeFilterTypePerformanceMode(0);
 		}
-		case mtPerfBandPass:
+		break;
+	}
+	case mtPerfBandPass:
+	{
+		if(FX_VALUE(fx) != 0)
 		{
-			if(fxValues[fx] != 0)
-			{
-				instrumentPlayer[track].changeFilterTypePerformanceMode(3);
-				instrumentPlayer[track].changeCutoffPerformanceMode(fxValues[fx]);
-			}
-			else if(fxValues[mtPerfLowPass] != 0 && fxValues[mtPerfHighPass] != 0)
-			{
-				instrumentPlayer[track].changeFilterTypePerformanceMode(0);
-			}
+			instrumentPlayer[track].changeFilterTypePerformanceMode(3);
+			instrumentPlayer[track].changeCutoffPerformanceMode(FX_VALUE(fx));
+		}
+		else if(FX_VALUE(mtPerfLowPass) != 0 && FX_VALUE(mtPerfHighPass) != 0)
+		{
+			instrumentPlayer[track].changeFilterTypePerformanceMode(0);
+		}
 
-			break;
-		}
-		case mtPerfReverbSend:
-		{
-			instrumentPlayer[track].changeReverbSendPerformanceMode(fxValues[fx]);
-			break;
-		}
-		case mtPerfSampleStart:
-		{
-			instrumentPlayer[track].changeStartPointPerformanceMode(fxValues[fx]);
-			break;
-		}
-		case mtPerfSampleEnd:
-		{
-			instrumentPlayer[track].changeEndPointPerformanceMode(fxValues[fx]);
-			break;
-		}
-		case mtPerfWavetablePos:
-		{
-			instrumentPlayer[track].changeWavetableWindowPerformanceMode(fxValues[fx]);
-			break;
-		}
-		case mtPerfTune:
-		{
-			instrumentPlayer[track].changeTunePerformanceMode(fxValues[fx]);
-			break;
-		}
-		case mtPerfSamplePlayback:
-		{
-			instrumentPlayer[track].changeSamplePlaybackPerformanceMode(fxValues[fx]);
-			break;
-		}
-		case mtPerfStepStutter:
-		{
-			sequencer.setPerformanceStutter(track, fxValues[fx]);
-			break;
-		}
-		case mtPerfPatternPlayMode:
-		{
-			sequencer.setPerformancePlayMode(track, fxValues[fx]);
-			break;
-		}
-		case mtPerfPatternLength:
-		{
-			sequencer.setPerformancePatternLengthFromFxVal(fxValues[fx]);
-			break;
-		}
+		break;
+	}
+	case mtPerfReverbSend:
+	{
+		instrumentPlayer[track].changeReverbSendPerformanceMode(FX_VALUE(fx));
+		break;
+	}
+	case mtPerfSampleStart:
+	{
+		instrumentPlayer[track].changeStartPointPerformanceMode(map(FX_VALUE(fx),-100,100,-MAX_16BIT,MAX_16BIT));
+		break;
+	}
+	case mtPerfSampleEnd:
+	{
+		instrumentPlayer[track].changeEndPointPerformanceMode(map(FX_VALUE(fx),-100,100,-MAX_16BIT,MAX_16BIT));
+		break;
+	}
+	case mtPerfWavetablePos:
+	{
+		instrumentPlayer[track].changeWavetableWindowPerformanceMode(map(FX_VALUE(fx),-100,100,-MAX_WAVETABLE_WINDOW,MAX_WAVETABLE_WINDOW));
+		break;
+	}
+	case mtPerfTune:
+	{
+		instrumentPlayer[track].changeTunePerformanceMode(FX_VALUE(fx));
+		break;
+	}
+	case mtPerfSamplePlayback:
+	{
+		instrumentPlayer[track].changeSamplePlaybackPerformanceMode(FX_VALUE(fx));
+		break;
+	}
+	case mtPerfStepStutter:
+	{
+		sequencer.setPerformanceStutter(track, FX_VALUE(fx));
+		break;
+	}
+	case mtPerfPatternPlayMode:
+	{
+		sequencer.setPerformancePlayMode(track, FX_VALUE(fx));
+		break;
+	}
+	case mtPerfPatternLength:
+	{
+		sequencer.setPerformancePatternLengthFromFxVal(FX_VALUE(fx));
+		break;
+	}
 
 
 
-		default: break;
-		}
-
+	default: break;
 	}
 }
 
 
-//==============================================================================================================
+//=================================================================================
+//
+//=================================================================================
+uint8_t cPerformanceMode::getFxFromPlace(uint8_t place)
+{
+	return mtProject.values.perfFxPlaces[place];
+}
+
+//=================================================================================
+//
+//=================================================================================
+void cPerformanceMode::savePlaceFxValue(uint8_t place, uint8_t slot, int16_t value)
+{
+	mtProject.values.perfFxValues[place][slot] = value;
+
+
+	//mtProject.values.perfFxPlaces[place];
+	//mtProject.values.perfFxValues[i][] = PM->fxValues[i][PM->activeFxValues[i]];
+}
+
+//=================================================================================
+//
+//=================================================================================
+void cPerformanceMode::clearHidedFx(uint8_t fx)
+{
+
+}
+
+//=================================================================================
+//
+//=================================================================================
+uint8_t fxAlredyTaken(uint8_t fx)
+{
+	for(uint8_t i = 0; i<12; i++)
+	{
+		if(mtProject.values.perfFxPlaces[i] == fx) return 1;
+	}
+
+	return 0;
+}
+
+//=================================================================================
+//
+//=================================================================================
 static  uint8_t functEncoder(int16_t value)
 {
 	uint8_t patternChange = 0;
@@ -470,125 +529,129 @@ static  uint8_t functEncoder(int16_t value)
 		}
 	}
 
-
 	if(patternChange) return 1;
+
+
 
 	for(uint8_t place = 0; place < 12; place++)
 	{
-		if(PM->placePerformanceState[place])
+		if(PM->performancePadsState[place] == 1) continue;
+
+		if(PM->performancePadsState[place])
 		{
 			int16_t mod_value = value;
-			if(PM->placePerformanceState[place] > 2) mod_value = -mod_value;
+			//if(PM->placePerformanceState[place] > 2) mod_value = -mod_value;
 
+			uint8_t fx = mtProject.values.perfFxPlaces[place];
+			//PM->activeFxValues[i] = PM->performancePadsState[place]-1;
 
-			uint8_t i = mtProject.values.perfFxPlaces[place];
-			switch(i)
+			switch(fx)
 			{
 			case mtPerfFxVolume:
 			{
-				if(PM->fxValues[i] + mod_value > 100) PM->fxValues[i] = 100;
-				else if(PM->fxValues[i] + mod_value < -100) PM->fxValues[i] = -100;
-				else PM->fxValues[i] += mod_value;
+				if(FX_VALUE(fx) + mod_value > 100) FX_VALUE(fx) = 100;
+				else if(FX_VALUE(fx) + mod_value < -100) FX_VALUE(fx) = -100;
+				else FX_VALUE(fx) += mod_value;
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeVolumePerformanceMode(PM->fxValues[i]);
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeVolumePerformanceMode(FX_VALUE(fx));
 				}
 				break;
 			}
 			case mtPerfPanning:
 			{
-				if(PM->fxValues[i] + mod_value > 100) PM->fxValues[i] = 100;
-				else if(PM->fxValues[i] + mod_value < -100) PM->fxValues[i] = -100;
-				else PM->fxValues[i] += mod_value;
+				if(FX_VALUE(fx) + mod_value > 100) FX_VALUE(fx) = 100;
+				else if(FX_VALUE(fx) + mod_value < -100) FX_VALUE(fx) = -100;
+				else FX_VALUE(fx) += mod_value;
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changePanningPerformanceMode(PM->fxValues[i]);
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changePanningPerformanceMode(FX_VALUE(fx));
 				}
 				break;
 			}
 			case mtPerfLowPass:
 			{
-				if(PM->fxValues[i] + mod_value > 100) PM->fxValues[i] = 100;
-				else if(PM->fxValues[i] + mod_value < -100) PM->fxValues[i] = -100;
-				else PM->fxValues[i] += mod_value;
-				PM->fxValues[mtPerfHighPass] = 0;
-				PM->fxValues[mtPerfBandPass] = 0;
-				PM->showPerformaceValue(mtPerfBandPass);
-				PM->showPerformaceValue(mtPerfHighPass);
+				if(FX_VALUE(fx) + mod_value > 100) FX_VALUE(fx) = 100;
+				else if(FX_VALUE(fx) + mod_value < -100) FX_VALUE(fx) = -100;
+				else FX_VALUE(fx) += mod_value;
+				////PM->fxValues[mtPerfHighPass][] = 0;
+				//PM->fxValues[mtPerfBandPass][] = 0;
+				//PM->showPerformaceValue(mtPerfBandPass);
+				//PM->showPerformaceValue(mtPerfHighPass);
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
 					if(PM->tracksPerformanceState[j])
 					{
 						instrumentPlayer[j].changeFilterTypePerformanceMode(1);
-						instrumentPlayer[j].changeCutoffPerformanceMode(PM->fxValues[i]);
+						instrumentPlayer[j].changeCutoffPerformanceMode(FX_VALUE(fx));
 					}
 				}
 				break;
 			}
 			case mtPerfHighPass:
 			{
-				if(PM->fxValues[i] + mod_value > 100) PM->fxValues[i] = 100;
-				else if(PM->fxValues[i] + mod_value < -100) PM->fxValues[i] = -100;
-				else PM->fxValues[i] += mod_value;
-				PM->fxValues[mtPerfLowPass] = 0;
-				PM->fxValues[mtPerfBandPass] = 0;
-				PM->showPerformaceValue(mtPerfBandPass);
-				PM->showPerformaceValue(mtPerfLowPass);
+				if(FX_VALUE(fx) + mod_value > 100) FX_VALUE(fx) = 100;
+				else if(FX_VALUE(fx) + mod_value < -100) FX_VALUE(fx) = -100;
+				else FX_VALUE(fx) += mod_value;
+				//PM->fxValues[mtPerfLowPass] = 0;
+				//PM->fxValues[mtPerfBandPass] = 0;
+				//PM->showPerformaceValue(mtPerfBandPass);
+				//PM->showPerformaceValue(mtPerfLowPass);
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
 					if(PM->tracksPerformanceState[j])
 					{
 						instrumentPlayer[j].changeFilterTypePerformanceMode(2);
-						instrumentPlayer[j].changeCutoffPerformanceMode(PM->fxValues[i]);
+						instrumentPlayer[j].changeCutoffPerformanceMode(FX_VALUE(fx));
 					}
 				}
 				break;
 			}
 			case mtPerfBandPass:
 			{
-				if(PM->fxValues[i] + mod_value > 100) PM->fxValues[i] = 100;
-				else if(PM->fxValues[i] + mod_value < -100) PM->fxValues[i] = -100;
-				else PM->fxValues[i] += mod_value;
-				PM->fxValues[mtPerfLowPass] = 0;
-				PM->fxValues[mtPerfHighPass] = 0;
-				PM->showPerformaceValue(mtPerfLowPass);
-				PM->showPerformaceValue(mtPerfHighPass);
+				if(FX_VALUE(fx) + mod_value > 100) FX_VALUE(fx) = 100;
+				else if(FX_VALUE(fx) + mod_value < -100) FX_VALUE(fx) = -100;
+				else FX_VALUE(fx) += mod_value;
+				//PM->fxValues[mtPerfLowPass][] = 0;
+				//PM->fxValues[mtPerfHighPass][] = 0;
+				//PM->showPerformaceValue(mtPerfLowPass);
+				//PM->showPerformaceValue(mtPerfHighPass);
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
 					if(PM->tracksPerformanceState[j])
 					{
 						instrumentPlayer[j].changeFilterTypePerformanceMode(3);
-						instrumentPlayer[j].changeCutoffPerformanceMode(PM->fxValues[i]);
+						instrumentPlayer[j].changeCutoffPerformanceMode(FX_VALUE(fx));
 					}
 				}
 				break;
 			}
 			case mtPerfReverbSend:
 			{
-				if(PM->fxValues[i] + mod_value > 100) PM->fxValues[i] = 100;
-				else if(PM->fxValues[i] + mod_value < -100) PM->fxValues[i] = -100;
-				else PM->fxValues[i] += mod_value;
+				if(FX_VALUE(fx) + mod_value > 100) FX_VALUE(fx) = 100;
+				else if(FX_VALUE(fx) + mod_value < -100) FX_VALUE(fx) = -100;
+				else FX_VALUE(fx) += mod_value;
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeReverbSendPerformanceMode(PM->fxValues[i]);
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeReverbSendPerformanceMode(FX_VALUE(fx));
 				}
 				break;
 			}
 			case mtPerfSampleStart:
 			{
-				if(PM->fxValues[i] + mod_value > 100) PM->fxValues[i] = 100;
-				else if(PM->fxValues[i] + mod_value < -100) PM->fxValues[i] = -100;
-				else PM->fxValues[i] += mod_value;
+				if(FX_VALUE(fx) + mod_value > 100) FX_VALUE(fx) = 100;
+				else if(FX_VALUE(fx) + mod_value < -100) FX_VALUE(fx) = -100;
+				else FX_VALUE(fx) += mod_value;
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeStartPointPerformanceMode(map(PM->fxValues[i],-100,100,-MAX_16BIT,MAX_16BIT));
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeStartPointPerformanceMode(map(FX_VALUE(fx),-100,100,-MAX_16BIT,MAX_16BIT));
 				}
 				break;
 
@@ -596,13 +659,13 @@ static  uint8_t functEncoder(int16_t value)
 			}
 			case mtPerfSampleEnd:
 			{
-				if(PM->fxValues[i] + mod_value > 100) PM->fxValues[i] = 100;
-				else if(PM->fxValues[i] + mod_value < -100) PM->fxValues[i] = -100;
-				else PM->fxValues[i] += mod_value;
+				if(FX_VALUE(fx) + mod_value > 100) FX_VALUE(fx) = 100;
+				else if(FX_VALUE(fx) + mod_value < -100) FX_VALUE(fx) = -100;
+				else FX_VALUE(fx) += mod_value;
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeEndPointPerformanceMode(PM->fxValues[i]);
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeEndPointPerformanceMode(map(FX_VALUE(fx),-100,100,-MAX_16BIT,MAX_16BIT));
 				}
 				break;
 
@@ -610,13 +673,13 @@ static  uint8_t functEncoder(int16_t value)
 			}
 			case mtPerfWavetablePos:
 			{
-				if(PM->fxValues[i] + mod_value > 100) PM->fxValues[i] = 100;
-				else if(PM->fxValues[i] + mod_value < -100) PM->fxValues[i] = -100;
-				else PM->fxValues[i] += mod_value;
+				if(FX_VALUE(fx) + mod_value > 100) FX_VALUE(fx) = 100;
+				else if(FX_VALUE(fx) + mod_value < -100) FX_VALUE(fx) = -100;
+				else FX_VALUE(fx) += mod_value;
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeWavetableWindowPerformanceMode(map(PM->fxValues[i],-100,100,-MAX_WAVETABLE_WINDOW,MAX_WAVETABLE_WINDOW));
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeWavetableWindowPerformanceMode(map(FX_VALUE(fx),-100,100,-MAX_WAVETABLE_WINDOW,MAX_WAVETABLE_WINDOW));
 				}
 				break;
 
@@ -624,28 +687,28 @@ static  uint8_t functEncoder(int16_t value)
 			}
 			case mtPerfTune:
 			{
-				if(PM->fxValues[i] + mod_value > 48) PM->fxValues[i] = 48;
-				else if(PM->fxValues[i] + mod_value < -48) PM->fxValues[i] = -48;
-				else PM->fxValues[i] += mod_value;
+				if(FX_VALUE(fx) + mod_value > 48) FX_VALUE(fx) = 48;
+				else if(FX_VALUE(fx) + mod_value < -48) FX_VALUE(fx) = -48;
+				else FX_VALUE(fx) += mod_value;
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeTunePerformanceMode(PM->fxValues[i]);
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeTunePerformanceMode(FX_VALUE(fx));
 				}
 
 				break;
 			}
 			case mtPerfSamplePlayback:
 			{
-				if(PM->fxValues[i] + mod_value > 1) PM->fxValues[i] = 1;
-				else if(PM->fxValues[i] + mod_value < 0) PM->fxValues[i] = 0;
-				else PM->fxValues[i] += mod_value;
+				if(FX_VALUE(fx) + mod_value > 1) FX_VALUE(fx) = 1;
+				else if(FX_VALUE(fx) + mod_value < 0) FX_VALUE(fx) = 0;
+				else FX_VALUE(fx) += mod_value;
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
 					if(PM->tracksPerformanceState[j])
 					{
-						instrumentPlayer[j].changeSamplePlaybackPerformanceMode(PM->fxValues[i]);
+						instrumentPlayer[j].changeSamplePlaybackPerformanceMode(FX_VALUE(fx));
 					}
 				}
 
@@ -653,15 +716,15 @@ static  uint8_t functEncoder(int16_t value)
 			}
 			case mtPerfStepStutter:
 			{
-				if(PM->fxValues[i] + mod_value > 11) PM->fxValues[i] = 11;
-				else if(PM->fxValues[i] + mod_value < 0) PM->fxValues[i] = 0;
-				else PM->fxValues[i] += mod_value;
+				if(FX_VALUE(fx) + mod_value > 11) FX_VALUE(fx) = 11;
+				else if(FX_VALUE(fx) + mod_value < 0) FX_VALUE(fx) = 0;
+				else FX_VALUE(fx) += mod_value;
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
 					if (PM->tracksPerformanceState[j])
 					{
-						sequencer.setPerformanceStutter(j, PM->fxValues[i]);
+						sequencer.setPerformanceStutter(j, FX_VALUE(fx));
 					}
 				}
 
@@ -669,15 +732,15 @@ static  uint8_t functEncoder(int16_t value)
 			}
 			case mtPerfPatternPlayMode:
 			{
-				if(PM->fxValues[i] + mod_value > 2) PM->fxValues[i] = 2;
-				else if(PM->fxValues[i] + mod_value < 0) PM->fxValues[i] = 0;
-				else PM->fxValues[i] += mod_value;
+				if(FX_VALUE(fx) + mod_value > 2) FX_VALUE(fx) = 2;
+				else if(FX_VALUE(fx) + mod_value < 0) FX_VALUE(fx) = 0;
+				else FX_VALUE(fx) += mod_value;
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
 					if(PM->tracksPerformanceState[j])
 					{
-						sequencer.setPerformancePlayMode(j, PM->fxValues[i]);
+						sequencer.setPerformancePlayMode(j, FX_VALUE(fx));
 					}
 				}
 
@@ -686,25 +749,29 @@ static  uint8_t functEncoder(int16_t value)
 			case mtPerfPatternLength:
 				{
 
-				if (PM->fxValues[i] == -1) PM->fxValues[i] = 3;
-				else if (PM->fxValues[i] + mod_value > 7) PM->fxValues[i] = 7;
-				else if (PM->fxValues[i] + mod_value < -1) PM->fxValues[i] = -1;
-				else PM->fxValues[i] += mod_value;
+				if (FX_VALUE(fx) + mod_value > 8) FX_VALUE(fx) = 8;
+				else if (FX_VALUE(fx) + mod_value < 0) FX_VALUE(fx) = 0;
+				else FX_VALUE(fx) += mod_value;
 
-
-
-				sequencer.setPerformancePatternLengthFromFxVal(PM->fxValues[i]);
+				sequencer.setPerformancePatternLengthFromFxVal(FX_VALUE(fx));
 
 				break;
 			}
-
-
-
-
 			default: break;
 			}
 
-			PM->showPerformaceValue(i);
+			PM->showPerformaceValue(fx);
+
+
+
+			if(PM->performanceEditState)
+			{
+				PM->fxValues[fx][mtProject.values.perfSelectedValues[place]] = PM->fxTempValues[fx];
+				PM->savePlaceFxValue(place, mtProject.values.perfSelectedValues[place], PM->fxTempValues[fx]);
+
+			}
+
+
 		}
 	}
 
@@ -769,19 +836,48 @@ static  uint8_t functRight()
 	return 1;
 }
 
+void cPerformanceMode::setPlaceNewFx(uint8_t newFx)
+{
+	uint8_t old_fx = mtProject.values.perfFxPlaces[PM->performanceEditPlace];
+
+	for(uint8_t track = 0; track < 8; track++)
+	{
+		clearPerformanceValues(track, old_fx);
+	}
+
+	mtProject.values.perfFxValues[PM->performanceEditPlace][0] = 0;
+	mtProject.values.perfFxValues[PM->performanceEditPlace][1] = 0;
+	mtProject.values.perfFxValues[PM->performanceEditPlace][2] = 0;
+	mtProject.values.perfFxValues[PM->performanceEditPlace][3] = 0;
+
+	fxValues[old_fx][0] = 0;
+	fxValues[old_fx][1] = 0;
+	fxValues[old_fx][2] = 0;
+	fxValues[old_fx][3] = 0;
+
+	mtProject.values.perfFxPlaces[PM->performanceEditPlace] = newFx;
+}
 
 static  uint8_t functUp()
 {
 	if(PM->performanceEditState)
 	{
 		uint8_t new_fx = mtProject.values.perfFxPlaces[PM->performanceEditPlace]+1;
+		if(new_fx > performanceFxesCount-1) new_fx = 0;
 
-		if(new_fx >= performanceFxesCount) new_fx = performanceFxesCount-1;
+		while(fxAlredyTaken(new_fx) &&  new_fx != 0)
+		{
+			new_fx++;
+			if(new_fx >= performanceFxesCount) new_fx = 0;
 
-		mtProject.values.perfFxPlaces[PM->performanceEditPlace] = new_fx;
+		}
+
+		PM->setPlaceNewFx(new_fx);
+
 
 		PM->refreshFxNames(PM->performanceEditPlace);
 		PM->showPerformaceValue(new_fx);
+
 
 		return 1;
 	}
@@ -814,9 +910,15 @@ static  uint8_t functDown()
 	{
 		int8_t new_fx = mtProject.values.perfFxPlaces[PM->performanceEditPlace]-1;
 
-		if(new_fx < 0) new_fx = 0;
+		if(new_fx < 0) new_fx = performanceFxesCount-1;
+		while((fxAlredyTaken(new_fx) && new_fx != 0))
+		{
+			new_fx--;
+			if(new_fx < 0) new_fx = performanceFxesCount-1;
 
-		mtProject.values.perfFxPlaces[PM->performanceEditPlace] = new_fx;
+		}
+
+		PM->setPlaceNewFx(new_fx);
 
 		PM->refreshFxNames(PM->performanceEditPlace);
 		PM->showPerformaceValue(new_fx);
@@ -993,7 +1095,6 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 					// mtProject.values.perfTracksPatterns[button] <= pattern tracka
 					sequencer.enterPerformanceMode();
 
-
 					fileManager.loadTrack(
 							mtProject.values.perfTracksPatterns[button],
 							button);
@@ -1037,31 +1138,62 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 	if(state == 1)
 	{
-		padsBacklight.setFrontLayer(1,20, pad);
+		padsBacklight.setFrontLayer(1,mtConfig.values.padsLightFront, pad);
 
-		// ustawienie odpowiedniej wartosci flagi wybranych fxow dla konkretnego wirsza padow
-		PM->placePerformanceState[pad%12] = pad/12 + 1;
+		PM->performancePadsState[pad%12] = pad/12 + 1;
+		mtProject.values.perfSelectedValues[pad%12] =  pad/12+1;
 
-		PM->showArrow(pad%12, pad/12+1);
+		uint8_t fx = PM->getFxFromPlace(pad%12);
+
+		PM->fxTempValues[fx] = PM->fxValues[fx][pad/12];
+		//PM->activeFxValues[fx] = pad/12;
+		PM->refreshActiveValueForFx(fx);
+
+		if(pad >= 12)
+		{
+			for(uint8_t track = 0; track < 8; track++)
+			{
+				if(PM->tracksPerformanceState[track] == 1)
+				{
+					PM->refreshPerformanceValuesForTrack(track, mtProject.values.perfFxPlaces[pad%12]);
+				}
+			}
+		}
+		else
+		{
+			for(uint8_t track = 0; track < 8; track++)
+			{
+				if(PM->tracksPerformanceState[track] == 1)
+				{
+					PM->clearPerformanceValues(track, mtProject.values.perfFxPlaces[pad%12]);
+				}
+			}
+		}
 	}
 	else if(state == 0)
 	{
 
-		if(pad/12 == 0 || pad/12 == 3) // zerowanie fx na pusczenie padow z działaniem chwilowym (1 i 4 wiersz)
-		{
-			PM->fxValues[mtProject.values.perfFxPlaces[pad%12]] = 0;
-			for(uint8_t j = 0; j < 8; j++)
+		uint8_t fx = PM->getFxFromPlace(pad%12);
+
+		if(PM->performancePadsState[pad%12] == pad/12+1)
+		{ // jesli ten sam slot konkretnego fx co wcisnieto ostatnio
+			PM->fxTempValues[fx] = PM->fxValues[fx][pad/12];
+
+			for(uint8_t track = 0; track < 8; track++)
 			{
-				PM->clearPerformanceValues(j, mtProject.values.perfFxPlaces[pad%12]);
+				if(PM->tracksPerformanceState[track] == 1)
+				{
+					PM->refreshPerformanceValuesForTrack(track, fx);
+				}
 			}
-			PM->showPerformaceValue(mtProject.values.perfFxPlaces[pad%12]);
+
+			PM->performancePadsState[pad%12] = 0;
 		}
+
+		PM->showPerformaceValue(fx);
 
 		padsBacklight.setFrontLayer(0,0, pad);
 
-		PM->placePerformanceState[pad%12] = 0;
-
-		PM->hideArrow(pad%12);
 
 	}
 

@@ -247,7 +247,7 @@ void Sequencer::play_microStep(uint8_t row)
 	{
 		stepToSend.velocity = STEP_VELO_DEFAULT;
 
-		// zerujemy zmienne efektowe
+		// init stepowy
 		playerRow.isOffset = 0;
 		playerRow.cancelStep = 0;
 	}
@@ -349,7 +349,14 @@ void Sequencer::play_microStep(uint8_t row)
 
 				break;
 			case fx.FX_TYPE_OFF:
-				// todo: internalFxsOff();
+
+				if (fxIndex == playerRow.rollFxId)
+				{
+					playerRow.isOffset = 0;
+					playerRow.cancelStep = 0;
+					playerRow.rollIsOn = 0;
+				}
+
 				instrumentPlayer[row].seqFx(0, 0, fxIndex);
 
 				break;
@@ -426,6 +433,7 @@ void Sequencer::play_microStep(uint8_t row)
 					case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
 					playerRow.rollIsOn = 1;
+					playerRow.rollFxId = fxIndex;
 					playerRow.rollVal = _fx.value;
 					playerRow.rollDir = _fx.type;
 					playerRow.rollType = _fx.value;
@@ -476,7 +484,7 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 
 		// EFEKTY WŁAŚCIWE
-//		uint8_t fxIndex = 0;
+		uint8_t fxIndex = 0;
 		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
 		{
 			strPattern::strTrack::strStep::strFx _fx = _fxStep;
@@ -492,6 +500,7 @@ void Sequencer::play_microStep(uint8_t row)
 				case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
 				playerRow.rollIsOn = 1;
+				playerRow.rollFxId = fxIndex;
 				playerRow.rollVal = _fx.value;
 				playerRow.rollType = _fx.value;
 				playerRow.rollDir = _fx.type;
@@ -527,6 +536,7 @@ void Sequencer::play_microStep(uint8_t row)
 			default:
 				break;
 			}
+			fxIndex -= -1;
 		}
 
 		// ustawiamy całego stepa
@@ -610,7 +620,7 @@ void Sequencer::play_microStep(uint8_t row)
 	}
 	else if (playerRow.stepOpen)
 	{
-		if (playerRow.rollType != fx.ROLL_TYPE_NONE)
+		if (playerRow.rollType != fx.ROLL_TYPE_NONE && playerRow.rollIsOn)
 		{
 			// sprawdzamy timer microstepów, czy jest wielokrotrością rolki
 			if (((playerRow.stepTimer % rollTypeToVal(playerRow.rollType)) == 1) && playerRow.stepTimer != 1)
@@ -1309,17 +1319,20 @@ void Sequencer::setPerformancePatternLength(int8_t length)
 }
 void Sequencer::setPerformancePatternLengthFromFxVal(int8_t val)
 {
-	uint8_t performancePatternLengthValues[] =
-			{ 1, 2, 4, 8, 16, 32, 64, 128 };
+	int16_t performancePatternLengthValues[] =
+			{-1, 1, 2, 4, 8, 16, 32, 64, 128 };
 
-	switch (val)
-	{
-	case -1:
-		setPerformancePatternLength(-1);
-		break;
-	default:
-		setPerformancePatternLength(performancePatternLengthValues[val]);
 
-	}
+	setPerformancePatternLength(performancePatternLengthValues[val]);
+
+//	switch (val)
+//	{
+//	case -1:
+//		setPerformancePatternLength(-1);
+//		break;
+//	default:
+//		setPerformancePatternLength(performancePatternLengthValues[val]);
+//
+//	}
 
 }

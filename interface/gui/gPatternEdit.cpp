@@ -48,26 +48,15 @@ volatile uint32_t patternTrackerColors[] =
 	0xFFFFFF, // instrument
 	0xFFFFFF, // volume
 	0xFFFFFF, // effekt
-	0xff0000, // zaznaczenie
+	0xFF0000, // zaznaczenie
 	0x111111, // podzialka
 	0x222222, // nieaktywny
+	0xFFFFFF, // playhead
 };
 
 uint32_t patternTrackerSelectionColor = 0xff0000;
 
-static uint32_t activeLabelsColors[] =
-{
-	0x000000, // tekst
-	0xFFFFFF, // tło
-	0xFF0000, // ramka
-};
 
-static uint32_t inactiveLabelsColors[] =
-{
-	0x000000, // tekst
-	0x555555, // tło
-	0xFF0000, // ramka
-};
 //------------------------------------------------------------
 static const uint8_t trackMasterModeCount = 2;
 static const char trackMasterLabels[trackMasterModeCount][5] =
@@ -217,19 +206,15 @@ void cPatternEditor::initDisplayControls()
 	{
 		prop2.text = (char*)"";
 		prop2.data =  &bottomValuesConfig;
-		prop2.colors = activeLabelsColors;
+		prop2.colors = interfaceGlobals.activeLabelsColors;
 
 		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
+		prop2.y = 452;
+		prop2.h =  59;
 
-		prop2.y = i>3 ? 452 : 437;
-		prop2.h = i>3 ? 59 : 28;
-		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
-
-		prop2.y = 465;
-		prop2.h = 30;
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
 
@@ -254,6 +239,7 @@ void cPatternEditor::initDisplayControls()
 	prop.y = 8*28 + 122;
 	prop.w = 800/8-10;
 	prop.h = 25;
+
 	prop.data = &fillScaleFilterList;
 	if(param2PopupListControl == nullptr)  param2PopupListControl = display.createControl<cList>(&prop);
 
@@ -266,8 +252,8 @@ void cPatternEditor::initDisplayControls()
 	if(param3PopupListControl == nullptr)  param3PopupListControl = display.createControl<cList>(&prop);
 
 	// label val1
-	prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
-	prop.colors =  patternLabelColors;
+	prop.style = (controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
+	prop.colors = patternLabelColors;
 	prop.x = (800/8)*(2)+(800/16);
 	prop.y = 8*28 + 130;
 	prop.w = 800/8-10;
@@ -275,16 +261,16 @@ void cPatternEditor::initDisplayControls()
 	if(val1PopupLabel == nullptr)  val1PopupLabel = display.createControl<cLabel>(&prop);
 
 	// label val2
-	prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
+	prop.style = (controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
 	prop.x = (800/8)*(3)+(800/16);
 	prop.y = 8*28 + 130;
 	prop.w = 800/8-10;
 	prop.h = 28;
-	if(val2PopupLabel == nullptr)  val2PopupLabel = display.createControl<cLabel>(&prop);
+	if(val2PopupLabel == nullptr) val2PopupLabel = display.createControl<cLabel>(&prop);
 
 	// label tla
-	prop.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleNoTransparency );
-	prop.colors =  patternLabelColors;
+	prop.style = (controlStyleBackground | controlStyleCenterX | controlStyleNoTransparency );
+	prop.colors = patternLabelColors;
 	prop.x = 400;
 	prop.y = 8*28 + 4;
 	prop.w = 800;
@@ -322,12 +308,8 @@ void cPatternEditor::destroyDisplayControls()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.destroyControl(bottomLabel[i]);
-		bottomLabel[i] = nullptr;
-
-
-		display.destroyControl(topLabel[i]);
-		topLabel[i] = nullptr;
+		display.destroyControl(label[i]);
+		label[i] = nullptr;
 	}
 
 	display.destroyControl(param1PopupListControl);
@@ -392,20 +374,26 @@ void cPatternEditor::showDefaultScreen()
 	}
 
 	// bottom labels
-	display.setControlText(bottomLabel[0], "Pattern");
-	display.setControlText(bottomLabel[1], "Length");
-	display.setControlText(bottomLabel[2], "Step");
-	display.setControlText(bottomLabel[3], "");
-	display.setControlText(bottomLabel[4], "");
-	display.setControlText(bottomLabel[5], "");
-	display.setControlText(bottomLabel[6], "");
-	display.setControlText(bottomLabel[7], "");
 
-	display.setControlText(topLabel[3], "");
-	display.setControlText(topLabel[4], "");
-	display.setControlText(topLabel[5], "");
-	display.setControlText(topLabel[6], "");
-	display.setControlText(topLabel[7], "");
+	display.setControlValue(label[0], 1);
+	display.setControlValue(label[1], 1);
+	display.setControlValue(label[2], 1);
+	display.setControlValue(label[3], 0);
+	display.setControlValue(label[4], 0);
+	display.setControlValue(label[5], 0);
+	display.setControlValue(label[6], 0);
+	display.setControlValue(label[7], 0);
+
+	display.setControlText2(label[0], "Pattern");
+	display.setControlText2(label[1], "Length");
+	display.setControlText2(label[2], "Step");
+	display.setControlText(label[3], "Fill");
+	//display.setControlText(topLabel[4], "Randomise");
+	display.setControlText(label[4], "");
+	display.setControlText(label[5], "Invert");
+	display.setControlText(label[6], "Transpose");
+	display.setControlText(label[7], "Undo");
+
 
 //	showTempo();
 	showPattern();
@@ -423,29 +411,17 @@ void cPatternEditor::showDefaultScreen()
 
 	activateLabelsBorder();
 
-	display.setControlPosition(topLabel[3], -1, 452);
-	display.setControlPosition(topLabel[4], -1, 452);
-	display.setControlPosition(topLabel[5], -1, 452);
-	display.setControlPosition(topLabel[6], -1, 452);
-	display.setControlPosition(topLabel[7], -1, 452);
-	display.setControlSize(topLabel[3], -1, 59);
-	display.setControlSize(topLabel[4], -1, 59);
-	display.setControlSize(topLabel[5], -1, 59);
-	display.setControlSize(topLabel[6], -1, 59);
-	display.setControlSize(topLabel[7], -1, 59);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.setControlColors(topLabel[i], activeLabelsColors);
-		display.setControlColors(bottomLabel[i], activeLabelsColors);
+		display.setControlPosition(label[i], -1, 452);
+		display.setControlSize(label[i], -1, 59);
 
-		display.setControlShow(topLabel[i]);
+		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
 
-		if(i>2)	display.setControlHide(bottomLabel[i]);
-		else 	display.setControlShow(bottomLabel[i]);
+		display.setControlShow(label[i]);
 
-		display.refreshControl(bottomLabel[i]);
-		display.refreshControl(topLabel[i]);
+		display.refreshControl(label[i]);
 	}
 
 
@@ -461,37 +437,34 @@ void cPatternEditor::showDefaultScreen()
 
 void cPatternEditor::showEditModeLabels()
 {
-	display.setControlText(topLabel[3], "Fill");
-	//display.setControlText(topLabel[4], "Randomise");
-	display.setControlText(topLabel[4], "");
-	display.setControlText(topLabel[5], "Invert");
-	display.setControlText(topLabel[6], "Transpose");
-	display.setControlText(topLabel[7], "Undo");
+	display.setControlColors(label[3], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[4], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[5], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[6], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
 
-
-	display.refreshControl(topLabel[3]);
-	display.refreshControl(topLabel[4]);
-	display.refreshControl(topLabel[5]);
-	display.refreshControl(topLabel[6]);
-	display.refreshControl(topLabel[7]);
+	display.refreshControl(label[3]);
+	display.refreshControl(label[4]);
+	display.refreshControl(label[5]);
+	display.refreshControl(label[6]);
+	display.refreshControl(label[7]);
 
 	display.synchronizeRefresh();
-
 }
 
 void cPatternEditor::hideEditModeLabels()
 {
-	display.setControlText(topLabel[3], "");
-	display.setControlText(topLabel[4], "");
-	display.setControlText(topLabel[5], "");
-	display.setControlText(topLabel[6], "");
-	display.setControlText(topLabel[7], "");
+	display.setControlColors(label[3], interfaceGlobals.inactiveLabelsColors);
+	display.setControlColors(label[4], interfaceGlobals.inactiveLabelsColors);
+	display.setControlColors(label[5], interfaceGlobals.inactiveLabelsColors);
+	display.setControlColors(label[6], interfaceGlobals.inactiveLabelsColors);
+	display.setControlColors(label[7], interfaceGlobals.inactiveLabelsColors);
 
-	display.refreshControl(topLabel[3]);
-	display.refreshControl(topLabel[4]);
-	display.refreshControl(topLabel[5]);
-	display.refreshControl(topLabel[6]);
-	display.refreshControl(topLabel[7]);
+	display.refreshControl(label[3]);
+	display.refreshControl(label[4]);
+	display.refreshControl(label[5]);
+	display.refreshControl(label[6]);
+	display.refreshControl(label[7]);
 
 	display.synchronizeRefresh();
 }
@@ -511,8 +484,8 @@ void cPatternEditor::hideEditModeLabels()
 void cPatternEditor::showPattern()
 {
 	sprintf(pattern,"%d", mtProject.values.actualPattern);
-	display.setControlText(topLabel[0], pattern);
-	display.refreshControl(topLabel[0]);
+	display.setControlText(label[0], pattern);
+	display.refreshControl(label[0]);
 }
 
 void cPatternEditor::showLength()
@@ -521,8 +494,8 @@ void cPatternEditor::showLength()
 
 	sprintf(length, "%d",  pattern->track[0].length+1);
 
-	display.setControlText(topLabel[1], length);
-	display.refreshControl(topLabel[1]);
+	display.setControlText(label[1], length);
+	display.refreshControl(label[1]);
 }
 
 void cPatternEditor::showStep()
@@ -531,13 +504,12 @@ void cPatternEditor::showStep()
 
 	sprintf(step, "%d",  mtProject.values.patternEditStep);
 
-	display.setControlText(topLabel[2],step);
-	display.refreshControl(topLabel[2]);
+	display.setControlText(label[2], step);
+	display.refreshControl(label[2]);
 }
 
 void cPatternEditor::refreshPatternParams()
 {
-	if(masterTrackState) return;
 //	showTempo();
 	showPattern();
 	showLength();
@@ -562,7 +534,7 @@ void cPatternEditor::showFillPopup()
 	display.setControlValue(param1PopupListControl, fillData[editParam].type);
 	display.setControlShow(param1PopupListControl);
 
-	display.setControlText(bottomLabel[1], "Type");
+	display.setControlText(label[1], "Type");
 
 	//------------------------------
 	// value/from
@@ -588,9 +560,9 @@ void cPatternEditor::showFillPopup()
 	display.setControlShow(val1PopupLabel);
 
 	if(fillData[editParam].type == 0)
-		display.setControlText(bottomLabel[2], "Value");
+		display.setControlText(label[2], "Value");
 	else
-		display.setControlText(bottomLabel[2], "From");
+		display.setControlText(label[2], "From");
 
 	//------------------------------
 	// To
@@ -616,12 +588,12 @@ void cPatternEditor::showFillPopup()
 
 	if(fillData[editParam].type == 0)
 	{
-		display.setControlText(bottomLabel[3], "");
+		display.setControlText(label[3], "");
 		display.setControlHide(val2PopupLabel);
 	}
 	else
 	{
-		display.setControlText(bottomLabel[3], "To");
+		display.setControlText(label[3], "To");
 		display.setControlShow(val2PopupLabel);
 	}
 
@@ -640,9 +612,9 @@ void cPatternEditor::showFillPopup()
 		display.setControlSize(param2PopupListControl, 800/8-10, 25);
 
 
-		display.setControlPosition(bottomLabel[4],  (800/8)*4+(800/16), -1);
-		display.setControlSize(bottomLabel[4], 800/8-6, -1);
-		display.setControlText(bottomLabel[4], "In Scale");
+		display.setControlPosition(label[4],  (800/8)*4+(800/16), -1);
+		display.setControlSize(label[4], 800/8-6, -1);
+		display.setControlText(label[4], "In Scale");
 
 		frameData.places[4] = &framesPopupPlaces[4][0];
 	}
@@ -660,16 +632,18 @@ void cPatternEditor::showFillPopup()
 		display.setControlShow(param2PopupListControl);
 		display.setControlSize(param2PopupListControl, 800/4-10, 25);
 
-		display.setControlPosition(bottomLabel[4],  (800/8)*5, -1);
-		display.setControlSize(bottomLabel[4], 800/4-6, -1);
-		display.setControlText(bottomLabel[4], "Fx Type");
+		display.setControlPosition(label[4],  (800/8)*5, -1);
+		display.setControlSize(label[4], 800/4-6, -1);
+		display.setControlText(label[4], "Fx Type");
 
 		frameData.places[4] = &framesPopupPlaces[5][0];
 	}
 	else
 	{
 		display.setControlHide(param2PopupListControl);
-		display.setControlText(bottomLabel[4], "");
+		display.setControlPosition(label[4],  (800/8)*4+(800/16), -1);
+		display.setControlSize(label[4], 800/8-6, -1);
+		display.setControlText(label[4], "");
 	}
 
 	//------------------------------
@@ -686,8 +660,8 @@ void cPatternEditor::showFillPopup()
 	//display.setControlSize(param3PopupListControl, 800/8-10, 25);
 
 
-	display.setControlText(bottomLabel[0], "Step");
-	display.setControlText(bottomLabel[5], "");
+	display.setControlText(label[0], "Step");
+	display.setControlText(label[5], "");
 
 
 
@@ -712,8 +686,8 @@ void cPatternEditor::showFillPopup()
 	}
 
 
-	display.setControlText(bottomLabel[6], "Cancel");
-	display.setControlText(bottomLabel[7], "Fill");
+	display.setControlText(label[6], "Cancel");
+	display.setControlText(label[7], "Fill");
 
 	display.refreshControl(param1PopupListControl);
 	display.refreshControl(val1PopupLabel);
@@ -724,13 +698,17 @@ void cPatternEditor::showFillPopup()
 	display.setControlShow(patternPopupLabel);
 	display.refreshControl(patternPopupLabel);
 
+	display.setControlValue(label[0], 0);
+	display.setControlValue(label[1], 0);
+	display.setControlValue(label[2], 0);
+
+
 	for(uint8_t i = 0; i < 8; i++)
 	{
-		//display.setControlText(topLabel[i], "");
-		display.setControlHide(topLabel[i]);
-		display.setControlShow(bottomLabel[i]);
-		//display.refreshControl(topLabel[i]);
-		display.refreshControl(bottomLabel[i]);
+		display.setControlPosition(label[i], -1, 463);
+		display.setControlSize(label[i], -1, 30);
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
 	}
 
 	frameData.places[0] = &framesPopupPlaces[0][0];
@@ -759,21 +737,21 @@ void cPatternEditor::refreshFillType()
 
 	if(fillData[editParam].type == 0)
 	{
-		display.setControlText(bottomLabel[2], "Value");
-		display.setControlText(bottomLabel[3], "");
+		display.setControlText(label[2], "Value");
+		display.setControlText(label[3], "");
 
 		display.setControlHide(val2PopupLabel);
 	}
 	else
 	{
-		display.setControlText(bottomLabel[2], "From");
-		display.setControlText(bottomLabel[3], "To");
+		display.setControlText(label[2], "From");
+		display.setControlText(label[3], "To");
 
 		display.setControlShow(val2PopupLabel);
 	}
 
-	display.refreshControl(bottomLabel[2]);
-	display.refreshControl(bottomLabel[3]);
+	display.refreshControl(label[2]);
+	display.refreshControl(label[3]);
 }
 
 
@@ -833,16 +811,16 @@ void cPatternEditor::refreshFillParam()
 	if(editParam == 0)
 	{
 		display.setControlValue(param2PopupListControl, fillData[editParam].param);
-		display.setControlText(bottomLabel[4], "In Scale");
+		display.setControlText(label[4], "In Scale");
 	}
 	else if(editParam == 3 || editParam == 2)
 	{
 		display.setControlValue(param2PopupListControl, fillData[editParam].param+1);
-		display.setControlText(bottomLabel[4], "Fx Type");
+		display.setControlText(label[4], "Fx Type");
 	}
 	else
 	{
-		display.setControlText(bottomLabel[4], " ");
+		display.setControlText(label[4], " ");
 	}
 
 	display.refreshControl(param2PopupListControl);
@@ -882,8 +860,6 @@ void cPatternEditor::hideFillPopup()
 //##############################################################################################
 //###############################                              #################################
 //##############################################################################################
-
-
 void cPatternEditor::activateFillPopupBorder()
 {
 	if(fillPlace < 0 || fillPlace > frameData.placesCount-1)
@@ -897,8 +873,6 @@ void cPatternEditor::activateFillPopupBorder()
 	display.setControlShow(frameControl);
 	display.refreshControl(frameControl);
 }
-
-
 
 
 void cPatternEditor::activateLabelsBorder()
@@ -915,71 +889,26 @@ void cPatternEditor::activateLabelsBorder()
 	display.refreshControl(frameControl);
 }
 
-
-//-----------------------------------------------------------
-void cPatternEditor::showTracksMaster()
+//##############################################################################################
+//###############################                              #################################
+//##############################################################################################
+void cPatternEditor::activateSelection()
 {
-
-	display.setControlText(bottomLabel[0], "Track 1");
-	display.setControlText(bottomLabel[1], "Track 2");
-	display.setControlText(bottomLabel[2], "Track 3");
-	display.setControlText(bottomLabel[3], "Track 4");
-	display.setControlText(bottomLabel[4], "Track 5");
-	display.setControlText(bottomLabel[5], "Track 6");
-	display.setControlText(bottomLabel[6], "Track 7");
-	display.setControlText(bottomLabel[7], "Track 8");
-
-
-//-------------------------------------
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		uint32_t* ptrColors = activeLabelsColors;
-		if(mtProject.values.trackMute[i]) ptrColors = inactiveLabelsColors;
-
-		display.setControlColors(topLabel[i], ptrColors);
-		display.setControlColors(bottomLabel[i], ptrColors);
-
-		display.setControlPosition(topLabel[i], -1, 437);
-		display.setControlSize(topLabel[i], -1, 28);
-
-		display.setControlPosition(bottomLabel[i], -1, 465);
-		display.setControlSize(bottomLabel[i], -1, 30);
-
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-
-		display.setControlText(topLabel[i], &trackMasterLabels[mtProject.values.trackMute[i]][0]);
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
-	}
-
-	display.synchronizeRefresh();
-
+	patternTrackerColors[6] = patternTrackerSelectionColor;
 }
 
-void cPatternEditor::refreshTracksMaster()
+void cPatternEditor::deactivateSelection()
 {
-	for(uint8_t i = 0; i<8; i++)
-	{
-		uint32_t* ptrColors = activeLabelsColors;
-
-		if(mtProject.values.trackMute[i]) ptrColors = inactiveLabelsColors;
-
-
-		display.setControlText(topLabel[i], &trackMasterLabels[mtProject.values.trackMute[i]][0]);
-		display.setControlColors(topLabel[i], ptrColors);
-		display.setControlColors(bottomLabel[i], ptrColors);
-
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
-
-	}
-
-	display.synchronizeRefresh();
+	patternTrackerColors[6] = 0xffffff;
 }
 
+void cPatternEditor::playheadRecMode()
+{
+	patternTrackerColors[9] = patternTrackerSelectionColor;
+}
 
+void cPatternEditor::playheadNormalMode()
+{
+	patternTrackerColors[9] = 0xffffff;
+}
 
