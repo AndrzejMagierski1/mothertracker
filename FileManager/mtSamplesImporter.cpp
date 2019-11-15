@@ -40,7 +40,7 @@ uint8_t SamplesImporter::start(char* filePatch, char* name, char* projectPatch, 
 	else sprintf(localName,"instr%d.wav",instrumentIndex);
 
 
-	mtProject.mtProjectRemote.instrumentFile[instrumentIndex].sampleType = type;
+	//mtProject.mtProjectRemote.instrumentFile[instrumentIndex].sampleType = type;
 
 
 	sprintf(currentPatch,"%s/samples/%s",currentProjectPatch,localName);

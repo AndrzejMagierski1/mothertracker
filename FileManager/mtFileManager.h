@@ -181,7 +181,10 @@ public:
 	uint8_t getSavingStatus();
 	uint8_t getLoadingStatus();
 
-	void getDefaultRemote(struct strMtProjectRemote *source);
+
+	void getDefaultSong(struct strSong *source);
+	void getDefaultInstrument(struct strInstrument *source);
+	void getDefaultProject(struct strMtProject *source);
 	void getDefaultValues(struct strMtValues *source);
 
 private:
@@ -192,8 +195,8 @@ private:
 	uint8_t readInstrumentFile(char * name, strInstrument * instr);
 	uint8_t writePatternFile(char * name);
 	uint8_t readPatternFile(char * name);
-	void writeProjectFile(char * name,strMtProjectRemote * proj);
-	uint8_t readProjectFile(char * name, strMtProjectRemote * proj);
+	void 	writeProjectFile(char * name, strMtProject *proj);
+	uint8_t readProjectFile(char * name, strMtProject * proj);
 	uint8_t endImportSampleFlag = 0;
 	uint8_t autoLoadFlag = 1;
 	uint8_t saveProjectFlag = 0;

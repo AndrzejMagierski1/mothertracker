@@ -451,19 +451,16 @@ struct strMtValues
 	uint8_t patternsToSave[PATTERN_INDEX_MAX];
 };
 
+struct strSong
+{
+	uint8_t playlist[SONG_MAX] { 1, 2, 3, 4, 0 };
+	int8_t playlistPos = 0;
+};
+
 //-------------------------------------------------
 struct strMtProjectRemote
 {
-	struct strInstrumentFile
-	{
-		uint8_t sampleType;
-	} instrumentFile[INSTRUMENTS_COUNT];
-	struct strSong
-	{
-		uint8_t playlist[SONG_MAX] { 1, 2, 3, 4, 0 };
-		int8_t playlistPos = 0;
-	} song;
-
+	strSong song;
 	strMtValues values;
 
 };
@@ -474,9 +471,7 @@ struct strMtProject
 	uint8_t instruments_count;
 	uint8_t patterns_count;
 
-	strMtProjectRemote mtProjectRemote;
-
-
+	strSong song;
 	strMtValues values;
 
 	// dynamiczne

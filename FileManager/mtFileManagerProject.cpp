@@ -217,7 +217,7 @@ uint8_t FileManager::openProjectStart(char * name , uint8_t type)
 	//**************************************************************************
 	sprintf(currentPatch, "%s/project.bin", currentProjectPatch);
 
-	status = readProjectFile(currentPatch, &mtProject.mtProjectRemote);
+	status = readProjectFile(currentPatch, &mtProject);
 	if(status)
 	{
 		sprintf(currentPatch, "Workspace/project.bin");
@@ -227,7 +227,7 @@ uint8_t FileManager::openProjectStart(char * name , uint8_t type)
 			SD.remove(currentPatch);
 		}
 
-		writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
+		writeProjectFile(currentPatch, &mtProject);
 	}
 	else
 	{
@@ -406,10 +406,10 @@ void FileManager::finishSaving()
 	savingInProgress = 0;
 
 	sprintf(currentPatch,"%s/project.bin", currentProjectPatch);
-	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
+	writeProjectFile(currentPatch, &mtProject);
 
 	strcpy(currentPatch,"Workspace/project.bin");
-	writeProjectFile(currentPatch,&mtProject.mtProjectRemote);
+	writeProjectFile(currentPatch,&mtProject);
 }
 
 void FileManager::refreshSaveProject()
@@ -484,9 +484,6 @@ void FileManager::createEmptyTemplateProject(char * name)
 {
 	char patchFolder[PATCH_SIZE];
 
-	memset(mtProject.mtProjectRemote.song.playlist,0,SONG_MAX);
-	mtProject.mtProjectRemote.song.playlist[0]=0;
-
 	sprintf(currentProjectPatch,"Templates/%s",name);
 
 	if(!SD.exists("Projects")) SD.mkdir(0,"Projects");
@@ -508,9 +505,9 @@ void FileManager::createEmptyTemplateProject(char * name)
 
 	sprintf(patchFolder,"Templates/%s/project.bin", name);
 
-	getDefaultRemote(&mtProject.mtProjectRemote);
-
-	writeProjectFile(patchFolder, &mtProject.mtProjectRemote);
+	strMtProject projectFile;
+	getDefaultProject(&projectFile);
+	writeProjectFile(patchFolder, &projectFile);
 }
 
 //<! Loading only neccessary files from workspace functions
@@ -577,7 +574,7 @@ uint8_t FileManager::loadProjectFromWorkspaceStart()
 
 	strcpy(currentPatch,"Workspace/project.bin");
 
-	status = readProjectFile(currentPatch, &mtProject.mtProjectRemote);
+	status = readProjectFile(currentPatch, &mtProject);
 	if(!status) return status;
 
 	if(loadPattern(mtProject.values.actualPattern))
@@ -596,8 +593,10 @@ uint8_t FileManager::loadProjectFromWorkspaceStart()
 
 void FileManager::autoSaveProject()
 {
+	fileManager.configIsChangedFlag = 0;
+
 	char currentPatch[PATCH_SIZE];
 	strcpy(currentPatch,"Workspace/project.bin");
 
-	writeProjectFile(currentPatch,&mtProject.mtProjectRemote);
+	writeProjectFile(currentPatch,&mtProject);
 }
