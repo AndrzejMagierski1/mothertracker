@@ -439,14 +439,12 @@ void FileManager::refreshSaveProject()
 void FileManager::startSaveProject()
 {
 	memset(&saveHandle,0,sizeof(save_load_handle_t));
-	savingInProgress = 1;
+
 	saveHandle.nextSampleFlag = 1;
 	char currentPatch[PATCH_SIZE];
 
-	if(fileManager.patternIsChangedFlag[mtProject.values.actualPattern] == 1)
-	{
-		savePattern(mtProject.values.actualPattern);// zapisanie workspace
-	}
+	autoSaveWorkspace(1);
+	savingInProgress = 1;
 
 	if(!SD.exists("Projects"))
 	{

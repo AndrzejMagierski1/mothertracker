@@ -20,7 +20,7 @@ void FileManager::update()
 	samplesImporter.update();
 	samplesCopyier.update();
 
-	autoSaveWorkspace();
+	autoSaveWorkspace(0);
 
 //******************************************************************************************************
 // SAMPLES IMPORTER - kopiuje pliki do projektu
@@ -306,45 +306,45 @@ void FileManager::formatSDCard()
 	//SD.format();
 }
 
-void FileManager::autoSaveWorkspace()
+void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 {
-	if(fileManager.configChangedRefresh > 10000)
+	if(configChangedRefresh > 10000 || forcedWorkspaceSave)
 	{
-		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
+		if(savingInProgress == 0 && loadingInProgress == 0)
 		{
-			fileManager.configChangedRefresh = 0;
-			if(fileManager.configIsChangedFlag == 1)
+			configChangedRefresh = 0;
+			if(configIsChangedFlag == 1)
 			{
-				fileManager.autoSaveProject();
+				autoSaveProject();
 			}
 		}
 	}
 
-	if((fileManager.instrumentRefresh > 10000))
+	if((instrumentRefresh > 10000) || forcedWorkspaceSave)
 	{
-		fileManager.instrumentRefresh = 0;
+		instrumentRefresh = 0;
 
-		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
+		if(savingInProgress == 0 && loadingInProgress == 0)
 		{
 			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
 			{
-				if(fileManager.instrumentIsChangedFlag[i] == 1 )
+				if(instrumentIsChangedFlag[i] == 1 )
 				{
-					fileManager.saveInstrument(i);
+					saveInstrument(i);
 				}
 			}
 		}
 	}
 
-	if(fileManager.patternRefresh > 10000)
+	if(patternRefresh > 10000 || forcedWorkspaceSave)
 	{
-		fileManager.patternRefresh = 0;
+		patternRefresh = 0;
 
-		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
+		if(savingInProgress == 0 && loadingInProgress == 0)
 		{
-			if(fileManager.patternIsChangedFlag[mtProject.values.actualPattern] == 1)
+			if(patternIsChangedFlag[mtProject.values.actualPattern] == 1)
 			{
-				fileManager.savePattern(mtProject.values.actualPattern);
+				savePattern(mtProject.values.actualPattern);
 			}
 		}
 	}
