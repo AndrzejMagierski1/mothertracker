@@ -681,6 +681,7 @@ Sequencer::strPattern *Sequencer::getPattern()
 
 uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
 {
+	rollType = rollType % fx.ROLL_TYPE_MAX;
 	switch (rollType)
 	{
 	case fx.ROLL_TYPE_NONE:
