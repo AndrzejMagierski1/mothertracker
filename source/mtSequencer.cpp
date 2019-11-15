@@ -339,7 +339,7 @@ void Sequencer::play_microStep(uint8_t row)
 			case fx.FX_TYPE_NUDGE:
 
 				playerRow.isOffset = 1;
-				playerRow.offsetValue = _fx.value + 1;
+				playerRow.offsetValue = map(_fx.value + 1, 0,100,1,48);
 
 				break;
 			case fx.FX_TYPE_VELOCITY:
@@ -681,7 +681,8 @@ Sequencer::strPattern *Sequencer::getPattern()
 
 uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
 {
-	rollType = rollType % fx.ROLL_TYPE_MAX;
+
+	rollType = rollType % (fx.ROLL_TYPE_MAX + 1);
 	switch (rollType)
 	{
 	case fx.ROLL_TYPE_NONE:

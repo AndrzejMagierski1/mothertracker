@@ -1034,7 +1034,7 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 	switch (fxID)
 	{
 	case fx.FX_TYPE_NUDGE:
-		return 47;
+		return 100;
 	case fx.FX_TYPE_OFF:
 		return 0;
 	case fx.FX_TYPE_VELOCITY:
