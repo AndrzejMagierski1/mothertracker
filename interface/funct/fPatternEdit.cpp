@@ -120,6 +120,7 @@ void cPatternEditor::update()
 void cPatternEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
+	patternButtonReleaseActive = 0;
 
 	mtProject.values.padBoardScale = 0;
 	mtProject.values.padBoardNoteOffset = 12;
@@ -1698,9 +1699,13 @@ static  uint8_t functPattern(uint8_t state)
 		PTE->cancelPopups();
 
 	}
-	else if(state == buttonRelease)
+	else if(state == buttonRelease && PTE->patternButtonReleaseActive)
 	{
 			PTE->setPatternViewMode(0);
+	}
+	else if(state == buttonRelease)
+	{
+		PTE->patternButtonReleaseActive = 1;
 	}
 
 	return 1;
