@@ -354,7 +354,7 @@ void cPerformanceMode::refreshTracksState()
 
 			display.setControlColors(label[i], ptrColors);
 			//display.setControlColors(bottomLabel[i], ptrColors);
-			//display.setControlStyle(bottomLabel[i], ( controlStyleBorder | controlStyleBackground | controlStyleCenterX | controlStyleCenterY));
+			display.setControlStyle(label[i], (controlStyleBorder | controlStyleBackground | controlStyleCenterX | controlStyleCenterY));
 		}
 		else
 		{
@@ -363,7 +363,7 @@ void cPerformanceMode::refreshTracksState()
 
 			display.setControlColors(label[i], ptrColors);
 			//display.setControlColors(bottomLabel[i], ptrColors);
-			//display.setControlStyle(bottomLabel[i], ( controlStyleBackground | controlStyleCenterX | controlStyleCenterY));
+			display.setControlStyle(label[i], (controlStyleBackground | controlStyleCenterX | controlStyleCenterY));
 
 		}
 
