@@ -139,40 +139,27 @@ void Sequencer::handle_nanoStep(uint8_t step)
 
 	else // wywoładnie z timera wewnętrznego
 	{
-		if (!player.isREC)
+
+		for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 		{
-			for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
-			{
 //				int8_t tTempoDiv = constrain(
 //						seq[player.ramBank].track[a].tempoDiv,
 //						MIN_TEMPO_DIV,
 //						MAX_TEMPO_DIV);
 
-				uint8_t tDiv = getTempoDiv(TEMPODIV_1_1);
+			uint8_t tDiv = getTempoDiv(TEMPODIV_1_1);
 
-				if (nanoStep % tDiv == 1)
-				{
-					divChangeQuantize(a);
-					play_microStep(a);
-					incr_uStep(a);
-				}
-			}
-//				trySwitchBank();
-
-		}
-		else
-		{
-			for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
+			if (nanoStep % tDiv == 1)
 			{
-				if (nanoStep % 12 == 1)
-				{
-					divChangeQuantize(a);
-					play_microStep(a);
-					incr_uStep(a);
-				}
+				divChangeQuantize(a);
+				play_microStep(a);
+				incr_uStep(a);
 			}
-//				trySwitchBank();
 		}
+//				trySwitchBank();
+
+
+
 	}
 
 	// stary mechanizm, na potrzeby startowania timera
@@ -180,29 +167,22 @@ void Sequencer::handle_nanoStep(uint8_t step)
 	{
 		if (player.uStep == 1)
 		{
-			// if (config.mode == MODE_MIDICLOCK_INTERNAL)
-			// {
-			//konfig timera do zmiany czasu trwania kroku na swing
-			if (!player.isREC)
-			{
-				float tempSwing;
-				if (config.mode == MODE_MIDICLOCK.INTERNAL_)
-				tempSwing = seq[player.ramBank].swing;
-				else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
-				tempSwing = config.swingLock;
-				else
-					tempSwing = 50.0;
 
-				if ((player.swingToogle))
-				player.swing_offset = 0 + tempSwing;
-				else
-					player.swing_offset = 100 - tempSwing;
-				player.swingToogle = !player.swingToogle;
-			}
+			//konfig timera do zmiany czasu trwania kroku na swing
+
+			float tempSwing;
+			if (config.mode == MODE_MIDICLOCK.INTERNAL_)
+			tempSwing = seq[player.ramBank].swing;
+			else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
+			tempSwing = config.swingLock;
 			else
-			{
-				player.swing_offset = 50.0;
-			}
+				tempSwing = 50.0;
+
+			if ((player.swingToogle))
+			player.swing_offset = 0 + tempSwing;
+			else
+				player.swing_offset = 100 - tempSwing;
+			player.swingToogle = !player.swingToogle;
 
 			//rekonfig timera
 			init_player_timer();
@@ -738,7 +718,7 @@ void Sequencer::play(void)
 		player.track[a].uStep = 1;
 	}
 
-	player.metronome_timer = 1;
+//	player.metronome_timer = 1;
 
 }
 
@@ -815,13 +795,13 @@ void Sequencer::stop(void)
 void Sequencer::rec(void)
 {
 
-	player.isREC = 1;
-	player.rec_intro_timer = 1;
-	player.rec_intro_step = 1;
-
-	player.swing_offset = 50.0;
-
-	init_player_timer();
+//	player.isREC = 1;
+//	player.rec_intro_timer = 1;
+//	player.rec_intro_step = 1;
+//
+//	player.swing_offset = 50.0;
+//
+//	init_player_timer();
 
 }
 
@@ -968,22 +948,22 @@ uint8_t Sequencer::getLongRollVelo(uint8_t rollCurve, float progress)
 	progress = constrain(progress, 0, 100);
 	uint8_t retVal = 1;
 
-	if (rollCurve == ROLL_CURVE.FLAT)
+	if (rollCurve == ROLL_CURVE_FLAT)
 	{
 		retVal = 127;
 	}
 
-	else if (rollCurve == ROLL_CURVE.INCREMENTAL)
+	else if (rollCurve == ROLL_CURVE_INCREMENTAL)
 	{
 		retVal = (progress / 100) * 127;
 	}
 
-	else if (rollCurve == ROLL_CURVE.DECREMENTAL)
+	else if (rollCurve == ROLL_CURVE_DECREMENTAL)
 	{
 		retVal = ((100 - progress) / 100) * 127;
 	}
 
-	else if (rollCurve == ROLL_CURVE.INC_DEC)
+	else if (rollCurve == ROLL_CURVE_INC_DEC)
 	{
 		if (progress <= 50)
 		{
@@ -994,7 +974,7 @@ uint8_t Sequencer::getLongRollVelo(uint8_t rollCurve, float progress)
 			retVal = ((100 - progress) / 50) * 127;
 		}
 	}
-	else if (rollCurve == ROLL_CURVE.DEC_INC)
+	else if (rollCurve == ROLL_CURVE_DEC_INC)
 	{
 		if (progress <= 50)
 		{
@@ -1006,7 +986,7 @@ uint8_t Sequencer::getLongRollVelo(uint8_t rollCurve, float progress)
 		}
 	}
 
-	else if (rollCurve == ROLL_CURVE.RANDOM)
+	else if (rollCurve == ROLL_CURVE_RANDOM)
 	{
 		retVal = random(0, 127);
 	}

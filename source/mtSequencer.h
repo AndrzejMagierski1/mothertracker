@@ -61,7 +61,7 @@ public:
 			MIN_TEMPO = 10.0,
 			MAX_SWING = 75.0,
 			MIN_SWING = 25.0,
-//			DEFAULT_TEMPO = 130.0,
+			//			DEFAULT_TEMPO = 130.0,
 
 			DEFAULT_SWING = 50.0;
 
@@ -166,7 +166,7 @@ public:
 
 		struct strTrack
 		{
-			uint8_t length = DEFAULT_PATTERN_LENGTH-1; // liczy od 0
+			uint8_t length = DEFAULT_PATTERN_LENGTH - 1; // liczy od 0
 
 			struct strStep
 			{
@@ -303,47 +303,39 @@ public:
 
 	} MODE_MIDICLOCK;
 
-	struct strRollCurve
+	enum strRollCurve
 	{
-		const uint8_t MIN = 1;
-		const uint8_t FLAT = 1;
-		const uint8_t INCREMENTAL = 2;
-		const uint8_t DECREMENTAL = 3;
-		const uint8_t INC_DEC = 4;
-		const uint8_t DEC_INC = 5;
-		const uint8_t RANDOM = 6;
-		const uint8_t MAX = 6;
-	} ROLL_CURVE;
+		 ROLL_CURVE_MIN = 1,
+		 ROLL_CURVE_FLAT = 1,
+		 ROLL_CURVE_INCREMENTAL = 2,
+		 ROLL_CURVE_DECREMENTAL = 3,
+		 ROLL_CURVE_INC_DEC = 4,
+		 ROLL_CURVE_DEC_INC = 5,
+		 ROLL_CURVE_RANDOM = 6,
+		 ROLL_CURVE_MAX = 6,
+	} ;
 
 	struct strPlayer
 	{
 		bool songMode = 0;
 		bool performanceMode = 0;
 
-		struct strPerformance
-		{
-
-			int8_t patternLength = -1;
-
-		} performance;
-		//		bool printNotes = 0;
-//		bool changeBank = 0;
 		bool isPlay = 0;
 		bool isREC = 0;
 		bool isStop = 1;
-		//		bool loadBank = 0;
+
 		bool ramBank = 0;
 		bool swingToogle = 0;
 		float externalTempo = 120.0;
 		float swing_offset = 50.0;
-		uint16_t metronome_timer = 0;
-		uint16_t metronome_timer_max = 48 * 4;
-		uint16_t rec_intro_step = 0;
-		uint16_t rec_intro_timer = 0;
 
-		uint16_t rec_intro_timer_max = 48 * 4;
 		uint16_t uStep = 0;
 		uint8_t actualBank = 0;
+
+		struct strPerformance
+		{
+			int8_t patternLength = -1;
+		} performance;
 
 		struct strBlink
 		{
@@ -363,7 +355,6 @@ public:
 
 		struct strPlayerTrack
 		{
-//			strPattern::strTrack::strStep
 			struct strSendStep
 			{
 				int8_t note = STEP_NOTE_EMPTY;
@@ -390,7 +381,6 @@ public:
 			uint16_t stepLength = 0;	// z tym porównujemy timer
 			uint16_t noteTimer = 0;
 			uint16_t noteLength = 0;
-
 
 			boolean isOffset = 0;
 			uint16_t offsetValue = 0;
@@ -452,7 +442,7 @@ public:
 // klasowe
 	void handle();
 	void init();
-//	void loadDefaultSequence(void);
+	//	void loadDefaultSequence(void);
 	void printNotes(bool val);
 
 // sekwencerowe
@@ -644,7 +634,7 @@ public:
 	}
 	uint8_t getPatternLength()
 	{
-		return getActualPattern()->track[0].length+1;
+		return getActualPattern()->track[0].length + 1;
 	}
 };
 
