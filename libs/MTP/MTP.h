@@ -42,7 +42,17 @@ public:
 
   // Return free space in bytes.
   virtual uint64_t free() = 0;
-
+//
+//  void  MTPStorage_SD::OpenIndex()
+//  void  MTPStorage_SD::WriteIndexRecord(uint32_t i, const Record& r)
+//  uint32_t  MTPStorage_SD::AppendIndexRecord(const Record& r)
+//  Record  MTPStorage_SD::ReadIndexRecord(uint32_t i)
+//  void  MTPStorage_SD::ConstructFilename(int i, char* out)
+//  void  MTPStorage_SD::OpenFileByIndex(uint32_t i, uint8_t mode = O_RDONLY)
+//  void  MTPStorage_SD::GenerateIndex()
+//  void  MTPStorage_SD::ScanDir(uint32_t i)
+//  void MTPStorage_SD::ScanAll()
+//
   // parent = 0 means get all handles.
   // parent = 0xFFFFFFFF means get root folder.
   virtual void StartGetObjectHandles(uint32_t parent) = 0;
@@ -98,7 +108,7 @@ private:
  void  OpenFileByIndex(uint32_t i, uint8_t mode);
  void  GenerateIndex();
  void  ScanDir(uint32_t i);
- void ScanAll();
+ void  ScanAll();
  virtual void StartGetObjectHandles(uint32_t parent);
  virtual uint32_t GetNextObjectHandle();
 
@@ -164,21 +174,21 @@ private:
 #endif
 #if 0
     MTPContainer *tmp = (struct MTPContainer*)(x->buf);
-    Serial1.print(" len = ");
-    Serial1.print(tmp->len, HEX);
-    Serial1.print(" type = ");
-    Serial1.print(tmp->type, HEX);
-    Serial1.print(" op = ");
-    Serial1.print(tmp->op, HEX);
-    Serial1.print(" transaction_id = ");
-    Serial1.print(tmp->transaction_id, HEX);
+    Serial.print(" len = ");
+    Serial.print(tmp->len, HEX);
+    Serial.print(" type = ");
+    Serial.print(tmp->type, HEX);
+    Serial.print(" op = ");
+    Serial.print(tmp->op, HEX);
+    Serial.print(" transaction_id = ");
+    Serial.print(tmp->transaction_id, HEX);
     for (int i = 0; i * 4 < x->len - 12; i ++) {
-      Serial1.print(" p");
-      Serial1.print(i);
-      Serial1.print(" = ");
-      Serial1.print(tmp->params[i], HEX);
+      Serial.print(" p");
+      Serial.print(i);
+      Serial.print(" = ");
+      Serial.print(tmp->params[i], HEX);
     }
-    Serial1.println("");
+    Serial.println("");
 #endif
   }
 
@@ -308,28 +318,33 @@ private:
     writestring("");  // volume identifier
   }
 
-  uint32_t GetNumObjects(uint32_t storage,
-       uint32_t parent) {
-    storage_->StartGetObjectHandles(parent);
-    int num = 0;
-    while (storage_->GetNextObjectHandle()) num++;
-    return num;
-  }
+	uint32_t GetNumObjects(uint32_t storage, uint32_t parent)
+	{
+		storage_->StartGetObjectHandles(parent);
+		int num = 0;
+		while (storage_->GetNextObjectHandle())
+			num++;
+		return num;
+	}
 
-  void GetObjectHandles(uint32_t storage,
-      uint32_t parent) {
-    uint32_t num = 0;
-    if (!write_get_length_) {
-      num = GetNumObjects(storage, parent);
-    }
-    write32(num);
-    int handle;
-    storage_->StartGetObjectHandles(parent);
-    while ((handle = storage_->GetNextObjectHandle()))
-      write32(handle);
-  }
+	void GetObjectHandles(uint32_t storage, uint32_t parent)
+	{
+		uint32_t num = 0;
+		if (!write_get_length_)
+		{
+			num = GetNumObjects(storage, parent);
+		}
+		write32(num);
+		int handle;
+		storage_->StartGetObjectHandles(parent);
+		while ((handle = storage_->GetNextObjectHandle()))
+		{
+			write32(handle);
+		}
+	}
 
-  void GetObjectInfo(uint32_t handle) {
+  void GetObjectInfo(uint32_t handle)
+  {
     char filename[256];
     uint32_t size, parent;
     storage_->GetObjectInfo(handle, filename, &size, &parent);
@@ -490,7 +505,8 @@ inline MTPContainer *contains (usb_packet_t *receive_buffer){
     return storage_->Create(parent, dir, filename);
   }
 
-  void SendObject() {
+  void SendObject()
+  {
     uint32_t len = ReadMTPHeader();
     while (len) {
       receive_buffer();
@@ -508,7 +524,8 @@ inline MTPContainer *contains (usb_packet_t *receive_buffer){
     storage_->close();
   }
 
-  void GetDevicePropValue(uint32_t prop) {
+  void GetDevicePropValue(uint32_t prop)
+  {
     switch (prop) {
       case 0xd402: // friendly name
         // This is the name we'll actually see in the windows explorer.
@@ -518,7 +535,8 @@ inline MTPContainer *contains (usb_packet_t *receive_buffer){
     }
   }
 
-  void GetDevicePropDesc(uint32_t prop) {
+  void GetDevicePropDesc(uint32_t prop)
+  {
     switch (prop) {
       case 0xd402: // friendly name
         write16(prop);
@@ -531,11 +549,6 @@ inline MTPContainer *contains (usb_packet_t *receive_buffer){
   }
 
 public:
-
-  void begin(MTPStorageInterface* _storage)
-  {
-	  storage_ = _storage;
-  }
 
   void loop() {
     usb_packet_t *receive_buffer;
