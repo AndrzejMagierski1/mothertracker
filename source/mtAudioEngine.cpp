@@ -32,6 +32,7 @@ AudioEffectLimiter		 limiter[2];
 AudioBitDepth			 bitDepthControl[2];
 AudioAnalyzeRMS			 rms;
 AudioRecordQueue		 exportL, exportR;
+AudioAnalyzeRMS			 exportRmsL, exportRmsR;
 
 
 AudioConnection          connect1(&playMem[0], 0, &filter[0], 0);
@@ -113,18 +114,26 @@ AudioConnection 		 connect66(&playSdWav24Bit,0,&mixerSourceR,3);
 
 AudioConnection          connect59(&mixerSourceL, 0, &i2sOut, 0);
 AudioConnection          connect60(&mixerSourceR, 0, &i2sOut, 1);
+//**************** export
+AudioConnection          connect70(&mixerSourceL, &exportL);
+AudioConnection          connect71(&mixerSourceR, &exportR);
 
+AudioConnection          connect72(&mixerSourceL, &exportRmsL);
+AudioConnection          connect73(&mixerSourceR, &exportRmsR);
+
+//**************** recording
 AudioConnection          connect54(&i2sIn, 0, &mixerRec, 0);
 AudioConnection          connect55(&i2sIn, 1, &mixerRec, 1);
 
 AudioConnection          connect56(&mixerRec, &queue);
 AudioConnection          connect67(&mixerRec, &rms);
 
+
+
 playerEngine instrumentPlayer[8];
 
 audioEngine engine;
-uint8_t playerEngine::onVoices=0;
-uint8_t	playerEngine::activeAmpEnvelopes=0;
+
 
 constexpr uint16_t releaseNoteOnVal = 5;
 
@@ -257,12 +266,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	uint8_t status;
 	float gainL=0,gainR=0;
 
-	if(envelopeAmpPtr->getState())
-	{
-		onVoices--;
-		activeAmpEnvelopes--;
-	}
-	onVoices++;
+
 	currentInstrument_idx=instr_idx;
 	currentNote=note;
 	currentVelocity=velocity;
@@ -277,7 +281,6 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		envelopeAmpPtr->decay(mtProject.instrument[instr_idx].envelope[envAmp].decay);
 		envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
 		envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
-		activeAmpEnvelopes++;
 		//Serial.println(activeAmpEnvelopes);
 	}
 	else
@@ -443,7 +446,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	}
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
-	if(muteState == 0)
+	if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
 	{
 		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
 		{
@@ -498,12 +501,6 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	uint8_t status;
 	float gainL=0,gainR=0;
 
-	if(envelopeAmpPtr->getState())
-	{
-		onVoices--;
-		activeAmpEnvelopes--;
-	}
-	onVoices++;
 	currentInstrument_idx=instr_idx;
 	currentNote=note;
 	currentVelocity=velocity;
@@ -519,7 +516,6 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		envelopeAmpPtr->decay(mtProject.instrument[instr_idx].envelope[envAmp].decay);
 		envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
 		envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
-		activeAmpEnvelopes++;
 		//Serial.println(activeAmpEnvelopes);
 	}
 	else
@@ -682,7 +678,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	}
 	/*======================================================================================================*/
 	/*===============================================REVERB=================================================*/
-	if(muteState == 0)
+	if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
 	{
 		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
 		{
@@ -743,22 +739,12 @@ void playerEngine :: noteOff()
 	if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
 	{
 		playMemPtr->stop();
-		if((getLastExportStep()) && (!onVoices))
-		{
-			clearLastExportStep();
-			finishExport();
-		}
 	}
 	else
 	{
 		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f)
 		{
 			playMemPtr->stop();
-			if((getLastExportStep()) && (!onVoices) )
-			{
-				clearLastExportStep();
-				finishExport();
-			}
 		}
 	}
 	AudioInterrupts();
@@ -1934,19 +1920,10 @@ void playerEngine:: update()
 	{
 		envelopeAmpPtr->clearEndReleaseFlag();
 		interfaceEndReleaseFlag = 1;
-
-		onVoices--;
-		activeAmpEnvelopes--;
-
 		playMemPtr->stop();
 //		lfoAmpPtr->stop();
 //		lfoFilterPtr->stop();
 //		lfoPitchPtr->stop();
-		if((getLastExportStep()) && (!onVoices))
-		{
-			clearLastExportStep();
-			finishExport();
-		}
 	}
 
 	if(mtProject.instrument[currentInstrument_idx].filterEnable == filterOn)
@@ -2112,7 +2089,7 @@ void playerEngine:: update()
 		if(statusBytes & REVERB_SEND_MASK)
 		{
 			statusBytes &= (~REVERB_SEND_MASK);
-			if(muteState == 0)
+			if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
 			{
 				modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
 			}
@@ -2171,12 +2148,6 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	uint8_t status;
 	float gainL=0,gainR=0;
 
-	if(envelopeAmpPtr->getState())
-	{
-		onVoices--;
-		activeAmpEnvelopes--;
-	}
-	onVoices++;
 	currentInstrument_idx=instr_idx;
 	currentNote=note;
 	currentVelocity=velocity;
@@ -2191,7 +2162,6 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 		envelopeAmpPtr->decay(mtProject.instrument[instr_idx].envelope[envAmp].decay);
 		envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
 		envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
-		activeAmpEnvelopes++;
 		//Serial.println(activeAmpEnvelopes);
 	}
 	else
@@ -2368,6 +2338,76 @@ uint16_t playerEngine ::getWavePosition()
 	return playMemPtr->getPosition();
 }
 //**************************************************************************************************************************************
+//state: 1 - solo ON, 0 - solo OFF
+void audioEngine::soloTrack(uint8_t channel, uint8_t state)
+{
+	if(channel >= 8 ) return;
+
+	if(state == 1)
+	{
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			if(i == channel)
+			{
+				muteReverbSend(i, 1);
+				continue;
+			}
+			muteTrack(i,1);
+		}
+	}
+	else if(state == 0)
+	{
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			if(i == channel)
+			{
+				muteReverbSend(i, 0);
+				continue;
+			}
+			muteTrack(i,0);
+		}
+	}
+
+}
+// selectLR :  0 - L, 1- R, state: 1 - solo ON, 0 - solo OFF
+void audioEngine::soloReverbSend(uint8_t state)
+{
+
+	if(state == 1)
+	{
+		forceSend = 1;
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			muteTrack(i,1);
+		}
+	}
+	else if(state == 0)
+	{
+		forceSend = 0;
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			muteTrack(i,0);
+		}
+	}
+
+}
+
+void audioEngine::muteReverbSend(uint8_t channel, uint8_t state)
+{
+	if(channel >= 8) return;
+	if(state == 0)
+	{
+		instrumentPlayer[channel].onlyReverbMuteState = 0;
+		instrumentPlayer[channel].setStatusBytes(REVERB_SEND_MASK);
+	}
+	else
+	{
+		instrumentPlayer[channel].onlyReverbMuteState = 1;
+		if(!forceSend) instrumentPlayer[channel].modReverbSend(0);
+	}
+}
+
+//**************************************************************************************************************************************
 //PERFORMANCE MODE
 
 // state = 1 mutuje
@@ -2384,7 +2424,7 @@ void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 	{
 		instrumentPlayer[channel].muteState = 1;
 		amp[channel].gain(0.0);
-		instrumentPlayer[channel].modReverbSend(0);
+		if(!forceSend) instrumentPlayer[channel].modReverbSend(0);
 	}
 }
 //*******************************************change

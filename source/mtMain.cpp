@@ -39,7 +39,7 @@ void setup()
 	//sequencer.play();
 
 	//seqDisplay.init((Sequencer::strPattern*)sequencer.getPatternToUI());
-
+	exporter.begin();
 	// inincjalizacja interfejsu na koncu
 	mtInterface.begin();
 	//sequencer.printNotes(1);		// printuje nuty w trakcie sekwencji
@@ -57,7 +57,7 @@ void loop()
 
 		padsBacklight.update();
 
-		updateExport();
+		exporter.update();
 
 		engine.update();
 		fileManager.update();

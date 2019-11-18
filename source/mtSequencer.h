@@ -637,6 +637,15 @@ public:
 	int16_t getFxMax(uint8_t fxID);
 	int16_t getFxMin(uint8_t fxID);
 	int16_t getFxDefault(uint8_t fxID);
+
+	uint8_t getActualPos()
+	{
+		return player.track[0].actual_pos;
+	}
+	uint8_t getPatternLength()
+	{
+		return getActualPattern()->track[0].length+1;
+	}
 };
 
 extern Sequencer sequencer;

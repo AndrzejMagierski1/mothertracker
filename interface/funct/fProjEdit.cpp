@@ -5,7 +5,7 @@
 #include "mtFileManager.h"
 #include "mtAudioEngine.h"
 #include "mtLED.h"
-
+#include "mtExporterWAV.h"
 #include "mtPadBoard.h"
 
 #include "sampleRecorder.h"
@@ -265,6 +265,50 @@ void cProjectEditor::update()
 				functOpenProjectConfirm();
 			}
 
+			return;
+		}
+
+		lastSaveStatus = currentSaveStatus;
+		showSaveingHorizontalBar();
+	}
+
+	if(exportInProgress)
+	{
+		currentExportState = exporter.getState();
+		uint8_t localProgress = exporter.getProgress();
+		if(localProgress >  exportProgress )
+		{
+			exportProgress = localProgress;
+		}
+		showExportingHorizontalBar();
+		if((currentExportState == 0) && (lastExportState != currentExportState))
+		{
+			exportInProgress = 0;
+			showExportWindow();
+		}
+
+		lastExportState = currentExportState;
+
+
+
+	}
+
+	if(newProjectPopupDelay > 200)
+	{
+		if(newProjectPopupFlag)
+		{
+			newProjectPopupFlag = 0;
+
+			char currentPatch[PATCH_SIZE];
+
+			strcpy(currentPatch,"Templates/New/project.bin");
+
+			if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
+
+			fileManager.openProject((char*)"New",projectTypeExample); // można to odpalić bez zadnych flag i progresow bo nowy projekt nie ma sampli
+
+			showDefaultScreen();
+			hidePopupLabelNewProject();
 			setDefaultScreenFunct();
 		}
 	}
@@ -859,39 +903,113 @@ static uint8_t functSaveChangesSaveOpen()
 }
 //===============================================================================================================
 //export
+char currentExportPath[PATCH_SIZE];
+
 static uint8_t functExportSong()
 {
 	if(PE->isBusyFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 
+	PE->exportInProgress = 1;
+	PE->exportProgress = 0;
+	PE->currentExportType = (int)exportType::song;
+
+	uint16_t fileCounter = 0;
+
+	sprintf(currentExportPath,"Export/%s/song.wav",fileManager.currentProjectName);
+	while(SD.exists(currentExportPath))
+	{
+		sprintf(currentExportPath,"Export/%s/song%d.wav",fileManager.currentProjectName,++fileCounter);
+		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+	}
+	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/song",fileManager.currentProjectName);
+	else sprintf(currentExportPath,"Export/%s/song%d",fileManager.currentProjectName,fileCounter);
+	exporter.start(currentExportPath, mtExporter::exportType::song); //wszystko wykonuje sie w zakresie waznosci tej tablicy
 	return 1;
 }
 static uint8_t functExportSongStems()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 	if(PE->isBusyFlag) return 1;
 
+	PE->exportInProgress = 1;
+	PE->exportProgress = 0;
+	PE->currentExportType = (int)exportType::songStems;
+
+	uint16_t fileCounter = 0;
+
+	sprintf(currentExportPath,"Export/%s/SongStems",fileManager.currentProjectName);
+	while(SD.exists(currentExportPath))
+	{
+		sprintf(currentExportPath,"Export/%s/SongStems%d",fileManager.currentProjectName,++fileCounter);
+		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+	}
+	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/SongStems",fileManager.currentProjectName);
+	else sprintf(currentExportPath,"%s/SongStems%d",fileManager.currentProjectName,fileCounter);
+
+
+	exporter.start(currentExportPath, mtExporter::exportType::songStems);
 	return 1;
 }
 static uint8_t functExportPattern()
 {
 	if(PE->isBusyFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 
+	PE->exportInProgress = 1;
+	PE->exportProgress = 0;
+	PE->currentExportType = (int)exportType::pattern;
+
+	uint16_t fileCounter = 0;
+	uint16_t namePattern = mtProject.values.actualPattern + 1;
+
+	sprintf(currentExportPath,"Export/%s/pattern%d.wav",fileManager.currentProjectName,namePattern);
+	while(SD.exists(currentExportPath))
+	{
+		sprintf(currentExportPath,"Export/%s/pattern%d_%d.wav",fileManager.currentProjectName,namePattern,++fileCounter);
+		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+	}
+	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/pattern%d",fileManager.currentProjectName,namePattern);
+	else sprintf(currentExportPath,"Export/%s/pattern%d_%d",fileManager.currentProjectName,namePattern,fileCounter);
+
+	exporter.start(currentExportPath, mtExporter::exportType::pattern);
 	return 1;
 }
 static uint8_t functExportPatternStems()
 {
 	if(PE->isBusyFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 
+	PE->exportInProgress = 1;
+	PE->exportProgress = 0;
+	PE->currentExportType = (int)exportType::patternStems;
+
+	uint16_t fileCounter = 0;
+	uint16_t namePattern = mtProject.values.actualPattern + 1;
+
+	sprintf(currentExportPath,"Export/%s/Pattern%d_Stems",fileManager.currentProjectName,namePattern);
+	while(SD.exists(currentExportPath))
+	{
+		sprintf(currentExportPath,"Export/%s/Pattern%d_Stems%d",fileManager.currentProjectName,namePattern,++fileCounter);
+		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+	}
+	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/Pattern%d_Stems",fileManager.currentProjectName,namePattern);
+	else sprintf(currentExportPath,"%s/Pattern%d_Stems%d",fileManager.currentProjectName,namePattern,fileCounter);
+
+	exporter.start(currentExportPath, mtExporter::exportType::patternStems);
 	return 1;
 }
 static uint8_t functExportToMOD()
 {
 	if(PE->isBusyFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 
 	return 1;
 }
 static uint8_t functExportGoBack()
 {
 	if(PE->isBusyFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 	return 1;
@@ -970,6 +1088,7 @@ static uint8_t functSwitchModule(uint8_t button)
 {
 
 	if(PE->isBusyFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 	PE->eventFunct(eventSwitchModule,PE,&button,0);
 
 	return 1;
