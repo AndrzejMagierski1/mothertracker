@@ -253,10 +253,6 @@ public:
 
 	void switchStep(uint8_t row);
 
-	inline uint8_t isPlay(void);
-	inline uint8_t isREC(void);
-	inline uint8_t isStop(void);
-
 	uint8_t getLongRollVelo(uint8_t rollCurve, float progress);
 	uint8_t getTempoDiv(int8_t val);
 
@@ -289,8 +285,6 @@ public:
 
 	uint16_t nanoStep = 0;
 
-	const uint8_t arrVal2roll[10] = { 0, 1, 1, 2, 3, 4, 6, 8, 12, 16 };
-
 	static struct strMidiModes
 	{
 		static const uint8_t MIN_VALUE = 0;
@@ -305,15 +299,15 @@ public:
 
 	enum strRollCurve
 	{
-		 ROLL_CURVE_MIN = 1,
-		 ROLL_CURVE_FLAT = 1,
-		 ROLL_CURVE_INCREMENTAL = 2,
-		 ROLL_CURVE_DECREMENTAL = 3,
-		 ROLL_CURVE_INC_DEC = 4,
-		 ROLL_CURVE_DEC_INC = 5,
-		 ROLL_CURVE_RANDOM = 6,
-		 ROLL_CURVE_MAX = 6,
-	} ;
+		ROLL_CURVE_MIN = 1,
+		ROLL_CURVE_FLAT = 1,
+		ROLL_CURVE_INCREMENTAL = 2,
+		ROLL_CURVE_DECREMENTAL = 3,
+		ROLL_CURVE_INC_DEC = 4,
+		ROLL_CURVE_DEC_INC = 5,
+		ROLL_CURVE_RANDOM = 6,
+		ROLL_CURVE_MAX = 6,
+	};
 
 	struct strPlayer
 	{
@@ -374,6 +368,7 @@ public:
 
 			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
+			bool recOpen = 0;		// znacznik czy została wysłana nuta
 
 			uint16_t uStep = 0;		// aktualny microstep
 			int16_t actual_pos = 0;	// aktualna pozycja w stepach
@@ -445,6 +440,10 @@ public:
 	void init();
 	//	void loadDefaultSequence(void);
 	void printNotes(bool val);
+
+	uint8_t isPlay(void);
+	uint8_t isRec(void);
+	uint8_t isStop(void);
 
 // sekwencerowe
 
@@ -629,6 +628,7 @@ public:
 
 	void loadNextPattern(uint8_t patternNumber);
 	void handleNote(byte channel, byte pitch, byte velocity);
+	void handleNoteOld(byte channel, byte pitch, byte velocity);
 	int16_t getFxMax(uint8_t fxID);
 	int16_t getFxMin(uint8_t fxID);
 	int16_t getFxDefault(uint8_t fxID);

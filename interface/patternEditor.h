@@ -10,6 +10,7 @@
 
 
 uint8_t isMultiSelection();
+uint8_t isEditMode();
 void sendSelection();
 void sendCopySelection();
 void sendPasteSelection();

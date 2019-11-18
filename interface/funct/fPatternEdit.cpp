@@ -1821,7 +1821,35 @@ static  uint8_t functPlayAction()
 {
 	if (sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
-		if (tactButtons.isButtonPressed(interfaceButtonShift))
+
+		if (tactButtons.isButtonPressed(interfaceButtonRec))
+		{
+			sequencer.rec();
+			PTE->editMode = 0;
+			Serial.println("rec");
+
+			strPopupStyleConfig popupConfig {
+					2,					// time
+					800 / 2 - 150,		// x
+					480 / 2 - 50,		// y
+					300,				// w
+					100,				// h
+					0xff0000,			// lineColor[4];
+					0xffffff,
+					0xffffff,
+					0xffffff,
+					controlStyleCenterX,			//lineStyle[4];
+					controlStyleCenterX,
+					controlStyleCenterX,
+					controlStyleCenterX };
+
+			mtPopups.config(0, &popupConfig);
+			mtPopups.show(0, "REC");
+
+
+			// todo: popup REC
+		}
+		else if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
 			sequencer.playSong();
 			PTE->refreshPatternParams();
@@ -1849,6 +1877,11 @@ static  uint8_t functPlayAction()
 
 static  uint8_t functRecAction()
 {
+	if(sequencer.isRec())
+	{
+		sequencer.stop();
+	}
+
 	if(PTE->fillState == 1) return 1;
 
 	PTE->editMode = !PTE->editMode;
@@ -2082,6 +2115,11 @@ void sendCopySelection()
 uint8_t isMultiSelection()
 {
 	return PTE->trackerPattern.selectState == 2;
+
+}
+uint8_t isEditMode()
+{
+	return PTE->editMode == 1;
 
 }
 
@@ -2590,7 +2628,21 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	}
 
 	// dalej tylko jesli edit (rec)
-	if (PTE->editMode != 1) return 1;
+	if (PTE->editMode != 1)
+	{
+		if (state == buttonPress)
+		{
+			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+			sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad,
+									127);
+		}
+		else if (state == buttonRelease)
+		{
+			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+			sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0);
+		}
+		return 1;
+	}
 
 	// obsluga podswietlenia
 	if (state == buttonRelease)
@@ -2691,6 +2743,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		}
 
 	}
+
 
 	return 1;
 }
