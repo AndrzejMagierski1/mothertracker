@@ -206,6 +206,12 @@ uint8_t cPerformanceMode::wasPatternOntrackChenged(uint8_t track)
 	return trackPatternChange[track] > 1;
 }
 
+void cPerformanceMode::setProjectSaveFlags()
+{
+	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.configIsChangedFlag = 1;
+}
+
 void cPerformanceMode::toggleTrackPerformanceState(uint8_t track)
 {
 	tracksPerformanceState[track] = !tracksPerformanceState[track];
@@ -431,6 +437,8 @@ void cPerformanceMode::setPlaceNewFx(uint8_t place, uint8_t newFx)
 	mtProject.values.perfFxValues[place][3] = 0;
 
 	mtProject.values.perfFxPlaces[place] = newFx;
+
+	setProjectSaveFlags();
 }
 //=================================================================================
 //
@@ -465,6 +473,8 @@ static  uint8_t functEncoder(int16_t value)
 				if(mtProject.values.perfTracksPatterns[i] + value > 255) mtProject.values.perfTracksPatterns[i] = 255;
 				else if(mtProject.values.perfTracksPatterns[i] + value < 1) mtProject.values.perfTracksPatterns[i] = 1;
 				else  mtProject.values.perfTracksPatterns[i] += value;
+
+				PM->setProjectSaveFlags();
 			}
 
 			PM->refreshTrackPattern = 1;
@@ -703,6 +713,8 @@ static  uint8_t functEncoder(int16_t value)
 			if(PM->performanceEditState) // zapis jesli edit mode
 			{
 				mtProject.values.perfFxValues[place][mtProject.values.perfSelectedValues[place]] = PM->placesTempValues[place];
+
+				PM->setProjectSaveFlags();
 			}
 		}
 	}
@@ -729,6 +741,8 @@ static  uint8_t functLeft()
 		PM->showFxNames(PM->performanceEditPlace+1);
 		PM->showPerformaceValue(PM->performanceEditPlace);
 		PM->showPerformaceValue(PM->performanceEditPlace+1);
+
+		PM->setProjectSaveFlags();
 	}
 	else if(PM->performanceEditState)
 	{
@@ -756,6 +770,8 @@ static  uint8_t functRight()
 		PM->showFxNames(PM->performanceEditPlace-1);
 		PM->showPerformaceValue(PM->performanceEditPlace);
 		PM->showPerformaceValue(PM->performanceEditPlace-1);
+
+		PM->setProjectSaveFlags();
 	}
 	else if(PM->performanceEditState)
 	{
@@ -787,6 +803,7 @@ static  uint8_t functUp()
 		PM->showFxNames(PM->performanceEditPlace);
 		PM->showPerformaceValue(PM->performanceEditPlace);
 
+		PM->setProjectSaveFlags();
 
 		return 1;
 	}
@@ -801,6 +818,8 @@ static  uint8_t functUp()
 			if(mtProject.values.perfTracksPatterns[i] < 255)
 			{
 				mtProject.values.perfTracksPatterns[i]++;			//zmiana o 1
+
+				PM->setProjectSaveFlags();
 			}
 			//else PM->trackPatternChange[i] = 1;
 
@@ -845,6 +864,8 @@ static  uint8_t functDown()
 			if(mtProject.values.perfTracksPatterns[i] > 1)
 			{
 				mtProject.values.perfTracksPatterns[i]--;			//zmiana o 1
+
+				PM->setProjectSaveFlags();
 			}
 			//else PM->trackPatternChange[i] = 1;
 
@@ -962,6 +983,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 			 engine.muteTrack(button, mtProject.values.trackMute[button]);
 
 			 PM->refreshMaster = 1;
+			 PM->setProjectSaveFlags();
 		}
 		else if(state == buttonRelease)
 		{
@@ -973,8 +995,10 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 				 engine.muteTrack(button, mtProject.values.trackMute[button]);
 
 				 PM->refreshMaster = 1;
+				 PM->setProjectSaveFlags();
 			}
 		}
+
 	}
 	else
 	{
@@ -988,6 +1012,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 				engine.muteTrack(button, mtProject.values.trackMute[button]);
 
 				PM->refreshTrackState = 1;
+				PM->setProjectSaveFlags();
 			}
 			else
 			{

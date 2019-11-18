@@ -121,7 +121,7 @@ public:
 	uint8_t wasPatternOntrackChenged(uint8_t track);
 
 	void toggleEditState();
-
+	void setProjectSaveFlags();
 	//----------------------------------
 	void showDefaultScreen();
 

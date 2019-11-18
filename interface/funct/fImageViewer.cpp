@@ -147,6 +147,8 @@ void cImageViewer::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton7, functActionButton);
 
 
+	FM->setPotObj(interfacePot0, functEncoder, nullptr);
+
 	FM->setPadsGlobal(functPads);
 
 }
@@ -156,18 +158,17 @@ void cImageViewer::refreshImage()
 {
 	if(imagesCount == 0)
 	{
-		sprintf(titleText, "Manual - no images on SD card", imageNumber, imagesCount);
+		sprintf(titleText, "Manual - no data on SD card", imageNumber, imagesCount);
 		display.setControlText(titleLabel, titleText);
 		display.refreshControl(titleLabel);
 
 		display.setControlHide(image);
 		refreshImageState = 0;
+		return;
 	}
-
 
 	display.setControlHide(image);
 	refreshImageState = 1;
-
 
 	sprintf(titleText, "Manual %d/%d", imageNumber, imagesCount);
 	display.setControlText(titleLabel,titleText);
@@ -248,8 +249,16 @@ void cImageViewer::setImage(uint8_t number)
 //==============================================================================================================
 static  uint8_t functEncoder(int16_t value)
 {
-
-
+	if(value > 0)
+	{
+		IV->nextImage();
+		IV->refreshImage();
+	}
+	else
+	{
+		IV->previouseImage();
+		IV->refreshImage();
+	}
 
 	return 1;
 }

@@ -430,11 +430,17 @@ void FileManager::getDefaultValues(struct strMtValues *source)
 	for(uint32_t i = 0; i < 8; i++)
 	{
 		source->perfTracksPatterns[i] = 1;
+		source->perfTracksState[i] = 0;
 	}
 
 	for(uint32_t i = 0; i < 12; i++)
 	{
-		source->perfTracksPatterns[i] = (i+1);
+		source->perfSelectedValues[i] = 0;
+		source->perfFxPlaces[i] = (i+1);
+		source->perfFxValues[i][0] = 0;
+		source->perfFxValues[i][1] = 0;
+		source->perfFxValues[i][2] = 0;
+		source->perfFxValues[i][3] = 0;
 	}
 
 // song

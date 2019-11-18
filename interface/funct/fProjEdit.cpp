@@ -485,7 +485,8 @@ uint8_t cProjectEditor::loadProjectValues()
 
 	for(uint8_t place = 0; place<12; place++)
 	{
-		if(mtProject.values.perfFxValues[place][0] > 255 || mtProject.values.perfFxValues[place][0] < -255)
+		//if(mtProject.values.perfFxValues[place][0] > 255 || mtProject.values.perfFxValues[place][0] < -255)
+		if(mtProject.values.perfFxValues[place][0] != 0)
 			mtProject.values.perfFxValues[place][0] = 0;
 		if(mtProject.values.perfFxValues[place][1] > 255 || mtProject.values.perfFxValues[place][1] < -255)
 			mtProject.values.perfFxValues[place][1] = 0;
