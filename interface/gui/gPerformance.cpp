@@ -280,7 +280,7 @@ void cPerformanceMode::showPerformanceFxes()
 
 	//-------------------------------------
 
-	for(uint8_t i = 0; i<performanceFxesCount; i++)
+	for(uint8_t i = 0; i<12; i++)
 	{
 		display.setControlText(textLabel[i], &performanceFxesLabels[mtProject.values.perfFxPlaces[i]][0]);
 		display.setControlShow(textLabel[i]);
@@ -300,8 +300,8 @@ void cPerformanceMode::showPerformanceFxes()
 		//display.refreshControl(topLabel[i]);
 	}
 
-	refreshTracksPatterns();
-	refreshTracksState();
+	showTracksPatterns();
+	showTracksState();
 
 
 	display.synchronizeRefresh();
@@ -324,7 +324,7 @@ void cPerformanceMode::hideEditFrame()
 }
 
 
-void cPerformanceMode::refreshFxNames(uint8_t place)
+void cPerformanceMode::showFxNames(uint8_t place)
 {
 	if(place < 12)
 	{
@@ -333,17 +333,10 @@ void cPerformanceMode::refreshFxNames(uint8_t place)
 		display.refreshControl(textLabel[place]);
 		return;
 	}
-
-	for(uint8_t i = 0; i<performanceFxesCount; i++)
-	{
-		display.setControlText(textLabel[i], &performanceFxesLabels[mtProject.values.perfFxPlaces[i]][0]);
-		display.setControlShow(textLabel[i]);
-		display.refreshControl(textLabel[i]);
-	}
 }
 
 
-void cPerformanceMode::refreshTracksState()
+void cPerformanceMode::showTracksState()
 {
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -377,7 +370,7 @@ void cPerformanceMode::refreshTracksState()
 	display.synchronizeRefresh();
 }
 
-void cPerformanceMode::refreshTracksPatterns()
+void cPerformanceMode::showTracksPatterns()
 {
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -394,123 +387,91 @@ void cPerformanceMode::refreshTracksPatterns()
 }
 
 //=================================================================================
-// zmiana danych performance w trybie edycji
-//=================================================================================
-//void changePerformanceData(int16_t value)
-//{
-
-//}
-
-
-
-//=================================================================================
 //
 //=================================================================================
-void cPerformanceMode::refreshActiveValueForFx(uint8_t fx)
+void cPerformanceMode::showPerformaceValue(uint8_t place)
 {
-	if(fx >= performanceFxesCount) return;
+	if(place >= 12) return;
 
-	for(uint8_t place = 0; place < 12; place++)
+	multiLabelData[place].selected = mtProject.values.perfSelectedValues[place]+1;
+
+	for(uint8_t slot = 0; slot < 4; slot++)
 	{
-		if(fx != mtProject.values.perfFxPlaces[place]) continue;
+		int16_t fx_value  = (slot == mtProject.values.perfSelectedValues[place])
+				? placesTempValues[place]
+				: mtProject.values.perfFxValues[place][slot];
 
-		multiLabelData[place].selected = mtProject.values.perfSelectedValues[place]+1;
-
-		display.refreshControl(value1Label[place]);
-	}
-}
-
-//=================================================================================
-//
-//=================================================================================
-void cPerformanceMode::showPerformaceValue(uint8_t fx)
-{
-	if(fx >= performanceFxesCount) return;
-
-	for(uint8_t place = 0; place < 12; place++)
-	{
-		if(fx != mtProject.values.perfFxPlaces[place]) continue;
-
-		multiLabelData[place].selected = mtProject.values.perfSelectedValues[place]+1;
-
-		for(uint8_t slot = 0; slot < 4; slot++)
+		// wyjątkowe efejkty (nie liczbowe) obslużyc wyjątkowo
+		switch(mtProject.values.perfFxPlaces[place])
 		{
-			int16_t fx_value  = (slot==mtProject.values.perfSelectedValues[place]) ?  fxTempValues[fx] : fxValues[fx][slot];
-
-			// wyjątkowe efejkty (nie liczbowe) obslużyc wyjątkowo
-			switch(mtProject.values.perfFxPlaces[place])
-			{
-			case mtPerfFxNone:
-			{
-				strcpy(&fxValuesText[place][slot][0], "");
-				break;
-			}
-			case mtPerfSamplePlayback:
-			{
-				if(fx_value == 1) 	strcpy(&fxValuesText[place][slot][0], "<<<");
-				else 				strcpy(&fxValuesText[place][slot][0], ">>>");
-				break;
-			}
-			case mtPerfStepStutter:
-			{
-				strcpy(&fxValuesText[place][slot][0], &performanceStutterLabels[fx_value][0]);
-				break;
-			}
-			case mtPerfPatternPlayMode:
-			{
-				if(fx_value == 1) 		strcpy(&fxValuesText[place][slot][0], "Back");
-				else if(fx_value == 2) 	strcpy(&fxValuesText[place][slot][0], "Rnd");
-				else 								strcpy(&fxValuesText[place][slot][0], "Fwd");
-				break;
-			}
-
-			case mtPerfPatternLength:
-			{
-					if (fx_value <= 0) strcpy(&fxValuesText[place][slot][0], "---");
-					else
-					{
-						sprintf(&fxValuesText[place][slot][0], "%d", performancePatternLengthValues[fx_value-1]);
-
-					}
-				break;
-			}
-
-			default:
-				sprintf(&fxValuesText[place][slot][0],"%d", fx_value);
-				break;
-			}
-
-
-
+		case mtPerfFxNone:
+		{
+			strcpy(&fxValuesText[place][slot][0], "");
+			break;
+		}
+		case mtPerfSamplePlayback:
+		{
+			if(fx_value == 1) 	strcpy(&fxValuesText[place][slot][0], "<<<");
+			else 				strcpy(&fxValuesText[place][slot][0], ">>>");
+			break;
+		}
+		case mtPerfStepStutter:
+		{
+			strcpy(&fxValuesText[place][slot][0], &performanceStutterLabels[fx_value][0]);
+			break;
+		}
+		case mtPerfPatternPlayMode:
+		{
+			if(fx_value == 1) 		strcpy(&fxValuesText[place][slot][0], "Back");
+			else if(fx_value == 2) 	strcpy(&fxValuesText[place][slot][0], "Rnd");
+			else 								strcpy(&fxValuesText[place][slot][0], "Fwd");
+			break;
 		}
 
-		display.setControlShow(value1Label[place]);
-		display.refreshControl(value1Label[place]);
+		case mtPerfPatternLength:
+		{
+				if (fx_value <= 0) strcpy(&fxValuesText[place][slot][0], "---");
+				else
+				{
+					sprintf(&fxValuesText[place][slot][0], "%d", performancePatternLengthValues[fx_value-1]);
+
+				}
+			break;
+		}
+
+		default:
+			if (fx_value == 0) strcpy(&fxValuesText[place][slot][0], "---");
+			else sprintf(&fxValuesText[place][slot][0],"%d", fx_value);
+			break;
+		}
 	}
 
 
-}
-
-//=================================================================================
-//
-//=================================================================================
-void cPerformanceMode::showArrow(uint8_t place, uint8_t type)
-{
-	if(mtProject.values.perfFxPlaces[place] == mtPerfFxNone) return;
-
-	//textLabelData[place].bitmapIndex = type;
-
-	display.setAddControlStyle(value1Label[place], controlStyleShowBitmap);
+	display.setControlShow(value1Label[place]);
 	display.refreshControl(value1Label[place]);
+
 }
 
-//=================================================================================
+////=================================================================================
+////
+////=================================================================================
+//void cPerformanceMode::showArrow(uint8_t place, uint8_t type)
+//{
+//	if(mtProject.values.perfFxPlaces[place] == mtPerfFxNone) return;
 //
-//=================================================================================
-void cPerformanceMode::hideArrow(uint8_t place)
-{
-
-	display.setRemoveControlStyle(value1Label[place], controlStyleShowBitmap);
-	display.refreshControl(value1Label[place]);
-}
+//	//textLabelData[place].bitmapIndex = type;
+//
+//	display.setAddControlStyle(value1Label[place], controlStyleShowBitmap);
+//	display.refreshControl(value1Label[place]);
+//}
+//
+////=================================================================================
+////
+////=================================================================================
+//void cPerformanceMode::hideArrow(uint8_t place)
+//{
+//
+//	display.setRemoveControlStyle(value1Label[place], controlStyleShowBitmap);
+//	display.refreshControl(value1Label[place]);
+//}
 

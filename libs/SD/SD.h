@@ -311,8 +311,8 @@ class SdFs : public SdBase<FsVolume> {
 
 
 extern SdFs SD;
-
-extern FsFile root;
+//extern FsVolume volume;
+//extern FsFile root;
 
 
 

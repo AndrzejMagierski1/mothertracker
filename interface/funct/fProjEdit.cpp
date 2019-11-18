@@ -442,7 +442,7 @@ uint8_t cProjectEditor::loadProjectValues()
 	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
 
 
-
+	//----------------------------------------------------------------------------------------------------
 	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
 			mtProject.values.padBoardNoteOffset,
 			mtProject.values.padBoardRootNote = 36);
@@ -450,6 +450,7 @@ uint8_t cProjectEditor::loadProjectValues()
 //	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
 	mtPadBoard.configureInstrumentPlayer(8);
 
+	//----------------------------------------------------------------------------------------------------
 	sampleRecorder.recorderConfig.gainLineIn = mtProject.values.gainLineIn;
 	sampleRecorder.recorderConfig.gainMicHigh = mtProject.values.gainMicHigh;
 	sampleRecorder.recorderConfig.gainMicLow = mtProject.values.gainMicLow;
@@ -458,7 +459,8 @@ uint8_t cProjectEditor::loadProjectValues()
 	sampleRecorder.recorderConfig.radioFreq = mtProject.values.radioFreq;
 	sampleRecorder.recorderConfig.source = mtProject.values.source;
 
-
+	//----------------------------------------------------------------------------------------------------
+	// performance mode
 	for(uint8_t i = 0; i<8; i++)
 	{
 		// paterny na trakach w performance mode
@@ -477,29 +479,29 @@ uint8_t cProjectEditor::loadProjectValues()
 		{
 			mtProject.values.perfFxPlaces[i] = (i+1 < performanceFxesCount) ? i+1 : 0;
 		}
+
+		if(mtProject.values.perfSelectedValues[i] > 3) mtProject.values.perfSelectedValues[i] = 0;
 	}
 
+	for(uint8_t place = 0; place<12; place++)
+	{
+		if(mtProject.values.perfFxValues[place][0] > 255 || mtProject.values.perfFxValues[place][0] < -255)
+			mtProject.values.perfFxValues[place][0] = 0;
+		if(mtProject.values.perfFxValues[place][1] > 255 || mtProject.values.perfFxValues[place][1] < -255)
+			mtProject.values.perfFxValues[place][1] = 0;
+		if(mtProject.values.perfFxValues[place][2] > 255 || mtProject.values.perfFxValues[place][2] < -255)
+			mtProject.values.perfFxValues[place][2] = 0;
+		if(mtProject.values.perfFxValues[place][3] > 255 || mtProject.values.perfFxValues[place][3] < -255)
+			mtProject.values.perfFxValues[place][3] = 0;
+	}
 
+	//----------------------------------------------------------------------------------------------------
+	// song pattern
 	if(mtProject.values.globalTempo > 1000) mtProject.values.globalTempo = DEFAULT_TEMPO;
-
 	if(mtProject.values.patternLength > 255) mtProject.values.patternLength = 32;
 
-	memset(performanceMode.fxValues, 0, performanceFxesCount*2*4);
-
-	for(uint8_t palce = 0; palce<12; palce++)
-	{
-		performanceMode.fxValues[mtProject.values.perfFxPlaces[palce]][0] = mtProject.values.perfFxValues[palce][0];
-		performanceMode.fxValues[mtProject.values.perfFxPlaces[palce]][1] = mtProject.values.perfFxValues[palce][1];
-		performanceMode.fxValues[mtProject.values.perfFxPlaces[palce]][2] = mtProject.values.perfFxValues[palce][2];
-		performanceMode.fxValues[mtProject.values.perfFxPlaces[palce]][3] = mtProject.values.perfFxValues[palce][3];
-	}
 
 
-
-
-
-	//performanceMode.
-	//uint8_t fxPlaces[12]
 
 	return 1;
 
