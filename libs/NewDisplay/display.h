@@ -26,6 +26,9 @@
 #include "notePopoutControl.h"
 #include "textPopupControl.h"
 #include "imgControl.h"
+#include "multiLabelControl.h"
+
+#include "processingPopout.h"
 
 
 typedef cDisplayControl* hControl;
@@ -120,6 +123,10 @@ public:
 	void setRemoveControlStyle(hControl handle, uint32_t style);
 	void setControlText(hControl handle, char* text);
 	inline void setControlText(hControl handle,  char const* text) { setControlText(handle, (char*)text); }
+
+	void setControlText2(hControl handle, char* text);
+	inline void setControlText2(hControl handle,  char const* text) { setControlText2(handle, (char*)text); }
+
 	void setControlValue(hControl handle, int value);
 	void setControlColors(hControl handle, uint32_t colorsTable[]);
 	void setControlDefaultColors(hControl handle, uint32_t colorsTable[]);

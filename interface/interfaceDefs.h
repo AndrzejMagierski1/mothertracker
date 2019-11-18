@@ -327,6 +327,7 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_FADE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_CUT,
 	};
+
 	const char rndFxName[FX_NAME_SIZE+4] = "Random Fx";
 
 	const char fxNames[FX_COUNT][FX_NAME_SIZE+4] =
@@ -435,6 +436,27 @@ struct strInterfaceGlobals
 	};
 
 	const char **ptrFxNames = &ptrAllFxNames[1];
+
+	uint32_t activeLabelsColors[3] =
+	{
+		0x000000, // tekst
+		0xFFFFFF, // tło
+		0xFF0000, // ramka
+	};
+
+	uint32_t inactiveLabelsColors[3] =
+	{
+		0x888888, // tekst
+		0xFFFFFF, // tło //0x555555
+		0xFF0000, // ramka
+	};
+
+	uint32_t disabledLabelsColors[3]=
+	{
+			0x000000, // tekst
+			0x555555, // tło
+			0xFF0000, // ramka
+	};
 
 //-----------------------------------------------------
 

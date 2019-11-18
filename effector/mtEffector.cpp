@@ -126,24 +126,22 @@ uint8_t mtEffector::saveUpdate()
 
 	if(saveStage == saving)
 	{
-		if(saveLength)
+		if(saveLength >= 2048)
 		{
-			if(saveLength >= 2048)
-			{
-				file.write(currentAddress,2048);
-				currentAddress+=1024;
-				saveLength-=2048;
-			}
-			else
-			{
-				file.write(currentAddress,saveLength);
-				writeOutHeader();
-				saveStage = saveDone;
-				saveLength = 0;
-			}
-
-			progress = ((saveLengthMax - saveLength) * 100) / saveLengthMax;
+			file.write(currentAddress,2048);
+			currentAddress+=1024;
+			saveLength-=2048;
 		}
+		else
+		{
+			file.write(currentAddress,saveLength);
+			writeOutHeader();
+			saveStage = saveDone;
+			saveLength = 0;
+		}
+
+		progress = ((saveLengthMax - saveLength) * 100) / saveLengthMax;
+
 	}
 
 	return progress;

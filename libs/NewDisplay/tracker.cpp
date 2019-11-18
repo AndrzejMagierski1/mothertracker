@@ -18,6 +18,7 @@ static uint32_t defaultColors[] =
 	0xFF0000, // zaznaczenie
 	0x111111, // podzialka
 	0x333333, // nieaktywny
+	0xff0000, // playhead
 };
 
 
@@ -48,7 +49,7 @@ cTracker::cTracker(strControlProperties* properties)
 	//firstVisibleTrack = 0;
 	//visibleTracksOffset = 0;
 
-	colorsCount = 9;
+	colorsCount = 10;
 	colors = defaultColors;
 
 	refreshStep =  0;
@@ -193,7 +194,7 @@ uint8_t cTracker::append(uint32_t address)
 //--------------------------------------------------------------------------------
 void cTracker::refresh1()
 {
-	colors[6] = tracks->selectColor;
+	//colors[6] = tracks->selectColor;
 	displayMode = value;
 
 	rightOffset = 0;
@@ -342,6 +343,8 @@ void cTracker::playHead()
 	if(tracks->playheadPosition > tracks->actualStep-8 &&  tracks->playheadPosition < tracks->actualStep+8)
 	{
 		uint8_t row = tracks->playheadPosition - (tracks->actualStep-8);
+
+		API_COLOR(colors[9]);
 
 		API_VERTEX2F(0, posY+28*(row-1));
 		API_VERTEX2F(799, posY+28*(row-1));

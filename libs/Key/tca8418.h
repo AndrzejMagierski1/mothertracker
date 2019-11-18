@@ -14,8 +14,21 @@ constexpr uint8_t BUTTON_MAX = 48;
 constexpr uint16_t HOLD_TIME = 400;
 
 
-#define I2CWRITE(x) localWire->write(x)
-#define I2CREAD() localWire->read()
+//#define I2C_BEGINTRANS(x) localWire.beginTransmission(x)
+//#define I2C_ENDTRANS() localWire.endTransmission()
+//#define I2C_REQUESTFROM(x,y) localWire.requestFrom(x, y)
+//#define I2C_WRITE(x) localWire.write(x)
+//#define I2C_READ() localWire.read()
+//#define I2C_AVALIBLE() localWire.available()
+
+
+#define I2C_BEGINTRANS(x) localWire->beginTransmission(x)
+#define I2C_ENDTRANS() localWire->endTransmission()
+#define I2C_REQUESTFROM(x,y) localWire->requestFrom(x, y)
+#define I2C_WRITE(x) localWire->write(x)
+#define I2C_READ() localWire->read()
+#define I2C_AVALIBLE() localWire->available()
+
 #else
 #include "WProgram.h"
 #define I2CWRITE(x) Wire.send(x)
@@ -148,13 +161,13 @@ constexpr uint8_t defaultConvert[80] =
 };
 
 
-class KEYS {
+class KEYS
+{
 public:
   KEYS();
-  void begin(i2c_t3 * wire);
-  void begin(uint8_t rows, uint16_t cols, uint8_t config, i2c_t3 * wire, uint8_t* table);
+  void begin(uint8_t rows, uint16_t cols, uint8_t config, i2c_t3* i2c_wire, uint8_t* table);
   uint8_t readKeypad(void);
-  bool configureKeys(uint8_t rows, uint16_t cols, uint8_t config);
+  void configureKeys(uint8_t rows, uint16_t cols, uint8_t config);
   void writeByte(uint8_t data, uint8_t reg);
   bool read3Bytes(uint32_t *data, uint8_t reg);
   void write3Bytes(uint32_t data, uint8_t reg);
@@ -194,7 +207,7 @@ public:
   uint8_t keyInt = 0;
 
 private:
-  i2c_t3 * localWire = &Wire2;
+  i2c_t3* localWire = &Wire2;
 
   void (*onPush)(uint8_t);
   void (*onRelease)(uint8_t);

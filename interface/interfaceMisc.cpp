@@ -21,23 +21,51 @@ uint8_t hidePressFlag = 0;
 uint8_t cInterface::detectStartState()
 {
 	if(startupTimer > MT_INTERFACE_STARTUP_TIME) return 1; // zabiezpieczenie czasowe
+	//if(hidePressFlag) return 1;
 
-	if(hidePressFlag) return 1;
+	uint8_t status = fileManager.getLoadingStatus();
 
-
-
-	startSampleLoadingFlag = fileManager.samplesLoader.getStateFlag();
-
-	if(startSampleLoadingFlag == loaderStateTypeInProgress)
+	if(openFromWorkspaceFlag)
 	{
-		startSampleLoadingProgress = fileManager.samplesLoader.getCurrentProgress();
+		if(status)
+		{
+			fileManager.refreshLoadProjectFromWorkspace();
+			return 0;
+		}
+		else
+		{
+			char currentPatch[PATCH_SIZE];
 
-		return 0;
+			sprintf(currentPatch,"Projects/%s",mtConfig.startup.lastProjectName);
+			if(SD.exists(currentPatch))
+			{
+				strcpy(fileManager.currentProjectName,mtConfig.startup.lastProjectName);
+				sprintf(fileManager.currentProjectPatch,"Projects/%s",mtConfig.startup.lastProjectName);
+
+				projectEditor.loadProjectValues();
+			}
+			else
+			{
+				strcpy(fileManager.currentProjectName, "New Project");
+				PE->newProjectNotSavedFlag = 1;
+
+				projectEditor.loadProjectValues();
+			}
+		}
+	}
+	else
+	{
+		if(status)
+		{
+			fileManager.refreshProjectOpening();
+			return 0;
+		}
 	}
 
-
-
-
+	if(startupTimer < 1000) // minimalny czas start screenu
+	{
+		return 0;
+	}
 
 	return 1;
 }
@@ -101,57 +129,27 @@ void cInterface::openStartupProject()
 	{
 		char currentPatch[PATCH_SIZE];
 
-
 		strcpy(currentPatch,"Workspace/project.bin");
 		if(SD.exists(currentPatch))
 		{
-			if(fileManager.loadProjectFromWorkspace())
+			if(fileManager.loadProjectFromWorkspaceStart())
 			{
-				projectEditor.loadProjectValues();
-				sprintf(currentPatch,"Projects/%s",mtConfig.startup.lastProjectName);
-				if(SD.exists(currentPatch))
-				{
-					strcpy(fileManager.currentProjectName,mtConfig.startup.lastProjectName);
-					sprintf(fileManager.currentProjectPatch,"Projects/%s",mtConfig.startup.lastProjectName);
-				}
-				else
-				{
-					PE->newProjectNotSavedFlag = 1;
-					memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
-					memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);
-				}
-
-			}
-			else
-			{
-				strcpy(currentPatch,"Templates/New/project.bin");
-
-				if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
-
-				fileManager.openProject((char*)"New",projectTypeExample); // można to odpalić bez zadnych flag i progresow bo nowy projekt nie ma sampli
-
-				PE->newProjectNotSavedFlag = 1;
-				memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
-				memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);
+				openFromWorkspaceFlag = 1;
 			}
 		}
-		else
+
+		if(!openFromWorkspaceFlag)
 		{
-			strcpy(currentPatch,"Templates/New/project.bin");
+			//strcpy(currentPatch,"Templates/New/project.bin");
 
-			if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
+			fileManager.createEmptyTemplateProject((char*)"New");
 
-			fileManager.openProject((char*)"New",projectTypeExample); // można to odpalić bez zadnych flag i progresow bo nowy projekt nie ma sampli
+			fileManager.openProjectStart((char*)"New", projectTypeExample);
 
 			PE->newProjectNotSavedFlag = 1;
-			memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
-			memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);
+			strcpy(fileManager.currentProjectName, "New Project");
 		}
 	}
-
-
-
-
 }
 
 

@@ -40,7 +40,6 @@ enum controlsStyle
 	controlStyleValueNumberOnly			= (1<<19),
 	controlStyleCompareTwoValues 		= (1<<20),
 
-	//controlStylexzcszczc  			= (1<<21)
 };
 
 

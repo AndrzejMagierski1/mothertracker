@@ -17,81 +17,9 @@ void FileManager::update()
 
 	samplesLoader.update();
 	samplesImporter.update();
-	uint16_t localCopySize = samplesCopyier.update();
+	samplesCopyier.update();
 
-//******************************************************************************************************
-// SAMPLES COPYIER	- kopiuje sample  z patcha do patcha
-//******************************************************************************************************
-	samplesCopyierCurrentState = fileManager.samplesCopyier.getState();
-	if(samplesCopyierCurrentState && openWorkspaceCreateFlag) currentCopyingSizeOpen+=localCopySize;
-	if(samplesCopyierCurrentState && saveProjectFlag) currentCopyingSizeSave+=localCopySize;
-
-
-	if( (!samplesCopyierCurrentState ) && (lastCopyierCurrentState) )
-	{
-		if(saveProjectFlag)
-		{
-			for(uint8_t i = currentSaveWave; i < INSTRUMENTS_COUNT; i++)
-			{
-
-				if(mtProject.instrument[i].isActive == 1)
-				{
-					char currentPatch[PATCH_SIZE];
-					char workspacePatch[PATCH_SIZE];
-					sprintf(currentPatch,"%s/samples/instr%02d.wav",currentProjectPatch,i);
-					sprintf(workspacePatch,"Workspace/samples/instr%02d.wav",i);
-
-					samplesCopyier.start(currentPatch,workspacePatch);
-
-					currentSaveWave = i+1;
-
-					if(i == (INSTRUMENTS_COUNT - 1))
-					{
-						saveProjectFlag = 0;
-					}
-					break;
-				}
-				if(i == (INSTRUMENTS_COUNT - 1))
-				{
-					saveProjectFlag = 0;
-				}
-
-			}
-		}
-
-		if(openWorkspaceCreateFlag)
-		{
-			for(uint8_t i = currentSaveWave; i < INSTRUMENTS_COUNT; i++)
-			{
-				currentSaveWave = i+1;
-				if(mtProject.instrument[i].isActive == 1)
-				{
-					char currentPatch[PATCH_SIZE];
-					char workspacePatch[PATCH_SIZE];
-					sprintf(currentPatch,"%s/samples/instr%02d.wav",currentProjectPatch,i);
-					sprintf(workspacePatch,"Workspace/samples/instr%02d.wav",i);
-
-					samplesCopyier.start(workspacePatch,currentPatch);
-
-					if(i == (INSTRUMENTS_COUNT - 1))
-					{
-						openWorkspaceCreateFlag = 0;
-
-						samplesLoader.start(0,(char*)"Workspace");
-
-					}
-					break;
-				}
-				if(currentSaveWave == INSTRUMENTS_COUNT)
-				{
-					openWorkspaceCreateFlag = 0;
-					samplesLoader.start(0,(char*)"Workspace");
-				}
-			}
-		}
-	}
-
-	lastCopyierCurrentState = fileManager.samplesCopyier.getState();
+	autoSaveWorkspace(0);
 
 //******************************************************************************************************
 // SAMPLES IMPORTER - kopiuje pliki do projektu
@@ -205,7 +133,7 @@ uint8_t FileManager::writePatternFile(char * name)
 }
 
 
-void FileManager::writeProjectFile(char * name, strMtProjectRemote * proj)
+void FileManager::writeProjectFile(char * name, strMtProject *proj)
 {
 	if(SD.exists(name)) SD.remove(name);
 
@@ -213,8 +141,8 @@ void FileManager::writeProjectFile(char * name, strMtProjectRemote * proj)
 	FastCRC32 crcCalc;
 	strProjectFile projectFile;
 
-	projectFile.projectDataAndHeader.project = * proj;
-	projectFile.projectDataAndHeader.project.values = mtProject.values;
+	memcpy(&projectFile.projectDataAndHeader.project.song, &proj->song, sizeof(strSong));
+	memcpy(&projectFile.projectDataAndHeader.project.values, &proj->values, sizeof(strMtValues));
 
 	projectFile.projectDataAndHeader.projectHeader.id_file[0]='I';
 	projectFile.projectDataAndHeader.projectHeader.id_file[1]='D';
@@ -227,11 +155,11 @@ void FileManager::writeProjectFile(char * name, strMtProjectRemote * proj)
 	projectFile.projectDataAndHeader.projectHeader.id_data[1] = 'A';
 	projectFile.projectDataAndHeader.projectHeader.id_data[2] = 'T';
 	projectFile.projectDataAndHeader.projectHeader.id_data[3] = 'A';
-	projectFile.projectDataAndHeader.projectHeader.size = sizeof(*proj);
+	projectFile.projectDataAndHeader.projectHeader.size = sizeof(projectFile);
 
 	projectFile.crc = crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
 
-	file=SD.open(name,FILE_WRITE);
+	file=SD.open(name, FILE_WRITE);
 	file.write((uint8_t *)&projectFile,sizeof(projectFile));
 	file.close();
 
@@ -307,7 +235,7 @@ uint8_t FileManager::readPatternFile(char * name)
 
 
 
-uint8_t FileManager::readProjectFile(char * name, strMtProjectRemote * proj)
+uint8_t FileManager::readProjectFile(char * name, strMtProject * proj)
 {
 	if(!SD.exists(name)) return 0;
 	FsFile file;
@@ -326,8 +254,10 @@ uint8_t FileManager::readProjectFile(char * name, strMtProjectRemote * proj)
 //TODO:	if(checkCRC == projectFile.crc) // wylaczone sprawdzanie crc pliku projektu
 	if(1)
 	{
-		*proj=projectFile.projectDataAndHeader.project;
-		mtProject.values=projectFile.projectDataAndHeader.project.values;
+		memcpy(&proj->song, &projectFile.projectDataAndHeader.project.song, sizeof(strSong));
+		memcpy(&proj->values, &projectFile.projectDataAndHeader.project.values, sizeof(strMtValues));
+/*		*proj=projectFile.projectDataAndHeader.project;
+		mtProject.values=projectFile.projectDataAndHeader.project.values;*/
 		return 1;
 	}
 	else return 0;
@@ -373,6 +303,146 @@ void FileManager::copySample(char* srcProjectPatch, char* srcName, char * dstPro
 void FileManager::formatSDCard()
 {
 	//SD.format();
+}
+
+void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
+{
+	if(configChangedRefresh > 10000 || forcedWorkspaceSave)
+	{
+		if(savingInProgress == 0 && loadingInProgress == 0)
+		{
+			configChangedRefresh = 0;
+			if(configIsChangedFlag == 1)
+			{
+				autoSaveProject();
+			}
+		}
+	}
+
+	if((instrumentRefresh > 10000) || forcedWorkspaceSave)
+	{
+		instrumentRefresh = 0;
+
+		if(savingInProgress == 0 && loadingInProgress == 0)
+		{
+			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
+			{
+				if(instrumentIsChangedFlag[i] == 1 )
+				{
+					saveInstrument(i);
+				}
+			}
+		}
+	}
+
+	if(patternRefresh > 10000 || forcedWorkspaceSave)
+	{
+		patternRefresh = 0;
+
+		if(savingInProgress == 0 && loadingInProgress == 0)
+		{
+			if(patternIsChangedFlag[mtProject.values.actualPattern] == 1)
+			{
+				savePattern(mtProject.values.actualPattern);
+			}
+		}
+	}
+}
+
+void FileManager::getDefaultSong(struct strSong *source)
+{
+	source->playlistPos = 0;
+
+	for(uint32_t i = 0; i < 5; i++)
+	{
+		source->playlist[i] = (i+1);
+	}
+}
+
+void FileManager::getDefaultInstrument(struct strInstrument *source)
+{
+	memset(source, 0, sizeof(strInstrument));
+
+	source->sample.wavetable_window_size = 2048;
+}
+
+void FileManager::getDefaultProject(struct strMtProject *source)
+{
+	source->instruments_count = 0;
+	source->patterns_count = 0;
+	source->max_memory = SAMPLE_MEMORY_MAX;
+	source->used_memory = 0;
+
+	for(uint32_t i = 0; i < INSTRUMENTS_COUNT; i++)
+	{
+		getDefaultInstrument(&source->instrument[i]);
+	}
+
+	getDefaultSong(&source->song);
+	getDefaultValues(&source->values);
+}
+
+void FileManager::getDefaultValues(struct strMtValues *source)
+{
+	source->lastUsedNote = 0;
+	source->lastUsedInstrument = 0;
+	source->lastUsedVolume = 0;
+	source->lastUsedFx = 0;
+
+	source->actualPattern = 1;
+
+	source->padBoardScale = 0;
+	source->padBoardNoteOffset = 12;
+	source->padBoardRootNote = 36;
+	source->padBoardMaxVoices = 8;
+
+	source->volume = 50;
+
+	source->reverbRoomSize = 80;
+	source->reverbDamping = 25;
+	source->reverbPanning = 0;
+
+	source->limiterAttack = 100;
+	source->limiterRelease = 0.512;
+	source->limiterTreshold = 16384;
+
+	source->bitDepth = 16;
+
+	source->patternEditStep = 1;
+
+	for(uint32_t i = 0; i < 8; i++)
+	{
+		source->trackMute[i] = 0;
+	}
+
+//********************************* radio
+	source->source = 0;
+	source->gainLineIn = 0;
+	source->gainMicLow = 0;
+	source->gainMicHigh = 0;
+	source->gainRadio = 0;
+	source->monitor = 0;
+	source->radioFreq = 87.5;
+
+	source->projectNotSavedFlag = 0;
+
+// performance
+	for(uint32_t i = 0; i < 8; i++)
+	{
+		source->perfTracksPatterns[i] = 1;
+	}
+
+	for(uint32_t i = 0; i < 12; i++)
+	{
+		source->perfTracksPatterns[i] = (i+1);
+	}
+
+// song
+	source->globalTempo = DEFAULT_TEMPO;
+	source->patternLength = 32;
+
+	memset(source->instrumentsToSave, 0, INSTRUMENTS_COUNT);
+	memset(source->patternsToSave, 0, PATTERN_INDEX_MAX);
 }
 
 

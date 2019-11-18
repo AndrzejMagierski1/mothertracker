@@ -53,12 +53,18 @@ public:
 
 	void string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length);
 
+
+
+	void setText2(char* text);
+
 	uint16_t textStyle;
 	int16_t textFont;
 	uint8_t fontWidth;
 	uint8_t fontHeight;
 
 	strLabelData* data;
+
+	char* text2 = nullptr;
 
 };
 

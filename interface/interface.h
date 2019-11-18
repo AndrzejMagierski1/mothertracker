@@ -90,6 +90,8 @@ private:
 	//styl popupu interfejsu
 	strPopupStyleConfig popupConfig;
 
+	uint8_t openFromWorkspaceFlag = 0;
+
 
 
 };

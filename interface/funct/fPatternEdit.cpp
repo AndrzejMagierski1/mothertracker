@@ -32,7 +32,6 @@ static  uint8_t functUndo();
 // step buttons
 static  uint8_t functNote(uint8_t state);
 static  uint8_t functInstrument(uint8_t state);
-static  uint8_t functVolume(uint8_t state);
 static  uint8_t functFx1(uint8_t state);
 static  uint8_t functFx2(uint8_t state);
 
@@ -74,9 +73,6 @@ static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
-
-//muty
-static uint8_t functActionButton(uint8_t button, uint8_t state);
 
 
 
@@ -124,7 +120,7 @@ void cPatternEditor::update()
 void cPatternEditor::start(uint32_t options)
 {
 	moduleRefresh = 1;
-	disabledPatternButtonRelease = 1;
+	patternButtonReleaseActive = 0;
 
 	mtProject.values.padBoardScale = 0;
 	mtProject.values.padBoardNoteOffset = 12;
@@ -218,7 +214,6 @@ void cPatternEditor::setDefaultScreenFunct()
 
 	FM->setPadsGlobal(functPads);
 
-	masterTrackState = 0;
 }
 
 //==============================================================================================================
@@ -226,6 +221,7 @@ void cPatternEditor::setDefaultScreenFunct()
 void cPatternEditor::refreshPattern()
 {
 	seq = sequencer.getPatternToUI();
+	trackerPattern.patternLength = seq->track[0].length+1;
 
 	trackerPattern.popupMode = 0;
 
@@ -654,18 +650,26 @@ void cPatternEditor::changeActualTempo(int16_t value)
 
 void cPatternEditor::changeActualPattern(int16_t value)
 {
-	if (sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
+	if(sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
 	{
-		fileManager.savePattern(mtProject.values.actualPattern);
+		if(fileManager.patternIsChangedFlag[mtProject.values.actualPattern] == 1)
+		{
+			fileManager.savePattern(mtProject.values.actualPattern);
+		}
 	}
 
 	mtProject.values.actualPattern = constrain(
 			mtProject.values.actualPattern + value, PATTERN_INDEX_MIN,
 			PATTERN_INDEX_MAX);
 
+
+	// Zapis aktualnego appternu za 10s od ostatniej zmiany
+	fileManager.configChangedRefresh = 0;
+	fileManager.configIsChangedFlag = 1;
+
+
 	fileManager.loadPattern(mtProject.values.actualPattern);
 	sequencer.switchRamPatternsNow();
-
 
 	readPatternState();
 	refreshPatternParams();
@@ -690,6 +694,8 @@ void cPatternEditor::setActualPattern(int16_t value)
 
 void cPatternEditor::changeActualPatternLength(int16_t value)
 {
+	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+
 	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
 	if(pattern->track[0].length+value < 0) pattern->track[0].length = 0;
@@ -730,6 +736,8 @@ void cPatternEditor::setActualPatternLength(int16_t value)
 
 void cPatternEditor::changeActualPatternEditStep(int16_t value)
 {
+	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+
 	mtProject.values.patternEditStep = constrain(
 			mtProject.values.patternEditStep + value,
 			0,
@@ -1031,38 +1039,6 @@ uint8_t cPatternEditor::isCursorInSelection()
 
 
 
-void cPatternEditor::toggleMasterTracks()
-{
-
-	if(masterTrackState == 0)
-	{
-		masterTrackState = 1;
-
-		FM->setButtonObj(interfaceButton0, functActionButton);
-		FM->setButtonObj(interfaceButton1, functActionButton);
-		FM->setButtonObj(interfaceButton2, functActionButton);
-		FM->setButtonObj(interfaceButton3, functActionButton);
-		FM->setButtonObj(interfaceButton4, functActionButton);
-		FM->setButtonObj(interfaceButton5, functActionButton);
-		FM->setButtonObj(interfaceButton6, functActionButton);
-		FM->setButtonObj(interfaceButton7, functActionButton);
-
-		focusOnPattern();
-		showTracksMaster();
-
-	}
-	else
-	{
-		showDefaultScreen();
-		setDefaultScreenFunct();
-	}
-
-
-
-
-
-}
-
 
 
 //==============================================================================================================
@@ -1079,7 +1055,6 @@ uint8_t functEncoder(int16_t value)
 
 	if(PTE->selectedPlace >= 0)
 	{
-		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 
 		switch(PTE->selectedPlace)
@@ -1114,7 +1089,7 @@ uint8_t functEncoder(int16_t value)
 	sendSelection();
 	if(tactButtons.isButtonPressed(interfaceButton6) || !isMultiSelection())
 	{
-		fileManager.setPatternChangeFlag();
+		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		fileManager.storePatternUndoRevision();
 		switch(PTE->editParam)
 		{
@@ -1156,17 +1131,6 @@ static  uint8_t functShift(uint8_t state)
 			PTE->cancelPopups();
 			PTE->insertOnPopupHideDisabled = 0;  // a tu aktywuje spowrotem
 		}
-		else
-		{
-			PTE->FM->setButtonObj(interfaceButton0, functActionButton);
-			PTE->FM->setButtonObj(interfaceButton1, functActionButton);
-			PTE->FM->setButtonObj(interfaceButton2, functActionButton);
-			PTE->FM->setButtonObj(interfaceButton3, functActionButton);
-			PTE->FM->setButtonObj(interfaceButton4, functActionButton);
-			PTE->FM->setButtonObj(interfaceButton5, functActionButton);
-			PTE->FM->setButtonObj(interfaceButton6, functActionButton);
-			PTE->FM->setButtonObj(interfaceButton7, functActionButton);
-		}
 
 	}
 	else if(state == buttonRelease)
@@ -1189,21 +1153,6 @@ static  uint8_t functShift(uint8_t state)
 			sequencer.blinkSelectedStep();
 		}
 
-		if(!PTE->masterTrackState)
-		{
-			PTE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-			PTE->FM->setButtonObj(interfaceButton0, functChangePattern);
-			PTE->FM->setButtonObj(interfaceButton1, functChangePatternLength);
-			PTE->FM->setButtonObj(interfaceButton2, functChangePatternEditStep);
-
-			if(PTE->editMode)
-			{
-				PTE->FM->setButtonObj(interfaceButton3, buttonPress, functFill);
-				PTE->FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
-				PTE->FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
-				PTE->FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
-			}
-		}
 		PTE->shiftAction = 0;
 	}
 
@@ -1356,7 +1305,6 @@ static  uint8_t functUp()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
-		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
@@ -1443,7 +1391,6 @@ static  uint8_t functDown()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
-		fileManager.setPatternChangeFlag();
 		fileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
@@ -1632,51 +1579,6 @@ static  uint8_t functInstrument(uint8_t state)
 }
 
 //-----------------------------------------------------------------------------------
-static  uint8_t functVolume(uint8_t state)
-{
-	if(state == buttonPress)
-	{
-		PTE->wasNotesEditBefore = 0;
-		PTE->editParam = 2;
-		PTE->trackerPattern.selectedParam = 2;
-		display.refreshControl(PTE->patternControl);
-
-		PTE->cancelPopups();
-
-		if(PTE->fillState > 0)
-		{
-			PTE->showFillPopup();
-			return 1;
-		}
-
-		PTE->focusOnPattern();
-		PTE->lightUpPadBoard();
-
-		if(tactButtons.isButtonPressed(interfaceButtonPattern)) //zmiana widoku na 8 trackow
-		{
-			PTE->setPatternViewMode(3);
-		}
-	}
-	else if(state == buttonHold
-			&& mtPopups.getStepPopupState() == stepPopupNone
-			&& !tactButtons.isButtonPressed(interfaceButtonShift)
-			&& !tactButtons.isButtonPressed(interfaceButtonPattern)
-			&& !PTE->dontShowPopupsUntilButtonRelease)
-	{
-		mtPopups.showStepPopup(stepPopupVol, PTE->getStepVol());
-
-		PTE->lightUpPadBoard();
-	}
-	else if(state == buttonRelease)
-	{
-		PTE->cancelPopups();
-		PTE->dontShowPopupsUntilButtonRelease = 0;
-	}
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------------
 static  uint8_t functFx1(uint8_t state)
 {
 	if(state == buttonPress)
@@ -1792,26 +1694,18 @@ static  uint8_t functPattern(uint8_t state)
 {
 	if(state == buttonPress)
 	{
-		PTE->disabledPatternButtonRelease = 0;
-
 		if(PTE->fillState == 1) return 1;
 
 		PTE->cancelPopups();
 
-		if(tactButtons.isButtonPressed(interfaceButtonShift))
-		{
-			PTE->toggleMasterTracks();
-			PTE->disabledPatternButtonRelease = 1;
-		}
-		else if(PTE->masterTrackState == 1)
-		{
-			PTE->toggleMasterTracks();
-			PTE->disabledPatternButtonRelease = 1;
-		}
 	}
-	else if(state == buttonRelease && !PTE->disabledPatternButtonRelease)
+	else if(state == buttonRelease && PTE->patternButtonReleaseActive)
 	{
 			PTE->setPatternViewMode(0);
+	}
+	else if(state == buttonRelease)
+	{
+		PTE->patternButtonReleaseActive = 1;
 	}
 
 	return 1;
@@ -1856,7 +1750,7 @@ static  uint8_t functRecAction()
 
 	PTE->editMode = !PTE->editMode;
 
-	if(PTE->masterTrackState == 1) PTE->toggleMasterTracks();
+
 
 	PTE->refreshEditState();
 
@@ -1875,7 +1769,7 @@ static uint8_t functInsertHome(uint8_t state)
 		if (PTE->editMode == 1)
 		{
 			fileManager.storePatternUndoRevision();
-			fileManager.setPatternChangeFlag();
+			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 
 			// HOME
 			if(tactButtons.isButtonPressed(interfaceButtonShift))
@@ -1948,7 +1842,7 @@ static uint8_t functCopyPaste(uint8_t state)
 
 		if (PTE->editMode == 1)
 		{
-			fileManager.setPatternChangeFlag();
+			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 			fileManager.storePatternUndoRevision();
 
 			if (tactButtons.isButtonPressed(interfaceButtonShift))
@@ -1966,6 +1860,8 @@ static uint8_t functCopyPaste(uint8_t state)
 		}
 
 		PTE->refreshPattern();
+		PTE->showPattern();
+		PTE->showLength();
 	}
 
 	return 1;
@@ -1978,7 +1874,7 @@ static uint8_t functDeleteBackspace(uint8_t state)
 
 		if (PTE->editMode == 1)
 		{
-			fileManager.setPatternChangeFlag();
+			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 			fileManager.storePatternUndoRevision();
 
 			// backspace
@@ -2194,7 +2090,7 @@ static  uint8_t functFillApply()
 	// zatwierdzanie wypelnienia
 	if(PTE->fillState)
 	{
-		fileManager.setPatternChangeFlag();
+		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		fileManager.storePatternUndoRevision();
 		cPatternEditor::strFill * fillData = &PTE->fillData[PTE->editParam];
 		//(void) PTE->fillData[PTE->editParam];
@@ -2355,7 +2251,7 @@ static uint8_t functInvert()
 	//--------------------------------------------------------
 	//TU
 
-	fileManager.setPatternChangeFlag();
+	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 	fileManager.storePatternUndoRevision();
 
 	sendSelection();
@@ -2566,7 +2462,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// obsługa przycisków pod ekranem (na poczatku bo dziala tez bez editmode)
 	if (PTE->selectedPlace >= 0)
 	{
-		fileManager.setPatternChangeFlag();
+		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		fileManager.storePatternUndoRevision();
 
 		switch (PTE->selectedPlace)
@@ -2619,7 +2515,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// wprowadzanie danych
 	if (PTE->editMode == 1)
 	{
-		fileManager.setPatternChangeFlag();
+		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		fileManager.storePatternUndoRevision();
 
 		switch (PTE->editParam)
@@ -2662,7 +2558,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
 
 				sendSelection();
-				fileManager.setPatternChangeFlag();
+				fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 				fileManager.storePatternUndoRevision();
 
 				if((tactButtons.isButtonPressed(interfaceButtonFx1) || tactButtons.isButtonPressed(interfaceButtonFx2))
@@ -2707,7 +2603,8 @@ void cPatternEditor::focusOnPattern()
 
 	PTE->lightUpPadBoard();
 
-	PTE->trackerPattern.selectColor = patternTrackerSelectionColor;
+	activateSelection();
+
 	display.refreshControl(patternControl);
 }
 
@@ -2715,7 +2612,8 @@ void cPatternEditor::unfocusPattern()
 {
 	lightUpPadBoard();
 
-	PTE->trackerPattern.selectColor = 0xffffff;
+	deactivateSelection();
+
 	display.refreshControl(patternControl);
 }
 
@@ -2808,37 +2706,4 @@ static uint8_t functSwitchModule(uint8_t button)
 
 
 //======================================================================================================================
-static uint8_t functActionButton(uint8_t button, uint8_t state)
-{
-	if(state == buttonPress)
-	{
-		 if(mtProject.values.trackMute[button] == 0) mtProject.values.trackMute[button] = 1;
-		 else mtProject.values.trackMute[button] = 0;
-
-		 engine.muteTrack(button, mtProject.values.trackMute[button]);
-		 PTE->trackerPattern.inactive[button] = mtProject.values.trackMute[button];
-
-		 display.refreshControl(PTE->patternControl);
-		if(PTE->masterTrackState == 1) PTE->refreshTracksMaster();
-	}
-	else if(state == buttonRelease)
-	{
-		if(PTE->masterTrackState == 1)
-		{
-			if(tactButtons.isButtonPressed(interfaceButtonShift))
-			{
-				 if(mtProject.values.trackMute[button] == 0) mtProject.values.trackMute[button] = 1;
-				 else mtProject.values.trackMute[button] = 0;
-
-				 engine.muteTrack(button, mtProject.values.trackMute[button]);
-				 PTE->trackerPattern.inactive[button] = mtProject.values.trackMute[button];
-
-				 display.refreshControl(PTE->patternControl);
-				 PTE->refreshTracksMaster();
-			}
-		}
-	}
-
-	return 1;
-}
 

@@ -54,25 +54,24 @@ void cSamplePlayback::initDisplayControls()
 	for(uint8_t i = 0; i<6; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
-		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 437;
-		prop2.h = 28;
-		prop2.w = 800/8-6;
-		if(topLabel[i] == nullptr) topLabel[i] = display.createControl<cLabel>(&prop2);
+		//prop2.data =  &bottomValuesConfig;
+		prop2.colors = interfaceGlobals.activeLabelsColors;
 
+		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );
 		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 465;
-		prop2.h = 30;
-		if(bottomLabel[i] == nullptr) bottomLabel[i] = display.createControl<cLabel>(&prop2);
+		prop2.w = 800/8-6;
+		prop2.y = 452;
+		prop2.h =  59;
+
+		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
 
 	prop2.x = (800/4)*3+(800/8);
 	prop2.w = 800/4-6;
 	prop2.y = 452;
-	prop2.h = 58;
-	if(topLabel[6] == nullptr) topLabel[6] = display.createControl<cLabel>(&prop2);
+	prop2.h = 59;
+	if(label[6] == nullptr) label[6] = display.createControl<cLabel>(&prop2);
 
 
 	playModeList.linesCount = 6;
@@ -123,13 +122,8 @@ void cSamplePlayback::destroyDisplayControls()
 
 	for(uint8_t i = 0; i<7; i++)
 	{
-		display.destroyControl(topLabel[i]);
-		topLabel[i] = nullptr;
-
-		if(i == 6) break;
-
-		display.destroyControl(bottomLabel[i]);
-		bottomLabel[i] = nullptr;
+		display.destroyControl(label[i]);
+		label[i] = nullptr;
 	}
 
 
@@ -171,7 +165,7 @@ void cSamplePlayback::showDefaultScreen()
 
 	//display.setControlText(bottomLabel[7], "");
 
-	display.setControlText(bottomLabel[0], "Preview");
+
 
 	if(loadedInstrumentType == mtSampleTypeWaveFile)
 	{
@@ -179,18 +173,25 @@ void cSamplePlayback::showDefaultScreen()
 		display.setControlShow(progressCursor);
 		display.refreshControl(progressCursor);
 
-		display.setControlText(bottomLabel[1], "Start");
-		display.setControlText(bottomLabel[2], "Loop Start");
-		display.setControlText(bottomLabel[3], "Loop End");
-		display.setControlText(bottomLabel[4], "End");
-		display.setControlText(bottomLabel[5], "Zoom");
-		display.setControlText(topLabel[6], "Play Mode");
+		display.setControlValue(label[0], 1);
+		display.setControlValue(label[1], 1);
+		display.setControlValue(label[2], 1);
+		display.setControlValue(label[3], 1);
+		display.setControlValue(label[4], 1);
+		display.setControlValue(label[5], 1);
+		display.setControlValue(label[6], 0);
+
+		display.setControlText2(label[0], "Preview");
+		display.setControlText2(label[1], "Start");
+		display.setControlText2(label[2], "Loop Start");
+		display.setControlText2(label[3], "Loop End");
+		display.setControlText2(label[4], "End");
+		display.setControlText2(label[5], "Zoom");
+		display.setControlText(label[6], "Play Mode");
 
 		//points
 		display.setControlShow(pointsControl);
 		display.refreshControl(pointsControl);
-
-		previewLabelSize(0);
 
 		if((editorInstrument->playMode == singleShot) || (editorInstrument->playMode == playModeWavetable)) hideLoopPoints();
 		else showLoopPoints();
@@ -202,22 +203,25 @@ void cSamplePlayback::showDefaultScreen()
 		showZoomValue();
 
 
-		display.setControlText(topLabel[0], startPointValueText);
+		display.setControlText(label[0], startPointValueText);
 	}
 	else
 	{
-		display.setControlText(bottomLabel[1], "Position");
-		display.setControlText(bottomLabel[2], "Window");
-		display.setControlText(bottomLabel[3], "");
-		display.setControlText(bottomLabel[4], "");
-		display.setControlText(bottomLabel[5], "");
-		display.setControlText(bottomLabel[6], "");
+		display.setControlValue(label[0], 0);
+		display.setControlValue(label[1], 1);
+		display.setControlValue(label[2], 1);
+		display.setControlValue(label[3], 0);
+		display.setControlValue(label[4], 0);
+		display.setControlValue(label[5], 0);
+		display.setControlValue(label[6], 0);
 
-		display.setControlText(topLabel[2], "");
-		display.setControlText(topLabel[3], "");
-		display.setControlText(topLabel[4], "");
-		display.setControlText(topLabel[5], "");
-		display.setControlText(topLabel[6], "Play Mode");
+		display.setControlText(label[0], "Preview");
+		display.setControlText2(label[1], "Position");
+		display.setControlText2(label[2], "Window");
+		display.setControlText(label[3], "");
+		display.setControlText(label[4], "");
+		display.setControlText(label[5], "");
+		display.setControlText(label[6], "Play Mode");
 
 //		display.setControlHide(playModeListControl);
 //		display.refreshControl(playModeListControl);
@@ -232,18 +236,12 @@ void cSamplePlayback::showDefaultScreen()
 
 		showWavetablePosition();
 		showWavetableWindowSize();
-		previewLabelSize(1);
 	}
 
 	for(uint8_t i = 0; i<7; i++)
 	{
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
-
-		if(i == 6) break;
-
-		display.setControlShow(bottomLabel[i]);
-		display.refreshControl(bottomLabel[i]);
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
 	}
 
 	display.synchronizeRefresh();
@@ -267,27 +265,27 @@ void cSamplePlayback::showWavetablePosition()
 	if(refreshWavetablePosition) sprintf(wavetablePositionText, "%d",(int) currentEnvelopeWtPos);
 	else sprintf(wavetablePositionText, "%d",(int) editorInstrument->wavetableCurrentWindow);
 
-	display.setControlText(topLabel[1], wavetablePositionText);
-	display.setControlShow(topLabel[1]);
-	display.refreshControl(topLabel[1]);
+	display.setControlText(label[1], wavetablePositionText);
+	display.setControlShow(label[1]);
+	display.refreshControl(label[1]);
 }
 
 void cSamplePlayback::showWavetableWindowSize()
 {
 	sprintf(wavetableWindowSizeText, "%d", editorInstrument->sample.wavetable_window_size);
 
-	display.setControlText(topLabel[2], wavetableWindowSizeText);
-	display.setControlShow(topLabel[2]);
-	display.refreshControl(topLabel[2]);
+	display.setControlText(label[2], wavetableWindowSizeText);
+	display.setControlShow(label[2]);
+	display.refreshControl(label[2]);
 }
 
 void cSamplePlayback::showZoomValue()
 {
 	sprintf(zoomTextValue, "%.2f", zoom.zoomValue);
 
-	display.setControlText(topLabel[5], zoomTextValue);
-	display.setControlShow(topLabel[5]);
-	display.refreshControl(topLabel[5]);
+	display.setControlText(label[5], zoomTextValue);
+	display.setControlShow(label[5]);
+	display.refreshControl(label[5]);
 }
 
 void cSamplePlayback::showPlayModeList()
@@ -309,9 +307,9 @@ void cSamplePlayback::showStartPointValue()
 
 	sprintf(startPointValueText, "%.3fs", localStartPoint);
 
-	display.setControlText(topLabel[1], startPointValueText);
-	display.setControlShow(topLabel[1]);
-	display.refreshControl(topLabel[1]);
+	display.setControlText(label[1], startPointValueText);
+	display.setControlShow(label[1]);
+	display.refreshControl(label[1]);
 }
 
 void cSamplePlayback::showEndPointValue()
@@ -322,9 +320,9 @@ void cSamplePlayback::showEndPointValue()
 
 	sprintf(endPointValueText, "%.3fs", localEndPoint);
 
-	display.setControlText(topLabel[4], endPointValueText);
-	display.setControlShow(topLabel[4]);
-	display.refreshControl(topLabel[4]);
+	display.setControlText(label[4], endPointValueText);
+	display.setControlShow(label[4]);
+	display.refreshControl(label[4]);
 }
 
 void cSamplePlayback::showLoopPoint1Value()
@@ -336,9 +334,9 @@ void cSamplePlayback::showLoopPoint1Value()
 
 	sprintf(loopPoint1ValueText, "%.3fs", localLoopPoint1);
 
-	display.setControlText(topLabel[2], loopPoint1ValueText);
-	display.setControlShow(topLabel[2]);
-	display.refreshControl(topLabel[2]);
+	display.setControlText(label[2], loopPoint1ValueText);
+	display.setControlShow(label[2]);
+	display.refreshControl(label[2]);
 }
 void cSamplePlayback::showLoopPoint2Value()
 {
@@ -349,9 +347,9 @@ void cSamplePlayback::showLoopPoint2Value()
 
 	sprintf(loopPoint2ValueText, "%.3fs", localLoopPoint2);
 
-	display.setControlText(topLabel[3], loopPoint2ValueText);
-	display.setControlShow(topLabel[3]);
-	display.refreshControl(topLabel[3]);
+	display.setControlText(label[3], loopPoint2ValueText);
+	display.setControlShow(label[3]);
+	display.refreshControl(label[3]);
 
 }
 
@@ -363,45 +361,39 @@ void cSamplePlayback::showPreviewValue()
 
 	sprintf(playTimeValueText, "%.3fs", playTimeValue);
 
-	display.setControlText(topLabel[0], playTimeValueText);
-	display.setControlShow(topLabel[0]);
-	display.refreshControl(topLabel[0]);
+	display.setControlText(label[0], playTimeValueText);
+	display.setControlShow(label[0]);
+	display.refreshControl(label[0]);
 }
 
 void cSamplePlayback::hidePreviewValue()
 {
-	display.setControlText(topLabel[0], startPointValueText);
-	display.setControlShow(topLabel[0]);
-	display.refreshControl(topLabel[0]);
+	display.setControlText(label[0], startPointValueText);
+	display.setControlShow(label[0]);
+	display.refreshControl(label[0]);
 }
 void cSamplePlayback::hideLoopPoints()
 {
-	display.setControlText(bottomLabel[2], "");
-	display.setControlShow(bottomLabel[2]);
-	display.refreshControl(bottomLabel[2]);
+	display.setControlText(label[2], "");
+	display.setControlText2(label[2], "");
+	display.setControlShow(label[2]);
+	display.refreshControl(label[2]);
 
-	display.setControlText(bottomLabel[3], "");
-	display.setControlShow(bottomLabel[3]);
-	display.refreshControl(bottomLabel[3]);
-
-	display.setControlText(topLabel[2], "");
-	display.setControlShow(topLabel[2]);
-	display.refreshControl(topLabel[2]);
-
-	display.setControlText(topLabel[3], "");
-	display.setControlShow(topLabel[3]);
-	display.refreshControl(topLabel[3]);
+	display.setControlText(label[3], "");
+	display.setControlText2(label[3], "");
+	display.setControlShow(label[3]);
+	display.refreshControl(label[3]);
 }
 
 void cSamplePlayback::showLoopPoints()
 {
-	display.setControlText(bottomLabel[2],"Loop Start");
-	display.setControlShow(bottomLabel[2]);
-	display.refreshControl(bottomLabel[2]);
+	display.setControlText2(label[2],"Loop Start");
+	display.setControlShow(label[2]);
+	display.refreshControl(label[2]);
 
-	display.setControlText(bottomLabel[3], "Loop End");
-	display.setControlShow(bottomLabel[3]);
-	display.refreshControl(bottomLabel[3]);
+	display.setControlText2(label[3], "Loop End");
+	display.setControlShow(label[3]);
+	display.refreshControl(label[3]);
 
 	showLoopPoint1Value();
 	showLoopPoint2Value();
@@ -432,23 +424,4 @@ void cSamplePlayback::showActualInstrument()
 	display.refreshControl(instrumentLabel);
 }
 
-
 //==============================================================================================================
-
-void cSamplePlayback::previewLabelSize(uint8_t size)
-{
-	if(size == 1)
-	{
-		display.setControlText(topLabel[0], "Preview");
-		display.setControlSize(topLabel[0], (800/8)-6, 58);
-		display.setControlPosition(topLabel[0], (800/16), 452);
-		display.refreshControl(topLabel[0]);
-	}
-	else
-	{
-		display.setControlText(topLabel[0], "");
-		display.setControlSize(topLabel[0], (800/8)-6, 28);
-		display.setControlPosition(topLabel[0], (800/16), 437);
-		display.refreshControl(topLabel[0]);
-	}
-}

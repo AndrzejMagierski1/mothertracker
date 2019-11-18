@@ -8,6 +8,7 @@
 #include "mtSequencer.h"
 
 #include "mtStructs.h"
+#include "mtEffector.h"
 
 #define MAX_DATA_BARS	4
 #define BAR_MIN_POS		2
@@ -101,8 +102,7 @@ typedef enum
 	applyingActive = 0x04U,
 	undoActive = 0x08U,
 	onExitReloadActive = 0x10U,
-	onEntryStillLoading = 0x20U,
-	previewRunning = 0x40U,
+	previewRunning = 0x20U,
 
 }flags_t;
 
@@ -159,8 +159,7 @@ public:
 
 		spectrumControl = nullptr;
 		pointsControl = nullptr;
-		topLabel[8] = {nullptr};
-		bottomLabel[8] = {nullptr};
+		label[8] = {nullptr};
 	}
 	virtual ~cSampleEditor() {}
 
@@ -182,8 +181,7 @@ public:
 
 	strFrameData frameData;
 
-	hControl topLabel[8];
-	hControl bottomLabel[8];
+	hControl label[8];
 	hControl effectListControl;
 	hControl spectrumControl;
 	hControl effectSpectrumControl;
@@ -244,7 +242,6 @@ public:
 
 	void frameChange(uint8_t control);
 
-	void resizeUndo(uint8_t control);//1 - center 0 - top
 	void showEffectScreen(effect_handle_t *screenCfg);
 	void showPreviewSpectrum();
 	void hidePreviewSpectrum();
@@ -262,7 +259,6 @@ public:
 	void makeEffect();
 	void showCurrentSpectrum(uint32_t length, int16_t *source);
 	void refreshSampleLoading();
-	void refreshInstrumentLoading();
 	void refreshSampleApplying();
 	void resetSpectrumAndPoints();
 	void onExitReload();
@@ -273,39 +269,53 @@ public:
 	void showEffectSpectrum();
 	void hideEffectsSpectrum();
 
+	//Crop or Reverse
 	uint16_t startPoint;
 	uint16_t endPoint = MAX_16BIT;
+	float startTime;
+	float endTime;
 
 	// Chorus inputs
-	uint16_t chorusLength;
-	uint8_t chorusStrength;
+	uint8_t  mChorusLength;
+	uint16_t sChorusLength;
+	uint8_t  smChorusStrength;
 
 	// Delay inputs
 	float delayFeedback;
 	uint16_t delayTime;
 
 	// Flanger inputs
-	float flangerDelay;
+	uint8_t flangerDelay;
 	uint8_t flangerDepth;
 	uint8_t flangerOffset;
 
 	//Compressor inputs
-	uint16_t compressorThrs;
-	uint16_t compressorRatio;
-	uint16_t compressorAttack;
-	uint16_t compressorRelease;
+	uint16_t smCompressorRatio;
+
+	uint16_t mCompressorThrs;
+	float	 mCompressorAttack;
+	float 	 mCompressorRelease;
+
+	uint16_t sCompressorThrs;
+	uint16_t sCompressorAttack;
+	float 	 sCompressorRelease;
 
 	//Bitcrusher Inputs
-	uint8_t bitcrusherBits;
-	uint16_t bitcrusherRate;
+	uint8_t  smBitcrusherBits = BITCRUSHER_BITS_MAX;
+	uint8_t	 mBitcrusherRate = 255;
+	uint16_t sBitcrusherRate = BITCRUSHER_RATE_MAX;
 
 	//Amplifier inputs
-	float amplifierAmp;
+	float amplifierAmp = AMPLIFIER_AMP_DEFAULT;
 
 	//Limiter inputs
-	uint16_t limiterThreshold;
-	uint16_t limiterAttack;
-	uint16_t limiterRelease;
+	uint8_t	 mLimiterThreshold;
+	float 	 mLimiterAttack;
+	float	 mLimiterRelease;
+
+	uint16_t sLimiterThreshold;
+	uint16_t sLimiterAttack;
+	float 	 sLimiterRelease;
 
 	effect_t lastPreviewEffect;
 

@@ -4,10 +4,11 @@
 
 #include "mtEffector.h"
 
-#define CHORUS_STRENGTH_MAX		8
-#define CHORUS_STRENGTH_MIN		0
+#define CHORUS_STRENGTH_MAX		10
 
-#define CHORUS_BUF_SIZE 		4096
+#define CHORUS_LENGTH_MAX		4096
+
+#define CHORUS_BUF_SIZE 		4097
 
 class mtChorus
 {

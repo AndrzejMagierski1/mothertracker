@@ -613,8 +613,9 @@ void changeEnvAttack(int16_t value)
 	if(IE->editorInstrument->envelope[IE->selectedEnvelope].attack + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].attack = 0;
 	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].attack + value > ATTACK_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].attack = ATTACK_MAX;
 	else IE->editorInstrument->envelope[IE->selectedEnvelope].attack += value;
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
 	IE->showEnvAttack();
 }
 
@@ -625,8 +626,9 @@ void changeEnvDecay(int16_t value)
 	if(IE->editorInstrument->envelope[IE->selectedEnvelope].decay + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].decay = 0;
 	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].decay + value > DECAY_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].decay = DECAY_MAX;
 	else IE->editorInstrument->envelope[IE->selectedEnvelope].decay += value;
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
 	IE->showEnvDecay();
 }
 
@@ -637,8 +639,9 @@ void changeEnvSustain(int16_t value)
 	if(IE->editorInstrument->envelope[IE->selectedEnvelope].sustain + fVal < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].sustain = 0;
 	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].sustain + fVal > SUSTAIN_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].sustain = SUSTAIN_MAX;
 	else IE->editorInstrument->envelope[IE->selectedEnvelope].sustain += fVal;
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
 	IE->showEnvSustain();
 }
 
@@ -649,8 +652,9 @@ void changeEnvRelease(int16_t value)
 	if(IE->editorInstrument->envelope[IE->selectedEnvelope].release + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].release = 0;
 	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].release + value > RELEASE_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].release = RELEASE_MAX;
 	else IE->editorInstrument->envelope[IE->selectedEnvelope].release += value;
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
 	IE->showEnvRelease();
 }
 
@@ -670,8 +674,9 @@ void changeEnvAmount(int16_t value)
 	{
 		IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
 	}
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
 	IE->showEnvAmount();
 }
 
@@ -680,9 +685,7 @@ void changeEnvAmount(int16_t value)
 void changeEnvLoop(int16_t value)
 {
 
-
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 	IE->showEnvLoop();
 }
 
@@ -716,14 +719,14 @@ void changeFilterFilterType(int16_t value)
 		IE->editorInstrument->filterType = bandPass;
 	}
 
-	display.setControlText(IE->topLabel[4], filterModeFunctLabels[IE->filterModeListPos]);
-	display.refreshControl(IE->topLabel[4]);
+	display.setControlText(IE->label[4], filterModeFunctLabels[IE->filterModeListPos]);
+	display.refreshControl(IE->label[4]);
 
 	display.setControlValue(IE->filterModeListControl, IE->filterModeListPos);
 	display.refreshControl(IE->filterModeListControl);
 	//showFilterFilterType();
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 uint8_t bgB = 128;
@@ -745,8 +748,7 @@ void changeFilterCutOff(int16_t value)
 
 	IE->showFilterCutOff();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 void changeFilterResonance(int16_t value)
@@ -761,8 +763,7 @@ void changeFilterResonance(int16_t value)
 
 	IE->showFilterResonance();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 void changeParamsVolume(int16_t value)
@@ -775,8 +776,7 @@ void changeParamsVolume(int16_t value)
 
 	IE->showParamsVolume();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 void changeParamsTune(int16_t value)
@@ -789,8 +789,7 @@ void changeParamsTune(int16_t value)
 
 	IE->showParamsTune();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 void changeParamsFineTune(int16_t value)
@@ -803,8 +802,7 @@ void changeParamsFineTune(int16_t value)
 
 	IE->showParamsFineTune();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 void changeParamsGlide(int16_t value)
@@ -817,8 +815,7 @@ void changeParamsGlide(int16_t value)
 
 	IE->showParamsGlide();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 void changeParamsPanning(int16_t value)
@@ -831,8 +828,7 @@ void changeParamsPanning(int16_t value)
 
 	IE->showParamsPanning();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 
@@ -846,8 +842,7 @@ void changeParamsReverbSend(int16_t value)
 
 	IE->showParamsReverbSend();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 //======================================================================================================================

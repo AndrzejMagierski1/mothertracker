@@ -69,7 +69,9 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 	writeInstrumentFile(currentPatch, &mtProject.instrument[instrumentIndex]);
 
 	strcpy(currentPatch,"Workspace/project.bin");
-	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
+	writeProjectFile(currentPatch, &mtProject);
+
+	setInstrumentChangeFlag(instrumentIndex);
 
 	return 1;
 }
@@ -79,6 +81,7 @@ void FileManager::setStart(uint8_t startPoint)
 	samplesImporter.setStartIndex(startPoint);
 }
 
+#if 0
 void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_t index) //todo: to nie dziala ze wzgledu na to ze nie ma sensu robic(na ta chwile nie jest potrzebne, a potem sie wszystko zmieni)
 {
 	char currentPatch[PATCH_SIZE];
@@ -110,7 +113,7 @@ void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_
 	sprintf(currentPatch,"%s/samples/",projectPatch);
 
 	samplesImporter.setStartIndex(index);
-	samplesImporter.start(currentPatch,localName,currentProjectPatch,index,mtProject.mtProjectRemote.instrumentFile[index].sampleType);
+	samplesImporter.start(currentPatch,localName,currentProjectPatch,index,mtProject.instrumentFile[index].sampleType);
 
 	sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,index);
 	writeInstrumentFile(currentPatch,&mtProject.instrument[index]);
@@ -120,6 +123,7 @@ void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 
 }
+#endif
 
 void FileManager::deleteInstrument(int8_t index)
 {
@@ -142,8 +146,9 @@ void FileManager::deleteInstrument(int8_t index)
 	mtProject.instruments_count--;
 
 	sprintf(currentPatch,"Workspace/project.bin");
-	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
+	writeProjectFile(currentPatch, &mtProject);
 
+	setInstrumentChangeFlag(index);
 }
 
 void FileManager::deleteSample(int8_t index)
@@ -154,20 +159,22 @@ void FileManager::deleteSample(int8_t index)
 
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 
-	mtProject.mtProjectRemote.instrumentFile[index].sampleType=0;
+	//mtProject.mtProjectRemote.instrumentFile[index].sampleType=0;
 
 	mtProject.instrument[index].sample.type=0;
 	memset(mtProject.instrument[index].sample.file_name,0,SAMPLE_NAME_SIZE);
 
 	strcpy(currentPatch,"Workspace/project.bin");
 
-	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
+	writeProjectFile(currentPatch, &mtProject);
 
 }
 
 void FileManager::saveInstrument(int8_t index)
 {
 	char currentPatch[PATCH_SIZE];
+
+	fileManager.instrumentIsChangedFlag[index] = 0;
 
 	sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",index);
 

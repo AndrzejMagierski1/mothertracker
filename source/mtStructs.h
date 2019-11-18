@@ -412,13 +412,13 @@ struct strMtValues
 
 	uint8_t volume = 50;
 
-	uint8_t reverbRoomSize;
-	uint8_t reverbDamping;
+	uint8_t reverbRoomSize = 80;
+	uint8_t reverbDamping = 25;
 	int8_t reverbPanning;
 
-	uint16_t limiterAttack = LIMITER_ATTACK_MAX;
-	float limiterRelease = LIMITER_RELEASE_MAX;
-	uint16_t limiterTreshold = LIMITER_TRESHOLD_MAX;
+	uint16_t limiterAttack = 100;
+	float limiterRelease = 0.512;
+	uint16_t limiterTreshold = 16384;
 
 	uint8_t bitDepth = 16;
 
@@ -440,28 +440,32 @@ struct strMtValues
 	uint8_t projectNotSavedFlag = 0;
 
 // performance
-	uint16_t perfTracksPatterns[8] =  {1,1,1,1,1,1,1,1};
-	uint8_t perfFxPlaces[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
+	uint16_t perfTracksPatterns[8]  = {1,1,1,1,1,1,1,1};
+	uint8_t perfFxPlaces[12] 		= {1,2,3,4,5,6,7,8,9,10,11,12}; // jakie efekty w 12 slotach
+	int16_t perfFxValues[12][4] 	= {{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}};
 
 // song
 	float globalTempo = DEFAULT_TEMPO;
 	uint16_t patternLength = 32;
 
+	uint8_t instrumentsToSave[INSTRUMENTS_COUNT];
+	uint8_t patternsToSave[PATTERN_INDEX_MAX];
+
+// performance
+	uint8_t perfSelectedValues[12] 	= {0,0,0,0,0,0,0,0,0,0,0,0};
+	uint8_t perfTracksState[8] = {0,0,0,0,0,0,0,0}; // narazie nie uzywana
+};
+
+struct strSong
+{
+	uint8_t playlist[SONG_MAX] { 1, 2, 3, 4, 0 };
+	int8_t playlistPos = 0;
 };
 
 //-------------------------------------------------
 struct strMtProjectRemote
 {
-	struct strInstrumentFile
-	{
-		uint8_t sampleType;
-	} instrumentFile[INSTRUMENTS_COUNT];
-	struct strSong
-	{
-		uint8_t playlist[SONG_MAX] { 1, 2, 3, 4, 0 };
-		int8_t playlistPos = 0;
-	} song;
-
+	strSong song;
 	strMtValues values;
 
 };
@@ -472,9 +476,7 @@ struct strMtProject
 	uint8_t instruments_count;
 	uint8_t patterns_count;
 
-	strMtProjectRemote mtProjectRemote;
-
-
+	strSong song;
 	strMtValues values;
 
 	// dynamiczne
@@ -528,6 +530,8 @@ struct strMtConfig
 	{
 		uint8_t padsLightBack = PADS_LIGHT_BACK_DEFAULT;
 		uint8_t padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
+
+		uint8_t padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
 
 	} values;
 };

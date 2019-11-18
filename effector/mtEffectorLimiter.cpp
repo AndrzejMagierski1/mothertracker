@@ -2,7 +2,7 @@
 
 mtLimiter effectorLimiter;
 
-int8_t mtLimiter::makeLimiter(uint16_t ts, uint16_t a, uint16_t r)
+int8_t mtLimiter::makeLimiter(uint16_t ts, uint16_t a, float r)
 {
 	threshold = ts;
 	attack = a/1000.0;

@@ -6,7 +6,6 @@
 #include "interfacePopups.h"
 
 #include "graphicProcessing.h"
-#include "mtEffector.h"
 
 #include "mtPadsBacklight.h"
 
@@ -112,7 +111,6 @@ void cSampleEditor::update()
 	refreshPlayingProgress();
 	refreshSampleLoading();
 	refreshSampleApplying();
-	refreshInstrumentLoading();
 
 	updateEffectProcessing();
 
@@ -187,27 +185,11 @@ void cSampleEditor::refreshSampleApplying()
 
 		refreshSpectrum = 1;
 		effector.setSaveStatus(waitingForSaveInit);
+
+		fileManager.setInstrumentChangeFlag(localInstrNum);
 	}
 }
 
-void cSampleEditor::refreshInstrumentLoading()
-{
-	if(moduleFlags == onEntryStillLoading)
-	{
-		uint8_t state = fileManager.samplesLoader.getStateFlag();
-
-		if(state == loaderStateTypeInProgress)
-		{
-			uint8_t progress = fileManager.samplesLoader.getCurrentProgress();
-			showHorizontalBar(progress,"Loading Instruments");
-		}
-		else
-		{
-			hideHorizontalBar();
-			moduleFlags &= ~onEntryStillLoading;
-		}
-	}
-}
 
 void cSampleEditor::refreshPlayingProgress()
 {
@@ -286,13 +268,10 @@ uint8_t cSampleEditor::startLoadingSample()
 
 	if((mtProject.instrument[localInstrNum].isActive) && (mtProject.instrument[localInstrNum].sample.type != mtSampleTypeWavetable))
 	{
-		if(!(moduleFlags & onEntryStillLoading))
-		{
-			sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);
-			effector.loadSample(instrumentPath);
-			moduleFlags |= sampleLoadingActive;
-			status = 1;
-		}
+		sprintf(instrumentPath, "Workspace/samples/instr%02d.wav", localInstrNum);
+		effector.loadSample(instrumentPath);
+		moduleFlags |= sampleLoadingActive;
+		status = 1;
 	}
 
 	return status;
@@ -327,10 +306,6 @@ void cSampleEditor::start(uint32_t options)
 		mtProject.values.lastUsedInstrument = 0;
 	}
 
-	if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeInProgress)
-	{
-		moduleFlags |= onEntryStillLoading;
-	}
 
 	if((mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT) && (mtProject.instrument[localInstrNum].sample.type != mtSampleTypeWavetable))
 	{
@@ -350,6 +325,12 @@ void cSampleEditor::start(uint32_t options)
 	//points.selected = (selectedPlace >= 0 && selectedPlace <= 3) ? selectedPlace+1 : 0;
 	startPoint = 0;
 	endPoint = MAX_16BIT;
+
+	// init the startTime outside other API's;
+	float temp;
+	temp = SE->editorInstrument->sample.length / 44100.0;
+	endTime = (temp * SE->endPoint) / MAX_16BIT;
+
 	points.endPoint = endPoint;
 	points.startPoint = startPoint;
 
@@ -392,13 +373,15 @@ void cSampleEditor::initEffectsScreenStructs()
 
 	effectControl[effectCrop].bar[1].name = "Start";
 	effectControl[effectCrop].bar[1].editFunct = modStartPoint;
-	effectControl[effectCrop].bar[1].dataSource = &startPoint;
-	effectControl[effectCrop].bar[1].dataFormat = tUNSIGNED16,
+	effectControl[effectCrop].bar[1].dataSource = &startTime;
+	effectControl[effectCrop].bar[1].dataFormat = tFLOAT,
+	effectControl[effectCrop].bar[1].dataUnit = "s";
 
 	effectControl[effectCrop].bar[2].name = "End";
 	effectControl[effectCrop].bar[2].editFunct = modEndPoint;
-	effectControl[effectCrop].bar[2].dataSource = &endPoint;
-	effectControl[effectCrop].bar[2].dataFormat = tUNSIGNED16,
+	effectControl[effectCrop].bar[2].dataSource = &endTime;
+	effectControl[effectCrop].bar[2].dataFormat = tFLOAT,
+	effectControl[effectCrop].bar[2].dataUnit = "s";
 
 	effectControl[effectCrop].bar[3].name = "Zoom";
 	effectControl[effectCrop].bar[3].editFunct = changeZoom;
@@ -416,13 +399,15 @@ void cSampleEditor::initEffectsScreenStructs()
 
 	effectControl[effectReverse].bar[1].name = "Start";
 	effectControl[effectReverse].bar[1].editFunct = modStartPoint;
-	effectControl[effectReverse].bar[1].dataSource = &startPoint;
-	effectControl[effectReverse].bar[1].dataFormat = tUNSIGNED16,
+	effectControl[effectReverse].bar[1].dataSource = &startTime;
+	effectControl[effectReverse].bar[1].dataFormat = tFLOAT,
+	effectControl[effectReverse].bar[1].dataUnit = "s";
 
 	effectControl[effectReverse].bar[2].name = "End";
 	effectControl[effectReverse].bar[2].editFunct = modEndPoint;
-	effectControl[effectReverse].bar[2].dataSource = &endPoint;
-	effectControl[effectReverse].bar[2].dataFormat = tUNSIGNED16,
+	effectControl[effectReverse].bar[2].dataSource = &endTime;
+	effectControl[effectReverse].bar[2].dataFormat = tFLOAT,
+	effectControl[effectReverse].bar[2].dataUnit = "s";
 
 	effectControl[effectReverse].bar[3].name = "Zoom";
 	effectControl[effectReverse].bar[3].editFunct = changeZoom;
@@ -451,7 +436,8 @@ void cSampleEditor::initEffectsScreenStructs()
 	effectControl[effectFlanger].bar[3].name = "Delay";
 	effectControl[effectFlanger].bar[3].editFunct = editFlangerDelay;
 	effectControl[effectFlanger].bar[3].dataSource = &flangerDelay;
-	effectControl[effectFlanger].bar[3].dataFormat = tFLOAT,
+	effectControl[effectFlanger].bar[3].dataFormat = tUNSIGNED8;
+	effectControl[effectFlanger].bar[3].dataUnit = "Hz";
 	effectControl[effectFlanger].undoActive = 0;
 	effectControl[effectFlanger].effectStage = eRequireProcessing;
 
@@ -464,12 +450,12 @@ void cSampleEditor::initEffectsScreenStructs()
 
 	effectControl[effectChorus].bar[2].name = "Length";
 	effectControl[effectChorus].bar[2].editFunct = editChorusLength;
-	effectControl[effectChorus].bar[2].dataSource = &chorusLength;
+	effectControl[effectChorus].bar[2].dataSource = &mChorusLength;
 	effectControl[effectChorus].bar[2].dataFormat = tUNSIGNED16;
 
 	effectControl[effectChorus].bar[3].name = "Strength";
 	effectControl[effectChorus].bar[3].editFunct = editChorusStrength;
-	effectControl[effectChorus].bar[3].dataSource = &chorusStrength;
+	effectControl[effectChorus].bar[3].dataSource = &smChorusStrength;
 	effectControl[effectChorus].bar[3].dataFormat = tUNSIGNED8;
 	effectControl[effectChorus].undoActive = 0;
 	effectControl[effectChorus].effectStage = eRequireProcessing;
@@ -504,23 +490,25 @@ void cSampleEditor::initEffectsScreenStructs()
 
 	effectControl[effectCompressor].bar[0].name = "Threshold";
 	effectControl[effectCompressor].bar[0].editFunct = editCompressorThreshold;
-	effectControl[effectCompressor].bar[0].dataSource = &compressorThrs;
+	effectControl[effectCompressor].bar[0].dataSource = &mCompressorThrs;
 	effectControl[effectCompressor].bar[0].dataFormat = tUNSIGNED16;
 
 	effectControl[effectCompressor].bar[1].name = "Ratio";
 	effectControl[effectCompressor].bar[1].editFunct = editCompressorRatio;
-	effectControl[effectCompressor].bar[1].dataSource = &compressorRatio;
+	effectControl[effectCompressor].bar[1].dataSource = &smCompressorRatio;
 	effectControl[effectCompressor].bar[1].dataFormat = tUNSIGNED16;
 
 	effectControl[effectCompressor].bar[2].name = "Attack";
 	effectControl[effectCompressor].bar[2].editFunct = editCompressorAttack;
-	effectControl[effectCompressor].bar[2].dataSource = &compressorAttack;
-	effectControl[effectCompressor].bar[2].dataFormat = tUNSIGNED16;
+	effectControl[effectCompressor].bar[2].dataSource = &mCompressorAttack;
+	effectControl[effectCompressor].bar[2].dataFormat = tFLOAT;
+	effectControl[effectCompressor].bar[2].dataUnit = "s";
 
 	effectControl[effectCompressor].bar[3].name = "Release";
 	effectControl[effectCompressor].bar[3].editFunct = editCompressorRelease;;
-	effectControl[effectCompressor].bar[3].dataSource = &compressorRelease;
-	effectControl[effectCompressor].bar[3].dataFormat = tUNSIGNED16;
+	effectControl[effectCompressor].bar[3].dataSource = &mCompressorRelease;
+	effectControl[effectCompressor].bar[3].dataFormat = tFLOAT;
+	effectControl[effectCompressor].bar[3].dataUnit = "s";
 	effectControl[effectCompressor].undoActive = 0;
 	effectControl[effectCompressor].effectStage = eRequireProcessing;
 
@@ -533,13 +521,15 @@ void cSampleEditor::initEffectsScreenStructs()
 
 	effectControl[effectBitcrusher].bar[2].name = "Bits";
 	effectControl[effectBitcrusher].bar[2].editFunct = editBitcrusherBits;
-	effectControl[effectBitcrusher].bar[2].dataSource = &bitcrusherBits;
+	effectControl[effectBitcrusher].bar[2].dataSource = &smBitcrusherBits;
 	effectControl[effectBitcrusher].bar[2].dataFormat = tUNSIGNED8;
+	effectControl[effectBitcrusher].bar[2].effectPercentage = ((smBitcrusherBits / BITCRUSHER_BITS_MAX) * 100);
 
 	effectControl[effectBitcrusher].bar[3].name = "Rate";
 	effectControl[effectBitcrusher].bar[3].editFunct = editBitcrusherRate;
-	effectControl[effectBitcrusher].bar[3].dataSource = &bitcrusherRate;
-	effectControl[effectBitcrusher].bar[3].dataFormat = tUNSIGNED16;
+	effectControl[effectBitcrusher].bar[3].dataSource = &mBitcrusherRate;
+	effectControl[effectBitcrusher].bar[3].dataFormat = tUNSIGNED8;
+	effectControl[effectBitcrusher].bar[3].effectPercentage = ((mBitcrusherRate / 255) * 100);
 	effectControl[effectBitcrusher].undoActive = 0;
 	effectControl[effectBitcrusher].effectStage = eRequireProcessing;
 
@@ -554,9 +544,12 @@ void cSampleEditor::initEffectsScreenStructs()
 	effectControl[effectAmplifier].bar[3].editFunct = editAmplifierAmp;
 	effectControl[effectAmplifier].bar[3].dataSource = &amplifierAmp;
 	effectControl[effectAmplifier].bar[3].dataFormat = tFLOAT;
+	effectControl[effectAmplifier].bar[3].effectPercentage = ((amplifierAmp / AMPLIFIER_AMP_MAX) *100);
 
 	effectControl[effectAmplifier].undoActive = 0;
+
 	effectControl[effectAmplifier].effectStage = eRequireProcessing;
+
 
 	//!< Limiter effect
 	//
@@ -567,18 +560,21 @@ void cSampleEditor::initEffectsScreenStructs()
 
 	effectControl[effectLimiter].bar[1].name = "Threshold";
 	effectControl[effectLimiter].bar[1].editFunct = editLimiterThreshold;
-	effectControl[effectLimiter].bar[1].dataSource = &limiterThreshold;
-	effectControl[effectLimiter].bar[1].dataFormat = tUNSIGNED16,
+	effectControl[effectLimiter].bar[1].dataSource = &mLimiterThreshold;
+	effectControl[effectLimiter].bar[1].dataFormat = tUNSIGNED8,
 
 	effectControl[effectLimiter].bar[2].name = "Attack";
 	effectControl[effectLimiter].bar[2].editFunct = editLimiterAttack;
-	effectControl[effectLimiter].bar[2].dataSource = &limiterAttack;
-	effectControl[effectLimiter].bar[2].dataFormat = tUNSIGNED16,
+	effectControl[effectLimiter].bar[2].dataSource = &mLimiterAttack;
+	effectControl[effectLimiter].bar[2].dataFormat = tFLOAT,
+	effectControl[effectLimiter].bar[2].dataUnit = "s";
 
 	effectControl[effectLimiter].bar[3].name = "Release";
 	effectControl[effectLimiter].bar[3].editFunct = editLimiterRelease;
-	effectControl[effectLimiter].bar[3].dataSource = &limiterRelease;
-	effectControl[effectLimiter].bar[3].dataFormat = tUNSIGNED16,
+	effectControl[effectLimiter].bar[3].dataSource = &mLimiterRelease;
+	effectControl[effectLimiter].bar[3].dataFormat = tFLOAT,
+	effectControl[effectLimiter].bar[3].dataUnit = "s";
+
 	effectControl[effectLimiter].undoActive = 0;
 	effectControl[effectLimiter].effectStage = eRequireProcessing;
 
@@ -832,6 +828,7 @@ void cSampleEditor::applyEffect()
 		effectControl[currSelEffect].effectStage = eRequireProcessing;
 		processOrPreview(effectControl[currSelEffect].effectStage);
 	}
+
 
 	moduleFlags |= applyingActive;
 	effectAppliedFlag = 1;
@@ -1428,7 +1425,7 @@ void cSampleEditor::printNewValue(const void *data, uint8_t whichBar, const char
 			sprintf(&dataBarText[whichBar][0], format, *((int32_t*)data));
 			break;
 		case tFLOAT:
-			strncpy(format,"%.2f",6);
+			strncpy(format,"%.2f", 6);
 			sprintf(&dataBarText[whichBar][0], format, *((float_t*)data));
 			break;
 		}
@@ -1489,23 +1486,23 @@ void cSampleEditor::makeEffect()
 			processingActivated = effectorFlanger.makeFlanger(FLANGER_LENGTH_MAX, flangerOffset, flangerDepth, flangerDelay);
 			break;
 		case effectChorus:
-			processingActivated = effectorChorus.makeChorus(chorusLength, chorusStrength);
+			processingActivated = effectorChorus.makeChorus(sChorusLength, smChorusStrength);
 			break;
 		case effectDelay:
 			processingActivated = effectorDelay.makeDelay(delayFeedback, delayTime);
 			break;
 		case effectCompressor:
-			processingActivated = effectorCompressor.makeCompressor(compressorThrs, compressorRatio, compressorAttack, compressorRelease);
+			processingActivated = effectorCompressor.makeCompressor(sCompressorThrs, smCompressorRatio,sCompressorAttack, sCompressorRelease);
 			break;
 		case effectBitcrusher:
-			processingActivated = effectorBitcrusher.makeBitcrusher(bitcrusherBits, bitcrusherRate);
+			processingActivated = effectorBitcrusher.makeBitcrusher(smBitcrusherBits, sBitcrusherRate);
 			break;
 		case effectAmplifier:
 			effectorAmplifier.makeAmplifier(amplifierAmp);// instant efffect, no background calculations
 			effectControl[currSelEffect].effectStage = eProcessed;
 			break;
 		case effectLimiter:
-			processingActivated = effectorLimiter.makeLimiter(limiterThreshold, limiterAttack, limiterRelease);
+			processingActivated = effectorLimiter.makeLimiter(sLimiterThreshold, sLimiterAttack, sLimiterRelease);
 			break;
 		default:
 			break;
@@ -1893,6 +1890,10 @@ static uint8_t modStartPoint(int16_t value)
 	SE->zoom.lastChangedPoint = 1;
 	SE->refreshPoints = 1;
 
+	float temp;
+	temp = SE->editorInstrument->sample.length / 44100.0;
+	SE->startTime = (temp * SE->startPoint) / MAX_16BIT;
+
 	return 0;
 }
 
@@ -1919,27 +1920,31 @@ static uint8_t modEndPoint(int16_t value)
 	SE->zoom.lastChangedPoint = 2;
 	SE->refreshPoints = 1;
 
+	float temp;
+	temp = SE->editorInstrument->sample.length / 44100.0;
+	SE->endTime = (temp * SE->endPoint) / MAX_16BIT;
+
 	return 0;
 }
 
 static uint8_t editChorusLength(int16_t value)
 {
-	if(SE->chorusLength + (value * AUDIO_BLOCK_SAMPLES) < 0) SE->chorusLength = 0;
-	else if(SE->chorusLength + (value * AUDIO_BLOCK_SAMPLES) > CHORUS_BUF_SIZE) SE->chorusLength = CHORUS_BUF_SIZE;
-	else SE->chorusLength += (value * AUDIO_BLOCK_SAMPLES);
+	if(SE->mChorusLength + value < 0) SE->mChorusLength = 0;
+	else if(SE->mChorusLength + value > 32) SE->mChorusLength = 32;
+	else SE->mChorusLength += value;
 
+	SE->sChorusLength = SE->mChorusLength * AUDIO_BLOCK_SAMPLES;
 
-	return ((SE->chorusLength * 100)/(CHORUS_BUF_SIZE));
+	return ((SE->mChorusLength * 100)/(32));
 }
 
 static uint8_t editChorusStrength(int16_t value)
 {
-	if(SE->chorusStrength + value < CHORUS_STRENGTH_MIN) SE->chorusStrength = CHORUS_STRENGTH_MIN;
-	else if(SE->chorusStrength + value > CHORUS_STRENGTH_MAX) SE->chorusStrength = CHORUS_STRENGTH_MAX;
-	else SE->chorusStrength += value;
+	if(SE->smChorusStrength + value < 0) SE->smChorusStrength = 0;
+	else if(SE->smChorusStrength + value > CHORUS_STRENGTH_MAX) SE->smChorusStrength = CHORUS_STRENGTH_MAX;
+	else SE->smChorusStrength += value;
 
-
-	return (((SE->chorusStrength - CHORUS_STRENGTH_MIN) * 100)/(CHORUS_STRENGTH_MAX - CHORUS_STRENGTH_MIN));
+	return ((SE->smChorusStrength * 100)/CHORUS_STRENGTH_MAX );
 }
 
 static uint8_t editDelayFeedback(int16_t value)
@@ -1996,66 +2001,83 @@ static uint8_t editFlangerDelay(int16_t value)
 
 static uint8_t editCompressorThreshold(int16_t value)
 {
-	uint8_t step = 10;
+	if(SE->mCompressorThrs + value < 0) SE->mCompressorThrs = 0;
+	else if(SE->mCompressorThrs + value > 255) SE->mCompressorThrs = 255;
+	else SE->mCompressorThrs += value;
 
-	if(SE->compressorThrs + (value*step) < 0) SE->compressorThrs = 0;
-	else if(SE->compressorThrs + (value*step)  > CMPSR_THRESHOLD_MAX) SE->compressorThrs = CMPSR_THRESHOLD_MAX;
-	else SE->compressorThrs += (value*step);
+	float ratio = ceil(CMPSR_THRESHOLD_MAX / 255.0f);
 
+	uint32_t temp;
 
-	return ((SE->compressorThrs * 100)/(CMPSR_THRESHOLD_MAX));
+	temp = SE->mCompressorThrs * ratio;
+	temp = constrain(temp, 0U, CMPSR_THRESHOLD_MAX);
+	SE->sCompressorThrs = temp;
+
+	return ((SE->mCompressorThrs * 100)/255);
 }
 
 static uint8_t editCompressorRatio(int16_t value)
 {
-	if(SE->compressorRatio + value < 0) SE->compressorRatio = 0;
-	else if(SE->compressorRatio + value > CMPSR_RATIO_MAX) SE->compressorRatio = CMPSR_RATIO_MAX;
-	else SE->compressorRatio += value;
+	if(SE->smCompressorRatio + value < 0) SE->smCompressorRatio = 0;
+	else if(SE->smCompressorRatio + value > CMPSR_RATIO_MAX) SE->smCompressorRatio = CMPSR_RATIO_MAX;
+	else SE->smCompressorRatio += value;
 
 
-	return ((SE->compressorRatio * 100)/CMPSR_RATIO_MAX);
+	return ((SE->smCompressorRatio * 100)/CMPSR_RATIO_MAX);
 }
 
 static uint8_t editCompressorAttack(int16_t value)
 {
-	if(SE->compressorAttack + value < 0) SE->compressorAttack = 0;
-	else if(SE->compressorAttack + value > CMPSR_ATTACK_MAX_MS) SE->compressorAttack = CMPSR_ATTACK_MAX_MS;
-	else SE->compressorAttack += value;
+	float step = value * 0.01f;
 
+	if(SE->mCompressorAttack + step < 0) SE->mCompressorAttack = 0;
+	else if(SE->mCompressorAttack + step > CMPSR_ATTACK_MAX_MS) SE->mCompressorAttack = CMPSR_ATTACK_MAX_MS;
+	else SE->mCompressorAttack += step;
 
-	return ((SE->compressorAttack * 100)/CMPSR_ATTACK_MAX_MS);
+	SE->sCompressorAttack = (SE->mCompressorAttack * 1000);
+
+	return ((SE->mCompressorAttack * 100) / CMPSR_ATTACK_MAX_MS);
 }
 
 static uint8_t editCompressorRelease(int16_t value)
 {
-	if(SE->compressorRelease + value < 0) SE->compressorRelease = 0;
-	else if(SE->compressorRelease + value > CMPSR_RELEASE_MAX_MS) SE->compressorRelease = CMPSR_RELEASE_MAX_MS;
-	else SE->compressorRelease += value;
+	float step = value * 0.01f;
+
+	if(SE->mCompressorRelease + step < 0) SE->mCompressorRelease = 0;
+	else if(SE->mCompressorRelease + step > CMPSR_RELEASE_MAX_MS) SE->mCompressorRelease = CMPSR_RELEASE_MAX_MS;
+	else SE->mCompressorRelease += step;
 
 
-	return ((SE->compressorRelease * 100)/CMPSR_RELEASE_MAX_MS);
+	SE->sCompressorRelease = (SE->mCompressorRelease * 1000);
+
+	return ((SE->mCompressorRelease * 100) / CMPSR_RELEASE_MAX_MS);
 }
 
 static uint8_t editBitcrusherBits(int16_t value)
 {
-	if(SE->bitcrusherBits + value < 0) SE->bitcrusherBits = 0;
-	else if(SE->bitcrusherBits + value > BITCRUSHER_BITS_MAX) SE->bitcrusherBits = BITCRUSHER_BITS_MAX;
-	else SE->bitcrusherBits += value;
+	if(SE->smBitcrusherBits + value < 0) SE->smBitcrusherBits = 0;
+	else if((uint32_t)(SE->smBitcrusherBits + value) > BITCRUSHER_BITS_MAX) SE->smBitcrusherBits = BITCRUSHER_BITS_MAX;
+	else SE->smBitcrusherBits += value;
 
 
-	return ((SE->bitcrusherBits * 100)/BITCRUSHER_BITS_MAX);
+	return ((SE->smBitcrusherBits * 100) / BITCRUSHER_BITS_MAX);
 }
 
 static uint8_t editBitcrusherRate(int16_t value)
 {
-	uint8_t step = 10;
+	if(SE->mBitcrusherRate + value < 0) SE->mBitcrusherRate = 0;
+	else if(SE->mBitcrusherRate+ value > 255) SE->mBitcrusherRate = 255;
+	else SE->mBitcrusherRate += value;
 
-	if(SE->bitcrusherRate + (value*step) < 0) SE->bitcrusherRate = 0;
-	else if(SE->bitcrusherRate + (value*step) > BITCRUSHER_RATE_MAX) SE->bitcrusherRate = BITCRUSHER_RATE_MAX;
-	else SE->bitcrusherRate += (value*step);
+	float calcRatio = ceil(BITCRUSHER_RATE_MAX / 255.0f);
 
+	uint32_t temp;
 
-	return ((SE->bitcrusherRate * 100)/BITCRUSHER_RATE_MAX);
+	temp = SE->mBitcrusherRate * calcRatio;
+	temp = constrain(temp, BITCRUSHER_RATE_MAX, BITCRUSHER_RATE_MAX);
+	SE->sBitcrusherRate = temp;
+
+	return ((SE->mBitcrusherRate * 100)/255);
 }
 
 static uint8_t editAmplifierAmp(int16_t value)
@@ -2072,38 +2094,47 @@ static uint8_t editAmplifierAmp(int16_t value)
 
 static uint8_t editLimiterThreshold(int16_t value)
 {
-	uint8_t step = 10;
+	if(SE->mLimiterThreshold + value < 0) SE->mLimiterThreshold = 0;
+	else if(SE->mLimiterThreshold + value > 255) SE->mLimiterThreshold = 255;
+	else SE->mLimiterThreshold += value;
 
-	if(SE->limiterThreshold + (value*step) < 0) SE->limiterThreshold = 0;
-	else if(SE->limiterThreshold + (value*step) > LIMITER_THRESHOLD_MAX) SE->limiterThreshold = LIMITER_THRESHOLD_MAX;
-	else SE->limiterThreshold += (value*step);
+	float ratio = ceil(LIMITER_THRESHOLD_MAX / 255.0f);
 
+	uint32_t temp;
 
-	return ((SE->limiterThreshold * 100)/LIMITER_THRESHOLD_MAX);
+	temp = SE->mLimiterThreshold * ratio;
+	temp = constrain(temp, 0U, LIMITER_THRESHOLD_MAX);
+	SE->sLimiterThreshold = temp;
+
+	SE->sLimiterThreshold = temp;
+
+	return ((SE->mLimiterThreshold * 100) / 255);
 }
 
 static uint8_t editLimiterAttack(int16_t value)
 {
-	uint8_t step = 10;
+	float step = value * 0.01f;
 
-	if(SE->limiterAttack + (value*step) < 0) SE->limiterAttack = 0;
-	else if(SE->limiterAttack + (value*step) > LIMITER_ATTACK_MAX) SE->limiterAttack = LIMITER_ATTACK_MAX;
-	else SE->limiterAttack += (value*step);
+	if(SE->mLimiterAttack + step < 0) SE->mLimiterAttack = 0;
+	else if(SE->mLimiterAttack + step > LIMITER_ATTACK_MAX) SE->mLimiterAttack = LIMITER_ATTACK_MAX;
+	else SE->mLimiterAttack += step;
 
+	SE->sLimiterAttack = (SE->mLimiterAttack * 1000);
 
-	return ((SE->limiterAttack * 100)/LIMITER_ATTACK_MAX);
+	return ((SE->mLimiterAttack * 100) / LIMITER_ATTACK_MAX);
 }
 
 static uint8_t editLimiterRelease(int16_t value)
 {
-	uint8_t  step = 10;
+	float step = value * 0.01f;
 
-	if(SE->limiterRelease + (value*step) < 0) SE->limiterRelease = 0;
-	else if(SE->limiterRelease + (value*step) > LIMITER_RELEASE_MAX) SE->limiterRelease = LIMITER_RELEASE_MAX;
-	else SE->limiterRelease += (value * step);
+	if(SE->mLimiterRelease + step < 0) SE->mLimiterRelease = 0;
+	else if(SE->mLimiterRelease + step > LIMITER_RELEASE_MAX) SE->mLimiterRelease = LIMITER_RELEASE_MAX;
+	else SE->mLimiterRelease += step;
 
+	SE->sLimiterRelease= (SE->mLimiterRelease * 1000);
 
-	return ((SE->limiterRelease * 100)/LIMITER_RELEASE_MAX);
+	return ((SE->mLimiterRelease * 100) / LIMITER_RELEASE_MAX);
 }
 
 

@@ -3,14 +3,16 @@
 
 #include "mtEffector.h"
 
-#define LIMITER_THRESHOLD_MAX		10000
-#define LIMITER_ATTACK_MAX			10000
-#define LIMITER_RELEASE_MAX			10000
+#define LIMITER_THRESHOLD_MAX		32767U
+
+#define LIMITER_ATTACK_MAX			1.0f
+
+#define LIMITER_RELEASE_MAX			0.1f
 
 class mtLimiter
 {
 public:
-	int8_t makeLimiter(uint16_t ts, uint16_t a, uint16_t r);
+	int8_t makeLimiter(uint16_t ts, uint16_t a, float r);
 	void process();
 	uint8_t getProgress();
 	uint8_t requireProcess();

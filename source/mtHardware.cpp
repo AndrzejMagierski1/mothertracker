@@ -23,7 +23,7 @@
 
 #include "mtMidi.h"
 #include "mtSleep.h"
-
+#include "MTP.h"
 
 
 //----------------------------------------------------------
@@ -61,6 +61,7 @@ void ENC_SW_INT_FUNCT() { }
 ///------------------------------------------------------------------------------------
 
 
+///------------------------------------------------------------------------------------
 AudioControlSGTL5000 audioShield;
 
 
@@ -90,6 +91,9 @@ void initHardware()
 
 	//noInterrupts();
 	hardwareTest=0;
+
+	//reset filter
+	RCM_RPFC = 1;
 
 
 	BlinkLed.begin(BLINK_LED);
@@ -131,7 +135,7 @@ void initHardware()
 
 	//SD CARD
 	//....................................................
-	if (!SD.begin(SdioConfig(DMA_SDIO)))	//FIFO_SDIO
+	if (! SD.begin( SdioConfig(DMA_SDIO) ) )	//FIFO_SDIO
 	{
 		if(hardwareTest)
 		{
@@ -147,6 +151,10 @@ void initHardware()
 		 //mtPrint("SD card init succesfull");
 		}
 	}
+
+
+	//mtpd.begin(&storage);
+
 
 
 
@@ -185,22 +193,15 @@ void initHardware()
 
 	Keypad.enableInterrupt(GRID_PADS_INT, KeypadISR);
 
+
 	tactButtons.setOnPush(onButtonPush);
 	tactButtons.setOnRelease(onButtonRelease);
 	tactButtons.setOnHold(onButtonHold);
-
-
 
 	tactButtons.begin(ROW0 | ROW1 | ROW2 | ROW3 | ROW4 | ROW5 | ROW6 | ROW7 , COL0 | COL1 | COL2 | COL3 | COL4 | COL5 | COL6 | COL7 | COL8 | COL9,
 	CFG_KE_IEN | CFG_OVR_FLOW_IEN | CFG_INT_CFG | CFG_OVR_FLOW_M, &Wire, (uint8_t*)convertToControlButtons);
 
 	tactButtons.enableInterrupt(CONTROL_BUTTONS_INT, ButtonsISR);
-
-	////////////////// IO7326
-//	tactButtons.begin(IO7326_ADDR3,I2C_SDA,I2C_SCL,TACTILE_INT,tactileToKeyMapping,IO7326_TACT_INT_FUNCT);
-//	seqButtonsA.begin(IO7326_ADDR1,I2C_SDA,I2C_SCL,GRID_A,gridToKeyMapping,IO7326_INT_FUNCT_A);
-//	tactButtons.testMode(0);
-
 
 
 
@@ -227,8 +228,6 @@ void initHardware()
 	midiInit();
 
 	BlinkLed.blinkOnce();
-
-
 
 
 }
@@ -298,6 +297,8 @@ void updateHardware()
 
 		hid.handle();
 		sdCardDetector.update();
+
+	    mtpd.loop();
 
 		midiUpdate();
 	}
