@@ -93,7 +93,10 @@ void cPatternEditor::update()
 
 	patternRefreshTimer = 0;
 
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP ) return;
+	if(sequencer.isStop())
+	{
+		return;
+	}
 
 	readPatternState();
 
@@ -229,9 +232,18 @@ void cPatternEditor::refreshPattern()
 	{
 		trackerPattern.selectState = 0;
 
-		if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+		if(!sequencer.isStop())
 		{
 			trackerPattern.actualStep = trackerPattern.playheadPosition;
+
+			if(sequencer.isRec())
+			{
+				playheadRecMode();
+			}
+			else
+			{
+				playheadNormalMode();
+			}
 		}
 	}
 
@@ -816,6 +828,8 @@ void cPatternEditor::refreshEditState()
 		focusOnPattern();
 
 		showEditModeLabels();
+
+		playheadNormalMode();
 
 		FM->setButtonObj(interfaceButton3, buttonPress, functFill);
 		//FM->setButtonObj(interfaceButton4, buttonPress, functRandomise);
