@@ -3,6 +3,7 @@
 
 #include <mtPatternExporter.h>
 #include <mtPatternStemsExporter.h>
+#include "mtSongExporter.h"
 
 static constexpr uint32_t SEND_BUF_SIZE = 20 * 1024;
 
@@ -28,11 +29,13 @@ public:
 	uint8_t getState();
 	uint8_t getStemsTrack();
 	friend void setOnLastExportStep();
+	friend void setOnLastExportStepInSong();
 private:
 	void setExportType(exportType t);
 	exportType type;
 	mtPatternStemsExporter patternStemsExporter;
 	mtPatternExporter patternExporter;
+	mtSongExporter	songExporter;
 };
 
 extern mtExporter exporter;

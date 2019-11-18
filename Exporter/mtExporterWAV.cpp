@@ -11,10 +11,18 @@ void setOnLastExportStep()
 {
 	switch(exporter.type)
 	{
-		case  mtExporter::exportType::song : 																								break;
-		case  mtExporter::exportType::songStems : 		 																					break;
 		case  mtExporter::exportType::pattern : 		exporter.patternExporter.setOnLastStep();											break;
 		case  mtExporter::exportType::patternStems : 	exporter.patternStemsExporter.trackExporter.localPatternExporter.setOnLastStep();	break;
+		default: break;
+	}
+}
+
+void setOnLastExportStepInSong()
+{
+	switch(exporter.type)
+	{
+		case  mtExporter::exportType::song : 			exporter.songExporter.setOnLastStep();												break;
+		case  mtExporter::exportType::songStems : 		 																					break;
 		default: break;
 	}
 }
@@ -22,13 +30,14 @@ void setOnLastExportStep()
 void mtExporter::begin()
 {
 	sequencer.setOnPatternEnd(setOnLastExportStep);
+//	sequencer.setOnSongEnd(setOnLastExportStepInSong);
 }
 
 void mtExporter::update()
 {
 	switch(type)
 	{
-		case exportType::song : 											break;
+		case exportType::song : 		songExporter.update();				break;
 		case exportType::songStems : 		 								break;
 		case exportType::pattern : 		patternExporter.update();			break;
 		case exportType::patternStems : patternStemsExporter.update();		break;
@@ -46,7 +55,7 @@ void mtExporter::start(char * path, exportType t)
 	setExportType(t);
 	switch(t)
 	{
-		case exportType::song : 													break;
+		case exportType::song : 			songExporter.start(path)				break;
 		case exportType::songStems : 		 										break;
 		case exportType::pattern : 			patternExporter.start(path);			break;
 		case exportType::patternStems : 	patternStemsExporter.start(path);		break;
