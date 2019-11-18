@@ -265,11 +265,8 @@ void cProjectEditor::update()
 				functOpenProjectConfirm();
 			}
 
-			return;
+			setDefaultScreenFunct();
 		}
-
-		lastSaveStatus = currentSaveStatus;
-		showSaveingHorizontalBar();
 	}
 
 	if(exportInProgress)
@@ -283,14 +280,12 @@ void cProjectEditor::update()
 		showExportingHorizontalBar();
 		if((currentExportState == 0) && (lastExportState != currentExportState))
 		{
+			isBusyFlag = 0;
 			exportInProgress = 0;
 			showExportWindow();
 		}
 
 		lastExportState = currentExportState;
-
-
-
 	}
 
 	if(newProjectPopupDelay > 200)
@@ -298,18 +293,8 @@ void cProjectEditor::update()
 		if(newProjectPopupFlag)
 		{
 			newProjectPopupFlag = 0;
-
-			char currentPatch[PATCH_SIZE];
-
-			strcpy(currentPatch,"Templates/New/project.bin");
-
-			if(!SD.exists(currentPatch)) fileManager.createEmptyTemplateProject((char*)"New");
-
-			fileManager.openProject((char*)"New",projectTypeExample); // można to odpalić bez zadnych flag i progresow bo nowy projekt nie ma sampli
-
-			showDefaultScreen();
-			hidePopupLabelNewProject();
-			setDefaultScreenFunct();
+			fileManager.openProjectStart((char*)"New",projectTypeExample);
+			createNewProjectFlag = 1;
 		}
 	}
 
@@ -910,6 +895,7 @@ static uint8_t functExportSong()
 	if(PE->isBusyFlag) return 1;
 	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 
+	PE->isBusyFlag = 1;
 	PE->exportInProgress = 1;
 	PE->exportProgress = 0;
 	PE->currentExportType = (int)exportType::song;
@@ -932,6 +918,7 @@ static uint8_t functExportSongStems()
 	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 	if(PE->isBusyFlag) return 1;
 
+	PE->isBusyFlag = 1;
 	PE->exportInProgress = 1;
 	PE->exportProgress = 0;
 	PE->currentExportType = (int)exportType::songStems;
@@ -956,6 +943,7 @@ static uint8_t functExportPattern()
 	if(PE->isBusyFlag) return 1;
 	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 
+	PE->isBusyFlag = 1;
 	PE->exportInProgress = 1;
 	PE->exportProgress = 0;
 	PE->currentExportType = (int)exportType::pattern;
@@ -1359,6 +1347,7 @@ static uint8_t functConfirmKey()
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
+	if(PE->isBusyFlag) return 1;
 	if((state == 1) || (state == 2))
 	{
 		if(PE->keyboardActiveFlag)
@@ -1477,6 +1466,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 static  uint8_t functEncoder(int16_t value)
 {
+	if(PE->isBusyFlag) return 1;
 	if(PE->projectListActiveFlag)
 	{
 		if(value > 0)

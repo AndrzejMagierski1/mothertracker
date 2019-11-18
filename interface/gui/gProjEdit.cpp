@@ -559,22 +559,6 @@ void cProjectEditor::showOverwriteWindow()
 }
 
 
-/*void cProjectEditor::showOpeningHorizontalBar()
-{
-	display.setControlValue(loadHorizontalBarControl, openingProgress);
-	display.setControlText(loadHorizontalBarControl, "Opening project...");
-	display.setControlShow(loadHorizontalBarControl);
-	display.refreshControl(loadHorizontalBarControl);
-}
-
-void cProjectEditor::showSaveingHorizontalBar()
-{
-	display.setControlValue(loadHorizontalBarControl, saveingProgress);
-	display.setControlText(loadHorizontalBarControl, "Saveing project...");
-	display.setControlShow(loadHorizontalBarControl);
-	display.refreshControl(loadHorizontalBarControl);
-}
-
 void cProjectEditor::showExportingHorizontalBar()
 {
 
@@ -597,7 +581,7 @@ void cProjectEditor::showExportingHorizontalBar()
 	display.setControlText(loadHorizontalBarControl, currentInfo);
 	display.setControlShow(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
-}*/
+}
 
 void cProjectEditor::makeSmallBottomLabel(uint8_t i)
 {
