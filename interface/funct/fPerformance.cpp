@@ -653,9 +653,9 @@ static  uint8_t functEncoder(int16_t value)
 			}
 			case mtPerfStepStutter:
 			{
-				if(FX_VALUE(place) + mod_value > 11) FX_VALUE(place) = 11;
-				else if(FX_VALUE(place) + mod_value < 0) FX_VALUE(place) = 0;
-				else FX_VALUE(place) += mod_value;
+				if(FX_VALUE(i) + mod_value > 8) FX_VALUE(i) = 8;
+				else if(FX_VALUE(i) + mod_value < 0) FX_VALUE(i) = 0;
+				else FX_VALUE(i) += mod_value;
 
 				for(uint8_t j = 0; j < 8; j++)
 				{

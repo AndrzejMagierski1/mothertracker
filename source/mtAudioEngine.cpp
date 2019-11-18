@@ -729,6 +729,21 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 }
 
 
+void playerEngine::noteOff(int8_t option)
+{
+	switch (option)
+	{
+	case Sequencer::STEP_NOTE_FADE:
+		noteOff();
+		break;
+	case Sequencer::STEP_NOTE_CUT:
+		noteOff();
+		break;
+	default:
+		noteOff();
+		break;
+	}
+}
 void playerEngine :: noteOff()
 {
 	__disable_irq();
