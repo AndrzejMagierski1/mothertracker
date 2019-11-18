@@ -354,17 +354,20 @@ uint8_t FileManager::resetToFirstSongPattern()
 	return song->playlist[0];
 }
 
-void FileManager::switchNextPatternInSong()
+bool FileManager::switchNextPatternInSong()
 {
 	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
 	if (song->playlist[++(song->playlistPos)] != PLAYLIST_EMPTY_SLOT)
 	{
-
+		return 1;
 	}
 	else
 	{
 		song->playlistPos = 0;
+		return 0;
 	}
+
+	return 0;
 }
 
 

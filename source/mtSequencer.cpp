@@ -858,15 +858,27 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 		if ((player.track[x].actual_pos > patternLength))
 		{
 			reset_actual_pos(x);
+			bool isNextPatternAvailable = 0; // jeśli 0 to song sie skonczyl
 
 			if (row == 0 && player.songMode)
 			{
 				switchRamPatternsNow();
-				fileManager.switchNextPatternInSong();
+				isNextPatternAvailable =
+						fileManager.switchNextPatternInSong();
 			}
+			player.onSongEnd = player.onPatternEnd;
 
-			if ((player.onPatternEnd != NULL) && (x == MINTRACK))
+			if (x == MINTRACK)
+			{
+				if ((player.onPatternEnd != NULL) && !isNextPatternAvailable)
 				player.onPatternEnd();
+
+				else if ((player.onSongEnd != NULL) && isNextPatternAvailable)
+				{
+					player.onPatternEnd();
+					player.onSongEnd();
+				}
+			}
 
 		}
 	}
