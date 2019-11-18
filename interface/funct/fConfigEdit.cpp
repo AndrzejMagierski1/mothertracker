@@ -1269,7 +1269,7 @@ void cConfigEditor::hideWarning()
 void cConfigEditor::changeFirmwareSelection(int16_t value)
 {
 	if(firmwareSelect + value < 0) firmwareSelect = 0;
-	else if(firmwareSelect + value >= firmwareFoundNum) firmwareSelect = (firmwareFoundNum - 1);
+	else if(firmwareSelect + value >= firmwareFoundNum) firmwareSelect = firmwareFoundNum;
 	else  firmwareSelect+= value;
 
 	display.setControlValue(firmwareListControl, firmwareSelect);
