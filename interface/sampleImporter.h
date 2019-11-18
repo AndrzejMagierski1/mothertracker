@@ -77,7 +77,7 @@ public:
 
 
 //	void checkWavetableLabel();
-	void AddOrEnter();
+	void AddEnterOrRename();
 //	void showAddWT();
 //	void hideAddWT();
 
@@ -217,7 +217,6 @@ public:
 	void frameSelectMode(uint8_t place,uint8_t mode);
 
 	void displayDelete(uint8_t onOff);
-	void displayRename(uint8_t onOff);
 	uint8_t instrCopyStart;
 
 	uint8_t copyType;//0- no copy ,1- sd to intr,2 -instr to instr
@@ -249,6 +248,8 @@ public:
 	uint8_t deleteInProgress = 0;
 	uint8_t deleteStart = 0;
 	uint8_t deleteCurrentPos = 0;
+	uint8_t instrToDelete = 0;
+	uint8_t instrDeleted = 0;
 	void processDeleting();
 
 	uint8_t openingInProgress = 0;
@@ -259,6 +260,10 @@ public:
 
 
 	void previewColorControl();
+	void renameColorControl();
+	void deleteColorControl();
+
+	bool checkIfAnyInstrActive();
 
 };
 

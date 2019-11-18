@@ -227,7 +227,9 @@ void cSampleImporter::showDefaultScreen()
 	display.refreshControl(editName);
 
 	displayDelete(selectedPlace);
-	displayRename(selectedPlace);
+
+	AddEnterOrRename();
+
 
 //	if(selectedPlace != 0) hideAddWT();
 //	else  checkWavetableLabel();
@@ -357,7 +359,7 @@ void cSampleImporter::showActualInstrument()
 	display.refreshControl(instrumentLabel);
 }
 
-void cSampleImporter::AddOrEnter()
+void cSampleImporter::AddEnterOrRename()
 {
 	if(selectedPlace == 0)
 	{
@@ -374,6 +376,8 @@ void cSampleImporter::AddOrEnter()
 	{
 		display.setControlText(label[1], "Rename");
 	}
+
+	renameColorControl();
 
 	display.refreshControl(label[1]);
 	display.synchronizeRefresh();
@@ -399,6 +403,50 @@ void cSampleImporter::previewColorControl()
 
 	display.setControlColors(label[3], colors);
 	display.refreshControl(label[3]);
+
+	display.synchronizeRefresh();
+}
+
+void cSampleImporter::renameColorControl()
+{
+	uint32_t *colors = interfaceGlobals.activeLabelsColors;
+
+	if(selectedPlace == 1)
+	{
+		if(mtProject.instrument[selectedSlot].isActive != 1)
+		{
+			colors = interfaceGlobals.inactiveLabelsColors;
+		}
+	}
+
+	display.setControlColors(label[1], colors);
+	// refreshowany jest w innej funkcji
+}
+
+void cSampleImporter::deleteColorControl()
+{
+	uint32_t *colors = interfaceGlobals.activeLabelsColors;
+
+	if(selectedPlace == 1)
+	{
+		if((selectionLength > 1) && (currSelectPlace == 1))
+		{
+			if(checkIfAnyInstrActive() == 0)
+			{
+				colors = interfaceGlobals.inactiveLabelsColors;
+			}
+		}
+		else
+		{
+			if(mtProject.instrument[selectedSlot].isActive != 1)
+			{
+				colors = interfaceGlobals.inactiveLabelsColors;
+			}
+		}
+	}
+
+	display.setControlColors(label[4], colors);
+	// refreshowany jest w innej funkcji
 }
 
 //void cSampleImporter::showAddWT()
@@ -478,6 +526,7 @@ void cSampleImporter::displayDelete(uint8_t onOff)
 	if(onOff)
 	{
 		display.setControlText(label[4], "Delete");
+		deleteColorControl();
 	}
 	else
 	{
@@ -485,21 +534,9 @@ void cSampleImporter::displayDelete(uint8_t onOff)
 	}
 
 	display.refreshControl(label[4]);
+	display.synchronizeRefresh();
 }
 
-void cSampleImporter::displayRename(uint8_t onOff)
-{
-	if(onOff)
-	{
-		display.setControlText(label[1], "Rename");
-	}
-	else
-	{
-		AddOrEnter();
-	}
-
-	display.refreshControl(label[1]);
-}
 
 void cSampleImporter::showKeyboard()
 {
