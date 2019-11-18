@@ -75,6 +75,13 @@ typedef enum
 
 }loadingFromWrsp_status_t;
 
+typedef enum
+{
+	sDeletePrepare,
+	sDeleteAlll,
+	sDeleteDone,
+}deleting_status_t;
+
 typedef struct
 {
 	uint8_t stage;
@@ -100,6 +107,9 @@ public:
 
 	uint8_t loadProjectFromWorkspaceStart();
 	void refreshLoadProjectFromWorkspace();
+
+	void deleteProjectStart(const char *projectName);
+	void refreshDeleting();
 
 	uint8_t prepareSaveAs(char *name, uint8_t type);
 	void startSaveProject();
@@ -177,9 +187,11 @@ public:
 
 	uint8_t loadingInProgress = 0;
 	uint8_t savingInProgress = 0;
+	uint8_t deletingInProgress = 0;
 
 	uint8_t getSavingStatus();
 	uint8_t getLoadingStatus();
+	uint8_t getDeletingStatus();
 
 
 	void getDefaultSong(struct strSong *source);
@@ -225,6 +237,7 @@ private:
 
 	save_load_handle_t saveHandle;
 	save_load_handle_t loadHandle;
+	save_load_handle_t deleteHandle;
 	save_load_handle_t loadFromWorkspaceHandle;
 	void refreshSaveInstrumentFiles();
 	void refreshSaveSamples();
@@ -243,6 +256,11 @@ private:
 
 	void moveToNextStage(save_load_handle_t *handle);
 	void refreshClearDir(const char* dirToClear, save_load_handle_t *handle);
+
+
+
+
+	char deleteProjectName[PROJECT_NAME_SIZE];
 
 
 

@@ -104,8 +104,10 @@ public:
 	void functShowSaveLastWindowBeforeOpen();
 	void showSaveLastWindow();
 	void functShowOverwriteWindow();
-/*	void showOpeningHorizontalBar();
-	void showSaveingHorizontalBar();*/
+
+	void showDeleteLastWindow();
+
+
 	void showSaveAsKeyboard();
 	void showOverwriteWindow();
 	void showExportWindow();
@@ -136,6 +138,12 @@ public:
 	uint8_t openPopupFlag;
 	//uint8_t prepareOpenValue;
 //********************************************************
+
+	elapsedMillis deletePopupDelay;
+	uint8_t deletePopupFlag;
+
+
+
 	uint8_t newProjectNotSavedFlag = 0;
 	uint8_t createNewProjectFlag = 0;
 	//uint8_t currentOpeningStatus = 0;
@@ -143,6 +151,7 @@ public:
 	//uint8_t lastOpeningStatus = 0;
 	//uint8_t openingProgress = 0;
 	uint8_t saveInProgressFlag = 0;
+	uint8_t deleteInProgressFlag = 0;
 	uint8_t newProjectOnSaveEndFlag = 0;
 	uint8_t openOnSaveEndFlag = 0;
 	//uint8_t saveingProgress = 0;

@@ -185,11 +185,16 @@ static  uint8_t functConfirmKey();
 
 static  uint8_t functEncoder(int16_t value);
 
+static uint8_t functDelete();
+static uint8_t functDeleteConfirm();
+
+
 static uint8_t functStartGameModule()
 {
 	if(PE->isBusyFlag) return 1;
 	PE->eventFunct(eventActivateGameModule,PE,0,0);
 }
+
 
 void cProjectEditor::update()
 {
@@ -269,6 +274,26 @@ void cProjectEditor::update()
 		}
 	}
 
+	if(deleteInProgressFlag)
+	{
+		uint8_t deleteStatus = fileManager.getDeletingStatus();
+
+		if(deleteStatus)
+		{
+			fileManager.refreshDeleting();
+		}
+		else
+		{
+			deleteInProgressFlag = 0;
+			showDefaultScreen();
+			hideProcessingPopup();
+
+			isBusyFlag = 0;
+
+			setDefaultScreenFunct();
+		}
+	}
+
 	if(savePopupFlag)
 	{
 		if(savePopupDelay > 200)
@@ -299,6 +324,15 @@ void cProjectEditor::update()
 		}
 	}
 
+	if(deletePopupFlag)
+	{
+		if(deletePopupDelay > 200)
+		{
+			deletePopupFlag = 0;
+			fileManager.deleteProjectStart(&PE->locationFilesList[PE->selectedLocation][0]);
+			deleteInProgressFlag = 1;
+		}
+	}
 
 	if(refreshCover)
 	{
@@ -529,6 +563,7 @@ static uint8_t functOpenProject()
 
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProjectConfirm);
 	PE->FM->setButtonObj(interfaceButton1, buttonPress, functSaveChangesCancelOpen);
+	PE->FM->setButtonObj(interfaceButton5, buttonPress, functDelete);
 
 	PE->projectListActiveFlag = 1;
 
@@ -798,6 +833,18 @@ void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 	showSaveLastWindow();
 }
 
+static uint8_t functDelete()
+{
+	if(PE->isBusyFlag) return 1;
+
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveChangesCancelOpen);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functDeleteConfirm);
+
+	PE->showDeleteLastWindow();
+
+	return 1;
+}
+
 static uint8_t functSaveChangesCancelOpen()
 {
 	if(PE->isBusyFlag) return 1;
@@ -850,6 +897,20 @@ static uint8_t functSaveChangesSaveOpen()
 	PE->showDefaultScreen();
 	PE->showProcessingPopup("Saving project");
 
+	return 1;
+}
+
+static uint8_t functDeleteConfirm()
+{
+	if(PE->isBusyFlag) return 1;
+
+	PE->deletePopupFlag = 1;
+	PE->deletePopupDelay = 0;
+	PE->isBusyFlag = 1;
+
+
+	PE->showDefaultScreen();
+	PE->showProcessingPopup("Deleting project");
 	return 1;
 }
 //===============================================================================================================
