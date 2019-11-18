@@ -192,6 +192,7 @@ void FileManager::redoPattern()
 
 }
 
+#if 0
 void FileManager::importPatternToProject(char* filePatch, char* name,
 											int8_t index)
 {
@@ -234,6 +235,7 @@ void FileManager::importPatternToProject(char* filePatch, char* name,
 	sprintf(currentPatch, "%s/project.bin", currentProjectPatch);
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 }
+#endif
 
 
 void FileManager::copyPattern(char* srcProjectPatch, uint8_t src_idx, char * dstProjectPatch, uint8_t dst_idx)
@@ -312,7 +314,7 @@ void FileManager::deletePattern(int8_t index)
 
 	for (uint8_t i = 0; i < SONG_MAX; i++)
 	{
-		if (i == index) mtProject.mtProjectRemote.song.playlist[i] = 0;
+		if (i == index) mtProject.song.playlist[i] = 0;
 	}
 
 
@@ -328,35 +330,35 @@ void FileManager::deletePattern(int8_t index)
 	strcpy(currentPatch,"Workspace/project.bin");
 
 
-	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
+	writeProjectFile(currentPatch, &mtProject);
 }
 
 uint8_t FileManager::getNextSongPattern()
 {
-	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
+	strSong *song = &mtProject.song;
 	return song->playlist[song->playlistPos + 1] > 0 ? song->playlist[song->playlistPos + 1] : song->playlist[0];
 }
 uint8_t FileManager::getSongPattern(uint8_t pos)
 {
-	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
+	strSong *song = &mtProject.song;
 	return song->playlist[pos];
 }
 void FileManager::setSongPos(uint8_t pos)
 {
-	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
+	strSong *song = &mtProject.song;
 	song->playlistPos = pos;
 }
 
 uint8_t FileManager::resetToFirstSongPattern()
 {
-	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
+	strSong *song = &mtProject.song;
 	song->playlistPos = 0;
 	return song->playlist[0];
 }
 
 void FileManager::switchNextPatternInSong()
 {
-	strMtProjectRemote::strSong *song = &mtProject.mtProjectRemote.song;
+	strSong *song = &mtProject.song;
 	if (song->playlist[++(song->playlistPos)] != PLAYLIST_EMPTY_SLOT)
 	{
 

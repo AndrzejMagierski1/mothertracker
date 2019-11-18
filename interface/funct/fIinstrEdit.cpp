@@ -719,8 +719,8 @@ void changeFilterFilterType(int16_t value)
 		IE->editorInstrument->filterType = bandPass;
 	}
 
-	display.setControlText(IE->topLabel[4], filterModeFunctLabels[IE->filterModeListPos]);
-	display.refreshControl(IE->topLabel[4]);
+	display.setControlText(IE->label[4], filterModeFunctLabels[IE->filterModeListPos]);
+	display.refreshControl(IE->label[4]);
 
 	display.setControlValue(IE->filterModeListControl, IE->filterModeListPos);
 	display.refreshControl(IE->filterModeListControl);

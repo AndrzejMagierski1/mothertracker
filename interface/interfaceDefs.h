@@ -451,6 +451,13 @@ struct strInterfaceGlobals
 		0xFF0000, // ramka
 	};
 
+	uint32_t disabledLabelsColors[3]=
+	{
+			0x000000, // tekst
+			0x555555, // tło
+			0xFF0000, // ramka
+	};
+
 //-----------------------------------------------------
 
 

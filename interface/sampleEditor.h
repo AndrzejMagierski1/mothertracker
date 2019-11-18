@@ -159,8 +159,7 @@ public:
 
 		spectrumControl = nullptr;
 		pointsControl = nullptr;
-		topLabel[8] = {nullptr};
-		bottomLabel[8] = {nullptr};
+		label[8] = {nullptr};
 	}
 	virtual ~cSampleEditor() {}
 
@@ -182,8 +181,7 @@ public:
 
 	strFrameData frameData;
 
-	hControl topLabel[8];
-	hControl bottomLabel[8];
+	hControl label[8];
 	hControl effectListControl;
 	hControl spectrumControl;
 	hControl effectSpectrumControl;
@@ -244,7 +242,6 @@ public:
 
 	void frameChange(uint8_t control);
 
-	void resizeUndo(uint8_t control);//1 - center 0 - top
 	void showEffectScreen(effect_handle_t *screenCfg);
 	void showPreviewSpectrum();
 	void hidePreviewSpectrum();

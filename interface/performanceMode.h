@@ -154,8 +154,8 @@ public:
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 
-	hControl topLabel[8] = {nullptr};
-	hControl bottomLabel[8] = {nullptr};
+
+	hControl label[8] = {nullptr};
 
 	hControl textLabel[12] = {nullptr};
 	hControl value1Label[12] = {nullptr};

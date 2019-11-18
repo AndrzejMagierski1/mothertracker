@@ -66,28 +66,30 @@ void cSampleImporter::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 
+	prop2.text = (char*)"";
+	prop2.colors = interfaceGlobals.activeLabelsColors;
 	prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
 	prop2.x = (800/8);
 	prop2.y = 452;
 	prop2.w = 800/4-6;
-	prop2.h = 58;
-	if(topLabel[0] == nullptr) topLabel[0] = display.createControl<cLabel>(&prop2);
+	prop2.h = 59;
+	if(label[0] == nullptr) label[0] = display.createControl<cLabel>(&prop2);
 
-
-	for(uint8_t i = 2; i<6; i++)
+	for(uint8_t i = 1; i<5; i++)
 	{
-		prop2.x = (800/8)*i+(800/16);
-		prop2.y = 452;
+		prop2.x = (800/8)*(i+1)+(800/16);
 		prop2.w = 800/8-6;
-		prop2.h = 58;
-		if(topLabel[i-1] == nullptr) topLabel[i-1] = display.createControl<cLabel>(&prop2);
+		prop2.y = 452;
+		prop2.h =  59;
+
+		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
 	prop2.x = (800/8)*6+(800/8);
 	prop2.y = 452;
 	prop2.w = 800/4-6;
-	prop2.h = 58;
-	if(topLabel[5] == nullptr) topLabel[5] = display.createControl<cLabel>(&prop2);
+	prop2.h = 59;
+	if(label[5] == nullptr) label[5] = display.createControl<cLabel>(&prop2);
 
 	explorerList.linesCount = 5;
 	explorerList.start = 0;
@@ -165,8 +167,8 @@ void cSampleImporter::destroyDisplayControls()
 
 	for(uint8_t i = 0; i<6; i++)
 	{
-		display.destroyControl(topLabel[i]);
-		topLabel[i] = nullptr;
+		display.destroyControl(label[i]);
+		label[i] = nullptr;
 	}
 
 	display.destroyControl(memoryBarControl);
@@ -194,18 +196,24 @@ void cSampleImporter::showDefaultScreen()
 
 //	showActualInstrument();
 
+	display.setControlValue(label[0], 0);
+	display.setControlValue(label[1], 0);
+	display.setControlValue(label[2], 0);
+	display.setControlValue(label[3], 0);
+	display.setControlValue(label[4], 0);
+	display.setControlValue(label[5], 0);
 
-	display.setControlText(topLabel[0], "Micro SD");
-	display.setControlText(topLabel[1], "");
-	display.setControlText(topLabel[2], "");
-	display.setControlText(topLabel[3], "Preview");
-	display.setControlText(topLabel[4], "");
-	display.setControlText(topLabel[5], "Instruments");
+	display.setControlText(label[0], "Micro SD");
+	display.setControlText(label[1], "");
+	display.setControlText(label[2], "");
+	display.setControlText(label[3], "Preview");
+	display.setControlText(label[4], "");
+	display.setControlText(label[5], "Instruments");
 
 	for(uint8_t i = 0; i<6; i++)
 	{
-		display.setControlShow(topLabel[i]);
-		display.refreshControl(topLabel[i]);
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
 	}
 
 	display.setControlHide(loadHorizontalBarControl);
@@ -355,20 +363,42 @@ void cSampleImporter::AddOrEnter()
 	{
 		if(locationExplorerList[selectedFile][0] == '/')
 		{
-			display.setControlText(topLabel[1], "Enter");
+			display.setControlText(label[1], "Enter");
 		}
 		else
 		{
-			display.setControlText(topLabel[1], "Add");
+			display.setControlText(label[1], "Add");
 		}
 	}
 	else
 	{
-		display.setControlText(topLabel[1], "Rename");
+		display.setControlText(label[1], "Rename");
 	}
 
-	display.refreshControl(topLabel[1]);
+	display.refreshControl(label[1]);
 	display.synchronizeRefresh();
+}
+
+void cSampleImporter::previewColorControl()
+{
+	uint32_t *colors = interfaceGlobals.activeLabelsColors;
+	if(selectedPlace == 0)
+	{
+		if(locationExplorerList[selectedFile][0] == '/')
+		{
+			colors = interfaceGlobals.inactiveLabelsColors;
+		}
+	}
+	else
+	{
+		if(mtProject.instrument[selectedSlot].isActive != 1)
+		{
+			colors = interfaceGlobals.inactiveLabelsColors;
+		}
+	}
+
+	display.setControlColors(label[3], colors);
+	display.refreshControl(label[3]);
 }
 
 //void cSampleImporter::showAddWT()
@@ -447,28 +477,28 @@ void cSampleImporter::displayDelete(uint8_t onOff)
 {
 	if(onOff)
 	{
-		display.setControlText(topLabel[4], "Delete");
+		display.setControlText(label[4], "Delete");
 	}
 	else
 	{
-		display.setControlText(topLabel[4], "");
+		display.setControlText(label[4], "");
 	}
 
-	display.refreshControl(topLabel[4]);
+	display.refreshControl(label[4]);
 }
 
 void cSampleImporter::displayRename(uint8_t onOff)
 {
 	if(onOff)
 	{
-		display.setControlText(topLabel[1], "Rename");
+		display.setControlText(label[1], "Rename");
 	}
 	else
 	{
 		AddOrEnter();
 	}
 
-	display.refreshControl(topLabel[1]);
+	display.refreshControl(label[1]);
 }
 
 void cSampleImporter::showKeyboard()
@@ -533,19 +563,19 @@ void cSampleImporter::hideKeyboardEditName()
 
 void cSampleImporter::showRenameKeyboard()
 {
-	display.setControlText(topLabel[1],"Cancel");
+	display.setControlText(label[1],"Cancel");
 
 	for(uint8_t i = 0; i < 6 ; i++)
 	{
 		if(i == 1 || i == 4 ) continue;
-		display.setControlText(topLabel[i], "");
+		display.setControlText(label[i], "");
 	}
 
-	display.setControlText(topLabel[4],"Rename");
+	display.setControlText(label[4],"Rename");
 
 	for(uint8_t i = 0; i < 6 ; i++)
 	{
-		display.refreshControl(topLabel[i]);
+		display.refreshControl(label[i]);
 	}
 
 	showKeyboard();

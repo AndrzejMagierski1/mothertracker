@@ -578,7 +578,6 @@ static uint8_t functSaveProject()
 	PE->savePopupFlag = 1;
 	PE->savePopupDelay = 0;
 
-	mtProject.mtProjectRemote.values.projectNotSavedFlag = 0;
 	mtProject.values.projectNotSavedFlag = 0;
 
 	if(fileManager.currentProjectName[0]) strcpy(PE->name, fileManager.currentProjectName);
@@ -692,7 +691,6 @@ static uint8_t functSaveChangesSaveNewProject()
 		return 1;
 	}
 
-	mtProject.mtProjectRemote.values.projectNotSavedFlag = 0;
 	mtProject.values.projectNotSavedFlag = 0;
 
 	PE->newProjectOnSaveEndFlag = 1;
@@ -730,7 +728,6 @@ static uint8_t functSaveAsConfirm()
 
 
 	mtProject.values.projectNotSavedFlag = 0;
-	mtProject.mtProjectRemote.values.projectNotSavedFlag = 0;
 
 	strcpy(fileManager.currentProjectName, PE->name);
 
@@ -761,7 +758,6 @@ static uint8_t functSaveAsOverwriteYes()
 	fileManager.prepareSaveAs(PE->name,FileManager::saveAsOverwrite);
 
 	mtProject.values.projectNotSavedFlag = 0;
-	mtProject.mtProjectRemote.values.projectNotSavedFlag = 0;
 
 	PE->newProjectNotSavedFlag = 0;
 	PE->savePopupFlag = 1;
@@ -873,7 +869,6 @@ static uint8_t functSaveChangesSaveOpen()
 		return 1;
 	}
 
-	mtProject.mtProjectRemote.values.projectNotSavedFlag = 0;
 	mtProject.values.projectNotSavedFlag = 0;
 
 	PE->openOnSaveEndFlag = 1;

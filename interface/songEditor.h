@@ -48,8 +48,7 @@ public:
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
-	hControl topLabel[7] = {nullptr};
-	hControl bottomLabel[7] = {nullptr};
+	hControl label[7] = {nullptr};
 	hControl barControl[2] = {nullptr};
 
 	hControl patternsListControl = nullptr;

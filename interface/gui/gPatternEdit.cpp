@@ -205,7 +205,7 @@ void cPatternEditor::initDisplayControls()
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.text = (char*)"";
-		prop2.data =  &bottomValuesConfig;
+		//prop2.data =  &bottomValuesConfig;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
 
 		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );

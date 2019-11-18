@@ -43,8 +43,7 @@ public:
 
 
 
-	hControl topLabel[6] = {nullptr};
-	hControl bottomLabel[4] = {nullptr};
+	hControl label[6] = {nullptr};
 
 
 
@@ -257,6 +256,9 @@ public:
 	uint8_t openCalcEnd = 0;
 	uint8_t openCurrentPos =0;
 	void processDirFileSizes();
+
+
+	void previewColorControl();
 
 };
 

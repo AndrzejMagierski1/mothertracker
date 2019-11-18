@@ -58,8 +58,7 @@ public:
 
 	strList projectList;
 
-	hControl topLabel[8];
-	hControl bottomLabel[8];
+	hControl label[8];
 	hControl editName;
 	hControl fileListControl;
 	hControl keyboardControl;
@@ -82,8 +81,6 @@ public:
 
 	uint32_t projectOptions = 0;
 
-	void makeSmallBottomLabel(uint8_t i);
-	void makeBigBottomLabel(uint8_t i);
 
 	void listOnlyFolderNames(const char* folder);
 

@@ -8,21 +8,6 @@
 
 #include "mtStructs.h"
 
-typedef enum
-{
-	makeBigger,
-	makeSmaller,
-
-}resize_style_t;
-
-typedef struct
-{
-	resize_style_t resizeStyle[8];
-	uint8_t buttonsToResize;
-
-}button_resize_t;
-
-
 
 const uint8_t sourceCount = 4;
 const uint8_t monitorCount = 2;
@@ -85,8 +70,7 @@ public:
 		 radioRdsLabel = nullptr;
 		 spectrumControl = nullptr;
 		 progressCursor = nullptr;
-		 topLabel[8] = {nullptr};
-		 bottomLabel[8] = {nullptr};
+		 label[8] = {nullptr};
 		 frameControl = nullptr;
 		 sourceListControl = nullptr;
 		 monitorListControl = nullptr;
@@ -146,8 +130,7 @@ public:
 
 //*********************************************
 	hControl spectrumControl;
-	hControl topLabel[8];
-	hControl bottomLabel[8];
+	hControl label[8];
 	hControl frameControl;
 	hControl sourceListControl;
 	hControl monitorListControl;
@@ -329,8 +312,6 @@ uint8_t cropCounter = 0;
 	void showNotePopout();
 	void hideNotePopout();
 
-	void resizeLabel(button_resize_t *handle);
-	button_resize_t resizer;
 
 	char sourceName[8];
 	char monitorVal[4];

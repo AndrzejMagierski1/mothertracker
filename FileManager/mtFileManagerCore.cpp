@@ -19,7 +19,7 @@ void FileManager::update()
 	samplesImporter.update();
 	samplesCopyier.update();
 
-	autoSaveWorkspace();
+	autoSaveWorkspace(0);
 
 //******************************************************************************************************
 // SAMPLES IMPORTER - kopiuje pliki do projektu
@@ -133,7 +133,7 @@ uint8_t FileManager::writePatternFile(char * name)
 }
 
 
-void FileManager::writeProjectFile(char * name, strMtProjectRemote * proj)
+void FileManager::writeProjectFile(char * name, strMtProject *proj)
 {
 	if(SD.exists(name)) SD.remove(name);
 
@@ -141,8 +141,8 @@ void FileManager::writeProjectFile(char * name, strMtProjectRemote * proj)
 	FastCRC32 crcCalc;
 	strProjectFile projectFile;
 
-	projectFile.projectDataAndHeader.project = * proj;
-	projectFile.projectDataAndHeader.project.values = proj->values;
+	memcpy(&projectFile.projectDataAndHeader.project.song, &proj->song, sizeof(strSong));
+	memcpy(&projectFile.projectDataAndHeader.project.values, &proj->values, sizeof(strMtValues));
 
 	projectFile.projectDataAndHeader.projectHeader.id_file[0]='I';
 	projectFile.projectDataAndHeader.projectHeader.id_file[1]='D';
@@ -155,11 +155,11 @@ void FileManager::writeProjectFile(char * name, strMtProjectRemote * proj)
 	projectFile.projectDataAndHeader.projectHeader.id_data[1] = 'A';
 	projectFile.projectDataAndHeader.projectHeader.id_data[2] = 'T';
 	projectFile.projectDataAndHeader.projectHeader.id_data[3] = 'A';
-	projectFile.projectDataAndHeader.projectHeader.size = sizeof(*proj);
+	projectFile.projectDataAndHeader.projectHeader.size = sizeof(projectFile);
 
 	projectFile.crc = crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
 
-	file=SD.open(name,FILE_WRITE);
+	file=SD.open(name, FILE_WRITE);
 	file.write((uint8_t *)&projectFile,sizeof(projectFile));
 	file.close();
 
@@ -235,7 +235,7 @@ uint8_t FileManager::readPatternFile(char * name)
 
 
 
-uint8_t FileManager::readProjectFile(char * name, strMtProjectRemote * proj)
+uint8_t FileManager::readProjectFile(char * name, strMtProject * proj)
 {
 	if(!SD.exists(name)) return 0;
 	FsFile file;
@@ -254,8 +254,10 @@ uint8_t FileManager::readProjectFile(char * name, strMtProjectRemote * proj)
 //TODO:	if(checkCRC == projectFile.crc) // wylaczone sprawdzanie crc pliku projektu
 	if(1)
 	{
-		*proj=projectFile.projectDataAndHeader.project;
-		mtProject.values=projectFile.projectDataAndHeader.project.values;
+		memcpy(&proj->song, &projectFile.projectDataAndHeader.project.song, sizeof(strSong));
+		memcpy(&proj->values, &projectFile.projectDataAndHeader.project.values, sizeof(strMtValues));
+/*		*proj=projectFile.projectDataAndHeader.project;
+		mtProject.values=projectFile.projectDataAndHeader.project.values;*/
 		return 1;
 	}
 	else return 0;
@@ -303,65 +305,80 @@ void FileManager::formatSDCard()
 	//SD.format();
 }
 
-void FileManager::autoSaveWorkspace()
+void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 {
-	if(fileManager.configChangedRefresh > 10000)
+	if(configChangedRefresh > 10000 || forcedWorkspaceSave)
 	{
-		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
+		if(savingInProgress == 0 && loadingInProgress == 0)
 		{
-			fileManager.configChangedRefresh = 0;
-			if(fileManager.configIsChangedFlag == 1)
+			configChangedRefresh = 0;
+			if(configIsChangedFlag == 1)
 			{
-				fileManager.autoSaveProject();
+				autoSaveProject();
 			}
 		}
 	}
 
-	if((fileManager.instrumentRefresh > 10000))
+	if((instrumentRefresh > 10000) || forcedWorkspaceSave)
 	{
-		fileManager.instrumentRefresh = 0;
+		instrumentRefresh = 0;
 
-		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
+		if(savingInProgress == 0 && loadingInProgress == 0)
 		{
 			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
 			{
-				if(fileManager.instrumentIsChangedFlag[i] == 1 )
+				if(instrumentIsChangedFlag[i] == 1 )
 				{
-					fileManager.saveInstrument(i);
+					saveInstrument(i);
 				}
 			}
 		}
 	}
 
-	if(fileManager.patternRefresh > 10000)
+	if(patternRefresh > 10000 || forcedWorkspaceSave)
 	{
-		fileManager.patternRefresh = 0;
+		patternRefresh = 0;
 
-		if(fileManager.savingInProgress == 0 && fileManager.loadingInProgress == 0)
+		if(savingInProgress == 0 && loadingInProgress == 0)
 		{
-			if(fileManager.patternIsChangedFlag[mtProject.values.actualPattern] == 1)
+			if(patternIsChangedFlag[mtProject.values.actualPattern] == 1)
 			{
-				fileManager.savePattern(mtProject.values.actualPattern);
+				savePattern(mtProject.values.actualPattern);
 			}
 		}
 	}
 }
 
-
-void FileManager::getDefaultRemote(struct strMtProjectRemote *source)
+void FileManager::getDefaultSong(struct strSong *source)
 {
-	for(uint32_t i = 0; i < INSTRUMENTS_COUNT; i++)
-	{
-		source->instrumentFile[i].sampleType = 0;
-	}
-
-	source->song.playlistPos = 0;
+	source->playlistPos = 0;
 
 	for(uint32_t i = 0; i < 5; i++)
 	{
-		source->song.playlist[i] = i;
+		source->playlist[i] = (i+1);
+	}
+}
+
+void FileManager::getDefaultInstrument(struct strInstrument *source)
+{
+	memset(source, 0, sizeof(strInstrument));
+
+	source->sample.wavetable_window_size = 2048;
+}
+
+void FileManager::getDefaultProject(struct strMtProject *source)
+{
+	source->instruments_count = 0;
+	source->patterns_count = 0;
+	source->max_memory = SAMPLE_MEMORY_MAX;
+	source->used_memory = 0;
+
+	for(uint32_t i = 0; i < INSTRUMENTS_COUNT; i++)
+	{
+		getDefaultInstrument(&source->instrument[i]);
 	}
 
+	getDefaultSong(&source->song);
 	getDefaultValues(&source->values);
 }
 
