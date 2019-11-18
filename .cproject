@@ -68,6 +68,7 @@
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../arkanoid"/>
 									<listOptionValue builtIn="false" value="../Exporter"/>
+									<listOptionValue builtIn="false" value="../libs/MTP"/>
 								</option>
 								<option id="com.crt.advproject.cpp.hdrlib.53466571" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.2141253513" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.general" valueType="enumerated"/>
@@ -121,6 +122,7 @@
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../Exporter"/>
+									<listOptionValue builtIn="false" value="../libs/MTP"/>
 								</option>
 								<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.637294101" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.general" valueType="enumerated"/>
 								<option id="com.crt.advproject.gcc.lto.101578116" name="Enable Link-time optimization (-flto)" superClass="com.crt.advproject.gcc.lto" useByScannerDiscovery="false" value="false" valueType="boolean"/>
@@ -158,6 +160,7 @@
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../Exporter"/>
+									<listOptionValue builtIn="false" value="../libs/MTP"/>
 								</option>
 								<option id="com.crt.advproject.gas.arch.731726900" name="Architecture" superClass="com.crt.advproject.gas.arch" useByScannerDiscovery="false" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.gas.fpu.985373801" name="Floating point" superClass="com.crt.advproject.gas.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gas.fpu.fpv4.hard" valueType="enumerated"/>
@@ -275,6 +278,7 @@
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../arkanoid"/>
+									<listOptionValue builtIn="false" value="../libs/MTP"/>
 								</option>
 								<option id="com.crt.advproject.cpp.arch.1277266838" name="Architecture" superClass="com.crt.advproject.cpp.arch" useByScannerDiscovery="false" value="com.crt.advproject.cpp.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.cpp.hdrlib.615462902" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>
@@ -319,6 +323,7 @@
 									<listOptionValue builtIn="false" value="../libs/Snooze"/>
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
+									<listOptionValue builtIn="false" value="../libs/MTP"/>
 								</option>
 								<option id="com.crt.advproject.gcc.arch.2035563646" name="Architecture" superClass="com.crt.advproject.gcc.arch" useByScannerDiscovery="false" value="com.crt.advproject.gcc.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.gcc.fpu.937380535" name="Floating point" superClass="com.crt.advproject.gcc.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gcc.fpu.fpv4.hard" valueType="enumerated"/>
@@ -353,6 +358,7 @@
 									<listOptionValue builtIn="false" value="../libs/Snooze"/>
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
+									<listOptionValue builtIn="false" value="../libs/MTP"/>
 								</option>
 								<option id="com.crt.advproject.gas.arch.1402598248" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
 								<option id="gnu.both.asm.option.flags.crt.1599692473" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" useByScannerDiscovery="false" value="-c -x assembler-with-cpp -D__NEWLIB__ -D__MK66FX1M0__" valueType="string"/>
