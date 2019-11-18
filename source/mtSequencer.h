@@ -416,6 +416,7 @@ public:
 		} track[MAXTRACK + 1];
 
 		void (*onPatternEnd)(void) = NULL;
+		void (*onSongEnd)(void) = NULL;
 
 	} player;
 
@@ -618,6 +619,10 @@ public:
 	void setOnPatternEnd(void (*action)(void))
 	{
 		player.onPatternEnd = action;
+	}
+	void setOnSongEnd(void (*action)(void))
+	{
+		player.onSongEnd = action;
 	}
 
 	void setPerformancePatternLength(int8_t length);
