@@ -7,9 +7,9 @@ class mtSongExporter: public mtPatternExporter
 {
 public:
 	void start(char * path);
+	uint8_t getProgress();
 private:
-	uint8_t currentPatternInSong;
-	uint8_t songLength;
+	uint16_t songLength;
 };
 
 

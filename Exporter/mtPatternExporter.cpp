@@ -26,6 +26,16 @@ void mtPatternExporter::finish()
 		exportL.end();
 		exportR.end();
 
+		if(position != 0)
+		{
+			switchBuffer();
+			__disable_irq();
+			byteRecorded += wavExport.write(sendBuf,2 * position);
+			__enable_irq();
+
+			Serial.printf("p: %d\n",position);
+			position=0;
+		}
 		status = exportStatus::exportFinished;
 
 
@@ -48,8 +58,6 @@ void mtPatternExporter::finish()
 		wavExport.write(&header,sizeof(header));
 		wavExport.close();
 
-		recBuf = nullptr;
-		sendBuf = nullptr;
 
 		Serial.println("koniec");
 	}
@@ -93,6 +101,7 @@ void mtPatternExporter::start(char * path)
 
 void mtPatternExporter::refresh()
 {
+
 	if(status == exportStatus::exportDuring)
 	{
 		if((recBuf == nullptr) || (sendBuf == nullptr)) return;
@@ -114,18 +123,21 @@ void mtPatternExporter::refresh()
 			exportL.freeBuffer();
 			exportR.freeBuffer();
 
-			if((position == SEND_BUF_SIZE) || !((exportL.available() >= 1) && (exportR.available() >= 1 )))
+
+
+			if(position == SEND_BUF_SIZE)
 			{
 				switchBuffer();
-
 				__disable_irq();
-				byteRecorded += wavExport.write(sendBuf,position*2);
+				byteRecorded += wavExport.write(sendBuf,2 * SEND_BUF_SIZE);
 				__enable_irq();
 
+				Serial.printf("p: %d\n",position);
 				position=0;
 			}
 		}
 	}
+
 }
 
 

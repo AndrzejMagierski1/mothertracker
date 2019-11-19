@@ -4,11 +4,13 @@
 #include <mtPatternExporter.h>
 #include <mtPatternStemsExporter.h>
 #include "mtSongExporter.h"
+#include "mtSongStemsExporter.h"
 
 static constexpr uint32_t SEND_BUF_SIZE = 20 * 1024;
 
 extern int16_t exportBuffer1[SEND_BUF_SIZE];
 extern int16_t exportBuffer2[SEND_BUF_SIZE];
+
 
 
 class mtExporter
@@ -36,6 +38,7 @@ private:
 	mtPatternStemsExporter patternStemsExporter;
 	mtPatternExporter patternExporter;
 	mtSongExporter	songExporter;
+	mtSongStemsExporter songStemsExporter;
 };
 
 extern mtExporter exporter;

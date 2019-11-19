@@ -31,8 +31,9 @@ public:
 	};
 
 	uint8_t getProgress();
-private:
 
+	friend class mtSongExporter;
+private:
 	void switchBuffer();
 	void refresh();
 	int16_t * recBuf = nullptr;
@@ -43,9 +44,10 @@ private:
 	exportStatus status;
 	uint32_t byteRecorded;
 	FsFile wavExport;
-	uint16_t position;
+	uint32_t position;
 	uint8_t lastStep = 0;
-
+	uint32_t microsTime;
+	uint32_t localTime;
 	uint32_t packageLR;
 	int16_t * const packageL = (int16_t *) (&packageLR);
 	int16_t * const packageR = (int16_t *) ((int16_t *)&packageLR + 1);
