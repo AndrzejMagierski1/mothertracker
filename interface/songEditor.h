@@ -85,7 +85,7 @@ public:
 //--------------------------------------------------------------
 //  global params
 	char globalTempoVal[10];
-	char patternLengthVal[5];
+	char patternLengthVal[6];
 
 
 

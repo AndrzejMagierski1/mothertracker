@@ -561,7 +561,7 @@ void cInstrumentEditor::showParamsVolume()
 
 void cInstrumentEditor::showParamsPanning()
 {
-	sprintf(panningVal,"%d",editorInstrument->panning);
+	sprintf(panningVal,"%d", editorInstrument->panning-50);
 
 	display.setControlText(label[1], panningVal);
 	display.refreshControl(label[1]);
@@ -620,21 +620,25 @@ void cInstrumentEditor::showFilterType()
 
 void cInstrumentEditor::showFilterCutOff()
 {
-	sprintf(cutoffVal,"%.2f",editorInstrument->cutOff);
+	uint8_t temp_cutoff = (editorInstrument->cutOff*100);
+
+	sprintf(cutoffVal,"%d", temp_cutoff);
 	display.setControlText(label[5], cutoffVal);
 	display.refreshControl(label[5]);
 
-	display.setControlValue(barControl[5], (editorInstrument->cutOff*100));
+	display.setControlValue(barControl[5], temp_cutoff);
 	display.refreshControl(barControl[5]);
 }
 
 void cInstrumentEditor::showFilterResonance()
 {
-	sprintf(resonanceVal,"%.2f",editorInstrument->resonance);
+	uint8_t temp_resonance = ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100;
+
+	sprintf(resonanceVal,"%d", temp_resonance);
 	display.setControlText(label[6], resonanceVal);
 	display.refreshControl(label[6]);
 
-	display.setControlValue(barControl[6], ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100);
+	display.setControlValue(barControl[6], temp_resonance);
 	display.refreshControl(barControl[6]);
 }
 

@@ -190,7 +190,7 @@ void cSongEditor::activateLabelsBorder()
 
 void cSongEditor::showTempoValue()
 {
-	sprintf(globalTempoVal,"%.1f", mtProject.values.globalTempo);
+	sprintf(globalTempoVal,"%.1f BPM", mtProject.values.globalTempo);
 	display.setControlText(label[6], globalTempoVal);
 	display.refreshControl(label[6]);
 
