@@ -78,6 +78,9 @@ public:
 
 //	void checkWavetableLabel();
 	void AddEnterOrRename();
+
+	void AddNextControl();
+	void AddNextDisplay(uint8_t active);
 //	void showAddWT();
 //	void hideAddWT();
 
@@ -264,6 +267,8 @@ public:
 	void deleteColorControl();
 
 	bool checkIfAnyInstrActive();
+
+	uint8_t addOrReplaceFlag = 0;
 
 };
 

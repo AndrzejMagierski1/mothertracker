@@ -147,6 +147,7 @@ static  uint8_t functRename();
 static  uint8_t functShift(uint8_t state);
 
 static  uint8_t functInstrumentAdd();
+static 	uint8_t functInstrumentAddNext();
 //static  uint8_t functInstrumentWavetableAdd();
 static  uint8_t functInstrumentDelete();
 
@@ -184,6 +185,13 @@ void cSampleImporter::update()
 	if(fileManager.samplesLoader.getLoadChangeFlag())
 	{
 		fileManager.samplesLoader.clearLoadChangeFlag();
+
+		if(addOrReplaceFlag)
+		{
+			addOrReplaceFlag = 0;
+			changeInstrumentSelection(1);
+		}
+
 		listInstrumentSlots();
 		showInstrumentsList();
 	}
@@ -282,14 +290,14 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonShift, functShift);
 	//FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
-
+	FM->setButtonObj(interfaceButtonInsert, buttonPress, functEnter);
 	FM->setButtonObj(interfaceButton0, buttonPress, functChangeFolder);
 	FM->setButtonObj(interfaceButton1, buttonPress, functChangeFolder);
 
 	if(selectedPlace == 1) FM->setButtonObj(interfaceButton2, buttonPress, functRename);
 	else FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
 
-//	FM->setButtonObj(interfaceButton3, buttonPress, functInstrumentWavetableAdd);
+	FM->setButtonObj(interfaceButton3, buttonPress, functInstrumentAddNext);
 	FM->setButtonObj(interfaceButton4, preview);
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functChangeInstrument);
@@ -325,7 +333,6 @@ static  uint8_t functChangeFolder(uint8_t button)
 
 	SI->FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
 
-	SI->AddEnterOrRename();
 	SI->previewColorControl();
 	SI->displayDelete(SI->selectedPlace);
 //	SI->checkWavetableLabel();
@@ -479,6 +486,20 @@ static  uint8_t functEnter()
 	return 1;
 }
 
+static uint8_t functInstrumentAddNext()
+{
+	if(SI->isBusy) return 1;
+
+	if(SI->locationExplorerList[SI->selectedFile][0] != '/')
+	{
+		SI->sampleType = mtSampleTypeWaveFile;
+		SI->addOrReplaceFlag = 1;
+		SI->SelectFile();
+	}
+
+	return 1;
+}
+
 static  uint8_t functRename()
 {
 	if(SI->isBusy) return 1;
@@ -504,25 +525,28 @@ static  uint8_t functRename()
 
 static  uint8_t functConfirmRename()
 {
-	strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,SI->name,32);
+	if(strlen(SI->name) > 1)
+	{
+		strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,SI->name,32);
 
-	SI->showFileList();
+		SI->showFileList();
 
-	SI->listInstrumentSlots();
-	SI->showInstrumentsList();
+		SI->listInstrumentSlots();
+		SI->showInstrumentsList();
 
-	SI->handleMemoryBar();
+		SI->handleMemoryBar();
 
-	SI->activateLabelsBorder();
+		SI->activateLabelsBorder();
 
-	SI->setDefaultScreenFunct();
-	SI->showDefaultScreen();
+		SI->setDefaultScreenFunct();
+		SI->showDefaultScreen();
 
-	SI->displayDelete(SI->selectedPlace);
+		SI->displayDelete(SI->selectedPlace);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+		fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 
-	SI->keyboardActiveFlag = 0;
+		SI->keyboardActiveFlag = 0;
+	}
 
 	return 1;
 }
@@ -675,11 +699,12 @@ static  uint8_t functShift(uint8_t state)
 			return 1;
 		}
 
+		SI->setSelect(SI->selectedPlace);
+
 		if(SI->currSelectPlace != SI->selectedPlace)
 		{
 			SI->currSelectPlace = SI->selectedPlace;
 			SI->selectionLength=0;
-			SI->setSelect(SI->selectedPlace);
 		}
 
 		SI->frameSelectMode(SI->currSelectPlace,1);
@@ -759,6 +784,7 @@ static  uint8_t functLeft()
 		SI->rewindListToBeggining();
 		SI->handleMemoryBar();
 
+		SI->AddNextControl();
 	}
 
 	SI->AddEnterOrRename();
@@ -906,6 +932,7 @@ uint8_t cSampleImporter::changeFileSelection(int16_t value)
 	display.setControlValue(explorerListControl, selectedFile);
 	display.refreshControl(explorerListControl);
 
+	AddNextControl();
 	AddEnterOrRename();
 	previewColorControl();
 
@@ -1158,6 +1185,8 @@ void cSampleImporter::BrowseOrAdd()
 	{
 		if(selectedPlace ==0)
 		{
+			cancelSelect();
+
 			if(dirLevel == 0)
 			{
 				dirLevel = 1;
@@ -1169,7 +1198,6 @@ void cSampleImporter::BrowseOrAdd()
 				explorerCurrentPosition++;
 
 				selectedFile=0;
-
 
 				listAllFoldersFirst();
 			}
@@ -1274,6 +1302,17 @@ void cSampleImporter::SelectFile()
 
 
 //==============================================================================================
+void cSampleImporter::AddNextControl()
+{
+	uint8_t active = 0;
+	if(locationExplorerList[selectedFile][0] != '/')
+	{
+		active = 1;
+	}
+
+	AddNextDisplay(active);
+}
+
 void cSampleImporter::listInstrumentSlots()
 {
 

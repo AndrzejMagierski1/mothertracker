@@ -229,6 +229,7 @@ void cSampleImporter::showDefaultScreen()
 	displayDelete(selectedPlace);
 
 	AddEnterOrRename();
+	AddNextControl();
 
 
 //	if(selectedPlace != 0) hideAddWT();
@@ -359,6 +360,27 @@ void cSampleImporter::showActualInstrument()
 	display.refreshControl(instrumentLabel);
 }
 
+void cSampleImporter::AddNextDisplay(uint8_t active)
+{
+	uint32_t *colors;
+	//interfaceGlobals.inactiveLabelsColors;
+
+	display.setControlText(label[2], "Add next");
+
+	if(active)
+	{
+		colors = interfaceGlobals.activeLabelsColors;
+	}
+	else
+	{
+		colors = interfaceGlobals.inactiveLabelsColors;
+	}
+
+	display.setControlColors(label[2], colors);
+	display.refreshControl(label[2]);
+	display.synchronizeRefresh();
+}
+
 void cSampleImporter::AddEnterOrRename()
 {
 	if(selectedPlace == 0)
@@ -483,21 +505,21 @@ void cSampleImporter::moveInstrListToEnd()
 
 void cSampleImporter::setSelect(uint8_t place)
 {
-	memset(selectionTab,0,sizeof(selectionTab));
+	if(currSelectPlace != place)
+	{
+		memset(selectionTab, 0, sizeof(selectionTab));
+	}
 
 	if(place == 0)
 	{
-		explorerList.selectTab=selectionTab;
-		instrumentList.selectTab=NULL;
+		explorerList.selectTab = selectionTab;
+		instrumentList.selectTab = NULL;
 	}
 	else
 	{
-		instrumentList.selectTab=selectionTab;
-		explorerList.selectTab=NULL;
+		instrumentList.selectTab = selectionTab;
+		explorerList.selectTab = NULL;
 	}
-
-	//display.setControlData(explorerListControl, &explorerList);
-	//display.setControlData(instrumentListControl, &instrumentList);
 }
 
 // mode = 0 - bialy , mode = 1 - czerwony

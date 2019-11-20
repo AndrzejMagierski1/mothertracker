@@ -365,10 +365,20 @@ void cInstrumentEditor::showEnvList()
 
 void cInstrumentEditor::showEnvState()
 {
-	display.setControlText(label[1], envStateLabels[!editorInstrument->envelope[selectedEnvelope].enable]);
+	uint8_t val;
+	display.setControlText(label[1], envStateLabels[editorInstrument->envelope[selectedEnvelope].enable]);
 	display.refreshControl(label[1]);
 
-	display.setControlValue(envStateListControl, !editorInstrument->envelope[selectedEnvelope].enable);
+	if(editorInstrument->envelope[selectedEnvelope].enable)
+	{
+		val = 0;
+	}
+	else
+	{
+		val = 1;
+	}
+
+	display.setControlValue(envStateListControl, val);
 	display.refreshControl(envStateListControl);
 }
 

@@ -5,6 +5,8 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 	uint8_t status =  samplesImporter.start(filePatch, name, (char*)"Workspace", instrumentIndex, type);
 	if(!status) return 0;
 
+	char currentPatch[PATCH_SIZE];
+
 	if(mtProject.instrument[instrumentIndex].isActive == 0)
 	{
 		mtProject.instrument[instrumentIndex].isActive = 1;
@@ -61,12 +63,9 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 
 		mtProject.instrument[instrumentIndex].reverbSend = 0;
 
+		sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",instrumentIndex);
+		writeInstrumentFile(currentPatch, &mtProject.instrument[instrumentIndex]);
 	}
-
-	char currentPatch[PATCH_SIZE];
-
-	sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",instrumentIndex);
-	writeInstrumentFile(currentPatch, &mtProject.instrument[instrumentIndex]);
 
 	strcpy(currentPatch,"Workspace/project.bin");
 	writeProjectFile(currentPatch, &mtProject);
@@ -148,7 +147,7 @@ void FileManager::deleteInstrument(int8_t index)
 	sprintf(currentPatch,"Workspace/project.bin");
 	writeProjectFile(currentPatch, &mtProject);
 
-	setInstrumentChangeFlag(index);
+	//setInstrumentChangeFlag(index);
 }
 
 void FileManager::deleteSample(int8_t index)
