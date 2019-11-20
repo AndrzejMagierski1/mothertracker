@@ -383,7 +383,7 @@ void Sequencer::play_microStep(uint8_t row)
 				usbMIDI.sendControlChange(10, _fx.value, 1);
 				break;
 			case fx.FX_TYPE_TEMPO:
-				player.performance.tempo = float(_fx.value*2);
+				player.performance.tempo = float(_fx.value * 2);
 				break;
 
 			case fx.FX_TYPE_RANDOM_VELOCITY:
@@ -1164,9 +1164,20 @@ void Sequencer::sendNoteOn(uint8_t track,
 
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
-		usbMIDI.sendNoteOn(step->note,
-							step->velocity,
-							step->instrument - INSTRUMENTS_MAX);
+		if (step->velocity == -1)
+		{
+//			todo:
+			uint8_t velo = 100;//mtProject.values.midiInstrument[step->instrument - INSTRUMENTS_MAX].velocity;
+			usbMIDI.sendNoteOn(step->note,
+								velo,
+								step->instrument - INSTRUMENTS_MAX);
+		}
+		else
+		{
+			usbMIDI.sendNoteOn(step->note,
+								step->velocity,
+								step->instrument - INSTRUMENTS_MAX);
+		}
 	}
 	else
 	{
@@ -1302,7 +1313,7 @@ void Sequencer::handleNoteOld(byte channel, byte note, byte velocity)
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 
-	// NOTE ON
+// NOTE ON
 	if (velocity != 0)
 	{
 		if (isRec())
@@ -1375,7 +1386,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 
-	// NOTE ON
+// NOTE ON
 	if (velocity != 0)
 	{
 		if (isEditMode())
