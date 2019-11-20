@@ -27,6 +27,7 @@
 #include "textPopupControl.h"
 #include "imgControl.h"
 #include "multiLabelControl.h"
+#include "wtProgress.h"
 
 #include "processingPopout.h"
 
