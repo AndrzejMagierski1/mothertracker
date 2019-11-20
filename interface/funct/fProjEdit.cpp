@@ -836,6 +836,7 @@ void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 static uint8_t functDelete()
 {
 	if(PE->isBusyFlag) return 1;
+	if(strcmp(fileManager.currentProjectName, &PE->locationFilesList[PE->selectedLocation][0]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
 
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveChangesCancelOpen);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functDeleteConfirm);
