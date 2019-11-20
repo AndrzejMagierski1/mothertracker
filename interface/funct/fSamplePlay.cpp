@@ -1131,8 +1131,20 @@ static void changeZoom(int16_t value)
 static void changePlayModeSelection(int16_t value)
 {
 
-	if(SP->isPlayingSample) return;
-	if(SP->isPlayingWavetable) return;
+	if(SP->isPlayingSample)
+	{
+		mtPadBoard.cutAllInstrument();
+		SP->playProgressValue=0;
+		SP->playProgressInSpectrum = 0;
+		SP->refreshSpectrumProgress = 1;
+		SP->isPlayingSample = 0;
+		SP->hidePreviewValue();
+	}
+	if(SP->isPlayingWavetable)
+	{
+		mtPadBoard.cutAllInstrument();
+		SP->isPlayingWavetable = 0;
+	}
 
 	if(SP->editorInstrument->playMode + value < 0) SP->editorInstrument->playMode = 0;
 	else if(SP->editorInstrument->playMode + value > playModeCount-1) SP->editorInstrument->playMode = playModeCount-1;
@@ -1379,6 +1391,7 @@ static void modWavetablePostion(int32_t value)
 	else if((SP->editorInstrument->wavetableCurrentWindow + value) > (SP->editorInstrument->sample.wavetableWindowNumber - 1) ) SP->editorInstrument->wavetableCurrentWindow = SP->editorInstrument->sample.wavetableWindowNumber - 1;
 	else SP->editorInstrument->wavetableCurrentWindow += value;
 
+	instrumentPlayer[0].instrumentBasedMod.wtPos = SP->editorInstrument->wavetableCurrentWindow;
 	instrumentPlayer[0].setStatusBytes(WT_POS_SEND_MASK);
 
 
@@ -1391,7 +1404,11 @@ static void modWavetablePostion(int32_t value)
 
 static void modWavetableWindowSize(int16_t value)
 {
-	if(SP->isPlayingWavetable) return;
+	if(SP->isPlayingWavetable)
+	{
+		mtPadBoard.cutAllInstrument();
+		SP->isPlayingWavetable = 0;
+	}
 
 	uint8_t lastWavetableWindowsCounter = SP->wavetableWindowsCounter;
 	int8_t localDif;

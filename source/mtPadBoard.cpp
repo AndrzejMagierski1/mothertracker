@@ -92,6 +92,16 @@ void cMtPadBoard::stopInstrument(uint8_t pad)
 	instrumentPlayer[voiceToClear].noteOff();
 }
 
+void cMtPadBoard::cutInstrument(uint8_t pad)
+{
+	int8_t voiceToClear = getVoiceTakenByPad(pad);
+	if(voiceToClear < 0) return;
+	voices[voiceToClear] = -1;
+	//mtPrint("stop: ");
+	//mtPrintln(voiceToClear);
+	instrumentPlayer[voiceToClear].noteOff(-3);
+}
+
 void cMtPadBoard::clearVoice(uint8_t voice)
 {
 	if(voice < 0) return;
@@ -106,6 +116,17 @@ void cMtPadBoard::releaseAllInstrument()
 	{
 		voices[i] = -1;
 		instrumentPlayer[i].noteOff();
+	}
+}
+
+void cMtPadBoard::cutAllInstrument()
+{
+	if(sequencer.getSeqState() == 1) return;
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		voices[i] = -1;
+		instrumentPlayer[i].noteOff(-3);
 	}
 }
 
