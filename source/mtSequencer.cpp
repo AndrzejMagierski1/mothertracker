@@ -835,14 +835,14 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 				isNextPatternAvailable =
 						fileManager.switchNextPatternInSong();
 			}
-			player.onSongEnd = player.onPatternEnd;
+//			player.onSongEnd = player.onPatternEnd;
 
 			if (x == MINTRACK)
 			{
-				if ((player.onPatternEnd != NULL) && !isNextPatternAvailable)
+				if ((player.onPatternEnd != NULL) && isNextPatternAvailable)
 				player.onPatternEnd();
 
-				else if ((player.onSongEnd != NULL) && isNextPatternAvailable)
+				else if ((player.onSongEnd != NULL) && !isNextPatternAvailable)
 				{
 					player.onPatternEnd();
 					player.onSongEnd();

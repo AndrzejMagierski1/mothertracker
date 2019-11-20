@@ -578,7 +578,10 @@ void cProjectEditor::showExportingHorizontalBar()
 	else if (currentExportType == (int) exportType::song ) 	sprintf(currentInfo,"Exporting Song");
 	else if (currentExportType == (int) exportType::songStems )
 	{
-		sprintf(currentInfo,"Exporting Song Stems: ");
+		uint8_t track_n = exporter.getStemsTrack();
+		if(track_n < 8) sprintf(currentInfo,"Exporting Song Stems: Track%d ", track_n + 1);
+		else if(track_n == 8) strcpy(currentInfo,"Exporting Song Stems: Reverb ");
+		else if(track_n == 9) strcpy(currentInfo,"Exporting Song Stems: Mix ");
 	}
 
 	display.setControlText(loadHorizontalBarControl, currentInfo);

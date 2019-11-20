@@ -11,15 +11,14 @@ public:
 	void update();
 	uint8_t getStatus();
 	friend void setOnLastExportStep();
-private:
 
+protected:
 	void setSoloTrack(uint8_t n);
 	void clearSoloTrack(uint8_t n);
 	uint8_t currentStatus;
 	uint8_t lastStatus;
 	uint8_t currentTrack;
 	mtPatternExporter localPatternExporter;
-
 };
 
 

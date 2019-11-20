@@ -664,10 +664,9 @@ void cPatternEditor::changeActualPattern(int16_t value)
 {
 	if(sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
 	{
-		if(fileManager.patternIsChangedFlag[mtProject.values.actualPattern] == 1)
-		{
-			fileManager.savePattern(mtProject.values.actualPattern);
-		}
+
+		fileManager.savePattern(mtProject.values.actualPattern);
+
 	}
 
 	mtProject.values.actualPattern = constrain(
