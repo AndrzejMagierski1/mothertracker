@@ -532,6 +532,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	/*================================================ENVELOPE FILTER=======================================*/
 	if(mtProject.instrument[instr_idx].filterEnable == filterOn)
 	{
+		instrumentBasedMod.cutoff = mtProject.instrument[instr_idx].cutOff;
 		if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable)
 		{
 			envelopeFilterPtr->init(&mtProject.instrument[instr_idx].envelope[envFilter]);
@@ -545,6 +546,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	if(mtProject.instrument[instr_idx].sample.type == mtSampleTypeWavetable)
 	{
+		instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
 		if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable)
 		{
 			envelopeWtPos->init(&mtProject.instrument[instr_idx].envelope[envWtPos]);

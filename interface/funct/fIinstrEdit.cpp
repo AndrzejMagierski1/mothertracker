@@ -762,7 +762,7 @@ void changeFilterCutOff(int16_t value)
 	else IE->editorInstrument->cutOff += fVal;
 
 //	display.setBacklightBrightness(map(editorInstrument->cutOff,MIN_CUTOFF,MAX_CUTOFF,0,128));
-
+	instrumentPlayer[0].instrumentBasedMod.cutoff = IE->editorInstrument->cutOff;
 	instrumentPlayer[0].setStatusBytes(CUTOFF_MASK);
 
 	IE->showFilterCutOff();
