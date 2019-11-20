@@ -27,7 +27,6 @@ enum enumStepPopups
 	stepPopupNone,
 	stepPopupNote,
 	stepPopupInstr,
-	stepPopupVol,
 	stepPopupFx
 };
 
@@ -68,6 +67,7 @@ public:
 	uint8_t getStepPopupState();
 	int16_t getStepPopupValue();
 
+	void lightUpPads();
 
 	//-------------------------------------
 	// global popups functs
@@ -102,7 +102,6 @@ private:
 
 	void showNotesPopup();
 	void showInstrumentsPopup();
-	void showVolumesPopup();
 	void showFxesPopup();
 
 	void showActualInstrument();

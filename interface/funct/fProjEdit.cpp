@@ -481,25 +481,31 @@ uint8_t cProjectEditor::loadProjectValues()
 		}
 
 		if(mtProject.values.perfSelectedValues[i] > 3) mtProject.values.perfSelectedValues[i] = 0;
-	}
 
-	for(uint8_t place = 0; place<12; place++)
-	{
 		//if(mtProject.values.perfFxValues[place][0] > 255 || mtProject.values.perfFxValues[place][0] < -255)
-		if(mtProject.values.perfFxValues[place][0] != 0)
-			mtProject.values.perfFxValues[place][0] = 0;
-		if(mtProject.values.perfFxValues[place][1] > 255 || mtProject.values.perfFxValues[place][1] < -255)
-			mtProject.values.perfFxValues[place][1] = 0;
-		if(mtProject.values.perfFxValues[place][2] > 255 || mtProject.values.perfFxValues[place][2] < -255)
-			mtProject.values.perfFxValues[place][2] = 0;
-		if(mtProject.values.perfFxValues[place][3] > 255 || mtProject.values.perfFxValues[place][3] < -255)
-			mtProject.values.perfFxValues[place][3] = 0;
+		if(mtProject.values.perfFxValues[i][0] != 0)
+			mtProject.values.perfFxValues[i][0] = 0;
+		if(mtProject.values.perfFxValues[i][1] > 255 || mtProject.values.perfFxValues[i][1] < -255)
+			mtProject.values.perfFxValues[i][1] = 0;
+		if(mtProject.values.perfFxValues[i][2] > 255 || mtProject.values.perfFxValues[i][2] < -255)
+			mtProject.values.perfFxValues[i][2] = 0;
+		if(mtProject.values.perfFxValues[i][3] > 255 || mtProject.values.perfFxValues[i][3] < -255)
+			mtProject.values.perfFxValues[i][3] = 0;
 	}
 
 	//----------------------------------------------------------------------------------------------------
 	// song pattern
 	if(mtProject.values.globalTempo > 1000) mtProject.values.globalTempo = DEFAULT_TEMPO;
 	if(mtProject.values.patternLength > 255) mtProject.values.patternLength = 32;
+
+
+	//----------------------------------------------------------------------------------------------------
+	// midi instruments velocity
+	for(uint8_t channel = 0; channel<16; channel++)
+	{
+		if(mtProject.values.midiInstrument[channel].velocity > 127) mtProject.values.midiInstrument[channel].velocity = 127;
+	}
+
 
 
 

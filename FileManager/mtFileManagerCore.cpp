@@ -449,6 +449,13 @@ void FileManager::getDefaultValues(struct strMtValues *source)
 
 	memset(source->instrumentsToSave, 0, INSTRUMENTS_COUNT);
 	memset(source->patternsToSave, 0, PATTERN_INDEX_MAX);
+
+	//instrumenty midi
+
+	for(uint8_t channel = 0; channel<16; channel++)
+	{
+		source->midiInstrument[channel].velocity = DEFAULT_MIDI_VELOCITY;
+	}
 }
 
 
