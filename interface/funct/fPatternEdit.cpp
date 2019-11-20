@@ -395,7 +395,7 @@ void cPatternEditor::refreshPattern()
 
 				sprintf(&trackerPattern.track[i].row[j].fx[0][1],
 						"%.3u",
-						seq->track[i].step[patternPosition - 7 + j].fx[1].value);
+						sequencer.getFxValueToView(1,i,patternPosition - 7 + j));
 
 				//trackerPattern.track[i].row[j].fx[0][3] = '0';
 			}
@@ -420,7 +420,7 @@ void cPatternEditor::refreshPattern()
 
 				sprintf(&trackerPattern.track[i].row[j].fx[1][1],
 						"%.3u",
-						seq->track[i].step[patternPosition - 7 + j].fx[0].value);
+						sequencer.getFxValueToView(0,i,patternPosition - 7 + j));
 
 				//trackerPattern.track[i].row[j].fx[1][3] = '0';
 			}

@@ -382,9 +382,11 @@ void Sequencer::play_microStep(uint8_t row)
 			case fx.FX_TYPE_SEND_CC_10:
 				usbMIDI.sendControlChange(10, _fx.value, 1);
 				break;
+			case fx.FX_TYPE_TEMPO:
+				player.performance.tempo = float(_fx.value*2);
+				break;
 
 			case fx.FX_TYPE_RANDOM_VELOCITY:
-				//		todo:
 				stepToSend.velocity = constrain(random(0,
 														_fx.value + 1),
 												0,
@@ -789,6 +791,8 @@ void Sequencer::stop(void)
 	reset_actual_pos();
 
 	allNoteOffs();
+
+	player.performance.tempo = 0.0;
 }
 
 void Sequencer::rec(void)
@@ -1024,11 +1028,16 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 	float timer_var = 0;
 	float temp_Tempo;
 
-	if (config.mode == MODE_MIDICLOCK.INTERNAL_)
+	if (player.performance.tempo > 0.0 && player.performance.tempo < MAX_TEMPO)
+	temp_Tempo = player.performance.tempo;
+
+	else if (config.mode == MODE_MIDICLOCK.INTERNAL_)
 	//	temp_Tempo = seq[player.ramBank].tempo;
 	temp_Tempo = mtProject.values.globalTempo;
+
 	else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
 	temp_Tempo = config.tempoLock;
+
 	else
 		temp_Tempo = player.externalTempo;
 
