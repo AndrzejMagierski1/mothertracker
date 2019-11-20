@@ -604,7 +604,7 @@ void cInstrumentEditor::showFilterType()
 		filterModeListPos = 0;
 	}
 
-//	filterModeList.start = filterModeListPos;
+	filterModeList.start = filterModeListPos;
 //	filterModeList.length = filterModeCount;
 //	filterModeList.linesCount = 5;
 //	filterModeList.data = (char**)filterModeNames;
@@ -612,7 +612,7 @@ void cInstrumentEditor::showFilterType()
 	display.setControlText(label[4], filterModeFunctLabels[filterModeListPos]);
 	display.refreshControl(label[4]);
 
-//	display.setControlData(filterModeListControl,  &filterModeList);
+	display.setControlData(filterModeListControl,  &filterModeList);
 	//display.setControlValue(IE->filterModeListControl, IE->filterModeListPos);
 	display.setControlShow(filterModeListControl);
 	display.refreshControl(filterModeListControl);
