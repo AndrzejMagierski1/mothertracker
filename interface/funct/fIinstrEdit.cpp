@@ -72,7 +72,8 @@ void changeFilterResonance(int16_t value);
 void changeParamsReverbSend(int16_t value);
 
 
-void cInstrumentEditor::addNode(editFunct_t funct , uint8_t nodeNum, uint8_t reverseInput = 0)
+
+void cInstrumentEditor::addNode(editFunct_t funct , uint8_t nodeNum)
 {
 	if(selectNodes[nodeNum].isActive == 0)
 	{
@@ -620,11 +621,17 @@ void changeEnvState(int16_t value)
 
 void changeEnvAttack(int16_t value)
 {
-	value = value * 100;
+	uint16_t localCurrentValue = IE->editorInstrument->envelope[IE->selectedEnvelope].attack > ENVELOPE_MICRO_RANGE ?
+			map(IE->editorInstrument->envelope[IE->selectedEnvelope].attack,ENVELOPE_MICRO_RANGE,ATTACK_MAX,ENVELOPE_MICRO_VAL,ENVELOPE_MICRO_VAL + ((ATTACK_MAX - ENVELOPE_MICRO_RANGE)/100)):
+			map(IE->editorInstrument->envelope[IE->selectedEnvelope].attack,0,ENVELOPE_MICRO_RANGE,0,ENVELOPE_MICRO_VAL);
 
-	if(IE->editorInstrument->envelope[IE->selectedEnvelope].attack + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].attack = 0;
-	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].attack + value > ATTACK_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].attack = ATTACK_MAX;
-	else IE->editorInstrument->envelope[IE->selectedEnvelope].attack += value;
+	if(localCurrentValue + value > (ENVELOPE_MICRO_VAL + ((ATTACK_MAX - ENVELOPE_MICRO_RANGE )/100))) localCurrentValue = ENVELOPE_MICRO_VAL + ( (ATTACK_MAX - ENVELOPE_MICRO_RANGE)/100);
+	else if(localCurrentValue + value < 0) localCurrentValue = 0;
+	else localCurrentValue += value;
+
+	IE->editorInstrument->envelope[IE->selectedEnvelope].attack = localCurrentValue > ENVELOPE_MICRO_VAL ?
+			map(localCurrentValue,ENVELOPE_MICRO_VAL,ENVELOPE_MICRO_VAL + ( (ATTACK_MAX - ENVELOPE_MICRO_RANGE)/100),ENVELOPE_MICRO_RANGE,ATTACK_MAX):
+			map(localCurrentValue,0,ENVELOPE_MICRO_VAL,0,ENVELOPE_MICRO_RANGE);
 
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 
@@ -633,11 +640,17 @@ void changeEnvAttack(int16_t value)
 
 void changeEnvDecay(int16_t value)
 {
-	value = value * 100;
+	uint16_t localCurrentValue = IE->editorInstrument->envelope[IE->selectedEnvelope].decay > ENVELOPE_MICRO_RANGE ?
+			map(IE->editorInstrument->envelope[IE->selectedEnvelope].decay,ENVELOPE_MICRO_RANGE,DECAY_MAX,ENVELOPE_MICRO_VAL,ENVELOPE_MICRO_VAL + ((DECAY_MAX - ENVELOPE_MICRO_RANGE)/100)):
+			map(IE->editorInstrument->envelope[IE->selectedEnvelope].decay,0,ENVELOPE_MICRO_RANGE,0,ENVELOPE_MICRO_VAL);
 
-	if(IE->editorInstrument->envelope[IE->selectedEnvelope].decay + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].decay = 0;
-	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].decay + value > DECAY_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].decay = DECAY_MAX;
-	else IE->editorInstrument->envelope[IE->selectedEnvelope].decay += value;
+	if(localCurrentValue + value > (ENVELOPE_MICRO_VAL + ((DECAY_MAX - ENVELOPE_MICRO_RANGE )/100))) localCurrentValue = ENVELOPE_MICRO_VAL + ( (DECAY_MAX - ENVELOPE_MICRO_RANGE)/100);
+	else if(localCurrentValue + value < 0) localCurrentValue = 0;
+	else localCurrentValue += value;
+
+	IE->editorInstrument->envelope[IE->selectedEnvelope].decay = localCurrentValue > ENVELOPE_MICRO_VAL ?
+			map(localCurrentValue,ENVELOPE_MICRO_VAL ,ENVELOPE_MICRO_VAL + ( (DECAY_MAX - ENVELOPE_MICRO_RANGE)/100),ENVELOPE_MICRO_RANGE,DECAY_MAX):
+			map(localCurrentValue,0,ENVELOPE_MICRO_VAL,0,ENVELOPE_MICRO_RANGE);
 
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 
@@ -659,11 +672,17 @@ void changeEnvSustain(int16_t value)
 
 void changeEnvRelease(int16_t value)
 {
-	value = value * 100;
+	uint16_t localCurrentValue = IE->editorInstrument->envelope[IE->selectedEnvelope].release > ENVELOPE_MICRO_RANGE ?
+			map(IE->editorInstrument->envelope[IE->selectedEnvelope].release,ENVELOPE_MICRO_RANGE,RELEASE_MAX,ENVELOPE_MICRO_VAL,ENVELOPE_MICRO_VAL + ((RELEASE_MAX - ENVELOPE_MICRO_RANGE)/100)):
+			map(IE->editorInstrument->envelope[IE->selectedEnvelope].release,0,ENVELOPE_MICRO_RANGE,0,ENVELOPE_MICRO_VAL);
 
-	if(IE->editorInstrument->envelope[IE->selectedEnvelope].release + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].release = 0;
-	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].release + value > RELEASE_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].release = RELEASE_MAX;
-	else IE->editorInstrument->envelope[IE->selectedEnvelope].release += value;
+	if(localCurrentValue + value > (ENVELOPE_MICRO_VAL + ((RELEASE_MAX - ENVELOPE_MICRO_RANGE )/100))) localCurrentValue = ENVELOPE_MICRO_VAL + ( (RELEASE_MAX - ENVELOPE_MICRO_RANGE)/100);
+	else if(localCurrentValue + value < 0) localCurrentValue = 0;
+	else localCurrentValue += value;
+
+	IE->editorInstrument->envelope[IE->selectedEnvelope].release = localCurrentValue > ENVELOPE_MICRO_VAL ?
+			map(localCurrentValue,ENVELOPE_MICRO_VAL, ENVELOPE_MICRO_VAL + ( (RELEASE_MAX - ENVELOPE_MICRO_RANGE)/100),ENVELOPE_MICRO_RANGE,RELEASE_MAX):
+			map(localCurrentValue,0,ENVELOPE_MICRO_VAL,0,ENVELOPE_MICRO_RANGE);
 
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 

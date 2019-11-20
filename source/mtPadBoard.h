@@ -16,10 +16,12 @@ public:
 	void startInstrument(uint8_t pad, uint8_t index, int8_t velocity);
 	void startInstrument(uint8_t pad,int16_t * addres, uint32_t length);
 	void stopInstrument(uint8_t pad);
+	void cutInstrument(uint8_t pad);
 	int8_t getVoiceTakenByPad(uint8_t pad);
 	void clearVoice(uint8_t voice);
 
 	void releaseAllInstrument();
+	void cutAllInstrument();
 
 
 	uint8_t getPadsWithNote(int8_t note, uint8_t* pads);

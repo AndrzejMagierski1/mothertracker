@@ -734,36 +734,50 @@ void playerEngine::noteOff(int8_t option)
 	switch (option)
 	{
 	case Sequencer::STEP_NOTE_FADE:
-		noteOff();
+		__disable_irq();
+		AudioNoInterrupts();
+		envelopeAmpPtr->release(300);
+		envelopeAmpPtr->noteOff();
+		envelopeFilterPtr->stop();
+		envelopeWtPos->stop();
+		AudioInterrupts();
+		__enable_irq();
 		break;
 	case Sequencer::STEP_NOTE_CUT:
-		noteOff();
+		__disable_irq();
+		AudioNoInterrupts();
+		envelopeAmpPtr->noteOff();
+		envelopeAmpPtr->setIdle();
+		envelopeFilterPtr->stop();
+		envelopeFilterPtr->kill();
+		envelopeWtPos->stop();
+		envelopeWtPos->kill();
+		playMemPtr->stop();
+
+		AudioInterrupts();
+		__enable_irq();
 		break;
 	default:
-		noteOff();
-		break;
-	}
-}
-void playerEngine :: noteOff()
-{
-	__disable_irq();
-	AudioNoInterrupts();
-	envelopeAmpPtr->noteOff();
-	envelopeFilterPtr->stop();
-	envelopeWtPos->stop();
-	if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
-	{
-		playMemPtr->stop();
-	}
-	else
-	{
-		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f)
+		__disable_irq();
+		AudioNoInterrupts();
+		envelopeAmpPtr->noteOff();
+		envelopeFilterPtr->stop();
+		envelopeWtPos->stop();
+		if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
 		{
 			playMemPtr->stop();
 		}
+		else
+		{
+			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f)
+			{
+				playMemPtr->stop();
+			}
+		}
+		AudioInterrupts();
+		__enable_irq();
+		break;
 	}
-	AudioInterrupts();
-	__enable_irq();
 }
 
 void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)

@@ -394,7 +394,11 @@ void cInstrumentEditor::showEnvAttack()
 	display.setControlText(label[2], envAttack);
 	display.refreshControl(label[2]);
 
-	display.setControlValue(barControl[2], (editorInstrument->envelope[selectedEnvelope].attack*100)/ATTACK_MAX);
+	display.setControlValue(
+							barControl[2], (editorInstrument->envelope[selectedEnvelope].attack > ENVELOPE_MICRO_RANGE) ?
+							map(editorInstrument->envelope[selectedEnvelope].attack,ENVELOPE_MICRO_RANGE,ATTACK_MAX,50,100):
+							map(editorInstrument->envelope[selectedEnvelope].attack,0,ENVELOPE_MICRO_RANGE,0,50)
+						   );
 	display.refreshControl(barControl[2]);
 
 }
@@ -411,7 +415,11 @@ void cInstrumentEditor::showEnvDecay()
 	display.setControlText(label[3], envDecay);
 	display.refreshControl(label[3]);
 
-	display.setControlValue(barControl[3], (editorInstrument->envelope[selectedEnvelope].decay*100)/DECAY_MAX);
+	display.setControlValue(
+							barControl[3], (editorInstrument->envelope[selectedEnvelope].decay > ENVELOPE_MICRO_RANGE) ?
+							map(editorInstrument->envelope[selectedEnvelope].decay,ENVELOPE_MICRO_RANGE,DECAY_MAX,50,100):
+							map(editorInstrument->envelope[selectedEnvelope].decay,0,ENVELOPE_MICRO_RANGE,0,50)
+						   );
 	display.refreshControl(barControl[3]);
 }
 
@@ -437,7 +445,11 @@ void cInstrumentEditor::showEnvRelease()
 	display.setControlText(label[5], envRelease);
 	display.refreshControl(label[5]);
 
-	display.setControlValue(barControl[5], (editorInstrument->envelope[selectedEnvelope].release*100)/RELEASE_MAX);
+	display.setControlValue(
+							barControl[5], (editorInstrument->envelope[selectedEnvelope].release > ENVELOPE_MICRO_RANGE) ?
+							map(editorInstrument->envelope[selectedEnvelope].release,ENVELOPE_MICRO_RANGE,RELEASE_MAX,50,100):
+							map(editorInstrument->envelope[selectedEnvelope].release,0,ENVELOPE_MICRO_RANGE,0,50)
+						   );
 	display.refreshControl(barControl[5]);
 }
 
