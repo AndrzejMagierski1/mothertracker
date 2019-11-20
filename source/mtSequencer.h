@@ -70,7 +70,7 @@ public:
 		enum enFxType
 		{
 			// powiązane z listą tekstów w
-			// #include <interfaceDefs.h>
+//			 #include <interfaceDefs.h>
 			FX_TYPE_NONE,
 			FX_TYPE_OFF,
 			FX_TYPE_NUDGE,
@@ -94,7 +94,7 @@ public:
 			FX_TYPE_SEND_CC_10,
 			FX_TYPE_ROLL_VOL_UP,
 			FX_TYPE_ROLL_VOL_DOWN,
-			FX_TYPE_ROLL_VOL_RANDOM,
+			FX_TYPE_TEMPO,
 			FX_TYPE_RANDOM_VALUE,
 
 			FX_TYPE_NOT_SEQ_FX,
@@ -324,11 +324,13 @@ public:
 		float swing_offset = 50.0;
 
 		uint16_t uStep = 0;
+		uint16_t globalPos = 0;
 		uint8_t actualBank = 0;
 
 		struct strPerformance
 		{
 			int8_t patternLength = -1;
+			float tempo = 0.0;
 		} performance;
 
 		struct strBlink
@@ -632,6 +634,7 @@ public:
 	int16_t getFxMax(uint8_t fxID);
 	int16_t getFxMin(uint8_t fxID);
 	int16_t getFxDefault(uint8_t fxID);
+	int16_t getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step);
 
 	uint8_t getActualPos()
 	{
@@ -641,6 +644,9 @@ public:
 	{
 		return getActualPattern()->track[0].length + 1;
 	}
+
+	void alignToGlobalPos();
+	void alignToGlobalPos(uint8_t);
 };
 
 extern Sequencer sequencer;

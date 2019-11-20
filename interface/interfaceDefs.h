@@ -304,7 +304,7 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_10,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_UP,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_DOWN,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_RANDOM,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_TEMPO,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NOT_SEQ_FX,//////////
 			Sequencer::strFxConsts::enFxType::FX_TYPE_GLIDE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SAMPLE_START,
@@ -357,7 +357,7 @@ struct strInterfaceGlobals
 			"T - Send CC[10]",
 			"p - ",
 			"q - ",
-			"s - ",
+			"s - tempo",
 			"U - xyz",
 			"V - glide",
 			"W - sample start",

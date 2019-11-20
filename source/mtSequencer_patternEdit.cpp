@@ -450,9 +450,9 @@ void Sequencer::changeSelectionFxType(uint8_t index, int16_t value)
 												0,
 												200);
 			step->fx[index].value = constrain(
-					step->fx[index].value,
-					getFxMin(step->fx[index].type),
-					getFxMax(step->fx[index].type));
+												step->fx[index].value,
+												getFxMin(step->fx[index].type),
+												getFxMax(step->fx[index].type));
 		}
 	}
 }
@@ -1035,6 +1035,8 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 	{
 	case fx.FX_TYPE_NUDGE:
 		return 100;
+	case fx.FX_TYPE_TEMPO:
+		return 200;
 	case fx.FX_TYPE_OFF:
 		return 0;
 	case fx.FX_TYPE_VELOCITY:
@@ -1071,6 +1073,8 @@ int16_t Sequencer::getFxMin(uint8_t fxID)
 	{
 	case fx.FX_TYPE_NUDGE:
 		return 0;
+	case fx.FX_TYPE_TEMPO:
+		return 5;
 
 	case fx.FX_TYPE_ROLL:
 		case fx.FX_TYPE_ROLL_NOTE_UP:
@@ -1091,6 +1095,8 @@ int16_t Sequencer::getFxDefault(uint8_t fxID)
 	{
 	case fx.FX_TYPE_OFF:
 		return 0;
+	case fx.FX_TYPE_TEMPO:
+		return mtProject.values.globalTempo;
 
 	case fx.FX_TYPE_ROLL:
 		case fx.FX_TYPE_ROLL_NOTE_UP:
@@ -1101,6 +1107,20 @@ int16_t Sequencer::getFxDefault(uint8_t fxID)
 
 	default:
 		return 0;
+	}
+}
+int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
+{
+	strPattern::strTrack::strStep *actualStep = &getActualPattern()->track[track].step[step];
+
+	switch (actualStep->fx[fxID].type)
+	{
+	case fx.FX_TYPE_TEMPO:
+		return actualStep->fx[fxID].value * 2;
+		break;
+
+	default:
+		return actualStep->fx[fxID].value;
 	}
 }
 

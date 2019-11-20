@@ -382,9 +382,11 @@ void Sequencer::play_microStep(uint8_t row)
 			case fx.FX_TYPE_SEND_CC_10:
 				usbMIDI.sendControlChange(10, _fx.value, 1);
 				break;
+			case fx.FX_TYPE_TEMPO:
+				player.performance.tempo = float(_fx.value * 2);
+				break;
 
 			case fx.FX_TYPE_RANDOM_VELOCITY:
-				//		todo:
 				stepToSend.velocity = constrain(random(0,
 														_fx.value + 1),
 												0,
@@ -789,6 +791,8 @@ void Sequencer::stop(void)
 	reset_actual_pos();
 
 	allNoteOffs();
+
+	player.performance.tempo = 0.0;
 }
 
 void Sequencer::rec(void)
@@ -820,13 +824,13 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	{
 		patternLength = player.performance.patternLength;
 	}
-
-	if (playMode == PLAYMODE_FORWARD)
+	// liczymy globalny licznik stepa
+	if (row == 0)
 	{
-		player.track[x].actual_pos++;
-		if ((player.track[x].actual_pos > patternLength))
+		player.globalPos++;
+		if ((player.globalPos > patternLength))
 		{
-			reset_actual_pos(x);
+			player.globalPos = 0;
 			bool isNextPatternAvailable = 0; // jeśli 0 to song sie skonczyl
 
 			if (row == 0 && player.songMode)
@@ -848,6 +852,37 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 					player.onSongEnd();
 				}
 			}
+
+		}
+	}
+
+	if (playMode == PLAYMODE_FORWARD)
+	{
+		player.track[x].actual_pos++;
+		if ((player.track[x].actual_pos > patternLength))
+		{
+			reset_actual_pos(x);
+//			bool isNextPatternAvailable = 0; // jeśli 0 to song sie skonczyl
+
+//			if (row == 0 && player.songMode)
+//			{
+//				switchRamPatternsNow();
+//				isNextPatternAvailable =
+//						fileManager.switchNextPatternInSong();
+//			}
+//			player.onSongEnd = player.onPatternEnd;
+//
+//			if (x == MINTRACK)
+//			{
+//				if ((player.onPatternEnd != NULL) && !isNextPatternAvailable)
+//				player.onPatternEnd();
+//
+//				else if ((player.onSongEnd != NULL) && isNextPatternAvailable)
+//				{
+//					player.onPatternEnd();
+//					player.onSongEnd();
+//				}
+//			}
 
 		}
 	}
@@ -894,7 +929,17 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	}
 
 }
-
+void Sequencer::alignToGlobalPos()
+{
+	for (uint8_t row = MINTRACK; row <= MAXTRACK; row++)
+	{
+		alignToGlobalPos(row);
+	}
+}
+void Sequencer::alignToGlobalPos(uint8_t row)
+{
+	player.track[row].actual_pos = player.globalPos;
+}
 void Sequencer::reset_actual_pos(void)
 {
 	for (uint8_t row = MINTRACK; row <= MAXTRACK; row++)
@@ -902,6 +947,8 @@ void Sequencer::reset_actual_pos(void)
 		player.track[row].pingPongToogle = 0;
 		reset_actual_pos(row);
 	}
+
+	player.globalPos = 0;
 }
 
 void Sequencer::reset_actual_pos(uint8_t row)
@@ -981,11 +1028,16 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 	float timer_var = 0;
 	float temp_Tempo;
 
-	if (config.mode == MODE_MIDICLOCK.INTERNAL_)
+	if (player.performance.tempo > 0.0 && player.performance.tempo < MAX_TEMPO)
+	temp_Tempo = player.performance.tempo;
+
+	else if (config.mode == MODE_MIDICLOCK.INTERNAL_)
 	//	temp_Tempo = seq[player.ramBank].tempo;
 	temp_Tempo = mtProject.values.globalTempo;
+
 	else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
 	temp_Tempo = config.tempoLock;
+
 	else
 		temp_Tempo = player.externalTempo;
 
@@ -1112,9 +1164,20 @@ void Sequencer::sendNoteOn(uint8_t track,
 
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
-		usbMIDI.sendNoteOn(step->note,
-							step->velocity,
-							step->instrument - INSTRUMENTS_MAX);
+		if (step->velocity == -1)
+		{
+//			todo:
+			uint8_t velo = 100;//mtProject.values.midiInstrument[step->instrument - INSTRUMENTS_MAX].velocity;
+			usbMIDI.sendNoteOn(step->note,
+								velo,
+								step->instrument - INSTRUMENTS_MAX);
+		}
+		else
+		{
+			usbMIDI.sendNoteOn(step->note,
+								step->velocity,
+								step->instrument - INSTRUMENTS_MAX);
+		}
 	}
 	else
 	{
@@ -1250,7 +1313,7 @@ void Sequencer::handleNoteOld(byte channel, byte note, byte velocity)
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 
-	// NOTE ON
+// NOTE ON
 	if (velocity != 0)
 	{
 		if (isRec())
@@ -1323,7 +1386,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 
-	// NOTE ON
+// NOTE ON
 	if (velocity != 0)
 	{
 		if (isEditMode())
