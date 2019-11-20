@@ -73,7 +73,7 @@ void changeParamsReverbSend(int16_t value);
 
 
 
-void cInstrumentEditor::addNode(editFunct_t funct , uint8_t nodeNum)
+void cInstrumentEditor::addNode(editFunct_t funct , uint8_t nodeNum, uint8_t reverseInput = 0)
 {
 	if(selectNodes[nodeNum].isActive == 0)
 	{

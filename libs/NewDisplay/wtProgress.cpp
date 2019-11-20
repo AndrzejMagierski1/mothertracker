@@ -101,7 +101,7 @@ uint8_t cWtProgress::update()
 	float lengthOfWindow = (width / (float)wt_data->positionMax);
 	uint32_t bar_start = (wt_data->position * lengthOfWindow + 0.5f);/* 0.5f for rounding*/
 
-	if(lengthOfWindow < 0)
+	if(lengthOfWindow < 1)
 	{
 		bar_length = 1;
 	}

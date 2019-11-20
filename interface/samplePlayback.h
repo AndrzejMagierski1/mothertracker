@@ -174,7 +174,7 @@ public:
 	uint8_t wavetableWindowsCounter = 11;
 	uint8_t refreshWavetablePosition = 1;
 
-	void processWavetableCursor();
+	void processWavetableCursor(uint32_t position);
 
 };
 
