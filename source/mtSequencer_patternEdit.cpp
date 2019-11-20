@@ -577,6 +577,7 @@ void Sequencer::setSelectionInstrument(int16_t value)
 				if (step->note >= 0)
 				{
 					step->instrument = value;
+					mtProject.values.lastUsedInstrument = step->instrument;
 
 				}
 			}
