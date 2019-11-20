@@ -5,7 +5,7 @@
 #include "mtFileManager.h"
 #include "mtAudioEngine.h"
 #include "mtLED.h"
-
+#include "mtExporterWAV.h"
 #include "mtPadBoard.h"
 
 #include "sampleRecorder.h"
@@ -294,6 +294,35 @@ void cProjectEditor::update()
 		}
 	}
 
+	if(exportInProgress)
+	{
+		currentExportState = exporter.getState();
+		uint8_t localProgress = exporter.getProgress();
+		if(localProgress >  exportProgress )
+		{
+			exportProgress = localProgress;
+		}
+		showExportingHorizontalBar();
+		if((currentExportState == 0) && (lastExportState != currentExportState))
+		{
+			isBusyFlag = 0;
+			exportInProgress = 0;
+			showExportWindow();
+		}
+
+		lastExportState = currentExportState;
+	}
+
+	if(newProjectPopupDelay > 200)
+	{
+		if(newProjectPopupFlag)
+		{
+			newProjectPopupFlag = 0;
+			fileManager.openProjectStart((char*)"New",projectTypeExample);
+			createNewProjectFlag = 1;
+		}
+	}
+
 	if(savePopupFlag)
 	{
 		if(savePopupDelay > 200)
@@ -447,7 +476,7 @@ uint8_t cProjectEditor::loadProjectValues()
 	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
 
 
-
+	//----------------------------------------------------------------------------------------------------
 	mtPadBoard.setPadNotes(mtProject.values.padBoardScale,
 			mtProject.values.padBoardNoteOffset,
 			mtProject.values.padBoardRootNote = 36);
@@ -455,6 +484,7 @@ uint8_t cProjectEditor::loadProjectValues()
 //	mtPadBoard.configureInstrumentPlayer(mtProject.values.padBoardMaxVoices);
 	mtPadBoard.configureInstrumentPlayer(8);
 
+	//----------------------------------------------------------------------------------------------------
 	sampleRecorder.recorderConfig.gainLineIn = mtProject.values.gainLineIn;
 	sampleRecorder.recorderConfig.gainMicHigh = mtProject.values.gainMicHigh;
 	sampleRecorder.recorderConfig.gainMicLow = mtProject.values.gainMicLow;
@@ -463,7 +493,8 @@ uint8_t cProjectEditor::loadProjectValues()
 	sampleRecorder.recorderConfig.radioFreq = mtProject.values.radioFreq;
 	sampleRecorder.recorderConfig.source = mtProject.values.source;
 
-
+	//----------------------------------------------------------------------------------------------------
+	// performance mode
 	for(uint8_t i = 0; i<8; i++)
 	{
 		// paterny na trakach w performance mode
@@ -482,29 +513,30 @@ uint8_t cProjectEditor::loadProjectValues()
 		{
 			mtProject.values.perfFxPlaces[i] = (i+1 < performanceFxesCount) ? i+1 : 0;
 		}
+
+		if(mtProject.values.perfSelectedValues[i] > 3) mtProject.values.perfSelectedValues[i] = 0;
 	}
 
+	for(uint8_t place = 0; place<12; place++)
+	{
+		//if(mtProject.values.perfFxValues[place][0] > 255 || mtProject.values.perfFxValues[place][0] < -255)
+		if(mtProject.values.perfFxValues[place][0] != 0)
+			mtProject.values.perfFxValues[place][0] = 0;
+		if(mtProject.values.perfFxValues[place][1] > 255 || mtProject.values.perfFxValues[place][1] < -255)
+			mtProject.values.perfFxValues[place][1] = 0;
+		if(mtProject.values.perfFxValues[place][2] > 255 || mtProject.values.perfFxValues[place][2] < -255)
+			mtProject.values.perfFxValues[place][2] = 0;
+		if(mtProject.values.perfFxValues[place][3] > 255 || mtProject.values.perfFxValues[place][3] < -255)
+			mtProject.values.perfFxValues[place][3] = 0;
+	}
 
+	//----------------------------------------------------------------------------------------------------
+	// song pattern
 	if(mtProject.values.globalTempo > 1000) mtProject.values.globalTempo = DEFAULT_TEMPO;
-
 	if(mtProject.values.patternLength > 255) mtProject.values.patternLength = 32;
 
-	memset(performanceMode.fxValues, 0, performanceFxesCount*2*4);
-
-	for(uint8_t palce = 0; palce<12; palce++)
-	{
-		performanceMode.fxValues[mtProject.values.perfFxPlaces[palce]][0] = mtProject.values.perfFxValues[palce][0];
-		performanceMode.fxValues[mtProject.values.perfFxPlaces[palce]][1] = mtProject.values.perfFxValues[palce][1];
-		performanceMode.fxValues[mtProject.values.perfFxPlaces[palce]][2] = mtProject.values.perfFxValues[palce][2];
-		performanceMode.fxValues[mtProject.values.perfFxPlaces[palce]][3] = mtProject.values.perfFxValues[palce][3];
-	}
 
 
-
-
-
-	//performanceMode.
-	//uint8_t fxPlaces[12]
 
 	return 1;
 
@@ -916,39 +948,116 @@ static uint8_t functDeleteConfirm()
 }
 //===============================================================================================================
 //export
+char currentExportPath[PATCH_SIZE];
+
 static uint8_t functExportSong()
 {
 	if(PE->isBusyFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 
+	PE->isBusyFlag = 1;
+	PE->exportInProgress = 1;
+	PE->exportProgress = 0;
+	PE->currentExportType = (int)exportType::song;
+
+	uint16_t fileCounter = 0;
+
+	sprintf(currentExportPath,"Export/%s/song.wav",fileManager.currentProjectName);
+	while(SD.exists(currentExportPath))
+	{
+		sprintf(currentExportPath,"Export/%s/song%d.wav",fileManager.currentProjectName,++fileCounter);
+		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+	}
+	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/song",fileManager.currentProjectName);
+	else sprintf(currentExportPath,"Export/%s/song%d",fileManager.currentProjectName,fileCounter);
+	exporter.start(currentExportPath, mtExporter::exportType::song); //wszystko wykonuje sie w zakresie waznosci tej tablicy
 	return 1;
 }
 static uint8_t functExportSongStems()
 {
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 	if(PE->isBusyFlag) return 1;
 
+	PE->isBusyFlag = 1;
+	PE->exportInProgress = 1;
+	PE->exportProgress = 0;
+	PE->currentExportType = (int)exportType::songStems;
+
+	uint16_t fileCounter = 0;
+
+	sprintf(currentExportPath,"Export/%s/SongStems",fileManager.currentProjectName);
+	while(SD.exists(currentExportPath))
+	{
+		sprintf(currentExportPath,"Export/%s/SongStems%d",fileManager.currentProjectName,++fileCounter);
+		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+	}
+	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/SongStems",fileManager.currentProjectName);
+	else sprintf(currentExportPath,"%s/SongStems%d",fileManager.currentProjectName,fileCounter);
+
+
+	exporter.start(currentExportPath, mtExporter::exportType::songStems);
 	return 1;
 }
 static uint8_t functExportPattern()
 {
 	if(PE->isBusyFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 
+	PE->isBusyFlag = 1;
+	PE->exportInProgress = 1;
+	PE->exportProgress = 0;
+	PE->currentExportType = (int)exportType::pattern;
+
+	uint16_t fileCounter = 0;
+	uint16_t namePattern = mtProject.values.actualPattern + 1;
+
+	sprintf(currentExportPath,"Export/%s/pattern%d.wav",fileManager.currentProjectName,namePattern);
+	while(SD.exists(currentExportPath))
+	{
+		sprintf(currentExportPath,"Export/%s/pattern%d_%d.wav",fileManager.currentProjectName,namePattern,++fileCounter);
+		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+	}
+	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/pattern%d",fileManager.currentProjectName,namePattern);
+	else sprintf(currentExportPath,"Export/%s/pattern%d_%d",fileManager.currentProjectName,namePattern,fileCounter);
+
+	exporter.start(currentExportPath, mtExporter::exportType::pattern);
 	return 1;
 }
 static uint8_t functExportPatternStems()
 {
 	if(PE->isBusyFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 
+	PE->exportInProgress = 1;
+	PE->exportProgress = 0;
+	PE->currentExportType = (int)exportType::patternStems;
+
+	uint16_t fileCounter = 0;
+	uint16_t namePattern = mtProject.values.actualPattern + 1;
+
+	sprintf(currentExportPath,"Export/%s/Pattern%d_Stems",fileManager.currentProjectName,namePattern);
+	while(SD.exists(currentExportPath))
+	{
+		sprintf(currentExportPath,"Export/%s/Pattern%d_Stems%d",fileManager.currentProjectName,namePattern,++fileCounter);
+		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+	}
+	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/Pattern%d_Stems",fileManager.currentProjectName,namePattern);
+	else sprintf(currentExportPath,"%s/Pattern%d_Stems%d",fileManager.currentProjectName,namePattern,fileCounter);
+
+	exporter.start(currentExportPath, mtExporter::exportType::patternStems);
 	return 1;
 }
 static uint8_t functExportToMOD()
 {
 	if(PE->isBusyFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 
 	return 1;
 }
 static uint8_t functExportGoBack()
 {
 	if(PE->isBusyFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 	return 1;
@@ -1027,6 +1136,7 @@ static uint8_t functSwitchModule(uint8_t button)
 {
 
 	if(PE->isBusyFlag) return 1;
+	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 	PE->eventFunct(eventSwitchModule,PE,&button,0);
 
 	return 1;
@@ -1297,6 +1407,7 @@ static uint8_t functConfirmKey()
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
+	if(PE->isBusyFlag) return 1;
 	if((state == 1) || (state == 2))
 	{
 		if(PE->keyboardActiveFlag)
@@ -1415,6 +1526,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 static  uint8_t functEncoder(int16_t value)
 {
+	if(PE->isBusyFlag) return 1;
 	if(PE->projectListActiveFlag)
 	{
 		if(value > 0)

@@ -154,7 +154,7 @@ public:
 	void  setSongPos(uint8_t pos);
 	uint8_t resetToFirstSongPattern();
 	void addPatternToProject (int8_t index);
-	void switchNextPatternInSong();
+	bool switchNextPatternInSong();
 	void setPatternChangeFlag(uint8_t num);
 	void setInstrumentChangeFlag(uint8_t num);
 //	void refreshPatternView();

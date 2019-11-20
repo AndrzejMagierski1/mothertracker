@@ -61,7 +61,7 @@ public:
 			MIN_TEMPO = 10.0,
 			MAX_SWING = 75.0,
 			MIN_SWING = 25.0,
-//			DEFAULT_TEMPO = 130.0,
+			//			DEFAULT_TEMPO = 130.0,
 
 			DEFAULT_SWING = 50.0;
 
@@ -166,7 +166,7 @@ public:
 
 		struct strTrack
 		{
-			uint8_t length = DEFAULT_PATTERN_LENGTH-1; // liczy od 0
+			uint8_t length = DEFAULT_PATTERN_LENGTH - 1; // liczy od 0
 
 			struct strStep
 			{
@@ -253,10 +253,6 @@ public:
 
 	void switchStep(uint8_t row);
 
-	inline uint8_t isPlay(void);
-	inline uint8_t isREC(void);
-	inline uint8_t isStop(void);
-
 	uint8_t getLongRollVelo(uint8_t rollCurve, float progress);
 	uint8_t getTempoDiv(int8_t val);
 
@@ -289,8 +285,6 @@ public:
 
 	uint16_t nanoStep = 0;
 
-	const uint8_t arrVal2roll[10] = { 0, 1, 1, 2, 3, 4, 6, 8, 12, 16 };
-
 	static struct strMidiModes
 	{
 		static const uint8_t MIN_VALUE = 0;
@@ -303,47 +297,39 @@ public:
 
 	} MODE_MIDICLOCK;
 
-	struct strRollCurve
+	enum strRollCurve
 	{
-		const uint8_t MIN = 1;
-		const uint8_t FLAT = 1;
-		const uint8_t INCREMENTAL = 2;
-		const uint8_t DECREMENTAL = 3;
-		const uint8_t INC_DEC = 4;
-		const uint8_t DEC_INC = 5;
-		const uint8_t RANDOM = 6;
-		const uint8_t MAX = 6;
-	} ROLL_CURVE;
+		ROLL_CURVE_MIN = 1,
+		ROLL_CURVE_FLAT = 1,
+		ROLL_CURVE_INCREMENTAL = 2,
+		ROLL_CURVE_DECREMENTAL = 3,
+		ROLL_CURVE_INC_DEC = 4,
+		ROLL_CURVE_DEC_INC = 5,
+		ROLL_CURVE_RANDOM = 6,
+		ROLL_CURVE_MAX = 6,
+	};
 
 	struct strPlayer
 	{
 		bool songMode = 0;
 		bool performanceMode = 0;
 
-		struct strPerformance
-		{
-
-			int8_t patternLength = -1;
-
-		} performance;
-		//		bool printNotes = 0;
-//		bool changeBank = 0;
 		bool isPlay = 0;
 		bool isREC = 0;
 		bool isStop = 1;
-		//		bool loadBank = 0;
+
 		bool ramBank = 0;
 		bool swingToogle = 0;
 		float externalTempo = 120.0;
 		float swing_offset = 50.0;
-		uint16_t metronome_timer = 0;
-		uint16_t metronome_timer_max = 48 * 4;
-		uint16_t rec_intro_step = 0;
-		uint16_t rec_intro_timer = 0;
 
-		uint16_t rec_intro_timer_max = 48 * 4;
 		uint16_t uStep = 0;
 		uint8_t actualBank = 0;
+
+		struct strPerformance
+		{
+			int8_t patternLength = -1;
+		} performance;
 
 		struct strBlink
 		{
@@ -363,7 +349,6 @@ public:
 
 		struct strPlayerTrack
 		{
-//			strPattern::strTrack::strStep
 			struct strSendStep
 			{
 				int8_t note = STEP_NOTE_EMPTY;
@@ -383,6 +368,7 @@ public:
 
 			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
+			bool recOpen = 0;		// znacznik czy została wysłana nuta
 
 			uint16_t uStep = 0;		// aktualny microstep
 			int16_t actual_pos = 0;	// aktualna pozycja w stepach
@@ -390,7 +376,6 @@ public:
 			uint16_t stepLength = 0;	// z tym porównujemy timer
 			uint16_t noteTimer = 0;
 			uint16_t noteLength = 0;
-
 
 			boolean isOffset = 0;
 			uint16_t offsetValue = 0;
@@ -416,6 +401,7 @@ public:
 		} track[MAXTRACK + 1];
 
 		void (*onPatternEnd)(void) = NULL;
+		void (*onSongEnd)(void) = NULL;
 
 	} player;
 
@@ -452,8 +438,12 @@ public:
 // klasowe
 	void handle();
 	void init();
-//	void loadDefaultSequence(void);
+	//	void loadDefaultSequence(void);
 	void printNotes(bool val);
+
+	uint8_t isPlay(void);
+	uint8_t isRec(void);
+	uint8_t isStop(void);
 
 // sekwencerowe
 
@@ -619,6 +609,10 @@ public:
 	{
 		player.onPatternEnd = action;
 	}
+	void setOnSongEnd(void (*action)(void))
+	{
+		player.onSongEnd = action;
+	}
 
 	void setPerformancePatternLength(int8_t length);
 	void setPerformancePatternLengthFromFxVal(int8_t val);
@@ -634,9 +628,19 @@ public:
 
 	void loadNextPattern(uint8_t patternNumber);
 	void handleNote(byte channel, byte pitch, byte velocity);
+	void handleNoteOld(byte channel, byte pitch, byte velocity);
 	int16_t getFxMax(uint8_t fxID);
 	int16_t getFxMin(uint8_t fxID);
 	int16_t getFxDefault(uint8_t fxID);
+
+	uint8_t getActualPos()
+	{
+		return player.track[0].actual_pos;
+	}
+	uint8_t getPatternLength()
+	{
+		return getActualPattern()->track[0].length + 1;
+	}
 };
 
 extern Sequencer sequencer;

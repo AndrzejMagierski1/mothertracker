@@ -350,8 +350,8 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 
 #define PRODUCT_ID    0x0E9F //
-#define PRODUCT_NAME    {'M','o','t','h','e','r','T','r','a','c','k','e','r'}
-#define PRODUCT_NAME_LEN  13
+#define PRODUCT_NAME    {'T','r','a','c','k','e','r'}
+#define PRODUCT_NAME_LEN  7
 
 // #define PRODUCT_ID    0x815B // POLY product id
 // #define PRODUCT_NAME    {'S','E','Q'}
@@ -367,9 +367,9 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 #define MANUFACTURER_NAME_LEN 7
 
 #define EP0_SIZE    			64
-#define NUM_ENDPOINTS         	7
+#define NUM_ENDPOINTS         	10
 #define NUM_USB_BUFFERS 		30
-#define NUM_INTERFACE   		4
+#define NUM_INTERFACE   		5
 
 #define RAWHID_INTERFACE      	3 // RawHID
 #define RAWHID_TX_ENDPOINT    	1
@@ -380,6 +380,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 #define RAWHID_RX_INTERVAL    	1
 #define RAWHID_USAGE_PAGE 		0xFFAB  // recommended: 0xFF00 to 0xFFFF
 #define RAWHID_USAGE    		0x0200  // recommended: 0x0100 to 0xFFFF
+
 
 #define CDC_IAD_DESCRIPTOR  	1
 #define CDC_STATUS_INTERFACE  	0
@@ -398,6 +399,15 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 #define MIDI_RX_ENDPOINT      	6
 #define MIDI_RX_SIZE          	64
 
+#define MTP_INTERFACE         4 // MTP Disk
+#define MTP_TX_ENDPOINT       8
+#define MTP_TX_SIZE           64
+#define MTP_RX_ENDPOINT       9
+#define MTP_RX_SIZE           64
+#define MTP_EVENT_ENDPOINT    10
+#define MTP_EVENT_SIZE        16
+#define MTP_EVENT_INTERVAL    10
+
 #define ENDPOINT1_CONFIG  ENDPOINT_TRANSMIT_ONLY
 #define ENDPOINT2_CONFIG  ENDPOINT_RECEIVE_ONLY
 
@@ -408,6 +418,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 #define ENDPOINT6_CONFIG  ENDPOINT_RECEIVE_ONLY
 
 #define ENDPOINT7_CONFIG  ENDPOINT_TRANSMIT_ONLY
+
+
+ #define ENDPOINT8_CONFIG  ENDPOINT_TRANSMIT_ONLY
+ #define ENDPOINT9_CONFIG  ENDPOINT_RECEIVE_ONLY
+ #define ENDPOINT10_CONFIG  ENDPOINT_RECEIVE_ONLY
+
 
 #elif defined(USB_MIDI4)
   #define VENDOR_ID		0x16C0

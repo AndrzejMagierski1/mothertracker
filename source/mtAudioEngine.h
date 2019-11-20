@@ -32,10 +32,16 @@ public:
 	void setLimiterTreshold(uint16_t threshold);
 	void setBitDepth(uint16_t bitDepth);
 	void muteTrack(uint8_t channel, uint8_t state);
+	void soloTrack(uint8_t channel, uint8_t state);
+	void muteReverbSend(uint8_t channel, uint8_t state);
+	void soloReverbSend(uint8_t state);
 	void wavExportConnect();
 	void wavExportDisconnect();
+
+	friend class playerEngine;
 private:
 	AudioConnection* i2sConnect[2];
+	uint8_t forceSend = 0;
 };
 
 
@@ -49,6 +55,7 @@ public:
 
 	uint8_t noteOn(uint8_t instr_idx,int8_t note, int8_t velocity);
 	uint8_t noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx_id, uint8_t fx_val,uint8_t,uint8_t );
+	void noteOff(int8_t option);
 	void noteOff();
 	void clean();
 
@@ -253,8 +260,6 @@ private:
 	int8_t						currentNote;
 	int8_t						currentVelocity;
 	uint16_t 					statusBytes; // 8- reverbSend 7-resonance, 6-cutoff, 5-panning ,4-volume,3-tune,2-fineTune, 1-LP1 , 0-LP2
-	static uint8_t				onVoices;
-	static uint8_t				activeAmpEnvelopes;
 	uint8_t 					interfaceEndReleaseFlag = 0;
 	uint8_t 					interfacePlayingEndFlag = 0;
 	uint8_t 					currentPlayState = 0;
@@ -262,8 +267,8 @@ private:
 	int8_t						filterTypeSequencer = -1;
 	int8_t 						filterTypePerformanceMode = -1;
 
-	//TODO: *ziejas
 	uint8_t 					muteState = 0;
+	uint8_t						onlyReverbMuteState = 0;
 
 	void changeFilterType(uint8_t type);
 	void filterConnect();
@@ -302,6 +307,7 @@ extern AudioRecordQueue         queue;
 extern AudioMixer4              mixerRec;
 extern AudioAnalyzeRMS			rms;
 
-extern AudioRecordQueue		 exportL, exportR;
+extern AudioRecordQueue		 	exportL, exportR;
+extern AudioAnalyzeRMS			exportRmsL, exportRmsR;
 
 #endif /* SOURCE_MTAUDIOENGINE_H_ */

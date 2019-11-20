@@ -68,12 +68,12 @@ const char trackMasterLabels[trackMasterModeCount][5] =
 	"Off",
 };
 
-const char performanceStutterLabels[12][20] =
+const char performanceStutterLabels[9][20] =
 {
 	"Off",
-	"4",
-	"3",
-	"2",
+//	"4",
+//	"3",
+//	"2",
 	"1",
 	"1/2",
 	"1/3",
@@ -116,12 +116,12 @@ public:
 
 	void toggleTrackPerformanceState(uint8_t track);
 	void clearPerformanceValues(uint8_t track, uint8_t fx);
-	void refreshPerformanceValuesForTrack(uint8_t track, uint8_t fx);
+	void refreshPerformanceValuesForTrack(uint8_t track, uint8_t place);
 
 	uint8_t wasPatternOntrackChenged(uint8_t track);
 
 	void toggleEditState();
-
+	void setProjectSaveFlags();
 	//----------------------------------
 	void showDefaultScreen();
 
@@ -131,32 +131,21 @@ public:
 	void showEditFrame(uint8_t place);
 	void hideEditFrame();
 
+	void showPerformaceValue(uint8_t place);
+	void showTracksState();
+	void showTracksPatterns();
+	void showFxNames(uint8_t place);
 	//----------------------------------
-	void refreshFxNames(uint8_t place);
 
-	//
-	//void changePerformanceData(int16_t value);
-
-
-	uint8_t getFxFromPlace(uint8_t place);
-
-	void refreshActiveValueForFx(uint8_t fx);
-	void showPerformaceValue(uint8_t fx);
-
-	void refreshTracksState();
-	void refreshTracksPatterns();
-
-	void setPlaceNewFx(uint8_t newFx);
-	void savePlaceFxValue(uint8_t place, uint8_t slot, int16_t value);
-	void clearHidedFx(uint8_t fx);
+	void setPlaceNewFx(uint8_t place, uint8_t newFx);
 	uint8_t fxAlredyTaken(uint8_t fx);
+
 //----------------------------------
 
 
-	void showArrow(uint8_t place, uint8_t type);
-	void hideArrow(uint8_t place);
+//	void showArrow(uint8_t place, uint8_t type);
+//	void hideArrow(uint8_t place);
 
-	//strLabelData textLabelData[12];
 	strMultiLabelData multiLabelData[12];
 
 	strFrameData frameData;
@@ -183,30 +172,25 @@ public:
 	uint8_t performanceEditState = 0;
 	uint8_t performanceEditPlace = 0;
 
+
 	//--------performance values
 	// gui
-	//uint8_t fxPlaces[12] = {0,1,2,3,4,5,6,7,8,9,10,11};
 	char fxValuesText[12][4][7] = {0};
+	char trackPaternText[8][14]; // do labeli przyciskow pod ekranem
 
 	// funct
-	uint8_t tracksPerformanceState[8] = {0};
-	int8_t performancePadsState[12];
+	uint8_t tracksPerformanceState[8] = {0}; // afektowane tracki
+	int8_t performancePadsState[12]; //ktory slot wybrano: 0-zaden 1-4-slot
+	int16_t placesTempValues[12] = {0,0,0,0,0,0,0,0,0,0,0,0}; // tymczasowe zmieniane bez reca
 
-	int16_t fxValues[performanceFxesCount][4] = {0};
-	//uint8_t activeFxValues[performanceFxesCount] = {0};
-	int16_t fxTempValues[performanceFxesCount] = {0};
-
-	//uint8_t trackPatern[8] =  {1,1,1,1,1,1,1,1};
-	char trackPaternText[8][14];
-
-	uint8_t trackPatternChange[8] = {0};
+	uint8_t trackPatternChange[8] = {0}; // zarzazdanie pattern-trackami
 };
 
 extern cPerformanceMode performanceMode;
 
 
 //#define FX_VALUE(x) PM->fxValues[x][PM->activeFxValues[x]]
-#define FX_VALUE(x) PM->fxTempValues[x]
+#define FX_VALUE(x) PM->placesTempValues[x]
 
 
 #endif /* INTERFACE_INSTRUMENTEDITOR_H_ */

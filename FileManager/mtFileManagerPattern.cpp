@@ -81,12 +81,16 @@ void FileManager::handleLoadPattern()
 uint8_t FileManager::savePattern(uint8_t index)
 {
 	char patternToSave[PATCH_SIZE] { 0 };
+	uint8_t status = 0;
+	if(fileManager.patternIsChangedFlag[index] == 1)
+	{
+		fileManager.patternIsChangedFlag[index] = 0;
+		sprintf(patternToSave, "Workspace/patterns/pattern_%02d.mtp", index);
+		status = writePatternFile(patternToSave);
 
-	fileManager.patternIsChangedFlag[index] = 0;
+	}
 
-	sprintf(patternToSave, "Workspace/patterns/pattern_%02d.mtp", index);
-
-	return writePatternFile(patternToSave);
+	return status;
 }
 
 void FileManager::storePatternUndoRevision()
@@ -356,17 +360,20 @@ uint8_t FileManager::resetToFirstSongPattern()
 	return song->playlist[0];
 }
 
-void FileManager::switchNextPatternInSong()
+bool FileManager::switchNextPatternInSong()
 {
 	strSong *song = &mtProject.song;
 	if (song->playlist[++(song->playlistPos)] != PLAYLIST_EMPTY_SLOT)
 	{
-
+		return 1;
 	}
 	else
 	{
 		song->playlistPos = 0;
+		return 0;
 	}
+
+	return 0;
 }
 
 

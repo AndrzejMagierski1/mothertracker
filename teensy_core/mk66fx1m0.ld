@@ -121,7 +121,45 @@ SECTIONS
 		__bss_end__ = .;
 	} > RAM
 
-	_estack = ORIGIN(RAM) + LENGTH(RAM);
+
+/* 	Reserve and place Heap within memory map 
+    _HeapSize = 0x1000;
+    .heap :  ALIGN(8)
+    {
+        _pvHeapStart = .;
+        . += _HeapSize;
+        . = ALIGN(8);
+        _pvHeapLimit = .;
+    } > RAM
+
+     _StackSize = 0x1000;
+      Reserve space in memory for Stack 
+    .heap2stackfill  :
+    {
+        . += _StackSize;
+    } > RAM
+     Locate actual Stack in memory map 
+    .stack ORIGIN(RAM) + LENGTH(RAM) - _StackSize - 0:  ALIGN(8)
+    {
+        _vStackBase = .;
+        . = ALIGN(8);
+        _vStackTop = . + _StackSize;
+    } > RAM
+
+*/
+	
+    /* Provide basic symbols giving location and size of main text
+     * block, including initial values of RW data sections. Note that
+     * these will need extending to give a complete picture with
+     * complex images (e.g multiple Flash banks).
+     */
+     
+     _estack = ORIGIN(RAM) + LENGTH(RAM);
+	
+     
+    _image_start = LOADADDR(.text);
+    _image_end = LOADADDR(.data) + SIZEOF(.data);
+    _image_size = _image_end - _image_start;
 }
 
 

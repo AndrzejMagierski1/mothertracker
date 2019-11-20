@@ -14,6 +14,13 @@ enum mtProjectStartMode
 
 };
 
+enum struct exportType
+{
+	song,
+	songStems,
+	pattern,
+	patternStems
+};
 
 
 
@@ -108,6 +115,9 @@ public:
 	void showDeleteLastWindow();
 
 
+/*	void showOpeningHorizontalBar();
+	void showSaveingHorizontalBar();*/
+	void showExportingHorizontalBar();
 	void showSaveAsKeyboard();
 	void showOverwriteWindow();
 	void showExportWindow();
@@ -160,6 +170,11 @@ public:
 	char currentPatchProjectName[PATCH_SIZE];
 
 	uint8_t isBusyFlag = 0;
+	uint8_t exportInProgress = 0;
+	uint8_t exportProgress = 0;
+	uint8_t currentExportType; //0 - song, 1 - song stems, 2 - pattern, 3 - pattern stems
+	uint8_t currentExportState = 0;
+	uint8_t lastExportState = 0;
 
 
 	// cover projektu
