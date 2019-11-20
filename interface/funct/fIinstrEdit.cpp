@@ -680,7 +680,7 @@ void changeFilterCutOff(int16_t value)
 
 void changeFilterResonance(int16_t value)
 {
-	float fVal = value * 0.05;
+	float fVal = value * (RESONANCE_MAX-RESONANCE_MIN)/100;
 
 	if(IE->editorInstrument->resonance + fVal < RESONANCE_MIN) IE->editorInstrument->resonance = RESONANCE_MIN;
 	else if(IE->editorInstrument->resonance + fVal > RESONANCE_MAX) IE->editorInstrument->resonance = RESONANCE_MAX;
