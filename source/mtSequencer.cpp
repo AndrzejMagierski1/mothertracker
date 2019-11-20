@@ -820,13 +820,13 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	{
 		patternLength = player.performance.patternLength;
 	}
-
-	if (playMode == PLAYMODE_FORWARD)
+	// liczymy globalny licznik stepa
+	if (row == 0)
 	{
-		player.track[x].actual_pos++;
-		if ((player.track[x].actual_pos > patternLength))
+		player.globalPos++;
+		if ((player.globalPos > patternLength))
 		{
-			reset_actual_pos(x);
+			player.globalPos = 0;
 			bool isNextPatternAvailable = 0; // jeśli 0 to song sie skonczyl
 
 			if (row == 0 && player.songMode)
@@ -848,6 +848,37 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 					player.onSongEnd();
 				}
 			}
+
+		}
+	}
+
+	if (playMode == PLAYMODE_FORWARD)
+	{
+		player.track[x].actual_pos++;
+		if ((player.track[x].actual_pos > patternLength))
+		{
+			reset_actual_pos(x);
+//			bool isNextPatternAvailable = 0; // jeśli 0 to song sie skonczyl
+
+//			if (row == 0 && player.songMode)
+//			{
+//				switchRamPatternsNow();
+//				isNextPatternAvailable =
+//						fileManager.switchNextPatternInSong();
+//			}
+//			player.onSongEnd = player.onPatternEnd;
+//
+//			if (x == MINTRACK)
+//			{
+//				if ((player.onPatternEnd != NULL) && !isNextPatternAvailable)
+//				player.onPatternEnd();
+//
+//				else if ((player.onSongEnd != NULL) && isNextPatternAvailable)
+//				{
+//					player.onPatternEnd();
+//					player.onSongEnd();
+//				}
+//			}
 
 		}
 	}
@@ -894,7 +925,17 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	}
 
 }
-
+void Sequencer::alignToGlobalPos()
+{
+	for (uint8_t row = MINTRACK; row <= MAXTRACK; row++)
+	{
+		alignToGlobalPos(row);
+	}
+}
+void Sequencer::alignToGlobalPos(uint8_t row)
+{
+	player.track[row].actual_pos = player.globalPos;
+}
 void Sequencer::reset_actual_pos(void)
 {
 	for (uint8_t row = MINTRACK; row <= MAXTRACK; row++)
@@ -902,6 +943,8 @@ void Sequencer::reset_actual_pos(void)
 		player.track[row].pingPongToogle = 0;
 		reset_actual_pos(row);
 	}
+
+	player.globalPos = 0;
 }
 
 void Sequencer::reset_actual_pos(uint8_t row)

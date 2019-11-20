@@ -296,6 +296,7 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 	case mtPerfPatternPlayMode:
 	{
 		sequencer.setPerformancePlayMode(track, 0);
+		sequencer.alignToGlobalPos(track);
 		break;
 	}
 	case mtPerfPatternLength:

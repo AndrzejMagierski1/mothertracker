@@ -324,6 +324,7 @@ public:
 		float swing_offset = 50.0;
 
 		uint16_t uStep = 0;
+		uint16_t globalPos = 0;
 		uint8_t actualBank = 0;
 
 		struct strPerformance
@@ -641,6 +642,9 @@ public:
 	{
 		return getActualPattern()->track[0].length + 1;
 	}
+
+	void alignToGlobalPos();
+	void alignToGlobalPos(uint8_t);
 };
 
 extern Sequencer sequencer;
