@@ -80,8 +80,8 @@ public:
 	void lightUpPadBoard();
 	void clearPadBoard();
 
-	void toggleMasterTracks();
-
+	void setMuteFunct(uint8_t state);
+	void setProjectSaveFlags();
 //----------------------------------
 
 	void activateLabelsBorder();
@@ -113,8 +113,6 @@ public:
 	void playheadRecMode();
 	void playheadNormalMode();
 
-	void showTracksMaster();
-	void refreshTracksMaster();
 //----------------------------------
 // Funct
 	uint16_t lastPatternPosition;
