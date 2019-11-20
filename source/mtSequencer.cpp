@@ -1167,7 +1167,7 @@ void Sequencer::sendNoteOn(uint8_t track,
 		if (step->velocity == -1)
 		{
 //			todo:
-			uint8_t velo = 100;//mtProject.values.midiInstrument[step->instrument - INSTRUMENTS_MAX].velocity;
+			uint8_t velo = mtProject.values.midiInstrument[step->instrument - INSTRUMENTS_MAX].velocity;
 			usbMIDI.sendNoteOn(step->note,
 								velo,
 								step->instrument - INSTRUMENTS_MAX);
