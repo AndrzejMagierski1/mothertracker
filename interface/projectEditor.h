@@ -46,6 +46,8 @@ public:
 	void showProjectsList();
 //	void showTemplatesList();
 
+	void deactivateGui();
+	void activateGui();
 
 	void setDefaultScreenFunct();
 
@@ -154,7 +156,7 @@ public:
 	uint8_t newProjectOnSaveEndFlag = 0;
 	uint8_t openOnSaveEndFlag = 0;
 	//uint8_t saveingProgress = 0;
-	uint8_t projectListActiveFlag = 1;
+	uint8_t projectListActiveFlag = 0;
 	char currentInfo[100];
 	char currentPatchProjectName[PATCH_SIZE];
 
