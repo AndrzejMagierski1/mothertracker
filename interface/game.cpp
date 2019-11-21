@@ -94,6 +94,8 @@ void cGameModule::stop()
 	ARKANOID_pauseControl(pause);
 	killGameSounds();
 
+	ARKANOID_saveScore();
+
 	Encoder.setResolution(24);
 	Encoder.setAcceleration(0);
 }

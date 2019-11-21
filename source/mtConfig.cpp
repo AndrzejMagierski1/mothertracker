@@ -132,7 +132,10 @@ void checkConfig()
 	if(mtConfig.values.padsLightFront > 31)	mtConfig.values.padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
 	if(mtConfig.values.padsLightBackWeek > 31)	mtConfig.values.padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
 
-
+	if(mtConfig.arcanoidHighestScore > 20000)
+	{
+		mtConfig.arcanoidHighestScore = 0;
+	}
 // TODO dodac zapis spowrotem do configu jesli np przy sprawdzaniu wazne dane sie nie zgadzały
 // TODO
 // TODO

@@ -536,6 +536,8 @@ struct strMtConfig
 		uint8_t padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
 
 	} values;
+
+	uint32_t arcanoidHighestScore;
 };
 
 
