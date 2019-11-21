@@ -509,16 +509,13 @@ void cSongEditor::listPatterns()
 {
 	for(uint8_t i=0;i<songLength;i++)
 	{
-		if(i<9)
+		if(i == selectedPattern)
 		{
-			if(i == selectedPattern)
-			{
-				sprintf(&patternsNamesList[i][0],"   %u         < %u >   ",i+1,mtProject.song.playlist[i]);
-			}
-			else
-			{
-				sprintf(&patternsNamesList[i][0],"   %u           %u     ",i+1,mtProject.song.playlist[i]);
-			}
+			sprintf(&patternsNamesList[i][0],"   %u         < %u >   ",i+1,mtProject.song.playlist[i]);
+		}
+		else
+		{
+			sprintf(&patternsNamesList[i][0],"   %u           %u     ",i+1,mtProject.song.playlist[i]);
 		}
 
 		patternNames[i] = &patternsNamesList[i][0];

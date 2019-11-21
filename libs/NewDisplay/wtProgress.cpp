@@ -87,37 +87,40 @@ void cWtProgress::setData(void* data)
 //--------------------------------------------------------------------------------
 uint8_t cWtProgress::update()
 {
-	uint32_t bar_heigth = 15;
-	uint32_t bar_length;
-
-	API_LIB_BeginCoProListNoCheck();
-	API_CMD_DLSTART();
-
-	API_COLOR(colors[1]);
-	API_BEGIN(LINES);
-	API_VERTEX2F(posX, posY);
-	API_VERTEX2F(posX + width, posY + height);
-
-	float lengthOfWindow = (width / (float)wt_data->positionMax);
-	uint32_t bar_start = (wt_data->position * lengthOfWindow + 0.5f);/* 0.5f for rounding*/
-
-	if(lengthOfWindow < 1)
+	if(wt_data != NULL)
 	{
-		bar_length = 1;
+		uint32_t bar_heigth = 15;
+		uint32_t bar_length;
+
+		API_LIB_BeginCoProListNoCheck();
+		API_CMD_DLSTART();
+
+		API_COLOR(colors[1]);
+		API_BEGIN(LINES);
+		API_VERTEX2F(posX, posY);
+		API_VERTEX2F(posX + width, posY + height);
+
+		float lengthOfWindow = (width / (float)wt_data->positionMax);
+		uint32_t bar_start = (wt_data->position * lengthOfWindow + 0.5f);/* 0.5f for rounding*/
+
+		if(lengthOfWindow < 1)
+		{
+			bar_length = 1;
+		}
+		else
+		{
+			bar_length = lengthOfWindow;
+		}
+
+		API_BEGIN(RECTS);
+		API_VERTEX2F(posX + bar_start, posY - (bar_heigth/2) + (height/2));
+		API_VERTEX2F(posX + bar_start + bar_length , posY + (bar_heigth)/2);
+		API_END();
+
+		API_END();
+
+		API_LIB_EndCoProList();
 	}
-	else
-	{
-		bar_length = lengthOfWindow;
-	}
-
-	API_BEGIN(RECTS);
-	API_VERTEX2F(posX + bar_start, posY - (bar_heigth/2) + (height/2));
-	API_VERTEX2F(posX + bar_start + bar_length , posY + (bar_heigth)/2);
-	API_END();
-
-	API_END();
-
-	API_LIB_EndCoProList();
 	return 0;
 }
 

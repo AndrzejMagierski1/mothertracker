@@ -179,14 +179,6 @@ void cSamplePlayback::start(uint32_t options)
 
 	loadedInstrumentType =  mtProject.instrument[mtProject.values.lastUsedInstrument].sample.type;
 
-	if(loadedInstrumentType == mtSampleTypeWavetable)
-	{
-		if(selectedPlace == 0) selectedPlace = 1;
-		else if((selectedPlace == 3) || (selectedPlace == 4)) selectedPlace = 2;
-		else if(selectedPlace == 5) selectedPlace == 6;
-		wavetableWindowsCounter = convertWavetableWindowsSizeToCounter(mtProject.instrument[mtProject.values.lastUsedInstrument].sample.wavetable_window_size);
-	}
-
 	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
 	{
 		editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
@@ -219,6 +211,16 @@ void cSamplePlayback::start(uint32_t options)
 			//--------------------------------------------------------------------
 
 			points.selected = (selectedPlace >= 1 && selectedPlace <= 4) ? selectedPlace : 0;
+		}
+
+		if(loadedInstrumentType == mtSampleTypeWavetable)
+		{
+			if(selectedPlace == 0) selectedPlace = 1;
+			else if((selectedPlace == 3) || (selectedPlace == 4)) selectedPlace = 2;
+			else if(selectedPlace == 5) selectedPlace = 6;
+			wavetableWindowsCounter = convertWavetableWindowsSizeToCounter(mtProject.instrument[mtProject.values.lastUsedInstrument].sample.wavetable_window_size);
+
+			processWavetableCursor(SP->editorInstrument->wavetableCurrentWindow);
 		}
 
 
@@ -280,8 +282,6 @@ void cSamplePlayback::start(uint32_t options)
 		display.synchronizeRefresh();
 		return;
 	}
-
-	processWavetableCursor(SP->editorInstrument->wavetableCurrentWindow);
 
 	listPlayMode();
 

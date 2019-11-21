@@ -302,6 +302,7 @@ void cSampleImporter::setDefaultScreenFunct()
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functChangeInstrument);
 	FM->setButtonObj(interfaceButton5, buttonPress, functInstrumentDelete);
+	FM->setButtonObj(interfaceButtonDelete, buttonPress, functInstrumentDelete);
 
 	FM->setButtonObj(interfaceButton6, buttonPress, functChangeInstrument);
 	FM->setButtonObj(interfaceButton7, buttonPress, functChangeInstrument);
@@ -1174,6 +1175,8 @@ void cSampleImporter::listAllFoldersFirst()
 	}
 
 	openingInProgress = 1;
+
+	showFilesTree();
 
 	listOnlyFolderNames(actualPath,0);
 	listOnlyWavFromActualPath(locationExplorerCount);

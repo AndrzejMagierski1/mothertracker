@@ -378,7 +378,7 @@ void cSampleImporter::AddNextDisplay(uint8_t active)
 
 	display.setControlColors(label[2], colors);
 	display.refreshControl(label[2]);
-	display.synchronizeRefresh();
+	//display.synchronizeRefresh();
 }
 
 void cSampleImporter::AddEnterOrRename()
@@ -402,7 +402,7 @@ void cSampleImporter::AddEnterOrRename()
 	renameColorControl();
 
 	display.refreshControl(label[1]);
-	display.synchronizeRefresh();
+	//display.synchronizeRefresh();
 }
 
 void cSampleImporter::previewColorControl()
@@ -426,7 +426,7 @@ void cSampleImporter::previewColorControl()
 	display.setControlColors(label[3], colors);
 	display.refreshControl(label[3]);
 
-	display.synchronizeRefresh();
+	//display.synchronizeRefresh();
 }
 
 void cSampleImporter::renameColorControl()
@@ -556,7 +556,7 @@ void cSampleImporter::displayDelete(uint8_t onOff)
 	}
 
 	display.refreshControl(label[4]);
-	display.synchronizeRefresh();
+	//display.synchronizeRefresh();
 }
 
 

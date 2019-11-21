@@ -70,7 +70,7 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 	strcpy(currentPatch,"Workspace/project.bin");
 	writeProjectFile(currentPatch, &mtProject);
 
-	setInstrumentChangeFlag(instrumentIndex);
+	//setInstrumentChangeFlag(instrumentIndex);
 
 	return 1;
 }
