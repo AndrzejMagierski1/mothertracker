@@ -13,7 +13,7 @@
 #include "mtSleep.h"
 #include "mtExporterWAV.h"
 #include "mtFileManager.h"
-
+#include "mtSliceDetector.h"
 
 
 
@@ -58,7 +58,7 @@ void loop()
 		padsBacklight.update();
 
 		exporter.update();
-
+		sliceDetector.update();
 		engine.update();
 		fileManager.update();
 		recorder.updateSave();

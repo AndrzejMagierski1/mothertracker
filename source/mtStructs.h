@@ -163,7 +163,7 @@ const float LIMITER_RELEASE_MAX  			=	10;
 const uint8_t LIMITER_TRESHOLD_MIN 			=	0;
 const uint16_t LIMITER_TRESHOLD_MAX 		=	32767;
 
-
+const uint8_t MAX_SLICE_NUMBER				=	100;
 
 const uint8_t CONFIG_EEPROM_ADDRESS			=	0;
 
