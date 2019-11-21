@@ -212,6 +212,7 @@ void cSampleImporter::showDefaultScreen()
 
 	for(uint8_t i = 0; i<6; i++)
 	{
+		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
@@ -234,6 +235,22 @@ void cSampleImporter::showDefaultScreen()
 
 }
 
+//==============================================================================================================
+void cSampleImporter::deactivateGui()
+{
+	showDefaultScreen();
+
+	for(uint8_t i = 0; i<6; i++)
+	{
+		display.setControlColors(label[i], interfaceGlobals.inactiveLabelsColors);
+		display.refreshControl(label[i]);
+	}
+
+	display.setControlHide(explorerListControl);
+	display.setControlHide(frameControl);
+
+	display.synchronizeRefresh();
+}
 
 //==============================================================================================================
 

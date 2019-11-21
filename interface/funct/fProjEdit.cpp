@@ -12,6 +12,9 @@
 
 #include "performanceMode.h"
 
+#include "sdCardDetect.h"
+
+
 enum valueMapDirecion
 {
 	valueMapDirectionLeft,
@@ -135,6 +138,8 @@ cProjectEditor* PE = &projectEditor;
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
+static uint8_t functSdCard(uint8_t state);
+
 //static uint8_t functShowProjectsList();
 //static uint8_t functShowTemplatesList();
 //static uint8_t functCancelList();
@@ -174,8 +179,8 @@ static uint8_t functExportToMOD();
 static uint8_t functExportGoBack();
 
 //****************************************************
-static uint8_t functEnterName();
 static uint8_t functSwitchModule(uint8_t button);
+
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
@@ -183,38 +188,20 @@ static  uint8_t functUp();
 static  uint8_t functDown();
 static  uint8_t functConfirmKey();
 
+
 static  uint8_t functEncoder(int16_t value);
+
 
 static uint8_t functStartGameModule()
 {
 	if(PE->isBusyFlag) return 1;
 	PE->eventFunct(eventActivateGameModule,PE,0,0);
+	return 1;
 }
 
 void cProjectEditor::update()
 {
 	refreshProcessingPopup();
-
-/*	if(projectOptions > 0)
-	{
-		switch(projectOptions)
-		{
-			case mtProjectStartModeOpenLast:
-			{
-				listOnlyFolderNames("/Projects/");
-
-				fileManager.openProjectStart(&locationFilesList[selectedLocation][0],projectTypeUserMade);
-
-				loadProjectValues();
-
-				functSwitchModule(interfaceButtonPattern);
-				break;
-			}
-			default: break;
-		}
-
-		projectOptions = 0;
-	}*/
 
 	if(openInProgressFlag || createNewProjectFlag)
 	{
@@ -362,7 +349,7 @@ void cProjectEditor::start(uint32_t options)
 
 	moduleRefresh = 1;
 
-	FM->setPadsGlobal(functPads);
+
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -378,6 +365,12 @@ void cProjectEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
 
+	if(!sdCardDetector.isCardInserted())
+	{
+		functSdCard(0);
+		return;
+	}
+
 	showDefaultScreen();
 	setDefaultScreenFunct();
 }
@@ -391,8 +384,6 @@ void cProjectEditor::stop()
 
 void cProjectEditor::setDefaultScreenFunct()
 {
-
-
 	//funkcje
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
@@ -417,17 +408,19 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton5, buttonPress, functSaveAsProject);
 	FM->setButtonObj(interfaceButton6, buttonPress, functExport);
 
+	FM->setButtonObj(interfaceButton7, buttonPress, functStartGameModule); // ARKANOID
+
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-
-	FM->setButtonObj(interfaceButton7, buttonPress, functStartGameModule);
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
+	FM->setPadsGlobal(functPads);
 
 
+	FM->setSdDetection(functSdCard);
 }
 //==============================================================================================================
 //==============================================================================================================
@@ -1503,4 +1496,19 @@ void cProjectEditor::refreshProjectCover(uint16_t delay_ms)
 	display.setControlHide(coverImg);
 }
 
+static uint8_t functSdCard(uint8_t state)
+{
+	if(state)
+	{
+		PE->start(0);
+	}
+	else
+	{
+		PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+		PE->FM->clearAllPots();
+		PE->FM->setSdDetection(functSdCard);
+		PE->deactivateGui();
+	}
 
+	return 1;
+}

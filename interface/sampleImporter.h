@@ -26,6 +26,7 @@ public:
 	virtual ~cSampleImporter() {}
 
 	void showDefaultScreen();
+	void deactivateGui();
 	void showFilesTree();
 	void showInstrumentsList();
 	void showMemoryUsage();
