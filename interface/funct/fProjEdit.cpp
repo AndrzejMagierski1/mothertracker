@@ -188,6 +188,7 @@ static  uint8_t functUp();
 static  uint8_t functDown();
 static  uint8_t functConfirmKey();
 
+static uint8_t functDeleteBackspace(uint8_t state);
 
 static  uint8_t functEncoder(int16_t value);
 
@@ -378,7 +379,6 @@ void cProjectEditor::start(uint32_t options)
 void cProjectEditor::stop()
 {
 	moduleRefresh = 0;
-	projectOptions = 0;
 	refreshCover = 0;
 }
 
@@ -414,6 +414,8 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+
+	FM->setButtonObj(interfaceButtonDelete, functDeleteBackspace);
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
@@ -1340,6 +1342,22 @@ static uint8_t functConfirmKey()
 		return 1;
 	}
 	return 0;
+}
+
+static uint8_t functDeleteBackspace(uint8_t state)
+{
+	if((state == buttonPress) || (state == buttonHold))
+	{
+		if(PE->keyboardActiveFlag)
+		{
+			if(PE->editPosition == 0 ) return 1;
+
+			PE->name[PE->editPosition-1] = 0;
+			PE->editPosition--;
+			PE->showKeyboardEditName();
+		}
+	}
+	return 1;
 }
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)

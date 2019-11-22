@@ -4,6 +4,7 @@
 #include "Si4703.h"
 #include "mtRecorder.h"
 #include "mtLED.h"
+#include "sdCardDetect.h"
 
 constexpr uint8_t BACKSPACE_PAD_1 = 10;
 constexpr uint8_t BACKSPACE_PAD_2 = 11;
@@ -319,6 +320,8 @@ void cSampleRecorder::showDefaultScreen()
 	{
 		display.setControlText(label[i], "");
 	}
+	// odciemnanie labela wrazie deaktywacji save po wyjeciu karty
+	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
 
 	if (currentScreen == screenTypeConfig)
 	{
@@ -511,6 +514,12 @@ void cSampleRecorder::showDefaultScreen()
 			display.setControlText(label[5], "Undo");
 			display.setControlText(label[6], "Go Back");
 			display.setControlText(label[7], "Save");
+
+			if(!sdCardDetector.isCardInserted())
+			{
+				//dezaktywacja kiedy brak karty sd
+				display.setControlColors(label[7], interfaceGlobals.inactiveLabelsColors);
+			}
 		}
 
 		hideKeyboard();
@@ -892,6 +901,7 @@ void cSampleRecorder::showSelectionWindow()
 
 	display.setControlText(label[0], "Yes");
 	display.setControlText(label[7], "No");
+	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);

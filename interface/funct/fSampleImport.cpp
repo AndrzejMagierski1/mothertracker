@@ -175,6 +175,8 @@ static  uint8_t functSwitchModule(uint8_t button);
 static  uint8_t functConfirmRename();
 static  uint8_t functCancelRename();
 
+static uint8_t functDeleteBackspace(uint8_t state);
+
 
 static uint8_t functSdCard(uint8_t state);
 
@@ -290,6 +292,8 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+
+	FM->setButtonObj(interfaceButtonDelete, functDeleteBackspace);
 
 	FM->setButtonObj(interfaceButtonShift, functShift);
 
@@ -1921,6 +1925,22 @@ static uint8_t functConfirmKey()
 		return 1;
 	}
 	return 0;
+}
+
+static uint8_t functDeleteBackspace(uint8_t state)
+{
+	if((state == buttonPress) || (state == buttonHold))
+	{
+		if(SI->keyboardActiveFlag)
+		{
+			if(SI->editPosition == 0 ) return 1;
+
+			SI->name[SI->editPosition-1] = 0;
+			SI->editPosition--;
+			SI->showKeyboardEditName();
+		}
+	}
+	return 1;
 }
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
