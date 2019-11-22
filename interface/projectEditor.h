@@ -73,15 +73,6 @@ public:
 	hControl popupLabel = nullptr;
 	hControl coverImg = nullptr;
 	hControl processControl = nullptr;
-	uint32_t topLabelColors[3] =
-	{
-			0x3F3F3F, // tekst
-			0x000000, // tło
-			0x3F3F3F, // ramka
-	};
-
-
-	uint32_t projectOptions = 0;
 
 
 	void listOnlyFolderNames(const char* folder);
