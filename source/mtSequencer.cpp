@@ -1167,7 +1167,7 @@ void Sequencer::sendNoteOn(uint8_t track,
 		if (step->velocity == -1)
 		{
 //			todo:
-			uint8_t velo = 100;//mtProject.values.midiInstrument[step->instrument - INSTRUMENTS_MAX].velocity;
+			uint8_t velo = 100; //mtProject.values.midiInstrument[step->instrument - INSTRUMENTS_MAX].velocity;
 			usbMIDI.sendNoteOn(step->note,
 								velo,
 								step->instrument - INSTRUMENTS_MAX);
@@ -1439,7 +1439,25 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 		}
 		else // czyli playMode
 		{
+			for (uint8_t tr = sel->firstTrack; tr < 8; tr++)
+			{
+				if (!player.track[tr].noteOpen)
+				{
 
+//					player.track[tr].stepSent.note = note;
+					player.track[tr].noteOpen = 1;
+					player.track[tr].noteLength = 9999;
+					player.track[tr].recOpen = note;
+
+					instrumentPlayer[tr].noteOff();
+					instrumentPlayer[tr].noteOn(
+							mtProject.values.lastUsedInstrument,
+							note,
+							STEP_VELO_DEFAULT);
+					Serial.printf("noteON tr %d\n", tr);
+					break;
+				}
+			}
 		}
 	}
 	else // czyli noteOff
@@ -1469,13 +1487,37 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 					{
 						step->note = STEP_NOTE_OFF;
 					}
+					else
+					{
+						if (player.track[0].actual_pos < getActualPattern()->track[0].length)
+						{
+							step = &getActualPattern()->track[tr].step[player.track[0].actual_pos + 1];
+							step->note = STEP_NOTE_OFF;
+						}
+						else
+						{
+							step = &getActualPattern()->track[tr].step[0];
+							step->note = STEP_NOTE_OFF;
+						}
+					}
 					break;
 				}
 			}
 		}
 		else // czyli playMode
 		{
-
+			for (uint8_t tr = 0; tr < 8; tr++)
+			{
+				if (player.track[tr].noteOpen
+						&& player.track[tr].recOpen)
+				{
+					instrumentPlayer[tr].noteOff();
+					player.track[tr].noteOpen = 0;
+					player.track[tr].recOpen = 0;
+					Serial.printf("\tnoteOFF tr %d\n", tr);
+					break;
+				}
+			}
 		}
 	}
 }
