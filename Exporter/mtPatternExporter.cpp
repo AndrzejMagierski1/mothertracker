@@ -33,7 +33,6 @@ void mtPatternExporter::finish()
 			byteRecorded += wavExport.write(sendBuf,2 * position);
 			__enable_irq();
 
-			Serial.printf("p: %d\n",position);
 			position=0;
 		}
 		status = exportStatus::exportFinished;
@@ -58,8 +57,6 @@ void mtPatternExporter::finish()
 		wavExport.write(&header,sizeof(header));
 		wavExport.close();
 
-
-		Serial.println("koniec");
 	}
 	__enable_irq()
 }
@@ -90,7 +87,6 @@ void mtPatternExporter::start(char * path)
 		exportR.begin();
 		sequencer.play();
 
-		Serial.println("exportStarted");
 	}
 
 
@@ -132,7 +128,6 @@ void mtPatternExporter::refresh()
 				byteRecorded += wavExport.write(sendBuf,2 * SEND_BUF_SIZE);
 				__enable_irq();
 
-				Serial.printf("p: %d\n",position);
 				position=0;
 			}
 		}
