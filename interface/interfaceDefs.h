@@ -97,7 +97,7 @@ enum mtInterfaceButtonsDef
 	interfaceButton31,
 	interfaceButton32,
 
-	interfaceButton33,  // encoder switch
+	//interfaceButton33,  // encoder switch
 
 	interfaceButtonsCount
 };
@@ -144,9 +144,6 @@ enum mtInterfaceButtonsFunctions
 	interfaceButtonDown 		= interfaceButton31,
 	interfaceButtonRight 		= interfaceButton32,
 
-	interfaceButtonEncoder 		= interfaceButton33,
-
-
 	interfaceButtonParams 		= interfaceButton8,
 	interfaceButtonPerformance 	= interfaceButton9,
 	interfaceButtonFile 		= interfaceButton10,
@@ -165,6 +162,8 @@ enum mtInterfaceButtonsFunctions
 
 	interfaceButtonFx1 			= interfaceButton21,
 	interfaceButtonFx2 			= interfaceButton20,
+
+	//	interfaceButtonEncoder 		= interfaceButton33,
 };
 
 //-------------------------------------------------------------
@@ -216,6 +215,7 @@ enum interfaceEvents
 	eventActivateGameModule,
 
 
+	eventActivateTestingProcedure,
 
 	interfaceEventsCount
 };

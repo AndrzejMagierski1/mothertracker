@@ -35,7 +35,6 @@ static  uint8_t functDown();
 static  uint8_t functRight();
 static  uint8_t functLeft();
 
-static  uint8_t functEnter();
 static  uint8_t functShift(uint8_t state);
 
 static  uint8_t functPlayAction();
@@ -127,7 +126,6 @@ void cSongEditor::setDefaultScreenFunct()
 
 //	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
 	FM->setButtonObj(interfaceButtonShift, functShift);
-	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
 
 
@@ -345,12 +343,6 @@ static  uint8_t functEncoder(int16_t value)
 	return 1;
 }
 
-static  uint8_t functEnter()
-{
-
-
-	return 1;
-}
 
 static  uint8_t functShift(uint8_t state)
 {

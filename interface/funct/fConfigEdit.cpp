@@ -2,6 +2,7 @@
 
 
 
+#include "mtTest.h"
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
 #include "mtFileManager.h"
@@ -28,6 +29,9 @@ static  uint8_t functAction0();
 static  uint8_t functAction5();
 
 static  uint8_t functActionButton(uint8_t button, uint8_t state);
+
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
+
 
 // config
 static  uint8_t functConfigGroup(uint8_t button);
@@ -197,6 +201,9 @@ void cConfigEditor::setConfigScreenFunct()
 	FM->setButtonObj(interfaceButton5, functActionButton);
 	FM->setButtonObj(interfaceButton6, functActionButton);
 
+
+	FM->setPadsGlobal(functPads);
+
 }
 
 void cConfigEditor::setMasterScreenFunct()
@@ -228,7 +235,6 @@ void cConfigEditor::setMasterScreenFunct()
 	FM->setButtonObj(interfaceButton4, functSelectLimiterAttack);
 	FM->setButtonObj(interfaceButton5, functSelectLimiterRelease);
 	FM->setButtonObj(interfaceButton6, functSelectLimiterTreshold);
-
 
 
 
@@ -318,6 +324,19 @@ static  uint8_t functConfigGroup(uint8_t button)
 
 	return 1;
 }
+
+
+static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
+{
+	if(state != buttonPress) return 1;
+
+	if(mtTest.runTestByCombinaion(pad)) 	CE->eventFunct(eventActivateTestingProcedure,CE,0,0);
+
+
+
+	return 1;
+}
+
 
 static  uint8_t functEncoder(int16_t value)
 {

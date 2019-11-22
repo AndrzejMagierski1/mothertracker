@@ -33,6 +33,8 @@ public:
 	int8_t getButtonIndex(uint8_t button);
 	void toggleActiveModule();
 
+	friend void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3);
+
 	// interfaceMisc.cpp -----------------------------
 	void initStartScreen();
 	void showStartScreen();
