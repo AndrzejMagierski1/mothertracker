@@ -2363,7 +2363,7 @@ static uint8_t functInvert()
 	fileManager.storePatternUndoRevision();
 
 	sendSelection();
-	sequencer.invertSelectedSteps();
+	sequencer.invertSelectedSteps(getSelectedElement());
 
 	PTE->refreshPattern();
 

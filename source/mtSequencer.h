@@ -603,7 +603,7 @@ public:
 						uint8_t fxIndex,
 						int16_t fillStep);
 
-	void invertSelectedSteps();
+	void invertSelectedSteps(uint8_t);
 
 	void allNoteOffs(void);
 
