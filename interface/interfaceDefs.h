@@ -439,22 +439,22 @@ struct strInterfaceGlobals
 
 	uint32_t activeLabelsColors[3] =
 	{
-		0x000000, // tekst
-		0xFFFFFF, // tło
+		0x999999, // tekst
+		0x323132, // tło
 		0xFF0000, // ramka
 	};
 
 	uint32_t inactiveLabelsColors[3] =
 	{
-		0x888888, // tekst
-		0xFFFFFF, // tło //0x555555
+		0x555555, // tekst
+		0x323132, // tło //0x555555
 		0xFF0000, // ramka
 	};
 
 	uint32_t disabledLabelsColors[3]=
 	{
 			0x000000, // tekst
-			0x555555, // tło
+			0x222222, // tło
 			0xFF0000, // ramka
 	};
 

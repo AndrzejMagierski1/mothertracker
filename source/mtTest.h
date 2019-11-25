@@ -35,27 +35,43 @@ public:
 
 	uint8_t runTestByCombinaion(uint8_t pad);
 
+	void AcceptButton();
+	void DeclineButton();
+
 private:
 	void drawGui();
 
 	void showStatus();
+	void showMessage(char* question1, char* question2, char* answer1, char* answer2);
+	void showMessage(const char* question1, const char* question2, const char* answer1, const char* answer2)
+	{ showMessage((char*)question1, (char*)question2, (char*)answer1, (char*)answer2); }
+
 	void showStart();
 	void showEnd();
 
 	void showScreenTest();
+	void runScreenTest();
+
 
 	//
 	cFunctionMachine* FM;
 	void (*eventFunct)(uint8_t, void*, void*, void*);
 
 
-	//
-
-	uint8_t testRunning = 0;
-	uint8_t mainStatus = 0;
-
-	//
+	// ogolny
 	elapsedMillis guiRefresh;
+	uint8_t procedureRunning = 0;
+	uint8_t mainStatus = 0;
+	uint8_t results[checkCount] = {0,0,0,0,0,0,0,0};
+
+
+	// konkretny aktualny test konkretnego elementu
+	elapsedMillis testTimer;
+	uint8_t testStatus = 0;
+
+
+
+
 
 
 	//run pad combination

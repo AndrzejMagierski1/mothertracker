@@ -35,23 +35,23 @@ static uint16_t framesPopupPlaces[9][4] =
 static uint32_t patternLabelColors[] =
 {
 	0xFFFFFF, // tekst
-	0x222222, // tło
+	0x323132, // tło
 	0xFF0000, // ramka
 };
 
 
 volatile uint32_t patternTrackerColors[] =
 {
-	0xFFFFFF, // linie
-	0xFFFFFF, // numery wierszy
-	0xFFFFFF, // nuta
-	0xFFFFFF, // instrument
-	0xFFFFFF, // volume
-	0xFFFFFF, // effekt
-	0xFF0000, // zaznaczenie
-	0x111111, // podzialka
-	0x222222, // nieaktywny
-	0xFFFFFF, // playhead
+	0x000000, // 0 linie
+	0x232323, // 1 background  /numery wierszy juz nie bo nie ma/
+	0x3ad6c5, // 2 nuta
+	0xfadd80, // 3 instrument
+	0xFFFFFF, // 4 volume
+	0xFFFFFF, // 5 effekt
+	0xf13c3c, // 6 zaznaczenie
+	0x2a2a2a, // 7 podzialka
+	0x333333, // 8 nieaktywny
+	0x232323, // 9 playhead
 };
 
 uint32_t patternTrackerSelectionColor = 0xff0000;
