@@ -21,15 +21,15 @@ void handleNoteOn(byte channel, byte pitch, byte velocity)
 					velocity);
 	MIDI.sendNoteOn(pitch, velocity, channel);
 
-	if (patternEditor.editMode == 1)
-	{
-		sendSelection();
-		if (!isMultiSelection())
-		{
-			sequencer.handleNote(channel, pitch, velocity);
-			patternEditor.moveCursorByStep();
-		}
-	}
+//	if (patternEditor.editMode == 1)
+//	{
+	sendSelection();
+//		if (!isMultiSelection())
+//		{
+	sequencer.handleNote(channel, pitch, velocity);
+	patternEditor.moveCursorByStep();
+//		}
+//	}
 	patternEditor.refreshPattern();
 
 }
@@ -41,9 +41,9 @@ void handleNoteOff(byte channel, byte pitch, byte velocity)
 					velocity);
 	MIDI.sendNoteOff(pitch, velocity, channel);
 
-	if (patternEditor.editMode == 1)
-	{
+//	if (patternEditor.editMode == 1)
+//	{
 		sendSelection();
 		sequencer.handleNote(channel, pitch, 0);
-	}
+//	}
 }

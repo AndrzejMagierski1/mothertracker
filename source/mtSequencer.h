@@ -370,7 +370,7 @@ public:
 
 			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
-			bool recOpen = 0;		// znacznik czy została wysłana nuta
+			uint8_t recOpen = 0;		// znacznik czy została wysłana nuta
 
 			uint16_t uStep = 0;		// aktualny microstep
 			int16_t actual_pos = 0;	// aktualna pozycja w stepach
@@ -603,7 +603,7 @@ public:
 						uint8_t fxIndex,
 						int16_t fillStep);
 
-	void invertSelectedSteps();
+	void invertSelectedSteps(uint8_t);
 
 	void allNoteOffs(void);
 

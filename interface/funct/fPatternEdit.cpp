@@ -2363,7 +2363,7 @@ static uint8_t functInvert()
 	fileManager.storePatternUndoRevision();
 
 	sendSelection();
-	sequencer.invertSelectedSteps();
+	sequencer.invertSelectedSteps(getSelectedElement());
 
 	PTE->refreshPattern();
 
@@ -2585,6 +2585,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// dalej tylko jesli edit (rec)
 	if (PTE->editMode != 1)
 	{
+		sendSelection();
 		if (state == buttonPress)
 		{
 			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);

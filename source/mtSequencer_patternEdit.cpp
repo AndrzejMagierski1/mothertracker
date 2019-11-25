@@ -228,8 +228,9 @@ void Sequencer::fillRandomInstruments(int16_t fillStep, int16_t from,
 	}
 }
 
-void Sequencer::invertSelectedSteps()
+void Sequencer::invertSelectedSteps(uint8_t elements)
 {
+
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *stepA;
@@ -242,11 +243,46 @@ void Sequencer::invertSelectedSteps()
 				a <= ((sel->lastStep - sel->firstStep) / 2) + sel->firstStep;
 				a++, b--)
 		{
+
 			stepA = &seq[player.ramBank].track[t].step[a];
 			stepB = &seq[player.ramBank].track[t].step[b];
-			buffStep = *stepA;
-			*stepA = *stepB;
-			*stepB = buffStep;
+
+			switch (elements)
+			{
+			case ELEMENTS_ALL_NO_PREFERENCES:
+				buffStep = *stepA;
+				*stepA = *stepB;
+				*stepB = buffStep;
+				break;
+			case ELEMENTS_FX1:
+
+				buffStep = *stepA;
+				stepA->fx[0] = stepB->fx[0];
+				stepB->fx[0] = buffStep.fx[0];
+
+				break;
+
+			case ELEMENTS_FX2:
+
+				buffStep = *stepA;
+				stepA->fx[1] = stepB->fx[1];
+				stepB->fx[1] = buffStep.fx[1];
+
+				break;
+
+			case ELEMENTS_INSTRUMENTS:
+				case ELEMENTS_NOTES:
+
+				buffStep = *stepA;
+				stepA->note = stepB->note;
+				stepB->note = buffStep.note;
+				stepA->instrument = stepB->instrument;
+				stepB->instrument = buffStep.instrument;
+
+				break;
+			default:
+				break;
+			}
 		}
 	}
 
@@ -577,6 +613,7 @@ void Sequencer::setSelectionInstrument(int16_t value)
 				if (step->note >= 0)
 				{
 					step->instrument = value;
+					mtProject.values.lastUsedInstrument = step->instrument;
 
 				}
 			}

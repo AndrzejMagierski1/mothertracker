@@ -2,3 +2,5 @@
 /Release/
 *.launch
 .settings/
+
+script.jlink
