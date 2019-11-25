@@ -5,7 +5,7 @@ __NOINIT(EXTERNAL_RAM) uint32_t measureBuffer[INSTANT_BUFFER_SIZE];
 
 mtSliceDetector sliceDetector;
 
-void mtSliceDetector::start(int16_t * addr, uint32_t len, uint16_t * sliceTab)
+void mtSliceDetector::start(int16_t * addr, uint32_t len, uint16_t * sliceTab , uint8_t * sliceNumber)
 {
 	if(len < LOCAL_BUFFER_SIZE) return;
 	state = detectState::inProgress;
@@ -17,6 +17,7 @@ void mtSliceDetector::start(int16_t * addr, uint32_t len, uint16_t * sliceTab)
 	address = addr;
 	slice = sliceTab;
 	length = len;
+	sliceNumberToWrite = sliceNumber;
 }
 void mtSliceDetector::update()
 {
@@ -79,7 +80,11 @@ void mtSliceDetector::update()
 	averagePositionHead++;
 	if(averagePositionHead == LOCAL_BUFFER_SIZE/INSTANT_BUFFER_SIZE ) averagePositionHead = 0;
 	position += constrainSize;
-	if((position == length) || (currentSlice >= MAX_SLICE_NUMBER)) state = detectState::ended;
+	if((position == length) || (currentSlice >= MAX_SLICE_NUMBER))
+	{
+		state = detectState::ended;
+		*sliceNumberToWrite = currentSlice;
+	}
 
 }
 uint8_t mtSliceDetector::getState()

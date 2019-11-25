@@ -18,7 +18,8 @@ const char playModeFunctLabels[playModeCount][15]=
 		"Forward Loop",
 		"Backward Loop",
 		"Pingpong Loop",
-		"Wavetable"
+		"Wavetable",
+		"Slice"
 };
 
 constexpr uint8_t MAX_WAVETABLE_WINDOWS_COUNTER = 11;
@@ -47,6 +48,7 @@ public:
 		progressCursor = nullptr;
 		spectrumControl = nullptr;
 		pointsControl = nullptr;
+		slicePointsControl = nullptr;
 		label[7] = {nullptr};
 
 		lastSampleLength = 0;
@@ -62,6 +64,7 @@ public:
 	void cancelPopups();
 
 	void processPoints();
+	void processSlicePoints();
 	void showPreviewValue();
 	void hidePreviewValue();
 
@@ -89,11 +92,13 @@ public:
 	hControl playModeListControl;
 	hControl spectrumControl;
 	hControl pointsControl;
+	hControl slicePointsControl;
 	hControl frameControl;
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 	hControl progressCursor;
+
 
 
 
@@ -105,6 +110,9 @@ public:
 
 	uint8_t refreshSpectrum = 0;
 	uint8_t refreshPoints = 0;
+	uint8_t refreshSlicePoints = 0;
+	uint8_t currentAutoSlice = 0;
+	uint8_t lastAutoSlice = 0;
 	uint8_t refreshSpectrumProgress = 0;
 	uint32_t playProgressValue = 0; // 0 - MAX_LEN_RECORD
 	uint16_t playProgressInSpectrum = 0; // 0 - 600
@@ -118,12 +126,14 @@ public:
 	strInstrument * editorInstrument;
 	uint32_t lastSampleLength = 0xFFFFFFFF;
 
+
 	strZoomParams zoom;
 
 	char zoomTextValue[7];
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;
+	strSlicePoints slicePoints;
 
 //----------------------------------
 // aktualny instrument na belce tytułowej

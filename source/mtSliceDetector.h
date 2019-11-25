@@ -21,7 +21,7 @@ class mtSliceDetector
 {
 public:
 
-void start(int16_t * addr, uint32_t len, uint16_t * sliceTab);
+void start(int16_t * addr, uint32_t len, uint16_t * sliceTab, uint8_t * sliceNumber);
 void update();
 uint8_t getState();
 uint8_t getProgress();
@@ -53,7 +53,7 @@ uint32_t lastDetected;																	// ostatnio wykryty slice
 uint8_t lastBufferFlag;																	// flaga ostatniego bufora
 float sensCoeff;																		// współczynnik czułośc wykrywania
 uint8_t currentSlice = 0;																// licznik slicow
-
+uint8_t * sliceNumberToWrite;															// wskaznik do zmiennej do której zostanie wpisana liczba slajsów
 };
 
 extern mtSliceDetector sliceDetector;

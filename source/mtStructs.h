@@ -203,6 +203,7 @@ enum instrumentPlayMode
 	loopBackward,
 	loopPingPong,
 	playModeWavetable, //tylko na uzytek interface - sample type obsługuje to w silniku
+	playModeSlice,
 
 	playModeCount
 };
@@ -399,6 +400,7 @@ struct strInstrument
 
     uint16_t slices[MAX_SLICE_NUMBER];
     uint8_t sliceNumber;
+    uint8_t selectedSlice;
 };
 //-------------------------------------------------
 struct strMtValues

@@ -7,12 +7,12 @@ class mtSliceManager
 public:
 
 void addSlice(strInstrument * instr);
-void removeSlice(strInstrument * instr, uint8_t n);
-void adjustSlice(strInstrument * instr, uint8_t n, int32_t val);
+void removeSlice(strInstrument * instr);
+void adjustSlice(strInstrument * instr, int32_t val);
 void autoSlice(strInstrument * instr);
 
-void getAutoSliceProgress();
-void getAutoSliceState();
+uint8_t getAutoSliceProgress();
+uint8_t getAutoSliceState();
 private:
 
 };

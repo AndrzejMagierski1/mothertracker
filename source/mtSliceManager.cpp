@@ -10,70 +10,83 @@ void mtSliceManager::addSlice(strInstrument * instr)
 	{
 		instr->slices[0] = 0;
 		instr->sliceNumber++;
+		return;
 	}
-	for(int8_t i = instr->sliceNumber; i > 0; i--)
+	if(instr->selectedSlice == (instr->sliceNumber - 1) )
+	{
+		instr->slices[instr->selectedSlice] = MAX_SLICE_NUMBER;
+		instr->sliceNumber++;
+		return;
+	}
+	for(int8_t i = instr->sliceNumber; i > (instr->selectedSlice+1); i--)
 	{
 		instr->slices[i] = instr->slices[i-1];
 	}
-	instr->slices[0] = 0;
+	instr->selectedSlice++;
+	instr->slices[instr->selectedSlice] = ((uint32_t)(instr->slices[instr->selectedSlice - 1] + instr->slices[instr->selectedSlice + 1]))/2;
+
+
 	instr->sliceNumber++;
 }
-void mtSliceManager::removeSlice(strInstrument * instr, uint8_t n)
+void mtSliceManager::removeSlice(strInstrument * instr)
 {
-	if((instr->sliceNumber == 0) || (instr->sliceNumber <= n)) return;
-	if((instr->sliceNumber - 1) == n )
+	if((instr->sliceNumber == 0) || (instr->sliceNumber <= instr->selectedSlice)) return;
+	if((instr->sliceNumber - 1) == instr->selectedSlice )
 	{
 		instr->sliceNumber--;
 		return;
 	}
 
-	for(uint8_t i = n ; i < instr->sliceNumber; i++)
+	for(uint8_t i = instr->selectedSlice ; i < instr->sliceNumber - 1; i++)
 	{
 		instr->slices[i] = instr->slices[i+1];
 	}
 	instr->sliceNumber--;
+	if(instr->selectedSlice != 0) instr->selectedSlice--;
+	else instr->selectedSlice = 0;
 }
-void mtSliceManager::adjustSlice(strInstrument * instr, uint8_t n, int32_t val)
+void mtSliceManager::adjustSlice(strInstrument * instr, int32_t val)
 {
-	if((instr->sliceNumber == 0) || (n >=  instr->sliceNumber)) return;
+	if((instr->sliceNumber == 0) || (instr->selectedSlice >=  instr->sliceNumber)) return;
 
-	if ((n != (instr->sliceNumber - 1)) && (n != 0))
+	if ((instr->selectedSlice != (instr->sliceNumber - 1)) && (instr->selectedSlice != 0))
 	{
-		if(instr->slices[n] + val >= instr->slices[n+1]) instr->slices[n] = instr->slices[n+1] - 1;
-		else if(instr->slices[n] + val <= instr->slices[n-1]) instr->slices[n] = instr->slices[n-1] + 1;
-		else instr->slices[n] += val;
+		if(instr->slices[instr->selectedSlice] + val >= instr->slices[instr->selectedSlice+1]) instr->slices[instr->selectedSlice] = instr->slices[instr->selectedSlice+1] - 1;
+		else if(instr->slices[instr->selectedSlice] + val <= instr->slices[instr->selectedSlice-1]) instr->slices[instr->selectedSlice] = instr->slices[instr->selectedSlice-1] + 1;
+		else instr->slices[instr->selectedSlice] += val;
 	}
-	else if( (n == 0) &&  ( n = instr->sliceNumber - 1) )
+	else if( (instr->selectedSlice == 0) &&  ( instr->selectedSlice == (instr->sliceNumber - 1)) )
 	{
-		if(instr->slices[n] + val > MAX_16BIT) instr->slices[n] = MAX_16BIT;
-		else if(instr->slices[n] + val < 0) instr->slices[n] = 0;
-		else instr->slices[n] += val;
+		if(instr->slices[instr->selectedSlice] + val > MAX_16BIT) instr->slices[instr->selectedSlice] = MAX_16BIT;
+		else if(instr->slices[instr->selectedSlice] + val < 0) instr->slices[instr->selectedSlice] = 0;
+		else instr->slices[instr->selectedSlice] += val;
 	}
-	else if( n == instr->sliceNumber - 1)
+	else if( instr->selectedSlice == instr->sliceNumber - 1)
 	{
-		if(instr->slices[n] + val > MAX_16BIT) instr->slices[n] = MAX_16BIT;
-		else if(instr->slices[n] + val <= instr->slices[n-1]) instr->slices[n] = instr->slices[n-1] + 1;
-		else instr->slices[n] += val;
+		if(instr->slices[instr->selectedSlice] + val > MAX_16BIT) instr->slices[instr->selectedSlice] = MAX_16BIT;
+		else if(instr->slices[instr->selectedSlice] + val <= instr->slices[instr->selectedSlice-1]) instr->slices[instr->selectedSlice] = instr->slices[instr->selectedSlice-1] + 1;
+		else instr->slices[instr->selectedSlice] += val;
 	}
-	else if( n == 0)
+	else if( instr->selectedSlice == 0)
 	{
-		if(instr->slices[n] + val > MAX_16BIT) instr->slices[n] = MAX_16BIT;
-		else if(instr->slices[n] + val <= instr->slices[n-1]) instr->slices[n] = instr->slices[n-1] + 1;
-		else instr->slices[n] += val;
+		if(instr->slices[instr->selectedSlice] + val >= instr->slices[instr->selectedSlice+1]) instr->slices[instr->selectedSlice] = instr->slices[instr->selectedSlice+1] - 1;
+		else if(instr->slices[instr->selectedSlice] + val < 0 ) instr->slices[instr->selectedSlice] = 0;
+		else instr->slices[instr->selectedSlice] += val;
 	}
 
 
 }
 void mtSliceManager::autoSlice(strInstrument * instr)
 {
-	sliceDetector.start(instr->sample.address,instr->sample.length,instr->slices);
+	memset(instr->slices,0,MAX_SLICE_NUMBER * 2);
+	sliceDetector.start(instr->sample.address,instr->sample.length,instr->slices, &instr->sliceNumber);
 }
 
-void mtSliceManager::getAutoSliceProgress()
+uint8_t mtSliceManager::getAutoSliceProgress()
 {
-	sliceDetector.getProgress();
+	return sliceDetector.getProgress();
 }
-void mtSliceManager::getAutoSliceState()
+uint8_t  mtSliceManager::getAutoSliceState()
 {
-	sliceDetector.getState();
+	return sliceDetector.getState();
 }

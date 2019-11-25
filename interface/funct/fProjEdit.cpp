@@ -1,4 +1,4 @@
-
+#include "mtSliceDetector.h"
 
 
 #include <projectEditor.h>
@@ -989,7 +989,7 @@ static uint8_t functExportToMOD()
 {
 	if(PE->isBusyFlag) return 1;
 	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
-
+	sliceDetector.start(mtProject.instrument[7].sample.address, mtProject.instrument[7].sample.length, mtProject.instrument[7].slices,&mtProject.instrument[7].sliceNumber);
 	return 1;
 }
 static uint8_t functExportGoBack()
