@@ -220,6 +220,9 @@ void Sequencer::play_microStep(uint8_t row)
 	strPlayer::strPlayerTrack::strSendStep & stepToSend = player.track[row].stepToSend;
 	strPlayer::strPlayerTrack::strSendStep & stepSent = player.track[row].stepSent;
 
+	if (!playerRow.isActive)
+		return;
+
 	memcpy(&stepToSend, &patternStep, sizeof(patternStep));
 	if (playerRow.uStep == 1)
 	{
@@ -723,6 +726,34 @@ void Sequencer::play(void)
 
 }
 
+void Sequencer::playSelection(void) // potrzebuje aktualnego zaznaczenia
+{
+	player.songMode = 0;
+	player.selectionMode = 1;
+
+	reset_actual_pos();
+
+	player.isStop = 0;
+	player.isPlay = 1;
+	nanoStep = 1;
+
+	player.uStep = 1;
+	for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
+	{
+		player.track[a].uStep = 1;
+		player.track[a].actual_pos = selection.firstStep;
+		player.track[a].isActive = 0;
+	}
+
+	for (uint8_t a = selection.firstTrack; a <= selection.lastTrack; a++)
+	{
+		player.track[a].isActive = 1;
+	}
+
+	player.globalPos = selection.firstStep;
+
+}
+
 void Sequencer::playPattern(void)
 {
 	player.songMode = 0;
@@ -774,6 +805,7 @@ void Sequencer::stop(void)
 	player.isStop = 1;
 	player.isREC = 0;
 	player.uStep = 0;
+	player.selectionMode = 0;
 
 	nanoStep = 1;
 
@@ -783,6 +815,7 @@ void Sequencer::stop(void)
 		player.track[a].makeJump = 0;
 
 		player.track[a].rollIsOn = 0;
+		player.track[a].isActive = 1;
 	}
 //	player.changeBank = 0;
 
@@ -828,17 +861,19 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	if (row == 0)
 	{
 		player.globalPos++;
+
 		if ((player.globalPos > patternLength))
 		{
 			player.globalPos = 0;
 			bool isNextPatternAvailable = 0; // jeśli 0 to song sie skonczyl
 
-			if (row == 0 && player.songMode)
+			if (player.songMode)
 			{
 				switchRamPatternsNow();
 				isNextPatternAvailable =
 						fileManager.switchNextPatternInSong();
 			}
+
 //			player.onSongEnd = player.onPatternEnd;
 
 			if (x == MINTRACK)
@@ -852,7 +887,14 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 					player.onSongEnd();
 				}
 			}
-
+		}
+	}
+	if (player.selectionMode && row == selection.lastTrack)
+	{
+		if (player.globalPos > selection.lastStep)
+		{
+			stop();
+			player.onPatternEnd();
 		}
 	}
 
