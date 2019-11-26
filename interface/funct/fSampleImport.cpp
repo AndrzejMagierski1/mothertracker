@@ -305,6 +305,7 @@ void cSampleImporter::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButtonShift, functShift);
 
+	FM->setButtonObj(interfaceButtonInsert, buttonPress, functEnter);
 	FM->setButtonObj(interfaceButton0, buttonPress, functChangeFolder);
 	FM->setButtonObj(interfaceButton1, buttonPress, functChangeFolder);
 
