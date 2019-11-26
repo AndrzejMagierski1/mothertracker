@@ -548,6 +548,22 @@ struct strMtConfig
 
 	} values;
 
+	struct strMIDIValues
+	{
+		uint8_t clkIn;
+		uint8_t clkOut;
+		uint8_t transportIn;
+		uint8_t transportOut;
+		uint8_t ccOut[10];
+	} midi;
+
+	struct strGeneralValues
+	{
+		uint8_t patternDiv;
+		uint8_t radioRegion;
+		uint8_t brightness;
+	} general;
+
 	uint32_t arcanoidHighestScore;
 };
 

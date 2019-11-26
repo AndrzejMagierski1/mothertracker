@@ -203,10 +203,8 @@ void initHardware()
 
 	tactButtons.enableInterrupt(CONTROL_BUTTONS_INT, ButtonsISR);
 
-
-
-	radio.currentRegion = rEurope;
 	radio.powerOn();
+	radio.setRegion((radio_region_t)mtConfig.general.radioRegion, 1);
 	radio.setVolume(10);
 
 

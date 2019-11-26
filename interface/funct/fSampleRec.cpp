@@ -405,6 +405,7 @@ void cSampleRecorder::stop()
 	audioShield.headphoneSourceSelect(0);
 	moduleRefresh = 0;
 
+	radio.clearRDS();
 	radio.resetSeekCallback();
 	//hideRDS();
 

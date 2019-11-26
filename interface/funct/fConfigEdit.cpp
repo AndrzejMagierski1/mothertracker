@@ -8,6 +8,10 @@
 #include "mtFileManager.h"
 #include "configEditor.h"
 #include "mtSequencer.h"
+#include "mtConfig.h"
+
+
+#include "SI4703.h"
 
 cConfigEditor configEditor;
 static cConfigEditor* CE = &configEditor;
@@ -25,8 +29,8 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
-static  uint8_t functAction0();
-static  uint8_t functAction5();
+//static  uint8_t functAction0();
+//static  uint8_t functAction5();
 
 static  uint8_t functActionButton(uint8_t button, uint8_t state);
 
@@ -34,7 +38,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 
 // config
-static  uint8_t functConfigGroup(uint8_t button);
+//static  uint8_t functConfigGroup(uint8_t button);
 
 
 
@@ -63,9 +67,10 @@ static  uint8_t functSwitchModeConfig(uint8_t state);
 static  uint8_t functSwitchModeMaster(uint8_t state);
 
 uint8_t checkIfFirmwareValid(char *name);
-static uint8_t selectFirmware();
-uint8_t showFirmwareWarning();
-void prepareAndFlash();
+//static uint8_t selectFirmware();
+
+static uint8_t prepareAndFlash();
+static uint8_t hideFlashingWarning();
 
 
 // MASTER EDIT FUNCTIONS
@@ -76,7 +81,6 @@ void changeLimiterAttack(int16_t value);
 void changeLimiterRelease(int16_t value);
 void changeLimiterTreshold(int16_t value);
 void changeBitDepth(int16_t value);
-
 
 
 void cConfigEditor::update()
@@ -128,16 +132,20 @@ void cConfigEditor::start(uint32_t options)
 	{
 	case mtConfigModeDefault:
 	{
+		selectedPlace[0] = 0;
 		resizeLabelConfigDefault();
 
 		showDefaultConfigScreen();
 		setConfigScreenFunct();
-		if(selectedConfigGroup == configDefaultFirmware)
+
+		for(uint8_t i = 0; i < 6; i++)
 		{
-			showFirmwareMenu();
+			listDataForLists(0, i, &groupNamesLabels[i][0]);
 		}
 
+		setDataForLists(0, 6);
 
+		chainProcessChange(0, 1);
 
 		break;
 	}
@@ -168,7 +176,6 @@ void cConfigEditor::stop()
 
 void cConfigEditor::setConfigScreenFunct()
 {
-
 	//funkcje
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
@@ -182,8 +189,6 @@ void cConfigEditor::setConfigScreenFunct()
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-	FM->setButtonObj(interfaceButton6, buttonPress, functConfigGroup);
-	FM->setButtonObj(interfaceButton7, buttonPress, functConfigGroup);
 
 	FM->setButtonObj(interfaceButtonConfig, functSwitchModeConfig);
 	FM->setButtonObj(interfaceButtonMaster, functSwitchModeMaster);
@@ -197,9 +202,6 @@ void cConfigEditor::setConfigScreenFunct()
 	FM->setButtonObj(interfaceButton4, functActionButton);
 	FM->setButtonObj(interfaceButton5, functActionButton);
 	FM->setButtonObj(interfaceButton6, functActionButton);
-
-
-	FM->setPadsGlobal(functPads);
 
 }
 
@@ -244,65 +246,665 @@ void cConfigEditor::setMasterScreenFunct()
 //###############################        ACTION BUTTONS        #################################
 //##############################################################################################
 
+uint8_t cConfigEditor::getListsActive()
+{
+	uint8_t activeNum = 0;
+	for(uint8_t i = 0; i < 4; i++)
+	{
+		if(listsActive[i])
+		{
+			activeNum++;
+		}
+	}
 
+	return activeNum;
+}
+
+void cConfigEditor::setDataForLists(uint8_t listNum, uint8_t max)
+{
+	configGroupList[listNum].linesCount = 15;
+	configGroupList[listNum].start = selectedConfigGroup[listNum];
+	configGroupList[listNum].length = max;
+	configGroupList[listNum].data = configGroupsNames[listNum];
+
+	selectedConfigGroupMax[listNum] = max;
+
+	display.setControlData(configGroupsListControl[listNum], &configGroupList[listNum]);
+	display.setControlShow(configGroupsListControl[listNum]);
+	display.refreshControl(configGroupsListControl[listNum]);
+
+	listsActive[listNum] = 1;
+}
+
+void cConfigEditor::listDataForLists(uint8_t listNum, uint8_t nameNum, const char *names)
+{
+	configGroupsNames[listNum][nameNum] = (char*)names;
+}
+
+void cConfigEditor::changeSelectionInGroup(int16_t value, uint8_t groupNum)
+{
+	if(selectedConfigGroup[groupNum] + value < 0) selectedConfigGroup[groupNum] = 0;
+	else if(selectedConfigGroup[groupNum] + value > selectedConfigGroupMax[groupNum] - 1)
+	{
+		if(selectedConfigGroupMax[groupNum])
+		{
+			selectedConfigGroup[groupNum] = selectedConfigGroupMax[groupNum] - 1;
+		}
+	}
+	else  selectedConfigGroup[groupNum] += value;
+
+	chainProcessChange(groupNum, 0);
+
+	display.setControlValue(configGroupsListControl[groupNum], selectedConfigGroup[groupNum]);
+	display.refreshControl(configGroupsListControl[groupNum]);
+}
+
+void cConfigEditor::chainProcessChange(uint8_t groupNum, uint8_t forceProcess)
+{
+	if(groupNum < 1 || forceProcess)
+	{
+		resizeToDefaultConfig();
+		listsActive[1] = 0;
+		/* by default next list is hidden with no label text*/
+		display.setControlHide(configGroupsListControl[1]);
+		display.setControlText(label[2], "");
+
+		if(forceProcess == 0)
+		{
+			selectedConfigGroup[1] = 0;
+			selectedConfigGroup[2] = 0;
+			selectedConfigGroup[3] = 0;
+		}
+
+		processChangeInGroup0();
+	}
+
+	if(groupNum < 2 || forceProcess)
+	{
+		listsActive[2] = 0;
+		display.setControlHide(configGroupsListControl[2]);
+		display.setControlText(label[4], "");
+
+		if(forceProcess == 0)
+		{
+			selectedConfigGroup[2] = 0;
+			selectedConfigGroup[3] = 0;
+		}
+
+		processChangeInGroup1();
+	}
+
+	if(groupNum < 3 || forceProcess)
+	{
+		listsActive[3] = 0;
+		display.setControlHide(configGroupsListControl[3]);
+		display.setControlText(label[6], "");
+
+		if(forceProcess == 0)
+		{
+			selectedConfigGroup[3] = 0;
+		}
+
+		processChangeInGroup2();
+	}
+
+	if(groupNum < 4 || forceProcess)
+	{
+		processChangeInGroup3();
+	}
+
+	for(uint32_t i = 0 ; i < 4; i++)
+	{
+		display.refreshControl(label[i*2]);
+	}
+
+	if(hasConfigChanged)
+	{
+		forceSaveConfig();
+	}
+
+	display.synchronizeRefresh();
+}
+
+void cConfigEditor::showGeneralSubmenus(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < GERERAL_SUBMENUS; i++)
+	{
+		listDataForLists(listPosition, i, &generalConfig[i][0]);
+	}
+
+	setDataForLists(listPosition, GERERAL_SUBMENUS);
+	changeLabelText(2, "General");
+}
+
+void cConfigEditor::showFirmwares(uint8_t listPosition)
+{
+	listAllFirmwares();
+
+	for(uint8_t i = 0; i < firmwareFoundNum; i++)
+	{
+		listDataForLists(listPosition, i, &firmwareNamesList[i][0]);
+	}
+
+	setDataForLists(listPosition, firmwareFoundNum);
+	changeLabelText(2, "Firmware list");
+}
+
+void cConfigEditor::showFirmwareFlashButton()
+{
+	resizeToSmallConfig(4);
+	resizeToSmallConfig(6);
+
+	showExecute();
+}
+
+void cConfigEditor::showMidiSubmenus(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < MIDI_SUBMENUS; i++)
+	{
+		listDataForLists(listPosition, i, &midiConfig[i][0]);
+	}
+
+	setDataForLists(listPosition, MIDI_SUBMENUS);
+	changeLabelText(2, "MIDI");
+}
+
+void cConfigEditor::showPatternDividers(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < PATTERN_DIVIDERS; i++)
+	{
+		listDataForLists(listPosition, i, &patternDivider[i][0]);
+	}
+
+	selectedConfigGroup[listPosition] = mtConfig.general.patternDiv;
+
+	setDataForLists(listPosition, PATTERN_DIVIDERS);
+	changeLabelText(4, "Pattern dividers");
+}
+
+void cConfigEditor::showRadioRegions(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < RADIO_REGIONS; i++)
+	{
+		listDataForLists(listPosition, i, &radioRegion[i][0]);
+	}
+
+	selectedConfigGroup[listPosition] = mtConfig.general.radioRegion;
+
+	setDataForLists(listPosition, RADIO_REGIONS);
+	changeLabelText(4, "Radio regions");
+}
+
+void cConfigEditor::showBrightnessLevels(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < BRIGHTNESS_LEVELS; i++)
+	{
+		listDataForLists(listPosition, i, &brightness[i][0]);
+	}
+
+	selectedConfigGroup[listPosition] = mtConfig.general.brightness;
+
+	setDataForLists(listPosition, BRIGHTNESS_LEVELS);
+	changeLabelText(4, "Brightness");
+}
+
+void cConfigEditor::showClockIn(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < CLOCK_IN; i++)
+	{
+		listDataForLists(listPosition, i, &clockIn[i][0]);
+	}
+
+	selectedConfigGroup[listPosition] = mtConfig.midi.clkIn;
+
+	setDataForLists(listPosition, CLOCK_IN);
+	changeLabelText(4, "Clock in");
+}
+
+void cConfigEditor::showClockOut(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < CLOCK_OUT; i++)
+	{
+		listDataForLists(listPosition, i, &clockOut[i][0]);
+	}
+
+	selectedConfigGroup[listPosition] = mtConfig.midi.clkOut;
+
+	setDataForLists(listPosition, CLOCK_OUT);
+	changeLabelText(4, "Clock out");
+}
+
+void cConfigEditor::showTransportIn(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < CLOCK_OUT; i++)
+	{
+		listDataForLists(listPosition, i, &clockOut[i][0]);
+	}
+
+	selectedConfigGroup[listPosition] = mtConfig.midi.transportIn;
+
+	setDataForLists(listPosition, CLOCK_OUT);
+	changeLabelText(4, "Transport in");
+}
+
+void cConfigEditor::showTransportOut(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < CLOCK_OUT; i++)
+	{
+		listDataForLists(listPosition, i, &clockOut[i][0]);
+	}
+
+	selectedConfigGroup[listPosition] = mtConfig.midi.transportOut;
+
+	setDataForLists(listPosition, CLOCK_OUT);
+	changeLabelText(4, "Transport out");
+}
+
+void cConfigEditor::showCCouts(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < CC_OUTS_NUM; i++)
+	{
+		listDataForLists(listPosition, i, &CCouts[i][0]);
+	}
+
+	setDataForLists(listPosition, CC_OUTS_NUM);
+	changeLabelText(4, "CC out");
+}
+
+void cConfigEditor::showCCnumber(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < CC_NUMBERS; i++)
+	{
+		listDataForLists(listPosition, i, &CCnumber[i][0]);
+	}
+
+	selectedConfigGroup[listPosition] = mtConfig.midi.ccOut[selectedConfigGroup[listPosition-1]];
+
+	setDataForLists(listPosition, CC_NUMBERS);
+	changeLabelText(6, "CC number");
+}
+
+uint8_t cConfigEditor::setPatternDivider(uint32_t val)
+{
+	uint8_t isChanged = 0;
+	if(mtConfig.general.patternDiv != val)
+	{
+		mtConfig.general.patternDiv = val;
+		isChanged = 1;
+	}
+
+	return isChanged;
+}
+
+uint8_t cConfigEditor::setBrightness(uint32_t val)
+{
+	uint8_t isChanged = 0;
+	if(mtConfig.general.brightness != val)
+	{
+		mtConfig.general.brightness = val;
+		isChanged = 1;
+	}
+
+	return isChanged;
+}
+
+uint8_t cConfigEditor::setRadioRegion(uint32_t val)
+{
+	uint8_t isChanged = 0;
+	if(mtConfig.general.radioRegion != val)
+	{
+		mtConfig.general.radioRegion = val;
+		radio.setRegion((radio_region_t)mtConfig.general.radioRegion, 0);
+		isChanged = 1;
+	}
+
+	return isChanged;
+}
+
+uint8_t cConfigEditor::setClockIn(uint32_t val)
+{
+	uint8_t isChanged = 0;
+	if(mtConfig.midi.clkIn != val)
+	{
+		mtConfig.midi.clkIn = val;
+		isChanged = 1;
+	}
+
+	return isChanged;
+}
+
+uint8_t cConfigEditor::setClockOut(uint32_t val)
+{
+	uint8_t isChanged = 0;
+	if(mtConfig.midi.clkOut != val)
+	{
+		mtConfig.midi.clkOut = val;
+		isChanged = 1;
+	}
+
+	return isChanged;
+}
+
+uint8_t cConfigEditor::setTransportIn(uint32_t val)
+{
+	uint8_t isChanged = 0;
+	if(mtConfig.midi.transportIn != val)
+	{
+		mtConfig.midi.transportIn = val;
+		isChanged = 1;
+	}
+
+	return isChanged;
+}
+
+uint8_t cConfigEditor::setTransportOut(uint32_t val)
+{
+	uint8_t isChanged = 0;
+	if(mtConfig.midi.transportOut != val)
+	{
+		mtConfig.midi.transportOut = val;
+		isChanged = 1;
+	}
+
+	return isChanged;
+}
+
+uint8_t cConfigEditor::setCCout(uint8_t ccNum, uint32_t val)
+{
+	uint8_t isChanged = 0;
+	if(mtConfig.midi.ccOut[ccNum] != val)
+	{
+		mtConfig.midi.ccOut[ccNum] = val;
+		isChanged = 1;
+	}
+
+	return isChanged;
+}
+
+void cConfigEditor::processChangeInGroup0()
+{
+	switch(selectedConfigGroup[0])
+	{
+	case configDefaultGeneral:
+		showGeneralSubmenus(1);
+		break;
+	case configDefaultFirmware:
+		showFirmwares(1);
+		break;
+	case configDefaultMIDI:
+		showMidiSubmenus(1);
+		break;
+	case configDefaultSD:
+		break;
+	case configDefaultHelp:
+		break;
+	case configDefaultCredits:
+		break;
+	default:
+		break;
+	}
+}
+
+void cConfigEditor::processChangeInGroup1()
+{
+	//selectedConfigGroup[2] = 0;
+	//selectedConfigGroup[3] = 0;
+
+	if(selectedConfigGroup[0] == configDefaultGeneral)
+	{
+		switch(selectedConfigGroup[1])
+		{
+		case configGeneralPatternDiv:
+			showPatternDividers(2);
+			break;
+		case configGeneralRadioRegion:
+			showRadioRegions(2);
+			break;
+		case configGeneralBrightness:
+			showBrightnessLevels(2);
+			break;
+		default:
+			break;
+		}
+	}
+	else if(selectedConfigGroup[0] == configDefaultFirmware)
+	{
+		showFirmwareFlashButton();
+	}
+	else if(selectedConfigGroup[0] == configDefaultMIDI)
+	{
+		switch(selectedConfigGroup[1])
+		{
+		case configMIDIClockIn:
+			showClockIn(2);
+			break;
+		case configMIDIClockOut:
+			showClockOut(2);
+			break;
+		case configMIDITransportIn:
+			showTransportIn(2);
+			break;
+		case configMIDITansportOut:
+			showTransportOut(2);
+			break;
+		case configMIDICcout:
+			showCCouts(2);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void cConfigEditor::processChangeInGroup2()
+{
+	uint32_t dataSource = selectedConfigGroup[2];
+
+	//selectedConfigGroup[3] = 0;
+
+	if(selectedConfigGroup[0] == configDefaultGeneral)
+	{
+		if(selectedConfigGroup[1] == configGeneralPatternDiv)
+		{
+			hasConfigChanged = setPatternDivider(dataSource);
+		}
+		else if(selectedConfigGroup[1] == configGeneralRadioRegion)
+		{
+			hasConfigChanged = setRadioRegion(dataSource);
+		}
+		else if(selectedConfigGroup[1] == configGeneralBrightness)
+		{
+			hasConfigChanged = setBrightness(dataSource);
+		}
+	}
+
+	else if(selectedConfigGroup[0] == configDefaultMIDI)
+	{
+		if(selectedConfigGroup[1] == configMIDIClockIn)
+		{
+			hasConfigChanged = setClockIn(dataSource);
+		}
+		else if(selectedConfigGroup[1] == configMIDIClockOut)
+		{
+			hasConfigChanged = setClockOut(dataSource);
+		}
+		else if(selectedConfigGroup[1] == configMIDITransportIn)
+		{
+			hasConfigChanged = setTransportIn(dataSource);
+		}
+		else if(selectedConfigGroup[1] == configMIDITansportOut)
+		{
+			hasConfigChanged = setTransportOut(dataSource);
+		}
+		else if(selectedConfigGroup[1] == configMIDICcout)
+		{
+			showCCnumber(3);
+		}
+	}
+}
+
+void cConfigEditor::processChangeInGroup3()
+{
+	uint32_t dataSource = selectedConfigGroup[3];
+
+	if(selectedConfigGroup[0] == configDefaultMIDI)
+	{
+		if(selectedConfigGroup[1] == configMIDICcout)
+		{
+			hasConfigChanged = setCCout(selectedConfigGroup[2], dataSource);
+		}
+	}
+}
 
 static uint8_t functActionButton(uint8_t button, uint8_t state)
 {
-
+	uint8_t updateFrame = 1;
 	if(state == buttonPress)
 	{
-
 		switch(button)
 		{
 		case 0:
 		{
+			if(CE->selectedPlace[0] == 0)
+			{
+				CE->changeSelectionInGroup(-1, 0);
+			}
+			else
+			{
+				CE->selectedPlace[0] = 0;
+			}
 			break;
 		}
 		case 1:
 		{
+			if(CE->selectedPlace[0] == 0)
+			{
+				CE->changeSelectionInGroup(1, 0);
+			}
+			else
+			{
+				CE->selectedPlace[0] = 0;
+			}
 			break;
 		}
 		case 2:
 		{
+			if(CE->listsActive[1])
+			{
+				if(CE->selectedPlace[0] == 1)
+				{
+					CE->changeSelectionInGroup(-1, 1);
+				}
+				else
+				{
+					CE->selectedPlace[0] = 1;
+				}
+			}
 			break;
 		}
 		case 3:
 		{
+			if(CE->listsActive[1])
+			{
+				if(CE->selectedPlace[0] == 1)
+				{
+					CE->changeSelectionInGroup(1, 1);
+				}
+				else
+				{
+					CE->selectedPlace[0] = 1;
+				}
+			}
 			break;
 		}
 		case 4:
 		{
+			if(CE->listsActive[2])
+			{
+				if(CE->selectedPlace[0] == 2)
+				{
+					CE->changeSelectionInGroup(-1, 2);
+				}
+				else
+				{
+					CE->selectedPlace[0] = 2;
+				}
+			}
+
+			if(CE->selectedConfigGroup[0] == configDefaultFirmware)
+			{
+				updateFrame = 0;
+				CE->showFlashingWarning();
+			}
 			break;
 		}
 		case 5:
 		{
-
-			CE->eventFunct(eventActivateImageViewer,CE,0,0);
-
+			if(CE->listsActive[2])
+			{
+				if(CE->selectedPlace[0] == 2)
+				{
+					CE->changeSelectionInGroup(1, 2);
+				}
+				else
+				{
+					CE->selectedPlace[0] = 2;
+				}
+			}
+			//CE->eventFunct(eventActivateImageViewer,CE,0,0);
+			break;
+		}
+		case 6:
+		{
+			if(CE->listsActive[3])
+			{
+				if(CE->selectedPlace[0] == 3)
+				{
+					CE->changeSelectionInGroup(-1, 3);
+				}
+				else
+				{
+					CE->selectedPlace[0] = 3;
+				}
+			}
+			break;
+		}
+		case 7:
+		{
+			if(CE->listsActive[3])
+			{
+				if(CE->selectedPlace[0] == 3)
+				{
+					CE->changeSelectionInGroup(1, 3);
+				}
+				else
+				{
+					CE->selectedPlace[0] = 3;
+				}
+			}
 			break;
 		}
 
-
-		default: break;
+		default:
+			break;
 		}
-
-
 	}
 	else if(state == buttonRelease)
 	{
 
 	}
 
-
-
-
+	if(updateFrame)
+	{
+		CE->activateLabelsBorder();
+	}
 
 	return 1;
 }
 
 //==============================================================================================================
 
-static  uint8_t functConfigGroup(uint8_t button)
+/*static  uint8_t functConfigGroup(uint8_t button)
 {
 	if(CE->selectionActive) return 1;
 
@@ -320,7 +922,7 @@ static  uint8_t functConfigGroup(uint8_t button)
 
 
 	return 1;
-}
+}*/
 
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
@@ -349,14 +951,10 @@ static  uint8_t functEncoder(int16_t value)
 
 		switch(mode_places)
 		{
-		case 0: CE->changeSelectionInGroup(value);		 break;
-		case 1:	CE->changeSelectionInGroup(value);	 	 break;
-		case 2: 	 break;
-		case 3: 	 break;
-		case 4: 	 break;
-		case 5: 	 break;
-		case 6: CE->changeConfigGroupSelection(value);	 break;
-		case 7: 	 break;
+		case 0: 	 CE->changeSelectionInGroup(value, 0); break;
+		case 1:		 CE->changeSelectionInGroup(value, 1); break;
+		case 2: 	 CE->changeSelectionInGroup(value, 2); break;
+		case 3: 	 CE->changeSelectionInGroup(value, 3); break;
 
 		case 10: changeVolume(value);			break;
 		case 11: changeReverbRoomSize(value);	break;
@@ -383,38 +981,11 @@ static  uint8_t functLeft()
 	if(CE->selectionActive) return 1;
 	if(CE->frameData.multiSelActiveNum != 0) return 1;
 
+
 	if(CE->selectedPlace[CE->mode] > 0) CE->selectedPlace[CE->mode]--;
 
-	uint8_t mode_places = CE->selectedPlace[CE->mode] + CE->mode*10;
-
-	switch(mode_places)
-	{
-		case 0:	CE->selectedPlace[CE->mode] = 1; break;
-		case 1:	break;
-		case 2: break;
-		case 3: break;
-		case 4: break;
-		case 5: break;
-		case 6:
-		{
-		CE->selectedPlace[CE->mode] = 6;
-		break;
-		}
-
-
-		case 10: 	break;
-		case 11: 	break;
-		case 12: 	break;
-		case 13: 	break;
-		case 14: 	break;
-		case 15: 	break;
-		case 16: 	break;
-		case 17: 	break;
-
-	}
 
 	CE->activateLabelsBorder();
-
 
 	return 1;
 }
@@ -425,35 +996,18 @@ static  uint8_t functRight()
 	if(CE->selectionActive) return 1;
 	if(CE->frameData.multiSelActiveNum != 0) return 1;
 
-	if(CE->selectedPlace[CE->mode] < CE->frameData.placesCount-1) CE->selectedPlace[CE->mode]++;
 
-	uint8_t mode_places = CE->selectedPlace[CE->mode] + CE->mode*10;
-
-	switch(mode_places)
+	if(CE->mode == mtConfigModeDefault)
 	{
-		case 0: break;
-		case 1: break;
-		case 2: break;
-		case 3: break;
-		case 4: break;
-		case 5: break;
-		case 6:
-		{
-		CE->selectedPlace[CE->mode] = 6;
-		break;
-		}
-
-
-		case 10: 	break;
-		case 11: 	break;
-		case 12: 	break;
-		case 13: 	break;
-		case 14: 	break;
-		case 15: 	break;
-		case 16: 	break;
-		case 17: 	break;
-
+		uint8_t maxPlaces;
+		maxPlaces = CE->getListsActive();
+		if(CE->selectedPlace[CE->mode] < (maxPlaces-1)) CE->selectedPlace[CE->mode]++;
 	}
+	else
+	{
+		if(CE->selectedPlace[CE->mode] < CE->frameData.placesCount-1) CE->selectedPlace[CE->mode]++;
+	}
+
 
 	CE->activateLabelsBorder();
 
@@ -475,25 +1029,10 @@ static  uint8_t functUp()
 
 		switch(mode_places)
 		{
-		case 0:
-			if(CE->selectedConfigGroup == configDefaultFirmware)
-			{
-				CE->changeFirmwareSelection(-1);
-			}
-			break;
-
-		case 1:
-			if(CE->selectedConfigGroup == configDefaultFirmware)
-			{
-				CE->changeFirmwareSelection(-1);
-			}
-			break;
-		case 2: 	 break;
-		case 3: 	 break;
-		case 4: 	 break;
-		case 5: 	 break;
-		case 6: CE->changeConfigGroupSelection(-1);	 break;
-		case 7: 	 break;
+		case 0: 	 CE->changeSelectionInGroup(-1, 0); break;
+		case 1:		 CE->changeSelectionInGroup(-1, 1); break;
+		case 2: 	 CE->changeSelectionInGroup(-1, 2); break;
+		case 3: 	 CE->changeSelectionInGroup(-1, 3); break;
 
 		case 10: changeVolume(1);			break;
 		case 11: changeReverbRoomSize(1);	break;
@@ -525,26 +1064,10 @@ static  uint8_t functDown()
 
 		switch(mode_places)
 		{
-		case 0:
-			if(CE->selectedConfigGroup == configDefaultFirmware)
-			{
-				CE->changeFirmwareSelection(1);
-
-			}
-			break;
-		case 1:
-			if(CE->selectedConfigGroup == configDefaultFirmware)
-			{
-				CE->changeFirmwareSelection(1);
-
-			}
-			break;
-		case 2: 	 break;
-		case 3: 	 break;
-		case 4: 	 break;
-		case 5: 	 break;
-		case 6: CE->changeConfigGroupSelection(1);	 break;
-		case 7: 	 break;
+		case 0: 	 CE->changeSelectionInGroup(1, 0); break;
+		case 1:		 CE->changeSelectionInGroup(1, 1); break;
+		case 2: 	 CE->changeSelectionInGroup(1, 2); break;
+		case 3: 	 CE->changeSelectionInGroup(1, 3); break;
 
 		case 10: changeVolume(-1);			break;
 		case 11: changeReverbRoomSize(-1);	break;
@@ -886,22 +1409,9 @@ static  uint8_t functSwitchModeConfig(uint8_t state)
 	{
 		if(CE->mode != mtConfigModeDefault)
 		{
-			CE->clearAllNodes();
-			CE->cancelMultiFrame();
-
-			CE->mode = 0;
-
-			CE->resizeLabelConfigDefault();
-			CE->showDefaultConfigScreen();
-			CE->setConfigScreenFunct();
-
-			if(CE->selectedConfigGroup == configDefaultFirmware)
-			{
-				CE->showFirmwareMenu();
-			}
+			//CE->mode = 0;
+			CE->start(0);
 		}
-
-		CE->activateLabelsBorder();
 	}
 
 	return 1;
@@ -915,33 +1425,14 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 	{
 		CE->selectedPlace[mtConfigModeMaster] = 0;
 
-		CE->clearAllNodes();
-		CE->cancelMultiFrame();
+/*		CE->clearAllNodes();
+		CE->cancelMultiFrame();*/
 
 		if(CE->mode != mtConfigModeMaster)
 		{
-			CE->clearAllNodes();
-			CE->cancelMultiFrame();
-
-			CE->resizeLabelConfigMaster();
-
-			if(CE->selectedConfigGroup == configDefaultFirmware)
-			{
-				CE->hideFirmwareMenu();
-			}
-
-			CE->mode = 1;
-			CE->showMasterScreen();
-			CE->setMasterScreenFunct();
-			//FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-
-			CE->activateLabelsBorder();
-
+			CE->start(1);
 			return 0;
 		}
-
-
-
 	}
 	else if(state == buttonHold)
 	{
@@ -959,6 +1450,7 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 	return 1;
 }
 
+/*
 static uint8_t functAction0()
 {
 	if(CE->selectedConfigGroup == configDefaultFirmware)
@@ -966,8 +1458,6 @@ static uint8_t functAction0()
 		if(CE->selectionActive)
 		{
 			CE->processUpdate = 1;
-
-
 
 			//while(1);// program sie zatrzymuje do czasu przejecia kontroli przez bootloader
 		}
@@ -988,6 +1478,7 @@ static uint8_t functAction5()
 
 	return 1;
 }
+*/
 
 
 //======================================================================================================================
@@ -996,37 +1487,9 @@ static uint8_t functAction5()
 void cConfigEditor::changeConfigGroupSelection(int16_t value)
 {
 
-
-	if(selectedConfigGroup + value < 0) selectedConfigGroup = 0;
-	else if(selectedConfigGroup + value > mtConfigGroupsCount-1) selectedConfigGroup = mtConfigGroupsCount-1;
-	else  selectedConfigGroup += value;
-
-	if(selectedConfigGroup != previousSelectedConfigGroup)
-	{
-		if(previousSelectedConfigGroup == configDefaultFirmware && value < 0)
-		{
-			hideFirmwareMenu();
-			resizeFirmwareLabel(0);
-		}
-
-		display.setControlValue(configGroupsListControl, selectedConfigGroup);
-		display.refreshControl(configGroupsListControl);
-
-		switch(selectedConfigGroup)
-		{
-		case configDefaultGeneral: break;
-		case configDefaultAudio: break;
-		case configDefaultMIDI: break;
-		case configDefaultInterface: break;
-		case configDefaultSD: break;
-		case configDefaultFirmware: showFirmwareMenu(); break;
-		}
-
-		previousSelectedConfigGroup = selectedConfigGroup;
-	}
 }
 
-void cConfigEditor::changeSelectionInGroup(int16_t value)
+/*void cConfigEditor::changeSelectionInGroup(int16_t value)
 {
 	switch(selectedConfigGroup)
 	{
@@ -1037,7 +1500,7 @@ void cConfigEditor::changeSelectionInGroup(int16_t value)
 	case configDefaultSD: break;
 	case configDefaultFirmware: changeFirmwareSelection(value); break;
 	}
-}
+}*/
 
 
 //======================================================================================================================
@@ -1142,26 +1605,6 @@ void changeBitDepth(int16_t value)
 	CE->showBitDepth();
 }
 
-void cConfigEditor::showFirmwareMenu()
-{
-	//firmwareSelect=0;
-	//selectedPlace[0] -=1;
-
-	FM->setButtonObj(interfaceButton0, buttonPress, selectFirmware);
-	FM->setButtonObj(interfaceButton1, buttonPress, selectFirmware);
-	FM->setButtonObj(interfaceButton2, buttonPress, showFirmwareWarning);
-
-	listAllFirmwares();
-
-	showFirmwareUpdateLabels();
-}
-
-void cConfigEditor:: hideFirmwareMenu()
-{
-	FM->clearButtonsRange(interfaceButton0, interfaceButton2);
-	hideFirmwareUpdateLabels();
-}
-
 void cConfigEditor::listAllFirmwares()
 {
 	uint8_t locationFileCount=0;
@@ -1183,14 +1626,9 @@ void cConfigEditor::listAllFirmwares()
 		{
 			if(checkIfFirmwareValid(&firmwareNamesList[i][0]))
 			{
-				strcpy(&firmwareNamesList[validFilesCount][0], &firmwareNamesList[i][0]);
+				strncpy(&firmwareNamesList[validFilesCount][0], &firmwareNamesList[i][0], firmware_name_length);
 				validFilesCount++;
 			}
-		}
-
-		for(uint8_t i = 0; i < validFilesCount; i++)
-		{
-			firmwareNames[i] = &firmwareNamesList[i][0];
 		}
 
 		firmwareFoundNum = validFilesCount;
@@ -1198,7 +1636,6 @@ void cConfigEditor::listAllFirmwares()
 	else
 	{
 		firmwareFoundNum=0;
-		firmwareSelect=0;
 	}
 }
 
@@ -1227,15 +1664,7 @@ uint8_t checkIfFirmwareValid(char *name)
 
 }
 
-static uint8_t selectFirmware()
-{
-	CE->selectedPlace[mtConfigModeDefault]=1;
-	CE->activateLabelsBorder();
-
-	return 1;
-}
-
-void prepareAndFlash()
+static uint8_t prepareAndFlash()
 {
 	if(SD.exists("/firmware/_fwinfo")) // plik nie powinien istniec, bootloader sam go usunie
 	{
@@ -1245,7 +1674,7 @@ void prepareAndFlash()
 	FsFile fwinfo;
 
 	fwinfo = SD.open("/firmware/_fwinfo", FILE_WRITE);
-	fwinfo.write(&CE->firmwareNamesList[CE->firmwareSelect][0], 13);
+	fwinfo.write(&CE->firmwareNamesList[CE->selectedConfigGroup[1]][0], 13);
 	fwinfo.close();
 
 	pinMode(BOOTLOADER_PIN,OUTPUT);
@@ -1254,49 +1683,26 @@ void prepareAndFlash()
 	while(1);
 }
 
-uint8_t showFirmwareWarning()
+void cConfigEditor::showFlashingWarning()
 {
-	if(CE->firmwareFoundNum)
+	if(firmwareFoundNum)
 	{
-		CE->showWarning();
+		FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+		FM->setButtonObj(interfaceButton0, buttonPress, prepareAndFlash);
+		FM->setButtonObj(interfaceButton7, buttonPress, hideFlashingWarning);
+		selectionActive=1;
+		showFirmwareUpdatePopout();
 	}
+}
+
+static uint8_t hideFlashingWarning()
+{
+	CE->selectionActive = 0;
+	CE->start(0);
 
 	return 1;
 }
-
-void cConfigEditor::showWarning()
-{
-	FM->clearButtonsRange(interfaceButton0, interfaceButton5);
-
-	FM->setButtonObj(interfaceButton0, buttonRelease, functAction0);
-	FM->setButtonObj(interfaceButton5, buttonPress, functAction5);
-
-	CE->selectionActive=1;
-	CE->showFirmwareUpdatePopout();
-}
-
-void cConfigEditor::hideWarning()
-{
-	FM->clearButtonsRange(interfaceButton0, interfaceButton5);
-
-	FM->setButtonObj(interfaceButton0, buttonPress, selectFirmware);
-	FM->setButtonObj(interfaceButton1, buttonPress, selectFirmware);
-	FM->setButtonObj(interfaceButton2, buttonPress, showFirmwareWarning);
-
-	CE->selectionActive=0;
-	CE->hideFirmwareUpdatePopout();
-}
-
-void cConfigEditor::changeFirmwareSelection(int16_t value)
-{
-	if(firmwareSelect + value < 0) firmwareSelect = 0;
-	else if(firmwareSelect + value >= firmwareFoundNum) firmwareSelect = firmwareFoundNum;
-	else  firmwareSelect+= value;
-
-	display.setControlValue(firmwareListControl, firmwareSelect);
-	display.refreshControl(firmwareListControl);
-}
-
 
 // MULTISEL
 void cConfigEditor::addNode(editFunct_t funct , uint8_t nodeNum)

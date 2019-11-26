@@ -91,7 +91,7 @@ public:
 
 	seek_control_t seek_control;
 
-	void setRegion(radio_region_t region);
+	void setRegion(radio_region_t region, uint8_t init);
 	float freqSpacing_MHz;
 	float freqBottomBase_MHz;
 
