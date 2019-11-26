@@ -6,7 +6,7 @@ hidConnection::hidConnection()
 {
 
 }
-;
+
 
 void hidConnection::handle()
 {

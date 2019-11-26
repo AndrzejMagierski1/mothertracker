@@ -22,36 +22,270 @@ enum mtConfigMode
 enum mtConfigSpecific
 {
 	configDefaultGeneral,
-	configDefaultAudio,
-	configDefaultMIDI,
-	configDefaultInterface,
-	configDefaultSD,
 	configDefaultFirmware,
+	configDefaultMIDI,
+	configDefaultSD,
+	configDefaultHelp,
+	configDefaultCredits,
 
 	mtConfigGroupsCount
 };
 
+enum mtConfigMIDI
+{
+	configMIDIClockIn,
+	configMIDIClockOut,
+	configMIDITransportIn,
+	configMIDITansportOut,
+	configMIDICcout,
+};
+
+enum mtConfigGeneral
+{
+	configGeneralPatternDiv,
+	configGeneralRadioRegion,
+	configGeneralBrightness,
+
+};
+
+constexpr uint8_t GERERAL_SUBMENUS = 3;
+constexpr uint8_t MIDI_SUBMENUS = 5;
+constexpr uint8_t PATTERN_DIVIDERS = 16;
+constexpr uint8_t RADIO_REGIONS = 4;
+constexpr uint8_t BRIGHTNESS_LEVELS = 3;
+constexpr uint8_t CLOCK_IN = 3;
+constexpr uint8_t CLOCK_OUT = 4;
+constexpr uint8_t CC_OUTS_NUM = 10;
+constexpr uint8_t CC_NUMBERS = 127;
+
+
 const char groupNamesLabels[mtConfigGroupsCount][15] =
 {
 		"General",
-		"Audio I/O",
+		"Firmware",
 		"MIDI",
-		"Interface",
 		"SD",
-		"Firmware"
-
+		"Help",
+		"Credits"
 };
+
+const char generalConfig[GERERAL_SUBMENUS][20] =
+{
+		"Pattern divider",
+		"Radio region",
+		"Brightness"
+};
+
+const char midiConfig[MIDI_SUBMENUS][20] =
+{
+		"Clock in",
+		"Clock out",
+		"Transport in",
+		"Transport out",
+		"CC out",
+};
+
+const char patternDivider[PATTERN_DIVIDERS][3] =
+{
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"10",
+		"11",
+		"12",
+		"13",
+		"14",
+		"15",
+		"16",
+};
+
+const char radioRegion[RADIO_REGIONS][10] =
+{
+		"Europe",
+		"US",
+		"Australia",
+		"Japan",
+};
+
+const char brightness[BRIGHTNESS_LEVELS][5] =
+{
+		"Low",
+		"Mid",
+		"High",
+};
+
+const char clockIn[CLOCK_IN][9] =
+{
+		"Internal",
+		"USB",
+		"Midi in",
+};
+
+const char clockOut[CLOCK_OUT][20] =
+{
+		"Off",
+		"USB",
+		"Midi out",
+		"USB and Midi out",
+};
+
+const char CCouts[CC_OUTS_NUM][5] =
+{
+		"CC1",
+		"CC2",
+		"CC3",
+		"CC4",
+		"CC5",
+		"CC6",
+		"CC7",
+		"CC8",
+		"CC9",
+		"CC10",
+};
+
+const char CCnumber[CC_NUMBERS][4] =
+{
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"10",
+		"11",
+		"12",
+		"13",
+		"14",
+		"15",
+		"16",
+		"17",
+		"18",
+		"19",
+		"20",
+		"21",
+		"22",
+		"23",
+		"24",
+		"25",
+		"26",
+		"27",
+		"28",
+		"29",
+		"30",
+		"31",
+		"32",
+		"33",
+		"34",
+		"35",
+		"36",
+		"37",
+		"38",
+		"39",
+		"40",
+		"41",
+		"42",
+		"43",
+		"44",
+		"45",
+		"46",
+		"47",
+		"48",
+		"49",
+		"50",
+		"51",
+		"52",
+		"53",
+		"54",
+		"55",
+		"56",
+		"57",
+		"58",
+		"59",
+		"60",
+		"61",
+		"62",
+		"63",
+		"64",
+		"65",
+		"66",
+		"67",
+		"68",
+		"69",
+		"70",
+		"71",
+		"72",
+		"73",
+		"74",
+		"75",
+		"76",
+		"77",
+		"78",
+		"79",
+		"80",
+		"81",
+		"82",
+		"83",
+		"84",
+		"85",
+		"86",
+		"87",
+		"88",
+		"89",
+		"90",
+		"91",
+		"92",
+		"93",
+		"94",
+		"95",
+		"96",
+		"97",
+		"98",
+		"99",
+		"100",
+		"101",
+		"102",
+		"103",
+		"104",
+		"105",
+		"106",
+		"107",
+		"108",
+		"109",
+		"110",
+		"111",
+		"112",
+		"113",
+		"114",
+		"115",
+		"116",
+		"117",
+		"118",
+		"119",
+		"120",
+		"121",
+		"122",
+		"123",
+		"124",
+		"125",
+		"126",
+		"127",
+};
+
 
 #undef MAX_SELECT_NODES
 #define MAX_SELECT_NODES	7
 
 const uint8_t firmware_list_max=10;
 const uint8_t firmware_name_length=15;
-
-
-
-
-
 
 
 class cConfigEditor: public cModuleBase
@@ -68,10 +302,10 @@ public:
 
 	cConfigEditor()
 	{
-		selectedConfigGroup = 0;
+		selectedConfigGroup[4] = {0};
 		label[8] = {nullptr};
 		barControl[8] = {nullptr};
-		configGroupsListControl = nullptr;
+		configGroupsListControl[4] = {nullptr};
 		editorInstrument = nullptr;
 		frameControl = nullptr;
 		firmwareListControl = nullptr;
@@ -87,11 +321,11 @@ public:
 	void showMasterScreen();
 
 
-	void changeSelectionInGroup(int16_t value);
+	void changeSelectionInGroup(int16_t value, uint8_t groupNum);
 
 
 	//config
-	void showConfigGroupList();
+	void showConfigGroupList(strList *data , uint8_t listNum);
 
 	//master
 	void showVolume();
@@ -135,12 +369,10 @@ public:
 	void activateLabelsBorder();
 
 	// firmware
-	uint8_t firmwareSelect;
 	uint8_t firmwareFoundNum;
 	FsFile sdLocation;
 	uint8_t listInitFlag=0;
 	char firmwareNamesList[firmware_list_max][firmware_name_length];
-	char *firmwareNames[firmware_list_max];
 	hControl firmwareListControl;
 	hControl popoutWindowLabel;
 
@@ -149,15 +381,10 @@ public:
 	void showFirmwareMenu();
 	void hideFirmwareMenu();
 
-	void showFirmwareUpdateLabels();
-	void hideFirmwareUpdateLabels();
-
-	void changeFirmwareSelection(int16_t value);
-
 	void listAllFirmwares();
 
-	void showWarning();
-	void hideWarning();
+	void showFlashingWarning();
+
 	void showFirmwareUpdatePopout();
 	void hideFirmwareUpdatePopout();
 
@@ -174,7 +401,7 @@ public:
 	hControl label[8];
 	hControl barControl[8];
 
-	hControl configGroupsListControl;
+	hControl configGroupsListControl[4];
 
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
@@ -192,13 +419,15 @@ public:
 
 //----------------------------------
 // lista play mode
-	strList configGroupList;
+	strList configGroupList[4];
 
 	void listConfigGroups();
 
-	char *configGroupsNames[mtConfigGroupsCount];
+	char *configGroupsNames[4][255];
 
-	uint8_t selectedConfigGroup;
+	uint8_t selectedConfigGroup[4];
+	uint8_t selectedConfigGroupMax[4];
+	uint8_t listsActive[4];
 	uint8_t previousSelectedConfigGroup=UINT8_MAX;
 
 //----------------------------------
@@ -223,6 +452,58 @@ public:
 	void stepThroughNodes(int16_t value);
 	void clearAllNodes();
 	void cancelMultiFrame();
+
+	uint8_t getListsActive();
+	void setDataForLists(uint8_t listNum, uint8_t max);
+	void listDataForLists(uint8_t listNum, uint8_t nameNum, const char *names);
+
+
+	void processChangeInGroup0();
+	void processChangeInGroup1();
+	void processChangeInGroup2();
+	void processChangeInGroup3();
+	void chainProcessChange(uint8_t groupNum, uint8_t forceProcess);
+
+	void resizeToDefaultConfig();
+	void resizeToDefaultMaster();
+	void resizeToSmallConfig(uint8_t labelIdx);
+
+	void showGeneralSubmenus(uint8_t listPosition);
+	void showFirmwares(uint8_t listPosition);
+	void showMidiSubmenus(uint8_t listPosition);
+	void showFirmwareFlashButton();
+
+
+	void showPatternDividers(uint8_t listPosition);
+	void showRadioRegions(uint8_t listPosition);
+	void showBrightnessLevels(uint8_t listPosition);
+
+	void showClockIn(uint8_t listPosition);
+	void showClockOut(uint8_t listPosition);
+	void showTransportIn(uint8_t listPosition);
+	void showTransportOut(uint8_t listPosition);
+	void showCCouts(uint8_t listPosition);
+	void showCCnumber(uint8_t listPosition);
+
+
+	//setters
+	uint8_t setPatternDivider(uint32_t val);
+	uint8_t setBrightness(uint32_t val);
+	uint8_t setRadioRegion(uint32_t val);
+	uint8_t setClockIn(uint32_t val);
+	uint8_t setClockOut(uint32_t val);
+	uint8_t setTransportIn(uint32_t val);
+	uint8_t setTransportOut(uint32_t val);
+	uint8_t setCCout(uint8_t ccNum, uint32_t val);
+
+	uint8_t hasConfigChanged = 0;
+
+
+	void showExecute();
+
+
+
+	void changeLabelText(uint8_t labelIdx, const char *text);
 
 };
 

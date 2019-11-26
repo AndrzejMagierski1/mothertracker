@@ -68,13 +68,17 @@ void Si4703::powerOff()
 	detachInterrupt(digitalPinToInterrupt(_interruptPin));
 }
 
-void Si4703::setRegion(radio_region_t region)
+void Si4703::setRegion(radio_region_t region, uint8_t init)
 {
 	readRegisters();
 
 	si4703_registers[rSYSCONFIG2] &= ~(SPACE(0x03) | BAND(0x03)); // clear previous setting
 	si4703_registers[rSYSCONFIG1] &= ~DE;
-	regionHasChanged = 1;
+
+	if(init == 0)
+	{
+		regionHasChanged = 1;
+	}
 
 	switch(region)
 	{
@@ -245,7 +249,6 @@ void Si4703::si4703_init()
 		si4703_registers[rSYSCONFIG3] |= (SKCNT(0x08) | SKSNR(0x04));// autoseek snr i impulse detection
 		updateRegisters(); //Update
 
-		setRegion(currentRegion);
 		regionHasChanged = 0;//no flag on init
 
 		delay(110); //Max powerup time, from datasheet page 13
