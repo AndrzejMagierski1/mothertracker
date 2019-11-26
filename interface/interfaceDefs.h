@@ -97,7 +97,7 @@ enum mtInterfaceButtonsDef
 	interfaceButton31,
 	interfaceButton32,
 
-	interfaceButton33,  // encoder switch
+	//interfaceButton33,  // encoder switch
 
 	interfaceButtonsCount
 };
@@ -144,9 +144,6 @@ enum mtInterfaceButtonsFunctions
 	interfaceButtonDown 		= interfaceButton31,
 	interfaceButtonRight 		= interfaceButton32,
 
-	interfaceButtonEncoder 		= interfaceButton33,
-
-
 	interfaceButtonParams 		= interfaceButton8,
 	interfaceButtonPerformance 	= interfaceButton9,
 	interfaceButtonFile 		= interfaceButton10,
@@ -165,6 +162,8 @@ enum mtInterfaceButtonsFunctions
 
 	interfaceButtonFx1 			= interfaceButton21,
 	interfaceButtonFx2 			= interfaceButton20,
+
+	//	interfaceButtonEncoder 		= interfaceButton33,
 };
 
 //-------------------------------------------------------------
@@ -216,6 +215,7 @@ enum interfaceEvents
 	eventActivateGameModule,
 
 
+	eventActivateTestingProcedure,
 
 	interfaceEventsCount
 };
@@ -304,7 +304,7 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_10,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_UP,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_DOWN,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_RANDOM,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_TEMPO,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NOT_SEQ_FX,//////////
 			Sequencer::strFxConsts::enFxType::FX_TYPE_GLIDE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SAMPLE_START,
@@ -357,7 +357,7 @@ struct strInterfaceGlobals
 			"T - Send CC[10]",
 			"p - ",
 			"q - ",
-			"s - ",
+			"s - tempo",
 			"U - xyz",
 			"V - glide",
 			"W - sample start",
@@ -470,6 +470,7 @@ typedef struct node
 {
 	uint8_t 		isActive;
 	editFunct_t	 	editFunct;
+	uint8_t 		reverseInput;
 
 }select_node_t;
 
@@ -477,6 +478,7 @@ typedef struct node1
 {
 	uint8_t 		isActive;
 	editFunct1_t	editFunct;
+	uint8_t 		reverseInput;
 
 }select_node1_t;
 

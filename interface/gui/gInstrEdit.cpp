@@ -254,6 +254,8 @@ void cInstrumentEditor::showInstrumentEnv()
 		display.refreshControl(barControl[i]);
 	}
 
+	frameData.placesCount = 8;
+
 	display.synchronizeRefresh();
 
 }
@@ -262,7 +264,6 @@ void cInstrumentEditor::showInstrumentEnv()
 void cInstrumentEditor::showInstrumentParams()
 {
 	showTitleBar();
-
 
 	display.setControlValue(label[0], 1);
 	display.setControlValue(label[1], 1);
@@ -296,7 +297,7 @@ void cInstrumentEditor::showInstrumentParams()
 	showParamsPanning();
 	showParamsTune();
 	showParamsFineTune();
-	showFilterFilterType();
+	showFilterType();
 	showFilterCutOff();
 	showFilterResonance();
 	showParamsReverbSend();
@@ -334,12 +335,75 @@ void cInstrumentEditor::showInstrumentParams()
 		display.refreshControl(barControl[i]);
 	}
 
-
+	frameData.placesCount = 8;
 
 	display.synchronizeRefresh();
 }
 
 
+void cInstrumentEditor::showInstrumentMidiParams()
+{
+	showTitleBar();
+
+	display.setControlValue(label[0], 1);
+	display.setControlValue(label[1], 1);
+	display.setControlValue(label[2], 1);
+	display.setControlValue(label[3], 1);
+	display.setControlValue(label[4], 1);
+	display.setControlValue(label[5], 1);
+	display.setControlValue(label[6], 1);
+	display.setControlValue(label[7], 1);
+
+	display.setControlText2(label[0], "Velocity");
+	display.setControlText2(label[1], "");
+	display.setControlText2(label[2], "");
+	display.setControlText2(label[3], "");
+	display.setControlText2(label[4], "");
+	display.setControlText2(label[5], "");
+	display.setControlText2(label[6], "");
+	display.setControlText2(label[7], "");
+
+	display.setControlText(label[0], "");
+	display.setControlText(label[1], "");
+	display.setControlText(label[2], "");
+	display.setControlText(label[3], "");
+	display.setControlText(label[4], "");
+	display.setControlText(label[5], "");
+	display.setControlText(label[6], "");
+	display.setControlText(label[7], "");
+
+
+	showParamsVelocity();
+
+//-------------------------------------
+
+	display.setControlShow(barControl[0]);
+	display.setControlHide(barControl[1]);
+	display.setControlHide(barControl[2]);
+	display.setControlHide(barControl[3]);
+	display.setControlHide(barControl[4]);
+	display.setControlHide(barControl[5]);
+	display.setControlHide(barControl[6]);
+	display.setControlHide(barControl[7]);
+
+	display.setControlHide(envelopesListControl);
+	display.setControlHide(envStateListControl);
+	display.setControlHide(envLoopListControl);
+	display.setControlHide(filterModeListControl);
+
+//-------------------------------------
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
+		display.refreshControl(barControl[i]);
+	}
+
+	frameData.placesCount = 1;
+
+	display.synchronizeRefresh();
+}
 
 //==============================================================================================================
 void cInstrumentEditor::activateLabelsBorder()
@@ -365,10 +429,20 @@ void cInstrumentEditor::showEnvList()
 
 void cInstrumentEditor::showEnvState()
 {
-	display.setControlText(label[1], envStateLabels[!editorInstrument->envelope[selectedEnvelope].enable]);
+	uint8_t val;
+	display.setControlText(label[1], envStateLabels[editorInstrument->envelope[selectedEnvelope].enable]);
 	display.refreshControl(label[1]);
 
-	display.setControlValue(envStateListControl, !editorInstrument->envelope[selectedEnvelope].enable);
+	if(editorInstrument->envelope[selectedEnvelope].enable)
+	{
+		val = 0;
+	}
+	else
+	{
+		val = 1;
+	}
+
+	display.setControlValue(envStateListControl, val);
 	display.refreshControl(envStateListControl);
 }
 
@@ -463,6 +537,27 @@ void cInstrumentEditor::showEnvLoop()
 }
 
 
+void cInstrumentEditor::showParamsVelocity()
+{
+	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
+	{
+		sprintf(volumeVal,"%d", editorInstrument->volume);
+
+		display.setControlValue(barControl[0], editorInstrument->volume);
+	}
+	else
+	{
+		uint8_t temp_velocity =  mtProject.values.midiInstrument[mtProject.values.lastUsedInstrument-INSTRUMENTS_COUNT].velocity;
+		sprintf(volumeVal,"%d",temp_velocity);
+
+		display.setControlValue(barControl[0], (temp_velocity*100)/127);
+	}
+
+	display.setControlText(label[0], volumeVal);
+
+	display.refreshControl(label[0]);
+	display.refreshControl(barControl[0]);
+}
 
 void cInstrumentEditor::showParamsVolume()
 {
@@ -476,7 +571,7 @@ void cInstrumentEditor::showParamsVolume()
 
 void cInstrumentEditor::showParamsPanning()
 {
-	sprintf(panningVal,"%d",editorInstrument->panning);
+	sprintf(panningVal,"%d", editorInstrument->panning-50);
 
 	display.setControlText(label[1], panningVal);
 	display.refreshControl(label[1]);
@@ -506,7 +601,7 @@ void cInstrumentEditor::showParamsFineTune()
 	display.refreshControl(barControl[3]);
 }
 
-void cInstrumentEditor::showFilterFilterType()
+void cInstrumentEditor::showFilterType()
 {
 	if(editorInstrument->filterEnable)
 	{
@@ -520,35 +615,40 @@ void cInstrumentEditor::showFilterFilterType()
 	}
 
 	filterModeList.start = filterModeListPos;
-	filterModeList.length = filterModeCount;
-	filterModeList.linesCount = 5;
-	filterModeList.data = (char**)filterModeNames;
+//	filterModeList.length = filterModeCount;
+//	filterModeList.linesCount = 5;
+//	filterModeList.data = (char**)filterModeNames;
 
 	display.setControlText(label[4], filterModeFunctLabels[filterModeListPos]);
 	display.refreshControl(label[4]);
 
 	display.setControlData(filterModeListControl,  &filterModeList);
+	//display.setControlValue(IE->filterModeListControl, IE->filterModeListPos);
 	display.setControlShow(filterModeListControl);
 	display.refreshControl(filterModeListControl);
 }
 
 void cInstrumentEditor::showFilterCutOff()
 {
-	sprintf(cutoffVal,"%.2f",editorInstrument->cutOff);
+	uint8_t temp_cutoff = (editorInstrument->cutOff*100);
+
+	sprintf(cutoffVal,"%d", temp_cutoff);
 	display.setControlText(label[5], cutoffVal);
 	display.refreshControl(label[5]);
 
-	display.setControlValue(barControl[5], (editorInstrument->cutOff*100));
+	display.setControlValue(barControl[5], temp_cutoff);
 	display.refreshControl(barControl[5]);
 }
 
 void cInstrumentEditor::showFilterResonance()
 {
-	sprintf(resonanceVal,"%.2f",editorInstrument->resonance);
+	uint8_t temp_resonance = ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100;
+
+	sprintf(resonanceVal,"%d", temp_resonance);
 	display.setControlText(label[6], resonanceVal);
 	display.refreshControl(label[6]);
 
-	display.setControlValue(barControl[6], ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100);
+	display.setControlValue(barControl[6], temp_resonance);
 	display.refreshControl(barControl[6]);
 }
 

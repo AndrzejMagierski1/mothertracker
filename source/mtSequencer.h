@@ -70,7 +70,7 @@ public:
 		enum enFxType
 		{
 			// powiązane z listą tekstów w
-			// #include <interfaceDefs.h>
+//			 #include <interfaceDefs.h>
 			FX_TYPE_NONE,
 			FX_TYPE_OFF,
 			FX_TYPE_NUDGE,
@@ -94,7 +94,7 @@ public:
 			FX_TYPE_SEND_CC_10,
 			FX_TYPE_ROLL_VOL_UP,
 			FX_TYPE_ROLL_VOL_DOWN,
-			FX_TYPE_ROLL_VOL_RANDOM,
+			FX_TYPE_TEMPO,
 			FX_TYPE_RANDOM_VALUE,
 
 			FX_TYPE_NOT_SEQ_FX,
@@ -313,6 +313,7 @@ public:
 	{
 		bool songMode = 0;
 		bool performanceMode = 0;
+		bool selectionMode = 0;
 
 		bool isPlay = 0;
 		bool isREC = 0;
@@ -324,11 +325,13 @@ public:
 		float swing_offset = 50.0;
 
 		uint16_t uStep = 0;
+		uint16_t globalPos = 0;
 		uint8_t actualBank = 0;
 
 		struct strPerformance
 		{
 			int8_t patternLength = -1;
+			float tempo = 0.0;
 		} performance;
 
 		struct strBlink
@@ -366,9 +369,11 @@ public:
 				int8_t velocity = -1;	// jeśli <0 to nie wysyłamy
 			} stepSent, stepToSend;
 
+			bool isActive = 1;
+
 			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
-			bool recOpen = 0;		// znacznik czy została wysłana nuta
+			uint8_t recOpen = 0;		// znacznik czy została wysłana nuta
 
 			uint16_t uStep = 0;		// aktualny microstep
 			int16_t actual_pos = 0;	// aktualna pozycja w stepach
@@ -528,6 +533,7 @@ public:
 
 	void play(void);
 	void playPattern(void);
+	void playSelection(void);
 	void playSong(void);
 	void playSong(uint8_t);
 	void pause(void);
@@ -601,7 +607,7 @@ public:
 						uint8_t fxIndex,
 						int16_t fillStep);
 
-	void invertSelectedSteps();
+	void invertSelectedSteps(uint8_t);
 
 	void allNoteOffs(void);
 
@@ -632,6 +638,7 @@ public:
 	int16_t getFxMax(uint8_t fxID);
 	int16_t getFxMin(uint8_t fxID);
 	int16_t getFxDefault(uint8_t fxID);
+	int16_t getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step);
 
 	uint8_t getActualPos()
 	{
@@ -641,6 +648,9 @@ public:
 	{
 		return getActualPattern()->track[0].length + 1;
 	}
+
+	void alignToGlobalPos();
+	void alignToGlobalPos(uint8_t);
 };
 
 extern Sequencer sequencer;

@@ -3,6 +3,7 @@
 #include "Arcanoid_display.h"
 #include "ArcanoidLevels.h"
 #include "mtAudioEngine.h"
+#include "mtConfig.h"
 
 elapsedMillis perkTimer;
 elapsedMillis gameRefresh;
@@ -41,7 +42,14 @@ static void randomStartVector(ball_t *ball_handle);
 static uint8_t randomSampleNum();
 static void handle_audio();
 
-
+void ARKANOID_saveScore()
+{
+	if(game.highestScore > mtConfig.arcanoidHighestScore)
+	{
+		mtConfig.arcanoidHighestScore = game.highestScore;
+		forceSaveConfig();
+	}
+}
 
 void ARKANOID_pauseControl(pause_stage_t pauseControl)
 {
@@ -68,6 +76,11 @@ void ARKANOID_gameStart()
 {
 	if(game.gameStage == waitingForInit || game.gameStage == gameoverWaitingForReinit)
 	{
+		if(game.gameStage == waitingForInit)
+		{
+			game.highestScore = mtConfig.arcanoidHighestScore;
+		}
+
 		game.gameStage=initialized;
 		game.lifes=3;
 		game.level=1;
@@ -219,6 +232,8 @@ static void arcanoidGameInit()
 			round_params.blocksToGo = round_params.blocksOnRound - indestructibleBlocks;
 
 			prepareGameData();
+
+			ARKANOID_saveScore();
 
 			game.gameRunningFlag=TRUE;
 		}
@@ -897,6 +912,8 @@ static void handle_gameover()
 		round_params.nextLevelEntry=0;
 		//game.level=1;
 	}
+
+	ARKANOID_saveScore();
 
 	gameCleanup();
 	gameoverScreen();

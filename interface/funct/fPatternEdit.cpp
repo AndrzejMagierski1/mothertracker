@@ -24,6 +24,7 @@ static  uint8_t functChangePattern(uint8_t state);
 static  uint8_t functChangePatternLength(uint8_t state);
 static  uint8_t functChangePatternEditStep(uint8_t state);
 static  uint8_t functFill();
+static  uint8_t functPreview();
 static  uint8_t functInvert();
 static  uint8_t functTranspose();
 static  uint8_t functUndo();
@@ -74,7 +75,8 @@ static  uint8_t functEncoder(int16_t value);
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 
-
+//muty
+static uint8_t functActionButton(uint8_t button, uint8_t state);
 
 //--------------------------------------------
 static uint8_t getSelectedElement();
@@ -202,6 +204,7 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton0, functChangePattern);
 	FM->setButtonObj(interfaceButton1, functChangePatternLength);
 	FM->setButtonObj(interfaceButton2, functChangePatternEditStep);
+//	FM->setButtonObj(interfaceButton2, functChangePatternEditStep);
 
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functFill);
@@ -407,7 +410,7 @@ void cPatternEditor::refreshPattern()
 
 				sprintf(&trackerPattern.track[i].row[j].fx[0][1],
 						"%.3u",
-						seq->track[i].step[patternPosition - 7 + j].fx[1].value);
+						sequencer.getFxValueToView(1,i,patternPosition - 7 + j));
 
 				//trackerPattern.track[i].row[j].fx[0][3] = '0';
 			}
@@ -432,7 +435,7 @@ void cPatternEditor::refreshPattern()
 
 				sprintf(&trackerPattern.track[i].row[j].fx[1][1],
 						"%.3u",
-						seq->track[i].step[patternPosition - 7 + j].fx[0].value);
+						sequencer.getFxValueToView(0,i,patternPosition - 7 + j));
 
 				//trackerPattern.track[i].row[j].fx[1][3] = '0';
 			}
@@ -569,13 +572,6 @@ void cPatternEditor::cancelPopups()
 	//			{
 					//sendSelection();
 					//sequencer.setSelectionNote(mtProject.values.lastUsedNote);
-	//			}
-				break;
-			case stepPopupVol:
-	//			if (!isMultiSelection())
-	//			{
-					//sendSelection();
-					//sequencer.setSelectionVelocity(mtProject.values.lastUsedVolume);
 	//			}
 				break;
 			case stepPopupFx:
@@ -766,6 +762,30 @@ void cPatternEditor::setActualPatternEditStep(int16_t value)
 
 	showStep();
 }
+
+//======================================================================================================================
+static uint8_t functActionButton(uint8_t button, uint8_t state)
+{
+	if(state == buttonPress)
+	{
+		 if(mtProject.values.trackMute[button] == 0) mtProject.values.trackMute[button] = 1;
+		 else mtProject.values.trackMute[button] = 0;
+
+		 engine.muteTrack(button, mtProject.values.trackMute[button]);
+		 PTE->trackerPattern.inactive[button] = mtProject.values.trackMute[button];
+
+		 display.refreshControl(PTE->patternControl);
+
+
+		PTE->shiftAction = 1;
+
+		PTE->setProjectSaveFlags();
+	}
+
+
+	return 1;
+}
+
 /*
 void cPatternEditor::changeSelectedFx(int16_t value, uint8_t type)
 {
@@ -831,7 +851,7 @@ void cPatternEditor::refreshEditState()
 		playheadNormalMode();
 
 		FM->setButtonObj(interfaceButton3, buttonPress, functFill);
-		//FM->setButtonObj(interfaceButton4, buttonPress, functRandomise);
+		FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
 		FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
 		FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
 		FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
@@ -1015,6 +1035,38 @@ void cPatternEditor::changeFillPlace(int8_t diff)
 //	}
 }
 
+void cPatternEditor::setMuteFunct(uint8_t state)
+{
+	if(state == 0)
+	{
+		FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+		FM->setButtonObj(interfaceButton0, functChangePattern);
+		FM->setButtonObj(interfaceButton1, functChangePatternLength);
+		FM->setButtonObj(interfaceButton2, functChangePatternEditStep);
+
+		if(editMode)
+		{
+			FM->setButtonObj(interfaceButton3, buttonPress, functFill);
+			FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
+			FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
+			FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
+			FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
+		}
+	}
+	else
+	{
+		FM->setButtonObj(interfaceButton0, functActionButton);
+		FM->setButtonObj(interfaceButton1, functActionButton);
+		FM->setButtonObj(interfaceButton2, functActionButton);
+		FM->setButtonObj(interfaceButton3, functActionButton);
+		FM->setButtonObj(interfaceButton4, functActionButton);
+		FM->setButtonObj(interfaceButton5, functActionButton);
+		FM->setButtonObj(interfaceButton6, functActionButton);
+		FM->setButtonObj(interfaceButton7, functActionButton);
+
+	}
+}
+
 uint8_t cPatternEditor::isCursorInSelection()
 {
 	uint8_t x1 = 0, x2 = 0;
@@ -1044,13 +1096,17 @@ uint8_t cPatternEditor::isCursorInSelection()
 
 
 	if(trackerPattern.actualStep < y1 || trackerPattern.actualStep > y2
-		|| trackerPattern.actualTrack < x1 || trackerPattern.actualTrack > x2)
-	return 0;
+		|| trackerPattern.actualTrack < x1 || trackerPattern.actualTrack > x2) return 0;
 
 	return 1;
 }
 
 
+void cPatternEditor::setProjectSaveFlags()
+{
+	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.configIsChangedFlag = 1;
+}
 
 
 
@@ -1135,7 +1191,6 @@ uint8_t functEncoder(int16_t value)
 
 static  uint8_t functShift(uint8_t state)
 {
-
 	if(state == buttonPress)
 	{
 		if(mtPopups.getStepPopupState() != stepPopupNone) // ukrywa popup nuta...fx jesli jest wyswietlany
@@ -1144,7 +1199,10 @@ static  uint8_t functShift(uint8_t state)
 			PTE->cancelPopups();
 			PTE->insertOnPopupHideDisabled = 0;  // a tu aktywuje spowrotem
 		}
-
+		else
+		{
+			PTE->setMuteFunct(1);
+		}
 	}
 	else if(state == buttonRelease)
 	{
@@ -1165,6 +1223,8 @@ static  uint8_t functShift(uint8_t state)
 			sendSelection();
 			sequencer.blinkSelectedStep();
 		}
+
+		PTE->setMuteFunct(0);
 
 		PTE->shiftAction = 0;
 	}
@@ -1518,7 +1578,7 @@ static  uint8_t functNote(uint8_t state)
 		}
 
 		mtPopups.showStepPopup(stepPopupNote, show_note);
-		PTE->lightUpPadBoard();
+		//PTE->lightUpPadBoard();
 	}
 	else if(state == buttonRelease)
 	{
@@ -1564,7 +1624,7 @@ static  uint8_t functInstrument(uint8_t state)
 	{
 		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
 
-		PTE->lightUpPadBoard();
+		//PTE->lightUpPadBoard();
 
 		// odswiezenie paternu bez danych zakrytych przez popup
 		PTE->trackerPattern.popupMode = 1;
@@ -1632,7 +1692,7 @@ static  uint8_t functFx1(uint8_t state)
 		mtProject.values.lastUsedFx = PTE->getStepFx();
 		mtPopups.showStepPopup(stepPopupFx, mtProject.values.lastUsedFx); //PTE->getStepFx()
 
-		PTE->lightUpPadBoard();
+		//PTE->lightUpPadBoard();
 
 		// odswiezenie paternu bez danych zakrytych przez popup
 		PTE->trackerPattern.popupMode = 1;
@@ -1688,7 +1748,7 @@ static  uint8_t functFx2(uint8_t state)
 		mtProject.values.lastUsedFx = PTE->getStepFx();
 		mtPopups.showStepPopup(stepPopupFx, mtProject.values.lastUsedFx); //PTE->getStepFx()
 
-		PTE->lightUpPadBoard();
+		//PTE->lightUpPadBoard();
 
 		// odswiezenie paternu bez danych zakrytych przez popup
 		PTE->trackerPattern.popupMode = 1;
@@ -2093,7 +2153,15 @@ static  uint8_t functChangePatternEditStep(uint8_t state)
 
 	return 1;
 }
+//##############################################################################################
+//###############################             PREVIEW          #################################
+//##############################################################################################
 
+static  uint8_t functPreview()
+{
+	sendSelection();
+	sequencer.playSelection();
+}
 
 //##############################################################################################
 //###############################             FILL             #################################
@@ -2306,7 +2374,7 @@ static uint8_t functInvert()
 	fileManager.storePatternUndoRevision();
 
 	sendSelection();
-	sequencer.invertSelectedSteps();
+	sequencer.invertSelectedSteps(getSelectedElement());
 
 	PTE->refreshPattern();
 
@@ -2435,18 +2503,6 @@ void cPatternEditor::lightUpPadBoard()
 		}
 
 		case 2:
-//		{//todo : sprzatanie
-//			int8_t show_vol = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].velocity;
-//
-//			if(show_vol < 0) break;
-//
-//			show_vol = map(show_vol,0,127,0,47);
-//
-//			padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, show_vol);
-//
-//			break;
-//		}
-
 		case 3:
 		{
 			uint8_t show_fx = 0;
@@ -2540,6 +2596,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// dalej tylko jesli edit (rec)
 	if (PTE->editMode != 1)
 	{
+		sendSelection();
 		if (state == buttonPress)
 		{
 			uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);

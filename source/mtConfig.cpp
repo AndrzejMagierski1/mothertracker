@@ -132,6 +132,54 @@ void checkConfig()
 	if(mtConfig.values.padsLightFront > 31)	mtConfig.values.padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
 	if(mtConfig.values.padsLightBackWeek > 31)	mtConfig.values.padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
 
+	if(mtConfig.arcanoidHighestScore > 20000)
+	{
+		mtConfig.arcanoidHighestScore = 0;
+	}
+
+	for(uint8_t i = 0; i < 10; i++)
+	{
+		if(mtConfig.midi.ccOut[i] > 126)
+		{
+			mtConfig.midi.ccOut[i] = 0;
+		}
+	}
+
+	if(mtConfig.midi.clkIn > 2)
+	{
+		mtConfig.midi.clkIn = 0;
+	}
+
+	if(mtConfig.midi.clkOut > 3)
+	{
+		mtConfig.midi.clkOut = 0;
+	}
+
+	if(mtConfig.midi.transportIn > 3)
+	{
+		mtConfig.midi.transportIn = 0;
+	}
+
+	if(mtConfig.midi.transportOut > 3)
+	{
+		mtConfig.midi.transportIn = 0;
+	}
+
+	if(mtConfig.general.brightness > 2)
+	{
+		mtConfig.general.brightness = 2;
+	}
+
+	if(mtConfig.general.patternDiv > 15)
+	{
+		mtConfig.general.patternDiv = 0;
+	}
+
+	if(mtConfig.general.radioRegion > 3)
+	{
+		mtConfig.general.radioRegion = 0;
+	}
+
 
 // TODO dodac zapis spowrotem do configu jesli np przy sprawdzaniu wazne dane sie nie zgadzały
 // TODO

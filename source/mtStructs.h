@@ -70,6 +70,8 @@ const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
 const  int8_t MAX_NOTE =						120;
 const  int8_t MIN_NOTE =						0;
 
+const  uint8_t DEFAULT_MIDI_VELOCITY 		=	127;
+
 const uint8_t INSTRUMEN_ENVELOPES_MAX 		=	3;
 
 
@@ -461,6 +463,15 @@ struct strMtValues
 // performance
 	uint8_t perfSelectedValues[12] 	= {0,0,0,0,0,0,0,0,0,0,0,0};
 	uint8_t perfTracksState[8] = {0,0,0,0,0,0,0,0}; // narazie nie uzywana
+
+
+	struct strMidiInstr
+	{
+		uint8_t velocity = DEFAULT_MIDI_VELOCITY;
+
+	} midiInstrument[16];
+
+
 };
 
 struct strSong
@@ -541,6 +552,24 @@ struct strMtConfig
 		uint8_t padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
 
 	} values;
+
+	struct strMIDIValues
+	{
+		uint8_t clkIn;
+		uint8_t clkOut;
+		uint8_t transportIn;
+		uint8_t transportOut;
+		uint8_t ccOut[10];
+	} midi;
+
+	struct strGeneralValues
+	{
+		uint8_t patternDiv;
+		uint8_t radioRegion;
+		uint8_t brightness;
+	} general;
+
+	uint32_t arcanoidHighestScore;
 };
 
 

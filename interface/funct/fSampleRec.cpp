@@ -9,7 +9,7 @@
 #include "mtFileManager.h"
 #include "mtPadsBacklight.h"
 #include "graphicProcessing.h"
-
+#include "sdCardDetect.h"
 
 
 
@@ -151,6 +151,7 @@ static  uint8_t functUp();
 static  uint8_t functDown();
 
 static uint8_t functEnter();
+static uint8_t functDeleteBackspace(uint8_t state);
 
 static  uint8_t functSelectButton0();
 static  uint8_t functSelectButton1(uint8_t state);
@@ -201,6 +202,7 @@ static uint8_t functStepNote(uint8_t value);
 static void modStartPoint(int16_t value);
 static void modEndPoint(int16_t value);
 
+static uint8_t functSdCard(uint8_t state);
 
 void seek_callback(void);
 
@@ -368,6 +370,7 @@ void cSampleRecorder::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
+
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
@@ -404,6 +407,7 @@ void cSampleRecorder::stop()
 	audioShield.headphoneSourceSelect(0);
 	moduleRefresh = 0;
 
+	radio.clearRDS();
 	radio.resetSeekCallback();
 	//hideRDS();
 
@@ -440,10 +444,11 @@ void cSampleRecorder::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButtonNote, functStepNote);
 
-
+	FM->setButtonObj(interfaceButtonDelete, functDeleteBackspace);
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
+	FM->setSdDetection(functSdCard);
 
 }
 
@@ -1279,6 +1284,23 @@ static  uint8_t functActionButton7()
 }
 
 //==============================================================================================================
+static uint8_t functDeleteBackspace(uint8_t state)
+{
+	if((state == buttonPress) || (state == buttonHold))
+	{
+		if(SR->keyboardActiveFlag)
+		{
+			if(SR->editPosition == 0 ) return 1;
+
+			SR->name[SR->editPosition-1] = 0;
+			SR->editPosition--;
+			SR->showKeyboardEditName();
+		}
+	}
+	return 1;
+}
+
+//==============================================================================================================
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if((state == 1) || (state == 2))
@@ -1744,6 +1766,12 @@ static  uint8_t functActionStopRec()
 
 		return 1;
 	}
+
+	if(!sdCardDetector.isCardInserted())
+	{
+		return 1;
+	}
+
 	functActionSave();
 	return 1;
 }
@@ -2634,6 +2662,7 @@ void cSampleRecorder::clearAllNodes()
 	}
 }
 
+
 void cSampleRecorder::cancelMultiFrame()
 {
 	for(uint8_t i = 0; i < MAX_SELECT_NODES; i++)
@@ -2645,3 +2674,10 @@ void cSampleRecorder::cancelMultiFrame()
 }
 ///////////////////////////////////////////////////////////////////////////
 
+static uint8_t functSdCard(uint8_t state)
+{
+	SR->showDefaultScreen();
+
+
+	return 1;
+}

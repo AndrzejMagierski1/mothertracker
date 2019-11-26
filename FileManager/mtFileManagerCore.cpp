@@ -309,7 +309,7 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 {
 	if(configChangedRefresh > 10000 || forcedWorkspaceSave)
 	{
-		if(savingInProgress == 0 && loadingInProgress == 0)
+		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
 		{
 			configChangedRefresh = 0;
 			if(configIsChangedFlag == 1)
@@ -323,7 +323,7 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 	{
 		instrumentRefresh = 0;
 
-		if(savingInProgress == 0 && loadingInProgress == 0)
+		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
 		{
 			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
 			{
@@ -339,7 +339,7 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 	{
 		patternRefresh = 0;
 
-		if(savingInProgress == 0 && loadingInProgress == 0)
+		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
 		{
 			if(patternIsChangedFlag[mtProject.values.actualPattern] == 1)
 			{
@@ -449,6 +449,13 @@ void FileManager::getDefaultValues(struct strMtValues *source)
 
 	memset(source->instrumentsToSave, 0, INSTRUMENTS_COUNT);
 	memset(source->patternsToSave, 0, PATTERN_INDEX_MAX);
+
+	//instrumenty midi
+
+	for(uint8_t channel = 0; channel<16; channel++)
+	{
+		source->midiInstrument[channel].velocity = DEFAULT_MIDI_VELOCITY;
+	}
 }
 
 

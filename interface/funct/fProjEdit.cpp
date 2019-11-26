@@ -12,6 +12,9 @@
 
 #include "performanceMode.h"
 
+#include "sdCardDetect.h"
+
+
 enum valueMapDirecion
 {
 	valueMapDirectionLeft,
@@ -135,6 +138,8 @@ cProjectEditor* PE = &projectEditor;
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
+static uint8_t functSdCard(uint8_t state);
+
 //static uint8_t functShowProjectsList();
 //static uint8_t functShowTemplatesList();
 //static uint8_t functCancelList();
@@ -174,8 +179,8 @@ static uint8_t functExportToMOD();
 static uint8_t functExportGoBack();
 
 //****************************************************
-static uint8_t functEnterName();
 static uint8_t functSwitchModule(uint8_t button);
+
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
@@ -183,38 +188,26 @@ static  uint8_t functUp();
 static  uint8_t functDown();
 static  uint8_t functConfirmKey();
 
+static uint8_t functDeleteBackspace(uint8_t state);
+
 static  uint8_t functEncoder(int16_t value);
+
+
+static uint8_t functDelete();
+static uint8_t functDeleteConfirm();
+
 
 static uint8_t functStartGameModule()
 {
 	if(PE->isBusyFlag) return 1;
 	PE->eventFunct(eventActivateGameModule,PE,0,0);
+	return 1;
 }
+
 
 void cProjectEditor::update()
 {
 	refreshProcessingPopup();
-
-/*	if(projectOptions > 0)
-	{
-		switch(projectOptions)
-		{
-			case mtProjectStartModeOpenLast:
-			{
-				listOnlyFolderNames("/Projects/");
-
-				fileManager.openProjectStart(&locationFilesList[selectedLocation][0],projectTypeUserMade);
-
-				loadProjectValues();
-
-				functSwitchModule(interfaceButtonPattern);
-				break;
-			}
-			default: break;
-		}
-
-		projectOptions = 0;
-	}*/
 
 	if(openInProgressFlag || createNewProjectFlag)
 	{
@@ -264,6 +257,26 @@ void cProjectEditor::update()
 				openOnSaveEndFlag = 0;
 				functOpenProjectConfirm();
 			}
+
+			setDefaultScreenFunct();
+		}
+	}
+
+	if(deleteInProgressFlag)
+	{
+		uint8_t deleteStatus = fileManager.getDeletingStatus();
+
+		if(deleteStatus)
+		{
+			fileManager.refreshDeleting();
+		}
+		else
+		{
+			deleteInProgressFlag = 0;
+			showDefaultScreen();
+			hideProcessingPopup();
+
+			isBusyFlag = 0;
 
 			setDefaultScreenFunct();
 		}
@@ -328,6 +341,15 @@ void cProjectEditor::update()
 		}
 	}
 
+	if(deletePopupFlag)
+	{
+		if(deletePopupDelay > 200)
+		{
+			deletePopupFlag = 0;
+			fileManager.deleteProjectStart(&PE->locationFilesList[PE->selectedLocation][0]);
+			deleteInProgressFlag = 1;
+		}
+	}
 
 	if(refreshCover)
 	{
@@ -362,7 +384,7 @@ void cProjectEditor::start(uint32_t options)
 
 	moduleRefresh = 1;
 
-	FM->setPadsGlobal(functPads);
+
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -378,6 +400,12 @@ void cProjectEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
 
+	if(!sdCardDetector.isCardInserted())
+	{
+		functSdCard(0);
+		return;
+	}
+
 	showDefaultScreen();
 	setDefaultScreenFunct();
 }
@@ -385,14 +413,11 @@ void cProjectEditor::start(uint32_t options)
 void cProjectEditor::stop()
 {
 	moduleRefresh = 0;
-	projectOptions = 0;
 	refreshCover = 0;
 }
 
 void cProjectEditor::setDefaultScreenFunct()
 {
-
-
 	//funkcje
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
@@ -417,17 +442,21 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton5, buttonPress, functSaveAsProject);
 	FM->setButtonObj(interfaceButton6, buttonPress, functExport);
 
+	FM->setButtonObj(interfaceButton7, buttonPress, functStartGameModule); // ARKANOID
+
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
+	FM->setButtonObj(interfaceButtonDelete, functDeleteBackspace);
 
-	FM->setButtonObj(interfaceButton7, buttonPress, functStartGameModule);
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
+	FM->setPadsGlobal(functPads);
 
 
+	FM->setSdDetection(functSdCard);
 }
 //==============================================================================================================
 //==============================================================================================================
@@ -481,25 +510,31 @@ uint8_t cProjectEditor::loadProjectValues()
 		}
 
 		if(mtProject.values.perfSelectedValues[i] > 3) mtProject.values.perfSelectedValues[i] = 0;
-	}
 
-	for(uint8_t place = 0; place<12; place++)
-	{
 		//if(mtProject.values.perfFxValues[place][0] > 255 || mtProject.values.perfFxValues[place][0] < -255)
-		if(mtProject.values.perfFxValues[place][0] != 0)
-			mtProject.values.perfFxValues[place][0] = 0;
-		if(mtProject.values.perfFxValues[place][1] > 255 || mtProject.values.perfFxValues[place][1] < -255)
-			mtProject.values.perfFxValues[place][1] = 0;
-		if(mtProject.values.perfFxValues[place][2] > 255 || mtProject.values.perfFxValues[place][2] < -255)
-			mtProject.values.perfFxValues[place][2] = 0;
-		if(mtProject.values.perfFxValues[place][3] > 255 || mtProject.values.perfFxValues[place][3] < -255)
-			mtProject.values.perfFxValues[place][3] = 0;
+		if(mtProject.values.perfFxValues[i][0] != 0)
+			mtProject.values.perfFxValues[i][0] = 0;
+		if(mtProject.values.perfFxValues[i][1] > 255 || mtProject.values.perfFxValues[i][1] < -255)
+			mtProject.values.perfFxValues[i][1] = 0;
+		if(mtProject.values.perfFxValues[i][2] > 255 || mtProject.values.perfFxValues[i][2] < -255)
+			mtProject.values.perfFxValues[i][2] = 0;
+		if(mtProject.values.perfFxValues[i][3] > 255 || mtProject.values.perfFxValues[i][3] < -255)
+			mtProject.values.perfFxValues[i][3] = 0;
 	}
 
 	//----------------------------------------------------------------------------------------------------
 	// song pattern
 	if(mtProject.values.globalTempo > 1000) mtProject.values.globalTempo = DEFAULT_TEMPO;
 	if(mtProject.values.patternLength > 255) mtProject.values.patternLength = 32;
+
+
+	//----------------------------------------------------------------------------------------------------
+	// midi instruments velocity
+	for(uint8_t channel = 0; channel<16; channel++)
+	{
+		if(mtProject.values.midiInstrument[channel].velocity > 127) mtProject.values.midiInstrument[channel].velocity = 127;
+	}
+
 
 
 
@@ -561,6 +596,7 @@ static uint8_t functOpenProject()
 
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProjectConfirm);
 	PE->FM->setButtonObj(interfaceButton1, buttonPress, functSaveChangesCancelOpen);
+	PE->FM->setButtonObj(interfaceButton5, buttonPress, functDelete);
 
 	PE->projectListActiveFlag = 1;
 
@@ -830,6 +866,19 @@ void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 	showSaveLastWindow();
 }
 
+static uint8_t functDelete()
+{
+	if(PE->isBusyFlag) return 1;
+	if(strcmp(fileManager.currentProjectName, &PE->locationFilesList[PE->selectedLocation][0]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
+
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveChangesCancelOpen);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functDeleteConfirm);
+
+	PE->showDeleteLastWindow();
+
+	return 1;
+}
+
 static uint8_t functSaveChangesCancelOpen()
 {
 	if(PE->isBusyFlag) return 1;
@@ -882,6 +931,20 @@ static uint8_t functSaveChangesSaveOpen()
 	PE->showDefaultScreen();
 	PE->showProcessingPopup("Saving project");
 
+	return 1;
+}
+
+static uint8_t functDeleteConfirm()
+{
+	if(PE->isBusyFlag) return 1;
+
+	PE->deletePopupFlag = 1;
+	PE->deletePopupDelay = 0;
+	PE->isBusyFlag = 1;
+
+
+	PE->showDefaultScreen();
+	PE->showProcessingPopup("Deleting project");
 	return 1;
 }
 //===============================================================================================================
@@ -1343,6 +1406,22 @@ static uint8_t functConfirmKey()
 	return 0;
 }
 
+static uint8_t functDeleteBackspace(uint8_t state)
+{
+	if((state == buttonPress) || (state == buttonHold))
+	{
+		if(PE->keyboardActiveFlag)
+		{
+			if(PE->editPosition == 0 ) return 1;
+
+			PE->name[PE->editPosition-1] = 0;
+			PE->editPosition--;
+			PE->showKeyboardEditName();
+		}
+	}
+	return 1;
+}
+
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if(PE->isBusyFlag) return 1;
@@ -1497,4 +1576,19 @@ void cProjectEditor::refreshProjectCover(uint16_t delay_ms)
 	display.setControlHide(coverImg);
 }
 
+static uint8_t functSdCard(uint8_t state)
+{
+	if(state)
+	{
+		PE->start(0);
+	}
+	else
+	{
+		PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+		PE->FM->clearAllPots();
+		PE->FM->setSdDetection(functSdCard);
+		PE->deactivateGui();
+	}
 
+	return 1;
+}

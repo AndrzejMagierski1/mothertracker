@@ -17,9 +17,8 @@ static cInstrumentEditor* IE = &instrumentEditor;
 
 
 
-
 static  uint8_t functPlayAction();
-static  uint8_t functRecAction();
+
 
 static  uint8_t functInstrument(uint8_t state);
 
@@ -30,24 +29,17 @@ static  uint8_t functDown();
 
 
 
-static  uint8_t functCopy();
-
-
 static  uint8_t functEncoder(int16_t value);
-
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 
 static  uint8_t functSwitchModule(uint8_t button);
-
 static  uint8_t functSwitchMode(uint8_t button);
 
-static  uint8_t functSelectEnv(uint8_t button);
 static  uint8_t functSelectParams(uint8_t button, uint8_t state);
 
 
-static uint8_t functShift(uint8_t value);
 
 static uint8_t functStepNote(uint8_t value);
 
@@ -61,7 +53,6 @@ void changeEnvRelease(int16_t value);
 void changeEnvAmount(int16_t value);
 void changeEnvLoop(int16_t value);
 
-
 void changeParamsVolume(int16_t value);
 void changeParamsPanning(int16_t value);
 void changeParamsTune(int16_t value);
@@ -71,12 +62,14 @@ void changeFilterCutOff(int16_t value);
 void changeFilterResonance(int16_t value);
 void changeParamsReverbSend(int16_t value);
 
+void changeParamsVelocity(int16_t value);
 
 
-void cInstrumentEditor::addNode(editFunct_t funct , uint8_t nodeNum)
+void cInstrumentEditor::addNode(editFunct_t funct , uint8_t nodeNum, uint8_t reverseInput = 0)
 {
 	if(selectNodes[nodeNum].isActive == 0)
 	{
+		selectNodes[nodeNum].reverseInput = reverseInput;
 		selectNodes[nodeNum].isActive = 1;
 		selectNodes[nodeNum].editFunct = funct;
 	}
@@ -88,15 +81,26 @@ void cInstrumentEditor::removeNode(uint8_t nodeNum)
 	selectNodes[nodeNum].editFunct = NULL;
 }
 
-void cInstrumentEditor::stepThroughNodes(int16_t value)
+void cInstrumentEditor::stepThroughNodes(int16_t value, uint8_t source) /*source: 1 - przycisk, 0 - enkoder*/
 {
+	int16_t nodeVal;
 	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
 	{
+		nodeVal = value;
 		if(selectNodes[node].isActive)
 		{
 			if(selectNodes[node].editFunct != NULL)
 			{
-				selectNodes[node].editFunct(value);
+				/*odwracanie wartosci dla list przy wprowadzaniu z przycisku*/
+				if(source == 1)
+				{
+					if(selectNodes[node].reverseInput == 1)
+					{
+						nodeVal = (-nodeVal);
+					}
+				}
+
+				selectNodes[node].editFunct(nodeVal);
 			}
 		}
 	}
@@ -124,8 +128,6 @@ void cInstrumentEditor::cancelMultiFrame()
 
 void cInstrumentEditor::update()
 {
-
-
 	moduleRefresh = 0;
 }
 
@@ -168,28 +170,44 @@ void cInstrumentEditor::start(uint32_t options)
 
 	if(mtProject.values.lastUsedInstrument >= INSTRUMENTS_COUNT)
 	{
-		display.hideAllControls();
-		showTitleBar();
-		display.synchronizeRefresh();
-		return;
+		paramsMode = mtInstEditMidi;
+	}
+	else
+	{
+		paramsMode = mtInstEditNormal;
 	}
 
-	setDefaultScreenFunct();
 	switch(mode)
 	{
 		case mtInstEditModeParams:
 		{
+			if(paramsMode == mtInstEditMidi)
+			{
+				showInstrumentMidiParams();
+				setDefaultScreenFunct();
+				return;
+			}
 			showInstrumentParams();
-			setInstrumentParamsFunct();
-			break;
+			setDefaultScreenFunct();
+			return;
 		}
 		case mtInstEditModeEnv:
 		{
+			if(paramsMode == mtInstEditMidi)
+			{
+				display.hideAllControls();
+				showTitleBar();
+				display.synchronizeRefresh();
+				clearDefaultScreenFunct();
+				return;
+			}
 			showInstrumentEnv();
-			setInstrumentEnvFunct();
-			break;
+			setDefaultScreenFunct();
+			return;
 		}
 	}
+
+
 }
 
 void cInstrumentEditor::stop()
@@ -199,102 +217,59 @@ void cInstrumentEditor::stop()
 	padsBacklight.clearAllPads(1, 1, 1);
 }
 
+
+
 void cInstrumentEditor::setDefaultScreenFunct()
 {
-	//funkcje
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
+
+	for(uint8_t i = interfaceButton0; i < interfaceButton8; i++)
+	{
+		FM->setButtonObj(i, functSelectParams);
+	}
+
+	FM->setPotObj(interfacePot0, functEncoder, nullptr);
+
+	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
+	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
+	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
+	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
+	FM->setButtonObj(interfaceButtonNote, functStepNote);
+
+	activateLabelsBorder();
+
+	padsBacklight.clearAllPads(0, 1, 1);
+
 
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
 	//FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 	//FM->setButtonObj(interfaceButtonShift, functShift);
 	FM->setButtonObj(interfaceButtonInstr, functInstrument);
 	FM->setPadsGlobal(functPads);
+
 }
 
-//void cInstrumentEditor::listData()
-//{
-//
-//	for(uint8_t i = 0; i < filterModeCount; i++)
-//	{
-//		filterModeNames[i] = (char*)&filterModeFunctLabels[i][0];
-//	}
-//
-//	for(uint8_t i = 0; i < 2; i++)
-//	{
-//		envelopeNames[i] = (char*)&envelopesLabels[i][0];
-//	}
-//
-//	for(uint8_t i = 0; i < 2; i++)
-//	{
-//		envStateNames[i] = (char*)&envStateLabels[i][0];
-//	}
-//
-//	for(uint8_t i = 0; i < 2; i++)
-//	{
-//		envLoopNames[i] = (char*)&envLoopLabels[i][0];
-//	}
-//
-//}
 
+void cInstrumentEditor::clearDefaultScreenFunct()
+{
+	FM->clearAllPots();
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	FM->clearButton(interfaceButtonLeft);
+	FM->clearButton(interfaceButtonRight);
+	FM->clearButton(interfaceButtonUp);
+	FM->clearButton(interfaceButtonDown);
+
+}
 
 //==============================================================================================================
-void cInstrumentEditor::setInstrumentEnvFunct()
-{
-	for(uint8_t i = interfaceButton0; i < interfaceButton8; i++)
-	{
-		FM->setButtonObj(i, functSelectParams);
-	}
-
-	FM->setPotObj(interfacePot0, functEncoder, nullptr);
-
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
-	FM->setButtonObj(interfaceButtonNote, functStepNote);
-
-	activateLabelsBorder();
-
-	padsBacklight.clearAllPads(0, 1, 1);
-}
-
-void cInstrumentEditor::setInstrumentParamsFunct()
-{
-	for(uint8_t i = interfaceButton0; i < interfaceButton8; i++)
-	{
-		FM->setButtonObj(i, functSelectParams);
-	}
-
-	FM->setPotObj(interfacePot0, functEncoder, nullptr);
-
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
-	FM->setButtonObj(interfaceButtonNote, functStepNote);
-
-	activateLabelsBorder();
-
-	padsBacklight.clearAllPads(0, 1, 1);
-
-	changeFilterFilterType(0);
-}
-
-
-
-
-static  uint8_t functSelectEnv(uint8_t button)
-{
-	IE->selectedPlace[1] = button;
-	IE->activateLabelsBorder();
-
-	return 1;
-}
 
 static uint8_t functSelectParams(uint8_t button, uint8_t state)
 {
 	uint8_t mode_places = button + IE->mode*10;
+
+	if(IE->paramsMode == mtInstEditMidi) mode_places = button+20;
 
 	uint8_t node = button;
 
@@ -308,19 +283,22 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 		case 1:	IE->addNode(changeParamsPanning, node); 	    break;
 		case 2: IE->addNode(changeParamsTune, node); 			break;
 		case 3: IE->addNode(changeParamsFineTune, node); 		break;
-		case 4: IE->addNode(changeFilterFilterType, node);   	break;
+		case 4: IE->addNode(changeFilterFilterType, node, 1);   break;
 		case 5: IE->addNode(changeFilterCutOff, node); 	    	break;
 		case 6: IE->addNode(changeFilterResonance, node);    	break;
 		case 7: IE->addNode(changeParamsReverbSend, node);   	break;
 
-		case 10: IE->addNode(changeEnvList, node); 		 		break;
-		case 11: IE->addNode(changeEnvState, node); 		 	break;
+		case 10: IE->addNode(changeEnvList, node, 1); 		 	break;
+		case 11: IE->addNode(changeEnvState, node, 1); 		 	break;
 		case 12: IE->addNode(changeEnvAttack, node); 	 		break;
 		case 13: IE->addNode(changeEnvDecay, node); 		 	break;
 		case 14: IE->addNode(changeEnvSustain, node); 	 		break;
 		case 15: IE->addNode(changeEnvRelease, node); 	 		break;
 		case 16: IE->addNode(changeEnvAmount, node); 	 		break;
 		case 17: IE->addNode(changeEnvLoop, node); 		 		break;
+
+		// midi params
+		case 20: IE->addNode(changeParamsVelocity, node); 		 break;
 		}
 
 		IE->frameData.multisel[button].frameNum = node;
@@ -358,11 +336,12 @@ static  uint8_t functEncoder(int16_t value)
 {
 	if(IE->frameData.multiSelActiveNum != 0)
 	{
-		IE->stepThroughNodes(value);
+		IE->stepThroughNodes(value, 0);
 	}
 	else
 	{
 		uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
+		if(IE->paramsMode == mtInstEditMidi) mode_places = IE->selectedPlace[IE->mode]+20;
 
 		switch(mode_places)
 		{
@@ -384,6 +363,7 @@ static  uint8_t functEncoder(int16_t value)
 		case 16: changeEnvAmount(value); 	break;
 		case 17: changeEnvLoop(value); 		break;
 
+		case 20: changeParamsVelocity(value); 	break;
 		}
 	}
 
@@ -419,11 +399,12 @@ static  uint8_t functUp()
 {
 	if(IE->frameData.multiSelActiveNum != 0)
 	{
-		IE->stepThroughNodes(1);
+		IE->stepThroughNodes(1, 1);
 	}
 	else
 	{
 		uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
+		if(IE->paramsMode == mtInstEditMidi) mode_places = IE->selectedPlace[IE->mode]+20;
 
 		switch(mode_places)
 		{
@@ -445,6 +426,7 @@ static  uint8_t functUp()
 		case 16: changeEnvAmount(1); 	break;
 		case 17: changeEnvLoop(-1); 		break;
 
+		case 20: changeParamsVelocity(1); 	break;
 		}
 	}
 
@@ -456,11 +438,12 @@ static  uint8_t functDown()
 {
 	if(IE->frameData.multiSelActiveNum != 0)
 	{
-		IE->stepThroughNodes(-1);
+		IE->stepThroughNodes(-1, 1);
 	}
 	else
 	{
 		uint8_t mode_places = IE->selectedPlace[IE->mode] + IE->mode*10;
+		if(IE->paramsMode == mtInstEditMidi) mode_places = IE->selectedPlace[IE->mode]+20;
 
 		switch(mode_places)
 		{
@@ -482,6 +465,7 @@ static  uint8_t functDown()
 		case 16: changeEnvAmount(-1); 			break;
 		case 17: changeEnvLoop(1); 			break;
 
+		case 20: changeParamsVelocity(-1); 	break;
 		}
 	}
 
@@ -506,14 +490,6 @@ static  uint8_t functPlayAction()
 }
 
 
-
-
-static  uint8_t functRecAction()
-{
-
-
-	return 1;
-}
 
 
 
@@ -598,7 +574,7 @@ void changeEnvList(int16_t value)
 
 void changeEnvState(int16_t value)
 {
-	if(value > 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
+	if(value > 0)IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
 	else if(value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
 //	if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
 //	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value > 1 ) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
@@ -712,7 +688,6 @@ void changeEnvLoop(int16_t value)
 
 void changeFilterFilterType(int16_t value)
 {
-
 	if(IE->filterModeListPos + value < 0) IE->filterModeListPos = 0;
 	else if(IE->filterModeListPos + value > filterModeCount-1) IE->filterModeListPos = filterModeCount-1;
 	else IE->filterModeListPos += value;
@@ -738,17 +713,10 @@ void changeFilterFilterType(int16_t value)
 		IE->editorInstrument->filterType = bandPass;
 	}
 
-	display.setControlText(IE->label[4], filterModeFunctLabels[IE->filterModeListPos]);
-	display.refreshControl(IE->label[4]);
-
-	display.setControlValue(IE->filterModeListControl, IE->filterModeListPos);
-	display.refreshControl(IE->filterModeListControl);
-	//showFilterFilterType();
+	IE->showFilterType();
 
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
-
-uint8_t bgB = 128;
 
 void changeFilterCutOff(int16_t value)
 {
@@ -772,7 +740,7 @@ void changeFilterCutOff(int16_t value)
 
 void changeFilterResonance(int16_t value)
 {
-	float fVal = value * 0.05;
+	float fVal = value * (RESONANCE_MAX-RESONANCE_MIN)/100;
 
 	if(IE->editorInstrument->resonance + fVal < RESONANCE_MIN) IE->editorInstrument->resonance = RESONANCE_MIN;
 	else if(IE->editorInstrument->resonance + fVal > RESONANCE_MAX) IE->editorInstrument->resonance = RESONANCE_MAX;
@@ -864,8 +832,30 @@ void changeParamsReverbSend(int16_t value)
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
+
+
+void changeParamsVelocity(int16_t value)
+{
+	uint8_t* temp_velocity =  &mtProject.values.midiInstrument[mtProject.values.lastUsedInstrument-INSTRUMENTS_COUNT].velocity;
+
+	if(*temp_velocity + value < 0) *temp_velocity = 0;
+	else if(*temp_velocity + value > 127) *temp_velocity = 127;
+	else *temp_velocity += value;
+
+	IE->showParamsVelocity();
+
+	IE->setProjectSaveFlags();
+}
+
+
 //======================================================================================================================
 //==============================================================================================
+
+void cInstrumentEditor::setProjectSaveFlags()
+{
+	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.configIsChangedFlag = 1;
+}
 
 void cInstrumentEditor::cancelPopups()
 {
@@ -879,33 +869,6 @@ void cInstrumentEditor::cancelPopups()
 
 //======================================================================================================================
 //==============================================================================================
-static uint8_t functShift(uint8_t value)
-{
-	/*
-
-	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_PLAY)
-	{
-		sequencer.stop();
-	}
-
-	if(value == 1)
-	{
-		//eventFunct(mtInstrumentEditorEventPadPress, &interfacePadStop, 0, 0);
-		sequencer.stop();
-
-		IE->isPlayingSample = 1;
-
-		instrumentPlayer[0].noteOn(mtProject.values.lastUsedInstrument, 24, -1);
-	}
-	else if(value == 0)
-	{
-		if(IE->isPlayingSample) instrumentPlayer[0].noteOff();
-		IE->isPlayingSample = 0;
-	}
-
-	*/
-	return 1;
-}
 
 
 //##############################################################################################
@@ -918,7 +881,7 @@ void cInstrumentEditor::lightUpPadBoard()
 	padsBacklight.clearAllPads(0, 1, 1);
 
 
-	if(mtProject.values.lastUsedInstrument >= 0 && mtProject.values.lastUsedInstrument <= 48)
+	if(mtProject.values.lastUsedInstrument >= 0 && mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
 	{
 		padsBacklight.setBackLayer(1, 20, mtProject.values.lastUsedInstrument);
 	}
@@ -959,17 +922,14 @@ static  uint8_t functInstrument(uint8_t state)
 {
 	if(state == buttonRelease)
 	{
-
 		IE->editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
 
 		IE->cancelPopups();
-
-
 	}
 	else if(state == buttonPress)
 	{
 		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
-		IE->lightUpPadBoard();
+		//IE->lightUpPadBoard(); // obsluga podswwietleniem przeniesiona do popupow
 	}
 
 	return 1;
@@ -980,16 +940,11 @@ static uint8_t functStepNote(uint8_t value)
 	if(value == buttonRelease)
 	{
 		IE->cancelPopups();
-
 	}
 	else if(value == buttonPress)
 	{
 		mtPopups.showStepPopup(stepPopupNote, -1);
-		IE->lightUpPadBoard();
 	}
 
 	return 1;
 }
-
-
-

@@ -126,6 +126,8 @@ void cSamplePlayback::update()
 
 	if(isPlayingWavetable)
 	{
+		processWavetableCursor(instrumentPlayer[0].instrumentBasedMod.wtPos);
+
 		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
 		{
 			instrumentPlayer[0].clearInterfaceEndReleaseFlag();
@@ -200,14 +202,6 @@ void cSamplePlayback::start(uint32_t options)
 
 	loadedInstrumentType =  mtProject.instrument[mtProject.values.lastUsedInstrument].sample.type;
 
-	if(loadedInstrumentType == mtSampleTypeWavetable)
-	{
-		if(selectedPlace == 0) selectedPlace = 1;
-		else if((selectedPlace == 3) || (selectedPlace == 4)) selectedPlace = 2;
-		else if(selectedPlace == 5) selectedPlace == 6;
-		wavetableWindowsCounter = convertWavetableWindowsSizeToCounter(mtProject.instrument[mtProject.values.lastUsedInstrument].sample.wavetable_window_size);
-	}
-
 	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
 	{
 		editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
@@ -242,6 +236,16 @@ void cSamplePlayback::start(uint32_t options)
 			points.selected = (selectedPlace >= 1 && selectedPlace <= 4) ? selectedPlace : 0;
 
 			slicePoints.selected = 0;
+		}
+
+		if(loadedInstrumentType == mtSampleTypeWavetable)
+		{
+			if(selectedPlace == 0) selectedPlace = 1;
+			else if((selectedPlace == 3) || (selectedPlace == 4)) selectedPlace = 2;
+			else if(selectedPlace == 5) selectedPlace = 6;
+			wavetableWindowsCounter = convertWavetableWindowsSizeToCounter(mtProject.instrument[mtProject.values.lastUsedInstrument].sample.wavetable_window_size);
+
+			processWavetableCursor(SP->editorInstrument->wavetableCurrentWindow);
 		}
 
 
@@ -1263,6 +1267,16 @@ static void changePlayModeSelection(int16_t value)
 	else  SP->editorInstrument->playMode += value;
 
 	if(SP->editorInstrument->playMode == playModeWavetable)
+	if(SP->editorInstrument->playMode == playModeWavetable)
+	{
+		SP->showWavetablePositionCursor();
+	}
+	else
+	{
+		SP->hideWavetablePositionCursor();
+	}
+
+	if((SP->editorInstrument->playMode == playModeWavetable) && (value > 0))
 	{
 		if(SP->editorInstrument->sample.type == 0) SP->refreshSpectrum = 1;
 		SP->editorInstrument->sample.type = 1;
@@ -1506,6 +1520,15 @@ static void modLoopPoint2(int16_t value)
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
+void cSamplePlayback::processWavetableCursor(uint32_t position)
+{
+	wtPosition.position = position;
+	wtPosition.window = SP->editorInstrument->sample.wavetable_window_size;
+	wtPosition.positionMax = SP->editorInstrument->sample.wavetableWindowNumber;
+
+	showWavetablePositionCursor();
+}
+
 static void modWavetablePostion(int32_t value)
 {
 	if((int32_t)(SP->editorInstrument->wavetableCurrentWindow + value) < 0) SP->editorInstrument->wavetableCurrentWindow  = 0;
@@ -1515,7 +1538,7 @@ static void modWavetablePostion(int32_t value)
 	instrumentPlayer[0].instrumentBasedMod.wtPos = SP->editorInstrument->wavetableCurrentWindow;
 	instrumentPlayer[0].setStatusBytes(WT_POS_SEND_MASK);
 
-
+	SP->processWavetableCursor(SP->editorInstrument->wavetableCurrentWindow);
 	SP->showWavetablePosition();
 	SP->refreshSpectrum = 1;
 
@@ -1552,11 +1575,15 @@ static void modWavetableWindowSize(int16_t value)
 		SP->editorInstrument->wavetableCurrentWindow = SP->editorInstrument->sample.wavetableWindowNumber - 1;
 		SP->showWavetablePosition();
 	}
+
+	SP->processWavetableCursor(SP->editorInstrument->wavetableCurrentWindow);
 	SP->showWavetableWindowSize();
 	SP->refreshSpectrum = 1;
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
+
+	//instrumentPlayer[0].instrumentBasedMod.wtPos;
 }
 
 static void modSliceSelect(int16_t value)
@@ -1740,6 +1767,8 @@ void cSamplePlayback::calcPlayProgressValue()
 
 		refreshSpectrumProgress = 1;
 	}
+
+
 
 
 }

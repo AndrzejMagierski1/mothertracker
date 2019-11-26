@@ -84,6 +84,9 @@ public:
 	void hideLoopPoints();
 	void showLoopPoints();
 
+	void showWavetablePositionCursor();
+	void hideWavetablePositionCursor();
+
 	void selectCorrectPoints();
 
 	void calcPlayProgressValue();
@@ -101,6 +104,7 @@ public:
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 	hControl progressCursor;
+	hControl wtPositionCursor;
 
 
 
@@ -140,6 +144,8 @@ public:
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;
 	strSlicePoints slicePoints;
+
+	wt_position_data_t wtPosition;
 
 //----------------------------------
 // aktualny instrument na belce tytułowej
@@ -183,6 +189,8 @@ public:
 	uint8_t convertWavetableWindowsSizeToCounter(uint16_t size);
 	uint8_t wavetableWindowsCounter = 11;
 	uint8_t refreshWavetablePosition = 1;
+
+	void processWavetableCursor(uint32_t position);
 
 };
 

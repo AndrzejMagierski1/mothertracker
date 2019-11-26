@@ -212,6 +212,7 @@ void cSampleImporter::showDefaultScreen()
 
 	for(uint8_t i = 0; i<6; i++)
 	{
+		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
@@ -227,13 +228,32 @@ void cSampleImporter::showDefaultScreen()
 	display.refreshControl(editName);
 
 	displayDelete(selectedPlace);
-	displayRename(selectedPlace);
+
+	AddEnterOrRename();
+	AddNextControl();
+
 
 //	if(selectedPlace != 0) hideAddWT();
 //	else  checkWavetableLabel();
 
 }
 
+//==============================================================================================================
+void cSampleImporter::deactivateGui()
+{
+	showDefaultScreen();
+
+	for(uint8_t i = 0; i<6; i++)
+	{
+		display.setControlColors(label[i], interfaceGlobals.inactiveLabelsColors);
+		display.refreshControl(label[i]);
+	}
+
+	display.setControlHide(explorerListControl);
+	display.setControlHide(frameControl);
+
+	display.synchronizeRefresh();
+}
 
 //==============================================================================================================
 
@@ -357,7 +377,28 @@ void cSampleImporter::showActualInstrument()
 	display.refreshControl(instrumentLabel);
 }
 
-void cSampleImporter::AddOrEnter()
+void cSampleImporter::AddNextDisplay(uint8_t active)
+{
+	uint32_t *colors;
+	//interfaceGlobals.inactiveLabelsColors;
+
+	display.setControlText(label[2], "Add next");
+
+	if(active)
+	{
+		colors = interfaceGlobals.activeLabelsColors;
+	}
+	else
+	{
+		colors = interfaceGlobals.inactiveLabelsColors;
+	}
+
+	display.setControlColors(label[2], colors);
+	display.refreshControl(label[2]);
+	//display.synchronizeRefresh();
+}
+
+void cSampleImporter::AddEnterOrRename()
 {
 	if(selectedPlace == 0)
 	{
@@ -375,8 +416,10 @@ void cSampleImporter::AddOrEnter()
 		display.setControlText(label[1], "Rename");
 	}
 
+	renameColorControl();
+
 	display.refreshControl(label[1]);
-	display.synchronizeRefresh();
+	//display.synchronizeRefresh();
 }
 
 void cSampleImporter::previewColorControl()
@@ -399,6 +442,50 @@ void cSampleImporter::previewColorControl()
 
 	display.setControlColors(label[3], colors);
 	display.refreshControl(label[3]);
+
+	//display.synchronizeRefresh();
+}
+
+void cSampleImporter::renameColorControl()
+{
+	uint32_t *colors = interfaceGlobals.activeLabelsColors;
+
+	if(selectedPlace == 1)
+	{
+		if(mtProject.instrument[selectedSlot].isActive != 1)
+		{
+			colors = interfaceGlobals.inactiveLabelsColors;
+		}
+	}
+
+	display.setControlColors(label[1], colors);
+	// refreshowany jest w innej funkcji
+}
+
+void cSampleImporter::deleteColorControl()
+{
+	uint32_t *colors = interfaceGlobals.activeLabelsColors;
+
+	if(selectedPlace == 1)
+	{
+		if((selectionLength > 1) && (currSelectPlace == 1))
+		{
+			if(checkIfAnyInstrActive() == 0)
+			{
+				colors = interfaceGlobals.inactiveLabelsColors;
+			}
+		}
+		else
+		{
+			if(mtProject.instrument[selectedSlot].isActive != 1)
+			{
+				colors = interfaceGlobals.inactiveLabelsColors;
+			}
+		}
+	}
+
+	display.setControlColors(label[4], colors);
+	// refreshowany jest w innej funkcji
 }
 
 //void cSampleImporter::showAddWT()
@@ -435,21 +522,21 @@ void cSampleImporter::moveInstrListToEnd()
 
 void cSampleImporter::setSelect(uint8_t place)
 {
-	memset(selectionTab,0,sizeof(selectionTab));
+	if(currSelectPlace != place)
+	{
+		memset(selectionTab, 0, sizeof(selectionTab));
+	}
 
 	if(place == 0)
 	{
-		explorerList.selectTab=selectionTab;
-		instrumentList.selectTab=NULL;
+		explorerList.selectTab = selectionTab;
+		instrumentList.selectTab = NULL;
 	}
 	else
 	{
-		instrumentList.selectTab=selectionTab;
-		explorerList.selectTab=NULL;
+		instrumentList.selectTab = selectionTab;
+		explorerList.selectTab = NULL;
 	}
-
-	//display.setControlData(explorerListControl, &explorerList);
-	//display.setControlData(instrumentListControl, &instrumentList);
 }
 
 // mode = 0 - bialy , mode = 1 - czerwony
@@ -478,6 +565,7 @@ void cSampleImporter::displayDelete(uint8_t onOff)
 	if(onOff)
 	{
 		display.setControlText(label[4], "Delete");
+		deleteColorControl();
 	}
 	else
 	{
@@ -485,21 +573,9 @@ void cSampleImporter::displayDelete(uint8_t onOff)
 	}
 
 	display.refreshControl(label[4]);
+	//display.synchronizeRefresh();
 }
 
-void cSampleImporter::displayRename(uint8_t onOff)
-{
-	if(onOff)
-	{
-		display.setControlText(label[1], "Rename");
-	}
-	else
-	{
-		AddOrEnter();
-	}
-
-	display.refreshControl(label[1]);
-}
 
 void cSampleImporter::showKeyboard()
 {

@@ -29,6 +29,9 @@
 #include "multiLabelControl.h"
 #include "sliceControl.h"
 
+#include "multiLabelControl.h"
+#include "wtProgress.h"
+
 #include "processingPopout.h"
 
 

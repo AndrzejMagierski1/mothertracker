@@ -227,6 +227,8 @@ void cProjectEditor::showDefaultScreen()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
+
+		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
@@ -234,7 +236,7 @@ void cProjectEditor::showDefaultScreen()
 	hideKeyboard();
 //	display.setControlHide(keyboardControl);
 //	display.refreshControl(keyboardControl);
-//
+
 	display.setControlHide(editName);
 	display.refreshControl(editName);
 
@@ -252,8 +254,22 @@ void cProjectEditor::showDefaultScreen()
 
 	display.synchronizeRefresh();
 }
-//==============================================================================================================
 
+//==============================================================================================================
+void cProjectEditor::deactivateGui()
+{
+	showDefaultScreen();
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlColors(label[i], interfaceGlobals.inactiveLabelsColors);
+		display.refreshControl(label[i]);
+	}
+
+	display.synchronizeRefresh();
+}
+
+//==============================================================================================================
 void cProjectEditor::showProjectsList()
 {
 // lista
@@ -279,6 +295,7 @@ void cProjectEditor::showProjectsList()
 // bottom labels
 	display.setControlText(label[0], "Open");
 	display.setControlText(label[1], "Cancel");
+	display.setControlText(label[5], "Delete");
 
 
 	for(uint8_t i = 0; i < 8 ; i++)
@@ -521,6 +538,31 @@ void cProjectEditor::showSaveLastWindow()
 	display.setControlText(label[7], "Save");
 
 	sprintf(currentInfo,"Do you want to save the changes to \"%s\" ?", fileManager.currentProjectName);
+
+	display.setControlText(selectWindowLabel, currentInfo);
+	display.setControlShow(selectWindowLabel);
+	display.refreshControl(selectWindowLabel);
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
+	}
+
+	display.synchronizeRefresh();
+}
+
+void cProjectEditor::showDeleteLastWindow()
+{
+	display.setControlValue(label[0], 0);
+
+	display.setControlText(label[1], "");
+	display.setControlText(label[5], "");
+
+	display.setControlText(label[0], "Cancel");
+	display.setControlText(label[7], "Delete");
+
+	sprintf(currentInfo,"Do you want to delete project: \"%s\" ?", filesNames[selectedLocation]);
 
 	display.setControlText(selectWindowLabel, currentInfo);
 	display.setControlShow(selectWindowLabel);

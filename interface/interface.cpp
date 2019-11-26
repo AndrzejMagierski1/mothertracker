@@ -17,7 +17,7 @@
 
 #include "mtFileManager.h"
 
-
+#include "mtTest.h"
 
 #include "mtStructs.h"
 
@@ -135,7 +135,7 @@ void cInterface::update()
 
 	mtPopups.update();
 
-
+	mtTest.testLoop();
 }
 
 
@@ -310,6 +310,12 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 		case eventToggleActiveModule:
 		{
 			mtInterface.toggleActiveModule();
+			break;
+		}
+		case eventActivateTestingProcedure:
+		{
+			mtInterface.deactivateModule((hModule)param1);
+			mtTest.runTestingProcedure(&mtInterface.uiFM, interfaceEnvents);
 			break;
 		}
 

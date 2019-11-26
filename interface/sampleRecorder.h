@@ -87,6 +87,7 @@ public:
 	virtual ~cSampleRecorder() {}
 
 	void showDefaultScreen();
+	void deactivateGui();
 	void showZoomValue();
 	void showSourceList();
 	void showMonitorList();

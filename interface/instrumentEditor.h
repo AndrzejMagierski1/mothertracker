@@ -15,7 +15,12 @@ enum mtInstrumentEditorMode
 	mtInstEditModeEnv,
 
 };
+enum mtInstrumentEditorParamsMode
+{
+	mtInstEditNormal,
+	mtInstEditMidi,
 
+};
 
 const uint8_t filterModeCount = 4;
 
@@ -74,6 +79,7 @@ public:
 
 	void showInstrumentEnv();
 	void showInstrumentParams();
+	void showInstrumentMidiParams();
 	void showTitleBar();
 
 	void activateLabelsBorder();
@@ -89,12 +95,13 @@ public:
 	void showEnvAmount();
 	void showEnvLoop();
 
+	void showParamsVelocity();
 
 	void showParamsVolume();
 	void showParamsPanning();
 	void showParamsTune();
 	void showParamsFineTune();
-	void showFilterFilterType();
+	void showFilterType();
 	void showFilterCutOff();
 	void showFilterResonance();
 	void showParamsReverbSend();
@@ -104,16 +111,15 @@ public:
 //----------------------------------
 
 	void setDefaultScreenFunct();
+	void clearDefaultScreenFunct();
 
 	void setInstrumentEnvFunct();
+
 	void setInstrumentParamsFunct();
-	void setInstrumentListFunct();
 
 //----------------------------------
 
-
-
-	void changeParamsGlide(int16_t value);
+	void setProjectSaveFlags();
 
 //----------------------------------
 
@@ -139,7 +145,7 @@ public:
 
 	// typ trybu/ekranu
 	uint8_t mode = mtInstEditModeParams;
-	uint8_t instrumentListMode = 0;
+	uint8_t paramsMode = mtInstEditNormal;
 
 	strInstrument * editorInstrument;
 
@@ -199,12 +205,12 @@ public:
 
 
 	char volumeVal[4];
-	char panningVal[5];
-	char tuneVal[4];
+	char panningVal[7];
+	char tuneVal[5];
 	char fineTuneVal[4];
 	char cutoffVal[8];
 	char resonanceVal[8];
-	char revSendVal[4];
+	char revSendVal[5];
 	char envAttack[8];
 	char envDecay[8];
 	char envSustain[8];
@@ -217,9 +223,9 @@ public:
 
 	select_node_t selectNodes[MAX_SELECT_NODES];
 
-	void addNode(editFunct_t funct , uint8_t nodeNum);
+	void addNode(editFunct_t funct , uint8_t nodeNum, uint8_t reverseInput);
 	void removeNode(uint8_t nodeNum);
-	void stepThroughNodes(int16_t value);
+	void stepThroughNodes(int16_t value, uint8_t source);
 	void clearAllNodes();
 	void cancelMultiFrame();
 

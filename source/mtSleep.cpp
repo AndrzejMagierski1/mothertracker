@@ -76,14 +76,7 @@ void mtSleep::handlePowerState(uint8_t value)
 
 uint8_t mtSleep::isLowPower()
 {
-	uint8_t status=0;
-
-	if(powerState ==  powerTypeLow)
-	{
-		status = 1;
-	}
-
-	return status;
+	return powerState == powerTypeLow;
 }
 
 void mtSleep::disableAll()

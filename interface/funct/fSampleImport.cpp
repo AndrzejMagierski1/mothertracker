@@ -11,6 +11,9 @@
 
 #include "keyScanner.h"
 
+#include "sdCardDetect.h"
+
+
 enum valueMapDirecion
 {
 	valueMapDirectionLeft,
@@ -135,7 +138,6 @@ static cSampleImporter* SI = &sampleImporter;
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 static  uint8_t functPlayAction();
-static  uint8_t functRecAction();
 
 
 
@@ -147,6 +149,7 @@ static  uint8_t functRename();
 static  uint8_t functShift(uint8_t state);
 
 static  uint8_t functInstrumentAdd();
+static 	uint8_t functInstrumentAddNext();
 //static  uint8_t functInstrumentWavetableAdd();
 static  uint8_t functInstrumentDelete();
 
@@ -173,6 +176,13 @@ static  uint8_t functSwitchModule(uint8_t button);
 static  uint8_t functConfirmRename();
 static  uint8_t functCancelRename();
 
+static uint8_t functDeleteBackspace(uint8_t state);
+
+
+static uint8_t functSdCard(uint8_t state);
+
+
+
 void cSampleImporter::update()
 {
 	if(fileManager.samplesLoader.getMemoryUsageChangeFlag())
@@ -184,6 +194,13 @@ void cSampleImporter::update()
 	if(fileManager.samplesLoader.getLoadChangeFlag())
 	{
 		fileManager.samplesLoader.clearLoadChangeFlag();
+
+		if(addOrReplaceFlag)
+		{
+			addOrReplaceFlag = 0;
+			changeInstrumentSelection(1);
+		}
+
 		listInstrumentSlots();
 		showInstrumentsList();
 	}
@@ -243,7 +260,14 @@ void cSampleImporter::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
-	FM->setPadsGlobal(functPads);
+
+	if(!sdCardDetector.isCardInserted())
+	{
+		functSdCard(0);
+		return;
+	}
+
+
 
 	showDefaultScreen();
 	setDefaultScreenFunct();
@@ -271,29 +295,29 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-	//FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
+	FM->setButtonObj(interfaceButtonDelete, functDeleteBackspace);
+
 	FM->setButtonObj(interfaceButtonShift, functShift);
-	//FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
-
+	FM->setButtonObj(interfaceButtonInsert, buttonPress, functEnter);
 	FM->setButtonObj(interfaceButton0, buttonPress, functChangeFolder);
 	FM->setButtonObj(interfaceButton1, buttonPress, functChangeFolder);
 
 	if(selectedPlace == 1) FM->setButtonObj(interfaceButton2, buttonPress, functRename);
 	else FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
 
-//	FM->setButtonObj(interfaceButton3, buttonPress, functInstrumentWavetableAdd);
+	FM->setButtonObj(interfaceButton3, buttonPress, functInstrumentAddNext);
 	FM->setButtonObj(interfaceButton4, preview);
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functChangeInstrument);
 	FM->setButtonObj(interfaceButton5, buttonPress, functInstrumentDelete);
+	FM->setButtonObj(interfaceButtonDelete, buttonPress, functInstrumentDelete);
 
 	FM->setButtonObj(interfaceButton6, buttonPress, functChangeInstrument);
 	FM->setButtonObj(interfaceButton7, buttonPress, functChangeInstrument);
@@ -301,6 +325,9 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonCopy, buttonPress, functCopyPaste);
 //	FM->setButtonObj(interfaceButtonPaste, buttonPress, functPaste);
 
+	FM->setPadsGlobal(functPads);
+
+	FM->setSdDetection(functSdCard);
 }
 
 
@@ -323,7 +350,8 @@ static  uint8_t functChangeFolder(uint8_t button)
 
 	SI->selectedPlace = 0;
 
-	SI->AddOrEnter();
+	SI->FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
+
 	SI->previewColorControl();
 	SI->displayDelete(SI->selectedPlace);
 //	SI->checkWavetableLabel();
@@ -349,9 +377,13 @@ static  uint8_t functChangeInstrument(uint8_t button)
 		}
 	}
 
+	SI->FM->setButtonObj(interfaceButton2, buttonPress, functRename);
+
 	SI->selectedPlace = 1;
 
-	SI->AddOrEnter();
+	SI->displayDelete(1);
+	SI->AddEnterOrRename();
+	SI->previewColorControl();
 	SI->displayDelete(SI->selectedPlace);
 //	SI->hideAddWT();
 
@@ -396,13 +428,26 @@ static  uint8_t functInstrumentDelete()
 
 	if(SI->selectedPlace == 1)
 	{
-		SI->isBusy = 1; // processDeleting() powinna zdjac blokade
-
 		if(SI->currSelectPlace == 1 && SI->selectionLength)
 		{
-			SI->deleteInProgress = 1;
 			SI->deleteStart = SI->getSelectionStart();
-			SI->deleteCurrentPos = SI->deleteStart;
+			SI->instrToDelete = 0;
+			SI->instrDeleted = 0;
+
+			for(uint32_t i = SI->deleteStart; i < (SI->deleteStart + SI->selectionLength); i++)
+			{
+				if(mtProject.instrument[i].isActive)
+				{
+					SI->instrToDelete++;
+				}
+			}
+
+			if(SI->instrToDelete > 0)
+			{
+				SI->deleteInProgress = 1;
+				SI->deleteCurrentPos = SI->deleteStart;
+				SI->isBusy = 1; // processDeleting() powinna zdjac blokade
+			}
 		}
 		else
 		{
@@ -414,11 +459,12 @@ static  uint8_t functInstrumentDelete()
 			fileManager.deleteInstrument(SI->selectedSlot);
 
 			SI->handleMemoryBar();
+			SI->displayDelete(1);
+			SI->AddEnterOrRename();
+			SI->previewColorControl();
 
 			SI->listInstrumentSlots();
 			SI->showInstrumentsList();
-
-			SI->isBusy = 0;
 		}
 	}
 
@@ -459,9 +505,24 @@ static  uint8_t functEnter()
 	return 1;
 }
 
+static uint8_t functInstrumentAddNext()
+{
+	if(SI->isBusy) return 1;
+
+	if(SI->locationExplorerList[SI->selectedFile][0] != '/')
+	{
+		SI->sampleType = mtSampleTypeWaveFile;
+		SI->addOrReplaceFlag = 1;
+		SI->SelectFile();
+	}
+
+	return 1;
+}
+
 static  uint8_t functRename()
 {
 	if(SI->isBusy) return 1;
+	if(mtProject.instrument[SI->selectedSlot].isActive != 1) return 1;
 
 	strncpy(SI->name,mtProject.instrument[SI->selectedSlot].sample.file_name,32);
 	SI->editPosition = strlen(SI->name);
@@ -483,25 +544,28 @@ static  uint8_t functRename()
 
 static  uint8_t functConfirmRename()
 {
-	strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,SI->name,32);
+	if(strlen(SI->name) > 1)
+	{
+		strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,SI->name,32);
 
-	SI->showFileList();
+		SI->showFileList();
 
-	SI->listInstrumentSlots();
-	SI->showInstrumentsList();
+		SI->listInstrumentSlots();
+		SI->showInstrumentsList();
 
-	SI->handleMemoryBar();
+		SI->handleMemoryBar();
 
-	SI->activateLabelsBorder();
+		SI->activateLabelsBorder();
 
-	SI->setDefaultScreenFunct();
-	SI->showDefaultScreen();
+		SI->setDefaultScreenFunct();
+		SI->showDefaultScreen();
 
-	SI->displayDelete(SI->selectedPlace);
+		SI->displayDelete(SI->selectedPlace);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+		fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 
-	SI->keyboardActiveFlag = 0;
+		SI->keyboardActiveFlag = 0;
+	}
 
 	return 1;
 }
@@ -654,11 +718,12 @@ static  uint8_t functShift(uint8_t state)
 			return 1;
 		}
 
+		SI->setSelect(SI->selectedPlace);
+
 		if(SI->currSelectPlace != SI->selectedPlace)
 		{
 			SI->currSelectPlace = SI->selectedPlace;
 			SI->selectionLength=0;
-			SI->setSelect(SI->selectedPlace);
 		}
 
 		SI->frameSelectMode(SI->currSelectPlace,1);
@@ -724,7 +789,6 @@ static  uint8_t functLeft()
 
 		SI->handleMemoryBar();
 		SI->displayDelete(0);
-		SI->displayRename(0);
 		SI->resetInstrSel();
 		SI->FM->clearButton(interfaceButton2);
 		SI->FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
@@ -738,9 +802,11 @@ static  uint8_t functLeft()
 
 		SI->rewindListToBeggining();
 		SI->handleMemoryBar();
-		SI->AddOrEnter();
+
+		SI->AddNextControl();
 	}
 
+	SI->AddEnterOrRename();
 	SI->activateLabelsBorder();
 
 	return 1;
@@ -758,20 +824,16 @@ static  uint8_t functRight()
 	}
 	if(SI->selectedPlace < 1)
 	{
-		SI->displayRename(1);
+		SI->selectedPlace++;
+
 		SI->displayDelete(1);
 		SI->FM->clearButton(interfaceButton2);
 		SI->FM->setButtonObj(interfaceButton2, buttonPress, functRename);
-		SI->selectedPlace++;
 
 		SI->previewColorControl();
 	}
-//	if(SI->selectedPlace != 0) SI->hideAddWT();
-//	else if(SI->selectedPlace == 0)
-//	{
-//		SI->checkWavetableLabel();
-//	}
 
+	SI->AddEnterOrRename();
 	SI->activateLabelsBorder();
 
 	return 1;
@@ -832,12 +894,7 @@ static  uint8_t functPlayAction()
 }
 
 
-static  uint8_t functRecAction()
-{
 
-
-	return 1;
-}
 
 static uint8_t functSwitchModule(uint8_t button)
 {
@@ -857,7 +914,7 @@ static uint8_t functSwitchModule(uint8_t button)
 	else if(selectedFolder+value > locationFolderCount-1) selectedFolder = locationFolderCount-1;
 	else  selectedFolder += value;
 
-	AddOrEnter();
+	AddEnterOrRename();
 
 	display.setControlValue(folderListControl, selectedFolder);
 	display.refreshControl(folderListControl);
@@ -889,7 +946,8 @@ uint8_t cSampleImporter::changeFileSelection(int16_t value)
 	display.setControlValue(explorerListControl, selectedFile);
 	display.refreshControl(explorerListControl);
 
-	AddOrEnter();
+	AddNextControl();
+	AddEnterOrRename();
 	previewColorControl();
 
 
@@ -916,6 +974,9 @@ uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 		}
 	}
 
+
+	displayDelete(1);
+	AddEnterOrRename();
 	updateSelection();
 
 	mtProject.values.lastUsedInstrument = selectedSlot;
@@ -924,7 +985,7 @@ uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 	display.refreshControl(instrumentListControl);
 
 	handleMemoryBar();
-	previewColorControl();;
+	previewColorControl();
 
 	return 1;
 }
@@ -1128,6 +1189,8 @@ void cSampleImporter::listAllFoldersFirst()
 
 	openingInProgress = 1;
 
+	showFilesTree();
+
 	listOnlyFolderNames(actualPath,0);
 	listOnlyWavFromActualPath(locationExplorerCount);
 }
@@ -1138,6 +1201,8 @@ void cSampleImporter::BrowseOrAdd()
 	{
 		if(selectedPlace ==0)
 		{
+			cancelSelect();
+
 			if(dirLevel == 0)
 			{
 				dirLevel = 1;
@@ -1149,7 +1214,6 @@ void cSampleImporter::BrowseOrAdd()
 				explorerCurrentPosition++;
 
 				selectedFile=0;
-
 
 				listAllFoldersFirst();
 			}
@@ -1254,6 +1318,17 @@ void cSampleImporter::SelectFile()
 
 
 //==============================================================================================
+void cSampleImporter::AddNextControl()
+{
+	uint8_t active = 0;
+	if(locationExplorerList[selectedFile][0] != '/')
+	{
+		active = 1;
+	}
+
+	AddNextDisplay(active);
+}
+
 void cSampleImporter::listInstrumentSlots()
 {
 
@@ -1534,7 +1609,7 @@ uint8_t cSampleImporter::handleSelecting(uint8_t selectStart, uint8_t selectMax,
 					{
 						selectionTab[position+1]=0;
 					}
-					if(sign>0)
+					else if(sign>0)
 					{
 						selectionTab[position-1]=0;
 					}
@@ -1569,6 +1644,23 @@ uint8_t cSampleImporter::handleSelecting(uint8_t selectStart, uint8_t selectMax,
 	}
 
 	return position;
+}
+
+bool cSampleImporter::checkIfAnyInstrActive()
+{
+	uint8_t selectionStart = getSelectionStart();
+	bool isActive = false;
+
+	for(uint32_t i = selectionStart; i < (selectionStart + selectionLength); i++)
+	{
+		if(mtProject.instrument[i].isActive == 1)
+		{
+			isActive = true;
+			break;
+		}
+	}
+
+	return isActive;
 }
 
 void cSampleImporter::cancelSelect()
@@ -1744,22 +1836,25 @@ void cSampleImporter::processDeleting()
 		if(mtProject.instrument[deleteCurrentPos].isActive)
 		{
 			mtProject.used_memory -= 2* mtProject.instrument[deleteCurrentPos].sample.length;
+			fileManager.deleteInstrument(deleteCurrentPos);
+			instrDeleted++;
 		}
 
-		uint8_t progress = ((deleteCurrentPos - deleteStart) * 100) / selectionLength;
-
+		uint8_t progress = (instrDeleted * 100) / instrToDelete;
 		showDeletingHorizontalBar(progress);
-
-		fileManager.deleteInstrument(deleteCurrentPos);
 
 		deleteCurrentPos++;
 
-		if(deleteCurrentPos == (deleteStart + selectionLength))
+		if(instrDeleted == instrToDelete)
 		{
 			hideHorizontalBar();
 
 			cancelSelect();
 			handleMemoryBar();
+
+			displayDelete(1);
+			AddEnterOrRename();
+			previewColorControl();
 
 			listInstrumentSlots();
 			showInstrumentsList();
@@ -1915,6 +2010,22 @@ static uint8_t functConfirmKey()
 	return 0;
 }
 
+static uint8_t functDeleteBackspace(uint8_t state)
+{
+	if((state == buttonPress) || (state == buttonHold))
+	{
+		if(SI->keyboardActiveFlag)
+		{
+			if(SI->editPosition == 0 ) return 1;
+
+			SI->name[SI->editPosition-1] = 0;
+			SI->editPosition--;
+			SI->showKeyboardEditName();
+		}
+	}
+	return 1;
+}
+
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if((state == 1) || (state == 2))
@@ -2049,4 +2160,29 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 //	else hideAddWT();
 //}
 
+static uint8_t functSdCard(uint8_t state)
+{
+	if(state)
+	{
+		SI->start(0);
+	}
+	else
+	{
+		SI->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+		SI->FM->clearAllPots();
+		SI->FM->clearAllPads();
 
+		SI->FM->clearButton(interfaceButtonLeft);
+		SI->FM->clearButton(interfaceButtonRight);
+		SI->FM->clearButton(interfaceButtonUp);
+		SI->FM->clearButton(interfaceButtonDown);
+		SI->FM->clearButton(interfaceButtonShift);
+		SI->FM->clearButton(interfaceButtonCopy);
+
+		SI->FM->setSdDetection(functSdCard);
+
+		SI->deactivateGui();
+	}
+
+	return 1;
+}
