@@ -466,9 +466,6 @@ void cSamplePlayback::showWavetablePositionCursor()
 	display.setControlShow(wtPositionCursor);
 	display.refreshControl(wtPositionCursor);
 }
-void cSamplePlayback::showSlicesSelectValue()
-{
-	sprintf(sliceSelectTextValue, "%d", editorInstrument->selectedSlice + 1);
 
 void cSamplePlayback::hideWavetablePositionCursor()
 {
@@ -476,6 +473,9 @@ void cSamplePlayback::hideWavetablePositionCursor()
 	display.refreshControl(wtPositionCursor);
 }
 
+void cSamplePlayback::showSlicesSelectValue()
+{
+	sprintf(sliceSelectTextValue, "%d", editorInstrument->selectedSlice + 1);
 
 	display.setControlText(label[0], sliceSelectTextValue);
 	display.setControlShow(label[0]);
