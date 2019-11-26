@@ -64,7 +64,8 @@ static  uint8_t functSwitchModeMaster(uint8_t state);
 
 uint8_t checkIfFirmwareValid(char *name);
 static uint8_t selectFirmware();
-uint8_t flashFirmware();
+uint8_t showFirmwareWarning();
+void prepareAndFlash();
 
 
 // MASTER EDIT FUNCTIONS
@@ -84,11 +85,7 @@ void cConfigEditor::update()
 	if(processUpdate)
 	{
 		processUpdate = 0;
-
-		pinMode(BOOTLOADER_PIN,OUTPUT);
-		digitalWrite(BOOTLOADER_PIN,LOW);
-
-		while(1);
+		prepareAndFlash();
 	}
 
 }
@@ -1152,7 +1149,7 @@ void cConfigEditor::showFirmwareMenu()
 
 	FM->setButtonObj(interfaceButton0, buttonPress, selectFirmware);
 	FM->setButtonObj(interfaceButton1, buttonPress, selectFirmware);
-	FM->setButtonObj(interfaceButton2, buttonPress, flashFirmware);
+	FM->setButtonObj(interfaceButton2, buttonPress, showFirmwareWarning);
 
 	listAllFirmwares();
 
@@ -1169,7 +1166,6 @@ void cConfigEditor::listAllFirmwares()
 {
 	uint8_t locationFileCount=0;
 	uint8_t validFilesCount=0;
-	uint8_t invalidFileCount=0;
 
 	sdLocation.close();
 	if(sdLocation.open("/firmware", O_READ))
@@ -1239,25 +1235,31 @@ static uint8_t selectFirmware()
 	return 1;
 }
 
-uint8_t flashFirmware()
+void prepareAndFlash()
+{
+	if(SD.exists("/firmware/_fwinfo")) // plik nie powinien istniec, bootloader sam go usunie
+	{
+		SD.remove("/firmware/_fwinfo");
+	}
+
+	FsFile fwinfo;
+
+	fwinfo = SD.open("/firmware/_fwinfo", FILE_WRITE);
+	fwinfo.write(&CE->firmwareNamesList[CE->firmwareSelect][0], 13);
+	fwinfo.close();
+
+	pinMode(BOOTLOADER_PIN,OUTPUT);
+	digitalWrite(BOOTLOADER_PIN,LOW);
+
+	while(1);
+}
+
+uint8_t showFirmwareWarning()
 {
 	if(CE->firmwareFoundNum)
 	{
-		FsFile fwinfo;
-
-		if(SD.exists("/firmware/_fwinfo")) // plik nie powinien istniec, bootloader sam go usunie
-		{
-			SD.remove("/firmware/_fwinfo");
-		}
-
-		fwinfo = SD.open("/firmware/_fwinfo", FILE_WRITE);
-		fwinfo.write(&CE->firmwareNamesList[CE->firmwareSelect][0], 13);
-		fwinfo.close();
-
-
 		CE->showWarning();
 	}
-
 
 	return 1;
 }
@@ -1279,7 +1281,7 @@ void cConfigEditor::hideWarning()
 
 	FM->setButtonObj(interfaceButton0, buttonPress, selectFirmware);
 	FM->setButtonObj(interfaceButton1, buttonPress, selectFirmware);
-	FM->setButtonObj(interfaceButton2, buttonPress, flashFirmware);
+	FM->setButtonObj(interfaceButton2, buttonPress, showFirmwareWarning);
 
 	CE->selectionActive=0;
 	CE->hideFirmwareUpdatePopout();
@@ -1288,7 +1290,7 @@ void cConfigEditor::hideWarning()
 void cConfigEditor::changeFirmwareSelection(int16_t value)
 {
 	if(firmwareSelect + value < 0) firmwareSelect = 0;
-	else if(firmwareSelect + value >= firmwareFoundNum) firmwareSelect = (firmwareFoundNum - 1);
+	else if(firmwareSelect + value >= firmwareFoundNum) firmwareSelect = firmwareFoundNum;
 	else  firmwareSelect+= value;
 
 	display.setControlValue(firmwareListControl, firmwareSelect);

@@ -97,6 +97,13 @@ void cSamplePlayback::initDisplayControls()
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
 
+	prop.x = 0;
+	prop.y = 400;
+	prop.w = 600;
+	prop.h = 2;
+	prop.data = &wtPosition;
+
+	if(wtPositionCursor == nullptr)  wtPositionCursor = display.createControl<cWtProgress>(&prop);
 }
 
 
@@ -132,6 +139,10 @@ void cSamplePlayback::destroyDisplayControls()
 
 	display.destroyControl(progressCursor);
 	progressCursor = nullptr;
+
+
+	display.destroyControl(wtPositionCursor);
+	wtPositionCursor = nullptr;
 
 }
 
@@ -202,7 +213,6 @@ void cSamplePlayback::showDefaultScreen()
 		showLoopPoint2Value();
 		showZoomValue();
 
-
 		display.setControlText(label[0], startPointValueText);
 	}
 	else
@@ -236,6 +246,8 @@ void cSamplePlayback::showDefaultScreen()
 
 		showWavetablePosition();
 		showWavetableWindowSize();
+
+		showWavetablePositionCursor();
 	}
 
 	for(uint8_t i = 0; i<7; i++)
@@ -398,6 +410,19 @@ void cSamplePlayback::showLoopPoints()
 	showLoopPoint1Value();
 	showLoopPoint2Value();
 
+}
+
+void cSamplePlayback::showWavetablePositionCursor()
+{
+	display.setControlData(wtPositionCursor, &wtPosition);
+	display.setControlShow(wtPositionCursor);
+	display.refreshControl(wtPositionCursor);
+}
+
+void cSamplePlayback::hideWavetablePositionCursor()
+{
+	display.setControlHide(wtPositionCursor);
+	display.refreshControl(wtPositionCursor);
 }
 
 

@@ -470,6 +470,7 @@ typedef struct node
 {
 	uint8_t 		isActive;
 	editFunct_t	 	editFunct;
+	uint8_t 		reverseInput;
 
 }select_node_t;
 
@@ -477,6 +478,7 @@ typedef struct node1
 {
 	uint8_t 		isActive;
 	editFunct1_t	editFunct;
+	uint8_t 		reverseInput;
 
 }select_node1_t;
 

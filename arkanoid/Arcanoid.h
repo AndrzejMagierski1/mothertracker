@@ -275,6 +275,7 @@ typedef struct
 
 typedef void (*audio_p)(uint8_t pitch, uint8_t sampleNum);
 
+void ARKANOID_saveScore();
 
 void ARKANOID_moveBarLeft(uint8_t movement);
 void ARKANOID_moveBarRight(uint8_t movement);

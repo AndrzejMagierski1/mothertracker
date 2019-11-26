@@ -16,6 +16,11 @@ uint8_t FileManager::getSavingStatus()
 	return savingInProgress;
 }
 
+uint8_t FileManager::getDeletingStatus()
+{
+	return deletingInProgress;
+}
+
 //<! Loading whole project from file functions
 void FileManager::refreshLoadingSamples()
 {
@@ -587,6 +592,97 @@ uint8_t FileManager::loadProjectFromWorkspaceStart()
 	mtProject.used_memory = 0;
 
 	return status;
+}
+
+void FileManager::refreshDeleting()
+{
+	char currentPatch[PATCH_SIZE];
+
+	if(deleteHandle.currInstrumentFileIdx < INSTRUMENTS_COUNT)
+	{
+		sprintf(currentPatch, "Projects/%s/instruments/instrument_%02d.mti", deleteProjectName, deleteHandle.currInstrumentFileIdx);
+
+		if(SD.exists(currentPatch))
+		{
+			SD.remove(currentPatch);
+		}
+
+		deleteHandle.currInstrumentFileIdx++;
+	}
+	else if(deleteHandle.currPatternIdx < PATTERN_INDEX_MAX )
+	{
+		sprintf(currentPatch, "Projects/%s/patterns/pattern_%02d.mtp", deleteProjectName, deleteHandle.currPatternIdx + 1);
+
+		if(SD.exists(currentPatch))
+		{
+			SD.remove(currentPatch);
+		}
+
+		deleteHandle.currPatternIdx++;
+	}
+	else if(deleteHandle.currSampleIdx < INSTRUMENTS_COUNT)
+	{
+		sprintf(currentPatch, "Projects/%s/samples/instr%02d.wav", deleteProjectName, deleteHandle.currSampleIdx);
+
+		if(SD.exists(currentPatch))
+		{
+			SD.remove(currentPatch);
+		}
+
+		deleteHandle.currSampleIdx++;
+	}
+	else
+	{
+		sprintf(currentPatch, "Projects/%s/samples", deleteProjectName);
+
+		if(SD.exists(currentPatch))
+		{
+			SD.rmdir(currentPatch);
+		}
+
+		sprintf(currentPatch, "Projects/%s/patterns", deleteProjectName);
+
+		if(SD.exists(currentPatch))
+		{
+			SD.rmdir(currentPatch);
+		}
+
+		sprintf(currentPatch, "Projects/%s/instruments", deleteProjectName);
+
+		if(SD.exists(currentPatch))
+		{
+			SD.rmdir(currentPatch);
+		}
+
+		sprintf(currentPatch, "Projects/%s/project.bin", deleteProjectName);
+
+		if(SD.exists(currentPatch))
+		{
+			SD.remove(currentPatch);
+		}
+
+		sprintf(currentPatch, "Projects/%s", deleteProjectName);
+
+		if(SD.exists(currentPatch))
+		{
+			SD.rmdir(currentPatch);
+		}
+
+
+
+		moveToNextStage(&deleteHandle);
+
+		deletingInProgress = 0;
+	}
+}
+
+void FileManager::deleteProjectStart(const char *projectName)
+{
+	memset(&deleteHandle, 0, sizeof(save_load_handle_t));
+	strcpy(deleteProjectName, projectName);
+
+	moveToNextStage(&deleteHandle);
+	deletingInProgress = 1;
 }
 
 void FileManager::autoSaveProject()

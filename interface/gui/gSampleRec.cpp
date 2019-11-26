@@ -382,12 +382,17 @@ void cSampleRecorder::showDefaultScreen()
 		}
 		else
 		{
-			display.setControlValue(radioFreqBarControl, radioFreqBarVal);
+			//display.setControlValue(radioFreqBarControl, radioFreqBarVal);
 			display.setControlHide(radioFreqBarControl);
 			display.refreshControl(radioFreqBarControl);
 			display.setControlText(label[1], "");
 			display.setControlText(label[2], "");
 			display.setControlText(label[3], "");
+
+			if(selectedPlace == 1 || selectedPlace == 2 || selectedPlace == 3)
+			{
+				selectedPlace = 0;
+			}
 		}
 
 		// bottom labels
@@ -610,6 +615,8 @@ void cSampleRecorder::showRadio()
 	display.setControlValue(label[1], 1);
 	display.setControlValue(label[2], 0);
 	display.setControlValue(label[3], 0);
+
+	calcRadioFreqBarVal();
 
 	display.setControlValue(radioFreqBarControl,radioFreqBarVal);
 	display.setControlShow(radioFreqBarControl);

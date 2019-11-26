@@ -65,6 +65,67 @@ void changeParamsReverbSend(int16_t value);
 void changeParamsVelocity(int16_t value);
 
 
+void cInstrumentEditor::addNode(editFunct_t funct , uint8_t nodeNum, uint8_t reverseInput = 0)
+{
+	if(selectNodes[nodeNum].isActive == 0)
+	{
+		selectNodes[nodeNum].reverseInput = reverseInput;
+		selectNodes[nodeNum].isActive = 1;
+		selectNodes[nodeNum].editFunct = funct;
+	}
+}
+
+void cInstrumentEditor::removeNode(uint8_t nodeNum)
+{
+	selectNodes[nodeNum].isActive = 0;
+	selectNodes[nodeNum].editFunct = NULL;
+}
+
+void cInstrumentEditor::stepThroughNodes(int16_t value, uint8_t source) /*source: 1 - przycisk, 0 - enkoder*/
+{
+	int16_t nodeVal;
+	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	{
+		nodeVal = value;
+		if(selectNodes[node].isActive)
+		{
+			if(selectNodes[node].editFunct != NULL)
+			{
+				/*odwracanie wartosci dla list przy wprowadzaniu z przycisku*/
+				if(source == 1)
+				{
+					if(selectNodes[node].reverseInput == 1)
+					{
+						nodeVal = (-nodeVal);
+					}
+				}
+
+				selectNodes[node].editFunct(nodeVal);
+			}
+		}
+	}
+}
+
+void cInstrumentEditor::clearAllNodes()
+{
+	for(uint8_t node = 0; node < MAX_SELECT_NODES; node++)
+	{
+		selectNodes[node].isActive = 0;
+		selectNodes[node].editFunct = NULL;
+	}
+}
+
+void cInstrumentEditor::cancelMultiFrame()
+{
+	for(uint8_t i = 0; i < MAX_SELECT_NODES; i++)
+	{
+		IE->frameData.multisel[i].isActive = 0;
+	}
+
+	IE->frameData.multiSelActiveNum = 0;
+}
+
+
 void cInstrumentEditor::update()
 {
 	moduleRefresh = 0;
@@ -222,13 +283,13 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 		case 1:	IE->addNode(changeParamsPanning, node); 	    break;
 		case 2: IE->addNode(changeParamsTune, node); 			break;
 		case 3: IE->addNode(changeParamsFineTune, node); 		break;
-		case 4: IE->addNode(changeFilterFilterType, node);   	break;
+		case 4: IE->addNode(changeFilterFilterType, node, 1);   break;
 		case 5: IE->addNode(changeFilterCutOff, node); 	    	break;
 		case 6: IE->addNode(changeFilterResonance, node);    	break;
 		case 7: IE->addNode(changeParamsReverbSend, node);   	break;
 
-		case 10: IE->addNode(changeEnvList, node); 		 		break;
-		case 11: IE->addNode(changeEnvState, node); 		 	break;
+		case 10: IE->addNode(changeEnvList, node, 1); 		 	break;
+		case 11: IE->addNode(changeEnvState, node, 1); 		 	break;
 		case 12: IE->addNode(changeEnvAttack, node); 	 		break;
 		case 13: IE->addNode(changeEnvDecay, node); 		 	break;
 		case 14: IE->addNode(changeEnvSustain, node); 	 		break;
@@ -275,7 +336,7 @@ static  uint8_t functEncoder(int16_t value)
 {
 	if(IE->frameData.multiSelActiveNum != 0)
 	{
-		IE->stepThroughNodes(value);
+		IE->stepThroughNodes(value, 0);
 	}
 	else
 	{
@@ -338,7 +399,7 @@ static  uint8_t functUp()
 {
 	if(IE->frameData.multiSelActiveNum != 0)
 	{
-		IE->stepThroughNodes(1);
+		IE->stepThroughNodes(1, 1);
 	}
 	else
 	{
@@ -377,7 +438,7 @@ static  uint8_t functDown()
 {
 	if(IE->frameData.multiSelActiveNum != 0)
 	{
-		IE->stepThroughNodes(-1);
+		IE->stepThroughNodes(-1, 1);
 	}
 	else
 	{
@@ -513,7 +574,7 @@ void changeEnvList(int16_t value)
 
 void changeEnvState(int16_t value)
 {
-	if(value > 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
+	if(value > 0)IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
 	else if(value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
 //	if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
 //	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value > 1 ) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
@@ -627,7 +688,6 @@ void changeEnvLoop(int16_t value)
 
 void changeFilterFilterType(int16_t value)
 {
-
 	if(IE->filterModeListPos + value < 0) IE->filterModeListPos = 0;
 	else if(IE->filterModeListPos + value > filterModeCount-1) IE->filterModeListPos = filterModeCount-1;
 	else IE->filterModeListPos += value;

@@ -413,10 +413,14 @@ void cConfigEditor::showFirmwareUpdateLabels()
 
 	display.setControlText(label[0], "Firmware");
 
-	if(firmwareFoundNum)
+	uint32_t *colors = interfaceGlobals.activeLabelsColors;
+	if(firmwareFoundNum == 0)
 	{
-		display.setControlText(label[2], "Update");
+		colors = interfaceGlobals.inactiveLabelsColors;
 	}
+
+	display.setControlColors(label[2], colors);
+	display.setControlText(label[2], "Update");
 
 	display.refreshControl(label[0]);
 	display.refreshControl(label[2]);
