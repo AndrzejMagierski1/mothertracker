@@ -21,13 +21,18 @@ void fromToSwap(int16_t & from, int16_t & to)
 	}
 }
 
-void Sequencer::fillRandomNotes(int16_t fillStep, int16_t from, int16_t to)
+void Sequencer::fillRandomNotes(int16_t fillStep,
+								int16_t inScale,
+								int16_t from,
+								int16_t to)
 {
 	fromToSwap(from, to);
 
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
+	uint8_t scale = 2;
+	uint8_t root = 12;
 
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
 	{
@@ -38,17 +43,34 @@ void Sequencer::fillRandomNotes(int16_t fillStep, int16_t from, int16_t to)
 			step = &seq[player.ramBank].track[t].step[s];
 			if (isStepToFillNote(step, offset, fillStep))
 			{
-				step->note = random(from, to + 1);
-				step->instrument = mtProject.values.lastUsedInstrument;
+				if (inScale)
+				{
+					for (uint8_t a = 0; a <= 100; a -= -1)
+					{
+						step->note = random(from, to + 1);
+						if (isInScale(step->note, root, scale)) break;
+					}
+					step->instrument = mtProject.values.lastUsedInstrument;
+				}
+				else
+				{
+					step->note = random(from, to + 1);
+					step->instrument = mtProject.values.lastUsedInstrument;
+				}
 			}
 		}
 	}
 }
-void Sequencer::fillLinearNotes(int16_t fillStep, int16_t from, int16_t to)
+void Sequencer::fillLinearNotes(int16_t fillStep,
+								int16_t inScale,
+								int16_t from,
+								int16_t to)
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
+	uint8_t scale = 2;
+	uint8_t root = 12;
 
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
 	{
@@ -64,12 +86,19 @@ void Sequencer::fillLinearNotes(int16_t fillStep, int16_t from, int16_t to)
 									sel->lastStep,
 									from,
 									to);
+				for (uint8_t a = 0; a < 12; a++)
+				{
+					if (isInScale(step->note, root, scale)) break;
+					step->note++;
+				}
+
 				step->instrument = mtProject.values.lastUsedInstrument;
 			}
 		}
 	}
 }
-void Sequencer::fillLinearInstruments(int16_t fillStep, int16_t from,
+void Sequencer::fillLinearInstruments(int16_t fillStep,
+										int16_t from,
 										int16_t to)
 {
 	strSelection *sel = &selection;

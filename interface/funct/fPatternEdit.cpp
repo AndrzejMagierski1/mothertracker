@@ -1218,11 +1218,11 @@ static  uint8_t functShift(uint8_t state)
 			display.refreshControl(PTE->patternControl);
 		}
 
-		if(PTE->editMode && !isMultiSelection() && !PTE->shiftAction )
-		{
-			sendSelection();
-			sequencer.blinkSelectedStep();
-		}
+//		if(PTE->editMode && !isMultiSelection() && !PTE->shiftAction )
+//		{
+//			sendSelection();
+//			sequencer.blinkSelectedStep();
+//		}
 
 		PTE->setMuteFunct(0);
 
@@ -2232,18 +2232,21 @@ static  uint8_t functFillApply()
 			if (fillData->type == 2)
 			{
 				sequencer.fillRandomNotes(PTE->fillStep,
+											fillData->param,
 											fillData->from,
 											fillData->to);
 			}
 			else if (fillData->type == 1)
 			{
 				sequencer.fillLinearNotes(PTE->fillStep,
+											fillData->param,
 											fillData->from,
 											fillData->to);
 			}
 			else if (fillData->type == 0)
 			{
 				sequencer.fillLinearNotes(PTE->fillStep,
+											fillData->param,
 											fillData->from,
 											fillData->from);
 			}

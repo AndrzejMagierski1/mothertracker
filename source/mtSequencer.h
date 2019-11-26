@@ -588,8 +588,8 @@ public:
 	void setPerformanceStutter(uint8_t track, int8_t stutter);
 	void setPerformancePlayMode(uint8_t track, int8_t stutter);
 
-	void fillRandomNotes(int16_t step, int16_t from, int16_t to);
-	void fillLinearNotes(int16_t step, int16_t from, int16_t to);
+	void fillRandomNotes(int16_t, int16_t, int16_t, int16_t);
+	void fillLinearNotes(int16_t, int16_t, int16_t, int16_t);
 	void fillRandomInstruments(int16_t step, int16_t from, int16_t to);
 	void fillLinearInstruments(int16_t step, int16_t from, int16_t to);
 	void fillLinearFx(int16_t index, int16_t fillStep, int16_t fxType,
