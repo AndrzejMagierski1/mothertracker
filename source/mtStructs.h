@@ -165,7 +165,7 @@ const float LIMITER_RELEASE_MAX  			=	10;
 const uint8_t LIMITER_TRESHOLD_MIN 			=	0;
 const uint16_t LIMITER_TRESHOLD_MAX 		=	32767;
 
-
+const uint8_t MAX_SLICE_NUMBER				=	48;
 
 const uint8_t CONFIG_EEPROM_ADDRESS			=	0;
 
@@ -205,6 +205,7 @@ enum instrumentPlayMode
 	loopBackward,
 	loopPingPong,
 	playModeWavetable, //tylko na uzytek interface - sample type obsługuje to w silniku
+	playModeSlice,
 
 	playModeCount
 };
@@ -398,6 +399,10 @@ struct strInstrument
     int16_t panning;
 
     uint8_t reverbSend;
+
+    uint16_t slices[MAX_SLICE_NUMBER];
+    uint8_t sliceNumber;
+    uint8_t selectedSlice;
 };
 //-------------------------------------------------
 struct strMtValues

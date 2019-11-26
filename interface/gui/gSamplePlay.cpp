@@ -74,7 +74,7 @@ void cSamplePlayback::initDisplayControls()
 	if(label[6] == nullptr) label[6] = display.createControl<cLabel>(&prop2);
 
 
-	playModeList.linesCount = 6;
+	playModeList.linesCount = 7;
 	playModeList.start = editorInstrument->playMode;
 	playModeList.length = playModeCount;
 	playModeList.data = playModeNames;
@@ -94,6 +94,8 @@ void cSamplePlayback::initDisplayControls()
 	if(progressCursor == nullptr) progressCursor = display.createControl<cProgressCursor>(&prop);
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
+	prop.data = &slicePoints;
+	if(slicePointsControl == nullptr)  slicePointsControl = display.createControl<cSlicePoints>(&prop);
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
 
@@ -123,6 +125,9 @@ void cSamplePlayback::destroyDisplayControls()
 
 	display.destroyControl(pointsControl);
 	pointsControl = nullptr;
+
+	display.destroyControl(slicePointsControl);
+	slicePointsControl = nullptr;
 
 	display.destroyControl(playModeListControl);
 	playModeListControl = nullptr;
@@ -180,40 +185,80 @@ void cSamplePlayback::showDefaultScreen()
 
 	if(loadedInstrumentType == mtSampleTypeWaveFile)
 	{
-		//cursor
 		display.setControlShow(progressCursor);
 		display.refreshControl(progressCursor);
 
-		display.setControlValue(label[0], 1);
-		display.setControlValue(label[1], 1);
-		display.setControlValue(label[2], 1);
-		display.setControlValue(label[3], 1);
-		display.setControlValue(label[4], 1);
-		display.setControlValue(label[5], 1);
-		display.setControlValue(label[6], 0);
 
-		display.setControlText2(label[0], "Preview");
-		display.setControlText2(label[1], "Start");
-		display.setControlText2(label[2], "Loop Start");
-		display.setControlText2(label[3], "Loop End");
-		display.setControlText2(label[4], "End");
-		display.setControlText2(label[5], "Zoom");
-		display.setControlText(label[6], "Play Mode");
 
-		//points
-		display.setControlShow(pointsControl);
-		display.refreshControl(pointsControl);
 
-		if((editorInstrument->playMode == singleShot) || (editorInstrument->playMode == playModeWavetable)) hideLoopPoints();
-		else showLoopPoints();
+		if(editorInstrument->playMode == playModeSlice)
+		{
+			display.setControlValue(label[0], 1);
+			display.setControlValue(label[1], 1);
+			display.setControlValue(label[2], 0);
+			display.setControlValue(label[3], 0);
+			display.setControlValue(label[4], 0);
+			display.setControlValue(label[5], 1);
+			display.setControlValue(label[6], 0);
 
-		showStartPointValue();
-		showEndPointValue();
-		showLoopPoint1Value();
-		showLoopPoint2Value();
-		showZoomValue();
+			display.setControlText2(label[0], "Slice");
+			display.setControlText2(label[1], "Adjust");
+			display.setControlText2(label[5], "Zoom");
 
 		display.setControlText(label[0], startPointValueText);
+			display.setControlText(label[0], "");
+			display.setControlText(label[1], "");
+			display.setControlText(label[2], "Add");
+			display.setControlText(label[3], "Remove");
+			display.setControlText(label[4], "Auto Slice");
+			display.setControlText(label[5], "");
+			display.setControlText(label[6], "Play Mode");
+
+			display.setControlHide(pointsControl);
+			display.refreshControl(pointsControl);
+
+			display.setControlShow(slicePointsControl);
+			display.refreshControl(slicePointsControl);
+
+			showZoomValue();
+			showSlicesAdjustValue();
+			showSlicesSelectValue();
+		}
+		else
+		{
+			display.setControlHide(slicePointsControl);
+			display.refreshControl(slicePointsControl);
+
+			display.setControlValue(label[0], 1);
+			display.setControlValue(label[1], 1);
+			display.setControlValue(label[2], 1);
+			display.setControlValue(label[3], 1);
+			display.setControlValue(label[4], 1);
+			display.setControlValue(label[5], 1);
+			display.setControlValue(label[6], 0);
+
+			display.setControlText2(label[0], "Preview");
+			display.setControlText2(label[1], "Start");
+			display.setControlText2(label[2], "Loop Start");
+			display.setControlText2(label[3], "Loop End");
+			display.setControlText2(label[4], "End");
+			display.setControlText2(label[5], "Zoom");
+			display.setControlText(label[6], "Play Mode");
+
+			display.setControlShow(pointsControl);
+			display.refreshControl(pointsControl);
+
+			if((editorInstrument->playMode == singleShot) || (editorInstrument->playMode == playModeWavetable)) hideLoopPoints();
+			else showLoopPoints();
+
+			showStartPointValue();
+			showEndPointValue();
+			showLoopPoint1Value();
+			showLoopPoint2Value();
+			showZoomValue();
+
+			display.setControlText(label[0], startPointValueText);
+		}
 	}
 	else
 	{
@@ -243,6 +288,9 @@ void cSamplePlayback::showDefaultScreen()
 		//points
 		display.setControlHide(pointsControl);
 		display.refreshControl(pointsControl);
+
+		display.setControlHide(slicePointsControl);
+		display.refreshControl(slicePointsControl);
 
 		showWavetablePosition();
 		showWavetableWindowSize();
@@ -304,7 +352,7 @@ void cSamplePlayback::showPlayModeList()
 {
 	playModeList.start = editorInstrument->playMode;
 	playModeList.length = playModeCount;
-	playModeList.linesCount = 6;
+	playModeList.linesCount = 7;
 	playModeList.data = playModeNames;
 
 	display.setControlData(playModeListControl,  &playModeList);
@@ -418,12 +466,34 @@ void cSamplePlayback::showWavetablePositionCursor()
 	display.setControlShow(wtPositionCursor);
 	display.refreshControl(wtPositionCursor);
 }
+void cSamplePlayback::showSlicesSelectValue()
+{
+	sprintf(sliceSelectTextValue, "%d", editorInstrument->selectedSlice + 1);
 
 void cSamplePlayback::hideWavetablePositionCursor()
 {
 	display.setControlHide(wtPositionCursor);
 	display.refreshControl(wtPositionCursor);
 }
+
+
+	display.setControlText(label[0], sliceSelectTextValue);
+	display.setControlShow(label[0]);
+	display.refreshControl(label[0]);
+}
+
+void cSamplePlayback::showSlicesAdjustValue()
+{
+	float timeValue = editorInstrument->sample.length/44100.0;
+	float currentSlice = (timeValue * editorInstrument->slices[editorInstrument->selectedSlice]) / MAX_16BIT;
+
+	sprintf(sliceAdjustTextValue, "%.3f ms", currentSlice);
+
+	display.setControlText(label[1], sliceAdjustTextValue);
+	display.setControlShow(label[1]);
+	display.refreshControl(label[1]);
+}
+
 
 
 //==============================================================================================================

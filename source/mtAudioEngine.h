@@ -134,6 +134,7 @@ public:
 		sampleSlice,
 		glide,
 		wavetablePosition,
+		slice,
 
 		length
 	};
@@ -167,6 +168,7 @@ public:
 		uint16_t glide;
 		uint32_t wavetablePosition;
 		uint8_t volume;
+		uint8_t slice;
 
 	} currentSeqModValues ;
 
