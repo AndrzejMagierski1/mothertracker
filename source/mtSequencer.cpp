@@ -793,6 +793,13 @@ void Sequencer::send_allNotesOff(void)
 	{
 //		strPlayer::strPlayerTrack & playerRow = player.row[row];
 		sendNoteOff(row);
+		if (player.track[row].stepSent.instrument > INSTRUMENTS_MAX)
+		{
+			usbMIDI.sendNoteOff(
+					player.track[row].stepSent.note,
+					player.track[row].stepSent.velocity,
+					player.track[row].stepSent.instrument - INSTRUMENTS_MAX);
+		}
 	}
 }
 
