@@ -271,7 +271,7 @@ uint8_t cList::update()
 			{
 				if((list->icon.iconPositionInList) == i+textListPos)
 				{
-					uint8_t idx = BITMAP_ICON_OFFSET + list->icon.iconNum;
+					uint8_t idx = list->icon.iconNum;
 
 					API_BITMAP_SOURCE(bitmaps[idx].address);
 					API_BITMAP_LAYOUT(bitmaps[idx].format, bitmaps[idx].linestride, bitmaps[idx].height);
@@ -410,7 +410,7 @@ uint8_t cList::update()
 					{
 						if((list->icon.iconPositionInList) == i+textListPos)
 						{
-							uint8_t idx = BITMAP_ICON_OFFSET + list->icon.iconNum;
+							uint8_t idx = list->icon.iconNum;
 
 							API_BITMAP_SOURCE(bitmaps[idx].address);
 							API_BITMAP_LAYOUT(bitmaps[idx].format, bitmaps[idx].linestride, bitmaps[idx].height);
@@ -452,7 +452,7 @@ uint8_t cList::update()
 					{
 						if((list->icon.iconPositionInList) == i+textListPos)
 						{
-							uint8_t idx = BITMAP_ICON_OFFSET + list->icon.iconNum;
+							uint8_t idx = list->icon.iconNum;
 
 							API_BITMAP_SOURCE(bitmaps[idx].address);
 							API_BITMAP_LAYOUT(bitmaps[idx].format, bitmaps[idx].linestride, bitmaps[idx].height);
@@ -492,7 +492,7 @@ uint8_t cList::update()
 				{
 					if((list->icon.iconPositionInList) == i+textListPos)
 					{
-						uint8_t idx = BITMAP_ICON_OFFSET + list->icon.iconNum;
+						uint8_t idx = list->icon.iconNum;
 
 						API_BITMAP_SOURCE(bitmaps[idx].address);
 						API_BITMAP_LAYOUT(bitmaps[idx].format, bitmaps[idx].linestride, bitmaps[idx].height);

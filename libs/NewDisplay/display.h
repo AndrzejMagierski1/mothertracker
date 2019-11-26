@@ -34,6 +34,7 @@
 typedef cDisplayControl* hControl;
 
 
+
 //#########################################################################
 //							DEFINICJE
 //#########################################################################
@@ -46,8 +47,18 @@ const uint32_t imgRamAddress = 670000;
 const uint32_t imgSizeMax = 1000000-imgRamAddress;
 const int32_t imgBufforSize = 5000;
 
-const uint8_t displayFontCount = 2;
-const uint8_t displayBitmapsCount = 7;
+const uint8_t displayFontCount = 4;
+
+
+enum enDisplayBitmaps
+{
+	displayPolyLogoBitmap,
+	displayPlayIcon,
+	displayLoopIcon,
+
+
+	displayBitmapsCount,
+};
 
 // NIE-EDITABLE
 const uint8_t controlsRefreshQueueSize = controlsCount+1;
@@ -117,6 +128,7 @@ public:
 	void setControlPosition(hControl handle, int16_t x, int16_t y);
 	void setControlSize(hControl handle, int16_t w, int16_t h);
 	void setControlStyle(hControl handle, uint32_t style);
+	void setControlStyle2(hControl handle, uint32_t style);
 	void setControlShow(hControl handle);
 	void setControlHide(hControl handle);
 	void setAddControlStyle(hControl handle, uint32_t style);

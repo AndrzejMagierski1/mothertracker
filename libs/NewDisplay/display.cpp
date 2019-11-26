@@ -9,21 +9,18 @@
 #include "elapsedMillis.h"
 
 
-#include "poly_inv_290.h"
-
-
-#include "poly_logo_inv.h"
 
 #include "poly_logo_inv_128x128_L8.h"
 
-#include "Roboto_Mono_14_L4.h"
-#include "Roboto_Mono_20_L4.h"
 
+#include "RobotoMono-Regular_14_L4.h"
+#include "RobotoMono-Regular_17_L4.h"
 
-#include "arrow_d1_50x50_L1.h"
-#include "arrow_d2_50x50_L1.h"
-#include "arrow_u1_50x50_L1.h"
-#include "arrow_u2_50x50_L1.h"
+#include "RobotoMono-Bold_14_L4.h"
+#include "RobotoMono-Bold_17_L4.h"
+
+#include "RobotoMono-Light_17_L4.h"
+
 
 #include "songIcons.h"
 
@@ -34,26 +31,60 @@
 const strFont fonts[displayFontCount] =
 {
 	{
-		Roboto_Mono_14_L4,
-		sizeof(Roboto_Mono_14_L4),
-		13,
+		Roboto_Mono_Regular_14_L4,
+		sizeof(Roboto_Mono_Regular_14_L4),
+		11,
 		1000,
-		-1732,
+		1148,
+		10,
+		19,
+		L4,
+		5,
+	},
+/*	{
+		Roboto_Mono_Regular_17_L4,
+		sizeof(Roboto_Mono_Regular_17_L4),
+		12,
+		11000,
+		11148,
+		10,
+		22,
+		L4,
+		5,
+	},
+	*/
+	{
+		Roboto_Mono_Light_17_L4,
+		sizeof(Roboto_Mono_Light_17_L4),
+		12,
+		11000,
+		11148,
+		10,
+		22,
+		L4,
+		5,
+	},
+	{
+		Roboto_Mono_Bold_14_L4,
+		sizeof(Roboto_Mono_Bold_14_L4),
+		13,
+		22000,
+		22148,
 		10,
 		18,
 		L4,
 		5,
 	},
 	{
-		Roboto_Mono_20_L4,
-		sizeof(Roboto_Mono_20_L4),
+		Roboto_Mono_Bold_17_L4,
+		sizeof(Roboto_Mono_Bold_17_L4),
 		14,
-		20000,
-		14324,
+		31000,
+		31148,
 		12,
-		26,
+		22,
 		L4,
-		7,
+		6,
 	},
 };
 // handle nie moze byc wikesze niz 14
@@ -63,13 +94,11 @@ const strBitmap bitmaps[displayBitmapsCount] =
 
 	{poly_logo_inv_128x128_l8,50000,16384,128,128,L8,128,},
 
-	{ arrow_u2_50x50_L1, 71500, 350, 50, 50, L1, 7 },
-	{ arrow_u1_50x50_L1, 71000, 350, 50, 50, L1, 7 },
-	{ arrow_d1_50x50_L1, 70000, 350, 50, 50, L1, 7 },
-	{ arrow_d2_50x50_L1, 70500, 350, 50, 50, L1, 7 },
-
 	{ playIcon20x20,72000 , 200, 20, 20, L4, 10},
 	{ loopIcon20x20,72500 , 200, 20, 20, L4, 10},
+
+
+
 
 
 };
@@ -121,7 +150,7 @@ void cDisplay::begin()
 		API_BITMAP_SOURCE(fonts[i].source);
 		API_BITMAP_LAYOUT(fonts[i].format, fonts[i].linestride,fonts[i].height);
 		API_BITMAP_SIZE(NEAREST, BORDER, BORDER, fonts[i].width, fonts[i].height);
-		API_CMD_SETFONT(fonts[i].handle, fonts[i].address);
+		API_CMD_SETFONT2(fonts[i].handle, fonts[i].address, 32);
 	}
 
 	API_DISPLAY();
@@ -377,6 +406,19 @@ void cDisplay::setControlStyle(hControl handle, uint32_t style)
 
 	//handle->cStyle = style;
 	handle->setStyle(style);
+}
+
+void cDisplay::setControlStyle2(hControl handle, uint32_t style)
+{
+	if(handle == nullptr) return;
+	//sprawdzenie porpawnosci czcionki
+	if(((style >> 8) & 15) > displayFontCount)
+	{
+		style &= ~(15 << 8);
+	}
+
+	//handle->cStyle = style;
+	((cLabel*)handle)->setStyle2(style);
 }
 
 void cDisplay::setControlShow(hControl handle)

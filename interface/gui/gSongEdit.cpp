@@ -214,7 +214,7 @@ void cSongEditor::showIcon(icon_t iconType,uint8_t position)
 	patternsList.icon.useSpecialIcons = 1;
 
 	patternsList.icon.iconPositionInList = position;
-	patternsList.icon.iconNum = iconType;
+	patternsList.icon.iconNum = displayPlayIcon+iconType;
 
 	display.setControlValue(patternsListControl, selectedPattern);
 	display.refreshControl(patternsListControl);
@@ -223,7 +223,7 @@ void cSongEditor::showIcon(icon_t iconType,uint8_t position)
 void cSongEditor::hideIcon()
 {
 	patternsList.icon.useSpecialIcons = 0;
-	patternsList.icon.iconNum = 0;
+	patternsList.icon.iconNum = displayPlayIcon;
 	patternsList.icon.iconPositionInList = 0;
 
 	display.setControlValue(patternsListControl, selectedPattern);

@@ -43,15 +43,22 @@ static uint32_t patternLabelColors[] =
 volatile uint32_t patternTrackerColors[] =
 {
 	0x000000, // 0 linie
-	0x232323, // 1 background  /numery wierszy juz nie bo nie ma/
-	0x3ad6c5, // 2 nuta
-	0xfadd80, // 3 instrument
-	0xFFFFFF, // 4 volume
-	0xFFFFFF, // 5 effekt
-	0xf13c3c, // 6 zaznaczenie
-	0x2a2a2a, // 7 podzialka
-	0x333333, // 8 nieaktywny
-	0x232323, // 9 playhead
+	0x1c1c1c, // 1 background  /numery wierszy juz nie bo nie ma/
+
+	0x00e8be, // 2 nuta
+	0xfef749, // 3 instrument
+	0xbb58f1, // 4 effekt1
+	0x57f1ff, // 5 effekt2
+
+	0x0e5049, // 6 nuta nieaktywna
+	0x5c5230, // 7 instrument nieaktywny
+	0x493451, // 8 effekt1 nieaktywny
+	0x33515e, // 9 effekt2 nieaktywny
+
+	0xf13c3c, // 10 zaznaczenie
+	0x232323, // 11 podzialka
+	0x333333, // 12 nieaktywny
+	0x232323, // 13 playhead
 };
 
 uint32_t patternTrackerSelectionColor = 0xff0000;
@@ -208,7 +215,7 @@ void cPatternEditor::initDisplayControls()
 		//prop2.data =  &bottomValuesConfig;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
 
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );
+		prop2.style = 	( controlStyleCenterX | controlStyleCenterY | controlStyleFont3);
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
 		prop2.y = 452;
@@ -218,6 +225,17 @@ void cPatternEditor::initDisplayControls()
 	}
 
 
+	bgLabelData.activDivLine = 255;
+	prop2.text = nullptr;
+	prop2.colors = interfaceGlobals.activeBgLabelsColors;
+	prop2.data = &bgLabelData;
+	prop2.style = 	0;
+	prop2.x = 0;
+	prop2.w = 800;
+	prop2.y = 424;
+	prop2.h =  55;
+
+	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
 	//=====================================================================================================
 	// POPUP
@@ -290,7 +308,7 @@ void cPatternEditor::initDisplayControls()
 	prop.y = 0;
 	prop.w = 50;
 	prop.h = 25;
-	patternTrackerColors[6] = patternTrackerSelectionColor;
+	patternTrackerColors[10] = patternTrackerSelectionColor;
 	prop.colors = (uint32_t*)patternTrackerColors;
 	prop.data = &trackerPattern;
 	prop.value = patternViewMode;
@@ -311,6 +329,9 @@ void cPatternEditor::destroyDisplayControls()
 		display.destroyControl(label[i]);
 		label[i] = nullptr;
 	}
+
+	display.destroyControl(bgLabel);
+	bgLabel = nullptr;
 
 	display.destroyControl(param1PopupListControl);
 	param1PopupListControl = nullptr;
@@ -338,12 +359,6 @@ void cPatternEditor::destroyDisplayControls()
 	notePopoutControl = nullptr;
 
 
-	for(uint8_t i = 0; i<4; i++)
-	{
-		display.destroyControl(fxListControl[i]);
-		fxListControl[i] = nullptr;
-	}
-
 /*
 	display.destroyControl(titleBar);
 	titleBar = nullptr;
@@ -368,32 +383,31 @@ void cPatternEditor::showDefaultScreen()
 
 	display.setControlHide(notePopoutControl);
 
-	for(uint8_t i = 0; i<4; i++)
-	{
-		display.setControlHide(fxListControl[i]);
-	}
-
 	// bottom labels
 
 	display.setControlValue(label[0], 1);
 	display.setControlValue(label[1], 1);
 	display.setControlValue(label[2], 1);
-	display.setControlValue(label[3], 0);
-	display.setControlValue(label[4], 0);
-	display.setControlValue(label[5], 0);
-	display.setControlValue(label[6], 0);
-	display.setControlValue(label[7], 0);
+	display.setControlValue(label[3], 1);
+	display.setControlValue(label[4], 1);
+	display.setControlValue(label[5], 1);
+	display.setControlValue(label[6], 1);
+	display.setControlValue(label[7], 1);
 
-	display.setControlText2(label[0], "Pattern");
-	display.setControlText2(label[1], "Length");
-	display.setControlText2(label[2], "Step");
+	display.setControlText(label[0], "Pattern");
+	display.setControlText(label[1], "Length");
+	display.setControlText(label[2], "Step");
 	display.setControlText(label[3], "Fill");
-	//display.setControlText(topLabel[4], "Randomise");
 	display.setControlText(label[4], "");
 	display.setControlText(label[5], "Invert");
 	display.setControlText(label[6], "Transpose");
 	display.setControlText(label[7], "Undo");
 
+	display.setControlText2(label[3], "");
+	display.setControlText2(label[4], "");
+	display.setControlText2(label[5], "");
+	display.setControlText2(label[6], "");
+	display.setControlText2(label[7], "");
 
 //	showTempo();
 	showPattern();
@@ -417,13 +431,21 @@ void cPatternEditor::showDefaultScreen()
 		display.setControlPosition(label[i], -1, 452);
 		display.setControlSize(label[i], -1, 59);
 
+
 		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
+
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
 
 		display.setControlShow(label[i]);
 
 		display.refreshControl(label[i]);
 	}
 
+
+
+
+	display.setControlShow(bgLabel);
+	display.refreshControl(bgLabel);
 
 	display.setControlShow(patternControl);
 	display.refreshControl(patternControl);
@@ -484,7 +506,7 @@ void cPatternEditor::hideEditModeLabels()
 void cPatternEditor::showPattern()
 {
 	sprintf(pattern,"%d", mtProject.values.actualPattern);
-	display.setControlText(label[0], pattern);
+	display.setControlText2(label[0], pattern);
 	display.refreshControl(label[0]);
 }
 
@@ -494,7 +516,7 @@ void cPatternEditor::showLength()
 
 	sprintf(length, "%d",  pattern->track[0].length+1);
 
-	display.setControlText(label[1], length);
+	display.setControlText2(label[1], length);
 	display.refreshControl(label[1]);
 }
 
@@ -504,7 +526,7 @@ void cPatternEditor::showStep()
 
 	sprintf(step, "%d",  mtProject.values.patternEditStep);
 
-	display.setControlText(label[2], step);
+	display.setControlText2(label[2], step);
 	display.refreshControl(label[2]);
 }
 
@@ -894,21 +916,21 @@ void cPatternEditor::activateLabelsBorder()
 //##############################################################################################
 void cPatternEditor::activateSelection()
 {
-	patternTrackerColors[6] = patternTrackerSelectionColor;
+	patternTrackerColors[10] = patternTrackerSelectionColor;
 }
 
 void cPatternEditor::deactivateSelection()
 {
-	patternTrackerColors[6] = 0xffffff;
+	patternTrackerColors[10] = 0xffffff;
 }
 
 void cPatternEditor::playheadRecMode()
 {
-	patternTrackerColors[9] = patternTrackerSelectionColor;
+	patternTrackerColors[13] = patternTrackerSelectionColor;
 }
 
 void cPatternEditor::playheadNormalMode()
 {
-	patternTrackerColors[9] = 0xffffff;
+	patternTrackerColors[13] = 0xffffff;
 }
 
