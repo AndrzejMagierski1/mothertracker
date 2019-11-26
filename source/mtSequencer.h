@@ -313,6 +313,7 @@ public:
 	{
 		bool songMode = 0;
 		bool performanceMode = 0;
+		bool selectionMode = 0;
 
 		bool isPlay = 0;
 		bool isREC = 0;
@@ -367,6 +368,8 @@ public:
 
 				int8_t velocity = -1;	// jeśli <0 to nie wysyłamy
 			} stepSent, stepToSend;
+
+			bool isActive = 1;
 
 			bool stepOpen = 0;		// wirtualna nuta (zbiór rolek)
 			bool noteOpen = 0;		// znacznik czy została wysłana nuta
@@ -530,6 +533,7 @@ public:
 
 	void play(void);
 	void playPattern(void);
+	void playSelection(void);
 	void playSong(void);
 	void playSong(uint8_t);
 	void pause(void);

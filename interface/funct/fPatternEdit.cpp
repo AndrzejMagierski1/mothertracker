@@ -24,6 +24,7 @@ static  uint8_t functChangePattern(uint8_t state);
 static  uint8_t functChangePatternLength(uint8_t state);
 static  uint8_t functChangePatternEditStep(uint8_t state);
 static  uint8_t functFill();
+static  uint8_t functPreview();
 static  uint8_t functInvert();
 static  uint8_t functTranspose();
 static  uint8_t functUndo();
@@ -203,6 +204,7 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton0, functChangePattern);
 	FM->setButtonObj(interfaceButton1, functChangePatternLength);
 	FM->setButtonObj(interfaceButton2, functChangePatternEditStep);
+//	FM->setButtonObj(interfaceButton2, functChangePatternEditStep);
 
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functFill);
@@ -849,7 +851,7 @@ void cPatternEditor::refreshEditState()
 		playheadNormalMode();
 
 		FM->setButtonObj(interfaceButton3, buttonPress, functFill);
-		//FM->setButtonObj(interfaceButton4, buttonPress, functRandomise);
+		FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
 		FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
 		FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
 		FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
@@ -1045,6 +1047,7 @@ void cPatternEditor::setMuteFunct(uint8_t state)
 		if(editMode)
 		{
 			FM->setButtonObj(interfaceButton3, buttonPress, functFill);
+			FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
 			FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
 			FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
 			FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
@@ -2150,7 +2153,15 @@ static  uint8_t functChangePatternEditStep(uint8_t state)
 
 	return 1;
 }
+//##############################################################################################
+//###############################             PREVIEW          #################################
+//##############################################################################################
 
+static  uint8_t functPreview()
+{
+	sendSelection();
+	sequencer.playSelection();
+}
 
 //##############################################################################################
 //###############################             FILL             #################################
