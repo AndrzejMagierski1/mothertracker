@@ -562,7 +562,7 @@ void cProjectEditor::showDeleteLastWindow()
 	display.setControlText(label[0], "Cancel");
 	display.setControlText(label[7], "Delete");
 
-	sprintf(currentInfo,"Do you want to delete project: \"%s\" ?", fileManager.currentProjectName);
+	sprintf(currentInfo,"Do you want to delete project: \"%s\" ?", filesNames[selectedLocation]);
 
 	display.setControlText(selectWindowLabel, currentInfo);
 	display.setControlShow(selectWindowLabel);
