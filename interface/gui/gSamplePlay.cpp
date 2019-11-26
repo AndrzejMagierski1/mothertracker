@@ -184,22 +184,22 @@ void cSamplePlayback::showDefaultScreen()
 		{
 			display.setControlValue(label[0], 1);
 			display.setControlValue(label[1], 1);
-			display.setControlValue(label[2], 1);
+			display.setControlValue(label[2], 0);
 			display.setControlValue(label[3], 0);
 			display.setControlValue(label[4], 0);
-			display.setControlValue(label[5], 0);
+			display.setControlValue(label[5], 1);
 			display.setControlValue(label[6], 0);
 
-			display.setControlText2(label[0], "Preview");
-			display.setControlText2(label[1], "Slice");
-			display.setControlText2(label[2], "Adjust");
+			display.setControlText2(label[0], "Slice");
+			display.setControlText2(label[1], "Adjust");
+			display.setControlText2(label[5], "Zoom");
 
 			display.setControlText(label[0], "");
 			display.setControlText(label[1], "");
-			display.setControlText(label[2], "");
-			display.setControlText(label[3], "Add");
-			display.setControlText(label[4], "Remove");
-			display.setControlText(label[5], "Auto Slice");
+			display.setControlText(label[2], "Add");
+			display.setControlText(label[3], "Remove");
+			display.setControlText(label[4], "Auto Slice");
+			display.setControlText(label[5], "");
 			display.setControlText(label[6], "Play Mode");
 
 			display.setControlHide(pointsControl);
@@ -208,7 +208,9 @@ void cSamplePlayback::showDefaultScreen()
 			display.setControlShow(slicePointsControl);
 			display.refreshControl(slicePointsControl);
 
-			display.setControlText(label[0], startPointValueText); //todo: tu bedzie z aktualnie wybranego slica czas
+			showZoomValue();
+			showSlicesAdjustValue();
+			showSlicesSelectValue();
 		}
 		else
 		{
@@ -443,6 +445,28 @@ void cSamplePlayback::showLoopPoints()
 	showLoopPoint2Value();
 
 }
+
+void cSamplePlayback::showSlicesSelectValue()
+{
+	sprintf(sliceSelectTextValue, "%d", editorInstrument->selectedSlice + 1);
+
+	display.setControlText(label[0], sliceSelectTextValue);
+	display.setControlShow(label[0]);
+	display.refreshControl(label[0]);
+}
+
+void cSamplePlayback::showSlicesAdjustValue()
+{
+	float timeValue = editorInstrument->sample.length/44100.0;
+	float currentSlice = (timeValue * editorInstrument->slices[editorInstrument->selectedSlice]) / MAX_16BIT;
+
+	sprintf(sliceAdjustTextValue, "%.3f ms", currentSlice);
+
+	display.setControlText(label[1], sliceAdjustTextValue);
+	display.setControlShow(label[1]);
+	display.refreshControl(label[1]);
+}
+
 
 
 //==============================================================================================================

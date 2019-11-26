@@ -1232,6 +1232,26 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 				ampPtr->gain( (currentSeqModValues.volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
 			}
 		break;
+		case fx_t::FX_TYPE_SAMPLE_SLICE:
+			if(fx_n == MOST_SIGNIFICANT_FX)
+			{
+				currentSeqModValues.slice = fx_val > mtProject.instrument[currentInstrument_idx].sliceNumber - 1 ?
+				mtProject.instrument[currentInstrument_idx].sliceNumber - 1: fx_val;
+			}
+			else if(fx_n == LEAST_SIGNIFICANT_FX)
+			{
+				if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::slice])
+				{
+					currentSeqModValues.slice = fx_val > mtProject.instrument[currentInstrument_idx].sliceNumber - 1 ?
+					mtProject.instrument[currentInstrument_idx].sliceNumber - 1: fx_val;
+				}
+			}
+
+			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::slice] = 1;
+
+			playMemPtr->setSliceForcedFlag();
+			playMemPtr->setForcedSlice(currentSeqModValues.slice);
+		break;
 		default:
 		break;
 	}
@@ -1753,6 +1773,29 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				{
 					ampPtr->gain( (instrumentBasedMod.volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
 				}
+			}
+		break;
+		case fx_t::FX_TYPE_SAMPLE_SLICE:
+			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::slice] = 0;
+
+			if(fx_id == MOST_SIGNIFICANT_FX)
+			{
+				currentSeqModValues.slice = lastSeqVal[otherFx_n] > mtProject.instrument[currentInstrument_idx].sliceNumber - 1 ?
+				mtProject.instrument[currentInstrument_idx].sliceNumber - 1:
+				lastSeqVal[otherFx_n];
+			}
+
+			if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::slice])
+			{
+				if(fx_id == MOST_SIGNIFICANT_FX)
+				{
+					playMemPtr->setSliceForcedFlag();
+					playMemPtr->setForcedSlice(currentSeqModValues.slice);
+				}
+			}
+			else
+			{
+				playMemPtr->clearSliceForcedFlag();
 			}
 		break;
 		default:

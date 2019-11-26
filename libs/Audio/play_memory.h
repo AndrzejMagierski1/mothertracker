@@ -69,6 +69,11 @@ public:
 	void clearFineTuneForceFlag();
 	void setForcedFineTune(int8_t value);
 	void setForcedPoints(int32_t sp, int32_t lp1, int32_t lp2, int32_t ep); // -1 nie nadpisuje
+
+	void setForcedSlice(uint8_t value);
+	void setSliceForcedFlag();
+	void clearSliceForcedFlag();
+
 	uint16_t getPosition();
 private:
 	int16_t *next;
@@ -103,7 +108,7 @@ private:
 	uint8_t glideForceFlag;
 	uint8_t fineTuneForceFlag;
 	uint8_t wavetableWindowForceFlag;
-
+	uint8_t sliceForcedFlag;
 
 	uint8_t reverseDirectionFlag;
 
@@ -115,6 +120,8 @@ private:
 	uint16_t forcedGlide;
 	int8_t forcedFineTune;
 	uint16_t forcedWavetableWindow;
+	uint8_t forcedSlice;
+
 
 	struct strSamplePoints
 	{

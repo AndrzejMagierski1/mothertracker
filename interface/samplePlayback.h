@@ -77,6 +77,9 @@ public:
 	void showEndPointValue();
 	void showLoopPoint1Value();
 	void showLoopPoint2Value();
+	void showSlicesSelectValue();
+	void showSlicesAdjustValue();
+
 
 	void hideLoopPoints();
 	void showLoopPoints();
@@ -130,6 +133,9 @@ public:
 	strZoomParams zoom;
 
 	char zoomTextValue[7];
+
+	char sliceSelectTextValue[5];
+	char sliceAdjustTextValue[9];
 
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;

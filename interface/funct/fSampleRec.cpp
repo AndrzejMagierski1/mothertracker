@@ -394,6 +394,8 @@ void cSampleRecorder::start(uint32_t options)
 	else audioShield.headphoneSourceSelect(0);
 
 	engine.setHeadphonesVolume(mtProject.values.volume * 0.85);
+
+	mtPadBoard.configureInstrumentPlayer(8);
 }
 
 

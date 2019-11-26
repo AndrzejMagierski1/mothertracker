@@ -37,6 +37,25 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 	/*========================================================INIT=============================================================*/
 	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
+	uint16_t startSlice = 0, endSlice = 0;
+
+	if(sliceForcedFlag)
+	{
+		startSlice = (mtProject.instrument[instr_idx].sliceNumber > 0) ? mtProject.instrument[instr_idx].slices[forcedSlice] : 0;
+		endSlice =
+			((mtProject.instrument[instr_idx].sliceNumber > 1 ) &&  ( (mtProject.instrument[instr_idx].sliceNumber - 1) != forcedSlice) ) ?
+			mtProject.instrument[instr_idx].slices[forcedSlice + 1] : MAX_16BIT;
+	}
+	else
+	{
+		startSlice = (mtProject.instrument[instr_idx].sliceNumber > 0) ? mtProject.instrument[instr_idx].slices[mtProject.instrument[instr_idx].selectedSlice] : 0;
+		endSlice =
+			((mtProject.instrument[instr_idx].sliceNumber > 1 ) &&  ( (mtProject.instrument[instr_idx].sliceNumber - 1) != mtProject.instrument[instr_idx].selectedSlice) ) ?
+			mtProject.instrument[instr_idx].slices[mtProject.instrument[instr_idx].selectedSlice + 1] : MAX_16BIT;
+	}
+
+
+
 
 	if(instr_idx > INSTRUMENTS_MAX) instr_idx = INSTRUMENTS_MAX;
 	if(note > MAX_NOTE) note = MAX_NOTE;
@@ -121,7 +140,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 		{
 			if (startPoint >= endPoint) return badStartPoint;
 		}
-		else
+		else if(playMode != playModeSlice)
 		{
 			if ( (startPoint >= endPoint) || (startPoint > loopPoint1) || (startPoint > loopPoint2) )
 			{
@@ -184,33 +203,45 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	lastNote=note;
 	if(mtProject.instrument[instr_idx].sample.type != mtSampleTypeWavetable)
 	{
-		samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
-		samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
+		if(playMode  == playModeSlice)
+		{
+			samplePoints.start= (uint32_t)((float)startSlice*((float)startLen/MAX_16BIT));
+			samplePoints.end= (uint32_t)((float)endSlice*((float)startLen/MAX_16BIT));
 
-		if(playMode != singleShot)
-		{
-			samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
-			samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
-		}
-		else
-		{
 			samplePoints.loop1 = 0;
 			samplePoints.loop2 = 0;
 		}
-
-		if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen))
+		else
 		{
-			__enable_irq();
-			AudioInterrupts();
-			return pointsBeyondFile; // wskazniki za plikiem
+			samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
+			samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
+
+			if(playMode != singleShot)
+			{
+				samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
+				samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
+			}
+			else
+			{
+				samplePoints.loop1 = 0;
+				samplePoints.loop2 = 0;
+			}
+
+			if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen))
+			{
+				__enable_irq();
+				AudioInterrupts();
+				return pointsBeyondFile; // wskazniki za plikiem
+			}
+
+			if((playMode != singleShot) && (playMode != playModeSlice))
+			{
+				sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
+				sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
+				sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+			}
 		}
 
-		if(playMode != singleShot)
-		{
-			sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
-			sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
-			sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
-		}
 
 		sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
 	}
@@ -324,6 +355,22 @@ void AudioPlayMemory::update(void)
 				{
 					switch (playMode)
 					{
+					case playModeSlice:
+						*out++ = *(in + iPitchCounter);
+						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
+						iPitchCounter += castPitchControl;
+						fPitchCounter += pitchFraction;
+						if (fPitchCounter >= 1.0f)
+						{
+							fPitchCounter -= 1.0f;
+							iPitchCounter++;
+						}
+						else if(fPitchCounter <= -1.0f)
+						{
+							fPitchCounter += 1.0f;
+							iPitchCounter--;
+						}
+						break;
 					case singleShot:
 						*out++ = *(in + iPitchCounter);
 						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
@@ -764,6 +811,21 @@ uint16_t AudioPlayMemory::getPosition()
 	return  (uint16_t)(65535 * ((samplePoints.start + iPitchCounter)/(float)startLen));
 }
 
+void AudioPlayMemory::setForcedSlice(uint8_t value)
+{
+	if(mtProject.instrument[currentInstr_idx].sliceNumber == 0) forcedSlice = 0;
+	else if(value > mtProject.instrument[currentInstr_idx].sliceNumber - 1) forcedSlice = mtProject.instrument[currentInstr_idx].sliceNumber - 1;
+	else forcedSlice = value;
+}
+void AudioPlayMemory::setSliceForcedFlag()
+{
+	sliceForcedFlag = 1;
+}
+void AudioPlayMemory::clearSliceForcedFlag()
+{
+	sliceForcedFlag = 0;
+}
+
 void AudioPlayMemory::clean(void)
 {
 	if(!playing)
@@ -817,6 +879,11 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	__disable_irq();
 	/*========================================================INIT=============================================================*/
 	uint16_t startPoint=0,endPoint=0,loopPoint1=0,loopPoint2=0;
+	uint16_t startSlice = (mtProject.instrument[instr_idx].sliceNumber > 0) ? mtProject.instrument[instr_idx].slices[mtProject.instrument[instr_idx].selectedSlice] : 0;
+	uint16_t endSlice =
+		((mtProject.instrument[instr_idx].sliceNumber > 1 ) &&  ( (mtProject.instrument[instr_idx].sliceNumber - 1) != mtProject.instrument[instr_idx].selectedSlice) ) ?
+		mtProject.instrument[instr_idx].slices[mtProject.instrument[instr_idx].selectedSlice + 1] : MAX_16BIT;
+
 	if(playing == 0x81) needSmoothingFlag = 1;
 	playing = 0;
 	loopBackwardFlag=0;
@@ -927,22 +994,31 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 
 	if(sampleType != mtSampleTypeWavetable)
 	{
-		samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
-		samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
-		if(playMode != singleShot)
+		if(playMode == playModeSlice)
 		{
-			samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
-			samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
+			samplePoints.start= (uint32_t)((float)startSlice*((float)startLen/MAX_16BIT));
+			samplePoints.end= (uint32_t)((float)endSlice*((float)startLen/MAX_16BIT));
+		}
+		else
+		{
+			samplePoints.start= (uint32_t)((float)startPoint*((float)startLen/MAX_16BIT));
+			samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
+			if(playMode != singleShot)
+			{
+				samplePoints.loop1= (uint32_t)((float)loopPoint1*((float)startLen/MAX_16BIT));
+				samplePoints.loop2= (uint32_t)((float)loopPoint2*((float)startLen/MAX_16BIT));
+			}
+
+			if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
+
+			if(playMode != singleShot)
+			{
+				sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
+				sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
+				sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
+			}
 		}
 
-		if((samplePoints.start >= startLen) || (samplePoints.loop1>startLen) || (samplePoints.loop2>startLen) || (samplePoints.end>startLen)) return pointsBeyondFile; // wskazniki za plikiem
-
-		if(playMode != singleShot)
-		{
-			sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
-			sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
-			sampleConstrains.loopLength=samplePoints.loop2-samplePoints.loop1;
-		}
 
 		sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
 	}

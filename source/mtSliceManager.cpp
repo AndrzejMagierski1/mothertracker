@@ -73,8 +73,6 @@ void mtSliceManager::adjustSlice(strInstrument * instr, int32_t val)
 		else if(instr->slices[instr->selectedSlice] + val < 0 ) instr->slices[instr->selectedSlice] = 0;
 		else instr->slices[instr->selectedSlice] += val;
 	}
-
-
 }
 void mtSliceManager::autoSlice(strInstrument * instr)
 {
