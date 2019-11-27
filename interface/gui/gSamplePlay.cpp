@@ -488,7 +488,8 @@ void cSamplePlayback::showSlicesSelectValue()
 void cSamplePlayback::showSlicesAdjustValue()
 {
 	float timeValue = editorInstrument->sample.length/44100.0;
-	float currentSlice = (timeValue * editorInstrument->slices[editorInstrument->selectedSlice]) / MAX_16BIT;
+	uint16_t slice =  (editorInstrument->sliceNumber == 0 ) ? 0 : editorInstrument->slices[editorInstrument->selectedSlice];
+	float currentSlice = (timeValue * slice) / MAX_16BIT;
 
 	sprintf(sliceAdjustTextValue, "%.3f ms", currentSlice);
 

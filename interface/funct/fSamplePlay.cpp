@@ -1592,7 +1592,10 @@ static void modWavetableWindowSize(int16_t value)
 static void modSliceSelect(int16_t value)
 {
 	if( SP->editorInstrument->selectedSlice + value < 0) SP->editorInstrument->selectedSlice = 0;
-	else if (SP->editorInstrument->selectedSlice + value > SP->editorInstrument->sliceNumber - 1) SP->editorInstrument->selectedSlice = SP->editorInstrument->sliceNumber - 1;
+	else if (SP->editorInstrument->selectedSlice + value > SP->editorInstrument->sliceNumber - 1)
+	{
+		SP->editorInstrument->selectedSlice = (SP->editorInstrument->sliceNumber == 0) ? 0 : SP->editorInstrument->sliceNumber - 1;
+	}
 	else SP->editorInstrument->selectedSlice += value;
 
 	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
@@ -1626,6 +1629,13 @@ static void modSliceAdjust(int16_t value)
 static uint8_t functAddSlice()
 {
 	sliceManager.addSlice(SP->editorInstrument);
+	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
+	{
+		SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
+		if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
+	}
+	SP->showSlicesSelectValue();
+	SP->showSlicesAdjustValue();
 	SP->refreshSlicePoints = 1;
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 	return 1;
@@ -1633,6 +1643,13 @@ static uint8_t functAddSlice()
 static uint8_t functRemoveSlice()
 {
 	sliceManager.removeSlice(SP->editorInstrument);
+	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
+	{
+		SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
+		if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
+	}
+	SP->showSlicesSelectValue();
+	SP->showSlicesAdjustValue();
 	SP->refreshSlicePoints = 1;
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 	return 1;
@@ -1640,6 +1657,13 @@ static uint8_t functRemoveSlice()
 static uint8_t functAutoSlice()
 {
 	sliceManager.autoSlice(SP->editorInstrument);
+	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
+	{
+		SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
+		if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
+	}
+	SP->showSlicesSelectValue();
+	SP->showSlicesAdjustValue();
 	SP->refreshSlicePoints = 1;
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 	return 1;
