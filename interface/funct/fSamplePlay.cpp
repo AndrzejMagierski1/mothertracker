@@ -1267,7 +1267,6 @@ static void changePlayModeSelection(int16_t value)
 	else  SP->editorInstrument->playMode += value;
 
 	if(SP->editorInstrument->playMode == playModeWavetable)
-	if(SP->editorInstrument->playMode == playModeWavetable)
 	{
 		SP->showWavetablePositionCursor();
 	}
@@ -1276,7 +1275,7 @@ static void changePlayModeSelection(int16_t value)
 		SP->hideWavetablePositionCursor();
 	}
 
-	if((SP->editorInstrument->playMode == playModeWavetable) && (value > 0))
+	if(SP->editorInstrument->playMode == playModeWavetable)
 	{
 		if(SP->editorInstrument->sample.type == 0) SP->refreshSpectrum = 1;
 		SP->editorInstrument->sample.type = 1;
@@ -1305,7 +1304,11 @@ static void changePlayModeSelection(int16_t value)
 	}
 
 
-	if(((SP->editorInstrument->playMode == singleShot) && (value < 0 )) || ((SP->editorInstrument->playMode == playModeWavetable) && (value > 0 )) ) SP->hideLoopPoints();
+	if(((SP->editorInstrument->playMode == singleShot) && (value < 0 )) || ((SP->editorInstrument->playMode == playModeWavetable) && (value > 0 )) )
+	{
+		SP->hideLoopPoints();
+		if(SP->editorInstrument->playMode == singleShot) SP->refreshPoints = 1;
+	}
 	else
 	{
 		if(SP->editorInstrument->loopPoint1 >= SP->editorInstrument->loopPoint2) SP->editorInstrument->loopPoint1 = SP->editorInstrument->loopPoint2 - 1;

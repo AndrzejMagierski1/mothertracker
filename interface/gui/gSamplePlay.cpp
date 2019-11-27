@@ -189,8 +189,6 @@ void cSamplePlayback::showDefaultScreen()
 		display.refreshControl(progressCursor);
 
 
-
-
 		if(editorInstrument->playMode == playModeSlice)
 		{
 			display.setControlValue(label[0], 1);
@@ -205,7 +203,6 @@ void cSamplePlayback::showDefaultScreen()
 			display.setControlText2(label[1], "Adjust");
 			display.setControlText2(label[5], "Zoom");
 
-		display.setControlText(label[0], startPointValueText);
 			display.setControlText(label[0], "");
 			display.setControlText(label[1], "");
 			display.setControlText(label[2], "Add");
@@ -223,6 +220,9 @@ void cSamplePlayback::showDefaultScreen()
 			showZoomValue();
 			showSlicesAdjustValue();
 			showSlicesSelectValue();
+			processWavetableCursor(editorInstrument->wavetableCurrentWindow);
+			hideWavetablePositionCursor();
+
 		}
 		else
 		{
@@ -256,6 +256,8 @@ void cSamplePlayback::showDefaultScreen()
 			showLoopPoint1Value();
 			showLoopPoint2Value();
 			showZoomValue();
+			processWavetableCursor(editorInstrument->wavetableCurrentWindow);
+			hideWavetablePositionCursor();
 
 			display.setControlText(label[0], startPointValueText);
 		}
@@ -295,6 +297,7 @@ void cSamplePlayback::showDefaultScreen()
 		showWavetablePosition();
 		showWavetableWindowSize();
 
+		processWavetableCursor(editorInstrument->wavetableCurrentWindow);
 		showWavetablePositionCursor();
 	}
 
