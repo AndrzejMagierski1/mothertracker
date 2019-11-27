@@ -508,9 +508,9 @@ void FileManager::createEmptyTemplateProject(char * name)
 
 	sprintf(patchFolder,"Templates/%s/project.bin", name);
 
-	strMtProject projectFile;
-	getDefaultProject(&projectFile);
-	writeProjectFile(patchFolder, &projectFile);
+/*	strMtProject projectFile;
+	getDefaultProject(&projectFile);*/
+	writeProjectFile(patchFolder, &mtProject);
 }
 
 //<! Loading only neccessary files from workspace functions

@@ -91,9 +91,9 @@ void cSampleImporter::initDisplayControls()
 	prop2.h = 59;
 	if(label[5] == nullptr) label[5] = display.createControl<cLabel>(&prop2);
 
-	explorerList.linesCount = 5;
-	explorerList.start = 0;
+	explorerList.start = selectedFile;
 	explorerList.length = locationExplorerCount;
+	explorerList.linesCount = 15;
 	explorerList.data = explorerNames;
 
 	//explorerList.selectTab=selectionTab;
@@ -267,6 +267,7 @@ void cSampleImporter::showFilesTree()
 	display.setControlData(explorerListControl,  &explorerList);
 	display.setControlShow(explorerListControl);
 	display.refreshControl(explorerListControl);
+	display.synchronizeRefresh();
 }
 
 

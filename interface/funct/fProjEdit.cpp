@@ -13,6 +13,7 @@
 #include "performanceMode.h"
 
 #include "sdCardDetect.h"
+#include "mtFileManager.h"
 
 
 enum valueMapDirecion
@@ -566,8 +567,9 @@ static uint8_t functNewProject()
 	strcpy(currentPatch,"Templates/New/project.bin");
 
 	fileManager.createEmptyTemplateProject((char*)"New");
-
+	fileManager.getDefaultProject(&mtProject);
 	strcpy(mtConfig.startup.lastProjectName, fileManager.currentProjectName);
+
 
 	PE->isBusyFlag = 1;
 	PE->newProjectNotSavedFlag = 1;
@@ -703,9 +705,11 @@ static uint8_t functSaveChangesDontSaveNewProject()
 	char currentPatch[PATCH_SIZE];
 	strcpy(currentPatch,"Templates/New/project.bin");
 
+	fileManager.getDefaultProject(&mtProject);
 	fileManager.createEmptyTemplateProject((char*)"New");
 
 	strcpy(mtConfig.startup.lastProjectName, fileManager.currentProjectName);
+
 
 	PE->newProjectPopupDelay = 0;
 	PE->newProjectPopupFlag = 1;
