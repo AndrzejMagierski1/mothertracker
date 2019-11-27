@@ -228,11 +228,14 @@ void cTracker::refresh1()
 	}
 
 
+	API_BLEND_FUNC(SRC_ALPHA, ZERO);
 
 	backgroundDivider();
 	playHead();
 
 	selection();
+
+	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 
 #if ROW_NUM
 	rowNumbers();
@@ -243,7 +246,6 @@ void cTracker::refresh1()
 //------------------------------------------------------------------------------------------
 void cTracker::refresh2()
 {
-
 	if(displayMode == 0 || displayMode & 1)
 	{
 		notes();
@@ -276,8 +278,14 @@ void cTracker::refresh5()
 		fxes2();
 	}
 
+
+
 	tracksNumbers();
+
+	API_BLEND_FUNC(SRC_ALPHA, ZERO);
 	lines();
+
+	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 }
 
 
@@ -287,15 +295,19 @@ void cTracker::backgroundDivider()
 {
 	int16_t div_row = tracks->actualStep-7;
 
+	API_COLOR(colors[1]);
 	API_LINE_WIDTH(16);
 	API_BEGIN(RECTS);
-
-	API_COLOR(colors[1]);
 
 	API_VERTEX2F(1, 0);
 	API_VERTEX2F(798, 423);
 
-	API_BLEND_FUNC(SRC_ALPHA, ZERO);
+	//API_SCISSOR_XY(1, 0);
+	//API_SCISSOR_SIZE(798, 423);
+	//API_CMD_GRADIENT(0, 1, 0x000000, 0, 423, 0x222222);
+
+
+
 
 	API_COLOR(colors[11]);
 
@@ -319,7 +331,7 @@ void cTracker::backgroundDivider()
 	API_END();
 
 
-	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 
 	// cien dolny
 	API_LINE_WIDTH(8);
@@ -328,10 +340,10 @@ void cTracker::backgroundDivider()
 	//uint8_t r = 0;
 	//uint8_t g = 0;
 	//uint8_t b = 0;
-	uint32_t rgb = 0x000000;
+	uint32_t rgb = 0x1a1a1a;
 
 
-	for(uint8_t i = 0; i < 14; i++)
+	for(uint8_t i = 0; i < 10; i++)
 	{
 		//API_COLOR(DISP_RGB(r,g,b));
 		API_COLOR(rgb);
@@ -350,7 +362,7 @@ void cTracker::backgroundDivider()
 	}
 
 
-	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	////API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 }
 
 //-------------------------------------------------------------------------------------
@@ -362,8 +374,8 @@ void cTracker::lines()
 //	API_LINE_WIDTH(8);
 //	API_BEGIN(LINES);
 
-	API_BLEND_FUNC(SRC_ALPHA, ZERO);
-	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
+	////API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 
 
 	// PIONOWE
@@ -394,7 +406,7 @@ void cTracker::lines()
 
 	API_END();
 
-	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 
 }
 
@@ -437,25 +449,25 @@ void cTracker::playHead()
 		API_LINE_WIDTH(16);
 		API_BEGIN(LINES);
 
-		//uint8_t r = 0;
-		//uint8_t g = 0;
-		//uint8_t b = 0;
+		uint8_t r = 10;
+		uint8_t g = 11;
+		uint8_t b = 12;
 
-		uint32_t rgb = 0x080808;
+		//uint32_t rgb = 0x080808;
 
 
-		for(uint8_t i = 0; i < 8; i++)
+		for(uint8_t i = 0; i < 12; i++)//8
 		{
-			//API_COLOR(DISP_RGB(r,g,b));
-			API_COLOR(rgb);
+			API_COLOR(DISP_RGB(r,g,b));
+			//API_COLOR(rgb);
 
-			if(i%3 == 0)
-			{
-				//r+=4;
-				//g+=4;
-				//b+=4;
-				rgb+=0x040404;
-			}
+			//if(i%3 == 0)
+			//{
+				r+=2;
+				g+=2;
+				b+=2;
+				//rgb+=0x010101;
+			//}
 
 
 			API_VERTEX2F(2, phy1-i);
@@ -465,10 +477,6 @@ void cTracker::playHead()
 			API_VERTEX2F(2, phy2+i);
 			API_VERTEX2F(797, phy2+i);
 
-
-
-			API_VERTEX2F(2, 423-i);
-			API_VERTEX2F(797, 423-i);
 		}
 
 /*
@@ -505,7 +513,7 @@ void cTracker::playHead()
 // ZAZNACZENIE ACTUAL
 void cTracker::selection()
 {
-	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
 
 	//--------------------
 	// ZAZNACZENIE
@@ -613,7 +621,7 @@ void cTracker::selection()
 	}
 
 
-	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 }
 
 //-------------------------------------------------------------------------------------

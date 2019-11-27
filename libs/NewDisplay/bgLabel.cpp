@@ -65,26 +65,11 @@ void cBgLabel::setStyle(uint32_t style)
 {
 	this->style = style;
 
-	textStyle =    (style & controlStyleCenterX ? OPT_CENTERX : 0)
-				 | (style & controlStyleCenterY ? OPT_CENTERY : 0)
-	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
-
-
-	textFont = FONT_INDEX_FROM_STYLE;
-	textFont = (textFont>=0) ? textFont : 0;
-	fontWidth = fonts[textFont].width;
-	fontHeight = fonts[textFont].height;
-	textFont =  fonts[textFont].handle;
 }
 
 void cBgLabel::setText(char* text)
 {
 	this->text = text;
-}
-
-void cBgLabel::setText2(char* text)
-{
-	this->text2 = text;
 }
 
 void cBgLabel::setValue(int value)
@@ -114,7 +99,6 @@ uint8_t cBgLabel::update()
 {
 	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
-
 
     int16_t border_x = posX;
     int16_t border_y = posY;

@@ -75,7 +75,7 @@ void cConfigEditor::initDisplayControls()
 		//prop2.data =  &bottomValuesConfig;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
 
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );
+		prop2.style = 	( controlStyleCenterX | controlStyleCenterY );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
 		prop2.y = 452;

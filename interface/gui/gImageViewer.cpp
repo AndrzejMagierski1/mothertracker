@@ -26,7 +26,7 @@ void cImageViewer::initDisplayControls()
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop.text = (char*)"";
-		prop.style = 	( controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+		prop.style = 	( controlStyleShow | controlStyleCenterX | controlStyleCenterY);
 		prop.x = (800/8)*i+(800/16);
 		prop.y = 452;
 		prop.w = 800/8-6;

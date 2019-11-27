@@ -55,15 +55,6 @@ cFrame::~cFrame()
 void cFrame::setStyle(uint32_t style)
 {
 	this->style = style;
-
-	textStyle =    (style & controlStyleCenterX ? OPT_CENTERX : 0)
-				 | (style & controlStyleCenterY ? OPT_CENTERY : 0)
-	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
-
-
-	textFont = FONT_INDEX_FROM_STYLE;
-	textFont = (textFont>=0) ? textFont : 0;
-	textFont =  fonts[textFont].handle;
 }
 
 void cFrame::setText(char* text)

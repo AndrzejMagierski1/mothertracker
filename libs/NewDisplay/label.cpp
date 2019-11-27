@@ -75,7 +75,7 @@ void cLabel::setStyle(uint32_t style)
 	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
 
 
-	uint8_t textFont = FONT_INDEX_FROM_STYLE;
+	int8_t textFont = FONT_INDEX_FROM_STYLE;
 	textFont = (textFont>=0) ? textFont : 0;
 	font1 = &fonts[textFont];
 
@@ -95,7 +95,7 @@ void cLabel::setStyle2(uint32_t style)
 	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
 
 
-	uint8_t textFont = FONT_INDEX_FROM_STYLE;
+	int8_t textFont = FONT_INDEX_FROM_STYLE;
 	textFont = (textFont>=0) ? textFont : 0;
 	font2 = &fonts[textFont];
 

@@ -68,7 +68,7 @@ void cSampleImporter::initDisplayControls()
 
 	prop2.text = (char*)"";
 	prop2.colors = interfaceGlobals.activeLabelsColors;
-	prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+	prop2.style = 	(controlStyleCenterX | controlStyleCenterY);
 	prop2.x = (800/8);
 	prop2.y = 452;
 	prop2.w = 800/4-6;

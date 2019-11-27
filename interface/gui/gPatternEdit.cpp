@@ -43,7 +43,7 @@ static uint32_t patternLabelColors[] =
 volatile uint32_t patternTrackerColors[] =
 {
 	0x000000, // 0 linie
-	0x1c1c1c, // 1 background  /numery wierszy juz nie bo nie ma/
+	0x080808, // 1 background  /numery wierszy juz nie bo nie ma/
 
 	0x00e8be, // 2 nuta
 	0xfef749, // 3 instrument
@@ -61,7 +61,7 @@ volatile uint32_t patternTrackerColors[] =
 	0x232323, // 13 playhead
 };
 
-uint32_t patternTrackerSelectionColor = 0xff0000;
+uint32_t patternTrackerSelectionColor = 0xf13c3c;
 
 
 //------------------------------------------------------------
@@ -348,7 +348,6 @@ void cPatternEditor::destroyDisplayControls()
 	display.destroyControl(param2PopupListControl);
 	param2PopupListControl = nullptr;
 
-
 	display.destroyControl(patternPopupLabel);
 	patternPopupLabel = nullptr;
 
@@ -358,18 +357,6 @@ void cPatternEditor::destroyDisplayControls()
 	display.destroyControl(notePopoutControl);
 	notePopoutControl = nullptr;
 
-
-/*
-	display.destroyControl(titleBar);
-	titleBar = nullptr;
-
-	display.destroyControl(titleLabel);
-	titleLabel = nullptr;
-
-	display.destroyControl(instrumentLabel);
-	instrumentLabel = nullptr;
-
-*/
 }
 
 
