@@ -420,7 +420,7 @@ void cSampleImporter::AddEnterOrRename()
 	renameColorControl();
 
 	display.refreshControl(label[1]);
-	//display.synchronizeRefresh();
+	display.synchronizeRefresh();
 }
 
 void cSampleImporter::previewColorControl()
@@ -444,7 +444,7 @@ void cSampleImporter::previewColorControl()
 	display.setControlColors(label[3], colors);
 	display.refreshControl(label[3]);
 
-	//display.synchronizeRefresh();
+	display.synchronizeRefresh();
 }
 
 void cSampleImporter::renameColorControl()
@@ -486,6 +486,7 @@ void cSampleImporter::deleteColorControl()
 	}
 
 	display.setControlColors(label[4], colors);
+	display.synchronizeRefresh();
 	// refreshowany jest w innej funkcji
 }
 
