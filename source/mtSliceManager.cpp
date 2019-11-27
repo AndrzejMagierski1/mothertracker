@@ -8,14 +8,16 @@ void mtSliceManager::addSlice(strInstrument * instr)
 	if(instr->sliceNumber == MAX_SLICE_NUMBER) return;
 	if(instr->sliceNumber == 0)
 	{
-		instr->slices[0] = 0;
 		instr->sliceNumber++;
+		instr->selectedSlice = 0;
+		instr->slices[0] = 0;
 		return;
 	}
 	if(instr->selectedSlice == (instr->sliceNumber - 1) )
 	{
-		instr->slices[instr->selectedSlice] = MAX_SLICE_NUMBER;
+		instr->selectedSlice++;
 		instr->sliceNumber++;
+		instr->slices[instr->selectedSlice] = (MAX_16BIT + instr->slices[instr->selectedSlice - 1]) / 2;
 		return;
 	}
 	for(int8_t i = instr->sliceNumber; i > (instr->selectedSlice+1); i--)
@@ -33,6 +35,7 @@ void mtSliceManager::removeSlice(strInstrument * instr)
 	if((instr->sliceNumber == 0) || (instr->sliceNumber <= instr->selectedSlice)) return;
 	if((instr->sliceNumber - 1) == instr->selectedSlice )
 	{
+		instr->selectedSlice = instr->sliceNumber == 1 ? 0 : instr->selectedSlice - 1 ;
 		instr->sliceNumber--;
 		return;
 	}
@@ -77,6 +80,7 @@ void mtSliceManager::adjustSlice(strInstrument * instr, int32_t val)
 void mtSliceManager::autoSlice(strInstrument * instr)
 {
 	memset(instr->slices,0,MAX_SLICE_NUMBER * 2);
+	instr->selectedSlice = 0;
 	sliceDetector.start(instr->sample.address,instr->sample.length,instr->slices, &instr->sliceNumber);
 }
 
