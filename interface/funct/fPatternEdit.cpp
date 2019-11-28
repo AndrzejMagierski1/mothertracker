@@ -25,9 +25,9 @@ static  uint8_t functChangePatternLength(uint8_t state);
 static  uint8_t functChangePatternEditStep(uint8_t state);
 static  uint8_t functFill();
 static  uint8_t functPreview();
-static  uint8_t functInvert();
 static  uint8_t functTranspose();
 static  uint8_t functUndo();
+uint8_t functInvert();
 
 
 // step buttons
@@ -397,8 +397,9 @@ void cPatternEditor::refreshPattern()
 				row->vol[2] = 0;
 			}
 */
-			uint8_t type_temp  = interfaceGlobals.fxIdToName(seq->track[i].step[patternPosition-7+j].fx[1].type);
-			if(type_temp > 0 && type_temp < FX_MAX)
+			uint8_t type_temp = interfaceGlobals.fxIdToName(
+					seq->track[i].step[patternPosition - 7 + j].fx[1].type);
+			if (type_temp > 0 && type_temp < FX_MAX)
 			{
 				trackerPattern.track[i].row[j].fx[0][0] = 0;
 				trackerPattern.track[i].row[j].fx[0][1] = 0;
@@ -408,9 +409,23 @@ void cPatternEditor::refreshPattern()
 						&interfaceGlobals.fxNames[type_temp][0],
 						1);
 
-				sprintf(&trackerPattern.track[i].row[j].fx[0][1],
-						"%.3u",
-						sequencer.getFxValueToView(1,i,patternPosition - 7 + j));
+				int16_t val = sequencer.getFxValueToView(
+						1, i, patternPosition - 7 + j);
+
+				if (val >= 0)
+				{
+					sprintf(&trackerPattern.track[i].row[j].fx[0][1],
+							"%.3i",
+							val
+							);
+				}
+				else
+				{
+					sprintf(&trackerPattern.track[i].row[j].fx[0][1],
+							"%.2i",
+							val
+							);
+				}
 
 				//trackerPattern.track[i].row[j].fx[0][3] = '0';
 			}
@@ -1218,11 +1233,11 @@ static  uint8_t functShift(uint8_t state)
 			display.refreshControl(PTE->patternControl);
 		}
 
-		if(PTE->editMode && !isMultiSelection() && !PTE->shiftAction )
-		{
-			sendSelection();
-			sequencer.blinkSelectedStep();
-		}
+//		if(PTE->editMode && !isMultiSelection() && !PTE->shiftAction )
+//		{
+//			sendSelection();
+//			sequencer.blinkSelectedStep();
+//		}
 
 		PTE->setMuteFunct(0);
 
@@ -1955,6 +1970,8 @@ static uint8_t functCopyPaste(uint8_t state)
 			{
 				sendPasteSelection();
 				sequencer.pasteFromBuffer(getSelectedElement());
+				PTE->moveCursorByStep();
+
 			}
 			else
 			{
@@ -2232,18 +2249,21 @@ static  uint8_t functFillApply()
 			if (fillData->type == 2)
 			{
 				sequencer.fillRandomNotes(PTE->fillStep,
+											fillData->param,
 											fillData->from,
 											fillData->to);
 			}
 			else if (fillData->type == 1)
 			{
 				sequencer.fillLinearNotes(PTE->fillStep,
+											fillData->param,
 											fillData->from,
 											fillData->to);
 			}
 			else if (fillData->type == 0)
 			{
 				sequencer.fillLinearNotes(PTE->fillStep,
+											fillData->param,
 											fillData->from,
 											fillData->from);
 			}
@@ -2365,7 +2385,7 @@ static  uint8_t functFillChangeParam4()
 //##############################################################################################
 //###############################            INVERT            #################################
 //##############################################################################################
-static uint8_t functInvert()
+uint8_t functInvert()
 {
 	//--------------------------------------------------------
 	//TU
