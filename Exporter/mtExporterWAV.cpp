@@ -95,3 +95,15 @@ uint8_t mtExporter::getStemsTrack()
 		default: break;
 	}
 }
+
+void mtExporter::cancel()
+{
+	switch(type)
+	{
+		case exportType::song : 			songExporter.cancel();				break;
+		case exportType::songStems : 		songStemsExporter.cancel();			break;
+		case exportType::pattern : 			patternExporter.cancel();			break;
+		case exportType::patternStems : 	patternStemsExporter.cancel();		break;
+		default: break;
+	}
+}

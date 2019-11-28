@@ -644,7 +644,7 @@ void cProjectEditor::showExportWindow()
 	display.setControlText2(label[3], "Patt Stems");
 	display.setControlText(label[4], "Export");
 	display.setControlText2(label[4], "To MOD");
-	display.setControlText(label[5], "");
+	display.setControlText(label[5], "Cancel");
 	display.setControlText(label[6], "");
 	display.setControlText(label[7], "Go Back");
 
