@@ -5,9 +5,9 @@
 #include "FT812.h"
 
 cTest mtTest;
+static cTest* TP = &mtTest;
 
-
-static uint8_t functButtons(uint8_t state);
+static uint8_t functButtons(uint8_t button, uint8_t state);
 static uint8_t functEncoder(int16_t value);
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
@@ -52,7 +52,7 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 
 
 
-	testRunning = 1;
+	procedureRunning = 1;
 }
 
 //==========================================================================================
@@ -60,7 +60,7 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 //==========================================================================================
 void cTest::testLoop()
 {
-	if(!testRunning) return;
+	if(!procedureRunning) return;
 
 // Graficzne
 	drawGui();
@@ -125,18 +125,42 @@ void cTest::showStatus()
 		if(step < mainStatus) 			API_COLOR(0x00FF00);
 		else if(step  == mainStatus) 	API_COLOR(0xFFFF00);
 		else 							API_COLOR(0xFF0000);
-		API_CMD_TEXT(50,50+step*20,28,0, &checkList[step][0]);
+		API_CMD_TEXT(50,80+step*25,28,0, &checkList[step][0]);
 	}
 
 
+	API_COLOR(0xFFFFFF);
+	API_BEGIN(LINES);
+
+	API_VERTEX2F(0,330);
+	API_VERTEX2F(400,330);
+
+	API_VERTEX2F(400,0);
+	API_VERTEX2F(400,479);
+
+	API_END();
+
 }
+
+
+void cTest::showMessage(char* question1, char* question2, char* answer1, char* answer2)
+{
+	API_COLOR(0xFFFFFF);
+	API_CMD_TEXT(10,350,28,0,question1);
+	API_CMD_TEXT(10,380,28,0,question2);
+
+	API_CMD_TEXT(10,450,28,0,answer1);
+	API_CMD_TEXT(300,450,28,0,answer2);
+
+}
+
 
 //==========================================================================================
 //
 //==========================================================================================
 void cTest::showStart()
 {
-
+	showMessage("Pres run to start test", "", "Run", "");
 
 
 }
@@ -153,9 +177,15 @@ void cTest::showScreenTest()
 {
 
 
-
 }
 
+void cTest::runScreenTest()
+{
+	if(testStatus == 0)
+	{
+		testTimer = 0;
+	}
+}
 
 
 
@@ -163,8 +193,31 @@ void cTest::showScreenTest()
 //==========================================================================================
 //
 //==========================================================================================
+void cTest::AcceptButton()
+{
+	switch(mainStatus)
+	{
+	case checkStart:
+	{
+		mainStatus++;
+		break;
+	}
+	case checkScreen:
+	{
+
+		mainStatus++;
+		break;
+	}
+	}
 
 
+
+}
+
+void cTest::DeclineButton()
+{
+
+}
 //==========================================================================================
 //
 //==========================================================================================
@@ -190,8 +243,19 @@ uint8_t cTest::runTestByCombinaion(uint8_t pad)
 //==========================================================================================
 //
 //==========================================================================================
-static uint8_t functButtons(uint8_t state)
+static uint8_t functButtons(uint8_t button, uint8_t state)
 {
+	if(state != buttonPress) return 1;
+
+	if(button == 0) TP->AcceptButton();
+	else if(button == 2) TP->DeclineButton();
+
+
+
+
+
+
+
 
 	return 1;
 }

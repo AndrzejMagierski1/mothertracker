@@ -59,6 +59,7 @@ void cInterfacePopups::initPopupsDisplayControls()
 
 	strControlProperties prop;
 
+
 	popupList.start = 0;
 	popupList.linesCount = 12;
 	popupList.length = 12;

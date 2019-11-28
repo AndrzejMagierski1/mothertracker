@@ -13,7 +13,6 @@ struct strTrackerPattern
 		{
 			char note[5] = "";
 			char instr[4] = ""; // ostatni znak jako flaga midi
-			char vol[3] = "";
 			char fx[2][5] = {"",""};
 		} row[15];
 

@@ -44,6 +44,7 @@ public:
 	strList patternsList;
 
 	strFrameData frameData;
+	strBgLabelData bgLabelData;
 
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
@@ -53,6 +54,7 @@ public:
 
 	hControl patternsListControl = nullptr;
 	hControl frameControl = nullptr;
+	hControl bgLabel;
 
 	uint8_t slotToPattern[255];
 	uint8_t selectedPlace = 0;

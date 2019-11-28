@@ -26,8 +26,8 @@ enum controlsStyle
 
 	controlStyleFont1 	= 256,
 	controlStyleFont2 	= 512,
-	controlStyleFont3 	= 1024,
-	controlStyleFont4 	= 2048,
+	controlStyleFont3 	= 512+256,
+	controlStyleFont4 	= 1024,
 
 	controlStyleBorder 			= (1<<12),
 	controlStyleBackground 		= (1<<13),

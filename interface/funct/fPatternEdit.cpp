@@ -280,20 +280,21 @@ void cPatternEditor::refreshPattern()
 				row->note[1] = 0;
 				row->note[2] = 0;
 				row->note[3] = 0;
+				row->note[4] = 0;
 				row->instr[0] = 0;
 				row->instr[1] = 0;
 				row->instr[2] = 0;
-				row->vol[0] = 0;
-				row->vol[1] = 0;
-				row->vol[2] = 0;
+				row->instr[3] = 0;
 				row->fx[0][0] = 0;
 				row->fx[0][1] = 0;
 				row->fx[0][2] = 0;
 				row->fx[0][3] = 0;
+				row->fx[0][4] = 0;
 				row->fx[1][0] = 0;
 				row->fx[1][1] = 0;
 				row->fx[1][2] = 0;
 				row->fx[1][3] = 0;
+				row->fx[1][4] = 0;
 				continue;
 			}
 
@@ -379,27 +380,9 @@ void cPatternEditor::refreshPattern()
 			}
 
 			//--------------------------------------------------------------------------------------------
-/*			if (seq->track[i].step[patternPosition - 7 + j].velocity >= 0)
-			{
 
-				row->vol[0] = getHexFromInt(
-						seq->track[i].step[patternPosition - 7 + j].velocity,
-						1);
-				row->vol[1] = getHexFromInt(
-						seq->track[i].step[patternPosition - 7 + j].velocity,
-						0);
-				row->vol[2] = 0;
-			}
-			else
-			{
-				row->vol[0] = '-';
-				row->vol[1] = '-';
-				row->vol[2] = 0;
-			}
-*/
-			uint8_t type_temp = interfaceGlobals.fxIdToName(
-					seq->track[i].step[patternPosition - 7 + j].fx[1].type);
-			if (type_temp > 0 && type_temp < FX_MAX)
+			uint8_t type_temp  = interfaceGlobals.fxIdToName(seq->track[i].step[patternPosition-7+j].fx[1].type);
+			if(type_temp > 0 && type_temp < FX_MAX)
 			{
 				trackerPattern.track[i].row[j].fx[0][0] = 0;
 				trackerPattern.track[i].row[j].fx[0][1] = 0;

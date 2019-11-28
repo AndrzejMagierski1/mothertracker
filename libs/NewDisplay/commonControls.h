@@ -30,6 +30,12 @@ struct strFrameData
 	multisel_control_t multisel[8];
 };
 
+
+struct strBgLabelData
+{
+	uint8_t activDivLine = 255;
+
+};
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
@@ -56,15 +62,22 @@ public:
 
 
 	void setText2(char* text);
+	void setStyle2(uint32_t style);
 
-	uint16_t textStyle;
-	int16_t textFont;
-	uint8_t fontWidth;
-	uint8_t fontHeight;
+	uint16_t textStyle1;
+	uint16_t textStyle2;
+	//int16_t textFont;
+	//uint8_t fontWidth;
+	//uint8_t fontHeight;
+
+	const strFont* font1;
+	const strFont* font2;
+
 
 	strLabelData* data;
 
 	char* text2 = nullptr;
+	uint32_t style2 = 0;
 
 };
 
@@ -109,15 +122,40 @@ public:
 	virtual void setDefaultColors(uint32_t colors[]);
 	virtual void setData(void* data);
 
-	uint16_t textStyle;
-	int16_t textFont;
 
 	strFrameData* data;
 };
 
 
 //--------------------------------------------------------------------
+//--------------------------------------------------------------------
+//--------------------------------------------------------------------
+//--------------------------------------------------------------------
+class cBgLabel: public cDisplayControl
+{
+public:
 
+	cBgLabel(strControlProperties* properties = nullptr);
+	virtual ~cBgLabel();
+
+	virtual uint8_t update();
+	virtual uint8_t memCpy(uint32_t address);
+	virtual uint8_t append(uint32_t address);
+
+	virtual void setStyle(uint32_t style);
+	virtual void setText(char* text);
+	virtual void setValue(int value);
+	virtual void setColors(uint32_t* colors);
+	virtual void setDefaultColors(uint32_t colors[]);
+	virtual void setData(void* data);
+
+	void string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length);
+
+
+	strBgLabelData* data;
+
+
+};
 
 //--------------------------------------------------------------------
 

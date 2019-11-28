@@ -148,11 +148,13 @@ public:
 
 	strMultiLabelData multiLabelData[12];
 
+	strBgLabelData bgLabelData;
 	strFrameData frameData;
 
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
+	hControl bgLabel;
 
 
 	hControl label[8] = {nullptr};

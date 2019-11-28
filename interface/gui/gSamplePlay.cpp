@@ -57,7 +57,7 @@ void cSamplePlayback::initDisplayControls()
 		//prop2.data =  &bottomValuesConfig;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
 
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );
+		prop2.style = 	( controlStyleCenterX | controlStyleCenterY );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
 		prop2.y = 452;
@@ -65,6 +65,17 @@ void cSamplePlayback::initDisplayControls()
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
+
+	bgLabelData.activDivLine = 255;
+	prop2.text = nullptr;
+	prop2.colors = interfaceGlobals.activeBgLabelsColors;
+	prop2.data = &bgLabelData;
+	prop2.style = controlStyleNoTransparency | controlStyleShow;
+	prop2.x = 0;
+	prop2.w = 800;
+	prop2.y = 425;
+	prop2.h =  55;
+	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
 
 	prop2.x = (800/4)*3+(800/8);
@@ -137,6 +148,10 @@ void cSamplePlayback::destroyDisplayControls()
 		display.destroyControl(label[i]);
 		label[i] = nullptr;
 	}
+
+	display.destroyControl(bgLabel);
+	bgLabel = nullptr;
+
 
 
 	display.destroyControl(frameControl);
@@ -306,6 +321,10 @@ void cSamplePlayback::showDefaultScreen()
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
+
+	display.setControlShow(bgLabel);
+	display.refreshControl(bgLabel);
+
 
 	display.synchronizeRefresh();
 

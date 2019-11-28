@@ -180,6 +180,7 @@ public:
 	uint8_t startLoadingSample();
 
 	strFrameData frameData;
+	strBgLabelData bgLabelData;
 
 	hControl label[8];
 	hControl effectListControl;
@@ -193,6 +194,7 @@ public:
 	hControl barControl[4];
 	hControl processHorizontalBarControl = nullptr;
 	hControl progressCursor = nullptr;
+	hControl bgLabel;
 
 
 	uint8_t selectedPlace = 6;

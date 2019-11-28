@@ -41,6 +41,7 @@ public:
 	strList instrumentList;
 
 	strFrameData frameData;
+	strBgLabelData bgLabelData;
 
 
 
@@ -56,6 +57,7 @@ public:
 
 	hControl explorerListControl = nullptr;
 
+	hControl bgLabel;
 
 
 	hControl titleBar = nullptr;
