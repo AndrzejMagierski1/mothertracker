@@ -1955,6 +1955,8 @@ static uint8_t functCopyPaste(uint8_t state)
 			{
 				sendPasteSelection();
 				sequencer.pasteFromBuffer(getSelectedElement());
+				PTE->moveCursorByStep();
+
 			}
 			else
 			{
