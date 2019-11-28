@@ -566,8 +566,9 @@ static uint8_t functNewProject()
 	char currentPatch[PATCH_SIZE];
 	strcpy(currentPatch,"Templates/New/project.bin");
 
-	fileManager.createEmptyTemplateProject((char*)"New");
 	fileManager.getDefaultProject(&mtProject);
+	fileManager.createEmptyTemplateProject((char*)"New");
+
 	strcpy(mtConfig.startup.lastProjectName, fileManager.currentProjectName);
 
 
