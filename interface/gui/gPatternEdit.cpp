@@ -43,7 +43,7 @@ static uint32_t patternLabelColors[] =
 volatile uint32_t patternTrackerColors[] =
 {
 	0x000000, // 0 linie
-	0x080808, // 1 background  /numery wierszy juz nie bo nie ma/
+	0x10100f, // 1 background  /numery wierszy juz nie bo nie ma/
 
 	0x00e8be, // 2 nuta
 	0xfef749, // 3 instrument
@@ -56,7 +56,7 @@ volatile uint32_t patternTrackerColors[] =
 	0x33515e, // 9 effekt2 nieaktywny
 
 	0xf13c3c, // 10 zaznaczenie
-	0x232323, // 11 podzialka
+	0x141413, // 11 podzialka
 	0x333333, // 12 nieaktywny
 	0x232323, // 13 playhead
 };
@@ -215,11 +215,11 @@ void cPatternEditor::initDisplayControls()
 		//prop2.data =  &bottomValuesConfig;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
 
-		prop2.style = 	( controlStyleCenterX | controlStyleCenterY | controlStyleFont3);
+		prop2.style = 	( controlStyleCenterX | controlStyleFont1);
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
-		prop2.y = 452;
-		prop2.h =  59;
+		prop2.y = 424;
+		prop2.h =  55;
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
@@ -229,10 +229,10 @@ void cPatternEditor::initDisplayControls()
 	prop2.text = nullptr;
 	prop2.colors = interfaceGlobals.activeBgLabelsColors;
 	prop2.data = &bgLabelData;
-	prop2.style = 	0;
+	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;
-	prop2.y = 424;
+	prop2.y = 425;
 	prop2.h =  55;
 
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
@@ -415,13 +415,13 @@ void cPatternEditor::showDefaultScreen()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.setControlPosition(label[i], -1, 452);
-		display.setControlSize(label[i], -1, 59);
+		display.setControlPosition(label[i], -1, 424);
+		display.setControlSize(label[i], -1, 55);
 
 
 		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
 
-		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
 
 		display.setControlShow(label[i]);
 
@@ -714,8 +714,8 @@ void cPatternEditor::showFillPopup()
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
-		display.setControlPosition(label[i], -1, 463);
-		display.setControlSize(label[i], -1, 30);
+		display.setControlPosition(label[i], -1, 424);
+		display.setControlSize(label[i], -1, 55);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}

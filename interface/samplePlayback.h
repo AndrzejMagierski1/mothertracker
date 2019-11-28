@@ -84,6 +84,7 @@ public:
 	void activateLabelsBorder();
 
 	strFrameData frameData;
+	strBgLabelData bgLabelData;
 
 	hControl label[7];
 	hControl playModeListControl;
@@ -94,6 +95,7 @@ public:
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 	hControl progressCursor;
+	hControl bgLabel;
 
 
 

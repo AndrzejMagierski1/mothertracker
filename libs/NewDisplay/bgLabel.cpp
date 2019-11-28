@@ -109,7 +109,7 @@ uint8_t cBgLabel::update()
 	{
 		border_x = posX - (width/2);
 	}
-	if(style & controlStyleCenterY)
+	if(style & controlStyleCenterY)  // 17 px
 	{
 		border_y = posY - (height/2);
 	}
@@ -122,12 +122,21 @@ uint8_t cBgLabel::update()
 	//------------------------------------------
 
 	API_COLOR(colors[1]);
-	API_LINE_WIDTH(8);
+	API_LINE_WIDTH(16);
 
 	API_BEGIN(RECTS);
 	API_VERTEX2F(border_x+1, border_y);
 	API_VERTEX2F(border_x+width-2, border_y+height);
 	API_END();
+
+
+
+	if(style & controlStyleNoTransparency)
+	{
+		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	}
+
+
 
 
 	API_COLOR(colors[0]);
@@ -147,11 +156,6 @@ uint8_t cBgLabel::update()
 	API_END();
 
 	//------------------------------------------
-
-	if(style & controlStyleNoTransparency)
-	{
-		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-	}
 
 
 

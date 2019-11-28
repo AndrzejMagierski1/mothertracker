@@ -447,7 +447,7 @@ struct strInterfaceGlobals
 
 	uint32_t inactiveLabelsColors[4] =
 	{
-		0x555555, // tekst
+		0x333333, // tekst
 		0x323132, // tło //0x555555
 		0xFF0000, // ramka
 		0x555555, // tekst2
@@ -464,7 +464,7 @@ struct strInterfaceGlobals
 	uint32_t activeBgLabelsColors[3] =
 	{
 		0x444344, // linie
-		0x2b2a2b,
+		0x22221f, // tlo
 		0xFF0000, // ramka
 	};
 

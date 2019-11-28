@@ -92,6 +92,17 @@ void cConfigEditor::initDisplayControls()
 
 	}
 
+	bgLabelData.activDivLine = 255;
+	prop2.text = nullptr;
+	prop2.colors = interfaceGlobals.activeBgLabelsColors;
+	prop2.data = &bgLabelData;
+	prop2.style = controlStyleNoTransparency | controlStyleShow;
+	prop2.x = 0;
+	prop2.w = 800;
+	prop2.y = 425;
+	prop2.h =  55;
+	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
+
 
 	configGroupList.linesCount = mtConfigGroupsCount;
 	configGroupList.start = 0;
@@ -141,6 +152,10 @@ void cConfigEditor::destroyDisplayControls()
 		display.destroyControl(barControl[i]);
 		barControl[i] = nullptr;
 	}
+
+	display.destroyControl(bgLabel);
+	bgLabel = nullptr;
+
 
 
 	display.destroyControl(frameControl);
@@ -198,6 +213,9 @@ void cConfigEditor::showDefaultConfigScreen()
 
 	display.setControlHide(label[7]);
 
+	display.refreshControl(bgLabel);
+
+
 
 	framesPlaces[6][0] = (800/8)*6+2;
 	framesPlaces[6][1] = 31;
@@ -248,6 +266,9 @@ void cConfigEditor::showMasterScreen()
 		if(i<6) display.setControlShow(barControl[i]);
 		//display.refreshControl(barControl[i]);
 	}
+
+	display.refreshControl(bgLabel);
+
 
 
 	showVolume();

@@ -228,14 +228,18 @@ void cTracker::refresh1()
 	}
 
 
-	API_BLEND_FUNC(SRC_ALPHA, ZERO);
+
 
 	backgroundDivider();
+
+
 	playHead();
+
+	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
 
 	selection();
 
-	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 
 #if ROW_NUM
 	rowNumbers();
@@ -288,7 +292,10 @@ void cTracker::refresh5()
 	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 }
 
-
+uint32_t rgb1 = 0x30301;
+uint32_t rgb2 = 0x60605;
+uint32_t rgb3 = 0xa0a03;
+uint32_t rgb4 = 0x10100f;//0xd0d0d;
 //-------------------------------------------------------------------------------------
 // podzialka
 void cTracker::backgroundDivider()
@@ -308,7 +315,8 @@ void cTracker::backgroundDivider()
 
 
 
-
+	//API_BEGIN(RECTS);
+	API_LINE_WIDTH(16);
 	API_COLOR(colors[11]);
 
 	for(uint16_t i = 0; i < 15; i++)
@@ -340,25 +348,18 @@ void cTracker::backgroundDivider()
 	//uint8_t r = 0;
 	//uint8_t g = 0;
 	//uint8_t b = 0;
-	uint32_t rgb = 0x1a1a1a;
+	API_COLOR(rgb1);
 
 
-	for(uint8_t i = 0; i < 10; i++)
+	for(uint8_t i = 0; i < 4; i++)
 	{
-		//API_COLOR(DISP_RGB(r,g,b));
-		API_COLOR(rgb);
-
-		if(i%3 == 0)
-		{
-			//r+=4;
-			//g+=4;
-			//b+=4;
-			rgb+=0x040404;
-		}
+		if(i == 1)	API_COLOR(rgb2);
+		if(i == 2)	API_COLOR(rgb3);
+		if(i == 3)	API_COLOR(rgb4);
 
 
-		API_VERTEX2F(2, 424-i);
-		API_VERTEX2F(797, 424-i);
+		API_VERTEX2F(1, 423-i);
+		API_VERTEX2F(797, 423-i);
 	}
 
 
@@ -412,6 +413,9 @@ void cTracker::lines()
 
 #define DISP_RGB(red,green,blue) ((((red)&255UL)<<16)|(((green)&255UL)<<8)|(((blue)&255UL)<<0))
 
+
+
+
 //-------------------------------------------------------------------------------------
 // playhead
 void cTracker::playHead()
@@ -446,29 +450,17 @@ void cTracker::playHead()
 
 		API_END();
 */
-		API_LINE_WIDTH(16);
+		API_LINE_WIDTH(8);
 		API_BEGIN(LINES);
 
-		uint8_t r = 10;
-		uint8_t g = 11;
-		uint8_t b = 12;
 
-		//uint32_t rgb = 0x080808;
+		API_COLOR(rgb1);
 
-
-		for(uint8_t i = 0; i < 12; i++)//8
+		for(uint8_t i = 0; i < 4; i++)
 		{
-			API_COLOR(DISP_RGB(r,g,b));
-			//API_COLOR(rgb);
-
-			//if(i%3 == 0)
-			//{
-				r+=2;
-				g+=2;
-				b+=2;
-				//rgb+=0x010101;
-			//}
-
+			if(i == 1)	API_COLOR(rgb2);
+			if(i == 2)	API_COLOR(rgb3);
+			if(i == 3)	API_COLOR(rgb4);
 
 			API_VERTEX2F(2, phy1-i);
 			API_VERTEX2F(797, phy1-i);
@@ -547,10 +539,10 @@ void cTracker::selection()
 		}
 
 		select1_x = select1_x - tracks->firstVisibleTrack;
-		select1_x = rightOffset+select1_x*tracksSpace;
+		select1_x = rightOffset+select1_x*tracksSpace+1;
 
 		select2_x = select2_x - tracks->firstVisibleTrack;
-		select2_x = rightOffset+ select2_x*tracksSpace + tracksSpace - 1;
+		select2_x = rightOffset+ select2_x*tracksSpace + tracksSpace - 2;
 
 		select1_y = select1_y - tracks->actualStep + 7;
 		select1_y = select1_y*28;
@@ -560,7 +552,7 @@ void cTracker::selection()
 
 
 		API_COLOR(colors[10]);
-		API_LINE_WIDTH(12);
+		API_LINE_WIDTH(8);
 		API_BEGIN(LINES);
 
 		if(select1_y >= 0) // gorna
@@ -605,7 +597,7 @@ void cTracker::selection()
 	if(tracks->selectState && tracks->actualTrack >= tracks->firstVisibleTrack && tracks->actualTrack <= tracks->firstVisibleTrack+columnsCount)
 	{
 		uint16_t select_x = rightOffset + (tracks->actualTrack - tracks->firstVisibleTrack) * tracksSpace + 2;
-		uint16_t select_w = tracksSpace-4;
+		uint16_t select_w = tracksSpace-5;
 
 
 		API_COLOR(colors[10]);

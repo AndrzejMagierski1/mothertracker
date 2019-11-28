@@ -78,6 +78,17 @@ void cSampleEditor::initDisplayControls()
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
+	bgLabelData.activDivLine = 255;
+	prop2.text = nullptr;
+	prop2.colors = interfaceGlobals.activeBgLabelsColors;
+	prop2.data = &bgLabelData;
+	prop2.style = controlStyleNoTransparency | controlStyleShow;
+	prop2.x = 0;
+	prop2.w = 800;
+	prop2.y = 425;
+	prop2.h =  55;
+	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
+
 	prop2.x = (800/4)*3+(800/8);
 	prop2.w = 800/4-6;
 
@@ -156,6 +167,10 @@ void cSampleEditor::destroyDisplayControls()
 		display.destroyControl(label[i]);
 		label[i] = nullptr;
 	}
+
+	display.destroyControl(bgLabel);
+	bgLabel = nullptr;
+
 
 
 	display.destroyControl(frameControl);
@@ -244,6 +259,9 @@ void cSampleEditor::showDefaultScreen()
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
+
+	display.refreshControl(bgLabel);
+
 
 	showEffectsList();
 

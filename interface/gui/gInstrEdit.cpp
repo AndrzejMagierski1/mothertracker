@@ -77,6 +77,17 @@ void cInstrumentEditor::initDisplayControls()
 		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
 	}
 
+	bgLabelData.activDivLine = 255;
+	prop2.text = nullptr;
+	prop2.colors = interfaceGlobals.activeBgLabelsColors;
+	prop2.data = &bgLabelData;
+	prop2.style = controlStyleNoTransparency | controlStyleShow;
+	prop2.x = 0;
+	prop2.w = 800;
+	prop2.y = 425;
+	prop2.h =  55;
+	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
+
 	filterModeList.linesCount = 5;
 	filterModeList.start = editorInstrument->filterEnable ? (editorInstrument->filterType+1) : 0;
 	filterModeList.length = filterModeCount;
@@ -146,6 +157,10 @@ void cInstrumentEditor::destroyDisplayControls()
 		display.destroyControl(barControl[i]);
 		barControl[i] = nullptr;
 	}
+
+	display.destroyControl(bgLabel);
+	bgLabel = nullptr;
+
 
 	display.destroyControl(filterModeListControl);
 	filterModeListControl = nullptr;
@@ -254,6 +269,10 @@ void cInstrumentEditor::showInstrumentEnv()
 		display.refreshControl(barControl[i]);
 	}
 
+	display.setControlShow(bgLabel);
+	display.refreshControl(bgLabel);
+
+
 	frameData.placesCount = 8;
 
 	display.synchronizeRefresh();
@@ -334,6 +353,9 @@ void cInstrumentEditor::showInstrumentParams()
 		display.refreshControl(label[i]);
 		display.refreshControl(barControl[i]);
 	}
+
+	display.refreshControl(bgLabel);
+
 
 	frameData.placesCount = 8;
 

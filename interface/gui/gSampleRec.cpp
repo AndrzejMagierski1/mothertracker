@@ -126,6 +126,18 @@ void cSampleRecorder::initDisplayControls()
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
+
+	bgLabelData.activDivLine = 255;
+	prop2.text = nullptr;
+	prop2.colors = interfaceGlobals.activeBgLabelsColors;
+	prop2.data = &bgLabelData;
+	prop2.style = controlStyleNoTransparency | controlStyleShow;
+	prop2.x = 0;
+	prop2.w = 800;
+	prop2.y = 425;
+	prop2.h =  55;
+	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
+
 	strControlProperties prop3;
 	// ramka
 	frameData.placesCount = 8;
@@ -269,6 +281,10 @@ void cSampleRecorder::destroyDisplayControls()
 		label[i] = nullptr;
 	}
 
+	display.destroyControl(bgLabel);
+	bgLabel = nullptr;
+
+
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
 
@@ -320,6 +336,10 @@ void cSampleRecorder::showDefaultScreen()
 	{
 		display.setControlText(label[i], "");
 	}
+
+	display.setControlShow(bgLabel);
+	display.refreshControl(bgLabel);
+
 	// odciemnanie labela wrazie deaktywacji save po wyjeciu karty
 	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
 

@@ -89,6 +89,17 @@ void cPerformanceMode::initDisplayControls()
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
+	bgLabelData.activDivLine = 255;
+	prop2.text = nullptr;
+	prop2.colors = interfaceGlobals.activeBgLabelsColors;
+	prop2.data = &bgLabelData;
+	prop2.style = controlStyleNoTransparency | controlStyleShow;
+	prop2.x = 0;
+	prop2.w = 800;
+	prop2.y = 425;
+	prop2.h =  55;
+	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
+
 
 	for(uint8_t i = 0; i<12; i++)
 	{
@@ -146,6 +157,10 @@ void cPerformanceMode::destroyDisplayControls()
 		display.destroyControl(label[i]);
 		label[i] = nullptr;
 	}
+
+	display.destroyControl(bgLabel);
+	bgLabel = nullptr;
+
 
 	for(uint8_t i = 0; i<12; i++)
 	{
@@ -238,6 +253,9 @@ void cPerformanceMode::showPerformanceMaster()
 		display.setControlShow(textLabel[i]);
 		display.refreshControl(textLabel[i]);
 	}
+
+	display.refreshControl(bgLabel);
+
 
 	display.setControlHide(textLabel[8]);
 	display.setControlHide(textLabel[9]);

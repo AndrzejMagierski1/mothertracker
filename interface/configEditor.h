@@ -170,6 +170,7 @@ public:
 //----------------------------------
 
 	strFrameData frameData;
+	strBgLabelData bgLabelData;
 
 	hControl label[8];
 	hControl barControl[8];
@@ -180,6 +181,7 @@ public:
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 
+	hControl bgLabel;
 	hControl frameControl;
 
 

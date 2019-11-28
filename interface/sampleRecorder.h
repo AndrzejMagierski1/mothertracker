@@ -127,6 +127,7 @@ public:
 	void hideRDS();
 
 	strFrameData frameData;
+	strBgLabelData bgLabelData;
 	strSelectWindowData selectWindowData;
 
 //*********************************************
@@ -149,6 +150,7 @@ public:
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 	hControl notePopoutControl = nullptr;
+	hControl bgLabel;
 
 //*********************************************
 

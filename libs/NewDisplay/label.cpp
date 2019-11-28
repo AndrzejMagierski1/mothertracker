@@ -148,13 +148,14 @@ uint8_t cLabel::update()
     int16_t border_y = posY;
 
     int16_t lines_step_y = 0;
-    int16_t text_y = posY;
+    int16_t text_y = posY+10;
     int16_t text_h = height;
 
 
     if(value > 0 && value < 2 && height > font1->height)
     {
-    	lines_step_y = (text_h - font1->height*(value+1)) / (value+2) + font1->height;
+    	//lines_step_y = (text_h - font1->height*(value+1)) / (value+2) + font1->height;
+    	lines_step_y = 18;
     }
 
 	if(style & controlStyleCenterX)
