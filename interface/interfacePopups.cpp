@@ -19,6 +19,8 @@ static  uint8_t functEncoderPopup(int16_t value);
 
 static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo);
 
+extern  uint8_t functInvert();
+
 
 
 static uint32_t instrListColors[] =
@@ -363,6 +365,7 @@ void cInterfacePopups::setPopupFunct()
 	mtInterface.uiFM.setPotObj(interfacePot0, functEncoderPopup, nullptr);
 
 	mtInterface.uiFM.setButtonObj(interfaceButtonLeft, buttonPress, functLeftPopup);
+	mtInterface.uiFM.setButtonObj(interfaceButton5, buttonPress, functInvert);
 	mtInterface.uiFM.setButtonObj(interfaceButtonRight, buttonPress, functRightPopup);
 	mtInterface.uiFM.setButtonObj(interfaceButtonUp, buttonPress, functUpPopup);
 	mtInterface.uiFM.setButtonObj(interfaceButtonDown, buttonPress, functDownPopup);

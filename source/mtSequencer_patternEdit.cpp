@@ -21,13 +21,18 @@ void fromToSwap(int16_t & from, int16_t & to)
 	}
 }
 
-void Sequencer::fillRandomNotes(int16_t fillStep, int16_t from, int16_t to)
+void Sequencer::fillRandomNotes(int16_t fillStep,
+								int16_t inScale,
+								int16_t from,
+								int16_t to)
 {
 	fromToSwap(from, to);
 
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
+	uint8_t scale = 2;
+	uint8_t root = 12;
 
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
 	{
@@ -38,17 +43,34 @@ void Sequencer::fillRandomNotes(int16_t fillStep, int16_t from, int16_t to)
 			step = &seq[player.ramBank].track[t].step[s];
 			if (isStepToFillNote(step, offset, fillStep))
 			{
-				step->note = random(from, to + 1);
-				step->instrument = mtProject.values.lastUsedInstrument;
+				if (inScale)
+				{
+					for (uint8_t a = 0; a <= 100; a -= -1)
+					{
+						step->note = random(from, to + 1);
+						if (isInScale(step->note, root, scale)) break;
+					}
+					step->instrument = mtProject.values.lastUsedInstrument;
+				}
+				else
+				{
+					step->note = random(from, to + 1);
+					step->instrument = mtProject.values.lastUsedInstrument;
+				}
 			}
 		}
 	}
 }
-void Sequencer::fillLinearNotes(int16_t fillStep, int16_t from, int16_t to)
+void Sequencer::fillLinearNotes(int16_t fillStep,
+								int16_t inScale,
+								int16_t from,
+								int16_t to)
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
+	uint8_t scale = 2;
+	uint8_t root = 12;
 
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
 	{
@@ -64,14 +86,22 @@ void Sequencer::fillLinearNotes(int16_t fillStep, int16_t from, int16_t to)
 									sel->lastStep,
 									from,
 									to);
+				for (uint8_t a = 0; a < 12; a++)
+				{
+					if (isInScale(step->note, root, scale)) break;
+					step->note++;
+				}
+
 				step->instrument = mtProject.values.lastUsedInstrument;
 			}
 		}
 	}
 }
-void Sequencer::fillLinearInstruments(int16_t fillStep, int16_t from,
+void Sequencer::fillLinearInstruments(int16_t fillStep,
+										int16_t from,
 										int16_t to)
 {
+
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
@@ -1074,6 +1104,8 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 		return 100;
 	case fx.FX_TYPE_TEMPO:
 		return 200;
+	case fx.FX_TYPE_PANNING:
+		return 100;
 	case fx.FX_TYPE_OFF:
 		return 0;
 	case fx.FX_TYPE_VELOCITY:
@@ -1112,6 +1144,8 @@ int16_t Sequencer::getFxMin(uint8_t fxID)
 		return 0;
 	case fx.FX_TYPE_TEMPO:
 		return 5;
+	case fx.FX_TYPE_PANNING:
+		return 0;
 
 	case fx.FX_TYPE_ROLL:
 		case fx.FX_TYPE_ROLL_NOTE_UP:
@@ -1142,6 +1176,9 @@ int16_t Sequencer::getFxDefault(uint8_t fxID)
 
 		return 1;
 
+	case fx.FX_TYPE_PANNING:
+		return 50;
+
 	default:
 		return 0;
 	}
@@ -1152,8 +1189,38 @@ int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
 
 	switch (actualStep->fx[fxID].type)
 	{
+	case fx.FX_TYPE_ROLL:
+		case fx.FX_TYPE_ROLL_NOTE_DOWN:
+		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
+		case fx.FX_TYPE_ROLL_NOTE_UP:
+
+		switch (actualStep->fx[fxID].value)
+		{
+		case fx.ROLL_TYPE_1_1:
+			return 1;
+		case fx.ROLL_TYPE_1_2:
+			return 2;
+		case fx.ROLL_TYPE_1_3:
+			return 3;
+		case fx.ROLL_TYPE_1_4:
+			return 4;
+		case fx.ROLL_TYPE_1_6:
+			return 6;
+		case fx.ROLL_TYPE_1_8:
+			return 8;
+		case fx.ROLL_TYPE_1_12:
+			return 12;
+		case fx.ROLL_TYPE_1_16:
+			return 16;
+		default:
+			return 0;
+		}
+		break;
 	case fx.FX_TYPE_TEMPO:
 		return actualStep->fx[fxID].value * 2;
+		break;
+	case fx.FX_TYPE_PANNING:
+		return actualStep->fx[fxID].value - 50;
 		break;
 
 	default:

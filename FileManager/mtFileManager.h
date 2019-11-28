@@ -141,6 +141,7 @@ public:
 	uint8_t loadPattern(uint8_t index);
 	uint8_t loadTrack(uint8_t pattIndex, uint8_t trackIndex);
 	void setLoadPattern(uint8_t index);
+//	void setTrackToLoad(uint8_t pattIndex, uint8_t trackIndex);
 	void handleLoadPattern();
 
 	uint8_t savePattern(uint8_t index);

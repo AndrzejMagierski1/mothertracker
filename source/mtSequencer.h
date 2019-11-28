@@ -13,9 +13,9 @@ public:
 	enum enStep
 	{
 		STEP_NOTE_EMPTY = -1,
-		STEP_NOTE_OFF = -2,
+		STEP_NOTE_FADE = -2,
 		STEP_NOTE_CUT = -3,
-		STEP_NOTE_FADE = -4,
+		STEP_NOTE_OFF = -4,
 		STEP_NOTE_DEFAULT = 60,
 		STEP_NOTE_MAX = 127,
 
@@ -260,6 +260,9 @@ public:
 	void handle_nanoStep(uint8_t step);
 	void incr_uStep(uint8_t row);
 	void init_player_timer(void);
+	void cancelFxes(int8_t track);
+	void cancelFxes();
+
 
 	inline uint8_t rollTypeToVal(uint8_t rollType);
 
@@ -402,6 +405,7 @@ public:
 
 			int8_t performanceStutter = 0;
 			int8_t performancePlayMode = 0;
+			int8_t performanceSourcePattern = -1;
 
 		} track[MAXTRACK + 1];
 
@@ -462,6 +466,10 @@ public:
 	strPattern * getActualPattern()
 	{
 		return &seq[player.ramBank];
+	}
+	strPattern * getBuffPattern()
+	{
+		return &seq[!player.ramBank];
 	}
 
 	void saveToFileDone()
@@ -526,6 +534,7 @@ public:
 
 	void switchRamPatternsNow()
 	{
+		cancelFxes();
 		player.ramBank = !player.ramBank;
 	}
 
@@ -588,8 +597,8 @@ public:
 	void setPerformanceStutter(uint8_t track, int8_t stutter);
 	void setPerformancePlayMode(uint8_t track, int8_t stutter);
 
-	void fillRandomNotes(int16_t step, int16_t from, int16_t to);
-	void fillLinearNotes(int16_t step, int16_t from, int16_t to);
+	void fillRandomNotes(int16_t, int16_t, int16_t, int16_t);
+	void fillLinearNotes(int16_t, int16_t, int16_t, int16_t);
 	void fillRandomInstruments(int16_t step, int16_t from, int16_t to);
 	void fillLinearInstruments(int16_t step, int16_t from, int16_t to);
 	void fillLinearFx(int16_t index, int16_t fillStep, int16_t fxType,
@@ -622,8 +631,8 @@ public:
 
 	void setPerformancePatternLength(int8_t length);
 	void setPerformancePatternLengthFromFxVal(int8_t val);
-
-// inne
+	void setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern);
+	// inne
 	void handle_uStep_timer(void);
 	void internalFxsOff(uint8_t track);
 
