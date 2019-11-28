@@ -1029,10 +1029,13 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 					// button <= numer tracka
 					// mtProject.values.perfTracksPatterns[button] <= pattern tracka
 					sequencer.enterPerformanceMode();
+					sequencer.setTrackToLoadOnSwitch(
+							button,
+							mtProject.values.perfTracksPatterns[button]);
 
-					fileManager.loadTrack(
-							mtProject.values.perfTracksPatterns[button],
-							button);
+//					fileManager.loadTrack(
+//							mtProject.values.perfTracksPatterns[button],
+//							button);
 				}
 				else
 				{

@@ -82,8 +82,8 @@ const char* ptrfillTypeListNames[fillTypeListCount] =
 static const uint8_t fillScaleFilterCount = 2;
 const char fillScaleFilterLabels[fillScaleFilterCount][5] =
 {
-		"Yes",
 		"No",
+		"Yes",
 };
 const char* ptrfillScaleFilterNames[fillScaleFilterCount] =
 {
