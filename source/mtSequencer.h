@@ -261,6 +261,7 @@ public:
 	void incr_uStep(uint8_t row);
 	void init_player_timer(void);
 	void cancelFxes(int8_t track);
+	void cancelFxes();
 
 
 	inline uint8_t rollTypeToVal(uint8_t rollType);
@@ -533,6 +534,7 @@ public:
 
 	void switchRamPatternsNow()
 	{
+		cancelFxes();
 		player.ramBank = !player.ramBank;
 	}
 

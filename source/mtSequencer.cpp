@@ -1584,6 +1584,15 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 	}
 }
 
+void Sequencer::cancelFxes()
+{
+	player.performance.tempo = 0.0;
+
+	for (uint8_t a = 0; a <= MAXTRACK; a++)
+	{
+		player.track[a].rollIsOn = 0;
+	}
+}
 void Sequencer::cancelFxes(int8_t track)
 {
 	player.track[track].rollIsOn = 0;
