@@ -62,7 +62,7 @@ const uint8_t SAMPLE_NAME_SIZE =				32;
 const uint8_t FX_NAME_SIZE =					32;
 
 const uint8_t PATCH_SIZE =						255;
-const uint8_t SONG_MAX =						100;
+const uint8_t SONG_MAX =						255;
 
 const uint8_t SAMPLE_POINT_POS_MIN =            0;
 const uint16_t SAMPLE_POINT_POS_MAX =           MAX_16BIT;
