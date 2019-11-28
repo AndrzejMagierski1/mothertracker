@@ -21,6 +21,7 @@ public:
 	void start(char * path);
 	void finish();
 	void update();
+	void cancel();
 	uint8_t getStatus();
 	void setOnLastStep();
 

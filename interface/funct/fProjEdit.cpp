@@ -176,8 +176,8 @@ static uint8_t functExportSongStems();
 static uint8_t functExportPattern();
 static uint8_t functExportPatternStems();
 static uint8_t functExportToMOD();
+static uint8_t functExportCancel();
 static uint8_t functExportGoBack();
-
 //****************************************************
 static uint8_t functSwitchModule(uint8_t button);
 
@@ -662,6 +662,7 @@ static uint8_t functExport()
 	PE->FM->setButtonObj(interfaceButton2, buttonPress, functExportPattern);
 	PE->FM->setButtonObj(interfaceButton3, buttonPress, functExportPatternStems);
 	PE->FM->setButtonObj(interfaceButton4, buttonPress, functExportToMOD);
+	PE->FM->setButtonObj(interfaceButton5, buttonPress, functExportCancel);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functExportGoBack);
 
 	PE->showExportWindow();
@@ -971,7 +972,7 @@ static uint8_t functExportSong()
 	}
 	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/song",fileManager.currentProjectName);
 	else sprintf(currentExportPath,"Export/%s/song%d",fileManager.currentProjectName,fileCounter);
-	exporter.start(currentExportPath, mtExporter::exportType::song); //wszystko wykonuje sie w zakresie waznosci tej tablicy
+	exporter.start(currentExportPath, mtExporter::exportType::song);
 	return 1;
 }
 static uint8_t functExportSongStems()
@@ -1010,7 +1011,7 @@ static uint8_t functExportPattern()
 	PE->currentExportType = (int)exportType::pattern;
 
 	uint16_t fileCounter = 0;
-	uint16_t namePattern = mtProject.values.actualPattern + 1;
+	uint16_t namePattern = mtProject.values.actualPattern;
 
 	sprintf(currentExportPath,"Export/%s/pattern%d.wav",fileManager.currentProjectName,namePattern);
 	while(SD.exists(currentExportPath))
@@ -1029,12 +1030,13 @@ static uint8_t functExportPatternStems()
 	if(PE->isBusyFlag) return 1;
 	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 
+	PE->isBusyFlag = 1;
 	PE->exportInProgress = 1;
 	PE->exportProgress = 0;
 	PE->currentExportType = (int)exportType::patternStems;
 
 	uint16_t fileCounter = 0;
-	uint16_t namePattern = mtProject.values.actualPattern + 1;
+	uint16_t namePattern = mtProject.values.actualPattern;
 
 	sprintf(currentExportPath,"Export/%s/Pattern%d_Stems",fileManager.currentProjectName,namePattern);
 	while(SD.exists(currentExportPath))
@@ -1052,9 +1054,19 @@ static uint8_t functExportToMOD()
 {
 	if(PE->isBusyFlag) return 1;
 	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
-	sliceDetector.start(mtProject.instrument[7].sample.address, mtProject.instrument[7].sample.length, mtProject.instrument[7].slices,&mtProject.instrument[7].sliceNumber);
 	return 1;
 }
+
+static uint8_t functExportCancel()
+{
+	if((!PE->exportInProgress) && (!PE->isBusyFlag)) return 1;
+	exporter.cancel();
+	PE->exportInProgress = 0;
+	PE->isBusyFlag = 0;
+	PE->showExportWindow();
+	return 1;
+}
+
 static uint8_t functExportGoBack()
 {
 	if(PE->isBusyFlag) return 1;

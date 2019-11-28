@@ -35,8 +35,6 @@ void mtSongExporter::start(char * path)
 		exportL.begin();
 		exportR.begin();
 		sequencer.playSong(0);
-
-		Serial.println("exportStarted");
 	}
 
 

@@ -169,6 +169,13 @@ void mtPatternExporter::switchBuffer()
 	sendBuf = tmp;
 }
 
+void mtPatternExporter::cancel()
+{
+	finish();
+	sequencer.stop();
+
+	if(SD.exists(currentSongExportPath)) SD.remove(currentSongExportPath);
+}
 
 uint8_t mtPatternExporter::getStatus()
 {

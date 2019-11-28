@@ -98,6 +98,35 @@ void mtPatternStemsExporter::update()
 	}
 
 }
+
+void mtPatternStemsExporter::cancel()
+{
+	trackExporter.localPatternExporter.finish();
+	status = 0;
+	sequencer.stop();
+	char currentPath[PATCH_SIZE];
+
+	for(uint8_t i = 0; i < 10; i ++ )
+	{
+		if(i == 8)
+		{
+			sprintf(currentPath,"%s/reverb.wav",folderPath);
+			if(SD.exists(currentPath)) SD.remove(currentPath);
+		}
+		else if(i == 9)
+		{
+			sprintf(currentPath,"%s/mix.wav",folderPath);
+			if(SD.exists(currentPath)) SD.remove(currentPath);
+		}
+		else
+		{
+			sprintf(currentPath,"%s/track%d.wav",folderPath, i + 1);
+			if(SD.exists(currentPath)) SD.remove(currentPath);
+		}
+	}
+	if(SD.exists(folderPath)) SD.rmdir(folderPath);
+	trackExporter.clearSoloTrack(currentTrack);
+}
 uint8_t mtPatternStemsExporter::getStatus()
 {
 	return status;
