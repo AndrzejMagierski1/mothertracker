@@ -33,6 +33,8 @@ constexpr uint32_t coverRamAddres = 670000;
 
 void cProjectEditor::initDisplayControls()
 {
+
+
 	strControlProperties prop2;
 	prop2.style = 	( controlStyleShow | controlStyleCenterY);
 	prop2.x = 30;
@@ -49,7 +51,17 @@ void cProjectEditor::initDisplayControls()
 	prop2.h = 25;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
+	strControlProperties prop5;
 
+	prop5.x = 400;
+	prop5.colors = popUpLabelColors;
+	prop5.y = 350;
+
+	prop5.h = 100;
+	prop5.w = 800-(10);
+	prop5.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
+	prop5.text = (char*)"";
+	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop5);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -77,18 +89,6 @@ void cProjectEditor::initDisplayControls()
 	prop.data = &projectList;
 	if(fileListControl == nullptr)  fileListControl = display.createControl<cList>(&prop);
 
-
-	strControlProperties prop5;
-
-	prop5.x = 400;
-	prop5.colors = popUpLabelColors;
-	prop5.y = 350;
-
-	prop5.h = 100;
-	prop5.w = 800-(10);
-	prop5.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
-	prop5.text = (char*)"";
-	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop5);
 
 	strControlProperties prop3;
 	prop3.x = 10;
