@@ -823,6 +823,8 @@ void Sequencer::stop(void)
 
 		player.track[a].rollIsOn = 0;
 		player.track[a].isActive = 1;
+
+		player.track[a].performanceSourcePattern = -1;
 	}
 //	player.changeBank = 0;
 
@@ -912,6 +914,17 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 		{
 			reset_actual_pos(x);
 //			bool isNextPatternAvailable = 0; // jeśli 0 to song sie skonczyl
+
+			if (player.track[x].performanceSourcePattern != -1)
+			{
+				enterPerformanceMode();
+				fileManager.loadTrack(player.track[x].performanceSourcePattern,
+										x);
+				cancelFxes(x);
+
+				player.track[x].performanceSourcePattern = -1;
+
+			}
 
 //			if (row == 0 && player.songMode)
 //			{
@@ -1570,6 +1583,12 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 		}
 	}
 }
+
+void Sequencer::cancelFxes(int8_t track)
+{
+	player.track[track].rollIsOn = 0;
+}
+
 void Sequencer::setPerformancePatternLength(int8_t length)
 {
 	player.performance.patternLength = length - 1;
@@ -1591,4 +1610,9 @@ void Sequencer::setPerformancePatternLengthFromFxVal(int8_t val)
 //
 //	}
 
+}
+
+void Sequencer::setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern)
+{
+	player.track[track].performanceSourcePattern = sourcePattern;
 }

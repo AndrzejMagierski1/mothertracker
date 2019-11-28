@@ -67,6 +67,11 @@ void FileManager::setLoadPattern(uint8_t index)
 	patternToLoad = index;
 }
 
+//void FileManager::setTrackToLoad(uint8_t pattIndex, uint8_t trackIndex)
+//{
+//
+//}
+
 void FileManager::handleLoadPattern()
 {
 	if (patternToLoad)

@@ -260,6 +260,8 @@ public:
 	void handle_nanoStep(uint8_t step);
 	void incr_uStep(uint8_t row);
 	void init_player_timer(void);
+	void cancelFxes(int8_t track);
+
 
 	inline uint8_t rollTypeToVal(uint8_t rollType);
 
@@ -402,6 +404,7 @@ public:
 
 			int8_t performanceStutter = 0;
 			int8_t performancePlayMode = 0;
+			int8_t performanceSourcePattern = -1;
 
 		} track[MAXTRACK + 1];
 
@@ -462,6 +465,10 @@ public:
 	strPattern * getActualPattern()
 	{
 		return &seq[player.ramBank];
+	}
+	strPattern * getBuffPattern()
+	{
+		return &seq[!player.ramBank];
 	}
 
 	void saveToFileDone()
@@ -622,8 +629,8 @@ public:
 
 	void setPerformancePatternLength(int8_t length);
 	void setPerformancePatternLengthFromFxVal(int8_t val);
-
-// inne
+	void setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern);
+	// inne
 	void handle_uStep_timer(void);
 	void internalFxsOff(uint8_t track);
 
