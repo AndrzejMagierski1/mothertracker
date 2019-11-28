@@ -57,7 +57,7 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 		mtProject.instrument[instrumentIndex].resonance = 0;
 		mtProject.instrument[instrumentIndex].panning = 50;
 		mtProject.instrument[instrumentIndex].glide = 0;
-		mtProject.instrument[instrumentIndex].volume = 100;
+		mtProject.instrument[instrumentIndex].volume = 50;
 		mtProject.instrument[instrumentIndex].tune = 0;
 		mtProject.instrument[instrumentIndex].fineTune = 0;
 
