@@ -1487,11 +1487,11 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 					player.track[tr].noteOpen = 1;
 					player.track[tr].recOpen = 1;
 
-					instrumentPlayer[sel->firstTrack].noteOff();
-					instrumentPlayer[sel->firstTrack].noteOn(
-							step->instrument,
-							step->note,
-							STEP_VELO_DEFAULT);
+					instrumentPlayer[tr].noteOff();
+					instrumentPlayer[tr].noteOn(
+												step->instrument,
+												step->note,
+												STEP_VELO_DEFAULT);
 
 					step->fx[0].type = fx.FX_TYPE_NUDGE;
 					step->fx[0].value = player.uStep;
