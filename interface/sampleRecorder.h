@@ -157,7 +157,7 @@ public:
 	uint8_t currentScreen = 0;
 	strRecorderConfig recorderConfig;
 	uint32_t spectrumTimerConstrains = 100;
-	char freqTextValue[6];
+	char freqTextValue[10];
 	char recTimeValueText[8];
 	char playTimeValueText[8];
 	char startPointValueText[8];

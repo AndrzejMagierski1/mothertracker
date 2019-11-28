@@ -803,7 +803,7 @@ void cSampleRecorder::showEndPointValue()
 
 void cSampleRecorder::showFreqValue()
 {
-	snprintf(freqTextValue, 7, "%.2f", recorderConfig.radioFreq);
+	snprintf(freqTextValue, 9, "%.1fMHz", recorderConfig.radioFreq);
 
 	display.setControlText(label[1], freqTextValue);
 	display.setControlShow(label[1]);
