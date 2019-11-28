@@ -1104,6 +1104,8 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 		return 100;
 	case fx.FX_TYPE_TEMPO:
 		return 200;
+	case fx.FX_TYPE_PANNING:
+		return 100;
 	case fx.FX_TYPE_OFF:
 		return 0;
 	case fx.FX_TYPE_VELOCITY:
@@ -1142,6 +1144,8 @@ int16_t Sequencer::getFxMin(uint8_t fxID)
 		return 0;
 	case fx.FX_TYPE_TEMPO:
 		return 5;
+	case fx.FX_TYPE_PANNING:
+		return 0;
 
 	case fx.FX_TYPE_ROLL:
 		case fx.FX_TYPE_ROLL_NOTE_UP:
@@ -1171,6 +1175,9 @@ int16_t Sequencer::getFxDefault(uint8_t fxID)
 		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
 		return 1;
+
+	case fx.FX_TYPE_PANNING:
+		return 50;
 
 	default:
 		return 0;
@@ -1211,6 +1218,9 @@ int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
 		break;
 	case fx.FX_TYPE_TEMPO:
 		return actualStep->fx[fxID].value * 2;
+		break;
+	case fx.FX_TYPE_PANNING:
+		return actualStep->fx[fxID].value - 50;
 		break;
 
 	default:

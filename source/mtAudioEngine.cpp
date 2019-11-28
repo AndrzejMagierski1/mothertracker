@@ -964,7 +964,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 
 			if(fx_n == MOST_SIGNIFICANT_FX)
 			{
-				currentSeqModValues.panning = map(fx_val,0,127,PANNING_MIN,PANNING_MAX);
+				currentSeqModValues.panning = map(fx_val,0,100,PANNING_MIN,PANNING_MAX);
 			}
 			else if(fx_n == LEAST_SIGNIFICANT_FX)
 			{
