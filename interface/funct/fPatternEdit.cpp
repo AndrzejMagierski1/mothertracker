@@ -25,9 +25,9 @@ static  uint8_t functChangePatternLength(uint8_t state);
 static  uint8_t functChangePatternEditStep(uint8_t state);
 static  uint8_t functFill();
 static  uint8_t functPreview();
-static  uint8_t functInvert();
 static  uint8_t functTranspose();
 static  uint8_t functUndo();
+uint8_t functInvert();
 
 
 // step buttons
@@ -2370,7 +2370,7 @@ static  uint8_t functFillChangeParam4()
 //##############################################################################################
 //###############################            INVERT            #################################
 //##############################################################################################
-static uint8_t functInvert()
+uint8_t functInvert()
 {
 	//--------------------------------------------------------
 	//TU
