@@ -30,6 +30,7 @@
 #include "Arduino.h"
 #include "AudioStream.h"
 #include "mtStructs.h"
+#include "mtWavetableTabs.h"
 
 class AudioPlayMemory : public AudioStream
 {
@@ -76,6 +77,7 @@ public:
 
 	uint16_t getPosition();
 private:
+	const double * wt_notes = wt2048Note;
 	int16_t *next;
 	int16_t *beginning;
 	uint32_t length;

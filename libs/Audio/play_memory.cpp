@@ -88,8 +88,23 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 		else currentTune=MIN_NOTE-note;
 	}
 
-	if(lastNote>=0 && glide != 0 ) pitchControl=(float)notes[lastNote + currentTune];
-	else pitchControl=(float)notes[note+ currentTune];
+	if(mtProject.instrument[instr_idx].sample.type == mtSampleTypeWavetable)
+	{
+		switch(mtProject.instrument[instr_idx].sample.wavetable_window_size)
+		{
+			case 32: 	wt_notes = wt32Note; 	break;
+			case 64: 	wt_notes = wt64Note; 	break;
+			case 128:	wt_notes = wt128Note; 	break;
+			case 256:	wt_notes = wt256Note; 	break;
+			case 512: 	wt_notes = wt512Note; 	break;
+			case 1024: 	wt_notes = wt1024Note; 	break;
+			case 2048: 	wt_notes = wt2048Note; 	break;
+			default: break;
+		}
+	}
+
+	if(lastNote>=0 && glide != 0 ) pitchControl = (sampleType == mtSampleTypeWaveFile) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+	else pitchControl =  (sampleType == mtSampleTypeWaveFile) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
 
 	int16_t * data = mtProject.instrument[instr_idx].sample.address;
 
@@ -124,6 +139,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	}
 	else
 	{
+
 		wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;
 		currentWindow = wavetableWindowForceFlag ? forcedWavetableWindow : mtProject.instrument[instr_idx].wavetableCurrentWindow;
 
@@ -659,7 +675,7 @@ void AudioPlayMemory::setGlide(uint16_t value, int8_t currentNote, uint8_t instr
 
 void AudioPlayMemory::setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx)
 {
-	//todo: jezeli bedzie kiedys uzywane zoptymalizowac wspolprace z przerwaniami
+	//todo: jezeli bedzie kiedys uzywane zoptymalizowac wspolprace z przerwaniami i ogólnie ogarnąć to co tu sie dzieje
 	float localPitchControl = pitchControl;
 	localPitchControl -= (slideControl * slideCounter);
 	pitchControl = localPitchControl;
@@ -681,11 +697,16 @@ void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 	float localPitchControl = pitchControl;
 	float localFineTuneControl = fineTuneControl;
 	localPitchControl-=localFineTuneControl;
+	uint8_t localSampleType = mtProject.instrument[currentInstr_idx].sample.type;
+
 	if(value >= 0)
 	{
 		if((currentNote + currentTune + 1) <= (MAX_NOTE-1))
 		{
-			localFineTuneControl= value * (((float)notes[currentNote + currentTune + 1] - (float)notes[currentNote + currentTune]) /MAX_INSTRUMENT_FINETUNE);
+			float localPitch1 = (localSampleType == mtSampleTypeWaveFile) ? (float)notes[currentNote + currentTune + 1] : (float)wt_notes[currentNote + currentTune + 1];
+			float localPitch2 = (localSampleType == mtSampleTypeWaveFile) ? (float)notes[currentNote + currentTune] : (float)wt_notes[currentNote + currentTune];
+
+			localFineTuneControl= value * (( localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
 		else localFineTuneControl=0;
 	}
@@ -693,7 +714,10 @@ void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 	{
 		if((currentNote + currentTune - 1) >= MIN_NOTE)
 		{
-			localFineTuneControl= (0-value) * (((float)notes[currentNote + currentTune - 1] - (float)notes[currentNote + currentTune]) /MAX_INSTRUMENT_FINETUNE);
+			float localPitch1 = (localSampleType == mtSampleTypeWaveFile) ? (float)notes[currentNote + currentTune - 1] : (float)wt_notes[currentNote + currentTune - 1];
+			float localPitch2 = (localSampleType == mtSampleTypeWaveFile) ? (float)notes[currentNote + currentTune] : (float)wt_notes[currentNote + currentTune];
+
+			localFineTuneControl= (0-value) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
 		else localFineTuneControl=0;
 	}
@@ -712,9 +736,10 @@ void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)
 	if( (currentNote + value) > (MAX_NOTE-1)) value=(MAX_NOTE-1)-currentNote;
 	if( (currentNote + value) < MIN_NOTE) value=MIN_NOTE-currentNote;
 
+	uint8_t localSampleType = mtProject.instrument[currentInstr_idx].sample.type;
 	float localPitchControl = pitchControl;
-	localPitchControl-=(float)notes[currentNote+currentTune];
-	localPitchControl+=(float)notes[currentNote+value];
+	localPitchControl -= (localSampleType == mtSampleTypeWaveFile) ? (float)notes[currentNote+currentTune] : (float)wt_notes[currentNote+currentTune];
+	localPitchControl += (localSampleType == mtSampleTypeWaveFile) ? (float)notes[currentNote+value] : (float)wt_notes[currentNote+value];
 	AudioNoInterrupts();
 	pitchControl = localPitchControl;
 	currentTune=value;
@@ -908,16 +933,32 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 		if((lastNote>=0) && (lastNote<n)) currentTune=MIN_NOTE-lastNote;
 		else currentTune=MIN_NOTE-n;
 	}
+	if(mtProject.instrument[instr_idx].sample.type == mtSampleTypeWavetable)
+	{
+		switch(mtProject.instrument[instr_idx].sample.wavetable_window_size)
+		{
+			case 32: 	wt_notes = wt32Note; 	break;
+			case 64: 	wt_notes = wt64Note; 	break;
+			case 128:	wt_notes = wt128Note; 	break;
+			case 256:	wt_notes = wt256Note; 	break;
+			case 512: 	wt_notes = wt512Note; 	break;
+			case 1024: 	wt_notes = wt1024Note; 	break;
+			case 2048: 	wt_notes = wt2048Note; 	break;
+			default: break;
+		}
+	}
 
-	if(lastNote>=0 && glide != 0 ) pitchControl=(float)notes[lastNote + currentTune];
-	else pitchControl=(float)notes[n+ currentTune];
+	sampleType = mtProject.instrument[instr_idx].sample.type;
+
+	if(lastNote>=0 && glide != 0 ) pitchControl = (sampleType == mtSampleTypeWaveFile) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+	else pitchControl =  (sampleType == mtSampleTypeWaveFile) ? (float)notes[n+ currentTune] : (float)wt_notes[n + currentTune];
 
 	int16_t * data = mtProject.instrument[instr_idx].sample.address;
 
 	playMode=mtProject.instrument[instr_idx].playMode;
 
 	startLen=mtProject.instrument[instr_idx].sample.length;
-	sampleType = mtProject.instrument[instr_idx].sample.type;
+
 
 
 	if(sampleType != mtSampleTypeWavetable)
@@ -933,12 +974,13 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	}
 	else
 	{
-		wavetableWindowSize = wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;;
+		wavetableWindowSize = mtProject.instrument[instr_idx].sample.wavetable_window_size;
 		currentWindow=mtProject.instrument[instr_idx].wavetableCurrentWindow;
 		sampleConstrains.endPoint=wavetableWindowSize*256; // nie ma znaczenia
 		sampleConstrains.loopPoint1=0; //currentWindow*wavetableWindowSize;
 		sampleConstrains.loopPoint2=wavetableWindowSize; // (currentWindow+1)*wavetableWindowSize;
 		sampleConstrains.loopLength=wavetableWindowSize;
+
 	}
 	/*=========================================================================================================================*/
 	/*========================================WARUNKI LOOPPOINTOW==============================================================*/
@@ -1066,8 +1108,23 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 		else currentTune=MIN_NOTE-note;
 	}
 
-	if(lastNote>=0) pitchControl=(float)notes[lastNote + currentTune];
-	else pitchControl=(float)notes[note+ currentTune];
+	if(type == mtSampleTypeWavetable)
+	{
+		switch(mtProject.instrument[currentInstr_idx].sample.wavetable_window_size)
+		{
+			case 32: 	wt_notes = wt32Note; 	break;
+			case 64: 	wt_notes = wt64Note; 	break;
+			case 128:	wt_notes = wt128Note; 	break;
+			case 256:	wt_notes = wt256Note; 	break;
+			case 512: 	wt_notes = wt512Note; 	break;
+			case 1024: 	wt_notes = wt1024Note; 	break;
+			case 2048: 	wt_notes = wt2048Note; 	break;
+			default: break;
+		}
+	}
+	if(lastNote >= 0) pitchControl = (sampleType == mtSampleTypeWaveFile) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+	else pitchControl =  (sampleType == mtSampleTypeWaveFile) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
+
 
 	int16_t * data = addr;
 
@@ -1135,8 +1192,24 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 		else currentTune=MIN_NOTE-note;
 	}
 
-	if(lastNote>=0) pitchControl=(float)notes[lastNote + currentTune];
-	else pitchControl=(float)notes[note+ currentTune];
+	if(type == mtSampleTypeWavetable)
+	{
+		switch(mtProject.instrument[currentInstr_idx].sample.wavetable_window_size)
+		{
+			case 32: 	wt_notes = wt32Note; 	break;
+			case 64: 	wt_notes = wt64Note; 	break;
+			case 128:	wt_notes = wt128Note; 	break;
+			case 256:	wt_notes = wt256Note; 	break;
+			case 512: 	wt_notes = wt512Note; 	break;
+			case 1024: 	wt_notes = wt1024Note; 	break;
+			case 2048: 	wt_notes = wt2048Note; 	break;
+			default: break;
+		}
+	}
+
+	if(lastNote>=0) pitchControl = (sampleType == mtSampleTypeWaveFile) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+	else pitchControl =  (sampleType == mtSampleTypeWaveFile) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
+
 
 	int16_t * data = addr;
 
