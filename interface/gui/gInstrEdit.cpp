@@ -451,7 +451,7 @@ void cInstrumentEditor::showEnvList()
 void cInstrumentEditor::showEnvState()
 {
 	uint8_t val;
-	display.setControlText(label[1], envStateLabels[editorInstrument->envelope[selectedEnvelope].enable]);
+	display.setControlText(label[1], envStateLabels[!editorInstrument->envelope[selectedEnvelope].enable]);
 	display.refreshControl(label[1]);
 
 	if(editorInstrument->envelope[selectedEnvelope].enable)
@@ -550,10 +550,10 @@ void cInstrumentEditor::showEnvAmount()
 
 void cInstrumentEditor::showEnvLoop()
 {
-	display.setControlText(label[7], envLoopLabels[0]);
+	display.setControlText(label[7], envLoopLabels[!editorInstrument->envelope[selectedEnvelope].loop]);
 	display.refreshControl(label[7]);
 
-	display.setControlValue(envLoopListControl, 0);
+	display.setControlValue(envLoopListControl, !editorInstrument->envelope[selectedEnvelope].loop);
 	display.refreshControl(envLoopListControl);
 }
 

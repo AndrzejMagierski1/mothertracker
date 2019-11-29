@@ -2004,7 +2004,7 @@ void playerEngine:: update()
 	{
 		if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable == envelopeOn)
 		{
-			if((envelopeWtPos->isKeyPressed() == 1) || (envelopeWtPos->getPhase() != 0))
+			if((envelopeFilterPtr->isKeyPressed() == 1) || (envelopeFilterPtr->getPhase() != 0))
 			{
 				filterMod=envelopeFilterPtr->getOut();
 				statusBytes |= CUTOFF_MASK;
