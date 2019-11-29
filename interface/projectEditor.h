@@ -59,6 +59,7 @@ public:
 //-------------------------------------------------------------
 
 	strList projectList;
+	strFrameData frameData;
 
 	hControl label[8];
 	hControl editName;
@@ -73,6 +74,7 @@ public:
 	hControl popupLabel = nullptr;
 	hControl coverImg = nullptr;
 	hControl processControl = nullptr;
+	hControl bgLabel;
 
 
 	void listOnlyFolderNames(const char* folder);

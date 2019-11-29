@@ -53,6 +53,7 @@ public:
 
 	hControl patternsListControl = nullptr;
 	hControl frameControl = nullptr;
+	hControl bgLabel;
 
 	uint8_t slotToPattern[255];
 	uint8_t selectedPlace = 0;

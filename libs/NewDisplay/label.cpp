@@ -14,6 +14,7 @@ static uint32_t defaultColors[] =
 	0x000000, // tekst
 	0xFFFFFF, // tło
 	0xFF0000, // ramka
+	0x000000, // tekst2
 };
 
 //--------------------------------------------------------------------------------
@@ -21,7 +22,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 cLabel::cLabel(strControlProperties* properties)
 {
-	colorsCount = 3;
+	colorsCount = 4;
 
 	if(properties == nullptr)
 	{
@@ -32,6 +33,7 @@ cLabel::cLabel(strControlProperties* properties)
 		width = 0;
 		height = 0;
 		style = 0;
+		style2 = 0;
 		value = 0;
 		return;
 	}
@@ -53,6 +55,7 @@ cLabel::cLabel(strControlProperties* properties)
 	height = properties->h;
 
 	setStyle(properties->style);
+	setStyle2(properties->style);
 }
 
 cLabel::~cLabel()
@@ -67,16 +70,35 @@ void cLabel::setStyle(uint32_t style)
 {
 	this->style = style;
 
-	textStyle =    (style & controlStyleCenterX ? OPT_CENTERX : 0)
+	textStyle1 =   (style & controlStyleCenterX ? OPT_CENTERX : 0)
 				 | (style & controlStyleCenterY ? OPT_CENTERY : 0)
 	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
 
 
-	textFont = FONT_INDEX_FROM_STYLE;
+	int8_t textFont = FONT_INDEX_FROM_STYLE;
 	textFont = (textFont>=0) ? textFont : 0;
-	fontWidth = fonts[textFont].width;
-	fontHeight = fonts[textFont].height;
-	textFont =  fonts[textFont].handle;
+	font1 = &fonts[textFont];
+
+	//fontWidth = fonts[textFont].width;
+	//fontHeight = fonts[textFont].height;
+	//textFont =  fonts[textFont].handle;
+
+}
+
+
+void cLabel::setStyle2(uint32_t style)
+{
+	this->style2 = style;
+
+	textStyle2 =   (style & controlStyleCenterX ? OPT_CENTERX : 0)
+				 | (style & controlStyleCenterY ? OPT_CENTERY : 0)
+	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
+
+
+	int8_t textFont = FONT_INDEX_FROM_STYLE;
+	textFont = (textFont>=0) ? textFont : 0;
+	font2 = &fonts[textFont];
+
 }
 
 void cLabel::setText(char* text)
@@ -126,13 +148,14 @@ uint8_t cLabel::update()
     int16_t border_y = posY;
 
     int16_t lines_step_y = 0;
-    int16_t text_y = posY;
+    int16_t text_y = posY+10;
     int16_t text_h = height;
 
 
-    if(value > 0 && value < 2 && height > fontHeight)
+    if(value > 0 && value < 2 && height > font1->height)
     {
-    	lines_step_y = (text_h - fontHeight*(value+1)) / (value+2) + fontHeight;
+    	//lines_step_y = (text_h - font1->height*(value+1)) / (value+2) + font1->height;
+    	lines_step_y = 18;
     }
 
 	if(style & controlStyleCenterX)
@@ -207,15 +230,15 @@ uint8_t cLabel::update()
 	{
 		API_SAVE_CONTEXT();
 
-		API_BITMAP_HANDLE(textFont);
+		API_BITMAP_HANDLE(font1->handle);
 		API_BEGIN(BITMAPS);
 
-		API_BITMAP_SIZE(NEAREST, BORDER, BORDER, fontHeight, fontHeight);
+		API_BITMAP_SIZE(NEAREST, BORDER, BORDER, font1->height, font1->height);
 
 		API_CMD_LOADIDENTITY();
-		API_CMD_TRANSLATE(65536 * (fontHeight/2), 65536 * (fontHeight/2));
+		API_CMD_TRANSLATE(65536 * (font1->height/2), 65536 * (font1->height/2));
 		API_CMD_ROTATE(270*65536 / 360);
-		API_CMD_TRANSLATE(65536 * (-fontHeight/2), 65536 * (-fontHeight/2));
+		API_CMD_TRANSLATE(65536 * (-font1->height/2), 65536 * (-font1->height/2));
 		API_CMD_SETMATRIX();
 
 
@@ -225,14 +248,14 @@ uint8_t cLabel::update()
 
 		if(style & controlStyleCenterX)
 		{
-			x-=fontHeight/2;
+			x-=font1->height/2;
 		}
 		if(style & controlStyleCenterY)
 		{
 
 		}
 
-		API_BITMAP_HANDLE(textFont);
+		API_BITMAP_HANDLE(font1->handle);
 		API_BEGIN(BITMAPS);
 
 		for(uint8_t i = 0; i < txtLen; i++)
@@ -248,10 +271,10 @@ uint8_t cLabel::update()
 			}
 			else if(text[strPtr] >=32)
 			{
-				API_VERTEX2II(x,y, textFont, (char)text[strPtr++]);
+				API_VERTEX2II(x,y, font1->handle, (char)text[strPtr++]);
 			}
 
-			y-=fontWidth;
+			y-=font1->width;
 		}
 
 		API_END();
@@ -266,12 +289,12 @@ uint8_t cLabel::update()
 
 			if(style & controlStyleCenterX)
 			{
-				tempX = posX-(txtLen*fontWidth)/2;
+				tempX = posX-(txtLen*font1->height)/2;
 			}
 
 			if(style & controlStyleCenterX)
 			{
-				tempY = posY + ((height/2) - fontHeight/2);
+				tempY = posY + ((height/2) - font1->height/2);
 			}
 
 			string2Bitmaps(tempX, tempY, text, txtLen);
@@ -279,7 +302,7 @@ uint8_t cLabel::update()
 	}
 	else
 	{
-		if(text != nullptr) API_CMD_TEXT(posX, text_y, textFont, textStyle, text);
+		if(text != nullptr) API_CMD_TEXT(posX, text_y, font1->handle, textStyle1, text);
 	}
 
 
@@ -287,7 +310,8 @@ uint8_t cLabel::update()
 	{
 		text_y = text_y+lines_step_y;
 
-		API_CMD_TEXT(posX, text_y, textFont, textStyle, text2);
+		API_COLOR(colors[3]);
+		API_CMD_TEXT(posX, text_y, font2->handle, textStyle2, text2);
 	}
 
 
@@ -348,7 +372,7 @@ void cLabel::string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length)
 	//y = y - fontHeight/2;
 	uint8_t strPtr = 0;
 
-	API_BITMAP_HANDLE(textFont);
+	API_BITMAP_HANDLE(font1->handle);
 	API_BEGIN(BITMAPS);
 
 	for(uint8_t i = 0; i < length; i++)
@@ -368,9 +392,9 @@ void cLabel::string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length)
 		}
 		else if(string[strPtr] >=32)
 		{
-			API_VERTEX2II(x,y, textFont, (char)string[strPtr++]);
+			API_VERTEX2II(x,y, font1->handle, (char)string[strPtr++]);
 		}
-		x+=fontWidth;
+		x+=font1->width;
 	}
 
 	API_END();

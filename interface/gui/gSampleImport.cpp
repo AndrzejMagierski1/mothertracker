@@ -68,7 +68,7 @@ void cSampleImporter::initDisplayControls()
 
 	prop2.text = (char*)"";
 	prop2.colors = interfaceGlobals.activeLabelsColors;
-	prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+	prop2.style = 	(controlStyleCenterX | controlStyleCenterY);
 	prop2.x = (800/8);
 	prop2.y = 452;
 	prop2.w = 800/4-6;
@@ -84,6 +84,16 @@ void cSampleImporter::initDisplayControls()
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
+
+	prop2.text = nullptr;
+	prop2.colors = interfaceGlobals.activeBgLabelsColors;
+	prop2.value = 255;
+	prop2.style = controlStyleNoTransparency | controlStyleShow;
+	prop2.x = 0;
+	prop2.w = 800;
+	prop2.y = 425;
+	prop2.h =  55;
+	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
 	prop2.x = (800/8)*6+(800/8);
 	prop2.y = 452;
@@ -171,6 +181,10 @@ void cSampleImporter::destroyDisplayControls()
 		label[i] = nullptr;
 	}
 
+	display.destroyControl(bgLabel);
+	bgLabel = nullptr;
+
+
 	display.destroyControl(memoryBarControl);
 	memoryBarControl = nullptr;
 
@@ -216,6 +230,9 @@ void cSampleImporter::showDefaultScreen()
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
+
+	display.refreshControl(bgLabel);
+
 
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);

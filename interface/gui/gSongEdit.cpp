@@ -52,7 +52,7 @@ void cSongEditor::initDisplayControls()
 
 	prop2.text = (char*)"";
 	prop2.colors = interfaceGlobals.activeLabelsColors;
-	prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
+	prop2.style = 	(controlStyleCenterX | controlStyleCenterY);
 	prop2.x = (800/8);
 	prop2.y = 452;
 	prop2.w = 800/4-6;
@@ -68,6 +68,16 @@ void cSongEditor::initDisplayControls()
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
+
+	prop2.value = 255;
+	prop2.text = nullptr;
+	prop2.colors = interfaceGlobals.activeBgLabelsColors;
+	prop2.style = controlStyleNoTransparency | controlStyleShow;
+	prop2.x = 0;
+	prop2.w = 800;
+	prop2.y = 425;
+	prop2.h =  55;
+	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
 	patternsList.linesCount = 20;
 	patternsList.start = 0;
@@ -104,6 +114,10 @@ void cSongEditor::destroyDisplayControls()
 		display.destroyControl(label[i]);
 		label[i] = nullptr;
 	}
+
+	display.destroyControl(bgLabel);
+	bgLabel = nullptr;
+
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
@@ -151,6 +165,8 @@ void cSongEditor::showDefaultScreen()
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
+
+	display.refreshControl(bgLabel);
 
 	showPatternsList();
 	activateLabelsBorder();
@@ -214,7 +230,7 @@ void cSongEditor::showIcon(icon_t iconType,uint8_t position)
 	patternsList.icon.useSpecialIcons = 1;
 
 	patternsList.icon.iconPositionInList = position;
-	patternsList.icon.iconNum = iconType;
+	patternsList.icon.iconNum = displayPlayIcon+iconType;
 
 	display.setControlValue(patternsListControl, selectedPattern);
 	display.refreshControl(patternsListControl);
@@ -223,7 +239,7 @@ void cSongEditor::showIcon(icon_t iconType,uint8_t position)
 void cSongEditor::hideIcon()
 {
 	patternsList.icon.useSpecialIcons = 0;
-	patternsList.icon.iconNum = 0;
+	patternsList.icon.iconNum = displayPlayIcon;
 	patternsList.icon.iconPositionInList = 0;
 
 	display.setControlValue(patternsListControl, selectedPattern);

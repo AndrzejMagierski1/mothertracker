@@ -56,6 +56,7 @@ public:
 
 	hControl explorerListControl = nullptr;
 
+	hControl bgLabel;
 
 
 	hControl titleBar = nullptr;

@@ -44,8 +44,10 @@ public:
 	char titleText[32];
 
 
-	hControl topLabel[8] = {nullptr};
-	hControl bottomLabel[8] = {nullptr};
+	strFrameData frameData;
+	hControl label[8] = {nullptr};
+	hControl bgLabel;
+
 
 	hControl image = nullptr;
 

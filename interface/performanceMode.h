@@ -153,6 +153,7 @@ public:
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
+	hControl bgLabel;
 
 
 	hControl label[8] = {nullptr};

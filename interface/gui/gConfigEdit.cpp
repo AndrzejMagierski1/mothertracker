@@ -74,7 +74,7 @@ void cConfigEditor::initDisplayControls()
 		//prop2.data =  &bottomValuesConfig;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
 
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );
+		prop2.style = 	( controlStyleCenterX | controlStyleCenterY );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
 		prop2.y = 452;
@@ -90,6 +90,18 @@ void cConfigEditor::initDisplayControls()
 		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
 
 	}
+
+
+	prop2.text = nullptr;
+	prop2.colors = interfaceGlobals.activeBgLabelsColors;
+	prop2.value = 255;
+	prop2.style = controlStyleNoTransparency | controlStyleShow;
+	prop2.x = 0;
+	prop2.w = 800;
+	prop2.y = 425;
+	prop2.h =  55;
+	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
+
 
 	prop.x = (800/8)*0+8;
 	prop.y = 37;
@@ -140,6 +152,10 @@ void cConfigEditor::destroyDisplayControls()
 		display.destroyControl(barControl[i]);
 		barControl[i] = nullptr;
 	}
+
+	display.destroyControl(bgLabel);
+	bgLabel = nullptr;
+
 
 
 	display.destroyControl(frameControl);
@@ -193,12 +209,16 @@ void cConfigEditor::showDefaultConfigScreen()
 
 	resizeToDefaultConfig();
 
+
 	frameData.placesCount = 4;
 	frameData.startPlace = 0;
 	frameData.places[0] = &framesPlacesConfig[0][0];
 	frameData.places[1] = &framesPlacesConfig[1][0];
 	frameData.places[2] = &framesPlacesConfig[2][0];
 	frameData.places[3] = &framesPlacesConfig[3][0];
+
+	display.refreshControl(bgLabel);
+
 
 	display.setControlHide(popoutWindowLabel);
 	display.refreshControl(popoutWindowLabel);
@@ -243,6 +263,9 @@ void cConfigEditor::showMasterScreen()
 		if(i<6) display.setControlShow(barControl[i]);
 		//display.refreshControl(barControl[i]);
 	}
+
+	display.refreshControl(bgLabel);
+
 
 
 	showVolume();

@@ -138,6 +138,7 @@ public:
 	hControl envStateListControl = nullptr;
 	hControl envLoopListControl = nullptr;
 
+	hControl bgLabel;
 	hControl frameControl = nullptr;
 
 

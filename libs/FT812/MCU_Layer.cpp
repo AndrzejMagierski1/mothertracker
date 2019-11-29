@@ -81,6 +81,7 @@ uint8_t lcdPclkpol;                                                             
 uint8_t lcdCsSpread;
 uint8_t lcdRotate;
 uint8_t lcdDither;
+uint16_t outBits;
 
 uint32_t ramDisplayList = RAM_DL;                                               // Set beginning of display list memory
 uint32_t ramCommandBuffer = RAM_CMD;                                            // Set beginning of graphics command memory
@@ -255,6 +256,7 @@ void FT812_Init(void)
     lcdRotate   = 1;
     //lcdRotate   = 4;
     lcdDither = 0;
+    outBits =  0;
 
 
 #endif
@@ -339,6 +341,7 @@ void FT812_Init(void)
     EVE_MemWrite8(REG_ROTATE,  lcdRotate);
     EVE_MemWrite8(REG_DITHER,  lcdDither);
 
+    EVE_MemWrite16(REG_OUTBITS,  outBits);
 
     // ---------------------- Touch and Audio settings -------------------------
 

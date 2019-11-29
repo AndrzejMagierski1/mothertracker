@@ -437,26 +437,37 @@ struct strInterfaceGlobals
 
 	const char **ptrFxNames = &ptrAllFxNames[1];
 
-	uint32_t activeLabelsColors[3] =
+	uint32_t activeLabelsColors[4] =
 	{
-		0x000000, // tekst
-		0xFFFFFF, // tło
+		0x999999, // tekst
+		0x323132, // tło
 		0xFF0000, // ramka
+		0xFFFFFF, // tekst2
 	};
 
-	uint32_t inactiveLabelsColors[3] =
+	uint32_t inactiveLabelsColors[4] =
 	{
-		0x888888, // tekst
-		0xFFFFFF, // tło //0x555555
+		0x333333, // tekst
+		0x323132, // tło //0x555555
 		0xFF0000, // ramka
+		0x555555, // tekst2
 	};
 
-	uint32_t disabledLabelsColors[3]=
+	uint32_t disabledLabelsColors[4]=
 	{
 			0x000000, // tekst
-			0x555555, // tło
+			0x222222, // tło
 			0xFF0000, // ramka
+			0x000000, // tekst2
 	};
+
+	uint32_t activeBgLabelsColors[3] =
+	{
+		0x444344, // linie
+		0x22221f, // tlo
+		0xFF0000, // ramka
+	};
+
 
 //-----------------------------------------------------
 

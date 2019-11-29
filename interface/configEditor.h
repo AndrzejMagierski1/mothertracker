@@ -407,6 +407,7 @@ public:
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 
+	hControl bgLabel;
 	hControl frameControl;
 
 

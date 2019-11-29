@@ -80,7 +80,7 @@ void cSampleRecorder::initDisplayControls()
 	prop9.h = 100;
 	prop9.w = 800-(10);
 	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
-	prop9.text = "Changes will be lost. Do you want to continue?";
+	prop9.text = (char*)"Changes will be lost. Do you want to continue?";
 	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop9);
 
 	strControlProperties prop2;
@@ -117,7 +117,7 @@ void cSampleRecorder::initDisplayControls()
 		//prop2.data =  &bottomValuesConfig;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
 
-		prop2.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY );
+		prop2.style = 	( controlStyleCenterX | controlStyleCenterY );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
 		prop2.y = 452;
@@ -125,6 +125,18 @@ void cSampleRecorder::initDisplayControls()
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
+
+
+	prop2.value = 255;
+	prop2.text = nullptr;
+	prop2.colors = interfaceGlobals.activeBgLabelsColors;
+	prop2.value = 255;
+	prop2.style = controlStyleNoTransparency | controlStyleShow;
+	prop2.x = 0;
+	prop2.w = 800;
+	prop2.y = 425;
+	prop2.h =  55;
+	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
 	strControlProperties prop3;
 	// ramka
@@ -269,6 +281,10 @@ void cSampleRecorder::destroyDisplayControls()
 		label[i] = nullptr;
 	}
 
+	display.destroyControl(bgLabel);
+	bgLabel = nullptr;
+
+
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
 
@@ -320,6 +336,10 @@ void cSampleRecorder::showDefaultScreen()
 	{
 		display.setControlText(label[i], "");
 	}
+
+	display.setControlShow(bgLabel);
+	display.refreshControl(bgLabel);
+
 	// odciemnanie labela wrazie deaktywacji save po wyjeciu karty
 	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
 

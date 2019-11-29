@@ -105,6 +105,7 @@ public:
 	hControl instrumentLabel = nullptr;
 	hControl progressCursor;
 	hControl wtPositionCursor;
+	hControl bgLabel;
 
 
 
