@@ -146,7 +146,7 @@ uint8_t cBgLabel::update()
 
 	for(uint8_t i = 1; i<8; i++)
 	{
-		if(data->activDivLine & (1<<i))
+		if(value & (1<<i))
 		{
 			API_VERTEX2F((width/8)*i+posX, posY+height/4);
 			API_VERTEX2F((width/8)*i+posX, posY+height);

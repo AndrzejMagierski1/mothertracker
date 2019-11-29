@@ -69,10 +69,9 @@ void cSongEditor::initDisplayControls()
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
-	bgLabelData.activDivLine = 255;
+	prop2.value = 255;
 	prop2.text = nullptr;
 	prop2.colors = interfaceGlobals.activeBgLabelsColors;
-	prop2.data = &bgLabelData;
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;

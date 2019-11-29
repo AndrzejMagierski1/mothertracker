@@ -44,7 +44,6 @@ public:
 	strList patternsList;
 
 	strFrameData frameData;
-	strBgLabelData bgLabelData;
 
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;

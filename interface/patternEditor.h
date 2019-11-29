@@ -136,7 +136,6 @@ public:
 //----------------------------------
 // GUI
 
-	strFrameData frameData;
 
 	hControl label[8];
 	hControl bgLabel;
@@ -155,7 +154,7 @@ public:
 //	hControl titleLabel;
 //	hControl instrumentLabel;
 
-	strBgLabelData bgLabelData;
+	strFrameData frameData;
 
 	int8_t selectedPlace = -1;
 

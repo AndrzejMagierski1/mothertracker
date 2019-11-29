@@ -397,7 +397,6 @@ public:
 //----------------------------------
 
 	strFrameData frameData;
-	strBgLabelData bgLabelData;
 
 	hControl label[8];
 	hControl barControl[8];

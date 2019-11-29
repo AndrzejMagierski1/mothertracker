@@ -80,7 +80,7 @@ void cSampleRecorder::initDisplayControls()
 	prop9.h = 100;
 	prop9.w = 800-(10);
 	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
-	prop9.text = "Changes will be lost. Do you want to continue?";
+	prop9.text = (char*)"Changes will be lost. Do you want to continue?";
 	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop9);
 
 	strControlProperties prop2;
@@ -127,10 +127,10 @@ void cSampleRecorder::initDisplayControls()
 	}
 
 
-	bgLabelData.activDivLine = 255;
+	prop2.value = 255;
 	prop2.text = nullptr;
 	prop2.colors = interfaceGlobals.activeBgLabelsColors;
-	prop2.data = &bgLabelData;
+	prop2.value = 255;
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;

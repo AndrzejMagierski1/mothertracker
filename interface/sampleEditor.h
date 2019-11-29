@@ -180,7 +180,6 @@ public:
 	uint8_t startLoadingSample();
 
 	strFrameData frameData;
-	strBgLabelData bgLabelData;
 
 	hControl label[8];
 	hControl effectListControl;
