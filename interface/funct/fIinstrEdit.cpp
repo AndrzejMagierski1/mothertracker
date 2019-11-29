@@ -680,6 +680,9 @@ void changeEnvAmount(int16_t value)
 void changeEnvLoop(int16_t value)
 {
 
+	if((!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) && (value < 0)) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 1;
+	else if ((IE->editorInstrument->envelope[IE->selectedEnvelope].loop) && (value > 0)) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 0;
+
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 	IE->showEnvLoop();
 }
