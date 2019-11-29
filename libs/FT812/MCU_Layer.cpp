@@ -255,8 +255,8 @@ void FT812_Init(void)
     lcdCsSpread = 0;
     lcdRotate   = 1;
     //lcdRotate   = 4;
-    lcdDither = 0;
-    outBits =  0;
+    lcdDither = 1;
+    outBits =  0x1B6;
 
 
 #endif

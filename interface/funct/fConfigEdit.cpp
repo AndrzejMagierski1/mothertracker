@@ -203,6 +203,8 @@ void cConfigEditor::setConfigScreenFunct()
 	FM->setButtonObj(interfaceButton5, functActionButton);
 	FM->setButtonObj(interfaceButton6, functActionButton);
 
+	FM->setPadsGlobal(functPads);
+
 }
 
 void cConfigEditor::setMasterScreenFunct()
