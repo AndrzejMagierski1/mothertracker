@@ -29,6 +29,7 @@ public:
 	void deactivateGui();
 	void showFilesTree();
 	void showInstrumentsList();
+	void refreshInstrumentsList();
 	void showMemoryUsage();
 	void showLoadHorizontalBar();
 	void showCopyingHorizontalBar();
@@ -44,7 +45,7 @@ public:
 
 
 
-	hControl label[6] = {nullptr};
+	hControl label[8] = {nullptr};
 
 
 

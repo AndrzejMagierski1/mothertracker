@@ -327,9 +327,9 @@ void FileManager::refreshSaveInstrumentFiles()
 {
 	char currentPatch[PATCH_SIZE];
 
-	if(mtProject.values.instrumentsToSave[saveHandle.currInstrumentFileIdx])
+	if(mtProject.instrument[saveHandle.currInstrumentFileIdx].isActive == 1)
 	{
-		if(mtProject.instrument[saveHandle.currInstrumentFileIdx].isActive == 1)
+		if(mtProject.values.instrumentsToSave[saveHandle.currInstrumentFileIdx])
 		{
 			sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,saveHandle.currInstrumentFileIdx);
 			writeInstrumentFile(currentPatch, &mtProject.instrument[saveHandle.currInstrumentFileIdx]);
@@ -337,14 +337,15 @@ void FileManager::refreshSaveInstrumentFiles()
 			sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",saveHandle.currInstrumentFileIdx);
 			writeInstrumentFile(currentPatch, &mtProject.instrument[saveHandle.currInstrumentFileIdx]);
 		}
-		else
-		{
-			sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,saveHandle.currInstrumentFileIdx);
-			if(SD.exists(currentPatch)) SD.remove(currentPatch);
-			sprintf(currentPatch,"%s/samples/instr%02d.wav", currentProjectPatch, saveHandle.currInstrumentFileIdx);
-			if(SD.exists(currentPatch)) SD.remove(currentPatch);
-		}
 	}
+	else
+	{
+		sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,saveHandle.currInstrumentFileIdx);
+		if(SD.exists(currentPatch)) SD.remove(currentPatch);
+		sprintf(currentPatch,"%s/samples/instr%02d.wav", currentProjectPatch, saveHandle.currInstrumentFileIdx);
+		if(SD.exists(currentPatch)) SD.remove(currentPatch);
+	}
+
 
 	saveHandle.currInstrumentFileIdx++;
 

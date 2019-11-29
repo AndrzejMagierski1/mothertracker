@@ -69,15 +69,15 @@ void cSampleImporter::initDisplayControls()
 	prop2.text = (char*)"";
 	prop2.colors = interfaceGlobals.activeLabelsColors;
 	prop2.style = 	(controlStyleBackground | controlStyleCenterX | controlStyleCenterY);
-	prop2.x = (800/8);
-	prop2.y = 452;
-	prop2.w = 800/4-6;
-	prop2.h = 59;
-	if(label[0] == nullptr) label[0] = display.createControl<cLabel>(&prop2);
+	//prop2.x = (800/8);
+	//prop2.y = 452;
+	//prop2.w = 800/4-6;
+	//prop2.h = 59;
+	//if(label[0] == nullptr) label[0] = display.createControl<cLabel>(&prop2);
 
-	for(uint8_t i = 1; i<5; i++)
+	for(uint8_t i = 0; i < 8; i++)
 	{
-		prop2.x = (800/8)*(i+1)+(800/16);
+		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
 		prop2.y = 452;
 		prop2.h =  59;
@@ -85,11 +85,11 @@ void cSampleImporter::initDisplayControls()
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
-	prop2.x = (800/8)*6+(800/8);
+/*	prop2.x = (800/8)*6+(800/8);
 	prop2.y = 452;
 	prop2.w = 800/4-6;
 	prop2.h = 59;
-	if(label[5] == nullptr) label[5] = display.createControl<cLabel>(&prop2);
+	if(label[5] == nullptr) label[5] = display.createControl<cLabel>(&prop2);*/
 
 	explorerList.start = selectedFile;
 	explorerList.length = locationExplorerCount;
@@ -165,7 +165,7 @@ void cSampleImporter::destroyDisplayControls()
 	display.destroyControl(instrumentListControl);
 	instrumentListControl = nullptr;
 
-	for(uint8_t i = 0; i<6; i++)
+	for(uint8_t i = 0; i < 8; i++)
 	{
 		display.destroyControl(label[i]);
 		label[i] = nullptr;
@@ -206,11 +206,17 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlText(label[0], "Micro SD");
 	display.setControlText(label[1], "");
 	display.setControlText(label[2], "");
-	display.setControlText(label[3], "Preview");
-	display.setControlText(label[4], "");
-	display.setControlText(label[5], "Instruments");
+	display.setControlText(label[4], "Preview");
+	display.setControlText(label[5], "");
+	display.setControlText(label[6], "Instruments");
 
-	for(uint8_t i = 0; i<6; i++)
+	display.setControlPosition(label[0],  (800/8)*0+(800/8),  452);
+	display.setControlSize(label[0],  800/4-6,  59);
+
+	display.setControlPosition(label[6],  (800/8)*6+(800/8),  452);
+	display.setControlSize(label[6],  800/4-6,  59);
+
+	for(uint8_t i = 0; i < 8; i++)
 	{
 		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
 		display.setControlShow(label[i]);
@@ -243,7 +249,7 @@ void cSampleImporter::deactivateGui()
 {
 	showDefaultScreen();
 
-	for(uint8_t i = 0; i<6; i++)
+	for(uint8_t i = 0; i < 8; i++)
 	{
 		display.setControlColors(label[i], interfaceGlobals.inactiveLabelsColors);
 		display.refreshControl(label[i]);
@@ -279,6 +285,12 @@ void cSampleImporter::showInstrumentsList()
 	instrumentList.data = interfaceGlobals.ptrIntrumentsNames;
 
 	display.setControlData(instrumentListControl,  &instrumentList);
+	display.setControlShow(instrumentListControl);
+	display.refreshControl(instrumentListControl);
+}
+
+void cSampleImporter::refreshInstrumentsList()
+{
 	display.setControlShow(instrumentListControl);
 	display.refreshControl(instrumentListControl);
 }
@@ -383,7 +395,7 @@ void cSampleImporter::AddNextDisplay(uint8_t active)
 	uint32_t *colors;
 	//interfaceGlobals.inactiveLabelsColors;
 
-	display.setControlText(label[2], "Add next");
+	display.setControlText(label[3], "Add next");
 
 	if(active)
 	{
@@ -394,8 +406,8 @@ void cSampleImporter::AddNextDisplay(uint8_t active)
 		colors = interfaceGlobals.inactiveLabelsColors;
 	}
 
-	display.setControlColors(label[2], colors);
-	display.refreshControl(label[2]);
+	display.setControlColors(label[3], colors);
+	display.refreshControl(label[3]);
 	//display.synchronizeRefresh();
 }
 
@@ -405,21 +417,21 @@ void cSampleImporter::AddEnterOrRename()
 	{
 		if(locationExplorerList[selectedFile][0] == '/')
 		{
-			display.setControlText(label[1], "Enter");
+			display.setControlText(label[2], "Enter");
 		}
 		else
 		{
-			display.setControlText(label[1], "Add");
+			display.setControlText(label[2], "Add");
 		}
 	}
 	else
 	{
-		display.setControlText(label[1], "Rename");
+		display.setControlText(label[2], "Rename");
 	}
 
 	renameColorControl();
 
-	display.refreshControl(label[1]);
+	display.refreshControl(label[2]);
 	display.synchronizeRefresh();
 }
 
@@ -441,8 +453,8 @@ void cSampleImporter::previewColorControl()
 		}
 	}
 
-	display.setControlColors(label[3], colors);
-	display.refreshControl(label[3]);
+	display.setControlColors(label[4], colors);
+	display.refreshControl(label[4]);
 
 	display.synchronizeRefresh();
 }
@@ -459,7 +471,7 @@ void cSampleImporter::renameColorControl()
 		}
 	}
 
-	display.setControlColors(label[1], colors);
+	display.setControlColors(label[2], colors);
 	// refreshowany jest w innej funkcji
 }
 
@@ -485,7 +497,7 @@ void cSampleImporter::deleteColorControl()
 		}
 	}
 
-	display.setControlColors(label[4], colors);
+	display.setControlColors(label[5], colors);
 	display.synchronizeRefresh();
 	// refreshowany jest w innej funkcji
 }
@@ -566,15 +578,15 @@ void cSampleImporter::displayDelete(uint8_t onOff)
 {
 	if(onOff)
 	{
-		display.setControlText(label[4], "Delete");
+		display.setControlText(label[5], "Delete");
 		deleteColorControl();
 	}
 	else
 	{
-		display.setControlText(label[4], "");
+		display.setControlText(label[5], "");
 	}
 
-	display.refreshControl(label[4]);
+	display.refreshControl(label[5]);
 	//display.synchronizeRefresh();
 }
 
@@ -641,17 +653,22 @@ void cSampleImporter::hideKeyboardEditName()
 
 void cSampleImporter::showRenameKeyboard()
 {
-	display.setControlText(label[1],"Cancel");
+	display.setControlPosition(label[0],  (800/8)*0+(800/16),  452);
+	display.setControlSize(label[0],  800/8-6,  59);
 
-	for(uint8_t i = 0; i < 6 ; i++)
+	display.setControlPosition(label[6],  (800/8)*6+(800/16),  452);
+	display.setControlSize(label[6],  800/8-6,  59);
+
+	for(uint8_t i = 0; i < 8; i++)
 	{
-		if(i == 1 || i == 4 ) continue;
 		display.setControlText(label[i], "");
 	}
 
-	display.setControlText(label[4],"Rename");
+	display.setControlText(label[0],"Enter");
+	display.setControlText(label[6],"Cancel");
+	display.setControlText(label[7],"Rename");
 
-	for(uint8_t i = 0; i < 6 ; i++)
+	for(uint8_t i = 0; i < 8; i++)
 	{
 		display.refreshControl(label[i]);
 	}

@@ -597,9 +597,9 @@ static uint8_t functOpenProject()
 
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProjectConfirm);
-	PE->FM->setButtonObj(interfaceButton1, buttonPress, functSaveChangesCancelOpen);
-	PE->FM->setButtonObj(interfaceButton5, buttonPress, functDelete);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functOpenProjectConfirm);
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functDelete);
+	PE->FM->setButtonObj(interfaceButton5, buttonPress, functSaveChangesCancelOpen);
 
 	PE->projectListActiveFlag = 1;
 
@@ -633,8 +633,9 @@ static uint8_t functSaveAsProject()
 	if(PE->isBusyFlag) return 1;
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveAsCancel);
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveAsCancel);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveAsConfirm);
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functConfirmKey);
 	PE->FM->setButtonObj(interfaceButtonShift, buttonPress, functConfirmKey);
 
 	strcpy(PE->name,fileManager.currentProjectName);
@@ -677,8 +678,8 @@ void cProjectEditor::functShowSaveLastWindow()
 {
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveChangesCancelNewProject);
-	PE->FM->setButtonObj(interfaceButton4, buttonPress, functSaveChangesDontSaveNewProject);
+	PE->FM->setButtonObj(interfaceButton5, buttonPress, functSaveChangesCancelNewProject);
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesDontSaveNewProject);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveChangesSaveNewProject);
 
 	showSaveLastWindow();
@@ -787,8 +788,8 @@ void cProjectEditor::functShowOverwriteWindow()
 {
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveAsOverwriteYes);
-	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveAsOverwriteNo);
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveAsOverwriteNo);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveAsOverwriteYes);
 
 	PE->showOverwriteWindow();
 }
@@ -819,8 +820,9 @@ static uint8_t functSaveAsOverwriteNo()
 
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveAsCancel);
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveAsCancel);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveAsConfirm);
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functConfirmKey);
 	PE->FM->setButtonObj(interfaceButtonShift, buttonPress, functConfirmKey);
 
 	PE->editPosition = strlen(PE->name);
@@ -864,8 +866,8 @@ void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 {
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveChangesCancelOpen);
-	PE->FM->setButtonObj(interfaceButton4, buttonPress, functSaveChangesDontSaveOpen);
+	PE->FM->setButtonObj(interfaceButton5, buttonPress, functSaveChangesCancelOpen);
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesDontSaveOpen);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveChangesSaveOpen);
 
 	showSaveLastWindow();
@@ -876,7 +878,7 @@ static uint8_t functDelete()
 	if(PE->isBusyFlag) return 1;
 	if(strcmp(fileManager.currentProjectName, &PE->locationFilesList[PE->selectedLocation][0]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
 
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functSaveChangesCancelOpen);
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functDeleteConfirm);
 
 	PE->showDeleteLastWindow();

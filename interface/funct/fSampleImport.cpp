@@ -202,7 +202,7 @@ void cSampleImporter::update()
 		}
 
 		listInstrumentSlots();
-		showInstrumentsList();
+		refreshInstrumentsList();
 	}
 
 	handleSequenceCopyingLoading();
@@ -348,10 +348,13 @@ static  uint8_t functChangeFolder(uint8_t button)
 		}
 	}
 
+
 	SI->selectedPlace = 0;
 
 	SI->FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
 
+	SI->AddNextControl();
+	SI->AddEnterOrRename();
 	SI->previewColorControl();
 	SI->displayDelete(SI->selectedPlace);
 //	SI->checkWavetableLabel();
@@ -464,7 +467,7 @@ static  uint8_t functInstrumentDelete()
 			SI->previewColorControl();
 
 			SI->listInstrumentSlots();
-			SI->showInstrumentsList();
+			SI->refreshInstrumentsList();
 		}
 	}
 
@@ -535,8 +538,10 @@ static  uint8_t functRename()
 
 	SI->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-	SI->FM->setButtonObj(interfaceButton2, buttonPress, functCancelRename);
-	SI->FM->setButtonObj(interfaceButton5, buttonPress, functConfirmRename);
+	SI->FM->setButtonObj(interfaceButtonShift, buttonPress, functConfirmKey);
+	SI->FM->setButtonObj(interfaceButton0, buttonPress, functConfirmKey);
+	SI->FM->setButtonObj(interfaceButton6, buttonPress, functCancelRename);
+	SI->FM->setButtonObj(interfaceButton7, buttonPress, functConfirmRename);
 
 	SI->showRenameKeyboard();
 	return 1;
@@ -616,7 +621,6 @@ static uint8_t functPaste()
 
 	if(SI->copyElementMax && SI->instrCopyStart != SI->selectedSlot)
 	{
-		SI->isBusy = 1;
 		char projectSamplePath[255];
 		uint8_t willFit = 1;
 		uint8_t selectOverMax = 0;
@@ -627,6 +631,8 @@ static uint8_t functPaste()
 
 		if(SI->instrActiveInSel)
 		{
+			SI->isBusy = 1;
+
 			while(SI->selectedSlot + SI->copyElementMax > 48)
 			{
 				SI->copyElementMax--;
@@ -644,6 +650,7 @@ static uint8_t functPaste()
 				else
 				{
 					SI->copyElementMax--;
+					SI->instrActiveInSel--;
 					/*TODO: popout ze kopiowanie zostalo uciete*/
 				}
 			}
@@ -668,7 +675,7 @@ static uint8_t functPaste()
 					}
 				}
 
-				if(SI->copyElement == (SI->copyElementMax-1))
+				if(SI->copyElement == (SI->copyElementMax-1) || ((SI->instrActiveInSel-1) == SI->instrCopied))
 				{
 					fileManager.setAutoLoadFlag();
 				}
@@ -1748,7 +1755,7 @@ void cSampleImporter::handleSequenceCopyingLoading()
 				}
 			}
 
-			if((copyElement == (copyElementMax-1)) || (instrCopied == (instrActiveInSel - 1)))
+			if((copyElement == (copyElementMax-1)) || (instrCopied == instrActiveInSel))
 			{
 				fileManager.setLoadLength(copyElementMax);
 				fileManager.setAutoLoadFlag();
@@ -1818,7 +1825,7 @@ void cSampleImporter::handleSequenceCopyingLoading()
 	{
 		if(currSelectPlace==1)
 		{
-			//fileManager.saveProject(); todo: saveWorkspace
+			fileManager.autoSaveWorkspace(1);
 		}
 
 		//listAllFoldersFirst();//?
@@ -1857,7 +1864,7 @@ void cSampleImporter::processDeleting()
 			previewColorControl();
 
 			listInstrumentSlots();
-			showInstrumentsList();
+			refreshInstrumentsList();
 
 			deleteInProgress = 0;
 			isBusy = 0;

@@ -517,7 +517,7 @@ void cSampleRecorder::showDefaultScreen()
 			display.setControlText2(label[3], "Zoom");
 			display.setControlText(label[4], "Crop");
 			display.setControlText(label[5], "Undo");
-			display.setControlText(label[6], "Go Back");
+			display.setControlText(label[6], "Cancel");
 			display.setControlText(label[7], "Save");
 
 			if(!sdCardDetector.isCardInserted())
@@ -570,18 +570,18 @@ void cSampleRecorder::showDefaultScreen()
 
 		showKeyboardEditName();
 
-		display.setControlValue(label[2], 0);
+		display.setControlValue(label[0], 0);
 
-		display.setControlText(label[0], "");
-		display.setControlText2(label[0], "");
+		display.setControlText(label[0], "Enter");
 		display.setControlText(label[1], "");
 		display.setControlText2(label[1], "");
-		display.setControlText(label[2], "Confirm");
+		display.setControlText(label[2], "");
+		display.setControlText2(label[2], "");
 		display.setControlText(label[3], "");
 		display.setControlText2(label[3], "");
 		display.setControlText(label[4], "");
 		display.setControlText2(label[4], "");
-		display.setControlText(label[5], "Go Back");
+		display.setControlText(label[5], "Cancel");
 		display.setControlText(label[6], "Save & Load");
 		display.setControlText(label[7], "Save");
 	}
@@ -748,8 +748,7 @@ void cSampleRecorder::showRecTimeValue()
 {
 	recTimeValue = recorder.getLength()/44100.0;
 
-	sprintf(recTimeValueText,"%.3f",recTimeValue);
-	recTimeValueText[strlen(recTimeValueText)]='s';
+	sprintf(recTimeValueText,"%.3fs",recTimeValue);
 
 	display.setControlText(label[2], recTimeValueText);
 	display.setControlShow(label[2]);
@@ -763,7 +762,7 @@ void cSampleRecorder::showPreviewValue()
 
 	if(playTimeValue >= (localEndPoint - 0.01)) playTimeValue = localEndPoint;
 
-	sprintf(playTimeValueText,"%.3f s",playTimeValue);
+	sprintf(playTimeValueText,"%.3fs",playTimeValue);
 
 	display.setControlText(label[0], playTimeValueText);
 	display.setControlShow(label[0]);
@@ -780,8 +779,7 @@ void cSampleRecorder::showStartPointValue()
 	recTimeValue = recorder.getLength()/44100.0;
 	float localStartPoint = (recTimeValue * startPoint) / MAX_16BIT;
 
-	sprintf(startPointValueText,"%.3f",localStartPoint);
-	startPointValueText[strlen(startPointValueText)]='s';
+	sprintf(startPointValueText,"%.3fs",localStartPoint);
 
 	display.setControlText(label[1], startPointValueText);
 	display.setControlShow(label[1]);
@@ -793,8 +791,7 @@ void cSampleRecorder::showEndPointValue()
 	recTimeValue = recorder.getLength()/44100.0;
 	float localEndPoint = (recTimeValue * endPoint) / MAX_16BIT;
 
-	sprintf(endPointValueText,"%.3f",localEndPoint);
-	endPointValueText[strlen(endPointValueText)]='s';
+	sprintf(endPointValueText,"%.3fs",localEndPoint);
 
 	display.setControlText(label[2], endPointValueText);
 	display.setControlShow(label[2]);
@@ -906,8 +903,8 @@ void cSampleRecorder::showSelectionWindow()
 		display.refreshControl(label[i]);
 	}
 
-	display.setControlText(label[0], "Yes");
-	display.setControlText(label[7], "No");
+	display.setControlText(label[7], "Yes");
+	display.setControlText(label[6], "Cancel");
 	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
 
 	display.setControlHide(frameControl);
