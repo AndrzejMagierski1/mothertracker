@@ -127,7 +127,6 @@ public:
 	void hideRDS();
 
 	strFrameData frameData;
-	strBgLabelData bgLabelData;
 	strSelectWindowData selectWindowData;
 
 //*********************************************

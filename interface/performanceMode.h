@@ -148,7 +148,6 @@ public:
 
 	strMultiLabelData multiLabelData[12];
 
-	strBgLabelData bgLabelData;
 	strFrameData frameData;
 
 	hControl titleBar = nullptr;

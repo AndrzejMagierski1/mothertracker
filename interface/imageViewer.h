@@ -44,7 +44,7 @@ public:
 	char titleText[32];
 
 
-	strBgLabelData bgLabelData;
+	strFrameData frameData;
 	hControl label[8] = {nullptr};
 	hControl bgLabel;
 

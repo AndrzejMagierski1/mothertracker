@@ -59,7 +59,7 @@ public:
 //-------------------------------------------------------------
 
 	strList projectList;
-	strBgLabelData bgLabelData;
+	strFrameData frameData;
 
 	hControl label[8];
 	hControl editName;

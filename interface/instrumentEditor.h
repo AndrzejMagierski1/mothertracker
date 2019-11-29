@@ -124,7 +124,6 @@ public:
 //----------------------------------
 
 
-	strBgLabelData bgLabelData;
 	strFrameData frameData;
 
 	hControl titleBar = nullptr;

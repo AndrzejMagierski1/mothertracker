@@ -41,7 +41,6 @@ public:
 	strList instrumentList;
 
 	strFrameData frameData;
-	strBgLabelData bgLabelData;
 
 
 
