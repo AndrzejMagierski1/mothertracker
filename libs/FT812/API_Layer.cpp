@@ -49,11 +49,18 @@ void MCU_Delay_3us(void);
 //##############################################################################
 // Library functions
 //##############################################################################
-
+//uint16_t swizelee = 0;
 // Begins co-pro list for display creation
 void API_LIB_BeginCoProList(void)
 {
+
+
     API_LIB_AwaitCoProEmpty();                                                  // Wait for command FIFO to be empty and record current position in FIFO
+
+   // if(swizelee > 0 ) swizelee = 0;
+   // else swizelee =  0x1B6;
+    //EVE_MemWrite16(REG_OUTBITS,  swizelee);
+
     MCU_CSlow();
                                                                	   	   	   	    // CS low begins SPI transaction
 

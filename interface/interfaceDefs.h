@@ -439,7 +439,7 @@ struct strInterfaceGlobals
 
 	uint32_t activeLabelsColors[4] =
 	{
-		0x999999, // tekst
+		0x777777, // tekst
 		0x323132, // tło
 		0xFF0000, // ramka
 		0xFFFFFF, // tekst2
