@@ -266,6 +266,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	uint8_t status;
 	float gainL=0,gainR=0;
 
+	envelopeFilterPtr->kill();
+	envelopeWtPos->kill();
 
 	currentInstrument_idx=instr_idx;
 	currentNote=note;
@@ -505,6 +507,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	currentNote=note;
 	currentVelocity=velocity;
 
+	envelopeFilterPtr->kill();
+	envelopeWtPos->kill();
 	/*================================================ENVELOPE AMP==========================================*/
 	lfoAmpPtr->init(&mtProject.instrument[instr_idx].lfo[lfoA]);
 
@@ -2222,6 +2226,9 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	uint8_t status;
 	float gainL=0,gainR=0;
 
+	envelopeFilterPtr->kill();
+	envelopeWtPos->kill();
+
 	currentInstrument_idx=instr_idx;
 	currentNote=note;
 	currentVelocity=velocity;
@@ -2333,6 +2340,8 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 	envelopeAmpPtr->sustain(1.0);
 	envelopeAmpPtr->release(0.0f);
 
+	envelopeFilterPtr->kill();
+	envelopeWtPos->kill();
 
 	filterDisconnect();
 	ampPtr->gain(1.0);
@@ -2367,6 +2376,8 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	envelopeAmpPtr->sustain(1.0);
 	envelopeAmpPtr->release(0.0f);
 
+	envelopeFilterPtr->kill();
+	envelopeWtPos->kill();
 
 	filterDisconnect();
 	ampPtr->gain(1.0);

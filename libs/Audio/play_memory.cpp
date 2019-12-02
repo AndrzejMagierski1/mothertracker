@@ -269,7 +269,8 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	next = data+samplePoints.start;
 	beginning = data+samplePoints.start;
 	length =startLen-samplePoints.start;
-	iPitchCounter = reverseDirectionFlag ? sampleConstrains.endPoint - 1 : 0;
+	if(sampleType = mtSampleTypeWavetable) iPitchCounter = reverseDirectionFlag ? sampleConstrains.endPoint - 1 : 0;
+	else iPitchCounter = 0;
 	playing = 0x81;
 	__enable_irq();
 	AudioInterrupts();
@@ -318,7 +319,7 @@ void AudioPlayMemory::update(void)
 //		length += castPitchControl; //maksymalnie moze wyjsc za length i nie wiecej niz pitch control
 		for (i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			if (length > iPitchCounter)
+			if (((length > iPitchCounter) && (sampleType == mtSampleTypeWaveFile)) || ((length > (iPitchCounter + waveTablePosition)) && (sampleType == mtSampleTypeWavetable)))
 			{
 				if (sampleConstrains.glide)
 				{
@@ -356,13 +357,38 @@ void AudioPlayMemory::update(void)
 					needSmoothingFlag = 0;
 					for(uint8_t j = 0; j < SMOOTHING_SIZE; j++ )
 					{
-						*out++ = ((int32_t)(((int32_t)((*(in + iPitchCounter) )*j) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j)) ) )/(SMOOTHING_SIZE - 1));
+						if(iPitchCounter != length)
+						{
+							*out++ = ((int32_t)(((int32_t)((*(in + iPitchCounter) )*j) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j)) ) )/(SMOOTHING_SIZE - 1));
+						}
+						else
+						{
+							*out++ = 0;
+						}
 						iPitchCounter += castPitchControl;
 						fPitchCounter += pitchFraction;
 						if (fPitchCounter >= 1.0f)
 						{
 							fPitchCounter -= 1.0f;
 							iPitchCounter++;
+						}
+						if(sampleType == mtSampleTypeWavetable)
+						{
+							if (iPitchCounter >= wavetableWindowSize)
+							{
+								iPitchCounter -= wavetableWindowSize;
+							}
+						}
+						else
+						{
+							if ((iPitchCounter >= (sampleConstrains.endPoint)) && (sampleConstrains.endPoint != (sampleConstrains.loopPoint2)) && !reverseDirectionFlag)
+							{
+								iPitchCounter = length;
+							}
+							else if (((iPitchCounter - castPitchControl) <= 0)  && reverseDirectionFlag)
+							{
+								iPitchCounter = 0;
+							}
 						}
 					}
 					i = SMOOTHING_SIZE;
@@ -622,6 +648,7 @@ void AudioPlayMemory::update(void)
 //		length -= castPitchControl; //powrot do bazowej dlugosci
 	}
 	release(block);
+
 
 }
 

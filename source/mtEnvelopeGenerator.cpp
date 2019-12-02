@@ -283,7 +283,7 @@ void envelopeGenerator::calc()
 		// #ifdef ADSR_DEBUG
 		// 		Serial.print(" decay");
 		// #endif
-		if(decay == 0.0f) tempOutput = sustain; // przy decay - 0 powstawał nan i loop dzialal nieprawidlowo - andrzej2000
+		if(decay == 0.0f) tempOutput = sustain * amount; // przy decay - 0 powstawał nan i loop dzialal nieprawidlowo - andrzej2000
 		else tempOutput = (((1 - (envTemp.timer / decay)) * (1 - sustain) + sustain)) * amount;// * (amount / MAX_ADSR_PAR);
 
 		// tempOutput = tempOutput * (amount > 0 ? 1 : -1);
