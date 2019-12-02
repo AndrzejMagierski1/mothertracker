@@ -64,7 +64,7 @@ void cTest::testLoop()
 {
 	if(!procedureRunning) return;
 
-	if(guiRefresh < 1000) return;
+	if(guiRefresh < 100) return;
 	guiRefresh = 0;
 
 // Graficzne
@@ -205,7 +205,7 @@ void cTest::runScreenTest()
 		hideStatus  = 1;
 		testPhase++;
 	}
-	else if(testPhase%3 == 1  && testTimer > 5000)
+	else if(testPhase%3 == 1  && testTimer > 2000)
 	{
 		testTimer = 0;
 		hideStatus  = 1;
@@ -225,13 +225,15 @@ void cTest::showInputsTest()
 {
 	API_BEGIN(RECTS);
 
+	uint16_t baseX = 420, baseY = 320;
+
 	for(uint8_t i = 0; i<48; i++)
 	{
 		if(inputs.pads[i] == 0) API_COLOR(0xff0000);
 		else if(inputs.pads[i] == 1) API_COLOR(0x00ffff);
 		else if(inputs.pads[i] == 2) API_COLOR(0x00ff00);
 
-		uint8_t baseX = 420, baseY = 320;
+
 		API_VERTEX2F(baseX+((i%12)*13), baseY+(i/12)*13);
 		API_VERTEX2F(baseX+((i%12)*13)+10, baseY+((i/12)*13)+10);
 

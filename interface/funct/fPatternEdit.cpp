@@ -156,8 +156,6 @@ void cPatternEditor::start(uint32_t options)
 	refreshEditState();
 
 	focusOnPattern();
-
-	PTE->eventFunct(eventActivateTestingProcedure,PTE,0,0);
 }
 
 void cPatternEditor::stop()
