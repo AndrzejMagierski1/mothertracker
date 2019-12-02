@@ -77,7 +77,7 @@ public:
 	}
 	void setLoop(uint8_t state)
 	{
-		loopFlag = 1;
+		loopFlag = state;
 	}
 
 	using AudioStream::release;
