@@ -1882,7 +1882,7 @@ void cSampleImporter::handleSequenceCopyingLoading()
 			fileManager.autoSaveWorkspace(1);
 		}
 
-		listAllFoldersFirst();//?
+		//listAllFoldersFirst();//?
 
 		copyType=0;
 	}
