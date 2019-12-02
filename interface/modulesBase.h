@@ -106,6 +106,9 @@ public:
 	void setButtonObj(uint8_t objectID, uint8_t(*funct)(uint8_t,uint8_t));
 
 
+	void setPowerButtonObj(uint8_t(*funct)(uint8_t));
+
+
 	void setPadObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(), hControl control);
 	void setPadObj(uint8_t objectID, uint8_t(*funct)(uint8_t,int16_t), hControl control);
 	void setPadsGlobal(uint8_t(*funct)(uint8_t,uint8_t,int16_t));
@@ -117,6 +120,7 @@ public:
 	void processPadsInput(uint8_t pad, uint8_t state, int16_t velo);
 	void processPadsInput(uint8_t pad, uint8_t state, int8_t x, int8_t y, int16_t velo);
 	void processSdDetectInput(uint8_t state);
+	void processPowerButton(uint8_t state);
 
 private:
 
@@ -177,6 +181,8 @@ private:
 	static strButtonObject buttons[];
 	static strPadObject pads[];
 
+
+	uint8_t (*powrButtonFunct)(uint8_t) = nullptr;
 
 	uint8_t potsCleared = 1;
 	uint8_t buttonsCleared = 1;

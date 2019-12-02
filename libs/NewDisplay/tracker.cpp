@@ -322,6 +322,7 @@ void cTracker::backgroundDivider()
 	for(uint16_t i = 0; i < 15; i++)
 	{
 		if(div_row < 0 || div_row > tracks->patternLength-1)
+
 		{
 			div_row++;
 			continue;
@@ -340,17 +341,23 @@ void cTracker::backgroundDivider()
 
 
 	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
 
+
+	API_SAVE_CONTEXT();
+
+	//API_LINE_WIDTH(16);
+	API_SCISSOR_XY(1, 410);
+	API_SCISSOR_SIZE(798, 14);
+	API_CMD_GRADIENT(0, 410, 0x101010, 0, 424, 0x010101);
+
+	API_RESTORE_CONTEXT();
+
+/*
 	// cien dolny
 	API_LINE_WIDTH(8);
 	API_BEGIN(LINES);
-
-	//uint8_t r = 0;
-	//uint8_t g = 0;
-	//uint8_t b = 0;
 	API_COLOR(rgb1);
-
-
 	for(uint8_t i = 0; i < 4; i++)
 	{
 		if(i == 1)	API_COLOR(rgb2);
@@ -361,9 +368,9 @@ void cTracker::backgroundDivider()
 		API_VERTEX2F(1, 423-i);
 		API_VERTEX2F(797, 423-i);
 	}
+*/
 
-
-	////API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 }
 
 //-------------------------------------------------------------------------------------
@@ -439,6 +446,7 @@ void cTracker::playHead()
 		API_VERTEX2F(799, phy2);
 */
 
+
 /*
 		API_COLOR(colors[13]);
 
@@ -450,34 +458,31 @@ void cTracker::playHead()
 
 		API_END();
 */
-		API_LINE_WIDTH(8);
-		API_BEGIN(LINES);
+//		API_LINE_WIDTH(8);
+//		API_BEGIN(LINES);
+//		API_COLOR(rgb1);
+//		for(uint8_t i = 0; i < 4; i++)
+//		{
+//			if(i == 1)	API_COLOR(rgb2);
+//			if(i == 2)	API_COLOR(rgb3);
+//			if(i == 3)	API_COLOR(rgb4);
+//
+//			API_VERTEX2F(2, phy1-i);
+//			API_VERTEX2F(797, phy1-i);
+//
+//
+//			API_VERTEX2F(2, phy2+i);
+//			API_VERTEX2F(797, phy2+i);
+//
+//		}
+//		API_END();
 
-
-		API_COLOR(rgb1);
-
-		for(uint8_t i = 0; i < 4; i++)
-		{
-			if(i == 1)	API_COLOR(rgb2);
-			if(i == 2)	API_COLOR(rgb3);
-			if(i == 3)	API_COLOR(rgb4);
-
-			API_VERTEX2F(2, phy1-i);
-			API_VERTEX2F(797, phy1-i);
-
-
-			API_VERTEX2F(2, phy2+i);
-			API_VERTEX2F(797, phy2+i);
-
-		}
-
-/*
 		API_SAVE_CONTEXT();
 
 		//API_LINE_WIDTH(16);
 		API_SCISSOR_XY(1, phy1-14);
 		API_SCISSOR_SIZE(798, 14);
-		API_CMD_GRADIENT(0, phy1-100, 0x565758, 0, phy1, 0x000000);
+		API_CMD_GRADIENT(0, phy1-14, 0x101010, 0, phy1, 0x010101);
 
 		API_RESTORE_CONTEXT();
 
@@ -486,11 +491,11 @@ void cTracker::playHead()
 		//API_LINE_WIDTH(16);
 		API_SCISSOR_XY(1, phy2);
 		API_SCISSOR_SIZE(798, 14);
-		API_CMD_GRADIENT(0, phy2, 0x111111, 0, phy2+14, 0x232323);
+		API_CMD_GRADIENT(0, phy2, 0x010101, 0, phy2+14, 0x101010);
 
 		API_RESTORE_CONTEXT();
 
-*/
+
 	}
 
 

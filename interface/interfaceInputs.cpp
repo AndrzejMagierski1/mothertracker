@@ -41,9 +41,9 @@ void cInterface::buttonChange(uint8_t n, uint8_t value)
 }
 
 //=======================================================================
-void cInterface::powerButtonChange(uint8_t value)
+void cInterface::powerButtonChange(uint8_t state)
 {
-
+	uiFM.processPowerButton(state);
 }
 
 //=======================================================================
