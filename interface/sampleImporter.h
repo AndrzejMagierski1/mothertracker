@@ -10,6 +10,12 @@
 #define PREVIOUS_POSITION_LIFO	25
 #define MAX_SELECT				48
 
+enum
+{
+	listFiles,
+	listInstruments,
+};
+
 class cSampleImporter: public cModuleBase
 {
 
@@ -192,10 +198,10 @@ public:
 	uint8_t explorerPositionTable[PREVIOUS_POSITION_LIFO];
 	uint8_t explorerCurrentPosition;
 
-	uint8_t selectionActive;
+	uint8_t selectionActive[2]={0,0};
 	uint8_t shiftPressed;
-	uint8_t selectionTab[255];
-	uint8_t selectionLength;
+	uint8_t selectionTab[2][255];
+	uint8_t selectionLength[2];
 	uint8_t currSelectPlace=0;
 
 	uint8_t instrCopied=0;
@@ -205,8 +211,8 @@ public:
 
 	uint8_t handleSelecting(uint8_t selectStart, uint8_t selectMax, int16_t value,uint8_t fileCheck);
 
-	void cancelSelect();
-	int16_t getSelectionStart();
+	void cancelSelect(uint8_t placeToCancel);
+	int16_t getSelectionStart(uint8_t whichSelect);
 
 	bool checkIfValidSelection(uint8_t positionToCheck);
 
@@ -218,7 +224,7 @@ public:
 	uint32_t currentFolderMemoryFileUsage[255];
 //	uint8_t currentFolderIsWavetableFlag[255];
 
-	void setSelect(uint8_t place);
+	void setSelect();
 	void frameSelectMode(uint8_t place,uint8_t mode);
 
 	void displayDelete(uint8_t onOff);

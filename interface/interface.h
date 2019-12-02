@@ -38,6 +38,7 @@ public:
 	// interfaceMisc.cpp -----------------------------
 	void initStartScreen();
 	void showStartScreen();
+	void hideStartScreen();
 	void destroyStartScreen();
 
 	uint8_t detectStartState();
@@ -79,7 +80,9 @@ private:
 	hModule previousModule = nullptr;
 	uint32_t previousModuleOptions = 0;
 
-	uint8_t doOnStart = 1;
+	uint8_t doOnStart = 0;
+	uint8_t isCardOnBoot = 0;
+	uint8_t lastBootCardState = 0;
 
 
 	// interfaceMisc.cpp -----------------------------

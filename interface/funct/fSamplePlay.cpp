@@ -78,6 +78,8 @@ void cSamplePlayback::update()
 	{
 		refreshSpectrum = 1;
 		refreshWavetablePosition = 1;
+
+		processWavetableCursor(instrumentPlayer[0].instrumentBasedMod.wtPos);
 	}
 
 	lastEnvelopeWtPos = currentEnvelopeWtPos;
@@ -126,8 +128,6 @@ void cSamplePlayback::update()
 
 	if(isPlayingWavetable)
 	{
-		processWavetableCursor(instrumentPlayer[0].instrumentBasedMod.wtPos);
-
 		if(instrumentPlayer[0].getInterfaceEndReleaseFlag())
 		{
 			instrumentPlayer[0].clearInterfaceEndReleaseFlag();

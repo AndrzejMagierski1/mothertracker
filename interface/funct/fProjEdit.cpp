@@ -445,6 +445,7 @@ void cProjectEditor::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButton7, buttonPress, functStartGameModule); // ARKANOID
 
+	FM->setButtonObj(interfaceButtonInsert, buttonPress, functConfirmKey);
 	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
 	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
@@ -636,7 +637,7 @@ static uint8_t functSaveAsProject()
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveAsCancel);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveAsConfirm);
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functConfirmKey);
-	PE->FM->setButtonObj(interfaceButtonShift, buttonPress, functConfirmKey);
+	PE->FM->setButtonObj(interfaceButtonInsert, buttonPress, functConfirmKey);
 
 	strcpy(PE->name,fileManager.currentProjectName);
 
@@ -823,7 +824,7 @@ static uint8_t functSaveAsOverwriteNo()
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveAsCancel);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveAsConfirm);
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functConfirmKey);
-	PE->FM->setButtonObj(interfaceButtonShift, buttonPress, functConfirmKey);
+	PE->FM->setButtonObj(interfaceButtonInsert, buttonPress, functConfirmKey);
 
 	PE->editPosition = strlen(PE->name);
 	PE->keyboardPosition = BACKSPACE_PAD_1;

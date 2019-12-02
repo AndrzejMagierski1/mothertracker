@@ -361,6 +361,8 @@ void cSampleImporter::hideHorizontalBar()
 
 void cSampleImporter::activateLabelsBorder()
 {
+	frameSelectMode(selectedPlace, 1);
+
 	if(selectedPlace > frameData.placesCount-1) return;
 
 	display.setControlValue(frameControl, selectedPlace);
@@ -481,7 +483,7 @@ void cSampleImporter::deleteColorControl()
 
 	if(selectedPlace == 1)
 	{
-		if((selectionLength > 1) && (currSelectPlace == 1))
+		if((selectionLength[listInstruments] > 1) && (currSelectPlace == 1))
 		{
 			if(checkIfAnyInstrActive() == 0)
 			{
@@ -534,23 +536,10 @@ void cSampleImporter::moveInstrListToEnd()
 	display.refreshControl(instrumentListControl);
 }
 
-void cSampleImporter::setSelect(uint8_t place)
+void cSampleImporter::setSelect()
 {
-	if(currSelectPlace != place)
-	{
-		memset(selectionTab, 0, sizeof(selectionTab));
-	}
-
-	if(place == 0)
-	{
-		explorerList.selectTab = selectionTab;
-		instrumentList.selectTab = NULL;
-	}
-	else
-	{
-		instrumentList.selectTab = selectionTab;
-		explorerList.selectTab = NULL;
-	}
+	explorerList.selectTab = &selectionTab[listFiles][0];
+	instrumentList.selectTab = &selectionTab[listInstruments][0];
 }
 
 // mode = 0 - bialy , mode = 1 - czerwony

@@ -192,6 +192,7 @@ static  uint8_t functActionEndPoint();
 static  uint8_t functActionStartPoint();
 static  uint8_t functActionZoom();
 static uint8_t functConfirmKey();
+static uint8_t functInsert();
 
 static  uint8_t functEncoder(int16_t value);
 
@@ -205,6 +206,8 @@ static void modEndPoint(int16_t value);
 static uint8_t functSdCard(uint8_t state);
 
 void seek_callback(void);
+
+
 
 
 void cSampleRecorder::update()
@@ -441,6 +444,7 @@ void cSampleRecorder::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton5, buttonPress, functActionButton5);
 	FM->setButtonObj(interfaceButton6, buttonPress, functActionButton6);
 	FM->setButtonObj(interfaceButton7, buttonPress, functActionButton7);
+	FM->setButtonObj(interfaceButtonInsert, buttonPress, functInsert);
 
 	FM->setButtonObj(interfaceButtonNote, functStepNote);
 
@@ -2449,7 +2453,7 @@ static uint8_t stopPlaying(uint8_t value)
 }
 */
 
-static uint8_t functEnter()
+static uint8_t functInsert()
 {
 	if(SR->selectionWindowFlag) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) functConfirmKey();
