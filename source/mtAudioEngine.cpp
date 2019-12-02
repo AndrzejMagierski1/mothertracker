@@ -283,6 +283,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		envelopeAmpPtr->decay(mtProject.instrument[instr_idx].envelope[envAmp].decay);
 		envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
 		envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
+		envelopeAmpPtr->setLoop(mtProject.instrument[instr_idx].envelope[envAmp].loop);
 		//Serial.println(activeAmpEnvelopes);
 	}
 	else
@@ -293,6 +294,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		envelopeAmpPtr->decay(0);
 		envelopeAmpPtr->sustain(1.0);
 		envelopeAmpPtr->release(0.0f);
+		envelopeAmpPtr->setLoop(0);
 	}
 
 	/*======================================================================================================*/
@@ -520,6 +522,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		envelopeAmpPtr->decay(mtProject.instrument[instr_idx].envelope[envAmp].decay);
 		envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
 		envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
+		envelopeAmpPtr->setLoop(mtProject.instrument[instr_idx].envelope[envAmp].loop);
 		//Serial.println(activeAmpEnvelopes);
 	}
 	else
@@ -530,6 +533,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		envelopeAmpPtr->decay(0);
 		envelopeAmpPtr->sustain(1.0);
 		envelopeAmpPtr->release(0.0f);
+		envelopeAmpPtr->setLoop(0);
 	}
 
 	/*======================================================================================================*/
@@ -2243,6 +2247,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 		envelopeAmpPtr->decay(mtProject.instrument[instr_idx].envelope[envAmp].decay);
 		envelopeAmpPtr->sustain(mtProject.instrument[instr_idx].envelope[envAmp].sustain);
 		envelopeAmpPtr->release(mtProject.instrument[instr_idx].envelope[envAmp].release);
+		envelopeAmpPtr->setLoop(mtProject.instrument[instr_idx].envelope[envAmp].loop);
 		//Serial.println(activeAmpEnvelopes);
 	}
 	else
@@ -2253,6 +2258,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 		envelopeAmpPtr->decay(0);
 		envelopeAmpPtr->sustain(1.0);
 		envelopeAmpPtr->release(0.0f);
+		envelopeAmpPtr->setLoop(0);
 	}
 
 	/*======================================================================================================*/
@@ -2339,6 +2345,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 	envelopeAmpPtr->decay(0);
 	envelopeAmpPtr->sustain(1.0);
 	envelopeAmpPtr->release(0.0f);
+	envelopeAmpPtr->setLoop(0);
 
 	envelopeFilterPtr->kill();
 	envelopeWtPos->kill();
@@ -2375,6 +2382,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	envelopeAmpPtr->decay(0);
 	envelopeAmpPtr->sustain(1.0);
 	envelopeAmpPtr->release(0.0f);
+	envelopeAmpPtr->setLoop(0);
 
 	envelopeFilterPtr->kill();
 	envelopeWtPos->kill();

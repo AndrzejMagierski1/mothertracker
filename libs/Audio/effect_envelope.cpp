@@ -38,6 +38,7 @@
 void AudioEffectEnvelope::noteOn(void)
 {
 	__disable_irq();
+	pressedFlag = 1;
 	if (state == STATE_IDLE || state == STATE_DELAY || release_forced_count == 0) {
 		mult_hires = 0;
 		count = delay_count;
@@ -59,6 +60,7 @@ void AudioEffectEnvelope::noteOn(void)
 
 void AudioEffectEnvelope::noteOff(void)
 {
+	pressedFlag = 0;
 	__disable_irq();
 	if (state != STATE_IDLE && state != STATE_FORCED) {
 		state = STATE_RELEASE;
@@ -71,6 +73,7 @@ void AudioEffectEnvelope::noteOff(void)
 void AudioEffectEnvelope::setIdle(void)
 {
 	__disable_irq();
+	pressedFlag = 0;
 	state = STATE_IDLE;
 	__enable_irq();
 }
@@ -122,10 +125,52 @@ void AudioEffectEnvelope::update(void)
 			}
 			else if (state == STATE_DECAY)
 			{
-				state = STATE_SUSTAIN;
-				count = 0xFFFF;
-				mult_hires = sustain_mult;
-				inc_hires = 0;
+				if(loopFlag && pressedFlag)
+				{
+					// tutaj pełna obsługa przypadu gdzie wszystko ustawione jest na 0 (attack decay release)
+					// inne stany wrzucą się ostatecznie w ten i tu zostanie ustawiony sustain
+					count = release_count;
+					if(count > 0)
+					{
+						state = STATE_RELEASE;
+						inc_hires = (-mult_hires) / (int32_t)count;
+						continue;
+					}
+					else
+					{
+						count = attack_count;
+						if(count > 0)
+						{
+							state = STATE_ATTACK;
+							inc_hires = 0x40000000 / (int32_t)count;
+							continue;
+						}
+						else
+						{
+							count = decay_count;
+							if(count > 0)
+							{
+								state = STATE_DECAY;
+								inc_hires = (sustain_mult - 0x40000000) / (int32_t)count;
+								continue;
+							}
+							else
+							{
+								state = STATE_SUSTAIN;
+								count = 0xFFFF;
+								mult_hires = sustain_mult;
+								inc_hires = 0;
+							}
+						}
+					}
+				}
+				else
+				{
+					state = STATE_SUSTAIN;
+					count = 0xFFFF;
+					mult_hires = sustain_mult;
+					inc_hires = 0;
+				}
 			}
 			else if (state == STATE_SUSTAIN)
 			{
@@ -133,7 +178,26 @@ void AudioEffectEnvelope::update(void)
 			}
 			else if (state == STATE_RELEASE)
 			{
-				state = STATE_IDLE;
+				if(loopFlag && pressedFlag)
+				{
+					//powinienem dać delay state, ale nie jest uzywany w trackerze, a moze tworzyc dodatkowe problemy
+					count = attack_count;
+					if(count > 0)
+					{
+						state = STATE_ATTACK;
+						inc_hires = 0x40000000 / (int32_t)count;
+						continue;
+					}
+					else
+					{
+						count = decay_count;
+						state = STATE_DECAY;
+						inc_hires = (sustain_mult - 0x40000000) / (int32_t)count;
+						continue;
+					}
+
+				}
+				else state = STATE_IDLE;
 //				while (p < end)
 //				{
 //
