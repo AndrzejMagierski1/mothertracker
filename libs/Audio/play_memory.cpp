@@ -266,11 +266,21 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 /*===========================================================================================================================*/
 /*============================================PRZEKAZANIE PARAMETROW=========================================================*/
-	next = data+samplePoints.start;
-	beginning = data+samplePoints.start;
-	length =startLen-samplePoints.start;
-	if(sampleType = mtSampleTypeWavetable) iPitchCounter = reverseDirectionFlag ? sampleConstrains.endPoint - 1 : 0;
-	else iPitchCounter = 0;
+
+	if(sampleType != mtSampleTypeWavetable)
+	{
+		next = data+samplePoints.start;
+		beginning = data+samplePoints.start;
+		length =startLen-samplePoints.start;
+		iPitchCounter = reverseDirectionFlag ? sampleConstrains.endPoint - 1 : 0;
+	}
+	else
+	{
+		next = data;
+		beginning = data;
+		length =startLen;
+		iPitchCounter = 0;
+	}
 	playing = 0x81;
 	__enable_irq();
 	AudioInterrupts();
@@ -1096,9 +1106,18 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 
 /*===========================================================================================================================*/
 /*============================================PRZEKAZANIE PARAMETROW=========================================================*/
-	next = data+samplePoints.start;
-	beginning = data+samplePoints.start;
-	length =startLen-samplePoints.start;
+	if(sampleType != mtSampleTypeWavetable)
+	{
+		next = data+samplePoints.start;
+		beginning = data+samplePoints.start;
+		length =startLen-samplePoints.start;
+	}
+	else
+	{
+		next = data;
+		beginning = data;
+		length =startLen;
+	}
 
 	playing = 0x81;
 
@@ -1181,9 +1200,18 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
 	sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
 
-	next = data+samplePoints.start;
-	beginning = data+samplePoints.start;
-	length =startLen-samplePoints.start;
+	if(sampleType != mtSampleTypeWavetable)
+	{
+		next = data+samplePoints.start;
+		beginning = data+samplePoints.start;
+		length =startLen-samplePoints.start;
+	}
+	else
+	{
+		next = data;
+		beginning = data;
+		length =startLen;
+	}
 
 	playing = 0x81;
 
@@ -1263,9 +1291,19 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 	samplePoints.end= (uint32_t)((float)endPoint*((float)startLen/MAX_16BIT));
 	sampleConstrains.endPoint=samplePoints.end- samplePoints.start;
 
-	next = data+samplePoints.start;
-	beginning = data+samplePoints.start;
-	length =startLen-samplePoints.start;
+	if(sampleType != mtSampleTypeWavetable)
+	{
+		next = data+samplePoints.start;
+		beginning = data+samplePoints.start;
+		length =startLen-samplePoints.start;
+	}
+	else
+	{
+		next = data;
+		beginning = data;
+		length =startLen;
+	}
+
 	playing = 0x81;
 
 	return successInit;
