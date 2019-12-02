@@ -95,6 +95,12 @@ void initHardware()
 	//reset filter
 	RCM_RPFC = 1;
 
+	//....................................................
+	//SDRAM
+	pinMode(EXTERNAL_RAM_KEY,OUTPUT);
+	digitalWrite(EXTERNAL_RAM_KEY,HIGH);
+	delay(100);
+	Extern_SDRAM_Init();
 
 	BlinkLed.begin(BLINK_LED);
 	//BlinkLed.blinkOnceWithDelay();
@@ -113,8 +119,7 @@ void initHardware()
 //	RAM_CTRL_GPIO_DDR |= (1 << RAM_CTRL);
 //	RAM_CTRL_GPIO_SET = (1 << RAM_CTRL);
 
-	pinMode(EXTERNAL_RAM_KEY,OUTPUT);
-	digitalWrite(EXTERNAL_RAM_KEY,HIGH);
+
 
 	//Wire.begin(I2C_MASTER, 0x00, I2C_PINS_47_48, I2C_PULLUP_EXT, 400000);//,I2C_OP_MODE_IMM);
 	//Wire.begin(I2C_MASTER, 0x00, AUDIO_I2C_SCL, AUDIO_I2C_SDA, I2C_PULLUP_EXT, 400000);
@@ -128,10 +133,12 @@ void initHardware()
 	AudioMemory(250);
 
 
+
 	//engine.setOut(1);
 
 	// LCD
 	display.begin();
+
 
 	//SD CARD
 	//....................................................
@@ -158,10 +165,9 @@ void initHardware()
 
 
 
-	//....................................................
-	//SDRAM
 
-	Extern_SDRAM_Init();
+
+
 
 	//....................................................
 	// ENCODER
