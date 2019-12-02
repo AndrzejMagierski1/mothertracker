@@ -271,9 +271,10 @@ struct strInterfaceGlobals
 
 		return 0;
 	}
-	uint8_t fxNameToId(uint8_t name)
+	int16_t fxNameToId(int16_t name)
 	{
-		return fxIDs[name];
+		if(name>=0)	return fxIDs[name];
+		else return name;
 	}
 
 
