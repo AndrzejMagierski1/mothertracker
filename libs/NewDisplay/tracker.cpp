@@ -679,7 +679,7 @@ void cTracker::selection()
 		uint16_t select_x = rightOffset + (tracks->actualTrack - tracks->firstVisibleTrack) * tracksSpace + 2;
 		uint16_t select1_y = posY+28*7;
 		uint16_t select2_y = select1_y+28;
-		//uint16_t select_w = tracksSpace-5;
+		uint16_t select_w = tracksSpace-5;
 		uint16_t rect_select_x = 0;
 		uint16_t rect_select_width = 0;
 
@@ -703,24 +703,28 @@ void cTracker::selection()
 		API_LINE_WIDTH(8);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(rect_select_x, select1_y+1);
-		API_VERTEX2F(rect_select_x+rect_select_width, select2_y-1);
+		API_VERTEX2F(rect_select_x+rect_select_width-1, select2_y-1);
 		API_END();
 
-		API_LINE_WIDTH(16);
+
 		API_BEGIN(LINE_STRIP);
+
+/*
+		API_LINE_WIDTH(16);
 		API_VERTEX2F(rect_select_x-2, select1_y);
 		API_VERTEX2F(rect_select_x+rect_select_width, select1_y);
 		API_VERTEX2F(rect_select_x+rect_select_width, select2_y);
 		API_VERTEX2F(rect_select_x-2, select2_y);
 		API_VERTEX2F(rect_select_x-2, select1_y);
+*/
 
-		/*
+		API_LINE_WIDTH(8);
 		API_VERTEX2F(select_x, select1_y);
 		API_VERTEX2F(select_x+select_w, select1_y);
 		API_VERTEX2F(select_x+select_w, select2_y);
 		API_VERTEX2F(select_x, select2_y);
 		API_VERTEX2F(select_x, select1_y);
-		*/
+
 
 		API_END();
 	}
