@@ -75,6 +75,11 @@ public:
 		release_forced_count = milliseconds2count(milliseconds);
 		if (release_count == 0) release_count = 1;
 	}
+	void setLoop(uint8_t state)
+	{
+		loopFlag = 1;
+	}
+
 	using AudioStream::release;
 	virtual void update(void);
 	uint8_t endRelease();
@@ -104,6 +109,8 @@ private:
 	int32_t  sustain_mult;
 	uint16_t release_count;
 	uint16_t release_forced_count;
+	uint8_t loopFlag = 0;
+	uint8_t pressedFlag = 0;
 
 };
 
