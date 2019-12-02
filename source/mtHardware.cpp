@@ -31,7 +31,7 @@
 uint8_t hardwareTest;
 
 //-------- TACT POWER SWITCH -------------
-uint8_t lastState;
+uint8_t lastState = 1;;
 
 void TactSwitchRead();
 void updateEncoder();
@@ -324,13 +324,15 @@ void updateEncoder()
 
 void TactSwitchRead()
 {
-	if(digitalRead(TACT_SWITCH) == LOW)
+	uint8_t state = digitalRead(TACT_SWITCH);
+
+	if(state == LOW && lastState != LOW)
 	{
 		onPowerButtonChange(1);
 
 		lastState = LOW;
 	}
-	else
+	else if(state == HIGH && lastState != HIGH)
 	{
 		lastState = HIGH;
 		onPowerButtonChange(0);

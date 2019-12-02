@@ -1,6 +1,6 @@
 
 #include <modulesBase.h>
-
+#include "mtPadsBacklight.h"
 #include "mtTest.h"
 #include "FT812.h"
 
@@ -11,8 +11,8 @@ static cTest* TP = &mtTest;
 
 static uint8_t functButtons(uint8_t button, uint8_t state);
 static uint8_t functEncoder(int16_t value);
-static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
-
+static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
+static uint8_t functPowerButton(uint8_t state);
 
 
 const char checkList[checkCount][50] =
@@ -51,9 +51,9 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 	FM->setPadsGlobal(functPads);
+	FM->setPowerButtonObj(functPowerButton);
 
-
-
+	mainStatus = checkInputs;
 	procedureRunning = 1;
 }
 
@@ -227,20 +227,65 @@ void cTest::showInputsTest()
 
 	uint16_t baseX = 420, baseY = 320;
 
+	ledBright++;
+	if(ledBright > 31) ledBright= 0;
+
+	// pady
 	for(uint8_t i = 0; i<48; i++)
 	{
 		if(inputs.pads[i] == 0) API_COLOR(0xff0000);
-		else if(inputs.pads[i] == 1) API_COLOR(0x00ffff);
-		else if(inputs.pads[i] == 2) API_COLOR(0x00ff00);
-
-
-		API_VERTEX2F(baseX+((i%12)*13), baseY+(i/12)*13);
-		API_VERTEX2F(baseX+((i%12)*13)+10, baseY+((i/12)*13)+10);
-
+		else if(inputs.pads[i] == 1) API_COLOR(0xffff00);
+		else if(inputs.pads[i] == 2)
+		{
+			API_COLOR(0x00ff00);
+			padsBacklight.setFrontLayer(1, ledBright, i);
+		}
+		API_VERTEX2F(baseX+((i%12)*18), baseY+(i/12)*18);
+		API_VERTEX2F(baseX+((i%12)*18)+13, baseY+((i/12)*18)+13);
 	}
 
+	//buttony
+	for(uint8_t i = 0; i<33; i++)
+	{
+		if(inputs.buttons[i] == 0) API_COLOR(0xff0000);
+		else if(inputs.buttons[i] == 1) API_COLOR(0xffff00);
+		else if(inputs.buttons[i] == 2) API_COLOR(0x00ff00);
 
+		if(i<8)
+		{
+			API_VERTEX2F(baseX+((i)*27), baseY-40);
+			API_VERTEX2F(baseX+((i)*27)+21, baseY-19);
+		}
+		else if(i<23)
+		{
+			uint8_t xy = i-8;
+			API_VERTEX2F(baseX+230+((xy%5)*27), baseY-175+(xy/5)*27);
+			API_VERTEX2F(baseX+230+((xy%5)*27)+21, baseY-175+((xy/5)*27)+21);
+		}
+		else
+		{
+			uint8_t xy = i-23;
+			API_VERTEX2F(baseX+230+((xy%5)*27), baseY-75+(xy/5)*27);
+			API_VERTEX2F(baseX+230+((xy%5)*27)+21, baseY-75+((xy/5)*27)+21);
+		}
+	}
 
+	// power button
+	if(inputs.powerButton == 0) API_COLOR(0xff0000);
+	else if(inputs.powerButton == 1) API_COLOR(0xffff00);
+	else if(inputs.powerButton == 2) API_COLOR(0x00ff00);
+	API_VERTEX2F(baseX, baseY-195);
+	API_VERTEX2F(baseX+15, baseY-195+15);
+	API_END();
+
+	//encoder
+	API_BEGIN(FTPOINTS);
+	API_POINT_SIZE(40*16);
+	if(inputs.encoderL == 0 && inputs.encoderR == 1) API_COLOR(0xffff00);
+	else if(inputs.encoderR == 0 && inputs.encoderL == 1) API_COLOR(0xffff00);
+	else if(inputs.encoderR == 1 && inputs.encoderL == 1) API_COLOR(0x00ff00);
+	else API_COLOR(0xff0000);
+	API_VERTEX2F(baseX+69+230, baseY+36);
 	API_END();
 
 	if(testPhase == 0 || testPhase == 1)
@@ -326,8 +371,8 @@ void cTest::showStatus()
 void cTest::showMessage(char* question1, char* question2, char* answer1, char* answer2)
 {
 	API_COLOR(0xFFFFFF);
-	API_CMD_TEXT(10,350,28,0,question1);
-	API_CMD_TEXT(10,380,28,0,question2);
+	API_CMD_TEXT(5,350,28,0,question1);
+	API_CMD_TEXT(5,380,28,0,question2);
 
 	API_CMD_TEXT(5,450,28,0,answer1);
 	API_CMD_TEXT(400-5,450,28,OPT_RIGHTX,answer2);
@@ -362,6 +407,7 @@ void cTest::AcceptButton()
 	case checkInputs:
 	{
 		if(testPhase == 0) break;
+		else if(testPhase == 1) break;
 		else if(testPhase < lastPhase) testPhase++;
 		else nextTest();
 		break;
@@ -499,8 +545,6 @@ static uint8_t functEncoder(int16_t value)
 	if(value > 0 && TP->inputs.encoderR == 0) TP->inputs.encoderR = 1;
 	if(value < 0 && TP->inputs.encoderL == 0) TP->inputs.encoderL = 1;
 
-	TP->AcceptButton();
-
 
 	return 1;
 }
@@ -513,7 +557,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	return 1;
 }
 
-static uint8_t functPowerButton(uint8_t button, uint8_t state)
+static uint8_t functPowerButton(uint8_t state)
 {
 	if(state == buttonPress && TP->inputs.powerButton == 0) TP->inputs.powerButton = 1;
 	else if(state == buttonRelease && TP->inputs.powerButton == 1) TP->inputs.powerButton = 2;
