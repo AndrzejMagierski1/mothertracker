@@ -102,7 +102,7 @@ private:
 	//run pad combination
 	uint8_t pos = 0;
 
-
+	uint8_t ledBright = 0;
 
 
 };

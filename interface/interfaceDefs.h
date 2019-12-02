@@ -464,7 +464,7 @@ struct strInterfaceGlobals
 	uint32_t activeBgLabelsColors[3] =
 	{
 		0x444344, // linie
-		0x22221f, // tlo
+		0x121212, // tlo
 		0xFF0000, // ramka
 	};
 

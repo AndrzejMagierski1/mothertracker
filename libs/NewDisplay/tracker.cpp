@@ -41,11 +41,24 @@ uint8_t fourParamsOffset[4] =		{	4,44,73,130,	};	// stara koncepcja z numerami w
 uint8_t twoParamsOffsetFirst[4] =	{	9,9,9,9,		};
 uint8_t twoParamsOffsetSecond[4] =	{	50,50,50,50,	};
 #else
+uint8_t oneParamsOffset[4] =		{	35,  40, 30, 30,	};
 uint8_t fourParamsOffset[4] =		{	18,  60, 92, 144,	};
 uint8_t twoParamsOffsetFirst[4] =	{	9,  9,  6,   0,	};
 uint8_t twoParamsOffsetSecond[4] =	{	0,  65, 55,  55,	};
 #endif
 
+
+const uint8_t fourParamsSelOffset[4] =		{	10,  52, 84, 136,	};
+const uint8_t fourParamsSelWidth[4] =		{	40,  30, 50, 50,	};
+
+const uint8_t twoParamsSel1Offset[4] =	{	9,  9,  6,   0,	};
+const uint8_t twoParamsSel1Width[4] =	{	0,  65, 55,  55,	};
+
+const uint8_t twoParamsSel2Offset[4] =	{	9,  9,  6,   0,	};
+const uint8_t twoParamsSel2Width[4] =	{	0,  65, 55,  55,	};
+
+const uint8_t oneParamsSelOffset[4] =	{	27,  32,  22,  22,	};
+const uint8_t oneParamsSelWidth[4] =	{	40,  30, 50, 50,	};
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
@@ -307,7 +320,7 @@ void cTracker::backgroundDivider()
 	API_BEGIN(RECTS);
 
 	API_VERTEX2F(1, 0);
-	API_VERTEX2F(798, 423);
+	API_VERTEX2F(798, 422);
 
 	//API_SCISSOR_XY(1, 0);
 	//API_SCISSOR_SIZE(798, 423);
@@ -347,9 +360,9 @@ void cTracker::backgroundDivider()
 	API_SAVE_CONTEXT();
 
 	//API_LINE_WIDTH(16);
-	API_SCISSOR_XY(1, 410);
-	API_SCISSOR_SIZE(798, 14);
-	API_CMD_GRADIENT(0, 410, 0x101010, 0, 424, 0x010101);
+	API_SCISSOR_XY(1, 413);
+	API_SCISSOR_SIZE(798, 10);
+	API_CMD_GRADIENT(0, 413, 0x0a0a0a, 0, 423, 0x0);
 
 	API_RESTORE_CONTEXT();
 
@@ -399,7 +412,7 @@ void cTracker::lines()
 	API_LINE_WIDTH(1);
 	API_BEGIN(RECTS);
 
-	uint16_t x, w;
+	uint16_t x;
 	for(uint8_t i = 0; i < columnsCount; i++)
 	{
 		x = (rightOffset+tracksSpace*i);
@@ -480,9 +493,9 @@ void cTracker::playHead()
 		API_SAVE_CONTEXT();
 
 		//API_LINE_WIDTH(16);
-		API_SCISSOR_XY(1, phy1-14);
-		API_SCISSOR_SIZE(798, 14);
-		API_CMD_GRADIENT(0, phy1-14, 0x101010, 0, phy1, 0x010101);
+		API_SCISSOR_XY(1, phy1-11);
+		API_SCISSOR_SIZE(798, 11);
+		API_CMD_GRADIENT(0, phy1-11, 0x0a0a0a, 0, phy1, 0x0);
 
 		API_RESTORE_CONTEXT();
 
@@ -490,8 +503,8 @@ void cTracker::playHead()
 
 		//API_LINE_WIDTH(16);
 		API_SCISSOR_XY(1, phy2);
-		API_SCISSOR_SIZE(798, 14);
-		API_CMD_GRADIENT(0, phy2, 0x010101, 0, phy2+14, 0x101010);
+		API_SCISSOR_SIZE(798, 11);
+		API_CMD_GRADIENT(0, phy2, 0x0, 0, phy2+11, 0x0a0a0a);
 
 		API_RESTORE_CONTEXT();
 
@@ -514,7 +527,10 @@ void cTracker::selection()
 
 	//--------------------
 	// ZAZNACZENIE
-
+	if(paramCount == 1 || paramCount == 2)
+	{
+		if((1 << tracks->selectedParam & displayMode) == 0)	return;
+	}
 	//if(tracks->selectState
 	//   && (tracks->selectStartTrack != tracks->selectEndTrack || tracks->selectStartStep != tracks->selectEndStep))
 	if(tracks->selectState == 2)
@@ -556,8 +572,65 @@ void cTracker::selection()
 		select2_y = select2_y*28 + 28;
 
 
+		//pole pod edytowanym parametrem
 		API_COLOR(colors[10]);
 		API_LINE_WIDTH(8);
+		API_BEGIN(RECTS);
+
+		if(paramCount == 1)
+		{
+			for(uint8_t i = 0; i<8; i++)
+			{
+				uint16_t SelPosX = select1_x+oneParamsSelOffset[tracks->selectedParam]+(tracksSpace*i);
+				if(SelPosX < select2_x && SelPosX > select1_x)
+				{
+					API_VERTEX2F(SelPosX, select1_y+1);
+					API_VERTEX2F(SelPosX+oneParamsSelWidth[tracks->selectedParam], select2_y-1);
+				}
+			}
+		}
+		else if(paramCount == 2)
+		{
+			for(uint8_t i = 0; i<8; i++)
+			{
+				uint16_t SelPosX = select1_x+fourParamsSelOffset[tracks->selectedParam]+(tracksSpace*i);
+				if(SelPosX < select2_x && SelPosX > select1_x)
+				{
+
+					if(displayMode & 1)
+
+						//twoParamsSel1Offset
+
+
+
+					API_VERTEX2F(SelPosX, select1_y+1);
+					API_VERTEX2F(SelPosX+fourParamsSelWidth[tracks->selectedParam], select2_y-1);
+
+
+
+
+
+				}
+			}
+		}
+		else if (paramCount == 4)
+		{
+			for(uint8_t i = 0; i<8; i++)
+			{
+				uint16_t SelPosX = select1_x+fourParamsSelOffset[tracks->selectedParam]+(tracksSpace*i);
+				if(SelPosX < select2_x && SelPosX > select1_x)
+				{
+					if(tracks->actualTrack >= tracks->firstVisibleTrack)
+					{
+					}
+					API_VERTEX2F(SelPosX, select1_y+1);
+					API_VERTEX2F(SelPosX+fourParamsSelWidth[tracks->selectedParam], select2_y-1);
+				}
+			}
+		}
+		API_END();
+/*
+		// ramka zaznaczenia
 		API_BEGIN(LINES);
 
 		if(select1_y >= 0) // gorna
@@ -593,32 +666,64 @@ void cTracker::selection()
 		}
 
 		API_END();
+
+*/
+
 	}
 	else selectActive = 0;
-
 
 
 	// aktualnie modyfikowany step
 	if(tracks->selectState && tracks->actualTrack >= tracks->firstVisibleTrack && tracks->actualTrack <= tracks->firstVisibleTrack+columnsCount)
 	{
 		uint16_t select_x = rightOffset + (tracks->actualTrack - tracks->firstVisibleTrack) * tracksSpace + 2;
-		uint16_t select_w = tracksSpace-5;
+		uint16_t select1_y = posY+28*7;
+		uint16_t select2_y = select1_y+28;
+		//uint16_t select_w = tracksSpace-5;
+		uint16_t rect_select_x = 0;
+		uint16_t rect_select_width = 0;
 
+		if(paramCount == 1)
+		{
+			rect_select_x = select_x+oneParamsSelOffset[tracks->selectedParam];
+			rect_select_width = oneParamsSelWidth[tracks->selectedParam];
+		}
+		else if(paramCount == 2)
+		{
+
+
+		}
+		else if(paramCount == 4)
+		{
+			rect_select_x = select_x+fourParamsSelOffset[tracks->selectedParam];
+			rect_select_width = fourParamsSelWidth[tracks->selectedParam];
+		}
 
 		API_COLOR(colors[10]);
+		API_LINE_WIDTH(8);
+		API_BEGIN(RECTS);
+		API_VERTEX2F(rect_select_x, select1_y+1);
+		API_VERTEX2F(rect_select_x+rect_select_width, select2_y-1);
+		API_END();
+
 		API_LINE_WIDTH(16);
 		API_BEGIN(LINE_STRIP);
+		API_VERTEX2F(rect_select_x-2, select1_y);
+		API_VERTEX2F(rect_select_x+rect_select_width, select1_y);
+		API_VERTEX2F(rect_select_x+rect_select_width, select2_y);
+		API_VERTEX2F(rect_select_x-2, select2_y);
+		API_VERTEX2F(rect_select_x-2, select1_y);
 
-		API_VERTEX2F(select_x, posY+28*7);
-		API_VERTEX2F(select_x+select_w, posY+28*7);
-		API_VERTEX2F(select_x+select_w, posY+28*8);
-		API_VERTEX2F(select_x, posY+28*8);
-		API_VERTEX2F(select_x, posY+28*7);
+		/*
+		API_VERTEX2F(select_x, select1_y);
+		API_VERTEX2F(select_x+select_w, select1_y);
+		API_VERTEX2F(select_x+select_w, select2_y);
+		API_VERTEX2F(select_x, select2_y);
+		API_VERTEX2F(select_x, select1_y);
+		*/
+
 		API_END();
 	}
-
-
-	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 }
 
 //-------------------------------------------------------------------------------------
@@ -710,7 +815,6 @@ void cTracker::tracksNumbers()
 //===============================================================================================================================
 void cTracker::notes()
 {
-	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[2]);
 	actualColor = lastColor = colors[2];
 	API_BITMAP_HANDLE(fonts[1].handle);
@@ -719,11 +823,11 @@ void cTracker::notes()
 	uint8_t offset_x = rightOffset+fourParamsOffset[0];
 
 	//if(paramCount == 1) 		offset_x = 27 + ((tracksSpace/2)-(param_length[1]*12)/2);
-	if(paramCount == 1) 		offset_x = rightOffset + ((tracksSpace/2)-18);
+	if(paramCount == 1) 		offset_x = rightOffset + oneParamsOffset[0];
 	else if(paramCount == 2)  	offset_x = rightOffset + twoParamsOffsetFirst[0];
 
 	int8_t mark = -1;
-	if((tracks->selectedParam == 0 || tracks->selectedParam == 4) && tracks->selectState)
+	if((tracks->selectedParam == 0 /*|| tracks->selectedParam == 4*/) && tracks->selectState)
 	{
 		mark = tracks->actualTrack - tracks->firstVisibleTrack;
 	}
@@ -737,8 +841,8 @@ void cTracker::notes()
 
 			char* text = tracks->track[tracks->firstVisibleTrack+i].row[j].note;
 
-			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor = colors[10];
-			else if(j == 7 && i == mark) actualColor = colors[10];
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor = colors[0];
+			else if(j == 7 && i == mark) actualColor = colors[0];
 			else
 			{
 				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[12];
@@ -757,18 +861,17 @@ void cTracker::notes()
 //===============================================================================================================================
 void cTracker::instruments()
 {
-	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[3]);
 	actualColor = lastColor = colors[3];
 	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
 	uint8_t offset_x = rightOffset+fourParamsOffset[1]; // 59
-	if(paramCount == 1) 		offset_x = rightOffset + ((tracksSpace/2)-12);
+	if(paramCount == 1) 		offset_x = rightOffset + oneParamsOffset[1];
 	else if(paramCount == 2)  	offset_x = (displayMode & 1) ? rightOffset+twoParamsOffsetSecond[1] : rightOffset+twoParamsOffsetFirst[1];
 
 	int8_t mark = -1;
-	if((tracks->selectedParam == 1 || tracks->selectedParam == 4) && tracks->selectState)
+	if((tracks->selectedParam == 1 /*|| tracks->selectedParam == 4*/) && tracks->selectState)
 	{
 		mark = tracks->actualTrack - tracks->firstVisibleTrack;
 	}
@@ -781,8 +884,8 @@ void cTracker::instruments()
 			int16_t param_y = 14+j*28;
 			uint8_t midi_channel  =  tracks->track[tracks->firstVisibleTrack+i].row[j].instr[3];
 			char* text  = tracks->track[tracks->firstVisibleTrack+i].row[j].instr;
-			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[10];
-			else if(j == 7 && i == mark) actualColor =  colors[10];
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[0];
+			else if(j == 7 && i == mark) actualColor =  colors[0];
 			else
 			{
 				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[12];
@@ -802,18 +905,17 @@ void cTracker::instruments()
 //===============================================================================================================================
 void cTracker::fxes1()
 {
-	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[4]);
 	actualColor = lastColor = colors[4];
 	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
 	uint8_t offset_x = rightOffset+fourParamsOffset[2]; // 99
-	if(paramCount == 1) 		offset_x = rightOffset + ((tracksSpace/2)-24);
+	if(paramCount == 1) 		offset_x = rightOffset + oneParamsOffset[2];
 	else if(paramCount == 2)  	offset_x = (displayMode & 8) ? rightOffset+twoParamsOffsetFirst[2] : rightOffset+twoParamsOffsetSecond[2];
 
 	int8_t mark = -1;
-	if((tracks->selectedParam == 2 || tracks->selectedParam == 4) && tracks->selectState)
+	if((tracks->selectedParam == 2 /*|| tracks->selectedParam == 4*/) && tracks->selectState)
 	{
 		mark = tracks->actualTrack - tracks->firstVisibleTrack;
 	}
@@ -827,8 +929,8 @@ void cTracker::fxes1()
 			int16_t param_y = 14+j*28;
 			char* text = &tracks->track[tracks->firstVisibleTrack+i].row[j].fx[0][0];
 
-			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[10];
-			else if(j == 7 && i == mark) actualColor =  colors[10];
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[0];
+			else if(j == 7 && i == mark) actualColor =  colors[0];
 			else
 			{
 				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[12];
@@ -843,18 +945,17 @@ void cTracker::fxes1()
 }
 void cTracker::fxes2()
 {
-	API_VERTEX_FORMAT(0);
 	API_COLOR(colors[5]);
 	actualColor = lastColor = colors[5];
 	API_BITMAP_HANDLE(fonts[1].handle);
 	API_BEGIN(BITMAPS);
 
 	uint8_t offset_x = rightOffset+fourParamsOffset[3];
-	if(paramCount == 1) 		offset_x = rightOffset + ((tracksSpace/2)-24);
+	if(paramCount == 1) 		offset_x = rightOffset + oneParamsOffset[3];
 	else if(paramCount == 2)  	offset_x = rightOffset + twoParamsOffsetSecond[3];
 
 	int8_t mark = -1;
-	if((tracks->selectedParam == 3 || tracks->selectedParam == 4) && tracks->selectState)
+	if((tracks->selectedParam == 3 /*|| tracks->selectedParam == 4*/) && tracks->selectState)
 	{
 		mark = tracks->actualTrack - tracks->firstVisibleTrack;
 	}
@@ -868,8 +969,8 @@ void cTracker::fxes2()
 			int16_t param_y = 14+j*28;
 			char* text  = &tracks->track[tracks->firstVisibleTrack+i].row[j].fx[1][0];
 
-			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[10];
-			else if(j == 7 && i == mark) actualColor =  colors[10];
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[0];
+			else if(j == 7 && i == mark) actualColor =  colors[0];
 			else
 			{
 				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[12];

@@ -65,20 +65,20 @@ volatile uint32_t patternTrackerColors[] =
 volatile uint32_t patternTrackerColors[] =
 {
 	0x000000, // 0 linie
-	0x101010, // 1 background  /numery wierszy juz nie bo nie ma/
+	0x0a0a0a, // 1 background  /numery wierszy juz nie bo nie ma/
 
 	0x00e8be, // 2 nuta
 	0xfef749, // 3 instrument
 	0xbb58f1, // 4 effekt1
 	0x57f1ff, // 5 effekt2
 
-	0x0e5049, // 6 nuta nieaktywna
-	0x5c5230, // 7 instrument nieaktywny
-	0x493451, // 8 effekt1 nieaktywny
-	0x33515e, // 9 effekt2 nieaktywny
+	0x003933, // 6 nuta nieaktywna
+	0x453b1b, // 7 instrument nieaktywny
+	0x321f3a, // 8 effekt1 nieaktywny
+	0x183744, // 9 effekt2 nieaktywny
 
 	0xf13c3c, // 10 zaznaczenie
-	0x141413, // 11 podzialka
+	0x0e0e0e, // 11 podzialka
 	0x333333, // 12 nieaktywny
 	0x232323, // 13 playhead
 };
