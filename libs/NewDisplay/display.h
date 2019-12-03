@@ -33,6 +33,7 @@
 #include "wtProgress.h"
 
 #include "processingPopout.h"
+#include "simpleTextControl.h"
 
 
 typedef cDisplayControl* hControl;

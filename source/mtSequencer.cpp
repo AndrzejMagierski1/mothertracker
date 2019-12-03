@@ -302,9 +302,26 @@ void Sequencer::play_microStep(uint8_t row)
 	if (playerRow.uStep == 1)
 	{
 		if (patternStep.fx[0].type == fx.FX_TYPE_RANDOM_VALUE)
-		randomisedValue = random(0, patternStep.fx[0].value + 1);
+		{
+			randomisedValue = random(
+					patternStep.fx[1].value - patternStep.fx[0].value,
+					patternStep.fx[1].value + patternStep.fx[0].value + 1);
+
+			randomisedValue = constrain(randomisedValue,
+										getFxMin(patternStep.fx[1].type),
+										getFxMax(patternStep.fx[1].type));
+
+		}
 		else if (patternStep.fx[1].type == fx.FX_TYPE_RANDOM_VALUE)
-			randomisedValue = random(0, patternStep.fx[1].value + 1);
+		{
+			randomisedValue = random(
+					patternStep.fx[0].value - patternStep.fx[1].value,
+					patternStep.fx[0].value + patternStep.fx[1].value + 1);
+
+			randomisedValue = constrain(randomisedValue,
+										getFxMin(patternStep.fx[0].type),
+										getFxMax(patternStep.fx[0].type));
+		}
 
 		uint8_t fxIndex = 0;
 		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
@@ -312,7 +329,10 @@ void Sequencer::play_microStep(uint8_t row)
 			strPattern::strTrack::strStep::strFx _fx = _fxStep;
 
 			if (randomisedValue != -1)
+			{
 				_fx.value = randomisedValue;
+				stepToSend.fx[fxIndex].value = _fx.value;
+			}
 
 			switch (_fx.type)
 			{

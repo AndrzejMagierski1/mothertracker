@@ -327,9 +327,9 @@ void FileManager::refreshSaveInstrumentFiles()
 {
 	char currentPatch[PATCH_SIZE];
 
-	if(mtProject.values.instrumentsToSave[saveHandle.currInstrumentFileIdx])
+	if(mtProject.instrument[saveHandle.currInstrumentFileIdx].isActive == 1)
 	{
-		if(mtProject.instrument[saveHandle.currInstrumentFileIdx].isActive == 1)
+		if(mtProject.values.instrumentsToSave[saveHandle.currInstrumentFileIdx])
 		{
 			sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,saveHandle.currInstrumentFileIdx);
 			writeInstrumentFile(currentPatch, &mtProject.instrument[saveHandle.currInstrumentFileIdx]);
@@ -337,14 +337,15 @@ void FileManager::refreshSaveInstrumentFiles()
 			sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",saveHandle.currInstrumentFileIdx);
 			writeInstrumentFile(currentPatch, &mtProject.instrument[saveHandle.currInstrumentFileIdx]);
 		}
-		else
-		{
-			sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,saveHandle.currInstrumentFileIdx);
-			if(SD.exists(currentPatch)) SD.remove(currentPatch);
-			sprintf(currentPatch,"%s/samples/instr%02d.wav", currentProjectPatch, saveHandle.currInstrumentFileIdx);
-			if(SD.exists(currentPatch)) SD.remove(currentPatch);
-		}
 	}
+	else
+	{
+		sprintf(currentPatch,"%s/instruments/instrument_%02d.mti",currentProjectPatch,saveHandle.currInstrumentFileIdx);
+		if(SD.exists(currentPatch)) SD.remove(currentPatch);
+		sprintf(currentPatch,"%s/samples/instr%02d.wav", currentProjectPatch, saveHandle.currInstrumentFileIdx);
+		if(SD.exists(currentPatch)) SD.remove(currentPatch);
+	}
+
 
 	saveHandle.currInstrumentFileIdx++;
 
@@ -508,9 +509,9 @@ void FileManager::createEmptyTemplateProject(char * name)
 
 	sprintf(patchFolder,"Templates/%s/project.bin", name);
 
-	strMtProject projectFile;
-	getDefaultProject(&projectFile);
-	writeProjectFile(patchFolder, &projectFile);
+/*	strMtProject projectFile;
+	getDefaultProject(&projectFile);*/
+	writeProjectFile(patchFolder, &mtProject);
 }
 
 //<! Loading only neccessary files from workspace functions
@@ -594,95 +595,96 @@ uint8_t FileManager::loadProjectFromWorkspaceStart()
 	return status;
 }
 
+
+
 void FileManager::refreshDeleting()
 {
-	char currentPatch[PATCH_SIZE];
-
-	if(deleteHandle.currInstrumentFileIdx < INSTRUMENTS_COUNT)
+	if(deleteHandle.isDone == 0)
 	{
-		sprintf(currentPatch, "Projects/%s/instruments/instrument_%02d.mti", deleteProjectName, deleteHandle.currInstrumentFileIdx);
-
-		if(SD.exists(currentPatch))
-		{
-			SD.remove(currentPatch);
-		}
-
-		deleteHandle.currInstrumentFileIdx++;
-	}
-	else if(deleteHandle.currPatternIdx < PATTERN_INDEX_MAX )
-	{
-		sprintf(currentPatch, "Projects/%s/patterns/pattern_%02d.mtp", deleteProjectName, deleteHandle.currPatternIdx + 1);
-
-		if(SD.exists(currentPatch))
-		{
-			SD.remove(currentPatch);
-		}
-
-		deleteHandle.currPatternIdx++;
-	}
-	else if(deleteHandle.currSampleIdx < INSTRUMENTS_COUNT)
-	{
-		sprintf(currentPatch, "Projects/%s/samples/instr%02d.wav", deleteProjectName, deleteHandle.currSampleIdx);
-
-		if(SD.exists(currentPatch))
-		{
-			SD.remove(currentPatch);
-		}
-
-		deleteHandle.currSampleIdx++;
+		recursiveRemoveProject(&deleteHandle.roots[deleteHandle.lastRoot]);
 	}
 	else
 	{
-		sprintf(currentPatch, "Projects/%s/samples", deleteProjectName);
-
-		if(SD.exists(currentPatch))
-		{
-			SD.rmdir(currentPatch);
-		}
-
-		sprintf(currentPatch, "Projects/%s/patterns", deleteProjectName);
-
-		if(SD.exists(currentPatch))
-		{
-			SD.rmdir(currentPatch);
-		}
-
-		sprintf(currentPatch, "Projects/%s/instruments", deleteProjectName);
-
-		if(SD.exists(currentPatch))
-		{
-			SD.rmdir(currentPatch);
-		}
-
-		sprintf(currentPatch, "Projects/%s/project.bin", deleteProjectName);
-
-		if(SD.exists(currentPatch))
-		{
-			SD.remove(currentPatch);
-		}
-
-		sprintf(currentPatch, "Projects/%s", deleteProjectName);
-
-		if(SD.exists(currentPatch))
-		{
-			SD.rmdir(currentPatch);
-		}
-
-
-
-		moveToNextStage(&deleteHandle);
-
 		deletingInProgress = 0;
+	}
+}
+
+void FileManager::recursiveRemoveProject(FsFile *source)
+{
+	FsFile temp;
+
+	temp.openNext(source);
+
+	if(temp)
+	{
+		char name[60];
+		temp.getName(name, 60);
+
+		if(temp.isDir())
+		{
+			deleteHandle.addedLength[deleteHandle.lastRoot] = strlen(name);
+			deleteHandle.addedLength[deleteHandle.lastRoot] += 1; /* for slash*/
+
+			if(deleteHandle.lastRoot < 9)
+			{
+				deleteHandle.lastRoot++;
+			}
+			else
+			{
+				deleteHandle.isDone = 1;/* abort deleting here as we dont have more space for next subdir*/
+			}
+
+			strcat(deleteHandle.deleteSourcePath, "/");
+			strcat(deleteHandle.deleteSourcePath, name);
+
+			deleteHandle.roots[deleteHandle.lastRoot] = SD.open(deleteHandle.deleteSourcePath);
+		}
+		else
+		{
+			char tempPath[255];
+			strcpy(tempPath, deleteHandle.deleteSourcePath);
+			strcat(tempPath, "/");
+			strcat(tempPath, name);
+
+			SD.remove(tempPath);
+		}
+	}
+	else
+	{
+		SD.rmdir(deleteHandle.deleteSourcePath);
+
+		if(deleteHandle.lastRoot)
+		{
+			deleteHandle.lastRoot--;
+			/*not more files in this subdir we go back */
+			uint8_t currPathLength = strlen(deleteHandle.deleteSourcePath);
+			memset(&deleteHandle.deleteSourcePath[currPathLength - deleteHandle.addedLength[deleteHandle.lastRoot]], 0 , deleteHandle.addedLength[deleteHandle.lastRoot]);
+		}
+		else
+		{
+			deleteHandle.isDone = 1;
+			SD.rmdir(deleteHandle.deleteSourcePath);
+		}
 	}
 }
 
 void FileManager::deleteProjectStart(const char *projectName)
 {
-	memset(&deleteHandle, 0, sizeof(save_load_handle_t));
-	strcpy(deleteProjectName, projectName);
+	memset(&deleteHandle, 0, sizeof(deleteHandle));
 
-	moveToNextStage(&deleteHandle);
 	deletingInProgress = 1;
+
+	sprintf(deleteHandle.deleteSourcePath, "Projects/%s", projectName);
+	deleteHandle.roots[deleteHandle.lastRoot] = SD.open(deleteHandle.deleteSourcePath);
+
+	if(deleteHandle.roots[deleteHandle.lastRoot])
+	{
+		recursiveRemoveProject(&deleteHandle.roots[deleteHandle.lastRoot]);
+	}
+	else
+	{
+		deletingInProgress = 0;
+	}
 }
 
 void FileManager::autoSaveProject()

@@ -494,8 +494,8 @@ void cConfigEditor::showFirmwareUpdatePopout()
 		display.refreshControl(label[i]);
 	}
 
-	display.setControlText(label[0], "Yes");
-	display.setControlText(label[7], "No");
+	display.setControlText(label[6], "Cancel");
+	display.setControlText(label[7], "Update");
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
@@ -521,7 +521,7 @@ void cConfigEditor::showExecute()
 		display.setControlColors(label[4], colors);
 	}
 
-	changeLabelText(4, "Execute");
+	changeLabelText(4, "Update");
 }
 
 void cConfigEditor::hideFirmwareUpdatePopout()

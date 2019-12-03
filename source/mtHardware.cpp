@@ -31,7 +31,7 @@
 uint8_t hardwareTest;
 
 //-------- TACT POWER SWITCH -------------
-uint8_t lastState;
+uint8_t lastState = 1;;
 
 void TactSwitchRead();
 void updateEncoder();
@@ -140,9 +140,12 @@ void initHardware()
 	display.begin();
 
 
+	sdCardDetector.begin();
+	sdCardDetector.setOnDetectFunction(onSDCardSlotChange);
+
 	//SD CARD
 	//....................................................
-	if (! SD.begin( SdioConfig(DMA_SDIO) ) )	//FIFO_SDIO
+/*	if (! SD.begin( SdioConfig(DMA_SDIO) ) )	//FIFO_SDIO
 	{
 		if(hardwareTest)
 		{
@@ -157,7 +160,7 @@ void initHardware()
 		 Serial.println("SD card init succesfull");
 		 //mtPrint("SD card init succesfull");
 		}
-	}
+	}*/
 
 
 	//mtpd.begin(&storage);
@@ -226,8 +229,6 @@ void initHardware()
 	//attachInterrupt(TACT_SWITCH, TactSwitchAction, FALLING);
 
 	hid.set_sendButtonState(hidSendButtonState);
-	sdCardDetector.setOnDetectFunction(onSDCardSlotChange);
-	sdCardDetector.begin();
 
 	midiInit();
 
@@ -300,7 +301,7 @@ void updateHardware()
 
 
 		hid.handle();
-		sdCardDetector.update();
+		sdCardDetector.update(0);
 
 	    mtpd.loop();
 
@@ -324,13 +325,15 @@ void updateEncoder()
 
 void TactSwitchRead()
 {
-	if(digitalRead(TACT_SWITCH) == LOW)
+	uint8_t state = digitalRead(TACT_SWITCH);
+
+	if(state == LOW && lastState != LOW)
 	{
 		onPowerButtonChange(1);
 
 		lastState = LOW;
 	}
-	else
+	else if(state == HIGH && lastState != HIGH)
 	{
 		lastState = HIGH;
 		onPowerButtonChange(0);

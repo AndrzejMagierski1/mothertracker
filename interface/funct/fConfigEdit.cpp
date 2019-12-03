@@ -203,6 +203,8 @@ void cConfigEditor::setConfigScreenFunct()
 	FM->setButtonObj(interfaceButton5, functActionButton);
 	FM->setButtonObj(interfaceButton6, functActionButton);
 
+	FM->setPadsGlobal(functPads);
+
 }
 
 void cConfigEditor::setMasterScreenFunct()
@@ -1689,8 +1691,8 @@ void cConfigEditor::showFlashingWarning()
 	{
 		FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-		FM->setButtonObj(interfaceButton0, buttonPress, prepareAndFlash);
-		FM->setButtonObj(interfaceButton7, buttonPress, hideFlashingWarning);
+		FM->setButtonObj(interfaceButton7, buttonPress, prepareAndFlash);
+		FM->setButtonObj(interfaceButton6, buttonPress, hideFlashingWarning);
 		selectionActive=1;
 		showFirmwareUpdatePopout();
 	}

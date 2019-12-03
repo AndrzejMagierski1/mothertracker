@@ -353,6 +353,8 @@ void FileManager::getDefaultSong(struct strSong *source)
 {
 	source->playlistPos = 0;
 
+	memset(source->playlist, 0, SONG_MAX);
+
 	for(uint32_t i = 0; i < 5; i++)
 	{
 		source->playlist[i] = (i+1);

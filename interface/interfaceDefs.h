@@ -271,9 +271,10 @@ struct strInterfaceGlobals
 
 		return 0;
 	}
-	uint8_t fxNameToId(uint8_t name)
+	int16_t fxNameToId(int16_t name)
 	{
-		return fxIDs[name];
+		if(name>=0)	return fxIDs[name];
+		else return name;
 	}
 
 
@@ -439,7 +440,7 @@ struct strInterfaceGlobals
 
 	uint32_t activeLabelsColors[4] =
 	{
-		0x999999, // tekst
+		0x777777, // tekst
 		0x323132, // tło
 		0xFF0000, // ramka
 		0xFFFFFF, // tekst2
@@ -464,7 +465,7 @@ struct strInterfaceGlobals
 	uint32_t activeBgLabelsColors[3] =
 	{
 		0x444344, // linie
-		0x22221f, // tlo
+		0x121212, // tlo
 		0xFF0000, // ramka
 	};
 

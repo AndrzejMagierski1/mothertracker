@@ -38,6 +38,7 @@ public:
 	// interfaceMisc.cpp -----------------------------
 	void initStartScreen();
 	void showStartScreen();
+	void hideStartScreen();
 	void destroyStartScreen();
 
 	uint8_t detectStartState();
@@ -46,7 +47,7 @@ public:
 	// interfaceInputs.cpp -----------------------------
 	void potChange(uint8_t n, int16_t value);
 	void buttonChange(uint8_t n, uint8_t value);
-	void powerButtonChange(uint8_t value);
+	void powerButtonChange(uint8_t state);
 	void padPressed(uint8_t n, int8_t x, int8_t y, uint8_t velo);
 	void padReleased(uint8_t n);
 	void padHold(uint8_t n);
@@ -79,7 +80,9 @@ private:
 	hModule previousModule = nullptr;
 	uint32_t previousModuleOptions = 0;
 
-	uint8_t doOnStart = 1;
+	uint8_t doOnStart = 0;
+	uint8_t isCardOnBoot = 0;
+	uint8_t lastBootCardState = 0;
 
 
 	// interfaceMisc.cpp -----------------------------

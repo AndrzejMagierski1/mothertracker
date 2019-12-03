@@ -93,7 +93,17 @@ typedef struct
 
 }save_load_handle_t;
 
+typedef struct
+{
+	char deleteSourcePath[255];
+	FsFile roots[10];
+	uint8_t lastRoot;
+	uint8_t addedLength[10];
+	uint8_t lastAddedLengthNum;
 
+	uint8_t isDone;
+
+}delete_handle_t;
 
 
 class FileManager
@@ -238,7 +248,7 @@ private:
 
 	save_load_handle_t saveHandle;
 	save_load_handle_t loadHandle;
-	save_load_handle_t deleteHandle;
+
 	save_load_handle_t loadFromWorkspaceHandle;
 	void refreshSaveInstrumentFiles();
 	void refreshSaveSamples();
@@ -260,6 +270,11 @@ private:
 
 
 
+	//uint8_t deleteBuffer[512];
+	//char deletePath[200];
+	//uint8_t deleteCurrPositiionInDir;
+	delete_handle_t deleteHandle;
+	void recursiveRemoveProject(FsFile *source);
 
 	char deleteProjectName[PROJECT_NAME_SIZE];
 

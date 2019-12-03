@@ -185,6 +185,12 @@ void cFunctionMachine::setButtonObj(uint8_t objectID, uint8_t(*funct)(uint8_t,ui
 	buttonsCleared = 0;
 }
 
+
+void cFunctionMachine::setPowerButtonObj(uint8_t(*funct)(uint8_t))
+{
+	powrButtonFunct = funct;
+}
+
 //==================================================================================================================
 void cFunctionMachine::setPadObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(), hControl control)
 {
@@ -350,4 +356,12 @@ void cFunctionMachine::processSdDetectInput(uint8_t state)
 	}
 }
 
+
+void cFunctionMachine::processPowerButton(uint8_t state)
+{
+	if(powrButtonFunct != nullptr)
+	{
+		if(powrButtonFunct(state) == 0) powrButtonFunct = nullptr;
+	}
+}
 

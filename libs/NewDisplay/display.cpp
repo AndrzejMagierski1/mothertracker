@@ -13,6 +13,7 @@
 #include "poly_logo_inv_128x128_L8.h"
 
 
+#include "RobotoMono-Regular_14_L4mk.h"
 #include "RobotoMono-Regular_14_L4.h"
 #include "RobotoMono-Regular_17_L4.h"
 
@@ -28,8 +29,24 @@
 // OBRAZY
 
 // CZCIONKI
+
+
+
 const strFont fonts[displayFontCount] =
 {
+		/*
+		{
+			Roboto_Mono_Regular_14_L4mk,
+			sizeof(Roboto_Mono_Regular_14_L4mk),
+			11,
+			1000,
+			1148,
+			10,
+			19,
+			L4,
+			5,
+		},
+*/
 	{
 		Roboto_Mono_Regular_14_L4,
 		sizeof(Roboto_Mono_Regular_14_L4),
@@ -41,7 +58,9 @@ const strFont fonts[displayFontCount] =
 		L4,
 		5,
 	},
-/*	{
+
+/*
+	{
 		Roboto_Mono_Regular_17_L4,
 		sizeof(Roboto_Mono_Regular_17_L4),
 		12,

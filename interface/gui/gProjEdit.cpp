@@ -33,6 +33,8 @@ constexpr uint32_t coverRamAddres = 670000;
 
 void cProjectEditor::initDisplayControls()
 {
+
+
 	strControlProperties prop2;
 	prop2.style = 	( controlStyleShow | controlStyleCenterY);
 	prop2.x = 30;
@@ -49,7 +51,17 @@ void cProjectEditor::initDisplayControls()
 	prop2.h = 25;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
+	strControlProperties prop5;
 
+	prop5.x = 400;
+	prop5.colors = popUpLabelColors;
+	prop5.y = 350;
+
+	prop5.h = 100;
+	prop5.w = 800-(10);
+	prop5.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
+	prop5.text = (char*)"";
+	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop5);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -88,18 +100,6 @@ void cProjectEditor::initDisplayControls()
 	prop.data = &projectList;
 	if(fileListControl == nullptr)  fileListControl = display.createControl<cList>(&prop);
 
-
-	strControlProperties prop5;
-
-	prop5.x = 400;
-	prop5.colors = popUpLabelColors;
-	prop5.y = 350;
-
-	prop5.h = 100;
-	prop5.w = 800-(10);
-	prop5.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
-	prop5.text = (char*)"";
-	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop5);
 
 	strControlProperties prop3;
 	prop3.x = 10;
@@ -302,18 +302,16 @@ void cProjectEditor::showProjectsList()
 	display.setControlShow(fileListControl);
 	display.refreshControl(fileListControl);
 
-	display.setControlValue(label[0], 0);
-	display.setControlText(label[0], "");
-
-	for(uint8_t i = 2; i < 8 ; i++)
+	for(uint8_t i = 0; i < 8 ; i++)
 	{
 		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
 	}
 
 // bottom labels
-	display.setControlText(label[0], "Open");
-	display.setControlText(label[1], "Cancel");
-	display.setControlText(label[5], "Delete");
+	display.setControlText(label[7], "Open");
+	display.setControlText(label[6], "Delete");
+	display.setControlText(label[5], "Cancel");
 
 
 	for(uint8_t i = 0; i < 8 ; i++)
@@ -460,13 +458,14 @@ void cProjectEditor::showSaveAsKeyboard()
 {
 	display.setControlValue(label[0], 0);
 
-	display.setControlText(label[0],"Cancel");
-
-	for(uint8_t i = 1; i < 7 ; i++)
+	for(uint8_t i = 0; i < 8 ; i++)
 	{
 		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
 	}
 
+	display.setControlText(label[0],"Enter");
+	display.setControlText(label[6],"Cancel");
 	display.setControlText(label[7],"Save");
 
 	for(uint8_t i = 0; i < 8 ; i++)
@@ -479,7 +478,6 @@ void cProjectEditor::showSaveAsKeyboard()
 	showKeyboard();
 	showKeyboardEditName();
 	display.synchronizeRefresh();
-
 }
 
 
@@ -547,15 +545,17 @@ void cProjectEditor::showSaveLastWindow()
 {
 	display.setControlValue(label[0], 0);
 
-	display.setControlText(label[0], "Cancel");
-	display.setControlText(label[1], "");
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
+	}
 
-	display.setControlText(label[4], "Don't Save");
-	display.setControlText(label[5], "");
-	display.setControlText(label[6], "");
+	display.setControlText(label[5], "Cancel");
+	display.setControlText(label[6], "Don't save");
 	display.setControlText(label[7], "Save");
 
-	sprintf(currentInfo,"Do you want to save the changes to \"%s\" ?", fileManager.currentProjectName);
+	sprintf(currentInfo,"Do you want to save the changes to \"%s\"?", fileManager.currentProjectName);
 
 	display.setControlText(selectWindowLabel, currentInfo);
 	display.setControlShow(selectWindowLabel);
@@ -574,13 +574,11 @@ void cProjectEditor::showDeleteLastWindow()
 {
 	display.setControlValue(label[0], 0);
 
-	display.setControlText(label[1], "");
 	display.setControlText(label[5], "");
-
-	display.setControlText(label[0], "Cancel");
+	display.setControlText(label[6], "Cancel");
 	display.setControlText(label[7], "Delete");
 
-	sprintf(currentInfo,"Do you want to delete project: \"%s\" ?", filesNames[selectedLocation]);
+	sprintf(currentInfo,"Do you want to delete project: \"%s\"?", filesNames[selectedLocation]);
 
 	display.setControlText(selectWindowLabel, currentInfo);
 	display.setControlShow(selectWindowLabel);
@@ -599,14 +597,15 @@ void cProjectEditor::showOverwriteWindow()
 {
 	display.setControlValue(label[0], 0);
 
-	display.setControlText(label[0], "Yes");
 	for(uint8_t i=1 ;i < 7; i++)
 	{
 		display.setControlText(label[i], "");
 	}
-	display.setControlText(label[7], "No");
 
-	sprintf(currentInfo,"Do you want overwrite\"%s\" ?", name);
+	display.setControlText(label[7], "Overwrite");
+	display.setControlText(label[6], "Cancel");
+
+	sprintf(currentInfo,"Do you want overwrite \"%s\"?", name);
 
 	display.setControlText(selectWindowLabel, currentInfo);
 	display.setControlShow(selectWindowLabel);
@@ -664,7 +663,7 @@ void cProjectEditor::showExportWindow()
 	display.setControlText2(label[4], "To MOD");
 	display.setControlText(label[5], "Cancel");
 	display.setControlText(label[6], "");
-	display.setControlText(label[7], "Go Back");
+	display.setControlText(label[7], "Cancel");
 
 	for(uint8_t i=0; i<5 ; i++)
 	{
