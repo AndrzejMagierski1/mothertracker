@@ -192,6 +192,7 @@ static  uint8_t functActionEndPoint();
 static  uint8_t functActionStartPoint();
 static  uint8_t functActionZoom();
 static uint8_t functConfirmKey();
+static uint8_t functInsert();
 
 static  uint8_t functEncoder(int16_t value);
 
@@ -205,6 +206,8 @@ static void modEndPoint(int16_t value);
 static uint8_t functSdCard(uint8_t state);
 
 void seek_callback(void);
+
+
 
 
 void cSampleRecorder::update()
@@ -441,6 +444,7 @@ void cSampleRecorder::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton5, buttonPress, functActionButton5);
 	FM->setButtonObj(interfaceButton6, buttonPress, functActionButton6);
 	FM->setButtonObj(interfaceButton7, buttonPress, functActionButton7);
+	FM->setButtonObj(interfaceButtonInsert, buttonPress, functInsert);
 
 	FM->setButtonObj(interfaceButtonNote, functStepNote);
 
@@ -992,62 +996,52 @@ static  uint8_t functSelectButton7()
 static  uint8_t functActionButton0(uint8_t s)
 {
 	if(SR->fullMemoryWindowFlag) return 1;
-	if(SR->selectionWindowFlag == 1)
+	if(SR->selectionWindowFlag) return 1;
+
+	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
 	{
-			SR->clearAllNodes();
-			SR->cancelMultiFrame();
+		functConfirmKey();
+		return 1;
+	}
 
-			SR->selectionWindowFlag = 0;
-
-			SR->currentScreen = cSampleRecorder::screenTypeConfig;
-			SR->selectedPlace = 0;
-			if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
-
-			GP.spectrumResetZoom(0, recorder.getLength(), &SR->zoom);
-
-			SR->showDefaultScreen();
-			SR->activateLabelsBorder();
-
-			return 1;
-		}
-		if(SR->selectionWindowSaveFlag == 1)
+	if(SR->selectionWindowSaveFlag == 1)
+	{
+		SR->selectionWindowSaveFlag = 0;
+		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeNormal)
 		{
-			SR->selectionWindowSaveFlag = 0;
-			if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeNormal)
-			{
-				recorder.startSave(SR->name,1);
-			}
-			else if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
-			{
-
-				if((mtProject.used_memory + recorder.getLength() * 2) > mtProject.max_memory)
-				{
-					SR->notEnoughMemoryFlag = 1;
-					return 0;
-				}
-				uint8_t firstFree = -1;
-				for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
-				{
-					if(!mtProject.instrument[i].isActive)
-					{
-						firstFree = i;
-						break;
-					}
-				}
-				if(firstFree == -1)
-				{
-					SR->notEnoughInstrumentsFlag = 1;
-					return 0;
-				}
-
-				recorder.startSaveLoad(SR->name, firstFree, 1 );
-			}
-
-			 SR->saveInProgressFlag = 1;
-			 SR->hideKeyboard();
-			 SR->hideKeyboardEditName();
-			 return 1;
+			recorder.startSave(SR->name,1);
 		}
+		else if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
+		{
+
+			if((mtProject.used_memory + recorder.getLength() * 2) > mtProject.max_memory)
+			{
+				SR->notEnoughMemoryFlag = 1;
+				return 0;
+			}
+			uint8_t firstFree = -1;
+			for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
+			{
+				if(!mtProject.instrument[i].isActive)
+				{
+					firstFree = i;
+					break;
+				}
+			}
+			if(firstFree == -1)
+			{
+				SR->notEnoughInstrumentsFlag = 1;
+				return 0;
+			}
+
+			recorder.startSaveLoad(SR->name, firstFree, 1 );
+		}
+
+		SR->saveInProgressFlag = 1;
+		SR->hideKeyboard();
+		SR->hideKeyboardEditName();
+		return 1;
+	}
 
 	if(s == 1)
 	{
@@ -1106,15 +1100,6 @@ static  uint8_t functActionButton2(uint8_t state)
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
-
-	if(state == buttonPress)
-	{
-		if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
-		{
-			functConfirmKey();
-			return 1;
-		}
-	}
 
 	if(state == buttonPress || state == buttonRelease)
 	{
@@ -1185,9 +1170,19 @@ static  uint8_t functActionButton5()
 
 static  uint8_t functActionButton6()
 {
-	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
+
+	if(SR->selectionWindowFlag == 1)
+	{
+		SR->selectionWindowFlag = 0;
+		//SR->selectedPlace = 6;
+
+		SR->showDefaultScreen();
+		SR->activateLabelsBorder();
+		return 1;
+	}
+
 	if((SR->currentScreen != cSampleRecorder::screenTypeRecord) && (SR->currentScreen != cSampleRecorder::screenTypeKeyboard))	functSelectButton6();
 	switch(SR->currentScreen)
 	{
@@ -1212,13 +1207,23 @@ static  uint8_t functActionButton7()
 
 	if(SR->selectionWindowFlag == 1)
 	{
+		SR->clearAllNodes();
+		SR->cancelMultiFrame();
+
 		SR->selectionWindowFlag = 0;
-		//SR->selectedPlace = 6;
+
+		SR->currentScreen = cSampleRecorder::screenTypeConfig;
+		SR->selectedPlace = 0;
+		if(!SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(1);
+
+		GP.spectrumResetZoom(0, recorder.getLength(), &SR->zoom);
 
 		SR->showDefaultScreen();
 		SR->activateLabelsBorder();
+
 		return 1;
 	}
+
 	if(SR->selectionWindowSaveFlag == 1)
 	{
 		char localPatch[70];
@@ -1303,152 +1308,155 @@ static uint8_t functDeleteBackspace(uint8_t state)
 //==============================================================================================================
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if((state == 1) || (state == 2))
+	if(SR->recordInProgressFlag == 0)
 	{
-		if(SR->keyboardActiveFlag)
+		if((state == 1) || (state == 2))
 		{
-			if(SR->lastPressedPad == BACKSPACE_PAD_1 || SR->lastPressedPad == BACKSPACE_PAD_2) //backspace
+			if(SR->keyboardActiveFlag)
 			{
-				leds.setLED(BACKSPACE_PAD_1, 0, 0);
-				leds.setLED(BACKSPACE_PAD_2, 0, 0);
-			}
-			else if(SR->lastPressedPad == CAPS_LOCK_PAD_1 || SR->lastPressedPad == CAPS_LOCK_PAD_2) //capslock
-			{
-				if(SR->keyboardShiftFlag)
+				if(SR->lastPressedPad == BACKSPACE_PAD_1 || SR->lastPressedPad == BACKSPACE_PAD_2) //backspace
 				{
-					leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
-					leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
+					leds.setLED(BACKSPACE_PAD_1, 0, 0);
+					leds.setLED(BACKSPACE_PAD_2, 0, 0);
+				}
+				else if(SR->lastPressedPad == CAPS_LOCK_PAD_1 || SR->lastPressedPad == CAPS_LOCK_PAD_2) //capslock
+				{
+					if(SR->keyboardShiftFlag)
+					{
+						leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
+						leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
+					}
+					else
+					{
+						leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
+						leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
+					}
+
+				}
+				else if(SR->lastPressedPad >= SPACE_PAD_1 && SR->lastPressedPad <=SPACE_PAD_5) //space
+				{
+					for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
+					{
+						leds.setLED(i, 0, 0);
+					}
 				}
 				else
 				{
-					leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
-					leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
+					if(SR->lastPressedPad != F_PAD && SR->lastPressedPad != J_PAD) leds.setLED(SR->lastPressedPad,0,0);
+					else leds.setLED(SR->lastPressedPad,1,10);
 				}
 
-			}
-			else if(SR->lastPressedPad >= SPACE_PAD_1 && SR->lastPressedPad <=SPACE_PAD_5) //space
-			{
-				for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
+
+				SR->lastPressedPad = pad;
+
+				if(pad == BACKSPACE_PAD_1 || pad == BACKSPACE_PAD_2) //backspace
 				{
-					leds.setLED(i, 0, 0);
+					leds.setLED(BACKSPACE_PAD_1, 1, 31);
+					leds.setLED(BACKSPACE_PAD_2, 1, 31);
 				}
-			}
-			else
-			{
-				if(SR->lastPressedPad != F_PAD && SR->lastPressedPad != J_PAD) leds.setLED(SR->lastPressedPad,0,0);
-				else leds.setLED(SR->lastPressedPad,1,10);
-			}
-
-
-			SR->lastPressedPad = pad;
-
-			if(pad == BACKSPACE_PAD_1 || pad == BACKSPACE_PAD_2) //backspace
-			{
-				leds.setLED(BACKSPACE_PAD_1, 1, 31);
-				leds.setLED(BACKSPACE_PAD_2, 1, 31);
-			}
-			else if(pad == CAPS_LOCK_PAD_1 || pad == CAPS_LOCK_PAD_2) //capslock
-			{
-				leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
-				leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
-			}
-			else if(pad >= SPACE_PAD_1 && pad <=SPACE_PAD_5) //space
-			{
-				for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
+				else if(pad == CAPS_LOCK_PAD_1 || pad == CAPS_LOCK_PAD_2) //capslock
 				{
-					leds.setLED(i, 1, 31);
+					leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
+					leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
 				}
-			}
-			else
-			{
-				leds.setLED(pad,1,31);
-			}
-
-			SR->keyboardPosition = valueMapPads[pad];
-
-
-			if(SR->editPosition > 31) return 1;
-			if(smallKeyboard[SR->keyboardPosition] > 1)
-			{
-				if(SR->editPosition == 31) return 1;
-				uint8_t localNameLen = strlen(SR->name);
-				if(SR->editPosition < localNameLen)
+				else if(pad >= SPACE_PAD_1 && pad <=SPACE_PAD_5) //space
 				{
-					for(uint8_t i = localNameLen; i >= SR->editPosition ; i-- )
+					for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
 					{
-						SR->name[i+1] = SR->name[i];
+						leds.setLED(i, 1, 31);
 					}
 				}
+				else
+				{
+					leds.setLED(pad,1,31);
+				}
 
-				SR->name[SR->editPosition] = SR->keyboardShiftFlag ? bigKeyboard[SR->keyboardPosition] : smallKeyboard[SR->keyboardPosition];
-				SR->name[SR->editPosition + 1] = 0;
-				SR->editPosition++;
+				SR->keyboardPosition = valueMapPads[pad];
+
+
+				if(SR->editPosition > 31) return 1;
+				if(smallKeyboard[SR->keyboardPosition] > 1)
+				{
+					if(SR->editPosition == 31) return 1;
+					uint8_t localNameLen = strlen(SR->name);
+					if(SR->editPosition < localNameLen)
+					{
+						for(uint8_t i = localNameLen; i >= SR->editPosition ; i-- )
+						{
+							SR->name[i+1] = SR->name[i];
+						}
+					}
+
+					SR->name[SR->editPosition] = SR->keyboardShiftFlag ? bigKeyboard[SR->keyboardPosition] : smallKeyboard[SR->keyboardPosition];
+					SR->name[SR->editPosition + 1] = 0;
+					SR->editPosition++;
+				}
+				else if(smallKeyboard[SR->keyboardPosition] == 0)
+				{
+					if(SR->editPosition == 0 ) return 1;
+
+					SR->name[SR->editPosition-1] = 0;
+					SR->editPosition--;
+
+
+				}
+				else if(smallKeyboard[SR->keyboardPosition] == 1)
+				{
+					SR->keyboardShiftFlag = ! SR->keyboardShiftFlag;
+					//				SR->showKeyboard();
+				}
+				SR->showKeyboard();
+				SR->showKeyboardEditName();
+				return 1;
 			}
-			else if(smallKeyboard[SR->keyboardPosition] == 0)
-			{
-				if(SR->editPosition == 0 ) return 1;
-
-				SR->name[SR->editPosition-1] = 0;
-				SR->editPosition--;
-
-
-			}
-			else if(smallKeyboard[SR->keyboardPosition] == 1)
-			{
-				SR->keyboardShiftFlag = ! SR->keyboardShiftFlag;
-//				SR->showKeyboard();
-			}
-			SR->showKeyboard();
-			SR->showKeyboardEditName();
-			return 1;
 		}
-	}
 
-	if(SR->currentScreen == SR->screenTypeRecord)
-	{
-		if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+		if(SR->currentScreen == SR->screenTypeRecord)
 		{
-			sequencer.stop();
-		}
-
-		if(state == 1)
-		{
-			if(mtPadBoard.getEmptyVoice() < 0) return 1;
-
-			if(mtPadBoard.getEmptyVoice() == 0)
+			if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 			{
-				SR->playPitch = (float)notes[mtPadBoard.convertPadToNote(pad)];
-				SR->playProgresValueTim = (((((recorder.getLength()/44100.0 ) * SR->startPoint) / MAX_16BIT) * 1000) / SR->playPitch);
-				SR->refreshPlayProgressValue = 0;
-				SR->loopDirection = 0;
-				SR->playInProgressFlag = 1;
+				sequencer.stop();
 			}
 
-			padsBacklight.setFrontLayer(1,20, pad);
-
-			uint32_t length;
-			uint32_t addressShift;
-			length =(uint32_t)((uint32_t)SR->endPoint * (float)(recorder.getLength())/MAX_16BIT);
-
-			addressShift = (uint32_t)( (uint32_t)SR->startPoint * (float)(recorder.getLength())/MAX_16BIT);
-
-			mtPadBoard.startInstrument(pad,recorder.getStartAddress()+ addressShift,length - addressShift );
-		}
-		else if(state == 0)
-		{
-			padsBacklight.setFrontLayer(0,0, pad);
-
-			if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
+			if(state == 1)
 			{
-				SR->playProgressValue=0;
-				SR->playProgressInSpectrum = 0;
-				SR->playInProgressFlag = 0;
-				SR->refreshSpectrumProgress = 1;
-				SR->refreshSpectrumValue = 1;
-				SR->hidePreviewValue();
-			}
+				if(mtPadBoard.getEmptyVoice() < 0) return 1;
 
-			mtPadBoard.stopInstrument(pad);
+				if(mtPadBoard.getEmptyVoice() == 0)
+				{
+					SR->playPitch = (float)notes[mtPadBoard.convertPadToNote(pad)];
+					SR->playProgresValueTim = (((((recorder.getLength()/44100.0 ) * SR->startPoint) / MAX_16BIT) * 1000) / SR->playPitch);
+					SR->refreshPlayProgressValue = 0;
+					SR->loopDirection = 0;
+					SR->playInProgressFlag = 1;
+				}
+
+				padsBacklight.setFrontLayer(1,20, pad);
+
+				uint32_t length;
+				uint32_t addressShift;
+				length =(uint32_t)((uint32_t)SR->endPoint * (float)(recorder.getLength())/MAX_16BIT);
+
+				addressShift = (uint32_t)( (uint32_t)SR->startPoint * (float)(recorder.getLength())/MAX_16BIT);
+
+				mtPadBoard.startInstrument(pad,recorder.getStartAddress()+ addressShift,length - addressShift );
+			}
+			else if(state == 0)
+			{
+				padsBacklight.setFrontLayer(0,0, pad);
+
+				if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
+				{
+					SR->playProgressValue=0;
+					SR->playProgressInSpectrum = 0;
+					SR->playInProgressFlag = 0;
+					SR->refreshSpectrumProgress = 1;
+					SR->refreshSpectrumValue = 1;
+					SR->hidePreviewValue();
+				}
+
+				mtPadBoard.stopInstrument(pad);
+			}
 		}
 	}
 
@@ -2445,7 +2453,7 @@ static uint8_t stopPlaying(uint8_t value)
 }
 */
 
-static uint8_t functEnter()
+static uint8_t functInsert()
 {
 	if(SR->selectionWindowFlag) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) functConfirmKey();

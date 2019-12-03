@@ -175,7 +175,7 @@ static  uint8_t functIncPattern()
 {
 	if(SE->exitOnButtonRelease) return 1;
 
-	if(mtProject.song.playlist[SE->selectedPattern] < 99)
+	if(mtProject.song.playlist[SE->selectedPattern] < PATTERN_INDEX_MAX)
 	{
 		mtProject.song.playlist[SE->selectedPattern] += 1;
 
@@ -475,16 +475,23 @@ void cSongEditor::changePatternsSelection(int16_t value)
 //==============================================================================================
 void cSongEditor::readSong()
 {
-	for(uint8_t i=0;i<SONG_MAX;i++)
+	uint8_t i;
+	uint8_t isAnyActive = 0;
+	for(i = 0; i < SONG_MAX; i++)
 	{
 		if(mtProject.song.playlist[i] == 0)
 		{
-			songLength = i;
 			break;
+		}
+		else
+		{
+			isAnyActive = 1;
 		}
 	}
 
-	if((songLength == (SONG_MAX-1)) || (songLength == 0)) // nie znaleziono
+	songLength = i;
+
+	if((isAnyActive == 0) || (songLength == 0)) // nie znaleziono
 	{
 		songLength = 1;
 		selectedPattern = 0;
@@ -501,13 +508,38 @@ void cSongEditor::listPatterns()
 {
 	for(uint8_t i=0;i<songLength;i++)
 	{
-		if(i == selectedPattern)
+		if(i < 9)
 		{
-			sprintf(&patternsNamesList[i][0],"   %u         < %u >   ",i+1,mtProject.song.playlist[i]);
+			if(i == selectedPattern)
+			{
+				sprintf(&patternsNamesList[i][0], "   %u         < %u >   ", i+1, mtProject.song.playlist[i]);
+			}
+			else
+			{
+				sprintf(&patternsNamesList[i][0], "   %u           %u     ", i+1, mtProject.song.playlist[i]);
+			}
+		}
+		else if(i < 99)
+		{
+			if(i == selectedPattern)
+			{
+				sprintf(&patternsNamesList[i][0], "   %u        < %u >   ", i+1, mtProject.song.playlist[i]);
+			}
+			else
+			{
+				sprintf(&patternsNamesList[i][0], "   %u          %u     ", i+1, mtProject.song.playlist[i]);
+			}
 		}
 		else
 		{
-			sprintf(&patternsNamesList[i][0],"   %u           %u     ",i+1,mtProject.song.playlist[i]);
+			if(i == selectedPattern)
+			{
+				sprintf(&patternsNamesList[i][0], "   %u       < %u >   ", i+1, mtProject.song.playlist[i]);
+			}
+			else
+			{
+				sprintf(&patternsNamesList[i][0], "   %u         %u     ", i+1, mtProject.song.playlist[i]);
+			}
 		}
 
 		patternNames[i] = &patternsNamesList[i][0];

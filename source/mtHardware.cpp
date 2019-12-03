@@ -142,7 +142,7 @@ void initHardware()
 
 	//SD CARD
 	//....................................................
-	if (! SD.begin( SdioConfig(DMA_SDIO) ) )	//FIFO_SDIO
+/*	if (! SD.begin( SdioConfig(DMA_SDIO) ) )	//FIFO_SDIO
 	{
 		if(hardwareTest)
 		{
@@ -157,7 +157,7 @@ void initHardware()
 		 Serial.println("SD card init succesfull");
 		 //mtPrint("SD card init succesfull");
 		}
-	}
+	}*/
 
 
 	//mtpd.begin(&storage);
@@ -226,8 +226,6 @@ void initHardware()
 	//attachInterrupt(TACT_SWITCH, TactSwitchAction, FALLING);
 
 	hid.set_sendButtonState(hidSendButtonState);
-	sdCardDetector.setOnDetectFunction(onSDCardSlotChange);
-	sdCardDetector.begin();
 
 	midiInit();
 
@@ -300,7 +298,7 @@ void updateHardware()
 
 
 		hid.handle();
-		sdCardDetector.update();
+		sdCardDetector.update(0);
 
 	    mtpd.loop();
 

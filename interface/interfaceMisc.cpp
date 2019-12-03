@@ -110,8 +110,15 @@ void cInterface::showStartScreen()
 
 	startScreenRefresh = 0;
 
+	display.setControlShow(startScreenControl);
 	display.setControlValue(startScreenControl, startSampleLoadingProgress);
 	display.setControlText(startScreenControl, "Opening last project...");
+	display.refreshControl(startScreenControl);
+}
+
+void cInterface::hideStartScreen()
+{
+	display.setControlHide(startScreenControl);
 	display.refreshControl(startScreenControl);
 }
 
@@ -125,6 +132,8 @@ void cInterface::destroyStartScreen()
 //==================================================================================================
 void cInterface::openStartupProject()
 {
+	startupTimer = 0;
+
 	if(mtConfig.startup.startMode == interfaceOpenLastProject)
 	{
 		char currentPatch[PATCH_SIZE];

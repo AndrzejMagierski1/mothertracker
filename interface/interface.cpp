@@ -28,6 +28,8 @@
 #include "mtHardware.h"
 #include "SD.h"
 #include "sdram.h"
+#include "sdCardDetect.h"
+#include "mtCardChecker.h"
 
 
 
@@ -150,23 +152,50 @@ void cInterface::processOperatingMode()
 {
 	if(operatingMode == mtOperatingModeStartup)
 	{
-		if(doOnStart)
+		isCardOnBoot = sdCardDetector.isCardInitialized();
+
+		if(doOnStart == 0)
 		{
-			doOnStart = 0;
+			doOnStart = 1;
 			doStartTasks();
 		}
 
-		if(detectStartState())
+		if(isCardOnBoot != lastBootCardState)
 		{
-			destroyStartScreen();
-			operatingMode = mtOperatingModeRun;
-
-			activateModule(&patternEditor, 0);
+			doOnStart = 1;
+			lastBootCardState = isCardOnBoot;
 		}
 
-		showStartScreen();
+		if(isCardOnBoot)
+		{
+			lastBootCardState = isCardOnBoot;
 
+			if(doOnStart == 1)
+			{
+				readConfig();
+				readSdConfig();
+
+				doOnStart = 2;
+				openStartupProject();
+			}
+
+			showStartScreen();
+
+			if(detectStartState())
+			{
+				destroyStartScreen();
+				operatingMode = mtOperatingModeRun;
+
+				activateModule(&patternEditor, 0);
+			}
+		}
+		else
+		{
+			hideStartScreen();
+			mtCardHandler.noSdCardAction();
+		}
 	}
+
 //	else if(operatingMode == mtOperatingModeRun)
 //	{
 //
@@ -178,11 +207,6 @@ void cInterface::processOperatingMode()
 void cInterface::doStartTasks()
 {
 	mtPopups.initPopupsDisplayControls();
-
-	readConfig();
-	readSdConfig();
-
-	openStartupProject();
 
 	initStartScreen();
 }
@@ -260,14 +284,20 @@ void cInterface::toggleActiveModule()
 {
 	if(onScreenModule == nullptr)
 	{
-		hModule prevModule = previousModule;
-		uint32_t prevModuleOptions = previousModuleOptions;
+		if(previousModule != nullptr)
+		{
+			hModule prevModule = previousModule;
+			uint32_t prevModuleOptions = previousModuleOptions;
 
-		activateModule(prevModule, prevModuleOptions);
-		return;
+			activateModule(prevModule, prevModuleOptions);
+			return;
+		}
 	}
 
-	mtInterface.deactivateModule(onScreenModule);
+	if(onScreenModule != nullptr)
+	{
+		mtInterface.deactivateModule(onScreenModule);
+	}
 }
 //=======================================================================
 //=======================================================================
