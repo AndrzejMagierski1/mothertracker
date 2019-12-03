@@ -162,6 +162,11 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 				step->fx[fxIndex].type =
 						(fxType >= 0) ? fxType : random(0, FX_MAX + 1);
 
+				step->fx[fxIndex].value = constrain(
+						step->fx[fxIndex].value,
+						getFxMin(step->fx[fxIndex].type),
+						getFxMax(step->fx[fxIndex].type));
+
 			}
 		}
 	}
@@ -196,6 +201,11 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 				step->fx[fxIndex].value = random(fromVal, toVal + 1);
 				step->fx[fxIndex].type =
 						(fxType >= 0) ? fxType : random(0, FX_MAX + 1);
+
+				step->fx[fxIndex].value = constrain(
+						step->fx[fxIndex].value,
+						getFxMin(step->fx[fxIndex].type),
+						getFxMax(step->fx[fxIndex].type));
 				;
 			}
 		}
