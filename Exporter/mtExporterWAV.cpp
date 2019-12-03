@@ -67,33 +67,37 @@ uint8_t mtExporter::getProgress()
 {
 	switch(type)
 	{
-		case exportType::song : 			songExporter.getProgress();				break;
-		case exportType::songStems : 		songStemsExporter.getProgress();		break;
-		case exportType::pattern : 			patternExporter.getProgress();			break;
-		case exportType::patternStems : 	patternStemsExporter.getProgress();		break;
+		case exportType::song : 			return songExporter.getProgress();			break;
+		case exportType::songStems : 		return songStemsExporter.getProgress();		break;
+		case exportType::pattern : 			return patternExporter.getProgress();		break;
+		case exportType::patternStems : 	return patternStemsExporter.getProgress();	break;
 		default: break;
 	}
+	return 0;
 }
+
 uint8_t mtExporter::getState()
 {
 	switch(type)
 	{
-		case exportType::song : 			songExporter.getStatus();				break;
-		case exportType::songStems : 		songStemsExporter.getStatus();			break;
-		case exportType::pattern : 			patternExporter.getStatus();			break;
-		case exportType::patternStems : 	patternStemsExporter.getStatus();		break;
+		case exportType::song : 			return songExporter.getStatus();			break;
+		case exportType::songStems : 		return songStemsExporter.getStatus();		break;
+		case exportType::pattern : 			return patternExporter.getStatus();			break;
+		case exportType::patternStems : 	return patternStemsExporter.getStatus();	break;
 		default: break;
 	}
+	return 0;
 }
 
 uint8_t mtExporter::getStemsTrack()
 {
 	switch(type)
 	{
-		case exportType::songStems : 		songStemsExporter.getTrack(); 			break;
-		case exportType::patternStems : 	patternStemsExporter.getTrack();		break;
+		case exportType::songStems : 		return songStemsExporter.getTrack(); 		break;
+		case exportType::patternStems : 	return patternStemsExporter.getTrack();		break;
 		default: break;
 	}
+	return 0;
 }
 
 void mtExporter::cancel()

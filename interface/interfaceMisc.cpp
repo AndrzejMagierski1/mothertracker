@@ -109,6 +109,11 @@ void cInterface::showStartScreen()
 	if(startScreenRefresh < 100) return;
 
 	startScreenRefresh = 0;
+	char beta[2];
+	if(mtConfig.firmware.beta) beta[0] = 'b';
+	else 						beta[0] = 0;
+	beta[1] = 0;
+	sprintf(startScreenData.versionLabel, "v%d.%d.%d%s", mtConfig.firmware.ver_1, mtConfig.firmware.ver_2, mtConfig.firmware.ver_3, beta);
 
 	display.setControlShow(startScreenControl);
 	display.setControlValue(startScreenControl, startSampleLoadingProgress);
