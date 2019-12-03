@@ -99,7 +99,7 @@ void cSampleImporter::initDisplayControls()
 	prop2.y = 452;
 	prop2.w = 800/4-6;
 	prop2.h = 59;
-	if(label[5] == nullptr) label[5] = display.createControl<cLabel>(&prop2);*/
+	if(label[5] == nullptr) label[5] = display.createControl<cLabel>(&prop2);
 
 	explorerList.start = selectedFile;
 	explorerList.length = locationExplorerCount;

@@ -140,6 +140,9 @@ void initHardware()
 	display.begin();
 
 
+	sdCardDetector.begin();
+	sdCardDetector.setOnDetectFunction(onSDCardSlotChange);
+
 	//SD CARD
 	//....................................................
 /*	if (! SD.begin( SdioConfig(DMA_SDIO) ) )	//FIFO_SDIO
