@@ -116,6 +116,7 @@ public:
 	void showSaveAsKeyboard();
 	void showOverwriteWindow();
 	void showExportWindow();
+	void showLabelDuringExport();
 
 	//*****************************************General popouts
 	uint32_t lastRefreshTime = 0;
