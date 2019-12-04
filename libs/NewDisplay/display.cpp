@@ -13,13 +13,13 @@
 #include "poly_logo_inv_128x128_L8.h"
 
 
-#include "RobotoMono-Regular_14_L4mk.h"
 #include "RobotoMono-Regular_14_L4.h"
 #include "RobotoMono-Regular_17_L4.h"
 
 #include "RobotoMono-Bold_14_L4.h"
 #include "RobotoMono-Bold_17_L4.h"
 
+#include "RobotoMono-Light_14_L4.h"
 #include "RobotoMono-Light_17_L4.h"
 
 
@@ -34,90 +34,22 @@
 
 const strFont fonts[displayFontCount] =
 {
-		/*
-		{
-			Roboto_Mono_Regular_14_L4mk,
-			sizeof(Roboto_Mono_Regular_14_L4mk),
-			11,
-			1000,
-			1148,
-			10,
-			19,
-			L4,
-			5,
-		},
-*/
-	{
-		Roboto_Mono_Regular_14_L4,
-		sizeof(Roboto_Mono_Regular_14_L4),
-		11,
-		1000,
-		1148,
-		10,
-		19,
-		L4,
-		5,
-	},
-
-/*
-	{
-		Roboto_Mono_Regular_17_L4,
-		sizeof(Roboto_Mono_Regular_17_L4),
-		12,
-		11000,
-		11148,
-		10,
-		22,
-		L4,
-		5,
-	},
-	*/
-	{
-		Roboto_Mono_Light_17_L4,
-		sizeof(Roboto_Mono_Light_17_L4),
-		12,
-		11000,
-		11148,
-		10,
-		22,
-		L4,
-		5,
-	},
-	{
-		Roboto_Mono_Bold_14_L4,
-		sizeof(Roboto_Mono_Bold_14_L4),
-		13,
-		22000,
-		22148,
-		10,
-		18,
-		L4,
-		5,
-	},
-	{
-		Roboto_Mono_Bold_17_L4,
-		sizeof(Roboto_Mono_Bold_17_L4),
-		14,
-		31000,
-		31148,
-		12,
-		22,
-		L4,
-		6,
-	},
+//		{Roboto_Mono_Regular_14_L4,	sizeof(Roboto_Mono_Regular_14_L4),	11,	1000,	1148,	10,	19,	L4,	5,},
+		{Roboto_Mono_Light_14_L4,	sizeof(Roboto_Mono_Light_14_L4),	11,	1000,	1148,	10,	18,	L4,	5,},
+//		{Roboto_Mono_Regular_17_L4,	sizeof(Roboto_Mono_Regular_17_L4),	12,	11000,	11148,	10,	22,	L4,	5,},
+		{Roboto_Mono_Light_17_L4,	sizeof(Roboto_Mono_Light_17_L4),	12,	11000,	11148,	10,	22,	L4,	5,},
+		{Roboto_Mono_Regular_14_L4,	sizeof(Roboto_Mono_Regular_14_L4),	11,	1000,	1148,	10,	19,	L4,	5,},
+//		{Roboto_Mono_Bold_14_L4,	sizeof(Roboto_Mono_Bold_14_L4),		13,	22000,	22148,	10,	18,	L4,	5,},
+		{Roboto_Mono_Bold_17_L4,	sizeof(Roboto_Mono_Bold_17_L4),		14,	31000,	31148,	12,	22,	L4,	6,},
 };
 // handle nie moze byc wikesze niz 14
 
 const strBitmap bitmaps[displayBitmapsCount] =
 {
-
 	{poly_logo_inv_128x128_l8,50000,16384,128,128,L8,128,},
 
 	{ playIcon20x20,72000 , 200, 20, 20, L4, 10},
 	{ loopIcon20x20,72500 , 200, 20, 20, L4, 10},
-
-
-
 
 
 };

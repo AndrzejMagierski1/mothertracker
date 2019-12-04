@@ -178,7 +178,7 @@ uint8_t cLabel::update()
 		API_COLOR(colors[1]);
 
 		if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
-		else API_LINE_WIDTH(16);
+		else API_LINE_WIDTH(24);
 
 		API_BEGIN(RECTS);
 		API_VERTEX2F(border_x , border_y);

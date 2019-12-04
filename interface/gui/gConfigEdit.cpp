@@ -5,14 +5,14 @@
 
 static uint16_t framesPlaces[8][4] =
 {
-	{0+2, 		31, 800/8-5, 387},
-	{(800/8)*1+2, 31, 800/8-5, 387},
-	{(800/8)*2+2, 31, 800/8-5, 387},
-	{(800/8)*3+2, 31, 800/8-5, 387},
-	{(800/8)*4+2, 31, 800/8-5, 387},
-	{(800/8)*5+2, 31, 800/8-5, 387},
-	{(800/8)*6+2, 31, 800/8-5, 387},
-	{(800/8)*7+2, 31, 800/8-5, 387},
+	{0+1, 		  29, 800/8-3, 391},
+	{(800/8)*1+1, 29, 800/8-3, 391},
+	{(800/8)*2+1, 29, 800/8-3, 391},
+	{(800/8)*3+1, 29, 800/8-3, 391},
+	{(800/8)*4+1, 29, 800/8-3, 391},
+	{(800/8)*5+1, 29, 800/8-3, 391},
+	{(800/8)*6+1, 29, 800/8-3, 391},
+	{(800/8)*7+1, 29, 800/8-3, 391},
 };
 
 static uint16_t framesPlacesConfig[4][4]=
@@ -56,7 +56,7 @@ void cConfigEditor::initDisplayControls()
 
 
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
 	prop2.x = 30;
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
@@ -82,11 +82,11 @@ void cConfigEditor::initDisplayControls()
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.x = (800/8)*i+5;
-		prop2.y = 30;
-		prop2.w = 800/8-10;
-		prop2.style =  controlStyleValue_0_100;
-		prop2.h = 388;
+		prop2.x = (800/8)*i+1;
+		prop2.y = 29;
+		prop2.w = 800/8-3;
+		prop2.style =  controlStyleValue_0_100 | controlStyleBackground;
+		prop2.h = 394;
 		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
 
 	}
@@ -102,30 +102,29 @@ void cConfigEditor::initDisplayControls()
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
-
-	prop.x = (800/8)*0+8;
-	prop.y = 37;
-	prop.w = 800/4-16;
-	prop.h = 25;
+	prop.style = controlStyleBackground;
+	prop.x = (800/8)*0+1;
+	prop.y = 29;
+	prop.w = 800/4-3;
+	prop.h = 394;
 	if(configGroupsListControl[0] == nullptr)  configGroupsListControl[0] = display.createControl<cList>(&prop);
 
-	prop.x = (800/8)*2+8;
-	prop.y = 37;
-	prop.w = 800/4-16;
-	prop.h = 25;
+	prop.x = (800/8)*2+1;
+	prop.y = 29;
+	prop.w = 800/4-3;
+	prop.h = 394;
 	if(configGroupsListControl[1] == nullptr)  configGroupsListControl[1] = display.createControl<cList>(&prop);
 
-
-	prop.x = (800/8)*4+8;
-	prop.y = 37;
-	prop.w = 800/4-16;
-	prop.h = 25;
+	prop.x = (800/8)*4+1;
+	prop.y = 29;
+	prop.w = 800/4-3;
+	prop.h = 394;
 	if(configGroupsListControl[2] == nullptr)  configGroupsListControl[2] = display.createControl<cList>(&prop);
 
-	prop.x = (800/8)*6+8;
-	prop.y = 37;
-	prop.w = 800/4-16;
-	prop.h = 25;
+	prop.x = (800/8)*6+1;
+	prop.y = 29;
+	prop.w = 800/4-3;
+	prop.h = 394;
 	if(configGroupsListControl[3] == nullptr)  configGroupsListControl[3] = display.createControl<cList>(&prop);
 }
 

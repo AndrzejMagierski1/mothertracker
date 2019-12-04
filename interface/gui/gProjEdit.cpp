@@ -36,11 +36,11 @@ void cProjectEditor::initDisplayControls()
 
 
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
 	prop2.x = 30;
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleRightX);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleRightX | controlStyleFont4);
 	prop2.x = 769;
 	prop2.y = 12;
 	if(titleLabelProjectName == nullptr) titleLabelProjectName = display.createControl<cLabel>(&prop2);
@@ -93,10 +93,11 @@ void cProjectEditor::initDisplayControls()
 	projectList.start = 0;
 	projectList.length = 0;
 	strControlProperties prop;
-	prop.x = 0;
-	prop.y = 35;
-	prop.w = (800/4);
-	prop.h = 25;
+	prop.x = 1;
+	prop.y = 29;
+	prop.w = (800/4)-3;
+	prop.h = 394;
+	prop.style = controlStyleBackground;
 	prop.data = &projectList;
 	if(fileListControl == nullptr)  fileListControl = display.createControl<cList>(&prop);
 

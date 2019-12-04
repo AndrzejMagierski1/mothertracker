@@ -6,7 +6,7 @@
 void cImageViewer::initDisplayControls()
 {
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
 	prop2.x = 30;
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);

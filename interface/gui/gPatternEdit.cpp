@@ -237,7 +237,7 @@ void cPatternEditor::initDisplayControls()
 		//prop2.data =  &bottomValuesConfig;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
 
-		prop2.style = 	( controlStyleCenterX | controlStyleFont1);
+		prop2.style = 	( controlStyleCenterX | controlStyleFont3);
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
 		prop2.y = 424;
@@ -253,7 +253,7 @@ void cPatternEditor::initDisplayControls()
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;
-	prop2.y = 425;
+	prop2.y = 424;
 	prop2.h =  55;
 
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
@@ -264,29 +264,29 @@ void cPatternEditor::initDisplayControls()
 
 
 	// lista 1
-	prop.x = (800/8)*(1)+5;
-	prop.y = 8*28 + 122;
-	prop.w = 800/8-10;
+	prop.x = (800/8)*(1)+1;
+	prop.y = 8*28 + 30;
+	prop.w = 800/8-3;
 	prop.h = 25;
 	prop.colors = nullptr;
-	prop.style = controlStyleCenterY;
+	prop.style = controlStyleBackground;
 	prop.data = &fillTypeList;
 	if(param1PopupListControl == nullptr)  param1PopupListControl = display.createControl<cList>(&prop);
 
 	// lista 2
-	prop.x = (800/8)*(4)+5;
-	prop.y = 8*28 + 122;
-	prop.w = 800/8-10;
-	prop.h = 25;
+	prop.x = (800/8)*(4)+1;
+	prop.y = 8*28+30;
+	prop.w = 800/8-3;
+	prop.h = 180;
 
 	prop.data = &fillScaleFilterList;
 	if(param2PopupListControl == nullptr)  param2PopupListControl = display.createControl<cList>(&prop);
 
 	// lista 3
-	prop.x = (800/8)*(0)+5;
-	prop.y = 8*28 + 122;
-	prop.w = 800/8-10;
-	prop.h = 25;
+	prop.x = (800/8)*(0)+1;
+	prop.y = 8*28 + 30;
+	prop.w = 800/8-3;
+	prop.h = 180;
 	prop.data = &fillStepList;
 	if(param3PopupListControl == nullptr)  param3PopupListControl = display.createControl<cList>(&prop);
 
@@ -296,7 +296,7 @@ void cPatternEditor::initDisplayControls()
 	prop.x = (800/8)*(2)+(800/16);
 	prop.y = 8*28 + 130;
 	prop.w = 800/8-10;
-	prop.h = 28;
+	prop.h = 25;
 	if(val1PopupLabel == nullptr)  val1PopupLabel = display.createControl<cLabel>(&prop);
 
 	// label val2
@@ -304,7 +304,7 @@ void cPatternEditor::initDisplayControls()
 	prop.x = (800/8)*(3)+(800/16);
 	prop.y = 8*28 + 130;
 	prop.w = 800/8-10;
-	prop.h = 28;
+	prop.h = 25;
 	if(val2PopupLabel == nullptr) val2PopupLabel = display.createControl<cLabel>(&prop);
 
 	// label tla
