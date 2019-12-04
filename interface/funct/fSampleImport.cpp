@@ -568,27 +568,43 @@ static  uint8_t functRename()
 
 static  uint8_t functConfirmRename()
 {
-	if(strlen(SI->name) > 1)
+	uint8_t length = strlen(SI->name);
+	if(length >= 1)
 	{
-		strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,SI->name,32);
+		uint8_t allow = 0;
 
-		SI->showFileList();
+		for(uint8_t i = 0; i < length; i++)
+		{
+			// sprawdza czy zawiera jakikolwiek logiczny znak(nie spacje)
+			if(SI->name[i] != ' ')
+			{
+				allow = 1;
+				break;
+			}
+		}
 
-		SI->listInstrumentSlots();
-		SI->showInstrumentsList();
+		if(allow)
+		{
+			strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,SI->name,32);
 
-		SI->handleMemoryBar();
+			SI->showFileList();
 
-		SI->activateLabelsBorder();
+			SI->listInstrumentSlots();
+			SI->showInstrumentsList();
 
-		SI->setDefaultScreenFunct();
-		SI->showDefaultScreen();
+			SI->handleMemoryBar();
 
-		SI->displayDelete(SI->selectedPlace);
+			SI->activateLabelsBorder();
 
-		fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+			SI->setDefaultScreenFunct();
+			SI->showDefaultScreen();
 
-		SI->keyboardActiveFlag = 0;
+			SI->displayDelete(SI->selectedPlace);
+
+			fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
+			SI->keyboardActiveFlag = 0;
+		}
 	}
 
 	return 1;
