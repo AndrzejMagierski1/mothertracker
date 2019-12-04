@@ -35,8 +35,7 @@ public:
 	void soloTrack(uint8_t channel, uint8_t state);
 	void muteReverbSend(uint8_t channel, uint8_t state);
 	void soloReverbSend(uint8_t state);
-	void wavExportConnect();
-	void wavExportDisconnect();
+	void clearReverb();
 
 	friend class playerEngine;
 private:

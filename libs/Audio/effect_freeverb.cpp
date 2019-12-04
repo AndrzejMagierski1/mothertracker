@@ -125,7 +125,6 @@ void AudioEffectFreeverb::update()
 	int i;
 	int16_t input, bufout, output;
 	int32_t sum;
-	uint8_t valueRepeat = 0;
 	uint8_t valueSmall = 0;
 
 	outblock = allocate();
@@ -137,9 +136,9 @@ void AudioEffectFreeverb::update()
 	block = receiveReadOnly(0);
 	if (!block) block = &zeroblock;
 	else
-		{
-			stopFlag = 0;
-		}
+	{
+		stopFlag = 0;
+	}
 
 	for (i=0; i < AUDIO_BLOCK_SAMPLES; i++) {
 		// TODO: scale numerical range depending on roomsize & damping
@@ -193,7 +192,6 @@ void AudioEffectFreeverb::update()
 		comb8filter = sat16(bufout * combdamp2 + comb8filter * combdamp1, 15);
 		comb8buf[comb8index] = sat16(input + sat16(comb8filter * combfeeback, 15), 0);
 		if (++comb8index >= sizeof(comb8buf)/sizeof(int16_t)) comb8index = 0;
-
 		output = sat16(sum * 31457, 17);
 
 		bufout = allpass1buf[allpass1index];
@@ -221,10 +219,10 @@ void AudioEffectFreeverb::update()
 		if(i>1) // bieda rozwiazanie - w debbugingu przy burczeniu wartosci sie powtarzaly - w buforze bylo kilkadziesiat powtorzen
 		{
 //			if(outblock->data[i] == outblock->data[i-1]) valueRepeat++;
-			if(outblock->data[i] < 300 && outblock->data[i] > -300) valueSmall++;
+			if( (outblock->data[i] < 300) && (outblock->data[i] > -300)) valueSmall++;
 		}
 	}
-	if(valueSmall > 100 && stopFlag == 0)
+	if( (valueSmall > 100) && (stopFlag == 0))
 	{
 		stopFlag = 1;
 		releaseTim = 0;
@@ -240,6 +238,28 @@ void AudioEffectFreeverb::update()
 			else
 			{
 				outblock->data[i] = 0;
+				comb1buf[comb1index] = 0;
+				comb2buf[comb2index] = 0;
+				comb3buf[comb3index] = 0;
+				comb4buf[comb4index] = 0;
+				comb5buf[comb5index] = 0;
+				comb6buf[comb6index] = 0;
+				comb7buf[comb7index] = 0;
+				comb8buf[comb8index] = 0;
+
+				allpass1buf[allpass1index] = 0;
+				allpass2buf[allpass2index] = 0;
+				allpass3buf[allpass3index] = 0;
+				allpass4buf[allpass4index] = 0;
+
+				comb1filter = 0;
+				comb2filter = 0;
+				comb3filter = 0;
+				comb4filter = 0;
+				comb5filter = 0;
+				comb6filter = 0;
+				comb7filter = 0;
+				comb8filter = 0;
 			}
 
 		}
@@ -253,6 +273,42 @@ void AudioEffectFreeverb::update()
 	block = receiveReadOnly(0);
 	if (block) release(block);
 #endif
+}
+
+void AudioEffectFreeverb::clearFilters()
+{
+	memset(comb1buf, 0, sizeof(comb1buf));
+	memset(comb2buf, 0, sizeof(comb2buf));
+	memset(comb3buf, 0, sizeof(comb3buf));
+	memset(comb4buf, 0, sizeof(comb4buf));
+	memset(comb5buf, 0, sizeof(comb5buf));
+	memset(comb6buf, 0, sizeof(comb6buf));
+	memset(comb7buf, 0, sizeof(comb7buf));
+	memset(comb8buf, 0, sizeof(comb8buf));
+	comb1index = 0;
+	comb2index = 0;
+	comb3index = 0;
+	comb4index = 0;
+	comb5index = 0;
+	comb6index = 0;
+	comb7index = 0;
+	comb8index = 0;
+	comb1filter = 0;
+	comb2filter = 0;
+	comb3filter = 0;
+	comb4filter = 0;
+	comb5filter = 0;
+	comb6filter = 0;
+	comb7filter = 0;
+	comb8filter = 0;
+	memset(allpass1buf, 0, sizeof(allpass1buf));
+	memset(allpass2buf, 0, sizeof(allpass2buf));
+	memset(allpass3buf, 0, sizeof(allpass3buf));
+	memset(allpass4buf, 0, sizeof(allpass4buf));
+	allpass1index = 0;
+	allpass2index = 0;
+	allpass3index = 0;
+	allpass4index = 0;
 }
 
 

@@ -729,7 +729,7 @@ uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
 
 void Sequencer::play(void)
 {
-
+	engine.clearReverb();
 	reset_actual_pos();
 
 	player.isStop = 0;

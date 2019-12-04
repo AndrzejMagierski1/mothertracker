@@ -2485,6 +2485,11 @@ void audioEngine::soloReverbSend(uint8_t state)
 
 }
 
+void audioEngine::clearReverb()
+{
+	reverb.clearFilters();
+}
+
 void audioEngine::muteReverbSend(uint8_t channel, uint8_t state)
 {
 	if(channel >= 8) return;
