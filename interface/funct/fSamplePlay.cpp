@@ -202,6 +202,7 @@ void cSamplePlayback::start(uint32_t options)
 
 	loadedInstrumentType =  mtProject.instrument[mtProject.values.lastUsedInstrument].sample.type;
 
+
 	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
 	{
 		editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
@@ -246,6 +247,10 @@ void cSamplePlayback::start(uint32_t options)
 			wavetableWindowsCounter = convertWavetableWindowsSizeToCounter(mtProject.instrument[mtProject.values.lastUsedInstrument].sample.wavetable_window_size);
 
 			processWavetableCursor(SP->editorInstrument->wavetableCurrentWindow);
+
+
+
+
 		}
 
 
