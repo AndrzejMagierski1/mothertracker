@@ -31,7 +31,7 @@ public:
 	void switchModuleByButton(hModule module, uint8_t button);
 	void switchModuleToPrevious(hModule module);
 	int8_t getButtonIndex(uint8_t button);
-	void toggleActiveModule();
+	void toggleActiveModule(uint8_t state);
 
 	friend void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3);
 
@@ -76,6 +76,8 @@ private:
 
 	hModule onScreenModule = nullptr;
 	uint32_t lastOptions = 0;
+
+	uint8_t toggledState = 0; //blokuje toggl(1) kiedy nie bylo toggle(0) a modol tez nie jest aktywny
 
 	hModule previousModule = nullptr;
 	uint32_t previousModuleOptions = 0;

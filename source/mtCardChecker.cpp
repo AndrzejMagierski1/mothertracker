@@ -31,7 +31,8 @@ void mtCardChecker::showText()
 
 void mtCardChecker::noSdCardAction()
 {
-	interfaceEnvents(eventToggleActiveModule,0,0,0);
+	uint8_t toggleState = 0;
+	interfaceEnvents(eventToggleActiveModule,0,0,&toggleState);
 	initDisplayControls();
 	showText();
 }
@@ -39,7 +40,8 @@ void mtCardChecker::noSdCardAction()
 void mtCardChecker::sdCardInsertedAction()
 {
 	deinitDisplayControls();
-	interfaceEnvents(eventToggleActiveModule,0,0,0);
+	uint8_t toggleState = 1;
+	interfaceEnvents(eventToggleActiveModule,0,0,&toggleState);
 }
 
 

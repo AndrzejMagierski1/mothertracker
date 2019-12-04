@@ -288,17 +288,16 @@ void updateHardware()
 
 				if(i2c_switch < 2) i2cRefreshTimer = 0;
 			}
-		}
 
-		if (Wire.done())
-		{
-			tactButtons.update();
+			if (Wire.done())
+			{
+				tactButtons.update();
+			}
 		}
 
 		display.update();
 		//mtDisplay.updateHaptic();
 		BlinkLed.update();
-
 
 		hid.handle();
 		sdCardDetector.update(0);
@@ -306,7 +305,10 @@ void updateHardware()
 	    mtpd.loop();
 
 		midiUpdate();
+
+		lowPower.update();
 	}
+
 
 	TactSwitchRead();
 }

@@ -14,6 +14,28 @@ extern AudioControlSGTL5000 audioShield;
 SnoozeDigital digital;
 SnoozeBlock config(digital);
 
+
+void mtSleep::update()
+{
+	if(!state) return;
+
+	int32_t timeToShutdown_ms = 0;
+
+	timeToShutdown_ms = (TURN_OFF_TIME_MS - (shutdownTimer - firstPressTimestamp));
+
+	refreshDisplayCountDown(timeToShutdown_ms);
+
+	if(timeToShutdown_ms <= 0)
+	{
+		state = 0;
+		noInterrupts();
+		disableAll();
+		Snooze.sleep(config);
+		powerState=powerTypeLow;
+	}
+}
+
+
 void mtSleep::goLowPower(uint8_t value)
 {
 	if(value == 1) // pressed
@@ -25,24 +47,14 @@ void mtSleep::goLowPower(uint8_t value)
 			firstPress = 1;
 		}
 
-		int32_t timeToShutdown_ms = 0;
+		state = 1;
 
-		timeToShutdown_ms = (TURN_OFF_TIME_MS - (shutdownTimer - firstPressTimestamp));
-
-		refreshDisplayCountDown(timeToShutdown_ms);
-
-		if(timeToShutdown_ms <= 0)
-		{
-			noInterrupts();
-			disableAll();
-			Snooze.sleep(config);
-			powerState=powerTypeLow;
-		}
 	}
 	else
 	{
 		if(firstPress)
 		{
+			state = 0;
 			firstPress = 0;
 			deinitDisplayCountDown();
 		}
@@ -110,7 +122,8 @@ void mtSleep::resetMCU()
 
 void mtSleep::initDisplayCountDown()
 {
-	interfaceEnvents(eventToggleActiveModule,0,0,0);
+	uint8_t toggleState = 0;
+	interfaceEnvents(eventToggleActiveModule,0,0,&toggleState);
 	strControlProperties prop;
 
 	prop.x = 190;
@@ -143,6 +156,7 @@ void mtSleep::deinitDisplayCountDown()
 	display.destroyControl(turnOffProgressBar);
 	turnOffProgressBar = nullptr;
 
-	interfaceEnvents(eventToggleActiveModule,0,0,0);
+	uint8_t toggleState = 1;
+	interfaceEnvents(eventToggleActiveModule,0,0,&toggleState);
 }
 

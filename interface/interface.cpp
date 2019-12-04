@@ -280,24 +280,33 @@ int8_t cInterface::getButtonIndex(uint8_t button)
 }
 
 
-void cInterface::toggleActiveModule()
+void cInterface::toggleActiveModule(uint8_t state)
 {
-	if(onScreenModule == nullptr)
+	if(state)
 	{
-		if(previousModule != nullptr)
+		if(toggledState && onScreenModule == nullptr)
 		{
-			hModule prevModule = previousModule;
-			uint32_t prevModuleOptions = previousModuleOptions;
+			toggledState = 0;
 
-			activateModule(prevModule, prevModuleOptions);
-			return;
+			if(previousModule != nullptr)
+			{
+				hModule prevModule = previousModule;
+				uint32_t prevModuleOptions = previousModuleOptions;
+
+				activateModule(prevModule, prevModuleOptions);
+				return;
+			}
+		}
+	}
+	else
+	{
+		if(onScreenModule != nullptr)
+		{
+			mtInterface.deactivateModule(onScreenModule);
+			toggledState = 1;
 		}
 	}
 
-	if(onScreenModule != nullptr)
-	{
-		mtInterface.deactivateModule(onScreenModule);
-	}
 }
 //=======================================================================
 //=======================================================================
@@ -339,7 +348,7 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 		}
 		case eventToggleActiveModule:
 		{
-			mtInterface.toggleActiveModule();
+			mtInterface.toggleActiveModule(*((uint8_t*)param3));
 			break;
 		}
 		case eventActivateTestingProcedure:

@@ -25,11 +25,15 @@ public:
 	mtSleep(){};
 	~mtSleep(){};
 
+	void update();
+
 	uint8_t powerState = powerTypeNormal;
 
 	void handlePowerState(uint8_t value);
 	uint8_t isLowPower();
 private:
+
+	uint8_t state = 0;
 
 	hControl turnOffProgressBar = nullptr;
 	char turnOffText[20];
