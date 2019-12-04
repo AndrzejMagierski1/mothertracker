@@ -121,6 +121,7 @@ uint8_t cBgLabel::update()
 
 	//------------------------------------------
 
+	// tlo
 	API_COLOR(colors[1]);
 	API_LINE_WIDTH(16);
 
@@ -130,13 +131,21 @@ uint8_t cBgLabel::update()
 	API_END();
 
 
+//	//cien
+//	API_SAVE_CONTEXT();
+//
+//	//API_LINE_WIDTH(16);
+//	API_SCISSOR_XY(1, 413);
+//	API_SCISSOR_SIZE(798, 10);
+//	API_CMD_GRADIENT(0, 413, 0x0a0a0a, 0, 423, 0x0);
+//
+//	API_RESTORE_CONTEXT();
+
 
 	if(style & controlStyleNoTransparency)
 	{
 		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 	}
-
-
 
 
 	API_COLOR(colors[0]);

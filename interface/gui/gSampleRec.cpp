@@ -84,7 +84,7 @@ void cSampleRecorder::initDisplayControls()
 	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop9);
 
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
 	prop2.x = 30;
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
@@ -160,10 +160,10 @@ void cSampleRecorder::initDisplayControls()
 	sourceList.start = recorderConfig.source;
 	sourceList.length = 4;
 	sourceList.data = sourceNames;
-	prop4.x = 0+8;
-	prop4.y = 37;
-	prop4.w = 800/8-16;
-	prop4.h = 25;
+	prop4.x = 0+1;
+	prop4.y = 29;
+	prop4.w = 800/8-3;
+	prop4.h = 394;
 	prop4.data = &sourceList;
 	if(sourceListControl == nullptr)  sourceListControl = display.createControl<cList>(&prop4);
 
@@ -171,10 +171,10 @@ void cSampleRecorder::initDisplayControls()
 	monitorList.start = recorderConfig.monitor;
 	monitorList.length = 2;
 	monitorList.data = monitorNames;
-	prop4.x = (800/8)*(6)+8;
-	prop4.y = 37;
-	prop4.w = 800/8-16;
-	prop4.h = 25;
+	prop4.x = (800/8)*(6)+1;
+	prop4.y = 29;
+	prop4.w = 800/8-3;
+	prop4.h = 394;
 	prop4.data = &monitorList;
 	if(monitorListControl == nullptr)  monitorListControl = display.createControl<cList>(&prop4);
 

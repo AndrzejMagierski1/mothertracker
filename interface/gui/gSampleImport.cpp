@@ -5,8 +5,26 @@
 
 static uint16_t framesPlaces[2][4] =
 {
-	{0+2, 		31, 800/4-5, 387},
-	{(800/4)*3+2, 31, 800/4-5, 387},
+	{0+1, 		29, 800/4-3, 391},
+	{(800/4)*3+1, 29, 800/4-3, 391},
+};
+
+static uint32_t barColorsRed[5] =
+{
+		0xf13c3c,
+		0xf13c3c,
+		0xf13c3c,
+		0x080808,
+		0x0a0a0a
+};
+
+static uint32_t defaultColors[5] =
+{
+		0xFFFFFF,
+		0xf13c3c,
+		0x99d67b,
+		0x080808,
+		0x0a0a0a
 };
 
 constexpr uint8_t BACKSPACE_PAD_1 = 10;
@@ -41,18 +59,18 @@ void cSampleImporter::initDisplayControls()
 	if(loadHorizontalBarControl == nullptr)  loadHorizontalBarControl = display.createControl<cHorizontalBar>(&prop);
 
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
+	prop2.x = 9;
+	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	//	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
 	//	prop2.x = 769;
 	//	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
+	prop2.x = 2;
 	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
+	prop2.w = 795;
+	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 
@@ -68,7 +86,7 @@ void cSampleImporter::initDisplayControls()
 
 	prop2.text = (char*)"";
 	prop2.colors = interfaceGlobals.activeLabelsColors;
-	prop2.style = 	(controlStyleCenterX | controlStyleCenterY);
+	prop2.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont3);
 	prop2.x = (800/8);
 	prop2.y = 452;
 	prop2.w = 800/4-6;
@@ -87,53 +105,48 @@ void cSampleImporter::initDisplayControls()
 
 	prop2.text = nullptr;
 	prop2.colors = interfaceGlobals.activeBgLabelsColors;
-	prop2.value = 255;
+	prop2.value = 125;
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;
-	prop2.y = 425;
+	prop2.y = 424;
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
-	prop2.x = (800/8)*6+(800/8);
-	prop2.y = 452;
-	prop2.w = 800/4-6;
-	prop2.h = 59;
-	if(label[5] == nullptr) label[5] = display.createControl<cLabel>(&prop2);
+
 
 	explorerList.start = selectedFile;
 	explorerList.length = locationExplorerCount;
-	explorerList.linesCount = 15;
+	explorerList.linesCount = 14;
 	explorerList.data = explorerNames;
-
 	//explorerList.selectTab=selectionTab;
-
-	prop.x = 0+8;
-	prop.y = 37;
-	prop.w = 800/4-16;
-	prop.h = 25;
+	prop.x = 0+1;
+	prop.y = 29;
+	prop.w = 800/4-3;
+	prop.h = 394;
+	prop.style = controlStyleBackground;
 	prop.data = &explorerList;
 	if(explorerListControl == nullptr)  explorerListControl = display.createControl<cList>(&prop);
 
-	instrumentList.linesCount = 5;
+	instrumentList.linesCount = 14;
 	instrumentList.start = 0;
 	instrumentList.length = 0;
 	//instrumentList.selectTab=inSelection;
-
 	//strControlProperties prop;
-	prop.x = (800/4)*3+8;
+	prop.x = (800/4)*3+1;
 	//prop.y = 10;
 	//prop.w = 800/4-10;
 	//prop.h = 25;
 	prop.data = &instrumentList;
 	if(instrumentListControl == nullptr)  instrumentListControl = display.createControl<cList>(&prop);
 
-	prop.x = 458;
+
+	prop.x = (800/8)*5+1;
 //	prop.colors = &color[1];
 	//prop.y = 10;
-	//prop.w = 800/4-10;
-	prop.style = controlStyleCompareTwoValues;
-	prop.h = 380;
+	prop.w = 800/8-3;
+	prop.style = controlStyleCompareTwoValues | controlStyleBackground;
+	//prop.h = 380;
 	prop.data = &memoryUsageAdd;
 	//prop.value = memoryUsage;
 	if(memoryBarControl == nullptr)  memoryBarControl = display.createControl<cBar>(&prop);
@@ -221,7 +234,7 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlText(label[1], "");
 	display.setControlText(label[2], "");
 	display.setControlText(label[4], "Preview");
-	display.setControlText(label[5], "");
+	display.setControlText(label[5], "Memory");
 	display.setControlText(label[6], "Instruments");
 
 	display.setControlPosition(label[0],  (800/8)*0+(800/8),  452);
@@ -230,9 +243,21 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlPosition(label[6],  (800/8)*6+(800/8),  452);
 	display.setControlSize(label[6],  800/4-6,  59);
 
+
+	display.setControlColors(label[0], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[1], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[2], interfaceGlobals.activeButtonLabelsColors);
+	display.setControlColors(label[3], interfaceGlobals.activeButtonLabelsColors);
+	display.setControlColors(label[4], interfaceGlobals.activeButtonLabelsColors);
+	display.setControlColors(label[5], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[6], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
+
+
 	for(uint8_t i = 0; i < 8; i++)
 	{
-		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+		display.setControlValue(label[i], 1);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
@@ -284,7 +309,7 @@ void cSampleImporter::showFilesTree()
 {
 	explorerList.start = selectedFile;
 	explorerList.length = locationExplorerCount;
-	explorerList.linesCount = 15;
+	explorerList.linesCount = 14;
 	explorerList.data = explorerNames;
 
 	display.setControlData(explorerListControl,  &explorerList);
@@ -298,7 +323,7 @@ void cSampleImporter::showInstrumentsList()
 {
 	instrumentList.start = selectedSlot;
 	instrumentList.length = INSTRUMENTS_COUNT;
-	instrumentList.linesCount = 15;
+	instrumentList.linesCount = 14;
 	instrumentList.data = interfaceGlobals.ptrIntrumentsNames;
 
 	display.setControlData(instrumentListControl,  &instrumentList);
@@ -411,21 +436,17 @@ void cSampleImporter::showActualInstrument()
 
 void cSampleImporter::AddNextDisplay(uint8_t active)
 {
-	uint32_t *colors;
-	//interfaceGlobals.inactiveLabelsColors;
-
 	display.setControlText(label[3], "Add next");
 
 	if(active)
 	{
-		colors = interfaceGlobals.activeLabelsColors;
+		display.setControlColors(label[3],  interfaceGlobals.activeButtonLabelsColors);
 	}
 	else
 	{
-		colors = interfaceGlobals.inactiveLabelsColors;
+		display.setControlColors(label[3], interfaceGlobals.inactiveButtonLabelsColors);
 	}
 
-	display.setControlColors(label[3], colors);
 	display.refreshControl(label[3]);
 	//display.synchronizeRefresh();
 }
@@ -456,19 +477,19 @@ void cSampleImporter::AddEnterOrRename()
 
 void cSampleImporter::previewColorControl()
 {
-	uint32_t *colors = interfaceGlobals.activeLabelsColors;
+	uint32_t *colors = interfaceGlobals.activeButtonLabelsColors;
 	if(selectedPlace == 0)
 	{
 		if(locationExplorerList[selectedFile][0] == '/')
 		{
-			colors = interfaceGlobals.inactiveLabelsColors;
+			colors = interfaceGlobals.inactiveButtonLabelsColors;
 		}
 	}
 	else
 	{
 		if(mtProject.instrument[selectedSlot].isActive != 1)
 		{
-			colors = interfaceGlobals.inactiveLabelsColors;
+			colors = interfaceGlobals.inactiveButtonLabelsColors;
 		}
 	}
 
@@ -480,13 +501,13 @@ void cSampleImporter::previewColorControl()
 
 void cSampleImporter::renameColorControl()
 {
-	uint32_t *colors = interfaceGlobals.activeLabelsColors;
+	uint32_t *colors = interfaceGlobals.activeButtonLabelsColors;
 
 	if(selectedPlace == 1)
 	{
 		if(mtProject.instrument[selectedSlot].isActive != 1)
 		{
-			colors = interfaceGlobals.inactiveLabelsColors;
+			colors = interfaceGlobals.inactiveButtonLabelsColors;
 		}
 	}
 
@@ -496,7 +517,7 @@ void cSampleImporter::renameColorControl()
 
 void cSampleImporter::deleteColorControl()
 {
-	uint32_t *colors = interfaceGlobals.activeLabelsColors;
+	uint32_t *colors = interfaceGlobals.activeButtonLabelsColors;
 
 	if(selectedPlace == 1)
 	{
@@ -504,14 +525,14 @@ void cSampleImporter::deleteColorControl()
 		{
 			if(checkIfAnyInstrActive() == 0)
 			{
-				colors = interfaceGlobals.inactiveLabelsColors;
+				colors = interfaceGlobals.inactiveButtonLabelsColors;
 			}
 		}
 		else
 		{
 			if(mtProject.instrument[selectedSlot].isActive != 1)
 			{
-				colors = interfaceGlobals.inactiveLabelsColors;
+				colors = interfaceGlobals.inactiveButtonLabelsColors;
 			}
 		}
 	}

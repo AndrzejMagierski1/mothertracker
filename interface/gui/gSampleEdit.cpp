@@ -43,11 +43,11 @@ void cSampleEditor::initDisplayControls()
 
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
 	prop2.x = 30;
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
+	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY | controlStyleFont4);
 	prop2.x = 769;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
@@ -101,10 +101,11 @@ void cSampleEditor::initDisplayControls()
 	effectList.length = effectsCount;
 	effectList.data = effectNames;
 
-	prop.x = (800/8)*6+8;
-	prop.y = 37;
-	prop.w = 800/4-16;
-	prop.h = 25;
+	prop.x = (800/8)*6+1;
+	prop.y = 29;
+	prop.w = 800/4-3;
+	prop.h = 394;
+	prop.style = controlStyleBackground;
 	prop.data = &effectList;
 	if(effectListControl == nullptr)  effectListControl = display.createControl<cList>(&prop);
 
@@ -125,11 +126,11 @@ void cSampleEditor::initDisplayControls()
 
 	for(int i = 2; i < 6; i++)
 	{
-		prop2.x = (800/8)*i+5;
-		prop2.y = 30;
-		prop2.w = 800/8-10;
-		prop2.style =  controlStyleValue_0_100;
-		prop2.h = 389;
+		prop2.x = (800/8)*i+1;
+		prop2.y = 29;
+		prop2.w = 800/8-4;
+		prop2.style =  controlStyleValue_0_100 | controlStyleBackground;
+		prop2.h = 394;
 		if(barControl[i-2] == nullptr)  barControl[i-2] = display.createControl<cBar>(&prop2);
 	}
 

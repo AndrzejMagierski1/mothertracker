@@ -5,14 +5,14 @@
 
 static uint16_t framesPlaces[8][4] =
 {
-	{0+2, 		  31, 800/8-5, 387},
-	{(800/8)*1+2, 31, 800/8-5, 387},
-	{(800/8)*2+2, 31, 800/8-5, 387},
-	{(800/8)*3+2, 31, 800/8-5, 387},
-	{(800/8)*4+2, 31, 800/8-5, 387},
-	{(800/8)*5+2, 31, 800/8-5, 387},
-	{(800/8)*6+2, 31, 800/8-5, 387},
-	{(800/8)*7+2, 31, 800/8-5, 387},
+	{0+1, 		  29, 800/8-3, 391},
+	{(800/8)*1+1, 29, 800/8-3, 391},
+	{(800/8)*2+1, 29, 800/8-3, 391},
+	{(800/8)*3+1, 29, 800/8-3, 391},
+	{(800/8)*4+1, 29, 800/8-3, 391},
+	{(800/8)*5+1, 29, 800/8-3, 391},
+	{(800/8)*6+1, 29, 800/8-3, 391},
+	{(800/8)*7+1, 29, 800/8-3, 391},
 };
 
 
@@ -20,11 +20,11 @@ static uint16_t framesPlaces[8][4] =
 void cInstrumentEditor::initDisplayControls()
 {
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
 	prop2.x = 30;
 	prop2.y = 12;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
+	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY | controlStyleFont4);
 	prop2.x = 769;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
@@ -69,11 +69,11 @@ void cInstrumentEditor::initDisplayControls()
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.x = (800/8)*i+5;
-		prop2.y = 30;
-		prop2.w = 800/8-10;
-		prop2.style =  controlStyleValue_0_100;
-		prop2.h = 389;
+		prop2.x = (800/8)*i+1;
+		prop2.y = 29;
+		prop2.w = 800/8-3;
+		prop2.style =  controlStyleValue_0_100 | controlStyleBackground;
+		prop2.h = 394;
 		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
 	}
 
@@ -92,10 +92,11 @@ void cInstrumentEditor::initDisplayControls()
 	filterModeList.length = filterModeCount;
 	filterModeList.data = (char**)filterModeNames;
 
-	prop.x = (800/8)*(4)+8;
-	prop.y = 37;
-	prop.w = 800/8-16;
-	prop.h = 25;
+	prop.style = controlStyleBackground;
+	prop.x = (800/8)*(4)+1;
+	prop.y = 29;
+	prop.w = 800/8-3;
+	prop.h = 394;
 	prop.data = &filterModeList;
 	if(filterModeListControl == nullptr)  filterModeListControl = display.createControl<cList>(&prop);
 
@@ -104,10 +105,10 @@ void cInstrumentEditor::initDisplayControls()
 	envelopesList.start = selectedEnvelope;
 	envelopesList.length = 3;
 	envelopesList.data = (char**)envelopeNames;
-	prop.x = (800/8)*(0)+8;
-	prop.y = 37;
-	prop.w = 800/8-16;
-	prop.h = 25;
+	prop.x = (800/8)*(0)+1;
+	prop.y = 29;
+	prop.w = 800/8-3;
+	prop.h = 394;
 	prop.data = &envelopesList;
 	if(envelopesListControl == nullptr)  envelopesListControl = display.createControl<cList>(&prop);
 
@@ -116,10 +117,10 @@ void cInstrumentEditor::initDisplayControls()
 	envStateList.start = !editorInstrument->envelope[selectedEnvelope].enable;
 	envStateList.length = 2;
 	envStateList.data = (char**)envStateNames;
-	prop.x = (800/8)*(1)+8;
-	prop.y = 37;
-	prop.w = 800/8-16;
-	prop.h = 25;
+	prop.x = (800/8)*(1)+1;
+	prop.y = 29;
+	prop.w = 800/8-3;
+	prop.h = 394;
 	prop.data = &envStateList;
 	if(envStateListControl == nullptr)  envStateListControl = display.createControl<cList>(&prop);
 
@@ -128,10 +129,10 @@ void cInstrumentEditor::initDisplayControls()
 	envLoopList.start = editorInstrument->envelope[selectedEnvelope].loop;
 	envLoopList.length = 2;
 	envLoopList.data = (char**)envLoopNames;
-	prop.x = (800/8)*(7)+8;
-	prop.y = 37;
-	prop.w = 800/8-16;
-	prop.h = 25;
+	prop.x = (800/8)*(7)+1;
+	prop.y = 29;
+	prop.w = 800/8-3;
+	prop.h = 394;
 	prop.data = &envLoopList;
 	if(envLoopListControl == nullptr)  envLoopListControl = display.createControl<cList>(&prop);
 }
@@ -255,8 +256,8 @@ void cInstrumentEditor::showInstrumentEnv()
 
 
 	//display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValue_0_100));
-	display.setControlStyle(barControl[2], (controlStyleShow | controlStyleValue_0_100));
-	display.setControlStyle(barControl[3], (controlStyleShow | controlStyleValue_0_100));
+	display.setControlStyle(barControl[2], (controlStyleShow | controlStyleValue_0_100 | controlStyleBackground));
+	display.setControlStyle(barControl[3], (controlStyleShow | controlStyleValue_0_100 | controlStyleBackground));
 
 
 //-------------------------------------
@@ -339,9 +340,9 @@ void cInstrumentEditor::showInstrumentParams()
 
 
 
-	display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValueLeftRight_100_100));
-	display.setControlStyle(barControl[2], (controlStyleShow | controlStyleValueLeftRight_100_100));
-	display.setControlStyle(barControl[3], (controlStyleShow | controlStyleValueLeftRight_100_100));
+	display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValueLeftRight_100_100 | controlStyleBackground));
+	display.setControlStyle(barControl[2], (controlStyleShow | controlStyleValueLeftRight_100_100 | controlStyleBackground));
+	display.setControlStyle(barControl[3], (controlStyleShow | controlStyleValueLeftRight_100_100 | controlStyleBackground));
 
 //-------------------------------------
 
