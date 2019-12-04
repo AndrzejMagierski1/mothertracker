@@ -131,6 +131,8 @@ void cPatternEditor::start(uint32_t options)
 	mtProject.values.padBoardNoteOffset = 12;
 	mtProject.values.padBoardRootNote = 36;
 
+	trackerPattern.stepDevider = (mtConfig.general.patternDiv + 1);
+
 
 	readPatternState();
 	refreshPattern();

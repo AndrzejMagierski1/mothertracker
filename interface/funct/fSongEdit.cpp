@@ -76,7 +76,7 @@ void cSongEditor::start(uint32_t options)
 
 
 
-
+	Encoder.setAcceleration(0);
 
 
 	//selectedPlace = 0;
@@ -104,7 +104,7 @@ void cSongEditor::start(uint32_t options)
 
 void cSongEditor::stop()
 {
-
+	Encoder.setAcceleration(3);
 
 	moduleRefresh = 0;
 }
@@ -381,11 +381,11 @@ static  uint8_t functLeft()
 {
 	if(SE->exitOnButtonRelease) return 1;
 
-	if(SE->selectedPlace == 0)
+/*	if(SE->selectedPlace == 0)
 	{
 		functDecPattern();
 		return 1;
-	}
+	}*/
 
 	if(SE->selectedPlace > 0) SE->selectedPlace--;
 	SE->activateLabelsBorder();
@@ -398,11 +398,11 @@ static  uint8_t functRight()
 {
 	if(SE->exitOnButtonRelease) return 1;
 
-	if(SE->selectedPlace == 0)
+/*	if(SE->selectedPlace == 0)
 	{
 		functIncPattern();
 		return 1;
-	}
+	}*/
 
 	if(SE->selectedPlace < SE->frameData.placesCount-1) SE->selectedPlace++;
 	SE->activateLabelsBorder();

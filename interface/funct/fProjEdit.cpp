@@ -641,8 +641,6 @@ static uint8_t functSaveAsProject()
 
 	strcpy(PE->name,fileManager.currentProjectName);
 
-
-	PE->newProjectNotSavedFlag = 0;
 	PE->editPosition = strlen(PE->name);
 	PE->keyboardPosition = BACKSPACE_PAD_1;
 	PE->lastPressedPad = BACKSPACE_PAD_1;
@@ -771,7 +769,7 @@ static uint8_t functSaveAsConfirm()
 		return 1;
 	}
 
-
+	PE->newProjectNotSavedFlag = 0;
 	mtProject.values.projectNotSavedFlag = 0;
 
 	strcpy(fileManager.currentProjectName, PE->name);

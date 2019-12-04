@@ -104,7 +104,8 @@ public:
 	void goUpInActualPath();
 
 // foldery
-	void listOnlyFolderNames(char* path, uint8_t startPoint);
+	uint8_t checkIfNameValid(char * name);
+	void listOnlyFolderNames(char* path);
 
 /*	uint16_t locationFolderCount;
 	char locationFolderList[list_length_max][40];

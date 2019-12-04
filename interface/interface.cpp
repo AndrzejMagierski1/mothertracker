@@ -29,7 +29,8 @@
 #include "SD.h"
 #include "sdram.h"
 #include "sdCardDetect.h"
-#include "mtCardChecker.h"
+//#include "mtCardChecker.h"
+#include "mtSleep.h"
 
 
 
@@ -134,19 +135,124 @@ void cInterface::update()
 	}
 
 
-
+	handleGlobalActions();
 	mtPopups.update();
 
 	mtTest.testLoop();
 }
 
 
-
 //=======================================================================
 //=======================================================================
 //=======================================================================
 
 
+void cInterface::handleGlobalActions()
+{
+	hideAllGlobalActions();
+
+	handleShutdown();
+	handleNoSdCard();
+}
+
+void cInterface::handleNoSdCard()
+{
+	uint32_t selfPrio = noSdCardPriority;
+
+	if((globalActionPriority & ~selfPrio) <= selfPrio)
+	{
+		if(!sdCardDetector.isCardInserted())
+		{
+			if(globalActionPriority == 0)
+			{
+				interfaceEnvents(eventToggleActiveModule,0,0,0);
+			}
+
+			globalActionPriority |= selfPrio;
+
+			if(noSdCardInitFlag == 0)
+			{
+				initDisplayNoSdCard();
+				noSdCardInitFlag = 1;
+			}
+
+			refreshDsiplayNoSdCard();
+		}
+		else
+		{
+			if(noSdCardInitFlag == 1)
+			{
+				if(sdCardDetector.isCardInitialized())
+				{
+					deinitDisplayNoSdCard();
+					globalActionPriority &= ~selfPrio;
+
+					if(globalActionPriority == 0)
+					{
+						interfaceEnvents(eventToggleActiveModule,0,0,0);
+					}
+
+					noSdCardInitFlag = 0;
+				}
+			}
+		}
+	}
+}
+
+void cInterface::handleShutdown()
+{
+	if(isBooted)
+	{
+		uint32_t selfPrio = powerButtonActionPriority;
+
+		if((globalActionPriority & ~selfPrio) <= selfPrio)
+		{
+			if(lowPower.getShutdownRequest())
+			{
+				if(globalActionPriority == 0)
+				{
+					interfaceEnvents(eventToggleActiveModule,0,0,0);
+				}
+
+				globalActionPriority |= selfPrio;
+
+				if(shutdownScreenInitFlag == 0)
+				{
+					shutdownRequestTimestamp = shutdownTimer;
+					shutdownScreenInitFlag = 1;
+					initDisplayCountDown();
+				}
+
+				int32_t timeToShutdown_ms = 0;
+				uint8_t progress;
+
+				timeToShutdown_ms = (TURN_OFF_TIME_MS - (shutdownTimer - shutdownRequestTimestamp));
+				progress = ((timeToShutdown_ms * 100) / TURN_OFF_TIME_MS);
+
+				refreshDisplayCountDown(timeToShutdown_ms, progress);
+
+				if(timeToShutdown_ms <= 0)
+				{
+					lowPower.goLowPower();
+				}
+			}
+			else
+			{
+				if(shutdownScreenInitFlag == 1)
+				{
+					globalActionPriority &= ~selfPrio;
+					shutdownScreenInitFlag = 0;
+					deinitDisplayCountDown();
+
+					if(globalActionPriority == 0)
+					{
+						interfaceEnvents(eventToggleActiveModule,0,0,0);
+					}
+				}
+			}
+		}
+	}
+}
 
 void cInterface::processOperatingMode()
 {
@@ -192,7 +298,6 @@ void cInterface::processOperatingMode()
 		else
 		{
 			hideStartScreen();
-			mtCardHandler.noSdCardAction();
 		}
 	}
 

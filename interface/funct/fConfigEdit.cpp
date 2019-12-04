@@ -10,6 +10,8 @@
 #include "mtSequencer.h"
 #include "mtConfig.h"
 
+#include "patternEditor.h"
+
 
 #include "SI4703.h"
 
@@ -532,6 +534,8 @@ uint8_t cConfigEditor::setPatternDivider(uint32_t val)
 	if(mtConfig.general.patternDiv != val)
 	{
 		mtConfig.general.patternDiv = val;
+		patternEditor.trackerPattern.stepDevider = mtConfig.general.patternDiv + 1;
+
 		isChanged = 1;
 	}
 

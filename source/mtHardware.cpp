@@ -327,15 +327,15 @@ void TactSwitchRead()
 {
 	uint8_t state = digitalRead(TACT_SWITCH);
 
-	if(state == LOW && lastState != LOW)
+	if(state == LOW)
 	{
 		onPowerButtonChange(1);
 
-		lastState = LOW;
+		//lastState = LOW;
 	}
-	else if(state == HIGH && lastState != HIGH)
+	else if(state == HIGH)
 	{
-		lastState = HIGH;
+		//lastState = HIGH;
 		onPowerButtonChange(0);
 	}
 }
