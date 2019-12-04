@@ -661,7 +661,7 @@ void cProjectEditor::showExportWindow()
 	display.setControlText2(label[3], "Patt Stems");
 	display.setControlText(label[4], "Export");
 	display.setControlText2(label[4], "To MOD");
-	display.setControlText(label[5], "Cancel");
+	display.setControlText(label[5], "");
 	display.setControlText(label[6], "");
 	display.setControlText(label[7], "Cancel");
 
@@ -680,6 +680,37 @@ void cProjectEditor::showExportWindow()
 
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
+
+	display.synchronizeRefresh();
+}
+
+void cProjectEditor::showLabelDuringExport()
+{
+	display.setControlText(label[0], "");
+	display.setControlText2(label[0], "");
+	display.setControlText(label[1], "");
+	display.setControlText2(label[1], "");
+	display.setControlText(label[2], "");
+	display.setControlText2(label[2], "");
+	display.setControlText(label[3], "");
+	display.setControlText2(label[3], "");
+	display.setControlText(label[4], "");
+	display.setControlText2(label[4], "");
+	display.setControlText(label[5], "");
+	display.setControlText(label[6], "");
+	display.setControlText(label[7], "Cancel");
+
+	for(uint8_t i=0; i<5 ; i++)
+	{
+		display.setControlValue(label[i], 1);
+		display.refreshControl(label[i]);
+	}
+
+	for(uint8_t i = 5; i <8; i++)
+	{
+		display.setControlValue(label[i], 0);
+		display.refreshControl(label[i]);
+	}
 
 	display.synchronizeRefresh();
 }

@@ -980,6 +980,8 @@ static uint8_t functExportSong()
 	}
 	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/song",fileManager.currentProjectName);
 	else sprintf(currentExportPath,"Export/%s/song%d",fileManager.currentProjectName,fileCounter);
+
+	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::song);
 	return 1;
 }
@@ -1004,7 +1006,7 @@ static uint8_t functExportSongStems()
 	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/SongStems",fileManager.currentProjectName);
 	else sprintf(currentExportPath,"%s/SongStems%d",fileManager.currentProjectName,fileCounter);
 
-
+	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::songStems);
 	return 1;
 }
@@ -1030,6 +1032,7 @@ static uint8_t functExportPattern()
 	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/pattern%d",fileManager.currentProjectName,namePattern);
 	else sprintf(currentExportPath,"Export/%s/pattern%d_%d",fileManager.currentProjectName,namePattern,fileCounter);
 
+	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::pattern);
 	return 1;
 }
@@ -1055,6 +1058,7 @@ static uint8_t functExportPatternStems()
 	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/Pattern%d_Stems",fileManager.currentProjectName,namePattern);
 	else sprintf(currentExportPath,"%s/Pattern%d_Stems%d",fileManager.currentProjectName,namePattern,fileCounter);
 
+	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::patternStems);
 	return 1;
 }
@@ -1067,17 +1071,22 @@ static uint8_t functExportToMOD()
 
 static uint8_t functExportCancel()
 {
-	if((!PE->exportInProgress) && (!PE->isBusyFlag)) return 1;
-	exporter.cancel();
-	PE->exportInProgress = 0;
-	PE->isBusyFlag = 0;
-	PE->showExportWindow();
+
 	return 1;
 }
 
 static uint8_t functExportGoBack()
 {
-	if(PE->isBusyFlag) return 1;
+
+	if((PE->exportInProgress) || (PE->isBusyFlag))
+	{
+		exporter.cancel();
+		PE->exportInProgress = 0;
+		PE->isBusyFlag = 0;
+		PE->showExportWindow();
+		return 1;
+	}
+
 	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
