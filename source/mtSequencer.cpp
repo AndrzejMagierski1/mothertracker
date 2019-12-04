@@ -252,7 +252,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 			playerRow.stepOpen = 0;
 			playerRow.rollIsOn = 0;
-			playerRow.rollType = fx.ROLL_TYPE_NONE;
+			playerRow.rollPeriod = fx.ROLL_PERIOD_NONE;
 
 		}
 	}
@@ -431,15 +431,15 @@ void Sequencer::play_microStep(uint8_t row)
 				switch (_fx.type)
 				{
 				case fx.FX_TYPE_ROLL:
-					case fx.FX_TYPE_ROLL_NOTE_UP:
-					case fx.FX_TYPE_ROLL_NOTE_DOWN:
-					case fx.FX_TYPE_ROLL_NOTE_RANDOM:
+					//					case fx.FX_TYPE_ROLL_NOTE_UP:
+//					case fx.FX_TYPE_ROLL_NOTE_DOWN:
+//					case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
 					playerRow.rollIsOn = 1;
 					playerRow.rollFxId = fxIndex;
 					playerRow.rollVal = _fx.value;
-					playerRow.rollDir = _fx.type;
-					playerRow.rollType = _fx.value;
+					playerRow.rollDir = getRollType(_fx.value);
+					playerRow.rollPeriod = _fx.value;
 
 					break;
 				}
@@ -483,7 +483,7 @@ void Sequencer::play_microStep(uint8_t row)
 			playerRow.stepOpen = 0;
 			playerRow.noteOpen = 0;
 			playerRow.rollIsOn = 0;
-			playerRow.rollType = fx.ROLL_TYPE_NONE;
+			playerRow.rollPeriod = fx.ROLL_PERIOD_NONE;
 		}
 
 		// EFEKTY WŁAŚCIWE
@@ -498,15 +498,16 @@ void Sequencer::play_microStep(uint8_t row)
 			switch (_fx.type)
 			{
 			case fx.FX_TYPE_ROLL:
-				case fx.FX_TYPE_ROLL_NOTE_UP:
-				case fx.FX_TYPE_ROLL_NOTE_DOWN:
-				case fx.FX_TYPE_ROLL_NOTE_RANDOM:
+//				case fx.FX_TYPE_ROLL_NOTE_UP:
+//				case fx.FX_TYPE_ROLL_NOTE_DOWN:
+//				case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
 				playerRow.rollIsOn = 1;
 				playerRow.rollFxId = fxIndex;
 				playerRow.rollVal = _fx.value;
-				playerRow.rollType = _fx.value;
-				playerRow.rollDir = _fx.type;
+				playerRow.rollPeriod = _fx.value;
+				playerRow.rollDir = getRollType(_fx.value);
+
 
 				break;
 
@@ -556,13 +557,13 @@ void Sequencer::play_microStep(uint8_t row)
 		// jeśli rolka to nuty są krótsze od stepa
 		if (playerRow.rollIsOn)
 		{
-			playerRow.rollType = playerRow.rollVal;
-			playerRow.noteLength = rollTypeToVal(playerRow.rollType) / 2; // TODO: wyliczyć długość rolki
+			playerRow.rollPeriod = playerRow.rollVal;
+			playerRow.noteLength = rollTypeToVal(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
 			playerRow.stepOpen = 1;
 		}
 		if (patternStep.note >= 0)
 		{
-			if (playerRow.rollDir == fx.FX_TYPE_ROLL_NOTE_RANDOM && playerRow.rollIsOn)
+			if (playerRow.rollDir == fx.rollType_noteRandom && playerRow.rollIsOn)
 			{
 				playerRow.stepToSend.note = constrain(
 						random(
@@ -586,7 +587,7 @@ void Sequencer::play_microStep(uint8_t row)
 			playerRow.noteOpen = 0;
 			playerRow.stepOpen = 0;
 			playerRow.rollIsOn = 0;
-			playerRow.rollType = fx.ROLL_TYPE_NONE;
+			playerRow.rollPeriod = fx.ROLL_PERIOD_NONE;
 		}
 		else if (patternStep.note == STEP_NOTE_CUT)
 		{
@@ -624,32 +625,32 @@ void Sequencer::play_microStep(uint8_t row)
 	}
 	else if (playerRow.stepOpen)
 	{
-		if (playerRow.rollType != fx.ROLL_TYPE_NONE && playerRow.rollIsOn)
+		if (playerRow.rollPeriod != fx.ROLL_PERIOD_NONE && playerRow.rollIsOn)
 		{
 			// sprawdzamy timer microstepów, czy jest wielokrotrością rolki
-			if (((playerRow.stepTimer % rollTypeToVal(playerRow.rollType)) == 1) && playerRow.stepTimer != 1)
+			if (((playerRow.stepTimer % rollTypeToVal(playerRow.rollPeriod)) == 1) && playerRow.stepTimer != 1)
 			{
 				playerRow.stepToSend = playerRow.stepSent;
 
 				playerRow.noteOpen = 1;
 				playerRow.noteTimer = 0; // od tej pory timer liczy w górę
-				playerRow.noteLength = rollTypeToVal(playerRow.rollType) / 2; // TODO: wyliczyć długość rolki
+				playerRow.noteLength = rollTypeToVal(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
 
-				if (playerRow.rollDir == fx.FX_TYPE_ROLL_NOTE_UP)
+				if (playerRow.rollDir == fx.rollType_noteUp)
 				{
 					playerRow.stepToSend.note = constrain(
 							++playerRow.stepToSend.note,
 							0,
 							127);
 				}
-				else if (playerRow.rollDir == fx.FX_TYPE_ROLL_NOTE_DOWN)
+				else if (playerRow.rollDir == fx.rollType_noteDown)
 				{
 					playerRow.stepToSend.note = constrain(
 							--playerRow.stepToSend.note,
 							0,
 							127);
 				}
-				else if (playerRow.rollDir == fx.FX_TYPE_ROLL_NOTE_RANDOM)
+				else if (playerRow.rollDir == fx.rollType_noteRandom)
 				{
 					playerRow.stepToSend.note = constrain(
 							random(
@@ -686,10 +687,10 @@ Sequencer::strPattern *Sequencer::getPattern()
 uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
 {
 
-	rollType = rollType % (fx.ROLL_TYPE_MAX + 1);
+	rollType = rollType % (fx.ROLL_PERIOD_MAX + 1);
 	switch (rollType)
 	{
-	case fx.ROLL_TYPE_NONE:
+	case fx.ROLL_PERIOD_NONE:
 		return 0;
 		break;
 
@@ -699,26 +700,26 @@ uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
 //		return 144;
 //	case fx.ROLL_TYPE_2_1:
 //		return 96;
-	case fx.ROLL_TYPE_1_1:
+	case fx.ROLL_PERIOD_1_1:
 		return 48;
-	case fx.ROLL_TYPE_1_2:
+	case fx.ROLL_PERIOD_1_2:
 		return 24;
-	case fx.ROLL_TYPE_1_3:
+	case fx.ROLL_PERIOD_1_3:
 		return 16;
 		break;
-	case fx.ROLL_TYPE_1_4:
+	case fx.ROLL_PERIOD_1_4:
 		return 12;
 		break;
-	case fx.ROLL_TYPE_1_6:
+	case fx.ROLL_PERIOD_1_6:
 		return 8;
 		break;
-	case fx.ROLL_TYPE_1_8:
+	case fx.ROLL_PERIOD_1_8:
 		return 6;
 		break;
-	case fx.ROLL_TYPE_1_12:
+	case fx.ROLL_PERIOD_1_12:
 		return 4;
 		break;
-	case fx.ROLL_TYPE_1_16:
+	case fx.ROLL_PERIOD_1_16:
 		return 3;
 		break;
 	default:
@@ -1053,56 +1054,56 @@ void Sequencer::reset_actual_pos(uint8_t row)
 
 }
 
-uint8_t Sequencer::getLongRollVelo(uint8_t rollCurve, float progress)
-{
-	progress = constrain(progress, 0, 100);
-	uint8_t retVal = 1;
-
-	if (rollCurve == ROLL_CURVE_FLAT)
-	{
-		retVal = 127;
-	}
-
-	else if (rollCurve == ROLL_CURVE_INCREMENTAL)
-	{
-		retVal = (progress / 100) * 127;
-	}
-
-	else if (rollCurve == ROLL_CURVE_DECREMENTAL)
-	{
-		retVal = ((100 - progress) / 100) * 127;
-	}
-
-	else if (rollCurve == ROLL_CURVE_INC_DEC)
-	{
-		if (progress <= 50)
-		{
-			retVal = (progress / 50) * 127;
-		}
-		else
-		{
-			retVal = ((100 - progress) / 50) * 127;
-		}
-	}
-	else if (rollCurve == ROLL_CURVE_DEC_INC)
-	{
-		if (progress <= 50)
-		{
-			retVal = ((50 - progress) / 50) * 127;
-		}
-		else
-		{
-			retVal = ((progress - 50) / 50) * 127;
-		}
-	}
-
-	else if (rollCurve == ROLL_CURVE_RANDOM)
-	{
-		retVal = random(0, 127);
-	}
-
-	return retVal > 0 ? retVal : 1;
-}
+//uint8_t Sequencer::getLongRollVelo(uint8_t rollCurve, float progress)
+//{
+//	progress = constrain(progress, 0, 100);
+//	uint8_t retVal = 1;
+//
+//	if (rollCurve == ROLL_CURVE_FLAT)
+//	{
+//		retVal = 127;
+//	}
+//
+//	else if (rollCurve == ROLL_CURVE_INCREMENTAL)
+//	{
+//		retVal = (progress / 100) * 127;
+//	}
+//
+//	else if (rollCurve == ROLL_CURVE_DECREMENTAL)
+//	{
+//		retVal = ((100 - progress) / 100) * 127;
+//	}
+//
+//	else if (rollCurve == ROLL_CURVE_INC_DEC)
+//	{
+//		if (progress <= 50)
+//		{
+//			retVal = (progress / 50) * 127;
+//		}
+//		else
+//		{
+//			retVal = ((100 - progress) / 50) * 127;
+//		}
+//	}
+//	else if (rollCurve == ROLL_CURVE_DEC_INC)
+//	{
+//		if (progress <= 50)
+//		{
+//			retVal = ((50 - progress) / 50) * 127;
+//		}
+//		else
+//		{
+//			retVal = ((progress - 50) / 50) * 127;
+//		}
+//	}
+//
+//	else if (rollCurve == ROLL_CURVE_RANDOM)
+//	{
+//		retVal = random(0, 127);
+//	}
+//
+//	return retVal > 0 ? retVal : 1;
+//}
 
 void Sequencer::init_player_timer(void) // MT::refreshTimer
 {
@@ -1629,19 +1630,14 @@ void Sequencer::setPerformancePatternLengthFromFxVal(int8_t val)
 
 	setPerformancePatternLength(performancePatternLengthValues[val]);
 
-//	switch (val)
-//	{
-//	case -1:
-//		setPerformancePatternLength(-1);
-//		break;
-//	default:
-//		setPerformancePatternLength(performancePatternLengthValues[val]);
-//
-//	}
-
 }
 
 void Sequencer::setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern)
 {
 	player.track[track].performanceSourcePattern = sourcePattern;
+}
+
+uint8_t Sequencer::getRollType(uint8_t value)
+{
+	return (value / (fx.ROLL_PERIOD_MAX + 1));
 }
