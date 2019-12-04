@@ -498,7 +498,7 @@ void Sequencer::play_microStep(uint8_t row)
 			switch (_fx.type)
 			{
 			case fx.FX_TYPE_ROLL:
-//				case fx.FX_TYPE_ROLL_NOTE_UP:
+				//				case fx.FX_TYPE_ROLL_NOTE_UP:
 //				case fx.FX_TYPE_ROLL_NOTE_DOWN:
 //				case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
@@ -892,6 +892,15 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	{
 		player.globalPos++;
 
+		if (player.selectionMode && row == selection.lastTrack)
+		{
+			if (player.globalPos > selection.lastStep)
+			{
+				stop();
+				player.onPatternEnd();
+			}
+		}
+
 		if ((player.globalPos > patternLength))
 		{
 			player.globalPos = 0;
@@ -917,14 +926,6 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 					player.onSongEnd();
 				}
 			}
-		}
-	}
-	if (player.selectionMode && row == selection.lastTrack)
-	{
-		if (player.globalPos > selection.lastStep)
-		{
-			stop();
-			player.onPatternEnd();
 		}
 	}
 
