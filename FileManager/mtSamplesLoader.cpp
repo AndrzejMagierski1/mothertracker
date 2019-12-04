@@ -117,6 +117,28 @@ void SamplesLoader::update()
 			mtProject.used_memory += currentSize*2;
 			mtProject.instrument[currentIndex].isActive=1;
 			mtProject.instrument[currentIndex].sample.length = currentSize;
+			if(mtProject.instrument[currentIndex].playMode == playModeWavetable)
+			{
+				mtProject.instrument[currentIndex].sample.type = mtSampleTypeWavetable;
+
+				mtProject.instrument[currentIndex].sample.wavetable_window_size =
+						(mtProject.instrument[currentIndex].sample.length >= mtProject.instrument[currentIndex].sample.wavetable_window_size) ?
+						mtProject.instrument[currentIndex].sample.wavetable_window_size : mtProject.instrument[currentIndex].sample.length;
+				mtProject.instrument[currentIndex].wavetableCurrentWindow = 0;
+				//*******************************wavetable window size moze byc tylko potęgą 2
+				// Jezeli length nie jest potega 2 trzeba go zrownac do najwiekszej mozliwej potegi 2
+				uint16_t localMask = 2048;
+				while( !(mtProject.instrument[currentIndex].sample.wavetable_window_size & localMask) )
+				{
+					if((mtProject.instrument[currentIndex].sample.wavetable_window_size == 0 )) break;
+					localMask>>=1;
+				}
+
+				mtProject.instrument[currentIndex].sample.wavetable_window_size &= localMask;
+				//**************************************************************************
+				mtProject.instrument[currentIndex].sample.wavetableWindowNumber = mtProject.instrument[currentIndex].sample.wavetable_window_size ? mtProject.instrument[currentIndex].sample.length/mtProject.instrument[currentIndex].sample.wavetable_window_size : 0;
+			}
+
 			loadedFlagChange = 1;
 			if( (currentIndex+1) < INSTRUMENTS_COUNT)
 			{
