@@ -101,7 +101,7 @@ void mtPatternExporter::refresh()
 	if(status == exportStatus::exportDuring)
 	{
 		if((recBuf == nullptr) || (sendBuf == nullptr)) return;
-		if ((exportL.available() >= 1) && (exportR.available() >= 1 ))
+		if ((exportL.available() >= 1) || (exportR.available() >= 1 ))
 		{
 
 			int16_t * srcL = exportL.readBuffer();
@@ -110,8 +110,11 @@ void mtPatternExporter::refresh()
 
 			for(uint8_t i = 0 ; i< 128 ; i++)
 			{
-				*packageL = *srcL++;
-				*packageR = *srcR++;
+				if(srcL == nullptr) *packageL = 0;
+				else *packageL = *srcL++;
+
+				if(srcR == nullptr) *packageR = 0;
+				else *packageR = *srcR++;
 				*dest++ = packageLR;
 			}
 			position+=256;

@@ -54,6 +54,7 @@ public:
 		combdamp2 = x2;
 		__enable_irq();
 	}
+	void clearFilters();
 private:
 	audio_block_t *inputQueueArray[1];
 	int16_t comb1buf[1116];
