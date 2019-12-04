@@ -264,7 +264,8 @@ void envelopeGenerator::calc()
 		// #endif
 
 		// tempOutput = (envTemp.timer / attack) * amount ;
-		tempOutput = envTemp.killOutput + ((envTemp.timer / attack) * (amount-envTemp.killOutput)) ;
+		if(attack > 0) tempOutput = envTemp.killOutput + ((envTemp.timer / attack) * (amount-envTemp.killOutput)) ;
+		else  tempOutput = amount; // przy attack - 0 powstawał nan i loop dzialal nieprawidlowo - andrzej2000
 
 		envTemp.tempOutput = constrain(tempOutput, envTemp.killOutput, MAX_OUTPUT);
 		envTemp.maxOutput = envTemp.tempOutput;
@@ -283,8 +284,9 @@ void envelopeGenerator::calc()
 		// #ifdef ADSR_DEBUG
 		// 		Serial.print(" decay");
 		// #endif
-		if(decay == 0.0f) tempOutput = sustain * amount; // przy decay - 0 powstawał nan i loop dzialal nieprawidlowo - andrzej2000
-		else tempOutput = (((1 - (envTemp.timer / decay)) * (1 - sustain) + sustain)) * amount;// * (amount / MAX_ADSR_PAR);
+
+		 if(decay > 0) tempOutput = (((1 - (envTemp.timer / decay)) * (1 - sustain) + sustain)) * amount;// * (amount / MAX_ADSR_PAR);
+		 else  tempOutput = sustain * amount; // przy decay - 0 powstawał nan i loop dzialal nieprawidlowo - andrzej2000
 
 		// tempOutput = tempOutput * (amount > 0 ? 1 : -1);
 		envTemp.tempOutput = constrain(tempOutput, MIN_OUTPUT, MAX_OUTPUT);
@@ -306,6 +308,10 @@ void envelopeGenerator::calc()
 		// #ifdef ADSR_DEBUG
 		// 		Serial.print(" release");
 		// #endif
+
+		if((envTemp.maxOutput == 0.0f) && (sustain != 0.0f) && (amount != 0.0f)) envTemp.maxOutput = sustain * amount;
+		//andrzej 2000 - czasem wskakuje od razu w ten stan i jest 0 na envTemp.maxOutput
+
 		if (release > 0)
 		{
 			tempOutput = (1 - (envTemp.timer / release)) * envTemp.maxOutput;
