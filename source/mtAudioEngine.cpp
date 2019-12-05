@@ -261,6 +261,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 {
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
 
+	endFx(lastSeqFx[0],0);
+	endFx(lastSeqFx[1],1);
 	__disable_irq();
 	AudioNoInterrupts();
 	uint8_t status;
