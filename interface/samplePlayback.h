@@ -19,7 +19,8 @@ const char playModeFunctLabels[playModeCount][15]=
 		"Backward Loop",
 		"Pingpong Loop",
 		"Wavetable",
-		"Slice"
+		"Slice",
+		"Granular"
 };
 
 constexpr uint8_t MAX_WAVETABLE_WINDOWS_COUNTER = 11;
@@ -46,6 +47,7 @@ public:
 //		openedInstrFromActive = 0;
 //		openedInstrumentIndex = 0;
 		progressCursor = nullptr;
+		granularCursor = nullptr;
 		spectrumControl = nullptr;
 		pointsControl = nullptr;
 		slicePointsControl = nullptr;
@@ -104,6 +106,7 @@ public:
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
 	hControl progressCursor;
+	hControl granularCursor;
 	hControl wtPositionCursor;
 	hControl bgLabel;
 
@@ -147,6 +150,7 @@ public:
 	strSlicePoints slicePoints;
 
 	wt_position_data_t wtPosition;
+
 
 //----------------------------------
 // aktualny instrument na belce tytułowej
@@ -192,6 +196,18 @@ public:
 	uint8_t refreshWavetablePosition = 1;
 
 	void processWavetableCursor(uint32_t position);
+
+	char granularPositionTextValue[8];
+	char grainLengthTextValue[8];
+	char shapeText[10];
+
+	uint16_t granularPositionInSpectrum;
+	float grainLengthMs;
+
+	void showGranularPositionValue();
+	void showGrainLengthValue();
+	void showShapeText();
+
 
 };
 

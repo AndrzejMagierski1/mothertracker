@@ -206,6 +206,7 @@ enum instrumentPlayMode
 	loopPingPong,
 	playModeWavetable, //tylko na uzytek interface - sample type obsługuje to w silniku
 	playModeSlice,
+	playModeGranular,
 
 	playModeCount
 };
@@ -347,6 +348,16 @@ enum loaderStateType
 	loaderStateTypeEnded,
 	loaderStateTypeInProgress
 };
+
+enum granularShapeType
+{
+	granularShapeSquare,
+	granularShapeTriangle,
+	granularShapeGauss,
+
+	granularTypeCount
+};
+
 //=====================================================================
 //-------------------------------------------------
 //-------------------------------------------------
@@ -403,6 +414,14 @@ struct strInstrument
     uint16_t slices[MAX_SLICE_NUMBER];
     uint8_t sliceNumber;
     uint8_t selectedSlice;
+
+    struct strGranular
+    {
+    	uint16_t 	grainLength = 44;
+    	uint32_t 	currentPosition;
+    	uint32_t 	grainNumber;
+    	uint8_t	 	shape;
+    } granular;
 };
 //-------------------------------------------------
 struct strMtValues
