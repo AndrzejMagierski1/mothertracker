@@ -26,9 +26,10 @@ void mtSongExporter::start(char * path)
 
 	if(SD.exists(currentSongExportPath)) SD.remove(currentSongExportPath);
 	wavExport = SD.open(currentSongExportPath,FILE_WRITE);
-	wavExport.seek(44);
+
 	if(wavExport)
 	{
+		wavExport.write(recBuf,44); // wpisanie losowych danych zeby przesunac plik na pozycje za naglowkiem - potem zostana one nadpisane przez naglowek
 		byteRecorded=0;
 		status = exportStatus::exportDuring;
 
