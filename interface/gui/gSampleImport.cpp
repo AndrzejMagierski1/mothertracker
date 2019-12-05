@@ -18,11 +18,11 @@ static uint32_t barColorsRed[5] =
 		0x0a0a0a
 };
 
-static uint32_t defaultColors[5] =
+static uint32_t defaultBarColors[5] =
 {
 		0xFFFFFF,
-		0xf13c3c,
-		0x99d67b,
+		0xcd1818,
+		0x32d642,	//0xf13c3c,
 		0x080808,
 		0x0a0a0a
 };
@@ -342,7 +342,7 @@ void cSampleImporter::showMemoryUsage()
 
 	if(!fullMemoryFlag)
 	{
-		display.setControlColors(memoryBarControl, defaultColors);
+		display.setControlColors(memoryBarControl, defaultBarColors);
 		display.setControlValue(memoryBarControl, memoryUsage);
 		display.setControlData(memoryBarControl,&memoryUsageAdd);
 		display.setControlShow(memoryBarControl);

@@ -13,6 +13,9 @@
 #include "poly_logo_inv_128x128_L8.h"
 
 
+
+#include "poly_logo_160x172_L8.h"
+
 #include "RobotoMono-Regular_14_L4.h"
 #include "RobotoMono-Regular_17_L4.h"
 
@@ -46,10 +49,10 @@ const strFont fonts[displayFontCount] =
 
 const strBitmap bitmaps[displayBitmapsCount] =
 {
-	{poly_logo_inv_128x128_l8,50000,16384,128,128,L8,128,},
+	{poly_logo_160x172_l8,50000,27520,160,172,L8,160,},
 
-	{ playIcon20x20,72000 , 200, 20, 20, L4, 10},
-	{ loopIcon20x20,72500 , 200, 20, 20, L4, 10},
+	{ playIcon20x20,78000 , 200, 20, 20, L4, 10},
+	{ loopIcon20x20,78500 , 200, 20, 20, L4, 10},
 
 
 };

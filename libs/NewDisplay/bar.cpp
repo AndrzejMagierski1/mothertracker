@@ -9,8 +9,8 @@
 static uint32_t defaultColors[] =
 {
 	0xFFFFFF, // kolor glowny
-	0xFFFFFF, // kolor dodatkowy 1 ziel
-	0xf13c3c, // kolor dodatkowy 2 czer
+	0xff0000, // kolor dodatkowy 1 czer
+	0x00ff00, // kolor dodatkowy 2 ziel
 	0x080808, // kontener
 	0x0a0a0a, // tlo
 };
@@ -123,9 +123,12 @@ uint8_t cBar::update()
 
 		API_SAVE_CONTEXT();
 
-		API_SCISSOR_XY(posX-1, posY+height-10);
-		API_SCISSOR_SIZE(width+2, 10);
-		API_CMD_GRADIENT(0, 413, colors[4], 0, 423, 0x0);
+		uint16_t grad_y = posY+height-10;
+		uint16_t grad_h = 10;
+
+		API_SCISSOR_XY(posX-1, grad_y);
+		API_SCISSOR_SIZE(width+2, grad_h);
+		API_CMD_GRADIENT(0, grad_y, colors[4], 0, grad_y+grad_h, 0x0);
 
 		API_RESTORE_CONTEXT();
     }
@@ -164,8 +167,8 @@ uint8_t cBar::update()
 
 		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
-		API_VERTEX2F(barX+1, barY+barFillY+1);
-		API_VERTEX2F(barX+barWidth-1, barY+barHeight-1);
+		API_VERTEX2F(barX, (valueSub < 0) ? barY+barFillY+compareBarHeight : barY+barFillY);
+		API_VERTEX2F(barX+barWidth, barY+barHeight);
 		API_END();
 
 //		API_LINE_WIDTH(16);
@@ -181,8 +184,8 @@ uint8_t cBar::update()
 		{
 			API_COLOR(colors[1]);
 			API_BEGIN(RECTS);
-			API_VERTEX2F(barX+1, barY+barFillY);
-			API_VERTEX2F(barX+barWidth-1, barY+barFillY-compareBarHeight-1);
+			API_VERTEX2F(barX, barY+barFillY);
+			API_VERTEX2F(barX+barWidth, barY+barFillY-compareBarHeight);
 
 			API_END();
 		}
@@ -190,8 +193,8 @@ uint8_t cBar::update()
 		{
 			API_COLOR(colors[2]);
 			API_BEGIN(RECTS);
-			API_VERTEX2F(barX+barWidth-1, barY+barFillY+compareBarHeight-1);
-			API_VERTEX2F(barX+1, barY+barFillY+1);
+			API_VERTEX2F(barX+barWidth, barY+barFillY+compareBarHeight);
+			API_VERTEX2F(barX, barY+barFillY);
 			API_END();
 		}
 
@@ -203,12 +206,11 @@ uint8_t cBar::update()
 
 		API_COLOR(colors[0]);
 
-		API_LINE_WIDTH(16);
+		API_LINE_WIDTH(15);
 		API_BEGIN(RECTS);
-		API_VERTEX2F(barX+1, barY+barFillY+1);
-		API_VERTEX2F(barX+barWidth-1, barY+barHeight-1);
+		API_VERTEX2F(barX, (barY+barFillY));
+		API_VERTEX2F((barX+barWidth), (barY+barHeight));
 		API_END();
-
 //		API_COLOR(colors[1]);
 //		API_LINE_WIDTH(16);
 //		API_BEGIN(LINE_STRIP);
@@ -229,7 +231,7 @@ uint8_t cBar::update()
 
 		API_COLOR(colors[0]);
 
-		API_LINE_WIDTH(16);
+		API_LINE_WIDTH(15);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(barX+1, barFillYtop+1);
 		API_VERTEX2F(barX+barWidth-1, barFillYbott-1);

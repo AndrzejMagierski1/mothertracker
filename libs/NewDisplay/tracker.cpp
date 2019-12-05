@@ -678,7 +678,7 @@ void cTracker::selection()
 	{
 		uint16_t select_x = rightOffset + (tracks->actualTrack - tracks->firstVisibleTrack) * tracksSpace + 2;
 		uint16_t select1_y = posY+28*7;
-		uint16_t select2_y = select1_y+28;
+		uint16_t select2_y = select1_y+27;
 		uint16_t select_w = tracksSpace-5;
 		uint16_t rect_select_x = 0;
 		uint16_t rect_select_width = 0;

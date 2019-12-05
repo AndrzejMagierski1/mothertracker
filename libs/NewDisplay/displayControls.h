@@ -99,6 +99,8 @@ extern strGetProps getProps;
 #define FONT_INDEX_FROM_STYLE (((style >> 8) & 15)-1)
 
 
+const uint32_t one_true_red  = 0xcd1818;
+
 uint16_t getTextWidth(uint8_t font, char* text);
 
 //--------------------------------------------------------------------

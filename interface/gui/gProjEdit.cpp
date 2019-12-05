@@ -85,7 +85,7 @@ void cProjectEditor::initDisplayControls()
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;
-	prop2.y = 425;
+	prop2.y = 424;
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 

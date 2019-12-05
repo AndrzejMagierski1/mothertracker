@@ -516,6 +516,4 @@ extern strInterfaceGlobals interfaceGlobals;
 
 
 
-
-
 #endif

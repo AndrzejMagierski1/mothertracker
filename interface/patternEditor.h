@@ -144,9 +144,12 @@ public:
 
 	// popups
 	hControl patternPopupLabel;
+	hControl patternPopupTitleLabel;
 	hControl param1PopupListControl;
-	hControl val1PopupLabel;
-	hControl val2PopupLabel;
+	hControl val1PopupBar;
+	hControl val2PopupBar;
+//	hControl val1PopupLabel;
+//	hControl val2PopupLabel;
 	hControl param3PopupListControl;
 	hControl param2PopupListControl;
 	hControl notePopoutControl = nullptr;
