@@ -100,7 +100,7 @@ uint8_t cWtProgress::update()
 		API_VERTEX2F(posX, posY);
 		API_VERTEX2F(posX + width, posY + height);
 
-		float lengthOfWindow = (width / (float)wt_data->positionMax);
+		float lengthOfWindow = wt_data->positionMax == 0 ?  0 :  (width / (float)wt_data->positionMax);
 		uint32_t bar_start = (wt_data->position * lengthOfWindow + 0.5f);/* 0.5f for rounding*/
 
 		if(lengthOfWindow < 1)
