@@ -34,7 +34,7 @@
 
 #include "processingPopout.h"
 #include "simpleTextControl.h"
-
+#include "lineIndicatorControl.h"
 
 typedef cDisplayControl* hControl;
 
