@@ -11,18 +11,18 @@ static uint16_t framesPlaces[2][4] =
 
 static uint32_t barColorsRed[5] =
 {
-		0xf13c3c,
-		0xf13c3c,
-		0xf13c3c,
+		one_true_red,
+		one_true_red,
+		one_true_red,
 		0x080808,
 		0x0a0a0a
 };
 
-static uint32_t defaultColors[5] =
+static uint32_t defaultBarColors[5] =
 {
 		0xFFFFFF,
-		0xf13c3c,
-		0x99d67b,
+		one_true_red,
+		0x32d642,	//0xf13c3c,
 		0x080808,
 		0x0a0a0a
 };
@@ -48,14 +48,10 @@ void cSampleImporter::initDisplayControls()
 	strControlProperties prop;
 
 	prop.x = 190;
-//	prop.colors = &color[0];
 	prop.y = 170;
-	//prop.w = 800/4-10;
 	prop.style = controlStyleValue_0_100;
 	prop.h = 100;
 	prop.w = 420;
-//	prop.value = 70;
-//	prop.text = "loading...";
 	if(loadHorizontalBarControl == nullptr)  loadHorizontalBarControl = display.createControl<cHorizontalBar>(&prop);
 
 	strControlProperties prop2;
@@ -119,7 +115,6 @@ void cSampleImporter::initDisplayControls()
 	explorerList.length = locationExplorerCount;
 	explorerList.linesCount = 14;
 	explorerList.data = explorerNames;
-	//explorerList.selectTab=selectionTab;
 	prop.x = 0+1;
 	prop.y = 29;
 	prop.w = 800/4-3;
@@ -131,42 +126,32 @@ void cSampleImporter::initDisplayControls()
 	instrumentList.linesCount = 14;
 	instrumentList.start = 0;
 	instrumentList.length = 0;
-	//instrumentList.selectTab=inSelection;
-	//strControlProperties prop;
 	prop.x = (800/4)*3+1;
-	//prop.y = 10;
-	//prop.w = 800/4-10;
-	//prop.h = 25;
 	prop.data = &instrumentList;
 	if(instrumentListControl == nullptr)  instrumentListControl = display.createControl<cList>(&prop);
 
 
 	prop.x = (800/8)*5+1;
-//	prop.colors = &color[1];
-	//prop.y = 10;
 	prop.w = 800/8-3;
 	prop.style = controlStyleCompareTwoValues | controlStyleBackground;
-	//prop.h = 380;
 	prop.data = &memoryUsageAdd;
-	//prop.value = memoryUsage;
 	if(memoryBarControl == nullptr)  memoryBarControl = display.createControl<cBar>(&prop);
 
 
-
 	strControlProperties prop3;
-	prop3.x = 10;
-	prop3.y = 120;
+	prop3.x = 13;
+	prop3.y = 143;
 	prop3.w = 780;
-	prop3.h = 280;
+	prop3.h = 260;
 	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cKeyboard>(&prop3);
 
 	strControlProperties prop4;
 	prop4.text = (char*)"";
-	prop4.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleRoundedBorder);
-	prop4.x = 393;
-	prop4.y = 60;
-	prop4.w = 765;
-	prop4.h = 40;
+	prop4.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleFont2);
+	prop4.x = 400;
+	prop4.y = 29;
+	prop4.w = 795;
+	prop4.h = 90;
 	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop4);
 }
 
@@ -342,7 +327,7 @@ void cSampleImporter::showMemoryUsage()
 
 	if(!fullMemoryFlag)
 	{
-		display.setControlColors(memoryBarControl, defaultColors);
+		display.setControlColors(memoryBarControl, defaultBarColors);
 		display.setControlValue(memoryBarControl, memoryUsage);
 		display.setControlData(memoryBarControl,&memoryUsageAdd);
 		display.setControlShow(memoryBarControl);

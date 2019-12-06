@@ -111,7 +111,7 @@ uint8_t cStartScreen::update()
 	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[bitmap_index].width, bitmaps[bitmap_index].height);
 
 	API_BEGIN(BITMAPS);
-	API_VERTEX2F((800/2)-(bitmaps[bitmap_index].width/2), 150);
+	API_VERTEX2F((800/2)-(bitmaps[bitmap_index].width/2), 100);
 	API_END();
 
 

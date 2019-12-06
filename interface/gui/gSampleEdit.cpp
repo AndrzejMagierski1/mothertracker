@@ -8,21 +8,21 @@ static uint16_t framesPlacesNoBars[7][4] =
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-		{(800/8)*3+1, 421, 800/8-1, 65},
-		{(800/8)*4+1, 421, 800/8-1, 65},
-		{(800/8)*5+1, 421, 800/8-1, 65},
-		{(800/8)*6+2, 31, 800/4-5, 387},
+		{(800/8)*3+1, 424, 800/8-3, 55},
+		{(800/8)*4+1, 424, 800/8-3, 55},
+		{(800/8)*5+1, 424, 800/8-3, 55},
+		{(800/8)*6+1, 31, 800/4-3, 394},
 };
 
 static uint16_t framesPlacesWithBars[7][4] =
 {
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-		{(800/8)*2+2, 31, 800/8-5, 387},
-		{(800/8)*3+2, 31, 800/8-5, 387},
-		{(800/8)*4+2, 31, 800/8-5, 387},
-		{(800/8)*5+2, 31, 800/8-5, 387},
-		{(800/8)*6+2, 31, 800/4-5, 387},
+		{(800/8)*2+1, 29, 800/8-3, 394},
+		{(800/8)*3+1, 29, 800/8-3, 394},
+		{(800/8)*4+1, 29, 800/8-3, 394},
+		{(800/8)*5+1, 29, 800/8-3, 394},
+		{(800/8)*6+1, 29, 800/4-3, 394},
 };
 
 
@@ -44,17 +44,17 @@ void cSampleEditor::initDisplayControls()
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
 	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
-	prop2.x = 30;
-	prop2.y = 12;
+	prop2.x = 9;
+	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY | controlStyleFont4);
 	prop2.x = 769;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
+	prop2.x = 2;
 	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
+	prop2.w = 795;
+	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 	strControlProperties prop;
@@ -84,7 +84,7 @@ void cSampleEditor::initDisplayControls()
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;
-	prop2.y = 425;
+	prop2.y = 424;
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 

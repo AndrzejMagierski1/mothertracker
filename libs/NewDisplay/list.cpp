@@ -12,8 +12,8 @@ static uint32_t defaultColors[] =
 	0x575757,	//	uint32_t listScrollBar 			= DISP_RGB(255,255,255);
 	0x0a0a0a,	//	uint32_t listBG 				= DISP_RGB(85,74,25);
 	0xFFFFFF,	//	uint32_t fontList 				= DISP_RGB(255,255,255);
-	0xFF0000,   //  select color
-	0x080808	//	scrollParCont
+	one_true_red,   //  select color
+	0x000000	//	scrollParCont
 };
 
 
@@ -187,7 +187,10 @@ uint8_t cList::update()
 
 
 	int16_t  x_pos = posX, y_pos, h_row = 27; //font->height+8;
+	uint16_t w_bar = width-6; // szerokosc ramki
 	uint8_t lines;
+
+	if(list->length > list->linesCount) w_bar = width-13;
 
 	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
@@ -196,24 +199,31 @@ uint8_t cList::update()
 	//tlo listy
     if(style & controlStyleBackground)
     {
-		API_BLEND_FUNC(SRC_ALPHA , ZERO);
 		API_COLOR(colors[3]);
 		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(posX, posY);
-		API_VERTEX2F(posX+width, posY+height);
+		API_VERTEX2F(posX+width, posY+height-2);
 		API_END();
-		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 
+		API_BLEND_FUNC(SRC_ALPHA , ZERO);
 
 		API_SAVE_CONTEXT();
-
-		//API_LINE_WIDTH(16);
 		API_SCISSOR_XY(posX, posY+height-10);
 		API_SCISSOR_SIZE(width+1, 10);
 		API_CMD_GRADIENT(0, 413, colors[3], 0, 423, 0x0);
-
 		API_RESTORE_CONTEXT();
+
+		API_COLOR(0x000000);
+		API_LINE_WIDTH(1);
+		API_BEGIN(LINES);
+		API_VERTEX2F(posX-1, posY);
+		API_VERTEX2F(posX-1, posY+height);
+		API_VERTEX2F(posX+width+1, posY);
+		API_VERTEX2F(posX+width+1, posY+height);
+		API_END();
+
+		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
     }
 
     posY +=1;
@@ -242,8 +252,8 @@ uint8_t cList::update()
 			API_LINE_WIDTH(8);
 			API_BEGIN(LINE_STRIP);
 			API_VERTEX2F(x_pos, y_pos);
-			API_VERTEX2F(x_pos + width-15, y_pos);
-			API_VERTEX2F(x_pos + width-15, y_pos + h_row);
+			API_VERTEX2F(x_pos + w_bar, y_pos);
+			API_VERTEX2F(x_pos + w_bar, y_pos + h_row);
 			API_VERTEX2F(x_pos, y_pos + h_row);
 			API_VERTEX2F(x_pos, y_pos);
 			API_END();
@@ -262,7 +272,7 @@ uint8_t cList::update()
 		API_COLOR(colors[4]);
 
 		API_SCISSOR_XY(posX, posY);
-		API_SCISSOR_SIZE(width-10, h_row*list->linesCount);
+		API_SCISSOR_SIZE(w_bar, h_row*list->linesCount);
 
 		for(uint8_t i = 0; i < lines; i++)
 		{
@@ -365,6 +375,7 @@ uint8_t cList::update()
 		{
 			x_pos = posX+3;
 			y_pos = posY + (barPos * h_row) + (mode ? 0 : listAnimationStep);
+			if(list->length > list->linesCount) w_bar = width-13;
 
 			//ramka
 			if(list->selectionActive)
@@ -378,8 +389,8 @@ uint8_t cList::update()
 			API_LINE_WIDTH(8);
 			API_BEGIN(LINE_STRIP);
 			API_VERTEX2F(x_pos, y_pos);
-			API_VERTEX2F(x_pos + width-15, y_pos);
-			API_VERTEX2F(x_pos + width-15, y_pos + h_row);
+			API_VERTEX2F(x_pos + w_bar, y_pos);
+			API_VERTEX2F(x_pos + w_bar, y_pos + h_row);
 			API_VERTEX2F(x_pos, y_pos + h_row);
 			API_VERTEX2F(x_pos, y_pos);
 			API_END();
@@ -393,7 +404,7 @@ uint8_t cList::update()
 		API_COLOR(colors[4]);
 
 		API_SCISSOR_XY(posX, posY);
-		API_SCISSOR_SIZE(width-10, h_row*list->linesCount);
+		API_SCISSOR_SIZE(w_bar, h_row*list->linesCount);
 
 		lines = (list->length >= list->linesCount)  ? list->linesCount : list->length;
 
@@ -529,16 +540,16 @@ uint8_t cList::update()
 	// pasek przewijania
 	if(list->length > list->linesCount)
 	{
-		int16_t y_length = (((  h_row * list->linesCount  ) * list->linesCount)  / (list->length-1)) - 4 ;
-		y_pos = posY + 6 + (list->start * (( h_row * list->linesCount )-(y_length+2))) / (list->length-1) ;
+		int16_t y_length = (( height-14 ) * list->linesCount)  / list->length;
+		y_pos = posY + 6 + (list->start * (( height-14) - y_length)) / list->length;
 
 		//API_BLEND_FUNC(SRC_ALPHA , ZERO);
 
 		API_COLOR(colors[6]);
 		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
-		API_VERTEX2F(posX + (width - 8) , posY+4);
-		API_VERTEX2F(posX + (width - 5) , (posY+height)-10);
+		API_VERTEX2F(posX + (width - 6) , posY+4);
+		API_VERTEX2F(posX + (width - 3) , (posY+height)-10);
 		API_END();
 
 		API_COLOR(colors[2]);
@@ -546,11 +557,11 @@ uint8_t cList::update()
 		API_BEGIN(LINES);
 		//API_LINE_WIDTH(24);
 		//API_BEGIN(RECTS);
-		API_VERTEX2F(posX + (width - 7) , y_pos);
-		API_VERTEX2F(posX + (width - 7) , y_pos+y_length);
+		API_VERTEX2F(posX + (width - 5) , y_pos);
+		API_VERTEX2F(posX + (width - 5) , y_pos+y_length);
 
-		API_VERTEX2F(posX + (width - 6) , y_pos);
-		API_VERTEX2F(posX + (width - 6) , y_pos+y_length);
+		API_VERTEX2F(posX + (width - 4) , y_pos);
+		API_VERTEX2F(posX + (width - 4) , y_pos+y_length);
 
 		API_END();
 

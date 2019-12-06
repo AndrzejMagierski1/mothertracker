@@ -264,7 +264,7 @@ uint8_t cConfigEditor::getListsActive()
 
 void cConfigEditor::setDataForLists(uint8_t listNum, uint8_t max)
 {
-	configGroupList[listNum].linesCount = 15;
+	configGroupList[listNum].linesCount = 14;
 	configGroupList[listNum].start = selectedConfigGroup[listNum];
 	configGroupList[listNum].length = max;
 	configGroupList[listNum].data = configGroupsNames[listNum];

@@ -7,7 +7,7 @@
 
 static uint32_t defaultColors[] =
 {
-	0xf13c3c, // ramka
+	one_true_red, // ramka
 	0x3F3F3F, // tło
 	0x000000, // ramka
 };

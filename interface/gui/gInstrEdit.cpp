@@ -21,17 +21,17 @@ void cInstrumentEditor::initDisplayControls()
 {
 	strControlProperties prop2;
 	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
-	prop2.x = 30;
-	prop2.y = 12;
+	prop2.x = 9;
+	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY | controlStyleFont4);
 	prop2.x = 769;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
+	prop2.x = 2;
 	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
+	prop2.w = 795;
+	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 
@@ -83,7 +83,7 @@ void cInstrumentEditor::initDisplayControls()
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;
-	prop2.y = 425;
+	prop2.y = 424;
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
@@ -209,23 +209,23 @@ void cInstrumentEditor::showInstrumentEnv()
 	display.setControlValue(label[6], 1);
 	display.setControlValue(label[7], 1);
 
-	display.setControlText2(label[0], "Envelopes");
-	display.setControlText2(label[1], "State");
-	display.setControlText2(label[2], "Attack");
-	display.setControlText2(label[3], "Decay");
-	display.setControlText2(label[4], "Sustain");
-	display.setControlText2(label[5], "Release");
-	display.setControlText2(label[6], "Amount");
-	display.setControlText2(label[7], "Loop");
+	display.setControlText(label[0], "Envelopes");
+	display.setControlText(label[1], "State");
+	display.setControlText(label[2], "Attack");
+	display.setControlText(label[3], "Decay");
+	display.setControlText(label[4], "Sustain");
+	display.setControlText(label[5], "Release");
+	display.setControlText(label[6], "Amount");
+	display.setControlText(label[7], "Loop");
 
-	display.setControlText(label[0], "");
-	display.setControlText(label[1], "");
-	display.setControlText(label[2], "");
-	display.setControlText(label[3], "");
-	display.setControlText(label[4], "");
-	display.setControlText(label[5], "");
-	display.setControlText(label[6], "");
-	display.setControlText(label[7], "");
+	display.setControlText2(label[0], "");
+	display.setControlText2(label[1], "");
+	display.setControlText2(label[2], "");
+	display.setControlText2(label[3], "");
+	display.setControlText2(label[4], "");
+	display.setControlText2(label[5], "");
+	display.setControlText2(label[6], "");
+	display.setControlText2(label[7], "");
 
 
 	showEnvList();
@@ -293,23 +293,23 @@ void cInstrumentEditor::showInstrumentParams()
 	display.setControlValue(label[6], 1);
 	display.setControlValue(label[7], 1);
 
-	display.setControlText2(label[0], "Volume");
-	display.setControlText2(label[1], "Panning");
-	display.setControlText2(label[2], "Tune");
-	display.setControlText2(label[3], "Finetune");
-	display.setControlText2(label[4], "Filter Type");
-	display.setControlText2(label[5], "Cutoff");
-	display.setControlText2(label[6], "Resonance");
-	display.setControlText2(label[7], "Rev. Send");
+	display.setControlText(label[0], "Volume");
+	display.setControlText(label[1], "Panning");
+	display.setControlText(label[2], "Tune");
+	display.setControlText(label[3], "Finetune");
+	display.setControlText(label[4], "Filter Type");
+	display.setControlText(label[5], "Cutoff");
+	display.setControlText(label[6], "Resonance");
+	display.setControlText(label[7], "Rev. Send");
 
-	display.setControlText(label[0], "");
-	display.setControlText(label[1], "");
-	display.setControlText(label[2], "");
-	display.setControlText(label[3], "");
-	display.setControlText(label[4], "");
-	display.setControlText(label[5], "");
-	display.setControlText(label[6], "");
-	display.setControlText(label[7], "");
+	display.setControlText2(label[0], "");
+	display.setControlText2(label[1], "");
+	display.setControlText2(label[2], "");
+	display.setControlText2(label[3], "");
+	display.setControlText2(label[4], "");
+	display.setControlText2(label[5], "");
+	display.setControlText2(label[6], "");
+	display.setControlText2(label[7], "");
 
 
 	showParamsVolume();
@@ -354,6 +354,7 @@ void cInstrumentEditor::showInstrumentParams()
 		display.refreshControl(barControl[i]);
 	}
 
+	display.setControlShow(bgLabel);
 	display.refreshControl(bgLabel);
 
 
@@ -376,16 +377,7 @@ void cInstrumentEditor::showInstrumentMidiParams()
 	display.setControlValue(label[6], 1);
 	display.setControlValue(label[7], 1);
 
-	display.setControlText2(label[0], "Velocity");
-	display.setControlText2(label[1], "");
-	display.setControlText2(label[2], "");
-	display.setControlText2(label[3], "");
-	display.setControlText2(label[4], "");
-	display.setControlText2(label[5], "");
-	display.setControlText2(label[6], "");
-	display.setControlText2(label[7], "");
-
-	display.setControlText(label[0], "");
+	display.setControlText(label[0], "Velocity");
 	display.setControlText(label[1], "");
 	display.setControlText(label[2], "");
 	display.setControlText(label[3], "");
@@ -393,6 +385,15 @@ void cInstrumentEditor::showInstrumentMidiParams()
 	display.setControlText(label[5], "");
 	display.setControlText(label[6], "");
 	display.setControlText(label[7], "");
+
+	display.setControlText2(label[0], "");
+	display.setControlText2(label[1], "");
+	display.setControlText2(label[2], "");
+	display.setControlText2(label[3], "");
+	display.setControlText2(label[4], "");
+	display.setControlText2(label[5], "");
+	display.setControlText2(label[6], "");
+	display.setControlText2(label[7], "");
 
 
 	showParamsVelocity();
@@ -422,6 +423,10 @@ void cInstrumentEditor::showInstrumentMidiParams()
 		display.refreshControl(barControl[i]);
 	}
 
+	display.setControlValue(bgLabel,2);
+	display.setControlShow(bgLabel);
+	display.refreshControl(bgLabel);
+
 	frameData.placesCount = 1;
 
 	display.synchronizeRefresh();
@@ -442,7 +447,7 @@ void cInstrumentEditor::activateLabelsBorder()
 
 void cInstrumentEditor::showEnvList()
 {
-	display.setControlText(label[0], envelopesLabels[selectedEnvelope]);
+	display.setControlText2(label[0], envelopesLabels[selectedEnvelope]);
 	display.refreshControl(label[0]);
 
 	display.setControlValue(envelopesListControl, selectedEnvelope);
@@ -452,7 +457,7 @@ void cInstrumentEditor::showEnvList()
 void cInstrumentEditor::showEnvState()
 {
 	uint8_t val;
-	display.setControlText(label[1], envStateLabels[!editorInstrument->envelope[selectedEnvelope].enable]);
+	display.setControlText2(label[1], envStateLabels[!editorInstrument->envelope[selectedEnvelope].enable]);
 	display.refreshControl(label[1]);
 
 	if(editorInstrument->envelope[selectedEnvelope].enable)
@@ -477,7 +482,7 @@ void cInstrumentEditor::showEnvAttack()
 	envAttack[length]='s';
 	envAttack[length+1]=0;
 
-	display.setControlText(label[2], envAttack);
+	display.setControlText2(label[2], envAttack);
 	display.refreshControl(label[2]);
 
 	display.setControlValue(
@@ -498,7 +503,7 @@ void cInstrumentEditor::showEnvDecay()
 	envDecay[length]='s';
 	envDecay[length+1]=0;
 
-	display.setControlText(label[3], envDecay);
+	display.setControlText2(label[3], envDecay);
 	display.refreshControl(label[3]);
 
 	display.setControlValue(
@@ -512,7 +517,7 @@ void cInstrumentEditor::showEnvDecay()
 void cInstrumentEditor::showEnvSustain()
 {
 	sprintf(envSustain,"%.0f",(float)(editorInstrument->envelope[selectedEnvelope].sustain*100));
-	display.setControlText(label[4], envSustain);
+	display.setControlText2(label[4], envSustain);
 	display.refreshControl(label[4]);
 
 	display.setControlValue(barControl[4], (editorInstrument->envelope[selectedEnvelope].sustain*100));
@@ -528,7 +533,7 @@ void cInstrumentEditor::showEnvRelease()
 	envRelease[length]='s';
 	envRelease[length+1]=0;
 
-	display.setControlText(label[5], envRelease);
+	display.setControlText2(label[5], envRelease);
 	display.refreshControl(label[5]);
 
 	display.setControlValue(
@@ -542,7 +547,7 @@ void cInstrumentEditor::showEnvRelease()
 void cInstrumentEditor::showEnvAmount()
 {
 	sprintf(envAmount,"%.0f",(float)(editorInstrument->envelope[selectedEnvelope].amount*100));
-	display.setControlText(label[6], envAmount);
+	display.setControlText2(label[6], envAmount);
 	display.refreshControl(label[6]);
 
 	display.setControlValue(barControl[6],(editorInstrument->envelope[selectedEnvelope].amount*100) );
@@ -551,7 +556,7 @@ void cInstrumentEditor::showEnvAmount()
 
 void cInstrumentEditor::showEnvLoop()
 {
-	display.setControlText(label[7], envLoopLabels[!editorInstrument->envelope[selectedEnvelope].loop]);
+	display.setControlText2(label[7], envLoopLabels[!editorInstrument->envelope[selectedEnvelope].loop]);
 	display.refreshControl(label[7]);
 
 	display.setControlValue(envLoopListControl, !editorInstrument->envelope[selectedEnvelope].loop);
@@ -575,7 +580,7 @@ void cInstrumentEditor::showParamsVelocity()
 		display.setControlValue(barControl[0], (temp_velocity*100)/127);
 	}
 
-	display.setControlText(label[0], volumeVal);
+	display.setControlText2(label[0], volumeVal);
 
 	display.refreshControl(label[0]);
 	display.refreshControl(barControl[0]);
@@ -584,7 +589,7 @@ void cInstrumentEditor::showParamsVelocity()
 void cInstrumentEditor::showParamsVolume()
 {
 	sprintf(volumeVal,"%d",editorInstrument->volume);
-	display.setControlText(label[0], volumeVal);
+	display.setControlText2(label[0], volumeVal);
 	display.refreshControl(label[0]);
 
 	display.setControlValue(barControl[0], editorInstrument->volume);
@@ -595,7 +600,7 @@ void cInstrumentEditor::showParamsPanning()
 {
 	sprintf(panningVal,"%d", editorInstrument->panning-50);
 
-	display.setControlText(label[1], panningVal);
+	display.setControlText2(label[1], panningVal);
 	display.refreshControl(label[1]);
 
 	display.setControlValue(barControl[1], editorInstrument->panning*2-100);
@@ -606,7 +611,7 @@ void cInstrumentEditor::showParamsTune()
 {
 	sprintf(tuneVal,"%d",editorInstrument->tune);
 
-	display.setControlText(label[2], tuneVal);
+	display.setControlText2(label[2], tuneVal);
 	display.refreshControl(label[2]);
 
 	display.setControlValue(barControl[2], (editorInstrument->tune*100)/24);
@@ -616,7 +621,7 @@ void cInstrumentEditor::showParamsTune()
 void cInstrumentEditor::showParamsFineTune()
 {
 	sprintf(fineTuneVal,"%d",editorInstrument->fineTune);
-	display.setControlText(label[3], fineTuneVal);
+	display.setControlText2(label[3], fineTuneVal);
 	display.refreshControl(label[3]);
 
 	display.setControlValue(barControl[3], editorInstrument->fineTune);
@@ -641,7 +646,7 @@ void cInstrumentEditor::showFilterType()
 //	filterModeList.linesCount = 5;
 //	filterModeList.data = (char**)filterModeNames;
 
-	display.setControlText(label[4], filterModeFunctLabels[filterModeListPos]);
+	display.setControlText2(label[4], filterModeFunctLabels[filterModeListPos]);
 	display.refreshControl(label[4]);
 
 	display.setControlData(filterModeListControl,  &filterModeList);
@@ -655,7 +660,7 @@ void cInstrumentEditor::showFilterCutOff()
 	uint8_t temp_cutoff = (editorInstrument->cutOff*100);
 
 	sprintf(cutoffVal,"%d", temp_cutoff);
-	display.setControlText(label[5], cutoffVal);
+	display.setControlText2(label[5], cutoffVal);
 	display.refreshControl(label[5]);
 
 	display.setControlValue(barControl[5], temp_cutoff);
@@ -667,7 +672,7 @@ void cInstrumentEditor::showFilterResonance()
 	uint8_t temp_resonance = ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100;
 
 	sprintf(resonanceVal,"%d", temp_resonance);
-	display.setControlText(label[6], resonanceVal);
+	display.setControlText2(label[6], resonanceVal);
 	display.refreshControl(label[6]);
 
 	display.setControlValue(barControl[6], temp_resonance);
@@ -677,7 +682,7 @@ void cInstrumentEditor::showFilterResonance()
 void cInstrumentEditor::showParamsReverbSend()
 {
 	sprintf(revSendVal,"%d",editorInstrument->reverbSend);
-	display.setControlText(label[7], revSendVal);
+	display.setControlText2(label[7], revSendVal);
 	display.refreshControl(label[7]);
 
 	display.setControlValue(barControl[7], editorInstrument->reverbSend);

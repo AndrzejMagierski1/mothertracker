@@ -18,49 +18,26 @@ static uint16_t framesPlaces[8][4] =
 
 static uint16_t framesPopupPlaces[9][4] =
 {
-	{0, 		255, 800/8, 187},
-	{(800/8)*1, 255, 800/8, 187},
-	{(800/8)*2, 255, 800/8, 187},
-	{(800/8)*3, 255, 800/8, 187},
+	{0+1, 		  256, 800/8-3, 165},
+	{(800/8)*1+1, 256, 800/8-3, 165},
+	{(800/8)*2+1, 256, 800/8-3, 165},
+	{(800/8)*3+1, 256, 800/8-3, 165},
 
-	{(800/8)*4, 255, 800/8, 187},
-	{(800/8)*4, 255, 800/4, 187},
+	{(800/8)*4+1, 256, 800/8-3, 165},
+	{(800/8)*4+1, 256, 800/4-3, 165},
 
-	{(800/8)*5, 255, 800/8, 187},
-	{(800/8)*6, 255, 800/8, 187},
-	{(800/8)*7, 255, 800/8, 187},
+	{(800/8)*5+1, 256, 800/8-3, 165},
+	{(800/8)*6+1, 256, 800/8-3, 165},
+	{(800/8)*7+1, 256, 800/8-3, 165},
 };
 
 
 static uint32_t patternLabelColors[] =
 {
 	0xFFFFFF, // tekst
-	0x323132, // tło
+	0x000000, // tło
 	0xFF0000, // ramka
 };
-
-/*
-volatile uint32_t patternTrackerColors[] =
-{
-	0x000000, // 0 linie
-	0x10100f, // 1 background  /numery wierszy juz nie bo nie ma/
-
-	0x00e8be, // 2 nuta
-	0xfef749, // 3 instrument
-	0xbb58f1, // 4 effekt1
-	0x57f1ff, // 5 effekt2
-
-	0x0e5049, // 6 nuta nieaktywna
-	0x5c5230, // 7 instrument nieaktywny
-	0x493451, // 8 effekt1 nieaktywny
-	0x33515e, // 9 effekt2 nieaktywny
-
-	0xf13c3c, // 10 zaznaczenie
-	0x141413, // 11 podzialka
-	0x333333, // 12 nieaktywny
-	0x232323, // 13 playhead
-};
-*/
 
 volatile uint32_t patternTrackerColors[] =
 {
@@ -77,13 +54,13 @@ volatile uint32_t patternTrackerColors[] =
 	0x321f3a, // 8 effekt1 nieaktywny
 	0x183744, // 9 effekt2 nieaktywny
 
-	0xf13c3c, // 10 zaznaczenie
+	one_true_red,//0xf13c3c, // 10 zaznaczenie
 	0x0e0e0e, // 11 podzialka
 	0x333333, // 12 nieaktywny
 	0x232323, // 13 playhead
 };
 
-uint32_t patternTrackerSelectionColor = 0xf13c3c;
+uint32_t patternTrackerSelectionColor = one_true_red;
 
 
 //------------------------------------------------------------
@@ -265,9 +242,9 @@ void cPatternEditor::initDisplayControls()
 
 	// lista 1
 	prop.x = (800/8)*(1)+1;
-	prop.y = 8*28 + 30;
+	prop.y = 8*28 + 32;
 	prop.w = 800/8-3;
-	prop.h = 25;
+	prop.h = 168;
 	prop.colors = nullptr;
 	prop.style = controlStyleBackground;
 	prop.data = &fillTypeList;
@@ -275,37 +252,31 @@ void cPatternEditor::initDisplayControls()
 
 	// lista 2
 	prop.x = (800/8)*(4)+1;
-	prop.y = 8*28+30;
-	prop.w = 800/8-3;
-	prop.h = 180;
-
 	prop.data = &fillScaleFilterList;
 	if(param2PopupListControl == nullptr)  param2PopupListControl = display.createControl<cList>(&prop);
 
 	// lista 3
 	prop.x = (800/8)*(0)+1;
-	prop.y = 8*28 + 30;
-	prop.w = 800/8-3;
-	prop.h = 180;
 	prop.data = &fillStepList;
 	if(param3PopupListControl == nullptr)  param3PopupListControl = display.createControl<cList>(&prop);
 
-	// label val1
-	prop.style = (controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
-	prop.colors = patternLabelColors;
-	prop.x = (800/8)*(2)+(800/16);
-	prop.y = 8*28 + 130;
-	prop.w = 800/8-10;
-	prop.h = 25;
-	if(val1PopupLabel == nullptr)  val1PopupLabel = display.createControl<cLabel>(&prop);
+	// bar val1
+	prop.x = (800/8)*(2)+1;
+	prop.style =  controlStyleValue_0_100 | controlStyleBackground;
+	if(val1PopupBar == nullptr)  val1PopupBar = display.createControl<cBar>(&prop);
 
-	// label val2
-	prop.style = (controlStyleCenterX | controlStyleCenterY | controlStyleFont2);
-	prop.x = (800/8)*(3)+(800/16);
-	prop.y = 8*28 + 130;
-	prop.w = 800/8-10;
-	prop.h = 25;
-	if(val2PopupLabel == nullptr) val2PopupLabel = display.createControl<cLabel>(&prop);
+	// bar val1
+	prop.x = (800/8)*(3)+1;
+	if(val2PopupBar == nullptr)  val2PopupBar = display.createControl<cBar>(&prop);
+
+	// label tytulowy popupu
+	prop.style = ( controlStyleCenterY | controlStyleFont4 | controlStyleBackground);
+	prop.colors = nullptr;
+	prop.x = 2;
+	prop.y = 8*28 + 15;
+	prop.w = 795;
+	prop.h = 27;
+	if(patternPopupTitleLabel == nullptr)  patternPopupTitleLabel = display.createControl<cLabel>(&prop);
 
 	// label tla
 	prop.style = (controlStyleBackground | controlStyleCenterX | controlStyleNoTransparency );
@@ -313,9 +284,8 @@ void cPatternEditor::initDisplayControls()
 	prop.x = 400;
 	prop.y = 8*28 + 4;
 	prop.w = 800;
-	prop.h = 214;
+	prop.h = 199;
 	if(patternPopupLabel == nullptr)  patternPopupLabel = display.createControl<cLabel>(&prop);
-
 
 	//=====================================================================================================
 	//=====================================================================================================
@@ -327,8 +297,8 @@ void cPatternEditor::initDisplayControls()
 	prop.style = 	(controlStyleShow );//| controlStyleFont2 | controlStyleBackground | controlStyleCenterX | controlStyleRoundedBorder);
 	prop.x = 0;
 	prop.y = 0;
-	prop.w = 50;
-	prop.h = 25;
+	prop.w = 800;
+	prop.h = 423;
 	patternTrackerColors[10] = patternTrackerSelectionColor;
 	prop.colors = (uint32_t*)patternTrackerColors;
 	prop.data = &trackerPattern;
@@ -357,11 +327,11 @@ void cPatternEditor::destroyDisplayControls()
 	display.destroyControl(param1PopupListControl);
 	param1PopupListControl = nullptr;
 
-	display.destroyControl(val1PopupLabel);
-	val1PopupLabel = nullptr;
+	display.destroyControl(val1PopupBar);
+	val1PopupBar = nullptr;
 
-	display.destroyControl(val2PopupLabel);
-	val2PopupLabel = nullptr;
+	display.destroyControl(val2PopupBar);
+	val2PopupBar = nullptr;
 
 	display.destroyControl(param3PopupListControl);
 	param3PopupListControl = nullptr;
@@ -371,6 +341,9 @@ void cPatternEditor::destroyDisplayControls()
 
 	display.destroyControl(patternPopupLabel);
 	patternPopupLabel = nullptr;
+
+	display.destroyControl(patternPopupTitleLabel);
+	patternPopupTitleLabel = nullptr;
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
@@ -571,7 +544,8 @@ void cPatternEditor::showFillPopup()
 	fillText1[0]  = 0;
 	if(editParam == 0)
 	{
-		display.setControlText(val1PopupLabel, (char*)&mtNotes[fillData[editParam].from][0]);
+		display.setControlText2(label[2], (char*)&mtNotes[fillData[editParam].from][0]);
+		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(127));
 	}
 	else if(editParam == 1)
 	{
@@ -580,14 +554,17 @@ void cPatternEditor::showFillPopup()
 		else
 			sprintf(fillText1, "%d", (fillData[editParam].from+3));
 
-		display.setControlText(val1PopupLabel, fillText1);
+		display.setControlText2(label[2], fillText1);
+		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(47+16));
 	}
 	else if(editParam == 2 || editParam == 3)
 	{
 		sprintf(fillText1, "%d", (fillData[editParam].from));
-		display.setControlText(val1PopupLabel, fillText1);
+		display.setControlText2(label[2], fillText1);
+		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(255));
 	}
-	display.setControlShow(val1PopupLabel);
+
+	display.setControlShow(val1PopupBar);
 
 	if(fillData[editParam].type == 0)
 		display.setControlText(label[2], "Value");
@@ -599,7 +576,8 @@ void cPatternEditor::showFillPopup()
 	fillText2[0]  = 0;
 	if(editParam == 0)
 	{
-		display.setControlText(val2PopupLabel, (char*)&mtNotes[fillData[editParam].to][0]);
+		display.setControlText2(label[3], (char*)&mtNotes[fillData[editParam].to][0]);
+		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(127));
 	}
 	else if (editParam == 1)
 	{
@@ -608,23 +586,26 @@ void cPatternEditor::showFillPopup()
 		else
 			sprintf(fillText2, "%d", (fillData[editParam].to+3));
 
-		display.setControlText(val2PopupLabel, fillText2);
+		display.setControlText2(label[3], fillText2);
+		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(47+16));
 	}
 	else if(editParam == 2 || editParam == 3)
 	{
 		sprintf(fillText2, "%d", (fillData[editParam].to));
-		display.setControlText(val2PopupLabel, fillText2);
+		display.setControlText2(label[3], fillText2);
+		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(255));
 	}
 
 	if(fillData[editParam].type == 0)
 	{
 		display.setControlText(label[3], "");
-		display.setControlHide(val2PopupLabel);
+		display.setControlText2(label[3], "");
+		display.setControlHide(val2PopupBar);
 	}
 	else
 	{
 		display.setControlText(label[3], "To");
-		display.setControlShow(val2PopupLabel);
+		display.setControlShow(val2PopupBar);
 	}
 
 	//------------------------------
@@ -639,7 +620,7 @@ void cPatternEditor::showFillPopup()
 		display.setControlData(param2PopupListControl, &fillScaleFilterList);
 		display.setControlValue(param2PopupListControl, fillData[editParam].param);
 		display.setControlShow(param2PopupListControl);
-		display.setControlSize(param2PopupListControl, 800/8-10, 25);
+		display.setControlSize(param2PopupListControl, 800/8-10, -1);
 
 
 		display.setControlPosition(label[4],  (800/8)*4+(800/16), -1);
@@ -660,7 +641,7 @@ void cPatternEditor::showFillPopup()
 		display.setControlData(param2PopupListControl, &fillFxTypeList);
 		display.setControlValue(param2PopupListControl, fillData[editParam].param+1);
 		display.setControlShow(param2PopupListControl);
-		display.setControlSize(param2PopupListControl, 800/4-10, 25);
+		display.setControlSize(param2PopupListControl, 800/4-10, -1);
 
 		display.setControlPosition(label[4],  (800/8)*5, -1);
 		display.setControlSize(label[4], 800/4-6, -1);
@@ -679,7 +660,7 @@ void cPatternEditor::showFillPopup()
 	//------------------------------
 	// step
 
-	fillStepList.linesCount = 7;
+	fillStepList.linesCount = 6;
 	fillStepList.start = fillStep+2;
 	fillStepList.length = fillStepCount;
 	fillStepList.data = (char**)(&ptrfillStepNames);
@@ -698,20 +679,20 @@ void cPatternEditor::showFillPopup()
 	switch(editParam)
 	{
 	case 0:
-		display.setControlText(patternPopupLabel, "Fill Notes");
+		display.setControlText(patternPopupTitleLabel, " Fill Notes");
 		break;
 	case 1:
-		display.setControlText(patternPopupLabel, "Fill Instruments");
+		display.setControlText(patternPopupTitleLabel, " Fill Instruments");
 		break;
 	case 2:
-		display.setControlText(patternPopupLabel, "Fill Fx 1");
+		display.setControlText(patternPopupTitleLabel, " Fill Fx 1");
 		break;
 	case 3:
-		display.setControlText(patternPopupLabel, "Fill Fx 2");
+		display.setControlText(patternPopupTitleLabel, " Fill Fx 2");
 		break;
 
 	default:
-		display.setControlText(patternPopupLabel, "Fill");
+		display.setControlText(patternPopupTitleLabel, " Fill");
 		break;
 	}
 
@@ -720,17 +701,19 @@ void cPatternEditor::showFillPopup()
 	display.setControlText(label[7], "Fill");
 
 	display.refreshControl(param1PopupListControl);
-	display.refreshControl(val1PopupLabel);
-	display.refreshControl(val2PopupLabel);
+	display.refreshControl(val1PopupBar);
+	display.refreshControl(val2PopupBar);
 	display.refreshControl(param3PopupListControl);
 	display.refreshControl(param2PopupListControl);
 
 	display.setControlShow(patternPopupLabel);
 	display.refreshControl(patternPopupLabel);
+	display.setControlShow(patternPopupTitleLabel);
+	display.refreshControl(patternPopupTitleLabel);
 
-	display.setControlValue(label[0], 0);
-	display.setControlValue(label[1], 0);
-	display.setControlValue(label[2], 0);
+//	display.setControlValue(label[0], 0);
+//	display.setControlValue(label[1], 0);
+//	display.setControlValue(label[2], 0);
 
 
 	for(uint8_t i = 0; i < 8; i++)
@@ -769,15 +752,17 @@ void cPatternEditor::refreshFillType()
 	{
 		display.setControlText(label[2], "Value");
 		display.setControlText(label[3], "");
+		display.setControlText2(label[3], "");
 
-		display.setControlHide(val2PopupLabel);
+		display.setControlHide(val2PopupBar);
 	}
 	else
 	{
 		display.setControlText(label[2], "From");
 		display.setControlText(label[3], "To");
 
-		display.setControlShow(val2PopupLabel);
+		display.setControlShow(val2PopupBar);
+		display.setControlShow(label[3]);
 	}
 
 	display.refreshControl(label[2]);
@@ -790,7 +775,8 @@ void cPatternEditor::refreshFillFrom()
 	fillText1[0]  = 0;
 	if(editParam == 0)
 	{
-		display.setControlText(val1PopupLabel, (char*)&mtNotes[fillData[editParam].from][0]);
+		display.setControlText2(label[2], (char*)&mtNotes[fillData[editParam].from][0]);
+		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(127));
 	}
 	else if(editParam == 1)
 	{
@@ -799,15 +785,18 @@ void cPatternEditor::refreshFillFrom()
 		else
 			sprintf(fillText1, "%d", (fillData[editParam].from+3));
 
-		display.setControlText(val1PopupLabel, fillText1);
+		display.setControlText2(label[2], fillText1);
+		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(47+16));
 	}
 	else if(editParam == 2 || editParam == 3)
 	{
 		sprintf(fillText1, "%d", (fillData[editParam].from));
-		display.setControlText(val1PopupLabel, fillText1);
+		display.setControlText2(label[2], fillText1);
+		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(255));
 	}
 
-	display.refreshControl(val1PopupLabel);
+	display.refreshControl(label[2]);
+	display.refreshControl(val1PopupBar);
 }
 
 void cPatternEditor::refreshFillTo()
@@ -815,7 +804,8 @@ void cPatternEditor::refreshFillTo()
 	fillText2[0]  = 0;
 	if(editParam == 0)
 	{
-		display.setControlText(val2PopupLabel, (char*)&mtNotes[fillData[editParam].to][0]);
+		display.setControlText2(label[3], (char*)&mtNotes[fillData[editParam].to][0]);
+		display.setControlValue(val2PopupBar, (fillData[editParam].to*100)/(127));
 	}
 	else if (editParam == 1)
 	{
@@ -824,15 +814,18 @@ void cPatternEditor::refreshFillTo()
 		else
 			sprintf(fillText2, "%d", (fillData[editParam].to+3));
 
-		display.setControlText(val2PopupLabel, fillText2);
+		display.setControlText2(label[3], fillText2);
+		display.setControlValue(val2PopupBar, (fillData[editParam].to*100)/(47+16));
 	}
 	else if(editParam == 2 || editParam == 3)
 	{
 		sprintf(fillText2, "%d", (fillData[editParam].to));
-		display.setControlText(val2PopupLabel, fillText2);
+		display.setControlText2(label[3], fillText2);
+		display.setControlValue(val2PopupBar, (fillData[editParam].to*100)/(255));
 	}
 
-	display.refreshControl(val2PopupLabel);
+	display.refreshControl(label[3]);
+	display.refreshControl(val2PopupBar);
 }
 
 void cPatternEditor::refreshFillParam()
@@ -870,8 +863,10 @@ void cPatternEditor::refreshFillStep()
 void cPatternEditor::hideFillPopup()
 {
 	display.setControlHide(param1PopupListControl);
-	display.setControlHide(val1PopupLabel);
-	display.setControlHide(val2PopupLabel);
+//	display.setControlHide(val1PopupLabel);
+//	display.setControlHide(val2PopupLabel);
+	display.setControlHide(val1PopupBar);
+	display.setControlHide(val2PopupBar);
 	display.setControlHide(param3PopupListControl);
 	display.setControlHide(param2PopupListControl);
 
@@ -881,6 +876,7 @@ void cPatternEditor::hideFillPopup()
 //	display.refreshControl(val3PopupLabel);
 //	display.refreshControl(param2PopupListControl);
 
+	display.setControlHide(patternPopupTitleLabel);
 	display.setControlHide(patternPopupLabel);
 //	display.refreshControl(patternPopupLabel);
 }
