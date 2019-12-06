@@ -21,17 +21,17 @@ void cInstrumentEditor::initDisplayControls()
 {
 	strControlProperties prop2;
 	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
-	prop2.x = 30;
-	prop2.y = 12;
+	prop2.x = 9;
+	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY | controlStyleFont4);
 	prop2.x = 769;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
+	prop2.x = 2;
 	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
+	prop2.w = 795;
+	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 
@@ -423,6 +423,7 @@ void cInstrumentEditor::showInstrumentMidiParams()
 		display.refreshControl(barControl[i]);
 	}
 
+	display.setControlValue(bgLabel,2);
 	display.setControlShow(bgLabel);
 	display.refreshControl(bgLabel);
 
@@ -681,7 +682,7 @@ void cInstrumentEditor::showFilterResonance()
 void cInstrumentEditor::showParamsReverbSend()
 {
 	sprintf(revSendVal,"%d",editorInstrument->reverbSend);
-	display.setControlText(label[7], revSendVal);
+	display.setControlText2(label[7], revSendVal);
 	display.refreshControl(label[7]);
 
 	display.setControlValue(barControl[7], editorInstrument->reverbSend);

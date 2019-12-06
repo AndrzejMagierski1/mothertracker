@@ -42,7 +42,7 @@ static uint32_t listBgTitleLabelColors[] =
 static uint32_t listBgLabelColors[] =
 {
 	0xFFFFFF, // tekst
-	0x000000, // tło
+	0x0a0a0a, // tło
 	0xFF0000, // ramka
 };
 
@@ -71,7 +71,7 @@ void cInterfacePopups::initPopupsDisplayControls()
 	popupList.linesCount = 16;
 	popupList.length = 16;
 	popupList.data = interfaceGlobals.ptrIntrumentsNames;
-	prop.style = controlStyleBackground;
+	//prop.style = controlStyleBackground;
 	prop.x = (800/4)*(3)+5;
 	prop.y = 40;
 	prop.w = 800/4;
@@ -84,10 +84,10 @@ void cInterfacePopups::initPopupsDisplayControls()
 	padNamesStruct.length = 5;
 	padNamesStruct.name = interfaceGlobals.padNamesPointer;
 	prop.style = 0;
-	prop.x = 16;
+	prop.x = 13;
 	prop.y = 130;
 	prop.w = 780;
-	prop.h = 280;
+	prop.h = 260;
 	prop.colors = nullptr;
 	prop.value = -1;
 	prop.data=&padNamesStruct;
@@ -97,7 +97,7 @@ void cInterfacePopups::initPopupsDisplayControls()
 	strControlProperties prop2;
 	prop2.style = 	(controlStyleCenterY | controlStyleBackground);
 	prop2.x = 30;
-	prop2.y = 12;
+	prop2.y = 13;
 	if(textLabel1 == nullptr) textLabel1 = display.createControl<cLabel>(&prop2);
 	prop2.style = 	(controlStyleRightX | controlStyleCenterY);
 	prop2.x = 769;
@@ -105,7 +105,7 @@ void cInterfacePopups::initPopupsDisplayControls()
 	prop2.style = 	(controlStyleBackground);
 	prop2.x = 0;
 	prop2.y = 0;
-	prop2.w = 800;
+	prop2.w = 795;
 	prop2.h = 25;
 	prop2.colors = listBgLabelColors;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cLabel>(&prop2);
@@ -175,15 +175,16 @@ void cInterfacePopups::showNotesPopup()
 {
 	display.hideAllControls();
 
-	display.setControlPosition(bgLabel, 0, 0);
-	display.setControlSize(bgLabel, 800, 25);
+	display.setControlPosition(bgLabel, 2, 0);
+	display.setControlSize(bgLabel, 795, 26);
 	display.setControlColors(bgLabel, titleBgLabelColors);
 	display.setControlStyle(bgLabel, controlStyleShow | controlStyleBackground);
 	display.refreshControl(bgLabel);
 
-	display.setControlText(textLabel1, "Notes");
-	display.setControlPosition(textLabel1, 30, 12);
-	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY);
+	display.setControlText(textLabel1, " Notes");
+	display.setControlPosition(textLabel1, 2, 13);
+	display.setControlSize(textLabel1, 800, 26);
+	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleFont4);
 	display.refreshControl(textLabel1);
 
 	showActualInstrument();
@@ -204,19 +205,17 @@ void cInterfacePopups::showInstrumentsPopup()
 {
 	//display.hideAllControls();
 
-	display.setControlPosition(bgLabel, 585, 0);
-	display.setControlSize(bgLabel, 799-585, 479); //419
+	display.setControlPosition(bgLabel, 600+2, 29);
+	display.setControlSize(bgLabel,  200, 450); //419
 	display.setControlColors(bgLabel, listBgLabelColors);
 
-	//display.setControlPosition(bgLabel, 0, 0);
-	//display.setControlSize(bgLabel, 800, 25);
 	display.setControlStyle(bgLabel, controlStyleShow | controlStyleBackground);
 	display.refreshControl(bgLabel);
 
-	display.setControlText(textLabel1, "Instruments");
-	display.setControlPosition(textLabel1, 600, 12);
-	//display.setControlPosition(textLabel1, 30, 12);
-	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY);
+	display.setControlText(textLabel1, "  Instruments");
+	display.setControlPosition(textLabel1, 600+1, 13);
+	display.setControlSize(textLabel1, 200, 26);
+	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleFont4);
 	display.refreshControl(textLabel1);
 
 
@@ -245,8 +244,8 @@ void cInterfacePopups::showFxesPopup()
 {
 	//display.hideAllControls();
 
-	display.setControlPosition(bgLabel, 585, 0);
-	display.setControlSize(bgLabel, 799-585, 479); //419
+	display.setControlPosition(bgLabel, 600+2, 29);
+	display.setControlSize(bgLabel, 200, 450); //419
 	display.setControlColors(bgLabel, listBgLabelColors);
 
 	//display.setControlPosition(bgLabel, 0, 0);
@@ -254,10 +253,10 @@ void cInterfacePopups::showFxesPopup()
 	display.setControlStyle(bgLabel, controlStyleShow | controlStyleBackground);
 	display.refreshControl(bgLabel);
 
-	display.setControlText(textLabel1, "Fx");
-	//display.setControlPosition(textLabel1, 30, 12);
-	display.setControlPosition(textLabel1, 600, 12);
-	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY);
+	display.setControlText(textLabel1, "  Fx");
+	display.setControlPosition(textLabel1, 600+1, 13);
+	display.setControlSize(textLabel1, 200, 26);
+	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleFont4);
 	display.refreshControl(textLabel1);
 
 	//showActualInstrument();

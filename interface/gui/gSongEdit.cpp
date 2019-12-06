@@ -17,14 +17,14 @@ void cSongEditor::initDisplayControls()
 {
 	strControlProperties prop2;
 	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
-	prop2.x = 30;
-	prop2.y = 12;
+	prop2.x = 9;
+	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
+	prop2.x = 2;
 	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
+	prop2.w = 795;
+	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 	// ramka
@@ -69,7 +69,7 @@ void cSongEditor::initDisplayControls()
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
-	prop2.value = 255;
+	prop2.value = 252;
 	prop2.text = nullptr;
 	prop2.colors = interfaceGlobals.activeBgLabelsColors;
 	prop2.style = controlStyleNoTransparency | controlStyleShow;

@@ -8,9 +8,9 @@
 
 static uint32_t defaultColors[] =
 {
-	0xFFFFFF, // tekst
-	0x222222, // tło
-	0xFF0000, // ramka
+	0x0a0a0a, // tlo kafelkow
+	0xffffff, // tekst
+	one_true_red, // ramka
 };
 
 void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
@@ -103,10 +103,8 @@ uint8_t cKeyboard::update()
     API_CMD_DLSTART();
 
 
-
-
 	API_COLOR(colors[0]);
-
+	API_LINE_WIDTH(16);
 	API_BEGIN(RECTS);
 
 	char localString[2];
@@ -124,14 +122,18 @@ uint8_t cKeyboard::update()
 			API_COLOR(colors[0]);
 		}
 	}
+
 	API_END();
-	API_COLOR(colors[1]);
+
 	if(value <= 41) keyboardShift = 0;
 	else
 	{
 		keyboardShift = 1;
 		value -=42;
 	}
+
+	API_COLOR(colors[1]);
+
 	for(uint8_t i = 0 ; i < KEYBOARD_SIZE; i++)
 	{
 		if( i == 26 || i == 29)
@@ -170,7 +172,7 @@ uint8_t cKeyboard::update()
 	if(value >= 0)
 	{
 		API_COLOR(colors[2]);
-		API_LINE_WIDTH(20);
+		API_LINE_WIDTH(8);
 		API_BEGIN(LINE_STRIP);
 
 		uint16_t localX, localY;
@@ -238,60 +240,60 @@ void cKeyboard::fillKeyboard()
 		{
 			keyboard[i].x = posX;
 			keyboard[i].y = posY;
-			keyboard[i].w = offset_x - offset_x * 0.2;
-			keyboard[i].h = offset_y* 0.8;
+			keyboard[i].w = offset_x - offset_x * 0.0667;
+			keyboard[i].h = offset_y* 0.9330;
 		}
 		else if((i >= 1) && (i <=9))
 		{
 			keyboard[i].x = keyboard[i-1].x + offset_x;
 			keyboard[i].y = posY;
-			keyboard[i].w = offset_x - offset_x * 0.2;
-			keyboard[i].h = offset_y* 0.8;
+			keyboard[i].w = offset_x - offset_x * 0.0667;
+			keyboard[i].h = offset_y* 0.9330;
 		}
 		else if( i == 10)
 		{
 			keyboard[i].x = keyboard[i-1].x + offset_x;
 			keyboard[i].y = posY;
-			keyboard[i].w = 2*offset_x - offset_x*0.2;
-			keyboard[i].h = offset_y* 0.8;
+			keyboard[i].w = 2*offset_x - offset_x*0.0667;
+			keyboard[i].h = offset_y* 0.9330;
 		}
 		else if((i >= 11) && (i <= 22))
 		{
 			if(i == 11) keyboard[i].x = keyboard[0].x;
 			else keyboard[i].x = keyboard[i-1].x + offset_x;
 			keyboard[i].y = posY + offset_y;
-			keyboard[i].w = offset_x - offset_x*0.2;
-			keyboard[i].h = offset_y* 0.8;
+			keyboard[i].w = offset_x - offset_x*0.0667;
+			keyboard[i].h = offset_y* 0.9330;
 		}
 		else if((i >= 23) && (i <= 32))
 		{
 			if(i == 23) keyboard[i].x = keyboard[0].x;
 			else keyboard[i].x = keyboard[i-1].x + offset_x;
 			keyboard[i].y = posY + 2*offset_y;
-			keyboard[i].w = offset_x - offset_x*0.2;
-			keyboard[i].h = offset_y* 0.8;
+			keyboard[i].w = offset_x - offset_x*0.0667;
+			keyboard[i].h = offset_y* 0.9330;
 		}
 		else if(i == 33)
 		{
 			keyboard[i].x = keyboard[i-1].x + offset_x;
 			keyboard[i].y = posY + 2*offset_y;
-			keyboard[i].w = 2*offset_x - offset_x*0.2;;
-			keyboard[i].h = offset_y* 0.8;
+			keyboard[i].w = 2*offset_x - offset_x*0.0667;
+			keyboard[i].h = offset_y* 0.9330;
 		}
 		else if((i >= 34) && (i <= 40))
 		{
 			if(i == 34) keyboard[i].x = keyboard[0].x;
 			else keyboard[i].x = keyboard[i-1].x + offset_x;
 			keyboard[i].y = posY + 3*offset_y;
-			keyboard[i].w = offset_x - offset_x*0.2;
-			keyboard[i].h = offset_y* 0.8;
+			keyboard[i].w = offset_x - offset_x*0.0667;
+			keyboard[i].h = offset_y* 0.9330;
 		}
 		else if( i == 41)
 		{
 			keyboard[i].x = keyboard[i-1].x + offset_x;
 			keyboard[i].y = posY + 3*offset_y;
-			keyboard[i].w = 5*offset_x - offset_x*0.2;
-			keyboard[i].h = offset_y*0.8;
+			keyboard[i].w = 5*offset_x - offset_x*0.0667;
+			keyboard[i].h = offset_y*0.9330;
 		}
 	}
 

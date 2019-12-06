@@ -8,9 +8,9 @@
 
 static uint32_t defaultColors[] =
 {
-	0xFFFFFF, // tekst
-	0x222222, // tło
-	0xFF0000, // ramka
+	0x0a0a0a, // tlo kafelkow
+	0xffffff, // tekst
+	one_true_red, // ramka
 };
 
 void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
@@ -133,7 +133,7 @@ uint8_t cNotePopout::update()
 	if(value >= 0)
 	{
 		API_COLOR(colors[2]);
-		API_LINE_WIDTH(20);
+		API_LINE_WIDTH(16);
 		API_BEGIN(LINE_STRIP);
 
 		uint16_t localX, localY;
@@ -197,8 +197,8 @@ void cNotePopout::fillpadMap()
 			else padMap[i].x = padMap[i-1].x + offset_x;
 
 			padMap[i].y = posY;
-			padMap[i].w = offset_x - offset_x * 0.2f;
-			padMap[i].h = offset_y* 0.8f;
+			padMap[i].w = offset_x - offset_x * 0.0667;
+			padMap[i].h = offset_y* 0.9330;
 		}
 		else if(i >= 12 && (i<=23))
 		{
@@ -206,8 +206,8 @@ void cNotePopout::fillpadMap()
 			else padMap[i].x = padMap[i-1].x + offset_x;
 
 			padMap[i].y = posY + offset_y;
-			padMap[i].w = offset_x - offset_x*0.2f;
-			padMap[i].h = offset_y* 0.8f;
+			padMap[i].w = offset_x - offset_x*0.0667;
+			padMap[i].h = offset_y* 0.9330;
 		}
 		else if((i >= 24) && (i <= 35))
 		{
@@ -215,8 +215,8 @@ void cNotePopout::fillpadMap()
 			else padMap[i].x = padMap[i-1].x + offset_x;
 
 			padMap[i].y = posY + 2*offset_y;
-			padMap[i].w = offset_x - offset_x*0.2f;
-			padMap[i].h = offset_y* 0.8f;
+			padMap[i].w = offset_x - offset_x*0.0667;
+			padMap[i].h = offset_y* 0.9330;
 		}
 		else if((i >= 36) && (i <= 47))
 		{
@@ -224,8 +224,8 @@ void cNotePopout::fillpadMap()
 			else padMap[i].x = padMap[i-1].x + offset_x;
 
 			padMap[i].y = posY + 3*offset_y;
-			padMap[i].w = offset_x - offset_x*0.2f;
-			padMap[i].h = offset_y* 0.8f;
+			padMap[i].w = offset_x - offset_x*0.0667;
+			padMap[i].h = offset_y* 0.9330;
 		}
 	}
 

@@ -199,24 +199,31 @@ uint8_t cList::update()
 	//tlo listy
     if(style & controlStyleBackground)
     {
-		API_BLEND_FUNC(SRC_ALPHA , ZERO);
 		API_COLOR(colors[3]);
 		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(posX, posY);
-		API_VERTEX2F(posX+width, posY+height);
+		API_VERTEX2F(posX+width, posY+height-2);
 		API_END();
-		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 
+		API_BLEND_FUNC(SRC_ALPHA , ZERO);
 
 		API_SAVE_CONTEXT();
-
-		//API_LINE_WIDTH(16);
 		API_SCISSOR_XY(posX, posY+height-10);
 		API_SCISSOR_SIZE(width+1, 10);
 		API_CMD_GRADIENT(0, 413, colors[3], 0, 423, 0x0);
-
 		API_RESTORE_CONTEXT();
+
+		API_COLOR(0x000000);
+		API_LINE_WIDTH(1);
+		API_BEGIN(LINES);
+		API_VERTEX2F(posX-1, posY);
+		API_VERTEX2F(posX-1, posY+height);
+		API_VERTEX2F(posX+width+1, posY);
+		API_VERTEX2F(posX+width+1, posY+height);
+		API_END();
+
+		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
     }
 
     posY +=1;

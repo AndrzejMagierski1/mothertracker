@@ -100,8 +100,8 @@ public:
 	virtual void setData(void* data);
 
 	uint16_t textStyle;
-	int16_t textFont;
-	int16_t textWidth;
+	const strFont* font;
+
 };
 
 //--------------------------------------------------------------------
