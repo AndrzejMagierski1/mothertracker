@@ -15,7 +15,6 @@ static uint16_t framesPlaces[7][4] =
 };
 
 static uint32_t granularColors[] =
-
 {
 	0xFFFFFF, // linie
 	0x00FFFF
@@ -108,7 +107,7 @@ void cSamplePlayback::initDisplayControls()
 	prop.w = 600;
 	prop.h = 300;
 	if(progressCursor == nullptr) progressCursor = display.createControl<cProgressCursor>(&prop);
-	if(granularCursor == nullptr) granularCursor = display.createControl<cProgressCursor>(&prop);
+	if(granularCursor == nullptr) granularCursor = display.createControl<cLineIndicator>(&prop);
 
 	prop.data = &points;
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
@@ -292,7 +291,7 @@ void cSamplePlayback::showDefaultScreen()
 			showGranularPositionValue();
 			showGrainLengthValue();
 			showShapeText();
-			display.setControlText(label[0], startPointValueText);
+			display.setControlText(label[0], granularPositionTextValue);
 		}
 		else
 		{
@@ -605,10 +604,12 @@ void cSamplePlayback::showActualInstrument()
 
 void cSamplePlayback::showGranularPositionValue()
 {
-	granularPositionInSpectrum = map(((editorInstrument->granular.currentPosition * editorInstrument->granular.grainLength) + editorInstrument->granular.grainLength/2),
-				0,editorInstrument->sample.length,0,600);
 
-	sprintf(granularPositionTextValue,"%d",(int)editorInstrument->granular.currentPosition);
+	float localPosition = (editorInstrument->granular.currentPosition * (editorInstrument->sample.length/(float)MAX_16BIT))/44100.0;
+
+	granularPositionInSpectrum = editorInstrument->granular.currentPosition * (600.0/ MAX_16BIT);
+
+	sprintf(granularPositionTextValue,"%0.3f s",localPosition);
 
 	display.setControlValue(granularCursor, granularPositionInSpectrum);
 	display.setControlShow(granularCursor);
@@ -621,11 +622,11 @@ void cSamplePlayback::showGranularPositionValue()
 }
 void cSamplePlayback::showGrainLengthValue()
 {
-	grainLengthMs = editorInstrument->granular.grainLength/44100.0f;
+	grainLengthMs = editorInstrument->granular.grainLength/44.1f;
 
 	sprintf(grainLengthTextValue,"%0.1f ms", grainLengthMs);
 
-	display.setControlText(label[2], granularPositionTextValue);
+	display.setControlText(label[2], grainLengthTextValue);
 	display.setControlShow(label[2]);
 	display.refreshControl(label[2]);
 }

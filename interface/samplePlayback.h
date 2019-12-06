@@ -137,7 +137,6 @@ public:
 	strInstrument * editorInstrument;
 	uint32_t lastSampleLength = 0xFFFFFFFF;
 
-
 	strZoomParams zoom;
 
 	char zoomTextValue[7];
@@ -197,9 +196,9 @@ public:
 
 	void processWavetableCursor(uint32_t position);
 
-	char granularPositionTextValue[8];
-	char grainLengthTextValue[8];
-	char shapeText[10];
+	char granularPositionTextValue[15];
+	char grainLengthTextValue[15];
+	char shapeText[15];
 
 	uint16_t granularPositionInSpectrum;
 	float grainLengthMs;

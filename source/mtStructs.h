@@ -183,6 +183,8 @@ const int8_t PERFORMANCE_VALUE_MIN			= 	- 100;
 const uint8_t PADS_LIGHT_BACK_DEFAULT 		=	15;
 const uint8_t PADS_LIGHT_FRONT_DEFAULT 		=	31;
 
+const uint16_t MIN_GRANULAR_LENGTH			= 44;
+const uint16_t MAX_GRANULAR_LENGTH			= 4410;
 
 //=====================================================================
 //=====================================================================
@@ -418,8 +420,7 @@ struct strInstrument
     struct strGranular
     {
     	uint16_t 	grainLength = 44;
-    	uint32_t 	currentPosition;
-    	uint32_t 	grainNumber;
+    	uint16_t 	currentPosition;
     	uint8_t	 	shape;
     } granular;
 };
