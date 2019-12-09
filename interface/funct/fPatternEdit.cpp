@@ -392,23 +392,30 @@ void cPatternEditor::refreshPattern()
 						&interfaceGlobals.fxNames[type_temp][0],
 						1);
 
-				int16_t val = sequencer.getFxValueToView(
-						1, i, patternPosition - 7 + j);
+//				int16_t val = sequencer.getFxValueToView(
+//						1, i, patternPosition - 7 + j);
+//
+//				if (val >= 0)
+//				{
+//					sprintf(&trackerPattern.track[i].row[j].fx[0][1],
+//							"%.3i",
+//							val
+//							);
+//				}
+//				else
+//				{
+//					sprintf(&trackerPattern.track[i].row[j].fx[0][1],
+//							"%.2i",
+//							val
+//							);
+//				}
 
-				if (val >= 0)
-				{
-					sprintf(&trackerPattern.track[i].row[j].fx[0][1],
-							"%.3i",
-							val
-							);
-				}
-				else
-				{
-					sprintf(&trackerPattern.track[i].row[j].fx[0][1],
-							"%.2i",
-							val
-							);
-				}
+				sequencer.makeFxValLabel(
+						&trackerPattern.track[i].row[j].fx[0][1],
+						1,
+						i,
+						patternPosition - 7 + j);
+
 
 				//trackerPattern.track[i].row[j].fx[0][3] = '0';
 			}
@@ -431,9 +438,15 @@ void cPatternEditor::refreshPattern()
 						&interfaceGlobals.fxNames[type_temp][0],
 						1);
 
-				sprintf(&trackerPattern.track[i].row[j].fx[1][1],
-						"%.3u",
-						sequencer.getFxValueToView(0,i,patternPosition - 7 + j));
+//				sprintf(&trackerPattern.track[i].row[j].fx[1][1],
+//						"%.3u",
+//						sequencer.getFxValueToView(0,i,patternPosition - 7 + j));
+
+				sequencer.makeFxValLabel(
+						&trackerPattern.track[i].row[j].fx[1][1],
+						0,
+						i,
+						patternPosition - 7 + j);
 
 				//trackerPattern.track[i].row[j].fx[1][3] = '0';
 			}

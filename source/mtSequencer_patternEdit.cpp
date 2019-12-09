@@ -1123,11 +1123,11 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 	case fx.FX_TYPE_RANDOM_INSTRUMENT:
 		return 47;
 	case fx.FX_TYPE_ROLL:
-		case fx.FX_TYPE_ROLL_NOTE_UP:
-		case fx.FX_TYPE_ROLL_NOTE_DOWN:
-		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
+		//		case fx.FX_TYPE_ROLL_NOTE_UP:
+//		case fx.FX_TYPE_ROLL_NOTE_DOWN:
+//		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
-		return fx.ROLL_TYPE_MAX;
+		return (fx.ROLL_PERIOD_MAX + 1) * (fx.rollNoteDir_max + 1) - 1;
 
 	case fx.FX_TYPE_SEND_CC_1:
 		case fx.FX_TYPE_SEND_CC_2:
@@ -1158,11 +1158,11 @@ int16_t Sequencer::getFxMin(uint8_t fxID)
 		return 0;
 
 	case fx.FX_TYPE_ROLL:
-		case fx.FX_TYPE_ROLL_NOTE_UP:
-		case fx.FX_TYPE_ROLL_NOTE_DOWN:
-		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
+		//		case fx.FX_TYPE_ROLL_NOTE_UP:
+//		case fx.FX_TYPE_ROLL_NOTE_DOWN:
+//		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
-		return fx.ROLL_TYPE_MIN;
+		return fx.ROLL_PERIOD_MIN;
 
 	default:
 		return 0;
@@ -1180,9 +1180,9 @@ int16_t Sequencer::getFxDefault(uint8_t fxID)
 		return mtProject.values.globalTempo;
 
 	case fx.FX_TYPE_ROLL:
-		case fx.FX_TYPE_ROLL_NOTE_UP:
-		case fx.FX_TYPE_ROLL_NOTE_DOWN:
-		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
+		//		case fx.FX_TYPE_ROLL_NOTE_UP:
+//		case fx.FX_TYPE_ROLL_NOTE_DOWN:
+//		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
 		return 1;
 
@@ -1193,6 +1193,32 @@ int16_t Sequencer::getFxDefault(uint8_t fxID)
 		return 0;
 	}
 }
+
+int16_t Sequencer::rollValueToPeriod(int16_t value)
+{
+	switch (value)
+	{
+	case fx.ROLL_PERIOD_1_1:
+		return 1;
+	case fx.ROLL_PERIOD_1_2:
+		return 2;
+	case fx.ROLL_PERIOD_1_3:
+		return 3;
+	case fx.ROLL_PERIOD_1_4:
+		return 4;
+	case fx.ROLL_PERIOD_1_6:
+		return 6;
+	case fx.ROLL_PERIOD_1_8:
+		return 8;
+	case fx.ROLL_PERIOD_1_12:
+		return 12;
+	case fx.ROLL_PERIOD_1_16:
+		return 16;
+	default:
+		return 0;
+	}
+}
+
 int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
 {
 	strPattern::strTrack::strStep *actualStep = &getActualPattern()->track[track].step[step];
@@ -1200,32 +1226,7 @@ int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
 	switch (actualStep->fx[fxID].type)
 	{
 	case fx.FX_TYPE_ROLL:
-		case fx.FX_TYPE_ROLL_NOTE_DOWN:
-		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
-		case fx.FX_TYPE_ROLL_NOTE_UP:
-
-		switch (actualStep->fx[fxID].value)
-		{
-		case fx.ROLL_TYPE_1_1:
-			return 1;
-		case fx.ROLL_TYPE_1_2:
-			return 2;
-		case fx.ROLL_TYPE_1_3:
-			return 3;
-		case fx.ROLL_TYPE_1_4:
-			return 4;
-		case fx.ROLL_TYPE_1_6:
-			return 6;
-		case fx.ROLL_TYPE_1_8:
-			return 8;
-		case fx.ROLL_TYPE_1_12:
-			return 12;
-		case fx.ROLL_TYPE_1_16:
-			return 16;
-		default:
-			return 0;
-		}
-		break;
+		return rollValueToPeriod(actualStep->fx[fxID].value);
 	case fx.FX_TYPE_TEMPO:
 		return actualStep->fx[fxID].value * 2;
 		break;
@@ -1236,5 +1237,64 @@ int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
 	default:
 		return actualStep->fx[fxID].value;
 	}
+}
+
+void Sequencer::makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track,
+								uint8_t step)
+{
+	strPattern::strTrack::strStep *actualStep = &getActualPattern()->track[track].step[step];
+
+	int16_t val = sequencer.getFxValueToView(fxID, track, step);
+
+	switch (actualStep->fx[fxID].type)
+	{
+	case fx.FX_TYPE_ROLL:
+		sprintf(ptr,
+				"%c%.2u",
+				getRollTypeChar(actualStep->fx[fxID].value),
+				rollValueToPeriod(
+						actualStep->fx[fxID].value % (fx.ROLL_PERIOD_MAX + 1)));
+		break;
+
+	default:
+		if (val >= 0)
+		{
+			sprintf(ptr,
+					"%.3i",
+					val
+					);
+		}
+		else
+		{
+			sprintf(ptr,
+					"%.2i",
+					val
+					);
+		}
+		break;
+	}
+
+}
+
+char Sequencer::getRollTypeChar(uint8_t val)
+{
+	switch (val / (fx.ROLL_PERIOD_MAX + 1))
+	{
+	case fx.rollType_const:
+		return ' ';
+	case fx.rollType_noteUp:
+		return 'n';
+	case fx.rollType_noteDown:
+		return 'N';
+	case fx.rollType_noteRandom:
+		return 'R';
+	case fx.rollType_volDown:
+		return 'v';
+	case fx.rollType_volUp:
+		return 'V';
+	default:
+		break;
+	}
+	return '?';
 }
 

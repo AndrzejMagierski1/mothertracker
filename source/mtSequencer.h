@@ -79,9 +79,9 @@ public:
 			FX_TYPE_RANDOM_NOTE,
 			FX_TYPE_RANDOM_INSTRUMENT,
 			FX_TYPE_RANDOM_VELOCITY,
-			FX_TYPE_ROLL_NOTE_UP,
-			FX_TYPE_ROLL_NOTE_DOWN,
-			FX_TYPE_ROLL_NOTE_RANDOM,
+//			FX_TYPE_ROLL_NOTE_UP,
+//			FX_TYPE_ROLL_NOTE_DOWN,
+//			FX_TYPE_ROLL_NOTE_RANDOM,
 			FX_TYPE_SEND_CC_1,
 			FX_TYPE_SEND_CC_2,
 			FX_TYPE_SEND_CC_3,
@@ -124,22 +124,30 @@ public:
 
 		};
 
-		enum enRollType
+		enum enRollPeriod
 		{
-			ROLL_TYPE_MIN = 0,
-			ROLL_TYPE_NONE = 0,
-			//			ROLL_TYPE_4_1,
-//			ROLL_TYPE_3_1,
-//			ROLL_TYPE_2_1,
-			ROLL_TYPE_1_1,
-			ROLL_TYPE_1_2,
-			ROLL_TYPE_1_3,
-			ROLL_TYPE_1_4,
-			ROLL_TYPE_1_6,
-			ROLL_TYPE_1_8,
-			ROLL_TYPE_1_12,
-			ROLL_TYPE_1_16,
-			ROLL_TYPE_MAX = ROLL_TYPE_1_16
+			ROLL_PERIOD_MIN = 0,
+			ROLL_PERIOD_NONE = 0,
+			ROLL_PERIOD_1_1,
+			ROLL_PERIOD_1_2,
+			ROLL_PERIOD_1_3,
+			ROLL_PERIOD_1_4,
+			ROLL_PERIOD_1_6,
+			ROLL_PERIOD_1_8,
+			ROLL_PERIOD_1_12,
+			ROLL_PERIOD_1_16,
+			ROLL_PERIOD_MAX = ROLL_PERIOD_1_16
+		};
+
+		enum enRollDir
+		{
+			rollType_const = 0,
+			rollType_noteUp,
+			rollType_noteDown,
+			rollType_noteRandom,
+			rollType_volDown,
+			rollType_volUp,
+			rollNoteDir_max = rollType_volUp,
 		};
 
 	} fx;
@@ -262,7 +270,7 @@ public:
 	void init_player_timer(void);
 	void cancelFxes(int8_t track);
 	void cancelFxes();
-
+	uint8_t getRollType(uint8_t value);
 
 	inline uint8_t rollTypeToVal(uint8_t rollType);
 
@@ -300,17 +308,17 @@ public:
 
 	} MODE_MIDICLOCK;
 
-	enum strRollCurve
-	{
-		ROLL_CURVE_MIN = 1,
-		ROLL_CURVE_FLAT = 1,
-		ROLL_CURVE_INCREMENTAL = 2,
-		ROLL_CURVE_DECREMENTAL = 3,
-		ROLL_CURVE_INC_DEC = 4,
-		ROLL_CURVE_DEC_INC = 5,
-		ROLL_CURVE_RANDOM = 6,
-		ROLL_CURVE_MAX = 6,
-	};
+//	enum strRollCurve
+//	{
+//		ROLL_CURVE_MIN = 1,
+//		ROLL_CURVE_FLAT = 1,
+//		ROLL_CURVE_INCREMENTAL = 2,
+//		ROLL_CURVE_DECREMENTAL = 3,
+//		ROLL_CURVE_INC_DEC = 4,
+//		ROLL_CURVE_DEC_INC = 5,
+//		ROLL_CURVE_RANDOM = 6,
+//		ROLL_CURVE_MAX = 6,
+//	};
 
 	struct strPlayer
 	{
@@ -391,7 +399,7 @@ public:
 			boolean cancelStep = 0;
 
 			boolean rollIsOn = 0;
-			uint8_t rollType = 0; // 1/1, 1/2, 1/4 ...
+			uint8_t rollPeriod = 0; // 1/1, 1/2, 1/4 ...
 			uint8_t rollVal = 0;
 			uint8_t rollDir = 0;
 			uint8_t rollFxId = 0;
@@ -648,6 +656,10 @@ public:
 	int16_t getFxMin(uint8_t fxID);
 	int16_t getFxDefault(uint8_t fxID);
 	int16_t getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step);
+	char getRollTypeChar(uint8_t val);
+	int16_t rollValueToPeriod(int16_t value);
+	void makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track, uint8_t step);
+
 
 	uint8_t getActualPos()
 	{

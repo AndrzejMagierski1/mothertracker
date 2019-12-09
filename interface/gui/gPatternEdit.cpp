@@ -379,7 +379,7 @@ void cPatternEditor::showDefaultScreen()
 	display.setControlText(label[1], "Length");
 	display.setControlText(label[2], "Step");
 	display.setControlText(label[3], "Fill");
-	display.setControlText(label[4], "");
+	display.setControlText(label[4], "Preview");
 	display.setControlText(label[5], "Invert");
 	display.setControlText(label[6], "Transpose");
 	display.setControlText(label[7], "Undo");
