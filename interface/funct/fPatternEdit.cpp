@@ -1407,6 +1407,12 @@ static  uint8_t functUp()
 
 	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
+	if (tactButtons.isButtonPressed(interfaceButtonPattern))
+	{
+		PTE->changeActualPattern(1);
+		return 1;
+	}
+
 
 	if(PTE->editMode == 1 && shiftPressed && PTE->trackerPattern.actualStep == 0) // zaznaczanie calej kolumny
 	{
@@ -1494,6 +1500,12 @@ static  uint8_t functDown()
 
 	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
+
+	if (tactButtons.isButtonPressed(interfaceButtonPattern))
+	{
+		PTE->changeActualPattern(-1);
+		return 1;
+	}
 
 //	if(PTE->editMode == 1 && shiftPressed && PTE->trackerPattern.selectColumn == 1)
 //	{
