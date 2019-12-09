@@ -3,12 +3,12 @@
 #define MT_INTERFACE_DEFS_H
 
 
-
+#include "displayControls.h"
 #include "mtStructs.h"
 #include "mtSequencer.h"
 
 
-#define MT_INTERFACE_STARTUP_TIME 10000
+//#define MT_INTERFACE_STARTUP_TIME 10000
 
 
 //-------------------------------------------------------------
@@ -442,7 +442,7 @@ struct strInterfaceGlobals
 	{
 		0x777777, // tekst
 		0x323132, // tło
-		0xFF0000, // ramka
+		one_true_red, // ramka
 		0xFFFFFF, // tekst2
 	};
 
@@ -450,7 +450,7 @@ struct strInterfaceGlobals
 	{
 		0x333333, // tekst
 		0x323132, // tło //0x555555
-		0xFF0000, // ramka
+		one_true_red, // ramka
 		0x555555, // tekst2
 	};
 
@@ -458,7 +458,7 @@ struct strInterfaceGlobals
 	{
 		0xffffff, // tekst
 		0x323132, // tło
-		0xFF0000, // ramka
+		one_true_red, // ramka
 		0xFFFFFF, // tekst2
 	};
 
@@ -466,7 +466,7 @@ struct strInterfaceGlobals
 	{
 		0x555555, // tekst
 		0x323132, // tło
-		0xFF0000, // ramka
+		one_true_red, // ramka
 		0x555555, // tekst2
 	};
 

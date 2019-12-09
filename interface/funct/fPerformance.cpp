@@ -36,7 +36,6 @@ static  uint8_t functEncoder(int16_t value);
 
 
 static  uint8_t functSwitchModule(uint8_t button);
-static  uint8_t functSwitchMode(uint8_t button);
 
 
 static uint8_t functActionButton(uint8_t button, uint8_t state);
@@ -54,11 +53,6 @@ void cPerformanceMode::update()
 	if(refreshTime < 100) return;
 	refreshTime = 0;
 
-	if(refreshMaster == 1)
-	{
-		refreshMaster = 0;
-		if(mode == mtPerformanceMaster) showPerformanceMaster();
-	}
 	if(refreshTrackState == 1)
 	{
 		refreshTrackState = 0;
@@ -95,8 +89,7 @@ void cPerformanceMode::start(uint32_t options)
 	performanceEditState = 0;
 
 	// ustawienie funkcji
-	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchMode);
-
+	//FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchMode);
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
@@ -110,16 +103,9 @@ void cPerformanceMode::start(uint32_t options)
 
 	setDefaultScreenFunct();
 
-	if(mode == mtPerformanceMaster)
-	{
-		PM->showPerformanceMaster();
-		PM->setPerformanceMaster();
-	}
-	else
-	{
-		PM->showPerformanceFxes();
-		PM->setPerformanceFxes();
-	}
+	PM->showPerformanceFxes();
+	PM->setPerformanceFxes();
+
 }
 
 void cPerformanceMode::stop()
@@ -436,6 +422,8 @@ void cPerformanceMode::setPlaceNewFx(uint8_t place, uint8_t newFx)
 	mtProject.values.perfFxValues[place][1] = 0;
 	mtProject.values.perfFxValues[place][2] = 0;
 	mtProject.values.perfFxValues[place][3] = 0;
+	mtProject.values.perfSelectedValues[place] = 0;
+	placesTempValues[place] = 0;
 
 	mtProject.values.perfFxPlaces[place] = newFx;
 
@@ -803,8 +791,7 @@ static  uint8_t functUp()
 
 		PM->showFxNames(PM->performanceEditPlace);
 		PM->showPerformaceValue(PM->performanceEditPlace);
-
-		PM->setProjectSaveFlags();
+		PM->lightUpPadBoard();
 
 		return 1;
 	}
@@ -846,11 +833,11 @@ static  uint8_t functDown()
 			if(new_fx < 0) new_fx = performanceFxesCount-1;
 
 		}
-
 		PM->setPlaceNewFx(PM->performanceEditPlace, new_fx);
 
 		PM->showFxNames(PM->performanceEditPlace);
 		PM->showPerformaceValue(PM->performanceEditPlace);
+		PM->lightUpPadBoard();
 
 		return 1;
 	}
@@ -939,31 +926,6 @@ static uint8_t functSwitchModule(uint8_t button)
 }
 
 
-static  uint8_t functSwitchMode(uint8_t button)
-{
-/*
-	if(PM->mode == mtPerformanceMaster)
-	{
-		PM->mode = mtPerformanceFxes;
-		PM->showPerformanceFxes();
-		PM->setPerformanceFxes();
-	}
-	else
-	{
-		PM->mode = mtPerformanceMaster;
-		PM->showPerformanceMaster();
-		PM->setPerformanceMaster();
-	}
-*/
-
-
-
-
-	return 1;
-}
-
-
-
 
 
 //##############################################################################################
@@ -974,80 +936,51 @@ static  uint8_t functSwitchMode(uint8_t button)
 
 static uint8_t functActionButton(uint8_t button, uint8_t state)
 {
-	if(PM->mode == mtPerformanceMaster)
+	if(state == buttonPress)
 	{
-		if(state == buttonPress)
+		if(tactButtons.isButtonPressed(interfaceButtonShift))
 		{
-			 if(mtProject.values.trackMute[button] == 0) mtProject.values.trackMute[button] = 1;
-			 else mtProject.values.trackMute[button] = 0;
+			if(mtProject.values.trackMute[button] == 0) mtProject.values.trackMute[button] = 1;
+			else mtProject.values.trackMute[button] = 0;
 
-			 engine.muteTrack(button, mtProject.values.trackMute[button]);
+			engine.muteTrack(button, mtProject.values.trackMute[button]);
 
-			 PM->refreshMaster = 1;
-			 PM->setProjectSaveFlags();
+			PM->refreshTrackState = 1;
+			PM->setProjectSaveFlags();
 		}
-		else if(state == buttonRelease)
+		else
 		{
-			if(tactButtons.isButtonPressed(interfaceButtonShift))
-			{
-				 if(mtProject.values.trackMute[button] == 0) mtProject.values.trackMute[button] = 1;
-				 else mtProject.values.trackMute[button] = 0;
-
-				 engine.muteTrack(button, mtProject.values.trackMute[button]);
-
-				 PM->refreshMaster = 1;
-				 PM->setProjectSaveFlags();
-			}
+			PM->trackPatternChange[button] = 1;
 		}
-
 	}
-	else
+	else if(state == buttonRelease)
 	{
-		if(state == buttonPress)
+		if(!tactButtons.isButtonPressed(interfaceButtonShift))
 		{
-			if(tactButtons.isButtonPressed(interfaceButtonShift))
+			if(PM->wasPatternOntrackChenged(button))
 			{
-				if(mtProject.values.trackMute[button] == 0) mtProject.values.trackMute[button] = 1;
-				else mtProject.values.trackMute[button] = 0;
-
-				engine.muteTrack(button, mtProject.values.trackMute[button]);
-
-				PM->refreshTrackState = 1;
-				PM->setProjectSaveFlags();
-			}
-			else
-			{
-				PM->trackPatternChange[button] = 1;
-			}
-		}
-		else if(state == buttonRelease)
-		{
-			if(!tactButtons.isButtonPressed(interfaceButtonShift))
-			{
-				if(PM->wasPatternOntrackChenged(button))
-				{
-					// button <= numer tracka
-					// mtProject.values.perfTracksPatterns[button] <= pattern tracka
-					sequencer.enterPerformanceMode();
-					sequencer.setTrackToLoadOnSwitch(
-							button,
-							mtProject.values.perfTracksPatterns[button]);
+				// button <= numer tracka
+				// mtProject.values.perfTracksPatterns[button] <= pattern tracka
+				sequencer.enterPerformanceMode();
+				sequencer.setTrackToLoadOnSwitch(
+						button,
+						mtProject.values.perfTracksPatterns[button]);
 
 //					fileManager.loadTrack(
 //							mtProject.values.perfTracksPatterns[button],
 //							button);
-				}
-				else
-				{
-					PM->toggleTrackPerformanceState(button);
-
-					PM->refreshTrackState = 1;
-				}
 			}
+			else
+			{
+				PM->toggleTrackPerformanceState(button);
 
-			PM->trackPatternChange[button] = 0;
+				PM->refreshTrackState = 1;
+			}
 		}
+
+		PM->trackPatternChange[button] = 0;
 	}
+
 
 
 
@@ -1069,8 +1002,8 @@ void cPerformanceMode::lightUpPadBoard()
 		uint8_t place = pad%12;
 		if(mtProject.values.perfSelectedValues[place] == pad/12 && mtProject.values.perfFxPlaces[place])
 			padsBacklight.setBackLayer(1, mtConfig.values.padsLightBack, pad);
-		else if(!(pad%2))
-			padsBacklight.setBackLayer(1, mtConfig.values.padsLightBackWeek, pad);
+		//else if(!(pad%2))
+			//padsBacklight.setBackLayer(1, mtConfig.values.padsLightBackWeek, pad);
 		else
 			 padsBacklight.setBackLayer(0, 0, pad);
 	}

@@ -272,6 +272,8 @@ void updateHardware()
 
 		if(i2cRefreshTimer > 500)
 		{
+			i2cRefreshTimer = 0;
+
 			i2c_switch++;
 			if(i2c_switch >= 2) i2c_switch = 0;
 
@@ -286,7 +288,7 @@ void updateHardware()
 					if(!leds.update_all_leds())	i2c_switch++;
 				}
 
-				if(i2c_switch < 2) i2cRefreshTimer = 0;
+				/*if(i2c_switch < 2) i2cRefreshTimer = 0;*/
 			}
 
 			if (Wire.done())

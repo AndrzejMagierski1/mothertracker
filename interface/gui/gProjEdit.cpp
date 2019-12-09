@@ -67,12 +67,11 @@ void cProjectEditor::initDisplayControls()
 	{
 		prop2.value =  1;
 		prop2.colors = interfaceGlobals.activeButtonLabelsColors;
-
-		prop2.style = 	( controlStyleCenterX | controlStyleCenterY );
+		prop2.style = 	( controlStyleCenterX );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
-		prop2.y = 452;
-		prop2.h =  59;
+		prop2.y = 424;
+		prop2.h =  55;
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
