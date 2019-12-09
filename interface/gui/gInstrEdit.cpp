@@ -62,8 +62,9 @@ void cInstrumentEditor::initDisplayControls()
 		prop2.style = 	( controlStyleCenterX | controlStyleFont3 );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
-		prop2.y = 224;
+		prop2.y = 424;
 		prop2.h =  55;
+		prop2.value =  1;
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 
