@@ -582,6 +582,8 @@ public:
 							uint8_t trackFrom,
 							uint8_t stepTo,
 							uint8_t trackTo);
+	uint8_t getCopySelectionHeight();
+
 
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
