@@ -78,6 +78,10 @@ public:
 	void modWavetableWindow(uint16_t value);
 	void modTune(int8_t value);
 	void modReverbSend(uint8_t value);
+
+	void modGranularPosition(uint16_t value);
+	void modGranularGrainLength();
+
 	void setStatusBytes(uint16_t value);
 //	void resetMods();
 	uint8_t getInterfaceEndReleaseFlag();

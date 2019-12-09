@@ -1884,6 +1884,16 @@ void playerEngine :: modWavetableWindow(uint16_t value)
 	playMemPtr->setWavetableWindow(value);
 }
 
+void playerEngine :: modGranularPosition(uint16_t value)
+{
+	playMemPtr->setGranularPosition();
+}
+
+void playerEngine ::modGranularGrainLength()
+{
+	playMemPtr->setGranularGrainLength();
+}
+
 void playerEngine :: modTune(int8_t value)
 {
 	playMemPtr->setTune(value,currentNote);
@@ -2183,6 +2193,23 @@ void playerEngine:: update()
 			statusBytes &= (~WT_POS_SEND_MASK);
 			playMemPtr->setWavetableWindow(instrumentBasedMod.wtPos);
 		}
+		if(statusBytes & GRANULAR_POS_SEND_MASK)
+		{
+			statusBytes &= (~GRANULAR_POS_SEND_MASK);
+			modGranularPosition(mtProject.instrument[currentInstrument_idx].granular.currentPosition);
+		}
+		if(statusBytes & GRANULAR_LEN_SEND_MASK)
+		{
+			statusBytes &= (~GRANULAR_LEN_SEND_MASK);
+			modGranularGrainLength();
+		}
+		if(statusBytes & GRANULAR_WAVE_SEND_MASK)
+		{
+			statusBytes &= (~GRANULAR_WAVE_SEND_MASK);
+			playMemPtr->setGranularWave(mtProject.instrument[currentInstrument_idx].granular.shape);
+		}
+
+
 	}
 
 

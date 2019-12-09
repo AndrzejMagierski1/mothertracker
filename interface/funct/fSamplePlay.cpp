@@ -556,7 +556,7 @@ static  uint8_t functSelectStart(uint8_t state)
 {
 	if((state > buttonPress) && (state != UINT8_MAX)) return 1;
 
-	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode = playModeGranular))
+	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
 	{
 		if(state == buttonPress )
 		{
@@ -711,7 +711,7 @@ static  uint8_t functSelectLoop2(uint8_t state)
 		return 1;
 	}
 
-	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode = playModeGranular))
+	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
 	{
 		if(state == buttonPress )
 		{
@@ -1415,6 +1415,7 @@ static void changePlayModeSelection(int16_t value)
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 
+	Serial.println(SP->editorInstrument->playMode);
 }
 
 static void modStartPoint(int16_t value)
@@ -1741,6 +1742,9 @@ static void modGranularLength(int16_t value)
 	else SP->editorInstrument->granular.grainLength += value;
 
 	SP->showGrainLengthValue();
+
+	instrumentPlayer[0].setStatusBytes(GRANULAR_LEN_SEND_MASK);
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 static void modGranularShape(int16_t value)
 {
@@ -1749,6 +1753,9 @@ static void modGranularShape(int16_t value)
 	else SP->editorInstrument->granular.shape += value;
 
 	SP->showShapeText();
+
+	instrumentPlayer[0].setStatusBytes(GRANULAR_WAVE_SEND_MASK);
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 static void modGranularPosition(int16_t value)
 {
@@ -1758,6 +1765,9 @@ static void modGranularPosition(int16_t value)
 	else SP->editorInstrument->granular.currentPosition += value;
 
 	SP->showGranularPositionValue();
+
+	instrumentPlayer[0].setStatusBytes(GRANULAR_POS_SEND_MASK);
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 static uint8_t functShift(uint8_t value)

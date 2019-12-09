@@ -130,6 +130,9 @@ const uint8_t CUTOFF_MASK =						64;
 const uint8_t RESONANCE_MASK =					128;
 const uint16_t REVERB_SEND_MASK =				256;
 const uint16_t WT_POS_SEND_MASK =				512;
+const uint16_t GRANULAR_POS_SEND_MASK =			1024;
+const uint16_t GRANULAR_LEN_SEND_MASK =			2048;
+const uint16_t GRANULAR_WAVE_SEND_MASK =		4096;
 
 const uint8_t MIN_NOTE_OFFSET =					0;
 const uint8_t MAX_NOTE_OFFSET =					13;
@@ -360,6 +363,15 @@ enum granularShapeType
 	granularTypeCount
 };
 
+enum granularLoopType
+{
+	granularLoopForward,
+	granularLoopBackward,
+	granularLoopPingPong,
+
+	granularLoopCount
+};
+
 //=====================================================================
 //-------------------------------------------------
 //-------------------------------------------------
@@ -422,6 +434,7 @@ struct strInstrument
     	uint16_t 	grainLength = 44;
     	uint16_t 	currentPosition;
     	uint8_t	 	shape;
+    	uint8_t		type;
     } granular;
 };
 //-------------------------------------------------

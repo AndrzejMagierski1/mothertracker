@@ -31,6 +31,7 @@
 #include "AudioStream.h"
 #include "mtStructs.h"
 #include "mtWavetableTabs.h"
+#include "mtGranularTabs.h"
 
 class AudioPlayMemory : public AudioStream
 {
@@ -49,6 +50,11 @@ public:
 	void setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx);//incremental
 	void setFineTune(int8_t value, int8_t currentNote);
 	void setWavetableWindow(int16_t value);
+	void setGranularPosition();
+	void refreshGranularPosition();
+	void setGranularGrainLength();
+	void setGranularWave(uint8_t type);
+	void setGranularLoopMode(uint8_t type);
 	void setTune(int8_t value, int8_t currentNote);
 	void setReverse();
 	void clearReverse();
@@ -99,6 +105,10 @@ private:
 	uint32_t currentWindow;
 	uint32_t waveTablePosition;
 	uint8_t sampleType;
+	uint8_t granularLoopType;
+	const float * granularEnvelopeTab = nullptr;
+
+	uint8_t granularPositionRefreshFlag = 1;
 //    uint16_t wavetableSync;
 //    uint16_t wavetablePWM;
 //    uint16_t wavetableFlip;
@@ -111,6 +121,7 @@ private:
 	uint8_t fineTuneForceFlag;
 	uint8_t wavetableWindowForceFlag;
 	uint8_t sliceForcedFlag;
+	uint8_t granularForcedFlag;
 
 	uint8_t reverseDirectionFlag;
 
@@ -123,7 +134,7 @@ private:
 	int8_t forcedFineTune;
 	uint16_t forcedWavetableWindow;
 	uint8_t forcedSlice;
-
+	uint8_t forcedGranularPosition;
 
 	struct strSamplePoints
 	{
