@@ -131,6 +131,8 @@ void cPatternEditor::start(uint32_t options)
 	mtProject.values.padBoardNoteOffset = 12;
 	mtProject.values.padBoardRootNote = 36;
 
+	trackerPattern.stepDevider = (mtConfig.general.patternDiv + 1);
+
 
 	readPatternState();
 	refreshPattern();
@@ -1880,9 +1882,8 @@ static  uint8_t functRecAction()
 
 static uint8_t functInsertHome(uint8_t state)
 {
-	if (state == buttonPress)
+	if (state == buttonPress || state == buttonHold)
 	{
-
 		if (PTE->editMode == 1)
 		{
 			fileManager.storePatternUndoRevision();
@@ -1987,10 +1988,8 @@ static uint8_t functCopyPaste(uint8_t state)
 }
 static uint8_t functDeleteBackspace(uint8_t state)
 {
-
-	if (state == buttonPress)
+	if (state == buttonPress || state == buttonHold)
 	{
-
 		if (PTE->editMode == 1)
 		{
 			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
@@ -1999,21 +1998,24 @@ static uint8_t functDeleteBackspace(uint8_t state)
 			// backspace
 			if (tactButtons.isButtonPressed(interfaceButtonShift))
 			{
-				sendSelection();
-				sequencer.backspace();
-				if (isMultiSelection())
+				if(state == buttonPress)
 				{
-					if (PTE->trackerPattern.selectStartStep > 0)
+					sendSelection();
+					sequencer.backspace();
+					if (isMultiSelection())
 					{
-						PTE->trackerPattern.selectStartStep--;
-						PTE->trackerPattern.selectEndStep--;
-						PTE->trackerPattern.actualStep--; // zmiana pozycji kursora
+						if (PTE->trackerPattern.selectStartStep > 0)
+						{
+							PTE->trackerPattern.selectStartStep--;
+							PTE->trackerPattern.selectEndStep--;
+							PTE->trackerPattern.actualStep--; // zmiana pozycji kursora
+						}
 					}
-				}
-				else
-				{
-					if (PTE->trackerPattern.actualStep > 0)
-						PTE->trackerPattern.actualStep--; // zmiana pozycji kursora
+					else
+					{
+						if (PTE->trackerPattern.actualStep > 0)
+							PTE->trackerPattern.actualStep--; // zmiana pozycji kursora
+					}
 				}
 			}
 			// DELETE

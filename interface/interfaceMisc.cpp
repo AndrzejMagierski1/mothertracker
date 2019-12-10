@@ -67,6 +67,7 @@ uint8_t cInterface::detectStartState()
 		return 0;
 	}
 
+	isBooted = 1;
 	return 1;
 }
 
@@ -102,6 +103,72 @@ void cInterface::initStartScreen()
 	uiFM.setButtonObj(interfaceButton7, buttonPress, functHide);
 
 
+}
+
+void cInterface::initDisplayCountDown()
+{
+	strControlProperties prop;
+
+	prop.x = 190;
+	prop.y = 170;
+	prop.style = controlStyleValue_0_100;
+	prop.h = 100;
+	prop.w = 420;
+
+	if(turnOffProgressBar == nullptr)  turnOffProgressBar = display.createControl<cHorizontalBar>(&prop);
+}
+
+void cInterface::refreshDisplayCountDown(uint16_t timeLeft_ms, uint8_t progress)
+{
+	uint8_t timeLeft_s = 0;
+
+	timeLeft_s = ceil((timeLeft_ms/1000.0f));
+
+	sprintf(turnOffText, "Shutdown in %ds", timeLeft_s);
+
+	display.setControlValue(turnOffProgressBar, progress);
+	display.setControlText(turnOffProgressBar, turnOffText);
+	display.setControlShow(turnOffProgressBar);
+	display.refreshControl(turnOffProgressBar);
+}
+
+void cInterface::deinitDisplayCountDown()
+{
+	display.destroyControl(turnOffProgressBar);
+	turnOffProgressBar = nullptr;
+}
+
+void cInterface::initDisplayNoSdCard()
+{
+	strControlProperties prop;
+
+	prop.x = 400;
+	prop.y = 240;
+	prop.w = 240;
+	prop.h = 25;
+	prop.style = (controlStyleCenterY | controlStyleCenterX);
+	if(noSdTextControl == nullptr)  noSdTextControl= display.createControl<cSimpleText>(&prop);
+
+	display.setControlText(noSdTextControl, noSdText);
+	display.setControlShow(noSdTextControl);
+	display.refreshControl(noSdTextControl);
+}
+
+void cInterface::refreshDsiplayNoSdCard()
+{
+	display.setControlShow(noSdTextControl);
+}
+
+void cInterface::hideAllGlobalActions()
+{
+	display.setControlHide(noSdTextControl);
+	display.setControlHide(turnOffProgressBar);
+}
+
+void cInterface::deinitDisplayNoSdCard()
+{
+	display.destroyControl(noSdTextControl);
+	noSdTextControl = nullptr;
 }
 
 void cInterface::showStartScreen()

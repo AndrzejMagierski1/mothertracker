@@ -16,6 +16,13 @@
 typedef cModuleBase* hModule;
 class cInterfacePopups;
 
+//Higher number = higher priority
+enum action_priorities
+{
+	noSdCardPriority = 0x01U,
+	powerButtonActionPriority = 0x02U,
+};
+
 
 class cInterface
 {
@@ -41,6 +48,22 @@ public:
 	void hideStartScreen();
 	void destroyStartScreen();
 
+	void hideAllGlobalActions();
+
+	void initDisplayCountDown();
+	void refreshDisplayCountDown(uint16_t timeLeft_ms, uint8_t progress);
+	void deinitDisplayCountDown();
+	uint8_t shutdownScreenInitFlag = 0;
+	uint32_t shutdownRequestTimestamp;
+	elapsedMillis shutdownTimer;
+
+
+	void initDisplayNoSdCard();
+	void refreshDsiplayNoSdCard();
+	void deinitDisplayNoSdCard();
+	uint8_t noSdCardInitFlag = 0;
+
+
 	uint8_t detectStartState();
 	void openStartupProject();
 
@@ -59,6 +82,10 @@ private:
 
 	void processOperatingMode();
 	void doStartTasks();
+
+	void handleGlobalActions();
+	void handleShutdown();
+	void handleNoSdCard();
 
 	static const uint8_t modulesCount;
 	static const hModule modules[];
@@ -94,11 +121,20 @@ private:
 	strStartScreenData startScreenData;
 
 
+	hControl turnOffProgressBar = nullptr;
+	char turnOffText[20];
+
+	hControl noSdTextControl;
+	const char *noSdText = "Please insert SD card to continue";
+
+
 	//styl popupu interfejsu
 	strPopupStyleConfig popupConfig;
 
 	uint8_t openFromWorkspaceFlag = 0;
 
+	uint8_t isBooted = 0;
+	uint32_t globalActionPriority;
 
 
 };

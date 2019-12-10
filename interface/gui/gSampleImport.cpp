@@ -212,6 +212,7 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlText(label[4], "Preview");
 	display.setControlText(label[5], "Memory");
 	display.setControlText(label[6], "Instruments");
+	display.setControlText(label[7],"");
 
 	display.setControlPosition(label[0],  (800/8)*0+(800/8),  424);
 	display.setControlSize(label[0],  800/4-6,  55);

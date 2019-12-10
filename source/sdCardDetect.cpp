@@ -34,7 +34,7 @@ void SDCardDetector::update(uint8_t forcedUpdate)
 		}
 		lastState = currentState;
 	}
-	else if(initCardControl == 1 && (measureTimer > 100 || forcedUpdate))
+	else if((initCardControl == 1) && (measureTimer > 100 || forcedUpdate))
 	{
 		initCardControl = 2;
 		measureTimer = 0;
@@ -43,6 +43,10 @@ void SDCardDetector::update(uint8_t forcedUpdate)
 			if(SD.begin(SdioConfig(DMA_SDIO)))
 			{
 				isInitialized = 1;
+			}
+			else
+			{
+				initCardControl = 0;
 			}
 		}
 		else initCardControl = 0;

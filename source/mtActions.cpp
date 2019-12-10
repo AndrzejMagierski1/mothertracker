@@ -8,7 +8,7 @@
 
 
 #include "mtSleep.h"
-#include "mtCardChecker.h"
+//#include "mtCardChecker.h"
 
 
 
@@ -92,11 +92,11 @@ void onSDCardSlotChange(uint8_t n)
 	//mtInterface.SDCardChange(n);
 	if(n == 1)
 	{
-		mtCardHandler.sdCardInsertedAction();
+		//mtCardHandler.sdCardInsertedAction();
 	}
 	else
 	{
-		mtCardHandler.noSdCardAction();
+		//mtCardHandler.noSdCardAction();
 	}
 
 	//if(!n) Serial.println("SD OUT");

@@ -14,53 +14,29 @@ extern AudioControlSGTL5000 audioShield;
 SnoozeDigital digital;
 SnoozeBlock config(digital);
 
-
-void mtSleep::update()
+void mtSleep::requestShutdown(uint8_t value)
 {
-	if(!state) return;
-
-	int32_t timeToShutdown_ms = 0;
-
-	timeToShutdown_ms = (TURN_OFF_TIME_MS - (shutdownTimer - firstPressTimestamp));
-
-	refreshDisplayCountDown(timeToShutdown_ms);
-
-	if(timeToShutdown_ms <= 0)
+	if(value == 1)
 	{
-		state = 0;
-		noInterrupts();
-		disableAll();
-		Snooze.sleep(config);
-		powerState=powerTypeLow;
-	}
-}
-
-
-void mtSleep::goLowPower(uint8_t value)
-{
-	if(value == 1) // pressed
-	{
-		if(firstPress == 0)
-		{
-			firstPressTimestamp = shutdownTimer;
-			initDisplayCountDown();
-			firstPress = 1;
-		}
-
-		state = 1;
-
+		shutdown_requested = 1;
 	}
 	else
 	{
-		if(firstPress)
-		{
-			state = 0;
-			firstPress = 0;
-			deinitDisplayCountDown();
-		}
+		shutdown_requested = 0;
 	}
 
 	lastValue = value;
+}
+
+void mtSleep::goLowPower()
+{
+	noInterrupts();
+	disableAll();
+}
+
+uint8_t mtSleep::getShutdownRequest()
+{
+	return shutdown_requested;
 }
 
 void mtSleep::wakeUp(uint8_t value)
@@ -81,7 +57,7 @@ void mtSleep::handlePowerState(uint8_t value)
 	}
 	else if(powerState == powerTypeNormal)
 	{
-		goLowPower(value);
+		requestShutdown(value);
 	}
 }
 
@@ -106,6 +82,9 @@ void mtSleep::disableAll()
 	MCU_set_sleepMode();
 	digitalWrite(EXTERNAL_RAM_KEY,LOW);//RAM power off
 	BOARD_DeinitPins();// RAM pins deinit
+
+	Snooze.sleep(config);
+	powerState = powerTypeLow;
 }
 
 void mtSleep::resetMCU()
@@ -119,44 +98,3 @@ void mtSleep::resetMCU()
 		__NOP();
 	}
 }
-
-void mtSleep::initDisplayCountDown()
-{
-	uint8_t toggleState = 0;
-	interfaceEnvents(eventToggleActiveModule,0,0,&toggleState);
-	strControlProperties prop;
-
-	prop.x = 190;
-	prop.y = 170;
-	prop.style = controlStyleValue_0_100;
-	prop.h = 100;
-	prop.w = 420;
-
-	if(turnOffProgressBar == nullptr)  turnOffProgressBar = display.createControl<cHorizontalBar>(&prop);
-}
-
-void mtSleep::refreshDisplayCountDown(uint16_t timeLeft_ms)
-{
-	uint32_t progress = 0;
-	uint8_t timeLeft_s = 0;
-	progress = ((timeLeft_ms * 100)/TURN_OFF_TIME_MS);
-
-	timeLeft_s = ceil((timeLeft_ms/1000.0f));
-
-	sprintf(turnOffText, "Shutdown in %ds", timeLeft_s);
-
-	display.setControlValue(turnOffProgressBar, progress);
-	display.setControlText(turnOffProgressBar, turnOffText);
-	display.setControlShow(turnOffProgressBar);
-	display.refreshControl(turnOffProgressBar);
-}
-
-void mtSleep::deinitDisplayCountDown()
-{
-	display.destroyControl(turnOffProgressBar);
-	turnOffProgressBar = nullptr;
-
-	uint8_t toggleState = 1;
-	interfaceEnvents(eventToggleActiveModule,0,0,&toggleState);
-}
-
