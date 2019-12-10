@@ -124,16 +124,18 @@ void fault_isr(void)
         ser_print("\n");
         asm("ldr %0, [sp, #0]" : "=r" (addr) ::);
 #endif
-/*	while (1) {
+#ifndef REBOOT_ON_FAULT
+        while (1) {
 		// keep polling some communication while in fault
 		// mode, so we don't completely die.
 		if (SIM_SCGC4 & SIM_SCGC4_USBOTG) usb_isr();
 		if (SIM_SCGC4 & SIM_SCGC4_UART0) uart0_status_isr();
 		if (SIM_SCGC4 & SIM_SCGC4_UART1) uart1_status_isr();
 		if (SIM_SCGC4 & SIM_SCGC4_UART2) uart2_status_isr();
-	}*/
-
+	}
+#else
         WRITE_RESTART(0x5FA0004);
+#endif
 }
 
 void unused_isr(void)

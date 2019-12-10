@@ -165,7 +165,8 @@ void cInterface::handleNoSdCard()
 		{
 			if(globalActionPriority == 0)
 			{
-				interfaceEnvents(eventToggleActiveModule,0,0,0);
+				uint8_t state = 0;
+				interfaceEnvents(eventToggleActiveModule,0,0,&state);
 			}
 
 			globalActionPriority |= selfPrio;
@@ -189,7 +190,8 @@ void cInterface::handleNoSdCard()
 
 					if(globalActionPriority == 0)
 					{
-						interfaceEnvents(eventToggleActiveModule,0,0,0);
+						uint8_t state = 1;
+						interfaceEnvents(eventToggleActiveModule,0,0,&state);
 					}
 
 					noSdCardInitFlag = 0;
@@ -201,6 +203,7 @@ void cInterface::handleNoSdCard()
 
 void cInterface::handleShutdown()
 {
+
 	if(isBooted)
 	{
 		uint32_t selfPrio = powerButtonActionPriority;
@@ -211,7 +214,8 @@ void cInterface::handleShutdown()
 			{
 				if(globalActionPriority == 0)
 				{
-					interfaceEnvents(eventToggleActiveModule,0,0,0);
+					uint8_t state = 0;
+					interfaceEnvents(eventToggleActiveModule,0,0,&state);
 				}
 
 				globalActionPriority |= selfPrio;
@@ -246,7 +250,8 @@ void cInterface::handleShutdown()
 
 					if(globalActionPriority == 0)
 					{
-						interfaceEnvents(eventToggleActiveModule,0,0,0);
+						uint8_t state = 1;
+						interfaceEnvents(eventToggleActiveModule,0,0,&state);
 					}
 				}
 			}

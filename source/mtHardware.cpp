@@ -308,7 +308,7 @@ void updateHardware()
 
 		midiUpdate();
 
-		lowPower.update();
+		//lowPower.update();
 	}
 
 
