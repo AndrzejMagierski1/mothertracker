@@ -409,8 +409,8 @@ void cPatternEditor::showDefaultScreen()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.setControlPosition(label[i], -1, 424);
-		display.setControlSize(label[i], -1, 55);
+		//display.setControlPosition(label[i], -1, 424);
+		//display.setControlSize(label[i], -1, 55);
 
 
 		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);

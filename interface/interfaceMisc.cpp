@@ -20,7 +20,7 @@ uint8_t hidePressFlag = 0;
 //==================================================================================================
 uint8_t cInterface::detectStartState()
 {
-	if(startupTimer > MT_INTERFACE_STARTUP_TIME) return 1; // zabiezpieczenie czasowe
+	//if(startupTimer > MT_INTERFACE_STARTUP_TIME) return 1; // zabiezpieczenie czasowe
 	//if(hidePressFlag) return 1;
 
 	uint8_t status = fileManager.getLoadingStatus();

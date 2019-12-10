@@ -208,7 +208,7 @@ public:
 	char volumeVal[4];
 	char panningVal[7];
 	char tuneVal[5];
-	char fineTuneVal[4];
+	char fineTuneVal[5];
 	char cutoffVal[8];
 	char resonanceVal[8];
 	char revSendVal[5];
