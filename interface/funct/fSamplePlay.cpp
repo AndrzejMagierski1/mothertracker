@@ -68,6 +68,7 @@ static void changePlayModeSelection(int16_t value);
 static void modGranularLength(int16_t value);
 static void modGranularShape(int16_t value);
 static void modGranularPosition(int16_t value);
+static void modGranularLoopType(int16_t value);
 
 constexpr uint32_t PLAY_REFRESH_US = 5000;
 
@@ -565,7 +566,7 @@ static  uint8_t functSelectStart(uint8_t state)
 		}
 	}
 
-	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode != playModeSlice))
+	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeGranular))
 	{
 		if(state == UINT8_MAX || state == buttonPress) // called from inside of this module
 		{
@@ -786,10 +787,6 @@ static  uint8_t functSelectLoop2(uint8_t state)
 static  uint8_t functSelectEnd(uint8_t state)
 {
 
-	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
-	{
-		return 1;
-	}
 	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice))
 	{
 		if(state == buttonPress) functAutoSlice();
@@ -941,7 +938,10 @@ static  uint8_t functEncoder(int16_t value)
 			if(SP->editorInstrument->playMode != playModeGranular) modLoopPoint2(value);
 			else modGranularShape( (value > 0) ? 1: -1);
 			break;
-		case 4: modEndPoint(value); 			break;
+		case 4:
+			if(SP->editorInstrument->playMode != playModeGranular) modEndPoint(value);
+			else modGranularLoopType((value > 0) ? 1: -1);
+		break;
 		case 5: changeZoom(value);				break;
 		case 6: changePlayModeSelection(value);	break;
 		}
@@ -995,21 +995,21 @@ static  uint8_t functLeft()
 			{
 				SP->selectedPlace = 2;
 			}
-			else if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
-			{
-				SP->selectedPlace = 3;
-			}
-			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
+			else if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode != playModeGranular))
 			{
 				functSelectZoom();
 			}
+			else if(SP->editorInstrument->playMode == playModeGranular)
+			{
+				SP->selectedPlace = 4;
+			}
 			break;
 		case 6:
-		{
-		SP->selectedPlace = 6;
-		SP->points.selected = 0;
-		break;
-		}
+			{
+			SP->selectedPlace = 6;
+			SP->points.selected = 0;
+			break;
+			}
 	}
 
 	SP->activateLabelsBorder();
@@ -1067,15 +1067,14 @@ static  uint8_t functRight()
 				}
 			}
 			break;
-		case 4:
-
+		case 4: functSelectEnd(UINT8_MAX);	break;
+		case 5:
 			if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
 			{
 				SP->selectedPlace = 6;
 			}
-			else functSelectEnd(UINT8_MAX);
+			else functSelectZoom();
 			break;
-		case 5: functSelectZoom();		break;
 		case 6:
 		{
 		SP->selectedPlace = 6;
@@ -1130,7 +1129,10 @@ static  uint8_t functUp()
 			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint2(1);
 			else modGranularShape(1);
 		break;
-		case 4: modEndPoint(1); 			break;
+		case 4:
+			if(SP->editorInstrument->playMode != playModeGranular) modEndPoint(1);
+			else modGranularLoopType(1);
+		break;
 		case 5: changeZoom(1);				break;
 		case 6: changePlayModeSelection(-1);	break;
 		}
@@ -1180,7 +1182,10 @@ static  uint8_t functDown()
 			if(SP->editorInstrument->playMode != playModeGranular) modLoopPoint2(-1);
 			else modGranularShape(-1);
 			break;
-		case 4: modEndPoint(-1); 			break;
+		case 4:
+			if(SP->editorInstrument->playMode != playModeGranular) modEndPoint(-1);
+			else modGranularLoopType(-1);
+			break;
 		case 5: changeZoom(-1);				break;
 		case 6: changePlayModeSelection(1);	break;
 		}
@@ -1755,6 +1760,17 @@ static void modGranularShape(int16_t value)
 	SP->showShapeText();
 
 	instrumentPlayer[0].setStatusBytes(GRANULAR_WAVE_SEND_MASK);
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+}
+static void modGranularLoopType(int16_t value)
+{
+	if(SP->editorInstrument->granular.type + value > granularLoopCount - 1) SP->editorInstrument->granular.type = granularLoopCount - 1;
+	else if(SP->editorInstrument->granular.type + value < 0) SP->editorInstrument->granular.type = 0;
+	else SP->editorInstrument->granular.type += value;
+
+	SP->showLoopTypeText();
+
+	instrumentPlayer[0].setStatusBytes(GRANULAR_LOOP_SEND_MASK);
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 static void modGranularPosition(int16_t value)

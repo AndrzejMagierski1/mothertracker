@@ -199,6 +199,7 @@ public:
 	char granularPositionTextValue[15];
 	char grainLengthTextValue[15];
 	char shapeText[15];
+	char loopTypeText[15];
 
 	uint16_t granularPositionInSpectrum;
 	float grainLengthMs;
@@ -206,8 +207,7 @@ public:
 	void showGranularPositionValue();
 	void showGrainLengthValue();
 	void showShapeText();
-
-
+	void showLoopTypeText();
 };
 
 extern cSamplePlayback samplePlayback;

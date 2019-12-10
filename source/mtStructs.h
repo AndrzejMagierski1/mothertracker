@@ -133,6 +133,7 @@ const uint16_t WT_POS_SEND_MASK =				512;
 const uint16_t GRANULAR_POS_SEND_MASK =			1024;
 const uint16_t GRANULAR_LEN_SEND_MASK =			2048;
 const uint16_t GRANULAR_WAVE_SEND_MASK =		4096;
+const uint16_t GRANULAR_LOOP_SEND_MASK =		8192;
 
 const uint8_t MIN_NOTE_OFFSET =					0;
 const uint8_t MAX_NOTE_OFFSET =					13;

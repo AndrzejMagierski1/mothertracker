@@ -2208,6 +2208,11 @@ void playerEngine:: update()
 			statusBytes &= (~GRANULAR_WAVE_SEND_MASK);
 			playMemPtr->setGranularWave(mtProject.instrument[currentInstrument_idx].granular.shape);
 		}
+		if(statusBytes & GRANULAR_LOOP_SEND_MASK)
+		{
+			statusBytes &= (~GRANULAR_LOOP_SEND_MASK);
+			playMemPtr->setGranularLoopMode(mtProject.instrument[currentInstrument_idx].granular.type);
+		}
 
 
 	}

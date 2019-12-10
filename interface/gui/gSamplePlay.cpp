@@ -259,7 +259,7 @@ void cSamplePlayback::showDefaultScreen()
 			display.setControlValue(label[1], 1);
 			display.setControlValue(label[2], 1);
 			display.setControlValue(label[3], 1);
-			display.setControlValue(label[4], 0);
+			display.setControlValue(label[4], 1);
 			display.setControlValue(label[5], 0);
 			display.setControlValue(label[6], 0);
 
@@ -267,6 +267,7 @@ void cSamplePlayback::showDefaultScreen()
 			display.setControlText2(label[1], "Position");
 			display.setControlText2(label[2], "Length");
 			display.setControlText2(label[3], "Shape");
+			display.setControlText2(label[4], "Loop");
 
 			display.setControlText(label[0], "");
 			display.setControlText(label[1], "");
@@ -291,6 +292,7 @@ void cSamplePlayback::showDefaultScreen()
 			showGranularPositionValue();
 			showGrainLengthValue();
 			showShapeText();
+			showLoopTypeText();
 			display.setControlText(label[0], granularPositionTextValue);
 		}
 		else
@@ -643,6 +645,21 @@ void cSamplePlayback::showShapeText()
 	display.setControlText(label[3], shapeText);
 	display.setControlShow(label[3]);
 	display.refreshControl(label[3]);
+}
+
+void cSamplePlayback::showLoopTypeText()
+{
+	switch(editorInstrument->granular.type)
+	{
+	case granularLoopForward: 	strcpy(loopTypeText,"Forward"); 	break;
+	case granularLoopBackward:	strcpy(loopTypeText,"Backward");  	break;
+	case granularLoopPingPong:	strcpy(loopTypeText,"PingPong");  	break;
+	default: break;
+	}
+
+	display.setControlText(label[4], loopTypeText);
+	display.setControlShow(label[4]);
+	display.refreshControl(label[4]);
 }
 
 

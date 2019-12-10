@@ -754,8 +754,8 @@ void AudioPlayMemory::update(void)
 							break;
 							default: break;
 						}
+						break;
 					}
-
 					case loopForward:
 						if(reverseDirectionFlag)
 						{
@@ -1103,7 +1103,8 @@ void AudioPlayMemory::setGranularWave(uint8_t type)
 }
 void AudioPlayMemory::setGranularLoopMode(uint8_t type)
 {
-
+	if(mtProject.instrument[currentInstr_idx].playMode != playModeGranular) return;
+	granularLoopType = type;
 }
 
 void AudioPlayMemory::setTune(int8_t value, int8_t currentNote)
