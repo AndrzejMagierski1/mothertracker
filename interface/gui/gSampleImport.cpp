@@ -80,21 +80,19 @@ void cSampleImporter::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 
-	prop2.text = (char*)"";
+	prop2.value = 1;
 	prop2.colors = interfaceGlobals.activeLabelsColors;
-	prop2.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont3);
+	prop2.style = 	(controlStyleCenterX | controlStyleFont3);
 	prop2.x = (800/8);
-	prop2.y = 452;
+	prop2.y = 424;
 	prop2.w = 800/4-6;
-	prop2.h = 59;
+	prop2.h = 55;
 	if(label[0] == nullptr) label[0] = display.createControl<cLabel>(&prop2);
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
-		prop2.y = 452;
-		prop2.h =  59;
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
@@ -208,13 +206,6 @@ void cSampleImporter::showDefaultScreen()
 
 //	showActualInstrument();
 
-	display.setControlValue(label[0], 0);
-	display.setControlValue(label[1], 0);
-	display.setControlValue(label[2], 0);
-	display.setControlValue(label[3], 0);
-	display.setControlValue(label[4], 0);
-	display.setControlValue(label[5], 0);
-
 	display.setControlText(label[0], "Micro SD");
 	display.setControlText(label[1], "");
 	display.setControlText(label[2], "");
@@ -222,11 +213,11 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlText(label[5], "Memory");
 	display.setControlText(label[6], "Instruments");
 
-	display.setControlPosition(label[0],  (800/8)*0+(800/8),  452);
-	display.setControlSize(label[0],  800/4-6,  59);
+	display.setControlPosition(label[0],  (800/8)*0+(800/8),  424);
+	display.setControlSize(label[0],  800/4-6,  55);
 
-	display.setControlPosition(label[6],  (800/8)*6+(800/8),  452);
-	display.setControlSize(label[6],  800/4-6,  59);
+	display.setControlPosition(label[6],  (800/8)*6+(800/8),  424);
+	display.setControlSize(label[6],  800/4-6,  55);
 
 
 	display.setControlColors(label[0], interfaceGlobals.activeLabelsColors);
@@ -242,7 +233,6 @@ void cSampleImporter::showDefaultScreen()
 	for(uint8_t i = 0; i < 8; i++)
 	{
 		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
-		display.setControlValue(label[i], 1);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
@@ -253,7 +243,6 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
 
-	display.synchronizeRefresh();
 
 	hideKeyboard();
 
@@ -265,9 +254,7 @@ void cSampleImporter::showDefaultScreen()
 	AddEnterOrRename();
 	AddNextControl();
 
-
-//	if(selectedPlace != 0) hideAddWT();
-//	else  checkWavetableLabel();
+	display.synchronizeRefresh();
 
 }
 
@@ -665,11 +652,11 @@ void cSampleImporter::hideKeyboardEditName()
 
 void cSampleImporter::showRenameKeyboard()
 {
-	display.setControlPosition(label[0],  (800/8)*0+(800/16),  452);
-	display.setControlSize(label[0],  800/8-6,  59);
+	display.setControlPosition(label[0],  (800/8)*0+(800/16),  424);
+	display.setControlSize(label[0],  800/8-6,  55);
 
-	display.setControlPosition(label[6],  (800/8)*6+(800/16),  452);
-	display.setControlSize(label[6],  800/8-6,  59);
+	display.setControlPosition(label[6],  (800/8)*6+(800/16),  424);
+	display.setControlSize(label[6],  800/8-6,  55);
 
 	for(uint8_t i = 0; i < 8; i++)
 	{

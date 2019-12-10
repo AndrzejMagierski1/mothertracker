@@ -2200,22 +2200,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 	return 1;
 }
-//void cSampleImporter::checkWavetableLabel()
-//{
-//	uint8_t length = selectionLength ? selectionLength : 1;
-//	uint8_t wavetableFlag = 1;
-//	for(uint8_t i = 0; i < length; i++)
-//	{
-//		if(!currentFolderIsWavetableFlag[selectedFile + i])
-//		{
-//			wavetableFlag = 0;
-//			break;
-//		}
-//	}
-//
-//	if(wavetableFlag) showAddWT();
-//	else hideAddWT();
-//}
 
 static uint8_t functSdCard(uint8_t state)
 {
