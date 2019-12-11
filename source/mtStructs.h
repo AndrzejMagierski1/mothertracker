@@ -130,6 +130,10 @@ const uint8_t CUTOFF_MASK =						64;
 const uint8_t RESONANCE_MASK =					128;
 const uint16_t REVERB_SEND_MASK =				256;
 const uint16_t WT_POS_SEND_MASK =				512;
+const uint16_t GRANULAR_POS_SEND_MASK =			1024;
+const uint16_t GRANULAR_LEN_SEND_MASK =			2048;
+const uint16_t GRANULAR_WAVE_SEND_MASK =		4096;
+const uint16_t GRANULAR_LOOP_SEND_MASK =		8192;
 
 const uint8_t MIN_NOTE_OFFSET =					0;
 const uint8_t MAX_NOTE_OFFSET =					13;
@@ -183,6 +187,8 @@ const int8_t PERFORMANCE_VALUE_MIN			= 	- 100;
 const uint8_t PADS_LIGHT_BACK_DEFAULT 		=	15;
 const uint8_t PADS_LIGHT_FRONT_DEFAULT 		=	31;
 
+const uint16_t MIN_GRANULAR_LENGTH			= 44;
+const uint16_t MAX_GRANULAR_LENGTH			= 44100;
 
 //=====================================================================
 //=====================================================================
@@ -206,6 +212,7 @@ enum instrumentPlayMode
 	loopPingPong,
 	playModeWavetable, //tylko na uzytek interface - sample type obsługuje to w silniku
 	playModeSlice,
+	playModeGranular,
 
 	playModeCount
 };
@@ -347,6 +354,25 @@ enum loaderStateType
 	loaderStateTypeEnded,
 	loaderStateTypeInProgress
 };
+
+enum granularShapeType
+{
+	granularShapeSquare,
+	granularShapeTriangle,
+	granularShapeGauss,
+
+	granularTypeCount
+};
+
+enum granularLoopType
+{
+	granularLoopForward,
+	granularLoopBackward,
+	granularLoopPingPong,
+
+	granularLoopCount
+};
+
 //=====================================================================
 //-------------------------------------------------
 //-------------------------------------------------
@@ -403,6 +429,14 @@ struct strInstrument
     uint16_t slices[MAX_SLICE_NUMBER];
     uint8_t sliceNumber;
     uint8_t selectedSlice;
+
+    struct strGranular
+    {
+    	uint16_t 	grainLength = 44;
+    	uint16_t 	currentPosition;
+    	uint8_t	 	shape;
+    	uint8_t		type;
+    } granular;
 };
 //-------------------------------------------------
 struct strMtValues

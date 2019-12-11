@@ -261,6 +261,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 {
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
 
+	endFx(lastSeqFx[0],0);
+	endFx(lastSeqFx[1],1);
 	__disable_irq();
 	AudioNoInterrupts();
 	uint8_t status;
@@ -1882,6 +1884,16 @@ void playerEngine :: modWavetableWindow(uint16_t value)
 	playMemPtr->setWavetableWindow(value);
 }
 
+void playerEngine :: modGranularPosition(uint16_t value)
+{
+	playMemPtr->setGranularPosition();
+}
+
+void playerEngine ::modGranularGrainLength()
+{
+	playMemPtr->setGranularGrainLength();
+}
+
 void playerEngine :: modTune(int8_t value)
 {
 	playMemPtr->setTune(value,currentNote);
@@ -2181,6 +2193,28 @@ void playerEngine:: update()
 			statusBytes &= (~WT_POS_SEND_MASK);
 			playMemPtr->setWavetableWindow(instrumentBasedMod.wtPos);
 		}
+		if(statusBytes & GRANULAR_POS_SEND_MASK)
+		{
+			statusBytes &= (~GRANULAR_POS_SEND_MASK);
+			modGranularPosition(mtProject.instrument[currentInstrument_idx].granular.currentPosition);
+		}
+		if(statusBytes & GRANULAR_LEN_SEND_MASK)
+		{
+			statusBytes &= (~GRANULAR_LEN_SEND_MASK);
+			modGranularGrainLength();
+		}
+		if(statusBytes & GRANULAR_WAVE_SEND_MASK)
+		{
+			statusBytes &= (~GRANULAR_WAVE_SEND_MASK);
+			playMemPtr->setGranularWave(mtProject.instrument[currentInstrument_idx].granular.shape);
+		}
+		if(statusBytes & GRANULAR_LOOP_SEND_MASK)
+		{
+			statusBytes &= (~GRANULAR_LOOP_SEND_MASK);
+			playMemPtr->setGranularLoopMode(mtProject.instrument[currentInstrument_idx].granular.type);
+		}
+
+
 	}
 
 

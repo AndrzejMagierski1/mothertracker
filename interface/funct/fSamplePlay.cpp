@@ -65,7 +65,10 @@ static void modLoopPoint2(int16_t value);
 static void changeZoom(int16_t value);
 static void changePlayModeSelection(int16_t value);
 
-
+static void modGranularLength(int16_t value);
+static void modGranularShape(int16_t value);
+static void modGranularPosition(int16_t value);
+static void modGranularLoopType(int16_t value);
 
 constexpr uint32_t PLAY_REFRESH_US = 5000;
 
@@ -206,7 +209,6 @@ void cSamplePlayback::start(uint32_t options)
 	if(mtProject.values.lastUsedInstrument < INSTRUMENTS_COUNT)
 	{
 		editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
-
 		if(loadedInstrumentType == mtSampleTypeWaveFile)
 		{
 			//warunki
@@ -555,7 +557,16 @@ static  uint8_t functSelectStart(uint8_t state)
 {
 	if((state > buttonPress) && (state != UINT8_MAX)) return 1;
 
-	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode != playModeSlice))
+	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
+	{
+		if(state == buttonPress )
+		{
+			SP->selectedPlace = 1;
+			SP->activateLabelsBorder();
+		}
+	}
+
+	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeGranular))
 	{
 		if(state == UINT8_MAX || state == buttonPress) // called from inside of this module
 		{
@@ -626,7 +637,7 @@ static  uint8_t functSelectLoop1(uint8_t state)
 		if(state == buttonPress) functAddSlice();
 	}
 
-	if(SP->loadedInstrumentType != mtSampleTypeWaveFile)
+	if((SP->loadedInstrumentType != mtSampleTypeWaveFile) || ( (SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular)))
 	{
 		if(state == buttonPress)
 		{
@@ -701,6 +712,17 @@ static  uint8_t functSelectLoop2(uint8_t state)
 		return 1;
 	}
 
+	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
+	{
+		if(state == buttonPress )
+		{
+			SP->selectedPlace = 3;
+			SP->activateLabelsBorder();
+		}
+		return 1;
+	}
+
+
 	if((state > buttonPress) && (state != UINT8_MAX)) return 1;
 	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
 
@@ -764,6 +786,17 @@ static  uint8_t functSelectLoop2(uint8_t state)
 
 static  uint8_t functSelectEnd(uint8_t state)
 {
+
+	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
+	{
+		if(state == buttonPress )
+		{
+			SP->selectedPlace = 4;
+			SP->activateLabelsBorder();
+		}
+		return 1;
+
+	}
 	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice))
 	{
 		if(state == buttonPress) functAutoSlice();
@@ -831,6 +864,10 @@ static  uint8_t functSelectEnd(uint8_t state)
 static  uint8_t functSelectZoom()
 {
 	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
+	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
+	{
+		return 1;
+	}
 
 	SP->cancelMultiFrame();
 	SP->clearAllNodes();
@@ -892,6 +929,7 @@ static  uint8_t functEncoder(int16_t value)
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
 				if(SP->editorInstrument->playMode == playModeSlice) modSliceAdjust(value);
+				else if(SP->editorInstrument->playMode == playModeGranular) modGranularPosition(value);
 				else modStartPoint(value);
 			}
 			break;
@@ -902,11 +940,18 @@ static  uint8_t functEncoder(int16_t value)
 			}
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
-				if(SP->editorInstrument->playMode != playModeSlice) modLoopPoint1(value);
+				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint1(value);
+				else if(SP->editorInstrument->playMode == playModeGranular) modGranularLength(value);
 			}
 			break;
-		case 3: modLoopPoint2(value); 			break;
-		case 4: modEndPoint(value); 			break;
+		case 3:
+			if(SP->editorInstrument->playMode != playModeGranular) modLoopPoint2(value);
+			else modGranularShape( (value > 0) ? 1: -1);
+			break;
+		case 4:
+			if(SP->editorInstrument->playMode != playModeGranular) modEndPoint(value);
+			else modGranularLoopType((value > 0) ? 1: -1);
+		break;
 		case 5: changeZoom(value);				break;
 		case 6: changePlayModeSelection(value);	break;
 		}
@@ -960,17 +1005,21 @@ static  uint8_t functLeft()
 			{
 				SP->selectedPlace = 2;
 			}
-			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
+			else if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode != playModeGranular))
 			{
 				functSelectZoom();
 			}
+			else if(SP->editorInstrument->playMode == playModeGranular)
+			{
+				SP->selectedPlace = 4;
+			}
 			break;
 		case 6:
-		{
-		SP->selectedPlace = 6;
-		SP->points.selected = 0;
-		break;
-		}
+			{
+			SP->selectedPlace = 6;
+			SP->points.selected = 0;
+			break;
+			}
 	}
 
 	SP->activateLabelsBorder();
@@ -1028,8 +1077,14 @@ static  uint8_t functRight()
 				}
 			}
 			break;
-		case 4: functSelectEnd(UINT8_MAX);		break;
-		case 5: functSelectZoom();		break;
+		case 4: functSelectEnd(UINT8_MAX);	break;
+		case 5:
+			if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
+			{
+				SP->selectedPlace = 6;
+			}
+			else functSelectZoom();
+			break;
 		case 6:
 		{
 		SP->selectedPlace = 6;
@@ -1065,6 +1120,7 @@ static  uint8_t functUp()
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
 				if(SP->editorInstrument->playMode == playModeSlice) modSliceAdjust(1);
+				else if(SP->editorInstrument->playMode == playModeGranular) modGranularPosition(1);
 				else modStartPoint(1);
 			}
 			break;
@@ -1075,11 +1131,18 @@ static  uint8_t functUp()
 			}
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
-				if(SP->editorInstrument->playMode != playModeSlice) modLoopPoint1(1);
+				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint1(1);
+				else if(SP->editorInstrument->playMode == playModeGranular) modGranularLength(1);
 			}
 			break;
-		case 3: modLoopPoint2(1); 			break;
-		case 4: modEndPoint(1); 			break;
+		case 3:
+			if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint2(1);
+			else modGranularShape(1);
+		break;
+		case 4:
+			if(SP->editorInstrument->playMode != playModeGranular) modEndPoint(1);
+			else modGranularLoopType(1);
+		break;
 		case 5: changeZoom(1);				break;
 		case 6: changePlayModeSelection(-1);	break;
 		}
@@ -1110,6 +1173,7 @@ static  uint8_t functDown()
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
 				if(SP->editorInstrument->playMode == playModeSlice) modSliceAdjust(-1);
+				else if(SP->editorInstrument->playMode == playModeGranular) modGranularPosition(-1);
 				else modStartPoint(-1);
 			}
 			break;
@@ -1120,11 +1184,18 @@ static  uint8_t functDown()
 			}
 			else if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 			{
-				if(SP->editorInstrument->playMode != playModeSlice) modLoopPoint1(-1);
+				if((SP->editorInstrument->playMode != playModeSlice) && (SP->editorInstrument->playMode != playModeGranular)) modLoopPoint1(-1);
+				else if(SP->editorInstrument->playMode == playModeGranular) modGranularLength(-1);
 			}
 			break;
-		case 3: modLoopPoint2(-1); 			break;
-		case 4: modEndPoint(-1); 			break;
+		case 3:
+			if(SP->editorInstrument->playMode != playModeGranular) modLoopPoint2(-1);
+			else modGranularShape(-1);
+			break;
+		case 4:
+			if(SP->editorInstrument->playMode != playModeGranular) modEndPoint(-1);
+			else modGranularLoopType(-1);
+			break;
 		case 5: changeZoom(-1);				break;
 		case 6: changePlayModeSelection(1);	break;
 		}
@@ -1359,6 +1430,7 @@ static void changePlayModeSelection(int16_t value)
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
 
+	Serial.println(SP->editorInstrument->playMode);
 }
 
 static void modStartPoint(int16_t value)
@@ -1672,6 +1744,56 @@ static uint8_t functAutoSlice()
 	SP->refreshSlicePoints = 1;
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 	return 1;
+}
+
+static void modGranularLength(int16_t value)
+{
+	value *= MIN_GRANULAR_LENGTH/4;
+
+	int32_t grainConstrain = SP->editorInstrument->sample.length < MAX_GRANULAR_LENGTH ?  SP->editorInstrument->sample.length : MAX_GRANULAR_LENGTH;
+
+	if( SP->editorInstrument->granular.grainLength + value > grainConstrain) SP->editorInstrument->granular.grainLength = grainConstrain;
+	else if(SP->editorInstrument->granular.grainLength + value < MIN_GRANULAR_LENGTH) SP->editorInstrument->granular.grainLength = MIN_GRANULAR_LENGTH;
+	else SP->editorInstrument->granular.grainLength += value;
+
+	SP->showGrainLengthValue();
+
+	instrumentPlayer[0].setStatusBytes(GRANULAR_LEN_SEND_MASK);
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+}
+static void modGranularShape(int16_t value)
+{
+	if(SP->editorInstrument->granular.shape + value > granularTypeCount - 1) SP->editorInstrument->granular.shape = granularTypeCount - 1;
+	else if(SP->editorInstrument->granular.shape + value < 0) SP->editorInstrument->granular.shape = 0;
+	else SP->editorInstrument->granular.shape += value;
+
+	SP->showShapeText();
+
+	instrumentPlayer[0].setStatusBytes(GRANULAR_WAVE_SEND_MASK);
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+}
+static void modGranularLoopType(int16_t value)
+{
+	if(SP->editorInstrument->granular.type + value > granularLoopCount - 1) SP->editorInstrument->granular.type = granularLoopCount - 1;
+	else if(SP->editorInstrument->granular.type + value < 0) SP->editorInstrument->granular.type = 0;
+	else SP->editorInstrument->granular.type += value;
+
+	SP->showLoopTypeText();
+
+	instrumentPlayer[0].setStatusBytes(GRANULAR_LOOP_SEND_MASK);
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+}
+static void modGranularPosition(int16_t value)
+{
+	value *= MAX_16BIT/1000;
+	if((int32_t) (SP->editorInstrument->granular.currentPosition + value) > MAX_16BIT) SP->editorInstrument->granular.currentPosition = MAX_16BIT;
+	else if((int32_t) (SP->editorInstrument->granular.currentPosition + value) < 0) SP->editorInstrument->granular.currentPosition = 0;
+	else SP->editorInstrument->granular.currentPosition += value;
+
+	SP->showGranularPositionValue();
+
+	instrumentPlayer[0].setStatusBytes(GRANULAR_POS_SEND_MASK);
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 static uint8_t functShift(uint8_t value)
