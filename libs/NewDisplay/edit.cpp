@@ -9,7 +9,7 @@ static uint32_t defaultColors[] =
 {
 	0xffffff, 		// tekst
 	0x080808, 		// kontener
-	0xFF0000, 		// ramka
+	one_true_red, 		// ramka
 	one_true_red, 	// kursor
 	0x0a0a0a, 		//tlo
 };

@@ -14,7 +14,7 @@ static uint32_t defaultColors[] =
 
 {
 	0xFFFFFF, // linie
-	0xFF0000
+	one_true_red
 };
 
 
