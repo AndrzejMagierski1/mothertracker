@@ -572,7 +572,7 @@ void cTracker::selection()
 				if(SelPosX < select2_x && SelPosX > select1_x)
 				{
 
-					if(displayMode & 1)
+					//if(displayMode & 1)
 
 						//twoParamsSel1Offset
 
@@ -595,9 +595,9 @@ void cTracker::selection()
 				uint16_t SelPosX = select1_x+fourParamsSelOffset[tracks->selectedParam]+(tracksSpace*i);
 				if(SelPosX < select2_x && SelPosX > select1_x)
 				{
-					if(tracks->actualTrack >= tracks->firstVisibleTrack)
-					{
-					}
+					//if(tracks->actualTrack >= tracks->firstVisibleTrack)
+					//{
+					//}
 					API_VERTEX2F(SelPosX, select1_y+1);
 					API_VERTEX2F(SelPosX+fourParamsSelWidth[tracks->selectedParam], select2_y-1);
 				}

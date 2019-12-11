@@ -209,9 +209,11 @@ uint8_t cList::update()
 		API_BLEND_FUNC(SRC_ALPHA , ZERO);
 
 		API_SAVE_CONTEXT();
-		API_SCISSOR_XY(posX, posY+height-10);
-		API_SCISSOR_SIZE(width+1, 10);
-		API_CMD_GRADIENT(0, 413, colors[3], 0, 423, 0x0);
+		uint16_t grad_y = posY+height-10;
+		uint16_t grad_h = 10;
+		API_SCISSOR_XY(posX-1, grad_y);
+		API_SCISSOR_SIZE(width+2, grad_h);
+		API_CMD_GRADIENT(0, grad_y, colors[3], 0, grad_y+grad_h, 0x0);
 		API_RESTORE_CONTEXT();
 
 		API_COLOR(0x000000);

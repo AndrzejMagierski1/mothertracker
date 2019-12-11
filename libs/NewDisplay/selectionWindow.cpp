@@ -9,9 +9,9 @@
 static uint32_t defaultColors[] =
 {
 	0xFFFFFF, // ramka okna
-	0x222222, // tło okna
+	0x0a0a0a, // tło okna
 	0x000000, // ramka przyciskow
-	0x222222,  // tło przyciskow
+	0x0a0a0a,  // tło przyciskow
 	0x000000, // tekst przyciski
 	0x333333, // zaznaczenie ramka
 	0x0000FF, // tło zaznaczenie

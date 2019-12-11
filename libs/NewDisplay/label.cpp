@@ -13,7 +13,7 @@ static uint32_t defaultColors[] =
 {
 	0x000000, // tekst
 	0xFFFFFF, // tło
-	0xFF0000, // ramka
+	one_true_red, // ramka
 	0x000000, // tekst2
 };
 
@@ -136,7 +136,6 @@ void cLabel::setData(void* data)
 //--------------------------------------------------------------------------------
 uint8_t cLabel::update()
 {
-
 	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
@@ -149,7 +148,7 @@ uint8_t cLabel::update()
 
     int16_t lines_step_y = 0;
     int16_t text_y = posY+10;
-    int16_t text_h = height;
+    //int16_t text_h = height;
 
 
     if(value > 0 && value < 2 && height > font1->height)
@@ -184,6 +183,31 @@ uint8_t cLabel::update()
 		API_VERTEX2F(border_x , border_y);
 		API_VERTEX2F(border_x+width , border_y+height);
 		API_END();
+
+		if(style & controlStyleBottomShadow)
+		{
+			API_BLEND_FUNC(SRC_ALPHA , ZERO);
+
+			API_SAVE_CONTEXT();
+			uint16_t grad_y = border_y+height-10;
+			uint16_t grad_h = 10;
+			API_SCISSOR_XY(border_x-1, grad_y);
+			API_SCISSOR_SIZE(width+2, grad_h);
+			API_CMD_GRADIENT(0, grad_y, colors[1], 0, grad_y+grad_h, 0x0);
+			API_RESTORE_CONTEXT();
+
+			API_COLOR(0x000000);
+			API_LINE_WIDTH(1);
+			API_BEGIN(LINES);
+			API_VERTEX2F(border_x-1, border_y);
+			API_VERTEX2F(border_x-1, border_y+height);
+			API_VERTEX2F(border_x+width+1, border_y);
+			API_VERTEX2F(border_x+width+1, border_y+height);
+			API_END();
+
+			API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+		}
+
 
 		if(style & controlStyleNoTransparency)
 		{

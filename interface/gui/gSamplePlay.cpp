@@ -58,18 +58,20 @@ void cSamplePlayback::initDisplayControls()
 
 	for(uint8_t i = 0; i<6; i++)
 	{
-		prop2.text = (char*)"";
-		//prop2.data =  &bottomValuesConfig;
+		prop2.value =  1;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
-
-		prop2.style = 	( controlStyleCenterX | controlStyleCenterY );
+		prop2.style = 	( controlStyleCenterX | controlStyleFont3 );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
-		prop2.y = 452;
-		prop2.h =  59;
+		prop2.y = 424;
+		prop2.h =  55;
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
+
+	prop2.x = (800/8)*6+(800/8);
+	if(label[6] == nullptr) label[6] = display.createControl<cLabel>(&prop2);
+
 
 	prop2.text = nullptr;
 	prop2.colors = interfaceGlobals.activeBgLabelsColors;
@@ -80,14 +82,6 @@ void cSamplePlayback::initDisplayControls()
 	prop2.y = 424;
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
-
-
-	prop2.x = (800/4)*3+(800/8);
-	prop2.w = 800/4-6;
-	prop2.y = 452;
-	prop2.h = 59;
-	if(label[6] == nullptr) label[6] = display.createControl<cLabel>(&prop2);
-
 
 	playModeList.linesCount = 8;
 	playModeList.start = editorInstrument->playMode;
@@ -208,7 +202,13 @@ void cSamplePlayback::showDefaultScreen()
 
 	//display.setControlText(bottomLabel[7], "");
 
-
+	display.setControlText2(label[0], "");
+	display.setControlText2(label[1], "");
+	display.setControlText2(label[2], "");
+	display.setControlText2(label[3], "");
+	display.setControlText2(label[4], "");
+	display.setControlText2(label[5], "");
+	display.setControlText2(label[6], "");
 
 
 	if(loadedInstrumentType == mtSampleTypeWaveFile)
@@ -217,26 +217,15 @@ void cSamplePlayback::showDefaultScreen()
 		display.refreshControl(progressCursor);
 
 
+
 		if(editorInstrument->playMode == playModeSlice)
 		{
-			display.setControlValue(label[0], 1);
-			display.setControlValue(label[1], 1);
-			display.setControlValue(label[2], 0);
-			display.setControlValue(label[3], 0);
-			display.setControlValue(label[4], 0);
-			display.setControlValue(label[5], 1);
-			display.setControlValue(label[6], 0);
-
-			display.setControlText2(label[0], "Slice");
-			display.setControlText2(label[1], "Adjust");
-			display.setControlText2(label[5], "Zoom");
-
-			display.setControlText(label[0], "");
-			display.setControlText(label[1], "");
+			display.setControlText(label[0], "Slice");
+			display.setControlText(label[1], "Adjust");
 			display.setControlText(label[2], "Add");
 			display.setControlText(label[3], "Remove");
 			display.setControlText(label[4], "Auto Slice");
-			display.setControlText(label[5], "");
+			display.setControlText(label[5], "Zoom");
 			display.setControlText(label[6], "Play Mode");
 
 			display.setControlHide(pointsControl);
@@ -257,26 +246,13 @@ void cSamplePlayback::showDefaultScreen()
 		}
 		else if(editorInstrument->playMode == playModeGranular)
 		{
-			display.setControlValue(label[0], 1);
-			display.setControlValue(label[1], 1);
-			display.setControlValue(label[2], 1);
-			display.setControlValue(label[3], 1);
-			display.setControlValue(label[4], 1);
-			display.setControlValue(label[5], 0);
-			display.setControlValue(label[6], 0);
 
-			display.setControlText2(label[0], "Preview");
-			display.setControlText2(label[1], "Position");
-			display.setControlText2(label[2], "Length");
-			display.setControlText2(label[3], "Shape");
-			display.setControlText2(label[4], "Loop");
+			display.setControlText(label[0], "Preview");
+			display.setControlText(label[1], "Position");
+			display.setControlText(label[2], "Length");
+			display.setControlText(label[3], "Shape");
+			display.setControlText(label[4], "Loop");
 
-			display.setControlText(label[0], "");
-			display.setControlText(label[1], "");
-			display.setControlText(label[2], "");
-			display.setControlText(label[3], "");
-			display.setControlText(label[4], "");
-			display.setControlText(label[5], "");
 			display.setControlText(label[6], "Play Mode");
 
 			display.setControlColors(granularCursor, granularColors);
@@ -295,30 +271,23 @@ void cSamplePlayback::showDefaultScreen()
 			showGrainLengthValue();
 			showShapeText();
 			showLoopTypeText();
-			display.setControlText(label[0], granularPositionTextValue);
+			display.setControlText2(label[0], granularPositionTextValue);
 		}
 		else
 		{
 			display.setControlHide(slicePointsControl);
 			display.refreshControl(slicePointsControl);
 
+
 			display.setControlHide(granularCursor);
 			display.refreshControl(granularCursor);
 
-			display.setControlValue(label[0], 1);
-			display.setControlValue(label[1], 1);
-			display.setControlValue(label[2], 1);
-			display.setControlValue(label[3], 1);
-			display.setControlValue(label[4], 1);
-			display.setControlValue(label[5], 1);
-			display.setControlValue(label[6], 0);
-
-			display.setControlText2(label[0], "Preview");
-			display.setControlText2(label[1], "Start");
-			display.setControlText2(label[2], "Loop Start");
-			display.setControlText2(label[3], "Loop End");
-			display.setControlText2(label[4], "End");
-			display.setControlText2(label[5], "Zoom");
+			display.setControlText(label[0], "Preview");
+			display.setControlText(label[1], "Start");
+			display.setControlText(label[2], "");
+			display.setControlText(label[3], "");
+			display.setControlText(label[4], "End");
+			display.setControlText(label[5], "Zoom");
 			display.setControlText(label[6], "Play Mode");
 
 			display.setControlShow(pointsControl);
@@ -335,22 +304,14 @@ void cSamplePlayback::showDefaultScreen()
 			processWavetableCursor(editorInstrument->wavetableCurrentWindow);
 			hideWavetablePositionCursor();
 
-			display.setControlText(label[0], startPointValueText);
+			display.setControlText2(label[0], startPointValueText);
 		}
 	}
 	else
 	{
-		display.setControlValue(label[0], 0);
-		display.setControlValue(label[1], 1);
-		display.setControlValue(label[2], 1);
-		display.setControlValue(label[3], 0);
-		display.setControlValue(label[4], 0);
-		display.setControlValue(label[5], 0);
-		display.setControlValue(label[6], 0);
-
 		display.setControlText(label[0], "Preview");
-		display.setControlText2(label[1], "Position");
-		display.setControlText2(label[2], "Window");
+		display.setControlText(label[1], "Position");
+		display.setControlText(label[2], "Window");
 		display.setControlText(label[3], "");
 		display.setControlText(label[4], "");
 		display.setControlText(label[5], "");
@@ -381,10 +342,12 @@ void cSamplePlayback::showDefaultScreen()
 
 	for(uint8_t i = 0; i<7; i++)
 	{
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
 
+	display.setControlValue(bgLabel,127);
 	display.setControlShow(bgLabel);
 	display.refreshControl(bgLabel);
 
@@ -410,7 +373,7 @@ void cSamplePlayback::showWavetablePosition()
 	if(refreshWavetablePosition) sprintf(wavetablePositionText, "%d",(int) currentEnvelopeWtPos);
 	else sprintf(wavetablePositionText, "%d",(int) editorInstrument->wavetableCurrentWindow);
 
-	display.setControlText(label[1], wavetablePositionText);
+	display.setControlText2(label[1], wavetablePositionText);
 	display.setControlShow(label[1]);
 	display.refreshControl(label[1]);
 }
@@ -419,7 +382,7 @@ void cSamplePlayback::showWavetableWindowSize()
 {
 	sprintf(wavetableWindowSizeText, "%d", editorInstrument->sample.wavetable_window_size);
 
-	display.setControlText(label[2], wavetableWindowSizeText);
+	display.setControlText2(label[2], wavetableWindowSizeText);
 	display.setControlShow(label[2]);
 	display.refreshControl(label[2]);
 }
@@ -428,7 +391,7 @@ void cSamplePlayback::showZoomValue()
 {
 	sprintf(zoomTextValue, "%.2f", zoom.zoomValue);
 
-	display.setControlText(label[5], zoomTextValue);
+	display.setControlText2(label[5], zoomTextValue);
 	display.setControlShow(label[5]);
 	display.refreshControl(label[5]);
 }
@@ -452,7 +415,7 @@ void cSamplePlayback::showStartPointValue()
 
 	sprintf(startPointValueText, "%.3fs", localStartPoint);
 
-	display.setControlText(label[1], startPointValueText);
+	display.setControlText2(label[1], startPointValueText);
 	display.setControlShow(label[1]);
 	display.refreshControl(label[1]);
 }
@@ -465,7 +428,7 @@ void cSamplePlayback::showEndPointValue()
 
 	sprintf(endPointValueText, "%.3fs", localEndPoint);
 
-	display.setControlText(label[4], endPointValueText);
+	display.setControlText2(label[4], endPointValueText);
 	display.setControlShow(label[4]);
 	display.refreshControl(label[4]);
 }
@@ -479,7 +442,7 @@ void cSamplePlayback::showLoopPoint1Value()
 
 	sprintf(loopPoint1ValueText, "%.3fs", localLoopPoint1);
 
-	display.setControlText(label[2], loopPoint1ValueText);
+	display.setControlText2(label[2], loopPoint1ValueText);
 	display.setControlShow(label[2]);
 	display.refreshControl(label[2]);
 }
@@ -492,7 +455,7 @@ void cSamplePlayback::showLoopPoint2Value()
 
 	sprintf(loopPoint2ValueText, "%.3fs", localLoopPoint2);
 
-	display.setControlText(label[3], loopPoint2ValueText);
+	display.setControlText2(label[3], loopPoint2ValueText);
 	display.setControlShow(label[3]);
 	display.refreshControl(label[3]);
 
@@ -506,25 +469,25 @@ void cSamplePlayback::showPreviewValue()
 
 	sprintf(playTimeValueText, "%.3fs", playTimeValue);
 
-	display.setControlText(label[0], playTimeValueText);
+	display.setControlText2(label[0], playTimeValueText);
 	display.setControlShow(label[0]);
 	display.refreshControl(label[0]);
 }
 
 void cSamplePlayback::hidePreviewValue()
 {
-	display.setControlText(label[0], startPointValueText);
+	display.setControlText2(label[0], startPointValueText);
 	display.setControlShow(label[0]);
 	display.refreshControl(label[0]);
 }
 void cSamplePlayback::hideLoopPoints()
 {
-	display.setControlText(label[2], "");
+	//display.setControlText(label[2], "");
 	display.setControlText2(label[2], "");
 	display.setControlShow(label[2]);
 	display.refreshControl(label[2]);
 
-	display.setControlText(label[3], "");
+	//display.setControlText(label[3], "");
 	display.setControlText2(label[3], "");
 	display.setControlShow(label[3]);
 	display.refreshControl(label[3]);
@@ -532,11 +495,11 @@ void cSamplePlayback::hideLoopPoints()
 
 void cSamplePlayback::showLoopPoints()
 {
-	display.setControlText2(label[2],"Loop Start");
+	display.setControlText(label[2],"Loop Start");
 	display.setControlShow(label[2]);
 	display.refreshControl(label[2]);
 
-	display.setControlText2(label[3], "Loop End");
+	display.setControlText(label[3], "Loop End");
 	display.setControlShow(label[3]);
 	display.refreshControl(label[3]);
 
@@ -562,7 +525,7 @@ void cSamplePlayback::showSlicesSelectValue()
 {
 	sprintf(sliceSelectTextValue, "%d", editorInstrument->selectedSlice + 1);
 
-	display.setControlText(label[0], sliceSelectTextValue);
+	display.setControlText2(label[0], sliceSelectTextValue);
 	display.setControlShow(label[0]);
 	display.refreshControl(label[0]);
 }
@@ -575,7 +538,7 @@ void cSamplePlayback::showSlicesAdjustValue()
 
 	sprintf(sliceAdjustTextValue, "%.3f ms", currentSlice);
 
-	display.setControlText(label[1], sliceAdjustTextValue);
+	display.setControlText2(label[1], sliceAdjustTextValue);
 	display.setControlShow(label[1]);
 	display.refreshControl(label[1]);
 }
@@ -619,7 +582,7 @@ void cSamplePlayback::showGranularPositionValue()
 	display.setControlShow(granularCursor);
 	display.refreshControl(granularCursor);
 
-	display.setControlText(label[1], granularPositionTextValue);
+	display.setControlText2(label[1], granularPositionTextValue);
 	display.setControlShow(label[1]);
 	display.refreshControl(label[1]);
 
@@ -630,7 +593,7 @@ void cSamplePlayback::showGrainLengthValue()
 
 	sprintf(grainLengthTextValue,"%0.1f ms", grainLengthMs);
 
-	display.setControlText(label[2], grainLengthTextValue);
+	display.setControlText2(label[2], grainLengthTextValue);
 	display.setControlShow(label[2]);
 	display.refreshControl(label[2]);
 }
@@ -644,7 +607,7 @@ void cSamplePlayback::showShapeText()
 	default: break;
 	}
 
-	display.setControlText(label[3], shapeText);
+	display.setControlText2(label[3], shapeText);
 	display.setControlShow(label[3]);
 	display.refreshControl(label[3]);
 }
@@ -659,7 +622,7 @@ void cSamplePlayback::showLoopTypeText()
 	default: break;
 	}
 
-	display.setControlText(label[4], loopTypeText);
+	display.setControlText2(label[4], loopTypeText);
 	display.setControlShow(label[4]);
 	display.refreshControl(label[4]);
 }
