@@ -49,7 +49,7 @@ class playerEngine
 public:
 
 	void init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter, AudioEffectEnvelope * envAmp, AudioAmplifier * amp,
-			uint8_t panCh, LFO * lfoAmp, LFO * lfoFilter, LFO * lfoPitch, envelopeGenerator* envWtPos );
+			uint8_t panCh, LFO * lfoAmp, LFO * lfoFilter, LFO * lfoPitch, envelopeGenerator* envWtPos, envelopeGenerator * envGranPos );
 
 
 	uint8_t noteOn(uint8_t instr_idx,int8_t note, int8_t velocity);
@@ -212,6 +212,7 @@ public:
 		uint8_t volume;
 		float cutoff;
 		uint32_t wtPos;
+		uint16_t granPos;
 	} instrumentBasedMod;
 
 	uint8_t trackControlParameter[(int)controlType::length][(int)parameterList::length];
@@ -251,6 +252,7 @@ private:
 	AudioAmplifier *			ampPtr;
 	envelopeGenerator* 			envelopeFilterPtr;
 	envelopeGenerator* 			envelopeWtPos;
+	envelopeGenerator*			envelopeGranPos;
 	AudioFilterStateVariable *	filterPtr;
 	AudioConnection*			conFilterToAmpPtr;
 	AudioConnection*			conPlayToFilterPtr;

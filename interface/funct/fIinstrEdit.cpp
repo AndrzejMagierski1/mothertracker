@@ -563,7 +563,7 @@ void changeEnvList(int16_t value)
 {
 
 	if(IE->selectedEnvelope + value < 0) IE->selectedEnvelope = 0;
-	else if(IE->selectedEnvelope + value > 2 ) IE->selectedEnvelope = 2;
+	else if(IE->selectedEnvelope + value > 2 ) IE->selectedEnvelope = 3;
 	else IE-> selectedEnvelope += value;
 
 	IE->showInstrumentEnv();

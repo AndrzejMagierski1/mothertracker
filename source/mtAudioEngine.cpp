@@ -18,6 +18,7 @@ AudioPlayMemory          playMem[8];
 AudioEffectEnvelope      envelopeAmp[8];
 envelopeGenerator		 envelopeFilter[8];
 envelopeGenerator		 envelopeWtPosition[8];
+envelopeGenerator		 envelopeGranPosition[8];
 LFO						 lfoAmp[8];
 LFO						 lfoFilter[8];
 LFO						 lfoPitch[8];
@@ -163,7 +164,7 @@ void audioEngine::init()
 	setReverbRoomsize(mtProject.values.reverbRoomSize);
 	for(int i=0;i<8; i++)
 	{
-		instrumentPlayer[i].init(&playMem[i],&envelopeFilter[i],&filter[i],&envelopeAmp[i], &amp[i], i, &lfoAmp[i],&lfoFilter[i],&lfoPitch[i],&envelopeWtPosition[i]);
+		instrumentPlayer[i].init(&playMem[i],&envelopeFilter[i],&filter[i],&envelopeAmp[i], &amp[i], i, &lfoAmp[i],&lfoFilter[i],&lfoPitch[i],&envelopeWtPosition[i],&envelopeGranPosition[i]);
 	}
 
 }
@@ -241,7 +242,7 @@ void audioEngine::setBitDepth(uint16_t bitDepth)
 }
 
 void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter,
-		AudioEffectEnvelope * envAmp, AudioAmplifier * amp, uint8_t panCh, LFO * lfoAmp, LFO * lfoFilter, LFO * lfoPitch,envelopeGenerator* envWtPos)
+		AudioEffectEnvelope * envAmp, AudioAmplifier * amp, uint8_t panCh, LFO * lfoAmp, LFO * lfoFilter, LFO * lfoPitch,envelopeGenerator* envWtPos, envelopeGenerator * envGranPos)
 {
 	playMemPtr=playMem;
 	envelopeAmpPtr=envAmp;
@@ -253,6 +254,7 @@ void playerEngine::init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,A
 	lfoAmpPtr=lfoAmp;
 	lfoFilterPtr=lfoFilter;
 	lfoPitchPtr=lfoPitch;
+	envelopeGranPos = envGranPos;
 	envelopeAmpPtr->releaseNoteOn(releaseNoteOnVal);
 
 }
@@ -270,6 +272,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 	envelopeFilterPtr->kill();
 	envelopeWtPos->kill();
+	envelopeGranPos->kill();
 
 	currentInstrument_idx=instr_idx;
 	currentNote=note;
@@ -321,6 +324,15 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable)
 		{
 			envelopeWtPos->init(&mtProject.instrument[instr_idx].envelope[envWtPos]);
+		}
+	}
+
+	if((mtProject.instrument[instr_idx].sample.type == mtSampleTypeWaveFile) && (mtProject.instrument[instr_idx].playMode == playModeGranular))
+	{
+		instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+		if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable)
+		{
+			envelopeGranPos->init(&mtProject.instrument[instr_idx].envelope[envGranPos]);
 		}
 	}
 
@@ -492,6 +504,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 	if(mtProject.instrument[instr_idx].envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
 	if(mtProject.instrument[instr_idx].envelope[envWtPos].enable == envelopeOn) envelopeWtPos->start();
+	if(mtProject.instrument[instr_idx].envelope[envGranPos].enable == envelopeOn) envelopeGranPos->start();
 
 	__enable_irq();
 	AudioInterrupts();
@@ -513,6 +526,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	envelopeFilterPtr->kill();
 	envelopeWtPos->kill();
+	envelopeGranPos->kill();
 	/*================================================ENVELOPE AMP==========================================*/
 	lfoAmpPtr->init(&mtProject.instrument[instr_idx].lfo[lfoA]);
 
@@ -560,6 +574,15 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable)
 		{
 			envelopeWtPos->init(&mtProject.instrument[instr_idx].envelope[envWtPos]);
+		}
+	}
+
+	if((mtProject.instrument[instr_idx].sample.type == mtSampleTypeWaveFile) && (mtProject.instrument[instr_idx].playMode == playModeGranular))
+	{
+		instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+		if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable)
+		{
+			envelopeGranPos->init(&mtProject.instrument[instr_idx].envelope[envGranPos]);
 		}
 	}
 
@@ -734,6 +757,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	if(mtProject.instrument[instr_idx].envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
 	if(mtProject.instrument[instr_idx].envelope[envWtPos].enable == envelopeOn) envelopeWtPos->start();
+	if(mtProject.instrument[instr_idx].envelope[envGranPos].enable == envelopeOn) envelopeGranPos->start();
 
 	__enable_irq();
 	AudioInterrupts();
@@ -752,6 +776,7 @@ void playerEngine::noteOff(int8_t option)
 		envelopeAmpPtr->noteOff();
 		envelopeFilterPtr->stop();
 		envelopeWtPos->stop();
+		envelopeGranPos->stop();
 		AudioInterrupts();
 		__enable_irq();
 		break;
@@ -764,6 +789,8 @@ void playerEngine::noteOff(int8_t option)
 		envelopeFilterPtr->kill();
 		envelopeWtPos->stop();
 		envelopeWtPos->kill();
+		envelopeGranPos->stop();
+		envelopeGranPos->kill();
 		playMemPtr->stop();
 
 		AudioInterrupts();
@@ -775,6 +802,7 @@ void playerEngine::noteOff(int8_t option)
 		envelopeAmpPtr->noteOff();
 		envelopeFilterPtr->stop();
 		envelopeWtPos->stop();
+		envelopeGranPos->stop();
 		if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
 		{
 			playMemPtr->stop();
@@ -1886,7 +1914,7 @@ void playerEngine :: modWavetableWindow(uint16_t value)
 
 void playerEngine :: modGranularPosition(uint16_t value)
 {
-	playMemPtr->setGranularPosition();
+	playMemPtr->setGranularPosition(value);
 }
 
 void playerEngine ::modGranularGrainLength()
@@ -2001,6 +2029,7 @@ void playerEngine:: update()
 	float ampMod=0;
 	float fineTuneMod = 0;
 	float wtPositionMod = 0;
+	float granPositionMod = 0;
 
 	currentPlayState = playMemPtr->isPlaying();
 	if(currentPlayState == 0 && lastPlayState == 1)
@@ -2058,8 +2087,23 @@ void playerEngine:: update()
 					else instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow + iwtPosisionMod;
 				}
 		}
+	}
 
+	if((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWaveFile) && (mtProject.instrument[currentInstrument_idx].playMode == playModeGranular))
+	{
+		if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable == envelopeOn)
+		{
+			if((envelopeGranPos->isKeyPressed() == 1) || (envelopeGranPos->getPhase() != 0))
+			{
+				granPositionMod=envelopeGranPos->getOut();
+				statusBytes |= GRANULAR_POS_SEND_MASK;
 
+				int32_t iGranPosisionMod = granPositionMod * MAX_16BIT;
+				if(mtProject.instrument[currentInstrument_idx].granular.currentPosition + iGranPosisionMod < 0) instrumentBasedMod.granPos = 0;
+				else if(mtProject.instrument[currentInstrument_idx].granular.currentPosition + iGranPosisionMod >= MAX_16BIT) instrumentBasedMod.granPos = MAX_16BIT;
+				else instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition + iGranPosisionMod;
+			}
+		}
 	}
 //	if(mtProject.instrument[currentInstrument_idx].lfo[lfoA].enable == lfoOn )
 //	{
@@ -2196,7 +2240,7 @@ void playerEngine:: update()
 		if(statusBytes & GRANULAR_POS_SEND_MASK)
 		{
 			statusBytes &= (~GRANULAR_POS_SEND_MASK);
-			modGranularPosition(mtProject.instrument[currentInstrument_idx].granular.currentPosition);
+			modGranularPosition(instrumentBasedMod.granPos);
 		}
 		if(statusBytes & GRANULAR_LEN_SEND_MASK)
 		{
@@ -2266,6 +2310,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 
 	envelopeFilterPtr->kill();
 	envelopeWtPos->kill();
+	envelopeGranPos->kill();
 
 	currentInstrument_idx=instr_idx;
 	currentNote=note;
@@ -2319,6 +2364,15 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 		}
 	}
 
+	if((mtProject.instrument[instr_idx].sample.type == mtSampleTypeWaveFile) && (mtProject.instrument[instr_idx].playMode == playModeGranular))
+	{
+//		instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+		if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable)
+		{
+			envelopeGranPos->init(&mtProject.instrument[instr_idx].envelope[envGranPos]);
+		}
+	}
+
 	/*======================================================================================================*/
 	/*==================================================GAIN================================================*/
 
@@ -2360,7 +2414,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 
 	if(mtProject.instrument[instr_idx].envelope[envFilter].enable == envelopeOn) envelopeFilterPtr->start();
 	if(mtProject.instrument[instr_idx].envelope[envWtPos].enable == envelopeOn) envelopeWtPos->start();
-
+	if(mtProject.instrument[instr_idx].envelope[envGranPos].enable == envelopeOn) envelopeGranPos->start();
 
 	status = playMemPtr->playForPrev(instr_idx,note);
 	envelopeAmpPtr->noteOn();
@@ -2383,6 +2437,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 
 	envelopeFilterPtr->kill();
 	envelopeWtPos->kill();
+	envelopeGranPos->kill();
 
 	filterDisconnect();
 	ampPtr->gain(1.0);
@@ -2420,6 +2475,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 
 	envelopeFilterPtr->kill();
 	envelopeWtPos->kill();
+	envelopeGranPos->kill();
 
 	filterDisconnect();
 	ampPtr->gain(1.0);
