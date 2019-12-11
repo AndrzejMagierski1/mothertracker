@@ -787,6 +787,16 @@ static  uint8_t functSelectLoop2(uint8_t state)
 static  uint8_t functSelectEnd(uint8_t state)
 {
 
+	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
+	{
+		if(state == buttonPress )
+		{
+			SP->selectedPlace = 4;
+			SP->activateLabelsBorder();
+		}
+		return 1;
+
+	}
 	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice))
 	{
 		if(state == buttonPress) functAutoSlice();

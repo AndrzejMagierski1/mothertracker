@@ -488,6 +488,22 @@ void AudioPlayMemory::update(void)
 											iPitchCounter--;
 										}
 									}
+									else
+									{
+										iPitchCounter -= castPitchControl;
+
+										fPitchCounter -= pitchFraction;
+										if (fPitchCounter <= -1.0f)
+										{
+											fPitchCounter += 1.0f;
+											iPitchCounter--;
+										}
+										else if (fPitchCounter >= 1.0f)
+										{
+											fPitchCounter -= 1.0f;
+											iPitchCounter++;
+										}
+									}
 								break;
 
 								case granularLoopPingPong:
@@ -804,7 +820,6 @@ void AudioPlayMemory::update(void)
 								fPitchCounter = 0;
 							}
 						}
-
 						break;
 					case loopPingPong:
 						if(reverseDirectionFlag)

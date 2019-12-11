@@ -188,7 +188,7 @@ const uint8_t PADS_LIGHT_BACK_DEFAULT 		=	15;
 const uint8_t PADS_LIGHT_FRONT_DEFAULT 		=	31;
 
 const uint16_t MIN_GRANULAR_LENGTH			= 44;
-const uint16_t MAX_GRANULAR_LENGTH			= 4410;
+const uint16_t MAX_GRANULAR_LENGTH			= 44100;
 
 //=====================================================================
 //=====================================================================
