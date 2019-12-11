@@ -172,7 +172,7 @@ void checkConfig()
 
 	if(mtConfig.general.patternDiv > 15)
 	{
-		mtConfig.general.patternDiv = 0;
+		mtConfig.general.patternDiv = 3; //4
 	}
 
 	if(mtConfig.general.radioRegion > 3)

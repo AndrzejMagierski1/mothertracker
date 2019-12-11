@@ -3,12 +3,12 @@
 #define MT_INTERFACE_DEFS_H
 
 
-
+#include "displayControls.h"
 #include "mtStructs.h"
 #include "mtSequencer.h"
 
 
-#define MT_INTERFACE_STARTUP_TIME 10000
+//#define MT_INTERFACE_STARTUP_TIME 10000
 
 
 //-------------------------------------------------------------
@@ -283,7 +283,7 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_OFF,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_VALUE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_UP,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NUDGE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_VELOCITY,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL,
@@ -291,8 +291,8 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_NOTE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_INSTRUMENT,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_RANDOM_VELOCITY,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_DOWN,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_NOTE_RANDOM,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_1,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_2,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_3,
@@ -303,8 +303,8 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_8,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_9,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_10,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_UP,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_ROLL_VOL_DOWN,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_TEMPO,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_NOT_SEQ_FX,//////////
 			Sequencer::strFxConsts::enFxType::FX_TYPE_GLIDE,
@@ -442,7 +442,7 @@ struct strInterfaceGlobals
 	{
 		0x777777, // tekst
 		0x323132, // tło
-		0xFF0000, // ramka
+		one_true_red, // ramka
 		0xFFFFFF, // tekst2
 	};
 
@@ -450,7 +450,23 @@ struct strInterfaceGlobals
 	{
 		0x333333, // tekst
 		0x323132, // tło //0x555555
-		0xFF0000, // ramka
+		one_true_red, // ramka
+		0x555555, // tekst2
+	};
+
+	uint32_t activeButtonLabelsColors[4] =
+	{
+		0xffffff, // tekst
+		0x323132, // tło
+		one_true_red, // ramka
+		0xFFFFFF, // tekst2
+	};
+
+	uint32_t inactiveButtonLabelsColors[4] =
+	{
+		0x555555, // tekst
+		0x323132, // tło
+		one_true_red, // ramka
 		0x555555, // tekst2
 	};
 
@@ -495,8 +511,6 @@ typedef struct node1
 }select_node1_t;
 
 extern strInterfaceGlobals interfaceGlobals;
-
-
 
 
 

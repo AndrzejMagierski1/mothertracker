@@ -104,7 +104,8 @@ public:
 	void goUpInActualPath();
 
 // foldery
-	void listOnlyFolderNames(char* path, uint8_t startPoint);
+	uint8_t checkIfNameValid(char * name);
+	void listOnlyFolderNames(char* path);
 
 /*	uint16_t locationFolderCount;
 	char locationFolderList[list_length_max][40];
@@ -178,14 +179,7 @@ public:
 
 	};
 
-	uint32_t barColorsRed[3] = { 0xFF0000, 0xFF0000, 0xFF0000};
-	uint32_t defaultColors[3] =
-	{
-		0xFFFFFF, // tekst
-		0xFF0000, // tło
-		0x00FF00, // ramka
-	};
-	uint32_t barColorsCyan[3] = { 0x00FFFF, 0x00FFFF, 0x00FFFF};
+
 
 //----------------------------------
 // aktualny instrument na belce tytułowej

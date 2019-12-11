@@ -272,6 +272,8 @@ void updateHardware()
 
 		if(i2cRefreshTimer > 500)
 		{
+			i2cRefreshTimer = 0;
+
 			i2c_switch++;
 			if(i2c_switch >= 2) i2c_switch = 0;
 
@@ -286,19 +288,18 @@ void updateHardware()
 					if(!leds.update_all_leds())	i2c_switch++;
 				}
 
-				if(i2c_switch < 2) i2cRefreshTimer = 0;
+				/*if(i2c_switch < 2) i2cRefreshTimer = 0;*/
 			}
-		}
 
-		if (Wire.done())
-		{
-			tactButtons.update();
+			if (Wire.done())
+			{
+				tactButtons.update();
+			}
 		}
 
 		display.update();
 		//mtDisplay.updateHaptic();
 		BlinkLed.update();
-
 
 		hid.handle();
 		sdCardDetector.update(0);
@@ -306,7 +307,10 @@ void updateHardware()
 	    mtpd.loop();
 
 		midiUpdate();
+
+		//lowPower.update();
 	}
+
 
 	TactSwitchRead();
 }
@@ -327,15 +331,15 @@ void TactSwitchRead()
 {
 	uint8_t state = digitalRead(TACT_SWITCH);
 
-	if(state == LOW && lastState != LOW)
+	if(state == LOW)
 	{
 		onPowerButtonChange(1);
 
-		lastState = LOW;
+		//lastState = LOW;
 	}
-	else if(state == HIGH && lastState != HIGH)
+	else if(state == HIGH)
 	{
-		lastState = HIGH;
+		//lastState = HIGH;
 		onPowerButtonChange(0);
 	}
 }

@@ -9,10 +9,11 @@ static uint32_t defaultColors[] =
 {
 	0xFFFFFF,	//	uint32_t listItemFrame 			= DISP_RGB(255,255,255);
 	0x000000,	//	uint32_t listItemFrameBG 		= DISP_RGB(0,0,0);
-	0xFFFFFF,	//	uint32_t listScrollBar 			= DISP_RGB(255,255,255);
-	0x554A19,	//	uint32_t listBG 				= DISP_RGB(85,74,25);
+	0x575757,	//	uint32_t listScrollBar 			= DISP_RGB(255,255,255);
+	0x0a0a0a,	//	uint32_t listBG 				= DISP_RGB(85,74,25);
 	0xFFFFFF,	//	uint32_t fontList 				= DISP_RGB(255,255,255);
-	0xFF0000,   //  select color
+	one_true_red,   //  select color
+	0x000000	//	scrollParCont
 };
 
 
@@ -24,7 +25,7 @@ static uint32_t defaultColors[] =
 //--------------------------------------------------------------------------------
 cList::cList(strControlProperties* properties)
 {
-	colorsCount = 5;
+	colorsCount = 7;
 	colors = (properties->colors == nullptr) ? defaultColors : properties->colors;
 	selfRefresh = 0;
 
@@ -76,9 +77,14 @@ void cList::setStyle(uint32_t style)
 				// | (style & controlStyleCenterY ? OPT_CENTERY : 0)
 	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
 
-	textFont = FONT_INDEX_FROM_STYLE;
+
+	int8_t textFont = FONT_INDEX_FROM_STYLE;
 	textFont = (textFont>=0) ? textFont : 0;
-	textFont =  fonts[textFont].handle;
+	font = &fonts[textFont];
+
+	//textFont = FONT_INDEX_FROM_STYLE;
+	//textFont = (textFont>=0) ? textFont : 0;
+	//textFont =  fonts[textFont].handle;
 }
 
 void cList::setText(char* text)
@@ -175,13 +181,16 @@ uint8_t cList::update()
 
 	if(style & controlStyleCenterY)
 	{
-		posY = this->posY-(list->linesCount*height)/2;
+		posY = this->posY-(height/2);
 	}
 
 
 
-	int16_t  x_pos = posX, y_pos;
+	int16_t  x_pos = posX, y_pos, h_row = 27; //font->height+8;
+	uint16_t w_bar = width-6; // szerokosc ramki
 	uint8_t lines;
+
+	if(list->length > list->linesCount) w_bar = width-13;
 
 	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
@@ -191,15 +200,33 @@ uint8_t cList::update()
     if(style & controlStyleBackground)
     {
 		API_COLOR(colors[3]);
-		API_BLEND_FUNC(DST_ALPHA , ZERO);
 		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
 		API_VERTEX2F(posX, posY);
-		API_VERTEX2F(posX+width, posY+(height*list->linesCount));
+		API_VERTEX2F(posX+width, posY+height-2);
 		API_END();
+
+		API_BLEND_FUNC(SRC_ALPHA , ZERO);
+
+		API_SAVE_CONTEXT();
+		API_SCISSOR_XY(posX, posY+height-10);
+		API_SCISSOR_SIZE(width+1, 10);
+		API_CMD_GRADIENT(0, 413, colors[3], 0, 423, 0x0);
+		API_RESTORE_CONTEXT();
+
+		API_COLOR(0x000000);
+		API_LINE_WIDTH(1);
+		API_BEGIN(LINES);
+		API_VERTEX2F(posX-1, posY);
+		API_VERTEX2F(posX-1, posY+height);
+		API_VERTEX2F(posX+width+1, posY);
+		API_VERTEX2F(posX+width+1, posY+height);
+		API_END();
+
 		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
     }
 
+    posY +=1;
 
 	if(list->start == listPosition)
 	{
@@ -209,8 +236,8 @@ uint8_t cList::update()
 
 		if(!disableBar)
 		{
-			x_pos = posX;
-			y_pos = posY + (barPos * height);
+			x_pos = posX+3;
+			y_pos = posY + (barPos * h_row);
 
 			//ramka
 			if(list->selectionActive)
@@ -222,20 +249,20 @@ uint8_t cList::update()
 				API_COLOR(colors[0]);
 			}
 
-			API_LINE_WIDTH(16);
+			API_LINE_WIDTH(8);
 			API_BEGIN(LINE_STRIP);
 			API_VERTEX2F(x_pos, y_pos);
-			API_VERTEX2F(x_pos + width, y_pos);
-			API_VERTEX2F(x_pos + width, y_pos + height);
-			API_VERTEX2F(x_pos, y_pos + height);
+			API_VERTEX2F(x_pos + w_bar, y_pos);
+			API_VERTEX2F(x_pos + w_bar, y_pos + h_row);
+			API_VERTEX2F(x_pos, y_pos + h_row);
 			API_VERTEX2F(x_pos, y_pos);
 			API_END();
 		}
 
 
 		//lista tekstow
-		x_pos = posX+5;
-		y_pos = posY+height/2;
+		x_pos = posX+13;
+		y_pos = posY+h_row/2;
 
 		lines = (list->length >= list->linesCount)  ? list->linesCount : list->length;
 
@@ -245,7 +272,7 @@ uint8_t cList::update()
 		API_COLOR(colors[4]);
 
 		API_SCISSOR_XY(posX, posY);
-		API_SCISSOR_SIZE(width, height*list->linesCount);
+		API_SCISSOR_SIZE(w_bar, h_row*list->linesCount);
 
 		for(uint8_t i = 0; i < lines; i++)
 		{
@@ -262,8 +289,8 @@ uint8_t cList::update()
 			}
 
 			API_CMD_TEXT(x_pos,
-					y_pos + (i * height),
-					textFont,
+					y_pos + (i * h_row),
+					font->handle,
 					textStyle | OPT_CENTERY,
 					*(list->data + (i +  textListPos)));
 
@@ -278,7 +305,7 @@ uint8_t cList::update()
 					API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[idx].width, bitmaps[idx].height);
 
 					API_BEGIN(BITMAPS);
-					API_VERTEX2F(x_pos, y_pos + ((i*height) - bitmaps[idx].height/2) + 1);
+					API_VERTEX2F(x_pos, y_pos + ((i*h_row) - bitmaps[idx].height/2) + 1);
 					API_END();
 				}
 			}
@@ -312,13 +339,13 @@ uint8_t cList::update()
 		if(mode == 0) // ruch belka(mode = 0)
 		{
 			listAnimationStep = listAnimationStep + (dir * diffrence);
-			if(listAnimationStep >= height)
+			if(listAnimationStep >= h_row)
 			{
 				listAnimationStep = 0;
 				barPos = barPos +1;
 				list->start = list->start +1;
 			}
-			else if(listAnimationStep <= -1*height)
+			else if(listAnimationStep <= -1*h_row)
 			{
 				listAnimationStep = 0;
 				barPos = barPos -1;
@@ -328,13 +355,13 @@ uint8_t cList::update()
 		else // ruch tekstem(mode = 1)
 		{
 			listAnimationStep = listAnimationStep + (dir * diffrence);
-			if(listAnimationStep >= height)
+			if(listAnimationStep >= h_row)
 			{
 				listAnimationStep = 0;
 				list->start = list->start +1;
 				textListPos = textListPos+1;
 			}
-			else if(listAnimationStep <= -1*height)
+			else if(listAnimationStep <= -1*h_row)
 			{
 				listAnimationStep = 0;
 				list->start = list->start -1;
@@ -346,8 +373,9 @@ uint8_t cList::update()
 
 		if(!disableBar)
 		{
-			x_pos = posX;
-			y_pos = posY + (barPos * height) + (mode ? 0 : listAnimationStep);
+			x_pos = posX+3;
+			y_pos = posY + (barPos * h_row) + (mode ? 0 : listAnimationStep);
+			if(list->length > list->linesCount) w_bar = width-13;
 
 			//ramka
 			if(list->selectionActive)
@@ -358,25 +386,25 @@ uint8_t cList::update()
 			{
 				API_COLOR(colors[0]);
 			}
-			API_LINE_WIDTH(16);
+			API_LINE_WIDTH(8);
 			API_BEGIN(LINE_STRIP);
 			API_VERTEX2F(x_pos, y_pos);
-			API_VERTEX2F(x_pos + width, y_pos);
-			API_VERTEX2F(x_pos + width, y_pos + height);
-			API_VERTEX2F(x_pos, y_pos + height);
+			API_VERTEX2F(x_pos + w_bar, y_pos);
+			API_VERTEX2F(x_pos + w_bar, y_pos + h_row);
+			API_VERTEX2F(x_pos, y_pos + h_row);
 			API_VERTEX2F(x_pos, y_pos);
 			API_END();
 		}
 
-		x_pos = posX+5;
-		y_pos = posY + height/2 + (mode ? ((-1*height) - listAnimationStep) : 0);
+		x_pos = posX+13;
+		y_pos = posY + h_row/2 + (mode ? ((-1*h_row) - listAnimationStep) : 0);
 
 		API_SAVE_CONTEXT();
 
 		API_COLOR(colors[4]);
 
 		API_SCISSOR_XY(posX, posY);
-		API_SCISSOR_SIZE(width, height*list->linesCount);
+		API_SCISSOR_SIZE(w_bar, h_row*list->linesCount);
 
 		lines = (list->length >= list->linesCount)  ? list->linesCount : list->length;
 
@@ -384,7 +412,7 @@ uint8_t cList::update()
 		{
 			if(dir == 1) // tekst porusza sie w gore (wartosci w dol)
 			{
-				y_pos+=height;
+				y_pos+=h_row;
 
 				for(int8_t i = 0; i < lines; i++)
 				{
@@ -401,8 +429,8 @@ uint8_t cList::update()
 					}
 
 					API_CMD_TEXT(x_pos,
-							y_pos + (i * height),
-							textFont,
+							y_pos + (i * h_row),
+							font->handle,
 							textStyle | OPT_CENTERY,
 							*(list->data +  i + textListPos ) );
 
@@ -417,7 +445,7 @@ uint8_t cList::update()
 							API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[idx].width, bitmaps[idx].height);
 
 							API_BEGIN(BITMAPS);
-							API_VERTEX2F(x_pos, y_pos + ((i*height) - bitmaps[idx].height/2 + 1));
+							API_VERTEX2F(x_pos, y_pos + ((i*h_row) - bitmaps[idx].height/2 + 1));
 							API_END();
 						}
 					}
@@ -439,12 +467,12 @@ uint8_t cList::update()
 						}
 					}
 
-					int8_t table_offset = textListPos - 1;
+					int16_t table_offset = textListPos - 1;
 					if(table_offset  < 0) table_offset = 0;
 
 					API_CMD_TEXT(x_pos,
-							y_pos + (i * height),
-							textFont,
+							y_pos + (i * h_row),
+							font->handle,
 							textStyle | OPT_CENTERY,
 							*(list->data + i + table_offset) );
 
@@ -459,7 +487,7 @@ uint8_t cList::update()
 							API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[idx].width, bitmaps[idx].height);
 
 							API_BEGIN(BITMAPS);
-							API_VERTEX2F(x_pos, y_pos + ((i*height) - bitmaps[idx].height/2 + 1));
+							API_VERTEX2F(x_pos, y_pos + ((i*h_row) - bitmaps[idx].height/2 + 1));
 							API_END();
 						}
 					}
@@ -483,8 +511,8 @@ uint8_t cList::update()
 				}
 
 				API_CMD_TEXT(x_pos,
-						y_pos + (i * height),
-						textFont,
+						y_pos + (i * h_row),
+						font->handle,
 						textStyle | OPT_CENTERY,
 						*(list->data + i  + textListPos ) );
 
@@ -499,7 +527,7 @@ uint8_t cList::update()
 						API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[idx].width, bitmaps[idx].height);
 
 						API_BEGIN(BITMAPS);
-						API_VERTEX2F(x_pos, y_pos + ((i*height) - bitmaps[idx].height/2 + 1));
+						API_VERTEX2F(x_pos, y_pos + ((i*h_row) - bitmaps[idx].height/2 + 1));
 						API_END();
 					}
 				}
@@ -512,16 +540,32 @@ uint8_t cList::update()
 	// pasek przewijania
 	if(list->length > list->linesCount)
 	{
-		int16_t y_length = (((  height * list->linesCount  ) * list->linesCount)  / (list->length-1)) - 4 ;
-		y_pos = posY + 2 + (list->start * (( height * list->linesCount )-(y_length+2))) / (list->length-1) ;
+		int16_t y_length = (( height-14 ) * list->linesCount)  / list->length;
+		y_pos = posY + 6 + (list->start * (( height-14) - y_length)) / list->length;
 
+		//API_BLEND_FUNC(SRC_ALPHA , ZERO);
+
+		API_COLOR(colors[6]);
+		API_LINE_WIDTH(16);
+		API_BEGIN(RECTS);
+		API_VERTEX2F(posX + (width - 6) , posY+4);
+		API_VERTEX2F(posX + (width - 3) , (posY+height)-10);
+		API_END();
 
 		API_COLOR(colors[2]);
-		API_LINE_WIDTH(24);
-		API_BEGIN(RECTS);
-		API_VERTEX2F(posX + (width - 3) , y_pos);
-		API_VERTEX2F(posX + (width - 3) , y_pos+y_length);
+		API_LINE_WIDTH(8);
+		API_BEGIN(LINES);
+		//API_LINE_WIDTH(24);
+		//API_BEGIN(RECTS);
+		API_VERTEX2F(posX + (width - 5) , y_pos);
+		API_VERTEX2F(posX + (width - 5) , y_pos+y_length);
+
+		API_VERTEX2F(posX + (width - 4) , y_pos);
+		API_VERTEX2F(posX + (width - 4) , y_pos+y_length);
+
 		API_END();
+
+		//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 	}
 
 

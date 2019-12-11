@@ -25,21 +25,25 @@ public:
 	mtSleep(){};
 	~mtSleep(){};
 
+	void update();
+
 	uint8_t powerState = powerTypeNormal;
 
 	void handlePowerState(uint8_t value);
+	uint8_t getShutdownRequest();
 	uint8_t isLowPower();
-private:
 
-	hControl turnOffProgressBar = nullptr;
-	char turnOffText[20];
+	void requestShutdown(uint8_t value);
+	void goLowPower();
+private:
+	uint8_t shutdown_requested;
 
 	uint8_t firstPress;
 	uint32_t firstPressTimestamp;
 	elapsedMillis shutdownTimer;
 	uint8_t lastValue;
 
-	void goLowPower(uint8_t value);
+
 	void wakeUp(uint8_t value);
 	void disableAll();
 

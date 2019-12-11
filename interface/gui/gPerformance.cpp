@@ -7,18 +7,18 @@
 
 static uint16_t framesPlaces[12][4] =
 {
-	{0,			 31, 800/12, 387},
-	{(800/12)*1, 31, 800/12, 387},
-	{(800/12)*2, 31, 800/12, 387},
-	{(800/12)*3, 31, 800/12, 387},
-	{(800/12)*4, 31, 800/12, 387},
-	{(800/12)*5, 31, 800/12, 387},
-	{(800/12)*6, 31, 800/12, 387},
-	{(800/12)*7, 31, 800/12, 387},
-	{(800/12)*8, 31, 800/12, 387},
-	{(800/12)*9, 31, 800/12, 387},
-	{(800/12)*10, 31, 800/12, 387},
-	{(800/12)*11, 31, 800/12, 387},
+	{11,		 29,  62, 391},
+	{11 + 65*1,  29,  62, 391},
+	{11 + 65*2,  29,  62, 391},
+	{11 + 65*3,  29,  62, 391},
+	{11 + 65*4,  29,  62, 391},
+	{11 + 65*5,  29,  62, 391},
+	{11 + 65*6,  29,  62, 391},
+	{11 + 65*7,  29,  62, 391},
+	{11 + 65*8,  29,  62, 391},
+	{11 + 65*9,  29,  62, 391},
+	{11 + 65*10, 29,  62, 391},
+	{11 + 65*11, 29,  62, 391},
 };
 
 static uint32_t textLabelsColors[] =
@@ -28,22 +28,29 @@ static uint32_t textLabelsColors[] =
 	0xFF0000, // ramka
 };
 
+static uint32_t valuesLabelColors[] =
+{
+	0xFFFFFF, // tekst
+	0x0a0a0a, // tło
+	one_true_red, // zanzaczone
+};
+
 
 void cPerformanceMode::initDisplayControls()
 {
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
+	prop2.x = 9;
+	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
 	prop2.x = 769;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
+	prop2.x = 2;
 	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
+	prop2.w = 795;
+	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 
@@ -77,14 +84,12 @@ void cPerformanceMode::initDisplayControls()
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.text = (char*)"";
-		//prop2.data =  &bottomValuesConfig;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
-
-		prop2.style = 	( controlStyleCenterX | controlStyleCenterY );
+		prop2.style = 	(controlStyleCenterX  | controlStyleFont3);
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
-		prop2.y = 452;
-		prop2.h =  59;
+		prop2.y = 424;
+		prop2.h =  55;
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
@@ -95,7 +100,7 @@ void cPerformanceMode::initDisplayControls()
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;
-	prop2.y = 425;
+	prop2.y = 424;
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
@@ -104,8 +109,8 @@ void cPerformanceMode::initDisplayControls()
 	{
 		prop.data = nullptr;
 		prop.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleVerticalText);
-		prop.x = (800/12)*i+(800/24);
-		prop.y = 220;
+		prop.x = 42  + 65 * i;
+		prop.y = 210;
 		prop.colors = textLabelsColors;
 		if(textLabel[i] == nullptr) textLabel[i] = display.createControl<cLabel>(&prop);
 
@@ -116,7 +121,7 @@ void cPerformanceMode::initDisplayControls()
 
 		multiLabelData[i].textLinesCount = 4;
 		multiLabelData[i].xOffset = 0;
-		multiLabelData[i].yOffset = 240;
+		multiLabelData[i].yOffset = 20;
 		//multiLabelData[i].wBg = (800/12);
 		//multiLabelData[i].hBg = 400;
 		multiLabelData[i].text[0] = &fxValuesText[i][0][0];
@@ -124,13 +129,13 @@ void cPerformanceMode::initDisplayControls()
 		multiLabelData[i].text[2] = &fxValuesText[i][2][0];
 		multiLabelData[i].text[3] = &fxValuesText[i][3][0];
 
-		prop.style = 	(controlStyleCenterX | controlStyleFont2);
-		if(i%2 == 0) prop.style |= controlStyleBackground;
-		prop.x = (800/12)*i+(800/24);
-		prop.y = 30;
-		prop.colors = textLabelsColors;
-		prop.w = (800/12);
-		prop.h = 388;
+		prop.style = 	(controlStyleCenterX | controlStyleFont2 | controlStyleBackground | controlStyleBottomShadow);
+		//prop.style |= controlStyleBackground;
+		prop.x = 42  + 65*i;
+		prop.y = 249;
+		prop.colors = valuesLabelColors;
+		prop.w = 62;
+		prop.h = 174;
 		prop.data = &multiLabelData[i];
 		if(value1Label[i] == nullptr) value1Label[i] = display.createControl<cMultiLabel>(&prop);
 	}
@@ -203,68 +208,6 @@ void cInstrumentEditor::showDefaultScreen()
 }
 */
 
-void cPerformanceMode::showPerformanceMaster()
-{
-	display.setControlShow(titleBar);
-	display.refreshControl(titleBar);
-
-	display.setControlShow(titleLabel);
-	display.setControlText(titleLabel, "Performance Master");
-	display.refreshControl(titleLabel);
-
-	//showActualInstrument();
-
-	display.setControlValue(label[0], 1);
-	display.setControlValue(label[1], 1);
-	display.setControlValue(label[2], 1);
-	display.setControlValue(label[3], 1);
-	display.setControlValue(label[4], 1);
-	display.setControlValue(label[5], 1);
-	display.setControlValue(label[6], 1);
-	display.setControlValue(label[7], 1);
-
-	display.setControlText2(label[0], "Track 1");
-	display.setControlText2(label[1], "Track 2");
-	display.setControlText2(label[2], "Track 3");
-	display.setControlText2(label[3], "Track 4");
-	display.setControlText2(label[4], "Track 5");
-	display.setControlText2(label[5], "Track 6");
-	display.setControlText2(label[6], "Track 7");
-	display.setControlText2(label[7], "Track 8");
-
-
-//-------------------------------------
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-/*		display.setControlPosition(bottomLabel[i], -1, 452);
-		display.setControlSize(bottomLabel[i], -1, 59);
-
-		display.setControlHide(topLabel[i]);*/
-		display.setControlShow(label[i]);
-		display.refreshControl(label[i]);
-		//display.refreshControl(topLabel[i]);
-
-		//TO DO: nie powinno tu tego być tylko tma gdzie zarzadzanie zmiennymi projektu
-		if(mtProject.values.trackMute[i] >= trackMasterModeCount) mtProject.values.trackMute[i] = 0;
-
-		display.setControlText(textLabel[i], &trackMasterLabels[mtProject.values.trackMute[i]][0]);
-		display.setControlShow(textLabel[i]);
-		display.refreshControl(textLabel[i]);
-	}
-
-	display.refreshControl(bgLabel);
-
-
-	display.setControlHide(textLabel[8]);
-	display.setControlHide(textLabel[9]);
-	display.setControlHide(textLabel[10]);
-	display.setControlHide(textLabel[11]);
-
-
-	display.synchronizeRefresh();
-
-}
 
 
 void cPerformanceMode::showPerformanceFxes()
@@ -285,15 +228,23 @@ void cPerformanceMode::showPerformanceFxes()
 	display.setControlValue(label[6], 1);
 	display.setControlValue(label[7], 1);
 
-	display.setControlText2(label[0], "Track 1");
-	display.setControlText2(label[1], "Track 2");
-	display.setControlText2(label[2], "Track 3");
-	display.setControlText2(label[3], "Track 4");
-	display.setControlText2(label[4], "Track 5");
-	display.setControlText2(label[5], "Track 6");
-	display.setControlText2(label[6], "Track 7");
-	display.setControlText2(label[7], "Track 8");
+//	display.setControlText(label[0], "Track 1");
+//	display.setControlText(label[1], "Track 2");
+//	display.setControlText(label[2], "Track 3");
+//	display.setControlText(label[3], "Track 4");
+//	display.setControlText(label[4], "Track 5");
+//	display.setControlText(label[5], "Track 6");
+//	display.setControlText(label[6], "Track 7");
+//	display.setControlText(label[7], "Track 8");
 
+	display.setControlText(label[0], "Pattern");
+	display.setControlText(label[1], "Pattern");
+	display.setControlText(label[2], "Pattern");
+	display.setControlText(label[3], "Pattern");
+	display.setControlText(label[4], "Pattern");
+	display.setControlText(label[5], "Pattern");
+	display.setControlText(label[6], "Pattern");
+	display.setControlText(label[7], "Pattern");
 
 	//-------------------------------------
 
@@ -308,18 +259,16 @@ void cPerformanceMode::showPerformanceFxes()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		//display.setControlPosition(bottomLabel[i], -1, 465);
-		//display.setControlSize(bottomLabel[i], -1, 30);
-
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
 		display.setControlShow(label[i]);
-		display.setControlShow(label[i]);
-		//display.refreshControl(bottomLabel[i]);
-		//display.refreshControl(topLabel[i]);
+		display.refreshControl(label[i]);
 	}
 
 	showTracksPatterns();
 	showTracksState();
 
+
+	display.refreshControl(bgLabel);
 
 	display.synchronizeRefresh();
 }
@@ -371,7 +320,7 @@ void cPerformanceMode::showTracksState()
 
 			display.setControlColors(label[i], ptrColors);
 			//display.setControlColors(bottomLabel[i], ptrColors);
-			display.setControlStyle(label[i], (controlStyleBorder | controlStyleBackground | controlStyleCenterX | controlStyleCenterY));
+			display.setControlStyle(label[i], controlStyleCenterX | controlStyleFont3 | controlStyleBorder );
 		}
 		else
 		{
@@ -380,7 +329,7 @@ void cPerformanceMode::showTracksState()
 
 			display.setControlColors(label[i], ptrColors);
 			//display.setControlColors(bottomLabel[i], ptrColors);
-			display.setControlStyle(label[i], (controlStyleBackground | controlStyleCenterX | controlStyleCenterY));
+			display.setControlStyle(label[i], controlStyleCenterX | controlStyleFont3);
 
 		}
 
@@ -398,8 +347,9 @@ void cPerformanceMode::showTracksPatterns()
 {
 	for(uint8_t i = 0; i<8; i++)
 	{
-		sprintf(&trackPaternText[i][0],"Pattern %d", mtProject.values.perfTracksPatterns[i]);
-		display.setControlText(label[i], &trackPaternText[i][0]);
+		//sprintf(&trackPaternText[i][0],"Pattern %d", mtProject.values.perfTracksPatterns[i]);
+		sprintf(&trackPaternText[i][0],"%d", mtProject.values.perfTracksPatterns[i]);
+		display.setControlText2(label[i], &trackPaternText[i][0]);
 
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);

@@ -5,13 +5,13 @@
 
 static uint16_t framesPlaces[7][4] =
 {
-	{0+1, 		421, 800/8-1, 65},
-	{(800/8)*1+1, 421, 800/8-1, 65},
-	{(800/8)*2+1, 421, 800/8-1, 65},
-	{(800/8)*3+1, 421, 800/8-1, 65},
-	{(800/8)*4+1, 421, 800/8-1, 65},
-	{(800/8)*5+1, 421, 800/8-1, 65},
-	{(800/8)*6+2, 31, 800/4-5, 387},
+	{0+1, 		  424, 800/8-2, 55},
+	{(800/8)*1+1, 424, 800/8-2, 55},
+	{(800/8)*2+1, 424, 800/8-2, 55},
+	{(800/8)*3+1, 424, 800/8-2, 55},
+	{(800/8)*4+1, 424, 800/8-2, 55},
+	{(800/8)*5+1, 424, 800/8-2, 55},
+	{(800/8)*6+1, 29,  800/4-3, 391},
 };
 
 static uint32_t granularColors[] =
@@ -25,18 +25,18 @@ void cSamplePlayback::initDisplayControls()
 {
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
+	prop2.x = 9;
+	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY);
+	prop2.style = 	( controlStyleShow | controlStyleRightX | controlStyleCenterY | controlStyleFont4);
 	prop2.x = 769;
 	if(instrumentLabel == nullptr) instrumentLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
+	prop2.x = 2;
 	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
+	prop2.w = 795;
+	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 	strControlProperties prop;
@@ -77,7 +77,7 @@ void cSamplePlayback::initDisplayControls()
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;
-	prop2.y = 425;
+	prop2.y = 424;
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
@@ -93,15 +93,17 @@ void cSamplePlayback::initDisplayControls()
 	playModeList.start = editorInstrument->playMode;
 	playModeList.length = playModeCount;
 	playModeList.data = playModeNames;
-	prop.x = (800/8)*6+8;
-	prop.y = 37;
-	prop.w = 800/4-16;
-	prop.h = 25;
+	prop.x = (800/8)*6+1;
+	prop.y = 29;
+	prop.w = 800/4-3;
+	prop.h = 394;
+	prop.style = controlStyleBackground;
 	prop.data = &playModeList;
 	if(playModeListControl == nullptr)  playModeListControl = display.createControl<cList>(&prop);
 
 
 	// spectrum + points
+	prop.style = 0;
 	prop.x = 0;
 	prop.y = 75;
 	prop.w = 600;

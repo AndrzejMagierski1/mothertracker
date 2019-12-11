@@ -153,6 +153,7 @@ static 	uint8_t functInstrumentAddNext();
 //static  uint8_t functInstrumentWavetableAdd();
 static  uint8_t functInstrumentDelete();
 
+static uint8_t functDelete(uint8_t state);
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
@@ -274,7 +275,10 @@ void cSampleImporter::start(uint32_t options)
 
 	previewColorControl();
 
-	if(checkIfValidSelection(selectedFile))
+	cancelSelect(listFiles);
+	cancelSelect(listInstruments);
+
+/*	if(checkIfValidSelection(selectedFile))
 	{
 		selectionLength[listFiles] = 1;
 	}
@@ -283,7 +287,7 @@ void cSampleImporter::start(uint32_t options)
 		selectionLength[listFiles] = 0;
 	}
 
-	selectionLength[listInstruments] = 1;
+	selectionLength[listInstruments] = 1;*/
 
 	updateSelection();
 
@@ -313,7 +317,7 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-	FM->setButtonObj(interfaceButtonDelete, functDeleteBackspace);
+	FM->setButtonObj(interfaceButtonDelete, functDelete);
 
 	FM->setButtonObj(interfaceButtonShift, functShift);
 
@@ -329,7 +333,6 @@ void cSampleImporter::setDefaultScreenFunct()
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functChangeInstrument);
 	FM->setButtonObj(interfaceButton5, buttonPress, functInstrumentDelete);
-	FM->setButtonObj(interfaceButtonDelete, buttonPress, functInstrumentDelete);
 
 	FM->setButtonObj(interfaceButton6, buttonPress, functChangeInstrument);
 	FM->setButtonObj(interfaceButton7, buttonPress, functChangeInstrument);
@@ -447,11 +450,24 @@ static  uint8_t functInstrumentAdd()
 //	return 1;
 //}
 
-
-static  uint8_t functInstrumentDelete()
+static uint8_t functDelete(uint8_t state)
 {
 	if(SI->isBusy) return 1;
 
+	if(SI->keyboardActiveFlag)
+	{
+		functDeleteBackspace(state);
+	}
+	else
+	{
+		functInstrumentDelete();
+	}
+
+	return 1;
+}
+
+static  uint8_t functInstrumentDelete()
+{
 	if(SI->selectedPlace == 1)
 	{
 		SI->deleteStart = SI->getSelectionStart(listInstruments);
@@ -552,27 +568,43 @@ static  uint8_t functRename()
 
 static  uint8_t functConfirmRename()
 {
-	if(strlen(SI->name) > 1)
+	uint8_t length = strlen(SI->name);
+	if(length >= 1)
 	{
-		strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,SI->name,32);
+		uint8_t allow = 0;
 
-		SI->showFileList();
+		for(uint8_t i = 0; i < length; i++)
+		{
+			// sprawdza czy zawiera jakikolwiek logiczny znak(nie spacje)
+			if(SI->name[i] != ' ')
+			{
+				allow = 1;
+				break;
+			}
+		}
 
-		SI->listInstrumentSlots();
-		SI->showInstrumentsList();
+		if(allow)
+		{
+			strncpy(mtProject.instrument[SI->selectedSlot].sample.file_name,SI->name,32);
 
-		SI->handleMemoryBar();
+			SI->showFileList();
 
-		SI->activateLabelsBorder();
+			SI->listInstrumentSlots();
+			SI->showInstrumentsList();
 
-		SI->setDefaultScreenFunct();
-		SI->showDefaultScreen();
+			SI->handleMemoryBar();
 
-		SI->displayDelete(SI->selectedPlace);
+			SI->activateLabelsBorder();
 
-		fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+			SI->setDefaultScreenFunct();
+			SI->showDefaultScreen();
 
-		SI->keyboardActiveFlag = 0;
+			SI->displayDelete(SI->selectedPlace);
+
+			fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
+			SI->keyboardActiveFlag = 0;
+		}
 	}
 
 	return 1;
@@ -1031,8 +1063,25 @@ uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 	return 1;
 }
 
+uint8_t cSampleImporter::checkIfNameValid(char * name)
+{
+	uint8_t isValid = 1;
+	uint8_t length;
+	length = strlen(name);
+
+	for(uint8_t i = 0; i < length; i++)
+	{
+		if(name[i] == 0x3F)
+		{
+			isValid = 0;
+			break;
+		}
+	}
+
+	return isValid;
+}
 //======================================================================================================================
-void cSampleImporter::listOnlyFolderNames(char* path, uint8_t startPoint)
+void cSampleImporter::listOnlyFolderNames(char* path)
 {
 	uint8_t allFilesNum;
 	sdLocation.close();
@@ -1056,10 +1105,13 @@ void cSampleImporter::listOnlyFolderNames(char* path, uint8_t startPoint)
 
 	for(uint8_t i = 0; i < allFilesNum; i++)
 	{
-		if(locationExplorerList[i][0] == '/')	//tylko jesli folder
+		if(checkIfNameValid(&locationExplorerList[i][0]))
 		{
-			strcpy(&locationExplorerList[foundFolderCount][0],&locationExplorerList[i][0]);
-			foundFolderCount++;
+			if(locationExplorerList[i][0] == '/')	//tylko jesli folder
+			{
+				strcpy(&locationExplorerList[foundFolderCount][0],&locationExplorerList[i][0]);
+				foundFolderCount++;
+			}
 		}
 	}
 
@@ -1070,9 +1122,9 @@ void cSampleImporter::listOnlyFolderNames(char* path, uint8_t startPoint)
 
 	locationExplorerCount += foundFolderCount;
 
-	for(uint8_t i = startPoint; i < (startPoint+locationExplorerCount); i++)
+	for(uint8_t i = 0; i < locationExplorerCount; i++)
 	{
-		explorerNames[i] = &locationExplorerList[i-startPoint][0];
+		explorerNames[i] = &locationExplorerList[i][0];
 	}
 }
 
@@ -1160,7 +1212,26 @@ void cSampleImporter::listOnlyWavFromActualPath(uint8_t startPoint)
 	sdLocation.close();
 	sdLocation.open(actualPath, O_READ);
 
-	locationExplorerCount += sdLocation.createFilesList(startPoint,locationExplorerList, (list_length_max-startPoint),2);
+	uint8_t filesFound = sdLocation.createFilesList(startPoint,locationExplorerList, (list_length_max-startPoint), 2);
+	uint8_t afterFolderNum = locationExplorerCount;
+
+	uint8_t validFiles = 0;
+
+	for(uint8_t i = startPoint; i < (startPoint + filesFound); i++)
+	{
+		if(checkIfNameValid(&locationExplorerList[i][0]))
+		{
+			if(afterFolderNum != i) // strcpy takes restricted pointer, passing same pointer = undefined behavior
+			{
+				strcpy(&locationExplorerList[afterFolderNum][0], &locationExplorerList[i][0]);
+			}
+
+			afterFolderNum++;
+			validFiles++;
+		}
+	}
+
+	locationExplorerCount += validFiles;
 
 	if(locationExplorerCount <= startPoint)
 	{
@@ -1232,7 +1303,7 @@ void cSampleImporter::listAllFoldersFirst()
 
 	showFilesTree();
 
-	listOnlyFolderNames(actualPath,0);
+	listOnlyFolderNames(actualPath);
 	listOnlyWavFromActualPath(locationExplorerCount);
 }
 
@@ -1654,16 +1725,24 @@ uint8_t cSampleImporter::handleSelecting(uint8_t selectStart, uint8_t selectMax,
 			{
 				if(selectionTab[selectedPlace][position] == 1)
 				{
+					uint8_t flag = 1;
 					if(sign<0)
 					{
 						selectionTab[selectedPlace][position+1] = 0;
 					}
 					else if(sign>0)
 					{
-						selectionTab[selectedPlace][position-1] = 0;
+						if(selectionTab[selectedPlace][position-1] == 1)
+						{
+							selectionTab[selectedPlace][position-1] = 0;
+						}
+						else
+						{
+							flag = 0;
+						}
 					}
 
-					if(selectionLength[selectedPlace])
+					if(selectionLength[selectedPlace] && flag)
 					{
 						selectionLength[selectedPlace]--;
 					}
@@ -2071,15 +2150,13 @@ static uint8_t functDeleteBackspace(uint8_t state)
 {
 	if((state == buttonPress) || (state == buttonHold))
 	{
-		if(SI->keyboardActiveFlag)
-		{
-			if(SI->editPosition == 0 ) return 1;
+		if(SI->editPosition == 0 ) return 1;
 
-			SI->name[SI->editPosition-1] = 0;
-			SI->editPosition--;
-			SI->showKeyboardEditName();
-		}
+		SI->name[SI->editPosition-1] = 0;
+		SI->editPosition--;
+		SI->showKeyboardEditName();
 	}
+
 	return 1;
 }
 
@@ -2200,22 +2277,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 	return 1;
 }
-//void cSampleImporter::checkWavetableLabel()
-//{
-//	uint8_t length = selectionLength ? selectionLength : 1;
-//	uint8_t wavetableFlag = 1;
-//	for(uint8_t i = 0; i < length; i++)
-//	{
-//		if(!currentFolderIsWavetableFlag[selectedFile + i])
-//		{
-//			wavetableFlag = 0;
-//			break;
-//		}
-//	}
-//
-//	if(wavetableFlag) showAddWT();
-//	else hideAddWT();
-//}
 
 static uint8_t functSdCard(uint8_t state)
 {

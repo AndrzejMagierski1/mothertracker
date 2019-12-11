@@ -5,30 +5,30 @@
 
 static uint16_t framesPlaces[8][4] =
 {
-	{0+2, 		31, 800/8-5, 387},
-	{(800/8)*1+2, 31, 800/8-5, 387},
-	{(800/8)*2+2, 31, 800/8-5, 387},
-	{(800/8)*3+2, 31, 800/8-5, 387},
-	{(800/8)*4+2, 31, 800/8-5, 387},
-	{(800/8)*5+2, 31, 800/8-5, 387},
-	{(800/8)*6+2, 31, 800/8-5, 387},
-	{(800/8)*7+2, 31, 800/8-5, 387},
+	{0+1, 		  29, 800/8-3, 391},
+	{(800/8)*1+1, 29, 800/8-3, 391},
+	{(800/8)*2+1, 29, 800/8-3, 391},
+	{(800/8)*3+1, 29, 800/8-3, 391},
+	{(800/8)*4+1, 29, 800/8-3, 391},
+	{(800/8)*5+1, 29, 800/8-3, 391},
+	{(800/8)*6+1, 29, 800/8-3, 391},
+	{(800/8)*7+1, 29, 800/8-3, 391},
 };
 
 static uint16_t framesPlacesConfig[4][4]=
 {
-	{(800/8)*0+2, 31, 800/4-5, 387},
-	{(800/8)*2+2, 31, 800/4-5, 387},
-	{(800/8)*4+2, 31, 800/4-5, 387},
-	{(800/8)*6+2, 31, 800/4-5, 387},
+	{(800/8)*0+1, 29, 800/4-3, 391},
+	{(800/8)*2+1, 29, 800/4-3, 391},
+	{(800/8)*4+1, 29, 800/4-3, 391},
+	{(800/8)*6+1, 29, 800/4-3, 391},
 };
 
 
 static uint32_t popUpLabelColors[] =
 {
 	0xFFFFFF, // tekst
-	0x222222, // tło
-	0xFF0000, // ramka
+	0x0a0a0a, // tło
+	one_true_red, // ramka
 };
 
 
@@ -56,76 +56,72 @@ void cConfigEditor::initDisplayControls()
 
 
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
+	prop2.x = 9;
+	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
+	prop2.x = 2;
 	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
+	prop2.w = 795;
+	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		prop2.text = (char*)"";
-		//prop2.data =  &bottomValuesConfig;
+		prop2.value = 1;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
-
-		prop2.style = 	( controlStyleCenterX | controlStyleCenterY );
+		prop2.style = 	( controlStyleCenterX | controlStyleFont3);
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
-		prop2.y = 452;
-		prop2.h =  59;
-
+		prop2.y = 424;
+		prop2.h =  55;
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.x = (800/8)*i+5;
-		prop2.y = 30;
-		prop2.w = 800/8-10;
-		prop2.style =  controlStyleValue_0_100;
-		prop2.h = 388;
+		prop2.value = 0;
+		prop2.x = (800/8)*i+1;
+		prop2.y = 29;
+		prop2.w = 800/8-3;
+		prop2.style =  controlStyleValue_0_100 | controlStyleBackground;
+		prop2.h = 394;
 		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
 
 	}
 
-
 	prop2.text = nullptr;
 	prop2.colors = interfaceGlobals.activeBgLabelsColors;
-	prop2.value = 255;
+	prop2.value = 84;
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;
-	prop2.y = 425;
+	prop2.y = 424;
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
-
-	prop.x = (800/8)*0+8;
-	prop.y = 37;
-	prop.w = 800/4-16;
-	prop.h = 25;
+	prop.style = controlStyleBackground;
+	prop.x = (800/8)*0+1;
+	prop.y = 29;
+	prop.w = 800/4-3;
+	prop.h = 394;
 	if(configGroupsListControl[0] == nullptr)  configGroupsListControl[0] = display.createControl<cList>(&prop);
 
-	prop.x = (800/8)*2+8;
-	prop.y = 37;
-	prop.w = 800/4-16;
-	prop.h = 25;
+	prop.x = (800/8)*2+1;
+	prop.y = 29;
+	prop.w = 800/4-3;
+	prop.h = 394;
 	if(configGroupsListControl[1] == nullptr)  configGroupsListControl[1] = display.createControl<cList>(&prop);
 
-
-	prop.x = (800/8)*4+8;
-	prop.y = 37;
-	prop.w = 800/4-16;
-	prop.h = 25;
+	prop.x = (800/8)*4+1;
+	prop.y = 29;
+	prop.w = 800/4-3;
+	prop.h = 394;
 	if(configGroupsListControl[2] == nullptr)  configGroupsListControl[2] = display.createControl<cList>(&prop);
 
-	prop.x = (800/8)*6+8;
-	prop.y = 37;
-	prop.w = 800/4-16;
-	prop.h = 25;
+	prop.x = (800/8)*6+1;
+	prop.y = 29;
+	prop.w = 800/4-3;
+	prop.h = 394;
 	if(configGroupsListControl[3] == nullptr)  configGroupsListControl[3] = display.createControl<cList>(&prop);
 }
 
@@ -172,7 +168,7 @@ void cConfigEditor::showDefaultConfigScreen()
 {
 	for(uint8_t i = 0; i<7; i++)
 	{
-		//display.setControlText(topLabel[i], "");
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 
@@ -186,17 +182,6 @@ void cConfigEditor::showDefaultConfigScreen()
 	display.refreshControl(titleLabel);
 
 
-	//listConfigGroups();
-	//showConfigGroupList();
-
-	display.setControlValue(label[0], 0);
-	display.setControlValue(label[1], 0);
-	display.setControlValue(label[2], 0);
-	display.setControlValue(label[3], 0);
-	display.setControlValue(label[4], 0);
-	display.setControlValue(label[5], 0);
-	display.setControlValue(label[6], 0);
-	display.setControlValue(label[7], 0);
 
 	display.setControlText(label[0], "Config");
 	display.setControlText(label[1], "");
@@ -218,7 +203,7 @@ void cConfigEditor::showDefaultConfigScreen()
 	frameData.places[3] = &framesPlacesConfig[3][0];
 
 	display.refreshControl(bgLabel);
-
+	display.setControlValue(bgLabel, 84);
 
 	display.setControlHide(popoutWindowLabel);
 	display.refreshControl(popoutWindowLabel);
@@ -235,36 +220,29 @@ void cConfigEditor::showMasterScreen()
 	display.setControlText(titleLabel, "Master");
 	display.refreshControl(titleLabel);
 
-	display.setControlValue(label[0], 1);
-	display.setControlValue(label[1], 1);
-	display.setControlValue(label[2], 1);
-	display.setControlValue(label[3], 1);
-	display.setControlValue(label[4], 1);
-	display.setControlValue(label[5], 1);
-	display.setControlValue(label[6], 1);
-	display.setControlValue(label[7], 1);
 
-	display.setControlText2(label[0], "Volume");
-	display.setControlText2(label[1], "Rev. Size");
-	display.setControlText2(label[2], "Rev. Dump");
-	display.setControlText2(label[3], "Bit Depth");
-	display.setControlText2(label[4], "Limit. A");
-	display.setControlText2(label[5], "Limit. R");
-	display.setControlText2(label[6], "Limit. T");
-	display.setControlText2(label[7], " ");
+	display.setControlText(label[0], "Volume");
+	display.setControlText(label[1], "Rev. Size");
+	display.setControlText(label[2], "Rev. Dump");
+	display.setControlText(label[3], "Bit Depth");
+	display.setControlText(label[4], "Limit. A");
+	display.setControlText(label[5], "Limit. R");
+	display.setControlText(label[6], "Limit. T");
+	display.setControlText(label[7], " ");
 
 	resizeToDefaultMaster();
 
 	for(uint8_t i = 0; i<8; i++)
 	{
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 
-		if(i<6) display.setControlShow(barControl[i]);
-		//display.refreshControl(barControl[i]);
+		if(i<7) display.setControlShow(barControl[i]);
 	}
 
 	display.refreshControl(bgLabel);
+	display.setControlValue(bgLabel, 255);
 
 
 
@@ -320,23 +298,23 @@ void cConfigEditor::changeLabelText(uint8_t labelIdx, const char *text)
 
 void cConfigEditor::resizeToDefaultConfig()
 {
-	display.setControlPosition(label[0],  (800/8)*0+(800/8),  452);
-	display.setControlSize(label[0],  800/4-6,  59);
+	display.setControlPosition(label[0],  (800/8)*0+(800/8),  -1);
+	display.setControlSize(label[0],  800/4-6,  -1);
 
 	display.setControlHide(label[1]);
 
-	display.setControlPosition(label[2],  (800/8)*2+(800/8),  452);
-	display.setControlSize(label[2],  800/4-6,  59);
+	display.setControlPosition(label[2],  (800/8)*2+(800/8),  -1);
+	display.setControlSize(label[2],  800/4-6,  -1);
 
 	display.setControlHide(label[3]);
 
-	display.setControlPosition(label[4],  (800/8)*4+(800/8),  452);
-	display.setControlSize(label[4],  800/4-6,  59);
+	display.setControlPosition(label[4],  (800/8)*4+(800/8),  -1);
+	display.setControlSize(label[4],  800/4-6,  -1);
 
 	display.setControlHide(label[5]);
 
-	display.setControlPosition(label[6],  (800/8)*6+(800/8),  452);
-	display.setControlSize(label[6],  800/4-6,  59);
+	display.setControlPosition(label[6],  (800/8)*6+(800/8),  -1);
+	display.setControlSize(label[6],  800/4-6,  -1);
 
 	display.setControlHide(label[7]);
 
@@ -348,17 +326,18 @@ void cConfigEditor::resizeToDefaultConfig()
 
 void cConfigEditor::resizeToDefaultMaster()
 {
-	display.setControlPosition(label[0],  (800/8)*0+(800/16),  452);
-	display.setControlSize(label[0],  800/8-6,  59);
+	display.setControlPosition(label[0],  (800/8)*0+(800/16),  -1);
+	display.setControlSize(label[0],  800/8-6,  -1);
 
-	display.setControlPosition(label[2],  (800/8)*2+(800/16),  452);
-	display.setControlSize(label[2],  800/8-6,  59);
+	display.setControlPosition(label[2],  (800/8)*2+(800/16),  -1);
+	display.setControlSize(label[2],  800/8-6,  -1);
 
-	display.setControlPosition(label[4],  (800/8)*4+(800/16),  452);
-	display.setControlSize(label[4],  800/8-6,  59);
+	display.setControlPosition(label[4],  (800/8)*4+(800/16),  -1);
+	display.setControlSize(label[4],  800/8-6,  -1
+						   );
 
-	display.setControlPosition(label[6],  (800/8)*6+(800/16),  452);
-	display.setControlSize(label[6],  800/8-6,  59);
+	display.setControlPosition(label[6],  (800/8)*6+(800/16),  -1);
+	display.setControlSize(label[6],  800/8-6,  -1);
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
@@ -395,7 +374,7 @@ void cConfigEditor::showVolume()
 //	display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[0]);
 
-	display.setControlText(label[0], volumeVal);
+	display.setControlText2(label[0], volumeVal);
 	display.refreshControl(label[0]);
 }
 
@@ -407,7 +386,7 @@ void cConfigEditor::showReverbSize()
 	//display.setControlShow(barControl[0]);
 	display.refreshControl(barControl[1]);
 
-	display.setControlText(label[1], reverbSizeVal);
+	display.setControlText2(label[1], reverbSizeVal);
 	display.refreshControl(label[1]);
 }
 
@@ -419,7 +398,7 @@ void cConfigEditor::showReverbDamping()
 	//display.setControlShow(barControl[1]);
 	display.refreshControl(barControl[2]);
 
-	display.setControlText(label[2], reverbDampVal);
+	display.setControlText2(label[2], reverbDampVal);
 	display.refreshControl(label[2]);
 }
 
@@ -436,7 +415,7 @@ void cConfigEditor::showLimiterAttack()
 	//display.setControlShow(barControl[2]);
 	display.refreshControl(barControl[4]);
 
-	display.setControlText(label[4], limitAttackVal);
+	display.setControlText2(label[4], limitAttackVal);
 	display.refreshControl(label[4]);
 }
 
@@ -453,7 +432,7 @@ void cConfigEditor::showLimiterRelease()
 	//display.setControlShow(barControl[2]);
 	display.refreshControl(barControl[5]);
 
-	display.setControlText(label[5], limitReleaseVal);
+	display.setControlText2(label[5], limitReleaseVal);
 	display.refreshControl(label[5]);
 }
 
@@ -465,7 +444,7 @@ void cConfigEditor::showLimiterTreshold()
 	display.setControlShow(barControl[6]);
 	display.refreshControl(barControl[6]);
 
-	display.setControlText(label[6], limitThresholdVal);
+	display.setControlText2(label[6], limitThresholdVal);
 	display.refreshControl(label[6]);
 }
 
@@ -478,7 +457,7 @@ void cConfigEditor::showBitDepth()
 //	display.setControlShow(barControl[3]);
 	display.refreshControl(barControl[3]);
 
-	display.setControlText(label[3], bitDepthVal);
+	display.setControlText2(label[3], bitDepthVal);
 	display.refreshControl(label[3]);
 }
 

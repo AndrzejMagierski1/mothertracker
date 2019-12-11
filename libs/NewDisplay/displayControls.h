@@ -29,6 +29,11 @@ enum controlsStyle
 	controlStyleFont3 	= 512+256,
 	controlStyleFont4 	= 1024,
 
+	controlStyleFont5 	= 256+1024,
+	controlStyleFont6 	= 512+1024,
+	controlStyleFont7 	= 512+256+1024,
+	controlStyleFont8 	= 1024+1024,
+
 	controlStyleBorder 			= (1<<12),
 	controlStyleBackground 		= (1<<13),
 	controlStyleRoundedBorder 	= (1<<14),
@@ -39,6 +44,8 @@ enum controlsStyle
 	controlStyleValue_0_100 			= (1<<18),
 	controlStyleValueNumberOnly			= (1<<19),
 	controlStyleCompareTwoValues 		= (1<<20),
+
+	controlStyleBottomShadow 			= (1<<21),
 
 };
 
@@ -98,6 +105,8 @@ extern strGetProps getProps;
 
 #define FONT_INDEX_FROM_STYLE (((style >> 8) & 15)-1)
 
+
+const uint32_t one_true_red  = 0xcd1818;
 
 uint16_t getTextWidth(uint8_t font, char* text);
 

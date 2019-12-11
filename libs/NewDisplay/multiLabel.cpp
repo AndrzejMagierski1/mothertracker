@@ -151,6 +151,39 @@ uint8_t cMultiLabel::update()
 		API_VERTEX2F(border_x+width , border_y+height);
 		API_END();
 
+
+		if(style & controlStyleBottomShadow)
+		{
+//			API_COLOR(colors[4]);
+//			API_LINE_WIDTH(16);
+//			API_BEGIN(RECTS);
+//			API_VERTEX2F(posX, posY);
+//			API_VERTEX2F(posX+width, posY+height-2);
+//			API_END();
+
+			API_BLEND_FUNC(SRC_ALPHA , ZERO);
+
+			API_SAVE_CONTEXT();
+			uint16_t grad_y = posY+height-10;
+			uint16_t grad_h = 10;
+			API_SCISSOR_XY(border_x-1, grad_y);
+			API_SCISSOR_SIZE(width+2, grad_h);
+			API_CMD_GRADIENT(0, grad_y, colors[1], 0, grad_y+grad_h, 0x0);
+			API_RESTORE_CONTEXT();
+
+			API_COLOR(0x000000);
+			API_LINE_WIDTH(1);
+			API_BEGIN(LINES);
+			API_VERTEX2F(border_x-1, posY);
+			API_VERTEX2F(border_x-1, posY+height);
+			API_VERTEX2F(border_x+width+1, posY);
+			API_VERTEX2F(border_x+width+1, posY+height);
+			API_END();
+
+			API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+
+		}
+
 		if(style & controlStyleNoTransparency)
 		{
 			API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);

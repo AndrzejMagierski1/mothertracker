@@ -10,6 +10,8 @@
 #include "mtSequencer.h"
 #include "mtConfig.h"
 
+#include "patternEditor.h"
+
 
 #include "SI4703.h"
 
@@ -264,7 +266,7 @@ uint8_t cConfigEditor::getListsActive()
 
 void cConfigEditor::setDataForLists(uint8_t listNum, uint8_t max)
 {
-	configGroupList[listNum].linesCount = 15;
+	configGroupList[listNum].linesCount = 14;
 	configGroupList[listNum].start = selectedConfigGroup[listNum];
 	configGroupList[listNum].length = max;
 	configGroupList[listNum].data = configGroupsNames[listNum];
@@ -532,6 +534,8 @@ uint8_t cConfigEditor::setPatternDivider(uint32_t val)
 	if(mtConfig.general.patternDiv != val)
 	{
 		mtConfig.general.patternDiv = val;
+		patternEditor.trackerPattern.stepDevider = mtConfig.general.patternDiv + 1;
+
 		isChanged = 1;
 	}
 

@@ -315,20 +315,15 @@ void cTracker::backgroundDivider()
 {
 	int16_t div_row = tracks->actualStep-7;
 
+	//tlo calosci
 	API_COLOR(colors[1]);
 	API_LINE_WIDTH(16);
 	API_BEGIN(RECTS);
 
-	API_VERTEX2F(1, 0);
-	API_VERTEX2F(798, 422);
+	API_VERTEX2F(posX+1, posY);
+	API_VERTEX2F(width-2, posY+height-2);
 
-	//API_SCISSOR_XY(1, 0);
-	//API_SCISSOR_SIZE(798, 423);
-	//API_CMD_GRADIENT(0, 1, 0x000000, 0, 423, 0x222222);
-
-
-
-	//API_BEGIN(RECTS);
+	//podzialka
 	API_LINE_WIDTH(16);
 	API_COLOR(colors[11]);
 
@@ -352,36 +347,16 @@ void cTracker::backgroundDivider()
 
 	API_END();
 
-
 	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
 
-
+	// gradient-cien dolny
 	API_SAVE_CONTEXT();
-
-	//API_LINE_WIDTH(16);
 	API_SCISSOR_XY(1, 413);
 	API_SCISSOR_SIZE(798, 10);
-	API_CMD_GRADIENT(0, 413, 0x0a0a0a, 0, 423, 0x0);
-
+	API_CMD_GRADIENT(0, 413, colors[1], 0, 423, 0x0);
 	API_RESTORE_CONTEXT();
 
-/*
-	// cien dolny
-	API_LINE_WIDTH(8);
-	API_BEGIN(LINES);
-	API_COLOR(rgb1);
-	for(uint8_t i = 0; i < 4; i++)
-	{
-		if(i == 1)	API_COLOR(rgb2);
-		if(i == 2)	API_COLOR(rgb3);
-		if(i == 3)	API_COLOR(rgb4);
-
-
-		API_VERTEX2F(1, 423-i);
-		API_VERTEX2F(797, 423-i);
-	}
-*/
 
 	//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 }
@@ -495,7 +470,7 @@ void cTracker::playHead()
 		//API_LINE_WIDTH(16);
 		API_SCISSOR_XY(1, phy1-11);
 		API_SCISSOR_SIZE(798, 11);
-		API_CMD_GRADIENT(0, phy1-11, 0x0a0a0a, 0, phy1, 0x0);
+		API_CMD_GRADIENT(0, phy1-11, colors[1], 0, phy1, 0x0);
 
 		API_RESTORE_CONTEXT();
 
@@ -504,7 +479,7 @@ void cTracker::playHead()
 		//API_LINE_WIDTH(16);
 		API_SCISSOR_XY(1, phy2);
 		API_SCISSOR_SIZE(798, 11);
-		API_CMD_GRADIENT(0, phy2, 0x0, 0, phy2+11, 0x0a0a0a);
+		API_CMD_GRADIENT(0, phy2, 0x0, 0, phy2+11, colors[1]);
 
 		API_RESTORE_CONTEXT();
 
@@ -678,7 +653,7 @@ void cTracker::selection()
 	{
 		uint16_t select_x = rightOffset + (tracks->actualTrack - tracks->firstVisibleTrack) * tracksSpace + 2;
 		uint16_t select1_y = posY+28*7;
-		uint16_t select2_y = select1_y+28;
+		uint16_t select2_y = select1_y+27;
 		uint16_t select_w = tracksSpace-5;
 		uint16_t rect_select_x = 0;
 		uint16_t rect_select_width = 0;

@@ -31,26 +31,26 @@ static uint32_t popUpLabelColors[] =
 
 static  uint16_t framesPlacesS1[8][4] =
 {
-		{0+2, 		31, 800/8-5, 387},
-		{(800/8)*1+2, 31, 800/8-5, 387},
-		{(800/8)*2+1, 421, 800/8-1, 65},
-		{(800/8)*3+1, 421, 800/8-1, 65},
-		{(800/8)*4+2, 31, 800/8-5, 387},
-		{(800/8)*5+2, 31, 800/8-5, 387},
-		{(800/8)*6+2, 31, 800/8-5, 387},
-		{(800/8)*7+1, 421, 800/8-1, 65}
+		{0+1, 		  29, 800/8-3, 391},
+		{(800/8)*1+1, 29, 800/8-3, 391},
+		{(800/8)*2+1, 424, 800/8-3, 55},
+		{(800/8)*3+1, 424, 800/8-3, 55},
+		{(800/8)*4+1, 29, 800/8-3, 391},
+		{(800/8)*5+1, 29, 800/8-3, 391},
+		{(800/8)*6+1, 29, 800/8-3, 391},
+		{(800/8)*7+1, 424, 800/8-3, 55}
 };
 
 static  uint16_t framesPlacesS2[8][4] =
 {
-		{0+1, 		421, 800/8-1, 65},
-		{(800/8)*1+1, 421, 800/8-1, 65},
-		{(800/8)*2+1, 421, 800/8-1, 65},
-		{(800/8)*3+1, 421, 800/8-1, 65},
-		{(800/8)*4+1, 421, 800/8-1, 65},
-		{(800/8)*5+1, 421, 800/8-1, 65},
-		{(800/8)*6+1, 421, 800/8-1, 65},
-		{(800/8)*7+1, 421, 800/8-1, 65},
+		{0+1, 		424, 800/8-3, 55},
+		{(800/8)*1+1, 424, 800/8-3, 55},
+		{(800/8)*2+1, 424, 800/8-3, 55},
+		{(800/8)*3+1, 424, 800/8-3, 55},
+		{(800/8)*4+1, 424, 800/8-3, 55},
+		{(800/8)*5+1, 424, 800/8-3, 55},
+		{(800/8)*6+1, 424, 800/8-3, 55},
+		{(800/8)*7+1, 424, 800/8-3, 55},
 };
 
 
@@ -84,15 +84,15 @@ void cSampleRecorder::initDisplayControls()
 	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop9);
 
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
+	prop2.x = 9;
+	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
+	prop2.x = 2;
 	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
+	prop2.w = 795;
+	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 	points.pointsType = 0;
@@ -110,13 +110,10 @@ void cSampleRecorder::initDisplayControls()
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
 
 
-
 	for(uint8_t i = 0; i<8; i++)
 	{
-		prop2.text = (char*)"";
-		//prop2.data =  &bottomValuesConfig;
+		prop2.value = 1;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
-
 		prop2.style = 	( controlStyleCenterX | controlStyleCenterY );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
@@ -134,7 +131,7 @@ void cSampleRecorder::initDisplayControls()
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;
-	prop2.y = 425;
+	prop2.y = 424;
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
@@ -160,73 +157,60 @@ void cSampleRecorder::initDisplayControls()
 	sourceList.start = recorderConfig.source;
 	sourceList.length = 4;
 	sourceList.data = sourceNames;
-	prop4.x = 0+8;
-	prop4.y = 37;
-	prop4.w = 800/8-16;
-	prop4.h = 25;
+	prop4.x = 0+1;
+	prop4.y = 29;
+	prop4.w = 800/8-3;
+	prop4.h = 394;
 	prop4.data = &sourceList;
+	prop4.style = controlStyleBackground;
 	if(sourceListControl == nullptr)  sourceListControl = display.createControl<cList>(&prop4);
 
 	monitorList.linesCount = 2;
 	monitorList.start = recorderConfig.monitor;
 	monitorList.length = 2;
 	monitorList.data = monitorNames;
-	prop4.x = (800/8)*(6)+8;
-	prop4.y = 37;
-	prop4.w = 800/8-16;
-	prop4.h = 25;
+	prop4.x = (800/8)*(6)+1;
+	prop4.y = 29;
+	prop4.w = 800/8-3;
+	prop4.h = 394;
 	prop4.data = &monitorList;
 	if(monitorListControl == nullptr)  monitorListControl = display.createControl<cList>(&prop4);
 
 
 	strControlProperties prop5;
-	prop5.x = (800/8)*(4)+5;
-	prop5.y = 30;
-	prop5.w = 800/8-10;
-	prop5.style =  controlStyleShow | controlStyleValue_0_100;
-	prop5.h = 389;
+	prop5.x = (800/8)*(4)+1;
+	prop5.y = 29;
+	prop5.w = 800/8-3;
+	prop5.style =  controlStyleShow | controlStyleValue_0_100 | controlStyleBackground;
+	prop5.h = 394;
 	if(levelBarControl == nullptr)  levelBarControl = display.createControl<cBar>(&prop5);
-
-	prop5.x = (800/8)*(5)+5;
-	prop5.y = 30;
-	prop5.w = 800/8-10;
-	prop5.style =  controlStyleShow | controlStyleValue_0_100;
-	prop5.h = 389;
+	prop5.x = (800/8)*(5)+1;
 	if(gainBarControl == nullptr)  gainBarControl = display.createControl<cBar>(&prop5);
-
-	prop5.x = (800/8)*(1)+5;
-	prop5.y = 30;
-	prop5.w = 800/8-10;
-	prop5.style =  controlStyleShow | controlStyleValue_0_100;
-	prop5.h = 389;
+	prop5.x = (800/8)*(1)+1;
 	if(radioFreqBarControl == nullptr)  radioFreqBarControl = display.createControl<cBar>(&prop5);
 
 	strControlProperties prop6;
-	prop6.x = 10;
-	prop6.y = 120;
+	prop6.x = 13;
+	prop6.y = 143;
 	prop6.w = 780;
-	prop6.h = 280;
+	prop6.h = 260;
 	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cKeyboard>(&prop6);
 
 	strControlProperties prop7;
 	prop7.text = (char*)"";
-	prop7.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleRoundedBorder);
-	prop7.x = 393;
-	prop7.y = 60;
-	prop7.w = 765;
-	prop7.h = 40;
+	prop7.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleFont2);
+	prop7.x = 400;
+	prop7.y = 29;
+	prop7.w = 795;
+	prop7.h = 90;
 	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop7);
 
 	strControlProperties prop8;
 	prop8.x = 190;
-//	prop.colors = &color[0];
 	prop8.y = 170;
-	//prop.w = 800/4-10;
 	prop8.style = controlStyleValue_0_100;
 	prop8.h = 100;
 	prop8.w = 420;
-//	prop.value = 70;
-//	prop.text = "loading...";
 	if(saveHorizontalBarControl == nullptr)  saveHorizontalBarControl = display.createControl<cHorizontalBar>(&prop8);
 
 
@@ -238,26 +222,8 @@ void cSampleRecorder::initDisplayControls()
 	prop10.y = 200;
 	prop10.w = 0;
 	prop10.h = 0;
-
 	prop10.colors = radioLabelColors;
-
 	if(radioRdsLabel == nullptr) radioRdsLabel = display.createControl<cLabel>(&prop10);
-
-	padNamesStruct.length=5;
-	padNamesStruct.name = interfaceGlobals.padNamesPointer;
-
-	strControlProperties prop11;
-	prop11.x = 16;
-	prop11.y = 130;
-	prop11.w = 780;
-	prop11.h = 280;
-	prop11.value=-1;
-	prop11.data=&padNamesStruct;
-
-	if(notePopoutControl== nullptr)  notePopoutControl = display.createControl<cNotePopout>(&prop11);
-
-	display.setControlData(notePopoutControl, &padNamesStruct);
-
 
 }
 
@@ -337,8 +303,8 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlText(label[i], "");
 	}
 
-	display.setControlShow(bgLabel);
-	display.refreshControl(bgLabel);
+	//display.setControlShow(bgLabel);
+	//display.refreshControl(bgLabel);
 
 	// odciemnanie labela wrazie deaktywacji save po wyjeciu karty
 	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
@@ -348,6 +314,8 @@ void cSampleRecorder::showDefaultScreen()
 		showGain();
 		showSource();
 		showMonitor();
+
+
 		//spectrum
 		display.setControlHide(spectrumControl);
 		display.refreshControl(spectrumControl);
@@ -396,6 +364,7 @@ void cSampleRecorder::showDefaultScreen()
 			display.setControlText2(label[1], "Radio Freq");
 			display.setControlText(label[2], "<<");
 			display.setControlText(label[3], ">>");
+			display.setControlValue(bgLabel,243);
 
 			calcRadioFreqBarVal();
 			drawRadioFreqBar();
@@ -408,6 +377,7 @@ void cSampleRecorder::showDefaultScreen()
 			display.setControlText(label[1], "");
 			display.setControlText(label[2], "");
 			display.setControlText(label[3], "");
+			display.setControlValue(bgLabel,255);
 
 			if(selectedPlace == 1 || selectedPlace == 2 || selectedPlace == 3)
 			{
@@ -438,6 +408,7 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlData(frameControl, &frameData);
 		display.setControlShow(frameControl);
 		display.refreshControl(frameControl);
+		display.refreshControl(bgLabel);
 
 		calcLevelBarVal();
 		drawLevelBar();
@@ -518,6 +489,7 @@ void cSampleRecorder::showDefaultScreen()
 
 			display.setControlValue(label[2], 0);
 			display.setControlValue(label[7], 0);
+			display.setControlValue(bgLabel,140);
 
 			display.setControlText(label[7], "Stop");
 		}
@@ -539,6 +511,7 @@ void cSampleRecorder::showDefaultScreen()
 			display.setControlText(label[5], "Undo");
 			display.setControlText(label[6], "Cancel");
 			display.setControlText(label[7], "Save");
+			display.setControlValue(bgLabel,255);
 
 			if(!sdCardDetector.isCardInserted())
 			{
@@ -551,6 +524,7 @@ void cSampleRecorder::showDefaultScreen()
 
 		display.setControlHide(editName);
 		display.refreshControl(editName);
+		display.refreshControl(bgLabel);
 
 		if(selectedPlace == 1)
 		{
@@ -653,6 +627,9 @@ void cSampleRecorder::showRadio()
 	display.setControlShow(radioRdsLabel);
 	display.setControlText(radioRdsLabel, "");
 
+	display.setControlValue(bgLabel,255);
+	display.refreshControl(bgLabel);
+
 	showFreqValue();
 }
 void cSampleRecorder::hideRadio()
@@ -679,6 +656,12 @@ void cSampleRecorder::hideRadio()
 
 	display.refreshControl(radioRdsLabel);
 	display.setControlHide(radioRdsLabel);
+
+
+	display.setControlValue(bgLabel,243);
+	display.refreshControl(bgLabel);
+
+
 }
 
 void cSampleRecorder::hideRDS()
@@ -759,8 +742,7 @@ void cSampleRecorder::showZoomValue()
 {
 	sprintf(zoomTextValue, "%.2f", zoom.zoomValue);
 
-	display.setControlText(label[3], zoomTextValue);
-	display.setControlShow(label[3]);
+	display.setControlText2(label[3], zoomTextValue);
 	display.refreshControl(label[3]);
 }
 
@@ -770,8 +752,7 @@ void cSampleRecorder::showRecTimeValue()
 
 	sprintf(recTimeValueText,"%.3fs",recTimeValue);
 
-	display.setControlText(label[2], recTimeValueText);
-	display.setControlShow(label[2]);
+	display.setControlText2(label[2], recTimeValueText);
 	display.refreshControl(label[2]);
 }
 
@@ -784,14 +765,17 @@ void cSampleRecorder::showPreviewValue()
 
 	sprintf(playTimeValueText,"%.3fs",playTimeValue);
 
-	display.setControlText(label[0], playTimeValueText);
+	display.setControlText(label[0],"Preview");
+	display.setControlText2(label[0], playTimeValueText);
+	display.setControlColors(label[0],interfaceGlobals.activeButtonLabelsColors);
 	display.setControlShow(label[0]);
 	display.refreshControl(label[0]);
 }
 void cSampleRecorder::hidePreviewValue()
 {
 	display.setControlText(label[0],"Preview");
-	display.setControlShow(label[0]);
+	display.setControlText2(label[0],"");
+	display.setControlColors(label[0],interfaceGlobals.activeButtonLabelsColors);
 	display.refreshControl(label[0]);
 }
 void cSampleRecorder::showStartPointValue()
@@ -801,8 +785,7 @@ void cSampleRecorder::showStartPointValue()
 
 	sprintf(startPointValueText,"%.3fs",localStartPoint);
 
-	display.setControlText(label[1], startPointValueText);
-	display.setControlShow(label[1]);
+	display.setControlText2(label[1], startPointValueText);
 	display.refreshControl(label[1]);
 }
 
@@ -813,8 +796,7 @@ void cSampleRecorder::showEndPointValue()
 
 	sprintf(endPointValueText,"%.3fs",localEndPoint);
 
-	display.setControlText(label[2], endPointValueText);
-	display.setControlShow(label[2]);
+	display.setControlText2(label[2], endPointValueText);
 	display.refreshControl(label[2]);
 }
 
@@ -822,8 +804,7 @@ void cSampleRecorder::showFreqValue()
 {
 	snprintf(freqTextValue, 9, "%.1fMHz", recorderConfig.radioFreq);
 
-	display.setControlText(label[1], freqTextValue);
-	display.setControlShow(label[1]);
+	display.setControlText2(label[1], freqTextValue);
 	display.refreshControl(label[1]);
 }
 
@@ -860,6 +841,7 @@ void cSampleRecorder::drawRadioFreqBar()
 	display.refreshControl(radioFreqBarControl);
 	showFreqValue();
 }
+
 void cSampleRecorder::drawLevelBar()
 {
 	if(currentScreen != screenTypeConfig ) return ;
@@ -925,7 +907,8 @@ void cSampleRecorder::showSelectionWindow()
 
 	display.setControlText(label[7], "Yes");
 	display.setControlText(label[6], "Cancel");
-	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[6], interfaceGlobals.activeButtonLabelsColors);
+	display.setControlColors(label[7], interfaceGlobals.activeButtonLabelsColors);
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
@@ -1048,8 +1031,6 @@ void cSampleRecorder::showNotePopout()
 	display.setControlText(titleLabel, "Notes");
 	display.refreshControl(titleLabel);
 
-	display.setControlShow(notePopoutControl);
-	display.refreshControl(notePopoutControl);
 
 	for(int i=0;i<8;i++)
 	{
@@ -1079,41 +1060,6 @@ void cSampleRecorder::showNotePopout()
 	display.refreshControl(frameControl);
 }
 
-void cSampleRecorder::hideNotePopout()
-{
-	display.setControlText(titleLabel, "Sample Recoder");
-	display.refreshControl(titleLabel);
-
-	display.setControlHide(notePopoutControl);
-	display.refreshControl(notePopoutControl);
-
-	for(int i=0;i<8;i++)
-	{
-		display.setControlShow(label[i]);
-		display.refreshControl(label[i]);
-	}
-
-	display.setControlShow(sourceListControl);
-	display.refreshControl(sourceListControl);
-
-	display.setControlShow(monitorListControl);
-	display.refreshControl(monitorListControl);
-
-	display.setControlShow(levelBarControl);
-	display.refreshControl(levelBarControl);
-
-	display.setControlShow(gainBarControl);
-	display.refreshControl(gainBarControl);
-
-	if(recorderConfig.source == sourceTypeRadio)
-	{
-		display.setControlShow(radioFreqBarControl);
-		display.refreshControl(radioFreqBarControl);
-	}
-
-	display.setControlShow(frameControl);
-	display.refreshControl(frameControl);
-}
 
 void cSampleRecorder::showSource()
 {

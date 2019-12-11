@@ -36,19 +36,19 @@ void cProjectEditor::initDisplayControls()
 
 
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
+	prop2.x = 9;
+	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
-	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleRightX);
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleRightX | controlStyleFont4);
 	prop2.x = 769;
 	prop2.y = 12;
 	if(titleLabelProjectName == nullptr) titleLabelProjectName = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
+	prop2.x = 2;
 	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
+	prop2.w = 795;
+	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 	strControlProperties prop5;
@@ -65,15 +65,13 @@ void cProjectEditor::initDisplayControls()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		prop2.text = (char*)"";
-		//prop2.data =  &bottomValuesConfig;
-		prop2.colors = interfaceGlobals.activeLabelsColors;
-
-		prop2.style = 	( controlStyleCenterX | controlStyleCenterY );
+		prop2.value =  1;
+		prop2.colors = interfaceGlobals.activeButtonLabelsColors;
+		prop2.style = 	( controlStyleCenterX );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
-		prop2.y = 452;
-		prop2.h =  59;
+		prop2.y = 424;
+		prop2.h =  55;
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
@@ -85,7 +83,7 @@ void cProjectEditor::initDisplayControls()
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;
-	prop2.y = 425;
+	prop2.y = 424;
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
@@ -93,28 +91,29 @@ void cProjectEditor::initDisplayControls()
 	projectList.start = 0;
 	projectList.length = 0;
 	strControlProperties prop;
-	prop.x = 0;
-	prop.y = 35;
-	prop.w = (800/4);
-	prop.h = 25;
+	prop.x = 1;
+	prop.y = 29;
+	prop.w = (800/4)-3;
+	prop.h = 394;
+	prop.style = controlStyleBackground;
 	prop.data = &projectList;
 	if(fileListControl == nullptr)  fileListControl = display.createControl<cList>(&prop);
 
 
 	strControlProperties prop3;
-	prop3.x = 10;
-	prop3.y = 120;
+	prop3.x = 13;
+	prop3.y = 143;
 	prop3.w = 780;
-	prop3.h = 280;
+	prop3.h = 260;
 	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cKeyboard>(&prop3);
 
 	strControlProperties prop4;
 	prop4.text = (char*)"";
-	prop4.style = 	(controlStyleShow | controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleRoundedBorder);
-	prop4.x = 393;
-	prop4.y = 60;
-	prop4.w = 765;
-	prop4.h = 40;
+	prop4.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleFont2);
+	prop4.x = 400;
+	prop4.y = 29;
+	prop4.w = 795;
+	prop4.h = 90;
 	if(editName == nullptr)  editName = display.createControl<cEdit>(&prop4);
 
 
@@ -243,7 +242,7 @@ void cProjectEditor::showDefaultScreen()
 	for(uint8_t i = 0; i<8; i++)
 	{
 
-		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
+		display.setControlColors(label[i], interfaceGlobals.activeButtonLabelsColors);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}

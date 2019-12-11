@@ -7,7 +7,7 @@
 
 static uint32_t defaultColors[] =
 {
-	0xFF0000, // ramka
+	one_true_red, // ramka
 	0x3F3F3F, // tło
 	0x000000, // ramka
 };
@@ -128,10 +128,10 @@ uint8_t cFrame::update()
 				source = value;
 			}
 
-			int16_t border_x = *(data->places[source]) + 1;
-			int16_t border_y = *((data->places[source]) + 1) + 1;
-			int16_t border_w = *((data->places[source]) + 2) - 2;
-			int16_t border_h = *((data->places[source]) + 3) - 3;
+			int16_t border_x = *(data->places[source]);
+			int16_t border_y = *((data->places[source]) + 1);
+			int16_t border_w = *((data->places[source]) + 2);
+			int16_t border_h = *((data->places[source]) + 3);
 
 			if(style & controlStyleCenterX)
 			{
@@ -157,7 +157,7 @@ uint8_t cFrame::update()
 
 			API_COLOR(colors[0]);
 
-			API_LINE_WIDTH(16);
+			API_LINE_WIDTH(8);
 			API_BEGIN(LINE_STRIP);
 			API_VERTEX2F(border_x, border_y);
 			API_VERTEX2F(border_x+border_w, border_y);

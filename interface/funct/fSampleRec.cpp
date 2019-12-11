@@ -2336,6 +2336,8 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
 
     showSource();
     showGain();
+
+    display.synchronizeRefresh();
     mtProject.values.source =  sampleRecorder.recorderConfig.source;
 	fileManager.configIsChangedFlag = 1;
 	mtProject.values.projectNotSavedFlag = 1;
@@ -2585,7 +2587,7 @@ static uint8_t functStepNote(uint8_t value)
 		{
 			SR->setDefaultScreenFunct();
 			SR->notePopoutFlag = 0;
-			SR->hideNotePopout();
+			//SR->hideNotePopout();
 
 			if((SR->recorderConfig.source == SR->sourceTypeRadio) && (SR->currentScreen == SR->screenTypeConfig))
 			{
@@ -2606,7 +2608,7 @@ static uint8_t functStepNote(uint8_t value)
 			SR->FM->clearButtonsRange(interfaceButtonUp, interfaceButtonRight);
 			SR->FM->clearAllPots();
 			SR->notePopoutFlag = 1;
-			SR->showNotePopout();
+			//SR->showNotePopout();
 			SR->hideRDS();
 		}
 	}

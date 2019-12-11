@@ -7,13 +7,14 @@
 
 static uint32_t defaultColors[] =
 {
-	0x000000, // tekst
-	0xFFFFFF, // tło
-	0xFF0000, // ramka
-	0x00FF00, // kursor
+	0xffffff, 		// tekst
+	0x080808, 		// kontener
+	0xFF0000, 		// ramka
+	one_true_red, 	// kursor
+	0x0a0a0a, 		//tlo
 };
 
-void localString2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
+void localString2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length);
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
@@ -67,10 +68,12 @@ void cEdit::setStyle(uint32_t style)
 	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
 
 
-	textFont = FONT_INDEX_FROM_STYLE;
+
+
+	int8_t textFont = FONT_INDEX_FROM_STYLE;
 	textFont = (textFont>=0) ? textFont : 0;
-	textWidth = fonts[textFont].width;
-	textFont =  fonts[textFont].handle;
+	font = &fonts[textFont];
+
 
 }
 
@@ -119,7 +122,7 @@ uint8_t cEdit::update()
 	{
 		//border_x = posX - (getTextWidth(FONT_INDEX_FROM_STYLE,text)/2 + 2);
 
-		border_x = posX - (width/2);
+		border_x = posX - (width/2) -1;
 	}
 
 
@@ -128,22 +131,23 @@ uint8_t cEdit::update()
 		if(style & controlStyleRoundedBorder) API_LINE_WIDTH(32);
 		else API_LINE_WIDTH(16);
 
-		API_COLOR(colors[1]);
-
-
+		API_COLOR(colors[4]);
+		//tlo
 		API_BEGIN(RECTS);
-		API_VERTEX2F(border_x , posY);
-		API_VERTEX2F(border_x+width , posY+height);
-		API_END();
+		API_VERTEX2F(border_x, posY);
+		API_VERTEX2F(border_x+width, posY+height);
 
-		//text_x = posX + 2;
-		//text_y = posY + 2;
+		API_COLOR(colors[1]);
+		// kontener
+		API_VERTEX2F(border_x+10 , posY+10);
+		API_VERTEX2F(border_x+width-10 , posY+height-10);
+		API_END();
 	}
 	if(style & controlStyleBorder)
 	{
 		API_COLOR(colors[2]);
 
-		API_LINE_WIDTH(32);
+		API_LINE_WIDTH(8);
 
 		API_BEGIN(LINE_STRIP);
 		API_VERTEX2F(border_x-1 , posY-1);
@@ -158,28 +162,30 @@ uint8_t cEdit::update()
 	}
 
 	API_COLOR(colors[2]);
-	API_LINE_WIDTH(20);
+	API_LINE_WIDTH(16);
 	API_BEGIN(LINES);
 	uint8_t localTextLength = strlen(text);
+	uint8_t font_y = posY+(height/2)-(font->height/2);
+
 	if(textStyle & OPT_CENTERX)
 	{
 
-		API_VERTEX2F(posX + textWidth *(value - localTextLength/2  ) , posY+4);
-		API_VERTEX2F(posX + textWidth *(value - localTextLength/2  ) , posY+height-4);
+		API_VERTEX2F(posX + font->width *(value - localTextLength/2  ) , font_y);
+		API_VERTEX2F(posX + font->width *(value - localTextLength/2  ) ,  font_y + font->height);
 	}
 	else
 	{
-		API_VERTEX2F(posX + value*textWidth , posY+2);
-		API_VERTEX2F(posX + value*textWidth , posY+height-2);
+		API_VERTEX2F(posX + value*font->width , font_y);
+		API_VERTEX2F(posX + value*font->width , font_y + font->height);
 	}
 
 	API_END();
 
 
 	API_COLOR(colors[0]);
-	API_BITMAP_HANDLE(fonts[0].handle);
+	API_BITMAP_HANDLE(font->handle);
 	API_BEGIN(BITMAPS);
-	if(text != nullptr) localString2Bitmaps(posX - textWidth * (localTextLength/2) , posY+height/2, 10, 18, text, localTextLength);
+	if(text != nullptr) localString2Bitmaps(posX - font->width * (localTextLength/2) , posY+height/2, font, text, localTextLength);
 	API_END();
 //	API_CMD_TEXT(posX, posY+5, textFont, textStyle, text);
 
@@ -218,9 +224,9 @@ uint8_t cEdit::append(uint32_t address)
 	return 0;
 }
 
-void localString2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length)
+void localString2Bitmaps(int16_t x, int16_t y, const strFont* font, char* string, int8_t length)
 {
-	y = y - font_y/2;
+	y = y - font->height/2;
 	uint8_t strPtr = 0;
 
 
@@ -237,8 +243,8 @@ void localString2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, c
 		}
 		else if(string[strPtr] >=32)
 		{
-			API_VERTEX2II(x,y,fonts[0].handle, (char)string[strPtr++]);
+			API_VERTEX2II(x,y,font->handle, (char)string[strPtr++]);
 		}
-		x+=font_x;
+		x+=font->width;
 	}
 }

@@ -525,7 +525,6 @@ void cTest::systemReset()
 static uint8_t functButtons(uint8_t button, uint8_t state)
 {
 
-
 	if(state == buttonPress && TP->inputs.buttons[button] == 0) TP->inputs.buttons[button] = 1;
 	else if(state == buttonRelease && TP->inputs.buttons[button] == 1) TP->inputs.buttons[button] = 2;
 
@@ -536,7 +535,6 @@ static uint8_t functButtons(uint8_t button, uint8_t state)
 	if(button == 0) TP->AcceptButton();
 	else if(button == 3) TP->DeclineButton();
 
-
 	return 1;
 }
 
@@ -544,7 +542,6 @@ static uint8_t functEncoder(int16_t value)
 {
 	if(value > 0 && TP->inputs.encoderR == 0) TP->inputs.encoderR = 1;
 	if(value < 0 && TP->inputs.encoderL == 0) TP->inputs.encoderL = 1;
-
 
 	return 1;
 }
@@ -561,6 +558,7 @@ static uint8_t functPowerButton(uint8_t state)
 {
 	if(state == buttonPress && TP->inputs.powerButton == 0) TP->inputs.powerButton = 1;
 	else if(state == buttonRelease && TP->inputs.powerButton == 1) TP->inputs.powerButton = 2;
+
 	return 1;
 }
 

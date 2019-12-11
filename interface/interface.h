@@ -16,6 +16,13 @@
 typedef cModuleBase* hModule;
 class cInterfacePopups;
 
+//Higher number = higher priority
+enum action_priorities
+{
+	noSdCardPriority = 0x01U,
+	powerButtonActionPriority = 0x02U,
+};
+
 
 class cInterface
 {
@@ -31,7 +38,7 @@ public:
 	void switchModuleByButton(hModule module, uint8_t button);
 	void switchModuleToPrevious(hModule module);
 	int8_t getButtonIndex(uint8_t button);
-	void toggleActiveModule();
+	void toggleActiveModule(uint8_t state);
 
 	friend void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3);
 
@@ -40,6 +47,22 @@ public:
 	void showStartScreen();
 	void hideStartScreen();
 	void destroyStartScreen();
+
+	void hideAllGlobalActions();
+
+	void initDisplayCountDown();
+	void refreshDisplayCountDown(uint16_t timeLeft_ms, uint8_t progress);
+	void deinitDisplayCountDown();
+	uint8_t shutdownScreenInitFlag = 0;
+	uint32_t shutdownRequestTimestamp;
+	elapsedMillis shutdownTimer;
+
+
+	void initDisplayNoSdCard();
+	void refreshDsiplayNoSdCard();
+	void deinitDisplayNoSdCard();
+	uint8_t noSdCardInitFlag = 0;
+
 
 	uint8_t detectStartState();
 	void openStartupProject();
@@ -60,6 +83,10 @@ private:
 	void processOperatingMode();
 	void doStartTasks();
 
+	void handleGlobalActions();
+	void handleShutdown();
+	void handleNoSdCard();
+
 	static const uint8_t modulesCount;
 	static const hModule modules[];
 
@@ -77,6 +104,8 @@ private:
 	hModule onScreenModule = nullptr;
 	uint32_t lastOptions = 0;
 
+	uint8_t toggledState = 0; //blokuje toggl(1) kiedy nie bylo toggle(0) a modol tez nie jest aktywny
+
 	hModule previousModule = nullptr;
 	uint32_t previousModuleOptions = 0;
 
@@ -92,11 +121,20 @@ private:
 	strStartScreenData startScreenData;
 
 
+	hControl turnOffProgressBar = nullptr;
+	char turnOffText[20];
+
+	hControl noSdTextControl;
+	const char *noSdText = "Please insert SD card to continue";
+
+
 	//styl popupu interfejsu
 	strPopupStyleConfig popupConfig;
 
 	uint8_t openFromWorkspaceFlag = 0;
 
+	uint8_t isBooted = 0;
+	uint32_t globalActionPriority;
 
 
 };

@@ -61,6 +61,9 @@ extern unsigned long _estack;
 //extern void __init_array_start(void);
 //extern void __init_array_end(void);
 
+#define RESTART_ADDR       0xE000ED0C
+#define WRITE_RESTART(val) ((*(volatile uint32_t *)RESTART_ADDR) = (val))
+
 
 
 extern int main (void);
@@ -121,7 +124,8 @@ void fault_isr(void)
         ser_print("\n");
         asm("ldr %0, [sp, #0]" : "=r" (addr) ::);
 #endif
-	while (1) {
+#ifndef REBOOT_ON_FAULT
+        while (1) {
 		// keep polling some communication while in fault
 		// mode, so we don't completely die.
 		if (SIM_SCGC4 & SIM_SCGC4_USBOTG) usb_isr();
@@ -129,6 +133,9 @@ void fault_isr(void)
 		if (SIM_SCGC4 & SIM_SCGC4_UART1) uart1_status_isr();
 		if (SIM_SCGC4 & SIM_SCGC4_UART2) uart2_status_isr();
 	}
+#else
+        WRITE_RESTART(0x5FA0004);
+#endif
 }
 
 void unused_isr(void)
@@ -686,8 +693,6 @@ __attribute__ ((optimize("-Os")))
 // hopefully all others fit into startup section (below 0x400)
 __attribute__ ((section(".startup"),optimize("-Os")))
 #endif
-
-
 
 void ResetHandler(void)
 {

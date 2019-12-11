@@ -7,24 +7,24 @@
 
 static uint16_t framesPlaces[3][4] =
 {
-	{0+2, 31, 800/4-5, 387},
-	{(800/8)*6+2, 31, 800/8-5, 387},
-	{(800/8)*7+2, 31, 800/8-5, 387},
+	{0+1,         29, 800/4-3, 391},
+	{(800/8)*6+1, 29, 800/8-3, 391},
+	{(800/8)*7+1, 29, 800/8-3, 391},
 };
 
 
 void cSongEditor::initDisplayControls()
 {
 	strControlProperties prop2;
-	prop2.style = 	( controlStyleShow | controlStyleCenterY);
-	prop2.x = 30;
-	prop2.y = 12;
+	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
+	prop2.x = 9;
+	prop2.y = 13;
 	if(titleLabel == nullptr) titleLabel = display.createControl<cLabel>(&prop2);
 	prop2.style = 	( controlStyleShow | controlStyleBackground);
-	prop2.x = 0;
+	prop2.x = 2;
 	prop2.y = 0;
-	prop2.w = 800;
-	prop2.h = 25;
+	prop2.w = 795;
+	prop2.h = 26;
 	if(titleBar == nullptr) titleBar = display.createControl<cLabel>(&prop2);
 
 	// ramka
@@ -41,13 +41,13 @@ void cSongEditor::initDisplayControls()
 
 	strControlProperties prop1;
 
-	prop1.x = (800/8)*6+5;
-	prop1.y = 30;
-	prop1.w = 800/8-10;
-	prop1.style =  controlStyleValue_0_100 | controlStyleShow;
-	prop1.h = 389;
+	prop1.x = (800/8)*6+1;
+	prop1.y = 29;
+	prop1.w = 800/8-3;
+	prop1.style =  controlStyleValue_0_100 | controlStyleShow | controlStyleBackground;
+	prop1.h = 394;
 	if(barControl[0] == nullptr)  barControl[0] = display.createControl<cBar>(&prop1);
-	prop1.x = (800/8)*7+5;
+	prop1.x = (800/8)*7+1;
 	if(barControl[1] == nullptr)  barControl[1] = display.createControl<cBar>(&prop1);
 
 	prop2.text = (char*)"";
@@ -69,13 +69,13 @@ void cSongEditor::initDisplayControls()
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
-	prop2.value = 255;
+	prop2.value = 252;
 	prop2.text = nullptr;
 	prop2.colors = interfaceGlobals.activeBgLabelsColors;
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;
-	prop2.y = 425;
+	prop2.y = 424;
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
@@ -83,10 +83,11 @@ void cSongEditor::initDisplayControls()
 	patternsList.start = 0;
 	patternsList.length = 255;
 	patternsList.data = patternNames;
-	prop.x = 0+8;
-	prop.y = 37;
-	prop.w = (800/4-16);
-	prop.h = 25;
+	prop.x = 0+1;
+	prop.y = 29;
+	prop.w = (800/4-3);
+	prop.h = 394;
+	prop.style = controlStyleBackground;
 	prop.data = &patternsList;
 	if(patternsListControl == nullptr)  patternsListControl = display.createControl<cList>(&prop);
 

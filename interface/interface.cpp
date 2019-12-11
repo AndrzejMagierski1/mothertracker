@@ -29,7 +29,8 @@
 #include "SD.h"
 #include "sdram.h"
 #include "sdCardDetect.h"
-#include "mtCardChecker.h"
+//#include "mtCardChecker.h"
+#include "mtSleep.h"
 
 
 
@@ -134,19 +135,129 @@ void cInterface::update()
 	}
 
 
-
+	handleGlobalActions();
 	mtPopups.update();
 
 	mtTest.testLoop();
 }
 
 
-
 //=======================================================================
 //=======================================================================
 //=======================================================================
 
 
+void cInterface::handleGlobalActions()
+{
+	hideAllGlobalActions();
+
+	handleShutdown();
+	handleNoSdCard();
+}
+
+void cInterface::handleNoSdCard()
+{
+	uint32_t selfPrio = noSdCardPriority;
+
+	if((globalActionPriority & ~selfPrio) <= selfPrio)
+	{
+		if(!sdCardDetector.isCardInserted())
+		{
+			if(globalActionPriority == 0)
+			{
+				uint8_t state = 0;
+				interfaceEnvents(eventToggleActiveModule,0,0,&state);
+			}
+
+			globalActionPriority |= selfPrio;
+
+			if(noSdCardInitFlag == 0)
+			{
+				initDisplayNoSdCard();
+				noSdCardInitFlag = 1;
+			}
+
+			refreshDsiplayNoSdCard();
+		}
+		else
+		{
+			if(noSdCardInitFlag == 1)
+			{
+				if(sdCardDetector.isCardInitialized())
+				{
+					deinitDisplayNoSdCard();
+					globalActionPriority &= ~selfPrio;
+
+					if(globalActionPriority == 0)
+					{
+						uint8_t state = 1;
+						interfaceEnvents(eventToggleActiveModule,0,0,&state);
+					}
+
+					noSdCardInitFlag = 0;
+				}
+			}
+		}
+	}
+}
+
+void cInterface::handleShutdown()
+{
+
+	if(isBooted)
+	{
+		uint32_t selfPrio = powerButtonActionPriority;
+
+		if((globalActionPriority & ~selfPrio) <= selfPrio)
+		{
+			if(lowPower.getShutdownRequest())
+			{
+				if(globalActionPriority == 0)
+				{
+					uint8_t state = 0;
+					interfaceEnvents(eventToggleActiveModule,0,0,&state);
+				}
+
+				globalActionPriority |= selfPrio;
+
+				if(shutdownScreenInitFlag == 0)
+				{
+					shutdownRequestTimestamp = shutdownTimer;
+					shutdownScreenInitFlag = 1;
+					initDisplayCountDown();
+				}
+
+				int32_t timeToShutdown_ms = 0;
+				uint8_t progress;
+
+				timeToShutdown_ms = (TURN_OFF_TIME_MS - (shutdownTimer - shutdownRequestTimestamp));
+				progress = ((timeToShutdown_ms * 100) / TURN_OFF_TIME_MS);
+
+				refreshDisplayCountDown(timeToShutdown_ms, progress);
+
+				if(timeToShutdown_ms <= 0)
+				{
+					lowPower.goLowPower();
+				}
+			}
+			else
+			{
+				if(shutdownScreenInitFlag == 1)
+				{
+					globalActionPriority &= ~selfPrio;
+					shutdownScreenInitFlag = 0;
+					deinitDisplayCountDown();
+
+					if(globalActionPriority == 0)
+					{
+						uint8_t state = 1;
+						interfaceEnvents(eventToggleActiveModule,0,0,&state);
+					}
+				}
+			}
+		}
+	}
+}
 
 void cInterface::processOperatingMode()
 {
@@ -192,7 +303,6 @@ void cInterface::processOperatingMode()
 		else
 		{
 			hideStartScreen();
-			mtCardHandler.noSdCardAction();
 		}
 	}
 
@@ -280,24 +390,33 @@ int8_t cInterface::getButtonIndex(uint8_t button)
 }
 
 
-void cInterface::toggleActiveModule()
+void cInterface::toggleActiveModule(uint8_t state)
 {
-	if(onScreenModule == nullptr)
+	if(state)
 	{
-		if(previousModule != nullptr)
+		if(toggledState && onScreenModule == nullptr)
 		{
-			hModule prevModule = previousModule;
-			uint32_t prevModuleOptions = previousModuleOptions;
+			toggledState = 0;
 
-			activateModule(prevModule, prevModuleOptions);
-			return;
+			if(previousModule != nullptr)
+			{
+				hModule prevModule = previousModule;
+				uint32_t prevModuleOptions = previousModuleOptions;
+
+				activateModule(prevModule, prevModuleOptions);
+				return;
+			}
+		}
+	}
+	else
+	{
+		if(onScreenModule != nullptr)
+		{
+			mtInterface.deactivateModule(onScreenModule);
+			toggledState = 1;
 		}
 	}
 
-	if(onScreenModule != nullptr)
-	{
-		mtInterface.deactivateModule(onScreenModule);
-	}
 }
 //=======================================================================
 //=======================================================================
@@ -339,7 +458,7 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 		}
 		case eventToggleActiveModule:
 		{
-			mtInterface.toggleActiveModule();
+			mtInterface.toggleActiveModule(*((uint8_t*)param3));
 			break;
 		}
 		case eventActivateTestingProcedure:
