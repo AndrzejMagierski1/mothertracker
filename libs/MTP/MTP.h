@@ -2,6 +2,11 @@
 #ifndef MTP_H
 #define MTP_H
 
+//----------------------------------------------
+
+#define USE_RAM 1
+
+//----------------------------------------------
 
 //#include <Arduino.h>
 // #include <HardwareSerial.h>
@@ -196,14 +201,14 @@ private:
   void get_buffer() {
     while (!data_buffer_) {
       data_buffer_ = usb_malloc();
-      if (!data_buffer_) mtp_yield();
+      if (!data_buffer_) yield();
     }
   }
 
   void receive_buffer() {
     while (!data_buffer_) {
       data_buffer_ = usb_rx(MTP_RX_ENDPOINT);
-      if (!data_buffer_) mtp_yield();
+      if (!data_buffer_) yield();
     }
   }
 
