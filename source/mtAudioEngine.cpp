@@ -1246,6 +1246,32 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 				playMemPtr->setWavetableWindow(currentSeqModValues.wavetablePosition);
 			}
 		break;
+		case fx_t::FX_TYPE_GRANULAR_POSITION :
+			if(fx_n == MOST_SIGNIFICANT_FX)
+			{
+				currentSeqModValues.granularPosition = map(fx_val,0,127,0,MAX_16BIT);
+			}
+			else if(fx_n == LEAST_SIGNIFICANT_FX)
+			{
+				if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::granularPosition])
+				{
+					currentSeqModValues.granularPosition = map(fx_val,0,127,0,MAX_16BIT);
+				}
+			}
+
+			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::granularPosition] = 1;
+
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])
+			{
+				changeGranularPositionPerformanceMode(performanceMod.granularPosition);
+			}
+			else
+			{
+				playMemPtr->setGranularPosForceFlag();
+				playMemPtr->setForcedGranularPos(currentSeqModValues.granularPosition);
+				playMemPtr->setGranularPosition(currentSeqModValues.granularPosition);
+			}
+		break;
 		case fx_t::FX_TYPE_VELOCITY:
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::volume] = 1;
 			if(fx_n == MOST_SIGNIFICANT_FX)
@@ -1787,6 +1813,35 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				}
 			}
 		break;
+		case fx_t::FX_TYPE_GRANULAR_POSITION:
+
+			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::granularPosition] = 0;
+			if(fx_id == MOST_SIGNIFICANT_FX)
+			{
+				currentSeqModValues.granularPosition = map(lastSeqVal[otherFx_n],0,127,0,MAX_16BIT);
+			}
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])
+			{
+				changeWavetableWindowPerformanceMode(performanceMod.granularPosition);
+			}
+			else
+			{
+				if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::granularPosition])
+				{
+					if(fx_id == MOST_SIGNIFICANT_FX)
+					{
+						playMemPtr->setGranularPosForceFlag();
+						playMemPtr->setForcedGranularPos(currentSeqModValues.granularPosition);
+					}
+				}
+				else
+				{
+					playMemPtr->clearGranularPosForceFlag();
+					playMemPtr->setGranularPosition(instrumentBasedMod.granPos);
+				}
+			}
+		break;
+
 		case fx_t::FX_TYPE_VELOCITY:
 
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::volume] = 0;
@@ -2912,6 +2967,32 @@ void playerEngine::changeWavetableWindowPerformanceMode(int16_t value)
 
 	playMemPtr->setWavetableWindow(currentPerformanceValues.wavetablePosition);
 }
+
+void playerEngine::changeGranularPositionPerformanceMode(int16_t value)
+{
+	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition] != 1) && (value == 0)) return;
+	performanceMod.granularPosition = value;
+
+	uint32_t granularPosition;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::granularPosition] ||
+	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::granularPosition]) granularPosition = currentSeqModValues.granularPosition;
+	else granularPosition = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+
+	int32_t valueMap = map(value,-255,255,- MAX_16BIT,MAX_16BIT) ;
+
+	if(granularPosition + valueMap >= MAX_16BIT) currentPerformanceValues.granularPosition = MAX_16BIT;
+	else if(granularPosition + valueMap < 0) currentPerformanceValues.granularPosition = 0;
+	else currentPerformanceValues.granularPosition = granularPosition + valueMap;
+
+
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition] = 1;
+
+	playMemPtr->setGranularPosForceFlag();
+	playMemPtr->setForcedGranularPos(currentPerformanceValues.granularPosition);
+
+	playMemPtr->setGranularPosition(currentPerformanceValues.granularPosition);
+}
 //*******************************************end
 void playerEngine::endVolumePerformanceMode()
 {
@@ -3095,6 +3176,26 @@ void playerEngine::endWavetableWindowPerformanceMode()
 	}
 	playMemPtr->setWavetableWindow(wavetableWindow);
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition] = 0;
+}
+
+void playerEngine::endGranularPositionPerformanceMode()
+{
+	uint32_t granularPos;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::granularPosition] ||
+	   trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::granularPosition])
+	{
+		granularPos = currentSeqModValues.granularPosition;
+		playMemPtr->setForcedGranularPos(granularPos);
+	}
+	else
+	{
+		granularPos = instrumentBasedMod.granPos;
+		playMemPtr->clearGranularPosForceFlag();
+
+	}
+	playMemPtr->setGranularPosition(granularPos);
+	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition] = 0;
 }
 //************************************************************************************************************
 uint32_t playerEngine::getEnvelopeWtPosMod()
