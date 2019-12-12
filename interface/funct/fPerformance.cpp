@@ -53,6 +53,10 @@ void cPerformanceMode::update()
 	if(refreshTime < 100) return;
 	refreshTime = 0;
 
+	if(refreshBlinkingTrack == 1)
+	{
+		blinkTrackUntilSwitch();
+	}
 	if(refreshTrackState == 1)
 	{
 		refreshTrackState = 0;
@@ -87,6 +91,7 @@ void cPerformanceMode::start(uint32_t options)
 
 	moduleRefresh = 1;
 	performanceEditState = 0;
+	refreshBlinkingTrack = 0;
 
 	// ustawienie funkcji
 	//FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchMode);
@@ -969,6 +974,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 //					fileManager.loadTrack(
 //							mtProject.values.perfTracksPatterns[button],
 //							button);
+				PM->refreshBlinkingTrack = 1;
 			}
 			else
 			{
@@ -986,6 +992,44 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 
 	return 1;
 }
+
+void cPerformanceMode::blinkTrackUntilSwitch()
+{
+	blinkInterval++;
+	if(blinkInterval >= 4)
+	{
+		blinkState = !blinkState;
+		blinkInterval = 0;
+	}
+
+	uint8_t continueBlink = 0;
+
+	for(uint8_t track = 0; track < 8; track++)
+	{
+		if(sequencer.isPerformanceTrackChange(track))
+		{
+			colorTracksLabel(track, blinkState);
+			continueBlink = 1;
+		}
+		else
+		{
+			colorTracksLabel(track, 0);
+		}
+	}
+
+	if(!continueBlink)
+	{
+		for(uint8_t track = 0; track < 8; track++)
+		{
+			colorTracksLabel(track, 0);
+		}
+
+		refreshBlinkingTrack = 0;
+	}
+
+	display.synchronizeRefresh();
+}
+
 
 
 //##############################################################################################

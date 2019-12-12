@@ -553,17 +553,21 @@ void cPatternEditor::focusOnActual()
 
 void cPatternEditor::moveCursorByStep()
 {
-	if(mtProject.values.patternEditStep <= 0 ) return;
+	moveCursorByStep(0);
+}
+void cPatternEditor::moveCursorByStep(uint8_t val)
+{
+	if(mtProject.values.patternEditStep + val <= 0 ) return;
 
 	int16_t patternLength  = sequencer.getPatternToUI()->track[0].length;
 
-	if(trackerPattern.actualStep + mtProject.values.patternEditStep <= patternLength)
+	if(trackerPattern.actualStep + mtProject.values.patternEditStep + val <= patternLength)
 	{
-		trackerPattern.actualStep += mtProject.values.patternEditStep;
+		trackerPattern.actualStep += mtProject.values.patternEditStep + val;
 	}
 	else
 	{
-		trackerPattern.actualStep = mtProject.values.patternEditStep - ((patternLength+1)-trackerPattern.actualStep);
+		trackerPattern.actualStep = mtProject.values.patternEditStep  + val - ((patternLength+1)-trackerPattern.actualStep);
 	}
 }
 
@@ -1409,6 +1413,12 @@ static  uint8_t functUp()
 
 	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
+	if (tactButtons.isButtonPressed(interfaceButtonPattern))
+	{
+		PTE->changeActualPattern(1);
+		return 1;
+	}
+
 
 	if(PTE->editMode == 1 && shiftPressed && PTE->trackerPattern.actualStep == 0) // zaznaczanie calej kolumny
 	{
@@ -1496,6 +1506,12 @@ static  uint8_t functDown()
 
 	uint8_t shiftPressed = tactButtons.isButtonPressed(interfaceButtonShift);
 
+
+	if (tactButtons.isButtonPressed(interfaceButtonPattern))
+	{
+		PTE->changeActualPattern(-1);
+		return 1;
+	}
 
 //	if(PTE->editMode == 1 && shiftPressed && PTE->trackerPattern.selectColumn == 1)
 //	{
@@ -1967,7 +1983,7 @@ static uint8_t functCopyPaste(uint8_t state)
 			{
 				sendPasteSelection();
 				sequencer.pasteFromBuffer(getSelectedElement());
-				PTE->moveCursorByStep();
+				PTE->moveCursorByStep(sequencer.getCopySelectionHeight()-1);
 
 			}
 			else
@@ -2062,6 +2078,7 @@ void sendSelection()
 								PTE->trackerPattern.actualTrack);
 	}
 }
+
 void sendCopySelection()
 {
 	if (isMultiSelection())
@@ -2176,6 +2193,8 @@ static  uint8_t functPreview()
 {
 	sendSelection();
 	sequencer.playSelection();
+
+	return 1;
 }
 
 //##############################################################################################

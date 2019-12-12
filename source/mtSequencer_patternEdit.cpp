@@ -1048,6 +1048,17 @@ void Sequencer::setCopySelection(uint8_t stepFrom,
 	}
 
 }
+uint8_t Sequencer::getCopySelectionHeight()
+{
+	if (isSelectionCorrect(&copySelection))
+	{
+		return copySelection.lastStep - copySelection.firstStep + 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
 void Sequencer::setSelection(uint8_t stepFrom,
 								uint8_t trackFrom,
 								uint8_t stepTo,
