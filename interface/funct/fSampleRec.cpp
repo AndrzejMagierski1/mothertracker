@@ -10,7 +10,7 @@
 #include "mtPadsBacklight.h"
 #include "graphicProcessing.h"
 #include "sdCardDetect.h"
-
+#include "mtRandomNameGenerator.h"
 
 
 enum valueMapDirecion
@@ -186,6 +186,7 @@ static  uint8_t functActionUndo();
 static  uint8_t functActionGoBack();
 static  uint8_t functActionStopRec();
 static  uint8_t functActionSave();
+static  uint8_t functActionAutoName();
 static  uint8_t functActionConfirmSaveLoad();
 static  uint8_t functActionConfirmSave();
 static  uint8_t functActionEndPoint();
@@ -1146,7 +1147,7 @@ static  uint8_t functActionButton4()
 	{
 		case cSampleRecorder::screenTypeConfig: break;
 		case cSampleRecorder::screenTypeRecord: 	functActionCrop();				break;
-		case cSampleRecorder::screenTypeKeyboard: break;
+		case cSampleRecorder::screenTypeKeyboard: 	functActionAutoName();			break;
 		default: break;
 	}
 	return 1;
@@ -1694,6 +1695,14 @@ static  uint8_t functActionConfirmSave()
 
 	 return 1;
 }
+
+static  uint8_t functActionAutoName()
+{
+	strcpy(SR->name,randomNameGenerator.getRandomName());
+	SR->editPosition = strlen(SR->name);
+	SR->showKeyboardEditName();
+}
+
 
 static  uint8_t functActionConfirmSaveLoad()
 {

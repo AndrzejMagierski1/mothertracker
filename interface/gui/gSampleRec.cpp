@@ -571,7 +571,7 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlText2(label[2], "");
 		display.setControlText(label[3], "");
 		display.setControlText2(label[3], "");
-		display.setControlText(label[4], "");
+		display.setControlText(label[4], "Auto Name");
 		display.setControlText2(label[4], "");
 		display.setControlText(label[5], "Cancel");
 		display.setControlText(label[6], "Save & Load");

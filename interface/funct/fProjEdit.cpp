@@ -1,3 +1,4 @@
+#include <mtRandomNameGenerator.h>
 #include "mtSliceDetector.h"
 
 
@@ -14,7 +15,6 @@
 
 #include "sdCardDetect.h"
 #include "mtFileManager.h"
-
 
 enum valueMapDirecion
 {
@@ -162,6 +162,7 @@ static uint8_t functSaveChangesSaveNewProject();
 //Save As
 static uint8_t functSaveAsCancel();
 static uint8_t functSaveAsConfirm();
+static uint8_t functSaveAsAutoName();
 static uint8_t functSaveAsOverwriteYes();
 static uint8_t functSaveAsOverwriteNo();
 //****************************************************
@@ -634,6 +635,7 @@ static uint8_t functSaveAsProject()
 	if(PE->isBusyFlag) return 1;
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
+	PE->FM->setButtonObj(interfaceButton5, buttonPress, functSaveAsAutoName);
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveAsCancel);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functSaveAsConfirm);
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functConfirmKey);
@@ -781,6 +783,15 @@ static uint8_t functSaveAsConfirm()
 	PE->showDefaultScreen();
 	PE->showProcessingPopup("Saving project");
 
+	return 1;
+}
+
+static uint8_t functSaveAsAutoName()
+{
+
+	strcpy(PE->name,randomNameGenerator.getRandomName());
+	PE->editPosition = strlen(PE->name);
+	PE->showKeyboardEditName();
 	return 1;
 }
 
@@ -1064,6 +1075,7 @@ static uint8_t functExportToMOD()
 {
 	if(PE->isBusyFlag) return 1;
 	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
+
 	return 1;
 }
 
