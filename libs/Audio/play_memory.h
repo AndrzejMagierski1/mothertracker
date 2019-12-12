@@ -50,7 +50,7 @@ public:
 	void setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx);//incremental
 	void setFineTune(int8_t value, int8_t currentNote);
 	void setWavetableWindow(int16_t value);
-	void setGranularPosition();
+	void setGranularPosition( uint16_t val);
 	void refreshGranularPosition();
 	void setGranularGrainLength();
 	void setGranularWave(uint8_t type);
@@ -106,6 +106,7 @@ private:
 	uint32_t waveTablePosition;
 	uint8_t sampleType;
 	uint8_t granularLoopType;
+	uint16_t currentGranularPosition;
 	const float * granularEnvelopeTab = nullptr;
 
 	uint8_t granularPositionRefreshFlag = 1;

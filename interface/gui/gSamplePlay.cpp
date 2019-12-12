@@ -572,9 +572,9 @@ void cSamplePlayback::showActualInstrument()
 void cSamplePlayback::showGranularPositionValue()
 {
 
-	float localPosition = (editorInstrument->granular.currentPosition * (editorInstrument->sample.length/(float)MAX_16BIT))/44100.0;
+	float localPosition = (currentEnvelopeGranPos * (editorInstrument->sample.length/(float)MAX_16BIT))/44100.0;
 
-	granularPositionInSpectrum = editorInstrument->granular.currentPosition * (600.0/ MAX_16BIT);
+	granularPositionInSpectrum = currentEnvelopeGranPos * (600.0/ MAX_16BIT);
 
 	sprintf(granularPositionTextValue,"%0.3f s",localPosition);
 

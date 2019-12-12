@@ -1017,8 +1017,8 @@ void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 void AudioPlayMemory::refreshGranularPosition()
 {
 	uint16_t granularLength = ((uint32_t)((uint32_t)mtProject.instrument[currentInstr_idx].granular.grainLength * (uint32_t)MAX_16BIT))/mtProject.instrument[currentInstr_idx].sample.length;
-	int32_t granularDownConstrain = mtProject.instrument[currentInstr_idx].granular.currentPosition - (granularLength/2);
-	int32_t granularUpConstrain = mtProject.instrument[currentInstr_idx].granular.currentPosition  + (granularLength/2);
+	int32_t granularDownConstrain = currentGranularPosition - (granularLength/2);
+	int32_t granularUpConstrain = currentGranularPosition  + (granularLength/2);
 
 
 	uint16_t startGranular = (granularDownConstrain > 0) ? (uint16_t) granularDownConstrain : 0;
@@ -1042,9 +1042,11 @@ void AudioPlayMemory::refreshGranularPosition()
 }
 
 
-void AudioPlayMemory::setGranularPosition()
+void AudioPlayMemory::setGranularPosition(uint16_t val)
 {
 	if(mtProject.instrument[currentInstr_idx].playMode != playModeGranular) return;
+
+	currentGranularPosition = val;
 
 	granularPositionRefreshFlag = 1;
 //	switch(granularLoopType)

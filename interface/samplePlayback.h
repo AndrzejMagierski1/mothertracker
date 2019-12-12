@@ -171,6 +171,8 @@ public:
 	uint8_t isPlayingWavetable = 0;
 	uint32_t currentEnvelopeWtPos;
 	uint32_t lastEnvelopeWtPos;
+	uint32_t currentEnvelopeGranPos;
+	uint32_t lastEnvelopeGranPos;
 	int8_t playNote = 24;
 	uint8_t glidePreviewDif = 0;
 

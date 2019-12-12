@@ -259,6 +259,7 @@ enum envelopesType
     envAmp,
     envFilter,
 	envWtPos,
+	envGranPos,
     envPitch,
 
 
@@ -272,6 +273,7 @@ enum envelopeTypes
 	envelopeTypeAmp,
 	envelopeTypeFilter,
 	envelopeTypeWtPos,
+	envelopeTypeGranularPos,
 	envelopeTypePitch,
 
 

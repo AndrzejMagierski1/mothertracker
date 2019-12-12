@@ -51,6 +51,16 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 		mtProject.instrument[instrumentIndex].envelope[envWtPos].loop = 0;
 		mtProject.instrument[instrumentIndex].envelope[envWtPos].enable = envelopeOff;
 
+		mtProject.instrument[instrumentIndex].envelope[envGranPos].delay = 0;
+		mtProject.instrument[instrumentIndex].envelope[envGranPos].attack = 3000;
+		mtProject.instrument[instrumentIndex].envelope[envGranPos].hold = 0;
+		mtProject.instrument[instrumentIndex].envelope[envGranPos].decay = 0;
+		mtProject.instrument[instrumentIndex].envelope[envGranPos].sustain = 1.0;
+		mtProject.instrument[instrumentIndex].envelope[envGranPos].release = 1000;
+		mtProject.instrument[instrumentIndex].envelope[envGranPos].amount = 1.0;
+		mtProject.instrument[instrumentIndex].envelope[envGranPos].loop = 0;
+		mtProject.instrument[instrumentIndex].envelope[envGranPos].enable = envelopeOff;
+
 		mtProject.instrument[instrumentIndex].cutOff = 1.0;
 		mtProject.instrument[instrumentIndex].filterEnable = filterOff;
 		mtProject.instrument[instrumentIndex].filterType = lowPass;
