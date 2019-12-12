@@ -303,24 +303,32 @@ void Sequencer::play_microStep(uint8_t row)
 	{
 		if (patternStep.fx[0].type == fx.FX_TYPE_RANDOM_VALUE)
 		{
-			randomisedValue = random(
+			int16_t lowVal = constrain(
 					patternStep.fx[1].value - patternStep.fx[0].value,
-					patternStep.fx[1].value + patternStep.fx[0].value + 1);
+					getFxMin(patternStep.fx[1].type),
+					getFxMax(patternStep.fx[1].type));
 
-			randomisedValue = constrain(randomisedValue,
-										getFxMin(patternStep.fx[1].type),
-										getFxMax(patternStep.fx[1].type));
+			int16_t hiVal = constrain(
+					patternStep.fx[1].value + patternStep.fx[0].value,
+					getFxMin(patternStep.fx[1].type),
+					getFxMax(patternStep.fx[1].type));
+
+			randomisedValue = random(lowVal, hiVal + 1);
 
 		}
 		else if (patternStep.fx[1].type == fx.FX_TYPE_RANDOM_VALUE)
 		{
-			randomisedValue = random(
+			int16_t lowVal = constrain(
 					patternStep.fx[0].value - patternStep.fx[1].value,
-					patternStep.fx[0].value + patternStep.fx[1].value + 1);
+					getFxMin(patternStep.fx[0].type),
+					getFxMax(patternStep.fx[0].type));
 
-			randomisedValue = constrain(randomisedValue,
-										getFxMin(patternStep.fx[0].type),
-										getFxMax(patternStep.fx[0].type));
+			int16_t hiVal = constrain(
+					patternStep.fx[0].value + patternStep.fx[1].value,
+					getFxMin(patternStep.fx[0].type),
+					getFxMax(patternStep.fx[0].type));
+
+			randomisedValue = random(lowVal, hiVal + 1);
 		}
 
 		uint8_t fxIndex = 0;
