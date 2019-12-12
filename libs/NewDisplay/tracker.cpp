@@ -26,6 +26,8 @@ static uint32_t defaultColors[] =
 	0x2a2a2a, // 11 podzialka
 	0x333333, // 12 nieaktywny
 	0x232323, // 13 playhead
+
+	0xffffff, // 14 tekst zaznaczenia
 };
 
 
@@ -69,7 +71,7 @@ cTracker::cTracker(strControlProperties* properties)
 	//firstVisibleTrack = 0;
 	//visibleTracksOffset = 0;
 
-	colorsCount = 14;
+	colorsCount = 15;
 	colors = defaultColors;
 
 	refreshStep =  0;
@@ -604,7 +606,7 @@ void cTracker::selection()
 			}
 		}
 		API_END();
-/*
+
 		// ramka zaznaczenia
 		API_BEGIN(LINES);
 
@@ -642,7 +644,7 @@ void cTracker::selection()
 
 		API_END();
 
-*/
+
 
 	}
 	else selectActive = 0;
@@ -682,26 +684,32 @@ void cTracker::selection()
 		API_END();
 
 
-		API_BEGIN(LINE_STRIP);
+		// ramka tylko w okolo aktualnego stepa
+		if(tracks->selectState == 1)
+		{
 
-/*
-		API_LINE_WIDTH(16);
-		API_VERTEX2F(rect_select_x-2, select1_y);
-		API_VERTEX2F(rect_select_x+rect_select_width, select1_y);
-		API_VERTEX2F(rect_select_x+rect_select_width, select2_y);
-		API_VERTEX2F(rect_select_x-2, select2_y);
-		API_VERTEX2F(rect_select_x-2, select1_y);
-*/
+			API_BEGIN(LINE_STRIP);
 
-		API_LINE_WIDTH(8);
-		API_VERTEX2F(select_x, select1_y);
-		API_VERTEX2F(select_x+select_w, select1_y);
-		API_VERTEX2F(select_x+select_w, select2_y);
-		API_VERTEX2F(select_x, select2_y);
-		API_VERTEX2F(select_x, select1_y);
+	/*
+			API_LINE_WIDTH(16);
+			API_VERTEX2F(rect_select_x-2, select1_y);
+			API_VERTEX2F(rect_select_x+rect_select_width, select1_y);
+			API_VERTEX2F(rect_select_x+rect_select_width, select2_y);
+			API_VERTEX2F(rect_select_x-2, select2_y);
+			API_VERTEX2F(rect_select_x-2, select1_y);
+	*/
+
+			API_LINE_WIDTH(8);
+			API_VERTEX2F(select_x, select1_y);
+			API_VERTEX2F(select_x+select_w, select1_y);
+			API_VERTEX2F(select_x+select_w, select2_y);
+			API_VERTEX2F(select_x, select2_y);
+			API_VERTEX2F(select_x, select1_y);
 
 
-		API_END();
+			API_END();
+
+		}
 	}
 }
 
@@ -820,8 +828,8 @@ void cTracker::notes()
 
 			char* text = tracks->track[tracks->firstVisibleTrack+i].row[j].note;
 
-			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor = colors[0];
-			else if(j == 7 && i == mark) actualColor = colors[0];
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor = colors[14];
+			else if(j == 7 && i == mark) actualColor = colors[14];
 			else
 			{
 				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[12];
@@ -863,8 +871,8 @@ void cTracker::instruments()
 			int16_t param_y = 14+j*28;
 			uint8_t midi_channel  =  tracks->track[tracks->firstVisibleTrack+i].row[j].instr[3];
 			char* text  = tracks->track[tracks->firstVisibleTrack+i].row[j].instr;
-			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[0];
-			else if(j == 7 && i == mark) actualColor =  colors[0];
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[14];
+			else if(j == 7 && i == mark) actualColor =  colors[14];
 			else
 			{
 				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[12];
@@ -908,8 +916,8 @@ void cTracker::fxes1()
 			int16_t param_y = 14+j*28;
 			char* text = &tracks->track[tracks->firstVisibleTrack+i].row[j].fx[0][0];
 
-			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[0];
-			else if(j == 7 && i == mark) actualColor =  colors[0];
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[14];
+			else if(j == 7 && i == mark) actualColor =  colors[14];
 			else
 			{
 				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[12];
@@ -948,8 +956,8 @@ void cTracker::fxes2()
 			int16_t param_y = 14+j*28;
 			char* text  = &tracks->track[tracks->firstVisibleTrack+i].row[j].fx[1][0];
 
-			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[0];
-			else if(j == 7 && i == mark) actualColor =  colors[0];
+			if(selectActive && mark>=0 && param_x > select1_x && param_x < select2_x && param_y > select1_y && param_y < select2_y) actualColor =  colors[14];
+			else if(j == 7 && i == mark) actualColor =  colors[14];
 			else
 			{
 				if(tracks->inactive[tracks->firstVisibleTrack+i]) actualColor = colors[12];

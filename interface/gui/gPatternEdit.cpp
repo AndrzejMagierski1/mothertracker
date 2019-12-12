@@ -58,6 +58,7 @@ volatile uint32_t patternTrackerColors[] =
 	0x0e0e0e, // 11 podzialka
 	0x333333, // 12 nieaktywny
 	0x232323, // 13 playhead
+	0xffffff, // 14 tekst zanzaczenia
 };
 
 uint32_t patternTrackerSelectionColor = one_true_red;
