@@ -33,138 +33,6 @@
 #include "mtWavetableTabs.h"
 #include "mtGranularTabs.h"
 
-class AudioPlayMemory : public AudioStream
-{
-public:
-	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0) { }
-	uint8_t play(uint8_t instr_idx,int8_t note);
-	void clean(void);
-	void stop(void);
-	bool isPlaying(void) { return playing; }
-	virtual void update(void);
-	void setPlayMode(uint8_t value); //global
-	void setLP1(uint16_t value); //global
-	void setLP2(uint16_t value); //global
-	void setGlide(uint16_t value, int8_t currentNote,uint8_t instr_idx); // global
-	void setPitch(float value); // incremental
-	void setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx);//incremental
-	void setFineTune(int8_t value, int8_t currentNote);
-	void setWavetableWindow(int16_t value);
-	void setGranularPosition( uint16_t val);
-	void refreshGranularPosition();
-	void setGranularGrainLength();
-	void setGranularWave(uint8_t type);
-	void setGranularLoopMode(uint8_t type);
-	void setTune(int8_t value, int8_t currentNote);
-	void setReverse();
-	void clearReverse();
-	uint8_t playForPrev(uint8_t instr_idx,int8_t n);
-	uint8_t playForPrev(int16_t * addr,uint32_t len,uint8_t type);
-	uint8_t playForPrev(int16_t * addr,uint32_t len, uint8_t n,uint8_t type);
-	void setWavetableWindowFlag();
-	void clearWavetableWindowFlag();
-	void setForcedWavetableWindow(int16_t val);
-	void setTuneForceFlag();
-	void clearTuneForceFlag();
-	void setForcedTune(int8_t value);
-	void setPointsForceFlag();
-	void clearPointsForceFlag();
-	void setGlideForceFlag();
-	void clearGlideForceFlag();
-	void setForcedGlide(uint16_t value);
-	void setFineTuneForceFlag();
-	void clearFineTuneForceFlag();
-	void setForcedFineTune(int8_t value);
-	void setForcedPoints(int32_t sp, int32_t lp1, int32_t lp2, int32_t ep); // -1 nie nadpisuje
-
-	void setForcedSlice(uint8_t value);
-	void setSliceForcedFlag();
-	void clearSliceForcedFlag();
-
-	uint16_t getPosition();
-private:
-	const double * wt_notes = wt2048Note;
-	int16_t *next;
-	int16_t *beginning;
-	uint32_t length;
-	float pitchControl = 1;
-	float fPitchCounter;
-	uint32_t iPitchCounter;
-	uint8_t playMode;
-	volatile uint8_t playing;
-	uint8_t loopBackwardFlag;
-	int8_t	lastNote = -1;
-	uint16_t glide;
-	uint32_t glideCounter;
-	uint32_t slideCounter;
-	float glideControl;
-	float slideControl;
-	float fineTuneControl;
-	int8_t currentTune;
-	uint16_t wavetableWindowSize;
-	uint32_t currentWindow;
-	uint32_t waveTablePosition;
-	uint8_t sampleType;
-	uint8_t granularLoopType;
-	uint16_t currentGranularPosition;
-	const float * granularEnvelopeTab = nullptr;
-
-	uint8_t granularPositionRefreshFlag = 1;
-//    uint16_t wavetableSync;
-//    uint16_t wavetablePWM;
-//    uint16_t wavetableFlip;
-//    uint16_t wavetableQuantize;
-	uint8_t currentInstr_idx;
-	int8_t currentFineTune;
-	uint8_t tuneForceFlag;
-	uint8_t pointsForceFlag;
-	uint8_t glideForceFlag;
-	uint8_t fineTuneForceFlag;
-	uint8_t wavetableWindowForceFlag;
-	uint8_t sliceForcedFlag;
-	uint8_t granularForcedFlag;
-
-	uint8_t reverseDirectionFlag;
-
-	uint16_t forcedStartPoint;
-	uint16_t forcedLoopPoint1;
-	uint16_t forcedLoopPoint2;
-	uint16_t forcedEndPoint;
-	int8_t forcedTune;
-	uint16_t forcedGlide;
-	int8_t forcedFineTune;
-	uint16_t forcedWavetableWindow;
-	uint8_t forcedSlice;
-	uint8_t forcedGranularPosition;
-
-	struct strSamplePoints
-	{
-		uint32_t start=0;
-		uint32_t end=0;
-		uint32_t loop1=0;
-		uint32_t loop2=0;
-	} samplePoints;
-
-	struct strSampleConstrains
-	{
-		uint32_t loopLength;
-		uint32_t loopPoint1;
-		uint32_t loopPoint2;
-		uint32_t endPoint;
-
-		uint32_t glide;
-		uint32_t slide;
-
-	} sampleConstrains;
-
-	uint32_t startLen;
-	int16_t  lastSample = 0;
-	uint8_t needSmoothingFlag = 0;
-};
-
-
-//--------------------------------------------------------------
-// przerzucone z mtStructs.h
 const double notes[MAX_NOTE] =
 {
 		0.0312500000000,
@@ -288,6 +156,188 @@ const double notes[MAX_NOTE] =
 		28.5087589804909,
 		30.2039780058142
 };
+
+
+
+class AudioPlayMemory : public AudioStream
+{
+public:
+	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0) { }
+
+	uint8_t play(uint8_t instr_idx,int8_t note); 										// dla sequencer'a
+	uint8_t playForPrev(uint8_t instr_idx,int8_t n); 									// dla padboard'a - po indeksie instrumentu
+	uint8_t playForPrev(int16_t * addr,uint32_t len,uint8_t type);						// dla importera (odgrywa sample z banku) + umieszczony w wewnętrznym module recordera ale nie uzywany
+	uint8_t playForPrev(int16_t * addr,uint32_t len, uint8_t n,uint8_t type);			// dla padboard'a - po pamięci
+
+	void stop(void);																	// do noteOff
+
+	void clean(void);																	// nigdzie nie wykorzystane - ale kto wie?
+	bool isPlaying(void) { return playing; }											// status odtwarzania
+	virtual void update(void);
+	uint16_t getPosition();
+
+	//****************** modyfikacja parametrow z instrumentów
+	void setPlayMode(uint8_t value);
+	void setLP1(uint16_t value);
+	void setLP2(uint16_t value);
+
+	//******Pitch
+	void setGlide(uint16_t value, int8_t currentNote,uint8_t instr_idx);
+	void setPitch(float value);
+	void setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx);
+	void setFineTune(int8_t value, int8_t currentNote);
+	void setTune(int8_t value, int8_t currentNote);
+	//*********
+	//*****Granular
+	void setGranularGrainLength();
+	void setGranularWave(uint8_t type);
+	void setGranularLoopMode(uint8_t type);
+	void setGranularPosition( uint16_t val);
+	//*********
+	//*****Wavetable
+	void setWavetableWindow(int16_t value);
+	//*********
+	//*****************************************************************
+	//*********Wymuszanie Parametrów z Sequencera lub PerformanceMode
+
+	//************Reverse
+	void setReverse();
+	void clearReverse();
+	//*********
+	//************Pitch
+	//Tune
+	void setTuneForceFlag();
+	void clearTuneForceFlag();
+	void setForcedTune(int8_t value);
+	//Glide
+	void setGlideForceFlag();
+	void clearGlideForceFlag();
+	void setForcedGlide(uint16_t value);
+	//Finetune
+	void setFineTuneForceFlag();
+	void clearFineTuneForceFlag();
+	void setForcedFineTune(int8_t value);
+	//*********
+	//************Wavetable
+	void setWavetableWindowFlag();
+	void clearWavetableWindowFlag();
+	void setForcedWavetableWindow(int16_t val);
+	//*********
+	//************Pointy Loopów
+	void setPointsForceFlag();
+	void clearPointsForceFlag();
+	void setForcedPoints(int32_t sp, int32_t lp1, int32_t lp2, int32_t ep); // -1 nie nadpisuje
+	//*********
+	//************Granular
+	void setGranularPosForceFlag();
+	void clearGranularPosForceFlag();
+	void setForcedGranularPos(uint16_t value);
+	//*********
+	//************Slice
+	void setForcedSlice(uint8_t value);
+	void setSliceForcedFlag();
+	void clearSliceForcedFlag();
+	//************************************************
+private:
+
+	void refreshGranularPosition();
+
+	//********** Zarządzanie
+	const double * wt_notes = wt2048Note;					// wskaźnik imitujacy tablice do pitchowania wavetabli (jest przełączalny - dlatego nie jest stałym wskaznikiem)
+	int16_t *next;
+	int16_t *beginning;
+	uint32_t length;
+	volatile uint8_t playing;
+	uint8_t playMode;
+	uint8_t loopBackwardFlag;								// kierunek playhead'a w loopie
+	int8_t	lastNote = -1;									// ostatnia nuta - potrzebne przy glidach i slidach
+	uint8_t sampleType;
+
+	struct strSamplePoints									// pointy umieszczone w pamieci dla konkretnej probki
+	{
+		uint32_t start=0;
+		uint32_t end=0;
+		uint32_t loop1=0;
+		uint32_t loop2=0;
+	} samplePoints;
+
+	struct strSampleConstrains								// określają granice dla licznika pitcha
+	{
+		uint32_t loopLength;
+		uint32_t loopPoint1;
+		uint32_t loopPoint2;
+		uint32_t endPoint;
+
+		uint32_t glide;
+		uint32_t slide;
+
+	} sampleConstrains;
+
+	uint32_t startLen;
+	int16_t  lastSample = 0;
+	uint8_t needSmoothingFlag = 0;							// ustawiana przy gwaltownej zmianie pamieci aby wygładzic przejscie
+
+	uint8_t currentInstr_idx;
+	//*******
+	//********* Pitch
+	float pitchControl = 1;									// Glowna zmienna kontrolujaca pitch
+	float fPitchCounter;									// Licznik probek uwzgledniajacy pitch - akumulacja zmienno przecinkowa
+	uint32_t iPitchCounter;									// zrzutowany licznik zmienno przecinkowy - odnosi sie do konkretnej probki w pamieci
+	uint16_t glide;
+	uint32_t glideCounter;									// licznik glide'a w czasie
+	uint32_t slideCounter;									// licznik slide'a w czasie
+	float glideControl;										// zmienna opisujaca jednostke zmiany pitcha na jednostke czasu - dodawana do pitchControl
+	float slideControl;										// zmienna opisujaca jednostke zmiany pitcha na jednostke czasu - dodawana do pitchControl
+	float fineTuneControl;									// liniowe przeliczenie fineTuna 0-100 między bierzącą nutą a kolejną(lub poprzednią)
+	int8_t currentTune;
+	int8_t currentFineTune;
+	//********
+	//********** Wavetable
+	uint16_t wavetableWindowSize;
+	uint32_t currentWindow;
+	uint32_t waveTablePosition;
+
+	//    uint16_t wavetableSync;
+	//    uint16_t wavetablePWM;
+	//    uint16_t wavetableFlip;
+	//    uint16_t wavetableQuantize;
+	//********
+	//********** Granular
+	uint8_t granularLoopType;
+	uint16_t currentGranularPosition;
+	const float * granularEnvelopeTab = nullptr;			// wskaznik imitujacy tablice wplywajaca na amplitude próbek
+
+	uint8_t granularPositionRefreshFlag = 1;				// pozycja jest aktualizowana gdy nastepuje przejscie pętli(audio) i ustawiona jest ta flaga
+	//********
+
+	//*************** Zmienne wymuszajace zmiany parametrow instrumentow przez Sequencer lub Performance Mode
+
+	uint8_t tuneForceFlag;
+	uint8_t pointsForceFlag;
+	uint8_t glideForceFlag;
+	uint8_t fineTuneForceFlag;
+	uint8_t wavetableWindowForceFlag;
+	uint8_t sliceForcedFlag;
+	uint8_t granularForcedFlag;
+	uint8_t reverseDirectionFlag;
+
+	uint16_t forcedStartPoint;
+	uint16_t forcedLoopPoint1;
+	uint16_t forcedLoopPoint2;
+	uint16_t forcedEndPoint;
+	int8_t forcedTune;
+	uint16_t forcedGlide;
+	int8_t forcedFineTune;
+	uint32_t forcedWavetableWindow;
+	uint8_t forcedSlice;
+	uint16_t forcedGranularPosition;
+
+	//*****************
+
+
+};
+
+
 
 
 #endif

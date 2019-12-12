@@ -138,6 +138,7 @@ public:
 		sampleSlice,
 		glide,
 		wavetablePosition,
+		granularPosition,
 		slice,
 
 		length
@@ -171,6 +172,7 @@ public:
 
 		uint16_t glide;
 		uint32_t wavetablePosition;
+		uint16_t granularPosition;
 		uint8_t volume;
 		uint8_t slice;
 
@@ -191,6 +193,7 @@ public:
 		int8_t tune;
 		uint8_t volume;
 		uint32_t wavetablePosition;
+		uint16_t granularPosition;
 	} currentPerformanceValues;
 
 
@@ -202,6 +205,7 @@ public:
 		  int8_t 	reverbSend;
 		  int8_t 	cutoff;
 		  int16_t 	wavetablePosition;
+		  int16_t   granularPosition;
 		  uint8_t 	filterType;
 		  int32_t 	startPoint;
 		  int32_t	endPoint;
@@ -230,6 +234,7 @@ public:
 	void changeFilterTypePerformanceMode(uint8_t mode);
 	void changeSamplePlaybackPerformanceMode(uint8_t value);
 	void changeWavetableWindowPerformanceMode(int16_t value);
+	void changeGranularPositionPerformanceMode(int16_t value);
 
 //*****************************END
 
@@ -244,6 +249,7 @@ public:
 	void endSamplePlaybackPerformanceMode();
 	void endEndPointPerformanceMode();
 	void endWavetableWindowPerformanceMode();
+	void endGranularPositionPerformanceMode();
 
 private:
 
