@@ -52,6 +52,7 @@ public:
 
 	void focusOnActual();
 	void moveCursorByStep();
+	void moveCursorByStep(uint8_t);
 
 	void refreshPattern();
 	void readPatternState();
