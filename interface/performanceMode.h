@@ -185,6 +185,18 @@ public:
 	int16_t placesTempValues[12] = {0,0,0,0,0,0,0,0,0,0,0,0}; // tymczasowe zmieniane bez reca
 
 	uint8_t trackPatternChange[8] = {0}; // zarzazdanie pattern-trackami
+
+
+	// blinkowanie na zmienianycnm tracku
+	void blinkTrackUntilSwitch();
+	void colorTracksLabel(uint8_t track, uint8_t state);
+
+	uint8_t refreshBlinkingTrack = 0;
+	uint8_t blinkInterval = 0;
+	uint8_t blinkState = 0;
+
+
+
 };
 
 extern cPerformanceMode performanceMode;
