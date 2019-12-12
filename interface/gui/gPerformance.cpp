@@ -36,6 +36,15 @@ static uint32_t valuesLabelColors[] =
 };
 
 
+uint32_t redBlinkLabelColors[4] =
+{
+	one_true_red, // tekst
+	0x323132, // tło
+	one_true_red, // ramka
+	one_true_red, // tekst2
+};
+
+
 void cPerformanceMode::initDisplayControls()
 {
 	strControlProperties prop2;
@@ -426,6 +435,16 @@ void cPerformanceMode::showPerformaceValue(uint8_t place)
 
 }
 
+
+
+
+void cPerformanceMode::colorTracksLabel(uint8_t track, uint8_t state)
+{
+	if(state) display.setControlColors(label[track], redBlinkLabelColors);
+	else 	display.setControlColors(label[track], interfaceGlobals.activeLabelsColors);
+
+	display.refreshControl(label[track]);
+}
 ////=================================================================================
 ////
 ////=================================================================================
