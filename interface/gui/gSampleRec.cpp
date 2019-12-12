@@ -25,7 +25,7 @@ constexpr uint8_t J_PAD = 30;
 static uint32_t popUpLabelColors[] =
 {
 	0xFFFFFF, // tekst
-	0x222222, // tło
+	0x0a0a0a, // tło
 	0xFF0000, // ramka
 };
 
@@ -43,7 +43,7 @@ static  uint16_t framesPlacesS1[8][4] =
 
 static  uint16_t framesPlacesS2[8][4] =
 {
-		{0+1, 		424, 800/8-3, 55},
+		{0+1, 		  424, 800/8-3, 55},
 		{(800/8)*1+1, 424, 800/8-3, 55},
 		{(800/8)*2+1, 424, 800/8-3, 55},
 		{(800/8)*3+1, 424, 800/8-3, 55},
@@ -56,13 +56,13 @@ static  uint16_t framesPlacesS2[8][4] =
 
 
 
-uint32_t colorRed[3] = { 0xFF0000, 0xFFFFFF,0xFF0000 };
-uint32_t colorGreen[3] = { 0x00FF00, 0xFFFFFF,0x00FF00 };
+uint32_t colorRed[3] = { one_true_red, 0xFFFFFF,0xFF0000 };
+uint32_t colorGreen[3] = { 0x32d642, 0xFFFFFF,0x00FF00 };
 
 uint32_t radioLabelColors[3]=
 {
 		0xFFFFFF, // tekst
-		0xFFFFFF, // tło
+		0x0a0a0a, // tło
 		0xFF0000, // ramka
 };
 
@@ -114,15 +114,13 @@ void cSampleRecorder::initDisplayControls()
 	{
 		prop2.value = 1;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
-		prop2.style = 	( controlStyleCenterX | controlStyleCenterY );
+		prop2.style = 	( controlStyleCenterX | controlStyleFont3 );
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
-		prop2.y = 452;
-		prop2.h =  59;
-
+		prop2.y = 424;
+		prop2.h =  55;
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
-
 
 	prop2.value = 255;
 	prop2.text = nullptr;
@@ -217,11 +215,11 @@ void cSampleRecorder::initDisplayControls()
 
 	strControlProperties prop10;
 	prop10.text = (char*)"";
-	prop10.style = 	(controlStyleCenterX);
-	prop10.x = (800/8)*3;
-	prop10.y = 200;
-	prop10.w = 0;
-	prop10.h = 0;
+	prop10.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleBackground | controlStyleBottomShadow);
+	prop10.x = (800/8)*3-1;
+	prop10.y = 29+394/2;
+	prop10.w = 800/4-3;
+	prop10.h = 394;
 	prop10.colors = radioLabelColors;
 	if(radioRdsLabel == nullptr) radioRdsLabel = display.createControl<cLabel>(&prop10);
 

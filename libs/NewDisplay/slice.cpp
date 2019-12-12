@@ -9,8 +9,8 @@
 static uint32_t defaultColors[] =
 {
 	0xFC6600, // linie
-	0x111111, // tło
-	0xFF0000, // zaznaczenie
+	0x0a0a0a, // tło
+	one_true_red, // zaznaczenie
 };
 
 //--------------------------------------------------------------------------------
