@@ -35,6 +35,8 @@ uint64_t MTPStorage_SD::free()
 	return ssize;
 }
 
+#if !USE_RAM
+
 void MTPStorage_SD::OpenIndex()
 {
 	if (index_) return;
@@ -76,6 +78,29 @@ Record MTPStorage_SD::ReadIndexRecord(uint32_t i)
 	return ret;
 }
 
+void MTPStorage_SD::GenerateIndex()
+{
+	if (index_generated) return;
+	index_generated = true;
+
+	mtp_lock_storage(true);
+	SD.remove("mtpindex.dat");
+	mtp_lock_storage(false);
+	index_entries_ = 0;
+
+	Record r;
+	r.parent = 0;
+	r.sibling = 0;
+	r.child = 0;
+	r.isdir = true;
+	r.scanned = false;
+	strcpy(r.name, "/");
+	AppendIndexRecord(r);
+}
+
+#endif
+
+
 void MTPStorage_SD::ConstructFilename(int i, char* out)
 {
 	if (i == 0)
@@ -110,32 +135,13 @@ void MTPStorage_SD::OpenFileByIndex(uint32_t i, uint8_t mode = O_RDONLY)
 // This would be easy if we could just have a list of all files in memory.
 // Since our RAM is limited, we'll keep the index in a file instead.
 
-void MTPStorage_SD::GenerateIndex()
-{
-	if (index_generated) return;
-	index_generated = true;
-
-	mtp_lock_storage(true);
-	SD.remove("mtpindex.dat");
-	mtp_lock_storage(false);
-	index_entries_ = 0;
-
-	Record r;
-	r.parent = 0;
-	r.sibling = 0;
-	r.child = 0;
-	r.isdir = true;
-	r.scanned = false;
-	strcpy(r.name, "/");
-	AppendIndexRecord(r);
-}
 
 void MTPStorage_SD::ScanDir(uint32_t i)
 {
 	Record record = ReadIndexRecord(i);
 	if (record.isdir && !record.scanned)
 	{
-		OpenFileByIndex(i);
+		OpenFileByIndex(i, O_RDONLY);
 		if (!f_) return;
 		int sibling = 0;
 		while (true)
@@ -244,7 +250,7 @@ void MTPStorage_SD::read(uint32_t handle,
 							char* out,
 							uint32_t bytes)
 {
-	OpenFileByIndex(handle);
+	OpenFileByIndex(handle, O_RDONLY);
 	mtp_lock_storage(true);
 	f_.seek(pos);
 	f_.read(out, bytes);
