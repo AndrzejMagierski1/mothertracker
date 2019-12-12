@@ -273,7 +273,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 	//	**************************
 	// 	wysyłamy zegar
-	// 	TODO: ogarnąć warunek na mniej skomplikowany
+	// 	TODO: ogarnąć
 	//	**************************
 
 	if ((playerRow.uStep > 0) && player.isPlay)
@@ -431,15 +431,21 @@ void Sequencer::play_microStep(uint8_t row)
 				switch (_fx.type)
 				{
 				case fx.FX_TYPE_ROLL:
-					//					case fx.FX_TYPE_ROLL_NOTE_UP:
-//					case fx.FX_TYPE_ROLL_NOTE_DOWN:
-//					case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
 					playerRow.rollIsOn = 1;
 					playerRow.rollFxId = fxIndex;
 					playerRow.rollVal = _fx.value;
 					playerRow.rollDir = getRollType(_fx.value);
 					playerRow.rollPeriod = _fx.value;
+					playerRow.rollVolumeOption = rollValToVolumeOption(
+							_fx.value);
+					if (playerRow.rollVolumeOption != rollVolumeOption_const)
+					{
+						playerRow.rollLength = calcStepLength(
+								row, playerRow.actual_pos);
+
+						playerRow.rollVolumeStart = stepToSend.velocity;
+					}
 
 					break;
 				}
@@ -498,16 +504,20 @@ void Sequencer::play_microStep(uint8_t row)
 			switch (_fx.type)
 			{
 			case fx.FX_TYPE_ROLL:
-				//				case fx.FX_TYPE_ROLL_NOTE_UP:
-//				case fx.FX_TYPE_ROLL_NOTE_DOWN:
-//				case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
 				playerRow.rollIsOn = 1;
 				playerRow.rollFxId = fxIndex;
 				playerRow.rollVal = _fx.value;
 				playerRow.rollPeriod = _fx.value;
 				playerRow.rollDir = getRollType(_fx.value);
+				playerRow.rollVolumeOption = rollValToVolumeOption(_fx.value);
+				if (playerRow.rollVolumeOption != rollVolumeOption_const)
+				{
+					playerRow.rollLength = calcStepLength(
+							row, playerRow.actual_pos);
 
+					playerRow.rollVolumeStart = stepToSend.velocity;
+				}
 
 				break;
 
@@ -558,7 +568,7 @@ void Sequencer::play_microStep(uint8_t row)
 		if (playerRow.rollIsOn)
 		{
 			playerRow.rollPeriod = playerRow.rollVal;
-			playerRow.noteLength = rollTypeToVal(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
+			playerRow.noteLength = rollValToPeriod(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
 			playerRow.stepOpen = 1;
 		}
 		if (patternStep.note >= 0)
@@ -571,6 +581,10 @@ void Sequencer::play_microStep(uint8_t row)
 								playerRow.stepToSend.note + 12 + 1),
 						0,
 						127);
+			}
+			if (playerRow.rollIsOn && playerRow.rollVolumeOption != rollVolumeOption_const)
+			{
+				stepToSend.velocity = getRollVelo(row);
 			}
 
 			sendNoteOn(row, &stepToSend);
@@ -610,7 +624,7 @@ void Sequencer::play_microStep(uint8_t row)
 		{
 			tempRollType = playerRow.performanceStutter;
 		}
-		if (((playerRow.stepTimer % rollTypeToVal(tempRollType)) == 1))
+		if (((playerRow.stepTimer % rollValToPeriod(tempRollType)) == 1))
 		{
 			playerRow.stepToSend = playerRow.stepSent;
 			playerRow.noteOpen = 1;
@@ -628,13 +642,13 @@ void Sequencer::play_microStep(uint8_t row)
 		if (playerRow.rollPeriod != fx.ROLL_PERIOD_NONE && playerRow.rollIsOn)
 		{
 			// sprawdzamy timer microstepów, czy jest wielokrotrością rolki
-			if (((playerRow.stepTimer % rollTypeToVal(playerRow.rollPeriod)) == 1) && playerRow.stepTimer != 1)
+			if (((playerRow.stepTimer % rollValToPeriod(playerRow.rollPeriod)) == 1) && playerRow.stepTimer != 1)
 			{
 				playerRow.stepToSend = playerRow.stepSent;
 
 				playerRow.noteOpen = 1;
 				playerRow.noteTimer = 0; // od tej pory timer liczy w górę
-				playerRow.noteLength = rollTypeToVal(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
+				playerRow.noteLength = rollValToPeriod(playerRow.rollPeriod) / 2; // TODO: wyliczyć długość rolki
 
 				if (playerRow.rollDir == fx.rollType_noteUp)
 				{
@@ -659,6 +673,12 @@ void Sequencer::play_microStep(uint8_t row)
 							0,
 							127);
 				}
+
+				if (playerRow.rollIsOn && playerRow.rollVolumeOption != rollVolumeOption_const)
+				{
+					stepToSend.velocity = getRollVelo(row);
+				}
+
 				sendNoteOn(row,
 							playerRow.stepToSend.note,
 							playerRow.stepToSend.velocity,
@@ -684,11 +704,11 @@ Sequencer::strPattern *Sequencer::getPattern()
 	return &seq[player.ramBank];
 }
 
-uint8_t Sequencer::rollTypeToVal(uint8_t rollType)
+uint8_t Sequencer::rollValToPeriod(uint8_t rollVal)
 {
 
-	rollType = rollType % (fx.ROLL_PERIOD_MAX + 1);
-	switch (rollType)
+	rollVal = rollVal % (fx.ROLL_PERIOD_MAX + 1);
+	switch (rollVal)
 	{
 	case fx.ROLL_PERIOD_NONE:
 		return 0;
@@ -1641,4 +1661,62 @@ void Sequencer::setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern)
 uint8_t Sequencer::getRollType(uint8_t value)
 {
 	return (value / (fx.ROLL_PERIOD_MAX + 1));
+}
+
+uint8_t Sequencer::rollValToVolumeOption(uint8_t value)
+{
+	switch (getRollType(value))
+	{
+	case fx.rollType_volUp:
+		return rollVolumeOption_up;
+	case fx.rollType_volDown:
+		return rollVolumeOption_down;
+	default:
+		return rollVolumeOption_const;
+	}
+}
+/*
+ playerRow.noteTimer,
+ playerRow.rollVolumeOption,
+ playerRow.rollLength
+ */
+uint8_t Sequencer::getRollVelo(uint8_t row)
+{
+	strPlayer::strPlayerTrack & playerRow = player.track[row];
+	int8_t volMax = 1;
+	if (playerRow.rollVolumeStart < 0)
+	{
+		volMax = getInstrumentVelo(player.track[row].stepToSend.instrument);
+	}
+	else
+	{
+		volMax = playerRow.rollVolumeStart;
+	}
+
+	float progress = ((float) playerRow.stepTimer / (playerRow.rollLength * 48));
+
+	switch (playerRow.rollVolumeOption)
+	{
+	case rollVolumeOption_up:
+		return volMax * progress;
+	case rollVolumeOption_down:
+		return volMax * (1.0f - progress);
+	default:
+		break;
+	}
+
+	return 127;
+}
+
+uint8_t Sequencer::getInstrumentVelo(uint8_t ins)
+{
+	if (ins >= INSTRUMENTS_COUNT)
+	{
+		return mtProject.values.midiInstrument[ins - INSTRUMENTS_COUNT].velocity;
+	}
+	else
+	{
+		return mtProject.instrument[ins].volume;
+	}
+	return 0;
 }

@@ -1308,4 +1308,20 @@ char Sequencer::getRollTypeChar(uint8_t val)
 	}
 	return '?';
 }
+uint8_t Sequencer::calcStepLength(uint8_t track, uint8_t step)
+{
+	uint8_t trackLen = getActualPattern()->track[0].length;
+	uint8_t actualPos = player.track[track].actual_pos;
+
+	uint8_t b = 1;
+	for (uint8_t a = step + 1; a <= trackLen; a++, b++)
+	{
+		if (getActualPattern()->track[track].step[a].note != STEP_NOTE_EMPTY)
+		{
+			break;
+		}
+	}
+
+	return b;
+}
 

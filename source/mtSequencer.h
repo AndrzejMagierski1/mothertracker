@@ -153,6 +153,14 @@ public:
 
 	} fx;
 
+	enum enRollVolumeOption
+	{
+		rollVolumeOption_const = 0,
+		rollVolumeOption_up,
+		rollVolumeOption_down,
+		rollVolumeOption_random,
+	};
+
 	struct strPattern
 	{
 
@@ -272,8 +280,11 @@ public:
 	void cancelFxes(int8_t track);
 	void cancelFxes();
 	uint8_t getRollType(uint8_t value);
+	uint8_t rollValToVolumeOption(uint8_t);
+	uint8_t getRollVelo(uint8_t);
+	uint8_t getInstrumentVelo(uint8_t);
 
-	inline uint8_t rollTypeToVal(uint8_t rollType);
+	inline uint8_t rollValToPeriod(uint8_t rollType);
 
 	void divChangeQuantize(uint8_t row);
 
@@ -404,6 +415,9 @@ public:
 			uint8_t rollVal = 0;
 			uint8_t rollDir = 0;
 			uint8_t rollFxId = 0;
+			uint8_t rollVolumeOption = rollVolumeOption_const;
+			int8_t rollVolumeStart = 127;
+			uint16_t rollLength = 1; // obliczona długość na potrzeby vol up i down
 
 			bool pingPongToogle = 0;
 
@@ -590,7 +604,6 @@ public:
 							uint8_t trackTo);
 	uint8_t getCopySelectionHeight();
 
-
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
 	void clearStep(strPattern::strTrack::strStep * step, uint8_t);
@@ -665,9 +678,9 @@ public:
 	int16_t getFxDefault(uint8_t fxID);
 	int16_t getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step);
 	char getRollTypeChar(uint8_t val);
+	uint8_t calcStepLength(uint8_t track, uint8_t step);
 	int16_t rollValueToPeriod(int16_t value);
 	void makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track, uint8_t step);
-
 
 	uint8_t getActualPos()
 	{
