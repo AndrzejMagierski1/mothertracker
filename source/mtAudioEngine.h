@@ -88,6 +88,7 @@ public:
 	void clearInterfaceEndReleaseFlag();
 	uint8_t getInterfacePlayingEndFlag();
 	void clearInterfacePlayingEndFlag();
+	uint32_t getEnvelopeGranPosMod();
 
 	uint32_t getEnvelopeWtPosMod();
 	uint32_t afterEnvelopeWtPos;

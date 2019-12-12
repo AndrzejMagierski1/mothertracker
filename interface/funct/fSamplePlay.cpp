@@ -87,6 +87,16 @@ void cSamplePlayback::update()
 
 	lastEnvelopeWtPos = currentEnvelopeWtPos;
 
+	currentEnvelopeGranPos = instrumentPlayer[0].getEnvelopeGranPosMod();
+
+	if(currentEnvelopeGranPos != lastEnvelopeGranPos)
+	{
+
+		showGranularPositionValue();
+
+	}
+	lastEnvelopeGranPos = currentEnvelopeGranPos;
+
 	if(refreshSpectrum)
 	{
 		GP.processSpectrum(editorInstrument, &zoom, &spectrum);
@@ -505,7 +515,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		padsBacklight.setFrontLayer(1,20, pad);
 		if(SP->editorInstrument->playMode == playModeSlice)
 		{
-			SP->editorInstrument->selectedSlice = pad > (SP->editorInstrument->sliceNumber - 1) ? (SP->editorInstrument->sliceNumber - 1) : pad;
+			SP->editorInstrument->selectedSlice = SP->editorInstrument->sliceNumber ? (pad > (SP->editorInstrument->sliceNumber - 1) ? (SP->editorInstrument->sliceNumber - 1) : pad) : 0;
 			if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
 			{
 				SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
@@ -1372,7 +1382,7 @@ static void changePlayModeSelection(int16_t value)
 		SP->editorInstrument->sample.wavetableWindowNumber = SP->editorInstrument->sample.wavetable_window_size ? SP->editorInstrument->sample.length/SP->editorInstrument->sample.wavetable_window_size : 0;
 		SP->loadedInstrumentType = SP->editorInstrument->sample.type;
 	}
-	else if(((SP->editorInstrument->playMode == loopPingPong) &&  (value < 0)) || ((SP->editorInstrument->playMode == playModeSlice) &&  (value > 0)))
+	else if(SP->editorInstrument->playMode != playModeWavetable)
 	{
 		if(SP->editorInstrument->sample.type == 1) SP->refreshSpectrum = 1;
 		SP->editorInstrument->sample.type = 0;
@@ -1792,6 +1802,7 @@ static void modGranularPosition(int16_t value)
 
 	SP->showGranularPositionValue();
 
+	instrumentPlayer[0].instrumentBasedMod.granPos =  SP->editorInstrument->granular.currentPosition;
 	instrumentPlayer[0].setStatusBytes(GRANULAR_POS_SEND_MASK);
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }

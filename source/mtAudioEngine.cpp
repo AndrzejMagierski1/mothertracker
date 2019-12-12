@@ -3103,3 +3103,9 @@ uint32_t playerEngine::getEnvelopeWtPosMod()
 	return ((envelopeWtPos->isKeyPressed() == 1) || (envelopeWtPos->getPhase() != 0)) ? instrumentBasedMod.wtPos : mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
 }
 
+uint32_t playerEngine::getEnvelopeGranPosMod()
+{
+
+	return ((envelopeGranPos->isKeyPressed() == 1) || (envelopeGranPos->getPhase() != 0)) ? instrumentBasedMod.granPos : mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+}
+
