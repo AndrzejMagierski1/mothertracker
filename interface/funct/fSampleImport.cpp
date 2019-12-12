@@ -12,7 +12,7 @@
 #include "keyScanner.h"
 
 #include "sdCardDetect.h"
-
+#include "mtRandomNameGenerator.h"
 
 enum valueMapDirecion
 {
@@ -176,6 +176,7 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 static  uint8_t functConfirmRename();
 static  uint8_t functCancelRename();
+static  uint8_t functAutoNameRename();
 
 static uint8_t functDeleteBackspace(uint8_t state);
 
@@ -559,6 +560,7 @@ static  uint8_t functRename()
 
 	SI->FM->setButtonObj(interfaceButtonInsert, buttonPress, functConfirmKey);
 	SI->FM->setButtonObj(interfaceButton0, buttonPress, functConfirmKey);
+	SI->FM->setButtonObj(interfaceButton5, buttonPress, functAutoNameRename);
 	SI->FM->setButtonObj(interfaceButton6, buttonPress, functCancelRename);
 	SI->FM->setButtonObj(interfaceButton7, buttonPress, functConfirmRename);
 
@@ -628,6 +630,13 @@ static  uint8_t functCancelRename()
 
 	SI->keyboardActiveFlag = 0;
 	return 1;
+}
+
+static  uint8_t functAutoNameRename()
+{
+	strcpy(SI->name,randomNameGenerator.getRandomName());
+	SI->editPosition = strlen(SI->name);
+	SI->showKeyboardEditName();
 }
 
 static uint8_t functCopyPaste()

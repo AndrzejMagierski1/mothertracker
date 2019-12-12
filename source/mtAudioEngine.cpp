@@ -951,13 +951,13 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 
 			if(fx_n == MOST_SIGNIFICANT_FX)
 			{
-				currentSeqModValues.glide = map(fx_val,0,127,GLIDE_MIN,GLIDE_MAX);
+				currentSeqModValues.glide = (fx_val > 100) ? map(fx_val,100,255,1000,GLIDE_MAX) : map(fx_val,0,100,GLIDE_MIN,1000);
 			}
 			else if(fx_n == LEAST_SIGNIFICANT_FX)
 			{
 				if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::glide])
 				{
-					currentSeqModValues.glide = map(fx_val,0,127,GLIDE_MIN,GLIDE_MAX);
+					currentSeqModValues.glide = (fx_val > 100) ? map(fx_val,100,255,1000,GLIDE_MAX) : map(fx_val,0,100,GLIDE_MIN,1000);
 				}
 			}
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::glide] = 1;
@@ -1517,7 +1517,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 			{
 				if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::glide])
 				{
-					currentSeqModValues.glide = map(lastSeqVal[otherFx_n],0,127,GLIDE_MIN,GLIDE_MAX);
+					currentSeqModValues.glide = (lastSeqVal[otherFx_n] > 100) ? map(lastSeqVal[otherFx_n],100,255,1000,GLIDE_MAX) : map(lastSeqVal[otherFx_n],0,100,GLIDE_MIN,1000);
 					playMemPtr->setForcedGlide(currentSeqModValues.glide);
 				}
 			}

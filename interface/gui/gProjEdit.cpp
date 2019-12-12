@@ -464,6 +464,7 @@ void cProjectEditor::showSaveAsKeyboard()
 	}
 
 	display.setControlText(label[0],"Enter");
+	display.setControlText(label[5],"Auto Name");
 	display.setControlText(label[6],"Cancel");
 	display.setControlText(label[7],"Save");
 

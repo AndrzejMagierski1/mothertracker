@@ -665,6 +665,7 @@ void cSampleImporter::showRenameKeyboard()
 	}
 
 	display.setControlText(label[0],"Enter");
+	display.setControlText(label[5],"Auto name");
 	display.setControlText(label[6],"Cancel");
 	display.setControlText(label[7],"Rename");
 
