@@ -480,6 +480,11 @@ public:
 		return &seq[!player.ramBank];
 	}
 
+	boolean isPerformanceTrackChange(uint8_t track)
+	{
+		return player.track[track].performanceSourcePattern >= 0;
+	}
+
 	void saveToFileDone()
 	{
 	}
