@@ -1173,7 +1173,7 @@ uint8_t functEncoder(int16_t value)
 
 
 	sendSelection();
-	if(tactButtons.isButtonPressed(interfaceButton6) || !isMultiSelection())
+	if(tactButtons.isButtonPressed(interfaceButtonShift) || !isMultiSelection())
 	{
 		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		fileManager.storePatternUndoRevision();
@@ -1181,7 +1181,6 @@ uint8_t functEncoder(int16_t value)
 		{
 		case 0: sequencer.changeSelectionNote(value); break;
 		case 1: sequencer.changeSelectionInstrument(value); break;
-		case 2:// sequencer.changeSelectionVolume(value); break;
 		case 3:
 		{
 			uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
