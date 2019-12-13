@@ -167,11 +167,6 @@ void initHardware()
 
 
 
-
-
-
-
-
 	//....................................................
 	// ENCODER
 	Encoder.begin(ENC_SWITCH,onEncoderButtonChange);
@@ -304,7 +299,7 @@ void updateHardware()
 		hid.handle();
 		sdCardDetector.update(0);
 
-	    mtpd.loop();
+	    if(mtpd.state) mtpd.loop();
 
 		midiUpdate();
 
