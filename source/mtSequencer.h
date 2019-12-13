@@ -473,6 +473,10 @@ public:
 	uint8_t isPlay(void);
 	uint8_t isRec(void);
 	uint8_t isStop(void);
+	uint8_t isPreview(void)
+	{
+		return player.isPlay && player.selectionMode;
+	}
 
 // sekwencerowe
 
