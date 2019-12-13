@@ -89,6 +89,16 @@ void cPerformanceMode::start(uint32_t options)
 		}
 	}
 
+	// prezepisanie aktualnie zaznaczonych wartosci do chwilowych
+	for(uint8_t place = 0; place < 12; place++)
+	{
+		if(mtProject.values.perfSelectedValues[place] > 0)
+		{
+			placesTempValues[place] = mtProject.values.perfFxValues[place][mtProject.values.perfSelectedValues[place]];
+		}
+	}
+
+
 	moduleRefresh = 1;
 	performanceEditState = 0;
 	refreshBlinkingTrack = 0;
@@ -275,6 +285,11 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 		instrumentPlayer[track].endWavetableWindowPerformanceMode();
 		break;
 	}
+	case mtPerfGranularPos:
+	{
+		instrumentPlayer[track].endGranularPositionPerformanceMode();
+		break;
+	}
 	case mtPerfTune:
 	{
 		instrumentPlayer[track].endTunePerformanceMode();
@@ -377,6 +392,11 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track, uint8_t p
 	case mtPerfWavetablePos:
 	{
 		instrumentPlayer[track].changeWavetableWindowPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_WAVETABLE_WINDOW,MAX_WAVETABLE_WINDOW));
+		break;
+	}
+	case mtPerfGranularPos:
+	{
+		instrumentPlayer[track].changeGranularPositionPerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
 		break;
 	}
 	case mtPerfTune:
@@ -626,6 +646,20 @@ static  uint8_t functEncoder(int16_t value)
 
 				break;
 			}
+			case mtPerfGranularPos:
+			{
+				if(FX_VALUE(place) + mod_value > 100) FX_VALUE(place) = 100;
+				else if(FX_VALUE(place) + mod_value < -100) FX_VALUE(place) = -100;
+				else FX_VALUE(place) += mod_value;
+
+				for(uint8_t j = 0; j < 8; j++)
+				{
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeGranularPositionPerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
+				}
+				break;
+
+				break;
+			}
 			case mtPerfTune:
 			{
 				if(FX_VALUE(place) + mod_value > 48) FX_VALUE(place) = 48;
@@ -688,7 +722,7 @@ static  uint8_t functEncoder(int16_t value)
 				break;
 			}
 			case mtPerfPatternLength:
-				{
+			{
 
 				if (FX_VALUE(place) + mod_value > 8) FX_VALUE(place) = 8;
 				else if (FX_VALUE(place) + mod_value < 0) FX_VALUE(place) = 0;

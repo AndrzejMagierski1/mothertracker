@@ -380,8 +380,9 @@ void cPerformanceMode::showPerformaceValue(uint8_t place)
 
 	for(uint8_t slot = 0; slot < 4; slot++)
 	{
-		int16_t fx_value  = (slot == mtProject.values.perfSelectedValues[place])
-				? placesTempValues[place]
+
+		int16_t fx_value  = (slot == mtProject.values.perfSelectedValues[place])  	// ten zapis ustawial na start zaznaczone wartosci  fxow z tempValues
+				? placesTempValues[place]											// zamiast poprawnych; naprawione w start()
 				: mtProject.values.perfFxValues[place][slot];
 
 		// wyjątkowe efejkty (nie liczbowe) obslużyc wyjątkowo
