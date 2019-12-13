@@ -1181,6 +1181,7 @@ uint8_t functEncoder(int16_t value)
 		{
 		case 0: sequencer.changeSelectionNote(value); break;
 		case 1: sequencer.changeSelectionInstrument(value); break;
+		case 2:
 		case 3:
 		{
 			uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;

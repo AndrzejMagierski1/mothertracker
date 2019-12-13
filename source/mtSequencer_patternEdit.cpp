@@ -1294,9 +1294,9 @@ char Sequencer::getRollTypeChar(uint8_t val)
 	case fx.rollType_const:
 		return ' ';
 	case fx.rollType_noteUp:
-		return 'n';
-	case fx.rollType_noteDown:
 		return 'N';
+	case fx.rollType_noteDown:
+		return 'n';
 	case fx.rollType_noteRandom:
 		return 'R';
 	case fx.rollType_volDown:

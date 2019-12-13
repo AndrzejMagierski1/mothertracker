@@ -143,12 +143,12 @@ public:
 		enum enRollDir
 		{
 			rollType_const = 0,
-			rollType_noteUp,
-			rollType_noteDown,
-			rollType_noteRandom,
 			rollType_volDown,
 			rollType_volUp,
-			rollNoteDir_max = rollType_volUp,
+			rollType_noteDown,
+			rollType_noteUp,
+			rollType_noteRandom,
+			rollNoteDir_max = rollType_noteRandom,
 		};
 
 	} fx;
