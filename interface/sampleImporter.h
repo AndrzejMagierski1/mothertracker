@@ -4,7 +4,7 @@
 
 #include <modulesBase.h>
 #include "SD.h"
-
+#include "mtKeyboardManager.h"
 #include "mtStructs.h"
 
 #define PREVIOUS_POSITION_LIFO	25
@@ -72,9 +72,11 @@ public:
 
 	hControl loadHorizontalBarControl = nullptr;
 
-	hControl editName;
-	hControl keyboardControl;
+	hControl editName = nullptr;
+	hControl keyboardControl = nullptr;
 
+
+	mtKeyboardManager keyboardManager;
 
 	uint8_t selectedPlace = 0;
 
@@ -235,19 +237,7 @@ public:
 
 	void handleSequenceCopyingLoading();
 
-	char name[33];
-	uint8_t keyboardPosition;
-	int8_t editPosition;
-	void showKeyboard();
-	void hideKeyboard();
-	void showKeyboardEditName();
-	void hideKeyboardEditName();
-	void showEnterNameKeyboard();
 	void showRenameKeyboard();
-
-	uint8_t keyboardActiveFlag = 0;
-	uint8_t keyboardShiftFlag = 0;
-	uint8_t lastPressedPad;
 
 	uint8_t isBusy;
 

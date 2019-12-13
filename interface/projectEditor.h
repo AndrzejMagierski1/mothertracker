@@ -4,6 +4,8 @@
 
 #include <modulesBase.h>
 #include "SD.h"
+#include "mtKeyboardManager.h"
+
 
 enum mtProjectStartMode
 {
@@ -61,10 +63,10 @@ public:
 	strList projectList;
 	strFrameData frameData;
 
-	hControl label[8];
-	hControl editName;
-	hControl fileListControl;
-	hControl keyboardControl;
+	hControl label[8] = {};
+	hControl editName = nullptr;
+	hControl fileListControl = nullptr;
+	hControl keyboardControl = nullptr;
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl titleLabelProjectName = nullptr;
@@ -74,8 +76,10 @@ public:
 	hControl popupLabel = nullptr;
 	hControl coverImg = nullptr;
 	hControl processControl = nullptr;
-	hControl bgLabel;
+	hControl bgLabel  = nullptr;
 
+
+	mtKeyboardManager keyboardManager;
 
 	void listOnlyFolderNames(const char* folder);
 
@@ -87,20 +91,8 @@ public:
 	char *filesNames[files_list_length_max];
 
 //-------------------------------------------------------------
-
-
-	char name[33];
-	uint8_t keyboardPosition;
-	int8_t editPosition;
-	void showKeyboard();
-	void hideKeyboard();
-	void showKeyboardEditName();
-	void hideKeyboardEditName();
 	void showEnterNameKeyboard();
 
-	uint8_t keyboardActiveFlag = 0;
-	uint8_t keyboardShiftFlag = 0;
-	uint8_t lastPressedPad;
 //-------------------------------------------------------------
 	void functShowSaveLastWindow();
 	void functShowSaveLastWindowBeforeOpen();

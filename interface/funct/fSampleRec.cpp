@@ -13,124 +13,6 @@
 #include "mtRandomNameGenerator.h"
 
 
-enum valueMapDirecion
-{
-	valueMapDirectionLeft,
-	valueMapDirectionRight,
-	valueMapDirectionUp,
-	valueMapDirectionDown,
-};
-
-constexpr char smallKeyboard[KEYBOARD_SIZE] =
-{
-		 	 '1', '2', '3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9' ,'0' , 0 ,
-		 	 'q', 'w', 'e' ,'r' ,'t' ,'y' ,'u' ,'i' ,'o' ,'p' ,'-' ,'+',
-			 'a', 's', 'd' ,'f' ,'g' ,'h' ,'j' ,'k' ,'l' ,'@' , 1 ,
-			 'z', 'x', 'c' ,'v' ,'b' ,'n' ,'m' , ' '
-};
-
-constexpr char bigKeyboard[KEYBOARD_SIZE] =
-{
-			 '1', '2', '3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9' ,'0' , 0 ,
-		 	 'Q', 'W', 'E' ,'R' ,'T' ,'Y' ,'U' ,'I' ,'O' ,'P' ,'-' ,'+',
-			 'A', 'S', 'D' ,'F' ,'G' ,'H' ,'J' ,'K' ,'L', '@', 1 ,
-			 'Z', 'X', 'C' ,'V' ,'B' ,'N' ,'M' , ' '
-};
-
-//constexpr uint8_t valueMap[4][42] = przechodzenie przez sciany
-//{
-//		{
-//			10,0,1,2,3,4,5,6,7,8,9,
-//			22,11,12,13,14,15,16,17,18,19,20,21,
-//			33,23,24,25,26,27,28,29,30,31,32,
-//			41,34,35,36,37,38,39,40
-//		},
-//
-//		{
-//			1,2,3,4,5,6,7,8,9,10,0,
-//			12,13,14,15,16,17,18,19,20,21,22,11,
-//			24,25,26,27,28,29,30,31,32,33,23,
-//			35,36,37,38,39,40,41,34
-//		},
-//
-//		{
-//			34,35,36,37,38,39,40,41,41,41,41,
-//			0,1,2,3,4,5,6,7,8,9,10,10,
-//			11,12,13,14,15,16,17,18,19,20,21,
-//			23,24,25,26,27,28,29,30,
-//		},
-//
-//		{
-//			11,12,13,14,15,16,17,18,19,20,21,
-//			23,24,25,26,27,28,29,30,31,32,33,33,
-//			34,35,36,37,38,39,40,41,41,41,41,
-//			0,1,2,3,4,5,6,7
-//		},
-//};
-
-constexpr uint8_t valueMap[5][42] =
-{
-		{
-			0,0,1,2,3,4,5,6,7,8,9,
-			11,11,12,13,14,15,16,17,18,19,20,21,
-			23,23,24,25,26,27,28,29,30,31,32,
-			34,34,35,36,37,38,39,40
-		},
-
-		{
-			1,2,3,4,5,6,7,8,9,10,10,
-			12,13,14,15,16,17,18,19,20,21,22,22,
-			24,25,26,27,28,29,30,31,32,33,33,
-			35,36,37,38,39,40,41,41
-		},
-
-		{
-			0,1,2,3,4,5,6,7,8,9,10,
-			0,1,2,3,4,5,6,7,8,9,10,10,
-			11,12,13,14,15,16,17,18,19,20,21,
-			23,24,25,26,27,28,29,30,
-		},
-
-		{
-			11,12,13,14,15,16,17,18,19,20,21,
-			23,24,25,26,27,28,29,30,31,32,33,33,
-			34,35,36,37,38,39,40,41,41,41,41,
-			34,35,36,37,38,39,40,41
-		},
-
-};
-
-constexpr uint8_t valueMapPads[48] =
-{
-	0,1,2,3,4,5,6,7,8,9,10,10,
-	11,12,13,14,15,16,17,18,19,20,21,22,
-	23,24,25,26,27,28,29,30,31,32,33,33,
-	34,35,36,37,38,39,40,41,41,41,41,41
-};
-
-constexpr uint8_t keyPositionToPads[42] =
-{
-	0,1,2,3,4,5,6,7,8,9,10,
-	12,13,14,15,16,17,18,19,20,21,22,23,
-	24,25,26,27,28,29,30,31,32,33,34,
-	36,37,38,39,40,41,42,43
-};
-
-constexpr uint8_t BACKSPACE_PAD_1 = 10;
-constexpr uint8_t BACKSPACE_PAD_2 = 11;
-
-constexpr uint8_t CAPS_LOCK_PAD_1 = 34;
-constexpr uint8_t CAPS_LOCK_PAD_2 = 35;
-
-constexpr uint8_t SPACE_PAD_1 = 43;
-constexpr uint8_t SPACE_PAD_2 = 44;
-constexpr uint8_t SPACE_PAD_3 = 45;
-constexpr uint8_t SPACE_PAD_4 = 46;
-constexpr uint8_t SPACE_PAD_5 = 47;
-
-constexpr uint8_t F_PAD = 27;
-
-constexpr uint8_t J_PAD = 30;
 
 constexpr uint16_t POP_TIME = 200; // czas po jakim nie ma pykniecia przy zmianie z lineIn na mic
 
@@ -342,6 +224,8 @@ void cSampleRecorder::start(uint32_t options)
 
 	FM->setPadsGlobal(functPads);
 
+	keyboardManager.init(keyboardControl, editName);
+
 	params.length = recorder.getLength();
 	params.address = recorder.getStartAddress();
 	params.recordInProgressFlag = recordInProgressFlag;
@@ -410,7 +294,7 @@ void cSampleRecorder::stop()
 {
 	audioShield.headphoneSourceSelect(0);
 	moduleRefresh = 0;
-
+	keyboardManager.deinit();
 	radio.clearRDS();
 	radio.resetSeekCallback();
 	//hideRDS();
@@ -1010,7 +894,7 @@ static  uint8_t functActionButton0(uint8_t s)
 		SR->selectionWindowSaveFlag = 0;
 		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeNormal)
 		{
-			recorder.startSave(SR->name,1);
+			recorder.startSave(SR->keyboardManager.getName(),1);
 		}
 		else if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
 		{
@@ -1035,12 +919,11 @@ static  uint8_t functActionButton0(uint8_t s)
 				return 0;
 			}
 
-			recorder.startSaveLoad(SR->name, firstFree, 1 );
+			recorder.startSaveLoad(SR->keyboardManager.getName(), firstFree, 1 );
 		}
 
 		SR->saveInProgressFlag = 1;
-		SR->hideKeyboard();
-		SR->hideKeyboardEditName();
+		SR->keyboardManager.deactivateKeyboard();
 		return 1;
 	}
 
@@ -1229,31 +1112,30 @@ static  uint8_t functActionButton7()
 	{
 		char localPatch[70];
 		uint16_t cnt=1;
-		char cntBuf[5];
 		char localName[32];
-		strcpy(localName,SR->name);
+		strcpy(localName,SR->keyboardManager.getName());
 		do
 		{
-		   memset(cntBuf,0,5);
-		   sprintf(cntBuf, "%d", cnt);
-		   strcpy(SR->name,localName);
-		   strcat(SR->name,cntBuf);
+		   char keyboardName[MAX_NAME_LENGTH];
+		   sprintf(keyboardName,"%s%d",localName,cnt);
 
-		   strcpy(localPatch,"Recorded/");
-		   strcat(localPatch, SR->name);
-		   strcat(localPatch, ".wav");
+		   SR->keyboardManager.fillName(keyboardName);
+
+		   sprintf(localPatch, "Recorded/%s.wav",SR->keyboardManager.getName());
 
 		   cnt++;
 		   if(cnt > 9999)
 		   {
-			   memset(SR->name,0,33);
+			   memset(keyboardName,0,33);
+			   SR->keyboardManager.fillName(keyboardName);
 			   break;
 		   }
 		} while(SD.exists(localPatch));
-		SR->editPosition = strlen(SR->name);
-		SR->keyboardPosition = 10;
+
+		SR->keyboardManager.activateKeyboard();
+
 		SR->selectionWindowSaveFlag = 0;
-		SR->keyboardActiveFlag = 1;
+
 		SR->showDefaultScreen();
 		return 1;
 	}
@@ -1294,14 +1176,7 @@ static uint8_t functDeleteBackspace(uint8_t state)
 {
 	if((state == buttonPress) || (state == buttonHold))
 	{
-		if(SR->keyboardActiveFlag)
-		{
-			if(SR->editPosition == 0 ) return 1;
-
-			SR->name[SR->editPosition-1] = 0;
-			SR->editPosition--;
-			SR->showKeyboardEditName();
-		}
+		SR->keyboardManager.makeBackspace();
 	}
 	return 1;
 }
@@ -1313,103 +1188,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	{
 		if((state == 1) || (state == 2))
 		{
-			if(SR->keyboardActiveFlag)
-			{
-				if(SR->lastPressedPad == BACKSPACE_PAD_1 || SR->lastPressedPad == BACKSPACE_PAD_2) //backspace
-				{
-					leds.setLED(BACKSPACE_PAD_1, 0, 0);
-					leds.setLED(BACKSPACE_PAD_2, 0, 0);
-				}
-				else if(SR->lastPressedPad == CAPS_LOCK_PAD_1 || SR->lastPressedPad == CAPS_LOCK_PAD_2) //capslock
-				{
-					if(SR->keyboardShiftFlag)
-					{
-						leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
-						leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
-					}
-					else
-					{
-						leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
-						leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
-					}
-
-				}
-				else if(SR->lastPressedPad >= SPACE_PAD_1 && SR->lastPressedPad <=SPACE_PAD_5) //space
-				{
-					for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
-					{
-						leds.setLED(i, 0, 0);
-					}
-				}
-				else
-				{
-					if(SR->lastPressedPad != F_PAD && SR->lastPressedPad != J_PAD) leds.setLED(SR->lastPressedPad,0,0);
-					else leds.setLED(SR->lastPressedPad,1,10);
-				}
-
-
-				SR->lastPressedPad = pad;
-
-				if(pad == BACKSPACE_PAD_1 || pad == BACKSPACE_PAD_2) //backspace
-				{
-					leds.setLED(BACKSPACE_PAD_1, 1, 31);
-					leds.setLED(BACKSPACE_PAD_2, 1, 31);
-				}
-				else if(pad == CAPS_LOCK_PAD_1 || pad == CAPS_LOCK_PAD_2) //capslock
-				{
-					leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
-					leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
-				}
-				else if(pad >= SPACE_PAD_1 && pad <=SPACE_PAD_5) //space
-				{
-					for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
-					{
-						leds.setLED(i, 1, 31);
-					}
-				}
-				else
-				{
-					leds.setLED(pad,1,31);
-				}
-
-				SR->keyboardPosition = valueMapPads[pad];
-
-
-				if(SR->editPosition > 31) return 1;
-				if(smallKeyboard[SR->keyboardPosition] > 1)
-				{
-					if(SR->editPosition == 31) return 1;
-					uint8_t localNameLen = strlen(SR->name);
-					if(SR->editPosition < localNameLen)
-					{
-						for(uint8_t i = localNameLen; i >= SR->editPosition ; i-- )
-						{
-							SR->name[i+1] = SR->name[i];
-						}
-					}
-
-					SR->name[SR->editPosition] = SR->keyboardShiftFlag ? bigKeyboard[SR->keyboardPosition] : smallKeyboard[SR->keyboardPosition];
-					SR->name[SR->editPosition + 1] = 0;
-					SR->editPosition++;
-				}
-				else if(smallKeyboard[SR->keyboardPosition] == 0)
-				{
-					if(SR->editPosition == 0 ) return 1;
-
-					SR->name[SR->editPosition-1] = 0;
-					SR->editPosition--;
-
-
-				}
-				else if(smallKeyboard[SR->keyboardPosition] == 1)
-				{
-					SR->keyboardShiftFlag = ! SR->keyboardShiftFlag;
-					//				SR->showKeyboard();
-				}
-				SR->showKeyboard();
-				SR->showKeyboardEditName();
-				return 1;
-			}
+			SR->keyboardManager.onPadChange(pad, state);
 		}
 
 		if(SR->currentScreen == SR->screenTypeRecord)
@@ -1637,7 +1416,7 @@ static  uint8_t functActionGoBack()
 	else if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
 	{
 		SR->currentScreen = cSampleRecorder::screenTypeRecord;
-		SR->keyboardActiveFlag = 0;
+		SR->keyboardManager.deactivateKeyboard();
 		SR->selectedPlace = 7;
 		SR->showDefaultScreen();
 	}
@@ -1654,23 +1433,21 @@ static  uint8_t functActionSave()
 
 	do
 	{
-	   sprintf(SR->name, "recording%d",cnt);
-	   sprintf(localPatch,"Recorded/%s.wav",SR->name);
+	   char keyboardName[MAX_NAME_LENGTH];
+	   sprintf(keyboardName, "recording%d",cnt);
+	   SR->keyboardManager.fillName(keyboardName);
+	   sprintf(localPatch,"Recorded/%s.wav",keyboardName);
 
 	   cnt++;
 	   if(cnt > 9999)
 	   {
-		   memset(SR->name,0,33);
+		   memset(keyboardName,0,MAX_NAME_LENGTH);
+		   SR->keyboardManager.fillName(keyboardName);
 		   break;
 	   }
 	} while(SD.exists(localPatch));
 
-	SR->editPosition = strlen(SR->name);
-	SR->keyboardPosition = BACKSPACE_PAD_1;
-	SR->lastPressedPad = BACKSPACE_PAD_1;
-	leds.setLED(BACKSPACE_PAD_1, 1, 31);
-	leds.setLED(BACKSPACE_PAD_2, 1, 31);
-	SR->keyboardActiveFlag = 1;
+	SR->keyboardManager.activateKeyboard();
 
 	SR->showDefaultScreen();
 	return 1;
@@ -1679,28 +1456,24 @@ static  uint8_t functActionSave()
 static  uint8_t functActionConfirmSave()
 {
 	SR->saveOrSaveloadFlag = cSampleRecorder::saveTypeNormal;
-	if(recorder.startSave(SR->name) == 0)
-	 {
+	if(recorder.startSave(SR->keyboardManager.getName()) == 0)
+	{
 		 SR->selectionWindowSaveFlag = 1;
-		 SR->keyboardActiveFlag = 0;
+		 SR->keyboardManager.deactivateKeyboard();
 		 SR->showSelectionWindowSave();
-	 }
-	 else
-	 {
-		 SR->keyboardActiveFlag = 0;
+	}
+	else
+	{
 		 SR->saveInProgressFlag = 1;
-		 SR->hideKeyboard();
-		 SR->hideKeyboardEditName();
-	 }
+		 SR->keyboardManager.deactivateKeyboard();
+	}
 
-	 return 1;
+	return 1;
 }
 
 static  uint8_t functActionAutoName()
 {
-	strcpy(SR->name,randomNameGenerator.getRandomName());
-	SR->editPosition = strlen(SR->name);
-	SR->showKeyboardEditName();
+	SR->keyboardManager.setRandomName();
 }
 
 
@@ -1731,21 +1504,19 @@ static  uint8_t functActionConfirmSaveLoad()
 	}
 	else
 	{
-		 sprintf(localName,"%s.wav",SR->name);
+		 sprintf(localName,"%s.wav",SR->keyboardManager.getName());
 
-		 if(recorder.startSaveLoad(SR->name, firstFree) == 0)
+		 if(recorder.startSaveLoad(SR->keyboardManager.getName(), firstFree) == 0)
 		 {
 			 SR->selectionWindowSaveFlag = 1;
-			 SR->keyboardActiveFlag = 0;
+			 SR->keyboardManager.deactivateKeyboard();
 			 SR->showSelectionWindowSave();
 			 return 0 ;
 		 }
 		 else
 		 {
-			 SR->keyboardActiveFlag = 0;
+			 SR->keyboardManager.deactivateKeyboard();
 			 SR->saveInProgressFlag = 1;
-			 SR->hideKeyboard();
-			 SR->hideKeyboardEditName();
 		 }
 
 
@@ -1886,12 +1657,8 @@ static  uint8_t functLeft()
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->frameData.multiSelActiveNum != 0) return 1;
 
-	if(SR->keyboardActiveFlag)
-	{
-		SR->keyboardPosition = valueMap[valueMapDirectionLeft][SR->keyboardPosition];
-		SR->showKeyboard();
-		return 1;
-	}
+	SR->keyboardManager.makeMove('a');
+	if(SR->keyboardManager.getState()) return 1;
 
 	if(SR->recordInProgressFlag) return 1;
 
@@ -1976,12 +1743,8 @@ static  uint8_t functRight()
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->frameData.multiSelActiveNum != 0) return 1;
 
-	if(SR->keyboardActiveFlag)
-	{
-		SR->keyboardPosition = valueMap[valueMapDirectionRight][SR->keyboardPosition];
-		SR->showKeyboard();
-		return 1;
-	}
+	SR->keyboardManager.makeMove('d');
+	if(SR->keyboardManager.getState()) return 1;
 
 	if(SR->recordInProgressFlag) return 1;
 
@@ -2067,12 +1830,8 @@ static  uint8_t functUp()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
 
-	if(SR->keyboardActiveFlag)
-	{
-		SR->keyboardPosition = valueMap[valueMapDirectionUp][SR->keyboardPosition];
-		SR->showKeyboard();
-		return 1;
-	}
+	SR->keyboardManager.makeMove('w');
+	if(SR->keyboardManager.getState()) return 1;
 	if(	SR->currentScreen != SR->screenTypeConfig) return 1;
 
 	switch(SR->selectedPlace)
@@ -2093,12 +1852,8 @@ static  uint8_t functDown()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
 
-	if(SR->keyboardActiveFlag)
-	{
-		SR->keyboardPosition = valueMap[valueMapDirectionDown][SR->keyboardPosition];
-		SR->showKeyboard();
-		return 1;
-	}
+	SR->keyboardManager.makeMove('s');
+	if(SR->keyboardManager.getState()) return 1;
 	if(	SR->currentScreen != SR->screenTypeConfig) return 1;
 
 	switch(SR->selectedPlace)
@@ -2468,108 +2223,13 @@ static uint8_t functInsert()
 {
 	if(SR->selectionWindowFlag) return 1;
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) functConfirmKey();
+	return 1;
 }
 
 static uint8_t functConfirmKey()
 {
-	if(SR->keyboardActiveFlag)
-	{
-		if(SR->editPosition > 31) return 1;
-
-//****************************************************ledy
-		if(SR->lastPressedPad == BACKSPACE_PAD_1 || SR->lastPressedPad == BACKSPACE_PAD_2) //backspace
-		{
-			leds.setLED(BACKSPACE_PAD_1, 0, 0);
-			leds.setLED(BACKSPACE_PAD_2, 0, 0);
-		}
-		else if(SR->lastPressedPad == CAPS_LOCK_PAD_1 || SR->lastPressedPad == CAPS_LOCK_PAD_2) //capslock
-		{
-			if(SR->keyboardShiftFlag)
-			{
-				leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
-				leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
-			}
-			else
-			{
-				leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
-				leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
-			}
-
-		}
-		else if(SR->lastPressedPad >= SPACE_PAD_1 && SR->lastPressedPad <= SPACE_PAD_5) //space
-		{
-			for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
-			{
-				leds.setLED(i, 0, 0);
-			}
-		}
-		else
-		{
-			if(SR->lastPressedPad != F_PAD && SR->lastPressedPad != J_PAD) leds.setLED(SR->lastPressedPad,0,0);
-			else leds.setLED(SR->lastPressedPad,1,10);
-		}
-
-
-		SR->lastPressedPad = keyPositionToPads[SR->keyboardPosition];
-
-		if(keyPositionToPads[SR->keyboardPosition] == BACKSPACE_PAD_1 || keyPositionToPads[SR->keyboardPosition] == BACKSPACE_PAD_2) //backspace
-		{
-			leds.setLED(BACKSPACE_PAD_1, 1, 31);
-			leds.setLED(BACKSPACE_PAD_2, 1, 31);
-		}
-		else if(keyPositionToPads[SR->keyboardPosition] == CAPS_LOCK_PAD_1 || keyPositionToPads[SR->keyboardPosition] == CAPS_LOCK_PAD_2) //capslock
-		{
-			leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
-			leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
-		}
-		else if(keyPositionToPads[SR->keyboardPosition] >= SPACE_PAD_1 && keyPositionToPads[SR->keyboardPosition] <=SPACE_PAD_5) //space
-		{
-			for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
-			{
-				leds.setLED(i, 1, 31);
-			}
-		}
-		else
-		{
-			leds.setLED(keyPositionToPads[SR->keyboardPosition],1,31);
-		}
-//////////////////////////////////////
-		if(smallKeyboard[SR->keyboardPosition] > 1)
-		{
-			if(SR->editPosition == 31) return 1;
-			uint8_t localNameLen = strlen(SR->name);
-			if(SR->editPosition < localNameLen)
-			{
-				for(uint8_t i = localNameLen; i >= SR->editPosition ; i-- )
-				{
-					SR->name[i+1] = SR->name[i];
-				}
-			}
-
-			SR->name[SR->editPosition] = SR->keyboardShiftFlag ? bigKeyboard[SR->keyboardPosition] : smallKeyboard[SR->keyboardPosition];
-			SR->name[SR->editPosition + 1] = 0;
-
-			SR->editPosition++;
-		}
-		else if(smallKeyboard[SR->keyboardPosition] == 0)
-		{
-			if(SR->editPosition == 0 ) return 1;
-
-			SR->name[SR->editPosition-1] = 0;
-			SR->editPosition--;
-
-
-		}
-		else if(smallKeyboard[SR->keyboardPosition] == 1)
-		{
-			SR->keyboardShiftFlag = ! SR->keyboardShiftFlag;
-			SR->showKeyboard();
-		}
-
-		SR->showKeyboardEditName();
-		return 1;
-	}
-	return 0;
+	SR->keyboardManager.confirmKey();
+	return 1;
 }
 
 
