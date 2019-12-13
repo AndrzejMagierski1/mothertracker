@@ -97,6 +97,13 @@ void cPatternEditor::update()
 
 	if(sequencer.isStop())
 	{
+		// jesli ostatnio bylo odtwarzane zaznaczenie to cofnij playhed na 0
+		if(trackerPattern.playheadSelectMode == 1)
+		{
+			trackerPattern.playheadSelectMode = 0;
+			PTE->trackerPattern.playheadPosition = 0;
+			PTE->refreshPattern();
+		}
 		return;
 	}
 
@@ -251,6 +258,12 @@ void cPatternEditor::refreshPattern()
 			}
 		}
 	}
+
+	if(sequencer.isPreview())
+	{
+		trackerPattern.playheadSelectMode = 1;
+	}
+	else trackerPattern.playheadSelectMode = 0;
 
 
 	if(trackerPattern.actualStep > seq->track[0].length) trackerPattern.actualStep = seq->track[0].length;
