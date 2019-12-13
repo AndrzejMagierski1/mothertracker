@@ -28,6 +28,7 @@ struct strTrackerPattern
 									// - steruje przesunieciem na boki
 	int16_t playheadPosition = 0;	// linia odtwarzania - wartosc stepa (0-xxx)
 	uint8_t stepDevider = 4;		// podzialka
+	uint8_t playheadSelectMode = 0;	// linia odtwarzania tylko w zaznaczeniu
 
 	int8_t selectState = 0;			// 1 = kursor ; 2 = kursor + zaznaczenie
 	int8_t selectedParam = 0;		// wybrany do modyfikacji parametr (0-4)
@@ -88,6 +89,8 @@ private:
 	void refresh4();
 	void refresh5();
 
+
+	void calculateSelection();
 
 	void backgroundDivider();
 	void lines();

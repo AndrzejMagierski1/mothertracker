@@ -247,6 +247,7 @@ void cTracker::refresh1()
 
 	backgroundDivider();
 
+	calculateSelection();
 
 	playHead();
 
@@ -422,6 +423,15 @@ void cTracker::playHead()
 		uint8_t row = tracks->playheadPosition - (tracks->actualStep-8);
 		uint16_t phy1 = posY+28*(row-1);
 		uint16_t phy2 = posY+28*row;
+		uint16_t phx1 = 1;
+		uint16_t phw = 798;
+
+		if(selectActive && tracks->playheadSelectMode)
+		{
+			phx1 = select1_x;
+			phw = select2_x-select1_x;
+		}
+
 
 /*
 		//API_LINE_WIDTH(8);
@@ -470,8 +480,8 @@ void cTracker::playHead()
 		API_SAVE_CONTEXT();
 
 		//API_LINE_WIDTH(16);
-		API_SCISSOR_XY(1, phy1-11);
-		API_SCISSOR_SIZE(798, 11);
+		API_SCISSOR_XY(phx1, phy1-11);
+		API_SCISSOR_SIZE(phw, 11);
 		API_CMD_GRADIENT(0, phy1-11, colors[1], 0, phy1, 0x0);
 
 		API_RESTORE_CONTEXT();
@@ -479,8 +489,8 @@ void cTracker::playHead()
 		API_SAVE_CONTEXT();
 
 		//API_LINE_WIDTH(16);
-		API_SCISSOR_XY(1, phy2);
-		API_SCISSOR_SIZE(798, 11);
+		API_SCISSOR_XY(phx1, phy2);
+		API_SCISSOR_SIZE(phw, 11);
 		API_CMD_GRADIENT(0, phy2, 0x0, 0, phy2+11, colors[1]);
 
 		API_RESTORE_CONTEXT();
@@ -496,20 +506,8 @@ void cTracker::playHead()
 }
 
 
-//-------------------------------------------------------------------------------------
-// ZAZNACZENIE ACTUAL
-void cTracker::selection()
+void cTracker::calculateSelection()
 {
-	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
-
-	//--------------------
-	// ZAZNACZENIE
-	if(paramCount == 1 || paramCount == 2)
-	{
-		if((1 << tracks->selectedParam & displayMode) == 0)	return;
-	}
-	//if(tracks->selectState
-	//   && (tracks->selectStartTrack != tracks->selectEndTrack || tracks->selectStartStep != tracks->selectEndStep))
 	if(tracks->selectState == 2)
 	{
 		selectActive = 1;
@@ -547,8 +545,28 @@ void cTracker::selection()
 
 		select2_y = select2_y - tracks->actualStep + 7;
 		select2_y = select2_y*28 + 28;
+	}
+	else
+	{
+		selectActive = 0;
+	}
+}
+//-------------------------------------------------------------------------------------
+// ZAZNACZENIE ACTUAL
+void cTracker::selection()
+{
+	//API_BLEND_FUNC(SRC_ALPHA, ZERO);
 
-
+	//--------------------
+	// ZAZNACZENIE
+	if(paramCount == 1 || paramCount == 2)
+	{
+		if((1 << tracks->selectedParam & displayMode) == 0)	return;
+	}
+	//if(tracks->selectState
+	//   && (tracks->selectStartTrack != tracks->selectEndTrack || tracks->selectStartStep != tracks->selectEndStep))
+	if(tracks->selectState == 2)
+	{
 		//pole pod edytowanym parametrem
 		API_COLOR(colors[10]);
 		API_LINE_WIDTH(8);
@@ -647,7 +665,6 @@ void cTracker::selection()
 
 
 	}
-	else selectActive = 0;
 
 
 	// aktualnie modyfikowany step
