@@ -3,22 +3,7 @@
 #include "mtLED.h"
 #include "mtFileManager.h"
 #include "mtExporterWAV.h"
-
-constexpr uint8_t BACKSPACE_PAD_1 = 10;
-constexpr uint8_t BACKSPACE_PAD_2 = 11;
-
-constexpr uint8_t CAPS_LOCK_PAD_1 = 34;
-constexpr uint8_t CAPS_LOCK_PAD_2 = 35;
-
-constexpr uint8_t SPACE_PAD_1 = 43;
-constexpr uint8_t SPACE_PAD_2 = 44;
-constexpr uint8_t SPACE_PAD_3 = 45;
-constexpr uint8_t SPACE_PAD_4 = 46;
-constexpr uint8_t SPACE_PAD_5 = 47;
-
-constexpr uint8_t F_PAD = 27;
-
-constexpr uint8_t J_PAD = 30;
+#include "display.h"
 
 static uint32_t popUpLabelColors[] =
 {
@@ -249,8 +234,7 @@ void cProjectEditor::showDefaultScreen()
 
 	display.refreshControl(bgLabel);
 
-
-	hideKeyboard();
+	keyboardManager.deactivateKeyboard();
 //	display.setControlHide(keyboardControl);
 //	display.refreshControl(keyboardControl);
 
@@ -446,10 +430,6 @@ void cProjectEditor::showEnterNameKeyboard()
 	display.refreshControl(label[1]);
 	display.refreshControl(label[4]);
 
-
-	showKeyboard();
-	showKeyboardEditName();
-
 	display.synchronizeRefresh();
 }
 
@@ -475,71 +455,9 @@ void cProjectEditor::showSaveAsKeyboard()
 
 	hideProjectCover();
 
-	showKeyboard();
-	showKeyboardEditName();
 	display.synchronizeRefresh();
 }
 
-
-void cProjectEditor::showKeyboard()
-{
-
-	leds.setLED(F_PAD, 1, 10);
-	leds.setLED(J_PAD, 1, 10);
-
-	if(keyboardShiftFlag) display.setControlValue(keyboardControl, keyboardPosition + 42);
-	else display.setControlValue(keyboardControl, keyboardPosition);
-
-	display.setControlShow(keyboardControl);
-	display.refreshControl(keyboardControl);
-}
-
-void cProjectEditor::hideKeyboard()
-{
-	if(lastPressedPad == BACKSPACE_PAD_1 || lastPressedPad == BACKSPACE_PAD_2)
-	{
-		leds.setLED(BACKSPACE_PAD_1, 0, 0);
-		leds.setLED(BACKSPACE_PAD_2, 0, 0);
-	}
-	else if(lastPressedPad == CAPS_LOCK_PAD_1 || lastPressedPad == CAPS_LOCK_PAD_2)
-	{
-		leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
-		leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
-	}
-	else if(lastPressedPad >= SPACE_PAD_1 && lastPressedPad <=SPACE_PAD_5)
-	{
-		for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
-		{
-			leds.setLED(i, 0, 0);
-		}
-	}
-	else
-	{
-		leds.setLED(lastPressedPad,0,0);
-	}
-	leds.setLED(F_PAD, 0, 0);
-	leds.setLED(J_PAD, 0, 0);
-
-	display.setControlHide(keyboardControl);
-	display.refreshControl(keyboardControl);
-}
-
-void cProjectEditor::showKeyboardEditName()
-{
-
-
-	display.setControlValue(editName, editPosition);
-
-	display.setControlText(editName, name);
-	display.setControlShow(editName);
-	display.refreshControl(editName);
-}
-
-void cProjectEditor::hideKeyboardEditName()
-{
-	display.setControlHide(editName);
-	display.refreshControl(editName);
-}
 
 void cProjectEditor::showSaveLastWindow()
 {
@@ -605,7 +523,7 @@ void cProjectEditor::showOverwriteWindow()
 	display.setControlText(label[7], "Overwrite");
 	display.setControlText(label[6], "Cancel");
 
-	sprintf(currentInfo,"Do you want overwrite \"%s\"?", name);
+	sprintf(currentInfo,"Do you want overwrite \"%s\"?", keyboardManager.getName());
 
 	display.setControlText(selectWindowLabel, currentInfo);
 	display.setControlShow(selectWindowLabel);

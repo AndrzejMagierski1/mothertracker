@@ -16,123 +16,7 @@
 #include "sdCardDetect.h"
 #include "mtFileManager.h"
 
-enum valueMapDirecion
-{
-	valueMapDirectionLeft,
-	valueMapDirectionRight,
-	valueMapDirectionUp,
-	valueMapDirectionDown
-};
 
-constexpr char smallKeyboard[KEYBOARD_SIZE] =
-{
-		 	 '1', '2', '3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9' ,'0' , 0 ,
-		 	 'q', 'w', 'e' ,'r' ,'t' ,'y' ,'u' ,'i' ,'o' ,'p' ,'-' ,'+',
-			 'a', 's', 'd' ,'f' ,'g' ,'h' ,'j' ,'k' ,'l' ,'@' , 1 ,
-			 'z', 'x', 'c' ,'v' ,'b' ,'n' ,'m' , ' '
-};
-
-constexpr char bigKeyboard[KEYBOARD_SIZE] =
-{
-			 '1', '2', '3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9' ,'0' , 0 ,
-		 	 'Q', 'W', 'E' ,'R' ,'T' ,'Y' ,'U' ,'I' ,'O' ,'P' ,'-' ,'+',
-			 'A', 'S', 'D' ,'F' ,'G' ,'H' ,'J' ,'K' ,'L', '@', 1 ,
-			 'Z', 'X', 'C' ,'V' ,'B' ,'N' ,'M' , ' '
-};
-
-//constexpr uint8_t valueMap[4][42] = przechodzenie przez sciany
-//{
-//		{
-//			10,0,1,2,3,4,5,6,7,8,9,
-//			22,11,12,13,14,15,16,17,18,19,20,21,
-//			33,23,24,25,26,27,28,29,30,31,32,
-//			41,34,35,36,37,38,39,40
-//		},
-//
-//		{
-//			1,2,3,4,5,6,7,8,9,10,0,
-//			12,13,14,15,16,17,18,19,20,21,22,11,
-//			24,25,26,27,28,29,30,31,32,33,23,
-//			35,36,37,38,39,40,41,34
-//		},
-//
-//		{
-//			34,35,36,37,38,39,40,41,41,41,41,
-//			0,1,2,3,4,5,6,7,8,9,10,10,
-//			11,12,13,14,15,16,17,18,19,20,21,
-//			23,24,25,26,27,28,29,30,
-//		},
-//
-//		{
-//			11,12,13,14,15,16,17,18,19,20,21,
-//			23,24,25,26,27,28,29,30,31,32,33,33,
-//			34,35,36,37,38,39,40,41,41,41,41,
-//			0,1,2,3,4,5,6,7
-//		},
-//};
-
-constexpr uint8_t valueMap[4][42] =
-{
-		{
-			0,0,1,2,3,4,5,6,7,8,9,
-			11,11,12,13,14,15,16,17,18,19,20,21,
-			23,23,24,25,26,27,28,29,30,31,32,
-			34,34,35,36,37,38,39,40
-		},
-
-		{
-			1,2,3,4,5,6,7,8,9,10,10,
-			12,13,14,15,16,17,18,19,20,21,22,22,
-			24,25,26,27,28,29,30,31,32,33,33,
-			35,36,37,38,39,40,41,41
-		},
-
-		{
-			0,1,2,3,4,5,6,7,8,9,10,
-			0,1,2,3,4,5,6,7,8,9,10,10,
-			11,12,13,14,15,16,17,18,19,20,21,
-			23,24,25,26,27,28,29,30,
-		},
-
-		{
-			11,12,13,14,15,16,17,18,19,20,21,
-			23,24,25,26,27,28,29,30,31,32,33,33,
-			34,35,36,37,38,39,40,41,41,41,41,
-			34,35,36,37,38,39,40,41
-		},
-};
-
-constexpr uint8_t valueMapPads[48] =
-{
-	0,1,2,3,4,5,6,7,8,9,10,10,
-	11,12,13,14,15,16,17,18,19,20,21,22,
-	23,24,25,26,27,28,29,30,31,32,33,33,
-	34,35,36,37,38,39,40,41,41,41,41,41
-};
-
-constexpr uint8_t keyPositionToPads[42] =
-{
-	0,1,2,3,4,5,6,7,8,9,10,
-	12,13,14,15,16,17,18,19,20,21,22,23,
-	24,25,26,27,28,29,30,31,32,33,34,
-	36,37,38,39,40,41,42,43
-};
-
-constexpr uint8_t BACKSPACE_PAD_1 = 10;
-constexpr uint8_t BACKSPACE_PAD_2 = 11;
-
-constexpr uint8_t CAPS_LOCK_PAD_1 = 34;
-constexpr uint8_t CAPS_LOCK_PAD_2 = 35;
-
-constexpr uint8_t SPACE_PAD_1 = 43;
-constexpr uint8_t SPACE_PAD_2 = 44;
-constexpr uint8_t SPACE_PAD_3 = 45;
-constexpr uint8_t SPACE_PAD_4 = 46;
-constexpr uint8_t SPACE_PAD_5 = 47;
-
-constexpr uint8_t F_PAD = 27;
-
-constexpr uint8_t J_PAD = 30;
 
 cProjectEditor projectEditor;
 cProjectEditor* PE = &projectEditor;
@@ -386,7 +270,7 @@ void cProjectEditor::start(uint32_t options)
 
 	moduleRefresh = 1;
 
-
+	keyboardManager.init(keyboardControl,editName);
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -414,6 +298,7 @@ void cProjectEditor::start(uint32_t options)
 
 void cProjectEditor::stop()
 {
+	keyboardManager.deinit();
 	moduleRefresh = 0;
 	refreshCover = 0;
 }
@@ -423,7 +308,6 @@ void cProjectEditor::setDefaultScreenFunct()
 	//funkcje
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
-	keyboardActiveFlag = 0;
 /*
 	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
 	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
@@ -622,8 +506,8 @@ static uint8_t functSaveProject()
 
 	mtProject.values.projectNotSavedFlag = 0;
 
-	if(fileManager.currentProjectName[0]) strcpy(PE->name, fileManager.currentProjectName);
-	else strcpy(PE->name,"New Project");
+	if(fileManager.currentProjectName[0]) PE->keyboardManager.fillName(fileManager.currentProjectName);
+	else PE->keyboardManager.fillName("New Project");
 
 	PE->showProcessingPopup("Saving project");
 
@@ -641,15 +525,8 @@ static uint8_t functSaveAsProject()
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functConfirmKey);
 	PE->FM->setButtonObj(interfaceButtonInsert, buttonPress, functConfirmKey);
 
-	strcpy(PE->name,fileManager.currentProjectName);
-
-	PE->editPosition = strlen(PE->name);
-	PE->keyboardPosition = BACKSPACE_PAD_1;
-	PE->lastPressedPad = BACKSPACE_PAD_1;
-	leds.setLED(BACKSPACE_PAD_1, 1, 31);
-	leds.setLED(BACKSPACE_PAD_2, 1, 31);
-
-	PE->keyboardActiveFlag = 1;
+	PE->keyboardManager.fillName(fileManager.currentProjectName);
+	PE->keyboardManager.activateKeyboard();
 
 	PE->showSaveAsKeyboard();
 
@@ -765,7 +642,7 @@ static uint8_t functSaveAsConfirm()
 {
 	if(PE->isBusyFlag) return 1;
 
-	if(fileManager.prepareSaveAs(PE->name,FileManager::saveAsChecking) == 0 )
+	if(fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsChecking) == 0 )
 	{
 		PE->functShowOverwriteWindow();
 		return 1;
@@ -774,7 +651,8 @@ static uint8_t functSaveAsConfirm()
 	PE->newProjectNotSavedFlag = 0;
 	mtProject.values.projectNotSavedFlag = 0;
 
-	strcpy(fileManager.currentProjectName, PE->name);
+
+	strcpy(fileManager.currentProjectName, 	PE->keyboardManager.getName());
 
 	PE->savePopupFlag = 1;
 	PE->savePopupDelay = 0;
@@ -789,9 +667,7 @@ static uint8_t functSaveAsConfirm()
 static uint8_t functSaveAsAutoName()
 {
 
-	strcpy(PE->name,randomNameGenerator.getRandomName());
-	PE->editPosition = strlen(PE->name);
-	PE->showKeyboardEditName();
+	PE->keyboardManager.setRandomName();
 	return 1;
 }
 
@@ -809,7 +685,7 @@ static uint8_t functSaveAsOverwriteYes()
 {
 	if(PE->isBusyFlag) return 1;
 
-	fileManager.prepareSaveAs(PE->name,FileManager::saveAsOverwrite);
+	fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsOverwrite);
 
 	mtProject.values.projectNotSavedFlag = 0;
 
@@ -836,13 +712,7 @@ static uint8_t functSaveAsOverwriteNo()
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functConfirmKey);
 	PE->FM->setButtonObj(interfaceButtonInsert, buttonPress, functConfirmKey);
 
-	PE->editPosition = strlen(PE->name);
-	PE->keyboardPosition = BACKSPACE_PAD_1;
-	PE->lastPressedPad = BACKSPACE_PAD_1;
-	leds.setLED(BACKSPACE_PAD_1, 1, 31);
-	leds.setLED(BACKSPACE_PAD_2, 1, 31);
-
-	PE->keyboardActiveFlag = 1;
+	PE->keyboardManager.activateKeyboard();
 
 	PE->showSaveAsKeyboard();
 
@@ -1277,32 +1147,19 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 
 static  uint8_t functLeft()
 {
-	if(PE->keyboardActiveFlag)
-	{
-		PE->keyboardPosition = valueMap[valueMapDirectionLeft][PE->keyboardPosition];
-		PE->showKeyboard();
-		return 1;
-	}
+	PE->keyboardManager.makeMove('a');
 	return 1;
 }
 static  uint8_t functRight()
 {
-	if(PE->keyboardActiveFlag)
-	{
-		PE->keyboardPosition = valueMap[valueMapDirectionRight][PE->keyboardPosition];
-		PE->showKeyboard();
-		return 1;
-	}
+
+	PE->keyboardManager.makeMove('d');
 	return 1;
 }
 static  uint8_t functUp()
 {
-	if(PE->keyboardActiveFlag)
-	{
-		PE->keyboardPosition = valueMap[valueMapDirectionUp][PE->keyboardPosition];
-		PE->showKeyboard();
-		return 1;
-	}
+	PE->keyboardManager.makeMove('w');
+	if(PE->keyboardManager.getState()) return 1;
 	if(PE->projectListActiveFlag)
 	{
 		if(PE->selectedLocation > 0 )
@@ -1321,12 +1178,8 @@ static  uint8_t functUp()
 }
 static  uint8_t functDown()
 {
-	if(PE->keyboardActiveFlag)
-	{
-		PE->keyboardPosition = valueMap[valueMapDirectionDown][PE->keyboardPosition];
-		PE->showKeyboard();
-		return 1;
-	}
+	PE->keyboardManager.makeMove('s');
+	if(PE->keyboardManager.getState()) return 1;
 	if(PE->projectListActiveFlag)
 	{
 		if(PE->selectedLocation < PE->locationFilesCount-1 )
@@ -1345,118 +1198,15 @@ static  uint8_t functDown()
 
 static uint8_t functConfirmKey()
 {
-	if(PE->keyboardActiveFlag)
-	{
-		if(PE->editPosition > 31) return 1;
-
-		//****************************************************ledy
-		if(PE->lastPressedPad == BACKSPACE_PAD_1 || PE->lastPressedPad == BACKSPACE_PAD_2) //backspace
-		{
-			leds.setLED(BACKSPACE_PAD_1, 0, 0);
-			leds.setLED(BACKSPACE_PAD_2, 0, 0);
-		}
-		else if(PE->lastPressedPad == CAPS_LOCK_PAD_1 || PE->lastPressedPad == CAPS_LOCK_PAD_2) //capslock
-		{
-			if(PE->keyboardShiftFlag)
-			{
-				leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
-				leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
-			}
-			else
-			{
-				leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
-				leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
-			}
-
-		}
-		else if(PE->lastPressedPad >= SPACE_PAD_1 && PE->lastPressedPad <= SPACE_PAD_5) //space
-		{
-			for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
-			{
-				leds.setLED(i, 0, 0);
-			}
-		}
-		else
-		{
-			if(PE->lastPressedPad != F_PAD && PE->lastPressedPad != J_PAD) leds.setLED(PE->lastPressedPad,0,0);
-			else leds.setLED(PE->lastPressedPad,1,10);
-		}
-
-
-		PE->lastPressedPad = keyPositionToPads[PE->keyboardPosition];
-
-		if(keyPositionToPads[PE->keyboardPosition] == BACKSPACE_PAD_1 || keyPositionToPads[PE->keyboardPosition] == BACKSPACE_PAD_2) //backspace
-		{
-			leds.setLED(BACKSPACE_PAD_1, 1, 31);
-			leds.setLED(BACKSPACE_PAD_2, 1, 31);
-		}
-		else if(keyPositionToPads[PE->keyboardPosition] == CAPS_LOCK_PAD_1 || keyPositionToPads[PE->keyboardPosition] == CAPS_LOCK_PAD_2) //capslock
-		{
-			leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
-			leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
-		}
-		else if(keyPositionToPads[PE->keyboardPosition] >= SPACE_PAD_1 && keyPositionToPads[PE->keyboardPosition] <=SPACE_PAD_5) //space
-		{
-			for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
-			{
-				leds.setLED(i, 1, 31);
-			}
-		}
-		else
-		{
-			leds.setLED(keyPositionToPads[PE->keyboardPosition],1,31);
-		}
-		//////////////////////////////////////
-		if(smallKeyboard[PE->keyboardPosition] > 1)
-		{
-			if(PE->editPosition == 31) return 1;
-			uint8_t localNameLen = strlen(PE->name);
-			if(PE->editPosition < localNameLen)
-			{
-				for(uint8_t i = localNameLen; i >= PE->editPosition ; i-- )
-				{
-					PE->name[i+1] = PE->name[i];
-				}
-			}
-
-			PE->name[PE->editPosition] = PE->keyboardShiftFlag ? bigKeyboard[PE->keyboardPosition] : smallKeyboard[PE->keyboardPosition];
-
-			PE->editPosition++;
-		}
-		else if(smallKeyboard[PE->keyboardPosition] == 0)
-		{
-			if(PE->editPosition == 0 ) return 1;
-
-			PE->name[PE->editPosition-1] = 0;
-			PE->editPosition--;
-
-
-		}
-		else if(smallKeyboard[PE->keyboardPosition] == 1)
-		{
-			PE->keyboardShiftFlag = ! PE->keyboardShiftFlag;
-			PE->showKeyboard();
-
-		}
-
-		PE->showKeyboardEditName();
-		return 1;
-	}
-	return 0;
+	PE->keyboardManager.confirmKey();
+	return 1;
 }
 
 static uint8_t functDeleteBackspace(uint8_t state)
 {
 	if((state == buttonPress) || (state == buttonHold))
 	{
-		if(PE->keyboardActiveFlag)
-		{
-			if(PE->editPosition == 0 ) return 1;
-
-			PE->name[PE->editPosition-1] = 0;
-			PE->editPosition--;
-			PE->showKeyboardEditName();
-		}
+		PE->keyboardManager.makeBackspace();
 	}
 	return 1;
 }
@@ -1464,119 +1214,8 @@ static uint8_t functDeleteBackspace(uint8_t state)
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if(PE->isBusyFlag) return 1;
-	if((state == 1) || (state == 2))
-	{
-		if(PE->keyboardActiveFlag)
-		{
-			if(PE->lastPressedPad == BACKSPACE_PAD_1 || PE->lastPressedPad == BACKSPACE_PAD_2) //backspace
-			{
-				leds.setLED(BACKSPACE_PAD_1, 0, 0);
-				leds.setLED(BACKSPACE_PAD_2, 0, 0);
-			}
-			else if(PE->lastPressedPad == CAPS_LOCK_PAD_1 || PE->lastPressedPad == CAPS_LOCK_PAD_2) //capslock
-			{
-				if(PE->keyboardShiftFlag)
-				{
-					leds.setLED(CAPS_LOCK_PAD_1, 1, 10);
-					leds.setLED(CAPS_LOCK_PAD_2, 1, 10);
-				}
-				else
-				{
-					leds.setLED(CAPS_LOCK_PAD_1, 0, 0);
-					leds.setLED(CAPS_LOCK_PAD_2, 0, 0);
-				}
 
-			}
-			else if(PE->lastPressedPad >= SPACE_PAD_1 && PE->lastPressedPad <= SPACE_PAD_5) //space
-			{
-				for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
-				{
-					leds.setLED(i, 0, 0);
-				}
-			}
-			else
-			{
-				if(PE->lastPressedPad != F_PAD && PE->lastPressedPad != J_PAD) leds.setLED(PE->lastPressedPad,0,0);
-				else leds.setLED(PE->lastPressedPad,1,10);
-			}
-
-
-			PE->lastPressedPad = pad;
-
-			if(pad == BACKSPACE_PAD_1 || pad == BACKSPACE_PAD_2) //backspace
-			{
-				leds.setLED(BACKSPACE_PAD_1, 1, 31);
-				leds.setLED(BACKSPACE_PAD_2, 1, 31);
-			}
-			else if(pad == CAPS_LOCK_PAD_1 || pad == CAPS_LOCK_PAD_2) //capslock
-			{
-				leds.setLED(CAPS_LOCK_PAD_1, 1, 31);
-				leds.setLED(CAPS_LOCK_PAD_2, 1, 31);
-			}
-			else if(pad >= SPACE_PAD_1 && pad <=SPACE_PAD_5) //space
-			{
-				for(uint8_t i = SPACE_PAD_1; i<= SPACE_PAD_5; i++)
-				{
-					leds.setLED(i, 1, 31);
-				}
-			}
-			else
-			{
-				leds.setLED(pad,1,31);
-			}
-
-			PE->keyboardPosition = valueMapPads[pad];
-
-
-			if(PE->editPosition > 31) return 1;
-			if(smallKeyboard[PE->keyboardPosition] > 1)
-			{
-				if(PE->editPosition == 31) return 1;
-				uint8_t localNameLen = strlen(PE->name);
-				if(PE->editPosition < localNameLen)
-				{
-					for(uint8_t i = localNameLen; i >= PE->editPosition ; i-- )
-					{
-						PE->name[i+1] = PE->name[i];
-					}
-				}
-
-				PE->name[PE->editPosition] = PE->keyboardShiftFlag ? bigKeyboard[PE->keyboardPosition] : smallKeyboard[PE->keyboardPosition];
-				PE->name[PE->editPosition + 1] = 0;
-				PE->editPosition++;
-			}
-			else if(smallKeyboard[PE->keyboardPosition] == 0)
-			{
-				if(PE->editPosition == 0 ) return 1;
-
-				PE->name[PE->editPosition-1] = 0;
-				PE->editPosition--;
-
-
-			}
-			else if(smallKeyboard[PE->keyboardPosition] == 1)
-			{
-				PE->keyboardShiftFlag = ! PE->keyboardShiftFlag;
-//				PE->showKeyboard();
-			}
-			PE->showKeyboard();
-			PE->showKeyboardEditName();
-			return 1;
-		}
-
-		return 1;
-	}
-	else if(state == 0)
-	{
-		if(PE->keyboardActiveFlag)
-		{
-
-		}
-	}
-
-
-
-
+	PE->keyboardManager.onPadChange(pad, state);
 	return 1;
 }
 

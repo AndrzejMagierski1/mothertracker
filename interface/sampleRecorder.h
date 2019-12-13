@@ -4,10 +4,8 @@
 
 #include <modulesBase.h>
 #include "SD.h"
-
-
 #include "mtStructs.h"
-
+#include "mtKeyboardManager.h"
 
 const uint8_t sourceCount = 4;
 const uint8_t monitorCount = 2;
@@ -100,10 +98,6 @@ public:
 	void showFreqValue();
 	void showRadio();
 	void hideRadio();
-	void showKeyboard();
-	void hideKeyboard();
-	void showKeyboardEditName();
-	void hideKeyboardEditName();
 
 	void setDefaultScreenFunct();
 
@@ -266,16 +260,7 @@ uint8_t cropCounter = 0;
 	void changeLevelBar();
 	void changeGainBar(int16_t val);
 
-//keyboard
-
-	char name[33];
-	uint8_t keyboardPosition;
-	int8_t editPosition;
-	uint8_t keyboardActiveFlag = 0;
-	uint8_t keyboardShiftFlag = 0;
-	uint8_t lastPressedPad;
-
-
+	mtKeyboardManager keyboardManager;
 //save
 	enum saveType
 	{
