@@ -79,9 +79,6 @@ public:
 			FX_TYPE_RANDOM_NOTE,
 			FX_TYPE_RANDOM_INSTRUMENT,
 			FX_TYPE_RANDOM_VELOCITY,
-//			FX_TYPE_ROLL_NOTE_UP,
-//			FX_TYPE_ROLL_NOTE_DOWN,
-//			FX_TYPE_ROLL_NOTE_RANDOM,
 			FX_TYPE_SEND_CC_1,
 			FX_TYPE_SEND_CC_2,
 			FX_TYPE_SEND_CC_3,
@@ -143,12 +140,12 @@ public:
 		enum enRollDir
 		{
 			rollType_const = 0,
-			rollType_noteUp,
-			rollType_noteDown,
-			rollType_noteRandom,
 			rollType_volDown,
 			rollType_volUp,
-			rollNoteDir_max = rollType_volUp,
+			rollType_noteDown,
+			rollType_noteUp,
+			rollType_noteRandom,
+			rollNoteDir_max = rollType_noteRandom,
 		};
 
 	} fx;
@@ -476,6 +473,10 @@ public:
 	uint8_t isPlay(void);
 	uint8_t isRec(void);
 	uint8_t isStop(void);
+	uint8_t isPreview(void)
+	{
+		return player.isPlay && player.selectionMode;
+	}
 
 // sekwencerowe
 
