@@ -97,6 +97,13 @@ void cPatternEditor::update()
 
 	if(sequencer.isStop())
 	{
+		// jesli ostatnio bylo odtwarzane zaznaczenie to cofnij playhed na 0
+		if(trackerPattern.playheadSelectMode == 1)
+		{
+			trackerPattern.playheadSelectMode = 0;
+			PTE->trackerPattern.playheadPosition = 0;
+			PTE->refreshPattern();
+		}
 		return;
 	}
 
@@ -251,6 +258,12 @@ void cPatternEditor::refreshPattern()
 			}
 		}
 	}
+
+	if(sequencer.isPreview())
+	{
+		trackerPattern.playheadSelectMode = 1;
+	}
+	else trackerPattern.playheadSelectMode = 0;
 
 
 	if(trackerPattern.actualStep > seq->track[0].length) trackerPattern.actualStep = seq->track[0].length;
@@ -1173,7 +1186,7 @@ uint8_t functEncoder(int16_t value)
 
 
 	sendSelection();
-	if(tactButtons.isButtonPressed(interfaceButton6) || !isMultiSelection())
+	if(tactButtons.isButtonPressed(interfaceButtonShift) || !isMultiSelection())
 	{
 		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		fileManager.storePatternUndoRevision();
@@ -1181,7 +1194,7 @@ uint8_t functEncoder(int16_t value)
 		{
 		case 0: sequencer.changeSelectionNote(value); break;
 		case 1: sequencer.changeSelectionInstrument(value); break;
-		case 2:// sequencer.changeSelectionVolume(value); break;
+		case 2:
 		case 3:
 		{
 			uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;

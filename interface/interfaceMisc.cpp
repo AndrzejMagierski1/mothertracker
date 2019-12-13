@@ -6,6 +6,8 @@
 
 #include "mtFileManager.h"
 #include <display.h>
+#include "MTP.h"
+
 
 elapsedMillis startScreenRefresh;
 
@@ -64,6 +66,15 @@ uint8_t cInterface::detectStartState()
 
 	if(startupTimer < 1000) // minimalny czas start screenu
 	{
+		return 0;
+	}
+
+
+	// na koniec wlacza mtp i opoznia start o 500 ms
+	if(mtpd.state == 0)
+	{
+		mtpd.state = 1;
+		startupTimer = 500;
 		return 0;
 	}
 
