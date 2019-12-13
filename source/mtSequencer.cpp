@@ -920,7 +920,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 	{
 		player.globalPos++;
 
-		if (player.selectionMode && row == selection.lastTrack)
+		if (player.selectionMode)
 		{
 			if (player.globalPos > selection.lastStep)
 			{
