@@ -1,17 +1,14 @@
-
 #include "SD.h"
 #include "MTP.h"
 
 // These should probably be weak.
-void mtp_yield()
-{
-}
+
+
+MTPStorage_SD storage;
+
 void mtp_lock_storage(bool lock)
 {
 }
-
-MTPStorage_SD storage;
-MTPD mtpd(&storage);
 
 bool MTPStorage_SD::readonly()
 {
@@ -100,7 +97,6 @@ void MTPStorage_SD::GenerateIndex()
 
 #endif
 
-
 void MTPStorage_SD::ConstructFilename(int i, char* out)
 {
 	if (i == 0)
@@ -134,7 +130,6 @@ void MTPStorage_SD::OpenFileByIndex(uint32_t i, uint8_t mode = O_RDONLY)
 // MTP object handles should not change or be re-used during a session.
 // This would be easy if we could just have a list of all files in memory.
 // Since our RAM is limited, we'll keep the index in a file instead.
-
 
 void MTPStorage_SD::ScanDir(uint32_t i)
 {
@@ -368,3 +363,4 @@ void MTPStorage_SD::close()
 	WriteIndexRecord(open_file_, r);
 	open_file_ = 0xFFFFFFFEUL;
 }
+
