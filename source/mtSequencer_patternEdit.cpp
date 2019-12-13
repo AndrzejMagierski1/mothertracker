@@ -31,7 +31,7 @@ void Sequencer::fillRandomNotes(int16_t fillStep,
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
-	uint8_t scale = 2;
+	uint8_t scale = mtProject.values.padBoardScale;
 	uint8_t root = 12;
 
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
@@ -69,7 +69,7 @@ void Sequencer::fillLinearNotes(int16_t fillStep,
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
-	uint8_t scale = 2;
+	uint8_t scale = mtProject.values.padBoardScale;
 	uint8_t root = 12;
 
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
@@ -1311,7 +1311,6 @@ char Sequencer::getRollTypeChar(uint8_t val)
 uint8_t Sequencer::calcStepLength(uint8_t track, uint8_t step)
 {
 	uint8_t trackLen = getActualPattern()->track[0].length;
-	uint8_t actualPos = player.track[track].actual_pos;
 
 	uint8_t b = 1;
 	for (uint8_t a = step + 1; a <= trackLen; a++, b++)
