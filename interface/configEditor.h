@@ -135,6 +135,14 @@ const char clockOut[CLOCK_OUT][20] =
 		"USB and Midi out",
 };
 
+enum enClockOut
+{
+	clockOut_Off,
+	clockOut_usb,
+	clockOut_jack,
+	clockOut_usb_and_jack,
+};
+
 const char CCouts[CC_OUTS_NUM][5] =
 {
 		"CC1",
