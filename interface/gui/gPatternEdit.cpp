@@ -57,8 +57,10 @@ volatile uint32_t patternTrackerColors[] =
 	one_true_red,//0xf13c3c, // 10 zaznaczenie
 	0x0e0e0e, // 11 podzialka
 	0x333333, // 12 nieaktywny
-	0x232323, // 13 playhead
+	0x000000, // 13 playhead
+
 	0xffffff, // 14 tekst zanzaczenia
+	one_true_red, // 15 playhed rec mode
 };
 
 uint32_t patternTrackerSelectionColor = one_true_red;
@@ -928,14 +930,3 @@ void cPatternEditor::deactivateSelection()
 {
 	patternTrackerColors[10] = 0xffffff;
 }
-
-void cPatternEditor::playheadRecMode()
-{
-	patternTrackerColors[13] = patternTrackerSelectionColor;
-}
-
-void cPatternEditor::playheadNormalMode()
-{
-	patternTrackerColors[13] = 0xffffff;
-}
-

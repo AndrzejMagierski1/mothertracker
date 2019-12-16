@@ -263,7 +263,7 @@ void cInterfacePopups::showFxesPopup()
 	ptrActualItemsList = (char**)(interfaceGlobals.ptrFxNames);
 
 	instrList.start = selectedActualItem;
-	instrList.linesCount = 17;
+	instrList.linesCount = 16;
 	instrList.length = 48;
 	instrList.data = (char**)interfaceGlobals.ptrFxNames;
 
