@@ -8,8 +8,6 @@ MTPD mtpd(&storage);
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-elapsedMillis loopTime;
-
 void MTPD::loop()
 {
 	usb_packet_t *receive_buffer;
@@ -20,8 +18,6 @@ void MTPD::loop()
 		uint32_t p1 = 0;
 		if (receive_buffer->len >= 12)
 		{
-			loopTime = 0;
-
 			return_code = 0x2001;  // Ok
 			receive_buffer->len = 16;
 			if (CONTAINER->type == 1)
@@ -109,15 +105,6 @@ void MTPD::loop()
 			{
 				return_code = 0x2000;  // undefined
 			}
-
-			Serial.print("loop time: ");
-			Serial.println(loopTime);
-			if(loopTime > 1000)
-			{
-			//	__asm__ __volatile__ ("bkpt #0");
-				(void)receive_buffer;
-			}
-
 
 		}
 		if (return_code)

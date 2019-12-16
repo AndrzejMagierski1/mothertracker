@@ -98,11 +98,12 @@ void cPatternEditor::update()
 	if(sequencer.isStop())
 	{
 		// jesli ostatnio bylo odtwarzane zaznaczenie to cofnij playhed na 0
-		if(trackerPattern.playheadSelectMode == 1)
+		if(trackerPattern.playheadSelectMode == 1 || trackerPattern.playheadRecMode == 1)
 		{
 			trackerPattern.playheadSelectMode = 0;
-			PTE->trackerPattern.playheadPosition = 0;
-			PTE->refreshPattern();
+			trackerPattern.playheadPosition = 0;
+			trackerPattern.playheadRecMode = 0;
+			refreshPattern();
 		}
 		return;
 	}
@@ -248,14 +249,8 @@ void cPatternEditor::refreshPattern()
 		{
 			trackerPattern.actualStep = trackerPattern.playheadPosition;
 
-			if(sequencer.isRec())
-			{
-				playheadRecMode();
-			}
-			else
-			{
-				playheadNormalMode();
-			}
+			if(sequencer.isRec()) 	trackerPattern.playheadRecMode = 1;
+			else 					trackerPattern.playheadRecMode = 0;
 		}
 	}
 
@@ -871,14 +866,13 @@ void cPatternEditor::refreshEditState()
 		if(trackerPattern.selectState == 0) trackerPattern.selectState = 1;
 
 		trackerPattern.selectedParam = editParam;
+		trackerPattern.playheadRecMode = 0;
 
 		focusOnActual();
 
 		focusOnPattern();
 
 		showEditModeLabels();
-
-		playheadNormalMode();
 
 		FM->setButtonObj(interfaceButton3, buttonPress, functFill);
 		FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
@@ -1923,13 +1917,20 @@ static uint8_t functInsertHome(uint8_t state)
 			{
 				if (isMultiSelection())
 				{
-					PTE->trackerPattern.selectStartStep=0;
-					PTE->trackerPattern.selectEndStep=0;
-					PTE->trackerPattern.actualStep=0; // zmiana pozycji kursora
+					PTE->trackerPattern.selectColumn = 0;
+					PTE->trackerPattern.selectState = 1;
+					PTE->isSelectingNow = 0;
+
+					PTE->trackerPattern.selectStartStep = 0;
+					PTE->trackerPattern.selectEndStep = 0;
+					PTE->trackerPattern.selectStartTrack = PTE->trackerPattern.actualTrack;
+					PTE->trackerPattern.selectEndTrack = PTE->trackerPattern.actualTrack;
+
+					PTE->trackerPattern.actualStep = 0; // zmiana pozycji kursora
 				}
 				else
 				{
-					PTE->trackerPattern.actualStep=0; // zmiana pozycji kursora
+					PTE->trackerPattern.actualStep = 0; // zmiana pozycji kursora
 				}
 			}
 			// INSERT
