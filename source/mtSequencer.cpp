@@ -5,6 +5,8 @@
 #include "mtStructs.h"
 #include "mtFileManager.h"
 
+#include "mtMidi.h"
+
 #include "patternEditor.h"
 Sequencer sequencer;
 
@@ -276,10 +278,10 @@ void Sequencer::play_microStep(uint8_t row)
 	// 	TODO: ogarnąć
 	//	**************************
 
-	if ((playerRow.uStep > 0) && player.isPlay)
+	if ((playerRow.uStep > 0) && player.isPlay && row == 0 && !player.selectionMode)
 	{
 		if (((playerRow.uStep - 1) % 8) == 0)
-			send_clock(row);
+			sendMidiClock();
 	}
 
 	// jeśli ostatni step, zażądaj ładowania kolejnego patternu
@@ -771,6 +773,8 @@ void Sequencer::play(void)
 		player.track[a].uStep = 1;
 	}
 
+	sendMidiStart();
+
 //	player.metronome_timer = 1;
 
 }
@@ -884,6 +888,8 @@ void Sequencer::stop(void)
 	allNoteOffs();
 
 	player.performance.tempo = 0.0;
+
+	sendMidiStop();
 }
 
 void Sequencer::rec(void)

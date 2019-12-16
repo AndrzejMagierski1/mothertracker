@@ -11,6 +11,9 @@ void midiUpdate();
 void handleNoteOn(byte channel, byte pitch, byte velocity);
 void handleNoteOff(byte channel, byte pitch, byte velocity);
 
-
+// hocki clocki
+void sendMidiStart();
+void sendMidiClock();
+void sendMidiStop();
 
 #endif /* SOURCE_MTMIDI_H_ */
