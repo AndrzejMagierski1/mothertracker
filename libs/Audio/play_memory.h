@@ -252,6 +252,7 @@ private:
 	uint8_t loopBackwardFlag;								// kierunek playhead'a w loopie
 	int8_t	lastNote = -1;									// ostatnia nuta - potrzebne przy glidach i slidach
 	uint8_t sampleType;
+	int16_t * startAddress;
 
 	struct strSamplePoints									// pointy umieszczone w pamieci dla konkretnej probki
 	{

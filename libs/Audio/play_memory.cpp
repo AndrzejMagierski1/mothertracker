@@ -588,7 +588,7 @@ void AudioPlayMemory::update(void)
 
 		}
 //		next = in;
-		next = mtProject.instrument[currentInstr_idx].sample.address + samplePoints.start;
+		next = startAddress + samplePoints.start;
 		transmit(block);
 //		length -= castPitchControl; //powrot do bazowej dlugosci
 	}
@@ -705,6 +705,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	else pitchControl =  (sampleType == mtSampleTypeWaveFile) ? (float)notes[note+ currentTune] : (float)wt_notes[note + currentTune];
 
 	int16_t * data = mtProject.instrument[instr_idx].sample.address;
+	startAddress = mtProject.instrument[instr_idx].sample.address;
 
 	playMode=mtProject.instrument[instr_idx].playMode;
 
@@ -975,6 +976,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	else pitchControl =  (sampleType == mtSampleTypeWaveFile) ? (float)notes[n+ currentTune] : (float)wt_notes[n + currentTune];
 
 	int16_t * data = mtProject.instrument[instr_idx].sample.address;
+	startAddress = mtProject.instrument[instr_idx].sample.address;
 
 	playMode=mtProject.instrument[instr_idx].playMode;
 
@@ -1171,6 +1173,7 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 
 
 	int16_t * data = addr;
+	startAddress = addr;
 
 	if(sampleType == mtSampleTypeWavetable)
 	{
@@ -1265,6 +1268,7 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 
 
 	int16_t * data = addr;
+	startAddress = addr;
 
 	playMode=singleShot;
 
