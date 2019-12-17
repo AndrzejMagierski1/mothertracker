@@ -427,6 +427,11 @@ static  uint8_t functLeft()
 	else
 	{
 		SE->selectedPlace--;
+
+		if(SE->selectedPlace == 7)
+		{
+			SE->selectedPlace = SE->songPlayerData.selection.startTrack;
+		}
 	}
 
 	SE->activateLabelsBorder();
