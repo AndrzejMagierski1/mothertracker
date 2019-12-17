@@ -490,22 +490,28 @@ uint8_t KEYS::update()
 	if (keyInt)
 	{
 		result = 1;
-		uint8_t key = readKeypad(); //Get first keycode from FIFO;
-		uint8_t keyNumber = key & 0x7F;
-		uint8_t keyState = key & 0x80 ;
+		uint8_t eventCounter = getKeyEventCount();
 
-		uint8_t button = convertTable[keyNumber-1];
-		if (keyState)
+		for(uint8_t i = 0 ; i < eventCounter; i++ )
 		{
-			onPush(button);
-			buttonPush[button] = 1;
-			holdTim[button] = 0;
-			holdFactor[button] = 0;
-		}
-		else
-		{
-			onRelease(button);
-			buttonPush[button] = 0;
+			uint8_t key = readKeypad(); //Get first keycode from FIFO;
+			uint8_t keyNumber = key & 0x7F;
+			uint8_t keyState = key & 0x80 ;
+
+			uint8_t button = convertTable[keyNumber-1];
+
+			if (keyState)
+			{
+				onPush(button);
+				buttonPush[button] = 1;
+				holdTim[button] = 0;
+				holdFactor[button] = 0;
+			}
+			else
+			{
+				onRelease(button);
+				buttonPush[button] = 0;
+			}
 		}
 
 		keyInt = 0; //Reset Our Interrupt flag

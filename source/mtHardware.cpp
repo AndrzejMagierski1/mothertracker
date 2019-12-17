@@ -72,11 +72,13 @@ KEYS tactButtons;
 void KeypadISR()
 {  //Keypad Interrupt Service Routine
 	Keypad.keyInt = 1;
+	//todo:odczytywac tu stany i buforowac jezeli by jeszcze kiedys zamulalo
 }
 
 void ButtonsISR()
 {  //Keypad Interrupt Service Routine
 	tactButtons.keyInt = 1;
+	//todo:odczytywac tu stany i buforowac jezeli by jeszcze kiedys zamulalo
 }
 
 
