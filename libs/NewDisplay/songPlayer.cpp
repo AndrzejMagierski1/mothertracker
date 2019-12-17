@@ -114,7 +114,7 @@ void cSongPlayer::setDefaultColors(uint32_t colors[])
 
 void cSongPlayer::setData(void* data)
 {
-	controlData = (block_data_t*)data;
+	controlData = (player_data_t*)data;
 
 	list = controlData->list;
 	if(list->start < 0)

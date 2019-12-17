@@ -123,7 +123,7 @@ public:
 
 	uint8_t exitOnButtonRelease;
 
-	block_data_t songPlayerData;
+	player_data_t songPlayerData;
 	uint32_t *patternBitmask;
 
 	//uint8_t patternUsageTable[14];

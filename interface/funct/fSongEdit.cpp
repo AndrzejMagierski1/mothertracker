@@ -15,8 +15,6 @@ cSongEditor songEditor;
 static cSongEditor* SE = &songEditor;
 
 
-//static  uint8_t functPatternSlot(uint8_t button);
-
 static  uint8_t functIncPattern();
 static  uint8_t functDecPattern();
 static  uint8_t functDeleteSlot();
@@ -161,29 +159,6 @@ void cSongEditor::setDefaultScreenFunct()
 
 
 //==============================================================================================================
-
-/*static  uint8_t functPatternSlot(uint8_t button)
-{
-	if(SE->isBusy) return 1;
-	if(SE->exitOnButtonRelease) return 1;
-
-	if(SE->selectedPlace == 8)
-	{
-		if(button == interfaceButton0)
-		{
-			SE->changePatternsSelection(-1);
-		}
-		else if(button == interfaceButton1)
-		{
-			SE->changePatternsSelection(1);
-		}
-	}
-
-	SE->selectedPlace = 8;
-	SE->activateLabelsBorder();
-
-	return 1;
-}*/
 
 static  uint8_t functIncPattern()
 {
@@ -996,10 +971,7 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 	}
 
 	display.setControlValue(songPlayerControl, selectedPattern);
-	//display.refreshControl(patternsListControl);
-
 	refreshSongPlayerControl();
-	//display.synchronizeRefresh();
 }
 
 static  uint8_t functSwitchModeSong(uint8_t state)

@@ -51,7 +51,6 @@ typedef struct
 typedef struct
 {
 	uint8_t songLength;
-	uint8_t firstVisiblePattern;
 
 	uint8_t *patternsBitmask;
 	uint8_t *songData;
@@ -60,7 +59,7 @@ typedef struct
 	progress_control_t progress;
 	localList_t *list;
 
-}block_data_t;
+}player_data_t;
 
 
 
@@ -104,7 +103,7 @@ private:
 	void calculateSelection(uint8_t pattern, uint8_t track, uint16_t x, uint16_t y, uint16_t x_end, uint16_t y_end);
 	void drawSelection();
 
-	block_data_t *controlData;
+	player_data_t *controlData;
 
 	uint16_t ramPartSize[5] = {0};
 	uint8_t refreshStep;
