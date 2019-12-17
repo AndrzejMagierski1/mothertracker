@@ -92,19 +92,6 @@ void cSongEditor::initDisplayControls()
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
-	patternsList.linesCount = 14;
-	patternsList.start = 0;
-	patternsList.length = 255;
-	patternsList.data = patternNames;
-	prop.x = 500+8;
-	prop.y = 37;
-	prop.w = (800/4-16);
-	prop.h = 25;
-
-	prop.data = &patternsList;
-	if(patternsListControl == nullptr)  patternsListControl = display.createControl<cList>(&prop);
-
-
 	prop.x = 12;
 	prop.y = 40;
 	prop.w = 600;
@@ -122,8 +109,6 @@ void cSongEditor::destroyDisplayControls()
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
 
-	display.destroyControl(patternsListControl);
-	patternsListControl = nullptr;
 
 	display.destroyControl(barControl[0]);
 	barControl[0] = nullptr;
@@ -215,10 +200,12 @@ void cSongEditor::showPatternsList()
 	patternsList.data = patternNames;
 	patternsList.start = selectedPattern;
 
+/*
     display.setControlData(patternsListControl,  &patternsList);
 	//display.setControlValue(patternsListControl, selectedPattern);
-	display.setControlShow(patternsListControl);
-	display.refreshControl(patternsListControl);
+*/
+	display.setControlShow(songPlayerControl);
+	display.refreshControl(songPlayerControl);
 
 }
 
@@ -249,12 +236,11 @@ void cSongEditor::showTempoValue()
 void cSongEditor::showIcon(icon_t iconType,uint8_t position)
 {
 	patternsList.icon.useSpecialIcons = 1;
-
 	patternsList.icon.iconPositionInList = position;
 	patternsList.icon.iconNum = displayPlayIcon+iconType;
 
-	display.setControlValue(patternsListControl, selectedPattern);
-	display.refreshControl(patternsListControl);
+	display.setControlValue(songPlayerControl, selectedPattern);
+	display.refreshControl(songPlayerControl);
 }
 
 void cSongEditor::hideIcon()
@@ -265,8 +251,8 @@ void cSongEditor::hideIcon()
 	patternsList.icon.iconNum = displayPlayIcon;
 	patternsList.icon.iconPositionInList = 0;
 
-	display.setControlValue(patternsListControl, selectedPattern);
-	display.refreshControl(patternsListControl);
+	display.setControlValue(songPlayerControl, selectedPattern);
+	display.refreshControl(songPlayerControl);
 }
 
 void cSongEditor::showCopyingBar()

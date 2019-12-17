@@ -58,7 +58,7 @@ public:
 
 	void showTempoValue();
 
-	strList patternsList;
+	localList_t patternsList;
 
 	strFrameData frameData;
 
@@ -69,7 +69,7 @@ public:
 	hControl barControl[2] = {nullptr};
 	hControl songPlayerControl = NULL;
 
-	hControl patternsListControl = nullptr;
+	//hControl patternsListControl = nullptr;
 	hControl frameControl = nullptr;
 	hControl bgLabel;
 	hControl loadHorizontalBarControl = nullptr;

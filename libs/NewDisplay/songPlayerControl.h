@@ -11,6 +11,26 @@
 
 typedef struct
 {
+	uint8_t useSpecialIcons = 0;
+	int8_t 	iconPositionInList;
+	uint8_t iconNum;
+
+}text_icon_t;
+
+typedef struct
+{
+	int16_t  start;
+	uint16_t length;
+	uint16_t linesCount;
+
+	char**   data;
+
+	text_icon_t   icon;
+
+}localList_t;
+
+typedef struct
+{
 	uint8_t isActive;
 	uint8_t startPattern;
 	uint8_t patternSelectionLength;
@@ -36,8 +56,11 @@ typedef struct
 
 	song_selection_t selection;
 	progress_control_t progress;
+	localList_t *list;
 
 }block_data_t;
+
+
 
 //--------------------------------------------------------------------
 //--------------------------------------------------------------------
@@ -64,11 +87,15 @@ public:
 	int16_t textFont;
 	uint8_t keyboardShift = 0;
 
+	uint16_t textListPos;
+
 private:
 
-	void refresh1();
-	void refresh2();
+	uint8_t refresh1();
+	uint8_t refresh2();
+	uint8_t refresh3();
 
+	uint8_t showList();
 	void drawBlocks();
 	void fillBlocks();
 	void drawProgressLine();
@@ -86,6 +113,22 @@ private:
 	uint16_t ySelectionStart;
 	uint16_t xSelectionEnd;
 	uint16_t ySelectionEnd;
+
+
+
+	//lokalna lista playera
+	const strFont* font;
+	localList_t* list;
+	int16_t listPosition;
+
+	uint16_t barPos;
+
+
+	uint8_t disableBar;
+
+	int8_t   listAnimationStep = 0;
+
+	uint8_t selfRefresh;
 };
 
 

@@ -53,11 +53,14 @@ static uint8_t functPaste();
 
 void cSongEditor::update()
 {
-	if(songPlayerRefreshTimer > 10)
+	if(songPlayerRefreshTimer > 100)
 	{
-		refreshSongPlayerControl();
-		markCurrentPattern(0);
-		songPlayerRefreshTimer = 0;
+		if(songPlayerData.progress.isPlaying)
+		{
+			refreshSongPlayerControl();
+			markCurrentPattern(0);
+			songPlayerRefreshTimer = 0;
+		}
 	}
 
 	refreshCopyPasting();
@@ -72,7 +75,10 @@ void cSongEditor::start(uint32_t options)
 
 	exitOnButtonRelease = 0;
 
+
+
 	readSong();
+	songPlayerData.list = &patternsList;
 	songPlayerData.data = patternUsageTable;
 
 	refreshSongPlayerControl();
@@ -555,7 +561,7 @@ void cSongEditor::refreshSongPlayer(uint8_t source)
 	songPlayerData.progress.patternLength = sequencer.getPatternLength();
 	songPlayerData.progress.positionInPattern = sequencer.getActualPos();
 
-	display.refreshControl(SE->songPlayerControl);
+	display.refreshControl(songPlayerControl);
 }
 
 void cSongEditor::changePatternsSelection(int16_t value)
@@ -564,11 +570,11 @@ void cSongEditor::changePatternsSelection(int16_t value)
 	else if(selectedPattern + value > songLength-1) selectedPattern = songLength-1;
 	else  selectedPattern += value;
 
-	refreshSongPlayerControl();
 	listPatterns();
+	display.setControlValue(songPlayerControl, selectedPattern);
+	refreshSongPlayerControl();
 
-	display.setControlValue(patternsListControl, selectedPattern);
-	display.refreshControl(patternsListControl);
+	//display.refreshControl(songPlayerControl);
 }
 
 //======================================================================================================================
@@ -577,7 +583,7 @@ void cSongEditor::refreshSongPlayerControl()
 {
 	getUsage();
 	display.refreshControl(songPlayerControl);
-	//display.synchronizeRefresh();
+	display.synchronizeRefresh();
 }
 
 void cSongEditor::readSong()
@@ -779,7 +785,7 @@ int16_t cSongEditor::findSlotWithPattern()
 
 void cSongEditor::getUsage()
 {
-	uint8_t start = ((cList*)SE->patternsListControl)->textListPos;
+	uint8_t start = ((cSongPlayer*)SE->songPlayerControl)->textListPos;
 	songPlayerData.firstVisiblePattern = start;
 
 	for(size_t i = 0; i < 14 ; i++)
@@ -999,8 +1005,8 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 		selectedPattern = songPlayerData.selection.startPattern;
 	}
 
-	display.setControlValue(patternsListControl, selectedPattern);
-	display.refreshControl(patternsListControl);
+	display.setControlValue(songPlayerControl, selectedPattern);
+	//display.refreshControl(patternsListControl);
 
 	refreshSongPlayerControl();
 	//display.synchronizeRefresh();
