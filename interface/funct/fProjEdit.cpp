@@ -851,14 +851,14 @@ static uint8_t functExportSong()
 
 	uint16_t fileCounter = 0;
 
-	sprintf(currentExportPath,"Export/%s/%s_song.wav",fileManager.currentProjectName,fileManager.currentProjectName);
+	sprintf(currentExportPath,"Export/%s/%s_S.wav",fileManager.currentProjectName,fileManager.currentProjectName);
 	while(SD.exists(currentExportPath))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_song%d.wav",fileManager.currentProjectName,fileManager.currentProjectName,++fileCounter);
+		sprintf(currentExportPath,"Export/%s/%s_S%d.wav",fileManager.currentProjectName,fileManager.currentProjectName,++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_song",fileManager.currentProjectName,fileManager.currentProjectName);
-	else sprintf(currentExportPath,"Export/%s/%s_song%d",fileManager.currentProjectName,fileManager.currentProjectName,fileCounter);
+	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_S",fileManager.currentProjectName,fileManager.currentProjectName);
+	else sprintf(currentExportPath,"Export/%s/%s_S%d",fileManager.currentProjectName,fileManager.currentProjectName,fileCounter);
 
 	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::song);
@@ -876,14 +876,14 @@ static uint8_t functExportSongStems()
 
 	uint16_t fileCounter = 0;
 
-	sprintf(currentExportPath,"Export/%s/%s_SongStems",fileManager.currentProjectName,fileManager.currentProjectName);
+	sprintf(currentExportPath,"Export/%s/%s_Song_S",fileManager.currentProjectName,fileManager.currentProjectName);
 	while(SD.exists(currentExportPath))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_SongStems%d",fileManager.currentProjectName,fileManager.currentProjectName,++fileCounter);
+		sprintf(currentExportPath,"Export/%s/%s_Song_S%d",fileManager.currentProjectName,fileManager.currentProjectName,++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_SongStems",fileManager.currentProjectName,fileManager.currentProjectName);
-	else sprintf(currentExportPath,"%s/%s_SongStems%d",fileManager.currentProjectName,fileManager.currentProjectName,fileCounter);
+	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_Song_S",fileManager.currentProjectName,fileManager.currentProjectName);
+	else sprintf(currentExportPath,"%s/%s_Song_S%d",fileManager.currentProjectName,fileManager.currentProjectName,fileCounter);
 
 	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::songStems);
@@ -902,14 +902,14 @@ static uint8_t functExportPattern()
 	uint16_t fileCounter = 0;
 	uint16_t namePattern = mtProject.values.actualPattern;
 
-	sprintf(currentExportPath,"Export/%s/%s_pattern%d.wav",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
+	sprintf(currentExportPath,"Export/%s/%s_P%d.wav",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
 	while(SD.exists(currentExportPath))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_pattern%d_%d.wav",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,++fileCounter);
+		sprintf(currentExportPath,"Export/%s/%s_P%d_%d.wav",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_pattern%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
-	else sprintf(currentExportPath,"Export/%s/%s_pattern%d_%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,fileCounter);
+	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_P%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
+	else sprintf(currentExportPath,"Export/%s/%s_P%d_%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,fileCounter);
 
 	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::pattern);
@@ -928,14 +928,14 @@ static uint8_t functExportPatternStems()
 	uint16_t fileCounter = 0;
 	uint16_t namePattern = mtProject.values.actualPattern;
 
-	sprintf(currentExportPath,"Export/%s/%s_Pattern%d_Stems",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
+	sprintf(currentExportPath,"Export/%s/%s_P%d_S",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
 	while(SD.exists(currentExportPath))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_Pattern%d_Stems%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,++fileCounter);
+		sprintf(currentExportPath,"Export/%s/%s_P%d_S%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_Pattern%d_Stems",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
-	else sprintf(currentExportPath,"%s/%s_Pattern%d_Stems%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,fileCounter);
+	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_P%d_S",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
+	else sprintf(currentExportPath,"%s/%s_P%d_S%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,fileCounter);
 
 	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::patternStems);
