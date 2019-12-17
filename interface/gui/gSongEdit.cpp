@@ -273,7 +273,7 @@ void cSongEditor::showCopyingBar()
 {
 	uint8_t progress = (copyElementMax / currentCopyElement);
 
-	display.setControlValue(loadHorizontalBarControl, selectedPattern);
+	display.setControlValue(loadHorizontalBarControl, progress);
 	display.setControlText(loadHorizontalBarControl, "Copying");
 	display.setControlShow(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);

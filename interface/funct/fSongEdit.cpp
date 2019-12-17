@@ -15,11 +15,7 @@ cSongEditor songEditor;
 static cSongEditor* SE = &songEditor;
 
 
-
-
-
-
-static  uint8_t functPatternSlot(uint8_t button);
+//static  uint8_t functPatternSlot(uint8_t button);
 
 static  uint8_t functIncPattern();
 static  uint8_t functDecPattern();
@@ -52,11 +48,12 @@ static uint8_t functCopyPaste();
 static void refreshCopyPasting();
 static void updateBitmaskAfterCopy(uint8_t *src, uint8_t *dest, uint8_t startSrc, uint8_t startDest, uint8_t length);
 
-
+static uint8_t functCopy();
+static uint8_t functPaste();
 
 void cSongEditor::update()
 {
-	if(songPlayerRefreshTimer > 100)
+	if(songPlayerRefreshTimer > 10)
 	{
 		refreshSongPlayerControl();
 		markCurrentPattern(0);
@@ -137,11 +134,11 @@ void cSongEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonShift, functShift);
 
 
-
-	//FM->setButtonObj(interfaceButton0, buttonPress, functPatternSlot);
-	//FM->setButtonObj(interfaceButton1, buttonPress, functPatternSlot);
-	FM->setButtonObj(interfaceButton1, buttonPress, functDeleteSlot);
 	FM->setButtonObj(interfaceButton0, buttonPress, functAddSlot);
+	FM->setButtonObj(interfaceButton1, buttonPress, functDeleteSlot);
+	FM->setButtonObj(interfaceButton2, buttonPress, functCopy);
+	FM->setButtonObj(interfaceButton3, buttonPress, functPaste);
+
 	FM->setButtonObj(interfaceButton6, buttonPress, functDecPattern);
 	FM->setButtonObj(interfaceButton5, buttonPress, functIncPattern);
 	FM->setButtonObj(interfaceButton7, buttonPress, functTempo);
@@ -158,7 +155,7 @@ void cSongEditor::setDefaultScreenFunct()
 
 //==============================================================================================================
 
-static  uint8_t functPatternSlot(uint8_t button)
+/*static  uint8_t functPatternSlot(uint8_t button)
 {
 	if(SE->isBusy) return 1;
 	if(SE->exitOnButtonRelease) return 1;
@@ -179,7 +176,7 @@ static  uint8_t functPatternSlot(uint8_t button)
 	SE->activateLabelsBorder();
 
 	return 1;
-}
+}*/
 
 static  uint8_t functIncPattern()
 {
@@ -458,15 +455,25 @@ static  uint8_t functLeft()
 static  uint8_t functRight()
 {
 	if(SE->isBusy) return 1;
-
 	if(SE->exitOnButtonRelease) return 1;
+
+	uint8_t skip = 0;
 
 	if(SE->selectedPlace < 7)
 	{
 		SE->walkOnSongPlayer(playerRight);
 	}
 
-	if(SE->selectedPlace < SE->frameData.placesCount-1) SE->selectedPlace++;
+	if(SE->selectedPlace == 7 && tactButtons.isButtonPressed(interfaceButtonShift))
+	{
+		skip = 1;
+	}
+
+	if(skip == 0)
+	{
+		if(SE->selectedPlace < SE->frameData.placesCount-1) SE->selectedPlace++;
+	}
+
 	SE->activateLabelsBorder();
 
 	return 1;
@@ -832,9 +839,26 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 
 		if(isShiftPressed)
 		{
-			if(songPlayerData.selection.patternSelectionLength > 1)
+			if((currSelDirection2 & selDirDown) || (currSelDirection2 == 0))
 			{
-				songPlayerData.selection.patternSelectionLength--;
+				if(songPlayerData.selection.patternSelectionLength > 1)
+				{
+					songPlayerData.selection.patternSelectionLength--;
+				}
+				else
+				{
+					currSelDirection2 &= ~selDirDown;
+					currSelDirection2 |= selDirUp;
+				}
+			}
+
+			if((currSelDirection2 & selDirUp) || (currSelDirection2 == 0))
+			{
+				if(songPlayerData.selection.startPattern)
+				{
+					songPlayerData.selection.patternSelectionLength++;
+					songPlayerData.selection.startPattern--;
+				}
 			}
 		}
 		else
@@ -850,9 +874,26 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 
 		if(isShiftPressed)
 		{
-			if((songPlayerData.selection.patternSelectionLength < 10) && (songPlayerData.songLength > songPlayerData.selection.patternSelectionLength + songPlayerData.selection.startPattern))
+			if((currSelDirection2 & selDirUp) || (currSelDirection2 == 0))
 			{
-				songPlayerData.selection.patternSelectionLength++;
+				if(songPlayerData.selection.patternSelectionLength > 1)
+				{
+					songPlayerData.selection.patternSelectionLength--;
+					songPlayerData.selection.startPattern++;
+				}
+				else
+				{
+					currSelDirection2 &= ~selDirUp;
+					currSelDirection2 |= selDirDown;
+				}
+			}
+
+			if((currSelDirection2 & selDirDown) || (currSelDirection2 == 0))
+			{
+				if((songPlayerData.songLength > songPlayerData.selection.patternSelectionLength + songPlayerData.selection.startPattern))
+				{
+					songPlayerData.selection.patternSelectionLength++;
+				}
 			}
 		}
 		else
@@ -868,7 +909,27 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 
 		if(isShiftPressed)
 		{
-			songPlayerData.selection.trackSelectionLength--;
+			if((currSelDirection & selDirRight) || (currSelDirection == 0))
+			{
+				if(songPlayerData.selection.trackSelectionLength > 1)
+				{
+					songPlayerData.selection.trackSelectionLength--;
+				}
+				else
+				{
+					currSelDirection &= ~selDirRight;
+					currSelDirection |= selDirLeft;
+				}
+			}
+
+			if((currSelDirection & selDirLeft) || (currSelDirection == 0))
+			{
+				if(songPlayerData.selection.startTrack)
+				{
+					songPlayerData.selection.trackSelectionLength++;
+					songPlayerData.selection.startTrack--;
+				}
+			}
 		}
 		else
 		{
@@ -883,9 +944,29 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 
 		if(isShiftPressed)
 		{
-			if(songPlayerData.selection.trackSelectionLength < 8)
+			if((currSelDirection & selDirLeft) || (currSelDirection == 0))
 			{
-				songPlayerData.selection.trackSelectionLength++;
+				if(songPlayerData.selection.trackSelectionLength > 1)
+				{
+					if(songPlayerData.selection.startTrack < 8)
+					{
+						songPlayerData.selection.trackSelectionLength--;
+						songPlayerData.selection.startTrack++;
+					}
+				}
+				else
+				{
+					currSelDirection &= ~selDirLeft;
+					currSelDirection |= selDirRight;
+				}
+			}
+
+			if((currSelDirection & selDirRight) || (currSelDirection == 0))
+			{
+				if(songPlayerData.selection.trackSelectionLength < 8)
+				{
+					songPlayerData.selection.trackSelectionLength++;
+				}
 			}
 		}
 		else
@@ -904,7 +985,14 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 
 	if(isShiftPressed)
 	{
-		selectedPattern = songPlayerData.selection.startPattern + songPlayerData.selection.patternSelectionLength - 1;
+		if(currSelDirection2 & selDirUp)
+		{
+			selectedPattern = songPlayerData.selection.startPattern;
+		}
+		else if(currSelDirection2 & selDirDown)
+		{
+			selectedPattern = songPlayerData.selection.startPattern + songPlayerData.selection.patternSelectionLength - 1;
+		}
 	}
 	else
 	{
@@ -990,59 +1078,75 @@ static void refreshCopyPasting()
 	}
 }
 
-static uint8_t functCopyPaste()
+static uint8_t functCopy()
 {
 	if(SE->selectedPlace < 8)
 	{
-		if(!(tactButtons.isButtonPressed(interfaceButtonShift)))
-		{
-			/*COPY*/
-			SE->isSomethingCopied = 1;
-			memcpy(&SE->copyCurrentData, &SE->songPlayerData.selection, sizeof(song_selection_t));
+		SE->isSomethingCopied = 1;
+		memcpy(&SE->copyCurrentData, &SE->songPlayerData.selection, sizeof(song_selection_t));
+	}
 
-		}
-		else
+	return 1;
+}
+
+static uint8_t functPaste()
+{
+	if(SE->selectedPlace < 8)
+	{
+		if(SE->isSomethingCopied)
 		{
-			/*PASTE*/
-			if(SE->isSomethingCopied)
+			SE->showCopyingBar();
+			SE->currentCopyElement = 0;
+
+			uint8_t source = mtProject.song.playlist[SE->copyCurrentData.startPattern + SE->currentCopyElement];
+			uint8_t destination =  mtProject.song.playlist[SE->songPlayerData.selection.startPattern + SE->currentCopyElement];
+
+			SE->isBusy = 1;
+			SE->isCopyingInProgress = 1;
+			SE->copyElementMax = SE->copyCurrentData.patternSelectionLength;
+
+			while((SE->songPlayerData.selection.startPattern + SE->copyElementMax) > SE->songPlayerData.songLength)
 			{
-				SE->showCopyingBar();
-				SE->currentCopyElement = 0;
+				SE->copyElementMax--;
+			}
 
-				uint8_t source = mtProject.song.playlist[SE->copyCurrentData.startPattern + SE->currentCopyElement];
-				uint8_t destination =  mtProject.song.playlist[SE->songPlayerData.selection.startPattern + SE->currentCopyElement];
+			fileManager.copySongTracks((char*) "Workspace", source, destination,
+					SE->copyCurrentData.startTrack,
+					SE->songPlayerData.selection.startTrack,
+					SE->copyCurrentData.trackSelectionLength);
 
-				SE->isBusy = 1;
-				SE->isCopyingInProgress = 1;
-				SE->copyElementMax = SE->copyCurrentData.patternSelectionLength;
+			updateBitmaskAfterCopy(
+					&mtProject.values.allPatternsBitmask[source-1],
+					&mtProject.values.allPatternsBitmask[destination-1],
+					SE->copyCurrentData.startTrack,
+					SE->songPlayerData.selection.startTrack,
+					SE->copyCurrentData.trackSelectionLength);
 
-				while((SE->songPlayerData.selection.startPattern + SE->copyElementMax) > SE->songPlayerData.songLength)
-				{
-					SE->copyElementMax--;
-				}
+			SE->currentCopyElement++;
 
-				fileManager.copySongTracks((char*) "Workspace", source, destination,
-						SE->copyCurrentData.startTrack,
-						SE->songPlayerData.selection.startTrack,
-						SE->copyCurrentData.trackSelectionLength);
-
-				updateBitmaskAfterCopy(
-						&mtProject.values.allPatternsBitmask[source-1],
-						&mtProject.values.allPatternsBitmask[destination-1],
-						SE->copyCurrentData.startTrack,
-						SE->songPlayerData.selection.startTrack,
-						SE->copyCurrentData.trackSelectionLength);
-
-				SE->currentCopyElement++;
-
-				if(SE->currentCopyElement == SE->copyElementMax)
-				{
-					SE->hideCopyingBar();
-					SE->isCopyingInProgress = 0;
-					SE->isBusy = 0;
-				}
+			if(SE->currentCopyElement == SE->copyElementMax)
+			{
+				SE->hideCopyingBar();
+				SE->isCopyingInProgress = 0;
+				SE->isBusy = 0;
 			}
 		}
+	}
+
+	return 1;
+}
+
+static uint8_t functCopyPaste()
+{
+	if(!(tactButtons.isButtonPressed(interfaceButtonShift)))
+	{
+		/*COPY*/
+		functCopy();
+	}
+	else
+	{
+		/*PASTE*/
+		functPaste();
 	}
 
 	return 1;

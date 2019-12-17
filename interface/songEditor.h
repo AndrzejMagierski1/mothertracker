@@ -23,11 +23,11 @@ typedef enum
 
 typedef enum
 {
-	selNone,
-	selLeft,
-	selRight,
-	selUp,
-	selDown,
+	selDirNone = 0x00U,
+	selDirLeft = 0x01U,
+	selDirRight = 0x02U,
+	selDirUp = 0x04U,
+	selDirDown = 0x08U,
 
 }select_direction_t;
 
@@ -145,7 +145,8 @@ public:
 	uint8_t isCopyingInProgress = 0;
 	uint8_t copyElementMax;
 	uint8_t currentCopyElement;
-	select_direction_t currSelDirection;
+	uint8_t currSelDirection;
+	uint8_t currSelDirection2;
 
 	uint8_t isBusy = 0;
 
