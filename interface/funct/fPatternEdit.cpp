@@ -46,11 +46,12 @@ static  uint8_t functSwitchModule(uint8_t button);
 // fill
 static  uint8_t functFillCancel();
 static  uint8_t functFillApply();
-static  uint8_t functFillChangeType();
-static  uint8_t functFillChangeParam1();
-static  uint8_t functFillChangeParam2();
-static  uint8_t functFillChangeParam3();
-static  uint8_t functFillChangeParam4();
+static  uint8_t functFillAction1();
+static  uint8_t functFillAction2();
+static  uint8_t functFillAction3();
+static  uint8_t functFillAction4();
+static  uint8_t functFillAction5();
+static  uint8_t functFillAction6();
 
 
 static  uint8_t functLeft();
@@ -249,8 +250,9 @@ void cPatternEditor::refreshPattern()
 		{
 			trackerPattern.actualStep = trackerPattern.playheadPosition;
 
-			if(sequencer.isRec()) 	trackerPattern.playheadRecMode = 1;
-			else 					trackerPattern.playheadRecMode = 0;
+			if(sequencer.isRec()) trackerPattern.selectState = 1;
+				//trackerPattern.playheadRecMode = 1;
+			//else 					trackerPattern.playheadRecMode = 0;
 		}
 	}
 
@@ -1587,6 +1589,7 @@ static  uint8_t functNote(uint8_t state)
 		{
 			PTE->setPatternViewMode(1);
 		}
+		else PTE->changePatternViewMode(1);
 	}
 	else if(state == buttonHold
 			&& mtPopups.getStepPopupState() == stepPopupNone
@@ -1651,6 +1654,7 @@ static  uint8_t functInstrument(uint8_t state)
 		{
 			PTE->setPatternViewMode(2);
 		}
+		else PTE->changePatternViewMode(2);
 	}
 	else if(state == buttonHold
 			&& mtPopups.getStepPopupState() == stepPopupNone
@@ -1712,6 +1716,7 @@ static  uint8_t functFx1(uint8_t state)
 		{
 			PTE->setPatternViewMode(3);
 		}
+		else PTE->changePatternViewMode(3);
 	}
 	else if(state == buttonHold
 			&& mtPopups.getStepPopupState() == stepPopupNone
@@ -1768,6 +1773,7 @@ static  uint8_t functFx2(uint8_t state)
 		{
 			PTE->setPatternViewMode(4);
 		}
+		else PTE->changePatternViewMode(4);
 	}
 	else if(state == buttonHold
 			&& mtPopups.getStepPopupState() == stepPopupNone
@@ -2230,11 +2236,12 @@ static  uint8_t functFill()
 	PTE->FM->setButtonObj(interfaceButton7, buttonPress, functFillApply);
 
 
-	PTE->FM->setButtonObj(interfaceButton0, buttonPress, functFillChangeParam4);
-	PTE->FM->setButtonObj(interfaceButton1, buttonPress, functFillChangeType);
-	PTE->FM->setButtonObj(interfaceButton2, buttonPress, functFillChangeParam1);
-	PTE->FM->setButtonObj(interfaceButton3, buttonPress, functFillChangeParam2);
-	PTE->FM->setButtonObj(interfaceButton4, buttonPress, functFillChangeParam3);
+	PTE->FM->setButtonObj(interfaceButton0, buttonPress, functFillAction1);
+	PTE->FM->setButtonObj(interfaceButton1, buttonPress, functFillAction2);
+	PTE->FM->setButtonObj(interfaceButton2, buttonPress, functFillAction3);
+	PTE->FM->setButtonObj(interfaceButton3, buttonPress, functFillAction4);
+	PTE->FM->setButtonObj(interfaceButton4, buttonPress, functFillAction5);
+	PTE->FM->setButtonObj(interfaceButton5, buttonPress, functFillAction6);
 
 
 	return 1;
@@ -2367,7 +2374,7 @@ static  uint8_t functFillApply()
 	return 1;
 }
 
-static  uint8_t functFillChangeType()
+static  uint8_t functFillAction1()
 {
 	//PTE->fillPlace = 0;
 	PTE->setFillPlace(1);
@@ -2376,7 +2383,7 @@ static  uint8_t functFillChangeType()
 	return 1;
 }
 
-static  uint8_t functFillChangeParam1()
+static  uint8_t functFillAction2()
 {
 	//PTE->fillPlace = 1;
 	PTE->setFillPlace(2);
@@ -2385,7 +2392,7 @@ static  uint8_t functFillChangeParam1()
 	return 1;
 }
 
-static  uint8_t functFillChangeParam2()
+static  uint8_t functFillAction3()
 {
 	//PTE->fillPlace = 2;
 	PTE->setFillPlace(3);
@@ -2394,7 +2401,7 @@ static  uint8_t functFillChangeParam2()
 	return 1;
 }
 
-static  uint8_t functFillChangeParam3()
+static  uint8_t functFillAction4()
 {
 	//PTE->fillPlace = 3;
 	PTE->setFillPlace(4);
@@ -2403,7 +2410,16 @@ static  uint8_t functFillChangeParam3()
 	return 1;
 }
 
-static  uint8_t functFillChangeParam4()
+static  uint8_t functFillAction5()
+{
+	//PTE->fillPlace = 5;
+	PTE->setFillPlace(0);
+	PTE->activateFillPopupBorder();
+
+	return 1;
+}
+
+static  uint8_t functFillAction6()
 {
 	//PTE->fillPlace = 5;
 	PTE->setFillPlace(0);
@@ -2842,6 +2858,16 @@ void cPatternEditor::setPatternViewMode(uint8_t param)
 	display.refreshControl(PTE->patternControl);
 }
 
+
+
+void cPatternEditor::changePatternViewMode(uint8_t param)
+{
+
+
+
+	display.setControlValue(PTE->patternControl, PTE->patternViewMode);
+	display.refreshControl(PTE->patternControl);
+}
 
 static uint8_t functSwitchModule(uint8_t button)
 {

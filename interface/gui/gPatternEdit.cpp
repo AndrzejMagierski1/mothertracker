@@ -22,13 +22,12 @@ static uint16_t framesPopupPlaces[9][4] =
 	{(800/8)*1+1, 256, 800/8-3, 165},
 	{(800/8)*2+1, 256, 800/8-3, 165},
 	{(800/8)*3+1, 256, 800/8-3, 165},
-
 	{(800/8)*4+1, 256, 800/8-3, 165},
-	{(800/8)*4+1, 256, 800/4-3, 165},
-
 	{(800/8)*5+1, 256, 800/8-3, 165},
 	{(800/8)*6+1, 256, 800/8-3, 165},
 	{(800/8)*7+1, 256, 800/8-3, 165},
+
+	{(800/8)*1+1, 256, 800/4-3, 165},
 };
 
 
@@ -100,11 +99,13 @@ const char* ptrfillScaleFilterNames[fillScaleFilterCount] =
 		&fillScaleFilterLabels[1][0],
 };
 //------------------------------------------------------------
-static const uint8_t fillStepCount = 35;
+static const uint8_t fillStepCount = 37;
 const char fillStepLabels[fillStepCount][11] =
 {
-		"Empty",
-		"Occupied",
+		"Occ. Note",
+		"Empty Note",
+		"Occ. Fx",
+		"Empty Fx",
 		"Random",
 		"1",
 		"2",
@@ -178,7 +179,8 @@ const char* ptrfillStepNames[fillStepCount] =
 		&fillStepLabels[32][0],
 		&fillStepLabels[33][0],
 		&fillStepLabels[34][0],
-
+		&fillStepLabels[35][0],
+		&fillStepLabels[36][0],
 };
 //------------------------------------------------------------
 
@@ -526,171 +528,263 @@ void cPatternEditor::refreshPatternParams()
 //###############################             FILL             #################################
 //##############################################################################################
 
-
-void cPatternEditor::showFillPopup()
+void cPatternEditor::showFillNote()
 {
-	//------------------------------
 	// typ
 	fillTypeList.linesCount = fillTypeListCount;
 	fillTypeList.start = fillData[editParam].type;
 	fillTypeList.length = fillTypeListCount;
 	fillTypeList.data = (char**)(&ptrfillTypeListNames);
 
+	display.setControlPosition(param1PopupListControl, (800/8)*(3)+1, -1);
 	display.setControlData(param1PopupListControl, &fillTypeList);
 	display.setControlValue(param1PopupListControl, fillData[editParam].type);
 	display.setControlShow(param1PopupListControl);
 
-	display.setControlText(label[1], "Type");
+	display.setControlText(label[3], "Fill Type");
 
-	//------------------------------
 	// value/from
-	fillText1[0]  = 0;
-	if(editParam == 0)
-	{
-		display.setControlText2(label[2], (char*)&mtNotes[fillData[editParam].from][0]);
-		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(127));
-	}
-	else if(editParam == 1)
-	{
-		if(fillData[editParam].from < INSTRUMENTS_COUNT)
-			sprintf(fillText1, "%d", (fillData[editParam].from+1));
-		else
-			sprintf(fillText1, "%d", (fillData[editParam].from+3));
-
-		display.setControlText2(label[2], fillText1);
-		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(47+16));
-	}
-	else if(editParam == 2 || editParam == 3)
-	{
-		sprintf(fillText1, "%d", (fillData[editParam].from));
-		display.setControlText2(label[2], fillText1);
-		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(255));
-	}
-
+	display.setControlPosition(val1PopupBar, (800/8)*(4)+1, -1);
+	display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(127));
 	display.setControlShow(val1PopupBar);
 
+	display.setControlText2(label[4], (char*)&mtNotes[fillData[editParam].from][0]);
+
 	if(fillData[editParam].type == 0)
-		display.setControlText(label[2], "Value");
+		display.setControlText(label[4], "Note");
+	else
+		display.setControlText(label[4], "From");
+
+	// to
+	display.setControlPosition(val2PopupBar, (800/8)*(5)+1, -1);
+
+	if(fillData[editParam].type == 0)
+	{
+		display.setControlText(label[5], "");
+		display.setControlText2(label[5], "");
+		display.setControlValue(val2PopupBar, -1);
+	}
+	else
+	{
+		display.setControlText2(label[5], (char*)&mtNotes[fillData[editParam].to][0]);
+		display.setControlValue(val2PopupBar, (fillData[editParam].to*100)/(127));
+		display.setControlShow(val2PopupBar);
+		display.setControlText(label[5], "To");
+	}
+
+	//scale
+	fillScaleFilterList.linesCount = fillScaleFilterCount;
+	fillScaleFilterList.start = fillData[editParam].param;
+	fillScaleFilterList.length = fillScaleFilterCount;
+	fillScaleFilterList.data = (char**)(&ptrfillScaleFilterNames);
+
+	display.setControlPosition(param2PopupListControl, (800/8)*(1)+1, -1);
+	display.setControlData(param2PopupListControl, &fillScaleFilterList);
+	display.setControlValue(param2PopupListControl, fillData[editParam].param);
+	display.setControlShow(param2PopupListControl);
+	display.setControlSize(param2PopupListControl, 800/4-3, -1);
+	display.setControlPosition(param2PopupListControl, (800/8)*(1)+1, -1);
+
+	display.setControlPosition(label[1],  (800/8)*2, -1);
+	display.setControlSize(label[1], 800/8-6, -1);
+	display.setControlText(label[1], "In Scale");
+
+	display.setControlText(label[2], "");
+	display.setControlText2(label[2], "");
+
+	frameData.places[1] = &framesPopupPlaces[8][0];
+
+	display.setControlValue(bgLabel, 250);
+
+	for(uint8_t i = 0; i < 6; i++)
+	{
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
+	}
+}
+
+void cPatternEditor::showFillInstr()
+{
+	// typ
+	fillTypeList.linesCount = fillTypeListCount;
+	fillTypeList.start = fillData[editParam].type;
+	fillTypeList.length = fillTypeListCount;
+	fillTypeList.data = (char**)(&ptrfillTypeListNames);
+
+	display.setControlPosition(param1PopupListControl, (800/8)*(1)+1, -1);
+	display.setControlData(param1PopupListControl, &fillTypeList);
+	display.setControlValue(param1PopupListControl, fillData[editParam].type);
+	display.setControlShow(param1PopupListControl);
+	display.setControlPosition(label[1],  (800/8)*1+800/16, -1);
+	display.setControlText(label[1], "Fill Type");
+
+	// value/from
+	fillText1[0]  = 0;
+	display.setControlPosition(val1PopupBar, (800/8)*(2)+1, -1);
+	display.setControlShow(val1PopupBar);
+	display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(47+16));
+
+	if(fillData[editParam].from < INSTRUMENTS_COUNT)
+		sprintf(fillText1, "%d", (fillData[editParam].from+1));
+	else
+		sprintf(fillText1, "%d", (fillData[editParam].from+3));
+	display.setControlText2(label[2], fillText1);
+
+	if(fillData[editParam].type == 0)
+		display.setControlText(label[2], "Instrument");
 	else
 		display.setControlText(label[2], "From");
 
-	//------------------------------
-	// To
+	// to
 	fillText2[0]  = 0;
-	if(editParam == 0)
-	{
-		display.setControlText2(label[3], (char*)&mtNotes[fillData[editParam].to][0]);
-		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(127));
-	}
-	else if (editParam == 1)
-	{
-		if(fillData[editParam].to < INSTRUMENTS_COUNT)
-			sprintf(fillText2, "%d", (fillData[editParam].to+1));
-		else
-			sprintf(fillText2, "%d", (fillData[editParam].to+3));
-
-		display.setControlText2(label[3], fillText2);
-		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(47+16));
-	}
-	else if(editParam == 2 || editParam == 3)
-	{
-		sprintf(fillText2, "%d", (fillData[editParam].to));
-		display.setControlText2(label[3], fillText2);
-		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(255));
-	}
+	display.setControlPosition(val2PopupBar, (800/8)*(3)+1, -1);
+	display.setControlShow(val2PopupBar);
 
 	if(fillData[editParam].type == 0)
 	{
 		display.setControlText(label[3], "");
 		display.setControlText2(label[3], "");
-		display.setControlHide(val2PopupBar);
+		display.setControlValue(val2PopupBar, -1);
 	}
 	else
 	{
+		display.setControlValue(val2PopupBar, (fillData[editParam].from*100)/(47+16));
+		if(fillData[editParam].to < INSTRUMENTS_COUNT)
+			sprintf(fillText2, "%d", (fillData[editParam].to+1));
+		else
+			sprintf(fillText2, "%d", (fillData[editParam].to+3));
+		display.setControlText2(label[3], fillText2);
 		display.setControlText(label[3], "To");
-		display.setControlShow(val2PopupBar);
 	}
 
-	//------------------------------
-	// skala
-	if(editParam == 0)
+
+	display.setControlHide(param2PopupListControl);
+	display.setControlHide(label[4]);
+	display.setControlHide(label[5]);
+	display.setControlValue(bgLabel, 255);
+
+	for(uint8_t i = 0; i < 4; i++)
 	{
-		fillScaleFilterList.linesCount = fillScaleFilterCount;
-		fillScaleFilterList.start = fillData[editParam].param;
-		fillScaleFilterList.length = fillScaleFilterCount;
-		fillScaleFilterList.data = (char**)(&ptrfillScaleFilterNames);
-
-		display.setControlData(param2PopupListControl, &fillScaleFilterList);
-		display.setControlValue(param2PopupListControl, fillData[editParam].param);
-		display.setControlShow(param2PopupListControl);
-		display.setControlSize(param2PopupListControl, 800/8-10, -1);
-
-
-		display.setControlPosition(label[4],  (800/8)*4+(800/16), -1);
-		display.setControlSize(label[4], 800/8-6, -1);
-		display.setControlText(label[4], "In Scale");
-
-		frameData.places[4] = &framesPopupPlaces[4][0];
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
 	}
-	//------------------------------
+}
+
+void cPatternEditor::showFillFx()
+{
+	// typ
+	fillTypeList.linesCount = fillTypeListCount;
+	fillTypeList.start = fillData[editParam].type;
+	fillTypeList.length = fillTypeListCount;
+	fillTypeList.data = (char**)(&ptrfillTypeListNames);
+
+	display.setControlPosition(param1PopupListControl, (800/8)*(3)+1, -1);
+	display.setControlData(param1PopupListControl, &fillTypeList);
+	display.setControlValue(param1PopupListControl, fillData[editParam].type);
+	display.setControlShow(param1PopupListControl);
+	display.setControlText(label[3], "Fill Type");
+	display.setControlText2(label[3], "");
+
 	// fx
-	else if(editParam == 3 || editParam == 2)
+	fillFxTypeList.linesCount = 6;
+	fillFxTypeList.start = fillData[editParam].param+1;
+	fillFxTypeList.length = FX_COUNT+1;
+	fillFxTypeList.data = (char**)(&interfaceGlobals.ptrAllFxNames);
+
+	display.setControlData(param2PopupListControl, &fillFxTypeList);
+	display.setControlValue(param2PopupListControl, fillData[editParam].param+1);
+	display.setControlShow(param2PopupListControl);
+	display.setControlSize(param2PopupListControl, 800/4-6, -1);
+	display.setControlPosition(param2PopupListControl, (800/8)*(1)+1, -1);
+
+	display.setControlPosition(label[1],  (800/8)*2, -1);
+	display.setControlSize(label[1], 800/4-3, -1);
+	display.setControlText(label[1], "Fx Type");
+	display.setControlText(label[2], "");
+	display.setControlText2(label[2], "");
+
+	frameData.places[1] = &framesPopupPlaces[8][0];
+
+	// value/from
+	fillText1[0]  = 0;
+	display.setControlPosition(val1PopupBar, (800/8)*(4)+1, -1);
+	display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(255));
+	display.setControlShow(val1PopupBar);
+	sprintf(fillText1, "%d", (fillData[editParam].from));
+	display.setControlText2(label[4], fillText1);
+
+	if(fillData[editParam].type == 0)
+		display.setControlText(label[4], "Fx Value");
+	else
+		display.setControlText(label[4], "From");
+
+	// to
+	fillText2[0]  = 0;
+	display.setControlPosition(val2PopupBar, (800/8)*(5)+1, -1);
+	display.setControlShow(val2PopupBar);
+
+	if(fillData[editParam].type == 0)
 	{
-		fillFxTypeList.linesCount = 7;
-		fillFxTypeList.start = fillData[editParam].param+1;
-		fillFxTypeList.length = FX_COUNT+1;
-		fillFxTypeList.data = (char**)(&interfaceGlobals.ptrAllFxNames);
-
-		display.setControlData(param2PopupListControl, &fillFxTypeList);
-		display.setControlValue(param2PopupListControl, fillData[editParam].param+1);
-		display.setControlShow(param2PopupListControl);
-		display.setControlSize(param2PopupListControl, 800/4-10, -1);
-
-		display.setControlPosition(label[4],  (800/8)*5, -1);
-		display.setControlSize(label[4], 800/4-6, -1);
-		display.setControlText(label[4], "Fx Type");
-
-		frameData.places[4] = &framesPopupPlaces[5][0];
+		display.setControlText(label[5], "");
+		display.setControlText2(label[5], "");
+		display.setControlValue(val2PopupBar, -1);
 	}
 	else
 	{
-		display.setControlHide(param2PopupListControl);
-		display.setControlPosition(label[4],  (800/8)*4+(800/16), -1);
-		display.setControlSize(label[4], 800/8-6, -1);
-		display.setControlText(label[4], "");
+		sprintf(fillText2, "%d", (fillData[editParam].to));
+		display.setControlText2(label[5], fillText2);
+		display.setControlValue(val2PopupBar, (fillData[editParam].from*100)/(255));
+		display.setControlText(label[5], "To");
 	}
 
-	//------------------------------
-	// step
+	for(uint8_t i = 0; i < 6; i++)
+	{
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
+	}
+}
 
+void cPatternEditor::showFillPopup()
+{
+	frameData.places[0] = &framesPopupPlaces[0][0];
+	frameData.places[1] = &framesPopupPlaces[1][0];
+	frameData.places[2] = &framesPopupPlaces[2][0];
+	frameData.places[3] = &framesPopupPlaces[3][0];
+	frameData.places[4] = &framesPopupPlaces[4][0];
+	frameData.places[5] = &framesPopupPlaces[5][0];
+	frameData.places[6] = &framesPopupPlaces[6][0];
+	frameData.places[7] = &framesPopupPlaces[7][0];
+
+	// step
 	fillStepList.linesCount = 6;
-	fillStepList.start = fillStep+2;
+	fillStepList.start = fillStep+4;
 	fillStepList.length = fillStepCount;
 	fillStepList.data = (char**)(&ptrfillStepNames);
 
+	display.setControlPosition(param3PopupListControl, (800/8)*(0)+1, -1);
 	display.setControlData(param3PopupListControl, &fillStepList);
-	//display.setControlValue(param3PopupListControl, fillStep+2);
 	display.setControlShow(param3PopupListControl);
-	//display.setControlSize(param3PopupListControl, 800/8-10, 25);
-
 
 	display.setControlText(label[0], "Step");
-	display.setControlText(label[5], "");
+	display.setControlText2(label[0], "");
 
-
-
+	// pozostale
 	switch(editParam)
 	{
 	case 0:
+		showFillNote();
 		display.setControlText(patternPopupTitleLabel, " Fill Notes");
 		break;
 	case 1:
+		showFillInstr();
 		display.setControlText(patternPopupTitleLabel, " Fill Instruments");
 		break;
 	case 2:
+		showFillFx();
 		display.setControlText(patternPopupTitleLabel, " Fill Fx 1");
 		break;
 	case 3:
+		showFillFx();
 		display.setControlText(patternPopupTitleLabel, " Fill Fx 2");
 		break;
 
@@ -699,45 +793,25 @@ void cPatternEditor::showFillPopup()
 		break;
 	}
 
-
 	display.setControlText(label[6], "Cancel");
 	display.setControlText(label[7], "Fill");
+	display.setControlShow(label[6]);
+	display.refreshControl(label[6]);
+	display.setControlShow(label[7]);
+	display.refreshControl(label[7]);
 
 	display.refreshControl(param1PopupListControl);
 	display.refreshControl(val1PopupBar);
 	display.refreshControl(val2PopupBar);
 	display.refreshControl(param3PopupListControl);
 	display.refreshControl(param2PopupListControl);
-
+	display.refreshControl(param1PopupListControl);
 	display.setControlShow(patternPopupLabel);
 	display.refreshControl(patternPopupLabel);
 	display.setControlShow(patternPopupTitleLabel);
 	display.refreshControl(patternPopupTitleLabel);
 
-//	display.setControlValue(label[0], 0);
-//	display.setControlValue(label[1], 0);
-//	display.setControlValue(label[2], 0);
-
-
-	for(uint8_t i = 0; i < 8; i++)
-	{
-		display.setControlPosition(label[i], -1, 424);
-		display.setControlSize(label[i], -1, 55);
-		display.setControlShow(label[i]);
-		display.refreshControl(label[i]);
-	}
-
-	frameData.places[0] = &framesPopupPlaces[0][0];
-	frameData.places[1] = &framesPopupPlaces[1][0];
-	frameData.places[2] = &framesPopupPlaces[2][0];
-	frameData.places[3] = &framesPopupPlaces[3][0];
-
-	// 4 zmienna
-	//frameData.places[4] = &framesPopupPlaces[5][0];
-	frameData.places[5] = &framesPopupPlaces[6][0];
-	frameData.places[6] = &framesPopupPlaces[7][0];
-	frameData.places[7] = &framesPopupPlaces[8][0];
-
+	display.refreshControl(bgLabel);
 
 	setFillPlace(fillPlace);
 	activateFillPopupBorder();
@@ -751,13 +825,29 @@ void cPatternEditor::refreshFillType()
 	display.setControlValue(param1PopupListControl, fillData[editParam].type);
 	display.refreshControl(param1PopupListControl);
 
+
 	if(fillData[editParam].type == 0)
 	{
-		display.setControlText(label[2], "Value");
-		display.setControlText(label[3], "");
-		display.setControlText2(label[3], "");
+		if(editParam == 1)
+		{
+			if(fillData[editParam].from < INSTRUMENTS_COUNT)
+				sprintf(fillText1, "%d", (fillData[editParam].from+1));
+			else
+				sprintf(fillText1, "%d", (fillData[editParam].from+3));
+			display.setControlText2(label[2], fillText1);
 
-		display.setControlHide(val2PopupBar);
+			if(fillData[editParam].type == 0)
+				display.setControlText(label[2], "Instrument");
+			else
+				display.setControlText(label[2], "From");
+
+			display.setControlValue(val2PopupBar,-1);
+		}
+		else if(editParam == 0)
+		{
+
+		}
+
 	}
 	else
 	{
@@ -833,7 +923,6 @@ void cPatternEditor::refreshFillTo()
 
 void cPatternEditor::refreshFillParam()
 {
-
 	if(editParam == 0)
 	{
 		display.setControlValue(param2PopupListControl, fillData[editParam].param);
@@ -857,7 +946,7 @@ void cPatternEditor::refreshFillStep()
 	//------------------------------
 	// step
 	//Serial.println(fillStep+2);
-	display.setControlValue(param3PopupListControl, fillStep+2);
+	display.setControlValue(param3PopupListControl, fillStep+4);
 	//display.setControlText(bottomLabel[5], "Step");
 
 	display.refreshControl(param3PopupListControl);
@@ -878,6 +967,12 @@ void cPatternEditor::hideFillPopup()
 //	display.refreshControl(val2PopupLabel);
 //	display.refreshControl(val3PopupLabel);
 //	display.refreshControl(param2PopupListControl);
+
+
+	display.setControlPosition(label[1],  (800/8)*1+800/16, -1);
+
+
+	display.setControlValue(bgLabel, 255);
 
 	display.setControlHide(patternPopupTitleLabel);
 	display.setControlHide(patternPopupLabel);
