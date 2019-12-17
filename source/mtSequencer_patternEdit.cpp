@@ -327,16 +327,16 @@ void Sequencer::invertSelectedSteps(uint8_t elements)
 	}
 
 }
-void Sequencer::loadDefaultTrack(uint8_t row, uint8_t bank)
-{
-
-	seq[bank].track[row].length = DEFAULT_PATTERN_LENGTH - 1;
-
-	for (uint8_t x = 0; x <= MAXSTEP; x++)
-	{
-		clearStep(x, row, bank);
-	}
-}
+//void Sequencer::loadDefaultTrack(uint8_t row, uint8_t bank)
+//{
+//
+//	seq[bank].track[row].length = DEFAULT_PATTERN_LENGTH - 1;
+//
+//	for (uint8_t x = 0; x <= MAXSTEP; x++)
+//	{
+//		clearStep(x, row, bank);
+//	}
+//}
 
 void Sequencer::changeSelectionNote(int16_t value)
 {
@@ -746,6 +746,11 @@ void Sequencer::clearStep(uint8_t x, uint8_t row, uint8_t bank)
 	clearStep(step, 0);
 }
 
+void Sequencer::clearStep(strPattern::strTrack::strStep * step)
+{
+	clearStep(step, 0);
+}
+
 void Sequencer::clearStep(strPattern::strTrack::strStep * step,
 							uint8_t elements)
 {
@@ -754,7 +759,6 @@ void Sequencer::clearStep(strPattern::strTrack::strStep * step,
 	case ELEMENTS_ALL_NO_PREFERENCES:
 		step->note = STEP_NOTE_EMPTY;
 		step->instrument = 0;
-//		step->velocity = -1;
 		step->fx[0].type = 0;
 		step->fx[1].type = 0;
 		break;
@@ -796,40 +800,30 @@ void Sequencer::clearSelected(strSelection * selection, uint8_t elements)
 	}
 }
 
-// void Sequencer::clearBank(uint8_t pattern)
-// {
-// 	for (uint8_t row = 1; row <= 8; row++)
-// 	{
-// 		clearRow(row, 3);
 
-// 		for (uint8_t step = 1; step <= 32; step++)
-// 		{
-// 			clearStep(step, row, 3);
-// 		}
-// 	}
-// }
-
-void Sequencer::loadDefaultPattern(uint8_t bank)
+void Sequencer::clearPattern(strPattern * patt)
 {
-	seq[bank].tempo = DEFAULT_TEMPO;
-	seq[bank].swing = DEFAULT_SWING;
-	seq[bank].structVer = MEMORY_STRUCT_VER;
-	seq[bank].structVerControl = MEMORY_STRUCT_VER;
-	seq[bank].rezerwa3 = 0;
-	seq[bank].rezerwa4 = 0;
 
-	for (uint8_t row = MINTRACK; row <= MAXTRACK; row++)
+	patt->tempo = DEFAULT_TEMPO;
+	patt->swing = DEFAULT_SWING;
+	patt->structVer = MEMORY_STRUCT_VER;
+	patt->structVerControl = MEMORY_STRUCT_VER;
+	patt->rezerwa3 = 0;
+	patt->rezerwa4 = 0;
+
+	for (strPattern::strTrack &track : patt->track)
 	{
-		loadDefaultTrack(row, bank);
+		track.length = DEFAULT_PATTERN_LENGTH - 1;
+
+		for (strPattern::strTrack::strStep &step : track.step)
+		{
+			clearStep(&step);
+		}
 	}
 
 }
 
-void Sequencer::initPattern(uint8_t pattern) // czyści pattern z flasha
-{
-// czyścimy bank 3
-	loadDefaultPattern(pattern);
-}
+
 
 void Sequencer::insert(strSelection *selection)
 {

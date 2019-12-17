@@ -478,7 +478,7 @@ uint8_t cList::update()
 
 					if(list->icon.useSpecialIcons)
 					{
-						if((list->icon.iconPositionInList) == i+textListPos)
+						if((list->icon.iconPositionInList) == i + table_offset)
 						{
 							uint8_t idx = list->icon.iconNum;
 

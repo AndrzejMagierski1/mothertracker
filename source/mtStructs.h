@@ -471,6 +471,7 @@ struct strMtValues
 
 	} midiInstrument[16];
 
+	uint8_t allPatternsBitmask[255];
 
 };
 

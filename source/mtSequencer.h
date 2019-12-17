@@ -257,7 +257,7 @@ public:
 
 	} noteHandler[100];
 
-	void initPattern(uint8_t pattern);
+//	void initPattern(uint8_t pattern);
 
 	void switchStep(uint8_t row);
 
@@ -277,6 +277,7 @@ public:
 	void divChangeQuantize(uint8_t row);
 
 	void loadDefaultPattern(uint8_t bank);
+//	void clearPattern(strPattern*);
 	void loadDefaultTrack(uint8_t track, uint8_t bank);
 
 	void reset_actual_pos(uint8_t row);
@@ -527,8 +528,8 @@ public:
 	}
 	void loadFromFileERROR()
 	{
-		loadDefaultPattern(0);
-		loadDefaultPattern(1);
+		clearPattern(&seq[0]);
+		clearPattern(&seq[1]);
 	}
 	uint16_t getPatternSize()
 	{
@@ -583,8 +584,10 @@ public:
 							uint8_t stepTo,
 							uint8_t trackTo);
 
+	void clearPattern(strPattern * patt);
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
+	void clearStep(strPattern::strTrack::strStep *);
 	void clearStep(strPattern::strTrack::strStep * step, uint8_t);
 	void clearSelected(strSelection * sel, uint8_t elements);
 	void clearSelected();
