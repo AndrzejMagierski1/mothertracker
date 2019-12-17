@@ -34,7 +34,7 @@ public:
 
 private:
 
-	wt_position_data_t *wt_data;
+	wt_position_data_t *wt_data = nullptr;
 
 };
 

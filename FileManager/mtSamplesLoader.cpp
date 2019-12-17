@@ -117,6 +117,7 @@ void SamplesLoader::update()
 			mtProject.used_memory += currentSize*2;
 			mtProject.instrument[currentIndex].isActive=1;
 			mtProject.instrument[currentIndex].sample.length = currentSize;
+			if(mtProject.instrument[currentIndex].granular.grainLength > mtProject.instrument[currentIndex].sample.length) mtProject.instrument[currentIndex].granular.grainLength = mtProject.instrument[currentIndex].sample.length;
 			if(mtProject.instrument[currentIndex].playMode == playModeWavetable)
 			{
 				mtProject.instrument[currentIndex].sample.type = mtSampleTypeWavetable;

@@ -73,6 +73,9 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 
 		mtProject.instrument[instrumentIndex].reverbSend = 0;
 
+		mtProject.instrument[instrumentIndex].granular.grainLength = 441;
+
+
 		sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",instrumentIndex);
 		writeInstrumentFile(currentPatch, &mtProject.instrument[instrumentIndex]);
 	}

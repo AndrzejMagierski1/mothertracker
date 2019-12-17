@@ -164,6 +164,7 @@ void AudioPlayMemory::update(void)
 										fPitchCounter += 1.0f;
 										iPitchCounter--;
 									}
+									if(iPitchCounter > sampleConstrains.loopPoint2 ) iPitchCounter = sampleConstrains.loopPoint2;
 								break;
 
 								case granularLoopBackward:
@@ -183,6 +184,7 @@ void AudioPlayMemory::update(void)
 											fPitchCounter += 1.0f;
 											iPitchCounter--;
 										}
+										if(iPitchCounter > sampleConstrains.loopPoint2 ) iPitchCounter = sampleConstrains.loopPoint2;
 									}
 									else
 									{
@@ -199,6 +201,7 @@ void AudioPlayMemory::update(void)
 											fPitchCounter -= 1.0f;
 											iPitchCounter++;
 										}
+										if(iPitchCounter < sampleConstrains.loopPoint1 ) iPitchCounter = sampleConstrains.loopPoint1;
 									}
 								break;
 
@@ -220,6 +223,7 @@ void AudioPlayMemory::update(void)
 											fPitchCounter += 1.0f;
 											iPitchCounter--;
 										}
+										if(iPitchCounter > sampleConstrains.loopPoint2 ) iPitchCounter = sampleConstrains.loopPoint2;
 									}
 									else
 									{
@@ -236,6 +240,7 @@ void AudioPlayMemory::update(void)
 											fPitchCounter -= 1.0f;
 											iPitchCounter++;
 										}
+										if(iPitchCounter < sampleConstrains.loopPoint1 ) iPitchCounter = sampleConstrains.loopPoint1;
 									}
 								break;
 								default: break;
@@ -1454,6 +1459,8 @@ void AudioPlayMemory::refreshGranularPosition()
 
 	samplePoints.loop1 = (uint32_t)((float)loopPoint1Granular*((float)startLen/MAX_16BIT));
 	samplePoints.loop2 = (uint32_t)((float)loopPoint2Granular*((float)startLen/MAX_16BIT));
+
+	length =startLen-samplePoints.start;
 
 	sampleConstrains.loopPoint1=samplePoints.loop1-samplePoints.start;
 	sampleConstrains.loopPoint2=samplePoints.loop2-samplePoints.start;
