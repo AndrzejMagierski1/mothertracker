@@ -52,7 +52,9 @@ typedef struct
 {
 	uint8_t songLength;
 	uint8_t firstVisiblePattern;
-	uint8_t *data;
+
+	uint8_t *patternsBitmask;
+	uint8_t *songData;
 
 	song_selection_t selection;
 	progress_control_t progress;
@@ -87,7 +89,7 @@ public:
 	int16_t textFont;
 	uint8_t keyboardShift = 0;
 
-	uint16_t textListPos;
+	uint16_t textListPos = 0;
 
 private:
 

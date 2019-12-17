@@ -163,10 +163,10 @@ void cSongEditor::showDefaultScreen()
 
 	display.setControlText(label[4], "");
 
-	display.setControlText(label[5], "+");
+	display.setControlText(label[5], "-");
 	display.setControlText2(label[5], "pattern");
 
-	display.setControlText(label[6], "-");
+	display.setControlText(label[6], "+");
 	display.setControlText2(label[6], "pattern");
 
 	display.setControlText2(label[7], "Tempo");
@@ -200,13 +200,8 @@ void cSongEditor::showPatternsList()
 	patternsList.data = patternNames;
 	patternsList.start = selectedPattern;
 
-/*
-    display.setControlData(patternsListControl,  &patternsList);
-	//display.setControlValue(patternsListControl, selectedPattern);
-*/
-	display.setControlShow(songPlayerControl);
-	display.refreshControl(songPlayerControl);
-
+    display.setControlData(songPlayerControl, &songPlayerData);
+	display.setControlValue(songPlayerControl, selectedPattern);
 }
 
 

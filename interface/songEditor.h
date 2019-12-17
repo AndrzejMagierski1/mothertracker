@@ -126,8 +126,7 @@ public:
 	block_data_t songPlayerData;
 	uint32_t *patternBitmask;
 
-	uint8_t patternUsageTable[14];
-	void getUsage();
+	//uint8_t patternUsageTable[14];
 	void refreshSongPlayerControl();
 	void startSongPlayer();
 	void stopSongPlayer();

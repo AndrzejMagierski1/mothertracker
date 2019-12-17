@@ -57,7 +57,7 @@ void cSongEditor::update()
 	{
 		if(songPlayerData.progress.isPlaying)
 		{
-			refreshSongPlayerControl();
+			//refreshSongPlayerControl();
 			markCurrentPattern(0);
 			songPlayerRefreshTimer = 0;
 		}
@@ -79,7 +79,8 @@ void cSongEditor::start(uint32_t options)
 
 	readSong();
 	songPlayerData.list = &patternsList;
-	songPlayerData.data = patternUsageTable;
+	songPlayerData.songData = mtProject.song.playlist;
+	songPlayerData.patternsBitmask = mtProject.values.allPatternsBitmask;
 
 	refreshSongPlayerControl();
 	showPatternsList();
@@ -145,8 +146,8 @@ void cSongEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton2, buttonPress, functCopy);
 	FM->setButtonObj(interfaceButton3, buttonPress, functPaste);
 
-	FM->setButtonObj(interfaceButton6, buttonPress, functDecPattern);
-	FM->setButtonObj(interfaceButton5, buttonPress, functIncPattern);
+	FM->setButtonObj(interfaceButton6, buttonPress, functIncPattern);
+	FM->setButtonObj(interfaceButton5, buttonPress, functDecPattern);
 	FM->setButtonObj(interfaceButton7, buttonPress, functTempo);
 	FM->setButtonObj(interfaceButtonCopy, buttonPress, functCopyPaste);
 	//FM->setButtonObj(interfaceButton7, buttonPress, functPatternLength);
@@ -581,7 +582,7 @@ void cSongEditor::changePatternsSelection(int16_t value)
 //==============================================================================================
 void cSongEditor::refreshSongPlayerControl()
 {
-	getUsage();
+	//getUsage();
 	display.refreshControl(songPlayerControl);
 	display.synchronizeRefresh();
 }
@@ -781,17 +782,6 @@ int16_t cSongEditor::findSlotWithPattern()
 	}
 
 	return slot;
-}
-
-void cSongEditor::getUsage()
-{
-	uint8_t start = ((cSongPlayer*)SE->songPlayerControl)->textListPos;
-	songPlayerData.firstVisiblePattern = start;
-
-	for(size_t i = 0; i < 14 ; i++)
-	{
-		patternUsageTable[i] = mtProject.values.allPatternsBitmask[mtProject.song.playlist[start + i] - 1];
-	}
 }
 
 void cSongEditor::selectSpecificTrack(uint8_t track, uint8_t pattern)
@@ -1077,6 +1067,7 @@ static void refreshCopyPasting()
 
 		if(SE->currentCopyElement == SE->copyElementMax)
 		{
+			SE->refreshSongPlayerControl();
 			SE->hideCopyingBar();
 			SE->isBusy = 0;
 			SE->isCopyingInProgress = 0;
@@ -1104,9 +1095,6 @@ static uint8_t functPaste()
 			SE->showCopyingBar();
 			SE->currentCopyElement = 0;
 
-			uint8_t source = mtProject.song.playlist[SE->copyCurrentData.startPattern + SE->currentCopyElement];
-			uint8_t destination =  mtProject.song.playlist[SE->songPlayerData.selection.startPattern + SE->currentCopyElement];
-
 			SE->isBusy = 1;
 			SE->isCopyingInProgress = 1;
 			SE->copyElementMax = SE->copyCurrentData.patternSelectionLength;
@@ -1114,27 +1102,6 @@ static uint8_t functPaste()
 			while((SE->songPlayerData.selection.startPattern + SE->copyElementMax) > SE->songPlayerData.songLength)
 			{
 				SE->copyElementMax--;
-			}
-
-			fileManager.copySongTracks((char*) "Workspace", source, destination,
-					SE->copyCurrentData.startTrack,
-					SE->songPlayerData.selection.startTrack,
-					SE->copyCurrentData.trackSelectionLength);
-
-			updateBitmaskAfterCopy(
-					&mtProject.values.allPatternsBitmask[source-1],
-					&mtProject.values.allPatternsBitmask[destination-1],
-					SE->copyCurrentData.startTrack,
-					SE->songPlayerData.selection.startTrack,
-					SE->copyCurrentData.trackSelectionLength);
-
-			SE->currentCopyElement++;
-
-			if(SE->currentCopyElement == SE->copyElementMax)
-			{
-				SE->hideCopyingBar();
-				SE->isCopyingInProgress = 0;
-				SE->isBusy = 0;
 			}
 		}
 	}

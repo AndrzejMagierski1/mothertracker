@@ -240,11 +240,12 @@ uint8_t cSongPlayer::refresh2()
 
 uint8_t cSongPlayer::refresh3()
 {
-	if(controlData->data != NULL)
+	if((controlData->songData != NULL) || (controlData->patternsBitmask != NULL))
 	{
 		fillBlocks();
-		drawProgressLine();
 	}
+
+	drawProgressLine();
 
 	return 0;
 }
@@ -418,7 +419,12 @@ uint8_t cSongPlayer::showList()
 			{
 				listAnimationStep = 0;
 				list->start = list->start -1;
-				textListPos = textListPos-1;
+
+				if(textListPos)
+				{
+					textListPos = textListPos-1;
+				}
+
 			}
 		}
 
@@ -628,7 +634,7 @@ void cSongPlayer::fillBlocks()
 
 	for(size_t pattern = 0; pattern < maxPatternsVisible; pattern++)
 	{
-		uint8_t data = controlData->data[pattern];
+		uint8_t data = controlData->patternsBitmask[controlData->songData[textListPos + pattern] - 1];
 
 		for(size_t track = 0; track < MAX_TRACKS_PER_PATTERN; track++)
 		{
@@ -662,7 +668,7 @@ void cSongPlayer::drawProgressLine()
 		API_LINE_WIDTH(16);
 		API_BEGIN(LINES);
 
-		int16_t patternPosition = controlData->progress.currentSongPosition - controlData->firstVisiblePattern;
+		int16_t patternPosition = controlData->progress.currentSongPosition - textListPos;
 
 		if((patternPosition < MAX_PATTERNS_VISIBLE) && (patternPosition >= 0))
 		{
@@ -695,9 +701,9 @@ void cSongPlayer::calculateSelection(uint8_t pattern, uint8_t track, uint16_t x,
 
 	if(controlData->selection.isActive)
 	{
-		if((controlData->firstVisiblePattern + pattern) >= controlData->selection.startPattern)
+		if((textListPos + pattern) >= controlData->selection.startPattern)
 		{
-			uint8_t calculatedPattern = controlData->firstVisiblePattern + pattern;
+			uint8_t calculatedPattern = textListPos + pattern;
 			uint8_t isSelected = 1;
 
 			if(!(calculatedPattern >= controlData->selection.startPattern)) isSelected = 0;
@@ -729,7 +735,9 @@ void cSongPlayer::calculateSelection(uint8_t pattern, uint8_t track, uint16_t x,
 			}
 		}
 	}
+
 }
+
 void cSongPlayer::drawSelection()
 {
 	if(xSelectionStart != UINT16_MAX && ySelectionStart != UINT16_MAX && xSelectionEnd != 0 && ySelectionEnd != 0)
