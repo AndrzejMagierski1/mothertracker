@@ -823,7 +823,13 @@ void Sequencer::clearPattern(strPattern * patt)
 
 }
 
-
+void Sequencer::clearSingleTrack(strPattern::strTrack *track)
+{
+	for(uint8_t i = 0; i < MAXSTEP; i++)
+	{
+		clearStep(&track->step[i]);
+	}
+}
 
 void Sequencer::insert(strSelection *selection)
 {

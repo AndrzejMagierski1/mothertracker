@@ -606,6 +606,7 @@ public:
 							uint8_t trackTo);
 	uint8_t getCopySelectionHeight();
 
+	void clearSingleTrack(strPattern::strTrack *track);
 	void clearPattern(strPattern * patt);
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);

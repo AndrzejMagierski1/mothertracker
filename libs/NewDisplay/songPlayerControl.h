@@ -6,7 +6,7 @@
 #include "displayControls.h"
 
 #define MAX_BLOCKS_VISIBLE		32
-#define MAX_PATTERNS_VISIBLE	14
+#define MAX_PATTERNS_VISIBLE	13
 #define MAX_TRACKS_PER_PATTERN	8
 
 typedef struct

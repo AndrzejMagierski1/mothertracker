@@ -49,6 +49,10 @@ static void updateBitmaskAfterCopy(uint8_t *src, uint8_t *dest, uint8_t startSrc
 static uint8_t functCopy();
 static uint8_t functPaste();
 
+static uint8_t functDelete();
+static void refreshDeleting();
+static void updateBitmaskAfterDelete(uint8_t *src, uint8_t startSrc, uint8_t length);
+
 void cSongEditor::update()
 {
 	if(songPlayerRefreshTimer > 100)
@@ -62,6 +66,7 @@ void cSongEditor::update()
 	}
 
 	refreshCopyPasting();
+	refreshDeleting();
 }
 
 void cSongEditor::start(uint32_t options)
@@ -148,6 +153,7 @@ void cSongEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton5, buttonPress, functDecPattern);
 	FM->setButtonObj(interfaceButton7, buttonPress, functTempo);
 	FM->setButtonObj(interfaceButtonCopy, buttonPress, functCopyPaste);
+	FM->setButtonObj(interfaceButtonDelete, buttonPress, functDelete);
 	//FM->setButtonObj(interfaceButton7, buttonPress, functPatternLength);
 
 
@@ -1017,6 +1023,20 @@ static void updateBitmaskAfterCopy(uint8_t *src, uint8_t *dest, uint8_t startSrc
 			*dest &= ~(1 << (bit + startDest));
 		}
 	}
+
+	fileManager.configIsChangedFlag = 1;
+	mtProject.values.projectNotSavedFlag = 1;
+}
+
+static void updateBitmaskAfterDelete(uint8_t *src, uint8_t startSrc, uint8_t length)
+{
+	for(uint8_t bit = 0; bit < length; bit++)
+	{
+		*src &= ~(1 << (bit + startSrc));
+	}
+
+	fileManager.configIsChangedFlag = 1;
+	mtProject.values.projectNotSavedFlag = 1;
 }
 
 static void refreshCopyPasting()
@@ -1040,20 +1060,24 @@ static void refreshCopyPasting()
 
 		SE->currentCopyElement++;
 
-		SE->showCopyingBar();
+		SE->showHorizontalBar("Copying", SE->copyElementMax, SE->currentCopyElement);
 
 		if(SE->currentCopyElement == SE->copyElementMax)
 		{
 			SE->refreshSongPlayerControl();
-			SE->hideCopyingBar();
+			SE->hideHorizontalBar();
 			SE->isBusy = 0;
 			SE->isCopyingInProgress = 0;
+
+			patternEditor.changeActualPattern(0);// to przeladuje wyswietlany pattern w patternEdicie jesli cos zmienialismy w aktualnym
 		}
 	}
 }
 
 static uint8_t functCopy()
 {
+	if(SE->isBusy) return 1;
+
 	if(SE->selectedPlace < 8)
 	{
 		SE->isSomethingCopied = 1;
@@ -1065,11 +1089,13 @@ static uint8_t functCopy()
 
 static uint8_t functPaste()
 {
+	if(SE->isBusy) return 1;
+
 	if(SE->selectedPlace < 8)
 	{
 		if(SE->isSomethingCopied)
 		{
-			SE->showCopyingBar();
+			SE->showHorizontalBar("Copying", SE->copyElementMax, SE->currentCopyElement);
 			SE->currentCopyElement = 0;
 
 			SE->isBusy = 1;
@@ -1100,4 +1126,48 @@ static uint8_t functCopyPaste()
 	}
 
 	return 1;
+}
+
+static uint8_t functDelete()
+{
+	if(SE->isBusy) return 1;
+
+	if(SE->selectedPlace < 8)
+	{
+		SE->currentDeleteElement = 0;
+
+		SE->isBusy = 1;
+		SE->isDeletingInProgress = 1;
+		SE->deleteElementMax = SE->songPlayerData.selection.patternSelectionLength;
+
+		SE->showHorizontalBar("Deleting", SE->deleteElementMax, SE->currentDeleteElement);
+	}
+
+	return 1;
+}
+
+static void refreshDeleting()
+{
+	if(SE->isDeletingInProgress)
+	{
+		uint8_t source = mtProject.song.playlist[SE->songPlayerData.selection.startPattern + SE->currentDeleteElement];
+
+		fileManager.deleteTracks((char*) "Workspace", source, SE->songPlayerData.selection.startTrack, SE->songPlayerData.selection.trackSelectionLength);
+
+		updateBitmaskAfterDelete(&mtProject.values.allPatternsBitmask[source-1], SE->songPlayerData.selection.startTrack, SE->songPlayerData.selection.trackSelectionLength);
+
+		SE->currentDeleteElement++;
+
+		SE->showHorizontalBar("Deleting", SE->deleteElementMax, SE->currentDeleteElement);
+
+		if(SE->currentDeleteElement == SE->deleteElementMax)
+		{
+			SE->hideHorizontalBar();
+			SE->refreshSongPlayerControl();
+			SE->isBusy = 0;
+			SE->isDeletingInProgress = 0;
+
+			patternEditor.changeActualPattern(0);// to przeladuje wyswietlany pattern w patternEdicie jesli cos usuwalismy z aktualnie tam zaladowanego
+		}
+	}
 }

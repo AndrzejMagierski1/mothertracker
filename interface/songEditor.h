@@ -149,10 +149,12 @@ public:
 
 	uint8_t isBusy = 0;
 
-	void showCopyingBar();
-	void hideCopyingBar();
+	void showHorizontalBar(const char *text, uint32_t max, uint32_t current);
+	void hideHorizontalBar();
 
-
+	uint8_t isDeletingInProgress = 0;
+	uint8_t deleteElementMax;
+	uint8_t currentDeleteElement;
 };
 
 
