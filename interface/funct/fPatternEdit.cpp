@@ -903,39 +903,50 @@ void cPatternEditor::refreshEditState()
 
 void cPatternEditor::changeFillData(int16_t value)
 {
-	if(fillPlace < 0 && fillPlace > 4)
-	{
-		return;
-	}
+	if(fillPlace < 0 && fillPlace > 5) return;
 
 	int16_t* ptrVal;
 	int16_t min = 0, max;
+	uint8_t fillParam = fillPlace;
 
-	switch(fillPlace)
+	if(editParam != 1)
 	{
-	case 1:
+		switch(fillPlace)
+		{
+		case 1: fillParam = 4; break;// param
+		case 2: fillParam = 4; break;// param
+		case 3: fillParam = 1; break;// type
+		case 4: fillParam = 2; break;// from
+		case 5: fillParam = 3; break;// to
+		}
+	}
+
+	switch(fillParam)
+	{
+	case 0: // step
+		ptrVal = &fillStep;
+		min = -4;
+		max = PATTERN_EDIT_STEP_MAX;
+		break;
+	case 1: // type
 		ptrVal = &fillData[editParam].type;
 		max = fillTypeList.length - 1;
-		//value = value*(-1);
 		break;
-	case 2:
+	case 2: // from
 		ptrVal = &fillData[editParam].from;
-		max = (trackerPattern.selectedParam == 1 ? 63 : 127);
+		min = (editParam < 2 ? 0 : sequencer.getFxMin(interfaceGlobals.fxIDs[fillData[editParam].param]));
+		max = (editParam == 0 ? 127 : (editParam == 1 ? 63 : sequencer.getFxMax(interfaceGlobals.fxIDs[fillData[editParam].param])));
 		break;
-	case 3:
+	case 3: // to
+		if(fillData[editParam].type == 0) return;
 		ptrVal = &fillData[editParam].to;
-		max = (editParam == 1 ? 63 : 127);
+		min = (editParam < 2 ? 0 : sequencer.getFxMin(interfaceGlobals.fxIDs[fillData[editParam].param]));
+		max = (editParam == 0 ? 127 : (editParam == 1 ? 63 : sequencer.getFxMax(interfaceGlobals.fxIDs[fillData[editParam].param])));
 		break;
-	case 4:
+	case 4: // param
 		ptrVal = &fillData[editParam].param;
 		min = (editParam == 0 ? 0 : -1);
-		max = (editParam == 0 ? 1 : FX_COUNT);
-		//value = value*(-1);
-		break;
-	case 0:
-		ptrVal = &fillStep;
-		min = -2;
-		max = PATTERN_EDIT_STEP_MAX;
+		max = (editParam == 0 ? MAX_SCALE : FX_COUNT);
 		break;
 
 	default: return;
@@ -946,13 +957,13 @@ void cPatternEditor::changeFillData(int16_t value)
 	else if(*ptrVal + value > max) *ptrVal = max;
 	else *ptrVal += value;
 
-	switch(fillPlace)
+	switch(fillParam)
 	{
+		case 0:  refreshFillStep(); break;
 		case 1:  refreshFillType(); break;
 		case 2:  refreshFillFrom(); break;
-		case 3:  refreshFillTo(); break;
+		case 3:  refreshFillTo(); 	break;
 		case 4:  refreshFillParam(); break;
-		case 0:  refreshFillStep(); break;
 		default: return;
 	}
 }
@@ -1005,60 +1016,67 @@ void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 {
 	if(place < 0 || place > 5) return;
 
-
 	if(editParam == 0)
 	{
-		if(dir == 0 && place == 2) return;
-
-		if(fillPlace == 0)
+		if(dir == 0)
 		{
-			fillPlace =
-
+			if(place == 2) fillPlace = 1;
+			else  fillPlace = place;
+			return;
 		}
-		if(fillPlace == 0)
+		else if(dir > 0)
 		{
-
-
+			if(place == 2) fillPlace = 3;
+			else  fillPlace = place;
+		}
+		else if(dir < 0)
+		{
+			if(place == 2) fillPlace = 1;
+			else  fillPlace = place;
 		}
 	}
 	else if(editParam == 1)
 	{
-		if(dir == 0 && place > 3) return;
-
-
-
+		if(dir == 0)
+		{
+			if(place < 4) fillPlace = place;
+			return;
+		}
+		else if(dir > 0)
+		{
+			if(place > 3) fillPlace = 3;
+			else  fillPlace = place;
+		}
+		else if(dir < 0)
+		{
+			if(place > 3) fillPlace = 3;
+			else  fillPlace = place;
+		}
 	}
 	else if(editParam == 2 || editParam == 3)
 	{
-		if(dir == 0 && place == 2) return;
-
-
-
+		if(dir == 0)
+		{
+			if(place == 2) fillPlace = 1;
+			else  fillPlace = place;
+			return;
+		}
+		else if(dir > 0)
+		{
+			if(place == 2) fillPlace = 3;
+			else  fillPlace = place;
+		}
+		else if(dir < 0)
+		{
+			if(place == 2) fillPlace = 1;
+			else  fillPlace = place;
+		}
 	}
-
-
 }
 
 void cPatternEditor::changeFillPlace(int8_t diff)
 {
-	//int8_t temp_place = fillPlace+diff;
 	setFillPlace(fillPlace+diff, diff);
-//
-//	if(PTE->fillPlace > 0)
-//	{
-//		if(PTE->fillPlace == 5)
-//		{
-//			if(PTE->editParam != 1) PTE->fillPlace -= 2;
-//			else if(PTE->fillData[PTE->editParam].type == 0) PTE->fillPlace -= 4;
-//			else PTE->fillPlace -= 3;
-//		}
-//		else if(PTE->fillPlace == 3 && PTE->fillData[PTE->editParam].type == 0)
-//		{
-//			PTE->fillPlace -= 2;
-//		}
-//		else PTE->fillPlace--;
-//		PTE->activateFillPopupBorder();
-//	}
 }
 
 void cPatternEditor::setMuteFunct(uint8_t state)
@@ -1398,7 +1416,8 @@ static  uint8_t functUp()
 {
 	if(PTE->fillState > 0)
 	{
-		PTE->changeFillData((PTE->fillPlace == 2 || PTE->fillPlace == 3) ? 1 : -1);
+		PTE->changeFillData( (PTE->fillPlace == 0 || PTE->fillPlace == 1 ||
+							 (PTE->editParam != 1 && PTE->fillPlace == 3))  ? -1 : 1);
 		return 1;
 	}
 
@@ -1490,7 +1509,8 @@ static  uint8_t functDown()
 {
 	if(PTE->fillState > 0)
 	{
-		PTE->changeFillData((PTE->fillPlace == 2 || PTE->fillPlace == 3)? -1 : 1);
+		PTE->changeFillData( (PTE->fillPlace == 0 || PTE->fillPlace == 1 ||
+							 (PTE->editParam != 1 && PTE->fillPlace == 3))  ? 1 : -1);
 		return 1;
 	}
 
