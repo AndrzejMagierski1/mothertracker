@@ -10,23 +10,27 @@
 
 static uint32_t defaultColors[] =
 {
-	0xFFFFFF, // tekst
-	0x222222, // tło
-	0xFF0000, // ramka
+	0xFFFFFF,	//	uint32_t listItemFrame 			= DISP_RGB(255,255,255);
+	0x000000,	//	uint32_t listItemFrameBG 		= DISP_RGB(0,0,0);
+	0x575757,	//	uint32_t listScrollBar 			= DISP_RGB(255,255,255);
+	0x0a0a0a,	//	uint32_t listBG 				= DISP_RGB(85,74,25);
+	0xFFFFFF,	//	uint32_t fontList 				= DISP_RGB(255,255,255);
+	one_true_red,   //  select color
+	0x000000	//	scrollParCont
 };
-
-void String2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char* string, int8_t length);
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 cSongPlayer::cSongPlayer(strControlProperties* properties)
 {
-	colorsCount = 3;
+	colorsCount = 7;
 	colors = defaultColors;
 	selfRefresh = 0;
 
 	refreshStep =  0;
+	listAnimationStep = 0;
+	disableBar = 0;
 
 	if(properties == nullptr)
 	{
@@ -257,7 +261,7 @@ uint8_t cSongPlayer::showList()
 	int16_t posY = 37;
 	int16_t posX = 508;
 	int16_t width = (800/4-16);
-	int16_t height = 25;
+	int16_t height = 394;
 
 
 	int16_t  x_pos = posX, y_pos, h_row = 27; //font->height+8;
