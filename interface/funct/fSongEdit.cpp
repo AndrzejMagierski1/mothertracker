@@ -981,6 +981,7 @@ void cSongEditor::walkOnSongPlayer(player_direction_t dir)
 		selectedPattern = songPlayerData.selection.startPattern;
 	}
 
+	listPatterns();
 	display.setControlValue(songPlayerControl, selectedPattern);
 	refreshSongPlayerControl();
 }
