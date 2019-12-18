@@ -74,7 +74,7 @@ void FileManager::setLoadLength(uint8_t filesNum)
 
 void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 {
-	if(SD.exists(name)) SD.remove(name);
+	SD.remove(name);
 
 	FsFile file;
 	FastCRC32 crcCalc;
@@ -111,7 +111,7 @@ uint8_t FileManager::writePatternFile(char * name)
 {
 
 	// todo: może do wyjebania jeśli .open załatwi sprawę
-	if (SD.exists(name)) SD.remove(name);
+	SD.remove(name);
 
 	FsFile file;
 	FastCRC32 crcCalc;
@@ -135,7 +135,7 @@ uint8_t FileManager::writePatternFile(char * name)
 
 void FileManager::writeProjectFile(char * name, strMtProject *proj)
 {
-	if(SD.exists(name)) SD.remove(name);
+	SD.remove(name);
 
 	FsFile file;
 	FastCRC32 crcCalc;
