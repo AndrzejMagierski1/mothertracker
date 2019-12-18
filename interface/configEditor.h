@@ -143,6 +143,14 @@ enum enClockOut
 	clockOut_usb_and_jack,
 };
 
+enum enClockIn
+{
+	clockIn_Internal,
+	clockIn_Usb,
+	clockIn_Jack,
+
+};
+
 const char CCouts[CC_OUTS_NUM][5] =
 {
 		"CC1",

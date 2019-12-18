@@ -16,4 +16,19 @@ void sendMidiStart();
 void sendMidiClock();
 void sendMidiStop();
 
+void receiveUsbRealtime(uint8_t type);
+//void receiveJackRealtime(uint8_t type);
+void receiveUsbStart();
+void receiveUsbStop();
+void receiveJackStart();
+void receiveJackStop();
+void receiveJackClock();
+
+
+void receiveClock();
+void receiveStart();
+void receiveStop();
+
+void midiForceStep();
+
 #endif /* SOURCE_MTMIDI_H_ */

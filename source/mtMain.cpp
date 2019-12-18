@@ -14,6 +14,7 @@
 #include "mtExporterWAV.h"
 #include "mtFileManager.h"
 #include "mtSliceDetector.h"
+#include "mtMidi.h"
 
 
 
@@ -24,8 +25,12 @@ extern void initHardware();
 extern void updateHardware();
 extern AudioControlSGTL5000 audioShield;
 
-
 //=======================================================================
+IntervalTimer midiReceiveTimer;
+void receiveAllMidi()
+{
+	midiUpdate();
+}
 void setup()
 {
 	// inicjalizacja hardware jako pierwsza
@@ -43,6 +48,8 @@ void setup()
 	// inincjalizacja interfejsu na koncu
 	mtInterface.begin();
 	//sequencer.printNotes(1);		// printuje nuty w trakcie sekwencji
+
+	midiReceiveTimer.begin(receiveAllMidi, 2000); //  w ten spsób 'midi clock in' działa najlepiej
 }
 
 //=======================================================================
