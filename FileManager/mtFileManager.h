@@ -10,6 +10,7 @@
 #include "mtSamplesImporter.h"
 #include "mtSamplesCopyier.h"
 
+
 struct strProjectFileHeader
 {
 	char id_file[2];
@@ -30,7 +31,6 @@ struct strInstrumentFile
 
 	uint32_t crc;
 };
-
 
 struct strProjectFile
 {
@@ -154,6 +154,8 @@ public:
 //	void setTrackToLoad(uint8_t pattIndex, uint8_t trackIndex);
 	void handleLoadPattern();
 
+	void copySongTracks(char *currentProjectPath, uint8_t src, uint8_t dest, uint8_t trackStartSrc, uint8_t trackStartDest, uint8_t tracksNum);
+
 	uint8_t savePattern(uint8_t index);
 	void storePatternUndoRevision();
 	void undoPattern();
@@ -216,8 +218,8 @@ private:
 	void copySample(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName);
 	void writeInstrumentFile(char * name, strInstrument * instr);
 	uint8_t readInstrumentFile(char * name, strInstrument * instr);
-	uint8_t writePatternFile(char * name);
-	uint8_t readPatternFile(char * name);
+	uint8_t writePatternFile(char * name, uint8_t *sourcePattern);
+	uint8_t readPatternFile(char * name, uint8_t *patternDest);
 	void 	writeProjectFile(char * name, strMtProject *proj);
 	uint8_t readProjectFile(char * name, strMtProject * proj);
 	uint8_t endImportSampleFlag = 0;
@@ -278,6 +280,8 @@ private:
 
 	char deleteProjectName[PROJECT_NAME_SIZE];
 
+
+	void updatePatternBitmask(uint8_t patternNum);
 
 
 };

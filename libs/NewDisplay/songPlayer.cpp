@@ -1,8 +1,11 @@
-
 #include "FT812.h"
-
 #include "displayControls.h"
-#include "list.h"
+#include "songPlayerControl.h"
+
+#define BLOCK_WIDTH				56
+#define BLOCK_HEIGHT			23
+#define SPACING_X				4
+#define SPACING_Y				SPACING_X
 
 
 static uint32_t defaultColors[] =
@@ -16,21 +19,16 @@ static uint32_t defaultColors[] =
 	0x000000	//	scrollParCont
 };
 
-
-
-
-
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-cList::cList(strControlProperties* properties)
+cSongPlayer::cSongPlayer(strControlProperties* properties)
 {
 	colorsCount = 7;
-	colors = (properties->colors == nullptr) ? defaultColors : properties->colors;
+	colors = defaultColors;
 	selfRefresh = 0;
 
-	listPosition = 0;
-
+	refreshStep =  0;
 	listAnimationStep = 0;
 	disableBar = 0;
 
@@ -39,7 +37,7 @@ cList::cList(strControlProperties* properties)
 		posX = 0;
 		posY = 0;
 		text = nullptr;
-		value = 0;
+		value = -1;
 		width = 0;
 		height = 0;
 		style = 0;
@@ -49,19 +47,18 @@ cList::cList(strControlProperties* properties)
 	posX = properties->x;
 	posY = properties->y;
 
-	//text = properties->text;
+	text = properties->text;
 	value = properties->value;
 
 	width = properties->w;
 	height = properties->h;
 
+	//padNames = (strPadNames*)properties->data;
 
 	setStyle(properties->style);
-
-	setData(properties->data);
 }
 
-cList::~cList()
+cSongPlayer::~cSongPlayer()
 {
 
 }
@@ -69,31 +66,27 @@ cList::~cList()
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-void cList::setStyle(uint32_t style)
+void cSongPlayer::setStyle(uint32_t style)
 {
 	this->style = style;
 
 	textStyle =    (style & controlStyleCenterX ? OPT_CENTERX : 0)
-				// | (style & controlStyleCenterY ? OPT_CENTERY : 0)
+				 | (style & controlStyleCenterY ? OPT_CENTERY : 0)
 	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
-
 
 	int8_t textFont = FONT_INDEX_FROM_STYLE;
 	textFont = (textFont>=0) ? textFont : 0;
 	font = &fonts[textFont];
-
-	//textFont = FONT_INDEX_FROM_STYLE;
-	//textFont = (textFont>=0) ? textFont : 0;
-	//textFont =  fonts[textFont].handle;
 }
 
-void cList::setText(char* text)
+void cSongPlayer::setText(char* text)
 {
 	this->text = text;
 }
 
-void cList::setValue(int value)
+void cSongPlayer::setValue(int value)
 {
+	/* ta funkcja ustawia tylko pozycje listy playera*/
 	if(value >= list->length)
 	{
 		if(list->length > 0) listPosition = list->length-1;
@@ -113,21 +106,21 @@ void cList::setValue(int value)
 	}
 }
 
-void cList::setColors(uint32_t* colors)
+void cSongPlayer::setColors(uint32_t* colors)
 {
 	this->colors = colors;
 }
 
-void cList::setDefaultColors(uint32_t* colors)
+void cSongPlayer::setDefaultColors(uint32_t colors[])
 {
 	memcpy(defaultColors, colors, colorsCount*4);
 }
 
-void cList::setData(void* data)
+void cSongPlayer::setData(void* data)
 {
-	if(data == nullptr) return;
-	list = (strList*)data;
+	controlData = (player_data_t*)data;
 
+	list = controlData->list;
 	if(list->start < 0)
 	{
 		list->start = 0;
@@ -165,25 +158,110 @@ void cList::setData(void* data)
 		barPos  = (list->length > list->linesCount ? (listPosition > list->linesCount-2 ? list->linesCount-2 : listPosition) : listPosition);
 		textListPos = (list->length > list->linesCount ? (listPosition > list->linesCount-2 ? listPosition-(list->linesCount-2) : 0) : 0);
 	}
-
 }
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-uint8_t cList::update()
+uint8_t cSongPlayer::update()
+{
+	//API_LIB_BeginDirectDL();
+	API_LIB_BeginCoProListNoCheck();
+    API_CMD_DLSTART();
+
+    switch(refreshStep)
+    {
+    case 0: refresh1(); break;
+    case 1:	refresh2(); break;
+    case 2: refresh3(); break;
+    //case 3: refresh4(); break;
+    //case 4: refresh5(); break;
+    default: refreshStep = 0; break;
+    }
+
+    API_LIB_EndCoProList();
+
+	return selfRefresh;
+}
+
+uint8_t cSongPlayer::memCpy(uint32_t address)
+{
+	uint32_t dlOffset = EVE_MemRead32(REG_CMD_DL);
+
+	API_LIB_BeginCoProListNoCheck();
+
+
+	switch(refreshStep)
+	{
+	case 0: API_CMD_MEMCPY(address, 		 		RAM_DL, dlOffset); break;
+	case 1: API_CMD_MEMCPY(address+ramPartSize[0], 	RAM_DL, dlOffset); break;
+	case 2: API_CMD_MEMCPY(address+ramPartSize[0]+ramPartSize[1], 	RAM_DL, dlOffset); break;
+	//case 3: API_CMD_MEMCPY(address+ramPartSize[0]+ramPartSize[1]+ramPartSize[2], 	RAM_DL, dlOffset); break;
+	//case 4: API_CMD_MEMCPY(address+ramPartSize[0]+ramPartSize[1]+ramPartSize[2]+ramPartSize[3], 	RAM_DL, dlOffset); break;
+	default: break;
+	}
+
+	ramPartSize[refreshStep] = dlOffset;
+
+	API_LIB_EndCoProList();
+	//API_LIB_AwaitCoProEmpty();
+
+    refreshStep++;
+    if(refreshStep > 2)
+    {
+    	refreshStep = 0;
+    	return selfRefresh;
+    }
+    else
+    {
+    	return 1;
+    }
+}
+
+
+uint8_t cSongPlayer::append(uint32_t address)
+{
+	API_CMD_APPEND(address, ramPartSize[0]);
+	API_CMD_APPEND(address+ ramPartSize[0], ramPartSize[1]);
+	API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1], ramPartSize[2]);
+	//API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1] +ramPartSize[2], ramPartSize[3]);
+	//API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1] +ramPartSize[2] +ramPartSize[3], ramPartSize[4]);
+
+	return 0;
+}
+
+uint8_t cSongPlayer::refresh1()
+{
+	return showList();
+}
+
+uint8_t cSongPlayer::refresh2()
+{
+	drawBlocks();
+
+	return 0;
+}
+
+uint8_t cSongPlayer::refresh3()
+{
+	if((controlData->songData != NULL) || (controlData->patternsBitmask != NULL))
+	{
+		fillBlocks();
+	}
+
+	drawProgressLine();
+
+	return 0;
+}
+
+uint8_t cSongPlayer::showList()
 {
 	if(list == nullptr) return 0;
 
-	//int16_t posX = this->posX;
-	int16_t posY = this->posY;
-
-
-	if(style & controlStyleCenterY)
-	{
-		posY = this->posY-(height/2);
-	}
-
+	int16_t posY = 37;
+	int16_t posX = 508;
+	int16_t width = (800/4-16);
+	int16_t height = 394;
 
 
 	int16_t  x_pos = posX, y_pos, h_row = 27; //font->height+8;
@@ -192,13 +270,9 @@ uint8_t cList::update()
 
 	if(list->length > list->linesCount) w_bar = width-13;
 
-	API_LIB_BeginCoProListNoCheck();
-    API_CMD_DLSTART();
-
-
 	//tlo listy
-    if(style & controlStyleBackground)
-    {
+	if(style & controlStyleBackground)
+	{
 		API_COLOR(colors[3]);
 		API_LINE_WIDTH(16);
 		API_BEGIN(RECTS);
@@ -209,11 +283,9 @@ uint8_t cList::update()
 		API_BLEND_FUNC(SRC_ALPHA , ZERO);
 
 		API_SAVE_CONTEXT();
-		uint16_t grad_y = posY+height-10;
-		uint16_t grad_h = 10;
-		API_SCISSOR_XY(posX-1, grad_y);
-		API_SCISSOR_SIZE(width+2, grad_h);
-		API_CMD_GRADIENT(0, grad_y, colors[3], 0, grad_y+grad_h, 0x0);
+		API_SCISSOR_XY(posX, posY+height-10);
+		API_SCISSOR_SIZE(width+1, 10);
+		API_CMD_GRADIENT(0, 413, colors[3], 0, 423, 0x0);
 		API_RESTORE_CONTEXT();
 
 		API_COLOR(0x000000);
@@ -226,9 +298,9 @@ uint8_t cList::update()
 		API_END();
 
 		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-    }
+	}
 
-    posY +=1;
+	posY +=1;
 
 	if(list->start == listPosition)
 	{
@@ -242,14 +314,8 @@ uint8_t cList::update()
 			y_pos = posY + (barPos * h_row);
 
 			//ramka
-			if(list->selectionActive)
-			{
-				API_COLOR(colors[5]);
-			}
-			else
-			{
-				API_COLOR(colors[0]);
-			}
+			API_COLOR(colors[0]);
+
 
 			API_LINE_WIDTH(8);
 			API_BEGIN(LINE_STRIP);
@@ -278,18 +344,8 @@ uint8_t cList::update()
 
 		for(uint8_t i = 0; i < lines; i++)
 		{
-			if(list->selectTab != NULL)
-			{
-				if(list->selectTab[i+textListPos])
-				{
-					API_COLOR(colors[5]);
-				}
-				else
-				{
-					API_COLOR(colors[0]);
-				}
-			}
 
+			API_COLOR(colors[0]);
 			API_CMD_TEXT(x_pos,
 					y_pos + (i * h_row),
 					font->handle,
@@ -367,7 +423,12 @@ uint8_t cList::update()
 			{
 				listAnimationStep = 0;
 				list->start = list->start -1;
-				textListPos = textListPos-1;
+
+				if(textListPos)
+				{
+					textListPos = textListPos-1;
+				}
+
 			}
 		}
 
@@ -380,14 +441,9 @@ uint8_t cList::update()
 			if(list->length > list->linesCount) w_bar = width-13;
 
 			//ramka
-			if(list->selectionActive)
-			{
-				API_COLOR(colors[5]);
-			}
-			else
-			{
-				API_COLOR(colors[0]);
-			}
+
+			API_COLOR(colors[0]);
+
 			API_LINE_WIDTH(8);
 			API_BEGIN(LINE_STRIP);
 			API_VERTEX2F(x_pos, y_pos);
@@ -418,17 +474,7 @@ uint8_t cList::update()
 
 				for(int8_t i = 0; i < lines; i++)
 				{
-					if(list->selectTab != NULL)
-					{
-						if(list->selectTab[i+textListPos])
-						{
-							API_COLOR(colors[5]);
-						}
-						else
-						{
-							API_COLOR(colors[0]);
-						}
-					}
+					API_COLOR(colors[0]);
 
 					API_CMD_TEXT(x_pos,
 							y_pos + (i * h_row),
@@ -457,17 +503,8 @@ uint8_t cList::update()
 			{
 				for(int8_t i = 0; i < (lines+1); i++)
 				{
-					if(list->selectTab != NULL)
-					{
-						if(list->selectTab[i+textListPos-1])
-						{
-							API_COLOR(colors[5]);
-						}
-						else
-						{
-							API_COLOR(colors[0]);
-						}
-					}
+
+					API_COLOR(colors[0]);
 
 					int16_t table_offset = textListPos - 1;
 					if(table_offset  < 0) table_offset = 0;
@@ -500,17 +537,8 @@ uint8_t cList::update()
 		{
 			for(uint8_t i = 0; i < lines; i++)
 			{
-				if(list->selectTab != NULL)
-				{
-					if(list->selectTab[i+textListPos])
-					{
-						API_COLOR(colors[5]);
-					}
-					else
-					{
-						API_COLOR(colors[0]);
-					}
-				}
+
+				API_COLOR(colors[0]);
 
 				API_CMD_TEXT(x_pos,
 						y_pos + (i * h_row),
@@ -570,33 +598,165 @@ uint8_t cList::update()
 		//API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 	}
 
-
-    API_LIB_EndCoProList();
-
-
 	return selfRefresh;
 }
 
-uint8_t cList::memCpy(uint32_t address)
+void cSongPlayer::drawBlocks()
 {
-	uint32_t dlOffset = EVE_MemRead32(REG_CMD_DL);
+	API_COLOR(0xFFFFFF);
+	API_LINE_WIDTH(16);
+	API_BEGIN(RECTS);
 
-	API_LIB_BeginCoProListNoCheck();
+	uint8_t maxPatternsVisible = (controlData->songLength > MAX_PATTERNS_VISIBLE) ? MAX_PATTERNS_VISIBLE : controlData->songLength;
 
-	API_CMD_MEMCPY(address, RAM_DL, dlOffset);
+	for(size_t pattern = 0; pattern < maxPatternsVisible; pattern++)
+	{
+		for(size_t track = 0; track < MAX_TRACKS_PER_PATTERN; track++)
+		{
+			uint16_t localX, localY;
+			localX = posX + track*(BLOCK_WIDTH + SPACING_X);
+			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y);
 
-	ramSize = dlOffset;
+			API_VERTEX2F(localX, localY);
+			API_VERTEX2F((localX + BLOCK_WIDTH), (localY + BLOCK_HEIGHT));
+		}
+	}
 
-	API_LIB_EndCoProList();
-	//API_LIB_AwaitCoProEmpty();
-
-	return selfRefresh;
+	API_END();
 }
 
-
-uint8_t cList::append(uint32_t address)
+void cSongPlayer::fillBlocks()
 {
-	API_CMD_APPEND(address, ramSize);
+	API_BLEND_FUNC(SRC_ALPHA, ZERO);
+	API_COLOR(0x000000);
+	API_LINE_WIDTH(16);
+	API_BEGIN(RECTS);
 
-	return 0;
+	uint8_t maxPatternsVisible = (controlData->songLength > MAX_PATTERNS_VISIBLE) ? MAX_PATTERNS_VISIBLE : controlData->songLength;
+
+	selectionCalcInit = 0;
+
+	for(size_t pattern = 0; pattern < maxPatternsVisible; pattern++)
+	{
+		uint8_t data = controlData->patternsBitmask[controlData->songData[textListPos + pattern] - 1];
+
+		for(size_t track = 0; track < MAX_TRACKS_PER_PATTERN; track++)
+		{
+			uint16_t localX, localY;
+
+			localX = posX + track*(BLOCK_WIDTH + SPACING_X);
+			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y);
+
+			if(!(data & (1 << track)))
+			{
+				API_VERTEX2F((localX + 1), (localY + 1));
+				API_VERTEX2F((localX + BLOCK_WIDTH - 1), (localY + BLOCK_HEIGHT - 1));
+			}
+
+			calculateSelection(pattern, track, localX, localY, localX + BLOCK_WIDTH, localY + BLOCK_HEIGHT);
+		}
+	}
+
+	drawSelection();
+
+	API_END();
+	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 }
+
+void cSongPlayer::drawProgressLine()
+{
+	if(controlData->progress.isPlaying)
+	{
+		API_BLEND_FUNC(SRC_ALPHA, ZERO);
+		API_COLOR(0xFF0000);
+		API_LINE_WIDTH(16);
+		API_BEGIN(LINES);
+
+		int16_t patternPosition = controlData->progress.currentSongPosition - textListPos;
+
+		if((patternPosition < MAX_PATTERNS_VISIBLE) && (patternPosition >= 0))
+		{
+			float positionInPattern = controlData->progress.positionInPattern * (BLOCK_HEIGHT / (float)controlData->progress.patternLength) + 0.5f; // 0.5 for rounding
+
+			uint16_t localX, localY;
+			localX = posX;
+			localY = posY + patternPosition*(BLOCK_HEIGHT + SPACING_Y);
+
+			API_VERTEX2F(localX - 5, localY + positionInPattern);
+			API_VERTEX2F(localX + 480, localY + positionInPattern);
+
+			API_END();
+			API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+		}
+	}
+}
+
+void cSongPlayer::calculateSelection(uint8_t pattern, uint8_t track, uint16_t x, uint16_t y, uint16_t x_end, uint16_t y_end)
+{
+	if(selectionCalcInit == 0)
+	{
+		xSelectionStart = UINT16_MAX;
+		ySelectionStart = UINT16_MAX;
+		xSelectionEnd = 0;
+		ySelectionEnd = 0;
+
+		selectionCalcInit = 1;
+	}
+
+	if(controlData->selection.isActive)
+	{
+		if((textListPos + pattern) >= controlData->selection.startPattern)
+		{
+			uint8_t calculatedPattern = textListPos + pattern;
+			uint8_t isSelected = 1;
+
+			if(!(calculatedPattern >= controlData->selection.startPattern)) isSelected = 0;
+			if(!(calculatedPattern < (controlData->selection.startPattern + controlData->selection.patternSelectionLength))) isSelected = 0;
+			if(!(track >= controlData->selection.startTrack)) isSelected = 0;
+			if(!(track < (controlData->selection.startTrack + controlData->selection.trackSelectionLength))) isSelected = 0;
+
+			if(isSelected)
+			{
+				if(x < xSelectionStart)
+				{
+					xSelectionStart = x;
+				}
+
+				if(y < ySelectionStart)
+				{
+					ySelectionStart = y;
+				}
+
+				if(x_end > xSelectionEnd)
+				{
+					xSelectionEnd = x_end;
+				}
+
+				if(y_end > ySelectionEnd)
+				{
+					ySelectionEnd = y_end;
+				}
+			}
+		}
+	}
+
+}
+
+void cSongPlayer::drawSelection()
+{
+	if(xSelectionStart != UINT16_MAX && ySelectionStart != UINT16_MAX && xSelectionEnd != 0 && ySelectionEnd != 0)
+	{
+		API_COLOR(0xFF0000);
+		API_LINE_WIDTH(16);
+		API_BEGIN(LINE_STRIP);
+
+		API_VERTEX2F(xSelectionStart, ySelectionStart);
+		API_VERTEX2F(xSelectionEnd, ySelectionStart);
+		API_VERTEX2F(xSelectionEnd, ySelectionEnd);
+		API_VERTEX2F(xSelectionStart, ySelectionEnd);
+		API_VERTEX2F(xSelectionStart, ySelectionStart);
+
+		API_END();
+	}
+}
+

@@ -12,6 +12,11 @@
 
 FileManager fileManager;
 
+/*void FileManager::setPatternBit(uint8_t trackIdx, uint8_t patternIdx, uint8_t step)
+{
+	//pattBitmask[trackIdx][patternIdx] =;
+}*/
+
 void FileManager::update()
 {
 
@@ -107,17 +112,13 @@ void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 
 }
 
-uint8_t FileManager::writePatternFile(char * name)
+uint8_t FileManager::writePatternFile(char * name, uint8_t *sourcePattern)
 {
-
 	// todo: może do wyjebania jeśli .open załatwi sprawę
 	if (SD.exists(name)) SD.remove(name);
 
 	FsFile file;
 	FastCRC32 crcCalc;
-
-	uint8_t * sourcePattern;
-	sourcePattern = sequencer.getPatternToSaveToFile();
 
 	((Sequencer::strPattern*) sourcePattern)->crc =
 			crcCalc.crc32(sourcePattern,
@@ -128,13 +129,12 @@ uint8_t FileManager::writePatternFile(char * name)
 				sizeof(Sequencer::strPattern));
 	file.close();
 
-	sequencer.saveToFileDone();
 	return 1;
 }
 
-
 void FileManager::writeProjectFile(char * name, strMtProject *proj)
 {
+
 	if(SD.exists(name)) SD.remove(name);
 
 	FsFile file;
@@ -160,10 +160,9 @@ void FileManager::writeProjectFile(char * name, strMtProject *proj)
 	projectFile.crc = crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
 
 	file=SD.open(name, FILE_WRITE);
-	file.write((uint8_t *)&projectFile,sizeof(projectFile));
+	file.write((uint8_t *)&projectFile, sizeof(projectFile));
+	//file.write((uint8_t *)&pattBitmask, sizeof(strPatternsBitmask));
 	file.close();
-
-
 }
 
 uint8_t FileManager::readInstrumentFile(char * name, strInstrument * instr)
@@ -191,45 +190,37 @@ uint8_t FileManager::readInstrumentFile(char * name, strInstrument * instr)
 	else return 0;
 }
 
-uint8_t FileManager::readPatternFile(char * name)
+uint8_t FileManager::readPatternFile(char * name, uint8_t *patternDest)
 {
-	if(!SD.exists(name))
-	{
-		sequencer.loadFromFileERROR();
-		return 0;
-	}
 	FsFile file;
 	FastCRC32 crcCalc;
 	uint32_t checkCRC=0;
-
-
-//	strPatternFile patternFile;
-
-	uint8_t * patternDest = sequencer.getPatternToLoadFromFile();
-
+	uint8_t loadStatus = 0;
 
 	// na końcu struktury jest crc
 	file = SD.open(name);
-	file.read(patternDest, sizeof(Sequencer::strPattern));
-	file.close();
 
-	checkCRC = crcCalc.crc32(
-			patternDest, sizeof(Sequencer::strPattern) - sizeof(uint32_t));
-
-	if (checkCRC == (((Sequencer::strPattern *) patternDest)->crc))
+	if(file)
 	{
-		// ok
-		sequencer.loadFromFileOK();
-		return 1;
-	}
-	else
-	{
-		// not ok
-		sequencer.loadFromFileERROR();
-		return 0;
+		file.read(patternDest, sizeof(Sequencer::strPattern));
+		file.close();
+
+		checkCRC = crcCalc.crc32(
+				patternDest, sizeof(Sequencer::strPattern) - sizeof(uint32_t));
+
+		if (checkCRC == (((Sequencer::strPattern *) patternDest)->crc))
+		{
+			loadStatus = 1;
+			// ok
+		}
+		else
+		{
+			loadStatus = 0;
+			// not ok
+		}
 	}
 
-	return 1;
+	return loadStatus;
 }
 
 
@@ -246,6 +237,7 @@ uint8_t FileManager::readProjectFile(char * name, strMtProject * proj)
 
 	file=SD.open(name);
 	file.read((uint8_t*)&projectFile, sizeof(projectFile));
+	//file.read((uint8_t*)&pattBitmask, sizeof(strPatternsBitmask));
 	file.close();
 
 	if(projectFile.projectDataAndHeader.projectHeader.type != fileTypeProject) return 0;
@@ -256,8 +248,8 @@ uint8_t FileManager::readProjectFile(char * name, strMtProject * proj)
 	{
 		memcpy(&proj->song, &projectFile.projectDataAndHeader.project.song, sizeof(strSong));
 		memcpy(&proj->values, &projectFile.projectDataAndHeader.project.values, sizeof(strMtValues));
-/*		*proj=projectFile.projectDataAndHeader.project;
-		mtProject.values=projectFile.projectDataAndHeader.project.values;*/
+		//*proj=projectFile.projectDataAndHeader.project;
+		//mtProject.values=projectFile.projectDataAndHeader.project.values;
 		return 1;
 	}
 	else return 0;
@@ -458,6 +450,8 @@ void FileManager::getDefaultValues(struct strMtValues *source)
 	{
 		source->midiInstrument[channel].velocity = DEFAULT_MIDI_VELOCITY;
 	}
+
+	memset(source->allPatternsBitmask, 0, sizeof(source->allPatternsBitmask));
 }
 
 

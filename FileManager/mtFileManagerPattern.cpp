@@ -10,6 +10,8 @@ uint8_t patternToLoad = 0;
 __NOINIT(EXTERNAL_RAM) Sequencer::strPattern undoPatternBuffer[UNDO_CAPACITY] { 0 };
 __NOINIT(EXTERNAL_RAM) uint8_t undoPatternBufferIndexes[UNDO_CAPACITY] { 0 };
 
+__NOINIT(EXTERNAL_RAM) Sequencer::strPattern songTrackCopy[2] {0};
+
 struct strUndo
 {
 	uint8_t actualIndex = 0; // gdzie jesteśmy w tablicy
@@ -34,23 +36,40 @@ struct strUndo
 
 uint8_t FileManager::loadPattern(uint8_t index)
 {
-
+	uint8_t status = 0;
 	char patternToLoad[PATCH_SIZE] { 0 };
-
 
 	sprintf(patternToLoad, "Workspace/patterns/pattern_%02d.mtp", index);
 	mtProject.values.actualPattern = index;
 
-	uint8_t status = readPatternFile(patternToLoad);
+	if(!SD.exists(patternToLoad))
+	{
+		status = 0;
+	}
+	else
+	{
+		status = readPatternFile(patternToLoad, sequencer.getPatternToLoadFromFile());
+	}
+
+	if(status)
+	{
+		sequencer.loadFromFileOK();
+	}
+	else
+	{
+		sequencer.loadFromFileERROR();
+	}
+
 	return status;
 }
+
 uint8_t FileManager::loadTrack(uint8_t pattIndex, uint8_t trackIndex)
 {
 	trackIndex = constrain(trackIndex, 0, 7);
 
 	char patternToLoad[PATCH_SIZE] { 0 };
 	sprintf(patternToLoad, "Workspace/patterns/pattern_%02d.mtp", pattIndex);
-	readPatternFile(patternToLoad);
+	readPatternFile(patternToLoad, sequencer.getPatternToLoadFromFile());
 
 	Sequencer::strPattern * patternFrom = (Sequencer::strPattern*) sequencer.getPatternToLoadFromFile();
 	Sequencer::strPattern * patternTo = sequencer.getActualPattern();
@@ -91,8 +110,8 @@ uint8_t FileManager::savePattern(uint8_t index)
 	{
 		fileManager.patternIsChangedFlag[index] = 0;
 		sprintf(patternToSave, "Workspace/patterns/pattern_%02d.mtp", index);
-		status = writePatternFile(patternToSave);
-
+		status = writePatternFile(patternToSave, sequencer.getPatternToSaveToFile());
+		sequencer.saveToFileDone();
 	}
 
 	return status;
@@ -381,6 +400,74 @@ bool FileManager::switchNextPatternInSong()
 	return 0;
 }
 
+void FileManager::copySongTracks(char *currentProjectPath, uint8_t src, uint8_t dest, uint8_t trackStartSrc, uint8_t trackStartDest, uint8_t tracksNum)
+{
+	uint8_t status = 0;
+	FsFile srcFile;
+	FsFile destFile;
+	char currentPath[PATCH_SIZE];
+
+	sprintf(currentPath, "%s/patterns/pattern_%02d.mtp", currentProjectPath, src);
+	status = readPatternFile(currentPath, (uint8_t*)&songTrackCopy[0]);
+
+	if(status)
+	{
+		sprintf(currentPath, "%s/patterns/pattern_%02d.mtp", currentProjectPath, dest);
+		status = readPatternFile(currentPath, (uint8_t*)&songTrackCopy[1]);
+		if(status == 0)
+		{
+			sequencer.clearPattern(&songTrackCopy[1]);
+		}
+
+		while((trackStartSrc + tracksNum) > 8 ||(trackStartDest + tracksNum) > 8 )
+		{
+			tracksNum--;
+		}
+
+		for(uint8_t track = 0; track < tracksNum; track++)
+		{
+			if(&songTrackCopy[1].track[trackStartDest + track] != &songTrackCopy[0].track[trackStartSrc + track]) // memcpy restrict protection
+			{
+				memcpy(&songTrackCopy[1].track[trackStartDest + track], &songTrackCopy[0].track[trackStartSrc + track], sizeof(songTrackCopy[0].track[0]));
+			}
+		}
+
+		writePatternFile(currentPath, (uint8_t*)&songTrackCopy[1]);
+	}
+
+	srcFile.close();
+	destFile.close();
+}
+
+void FileManager::updatePatternBitmask(uint8_t patternNum)
+{
+	/*Update pattern usage bitmask*/
+	patternNum -= 1;
+	Sequencer::strPattern *sourcePattern;
+
+	sourcePattern = (Sequencer::strPattern*)sequencer.getPatternToSaveToFile();
+
+	for(uint8_t trackNum = 0; trackNum < 8; trackNum++)
+	{
+		uint8_t isAnyActive = 0;
+		uint8_t length = sourcePattern->track[trackNum].length;
+
+		for(uint8_t step = 0; step < length; step++)
+		{
+			if(sourcePattern->track[trackNum].step[step].note >= 0)
+			{
+				isAnyActive = 1;
+				mtProject.values.allPatternsBitmask[patternNum] |= (1 << trackNum);
+				break;
+			}
+		}
+
+		if(isAnyActive == 0)
+		{
+			mtProject.values.allPatternsBitmask[patternNum] &= ~(1 << trackNum);
+		}
+	}
+}
 
 void FileManager::setPatternChangeFlag(uint8_t num)
 {
@@ -388,6 +475,8 @@ void FileManager::setPatternChangeFlag(uint8_t num)
 	mtProject.values.projectNotSavedFlag = 1;
 	mtProject.values.patternsToSave[num] = 1;
 	configIsChangedFlag = 1;
+
+	updatePatternBitmask(num);
 }
 
 void FileManager::setInstrumentChangeFlag(uint8_t num)

@@ -726,8 +726,6 @@ void cPatternEditor::setActualPattern(int16_t value)
 
 void cPatternEditor::changeActualPatternLength(int16_t value)
 {
-	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
-
 	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
 
 	if(pattern->track[0].length+value < 0) pattern->track[0].length = 0;
@@ -745,6 +743,8 @@ void cPatternEditor::changeActualPatternLength(int16_t value)
 	showLength();
 
 	refreshPattern();
+
+	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 }
 
 void cPatternEditor::setActualPatternLength(int16_t value)
@@ -768,14 +768,14 @@ void cPatternEditor::setActualPatternLength(int16_t value)
 
 void cPatternEditor::changeActualPatternEditStep(int16_t value)
 {
-	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
-
 	mtProject.values.patternEditStep = constrain(
 			mtProject.values.patternEditStep + value,
 			0,
 			PATTERN_EDIT_STEP_MAX);
 
 	showStep();
+
+	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 }
 
 void cPatternEditor::setActualPatternEditStep(int16_t value)
@@ -1182,7 +1182,6 @@ uint8_t functEncoder(int16_t value)
 	sendSelection();
 	if(tactButtons.isButtonPressed(interfaceButtonShift) || !isMultiSelection())
 	{
-		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		fileManager.storePatternUndoRevision();
 		switch(PTE->editParam)
 		{
@@ -1204,6 +1203,8 @@ uint8_t functEncoder(int16_t value)
 			break;
 		}
 		}
+
+		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 	}
 
 	PTE->lightUpPadBoard();
@@ -1910,7 +1911,6 @@ static uint8_t functInsertHome(uint8_t state)
 		if (PTE->editMode == 1)
 		{
 			fileManager.storePatternUndoRevision();
-			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 
 			// HOME
 			if(tactButtons.isButtonPressed(interfaceButtonShift))
@@ -1939,6 +1939,8 @@ static uint8_t functInsertHome(uint8_t state)
 				sendSelection();
 				sequencer.insert(&sequencer.selection);
 			}
+
+			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		}
 
 		PTE->refreshPattern();
@@ -1990,7 +1992,6 @@ static uint8_t functCopyPaste(uint8_t state)
 
 		if (PTE->editMode == 1)
 		{
-			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 			fileManager.storePatternUndoRevision();
 
 			if (tactButtons.isButtonPressed(interfaceButtonShift))
@@ -2007,6 +2008,7 @@ static uint8_t functCopyPaste(uint8_t state)
 				PTE->shiftAction = 1;
 			}
 
+			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		}
 
 		PTE->refreshPattern();
@@ -2022,9 +2024,6 @@ static uint8_t functDeleteBackspace(uint8_t state)
 	{
 		if (PTE->editMode == 1)
 		{
-			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
-			fileManager.storePatternUndoRevision();
-
 			// backspace
 			if (tactButtons.isButtonPressed(interfaceButtonShift))
 			{
@@ -2067,6 +2066,8 @@ static uint8_t functDeleteBackspace(uint8_t state)
 				PTE->moveCursorByStep();
 			}
 
+			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+			fileManager.storePatternUndoRevision();
 		}
 
 		PTE->refreshPattern();
@@ -2257,7 +2258,6 @@ static  uint8_t functFillApply()
 	// zatwierdzanie wypelnienia
 	if(PTE->fillState)
 	{
-		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		fileManager.storePatternUndoRevision();
 		cPatternEditor::strFill * fillData = &PTE->fillData[PTE->editParam];
 		//(void) PTE->fillData[PTE->editParam];
@@ -2361,6 +2361,7 @@ static  uint8_t functFillApply()
 
 		//--------------------------------------------------------
 		functFillCancel();
+		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 	}
 
 
@@ -2421,13 +2422,14 @@ uint8_t functInvert()
 	//--------------------------------------------------------
 	//TU
 
-	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 	fileManager.storePatternUndoRevision();
 
 	sendSelection();
 	sequencer.invertSelectedSteps(getSelectedElement());
 
 	PTE->refreshPattern();
+
+	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 
 	//--------------------------------------------------------
 	return 1;
@@ -2620,7 +2622,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// obsługa przycisków pod ekranem (na poczatku bo dziala tez bez editmode)
 	if (PTE->selectedPlace >= 0)
 	{
-		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		fileManager.storePatternUndoRevision();
 
 		switch (PTE->selectedPlace)
@@ -2640,6 +2641,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		}
 
 		PTE->lightUpPadBoard();
+		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 
 		return 1;
 	}

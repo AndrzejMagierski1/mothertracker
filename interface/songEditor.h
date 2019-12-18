@@ -13,6 +13,24 @@ typedef enum
 	iconLoop,
 }icon_t;
 
+typedef enum
+{
+	playerUp,
+	playerDown,
+	playerLeft,
+	playerRight,
+}player_direction_t;
+
+typedef enum
+{
+	selDirNone = 0x00U,
+	selDirLeft = 0x01U,
+	selDirRight = 0x02U,
+	selDirUp = 0x04U,
+	selDirDown = 0x08U,
+
+}select_direction_t;
+
 class cSongEditor: public cModuleBase
 {
 
@@ -39,21 +57,22 @@ public:
 	void activateLabelsBorder();
 
 	void showTempoValue();
-	void showPatternLengthValue();
 
-	strList patternsList;
+	localList_t patternsList;
 
 	strFrameData frameData;
 
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
-	hControl label[7] = {nullptr};
+	hControl label[8] = {nullptr};
 	hControl barControl[2] = {nullptr};
+	hControl songPlayerControl = NULL;
 
-	hControl patternsListControl = nullptr;
+	//hControl patternsListControl = nullptr;
 	hControl frameControl = nullptr;
 	hControl bgLabel;
+	hControl loadHorizontalBarControl = nullptr;
 
 	uint8_t slotToPattern[255];
 	uint8_t selectedPlace = 0;
@@ -68,7 +87,6 @@ public:
 	void readSong();
 
 	void changeGlobalTempo(int16_t value);
-	void changeGlobalPatternLength(int16_t value);
 
 //--------------------------------------------------------------
 // patterns
@@ -79,6 +97,7 @@ public:
 	char patternsNamesList[SONG_MAX][28];
 	char *patternNames[SONG_MAX];
 	uint8_t selectedPattern = 0;
+
 
 
 
@@ -104,6 +123,34 @@ public:
 
 	uint8_t exitOnButtonRelease;
 
+	player_data_t songPlayerData;
+	uint32_t *patternBitmask;
+
+	//uint8_t patternUsageTable[14];
+	void refreshSongPlayerControl();
+	void startSongPlayer();
+	void stopSongPlayer();
+	void refreshSongPlayer(uint8_t source);
+
+
+
+	void walkOnSongPlayer(player_direction_t dir);
+	void selectSpecificTrack(uint8_t track, uint8_t pattern);
+
+	elapsedMillis songPlayerRefreshTimer;
+
+	song_selection_t copyCurrentData;
+	uint8_t isSomethingCopied = 0;
+	uint8_t isCopyingInProgress = 0;
+	uint8_t copyElementMax;
+	uint8_t currentCopyElement;
+	uint8_t currSelDirection;
+	uint8_t currSelDirection2;
+
+	uint8_t isBusy = 0;
+
+	void showCopyingBar();
+	void hideCopyingBar();
 
 
 };
