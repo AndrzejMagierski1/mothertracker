@@ -201,7 +201,7 @@ void cSampleImporter::update()
 		if(addOrReplaceFlag)
 		{
 			addOrReplaceFlag = 0;
-			changeInstrumentSelection(1);
+			changeInstrumentSelection(copyElementMax);
 		}
 
 		listInstrumentSlots();
