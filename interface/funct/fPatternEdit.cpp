@@ -1003,40 +1003,40 @@ void cPatternEditor::changneFillDataByPad(uint8_t pad)
 
 void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 {
-	if(place < 0 || place > 4) return;
+	if(place < 0 || place > 5) return;
 
-	if(place == 3)
-	{
-		if(fillData[editParam].type == 0)
-		{
-			if(dir<0) fillPlace = 2;
-			else if(dir>0) fillPlace = (editParam==1) ? fillPlace : 4;
-			else if(fillPlace == 3) fillPlace = 0;
-		}
-		else fillPlace = place;
-	}
-	else if(place == 4)
-	{
-		if(editParam==1)
-		{
-			if(dir>0)
-			{
 
-			}
-			else
-			{
-				fillPlace = 0;
-			}
-		}
-		else
-		{
-			fillPlace = place;
-		}
-	}
-	else
+	if(editParam == 0)
 	{
-		fillPlace = place;
+		if(dir == 0 && place == 2) return;
+
+		if(fillPlace == 0)
+		{
+			fillPlace =
+
+		}
+		if(fillPlace == 0)
+		{
+
+
+		}
 	}
+	else if(editParam == 1)
+	{
+		if(dir == 0 && place > 3) return;
+
+
+
+	}
+	else if(editParam == 2 || editParam == 3)
+	{
+		if(dir == 0 && place == 2) return;
+
+
+
+	}
+
+
 }
 
 void cPatternEditor::changeFillPlace(int8_t diff)
@@ -2377,7 +2377,7 @@ static  uint8_t functFillApply()
 static  uint8_t functFillAction1()
 {
 	//PTE->fillPlace = 0;
-	PTE->setFillPlace(1);
+	PTE->setFillPlace(0);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2386,7 +2386,7 @@ static  uint8_t functFillAction1()
 static  uint8_t functFillAction2()
 {
 	//PTE->fillPlace = 1;
-	PTE->setFillPlace(2);
+	PTE->setFillPlace(1);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2395,7 +2395,7 @@ static  uint8_t functFillAction2()
 static  uint8_t functFillAction3()
 {
 	//PTE->fillPlace = 2;
-	PTE->setFillPlace(3);
+	PTE->setFillPlace(2);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2404,7 +2404,7 @@ static  uint8_t functFillAction3()
 static  uint8_t functFillAction4()
 {
 	//PTE->fillPlace = 3;
-	PTE->setFillPlace(4);
+	PTE->setFillPlace(3);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2413,7 +2413,7 @@ static  uint8_t functFillAction4()
 static  uint8_t functFillAction5()
 {
 	//PTE->fillPlace = 5;
-	PTE->setFillPlace(0);
+	PTE->setFillPlace(4);
 	PTE->activateFillPopupBorder();
 
 	return 1;
@@ -2422,7 +2422,7 @@ static  uint8_t functFillAction5()
 static  uint8_t functFillAction6()
 {
 	//PTE->fillPlace = 5;
-	PTE->setFillPlace(0);
+	PTE->setFillPlace(5);
 	PTE->activateFillPopupBorder();
 
 	return 1;

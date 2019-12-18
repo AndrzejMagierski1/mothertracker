@@ -411,24 +411,13 @@ void cPatternEditor::showDefaultScreen()
 
 	activateLabelsBorder();
 
-
 	for(uint8_t i = 0; i<8; i++)
 	{
-		//display.setControlPosition(label[i], -1, 424);
-		//display.setControlSize(label[i], -1, 55);
-
-
 		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
-
 		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
-
 		display.setControlShow(label[i]);
-
 		display.refreshControl(label[i]);
 	}
-
-
-
 
 	display.setControlShow(bgLabel);
 	display.refreshControl(bgLabel);
@@ -438,9 +427,6 @@ void cPatternEditor::showDefaultScreen()
 
 	display.synchronizeRefresh();
 }
-
-
-
 
 
 void cPatternEditor::showEditModeLabels()
@@ -477,18 +463,6 @@ void cPatternEditor::hideEditModeLabels()
 	display.synchronizeRefresh();
 }
 
-
-//void cPatternEditor::showTempo()
-//{
-//	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
-//
-//	//itoa(pattern->tempo, tempo, 10);
-//	sprintf(tempo,"%.1f",  pattern->tempo);
-//
-//	display.setControlText(topLabel[0], tempo);
-//	display.refreshControl(topLabel[0]);
-//}
-
 void cPatternEditor::showPattern()
 {
 	sprintf(pattern,"%d", mtProject.values.actualPattern);
@@ -508,8 +482,6 @@ void cPatternEditor::showLength()
 
 void cPatternEditor::showStep()
 {
-//	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
-
 	sprintf(step, "%d",  mtProject.values.patternEditStep);
 
 	display.setControlText2(label[2], step);
@@ -518,7 +490,6 @@ void cPatternEditor::showStep()
 
 void cPatternEditor::refreshPatternParams()
 {
-//	showTempo();
 	showPattern();
 	showLength();
 }
@@ -825,41 +796,87 @@ void cPatternEditor::refreshFillType()
 	display.setControlValue(param1PopupListControl, fillData[editParam].type);
 	display.refreshControl(param1PopupListControl);
 
+	fillText1[0] = 0;
+	fillText2[0] = 0;
 
-	if(fillData[editParam].type == 0)
+	if(editParam == 0)
 	{
-		if(editParam == 1)
+		display.setControlText2(label[4], (char*)&mtNotes[fillData[editParam].from][0]);
+		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(127));
+
+		if(fillData[editParam].type == 0)
 		{
-			if(fillData[editParam].from < INSTRUMENTS_COUNT)
-				sprintf(fillText1, "%d", (fillData[editParam].from+1));
-			else
-				sprintf(fillText1, "%d", (fillData[editParam].from+3));
-			display.setControlText2(label[2], fillText1);
-
-			if(fillData[editParam].type == 0)
-				display.setControlText(label[2], "Instrument");
-			else
-				display.setControlText(label[2], "From");
-
+			display.setControlText(label[4], "Note");
 			display.setControlValue(val2PopupBar,-1);
+			display.setControlText(label[5], "");
+			display.setControlText2(label[5], "");
 		}
-		else if(editParam == 0)
+		else
 		{
-
+			display.setControlText(label[4], "From");
+			display.setControlValue(val2PopupBar, (fillData[editParam].to*100)/(127));
+			display.setControlText(label[5], "To");
+			display.setControlText2(label[5], (char*)&mtNotes[fillData[editParam].to][0]);
 		}
-
 	}
-	else
+	else if(editParam == 1)
 	{
-		display.setControlText(label[2], "From");
-		display.setControlText(label[3], "To");
+		if(fillData[editParam].from < INSTRUMENTS_COUNT)
+			sprintf(fillText1, "%d", (fillData[editParam].from+1));
+		else
+			sprintf(fillText1, "%d", (fillData[editParam].from+3));
+		display.setControlText2(label[2], fillText1);
+		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(47+16));
 
-		display.setControlShow(val2PopupBar);
-		display.setControlShow(label[3]);
+		if(fillData[editParam].type == 0)
+		{
+			display.setControlText(label[2], "Instrument");
+			display.setControlValue(val2PopupBar,-1);
+			display.setControlText(label[3], "");
+			display.setControlText2(label[3], "");
+		}
+		else
+		{
+			if(fillData[editParam].to < INSTRUMENTS_COUNT)
+				sprintf(fillText1, "%d", (fillData[editParam].to+1));
+			else
+				sprintf(fillText1, "%d", (fillData[editParam].to+3));
+			display.setControlText2(label[3], fillText2);
+			display.setControlText(label[2], "From");
+			display.setControlText(label[3], "To");
+			display.setControlValue(val2PopupBar, (fillData[editParam].from*100)/(47+16));
+		}
 	}
+	else if(editParam == 2 || editParam == 3)
+	{
+		sprintf(fillText1, "%d", (fillData[editParam].from));
+		display.setControlText2(label[4], fillText1);
+		display.setControlValue(val1PopupBar, (fillData[editParam].from*100)/(255));
+
+		if(fillData[editParam].type == 0)
+		{
+			display.setControlText(label[4], "Fx Value");
+			display.setControlText(label[5], "");
+			display.setControlText2(label[5], "");
+			display.setControlValue(val2PopupBar, -1);
+		}
+		else
+		{
+			display.setControlText(label[4], "From");
+			display.setControlText(label[5], "To");
+			sprintf(fillText2, "%d", (fillData[editParam].to));
+			display.setControlText2(label[5], fillText2);
+			display.setControlValue(val2PopupBar, (fillData[editParam].from*100)/(255));
+		}
+	}
+
+	display.refreshControl(val1PopupBar);
+	display.refreshControl(val2PopupBar);
 
 	display.refreshControl(label[2]);
 	display.refreshControl(label[3]);
+	display.refreshControl(label[4]);
+	display.refreshControl(label[5]);
 }
 
 
