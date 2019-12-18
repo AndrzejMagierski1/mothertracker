@@ -301,7 +301,7 @@ void updateHardware()
 
 	    if(mtpd.state) mtpd.loop();
 
-		midiUpdate();
+//		midiUpdate();
 
 		//lowPower.update();
 	}

@@ -6,6 +6,7 @@
 #include "mtFileManager.h"
 
 #include "mtMidi.h"
+#include "configEditor.h"
 
 #include "patternEditor.h"
 Sequencer sequencer;
@@ -42,6 +43,10 @@ void Sequencer::closeBlinkNote(void)
 	}
 }
 
+bool Sequencer::isInternalClock(void)
+{
+	return mtConfig.midi.clkIn == clockIn_Internal;
+}
 void Sequencer::handle_uStep_timer(void)
 {
 	/*
@@ -50,7 +55,7 @@ void Sequencer::handle_uStep_timer(void)
 	 */
 
 	// noInterrupts();
-	if ((config.mode == MODE_MIDICLOCK.INTERNAL_) || (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK))
+	if (isInternalClock())
 	{
 		if (isPlay() || isRec())
 		{
@@ -65,8 +70,7 @@ void Sequencer::handle_uStep_timer(void)
 		// warunek blokujący przejście do kolejnego stepa
 		if ((nanoStep % 576 != 0) && (player.isPlay || isRec())) // && !clockustep)
 		{
-			handle_nanoStep(0); // to nie jest bez sensu, zostawione do testów
-			// play_uStepEmulate(0);
+			handle_nanoStep(0);
 
 			nanoStep++;
 			if (nanoStep > 6912)
@@ -171,13 +175,14 @@ void Sequencer::handle_nanoStep(uint8_t step)
 			//konfig timera do zmiany czasu trwania kroku na swing
 
 			float tempSwing;
-			if (config.mode == MODE_MIDICLOCK.INTERNAL_)
+			if (isInternalClock())
 			tempSwing = seq[player.ramBank].swing;
-			else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
-			tempSwing = config.swingLock;
+//			else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
+//			{
+//				tempSwing = config.swingLock;
+//			}
 			else
 				tempSwing = 50.0;
-
 			if ((player.swingToogle))
 			player.swing_offset = 0 + tempSwing;
 			else
@@ -1149,12 +1154,12 @@ void Sequencer::init_player_timer(void) // MT::refreshTimer
 	if (player.performance.tempo > 0.0 && player.performance.tempo < MAX_TEMPO)
 	temp_Tempo = player.performance.tempo;
 
-	else if (config.mode == MODE_MIDICLOCK.INTERNAL_)
+	else if (isInternalClock())
 	//	temp_Tempo = seq[player.ramBank].tempo;
 	temp_Tempo = mtProject.values.globalTempo;
 
-	else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
-	temp_Tempo = config.tempoLock;
+//	else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
+//	temp_Tempo = config.tempoLock;
 
 	else
 		temp_Tempo = player.externalTempo;
@@ -1253,13 +1258,6 @@ uint8_t Sequencer::isRec(void)
 uint8_t Sequencer::isStop(void)
 {
 	return player.isStop;
-}
-
-void Sequencer::send_clock(uint8_t arg)
-{
-// TODO: wypełnić
-// TODO: wypełnić
-
 }
 
 void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
@@ -1733,4 +1731,9 @@ uint8_t Sequencer::getInstrumentVelo(uint8_t ins)
 		return mtProject.instrument[ins].volume;
 	}
 	return 0;
+}
+
+void Sequencer::feedExternalTempo(float setTempo)
+{
+	player.externalTempo = (3 * player.externalTempo + setTempo) / 4;
 }

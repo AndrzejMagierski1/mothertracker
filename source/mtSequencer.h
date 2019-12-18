@@ -271,7 +271,7 @@ public:
 	uint8_t getTempoDiv(int8_t val);
 
 	void play_microStep(uint8_t row);
-	void handle_nanoStep(uint8_t step);
+
 	void incr_uStep(uint8_t row);
 	void init_player_timer(void);
 	void cancelFxes(int8_t track);
@@ -290,7 +290,7 @@ public:
 	void loadDefaultTrack(uint8_t track, uint8_t bank);
 
 	void reset_actual_pos(uint8_t row);
-	void reset_actual_pos(void);
+
 
 	//__________________________________________
 	//
@@ -481,6 +481,10 @@ public:
 
 // sekwencerowe
 
+	void reset_actual_pos(void);
+	void feedExternalTempo(float setTempo);
+	void handle_nanoStep(uint8_t step);
+
 	strPlayer const * ptrPlayer = &player;
 
 	uint8_t * getPatternToSaveToFile()
@@ -667,6 +671,7 @@ public:
 	void setTrackToLoadOnSwitch(uint8_t track, uint8_t sourcePattern);
 	// inne
 	void handle_uStep_timer(void);
+	bool isInternalClock(void);
 	void internalFxsOff(uint8_t track);
 
 	void blinkNote(uint8_t instrument, uint8_t note, int8_t velocity,
