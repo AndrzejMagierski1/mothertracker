@@ -1439,8 +1439,6 @@ static void changePlayModeSelection(int16_t value)
 
 	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
 	mtProject.values.projectNotSavedFlag = 1;
-
-	Serial.println(SP->editorInstrument->playMode);
 }
 
 static void modStartPoint(int16_t value)
