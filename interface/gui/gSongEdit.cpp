@@ -93,7 +93,7 @@ void cSongEditor::initDisplayControls()
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
 	prop.x = 12;
-	prop.y = 40;
+	prop.y = 40 + 27;
 	prop.w = 600;
 	prop.h = 300;
 
@@ -163,10 +163,10 @@ void cSongEditor::showDefaultScreen()
 
 	display.setControlText(label[4], "");
 
-	display.setControlText(label[5], "-");
+	display.setControlText(label[5], "<");
 	display.setControlText2(label[5], "pattern");
 
-	display.setControlText(label[6], "+");
+	display.setControlText(label[6], ">");
 	display.setControlText2(label[6], "pattern");
 
 	display.setControlText2(label[7], "Tempo");
@@ -196,7 +196,7 @@ void cSongEditor::showDefaultScreen()
 void cSongEditor::showPatternsList()
 {
 	patternsList.length = songLength;
-	patternsList.linesCount = 14;
+	patternsList.linesCount = 13;
 	patternsList.data = patternNames;
 	patternsList.start = selectedPattern;
 
@@ -250,17 +250,17 @@ void cSongEditor::hideIcon()
 	display.refreshControl(songPlayerControl);
 }
 
-void cSongEditor::showCopyingBar()
+void cSongEditor::showHorizontalBar(const char *text, uint32_t max, uint32_t current)
 {
-	uint8_t progress = (copyElementMax / currentCopyElement);
+	uint8_t progress = max/current;
 
 	display.setControlValue(loadHorizontalBarControl, progress);
-	display.setControlText(loadHorizontalBarControl, "Copying");
+	display.setControlText(loadHorizontalBarControl, text);
 	display.setControlShow(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
 }
 
-void cSongEditor::hideCopyingBar()
+void cSongEditor::hideHorizontalBar()
 {
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);

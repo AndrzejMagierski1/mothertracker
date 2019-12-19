@@ -19,6 +19,11 @@ static uint32_t defaultColors[] =
 	0x000000	//	scrollParCont
 };
 
+
+static char tracksNames[8][3] = {"T1","T2","T3","T4","T5","T6","T7","T8"};
+static char* patternLabel = "Pattern";
+static char* rowLabel	= "Row";
+
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
@@ -232,6 +237,9 @@ uint8_t cSongPlayer::append(uint32_t address)
 
 uint8_t cSongPlayer::refresh1()
 {
+	API_CMD_TEXT(548, 50, font->handle, textStyle | OPT_CENTERY | OPT_CENTERX, rowLabel);
+	API_CMD_TEXT(645, 50, font->handle, textStyle | OPT_CENTERY | OPT_CENTERX, patternLabel);
+
 	return showList();
 }
 
@@ -258,7 +266,7 @@ uint8_t cSongPlayer::showList()
 {
 	if(list == nullptr) return 0;
 
-	int16_t posY = 37;
+	int16_t posY = 37+27;
 	int16_t posX = 508;
 	int16_t width = (800/4-16);
 	int16_t height = 394;
@@ -619,10 +627,20 @@ void cSongPlayer::drawBlocks()
 
 			API_VERTEX2F(localX, localY);
 			API_VERTEX2F((localX + BLOCK_WIDTH), (localY + BLOCK_HEIGHT));
+
 		}
 	}
 
 	API_END();
+
+	for(size_t track = 0; track < MAX_TRACKS_PER_PATTERN; track++)
+	{
+		uint16_t localX;
+		localX = posX + track*(BLOCK_WIDTH + SPACING_X);
+
+		API_CMD_TEXT((localX + BLOCK_WIDTH/2), 50, font->handle,
+				textStyle | OPT_CENTERY | OPT_CENTERX, &tracksNames[track][0]);
+	}
 }
 
 void cSongPlayer::fillBlocks()

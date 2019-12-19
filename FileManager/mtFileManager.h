@@ -155,6 +155,7 @@ public:
 	void handleLoadPattern();
 
 	void copySongTracks(char *currentProjectPath, uint8_t src, uint8_t dest, uint8_t trackStartSrc, uint8_t trackStartDest, uint8_t tracksNum);
+	void deleteTracks(char *currentProjectPath, uint8_t src, uint8_t trackStartSrc, uint8_t tracksNum);
 
 	uint8_t savePattern(uint8_t index);
 	void storePatternUndoRevision();

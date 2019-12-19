@@ -439,6 +439,28 @@ void FileManager::copySongTracks(char *currentProjectPath, uint8_t src, uint8_t 
 	destFile.close();
 }
 
+void FileManager::deleteTracks(char *currentProjectPath, uint8_t src, uint8_t trackStartSrc, uint8_t tracksNum)
+{
+	uint8_t status = 0;
+	FsFile srcFile;
+	char currentPath[PATCH_SIZE];
+
+	sprintf(currentPath, "%s/patterns/pattern_%02d.mtp", currentProjectPath, src);
+	status = readPatternFile(currentPath, (uint8_t*)&songTrackCopy[0]);
+
+	if(status)
+	{
+		for(uint8_t track = 0; track < tracksNum; track++)
+		{
+			sequencer.clearSingleTrack(&songTrackCopy[0].track[track+trackStartSrc]);
+		}
+
+		writePatternFile(currentPath, (uint8_t*)&songTrackCopy[0]);
+	}
+
+	srcFile.close();
+}
+
 void FileManager::updatePatternBitmask(uint8_t patternNum)
 {
 	/*Update pattern usage bitmask*/

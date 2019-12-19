@@ -15,7 +15,6 @@ void SDCardDetector::begin()
 	update(1);
 }
 
-
 void SDCardDetector::update(uint8_t forcedUpdate)
 {
 	if(initCardControl == 0 && (measureTimer > 100 || forcedUpdate))
@@ -46,6 +45,7 @@ void SDCardDetector::update(uint8_t forcedUpdate)
 			}
 			else
 			{
+				lastState = 1;
 				initCardControl = 0;
 			}
 		}
