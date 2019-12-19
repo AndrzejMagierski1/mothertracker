@@ -1631,6 +1631,7 @@ static  uint8_t functNote(uint8_t state)
 	if(state == buttonPress)
 	{
 		PTE->wasNotesEditBefore = 0;
+		PTE->previousEditParam = PTE->editParam;
 		PTE->editParam = 0;
 		PTE->trackerPattern.selectedParam = 0;
 		display.refreshControl(PTE->patternControl);
@@ -1695,6 +1696,7 @@ static  uint8_t functInstrument(uint8_t state)
 	if(state == buttonPress)
 	{
 		if(PTE->editParam  == 0) PTE->wasNotesEditBefore = 1;
+		PTE->previousEditParam = PTE->editParam;
 		PTE->editParam = 1;
 		PTE->trackerPattern.selectedParam = 1;
 		display.refreshControl(PTE->patternControl);
@@ -1758,6 +1760,7 @@ static  uint8_t functFx1(uint8_t state)
 	if(state == buttonPress)
 	{
 		PTE->wasNotesEditBefore = 0;
+		PTE->previousEditParam = PTE->editParam;
 		PTE->editParam = 2;
 		PTE->trackerPattern.selectedParam = 2;
 		display.refreshControl(PTE->patternControl);
@@ -1815,6 +1818,7 @@ static  uint8_t functFx2(uint8_t state)
 	if(state == buttonPress)
 	{
 		PTE->wasNotesEditBefore = 0;
+		PTE->previousEditParam = PTE->editParam;
 		PTE->editParam = 3;
 		PTE->trackerPattern.selectedParam = 3;
 		display.refreshControl(PTE->patternControl);
@@ -2924,8 +2928,10 @@ void cPatternEditor::setPatternViewMode(uint8_t param)
 
 void cPatternEditor::changePatternViewMode(uint8_t param)
 {
+	if(patternViewMode == 0 || param == 0) return;  // standardowy widok 4 parametrow
+	if(patternViewMode & (1 << param-1)) return; // juz widac wybrany parametr to nic nie rob
 
-
+	patternViewMode = (1<<(param-1)) | (1<<(previousEditParam));
 
 	display.setControlValue(PTE->patternControl, PTE->patternViewMode);
 	display.refreshControl(PTE->patternControl);
