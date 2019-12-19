@@ -54,11 +54,11 @@ uint8_t oneParamsOffset[4] =		{	35,  40,  30,  30,	};
 const uint8_t fourParamsSelOffset[4] =	{  10,  52,  84, 136,	};
 const uint8_t fourParamsSelWidth[4] =	{  40,  30,  50,  50,	};
 
-const uint8_t twoParamsSel1Offset[4] =	{   1,   1,   0,   0,	};
-const uint8_t twoParamsSel1Width[4] =	{  40,  30,  50,   0,	};
+const uint8_t twoParamsSel1Offset[4] =	{   1,   1,   1,   0,	};
+const uint8_t twoParamsSel1Width[4] =	{  40,  30,  47,   0,	};
 
-const uint8_t twoParamsSel2Offset[4] =	{	0,  57,  47,  47,	};
-const uint8_t twoParamsSel2Width[4] =	{	0,  30,  50,  50,	};
+const uint8_t twoParamsSel2Offset[4] =	{	0,  57,  49,  49,	};
+const uint8_t twoParamsSel2Width[4] =	{	0,  30,  47,  47,	};
 
 const uint8_t oneParamsSelOffset[4] =	{  27,  32,  22,  22,	};
 const uint8_t oneParamsSelWidth[4] =	{  40,  30,  50,  50,	};
