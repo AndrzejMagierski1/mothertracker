@@ -101,6 +101,11 @@ public:
 	void showEditModeLabels();
 	void hideEditModeLabels();
 
+
+	void showFillNote();
+	void showFillInstr();
+	void showFillFx();
+
 	void showFillPopup();
 	void refreshFillType();
 	void refreshFillFrom();
@@ -219,7 +224,7 @@ public:
 	uint8_t patternButtonReleaseActive = 0;
 
 	void setPatternViewMode(uint8_t param);
-
+	void changePatternViewMode(uint8_t param);
 
 };
 

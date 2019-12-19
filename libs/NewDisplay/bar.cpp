@@ -140,28 +140,29 @@ uint8_t cBar::update()
 		API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
     }
 
-    //kontener
-//	API_BLEND_FUNC(SRC_ALPHA , ZERO);
-    API_COLOR(colors[3]);
-	API_LINE_WIDTH(16);
-	API_BEGIN(RECTS);
-	API_VERTEX2F(posX+10, posY+11);
-	API_VERTEX2F(posX+width-10,  posY+height-14);
-	API_END();
+
+    if(style & controlStyleValue_0_100 && value < 0)
+    {
+
+    }
+    else // jesli ma pokazywac jakas wartosc to rysowac
+    {
+		//kontener
+		API_COLOR(colors[3]);
+		API_LINE_WIDTH(16);
+		API_BEGIN(RECTS);
+		API_VERTEX2F(posX+10, posY+11);
+		API_VERTEX2F(posX+width-10,  posY+height-14);
+		API_END();
 
 
-	API_SAVE_CONTEXT();
+		API_SAVE_CONTEXT();
+		API_SCISSOR_XY(posX+10, posY+11);
+		API_SCISSOR_SIZE(8, height-25);
+		API_CMD_GRADIENT(posX+10, 0, 0x0, posX+18, 0, colors[3]);
+		API_RESTORE_CONTEXT();
+    }
 
-
-	API_SCISSOR_XY(posX+10, posY+11);
-	API_SCISSOR_SIZE(8, height-25);
-	API_CMD_GRADIENT(posX+10, 0, 0x0, posX+18, 0, colors[3]);
-
-
-	API_RESTORE_CONTEXT();
-
-//	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-	//
 
 	if(style & controlStyleCompareTwoValues && value >= 0 && value <= 100 && data->value >= 0 && data->value <= 100 )
 	{
@@ -176,16 +177,6 @@ uint8_t cBar::update()
 		API_BEGIN(RECTS);
 		API_VERTEX2F(barX+1, (valueSub < 0) ? barY+barFillY+compareBarHeight : barY+barFillY);
 		API_VERTEX2F(barX+barWidth-1, barY+barHeight);
-		//API_END();
-
-//		API_LINE_WIDTH(16);
-//		API_BEGIN(LINE_STRIP);
-//		API_VERTEX2F(barX, barY);
-//		API_VERTEX2F(barX+barWidth, barY);
-//		API_VERTEX2F(barX+barWidth, barY+barHeight);
-//		API_VERTEX2F(barX, barY+barHeight);
-//		API_VERTEX2F(barX, barY);
-//		API_END();
 
 		if( valueSub > 0)
 		{
@@ -217,15 +208,7 @@ uint8_t cBar::update()
 		API_VERTEX2F(barX+1, (barY+barFillY));
 		API_VERTEX2F((barX+barWidth-1), (barY+barHeight));
 		API_END();
-//		API_COLOR(colors[1]);
-//		API_LINE_WIDTH(16);
-//		API_BEGIN(LINE_STRIP);
-//		API_VERTEX2F(barX, barY);
-//		API_VERTEX2F(barX+barWidth, barY);
-//		API_VERTEX2F(barX+barWidth, barY+barHeight);
-//		API_VERTEX2F(barX, barY+barHeight);
-//		API_VERTEX2F(barX, barY);
-//		API_END();
+
 	}
 	else if(style & controlStyleValueLeftRight_100_100 && value >= -100 && value <= 100)
 	{
@@ -243,14 +226,6 @@ uint8_t cBar::update()
 		API_VERTEX2F(barX+barWidth-1, barFillYbott);
 		API_END();
 
-//		API_LINE_WIDTH(16);
-//		API_BEGIN(LINE_STRIP);
-//		API_VERTEX2F(barX, barY);
-//		API_VERTEX2F(barX+barWidth, barY);
-//		API_VERTEX2F(barX+barWidth, barY+barHeight);
-//		API_VERTEX2F(barX, barY+barHeight);
-//		API_VERTEX2F(barX, barY);
-//		API_END();
 	}
 	else if(style & controlStyleValueLeftRight_24_24 && value >= -24 && value <= 24)
 	{
@@ -264,26 +239,12 @@ uint8_t cBar::update()
 		API_VERTEX2F(barX+barWidth-1, barY+barHeight-1);
 		API_END();
 
-//		API_LINE_WIDTH(16);
-//		API_BEGIN(LINE_STRIP);
-//		API_VERTEX2F(barX, barY);
-//		API_VERTEX2F(barX+barWidth, barY);
-//		API_VERTEX2F(barX+barWidth, barY+barHeight);
-//		API_VERTEX2F(barX, barY+barHeight);
-//		API_VERTEX2F(barX, barY);
-//		API_END();
+
 	}
 
 
 
 
-
-
-
-
-	//API_COLOR(colors[0]);
-
-	//if(style & controlStyleShowValue) API_CMD_NUMBER(posX+data->xValue, posY+5+data->yValue, textFont, data->styleValue, value);
 
 
     API_LIB_EndCoProList();

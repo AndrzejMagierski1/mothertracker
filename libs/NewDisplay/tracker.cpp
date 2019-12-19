@@ -254,7 +254,6 @@ void cTracker::refresh1()
 	}
 	else
 	{
-
 		columnsCount = tracks->popupMode ? 3 : 4;
 		tracksSpace = (800 - (rightOffset + leftOffset)) / 4;
 		paramCount = 4;
@@ -443,16 +442,16 @@ void cTracker::playHead()
 		uint16_t phy2 = posY+28*row;
 		uint16_t phx1 = 1;
 		uint16_t phw = 798;
-		uint32_t playheadColor = colors[13];
+		//uint32_t playheadColor = colors[13];
 
 		if(selectActive && tracks->playheadSelectMode)
 		{
 			phx1 = select1_x;
 			phw = select2_x-select1_x;
 		}
-		else if(tracks->playheadRecMode)
+		else if(tracks->playheadRecMode) // pozostalosc narazie nie uzywana
 		{
-			playheadColor = colors[15];
+			//playheadColor = colors[15];
 
 			API_COLOR(colors[15]);
 			API_LINE_WIDTH(8);
@@ -460,15 +459,16 @@ void cTracker::playHead()
 
 			if(paramCount == 1 && ((1 << tracks->selectedParam) & displayMode))// jesli jest na ekranie zaznaczony parametr
 			{
-				for(uint8_t i = 0; i<8; i++)
-				{
-					uint16_t recPosX = 1+oneParamsSelOffset[tracks->selectedParam]+(tracksSpace*i);
+				//for(uint8_t i = 0; i<8; i++)
+				//{
+				//	uint16_t recPosX = 1+oneParamsSelOffset[tracks->selectedParam]+(tracksSpace*i);
+					uint16_t recPosX = 1+oneParamsSelOffset[tracks->selectedParam]+(tracksSpace*(tracks->actualTrack-tracks->firstVisibleTrack));
 					if(recPosX < 800 && recPosX > 0)
 					{
 						API_VERTEX2F(recPosX, 7*28);
 						API_VERTEX2F(recPosX+oneParamsSelWidth[tracks->selectedParam], 8*28-1);
 					}
-				}
+				//}
 			}
 			else if(paramCount == 2 && ((1 << tracks->selectedParam) & displayMode))
 			{
@@ -476,27 +476,27 @@ void cTracker::playHead()
 				uint8_t offset = param==0 ? twoParamsSel1Offset[tracks->selectedParam] : twoParamsSel2Offset[tracks->selectedParam];
 				uint8_t width  = param==0 ? twoParamsSel1Width[tracks->selectedParam] : twoParamsSel2Width[tracks->selectedParam];
 
-				for(uint8_t i = 0; i<8; i++)
-				{
-					uint16_t recPosX = 1 + offset + (tracksSpace*i);
+				//for(uint8_t i = 0; i<8; i++)
+				//{
+					uint16_t recPosX = 1 + offset + (tracksSpace*(tracks->actualTrack-tracks->firstVisibleTrack));
 					if(recPosX < 800 && recPosX > 0)
 					{
 						API_VERTEX2F(recPosX, 7*28);
 						API_VERTEX2F(recPosX+width, 8*28-1);
 					}
-				}
+				//}
 			}
 			else if (paramCount == 4)
 			{
-				for(uint8_t i = 0; i<8; i++)
-				{
-					uint16_t recPosX = 1+fourParamsSelOffset[tracks->selectedParam]+(tracksSpace*i);
+				//for(uint8_t i = 0; i<8; i++)
+				//{
+					uint16_t recPosX = 1+fourParamsSelOffset[tracks->selectedParam]+(tracksSpace*(tracks->actualTrack-tracks->firstVisibleTrack));
 					if(recPosX < 800 && recPosX > 0)
 					{
 						API_VERTEX2F(recPosX, 7*28);
 						API_VERTEX2F(recPosX+fourParamsSelWidth[tracks->selectedParam], 8*28-1);
 					}
-				}
+				//}
 			}
 			API_END();
 
@@ -504,12 +504,14 @@ void cTracker::playHead()
 		}
 
 
+
+
 		API_SAVE_CONTEXT();
 
 		//API_LINE_WIDTH(16);
 		API_SCISSOR_XY(phx1, phy1-11);
 		API_SCISSOR_SIZE(phw, 11);
-		API_CMD_GRADIENT(0, phy1-11, colors[1], 0, phy1, playheadColor);
+		API_CMD_GRADIENT(0, phy1-11, colors[1], 0, phy1, 0x0);
 
 		API_RESTORE_CONTEXT();
 
@@ -518,7 +520,7 @@ void cTracker::playHead()
 		//API_LINE_WIDTH(16);
 		API_SCISSOR_XY(phx1, phy2);
 		API_SCISSOR_SIZE(phw, 11);
-		API_CMD_GRADIENT(0, phy2, playheadColor, 0, phy2+11, colors[1]);
+		API_CMD_GRADIENT(0, phy2, 0x0, 0, phy2+11, colors[1]);
 
 		API_RESTORE_CONTEXT();
 
