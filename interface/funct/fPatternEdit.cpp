@@ -642,8 +642,8 @@ void cPatternEditor::cancelPopups()
 			{
 				 if(editParam == 1)
 				 {
-					if (PTE->fillPlace == 1) 		PTE->fillData[1].from = mtProject.values.lastUsedInstrument;
-					else if (PTE->fillPlace == 2) 	PTE->fillData[1].to = mtProject.values.lastUsedInstrument;
+					if (PTE->fillPlace == 2) 		PTE->fillData[1].from = mtProject.values.lastUsedInstrument;
+					else if (PTE->fillPlace == 3) 	PTE->fillData[1].to = mtProject.values.lastUsedInstrument;
 				 }
 			}
 			functFill();
@@ -970,43 +970,83 @@ void cPatternEditor::changeFillData(int16_t value)
 
 void cPatternEditor::changneFillDataByPad(uint8_t pad)
 {
-	switch(fillPlace)
+	uint8_t fillParam = fillPlace;
+
+	if(editParam != 1)
 	{
-	case 2:
+		switch(fillPlace)
+		{
+		case 1: fillParam = 4; break;// param
+		case 2: fillParam = 4; break;// param
+		case 3: fillParam = 1; break;// type
+		case 4: fillParam = 2; break;// from
+		case 5: fillParam = 3; break;// to
+		}
+	}
+
+	switch(fillParam)
+	{
+	case 0: // step
+	{
+		if(pad-4 < PATTERN_EDIT_STEP_MAX) fillStep = pad-4;
+		break;
+	}
+	case 1: //type
+	{
+		if(pad < 3) fillData[editParam].type = pad;
+		break;
+	}
+	case 2: // from
 	{
 		if(editParam == 0) 		fillData[editParam].from = mtPadBoard.getNoteFromPad(pad);
 		else if(editParam == 1) fillData[editParam].from = pad;
-		else 					fillData[editParam].from = map(pad,0,47,0,127);
+		else
+		{
+			int16_t min_fx = sequencer.getFxMin(interfaceGlobals.fxIDs[fillData[editParam].param]);
+			int16_t max_fx = sequencer.getFxMax(interfaceGlobals.fxIDs[fillData[editParam].param]);
+
+			fillData[editParam].from = map(pad,0,47,min_fx,max_fx);
+
+			if(fillData[editParam].from < min_fx) fillData[editParam].from = min_fx;
+			if(fillData[editParam].from > max_fx) fillData[editParam].from = max_fx;
+		}
 		break;
 	}
-	case 3:
+	case 3: // to
 	{
 		if(editParam == 0) 		fillData[editParam].to = mtPadBoard.getNoteFromPad(pad);
 		else if(editParam == 1) fillData[editParam].to = pad;
-		else 					fillData[editParam].to = map(pad,0,47,0,127);
+		else
+		{
+			int16_t min_fx = sequencer.getFxMin(interfaceGlobals.fxIDs[fillData[editParam].param]);
+			int16_t max_fx = sequencer.getFxMax(interfaceGlobals.fxIDs[fillData[editParam].param]);
+
+			fillData[editParam].to = map(pad,0,47,min_fx,max_fx);
+
+			if(fillData[editParam].to < min_fx) fillData[editParam].to = min_fx;
+			if(fillData[editParam].to > max_fx) fillData[editParam].to = max_fx;
+		}
 		break;
 	}
-	case 4:
+	case 4: // param
 	{
-		if(editParam == 3) fillData[editParam].param = pad;
-		break;
-	}
-	case 0:
-	{
-		if(pad-2 > PATTERN_EDIT_STEP_MAX) fillStep = PATTERN_EDIT_STEP_MAX;
-		else fillStep = pad-2;
+		if(editParam == 0)
+		{
+			if(pad < MAX_SCALE) fillData[editParam].param = pad;
+		}
+		else if(editParam == 3) fillData[editParam].param = pad;
 		break;
 	}
 	default: break;
 	}
 
-	switch(fillPlace)
+	switch(fillParam)
 	{
+		case 0:  refreshFillStep(); break;
 		case 1:  refreshFillType(); break;
 		case 2:  refreshFillFrom(); break;
-		case 3:  refreshFillTo(); break;
+		case 3:  refreshFillTo(); 	break;
 		case 4:  refreshFillParam(); break;
-		case 0:  refreshFillStep(); break;
 		default: return;
 	}
 }
