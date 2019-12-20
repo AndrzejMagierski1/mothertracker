@@ -71,14 +71,17 @@ void cPerformanceMode::update()
 
 void cPerformanceMode::start(uint32_t options)
 {
-	for (uint8_t q = 0; q < 8; q++)
+	if(!dontClearPerformanceMode)
 	{
-		mtProject.values.perfTracksPatterns[q] = mtProject.values.actualPattern;
+		for (uint8_t q = 0; q < 8; q++)
+		{
+			mtProject.values.perfTracksPatterns[q] = mtProject.values.actualPattern;
+		}
 	}
 
 	for(uint8_t track = 0; track < 8; track++)
 	{
-		tracksPerformanceState[track] = 0; // ustaw na 0
+		if(!dontClearPerformanceMode) tracksPerformanceState[track] = 0; // ustaw na 0
 
 		if(PM->tracksPerformanceState[track] == 1) // a teraz sprawdz czy moze jednak nie jest 1 :>
 		{
@@ -96,6 +99,12 @@ void cPerformanceMode::start(uint32_t options)
 		{
 			placesTempValues[place] = mtProject.values.perfFxValues[place][mtProject.values.perfSelectedValues[place]];
 		}
+	}
+
+	if(dontClearPerformanceMode)
+	{
+		refreshTrackPattern = 1;
+		refreshTrackState = 1;
 	}
 
 
@@ -135,10 +144,11 @@ void cPerformanceMode::stop()
 				clearPerformanceValues(track, fx);
 			}
 		}
+
+		mtPadBoard.releaseAllInstrument();
 	}
 
 	moduleRefresh = 0;
-	mtPadBoard.releaseAllInstrument();
 	padsBacklight.clearAllPads(1, 1, 1);
 }
 
