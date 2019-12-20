@@ -38,6 +38,8 @@ enum mtConfigMIDI
 	configMIDITransportIn,
 	configMIDITansportOut,
 	configMIDICcout,
+	configMIDINotesFrom,
+	configMIDINotesChannel,
 };
 
 enum mtConfigGeneral
@@ -49,7 +51,7 @@ enum mtConfigGeneral
 };
 
 constexpr uint8_t GERERAL_SUBMENUS = 3;
-constexpr uint8_t MIDI_SUBMENUS = 5;
+constexpr uint8_t MIDI_SUBMENUS = 7;
 constexpr uint8_t PATTERN_DIVIDERS = 16;
 constexpr uint8_t RADIO_REGIONS = 4;
 constexpr uint8_t BRIGHTNESS_LEVELS = 3;
@@ -57,6 +59,8 @@ constexpr uint8_t CLOCK_IN = 3;
 constexpr uint8_t CLOCK_OUT = 4;
 constexpr uint8_t CC_OUTS_NUM = 10;
 constexpr uint8_t CC_NUMBERS = 127;
+constexpr uint8_t NOTES_FROM_NUM = 4;
+constexpr uint8_t NOTES_FROM_CHANNEL_NUM = 16;
 
 
 const char groupNamesLabels[mtConfigGroupsCount][15] =
@@ -83,6 +87,8 @@ const char midiConfig[MIDI_SUBMENUS][20] =
 		"Transport in",
 		"Transport out",
 		"CC out",
+		"Notes from",
+		"Notes chan",
 };
 
 const char patternDivider[PATTERN_DIVIDERS][3] =
@@ -164,7 +170,40 @@ const char CCouts[CC_OUTS_NUM][5] =
 		"CC9",
 		"CC10",
 };
+const char notesFromChannel[NOTES_FROM_CHANNEL_NUM][5] =
+{
+		"CH1",
+		"CH2",
+		"CH3",
+		"CH4",
+		"CH5",
+		"CH6",
+		"CH7",
+		"CH8",
+		"CH9",
+		"CH10",
+		"CH11",
+		"CH12",
+		"CH13",
+		"CH14",
+		"CH15",
+		"CH16",
+};
+const char notesFrom[NOTES_FROM_CHANNEL_NUM][10] =
+{
+		"None",
+		"USB",
+		"Jack",
+		"USB+Jack",
+};
+enum enMidiNotesFrom
+{
+	enMidiNotesFrom_none,
+	enMidiNotesFrom_USB,
+	enMidiNotesFrom_jack,
+	enMidiNotesFrom_USB_and_jack,
 
+};
 const char CCnumber[CC_NUMBERS][4] =
 {
 		"1",
@@ -501,6 +540,10 @@ public:
 	void showTransportOut(uint8_t listPosition);
 	void showCCouts(uint8_t listPosition);
 	void showCCnumber(uint8_t listPosition);
+	void showMidiNotesFrom(uint8_t listPosition);
+	void showMidiNotesChannels(uint8_t listPosition);
+
+
 
 
 	//setters

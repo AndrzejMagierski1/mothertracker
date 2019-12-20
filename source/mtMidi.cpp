@@ -25,9 +25,9 @@ void midiUpdate()
 
 void handleNoteOn(byte channel, byte pitch, byte velocity)
 {
-	Serial.printf("ON\tch: %d, pitch: %d, velo: %d \n", channel, pitch,
-					velocity);
-	MIDI.sendNoteOn(pitch, velocity, channel);
+//	Serial.printf("ON\tch: %d, pitch: %d, velo: %d \n", channel, pitch,
+//					velocity);
+//	MIDI.sendNoteOn(pitch, velocity, channel);
 
 	sendSelection();
 
@@ -41,9 +41,9 @@ void handleNoteOn(byte channel, byte pitch, byte velocity)
 void handleNoteOff(byte channel, byte pitch, byte velocity)
 {
 
-	Serial.printf("OFF\tch: %d, pitch: %d, velo: %d\n", channel, pitch,
-					velocity);
-	MIDI.sendNoteOff(pitch, velocity, channel);
+//	Serial.printf("OFF\tch: %d, pitch: %d, velo: %d\n", channel, pitch,
+//					velocity);
+//	MIDI.sendNoteOff(pitch, velocity, channel);
 
 //	if (patternEditor.editMode == 1)
 //	{
