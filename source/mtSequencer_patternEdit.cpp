@@ -218,10 +218,21 @@ bool Sequencer::isStepToFillFx(strPattern::strTrack::strStep *step,
 								int16_t fillStep)
 {
 	if (fillStep > 0 && offset % fillStep == 0) return true;
-	else if (fillStep == fillStepRandom && random(0, 10) > 6) return true;
-	else if (fillStep == fillStepOccupied && (step->fx[fxIndex].type > 0)) return true;
-	else if (fillStep == fillStepEmpty && step->fx[fxIndex].type == 0)
-		return true;
+
+	else if (fillStep == fillStepRandom
+			&& random(0, 10) > 6) return true;
+
+	else if (fillStep == fillStepNoFx &&
+			step->fx[fxIndex].type == 0) return true;
+
+	else if (fillStep == fillStepFx &&
+			step->fx[fxIndex].type != 0) return true;
+
+	else if (fillStep == fillStepNoNote &&
+			step->note < 0) return true;
+
+	else if (fillStep == fillStepNote &&
+			step->note >= 0) return true;
 
 	return false;
 }
@@ -230,10 +241,23 @@ bool Sequencer::isStepToFillNote(strPattern::strTrack::strStep *step,
 									int16_t fillStep)
 {
 	if (fillStep > 0 && offset % fillStep == 0) return true;
-	else if (fillStep == fillStepRandom && random(0, 10) > 6) return true;
-	else if (fillStep == fillStepOccupied && step->note >= 0) return true;
-	else if (fillStep == fillStepEmpty && step->note == STEP_NOTE_EMPTY)
-		return true;
+
+	else if (fillStep == fillStepRandom
+			&& random(0, 10) > 6) return true;
+
+	else if (fillStep == fillStepNoFx &&
+			step->fx[0].type == 0 &&
+			step->fx[1].type == 0) return true;
+
+	else if (fillStep == fillStepFx &&
+			(step->fx[0].type != 0 ||
+					step->fx[1].type != 0)) return true;
+
+	else if (fillStep == fillStepNoNote &&
+			step->note < 0) return true;
+
+	else if (fillStep == fillStepNote &&
+			step->note >= 0) return true;
 
 	return false;
 }
@@ -800,7 +824,6 @@ void Sequencer::clearSelected(strSelection * selection, uint8_t elements)
 	}
 }
 
-
 void Sequencer::clearPattern(strPattern * patt)
 {
 
@@ -825,7 +848,7 @@ void Sequencer::clearPattern(strPattern * patt)
 
 void Sequencer::clearSingleTrack(strPattern::strTrack *track)
 {
-	for(uint8_t i = 0; i < MAXSTEP; i++)
+	for (uint8_t i = 0; i < MAXSTEP; i++)
 	{
 		clearStep(&track->step[i]);
 	}
