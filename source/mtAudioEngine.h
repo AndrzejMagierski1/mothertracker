@@ -36,6 +36,7 @@ public:
 	void muteReverbSend(uint8_t channel, uint8_t state);
 	void soloReverbSend(uint8_t state);
 	void clearReverb();
+	void performanceModeEndAll();
 
 	friend class playerEngine;
 private:
