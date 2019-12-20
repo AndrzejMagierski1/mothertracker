@@ -19,7 +19,7 @@ cConfigEditor configEditor;
 static cConfigEditor* CE = &configEditor;
 
 extern strMtProject mtProject;
-
+extern AudioControlSGTL5000 audioShield;
 
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
@@ -175,6 +175,27 @@ void cConfigEditor::stop()
 	moduleRefresh = 0;
 }
 
+void cConfigEditor::turnOffPerformanceMode()
+{
+	if(sequencer.isPerformanceMode())
+	{
+		fileManager.loadPattern(mtProject.values.actualPattern);
+		sequencer.switchRamPatternsNow();
+		sequencer.exitPerformanceMode();
+	}
+	//todo
+	// dodac funckje silnika audio clerujaca wszystkie efekty
+
+
+}
+
+void cConfigEditor::turnOffRadio()
+{
+	audioShield.headphoneSourceSelect(0);
+	radio.clearRDS();
+	radio.resetSeekCallback();
+	engine.setHeadphonesVolume(mtProject.values.volume);
+}
 
 void cConfigEditor::setConfigScreenFunct()
 {
@@ -1401,6 +1422,9 @@ static  uint8_t functSelectLimiterTreshold(uint8_t state)
 static uint8_t functSwitchModule(uint8_t button)
 {
 	if(CE->selectionActive) return 1;
+
+	if(button != interfaceButtonPerformance) CE->turnOffPerformanceMode();
+	if(button != interfaceButtonSampleRec) CE->turnOffRadio();
 
 	CE->eventFunct(eventSwitchModule,CE,&button,0);
 

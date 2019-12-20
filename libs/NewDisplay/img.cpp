@@ -127,6 +127,8 @@ uint8_t cImg::update()
 	//API_BITMAP_SOURCE(value);
 	API_CMD_SETBITMAP(value, RGB565, getProps.Width, getProps.Height);
 
+	uint16_t transform = 276;
+	API_BITMAP_TRANSFORM_A(transform);
 //	API_BITMAP_LAYOUT(RGB565, getProps.Width*2, getProps.Height); // Format, Stride, Height
 //	API_BITMAP_SIZE(BILINEAR, BORDER, BORDER, getProps.Width, getProps.Height);
 //	API_BITMAP_LAYOUT_H((getProps.Width * 2) >> 10, getProps.Height >> 9);
@@ -135,6 +137,9 @@ uint8_t cImg::update()
 	API_BEGIN(BITMAPS);
 	API_VERTEX2F(x, y);
 	API_END();
+
+
+	API_BITMAP_TRANSFORM_A(256);
 
     API_LIB_EndCoProList();
 
@@ -157,7 +162,6 @@ uint8_t cImg::memCpy(uint32_t address)
 
 	return 0;
 }
-
 
 uint8_t cImg::append(uint32_t address)
 {

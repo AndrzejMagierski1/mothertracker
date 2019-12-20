@@ -22,7 +22,7 @@ static uint32_t defaultBarColors[5] =
 {
 		0xFFFFFF,
 		one_true_red,
-		0x32d642,	//0xf13c3c,
+		one_true_green,	//0xf13c3c,
 		0x080808,
 		0x0a0a0a
 };

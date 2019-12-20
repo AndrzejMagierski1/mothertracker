@@ -336,6 +336,8 @@ public:
 	void showDefaultConfigScreen();
 	void showMasterScreen();
 
+	void turnOffPerformanceMode();
+	void turnOffRadio();
 
 	void changeSelectionInGroup(int16_t value, uint8_t groupNum);
 
