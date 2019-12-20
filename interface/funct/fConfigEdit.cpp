@@ -12,6 +12,7 @@
 
 #include "patternEditor.h"
 
+#include "mtAudioEngine.h"
 
 #include "SI4703.h"
 
@@ -20,6 +21,7 @@ static cConfigEditor* CE = &configEditor;
 
 extern strMtProject mtProject;
 extern AudioControlSGTL5000 audioShield;
+
 
 static  uint8_t functPlayAction();
 static  uint8_t functRecAction();
@@ -183,9 +185,8 @@ void cConfigEditor::turnOffPerformanceMode()
 		sequencer.switchRamPatternsNow();
 		sequencer.exitPerformanceMode();
 	}
-	//todo
-	// dodac funckje silnika audio clerujaca wszystkie efekty
 
+	engine.performanceModeEndAll();
 
 }
 
