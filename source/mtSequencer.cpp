@@ -86,7 +86,7 @@ void Sequencer::handle_uStep_timer(void)
 void Sequencer::handle_nanoStep(uint8_t step)
 {
 
-	if ((step == 1))// to znaczy że wywoładnie funkcji przyszło z midi clocka
+	if ((step == 1)) // to znaczy że wywoładnie funkcji przyszło z midi clocka
 	{
 		player.uStep = 1;
 
@@ -810,6 +810,21 @@ void Sequencer::playSelection(void) // potrzebuje aktualnego zaznaczenia
 
 	player.globalPos = selection.firstStep;
 
+}
+
+float Sequencer::getPlaySelectionProgress(void) // potrzebuje aktualnego zaznaczenia
+{
+	if (player.selectionMode && isSelectionCorrect(&selection))
+	{
+		strSelection * s = &selection;
+		float retVal = (float(player.globalPos - s->firstStep) /
+				float(s->lastStep - s->firstStep)) * 100.0f;
+		return constrain(retVal, 0.0f, 100.0f);
+	}
+	else
+	{
+		return 0.0f;
+	}
 }
 
 void Sequencer::playPattern(void)

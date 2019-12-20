@@ -1903,28 +1903,6 @@ static  uint8_t functPlayAction()
 		{
 			sequencer.rec();
 			PTE->editMode = 0;
-			Serial.println("rec");
-
-			strPopupStyleConfig popupConfig {
-					2,					// time
-					800 / 2 - 150,		// x
-					480 / 2 - 50,		// y
-					300,				// w
-					100,				// h
-					0xff0000,			// lineColor[4];
-					0xffffff,
-					0xffffff,
-					0xffffff,
-					controlStyleCenterX,			//lineStyle[4];
-					controlStyleCenterX,
-					controlStyleCenterX,
-					controlStyleCenterX };
-
-			mtPopups.config(0, &popupConfig);
-			mtPopups.show(0, "REC");
-
-
-			// todo: popup REC
 		}
 		else if (tactButtons.isButtonPressed(interfaceButtonShift))
 		{
