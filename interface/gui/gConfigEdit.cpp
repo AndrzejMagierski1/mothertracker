@@ -79,6 +79,7 @@ void cConfigEditor::initDisplayControls()
 		prop2.h =  55;
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 
+		prop2.colors = nullptr;
 		prop2.value = 0;
 		prop2.x = (800/8)*i+1;
 		prop2.y = 29;

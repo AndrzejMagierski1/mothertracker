@@ -43,6 +43,15 @@ static  uint16_t framesPlacesS2[8][4] =
 uint32_t colorRed[3] = { one_true_red, 0xFFFFFF,0xFF0000 };
 uint32_t colorGreen[3] = { 0x32d642, 0xFFFFFF,0x00FF00 };
 
+uint32_t levelBarColors[] =
+{
+	0xFFFFFF, // kolor glowny
+	0xff0000, // kolor dodatkowy 1 czer
+	0x00ff00, // kolor dodatkowy 2 ziel
+	0x080808, // kontener
+	0x0a0a0a, // tlo
+};
+
 uint32_t radioLabelColors[3]=
 {
 		0xFFFFFF, // tekst
@@ -165,8 +174,10 @@ void cSampleRecorder::initDisplayControls()
 	prop5.w = 800/8-3;
 	prop5.style =  controlStyleShow | controlStyleValue_0_100 | controlStyleBackground;
 	prop5.h = 394;
+	prop5.colors = levelBarColors;
 	if(levelBarControl == nullptr)  levelBarControl = display.createControl<cBar>(&prop5);
 	prop5.x = (800/8)*(5)+1;
+	prop5.colors = nullptr;
 	if(gainBarControl == nullptr)  gainBarControl = display.createControl<cBar>(&prop5);
 	prop5.x = (800/8)*(1)+1;
 	if(radioFreqBarControl == nullptr)  radioFreqBarControl = display.createControl<cBar>(&prop5);
@@ -329,21 +340,12 @@ void cSampleRecorder::showDefaultScreen()
 		display.setControlShow(gainBarControl);
 		display.refreshControl(gainBarControl);
 
-		display.setControlValue(label[0], 1);
-		display.setControlValue(label[1], 1);
-		display.setControlValue(label[2], 0);
-		display.setControlValue(label[3], 0);
-		display.setControlValue(label[4], 0);
-		display.setControlValue(label[5], 1);
-		display.setControlValue(label[6], 1);
-		display.setControlValue(label[7], 0);
-
 		if (recorderConfig.source == sourceTypeRadio)
 		{
 			display.setControlValue(radioFreqBarControl, radioFreqBarVal);
 			display.setControlShow(radioFreqBarControl);
 			display.refreshControl(radioFreqBarControl);
-			display.setControlText2(label[1], "Radio Freq");
+			display.setControlText(label[1], "Radio Freq");
 			display.setControlText(label[2], "<<");
 			display.setControlText(label[3], ">>");
 			display.setControlValue(bgLabel,243);
@@ -368,12 +370,11 @@ void cSampleRecorder::showDefaultScreen()
 		}
 
 		// bottom labels
-		display.setControlText2(label[0], "Source");
-
+		display.setControlText(label[0], "Source");
 
 		display.setControlText(label[4], "Level");
-		display.setControlText2(label[5], "Gain");
-		display.setControlText2(label[6], "Monitor");
+		display.setControlText(label[5], "Gain");
+		display.setControlText(label[6], "Monitor");
 		display.setControlText(label[7], "Record");
 
 		frameData.placesCount = 8;
@@ -469,26 +470,17 @@ void cSampleRecorder::showDefaultScreen()
 				display.setControlText2(label[i], "");
 			}
 
-			display.setControlValue(label[2], 0);
-			display.setControlValue(label[7], 0);
 			display.setControlValue(bgLabel,140);
 
 			display.setControlText(label[7], "Stop");
 		}
 		else
 		{
-			display.setControlValue(label[0], 0);
-			display.setControlValue(label[1], 1);
-			display.setControlValue(label[2], 1);
-			display.setControlValue(label[3], 1);
-			display.setControlValue(label[4], 0);
-			display.setControlValue(label[5], 0);
-			display.setControlValue(label[6], 0);
 
 			display.setControlText(label[0], "Preview");
-			display.setControlText2(label[1], "Start Point");
-			display.setControlText2(label[2], "End Point");
-			display.setControlText2(label[3], "Zoom");
+			display.setControlText(label[1], "Start Point");
+			display.setControlText(label[2], "End Point");
+			display.setControlText(label[3], "Zoom");
 			display.setControlText(label[4], "Crop");
 			display.setControlText(label[5], "Undo");
 			display.setControlText(label[6], "Cancel");
@@ -542,7 +534,6 @@ void cSampleRecorder::showDefaultScreen()
 
 		keyboardManager.activateKeyboard();
 
-		display.setControlValue(label[0], 0);
 
 		display.setControlText(label[0], "Enter");
 		display.setControlText(label[1], "");
@@ -584,17 +575,16 @@ void cSampleRecorder::showDefaultScreen()
 
 void cSampleRecorder::showRadio()
 {
-	display.setControlValue(label[1], 1);
-	display.setControlValue(label[2], 0);
-	display.setControlValue(label[3], 0);
 
 	calcRadioFreqBarVal();
 
 	display.setControlValue(radioFreqBarControl,radioFreqBarVal);
 	display.setControlShow(radioFreqBarControl);
-	display.setControlText2(label[1], "Radio Freq");
+	display.setControlText(label[1], "Radio Freq");
 	display.setControlText(label[2], "<<");
 	display.setControlText(label[3], ">>");
+	display.setControlText2(label[2], "");
+	display.setControlText2(label[3], "");
 
 	display.refreshControl(label[2]);
 	display.refreshControl(label[3]);
@@ -612,16 +602,13 @@ void cSampleRecorder::showRadio()
 }
 void cSampleRecorder::hideRadio()
 {
-	display.setControlValue(label[1], 0);
-	display.setControlValue(label[2], 1);
-	display.setControlValue(label[3], 1);
-
 
 	display.setControlValue(radioFreqBarControl,radioFreqBarVal);
 	display.setControlHide(radioFreqBarControl);
 	display.setControlText(label[1], "");
 	display.setControlText(label[2], "");
 	display.setControlText(label[3], "");
+	display.setControlText2(label[1], "");
 	display.setControlText2(label[2], "");
 	display.setControlText2(label[3], "");
 
@@ -688,7 +675,7 @@ void cSampleRecorder::showPreviewValue()
 
 	display.setControlText(label[0],"Preview");
 	display.setControlText2(label[0], playTimeValueText);
-	display.setControlColors(label[0],interfaceGlobals.activeButtonLabelsColors);
+	display.setControlColors(label[0],interfaceGlobals.activeLabelsColors);
 	display.setControlShow(label[0]);
 	display.refreshControl(label[0]);
 }
@@ -696,7 +683,7 @@ void cSampleRecorder::hidePreviewValue()
 {
 	display.setControlText(label[0],"Preview");
 	display.setControlText2(label[0],"");
-	display.setControlColors(label[0],interfaceGlobals.activeButtonLabelsColors);
+	display.setControlColors(label[0],interfaceGlobals.activeLabelsColors);
 	display.refreshControl(label[0]);
 }
 void cSampleRecorder::showStartPointValue()
@@ -765,30 +752,42 @@ void cSampleRecorder::drawRadioFreqBar()
 
 void cSampleRecorder::drawLevelBar()
 {
-	if(currentScreen != screenTypeConfig ) return ;
+	if(currentScreen != screenTypeConfig ) return;
+
 	if(levelBarVal < 85)
 	{
-		if(redColorTim < 350) display.setControlColors(levelBarControl, colorRed);
+		if(redColorTimer < 350)
+		{
+			levelBarColors[0] = one_true_red;
+		}
 		else
 		{
-			if(levelBarVal > 60)
+			if(levelBarVal > 70)
 			{
-				uint8_t green = map(levelBarVal,60,85,255,0);
-
-				colorGreen[0] = (0xFF << 16)| (green << 8);
+				uint8_t green = map(levelBarVal,70,85,((one_true_green&0xff00)>>8),0);
+				levelBarColors[0] = (one_true_red&0xff0000) | (green << 8);
 			}
-			else colorGreen[0] = 0x00FF00;
-			display.setControlColors(levelBarControl, colorGreen);
+			else if(levelBarVal > 60)
+			{
+				//uint8_t green = map(levelBarVal,40,60,((one_true_green&0xff00)>>8),0);
+				uint8_t red = map(levelBarVal,60,70,0,((one_true_red&0xff0000)>>16));
+				levelBarColors[0] = (red << 16) | (one_true_green&0xff00);
+			}
+			else
+			{
+				levelBarColors[0] = one_true_green;
+			}
 		}
 
-		if(redColorTim > 3000000) redColorTim = 201;
+		if(redColorTimer > 3000000) redColorTimer = 201;
 	}
 	else
 	{
-		redColorTim = 0;
-		display.setControlColors(levelBarControl, colorRed);
+		redColorTimer = 0;
+		levelBarColors[0] = one_true_red;
 
 	}
+
 	display.setControlValue(levelBarControl,levelBarVal);
 	display.setControlShow(levelBarControl);
 	display.refreshControl(levelBarControl);
@@ -828,8 +827,8 @@ void cSampleRecorder::showSelectionWindow()
 
 	display.setControlText(label[7], "Yes");
 	display.setControlText(label[6], "Cancel");
-	display.setControlColors(label[6], interfaceGlobals.activeButtonLabelsColors);
-	display.setControlColors(label[7], interfaceGlobals.activeButtonLabelsColors);
+	display.setControlColors(label[6], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
@@ -987,7 +986,7 @@ void cSampleRecorder::showSource()
 	if (currentScreen == screenTypeConfig)
 	{
 		strcpy(sourceName,sourcesNamesLabels[recorderConfig.source]);
-		display.setControlText(label[0],sourceName);
+		display.setControlText2(label[0],sourceName);
 		display.setControlShow(label[0]);
 		display.refreshControl(label[0]);
 	}
@@ -998,7 +997,7 @@ void cSampleRecorder::showMonitor()
 	if (currentScreen == screenTypeConfig)
 	{
 	strcpy(monitorVal,monitorNamesLabels[recorderConfig.monitor]);
-	display.setControlText(label[6],monitorVal);
+	display.setControlText2(label[6],monitorVal);
 	display.setControlShow(label[6]);
 	display.refreshControl(label[6]);
 	}
@@ -1023,7 +1022,7 @@ void cSampleRecorder::showGain()
 		sprintf(gainVal,"%d",recorderConfig.gainMicHigh);
 	}
 
-	display.setControlText(label[5],gainVal);
+	display.setControlText2(label[5],gainVal);
 	display.setControlShow(label[5]);
 	display.refreshControl(label[5]);
 }

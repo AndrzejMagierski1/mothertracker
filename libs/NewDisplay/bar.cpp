@@ -5,7 +5,6 @@
 #include "barControl.h"
 
 
-
 static uint32_t defaultColors[] =
 {
 	0xFFFFFF, // kolor glowny
@@ -35,6 +34,9 @@ cBar::cBar(strControlProperties* properties)
 		style = 0;
 		return;
 	}
+
+	colors = (properties->colors == nullptr) ? defaultColors : properties->colors;
+
 
 	posX = properties->x;
 	posY = properties->y;

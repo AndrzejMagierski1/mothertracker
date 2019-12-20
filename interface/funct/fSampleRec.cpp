@@ -215,7 +215,7 @@ void cSampleRecorder::update()
 void cSampleRecorder::start(uint32_t options)
 {
 	moduleRefresh = 1;
-
+	dontTurnOffRadio = 0;
 //--------------------------------------------------------------------
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
@@ -292,14 +292,19 @@ void cSampleRecorder::start(uint32_t options)
 
 void cSampleRecorder::stop()
 {
-	audioShield.headphoneSourceSelect(0);
+	if(!dontTurnOffRadio)
+	{
+		audioShield.headphoneSourceSelect(0);
+		radio.clearRDS();
+		radio.resetSeekCallback();
+		engine.setHeadphonesVolume(mtProject.values.volume);
+
+	}
+
 	moduleRefresh = 0;
 	keyboardManager.deinit();
-	radio.clearRDS();
-	radio.resetSeekCallback();
 	//hideRDS();
 
-	engine.setHeadphonesVolume(mtProject.values.volume);
 }
 
 
@@ -1883,6 +1888,8 @@ static uint8_t functSwitchModule(uint8_t button)
 	}
 	else SR->forceSwitchModule = 0;
 
+
+	if(button == interfaceButtonMaster) SR->dontTurnOffRadio = 1;
 
 	SR->eventFunct(eventSwitchModule,SR,&button,0);
 	return 1;

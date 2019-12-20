@@ -102,6 +102,7 @@ void cPerformanceMode::start(uint32_t options)
 	moduleRefresh = 1;
 	performanceEditState = 0;
 	refreshBlinkingTrack = 0;
+	dontClearPerformanceMode = 0;
 
 	// ustawienie funkcji
 	//FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchMode);
@@ -125,11 +126,14 @@ void cPerformanceMode::start(uint32_t options)
 
 void cPerformanceMode::stop()
 {
-	for(uint8_t track = 0; track < 8; track++)
+	if(!dontClearPerformanceMode)
 	{
-		for(uint8_t fx = 0; fx < performanceFxesCount; fx++)
+		for(uint8_t track = 0; track < 8; track++)
 		{
-			clearPerformanceValues(track, fx);
+			for(uint8_t fx = 0; fx < performanceFxesCount; fx++)
+			{
+				clearPerformanceValues(track, fx);
+			}
 		}
 	}
 
@@ -953,11 +957,15 @@ static uint8_t functShift(uint8_t value)
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(sequencer.isPerformanceMode())
+	if(button != interfaceButtonMaster && sequencer.isPerformanceMode())
 	{
 		fileManager.loadPattern(mtProject.values.actualPattern);
 		sequencer.switchRamPatternsNow();
 		sequencer.exitPerformanceMode();
+	}
+	else if(button == interfaceButtonMaster)
+	{
+		PM->dontClearPerformanceMode = 1;
 	}
 	PM->eventFunct(eventSwitchModule,PM,&button,0);
 

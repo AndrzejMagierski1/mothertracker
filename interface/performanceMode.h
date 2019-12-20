@@ -175,6 +175,8 @@ public:
 	uint8_t performanceEditState = 0;
 	uint8_t performanceEditPlace = 0;
 
+	uint8_t dontClearPerformanceMode = 0;
+
 
 	//--------performance values
 	// gui

@@ -146,7 +146,7 @@ public:
 	hControl bgLabel;
 
 //*********************************************
-
+	uint8_t dontTurnOffRadio = 0;
 
 	uint8_t selectedPlace = 0;
 	uint8_t currentScreen = 0;
@@ -246,7 +246,7 @@ uint8_t cropCounter = 0;
 	float measureSum = 0;
 	uint8_t levelBarMeasureCounter;
 	uint8_t gainBarVal;
-	elapsedMillis redColorTim;
+	elapsedMillis redColorTimer;
 
 	void calcRadioFreqBarVal();
 	void calcLevelBarVal();
