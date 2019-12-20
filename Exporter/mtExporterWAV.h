@@ -5,6 +5,7 @@
 #include <mtPatternStemsExporter.h>
 #include "mtSongExporter.h"
 #include "mtSongStemsExporter.h"
+#include "mtRenderWAV.h"
 
 static constexpr uint32_t SEND_BUF_SIZE = 20 * 1024;
 
@@ -22,7 +23,8 @@ public:
 		song,
 		songStems,
 		pattern,
-		patternStems
+		patternStems,
+		renderSelection
 	};
 	void start(char * path, exportType t);
 	void begin();
@@ -40,6 +42,7 @@ private:
 	mtPatternExporter patternExporter;
 	mtSongExporter	songExporter;
 	mtSongStemsExporter songStemsExporter;
+	mtRenderWAV renderExporter;
 };
 
 extern mtExporter exporter;
