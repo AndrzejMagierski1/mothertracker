@@ -184,6 +184,23 @@ void audioEngine::update()
 
 }
 
+void audioEngine::performanceModeEndAll()
+{
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].endCutoffPerformanceMode();
+		instrumentPlayer[i].endEndPointPerformanceMode();
+		instrumentPlayer[i].endFilterTypePerformanceMode();
+		instrumentPlayer[i].endGranularPositionPerformanceMode();
+		instrumentPlayer[i].endPanningPerformanceMode();
+		instrumentPlayer[i].endReverbSendPerformanceMode();
+		instrumentPlayer[i].endSamplePlaybackPerformanceMode();
+		instrumentPlayer[i].endStartPointPerformanceMode();
+		instrumentPlayer[i].endTunePerformanceMode();
+		instrumentPlayer[i].endVolumePerformanceMode();
+		instrumentPlayer[i].endWavetableWindowPerformanceMode();
+	}
+}
 
 void audioEngine::setHeadphonesVolume(uint8_t value)
 {
@@ -2607,6 +2624,7 @@ void audioEngine::soloTrack(uint8_t channel, uint8_t state)
 	}
 
 }
+
 // selectLR :  0 - L, 1- R, state: 1 - solo ON, 0 - solo OFF
 void audioEngine::soloReverbSend(uint8_t state)
 {
