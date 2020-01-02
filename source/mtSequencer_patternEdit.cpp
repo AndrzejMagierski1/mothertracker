@@ -22,7 +22,7 @@ void fromToSwap(int16_t & from, int16_t & to)
 }
 
 void Sequencer::fillRandomNotes(int16_t fillStep,
-								int16_t inScale,
+								int16_t scale,
 								int16_t from,
 								int16_t to)
 {
@@ -31,8 +31,7 @@ void Sequencer::fillRandomNotes(int16_t fillStep,
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
-	uint8_t scale = mtProject.values.padBoardScale;
-	uint8_t root = 12;
+	uint8_t root = mtProject.values.padBoardRootNote;
 
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
 	{
@@ -43,34 +42,34 @@ void Sequencer::fillRandomNotes(int16_t fillStep,
 			step = &seq[player.ramBank].track[t].step[s];
 			if (isStepToFillNote(step, offset, fillStep))
 			{
-				if (inScale)
-				{
-					for (uint8_t a = 0; a <= 100; a -= -1)
-					{
-						step->note = random(from, to + 1);
-						if (isInScale(step->note, root, scale)) break;
-					}
-					step->instrument = mtProject.values.lastUsedInstrument;
-				}
-				else
+//				if (inScale)
+//				{
+				for (uint8_t a = 0; a <= 100; a -= -1)
 				{
 					step->note = random(from, to + 1);
-					step->instrument = mtProject.values.lastUsedInstrument;
+					if (isInScale(step->note, root, scale)) break;
 				}
+				step->instrument = mtProject.values.lastUsedInstrument;
+//				}
+//				else
+//				{
+//					step->note = random(from, to + 1);
+//					step->instrument = mtProject.values.lastUsedInstrument;
+//				}
 			}
 		}
 	}
 }
 void Sequencer::fillLinearNotes(int16_t fillStep,
-								int16_t inScale,
+								int16_t scale,
 								int16_t from,
 								int16_t to)
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	strPattern::strTrack::strStep *step;
-	uint8_t scale = mtProject.values.padBoardScale;
-	uint8_t root = 12;
+//	uint8_t scale = mtProject.values.padBoardScale;
+	uint8_t root = mtProject.values.padBoardRootNote;
 
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
 	{
@@ -218,10 +217,21 @@ bool Sequencer::isStepToFillFx(strPattern::strTrack::strStep *step,
 								int16_t fillStep)
 {
 	if (fillStep > 0 && offset % fillStep == 0) return true;
-	else if (fillStep == fillStepRandom && random(0, 10) > 6) return true;
-	else if (fillStep == fillStepOccupied && (step->fx[fxIndex].type > 0)) return true;
-	else if (fillStep == fillStepEmpty && step->fx[fxIndex].type == 0)
-		return true;
+
+	else if (fillStep == fillStepRandom
+			&& random(0, 10) > 6) return true;
+
+	else if (fillStep == fillStepNoFx &&
+			step->fx[fxIndex].type == 0) return true;
+
+	else if (fillStep == fillStepFx &&
+			step->fx[fxIndex].type != 0) return true;
+
+	else if (fillStep == fillStepNoNote &&
+			step->note < 0) return true;
+
+	else if (fillStep == fillStepNote &&
+			step->note >= 0) return true;
 
 	return false;
 }
@@ -230,10 +240,23 @@ bool Sequencer::isStepToFillNote(strPattern::strTrack::strStep *step,
 									int16_t fillStep)
 {
 	if (fillStep > 0 && offset % fillStep == 0) return true;
-	else if (fillStep == fillStepRandom && random(0, 10) > 6) return true;
-	else if (fillStep == fillStepOccupied && step->note >= 0) return true;
-	else if (fillStep == fillStepEmpty && step->note == STEP_NOTE_EMPTY)
-		return true;
+
+	else if (fillStep == fillStepRandom
+			&& random(0, 10) > 6) return true;
+
+	else if (fillStep == fillStepNoFx &&
+			step->fx[0].type == 0 &&
+			step->fx[1].type == 0) return true;
+
+	else if (fillStep == fillStepFx &&
+			(step->fx[0].type != 0 ||
+					step->fx[1].type != 0)) return true;
+
+	else if (fillStep == fillStepNoNote &&
+			step->note < 0) return true;
+
+	else if (fillStep == fillStepNote &&
+			step->note >= 0) return true;
 
 	return false;
 }
@@ -800,7 +823,6 @@ void Sequencer::clearSelected(strSelection * selection, uint8_t elements)
 	}
 }
 
-
 void Sequencer::clearPattern(strPattern * patt)
 {
 
@@ -825,7 +847,7 @@ void Sequencer::clearPattern(strPattern * patt)
 
 void Sequencer::clearSingleTrack(strPattern::strTrack *track)
 {
-	for(uint8_t i = 0; i < MAXSTEP; i++)
+	for (uint8_t i = 0; i < MAXSTEP; i++)
 	{
 		clearStep(&track->step[i]);
 	}

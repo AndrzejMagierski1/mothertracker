@@ -536,6 +536,28 @@ void cConfigEditor::showCCouts(uint8_t listPosition)
 	setDataForLists(listPosition, CC_OUTS_NUM);
 	changeLabelText(4, "CC out");
 }
+/// TUTUTUT
+void cConfigEditor::showMidiNotesFrom(uint8_t listPosition)
+{
+
+	for(uint8_t i = 0; i < NOTES_FROM_NUM; i++)
+	{
+		listDataForLists(listPosition, i, &notesFrom[i][0]);
+	}
+
+	setDataForLists(listPosition, NOTES_FROM_NUM);
+	changeLabelText(4, "Notes from");
+}
+void cConfigEditor::showMidiNotesChannels(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < NOTES_FROM_CHANNEL_NUM; i++)
+	{
+		listDataForLists(listPosition, i, &notesFromChannel[i][0]);
+	}
+
+	setDataForLists(listPosition, NOTES_FROM_CHANNEL_NUM);
+	changeLabelText(4, "Notes channel");
+}
 
 void cConfigEditor::showCCnumber(uint8_t listPosition)
 {
@@ -717,6 +739,12 @@ void cConfigEditor::processChangeInGroup1()
 			break;
 		case configMIDICcout:
 			showCCouts(2);
+			break;
+		case configMIDINotesFrom:
+			showMidiNotesFrom(2);
+			break;
+		case configMIDINotesChannel:
+			showMidiNotesChannels(2);
 			break;
 		default:
 			break;

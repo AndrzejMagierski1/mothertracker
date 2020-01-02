@@ -25,8 +25,11 @@ public:
 	};
 	enum enFillStep
 	{
-		fillStepOccupied = -1,
-		fillStepEmpty = -2,
+
+		fillStepNote = -4,
+		fillStepNoNote = -3,
+		fillStepFx = -2,
+		fillStepNoFx = -1,
 		fillStepRandom = 0,
 		fillStepByStep = 1,
 	};
