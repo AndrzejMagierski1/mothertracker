@@ -31,7 +31,7 @@
 uint8_t hardwareTest;
 
 //-------- TACT POWER SWITCH -------------
-uint8_t lastState = 1;;
+uint8_t lastState = 1;
 
 void TactSwitchRead();
 void updateEncoder();
@@ -72,13 +72,11 @@ KEYS tactButtons;
 void KeypadISR()
 {  //Keypad Interrupt Service Routine
 	Keypad.keyInt = 1;
-	//todo:odczytywac tu stany i buforowac jezeli by jeszcze kiedys zamulalo
 }
 
 void ButtonsISR()
 {  //Keypad Interrupt Service Routine
 	tactButtons.keyInt = 1;
-	//todo:odczytywac tu stany i buforowac jezeli by jeszcze kiedys zamulalo
 }
 
 
@@ -257,8 +255,10 @@ void hidSendButtonState(uint16_t button, uint16_t state)
 
 
 elapsedMicros i2cRefreshTimer;
+elapsedMicros i2c2TimoutTimer;
+elapsedMicros i2c1TimoutTimer;
 uint8_t i2c_switch;
-
+constexpr uint16_t I2C_TIMEOUT_US = 5000;
 
 void updateHardware()
 {
@@ -284,13 +284,30 @@ void updateHardware()
 				{
 					if(!leds.update_all_leds())	i2c_switch++;
 				}
-
+				i2c2TimoutTimer = 0;
 				/*if(i2c_switch < 2) i2cRefreshTimer = 0;*/
+			}
+			else
+			{
+				if(i2c2TimoutTimer > I2C_TIMEOUT_US )
+				{
+					Wire2.begin(I2C_MASTER, 0x00, GRID_I2C_SCL, GRID_I2C_SDA, I2C_PULLUP_EXT, 400000);
+				}
 			}
 
 			if (Wire.done())
 			{
 				tactButtons.update();
+				i2c1TimoutTimer = 0;
+			}
+			else
+			{
+				if(i2c1TimoutTimer > I2C_TIMEOUT_US )
+				{
+					Wire.i2c->currentSCL = 47;
+					Wire.i2c->currentSDA = 48;
+					Wire.begin();
+				}
 			}
 		}
 

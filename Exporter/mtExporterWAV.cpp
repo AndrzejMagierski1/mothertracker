@@ -13,6 +13,7 @@ void setOnLastExportStep()
 	{
 		case  mtExporter::exportType::pattern : 		exporter.patternExporter.setOnLastStep();											break;
 		case  mtExporter::exportType::patternStems : 	exporter.patternStemsExporter.trackExporter.localPatternExporter.setOnLastStep();	break;
+		case  mtExporter::exportType::renderSelection:  exporter.renderExporter.setOnLastStep();
 		default: break;
 	}
 }
@@ -27,6 +28,7 @@ void setOnLastExportStepInSong()
 	}
 }
 
+
 void mtExporter::begin()
 {
 	sequencer.setOnPatternEnd(setOnLastExportStep);
@@ -37,10 +39,11 @@ void mtExporter::update()
 {
 	switch(type)
 	{
-		case exportType::song : 		songExporter.update();				break;
-		case exportType::songStems : 	songStemsExporter.update();	 		break;
-		case exportType::pattern : 		patternExporter.update();			break;
-		case exportType::patternStems : patternStemsExporter.update();		break;
+		case exportType::song : 			songExporter.update();				break;
+		case exportType::songStems : 		songStemsExporter.update();	 		break;
+		case exportType::pattern : 			patternExporter.update();			break;
+		case exportType::patternStems :	 	patternStemsExporter.update();		break;
+		case exportType::renderSelection : 	renderExporter.update();			break;
 		default: break;
 	}
 }
@@ -59,6 +62,7 @@ void mtExporter::start(char * path, exportType t)
 		case exportType::songStems : 		songStemsExporter.start(path);	 		break;
 		case exportType::pattern : 			patternExporter.start(path);			break;
 		case exportType::patternStems : 	patternStemsExporter.start(path);		break;
+		case exportType::renderSelection:	renderExporter.start(path);				break;
 		default: break;
 	}
 }
@@ -71,6 +75,7 @@ uint8_t mtExporter::getProgress()
 		case exportType::songStems : 		return songStemsExporter.getProgress();		break;
 		case exportType::pattern : 			return patternExporter.getProgress();		break;
 		case exportType::patternStems : 	return patternStemsExporter.getProgress();	break;
+		case exportType::renderSelection:	return renderExporter.getProgress();		break;
 		default: break;
 	}
 	return 0;
@@ -84,6 +89,7 @@ uint8_t mtExporter::getState()
 		case exportType::songStems : 		return songStemsExporter.getStatus();		break;
 		case exportType::pattern : 			return patternExporter.getStatus();			break;
 		case exportType::patternStems : 	return patternStemsExporter.getStatus();	break;
+		case exportType::renderSelection:   return renderExporter.getStatus();			break;
 		default: break;
 	}
 	return 0;
@@ -108,6 +114,7 @@ void mtExporter::cancel()
 		case exportType::songStems : 		songStemsExporter.cancel();			break;
 		case exportType::pattern : 			patternExporter.cancel();			break;
 		case exportType::patternStems : 	patternStemsExporter.cancel();		break;
+		case exportType::renderSelection : 	renderExporter.cancel();			break;
 		default: break;
 	}
 }

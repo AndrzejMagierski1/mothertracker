@@ -158,10 +158,6 @@ void mtPatternExporter::update()
 				finish();
 			}
 		}
-
-
-
-
 	}
 }
 
