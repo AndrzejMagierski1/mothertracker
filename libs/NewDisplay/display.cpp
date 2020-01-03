@@ -28,6 +28,7 @@
 
 #include "songIcons.h"
 
+#include "arrowIcons.h"
 
 // OBRAZY
 
@@ -49,10 +50,15 @@ const strFont fonts[displayFontCount] =
 
 const strBitmap bitmaps[displayBitmapsCount] =
 {
-	{poly_logo_160x172_l8,50000,27520,160,172,L8,160,},
+	{ poly_logo_160x172_l8,50000,27520,160,172,L8,160,},
 
 	{ playIcon20x20,78000 , 200, 20, 20, L4, 10},
 	{ loopIcon20x20,78500 , 200, 20, 20, L4, 10},
+
+	{ doubleArrowL,	79000 , 135, 18, 15, L4, 9},
+	{ doubleArrowR,	79150 , 135, 18, 15, L4, 9},
+	{ arrowU,		79300 , 64,  16, 8,  L4, 8},
+	{ arrowD,		79400 , 64,  16, 8,  L4, 8},
 
 
 };

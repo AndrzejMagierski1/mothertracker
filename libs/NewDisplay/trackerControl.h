@@ -109,6 +109,7 @@ private:
 	uint8_t displayMode;
 	uint16_t tracksSpace;
 	uint8_t columnsCount;
+	uint8_t rowCount;
 	uint8_t paramCount;
 
 	uint8_t rightOffset;

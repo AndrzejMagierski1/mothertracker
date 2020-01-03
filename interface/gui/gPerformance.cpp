@@ -225,7 +225,7 @@ void cPerformanceMode::showPerformanceFxes()
 	display.refreshControl(titleBar);
 
 	display.setControlShow(titleLabel);
-	display.setControlText(titleLabel, "Performance Fxes");
+	display.setControlText(titleLabel, "Performance FX");
 	display.refreshControl(titleLabel);
 
 	display.setControlValue(label[0], 1);
