@@ -69,10 +69,24 @@ uint8_t FileManager::loadTrack(uint8_t pattIndex, uint8_t trackIndex)
 
 	char patternToLoad[PATCH_SIZE] { 0 };
 	sprintf(patternToLoad, "Workspace/patterns/pattern_%02d.mtp", pattIndex);
-	readPatternFile(patternToLoad, sequencer.getPatternToLoadFromFile());
+
+
 
 	Sequencer::strPattern * patternFrom = (Sequencer::strPattern*) sequencer.getPatternToLoadFromFile();
 	Sequencer::strPattern * patternTo = sequencer.getActualPattern();
+
+
+
+	if (SD.exists(patternToLoad))
+	{
+		readPatternFile(patternToLoad, sequencer.getPatternToLoadFromFile());
+	}
+	else
+	{
+		sequencer.clearPattern(patternFrom);
+	}
+
+
 
 	patternTo->track[trackIndex] = patternFrom->track[trackIndex];
 
