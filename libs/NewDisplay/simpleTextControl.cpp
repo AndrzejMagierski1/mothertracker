@@ -125,7 +125,6 @@ uint8_t cSimpleText::memCpy(uint32_t address)
 uint8_t cSimpleText::append(uint32_t address)
 {
 	API_CMD_APPEND(address, ramSize);
-	Serial.print("append");
 
 	return 0;
 }

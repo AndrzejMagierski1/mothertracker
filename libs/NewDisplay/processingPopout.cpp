@@ -178,7 +178,6 @@ uint8_t cProcessingPop::memCpy(uint32_t address)
 uint8_t cProcessingPop::append(uint32_t address)
 {
 	API_CMD_APPEND(address, ramSize);
-	Serial.print("append");
 
 	return 0;
 }

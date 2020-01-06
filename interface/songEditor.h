@@ -61,6 +61,7 @@ public:
 	localList_t patternsList;
 
 	strFrameData frameData;
+	strLabelData doubleArrow[2];
 
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;

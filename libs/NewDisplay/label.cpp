@@ -348,17 +348,20 @@ uint8_t cLabel::update()
 */
 	if(style & controlStyleShowBitmap)
 	{
+		for(uint8_t i = 0; i<labelBitmapsCount; i++)
+		{
+			if(data->bitmaps[i].bitmapIndex)
+			{
+				// API_BITMAP_HANDLE(0);
+				API_BITMAP_SOURCE(bitmaps[data->bitmaps[i].bitmapIndex].address);
+				API_BITMAP_LAYOUT(bitmaps[data->bitmaps[i].bitmapIndex].format, bitmaps[data->bitmaps[i].bitmapIndex].linestride, bitmaps[data->bitmaps[i].bitmapIndex].height);
+				API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[data->bitmaps[i].bitmapIndex].width, bitmaps[data->bitmaps[i].bitmapIndex].height);
 
-
-		// API_BITMAP_HANDLE(0);
-		API_BITMAP_SOURCE(bitmaps[data->bitmapIndex].address);
-		API_BITMAP_LAYOUT(bitmaps[data->bitmapIndex].format, bitmaps[data->bitmapIndex].linestride, bitmaps[data->bitmapIndex].height);
-		API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[data->bitmapIndex].width, bitmaps[data->bitmapIndex].height);
-
-		API_BEGIN(BITMAPS);
-		API_VERTEX2F(data->xValue-(bitmaps[data->bitmapIndex].width/2), data->yValue);
-		API_END();
-
+				API_BEGIN(BITMAPS);
+				API_VERTEX2F(data->bitmaps[i].xValue-(bitmaps[data->bitmaps[i].bitmapIndex].width/2), data->bitmaps[i].yValue);
+				API_END();
+			}
+		}
 	}
 
     API_LIB_EndCoProList();
