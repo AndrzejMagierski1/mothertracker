@@ -280,6 +280,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 {
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
 
+	engine.clearReverb();
+
 	endFx(lastSeqFx[0],0);
 	endFx(lastSeqFx[1],1);
 	__disable_irq();
@@ -2379,7 +2381,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	__disable_irq();
 	uint8_t status;
 	float gainL=0,gainR=0;
-
+	engine.clearReverb();
 	envelopeFilterPtr->kill();
 	envelopeWtPos->kill();
 	envelopeGranPos->kill();
@@ -2511,6 +2513,8 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 	envelopeWtPos->kill();
 	envelopeGranPos->kill();
 
+	engine.clearReverb();
+
 	filterDisconnect();
 	ampPtr->gain(1.0);
 
@@ -2551,6 +2555,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 
 	filterDisconnect();
 	ampPtr->gain(1.0);
+	engine.clearReverb();
 
 	mixerL.gain(numPanChannel,1.0);
 	mixerR.gain(numPanChannel,1.0);
