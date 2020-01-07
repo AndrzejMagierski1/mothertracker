@@ -229,7 +229,7 @@ void cInterfacePopups::showInstrumentsPopup()
 	instrList.length = 64;
 	instrList.data = interfaceGlobals.ptrIntrumentsNames;
 
-	display.setControlPosition(listControl, 600, 40);
+	display.setControlPosition(listControl, 600, 30);
 	display.setControlData(listControl, &instrList);
 	display.setControlShow(listControl);
 	display.refreshControl(listControl);
@@ -259,15 +259,28 @@ void cInterfacePopups::showFxesPopup()
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleFont4);
 	display.refreshControl(textLabel1);
 
+/*
+	labelDoubleArrow.bitmaps[0].bitmapIndex = displayDoubleArrowL;
+	labelDoubleArrow.bitmaps[0].xValue = 600 + 5;
+	labelDoubleArrow.bitmaps[0].xValue = 455;
+
+	display.setControlData(textLabel2, &labelDoubleArrow);
+	display.setControlText(textLabel2, "Desc");
+	display.setControlPosition(textLabel2, 600+20, 450);
+	display.setControlSize(textLabel2, 200, 26);
+	display.setControlStyle(textLabel2, controlStyleShow | controlStyleCenterY  | controlStyleFont4 | controlStyleShowBitmap);
+	display.refreshControl(textLabel2);
+*/
+
 	//showActualInstrument();
 	ptrActualItemsList = (char**)(interfaceGlobals.ptrFxNames);
 
 	instrList.start = selectedActualItem;
-	instrList.linesCount = 16;
+	instrList.linesCount = 15;
 	instrList.length = 48;
 	instrList.data = (char**)interfaceGlobals.ptrFxNames;
 
-	display.setControlPosition(listControl, 600, 40);
+	display.setControlPosition(listControl, 600, 30);
 	display.setControlData(listControl, &instrList);
 	display.setControlShow(listControl);
 	display.refreshControl(listControl);

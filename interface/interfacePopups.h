@@ -122,6 +122,7 @@ private:
 	strList popupList;
 	strList instrList;
 	strPadNames padNamesStruct;
+	strLabelData labelDoubleArrow;
 
 	int8_t selectedActualItem = 0;
 	char** ptrActualItemsList = nullptr;
