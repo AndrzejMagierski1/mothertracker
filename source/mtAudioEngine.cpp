@@ -1082,7 +1082,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection]) playMemPtr->clearReverse();
 		break;
-		case fx_t::FX_TYPE_SAMPLE_START :
+		case fx_t::FX_TYPE_R1 :
 
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::startPoint] = 1;
 			if(fx_n == MOST_SIGNIFICANT_FX)
@@ -1108,7 +1108,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 			}
 
 		break;
-		case fx_t::FX_TYPE_TREMOLO_FAST :
+		case fx_t::FX_TYPE_R7 :
 
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::lfoAmp] = 1;
 			if(fx_n == MOST_SIGNIFICANT_FX)
@@ -1132,7 +1132,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 			}
 
 		break;
-		case fx_t::FX_TYPE_TREMOLO_SLOW :
+		case fx_t::FX_TYPE_R8 :
 
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::lfoAmp] = 1;
 
@@ -1158,7 +1158,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 
 
 		break;
-		case fx_t::FX_TYPE_VIBRATO_FAST :
+		case fx_t::FX_TYPE_R9 :
 
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::lfoFineTune] = 1;
 
@@ -1186,7 +1186,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 				}
 			}
 		break;
-		case fx_t::FX_TYPE_VIBRATO_SLOW :
+		case fx_t::FX_TYPE_R10 :
 
 			if(fx_n == MOST_SIGNIFICANT_FX)
 			{
@@ -1263,7 +1263,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 				playMemPtr->setWavetableWindow(currentSeqModValues.wavetablePosition);
 			}
 		break;
-		case fx_t::FX_TYPE_GRANULAR_POSITION :
+		case fx_t::FX_TYPE_POSITION :
 			if(fx_n == MOST_SIGNIFICANT_FX)
 			{
 				currentSeqModValues.granularPosition = map(fx_val,0,127,0,MAX_16BIT);
@@ -1645,7 +1645,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				else playMemPtr->setReverse();
 			}
 		break;
-		case fx_t::FX_TYPE_SAMPLE_START :
+		case fx_t::FX_TYPE_R1 :
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::startPoint] = 0;
 
 
@@ -1681,7 +1681,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 			}
 
 		break;
-		case fx_t::FX_TYPE_TREMOLO_FAST :
+		case fx_t::FX_TYPE_R7 :
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::lfoAmp] = 0;
 			lfoAmpPtr->stop();
 			if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoAmp])
@@ -1691,7 +1691,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 					lfoAmpPtr->stop();
 					currentSeqModValues.tremolo.amount = map(lastSeqVal[otherFx_n],0,127,0,4095);
 					currentSeqModValues.tremolo.enable = 1;
-					currentSeqModValues.tremolo.rate = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_TREMOLO_FAST ? 2048: 256 ;
+					currentSeqModValues.tremolo.rate = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_R7 ? 2048: 256 ;
 					lfoAmpPtr->init(&currentSeqModValues.tremolo);
 					lfoAmpPtr->start();
 				}
@@ -1699,7 +1699,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 			else lfoAmpPtr->stop();
 
 		break;
-		case fx_t::FX_TYPE_TREMOLO_SLOW :
+		case fx_t::FX_TYPE_R8 :
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::lfoAmp] = 0;
 
 			if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoAmp])
@@ -1709,14 +1709,14 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 					lfoAmpPtr->stop();
 					currentSeqModValues.tremolo.amount = map(lastSeqVal[otherFx_n],0,127,0,4095);
 					currentSeqModValues.tremolo.enable = 1;
-					currentSeqModValues.tremolo.rate = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_TREMOLO_FAST ? 2048: 256 ;
+					currentSeqModValues.tremolo.rate = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_R7 ? 2048: 256 ;
 					lfoAmpPtr->init(&currentSeqModValues.tremolo);
 					lfoAmpPtr->start();
 				}
 			}
 			else lfoAmpPtr->stop();
 		break;
-		case fx_t::FX_TYPE_VIBRATO_FAST :
+		case fx_t::FX_TYPE_R9 :
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::lfoFineTune] = 0;
 
 			if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoFineTune])
@@ -1726,7 +1726,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 					lfoPitchPtr->stop();
 					currentSeqModValues.vibrato.amount = map(lastSeqVal[otherFx_n],0,127,0,4095);
 					currentSeqModValues.vibrato.enable = 1;
-					currentSeqModValues.vibrato.rate = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_VIBRATO_FAST ? 2048: 256 ;
+					currentSeqModValues.vibrato.rate = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_R9 ? 2048: 256 ;
 					lfoPitchPtr->init(&currentSeqModValues.vibrato);
 					lfoPitchPtr->start();
 				}
@@ -1742,7 +1742,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				lfoPitchPtr->stop();
 			}
 		break;
-		case fx_t::FX_TYPE_VIBRATO_SLOW :
+		case fx_t::FX_TYPE_R10 :
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::lfoFineTune] = 0;
 			if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoFineTune])
 			{
@@ -1751,7 +1751,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 					lfoPitchPtr->stop();
 					currentSeqModValues.vibrato.amount = map(lastSeqVal[otherFx_n],0,127,0,4095);
 					currentSeqModValues.vibrato.enable = 1;
-					currentSeqModValues.vibrato.rate = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_VIBRATO_FAST ? 2048: 256 ;
+					currentSeqModValues.vibrato.rate = lastSeqFx[otherFx_n] == fx_t::FX_TYPE_R9 ? 2048: 256 ;
 					lfoPitchPtr->init(&currentSeqModValues.vibrato);
 					lfoPitchPtr->start();
 				}
@@ -1830,7 +1830,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				}
 			}
 		break;
-		case fx_t::FX_TYPE_GRANULAR_POSITION:
+		case fx_t::FX_TYPE_POSITION:
 
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::granularPosition] = 0;
 			if(fx_id == MOST_SIGNIFICANT_FX)

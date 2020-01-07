@@ -352,7 +352,7 @@ void Sequencer::play_microStep(uint8_t row)
 			switch (_fx.type)
 			{
 
-			case fx.FX_TYPE_NUDGE:
+			case fx.FX_TYPE_MICROMOVE:
 
 				playerRow.isOffset = 1;
 				playerRow.offsetValue = map(_fx.value + 1, 0, 100, 1, 48);
@@ -376,50 +376,32 @@ void Sequencer::play_microStep(uint8_t row)
 				instrumentPlayer[row].seqFx(0, 0, fxIndex);
 
 				break;
-			case fx.FX_TYPE_STEP_CHANCE:
+			case fx.FX_TYPE_CHANCE:
 				if (random(0, 128) > _fx.value)
 					playerRow.cancelStep = 1;
 
 				break;
 
-			case fx.FX_TYPE_SEND_CC_1:
+			case fx.FX_TYPE_SEND_CC_A:
 				usbMIDI.sendControlChange(1, _fx.value, 1);
 				break;
 
-			case fx.FX_TYPE_SEND_CC_2:
+			case fx.FX_TYPE_SEND_CC_B:
 				usbMIDI.sendControlChange(2, _fx.value, 1);
 				break;
 
-			case fx.FX_TYPE_SEND_CC_3:
+			case fx.FX_TYPE_SEND_CC_C:
 				usbMIDI.sendControlChange(3, _fx.value, 1);
 				break;
 
-			case fx.FX_TYPE_SEND_CC_4:
+			case fx.FX_TYPE_SEND_CC_D:
 				usbMIDI.sendControlChange(4, _fx.value, 1);
 				break;
 
-			case fx.FX_TYPE_SEND_CC_5:
+			case fx.FX_TYPE_SEND_CC_E:
 				usbMIDI.sendControlChange(5, _fx.value, 1);
 				break;
 
-			case fx.FX_TYPE_SEND_CC_6:
-				usbMIDI.sendControlChange(6, _fx.value, 1);
-				break;
-
-			case fx.FX_TYPE_SEND_CC_7:
-				usbMIDI.sendControlChange(7, _fx.value, 1);
-				break;
-
-			case fx.FX_TYPE_SEND_CC_8:
-				usbMIDI.sendControlChange(8, _fx.value, 1);
-				break;
-
-			case fx.FX_TYPE_SEND_CC_9:
-				usbMIDI.sendControlChange(9, _fx.value, 1);
-				break;
-			case fx.FX_TYPE_SEND_CC_10:
-				usbMIDI.sendControlChange(10, _fx.value, 1);
-				break;
 			case fx.FX_TYPE_TEMPO:
 				player.performance.tempo = float(_fx.value * 2);
 				break;
@@ -439,10 +421,6 @@ void Sequencer::play_microStep(uint8_t row)
 			if (patternStep.note == STEP_NOTE_EMPTY)
 			{
 				// wysyłam tylko fxa jeśli nie ma nuty
-				if (_fx.type > fx.FX_TYPE_NOT_SEQ_FX)
-				{
-					instrumentPlayer[row].seqFx(_fx.type, _fx.value, fxIndex);
-				}
 				switch (_fx.type)
 				{
 				case fx.FX_TYPE_ROLL:
@@ -462,6 +440,9 @@ void Sequencer::play_microStep(uint8_t row)
 						playerRow.rollVolumeStart = stepToSend.velocity;
 					}
 
+					break;
+				default:
+					instrumentPlayer[row].seqFx(_fx.type, _fx.value, fxIndex);
 					break;
 				}
 			}
@@ -1468,7 +1449,7 @@ void Sequencer::handleNoteOld(byte channel, byte note, byte velocity)
 							step->note,
 							STEP_VELO_DEFAULT);
 
-					step->fx[0].type = fx.FX_TYPE_NUDGE;
+					step->fx[0].type = fx.FX_TYPE_MICROMOVE;
 					step->fx[0].value = player.uStep;
 					break;
 				}
@@ -1562,7 +1543,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 												step->note,
 												STEP_VELO_DEFAULT);
 
-					step->fx[0].type = fx.FX_TYPE_NUDGE;
+					step->fx[0].type = fx.FX_TYPE_MICROMOVE;
 					step->fx[0].value = player.uStep;
 					break;
 				}
