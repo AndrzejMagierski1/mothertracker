@@ -102,6 +102,12 @@ void cSampleRecorder::initDisplayControls()
 	prop.data = &spectrum;
 	if(spectrumControl == nullptr)  spectrumControl = display.createControl<cSpectrum>(&prop);
 
+	doubleArrow[0].bitmaps[0].bitmapIndex = displayDoubleArrowL;
+	doubleArrow[0].bitmaps[0].xValue =  (800/8)*2+(800/16);
+	doubleArrow[0].bitmaps[0].yValue = 437;
+	doubleArrow[1].bitmaps[0].bitmapIndex = displayDoubleArrowR;
+	doubleArrow[1].bitmaps[0].xValue =  (800/8)*3+(800/16);
+	doubleArrow[1].bitmaps[0].yValue = 437;
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -299,6 +305,11 @@ void cSampleRecorder::showDefaultScreen()
 	//display.setControlShow(bgLabel);
 	//display.refreshControl(bgLabel);
 
+	display.setControlData(label[2], &doubleArrow[0]);
+	display.setControlData(label[3], &doubleArrow[1]);
+	display.setRemoveControlStyle(label[2], controlStyleShowBitmap);
+	display.setRemoveControlStyle(label[3], controlStyleShowBitmap);
+
 	// odciemnanie labela wrazie deaktywacji save po wyjeciu karty
 	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
 
@@ -346,8 +357,10 @@ void cSampleRecorder::showDefaultScreen()
 			display.setControlShow(radioFreqBarControl);
 			display.refreshControl(radioFreqBarControl);
 			display.setControlText(label[1], "Radio Freq");
-			display.setControlText(label[2], "<<");
-			display.setControlText(label[3], ">>");
+			display.setAddControlStyle(label[2], controlStyleShowBitmap);
+			display.setAddControlStyle(label[3], controlStyleShowBitmap);
+
+
 			display.setControlValue(bgLabel,243);
 
 			calcRadioFreqBarVal();
@@ -362,6 +375,8 @@ void cSampleRecorder::showDefaultScreen()
 			display.setControlText(label[2], "");
 			display.setControlText(label[3], "");
 			display.setControlValue(bgLabel,255);
+
+
 
 			if(selectedPlace == 1 || selectedPlace == 2 || selectedPlace == 3)
 			{
@@ -581,10 +596,12 @@ void cSampleRecorder::showRadio()
 	display.setControlValue(radioFreqBarControl,radioFreqBarVal);
 	display.setControlShow(radioFreqBarControl);
 	display.setControlText(label[1], "Radio Freq");
-	display.setControlText(label[2], "<<");
-	display.setControlText(label[3], ">>");
+	display.setAddControlStyle(label[2], controlStyleShowBitmap);
+	display.setAddControlStyle(label[3], controlStyleShowBitmap);
 	display.setControlText2(label[2], "");
 	display.setControlText2(label[3], "");
+	display.setControlText(label[2], "");
+	display.setControlText(label[3], "");
 
 	display.refreshControl(label[2]);
 	display.refreshControl(label[3]);
@@ -611,7 +628,8 @@ void cSampleRecorder::hideRadio()
 	display.setControlText2(label[1], "");
 	display.setControlText2(label[2], "");
 	display.setControlText2(label[3], "");
-
+	display.setRemoveControlStyle(label[2], controlStyleShowBitmap);
+	display.setRemoveControlStyle(label[3], controlStyleShowBitmap);
 
 	display.refreshControl(label[1]);
 	display.refreshControl(label[2]);

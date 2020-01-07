@@ -96,6 +96,8 @@ public:
 
 	strFrameData frameData;
 
+	strLabelData labelArrow;
+
 	hControl label[7];
 	hControl playModeListControl;
 	hControl spectrumControl;

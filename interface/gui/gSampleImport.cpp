@@ -65,6 +65,21 @@ void cSampleImporter::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 
+	labelArrow[0].bitmaps[0].bitmapIndex = displayArrowU;
+	labelArrow[0].bitmaps[0].xValue =  (800/8)*0+(800/16);
+	labelArrow[0].bitmaps[0].yValue = 460;
+	labelArrow[0].bitmaps[1].bitmapIndex = displayArrowD;
+	labelArrow[0].bitmaps[1].xValue =  (800/8)*1+(800/16);
+	labelArrow[0].bitmaps[1].yValue = 460;
+
+	labelArrow[1].bitmaps[0].bitmapIndex = displayArrowU;
+	labelArrow[1].bitmaps[0].xValue =  (800/8)*6+(800/16);
+	labelArrow[1].bitmaps[0].yValue = 460;
+	labelArrow[1].bitmaps[1].bitmapIndex = displayArrowD;
+	labelArrow[1].bitmaps[1].xValue =  (800/8)*7+(800/16);
+	labelArrow[1].bitmaps[1].yValue = 460;
+
+
 	prop2.value = 1;
 	prop2.colors = interfaceGlobals.activeLabelsColors;
 	prop2.style = 	(controlStyleCenterX | controlStyleFont3);
@@ -190,6 +205,11 @@ void cSampleImporter::showDefaultScreen()
 	display.refreshControl(titleLabel);
 
 //	showActualInstrument();
+	display.setControlData(label[0], &labelArrow[0]);
+	display.setControlData(label[6], &labelArrow[1]);
+
+	display.setAddControlStyle(label[0], controlStyleShowBitmap);
+	display.setAddControlStyle(label[6], controlStyleShowBitmap);
 
 	display.setControlText(label[0], "Micro SD");
 	display.setControlText(label[1], "");

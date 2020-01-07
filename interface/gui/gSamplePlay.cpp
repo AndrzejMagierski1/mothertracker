@@ -55,6 +55,12 @@ void cSamplePlayback::initDisplayControls()
 	prop.data  = &frameData;
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
+	labelArrow.bitmaps[0].bitmapIndex = displayArrowU;
+	labelArrow.bitmaps[0].xValue =  (800/8)*6+(800/16);
+	labelArrow.bitmaps[0].yValue = 460;
+	labelArrow.bitmaps[1].bitmapIndex = displayArrowD;
+	labelArrow.bitmaps[1].xValue =  (800/8)*7+(800/16);
+	labelArrow.bitmaps[1].yValue = 460;
 
 	for(uint8_t i = 0; i<6; i++)
 	{
@@ -201,6 +207,9 @@ void cSamplePlayback::showDefaultScreen()
 	showPlayModeList();
 
 	//display.setControlText(bottomLabel[7], "");
+
+	display.setControlData(label[6], &labelArrow);
+	display.setAddControlStyle(label[6], controlStyleShowBitmap);
 
 	display.setControlText2(label[0], "");
 	display.setControlText2(label[1], "");

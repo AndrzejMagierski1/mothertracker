@@ -242,7 +242,9 @@ void cPatternEditor::refreshPattern()
 	seq = sequencer.getPatternToUI();
 	trackerPattern.patternLength = seq->track[0].length+1;
 
-	trackerPattern.popupMode = 0;
+	// odpowiednie wylaczenie generowania zalsanianych czesci trackow
+	if(fillState)  trackerPattern.popupMode &= ~(1);
+	else trackerPattern.popupMode = 0;
 
 	if(editMode == 0)
 	{
@@ -637,6 +639,8 @@ void cPatternEditor::cancelPopups()
 		setDefaultScreenFunct();
 		showDefaultScreen();
 		refreshEditState();
+
+		PTE->trackerPattern.popupMode  &= ~(2);
 
 		if(fillState)
 		{
@@ -1640,6 +1644,12 @@ static  uint8_t functNote(uint8_t state)
 
 		PTE->cancelPopups();
 
+		if(tactButtons.isButtonPressed(interfaceButtonPattern)) //zmiana widoku na 8 trackow
+		{
+			PTE->setPatternViewMode(1);
+		}
+		else PTE->changePatternViewMode(1);
+
 		if(PTE->fillState > 0)
 		{
 			PTE->showFillPopup();
@@ -1648,12 +1658,6 @@ static  uint8_t functNote(uint8_t state)
 
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
-
-		if(tactButtons.isButtonPressed(interfaceButtonPattern)) //zmiana widoku na 8 trackow
-		{
-			PTE->setPatternViewMode(1);
-		}
-		else PTE->changePatternViewMode(1);
 	}
 	else if(state == buttonHold
 			&& mtPopups.getStepPopupState() == stepPopupNone
@@ -1705,6 +1709,12 @@ static  uint8_t functInstrument(uint8_t state)
 
 		PTE->cancelPopups();
 
+		if(tactButtons.isButtonPressed(interfaceButtonPattern)) //zmiana widoku na 8 trackow
+		{
+			PTE->setPatternViewMode(2);
+		}
+		else PTE->changePatternViewMode(2);
+
 		if(PTE->fillState > 0)
 		{
 			PTE->wasNotesEditBefore = 0;
@@ -1714,12 +1724,6 @@ static  uint8_t functInstrument(uint8_t state)
 
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
-
-		if(tactButtons.isButtonPressed(interfaceButtonPattern)) //zmiana widoku na 8 trackow
-		{
-			PTE->setPatternViewMode(2);
-		}
-		else PTE->changePatternViewMode(2);
 	}
 	else if(state == buttonHold
 			&& mtPopups.getStepPopupState() == stepPopupNone
@@ -1732,7 +1736,7 @@ static  uint8_t functInstrument(uint8_t state)
 		//PTE->lightUpPadBoard();
 
 		// odswiezenie paternu bez danych zakrytych przez popup
-		PTE->trackerPattern.popupMode = 1;
+		PTE->trackerPattern.popupMode |= 1;
 		display.refreshControl(PTE->patternControl);
 	}
 	else if(state == buttonRelease)
@@ -1769,6 +1773,12 @@ static  uint8_t functFx1(uint8_t state)
 
 		PTE->cancelPopups();
 
+		if(tactButtons.isButtonPressed(interfaceButtonPattern)) //zmiana widoku na 8 trackow
+		{
+			PTE->setPatternViewMode(3);
+		}
+		else PTE->changePatternViewMode(3);
+
 		if(PTE->fillState > 0)
 		{
 			PTE->showFillPopup();
@@ -1777,12 +1787,6 @@ static  uint8_t functFx1(uint8_t state)
 
 		PTE->focusOnPattern();
 		PTE->lightUpPadBoard();
-
-		if(tactButtons.isButtonPressed(interfaceButtonPattern)) //zmiana widoku na 8 trackow
-		{
-			PTE->setPatternViewMode(3);
-		}
-		else PTE->changePatternViewMode(3);
 	}
 	else if(state == buttonHold
 			&& mtPopups.getStepPopupState() == stepPopupNone
@@ -1802,7 +1806,7 @@ static  uint8_t functFx1(uint8_t state)
 		//PTE->lightUpPadBoard();
 
 		// odswiezenie paternu bez danych zakrytych przez popup
-		PTE->trackerPattern.popupMode = 1;
+		PTE->trackerPattern.popupMode |= 1;
 		display.refreshControl(PTE->patternControl);
 	}
 	else if(state == buttonRelease)
@@ -1827,20 +1831,21 @@ static  uint8_t functFx2(uint8_t state)
 
 		PTE->cancelPopups();
 
-		if(PTE->fillState > 0)
-		{
-			PTE->showFillPopup();
-			return 1;
-		}
-
-		PTE->focusOnPattern();
-		PTE->lightUpPadBoard();
-
 		if(tactButtons.isButtonPressed(interfaceButtonPattern)) //zmiana widoku na 8 trackow
 		{
 			PTE->setPatternViewMode(4);
 		}
 		else PTE->changePatternViewMode(4);
+
+		if(PTE->fillState > 0)
+		{
+			PTE->showFillPopup();
+			PTE->trackerPattern.popupMode |= 2;
+			return 1;
+		}
+
+		PTE->focusOnPattern();
+		PTE->lightUpPadBoard();
 	}
 	else if(state == buttonHold
 			&& mtPopups.getStepPopupState() == stepPopupNone
@@ -1860,7 +1865,8 @@ static  uint8_t functFx2(uint8_t state)
 		//PTE->lightUpPadBoard();
 
 		// odswiezenie paternu bez danych zakrytych przez popup
-		PTE->trackerPattern.popupMode = 1;
+		PTE->trackerPattern.popupMode |= 1;
+
 		display.refreshControl(PTE->patternControl);
 	}
 	else if(state == buttonRelease)
@@ -2286,7 +2292,7 @@ static  uint8_t functPreview()
 static  uint8_t functFill()
 {
 	PTE->fillState = 1;
-
+	PTE->trackerPattern.popupMode |= 2;
 	PTE->focusOnPattern();
 
 	PTE->showFillPopup();

@@ -249,16 +249,24 @@ void cTracker::refresh1()
 	if(displayMode > 0)
 	{
 		tracksSpace = (800 - (rightOffset + leftOffset)) / 8;
-		columnsCount = tracks->popupMode ? 6 : 8;
+		columnsCount = (tracks->popupMode & 1) == 1 ? 6 : 8;
 		paramCount = (displayMode & 1) + ((displayMode & 2) >> 1) + ((displayMode & 4) >> 2) + ((displayMode & 8) >> 3);
 	}
 	else
 	{
-		columnsCount = tracks->popupMode ? 3 : 4;
+		columnsCount = (tracks->popupMode & 1) ? 3 : 4;
 		tracksSpace = (800 - (rightOffset + leftOffset)) / 4;
 		paramCount = 4;
 	}
 
+	if(tracks->popupMode & 2)
+	{
+		rowCount = 8;
+	}
+	else
+	{
+		rowCount = 15;
+	}
 
 
 
@@ -347,10 +355,9 @@ void cTracker::backgroundDivider()
 	API_LINE_WIDTH(16);
 	API_COLOR(colors[11]);
 
-	for(uint16_t i = 0; i < 15; i++)
+	for(uint16_t i = 0; i < columnsCount; i++)
 	{
 		if(div_row < 0 || div_row > tracks->patternLength-1)
-
 		{
 			div_row++;
 			continue;
@@ -784,7 +791,7 @@ void cTracker::rowNumbers()
 			continue;
 		}
 		Number2Bitmaps(0, (i*28)+15, 8, 18, row);
-		if(!tracks->popupMode) Number2Bitmaps((799-25), posY+(i*28)+15, 8, 18, row); // nie wyswietla prawego jesli popup go zaslania
+		if(!(tracks->popupMode & 1)) Number2Bitmaps((799-25), posY+(i*28)+15, 8, 18, row); // nie wyswietla prawego jesli popup go zaslania
 		row++;
 	}
 
@@ -862,7 +869,7 @@ void cTracker::notes()
 
 	for(uint16_t i = 0; i < columnsCount; i++)
 	{
-		for(uint16_t j = 0; j < 15; j++)
+		for(uint16_t j = 0; j < rowCount; j++)
 		{
 			int16_t param_x = offset_x+i*tracksSpace;
 			int16_t param_y = 14+j*28;
@@ -906,7 +913,7 @@ void cTracker::instruments()
 
 	for(uint16_t i = 0; i < columnsCount; i++)
 	{
-		for(uint16_t j = 0; j < 15; j++)
+		for(uint16_t j = 0; j < rowCount; j++)
 		{
 			int16_t param_x = offset_x+i*tracksSpace;
 			int16_t param_y = 14+j*28;
@@ -950,7 +957,7 @@ void cTracker::fxes1()
 
 	for(uint16_t i = 0; i < columnsCount; i++)
 	{
-		for(uint16_t j = 0; j < 15; j++)
+		for(uint16_t j = 0; j < rowCount; j++)
 		{
 
 			int16_t param_x = offset_x+i*tracksSpace;
@@ -990,7 +997,7 @@ void cTracker::fxes2()
 
 	for(uint16_t i = 0; i < columnsCount; i++)
 	{
-		for(uint16_t j = 0; j < 15; j++)
+		for(uint16_t j = 0; j < rowCount; j++)
 		{
 
 			int16_t param_x = offset_x+i*tracksSpace;

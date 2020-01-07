@@ -68,6 +68,14 @@ void cSongEditor::initDisplayControls()
 	prop1.x = (800/8)*7+1;
 	if(barControl[1] == nullptr)  barControl[1] = display.createControl<cBar>(&prop1);
 
+
+	doubleArrow[0].bitmaps[0].bitmapIndex = displayDoubleArrowL;
+	doubleArrow[0].bitmaps[0].xValue =  (800/8)*5+(800/16);
+	doubleArrow[0].bitmaps[0].yValue = 460;
+	doubleArrow[1].bitmaps[0].bitmapIndex = displayDoubleArrowR;
+	doubleArrow[1].bitmaps[0].xValue =  (800/8)*6+(800/16);
+	doubleArrow[1].bitmaps[0].yValue = 460;
+
 	prop2.text = (char*)"";
 	prop2.colors = interfaceGlobals.activeLabelsColors;
 	prop2.style = 	(controlStyleCenterX | controlStyleCenterY);
@@ -75,6 +83,7 @@ void cSongEditor::initDisplayControls()
 	for(uint8_t i = 0; i < 8; i++)
 	{
 		prop2.x = (800/8)*i+(800/16);
+		if(i == 5) prop2.x = (800/8)*i+(800/8);
 		prop2.w = 800/8-6;
 		prop2.y = 452;
 		prop2.h =  59;
@@ -82,7 +91,7 @@ void cSongEditor::initDisplayControls()
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
 
-	prop2.value = 252;
+	prop2.value = 191;
 	prop2.text = nullptr;
 	prop2.colors = interfaceGlobals.activeBgLabelsColors;
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
@@ -150,6 +159,11 @@ void cSongEditor::showDefaultScreen()
 	display.setControlValue(label[5], 1);
 	display.setControlValue(label[6], 1);
 
+	display.setControlData(label[5], &doubleArrow[0]);
+	display.setControlData(label[6], &doubleArrow[1]);
+	display.setAddControlStyle(label[5], controlStyleShowBitmap);
+	display.setAddControlStyle(label[6], controlStyleShowBitmap);
+
 
 	display.setControlText(label[0], "Add");
 	display.setControlText2(label[0], "Row");
@@ -163,11 +177,11 @@ void cSongEditor::showDefaultScreen()
 
 	display.setControlText(label[4], "");
 
-	display.setControlText(label[5], "<");
-	display.setControlText2(label[5], "pattern");
+	display.setControlText2(label[5], "");
+	display.setControlText(label[5], "Pattern");
 
-	display.setControlText(label[6], ">");
-	display.setControlText2(label[6], "pattern");
+	display.setControlText(label[6], "");
+	display.setControlText2(label[6], "");
 
 	display.setControlText2(label[7], "Tempo");
 

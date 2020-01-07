@@ -25,7 +25,7 @@
 #ifndef DebugMacros_h
 #define DebugMacros_h
 #include "FsConfig.h"
-#define USE_DBG_MACROS 0
+#define USE_DBG_MACROS 1
 
 #if USE_DBG_MACROS
 

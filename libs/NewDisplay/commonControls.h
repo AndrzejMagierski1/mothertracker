@@ -1,15 +1,19 @@
 #ifndef LIBS_NEWDISPLAY_COMMONCONTROLS_H_
 #define LIBS_NEWDISPLAY_COMMONCONTROLS_H_
 
+const uint8_t labelBitmapsCount = 2;
 
 struct strLabelData
 {
-	uint16_t xValue;
-	uint16_t yValue;
+	struct bitmap
+	{
+		uint16_t xValue;
+		uint16_t yValue;
+		uint8_t bitmapIndex = 0;
+	} bitmaps[labelBitmapsCount];
 
 	uint16_t styleValue;
 
-	uint8_t bitmapIndex;
 
 };
 

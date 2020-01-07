@@ -49,7 +49,7 @@ public:
 
 	strFrameData frameData;
 
-
+	strLabelData labelArrow[2];
 
 	hControl label[8] = {nullptr};
 

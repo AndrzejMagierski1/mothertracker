@@ -62,6 +62,10 @@ enum enDisplayBitmaps
 	displayPlayIcon,
 	displayLoopIcon,
 
+	displayDoubleArrowL,
+	displayDoubleArrowR,
+	displayArrowU,
+	displayArrowD,
 
 	displayBitmapsCount,
 };

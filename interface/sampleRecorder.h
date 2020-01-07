@@ -204,6 +204,8 @@ public:
 	strTrackerSpectrum spectrum;
 	strTrackerPoints points;
 
+	strLabelData doubleArrow[2];
+
 	elapsedMillis refreshSpectrumTimer;
 
 
