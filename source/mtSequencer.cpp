@@ -625,10 +625,11 @@ void Sequencer::play_microStep(uint8_t row)
 			playerRow.stepToSend = playerRow.stepSent;
 			playerRow.noteOpen = 1;
 			playerRow.noteTimer = 0; // od tej pory timer liczy w górę
-			sendNoteOn(row,
-						playerRow.stepToSend.note,
-						playerRow.stepToSend.velocity,
-						playerRow.stepToSend.instrument);
+//			sendNoteOn(row,
+//						playerRow.stepToSend.note,
+//						playerRow.stepToSend.velocity,
+//						playerRow.stepToSend.instrument);
+			sendNoteOn(row, &playerRow.stepToSend);
 
 			playerRow.stepSent = playerRow.stepToSend;
 		}
@@ -675,10 +676,12 @@ void Sequencer::play_microStep(uint8_t row)
 					stepToSend.velocity = getRollVelo(row);
 				}
 
-				sendNoteOn(row,
-							playerRow.stepToSend.note,
-							playerRow.stepToSend.velocity,
-							playerRow.stepToSend.instrument);
+//				sendNoteOn(row,
+//							playerRow.stepToSend.note,
+//							playerRow.stepToSend.velocity,
+//							playerRow.stepToSend.instrument);
+				sendNoteOn(row, &playerRow.stepToSend);
+
 
 				playerRow.stepSent = playerRow.stepToSend;
 			}
