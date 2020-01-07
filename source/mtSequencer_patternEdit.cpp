@@ -219,6 +219,7 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 			}
 		}
 	}
+
 }
 
 bool Sequencer::isStepToFillFx(strPattern::strTrack::strStep *step,
@@ -1277,6 +1278,9 @@ int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
 		break;
 	case fx.FX_TYPE_MICROTUNING:
 		return actualStep->fx[fxID].value - 99;
+		break;
+	case fx.FX_TYPE_SAMPLE_SLICE:
+		return actualStep->fx[fxID].value + 1;
 		break;
 
 	default:
