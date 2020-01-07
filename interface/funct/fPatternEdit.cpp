@@ -10,7 +10,7 @@
 #include "interfacePopups.h"
 
 #include "keyScanner.h"
-
+#include "sdramTest.h"
 
 cPatternEditor patternEditor;
 static  cPatternEditor* PTE = &patternEditor;
@@ -23,6 +23,7 @@ extern uint32_t patternTrackerSelectionColor;
 static  uint8_t functChangePattern(uint8_t state);
 static  uint8_t functChangePatternLength(uint8_t state);
 static  uint8_t functChangePatternEditStep(uint8_t state);
+static  uint8_t functRamTest(uint8_t state);
 static  uint8_t functFill();
 static  uint8_t functPreview();
 static  uint8_t functTranspose();
@@ -215,6 +216,7 @@ void cPatternEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton0, functChangePattern);
 	FM->setButtonObj(interfaceButton1, functChangePatternLength);
 	FM->setButtonObj(interfaceButton2, functChangePatternEditStep);
+	FM->setButtonObj(interfaceButton6, functRamTest);
 //	FM->setButtonObj(interfaceButton2, functChangePatternEditStep);
 
 
@@ -2248,6 +2250,22 @@ static  uint8_t functChangePatternEditStep(uint8_t state)
 
 	return 1;
 }
+
+static  uint8_t functRamTest(uint8_t state)
+{
+	if(state == buttonPress)
+	{
+		sdramTester.test();
+	}
+	else if(state == buttonRelease)
+	{
+
+	}
+
+
+
+	return 1;
+}
 //##############################################################################################
 //###############################             PREVIEW          #################################
 //##############################################################################################
@@ -2263,6 +2281,7 @@ static  uint8_t functPreview()
 //##############################################################################################
 //###############################             FILL             #################################
 //##############################################################################################
+
 
 static  uint8_t functFill()
 {
@@ -2500,7 +2519,7 @@ static uint8_t functTranspose()
 	//--------------------------------------------------------
 	//TU
 
-
+	functRamTest(1);
 
 	//--------------------------------------------------------
 	return 1;
