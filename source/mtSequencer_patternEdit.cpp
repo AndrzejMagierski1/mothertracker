@@ -1143,39 +1143,43 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 {
 	switch (fxID)
 	{
-	case fx.FX_TYPE_NUDGE:
+	case fx.FX_TYPE_VELOCITY:
+		return 100;
+	case fx.FX_TYPE_PANNING:
+		return 100;
+	case fx.FX_TYPE_MICROTUNING:
+		return 198;
+
+
+
+
+	case fx.FX_TYPE_MICROMOVE:
 		return 100;
 	case fx.FX_TYPE_TEMPO:
 		return 200;
-	case fx.FX_TYPE_PANNING:
-		return 100;
 	case fx.FX_TYPE_OFF:
 		return 0;
-	case fx.FX_TYPE_VELOCITY:
-		return 127;
 	case fx.FX_TYPE_RANDOM_INSTRUMENT:
 		return 47;
+	case fx.FX_TYPE_RANDOM_VALUE:
+		return 255;
+	case fx.FX_TYPE_SAMPLE_SLICE:
+		return 47;
+	case fx.FX_TYPE_PROGRAM_CHANGE:
+		return 127;
 	case fx.FX_TYPE_ROLL:
-		//		case fx.FX_TYPE_ROLL_NOTE_UP:
-//		case fx.FX_TYPE_ROLL_NOTE_DOWN:
-//		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
 		return (fx.ROLL_PERIOD_MAX + 1) * (fx.rollNoteDir_max + 1) - 1;
 
-	case fx.FX_TYPE_SEND_CC_1:
-		case fx.FX_TYPE_SEND_CC_2:
-		case fx.FX_TYPE_SEND_CC_3:
-		case fx.FX_TYPE_SEND_CC_4:
-		case fx.FX_TYPE_SEND_CC_5:
-		case fx.FX_TYPE_SEND_CC_6:
-		case fx.FX_TYPE_SEND_CC_7:
-		case fx.FX_TYPE_SEND_CC_8:
-		case fx.FX_TYPE_SEND_CC_9:
-		case fx.FX_TYPE_SEND_CC_10:
+	case fx.FX_TYPE_SEND_CC_A:
+		case fx.FX_TYPE_SEND_CC_B:
+		case fx.FX_TYPE_SEND_CC_C:
+		case fx.FX_TYPE_SEND_CC_D:
+		case fx.FX_TYPE_SEND_CC_E:
 		return 127;
 
 	default:
-		return 255;
+		return 100;
 	}
 }
 
@@ -1183,18 +1187,15 @@ int16_t Sequencer::getFxMin(uint8_t fxID)
 {
 	switch (fxID)
 	{
-	case fx.FX_TYPE_NUDGE:
+	case fx.FX_TYPE_MICROMOVE:
 		return 0;
 	case fx.FX_TYPE_TEMPO:
 		return 5;
 	case fx.FX_TYPE_PANNING:
 		return 0;
 
-	case fx.FX_TYPE_ROLL:
-		//		case fx.FX_TYPE_ROLL_NOTE_UP:
-//		case fx.FX_TYPE_ROLL_NOTE_DOWN:
-//		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
 
+	case fx.FX_TYPE_ROLL:
 		return fx.ROLL_PERIOD_MIN;
 
 	default:
@@ -1221,6 +1222,8 @@ int16_t Sequencer::getFxDefault(uint8_t fxID)
 
 	case fx.FX_TYPE_PANNING:
 		return 50;
+	case fx.FX_TYPE_MICROTUNING:
+		return 99;
 
 	default:
 		return 0;
@@ -1266,6 +1269,9 @@ int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
 	case fx.FX_TYPE_PANNING:
 		return actualStep->fx[fxID].value - 50;
 		break;
+	case fx.FX_TYPE_MICROTUNING:
+		return actualStep->fx[fxID].value - 99;
+		break;
 
 	default:
 		return actualStep->fx[fxID].value;
@@ -1287,6 +1293,9 @@ void Sequencer::makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track,
 				getRollTypeChar(actualStep->fx[fxID].value),
 				rollValueToPeriod(
 						actualStep->fx[fxID].value % (fx.ROLL_PERIOD_MAX + 1)));
+		break;
+	case fx.FX_TYPE_OFF:
+		strcpy(ptr, "OFF");
 		break;
 
 	default:
