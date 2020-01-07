@@ -159,7 +159,7 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 												fromVal,
 												toVal);
 				step->fx[fxIndex].type =
-						(fxType >= 0) ? fxType : random(0, FX_MAX + 1);
+						(fxType >= 0) ? fxType : randomFx();
 
 				step->fx[fxIndex].value = constrain(
 						step->fx[fxIndex].value,
@@ -169,6 +169,16 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 			}
 		}
 	}
+}
+uint8_t Sequencer::randomFx()
+{
+	uint8_t retVal;
+	for (uint8_t a = 0; a < 100; a++)
+	{
+		retVal = random(0, FX_MAX + 1);
+		if(retVal != fx.FX_TYPE_TEMPO) break;
+	}
+	return retVal;
 }
 void Sequencer::fillRandomFx(int16_t fxIndex,
 								int16_t fillStep,
@@ -199,7 +209,7 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 
 				step->fx[fxIndex].value = random(fromVal, toVal + 1);
 				step->fx[fxIndex].type =
-						(fxType >= 0) ? fxType : random(0, FX_MAX + 1);
+						(fxType >= 0) ? fxType : randomFx();
 
 				step->fx[fxIndex].value = constrain(
 						step->fx[fxIndex].value,
@@ -1150,9 +1160,6 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 	case fx.FX_TYPE_MICROTUNING:
 		return 198;
 
-
-
-
 	case fx.FX_TYPE_MICROMOVE:
 		return 100;
 	case fx.FX_TYPE_TEMPO:
@@ -1193,7 +1200,6 @@ int16_t Sequencer::getFxMin(uint8_t fxID)
 		return 5;
 	case fx.FX_TYPE_PANNING:
 		return 0;
-
 
 	case fx.FX_TYPE_ROLL:
 		return fx.ROLL_PERIOD_MIN;
