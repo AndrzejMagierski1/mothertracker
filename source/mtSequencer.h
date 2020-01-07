@@ -653,6 +653,8 @@ public:
 						int16_t fromVal,
 						int16_t toVal);
 
+	uint8_t randomFx();
+
 	bool isStepToFillNote(strPattern::strTrack::strStep *step,
 							uint8_t offset,
 							int16_t fillStep);
