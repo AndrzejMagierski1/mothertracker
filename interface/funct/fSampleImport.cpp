@@ -513,6 +513,8 @@ static  uint8_t functCancelRename()
 static  uint8_t functAutoNameRename()
 {
 	SI->keyboardManager.setRandomName();
+
+	return 1;
 }
 
 static uint8_t functCopyPaste()

@@ -1474,6 +1474,8 @@ static  uint8_t functActionConfirmSave()
 static  uint8_t functActionAutoName()
 {
 	SR->keyboardManager.setRandomName();
+
+	return 1;
 }
 
 
