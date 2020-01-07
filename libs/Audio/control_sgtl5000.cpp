@@ -515,9 +515,7 @@ bool AudioControlSGTL5000::enable(void)
 
 	//Wire.setSCL(47);
 	//Wire.setSDA(48);
-	Wire.i2c->currentSCL = 47;
-	Wire.i2c->currentSDA = 48;
-	Wire.begin();
+	Wire.begin(I2C_MASTER, 0x00, I2C_PINS_47_48, I2C_PULLUP_EXT, 400000,I2C_OP_MODE_IMM);
 //	Wire.setSCL(47);
 //	Wire.setSDA(48);
 

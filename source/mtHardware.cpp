@@ -291,6 +291,7 @@ void updateHardware()
 			{
 				if(i2c2TimoutTimer > I2C_TIMEOUT_US )
 				{
+					i2c2TimoutTimer = 0;
 					Wire2.begin(I2C_MASTER, 0x00, GRID_I2C_SCL, GRID_I2C_SDA, I2C_PULLUP_EXT, 400000);
 				}
 			}
@@ -304,9 +305,8 @@ void updateHardware()
 			{
 				if(i2c1TimoutTimer > I2C_TIMEOUT_US )
 				{
-					Wire.i2c->currentSCL = 47;
-					Wire.i2c->currentSDA = 48;
-					Wire.begin();
+					i2c1TimoutTimer = 0;
+					Wire.begin(I2C_MASTER, 0x00, I2C_PINS_47_48, I2C_PULLUP_EXT, 400000,I2C_OP_MODE_IMM);
 				}
 			}
 		}
