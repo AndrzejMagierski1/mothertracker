@@ -2117,7 +2117,18 @@ static uint8_t functDeleteBackspace(uint8_t state)
 				}
 
 				sendSelection();
-				sequencer.clearSelected(getSelectedElement());
+				if (PTE->editParam == 3 )
+				{
+					sequencer.clearSelected(Sequencer::ELEMENTS_FX1);
+				}
+				else if (PTE->editParam == 2 )
+				{
+					sequencer.clearSelected(Sequencer::ELEMENTS_FX2);
+				}
+				else
+				{
+					sequencer.clearSelected(getSelectedElement());
+				}
 				PTE->shiftAction = 1;
 				PTE->moveCursorByStep();
 			}
