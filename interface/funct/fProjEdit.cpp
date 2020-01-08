@@ -507,7 +507,7 @@ static uint8_t functSaveProject()
 	mtProject.values.projectNotSavedFlag = 0;
 
 	if(fileManager.currentProjectName[0]) PE->keyboardManager.fillName(fileManager.currentProjectName);
-	else PE->keyboardManager.fillName("New Project");
+	else PE->keyboardManager.fillName((char *)"New Project");
 
 	PE->showProcessingPopup("Saving project");
 

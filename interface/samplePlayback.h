@@ -196,7 +196,7 @@ public:
 	uint16_t convertWavetableWindowsCounterToSize(uint8_t cnt);
 	uint8_t convertWavetableWindowsSizeToCounter(uint16_t size);
 	uint8_t wavetableWindowsCounter = 11;
-	uint8_t refreshWavetablePosition = 1;
+	uint8_t refreshWavetablePosition;
 
 	void processWavetableCursor(uint32_t position);
 

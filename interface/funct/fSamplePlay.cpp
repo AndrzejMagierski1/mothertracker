@@ -1437,8 +1437,7 @@ static void changePlayModeSelection(int16_t value)
 
 	SP->showDefaultScreen();
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 static void modStartPoint(int16_t value)
@@ -1668,9 +1667,7 @@ static void modWavetableWindowSize(int16_t value)
 	SP->showWavetableWindowSize();
 	SP->refreshSpectrum = 1;
 
-	fileManager.instrumentIsChangedFlag[mtProject.values.lastUsedInstrument]= 1;
-	mtProject.values.projectNotSavedFlag = 1;
-
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 	//instrumentPlayer[0].instrumentBasedMod.wtPos;
 }
 
