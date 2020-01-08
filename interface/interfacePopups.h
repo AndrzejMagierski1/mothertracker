@@ -69,6 +69,9 @@ public:
 
 	void lightUpPads();
 
+
+	void toggleStepPopupDescription();
+
 	//-------------------------------------
 	// global popups functs
 	void show(uint8_t config_slot, char* line1);
@@ -112,6 +115,8 @@ private:
 
 	void selectPadOnPopup(int8_t pad);
 
+	void refreshStepPopupDescription();
+
 	hControl listControl;
 	hControl keyboardControl;
 
@@ -122,11 +127,13 @@ private:
 	strList popupList;
 	strList instrList;
 	strPadNames padNamesStruct;
+	strLabelData labelDoubleArrow;
 
 	int8_t selectedActualItem = 0;
 	char** ptrActualItemsList = nullptr;
 
 	uint8_t stepPopupState = 0;
+	uint8_t stepPopupDescriptionState = 0;
 
 	//-------------------------------------
 	// global

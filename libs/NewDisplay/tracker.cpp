@@ -151,6 +151,8 @@ uint8_t cTracker::update()
 	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
+	API_SAVE_CONTEXT();
+
     switch(refreshStep)
     {
     case 0: refresh1(); break;
@@ -160,6 +162,8 @@ uint8_t cTracker::update()
     case 4: refresh5(); break;
     default: refreshStep = 0; break;
     }
+
+	API_RESTORE_CONTEXT();
 
     API_LIB_EndCoProList();
 
@@ -189,12 +193,12 @@ uint8_t cTracker::memCpy(uint32_t address)
 	//API_LIB_AwaitCoProEmpty();
 
 
-
+/*
 	if(dlOffset > 4000)
 	{
 		__asm__ __volatile__ ("bkpt #0");
 	}
-
+*/
 
     refreshStep++;
     if(refreshStep > 4)
@@ -219,13 +223,13 @@ uint8_t cTracker::append(uint32_t address)
 	API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1] +ramPartSize[2], ramPartSize[3]);
 	API_CMD_APPEND(address+ ramPartSize[0] +ramPartSize[1] +ramPartSize[2] +ramPartSize[3], ramPartSize[4]);
 
-
+/*
 	if(ramPartSize[0] +ramPartSize[1] +ramPartSize[2] +ramPartSize[3] +ramPartSize[4] > 8000)
 	{
 	//	Serial.println("ft800 cmd overload");
 		__asm__ __volatile__ ("bkpt #0");
 	}
-
+*/
 	return 0;
 }
 
@@ -324,7 +328,6 @@ void cTracker::refresh5()
 	}
 
 
-
 	tracksNumbers();
 
 	API_BLEND_FUNC(SRC_ALPHA, ZERO);
@@ -333,10 +336,7 @@ void cTracker::refresh5()
 	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 }
 
-uint32_t rgb1 = 0x30301;
-uint32_t rgb2 = 0x60605;
-uint32_t rgb3 = 0xa0a03;
-uint32_t rgb4 = 0x10100f;//0xd0d0d;
+
 //-------------------------------------------------------------------------------------
 // podzialka
 void cTracker::backgroundDivider()

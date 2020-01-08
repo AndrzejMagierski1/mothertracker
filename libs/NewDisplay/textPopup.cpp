@@ -65,18 +65,30 @@ cTextPopup::~cTextPopup()
 //--------------------------------------------------------------------------------
 void cTextPopup::setStyle(uint32_t style)
 {
+//	this->style = style;
+//
+//	textStyle =    (style & controlStyleCenterX ? OPT_CENTERX : 0)
+//				 | (style & controlStyleCenterY ? OPT_CENTERY : 0)
+//	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
+//
+//
+//	textFont = FONT_INDEX_FROM_STYLE;
+//	textFont = (textFont>=0) ? textFont : 0;
+//	fontWidth = fonts[textFont].width;
+//	fontHeight = fonts[textFont].height;
+//	textFont =  fonts[textFont].handle;
+//
 	this->style = style;
 
-	textStyle =    (style & controlStyleCenterX ? OPT_CENTERX : 0)
+	textStyle =   (style & controlStyleCenterX ? OPT_CENTERX : 0)
 				 | (style & controlStyleCenterY ? OPT_CENTERY : 0)
 	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
 
 
-	textFont = FONT_INDEX_FROM_STYLE;
+	int8_t textFont = FONT_INDEX_FROM_STYLE;
 	textFont = (textFont>=0) ? textFont : 0;
-	fontWidth = fonts[textFont].width;
-	fontHeight = fonts[textFont].height;
-	textFont =  fonts[textFont].handle;
+	font = &fonts[textFont];
+
 }
 
 void cTextPopup::setText(char* text)
@@ -187,9 +199,9 @@ uint8_t cTextPopup::update()
 
 			// styl :OOOOOOOOO
 			line_textStyle = 0;
-			line_fontWidth = fontWidth;
-			line_fontHeight = fontHeight;
-			line_textFont = textFont;
+			line_fontWidth = font->width;
+			line_fontHeight = font->height;
+			line_textFont = font->handle;
 
 			uint32_t tempStyle = *data->multiLineStyle[i];
 			if(tempStyle > 0)
@@ -198,11 +210,13 @@ uint8_t cTextPopup::update()
 									|(tempStyle & controlStyleCenterY ? OPT_CENTERY : 0)
 									|(tempStyle & controlStyleRightX  ? OPT_RIGHTX  : 0);
 
-				line_textFont = (((tempStyle >> 8) & 15)-1);
-				line_textFont = (line_textFont>=0) ? line_textFont : 0;
-				line_fontWidth = fonts[line_textFont].width;
-				line_fontHeight = fonts[line_textFont].height;
-				line_textFont =  fonts[line_textFont].handle;
+
+				int8_t textFont = (((tempStyle >> 8) & 15)-1);
+				textFont = (textFont>=0) ? textFont : 0;
+
+				line_fontWidth = fonts[textFont].width;
+				line_fontHeight = fonts[textFont].height;
+				line_textFont =  fonts[textFont].handle;
 			}
 
 			// pozycja z uwzglednieniem stylu
@@ -277,32 +291,32 @@ uint8_t cTextPopup::append(uint32_t address)
 
 	return 0;
 }
-
-void cTextPopup::string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length)
-{
-	//y = y - fontHeight/2;
-	uint8_t strPtr = 0;
-
-	API_BITMAP_HANDLE(textFont);
-	API_BEGIN(BITMAPS);
-
-	for(uint8_t i = 0; i < length; i++)
-	{
-		if(x > 799 || y > 479 || x < 0 || y < 0)
-		{
-			strPtr++;
-		}
-		else if((x > 511 || y > 511) && string[strPtr] >=32)
-		{
-			API_CELL(string[strPtr++]);
-			API_VERTEX2F(x, y);
-		}
-		else if(string[strPtr] >=32)
-		{
-			API_VERTEX2II(x,y, textFont, (char)string[strPtr++]);
-		}
-		x+=fontWidth;
-	}
-
-	API_END();
-}
+//
+//void cTextPopup::string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length)
+//{
+//	//y = y - fontHeight/2;
+//	uint8_t strPtr = 0;
+//
+//	API_BITMAP_HANDLE(textFont);
+//	API_BEGIN(BITMAPS);
+//
+//	for(uint8_t i = 0; i < length; i++)
+//	{
+//		if(x > 799 || y > 479 || x < 0 || y < 0)
+//		{
+//			strPtr++;
+//		}
+//		else if((x > 511 || y > 511) && string[strPtr] >=32)
+//		{
+//			API_CELL(string[strPtr++]);
+//			API_VERTEX2F(x, y);
+//		}
+//		else if(string[strPtr] >=32)
+//		{
+//			API_VERTEX2II(x,y, textFont, (char)string[strPtr++]);
+//		}
+//		x+=fontWidth;
+//	}
+//
+//	API_END();
+//}

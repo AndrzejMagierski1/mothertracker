@@ -78,7 +78,7 @@ public:
 	const strFont* font2;
 
 
-	strLabelData* data;
+	strLabelData* data = nullptr;
 
 	char* text2 = nullptr;
 	uint32_t style2 = 0;

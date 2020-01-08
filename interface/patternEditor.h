@@ -164,6 +164,8 @@ public:
 //	hControl titleLabel;
 //	hControl instrumentLabel;
 
+	strLabelData labelArrow;
+
 	strFrameData frameData;
 
 	int8_t selectedPlace = -1;
