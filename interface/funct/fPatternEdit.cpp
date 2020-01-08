@@ -583,6 +583,11 @@ void cPatternEditor::moveCursorByStep(uint8_t val)
 	{
 		trackerPattern.actualStep = mtProject.values.patternEditStep  + val - ((patternLength+1)-trackerPattern.actualStep);
 	}
+
+	PTE->trackerPattern.selectState = 1;
+	PTE->trackerPattern.selectColumn = 0;
+	PTE->isSelectingNow = 0;
+
 }
 
 
