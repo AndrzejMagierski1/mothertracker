@@ -1,5 +1,4 @@
 #include "mtSamplesLoader.h"
-
 extern int16_t sdram_effectsBank[4*1024*1024];
 extern int16_t sdram_sampleBank[4*1024*1024];
 
@@ -118,14 +117,16 @@ void SamplesLoader::update()
 			mtProject.instrument[currentIndex].isActive=1;
 			mtProject.instrument[currentIndex].sample.length = currentSize;
 			if(mtProject.instrument[currentIndex].granular.grainLength > mtProject.instrument[currentIndex].sample.length) mtProject.instrument[currentIndex].granular.grainLength = mtProject.instrument[currentIndex].sample.length;
+
 			if(mtProject.instrument[currentIndex].playMode == playModeWavetable)
 			{
 				mtProject.instrument[currentIndex].sample.type = mtSampleTypeWavetable;
-
+				uint32_t lastCurrentWindow = mtProject.instrument[currentIndex].wavetableCurrentWindow;
+				uint32_t lastWindowNumber = mtProject.instrument[currentIndex].sample.wavetableWindowNumber;
 				mtProject.instrument[currentIndex].sample.wavetable_window_size =
 						(mtProject.instrument[currentIndex].sample.length >= mtProject.instrument[currentIndex].sample.wavetable_window_size) ?
 						mtProject.instrument[currentIndex].sample.wavetable_window_size : mtProject.instrument[currentIndex].sample.length;
-				mtProject.instrument[currentIndex].wavetableCurrentWindow = 0;
+
 				//*******************************wavetable window size moze byc tylko potęgą 2
 				// Jezeli length nie jest potega 2 trzeba go zrownac do najwiekszej mozliwej potegi 2
 				uint16_t localMask = 2048;
@@ -138,6 +139,7 @@ void SamplesLoader::update()
 				mtProject.instrument[currentIndex].sample.wavetable_window_size &= localMask;
 				//**************************************************************************
 				mtProject.instrument[currentIndex].sample.wavetableWindowNumber = mtProject.instrument[currentIndex].sample.wavetable_window_size ? mtProject.instrument[currentIndex].sample.length/mtProject.instrument[currentIndex].sample.wavetable_window_size : 0;
+				mtProject.instrument[currentIndex].wavetableCurrentWindow = map(lastCurrentWindow,0,mtProject.instrument[currentIndex].sample.wavetableWindowNumber,0,lastWindowNumber);
 			}
 
 			loadedFlagChange = 1;
