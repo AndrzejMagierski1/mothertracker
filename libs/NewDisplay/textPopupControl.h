@@ -36,9 +36,10 @@ public:
 	void string2Bitmaps(int16_t x, int16_t y, char* string, int8_t length);
 
 	uint16_t textStyle;
-	int16_t textFont;
-	uint8_t fontWidth;
-	uint8_t fontHeight;
+	//int16_t textFont;
+	//uint8_t fontWidth;
+	//uint8_t fontHeight;
+	const strFont* font;
 
 	strTextPopupData* data;
 

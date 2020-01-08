@@ -889,11 +889,11 @@ static uint8_t changeEffect(uint8_t button)
 	{
 		if(button == interfaceButton7)
 		{
-			SE->changeEffectSelection(-1);
+			SE->changeEffectSelection(1);
 		}
 		else if(button == interfaceButton6)
 		{
-			SE->changeEffectSelection(1);
+			SE->changeEffectSelection(-1);
 		}
 	}
 

@@ -19,6 +19,9 @@ static  uint8_t functEncoderPopup(int16_t value);
 
 static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo);
 
+
+static uint8_t functDescriptionButton();
+
 extern  uint8_t functInvert();
 
 
@@ -99,14 +102,18 @@ void cInterfacePopups::initPopupsDisplayControls()
 	prop2.x = 30;
 	prop2.y = 13;
 	if(textLabel1 == nullptr) textLabel1 = display.createControl<cLabel>(&prop2);
-	prop2.style = 	(controlStyleRightX | controlStyleCenterY);
 	prop2.x = 769;
+	prop2.value = 0;
+	prop2.colors = interfaceGlobals.activeLabelsColors;
+	prop2.style = 	( controlStyleCenterX | controlStyleFont3 );
+	//prop2.data = &labelDoubleArrow;
 	if(textLabel2 == nullptr) textLabel2 = display.createControl<cLabel>(&prop2);
 	prop2.style = 	(controlStyleBackground);
 	prop2.x = 0;
 	prop2.y = 0;
 	prop2.w = 795;
 	prop2.h = 25;
+	prop2.data = nullptr;
 	prop2.colors = listBgLabelColors;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cLabel>(&prop2);
 
@@ -205,6 +212,7 @@ void cInterfacePopups::showInstrumentsPopup()
 {
 	//display.hideAllControls();
 
+
 	display.setControlPosition(bgLabel, 600+2, 29);
 	display.setControlSize(bgLabel,  200, 450); //419
 	display.setControlColors(bgLabel, listBgLabelColors);
@@ -243,34 +251,24 @@ void cInterfacePopups::showInstrumentsPopup()
 void cInterfacePopups::showFxesPopup()
 {
 	//display.hideAllControls();
+	labelDoubleArrow.bitmaps[0].xValue = 600 + 15;
+	labelDoubleArrow.bitmaps[0].yValue = 451;
+	labelDoubleArrow.bitmaps[1].bitmapIndex = 0;
 
-	display.setControlPosition(bgLabel, 600+2, 29);
-	display.setControlSize(bgLabel, 200, 450); //419
+	refreshStepPopupDescription();
 	display.setControlColors(bgLabel, listBgLabelColors);
-
-	//display.setControlPosition(bgLabel, 0, 0);
-	//display.setControlSize(bgLabel, 800, 25);
 	display.setControlStyle(bgLabel, controlStyleShow | controlStyleBackground);
 	display.refreshControl(bgLabel);
 
 	display.setControlText(textLabel1, "  Fx");
-	display.setControlPosition(textLabel1, 600+1, 13);
-	display.setControlSize(textLabel1, 200, 26);
+	//display.setControlPosition(textLabel1, 600+1, 13);
+	//display.setControlSize(textLabel1, 200, 26);
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleFont4);
 	display.refreshControl(textLabel1);
 
-/*
-	labelDoubleArrow.bitmaps[0].bitmapIndex = displayDoubleArrowL;
-	labelDoubleArrow.bitmaps[0].xValue = 600 + 5;
-	labelDoubleArrow.bitmaps[0].xValue = 455;
 
-	display.setControlData(textLabel2, &labelDoubleArrow);
-	display.setControlText(textLabel2, "Desc");
-	display.setControlPosition(textLabel2, 600+20, 450);
-	display.setControlSize(textLabel2, 200, 26);
-	display.setControlStyle(textLabel2, controlStyleShow | controlStyleCenterY  | controlStyleFont4 | controlStyleShowBitmap);
-	display.refreshControl(textLabel2);
-*/
+
+
 
 	//showActualInstrument();
 	ptrActualItemsList = (char**)(interfaceGlobals.ptrFxNames);
@@ -372,6 +370,8 @@ void cInterfacePopups::setPopupFunct()
 	case stepPopupFx:
 		mtInterface.uiFM.clearButton(interfaceButtonNote);
 		mtInterface.uiFM.clearButton(interfaceButtonInstr);
+		mtInterface.uiFM.setButtonObj(interfaceButton6, buttonPress, functDescriptionButton);
+		mtInterface.uiFM.setButtonObj(interfaceButton7, buttonPress, functDescriptionButton);
 		break;
 	default:	break;
 	}
@@ -380,12 +380,15 @@ void cInterfacePopups::setPopupFunct()
 //	mtInterface.uiFM.clearButton(interfaceButtonShift);
 //	mtInterface.uiFM.clearButton(interfaceButtonEnter);
 
-	mtInterface.uiFM.clearButtonsRange(interfaceButton0,interfaceButton7);
+	mtInterface.uiFM.clearButtonsRange(interfaceButton0,interfaceButton5);
 
 	mtInterface.uiFM.setPotObj(interfacePot0, functEncoderPopup, nullptr);
 
+
+
+
 	mtInterface.uiFM.setButtonObj(interfaceButtonLeft, buttonPress, functLeftPopup);
-	mtInterface.uiFM.setButtonObj(interfaceButton5, buttonPress, functInvert);
+	//mtInterface.uiFM.setButtonObj(interfaceButton5, buttonPress, functInvert);
 	mtInterface.uiFM.setButtonObj(interfaceButtonRight, buttonPress, functRightPopup);
 	mtInterface.uiFM.setButtonObj(interfaceButtonUp, buttonPress, functUpPopup);
 	mtInterface.uiFM.setButtonObj(interfaceButtonDown, buttonPress, functDownPopup);
@@ -435,8 +438,6 @@ void cInterfacePopups::setStepPopupValue(int16_t value)
 void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 {
 	if(stepPopupState == stepPopupNone) return;
-
-	uint8_t oldList = selectedActualItem/12;
 
 	switch(stepPopupState)
 	{
@@ -650,6 +651,53 @@ void cInterfacePopups::selectPadOnPopup(int8_t pad)
 }
 
 
+void cInterfacePopups::toggleStepPopupDescription()
+{
+	mtPopups.stepPopupDescriptionState = !mtPopups.stepPopupDescriptionState;
+	refreshStepPopupDescription();
+}
+
+void cInterfacePopups::refreshStepPopupDescription()
+{
+	labelDoubleArrow.bitmaps[0].xValue = 600 + 15;
+	labelDoubleArrow.bitmaps[0].yValue = 451;
+	labelDoubleArrow.bitmaps[1].bitmapIndex = 0;
+
+	display.setControlData(textLabel2, &labelDoubleArrow);
+	display.setControlText(textLabel2, "Description");
+	display.setControlStyle(textLabel2, controlStyleShow | controlStyleCenterY  | controlStyleFont1  | controlStyleShowBitmap);
+	display.setControlColors(textLabel2, interfaceGlobals.activeButtonLabelsColors);
+	display.setControlPosition(textLabel2, 600+40, 458);
+	display.setControlSize(textLabel2, 200, 26);
+
+	if(stepPopupDescriptionState)
+	{
+		display.setControlPosition(textLabel1, 400+1, 13);
+		display.setControlSize(textLabel1, 400, 26);
+		display.refreshControl(textLabel1);
+
+		display.setControlSize(bgLabel, 400, 450);
+		display.setControlPosition(bgLabel, 400, 29);
+		display.refreshControl(bgLabel);
+
+		labelDoubleArrow.bitmaps[0].bitmapIndex = displayDoubleArrowR;
+		display.refreshControl(textLabel2);
+	}
+	else
+	{
+		display.setControlPosition(textLabel1, 600+1, 13);
+		display.setControlSize(textLabel1, 200, 26);
+		display.refreshControl(textLabel1);
+
+		display.setControlPosition(bgLabel, 600+2, 29);
+		display.setControlSize(bgLabel, 200, 450); //419
+		display.refreshControl(bgLabel);
+
+		labelDoubleArrow.bitmaps[0].bitmapIndex = displayDoubleArrowL;
+		display.refreshControl(textLabel2);
+	}
+}
+
 
 //=========================================================================================================
 static  uint8_t functLeftPopup()
@@ -688,6 +736,16 @@ static  uint8_t functEncoderPopup(int16_t value)
 
 	return 1;
 }
+
+//=========================================================================================================
+static uint8_t functDescriptionButton()
+{
+	mtPopups.toggleStepPopupDescription();
+
+
+	return 1;
+}
+
 
 //=========================================================================================================
 static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo)
