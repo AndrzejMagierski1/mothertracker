@@ -109,7 +109,7 @@ extern strGetProps getProps;
 const uint32_t one_true_red  = 0xcd1818;
 const uint32_t one_true_green  = 0x32d642;
 
-uint16_t getTextWidth(uint8_t font, char* text);
+uint16_t getTextWidth(strFont* font, char* text, uint16_t length);
 
 //--------------------------------------------------------------------
 // klasa wirtualna bazowa dla kontrolek

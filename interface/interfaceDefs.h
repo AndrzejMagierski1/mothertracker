@@ -8,6 +8,9 @@
 #include "mtSequencer.h"
 
 
+#include "interfaceFxDesc.h"
+
+
 //#define MT_INTERFACE_STARTUP_TIME 10000
 
 
@@ -420,6 +423,14 @@ struct strInterfaceGlobals
 	};
 
 	const char **ptrFxNames = &ptrAllFxNames[1];
+
+	char* fxDescPtr(int16_t id)
+	{
+		if(id>=0) return (char*)&fxDescriptions[id][0];
+		else return nullptr;
+	}
+
+//	const char* ptrFxDescriptons = fxDescriptions;
 
 	uint32_t activeLabelsColors[4] =
 	{

@@ -180,6 +180,18 @@ void checkConfig()
 		mtConfig.general.radioRegion = 0;
 	}
 
+	if(mtConfig.general.radioRegion > 3)
+	{
+		mtConfig.general.radioRegion = 0;
+	}
+
+	// interface ----------------------------------------
+	if(mtConfig.interface.fxPopupDescription > 1)
+	{
+		mtConfig.interface.fxPopupDescription = 0;
+	}
+
+
 
 // TODO dodac zapis spowrotem do configu jesli np przy sprawdzaniu wazne dane sie nie zgadzały
 // TODO

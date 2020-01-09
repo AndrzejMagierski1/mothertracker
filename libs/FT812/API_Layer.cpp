@@ -159,10 +159,10 @@ void API_LIB_WriteDataRAMG(const uint8_t *ImgData, uint32_t DataSize, uint32_t D
 }
 
 // Writes a string over SPI
-uint8_t API_SendString(const char* string)
+uint8_t API_SendString(const char* string, uint32_t length)
 {        
     uint32_t StringLength = 0;
-    uint32_t length = strlen(string);
+    if(length == 0) length = strlen(string);
     uint8_t command_size = 0;
 
     StringLength = (length + 1);
@@ -514,8 +514,13 @@ void API_DISPLAY(void)
 // Co-Processor Widgets
 //##############################################################################
 
-//ft_void_t Ft_Gpu_CoCmd_Text(Ft_Gpu_Hal_Context_t *phost,ft_int16_t x, ft_int16_t y, ft_int16_t font, ft_uint16_t options, const ft_char8_t* s);
 void API_CMD_TEXT(int16_t x, int16_t y, int16_t font, uint16_t options, const char* string)
+{
+	API_CMD_TEXT(x,y,font,options,string,0);
+}
+
+//ft_void_t Ft_Gpu_CoCmd_Text(Ft_Gpu_Hal_Context_t *phost,ft_int16_t x, ft_int16_t y, ft_int16_t font, ft_uint16_t options, const ft_char8_t* s);
+void API_CMD_TEXT(int16_t x, int16_t y, int16_t font, uint16_t options, const char* string, uint32_t length)
 {
     uint32_t command_size = 0;
     uint32_t StringLength = 0;
@@ -525,7 +530,7 @@ void API_CMD_TEXT(int16_t x, int16_t y, int16_t font, uint16_t options, const ch
     EVE_Write32(((uint32_t)options<<16)|(font&0xffff));
     command_size = (command_size + 12);
     
-    StringLength = API_SendString(string);
+    StringLength = API_SendString(string, length);
     command_size = (command_size + StringLength);
 
     cmdOffset = EVE_IncCMDOffset(cmdOffset, command_size);                                
@@ -542,7 +547,7 @@ void API_CMD_BUTTON(int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, ui
     EVE_Write32( (((uint32_t)options<<16)|(font&0xffff)));
     command_size = (command_size + 16);
     
-    StringLength = API_SendString(string);
+    StringLength = API_SendString(string,0);
     command_size = (command_size + StringLength);
     
     cmdOffset = EVE_IncCMDOffset(cmdOffset, command_size);                                
@@ -560,7 +565,7 @@ void API_CMD_KEYS(int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint
     EVE_Write32( (((uint32_t)options<<16)|(font&0xffff)));
     command_size = (command_size + 16);
     
-    StringLength = API_SendString(string);
+    StringLength = API_SendString(string,0);
     command_size = (command_size + StringLength);
     
     cmdOffset = EVE_IncCMDOffset(cmdOffset, command_size);                                
@@ -611,7 +616,7 @@ void API_CMD_TOGGLE(int16_t x, int16_t y, int16_t w, int16_t font, uint16_t opti
     EVE_Write32(((uint32_t)state<<16)|options);
     command_size = (command_size + 16);
 
-    StringLength = API_SendString(string);
+    StringLength = API_SendString(string,0);
     command_size = (command_size + StringLength);
  
     cmdOffset = EVE_IncCMDOffset(cmdOffset, command_size);                               

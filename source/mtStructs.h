@@ -608,6 +608,11 @@ struct strMtConfig
 		uint8_t brightness;
 	} general;
 
+	struct strInterfaceState
+	{
+		uint8_t fxPopupDescription;
+	} interface;
+
 	uint32_t arcanoidHighestScore;
 };
 
