@@ -1089,29 +1089,6 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 		break;
 		case fx_t::FX_TYPE_R1 :
 
-			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::startPoint] = 1;
-			if(fx_n == MOST_SIGNIFICANT_FX)
-			{
-				currentSeqModValues.startPoint = map(fx_val,0,127,0,MAX_16BIT);
-			}
-			else if(fx_n == LEAST_SIGNIFICANT_FX)
-			{
-				if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::startPoint])
-				{
-					currentSeqModValues.startPoint = map(fx_val,0,127,0,MAX_16BIT);
-				}
-			}
-
-
-
-			if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::endPoint]) modSeqPoints(currentSeqModValues.startPoint, currentSeqModValues.endPoint);
-			else modSeqPoints(currentSeqModValues.startPoint , NOT_MOD_POINTS);
-
-			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
-			{
-				changeStartPointPerformanceMode(performanceMod.startPoint);
-			}
-
 		break;
 		case fx_t::FX_TYPE_R7 :
 
@@ -1243,55 +1220,85 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 			}
 		break;
 		case fx_t::FX_TYPE_WT_POSITION :
-			if(fx_n == MOST_SIGNIFICANT_FX)
+
+		break;
+		case fx_t::FX_TYPE_POSITION :
+			if((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable) && (mtProject.instrument[currentInstrument_idx].playMode == playModeWavetable))
 			{
-				currentSeqModValues.wavetablePosition = map(fx_val,0,127,0,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber);
-			}
-			else if(fx_n == LEAST_SIGNIFICANT_FX)
-			{
-				if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::wavetablePosition])
+				if(fx_n == MOST_SIGNIFICANT_FX)
 				{
 					currentSeqModValues.wavetablePosition = map(fx_val,0,127,0,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber);
 				}
-			}
+				else if(fx_n == LEAST_SIGNIFICANT_FX)
+				{
+					if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::wavetablePosition])
+					{
+						currentSeqModValues.wavetablePosition = map(fx_val,0,127,0,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber);
+					}
+				}
 
-			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::wavetablePosition] = 1;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::wavetablePosition] = 1;
 
-			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
-			{
-				changeWavetableWindowPerformanceMode(performanceMod.wavetablePosition);
+				if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
+				{
+					changeWavetableWindowPerformanceMode(performanceMod.wavetablePosition);
+				}
+				else
+				{
+					playMemPtr->setWavetableWindowFlag();
+					playMemPtr->setForcedWavetableWindow(currentSeqModValues.wavetablePosition);
+					playMemPtr->setWavetableWindow(currentSeqModValues.wavetablePosition);
+				}
 			}
-			else
+			else if(mtProject.instrument[currentInstrument_idx].playMode == playModeGranular)
 			{
-				playMemPtr->setWavetableWindowFlag();
-				playMemPtr->setForcedWavetableWindow(currentSeqModValues.wavetablePosition);
-				playMemPtr->setWavetableWindow(currentSeqModValues.wavetablePosition);
-			}
-		break;
-		case fx_t::FX_TYPE_POSITION :
-			if(fx_n == MOST_SIGNIFICANT_FX)
-			{
-				currentSeqModValues.granularPosition = map(fx_val,0,127,0,MAX_16BIT);
-			}
-			else if(fx_n == LEAST_SIGNIFICANT_FX)
-			{
-				if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::granularPosition])
+				if(fx_n == MOST_SIGNIFICANT_FX)
 				{
 					currentSeqModValues.granularPosition = map(fx_val,0,127,0,MAX_16BIT);
 				}
-			}
+				else if(fx_n == LEAST_SIGNIFICANT_FX)
+				{
+					if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::granularPosition])
+					{
+						currentSeqModValues.granularPosition = map(fx_val,0,127,0,MAX_16BIT);
+					}
+				}
 
-			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::granularPosition] = 1;
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::granularPosition] = 1;
 
-			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])
-			{
-				changeGranularPositionPerformanceMode(performanceMod.granularPosition);
+				if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])
+				{
+					changeGranularPositionPerformanceMode(performanceMod.granularPosition);
+				}
+				else
+				{
+					playMemPtr->setGranularPosForceFlag();
+					playMemPtr->setForcedGranularPos(currentSeqModValues.granularPosition);
+					playMemPtr->setGranularPosition(currentSeqModValues.granularPosition);
+				}
 			}
-			else
+			else if(mtProject.instrument[currentInstrument_idx].playMode != playModeSlice )
 			{
-				playMemPtr->setGranularPosForceFlag();
-				playMemPtr->setForcedGranularPos(currentSeqModValues.granularPosition);
-				playMemPtr->setGranularPosition(currentSeqModValues.granularPosition);
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::startPoint] = 1;
+				if(fx_n == MOST_SIGNIFICANT_FX)
+				{
+					currentSeqModValues.startPoint = map(fx_val,0,127,0,MAX_16BIT);
+				}
+				else if(fx_n == LEAST_SIGNIFICANT_FX)
+				{
+					if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::startPoint])
+					{
+						currentSeqModValues.startPoint = map(fx_val,0,127,0,MAX_16BIT);
+					}
+				}
+
+				if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::endPoint]) modSeqPoints(currentSeqModValues.startPoint, currentSeqModValues.endPoint);
+				else modSeqPoints(currentSeqModValues.startPoint , NOT_MOD_POINTS);
+
+				if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+				{
+					changeStartPointPerformanceMode(performanceMod.startPoint);
+				}
 			}
 		break;
 		case fx_t::FX_TYPE_VELOCITY:
@@ -1321,15 +1328,13 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 		case fx_t::FX_TYPE_SAMPLE_SLICE:
 			if(fx_n == MOST_SIGNIFICANT_FX)
 			{
-				currentSeqModValues.slice = fx_val > mtProject.instrument[currentInstrument_idx].sliceNumber - 1 ?
-				mtProject.instrument[currentInstrument_idx].sliceNumber - 1: fx_val;
+				currentSeqModValues.slice = fx_val % (mtProject.instrument[currentInstrument_idx].sliceNumber);
 			}
 			else if(fx_n == LEAST_SIGNIFICANT_FX)
 			{
 				if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::slice])
 				{
-					currentSeqModValues.slice = fx_val > mtProject.instrument[currentInstrument_idx].sliceNumber - 1 ?
-					mtProject.instrument[currentInstrument_idx].sliceNumber - 1: fx_val;
+					currentSeqModValues.slice = fx_val % (mtProject.instrument[currentInstrument_idx].sliceNumber);
 				}
 			}
 
@@ -1651,39 +1656,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 			}
 		break;
 		case fx_t::FX_TYPE_R1 :
-			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::startPoint] = 0;
 
-
-			if(fx_id == MOST_SIGNIFICANT_FX)
-			{
-				if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::startPoint])
-				{
-					currentSeqModValues.startPoint = map(lastSeqVal[otherFx_n],0,127,0,MAX_16BIT);
-				}
-			}
-			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
-			{
-				changeStartPointPerformanceMode(performanceMod.startPoint);
-			}
-			else
-			{
-				if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::endPoint])
-				{
-					modSeqPoints(NOT_MOD_POINTS,currentSeqModValues.endPoint);
-				}
-				else if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::startPoint])
-				{
-					if(fx_id == MOST_SIGNIFICANT_FX)
-					{
-						modSeqPoints(currentSeqModValues.startPoint, NOT_MOD_POINTS);
-					}
-				}
-				else
-				{
-					playMemPtr->clearPointsForceFlag();
-					playMemPtr->setForcedPoints(-1, -1, -1, -1);
-				}
-			}
 
 		break;
 		case fx_t::FX_TYPE_R7 :
@@ -1809,57 +1782,98 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 			}
 		break;
 		case fx_t::FX_TYPE_WT_POSITION :
-			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::wavetablePosition] = 0;
-			if(fx_id == MOST_SIGNIFICANT_FX)
-			{
-				currentSeqModValues.wavetablePosition = map(lastSeqVal[otherFx_n],0,127,0,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber);
-			}
-			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
-			{
-				changeWavetableWindowPerformanceMode(performanceMod.wavetablePosition);
-			}
-			else
-			{
-				if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::wavetablePosition])
-				{
-					if(fx_id == MOST_SIGNIFICANT_FX)
-					{
-						playMemPtr->setWavetableWindowFlag();
-						playMemPtr->setForcedWavetableWindow(currentSeqModValues.wavetablePosition);
-					}
-				}
-				else
-				{
-					playMemPtr->clearWavetableWindowFlag();
-					playMemPtr->setWavetableWindow(instrumentBasedMod.wtPos);
-				}
-			}
+
 		break;
 		case fx_t::FX_TYPE_POSITION:
-
-			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::granularPosition] = 0;
-			if(fx_id == MOST_SIGNIFICANT_FX)
+			if((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable) && (mtProject.instrument[currentInstrument_idx].playMode == playModeWavetable))
 			{
-				currentSeqModValues.granularPosition = map(lastSeqVal[otherFx_n],0,127,0,MAX_16BIT);
-			}
-			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])
-			{
-				changeWavetableWindowPerformanceMode(performanceMod.granularPosition);
-			}
-			else
-			{
-				if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::granularPosition])
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::wavetablePosition] = 0;
+				if(fx_id == MOST_SIGNIFICANT_FX)
 				{
-					if(fx_id == MOST_SIGNIFICANT_FX)
-					{
-						playMemPtr->setGranularPosForceFlag();
-						playMemPtr->setForcedGranularPos(currentSeqModValues.granularPosition);
-					}
+					currentSeqModValues.wavetablePosition = map(lastSeqVal[otherFx_n],0,127,0,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber);
+				}
+				if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
+				{
+					changeWavetableWindowPerformanceMode(performanceMod.wavetablePosition);
 				}
 				else
 				{
-					playMemPtr->clearGranularPosForceFlag();
-					playMemPtr->setGranularPosition(instrumentBasedMod.granPos);
+					if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::wavetablePosition])
+					{
+						if(fx_id == MOST_SIGNIFICANT_FX)
+						{
+							playMemPtr->setWavetableWindowFlag();
+							playMemPtr->setForcedWavetableWindow(currentSeqModValues.wavetablePosition);
+						}
+					}
+					else
+					{
+						playMemPtr->clearWavetableWindowFlag();
+						playMemPtr->setWavetableWindow(instrumentBasedMod.wtPos);
+					}
+				}
+			}
+			else if(mtProject.instrument[currentInstrument_idx].playMode == playModeGranular)
+			{
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::granularPosition] = 0;
+				if(fx_id == MOST_SIGNIFICANT_FX)
+				{
+					currentSeqModValues.granularPosition = map(lastSeqVal[otherFx_n],0,127,0,MAX_16BIT);
+				}
+				if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])
+				{
+					changeWavetableWindowPerformanceMode(performanceMod.granularPosition);
+				}
+				else
+				{
+					if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::granularPosition])
+					{
+						if(fx_id == MOST_SIGNIFICANT_FX)
+						{
+							playMemPtr->setGranularPosForceFlag();
+							playMemPtr->setForcedGranularPos(currentSeqModValues.granularPosition);
+						}
+					}
+					else
+					{
+						playMemPtr->clearGranularPosForceFlag();
+						playMemPtr->setGranularPosition(instrumentBasedMod.granPos);
+					}
+				}
+			}
+			else if(mtProject.instrument[currentInstrument_idx].playMode != playModeSlice )
+			{
+				trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::startPoint] = 0;
+
+				if(fx_id == MOST_SIGNIFICANT_FX)
+				{
+					if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::startPoint])
+					{
+						currentSeqModValues.startPoint = map(lastSeqVal[otherFx_n],0,127,0,MAX_16BIT);
+					}
+				}
+				if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+				{
+					changeStartPointPerformanceMode(performanceMod.startPoint);
+				}
+				else
+				{
+					if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::endPoint])
+					{
+						modSeqPoints(NOT_MOD_POINTS,currentSeqModValues.endPoint);
+					}
+					else if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::startPoint])
+					{
+						if(fx_id == MOST_SIGNIFICANT_FX)
+						{
+							modSeqPoints(currentSeqModValues.startPoint, NOT_MOD_POINTS);
+						}
+					}
+					else
+					{
+						playMemPtr->clearPointsForceFlag();
+						playMemPtr->setForcedPoints(-1, -1, -1, -1);
+					}
 				}
 			}
 		break;
