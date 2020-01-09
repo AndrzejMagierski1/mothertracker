@@ -376,7 +376,7 @@ uint8_t cProjectEditor::loadProjectValues()
 	sampleRecorder.recorderConfig.source = mtProject.values.source;
 
 	//----------------------------------------------------------------------------------------------------
-	// performance mode
+	// performance mode i inne
 	for(uint8_t i = 0; i<8; i++)
 	{
 		// paterny na trakach w performance mode
@@ -387,6 +387,8 @@ uint8_t cProjectEditor::loadProjectValues()
 
 		// globalne mute trackow
 		if(mtProject.values.trackMute[i] >= trackMasterModeCount) mtProject.values.trackMute[i] = 0;
+
+		engine.muteTrack(i, mtProject.values.trackMute[i]);
 	}
 
 	for(uint8_t i = 0; i<12; i++)
