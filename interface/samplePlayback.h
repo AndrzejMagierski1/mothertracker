@@ -18,8 +18,8 @@ const char playModeFunctLabels[playModeCount][15]=
 		"Forward Loop",
 		"Backward Loop",
 		"Pingpong Loop",
-		"Wavetable",
 		"Slice",
+		"Wavetable",
 		"Granular"
 };
 
