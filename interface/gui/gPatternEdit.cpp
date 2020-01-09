@@ -243,7 +243,12 @@ void cPatternEditor::initDisplayControls()
 	//=====================================================================================================
 	// POPUP
 	//=====================================================================================================
-
+	labelArrow.bitmaps[0].bitmapIndex = displayArrowU;
+	labelArrow.bitmaps[0].xValue =  (800/8)*1+(800/16);
+	labelArrow.bitmaps[0].yValue = 460;
+	labelArrow.bitmaps[1].bitmapIndex = displayArrowD;
+	labelArrow.bitmaps[1].xValue =  (800/8)*2+(800/16);
+	labelArrow.bitmaps[1].yValue = 460;
 
 	// lista 1
 	prop.x = (800/8)*(1)+1;
@@ -565,6 +570,9 @@ void cPatternEditor::showFillNote()
 	display.setControlValue(bgLabel, 250);
 	display.setControlShow(param2PopupListControl);
 
+	display.setControlData(label[1], &labelArrow);
+	display.setAddControlStyle(label[1], controlStyleShowBitmap);
+
 	for(uint8_t i = 0; i < 6; i++)
 	{
 		display.setControlShow(label[i]);
@@ -624,6 +632,8 @@ void cPatternEditor::showFillInstr()
 		display.setControlText(label[3], "To");
 	}
 
+	//display.setControlData(label[1], &labelArrow);
+	display.setRemoveControlStyle(label[1], controlStyleShowBitmap);
 
 	display.setControlHide(param2PopupListControl);
 	display.setControlHide(label[4]);
@@ -720,6 +730,9 @@ void cPatternEditor::showFillFx()
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
+
+	display.setControlData(label[1], &labelArrow);
+	display.setAddControlStyle(label[1], controlStyleShowBitmap);
 
 	display.setControlValue(bgLabel, 250);
 	display.setControlShow(param2PopupListControl);
@@ -1038,6 +1051,8 @@ void cPatternEditor::hideFillPopup()
 //	display.refreshControl(val3PopupLabel);
 //	display.refreshControl(param2PopupListControl);
 
+	//display.setControlData(label[1], &labelArrow);
+	display.setRemoveControlStyle(label[1], controlStyleShowBitmap);
 
 	display.setControlPosition(label[1],  (800/8)*1+800/16, -1);
 

@@ -10,6 +10,9 @@
 
 
 uint8_t isMultiSelection();
+int16_t getActualStep();
+int16_t getActualTrack();
+
 uint8_t isEditMode();
 void sendSelection();
 void sendCopySelection();
@@ -163,6 +166,8 @@ public:
 //	hControl titleBar;
 //	hControl titleLabel;
 //	hControl instrumentLabel;
+
+	strLabelData labelArrow;
 
 	strFrameData frameData;
 

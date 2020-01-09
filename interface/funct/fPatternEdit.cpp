@@ -583,6 +583,11 @@ void cPatternEditor::moveCursorByStep(uint8_t val)
 	{
 		trackerPattern.actualStep = mtProject.values.patternEditStep  + val - ((patternLength+1)-trackerPattern.actualStep);
 	}
+
+	PTE->trackerPattern.selectState = 1;
+	PTE->trackerPattern.selectColumn = 0;
+	PTE->isSelectingNow = 0;
+
 }
 
 
@@ -1066,8 +1071,15 @@ void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 	{
 		if(dir == 0)
 		{
-			if(place == 2) fillPlace = 1;
-			else  fillPlace = place;
+			if(fillPlace == 1 && (place == 1 || place == 2))
+			{
+				changeFillData(place == 1 ? -1 : 1);
+			}
+			else
+			{
+				if(place == 2) fillPlace = 1;
+				else  fillPlace = place;
+			}
 			return;
 		}
 		else if(dir > 0)
@@ -1103,8 +1115,15 @@ void cPatternEditor::setFillPlace(uint8_t place, int8_t dir)
 	{
 		if(dir == 0)
 		{
-			if(place == 2) fillPlace = 1;
-			else  fillPlace = place;
+			if(fillPlace == 1 && (place == 1 || place == 2))
+			{
+				changeFillData(place == 1 ? -1 : 1);
+			}
+			else
+			{
+				if(place == 2) fillPlace = 1;
+				else  fillPlace = place;
+			}
 			return;
 		}
 		else if(dir > 0)
@@ -2117,7 +2136,18 @@ static uint8_t functDeleteBackspace(uint8_t state)
 				}
 
 				sendSelection();
-				sequencer.clearSelected(getSelectedElement());
+				if (PTE->editParam == 3 )
+				{
+					sequencer.clearSelected(Sequencer::ELEMENTS_FX1);
+				}
+				else if (PTE->editParam == 2 )
+				{
+					sequencer.clearSelected(Sequencer::ELEMENTS_FX2);
+				}
+				else
+				{
+					sequencer.clearSelected(getSelectedElement());
+				}
 				PTE->shiftAction = 1;
 				PTE->moveCursorByStep();
 			}
@@ -2188,7 +2218,14 @@ void sendCopySelection()
 uint8_t isMultiSelection()
 {
 	return PTE->trackerPattern.selectState == 2;
-
+}
+int16_t getActualStep()
+{
+	return PTE->trackerPattern.actualStep;
+}
+int16_t getActualTrack()
+{
+	return PTE->trackerPattern.actualTrack;
 }
 uint8_t isEditMode()
 {

@@ -1030,7 +1030,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 			{
 				if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::panning])
 				{
-					currentSeqModValues.panning = map(fx_val,0,127,PANNING_MIN,PANNING_MAX);
+					currentSeqModValues.panning = map(fx_val,0,100,PANNING_MIN,PANNING_MAX);
 				}
 			}
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::panning] = 1;

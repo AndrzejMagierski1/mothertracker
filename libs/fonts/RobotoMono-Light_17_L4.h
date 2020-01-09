@@ -16,8 +16,8 @@ const uint8_t Roboto_Mono_Light_17_L4[] =
 10,0,0,0,
 /* Max Height */
 22,0,0,0,
-/* Raw Data Address in Decimal: <11148> */ 
-140,43,0,0,
+/* Raw Data Address in Decimal: <10148> */
+164,39,0,0,
 
 /* 148 Metric Block End ---  */
 

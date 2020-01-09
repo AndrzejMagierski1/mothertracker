@@ -895,18 +895,21 @@ static  uint8_t functSelectZoom()
 
 static  uint8_t functPlayMode(uint8_t button)
 {
-//	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
-//	if(button == interfaceButton6)
-//	{
-//		SP->changePlayModeSelection(-1);
-//	}
-//	else //if(button == interfaceButton7)
-//	{
-//		SP->changePlayModeSelection(1);
-//	}
-
+	//if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
 	SP->cancelMultiFrame();
 	SP->clearAllNodes();
+
+	if(SP->selectedPlace == 6)
+	{
+		if(button == interfaceButton6)
+		{
+			changePlayModeSelection(-1);
+		}
+		else if(button == interfaceButton7)
+		{
+			changePlayModeSelection(1);
+		}
+	}
 
 	SP->selectedPlace = 6;
 	SP->activateLabelsBorder();

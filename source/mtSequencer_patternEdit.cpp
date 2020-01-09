@@ -175,7 +175,7 @@ uint8_t Sequencer::randomFx()
 	uint8_t retVal;
 	for (uint8_t a = 0; a < 100; a++)
 	{
-		retVal = random(0, FX_MAX + 1);
+		retVal = random(1, FX_MAX + 1);
 		if(retVal != fx.FX_TYPE_TEMPO) break;
 	}
 	return retVal;
@@ -219,6 +219,7 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 			}
 		}
 	}
+
 }
 
 bool Sequencer::isStepToFillFx(strPattern::strTrack::strStep *step,
@@ -1277,6 +1278,9 @@ int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
 		break;
 	case fx.FX_TYPE_MICROTUNING:
 		return actualStep->fx[fxID].value - 99;
+		break;
+	case fx.FX_TYPE_SAMPLE_SLICE:
+		return actualStep->fx[fxID].value + 1;
 		break;
 
 	default:

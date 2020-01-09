@@ -39,12 +39,12 @@
 const strFont fonts[displayFontCount] =
 {
 //		{Roboto_Mono_Regular_14_L4,	sizeof(Roboto_Mono_Regular_14_L4),	11,	1000,	1148,	10,	19,	L4,	5,},
-		{Roboto_Mono_Light_14_L4,	sizeof(Roboto_Mono_Light_14_L4),	11,	1000,	1148,	10,	18,	L4,	5,},
+		{Roboto_Mono_Light_14_L4,	sizeof(Roboto_Mono_Light_14_L4),	10,	1000,	1148,	10,	18,	L4,	5,},
 //		{Roboto_Mono_Regular_17_L4,	sizeof(Roboto_Mono_Regular_17_L4),	12,	11000,	11148,	10,	22,	L4,	5,},
-		{Roboto_Mono_Light_17_L4,	sizeof(Roboto_Mono_Light_17_L4),	12,	11000,	11148,	10,	22,	L4,	5,},
-		{Roboto_Mono_Regular_14_L4,	sizeof(Roboto_Mono_Regular_14_L4),	11,	1000,	1148,	10,	19,	L4,	5,},
+		{Roboto_Mono_Light_17_L4,	sizeof(Roboto_Mono_Light_17_L4),	11,	10000,	10148,	10,	22,	L4,	5,},
+		{Roboto_Mono_Regular_14_L4,	sizeof(Roboto_Mono_Regular_14_L4),	12,	21000,	21148,	10,	19,	L4,	5,},
 //		{Roboto_Mono_Bold_14_L4,	sizeof(Roboto_Mono_Bold_14_L4),		13,	22000,	22148,	10,	18,	L4,	5,},
-		{Roboto_Mono_Bold_17_L4,	sizeof(Roboto_Mono_Bold_17_L4),		14,	31000,	31148,	12,	22,	L4,	6,},
+		{Roboto_Mono_Bold_17_L4,	sizeof(Roboto_Mono_Bold_17_L4),		13,	31000,	31148,	12,	22,	L4,	6,},
 };
 // handle nie moze byc wikesze niz 14
 
@@ -112,6 +112,8 @@ void cDisplay::begin()
 		API_BITMAP_SIZE(NEAREST, BORDER, BORDER, fonts[i].width, fonts[i].height);
 		API_CMD_SETFONT2(fonts[i].handle, fonts[i].address, 32);
 	}
+
+
 
 	API_DISPLAY();
     API_CMD_SWAP();

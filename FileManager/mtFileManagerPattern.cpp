@@ -161,7 +161,7 @@ void FileManager::undoPattern()
 {
 	bool doUndo = 0;
 	uint8_t oldIndex = undo.actualIndex;
-	if (undo.actualIndex > 0)
+	if (undo.actualIndex > 0 && undo.storedCount > 0)
 	{
 		undo.actualIndex--;
 		undo.storedCount--;

@@ -74,7 +74,6 @@ void cLabel::setStyle(uint32_t style)
 				 | (style & controlStyleCenterY ? OPT_CENTERY : 0)
 	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
 
-
 	int8_t textFont = FONT_INDEX_FROM_STYLE;
 	textFont = (textFont>=0) ? textFont : 0;
 	font1 = &fonts[textFont];
@@ -82,7 +81,6 @@ void cLabel::setStyle(uint32_t style)
 	//fontWidth = fonts[textFont].width;
 	//fontHeight = fonts[textFont].height;
 	//textFont =  fonts[textFont].handle;
-
 }
 
 
@@ -94,11 +92,9 @@ void cLabel::setStyle2(uint32_t style)
 				 | (style & controlStyleCenterY ? OPT_CENTERY : 0)
 	 	 	 	 | (style & controlStyleRightX  ? OPT_RIGHTX  : 0);
 
-
 	int8_t textFont = FONT_INDEX_FROM_STYLE;
 	textFont = (textFont>=0) ? textFont : 0;
 	font2 = &fonts[textFont];
-
 }
 
 void cLabel::setText(char* text)
@@ -346,23 +342,28 @@ uint8_t cLabel::update()
 	}
 	else
 */
-	if(style & controlStyleShowBitmap)
+	if(style & controlStyleShowBitmap && data != nullptr)
 	{
 		for(uint8_t i = 0; i<labelBitmapsCount; i++)
 		{
 			if(data->bitmaps[i].bitmapIndex)
 			{
-				// API_BITMAP_HANDLE(0);
-				API_BITMAP_SOURCE(bitmaps[data->bitmaps[i].bitmapIndex].address);
+				API_SAVE_CONTEXT();
+
+				API_BITMAP_HANDLE(0);
 				API_BITMAP_LAYOUT(bitmaps[data->bitmaps[i].bitmapIndex].format, bitmaps[data->bitmaps[i].bitmapIndex].linestride, bitmaps[data->bitmaps[i].bitmapIndex].height);
 				API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[data->bitmaps[i].bitmapIndex].width, bitmaps[data->bitmaps[i].bitmapIndex].height);
+				API_BITMAP_SOURCE(bitmaps[data->bitmaps[i].bitmapIndex].address);
 
 				API_BEGIN(BITMAPS);
 				API_VERTEX2F(data->bitmaps[i].xValue-(bitmaps[data->bitmaps[i].bitmapIndex].width/2), data->bitmaps[i].yValue);
 				API_END();
+
+				API_RESTORE_CONTEXT();
 			}
 		}
 	}
+
 
     API_LIB_EndCoProList();
 

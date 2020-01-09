@@ -17,7 +17,7 @@ const uint8_t Roboto_Mono_Regular_14_L4[] =
 /* Max Height */
 19,0,0,0,
 /* Raw Data Address in Decimal: <1148> */ 
-124,4,0,0,
+156,82,0,0,
 
 /* 148 Metric Block End ---  */
 

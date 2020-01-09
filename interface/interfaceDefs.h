@@ -349,7 +349,7 @@ struct strInterfaceGlobals
 					"L - Low-pass",
 					"B - Band-pass",
 					"H - High-pass",
-					"S - Reverb Send",
+					"s - Reverb Send",
 					"a - MIDI CC A",
 					"b - MIDI CC B",
 					"c - MIDI CC C",
