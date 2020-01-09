@@ -583,6 +583,11 @@ void cPatternEditor::moveCursorByStep(uint8_t val)
 	{
 		trackerPattern.actualStep = mtProject.values.patternEditStep  + val - ((patternLength+1)-trackerPattern.actualStep);
 	}
+
+	PTE->trackerPattern.selectState = 1;
+	PTE->trackerPattern.selectColumn = 0;
+	PTE->isSelectingNow = 0;
+
 }
 
 
@@ -2131,7 +2136,18 @@ static uint8_t functDeleteBackspace(uint8_t state)
 				}
 
 				sendSelection();
-				sequencer.clearSelected(getSelectedElement());
+				if (PTE->editParam == 3 )
+				{
+					sequencer.clearSelected(Sequencer::ELEMENTS_FX1);
+				}
+				else if (PTE->editParam == 2 )
+				{
+					sequencer.clearSelected(Sequencer::ELEMENTS_FX2);
+				}
+				else
+				{
+					sequencer.clearSelected(getSelectedElement());
+				}
 				PTE->shiftAction = 1;
 				PTE->moveCursorByStep();
 			}
@@ -2202,7 +2218,14 @@ void sendCopySelection()
 uint8_t isMultiSelection()
 {
 	return PTE->trackerPattern.selectState == 2;
-
+}
+int16_t getActualStep()
+{
+	return PTE->trackerPattern.actualStep;
+}
+int16_t getActualTrack()
+{
+	return PTE->trackerPattern.actualTrack;
 }
 uint8_t isEditMode()
 {
