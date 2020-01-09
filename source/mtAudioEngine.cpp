@@ -815,7 +815,7 @@ void playerEngine::noteOff(int8_t option)
 		AudioInterrupts();
 		__enable_irq();
 		break;
-	default:
+	case 0:
 		__disable_irq();
 		AudioNoInterrupts();
 		envelopeAmpPtr->noteOff();
