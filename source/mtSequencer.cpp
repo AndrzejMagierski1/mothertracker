@@ -1525,7 +1525,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 		}
 		else if (isRec())
 		{
-			for (uint8_t tr = 0; tr < 8; tr++)
+			for (uint8_t tr = getActualTrack(); tr < 8; tr++)
 			{
 				strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
 				if (step->note == STEP_NOTE_EMPTY &&

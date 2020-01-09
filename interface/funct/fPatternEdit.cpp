@@ -2204,7 +2204,14 @@ void sendCopySelection()
 uint8_t isMultiSelection()
 {
 	return PTE->trackerPattern.selectState == 2;
-
+}
+int16_t getActualStep()
+{
+	return PTE->trackerPattern.actualStep;
+}
+int16_t getActualTrack()
+{
+	return PTE->trackerPattern.actualTrack;
 }
 uint8_t isEditMode()
 {

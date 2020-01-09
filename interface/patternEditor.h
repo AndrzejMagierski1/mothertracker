@@ -10,6 +10,9 @@
 
 
 uint8_t isMultiSelection();
+int16_t getActualStep();
+int16_t getActualTrack();
+
 uint8_t isEditMode();
 void sendSelection();
 void sendCopySelection();
