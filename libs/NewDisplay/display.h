@@ -37,6 +37,8 @@
 #include "lineIndicatorControl.h"
 #include "songPlayerControl.h"
 
+#include "textBoxControl.h"
+
 typedef cDisplayControl* hControl;
 
 

@@ -243,7 +243,7 @@ void cPatternEditor::refreshPattern()
 	trackerPattern.patternLength = seq->track[0].length+1;
 
 	// odpowiednie wylaczenie generowania zalsanianych czesci trackow
-	if(fillState)  trackerPattern.popupMode &= ~(1);
+	if(fillState)  trackerPattern.popupMode &= ~(2 | 4);
 	else trackerPattern.popupMode = 0;
 
 	if(editMode == 0)
@@ -640,7 +640,7 @@ void cPatternEditor::cancelPopups()
 		showDefaultScreen();
 		refreshEditState();
 
-		PTE->trackerPattern.popupMode  &= ~(2);
+		PTE->trackerPattern.popupMode  &= ~(2 | 4);
 
 		if(fillState)
 		{
@@ -1667,6 +1667,7 @@ static  uint8_t functNote(uint8_t state)
 		if(PTE->fillState > 0)
 		{
 			PTE->showFillPopup();
+			PTE->trackerPattern.popupMode |= 1;
 			return 1;
 		}
 
@@ -1733,6 +1734,7 @@ static  uint8_t functInstrument(uint8_t state)
 		{
 			PTE->wasNotesEditBefore = 0;
 			PTE->showFillPopup();
+			PTE->trackerPattern.popupMode |= 1;
 			return 1;
 		}
 
@@ -1750,7 +1752,7 @@ static  uint8_t functInstrument(uint8_t state)
 		//PTE->lightUpPadBoard();
 
 		// odswiezenie paternu bez danych zakrytych przez popup
-		PTE->trackerPattern.popupMode |= 1;
+		PTE->trackerPattern.popupMode |= 2;
 		display.refreshControl(PTE->patternControl);
 	}
 	else if(state == buttonRelease)
@@ -1796,6 +1798,7 @@ static  uint8_t functFx1(uint8_t state)
 		if(PTE->fillState > 0)
 		{
 			PTE->showFillPopup();
+			PTE->trackerPattern.popupMode |= 1;
 			return 1;
 		}
 
@@ -1820,7 +1823,9 @@ static  uint8_t functFx1(uint8_t state)
 		//PTE->lightUpPadBoard();
 
 		// odswiezenie paternu bez danych zakrytych przez popup
-		PTE->trackerPattern.popupMode |= 1;
+		PTE->trackerPattern.popupMode |= 2;
+		if(mtConfig.interface.fxPopupDescription) PTE->trackerPattern.popupMode |= 4;
+
 		display.refreshControl(PTE->patternControl);
 	}
 	else if(state == buttonRelease)
@@ -1854,7 +1859,7 @@ static  uint8_t functFx2(uint8_t state)
 		if(PTE->fillState > 0)
 		{
 			PTE->showFillPopup();
-			PTE->trackerPattern.popupMode |= 2;
+			PTE->trackerPattern.popupMode |= 1;
 			return 1;
 		}
 
@@ -1879,7 +1884,8 @@ static  uint8_t functFx2(uint8_t state)
 		//PTE->lightUpPadBoard();
 
 		// odswiezenie paternu bez danych zakrytych przez popup
-		PTE->trackerPattern.popupMode |= 1;
+		PTE->trackerPattern.popupMode |= 2;
+		if(mtConfig.interface.fxPopupDescription) PTE->trackerPattern.popupMode |= 4;
 
 		display.refreshControl(PTE->patternControl);
 	}
@@ -2306,7 +2312,7 @@ static  uint8_t functPreview()
 static  uint8_t functFill()
 {
 	PTE->fillState = 1;
-	PTE->trackerPattern.popupMode |= 2;
+	PTE->trackerPattern.popupMode |= 1;
 	PTE->focusOnPattern();
 
 	PTE->showFillPopup();
