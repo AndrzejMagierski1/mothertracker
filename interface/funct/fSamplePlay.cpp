@@ -1471,13 +1471,20 @@ static void modStartPoint(int16_t value)
 				SP->editorInstrument->loopPoint2 = SP->editorInstrument->endPoint - 1;
 				SP->editorInstrument->loopPoint1 = SP->editorInstrument->loopPoint2 - dif;
 				SP->editorInstrument->startPoint = SP->editorInstrument->loopPoint1 - 1;
-				instrumentPlayer[0].setStatusBytes(LP1_MASK);
-				instrumentPlayer[0].setStatusBytes(LP2_MASK);
+				for(uint8_t i = 0; i < 8; i++)
+				{
+					instrumentPlayer[i].setStatusBytes(LP1_MASK);
+					instrumentPlayer[i].setStatusBytes(LP2_MASK);
+				}
+
 			}
 			else
 			{
 				SP->editorInstrument->loopPoint2 = SP->editorInstrument->loopPoint1 + dif;
-				instrumentPlayer[0].setStatusBytes(LP2_MASK);
+				for(uint8_t i = 0; i < 8; i++)
+				{
+					instrumentPlayer[i].setStatusBytes(LP2_MASK);
+				}
 			}
 
 			SP->showLoopPoint1Value();
@@ -1532,13 +1539,21 @@ static void modEndPoint(int16_t value)
 				SP->editorInstrument->loopPoint2 = SP->editorInstrument->loopPoint1 + dif;
 				SP->editorInstrument->endPoint = SP->editorInstrument->loopPoint2 + 1;
 
-				instrumentPlayer[0].setStatusBytes(LP1_MASK);
-				instrumentPlayer[0].setStatusBytes(LP2_MASK);
+				for(uint8_t i = 0; i < 8; i++)
+				{
+					instrumentPlayer[i].setStatusBytes(LP1_MASK);
+					instrumentPlayer[i].setStatusBytes(LP2_MASK);
+				}
+
 			}
 			else
 			{
 				SP->editorInstrument->loopPoint1 = SP->editorInstrument->loopPoint2 - dif;
-				instrumentPlayer[0].setStatusBytes(LP1_MASK);
+				for(uint8_t i = 0; i < 8; i++)
+				{
+					instrumentPlayer[i].setStatusBytes(LP1_MASK);
+				}
+
 
 			}
 
@@ -1574,7 +1589,10 @@ static void modLoopPoint1(int16_t value)
 	if(SP->zoom.zoomValue > 1 && (SP-> zoom.lastChangedPoint != 3
 			|| (SP->editorInstrument->loopPoint1 < SP->zoom.zoomStart || SP->editorInstrument->loopPoint1 > SP->zoom.zoomEnd))) SP->refreshSpectrum = 1;
 
-	instrumentPlayer[0].setStatusBytes(LP1_MASK);
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(LP1_MASK);
+	}
 
 	SP->zoom.zoomPosition = SP->editorInstrument->loopPoint1;
 	SP->zoom.lastChangedPoint = 3;
@@ -1600,7 +1618,10 @@ static void modLoopPoint2(int16_t value)
 	if(SP->zoom.zoomValue > 1 && ( SP->zoom.lastChangedPoint != 4
 			|| (SP->editorInstrument->loopPoint2 < SP->zoom.zoomStart || SP->editorInstrument->loopPoint2 > SP->zoom.zoomEnd))) SP->refreshSpectrum = 1;
 
-	instrumentPlayer[0].setStatusBytes(LP2_MASK);
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(LP2_MASK);
+	}
 
 	SP->zoom.zoomPosition = SP->editorInstrument->loopPoint2;
 	SP->zoom.lastChangedPoint = 4;
@@ -1625,8 +1646,11 @@ static void modWavetablePostion(int32_t value)
 	else if((SP->editorInstrument->wavetableCurrentWindow + value) > (SP->editorInstrument->sample.wavetableWindowNumber - 1) ) SP->editorInstrument->wavetableCurrentWindow = SP->editorInstrument->sample.wavetableWindowNumber - 1;
 	else SP->editorInstrument->wavetableCurrentWindow += value;
 
-	instrumentPlayer[0].instrumentBasedMod.wtPos = SP->editorInstrument->wavetableCurrentWindow;
-	instrumentPlayer[0].setStatusBytes(WT_POS_SEND_MASK);
+//	instrumentPlayer[0].instrumentBasedMod.wtPos = SP->editorInstrument->wavetableCurrentWindow;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(WT_POS_SEND_MASK);
+	}
 
 	SP->processWavetableCursor(SP->editorInstrument->wavetableCurrentWindow);
 	SP->showWavetablePosition();
@@ -1766,7 +1790,11 @@ static void modGranularLength(int16_t value)
 
 	SP->showGrainLengthValue();
 
-	instrumentPlayer[0].setStatusBytes(GRANULAR_LEN_SEND_MASK);
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(GRANULAR_LEN_SEND_MASK);
+	}
+
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 static void modGranularShape(int16_t value)
@@ -1776,8 +1804,10 @@ static void modGranularShape(int16_t value)
 	else SP->editorInstrument->granular.shape += value;
 
 	SP->showShapeText();
-
-	instrumentPlayer[0].setStatusBytes(GRANULAR_WAVE_SEND_MASK);
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(GRANULAR_WAVE_SEND_MASK);
+	}
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 static void modGranularLoopType(int16_t value)
@@ -1788,7 +1818,10 @@ static void modGranularLoopType(int16_t value)
 
 	SP->showLoopTypeText();
 
-	instrumentPlayer[0].setStatusBytes(GRANULAR_LOOP_SEND_MASK);
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(GRANULAR_LOOP_SEND_MASK);
+	}
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 static void modGranularPosition(int16_t value)
@@ -1800,8 +1833,12 @@ static void modGranularPosition(int16_t value)
 
 	SP->showGranularPositionValue();
 
-	instrumentPlayer[0].instrumentBasedMod.granPos =  SP->editorInstrument->granular.currentPosition;
-	instrumentPlayer[0].setStatusBytes(GRANULAR_POS_SEND_MASK);
+//	instrumentPlayer[0].instrumentBasedMod.granPos =  SP->editorInstrument->granular.currentPosition;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(GRANULAR_POS_SEND_MASK);
+	}
+
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 

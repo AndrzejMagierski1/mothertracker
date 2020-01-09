@@ -103,8 +103,10 @@ public:
 
 	elapsedMillis ampLfoRefreshTimer;
 	elapsedMillis pitchLfoRefreshTimer;
+	elapsedMillis envelopesRefreshTimer;
 
 	const uint8_t LFO_REFRESH_TIME = 5;
+	const uint8_t ENVELOPES_REFRESH_TIME_MS = 10;
 
 	enum struct controlType
 	{

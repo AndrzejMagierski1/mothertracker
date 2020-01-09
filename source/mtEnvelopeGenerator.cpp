@@ -31,10 +31,12 @@ void envelopeGenerator::stop()
 
 void envelopeGenerator::kill()
 {
+	// gdy jest noteOff i od razu noteOn maszyna stanów nie nadąża przejsc do release -
+	// gdy jest zerowy release bieże 1.0 bo taki jest stan sustaina a powinna 0.0 bo nuta powinna się skonczyc w nieskonczenie krotkim czasie gdy release = 0
+	if((envTemp.phase == phase_sustain) && (envelope->release == 0)) envTemp.killOutput = 0.0f;
+	else  envTemp.killOutput = envTemp.output;
 	envTemp.phase = phase_nothing;
 	envTemp.timer = 0;
-	envTemp.killOutput = envTemp.output;
-
 	keyPressed = 0;
 }
 

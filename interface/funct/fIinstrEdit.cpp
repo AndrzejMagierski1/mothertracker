@@ -733,8 +733,11 @@ void changeFilterCutOff(int16_t value)
 	else IE->editorInstrument->cutOff += fVal;
 
 //	display.setBacklightBrightness(map(editorInstrument->cutOff,MIN_CUTOFF,MAX_CUTOFF,0,128));
-	instrumentPlayer[0].instrumentBasedMod.cutoff = IE->editorInstrument->cutOff;
-	instrumentPlayer[0].setStatusBytes(CUTOFF_MASK);
+//	instrumentPlayer[0].instrumentBasedMod.cutoff = IE->editorInstrument->cutOff;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(CUTOFF_MASK);
+	}
 
 	IE->showFilterCutOff();
 
@@ -749,7 +752,10 @@ void changeFilterResonance(int16_t value)
 	else if(IE->editorInstrument->resonance + fVal > RESONANCE_MAX) IE->editorInstrument->resonance = RESONANCE_MAX;
 	else IE->editorInstrument->resonance += fVal;
 
-	instrumentPlayer[0].setStatusBytes(RESONANCE_MASK);
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(RESONANCE_MASK);
+	}
 
 	IE->showFilterResonance();
 
@@ -762,7 +768,10 @@ void changeParamsVolume(int16_t value)
 	else if(IE->editorInstrument->volume + value > MAX_INSTRUMENT_VOLUME) IE->editorInstrument->volume = MAX_INSTRUMENT_VOLUME;
 	else IE->editorInstrument->volume += value;
 
-	instrumentPlayer[0].setStatusBytes(VOLUME_MASK);
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(VOLUME_MASK);
+	}
 
 	IE->showParamsVolume();
 
@@ -775,7 +784,10 @@ void changeParamsTune(int16_t value)
 	else if(IE->editorInstrument->tune + value > MAX_INSTRUMENT_TUNE) IE->editorInstrument->tune = MAX_INSTRUMENT_TUNE;
 	else IE->editorInstrument->tune += value;
 
-	instrumentPlayer[0].setStatusBytes(TUNE_MASK);
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(TUNE_MASK);
+	}
 
 	IE->showParamsTune();
 
@@ -788,7 +800,10 @@ void changeParamsFineTune(int16_t value)
 	else if(IE->editorInstrument->fineTune + value > MAX_INSTRUMENT_FINETUNE) IE->editorInstrument->fineTune = MAX_INSTRUMENT_FINETUNE;
 	else IE->editorInstrument->fineTune += value;
 
-	instrumentPlayer[0].setStatusBytes(FINETUNE_MASK);
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(FINETUNE_MASK);
+	}
 
 	IE->showParamsFineTune();
 
@@ -814,7 +829,11 @@ void changeParamsPanning(int16_t value)
 	else if(IE->editorInstrument->panning + value > PANNING_MAX ) IE->editorInstrument->panning = PANNING_MAX;
 	else IE->editorInstrument->panning += value;
 
-	instrumentPlayer[0].setStatusBytes(PANNING_MASK);
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(PANNING_MASK);
+	}
 
 	IE->showParamsPanning();
 
@@ -828,7 +847,10 @@ void changeParamsReverbSend(int16_t value)
 	else if(IE->editorInstrument->reverbSend + value > REVERB_SEND_MAX ) IE->editorInstrument->reverbSend = REVERB_SEND_MAX;
 	else IE->editorInstrument->reverbSend += value;
 
-	instrumentPlayer[0].setStatusBytes(REVERB_SEND_MASK);
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(REVERB_SEND_MASK);
+	}
 
 	IE->showParamsReverbSend();
 
