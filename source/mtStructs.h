@@ -210,8 +210,8 @@ enum instrumentPlayMode
 	loopForward,
 	loopBackward,
 	loopPingPong,
-	playModeWavetable, //tylko na uzytek interface - sample type obsługuje to w silniku
 	playModeSlice,
+	playModeWavetable, //tylko na uzytek interface - sample type obsługuje to w silniku
 	playModeGranular,
 
 	playModeCount

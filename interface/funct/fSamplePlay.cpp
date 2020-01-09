@@ -1393,7 +1393,7 @@ static void changePlayModeSelection(int16_t value)
 	}
 
 
-	if(((SP->editorInstrument->playMode == singleShot) && (value < 0 )) || ((SP->editorInstrument->playMode == playModeWavetable) && (value > 0 )) )
+	if(((SP->editorInstrument->playMode == singleShot) && (value < 0 )) || ((SP->editorInstrument->playMode == playModeSlice) && (value > 0 )) )
 	{
 		SP->hideLoopPoints();
 		if(SP->editorInstrument->playMode == singleShot) SP->refreshPoints = 1;
