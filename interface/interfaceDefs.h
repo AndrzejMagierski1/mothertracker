@@ -276,8 +276,13 @@ struct strInterfaceGlobals
 	}
 	int16_t fxNameToId(int16_t name)
 	{
-		if(name>=0)	return fxIDs[name];
-		else return name;
+		if (name >= FX_COUNT)
+		{
+			return 0;
+		}
+		else if (name >= 0) return fxIDs[name];
+		else
+			return name;
 	}
 
 

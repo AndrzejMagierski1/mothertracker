@@ -138,7 +138,9 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 	if (!isSelectionCorrect(sel)) return;
 	if (fxIndex > FX_SLOTS_MAX) fxIndex = 0;
 
-	int16_t fxType = interfaceGlobals.fxNameToId(fxName);
+	int16_t fxType = constrain(interfaceGlobals.fxNameToId(fxName),
+								0,
+								FX_COUNT - 1);
 
 	strPattern::strTrack::strStep *step;
 
@@ -175,7 +177,7 @@ uint8_t Sequencer::randomFx()
 	uint8_t retVal;
 	for (uint8_t a = 0; a < 100; a++)
 	{
-		retVal = random(1, FX_MAX + 1);
+		retVal = random(2, FX_MAX + 1); // bo 1 to off a nie chcemy
 		if(retVal != fx.FX_TYPE_TEMPO) break;
 	}
 	return retVal;

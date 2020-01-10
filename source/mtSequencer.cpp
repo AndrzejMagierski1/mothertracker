@@ -946,6 +946,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 
 			if (player.songMode)
 			{
+				reset_actual_pos();
 				switchRamPatternsNow();
 				isNextPatternAvailable =
 						fileManager.switchNextPatternInSong();
@@ -963,6 +964,12 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 					player.onPatternEnd();
 					player.onSongEnd();
 				}
+			}
+
+//			jesli songmode to reszta kodu nie jest potrzebna po zmianie patternu
+			if (player.songMode)
+			{
+				return;
 			}
 		}
 	}

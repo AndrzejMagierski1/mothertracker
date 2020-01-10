@@ -118,6 +118,7 @@ void cPatternEditor::update()
 
 		refreshPatternParams();
 	}
+	showLength();
 
 	if(trackerPattern.playheadPosition == lastPatternPosition || (!isPleyheadOnScreen() && editMode))  return;
 
@@ -2478,6 +2479,7 @@ static  uint8_t functFillApply()
 
 		//--------------------------------------------------------
 		functFillCancel();
+		fileManager.storePatternUndoRevision();
 		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 	}
 

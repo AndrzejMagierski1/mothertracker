@@ -220,12 +220,12 @@ uint8_t FileManager::openProjectStart(char * name , uint8_t type)
 	//**************************************************************************
 	//Wczytanie pliku projektu do pamięci i zapisanie go z pamięci do workspace
 	//**************************************************************************
-	sprintf(currentPatch, "%s/project.bin", currentProjectPatch);
+	sprintf(currentPatch, "%s/project.mt", currentProjectPatch);
 
 	status = readProjectFile(currentPatch, &mtProject);
 	if(status)
 	{
-		sprintf(currentPatch, "Workspace/project.bin");
+		sprintf(currentPatch, "Workspace/project.mt");
 
 		if(SD.exists(currentPatch))
 		{
@@ -411,10 +411,10 @@ void FileManager::finishSaving()
 	char currentPatch[PATCH_SIZE];
 	savingInProgress = 0;
 
-	sprintf(currentPatch,"%s/project.bin", currentProjectPatch);
+	sprintf(currentPatch,"%s/project.mt", currentProjectPatch);
 	writeProjectFile(currentPatch, &mtProject);
 
-	strcpy(currentPatch,"Workspace/project.bin");
+	strcpy(currentPatch,"Workspace/project.mt");
 	writeProjectFile(currentPatch,&mtProject);
 }
 
@@ -507,7 +507,7 @@ void FileManager::createEmptyTemplateProject(char * name)
 	mtProject.values.actualPattern = 1;
 	savePattern(mtProject.values.actualPattern);
 
-	sprintf(patchFolder,"Templates/%s/project.bin", name);
+	sprintf(patchFolder,"Templates/%s/project.mt", name);
 
 /*	strMtProject projectFile;
 	getDefaultProject(&projectFile);*/
@@ -576,7 +576,7 @@ uint8_t FileManager::loadProjectFromWorkspaceStart()
 	uint8_t status;
 	char currentPatch[PATCH_SIZE];
 
-	strcpy(currentPatch,"Workspace/project.bin");
+	strcpy(currentPatch,"Workspace/project.mt");
 
 	status = readProjectFile(currentPatch, &mtProject);
 	if(!status) return status;
@@ -692,7 +692,7 @@ void FileManager::autoSaveProject()
 	fileManager.configIsChangedFlag = 0;
 
 	char currentPatch[PATCH_SIZE];
-	strcpy(currentPatch,"Workspace/project.bin");
+	strcpy(currentPatch,"Workspace/project.mt");
 
 	writeProjectFile(currentPatch,&mtProject);
 }
