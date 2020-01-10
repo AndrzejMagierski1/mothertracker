@@ -53,7 +53,7 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 	FM->setPadsGlobal(functPads);
 	FM->setPowerButtonObj(functPowerButton);
 
-	mainStatus = checkInputs;
+	mainStatus = checkStart;//checkInputs;
 	procedureRunning = 1;
 }
 
@@ -290,11 +290,11 @@ void cTest::showInputsTest()
 
 	if(testPhase == 0 || testPhase == 1)
 	{
-		showMessage("Press all buttons, pads and move encoder", "", "", "No");
+		showMessage("Press all buttons, pads and move encoder", "", "", "");
 	}
 	if(testPhase == 2)
 	{
-		showMessage("Pads backlight ok?", "Ok", "", "No ok");
+		showMessage("Pads backlight ok?", "", "Ok", "No ok");
 	}
 }
 
@@ -324,6 +324,10 @@ void cTest::runInputsTest()
 		if(input_result == 1 ) testPhase++;
 	}
 	else if(testPhase == 2)
+	{
+
+	}
+	else if(testPhase == 3)
 	{
 		testPhase = lastPhase;
 	}
@@ -408,6 +412,7 @@ void cTest::AcceptButton()
 	{
 		if(testPhase == 0) break;
 		else if(testPhase == 1) break;
+		else if(testPhase == 2) testPhase++;
 		else if(testPhase < lastPhase) testPhase++;
 		else nextTest();
 		break;
