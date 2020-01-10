@@ -118,6 +118,7 @@ void cPatternEditor::update()
 
 		refreshPatternParams();
 	}
+	showLength();
 
 	if(trackerPattern.playheadPosition == lastPatternPosition || (!isPleyheadOnScreen() && editMode))  return;
 
