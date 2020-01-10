@@ -46,7 +46,9 @@ void cMtPadBoard::startInstrument(uint8_t pad, uint8_t index, int8_t velocity)
 	//mtPrint("start: ");
 	//mtPrintln(voiceToTake);
 	instrumentPlayer[voiceToTake].noteOff();
-	instrumentPlayer[voiceToTake].noteOnforPrev(index, convertPadToNote(pad),velocity);
+	// >= 48 oznacza slice
+	if(pad < 48) instrumentPlayer[voiceToTake].noteOnforPrev(index, convertPadToNote(pad),velocity);
+	else instrumentPlayer[voiceToTake].noteOnforPrev(index, convertPadToNote(12), velocity);
 }
 
 void cMtPadBoard::startInstrument(uint8_t pad,int16_t * addres, uint32_t length)
