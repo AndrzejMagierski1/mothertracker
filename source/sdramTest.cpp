@@ -2,6 +2,7 @@
 #include "mtStructs.h"
 #include "sdram.h"
 #include "SD.h"
+#include "mtAudioEngine.h"
 
 SdramTester sdramTester;
 constexpr uint8_t RW_NUMBER = 10;
@@ -117,5 +118,6 @@ void SdramTester::test()
 		log.println();
 	}
 
+	engine.printLog(&log);
 	log.close();
 }

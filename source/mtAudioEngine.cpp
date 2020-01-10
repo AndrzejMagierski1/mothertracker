@@ -139,7 +139,15 @@ audioEngine engine;
 constexpr uint16_t releaseNoteOnVal = 5;
 
 
+void audioEngine::printLog(FsFile * log)
+{
 
+	log->println("***********************AudioEngine***************************");
+	for(int i=0;i<8; i++)
+	{
+		instrumentPlayer[i].printLog(log);
+	}
+}
 
 void audioEngine::init()
 {
@@ -3240,3 +3248,17 @@ uint32_t playerEngine::getEnvelopeGranPosMod()
 	return ((envelopeGranPos->isKeyPressed() == 1) || (envelopeGranPos->getPhase() != 0)) ? instrumentBasedMod.granPos : mtProject.instrument[currentInstrument_idx].granular.currentPosition;
 }
 
+void playerEngine::printLog(FsFile * log)
+{
+	uint8_t nr_voice = ((uint32_t)this - (uint32_t)instrumentPlayer)/sizeof(playerEngine);
+	log->printf("******************voice nr %d******************\n",nr_voice);
+	log->println("kluczowe parametry aktualnego instrumentu");
+	log->printf("index: %d\n", currentInstrument_idx);
+	log->printf("length: %d\n", mtProject.instrument[currentInstrument_idx].sample.length);
+	log->printf("addr: %x\n", (uint32_t)mtProject.instrument[currentInstrument_idx].sample.address);
+	log->printf("flaga active: %d\n", mtProject.instrument[currentInstrument_idx].isActive);
+	log->printf("currentNote %d\n", currentNote);
+
+	playMemPtr->printLog(log);
+
+}
