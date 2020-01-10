@@ -7,7 +7,7 @@ const char fxDescriptions[FX_COUNT][150] =
 {
 	//Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
 	{
-			"Efekt sdsafxfg \nopis opis \ncos tam i cos tam \n\nmin: 0 \nmax: 100 \ndomyslnie: 0"
+			"none none none\nnone none none \nnone none none \n\nmin: 0 \nmax: 100 \ndefault: 0"
 	},
 	//Sequencer::strFxConsts::enFxType::FX_TYPE_OFF,
 	{
