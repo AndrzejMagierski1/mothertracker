@@ -2472,6 +2472,7 @@ static  uint8_t functFillApply()
 
 		//--------------------------------------------------------
 		functFillCancel();
+		fileManager.storePatternUndoRevision();
 		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 	}
 
