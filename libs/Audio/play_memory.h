@@ -32,6 +32,7 @@
 #include "mtStructs.h"
 #include "mtWavetableTabs.h"
 #include "mtGranularTabs.h"
+#include "SD.h"
 
 const double notes[MAX_NOTE] =
 {
@@ -164,6 +165,7 @@ class AudioPlayMemory : public AudioStream
 public:
 	AudioPlayMemory(void) : AudioStream(0, NULL), playing(0) { }
 
+	void printLog(FsFile * log);
 	uint8_t play(uint8_t instr_idx,int8_t note); 										// dla sequencer'a
 	uint8_t playForPrev(uint8_t instr_idx,int8_t n); 									// dla padboard'a - po indeksie instrumentu
 	uint8_t playForPrev(int16_t * addr,uint32_t len,uint8_t type);						// dla importera (odgrywa sample z banku) + umieszczony w wewnętrznym module recordera ale nie uzywany

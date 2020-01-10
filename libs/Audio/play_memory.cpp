@@ -603,7 +603,16 @@ void AudioPlayMemory::update(void)
 }
 
 //**************************************************************************************UPDATE END
+void AudioPlayMemory::printLog(FsFile * log)
+{
+	log->println("*************Parametry Silnika ");
+	log->printf("pitch counter: %d ", iPitchCounter);
+	if(iPitchCounter > length) log->print("counter poza plikiem");
+	log->println("");
+	log->printf("float pitch counter: %05f \n", fPitchCounter);
+	log->printf("addr: %x \n", (uint32_t)next);
 
+}
 //**************************************************************************************PLAY
 uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 {

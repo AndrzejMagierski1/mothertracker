@@ -37,6 +37,7 @@ public:
 	void soloReverbSend(uint8_t state);
 	void clearReverb();
 	void performanceModeEndAll();
+	void printLog(FsFile * log);
 
 	friend class playerEngine;
 private:
@@ -253,6 +254,8 @@ public:
 	void endEndPointPerformanceMode();
 	void endWavetableWindowPerformanceMode();
 	void endGranularPositionPerformanceMode();
+
+	void printLog(FsFile * log);
 
 private:
 
