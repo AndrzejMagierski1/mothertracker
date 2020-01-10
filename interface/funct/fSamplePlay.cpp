@@ -524,7 +524,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			SP->showSlicesAdjustValue();
 			SP->showSlicesSelectValue();
 			SP->refreshSlicePoints = 1;
-			mtPadBoard.startInstrument(12, mtProject.values.lastUsedInstrument,-1);
+			mtPadBoard.startInstrument(pad + 48, mtProject.values.lastUsedInstrument,-1);
 		}
 		else mtPadBoard.startInstrument(pad, mtProject.values.lastUsedInstrument,-1);
 
@@ -532,7 +532,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	else if(state == 0)
 	{
 		padsBacklight.setFrontLayer(0,0, pad);
-		if(SP->editorInstrument->playMode == playModeSlice) mtPadBoard.stopInstrument(12);
+		if(SP->editorInstrument->playMode == playModeSlice) mtPadBoard.stopInstrument(pad + 48);
 		else mtPadBoard.stopInstrument(pad);
 		if(SP->loadedInstrumentType == mtSampleTypeWaveFile)
 		{
