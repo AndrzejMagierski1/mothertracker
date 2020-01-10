@@ -253,8 +253,8 @@ void cTracker::refresh1()
 	if(displayMode > 0)
 	{
 		tracksSpace = (800 - (rightOffset + leftOffset)) / 8;
-		columnsCount = (tracks->popupMode & 2) == 1 ? 6 : 8;
-		columnsCount = (tracks->popupMode & 4) == 1 ? 4 : columnsCount;
+		columnsCount = (tracks->popupMode & 2) ? 6 : 8;
+		columnsCount = (tracks->popupMode & 4) ? 4 : columnsCount;
 		paramCount = (displayMode & 1) + ((displayMode & 2) >> 1) + ((displayMode & 4) >> 2) + ((displayMode & 8) >> 3);
 	}
 	else
