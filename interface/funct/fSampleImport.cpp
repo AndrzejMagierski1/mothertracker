@@ -1038,21 +1038,23 @@ void cSampleImporter::listOnlyWaveNames(char* folder, uint8_t startPoint)
 
 void cSampleImporter::processDirFileSizes()
 {
-	if(openingInProgress == 1)
+	if((openingInProgress == 1))
 	{
 		char filePath[255];
 
-		strcpy(filePath, actualPath);
-		if(dirLevel > 0)
+		if(folderIsChanged == 1)
 		{
-			strcat(filePath, "/");
+			strcpy(filePath, actualPath);
+			if(dirLevel > 0)
+			{
+				strcat(filePath, "/");
+			}
+
+			strcat(filePath, &locationExplorerList[openCurrentPos][0]);
+			//		fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath,&currentFolderMemoryFileUsage[openCurrentPos],&currentFolderIsWavetableFlag[openCurrentPos]);
+
+			currentFolderMemoryFileUsage[openCurrentPos] = 2 * fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
 		}
-
-		strcat(filePath, &locationExplorerList[openCurrentPos][0]);
-
-//		fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath,&currentFolderMemoryFileUsage[openCurrentPos],&currentFolderIsWavetableFlag[openCurrentPos]);
-
-		currentFolderMemoryFileUsage[openCurrentPos] = 2 * fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
 
 		openCurrentPos++;
 
@@ -1070,6 +1072,7 @@ void cSampleImporter::processDirFileSizes()
 			}
 
 			openingInProgress = 0;
+			folderIsChanged = 0;
 			isBusy = 0;
 
 			hideHorizontalBar();
@@ -1162,20 +1165,27 @@ void cSampleImporter::goUpInActualPath()
 
 void cSampleImporter::listAllFoldersFirst()
 {
-	isBusy = 1; // processDirFileSizes() powinna zdjac flage tutaj ustawiona
-	locationExplorerCount=0;
 
-	for(int i=0;i<list_length_max;i++)
+
+	if(folderIsChanged)
 	{
-		explorerNames[i]=NULL;
+		isBusy = 1; // processDirFileSizes() powinna zdjac flage tutaj ustawiona
+		locationExplorerCount=0;
+
+		for(int i=0;i<list_length_max;i++)
+		{
+			explorerNames[i]=NULL;
+		}
 	}
+
 
 	openingInProgress = 1;
 
 	showFilesTree();
-
-	listOnlyFolderNames(actualPath);
-	listOnlyWavFromActualPath(locationExplorerCount);
+	//todo: flaga folderIsChanged powinna byc ustawiana gdy karta zostanie wyjeta i wlozona ponownie
+	// - niezaleznie od modulu gdyz ktos moglby zmienic cos na karcie - to samo w przypadku mtp
+	if(folderIsChanged) listOnlyFolderNames(actualPath);
+	if(folderIsChanged) listOnlyWavFromActualPath(locationExplorerCount);
 }
 
 void cSampleImporter::BrowseOrAdd()
@@ -1198,7 +1208,9 @@ void cSampleImporter::BrowseOrAdd()
 
 				selectedFile=0;
 
+				folderIsChanged = 1;
 				listAllFoldersFirst();
+
 			}
 			else
 			{
@@ -1216,6 +1228,7 @@ void cSampleImporter::BrowseOrAdd()
 
 						selectedFile=0;
 
+						folderIsChanged = 1;
 						listAllFoldersFirst();
 					}
 
@@ -1236,7 +1249,7 @@ void cSampleImporter::BrowseOrAdd()
 					explorerCurrentPosition--;
 					selectedFile=explorerPositionTable[explorerCurrentPosition];
 
-
+					folderIsChanged = 1;
 					listAllFoldersFirst();
 				}
 			}
