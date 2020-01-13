@@ -1529,9 +1529,10 @@ static  uint8_t functActionConfirmSaveLoad()
 
 		SR->forceSwitchModule = 1;
 
-
-
-		functSwitchModule(interfaceButtonSampleLoad);
+		firstFree++;
+		uint8_t button = interfaceButtonSampleLoad;
+		SR->eventFunct(eventSwitchModule,SR,&button,&firstFree);
+//		functSwitchModule(interfaceButtonSampleLoad);
 	}
 
 	return 0;
@@ -1879,21 +1880,22 @@ static  uint8_t functDown()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(SR->forceSwitchModule == 0)
-	{
-		if(SR->selectionWindowFlag == 1) return 1;
-		if(SR->recordInProgressFlag) return 1;
-		if(SR->saveInProgressFlag) return 1;
-		if(SR->notEnoughInstrumentsFlag) return 1;
-		if(SR->notEnoughMemoryFlag) return 1;
-		if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;
-	}
-	else SR->forceSwitchModule = 0;
+
+	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->recordInProgressFlag) return 1;
+	if(SR->saveInProgressFlag) return 1;
+	if(SR->notEnoughInstrumentsFlag) return 1;
+	if(SR->notEnoughMemoryFlag) return 1;
+	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) return 1;
+
 
 
 	if(button == interfaceButtonMaster) SR->dontTurnOffRadio = 1;
 
-	SR->eventFunct(eventSwitchModule,SR,&button,0);
+
+
+    SR->eventFunct(eventSwitchModule,SR,&button,0);
+
 	return 1;
 }
 

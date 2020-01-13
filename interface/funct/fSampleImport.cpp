@@ -107,6 +107,7 @@ void cSampleImporter::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
+
 	Encoder.setAcceleration(0);
 
 	//selectedFile = 0;
@@ -123,7 +124,10 @@ void cSampleImporter::start(uint32_t options)
 
 	keyboardManager.init(keyboardControl,editName);
 
-
+	if(options)
+	{
+		selectedSlot = options - 1;
+	}
 
 	listAllFoldersFirst();
 
@@ -900,6 +904,7 @@ uint8_t cSampleImporter::changeFileSelection(int16_t value)
 
 	return 1;
 }
+
 
 uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 {
