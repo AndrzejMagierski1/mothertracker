@@ -517,10 +517,12 @@ void FileManager::setPatternChangeFlag(uint8_t num)
 
 void FileManager::setInstrumentChangeFlag(uint8_t num)
 {
+
 	instrumentIsChangedFlag[num] = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 	mtProject.values.instrumentsToSave[num] = 1;
 	configIsChangedFlag = 1;
+
 }
 
 /*void FileManager::setInstrumentChangeFlag()

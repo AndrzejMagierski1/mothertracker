@@ -613,6 +613,11 @@ struct strMtConfig
 		uint8_t fxPopupDescription;
 	} interface;
 
+	struct strDebugState
+	{
+		uint8_t debugLogState;
+	} debug;
+
 	uint32_t arcanoidHighestScore;
 };
 

@@ -1,38 +1,30 @@
 
 
 #include "FT812.h"
-
 #include "display.h"
-
-
 #include "core_pins.h"
 #include "elapsedMillis.h"
 
 
-
-#include "poly_logo_inv_128x128_L8.h"
-
+#include "debugLog.h"
 
 
-#include "poly_logo_160x172_L8.h"
-
+// CZCIONKI
 #include "RobotoMono-Regular_14_L4.h"
 #include "RobotoMono-Regular_17_L4.h"
-
 #include "RobotoMono-Bold_14_L4.h"
 #include "RobotoMono-Bold_17_L4.h"
-
 #include "RobotoMono-Light_14_L4.h"
 #include "RobotoMono-Light_17_L4.h"
 
-
+// OBRAZY
+#include "poly_logo_160x172_L8.h"
 #include "songIcons.h"
-
 #include "arrowIcons.h"
 
-// OBRAZY
 
-// CZCIONKI
+
+
 
 
 
@@ -65,12 +57,6 @@ const strBitmap bitmaps[displayBitmapsCount] =
 
 
 strGetProps getProps;
-
-
-
-strTrackerPattern trackerSeqDisplay;
-
-//void display_table();
 
 
 cDisplay display;
@@ -301,7 +287,7 @@ void cDisplay::update()
 		    API_CMD_DLSTART();
 
 
-			API_CLEAR_COLOR(config.bgColor);
+			API_CLEAR_COLOR(0x000000);
 			API_CLEAR(1,1,1);
 
 
@@ -319,6 +305,8 @@ void cDisplay::update()
 				}
 			}
 
+
+			if(mtConfig.debug.debugLogState) debugLog.processLog();
 
 		    API_DISPLAY();
 		    API_CMD_SWAP();
@@ -573,7 +561,15 @@ void cDisplay::resetControlQueue()
 	actualUpdating = nullptr;
 }
 
+uint8_t cDisplay::isIdle()
+{
+	return (updateStep == 0) && (refreshQueueTop ==  refreshQueueBott);
+}
 
+void cDisplay::forceAppedStage()
+{
+	updateStep = 2;
+}
 //=====================================================================================================
 // jpg/png
 //=====================================================================================================
@@ -677,7 +673,7 @@ void cDisplay::clear()
 
     API_CMD_DLSTART();
 
-	API_CLEAR_COLOR(config.bgColor);
+	API_CLEAR_COLOR(0x000000);
 	API_CLEAR(1,1,1);
 
     API_DISPLAY();

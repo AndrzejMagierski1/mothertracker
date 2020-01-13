@@ -32,7 +32,7 @@
 //#include "mtCardChecker.h"
 #include "mtSleep.h"
 
-
+#include "debugLog.h"
 
 
 cInterface mtInterface;
@@ -142,6 +142,8 @@ void cInterface::update()
 	mtPopups.update();
 
 	mtTest.testLoop();
+
+	debugLog.update();
 }
 
 
@@ -287,7 +289,7 @@ void cInterface::processOperatingMode()
 			if(doOnStart == 1)
 			{
 				readConfig();
-				readSdConfig();
+				//readSdConfig();
 
 				doOnStart = 2;
 				openStartupProject();
