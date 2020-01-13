@@ -3120,7 +3120,7 @@ void playerEngine::endReverbSendPerformanceMode()
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] = 0;
 
-	mixerReverb.gain(numPanChannel,reverbSend/100.0);
+	if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1)) mixerReverb.gain(numPanChannel,reverbSend/100.0);
 }
 
 void playerEngine::endPointsPerformanceMode()
