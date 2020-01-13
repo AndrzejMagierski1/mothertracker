@@ -6,7 +6,7 @@
 
 #include "mtStructs.h"
 
-
+#include "debugLog.h"
 #include "mtConfig.h"
 
 void firmwareVersionChange();
@@ -21,6 +21,8 @@ void saveConfig()
 {
 	if(save_delay > 1000)
 	{
+		debugLog.addLine("eeprom save");
+		debugLog.forceRefresh();
 		save_delay = 0;
 		EEPROM.put(CONFIG_EEPROM_ADRESS, &mtConfig);
 	}
@@ -29,11 +31,17 @@ void saveConfig()
 
 void forceSaveConfig()
 {
+	debugLog.addLine("eeprom save");
+	debugLog.forceRefresh();
+
 	EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
 }
 
 void readConfig()
 {
+	debugLog.addLine("eeprom read");
+	debugLog.forceRefresh();
+
 	EEPROM.get(CONFIG_EEPROM_ADRESS, mtConfig);
 
 	checkConfig();
@@ -191,6 +199,11 @@ void checkConfig()
 		mtConfig.interface.fxPopupDescription = 0;
 	}
 
+	// debug ----------------------------------------
+	if(mtConfig.debug.debugLogState > 1)
+	{
+		mtConfig.debug.debugLogState = 0;
+	}
 
 
 // TODO dodac zapis spowrotem do configu jesli np przy sprawdzaniu wazne dane sie nie zgadzały

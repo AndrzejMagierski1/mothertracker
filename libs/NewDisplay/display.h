@@ -5,12 +5,12 @@
 
 #include <typeinfo>
 #include <Arduino.h>
-
 #include <stdint.h>
 
 #include "SD.h"
 
 #include "displayControls.h"
+
 #include "trackerControl.h"
 #include "commonControls.h"
 #include "spectrumControl.h"
@@ -28,62 +28,27 @@
 #include "imgControl.h"
 #include "multiLabelControl.h"
 #include "sliceControl.h"
-
 #include "multiLabelControl.h"
 #include "wtProgress.h"
-
 #include "processingPopout.h"
 #include "simpleTextControl.h"
 #include "lineIndicatorControl.h"
 #include "songPlayerControl.h"
-
 #include "textBoxControl.h"
 
-typedef cDisplayControl* hControl;
+
+#include "displayStructs.h"
 
 
 
-//#########################################################################
-//							DEFINICJE
-//#########################################################################
-
-const uint8_t controlsCount = 55;
-const uint32_t controlsRamStartAddress = 100000;
-const uint32_t controlsRamAddressStep = 10000;
-
-const uint32_t imgRamAddress = 670000;
-const uint32_t imgSizeMax = 1000000-imgRamAddress;
-const int32_t imgBufforSize = 5000;
-
-const uint8_t displayFontCount = 4;
-
-
-enum enDisplayBitmaps
-{
-	displayPolyLogoBitmap,
-	displayPlayIcon,
-	displayLoopIcon,
-
-	displayDoubleArrowL,
-	displayDoubleArrowR,
-	displayArrowU,
-	displayArrowD,
-
-	displayBitmapsCount,
-};
-
-// NIE-EDITABLE
-const uint8_t controlsRefreshQueueSize = controlsCount+1;
-
-#define DISP_RGB(red,green,blue) ((((red)&255UL)<<16)|(((green)&255UL)<<8)|(((blue)&255UL)<<0))
-
-uint8_t get_jpeg_size(uint8_t* data, int32_t data_size, uint16_t *width, uint16_t *height);
 //#########################################################################
 //							KLASY
 //#########################################################################
 
 class cDisplay
 {
+	friend cDebugLog;
+
 public:
 
 	void begin();
@@ -136,6 +101,8 @@ public:
 	void refreshControl(hControl handle);
 	void synchronizeRefresh();
 	void resetControlQueue();
+	uint8_t isIdle();
+	void forceAppedStage();
 
 	void setControlPosition(hControl handle, int16_t x, int16_t y);
 	void setControlSize(hControl handle, int16_t w, int16_t h);
@@ -184,7 +151,6 @@ private:
 	hControl actualUpdating;
 	uint8_t updateStep;
 
-
 	uint8_t stopAppend;
 	uint8_t synchQueuePosition;
 	hControl refreshQueue[controlsRefreshQueueSize]; // FIFO
@@ -194,15 +160,8 @@ private:
 	uint8_t memoryMap[controlsCount] = {0};
 
 	//kosmetyka
-	struct strConfig
-	{
-		uint32_t bgColor = 0x000000;
-	} config;
-
 	uint8_t fontsCount = displayFontCount;
-
 	int8_t controls_count = 0;
-
 
 	uint8_t updateDisplaySettings = 0;
 

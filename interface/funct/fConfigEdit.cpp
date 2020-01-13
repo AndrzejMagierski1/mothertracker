@@ -16,6 +16,10 @@
 
 #include "SI4703.h"
 
+#include "interfacePopups.h"
+#include "debugLog.h"
+
+
 cConfigEditor configEditor;
 static cConfigEditor* CE = &configEditor;
 
@@ -981,11 +985,29 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 }*/
 
 
+
+
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if(state != buttonPress) return 1;
 
 	if(mtTest.runTestByCombinaion(pad)) 	CE->eventFunct(eventActivateTestingProcedure,CE,0,0);
+
+
+	if(pad == 0)
+	{
+		mtPopups.config(4, (strPopupStyleConfig*)&popupDebugConfig);
+		if(debugLog.toggleState())
+		{
+			mtPopups.show(4, "Debug log enabled");
+		}
+		else
+		{
+			mtPopups.show(4, "Debug log disabled");
+		}
+
+	}
+
 
 
 

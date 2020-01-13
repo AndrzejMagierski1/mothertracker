@@ -1335,8 +1335,8 @@ size_t FatFile::write(const void* buf, size_t nbyte) {
         }
       }
 
-      Serial.print(" startCluster: ");
-      Serial.print(fattimer);
+      //Serial.print(" startCluster: ");
+      //Serial.print(fattimer);
     }
     // sector for data write
 	fattimer = 0;
@@ -1382,8 +1382,8 @@ size_t FatFile::write(const void* buf, size_t nbyte) {
         }
       }
 
-      Serial.print(" partialsector: ");
-      Serial.print(fattimer);
+      //Serial.print(" partialsector: ");
+      //Serial.print(fattimer);
 #if USE_MULTI_SECTOR_IO
     }
     else if (nToWrite >= 2*m_vol->bytesPerSector())
@@ -1407,8 +1407,8 @@ size_t FatFile::write(const void* buf, size_t nbyte) {
 #endif  // USE_MULTI_SECTOR_IO
 
 
-      Serial.print(" multisector: ");
-      Serial.print(fattimer);
+      //Serial.print(" multisector: ");
+      //Serial.print(fattimer);
     }
     else
     {
@@ -1423,8 +1423,8 @@ size_t FatFile::write(const void* buf, size_t nbyte) {
       }
 
 
-      Serial.print(" singlesector: ");
-      Serial.print(fattimer);
+     //Serial.print(" singlesector: ");
+     //Serial.print(fattimer);
     }
     m_curPosition += n;
     src += n;
