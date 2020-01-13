@@ -359,14 +359,17 @@ void cInterface::deactivateModule(hModule module)
 	previousModuleOptions = lastOptions;
 }
 
-void cInterface::switchModuleByButton(hModule module, uint8_t button)
+void cInterface::switchModuleByButton(hModule module, uint8_t button, uint8_t options)
 {
 	int8_t index = getButtonIndex(button);
 	if(index < 0 ) return;
 	if(modules[modulesButtons[index][1]] == module) return;
 
+
+	uint8_t localOptions = options > 0 ? options : modulesButtons[index][2];
+
 	deactivateModule(module);
-	activateModule(modules[modulesButtons[index][1]], modulesButtons[index][2]);
+	activateModule(modules[modulesButtons[index][1]], localOptions );
 }
 
 void cInterface::switchModuleToPrevious(hModule module)
@@ -438,7 +441,7 @@ void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3)
 		case eventSwitchModule:
 		{
 			// param1 = uchwyt do modułu, param2 = index przycisku
-			mtInterface.switchModuleByButton((hModule)param1, *((uint8_t*)param2));
+			mtInterface.switchModuleByButton((hModule)param1, *((uint8_t*)param2), *((uint8_t*)param3));
 			break;
 		}
 		case eventSwitchToPreviousModule:
