@@ -2775,7 +2775,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	}
 
 	// dalej tylko jesli edit (rec)
-	if (PTE->editMode != 1)
+	if (PTE->editMode != 1 && !sequencer.isRec())
 	{
 		sendSelection();
 		if (state == buttonPress)
@@ -2816,7 +2816,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	if(PTE->patternViewMode > 0 && !(PTE->patternViewMode & (1 << PTE->editParam))) return 1;
 
 	// wprowadzanie danych
-	if (PTE->editMode == 1)
+	if (PTE->editMode == 1 || sequencer.isRec())
 	{
 		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		fileManager.storePatternUndoRevision();
