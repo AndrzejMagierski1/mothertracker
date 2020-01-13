@@ -254,6 +254,7 @@ public:
 	uint8_t openCurrentPos =0;
 	void processDirFileSizes();
 
+	uint8_t folderIsChanged = 1;
 
 	void previewColorControl();
 	void renameColorControl();
