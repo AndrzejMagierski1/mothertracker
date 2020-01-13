@@ -444,6 +444,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 			}
 		}
 	}
+	else
+	{
+		ampPtr->gain(0);
+	}
 	/*======================================================================================================*/
 	/*===============================================PANNING================================================*/
 
@@ -508,6 +512,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		{
 			mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
 		}
+	}
+	else
+	{
+		mixerReverb.gain(numPanChannel,0.0f);
 	}
 
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::endPoint])
@@ -693,6 +701,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 			}
 		}
 	}
+	else
+	{
+		ampPtr->gain(0.0f);
+	}
 	/*======================================================================================================*/
 	/*===============================================PANNING================================================*/
 
@@ -757,6 +769,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		{
 			mixerReverb.gain(numPanChannel,mtProject.instrument[instr_idx].reverbSend/100.0);
 		}
+	}
+	else
+	{
+		mixerReverb.gain(numPanChannel,0.0f);
 	}
 
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::endPoint])
@@ -1074,7 +1090,11 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 			}
 			else
 			{
-				modReverbSend(currentSeqModValues.reverbSend);
+				if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
+				{
+					modReverbSend(currentSeqModValues.reverbSend);
+				}
+				else modReverbSend(0.0f);
 			}
 
 		break;
@@ -1325,12 +1345,12 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 
 			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
 			{
-
 				changeVolumePerformanceMode(performanceMod.volume);
 			}
 			else
 			{
-				ampPtr->gain( (currentSeqModValues.volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+				if(muteState == 0 ) ampPtr->gain( (currentSeqModValues.volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+				else ampPtr->gain(0.0f);
 			}
 		break;
 		case fx_t::FX_TYPE_SAMPLE_SLICE:
@@ -1638,12 +1658,20 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				{
 					if(fx_id == MOST_SIGNIFICANT_FX)
 					{
-						modReverbSend(currentSeqModValues.reverbSend);
+						if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
+						{
+							modReverbSend(currentSeqModValues.reverbSend);
+						}
+						else modReverbSend(0.0f);
 					}
 				}
 				else
 				{
-					modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
+					if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
+					{
+						modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
+					}
+					else modReverbSend(0.0f);
 				}
 			}
 
@@ -2803,8 +2831,10 @@ void playerEngine ::changeReverbSendPerformanceMode(int8_t value)
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend] = 1;
 
-
-	mixerReverb.gain(numPanChannel,currentPerformanceValues.reverbSend/100.0);
+	if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
+	{
+		mixerReverb.gain(numPanChannel,currentPerformanceValues.reverbSend/100.0);
+	}
 
 }
 
