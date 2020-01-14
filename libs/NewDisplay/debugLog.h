@@ -27,7 +27,7 @@ enum enDebugLogState
 };
 
 
-const uint8_t  logLinesMax = 20;
+const uint8_t  logLinesMax = 10; //max 21-22
 const uint16_t  logLineTimeMax = 5000;
 
 //#########################################################################
@@ -39,6 +39,7 @@ class cDebugLog
 	friend cDisplay;
 
 public:
+	//  usable
 	void addLine(char text[]);
 	void addLine(const char text[]) { addLine((char*)text); }
 	void addText(char text[]);
@@ -47,19 +48,14 @@ public:
 
 	void forceRefresh();
 
+	// internal
 	void update();
-
 	uint8_t toggleState() {return mtConfig.debug.debugLogState = !mtConfig.debug.debugLogState;}
 
 private:
 	void processLog();
-
 	void removeBottLine();
 
-
-
-//	uint8_t debugLogState = 1;
-	elapsedMillis timer;
 
 // filo
 	uint8_t logTop = 0;
@@ -75,7 +71,6 @@ private:
 	} logLine[logLinesMax];
 
 	strFont* logFont = (strFont*)&fonts[0];
-
 
 
 };
