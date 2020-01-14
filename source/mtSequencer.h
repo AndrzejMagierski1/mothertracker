@@ -634,7 +634,7 @@ public:
 	void changeSelectionInstrument(int16_t value);
 
 	void setSelectionFxType(uint8_t index, int16_t value);
-	void setSelectionFxValue(uint8_t index, int16_t value);
+	void setSelectionFxValueByPad(uint8_t index, int16_t value);
 	void setSelectionInstrument(int16_t value);
 	//	void setSelectionVelocity(int16_t value);
 	void setSelectionNote(int16_t value);

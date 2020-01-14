@@ -2712,9 +2712,20 @@ void cPatternEditor::lightUpPadBoard()
 					}
 					else
 					{
-						show_fx = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].value; // wartosc
-						if(show_fx > FX_VALUE_MAX) break;
-						show_fx = map(show_fx,0,127,0,47); // przeskalowanie - dla wartosci!!
+						Sequencer::strPattern::strTrack::strStep & tempStep = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep];
+
+						show_fx = tempStep.fx[fx_index].value; // wartosc
+						if (show_fx > FX_VALUE_MAX) break;
+
+						float showFxTemp =  map(
+								(float)show_fx,
+								sequencer.getFxMin(tempStep.fx[fx_index].type),
+								sequencer.getFxMax(tempStep.fx[fx_index].type),
+								0,
+								47);
+
+						show_fx = showFxTemp + 0.5f;
+
 					}
 
 
@@ -2825,16 +2836,21 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		{
 		case 0: // nuta
 		{
-			sendSelection();
+//			if (state == buttonPress)
+//			{
+//				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+//				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 127);
+//			}
+//			else if (state == buttonRelease)
+//			{
+//				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+//				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0);
+//			}
 			if (state == buttonPress)
 			{
+				sendSelection();
 				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 127);
-			}
-			else if (state == buttonRelease)
-			{
-				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0);
+				sequencer.setSelectionNote(noteFromPad);
 			}
 			break;
 		}
@@ -2848,7 +2864,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			}
 			else if (state == buttonRelease)
 			{
-				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, 0, 0);
+//				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, 0, 0);
 			}
 			break;
 		}
@@ -2872,7 +2888,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				}
 				else
 				{
-					sequencer.setSelectionFxValue(fx_index, map(pad, 0, 47, 0, 127));
+					sequencer.setSelectionFxValueByPad(fx_index, pad);
 				}
 			}
 			break;

@@ -510,12 +510,13 @@ void Sequencer::changeSelectionFxValue(uint8_t fxIndex, int16_t value)
 		}
 	}
 }
-void Sequencer::setSelectionFxValue(uint8_t fxIndex, int16_t value)
+void Sequencer::setSelectionFxValueByPad(uint8_t fxIndex, int16_t pad)
 {
 
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	if (fxIndex > FX_SLOTS_MAX) return;
+
 
 	strPattern::strTrack::strStep *step;
 
@@ -527,15 +528,17 @@ void Sequencer::setSelectionFxValue(uint8_t fxIndex, int16_t value)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
 
-			step->fx[fxIndex].value = constrain(
-					value,
-					getFxMin(step->fx[fxIndex].type),
-					getFxMax(step->fx[fxIndex].type));
-//			step->fx[0].value2 = 1;
 			if (!isMultiSelection() && step->fx[fxIndex].type == 0)
 			{
 				step->fx[fxIndex].type = interfaceGlobals.fxNameToId(
 						mtProject.values.lastUsedFx);
+			}
+
+			step->fx[fxIndex].value = map(pad, 0, 47, getFxMin(step->fx[fxIndex].type), getFxMax(step->fx[fxIndex].type));
+
+			if (!isMultiSelection() && step->fx[fxIndex].type != 0)
+			{
+				playSelection();
 			}
 		}
 	}
@@ -674,10 +677,11 @@ void Sequencer::setSelectionInstrument(int16_t value)
 				{
 					step->instrument = value;
 
-					blinkNote(step->instrument,
-								step->note,
-								STEP_VELO_DEFAULT,
-								t);
+//					blinkNote(step->instrument,
+//								step->note,
+//								STEP_VELO_DEFAULT,
+//								t);
+					playSelection();
 
 					mtProject.values.lastUsedInstrument = step->instrument;
 				}
@@ -758,10 +762,11 @@ void Sequencer::setSelectionNote(int16_t value)
 
 				if (step->note >= 0)
 				{
-					blinkNote(step->instrument,
-								step->note,
-								STEP_VELO_DEFAULT,
-								t);
+//					blinkNote(step->instrument,
+//								step->note,
+//								STEP_VELO_DEFAULT,
+//								t);
+					playSelection();
 				}
 				return;
 			}
