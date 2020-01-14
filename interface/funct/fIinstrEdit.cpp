@@ -51,7 +51,7 @@ void changeEnvDecay(int16_t value);
 void changeEnvSustain(int16_t value);
 void changeEnvRelease(int16_t value);
 void changeEnvAmount(int16_t value);
-void changeEnvLoop(int16_t value);
+//void changeEnvLoop(int16_t value);
 
 void changeParamsVolume(int16_t value);
 void changeParamsPanning(int16_t value);
@@ -295,7 +295,7 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 		case 14: IE->addNode(changeEnvSustain, node); 	 		break;
 		case 15: IE->addNode(changeEnvRelease, node); 	 		break;
 		case 16: IE->addNode(changeEnvAmount, node); 	 		break;
-		case 17: IE->addNode(changeEnvLoop, node); 		 		break;
+//		case 17: IE->addNode(changeEnvLoop, node); 		 		break;
 
 		// midi params
 		case 20: IE->addNode(changeParamsVelocity, node); 		 break;
@@ -361,7 +361,7 @@ static  uint8_t functEncoder(int16_t value)
 		case 14: changeEnvSustain(value); 	break;
 		case 15: changeEnvRelease(value); 	break;
 		case 16: changeEnvAmount(value); 	break;
-		case 17: changeEnvLoop(value); 		break;
+//		case 17: changeEnvLoop(value); 		break;
 
 		case 20: changeParamsVelocity(value); 	break;
 		}
@@ -424,7 +424,7 @@ static  uint8_t functUp()
 		case 14: changeEnvSustain(1); 	break;
 		case 15: changeEnvRelease(1); 	break;
 		case 16: changeEnvAmount(1); 	break;
-		case 17: changeEnvLoop(-1); 		break;
+//		case 17: changeEnvLoop(-1); 		break;
 
 		case 20: changeParamsVelocity(1); 	break;
 		}
@@ -463,7 +463,7 @@ static  uint8_t functDown()
 		case 14: changeEnvSustain(-1); 			break;
 		case 15: changeEnvRelease(-1); 			break;
 		case 16: changeEnvAmount(-1); 			break;
-		case 17: changeEnvLoop(1); 			break;
+//		case 17: changeEnvLoop(1); 			break;
 
 		case 20: changeParamsVelocity(-1); 	break;
 		}
@@ -563,7 +563,7 @@ void changeEnvList(int16_t value)
 {
 
 	if(IE->selectedEnvelope + value < 0) IE->selectedEnvelope = 0;
-	else if(IE->selectedEnvelope + value > 2 ) IE->selectedEnvelope = 3;
+	else if(IE->selectedEnvelope + value > 4 ) IE->selectedEnvelope = 4;
 	else IE-> selectedEnvelope += value;
 
 	IE->showInstrumentEnv();
@@ -574,8 +574,16 @@ void changeEnvList(int16_t value)
 
 void changeEnvState(int16_t value)
 {
-	if(value > 0)IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
-	else if(value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
+	if(value > 0)
+	{
+		if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable == 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
+		else IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 1;
+	}
+	else if(value < 0)
+	{
+		if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop == 1) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 0;
+		else IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
+	}
 //	if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
 //	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value > 1 ) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
 //	else IE->editorInstrument->envelope[IE->selectedEnvelope].enable += value;
@@ -677,15 +685,15 @@ void changeEnvAmount(int16_t value)
 
 
 
-void changeEnvLoop(int16_t value)
-{
-
-	if((!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) && (value < 0)) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 1;
-	else if ((IE->editorInstrument->envelope[IE->selectedEnvelope].loop) && (value > 0)) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 0;
-
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
-	IE->showEnvLoop();
-}
+//void changeEnvLoop(int16_t value)
+//{
+//
+//	if((!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) && (value < 0)) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 1;
+//	else if ((IE->editorInstrument->envelope[IE->selectedEnvelope].loop) && (value > 0)) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 0;
+//
+//	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+////	IE->showEnvLoop();
+//}
 
 
 

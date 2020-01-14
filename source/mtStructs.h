@@ -257,6 +257,7 @@ enum filterControlType
 enum envelopesType
 {
     envAmp,
+	envPan,
     envFilter,
 	envWtPos,
 	envGranPos,
@@ -271,6 +272,7 @@ enum envelopesType
 enum envelopeTypes
 {
 	envelopeTypeAmp,
+	envelopeTypePan,
 	envelopeTypeFilter,
 	envelopeTypeWtPos,
 	envelopeTypeGranularPos,
@@ -411,7 +413,13 @@ struct strInstrument
 //    uint16_t wavetableQuantize;
 
 	envelopeGenerator::strEnv envelope[envelopeTypeMax];
-	LFO::strLfo lfo[lfoMax];
+	struct strEnvBasedLfo
+	{
+		uint8_t shape = 0;
+		uint8_t speed = 0;
+		float 	amount = 1.0;
+	} lfo[envelopeTypeMax];
+//	LFO::strLfo lfo[lfoMax];
 
 	float cutOff;
 	float resonance;

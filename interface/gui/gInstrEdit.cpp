@@ -15,7 +15,16 @@ static uint16_t framesPlaces[8][4] =
 	{(800/8)*7+1, 29, 800/8-3, 391},
 };
 
-
+static uint16_t framesPlacesAutomation[7][4] =
+{
+	{0+1, 		  29, 2*(800/8)-3, 391},
+	{(800/8)*2+1, 29, 800/8-3, 391},
+	{(800/8)*3+1, 29, 800/8-3, 391},
+	{(800/8)*4+1, 29, 800/8-3, 391},
+	{(800/8)*5+1, 29, 800/8-3, 391},
+	{(800/8)*6+1, 29, 800/8-3, 391},
+	{(800/8)*7+1, 29, 800/8-3, 391},
+};
 
 void cInstrumentEditor::initDisplayControls()
 {
@@ -55,6 +64,16 @@ void cInstrumentEditor::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 	// inicjalizacja kontrolek
+	prop2.colors = interfaceGlobals.activeLabelsColors;
+	prop2.style = 	( controlStyleCenterX | controlStyleFont3 );
+	prop2.x = (800/8)*(0)+(800/16)*2;
+	prop2.w = 2 * (800/8) - 6;
+	prop2.y = 424;
+	prop2.h =  55;
+	prop2.value =  1;
+
+	if(doubleLabelAutomation == nullptr) doubleLabelAutomation = display.createControl<cLabel>(&prop2);
+
 	for(uint8_t i = 0; i<8; i++)
 	{
 		//prop2.data =  &bottomValuesConfig;
@@ -88,7 +107,7 @@ void cInstrumentEditor::initDisplayControls()
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
 	filterModeList.linesCount = 5;
-	filterModeList.start = editorInstrument->filterEnable ? (editorInstrument->filterType+1) : 0;
+	filterModeList.start = 0;
 	filterModeList.length = filterModeCount;
 	filterModeList.data = (char**)filterModeNames;
 
@@ -101,23 +120,22 @@ void cInstrumentEditor::initDisplayControls()
 	if(filterModeListControl == nullptr)  filterModeListControl = display.createControl<cList>(&prop);
 
 
-	envelopesList.linesCount = 7;
-	envelopesList.start = selectedEnvelope;
-	envelopesList.length = 4;
+	envelopesList.linesCount = 5;
+	envelopesList.start = 0;
+	envelopesList.length = 5;
 	envelopesList.data = (char**)envelopeNames;
 	prop.x = (800/8)*(0)+1;
 	prop.y = 29;
-	prop.w = 800/8-3;
+	prop.w = 2 * (800/8)-3;
 	prop.h = 394;
 	prop.data = &envelopesList;
 	if(envelopesListControl == nullptr)  envelopesListControl = display.createControl<cList>(&prop);
 
-
-	envStateList.linesCount = 5;
-	envStateList.start = !editorInstrument->envelope[selectedEnvelope].enable;
-	envStateList.length = 2;
+	envStateList.linesCount = 3;
+	envStateList.start = 0;
+	envStateList.length = 3;
 	envStateList.data = (char**)envStateNames;
-	prop.x = (800/8)*(1)+1;
+	prop.x = (800/8)*(2)+1;
 	prop.y = 29;
 	prop.w = 800/8-3;
 	prop.h = 394;
@@ -125,16 +143,40 @@ void cInstrumentEditor::initDisplayControls()
 	if(envStateListControl == nullptr)  envStateListControl = display.createControl<cList>(&prop);
 
 
-	envLoopList.linesCount = 5;
-	envLoopList.start = editorInstrument->envelope[selectedEnvelope].loop;
-	envLoopList.length = 2;
-	envLoopList.data = (char**)envLoopNames;
-	prop.x = (800/8)*(7)+1;
+
+	lfoShapeList.linesCount = 3;
+	lfoShapeList.start = 0;
+	lfoShapeList.length = 3;
+	lfoShapeList.data = (char**)lfoShapeNames;
+	prop.x = (800/8)*(3)+1;
 	prop.y = 29;
 	prop.w = 800/8-3;
 	prop.h = 394;
-	prop.data = &envLoopList;
-	if(envLoopListControl == nullptr)  envLoopListControl = display.createControl<cList>(&prop);
+	prop.data = &lfoShapeList;
+	if(shapeListControl == nullptr)  shapeListControl = display.createControl<cList>(&prop);
+
+
+	lfoSpeedList.linesCount = 4;
+	lfoSpeedList.start = 0;
+	lfoSpeedList.length = 4;
+	lfoSpeedList.data = (char**)lfoSpeedNames;
+	prop.x = (800/8)*(4)+1;
+	prop.y = 29;
+	prop.w = 800/8-3;
+	prop.h = 394;
+	prop.data = &lfoSpeedList;
+	if(speedListControl == nullptr)  speedListControl = display.createControl<cList>(&prop);
+
+//	envLoopList.linesCount = 5;
+//	envLoopList.start = editorInstrument->envelope[selectedEnvelope].loop;
+//	envLoopList.length = 2;
+//	envLoopList.data = (char**)envLoopNames;
+//	prop.x = (800/8)*(7)+1;
+//	prop.y = 29;
+//	prop.w = 800/8-3;
+//	prop.h = 394;
+//	prop.data = &envLoopList;
+//	if(envLoopListControl == nullptr)  envLoopListControl = display.createControl<cList>(&prop);
 }
 
 
@@ -171,9 +213,17 @@ void cInstrumentEditor::destroyDisplayControls()
 	display.destroyControl(envStateListControl);
 	envStateListControl = nullptr;
 
-	display.destroyControl(envLoopListControl);
-	envLoopListControl = nullptr;
+//	display.destroyControl(envLoopListControl);
+//	envLoopListControl = nullptr;
 
+	display.destroyControl(speedListControl);
+	speedListControl = nullptr;
+
+	display.destroyControl(shapeListControl);
+	shapeListControl = nullptr;
+
+	display.destroyControl(doubleLabelAutomation);
+	doubleLabelAutomation = nullptr;
 
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
@@ -199,74 +249,144 @@ void cInstrumentEditor::showTitleBar()
 void cInstrumentEditor::showInstrumentEnv()
 {
 	showTitleBar();
+	refreshFramePosition();
+
+	display.setControlValue(bgLabel, 252);
+	display.refreshControl(bgLabel);
+
+	//**********************************
+	display.setControlHide(label[0]);
+	display.setControlHide(label[1]);
+
+	display.setControlValue(doubleLabelAutomation, 1);
+	display.setControlText(doubleLabelAutomation,"Destination");
+	display.setControlShow(doubleLabelAutomation);
 
 
-	display.setControlText(label[0], "Envelopes");
-	display.setControlText(label[1], "State");
-	display.setControlText(label[2], "Attack");
-	display.setControlText(label[3], "Decay");
-	display.setControlText(label[4], "Sustain");
-	display.setControlText(label[5], "Release");
-	display.setControlText(label[6], "Amount");
-	display.setControlText(label[7], "Loop");
+	//*********************************
+	display.setControlText(label[2], "Type");
 
-	display.setControlText2(label[0], "");
-	display.setControlText2(label[1], "");
+	if(editorInstrument->envelope[selectedEnvelope].loop)
+	{
+		display.setControlText(label[3], "Attack");
+		display.setControlText(label[4], "Decay");
+		display.setControlText(label[5], "Sustain");
+		display.setControlText(label[6], "Release");
+		display.setControlText(label[7], "Amount");
+	}
+	else
+	{
+		display.setControlText(label[3], "Shape");
+		display.setControlText(label[4], "Speed");
+		display.setControlText(label[5], "Amount");
+		display.setControlText(label[6], "");
+		display.setControlText(label[7], "");
+	}
+
 	display.setControlText2(label[2], "");
 	display.setControlText2(label[3], "");
 	display.setControlText2(label[4], "");
 	display.setControlText2(label[5], "");
 	display.setControlText2(label[6], "");
 	display.setControlText2(label[7], "");
+	display.setControlText2(doubleLabelAutomation,"");
 
 
 	showEnvList();
 	showEnvState();
-	showEnvAttack();
-	showEnvDecay();
-	showEnvSustain();
-	showEnvRelease();
-	showEnvAmount();
-	showEnvLoop();
-
-//-------------------------------------
-
-	display.setControlHide(barControl[0]);
-	display.setControlHide(barControl[1]);
-	display.setControlShow(barControl[2]);
-	display.setControlShow(barControl[3]);
-	display.setControlShow(barControl[4]);
-	display.setControlShow(barControl[5]);
-	display.setControlShow(barControl[6]);
-	display.setControlHide(barControl[7]);
-
-
-	display.setControlHide(filterModeListControl);
 	display.setControlShow(envelopesListControl);
 	display.setControlShow(envStateListControl);
-	display.setControlShow(envLoopListControl);
+
+	if(editorInstrument->envelope[selectedEnvelope].loop)
+	{
+		showLfoShape();
+		showLfoSpeed();
+		showLfoAmount();
+	}
+	else
+	{
+		showEnvAttack();
+		showEnvDecay();
+		showEnvSustain();
+		showEnvRelease();
+		showEnvAmount();
+	}
+
+//	showEnvLoop();
+
+//-------------------------------------
+	if(editorInstrument->envelope[selectedEnvelope].loop)
+	{
+		display.setControlHide(barControl[0]);
+		display.setControlHide(barControl[1]);
+		display.setControlHide(barControl[2]);
+		display.setControlHide(barControl[3]);
+		display.setControlShow(barControl[4]);
+		display.setControlHide(barControl[5]);
+		display.setControlHide(barControl[6]);
+		display.setControlHide(barControl[7]);
+	}
+	else
+	{
+		display.setControlHide(barControl[0]);
+		display.setControlHide(barControl[1]);
+		display.setControlHide(barControl[2]);
+		display.setControlShow(barControl[3]);
+		display.setControlShow(barControl[4]);
+		display.setControlShow(barControl[5]);
+		display.setControlShow(barControl[6]);
+		display.setControlShow(barControl[7]);
+	}
+
+	display.setControlHide(filterModeListControl);
+
+
+	if(editorInstrument->envelope[selectedEnvelope].loop)
+	{
+		display.setControlShow(shapeListControl);
+		display.setControlShow(speedListControl);
+	}
+	else
+	{
+		display.setControlHide(shapeListControl);
+		display.setControlHide(speedListControl);
+	}
+//	display.setControlShow(envLoopListControl);
 
 
 	//display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValue_0_100));
-	display.setControlStyle(barControl[2], (controlStyleShow | controlStyleValue_0_100 | controlStyleBackground));
-	display.setControlStyle(barControl[3], (controlStyleShow | controlStyleValue_0_100 | controlStyleBackground));
+//	display.setControlStyle(barControl[2], (controlStyleShow | controlStyleValue_0_100 | controlStyleBackground));
+//	display.setControlStyle(barControl[3], (controlStyleShow | controlStyleValue_0_100 | controlStyleBackground));
 
 
 //-------------------------------------
 
-	for(uint8_t i = 0; i<8; i++)
+
+	display.setControlStyle2(doubleLabelAutomation, controlStyleCenterX | controlStyleFont2);
+	display.setControlShow(doubleLabelAutomation);
+	display.refreshControl(doubleLabelAutomation);
+
+	display.refreshControl(shapeListControl);
+	display.refreshControl(speedListControl);
+
+	for(uint8_t i = 2; i<8; i++)
 	{
 		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 		display.refreshControl(barControl[i]);
 	}
+	display.refreshControl(label[0]);
+	display.refreshControl(label[1]);
+	display.refreshControl(barControl[0]);
+	display.refreshControl(barControl[1]);
+
 
 	display.setControlShow(bgLabel);
 	display.refreshControl(bgLabel);
 
 
-	frameData.placesCount = 8;
+	frameData.placesCount = 7;
 
 	display.synchronizeRefresh();
 
@@ -277,6 +397,8 @@ void cInstrumentEditor::showInstrumentParams()
 {
 	showTitleBar();
 
+	refreshFramePosition();
+
 	display.setControlValue(label[0], 1);
 	display.setControlValue(label[1], 1);
 	display.setControlValue(label[2], 1);
@@ -285,6 +407,10 @@ void cInstrumentEditor::showInstrumentParams()
 	display.setControlValue(label[5], 1);
 	display.setControlValue(label[6], 1);
 	display.setControlValue(label[7], 1);
+
+	display.setControlShow(label[0]);
+	display.setControlShow(label[1]);
+	display.setControlHide(doubleLabelAutomation);
 
 	display.setControlText(label[0], "Volume");
 	display.setControlText(label[1], "Panning");
@@ -327,8 +453,11 @@ void cInstrumentEditor::showInstrumentParams()
 
 	display.setControlHide(envelopesListControl);
 	display.setControlHide(envStateListControl);
-	display.setControlHide(envLoopListControl);
+	display.setControlHide(shapeListControl);
+	display.setControlHide(speedListControl);
+//	display.setControlHide(envLoopListControl);
 	display.setControlShow(filterModeListControl);
+	display.setControlHide(doubleLabelAutomation);
 
 
 
@@ -405,8 +534,11 @@ void cInstrumentEditor::showInstrumentMidiParams()
 
 	display.setControlHide(envelopesListControl);
 	display.setControlHide(envStateListControl);
-	display.setControlHide(envLoopListControl);
+	display.setControlHide(shapeListControl);
+	display.setControlHide(speedListControl);
+//	display.setControlHide(envLoopListControl);
 	display.setControlHide(filterModeListControl);
+	display.setControlHide(doubleLabelAutomation);
 
 //-------------------------------------
 
@@ -441,8 +573,8 @@ void cInstrumentEditor::activateLabelsBorder()
 
 void cInstrumentEditor::showEnvList()
 {
-	display.setControlText2(label[0], envelopesLabels[selectedEnvelope]);
-	display.refreshControl(label[0]);
+	display.setControlText2(doubleLabelAutomation, envelopesLabels[selectedEnvelope]);
+	display.refreshControl(doubleLabelAutomation);
 
 	display.setControlValue(envelopesListControl, selectedEnvelope);
 	display.refreshControl(envelopesListControl);
@@ -450,18 +582,10 @@ void cInstrumentEditor::showEnvList()
 
 void cInstrumentEditor::showEnvState()
 {
-	uint8_t val;
-	display.setControlText2(label[1], envStateLabels[!editorInstrument->envelope[selectedEnvelope].enable]);
-	display.refreshControl(label[1]);
+	uint8_t val = editorInstrument->envelope[selectedEnvelope].enable + editorInstrument->envelope[selectedEnvelope].loop;
+	display.setControlText2(label[2], envStateLabels[val]);
+	display.refreshControl(label[2]);
 
-	if(editorInstrument->envelope[selectedEnvelope].enable)
-	{
-		val = 0;
-	}
-	else
-	{
-		val = 1;
-	}
 
 	display.setControlValue(envStateListControl, val);
 	display.refreshControl(envStateListControl);
@@ -476,15 +600,15 @@ void cInstrumentEditor::showEnvAttack()
 	envAttack[length]='s';
 	envAttack[length+1]=0;
 
-	display.setControlText2(label[2], envAttack);
-	display.refreshControl(label[2]);
+	display.setControlText2(label[3], envAttack);
+	display.refreshControl(label[3]);
 
 	display.setControlValue(
-							barControl[2], (editorInstrument->envelope[selectedEnvelope].attack > ENVELOPE_MICRO_RANGE) ?
+							barControl[3], (editorInstrument->envelope[selectedEnvelope].attack > ENVELOPE_MICRO_RANGE) ?
 							map(editorInstrument->envelope[selectedEnvelope].attack,ENVELOPE_MICRO_RANGE,ATTACK_MAX,50,100):
 							map(editorInstrument->envelope[selectedEnvelope].attack,0,ENVELOPE_MICRO_RANGE,0,50)
 						   );
-	display.refreshControl(barControl[2]);
+	display.refreshControl(barControl[3]);
 
 }
 
@@ -497,25 +621,25 @@ void cInstrumentEditor::showEnvDecay()
 	envDecay[length]='s';
 	envDecay[length+1]=0;
 
-	display.setControlText2(label[3], envDecay);
-	display.refreshControl(label[3]);
+	display.setControlText2(label[4], envDecay);
+	display.refreshControl(label[4]);
 
 	display.setControlValue(
-							barControl[3], (editorInstrument->envelope[selectedEnvelope].decay > ENVELOPE_MICRO_RANGE) ?
+							barControl[4], (editorInstrument->envelope[selectedEnvelope].decay > ENVELOPE_MICRO_RANGE) ?
 							map(editorInstrument->envelope[selectedEnvelope].decay,ENVELOPE_MICRO_RANGE,DECAY_MAX,50,100):
 							map(editorInstrument->envelope[selectedEnvelope].decay,0,ENVELOPE_MICRO_RANGE,0,50)
 						   );
-	display.refreshControl(barControl[3]);
+	display.refreshControl(barControl[4]);
 }
 
 void cInstrumentEditor::showEnvSustain()
 {
 	sprintf(envSustain,"%.0f",(float)(editorInstrument->envelope[selectedEnvelope].sustain*100));
-	display.setControlText2(label[4], envSustain);
-	display.refreshControl(label[4]);
+	display.setControlText2(label[5], envSustain);
+	display.refreshControl(label[5]);
 
-	display.setControlValue(barControl[4], (editorInstrument->envelope[selectedEnvelope].sustain*100));
-	display.refreshControl(barControl[4]);
+	display.setControlValue(barControl[5], (editorInstrument->envelope[selectedEnvelope].sustain*100));
+	display.refreshControl(barControl[5]);
 }
 
 void cInstrumentEditor::showEnvRelease()
@@ -527,34 +651,60 @@ void cInstrumentEditor::showEnvRelease()
 	envRelease[length]='s';
 	envRelease[length+1]=0;
 
-	display.setControlText2(label[5], envRelease);
-	display.refreshControl(label[5]);
+	display.setControlText2(label[6], envRelease);
+	display.refreshControl(label[6]);
 
 	display.setControlValue(
-							barControl[5], (editorInstrument->envelope[selectedEnvelope].release > ENVELOPE_MICRO_RANGE) ?
+							barControl[6], (editorInstrument->envelope[selectedEnvelope].release > ENVELOPE_MICRO_RANGE) ?
 							map(editorInstrument->envelope[selectedEnvelope].release,ENVELOPE_MICRO_RANGE,RELEASE_MAX,50,100):
 							map(editorInstrument->envelope[selectedEnvelope].release,0,ENVELOPE_MICRO_RANGE,0,50)
 						   );
-	display.refreshControl(barControl[5]);
+	display.refreshControl(barControl[6]);
 }
 
 void cInstrumentEditor::showEnvAmount()
 {
 	sprintf(envAmount,"%.0f",(float)(editorInstrument->envelope[selectedEnvelope].amount*100));
-	display.setControlText2(label[6], envAmount);
-	display.refreshControl(label[6]);
-
-	display.setControlValue(barControl[6],(editorInstrument->envelope[selectedEnvelope].amount*100) );
-	display.refreshControl(barControl[6]);
-}
-
-void cInstrumentEditor::showEnvLoop()
-{
-	display.setControlText2(label[7], envLoopLabels[!editorInstrument->envelope[selectedEnvelope].loop]);
+	display.setControlText2(label[7], envAmount);
 	display.refreshControl(label[7]);
 
-	display.setControlValue(envLoopListControl, !editorInstrument->envelope[selectedEnvelope].loop);
-	display.refreshControl(envLoopListControl);
+	display.setControlValue(barControl[7],(editorInstrument->envelope[selectedEnvelope].amount*100) );
+	display.refreshControl(barControl[7]);
+}
+
+//void cInstrumentEditor::showEnvLoop()
+//{
+//	display.setControlText2(label[7], envLoopLabels[!editorInstrument->envelope[selectedEnvelope].loop]);
+//	display.refreshControl(label[7]);
+//
+//	display.setControlValue(envLoopListControl, !editorInstrument->envelope[selectedEnvelope].loop);
+//	display.refreshControl(envLoopListControl);
+//}
+
+void cInstrumentEditor::showLfoShape()
+{
+	display.setControlText2(label[2], lfoShapeLabels[editorInstrument->lfo[selectedEnvelope].shape]);
+	display.refreshControl(label[2]);
+
+	display.setControlValue(shapeListControl, editorInstrument->lfo[selectedEnvelope].shape);
+	display.refreshControl(shapeListControl);
+}
+void cInstrumentEditor::showLfoSpeed()
+{
+	display.setControlText2(label[3], lfoSpeedLabels[editorInstrument->lfo[selectedEnvelope].speed]);
+	display.refreshControl(label[3]);
+
+	display.setControlValue(speedListControl, editorInstrument->lfo[selectedEnvelope].speed);
+	display.refreshControl(speedListControl);
+}
+void cInstrumentEditor::showLfoAmount()
+{
+	sprintf(lfoAmount,"%.0f",(float)(editorInstrument->lfo[selectedEnvelope].amount*100));
+	display.setControlText2(label[5], lfoAmount);
+	display.refreshControl(label[5]);
+
+	display.setControlValue(barControl[5],(editorInstrument->lfo[selectedEnvelope].amount*100) );
+	display.refreshControl(barControl[5]);
 }
 
 
@@ -691,6 +841,34 @@ void cInstrumentEditor::showParamsGlide()
 	display.refreshControl(barControl[3]);
 }
 
+void cInstrumentEditor::refreshFramePosition()
+{
+	if(mode == mtInstEditModeParams)
+	{
+		frameData.placesCount = 8;
+		frameData.startPlace = 0;
+		frameData.places[0] = &framesPlaces[0][0];
+		frameData.places[1] = &framesPlaces[1][0];
+		frameData.places[2] = &framesPlaces[2][0];
+		frameData.places[3] = &framesPlaces[3][0];
+		frameData.places[4] = &framesPlaces[4][0];
+		frameData.places[5] = &framesPlaces[5][0];
+		frameData.places[6] = &framesPlaces[6][0];
+		frameData.places[7] = &framesPlaces[7][0];
+	}
+	else if( mode == mtInstEditModeEnv)
+	{
+		frameData.placesCount = 7;
+		frameData.startPlace = 0;
+		frameData.places[0] = &framesPlacesAutomation[0][0];
+		frameData.places[1] = &framesPlacesAutomation[1][0];
+		frameData.places[2] = &framesPlacesAutomation[2][0];
+		frameData.places[3] = &framesPlacesAutomation[3][0];
+		frameData.places[4] = &framesPlacesAutomation[4][0];
+		frameData.places[5] = &framesPlacesAutomation[5][0];
+		frameData.places[6] = &framesPlacesAutomation[6][0];
+	}
+}
 
 
 

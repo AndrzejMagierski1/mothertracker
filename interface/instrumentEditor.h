@@ -33,25 +33,42 @@ const char filterModeFunctLabels[filterModeCount][11]=
 };
 
 
-const char envelopesLabels[4][11]=
+const char envelopesLabels[5][15]=
 {
-		"Amp",
+		"Volume",
+		"Panning",
 		"Filter",
-		"WT Pos",
-		"Gran Pos"
+		"Wavetable Pos",
+		"Granular Pos"
 
 };
 
-const char envStateLabels[2][11]=
+const char envStateLabels[3][11]=
 {
-		"On",
 		"Off",
+		"Envelope",
+		"LFO"
 };
 
-const char envLoopLabels[2][11]=
+//const char envLoopLabels[2][11]=
+//{
+//	"On",
+//	"Off"
+//};
+
+const char lfoShapeLabels[3][11]=
 {
-	"On",
-	"Off"
+		"Saw",
+		"Triangle",
+		"Square"
+};
+
+const char lfoSpeedLabels[4][11]=
+{
+		"1/4",
+		"1/2",
+		"1",
+		"2"
 };
 
 #undef MAX_SELECT_NODES
@@ -94,7 +111,13 @@ public:
 	void showEnvSustain();
 	void showEnvRelease();
 	void showEnvAmount();
-	void showEnvLoop();
+//	void showEnvLoop();
+
+
+	void showLfoShape();
+	void showLfoSpeed();
+	void showLfoAmount();
+
 
 	void showParamsVelocity();
 
@@ -109,6 +132,7 @@ public:
 
 	void showParamsGlide();
 
+	void refreshFramePosition();
 //----------------------------------
 
 	void setDefaultScreenFunct();
@@ -132,12 +156,15 @@ public:
 	hControl instrumentLabel = nullptr;
 
 	hControl label[8] = {nullptr};
+	hControl doubleLabelAutomation = nullptr;
 	hControl barControl[8] = {nullptr};
 
 	hControl filterModeListControl = nullptr;
 	hControl envelopesListControl = nullptr;
 	hControl envStateListControl = nullptr;
-	hControl envLoopListControl = nullptr;
+	hControl shapeListControl = nullptr;
+	hControl speedListControl = nullptr;
+//	hControl envLoopListControl = nullptr;
 
 	hControl bgLabel;
 	hControl frameControl = nullptr;
@@ -186,26 +213,45 @@ public:
 
 	strList envelopesList;
 	strList envStateList;
-	strList envLoopList;
 
-	const char* envelopeNames[4] =
+	strList lfoShapeList;
+	strList lfoSpeedList;
+//	strList envLoopList;
+
+	const char* envelopeNames[5] =
 	{
 		&envelopesLabels[0][0],
 		&envelopesLabels[1][0],
 		&envelopesLabels[2][0],
-		&envelopesLabels[3][0]
+		&envelopesLabels[3][0],
+		&envelopesLabels[4][0]
 	};
-	const char* envStateNames[2] =
+	const char* envStateNames[3] =
 	{
 		&envStateLabels[0][0],
 		&envStateLabels[1][0],
+		&envStateLabels[2][0]
 	};
-	const char* envLoopNames[2] =
+//	const char* envLoopNames[2] =
+//	{
+//		&envLoopLabels[0][0],
+//		&envLoopLabels[1][0],
+//	};
+
+	const char * lfoShapeNames[3] =
 	{
-		&envLoopLabels[0][0],
-		&envLoopLabels[1][0],
+		&lfoShapeLabels[0][0],
+		&lfoShapeLabels[1][0],
+		&lfoShapeLabels[2][0],
 	};
 
+	const char * lfoSpeedNames[4] =
+	{
+		&lfoSpeedLabels[0][0],
+		&lfoSpeedLabels[1][0],
+		&lfoSpeedLabels[2][0],
+		&lfoSpeedLabels[3][0]
+	};
 
 	char volumeVal[4];
 	char panningVal[7];
@@ -219,6 +265,10 @@ public:
 	char envSustain[8];
 	char envRelease[8];
 	char envAmount[8];
+
+	char lfoShape[8];
+	char lfoSpeed[8];
+	char lfoAmount[8];
 
 
 

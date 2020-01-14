@@ -308,7 +308,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	currentNote=note;
 	currentVelocity=velocity;
 	/*================================================ENVELOPE AMP==========================================*/
-	lfoAmpPtr->init(&mtProject.instrument[instr_idx].lfo[lfoA]);
+//	lfoAmpPtr->init(&mtProject.instrument[instr_idx].lfo[lfoA]);
 
 	if(mtProject.instrument[instr_idx].envelope[envAmp].enable)
 	{
@@ -341,10 +341,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 		{
 			envelopeFilterPtr->init(&mtProject.instrument[instr_idx].envelope[envFilter]);
 		}
-		if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable)
-		{
-			lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
-		}
+//		if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable)
+//		{
+//			lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
+//		}
 		filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
 	}
 
@@ -416,10 +416,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	{
 		instrumentBasedMod.volume=((velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount)*100;
 	}
-	if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable)
-	{
-		instrumentBasedMod.volume += lfoAmpPtr->getOut();
-	}
+//	if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable)
+//	{
+//		instrumentBasedMod.volume += lfoAmpPtr->getOut();
+//	}
 
 	if(muteState == 0)
 	{
@@ -566,7 +566,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	envelopeWtPos->kill();
 	envelopeGranPos->kill();
 	/*================================================ENVELOPE AMP==========================================*/
-	lfoAmpPtr->init(&mtProject.instrument[instr_idx].lfo[lfoA]);
+//	lfoAmpPtr->init(&mtProject.instrument[instr_idx].lfo[lfoA]);
 
 	if(mtProject.instrument[instr_idx].envelope[envAmp].enable)
 	{
@@ -599,10 +599,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		{
 			envelopeFilterPtr->init(&mtProject.instrument[instr_idx].envelope[envFilter]);
 		}
-		if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable)
-		{
-			lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
-		}
+//		if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable)
+//		{
+//			lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
+//		}
 		filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
 	}
 
@@ -673,10 +673,10 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	{
 		instrumentBasedMod.volume=((velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount)*100;
 	}
-	if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable)
-	{
-		instrumentBasedMod.volume += lfoAmpPtr->getOut();
-	}
+//	if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable)
+//	{
+//		instrumentBasedMod.volume += lfoAmpPtr->getOut();
+//	}
 
 	if(muteState == 0)
 	{
@@ -2433,7 +2433,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	currentNote=note;
 	currentVelocity=velocity;
 	/*================================================ENVELOPE AMP==========================================*/
-	lfoAmpPtr->init(&mtProject.instrument[instr_idx].lfo[lfoA]);
+//	lfoAmpPtr->init(&mtProject.instrument[instr_idx].lfo[lfoA]);
 
 	if(mtProject.instrument[instr_idx].envelope[envAmp].enable)
 	{
@@ -2463,7 +2463,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	if(mtProject.instrument[instr_idx].filterEnable == filterOn)
 	{
 		envelopeFilterPtr->init(&mtProject.instrument[instr_idx].envelope[envFilter]);
-		lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
+//		lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
 	/*======================================================================================================*/
 	/*================================================FILTER================================================*/
 		filterConnect();
