@@ -139,7 +139,7 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 	if (fxIndex > FX_SLOTS_MAX) fxIndex = 0;
 
 	int16_t fxType = constrain(interfaceGlobals.fxNameToId(fxName),
-								0,
+								-1,
 								FX_COUNT - 1);
 
 	strPattern::strTrack::strStep *step;
@@ -162,6 +162,7 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 												toVal);
 				step->fx[fxIndex].type =
 						(fxType >= 0) ? fxType : randomFx();
+				Serial.println(step->fx[fxIndex].type);
 
 				step->fx[fxIndex].value = constrain(
 						step->fx[fxIndex].value,
@@ -177,8 +178,20 @@ uint8_t Sequencer::randomFx()
 	uint8_t retVal;
 	for (uint8_t a = 0; a < 100; a++)
 	{
-		retVal = random(2, FX_MAX + 1); // bo 1 to off a nie chcemy
-		if(retVal != fx.FX_TYPE_TEMPO) break;
+		retVal = random(2, FX_MAX_FOR_RANDOM + 1); // bo 1 to off a nie chcemy
+		if (
+		retVal != fx.FX_TYPE_TEMPO &&
+				retVal != fx.FX_TYPE_R11 &&
+				retVal != fx.FX_TYPE_FADE &&
+				retVal != fx.FX_TYPE_CUT &&
+				retVal != fx.FX_TYPE_R4 &&
+				retVal != fx.FX_TYPE_R5 &&
+				retVal != fx.FX_TYPE_R10 &&
+				retVal != fx.FX_TYPE_R21 &&
+				retVal != fx.FX_TYPE_R22
+
+				) break;
+
 	}
 	return retVal;
 }

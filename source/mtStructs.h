@@ -45,6 +45,7 @@ const uint8_t PATTERN_INDEX_MIN 	=			1;
 const uint8_t PATTERN_INDEX_MAX 	=			255;
 
 const uint8_t FX_MAX 			=        		47;
+const uint8_t FX_MAX_FOR_RANDOM	=        		40;
 const uint8_t FX_COUNT		 	=        		48;
 
 const uint8_t FX_VALUE_MAX	=					127;
