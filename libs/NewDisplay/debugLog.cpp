@@ -16,7 +16,7 @@ void cDebugLog::forceRefresh()
 {
 	if(!mtConfig.debug.debugLogState) return;
 
-	uint32_t forceTime = micros();
+	//uint32_t forceTime = micros();
 
 
 	API_LIB_AwaitCoProEmpty();
@@ -53,7 +53,7 @@ void cDebugLog::forceRefresh()
 	API_LIB_EndCoProList();
 	//API_LIB_AwaitCoProEmpty();
 
-	Serial.println(micros()-forceTime);
+	//Serial.println(micros()-forceTime);
 
 	display.updateStep = 0;
 
@@ -69,7 +69,16 @@ void cDebugLog::addLine(char text[])
 	else if(logBott > logTop) 	logLinesCount = (logLinesMax-logBott)+logTop;
 	else						logLinesCount = logTop-logBott;
 
-	if(logLinesCount >= logLinesMax-1) return;
+	if(logLinesCount >= logLinesMax-1)
+	{
+		removeBottLine();
+
+		if(logBott == logTop)		logLinesCount = 0;
+		else if(logBott > logTop) 	logLinesCount = (logLinesMax-logBott)+logTop;
+		else						logLinesCount = logTop-logBott;
+
+		if(logLinesCount >= logLinesMax-1) return;
+	}
 
 	uint16_t strLength = strlen(text) +1;
 
@@ -83,6 +92,8 @@ void cDebugLog::addLine(char text[])
 
 	logTop++;
 	if(logTop >= logLinesMax) logTop = 0;
+
+	if(display.isIdle()) display.forceAppedStage();
 }
 
 void cDebugLog::addText(char text[])
@@ -107,6 +118,8 @@ void cDebugLog::addText(char text[])
 	delete[] logLine[addIndex].text;
 
 	logLine[addIndex].text = newNext;
+
+	if(display.isIdle()) display.forceAppedStage();
 }
 
 void cDebugLog::addValue(int value)

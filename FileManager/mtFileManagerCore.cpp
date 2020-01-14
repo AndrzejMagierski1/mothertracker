@@ -381,7 +381,7 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 
 				debugLog.addText(" - czas: ");
 				debugLog.addValue(sd_time_test);
-				debugLog.forceRefresh();
+				//debugLog.forceRefresh();
 			}
 		}
 	}
@@ -403,7 +403,7 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 
 					debugLog.addText(" - czas: ");
 					debugLog.addValue(sd_time_test);
-					debugLog.forceRefresh();
+					//debugLog.forceRefresh();
 				}
 			}
 		}
@@ -424,7 +424,7 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 
 				debugLog.addText(" - czas: ");
 				debugLog.addValue(sd_time_test);
-				debugLog.forceRefresh();
+				//debugLog.forceRefresh();
 			}
 		}
 	}
