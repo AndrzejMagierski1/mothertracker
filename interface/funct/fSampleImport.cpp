@@ -1496,7 +1496,7 @@ void cSampleImporter::playSdFile()
 
 	playMode = playModeSdFile;
 
-	FsFile wavHeader = SD.open(file_path);
+	SdFile wavHeader = SD.open(file_path);
 
 	if(!wavHeader)
 	{

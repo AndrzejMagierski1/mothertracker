@@ -178,7 +178,7 @@ static uint32_t m_ocr;
 static cid_t m_cid;
 static csd_t m_csd;
 //=============================================================================
-#define USE_DEBUG_MODE 0
+#define USE_DEBUG_MODE 1
 #if USE_DEBUG_MODE
 #define DBG_IRQSTAT() if (SDHC_IRQSTAT) {Serial.print(__LINE__);\
         Serial.print(" IRQSTAT "); Serial.println(SDHC_IRQSTAT, HEX);}

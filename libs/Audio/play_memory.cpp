@@ -603,7 +603,7 @@ void AudioPlayMemory::update(void)
 }
 
 //**************************************************************************************UPDATE END
-void AudioPlayMemory::printLog(FsFile * log)
+void AudioPlayMemory::printLog(SdFile * log)
 {
 	log->println("*************Parametry Silnika ");
 	log->printf("pitch counter: %d ", iPitchCounter);

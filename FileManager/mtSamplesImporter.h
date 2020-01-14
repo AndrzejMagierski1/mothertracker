@@ -16,8 +16,8 @@ public:
 	uint8_t getCurrentStartIndex();
 	void setStartIndex(uint8_t startIndex);
 private:
-	FsFile fileImportSample;
-	FsFile copyImportSample;
+	SdFile fileImportSample;
+	SdFile copyImportSample;
 	uint32_t currentCopyingSize = 0;
 	uint32_t copyFileSize;
 	uint8_t importSampleState = importingSampleEnded;

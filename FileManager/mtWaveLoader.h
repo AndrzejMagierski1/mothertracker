@@ -24,7 +24,7 @@ public:
 	void setStopStatus(uint8_t s);
 private:
 	strWavFileHeader sampleHead;
-	FsFile wavfile;
+	SdFile wavfile;
 	uint8_t state;
 	uint32_t accBufferLength;
 	int16_t * currentAddress;

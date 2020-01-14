@@ -427,7 +427,7 @@ public:
 
 	// firmware
 	uint8_t firmwareFoundNum;
-	FsFile sdLocation;
+	SdFile sdLocation;
 	uint8_t listInitFlag=0;
 	char firmwareNamesList[firmware_list_max][firmware_name_length];
 	hControl firmwareListControl;

@@ -95,7 +95,7 @@ private:
 	int16_t * const applyBuffer = sdram_effectsBank;
 	int16_t * const previewBuffer = sdram_effectsBank + SAMPLE_EFFECTOR_LENGTH_MAX;
 
-	FsFile file;
+	SdFile file;
 };
 
 extern int16_t sdram_effectsBank[15*256*1024];

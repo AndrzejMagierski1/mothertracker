@@ -139,7 +139,7 @@ audioEngine engine;
 constexpr uint16_t releaseNoteOnVal = 5;
 
 
-void audioEngine::printLog(FsFile * log)
+void audioEngine::printLog(SdFile * log)
 {
 
 	log->println("***********************AudioEngine***************************");
@@ -3278,7 +3278,7 @@ uint32_t playerEngine::getEnvelopeGranPosMod()
 	return ((envelopeGranPos->isKeyPressed() == 1) || (envelopeGranPos->getPhase() != 0)) ? instrumentBasedMod.granPos : mtProject.instrument[currentInstrument_idx].granular.currentPosition;
 }
 
-void playerEngine::printLog(FsFile * log)
+void playerEngine::printLog(SdFile * log)
 {
 	uint8_t nr_voice = ((uint32_t)this - (uint32_t)instrumentPlayer)/sizeof(playerEngine);
 	log->printf("******************voice nr %d******************\n",nr_voice);
