@@ -103,7 +103,7 @@ uint8_t cBgLabel::update()
     int16_t border_x = posX;
     int16_t border_y = posY;
 
-    int16_t lines_step_y = 0;
+//    int16_t lines_step_y = 0;
 
 	if(style & controlStyleCenterX)
 	{

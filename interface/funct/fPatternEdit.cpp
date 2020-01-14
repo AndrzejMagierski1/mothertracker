@@ -2977,7 +2977,7 @@ void cPatternEditor::setPatternViewMode(uint8_t param)
 void cPatternEditor::changePatternViewMode(uint8_t param)
 {
 	if(patternViewMode == 0 || param == 0) return;  // standardowy widok 4 parametrow
-	if(patternViewMode & (1 << param-1)) return; // juz widac wybrany parametr to nic nie rob
+	if(patternViewMode & (1 << (param-1))) return; // juz widac wybrany parametr to nic nie rob
 
 	patternViewMode = (1<<(param-1)) | (1<<(previousEditParam));
 

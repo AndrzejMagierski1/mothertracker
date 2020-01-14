@@ -55,7 +55,7 @@ void RDSParser::processData(uint16_t block1, uint16_t block2, uint16_t block3, u
 
 	uint8_t  idx; // index of rdsText
 	char c1, c2;
-	char *p;
+//	char *p;
 
 	uint16_t mins; ///< RDS time in minutes
 	uint8_t off;   ///< RDS time offset and sign
@@ -68,7 +68,7 @@ void RDSParser::processData(uint16_t block1, uint16_t block2, uint16_t block3, u
 		init();
 		// Send out empty data
 		if (_sendServiceName) _sendServiceName(programServiceName);
-		if (_sendText)        _sendText("");
+		if (_sendText)        _sendText((char*)"");
 		return;
 	}
 

@@ -444,7 +444,7 @@ void FileManager::getDefaultSong(struct strSong *source)
 
 void FileManager::getDefaultInstrument(struct strInstrument *source)
 {
-	memset(source, 0, sizeof(strInstrument));
+	memset((uint8_t*)source, 0, sizeof(strInstrument));
 
 	source->sample.wavetable_window_size = 2048;
 }

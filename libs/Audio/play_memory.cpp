@@ -1343,7 +1343,7 @@ void AudioPlayMemory::setWavetableWindow(int16_t value)
 {
 	if(mtProject.instrument[currentInstr_idx].sample.type != mtSampleTypeWavetable) return;
 
-	if(value >= mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber) currentWindow = mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber - 1;
+	if((uint32_t) value >= mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber) currentWindow = mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber - 1;
 	else if(value < 0) currentWindow = 0;
 	else currentWindow=value;
 }
@@ -1649,7 +1649,7 @@ void AudioPlayMemory::clearWavetableWindowFlag()
 }
 void AudioPlayMemory::setForcedWavetableWindow(int16_t val)
 {
-	if(val >= mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber) forcedWavetableWindow = mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber -1;
+	if((uint32_t)val >= mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber) forcedWavetableWindow = mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber -1;
 	else if(val < 0) forcedWavetableWindow = 0;
 	else forcedWavetableWindow=val;
 }

@@ -230,7 +230,7 @@ void Sequencer::play_microStep(uint8_t row)
 	if (!playerRow.isActive)
 		return;
 
-	memcpy(&stepToSend, &patternStep, sizeof(patternStep));
+	memcpy((uint8_t *)&stepToSend, (uint8_t *)&patternStep, sizeof(patternStep));
 	if (playerRow.uStep == 1)
 	{
 		stepToSend.velocity = STEP_VELO_DEFAULT;

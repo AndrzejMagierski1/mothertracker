@@ -344,7 +344,7 @@ WaveFormGenerator::WaveFormGenerator()
 WaveFormGenerator::WaveFormGenerator(uint16_t *wave)
 {
 	waveWave = WAVE_DEFAULT_WAVE;
-	setWave(wavePointer);
+	if(wavePointer != nullptr) setWave(wavePointer);
 }
 
 float WaveFormGenerator::waveSinus()

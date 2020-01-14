@@ -126,7 +126,7 @@ public:
 	uint16_t * getWave();
 
 private:
-	uint16_t *wavePointer;
+	uint16_t *wavePointer = nullptr;
 	uint16_t waveWave;
 	float wavePhase;
 

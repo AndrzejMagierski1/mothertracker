@@ -496,7 +496,7 @@ public:
 	char limitAttackVal[8];
 	char limitReleaseVal[8];
 	char limitThresholdVal[4];
-	char bitDepthVal[3];
+	char bitDepthVal[4];
 
 //----------------------------------
 

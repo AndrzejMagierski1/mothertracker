@@ -1720,7 +1720,7 @@ void cSampleEditor::calcPlayProgressValue()
 		if(localZoom.zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
 		else if(localZoom.zoomValue > 1.0)
 		{
-			if(playProgressValue < localZoom.zoomStart || playProgressValue > localZoom.zoomEnd) playProgressInSpectrum = 0;
+			if((int32_t)playProgressValue < localZoom.zoomStart || (int32_t)playProgressValue > localZoom.zoomEnd) playProgressInSpectrum = 0;
 			else
 			{
 				playProgressInSpectrum = map(playProgressValue, localZoom.zoomStart, localZoom.zoomEnd, 0 , 600);
