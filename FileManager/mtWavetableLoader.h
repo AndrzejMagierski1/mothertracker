@@ -47,7 +47,7 @@ private:
 //
 //	int16_t currentInt=0;
 //	int16_t nextInt=0;
-	FsFile wavfile;
+	SdFile wavfile;
 //
 //	uint32_t sampleCounter;
 //	int16_t * destBuf;

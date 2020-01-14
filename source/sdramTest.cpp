@@ -77,7 +77,7 @@ void SdramTester::test()
 		sprintf(currentName,"RamErrorLog%d.txt", ++logCnt);
 	}
 
-	FsFile log = SD.open(currentName, FILE_WRITE);
+	SdFile log = SD.open(currentName, FILE_WRITE);
 
 
 	for(uint8_t j = 0; j < RW_NUMBER; j++)

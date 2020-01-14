@@ -15,7 +15,7 @@ private:
 	int16_t * const buf2 = exportBuffer2;
 	exportStatus status;
 	uint32_t byteRecorded;
-	FsFile wavExport;
+	SdFile wavExport;
 	uint8_t lastStep = 0;
 };
 

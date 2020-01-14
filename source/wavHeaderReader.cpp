@@ -1,6 +1,6 @@
 #include "wavHeaderReader.h"
 
-void readHeader(strWavFileHeader* header, FsFile * wavfile)
+void readHeader(strWavFileHeader* header, SdFile * wavfile)
 {
 	struct strSubchunkHeader
 	{

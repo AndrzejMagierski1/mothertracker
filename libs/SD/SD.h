@@ -39,7 +39,21 @@
 #include "common/DebugMacros.h"
 //------------------------------------------------------------------------------
 /** SdFs version YYYYMMDD */
-#define SD_FS_DATE 20180624
+#define SD_FS_DATE 20200401
+
+
+
+
+// FILE_SYSTEM = 1 for FAT16/FAT32
+//               2 for exFAT,
+//               3 for FAT16/FAT32 and exFAT.
+#define FILE_SYSTEM 1
+
+
+typedef File SdFile;
+
+
+
 //==============================================================================
 /**
  * \class SdBase
@@ -317,9 +331,21 @@ class SdFs : public SdBase<FsVolume> {
 
 
 
-extern SdFs SD;
+
 //extern FsVolume volume;
 //extern FsFile root;
+
+#if FILE_SYSTEM == 1
+extern SdFat SD;
+//FatFile file;
+#elif FILE_SYSTEM == 2
+extern SdExFat SD;
+ExFatFile file;
+#elif FILE_SYSTEM == 3
+extern SdFs SD;
+//FsVolume volume;
+//FsFile root;
+#endif
 
 
 

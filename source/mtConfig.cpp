@@ -245,7 +245,7 @@ void readSdConfig()
 
 	if(SD.exists("/mtconfig.txt"))
 	{
-		FsFile fConfig;
+		SdFile fConfig;
 		char buff[buffSize+1];
 
 		fConfig = SD.open("/mtconfig.txt", FILE_READ);

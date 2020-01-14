@@ -1752,7 +1752,7 @@ static uint8_t prepareAndFlash()
 		SD.remove("/firmware/_fwinfo");
 	}
 
-	FsFile fwinfo;
+	SdFile fwinfo;
 
 	fwinfo = SD.open("/firmware/_fwinfo", FILE_WRITE);
 	fwinfo.write(&CE->firmwareNamesList[CE->selectedConfigGroup[1]][0], 13);

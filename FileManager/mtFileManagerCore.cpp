@@ -90,7 +90,7 @@ void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 
 	SD.remove(name);
 
-	FsFile file;
+	SdFile file;
 	FastCRC32 crcCalc;
 
 	strInstrumentFile instrumentFile;
@@ -130,7 +130,7 @@ uint8_t FileManager::writePatternFile(char * name, uint8_t *sourcePattern)
 
 	SD.remove(name);
 
-	FsFile file;
+	SdFile file;
 	FastCRC32 crcCalc;
 
 	((Sequencer::strPattern*) sourcePattern)->crc =
@@ -160,7 +160,7 @@ void FileManager::writeProjectFile(char * name, strMtProject *proj)
 
 	//sd_time_test;
 
-	FsFile file;
+	SdFile file;
 	FastCRC32 crcCalc;
 	strProjectFile projectFile;
 
@@ -211,7 +211,7 @@ uint8_t FileManager::readInstrumentFile(char * name, strInstrument * instr)
 	//Serial.print(" odczyt pliku instrumentu ");
 
 	if(!SD.exists(name)) return 0;
-	FsFile file;
+	SdFile file;
 	FastCRC32 crcCalc;
 	uint32_t checkCRC=0;
 
@@ -239,7 +239,7 @@ uint8_t FileManager::readInstrumentFile(char * name, strInstrument * instr)
 
 uint8_t FileManager::readPatternFile(char * name, uint8_t *patternDest)
 {
-	FsFile file;
+	SdFile file;
 	FastCRC32 crcCalc;
 	uint32_t checkCRC=0;
 	uint8_t loadStatus = 0;
@@ -286,7 +286,7 @@ uint8_t FileManager::readProjectFile(char * name, strMtProject * proj)
 	//Serial.print(" odczyt pliku projktu ");
 
 	if(!SD.exists(name)) return 0;
-	FsFile file;
+	SdFile file;
 	FastCRC32 crcCalc;
 //	uint32_t checkCRC=0;
 
@@ -321,8 +321,8 @@ uint8_t FileManager::readProjectFile(char * name, strMtProject * proj)
 
 void FileManager::copySample(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName)
 {
-	FsFile file;
-	FsFile copy;
+	SdFile file;
+	SdFile copy;
 	char currentPatch [PATCH_SIZE];
 	uint8_t currentBuffor[1024];
 	uint16_t lengthData=0;

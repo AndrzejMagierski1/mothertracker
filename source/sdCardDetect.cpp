@@ -27,7 +27,7 @@ void SDCardDetector::update(uint8_t forcedUpdate)
 		}
 		else if((currentState == 1) && (lastState == 0))
 		{
-			SD.end();
+			//SD.end();
 			isInitialized = 0;
 			if(onChangeSD != nullptr) onChangeSD(0);
 		}

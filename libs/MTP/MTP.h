@@ -89,11 +89,11 @@ public:
 class MTPStorage_SD : public MTPStorageInterface
 {
 private:
-  FsFile index_;
+	SdFile index_;
 
   uint8_t mode_ = 0;
   uint32_t open_file_ = 0xFFFFFFFEUL;
-  FsFile f_;
+  SdFile f_;
   uint32_t index_entries_ = 0;
 
 

@@ -37,7 +37,7 @@ private:
 
 	uint32_t recByteSaved = 0;
 
-	FsFile rec;
+	SdFile rec;
 };
 
 extern Recorder recorder;

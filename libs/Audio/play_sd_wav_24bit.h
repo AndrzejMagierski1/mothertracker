@@ -23,7 +23,7 @@ private:
 	strWavFileHeader wavHeader;
 
 	uint32_t currentPosition = 0;
-	FsFile wavfile;
+	SdFile wavfile;
 	audio_block_t *block;
 	uint8_t buffer[768];		// buffer one block of data
 	uint16_t buffer_length;

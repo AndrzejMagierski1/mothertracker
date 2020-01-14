@@ -174,7 +174,7 @@ private:
 	//png/jpg
 	uint8_t loadImage = 0;
 
-	FsFile imgFile;
+	SdFile imgFile;
 
 	struct imgLoader
 	{

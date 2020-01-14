@@ -609,9 +609,9 @@ void FileManager::refreshDeleting()
 	}
 }
 
-void FileManager::recursiveRemoveProject(FsFile *source)
+void FileManager::recursiveRemoveProject(SdFile *source)
 {
-	FsFile temp;
+	SdFile temp;
 
 	temp.openNext(source);
 
