@@ -46,7 +46,7 @@ void cFunctionMachine::clearButtonsRange(uint8_t from, uint8_t to)
 
 	if(from >= buttonsCount || to >= buttonsCount || from > to) return;
 
-	memset(buttons+from,0,(sizeof(strButtonObject)*((to+1)-from)));
+	memset((uint8_t *)(buttons+from),0,(sizeof(strButtonObject)*((to+1)-from)));
 }
 
 void cFunctionMachine::clearButton(uint8_t button)
@@ -55,7 +55,7 @@ void cFunctionMachine::clearButton(uint8_t button)
 
 	if(button >= buttonsCount) return;
 
-	memset(buttons+button,0,sizeof(strButtonObject));
+	memset( (uint8_t*)(buttons+button),0,sizeof(strButtonObject));
 }
 
 

@@ -32,7 +32,7 @@ static  uint8_t functRight();
 static  uint8_t functUp();
 static  uint8_t functDown();
 
-static uint8_t functEnter();
+//static uint8_t functEnter();
 static uint8_t functDeleteBackspace(uint8_t state);
 
 static  uint8_t functSelectButton0();
@@ -377,14 +377,14 @@ void cSampleRecorder::refreshGain()
 {
 	if((recorderConfig.source == sourceTypeLineIn) || (recorderConfig.source == sourceTypeRadio))
 	{
-		uint8_t localMap;
+		uint8_t localMap = 0;
 		if(recorderConfig.source == sourceTypeLineIn) localMap = recorderConfig.gainLineIn *15/100;
 		else if(recorderConfig.source == sourceTypeRadio) localMap = recorderConfig.gainRadio *15/100;
 		audioShield.lineInLevel(localMap);
 	}
 	else if((recorderConfig.source == sourceTypeMicLG) || (recorderConfig.source == sourceTypeMicHG))
 	{
-		float localMap;
+		float localMap = 0.0f;
 		if((recorderConfig.source == sourceTypeMicLG))  localMap= recorderConfig.gainMicLow* 25.0 / 100.0;
 		else if(recorderConfig.source == sourceTypeMicHG) localMap= recorderConfig.gainMicHigh* 44.0 / 100.0;
 		audioShield.micGain(localMap);
@@ -605,7 +605,7 @@ void cSampleRecorder::processSpectrum1()
 
 	for(uint16_t i = offset_pixel; i < 600; i++)
 	{
-		low = up = 0; //*(sampleData+step);
+		low = up = 0; // *(sampleData+step);
 
 		for(uint16_t j = 0; j < resolution; j++)
 		{
@@ -1121,7 +1121,7 @@ static  uint8_t functActionButton7()
 		strcpy(localName,SR->keyboardManager.getName());
 		do
 		{
-		   char keyboardName[MAX_NAME_LENGTH];
+		   char keyboardName[MAX_NAME_LENGTH + 4];
 		   sprintf(keyboardName,"%s%d",localName,cnt);
 
 		   SR->keyboardManager.fillName(keyboardName);
@@ -2206,7 +2206,7 @@ void cSampleRecorder::calcPlayProgressValue()
 		if(zoom.zoomValue == 1.0) playProgressInSpectrum = (600 *  playProgressValue)/MAX_16BIT;
 		else if(zoom.zoomValue > 1.0)
 		{
-			if(playProgressValue < zoom.zoomStart || playProgressValue > zoom.zoomEnd) playProgressInSpectrum = 0;
+			if((int32_t)playProgressValue < zoom.zoomStart || (int32_t)playProgressValue > zoom.zoomEnd) playProgressInSpectrum = 0;
 			else
 			{
 				playProgressInSpectrum = map(playProgressValue, zoom.zoomStart, zoom.zoomEnd, 0 , 600);

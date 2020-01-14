@@ -26,21 +26,21 @@ extern  uint8_t functInvert();
 
 
 
-static uint32_t instrListColors[] =
-{
-	0xFF0000,	//	 listItemFrame
-	0x000000,	//	 listItemFrameBG
-	0xFFFFFF,	//	 listScrollBar
-	0x554A19,	//	 listBG
-	0xFFFFFF,	//	 fontList
-};
-
-static uint32_t listBgTitleLabelColors[] =
-{
-	0x000000, // tekst
-	0xFFFFFF, // tło
-	0xFF0000, // ramka
-};
+//static uint32_t instrListColors[] =
+//{
+//	0xFF0000,	//	 listItemFrame
+//	0x000000,	//	 listItemFrameBG
+//	0xFFFFFF,	//	 listScrollBar
+//	0x554A19,	//	 listBG
+//	0xFFFFFF,	//	 fontList
+//};
+//
+//static uint32_t listBgTitleLabelColors[] =
+//{
+//	0x000000, // tekst
+//	0xFFFFFF, // tło
+//	0xFF0000, // ramka
+//};
 
 static uint32_t listBgLabelColors[] =
 {

@@ -48,21 +48,21 @@ const uint8_t val_tab_flash[1024] =
 
 char * logText[] =
 {
-		"A9\t\t - PTD5\t\t - PORTD_PCR5:\t\t ",
-		"A10\t\t - PTD4\t\t - PORTD_PCR4:\t\t ",
-		"A11\t\t - PTD3\t\t - PORTD_PCR3:\t\t ",
-		"A12\t\t - PTD2\t\t - PORTD_PCR2:\t\t ",
-		"A13\t\t - PTC10\t - PORTC_PCR10:\t\t ",
-		"A14\t\t - PTC9\t\t - PORTC_PCR9:\t\t ",
-		"A15\t\t - PTC8\t\t - PORTC_PCR8:\t\t ",
-		"A16\t\t - PTC7\t\t - PORTC_PCR7:\t\t ",
-		"A17\t\t - PTC6\t\t - PORTC_PCR6:\t\t ",
-		"A18\t\t - PTC5\t\t - PORTC_PCR5:\t\t ",
-		"A19\t\t - PTC4\t\t - PORTC_PCR4:\t\t ",
-		"A20\t\t - PTC2\t\t - PORTC_PCR2:\t\t ",
-		"A21\t\t - PTC1\t\t - PORTC_PCR1:\t\t ",
-		"A22\t\t - PTC0\t\t - PORTC_PCR0:\t\t ",
-		"A23\t\t - PTB18\t - PORTB_PCR18:\t\t "
+		(char*)"A9\t\t - PTD5\t\t - PORTD_PCR5:\t\t ",
+		(char*)"A10\t\t - PTD4\t\t - PORTD_PCR4:\t\t ",
+		(char*)"A11\t\t - PTD3\t\t - PORTD_PCR3:\t\t ",
+		(char*)"A12\t\t - PTD2\t\t - PORTD_PCR2:\t\t ",
+		(char*)"A13\t\t - PTC10\t - PORTC_PCR10:\t\t ",
+		(char*)"A14\t\t - PTC9\t\t - PORTC_PCR9:\t\t ",
+		(char*)"A15\t\t - PTC8\t\t - PORTC_PCR8:\t\t ",
+		(char*)"A16\t\t - PTC7\t\t - PORTC_PCR7:\t\t ",
+		(char*)"A17\t\t - PTC6\t\t - PORTC_PCR6:\t\t ",
+		(char*)"A18\t\t - PTC5\t\t - PORTC_PCR5:\t\t ",
+		(char*)"A19\t\t - PTC4\t\t - PORTC_PCR4:\t\t ",
+		(char*)"A20\t\t - PTC2\t\t - PORTC_PCR2:\t\t ",
+		(char*)"A21\t\t - PTC1\t\t - PORTC_PCR1:\t\t ",
+		(char*)"A22\t\t - PTC0\t\t - PORTC_PCR0:\t\t ",
+		(char*)"A23\t\t - PTB18\t - PORTB_PCR18:\t\t "
 };
 
 void SdramTester::test()

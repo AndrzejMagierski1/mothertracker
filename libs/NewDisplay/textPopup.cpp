@@ -183,7 +183,7 @@ uint8_t cTextPopup::update()
 
 
 	uint16_t line_textStyle;
-	uint8_t line_fontWidth;
+//	uint8_t line_fontWidth;
 	uint8_t line_fontHeight;
 	int16_t line_textFont;
 	int16_t line_posX;
@@ -199,7 +199,7 @@ uint8_t cTextPopup::update()
 
 			// styl :OOOOOOOOO
 			line_textStyle = 0;
-			line_fontWidth = font->width;
+//			line_fontWidth = font->width;
 			line_fontHeight = font->height;
 			line_textFont = font->handle;
 
@@ -214,7 +214,7 @@ uint8_t cTextPopup::update()
 				int8_t textFont = (((tempStyle >> 8) & 15)-1);
 				textFont = (textFont>=0) ? textFont : 0;
 
-				line_fontWidth = fonts[textFont].width;
+//				line_fontWidth = fonts[textFont].width;
 				line_fontHeight = fonts[textFont].height;
 				line_textFont =  fonts[textFont].handle;
 			}

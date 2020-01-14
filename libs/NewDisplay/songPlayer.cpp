@@ -21,8 +21,8 @@ static uint32_t defaultColors[] =
 
 
 static char tracksNames[8][3] = {"T1","T2","T3","T4","T5","T6","T7","T8"};
-static char* patternLabel = "Pattern";
-static char* rowLabel	= "Row";
+static char* patternLabel = (char*)"Pattern";
+static char* rowLabel	= (char*)"Row";
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------

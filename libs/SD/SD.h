@@ -36,6 +36,7 @@
 #include "iostream/fstream.h"
 #include "FsVolume.h"
 #include "FsFile.h"
+#include "common/DebugMacros.h"
 //------------------------------------------------------------------------------
 /** SdFs version YYYYMMDD */
 #define SD_FS_DATE 20180624
@@ -87,6 +88,12 @@ class SdBase : public Vol {
    * \return true for success else false.
    */
   bool begin(SdioConfig sdioConfig) {
+
+#if USE_DBG_MACROS
+
+	  dbgPrint(F(__FILE__), __LINE__);
+
+#endif
     return cardBegin(sdioConfig) && Vol::begin(m_card);
   }
   //----------------------------------------------------------------------------

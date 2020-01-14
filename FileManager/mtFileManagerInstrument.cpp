@@ -155,7 +155,7 @@ void FileManager::deleteInstrument(int8_t index)
 	sprintf(currentPatch,"Workspace/instruments/instrument_%02d.mti",index);
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 
-	memset(&mtProject.instrument[index],0,sizeof(mtProject.instrument[index]));
+	memset((uint8_t*)&mtProject.instrument[index],0,sizeof(mtProject.instrument[index]));
 
 	deleteSample(index);
 	mtProject.instruments_count--;

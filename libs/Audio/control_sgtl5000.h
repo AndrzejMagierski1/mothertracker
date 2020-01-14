@@ -64,6 +64,7 @@ public:
 		{
 			return write(0x000A, 0x0010); // ADC->I2S, I2S->DAC
 		}
+		else return false;
 	}
 	bool volume(float left, float right);
 	bool micGain(unsigned int dB);

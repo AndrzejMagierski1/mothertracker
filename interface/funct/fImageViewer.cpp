@@ -26,12 +26,12 @@ static  uint8_t functRecAction();
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
-static  uint8_t functUp();
-static  uint8_t functDown();
+//static  uint8_t functUp();
+//static  uint8_t functDown();
 
 
-static  uint8_t functCopy();
-static uint8_t functShift(uint8_t value);
+//static  uint8_t functCopy();
+//static uint8_t functShift(uint8_t value);
 
 
 static  uint8_t functEncoder(int16_t value);
@@ -42,8 +42,8 @@ static  uint8_t functSwitchModule(uint8_t button);
 
 
 
-static  uint8_t functInstrument(uint8_t state);
-static uint8_t functStepNote(uint8_t value);
+//static  uint8_t functInstrument(uint8_t state);
+//static uint8_t functStepNote(uint8_t value);
 
 
 
@@ -158,7 +158,7 @@ void cImageViewer::refreshImage()
 {
 	if(imagesCount == 0)
 	{
-		sprintf(titleText, "Manual - no data on SD card", imageNumber, imagesCount);
+		sprintf(titleText, "Manual - no data on SD card");  //, imageNumber, imagesCount);
 		display.setControlText(titleLabel, titleText);
 		display.refreshControl(titleLabel);
 
@@ -284,21 +284,21 @@ static  uint8_t functRight()
 }
 
 
-static  uint8_t functUp()
-{
-
-
-	return 1;
-}
-
-
-static  uint8_t functDown()
-{
-
-
-
-	return 1;
-}
+//static  uint8_t functUp()
+//{
+//
+//
+//	return 1;
+//}
+//
+//
+//static  uint8_t functDown()
+//{
+//
+//
+//
+//	return 1;
+//}
 
 
 
@@ -320,14 +320,14 @@ static  uint8_t functRecAction()
 	return 1;
 }
 
-static uint8_t functShift(uint8_t value)
-{
-
-
-
-
-	return 1;
-}
+//static uint8_t functShift(uint8_t value)
+//{
+//
+//
+//
+//
+//	return 1;
+//}
 
 
 static uint8_t functSwitchModule(uint8_t button)

@@ -670,7 +670,7 @@ void FileManager::recursiveRemoveProject(FsFile *source)
 
 void FileManager::deleteProjectStart(const char *projectName)
 {
-	memset(&deleteHandle, 0, sizeof(deleteHandle));
+	memset((uint8_t*)&deleteHandle, 0, sizeof(deleteHandle));
 
 	deletingInProgress = 1;
 
