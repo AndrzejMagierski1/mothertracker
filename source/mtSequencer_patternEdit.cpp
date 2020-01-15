@@ -426,10 +426,11 @@ void Sequencer::changeSelectionNote(int16_t value)
 
 				if (step->note >= 0)
 				{
-					blinkNote(step->instrument,
-								step->note,
-								STEP_VELO_DEFAULT,
-								t);
+//					blinkNote(step->instrument,
+//								step->note,
+//								STEP_VELO_DEFAULT,
+//								t);
+					playSelection();
 				}
 				return;
 			}
@@ -443,10 +444,11 @@ void Sequencer::changeSelectionNote(int16_t value)
 					if (blinkFirst)
 					{
 						blinkFirst = 0;
-						blinkNote(step->instrument,
-									step->note,
-									STEP_VELO_DEFAULT,
-									t);
+//						blinkNote(step->instrument,
+//									step->note,
+//									STEP_VELO_DEFAULT,
+//									t);
+						playSelection();
 
 					}
 				}
@@ -519,6 +521,12 @@ void Sequencer::changeSelectionFxValue(uint8_t fxIndex, int16_t value)
 			{
 				mtProject.values.lastUsedFx = interfaceGlobals.fxIdToName(
 						step->fx[fxIndex].type);
+			}
+
+			if (!isMultiSelection())
+			{
+				playSelection();
+				break;
 			}
 		}
 	}
@@ -634,10 +642,11 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 					step->instrument = constrain(step->instrument + value,
 													0,
 													INSTRUMENTS_MAX + 16);
-					blinkNote(step->instrument,
-								step->note,
-								STEP_VELO_DEFAULT,
-								t);
+//					blinkNote(step->instrument,
+//								step->note,
+//								STEP_VELO_DEFAULT,
+//								t);
+					playSelection();
 
 					mtProject.values.lastUsedInstrument = step->instrument;
 				}
