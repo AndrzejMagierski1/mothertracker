@@ -8,6 +8,7 @@
 
 #include "interfacePopups.h"
 
+#include "debugLog.h"
 /*
 #include "mtInstrumentEditor.h"
 #include "mtProjectEditor.h"
@@ -73,11 +74,15 @@ void cInterface::SDCardChange(uint8_t state)
 {
 	if(state == 0)
 	{
-		mtPopups.show(4, "SD card removed");
+
+		//debugLog.addLine("karta wyjeta");
+		//mtPopups.show(4, "SD card removed");
 	}
 	else
 	{
-		mtPopups.show(4, "SD card inserted");
+
+		//debugLog.addLine("karta wlozona");
+		//mtPopups.show(4, "SD card inserted");
 	}
 
 	uiFM.processSdDetectInput(state);

@@ -16,7 +16,7 @@
 #include "mtSliceDetector.h"
 #include "mtMidi.h"
 
-
+#include "mtConfig.h"
 
 
 
@@ -31,8 +31,19 @@ void receiveAllMidi()
 {
 	midiUpdate();
 }
+
 void setup()
 {
+//	if(readStartState())
+//	{
+//		lowPower.goLowPower();
+//	}
+//	else
+//	{
+//
+//	}
+
+
 	// inicjalizacja hardware jako pierwsza
 	initHardware();
 

@@ -1,5 +1,7 @@
 #include "mtNameGenerator.h"
+#include "mtHardware.h"
 
+#include <string.h>
 
 mtNameGenerator nameGenerator;
 

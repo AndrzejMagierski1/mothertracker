@@ -2,7 +2,7 @@
 #ifndef SOURCE_WAVHEADERREADER_H_
 #define SOURCE_WAVHEADERREADER_H_
 
-#include "Arduino.h"
+
 #include "SD.h"
 
 struct strWavFileHeader

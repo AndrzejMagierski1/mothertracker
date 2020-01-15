@@ -151,6 +151,9 @@ void cInterface::deinitDisplayCountDown()
 
 void cInterface::initDisplayNoSdCard()
 {
+
+	display.turnOn();
+
 	strControlProperties prop;
 
 	prop.x = 400;

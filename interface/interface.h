@@ -82,6 +82,7 @@ private:
 
 	void processOperatingMode();
 	void doStartTasks();
+	void processStartScreen();
 
 	void handleGlobalActions();
 	void handleShutdown();
@@ -109,8 +110,10 @@ private:
 	hModule previousModule = nullptr;
 	uint32_t previousModuleOptions = 0;
 
-	uint8_t doOnStart = 0;
-	uint8_t isCardOnBoot = 0;
+	uint8_t doOnceOnStart = 0;
+
+	uint8_t isCardInserted = 0;
+
 	uint8_t lastBootCardState = 0;
 
 

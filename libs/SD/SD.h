@@ -52,7 +52,9 @@
 
 typedef File SdFile;
 
-
+extern "C" {
+extern void *memcpy (void *dst, const void *src, size_t count);
+}
 
 //==============================================================================
 /**

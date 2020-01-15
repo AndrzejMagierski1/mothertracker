@@ -5,6 +5,8 @@
 #include "FT812.h"
 #include "keyScanner.h"
 #include "Si4703.h"
+#include "mtConfig.h"
+
 
 mtSleep lowPower;
 
@@ -30,6 +32,8 @@ void mtSleep::requestShutdown(uint8_t value)
 
 void mtSleep::goLowPower()
 {
+	saveStartState();
+
 	noInterrupts();
 	disableAll();
 }

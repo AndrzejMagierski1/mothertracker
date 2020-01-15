@@ -4,7 +4,7 @@
 
 #include <elapsedMillis.h>
 
-#define BLINK_ONCE_TIME 500
+#define BLINK_ONCE_TIME 200
 
 
 
@@ -22,7 +22,7 @@ private:
 	uint8_t _pin;
 	uint8_t pinState;
 	uint16_t setTime;
-	uint8_t setCount;
+	int16_t setCount;
 };
 
 

@@ -1078,7 +1078,7 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 
 			sdLocation.open(filePath, O_READ);
 
-			if(sdLocation.exists("project.bin"))	//tylko jesli w folderze jest plik projektu
+			if(sdLocation.exists("project.mt"))	//tylko jesli w folderze jest plik projektu
 			{
 				strcpy(&locationFilesList[foundProjectsCount][0],&locationFilesList[i][1]);
 

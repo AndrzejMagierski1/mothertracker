@@ -90,15 +90,4 @@ void onPadHold(uint8_t n)
 void onSDCardSlotChange(uint8_t n)
 {
 	//mtInterface.SDCardChange(n);
-	if(n == 1)
-	{
-		//mtCardHandler.sdCardInsertedAction();
-	}
-	else
-	{
-		//mtCardHandler.noSdCardAction();
-	}
-
-	//if(!n) Serial.println("SD OUT");
-	//else Serial.println("SD IN");
 }

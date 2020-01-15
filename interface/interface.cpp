@@ -139,6 +139,7 @@ void cInterface::update()
 
 
 	handleGlobalActions();
+
 	mtPopups.update();
 
 	mtTest.testLoop();
@@ -157,7 +158,7 @@ void cInterface::handleGlobalActions()
 	hideAllGlobalActions();
 
 	handleShutdown();
-	handleNoSdCard();
+	//handleNoSdCard();
 }
 
 void cInterface::handleNoSdCard()
@@ -208,7 +209,6 @@ void cInterface::handleNoSdCard()
 
 void cInterface::handleShutdown()
 {
-
 	if(isBooted)
 	{
 		uint32_t selfPrio = powerButtonActionPriority;
@@ -266,67 +266,62 @@ void cInterface::handleShutdown()
 
 void cInterface::processOperatingMode()
 {
-	if(operatingMode == mtOperatingModeStartup)
+	switch(operatingMode)
 	{
-		isCardOnBoot = sdCardDetector.isCardInitialized();
-
-		if(doOnStart == 0)
+		case mtOperatingModeStartup:
 		{
-			doOnStart = 1;
 			doStartTasks();
+			operatingMode = mtOperatingModeOpenProject;
+			break;
 		}
-
-		if(isCardOnBoot != lastBootCardState)
+		case mtOperatingModeOpenProject:
 		{
-			doOnStart = 1;
-			lastBootCardState = isCardOnBoot;
-		}
-
-		if(isCardOnBoot)
-		{
-			lastBootCardState = isCardOnBoot;
-
-			if(doOnStart == 1)
+			if(sdCardDetector.isCardInitialized())
 			{
-				readConfig();
-				//readSdConfig();
-
-				doOnStart = 2;
 				openStartupProject();
+				operatingMode = mtOperatingModeShowStartScreen;
 			}
-
-			showStartScreen();
-
-			if(detectStartState())
-			{
-				destroyStartScreen();
-				operatingMode = mtOperatingModeRun;
-
-				activateModule(&patternEditor, 0);
-			}
+			break;
 		}
-		else
+		case mtOperatingModeShowStartScreen:
 		{
-			hideStartScreen();
+			processStartScreen();
+			break;
 		}
+		default: break;
 	}
-
-//	else if(operatingMode == mtOperatingModeRun)
-//	{
-//
-//	}
-
-
 }
 
 void cInterface::doStartTasks()
 {
+	readConfig();
+	//readSdConfig();
 	mtPopups.initPopupsDisplayControls();
-
 	initStartScreen();
 }
 
+void cInterface::processStartScreen()
+{
+	if(sdCardDetector.isCardInitialized())
+	{
+		showStartScreen();
 
+		if(detectStartState())
+		{
+			destroyStartScreen();
+			deinitDisplayNoSdCard();
+			operatingMode = mtOperatingModeRun;
+			activateModule(&patternEditor, 0);
+		}
+	}
+	else
+	{
+		hideStartScreen();
+		initDisplayNoSdCard();
+		refreshDsiplayNoSdCard();
+		operatingMode = mtOperatingModeOpenProject;
+	}
+}
 
 //=======================================================================
 //=======================================================================
