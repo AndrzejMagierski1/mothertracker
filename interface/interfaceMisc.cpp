@@ -221,7 +221,7 @@ void cInterface::openStartupProject()
 	{
 		char currentPatch[PATCH_SIZE];
 
-		strcpy(currentPatch,"Workspace/project.bin");
+		strcpy(currentPatch,"Workspace/project.mt");
 		if(SD.exists(currentPatch))
 		{
 			if(fileManager.loadProjectFromWorkspaceStart())
@@ -232,7 +232,7 @@ void cInterface::openStartupProject()
 
 		if(!openFromWorkspaceFlag)
 		{
-			//strcpy(currentPatch,"Templates/New/project.bin");
+			//strcpy(currentPatch,"Templates/New/project.mt");
 
 			fileManager.createEmptyTemplateProject((char*)"New");
 
