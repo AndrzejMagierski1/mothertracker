@@ -485,6 +485,8 @@ public:
 		return player.isPlay && player.selectionMode;
 	}
 
+	float getActualTempo();
+
 // sekwencerowe
 
 	void reset_actual_pos(void);
