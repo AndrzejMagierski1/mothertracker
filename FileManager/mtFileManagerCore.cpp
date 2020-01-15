@@ -634,7 +634,7 @@ void FileManager::getDefaultValues(struct strMtValues *source)
 //
 //	memset(currentPatch,0,PATCH_SIZE);
 //	strcpy(currentPatch,currentProjectPatch);
-//	strcat(currentPatch,"/project.bin");
+//	strcat(currentPatch,"/project.mt");
 //
 //	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 //}

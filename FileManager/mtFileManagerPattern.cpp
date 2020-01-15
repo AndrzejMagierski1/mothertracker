@@ -274,7 +274,7 @@ void FileManager::importPatternToProject(char* filePatch, char* name,
 	file.close();
 	copy.close();
 
-	sprintf(currentPatch, "%s/project.bin", currentProjectPatch);
+	sprintf(currentPatch, "%s/project.mt", currentProjectPatch);
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 }
 #endif
@@ -345,7 +345,7 @@ void FileManager::addPatternToProject(int8_t index)
 //
 //	memset(currentPatch,0,PATCH_SIZE);
 //	strcpy(currentPatch,currentProjectPatch);
-//	strcat(currentPatch,"/project.bin");
+//	strcat(currentPatch,"/project.mt");
 //
 //	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 }
@@ -369,7 +369,7 @@ void FileManager::deletePattern(int8_t index)
 	mtProject.patterns_count--;
 
 
-	strcpy(currentPatch,"Workspace/project.bin");
+	strcpy(currentPatch,"Workspace/project.mt");
 
 
 	writeProjectFile(currentPatch, &mtProject);
