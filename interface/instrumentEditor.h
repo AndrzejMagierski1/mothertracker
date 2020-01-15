@@ -33,13 +33,13 @@ const char filterModeFunctLabels[filterModeCount][11]=
 };
 
 
-const char envelopesLabels[5][15]=
+const char envelopesLabels[5][20]=
 {
 		"Volume",
 		"Panning",
 		"Filter",
-		"Wavetable Pos",
-		"Granular Pos"
+		"Wavetable Position",
+		"Granular Position"
 
 };
 
@@ -63,12 +63,28 @@ const char lfoShapeLabels[3][11]=
 		"Square"
 };
 
-const char lfoSpeedLabels[4][11]=
+const char lfoSpeedLabels[20][7]=
 {
-		"1/4",
-		"1/2",
+		"6",
+		"4",
+		"3",
+		"2",
+		"3/2",
 		"1",
-		"2"
+		"3/4",
+		"1/2",
+		"3/8",
+		"1/3",
+		"1/4",
+		"3/16",
+		"1/6",
+		"1/8",
+		"1/12",
+		"1/16",
+		"1/24",
+		"1/32",
+		"1/48",
+		"1/64"
 };
 
 #undef MAX_SELECT_NODES
@@ -148,7 +164,7 @@ public:
 
 //----------------------------------
 
-
+	strLabelData labelArrow;
 	strFrameData frameData;
 
 	hControl titleBar = nullptr;
@@ -245,12 +261,28 @@ public:
 		&lfoShapeLabels[2][0],
 	};
 
-	const char * lfoSpeedNames[4] =
+	const char * lfoSpeedNames[20] =
 	{
 		&lfoSpeedLabels[0][0],
 		&lfoSpeedLabels[1][0],
 		&lfoSpeedLabels[2][0],
-		&lfoSpeedLabels[3][0]
+		&lfoSpeedLabels[3][0],
+		&lfoSpeedLabels[4][0],
+		&lfoSpeedLabels[5][0],
+		&lfoSpeedLabels[6][0],
+		&lfoSpeedLabels[7][0],
+		&lfoSpeedLabels[8][0],
+		&lfoSpeedLabels[9][0],
+		&lfoSpeedLabels[10][0],
+		&lfoSpeedLabels[11][0],
+		&lfoSpeedLabels[12][0],
+		&lfoSpeedLabels[13][0],
+		&lfoSpeedLabels[14][0],
+		&lfoSpeedLabels[15][0],
+		&lfoSpeedLabels[16][0],
+		&lfoSpeedLabels[17][0],
+		&lfoSpeedLabels[18][0],
+		&lfoSpeedLabels[19][0]
 	};
 
 	char volumeVal[4];

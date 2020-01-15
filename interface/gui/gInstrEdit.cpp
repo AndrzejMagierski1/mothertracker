@@ -64,15 +64,25 @@ void cInstrumentEditor::initDisplayControls()
 	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
 
 	// inicjalizacja kontrolek
-	prop2.colors = interfaceGlobals.activeLabelsColors;
-	prop2.style = 	( controlStyleCenterX | controlStyleFont3 );
-	prop2.x = (800/8)*(0)+(800/16)*2;
-	prop2.w = 2 * (800/8) - 6;
-	prop2.y = 424;
-	prop2.h =  55;
-	prop2.value =  1;
 
-	if(doubleLabelAutomation == nullptr) doubleLabelAutomation = display.createControl<cLabel>(&prop2);
+	labelArrow.bitmaps[0].bitmapIndex = displayArrowU;
+	labelArrow.bitmaps[0].xValue =  (800/8)*0+(800/16);
+	labelArrow.bitmaps[0].yValue = 460;
+	labelArrow.bitmaps[1].bitmapIndex = displayArrowD;
+	labelArrow.bitmaps[1].xValue =  (800/8)*1+(800/16);
+	labelArrow.bitmaps[1].yValue = 460;
+
+	strControlProperties prop3;
+	prop3.colors = interfaceGlobals.activeLabelsColors;
+	prop3.style = 	( controlStyleCenterX | controlStyleFont3 | controlStyleShowBitmap );
+	prop3.x = (800/8)*(0)+(800/16)*2;
+	prop3.w = 2 * (800/8) - 6;
+	prop3.y = 424;
+	prop3.h =  55;
+	prop3.value =  1;
+	prop3.data = &labelArrow;
+
+	if(doubleLabelAutomation == nullptr) doubleLabelAutomation = display.createControl<cLabel>(&prop3);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -156,9 +166,9 @@ void cInstrumentEditor::initDisplayControls()
 	if(shapeListControl == nullptr)  shapeListControl = display.createControl<cList>(&prop);
 
 
-	lfoSpeedList.linesCount = 4;
+	lfoSpeedList.linesCount = 14;
 	lfoSpeedList.start = 0;
-	lfoSpeedList.length = 4;
+	lfoSpeedList.length = 20;
 	lfoSpeedList.data = (char**)lfoSpeedNames;
 	prop.x = (800/8)*(4)+1;
 	prop.y = 29;
@@ -251,37 +261,16 @@ void cInstrumentEditor::showInstrumentEnv()
 	showTitleBar();
 	refreshFramePosition();
 
-	display.setControlValue(bgLabel, 252);
-	display.refreshControl(bgLabel);
-
-	//**********************************
+	//**********************************   WSPOLNE DLA LFO I ENV
 	display.setControlHide(label[0]);
 	display.setControlHide(label[1]);
 
-	display.setControlValue(doubleLabelAutomation, 1);
 	display.setControlText(doubleLabelAutomation,"Destination");
 	display.setControlShow(doubleLabelAutomation);
 
 
-	//*********************************
 	display.setControlText(label[2], "Type");
 
-	if(editorInstrument->envelope[selectedEnvelope].loop)
-	{
-		display.setControlText(label[3], "Attack");
-		display.setControlText(label[4], "Decay");
-		display.setControlText(label[5], "Sustain");
-		display.setControlText(label[6], "Release");
-		display.setControlText(label[7], "Amount");
-	}
-	else
-	{
-		display.setControlText(label[3], "Shape");
-		display.setControlText(label[4], "Speed");
-		display.setControlText(label[5], "Amount");
-		display.setControlText(label[6], "");
-		display.setControlText(label[7], "");
-	}
 
 	display.setControlText2(label[2], "");
 	display.setControlText2(label[3], "");
@@ -297,37 +286,20 @@ void cInstrumentEditor::showInstrumentEnv()
 	display.setControlShow(envelopesListControl);
 	display.setControlShow(envStateListControl);
 
-	if(editorInstrument->envelope[selectedEnvelope].loop)
-	{
-		showLfoShape();
-		showLfoSpeed();
-		showLfoAmount();
-	}
-	else
-	{
-		showEnvAttack();
-		showEnvDecay();
-		showEnvSustain();
-		showEnvRelease();
-		showEnvAmount();
-	}
+	display.setControlHide(filterModeListControl);
 
-//	showEnvLoop();
+	//**********************************
+	if(!editorInstrument->envelope[selectedEnvelope].loop)
+	{
+		display.setControlText(label[3], "Attack");
+		display.setControlText(label[4], "Decay");
+		display.setControlText(label[5], "Sustain");
+		display.setControlText(label[6], "Release");
+		display.setControlText(label[7], "Amount");
 
-//-------------------------------------
-	if(editorInstrument->envelope[selectedEnvelope].loop)
-	{
-		display.setControlHide(barControl[0]);
-		display.setControlHide(barControl[1]);
-		display.setControlHide(barControl[2]);
-		display.setControlHide(barControl[3]);
-		display.setControlShow(barControl[4]);
-		display.setControlHide(barControl[5]);
-		display.setControlHide(barControl[6]);
-		display.setControlHide(barControl[7]);
-	}
-	else
-	{
+		display.setControlValue(bgLabel, 252);
+		display.refreshControl(bgLabel);
+
 		display.setControlHide(barControl[0]);
 		display.setControlHide(barControl[1]);
 		display.setControlHide(barControl[2]);
@@ -336,30 +308,52 @@ void cInstrumentEditor::showInstrumentEnv()
 		display.setControlShow(barControl[5]);
 		display.setControlShow(barControl[6]);
 		display.setControlShow(barControl[7]);
-	}
 
-	display.setControlHide(filterModeListControl);
+		display.setControlStyle(barControl[3], (controlStyleShow | controlStyleValue_0_100 | controlStyleBackground));
 
+		showEnvAttack();
+		showEnvDecay();
+		showEnvSustain();
+		showEnvRelease();
+		showEnvAmount();
 
-	if(editorInstrument->envelope[selectedEnvelope].loop)
-	{
-		display.setControlShow(shapeListControl);
-		display.setControlShow(speedListControl);
-	}
-	else
-	{
 		display.setControlHide(shapeListControl);
 		display.setControlHide(speedListControl);
 	}
-//	display.setControlShow(envLoopListControl);
+	else
+	{
+		display.setControlText(label[3], "Shape");
+		display.setControlText(label[4], "Speed");
+		display.setControlText(label[5], "Amount");
+		display.setControlText(label[6], "");
+		display.setControlText(label[7], "");
+
+		display.setControlValue(bgLabel, 124);
+		display.refreshControl(bgLabel);
+
+		display.setControlHide(barControl[0]);
+		display.setControlHide(barControl[1]);
+		display.setControlHide(barControl[2]);
+		display.setControlHide(barControl[3]);
+		display.setControlHide(barControl[4]);
+		display.setControlShow(barControl[5]);
+		display.setControlHide(barControl[6]);
+		display.setControlHide(barControl[7]);
+
+		showLfoShape();
+		showLfoSpeed();
+		showLfoAmount();
+
+		display.setControlShow(shapeListControl);
+		display.setControlShow(speedListControl);
+	}
 
 
 	//display.setControlStyle(barControl[1], (controlStyleShow | controlStyleValue_0_100));
 //	display.setControlStyle(barControl[2], (controlStyleShow | controlStyleValue_0_100 | controlStyleBackground));
-//	display.setControlStyle(barControl[3], (controlStyleShow | controlStyleValue_0_100 | controlStyleBackground));
 
 
-//-------------------------------------
+//**********************************   WSPOLNE DLA LFO I ENV
 
 
 	display.setControlStyle2(doubleLabelAutomation, controlStyleCenterX | controlStyleFont2);
@@ -389,7 +383,7 @@ void cInstrumentEditor::showInstrumentEnv()
 	frameData.placesCount = 7;
 
 	display.synchronizeRefresh();
-
+//**********************************
 }
 
 
@@ -573,8 +567,6 @@ void cInstrumentEditor::activateLabelsBorder()
 
 void cInstrumentEditor::showEnvList()
 {
-	display.setControlText2(doubleLabelAutomation, envelopesLabels[selectedEnvelope]);
-	display.refreshControl(doubleLabelAutomation);
 
 	display.setControlValue(envelopesListControl, selectedEnvelope);
 	display.refreshControl(envelopesListControl);
@@ -683,16 +675,16 @@ void cInstrumentEditor::showEnvAmount()
 
 void cInstrumentEditor::showLfoShape()
 {
-	display.setControlText2(label[2], lfoShapeLabels[editorInstrument->lfo[selectedEnvelope].shape]);
-	display.refreshControl(label[2]);
+	display.setControlText2(label[3], lfoShapeLabels[editorInstrument->lfo[selectedEnvelope].shape]);
+	display.refreshControl(label[3]);
 
 	display.setControlValue(shapeListControl, editorInstrument->lfo[selectedEnvelope].shape);
 	display.refreshControl(shapeListControl);
 }
 void cInstrumentEditor::showLfoSpeed()
 {
-	display.setControlText2(label[3], lfoSpeedLabels[editorInstrument->lfo[selectedEnvelope].speed]);
-	display.refreshControl(label[3]);
+	display.setControlText2(label[4], lfoSpeedLabels[editorInstrument->lfo[selectedEnvelope].speed]);
+	display.refreshControl(label[4]);
 
 	display.setControlValue(speedListControl, editorInstrument->lfo[selectedEnvelope].speed);
 	display.refreshControl(speedListControl);
