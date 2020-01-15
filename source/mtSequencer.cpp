@@ -230,7 +230,8 @@ void Sequencer::play_microStep(uint8_t row)
 	if (!playerRow.isActive)
 		return;
 
-	memcpy((uint8_t *)&stepToSend, (uint8_t *)&patternStep, sizeof(patternStep));
+	memcpy((uint8_t *) &stepToSend, (uint8_t *) &patternStep,
+			sizeof(patternStep));
 	if (playerRow.uStep == 1)
 	{
 		stepToSend.velocity = STEP_VELO_DEFAULT;
@@ -681,7 +682,6 @@ void Sequencer::play_microStep(uint8_t row)
 //							playerRow.stepToSend.velocity,
 //							playerRow.stepToSend.instrument);
 				sendNoteOn(row, &playerRow.stepToSend);
-
 
 				playerRow.stepSent = playerRow.stepToSend;
 			}
@@ -1144,27 +1144,29 @@ void Sequencer::reset_actual_pos(uint8_t row)
 //	return retVal > 0 ? retVal : 1;
 //}
 
-void Sequencer::init_player_timer(void) // MT::refreshTimer
+float Sequencer::getActualTempo()
 {
-
-	float timer_var = 0;
 	float temp_Tempo;
 
 	if (player.performance.tempo > 0.0 && player.performance.tempo < MAX_TEMPO)
 	temp_Tempo = player.performance.tempo;
 
 	else if (isInternalClock())
-	//	temp_Tempo = seq[player.ramBank].tempo;
 	temp_Tempo = mtProject.values.globalTempo;
-
-//	else if (config.mode == MODE_MIDICLOCK.INTERNAL_LOCK)
-//	temp_Tempo = config.tempoLock;
 
 	else
 		temp_Tempo = player.externalTempo;
 
+	return temp_Tempo;
+}
+
+void Sequencer::init_player_timer(void) // MT::refreshTimer
+{
+
+	float timer_var = 0;
+
 //3125 - wyliczone niegdyś matematycznie, 12 na potrzeby dividerów
-	timer_var = ((3125.0 / temp_Tempo) * (player.swing_offset + 50.0)) / 12.0;
+	timer_var = ((3125.0 / getActualTempo()) * (player.swing_offset + 50.0)) / 12.0;
 
 	playTimer.begin(timerExternalVector, timer_var);
 
