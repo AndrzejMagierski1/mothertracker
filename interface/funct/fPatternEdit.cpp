@@ -2836,21 +2836,32 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		{
 		case 0: // nuta
 		{
-//			if (state == buttonPress)
-//			{
-//				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-//				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 127);
-//			}
-//			else if (state == buttonRelease)
-//			{
-//				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-//				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0);
-//			}
-			if (state == buttonPress)
+			if (sequencer.isRec())
 			{
 				sendSelection();
-				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-				sequencer.setSelectionNote(noteFromPad);
+				if (state == buttonPress)
+				{
+					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
+											noteFromPad,
+											127);
+				}
+				else if (state == buttonRelease)
+				{
+					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
+											noteFromPad,
+											0);
+				}
+			}
+			else
+			{
+				if (state == buttonPress)
+				{
+					sendSelection();
+					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+					sequencer.setSelectionNote(noteFromPad);
+				}
 			}
 			break;
 		}

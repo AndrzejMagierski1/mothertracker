@@ -538,7 +538,6 @@ void Sequencer::setSelectionFxValueByPad(uint8_t fxIndex, int16_t pad)
 	if (!isSelectionCorrect(sel)) return;
 	if (fxIndex > FX_SLOTS_MAX) return;
 
-
 	strPattern::strTrack::strStep *step;
 
 	for (uint8_t t = sel->firstTrack; t <= sel->lastTrack; t++)
@@ -555,9 +554,11 @@ void Sequencer::setSelectionFxValueByPad(uint8_t fxIndex, int16_t pad)
 						mtProject.values.lastUsedFx);
 			}
 
-			step->fx[fxIndex].value = map(pad, 0, 47, getFxMin(step->fx[fxIndex].type), getFxMax(step->fx[fxIndex].type));
+			step->fx[fxIndex].value = map(pad, 0, 47,
+											getFxMin(step->fx[fxIndex].type),
+											getFxMax(step->fx[fxIndex].type));
 
-			if (!isMultiSelection() && step->fx[fxIndex].type != 0)
+			if (!isMultiSelection() && step->fx[fxIndex].type != 0 && !isRec())
 			{
 				playSelection();
 			}
@@ -703,7 +704,10 @@ void Sequencer::setSelectionInstrument(int16_t value)
 //								step->note,
 //								STEP_VELO_DEFAULT,
 //								t);
-					playSelection();
+					if (!isRec())
+					{
+						playSelection();
+					}
 
 					mtProject.values.lastUsedInstrument = step->instrument;
 				}
@@ -782,7 +786,7 @@ void Sequencer::setSelectionNote(int16_t value)
 			{
 				step->note = value;
 
-				if (step->note >= 0)
+				if (step->note >= 0 && !isRec())
 				{
 //					blinkNote(step->instrument,
 //								step->note,
