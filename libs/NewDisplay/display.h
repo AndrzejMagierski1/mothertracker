@@ -143,6 +143,9 @@ public:
 	void enable()  {state = 1;}
 	void clear();
 
+	void turnOn();
+	void turnOff();
+
 private:
 
 	uint8_t state = 1;

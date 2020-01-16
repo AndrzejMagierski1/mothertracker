@@ -243,6 +243,7 @@ void cSampleImporter::showDefaultScreen()
 		display.refreshControl(label[i]);
 	}
 
+	display.setControlValue(bgLabel, 125);
 	display.refreshControl(bgLabel);
 
 
@@ -599,7 +600,7 @@ void cSampleImporter::displayDelete(uint8_t onOff)
 
 
 
-
+//todo
 void cSampleImporter::showRenameKeyboard()
 {
 	display.setControlPosition(label[0],  (800/8)*0+(800/16),  424);
@@ -611,12 +612,16 @@ void cSampleImporter::showRenameKeyboard()
 	for(uint8_t i = 0; i < 8; i++)
 	{
 		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
+		display.setRemoveControlStyle(label[i], controlStyleShowBitmap);
+		display.setControlColors(label[i], interfaceGlobals.activeButtonLabelsColors);
 	}
 
 	display.setControlText(label[0],"Enter");
 	display.setControlText(label[5],"Auto name");
 	display.setControlText(label[6],"Cancel");
 	display.setControlText(label[7],"Rename");
+
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
@@ -636,6 +641,11 @@ void cSampleImporter::showRenameKeyboard()
 	display.refreshControl(memoryBarControl);
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
+
+
+
+	display.setControlValue(bgLabel, 226);
+	display.refreshControl(bgLabel);
 
 	display.synchronizeRefresh();
 

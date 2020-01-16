@@ -6,6 +6,10 @@
 
 #include "debugLog.h"
 
+#include "mtStructs.h"
+
+
+
 cDebugLog debugLog;
 
 //--------------------------------------------------------------------------------
@@ -222,6 +226,12 @@ void cDebugLog::update()
 
 		if(logBott == logTop) return;
 	}
+}
+
+
+uint8_t cDebugLog::toggleState()
+{
+	return mtConfig.debug.debugLogState = !mtConfig.debug.debugLogState;
 }
 
 

@@ -16,7 +16,7 @@
 #include "mtSliceDetector.h"
 #include "mtMidi.h"
 
-
+#include "mtConfig.h"
 
 
 
@@ -31,8 +31,19 @@ void receiveAllMidi()
 {
 	midiUpdate();
 }
+
 void setup()
 {
+//	if(readStartState())
+//	{
+//		lowPower.goLowPower();
+//	}
+//	else
+//	{
+//
+//	}
+
+
 	// inicjalizacja hardware jako pierwsza
 	initHardware();
 
@@ -57,18 +68,18 @@ void loop()
 {
 	updateHardware();
 
-	if(!lowPower.isLowPower())
-	{
-		sequencer.handle();
-		handle_chatBot();
+	if(lowPower.getLowPowerState() == shutdownStateSleep) return;
 
-		padsBacklight.update();
+	sequencer.handle();
+	handle_chatBot();
 
-		exporter.update();
-		sliceDetector.update();
-		engine.update();
-		fileManager.update();
-		recorder.updateSave();
-		mtInterface.update();
-	}
+	padsBacklight.update();
+
+	exporter.update();
+	sliceDetector.update();
+	engine.update();
+	fileManager.update();
+	recorder.updateSave();
+	mtInterface.update();
+
 }

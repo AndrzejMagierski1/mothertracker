@@ -1,6 +1,7 @@
 #ifndef SOURCE_MTNAMEGENERATOR_H_
 #define SOURCE_MTNAMEGENERATOR_H_
-#include "mtHardware.h"
+
+#include "stdint.h"
 
 constexpr uint8_t MAX_NAME_SIZE = 100;
 constexpr uint8_t MAX_ROW_NUMBER = 6;

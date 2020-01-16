@@ -381,7 +381,9 @@ bool FatFile::open(FatFile* dirFile, const char* path, uint8_t oflag) {
     dirFile = &tmpDir;
   }
   while (1) {
-    if (!parsePathName(path, &fname, &path)) {
+    if (!parsePathName(path, &fname, &path))
+    {
+    //	__asm__ __volatile__ ("bkpt #0");
       DBG_FAIL_MACRO;
       goto fail;
     }

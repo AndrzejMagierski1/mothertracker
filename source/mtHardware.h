@@ -3,11 +3,11 @@
 #define MTHARDWARE_H
 
 
-#include "core_pins.h"
-#include "Arduino.h"
-#include "Wire.h"
+///#include "core_pins.h"
+//#include "Arduino.h"
+//#include "Wire.h"
 
-
+#include <stdint.h>
 
 
 // PAD,POT,BUTTONS MUXS

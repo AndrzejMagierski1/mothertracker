@@ -10,6 +10,11 @@ void forceSaveConfig();
 void saveConfig();
 void readConfig();
 
+
+uint8_t readStartState();
+void saveStartState();
+
+
 void checkConfig();
 
 

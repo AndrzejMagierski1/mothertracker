@@ -50,7 +50,7 @@ public:
 
 	// internal
 	void update();
-	uint8_t toggleState() {return mtConfig.debug.debugLogState = !mtConfig.debug.debugLogState;}
+	uint8_t toggleState();
 
 private:
 	void processLog();

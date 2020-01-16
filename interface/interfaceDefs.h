@@ -229,7 +229,13 @@ enum enumMtOperatingMode
 {
 	mtOperatingModeNone,
 	mtOperatingModeStartup,
+	mtOperatingModeOpenProject,
+	mtOperatingModeShowStartScreen,
 	mtOperatingModeRun,
+
+	mtOperatingModePowerOffSequence,
+	mtOperatingModeSleep,
+
 };
 
 
