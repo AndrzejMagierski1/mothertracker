@@ -22,11 +22,13 @@ void envelopeGenerator::start()
 {
 	// Serial.println("envelope.start()");
 	keyPressed = 1;
+	calc();
 }
 
 void envelopeGenerator::stop()
 {
 	keyPressed = 0;
+	if(envelope->loop) envTemp.phase = phase_nothing;
 }
 
 void envelopeGenerator::kill()
@@ -50,7 +52,7 @@ void envelopeGenerator::calc()
 	// time-dependent values
 	float delay 		= (float)envelope->delay * timeMul;
 	float attack 		= (float)envelope->attack * timeMul;
-	float hold 			= 0;// float(*_hold * 	2) 		* timeMul;
+	float hold 			= float(envelope->hold) * timeMul;
 	float decay 		= (float)envelope->decay * timeMul;
 	float release 		= (float)envelope->release * timeMul;
 

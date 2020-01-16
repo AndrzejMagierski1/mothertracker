@@ -51,7 +51,12 @@ void changeEnvDecay(int16_t value);
 void changeEnvSustain(int16_t value);
 void changeEnvRelease(int16_t value);
 void changeEnvAmount(int16_t value);
-void changeEnvLoop(int16_t value);
+//void changeEnvLoop(int16_t value);
+
+void changeLfoShape(int16_t value);
+void changeLfoSpeed(int16_t value);
+void changeLfoAmount(int16_t value);
+
 
 void changeParamsVolume(int16_t value);
 void changeParamsPanning(int16_t value);
@@ -275,8 +280,9 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 
 	if(state == buttonPress)
 	{
-		IE->selectedPlace[IE->mode] = button;
-
+		uint8_t lastSelectedPlace = IE->selectedPlace[IE->mode];
+		IE->selectedPlace[IE->mode] = (button > 0) && (IE->mode == mtInstEditModeEnv)  ? button - 1 : button;
+		if( (IE->mode == mtInstEditModeEnv) && (IE->selectedPlace[IE->mode] > 4) && (IE->editorInstrument->envelope[IE->selectedEnvelope].loop)) IE->selectedPlace[IE->mode] = 4;
 		switch(mode_places)
 		{
 		case 0: IE->addNode(changeParamsVolume, node); 	    	break;
@@ -288,22 +294,59 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 		case 6: IE->addNode(changeFilterResonance, node);    	break;
 		case 7: IE->addNode(changeParamsReverbSend, node);   	break;
 
-		case 10: IE->addNode(changeEnvList, node, 1); 		 	break;
-		case 11: IE->addNode(changeEnvState, node, 1); 		 	break;
-		case 12: IE->addNode(changeEnvAttack, node); 	 		break;
-		case 13: IE->addNode(changeEnvDecay, node); 		 	break;
-		case 14: IE->addNode(changeEnvSustain, node); 	 		break;
-		case 15: IE->addNode(changeEnvRelease, node); 	 		break;
-		case 16: IE->addNode(changeEnvAmount, node); 	 		break;
-		case 17: IE->addNode(changeEnvLoop, node); 		 		break;
+		case 10:
+
+			if (lastSelectedPlace == 0 )	changeEnvList(-1);
+
+			break;
+		case 11:
+
+			if (lastSelectedPlace == 0 ) 	changeEnvList(1);
+
+		break;
+		case 12: break;
+		case 13:
+
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) IE->addNode(changeLfoShape, node , 1);
+			else IE->addNode(changeEnvAttack, node);
+
+			break;
+		case 14:
+
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) IE->addNode(changeLfoSpeed, node , 1);
+			else IE->addNode(changeEnvDecay, node);
+
+			break;
+		case 15:
+
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) IE->addNode(changeLfoAmount, node);
+			else IE->addNode(changeEnvSustain, node);
+
+			break;
+		case 16:
+
+			if(!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) IE->addNode(changeEnvRelease, node);
+
+			break;
+		case 17: ;
+
+			if(!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) IE->addNode(changeEnvAmount, node);
+
+			break;
 
 		// midi params
 		case 20: IE->addNode(changeParamsVelocity, node); 		 break;
 		}
+		if(node > 2)
+		{
+			if( ((node <= 5 ) && (IE->editorInstrument->envelope[IE->selectedEnvelope].loop)) || (!IE->editorInstrument->envelope[IE->selectedEnvelope].loop ))
+			{
+				IE->frameData.multisel[button].frameNum = node - 1;
+				IE->frameData.multisel[button].isActive = 1;
+				IE->frameData.multiSelActiveNum  += 1;
+			}
 
-		IE->frameData.multisel[button].frameNum = node;
-		IE->frameData.multisel[button].isActive = 1;
-		IE->frameData.multiSelActiveNum  += 1;
+		}
 	}
 	else if(state == buttonRelease)
 	{
@@ -318,7 +361,8 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 
 				if(IE->frameData.multiSelActiveNum == 0)
 				{
-					IE->selectedPlace[IE->mode] = button;
+					IE->selectedPlace[IE->mode] = (button > 0) && (IE->mode == mtInstEditModeEnv) ? button - 1 : button;
+					if( (IE->mode == mtInstEditModeEnv) && (IE->selectedPlace[IE->mode] > 4) && (IE->editorInstrument->envelope[IE->selectedEnvelope].loop)) IE->selectedPlace[IE->mode] = 4;
 				}
 			}
 		}
@@ -356,12 +400,35 @@ static  uint8_t functEncoder(int16_t value)
 
 		case 10: changeEnvList(value); 		break;
 		case 11: changeEnvState(value); 	break;
-		case 12: changeEnvAttack(value); 	break;
-		case 13: changeEnvDecay(value); 	break;
-		case 14: changeEnvSustain(value); 	break;
-		case 15: changeEnvRelease(value); 	break;
-		case 16: changeEnvAmount(value); 	break;
-		case 17: changeEnvLoop(value); 		break;
+		case 12:
+
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeLfoShape(value);
+			else changeEnvAttack(value);
+
+			break;
+		case 13:
+
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeLfoSpeed(value);
+			else changeEnvDecay(value);
+
+			break;
+		case 14:
+
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeLfoAmount(value);
+			else changeEnvSustain(value);
+
+			break;
+		case 15:
+
+			if(!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeEnvRelease(value);
+
+			break;
+		case 16:
+
+			if(!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeEnvAmount(value);
+
+			break;
+//		case 17: changeEnvLoop(value); 		break;
 
 		case 20: changeParamsVelocity(value); 	break;
 		}
@@ -378,6 +445,7 @@ static  uint8_t functLeft()
 	if(IE->frameData.multiSelActiveNum != 0) return 1;
 
 	if(IE->selectedPlace[IE->mode] > 0) IE->selectedPlace[IE->mode]--;
+
 	IE->activateLabelsBorder();
 
 	return 1;
@@ -389,6 +457,7 @@ static  uint8_t functRight()
 	if(IE->frameData.multiSelActiveNum != 0) return 1;
 
 	if(IE->selectedPlace[IE->mode] < IE->frameData.placesCount-1) IE->selectedPlace[IE->mode]++;
+	if((IE->selectedPlace[IE->mode] > 4) && ( IE->mode == mtInstEditModeEnv) && (IE->editorInstrument->envelope[IE->selectedEnvelope].loop)) IE->selectedPlace[IE->mode] = 4;
 	IE->activateLabelsBorder();
 
 	return 1;
@@ -419,12 +488,35 @@ static  uint8_t functUp()
 
 		case 10: changeEnvList(-1); 		break;
 		case 11: changeEnvState(-1); 	break;
-		case 12: changeEnvAttack(1); 	break;
-		case 13: changeEnvDecay(1); 	break;
-		case 14: changeEnvSustain(1); 	break;
-		case 15: changeEnvRelease(1); 	break;
-		case 16: changeEnvAmount(1); 	break;
-		case 17: changeEnvLoop(-1); 		break;
+		case 12:
+
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeLfoShape(-1);
+			else changeEnvAttack(1);
+
+			break;
+		case 13:
+
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeLfoSpeed(-1);
+			else changeEnvDecay(1);
+
+			break;
+		case 14:
+
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeLfoAmount(1);
+			else changeEnvSustain(1);
+
+			break;
+		case 15:
+
+			if(!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeEnvRelease(1);
+
+			break;
+		case 16:
+
+			if(!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeEnvAmount(1);
+
+			break;
+//		case 17: changeEnvLoop(-1); 		break;
 
 		case 20: changeParamsVelocity(1); 	break;
 		}
@@ -458,12 +550,35 @@ static  uint8_t functDown()
 
 		case 10: changeEnvList(1); 				break;
 		case 11: changeEnvState(1); 			break;
-		case 12: changeEnvAttack(-1); 			break;
-		case 13: changeEnvDecay(-1); 			break;
-		case 14: changeEnvSustain(-1); 			break;
-		case 15: changeEnvRelease(-1); 			break;
-		case 16: changeEnvAmount(-1); 			break;
-		case 17: changeEnvLoop(1); 			break;
+		case 12:
+
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeLfoShape(1);
+			else changeEnvAttack(-1);
+
+			break;
+		case 13:
+
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeLfoSpeed(1);
+			else changeEnvDecay(-1);
+
+			break;
+		case 14:
+
+			if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeLfoAmount(-1);
+			else changeEnvSustain(-1);
+
+			break;
+		case 15:
+
+			if(!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeEnvRelease(-1);
+
+			break;
+		case 16:
+
+			if(!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) changeEnvAmount(-1);
+
+			break;
+//		case 17: changeEnvLoop(1); 			break;
 
 		case 20: changeParamsVelocity(-1); 	break;
 		}
@@ -563,7 +678,7 @@ void changeEnvList(int16_t value)
 {
 
 	if(IE->selectedEnvelope + value < 0) IE->selectedEnvelope = 0;
-	else if(IE->selectedEnvelope + value > 2 ) IE->selectedEnvelope = 3;
+	else if(IE->selectedEnvelope + value > 4 ) IE->selectedEnvelope = 4;
 	else IE-> selectedEnvelope += value;
 
 	IE->showInstrumentEnv();
@@ -574,11 +689,21 @@ void changeEnvList(int16_t value)
 
 void changeEnvState(int16_t value)
 {
-	if(value > 0)IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
-	else if(value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
+	if(value > 0)
+	{
+		if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable == 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
+		else IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 1;
+	}
+	else if(value < 0)
+	{
+		if(IE->editorInstrument->envelope[IE->selectedEnvelope].loop == 1) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 0;
+		else IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
+	}
 //	if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 0;
 //	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value > 1 ) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
 //	else IE->editorInstrument->envelope[IE->selectedEnvelope].enable += value;
+
+	IE->showInstrumentEnv();
 
 	IE->showEnvState();
 }
@@ -675,17 +800,44 @@ void changeEnvAmount(int16_t value)
 	IE->showEnvAmount();
 }
 
-
-
-void changeEnvLoop(int16_t value)
+void changeLfoShape(int16_t value)
 {
+	if(IE->editorInstrument->lfo[IE->selectedEnvelope].shape + value < 0) IE->editorInstrument->lfo[IE->selectedEnvelope].shape = 0;
+	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].shape + value > 2 ) IE->editorInstrument->lfo[IE->selectedEnvelope].shape = 2;
+	else IE->editorInstrument->lfo[IE->selectedEnvelope].shape += value;
 
-	if((!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) && (value < 0)) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 1;
-	else if ((IE->editorInstrument->envelope[IE->selectedEnvelope].loop) && (value > 0)) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 0;
+	IE->showLfoShape();
+}
+void changeLfoSpeed(int16_t value)
+{
+	if(IE->editorInstrument->lfo[IE->selectedEnvelope].speed + value < 0) IE->editorInstrument->lfo[IE->selectedEnvelope].speed = 0;
+	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].speed + value > 19 ) IE->editorInstrument->lfo[IE->selectedEnvelope].speed = 19;
+	else IE->editorInstrument->lfo[IE->selectedEnvelope].speed += value;
+
+	IE->showLfoSpeed();
+}
+void changeLfoAmount(int16_t value)
+{
+	float fVal = value * 0.01;
+
+	if(IE->editorInstrument->lfo[IE->selectedEnvelope].amount + fVal < 0) IE->editorInstrument->lfo[IE->selectedEnvelope].amount = 0;
+	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].amount + fVal > AMOUNT_MAX ) IE->editorInstrument->lfo[IE->selectedEnvelope].amount = AMOUNT_MAX;
+	else IE->editorInstrument->lfo[IE->selectedEnvelope].amount += fVal;
 
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
-	IE->showEnvLoop();
+
+	IE->showLfoAmount();
 }
+
+//void changeEnvLoop(int16_t value)
+//{
+//
+//	if((!IE->editorInstrument->envelope[IE->selectedEnvelope].loop) && (value < 0)) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 1;
+//	else if ((IE->editorInstrument->envelope[IE->selectedEnvelope].loop) && (value > 0)) IE->editorInstrument->envelope[IE->selectedEnvelope].loop = 0;
+//
+//	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+////	IE->showEnvLoop();
+//}
 
 
 

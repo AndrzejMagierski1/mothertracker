@@ -63,6 +63,12 @@ void AudioEffectEnvelope::noteOff(void)
 	pressedFlag = 0;
 	__disable_irq();
 	if (state != STATE_IDLE && state != STATE_FORCED) {
+		if(loopFlag)
+		{
+			state = STATE_IDLE; //todo: envelope jako lfo - tracker edit
+			__enable_irq();
+			return;
+		}
 		state = STATE_RELEASE;
 		count = release_count;
 		inc_hires = (-mult_hires) / (int32_t)count;

@@ -8,7 +8,6 @@
 #include <SD.h>
 #include <SerialFlash.h>
 #include "mtEnvelopeGenerator.h"
-#include "mtLFO.h"
 #include "mtHardware.h"
 #include "mtRecorder.h"
 #include "mtExporterWAV.h"
@@ -51,7 +50,7 @@ class playerEngine
 public:
 
 	void init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter, AudioEffectEnvelope * envAmp, AudioAmplifier * amp,
-			uint8_t panCh, LFO * lfoAmp, LFO * lfoFilter, LFO * lfoPitch, envelopeGenerator* envWtPos, envelopeGenerator * envGranPos );
+			uint8_t panCh, envelopeGenerator* envWtPos, envelopeGenerator * envGranPos, envelopeGenerator * envPanning );
 
 
 	uint8_t noteOn(uint8_t instr_idx,int8_t note, int8_t velocity);
@@ -171,9 +170,6 @@ public:
 		uint16_t filterRelease;
 
 		int8_t fineTune;
-		LFO::strLfo vibrato; //todo: do ogarniecia
-		LFO::strLfo tremolo; //todo: do ogarniecia
-
 		uint16_t glide;
 		uint32_t wavetablePosition;
 		uint16_t granularPosition;
@@ -222,7 +218,10 @@ public:
 		float cutoff;
 		uint32_t wtPos;
 		uint16_t granPos;
+		int8_t panning;
 	} instrumentBasedMod;
+
+
 
 	uint8_t trackControlParameter[(int)controlType::length][(int)parameterList::length];
 //**********************************************************************************************************************************
@@ -266,12 +265,10 @@ private:
 	envelopeGenerator* 			envelopeFilterPtr;
 	envelopeGenerator* 			envelopeWtPos;
 	envelopeGenerator*			envelopeGranPos;
+	envelopeGenerator*			envelopePanningPtr;
 	AudioFilterStateVariable *	filterPtr;
 	AudioConnection*			conFilterToAmpPtr;
 	AudioConnection*			conPlayToFilterPtr;
-	LFO *						lfoAmpPtr;
-	LFO *						lfoFilterPtr;
-	LFO *						lfoPitchPtr;
 	uint8_t 					numPanChannel;
 	uint8_t						lastSeqFx[2];
 	uint8_t						lastSeqVal[2];
@@ -289,6 +286,8 @@ private:
 	uint8_t 					muteState = 0;
 	uint8_t						onlyReverbMuteState = 0;
 
+	envelopeGenerator::strEnv lfoBasedEnvelope[envelopeTypeMax];
+
 	void changeFilterType(uint8_t type);
 	void filterConnect();
 	void filterDisconnect();
@@ -296,6 +295,7 @@ private:
 	void changePointsPerformanceMode(int32_t spValue, int32_t epValue);
 	void endPointsPerformanceMode();
 
+	void calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo);
 	float fmap(float x, float in_min, float in_max, float out_min, float out_max);
 
 };
@@ -316,9 +316,6 @@ extern AudioFilterStateVariable filter[8];
 extern AudioAmplifier           amp[8];
 extern AudioMixer9				mixerL,mixerR,mixerReverb;
 extern AudioOutputI2S           i2s1;
-extern LFO						lfoAmp[8];
-extern LFO						lfoFilter[8];
-extern LFO						lfoPitch[8];
 extern AudioBitDepth			bitDepthControl[2];
 
 extern AudioInputI2S            i2sIn;
