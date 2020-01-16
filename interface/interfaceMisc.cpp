@@ -38,7 +38,7 @@ void cInterface::openStartupProject()
 
 		if(!openFromWorkspaceFlag)
 		{
-			//strcpy(currentPatch,"Templates/New/project.bin");
+			//strcpy(currentPatch,"Templates/New/project.mt");
 
 			fileManager.createEmptyTemplateProject((char*)"New");
 
