@@ -58,7 +58,10 @@ void onPowerButtonChange(uint8_t value)
 {
 	mtInterface.powerButtonChange(value);
 
-	lowPower.handlePowerState(value);
+	mtInterface.handlePowerButtonAction(value);
+
+
+	//lowPower.handlePowerState(value);
 
 //	mtPrint("power button: ");
 //	mtPrintln(value);
@@ -89,5 +92,5 @@ void onPadHold(uint8_t n)
 
 void onSDCardSlotChange(uint8_t n)
 {
-	//mtInterface.SDCardChange(n);
+	mtInterface.handleCardSlotAction(n);
 }

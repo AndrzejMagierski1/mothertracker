@@ -72,6 +72,7 @@ void cInterface::padHold(uint8_t n)
 //=======================================================================
 void cInterface::SDCardChange(uint8_t state)
 {
+
 	if(state == 0)
 	{
 

@@ -2,7 +2,7 @@
 #define SOURCE_MTSLEEP_H_
 #include "Snooze.h"
 #include "mtHardware.h"
-#include "modulesBase.h"
+
 
 
 #define CM4_SCB_AIRCR 					(*(uint32_t*)0xE000ED0C)
@@ -10,49 +10,37 @@
 #define CM4_SCB_AIRCR_SYSRESETREQ_MASK	0x04U
 
 
-#define TURN_OFF_TIME_MS					2000
+const uint16_t  TURN_OFF_TIME =			2000;
 
 
-enum powerType
+enum enShutdownState
 {
-	powerTypeLow,
-	powerTypeNormal
+	shutdownStateNone,
+	shutdownStateStart,
+	shutdownStateSleep,
 };
 
 class mtSleep
 {
 public:
-	mtSleep(){};
-	~mtSleep(){};
+	void startPowerOffSequence();
+	void stopPowerOffSequence();
 
-	void update();
+	uint16_t getTimeLeft();
+	uint8_t getShutdownProgress();
 
-	uint8_t powerState = powerTypeNormal;
+	inline uint8_t getLowPowerState() { return shutdownState; }
 
-	void handlePowerState(uint8_t value);
-	uint8_t getShutdownRequest();
-	uint8_t isLowPower();
-
-	void requestShutdown(uint8_t value);
 	void goLowPower();
+	void wakeUp();
+
 private:
-	uint8_t shutdown_requested;
-
-	uint8_t firstPress;
-	uint32_t firstPressTimestamp;
-	elapsedMillis shutdownTimer;
-	uint8_t lastValue;
+	uint8_t shutdownState = shutdownStateNone;
 
 
-	void wakeUp(uint8_t value);
+
 	void disableAll();
-
-	void initDisplayCountDown();
-	void refreshDisplayCountDown(uint16_t timeLeft_ms);
-	void deinitDisplayCountDown();
-
 	void resetMCU();
-
 };
 
 extern mtSleep lowPower;

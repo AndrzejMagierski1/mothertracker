@@ -346,13 +346,6 @@ void FT812_Init(void)
 
     EVE_MemWrite16(REG_OUTBITS,  outBits);
 
-    // ---------------------- Touch and Audio settings -------------------------
-
-    EVE_MemWrite16(REG_TOUCH_RZTHRESH, 1200);                                   // Eliminate any false touches
-
-    EVE_MemWrite8(REG_VOL_PB, ZERO);                                            // turn recorded audio volume down
-    EVE_MemWrite8(REG_VOL_SOUND, ZERO);                                         // turn volume down
-    EVE_MemWrite16(REG_SOUND, 0x6000);                                          // set volume mute
 
    // ---------------------- Create an initial screen before we enable the display -------------------------
 
@@ -367,6 +360,13 @@ void FT812_Init(void)
 
     EVE_MemWrite32(REG_DLSWAP, DLSWAP_FRAME);                                   // Swap display list to make the edited one active
 
+    // ---------------------- Touch and Audio settings -------------------------
+
+    EVE_MemWrite16(REG_TOUCH_RZTHRESH, 1200);                                   // Eliminate any false touches
+
+    EVE_MemWrite8(REG_VOL_PB, ZERO);                                            // turn recorded audio volume down
+    EVE_MemWrite8(REG_VOL_SOUND, ZERO);                                         // turn volume down
+    EVE_MemWrite16(REG_SOUND, 0x6000);                                          // set volume mute
 
 
 
@@ -475,16 +475,20 @@ void MCU_Delay_500ms(void)
 
 void MCU_set_sleepMode(void)
 {
-	MCU_CSlow();
-	EVE_AddrForWr(REG_PWM_DUTY);
-	EVE_Write8(0);
-	MCU_CShigh();
+	EVE_MemWrite8(REG_PWM_DUTY, 0);
 	EVE_CmdWrite(0x43,0x00);
     EVE_CmdWrite(0x50,0x00);
 }
 
 void MCU_set_runMode(void)
 {
-	EVE_CmdWrite(FT81x_ACTIVE, 0x00);
+	//EVE_CmdWrite(FT81x_ACTIVE, 0x00);
 	EVE_MemWrite8(REG_PWM_DUTY, 127);
+
+
+//	EVE_MemWrite8(REG_PCLK, lcdPclk);
+//	EVE_CmdWrite(FT81x_ACTIVE, 0x00);
+//	EVE_MemWrite8(REG_PWM_DUTY, 127);
 }
+
+

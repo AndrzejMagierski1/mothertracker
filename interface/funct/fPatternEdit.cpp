@@ -2250,6 +2250,7 @@ static  uint8_t functChangePattern(uint8_t state)
 		PTE->selectedPlace = 0;
 		PTE->unfocusPattern();
 		PTE->activateLabelsBorder();
+		display.synchronizeRefresh();
 	}
 	else if(state == buttonRelease)
 	{
@@ -2269,6 +2270,7 @@ static  uint8_t functChangePatternLength(uint8_t state)
 		PTE->selectedPlace = 1;
 		PTE->unfocusPattern();
 		PTE->activateLabelsBorder();
+		display.synchronizeRefresh();
 	}
 	else if(state == buttonRelease)
 	{
@@ -2287,6 +2289,7 @@ static  uint8_t functChangePatternEditStep(uint8_t state)
 		PTE->selectedPlace = 2;
 		PTE->unfocusPattern();
 		PTE->activateLabelsBorder();
+		display.synchronizeRefresh();
 	}
 	else if(state == buttonRelease)
 	{

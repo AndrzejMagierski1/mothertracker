@@ -40,32 +40,33 @@ public:
 	int8_t getButtonIndex(uint8_t button);
 	void toggleActiveModule(uint8_t state);
 
+	void handleCardSlotAction(uint8_t state);
+	void handlePowerButtonAction(uint8_t state);
+
 	friend void interfaceEnvents(uint8_t event, void* param1, void* param2, void* param3);
 
 	// interfaceMisc.cpp -----------------------------
+	void openStartupProject();
+	uint8_t detectProjectLoadState();
+
 	void initStartScreen();
-	void showStartScreen();
+	void refreshStartScreen();
 	void hideStartScreen();
 	void destroyStartScreen();
 
-	void hideAllGlobalActions();
 
-	void initDisplayCountDown();
-	void refreshDisplayCountDown(uint16_t timeLeft_ms, uint8_t progress);
-	void deinitDisplayCountDown();
-	uint8_t shutdownScreenInitFlag = 0;
-	uint32_t shutdownRequestTimestamp;
-	elapsedMillis shutdownTimer;
+	void activateInterface();
+	void deactivateInterfaceNoSd();
+	void deactivateInterfaceShutdown();
 
-
-	void initDisplayNoSdCard();
-	void refreshDsiplayNoSdCard();
-	void deinitDisplayNoSdCard();
-	uint8_t noSdCardInitFlag = 0;
+	void showDisplayNoSdCard();
+	void hideDisplayNoSdCard();
 
 
-	uint8_t detectStartState();
-	void openStartupProject();
+	void showDisplayShutdown();
+	void refreshDisplayShutdown();
+	void hideDisplayShutdown();
+
 
 	// interfaceInputs.cpp -----------------------------
 	void potChange(uint8_t n, int16_t value);
@@ -74,7 +75,6 @@ public:
 	void padPressed(uint8_t n, int8_t x, int8_t y, uint8_t velo);
 	void padReleased(uint8_t n);
 	void padHold(uint8_t n);
-
 	void SDCardChange(uint8_t state);
 
 private:
@@ -83,10 +83,8 @@ private:
 	void processOperatingMode();
 	void doStartTasks();
 	void processStartScreen();
+	void processPowerOffSequence();
 
-	void handleGlobalActions();
-	void handleShutdown();
-	void handleNoSdCard();
 
 	static const uint8_t modulesCount;
 	static const hModule modules[];
@@ -110,13 +108,6 @@ private:
 	hModule previousModule = nullptr;
 	uint32_t previousModuleOptions = 0;
 
-	uint8_t doOnceOnStart = 0;
-
-	uint8_t isCardInserted = 0;
-
-	uint8_t lastBootCardState = 0;
-
-
 	// interfaceMisc.cpp -----------------------------
 	uint8_t startSampleLoadingFlag = 0;
 	uint8_t startSampleLoadingProgress = 0;
@@ -129,7 +120,7 @@ private:
 
 	hControl noSdTextControl;
 	const char *noSdText = "Please insert SD card to continue";
-
+	const char *projectLoadText = "Opening last project...";
 
 	//styl popupu interfejsu
 	strPopupStyleConfig popupConfig;

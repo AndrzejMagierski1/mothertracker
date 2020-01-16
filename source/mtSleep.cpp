@@ -1,4 +1,4 @@
-#include "mtSleep.h"
+
 #include "mtLED.h"
 #include "sdram.h"
 #include <Audio.h>
@@ -7,6 +7,7 @@
 #include "Si4703.h"
 #include "mtConfig.h"
 
+#include "mtSleep.h"
 
 mtSleep lowPower;
 
@@ -16,59 +17,45 @@ extern AudioControlSGTL5000 audioShield;
 SnoozeDigital digital;
 SnoozeBlock config(digital);
 
-void mtSleep::requestShutdown(uint8_t value)
-{
-	if(value == 1)
-	{
-		shutdown_requested = 1;
-	}
-	else
-	{
-		shutdown_requested = 0;
-	}
+elapsedMillis shutdownTimer;
 
-	lastValue = value;
+
+void mtSleep::startPowerOffSequence()
+{
+	if(shutdownState == shutdownStateNone)
+	{
+		shutdownState = shutdownStateStart;
+		shutdownTimer = 0;
+	}
+}
+
+void mtSleep::stopPowerOffSequence()
+{
+	shutdownState = shutdownStateNone;
+}
+
+uint16_t mtSleep::getTimeLeft()
+{
+	return (shutdownTimer < TURN_OFF_TIME) ? TURN_OFF_TIME-shutdownTimer : 0;
+}
+
+uint8_t mtSleep::getShutdownProgress()
+{
+	return (shutdownTimer < TURN_OFF_TIME) ? ((TURN_OFF_TIME-shutdownTimer)*100)/TURN_OFF_TIME : 100;
+}
+
+void mtSleep::wakeUp()
+{
+	shutdownState = shutdownStateNone;
+	resetMCU();
 }
 
 void mtSleep::goLowPower()
 {
-	saveStartState();
-
+	shutdownState = shutdownStateSleep;
+	//saveStartState();
 	noInterrupts();
 	disableAll();
-}
-
-uint8_t mtSleep::getShutdownRequest()
-{
-	return shutdown_requested;
-}
-
-void mtSleep::wakeUp(uint8_t value)
-{
-	if(value && lastValue == 0)
-	{
-		resetMCU();
-	}
-
-	lastValue = value;
-}
-
-void mtSleep::handlePowerState(uint8_t value)
-{
-	if(powerState == powerTypeLow)
-	{
-		wakeUp(value);
-	}
-	else if(powerState == powerTypeNormal)
-	{
-		requestShutdown(value);
-	}
-}
-
-
-uint8_t mtSleep::isLowPower()
-{
-	return powerState == powerTypeLow;
 }
 
 void mtSleep::disableAll()
@@ -88,7 +75,6 @@ void mtSleep::disableAll()
 	BOARD_DeinitPins();// RAM pins deinit
 
 	Snooze.sleep(config);
-	powerState = powerTypeLow;
 }
 
 void mtSleep::resetMCU()

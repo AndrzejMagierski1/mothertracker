@@ -31,7 +31,7 @@
 uint8_t hardwareTest;
 
 //-------- TACT POWER SWITCH -------------
-uint8_t lastState = 1;
+uint8_t powerButtonLastState;
 
 void TactSwitchRead();
 void updateEncoder();
@@ -91,6 +91,7 @@ void initHardware()
 	//noInterrupts();
 	hardwareTest=0;
 	beginTimer = 0;
+	powerButtonLastState = digitalRead(TACT_SWITCH);
 	//....................................................
 	//SDRAM
 	pinMode(EXTERNAL_RAM_KEY,OUTPUT);
@@ -105,6 +106,10 @@ void initHardware()
 	//....................................................
 	// serial
 	Serial.begin(9600);
+
+	//....................................................
+	// LCD
+	display.begin();
 
 	//....................................................
 	// hgw
@@ -126,10 +131,9 @@ void initHardware()
 	audioShield.enable();
 	AudioMemory(250);
 
-	//....................................................
-	// LCD
-	display.begin();
 
+	// podswietlenie ekranu
+	display.turnOn();
 
 	//SD CARD
 	//....................................................
@@ -193,6 +197,7 @@ void initHardware()
 
 	BlinkLed.blinkOnce();
 
+	//display.turnOn();
 
 	Serial.println(beginTimer);
 }
@@ -227,71 +232,69 @@ constexpr uint16_t I2C_TIMEOUT_US = 5000;
 
 void updateHardware()
 {
-	if(!lowPower.isLowPower())
+	TactSwitchRead();
+
+	if(lowPower.getLowPowerState() == shutdownStateSleep) return;
+
+	updateEncoder();
+	Encoder.switchRead();
+
+	if(i2cRefreshTimer > 500)
 	{
-		updateEncoder();
-		Encoder.switchRead();
+		i2cRefreshTimer = 0;
 
-		if(i2cRefreshTimer > 500)
+		i2c_switch++;
+		if(i2c_switch >= 2) i2c_switch = 0;
+
+		if (Wire2.done())
 		{
-			i2cRefreshTimer = 0;
-
-			i2c_switch++;
-			if(i2c_switch >= 2) i2c_switch = 0;
-
-			if (Wire2.done())
+			if(i2c_switch == 0)
 			{
-				if(i2c_switch == 0)
-				{
-					if(!Keypad.update()) i2c_switch++;
-				}
-				if(i2c_switch == 1)
-				{
-					if(!leds.update_all_leds())	i2c_switch++;
-				}
+				if(!Keypad.update()) i2c_switch++;
+			}
+			if(i2c_switch == 1)
+			{
+				if(!leds.update_all_leds())	i2c_switch++;
+			}
+			i2c2TimoutTimer = 0;
+			/*if(i2c_switch < 2) i2cRefreshTimer = 0;*/
+		}
+		else
+		{
+			if(i2c2TimoutTimer > I2C_TIMEOUT_US )
+			{
 				i2c2TimoutTimer = 0;
-				/*if(i2c_switch < 2) i2cRefreshTimer = 0;*/
-			}
-			else
-			{
-				if(i2c2TimoutTimer > I2C_TIMEOUT_US )
-				{
-					i2c2TimoutTimer = 0;
-					Wire2.begin(I2C_MASTER, 0x00, GRID_I2C_SCL, GRID_I2C_SDA, I2C_PULLUP_EXT, 400000);
-				}
-			}
-
-			if (Wire.done())
-			{
-				tactButtons.update();
-				i2c1TimoutTimer = 0;
-			}
-			else
-			{
-				if(i2c1TimoutTimer > I2C_TIMEOUT_US )
-				{
-					i2c1TimoutTimer = 0;
-					Wire.begin(I2C_MASTER, 0x00, I2C_PINS_47_48, I2C_PULLUP_EXT, 400000,I2C_OP_MODE_IMM);
-				}
+				Wire2.begin(I2C_MASTER, 0x00, GRID_I2C_SCL, GRID_I2C_SDA, I2C_PULLUP_EXT, 400000);
 			}
 		}
 
-		display.update();
-		//mtDisplay.updateHaptic();
-		BlinkLed.update();
-
-		hid.handle();
-		sdCardDetector.update();
-
-	    if(mtpd.state) mtpd.loop();
-
-//		midiUpdate();
-
-		//lowPower.update();
+		if (Wire.done())
+		{
+			tactButtons.update();
+			i2c1TimoutTimer = 0;
+		}
+		else
+		{
+			if(i2c1TimoutTimer > I2C_TIMEOUT_US )
+			{
+				i2c1TimoutTimer = 0;
+				Wire.begin(I2C_MASTER, 0x00, I2C_PINS_47_48, I2C_PULLUP_EXT, 400000,I2C_OP_MODE_IMM);
+			}
+		}
 	}
 
+	display.update();
+	//mtDisplay.updateHaptic();
+	BlinkLed.update();
 
-	TactSwitchRead();
+	hid.handle();
+	sdCardDetector.update();
+
+	if(mtpd.state) mtpd.loop();
+
+	//midiUpdate();
+	//lowPower.update();
+
 }
 
 elapsedMillis encTimer;
@@ -310,15 +313,15 @@ void TactSwitchRead()
 {
 	uint8_t state = digitalRead(TACT_SWITCH);
 
-	if(state == LOW)
+	if(state == powerButtonLastState) return;
+	else if(state == LOW)
 	{
 		onPowerButtonChange(1);
-
-		//lastState = LOW;
+		powerButtonLastState = LOW;
 	}
 	else if(state == HIGH)
 	{
-		//lastState = HIGH;
+		powerButtonLastState = HIGH;
 		onPowerButtonChange(0);
 	}
 }

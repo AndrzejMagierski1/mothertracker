@@ -7,24 +7,51 @@
 #include "mtFileManager.h"
 #include <display.h>
 #include "MTP.h"
+#include "mtSleep.h"
 
 
 elapsedMillis startScreenRefresh;
+elapsedMillis shutdownScreenRefresh;
 
 extern cProjectEditor* PE;
 
-static uint8_t functHide();
-
-uint8_t hidePressFlag = 0;
 
 //==================================================================================================
+//============================= LADOWANIE PROJEKTU PRZY STARCE =====================================
 //==================================================================================================
-//==================================================================================================
-uint8_t cInterface::detectStartState()
+void cInterface::openStartupProject()
 {
-	//if(startupTimer > MT_INTERFACE_STARTUP_TIME) return 1; // zabiezpieczenie czasowe
-	//if(hidePressFlag) return 1;
+	startupTimer = 0;
 
+	if(mtConfig.startup.startMode == interfaceOpenLastProject)
+	{
+		char currentPatch[PATCH_SIZE];
+
+		strcpy(currentPatch,"Workspace/project.bin");
+		if(SD.exists(currentPatch))
+		{
+			if(fileManager.loadProjectFromWorkspaceStart())
+			{
+				openFromWorkspaceFlag = 1;
+			}
+		}
+
+		if(!openFromWorkspaceFlag)
+		{
+			//strcpy(currentPatch,"Templates/New/project.bin");
+
+			fileManager.createEmptyTemplateProject((char*)"New");
+
+			fileManager.openProjectStart((char*)"New", projectTypeExample);
+
+			PE->newProjectNotSavedFlag = 1;
+			strcpy(fileManager.currentProjectName, "New Project");
+		}
+	}
+}
+
+uint8_t cInterface::detectProjectLoadState()
+{
 	uint8_t status = fileManager.getLoadingStatus();
 
 	if(openFromWorkspaceFlag)
@@ -69,7 +96,6 @@ uint8_t cInterface::detectStartState()
 		return 0;
 	}
 
-
 	// na koniec wlacza mtp i opoznia start o 500 ms
 	if(mtpd.state == 0)
 	{
@@ -78,24 +104,20 @@ uint8_t cInterface::detectStartState()
 		return 0;
 	}
 
-	isBooted = 1;
 	return 1;
 }
 
-
-//==================================================================================================
+//=====================================================================================
+//============================== START SCREEN =========================================
+//=====================================================================================
 void cInterface::initStartScreen()
 {
 	char beta[2];
-
-	if(mtConfig.firmware.beta) beta[0] = 'b';
+	if(mtConfig.firmware.beta)	beta[0] = 'b';
 	else 						beta[0] = 0;
-
 	beta[1] = 0;
 
-
 	sprintf(startScreenData.versionLabel, "v%d.%d.%d%s", mtConfig.firmware.ver_1, mtConfig.firmware.ver_2, mtConfig.firmware.ver_3, beta);
-
 
 	strControlProperties prop;
 	prop.x = 190;
@@ -104,101 +126,26 @@ void cInterface::initStartScreen()
 	prop.style = controlStyleShow;
 	prop.h = 100;
 	prop.w = 420;
-
 	prop.data  = &startScreenData;
 //	prop.value = 70;
 //	prop.text = "loading...";
 	if(startScreenControl == nullptr)  startScreenControl = display.createControl<cStartScreen>(&prop);
 
+	display.setControlValue(startScreenControl, startSampleLoadingProgress);
+	display.setControlText(startScreenControl, projectLoadText);
+	display.refreshControl(startScreenControl);
 
-	uiFM.setButtonObj(interfaceButton7, buttonPress, functHide);
-
-
+	//uiFM.setButtonObj(interfaceButton7, buttonPress, functHide);
 }
 
-void cInterface::initDisplayCountDown()
-{
-	strControlProperties prop;
-
-	prop.x = 190;
-	prop.y = 170;
-	prop.style = controlStyleValue_0_100;
-	prop.h = 100;
-	prop.w = 420;
-
-	if(turnOffProgressBar == nullptr)  turnOffProgressBar = display.createControl<cHorizontalBar>(&prop);
-}
-
-void cInterface::refreshDisplayCountDown(uint16_t timeLeft_ms, uint8_t progress)
-{
-	uint8_t timeLeft_s = 0;
-
-	timeLeft_s = ceil((timeLeft_ms/1000.0f));
-
-	sprintf(turnOffText, "Shutdown in %ds", timeLeft_s);
-
-	display.setControlValue(turnOffProgressBar, progress);
-	display.setControlText(turnOffProgressBar, turnOffText);
-	display.setControlShow(turnOffProgressBar);
-	display.refreshControl(turnOffProgressBar);
-}
-
-void cInterface::deinitDisplayCountDown()
-{
-	display.destroyControl(turnOffProgressBar);
-	turnOffProgressBar = nullptr;
-}
-
-void cInterface::initDisplayNoSdCard()
-{
-
-	display.turnOn();
-
-	strControlProperties prop;
-
-	prop.x = 400;
-	prop.y = 240;
-	prop.w = 240;
-	prop.h = 25;
-	prop.style = (controlStyleCenterY | controlStyleCenterX);
-	if(noSdTextControl == nullptr)  noSdTextControl= display.createControl<cSimpleText>(&prop);
-
-	display.setControlText(noSdTextControl, noSdText);
-	display.setControlShow(noSdTextControl);
-	display.refreshControl(noSdTextControl);
-}
-
-void cInterface::refreshDsiplayNoSdCard()
-{
-	display.setControlShow(noSdTextControl);
-}
-
-void cInterface::hideAllGlobalActions()
-{
-	display.setControlHide(noSdTextControl);
-	display.setControlHide(turnOffProgressBar);
-}
-
-void cInterface::deinitDisplayNoSdCard()
-{
-	display.destroyControl(noSdTextControl);
-	noSdTextControl = nullptr;
-}
-
-void cInterface::showStartScreen()
+void cInterface::refreshStartScreen()
 {
 	if(startScreenRefresh < 100) return;
-
 	startScreenRefresh = 0;
-	char beta[2];
-	if(mtConfig.firmware.beta) beta[0] = 'b';
-	else 						beta[0] = 0;
-	beta[1] = 0;
-	sprintf(startScreenData.versionLabel, "v%d.%d.%d%s", mtConfig.firmware.ver_1, mtConfig.firmware.ver_2, mtConfig.firmware.ver_3, beta);
 
 	display.setControlShow(startScreenControl);
 	display.setControlValue(startScreenControl, startSampleLoadingProgress);
-	display.setControlText(startScreenControl, "Opening last project...");
+	display.setControlText(startScreenControl, projectLoadText);
 	display.refreshControl(startScreenControl);
 }
 
@@ -214,62 +161,104 @@ void cInterface::destroyStartScreen()
 	startScreenControl = nullptr;
 }
 
-
-//==================================================================================================
-void cInterface::openStartupProject()
+//=====================================================================================
+//========================== AKTYWACJA INTERFEJSU =====================================
+//=====================================================================================
+void cInterface::activateInterface()
 {
-	startupTimer = 0;
+	hideDisplayNoSdCard();
+	hideDisplayShutdown();
 
-	if(mtConfig.startup.startMode == interfaceOpenLastProject)
-	{
-		char currentPatch[PATCH_SIZE];
+	uint8_t state = 1;
+	interfaceEnvents(eventToggleActiveModule,0,0,&state);
 
-		strcpy(currentPatch,"Workspace/project.bin");
-		if(SD.exists(currentPatch))
-		{
-			if(fileManager.loadProjectFromWorkspaceStart())
-			{
-				openFromWorkspaceFlag = 1;
-			}
-		}
+}
 
-		if(!openFromWorkspaceFlag)
-		{
-			//strcpy(currentPatch,"Templates/New/project.bin");
+//=====================================================================================
+//========================= DEAKTYWACJA INTERFEJSU ==================================
+//=====================================================================================
 
-			fileManager.createEmptyTemplateProject((char*)"New");
+void cInterface::deactivateInterfaceNoSd()
+{
+	uint8_t state = 0;
+	interfaceEnvents(eventToggleActiveModule,0,0,&state);
 
-			fileManager.openProjectStart((char*)"New", projectTypeExample);
+	//display.turnOn();
+	showDisplayNoSdCard();
+}
 
-			PE->newProjectNotSavedFlag = 1;
-			strcpy(fileManager.currentProjectName, "New Project");
-		}
-	}
+void cInterface::deactivateInterfaceShutdown()
+{
+	uint8_t state = 0;
+	interfaceEnvents(eventToggleActiveModule,0,0,&state);
+
+	showDisplayShutdown();
 }
 
 
-static uint8_t functHide()
+//=====================================================================================
+//========================= EKRAN BRAKU KARTY SD ======================================
+//=====================================================================================
+void cInterface::showDisplayNoSdCard()
 {
-	hidePressFlag = 1;
-	return 0;
+	strControlProperties prop;
+	prop.x = 400;
+	prop.y = 240;
+	prop.w = 240;
+	prop.h = 25;
+	prop.style = (controlStyleCenterY | controlStyleCenterX);
+	if(noSdTextControl == nullptr)  noSdTextControl= display.createControl<cSimpleText>(&prop);
+
+	display.setControlText(noSdTextControl, noSdText);
+	display.setControlShow(noSdTextControl);
+	display.refreshControl(noSdTextControl);
+}
+
+void cInterface::hideDisplayNoSdCard()
+{
+	display.destroyControl(noSdTextControl);
+	noSdTextControl = nullptr;
 }
 
 
-//=======================================================================
-//=======================================================================
-//=======================================================================
+//=====================================================================================
+//============================ EKRAN WYLACZANIA  ======================================
+//=====================================================================================
 
+void cInterface::showDisplayShutdown()
+{
+	strControlProperties prop;
 
+	prop.x = 190;
+	prop.y = 170;
+	prop.style = controlStyleValue_0_100;
+	prop.h = 100;
+	prop.w = 420;
 
+	if(turnOffProgressBar == nullptr)  turnOffProgressBar = display.createControl<cHorizontalBar>(&prop);
 
+	refreshDisplayShutdown();
+}
 
+void cInterface::refreshDisplayShutdown()
+{
+	if(shutdownScreenRefresh < 30) return;
+	shutdownScreenRefresh = 0;
 
+//	sprintf(turnOffText, "Shutdown in %.1fs", (lowPower.getTimeLeft()/1000.0));
+	sprintf(turnOffText, "Shutting down");
 
+	display.setControlValue(turnOffProgressBar, lowPower.getShutdownProgress());
+	display.setControlText(turnOffProgressBar, turnOffText);
+	display.setControlShow(turnOffProgressBar);
+	display.refreshControl(turnOffProgressBar);
+}
 
-
-
-
-
+void cInterface::hideDisplayShutdown()
+{
+	display.destroyControl(turnOffProgressBar);
+	turnOffProgressBar = nullptr;
+}
 
 
 

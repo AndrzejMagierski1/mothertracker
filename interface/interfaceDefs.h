@@ -233,6 +233,9 @@ enum enumMtOperatingMode
 	mtOperatingModeShowStartScreen,
 	mtOperatingModeRun,
 
+	mtOperatingModePowerOffSequence,
+	mtOperatingModeSleep,
+
 };
 
 

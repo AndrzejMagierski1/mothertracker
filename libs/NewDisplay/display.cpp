@@ -120,7 +120,7 @@ void cDisplay::begin()
     API_LIB_EndCoProList();
 
 
-    turnOn();
+    //turnOn();
 
 
     stopAppend = 0;
