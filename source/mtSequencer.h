@@ -484,6 +484,10 @@ public:
 	}
 
 	float getActualTempo();
+	uint16_t getSeqTimer()
+	{
+		return nanoStep;
+	}
 
 // sekwencerowe
 
