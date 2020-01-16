@@ -4,7 +4,6 @@
 
 #include <stdint.h>
 #include "mtEnvelopeGenerator.h"
-#include "mtLFO.h"
 
 //=====================================================================
 //=====================================================================
@@ -280,6 +279,16 @@ enum envelopeTypes
 
 
 	envelopeTypeMax,
+};
+
+enum lfoShapeType
+{
+	lfoShapeSaw,
+	lfoShapeTriangle,
+	lfoShapeSquare,
+
+
+	lfoShapeMax
 };
 
 //---------------------------------------
