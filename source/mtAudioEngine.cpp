@@ -3494,7 +3494,6 @@ uint32_t playerEngine::getEnvelopeGranPosMod()
 	return ((envelopeGranPos->isKeyPressed() == 1) || (envelopeGranPos->getPhase() != 0)) ? instrumentBasedMod.granPos : mtProject.instrument[currentInstrument_idx].granular.currentPosition;
 }
 
-void playerEngine::printLog(SdFile * log)
 void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo)
 {
 	env->loop = 1;
@@ -3539,7 +3538,7 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 	}
 }
 
-void playerEngine::printLog(FsFile * log)
+void playerEngine::printLog(SdFile * log)
 {
 	uint8_t nr_voice = ((uint32_t)this - (uint32_t)instrumentPlayer)/sizeof(playerEngine);
 	log->printf("******************voice nr %d******************\n",nr_voice);
