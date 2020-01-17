@@ -21,7 +21,7 @@ public:
 
 
 	void switchRead();
-	void begin(uint8_t intPin, void (*func)(uint8_t n, uint8_t value));
+	void begin(uint8_t intPin = 255, void (*func)(uint8_t n, uint8_t value) = nullptr);
 	void setResolution(uint16_t value);
 	void setAcceleration(uint8_t value);
 	int32_t read();
@@ -42,7 +42,7 @@ private:
 	uint8_t speed_up = 0;
 	int16_t difference = 0;	
 
-	void (*switchFunc)(uint8_t n, uint8_t value);
+	void (*switchFunc)(uint8_t n, uint8_t value) = nullptr;
 	uint8_t switchPin = 0;
 	uint8_t powerSwitchLastState = 0;
 	int8_t powerSwitchDebounce;

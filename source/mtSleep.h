@@ -31,16 +31,16 @@ public:
 
 	inline uint8_t getLowPowerState() { return shutdownState; }
 
-	void goLowPower();
+	void goLowPower(uint8_t isMCUInicialized = 1);
 	void wakeUp();
 
+	void resetMCU();
 private:
 	uint8_t shutdownState = shutdownStateNone;
 
 
 
 	void disableAll();
-	void resetMCU();
 };
 
 extern mtSleep lowPower;

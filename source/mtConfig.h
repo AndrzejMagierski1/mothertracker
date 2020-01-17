@@ -12,8 +12,8 @@ void readConfig();
 
 
 uint8_t readStartState();
-void saveStartState();
-
+//void saveStartState();
+void saveStartState(uint8_t state);
 
 void checkConfig();
 

@@ -23,6 +23,7 @@
 
 #include "mtMidi.h"
 #include "mtSleep.h"
+#include "mtConfig.h"
 #include "MTP.h"
 
 
@@ -33,6 +34,7 @@ uint8_t hardwareTest;
 //-------- TACT POWER SWITCH -------------
 uint8_t powerButtonLastState;
 
+void TactSwitchInit();
 void TactSwitchRead();
 void updateEncoder();
 
@@ -91,7 +93,7 @@ void initHardware()
 	//noInterrupts();
 	hardwareTest=0;
 	beginTimer = 0;
-	powerButtonLastState = digitalRead(TACT_SWITCH);
+	//TactSwitchInit();
 	//....................................................
 	//SDRAM
 	pinMode(EXTERNAL_RAM_KEY,OUTPUT);
@@ -143,7 +145,7 @@ void initHardware()
 
 	//....................................................
 	// ENCODER
-	Encoder.begin(ENC_SWITCH,onEncoderButtonChange);
+	Encoder.begin();//(ENC_SWITCH,onEncoderButtonChange);
 	//	Encoder.testMode(1);
 	Encoder.setResolution(24);
 	Encoder.setAcceleration(3);
@@ -183,7 +185,7 @@ void initHardware()
 
 	//....................................................
 	// power switch
-	pinMode(TACT_SWITCH, INPUT); //INPUT_PULLUP
+	//pinMode(TACT_SWITCH, INPUT); //INPUT_PULLUP
 	//attachInterrupt(TACT_SWITCH, TactSwitchAction, FALLING);
 
 
@@ -237,7 +239,7 @@ void updateHardware()
 	if(lowPower.getLowPowerState() == shutdownStateSleep) return;
 
 	updateEncoder();
-	Encoder.switchRead();
+	//Encoder.switchRead();
 
 	if(i2cRefreshTimer > 500)
 	{
@@ -307,6 +309,33 @@ void updateEncoder()
 		int32_t encValue = Encoder.read();
 		if (encValue != 0) onPotChange(0, encValue);
 	}
+}
+
+void checkPowerState()
+{
+	TactSwitchInit();
+
+#ifndef DEBUG
+	if(!readStartState())
+	{
+		lowPower.goLowPower(0);
+		while(1)
+		{
+			TactSwitchRead();
+			 asm("nop");
+		}
+
+	}
+	else saveStartState(0);
+#endif
+}
+
+
+
+void TactSwitchInit()
+{
+	pinMode(TACT_SWITCH, INPUT);
+	powerButtonLastState = digitalRead(TACT_SWITCH);
 }
 
 void TactSwitchRead()

@@ -243,9 +243,10 @@ void cInterface::handlePowerButtonAction(uint8_t state)
 {
 	if(state) // press
 	{
-		if(operatingMode == mtOperatingModeSleep)
+		if(lowPower.getLowPowerState() == shutdownStateSleep)
 		{
 			lowPower.wakeUp();
+			return;
 		}
 		else if(operatingMode != mtOperatingModeRun) return;
 

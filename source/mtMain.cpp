@@ -21,6 +21,7 @@
 
 
 //extern Sequencer seq[2];
+extern void checkPowerState();
 extern void initHardware();
 extern void updateHardware();
 extern AudioControlSGTL5000 audioShield;
@@ -34,15 +35,7 @@ void receiveAllMidi()
 
 void setup()
 {
-//	if(readStartState())
-//	{
-//		lowPower.goLowPower();
-//	}
-//	else
-//	{
-//
-//	}
-
+	checkPowerState();
 
 	// inicjalizacja hardware jako pierwsza
 	initHardware();
@@ -61,6 +54,8 @@ void setup()
 	//sequencer.printNotes(1);		// printuje nuty w trakcie sekwencji
 
 	midiReceiveTimer.begin(receiveAllMidi, 2000); //  w ten spsób 'midi clock in' działa najlepiej
+
+
 }
 
 //=======================================================================
