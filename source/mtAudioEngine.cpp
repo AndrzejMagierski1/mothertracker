@@ -3548,6 +3548,35 @@ void playerEngine::printLog(FsFile * log)
 	log->printf("addr: %x\n", (uint32_t)mtProject.instrument[currentInstrument_idx].sample.address);
 	log->printf("flaga active: %d\n", mtProject.instrument[currentInstrument_idx].isActive);
 	log->printf("currentNote %d\n", currentNote);
+	log->printf("play mode: %d\n",  mtProject.instrument[currentInstrument_idx].playMode);
+	if(mtProject.instrument[currentInstrument_idx].playMode == playModeGranular)
+	{
+		log->printf("gran pos: %d\n",  mtProject.instrument[currentInstrument_idx].granular.currentPosition);
+		log->printf("gran len: %d\n",  mtProject.instrument[currentInstrument_idx].granular.grainLength);
+	}
+	else if(mtProject.instrument[currentInstrument_idx].playMode == playModeWavetable)
+	{
+		log->printf("wt pos: %d\n",  mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow);
+		log->printf("wt window size: %d\n",  mtProject.instrument[currentInstrument_idx].sample.wavetable_window_size);
+		log->printf("wt window number: %d\n",  mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber);
+	}
+	else if(mtProject.instrument[currentInstrument_idx].playMode == playModeSlice)
+	{
+		log->printf("slice n: %d\n", mtProject.instrument[currentInstrument_idx].selectedSlice);
+		log->printf("slice val: %d\n",  mtProject.instrument[currentInstrument_idx].slices[mtProject.instrument[currentInstrument_idx].selectedSlice]);
+	}
+	else if(mtProject.instrument[currentInstrument_idx].playMode == singleShot)
+	{
+		log->printf("SP: %d\n", mtProject.instrument[currentInstrument_idx].startPoint);
+		log->printf("EP: %d\n",  mtProject.instrument[currentInstrument_idx].endPoint);
+	}
+	else
+	{
+		log->printf("SP: %d\n", mtProject.instrument[currentInstrument_idx].startPoint);
+		log->printf("EP: %d\n",  mtProject.instrument[currentInstrument_idx].endPoint);
+		log->printf("LP1: %d\n", mtProject.instrument[currentInstrument_idx].loopPoint1);
+		log->printf("LP2: %d\n",  mtProject.instrument[currentInstrument_idx].loopPoint2);
+	}
 
 	playMemPtr->printLog(log);
 
