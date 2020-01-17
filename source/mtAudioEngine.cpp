@@ -2320,7 +2320,7 @@ void playerEngine:: update()
 			{
 				if((envelopeFilterPtr->isKeyPressed() == 1) || (envelopeFilterPtr->getPhase() != 0))
 				{
-					filterMod= mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop ? (2*envelopeFilterPtr->getOut()) - 1.0f : envelopeFilterPtr->getOut() ;
+					filterMod =  envelopeFilterPtr->getOut() ;
 					statusBytes |= CUTOFF_MASK;
 
 					if(mtProject.instrument[currentInstrument_idx].cutOff + filterMod < 0.0f) instrumentBasedMod.cutoff = 0.0f;
@@ -2336,7 +2336,7 @@ void playerEngine:: update()
 			{
 					if((envelopeWtPos->isKeyPressed() == 1) || (envelopeWtPos->getPhase() != 0))
 					{
-						wtPositionMod= mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop ? (2 * envelopeWtPos->getOut()) - 1.0f : envelopeWtPos->getOut();
+						wtPositionMod = envelopeWtPos->getOut();
 						statusBytes |= WT_POS_SEND_MASK;
 
 						int32_t iwtPosisionMod = wtPositionMod * mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber;
@@ -2354,7 +2354,7 @@ void playerEngine:: update()
 			{
 				if((envelopeGranPos->isKeyPressed() == 1) || (envelopeGranPos->getPhase() != 0))
 				{
-					granPositionMod = mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop ? (2 * envelopeGranPos->getOut()) - 1.0f : envelopeGranPos->getOut();
+					granPositionMod = envelopeGranPos->getOut();
 					statusBytes |= GRANULAR_POS_SEND_MASK;
 
 					int32_t iGranPosisionMod = granPositionMod * MAX_16BIT;
@@ -2369,7 +2369,7 @@ void playerEngine:: update()
 		{
 			if((envelopePanningPtr->isKeyPressed() == 1) || (envelopePanningPtr->getPhase() != 0))
 			{
-				panningMod = mtProject.instrument[currentInstrument_idx].envelope[envPan].loop ? (2 * envelopePanningPtr->getOut()) - 1.0f : envelopePanningPtr->getOut();
+				panningMod = envelopePanningPtr->getOut();
 				statusBytes |= PANNING_MASK;
 
 				int32_t iPanningMod = panningMod * PANNING_MAX;
@@ -3520,11 +3520,11 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 	case lfoShapeTriangle:
 
 		env->attack = periodTime/2;
-		env->decay = periodTime/2;
+		env->decay = 0;
 		env->delay = 0;
 		env->sustain = 0.0f;
 		env->hold = 0;
-		env->release = 0;
+		env->release = periodTime/2;
 
 		break;
 	case lfoShapeSquare:

@@ -52,7 +52,7 @@ void envelopeGenerator::calc()
 	// time-dependent values
 	float delay 		= (float)envelope->delay * timeMul;
 	float attack 		= (float)envelope->attack * timeMul;
-	float hold 			= float(envelope->hold) * timeMul;
+	float hold 			= (float)envelope->hold * timeMul;
 	float decay 		= (float)envelope->decay * timeMul;
 	float release 		= (float)envelope->release * timeMul;
 
@@ -124,7 +124,7 @@ void envelopeGenerator::calc()
 	if (envTemp.phase == phase_hold)
 	{
 		// wciśnięty, hold krótki
-		if (keyPressed && (hold < (MAX_HOLD * MAX_HOLD * timeMul)))
+		if (keyPressed)
 		{
 			// inkrementujemy timer
 			// envTemp.timer += calcInt;
@@ -141,21 +141,7 @@ void envelopeGenerator::calc()
 				envTemp.phase++;
 			}
 		}
-		// wciśnięty, hold nieskończony
-		else if (keyPressed && (hold >= (MAX_HOLD * MAX_HOLD * timeMul)))
-		{
-			envTemp.timer = 1;
-			envTemp.phase = phase_hold;
-		}
-
-		// puszczony, hold krótki
-		else if (!keyPressed && (hold < (MAX_HOLD * MAX_HOLD * timeMul)))
-		{
-			envTemp.timer = 0;
-			envTemp.phase++;
-		}
-		// puszczony, hold nieskończony
-		else if (!keyPressed && (hold >= (MAX_HOLD * MAX_HOLD * timeMul)))
+		else
 		{
 			envTemp.timer = 0;
 			envTemp.phase = phase_release;
@@ -313,8 +299,9 @@ void envelopeGenerator::calc()
 		// 		Serial.print(" release");
 		// #endif
 
-		if((envTemp.maxOutput == 0.0f) && (sustain != 0.0f) && (amount != 0.0f)) envTemp.maxOutput = sustain * amount;
-		//andrzej 2000 - czasem wskakuje od razu w ten stan i jest 0 na envTemp.maxOutput
+		if((envTemp.maxOutput == 0.0f) && (sustain != 0.0f) && (amount != 0.0f)) envTemp.maxOutput = sustain * amount; //andrzej 2000 - czasem wskakuje od razu w ten stan i jest 0 na envTemp.maxOutput
+		else if((_loop == 1) && (sustain == 0.0f)) envTemp.maxOutput = 0.0f; //andrzej 2000 - czasem wpada tu z jedynką po holdzie bo go zerowy decay nie sciaga do 0 i jest lipton
+
 
 		if (release > 0)
 		{
@@ -343,7 +330,7 @@ void envelopeGenerator::calc()
 	// }
 	// else
 	// {
-	envTemp.output = constrain(envTemp.tempOutput, MIN_OUTPUT, MAX_OUTPUT);
+	envTemp.output = _loop ? 2 * constrain(envTemp.tempOutput, MIN_OUTPUT, MAX_OUTPUT) - amount : constrain(envTemp.tempOutput, MIN_OUTPUT, MAX_OUTPUT)  ;
 	// }
 
 	// Serial.print("output: ");
