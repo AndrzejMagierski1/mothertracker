@@ -77,6 +77,11 @@ private:
 	void showInputsTest();
 	void runInputsTest();
 
+	void showUSBTest();
+
+	void showMidiTest();
+	void runMidiTest();
+
 	// funct
 	void systemReset();
 

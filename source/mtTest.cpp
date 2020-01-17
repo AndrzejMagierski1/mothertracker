@@ -97,7 +97,7 @@ void cTest::drawGui()
 	case checkStart: 	showStart(); 		break;
 	case checkScreen: 	showScreenTest(); 	break;
 	case checkInputs:	showInputsTest();	break;
-	case checkUSB:		break;
+	case checkUSB:		showUSBTest();		break;
 	case checkMidi:		break;
 	case checkAudio:	break;
 	case checkSd:		break;
@@ -122,7 +122,7 @@ void cTest::doTasks()
 	case checkScreen: runScreenTest();	break;
 	case checkInputs: runInputsTest();	break;
 	case checkUSB:			break;
-	case checkMidi:			break;
+	case checkMidi:		runMidiTest();	break;
 	case checkAudio:		break;
 	case checkSd:			break;
 
@@ -184,11 +184,11 @@ void cTest::showScreenTest()
 
 		API_CMD_GRADIENT(0, 0, 0x0, 800, 0, 0xffffff);
 	}
-	else if(testPhase%3 == 2) showMessage("Result?", "", "Ok", "Not ok");
+	else if(testPhase%3 == 2) showMessage("Result?", "", "Yes", "No");
 
 	else if(testPhase == lastPhase)
 	{
-		showMessage("Result?", "", "Ok", "Not ok");
+		showMessage("Result?", "", "Yes", "No");
 	}
 }
 
@@ -219,6 +219,60 @@ void cTest::runScreenTest()
 	}
 }
 
+void cTest::runInputsTest()
+{
+	if(testPhase == 0)
+	{
+		memset(&inputs,0,sizeof(inputs));
+		testPhase++;
+	}
+	if(testPhase == 1)
+	{
+		uint8_t input_result = 1;
+
+		for(uint8_t i = 0; i<48; i++)
+		{
+			if(inputs.pads[i] < 2) input_result = 0;
+		}
+		for(uint8_t i = 0; i<33; i++)
+		{
+			if(inputs.buttons[i] < 2) input_result = 0;
+		}
+		if(inputs.powerButton < 2) input_result = 0;
+		if(inputs.encoderL < 1) input_result = 0;
+		if(inputs.encoderR < 1) input_result = 0;
+
+		if(input_result == 1 ) testPhase++;
+	}
+	else if(testPhase == 2)
+	{
+
+	}
+	else if(testPhase == 3)
+	{
+		testPhase = lastPhase;
+	}
+
+}
+
+void cTest::runMidiTest()
+{
+	if(testPhase == 0)
+	{
+
+	}
+	else if(testPhase == 1)
+	{
+
+
+
+
+	}
+	else if(testPhase == 2)
+	{
+
+	}
+}
 //==========================================================================================
 //
 //==========================================================================================
@@ -295,45 +349,34 @@ void cTest::showInputsTest()
 	}
 	if(testPhase == 2)
 	{
-		showMessage("Pads backlight ok?", "", "Ok", "No ok");
+		showMessage("Is pads backlight ok?", "", "Yes", "No");
 	}
 }
 
-void cTest::runInputsTest()
+void cTest::showUSBTest()
+{
+	showMessage("Is MTP working?", "", "Yes", "No");
+}
+
+
+void cTest::showMidiTest()
 {
 	if(testPhase == 0)
 	{
-		memset(&inputs,0,sizeof(inputs));
-		testPhase++;
+		showMessage("Connect MIDI cable", "", "Connected", "");
 	}
 	if(testPhase == 1)
 	{
-		uint8_t input_result = 1;
-
-		for(uint8_t i = 0; i<48; i++)
-		{
-			if(inputs.pads[i] < 2) input_result = 0;
-		}
-		for(uint8_t i = 0; i<33; i++)
-		{
-			if(inputs.buttons[i] < 2) input_result = 0;
-		}
-		if(inputs.powerButton < 2) input_result = 0;
-		if(inputs.encoderL < 1) input_result = 0;
-		if(inputs.encoderR < 1) input_result = 0;
-
-		if(input_result == 1 ) testPhase++;
+		showMessage("Testing MIDI", "", "", "");
 	}
-	else if(testPhase == 2)
+	if(testPhase == 2)
 	{
-
+		showMessage("Test failed", " Is cable connected properly?", "Retry", "Skip");
 	}
-	else if(testPhase == 3)
-	{
-		testPhase = lastPhase;
-	}
-
 }
+
+
+
 
 //==========================================================================================
 //
@@ -419,14 +462,14 @@ void cTest::AcceptButton()
 	}
 	case checkUSB:
 	{
-
-		mainStatus++;
+		nextTest();
 		break;
 	}
 	case checkMidi:
 	{
-
-		mainStatus++;
+		if(testPhase == 1) break;
+		if(testPhase < 2) testPhase++;
+		else if(testPhase >= 2) nextTest();
 		break;
 	}
 	case checkAudio:
@@ -475,10 +518,17 @@ void cTest::DeclineButton()
 	}
 	case checkUSB:
 	{
+		results[checkUSB] = 1;
+		nextTest();
 		break;
 	}
 	case checkMidi:
 	{
+		if(testPhase >= 2)
+		{
+			results[checkUSB] = 1;
+			nextTest();
+		}
 		break;
 	}
 	case checkAudio:
