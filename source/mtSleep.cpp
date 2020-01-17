@@ -5,6 +5,7 @@
 #include "FT812.h"
 #include "keyScanner.h"
 #include "Si4703.h"
+
 #include "mtConfig.h"
 
 #include "mtSleep.h"
@@ -19,6 +20,10 @@ SnoozeBlock config(digital);
 
 elapsedMillis shutdownTimer;
 
+extern "C" void restartMCU()
+{
+	lowPower.resetMCU();
+}
 
 void mtSleep::startPowerOffSequence()
 {
@@ -50,12 +55,15 @@ void mtSleep::wakeUp()
 	resetMCU();
 }
 
-void mtSleep::goLowPower()
+void mtSleep::goLowPower(uint8_t isMCUInicialized)
 {
+	saveStartState(1);
 	shutdownState = shutdownStateSleep;
-	//saveStartState();
 	noInterrupts();
-	disableAll();
+
+	if(isMCUInicialized) disableAll();
+
+	Snooze.sleep(config);
 }
 
 void mtSleep::disableAll()
@@ -74,11 +82,13 @@ void mtSleep::disableAll()
 	digitalWrite(EXTERNAL_RAM_KEY,LOW);//RAM power off
 	BOARD_DeinitPins();// RAM pins deinit
 
-	Snooze.sleep(config);
+
 }
 
 void mtSleep::resetMCU()
 {
+	saveStartState(1);
+
 	__DSB();
 	CM4_SCB_AIRCR = (uint32_t)((0x5FAUL << CM4_SCB_AIRCR_VECTKEY_POS) | CM4_SCB_AIRCR_SYSRESETREQ_MASK);
 	__DSB();
@@ -87,4 +97,6 @@ void mtSleep::resetMCU()
 	{
 		__NOP();
 	}
+
+
 }

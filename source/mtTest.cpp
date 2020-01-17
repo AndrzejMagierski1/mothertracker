@@ -3,7 +3,7 @@
 #include "mtPadsBacklight.h"
 #include "mtTest.h"
 #include "FT812.h"
-
+#include "mtSleep.h"
 
 
 cTest mtTest;
@@ -54,6 +54,7 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 	FM->setPowerButtonObj(functPowerButton);
 
 	mainStatus = checkStart;//checkInputs;
+	mainStatus = checkUSB;
 	procedureRunning = 1;
 }
 
@@ -386,8 +387,9 @@ void cTest::showMessage(char* question1, char* question2, char* answer1, char* a
 
 void cTest::nextTest()
 {
-	 mainStatus++;
-	 testPhase = 0;
+	padsBacklight.clearAllPads(1, 1, 1);
+	mainStatus++;
+	testPhase = 0;
 }
 
 //==========================================================================================
@@ -412,9 +414,7 @@ void cTest::AcceptButton()
 	{
 		if(testPhase == 0) break;
 		else if(testPhase == 1) break;
-		else if(testPhase == 2) testPhase++;
-		else if(testPhase < lastPhase) testPhase++;
-		else nextTest();
+		else if(testPhase >= 2) nextTest();
 		break;
 	}
 	case checkUSB:
@@ -461,12 +461,16 @@ void cTest::DeclineButton()
 	{
 		results[checkScreen] = 1;
 		if(testPhase < lastPhase) testPhase++;
-		else mainStatus++;
+		else nextTest();
 		break;
 	}
 	case checkInputs:
 	{
-
+		if(testPhase >= 2)
+		{
+			results[checkInputs] = 1;
+			nextTest();
+		}
 		break;
 	}
 	case checkUSB:
@@ -513,15 +517,7 @@ uint8_t cTest::runTestByCombinaion(uint8_t pad)
 
 void cTest::systemReset()
 {
-	__asm volatile ("dsb");
-	CM4_SCB_AIRCR = (uint32_t)((0x5FAUL << CM4_SCB_AIRCR_VECTKEY_POS) | CM4_SCB_AIRCR_SYSRESETREQ_MASK);
-	__asm volatile ("dsb");
-
-	for(;;)
-	{
-		__asm volatile ("nop");
-	}
-
+	lowPower.resetMCU();
 }
 
 //==========================================================================================

@@ -69,10 +69,12 @@ void cEncoder::begin(uint8_t intPin, void (*func)(uint8_t n, uint8_t value))
 
 //	attachInterrupt(intPin, func, FALLING);
 
-	pinMode(intPin, INPUT);
-	switchFunc = func;
-	switchPin = intPin;
-
+	if(intPin != 255)
+	{
+		pinMode(intPin, INPUT);
+		switchFunc = func;
+		switchPin = intPin;
+	}
 //===================  RESET  =============================
 	//zeroFTM();
 
@@ -345,7 +347,7 @@ void cEncoder::switchRead()
 			powerSwitchLastState = 1;
 			//powerSwitchHoldTimer = 0;
 			// press
-			switchFunc(33, 1);
+			if(switchFunc != nullptr) switchFunc(33, 1);
 		}
 		/*
 		 else if(powerSwitchHoldTimer > 800 &&  powerSwitchLastState != 2)
@@ -368,7 +370,7 @@ void cEncoder::switchRead()
 			powerSwitchLastState = 0;
 			//buttons[i].hold_time = 0;
 			// release
-			switchFunc(33, 0);
+			if(switchFunc != nullptr) switchFunc(33, 0);
 		}
 
 	}
