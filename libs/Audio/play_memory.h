@@ -246,15 +246,15 @@ private:
 
 	//********** Zarządzanie
 	const double * wt_notes = wt2048Note;					// wskaźnik imitujacy tablice do pitchowania wavetabli (jest przełączalny - dlatego nie jest stałym wskaznikiem)
-	int16_t *next;
+	volatile int16_t *next;
 	int16_t *beginning;
-	uint32_t length;
+	volatile uint32_t length;
 	volatile uint8_t playing;
 	uint8_t playMode;
 	uint8_t loopBackwardFlag;								// kierunek playhead'a w loopie
 	int8_t	lastNote = -1;									// ostatnia nuta - potrzebne przy glidach i slidach
 	uint8_t sampleType;
-	int16_t * startAddress;
+	volatile int16_t * startAddress;
 
 	struct strSamplePoints									// pointy umieszczone w pamieci dla konkretnej probki
 	{
@@ -276,7 +276,7 @@ private:
 
 	} sampleConstrains;
 
-	uint32_t startLen;
+	volatile uint32_t startLen;
 	int16_t  lastSample = 0;
 	uint8_t needSmoothingFlag = 0;							// ustawiana przy gwaltownej zmianie pamieci aby wygładzic przejscie
 
