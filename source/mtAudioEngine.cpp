@@ -3520,11 +3520,11 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 	case lfoShapeTriangle:
 
 		env->attack = periodTime/2;
-		env->decay = 0;
+		env->decay = periodTime/2;;
 		env->delay = 0;
 		env->sustain = 0.0f;
 		env->hold = 0;
-		env->release = periodTime/2;
+		env->release = 0;
 
 		break;
 	case lfoShapeSquare:
