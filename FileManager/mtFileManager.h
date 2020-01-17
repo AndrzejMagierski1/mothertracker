@@ -159,7 +159,9 @@ public:
 
 	uint8_t savePattern(uint8_t index);
 	void storePatternUndoRevision();
+	void storeSongUndoRevision(uint8_t index);
 	void undoPattern();
+	void undoSongPattern();
 	void redoPattern();
 	void importPatternToProject(char* filePatch, char* name, int8_t index);
 	void deletePattern(int8_t index);
@@ -283,7 +285,8 @@ private:
 
 
 	void updatePatternBitmask(uint8_t patternNum);
-
+	void updatePatternBitmask(uint8_t index,
+								Sequencer::strPattern *sourcePattern);
 
 };
 

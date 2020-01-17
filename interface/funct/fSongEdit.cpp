@@ -48,6 +48,7 @@ static void updateBitmaskAfterCopy(uint8_t *src, uint8_t *dest, uint8_t startSrc
 
 static uint8_t functCopy();
 static uint8_t functPaste();
+static uint8_t functUndo();
 
 static uint8_t functDelete();
 static void refreshDeleting();
@@ -148,6 +149,7 @@ void cSongEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton1, buttonPress, functDeleteSlot);
 	FM->setButtonObj(interfaceButton2, buttonPress, functCopy);
 	FM->setButtonObj(interfaceButton3, buttonPress, functPaste);
+	FM->setButtonObj(interfaceButton4, buttonPress, functUndo);
 
 	FM->setButtonObj(interfaceButton6, buttonPress, functIncPattern);
 	FM->setButtonObj(interfaceButton5, buttonPress, functDecPattern);
@@ -1052,6 +1054,8 @@ static void refreshCopyPasting()
 				SE->songPlayerData.selection.startTrack,
 				SE->copyCurrentData.trackSelectionLength);
 
+		fileManager.storeSongUndoRevision(destination);
+
 		updateBitmaskAfterCopy(
 				&mtProject.values.allPatternsBitmask[source-1],
 				&mtProject.values.allPatternsBitmask[destination-1],
@@ -1109,6 +1113,16 @@ static uint8_t functPaste()
 			}
 		}
 	}
+
+	return 1;
+}
+
+static uint8_t functUndo()
+{
+	if(SE->isBusy) return 1;
+
+	fileManager.undoSongPattern();
+	SE->refreshSongPlayerControl();
 
 	return 1;
 }

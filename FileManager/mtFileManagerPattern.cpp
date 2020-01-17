@@ -7,8 +7,12 @@
 uint8_t patternToLoad = 0;
 //__NOINIT(EXTERNAL_RAM) uint8_t undo_Bank[1024*1024];
 #define UNDO_CAPACITY 20
+#define UNDO_SONG_CAPACITY 5
 __NOINIT(EXTERNAL_RAM) Sequencer::strPattern undoPatternBuffer[UNDO_CAPACITY] { 0 };
 __NOINIT(EXTERNAL_RAM) uint8_t undoPatternBufferIndexes[UNDO_CAPACITY] { 0 };
+
+__NOINIT(EXTERNAL_RAM) Sequencer::strPattern undoSongBuffer[UNDO_SONG_CAPACITY] { 0 };
+__NOINIT(EXTERNAL_RAM) uint8_t undoSongBufferIndexes[UNDO_SONG_CAPACITY] { 0 };
 
 __NOINIT(EXTERNAL_RAM) Sequencer::strPattern songTrackCopy[2] {0};
 
@@ -33,6 +37,15 @@ struct strUndo
 			controlStyleCenterX };
 
 } undo;
+
+struct strUndoSong
+{
+	uint8_t actualIndex = 0; // gdzie jesteśmy w tablicy
+	uint8_t storedCount = 0; // ile razy zrzuciliśmy
+	uint8_t redoPossibility = 0; // ile razy zrzuciliśmy
+
+
+} undoSong;
 
 uint8_t FileManager::loadPattern(uint8_t index)
 {
@@ -157,6 +170,91 @@ void FileManager::storePatternUndoRevision()
 //			undo.redoPossibility);
 
 }
+
+void FileManager::storeSongUndoRevision(uint8_t index)
+{
+//	undoSongBuffer[undoSong.actualIndex] = *sequencer.getActualPattern(); //todo: pobrać z pliku o indexie
+
+
+
+
+	char patternToLoad[PATCH_SIZE] { 0 };
+	sprintf(patternToLoad, "Workspace/patterns/pattern_%02d.mtp", index);
+	fileManager.readPatternFile(
+			patternToLoad, (uint8_t*) &undoSongBuffer[undoSong.actualIndex]);
+
+	undoSongBufferIndexes[undoSong.actualIndex] = index;
+
+
+
+
+
+	undoSong.redoPossibility = 0;
+	if (undoSong.actualIndex >= UNDO_SONG_CAPACITY)
+	{
+		undoSong.actualIndex = 0;
+		undoSong.storedCount++;
+	}
+	else
+	{
+		undoSong.actualIndex++;
+		undoSong.storedCount++;
+	}
+	if (undoSong.storedCount > UNDO_SONG_CAPACITY) undoSong.storedCount = UNDO_SONG_CAPACITY;
+
+	Serial.printf(
+			">>>pattern stored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
+			undoSong.actualIndex,
+			undoSong.storedCount,
+			undoSong.redoPossibility);
+
+}
+
+
+
+void FileManager::undoSongPattern()
+{
+	bool doUndo = 0;
+	uint8_t oldIndex = undoSong.actualIndex;
+	if (undoSong.actualIndex > 0 && undoSong.storedCount > 0)
+	{
+		undoSong.actualIndex--;
+		undoSong.storedCount--;
+		doUndo = 1;
+	}
+	else if (undoSong.actualIndex == 0 && undoSong.storedCount > 0)
+	{
+		undoSong.actualIndex = UNDO_SONG_CAPACITY - 1;
+		doUndo = 1;
+	}
+	else
+	{
+		mtPopups.config(0, &undo.popupConfig);
+		mtPopups.show(0, "No undo data :(");
+	}
+
+	if (doUndo)
+	{
+
+		char filePath[PATCH_SIZE] { 0 };
+		uint8_t bufferedPatternNumber = undoSongBufferIndexes[undoSong.actualIndex];
+		sprintf(filePath, "Workspace/patterns/pattern_%02d.mtp", bufferedPatternNumber);
+
+		fileManager.writePatternFile(
+				filePath,
+				(uint8_t*) &undoSongBuffer[undoSong.actualIndex]);
+
+
+		updatePatternBitmask(bufferedPatternNumber-1, &undoSongBuffer[undoSong.actualIndex]);
+
+		undoSong.redoPossibility++;
+		Serial.printf(
+				"<<<pattern restored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
+				undoSong.actualIndex,
+				undoSong.storedCount,
+				undoSong.redoPossibility);
+	}
+}
 void FileManager::undoPattern()
 {
 	bool doUndo = 0;
@@ -190,11 +288,11 @@ void FileManager::undoPattern()
 		setPatternChangeFlag(mtProject.values.actualPattern);
 
 		undo.redoPossibility++;
-//		Serial.printf(
-//				"<<<pattern restored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
-//				undo.actualIndex,
-//				undo.storedCount,
-//				undo.redoPossibility);
+		Serial.printf(
+				"<<<pattern restored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
+				undo.actualIndex,
+				undo.storedCount,
+				undo.redoPossibility);
 	}
 }
 void FileManager::redoPattern()
@@ -477,11 +575,15 @@ void FileManager::deleteTracks(char *currentProjectPath, uint8_t src, uint8_t tr
 
 void FileManager::updatePatternBitmask(uint8_t patternNum)
 {
-	/*Update pattern usage bitmask*/
-	patternNum -= 1;
-	Sequencer::strPattern *sourcePattern;
 
-	sourcePattern = (Sequencer::strPattern*)sequencer.getPatternToSaveToFile();
+	updatePatternBitmask(
+			patternNum - 1,
+			(Sequencer::strPattern*) sequencer.getPatternToSaveToFile());
+
+}
+void FileManager::updatePatternBitmask(uint8_t index, Sequencer::strPattern *sourcePattern)
+{
+	/*Update pattern usage bitmask*/
 
 	for(uint8_t trackNum = 0; trackNum < 8; trackNum++)
 	{
@@ -493,14 +595,14 @@ void FileManager::updatePatternBitmask(uint8_t patternNum)
 			if(sourcePattern->track[trackNum].step[step].note >= 0)
 			{
 				isAnyActive = 1;
-				mtProject.values.allPatternsBitmask[patternNum] |= (1 << trackNum);
+				mtProject.values.allPatternsBitmask[index] |= (1 << trackNum);
 				break;
 			}
 		}
 
 		if(isAnyActive == 0)
 		{
-			mtProject.values.allPatternsBitmask[patternNum] &= ~(1 << trackNum);
+			mtProject.values.allPatternsBitmask[index] &= ~(1 << trackNum);
 		}
 	}
 }
