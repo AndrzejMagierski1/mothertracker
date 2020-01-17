@@ -118,6 +118,7 @@ void cPatternEditor::update()
 
 		refreshPatternParams();
 	}
+	showLength();
 
 	if(trackerPattern.playheadPosition == lastPatternPosition || (!isPleyheadOnScreen() && editMode))  return;
 
@@ -243,7 +244,7 @@ void cPatternEditor::refreshPattern()
 	trackerPattern.patternLength = seq->track[0].length+1;
 
 	// odpowiednie wylaczenie generowania zalsanianych czesci trackow
-	if(fillState)  trackerPattern.popupMode &= ~(1);
+	if(fillState)  trackerPattern.popupMode &= ~(2 | 4);
 	else trackerPattern.popupMode = 0;
 
 	if(editMode == 0)
@@ -645,7 +646,7 @@ void cPatternEditor::cancelPopups()
 		showDefaultScreen();
 		refreshEditState();
 
-		PTE->trackerPattern.popupMode  &= ~(2);
+		PTE->trackerPattern.popupMode  &= ~(2 | 4);
 
 		if(fillState)
 		{
@@ -1672,6 +1673,7 @@ static  uint8_t functNote(uint8_t state)
 		if(PTE->fillState > 0)
 		{
 			PTE->showFillPopup();
+			PTE->trackerPattern.popupMode |= 1;
 			return 1;
 		}
 
@@ -1738,6 +1740,7 @@ static  uint8_t functInstrument(uint8_t state)
 		{
 			PTE->wasNotesEditBefore = 0;
 			PTE->showFillPopup();
+			PTE->trackerPattern.popupMode |= 1;
 			return 1;
 		}
 
@@ -1755,7 +1758,7 @@ static  uint8_t functInstrument(uint8_t state)
 		//PTE->lightUpPadBoard();
 
 		// odswiezenie paternu bez danych zakrytych przez popup
-		PTE->trackerPattern.popupMode |= 1;
+		PTE->trackerPattern.popupMode |= 2;
 		display.refreshControl(PTE->patternControl);
 	}
 	else if(state == buttonRelease)
@@ -1801,6 +1804,7 @@ static  uint8_t functFx1(uint8_t state)
 		if(PTE->fillState > 0)
 		{
 			PTE->showFillPopup();
+			PTE->trackerPattern.popupMode |= 1;
 			return 1;
 		}
 
@@ -1825,7 +1829,9 @@ static  uint8_t functFx1(uint8_t state)
 		//PTE->lightUpPadBoard();
 
 		// odswiezenie paternu bez danych zakrytych przez popup
-		PTE->trackerPattern.popupMode |= 1;
+		PTE->trackerPattern.popupMode |= 2;
+		if(mtConfig.interface.fxPopupDescription) PTE->trackerPattern.popupMode |= 4;
+
 		display.refreshControl(PTE->patternControl);
 	}
 	else if(state == buttonRelease)
@@ -1859,7 +1865,7 @@ static  uint8_t functFx2(uint8_t state)
 		if(PTE->fillState > 0)
 		{
 			PTE->showFillPopup();
-			PTE->trackerPattern.popupMode |= 2;
+			PTE->trackerPattern.popupMode |= 1;
 			return 1;
 		}
 
@@ -1884,7 +1890,8 @@ static  uint8_t functFx2(uint8_t state)
 		//PTE->lightUpPadBoard();
 
 		// odswiezenie paternu bez danych zakrytych przez popup
-		PTE->trackerPattern.popupMode |= 1;
+		PTE->trackerPattern.popupMode |= 2;
+		if(mtConfig.interface.fxPopupDescription) PTE->trackerPattern.popupMode |= 4;
 
 		display.refreshControl(PTE->patternControl);
 	}
@@ -2243,6 +2250,7 @@ static  uint8_t functChangePattern(uint8_t state)
 		PTE->selectedPlace = 0;
 		PTE->unfocusPattern();
 		PTE->activateLabelsBorder();
+		display.synchronizeRefresh();
 	}
 	else if(state == buttonRelease)
 	{
@@ -2262,6 +2270,7 @@ static  uint8_t functChangePatternLength(uint8_t state)
 		PTE->selectedPlace = 1;
 		PTE->unfocusPattern();
 		PTE->activateLabelsBorder();
+		display.synchronizeRefresh();
 	}
 	else if(state == buttonRelease)
 	{
@@ -2280,6 +2289,7 @@ static  uint8_t functChangePatternEditStep(uint8_t state)
 		PTE->selectedPlace = 2;
 		PTE->unfocusPattern();
 		PTE->activateLabelsBorder();
+		display.synchronizeRefresh();
 	}
 	else if(state == buttonRelease)
 	{
@@ -2329,7 +2339,7 @@ static  uint8_t functPreview()
 static  uint8_t functFill()
 {
 	PTE->fillState = 1;
-	PTE->trackerPattern.popupMode |= 2;
+	PTE->trackerPattern.popupMode |= 1;
 	PTE->focusOnPattern();
 
 	PTE->showFillPopup();
@@ -2472,6 +2482,7 @@ static  uint8_t functFillApply()
 
 		//--------------------------------------------------------
 		functFillCancel();
+		fileManager.storePatternUndoRevision();
 		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 	}
 
@@ -2704,9 +2715,20 @@ void cPatternEditor::lightUpPadBoard()
 					}
 					else
 					{
-						show_fx = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[fx_index].value; // wartosc
-						if(show_fx > FX_VALUE_MAX) break;
-						show_fx = map(show_fx,0,127,0,47); // przeskalowanie - dla wartosci!!
+						Sequencer::strPattern::strTrack::strStep & tempStep = seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep];
+
+						show_fx = tempStep.fx[fx_index].value; // wartosc
+						if (show_fx > FX_VALUE_MAX) break;
+
+						float showFxTemp =  map(
+								(float)show_fx,
+								sequencer.getFxMin(tempStep.fx[fx_index].type),
+								sequencer.getFxMax(tempStep.fx[fx_index].type),
+								0,
+								47);
+
+						show_fx = showFxTemp + 0.5f;
+
 					}
 
 
@@ -2767,7 +2789,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	}
 
 	// dalej tylko jesli edit (rec)
-	if (PTE->editMode != 1)
+	if (PTE->editMode != 1 && !sequencer.isRec())
 	{
 		sendSelection();
 		if (state == buttonPress)
@@ -2808,7 +2830,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	if(PTE->patternViewMode > 0 && !(PTE->patternViewMode & (1 << PTE->editParam))) return 1;
 
 	// wprowadzanie danych
-	if (PTE->editMode == 1)
+	if (PTE->editMode == 1 || sequencer.isRec())
 	{
 		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 		fileManager.storePatternUndoRevision();
@@ -2817,16 +2839,32 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		{
 		case 0: // nuta
 		{
-			sendSelection();
-			if (state == buttonPress)
+			if (sequencer.isRec())
 			{
-				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 127);
+				sendSelection();
+				if (state == buttonPress)
+				{
+					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
+											noteFromPad,
+											127);
+				}
+				else if (state == buttonRelease)
+				{
+					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
+											noteFromPad,
+											0);
+				}
 			}
-			else if (state == buttonRelease)
+			else
 			{
-				uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
-				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, noteFromPad, 0);
+				if (state == buttonPress)
+				{
+					sendSelection();
+					uint8_t noteFromPad = mtPadBoard.getNoteFromPad(pad);
+					sequencer.setSelectionNote(noteFromPad);
+				}
 			}
 			break;
 		}
@@ -2840,7 +2878,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 			}
 			else if (state == buttonRelease)
 			{
-				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, 0, 0);
+//				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, 0, 0);
 			}
 			break;
 		}
@@ -2864,7 +2902,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				}
 				else
 				{
-					sequencer.setSelectionFxValue(fx_index, map(pad, 0, 47, 0, 127));
+					sequencer.setSelectionFxValueByPad(fx_index, pad);
 				}
 			}
 			break;

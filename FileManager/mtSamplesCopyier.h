@@ -15,8 +15,8 @@ public:
 	uint8_t getProgress();
 	uint8_t getCurrentStartIndex();
 private:
-	FsFile sourceSample;
-	FsFile destSample;
+	SdFile sourceSample;
+	SdFile destSample;
 	uint32_t currentCopyingSize = 0;
 	uint32_t copyFileSize;
 	uint8_t importSampleState = copyingSampleEnded;

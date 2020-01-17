@@ -44,7 +44,7 @@ private:
 	strWavFileHeader header;
 	exportStatus status;
 	uint32_t byteRecorded;
-	FsFile wavExport;
+	SdFile wavExport;
 	uint32_t position;
 	uint8_t lastStep = 0;
 	uint32_t microsTime;

@@ -198,7 +198,8 @@ uint32_t FatPartition::clusterStartSector(uint32_t cluster) const {
 //------------------------------------------------------------------------------
 // Fetch a FAT entry - return -1 error, 0 EOC, else 1.
 
-uint32_t prev_cluster;
+//uint32_t prev_cluster;
+
 
 int8_t FatPartition::fatGet(uint32_t cluster, uint32_t* value) {
   uint32_t sector;
@@ -214,7 +215,7 @@ int8_t FatPartition::fatGet(uint32_t cluster, uint32_t* value) {
 //	  DBG_HALT_IF(cluster < 2 || cluster > m_lastCluster);
 	  return -1;
   }
-  prev_cluster = cluster;
+ // prev_cluster = cluster;
 
   if (fatType() == 32)
   {

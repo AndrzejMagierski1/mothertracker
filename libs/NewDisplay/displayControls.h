@@ -2,120 +2,14 @@
 #ifndef LIBS_NEWDISPLAY_DISPALYCONTROLS_H_
 #define LIBS_NEWDISPLAY_DISPALYCONTROLS_H_
 
-#include <stdint.h>
-#include <stddef.h>
-
-extern "C" {
-extern void *memcpy (void *dst, const void *src, size_t count);
-}
-
-enum controlsStyle
-{
-	controlStyleHide = 0,
-	controlStyleShow = 1,
-
-	controlStyleCreateSubcontrols = 2,
-
-	controlStyleCenterX = 4,
-	controlStyleCenterY = 8,
-	controlStyleRightX 	= 16,
-
-	controlStyleShowBitmap		= 32,
-	controlStyleManualText		= 64,
-	controlStyleVerticalText 	= 128,
-
-	controlStyleFont1 	= 256,
-	controlStyleFont2 	= 512,
-	controlStyleFont3 	= 512+256,
-	controlStyleFont4 	= 1024,
-
-	controlStyleFont5 	= 256+1024,
-	controlStyleFont6 	= 512+1024,
-	controlStyleFont7 	= 512+256+1024,
-	controlStyleFont8 	= 1024+1024,
-
-	controlStyleBorder 			= (1<<12),
-	controlStyleBackground 		= (1<<13),
-	controlStyleRoundedBorder 	= (1<<14),
-	controlStyleNoTransparency 	= (1<<15),
-
-	controlStyleValueLeftRight_100_100 	= (1<<16),
-	controlStyleValueLeftRight_24_24 	= (1<<17),
-	controlStyleValue_0_100 			= (1<<18),
-	controlStyleValueNumberOnly			= (1<<19),
-	controlStyleCompareTwoValues 		= (1<<20),
-
-	controlStyleBottomShadow 			= (1<<21),
-
-};
-
-
-struct strControlProperties
-{
-	char* text = nullptr;
-	int value = 0;
-	void* data = nullptr;
-
-	uint32_t style = 0;
-	uint32_t* colors = nullptr;
-
-	uint16_t x = 0;
-	uint16_t y = 0;
-	uint16_t w = 0;
-	uint16_t h = 0;
-};
-
-struct strFont
-{
-	const uint8_t* data;
-	uint32_t size;
-	int16_t handle;
-	uint32_t address;
-	int32_t source;
-	uint16_t width;
-	uint16_t height;
-	uint8_t format;
-	uint16_t linestride;
-};
-
-struct strBitmap
-{
-	const uint8_t* data;
-	uint32_t address;
-	uint32_t source;
-	uint16_t width;
-	uint16_t height;
-	uint8_t format;
-	uint16_t linestride;
-};
-
-struct strGetProps
-{
-	uint32_t End_Address;
-	uint32_t Width;
-	uint32_t Height;
-};
-
-extern const strFont fonts[];
-extern const strBitmap bitmaps[];
-
-extern const strBitmap bitmaps[];
-extern strGetProps getProps;
-
-
-#define FONT_INDEX_FROM_STYLE (((style >> 8) & 15)-1)
-
-
-const uint32_t one_true_red  = 0xcd1818;
-const uint32_t one_true_green  = 0x32d642;
-
-uint16_t getTextWidth(uint8_t font, char* text);
+#include "displayStructs.h"
 
 //--------------------------------------------------------------------
 // klasa wirtualna bazowa dla kontrolek
 class cDisplayControl
 {
 	friend class cDisplay;
+	friend class cDebugLog;
 
 public:
 

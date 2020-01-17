@@ -55,7 +55,7 @@ volatile uint32_t patternTrackerColors[] =
 
 	one_true_red,//0xf13c3c, // 10 zaznaczenie
 	0x0e0e0e, // 11 podzialka
-	0x333333, // 12 nieaktywny
+	0x171717, // 12 nieaktywny track
 	0x000000, // 13 playhead
 
 	0xffffff, // 14 tekst zanzaczenia
@@ -813,7 +813,7 @@ void cPatternEditor::showFillPopup()
 
 	display.refreshControl(bgLabel);
 
-	setFillPlace(fillPlace);
+	//setFillPlace(fillPlace);
 	activateFillPopupBorder();
 
 	display.synchronizeRefresh();

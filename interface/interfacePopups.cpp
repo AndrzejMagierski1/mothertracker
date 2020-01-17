@@ -8,7 +8,7 @@
 
 #include "mtSequencer.h"
 
-
+#include "patternEditor.h"
 
 static  uint8_t functLeftPopup();
 static  uint8_t functRightPopup();
@@ -23,7 +23,7 @@ static  uint8_t functPadsPopup(uint8_t pad, uint8_t state, int16_t velo);
 static uint8_t functDescriptionButton();
 
 extern  uint8_t functInvert();
-
+extern  cPatternEditor patternEditor;
 
 
 //static uint32_t instrListColors[] =
@@ -97,6 +97,26 @@ void cInterfacePopups::initPopupsDisplayControls()
 	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cNotePopout>(&prop);
 
 
+	strControlProperties prop3;
+	prop3.style = 	(controlStyleBackground);
+	prop3.x = 0;
+	prop3.y = 0;
+	prop3.w = 50;
+	prop3.h = 50;
+	prop3.data = &popupData;
+	if(textPopup == nullptr) textPopup = display.createControl<cTextPopup>(&prop3);
+
+
+	//textBoxData
+	prop3.style = 0;
+	prop3.x = 0;
+	prop3.y = 0;
+	prop3.w = 50;
+	prop3.h = 50;
+	prop3.data = nullptr; //&textBoxData;
+	if(textBox == nullptr) textBox = display.createControl<cTextBox>(&prop3);
+
+
 	strControlProperties prop2;
 	prop2.style = 	(controlStyleCenterY | controlStyleBackground);
 	prop2.x = 30;
@@ -108,6 +128,8 @@ void cInterfacePopups::initPopupsDisplayControls()
 	prop2.style = 	( controlStyleCenterX | controlStyleFont3 );
 	//prop2.data = &labelDoubleArrow;
 	if(textLabel2 == nullptr) textLabel2 = display.createControl<cLabel>(&prop2);
+
+
 	prop2.style = 	(controlStyleBackground);
 	prop2.x = 0;
 	prop2.y = 0;
@@ -116,15 +138,6 @@ void cInterfacePopups::initPopupsDisplayControls()
 	prop2.data = nullptr;
 	prop2.colors = listBgLabelColors;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cLabel>(&prop2);
-
-	strControlProperties prop3;
-	prop3.style = 	(controlStyleBackground);
-	prop3.x = 0;
-	prop3.y = 0;
-	prop3.w = 50;
-	prop3.h = 50;
-	prop3.data = &popupData;
-	if(textPopup == nullptr) textPopup = display.createControl<cTextPopup>(&prop3);
 
 
 }
@@ -337,6 +350,8 @@ void cInterfacePopups::hideStepPopups()
 		display.setControlHide(textLabel1);
 		display.setControlHide(textLabel2);
 
+		display.setControlHide(textBox);
+
 		mtInterface.uiFM.clearButton(interfaceButtonRec);
 //		mtInterface.uiFM.clearButton(interfaceButtonShift);
 //		mtInterface.uiFM.clearButton(interfaceButtonEnter);
@@ -426,6 +441,11 @@ void cInterfacePopups::setStepPopupValue(int16_t value)
 		display.setControlValue(listControl, selectedActualItem);
 		display.refreshControl(listControl);
 
+		if(mtConfig.interface.fxPopupDescription)
+		{
+			mtPopups.refreshFxDescription();
+		}
+
 		break;
 	}
 	default:	break;
@@ -493,6 +513,11 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 		display.setControlValue(listControl, selectedActualItem);
 		display.refreshControl(listControl);
 
+		if(mtConfig.interface.fxPopupDescription)
+		{
+			mtPopups.refreshFxDescription();
+		}
+
 		padsBacklight.setBackLayer(1, 20, selectedActualItem);
 
 		break;
@@ -502,6 +527,13 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 	}
 
 	lightUpPads();
+}
+
+void cInterfacePopups::refreshFxDescription()
+{
+	display.setControlText(textBox, interfaceGlobals.fxDescPtr(selectedActualItem));
+	//display.setControlShow(textBox);
+	display.refreshControl(textBox);
 }
 
 int16_t cInterfacePopups::getStepPopupValue()
@@ -653,7 +685,7 @@ void cInterfacePopups::selectPadOnPopup(int8_t pad)
 
 void cInterfacePopups::toggleStepPopupDescription()
 {
-	mtPopups.stepPopupDescriptionState = !mtPopups.stepPopupDescriptionState;
+	mtConfig.interface.fxPopupDescription = !mtConfig.interface.fxPopupDescription;
 	refreshStepPopupDescription();
 }
 
@@ -670,7 +702,7 @@ void cInterfacePopups::refreshStepPopupDescription()
 	display.setControlPosition(textLabel2, 600+40, 458);
 	display.setControlSize(textLabel2, 200, 26);
 
-	if(stepPopupDescriptionState)
+	if(mtConfig.interface.fxPopupDescription)
 	{
 		display.setControlPosition(textLabel1, 400+1, 13);
 		display.setControlSize(textLabel1, 400, 26);
@@ -682,6 +714,19 @@ void cInterfacePopups::refreshStepPopupDescription()
 
 		labelDoubleArrow.bitmaps[0].bitmapIndex = displayDoubleArrowR;
 		display.refreshControl(textLabel2);
+
+		display.setControlSize(textBox, 200, 450);
+		display.setControlPosition(textBox, 400, 29);
+		display.setControlShow(textBox);
+
+
+		mtPopups.refreshFxDescription();
+
+		if(!(patternEditor.trackerPattern.popupMode & 4))
+		{
+			patternEditor.trackerPattern.popupMode |= 4;
+			display.refreshControl(patternEditor.patternControl);
+		}
 	}
 	else
 	{
@@ -695,6 +740,14 @@ void cInterfacePopups::refreshStepPopupDescription()
 
 		labelDoubleArrow.bitmaps[0].bitmapIndex = displayDoubleArrowL;
 		display.refreshControl(textLabel2);
+
+		display.setControlHide(textBox);
+
+		if(patternEditor.trackerPattern.popupMode & 4)
+		{
+			patternEditor.trackerPattern.popupMode  &= ~(4);
+			display.refreshControl(patternEditor.patternControl);
+		}
 	}
 }
 

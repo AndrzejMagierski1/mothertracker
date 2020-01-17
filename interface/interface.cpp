@@ -29,10 +29,9 @@
 #include "SD.h"
 #include "sdram.h"
 #include "sdCardDetect.h"
-//#include "mtCardChecker.h"
 #include "mtSleep.h"
 
-
+#include "debugLog.h"
 
 
 cInterface mtInterface;
@@ -137,195 +136,132 @@ void cInterface::update()
 		if(modules[i]->moduleRefresh) modules[i]->update();
 	}
 
-
-	handleGlobalActions();
 	mtPopups.update();
 
 	mtTest.testLoop();
+
+	debugLog.update();
 }
 
 
 //=======================================================================
 //=======================================================================
 //=======================================================================
-
-
-void cInterface::handleGlobalActions()
-{
-	hideAllGlobalActions();
-
-	handleShutdown();
-	handleNoSdCard();
-}
-
-void cInterface::handleNoSdCard()
-{
-	uint32_t selfPrio = noSdCardPriority;
-
-	if((globalActionPriority & ~selfPrio) <= selfPrio)
-	{
-		if(!sdCardDetector.isCardInserted())
-		{
-			if(globalActionPriority == 0)
-			{
-				uint8_t state = 0;
-				interfaceEnvents(eventToggleActiveModule,0,0,&state);
-			}
-
-			globalActionPriority |= selfPrio;
-
-			if(noSdCardInitFlag == 0)
-			{
-				initDisplayNoSdCard();
-				noSdCardInitFlag = 1;
-			}
-
-			refreshDsiplayNoSdCard();
-		}
-		else
-		{
-			if(noSdCardInitFlag == 1)
-			{
-				if(sdCardDetector.isCardInitialized())
-				{
-					deinitDisplayNoSdCard();
-					globalActionPriority &= ~selfPrio;
-
-					if(globalActionPriority == 0)
-					{
-						uint8_t state = 1;
-						interfaceEnvents(eventToggleActiveModule,0,0,&state);
-					}
-
-					noSdCardInitFlag = 0;
-				}
-			}
-		}
-	}
-}
-
-void cInterface::handleShutdown()
-{
-
-	if(isBooted)
-	{
-		uint32_t selfPrio = powerButtonActionPriority;
-
-		if((globalActionPriority & ~selfPrio) <= selfPrio)
-		{
-			if(lowPower.getShutdownRequest())
-			{
-				if(globalActionPriority == 0)
-				{
-					uint8_t state = 0;
-					interfaceEnvents(eventToggleActiveModule,0,0,&state);
-				}
-
-				globalActionPriority |= selfPrio;
-
-				if(shutdownScreenInitFlag == 0)
-				{
-					shutdownRequestTimestamp = shutdownTimer;
-					shutdownScreenInitFlag = 1;
-					initDisplayCountDown();
-				}
-
-				int32_t timeToShutdown_ms = 0;
-				uint8_t progress;
-
-				timeToShutdown_ms = (TURN_OFF_TIME_MS - (shutdownTimer - shutdownRequestTimestamp));
-				progress = ((timeToShutdown_ms * 100) / TURN_OFF_TIME_MS);
-
-				refreshDisplayCountDown(timeToShutdown_ms, progress);
-
-				if(timeToShutdown_ms <= 0)
-				{
-					lowPower.goLowPower();
-				}
-			}
-			else
-			{
-				if(shutdownScreenInitFlag == 1)
-				{
-					globalActionPriority &= ~selfPrio;
-					shutdownScreenInitFlag = 0;
-					deinitDisplayCountDown();
-
-					if(globalActionPriority == 0)
-					{
-						uint8_t state = 1;
-						interfaceEnvents(eventToggleActiveModule,0,0,&state);
-					}
-				}
-			}
-		}
-	}
-}
 
 void cInterface::processOperatingMode()
 {
-	if(operatingMode == mtOperatingModeStartup)
+	switch(operatingMode)
 	{
-		isCardOnBoot = sdCardDetector.isCardInitialized();
-
-		if(doOnStart == 0)
+		case mtOperatingModeStartup:
 		{
-			doOnStart = 1;
 			doStartTasks();
+			operatingMode = mtOperatingModeOpenProject;
+			break;
 		}
-
-		if(isCardOnBoot != lastBootCardState)
+		case mtOperatingModeOpenProject:
 		{
-			doOnStart = 1;
-			lastBootCardState = isCardOnBoot;
-		}
-
-		if(isCardOnBoot)
-		{
-			lastBootCardState = isCardOnBoot;
-
-			if(doOnStart == 1)
+			if(sdCardDetector.isCardInitialized())
 			{
-				readConfig();
-				readSdConfig();
-
-				doOnStart = 2;
 				openStartupProject();
+				operatingMode = mtOperatingModeShowStartScreen;
 			}
-
-			showStartScreen();
-
-			if(detectStartState())
-			{
-				destroyStartScreen();
-				operatingMode = mtOperatingModeRun;
-
-				activateModule(&patternEditor, 0);
-			}
+			break;
 		}
-		else
+		case mtOperatingModeShowStartScreen:
 		{
-			hideStartScreen();
+			processStartScreen();
+			break;
 		}
+		case mtOperatingModePowerOffSequence:
+		{
+			processPowerOffSequence();
+			break;
+		}
+		case mtOperatingModeSleep:
+		{
+
+			break;
+		}
+		default: break;
 	}
-
-//	else if(operatingMode == mtOperatingModeRun)
-//	{
-//
-//	}
-
-
 }
 
 void cInterface::doStartTasks()
 {
+	readConfig();
+	//readSdConfig();
 	mtPopups.initPopupsDisplayControls();
-
 	initStartScreen();
 }
 
+void cInterface::processStartScreen()
+{
+	if(sdCardDetector.isCardInitialized())
+	{
+		refreshStartScreen();
+
+		if(detectProjectLoadState())
+		{
+			destroyStartScreen();
+			hideDisplayNoSdCard();
+			operatingMode = mtOperatingModeRun;
+			activateModule(&patternEditor, 0);
+		}
+	}
+	else
+	{
+		hideStartScreen();
+		showDisplayNoSdCard();
+		operatingMode = mtOperatingModeOpenProject;
+	}
+}
 
 
+void cInterface::processPowerOffSequence()
+{
+	if(lowPower.getLowPowerState() == shutdownStateStart)
+	{
+		refreshDisplayShutdown();
+
+		if(lowPower.getTimeLeft() == 0)
+		{
+			operatingMode = mtOperatingModeSleep;
+			lowPower.goLowPower();
+		}
+	}
+}
+
+void cInterface::handleCardSlotAction(uint8_t state)
+{
+	if(operatingMode != mtOperatingModeRun) return;
+
+	if(state)	activateInterface();
+	else		deactivateInterfaceNoSd();
+}
+
+void cInterface::handlePowerButtonAction(uint8_t state)
+{
+	if(state) // press
+	{
+		if(operatingMode == mtOperatingModeSleep)
+		{
+			lowPower.wakeUp();
+		}
+		else if(operatingMode != mtOperatingModeRun) return;
+
+		operatingMode = mtOperatingModePowerOffSequence;
+		lowPower.startPowerOffSequence();
+		deactivateInterfaceShutdown();
+	}
+	else // relase
+	{
+		if(operatingMode != mtOperatingModePowerOffSequence) return;
+
+		activateInterface();
+		lowPower.stopPowerOffSequence();
+		operatingMode = mtOperatingModeRun;
+	}
+}
 //=======================================================================
 //=======================================================================
 //=======================================================================
@@ -350,9 +286,9 @@ void cInterface::deactivateModule(hModule module)
 	uiFM.clearAllPads();
 	uiFM.clearSdDetection();
 
-	display.resetControlQueue();
 	module->stop();
 	mtPopups.hideStepPopups();
+	display.resetControlQueue();
 	module->destroyDisplayControls();
 	if(module == onScreenModule) onScreenModule = nullptr;
 	previousModule = module;

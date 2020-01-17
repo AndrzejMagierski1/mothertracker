@@ -143,7 +143,7 @@ void MTPStorage_SD::ScanDir(uint32_t i)
 		{
 			mtp_lock_storage(true);
 			//FsFile child = f_.openNextFile();
-			FsFile child;
+			SdFile child;
 			if (!child.openNext(&f_, O_READ))
 			{
 				mtp_lock_storage(false);

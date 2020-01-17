@@ -2,7 +2,7 @@
 #ifndef SOURCE_WAVHEADERREADER_H_
 #define SOURCE_WAVHEADERREADER_H_
 
-#include "Arduino.h"
+
 #include "SD.h"
 
 struct strWavFileHeader
@@ -25,7 +25,7 @@ struct strWavFileHeader
 
 };
 
-void readHeader(strWavFileHeader* header, FsFile * wavfile);
+void readHeader(strWavFileHeader* header, SdFile * wavfile);
 void readHeader(strWavFileHeader* header, ExFatFile * wavfile);
 void readHeader(strWavFileHeader* header, FatFile * wavfile);
 #endif /* SOURCE_WAVHEADERREADER_H_ */

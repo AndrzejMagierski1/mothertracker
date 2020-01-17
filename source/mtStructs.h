@@ -13,9 +13,10 @@
 
 const uint8_t FV_VER_1	=					0;		// device version
 const uint8_t FV_VER_2 =					8;		// official update
-const uint8_t FV_VER_3 =					36;		// fix version  100 = brak 3 litery
+const uint8_t FV_VER_3 =					40;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
 const uint8_t MEMORY_STRUCT_VER =			2;
+const uint8_t EEPROM_STRUCT_VER =			1;
 
 const float DEFAULT_TEMPO = 130;
 
@@ -44,6 +45,7 @@ const uint8_t PATTERN_INDEX_MIN 	=			1;
 const uint8_t PATTERN_INDEX_MAX 	=			255;
 
 const uint8_t FX_MAX 			=        		47;
+const uint8_t FX_MAX_FOR_RANDOM	=        		40;
 const uint8_t FX_COUNT		 	=        		48;
 
 const uint8_t FX_VALUE_MAX	=					127;
@@ -142,6 +144,7 @@ const uint8_t MAX_NOTE_OFFSET =					13;
 
 const uint8_t MASTER_VOLUME_MIN 			=	0;
 const uint8_t MASTER_VOLUME_MAX 			=	100;
+const uint8_t MASTER_VOLUME_DEFAULT			=	50;
 
 const uint8_t BIT_DEPTH_MIN 				=	4;
 const uint8_t BIT_DEPTH_MAX 				=	16;
@@ -386,6 +389,13 @@ enum granularLoopType
 	granularLoopCount
 };
 
+
+enum powerStateType
+{
+	powerStateSleep,
+	powerStateRun
+};
+
 //=====================================================================
 //-------------------------------------------------
 //-------------------------------------------------
@@ -564,9 +574,9 @@ struct strMtConfig
 	{
 		uint8_t startMode = interfaceOpenLastProject;
 		char lastProjectName[PROJECT_NAME_SIZE];
-	} startup;
+		uint8_t powerState = powerStateSleep;
 
-	uint8_t emptyByte = 0;
+	} startup;
 
 	struct strAudioCodecConfig
 	{
@@ -595,8 +605,10 @@ struct strMtConfig
 		uint8_t ver_3;
 		uint8_t beta;
 		uint8_t memoryStructVer;
+		uint8_t eepromStructVer;
 
 	} firmware;
+
 
 	struct strGlobalValues
 	{
@@ -606,6 +618,8 @@ struct strMtConfig
 		uint8_t padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
 
 	} values;
+
+	uint8_t emptyArray1[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
 
 	struct strMIDIValues
 	{
@@ -618,12 +632,23 @@ struct strMtConfig
 		uint8_t ccOut[10];
 	} midi;
 
+
 	struct strGeneralValues
 	{
 		uint8_t patternDiv;
 		uint8_t radioRegion;
 		uint8_t brightness;
 	} general;
+
+	struct strInterfaceState
+	{
+		uint8_t fxPopupDescription;
+	} interface;
+
+	struct strDebugState
+	{
+		uint8_t debugLogState;
+	} debug;
 
 	uint32_t arcanoidHighestScore;
 };

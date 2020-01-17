@@ -124,6 +124,7 @@ void FT812_Init(void)
     MCU_Delay_20ms();
     MCU_PDhigh();                                                               // PD high again
     MCU_Delay_20ms();
+    MCU_Delay_20ms();
 
     // ---------------------- Delay to allow FT81x start-up --------------------
 /*
@@ -145,14 +146,14 @@ void FT812_Init(void)
    // EVE_CmdWrite(0x61,2);
 
 
-    MCU_Delay_500ms();
+//    MCU_Delay_500ms();
 
 //  EVE_CmdWrite(FT81x_CLKEXT, 0x00);                                                        // PD high again
 //  MCU_Delay_20ms();
 
     EVE_CmdWrite(FT81x_ACTIVE, 0x00);                                           // Sends 00 00 00 to wake FT8xx
 
-    MCU_Delay_500ms();                                                          // 500ms delay (EVE requires at least 300ms here))
+//    MCU_Delay_500ms();                                                          // 500ms delay (EVE requires at least 300ms here))
 
 
 
@@ -173,6 +174,7 @@ void FT812_Init(void)
     		}
     		break;
     	}
+        delay(1);
     }
 
    // if(timeout >= 0xFFFF) return;
@@ -189,6 +191,7 @@ void FT812_Init(void)
     		}
     		break;
     	}
+        delay(1);
     }
     //if(timeout >= 0xFFFF) return;
     // ---------------- Configure the GPIO and PWM  --------------------
@@ -343,13 +346,6 @@ void FT812_Init(void)
 
     EVE_MemWrite16(REG_OUTBITS,  outBits);
 
-    // ---------------------- Touch and Audio settings -------------------------
-
-    EVE_MemWrite16(REG_TOUCH_RZTHRESH, 1200);                                   // Eliminate any false touches
-
-    EVE_MemWrite8(REG_VOL_PB, ZERO);                                            // turn recorded audio volume down
-    EVE_MemWrite8(REG_VOL_SOUND, ZERO);                                         // turn volume down
-    EVE_MemWrite16(REG_SOUND, 0x6000);                                          // set volume mute
 
    // ---------------------- Create an initial screen before we enable the display -------------------------
 
@@ -364,6 +360,13 @@ void FT812_Init(void)
 
     EVE_MemWrite32(REG_DLSWAP, DLSWAP_FRAME);                                   // Swap display list to make the edited one active
 
+    // ---------------------- Touch and Audio settings -------------------------
+
+    EVE_MemWrite16(REG_TOUCH_RZTHRESH, 1200);                                   // Eliminate any false touches
+
+    EVE_MemWrite8(REG_VOL_PB, ZERO);                                            // turn recorded audio volume down
+    EVE_MemWrite8(REG_VOL_SOUND, ZERO);                                         // turn volume down
+    EVE_MemWrite16(REG_SOUND, 0x6000);                                          // set volume mute
 
 
 
@@ -374,12 +377,13 @@ void FT812_Init(void)
 
 
 
-    for(PWM = 0; PWM <= 128; PWM ++)
+  /*
+   	  for(PWM = 0; PWM <= 128; PWM ++)
     {
         EVE_MemWrite8(REG_PWM_DUTY, PWM);
         delayMicroseconds(3);
     }
-
+*/
 //    EVE_MemWrite8(REG_PWM_DUTY, 128);
 
 
@@ -388,11 +392,12 @@ void FT812_Init(void)
 
 	if(hardwareTest)
 	{
-		 Serial.println("Display init succesfull");
+		 Serial.println("Display init end");
 	}
 
 
 
+	SPI2.endTransaction();
 	SPI2.beginTransaction(settingsFAST);
 
 	//delay(10000);
@@ -470,15 +475,20 @@ void MCU_Delay_500ms(void)
 
 void MCU_set_sleepMode(void)
 {
-	MCU_CSlow();
-	EVE_AddrForWr(REG_PWM_DUTY);
-	EVE_Write8(0);
-	MCU_CShigh();
+	EVE_MemWrite8(REG_PWM_DUTY, 0);
 	EVE_CmdWrite(0x43,0x00);
     EVE_CmdWrite(0x50,0x00);
 }
 
 void MCU_set_runMode(void)
 {
-	EVE_CmdWrite(FT81x_ACTIVE, 0x00);
+	//EVE_CmdWrite(FT81x_ACTIVE, 0x00);
+	EVE_MemWrite8(REG_PWM_DUTY, 127);
+
+
+//	EVE_MemWrite8(REG_PCLK, lcdPclk);
+//	EVE_CmdWrite(FT81x_ACTIVE, 0x00);
+//	EVE_MemWrite8(REG_PWM_DUTY, 127);
 }
+
+

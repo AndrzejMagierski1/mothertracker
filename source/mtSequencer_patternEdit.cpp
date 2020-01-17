@@ -138,7 +138,9 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 	if (!isSelectionCorrect(sel)) return;
 	if (fxIndex > FX_SLOTS_MAX) fxIndex = 0;
 
-	int16_t fxType = interfaceGlobals.fxNameToId(fxName);
+	int16_t fxType = constrain(interfaceGlobals.fxNameToId(fxName),
+								-1,
+								FX_COUNT - 1);
 
 	strPattern::strTrack::strStep *step;
 
@@ -160,6 +162,7 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 												toVal);
 				step->fx[fxIndex].type =
 						(fxType >= 0) ? fxType : randomFx();
+				Serial.println(step->fx[fxIndex].type);
 
 				step->fx[fxIndex].value = constrain(
 						step->fx[fxIndex].value,
@@ -175,8 +178,20 @@ uint8_t Sequencer::randomFx()
 	uint8_t retVal;
 	for (uint8_t a = 0; a < 100; a++)
 	{
-		retVal = random(1, FX_MAX + 1);
-		if(retVal != fx.FX_TYPE_TEMPO) break;
+		retVal = random(2, FX_MAX_FOR_RANDOM + 1); // bo 1 to off a nie chcemy
+		if (
+		retVal != fx.FX_TYPE_TEMPO &&
+				retVal != fx.FX_TYPE_R11 &&
+				retVal != fx.FX_TYPE_FADE &&
+				retVal != fx.FX_TYPE_CUT &&
+				retVal != fx.FX_TYPE_R4 &&
+				retVal != fx.FX_TYPE_R5 &&
+				retVal != fx.FX_TYPE_R10 &&
+				retVal != fx.FX_TYPE_R21 &&
+				retVal != fx.FX_TYPE_R22
+
+				) break;
+
 	}
 	return retVal;
 }
@@ -411,10 +426,11 @@ void Sequencer::changeSelectionNote(int16_t value)
 
 				if (step->note >= 0)
 				{
-					blinkNote(step->instrument,
-								step->note,
-								STEP_VELO_DEFAULT,
-								t);
+//					blinkNote(step->instrument,
+//								step->note,
+//								STEP_VELO_DEFAULT,
+//								t);
+					playSelection();
 				}
 				return;
 			}
@@ -428,10 +444,11 @@ void Sequencer::changeSelectionNote(int16_t value)
 					if (blinkFirst)
 					{
 						blinkFirst = 0;
-						blinkNote(step->instrument,
-									step->note,
-									STEP_VELO_DEFAULT,
-									t);
+//						blinkNote(step->instrument,
+//									step->note,
+//									STEP_VELO_DEFAULT,
+//									t);
+						playSelection();
 
 					}
 				}
@@ -505,10 +522,16 @@ void Sequencer::changeSelectionFxValue(uint8_t fxIndex, int16_t value)
 				mtProject.values.lastUsedFx = interfaceGlobals.fxIdToName(
 						step->fx[fxIndex].type);
 			}
+
+			if (!isMultiSelection())
+			{
+				playSelection();
+				break;
+			}
 		}
 	}
 }
-void Sequencer::setSelectionFxValue(uint8_t fxIndex, int16_t value)
+void Sequencer::setSelectionFxValueByPad(uint8_t fxIndex, int16_t pad)
 {
 
 	strSelection *sel = &selection;
@@ -525,15 +548,19 @@ void Sequencer::setSelectionFxValue(uint8_t fxIndex, int16_t value)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
 
-			step->fx[fxIndex].value = constrain(
-					value,
-					getFxMin(step->fx[fxIndex].type),
-					getFxMax(step->fx[fxIndex].type));
-//			step->fx[0].value2 = 1;
 			if (!isMultiSelection() && step->fx[fxIndex].type == 0)
 			{
 				step->fx[fxIndex].type = interfaceGlobals.fxNameToId(
 						mtProject.values.lastUsedFx);
+			}
+
+			step->fx[fxIndex].value = map(pad, 0, 47,
+											getFxMin(step->fx[fxIndex].type),
+											getFxMax(step->fx[fxIndex].type));
+
+			if (!isMultiSelection() && step->fx[fxIndex].type != 0 && !isRec())
+			{
+				playSelection();
 			}
 		}
 	}
@@ -616,10 +643,11 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 					step->instrument = constrain(step->instrument + value,
 													0,
 													INSTRUMENTS_MAX + 16);
-					blinkNote(step->instrument,
-								step->note,
-								STEP_VELO_DEFAULT,
-								t);
+//					blinkNote(step->instrument,
+//								step->note,
+//								STEP_VELO_DEFAULT,
+//								t);
+					playSelection();
 
 					mtProject.values.lastUsedInstrument = step->instrument;
 				}
@@ -672,10 +700,14 @@ void Sequencer::setSelectionInstrument(int16_t value)
 				{
 					step->instrument = value;
 
-					blinkNote(step->instrument,
-								step->note,
-								STEP_VELO_DEFAULT,
-								t);
+//					blinkNote(step->instrument,
+//								step->note,
+//								STEP_VELO_DEFAULT,
+//								t);
+					if (!isRec())
+					{
+						playSelection();
+					}
 
 					mtProject.values.lastUsedInstrument = step->instrument;
 				}
@@ -754,12 +786,13 @@ void Sequencer::setSelectionNote(int16_t value)
 			{
 				step->note = value;
 
-				if (step->note >= 0)
+				if (step->note >= 0 && !isRec())
 				{
-					blinkNote(step->instrument,
-								step->note,
-								STEP_VELO_DEFAULT,
-								t);
+//					blinkNote(step->instrument,
+//								step->note,
+//								STEP_VELO_DEFAULT,
+//								t);
+					playSelection();
 				}
 				return;
 			}

@@ -8,6 +8,9 @@
 #include "mtSequencer.h"
 
 
+#include "interfaceFxDesc.h"
+
+
 //#define MT_INTERFACE_STARTUP_TIME 10000
 
 
@@ -226,7 +229,13 @@ enum enumMtOperatingMode
 {
 	mtOperatingModeNone,
 	mtOperatingModeStartup,
+	mtOperatingModeOpenProject,
+	mtOperatingModeShowStartScreen,
 	mtOperatingModeRun,
+
+	mtOperatingModePowerOffSequence,
+	mtOperatingModeSleep,
+
 };
 
 
@@ -273,8 +282,13 @@ struct strInterfaceGlobals
 	}
 	int16_t fxNameToId(int16_t name)
 	{
-		if(name>=0)	return fxIDs[name];
-		else return name;
+		if (name >= FX_COUNT)
+		{
+			return 0;
+		}
+		else if (name >= 0) return fxIDs[name];
+		else
+			return name;
 	}
 
 
@@ -420,6 +434,14 @@ struct strInterfaceGlobals
 	};
 
 	const char **ptrFxNames = &ptrAllFxNames[1];
+
+	char* fxDescPtr(int16_t id)
+	{
+		if(id>=0) return (char*)&fxDescriptions[id][0];
+		else return nullptr;
+	}
+
+//	const char* ptrFxDescriptons = fxDescriptions;
 
 	uint32_t activeLabelsColors[4] =
 	{

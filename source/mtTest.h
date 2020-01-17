@@ -30,7 +30,7 @@ enum enTestPhases
 	lastPhase = 255,
 };
 
-const uint8_t startCode[5] = {12,13,14,15,16};
+const uint8_t startCode[5] = {47,13,14,15,16};
 
 class cFunctionMachine;
 

@@ -376,7 +376,7 @@ uint8_t cProjectEditor::loadProjectValues()
 	sampleRecorder.recorderConfig.source = mtProject.values.source;
 
 	//----------------------------------------------------------------------------------------------------
-	// performance mode
+	// performance mode i inne
 	for(uint8_t i = 0; i<8; i++)
 	{
 		// paterny na trakach w performance mode
@@ -387,6 +387,8 @@ uint8_t cProjectEditor::loadProjectValues()
 
 		// globalne mute trackow
 		if(mtProject.values.trackMute[i] >= trackMasterModeCount) mtProject.values.trackMute[i] = 0;
+
+		engine.muteTrack(i, mtProject.values.trackMute[i]);
 	}
 
 	for(uint8_t i = 0; i<12; i++)
@@ -450,7 +452,7 @@ static uint8_t functNewProject()
 
 
 	char currentPatch[PATCH_SIZE];
-	strcpy(currentPatch,"Templates/New/project.bin");
+	strcpy(currentPatch,"Templates/New/project.mt");
 
 	fileManager.getDefaultProject(&mtProject);
 	fileManager.createEmptyTemplateProject((char*)"New");
@@ -584,7 +586,7 @@ static uint8_t functSaveChangesDontSaveNewProject()
 	memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);*/
 
 	char currentPatch[PATCH_SIZE];
-	strcpy(currentPatch,"Templates/New/project.bin");
+	strcpy(currentPatch,"Templates/New/project.mt");
 
 	fileManager.getDefaultProject(&mtProject);
 	fileManager.createEmptyTemplateProject((char*)"New");
@@ -1076,7 +1078,7 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 
 			sdLocation.open(filePath, O_READ);
 
-			if(sdLocation.exists("project.bin"))	//tylko jesli w folderze jest plik projektu
+			if(sdLocation.exists("project.mt"))	//tylko jesli w folderze jest plik projektu
 			{
 				strcpy(&locationFilesList[foundProjectsCount][0],&locationFilesList[i][1]);
 

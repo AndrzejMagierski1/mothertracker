@@ -161,7 +161,7 @@ const float tempoSyncRates[20] =
 constexpr uint16_t releaseNoteOnVal = 5;
 
 
-void audioEngine::printLog(FsFile * log)
+void audioEngine::printLog(SdFile * log)
 {
 
 	log->println("***********************AudioEngine***************************");
@@ -3538,7 +3538,7 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 	}
 }
 
-void playerEngine::printLog(FsFile * log)
+void playerEngine::printLog(SdFile * log)
 {
 	uint8_t nr_voice = ((uint32_t)this - (uint32_t)instrumentPlayer)/sizeof(playerEngine);
 	log->printf("******************voice nr %d******************\n",nr_voice);

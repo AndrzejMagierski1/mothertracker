@@ -93,7 +93,7 @@ void API_LIB_EndCoProList(void);
 void API_LIB_AwaitCoProEmpty(void);
 uint8_t API_LIB_IsCoProEmpty(void);
 void API_LIB_WriteDataRAMG(const uint8_t *ImgData, uint32_t DataSize, uint32_t DestAddress);
-uint8_t API_SendString(const char* string);
+uint8_t API_SendString(const char* string, uint32_t length);
 void API_LIB_WriteDataToCMD(const uint8_t *ImgData, uint32_t TotalDataSize);
 // Graphics instructions
 void API_CLEAR_COLOR_RGB(uint8_t R, uint8_t G, uint8_t B);
@@ -135,6 +135,7 @@ void API_MACRO(uint8_t m);
 void API_DISPLAY(void);   
 // Co-Processor Widgets
 void API_CMD_TEXT(int16_t x, int16_t y, int16_t font, uint16_t options, const char* string);
+void API_CMD_TEXT(int16_t x, int16_t y, int16_t font, uint16_t options, const char* string, uint32_t length);
 void API_CMD_BUTTON(int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint16_t options, const char* string);
 void API_CMD_KEYS(int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint16_t options, const char* string);
 void API_CMD_NUMBER(int16_t x, int16_t y, int16_t font, uint16_t options, int32_t n);

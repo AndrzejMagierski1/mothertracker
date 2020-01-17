@@ -80,7 +80,7 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 		writeInstrumentFile(currentPatch, &mtProject.instrument[instrumentIndex]);
 	}
 
-	strcpy(currentPatch,"Workspace/project.bin");
+	strcpy(currentPatch,"Workspace/project.mt");
 	writeProjectFile(currentPatch, &mtProject);
 
 	setInstrumentChangeFlag(instrumentIndex);
@@ -134,7 +134,7 @@ void FileManager::importInstrumentToProject(char* projectPatch,char* name, int8_
 	writeInstrumentFile(currentPatch,&mtProject.instrument[index]);
 
 
-	sprintf(currentPatch,"%s/project.bin",currentProjectPatch);
+	sprintf(currentPatch,"%s/project.mt",currentProjectPatch);
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 
 }
@@ -160,7 +160,7 @@ void FileManager::deleteInstrument(int8_t index)
 	deleteSample(index);
 	mtProject.instruments_count--;
 
-	sprintf(currentPatch,"Workspace/project.bin");
+	sprintf(currentPatch,"Workspace/project.mt");
 	writeProjectFile(currentPatch, &mtProject);
 
 	//setInstrumentChangeFlag(index);
@@ -179,7 +179,7 @@ void FileManager::deleteSample(int8_t index)
 	mtProject.instrument[index].sample.type=0;
 	memset(mtProject.instrument[index].sample.file_name,0,SAMPLE_NAME_SIZE);
 
-	strcpy(currentPatch,"Workspace/project.bin");
+	strcpy(currentPatch,"Workspace/project.mt");
 
 	writeProjectFile(currentPatch, &mtProject);
 

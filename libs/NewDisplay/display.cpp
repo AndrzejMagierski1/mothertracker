@@ -1,38 +1,30 @@
 
 
 #include "FT812.h"
-
 #include "display.h"
-
-
 #include "core_pins.h"
 #include "elapsedMillis.h"
 
 
-
-#include "poly_logo_inv_128x128_L8.h"
-
+#include "debugLog.h"
 
 
-#include "poly_logo_160x172_L8.h"
-
+// CZCIONKI
 #include "RobotoMono-Regular_14_L4.h"
 #include "RobotoMono-Regular_17_L4.h"
-
 #include "RobotoMono-Bold_14_L4.h"
 #include "RobotoMono-Bold_17_L4.h"
-
 #include "RobotoMono-Light_14_L4.h"
 #include "RobotoMono-Light_17_L4.h"
 
-
+// OBRAZY
+#include "poly_logo_160x172_L8.h"
 #include "songIcons.h"
-
 #include "arrowIcons.h"
 
-// OBRAZY
 
-// CZCIONKI
+
+
 
 
 
@@ -67,12 +59,6 @@ const strBitmap bitmaps[displayBitmapsCount] =
 strGetProps getProps;
 
 
-
-strTrackerPattern trackerSeqDisplay;
-
-//void display_table();
-
-
 cDisplay display;
 
 
@@ -100,9 +86,6 @@ void cDisplay::begin()
 	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
 
-	API_CLEAR_COLOR(DISP_RGB(0,0,0));
-	API_CLEAR(1,1,1);
-
 	for(uint8_t i = 0; i < displayFontCount; i++)
 	{
 
@@ -114,10 +97,31 @@ void cDisplay::begin()
 	}
 
 
+	API_CLEAR_COLOR(0x000000);
+	API_CLEAR(1,1,1);
+
+
+	API_VERTEX_FORMAT(0);
+
+	#define bitmap_index 0
+
+	API_BITMAP_HANDLE(0);
+	API_BITMAP_SOURCE(bitmaps[bitmap_index].address);
+	API_BITMAP_LAYOUT(bitmaps[bitmap_index].format, bitmaps[bitmap_index].linestride, bitmaps[bitmap_index].height);
+	API_BITMAP_SIZE(NEAREST, BORDER, BORDER, bitmaps[bitmap_index].width, bitmaps[bitmap_index].height);
+
+	API_BEGIN(BITMAPS);
+	API_VERTEX2F((800/2)-(bitmaps[bitmap_index].width/2), 100);
+	API_END();
+
 
 	API_DISPLAY();
     API_CMD_SWAP();
     API_LIB_EndCoProList();
+
+
+    //turnOn();
+
 
     stopAppend = 0;
     synchQueuePosition = 0;
@@ -301,7 +305,7 @@ void cDisplay::update()
 		    API_CMD_DLSTART();
 
 
-			API_CLEAR_COLOR(config.bgColor);
+			API_CLEAR_COLOR(0x000000);
 			API_CLEAR(1,1,1);
 
 
@@ -319,6 +323,8 @@ void cDisplay::update()
 				}
 			}
 
+
+			if(mtConfig.debug.debugLogState) debugLog.processLog();
 
 		    API_DISPLAY();
 		    API_CMD_SWAP();
@@ -573,7 +579,15 @@ void cDisplay::resetControlQueue()
 	actualUpdating = nullptr;
 }
 
+uint8_t cDisplay::isIdle()
+{
+	return (updateStep == 0) && (refreshQueueTop ==  refreshQueueBott);
+}
 
+void cDisplay::forceAppedStage()
+{
+	updateStep = 2;
+}
 //=====================================================================================================
 // jpg/png
 //=====================================================================================================
@@ -677,7 +691,7 @@ void cDisplay::clear()
 
     API_CMD_DLSTART();
 
-	API_CLEAR_COLOR(config.bgColor);
+	API_CLEAR_COLOR(0x000000);
 	API_CLEAR(1,1,1);
 
     API_DISPLAY();
@@ -704,5 +718,12 @@ void cDisplay::setRotate(uint8_t value)
 
 }
 
+void cDisplay::turnOn()
+{
+	MCU_set_runMode();
+}
 
-
+void cDisplay::turnOff()
+{
+	MCU_set_sleepMode();
+}

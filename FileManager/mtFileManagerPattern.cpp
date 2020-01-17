@@ -274,7 +274,7 @@ void FileManager::importPatternToProject(char* filePatch, char* name,
 	file.close();
 	copy.close();
 
-	sprintf(currentPatch, "%s/project.bin", currentProjectPatch);
+	sprintf(currentPatch, "%s/project.mt", currentProjectPatch);
 	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 }
 #endif
@@ -282,8 +282,8 @@ void FileManager::importPatternToProject(char* filePatch, char* name,
 
 void FileManager::copyPattern(char* srcProjectPatch, uint8_t src_idx, char * dstProjectPatch, uint8_t dst_idx)
 {
-	FsFile file;
-	FsFile copy;
+	SdFile file;
+	SdFile copy;
 	char currentPatch[PATCH_SIZE];
 	uint8_t *buf = getWriteLoadBufferPointer();
 	uint16_t lengthData = 0;
@@ -345,7 +345,7 @@ void FileManager::addPatternToProject(int8_t index)
 //
 //	memset(currentPatch,0,PATCH_SIZE);
 //	strcpy(currentPatch,currentProjectPatch);
-//	strcat(currentPatch,"/project.bin");
+//	strcat(currentPatch,"/project.mt");
 //
 //	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 }
@@ -369,7 +369,7 @@ void FileManager::deletePattern(int8_t index)
 	mtProject.patterns_count--;
 
 
-	strcpy(currentPatch,"Workspace/project.bin");
+	strcpy(currentPatch,"Workspace/project.mt");
 
 
 	writeProjectFile(currentPatch, &mtProject);
@@ -417,8 +417,8 @@ bool FileManager::switchNextPatternInSong()
 void FileManager::copySongTracks(char *currentProjectPath, uint8_t src, uint8_t dest, uint8_t trackStartSrc, uint8_t trackStartDest, uint8_t tracksNum)
 {
 	uint8_t status = 0;
-	FsFile srcFile;
-	FsFile destFile;
+	SdFile srcFile;
+	SdFile destFile;
 	char currentPath[PATCH_SIZE];
 
 	sprintf(currentPath, "%s/patterns/pattern_%02d.mtp", currentProjectPath, src);
@@ -456,7 +456,7 @@ void FileManager::copySongTracks(char *currentProjectPath, uint8_t src, uint8_t 
 void FileManager::deleteTracks(char *currentProjectPath, uint8_t src, uint8_t trackStartSrc, uint8_t tracksNum)
 {
 	uint8_t status = 0;
-	FsFile srcFile;
+	SdFile srcFile;
 	char currentPath[PATCH_SIZE];
 
 	sprintf(currentPath, "%s/patterns/pattern_%02d.mtp", currentProjectPath, src);
@@ -517,10 +517,12 @@ void FileManager::setPatternChangeFlag(uint8_t num)
 
 void FileManager::setInstrumentChangeFlag(uint8_t num)
 {
+
 	instrumentIsChangedFlag[num] = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 	mtProject.values.instrumentsToSave[num] = 1;
 	configIsChangedFlag = 1;
+
 }
 
 /*void FileManager::setInstrumentChangeFlag()

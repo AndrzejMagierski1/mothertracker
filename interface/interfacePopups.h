@@ -116,9 +116,11 @@ private:
 	void selectPadOnPopup(int8_t pad);
 
 	void refreshStepPopupDescription();
+	void refreshFxDescription();
 
 	hControl listControl;
 	hControl keyboardControl;
+	hControl textBox;
 
 	hControl bgLabel;
 	hControl textLabel1;
@@ -128,12 +130,12 @@ private:
 	strList instrList;
 	strPadNames padNamesStruct;
 	strLabelData labelDoubleArrow;
+	strTextBoxData textBoxData;
 
 	int8_t selectedActualItem = 0;
 	char** ptrActualItemsList = nullptr;
 
 	uint8_t stepPopupState = 0;
-	uint8_t stepPopupDescriptionState = 0;
 
 	//-------------------------------------
 	// global
@@ -163,6 +165,25 @@ private:
 };
 
 extern cInterfacePopups mtPopups;
+
+
+
+const strPopupStyleConfig popupDebugConfig =
+{
+		2,					// time
+		800 / 2 - 150,		// x
+		480 / 2 - 50,		// y
+		300,				// w
+		100,				// h
+		0xffffff,			// lineColor[4];
+		0xffffff,
+		0xffffff,
+		0xffffff,
+		controlStyleCenterX,//lineStyle[4];
+		controlStyleCenterX,
+		controlStyleCenterX,
+		controlStyleCenterX,
+};
 
 
 

@@ -87,8 +87,8 @@ public:
 			FX_TYPE_SEND_CC_C,
 			FX_TYPE_SEND_CC_D,
 			FX_TYPE_SEND_CC_E,
-			FX_TYPE_ROLL_VOL_UP,
-			FX_TYPE_ROLL_VOL_DOWN,
+			FX_TYPE_R21,
+			FX_TYPE_R22,
 			FX_TYPE_TEMPO,
 			FX_TYPE_RANDOM_VALUE,
 
@@ -636,7 +636,7 @@ public:
 	void changeSelectionInstrument(int16_t value);
 
 	void setSelectionFxType(uint8_t index, int16_t value);
-	void setSelectionFxValue(uint8_t index, int16_t value);
+	void setSelectionFxValueByPad(uint8_t index, int16_t value);
 	void setSelectionInstrument(int16_t value);
 	//	void setSelectionVelocity(int16_t value);
 	void setSelectionNote(int16_t value);

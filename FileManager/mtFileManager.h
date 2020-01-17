@@ -96,7 +96,7 @@ typedef struct
 typedef struct
 {
 	char deleteSourcePath[255];
-	FsFile roots[10];
+	SdFile roots[10];
 	uint8_t lastRoot;
 	uint8_t addedLength[10];
 	uint8_t lastAddedLengthNum;
@@ -277,7 +277,7 @@ private:
 	//char deletePath[200];
 	//uint8_t deleteCurrPositiionInDir;
 	delete_handle_t deleteHandle;
-	void recursiveRemoveProject(FsFile *source);
+	void recursiveRemoveProject(SdFile *source);
 
 	char deleteProjectName[PROJECT_NAME_SIZE];
 

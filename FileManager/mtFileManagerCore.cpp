@@ -9,6 +9,7 @@
 
 #include "mtFileManager.h"
 
+#include "debugLog.h"
 
 FileManager fileManager;
 
@@ -16,6 +17,11 @@ FileManager fileManager;
 {
 	//pattBitmask[trackIdx][patternIdx] =;
 }*/
+
+elapsedMicros sd_time_test;
+
+
+
 
 void FileManager::update()
 {
@@ -79,9 +85,12 @@ void FileManager::setLoadLength(uint8_t filesNum)
 
 void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 {
+	//sd_time_test;
+	//Serial.print(" zapis pliku instrumentu ");
+
 	SD.remove(name);
 
-	FsFile file;
+	SdFile file;
 	FastCRC32 crcCalc;
 
 	strInstrumentFile instrumentFile;
@@ -109,15 +118,19 @@ void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 	file.write((uint8_t *)&instrumentFile,sizeof(instrumentFile));
 	file.close();
 
-
+	//Serial.print(" t: ");
+	//Serial.print(sd_time_test);
 }
 
 uint8_t FileManager::writePatternFile(char * name, uint8_t *sourcePattern)
 {
 	// todo: może do wyjebania jeśli .open załatwi sprawę
+	//sd_time_test;
+	//Serial.print("zapis pliku patternu ");
+
 	SD.remove(name);
 
-	FsFile file;
+	SdFile file;
 	FastCRC32 crcCalc;
 
 	((Sequencer::strPattern*) sourcePattern)->crc =
@@ -129,14 +142,25 @@ uint8_t FileManager::writePatternFile(char * name, uint8_t *sourcePattern)
 				sizeof(Sequencer::strPattern));
 	file.close();
 
+	//Serial.print(" t: ");
+	//Serial.print(sd_time_test);
+
 	return 1;
 }
 
 void FileManager::writeProjectFile(char * name, strMtProject *proj)
 {
+	//sd_time_test;
+	//Serial.println(" zapis pliku projektu ");
+
 	SD.remove(name);
 
-	FsFile file;
+	//Serial.print(" remove: ");
+	//Serial.println(sd_time_test);
+
+	//sd_time_test;
+
+	SdFile file;
 	FastCRC32 crcCalc;
 	strProjectFile projectFile;
 
@@ -158,16 +182,36 @@ void FileManager::writeProjectFile(char * name, strMtProject *proj)
 
 	projectFile.crc = crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
 
+	//Serial.print(" memcpy-crc: ");
+	//Serial.println(sd_time_test);
+	//sd_time_test;
+
 	file=SD.open(name, FILE_WRITE);
+
+	//Serial.print(" open: ");
+	//Serial.println(sd_time_test);
+	//sd_time_test;
+
 	file.write((uint8_t *)&projectFile, sizeof(projectFile));
+
+	//Serial.print(" write: ");
+	//Serial.println(sd_time_test);
+
 	//file.write((uint8_t *)&pattBitmask, sizeof(strPatternsBitmask));
+
+	//sd_time_test;
 	file.close();
+	//Serial.print(" close: ");
+	//Serial.println(sd_time_test);
 }
 
 uint8_t FileManager::readInstrumentFile(char * name, strInstrument * instr)
 {
+	//sd_time_test;
+	//Serial.print(" odczyt pliku instrumentu ");
+
 	if(!SD.exists(name)) return 0;
-	FsFile file;
+	SdFile file;
 	FastCRC32 crcCalc;
 	uint32_t checkCRC=0;
 
@@ -180,6 +224,10 @@ uint8_t FileManager::readInstrumentFile(char * name, strInstrument * instr)
 	if(instrumentFile.instrumentDataAndHeader.instrHeader.type != fileTypeInstrument) return 0;
 
 	checkCRC=crcCalc.crc32((uint8_t *)&instrumentFile.instrumentDataAndHeader,sizeof(instrumentFile.instrumentDataAndHeader));
+
+	//Serial.print(" t: ");
+	//Serial.println(sd_time_test);
+
 	if(checkCRC == instrumentFile.crc)
 	{
 		*instr=instrumentFile.instrumentDataAndHeader.instrument;
@@ -191,10 +239,13 @@ uint8_t FileManager::readInstrumentFile(char * name, strInstrument * instr)
 
 uint8_t FileManager::readPatternFile(char * name, uint8_t *patternDest)
 {
-	FsFile file;
+	SdFile file;
 	FastCRC32 crcCalc;
 	uint32_t checkCRC=0;
 	uint8_t loadStatus = 0;
+
+	//sd_time_test;
+	//Serial.print(" odczyt pliku patternu ");
 
 	// na końcu struktury jest crc
 	file = SD.open(name);
@@ -219,6 +270,10 @@ uint8_t FileManager::readPatternFile(char * name, uint8_t *patternDest)
 		}
 	}
 
+	//Serial.print(" t: ");
+	//Serial.println(sd_time_test);
+
+
 	return loadStatus;
 }
 
@@ -227,8 +282,11 @@ uint8_t FileManager::readPatternFile(char * name, uint8_t *patternDest)
 
 uint8_t FileManager::readProjectFile(char * name, strMtProject * proj)
 {
+	//sd_time_test;
+	//Serial.print(" odczyt pliku projktu ");
+
 	if(!SD.exists(name)) return 0;
-	FsFile file;
+	SdFile file;
 	FastCRC32 crcCalc;
 //	uint32_t checkCRC=0;
 
@@ -243,6 +301,10 @@ uint8_t FileManager::readProjectFile(char * name, strMtProject * proj)
 
 //	checkCRC=crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
 //TODO:	if(checkCRC == projectFile.crc) // wylaczone sprawdzanie crc pliku projektu
+
+	//Serial.print(" t: ");
+	//Serial.println(sd_time_test);
+
 	if(1)
 	{
 		memcpy(&proj->song, &projectFile.projectDataAndHeader.project.song, sizeof(strSong));
@@ -259,11 +321,14 @@ uint8_t FileManager::readProjectFile(char * name, strMtProject * proj)
 
 void FileManager::copySample(char* srcProjectPatch, char* srcName, char * dstProjectPatch, char* dstName)
 {
-	FsFile file;
-	FsFile copy;
+	SdFile file;
+	SdFile copy;
 	char currentPatch [PATCH_SIZE];
 	uint8_t currentBuffor[1024];
 	uint16_t lengthData=0;
+
+	//sd_time_test;
+	//Serial.print(" kopiowanie sampli ");
 
 	strcpy(currentPatch,srcProjectPatch);
 	strcat(currentPatch,"/samples/");
@@ -287,6 +352,10 @@ void FileManager::copySample(char* srcProjectPatch, char* srcName, char * dstPro
 	}
 	file.close();
 	copy.close();
+
+
+	//Serial.print(" t: ");
+	//Serial.println(sd_time_test);
 }
 
 
@@ -305,7 +374,14 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 			configChangedRefresh = 0;
 			if(configIsChangedFlag == 1)
 			{
+				debugLog.addLine("autosave projektu");
+				sd_time_test = 0;
+
 				autoSaveProject();
+
+				debugLog.addText(" - czas: ");
+				debugLog.addValue(sd_time_test);
+				//debugLog.forceRefresh();
 			}
 		}
 	}
@@ -320,7 +396,14 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 			{
 				if(instrumentIsChangedFlag[i] == 1 )
 				{
+					debugLog.addLine("autosave instrumentu");
+					sd_time_test = 0;
+
 					saveInstrument(i);
+
+					debugLog.addText(" - czas: ");
+					debugLog.addValue(sd_time_test);
+					//debugLog.forceRefresh();
 				}
 			}
 		}
@@ -334,7 +417,14 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 		{
 			if(patternIsChangedFlag[mtProject.values.actualPattern] == 1)
 			{
+				debugLog.addLine("autosave patternu");
+				sd_time_test = 0;
+
 				savePattern(mtProject.values.actualPattern);
+
+				debugLog.addText(" - czas: ");
+				debugLog.addValue(sd_time_test);
+				//debugLog.forceRefresh();
 			}
 		}
 	}
@@ -544,7 +634,7 @@ void FileManager::getDefaultValues(struct strMtValues *source)
 //
 //	memset(currentPatch,0,PATCH_SIZE);
 //	strcpy(currentPatch,currentProjectPatch);
-//	strcat(currentPatch,"/project.bin");
+//	strcat(currentPatch,"/project.mt");
 //
 //	writeProjectFile(currentPatch, &mtProject.mtProjectRemote);
 //}

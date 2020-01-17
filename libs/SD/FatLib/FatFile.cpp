@@ -381,7 +381,9 @@ bool FatFile::open(FatFile* dirFile, const char* path, uint8_t oflag) {
     dirFile = &tmpDir;
   }
   while (1) {
-    if (!parsePathName(path, &fname, &path)) {
+    if (!parsePathName(path, &fname, &path))
+    {
+    //	__asm__ __volatile__ ("bkpt #0");
       DBG_FAIL_MACRO;
       goto fail;
     }
@@ -1236,6 +1238,8 @@ bool FatFile::truncate() {
  fail:
   return false;
 }
+elapsedMicros fattimer;
+
 //------------------------------------------------------------------------------
 size_t FatFile::write(const void* buf, size_t nbyte) {
   // convert void* to uint8_t*  -  must be before goto statements
@@ -1250,6 +1254,9 @@ size_t FatFile::write(const void* buf, size_t nbyte) {
     DBG_FAIL_MACRO;
     goto fail;
   }
+
+	fattimer = 0;
+
   // seek to end of file if append flag
   if ((m_flags & O_APPEND)) {
     if (!seekSet(m_fileSize)) {
@@ -1258,23 +1265,36 @@ size_t FatFile::write(const void* buf, size_t nbyte) {
     }
   }
   // Don't exceed max fileSize.
-  if (nbyte > (0XFFFFFFFF - m_curPosition)) {
+  if (nbyte > (0XFFFFFFFF - m_curPosition))
+  {
     DBG_FAIL_MACRO;
     goto fail;
   }
-  while (nToWrite) {
+  while (nToWrite)
+  {
     uint8_t sectorOfCluster = m_vol->sectorOfCluster(m_curPosition);
     uint16_t sectorOffset = m_curPosition & m_vol->sectorMask();
-    if (sectorOfCluster == 0 && sectorOffset == 0) {
+
+    if (sectorOfCluster == 0 && sectorOffset == 0)
+    {
+    	fattimer = 0;
       // start of new cluster
-      if (m_curCluster != 0) {
+      if (m_curCluster != 0)
+      {
 #if USE_FAT_FILE_FLAG_CONTIGUOUS
         int8_t fg;
-        if (isContiguous() && m_fileSize > m_curPosition) {
+        if (isContiguous() && m_fileSize > m_curPosition)
+        {
           m_curCluster++;
           fg = 1;
-        } else {
+        }
+        else
+        {
+        	//fattimer = 0;
           fg = m_vol->fatGet(m_curCluster, &m_curCluster);
+          // Serial.print(" fatGet: ");
+          // Serial.print(fattimer);
+
           if (fg < 0) {
             DBG_FAIL_MACRO;
             goto fail;
@@ -1287,44 +1307,64 @@ size_t FatFile::write(const void* buf, size_t nbyte) {
           goto fail;
         }
 #endif  // USE_FAT_FILE_FLAG_CONTIGUOUS
-        if (fg == 0) {
+
+
+        if (fg == 0)
+        {
           // add cluster if at end of chain
-          if (!addCluster()) {
+          if (!addCluster())
+          {
             DBG_FAIL_MACRO;
             goto fail;
           }
         }
-      } else {
-        if (m_firstCluster == 0) {
+      }
+      else
+      {
+        if (m_firstCluster == 0)
+        {
           // allocate first cluster of file
-          if (!addCluster()) {
+          if (!addCluster())
+          {
             DBG_FAIL_MACRO;
             goto fail;
           }
           m_firstCluster = m_curCluster;
-        } else {
+        }
+        else
+        {
           m_curCluster = m_firstCluster;
         }
       }
+
+      //Serial.print(" startCluster: ");
+      //Serial.print(fattimer);
     }
     // sector for data write
+	fattimer = 0;
+
     uint32_t sector = m_vol->clusterStartSector(m_curCluster)
                       + sectorOfCluster;
 
-    if (sectorOffset != 0 || nToWrite < m_vol->bytesPerSector()) {
+    if (sectorOffset != 0 || nToWrite < m_vol->bytesPerSector())
+    {
       // partial sector - must use cache
       // max space in sector
       n = m_vol->bytesPerSector() - sectorOffset;
       // lesser of space and amount to write
-      if (n > nToWrite) {
+      if (n > nToWrite)
+      {
         n = nToWrite;
       }
 
       if (sectorOffset == 0 &&
-         (m_curPosition >= m_fileSize || m_flags & FILE_FLAG_PREALLOCATE)) {
+         (m_curPosition >= m_fileSize || m_flags & FILE_FLAG_PREALLOCATE))
+      {
         // start of new sector don't need to read into cache
         cacheOption = FatCache::CACHE_RESERVE_FOR_WRITE;
-      } else {
+      }
+      else
+      {
         // rewrite part of sector
         cacheOption = FatCache::CACHE_FOR_WRITE;
       }
@@ -1335,15 +1375,21 @@ size_t FatFile::write(const void* buf, size_t nbyte) {
       }
       uint8_t* dst = pc->data + sectorOffset;
       memcpy(dst, src, n);
-      if (m_vol->bytesPerSector() == (n + sectorOffset)) {
+      if (m_vol->bytesPerSector() == (n + sectorOffset))
+      {
         // Force write if sector is full - improves large writes.
         if (!m_vol->cacheSyncData()) {
           DBG_FAIL_MACRO;
           goto fail;
         }
       }
+
+      //Serial.print(" partialsector: ");
+      //Serial.print(fattimer);
 #if USE_MULTI_SECTOR_IO
-    } else if (nToWrite >= 2*m_vol->bytesPerSector()) {
+    }
+    else if (nToWrite >= 2*m_vol->bytesPerSector())
+    {
       // use multiple sector write command
       uint8_t maxSectors = m_vol->sectorsPerCluster() - sectorOfCluster;
       uint8_t nSector = nToWrite >> m_vol->bytesPerSectorShift();
@@ -1361,7 +1407,13 @@ size_t FatFile::write(const void* buf, size_t nbyte) {
         goto fail;
       }
 #endif  // USE_MULTI_SECTOR_IO
-    } else {
+
+
+      //Serial.print(" multisector: ");
+      //Serial.print(fattimer);
+    }
+    else
+    {
       // use single sector write command
       n = m_vol->bytesPerSector();
       if (m_vol->cacheSectorNumber() == sector) {
@@ -1371,10 +1423,16 @@ size_t FatFile::write(const void* buf, size_t nbyte) {
         DBG_FAIL_MACRO;
         goto fail;
       }
+
+
+     //Serial.print(" singlesector: ");
+     //Serial.print(fattimer);
     }
     m_curPosition += n;
     src += n;
     nToWrite -= n;
+
+
   }
   if (m_curPosition > m_fileSize) {
     // update fileSize and insure sync will update dir entry

@@ -6,35 +6,81 @@
 
 #include "mtStructs.h"
 
-
+#include "debugLog.h"
 #include "mtConfig.h"
 
 void firmwareVersionChange();
 void memoryStructureChange();
+void eepromStructureChange();
+
 
 extern uint32_t patternTrackerSelectionColor;
 extern uint32_t patternTrackerColors[8];
 
 elapsedMillis save_delay;
+elapsedMicros save_micros;
 
 void saveConfig()
 {
 	if(save_delay > 1000)
 	{
-		save_delay = 0;
-		EEPROM.put(CONFIG_EEPROM_ADRESS, &mtConfig);
+
+		forceSaveConfig();
 	}
 
 }
 
 void forceSaveConfig()
 {
-	EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
+	debugLog.addLine("eeprom save");
+
+	save_micros = 0;
+	EEPROM.put(CONFIG_EEPROM_ADRESS, &mtConfig);
+	debugLog.addText(" czas: ");
+	debugLog.addValue(save_micros);
+	debugLog.forceRefresh();
+}
+
+uint8_t readStartState()
+{
+	uint8_t startState = 1;
+
+	save_micros = 0;
+
+	EEPROM.get(sizeof(mtConfig), startState);
+
+	uint32_t czas = save_micros;
+	debugLog.addLine(" start state read: ");
+	debugLog.addValue(czas);
+	debugLog.forceRefresh();
+
+	return startState;
+}
+
+void saveStartState()
+{
+	uint8_t startState = 0;
+
+	save_micros = 0;
+
+	EEPROM.put(sizeof(mtConfig), startState);
+
+	debugLog.addLine("start state save: ");
+	debugLog.addValue(save_micros);
+	debugLog.forceRefresh();
+
 }
 
 void readConfig()
 {
+//	debugLog.addLine("eeprom read");
+//	save_micros = 0;
+
 	EEPROM.get(CONFIG_EEPROM_ADRESS, mtConfig);
+
+//	debugLog.addText(" czas: ");
+//	debugLog.addValue(save_micros);
+//	debugLog.forceRefresh();
 
 	checkConfig();
 
@@ -53,14 +99,22 @@ void readConfig()
 		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
 	}
 
+	if (mtConfig.firmware.eepromStructVer != EEPROM_STRUCT_VER)
+	{
+		eepromStructureChange();
+
+		mtConfig.firmware.eepromStructVer = EEPROM_STRUCT_VER;
+		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
+	}
+
 	if (mtConfig.firmware.memoryStructVer != MEMORY_STRUCT_VER)
 	{
 		memoryStructureChange();
 
 		mtConfig.firmware.memoryStructVer = MEMORY_STRUCT_VER;
-
 		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
 	}
+
 
 
 }
@@ -123,10 +177,13 @@ void checkConfig()
 	mtConfig.startup.lastProjectName[PROJECT_NAME_SIZE-1] = 0;
 	if(mtConfig.startup.startMode >= interfaceCommandsCount) mtConfig.startup.startMode = interfaceOpenLastProject;
 
+	if(mtConfig.startup.powerState > powerStateRun)
+	{
+		mtConfig.startup.powerState = powerStateSleep;
+	}
 
 
 	// VALUES CHECK
-
 
 	if(mtConfig.values.padsLightBack > 31)	mtConfig.values.padsLightBack = PADS_LIGHT_BACK_DEFAULT;
 	if(mtConfig.values.padsLightFront > 31)	mtConfig.values.padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
@@ -180,13 +237,91 @@ void checkConfig()
 		mtConfig.general.radioRegion = 0;
 	}
 
+	if(mtConfig.general.radioRegion > 3)
+	{
+		mtConfig.general.radioRegion = 0;
+	}
+
+	// interface ----------------------------------------
+	if(mtConfig.interface.fxPopupDescription > 1)
+	{
+		mtConfig.interface.fxPopupDescription = 0;
+	}
+
+	// debug ----------------------------------------
+	if(mtConfig.debug.debugLogState > 1)
+	{
+#ifdef DEBUG
+		mtConfig.debug.debugLogState = 1;
+#else
+		mtConfig.debug.debugLogState = 0;
+#endif
+	}
+
 
 // TODO dodac zapis spowrotem do configu jesli np przy sprawdzaniu wazne dane sie nie zgadzały
 // TODO
 // TODO
 }
 
+void resetConfig()
+{
 
+	mtConfig.audioCodecConfig.headphoneVolume = MASTER_VOLUME_DEFAULT;
+	mtConfig.audioCodecConfig.inSelect = inputSelectMic;
+	mtConfig.audioCodecConfig.outSelect = outputSelectHeadphones;
+	mtConfig.audioCodecConfig.inputGain = INPUT_MIC_GAIN_DEFAULT;
+
+	mtConfig.audioCodecConfig.mutedHeadphone = 0;
+	mtConfig.audioCodecConfig.mutedLineOut = 0;
+	mtConfig.audioCodecConfig.lineInLeft = LINE_IN_SENS_LEVEL_DEFAULT;
+	mtConfig.audioCodecConfig.lineInRight = LINE_IN_SENS_LEVEL_DEFAULT;
+	mtConfig.audioCodecConfig.lineOutLeft = LINE_OUT_LEVEL_DEFAULT;
+	mtConfig.audioCodecConfig.lineOutRight = LINE_OUT_LEVEL_DEFAULT;
+
+
+
+	mtConfig.startup.lastProjectName[0] = 0;
+	mtConfig.startup.startMode = interfaceOpenLastProject;
+
+	mtConfig.startup.powerState = powerStateSleep;
+
+	// VALUES
+	mtConfig.values.padsLightBack = PADS_LIGHT_BACK_DEFAULT;
+	mtConfig.values.padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
+	mtConfig.values.padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
+
+
+	mtConfig.arcanoidHighestScore = 0;
+
+
+	for(uint8_t i = 0; i < 10; i++)
+	{
+		mtConfig.midi.ccOut[i] = 0;
+	}
+
+	mtConfig.midi.clkIn = 0;
+	mtConfig.midi.clkOut = 0;
+	mtConfig.midi.transportIn = 0;
+	mtConfig.midi.transportIn = 0;
+
+
+	mtConfig.general.brightness = 2;
+	mtConfig.general.patternDiv = 3; //4
+	mtConfig.general.radioRegion = 0;
+	mtConfig.general.radioRegion = 0;
+
+
+	// interface ----------------------------------------
+	mtConfig.interface.fxPopupDescription = 0;
+
+	// debug ----------------------------------------
+#ifdef DEBUG
+	mtConfig.debug.debugLogState = 1;
+#else
+	mtConfig.debug.debugLogState = 0;
+#endif
+}
 
 void firmwareVersionChange()
 {
@@ -203,8 +338,15 @@ void memoryStructureChange()
 }
 
 
+void eepromStructureChange()
+{
+
+	Serial.println("Eeprom struct changed!");
 
 
+	resetConfig();
+
+}
 
 //===============================================================================================================
 //====================================         SD CONFIG         ================================================
@@ -220,7 +362,7 @@ void readSdConfig()
 
 	if(SD.exists("/mtconfig.txt"))
 	{
-		FsFile fConfig;
+		SdFile fConfig;
 		char buff[buffSize+1];
 
 		fConfig = SD.open("/mtconfig.txt", FILE_READ);
