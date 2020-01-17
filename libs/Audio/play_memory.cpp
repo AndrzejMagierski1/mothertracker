@@ -607,10 +607,15 @@ void AudioPlayMemory::printLog(SdFile * log)
 {
 	log->println("*************Parametry Silnika ");
 	log->printf("pitch counter: %d ", iPitchCounter);
-	if(iPitchCounter > length) log->print("counter poza plikiem");
+	if(iPitchCounter > length) log->print("counter poza length ");
+	if( (next + iPitchCounter) > (mtProject.instrument[currentInstr_idx].sample.address + mtProject.instrument[currentInstr_idx].sample.length) ) log->print("counter poza plikiem ");
 	log->println("");
 	log->printf("float pitch counter: %05f \n", fPitchCounter);
 	log->printf("addr: %x \n", (uint32_t)next);
+	log->printf("length: %d \n", length);
+	log->printf("addr z instr %x \n", (uint32_t)startAddress);
+	log->printf("start point in samples : %d \n", samplePoints.start);
+	log->printf("IsPlaying?: %d\n", playing);
 
 }
 //**************************************************************************************PLAY
@@ -639,7 +644,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 			((mtProject.instrument[instr_idx].sliceNumber > 1 ) &&  ( (mtProject.instrument[instr_idx].sliceNumber - 1) != mtProject.instrument[instr_idx].selectedSlice) ) ?
 			mtProject.instrument[instr_idx].slices[mtProject.instrument[instr_idx].selectedSlice + 1] : MAX_16BIT;
 	}
-//************* granular
+	//************* granular
 	int32_t granularDownConstrain = 0;
 	int32_t granularUpConstrain = 0;
 	if(granularForcedFlag)

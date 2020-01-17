@@ -3,6 +3,7 @@
 #include "sdram.h"
 #include "SD.h"
 #include "mtAudioEngine.h"
+#include "mtSequencer.h"
 
 SdramTester sdramTester;
 constexpr uint8_t RW_NUMBER = 10;
@@ -117,6 +118,39 @@ void SdramTester::test()
 		if(mux_val != 5) log.print(" BLEDNA FUNKCJA ALTERNATYWNA");
 		log.println();
 	}
+
+	log.println("//****************************AKTYWNE INSTRUMENTY********************************//");
+	log.println("");
+	for(uint8_t i = 0; i< 48; i++)
+	{
+		if(mtProject.instrument[i].isActive)
+		{
+			log.printf("idx: %02d \t\t addr: %x \t\t length: %d \n", i,(uint32_t)mtProject.instrument[i].sample.address,mtProject.instrument[i].sample.length );
+		}
+	}
+
+	log.println("//*****************************CURRENT PATTERN**********************************//");
+	Sequencer::strPattern * localPatt = sequencer.getActualPattern();
+	log.println("   |TRACK1| \t |TRACK2| \t |TRACK3| \t |TRACK4| \t |TRACK5| \t |TRACK6| \t |TRACK7| \t |TRACK8| ");
+
+	for(uint8_t j = 0; j <= localPatt->track[0].length; j++)
+	{
+		if(j == sequencer.getActualPos())
+		{
+			log.println("   -------- \t -------- \t -------- \t -------- \t -------- \t -------- \t -------- \t -------- ");
+		}
+		log.printf("%02d.",j+1);
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			if(localPatt->track[i].step[j].note != -1) log.printf("|I%02dN%02d| \t ", localPatt->track[i].step[j].instrument, localPatt->track[i].step[j].note);
+			else log.print("|******| \t ");
+		}
+		log.println("");
+		if(j == sequencer.getActualPos()) log.println("   -------- \t -------- \t -------- \t -------- \t -------- \t -------- \t -------- \t -------- ");
+
+	}
+
+
 
 	engine.printLog(&log);
 	log.close();
