@@ -53,7 +53,7 @@ void AudioPlayMemory::update(void)
 	{
 
 		out = block->data;
-		in = next;
+		in = (int16_t*)next;
 
 		if (sampleType == mtSampleTypeWavetable)
 		{
