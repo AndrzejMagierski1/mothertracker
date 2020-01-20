@@ -633,6 +633,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 								uint8_t fx2_id, uint8_t fx2_val)
 {
 	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
+
 	__disable_irq();
 	AudioNoInterrupts();
 	uint8_t status;
@@ -978,7 +979,7 @@ void playerEngine::noteOff(int8_t option)
 		AudioInterrupts();
 		__enable_irq();
 		break;
-	case 0:
+	case Sequencer::STEP_NOTE_OFF:
 		__disable_irq();
 		AudioNoInterrupts();
 		envelopeAmpPtr->noteOff();
@@ -2109,10 +2110,6 @@ void playerEngine :: modGlide(uint16_t value)
 	playMemPtr->setGlide(value,currentNote,currentInstrument_idx);
 }
 
-void playerEngine :: modSlide(uint16_t value,int8_t slideNote)
-{
-	playMemPtr->setSlide(value,currentNote,slideNote,currentInstrument_idx);
-}
 void playerEngine :: modFineTune(int8_t value)
 {
 	playMemPtr->setFineTune(value,currentNote);
@@ -3520,11 +3517,11 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 	case lfoShapeTriangle:
 
 		env->attack = periodTime/2;
-		env->decay = 0;
+		env->decay = periodTime/2;;
 		env->delay = 0;
 		env->sustain = 0.0f;
 		env->hold = 0;
-		env->release = periodTime/2;
+		env->release = 0;
 
 		break;
 	case lfoShapeSquare:

@@ -55,7 +55,7 @@ public:
 
 	uint8_t noteOn(uint8_t instr_idx,int8_t note, int8_t velocity);
 	uint8_t noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx_id, uint8_t fx_val,uint8_t,uint8_t );
-	void noteOff(int8_t option = 0);
+	void noteOff(int8_t option = -4);
 	void clean();
 
 	void seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n);
@@ -63,7 +63,6 @@ public:
 	void slide(int8_t note, uint16_t time);
 	void modPitch(float value);
 	void modGlide(uint16_t value);
-	void modSlide(uint16_t value,int8_t slideNote);
 	void modFineTune(int8_t value);
 
 	void modPanning(int16_t value);
