@@ -33,6 +33,7 @@
 #include "AudioStream.h"
 #include "mtAudioEngine.h"
 #include "mtExporterWAV.h"
+#include "debugLog.h"
 
 #if defined(__MKL26Z64__)
   #define MAX_AUDIO_MEMORY 6144
@@ -312,6 +313,7 @@ AudioStream * AudioStream::first_update = NULL;
 
 void software_isr(void) // AudioStream::update_all()
 {
+	elapsedMicros apoloniuszTajmer = 0;
 	AudioStream *p;
 	ARM_DEMCR |= ARM_DEMCR_TRCENA;
 	ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA;
@@ -333,6 +335,17 @@ void software_isr(void) // AudioStream::update_all()
 	if (totalcycles > AudioStream::cpu_cycles_total_max)
 		AudioStream::cpu_cycles_total_max = totalcycles;
 
+	if(AudioStream::memory_used > 50)
+	{
+		debugLog.addLine("Audio mem exceed limit ");
+		debugLog.addValue(AudioStream::memory_used);
+	}
+	if(apoloniuszTajmer > 2200)
+	{
+		debugLog.addLine("Audio exceed limit ");
+		debugLog.addValue(apoloniuszTajmer);
+//		debugLog.forceRefresh(); // wymuszenie odswiezneia jesli ma byc odrazu a nei w petli glownej
+	}
 
 
 }
