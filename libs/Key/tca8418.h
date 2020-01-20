@@ -11,7 +11,7 @@
 
 //-------- KONFIGURACJA STEORWNIKOW PRZYCISKOW --------------------------
 constexpr uint8_t BUTTON_MAX = 48;
-constexpr uint16_t HOLD_TIME = 400;
+
 
 
 //#define I2C_BEGINTRANS(x) localWire.beginTransmission(x)
@@ -198,6 +198,7 @@ public:
   bool isKeyDown(uint8_t key);
   bool getKey(uint8_t *key);
   uint8_t getKey(void);
+  void setHoldTime(uint16_t time_ms) {HOLD_TIME = time_ms;};
   uint8_t update();
   void setOnPush(void(*funct)(uint8_t));
   void setOnRelease(void(*funct)(uint8_t));
@@ -248,6 +249,8 @@ private:
   uint32_t _PUR; //Pull-Up Resistor Selection
   
  uint8_t* convertTable = (uint8_t*)defaultConvert;
+
+ uint16_t HOLD_TIME = 400;
 
  };
 

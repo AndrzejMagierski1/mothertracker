@@ -45,7 +45,10 @@ public:
 
 	void AcceptButton();
 	void DeclineButton();
+	void skipButton();
+	uint8_t blockSkip = 0;
 	uint8_t getStatusViewState() {	return hideStatus; }
+
 
 	struct strInputs
 	{
@@ -56,6 +59,12 @@ public:
 		uint8_t encoderR;
 
 	} inputs;
+
+	uint8_t midiNotes[8] = {12,48,17,2,37,56,16,112};
+	uint8_t midiVelos[8] = {0,48,17,2,37,56,16,127};
+	uint8_t midiChannels[8] = {1,3,5,7,9,11,13,15};
+	uint8_t midiResults = 0;
+	uint8_t midiCounter = 0;
 
 private:
 	void drawGui();
@@ -104,10 +113,14 @@ private:
 
 
 
-	//run pad combination
+	// run pad combination
 	uint8_t pos = 0;
 
 	uint8_t ledBright = 0;
+
+	// midi
+
+
 
 
 };

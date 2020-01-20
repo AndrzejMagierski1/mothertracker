@@ -1,10 +1,14 @@
 
 #include <modulesBase.h>
 #include "mtPadsBacklight.h"
-#include "mtTest.h"
 #include "FT812.h"
+#include  "mtMidi.h"
 #include "mtSleep.h"
+#include "keyScanner.h"
 
+#include "mtTest.h"
+
+#include "debugLog.h"
 
 cTest mtTest;
 static cTest* TP = &mtTest;
@@ -14,13 +18,15 @@ static uint8_t functEncoder(int16_t value);
 static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 static uint8_t functPowerButton(uint8_t state);
 
+static void receiveTestNoteOn(byte channel, byte pitch, byte velocity);
+
 
 const char checkList[checkCount][50] =
 {
 		"Start",
 		"Screen",
 		"Inputs",
-		"USB Communication",
+		"USB/SD",
 		"MIDI",
 		"Audio",
 		"SD Card",
@@ -40,9 +46,11 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 	FM = _fm;
 	eventFunct = func;
 
+	tactButtons.setHoldTime(1200);
 	display.disable();
 	display.clear();
 	memset(&results,0,checkCount);
+
 
 	for(uint8_t button = 0; button<interfaceButtonsCount; button++)
 	{
@@ -98,14 +106,16 @@ void cTest::drawGui()
 	case checkScreen: 	showScreenTest(); 	break;
 	case checkInputs:	showInputsTest();	break;
 	case checkUSB:		showUSBTest();		break;
-	case checkMidi:		break;
-	case checkAudio:	break;
-	case checkSd:		break;
+	case checkMidi:		showMidiTest();		break;
+	case checkAudio:	showAudioTest();	break;
+	case checkSd:		showSdTest();		break;
 
 	case checkEnd:		showEnd();			break;
 	}
 
 
+
+	debugLog.processLog();
 
     API_DISPLAY();
     API_CMD_SWAP();
@@ -119,12 +129,11 @@ void cTest::doTasks()
 	switch(mainStatus)
 	{
 	case checkStart: 		break;
-	case checkScreen: runScreenTest();	break;
-	case checkInputs: runInputsTest();	break;
+	case checkScreen:	runScreenTest();	break;
+	case checkInputs: 	runInputsTest();	break;
 	case checkUSB:			break;
-	case checkMidi:		runMidiTest();	break;
-	case checkAudio:		break;
-	case checkSd:			break;
+	case checkMidi:		runMidiTest();		break;
+	case checkAudio:	runAudioTest();		break;
 
 	case checkEnd:			break;
 	}
@@ -259,16 +268,30 @@ void cTest::runMidiTest()
 {
 	if(testPhase == 0)
 	{
+		midiCounter = 0;
 
+		midiResults = 0;
+
+		MIDI.setHandleNoteOn(receiveTestNoteOn);
 	}
 	else if(testPhase == 1)
 	{
+		testTimer = 0;
 
+		for(uint8_t i = 0; i<8; i++)
+		{
+			MIDI.sendNoteOn(midiNotes[i], midiVelos[i], midiChannels[i]);
+		}
 
-
-
+		testPhase = 2;
 	}
 	else if(testPhase == 2)
+	{
+		if(midiResults == 255) nextTest();
+
+		if(testTimer > 3000)  testPhase = 3;
+	}
+	else if(testPhase == 3)
 	{
 
 	}
@@ -345,7 +368,7 @@ void cTest::showInputsTest()
 
 	if(testPhase == 0 || testPhase == 1)
 	{
-		showMessage("Press all buttons, pads and move encoder", "", "", "");
+		showMessage("Press all buttons, pads and move encoder", "", "", "Hold to skip");
 	}
 	if(testPhase == 2)
 	{
@@ -365,11 +388,11 @@ void cTest::showMidiTest()
 	{
 		showMessage("Connect MIDI cable", "", "Connected", "");
 	}
-	if(testPhase == 1)
+	else if(testPhase == 1 || testPhase == 2)
 	{
 		showMessage("Testing MIDI", "", "", "");
 	}
-	if(testPhase == 2)
+	else if(testPhase == 3)
 	{
 		showMessage("Test failed", " Is cable connected properly?", "Retry", "Skip");
 	}
@@ -431,8 +454,10 @@ void cTest::showMessage(char* question1, char* question2, char* answer1, char* a
 void cTest::nextTest()
 {
 	padsBacklight.clearAllPads(1, 1, 1);
-	mainStatus++;
+	if(mainStatus < checkEnd)  mainStatus++;
 	testPhase = 0;
+	hideStatus  = 0;
+
 }
 
 //==========================================================================================
@@ -468,8 +493,8 @@ void cTest::AcceptButton()
 	case checkMidi:
 	{
 		if(testPhase == 1) break;
-		if(testPhase < 2) testPhase++;
-		else if(testPhase >= 2) nextTest();
+		if(testPhase < 3) testPhase++;
+		else if(testPhase >= 3) testPhase = 0; // nextTest();
 		break;
 	}
 	case checkAudio:
@@ -524,9 +549,9 @@ void cTest::DeclineButton()
 	}
 	case checkMidi:
 	{
-		if(testPhase >= 2)
+		if(testPhase >= 3)
 		{
-			results[checkUSB] = 1;
+			results[checkMidi] = 1;
 			nextTest();
 		}
 		break;
@@ -547,6 +572,14 @@ void cTest::DeclineButton()
 	break;
 	}
 
+}
+
+void cTest::skipButton()
+{
+	if(blockSkip == 1) return;
+	results[mainStatus] = 1;
+	nextTest();
+	blockSkip = 1;
 }
 //==========================================================================================
 //
@@ -570,6 +603,25 @@ void cTest::systemReset()
 	lowPower.resetMCU();
 }
 
+
+static void receiveTestNoteOn(byte channel, byte pitch, byte velocity)
+{
+
+	if(TP->midiNotes[TP->midiCounter] == pitch
+		&& TP->midiVelos[TP->midiCounter] == velocity
+		&& TP->midiChannels[TP->midiCounter] == channel)
+	{
+		TP->midiResults |=  (1 << TP->midiCounter);
+	}
+
+
+	TP->midiCounter++;
+
+	if(TP->midiCounter >= 8) TP->midiCounter = 0;
+
+}
+
+
 //==========================================================================================
 //
 //==========================================================================================
@@ -579,7 +631,8 @@ static uint8_t functButtons(uint8_t button, uint8_t state)
 	if(state == buttonPress && TP->inputs.buttons[button] == 0) TP->inputs.buttons[button] = 1;
 	else if(state == buttonRelease && TP->inputs.buttons[button] == 1) TP->inputs.buttons[button] = 2;
 
-
+	if(button == 3 && state == buttonHold) TP->skipButton();
+	if(button == 3 && state == buttonRelease) TP->blockSkip = 0;
 	if(state != buttonPress) return 1;
 	if(TP->getStatusViewState()) return 1;
 

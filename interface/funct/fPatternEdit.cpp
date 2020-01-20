@@ -570,6 +570,7 @@ void cPatternEditor::moveCursorByStep()
 {
 	moveCursorByStep(0);
 }
+
 void cPatternEditor::moveCursorByStep(uint8_t val)
 {
 	if(mtProject.values.patternEditStep + val <= 0 ) return;
