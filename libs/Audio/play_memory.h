@@ -179,7 +179,6 @@ public:
 	uint16_t getPosition();
 
 	//****************** modyfikacja parametrow z instrumentów
-	void setPlayMode(uint8_t value);
 	void setLP1(uint16_t value);
 	void setLP2(uint16_t value);
 
@@ -284,7 +283,7 @@ private:
 	uint32_t iPitchCounter;									// zrzutowany licznik zmienno przecinkowy - odnosi sie do konkretnej probki w pamieci
 	uint16_t glide;
 	uint32_t glideCounter;									// licznik glide'a w czasie
-	float glideControl;										// zmienna opisujaca jednostke zmiany pitcha na jednostke czasu - dodawana do pitchControl									// zmienna opisujaca jednostke zmiany pitcha na jednostke czasu - dodawana do pitchControl
+	float glideControl;										// zmienna opisujaca jednostke zmiany pitcha na jednostke czasu - dodawana do pitchControl
 	float fineTuneControl;									// liniowe przeliczenie fineTuna 0-100 między bierzącą nutą a kolejną(lub poprzednią)
 	int8_t currentTune;
 	int8_t currentFineTune;
