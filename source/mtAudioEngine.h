@@ -37,6 +37,8 @@ public:
 	void clearReverb();
 	void performanceModeEndAll();
 	void printLog(SdFile * log);
+	void startTestSignal(float amp, float freq);
+	void stopTestSignal();
 
 	friend class playerEngine;
 private:
@@ -67,7 +69,6 @@ public:
 	void modFineTune(int8_t value);
 
 	void modPanning(int16_t value);
-	void modPlayMode(uint8_t value);
 	void modSP(uint16_t value);
 	void modLP1(uint16_t value);
 	void modLP2(uint16_t value);
@@ -325,5 +326,6 @@ extern AudioAnalyzeRMS			rms;
 
 extern AudioRecordQueue		 	exportL, exportR;
 extern AudioAnalyzeRMS			exportRmsL, exportRmsR;
+extern AudioSynthWaveform		testWaveform;
 
 #endif /* SOURCE_MTAUDIOENGINE_H_ */
