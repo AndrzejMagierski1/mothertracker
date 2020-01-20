@@ -13,9 +13,8 @@ enum enChecklist
 	checkInputs,
 	checkUSB,
 	checkMidi,
+	checkRadio,
 	checkAudio,
-	checkSd,
-
 
 	checkEnd,
 
@@ -66,6 +65,9 @@ public:
 	uint8_t midiResults = 0;
 	uint8_t midiCounter = 0;
 
+	// radio
+	char radioFreq[10];
+
 private:
 	void drawGui();
 	void doTasks();
@@ -91,9 +93,16 @@ private:
 	void showMidiTest();
 	void runMidiTest();
 
+	void showAudioTest();
+	void runAudioTest();
+
+	void showRadioTest();
+	void runRadioTest();
+
+
 	// funct
 	void systemReset();
-
+	void setAudiIO(uint8_t config);
 	//
 	cFunctionMachine* FM;
 	void (*eventFunct)(uint8_t, void*, void*, void*);
@@ -119,8 +128,6 @@ private:
 	uint8_t ledBright = 0;
 
 	// midi
-
-
 
 
 };
