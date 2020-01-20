@@ -26,14 +26,14 @@ AudioAmplifier           amp[8];
 AudioMixer9				 mixerL,mixerR,mixerReverb;
 
 AudioMixer4              mixerRec;
-AudioMixer4              mixerSourceL,mixerSourceR;
+AudioMixer9              mixerSourceL,mixerSourceR;
 AudioEffectFreeverb		 reverb;
 AudioEffectLimiter		 limiter[2];
 AudioBitDepth			 bitDepthControl[2];
 AudioAnalyzeRMS			 rms;
 AudioRecordQueue		 exportL, exportR;
 AudioAnalyzeRMS			 exportRmsL, exportRmsR;
-
+AudioSynthWaveform		 testWaveform;
 
 AudioConnection          connect1(&playMem[0], 0, &filter[0], 0);
 AudioConnection          connect2(&playMem[1], 0, &filter[1], 0);
@@ -112,6 +112,9 @@ AudioConnection 		 connect64(&playSdWavFloat,0,&mixerSourceR,2);
 AudioConnection 		 connect65(&playSdWav24Bit,0,&mixerSourceL,3);
 AudioConnection 		 connect66(&playSdWav24Bit,0,&mixerSourceR,3);
 
+AudioConnection          connect80(&testWaveform, 0, &mixerSourceR, 4);
+AudioConnection          connect81(&testWaveform, 0, &mixerSourceL, 4);
+
 AudioConnection          connect59(&mixerSourceL, 0, &i2sOut, 0);
 AudioConnection          connect60(&mixerSourceR, 0, &i2sOut, 1);
 //**************** export
@@ -124,6 +127,7 @@ AudioConnection          connect73(&mixerSourceR, &exportRmsR);
 //**************** recording
 AudioConnection          connect54(&i2sIn, 0, &mixerRec, 0);
 AudioConnection          connect55(&i2sIn, 1, &mixerRec, 1);
+
 
 AudioConnection          connect56(&mixerRec, &queue);
 AudioConnection          connect67(&mixerRec, &rms);
@@ -171,6 +175,17 @@ void audioEngine::printLog(SdFile * log)
 	}
 }
 
+void audioEngine::startTestSignal(float amp, float freq)
+{
+	testWaveform.amplitude(amp);
+	testWaveform.frequency(freq);
+}
+
+void audioEngine::stopTestSignal()
+{
+	testWaveform.amplitude(0.0);
+}
+
 void audioEngine::init()
 {
 
@@ -200,6 +215,7 @@ void audioEngine::init()
 		instrumentPlayer[i].init(&playMem[i],&envelopeFilter[i],&filter[i],&envelopeAmp[i], &amp[i], i,&envelopeWtPosition[i],&envelopeGranPosition[i],&envelopePanning[i]);
 	}
 
+	testWaveform.begin(0.0,1000,WAVEFORM_SQUARE);
 }
 
 void audioEngine::update()
@@ -2138,11 +2154,6 @@ void playerEngine :: modPanning(int16_t value)
 
 }
 
-void playerEngine :: modPlayMode(uint8_t value)
-{
-	playMemPtr->setPlayMode(value);
-
-}
 void playerEngine :: modLP1(uint16_t value)
 {
 	playMemPtr->setLP1(value);
