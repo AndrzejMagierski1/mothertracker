@@ -179,14 +179,11 @@ public:
 	uint16_t getPosition();
 
 	//****************** modyfikacja parametrow z instrumentów
-	void setPlayMode(uint8_t value);
 	void setLP1(uint16_t value);
 	void setLP2(uint16_t value);
 
 	//******Pitch
 	void setGlide(uint16_t value, int8_t currentNote,uint8_t instr_idx);
-	void setPitch(float value);
-	void setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx);
 	void setFineTune(int8_t value, int8_t currentNote);
 	void setTune(int8_t value, int8_t currentNote);
 	//*********
@@ -247,7 +244,6 @@ private:
 	//********** Zarządzanie
 	const double * wt_notes = wt2048Note;					// wskaźnik imitujacy tablice do pitchowania wavetabli (jest przełączalny - dlatego nie jest stałym wskaznikiem)
 	volatile int16_t *next;
-	int16_t *beginning;
 	volatile uint32_t length;
 	volatile uint8_t playing;
 	uint8_t playMode;
@@ -272,7 +268,6 @@ private:
 		uint32_t endPoint;
 
 		uint32_t glide;
-		uint32_t slide;
 
 	} sampleConstrains;
 
@@ -288,9 +283,7 @@ private:
 	uint32_t iPitchCounter;									// zrzutowany licznik zmienno przecinkowy - odnosi sie do konkretnej probki w pamieci
 	uint16_t glide;
 	uint32_t glideCounter;									// licznik glide'a w czasie
-	uint32_t slideCounter;									// licznik slide'a w czasie
 	float glideControl;										// zmienna opisujaca jednostke zmiany pitcha na jednostke czasu - dodawana do pitchControl
-	float slideControl;										// zmienna opisujaca jednostke zmiany pitcha na jednostke czasu - dodawana do pitchControl
 	float fineTuneControl;									// liniowe przeliczenie fineTuna 0-100 między bierzącą nutą a kolejną(lub poprzednią)
 	int8_t currentTune;
 	int8_t currentFineTune;
@@ -300,10 +293,6 @@ private:
 	uint32_t currentWindow;
 	uint32_t waveTablePosition;
 
-	//    uint16_t wavetableSync;
-	//    uint16_t wavetablePWM;
-	//    uint16_t wavetableFlip;
-	//    uint16_t wavetableQuantize;
 	//********
 	//********** Granular
 	uint8_t granularLoopType;

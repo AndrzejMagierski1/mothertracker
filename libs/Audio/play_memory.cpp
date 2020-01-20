@@ -1,29 +1,3 @@
-/* Audio Library for Teensy 3.X
- * Copyright (c) 2014, Paul Stoffregen, paul@pjrc.com
- *
- * Development of this audio library was funded by PJRC.COM, LLC by sales of
- * Teensy and Audio Adaptor boards.  Please support PJRC's efforts to develop
- * open source software by purchasing Teensy or other PJRC products.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice, development funding notice, and this permission
- * notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
 #include "play_memory.h"
 #include "Audio.h"
 #include "utility/dspinst.h"
@@ -34,10 +8,9 @@ constexpr uint8_t SMOOTHING_SIZE = 100;
 
 void AudioPlayMemory::update(void)
 {
-	audio_block_t *block=NULL;
-	int16_t *in=NULL;
-	int16_t *out=NULL;
-	int i;
+	audio_block_t *block= nullptr;
+	int16_t *in = nullptr;
+	int16_t *out = nullptr;
 	int32_t castPitchControl;
 	float pitchFraction;
 
@@ -49,9 +22,8 @@ void AudioPlayMemory::update(void)
 		release(block);
 		return;
 	}
-	else if (playing == 0x81)
+	else if (playing == 1)
 	{
-
 		out = block->data;
 		in = (int16_t*)next;
 
@@ -59,14 +31,20 @@ void AudioPlayMemory::update(void)
 		{
 			waveTablePosition = wavetableWindowSize * currentWindow;
 		}
+
 		castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
 		pitchFraction = pitchControl - (int32_t)pitchControl;
-//		//todo: monitorować czy przez tą linijke nie wyjezdza za bufor
-//		length += castPitchControl; //maksymalnie moze wyjsc za length i nie wiecej niz pitch control
-		for (i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
+
+
+		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
-			if (((length > iPitchCounter) && (sampleType == mtSampleTypeWaveFile)) || ((length > (iPitchCounter + waveTablePosition)) && (sampleType == mtSampleTypeWavetable)))
+			bool waveCondition = (length > iPitchCounter) && (sampleType == mtSampleTypeWaveFile);
+			bool wavetableCondition = (length > (iPitchCounter + waveTablePosition)) && (sampleType == mtSampleTypeWavetable);
+
+			if ( waveCondition || wavetableCondition )
 			{
+				//*********************************** GLIDE HANDLE
+
 				if (sampleConstrains.glide)
 				{
 					if (glideCounter <= sampleConstrains.glide)
@@ -78,39 +56,26 @@ void AudioPlayMemory::update(void)
 					}
 
 				}
+				//***********************************************
 
-				if (slideControl != 0.0f)
-				{
-					if (slideCounter <= sampleConstrains.slide)
-					{
-						pitchControl += slideControl;
-						castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
-						slideCounter++;
-					}
-					else
-					{
-						pitchControl -= (slideControl * slideCounter); // nie bac sie - to sie robi tylko raz
-						castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
-						slideControl = 0.0f;
-						slideCounter = 0;
-						sampleConstrains.slide = 0;
-					}
-					pitchFraction = pitchControl - (int32_t)pitchControl;
-				}
-
+				//*********************************** SMOOTHING HANDLE
+				// needSmoothingFlag ustawiana jest na play gdy jest aktywne odtwarzanie, więc iPitchCounter się zeruje, ale na wysokim pitchu i bardzo krotkich loopach
+				// moga zostac przekroczone wartosci graniczne - trzeba je obsluzyc
 				if(needSmoothingFlag && (i == 0))
 				{
 					needSmoothingFlag = 0;
 					for(uint8_t j = 0; j < SMOOTHING_SIZE; j++ )
 					{
-						if(iPitchCounter != length)
+						if(iPitchCounter <= length)
 						{
-							*out++ = ((int32_t)(((int32_t)((*(in + iPitchCounter) )*j) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j)) ) )/(SMOOTHING_SIZE - 1));
+							//srednia wazona miedzy ostatnia probka z poprzedniego pliku a nowymi probkami
+							*out++ = ( (int32_t)( ( (int32_t)( (*(in + iPitchCounter)) * j ) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j) ) ) )/(SMOOTHING_SIZE - 1));
 						}
 						else
 						{
 							*out++ = 0;
 						}
+
 						iPitchCounter += castPitchControl;
 						fPitchCounter += pitchFraction;
 						if (fPitchCounter >= 1.0f)
@@ -118,6 +83,14 @@ void AudioPlayMemory::update(void)
 							fPitchCounter -= 1.0f;
 							iPitchCounter++;
 						}
+						else if(fPitchCounter <= -1.0f)
+						{
+							fPitchCounter += 1.0f;
+							iPitchCounter--;
+						}
+
+						if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
+
 						if(sampleType == mtSampleTypeWavetable)
 						{
 							if (iPitchCounter >= wavetableWindowSize)
@@ -127,29 +100,222 @@ void AudioPlayMemory::update(void)
 						}
 						else
 						{
-							if ((iPitchCounter >= (sampleConstrains.endPoint)) && (sampleConstrains.endPoint != (sampleConstrains.loopPoint2)) && !reverseDirectionFlag)
+							switch (playMode)
 							{
-								iPitchCounter = length;
-							}
-							else if (((iPitchCounter - castPitchControl) <= 0)  && reverseDirectionFlag)
-							{
-								iPitchCounter = 0;
+								case playModeGranular:
+								{
+									switch(granularLoopType)
+									{
+										case granularLoopForward:
+											if(reverseDirectionFlag)
+											{
+												if ((iPitchCounter <= sampleConstrains.loopPoint1))
+												{
+													if(granularPositionRefreshFlag) refreshGranularPosition();
+													iPitchCounter = sampleConstrains.loopPoint2;
+													fPitchCounter = 0;
+												}
+											}
+											else
+											{
+												if ((iPitchCounter >= sampleConstrains.loopPoint2))
+												{
+													if(granularPositionRefreshFlag) refreshGranularPosition();
+													iPitchCounter = sampleConstrains.loopPoint1;
+													fPitchCounter = 0;
+												}
+											}
+										break;
+
+										case granularLoopBackward:
+											if(reverseDirectionFlag)
+											{
+												if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+												{
+													if(granularPositionRefreshFlag) refreshGranularPosition();
+													iPitchCounter = sampleConstrains.loopPoint1;
+													loopBackwardFlag = 1;
+													fPitchCounter = 0;
+												}
+												if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+												{
+													if(granularPositionRefreshFlag) refreshGranularPosition();
+													iPitchCounter = sampleConstrains.loopPoint1;
+													fPitchCounter = 0;
+												}
+											}
+											else
+											{
+												if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+												{
+													if(granularPositionRefreshFlag) refreshGranularPosition();
+													iPitchCounter = sampleConstrains.loopPoint2;
+													loopBackwardFlag = 1;
+													fPitchCounter = 0;
+												}
+												if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+												{
+													if(granularPositionRefreshFlag) refreshGranularPosition();
+													iPitchCounter = sampleConstrains.loopPoint2;
+													fPitchCounter = 0;
+												}
+											}
+										break;
+
+										case granularLoopPingPong:
+											if(reverseDirectionFlag)
+											{
+												if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+												{
+													if(granularPositionRefreshFlag) refreshGranularPosition();
+													iPitchCounter = sampleConstrains.loopPoint1;
+													loopBackwardFlag = 1;
+													fPitchCounter = 0;
+												}
+												if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+												{
+													if(granularPositionRefreshFlag) refreshGranularPosition();
+													iPitchCounter = sampleConstrains.loopPoint2;
+													loopBackwardFlag = 0;
+													fPitchCounter = 0;
+												}
+											}
+											else
+											{
+												if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+												{
+													if(granularPositionRefreshFlag) refreshGranularPosition();
+													iPitchCounter = sampleConstrains.loopPoint2;
+													loopBackwardFlag = 1;
+													fPitchCounter = 0;
+												}
+												if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+												{
+													if(granularPositionRefreshFlag) refreshGranularPosition();
+													iPitchCounter = sampleConstrains.loopPoint1;
+													loopBackwardFlag = 0;
+													fPitchCounter = 0;
+												}
+											}
+										break;
+										default: break;
+									}
+									break;
+								}
+								case loopForward:
+									if(reverseDirectionFlag)
+									{
+										if ((iPitchCounter <= sampleConstrains.loopPoint1))
+										{
+											iPitchCounter = sampleConstrains.loopPoint2;
+											fPitchCounter = 0;
+										}
+									}
+									else
+									{
+										if ((iPitchCounter >= sampleConstrains.loopPoint2))
+										{
+											iPitchCounter = sampleConstrains.loopPoint1;
+											fPitchCounter = 0;
+										}
+									}
+
+									break;
+								case loopBackward:
+									if(reverseDirectionFlag)
+									{
+										if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+										{
+											iPitchCounter = sampleConstrains.loopPoint1;
+											loopBackwardFlag = 1;
+											fPitchCounter = 0;
+										}
+										if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+										{
+											iPitchCounter = sampleConstrains.loopPoint1;
+											fPitchCounter = 0;
+										}
+									}
+									else
+									{
+										if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+										{
+											iPitchCounter = sampleConstrains.loopPoint2;
+											loopBackwardFlag = 1;
+											fPitchCounter = 0;
+										}
+										if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+										{
+											iPitchCounter = sampleConstrains.loopPoint2;
+											fPitchCounter = 0;
+										}
+									}
+									break;
+								case loopPingPong:
+									if(reverseDirectionFlag)
+									{
+										if ((iPitchCounter <= sampleConstrains.loopPoint1) && (!loopBackwardFlag))
+										{
+											iPitchCounter = sampleConstrains.loopPoint1;
+											loopBackwardFlag = 1;
+											fPitchCounter = 0;
+										}
+										if ((iPitchCounter >= sampleConstrains.loopPoint2) && loopBackwardFlag)
+										{
+											iPitchCounter = sampleConstrains.loopPoint2;
+											loopBackwardFlag = 0;
+											fPitchCounter = 0;
+										}
+									}
+									else
+									{
+										if ((iPitchCounter >= sampleConstrains.loopPoint2) && (!loopBackwardFlag))
+										{
+											iPitchCounter = sampleConstrains.loopPoint2;
+											loopBackwardFlag = 1;
+											fPitchCounter = 0;
+										}
+										if ((iPitchCounter <= sampleConstrains.loopPoint1) && loopBackwardFlag)
+										{
+											iPitchCounter = sampleConstrains.loopPoint1;
+											loopBackwardFlag = 0;
+											fPitchCounter = 0;
+										}
+									}
+
+									break;
+								default:
+									break;
 							}
 						}
 					}
+					if ((iPitchCounter >= (sampleConstrains.endPoint)) && (sampleConstrains.endPoint != (sampleConstrains.loopPoint2)) && !reverseDirectionFlag)
+					{
+						iPitchCounter = length;
+					}
+					else if (((iPitchCounter - castPitchControl) <= 0)  && reverseDirectionFlag)
+					{
+						iPitchCounter = 0;
+					}
 					i = SMOOTHING_SIZE;
+
 				}
+				//***********************************************
+
+//*************************************************************************************** poczatek przetwarzania pitchCountera
 				if (sampleType != mtSampleTypeWavetable)
 				{
 					switch (playMode)
 					{
 					case playModeGranular:
+						//****************************************************************************************************************************
 						{
 							uint8_t volIndex = map(iPitchCounter,sampleConstrains.loopPoint1,sampleConstrains.loopPoint2,0,GRANULAR_TAB_SIZE - 1);
 
 							switch(granularLoopType)
 							{
 								case granularLoopForward:
+									//**************************************************************************
 									*out++ = *(in + iPitchCounter) * granularEnvelopeTab[volIndex];
 									if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 									iPitchCounter += castPitchControl;
@@ -164,10 +330,11 @@ void AudioPlayMemory::update(void)
 										fPitchCounter += 1.0f;
 										iPitchCounter--;
 									}
-									if(iPitchCounter > sampleConstrains.loopPoint2 ) iPitchCounter = sampleConstrains.loopPoint2;
+									//**************************************************************************
 								break;
 
 								case granularLoopBackward:
+									//**************************************************************************
 									*out++ = *(in + iPitchCounter) * granularEnvelopeTab[volIndex];
 									if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 									if (!loopBackwardFlag)
@@ -184,7 +351,6 @@ void AudioPlayMemory::update(void)
 											fPitchCounter += 1.0f;
 											iPitchCounter--;
 										}
-										if(iPitchCounter > sampleConstrains.loopPoint2 ) iPitchCounter = sampleConstrains.loopPoint2;
 									}
 									else
 									{
@@ -201,12 +367,12 @@ void AudioPlayMemory::update(void)
 											fPitchCounter -= 1.0f;
 											iPitchCounter++;
 										}
-										if(iPitchCounter < sampleConstrains.loopPoint1 ) iPitchCounter = sampleConstrains.loopPoint1;
 									}
+									//**************************************************************************
 								break;
 
 								case granularLoopPingPong:
-
+									//**************************************************************************
 									*out++ = *(in + iPitchCounter) * granularEnvelopeTab[volIndex] ;
 									if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 									if (!loopBackwardFlag)
@@ -223,12 +389,10 @@ void AudioPlayMemory::update(void)
 											fPitchCounter += 1.0f;
 											iPitchCounter--;
 										}
-										if(iPitchCounter > sampleConstrains.loopPoint2 ) iPitchCounter = sampleConstrains.loopPoint2;
 									}
 									else
 									{
 										iPitchCounter -= castPitchControl;
-
 										fPitchCounter -= pitchFraction;
 										if (fPitchCounter <= -1.0f)
 										{
@@ -240,14 +404,16 @@ void AudioPlayMemory::update(void)
 											fPitchCounter -= 1.0f;
 											iPitchCounter++;
 										}
-										if(iPitchCounter < sampleConstrains.loopPoint1 ) iPitchCounter = sampleConstrains.loopPoint1;
 									}
+									//**************************************************************************
 								break;
 								default: break;
 							}
 						}
+						//****************************************************************************************************************************
 						break;
 					case playModeSlice:
+						//****************************************************************************************************************************
 						*out++ = *(in + iPitchCounter);
 						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 						iPitchCounter += castPitchControl;
@@ -262,8 +428,10 @@ void AudioPlayMemory::update(void)
 							fPitchCounter += 1.0f;
 							iPitchCounter--;
 						}
+						//****************************************************************************************************************************
 						break;
 					case singleShot:
+						//****************************************************************************************************************************
 						*out++ = *(in + iPitchCounter);
 						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 						iPitchCounter += castPitchControl;
@@ -278,8 +446,10 @@ void AudioPlayMemory::update(void)
 							fPitchCounter += 1.0f;
 							iPitchCounter--;
 						}
+						//****************************************************************************************************************************
 						break;
 					case loopForward:
+						//****************************************************************************************************************************
 						*out++ = *(in + iPitchCounter);
 						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 						iPitchCounter += castPitchControl;
@@ -294,8 +464,10 @@ void AudioPlayMemory::update(void)
 							fPitchCounter += 1.0f;
 							iPitchCounter--;
 						}
+						//****************************************************************************************************************************
 						break;
 					case loopBackward:
+						//****************************************************************************************************************************
 						*out++ = *(in + iPitchCounter);
 						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 						if (!loopBackwardFlag)
@@ -329,8 +501,10 @@ void AudioPlayMemory::update(void)
 								iPitchCounter++;
 							}
 						}
+						//****************************************************************************************************************************
 						break;
 					case loopPingPong:
+						//****************************************************************************************************************************
 						*out++ = *(in + iPitchCounter);
 						if(i == (AUDIO_BLOCK_SAMPLES - 1)) lastSample = *(in + iPitchCounter);
 						if (!loopBackwardFlag)
@@ -364,13 +538,14 @@ void AudioPlayMemory::update(void)
 								iPitchCounter++;
 							}
 						}
+						//****************************************************************************************************************************
 						break;
-					default:
-						break;
+					default: break;
 					}
+//*************************************************************************************** koniec przetwarzania pitchCountera
 
-//					castPitchControl = (int32_t) pitchControl;
 					if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
+//*************************************************************************************** warunki pointow
 					switch (playMode)
 					{
 					case playModeGranular:
@@ -576,6 +751,8 @@ void AudioPlayMemory::update(void)
 						iPitchCounter -= wavetableWindowSize;
 					}
 				}
+			//*************************************************************************************** koniec warunków pointow
+			//*************************************************************************************** warunki pętli
 				if ((iPitchCounter >= (sampleConstrains.endPoint)) && (sampleConstrains.endPoint != (sampleConstrains.loopPoint2)) && !reverseDirectionFlag)
 				{
 					iPitchCounter = length;
@@ -584,6 +761,7 @@ void AudioPlayMemory::update(void)
 				{
 					iPitchCounter = 0;
 				}
+			//*************************************************************************************** warunki pętli
 			}
 			else
 			{
@@ -592,14 +770,10 @@ void AudioPlayMemory::update(void)
 			}
 
 		}
-//		next = in;
 		next = startAddress + samplePoints.start;
 		transmit(block);
-//		length -= castPitchControl; //powrot do bazowej dlugosci
 	}
 	release(block);
-
-
 }
 
 //**************************************************************************************UPDATE END
@@ -677,13 +851,12 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	if(instr_idx > INSTRUMENTS_MAX) instr_idx = INSTRUMENTS_MAX;
 	if(note > MAX_NOTE) note = MAX_NOTE;
 
-	if(playing == 0x81) needSmoothingFlag = 1;
+	if(playing == 1) needSmoothingFlag = 1;
 	playing = 0;
 	loopBackwardFlag=0;
 	iPitchCounter = 0;
 	fPitchCounter=0;
 	glideCounter=0;
-	slideCounter=0;
 	currentInstr_idx=instr_idx;
 
 	/*=========================================================================================================================*/
@@ -900,18 +1073,16 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	if(sampleType != mtSampleTypeWavetable)
 	{
 		next = data+samplePoints.start;
-		beginning = data+samplePoints.start;
 		length =startLen-samplePoints.start;
 		iPitchCounter = reverseDirectionFlag ? sampleConstrains.endPoint - 1 : 0;
 	}
 	else
 	{
 		next = data;
-		beginning = data;
 		length =startLen;
 		iPitchCounter = 0;
 	}
-	playing = 0x81;
+	playing = 1;
 	__enable_irq();
 	AudioInterrupts();
 	return successInit;
@@ -949,13 +1120,12 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	//******************
 
 
-	if(playing == 0x81) needSmoothingFlag = 1;
+	if(playing == 1) needSmoothingFlag = 1;
 	playing = 0;
 	loopBackwardFlag=0;
 	iPitchCounter=0;
 	fPitchCounter=0;
 	glideCounter=0;
-	slideCounter=0;
 	currentInstr_idx=instr_idx;
 	lastNote= - 1;
 
@@ -1128,17 +1298,15 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	if(sampleType != mtSampleTypeWavetable)
 	{
 		next = data+samplePoints.start;
-		beginning = data+samplePoints.start;
 		length =startLen-samplePoints.start;
 	}
 	else
 	{
 		next = data;
-		beginning = data;
 		length =startLen;
 	}
 
-	playing = 0x81;
+	playing = 1;
 
 	return successInit;
 	__enable_irq();
@@ -1156,7 +1324,6 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	iPitchCounter=0;
 	fPitchCounter=0;
 	glideCounter=0;
-	slideCounter=0;
 
 	glide=0;
 	currentTune=0;
@@ -1223,17 +1390,15 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	if(sampleType != mtSampleTypeWavetable)
 	{
 		next = data+samplePoints.start;
-		beginning = data+samplePoints.start;
 		length =startLen-samplePoints.start;
 	}
 	else
 	{
 		next = data;
-		beginning = data;
 		length =startLen;
 	}
 
-	playing = 0x81;
+	playing = 1;
 
 	return successInit;
 
@@ -1250,7 +1415,6 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 	iPitchCounter=0;
 	fPitchCounter=0;
 	glideCounter=0;
-	slideCounter=0;
 
 	glide=0;
 	currentTune=0;
@@ -1315,17 +1479,15 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 	if(sampleType != mtSampleTypeWavetable)
 	{
 		next = data+samplePoints.start;
-		beginning = data+samplePoints.start;
 		length =startLen-samplePoints.start;
 	}
 	else
 	{
 		next = data;
-		beginning = data;
 		length =startLen;
 	}
 
-	playing = 0x81;
+	playing = 1;
 
 	return successInit;
 
@@ -1353,11 +1515,6 @@ void AudioPlayMemory::setWavetableWindow(int16_t value)
 	else currentWindow=value;
 }
 
-void AudioPlayMemory::setPlayMode(uint8_t value)
-{
-	if(playMode>3) return;
-	playMode=value;
-}
 
 void AudioPlayMemory::setLP1(uint16_t value) // w audio engine zadba zeby zapodac odpowiednia wartosc gdy force
 {
@@ -1398,25 +1555,6 @@ void AudioPlayMemory::setGlide(uint16_t value, int8_t currentNote, uint8_t instr
 	AudioInterrupts();
 }
 
-void AudioPlayMemory::setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx)
-{
-	//todo: jezeli bedzie kiedys uzywane zoptymalizowac wspolprace z przerwaniami i ogólnie ogarnąć to co tu sie dzieje
-	float localPitchControl = pitchControl;
-	localPitchControl -= (slideControl * slideCounter);
-	pitchControl = localPitchControl;
-	slideCounter=0;
-	sampleConstrains.slide =(uint32_t)(value*44.1);
-	if((slideNote>=0) && (slideNote != currentNote)) slideControl=((float)notes[slideNote + mtProject.instrument[instr_idx].tune] - (float)notes[currentNote] )/sampleConstrains.slide;
-	else slideControl=0;
-
-}
-
-void AudioPlayMemory::setPitch(float value)
-{
-	if(value) pitchControl+=value;
-	if(pitchControl < MIN_PITCH) pitchControl=MIN_PITCH;
-	if(pitchControl > MAX_PITCH ) pitchControl=MAX_PITCH;
-}
 void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 {
 	float localPitchControl = pitchControl;
@@ -1708,7 +1846,6 @@ void AudioPlayMemory::clean(void)
 	if(!playing)
 	{
 		next=NULL;
-		beginning=NULL;
 		length=0;
 		pitchControl = 1;
 		iPitchCounter = 0;
@@ -1719,9 +1856,7 @@ void AudioPlayMemory::clean(void)
 		lastNote = -1;
 		glide=0;
 		glideCounter=0;
-		slideCounter=0;
 		glideControl=0;
-		slideControl=0;
 		fineTuneControl=0;
 		currentTune=0;
 		wavetableWindowSize=0;
@@ -1745,7 +1880,6 @@ void AudioPlayMemory::clean(void)
 		sampleConstrains.endPoint=0;
 
 		sampleConstrains.glide=0;
-		sampleConstrains.slide=0;
 
 		startLen=0;
 	}
