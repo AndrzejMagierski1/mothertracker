@@ -34,10 +34,9 @@ constexpr uint8_t SMOOTHING_SIZE = 100;
 
 void AudioPlayMemory::update(void)
 {
-	audio_block_t *block=NULL;
-	int16_t *in=NULL;
-	int16_t *out=NULL;
-	int i;
+	audio_block_t *block= nullptr;
+	int16_t *in = nullptr;
+	int16_t *out = nullptr;
 	int32_t castPitchControl;
 	float pitchFraction;
 
@@ -49,7 +48,7 @@ void AudioPlayMemory::update(void)
 		release(block);
 		return;
 	}
-	else if (playing == 0x81)
+	else if (playing == 1)
 	{
 
 		out = block->data;
@@ -61,9 +60,7 @@ void AudioPlayMemory::update(void)
 		}
 		castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
 		pitchFraction = pitchControl - (int32_t)pitchControl;
-//		//todo: monitorować czy przez tą linijke nie wyjezdza za bufor
-//		length += castPitchControl; //maksymalnie moze wyjsc za length i nie wiecej niz pitch control
-		for (i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
+		for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
 			if (((length > iPitchCounter) && (sampleType == mtSampleTypeWaveFile)) || ((length > (iPitchCounter + waveTablePosition)) && (sampleType == mtSampleTypeWavetable)))
 			{
@@ -79,25 +76,6 @@ void AudioPlayMemory::update(void)
 
 				}
 
-				if (slideControl != 0.0f)
-				{
-					if (slideCounter <= sampleConstrains.slide)
-					{
-						pitchControl += slideControl;
-						castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
-						slideCounter++;
-					}
-					else
-					{
-						pitchControl -= (slideControl * slideCounter); // nie bac sie - to sie robi tylko raz
-						castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
-						slideControl = 0.0f;
-						slideCounter = 0;
-						sampleConstrains.slide = 0;
-					}
-					pitchFraction = pitchControl - (int32_t)pitchControl;
-				}
-
 				if(needSmoothingFlag && (i == 0))
 				{
 					needSmoothingFlag = 0;
@@ -105,7 +83,7 @@ void AudioPlayMemory::update(void)
 					{
 						if(iPitchCounter != length)
 						{
-							*out++ = ((int32_t)(((int32_t)((*(in + iPitchCounter) )*j) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j)) ) )/(SMOOTHING_SIZE - 1));
+							*out++ = ( (int32_t)( ( (int32_t)( (*(in + iPitchCounter)) * j ) + (int32_t)(lastSample * (SMOOTHING_SIZE - 1 - j) ) ) )/(SMOOTHING_SIZE - 1));
 						}
 						else
 						{
@@ -117,6 +95,11 @@ void AudioPlayMemory::update(void)
 						{
 							fPitchCounter -= 1.0f;
 							iPitchCounter++;
+						}
+						else if(fPitchCounter <= -1.0f)
+						{
+							fPitchCounter += 1.0f;
+							iPitchCounter--;
 						}
 						if(sampleType == mtSampleTypeWavetable)
 						{
@@ -228,7 +211,6 @@ void AudioPlayMemory::update(void)
 									else
 									{
 										iPitchCounter -= castPitchControl;
-
 										fPitchCounter -= pitchFraction;
 										if (fPitchCounter <= -1.0f)
 										{
@@ -369,7 +351,6 @@ void AudioPlayMemory::update(void)
 						break;
 					}
 
-//					castPitchControl = (int32_t) pitchControl;
 					if ((int32_t) iPitchCounter < 0) iPitchCounter = 0;
 					switch (playMode)
 					{
@@ -592,10 +573,8 @@ void AudioPlayMemory::update(void)
 			}
 
 		}
-//		next = in;
 		next = startAddress + samplePoints.start;
 		transmit(block);
-//		length -= castPitchControl; //powrot do bazowej dlugosci
 	}
 	release(block);
 
@@ -677,13 +656,12 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	if(instr_idx > INSTRUMENTS_MAX) instr_idx = INSTRUMENTS_MAX;
 	if(note > MAX_NOTE) note = MAX_NOTE;
 
-	if(playing == 0x81) needSmoothingFlag = 1;
+	if(playing == 1) needSmoothingFlag = 1;
 	playing = 0;
 	loopBackwardFlag=0;
 	iPitchCounter = 0;
 	fPitchCounter=0;
 	glideCounter=0;
-	slideCounter=0;
 	currentInstr_idx=instr_idx;
 
 	/*=========================================================================================================================*/
@@ -900,18 +878,16 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	if(sampleType != mtSampleTypeWavetable)
 	{
 		next = data+samplePoints.start;
-		beginning = data+samplePoints.start;
 		length =startLen-samplePoints.start;
 		iPitchCounter = reverseDirectionFlag ? sampleConstrains.endPoint - 1 : 0;
 	}
 	else
 	{
 		next = data;
-		beginning = data;
 		length =startLen;
 		iPitchCounter = 0;
 	}
-	playing = 0x81;
+	playing = 1;
 	__enable_irq();
 	AudioInterrupts();
 	return successInit;
@@ -949,13 +925,12 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	//******************
 
 
-	if(playing == 0x81) needSmoothingFlag = 1;
+	if(playing == 1) needSmoothingFlag = 1;
 	playing = 0;
 	loopBackwardFlag=0;
 	iPitchCounter=0;
 	fPitchCounter=0;
 	glideCounter=0;
-	slideCounter=0;
 	currentInstr_idx=instr_idx;
 	lastNote= - 1;
 
@@ -1128,17 +1103,15 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	if(sampleType != mtSampleTypeWavetable)
 	{
 		next = data+samplePoints.start;
-		beginning = data+samplePoints.start;
 		length =startLen-samplePoints.start;
 	}
 	else
 	{
 		next = data;
-		beginning = data;
 		length =startLen;
 	}
 
-	playing = 0x81;
+	playing = 1;
 
 	return successInit;
 	__enable_irq();
@@ -1156,7 +1129,6 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	iPitchCounter=0;
 	fPitchCounter=0;
 	glideCounter=0;
-	slideCounter=0;
 
 	glide=0;
 	currentTune=0;
@@ -1223,17 +1195,15 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t type)
 	if(sampleType != mtSampleTypeWavetable)
 	{
 		next = data+samplePoints.start;
-		beginning = data+samplePoints.start;
 		length =startLen-samplePoints.start;
 	}
 	else
 	{
 		next = data;
-		beginning = data;
 		length =startLen;
 	}
 
-	playing = 0x81;
+	playing = 1;
 
 	return successInit;
 
@@ -1250,7 +1220,6 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 	iPitchCounter=0;
 	fPitchCounter=0;
 	glideCounter=0;
-	slideCounter=0;
 
 	glide=0;
 	currentTune=0;
@@ -1315,17 +1284,15 @@ uint8_t AudioPlayMemory::playForPrev(int16_t * addr,uint32_t len, uint8_t n, uin
 	if(sampleType != mtSampleTypeWavetable)
 	{
 		next = data+samplePoints.start;
-		beginning = data+samplePoints.start;
 		length =startLen-samplePoints.start;
 	}
 	else
 	{
 		next = data;
-		beginning = data;
 		length =startLen;
 	}
 
-	playing = 0x81;
+	playing = 1;
 
 	return successInit;
 
@@ -1398,25 +1365,6 @@ void AudioPlayMemory::setGlide(uint16_t value, int8_t currentNote, uint8_t instr
 	AudioInterrupts();
 }
 
-void AudioPlayMemory::setSlide(uint16_t value, int8_t currentNote, int8_t slideNote,uint8_t instr_idx)
-{
-	//todo: jezeli bedzie kiedys uzywane zoptymalizowac wspolprace z przerwaniami i ogólnie ogarnąć to co tu sie dzieje
-	float localPitchControl = pitchControl;
-	localPitchControl -= (slideControl * slideCounter);
-	pitchControl = localPitchControl;
-	slideCounter=0;
-	sampleConstrains.slide =(uint32_t)(value*44.1);
-	if((slideNote>=0) && (slideNote != currentNote)) slideControl=((float)notes[slideNote + mtProject.instrument[instr_idx].tune] - (float)notes[currentNote] )/sampleConstrains.slide;
-	else slideControl=0;
-
-}
-
-void AudioPlayMemory::setPitch(float value)
-{
-	if(value) pitchControl+=value;
-	if(pitchControl < MIN_PITCH) pitchControl=MIN_PITCH;
-	if(pitchControl > MAX_PITCH ) pitchControl=MAX_PITCH;
-}
 void AudioPlayMemory::setFineTune(int8_t value, int8_t currentNote)
 {
 	float localPitchControl = pitchControl;
@@ -1708,7 +1656,6 @@ void AudioPlayMemory::clean(void)
 	if(!playing)
 	{
 		next=NULL;
-		beginning=NULL;
 		length=0;
 		pitchControl = 1;
 		iPitchCounter = 0;
@@ -1719,9 +1666,7 @@ void AudioPlayMemory::clean(void)
 		lastNote = -1;
 		glide=0;
 		glideCounter=0;
-		slideCounter=0;
 		glideControl=0;
-		slideControl=0;
 		fineTuneControl=0;
 		currentTune=0;
 		wavetableWindowSize=0;
@@ -1745,7 +1690,6 @@ void AudioPlayMemory::clean(void)
 		sampleConstrains.endPoint=0;
 
 		sampleConstrains.glide=0;
-		sampleConstrains.slide=0;
 
 		startLen=0;
 	}
