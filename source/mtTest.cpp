@@ -1,29 +1,42 @@
 
 #include <modulesBase.h>
 #include "mtPadsBacklight.h"
-#include "mtTest.h"
 #include "FT812.h"
+#include  "mtMidi.h"
 #include "mtSleep.h"
+#include "keyScanner.h"
+#include "Si4703.h"
+#include <Audio.h>
+#include  "mtRecorder.h"
 
+#include "mtTest.h"
+
+#include "debugLog.h"
 
 cTest mtTest;
 static cTest* TP = &mtTest;
+
+extern AudioControlSGTL5000 audioShield;
 
 static uint8_t functButtons(uint8_t button, uint8_t state);
 static uint8_t functEncoder(int16_t value);
 static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 static uint8_t functPowerButton(uint8_t state);
 
+static void receiveTestNoteOn(byte channel, byte pitch, byte velocity);
+static void radioSeek();
 
 const char checkList[checkCount][50] =
 {
 		"Start",
 		"Screen",
 		"Inputs",
-		"USB Communication",
+		"USB/SD",
 		"MIDI",
 		"Audio",
-		"SD Card",
+		"Radio",
+
+
 
 
 
@@ -40,9 +53,14 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 	FM = _fm;
 	eventFunct = func;
 
+	radio.setFrequency(93.7);
+
+	radio.setSeekCallback(radioSeek);
+	tactButtons.setHoldTime(1200);
 	display.disable();
 	display.clear();
 	memset(&results,0,checkCount);
+
 
 	for(uint8_t button = 0; button<interfaceButtonsCount; button++)
 	{
@@ -54,7 +72,7 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 	FM->setPowerButtonObj(functPowerButton);
 
 	mainStatus = checkStart;//checkInputs;
-	mainStatus = checkUSB;
+	//mainStatus = checkUSB;
 	procedureRunning = 1;
 }
 
@@ -97,15 +115,18 @@ void cTest::drawGui()
 	case checkStart: 	showStart(); 		break;
 	case checkScreen: 	showScreenTest(); 	break;
 	case checkInputs:	showInputsTest();	break;
-	case checkUSB:		break;
-	case checkMidi:		break;
-	case checkAudio:	break;
-	case checkSd:		break;
+	case checkUSB:		showUSBTest();		break;
+	case checkMidi:		showMidiTest();		break;
+	case checkRadio:	showRadioTest();	break;
+	case checkAudio:	showAudioTest();	break;
+
 
 	case checkEnd:		showEnd();			break;
 	}
 
 
+
+	debugLog.processLog();
 
     API_DISPLAY();
     API_CMD_SWAP();
@@ -119,12 +140,12 @@ void cTest::doTasks()
 	switch(mainStatus)
 	{
 	case checkStart: 		break;
-	case checkScreen: runScreenTest();	break;
-	case checkInputs: runInputsTest();	break;
+	case checkScreen:	runScreenTest();	break;
+	case checkInputs: 	runInputsTest();	break;
 	case checkUSB:			break;
-	case checkMidi:			break;
-	case checkAudio:		break;
-	case checkSd:			break;
+	case checkMidi:		runMidiTest();		break;
+	case checkRadio:	runRadioTest();		break;
+	case checkAudio:	runAudioTest();		break;
 
 	case checkEnd:			break;
 	}
@@ -137,7 +158,7 @@ void cTest::doTasks()
 //==========================================================================================
 void cTest::showStart()
 {
-	showMessage("Pres run to start test", "", "Run", "");
+	showMessage("Pres run to start the test", "", "Run", "");
 }
 
 void cTest::showEnd()
@@ -184,11 +205,11 @@ void cTest::showScreenTest()
 
 		API_CMD_GRADIENT(0, 0, 0x0, 800, 0, 0xffffff);
 	}
-	else if(testPhase%3 == 2) showMessage("Result?", "", "Ok", "Not ok");
+	else if(testPhase%3 == 2) showMessage("Is screen OK?", "", "Yes", "No");
 
 	else if(testPhase == lastPhase)
 	{
-		showMessage("Result?", "", "Ok", "Not ok");
+		showMessage("Is screen OK?", "", "Yes", "No");
 	}
 }
 
@@ -217,6 +238,135 @@ void cTest::runScreenTest()
 		testTimer = 0;
 		hideStatus  = 0;
 	}
+}
+
+void cTest::runInputsTest()
+{
+	if(testPhase == 0)
+	{
+		memset(&inputs,0,sizeof(inputs));
+		testPhase++;
+	}
+	if(testPhase == 1)
+	{
+		uint8_t input_result = 1;
+
+		for(uint8_t i = 0; i<48; i++)
+		{
+			if(inputs.pads[i] < 2) input_result = 0;
+		}
+		for(uint8_t i = 0; i<33; i++)
+		{
+			if(inputs.buttons[i] < 2) input_result = 0;
+		}
+		if(inputs.powerButton < 2) input_result = 0;
+		if(inputs.encoderL < 1) input_result = 0;
+		if(inputs.encoderR < 1) input_result = 0;
+
+		if(input_result == 1 ) testPhase++;
+	}
+	else if(testPhase == 2)
+	{
+
+	}
+	else if(testPhase == 3)
+	{
+		testPhase = lastPhase;
+	}
+
+}
+
+void cTest::runMidiTest()
+{
+	if(testPhase == 0)
+	{
+		midiCounter = 0;
+
+		midiResults = 0;
+
+		MIDI.setHandleNoteOn(receiveTestNoteOn);
+	}
+	else if(testPhase == 1)
+	{
+		testTimer = 0;
+
+		for(uint8_t i = 0; i<8; i++)
+		{
+			MIDI.sendNoteOn(midiNotes[i], midiVelos[i], midiChannels[i]);
+		}
+
+		testPhase = 2;
+	}
+	else if(testPhase == 2)
+	{
+		if(midiResults == 255) nextTest();
+
+		if(testTimer > 3000)  testPhase = 3;
+	}
+	else if(testPhase == 3)
+	{
+
+	}
+}
+
+void cTest::runRadioTest()
+{
+	if(testPhase == 0)
+	{
+	}
+	else if(testPhase == 1)
+	{
+		radioSeek();
+		setAudiIO(2);
+		testPhase = 2;
+		testTimer = 0;
+	}
+	else if(testPhase == 2)
+	{
+		if(testTimer > 3000)
+		{
+			radio.seekUp();
+			testTimer = 0;
+		}
+		radio.stateMachineSeek();
+	}
+	else if(testPhase == 3)
+	{
+		setAudiIO(0);
+		nextTest();
+	}
+}
+
+void cTest::runAudioTest()
+{
+	if(testPhase == 1)
+	{
+		setAudiIO(0);
+		delay(1);
+		recorder.startRecording(sdram_effectsBank);
+		testPhase = 2;
+		testTimer = 0;
+	}
+	else if(testPhase == 2)
+	{
+		if(testTimer > 3000)
+		{
+			recorder.startRecording(sdram_effectsBank);
+		}
+	}
+
+
+
+	else if(testPhase == 5)
+	{
+		testTimer = 6001;
+		if(testTimer > 6000)
+		{
+			instrumentPlayer[0].noteOnforPrev(sdram_effectsBank, 264600, mtSampleTypeWaveFile);
+		}
+	}
+
+
 }
 
 //==========================================================================================
@@ -291,50 +441,81 @@ void cTest::showInputsTest()
 
 	if(testPhase == 0 || testPhase == 1)
 	{
-		showMessage("Press all buttons, pads and move encoder", "", "", "");
+		showMessage("Press all buttons, pads and move encoder", "", "", "Hold to skip");
 	}
 	if(testPhase == 2)
 	{
-		showMessage("Pads backlight ok?", "", "Ok", "No ok");
+		showMessage("Is pads backlight ok?", "", "Yes", "Skip");
 	}
 }
 
-void cTest::runInputsTest()
+void cTest::showUSBTest()
+{
+	showMessage("Is MTP working?", "", "Yes", "Skip");
+}
+
+
+void cTest::showMidiTest()
 {
 	if(testPhase == 0)
 	{
-		memset(&inputs,0,sizeof(inputs));
-		testPhase++;
+		showMessage("Connect MIDI cable", "", "Ready", "");
 	}
-	if(testPhase == 1)
+	else if(testPhase == 1 || testPhase == 2)
 	{
-		uint8_t input_result = 1;
-
-		for(uint8_t i = 0; i<48; i++)
-		{
-			if(inputs.pads[i] < 2) input_result = 0;
-		}
-		for(uint8_t i = 0; i<33; i++)
-		{
-			if(inputs.buttons[i] < 2) input_result = 0;
-		}
-		if(inputs.powerButton < 2) input_result = 0;
-		if(inputs.encoderL < 1) input_result = 0;
-		if(inputs.encoderR < 1) input_result = 0;
-
-		if(input_result == 1 ) testPhase++;
-	}
-	else if(testPhase == 2)
-	{
-
+		showMessage("Testing MIDI", "", "", "");
 	}
 	else if(testPhase == 3)
 	{
-		testPhase = lastPhase;
+		showMessage("Test failed", "Is cable connected properly?", "Retry", "Skip");
 	}
-
 }
 
+
+
+void cTest::showAudioTest()
+{
+	if(testPhase == 0)
+	{
+		showMessage("Connect audio output to line input", "", "Ready", "");
+	}
+	else if(testPhase == 1)
+	{
+		showMessage("Wait", "Recording in progress...", "", "");
+	}
+	else if(testPhase == 2)
+	{
+		showMessage("Connect audio output to mic input", " ", "Ready", "");
+	}
+	else if(testPhase == 3)
+	{
+		showMessage("Wait", "Recording in progress...", "", "");
+	}
+	else if(testPhase == 4)
+	{
+		showMessage("Connect Headphones", " ", "Ready", "");
+	}
+	else if(testPhase == 5)
+	{
+		showMessage("Listen and chcek quality of recordings", "Recordings from line in", "All good", "");
+	}
+	else if(testPhase == 6)
+	{
+		showMessage("Listen and chcek quality of recordings", "Recordings from mic", "All good", "");
+	}
+}
+
+void cTest::showRadioTest()
+{
+	if(testPhase == 0)
+	{
+		showMessage("Listen radio transmission", "", "Connected", "");
+	}
+	else if(testPhase == 1 || testPhase == 2)
+	{
+		showMessage((char*)"Is radio Quailty ok?", radioFreq, (char*)"Yes", (char*)"Skip");
+	}
+}
 //==========================================================================================
 //
 //==========================================================================================
@@ -388,8 +569,10 @@ void cTest::showMessage(char* question1, char* question2, char* answer1, char* a
 void cTest::nextTest()
 {
 	padsBacklight.clearAllPads(1, 1, 1);
-	mainStatus++;
+	if(mainStatus < checkEnd)  mainStatus++;
 	testPhase = 0;
+	hideStatus  = 0;
+
 }
 
 //==========================================================================================
@@ -419,28 +602,29 @@ void cTest::AcceptButton()
 	}
 	case checkUSB:
 	{
-
-		mainStatus++;
+		nextTest();
 		break;
 	}
 	case checkMidi:
 	{
-
-		mainStatus++;
+		if(testPhase == 1) break;
+		if(testPhase < 3) testPhase++;
+		else if(testPhase >= 3) testPhase = 0; // nextTest();
+		break;
+	}
+	case checkRadio:
+	{
+		if(testPhase < 4) testPhase++;
+		else nextTest();
 		break;
 	}
 	case checkAudio:
 	{
-
-		mainStatus++;
+		if(testPhase == 0 || testPhase == 2 || testPhase == 4) testPhase++;
+		else if(testPhase == 5 || testPhase == 6) nextTest();
 		break;
 	}
-	case checkSd:
-	{
 
-		mainStatus++;
-		break;
-	}
 	case checkEnd: systemReset(); break;
 	}
 
@@ -475,20 +659,30 @@ void cTest::DeclineButton()
 	}
 	case checkUSB:
 	{
+		results[checkUSB] = 1;
+		nextTest();
 		break;
 	}
 	case checkMidi:
 	{
+		if(testPhase >= 3)
+		{
+			results[checkMidi] = 1;
+			nextTest();
+		}
+		break;
+	}
+	case checkRadio:
+	{
+		results[checkRadio] = 1;
+		nextTest();
 		break;
 	}
 	case checkAudio:
 	{
 		break;
 	}
-	case checkSd:
-	{
-		break;
-	}
+
 
 	case checkEnd:
 		mainStatus = checkStart;
@@ -497,6 +691,14 @@ void cTest::DeclineButton()
 	break;
 	}
 
+}
+
+void cTest::skipButton()
+{
+	if(blockSkip == 1) return;
+	results[mainStatus] = 1;
+	nextTest();
+	blockSkip = 1;
 }
 //==========================================================================================
 //
@@ -520,6 +722,52 @@ void cTest::systemReset()
 	lowPower.resetMCU();
 }
 
+
+static void receiveTestNoteOn(byte channel, byte pitch, byte velocity)
+{
+
+	if(TP->midiNotes[TP->midiCounter] == pitch
+		&& TP->midiVelos[TP->midiCounter] == velocity
+		&& TP->midiChannels[TP->midiCounter] == channel)
+	{
+		TP->midiResults |=  (1 << TP->midiCounter);
+	}
+
+
+	TP->midiCounter++;
+
+	if(TP->midiCounter >= 8) TP->midiCounter = 0;
+
+}
+
+static void radioSeek()
+{
+	sprintf(TP->radioFreq, "%.2f", radio.getFrequency());
+}
+
+
+void cTest::setAudiIO(uint8_t config)
+{
+	if(config == 0)
+	{
+		audioShield.inputSelect(0);
+		digitalWrite(SI4703_KLUCZ,HIGH);
+		audioShield.headphoneSourceSelect(0);
+	}
+	else if(config == 1)
+	{
+		audioShield.muteHeadphone();
+		audioShield.inputSelect(1);
+		audioShield.headphoneSourceSelect(0);
+
+	}
+	else if(config == 2)
+	{
+		audioShield.inputSelect(0);
+		digitalWrite(SI4703_KLUCZ,LOW);
+		audioShield.headphoneSourceSelect(1);
+	}
+}
 //==========================================================================================
 //
 //==========================================================================================
@@ -529,7 +777,8 @@ static uint8_t functButtons(uint8_t button, uint8_t state)
 	if(state == buttonPress && TP->inputs.buttons[button] == 0) TP->inputs.buttons[button] = 1;
 	else if(state == buttonRelease && TP->inputs.buttons[button] == 1) TP->inputs.buttons[button] = 2;
 
-
+	if(button == 3 && state == buttonHold) TP->skipButton();
+	if(button == 3 && state == buttonRelease) TP->blockSkip = 0;
 	if(state != buttonPress) return 1;
 	if(TP->getStatusViewState()) return 1;
 

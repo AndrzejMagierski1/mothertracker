@@ -13,9 +13,8 @@ enum enChecklist
 	checkInputs,
 	checkUSB,
 	checkMidi,
+	checkRadio,
 	checkAudio,
-	checkSd,
-
 
 	checkEnd,
 
@@ -45,7 +44,10 @@ public:
 
 	void AcceptButton();
 	void DeclineButton();
+	void skipButton();
+	uint8_t blockSkip = 0;
 	uint8_t getStatusViewState() {	return hideStatus; }
+
 
 	struct strInputs
 	{
@@ -56,6 +58,15 @@ public:
 		uint8_t encoderR;
 
 	} inputs;
+
+	const uint8_t midiNotes[8] = {12,48,17,2,37,56,16,112};
+	const uint8_t midiVelos[8] = {0,48,17,2,37,56,16,127};
+	const uint8_t midiChannels[8] = {1,3,5,7,9,11,13,15};
+	uint8_t midiResults = 0;
+	uint8_t midiCounter = 0;
+
+	// radio
+	char radioFreq[10];
 
 private:
 	void drawGui();
@@ -77,9 +88,21 @@ private:
 	void showInputsTest();
 	void runInputsTest();
 
+	void showUSBTest();
+
+	void showMidiTest();
+	void runMidiTest();
+
+	void showAudioTest();
+	void runAudioTest();
+
+	void showRadioTest();
+	void runRadioTest();
+
+
 	// funct
 	void systemReset();
-
+	void setAudiIO(uint8_t config);
 	//
 	cFunctionMachine* FM;
 	void (*eventFunct)(uint8_t, void*, void*, void*);
@@ -99,10 +122,12 @@ private:
 
 
 
-	//run pad combination
+	// run pad combination
 	uint8_t pos = 0;
 
 	uint8_t ledBright = 0;
+
+	// midi
 
 
 };

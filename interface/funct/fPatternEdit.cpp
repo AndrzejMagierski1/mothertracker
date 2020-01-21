@@ -570,6 +570,7 @@ void cPatternEditor::moveCursorByStep()
 {
 	moveCursorByStep(0);
 }
+
 void cPatternEditor::moveCursorByStep(uint8_t val)
 {
 	if(mtProject.values.patternEditStep + val <= 0 ) return;
@@ -773,7 +774,6 @@ void cPatternEditor::setActualPatternLength(int16_t value)
 	trackerPattern.patternLength = pattern->track[0].length+1;
 
 	if(trackerPattern.actualStep > trackerPattern.patternLength-1) trackerPattern.actualStep = trackerPattern.patternLength-1;
-
 
 	showLength();
 
@@ -1958,6 +1958,8 @@ static  uint8_t functPlayAction()
 		PTE->trackerPattern.playheadPosition = 0;
 		//PTE->trackerPattern.actualStep = 0;
 		PTE->refreshPattern();
+
+		fileManager.autoSaveWorkspace(1);
 	}
 
 	return 1;

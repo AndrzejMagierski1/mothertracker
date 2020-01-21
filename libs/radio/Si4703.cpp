@@ -9,7 +9,7 @@
 Si4703 radio(SI4703_RST, 48, 47,SI4703_GPIO_2);
 
 
-user_callback_t callback_func=NULL;
+user_callback_t callback_func=nullptr;
 elapsedMillis i2c_timeout;
 
 
@@ -398,7 +398,7 @@ void Si4703::stateMachineSeek()
 
 		case callback:
 
-			if(callback_func != NULL)
+			if(callback_func != nullptr)
 			{
 				callback_func();
 			}

@@ -51,9 +51,10 @@ public:
 	// internal
 	void update();
 	uint8_t toggleState();
+	void processLog();
 
 private:
-	void processLog();
+	//void processLog();
 	void removeBottLine();
 
 
