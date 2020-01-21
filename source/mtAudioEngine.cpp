@@ -186,6 +186,14 @@ void audioEngine::stopTestSignal()
 	testWaveform.amplitude(0.0);
 }
 
+void audioEngine::setPassEnvelope(uint8_t state)
+{
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setPassEnvelope(state);
+	}
+}
+
 void audioEngine::init()
 {
 
@@ -1008,7 +1016,7 @@ void playerEngine::noteOff(int8_t option)
 		}
 		else
 		{
-			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f)
+			if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f) || (envelopePassFlag))
 			{
 				playMemPtr->stop();
 			}
@@ -3544,6 +3552,12 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 		env->release = periodTime/2;
 		break;
 	}
+}
+
+void playerEngine::setPassEnvelope(uint8_t state)
+{
+	envelopeAmpPtr->setPassFlag(state);
+	envelopePassFlag = state;
 }
 
 void playerEngine::printLog(SdFile * log)

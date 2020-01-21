@@ -97,6 +97,14 @@ void AudioEffectEnvelope::update(void)
 		release(block);
 		return;
 	}
+
+	if(passFlag)
+	{
+		transmit(block);
+		release(block);
+		return;
+	}
+
 	p = (uint32_t *)(block->data);
 	end = p + AUDIO_BLOCK_SAMPLES/2;
 

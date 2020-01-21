@@ -40,6 +40,8 @@ public:
 	void startTestSignal(float amp, float freq);
 	void stopTestSignal();
 
+	void setPassEnvelope(uint8_t state);
+
 	friend class playerEngine;
 private:
 	AudioConnection* i2sConnect[2];
@@ -255,7 +257,7 @@ public:
 	void endGranularPositionPerformanceMode();
 
 	void printLog(SdFile * log);
-
+	void setPassEnvelope(uint8_t state);
 private:
 
 	friend 						audioEngine;
@@ -285,6 +287,8 @@ private:
 
 	uint8_t 					muteState = 0;
 	uint8_t						onlyReverbMuteState = 0;
+
+	uint8_t 					envelopePassFlag = 1;
 
 	envelopeGenerator::strEnv lfoBasedEnvelope[envelopeTypeMax];
 

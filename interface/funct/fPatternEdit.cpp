@@ -26,7 +26,7 @@ static  uint8_t functChangePatternEditStep(uint8_t state);
 static  uint8_t functRamTest(uint8_t state);
 static  uint8_t functFill();
 static  uint8_t functPreview();
-static  uint8_t functTranspose();
+static  uint8_t functTranspose(uint8_t state);
 static  uint8_t functUndo();
 uint8_t functInvert();
 
@@ -891,7 +891,7 @@ void cPatternEditor::refreshEditState()
 		FM->setButtonObj(interfaceButton3, buttonPress, functFill);
 		FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
 		FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
-		FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
+		FM->setButtonObj(interfaceButton6, functTranspose);
 		FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
 
 		lightUpPadBoard();
@@ -1159,7 +1159,7 @@ void cPatternEditor::setMuteFunct(uint8_t state)
 			FM->setButtonObj(interfaceButton3, buttonPress, functFill);
 			FM->setButtonObj(interfaceButton4, buttonPress, functPreview);
 			FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
-			FM->setButtonObj(interfaceButton6, buttonPress, functTranspose);
+			FM->setButtonObj(interfaceButton6, functTranspose);
 			FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
 		}
 	}
@@ -2308,14 +2308,13 @@ static  uint8_t functRamTest(uint8_t state)
 {
 	if(state == buttonPress)
 	{
-		sdramTester.test();
+//		sdramTester.test();
+		engine.setPassEnvelope(1);
 	}
 	else if(state == buttonRelease)
 	{
-
+		engine.setPassEnvelope(0);
 	}
-
-
 
 	return 1;
 }
@@ -2568,12 +2567,13 @@ uint8_t functInvert()
 //##############################################################################################
 //###############################            TRANSPOSE		   #################################
 //##############################################################################################
-static uint8_t functTranspose()
+static uint8_t functTranspose(uint8_t state)
 {
 	//--------------------------------------------------------
 	//TU
+	if(state == buttonPress) functRamTest(1);
+	else if(state == buttonRelease) functRamTest(0);
 
-	functRamTest(1);
 
 	//--------------------------------------------------------
 	return 1;
