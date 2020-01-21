@@ -369,17 +369,17 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 {
 	if(configChangedRefresh > 10000 || forcedWorkspaceSave)
 	{
+		configChangedRefresh = 0;
+
 		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
 		{
-			configChangedRefresh = 0;
-			if(configIsChangedFlag == 1)
+			if(configIsChangedFlag == 1 && sequencer.isStop())
 			{
-				debugLog.addLine("autosave projektu");
+				debugLog.addLine("autosave projektu: ");
 				sd_time_test = 0;
 
 				autoSaveProject();
 
-				debugLog.addText(" - czas: ");
 				debugLog.addValue(sd_time_test);
 				//debugLog.forceRefresh();
 			}
@@ -394,14 +394,13 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 		{
 			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
 			{
-				if(instrumentIsChangedFlag[i] == 1 )
+				if(instrumentIsChangedFlag[i] == 1 && sequencer.isStop())
 				{
-					debugLog.addLine("autosave instrumentu");
+					debugLog.addLine("autosave instrumentu: ");
 					sd_time_test = 0;
 
 					saveInstrument(i);
 
-					debugLog.addText(" - czas: ");
 					debugLog.addValue(sd_time_test);
 					//debugLog.forceRefresh();
 				}
@@ -415,14 +414,13 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 
 		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
 		{
-			if(patternIsChangedFlag[mtProject.values.actualPattern] == 1)
+			if(patternIsChangedFlag[mtProject.values.actualPattern] == 1 && sequencer.isStop())
 			{
-				debugLog.addLine("autosave patternu");
+				debugLog.addLine("autosave patternu: ");
 				sd_time_test = 0;
 
 				savePattern(mtProject.values.actualPattern);
 
-				debugLog.addText(" - czas: ");
 				debugLog.addValue(sd_time_test);
 				//debugLog.forceRefresh();
 			}

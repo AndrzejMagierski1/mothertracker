@@ -59,9 +59,9 @@ public:
 
 	} inputs;
 
-	uint8_t midiNotes[8] = {12,48,17,2,37,56,16,112};
-	uint8_t midiVelos[8] = {0,48,17,2,37,56,16,127};
-	uint8_t midiChannels[8] = {1,3,5,7,9,11,13,15};
+	const uint8_t midiNotes[8] = {12,48,17,2,37,56,16,112};
+	const uint8_t midiVelos[8] = {0,48,17,2,37,56,16,127};
+	const uint8_t midiChannels[8] = {1,3,5,7,9,11,13,15};
 	uint8_t midiResults = 0;
 	uint8_t midiCounter = 0;
 

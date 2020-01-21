@@ -32,13 +32,9 @@ void saveConfig()
 
 void forceSaveConfig()
 {
-	debugLog.addLine("eeprom save");
-
 	save_micros = 0;
 	EEPROM.put(CONFIG_EEPROM_ADRESS, &mtConfig);
-	debugLog.addText(" czas: ");
-	debugLog.addValue(save_micros);
-	debugLog.forceRefresh();
+
 }
 
 uint8_t readStartState()

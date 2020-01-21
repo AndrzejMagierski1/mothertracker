@@ -775,7 +775,6 @@ void cPatternEditor::setActualPatternLength(int16_t value)
 
 	if(trackerPattern.actualStep > trackerPattern.patternLength-1) trackerPattern.actualStep = trackerPattern.patternLength-1;
 
-
 	showLength();
 
 	refreshPattern();
@@ -1959,6 +1958,8 @@ static  uint8_t functPlayAction()
 		PTE->trackerPattern.playheadPosition = 0;
 		//PTE->trackerPattern.actualStep = 0;
 		PTE->refreshPattern();
+
+		fileManager.autoSaveWorkspace(1);
 	}
 
 	return 1;

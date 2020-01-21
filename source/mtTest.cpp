@@ -7,6 +7,7 @@
 #include "keyScanner.h"
 #include "Si4703.h"
 #include <Audio.h>
+#include  "mtRecorder.h"
 
 #include "mtTest.h"
 
@@ -32,8 +33,9 @@ const char checkList[checkCount][50] =
 		"Inputs",
 		"USB/SD",
 		"MIDI",
-		"Radio",
 		"Audio",
+		"Radio",
+
 
 
 
@@ -70,7 +72,7 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 	FM->setPowerButtonObj(functPowerButton);
 
 	mainStatus = checkStart;//checkInputs;
-	mainStatus = checkUSB;
+	//mainStatus = checkUSB;
 	procedureRunning = 1;
 }
 
@@ -142,8 +144,8 @@ void cTest::doTasks()
 	case checkInputs: 	runInputsTest();	break;
 	case checkUSB:			break;
 	case checkMidi:		runMidiTest();		break;
-	case checkAudio:	runAudioTest();		break;
 	case checkRadio:	runRadioTest();		break;
+	case checkAudio:	runAudioTest();		break;
 
 	case checkEnd:			break;
 	}
@@ -203,11 +205,11 @@ void cTest::showScreenTest()
 
 		API_CMD_GRADIENT(0, 0, 0x0, 800, 0, 0xffffff);
 	}
-	else if(testPhase%3 == 2) showMessage("Result?", "", "Yes", "No");
+	else if(testPhase%3 == 2) showMessage("Is screen OK?", "", "Yes", "No");
 
 	else if(testPhase == lastPhase)
 	{
-		showMessage("Result?", "", "Yes", "No");
+		showMessage("Is screen OK?", "", "Yes", "No");
 	}
 }
 
@@ -307,16 +309,6 @@ void cTest::runMidiTest()
 	}
 }
 
-
-void cTest::runAudioTest()
-{
-	if(testPhase == 0)
-	{
-
-	}
-}
-
-
 void cTest::runRadioTest()
 {
 	if(testPhase == 0)
@@ -345,6 +337,37 @@ void cTest::runRadioTest()
 	}
 }
 
+void cTest::runAudioTest()
+{
+	if(testPhase == 1)
+	{
+		setAudiIO(0);
+		delay(1);
+		recorder.startRecording(sdram_effectsBank);
+		testPhase = 2;
+		testTimer = 0;
+	}
+	else if(testPhase == 2)
+	{
+		if(testTimer > 3000)
+		{
+			recorder.startRecording(sdram_effectsBank);
+		}
+	}
+
+
+
+	else if(testPhase == 5)
+	{
+		testTimer = 6001;
+		if(testTimer > 6000)
+		{
+			instrumentPlayer[0].noteOnforPrev(sdram_effectsBank, 264600, mtSampleTypeWaveFile);
+		}
+	}
+
+
+}
 
 //==========================================================================================
 //
@@ -436,7 +459,7 @@ void cTest::showMidiTest()
 {
 	if(testPhase == 0)
 	{
-		showMessage("Connect MIDI cable", "", "Connected", "");
+		showMessage("Connect MIDI cable", "", "Ready", "");
 	}
 	else if(testPhase == 1 || testPhase == 2)
 	{
@@ -444,23 +467,41 @@ void cTest::showMidiTest()
 	}
 	else if(testPhase == 3)
 	{
-		showMessage("Test failed", " Is cable connected properly?", "Retry", "Skip");
+		showMessage("Test failed", "Is cable connected properly?", "Retry", "Skip");
 	}
 }
+
+
 
 void cTest::showAudioTest()
 {
 	if(testPhase == 0)
 	{
-		showMessage("Connect Headphones", "", "Connected", "");
+		showMessage("Connect audio output to line input", "", "Ready", "");
 	}
-	else if(testPhase == 1 || testPhase == 2)
+	else if(testPhase == 1)
 	{
-		showMessage("Check Audio Quality", "", "Ok", "Skip");
+		showMessage("Wait", "Recording in progress...", "", "");
+	}
+	else if(testPhase == 2)
+	{
+		showMessage("Connect audio output to mic input", " ", "Ready", "");
 	}
 	else if(testPhase == 3)
 	{
-		showMessage("Test failed", " Is cable connected properly?", "Retry", "Skip");
+		showMessage("Wait", "Recording in progress...", "", "");
+	}
+	else if(testPhase == 4)
+	{
+		showMessage("Connect Headphones", " ", "Ready", "");
+	}
+	else if(testPhase == 5)
+	{
+		showMessage("Listen and chcek quality of recordings", "Recordings from line in", "All good", "");
+	}
+	else if(testPhase == 6)
+	{
+		showMessage("Listen and chcek quality of recordings", "Recordings from mic", "All good", "");
 	}
 }
 
@@ -468,11 +509,10 @@ void cTest::showRadioTest()
 {
 	if(testPhase == 0)
 	{
-		showMessage("Connect Headphones", "", "Connected", "");
+		showMessage("Listen radio transmission", "", "Connected", "");
 	}
 	else if(testPhase == 1 || testPhase == 2)
 	{
-
 		showMessage((char*)"Is radio Quailty ok?", radioFreq, (char*)"Yes", (char*)"Skip");
 	}
 }
@@ -580,8 +620,8 @@ void cTest::AcceptButton()
 	}
 	case checkAudio:
 	{
-		if(testPhase < 5) testPhase++;
-		else nextTest();
+		if(testPhase == 0 || testPhase == 2 || testPhase == 4) testPhase++;
+		else if(testPhase == 5 || testPhase == 6) nextTest();
 		break;
 	}
 
