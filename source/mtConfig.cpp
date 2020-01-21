@@ -45,29 +45,29 @@ uint8_t readStartState()
 {
 	uint8_t startState = 1;
 
-	save_micros = 0;
+//	save_micros = 0;
 
 	EEPROM.get(sizeof(mtConfig), startState);
 
-	uint32_t czas = save_micros;
-	debugLog.addLine(" start state read: ");
-	debugLog.addValue(czas);
-	debugLog.forceRefresh();
+//	uint32_t czas = save_micros;
+//	debugLog.addLine(" start state read: ");
+//	debugLog.addValue(czas);
+//	debugLog.forceRefresh();
 
 	return startState;
 }
 
-void saveStartState()
+void saveStartState(uint8_t state)
 {
-	uint8_t startState = 0;
+	//uint8_t startState = 0;
 
-	save_micros = 0;
-
-	EEPROM.put(sizeof(mtConfig), startState);
-
-	debugLog.addLine("start state save: ");
-	debugLog.addValue(save_micros);
-	debugLog.forceRefresh();
+//	save_micros = 0;
+#ifndef DEBUG
+	EEPROM.put(sizeof(mtConfig), state);
+#endif
+//	debugLog.addLine("start state save: ");
+//	debugLog.addValue(save_micros);
+//	debugLog.forceRefresh();
 
 }
 
