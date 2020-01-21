@@ -80,6 +80,11 @@ public:
 		loopFlag = state;
 	}
 
+	void setPassFlag(uint8_t state)
+	{
+		passFlag = state;
+	}
+
 	using AudioStream::release;
 	virtual void update(void);
 	uint8_t endRelease();
@@ -111,6 +116,7 @@ private:
 	uint16_t release_forced_count;
 	uint8_t loopFlag = 0;
 	uint8_t pressedFlag = 0;
+	uint8_t passFlag = 0;
 
 };
 
