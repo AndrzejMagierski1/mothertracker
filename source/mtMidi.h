@@ -8,8 +8,11 @@
 
 void midiInit();
 void midiUpdate();
-void handleNoteOn(byte channel, byte pitch, byte velocity);
-void handleNoteOff(byte channel, byte pitch, byte velocity);
+void handleJackNoteOn(byte channel, byte pitch, byte velocity);
+void handleJackNoteOff(byte channel, byte pitch, byte velocity);
+
+void handleUsbNoteOn(byte channel, byte pitch, byte velocity);
+void handleUsbNoteOff(byte channel, byte pitch, byte velocity);
 
 // hocki clocki
 void sendMidiStart();

@@ -38,8 +38,10 @@ enum mtConfigMIDI
 	configMIDITransportIn,
 	configMIDITansportOut,
 	configMIDICcout,
-	configMIDINotesFrom,
-	configMIDINotesChannel,
+	configMIDINotesFrom_mode,
+	configMIDINotesFrom_channel,
+	configMIDINotesOut_mode,
+	configMIDINotesOut_channel,
 };
 
 enum mtConfigGeneral
@@ -56,11 +58,14 @@ constexpr uint8_t PATTERN_DIVIDERS = 16;
 constexpr uint8_t RADIO_REGIONS = 4;
 constexpr uint8_t BRIGHTNESS_LEVELS = 3;
 constexpr uint8_t CLOCK_IN = 3;
-constexpr uint8_t CLOCK_OUT = 4;
+//constexpr uint8_t CLOCK_OUT = 4;
 constexpr uint8_t CC_OUTS_NUM = 10;
 constexpr uint8_t CC_NUMBERS = 127;
-constexpr uint8_t NOTES_FROM_NUM = 4;
-constexpr uint8_t NOTES_FROM_CHANNEL_NUM = 16;
+constexpr uint8_t NOTES_FROM_MODE_NUM = 4;
+constexpr uint8_t NOTES_FROM_CHANNEL_NUM = 17;
+
+constexpr uint8_t NOTES_OUT_NUM = 4;
+constexpr uint8_t NOTES_OUT_CHANNEL_NUM = 16;
 
 
 const char groupNamesLabels[mtConfigGroupsCount][15] =
@@ -80,7 +85,7 @@ const char generalConfig[GERERAL_SUBMENUS][20] =
 		"Brightness"
 };
 
-const char midiConfig[MIDI_SUBMENUS][20] =
+const char txtlistMidiConfig[MIDI_SUBMENUS][20] =
 {
 		"Clock in",
 		"Clock out",
@@ -133,20 +138,28 @@ const char clockIn[CLOCK_IN][9] =
 		"Midi in",
 };
 
-const char clockOut[CLOCK_OUT][20] =
-{
-		"Off",
-		"USB",
-		"Midi out",
-		"USB and Midi out",
-};
-
 enum enClockOut
 {
 	clockOut_Off,
 	clockOut_usb,
 	clockOut_jack,
 	clockOut_usb_and_jack,
+	clockOut_count
+};
+const char clockOut[clockOut_count][20] =
+{
+	"Off",
+	"USB",
+	"Midi out",
+	"USB and Midi out",
+};
+
+enum enNotesIn
+{
+	notesIn_None,
+	notesIn_usb,
+	notesIn_jack,
+	notesIn_usb_and_jack,
 };
 
 enum enClockIn
@@ -170,8 +183,9 @@ const char CCouts[CC_OUTS_NUM][5] =
 		"CC9",
 		"CC10",
 };
-const char notesFromChannel[NOTES_FROM_CHANNEL_NUM][5] =
+const char notesInChannel[NOTES_FROM_CHANNEL_NUM][5] =
 {
+		"ALL",
 		"CH1",
 		"CH2",
 		"CH3",
@@ -196,13 +210,12 @@ const char notesFrom[NOTES_FROM_CHANNEL_NUM][10] =
 		"Jack",
 		"USB+Jack",
 };
-enum enMidiNotesFrom
+const char notesOut_mode[NOTES_OUT_NUM][10] =
 {
-	enMidiNotesFrom_none,
-	enMidiNotesFrom_USB,
-	enMidiNotesFrom_jack,
-	enMidiNotesFrom_USB_and_jack,
-
+		"None",
+		"USB",
+		"Jack",
+		"USB+Jack",
 };
 const char CCnumber[CC_NUMBERS][4] =
 {
@@ -542,8 +555,11 @@ public:
 	void showTransportOut(uint8_t listPosition);
 	void showCCouts(uint8_t listPosition);
 	void showCCnumber(uint8_t listPosition);
-	void showMidiNotesFrom(uint8_t listPosition);
-	void showMidiNotesChannels(uint8_t listPosition);
+	void showMidiNotesFrom_mode(uint8_t listPosition);
+	void showMidiNotesInChannels(uint8_t listPosition);
+	void showMidiNotesOutChannels(uint8_t listPosition);
+
+	void showMidiNotesOut_mode(uint8_t);
 
 
 
@@ -557,6 +573,11 @@ public:
 	uint8_t setTransportIn(uint32_t val);
 	uint8_t setTransportOut(uint32_t val);
 	uint8_t setCCout(uint8_t ccNum, uint32_t val);
+
+	uint8_t setNotesIn(uint32_t val);
+	uint8_t setNotesInChannel(uint32_t val);
+	uint8_t setNotesOutMode(uint32_t val);
+	uint8_t setNotesOutChannel(uint32_t val);
 
 	uint8_t hasConfigChanged = 0;
 

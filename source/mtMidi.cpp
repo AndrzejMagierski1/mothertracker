@@ -6,15 +6,19 @@
 
 void midiInit()
 {
+	// jack
 	MIDI.begin(0);
-	MIDI.setHandleNoteOn(handleNoteOn);
-	MIDI.setHandleNoteOff(handleNoteOff);
+	MIDI.setHandleNoteOn(handleJackNoteOn);
+	MIDI.setHandleNoteOff(handleJackNoteOff);
 	MIDI.setHandleClock(receiveJackClock);
 	MIDI.setHandleStart(receiveJackStart);
 	MIDI.setHandleStop(receiveJackStop);
 
+	// usb
 	usbMIDI.setHandleRealTimeSystem(receiveUsbRealtime);
 
+	usbMIDI.setHandleNoteOn(handleUsbNoteOn);
+	usbMIDI.setHandleNoteOff(handleUsbNoteOff);
 }
 
 void midiUpdate()
@@ -23,33 +27,88 @@ void midiUpdate()
 	usbMIDI.read();
 }
 
-void handleNoteOn(byte channel, byte pitch, byte velocity)
+uint8_t isIncomingChannelDesired(uint8_t chan)
+{
+	return (mtConfig.midi.notesInChannel == chan ||
+			mtConfig.midi.notesInChannel == 0);
+}
+
+void handleJackNoteOn(byte channel, byte pitch, byte velocity)
 {
 //	Serial.printf("ON\tch: %d, pitch: %d, velo: %d \n", channel, pitch,
 //					velocity);
 //	MIDI.sendNoteOn(pitch, velocity, channel);
 
-	sendSelection();
+	if (mtConfig.midi.notesIn == notesIn_jack ||
+			mtConfig.midi.notesIn == notesIn_usb_and_jack)
+	{
+		if (isIncomingChannelDesired(channel))
+		{
+			sendSelection();
 
-	sequencer.handleNote(channel, pitch, velocity);
-	patternEditor.moveCursorByStep();
+			sequencer.handleNote(channel, pitch, velocity);
+			patternEditor.moveCursorByStep();
 
-	patternEditor.refreshPattern();
+			patternEditor.refreshPattern();
+		}
+	}
+
+}
+void handleUsbNoteOn(byte channel, byte pitch, byte velocity)
+{
+//	Serial.printf("ON\tch: %d, pitch: %d, velo: %d \n", channel, pitch,
+//					velocity);
+//	MIDI.sendNoteOn(pitch, velocity, channel);
+
+	if (mtConfig.midi.notesIn == notesIn_usb ||
+			mtConfig.midi.notesIn == notesIn_usb_and_jack)
+	{
+		if (isIncomingChannelDesired(channel))
+		{
+
+			sendSelection();
+
+			sequencer.handleNote(channel, pitch, velocity);
+			patternEditor.moveCursorByStep();
+
+			patternEditor.refreshPattern();
+		}
+	}
 
 }
 
-void handleNoteOff(byte channel, byte pitch, byte velocity)
+void handleJackNoteOff(byte channel, byte pitch, byte velocity)
 {
 
 //	Serial.printf("OFF\tch: %d, pitch: %d, velo: %d\n", channel, pitch,
 //					velocity);
-//	MIDI.sendNoteOff(pitch, velocity, channel);
 
-//	if (patternEditor.editMode == 1)
-//	{
-	sendSelection();
-	sequencer.handleNote(channel, pitch, 0);
-//	}
+	if (mtConfig.midi.notesIn == notesIn_jack ||
+			mtConfig.midi.notesIn == notesIn_usb_and_jack)
+	{
+		if (isIncomingChannelDesired(channel))
+		{
+			sendSelection();
+			sequencer.handleNote(channel, pitch, 0);
+		}
+	}
+}
+
+void handleUsbNoteOff(byte channel, byte pitch, byte velocity)
+{
+
+//	Serial.printf("OFF\tch: %d, pitch: %d, velo: %d\n", channel, pitch,
+//					velocity);
+
+	if (mtConfig.midi.notesIn == notesIn_usb ||
+			mtConfig.midi.notesIn == notesIn_usb_and_jack)
+	{
+		if (isIncomingChannelDesired(channel))
+		{
+			sendSelection();
+			sequencer.handleNote(channel, pitch, 0);
+		}
+	}
 }
 
 void sendMidiStart()

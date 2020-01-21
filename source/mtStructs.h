@@ -599,6 +599,8 @@ struct strMtConfig
 		uint8_t transportOut;
 		uint8_t notesIn;
 		uint8_t notesInChannel;
+		uint8_t notesOutMode;
+		uint8_t notesOutChannel;
 		uint8_t ccOut[10];
 	} midi;
 

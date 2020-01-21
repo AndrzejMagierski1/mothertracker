@@ -432,7 +432,7 @@ void cConfigEditor::showMidiSubmenus(uint8_t listPosition)
 {
 	for(uint8_t i = 0; i < MIDI_SUBMENUS; i++)
 	{
-		listDataForLists(listPosition, i, &midiConfig[i][0]);
+		listDataForLists(listPosition, i, &txtlistMidiConfig[i][0]);
 	}
 
 	setDataForLists(listPosition, MIDI_SUBMENUS);
@@ -493,40 +493,40 @@ void cConfigEditor::showClockIn(uint8_t listPosition)
 
 void cConfigEditor::showClockOut(uint8_t listPosition)
 {
-	for(uint8_t i = 0; i < CLOCK_OUT; i++)
+	for(uint8_t i = 0; i < clockOut_count; i++)
 	{
 		listDataForLists(listPosition, i, &clockOut[i][0]);
 	}
 
 	selectedConfigGroup[listPosition] = mtConfig.midi.clkOut;
 
-	setDataForLists(listPosition, CLOCK_OUT);
+	setDataForLists(listPosition, clockOut_count);
 	changeLabelText(4, "Clock out");
 }
 
 void cConfigEditor::showTransportIn(uint8_t listPosition)
 {
-	for(uint8_t i = 0; i < CLOCK_OUT; i++)
+	for(uint8_t i = 0; i < clockOut_count; i++)
 	{
 		listDataForLists(listPosition, i, &clockOut[i][0]);
 	}
 
 	selectedConfigGroup[listPosition] = mtConfig.midi.transportIn;
 
-	setDataForLists(listPosition, CLOCK_OUT);
+	setDataForLists(listPosition, clockOut_count);
 	changeLabelText(4, "Transport in");
 }
 
 void cConfigEditor::showTransportOut(uint8_t listPosition)
 {
-	for(uint8_t i = 0; i < CLOCK_OUT; i++)
+	for(uint8_t i = 0; i < clockOut_count; i++)
 	{
 		listDataForLists(listPosition, i, &clockOut[i][0]);
 	}
 
 	selectedConfigGroup[listPosition] = mtConfig.midi.transportOut;
 
-	setDataForLists(listPosition, CLOCK_OUT);
+	setDataForLists(listPosition, clockOut_count);
 	changeLabelText(4, "Transport out");
 }
 
@@ -540,28 +540,59 @@ void cConfigEditor::showCCouts(uint8_t listPosition)
 	setDataForLists(listPosition, CC_OUTS_NUM);
 	changeLabelText(4, "CC out");
 }
-/// TUTUTUT
-void cConfigEditor::showMidiNotesFrom(uint8_t listPosition)
+
+
+void cConfigEditor::showMidiNotesFrom_mode(uint8_t listPosition)
 {
 
-	for(uint8_t i = 0; i < NOTES_FROM_NUM; i++)
+	for(uint8_t i = 0; i < NOTES_FROM_MODE_NUM; i++)
 	{
 		listDataForLists(listPosition, i, &notesFrom[i][0]);
 	}
+	selectedConfigGroup[listPosition] = mtConfig.midi.notesIn;
 
-	setDataForLists(listPosition, NOTES_FROM_NUM);
+	setDataForLists(listPosition, NOTES_FROM_MODE_NUM);
 	changeLabelText(4, "Notes from");
 }
-void cConfigEditor::showMidiNotesChannels(uint8_t listPosition)
+void cConfigEditor::showMidiNotesOut_mode(uint8_t listPosition)
+{
+
+	for(uint8_t i = 0; i < NOTES_OUT_NUM; i++)
+	{
+		listDataForLists(listPosition, i, &notesOut_mode[i][0]);
+	}
+
+	selectedConfigGroup[listPosition] = mtConfig.midi.notesOutMode ;
+
+	setDataForLists(listPosition, NOTES_OUT_NUM);
+	changeLabelText(4, "Notes out");
+}
+void cConfigEditor::showMidiNotesInChannels(uint8_t listPosition)
 {
 	for(uint8_t i = 0; i < NOTES_FROM_CHANNEL_NUM; i++)
 	{
-		listDataForLists(listPosition, i, &notesFromChannel[i][0]);
+		listDataForLists(listPosition, i, &notesInChannel[i][0]);
+
 	}
+	selectedConfigGroup[listPosition] = mtConfig.midi.notesInChannel ;
 
 	setDataForLists(listPosition, NOTES_FROM_CHANNEL_NUM);
 	changeLabelText(4, "Notes channel");
 }
+void cConfigEditor::showMidiNotesOutChannels(uint8_t listPosition)
+{
+	for(uint8_t i = 0; i < NOTES_OUT_CHANNEL_NUM; i++)
+	{
+		listDataForLists(listPosition, i, &notesInChannel[i][0]);
+	}
+
+	selectedConfigGroup[listPosition] = mtConfig.midi.notesOutChannel ;
+
+	setDataForLists(listPosition, NOTES_OUT_CHANNEL_NUM);
+	changeLabelText(4, "Notes channel");
+}
+
+
 
 void cConfigEditor::showCCnumber(uint8_t listPosition)
 {
@@ -674,6 +705,50 @@ uint8_t cConfigEditor::setCCout(uint8_t ccNum, uint32_t val)
 
 	return isChanged;
 }
+uint8_t cConfigEditor::setNotesIn(uint32_t val)
+{
+	uint8_t isChanged = 0;
+	if(mtConfig.midi.notesIn != val)
+	{
+		mtConfig.midi.notesIn = val;
+		isChanged = 1;
+	}
+
+	return isChanged;
+}
+uint8_t cConfigEditor::setNotesInChannel(uint32_t val)
+{
+	uint8_t isChanged = 0;
+	if(mtConfig.midi.notesInChannel != val)
+	{
+		mtConfig.midi.notesInChannel = val;
+		isChanged = 1;
+	}
+
+	return isChanged;
+}
+uint8_t cConfigEditor::setNotesOutMode(uint32_t val)
+{
+	uint8_t isChanged = 0;
+	if(mtConfig.midi.notesOutMode != val)
+	{
+		mtConfig.midi.notesOutMode = val;
+		isChanged = 1;
+	}
+
+	return isChanged;
+}
+uint8_t cConfigEditor::setNotesOutChannel(uint32_t val)
+{
+	uint8_t isChanged = 0;
+	if(mtConfig.midi.notesOutChannel != val)
+	{
+		mtConfig.midi.notesOutChannel = val;
+		isChanged = 1;
+	}
+
+	return isChanged;
+}
 
 void cConfigEditor::processChangeInGroup0()
 {
@@ -744,11 +819,17 @@ void cConfigEditor::processChangeInGroup1()
 		case configMIDICcout:
 			showCCouts(2);
 			break;
-		case configMIDINotesFrom:
-			showMidiNotesFrom(2);
+		case configMIDINotesFrom_mode:
+			showMidiNotesFrom_mode(2);
 			break;
-		case configMIDINotesChannel:
-			showMidiNotesChannels(2);
+		case configMIDINotesFrom_channel:
+			showMidiNotesInChannels(2);
+			break;
+		case configMIDINotesOut_mode:
+			showMidiNotesFrom_mode(2);
+			break;
+		case configMIDINotesOut_channel:
+			showMidiNotesInChannels(2);
 			break;
 		default:
 			break;
@@ -778,28 +859,44 @@ void cConfigEditor::processChangeInGroup2()
 		}
 	}
 
-	else if(selectedConfigGroup[0] == configDefaultMIDI)
+	else if (selectedConfigGroup[0] == configDefaultMIDI)
 	{
-		if(selectedConfigGroup[1] == configMIDIClockIn)
+
+		switch (selectedConfigGroup[1])
 		{
+		case configMIDIClockIn:
 			hasConfigChanged = setClockIn(dataSource);
-		}
-		else if(selectedConfigGroup[1] == configMIDIClockOut)
-		{
+			break;
+		case configMIDIClockOut:
 			hasConfigChanged = setClockOut(dataSource);
-		}
-		else if(selectedConfigGroup[1] == configMIDITransportIn)
-		{
+			break;
+		case configMIDITransportIn:
 			hasConfigChanged = setTransportIn(dataSource);
-		}
-		else if(selectedConfigGroup[1] == configMIDITansportOut)
-		{
+			break;
+		case configMIDITansportOut:
 			hasConfigChanged = setTransportOut(dataSource);
-		}
-		else if(selectedConfigGroup[1] == configMIDICcout)
-		{
+			break;
+		case configMIDICcout:
 			showCCnumber(3);
+			break;
+
+
+		case configMIDINotesFrom_mode:
+			hasConfigChanged = setNotesIn(dataSource);
+			break;
+		case configMIDINotesFrom_channel:
+			hasConfigChanged = setNotesInChannel(dataSource);
+			break;
+		case configMIDINotesOut_mode:
+			hasConfigChanged = setNotesOutMode(dataSource);
+			break;
+		case configMIDINotesOut_channel:
+			hasConfigChanged = setNotesOutChannel(dataSource);
+			break;
+		default:
+			break;
 		}
+
 	}
 }
 
