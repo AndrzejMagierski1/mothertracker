@@ -186,7 +186,6 @@ void audioEngine::stopTestSignal()
 	testWaveform.amplitude(0.0);
 }
 
-<<<<<<< HEAD
 void audioEngine::setPassEnvelope(uint8_t state)
 {
 	for(uint8_t i = 0; i < 8; i++)
@@ -195,8 +194,6 @@ void audioEngine::setPassEnvelope(uint8_t state)
 	}
 }
 
-=======
->>>>>>> interface
 void audioEngine::init()
 {
 
