@@ -1,5 +1,5 @@
 #include "mtAudioEngine.h"
-#include "sampleRecorder.h"
+#include "sampleRecorder/sampleRecorder.h"
 #include "mtSequencer.h"
 extern AudioControlSGTL5000 audioShield;
 static cSampleRecorder* SR = &sampleRecorder;

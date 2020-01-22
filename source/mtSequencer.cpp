@@ -6,9 +6,9 @@
 #include "mtFileManager.h"
 
 #include "mtMidi.h"
-#include "configEditor.h"
+#include "configEditor/configEditor.h"
 
-#include "patternEditor.h"
+#include "patternEditor/patternEditor.h"
 Sequencer sequencer;
 
 inline void timerExternalVector()

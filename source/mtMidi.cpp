@@ -1,8 +1,13 @@
-#include  "mtMidi.h"
+
 #include <Arduino.h>
+#include "MIDI.h"
+
+#include  "mtMidi.h"
 #include "mtSequencer.h"
 
-#include "configEditor.h"
+#include "configEditor/configEditor.h"
+#include "patternEditor/patternEditor.h"
+
 
 void midiInit()
 {
