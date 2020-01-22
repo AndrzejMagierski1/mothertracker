@@ -13,8 +13,8 @@ enum enChecklist
 	checkInputs,
 	checkUSB,
 	checkMidi,
-	checkRadio,
 	checkAudio,
+	checkRadio,
 
 	checkEnd,
 
@@ -29,7 +29,7 @@ enum enTestPhases
 	lastPhase = 255,
 };
 
-const uint8_t startCode[5] = {47,13,14,15,16};
+const uint8_t startCode[5] = {47,10,45,8,43};
 
 class cFunctionMachine;
 
@@ -127,8 +127,9 @@ private:
 
 	uint8_t ledBright = 0;
 
-	// midi
-
+	// audio
+	void playSdFile(const char* filePath);
+	void stopPlayingSdFile();
 
 };
 

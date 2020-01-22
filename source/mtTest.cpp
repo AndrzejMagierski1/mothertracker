@@ -26,7 +26,7 @@ static uint8_t functPowerButton(uint8_t state);
 static void receiveTestNoteOn(byte channel, byte pitch, byte velocity);
 static void radioSeek();
 
-const char checkList[checkCount][50] =
+const char checkList[checkCount][20] =
 {
 		"Start",
 		"Screen",
@@ -35,10 +35,6 @@ const char checkList[checkCount][50] =
 		"MIDI",
 		"Audio",
 		"Radio",
-
-
-
-
 
 		"Finished",
 };
@@ -52,6 +48,11 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 {
 	FM = _fm;
 	eventFunct = func;
+
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+	{
+		sequencer.stop();
+	}
 
 	radio.setFrequency(93.7);
 
@@ -71,8 +72,8 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 	FM->setPadsGlobal(functPads);
 	FM->setPowerButtonObj(functPowerButton);
 
-	mainStatus = checkStart;//checkInputs;
-	//mainStatus = checkUSB;
+	mainStatus = checkStart;
+	//mainStatus = checkAudio;//checkInputs;
 	procedureRunning = 1;
 }
 
@@ -163,7 +164,7 @@ void cTest::showStart()
 
 void cTest::showEnd()
 {
-	showMessage("Test Done", "", "Restart device", "Run again");
+	showMessage("Test Done", "Sending data to Polyend...", "Restart device", "Run again");
 }
 
 //==========================================================================================
@@ -343,27 +344,93 @@ void cTest::runAudioTest()
 	{
 		setAudiIO(0);
 		delay(1);
+
+		SdFile wavHeader = SD.open("/line_in_test.wav");
+		if(wavHeader)
+		{
+			wavHeader.close();
+			playSdFile("/line_in_test.wav");
+		}
+		else
+		{
+			engine.startTestSignal(0.1, 100);
+		}
+
+		testTimer = 0;
 		recorder.startRecording(sdram_effectsBank);
 		testPhase = 2;
+	}
+	else if(testPhase == 2 || testPhase == 5)
+	{
+		if(testTimer > 2000)
+		{
+			recorder.stopRecording();
+			stopPlayingSdFile();
+			engine.stopTestSignal();
+			testPhase++;
+		}
+	}
+	if(testPhase == 4)
+	{
+		setAudiIO(1);
+		delay(1);
+
+		SdFile wavHeader = SD.open("/mic_test.wav");
+		if(wavHeader)
+		{
+			wavHeader.close();
+			playSdFile("/mic_test.wav");
+		}
+		else
+		{
+			engine.startTestSignal(0.1, 1000);
+		}
+
 		testTimer = 0;
-	}
-	else if(testPhase == 2)
-	{
-		if(testTimer > 3000)
-		{
-			recorder.startRecording(sdram_effectsBank);
-		}
+		recorder.startRecording(sdram_effectsBank+200000);
+		testPhase = 5;
 	}
 
-
-
-	else if(testPhase == 5)
+	else if(testPhase == 7)
 	{
-		testTimer = 6001;
-		if(testTimer > 6000)
+		instrumentPlayer[0].noteOff();
+		instrumentPlayer[0].noteOnforPrev(sdram_effectsBank, 70000, mtSampleTypeWaveFile);
+		testTimer = 0;
+		testPhase = 8;
+	}
+	else if(testPhase == 8)
+	{
+		if(testTimer > 1600)
 		{
-			instrumentPlayer[0].noteOnforPrev(sdram_effectsBank, 264600, mtSampleTypeWaveFile);
+			instrumentPlayer[0].noteOff();
+			instrumentPlayer[0].noteOnforPrev(sdram_effectsBank, 70000, mtSampleTypeWaveFile);
+			testTimer = 0;
 		}
+	}
+	else if(testPhase == 9)
+	{
+		instrumentPlayer[0].noteOff();
+		instrumentPlayer[0].noteOnforPrev(sdram_effectsBank+200000, 70000, mtSampleTypeWaveFile);
+		testTimer = 0;
+		testPhase = 10;
+	}
+	else if(testPhase == 10)
+	{
+		if(testTimer > 1600)
+		{
+			instrumentPlayer[0].noteOff();
+			instrumentPlayer[0].noteOnforPrev(sdram_effectsBank+200000, 70000, mtSampleTypeWaveFile);
+			testTimer = 0;
+		}
+	}
+	else if(testPhase == 11)
+	{
+		instrumentPlayer[0].noteOff();
+		testPhase = 12;
+	}
+	else if(testPhase == 12)
+	{
+
 	}
 
 
@@ -445,13 +512,13 @@ void cTest::showInputsTest()
 	}
 	if(testPhase == 2)
 	{
-		showMessage("Is pads backlight ok?", "", "Yes", "Skip");
+		showMessage("Is pads backlight ok?", "", "Yes", "");
 	}
 }
 
 void cTest::showUSBTest()
 {
-	showMessage("Is MTP working?", "", "Yes", "Skip");
+	showMessage("Is MTP working?", "", "Yes", "No");
 }
 
 
@@ -479,29 +546,33 @@ void cTest::showAudioTest()
 	{
 		showMessage("Connect audio output to line input", "", "Ready", "");
 	}
-	else if(testPhase == 1)
+	else if(testPhase == 1 || testPhase == 2)
 	{
-		showMessage("Wait", "Recording in progress...", "", "");
-	}
-	else if(testPhase == 2)
-	{
-		showMessage("Connect audio output to mic input", " ", "Ready", "");
+		showMessage("Recording in progress", "Wait...", "", "");
 	}
 	else if(testPhase == 3)
 	{
-		showMessage("Wait", "Recording in progress...", "", "");
+		showMessage("Connect audio output to mic input", "", "Ready", "");
 	}
-	else if(testPhase == 4)
+	else if(testPhase == 4 || testPhase == 5)
 	{
-		showMessage("Connect Headphones", " ", "Ready", "");
-	}
-	else if(testPhase == 5)
-	{
-		showMessage("Listen and chcek quality of recordings", "Recordings from line in", "All good", "");
+		showMessage("Recording in progress", "Wait...", "", "");
 	}
 	else if(testPhase == 6)
 	{
-		showMessage("Listen and chcek quality of recordings", "Recordings from mic", "All good", "");
+		showMessage("Connect Headphones", "", "Ready", "");
+	}
+	else if(testPhase == 7 || testPhase == 8)
+	{
+		showMessage("Listen and chcek quality of recording", "-line in", "All good", "");
+	}
+	else if(testPhase == 9 || testPhase == 10)
+	{
+		showMessage("Listen and chcek quality of recording", "-mic", "All good", "");
+	}
+	else if(testPhase == 11 || testPhase == 12)
+	{
+		showMessage("Audio test complited", "", "Ok", "Retry");
 	}
 }
 
@@ -509,11 +580,11 @@ void cTest::showRadioTest()
 {
 	if(testPhase == 0)
 	{
-		showMessage("Listen radio transmission", "", "Connected", "");
+		showMessage("Connect Headphones", "", "Connected", "");
 	}
 	else if(testPhase == 1 || testPhase == 2)
 	{
-		showMessage((char*)"Is radio Quailty ok?", radioFreq, (char*)"Yes", (char*)"Skip");
+		showMessage((char*)"Is radio Quailty ok?", radioFreq, (char*)"Yes", (char*)"");
 	}
 }
 //==========================================================================================
@@ -620,8 +691,8 @@ void cTest::AcceptButton()
 	}
 	case checkAudio:
 	{
-		if(testPhase == 0 || testPhase == 2 || testPhase == 4) testPhase++;
-		else if(testPhase == 5 || testPhase == 6) nextTest();
+		if(testPhase == 0 || testPhase == 3 || testPhase == 6 || testPhase == 7 || testPhase == 8 || testPhase == 9 || testPhase == 10) testPhase++;
+		else if(testPhase == 11 || testPhase == 12) nextTest();
 		break;
 	}
 
@@ -680,9 +751,9 @@ void cTest::DeclineButton()
 	}
 	case checkAudio:
 	{
+		if(testPhase == 11 || testPhase == 12) testPhase = 0;
 		break;
 	}
-
 
 	case checkEnd:
 		mainStatus = checkStart;
@@ -709,7 +780,7 @@ uint8_t cTest::runTestByCombinaion(uint8_t pad)
 	{
 		pos = 0;
 	}
-	else if(pos == 1) // == 5
+	else if(pos == 4) // == 5
 	{
 		pos = 0;
 		return 1;
@@ -753,21 +824,59 @@ void cTest::setAudiIO(uint8_t config)
 		audioShield.inputSelect(0);
 		digitalWrite(SI4703_KLUCZ,HIGH);
 		audioShield.headphoneSourceSelect(0);
+		audioShield.lineInLevel(15);
+		engine.setHeadphonesVolume(70);
 	}
 	else if(config == 1)
 	{
-		audioShield.muteHeadphone();
+		//audioShield.muteHeadphone();
 		audioShield.inputSelect(1);
 		audioShield.headphoneSourceSelect(0);
-
+		audioShield.micGain(20);
+		engine.setHeadphonesVolume(70);
 	}
 	else if(config == 2)
 	{
 		audioShield.inputSelect(0);
 		digitalWrite(SI4703_KLUCZ,LOW);
 		audioShield.headphoneSourceSelect(1);
+		audioShield.lineInLevel(15);
+		engine.setHeadphonesVolume(70);
 	}
 }
+
+void cTest::playSdFile(const char* filePath)
+{
+	stopPlayingSdFile();
+
+	SdFile wavHeader = SD.open(filePath);
+
+	if(!wavHeader)
+	{
+		wavHeader.close();
+		SD.begin(SdioConfig(DMA_SDIO));
+		return;
+	}
+
+	strWavFileHeader header;
+	readHeader(&header,&wavHeader);
+	wavHeader.close();
+
+	if(header.AudioFormat == 3) playSdWavFloat.play(filePath);
+	else
+	{
+		if(header.bitsPerSample == 16) playSdWav.play(filePath);
+		else if (header.bitsPerSample == 24) playSdWav24Bit.play(filePath);
+	}
+}
+
+void cTest::stopPlayingSdFile()
+{
+	playSdWav.stop();
+	playSdWavFloat.stop();
+	playSdWav24Bit.stop();
+}
+
 //==========================================================================================
 //
 //==========================================================================================
