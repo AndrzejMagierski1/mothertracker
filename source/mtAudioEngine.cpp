@@ -511,13 +511,14 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 	/*======================================================================================================*/
 	/*==================================================GAIN================================================*/
+	float localAmount = mtProject.instrument[instr_idx].envelope[envAmp].loop ? lfoBasedEnvelope[envAmp].amount : mtProject.instrument[instr_idx].envelope[envAmp].amount;
 	if(velocity < 0)
 	{
-		instrumentBasedMod.volume=(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0))*100;
+		instrumentBasedMod.volume=(localAmount * (mtProject.instrument[instr_idx].volume/100.0))*100;
 	}
 	else
 	{
-		instrumentBasedMod.volume=((velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount)*100;
+		instrumentBasedMod.volume=((velocity/100.0) * localAmount)*100;
 	}
 //	if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable)
 //	{
@@ -825,13 +826,14 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	/*======================================================================================================*/
 	/*==================================================GAIN================================================*/
+	float localAmount = mtProject.instrument[instr_idx].envelope[envAmp].loop ? lfoBasedEnvelope[envAmp].amount : mtProject.instrument[instr_idx].envelope[envAmp].amount;
 	if(velocity < 0)
 	{
-		instrumentBasedMod.volume=(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0))*100;
+		instrumentBasedMod.volume=(localAmount * (mtProject.instrument[instr_idx].volume/100.0))*100;
 	}
 	else
 	{
-		instrumentBasedMod.volume=((velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount)*100;
+		instrumentBasedMod.volume=((velocity/100.0) * localAmount)*100;
 	}
 //	if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable)
 //	{
@@ -1016,7 +1018,7 @@ void playerEngine::noteOff(int8_t option)
 		}
 		else
 		{
-			if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f) || (envelopePassFlag))
+			if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f) || (envelopePassFlag) || (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) )
 			{
 				playMemPtr->stop();
 			}
@@ -2723,14 +2725,14 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 
 	/*======================================================================================================*/
 	/*==================================================GAIN================================================*/
-
+	float localAmount = mtProject.instrument[instr_idx].envelope[envAmp].loop ? lfoBasedEnvelope[envAmp].amount : mtProject.instrument[instr_idx].envelope[envAmp].amount;
 	if(velocity < 0)
 	{
-		ampPtr->gain(mtProject.instrument[instr_idx].envelope[envAmp].amount * (mtProject.instrument[instr_idx].volume/100.0));
+		ampPtr->gain(localAmount * (mtProject.instrument[instr_idx].volume/100.0));
 	}
 	else
 	{
-		ampPtr->gain( (velocity/100.0) * mtProject.instrument[instr_idx].envelope[envAmp].amount);
+		ampPtr->gain( (velocity/100.0) * localAmount);
 	}
 	/*======================================================================================================*/
 	/*===============================================PANNING================================================*/
@@ -2784,6 +2786,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 	envelopeAmpPtr->release(0.0f);
 	envelopeAmpPtr->setLoop(0);
 
+	envelopePanningPtr->kill();
 	envelopeFilterPtr->kill();
 	envelopeWtPos->kill();
 	envelopeGranPos->kill();
@@ -2824,6 +2827,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len, uint8_t not
 	envelopeAmpPtr->release(0.0f);
 	envelopeAmpPtr->setLoop(0);
 
+	envelopePanningPtr->kill();
 	envelopeFilterPtr->kill();
 	envelopeWtPos->kill();
 	envelopeGranPos->kill();

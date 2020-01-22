@@ -288,7 +288,7 @@ private:
 	uint8_t 					muteState = 0;
 	uint8_t						onlyReverbMuteState = 0;
 
-	uint8_t 					envelopePassFlag = 1;
+	uint8_t 					envelopePassFlag = 0;
 
 	envelopeGenerator::strEnv lfoBasedEnvelope[envelopeTypeMax];
 

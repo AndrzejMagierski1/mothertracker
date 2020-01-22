@@ -94,14 +94,14 @@ void AudioEffectEnvelope::update(void)
 	if (!block) return;
 
 	if (state == STATE_IDLE) {
-		release(block);
+		AudioStream::release(block);
 		return;
 	}
 
 	if(passFlag)
 	{
 		transmit(block);
-		release(block);
+		AudioStream::release(block);
 		return;
 	}
 
@@ -116,67 +116,26 @@ void AudioEffectEnvelope::update(void)
 			if (state == STATE_ATTACK)
 			{
 				count = hold_count;
-				if (count > 0)
-				{
-					state = STATE_HOLD;
-					mult_hires = 0x40000000;
-					inc_hires = 0;
-				}
-				else
-				{
-					state = STATE_DECAY;
-					count = decay_count;
-					inc_hires = (sustain_mult - 0x40000000) / (int32_t)count;
-				}
+				state = STATE_HOLD;
+				mult_hires = 0x40000000;
+				inc_hires = 0;
 				continue;
 			}
 			else if (state == STATE_HOLD)
 			{
 				state = STATE_DECAY;
 				count = decay_count;
-				inc_hires = (sustain_mult - 0x40000000) / (int32_t)count;
+				inc_hires = count ? (sustain_mult - 0x40000000) / (int32_t)count : 0 ;
 				continue;
 			}
 			else if (state == STATE_DECAY)
 			{
 				if(loopFlag && pressedFlag)
 				{
-					// tutaj pełna obsługa przypadu gdzie wszystko ustawione jest na 0 (attack decay release)
-					// inne stany wrzucą się ostatecznie w ten i tu zostanie ustawiony sustain
 					count = release_count;
-					if(count > 0)
-					{
-						state = STATE_RELEASE;
-						inc_hires = (-mult_hires) / (int32_t)count;
-						continue;
-					}
-					else
-					{
-						count = attack_count;
-						if(count > 0)
-						{
-							state = STATE_ATTACK;
-							inc_hires = 0x40000000 / (int32_t)count;
-							continue;
-						}
-						else
-						{
-							count = decay_count;
-							if(count > 0)
-							{
-								state = STATE_DECAY;
-								inc_hires = (sustain_mult - 0x40000000) / (int32_t)count;
-								continue;
-							}
-							else
-							{
-								state = STATE_SUSTAIN;
-								count = 0xFFFF;
-								mult_hires = sustain_mult;
-								inc_hires = 0;
-							}
-						}
-					}
+					state = STATE_RELEASE;
+					inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+					continue;
 				}
 				else
 				{
@@ -196,64 +155,45 @@ void AudioEffectEnvelope::update(void)
 				{
 					//powinienem dać delay state, ale nie jest uzywany w trackerze, a moze tworzyc dodatkowe problemy
 					count = attack_count;
-					if(count > 0)
-					{
-						state = STATE_ATTACK;
-						inc_hires = 0x40000000 / (int32_t)count;
-						continue;
-					}
-					else
-					{
-						count = decay_count;
-						state = STATE_DECAY;
-						inc_hires = (sustain_mult - 0x40000000) / (int32_t)count;
-						continue;
-					}
-
+					state = STATE_ATTACK;
+					inc_hires = count ? 0x40000000 / (int32_t)count : 0;
+					continue;
 				}
-				else state = STATE_IDLE;
-//				while (p < end)
-//				{
-//
-//					*p++ = 0;
-//					*p++ = 0;
-//					*p++ = 0;
-//					*p++ = 0;
-//				}
-//				break;
-				endReleaseFlag=1;
-				release(block);
-				return;
+				else
+				{
+					state = STATE_IDLE;
+					endReleaseFlag=1;
+					while (p < end)
+					{
 
+						*p++ = 0;
+						*p++ = 0;
+						*p++ = 0;
+						*p++ = 0;
+					}
+					break;
+				}
 			}
 			else if (state == STATE_FORCED)
 			{
 				mult_hires = 0;
 				count = delay_count;
-				if (count > 0)
-				{
-					state = STATE_DELAY;
-					inc_hires = 0;
-				}
-				else
-				{
-					state = STATE_ATTACK;
-					count = attack_count;
-					inc_hires = 0x40000000 / (int32_t)count;
-				}
+				state = STATE_DELAY;
+				inc_hires = 0;
+				continue;
+
 			}
 			else if (state == STATE_DELAY)
 			{
 				state = STATE_ATTACK;
 				count = attack_count;
-				inc_hires = 0x40000000 / count;
+				inc_hires = count ?  0x40000000 / count : 0;
 				continue;
 			}
 		}
 
 		int32_t mult = mult_hires >> 14; // przeskalowanie na 16 bitow bo 0x40000000 zajmuje 30 bitow
-		int32_t inc = inc_hires >> 17; // podejrzewam ze przeskalowanie na 13 bitow aby suma takich osmiu (3bity) nie byla wieksza od wartosci 16bitowej
-		// process 8 samples, using only mult and inc (16 bit resolution)
+		int32_t inc = inc_hires >> 17; // podejrzewam ze przeskalowanie na 13 bitow aby suma takich osmiu (3bity) obslugiwala 8 probek (inc_hires wyliczone dla 8 bitowego cyklu)
 		sample12 = *p++;
 		sample34 = *p++;
 		sample56 = *p++;
@@ -289,7 +229,7 @@ void AudioEffectEnvelope::update(void)
 		count--;
 	}
 	transmit(block);
-	release(block);
+	AudioStream::release(block);
 }
 
 uint8_t AudioEffectEnvelope::endRelease()
