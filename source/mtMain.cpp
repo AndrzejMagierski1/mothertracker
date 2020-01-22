@@ -1,7 +1,7 @@
 
 
 
-#include <interface.h>
+#include "core/interface.h"
 #include "mtHardware.h"
 #include "mtAudioEngine.h"
 

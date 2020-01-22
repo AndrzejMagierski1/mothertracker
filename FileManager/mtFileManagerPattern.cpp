@@ -1,6 +1,6 @@
 #include "mtFileManager.h"
 #include "sdram.h"
-#include "interfacePopups.h"
+#include "core/interfacePopups.h"
 #include "mtCommonBuffer.h"
 
 

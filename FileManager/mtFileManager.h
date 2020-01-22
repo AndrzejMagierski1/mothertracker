@@ -5,7 +5,7 @@
 #include "SD.h"
 #include "mtStructs.h"
 #include "wavHeaderReader.h"
-#include "patternEditor.h"
+#include "patternEditor/patternEditor.h"
 #include "mtSamplesLoader.h"
 #include "mtSamplesImporter.h"
 #include "mtSamplesCopyier.h"

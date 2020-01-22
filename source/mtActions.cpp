@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 
-#include <interface.h>
+#include "core/interface.h"
 
 #include "keyScanner.h"
 

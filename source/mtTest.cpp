@@ -1,8 +1,9 @@
 
-#include <modulesBase.h>
+#include "core/modulesBase.h"
 #include "mtPadsBacklight.h"
 #include "FT812.h"
-#include  "mtMidi.h"
+#include "MIDI.h"
+#include "mtMidi.h"
 #include "mtSleep.h"
 #include "keyScanner.h"
 #include "Si4703.h"

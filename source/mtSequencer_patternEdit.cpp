@@ -5,9 +5,9 @@
 #include "mtStructs.h"
 #include "mtFileManager.h"
 
-#include "patternEditor.h"
+#include "patternEditor/patternEditor.h"
 #include "keyScanner.h"
-#include "interfaceDefs.h"
+#include "core/interfaceDefs.h"
 extern Sequencer sequencer;
 
 void fromToSwap(int16_t & from, int16_t & to)
