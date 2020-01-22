@@ -85,7 +85,7 @@ public:
 		passFlag = state;
 	}
 
-	using AudioStream::release;
+//	using AudioStream::release;
 	virtual void update(void);
 	uint8_t endRelease();
 	void clearEndReleaseFlag();
