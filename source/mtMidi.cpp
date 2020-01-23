@@ -298,3 +298,51 @@ void midiForceStep()
 
 }
 
+void sendCC(uint8_t internalControl, uint8_t value)
+{
+	if (mtConfig.midi.notesOutMode == notesOut_mode_usb ||
+			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
+	{
+		usbMIDI.sendControlChange(mtConfig.midi.ccOut[internalControl],
+									value,
+									mtConfig.midi.notesOutChannel);
+	}
+
+	if (mtConfig.midi.notesOutMode == notesOut_mode_jack ||
+			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
+	{
+		MIDI.sendControlChange(mtConfig.midi.ccOut[internalControl],
+								value,
+								mtConfig.midi.notesOutChannel);
+	}
+}
+
+void sendMidiNoteOn(uint8_t note, uint8_t velo, uint8_t channel)
+{
+	if (mtConfig.midi.notesOutMode == notesOut_mode_usb ||
+			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
+	{
+		usbMIDI.sendNoteOn(note, velo, channel);
+	}
+
+	if (mtConfig.midi.notesOutMode == notesOut_mode_jack ||
+			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
+	{
+		MIDI.sendNoteOn(note, velo, channel);
+	}
+}
+void sendMidiNoteOff(uint8_t note, uint8_t velo, uint8_t channel)
+{
+	if (mtConfig.midi.notesOutMode == notesOut_mode_usb ||
+			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
+	{
+		usbMIDI.sendNoteOff(note, 0, channel);
+	}
+
+	if (mtConfig.midi.notesOutMode == notesOut_mode_jack ||
+			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
+	{
+		MIDI.sendNoteOff(note, 0, channel);
+	}
+}
+

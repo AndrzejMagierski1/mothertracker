@@ -50,6 +50,8 @@ void setup()
 	//sequencer.printNotes(1);		// printuje nuty w trakcie sekwencji
 
 	midiReceiveTimer.begin(receiveAllMidi, 2000); //  w ten spsób 'midi clock in' działa najlepiej
+
+//	Serial.printf( "unique ID: 0x%08X 0x%08X 0x%08X 0x%08X\n", SIM_UIDH, SIM_UIDMH, SIM_UIDML, SIM_UIDL );
 }
 
 //=======================================================================

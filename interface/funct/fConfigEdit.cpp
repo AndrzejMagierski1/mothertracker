@@ -430,12 +430,12 @@ void cConfigEditor::showFirmwareFlashButton()
 
 void cConfigEditor::showMidiSubmenus(uint8_t listPosition)
 {
-	for(uint8_t i = 0; i < MIDI_SUBMENUS; i++)
+	for(uint8_t i = 0; i < configMIDI_count; i++)
 	{
 		listDataForLists(listPosition, i, &txtlistMidiConfig[i][0]);
 	}
 
-	setDataForLists(listPosition, MIDI_SUBMENUS);
+	setDataForLists(listPosition, configMIDI_count);
 	changeLabelText(2, "MIDI");
 }
 
@@ -542,7 +542,7 @@ void cConfigEditor::showCCouts(uint8_t listPosition)
 }
 
 
-void cConfigEditor::showMidiNotesFrom_mode(uint8_t listPosition)
+void cConfigEditor::showMidiNotesIn_mode(uint8_t listPosition)
 {
 
 	for(uint8_t i = 0; i < NOTES_FROM_MODE_NUM; i++)
@@ -552,7 +552,7 @@ void cConfigEditor::showMidiNotesFrom_mode(uint8_t listPosition)
 	selectedConfigGroup[listPosition] = mtConfig.midi.notesIn;
 
 	setDataForLists(listPosition, NOTES_FROM_MODE_NUM);
-	changeLabelText(4, "Notes from");
+	changeLabelText(4, "Notes in mode");
 }
 void cConfigEditor::showMidiNotesOut_mode(uint8_t listPosition)
 {
@@ -583,13 +583,13 @@ void cConfigEditor::showMidiNotesOutChannels(uint8_t listPosition)
 {
 	for(uint8_t i = 0; i < NOTES_OUT_CHANNEL_NUM; i++)
 	{
-		listDataForLists(listPosition, i, &notesInChannel[i][0]);
+		listDataForLists(listPosition, i, &notesOutChannel[i][0]);
 	}
 
 	selectedConfigGroup[listPosition] = mtConfig.midi.notesOutChannel ;
 
 	setDataForLists(listPosition, NOTES_OUT_CHANNEL_NUM);
-	changeLabelText(4, "Notes channel");
+	changeLabelText(4, "Notes out channel");
 }
 
 
@@ -740,6 +740,8 @@ uint8_t cConfigEditor::setNotesOutMode(uint32_t val)
 }
 uint8_t cConfigEditor::setNotesOutChannel(uint32_t val)
 {
+
+	val++;
 	uint8_t isChanged = 0;
 	if(mtConfig.midi.notesOutChannel != val)
 	{
@@ -820,16 +822,16 @@ void cConfigEditor::processChangeInGroup1()
 			showCCouts(2);
 			break;
 		case configMIDINotesFrom_mode:
-			showMidiNotesFrom_mode(2);
+			showMidiNotesIn_mode(2);
 			break;
 		case configMIDINotesFrom_channel:
 			showMidiNotesInChannels(2);
 			break;
 		case configMIDINotesOut_mode:
-			showMidiNotesFrom_mode(2);
+			showMidiNotesOut_mode(2);
 			break;
 		case configMIDINotesOut_channel:
-			showMidiNotesInChannels(2);
+			showMidiNotesOutChannels(2);
 			break;
 		default:
 			break;
