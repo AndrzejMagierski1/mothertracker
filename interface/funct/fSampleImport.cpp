@@ -312,6 +312,14 @@ static  uint8_t functChangeInstrument(uint8_t button)
 static  uint8_t functInstrumentAdd()
 {
 	if(SI->isBusy) return 1;
+
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+	{
+		sequencer.stop();
+	}
+
+	SI->stopPlaying();
+
 	SI->sampleType = mtSampleTypeWaveFile;
 	SI->SelectFile();
 
@@ -356,6 +364,14 @@ static uint8_t functDelete(uint8_t state)
 
 static  uint8_t functInstrumentDelete()
 {
+
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+	{
+		sequencer.stop();
+	}
+
+	SI->stopPlaying();
+
 	if(SI->selectedPlace == 1)
 	{
 		SI->deleteStart = SI->getSelectionStart(listInstruments);
@@ -418,6 +434,14 @@ static  uint8_t functEnter()
 static uint8_t functInstrumentAddNext()
 {
 	if(SI->isBusy) return 1;
+
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+	{
+		sequencer.stop();
+	}
+
+	SI->stopPlaying();
+
 
 	if(SI->locationExplorerList[SI->selectedFile][0] != '/')
 	{
@@ -525,6 +549,14 @@ static uint8_t functCopyPaste()
 {
 	if(SI->isBusy) return 1;
 
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+	{
+		sequencer.stop();
+	}
+
+	SI->stopPlaying();
+
+
 	if(tactButtons.isButtonPressed(interfaceButtonShift))
 	{
 		functPaste();
@@ -544,6 +576,13 @@ static uint8_t functCopyPaste()
 static uint8_t functPaste()
 {
 	if(SI->currentCopyStatusFlag || SI->currentLoadStatusFlag || SI->keyboardManager.getState()) return 1;
+
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+	{
+		sequencer.stop();
+	}
+
+	SI->stopPlaying();
 
 	if(SI->copyElementMax && SI->instrCopyStart != SI->selectedSlot)
 	{
