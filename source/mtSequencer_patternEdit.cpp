@@ -786,6 +786,11 @@ void Sequencer::setSelectionNote(int16_t value)
 
 			if (isSingleSelection(sel))
 			{
+
+				if (step->note == STEP_NOTE_EMPTY)
+				{
+					step->instrument = mtProject.values.lastUsedInstrument;
+				}
 				step->note = value;
 
 				if (step->note >= 0 && !isRec())
