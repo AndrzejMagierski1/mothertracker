@@ -1387,7 +1387,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 				}
 			}
 		break;
-		case fx_t::FX_TYPE_SAMPLE_END :
+		case fx_t::FX_TYPE_R30 :
 
 			if(fx_n == MOST_SIGNIFICANT_FX)
 			{
@@ -1410,7 +1410,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 				changeEndPointPerformanceMode(performanceMod.endPoint);
 			}
 		break;
-		case fx_t::FX_TYPE_WT_POSITION :
+		case fx_t::FX_TYPE_R31 :
 
 		break;
 		case fx_t::FX_TYPE_POSITION :
@@ -1944,7 +1944,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 //				lfoPitchPtr->stop();
 			}
 		break;
-		case fx_t::FX_TYPE_SAMPLE_END :
+		case fx_t::FX_TYPE_R30 :
 
 			trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::endPoint] = 0;
 
@@ -1980,7 +1980,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				}
 			}
 		break;
-		case fx_t::FX_TYPE_WT_POSITION :
+		case fx_t::FX_TYPE_R31 :
 
 		break;
 		case fx_t::FX_TYPE_POSITION:

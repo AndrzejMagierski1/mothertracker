@@ -1,13 +1,20 @@
 
 #ifndef SOURCE_MTMIDI_H_
 #define SOURCE_MTMIDI_H_
+#include <Arduino.h>
+#include "MIDI.h"
+#include "patternEditor.h"
+#include "configEditor.h"
 
 
 
 void midiInit();
 void midiUpdate();
-void handleNoteOn(byte channel, byte pitch, byte velocity);
-void handleNoteOff(byte channel, byte pitch, byte velocity);
+void handleJackNoteOn(byte channel, byte pitch, byte velocity);
+void handleJackNoteOff(byte channel, byte pitch, byte velocity);
+
+void handleUsbNoteOn(byte channel, byte pitch, byte velocity);
+void handleUsbNoteOff(byte channel, byte pitch, byte velocity);
 
 // hocki clocki
 void sendMidiStart();
@@ -28,5 +35,9 @@ void receiveStart();
 void receiveStop();
 
 void midiForceStep();
+
+void sendCC(uint8_t, uint8_t);
+void sendMidiNoteOn(uint8_t note, uint8_t velo, uint8_t channel);
+void sendMidiNoteOff(uint8_t note, uint8_t velo, uint8_t channel);
 
 #endif /* SOURCE_MTMIDI_H_ */

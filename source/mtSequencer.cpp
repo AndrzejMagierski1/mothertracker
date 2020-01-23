@@ -384,23 +384,19 @@ void Sequencer::play_microStep(uint8_t row)
 				break;
 
 			case fx.FX_TYPE_SEND_CC_A:
-				usbMIDI.sendControlChange(1, _fx.value, 1);
+				sendCC(0, _fx.value);
 				break;
-
 			case fx.FX_TYPE_SEND_CC_B:
-				usbMIDI.sendControlChange(2, _fx.value, 1);
+				sendCC(1, _fx.value);
 				break;
-
 			case fx.FX_TYPE_SEND_CC_C:
-				usbMIDI.sendControlChange(3, _fx.value, 1);
+				sendCC(2, _fx.value);
 				break;
-
 			case fx.FX_TYPE_SEND_CC_D:
-				usbMIDI.sendControlChange(4, _fx.value, 1);
+				sendCC(3, _fx.value);
 				break;
-
 			case fx.FX_TYPE_SEND_CC_E:
-				usbMIDI.sendControlChange(5, _fx.value, 1);
+				sendCC(4, _fx.value);
 				break;
 
 			case fx.FX_TYPE_TEMPO:
@@ -852,7 +848,7 @@ void Sequencer::send_allNotesOff(void)
 		sendNoteOff(row);
 		if (player.track[row].stepSent.instrument > INSTRUMENTS_MAX)
 		{
-			usbMIDI.sendNoteOff(
+			sendMidiNoteOn(
 					player.track[row].stepSent.note,
 					player.track[row].stepSent.velocity,
 					player.track[row].stepSent.instrument - INSTRUMENTS_MAX);
@@ -1274,7 +1270,8 @@ void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
 
 	if (instrument > INSTRUMENTS_MAX)
 	{
-		usbMIDI.sendNoteOn(note, velocity, instrument - INSTRUMENTS_MAX);
+		sendMidiNoteOn(note, velocity, instrument - INSTRUMENTS_MAX);
+
 	}
 	else
 	{
@@ -1292,15 +1289,16 @@ void Sequencer::sendNoteOn(uint8_t track,
 		{
 //			todo:
 			uint8_t velo = mtProject.values.midiInstrument[step->instrument - INSTRUMENTS_MAX].velocity;
-			usbMIDI.sendNoteOn(step->note,
-								velo,
-								step->instrument - INSTRUMENTS_MAX);
+
+			sendMidiNoteOn(step->note,
+							velo,
+							step->instrument - INSTRUMENTS_MAX);
 		}
 		else
 		{
-			usbMIDI.sendNoteOn(step->note,
-								step->velocity,
-								step->instrument - INSTRUMENTS_MAX);
+			sendMidiNoteOn(step->note,
+							step->velocity,
+							step->instrument - INSTRUMENTS_MAX);
 		}
 	}
 	else
@@ -1324,9 +1322,9 @@ void Sequencer::sendNoteOff(uint8_t track,
 
 	if (instrument > INSTRUMENTS_MAX)
 	{
-		usbMIDI.sendNoteOff(note,
-							0,
-							instrument - INSTRUMENTS_MAX);
+		sendMidiNoteOff(note,
+						0,
+						instrument - INSTRUMENTS_MAX);
 	}
 	else
 	{
@@ -1339,9 +1337,9 @@ void Sequencer::sendNoteOff(uint8_t track,
 
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
-		usbMIDI.sendNoteOff(step->note,
-							0,
-							step->instrument - INSTRUMENTS_MAX);
+		sendMidiNoteOff(step->note,
+						0,
+						step->instrument - INSTRUMENTS_MAX);
 	}
 	else
 	{
@@ -1383,7 +1381,7 @@ void Sequencer::blinkNote(uint8_t instrument, uint8_t note, int8_t velocity,
 		// todo: pobrać velo z audio engine
 		if (velocity < 0) velocity = 120;
 
-		usbMIDI.sendNoteOn(note, velocity, instrument - INSTRUMENTS_COUNT);
+		sendMidiNoteOn(note, velocity, instrument - INSTRUMENTS_COUNT);
 	}
 }
 
@@ -1417,8 +1415,8 @@ void Sequencer::blinkSelectedStep()
 		}
 		else
 		{
-			usbMIDI.sendNoteOn(step->note, 120,
-								step->instrument - INSTRUMENTS_COUNT);
+			sendMidiNoteOn(step->note, 120,
+							step->instrument - INSTRUMENTS_COUNT);
 		}
 	}
 
