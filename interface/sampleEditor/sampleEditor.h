@@ -2,7 +2,7 @@
 #define INTERFACE_SAMPLEEDITOR_H_
 
 
-#include "core/modulesBase.h""
+#include "core/modulesBase.h"
 #include "SD.h"
 
 #include "mtSequencer.h"
