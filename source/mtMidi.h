@@ -3,8 +3,8 @@
 #define SOURCE_MTMIDI_H_
 #include <Arduino.h>
 #include "MIDI.h"
-#include "patternEditor.h"
-#include "configEditor.h"
+#include "patternEditor/patternEditor.h"
+#include "configEditor/configEditor.h"
 
 
 

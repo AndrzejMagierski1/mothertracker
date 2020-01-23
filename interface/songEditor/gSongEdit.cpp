@@ -155,7 +155,7 @@ void cSongEditor::showDefaultScreen()
 	display.setControlValue(label[1], 1);
 	display.setControlValue(label[2], 0);
 	display.setControlValue(label[3], 0);
-	display.setControlValue(label[4], 1);
+	display.setControlValue(label[4], 0);
 	display.setControlValue(label[5], 1);
 	display.setControlValue(label[6], 1);
 
@@ -175,7 +175,7 @@ void cSongEditor::showDefaultScreen()
 
 	display.setControlText(label[3], "Paste");
 
-	display.setControlText(label[4], "");
+	display.setControlText(label[4], "Undo");
 
 	display.setControlText2(label[5], "");
 	display.setControlText(label[5], "Pattern");
