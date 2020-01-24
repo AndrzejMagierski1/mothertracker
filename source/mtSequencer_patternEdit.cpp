@@ -188,6 +188,8 @@ uint8_t Sequencer::randomFx()
 				retVal != fx.FX_TYPE_R5 &&
 				retVal != fx.FX_TYPE_R10 &&
 				retVal != fx.FX_TYPE_R21 &&
+				retVal != fx.FX_TYPE_R30 &&
+				retVal != fx.FX_TYPE_R31 &&
 				retVal != fx.FX_TYPE_R22
 
 				) break;
@@ -784,6 +786,11 @@ void Sequencer::setSelectionNote(int16_t value)
 
 			if (isSingleSelection(sel))
 			{
+
+				if (step->note == STEP_NOTE_EMPTY)
+				{
+					step->instrument = mtProject.values.lastUsedInstrument;
+				}
 				step->note = value;
 
 				if (step->note >= 0 && !isRec())

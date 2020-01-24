@@ -114,8 +114,8 @@ public:
 			FX_TYPE_POSITION_LFO,
 			FX_TYPE_PROGRAM_CHANGE,
 			FX_TYPE_R10,
-			FX_TYPE_SAMPLE_END,
-			FX_TYPE_WT_POSITION,
+			FX_TYPE_R30,
+			FX_TYPE_R31,
 
 			// FX_TYPE_Rx to pozostałość po starych efektach i zostają tu żeby nic się nie rozpadło
 			FX_TYPE_R1,
