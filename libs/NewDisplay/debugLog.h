@@ -27,7 +27,7 @@ enum enDebugLogState
 };
 
 
-const uint8_t  logLinesMax = 10; //max 21-22
+const uint8_t  logLinesMax = 2; //max 21-22
 const uint16_t  logLineTimeMax = 5000;
 
 //#########################################################################
