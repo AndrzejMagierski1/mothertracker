@@ -113,9 +113,10 @@ void SamplesLoader::update()
 		}
 		else if(waveLoader.getStopStatus() == 1)
 		{
+			int32_t actuallyLoadedBytes = waveLoader.getCurrentWaveLoadedMemory();;
 			mtProject.used_memory += currentSize*2;
 			mtProject.instrument[currentIndex].isActive=1;
-			mtProject.instrument[currentIndex].sample.length = currentSize;
+			mtProject.instrument[currentIndex].sample.length = actuallyLoadedBytes < currentSize ? actuallyLoadedBytes : currentSize;
 			if(mtProject.instrument[currentIndex].granular.grainLength > mtProject.instrument[currentIndex].sample.length) mtProject.instrument[currentIndex].granular.grainLength = mtProject.instrument[currentIndex].sample.length;
 
 			if(mtProject.instrument[currentIndex].playMode == playModeWavetable)
@@ -145,7 +146,7 @@ void SamplesLoader::update()
 			loadedFlagChange = 1;
 			if( (currentIndex+1) < INSTRUMENTS_COUNT)
 			{
-				mtProject.instrument[currentIndex+1].sample.address = mtProject.instrument[currentIndex].sample.address+currentSize;
+				mtProject.instrument[currentIndex+1].sample.address = mtProject.instrument[currentIndex].sample.address+mtProject.instrument[currentIndex].sample.length;
 				currentIndex++;
 			}
 			else
