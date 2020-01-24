@@ -14,6 +14,7 @@
 #include "performanceMode/performanceMode.h"
 #include "core/interfacePopups.h"
 #include "game/game.h"
+#include "masterParams/masterParams.h"
 
 #include "mtFileManager.h"
 #include "mtTest.h"
@@ -50,7 +51,7 @@ __NOINIT(EXTERNAL_RAM) uint8_t sdram_mtpIndex[8192];
 //=======================================================================
 //=======================================================================
 
-const uint8_t cInterface::modulesCount = 12;
+const uint8_t cInterface::modulesCount = 13;
 const hModule cInterface::modules[modulesCount] =
 {
 		&projectEditor,     // 0
@@ -65,6 +66,7 @@ const hModule cInterface::modules[modulesCount] =
 		&performanceMode,	// 9
 		&imageViewer,		// 10
 		&gameModule,		// 11
+		&masterParams,		// 12
 };
 
 
@@ -72,7 +74,7 @@ const uint8_t cInterface::modulesButtonsCount = 11;
 const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 {
 	{interfaceButtonPerformance,9, 0},
-	{interfaceButtonMaster,  	7, mtConfigModeMaster},
+	{interfaceButtonMaster,  	12, 0},
 	{interfaceButtonParams, 	5, mtInstEditModeParams},
 	{interfaceButtonFile, 		0, 0},
 	{interfaceButtonPattern, 	2, 0},
@@ -81,7 +83,7 @@ const uint32_t cInterface::modulesButtons[modulesButtonsCount][3] =
 	{interfaceButtonSampleRec, 	8, 0},
 	{interfaceButtonSampleLoad, 1, 0},
 	{interfaceButtonSong, 		4, 0},
-	{interfaceButtonConfig, 	7, mtConfigModeDefault},
+	{interfaceButtonConfig, 	7, 0},
 };
 
 
