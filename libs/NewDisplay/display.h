@@ -35,6 +35,8 @@
 #include "lineIndicatorControl.h"
 #include "songPlayerControl.h"
 #include "textBoxControl.h"
+#include "paramValueList.h"
+
 
 
 #include "displayStructs.h"

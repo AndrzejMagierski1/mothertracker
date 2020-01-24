@@ -79,15 +79,6 @@ void cConfigEditor::initDisplayControls()
 		prop2.h =  55;
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.colors = nullptr;
-		prop2.value = 0;
-		prop2.x = (800/8)*i+1;
-		prop2.y = 29;
-		prop2.w = 800/8-3;
-		prop2.style =  controlStyleValue_0_100 | controlStyleBackground;
-		prop2.h = 394;
-		if(barControl[i] == nullptr)  barControl[i] = display.createControl<cBar>(&prop2);
-
 	}
 
 	prop2.text = nullptr;
@@ -111,7 +102,7 @@ void cConfigEditor::initDisplayControls()
 	prop.y = 29;
 	prop.w = 800/4-3;
 	prop.h = 394;
-	if(configGroupsListControl[1] == nullptr)  configGroupsListControl[1] = display.createControl<cList>(&prop);
+	if(configSubmenuListControl == nullptr) configSubmenuListControl = display.createControl<cParamValueList>(&prop);
 
 	prop.x = (800/8)*4+1;
 	prop.y = 29;
@@ -141,13 +132,14 @@ void cConfigEditor::destroyDisplayControls()
 		configGroupsListControl[i] = nullptr;
 	}
 
+	display.destroyControl(configSubmenuListControl);
+	configSubmenuListControl = nullptr;
+
 	for(uint8_t i = 0; i<8; i++)
 	{
 		display.destroyControl(label[i]);
 		label[i] = nullptr;
 
-		display.destroyControl(barControl[i]);
-		barControl[i] = nullptr;
 	}
 
 	display.destroyControl(bgLabel);
@@ -212,77 +204,13 @@ void cConfigEditor::showDefaultConfigScreen()
 
 }
 
-void cConfigEditor::showMasterScreen()
-{
-	display.refreshControl(titleBar);
-
-	display.setControlText(titleLabel, "Master");
-	display.refreshControl(titleLabel);
-
-
-	display.setControlText(label[0], "Volume");
-	display.setControlText(label[1], "Rev. Size");
-	display.setControlText(label[2], "Rev. Dump");
-	display.setControlText(label[3], "Bit Depth");
-	display.setControlText(label[4], "Limit. A");
-	display.setControlText(label[5], "Limit. R");
-	display.setControlText(label[6], "Limit. T");
-	display.setControlText(label[7], " ");
-
-	resizeToDefaultMaster();
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
-		display.setControlShow(label[i]);
-		display.refreshControl(label[i]);
-
-		if(i<7) display.setControlShow(barControl[i]);
-	}
-
-	display.refreshControl(bgLabel);
-	display.setControlValue(bgLabel, 255);
-
-
-
-	showVolume();
-	showReverbSize();
-	showReverbDamping();
-	showLimiterAttack();
-	showLimiterRelease();
-	showLimiterTreshold();
-	showBitDepth();
-
-	for(uint8_t i = 0; i < 4; i++)
-	{
-		display.setControlHide(configGroupsListControl[i]);
-	}
-
-
-
-	frameData.placesCount = 7;
-	frameData.startPlace = 0;
-	frameData.places[0] = &framesPlaces[0][0];
-	frameData.places[1] = &framesPlaces[1][0];
-	frameData.places[2] = &framesPlaces[2][0];
-	frameData.places[3] = &framesPlaces[3][0];
-	frameData.places[4] = &framesPlaces[4][0];
-	frameData.places[5] = &framesPlaces[5][0];
-	frameData.places[6] = &framesPlaces[6][0];
-	frameData.places[7] = &framesPlaces[7][0];
-
-	activateLabelsBorder();
-	display.synchronizeRefresh();
-
-}
-
 
 //==============================================================================================================
 void cConfigEditor::activateLabelsBorder()
 {
-	if(selectedPlace[mode] > frameData.placesCount-1) return;
+	if(selectedPlace > frameData.placesCount-1) return;
 
-	display.setControlValue(frameControl, selectedPlace[mode]);
+	display.setControlValue(frameControl, selectedPlace);
 	display.setControlShow(frameControl);
 	display.refreshControl(frameControl);
 }
@@ -363,103 +291,6 @@ void cConfigEditor::showConfigGroupList(strList *data , uint8_t listNum)
 	display.setControlShow(configGroupsListControl[listNum]);
 	display.refreshControl(configGroupsListControl[listNum]);
 }
-
-void cConfigEditor::showVolume()
-{
-	sprintf(volumeVal,"%d", mtProject.values.volume);
-
-	display.setControlValue(barControl[0], mtProject.values.volume);
-//	display.setControlValue(barControl[0], mtProject.values.volume);
-//	display.setControlShow(barControl[0]);
-	display.refreshControl(barControl[0]);
-
-	display.setControlText2(label[0], volumeVal);
-	display.refreshControl(label[0]);
-}
-
-void cConfigEditor::showReverbSize()
-{
-	sprintf(reverbSizeVal,"%d",mtProject.values.reverbRoomSize);
-
-	display.setControlValue(barControl[1], mtProject.values.reverbRoomSize);
-	//display.setControlShow(barControl[0]);
-	display.refreshControl(barControl[1]);
-
-	display.setControlText2(label[1], reverbSizeVal);
-	display.refreshControl(label[1]);
-}
-
-void cConfigEditor::showReverbDamping()
-{
-	sprintf(reverbDampVal,"%d",mtProject.values.reverbDamping);
-
-	display.setControlValue(barControl[2], mtProject.values.reverbDamping);
-	//display.setControlShow(barControl[1]);
-	display.refreshControl(barControl[2]);
-
-	display.setControlText2(label[2], reverbDampVal);
-	display.refreshControl(label[2]);
-}
-
-void cConfigEditor::showLimiterAttack()
-{
-	uint8_t length;
-
-	sprintf(limitAttackVal,"%.3f",(float)(mtProject.values.limiterAttack/1000.0f));
-	length=strlen(limitAttackVal);
-	limitAttackVal[length]='s';
-	limitAttackVal[length+1]=0;
-
-	display.setControlValue(barControl[4], (mtProject.values.limiterAttack*100)/LIMITER_ATTACK_MAX);
-	//display.setControlShow(barControl[2]);
-	display.refreshControl(barControl[4]);
-
-	display.setControlText2(label[4], limitAttackVal);
-	display.refreshControl(label[4]);
-}
-
-void cConfigEditor::showLimiterRelease()
-{
-	uint8_t length;
-
-	sprintf(limitReleaseVal,"%.3f",(float)(mtProject.values.limiterRelease/1000.0f));
-	length=strlen(limitReleaseVal);
-	limitReleaseVal[length]='s';
-	limitReleaseVal[length+1]=0;
-
-	display.setControlValue(barControl[5], (mtProject.values.limiterRelease*100)/LIMITER_RELEASE_MAX);
-	//display.setControlShow(barControl[2]);
-	display.refreshControl(barControl[5]);
-
-	display.setControlText2(label[5], limitReleaseVal);
-	display.refreshControl(label[5]);
-}
-
-void cConfigEditor::showLimiterTreshold()
-{
-	sprintf(limitThresholdVal,"%d",(mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
-
-	display.setControlValue(barControl[6], (mtProject.values.limiterTreshold*100)/LIMITER_TRESHOLD_MAX);
-	display.setControlShow(barControl[6]);
-	display.refreshControl(barControl[6]);
-
-	display.setControlText2(label[6], limitThresholdVal);
-	display.refreshControl(label[6]);
-}
-
-void cConfigEditor::showBitDepth()
-{
-	sprintf(bitDepthVal,"%d",mtProject.values.bitDepth);
-
-	uint8_t localVal = map(mtProject.values.bitDepth,BIT_DEPTH_MIN,BIT_DEPTH_MAX,0,100);
-	display.setControlValue(barControl[3], localVal);
-//	display.setControlShow(barControl[3]);
-	display.refreshControl(barControl[3]);
-
-	display.setControlText2(label[3], bitDepthVal);
-	display.refreshControl(label[3]);
-}
-
 
 void cConfigEditor::showFirmwareUpdatePopout()
 {

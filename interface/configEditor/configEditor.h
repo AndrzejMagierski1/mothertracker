@@ -384,14 +384,7 @@ public:
 	//config
 	void showConfigGroupList(strList *data , uint8_t listNum);
 
-	//master
-	void showVolume();
-	void showReverbSize();
-	void showReverbDamping();
-	void showLimiterAttack();
-	void showLimiterRelease();
-	void showLimiterTreshold();
-	void showBitDepth();
+
 
 	//menu
 
@@ -404,7 +397,6 @@ public:
 	//-----------------------------------------
 
 	void setConfigScreenFunct();
-	void setMasterScreenFunct();
 
 
 	// config
@@ -462,6 +454,9 @@ public:
 
 	hControl configGroupsListControl[4];
 
+	hControl configSubmenuListControl;
+
+
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
@@ -470,7 +465,7 @@ public:
 	hControl frameControl;
 
 
-	uint8_t selectedPlace[3] = {6,0,0};
+	uint8_t selectedPlace = 0;
 
 	// typ trybu/ekranu
 	uint8_t mode = 0;
@@ -480,6 +475,10 @@ public:
 //----------------------------------
 // lista play mode
 	strList configGroupList[4];
+
+	strParamValueList submenuList;
+
+
 
 	void listConfigGroups();
 
@@ -595,6 +594,7 @@ typedef enum enMenuItemType
 	menuTypeItemButton,
 
 } menu_item_t;
+
 
 
 
