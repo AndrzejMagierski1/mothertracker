@@ -19,7 +19,7 @@ void WaveLoader::update()
 
 				if(sampleHead.numChannels == 1)
 				{
-					if( wavfile.available() )
+					if( (wavfile.available())  && (sampleHead.subchunk2Size > accBufferLength) )
 					{
 						bufferLength = wavfile.read(buf, 32256);
 
@@ -41,7 +41,7 @@ void WaveLoader::update()
 				}
 				else if (sampleHead.numChannels == 2)
 				{
-					if( wavfile.available() )
+					if( (wavfile.available())  && (sampleHead.subchunk2Size > accBufferLength) )
 					{
 						bufferLength = wavfile.read(buf, 1536);
 
@@ -67,7 +67,7 @@ void WaveLoader::update()
 				int16_t *buf = (int16_t*)getWriteLoadBufferPointer();
 				if(sampleHead.numChannels == 1)
 				{
-					if( wavfile.available() )
+					if( (wavfile.available())  && (sampleHead.subchunk2Size > accBufferLength) )
 					{
 						bufferLength = wavfile.read(buf, COMMON_BUFFER_SIZE);
 
@@ -86,7 +86,7 @@ void WaveLoader::update()
 				}
 				else if (sampleHead.numChannels == 2)
 				{
-					if (wavfile.available() )
+					if( (wavfile.available())  && (sampleHead.subchunk2Size > accBufferLength) )
 					{
 						bufferLength = wavfile.read(buf, COMMON_BUFFER_SIZE);
 
@@ -110,7 +110,7 @@ void WaveLoader::update()
 			float *buf = (float*)getWriteLoadBufferPointer();
 			if(sampleHead.numChannels == 1)
 			{
-				if( wavfile.available() )
+				if( (wavfile.available())  && (sampleHead.subchunk2Size > accBufferLength) )
 				{
 					bufferLength = wavfile.read(buf, COMMON_BUFFER_SIZE);
 
@@ -128,7 +128,7 @@ void WaveLoader::update()
 			}
 			else if (sampleHead.numChannels == 2)
 			{
-				if (wavfile.available() )
+				if( (wavfile.available())  && (sampleHead.subchunk2Size > accBufferLength) )
 				{
 					bufferLength = wavfile.read(buf, COMMON_BUFFER_SIZE);
 
