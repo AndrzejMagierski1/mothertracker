@@ -88,7 +88,6 @@ void AudioEffectEnvelope::update(void)
 {
 	audio_block_t *block;
 	uint32_t *p, *end;
-	elapsedMicros apoloniuszTajmer = 0;
 	block = receiveWritable();
 	if (!block) return;
 
@@ -267,7 +266,6 @@ void AudioEffectEnvelope::update(void)
 		mult_hires += inc_hires;
 		count--;
 	}
-	Serial.print("AT: "); Serial.println(apoloniuszTajmer);
 	transmit(block);
 	AudioStream::release(block);
 }
