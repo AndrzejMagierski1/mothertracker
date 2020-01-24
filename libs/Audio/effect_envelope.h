@@ -32,6 +32,8 @@
 
 #define SAMPLES_PER_MSEC (AUDIO_SAMPLE_RATE_EXACT/1000.0)
 
+constexpr uint32_t SAMPLES_OF_20S = ((uint32_t)( 20000 *SAMPLES_PER_MSEC));
+
 class AudioEffectEnvelope : public AudioStream
 {
 public:
@@ -48,32 +50,35 @@ public:
 	void noteOn();
 	void noteOff();
 	void setIdle();
-	void delay(float milliseconds) {
+	void delay(float milliseconds)
+	{
 		delay_count = milliseconds2count(milliseconds);
 	}
-	void attack(float milliseconds) {
+	void attack(float milliseconds)
+	{
 		attack_count = milliseconds2count(milliseconds);
-		if (attack_count == 0) attack_count = 1;
 	}
-	void hold(float milliseconds) {
+	void hold(float milliseconds)
+	{
 		hold_count = milliseconds2count(milliseconds);
 	}
-	void decay(float milliseconds) {
+	void decay(float milliseconds)
+	{
 		decay_count = milliseconds2count(milliseconds);
-		if (decay_count == 0) decay_count = 1;
 	}
-	void sustain(float level) {
-		if (level < 0.0) level = 0;
-		else if (level > 1.0) level = 1.0;
-		sustain_mult = level * 1073741824.0;
+	void sustain(float level)
+	{
+		if (level < 0.0) sustain_vol = 0;
+		else if (level > 1.0) sustain_vol = 1.0;
+		else sustain_vol = level;
 	}
-	void release(float milliseconds) {
+	void release(float milliseconds)
+	{
 		release_count = milliseconds2count(milliseconds);
-		if (release_count == 0) release_count = 1;
 	}
-	void releaseNoteOn(float milliseconds) {
+	void releaseNoteOn(float milliseconds)
+	{
 		release_forced_count = milliseconds2count(milliseconds);
-		if (release_count == 0) release_count = 1;
 	}
 	void setLoop(uint8_t state)
 	{
@@ -85,7 +90,6 @@ public:
 		passFlag = state;
 	}
 
-//	using AudioStream::release;
 	virtual void update(void);
 	uint8_t endRelease();
 	void clearEndReleaseFlag();
@@ -93,27 +97,29 @@ public:
 private:
 
 	uint8_t endReleaseFlag=0;
-	uint16_t milliseconds2count(float milliseconds) {
+	uint32_t milliseconds2count(float milliseconds)
+	{
 		if (milliseconds < 0.0) milliseconds = 0.0;
-		uint32_t c = ((uint32_t)(milliseconds*SAMPLES_PER_MSEC)+7)>>3;
-		if (c > 65535) c = 65535; // allow up to 11.88 seconds
+
+		uint32_t c = ((uint32_t)(milliseconds*SAMPLES_PER_MSEC));
+		if (c > SAMPLES_OF_20S) c = SAMPLES_OF_20S; // allow up to 11.88 seconds
 		return c;
 	}
 	audio_block_t *inputQueueArray[1];
 	// state
 	uint8_t  state;      // idle, delay, attack, hold, decay, sustain, release, forced
-	uint16_t count;      // how much time remains in this state, in 8 sample units
-	int32_t  mult_hires; // attenuation, 0=off, 0x40000000=unity gain
-	int32_t  inc_hires;  // amount to change mult_hires every 8 samples
+	uint32_t count;      // how much time remains in this state, in 8 sample units
+	float startVol;
+	float incVol;
 
 	// settings
-	uint16_t delay_count;
-	uint16_t attack_count;
-	uint16_t hold_count;
-	uint16_t decay_count;
-	int32_t  sustain_mult;
-	uint16_t release_count;
-	uint16_t release_forced_count;
+	uint32_t delay_count;
+	uint32_t attack_count;
+	uint32_t hold_count;
+	uint32_t decay_count;
+	float   sustain_vol;
+	uint32_t release_count;
+	uint32_t release_forced_count;
 	uint8_t loopFlag = 0;
 	uint8_t pressedFlag = 0;
 	uint8_t passFlag = 0;
