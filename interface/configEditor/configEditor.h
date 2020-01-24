@@ -578,13 +578,33 @@ extern cConfigEditor configEditor;
 //===========================================================================
 //===========================================================================
 
-typedef enum enMenuUnitType
+typedef enum enMenuType
 {
 	menuTypeEmpty,
 	menuTypeGroup,
 	menuTypeItem,
 
 } menu_t;
+
+typedef enum enMenuItemType
+{
+	menuItemTypeEmpty,
+	menuItemTypeValue,
+	menuTypeItemList,
+	menuTypeItemLabel,
+	menuTypeItemButton,
+
+} menu_item_t;
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -596,7 +616,6 @@ protected:
 };
 
 typedef cMenuBase* hMenuItem;
-
 
 
 class cMenuGroup : public cMenuBase
@@ -647,9 +666,22 @@ public:
 private:
 	const char* groupName;
 	//
+	menu_item_t itemType;
+
+	//value
 	int value;
+	int interval;
+	int min;
+	int max;
+
+	//list
+	uint8_t position;
 	uint8_t itemsCount;
 	char** ptrItems;
+
+	//
+
+
 };
 
 
