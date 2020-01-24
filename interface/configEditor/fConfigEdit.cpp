@@ -1,7 +1,5 @@
 
 
-
-
 #include "mtTest.h"
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
@@ -50,18 +48,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 
 
-
-//master
-static  uint8_t functSelectVolume(uint8_t state);
-static  uint8_t functSelectReverbSize(uint8_t state);
-static  uint8_t functSelectReverbDamping(uint8_t state);
-static  uint8_t functSelectLimiterAttack(uint8_t state);
-static  uint8_t functSelectLimiterRelease(uint8_t state);
-static  uint8_t functSelectLimiterTreshold(uint8_t state);
-static  uint8_t functSelectBitDepth(uint8_t state);
-
-
-
 //master tracks
 
 
@@ -70,25 +56,14 @@ static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
 
-
 static  uint8_t functSwitchModeConfig(uint8_t state);
-static  uint8_t functSwitchModeMaster(uint8_t state);
+
 
 uint8_t checkIfFirmwareValid(char *name);
 //static uint8_t selectFirmware();
 
 static uint8_t prepareAndFlash();
 static uint8_t hideFlashingWarning();
-
-
-// MASTER EDIT FUNCTIONS
-void changeVolume(int16_t value);
-void changeReverbRoomSize(int16_t value);
-void changeReverbDamping(int16_t value);
-void changeLimiterAttack(int16_t value);
-void changeLimiterRelease(int16_t value);
-void changeLimiterTreshold(int16_t value);
-void changeBitDepth(int16_t value);
 
 
 void cConfigEditor::update()
@@ -123,10 +98,10 @@ void cConfigEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
 	//FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
-	//FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
 
-	FM->setButtonObj(interfaceButtonConfig, functSwitchModeConfig);
-	FM->setButtonObj(interfaceButtonMaster, functSwitchModeMaster);
+	//FM->setButtonObj(interfaceButtonConfig, functSwitchModeConfig);
+	//FM->setButtonObj(interfaceButtonMaster, functSwitchModeMaster);
 
 	FM->setButtonObj(interfaceButtonSamplePlay, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonSampleEdit, buttonPress, functSwitchModule);
@@ -138,40 +113,21 @@ void cConfigEditor::start(uint32_t options)
 
 
 
-	switch(mode)
+
+	selectedPlace = 0;
+	resizeLabelConfigDefault();
+
+	showDefaultConfigScreen();
+	setConfigScreenFunct();
+
+	for(uint8_t i = 0; i < 6; i++)
 	{
-	case mtConfigModeDefault:
-	{
-		selectedPlace[0] = 0;
-		resizeLabelConfigDefault();
-
-		showDefaultConfigScreen();
-		setConfigScreenFunct();
-
-		for(uint8_t i = 0; i < 6; i++)
-		{
-			listDataForLists(0, i, &groupNamesLabels[i][0]);
-		}
-
-		setDataForLists(0, 6);
-
-		chainProcessChange(0, 1);
-
-		break;
-	}
-	case mtConfigModeMaster:
-	{
-		selectedPlace[1] = 0;
-		resizeLabelConfigMaster();
-
-		showMasterScreen();
-		setMasterScreenFunct();
-
-
-		break;
-	}
+		listDataForLists(0, i, &groupNamesLabels[i][0]);
 	}
 
+	setDataForLists(0, 6);
+
+	chainProcessChange(0, 1);
 
 	activateLabelsBorder();
 }
@@ -220,8 +176,8 @@ void cConfigEditor::setConfigScreenFunct()
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
 
-	FM->setButtonObj(interfaceButtonConfig, functSwitchModeConfig);
-	FM->setButtonObj(interfaceButtonMaster, functSwitchModeMaster);
+//	FM->setButtonObj(interfaceButtonConfig, functSwitchModeConfig);
+//	FM->setButtonObj(interfaceButtonMaster, functSwitchModeMaster);
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
@@ -234,43 +190,6 @@ void cConfigEditor::setConfigScreenFunct()
 	FM->setButtonObj(interfaceButton6, functActionButton);
 
 	FM->setPadsGlobal(functPads);
-
-}
-
-void cConfigEditor::setMasterScreenFunct()
-{
-
-	//funkcje
-	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-	FM->clearAllPots();
-
-	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
-
-
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
-
-
-
-
-
-	FM->setButtonObj(interfaceButton0, functSelectVolume);
-
-	FM->setButtonObj(interfaceButton1, functSelectReverbSize);
-	FM->setButtonObj(interfaceButton2, functSelectReverbDamping);
-
-	FM->setButtonObj(interfaceButton3, functSelectBitDepth);
-	FM->setButtonObj(interfaceButton4, functSelectLimiterAttack);
-	FM->setButtonObj(interfaceButton5, functSelectLimiterRelease);
-	FM->setButtonObj(interfaceButton6, functSelectLimiterTreshold);
-
-
-
-	FM->setPotObj(interfacePot0, functEncoder, nullptr);
-
 
 }
 
@@ -327,8 +246,17 @@ void cConfigEditor::changeSelectionInGroup(int16_t value, uint8_t groupNum)
 
 	chainProcessChange(groupNum, 0);
 
-	display.setControlValue(configGroupsListControl[groupNum], selectedConfigGroup[groupNum]);
-	display.refreshControl(configGroupsListControl[groupNum]);
+	if(groupNum == 1)
+	{
+
+		display.setControlValue(configSubmenuListControl, selectedConfigGroup[groupNum]);
+		display.refreshControl(configSubmenuListControl);
+	}
+	else
+	{
+		display.setControlValue(configGroupsListControl[groupNum], selectedConfigGroup[groupNum]);
+		display.refreshControl(configGroupsListControl[groupNum]);
+	}
 }
 
 void cConfigEditor::chainProcessChange(uint8_t groupNum, uint8_t forceProcess)
@@ -402,10 +330,23 @@ void cConfigEditor::showGeneralSubmenus(uint8_t listPosition)
 {
 	for(uint8_t i = 0; i < GERERAL_SUBMENUS; i++)
 	{
-		listDataForLists(listPosition, i, &generalConfig[i][0]);
+		listDataForLists(1, i, &generalConfig[i][0]);
 	}
 
-	setDataForLists(listPosition, GERERAL_SUBMENUS);
+	submenuList.linesCount = 14;
+	submenuList.start = selectedConfigGroup[1];
+	submenuList.length = GERERAL_SUBMENUS;
+	submenuList.params = configGroupsNames[1];
+	submenuList.values = configGroupsNames[1];
+
+	selectedConfigGroupMax[1] = GERERAL_SUBMENUS;
+
+	display.setControlData(configSubmenuListControl, &submenuList);
+	display.setControlShow(configSubmenuListControl);
+	display.refreshControl(configSubmenuListControl);
+
+	listsActive[1] = 1;
+
 	changeLabelText(2, "General");
 }
 
@@ -418,7 +359,20 @@ void cConfigEditor::showFirmwares(uint8_t listPosition)
 		listDataForLists(listPosition, i, &firmwareNamesList[i][0]);
 	}
 
-	setDataForLists(listPosition, firmwareFoundNum);
+	selectedConfigGroupMax[1] = firmwareFoundNum;
+
+	submenuList.linesCount = 14;
+	submenuList.start = selectedConfigGroup[1];
+	submenuList.length = firmwareFoundNum;
+	submenuList.params = configGroupsNames[1];
+	submenuList.values = configGroupsNames[1];
+
+	display.setControlData(configSubmenuListControl, &submenuList);
+	display.setControlShow(configSubmenuListControl);
+	display.refreshControl(configSubmenuListControl);
+
+	listsActive[1] = 1;
+
 	changeLabelText(2, "Firmware list");
 }
 
@@ -437,7 +391,22 @@ void cConfigEditor::showMidiSubmenus(uint8_t listPosition)
 		listDataForLists(listPosition, i, &txtlistMidiConfig[i][0]);
 	}
 
-	setDataForLists(listPosition, configMIDI_count);
+	selectedConfigGroupMax[1] = MIDI_SUBMENUS;
+
+	submenuList.linesCount = 14;
+	submenuList.start = selectedConfigGroup[1];
+	submenuList.length = MIDI_SUBMENUS;
+	submenuList.params = configGroupsNames[1];
+	submenuList.values = configGroupsNames[1];
+
+	display.setControlData(configSubmenuListControl, &submenuList);
+	display.setControlShow(configSubmenuListControl);
+	display.refreshControl(configSubmenuListControl);
+
+	listsActive[1] = 1;
+
+	//setDataForLists(listPosition, MIDI_SUBMENUS);
+
 	changeLabelText(2, "MIDI");
 }
 
@@ -926,25 +895,25 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 		case 0:
 		{
-			if(CE->selectedPlace[0] == 0)
+			if(CE->selectedPlace == 0)
 			{
 				CE->changeSelectionInGroup(-1, 0);
 			}
 			else
 			{
-				CE->selectedPlace[0] = 0;
+				CE->selectedPlace = 0;
 			}
 			break;
 		}
 		case 1:
 		{
-			if(CE->selectedPlace[0] == 0)
+			if(CE->selectedPlace == 0)
 			{
 				CE->changeSelectionInGroup(1, 0);
 			}
 			else
 			{
-				CE->selectedPlace[0] = 0;
+				CE->selectedPlace = 0;
 			}
 			break;
 		}
@@ -952,13 +921,13 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->listsActive[1])
 			{
-				if(CE->selectedPlace[0] == 1)
+				if(CE->selectedPlace == 1)
 				{
 					CE->changeSelectionInGroup(-1, 1);
 				}
 				else
 				{
-					CE->selectedPlace[0] = 1;
+					CE->selectedPlace = 1;
 				}
 			}
 			break;
@@ -967,13 +936,13 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->listsActive[1])
 			{
-				if(CE->selectedPlace[0] == 1)
+				if(CE->selectedPlace == 1)
 				{
 					CE->changeSelectionInGroup(1, 1);
 				}
 				else
 				{
-					CE->selectedPlace[0] = 1;
+					CE->selectedPlace = 1;
 				}
 			}
 			break;
@@ -982,13 +951,13 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->listsActive[2])
 			{
-				if(CE->selectedPlace[0] == 2)
+				if(CE->selectedPlace == 2)
 				{
 					CE->changeSelectionInGroup(-1, 2);
 				}
 				else
 				{
-					CE->selectedPlace[0] = 2;
+					CE->selectedPlace = 2;
 				}
 			}
 
@@ -1003,13 +972,13 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->listsActive[2])
 			{
-				if(CE->selectedPlace[0] == 2)
+				if(CE->selectedPlace == 2)
 				{
 					CE->changeSelectionInGroup(1, 2);
 				}
 				else
 				{
-					CE->selectedPlace[0] = 2;
+					CE->selectedPlace = 2;
 				}
 			}
 			//CE->eventFunct(eventActivateImageViewer,CE,0,0);
@@ -1019,13 +988,13 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->listsActive[3])
 			{
-				if(CE->selectedPlace[0] == 3)
+				if(CE->selectedPlace == 3)
 				{
 					CE->changeSelectionInGroup(-1, 3);
 				}
 				else
 				{
-					CE->selectedPlace[0] = 3;
+					CE->selectedPlace = 3;
 				}
 			}
 			break;
@@ -1034,13 +1003,13 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->listsActive[3])
 			{
-				if(CE->selectedPlace[0] == 3)
+				if(CE->selectedPlace == 3)
 				{
 					CE->changeSelectionInGroup(1, 3);
 				}
 				else
 				{
-					CE->selectedPlace[0] = 3;
+					CE->selectedPlace = 3;
 				}
 			}
 			break;
@@ -1078,7 +1047,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		CE->changeConfigGroupSelection(1);
 	}
 
-	CE->selectedPlace[0] = 6;
+	CE->selectedPlace = 6;
 	CE->activateLabelsBorder();
 
 
@@ -1126,23 +1095,12 @@ static  uint8_t functEncoder(int16_t value)
 	}
 	else
 	{
-		uint8_t mode_places = CE->selectedPlace[CE->mode] + CE->mode*10;
-
-		switch(mode_places)
+		switch(CE->selectedPlace)
 		{
 		case 0: 	 CE->changeSelectionInGroup(value, 0); break;
 		case 1:		 CE->changeSelectionInGroup(value, 1); break;
 		case 2: 	 CE->changeSelectionInGroup(value, 2); break;
 		case 3: 	 CE->changeSelectionInGroup(value, 3); break;
-
-		case 10: changeVolume(value);			break;
-		case 11: changeReverbRoomSize(value);	break;
-		case 12: changeReverbDamping(value);	break;
-		case 13: changeBitDepth(value);			break;
-		case 14: changeLimiterAttack(value);	break;
-		case 15: changeLimiterRelease(value);	break;
-		case 16: changeLimiterTreshold(value);	break;
-		case 17: 	break;
 
 		}
 	}
@@ -1161,7 +1119,7 @@ static  uint8_t functLeft()
 	if(CE->frameData.multiSelActiveNum != 0) return 1;
 
 
-	if(CE->selectedPlace[CE->mode] > 0) CE->selectedPlace[CE->mode]--;
+	if(CE->selectedPlace > 0) CE->selectedPlace--;
 
 
 	CE->activateLabelsBorder();
@@ -1180,11 +1138,11 @@ static  uint8_t functRight()
 	{
 		uint8_t maxPlaces;
 		maxPlaces = CE->getListsActive();
-		if(CE->selectedPlace[CE->mode] < (maxPlaces-1)) CE->selectedPlace[CE->mode]++;
+		if(CE->selectedPlace < (maxPlaces-1)) CE->selectedPlace++;
 	}
 	else
 	{
-		if(CE->selectedPlace[CE->mode] < CE->frameData.placesCount-1) CE->selectedPlace[CE->mode]++;
+		if(CE->selectedPlace < CE->frameData.placesCount-1) CE->selectedPlace++;
 	}
 
 
@@ -1204,22 +1162,13 @@ static  uint8_t functUp()
 	}
 	else
 	{
-		uint8_t mode_places = CE->selectedPlace[CE->mode] + CE->mode*10;
-
-		switch(mode_places)
+		switch(CE->selectedPlace)
 		{
 		case 0: 	 CE->changeSelectionInGroup(-1, 0); break;
 		case 1:		 CE->changeSelectionInGroup(-1, 1); break;
 		case 2: 	 CE->changeSelectionInGroup(-1, 2); break;
 		case 3: 	 CE->changeSelectionInGroup(-1, 3); break;
 
-		case 10: changeVolume(1);			break;
-		case 11: changeReverbRoomSize(1);	break;
-		case 12: changeReverbDamping(1);	break;
-		case 13: changeBitDepth(1);			break;
-		case 14: changeLimiterAttack(1);	break;
-		case 15: changeLimiterRelease(1);	break;
-		case 16: changeLimiterTreshold(1);	break;
 		case 17: 	break;
 
 		}
@@ -1239,22 +1188,13 @@ static  uint8_t functDown()
 	}
 	else
 	{
-		uint8_t mode_places = CE->selectedPlace[CE->mode] + CE->mode*10;
-
-		switch(mode_places)
+		switch(CE->selectedPlace)
 		{
 		case 0: 	 CE->changeSelectionInGroup(1, 0); break;
 		case 1:		 CE->changeSelectionInGroup(1, 1); break;
 		case 2: 	 CE->changeSelectionInGroup(1, 2); break;
 		case 3: 	 CE->changeSelectionInGroup(1, 3); break;
 
-		case 10: changeVolume(-1);			break;
-		case 11: changeReverbRoomSize(-1);	break;
-		case 12: changeReverbDamping(-1);	break;
-		case 13: changeBitDepth(-1);		break;
-		case 14: changeLimiterAttack(-1);	break;
-		case 15: changeLimiterRelease(-1);	break;
-		case 16: changeLimiterTreshold(-1);	break;
 		case 17: 	break;
 
 		}
@@ -1291,292 +1231,12 @@ static  uint8_t functRecAction()
 	return 1;
 }
 
-static  uint8_t functSelectVolume(uint8_t state)
-{
-	if(state > buttonPress) return 1;
-
-	uint8_t node = 0;
-
-	if(state == buttonPress)
-	{
-		CE->selectedPlace[mtConfigModeMaster] = node;
-		CE->addNode(changeVolume, node);
-		CE->frameData.multisel[node].frameNum = node;
-		CE->frameData.multisel[node].isActive = 1;
-		CE->frameData.multiSelActiveNum  += 1;
-	}
-	else
-	{
-		CE->removeNode(node);
-
-		if(CE->frameData.multiSelActiveNum)
-		{
-			if(CE->frameData.multisel[node].isActive)
-			{
-				CE->removeNode(node);
-				CE->frameData.multiSelActiveNum  -= 1;
-
-				CE->frameData.multisel[node].isActive = 0;
-
-				if(CE->frameData.multiSelActiveNum == 0)
-				{
-					CE->selectedPlace[mtConfigModeMaster] = node;
-				}
-			}
-		}
-	}
-
-	CE->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functSelectReverbSize(uint8_t state)
-{
-	if(state > buttonPress) return 1;
-
-	uint8_t node = 1;
-
-	if(state == buttonPress)
-	{
-		CE->selectedPlace[mtConfigModeMaster] = node;
-		CE->addNode(changeReverbRoomSize, node);
-		CE->frameData.multisel[node].frameNum = node;
-		CE->frameData.multisel[node].isActive = 1;
-		CE->frameData.multiSelActiveNum  += 1;
-	}
-	else
-	{
-		CE->removeNode(node);
-
-		if(CE->frameData.multiSelActiveNum)
-		{
-			if(CE->frameData.multisel[node].isActive)
-			{
-				CE->removeNode(node);
-				CE->frameData.multiSelActiveNum  -= 1;
-
-				CE->frameData.multisel[node].isActive = 0;
-
-				if(CE->frameData.multiSelActiveNum == 0)
-				{
-					CE->selectedPlace[mtConfigModeMaster] = node;
-				}
-			}
-		}
-	}
-
-	CE->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functSelectReverbDamping(uint8_t state)
-{
-	if(state > buttonPress) return 1;
-
-	uint8_t node = 2;
-
-	if(state == buttonPress)
-	{
-		CE->selectedPlace[mtConfigModeMaster] = node;
-		CE->addNode(changeReverbDamping, node);
-		CE->frameData.multisel[node].frameNum = node;
-		CE->frameData.multisel[node].isActive = 1;
-		CE->frameData.multiSelActiveNum  += 1;
-	}
-	else
-	{
-		CE->removeNode(node);
-
-		if(CE->frameData.multiSelActiveNum)
-		{
-			if(CE->frameData.multisel[node].isActive)
-			{
-				CE->removeNode(node);
-				CE->frameData.multiSelActiveNum  -= 1;
-
-				CE->frameData.multisel[node].isActive = 0;
-
-				if(CE->frameData.multiSelActiveNum == 0)
-				{
-					CE->selectedPlace[mtConfigModeMaster] = node;
-				}
-			}
-		}
-	}
-
-	CE->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functSelectBitDepth(uint8_t state)
-{
-	if(state > buttonPress) return 1;
-
-	uint8_t node = 3;
-
-	if(state == buttonPress)
-	{
-		CE->selectedPlace[mtConfigModeMaster] = node;
-		CE->addNode(changeBitDepth, node);
-		CE->frameData.multisel[node].frameNum = node;
-		CE->frameData.multisel[node].isActive = 1;
-		CE->frameData.multiSelActiveNum  += 1;
-	}
-	else
-	{
-		CE->removeNode(node);
-
-		if(CE->frameData.multiSelActiveNum)
-		{
-			if(CE->frameData.multisel[node].isActive)
-			{
-				CE->removeNode(node);
-				CE->frameData.multiSelActiveNum  -= 1;
-
-				CE->frameData.multisel[node].isActive = 0;
-
-				if(CE->frameData.multiSelActiveNum == 0)
-				{
-					CE->selectedPlace[mtConfigModeMaster] = node;
-				}
-			}
-		}
-	}
-
-	CE->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functSelectLimiterAttack(uint8_t state)
-{
-	if(state > buttonPress) return 1;
-
-	uint8_t node = 4;
-
-	if(state == buttonPress)
-	{
-		CE->selectedPlace[mtConfigModeMaster] = node;
-		CE->addNode(changeLimiterAttack, node);
-		CE->frameData.multisel[node].frameNum = node;
-		CE->frameData.multisel[node].isActive = 1;
-		CE->frameData.multiSelActiveNum  += 1;
-	}
-	else
-	{
-		CE->removeNode(node);
-
-		if(CE->frameData.multiSelActiveNum)
-		{
-			if(CE->frameData.multisel[node].isActive)
-			{
-				CE->removeNode(node);
-				CE->frameData.multiSelActiveNum  -= 1;
-
-				CE->frameData.multisel[node].isActive = 0;
-
-				if(CE->frameData.multiSelActiveNum == 0)
-				{
-					CE->selectedPlace[mtConfigModeMaster] = node;
-				}
-			}
-		}
-	}
-
-	CE->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functSelectLimiterRelease(uint8_t state)
-{
-	if(state > buttonPress) return 1;
-
-	uint8_t node = 5;
-
-	if(state == buttonPress)
-	{
-		CE->selectedPlace[mtConfigModeMaster] = node;
-		CE->addNode(changeLimiterRelease, node);
-		CE->frameData.multisel[node].frameNum = node;
-		CE->frameData.multisel[node].isActive = 1;
-		CE->frameData.multiSelActiveNum  += 1;
-	}
-	else
-	{
-		CE->removeNode(node);
-
-		if(CE->frameData.multiSelActiveNum)
-		{
-			if(CE->frameData.multisel[node].isActive)
-			{
-				CE->removeNode(node);
-				CE->frameData.multiSelActiveNum  -= 1;
-
-				CE->frameData.multisel[node].isActive = 0;
-
-				if(CE->frameData.multiSelActiveNum == 0)
-				{
-					CE->selectedPlace[mtConfigModeMaster] = node;
-				}
-			}
-		}
-	}
-
-	CE->activateLabelsBorder();
-
-	return 1;
-}
-
-static  uint8_t functSelectLimiterTreshold(uint8_t state)
-{
-	if(state > buttonPress) return 1;
-
-	uint8_t node = 6;
-
-	if(state == buttonPress)
-	{
-		CE->selectedPlace[mtConfigModeMaster] = node;
-		CE->addNode(changeLimiterTreshold, node);
-		CE->frameData.multisel[node].frameNum = node;
-		CE->frameData.multisel[node].isActive = 1;
-		CE->frameData.multiSelActiveNum  += 1;
-	}
-	else
-	{
-		CE->removeNode(node);
-
-		if(CE->frameData.multiSelActiveNum)
-		{
-			if(CE->frameData.multisel[node].isActive)
-			{
-				CE->removeNode(node);
-				CE->frameData.multiSelActiveNum  -= 1;
-
-				CE->frameData.multisel[node].isActive = 0;
-
-				if(CE->frameData.multiSelActiveNum == 0)
-				{
-					CE->selectedPlace[mtConfigModeMaster] = node;
-				}
-			}
-		}
-	}
-
-	CE->activateLabelsBorder();
-
-	return 1;
-}
-
 static uint8_t functSwitchModule(uint8_t button)
 {
 	if(CE->selectionActive) return 1;
 
-	if(button != interfaceButtonPerformance) CE->turnOffPerformanceMode();
-	if(button != interfaceButtonSampleRec) CE->turnOffRadio();
+//	if(button != interfaceButtonPerformance) CE->turnOffPerformanceMode();
+//	if(button != interfaceButtonSampleRec) CE->turnOffRadio();
 
 	CE->eventFunct(eventSwitchModule,CE,&button,0);
 
@@ -1598,69 +1258,6 @@ static  uint8_t functSwitchModeConfig(uint8_t state)
 
 	return 1;
 }
-
-static  uint8_t functSwitchModeMaster(uint8_t state)
-{
-	if(CE->selectionActive) return 1;
-
-	if(state == buttonPress)
-	{
-		CE->selectedPlace[mtConfigModeMaster] = 0;
-
-/*		CE->clearAllNodes();
-		CE->cancelMultiFrame();*/
-
-		if(CE->mode != mtConfigModeMaster)
-		{
-			CE->start(1);
-			return 0;
-		}
-	}
-	else if(state == buttonHold)
-	{
-//		CE->resizeLabelConfigMaster();
-
-		CE->exitOnButtonRelease = 1;
-		//CE->selectedPlace[mtConfigModeMaster] = 0;
-		CE->activateLabelsBorder();
-	}
-	else if(state == buttonRelease)
-	{
-		if(CE->exitOnButtonRelease) CE->eventFunct(eventSwitchToPreviousModule,CE,0,0);
-	}
-
-	return 1;
-}
-
-/*
-static uint8_t functAction0()
-{
-	if(CE->selectedConfigGroup == configDefaultFirmware)
-	{
-		if(CE->selectionActive)
-		{
-			CE->processUpdate = 1;
-
-			//while(1);// program sie zatrzymuje do czasu przejecia kontroli przez bootloader
-		}
-	}
-
-	return 1;
-}
-
-static uint8_t functAction5()
-{
-	if(CE->selectedConfigGroup == configDefaultFirmware)
-	{
-		if(CE->selectionActive)
-		{
-			CE->hideWarning();
-		}
-	}
-
-	return 1;
-}
-*/
 
 
 //======================================================================================================================
@@ -1687,106 +1284,6 @@ void cConfigEditor::changeConfigGroupSelection(int16_t value)
 
 //======================================================================================================================
 //master
-void changeVolume(int16_t value)
-{
-	if(mtProject.values.volume + value < MASTER_VOLUME_MIN) mtProject.values.volume = MASTER_VOLUME_MIN;
-	else if(mtProject.values.volume + value > MASTER_VOLUME_MAX) mtProject.values.volume = MASTER_VOLUME_MAX;
-	else mtProject.values.volume += value;
-
-
-	engine.setHeadphonesVolume(mtProject.values.volume);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
-	CE->showVolume();
-}
-
-void changeReverbRoomSize(int16_t value)
-{
-	if(mtProject.values.reverbRoomSize + value < REVERB_ROOM_SIZE_MIN) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MIN;
-	else if(mtProject.values.reverbRoomSize + value > REVERB_ROOM_SIZE_MAX) mtProject.values.reverbRoomSize = REVERB_ROOM_SIZE_MAX;
-	else mtProject.values.reverbRoomSize += value;
-
-	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
-	CE->showReverbSize();
-}
-
-void changeReverbDamping(int16_t value)
-{
-	if(mtProject.values.reverbDamping + value < REVERB_DAMPING_MIN) mtProject.values.reverbDamping = REVERB_DAMPING_MIN;
-	else if(mtProject.values.reverbDamping + value > REVERB_DAMPING_MAX) mtProject.values.reverbDamping = REVERB_DAMPING_MAX;
-	else mtProject.values.reverbDamping += value;
-
-	engine.setReverbDamping(mtProject.values.reverbDamping);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
-	CE->showReverbDamping();
-}
-
-void changeLimiterAttack(int16_t value)
-{
-	value *= LIMITER_ATTACK_MAX/100;
-
-	if(mtProject.values.limiterAttack + value < LIMITER_ATTACK_MIN) mtProject.values.limiterAttack = LIMITER_ATTACK_MIN;
-	else if(mtProject.values.limiterAttack + value > LIMITER_ATTACK_MAX) mtProject.values.limiterAttack = LIMITER_ATTACK_MAX;
-	else mtProject.values.limiterAttack += value;
-
-	engine.setLimiterAttack(mtProject.values.limiterAttack);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
-
-	CE->showLimiterAttack();
-}
-
-void changeLimiterRelease(int16_t value)
-{
-	float fvalue = value * (LIMITER_RELEASE_MAX/100);
-
-	if(mtProject.values.limiterRelease + fvalue < LIMITER_RELEASE_MIN) mtProject.values.limiterRelease = LIMITER_RELEASE_MIN;
-	else if(mtProject.values.limiterRelease + fvalue > LIMITER_RELEASE_MAX) mtProject.values.limiterRelease = LIMITER_RELEASE_MAX;
-	else mtProject.values.limiterRelease += fvalue;
-
-
-	engine.setLimiterRelease(mtProject.values.limiterRelease);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
-	CE->showLimiterRelease();
-}
-
-void changeLimiterTreshold(int16_t value)
-{
-	value *= LIMITER_TRESHOLD_MAX/100;
-
-	if(mtProject.values.limiterTreshold + value < LIMITER_TRESHOLD_MIN) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MIN;
-	else if(mtProject.values.limiterTreshold + value > LIMITER_TRESHOLD_MAX) mtProject.values.limiterTreshold = LIMITER_TRESHOLD_MAX;
-	else mtProject.values.limiterTreshold += value;
-
-	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
-	CE->showLimiterTreshold();
-}
-
-void changeBitDepth(int16_t value)
-{
-	float localValf = value * (BIT_DEPTH_MAX - BIT_DEPTH_MIN)/100.0;
-	int8_t localVal;
-
-	if(localValf < 1.0f && localValf > 0.0f ) localVal = 1;
-	else if(localValf > -1.0f && localValf < 0.0f ) localVal = -1;
-	else localVal = round(localValf);
-
-	if(mtProject.values.bitDepth + localVal < BIT_DEPTH_MIN) mtProject.values.bitDepth = BIT_DEPTH_MIN;
-	else if(mtProject.values.bitDepth + localVal > BIT_DEPTH_MAX) mtProject.values.bitDepth = BIT_DEPTH_MAX;
-	else mtProject.values.bitDepth += localVal;
-
-	engine.setBitDepth(mtProject.values.bitDepth);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
-	CE->showBitDepth();
-}
-
 void cConfigEditor::listAllFirmwares()
 {
 	uint8_t locationFileCount=0;
@@ -1934,6 +1431,7 @@ void cConfigEditor::cancelMultiFrame()
 
 	CE->frameData.multiSelActiveNum = 0;
 }
+
 
 
 

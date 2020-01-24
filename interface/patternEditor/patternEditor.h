@@ -100,6 +100,7 @@ public:
 	void showStep();
 
 	void refreshPatternParams();
+	void showFxInfo();
 
 	void showEditModeLabels();
 	void hideEditModeLabels();
