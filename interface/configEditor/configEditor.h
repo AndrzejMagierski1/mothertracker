@@ -55,7 +55,7 @@ enum mtConfigGeneral
 };
 
 constexpr uint8_t GERERAL_SUBMENUS = 3;
-//constexpr uint8_t MIDI_SUBMENUS = 7;
+constexpr uint8_t MIDI_SUBMENUS = 7;
 constexpr uint8_t PATTERN_DIVIDERS = 16;
 constexpr uint8_t RADIO_REGIONS = 4;
 constexpr uint8_t BRIGHTNESS_LEVELS = 3;
