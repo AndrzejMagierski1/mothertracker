@@ -88,8 +88,7 @@ void AudioEffectEnvelope::update(void)
 {
 	audio_block_t *block;
 	uint32_t *p, *end;
-	uint32_t sample12, sample34, sample56, sample78, tmp1, tmp2;
-
+	elapsedMicros apoloniuszTajmer = 0;
 	block = receiveWritable();
 	if (!block) return;
 
@@ -194,40 +193,81 @@ void AudioEffectEnvelope::update(void)
 
 		int32_t mult = mult_hires >> 14; // przeskalowanie na 16 bitow bo 0x40000000 zajmuje 30 bitow
 		int32_t inc = inc_hires >> 17; // podejrzewam ze przeskalowanie na 13 bitow aby suma takich osmiu (3bity) obslugiwala 8 probek (inc_hires wyliczone dla 8 bitowego cyklu)
-		sample12 = *p++;
-		sample34 = *p++;
-		sample56 = *p++;
-		sample78 = *p++;
-		p -= 4;
-		mult += inc;
-		tmp1 = signed_multiply_32x16b(mult, sample12);
-		mult += inc;
-		tmp2 = signed_multiply_32x16t(mult, sample12);
-		sample12 = pack_16b_16b(tmp2, tmp1);
-		mult += inc;
-		tmp1 = signed_multiply_32x16b(mult, sample34);
-		mult += inc;
-		tmp2 = signed_multiply_32x16t(mult, sample34);
-		sample34 = pack_16b_16b(tmp2, tmp1);
-		mult += inc;
-		tmp1 = signed_multiply_32x16b(mult, sample56);
-		mult += inc;
-		tmp2 = signed_multiply_32x16t(mult, sample56);
-		sample56 = pack_16b_16b(tmp2, tmp1);
-		mult += inc;
-		tmp1 = signed_multiply_32x16b(mult, sample78);
-		mult += inc;
-		tmp2 = signed_multiply_32x16t(mult, sample78);
-		sample78 = pack_16b_16b(tmp2, tmp1);
+//		sample12 = *p++;
+//		sample34 = *p++;
+//		sample56 = *p++;
+//		sample78 = *p++;
+//		p -= 4;
+//		mult += inc;
+//		tmp1 = signed_multiply_32x16b(mult, sample12);
+//		mult += inc;
+//		tmp2 = signed_multiply_32x16t(mult, sample12);
+//		sample12 = pack_16b_16b(tmp2, tmp1);
+//		mult += inc;
+//		tmp1 = signed_multiply_32x16b(mult, sample34);
+//		mult += inc;
+//		tmp2 = signed_multiply_32x16t(mult, sample34);
+//		sample34 = pack_16b_16b(tmp2, tmp1);
+//		mult += inc;
+//		tmp1 = signed_multiply_32x16b(mult, sample56);
+//		mult += inc;
+//		tmp2 = signed_multiply_32x16t(mult, sample56);
+//		sample56 = pack_16b_16b(tmp2, tmp1);
+//		mult += inc;
+//		tmp1 = signed_multiply_32x16b(mult, sample78);
+//		mult += inc;
+//		tmp2 = signed_multiply_32x16t(mult, sample78);
+//		sample78 = pack_16b_16b(tmp2, tmp1);
+
+		sample12 = *p;
+		sample34 = *(p+1);
+		sample56 = *(p+2);
+		sample78 = *(p+3);
+
+		mult+=inc;
+		tmp1 = mult * (*sample1);
+		mult+=inc;
+		tmp2 = mult * (*sample2);
+
+		*sample1 = *tmp1Shifted;
+		*sample2 = *tmp2Shifted;
+
+		mult+=inc;
+		tmp1 = mult * (*sample3);
+		mult+=inc;
+		tmp2 = mult * (*sample4);
+
+		*sample3 = *tmp1Shifted;
+		*sample4 = *tmp2Shifted;
+
+		mult+=inc;
+		tmp1 = mult * (*sample5);
+		mult+=inc;
+		tmp2 = mult * (*sample6);
+
+		*sample5 = *tmp1Shifted;
+		*sample6 = *tmp2Shifted;
+
+		mult+=inc;
+		tmp1 = mult * (*sample7);
+		mult+=inc;
+		tmp2 = mult * (*sample8);
+
+		*sample7 = *tmp1Shifted;
+		*sample8 = *tmp2Shifted;
+
 		*p++ = sample12;
 		*p++ = sample34;
 		*p++ = sample56;
 		*p++ = sample78;
+
+
 		// adjust the long-term gain using 30 bit resolution (fix #102)
 		// https://github.com/PaulStoffregen/Audio/issues/102
 		mult_hires += inc_hires;
 		count--;
 	}
+	Serial.print("AT: "); Serial.println(apoloniuszTajmer);
 	transmit(block);
 	AudioStream::release(block);
 }
