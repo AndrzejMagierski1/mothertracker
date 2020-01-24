@@ -153,8 +153,6 @@ void cConfigEditor::destroyDisplayControls()
 	display.destroyControl(bgLabel);
 	bgLabel = nullptr;
 
-
-
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
 

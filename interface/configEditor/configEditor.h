@@ -437,7 +437,9 @@ public:
 	void showLimiterTreshold();
 	void showBitDepth();
 
-	//master tracks
+	//menu
+
+	void createConfigMenu();
 
 
 
@@ -624,34 +626,115 @@ public:
 extern cConfigEditor configEditor;
 
 
-typedef enum enMenuUnitType
-{
-	menuUnitEmpty,
-	menuUnitParent,
-	menuUnitChild,
+//===========================================================================
+//===========================================================================
+//===========================================================================
 
+typedef enum enMenuType
+{
+	menuTypeEmpty,
+	menuTypeGroup,
+	menuTypeItem,
 
 } menu_t;
 
-class configMenuElement
+typedef enum enMenuItemType
+{
+	menuItemTypeEmpty,
+	menuItemTypeValue,
+	menuTypeItemList,
+	menuTypeItemLabel,
+	menuTypeItemButton,
+
+} menu_item_t;
+
+
+
+
+
+
+
+
+
+
+
+
+
+class cMenuBase
+{
+protected:
+	cMenuBase(menu_t menu_type) : type(menu_type) {}
+	menu_t type;
+};
+
+typedef cMenuBase* hMenuItem;
+
+
+class cMenuGroup : public cMenuBase
 {
 public:
+	cMenuGroup(cMenuGroup& parent, uint8_t slot, const char* name, uint8_t childs_count) :
+		cMenuBase(menuTypeGroup),
+		childsCount(childs_count),
+		childs(new hMenuItem[childs_count]),
+		groupName(name)
+		{
+			if(slot < parent.childsCount)
+			{
+				parent.childs[slot] = this;
+			}
+		}
 
-
+	~cMenuGroup() { delete[] childs; }
 
 private:
-	menu_t type;
+	const uint8_t childsCount;
+	hMenuItem* childs;
+	const char* groupName;
 
+	uint8_t selectedItem = 0;
 
+	friend class cMenuItem;
 
 };
 
 
 
+class cMenuItem : public cMenuBase
+{
+public:
+	cMenuItem(cMenuGroup& parent, uint8_t slot, const char* name) :
+		cMenuBase(menuTypeItem),
+		groupName(name)
+		{
+			if(slot < parent.childsCount)
+			{
+				parent.childs[slot] = this;
+			}
+		}
+
+	~cMenuItem() {}
+
+private:
+	const char* groupName;
+	//
+	menu_item_t itemType;
+
+	//value
+	int value;
+	int interval;
+	int min;
+	int max;
+
+	//list
+	uint8_t position;
+	uint8_t itemsCount;
+	char** ptrItems;
+
+	//
 
 
-
-
+};
 
 
 

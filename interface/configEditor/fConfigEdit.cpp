@@ -110,6 +110,8 @@ void cConfigEditor::start(uint32_t options)
 	exitOnButtonRelease = 0;
 //--------------------------------------------------------------------
 
+	createConfigMenu();
+
 //--------------------------------------------------------------------
 
 	clearAllNodes();
