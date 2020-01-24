@@ -432,7 +432,8 @@ void Sequencer::changeSelectionNote(int16_t value)
 //								step->note,
 //								STEP_VELO_DEFAULT,
 //								t);
-					playSelection();
+					if (!(player.isPlay && !player.selectionMode))
+						playSelection();
 				}
 				return;
 			}
@@ -450,7 +451,8 @@ void Sequencer::changeSelectionNote(int16_t value)
 //									step->note,
 //									STEP_VELO_DEFAULT,
 //									t);
-						playSelection();
+						if (!(player.isPlay && !player.selectionMode))
+							playSelection();
 
 					}
 				}
@@ -525,11 +527,9 @@ void Sequencer::changeSelectionFxValue(uint8_t fxIndex, int16_t value)
 						step->fx[fxIndex].type);
 			}
 
-			if (!isMultiSelection())
-			{
+			if (!(player.isPlay && !player.selectionMode))
 				playSelection();
-				break;
-			}
+
 		}
 	}
 }
@@ -649,7 +649,8 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 //								step->note,
 //								STEP_VELO_DEFAULT,
 //								t);
-					playSelection();
+					if (!(player.isPlay && !player.selectionMode))
+						playSelection();
 
 					mtProject.values.lastUsedInstrument = step->instrument;
 				}
