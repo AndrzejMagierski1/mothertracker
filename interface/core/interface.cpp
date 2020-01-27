@@ -159,6 +159,7 @@ void cInterface::processOperatingMode()
 		{
 			if(sdCardDetector.isCardInitialized())
 			{
+				hideDisplayNoSdCard();
 				openStartupProject();
 				operatingMode = mtOperatingModeShowStartScreen;
 			}
@@ -188,7 +189,15 @@ void cInterface::doStartTasks()
 	readConfig();
 	//readSdConfig();
 	mtPopups.initPopupsDisplayControls();
+
 	initStartScreen();
+
+	if(!sdCardDetector.isCardInitialized())
+	{
+		//hideStartScreen();
+		showDisplayNoSdCard();
+	}
+
 }
 
 void cInterface::processStartScreen()

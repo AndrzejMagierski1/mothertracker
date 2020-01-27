@@ -3,17 +3,6 @@
 #include "configEditor.h"
 
 
-static uint16_t framesPlaces[8][4] =
-{
-	{0+1, 		  29, 800/8-3, 391},
-	{(800/8)*1+1, 29, 800/8-3, 391},
-	{(800/8)*2+1, 29, 800/8-3, 391},
-	{(800/8)*3+1, 29, 800/8-3, 391},
-	{(800/8)*4+1, 29, 800/8-3, 391},
-	{(800/8)*5+1, 29, 800/8-3, 391},
-	{(800/8)*6+1, 29, 800/8-3, 391},
-	{(800/8)*7+1, 29, 800/8-3, 391},
-};
 
 static uint16_t framesPlacesConfig[4][4]=
 {
@@ -91,12 +80,15 @@ void cConfigEditor::initDisplayControls()
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
+
+
+
 	prop.style = controlStyleBackground;
 	prop.x = (800/8)*0+1;
 	prop.y = 29;
 	prop.w = 800/4-3;
 	prop.h = 394;
-	if(configGroupsListControl[0] == nullptr)  configGroupsListControl[0] = display.createControl<cList>(&prop);
+	if(configBasemenuListControl == nullptr)  configBasemenuListControl= display.createControl<cList>(&prop);
 
 	prop.x = (800/8)*2+1;
 	prop.y = 29;
@@ -104,17 +96,7 @@ void cConfigEditor::initDisplayControls()
 	prop.h = 394;
 	if(configSubmenuListControl == nullptr) configSubmenuListControl = display.createControl<cParamValueList>(&prop);
 
-	prop.x = (800/8)*4+1;
-	prop.y = 29;
-	prop.w = 800/4-3;
-	prop.h = 394;
-	if(configGroupsListControl[2] == nullptr)  configGroupsListControl[2] = display.createControl<cList>(&prop);
 
-	prop.x = (800/8)*6+1;
-	prop.y = 29;
-	prop.w = 800/4-3;
-	prop.h = 394;
-	if(configGroupsListControl[3] == nullptr)  configGroupsListControl[3] = display.createControl<cList>(&prop);
 }
 
 
@@ -126,11 +108,8 @@ void cConfigEditor::destroyDisplayControls()
 	display.destroyControl(titleLabel);
 	titleLabel = nullptr;
 
-	for(uint8_t i = 0; i < 4; i++)
-	{
-		display.destroyControl(configGroupsListControl[i]);
-		configGroupsListControl[i] = nullptr;
-	}
+	display.destroyControl(configBasemenuListControl);
+	configBasemenuListControl = nullptr;
 
 	display.destroyControl(configSubmenuListControl);
 	configSubmenuListControl = nullptr;
@@ -139,7 +118,6 @@ void cConfigEditor::destroyDisplayControls()
 	{
 		display.destroyControl(label[i]);
 		label[i] = nullptr;
-
 	}
 
 	display.destroyControl(bgLabel);
@@ -148,15 +126,15 @@ void cConfigEditor::destroyDisplayControls()
 	display.destroyControl(frameControl);
 	frameControl = nullptr;
 
-	display.destroyControl(firmwareListControl);
-	firmwareListControl = nullptr;
-
 	display.destroyControl(popoutWindowLabel);
 	popoutWindowLabel = nullptr;
 }
 
 void cConfigEditor::showDefaultConfigScreen()
 {
+
+	resizeLabelConfigDefault();
+
 	for(uint8_t i = 0; i<7; i++)
 	{
 		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
@@ -251,26 +229,6 @@ void cConfigEditor::resizeToDefaultConfig()
 	}
 }
 
-void cConfigEditor::resizeToDefaultMaster()
-{
-	display.setControlPosition(label[0],  (800/8)*0+(800/16),  -1);
-	display.setControlSize(label[0],  800/8-6,  -1);
-
-	display.setControlPosition(label[2],  (800/8)*2+(800/16),  -1);
-	display.setControlSize(label[2],  800/8-6,  -1);
-
-	display.setControlPosition(label[4],  (800/8)*4+(800/16),  -1);
-	display.setControlSize(label[4],  800/8-6,  -1
-						   );
-
-	display.setControlPosition(label[6],  (800/8)*6+(800/16),  -1);
-	display.setControlSize(label[6],  800/8-6,  -1);
-
-	for(uint8_t i = 0; i < 8; i++)
-	{
-		display.setControlColors(label[i], interfaceGlobals.activeLabelsColors);
-	}
-}
 
 void cConfigEditor::resizeToSmallConfig(uint8_t labelIdx)
 {
@@ -280,21 +238,10 @@ void cConfigEditor::resizeToSmallConfig(uint8_t labelIdx)
 	display.setControlShow(label[labelIdx+1]);
 }
 
-void cConfigEditor::showConfigGroupList(strList *data , uint8_t listNum)
-{
-/*	configGroupList.start = selectedConfigGroup;
-	configGroupList.length = mtConfigGroupsCount;
-	configGroupList.linesCount = mtConfigGroupsCount;
-	configGroupList.data = configGroupsNames;*/
-
-	display.setControlData(configGroupsListControl[listNum],  data);
-	display.setControlShow(configGroupsListControl[listNum]);
-	display.refreshControl(configGroupsListControl[listNum]);
-}
 
 void cConfigEditor::showFirmwareUpdatePopout()
 {
-	resizeToDefaultMaster();
+	resizeToDefaultConfig();
 
 	for(uint8_t i = 0 ; i < 8; i++)
 	{

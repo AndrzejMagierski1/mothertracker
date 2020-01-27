@@ -1,9 +1,11 @@
 
 #include "configEditor/configEditor.h"
 
+#include "configEditor/configMenuDefs.h"
+
 
 // baza baz
-cMenuGroup menuBase(menuBase, 0, 0, 5);
+cMenuGroup menuBase(menuBase, 0, 0, 6);
 
 // grupy glowne
 cMenuGroup menuGeneral	(menuBase, 0, "General", 	3);
@@ -23,11 +25,44 @@ void cConfigEditor::createConfigMenu()
 {
 
 
+	createMenuBaseList(menuBase);
+
+
+
+
 
 
 }
 
+void cConfigEditor::createMenuBaseList(cMenuGroup& baseGroup)
+{
 
+
+	basemenuList.linesCount = baseGroup.childsCount;
+	basemenuList.start = 0;
+	basemenuList.length = baseGroup.childsCount;
+	basemenuList.data = baseGroup.childsNames;
+
+	display.setControlData(configBasemenuListControl, &basemenuList);
+	display.refreshControl(configBasemenuListControl);
+	display.setControlShow(configBasemenuListControl);
+
+
+
+
+
+	submenuList.linesCount = baseGroup.getSelChildCount();
+	submenuList.start = 0;
+	submenuList.length = baseGroup.getSelChildCount();
+	submenuList.params = baseGroup.getSelChildNames();
+	submenuList.values = baseGroup.getSelChildNames();
+
+	display.setControlData(configSubmenuListControl, &submenuList);
+	display.refreshControl(configSubmenuListControl);
+	display.setControlShow(configSubmenuListControl);
+
+
+}
 
 
 
