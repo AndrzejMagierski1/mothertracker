@@ -46,6 +46,15 @@ void envelopeGenerator::kill()
 	keyPressed = 0;
 }
 
+void envelopeGenerator::killToZero()
+{
+	envTemp.output = 0.0f;
+	envTemp.killOutput = 0.0f;
+	envTemp.phase = phase_nothing;
+	envTemp.timer = 0;
+	keyPressed = 0;
+}
+
 void envelopeGenerator::calc()
 {
 

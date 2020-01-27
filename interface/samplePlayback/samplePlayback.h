@@ -169,6 +169,8 @@ public:
 
 //----------------------------------
 // odtwarzanie
+	uint8_t currentSeqState = 0;
+	uint8_t lastSeqState = 0;
 	uint8_t isPlayingSample = 0;
 	uint8_t isPlayingWavetable = 0;
 	uint32_t currentEnvelopeWtPos;
@@ -177,6 +179,8 @@ public:
 	uint32_t lastEnvelopeGranPos;
 	int8_t playNote = 24;
 	uint8_t glidePreviewDif = 0;
+	uint8_t seqReleaseFlag = 0;
+	uint8_t startNoteStoppedSeq = 0;
 
 //----------------------------------
 	// multisel

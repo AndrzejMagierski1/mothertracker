@@ -49,6 +49,7 @@ public:
 	void start();
 	void stop();
 	void kill();
+	void killToZero();
 
 	float getOut();
 	float getLastOut();

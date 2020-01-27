@@ -103,6 +103,8 @@ public:
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note,uint8_t type);
 	AudioEffectEnvelope *       envelopeAmpPtr;
 
+	uint8_t 					currentInstrument_idx;
+
 	elapsedMillis ampLfoRefreshTimer;
 	elapsedMillis pitchLfoRefreshTimer;
 	elapsedMillis envelopesRefreshTimer;
@@ -274,7 +276,6 @@ private:
 	uint8_t 					numPanChannel;
 	uint8_t						lastSeqFx[2];
 	uint8_t						lastSeqVal[2];
-	uint8_t 					currentInstrument_idx;
 	int8_t						currentNote;
 	int8_t						currentVelocity;
 	uint16_t 					statusBytes; // 8- reverbSend 7-resonance, 6-cutoff, 5-panning ,4-volume,3-tune,2-fineTune, 1-LP1 , 0-LP2

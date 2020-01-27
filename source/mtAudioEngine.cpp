@@ -1,6 +1,7 @@
 #include "mtAudioEngine.h"
 #include "sampleRecorder/sampleRecorder.h"
 #include "mtSequencer.h"
+
 extern AudioControlSGTL5000 audioShield;
 static cSampleRecorder* SR = &sampleRecorder;
 
@@ -983,23 +984,29 @@ void playerEngine::noteOff(int8_t option)
 		AudioNoInterrupts();
 		envelopeAmpPtr->release(300);
 		envelopeAmpPtr->noteOff();
-		envelopeFilterPtr->stop();
-		envelopeWtPos->stop();
-		envelopeGranPos->stop();
+		//lfo ma dzialac do konca fade
+		if(!mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop) 		envelopeFilterPtr->stop();
+		if(!mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)	 	envelopeWtPos->stop();
+		if(!mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop) 		envelopeGranPos->stop();
+		if(!mtProject.instrument[currentInstrument_idx].envelope[envPan].loop) 			envelopePanningPtr->stop();
+
 		AudioInterrupts();
 		__enable_irq();
 		break;
 	case Sequencer::STEP_NOTE_CUT:
 		__disable_irq();
 		AudioNoInterrupts();
+		// caly voice i automatyka zabijane
 		envelopeAmpPtr->noteOff();
 		envelopeAmpPtr->setIdle();
 		envelopeFilterPtr->stop();
-		envelopeFilterPtr->kill();
+		envelopeFilterPtr->killToZero();
 		envelopeWtPos->stop();
-		envelopeWtPos->kill();
+		envelopeWtPos->killToZero();
 		envelopeGranPos->stop();
-		envelopeGranPos->kill();
+		envelopeGranPos->killToZero();
+		envelopePanningPtr->stop();
+		envelopePanningPtr->killToZero();
 		playMemPtr->stop();
 
 		AudioInterrupts();
@@ -1009,20 +1016,68 @@ void playerEngine::noteOff(int8_t option)
 		__disable_irq();
 		AudioNoInterrupts();
 		envelopeAmpPtr->noteOff();
-		envelopeFilterPtr->stop();
-		envelopeWtPos->stop();
-		envelopeGranPos->stop();
+		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+		{
+			//amp loop nie ma release wiec wszystko zabijamy od razu
+			envelopeFilterPtr->stop();
+			envelopeWtPos->stop();
+			envelopeGranPos->stop();
+			envelopePanningPtr->stop();
+		}
+		else
+		{
+			//env ampa nie zabija od razu loopow - maja grac do konca env
+			if(!mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop) 		envelopeFilterPtr->stop();
+			if(!mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)	 	envelopeWtPos->stop();
+			if(!mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop) 		envelopeGranPos->stop();
+			if(!mtProject.instrument[currentInstrument_idx].envelope[envPan].loop) 			envelopePanningPtr->stop();
+		}
+
+
 		if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
 		{
 			playMemPtr->stop();
+			if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable && mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop)
+			{
+				instrumentBasedMod.cutoff = mtProject.instrument[currentInstrument_idx].cutOff;
+			}
+			if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
+			{
+				instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+			}
+			if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
+			{
+				instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+			}
+			if(mtProject.instrument[currentInstrument_idx].envelope[envPan].enable && mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
+			{
+				instrumentBasedMod.panning = mtProject.instrument[currentInstrument_idx].panning;
+			}
 		}
 		else
 		{
 			if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f) || (envelopePassFlag) || (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) )
 			{
 				playMemPtr->stop();
+				if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable && mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop)
+				{
+					instrumentBasedMod.cutoff = mtProject.instrument[currentInstrument_idx].cutOff;
+				}
+				if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
+				{
+					instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+				}
+				if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
+				{
+					instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+				}
+				if(mtProject.instrument[currentInstrument_idx].envelope[envPan].enable && mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
+				{
+					instrumentBasedMod.panning = mtProject.instrument[currentInstrument_idx].panning;
+				}
 			}
 		}
+
 		AudioInterrupts();
 		__enable_irq();
 		break;
@@ -2326,6 +2381,27 @@ void playerEngine:: update()
 		envelopeAmpPtr->clearEndReleaseFlag();
 		interfaceEndReleaseFlag = 1;
 		playMemPtr->stop();
+
+		if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable && mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop)
+		{
+			instrumentBasedMod.cutoff = mtProject.instrument[currentInstrument_idx].cutOff;
+			envelopeFilterPtr->stop();
+		}
+		if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
+		{
+			instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+			envelopeWtPos->stop();
+		}
+		if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
+		{
+			instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+			envelopeGranPos->stop();
+		}
+		if(mtProject.instrument[currentInstrument_idx].envelope[envPan].enable && mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
+		{
+			instrumentBasedMod.panning = mtProject.instrument[currentInstrument_idx].panning;
+			envelopePanningPtr->stop();
+		}
 	}
 
 	if(1)//(envelopesRefreshTimer > ENVELOPES_REFRESH_TIME_MS)
@@ -2355,6 +2431,7 @@ void playerEngine:: update()
 					if((envelopeWtPos->isKeyPressed() == 1) || (envelopeWtPos->getPhase() != 0))
 					{
 						wtPositionMod = envelopeWtPos->getOut();
+						Serial.printf("wt: %02f\n", wtPositionMod);
 						statusBytes |= WT_POS_SEND_MASK;
 
 						int32_t iwtPosisionMod = wtPositionMod * mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber;

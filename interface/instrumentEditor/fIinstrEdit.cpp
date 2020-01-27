@@ -1071,6 +1071,10 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			instrumentPlayer[i].noteOff(Sequencer::STEP_NOTE_CUT);
+		}
 	}
 
 	if(state == 1)
