@@ -12,6 +12,9 @@
 #include "keyScanner.h"
 #include "sdramTest.h"
 
+#include "debugLog.h"
+
+
 cPatternEditor patternEditor;
 static  cPatternEditor* PTE = &patternEditor;
 
@@ -478,6 +481,20 @@ void cPatternEditor::refreshPattern()
 	}
 
 	display.refreshControl(patternControl);
+}
+
+
+void cPatternEditor::showFxInfo()
+{
+	if(editParam < 2) return;
+	if(editMode == 0) return;
+
+	seq = sequencer.getPatternToUI();
+	uint8_t type_temp  = interfaceGlobals.fxIdToName(seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[1-(editParam-2)].type);
+	if(type_temp > 0 && type_temp < FX_MAX)
+	{
+		debugLog.addLine(&interfaceGlobals.fxNames[type_temp][0]);
+	}
 }
 
 char getHexFromInt(int16_t val, uint8_t index)
@@ -1405,6 +1422,9 @@ static  uint8_t functLeft()
 		if(PTE->patternViewMode == 0 && PTE->trackerPattern.firstVisibleTrack > 0 ) PTE->trackerPattern.firstVisibleTrack--;
 	}
 
+	PTE->showFxInfo();
+
+
 	PTE->lightUpPadBoard();
 	display.refreshControl(PTE->patternControl);
 
@@ -1471,6 +1491,9 @@ static  uint8_t functRight()
 	{
 		if(PTE->patternViewMode == 0 && PTE->trackerPattern.firstVisibleTrack < 4 ) PTE->trackerPattern.firstVisibleTrack++;
 	}
+
+
+	PTE->showFxInfo();
 
 	PTE->lightUpPadBoard();
 	display.refreshControl(PTE->patternControl);
@@ -1565,6 +1588,9 @@ static  uint8_t functUp()
 		//display.refreshControl(PTE->patternControl);
 	}
 
+
+	PTE->showFxInfo();
+
 	PTE->refreshPattern();
 	PTE->lightUpPadBoard();
 
@@ -1639,6 +1665,9 @@ static  uint8_t functDown()
 		PTE->isSelectingNow = 0;
 		//display.refreshControl(PTE->patternControl);
 	}
+
+
+	PTE->showFxInfo();
 
 	PTE->refreshPattern();
 	PTE->lightUpPadBoard();
@@ -1838,6 +1867,8 @@ static  uint8_t functFx1(uint8_t state)
 	{
 		PTE->cancelPopups();
 		PTE->dontShowPopupsUntilButtonRelease = 0;
+
+		PTE->showFxInfo();
 	}
 
 	return 1;
@@ -1899,6 +1930,8 @@ static  uint8_t functFx2(uint8_t state)
 	{
 		PTE->cancelPopups();
 		PTE->dontShowPopupsUntilButtonRelease = 0;
+
+		PTE->showFxInfo();
 	}
 
 	return 1;
