@@ -4,6 +4,109 @@
 
 
 
+typedef enum enMenuType
+{
+	menuTypeEmpty,
+	menuTypeGroup,
+	menuTypeItem,
+
+} menu_t;
+
+typedef enum enMenuItemType
+{
+	menuItemTypeEmpty,
+	menuItemTypeValue,
+	menuTypeItemListValues,
+	menuTypeItemListText,
+	menuTypeItemLabel,
+	menuTypeItemActionButton,
+
+} menu_item_t;
+
+
+struct strItemTypeValue
+{
+	int16_t* value;
+	int16_t interval;
+	int16_t min;
+	int16_t max;
+};
+
+struct strItemTypeListValues
+{
+	uint8_t* value;
+	uint8_t min;
+	uint8_t max;
+	uint8_t interval;
+
+};
+
+struct strItemTypeListText
+{
+	uint8_t* value;
+	uint8_t count;
+	const char*const*  ptrText;
+};
+
+struct strItemTypeLabel
+{
+
+};
+
+struct strItemTypeActionButton
+{
+
+};
+
+//===========================================================
+//===========================================================
+//===========================================================
+// general
+
+
+const char brightness[3][5] =
+{
+		"Low",
+		"Medium",
+		"High",
+};
+
+const char* const ptrBrightness[3] =
+{
+		&brightness[0][0],
+		&brightness[1][0],
+		&brightness[2][0],
+};
+
+const char radioRegion[4][10] =
+{
+		"Europe",
+		"US",
+		"Australia",
+		"Japan",
+};
+
+const char* const ptrRadioRegion[4] =
+{
+		&ptrRadioRegion[0],
+		&ptrRadioRegion[1],
+		&ptrRadioRegion[2],
+		&ptrRadioRegion[3],
+};
+//===========================================================
+//===========================================================
+//===========================================================
+
+
+
+
+
+
+
+
+
+
+
 constexpr uint8_t GERERAL_SUBMENUS = 3;
 constexpr uint8_t MIDI_SUBMENUS = 7;
 constexpr uint8_t PATTERN_DIVIDERS = 16;
@@ -148,12 +251,8 @@ const char radioRegion[RADIO_REGIONS][10] =
 		"Japan",
 };
 
-const char brightness[BRIGHTNESS_LEVELS][5] =
-{
-		"Low",
-		"Mid",
-		"High",
-};
+
+
 
 const char clockIn[CLOCK_IN][9] =
 {

@@ -189,7 +189,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 0)
 			{
-
+				CE->chaangeListPosition(0, -1);
 			}
 			else
 			{
@@ -201,7 +201,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 0)
 			{
-
+				CE->chaangeListPosition(0, 1);
 			}
 			else
 			{
@@ -211,31 +211,25 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		}
 		case 2:
 		{
-			if(CE->listsActive[1])
+			if(CE->selectedPlace == 1)
 			{
-				if(CE->selectedPlace == 1)
-				{
-
-				}
-				else
-				{
-					CE->selectedPlace = 1;
-				}
+				CE->chaangeListPosition(1, -1);
+			}
+			else
+			{
+				CE->selectedPlace = 1;
 			}
 			break;
 		}
 		case 3:
 		{
-			if(CE->listsActive[1])
+			if(CE->selectedPlace == 1)
 			{
-				if(CE->selectedPlace == 1)
-				{
-
-				}
-				else
-				{
-					CE->selectedPlace = 1;
-				}
+				CE->chaangeListPosition(1, 1);
+			}
+			else
+			{
+				CE->selectedPlace = 1;
 			}
 			break;
 		}

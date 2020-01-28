@@ -283,12 +283,12 @@ uint8_t cParamValueList::update()
 					font->handle,
 					OPT_CENTERY,
 					*(list->params + (i +  textListPos)));
-//TODO
-//			API_CMD_TEXT(x_pos,
-//					y_pos + (i * h_row),
-//					font->handle,
-//					OPT_RIGHTX | OPT_CENTERY,
-//					*(list->values + (i +  textListPos)));
+
+			API_CMD_TEXT(x_pos+w_bar-13,
+					y_pos + (i * h_row),
+					font->handle,
+					OPT_RIGHTX | OPT_CENTERY,
+					*(list->values + (i +  textListPos)));
 		}
 
 		API_RESTORE_CONTEXT();
@@ -400,8 +400,15 @@ uint8_t cParamValueList::update()
 					API_CMD_TEXT(x_pos,
 							y_pos + (i * h_row),
 							font->handle,
-							textStyle | OPT_CENTERY,
+							OPT_CENTERY,
 							*(list->params +  i + textListPos ) );
+
+
+					API_CMD_TEXT(x_pos+w_bar-13,
+							y_pos + (i * h_row),
+							font->handle,
+							OPT_RIGHTX | OPT_CENTERY,
+							*(list->values + i +  textListPos));
 
 				}
 			}
@@ -416,10 +423,15 @@ uint8_t cParamValueList::update()
 					API_CMD_TEXT(x_pos,
 							y_pos + (i * h_row),
 							font->handle,
-							textStyle | OPT_CENTERY,
+							OPT_CENTERY,
 							*(list->params + i + table_offset) );
 
 
+					API_CMD_TEXT(x_pos+w_bar-13,
+							y_pos + (i * h_row),
+							font->handle,
+							OPT_RIGHTX | OPT_CENTERY,
+							*(list->values + i +  table_offset));
 				}
 			}
 		}
@@ -431,9 +443,15 @@ uint8_t cParamValueList::update()
 				API_CMD_TEXT(x_pos,
 						y_pos + (i * h_row),
 						font->handle,
-						textStyle | OPT_CENTERY,
+						OPT_CENTERY,
 						*(list->params + i  + textListPos ) );
 
+
+				API_CMD_TEXT(x_pos+w_bar-13,
+						y_pos + (i * h_row),
+						font->handle,
+						OPT_RIGHTX | OPT_CENTERY,
+						*(list->values + i +  textListPos));
 			}
 		}
 

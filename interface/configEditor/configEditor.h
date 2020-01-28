@@ -68,8 +68,9 @@ public:
 
 	void createConfigMenu();
 
-	void createMenuBaseList(cMenuGroup& baseGroup);
-
+	void createMenuBaseList();
+	void ReloadSubmenu();
+	void chaangeListPosition(uint8_t list, int16_t value);
 	//
 
 	//-----------------------------------------
@@ -147,6 +148,8 @@ public:
 	uint8_t mode = 0;
 
 	strInstrument * editorInstrument;
+
+	strLabelData labelArrow[2];
 
 //----------------------------------
 // listy
@@ -264,34 +267,6 @@ extern cConfigEditor configEditor;
 //===========================================================================
 //===========================================================================
 
-typedef enum enMenuType
-{
-	menuTypeEmpty,
-	menuTypeGroup,
-	menuTypeItem,
-
-} menu_t;
-
-typedef enum enMenuItemType
-{
-	menuItemTypeEmpty,
-	menuItemTypeValue,
-	menuTypeItemList,
-	menuTypeItemLabel,
-	menuTypeItemButton,
-
-} menu_item_t;
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -327,19 +302,27 @@ public:
 
 	~cMenuGroup() { delete[] childs; }
 
-	uint8_t getSelChildCount()
+	cMenuGroup* getSelChild()
 	{
-		if(this->childs[selectedItem]->type == menuTypeGroup)
-			return ((cMenuGroup*)childs[selectedItem])->childsCount;
-		else return 0;
+		return (cMenuGroup*)childs[selectedItem];
 	}
 
-	char** getSelChildNames()
+	uint8_t getCount()
 	{
-		if(this->childs[selectedItem]->type == menuTypeGroup)
-			return ((cMenuGroup*)childs[selectedItem])->childsNames;
-		else return nullptr;
+		return childsCount;
 	}
+
+	char** getNames()
+	{
+		return childsNames;
+	}
+
+	uint8_t getSelectedItem()
+	{
+		return selectedItem;
+	}
+
+
 
 
 private:
@@ -360,7 +343,7 @@ private:
 class cMenuItem : public cMenuBase
 {
 public:
-	cMenuItem(cMenuGroup& parent, uint8_t slot, const char* name) :
+	cMenuItem(cMenuGroup& parent, uint8_t slot, const char* name, menu_item_t type, const void* structPtr) :
 		cMenuBase(menuTypeItem),
 		groupName(name)
 		{
@@ -378,11 +361,6 @@ private:
 	//
 	menu_item_t itemType;
 
-	//value
-	int value;
-	int interval;
-	int min;
-	int max;
 
 	//list
 	uint8_t position;
