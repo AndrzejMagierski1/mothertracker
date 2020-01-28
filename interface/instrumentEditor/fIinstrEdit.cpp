@@ -281,8 +281,14 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 	if(state == buttonPress)
 	{
 		uint8_t lastSelectedPlace = IE->selectedPlace[IE->mode];
+
 		IE->selectedPlace[IE->mode] = (button > 0) && (IE->mode == mtInstEditModeEnv)  ? button - 1 : button;
-		if( (IE->mode == mtInstEditModeEnv) && (IE->selectedPlace[IE->mode] > 4) && (IE->editorInstrument->envelope[IE->selectedEnvelope].loop)) IE->selectedPlace[IE->mode] = 4;
+
+		if( (IE->mode == mtInstEditModeEnv) && (IE->selectedPlace[IE->mode] > 4) && (IE->editorInstrument->envelope[IE->selectedEnvelope].loop))
+		{
+			IE->selectedPlace[IE->mode] = 4;
+		}
+
 		switch(mode_places)
 		{
 		case 0: IE->addNode(changeParamsVolume, node); 	    	break;
@@ -336,8 +342,10 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 
 		// midi params
 		case 20: IE->addNode(changeParamsVelocity, node); 		 break;
+
 		}
-		if(node > 2)
+
+		if((node > 2) && (IE->mode == mtInstEditModeEnv))
 		{
 			if( ((node <= 5 ) && (IE->editorInstrument->envelope[IE->selectedEnvelope].loop)) || (!IE->editorInstrument->envelope[IE->selectedEnvelope].loop ))
 			{
@@ -345,7 +353,12 @@ static uint8_t functSelectParams(uint8_t button, uint8_t state)
 				IE->frameData.multisel[button].isActive = 1;
 				IE->frameData.multiSelActiveNum  += 1;
 			}
-
+		}
+		else if(IE->mode == mtInstEditModeParams)
+		{
+			IE->frameData.multisel[button].frameNum = node;
+			IE->frameData.multisel[button].isActive = 1;
+			IE->frameData.multiSelActiveNum  += 1;
 		}
 	}
 	else if(state == buttonRelease)
