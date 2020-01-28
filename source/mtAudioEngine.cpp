@@ -242,6 +242,15 @@ void audioEngine::update()
 
 }
 
+void audioEngine::endAllFx()
+{
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		instrumentPlayer[i].endFx(instrumentPlayer[i].lastSeqFx[0],0);
+		instrumentPlayer[i].endFx(instrumentPlayer[i].lastSeqFx[1],1);
+	}
+}
+
 void audioEngine::performanceModeEndAll()
 {
 	for(uint8_t i = 0; i < 8; i++)
@@ -1261,6 +1270,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 
 			playMemPtr->setFineTuneForceFlag();
 			playMemPtr->setForcedFineTune(currentSeqModValues.fineTune);
+			playMemPtr->setFineTune(currentSeqModValues.fineTune, currentNote);
 		break;
 		case fx_t::FX_TYPE_PANNING :
 
@@ -2431,7 +2441,6 @@ void playerEngine:: update()
 					if((envelopeWtPos->isKeyPressed() == 1) || (envelopeWtPos->getPhase() != 0))
 					{
 						wtPositionMod = envelopeWtPos->getOut();
-						Serial.printf("wt: %02f\n", wtPositionMod);
 						statusBytes |= WT_POS_SEND_MASK;
 
 						int32_t iwtPosisionMod = wtPositionMod * mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber;
@@ -2514,34 +2523,27 @@ void playerEngine:: update()
 		{
 			statusBytes &= (~FINETUNE_MASK);
 
-			if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoFineTune] ||
-			   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoFineTune] )
+			int8_t fineTune;
+			if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::fineTune] ||
+			   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::fineTune] ) fineTune = currentSeqModValues.fineTune;
+			else fineTune = mtProject.instrument[currentInstrument_idx].fineTune;
+
+
+			if(fineTune + fineTuneMod*100 > MAX_INSTRUMENT_FINETUNE)
 			{
-				int8_t fineTune;
-				if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::fineTune] ||
-				   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::fineTune] ) fineTune = currentSeqModValues.fineTune;
-				else fineTune = mtProject.instrument[currentInstrument_idx].fineTune;
-
-
-				if(fineTune + fineTuneMod*100 > MAX_INSTRUMENT_FINETUNE)
-				{
-					playMemPtr->setForcedFineTune(MAX_INSTRUMENT_FINETUNE);
-					modFineTune(MAX_INSTRUMENT_FINETUNE);
-				}
-				else if(fineTune + fineTuneMod*100 < MIN_INSTRUMENT_FINETUNE)
-				{
-					playMemPtr->setForcedFineTune(MIN_INSTRUMENT_FINETUNE);
-					modFineTune(MIN_INSTRUMENT_FINETUNE);
-				}
-				else
-				{
-					playMemPtr->setForcedFineTune(fineTune + fineTuneMod*100);
-					modFineTune(fineTune+ fineTuneMod*100);
-				}
+				playMemPtr->setForcedFineTune(MAX_INSTRUMENT_FINETUNE);
+				modFineTune(MAX_INSTRUMENT_FINETUNE);
 			}
-			else modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
-
-
+			else if(fineTune + fineTuneMod*100 < MIN_INSTRUMENT_FINETUNE)
+			{
+				playMemPtr->setForcedFineTune(MIN_INSTRUMENT_FINETUNE);
+				modFineTune(MIN_INSTRUMENT_FINETUNE);
+			}
+			else
+			{
+				playMemPtr->setForcedFineTune(fineTune + fineTuneMod*100);
+				modFineTune(fineTune+ fineTuneMod*100);
+			}
 		}
 		if(statusBytes & TUNE_MASK)
 		{

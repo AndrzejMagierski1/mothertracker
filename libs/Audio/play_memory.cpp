@@ -974,22 +974,29 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 
 	/*=========================================================================================================================*/
 	/*====================================================PRZELICZENIA=========================================================*/
-	if(mtProject.instrument[instr_idx].fineTune >= 0)
-	{
-		if(!fineTuneForceFlag) currentFineTune=mtProject.instrument[instr_idx].fineTune;
-		else currentFineTune = forcedFineTune;
 
-		if((note + mtProject.instrument[instr_idx].tune + 1) <= MAX_NOTE)
+	if(!fineTuneForceFlag) currentFineTune=mtProject.instrument[instr_idx].fineTune;
+	else currentFineTune = forcedFineTune;
+
+	if(currentFineTune >= 0)
+	{
+		if((note + currentTune + 1) <= (MAX_NOTE-1))
 		{
-			fineTuneControl= currentFineTune * (((float)notes[note + currentTune + 1] - (float)notes[note + currentTune]) /MAX_INSTRUMENT_FINETUNE);
+			float localPitch1 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[note + currentTune + 1] : (float)wt_notes[note + currentTune + 1];
+			float localPitch2 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
+
+			fineTuneControl= currentFineTune * (( localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
 	else
 	{
-		if((note + mtProject.instrument[instr_idx].tune - 1) >= MIN_NOTE)
+		if((note + currentTune - 1) >= MIN_NOTE)
 		{
-			fineTuneControl= (0 - currentFineTune) * (((float)notes[note + currentTune - 1] - (float)notes[note + currentTune] )/MAX_INSTRUMENT_FINETUNE);
+			float localPitch1 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[note + currentTune - 1] : (float)wt_notes[note + currentTune - 1];
+			float localPitch2 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
+
+			fineTuneControl= (0-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
@@ -999,7 +1006,10 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	if(glide)
 	{
 		sampleConstrains.glide=(uint32_t)((float)glide*44.1);
-		if((lastNote>=0) && (lastNote != note)) glideControl=((float)notes[note + currentTune]-(float)notes[lastNote + currentTune] )/sampleConstrains.glide;
+
+		float localPitch1 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[note + currentTune] : (float)wt_notes[note + currentTune];
+		float localPitch2 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+		if((lastNote>=0) && (lastNote != note)) glideControl=(localPitch1 - localPitch2 )/sampleConstrains.glide;
 		else glideControl=0;
 	}
 	else
@@ -1214,20 +1224,28 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 
 	/*=========================================================================================================================*/
 	/*====================================================PRZELICZENIA=========================================================*/
-	if(mtProject.instrument[instr_idx].fineTune >= 0)
+	currentFineTune=mtProject.instrument[instr_idx].fineTune;
+
+
+	if(currentFineTune >= 0)
 	{
-		currentFineTune=mtProject.instrument[instr_idx].fineTune;
-		if((n + mtProject.instrument[instr_idx].tune + 1) <= MAX_NOTE)
+		if((n + currentTune + 1) <= (MAX_NOTE-1))
 		{
-			fineTuneControl= mtProject.instrument[instr_idx].fineTune * (((float)notes[n + currentTune + 1] - (float)notes[n + currentTune]) /MAX_INSTRUMENT_FINETUNE);
+			float localPitch1 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[n + currentTune + 1] : (float)wt_notes[n + currentTune + 1];
+			float localPitch2 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
+
+			fineTuneControl= currentFineTune * (( localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
 	else
 	{
-		if((n + mtProject.instrument[instr_idx].tune - 1) >= MIN_NOTE)
+		if((n + currentTune - 1) >= MIN_NOTE)
 		{
-			fineTuneControl= (0 - mtProject.instrument[instr_idx].fineTune) * (((float)notes[n + currentTune - 1] - (float)notes[n + currentTune] )/MAX_INSTRUMENT_FINETUNE);
+			float localPitch1 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[n + currentTune - 1] : (float)wt_notes[n + currentTune - 1];
+			float localPitch2 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
+
+			fineTuneControl= (0-currentFineTune) * ((localPitch1 - localPitch2) /MAX_INSTRUMENT_FINETUNE);
 		}
 		else fineTuneControl=0;
 	}
@@ -1237,7 +1255,10 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 	if(glide)
 	{
 		sampleConstrains.glide=(uint32_t)((float)glide*44.1);
-		if((lastNote>=0) && (lastNote != n)) glideControl=((float)notes[n + currentTune]-(float)notes[lastNote + currentTune] )/sampleConstrains.glide;
+
+		float localPitch1 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[n + currentTune] : (float)wt_notes[n + currentTune];
+		float localPitch2 = (sampleType == mtSampleTypeWaveFile) ? (float)notes[lastNote + currentTune] : (float)wt_notes[lastNote + currentTune];
+		if((lastNote>=0) && (lastNote != n)) glideControl=(localPitch1 - localPitch2 )/sampleConstrains.glide;
 		else glideControl=0;
 	}
 	else
@@ -1245,6 +1266,7 @@ uint8_t AudioPlayMemory::playForPrev(uint8_t instr_idx,int8_t n)
 		sampleConstrains.glide=0;
 		glideControl=0;
 	}
+
 
 
 

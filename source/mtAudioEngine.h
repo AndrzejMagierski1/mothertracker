@@ -39,7 +39,7 @@ public:
 	void printLog(SdFile * log);
 	void startTestSignal(float amp, float freq);
 	void stopTestSignal();
-
+	void endAllFx();
 	void setPassEnvelope(uint8_t state);
 
 	friend class playerEngine;
@@ -292,6 +292,8 @@ private:
 	uint8_t 					envelopePassFlag = 0;
 
 	envelopeGenerator::strEnv lfoBasedEnvelope[envelopeTypeMax];
+
+	uint8_t isActiveFlag = 0;
 
 	void changeFilterType(uint8_t type);
 	void filterConnect();
