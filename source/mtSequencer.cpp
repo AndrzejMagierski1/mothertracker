@@ -889,6 +889,7 @@ void Sequencer::stop(void)
 
 	player.performance.tempo = 0.0;
 
+	engine.endAllFx();
 	sendMidiStop();
 }
 
