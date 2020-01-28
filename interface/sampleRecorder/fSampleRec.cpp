@@ -107,6 +107,7 @@ void cSampleRecorder::update()
 	if(refreshSpectrum)
 	{
 		//processSpectrum();
+		params.address = recorder.getStartAddress();
 		params.length = recorder.getLength();
 		params.recordInProgressFlag = recordInProgressFlag;
 		GP.processSpectrum(&params, &zoom, &spectrum);
@@ -1362,6 +1363,7 @@ static uint8_t functActionStopPreview()
 static  uint8_t functActionCrop()
 {
 	if(SR->recordInProgressFlag == 1) return 1;
+
 	for(int8_t i = (undoCount-2); i>=0 ; i--)
 	{
 		SR->undo[i+1] = SR->undo[i];
