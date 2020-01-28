@@ -84,7 +84,8 @@ void cSamplePlayback::update()
 		{
 			if( (!mtProject.instrument[instrumentPlayer[0].currentInstrument_idx].envelope[envAmp].enable) ||
 				(mtProject.instrument[instrumentPlayer[0].currentInstrument_idx].envelope[envAmp].release == 0) ||
-				(mtProject.instrument[instrumentPlayer[0].currentInstrument_idx].envelope[envAmp].loop) )
+				(mtProject.instrument[instrumentPlayer[0].currentInstrument_idx].envelope[envAmp].loop) ||
+				(!(mtProject.values.allPatternsBitmask[mtProject.values.actualPattern] & 0x01))) //biezacy pattern , zerowy track czy aktywny
 			{
 				instrumentPlayer[0].noteOff(Sequencer::STEP_NOTE_CUT);
 
@@ -157,7 +158,7 @@ void cSamplePlayback::update()
 			refreshSpectrum = 1;
 			refreshWavetablePosition = 1;
 
-			if(editorInstrument->playMode == playModeWavetable) processWavetableCursor(instrumentPlayer[0].instrumentBasedMod.wtPos);
+			if(editorInstrument->playMode == playModeWavetable) processWavetableCursor(currentEnvelopeWtPos);
 		}
 
 		lastEnvelopeWtPos = currentEnvelopeWtPos;
@@ -179,7 +180,7 @@ void cSamplePlayback::update()
 
 	if(refreshSpectrum)
 	{
-		GP.processSpectrum(editorInstrument, &zoom, &spectrum);
+		GP.processSpectrum(editorInstrument, &zoom, &spectrum,currentEnvelopeWtPos);
 
 		display.refreshControl(spectrumControl);
 
@@ -1750,6 +1751,7 @@ static void modWavetablePostion(int32_t value)
 		instrumentPlayer[i].setStatusBytes(WT_POS_SEND_MASK);
 	}
 
+	SP->currentEnvelopeWtPos = SP->editorInstrument->wavetableCurrentWindow;
 	SP->processWavetableCursor(SP->editorInstrument->wavetableCurrentWindow);
 	SP->showWavetablePosition();
 	SP->refreshSpectrum = 1;

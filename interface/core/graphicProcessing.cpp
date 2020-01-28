@@ -116,7 +116,7 @@ void cGraphicProcessing::processSpectrum(strSpectrumParams* params, strZoomParam
 }
 
 
-void cGraphicProcessing::processSpectrum(strInstrument* instrument, strZoomParams* zoom, strTrackerSpectrum* spectrum)
+void cGraphicProcessing::processSpectrum(strInstrument* instrument, strZoomParams* zoom, strTrackerSpectrum* spectrum, uint32_t wt_pos)
 {
 	// uwaga tu wazna kolejnosc + do sprawdzenia
 	if(mtProject.values.lastUsedInstrument < 0 || mtProject.instrument[mtProject.values.lastUsedInstrument].isActive == 0 )
@@ -141,8 +141,7 @@ void cGraphicProcessing::processSpectrum(strInstrument* instrument, strZoomParam
 		uint16_t windowSize = instrument->sample.wavetable_window_size; //instrument->sample.wavetable_window_size;
 
 		sampleData = instrument->sample.address
-				+ (  (mtProject.instrument[mtProject.values.lastUsedInstrument].envelope[envWtPos].enable ?
-				instrumentPlayer[0].getEnvelopeWtPosMod() : mtProject.instrument[mtProject.values.lastUsedInstrument].wavetableCurrentWindow) * windowSize);
+				+ (  wt_pos * windowSize);
 
 		float resolution = windowSize / 600.0;
 

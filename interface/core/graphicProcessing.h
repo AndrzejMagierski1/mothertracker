@@ -20,7 +20,7 @@ public:
 
 
 	void processSpectrum(strSpectrumParams* params, strZoomParams* zoom, strTrackerSpectrum* spectrum);
-	void processSpectrum(strInstrument* instrument, strZoomParams* zoom, strTrackerSpectrum* spectrum);
+	void processSpectrum(strInstrument* instrument, strZoomParams* zoom, strTrackerSpectrum* spectrum, uint32_t wt_pos = 0);
 	void processSpectrum(int16_t* address, uint32_t length, strZoomParams* zoom, strTrackerSpectrum* spectrum);
 
 };
