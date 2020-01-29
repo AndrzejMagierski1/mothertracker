@@ -15,9 +15,6 @@
 
 
 
-class cMenuGroup;
-class cMenuItem;
-
 #undef MAX_SELECT_NODES
 #define MAX_SELECT_NODES	7
 
@@ -39,7 +36,6 @@ public:
 
 	cConfigEditor()
 	{
-		selectedConfigGroup[4] = {0};
 		label[8] = {nullptr};
 		barControl[8] = {nullptr};
 		editorInstrument = nullptr;
@@ -60,17 +56,14 @@ public:
 
 
 	//config
-	void showConfigGroupList(strList *data , uint8_t listNum);
-
 
 
 	//menu
-
 	void createConfigMenu();
-
 	void createMenuBaseList();
 	void ReloadSubmenu();
-	void chaangeListPosition(uint8_t list, int16_t value);
+	void changeMenuListPosition(uint8_t list, int16_t value);
+	void executeSelectedListItem(uint8_t list);
 	//
 
 	//-----------------------------------------
@@ -78,40 +71,34 @@ public:
 	void setConfigScreenFunct();
 
 
-	// config
-	void changeConfigGroupSelection(int16_t value);
-
-/*	//master
-	void changeVolume(int16_t value);
-	void changeReverbRoomSize(int16_t value);
-	void changeReverbDamping(int16_t value);
-	void changeLimiterAttack(int16_t value);
-	void changeLimiterRelease(int16_t value);
-	void changeLimiterTreshold(int16_t value);
-	void changeBitDepth(int16_t value);*/
-
-
-	//master tracks
-
-
-
-	//
 	void activateLabelsBorder();
 
-	// firmware
+	//
 	uint8_t firmwareFoundNum;
 	SdFile sdLocation;
 	uint8_t listInitFlag=0;
 	hControl popoutWindowLabel;
 
-	strList firmwareList;
 	uint8_t selectionActive;
-	void showFirmwareMenu();
-	void hideFirmwareMenu();
 
+
+
+
+
+	void showConfigList5(uint8_t start, uint8_t length, char** listText);
+	void hideConfigList();
+	void changeConfigListPosition(int16_t value);
+
+
+
+
+
+	char* ptrfirmwareNamesList[firmware_list_max];
+	char firmwareNamesList[firmware_list_max][firmware_name_length];
 	void listAllFirmwares();
-
 	void showFlashingWarning();
+	void updateFirmware();;
+
 
 	void showFirmwareUpdatePopout();
 	void hideFirmwareUpdatePopout();
@@ -131,7 +118,7 @@ public:
 
 	hControl configBasemenuListControl;
 	hControl configSubmenuListControl;
-
+	hControl configListControl;
 
 
 	hControl titleBar = nullptr;
@@ -149,40 +136,19 @@ public:
 
 	strInstrument * editorInstrument;
 
-	strLabelData labelArrow[2];
+	strLabelData labelArrow[3];
 
 //----------------------------------
 // listy
 
 	strList basemenuList;
 	strParamValueList submenuList;
+	strList configList;
 
 
-	char *ptrBaseListNames;
+	uint8_t configListShown = 0;
+	uint8_t selectedConfigListPosition = 0;
 
-
-	char firmwareNamesList[firmware_list_max][firmware_name_length];
-
-	void listConfigGroups();
-
-	char *configGroupsNames[4][255];
-
-	uint8_t selectedConfigGroup[4];
-	uint8_t selectedConfigGroupMax[4];
-	uint8_t listsActive[4];
-	uint8_t previousSelectedConfigGroup=UINT8_MAX;
-
-//----------------------------------
-
-	char volumeVal[4];
-	char reverbSizeVal[4];
-	char reverbDampVal[4];
-	char limitAttackVal[8];
-	char limitReleaseVal[8];
-	char limitThresholdVal[4];
-	char bitDepthVal[4];
-
-//----------------------------------
 
 	uint8_t exitOnButtonRelease = 0;
 
@@ -198,6 +164,9 @@ public:
 	uint8_t getListsActive();
 	void setDataForLists(uint8_t listNum, uint8_t max);
 	void listDataForLists(uint8_t listNum, uint8_t nameNum, const char *names);
+
+
+
 
 
 	void processChangeInGroup0();
@@ -270,107 +239,13 @@ extern cConfigEditor configEditor;
 
 
 
-class cMenuBase
-{
-protected:
-	cMenuBase(menu_t menu_type) : type(menu_type) {}
-	menu_t type;
-
-	friend cMenuGroup;
-	friend cMenuItem;
-};
-
-typedef cMenuBase* hMenuItem;
-
-
-class cMenuGroup : public cMenuBase
-{
-public:
-	cMenuGroup(cMenuGroup& parent, uint8_t slot, const char* name, uint8_t childs_count) :
-		cMenuBase(menuTypeGroup),
-		childsCount(childs_count),
-		childs(new hMenuItem[childs_count]),
-		childsNames(new char*[childs_count]),
-		groupName(name)
-		{
-			if(slot < parent.childsCount)
-			{
-				parent.childs[slot] = this;
-				parent.childsNames[slot] = (char*)name;
-			}
-		}
-
-	~cMenuGroup() { delete[] childs; }
-
-	cMenuGroup* getSelChild()
-	{
-		return (cMenuGroup*)childs[selectedItem];
-	}
-
-	uint8_t getCount()
-	{
-		return childsCount;
-	}
-
-	char** getNames()
-	{
-		return childsNames;
-	}
-
-	uint8_t getSelectedItem()
-	{
-		return selectedItem;
-	}
+void firmwareUpgradeActivate();
+void firmwareUpgradeDeactivate();
 
 
 
 
-private:
-	const uint8_t childsCount;
-	hMenuItem* childs;
-	char** childsNames;
-	const char* groupName;
 
-
-	uint8_t selectedItem = 0;
-
-	friend class cMenuItem;
-	friend class cConfigEditor;
-};
-
-
-
-class cMenuItem : public cMenuBase
-{
-public:
-	cMenuItem(cMenuGroup& parent, uint8_t slot, const char* name, menu_item_t type, const void* structPtr) :
-		cMenuBase(menuTypeItem),
-		groupName(name)
-		{
-			if(slot < parent.childsCount)
-			{
-				parent.childs[slot] = this;
-				parent.childsNames[slot] = (char*)name;
-			}
-		}
-
-	~cMenuItem() {}
-
-private:
-	const char* groupName;
-	//
-	menu_item_t itemType;
-
-
-	//list
-	uint8_t position;
-	uint8_t itemsCount;
-	char** ptrItems;
-
-	//
-
-
-};
 
 
 

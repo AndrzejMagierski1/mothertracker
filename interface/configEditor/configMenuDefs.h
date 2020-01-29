@@ -2,7 +2,7 @@
 #ifndef INTERFACE_CONFIGEDITOR_CONFIGMENUDEFS_H_
 #define INTERFACE_CONFIGEDITOR_CONFIGMENUDEFS_H_
 
-
+#include <stdint.h>
 
 typedef enum enMenuType
 {
@@ -15,7 +15,7 @@ typedef enum enMenuType
 typedef enum enMenuItemType
 {
 	menuItemTypeEmpty,
-	menuItemTypeValue,
+	menuItemTypeValueU8,
 	menuTypeItemListValues,
 	menuTypeItemListText,
 	menuTypeItemLabel,
@@ -26,10 +26,10 @@ typedef enum enMenuItemType
 
 struct strItemTypeValue
 {
-	int16_t* value;
-	int16_t interval;
-	int16_t min;
-	int16_t max;
+	uint8_t* value;
+	uint8_t interval;
+	uint8_t min;
+	uint8_t max;
 };
 
 struct strItemTypeListValues
@@ -50,13 +50,19 @@ struct strItemTypeListText
 
 struct strItemTypeLabel
 {
-
+	char* text;
 };
 
 struct strItemTypeActionButton
 {
-
+	void (*funct1)(void) = nullptr;
+	void (*funct2)(void) = nullptr;
 };
+
+
+const char emptyName[2] = "";
+const char* const  ptrEmptyName = emptyName;
+
 
 //===========================================================
 //===========================================================
@@ -64,7 +70,7 @@ struct strItemTypeActionButton
 // general
 
 
-const char brightness[3][5] =
+const char brightness[3][7] =
 {
 		"Low",
 		"Medium",
@@ -88,202 +94,65 @@ const char radioRegion[4][10] =
 
 const char* const ptrRadioRegion[4] =
 {
-		&ptrRadioRegion[0],
-		&ptrRadioRegion[1],
-		&ptrRadioRegion[2],
-		&ptrRadioRegion[3],
+		&radioRegion[0][0],
+		&radioRegion[1][0],
+		&radioRegion[2][0],
+		&radioRegion[3][0],
 };
+
 //===========================================================
 //===========================================================
 //===========================================================
+// midi
 
 
-
-
-
-
-
-
-
-
-
-constexpr uint8_t GERERAL_SUBMENUS = 3;
-constexpr uint8_t MIDI_SUBMENUS = 7;
-constexpr uint8_t PATTERN_DIVIDERS = 16;
-constexpr uint8_t RADIO_REGIONS = 4;
-constexpr uint8_t BRIGHTNESS_LEVELS = 3;
-constexpr uint8_t CLOCK_IN = 3;
-//constexpr uint8_t CLOCK_OUT = 4;
-constexpr uint8_t CC_OUTS_NUM = 10;
-constexpr uint8_t CC_NUMBERS = 127;
-constexpr uint8_t NOTES_FROM_MODE_NUM = 4;
-constexpr uint8_t NOTES_FROM_CHANNEL_NUM = 17;
-
-constexpr uint8_t NOTES_OUT_NUM = 4;
-constexpr uint8_t NOTES_OUT_CHANNEL_NUM = 16;
-
-
-enum mtConfigSpecific
-{
-	configDefaultGeneral,
-	configDefaultFirmware,
-	configDefaultMIDI,
-	configDefaultSD,
-	configDefaultHelp,
-	configDefaultCredits,
-
-	mtConfigGroupsCount
-};
-
-enum mtConfigMIDI
-{
-	configMIDIClockIn,
-	configMIDIClockOut,
-	configMIDITransportIn,
-	configMIDITansportOut,
-	configMIDICcout,
-	configMIDINotesFrom_mode,
-	configMIDINotesFrom_channel,
-	configMIDINotesOut_mode,
-	configMIDINotesOut_channel,
-
-	configMIDI_count
-};
-
-enum mtConfigGeneral
-{
-	configGeneralPatternDiv,
-	configGeneralRadioRegion,
-	configGeneralBrightness,
-
-};
-
-
-
-enum enClockOut
-{
-	clockOut_Off,
-	clockOut_usb,
-	clockOut_jack,
-	clockOut_usb_and_jack,
-	clockOut_count
-};
-
-enum enNotesIn
-{
-	notesIn_None,
-	notesIn_usb,
-	notesIn_jack,
-	notesIn_usb_and_jack,
-};
-
-enum enNotesOut
-{
-	notesOut_mode_None,
-	notesOut_mode_usb,
-	notesOut_mode_jack,
-	notesOut_mode_usb_and_jack,
-};
-
-enum enClockIn
-{
-	clockIn_Internal,
-	clockIn_Usb,
-	clockIn_Jack,
-
-};
-
-const char groupNamesLabels[mtConfigGroupsCount][15] =
-{
-		"General",
-		"Firmware",
-		"MIDI",
-		"SD",
-		"Help",
-		"Credits"
-};
-
-const char generalConfig[GERERAL_SUBMENUS][20] =
-{
-		"Pattern divider",
-		"Radio region",
-		"Brightness"
-};
-
-const char txtlistMidiConfig[configMIDI_count][20] =
-{
-		"Clock in",
-		"Clock out",
-		"Transport in",
-		"Transport out",
-		"CC out",
-		"Notes in mode",
-		"Notes in channnel",
-		"Notes Out mode",
-		"Notes Out channel",
-};
-
-const char patternDivider[PATTERN_DIVIDERS][3] =
-{
-		"1",
-		"2",
-		"3",
-		"4",
-		"5",
-		"6",
-		"7",
-		"8",
-		"9",
-		"10",
-		"11",
-		"12",
-		"13",
-		"14",
-		"15",
-		"16",
-};
-
-const char radioRegion[RADIO_REGIONS][10] =
-{
-		"Europe",
-		"US",
-		"Australia",
-		"Japan",
-};
-
-
-
-
-const char clockIn[CLOCK_IN][9] =
+const char clockIn[3][13] =
 {
 		"Internal",
 		"USB",
-		"Midi in",
+		"MIDI In jack",
 };
 
-const char clockOut[][20] =
+const char* const ptrClockIn[3] =
 {
-	"Off",
-	"USB",
-	"Midi out",
-	"USB and Midi out",
+		&clockIn[0][0],
+		&clockIn[1][0],
+		&clockIn[2][0],
 };
 
-
-const char CCouts[CC_OUTS_NUM][5] =
+const char midiOut[4][20] =
 {
-		"CC1",
-		"CC2",
-		"CC3",
-		"CC4",
-		"CC5",
-		"CC6",
-		"CC7",
-		"CC8",
-		"CC9",
-		"CC10",
+		"Off",
+		"USB",
+		"MIDI Out jack",
+		"USB + MIDI Out jack",
 };
-const char notesInChannel[NOTES_FROM_CHANNEL_NUM][5] =
+
+const char* const ptrMidiOut[4] =
+{
+		&midiOut[0][0],
+		&midiOut[1][0],
+		&midiOut[2][0],
+		&midiOut[3][0],
+};
+
+const char midiIn[4][19] =
+{
+		"Off",
+		"USB",
+		"MIDI In jack",
+		"USB + MIDI In jack",
+};
+
+const char* const ptrMidiIn[4] =
+{
+		&midiIn[0][0],
+		&midiIn[1][0],
+		&midiIn[2][0],
+		&midiIn[3][0],
+};
+
+const char notesChannel[17][5] =
 {
 		"ALL",
 		"CH1",
@@ -303,40 +172,71 @@ const char notesInChannel[NOTES_FROM_CHANNEL_NUM][5] =
 		"CH15",
 		"CH16",
 };
-const char notesOutChannel[NOTES_OUT_CHANNEL_NUM][5] =
+
+const char* const ptrInChannel[17] =
 {
-		"CH1",
-		"CH2",
-		"CH3",
-		"CH4",
-		"CH5",
-		"CH6",
-		"CH7",
-		"CH8",
-		"CH9",
-		"CH10",
-		"CH11",
-		"CH12",
-		"CH13",
-		"CH14",
-		"CH15",
-		"CH16",
+		&notesChannel[0][0],
+		&notesChannel[1][0],
+		&notesChannel[2][0],
+		&notesChannel[3][0],
+		&notesChannel[4][0],
+		&notesChannel[5][0],
+		&notesChannel[6][0],
+		&notesChannel[7][0],
+		&notesChannel[8][0],
+		&notesChannel[9][0],
+		&notesChannel[10][0],
+		&notesChannel[11][0],
+		&notesChannel[12][0],
+		&notesChannel[13][0],
+		&notesChannel[14][0],
+		&notesChannel[15][0],
+		&notesChannel[16][0],
 };
-const char notesFrom[NOTES_FROM_CHANNEL_NUM][10] =
+
+
+const char* const ptrOutChannel[16] =
 {
-		"None",
-		"USB",
-		"Jack",
-		"USB+Jack",
+		&notesChannel[1][0],
+		&notesChannel[2][0],
+		&notesChannel[3][0],
+		&notesChannel[4][0],
+		&notesChannel[5][0],
+		&notesChannel[6][0],
+		&notesChannel[7][0],
+		&notesChannel[8][0],
+		&notesChannel[9][0],
+		&notesChannel[10][0],
+		&notesChannel[11][0],
+		&notesChannel[12][0],
+		&notesChannel[13][0],
+		&notesChannel[14][0],
+		&notesChannel[15][0],
+		&notesChannel[16][0],
 };
-const char notesOut_mode[NOTES_OUT_NUM][10] =
+
+const char CCouts[10][5] =
 {
-		"None",
-		"USB",
-		"Jack",
-		"USB+Jack",
+		"CC1",
+		"CC2",
+		"CC3",
+		"CC4",
+		"CC5",
+		"CC6",
+		"CC7",
+		"CC8",
+		"CC9",
+		"CC10",
 };
-const char CCnumber[CC_NUMBERS][4] =
+
+
+//===========================================================
+//===========================================================
+//===========================================================
+
+
+
+const char CCnumber[127][4] =
 {
 		"1",
 		"2",

@@ -188,6 +188,12 @@ void cInterface::doStartTasks()
 {
 	readConfig();
 	//readSdConfig();
+	char beta = (mtConfig.firmware.beta == 1) ? 'b' : 0;
+	sprintf(interfaceGlobals.currentFirmwareVersion,"%d.%d.%d%c",mtConfig.firmware.ver_1,
+										mtConfig.firmware.ver_2,
+										mtConfig.firmware.ver_3,
+										beta);
+
 	mtPopups.initPopupsDisplayControls();
 
 	initStartScreen();

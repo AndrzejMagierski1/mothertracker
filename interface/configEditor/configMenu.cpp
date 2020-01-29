@@ -1,7 +1,6 @@
 
 #include "configEditor/configEditor.h"
-
-
+#include "configEditor/configMenu.h"
 
 
 // baza baz
@@ -15,34 +14,50 @@ cMenuGroup menuHelp		(menuBase, 3, "Help", 		1);
 cMenuGroup menuCredits	(menuBase, 4, "Credits", 	1);
 
 
-// elementy
+// elementy/////////
 const strItemTypeValue setupPatternDiv 		{ &mtConfig.general.patternDiv,  1, 1, 16 	 };
 const strItemTypeListText setupRadioRegion	{ &mtConfig.general.radioRegion, 3, ptrRadioRegion };
 const strItemTypeListText setupBrightness 	{ &mtConfig.general.brightness,  3, ptrBrightness  };
 
-cMenuItem melPatternDiv	(menuGeneral, 		0, "Pattern Divider", 		menuItemTypeValue, 	  &setupPatternDiv);
+cMenuItem melPatternDiv	(menuGeneral, 		0, "Pattern Divider", 		menuItemTypeValueU8,  &setupPatternDiv);
 cMenuItem melRadioReg	(menuGeneral, 		1, "Radio region",	 		menuTypeItemListText, &setupRadioRegion);
 cMenuItem melDispBright	(menuGeneral, 		2, "Display Brightness", 	menuTypeItemListText, &setupBrightness);
 
+///////////////////
+const strItemTypeListText clockInSetup 			{ &mtConfig.midi.clkIn,  			3, ptrClockIn  	};
+const strItemTypeListText clockOutSetup 		{ &mtConfig.midi.clkOut, 	 		4, ptrMidiOut  	};
+const strItemTypeListText transportInSetup 		{ &mtConfig.midi.transportIn, 		4, ptrMidiIn  	};
+const strItemTypeListText transportOutSetup 	{ &mtConfig.midi.transportOut, 		4, ptrMidiOut  	};
+const strItemTypeListText notesInModeSetup		{ &mtConfig.midi.notesInMode,		4, ptrMidiIn  		};
+const strItemTypeListText notesOutModeSetup 	{ &mtConfig.midi.notesOutMode, 		4, ptrMidiOut  		};
+const strItemTypeListText notesInChanneletup	{ &mtConfig.midi.notesInChannel, 	17, ptrInChannel  	};
+const strItemTypeListText notesOutChannelSetup 	{ &mtConfig.midi.notesOutChannel, 	16, ptrOutChannel  	};
 
-const strItemTypeListText clockInSetup { &mtConfig.general.brightness,  3, ptrBrightness  };
 
 cMenuItem melClockIn		(menuMidi, 		0, "Clock in", 				menuTypeItemListText, &clockInSetup);
-cMenuItem melClockOut		(menuMidi, 		1, "Clock out",				menuTypeItemListText, &clockInSetup);
-cMenuItem melTransportIn	(menuMidi, 		2, "Transport in", 			menuTypeItemListText, &clockInSetup);
-cMenuItem melTransportOut	(menuMidi, 		3, "Transport out", 		menuTypeItemListText, &clockInSetup);
-cMenuItem melCCOut			(menuMidi, 		4, "CC out", 				menuTypeItemListText, &clockInSetup);
-cMenuItem melNotsInMode		(menuMidi, 		5, "Notes in mode", 		menuTypeItemListText, &clockInSetup);
-cMenuItem melNotesInChannel	(menuMidi, 		6, "Notes in channnel", 	menuTypeItemListText, &clockInSetup);
-cMenuItem melNotsOutMode	(menuMidi, 		7, "Notes out mode", 		menuTypeItemListText, &clockInSetup);
-cMenuItem melNotesOutChannel(menuMidi, 		8, "Notes out channel", 	menuTypeItemListText, &clockInSetup);
+cMenuItem melClockOut		(menuMidi, 		1, "Clock out",				menuTypeItemListText, &clockOutSetup);
+cMenuItem melTransportIn	(menuMidi, 		2, "Transport in", 			menuTypeItemListText, &transportInSetup);
+cMenuItem melTransportOut	(menuMidi, 		3, "Transport out", 		menuTypeItemListText, &transportOutSetup);
+cMenuItem melNotsInMode		(menuMidi, 		4, "Notes in mode", 		menuTypeItemListText, &notesInModeSetup);
+cMenuItem melNotesInChannel	(menuMidi, 		5, "Notes in channnel", 	menuTypeItemListText, &notesOutModeSetup);
+cMenuItem melNotsOutMode	(menuMidi, 		6, "Notes out mode", 		menuTypeItemListText, &notesInChanneletup);
+cMenuItem melNotesOutChannel(menuMidi, 		7, "Notes out channel", 	menuTypeItemListText, &notesOutChannelSetup);
+cMenuGroup melCCOut			(menuMidi, 		8, "CC out", 		10);
 
-cMenuItem melUpdateFirmware	(menuFirmware, 	0, "Update Firmware", 		menuTypeItemListText, &clockInSetup);
-cMenuItem melCurrentVersion	(menuFirmware, 	1, "Current Version", 		menuTypeItemListText, &clockInSetup);
 
+///////////
+const strItemTypeActionButton updateFirmwareSetup 	{ firmwareUpgradeActivate, firmwareUpgradeDeactivate };
+const strItemTypeLabel currentVerisonSetup 			{ interfaceGlobals.currentFirmwareVersion };
+
+cMenuItem melUpdateFirmware	(menuFirmware, 	0, "Update Firmware", 		menuTypeItemActionButton, &updateFirmwareSetup);
+cMenuItem melCurrentVersion	(menuFirmware, 	1, "Current Version", 		menuTypeItemLabel, &currentVerisonSetup);
+
+/////////
 cMenuItem melOpenManual		(menuHelp, 		0, "Open Manual", 			menuTypeItemListText, &clockInSetup);
 
+///////////
 cMenuItem melOpenCredits	(menuCredits, 	0, "Credits", 				menuTypeItemListText, &clockInSetup);
+
 
 
 //=======================================================================
@@ -61,7 +76,7 @@ void cConfigEditor::createConfigMenu()
 
 void cConfigEditor::createMenuBaseList()
 {
-	basemenuList.linesCount = menuBase.getCount();
+	basemenuList.linesCount = 13;
 	basemenuList.start = menuBase.getSelectedItem();
 	basemenuList.length = menuBase.getCount();
 	basemenuList.data = menuBase.getNames();
@@ -80,11 +95,11 @@ void cConfigEditor::createMenuBaseList()
 
 void cConfigEditor::ReloadSubmenu()
 {
-	submenuList.linesCount = menuBase.getSelChild()->getCount();
-	submenuList.start = menuBase.getSelChild()->getSelectedItem();
+	submenuList.linesCount = 13;
+ 	submenuList.start = menuBase.getSelChild()->getSelectedItem();
 	submenuList.length = menuBase.getSelChild()->getCount();
 	submenuList.params = menuBase.getSelChild()->getNames();
-	submenuList.values = menuBase.getSelChild()->getNames();
+	submenuList.values = menuBase.getSelChild()->getValues();
 
 	display.setControlData(configSubmenuListControl, &submenuList);
 	display.refreshControl(configSubmenuListControl);
@@ -95,7 +110,7 @@ void cConfigEditor::ReloadSubmenu()
 
 
 
-void cConfigEditor::chaangeListPosition(uint8_t list, int16_t value)
+void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value)
 {
 	if(list == 0)
 	{
@@ -122,28 +137,41 @@ void cConfigEditor::chaangeListPosition(uint8_t list, int16_t value)
 
 
 
+}
 
+void cConfigEditor::executeSelectedListItem(uint8_t list)
+{
+	if(list == 0)
+	{
 
-
+	}
+	else if(list == 1)
+	{
+		menuBase.getSelChild()->execute();
+	}
 }
 
 
+void cMenuGroup::execute()
+{
+	if(childs[selectedItem]->type == menuTypeItem)
+	{
+		((cMenuItem*)childs[selectedItem])->execute1();
+	}
+}
 
+void cMenuGroup::reloadValues()
+{
+	for(uint8_t i = 0; i < childsCount; i++)
+	{
+		if(childs[i]->type == menuTypeItem)
+		{
+			childsValues[i] = ((cMenuItem*)childs[i])->getValue();
+		}
+		else
+		{
+			childsValues[i] = (char*)ptrEmptyName;
+		}
 
-
-
-
-
-//
-//cMenuBase::configMenuBase(uint8_t childsCount)
-//{
-//	if(childsCount > 0 && childs == nullptr)
-//	{
-//		childs = new hMenuUnit[childsCount];
-//	}
-//}
-//
-//cMenuBase::~configMenuBase()
-//{
-//	delete[] childs;
-//};
+	}
+}

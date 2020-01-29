@@ -8,7 +8,7 @@ static uint16_t framesPlacesConfig[4][4]=
 {
 	{(800/8)*0+1, 29, 800/4-3, 391},
 	{(800/8)*2+1, 29, 600/2-3, 391},
-	{(800/8)*4+1, 29, 800/4-3, 391},
+	{(800/8)*5+1, 29, 800/4-3, 391},
 	{(800/8)*6+1, 29, 800/4-3, 391},
 };
 
@@ -70,6 +70,13 @@ void cConfigEditor::initDisplayControls()
 	labelArrow[1].bitmaps[1].xValue =  (800/8)*3+(800/16);
 	labelArrow[1].bitmaps[1].yValue = 460;
 
+	labelArrow[2].bitmaps[0].bitmapIndex = displayArrowU;
+	labelArrow[2].bitmaps[0].xValue =  (800/8)*5+(800/16);
+	labelArrow[2].bitmaps[0].yValue = 460;
+	labelArrow[2].bitmaps[1].bitmapIndex = displayArrowD;
+	labelArrow[2].bitmaps[1].xValue =  (800/8)*6+(800/16);
+	labelArrow[2].bitmaps[1].yValue = 460;
+
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.value = 1;
@@ -103,13 +110,22 @@ void cConfigEditor::initDisplayControls()
 	prop.y = 29;
 	prop.w = 800/4-3;
 	prop.h = 394;
-	if(configBasemenuListControl == nullptr)  configBasemenuListControl= display.createControl<cList>(&prop);
+	if(configBasemenuListControl == nullptr)  configBasemenuListControl = display.createControl<cList>(&prop);
 
 	prop.x = (800/8)*2+1;
 	prop.y = 29;
 	prop.w = 600/2-3;
 	prop.h = 394;
 	if(configSubmenuListControl == nullptr) configSubmenuListControl = display.createControl<cParamValueList>(&prop);
+
+
+
+	prop.style = controlStyleBackground;
+	prop.x = (800/8)*5+1;
+	prop.y = 29;
+	prop.w = 800/4-3;
+	prop.h = 394;
+	if(configListControl == nullptr)  configListControl = display.createControl<cList>(&prop);
 
 
 }
@@ -128,6 +144,9 @@ void cConfigEditor::destroyDisplayControls()
 
 	display.destroyControl(configSubmenuListControl);
 	configSubmenuListControl = nullptr;
+
+	display.destroyControl(configListControl);
+	configListControl = nullptr;
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -171,8 +190,11 @@ void cConfigEditor::showDefaultConfigScreen()
 	display.setControlText(label[4], "Change");
 	display.setControlText(label[5], "");
 	display.setControlText(label[6], "");
-	//display.setControlText(bottomLabel[7], "");
+	display.setControlText(label[7], "");
 
+
+	display.setControlHide(label[5]);
+	display.setControlHide(label[6]);
 
 
 	frameData.placesCount = 4;
@@ -217,6 +239,58 @@ void cConfigEditor::resizeToSmallConfig(uint8_t labelIdx)
 
 	display.setControlShow(label[labelIdx+1]);
 }
+
+
+
+
+void cConfigEditor::showConfigList5(uint8_t start, uint8_t length, char** listText)
+{
+	configListShown = 1;
+
+	display.setControlPosition(configListControl, (800/8)*5+1,  -1);
+
+	configList.linesCount = 13;
+	configList.start = start;
+	configList.length = length;
+	configList.data = listText;
+
+	display.setControlData(configListControl, &configList);
+	display.setControlShow(configListControl);
+	display.refreshControl(configListControl);
+
+
+	display.setControlText(label[7], "Update");
+	display.setControlShow(label[5]);
+	display.setControlShow(label[6]);
+	display.setControlShow(label[7]);
+
+
+	display.refreshControl(label[7]);
+}
+
+void cConfigEditor::hideConfigList()
+{
+	display.setControlHide(configListControl);
+
+
+	display.setControlText(label[7], "");
+
+	display.setControlHide(label[5]);
+	display.setControlHide(label[6]);
+	display.setControlHide(label[7]);
+
+	display.refreshControl(label[7]);
+
+	configListShown = 0;
+}
+
+
+
+
+
+
+
+
 
 
 void cConfigEditor::showFirmwareUpdatePopout()

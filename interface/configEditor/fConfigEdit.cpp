@@ -78,7 +78,6 @@ void cConfigEditor::start(uint32_t options)
 
 	createConfigMenu();
 
-	CE->listAllFirmwares();
 
 //--------------------------------------------------------------------
 
@@ -168,6 +167,7 @@ void cConfigEditor::setConfigScreenFunct()
 	FM->setButtonObj(interfaceButton4, functActionButton);
 	FM->setButtonObj(interfaceButton5, functActionButton);
 	FM->setButtonObj(interfaceButton6, functActionButton);
+	FM->setButtonObj(interfaceButton7, functActionButton);
 
 	FM->setPadsGlobal(functPads);
 
@@ -189,7 +189,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 0)
 			{
-				CE->chaangeListPosition(0, -1);
+				CE->changeMenuListPosition(0, -1);
 			}
 			else
 			{
@@ -201,7 +201,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 0)
 			{
-				CE->chaangeListPosition(0, 1);
+				CE->changeMenuListPosition(0, 1);
 			}
 			else
 			{
@@ -213,7 +213,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 1)
 			{
-				CE->chaangeListPosition(1, -1);
+				CE->changeMenuListPosition(1, -1);
 			}
 			else
 			{
@@ -225,7 +225,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 1)
 			{
-				CE->chaangeListPosition(1, 1);
+				CE->changeMenuListPosition(1, 1);
 			}
 			else
 			{
@@ -235,63 +235,41 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		}
 		case 4:
 		{
-			if(CE->listsActive[2])
+			if(CE->selectedPlace == 1)
 			{
-				if(CE->selectedPlace == 2)
-				{
-
-				}
-				else
-				{
-					CE->selectedPlace = 2;
-				}
+				CE->executeSelectedListItem(1);
 			}
-
+			else
+			{
+				CE->selectedPlace = 1;
+			}
 			break;
 		}
 		case 5:
 		{
-			if(CE->listsActive[2])
+			if(CE->configListShown)
 			{
-				if(CE->selectedPlace == 2)
-				{
-
-				}
-				else
-				{
-					CE->selectedPlace = 2;
-				}
+				if(CE->selectedPlace == 2) CE->changeConfigListPosition(-1);
+				else  CE->selectedPlace = 2;
 			}
 
 			break;
 		}
 		case 6:
 		{
-			if(CE->listsActive[3])
+			if(CE->configListShown)
 			{
-				if(CE->selectedPlace == 3)
-				{
-
-				}
-				else
-				{
-					CE->selectedPlace = 3;
-				}
+				if(CE->selectedPlace == 2) CE->changeConfigListPosition(1);
+				else  CE->selectedPlace = 2;
 			}
+
 			break;
 		}
 		case 7:
 		{
-			if(CE->listsActive[3])
+			if(CE->configListShown)
 			{
-				if(CE->selectedPlace == 3)
-				{
-
-				}
-				else
-				{
-					CE->selectedPlace = 3;
-				}
+				CE->updateFirmware();
 			}
 			break;
 		}
@@ -494,6 +472,46 @@ static uint8_t functSwitchModule(uint8_t button)
 }
 
 //======================================================================================================================
+void firmwareUpgradeActivate()
+{
+	CE->selectedConfigListPosition = 0;
+
+	CE->listAllFirmwares();
+	CE->showConfigList5(0, CE->firmwareFoundNum, CE->ptrfirmwareNamesList);
+
+}
+
+void firmwareUpgradeDeactivate()
+{
+
+
+	CE->hideConfigList();
+
+
+
+}
+
+void cConfigEditor::changeConfigListPosition(int16_t value)
+{
+	if(selectedConfigListPosition + value < 0) selectedConfigListPosition  = 0;
+	else if(selectedConfigListPosition + value > configList.length-1) selectedConfigListPosition = configList.length-1;
+	else selectedConfigListPosition += value;
+
+
+	display.setControlValue(configListControl, selectedConfigListPosition);
+	display.refreshControl(configListControl);
+
+
+}
+
+
+void cConfigEditor::updateFirmware()
+{
+	if(firmwareFoundNum == 0) return;
+	if(selectedConfigListPosition > firmwareFoundNum) return;
+
+	processUpdate = 1;
+}
 
 
 //======================================================================================================================
@@ -520,6 +538,7 @@ void cConfigEditor::listAllFirmwares()
 			if(checkIfFirmwareValid(&firmwareNamesList[i][0]))
 			{
 				strncpy(&firmwareNamesList[validFilesCount][0], &firmwareNamesList[i][0], firmware_name_length);
+				ptrfirmwareNamesList[validFilesCount] = &firmwareNamesList[validFilesCount][0];
 				validFilesCount++;
 			}
 		}
@@ -538,18 +557,25 @@ uint8_t checkIfFirmwareValid(char *name)
 
 	nameLength=strlen(name);
 
-
-	if(name[0] != 'P' || name[1] != 'o' || name[2] != 'l' || name[3] != 'y' || name[4] != 'e' || name[5] != 'n'|| name[6] != 'd')
+	if(name[nameLength-1] == 'f' && name[nameLength-2] == 't' && name[nameLength-3] == 'p' && name[nameLength-4] == '.')
 	{
-		return 0;
+		if(name[0] == 'P' && name[1] == 'o' && name[2] == 'l' && name[3] == 'y' && name[4] == 'e' && name[5] == 'n'&& name[6] == 'd')
+		{
+			return 1;
+		}
 	}
 
-	if(name[nameLength-1] != 'f' || name[nameLength-2] != 't' || name[nameLength-3] != 'p' || name[nameLength-4] != '.')
+	if(name[nameLength-1] == 'x' && name[nameLength-2] == 'e' && name[nameLength-3] == 'h' && name[nameLength-4] == '.')
 	{
-		return 0;
+		if(name[0] == 'm' && name[1] == 't')
+		{
+			return 1;
+		}
 	}
 
-	return 1;
+
+
+	return 0;
 
 }
 
@@ -563,7 +589,7 @@ static uint8_t prepareAndFlash()
 	SdFile fwinfo;
 
 	fwinfo = SD.open("/firmware/_fwinfo", FILE_WRITE);
-	fwinfo.write(&CE->firmwareNamesList[0][0], strlen(&CE->firmwareNamesList[0][0]));
+	fwinfo.write(&CE->firmwareNamesList[CE->selectedConfigListPosition][0], strlen(&CE->firmwareNamesList[CE->selectedConfigListPosition][0]));
 	fwinfo.close();
 
 	pinMode(BOOTLOADER_PIN,OUTPUT);
