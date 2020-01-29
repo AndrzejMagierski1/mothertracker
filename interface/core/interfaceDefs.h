@@ -267,7 +267,7 @@ struct strInterfaceGlobals
 	char *ptrIntrumentsNames[INSTRUMENTS_COUNT+16];
 
 //-----------------------------------------------------
-
+	char currentFirmwareVersion[10];
 
 //-----------------------------------------------------
 	uint8_t fxIdToName(uint8_t id)
