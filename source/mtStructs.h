@@ -15,6 +15,11 @@ const uint8_t FV_VER_1	=					0;		// device version
 const uint8_t FV_VER_2 =					8;		// official update
 const uint8_t FV_VER_3 =					45;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
+
+const uint8_t PROJECT_FILE_VERSION 	=		1;		// wersja struktury pliku projektu
+const uint8_t INSTRUMENT_FILE_VERSION 	=	1;		// wersja struktury pliku projektu
+
+
 const uint8_t MEMORY_STRUCT_VER =			2;
 const uint8_t EEPROM_STRUCT_VER =			1;
 

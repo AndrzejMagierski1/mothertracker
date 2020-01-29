@@ -99,17 +99,17 @@ void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 	instrumentFile.instrumentDataAndHeader.instrument = * instr;
 
 
-	instrumentFile.instrumentDataAndHeader.instrHeader.id_file[0]='I';
-	instrumentFile.instrumentDataAndHeader.instrHeader.id_file[1]='D';
+	instrumentFile.instrumentDataAndHeader.instrHeader.id_file[0]='T';
+	instrumentFile.instrumentDataAndHeader.instrHeader.id_file[1]='I';
 	instrumentFile.instrumentDataAndHeader.instrHeader.type = fileTypeInstrument;
-	instrumentFile.instrumentDataAndHeader.instrHeader.version[0] = '0';
-	instrumentFile.instrumentDataAndHeader.instrHeader.version[1] = '.';
-	instrumentFile.instrumentDataAndHeader.instrHeader.version[2] = '0';
-	instrumentFile.instrumentDataAndHeader.instrHeader.version[3] = '1';
-	instrumentFile.instrumentDataAndHeader.instrHeader.id_data[0] = 'D';
-	instrumentFile.instrumentDataAndHeader.instrHeader.id_data[1] = 'A';
-	instrumentFile.instrumentDataAndHeader.instrHeader.id_data[2] = 'T';
-	instrumentFile.instrumentDataAndHeader.instrHeader.id_data[3] = 'A';
+	instrumentFile.instrumentDataAndHeader.instrHeader.fwVersion[0] = FV_VER_1;
+	instrumentFile.instrumentDataAndHeader.instrHeader.fwVersion[1] = FV_VER_2;
+	instrumentFile.instrumentDataAndHeader.instrHeader.fwVersion[2] = FV_VER_3;
+	instrumentFile.instrumentDataAndHeader.instrHeader.fwVersion[3] = FV_VER_1;
+	instrumentFile.instrumentDataAndHeader.instrHeader.fileStructureVersion[0] = INSTRUMENT_FILE_VERSION;
+	instrumentFile.instrumentDataAndHeader.instrHeader.fileStructureVersion[1] = INSTRUMENT_FILE_VERSION;
+	instrumentFile.instrumentDataAndHeader.instrHeader.fileStructureVersion[2] = INSTRUMENT_FILE_VERSION;
+	instrumentFile.instrumentDataAndHeader.instrHeader.fileStructureVersion[3] = INSTRUMENT_FILE_VERSION;
 	instrumentFile.instrumentDataAndHeader.instrHeader.size = sizeof(*instr);
 
 	instrumentFile.crc = crcCalc.crc32((uint8_t *)&instrumentFile.instrumentDataAndHeader,sizeof(instrumentFile.instrumentDataAndHeader));
@@ -167,17 +167,30 @@ void FileManager::writeProjectFile(char * name, strMtProject *proj)
 	memcpy(&projectFile.projectDataAndHeader.project.song, &proj->song, sizeof(strSong));
 	memcpy(&projectFile.projectDataAndHeader.project.values, &proj->values, sizeof(strMtValues));
 
-	projectFile.projectDataAndHeader.projectHeader.id_file[0]='I';
-	projectFile.projectDataAndHeader.projectHeader.id_file[1]='D';
+	projectFile.projectDataAndHeader.projectHeader.id_file[0]='M';
+	projectFile.projectDataAndHeader.projectHeader.id_file[1]='T';
+
 	projectFile.projectDataAndHeader.projectHeader.type = fileTypeProject;
-	projectFile.projectDataAndHeader.projectHeader.version[0] = '0';
-	projectFile.projectDataAndHeader.projectHeader.version[1] = '.';
-	projectFile.projectDataAndHeader.projectHeader.version[2] = '0';
-	projectFile.projectDataAndHeader.projectHeader.version[3] = '1';
-	projectFile.projectDataAndHeader.projectHeader.id_data[0] = 'D';
-	projectFile.projectDataAndHeader.projectHeader.id_data[1] = 'A';
-	projectFile.projectDataAndHeader.projectHeader.id_data[2] = 'T';
-	projectFile.projectDataAndHeader.projectHeader.id_data[3] = 'A';
+
+	projectFile.projectDataAndHeader.projectHeader.fwVersion[0] = FV_VER_1;
+	projectFile.projectDataAndHeader.projectHeader.fwVersion[1] = FV_VER_2;
+	projectFile.projectDataAndHeader.projectHeader.fwVersion[2] = FV_VER_3;
+	projectFile.projectDataAndHeader.projectHeader.fwVersion[3] = FV_VER_1;
+
+//	char line[15];
+//	sprintf(line,
+//			"fw.ver: %u.%u.%u",
+//			projectFile.projectDataAndHeader.projectHeader.fwVersion[0],
+//			projectFile.projectDataAndHeader.projectHeader.fwVersion[1],
+//			projectFile.projectDataAndHeader.projectHeader.fwVersion[2]
+//			);
+//	debugLog.addLine(line);
+
+	projectFile.projectDataAndHeader.projectHeader.fileStructureVersion[0] = PROJECT_FILE_VERSION;
+	projectFile.projectDataAndHeader.projectHeader.fileStructureVersion[1] = PROJECT_FILE_VERSION;
+	projectFile.projectDataAndHeader.projectHeader.fileStructureVersion[2] = PROJECT_FILE_VERSION;
+	projectFile.projectDataAndHeader.projectHeader.fileStructureVersion[3] = PROJECT_FILE_VERSION;
+
 	projectFile.projectDataAndHeader.projectHeader.size = sizeof(projectFile);
 
 	projectFile.crc = crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
@@ -288,7 +301,7 @@ uint8_t FileManager::readProjectFile(char * name, strMtProject * proj)
 	if(!SD.exists(name)) return 0;
 	SdFile file;
 	FastCRC32 crcCalc;
-//	uint32_t checkCRC=0;
+	uint32_t checkCRC=0;
 
 	strProjectFile projectFile;
 
@@ -297,10 +310,25 @@ uint8_t FileManager::readProjectFile(char * name, strMtProject * proj)
 	//file.read((uint8_t*)&pattBitmask, sizeof(strPatternsBitmask));
 	file.close();
 
-	if(projectFile.projectDataAndHeader.projectHeader.type != fileTypeProject) return 0;
+	if (projectFile.projectDataAndHeader.projectHeader.type != fileTypeProject)
+		return 0;
 
-//	checkCRC=crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
-//TODO:	if(checkCRC == projectFile.crc) // wylaczone sprawdzanie crc pliku projektu
+	checkCRC = crcCalc.crc32((uint8_t *) &projectFile.projectDataAndHeader,
+								sizeof(projectFile.projectDataAndHeader));
+
+	if (FILEMANAGER_CONSOLELOG)
+	{
+		char line[40];
+		sprintf(line,
+				"opened project fw.ver: %u.%u.%u, crc %s",
+				projectFile.projectDataAndHeader.projectHeader.fwVersion[0],
+				projectFile.projectDataAndHeader.projectHeader.fwVersion[1],
+				projectFile.projectDataAndHeader.projectHeader.fwVersion[2],
+				checkCRC == projectFile.crc ? "ok" : "err"
+						);
+		debugLog.addLine(line);
+	}
+
 
 	//Serial.print(" t: ");
 	//Serial.println(sd_time_test);
