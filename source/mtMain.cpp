@@ -72,7 +72,7 @@ void loop()
 
 	exporter.update();
 	sliceDetector.update();
-	engine.update();
+//	engine.update();
 	fileManager.update();
 	recorder.updateSave();
 	mtInterface.update();

@@ -133,7 +133,7 @@ AudioConnection          connect55(&i2sIn, 1, &mixerRec, 1);
 AudioConnection          connect56(&mixerRec, &queue);
 AudioConnection          connect67(&mixerRec, &rms);
 
-
+IntervalTimer updateTimer;
 
 playerEngine instrumentPlayer[8];
 
@@ -165,6 +165,7 @@ const float tempoSyncRates[20] =
 
 constexpr uint16_t releaseNoteOnVal = 5;
 
+void updateAudioEngine();
 
 void audioEngine::printLog(SdFile * log)
 {
@@ -225,6 +226,14 @@ void audioEngine::init()
 	}
 
 	testWaveform.begin(0.0,1000,WAVEFORM_SQUARE);
+
+	updateTimer.begin(updateAudioEngine,4500);
+	updateTimer.priority(255);
+}
+
+void updateAudioEngine()
+{
+	engine.update();
 }
 
 void audioEngine::update()
@@ -2921,16 +2930,12 @@ void playerEngine:: update()
 				}
 			}
 		}
-		Serial.printf("fx1: %d\n",trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoPanning]);
-		Serial.printf("fx2: %d\n",trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning]);
 		if((mtProject.instrument[currentInstrument_idx].envelope[envPan].enable == envelopeOn)||
 		  (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoPanning]) ||
 		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning]))
 		{
-			Serial.println("env on");
 			if((envelopePanningPtr->isKeyPressed() == 1) || (envelopePanningPtr->getPhase() != 0))
 			{
-				Serial.println("envActive");
 				panningMod = envelopePanningPtr->getOut();
 				statusBytes |= PANNING_MASK;
 
