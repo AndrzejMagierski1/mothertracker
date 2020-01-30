@@ -224,7 +224,7 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 			if (isStepToFillFx(step, offset, fxIndex, fillStep))
 			{
 
-				step->fx[fxIndex].value = random(fromVal, toVal + 1);
+				step->fx[fxIndex].value = random(fromVal, toVal );
 				step->fx[fxIndex].type =
 						(fxType >= 0) ? fxType : randomFx();
 
@@ -1261,6 +1261,8 @@ int16_t Sequencer::getFxMin(uint8_t fxID)
 	{
 	case fx.FX_TYPE_MICROMOVE:
 		return 0;
+	case fx.FX_TYPE_SAMPLE_SLICE:
+		return 1;
 	case fx.FX_TYPE_TEMPO:
 		return 5;
 	case fx.FX_TYPE_PANNING:
