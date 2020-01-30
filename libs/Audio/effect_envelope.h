@@ -32,6 +32,7 @@
 
 #define SAMPLES_PER_MSEC (AUDIO_SAMPLE_RATE_EXACT/1000.0)
 
+
 class AudioEffectEnvelope : public AudioStream
 {
 public:
@@ -48,29 +49,15 @@ public:
 	void noteOn();
 	void noteOff();
 	void setIdle();
-	void delay(float milliseconds) {
-		delay_count = milliseconds2count(milliseconds);
-	}
-	void attack(float milliseconds) {
-		attack_count = milliseconds2count(milliseconds);
-		if (attack_count == 0) attack_count = 1;
-	}
-	void hold(float milliseconds) {
-		hold_count = milliseconds2count(milliseconds);
-	}
-	void decay(float milliseconds) {
-		decay_count = milliseconds2count(milliseconds);
-		if (decay_count == 0) decay_count = 1;
-	}
-	void sustain(float level) {
-		if (level < 0.0) level = 0;
-		else if (level > 1.0) level = 1.0;
-		sustain_mult = level * 1073741824.0;
-	}
-	void release(float milliseconds) {
-		release_count = milliseconds2count(milliseconds);
-		if (release_count == 0) release_count = 1;
-	}
+
+	void delay(float milliseconds);
+	void attack(float milliseconds);
+	void hold(float milliseconds);
+	void decay(float milliseconds);
+	void sustain(float level);
+	void release(float milliseconds);
+
+
 	void releaseNoteOn(float milliseconds) {
 		release_forced_count = milliseconds2count(milliseconds);
 		if (release_count == 0) release_count = 1;

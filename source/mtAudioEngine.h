@@ -140,6 +140,10 @@ public:
 		tune,
 		lfoFineTune,
 		lfoAmp,
+		lfoCutoff,
+		lfoWavetablePosition,
+		lfoGranularPosition,
+		lfoPanning,
 		volume,
 		samplePlaybeckDirection,
 		sampleSlice,
@@ -160,7 +164,7 @@ public:
 	    uint16_t loopPoint1;
 	    uint16_t loopPoint2;
 	    uint16_t endPoint;
-	    uint8_t sampleSlice; //todo: ustalic co to ma byc
+	    uint8_t sampleSlice;
 	    uint8_t reversePlayback;
 	    float filterCutoff;
 		uint8_t filterType;
@@ -179,6 +183,21 @@ public:
 		uint16_t granularPosition;
 		uint8_t volume;
 		uint8_t slice;
+
+		uint8_t lfoAmpEnable;
+		uint8_t lfoAmpRate;
+
+		uint8_t lfoCutoffEnable;
+		uint8_t lfoCutoffRate;
+
+		uint8_t lfoWavetablePositionEnable;
+		uint8_t lfoWavetablePositionRate;
+
+		uint8_t lfoGranularPositionEnable;
+		uint8_t lfoGranularPositionRate;
+
+		uint8_t lfoPanningEnable;
+		uint8_t lfoPanningRate;
 
 	} currentSeqModValues ;
 
@@ -303,6 +322,8 @@ private:
 	void endPointsPerformanceMode();
 
 	void calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo);
+	void calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo, uint8_t rate);
+
 	float fmap(float x, float in_min, float in_max, float out_min, float out_max);
 
 };
