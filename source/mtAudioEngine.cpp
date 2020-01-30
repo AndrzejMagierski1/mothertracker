@@ -133,7 +133,7 @@ AudioConnection          connect55(&i2sIn, 1, &mixerRec, 1);
 AudioConnection          connect56(&mixerRec, &queue);
 AudioConnection          connect67(&mixerRec, &rms);
 
-
+IntervalTimer updateTimer;
 
 playerEngine instrumentPlayer[8];
 
@@ -165,6 +165,7 @@ const float tempoSyncRates[20] =
 
 constexpr uint16_t releaseNoteOnVal = 5;
 
+void updateAudioEngine();
 
 void audioEngine::printLog(SdFile * log)
 {
@@ -225,6 +226,16 @@ void audioEngine::init()
 	}
 
 	testWaveform.begin(0.0,1000,WAVEFORM_SQUARE);
+
+	updateTimer.begin(updateAudioEngine,4500);
+	updateTimer.priority(255);
+}
+
+void updateAudioEngine()
+{
+	elapsedMicros apoloniuszTajmer = 0;
+	engine.update();
+	Serial.println(apoloniuszTajmer);
 }
 
 void audioEngine::update()
