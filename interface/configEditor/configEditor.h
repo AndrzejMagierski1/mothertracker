@@ -55,15 +55,27 @@ public:
 	void turnOffRadio();
 
 
-	//config
-
 
 	//menu
 	void createConfigMenu();
 	void createMenuBaseList();
-	void ReloadSubmenu();
+	void reloadSubmenu();
+	void loadConfigTextList(strItemTypeListText* itemSetup);
+	void loadConfigValuesList(strItemTypeListValues* itemSetup);
+
+
+
 	void changeMenuListPosition(uint8_t list, int16_t value);
 	void executeSelectedListItem(uint8_t list);
+
+
+	void refreshConfigMenu(uint8_t listChanged);
+	void setLabelByMenuItemType(uint8_t label, menu_item_t type);
+	void setActualMenuAction(void (**actionFunct)(void));
+
+	void reloadSecondSubmenu();
+
+
 	//
 
 	//-----------------------------------------
@@ -74,10 +86,12 @@ public:
 	void activateLabelsBorder();
 
 	//
+	uint8_t flashingState = 0;
 	uint8_t firmwareFoundNum;
 	SdFile sdLocation;
-	uint8_t listInitFlag=0;
 	hControl popoutWindowLabel;
+
+
 
 	uint8_t selectionActive;
 
@@ -87,10 +101,13 @@ public:
 
 	void showConfigList5(uint8_t start, uint8_t length, char** listText);
 	void hideConfigList();
+
 	void changeConfigListPosition(int16_t value);
 
-
-
+	void showSubmenu();
+	void hideSubmenu();
+	void showSecondSubmenu();
+	void hideSecondSubmenu();
 
 
 	char* ptrfirmwareNamesList[firmware_list_max];
@@ -105,7 +122,7 @@ public:
 
 	void resizeLabelConfigDefault();
 	void resizeLabelConfigMaster();
-	void resizeFirmwareLabel(uint8_t control);// 0 - revert to normal, 1 - rescale to double label;
+	void resizeFirmwareLabel(uint8_t control); // 0 - revert to normal, 1 - rescale to double label;
 
 	uint8_t processUpdate = 0;
 
@@ -118,6 +135,7 @@ public:
 
 	hControl configBasemenuListControl;
 	hControl configSubmenuListControl;
+	hControl configSecondSubmenuListControl;
 	hControl configListControl;
 
 
@@ -143,7 +161,12 @@ public:
 
 	strList basemenuList;
 	strParamValueList submenuList;
+	strParamValueList secondSubmenuList;
 	strList configList;
+
+
+
+	uint8_t secondSubmenuShown = 0;
 
 
 	uint8_t configListShown = 0;
@@ -169,59 +192,6 @@ public:
 
 
 
-	void processChangeInGroup0();
-	void processChangeInGroup1();
-	void processChangeInGroup2();
-	void processChangeInGroup3();
-	void chainProcessChange(uint8_t groupNum, uint8_t forceProcess);
-
-	void resizeToDefaultConfig();
-	void resizeToSmallConfig(uint8_t labelIdx);
-
-	void showGeneralSubmenus(uint8_t listPosition);
-	void showFirmwares(uint8_t listPosition);
-	void showMidiSubmenus(uint8_t listPosition);
-	void showFirmwareFlashButton();
-
-
-	void showPatternDividers(uint8_t listPosition);
-	void showRadioRegions(uint8_t listPosition);
-	void showBrightnessLevels(uint8_t listPosition);
-
-	void showClockIn(uint8_t listPosition);
-	void showClockOut(uint8_t listPosition);
-	void showTransportIn(uint8_t listPosition);
-	void showTransportOut(uint8_t listPosition);
-	void showCCouts(uint8_t listPosition);
-	void showCCnumber(uint8_t listPosition);
-	void showMidiNotesIn_mode(uint8_t listPosition);
-	void showMidiNotesInChannels(uint8_t listPosition);
-	void showMidiNotesOutChannels(uint8_t listPosition);
-
-	void showMidiNotesOut_mode(uint8_t);
-
-
-
-
-	//setters
-	uint8_t setPatternDivider(uint32_t val);
-	uint8_t setBrightness(uint32_t val);
-	uint8_t setRadioRegion(uint32_t val);
-	uint8_t setClockIn(uint32_t val);
-	uint8_t setClockOut(uint32_t val);
-	uint8_t setTransportIn(uint32_t val);
-	uint8_t setTransportOut(uint32_t val);
-	uint8_t setCCout(uint8_t ccNum, uint32_t val);
-
-	uint8_t setNotesIn(uint32_t val);
-	uint8_t setNotesInChannel(uint32_t val);
-	uint8_t setNotesOutMode(uint32_t val);
-	uint8_t setNotesOutChannel(uint32_t val);
-
-	uint8_t hasConfigChanged = 0;
-
-
-	void showExecute();
 
 
 

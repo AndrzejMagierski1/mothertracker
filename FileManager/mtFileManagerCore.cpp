@@ -365,6 +365,16 @@ void FileManager::formatSDCard()
 	//SD.format();
 }
 
+
+void FileManager::delayAutoSave(uint16_t ms)
+{
+
+	configChangedRefresh = 10000-ms;
+	instrumentRefresh = 10000-ms;
+	patternRefresh = 10000-ms;
+
+}
+
 void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 {
 	if(configChangedRefresh > 10000 || forcedWorkspaceSave)

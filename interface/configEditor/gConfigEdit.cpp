@@ -9,7 +9,7 @@ static uint16_t framesPlacesConfig[4][4]=
 	{(800/8)*0+1, 29, 800/4-3, 391},
 	{(800/8)*2+1, 29, 600/2-3, 391},
 	{(800/8)*5+1, 29, 800/4-3, 391},
-	{(800/8)*6+1, 29, 800/4-3, 391},
+	{(800/8)*5+1, 29, 600/2-3, 391},
 };
 
 
@@ -88,6 +88,7 @@ void cConfigEditor::initDisplayControls()
 		prop2.h =  55;
 		if(i == 0) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[0];}
 		if(i == 2) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[1];}
+		if(i == 5) {prop2.style |= controlStyleShowBitmap; prop2.data = &labelArrow[2];}
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 
 	}
@@ -118,6 +119,11 @@ void cConfigEditor::initDisplayControls()
 	prop.h = 394;
 	if(configSubmenuListControl == nullptr) configSubmenuListControl = display.createControl<cParamValueList>(&prop);
 
+	prop.x = (800/8)*5+1;
+	prop.y = 29;
+	prop.w = 600/2-3;
+	prop.h = 394;
+	if(configSecondSubmenuListControl == nullptr) configSecondSubmenuListControl = display.createControl<cParamValueList>(&prop);
 
 
 	prop.style = controlStyleBackground;
@@ -144,6 +150,9 @@ void cConfigEditor::destroyDisplayControls()
 
 	display.destroyControl(configSubmenuListControl);
 	configSubmenuListControl = nullptr;
+
+	display.destroyControl(configSecondSubmenuListControl);
+	configSecondSubmenuListControl = nullptr;
 
 	display.destroyControl(configListControl);
 	configListControl = nullptr;
@@ -228,17 +237,10 @@ void cConfigEditor::activateLabelsBorder()
 void cConfigEditor::changeLabelText(uint8_t labelIdx, const char *text)
 {
 	display.setControlText(label[labelIdx], text);
+	display.setControlShow(label[labelIdx]);
 	display.refreshControl(label[labelIdx]);
 }
 
-
-void cConfigEditor::resizeToSmallConfig(uint8_t labelIdx)
-{
-	display.setControlPosition(label[labelIdx],  (800/8)*labelIdx+(800/16),  452);
-	display.setControlSize(label[labelIdx],  800/8-6,  59);
-
-	display.setControlShow(label[labelIdx+1]);
-}
 
 
 
@@ -246,6 +248,7 @@ void cConfigEditor::resizeToSmallConfig(uint8_t labelIdx)
 void cConfigEditor::showConfigList5(uint8_t start, uint8_t length, char** listText)
 {
 	configListShown = 1;
+	selectedConfigListPosition = start;
 
 	display.setControlPosition(configListControl, (800/8)*5+1,  -1);
 
@@ -259,7 +262,7 @@ void cConfigEditor::showConfigList5(uint8_t start, uint8_t length, char** listTe
 	display.refreshControl(configListControl);
 
 
-	display.setControlText(label[7], "Update");
+	//display.setControlText(label[7], "");
 	display.setControlShow(label[5]);
 	display.setControlShow(label[6]);
 	display.setControlShow(label[7]);
@@ -270,10 +273,12 @@ void cConfigEditor::showConfigList5(uint8_t start, uint8_t length, char** listTe
 
 void cConfigEditor::hideConfigList()
 {
+	flashingState = 0;
+
 	display.setControlHide(configListControl);
 
 
-	display.setControlText(label[7], "");
+	//display.setControlText(label[7], "");
 
 	display.setControlHide(label[5]);
 	display.setControlHide(label[6]);
@@ -285,12 +290,59 @@ void cConfigEditor::hideConfigList()
 }
 
 
+void cConfigEditor::showSubmenu()
+{
+	secondSubmenuShown = 1;
 
+	display.setControlShow(configSubmenuListControl);
+	display.setControlShow(label[2]);
+	display.setControlShow(label[3]);
+	display.setControlShow(label[4]);
 
+	display.refreshControl(label[4]);
 
+}
 
+void cConfigEditor::hideSubmenu()
+{
+	display.setControlHide(configSubmenuListControl);
+	display.setControlHide(label[2]);
+	display.setControlHide(label[3]);
+	display.setControlHide(label[4]);
 
+	display.refreshControl(label[4]);
 
+	secondSubmenuShown = 0;
+}
+
+void cConfigEditor::showSecondSubmenu()
+{
+	secondSubmenuShown = 1;
+
+	display.setControlShow(configSecondSubmenuListControl);
+	display.setControlShow(label[5]);
+	display.setControlShow(label[6]);
+	display.setControlShow(label[7]);
+
+	display.refreshControl(label[7]);
+
+}
+
+void cConfigEditor::hideSecondSubmenu()
+{
+	display.setControlHide(configSecondSubmenuListControl);
+	display.setControlHide(label[5]);
+	display.setControlHide(label[6]);
+	display.setControlHide(label[7]);
+
+	display.refreshControl(label[7]);
+
+	secondSubmenuShown = 0;
+}
+
+//==============================================================================================================
+//==============================================================================================================
+//==============================================================================================================
 
 
 void cConfigEditor::showFirmwareUpdatePopout()
@@ -315,22 +367,6 @@ void cConfigEditor::showFirmwareUpdatePopout()
 	display.synchronizeRefresh();
 }
 
-void cConfigEditor::showExecute()
-{
-	uint32_t *colors = interfaceGlobals.activeLabelsColors;
-
-	if(firmwareFoundNum)
-	{
-		display.setControlColors(label[4], colors);
-	}
-	else
-	{
-		uint32_t *colors = interfaceGlobals.inactiveLabelsColors;
-		display.setControlColors(label[4], colors);
-	}
-
-	changeLabelText(4, "Update");
-}
 
 void cConfigEditor::hideFirmwareUpdatePopout()
 {

@@ -247,20 +247,31 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		}
 		case 5:
 		{
-			if(CE->configListShown)
+			if(CE->selectedPlace == 2 || CE->selectedPlace == 3)
 			{
-				if(CE->selectedPlace == 2) CE->changeConfigListPosition(-1);
-				else  CE->selectedPlace = 2;
+				if(CE->configListShown) CE->changeConfigListPosition(-1);
+				else CE->changeMenuListPosition(2, -1);
 			}
+			else
+			{
+				if(CE->configListShown) CE->selectedPlace = 2;
+				else CE->selectedPlace = 3;
+			}
+
 
 			break;
 		}
 		case 6:
 		{
-			if(CE->configListShown)
+			if(CE->selectedPlace == 2 || CE->selectedPlace == 3)
 			{
-				if(CE->selectedPlace == 2) CE->changeConfigListPosition(1);
-				else  CE->selectedPlace = 2;
+				if(CE->configListShown) CE->changeConfigListPosition(1);
+				else CE->changeMenuListPosition(2, 1);
+			}
+			else
+			{
+				if(CE->configListShown) CE->selectedPlace = 2;
+				else CE->selectedPlace = 3;
 			}
 
 			break;
@@ -269,7 +280,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->configListShown)
 			{
-				CE->updateFirmware();
+				if(CE->flashingState) CE->updateFirmware();
 			}
 			break;
 		}
@@ -388,10 +399,6 @@ static  uint8_t functUp()
 
 
 
-	prepareAndFlash();
-
-
-
 
 		switch(CE->selectedPlace)
 		{
@@ -472,11 +479,15 @@ static uint8_t functSwitchModule(uint8_t button)
 }
 
 //======================================================================================================================
+
+
 void firmwareUpgradeActivate()
 {
-	CE->selectedConfigListPosition = 0;
-
 	CE->listAllFirmwares();
+
+	CE->flashingState = 1;
+
+	CE->changeLabelText(7, "Update");
 	CE->showConfigList5(0, CE->firmwareFoundNum, CE->ptrfirmwareNamesList);
 
 }
@@ -485,6 +496,7 @@ void firmwareUpgradeDeactivate()
 {
 
 
+	CE->changeLabelText(7, "");
 	CE->hideConfigList();
 
 

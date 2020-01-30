@@ -69,6 +69,7 @@ public:
 		return selectedItem;
 	}
 
+
 	void reloadValues();
 
 	void execute();
@@ -133,18 +134,21 @@ public:
 		return (char*)ptrEmptyName;
 	 }
 
-	void execute1()
-	{
-		if(itemType == menuTypeItemActionButton && ((strItemTypeActionButton*)itemSetup)->funct1 != nullptr)
-		{
-			((strItemTypeActionButton*)itemSetup)->funct1();
-		}
 
-	 }
-	 void execute2()
+	 menu_item_t getItemType()
 	 {
-
+		 return itemType;
 	 }
+
+	 const void* getItemSetup()
+	 {
+		 return itemSetup;
+	 }
+
+
+
+
+
 
 private:
 	const char* itemName;

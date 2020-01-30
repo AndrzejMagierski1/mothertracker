@@ -18,6 +18,7 @@
 
 */
 
+#include "mtFileManager.h"
 
 
 //=======================================================================
@@ -25,7 +26,7 @@ void cInterface::potChange(uint8_t n, int16_t value)
 {
 	uiFM.processPotsInput(n, value);
 
-
+	fileManager.delayAutoSave(2000);
 }
 
 //=======================================================================
