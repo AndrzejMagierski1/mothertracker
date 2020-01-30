@@ -233,9 +233,7 @@ void audioEngine::init()
 
 void updateAudioEngine()
 {
-	elapsedMicros apoloniuszTajmer = 0;
 	engine.update();
-	Serial.println(apoloniuszTajmer);
 }
 
 void audioEngine::update()
@@ -2932,16 +2930,12 @@ void playerEngine:: update()
 				}
 			}
 		}
-		Serial.printf("fx1: %d\n",trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoPanning]);
-		Serial.printf("fx2: %d\n",trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning]);
 		if((mtProject.instrument[currentInstrument_idx].envelope[envPan].enable == envelopeOn)||
 		  (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoPanning]) ||
 		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning]))
 		{
-			Serial.println("env on");
 			if((envelopePanningPtr->isKeyPressed() == 1) || (envelopePanningPtr->getPhase() != 0))
 			{
-				Serial.println("envActive");
 				panningMod = envelopePanningPtr->getOut();
 				statusBytes |= PANNING_MASK;
 
