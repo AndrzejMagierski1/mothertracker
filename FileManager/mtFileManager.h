@@ -10,15 +10,29 @@
 #include "mtSamplesImporter.h"
 #include "mtSamplesCopyier.h"
 
+#define FILEMANAGER_CONSOLELOG 1
 
 struct strProjectFileHeader
 {
-	char id_file[2];
-	uint16_t type;
-	char version[4];
-	char id_data[4];
-	uint16_t size;
+	char id_file[2]; 				// typ pliku, np MT = plik projektu, TI = instrument
+	uint16_t type;					// typ w liczbie
+	char fwVersion[4]; 				// wersja fw w ktorej zapisano plik
+	char fileStructureVersion[4];	// wersja struktury pliku
+	uint16_t size;					// rozmiar
 };
+/*
+ *  stare projekty:
+version[0] = '0';
+version[1] = '.';
+version[2] = '0';
+version[3] = '1';
+
+id_data[0] = 'D';
+id_data[1] = 'A';
+id_data[2] = 'T';
+id_data[3] = 'A';
+
+ */
 
 struct strInstrumentFile
 {

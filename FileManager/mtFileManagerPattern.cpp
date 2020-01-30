@@ -202,11 +202,11 @@ void FileManager::storeSongUndoRevision(uint8_t index)
 	}
 	if (undoSong.storedCount > UNDO_SONG_CAPACITY) undoSong.storedCount = UNDO_SONG_CAPACITY;
 
-	Serial.printf(
-			">>>pattern stored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
-			undoSong.actualIndex,
-			undoSong.storedCount,
-			undoSong.redoPossibility);
+//	Serial.printf(
+//			">>>pattern stored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
+//			undoSong.actualIndex,
+//			undoSong.storedCount,
+//			undoSong.redoPossibility);
 
 }
 
@@ -215,7 +215,7 @@ void FileManager::storeSongUndoRevision(uint8_t index)
 void FileManager::undoSongPattern()
 {
 	bool doUndo = 0;
-	uint8_t oldIndex = undoSong.actualIndex;
+//	uint8_t oldIndex = undoSong.actualIndex;
 	if (undoSong.actualIndex > 0 && undoSong.storedCount > 0)
 	{
 		undoSong.actualIndex--;
@@ -248,11 +248,11 @@ void FileManager::undoSongPattern()
 		updatePatternBitmask(bufferedPatternNumber-1, &undoSongBuffer[undoSong.actualIndex]);
 
 		undoSong.redoPossibility++;
-		Serial.printf(
-				"<<<pattern restored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
-				undoSong.actualIndex,
-				undoSong.storedCount,
-				undoSong.redoPossibility);
+//		Serial.printf(
+//				"<<<pattern restored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
+//				undoSong.actualIndex,
+//				undoSong.storedCount,
+//				undoSong.redoPossibility);
 	}
 }
 void FileManager::undoPattern()
@@ -288,11 +288,11 @@ void FileManager::undoPattern()
 		setPatternChangeFlag(mtProject.values.actualPattern);
 
 		undo.redoPossibility++;
-		Serial.printf(
-				"<<<pattern restored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
-				undo.actualIndex,
-				undo.storedCount,
-				undo.redoPossibility);
+//		Serial.printf(
+//				"<<<pattern restored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
+//				undo.actualIndex,
+//				undo.storedCount,
+//				undo.redoPossibility);
 	}
 }
 void FileManager::redoPattern()

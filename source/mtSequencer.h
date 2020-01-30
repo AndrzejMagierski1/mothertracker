@@ -125,7 +125,6 @@ public:
 			FX_TYPE_R8,
 			FX_TYPE_R9,
 
-
 		};
 
 		enum enRollPeriod
@@ -169,18 +168,18 @@ public:
 
 		struct strFileHeader
 		{
-			char id_file[2];
-			uint16_t type;
-			char version[4];
-			char id_data[4];
-			uint16_t size;
+			char id_file[2] { 0 }; // typ pliku, np MT = plik projektu, TI = instrument
+			uint16_t type;					// typ w liczbie
+			char fwVersion[4] { 0 }; 		// wersja fw w ktorej zapisano plik
+			char fileStructureVersion[4] { 0 };	// wersja struktury pliku
+			uint16_t size = 0;					// rozmiar
 		} header;
 
-		float tempo = DEFAULT_TEMPO;
+		float tempoRezerwa = 100.0;
 		float swing = DEFAULT_SWING;
 
-		uint8_t structVer = MEMORY_STRUCT_VER;
-		uint8_t structVerControl = MEMORY_STRUCT_VER;
+		uint8_t rezerwa1 = 0;
+		uint8_t rezerwa2 = 0;
 		uint8_t rezerwa3 = 0;
 		uint8_t rezerwa4 = 0;
 
@@ -292,11 +291,10 @@ public:
 	void divChangeQuantize(uint8_t row);
 
 	void loadDefaultPattern(uint8_t bank);
-//	void clearPattern(strPattern*);
+	//	void clearPattern(strPattern*);
 	void loadDefaultTrack(uint8_t track, uint8_t bank);
 
 	void reset_actual_pos(uint8_t row);
-
 
 	//__________________________________________
 	//
@@ -621,6 +619,7 @@ public:
 
 	void clearSingleTrack(strPattern::strTrack *track);
 	void clearPattern(strPattern * patt);
+	void setPatternHeader(strPattern * patt);
 	void clearStep(uint8_t x, uint8_t row);
 	void clearStep(uint8_t x, uint8_t row, uint8_t bank);
 	void clearStep(strPattern::strTrack::strStep *);

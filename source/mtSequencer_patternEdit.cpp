@@ -224,7 +224,7 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 			if (isStepToFillFx(step, offset, fxIndex, fillStep))
 			{
 
-				step->fx[fxIndex].value = random(fromVal, toVal + 1);
+				step->fx[fxIndex].value = random(fromVal, toVal );
 				step->fx[fxIndex].type =
 						(fxType >= 0) ? fxType : randomFx();
 
@@ -875,15 +875,38 @@ void Sequencer::clearSelected(strSelection * selection, uint8_t elements)
 	}
 }
 
+void Sequencer::setPatternHeader(strPattern * patt)
+{
+	patt->header.id_file[0] = 'K';
+	patt->header.id_file[1] = 'S';
+
+	patt->header.fwVersion[0] = FV_VER_1;
+	patt->header.fwVersion[1] = FV_VER_2;
+	patt->header.fwVersion[2] = FV_VER_3;
+	patt->header.fwVersion[3] = FV_VER_1;
+
+	patt->header.type = fileTypePattern;
+
+	patt->header.fileStructureVersion[0] = PATTERN_FILE_VERSION;
+	patt->header.fileStructureVersion[1] = PATTERN_FILE_VERSION;
+	patt->header.fileStructureVersion[2] = PATTERN_FILE_VERSION;
+	patt->header.fileStructureVersion[3] = PATTERN_FILE_VERSION;
+
+	patt->header.size = sizeof(strPattern);
+}
+
+
 void Sequencer::clearPattern(strPattern * patt)
 {
 
-	patt->tempo = DEFAULT_TEMPO;
 	patt->swing = DEFAULT_SWING;
-	patt->structVer = MEMORY_STRUCT_VER;
-	patt->structVerControl = MEMORY_STRUCT_VER;
+	patt->rezerwa1 = 0;
+	patt->rezerwa2 = 0;
 	patt->rezerwa3 = 0;
 	patt->rezerwa4 = 0;
+
+	setPatternHeader(patt);
+
 
 	for (strPattern::strTrack &track : patt->track)
 	{
@@ -1238,6 +1261,8 @@ int16_t Sequencer::getFxMin(uint8_t fxID)
 	{
 	case fx.FX_TYPE_MICROMOVE:
 		return 0;
+	case fx.FX_TYPE_SAMPLE_SLICE:
+		return 1;
 	case fx.FX_TYPE_TEMPO:
 		return 5;
 	case fx.FX_TYPE_PANNING:
