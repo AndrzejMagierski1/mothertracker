@@ -144,7 +144,7 @@ public:
 	void autoSaveProject();
 
 	void autoSaveWorkspace(uint8_t forcedWorkspaceSave);
-
+	void delayAutoSave(uint16_t ms);
 //**************************************************************************************************************************
 //************************************************ FileManagerInstrument****************************************************
 	void setStart(uint8_t startPoint);

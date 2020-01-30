@@ -33,16 +33,22 @@ static uint32_t defaultColors[] =
 
 
 
-#define ROW_NUM 0
+#define ROW_NUM 1
 
 
 
 
 
 #if ROW_NUM
-uint8_t fourParamsOffset[4] =		{	4,44,73,130,	};	// stara koncepcja z numerami wierszy
-uint8_t twoParamsOffsetFirst[4] =	{	9,9,9,9,		};
-uint8_t twoParamsOffsetSecond[4] =	{	50,50,50,50,	};
+//uint8_t fourParamsOffset[4] =		{	4,44,73,130,	};	// stara koncepcja z numerami wierszy
+//uint8_t twoParamsOffsetFirst[4] =	{	9,9,9,9,		};
+//uint8_t twoParamsOffsetSecond[4] =	{	50,50,50,50,	};
+
+uint8_t fourParamsOffset[4] =		{	18,  60,  92, 144,	};
+uint8_t twoParamsOffsetFirst[4] =	{	 9,   9,   6,   0,	};
+uint8_t twoParamsOffsetSecond[4] =	{	 0,  65,  55,  55,	};
+uint8_t oneParamsOffset[4] =		{	35,  40,  30,  30,	};
+
 #else
 uint8_t fourParamsOffset[4] =		{	18,  60,  92, 144,	};
 uint8_t twoParamsOffsetFirst[4] =	{	 9,   9,   6,   0,	};
@@ -274,8 +280,6 @@ void cTracker::refresh1()
 		rowCount = 15;
 	}
 
-
-
 	backgroundDivider();
 
 	calculateSelection();
@@ -332,6 +336,9 @@ void cTracker::refresh5()
 
 	tracksNumbers();
 
+
+
+
 	API_BLEND_FUNC(SRC_ALPHA, ZERO);
 	lines();
 
@@ -357,7 +364,7 @@ void cTracker::backgroundDivider()
 	API_LINE_WIDTH(16);
 	API_COLOR(colors[11]);
 
-	for(uint16_t i = 0; i < columnsCount; i++)
+	for(uint8_t i = 0; i < rowCount; i++)
 	{
 		if(div_row < 0 || div_row > tracks->patternLength-1)
 		{
@@ -404,17 +411,21 @@ void cTracker::lines()
 
 
 	// PIONOWE
-#if ROW_NUM
-	API_VERTEX2F(rightOffset, 0);
-	API_VERTEX2F(rightOffset, 28*15);
 
-	API_VERTEX2F(799-leftOffset, 0);
-	API_VERTEX2F(799-leftOffset, 28*15);
-#endif
 
 	API_COLOR(colors[0]);
 	API_LINE_WIDTH(1);
 	API_BEGIN(RECTS);
+
+#if ROW_NUM
+	API_VERTEX2F(rightOffset-1, 0);
+	API_VERTEX2F(rightOffset, 28*15);
+
+	API_VERTEX2F(799-leftOffset-1, 0);
+	API_VERTEX2F(799-leftOffset, 28*15);
+#endif
+
+
 
 	uint16_t x;
 	for(uint8_t i = 0; i < columnsCount; i++)
@@ -781,19 +792,19 @@ void cTracker::rowNumbers()
 {
 	int16_t row = tracks->actualStep-6;
 
-	API_COLOR(colors[1]);
+	API_COLOR(0x555555);
 	API_BITMAP_HANDLE(fonts[0].handle);
 	API_BEGIN(BITMAPS);
 
-	for(uint16_t i = 0; i < 15; i++)
+	for(uint16_t i = 0; i < rowCount; i++)
 	{
 		if(row < 1 || row > tracks->patternLength)
 		{
 			row++;
 			continue;
 		}
-		Number2Bitmaps(0, (i*28)+15, 8, 18, row);
-		if(!(tracks->popupMode & 2)) Number2Bitmaps((799-25), posY+(i*28)+15, 8, 18, row); // nie wyswietla prawego jesli popup go zaslania
+		Number2Bitmaps(1, (i*28)+15, 8, 18, row);
+		if(columnsCount == 4) Number2Bitmaps((799-25), posY+(i*28)+15, 8, 18, row); // nie wyswietla prawego jesli popup go zaslania
 		row++;
 	}
 
