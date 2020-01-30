@@ -90,19 +90,19 @@ uint8_t cInterface::detectProjectLoadState()
 			return 0;
 		}
 	}
-
-	if(startupTimer < 1000) // minimalny czas start screenu
-	{
-		return 0;
-	}
-
-	// na koniec wlacza mtp i opoznia start o 500 ms
-	if(mtpd.state == 0)
-	{
-		mtpd.state = 1;
-		startupTimer = 500;
-		return 0;
-	}
+//
+//	if(startupTimer < 1000) // minimalny czas start screenu
+//	{
+//		return 0;
+//	}
+//
+//	// na koniec wlacza mtp i opoznia start o 500 ms
+//	if(mtpd.state == 0)
+//	{
+//		mtpd.state = 1;
+//		startupTimer = 500;
+//		return 0;
+//	}
 
 	return 1;
 }
@@ -123,7 +123,7 @@ void cInterface::initStartScreen()
 	prop.x = 190;
 	prop.y = 280;
 	//prop.w = 800/4-10;
-	prop.style = controlStyleShow;
+	prop.style = 0; //controlStyleShow;
 	prop.h = 100;
 	prop.w = 420;
 	prop.data  = &startScreenData;

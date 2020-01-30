@@ -13,7 +13,7 @@
 
 const uint8_t FV_VER_1	=					0;		// device version
 const uint8_t FV_VER_2 =					8;		// official update
-const uint8_t FV_VER_3 =					45;		// fix version  100 = brak 3 litery
+const uint8_t FV_VER_3 =					46;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
 const uint8_t MEMORY_STRUCT_VER =			2;
 const uint8_t EEPROM_STRUCT_VER =			1;
@@ -627,7 +627,7 @@ struct strMtConfig
 		uint8_t clkOut;
 		uint8_t transportIn;
 		uint8_t transportOut;
-		uint8_t notesIn;
+		uint8_t notesInMode;
 		uint8_t notesInChannel;
 		uint8_t notesOutMode;
 		uint8_t notesOutChannel;

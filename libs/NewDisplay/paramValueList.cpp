@@ -186,7 +186,7 @@ uint8_t cParamValueList::update()
 
 
 
-	int16_t  x_pos = posX, y_pos, h_row = 27; //font->height+8;
+	int16_t  x_pos = posX, y_pos, h_row = 27, x_r_pos; //font->height+8;
 	uint16_t w_bar = width-6; // szerokosc ramki
 	uint8_t lines;
 
@@ -264,6 +264,7 @@ uint8_t cParamValueList::update()
 
 		//lista tekstow
 		x_pos = posX+13;
+		x_r_pos = x_pos + w_bar - 20;
 		y_pos = posY+h_row/2;
 
 		lines = (list->length >= list->linesCount)  ? list->linesCount : list->length;
@@ -283,12 +284,12 @@ uint8_t cParamValueList::update()
 					font->handle,
 					OPT_CENTERY,
 					*(list->params + (i +  textListPos)));
-//TODO
-//			API_CMD_TEXT(x_pos,
-//					y_pos + (i * h_row),
-//					font->handle,
-//					OPT_RIGHTX | OPT_CENTERY,
-//					*(list->values + (i +  textListPos)));
+
+			API_CMD_TEXT(x_r_pos,
+					y_pos + (i * h_row),
+					font->handle,
+					OPT_RIGHTX | OPT_CENTERY,
+					*(list->values + (i +  textListPos)));
 		}
 
 		API_RESTORE_CONTEXT();
@@ -377,6 +378,7 @@ uint8_t cParamValueList::update()
 		}
 
 		x_pos = posX+13;
+		x_r_pos = x_pos + w_bar - 20;
 		y_pos = posY + h_row/2 + (mode ? ((-1*h_row) - listAnimationStep) : 0);
 
 		API_SAVE_CONTEXT();
@@ -400,8 +402,15 @@ uint8_t cParamValueList::update()
 					API_CMD_TEXT(x_pos,
 							y_pos + (i * h_row),
 							font->handle,
-							textStyle | OPT_CENTERY,
+							OPT_CENTERY,
 							*(list->params +  i + textListPos ) );
+
+
+					API_CMD_TEXT(x_r_pos,
+							y_pos + (i * h_row),
+							font->handle,
+							OPT_RIGHTX | OPT_CENTERY,
+							*(list->values + i +  textListPos));
 
 				}
 			}
@@ -416,10 +425,15 @@ uint8_t cParamValueList::update()
 					API_CMD_TEXT(x_pos,
 							y_pos + (i * h_row),
 							font->handle,
-							textStyle | OPT_CENTERY,
+							OPT_CENTERY,
 							*(list->params + i + table_offset) );
 
 
+					API_CMD_TEXT(x_r_pos,
+							y_pos + (i * h_row),
+							font->handle,
+							OPT_RIGHTX | OPT_CENTERY,
+							*(list->values + i +  table_offset));
 				}
 			}
 		}
@@ -431,9 +445,15 @@ uint8_t cParamValueList::update()
 				API_CMD_TEXT(x_pos,
 						y_pos + (i * h_row),
 						font->handle,
-						textStyle | OPT_CENTERY,
+						OPT_CENTERY,
 						*(list->params + i  + textListPos ) );
 
+
+				API_CMD_TEXT(x_r_pos,
+						y_pos + (i * h_row),
+						font->handle,
+						OPT_RIGHTX | OPT_CENTERY,
+						*(list->values + i +  textListPos));
 			}
 		}
 
