@@ -20,7 +20,7 @@ const uint8_t PROJECT_FILE_VERSION 	=		1;		// wersja struktury pliku projektu
 const uint8_t INSTRUMENT_FILE_VERSION 	=	1;		// wersja struktury pliku projektu
 
 
-const uint8_t MEMORY_STRUCT_VER =			2;
+const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			1;
 
 const float DEFAULT_TEMPO = 130;

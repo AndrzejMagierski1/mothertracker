@@ -124,7 +124,6 @@ void FileManager::writeInstrumentFile(char * name, strInstrument * instr)
 
 uint8_t FileManager::writePatternFile(char * name, uint8_t *sourcePattern)
 {
-	// todo: może do wyjebania jeśli .open załatwi sprawę
 	//sd_time_test;
 	//Serial.print("zapis pliku patternu ");
 
@@ -132,6 +131,8 @@ uint8_t FileManager::writePatternFile(char * name, uint8_t *sourcePattern)
 
 	SdFile file;
 	FastCRC32 crcCalc;
+
+	sequencer.setPatternHeader((Sequencer::strPattern*)sourcePattern);
 
 	((Sequencer::strPattern*) sourcePattern)->crc =
 			crcCalc.crc32(sourcePattern,

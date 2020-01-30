@@ -103,13 +103,13 @@ void readConfig()
 		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
 	}
 
-	if (mtConfig.firmware.memoryStructVer != MEMORY_STRUCT_VER)
-	{
-		memoryStructureChange();
-
-		mtConfig.firmware.memoryStructVer = MEMORY_STRUCT_VER;
-		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
-	}
+//	if (mtConfig.firmware.memoryStructVer != MEMORY_STRUCT_VER)
+//	{
+//		memoryStructureChange();
+//
+//		mtConfig.firmware.memoryStructVer = MEMORY_STRUCT_VER;
+//		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
+//	}
 
 
 

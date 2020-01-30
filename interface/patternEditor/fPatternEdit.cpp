@@ -702,16 +702,16 @@ uint8_t cPatternEditor::isPleyheadOnScreen()
 
 
 
-void cPatternEditor::changeActualTempo(int16_t value)
-{
-	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
-
-	if(pattern->tempo+value < 10) pattern->tempo = 10;
-	else if(pattern->tempo+value > 1000) pattern->tempo = 400;
-	else  pattern->tempo += value;
-
-//	showTempo();
-}
+//void cPatternEditor::changeActualTempo(int16_t value)
+//{
+//	Sequencer::strPattern * pattern = sequencer.getPatternToUI();
+//
+//	if(pattern->tempo+value < 10) pattern->tempo = 10;
+//	else if(pattern->tempo+value > 1000) pattern->tempo = 400;
+//	else  pattern->tempo += value;
+//
+////	showTempo();
+//}
 
 void cPatternEditor::changeActualPattern(int16_t value)
 {
