@@ -420,6 +420,8 @@ void Sequencer::play_microStep(uint8_t row)
 				// wysyłam tylko fxa jeśli nie ma nuty
 				switch (_fx.type)
 				{
+				case fx.FX_TYPE_NONE:
+					break;
 				case fx.FX_TYPE_ROLL:
 
 					playerRow.rollIsOn = 1;
