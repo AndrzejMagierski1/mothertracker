@@ -35,6 +35,89 @@
 #define STATE_RELEASE	6
 #define STATE_FORCED	7
 
+
+void AudioEffectEnvelope::delay(float milliseconds)
+{
+	uint16_t lastDelayCount = delay_count;
+	delay_count = milliseconds2count(milliseconds);
+	if(state == STATE_DELAY)
+	{
+		int32_t dif = delay_count - lastDelayCount;
+
+		if((count + dif) < 0 ) count = 0;
+		else if ((count + dif) > 65535) count = 65535;
+		else count += dif;
+	}
+}
+void  AudioEffectEnvelope::attack(float milliseconds)
+{
+	uint16_t lastAttackCount = attack_count;
+	attack_count = milliseconds2count(milliseconds);
+	if (attack_count == 0) attack_count = 1;
+	if(state == STATE_ATTACK)
+	{
+		int32_t dif = attack_count - lastAttackCount;
+
+		if((count + dif) < 0 ) count = 0;
+		else if ((count + dif) > 65535) count = 65535;
+		else count += dif;
+
+		inc_hires = count ?  0x40000000 / count : 0;
+	}
+}
+void  AudioEffectEnvelope::hold(float milliseconds)
+{
+	uint16_t lastHoldCount = hold_count;
+	hold_count = milliseconds2count(milliseconds);
+	if(state == STATE_HOLD)
+	{
+		int32_t dif = hold_count - lastHoldCount;
+
+		if((count + dif) < 0 ) count = 0;
+		else if ((count + dif) > 65535) count = 65535;
+		else count += dif;
+	}
+}
+void  AudioEffectEnvelope::decay(float milliseconds)
+{
+	uint16_t lastDecayCount = decay_count;
+	decay_count = milliseconds2count(milliseconds);
+	if (decay_count == 0) decay_count = 1;
+	if(state == STATE_DECAY)
+	{
+		int32_t dif = decay_count - lastDecayCount;
+
+		if((count + dif) < 0 ) count = 0;
+		else if ((count + dif) > 65535) count = 65535;
+		else count += dif;
+
+		inc_hires = count ? (sustain_mult - 0x40000000) / (int32_t)count : 0 ;
+	}
+}
+void  AudioEffectEnvelope::sustain(float level)
+{
+	if (level < 0.0) level = 0;
+	else if (level > 1.0) level = 1.0;
+	sustain_mult = level * 1073741824.0;
+	if(state == STATE_SUSTAIN) mult_hires = sustain_mult;
+}
+void  AudioEffectEnvelope::release(float milliseconds)
+{
+	uint16_t lastReleaseCount = release_count;
+	release_count = milliseconds2count(milliseconds);
+	if (release_count == 0) release_count = 1;
+	if(state == STATE_RELEASE)
+	{
+		int32_t dif = lastReleaseCount - release_count;
+
+		if((count + dif) < 0 ) count = 0;
+		else if ((count + dif) > 65535) count = 65535;
+		else count += dif;
+
+		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+	}
+}
+
 void AudioEffectEnvelope::noteOn(void)
 {
 	__disable_irq();
@@ -71,7 +154,7 @@ void AudioEffectEnvelope::noteOff(void)
 		}
 		state = STATE_RELEASE;
 		count = release_count;
-		inc_hires = (-mult_hires) / (int32_t)count;
+		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
 	}
 	__enable_irq();
 }
