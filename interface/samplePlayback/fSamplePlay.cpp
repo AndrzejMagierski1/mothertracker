@@ -330,6 +330,8 @@ void cSamplePlayback::start(uint32_t options)
 			points.selected = (selectedPlace >= 1 && selectedPlace <= 4) ? selectedPlace : 0;
 
 			slicePoints.selected = 0;
+
+			currentEnvelopeGranPos = editorInstrument->granular.currentPosition;
 		}
 
 		if(loadedInstrumentType == mtSampleTypeWavetable)
@@ -340,10 +342,6 @@ void cSamplePlayback::start(uint32_t options)
 			wavetableWindowsCounter = convertWavetableWindowsSizeToCounter(mtProject.instrument[mtProject.values.lastUsedInstrument].sample.wavetable_window_size);
 
 			processWavetableCursor(SP->editorInstrument->wavetableCurrentWindow);
-
-
-
-
 		}
 
 

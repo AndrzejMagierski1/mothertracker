@@ -163,6 +163,8 @@ const float tempoSyncRates[20] =
 	0.015625
 };
 
+
+
 constexpr uint16_t releaseNoteOnVal = 5;
 
 void updateAudioEngine();
@@ -4216,3 +4218,5 @@ void playerEngine::printLog(SdFile * log)
 	playMemPtr->printLog(log);
 
 }
+
+
