@@ -34,6 +34,7 @@ void forceSaveConfig()
 {
 	save_micros = 0;
 	EEPROM.put(CONFIG_EEPROM_ADRESS, &mtConfig);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , mtConfig.startup.lastProjectName);
 
 }
 
@@ -74,6 +75,7 @@ void readConfig()
 
 	EEPROM.get(CONFIG_EEPROM_ADRESS, mtConfig);
 
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , mtConfig.startup.lastProjectName);
 //	debugLog.addText(" czas: ");
 //	debugLog.addValue(save_micros);
 //	debugLog.forceRefresh();
