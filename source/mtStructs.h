@@ -645,6 +645,7 @@ struct strMtConfig
 		uint8_t patternDiv;
 		uint8_t radioRegion;
 		uint8_t brightness;
+		uint8_t mtpState;
 	} general;
 
 	struct strInterfaceState

@@ -95,7 +95,7 @@ void cConfigEditor::initDisplayControls()
 
 	prop2.text = nullptr;
 	prop2.colors = interfaceGlobals.activeBgLabelsColors;
-	prop2.value = 52; //36;
+	prop2.value = 36; //36;
 	prop2.style = controlStyleNoTransparency | controlStyleShow;
 	prop2.x = 0;
 	prop2.w = 800;

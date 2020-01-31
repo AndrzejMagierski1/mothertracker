@@ -18,21 +18,27 @@ extern uint32_t patternTrackerSelectionColor;
 extern uint32_t patternTrackerColors[8];
 
 elapsedMillis save_delay;
-elapsedMicros save_micros;
+
+static uint8_t saveFlag = 0;
+
+void eepromUpdate()
+{
+	if(saveFlag  && save_delay > 5000)
+	{
+		saveFlag = 0;
+		save_delay = 0;
+		forceSaveConfig();
+	}
+}
+
 
 void saveConfig()
 {
-	if(save_delay > 1000)
-	{
-
-		forceSaveConfig();
-	}
-
+	saveFlag = 1;
 }
 
 void forceSaveConfig()
 {
-	save_micros = 0;
 	EEPROM.put(CONFIG_EEPROM_ADRESS, &mtConfig);
 
 }
@@ -116,19 +122,6 @@ void readConfig()
 }
 
 
-uint8_t onceReaded = 1;
-
-void readConfigOnce()
-{
-	if(onceReaded)
-	{
-		onceReaded = 0;
-		readConfig();
-	}
-
-}
-
-
 
 void checkConfig()
 {
@@ -190,6 +183,7 @@ void checkConfig()
 		mtConfig.arcanoidHighestScore = 0;
 	}
 
+	// midi ----------------------------------------
 	for(uint8_t i = 0; i < 10; i++)
 	{
 		if(mtConfig.midi.ccOut[i] > 126)
@@ -218,6 +212,14 @@ void checkConfig()
 		mtConfig.midi.transportIn = 0;
 	}
 
+	uint8_t notesInMode;
+	uint8_t notesInChannel;
+	uint8_t notesOutMode;
+	uint8_t notesOutChannel;
+	uint8_t ccOut[10];
+
+
+	// general ----------------------------------------
 	if(mtConfig.general.brightness > 2)
 	{
 		mtConfig.general.brightness = 2;
@@ -233,9 +235,9 @@ void checkConfig()
 		mtConfig.general.radioRegion = 0;
 	}
 
-	if(mtConfig.general.radioRegion > 3)
+	if(mtConfig.general.mtpState > 1)
 	{
-		mtConfig.general.radioRegion = 0;
+		mtConfig.general.mtpState = 0;
 	}
 
 	// interface ----------------------------------------
@@ -305,7 +307,7 @@ void resetConfig()
 	mtConfig.general.brightness = 2;
 	mtConfig.general.patternDiv = 3; //4
 	mtConfig.general.radioRegion = 0;
-	mtConfig.general.radioRegion = 0;
+	mtConfig.general.mtpState = 0;
 
 
 	// interface ----------------------------------------
@@ -354,8 +356,6 @@ uint8_t buffSize = 255;
 
 void readSdConfig()
 {
-
-
 	if(SD.exists("/mtconfig.txt"))
 	{
 		SdFile fConfig;
@@ -368,12 +368,6 @@ void readSdConfig()
 
 		executeSdConfig(buff);
 	}
-
-
-
-
-
-
 }
 
 

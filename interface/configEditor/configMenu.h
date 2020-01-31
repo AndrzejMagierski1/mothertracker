@@ -116,7 +116,7 @@ public:
 		{
 		case menuItemTypeValueU8:
 		{
-			sprintf(ptrValueText, "%d", *((strItemTypeValue*)itemSetup)->value);
+			sprintf(ptrValueText, "%d", *((strItemTypeValue8*)itemSetup)->value);
 			return ptrValueText;
 		}
 		case menuTypeItemListValues:
@@ -145,8 +145,15 @@ public:
 		 return itemSetup;
 	 }
 
+	 uint8_t getValueEditState()
+	 {
+		 return valueEditState;
+	 }
 
-
+	 void resetValueEditState()
+	 {
+		 valueEditState = 0;
+	 }
 
 
 
@@ -155,6 +162,8 @@ private:
 	menu_item_t itemType;
 	const void* itemSetup;
 	char* ptrValueText;
+
+	uint8_t valueEditState = 0;
 
 	friend class cMenuGroup;
 };
