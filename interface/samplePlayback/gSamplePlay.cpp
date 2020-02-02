@@ -557,7 +557,7 @@ void cSamplePlayback::showSlicesAdjustValue()
 //==============================================================================================================
 void cSamplePlayback::showActualInstrument()
 {
-	static char actualInstrName[SAMPLE_NAME_SIZE+4];
+	static char actualInstrName[SAMPLE_NAME_SIZE+5];
 
 	uint8_t i = mtProject.values.lastUsedInstrument;
 

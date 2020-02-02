@@ -47,7 +47,7 @@ uint8_t SamplesImporter::start(char* filePatch, char* name, char* projectPatch, 
 	if(SD.exists(currentPatch)) SD.remove(currentPatch);
 
 
-	strcpy(mtProject.instrument[instrumentIndex].sample.file_name,name);
+	strncpy(mtProject.instrument[instrumentIndex].sample.file_name,name,32);
 	mtProject.instrument[instrumentIndex].sample.type = type;
 
 	if(filePatch!= NULL)

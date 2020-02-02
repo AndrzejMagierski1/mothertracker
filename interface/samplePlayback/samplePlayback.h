@@ -43,11 +43,16 @@ public:
 
 	cSamplePlayback()
 	{
-//		inActiveInstrumentsCount = 0;
-//		inActiveInstrumentIndex = 0;
+		playModeListControl = nullptr;
+		frameControl = nullptr;
+		titleBar = nullptr ;
+		titleLabel = nullptr;
+		instrumentLabel = nullptr;
+		wtPositionCursor = nullptr;
+		bgLabel = nullptr;
+
 		editorInstrument = nullptr;
-//		openedInstrFromActive = 0;
-//		openedInstrumentIndex = 0;
+
 		progressCursor = nullptr;
 		granularCursor = nullptr;
 		spectrumControl = nullptr;
@@ -106,9 +111,9 @@ public:
 	hControl pointsControl;
 	hControl slicePointsControl;
 	hControl frameControl;
-	hControl titleBar = nullptr;
-	hControl titleLabel = nullptr;
-	hControl instrumentLabel = nullptr;
+	hControl titleBar;
+	hControl titleLabel;
+	hControl instrumentLabel;
 	hControl progressCursor;
 	hControl granularCursor;
 	hControl wtPositionCursor;

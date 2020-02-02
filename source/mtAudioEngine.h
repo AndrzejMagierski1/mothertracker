@@ -15,6 +15,8 @@
 
 constexpr uint32_t NOT_MOD_POINTS = 1000000;
 
+extern IntervalTimer updateTimer;
+
 class audioEngine
 {
 public:
