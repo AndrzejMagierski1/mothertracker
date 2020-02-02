@@ -5,6 +5,8 @@ void Recorder:: startRecording(int16_t * addr)
 	currentAddress = addr;
 	startAddress = addr;
 
+	updateTimer.update(1000);
+
 	queue.begin();
 	if(mtConfig.audioCodecConfig.inSelect == inputSelectMic )
 	{
@@ -55,6 +57,7 @@ void Recorder::stopRecording()
 		}
 	}
 	mode = recorderModeStop;
+	updateTimer.update(4500);
 }
 
 
