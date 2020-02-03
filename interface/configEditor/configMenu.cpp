@@ -7,7 +7,7 @@
 cMenuGroup menuBase(menuBase, 0, 0, 5);
 
 // grupy glowne
-cMenuGroup menuGeneral	(menuBase, 0, "General", 	3);
+cMenuGroup menuGeneral	(menuBase, 0, "General", 	4);
 cMenuGroup menuMidi		(menuBase, 1, "MIDI", 		9);
 cMenuGroup menuFirmware	(menuBase, 2, "Firmware", 	2);
 cMenuGroup menuHelp		(menuBase, 3, "Help", 		1);
@@ -18,10 +18,12 @@ cMenuGroup menuCredits	(menuBase, 4, "Credits", 	1);
 const strItemTypeValue8 setupPatternDiv 	{ &mtConfig.general.patternDiv,  1, 1, 16 	 };
 const strItemTypeListText setupRadioRegion	{ &mtConfig.general.radioRegion, 3, ptrRadioRegion };
 const strItemTypeListText setupBrightness 	{ &mtConfig.general.brightness,  3, ptrBrightness  };
+const strItemTypeListText setupMtpState 	{ &mtConfig.general.mtpState,  	 2, ptrMtpState  };
 
 cMenuItem melPatternDiv	(menuGeneral, 		0, "Pattern Divider", 		menuItemTypeValueU8,  &setupPatternDiv);
 cMenuItem melRadioReg	(menuGeneral, 		1, "Radio region",	 		menuTypeItemListText, &setupRadioRegion);
 cMenuItem melDispBright	(menuGeneral, 		2, "Display Brightness", 	menuTypeItemListText, &setupBrightness);
+cMenuItem melMtpState	(menuGeneral, 		3, "MTP State", 			menuTypeItemListText, &setupMtpState);
 
 ///////////////////
 const strItemTypeListText clockInSetup 			{ &mtConfig.midi.clkIn,  			3, ptrClockIn  	};
@@ -44,16 +46,16 @@ cMenuItem melNotsOutMode	(menuMidi, 		6, "Notes out mode", 		menuTypeItemListTex
 cMenuItem melNotesOutChannel(menuMidi, 		7, "Notes out channel", 	menuTypeItemListText, &notesOutChannelSetup);
 cMenuGroup menuCCOut		(menuMidi, 		8, "CC out", 		10);
 
-const strItemTypeValue8 setupCC1 		{ &mtConfig.midi.ccOut[0],  1, 1, 127 	 };
-const strItemTypeValue8 setupCC2		{ &mtConfig.midi.ccOut[1],  1, 1, 127 	 };
-const strItemTypeValue8 setupCC3 		{ &mtConfig.midi.ccOut[2],  1, 1, 127 	 };
-const strItemTypeValue8 setupCC4 		{ &mtConfig.midi.ccOut[3],  1, 1, 127 	 };
-const strItemTypeValue8 setupCC5 		{ &mtConfig.midi.ccOut[4],  1, 1, 127 	 };
-const strItemTypeValue8 setupCC6 		{ &mtConfig.midi.ccOut[5],  1, 1, 127 	 };
-const strItemTypeValue8 setupCC7 		{ &mtConfig.midi.ccOut[6],  1, 1, 127 	 };
-const strItemTypeValue8 setupCC8 		{ &mtConfig.midi.ccOut[7],  1, 1, 127 	 };
-const strItemTypeValue8 setupCC9 		{ &mtConfig.midi.ccOut[8],  1, 1, 127 	 };
-const strItemTypeValue8 setupCC10		{ &mtConfig.midi.ccOut[9],  1, 1, 127 	 };
+const strItemTypeValue8 setupCC1 		{ &mtConfig.midi.ccOut[0],  1, 0, 127 	 };
+const strItemTypeValue8 setupCC2		{ &mtConfig.midi.ccOut[1],  1, 0, 127 	 };
+const strItemTypeValue8 setupCC3 		{ &mtConfig.midi.ccOut[2],  1, 0, 127 	 };
+const strItemTypeValue8 setupCC4 		{ &mtConfig.midi.ccOut[3],  1, 0, 127 	 };
+const strItemTypeValue8 setupCC5 		{ &mtConfig.midi.ccOut[4],  1, 0, 127 	 };
+const strItemTypeValue8 setupCC6 		{ &mtConfig.midi.ccOut[5],  1, 0, 127 	 };
+const strItemTypeValue8 setupCC7 		{ &mtConfig.midi.ccOut[6],  1, 0, 127 	 };
+const strItemTypeValue8 setupCC8 		{ &mtConfig.midi.ccOut[7],  1, 0, 127 	 };
+const strItemTypeValue8 setupCC9 		{ &mtConfig.midi.ccOut[8],  1, 0, 127 	 };
+const strItemTypeValue8 setupCC10		{ &mtConfig.midi.ccOut[9],  1, 0, 127 	 };
 
 cMenuItem melCC1(menuCCOut, 		0, "CC 1", 	menuItemTypeValueU8, &setupCC1);
 cMenuItem melCC2(menuCCOut, 		1, "CC 2", 	menuItemTypeValueU8, &setupCC2);
@@ -115,6 +117,7 @@ void cConfigEditor::reloadSubmenu()
 	submenuList.length = menuBase.getSelChild()->getCount();
 	submenuList.params = menuBase.getSelChild()->getNames();
 	submenuList.values = menuBase.getSelChild()->getValues();
+
 	if(menuBase.getSelChild()->getSelChild()->type == menuTypeItem)
 		submenuList.valueEditActive = ((cMenuItem*)menuBase.getSelChild()->getSelChild())->getValueEditState();
 
@@ -259,6 +262,7 @@ void cConfigEditor::refreshConfigMenu(uint8_t listChanged)
 		}
 	case 1:
 		// 2 lista (submenu)
+		if(menuBase.getSelChild()->getSelChild() == nullptr) return;
 		if(menuBase.getSelChild()->getSelChild()->type == menuTypeItem)
 		{
 			cMenuItem* temp_child = (cMenuItem*)menuBase.getSelChild()->getSelChild();
@@ -274,6 +278,7 @@ void cConfigEditor::refreshConfigMenu(uint8_t listChanged)
 		}
 	case 2:
 		// 3 lista (second submenu)
+		if(menuBase.getSelChild()->getSelChild()->getSelChild() == nullptr) return;
 		if(menuBase.getSelChild()->getSelChild()->getSelChild()->type == menuTypeItem)
 		{
 			cMenuItem* temp_child = (cMenuItem*)menuBase.getSelChild()->getSelChild()->getSelChild();
