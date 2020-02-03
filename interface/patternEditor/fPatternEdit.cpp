@@ -743,9 +743,21 @@ void cPatternEditor::changeActualPattern(int16_t value)
 void cPatternEditor::setActualPattern(int16_t value)
 {
 
-	mtProject.values.actualPattern = constrain(value,
+	if (sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
+	{
+
+		fileManager.savePattern(mtProject.values.actualPattern);
+
+	}
+
+	mtProject.values.actualPattern = constrain(
+												value,
 												PATTERN_INDEX_MIN,
 												PATTERN_INDEX_MAX);
+
+	// Zapis aktualnego appternu za 10s od ostatniej zmiany
+	fileManager.configChangedRefresh = 0;
+	fileManager.configIsChangedFlag = 1;
 
 	fileManager.loadPattern(mtProject.values.actualPattern);
 	sequencer.switchRamPatternsNow();
