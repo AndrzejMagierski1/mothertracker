@@ -224,7 +224,7 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 			if (isStepToFillFx(step, offset, fxIndex, fillStep))
 			{
 
-				step->fx[fxIndex].value = random(fromVal, toVal );
+				step->fx[fxIndex].value = random(fromVal, toVal);
 				step->fx[fxIndex].type =
 						(fxType >= 0) ? fxType : randomFx();
 
@@ -1250,6 +1250,12 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 		case fx.FX_TYPE_SEND_CC_E:
 		return 127;
 
+	case fx.FX_TYPE_FILTER_LFO:
+		case fx.FX_TYPE_PANNING_LFO:
+		case fx.FX_TYPE_POSITION_LFO:
+		case fx.FX_TYPE_VOLUME_LFO:
+		return 19;
+
 	default:
 		return 100;
 	}
@@ -1354,6 +1360,30 @@ int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
 	}
 }
 
+const char lfoSeqName[20][4] =
+		{
+				"6",
+				"4",
+				"3",
+				"2",
+				"3/2",
+				"1",
+				"3/4",
+				"1/2",
+				"3/8",
+				"1/3",
+				"1/4",
+				"316",
+				"1/6",
+				"1/8",
+				"/12",
+				"/16",
+				"/24",
+				"/32",
+				"/48",
+				"/64"
+		};
+
 void Sequencer::makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track,
 								uint8_t step)
 {
@@ -1369,6 +1399,13 @@ void Sequencer::makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track,
 				getRollTypeChar(actualStep->fx[fxID].value),
 				rollValueToPeriod(
 						actualStep->fx[fxID].value % (fx.ROLL_PERIOD_MAX + 1)));
+		break;
+
+	case fx.FX_TYPE_FILTER_LFO:
+		case fx.FX_TYPE_PANNING_LFO:
+		case fx.FX_TYPE_POSITION_LFO:
+		case fx.FX_TYPE_VOLUME_LFO:
+		strcpy(ptr, lfoSeqName[val]);
 		break;
 	case fx.FX_TYPE_OFF:
 		strcpy(ptr, "OFF");

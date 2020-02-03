@@ -560,8 +560,11 @@ void FileManager::deleteTracks(char *currentProjectPath, uint8_t src, uint8_t tr
 	sprintf(currentPath, "%s/patterns/pattern_%02d.mtp", currentProjectPath, src);
 	status = readPatternFile(currentPath, (uint8_t*)&songTrackCopy[0]);
 
+
+
 	if(status)
 	{
+		fileManager.storeSongUndoRevision(src);
 		for(uint8_t track = 0; track < tracksNum; track++)
 		{
 			sequencer.clearSingleTrack(&songTrackCopy[0].track[track+trackStartSrc]);
