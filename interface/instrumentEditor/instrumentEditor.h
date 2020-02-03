@@ -56,8 +56,9 @@ const char envStateLabels[3][11]=
 //	"Off"
 //};
 
-const char lfoShapeLabels[3][11]=
+const char lfoShapeLabels[lfoShapeMax][11]=
 {
+		"Rev Saw",
 		"Saw",
 		"Triangle",
 		"Square"
@@ -254,11 +255,12 @@ public:
 //		&envLoopLabels[1][0],
 //	};
 
-	const char * lfoShapeNames[3] =
+	const char * lfoShapeNames[lfoShapeMax] =
 	{
 		&lfoShapeLabels[0][0],
 		&lfoShapeLabels[1][0],
 		&lfoShapeLabels[2][0],
+		&lfoShapeLabels[3][0]
 	};
 
 	const char * lfoSpeedNames[20] =

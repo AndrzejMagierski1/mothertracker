@@ -3114,10 +3114,131 @@ void playerEngine:: update()
 			statusBytes &= (~GRANULAR_LOOP_SEND_MASK);
 			playMemPtr->setGranularLoopMode(mtProject.instrument[currentInstrument_idx].granular.type);
 		}
+
+
+		if(statusBytes & LFO_AMP_SEND_MASK)
+		{
+			statusBytes &= (~LFO_AMP_SEND_MASK);
+
+			if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+			&&(!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp])
+			&&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp]))
+			{
+				if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+				{
+					calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp]);
+
+					envelopeAmpPtr->delay(lfoBasedEnvelope[envAmp].delay);
+					envelopeAmpPtr->attack(lfoBasedEnvelope[envAmp].attack);
+					envelopeAmpPtr->hold(lfoBasedEnvelope[envAmp].hold);
+					envelopeAmpPtr->decay(lfoBasedEnvelope[envAmp].decay);
+					envelopeAmpPtr->sustain(lfoBasedEnvelope[envAmp].sustain);
+					envelopeAmpPtr->release(lfoBasedEnvelope[envAmp].release);
+					envelopeAmpPtr->setLoop(lfoBasedEnvelope[envAmp].loop);
+				}
+			}
+
+			if(muteState == 0)
+			{
+				uint8_t currentVolume = 0;
+
+				if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
+				{
+					currentVolume = currentPerformanceValues.volume;
+				}
+				else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume] ||
+						trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume])
+				{
+					currentVolume = currentSeqModValues.volume;
+				}
+				else
+				{
+					currentVolume = mtProject.instrument[currentInstrument_idx].volume;
+				}
+
+				ampPtr->gain( (currentVolume/100.0) * lfoBasedEnvelope[envAmp].amount);
+			}
+		}
+
+		if(statusBytes & LFO_FILTER_SEND_MASK)
+		{
+			statusBytes &= (~LFO_FILTER_SEND_MASK);
+
+			if(mtProject.instrument[currentInstrument_idx].filterEnable == filterOn)
+			{
+				if((mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable)
+				&&(!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoCutoff])
+				&&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoCutoff]))
+				{
+					if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop)
+					{
+						calcLfoBasedEnvelope(&lfoBasedEnvelope[envFilter], &mtProject.instrument[currentInstrument_idx].lfo[envFilter]);
+						envelopeFilterPtr->init(&lfoBasedEnvelope[envFilter]);
+					}
+				}
+			}
+
+		}
+
+		if(statusBytes & LFO_WT_POS_SEND_MASK)
+		{
+			statusBytes &= (~LFO_WT_POS_SEND_MASK);
+
+			if(mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable)
+			{
+				if((mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable)
+				&&(!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoWavetablePosition])
+				&&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoWavetablePosition]))
+				{
+					if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
+					{
+						calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[currentInstrument_idx].lfo[envWtPos]);
+						envelopeWtPos->init(&lfoBasedEnvelope[envWtPos]);
+					}
+				}
+			}
+		}
+
+		if(statusBytes & LFO_GRAN_POS_SEND_MASK)
+		{
+			statusBytes &= (~LFO_GRAN_POS_SEND_MASK);
+			if((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWaveFile) && (mtProject.instrument[currentInstrument_idx].playMode == playModeGranular))
+			{
+				if((mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable)
+				&&(!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoGranularPosition])
+				&&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoGranularPosition]))
+				{
+					if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
+					{
+						calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[currentInstrument_idx].lfo[envGranPos]);
+						envelopeGranPos->init(&lfoBasedEnvelope[envGranPos]);
+					}
+				}
+
+			}
+
+		}
+
+		if(statusBytes & LFO_PANNING_SEND_MASK)
+		{
+			statusBytes &= (~LFO_PANNING_SEND_MASK);
+
+			if((mtProject.instrument[currentInstrument_idx].envelope[envPan].enable)
+			&&(!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoPanning])
+			&&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning]))
+			{
+				if(mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
+				{
+					calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[currentInstrument_idx].lfo[envPan]);
+					envelopePanningPtr->init(&lfoBasedEnvelope[envPan]);
+				}
+			}
+
+		}
 	}
 }
 
-void playerEngine :: setStatusBytes(uint16_t value)
+void playerEngine :: setStatusBytes(uint32_t value)
 {
 	statusBytes|=value;
 }
@@ -4094,7 +4215,7 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 
 	switch(lfo->shape)
 	{
-	case lfoShapeSaw:
+	case lfoShapeReverseSaw:
 
 		env->attack = 0;
 		env->decay = periodTime;
@@ -4104,6 +4225,18 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 		env->release = 0;
 
 		break;
+
+	case lfoShapeSaw:
+
+		env->attack = periodTime;
+		env->decay = 0;
+		env->delay = 0;
+		env->sustain = 0.0f;
+		env->hold = 0;
+		env->release = 0;
+
+		break;
+
 	case lfoShapeTriangle:
 
 		env->attack = periodTime/2;
@@ -4138,10 +4271,21 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 
 	switch(lfo->shape)
 	{
-	case lfoShapeSaw:
+	case lfoShapeReverseSaw:
 
 		env->attack = 0;
 		env->decay = periodTime;
+		env->delay = 0;
+		env->sustain = 0.0f;
+		env->hold = 0;
+		env->release = 0;
+
+		break;
+
+	case lfoShapeSaw:
+
+		env->attack = periodTime;
+		env->decay = 0;
 		env->delay = 0;
 		env->sustain = 0.0f;
 		env->hold = 0;
