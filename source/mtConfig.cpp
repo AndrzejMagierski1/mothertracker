@@ -26,9 +26,11 @@ void eepromUpdate()
 	if(saveFlag  && save_delay > 5000)
 	{
 		saveFlag = 0;
-		save_delay = 0;
 		forceSaveConfig();
+		delay(10);
+		readConfig();
 	}
+	if( save_delay > 5000) save_delay = 0;
 }
 
 
@@ -82,6 +84,7 @@ void readConfig()
 	EEPROM.get(CONFIG_EEPROM_ADRESS, mtConfig);
 
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , mtConfig.startup.lastProjectName);
+	//EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , mtConfig.startup.lastProjectName);
 //	debugLog.addText(" czas: ");
 //	debugLog.addValue(save_micros);
 //	debugLog.forceRefresh();
@@ -111,13 +114,17 @@ void readConfig()
 		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
 	}
 
-//	if (mtConfig.firmware.memoryStructVer != MEMORY_STRUCT_VER)
-//	{
-//		memoryStructureChange();
-//
-//		mtConfig.firmware.memoryStructVer = MEMORY_STRUCT_VER;
-//		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
-//	}
+
+/*
+	if (mtConfig.firmware.memoryStructVer != MEMORY_STRUCT_VER)
+	{
+		memoryStructureChange();
+
+		mtConfig.firmware.memoryStructVer = MEMORY_STRUCT_VER;
+		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
+	}
+*/
+
 
 
 
@@ -246,7 +253,7 @@ void checkConfig()
 		mtConfig.general.patternDiv = 3; //4
 	}
 
-	if(mtConfig.general.radioRegion > 3)
+	if(mtConfig.general.radioRegion > 2)
 	{
 		mtConfig.general.radioRegion = 0;
 	}
