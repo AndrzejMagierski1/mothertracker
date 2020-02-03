@@ -282,17 +282,21 @@ uint8_t cParamValueList::update()
 
 		for(uint8_t i = 0; i < lines; i++)
 		{
+			char* param = *(list->params + (i +  textListPos));
+			char* value = *(list->values + (i +  textListPos));
+
+
 			API_CMD_TEXT(x_pos,
 					y_pos + (i * h_row),
 					font->handle,
 					OPT_CENTERY,
-					*(list->params + (i +  textListPos)));
+					param);
 
 			API_CMD_TEXT(x_pos_end,
 					y_pos + (i * h_row),
 					font->handle,
 					OPT_RIGHTX | OPT_CENTERY,
-					*(list->values + (i +  textListPos)));
+					value);
 		}
 
 		API_RESTORE_CONTEXT();
