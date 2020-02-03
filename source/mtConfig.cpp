@@ -211,14 +211,28 @@ void checkConfig()
 
 	if(mtConfig.midi.transportOut > 3)
 	{
-		mtConfig.midi.transportIn = 0;
+		mtConfig.midi.transportOut = 0;
 	}
 
-	uint8_t notesInMode;
-	uint8_t notesInChannel;
-	uint8_t notesOutMode;
-	uint8_t notesOutChannel;
-	uint8_t ccOut[10];
+	if(mtConfig.midi.notesInMode > 3)
+	{
+		mtConfig.midi.notesInMode = 0;
+	}
+
+	if(mtConfig.midi.notesOutMode > 3)
+	{
+		mtConfig.midi.notesOutMode = 0;
+	}
+
+	if(mtConfig.midi.notesInChannel > 16)
+	{
+		mtConfig.midi.notesInChannel = 0;
+	}
+
+	if(mtConfig.midi.notesOutChannel > 15)
+	{
+		mtConfig.midi.notesOutChannel = 0;
+	}
 
 
 	// general ----------------------------------------
