@@ -13,7 +13,7 @@
 
 const uint8_t FV_VER_1	=					0;		// device version
 const uint8_t FV_VER_2 =					8;		// official update
-const uint8_t FV_VER_3 =					47;		// fix version  100 = brak 3 litery
+const uint8_t FV_VER_3 =					48;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
 
 const uint8_t PROJECT_FILE_VERSION 	=		1;		// wersja struktury pliku projektu
@@ -126,20 +126,26 @@ const uint16_t SERUM_WAVETABLE_WINDOW_LEN = 	2048;
 
 const uint16_t STANDARD_WAVETABLE_WINDOWS_NUMBER = 	256;
 
-const uint8_t LP1_MASK =						1;
-const uint8_t LP2_MASK =						2;
-const uint8_t FINETUNE_MASK =					4;
-const uint8_t TUNE_MASK =						8;
-const uint8_t VOLUME_MASK =						16;
-const uint8_t PANNING_MASK =					32;
-const uint8_t CUTOFF_MASK =						64;
-const uint8_t RESONANCE_MASK =					128;
-const uint16_t REVERB_SEND_MASK =				256;
-const uint16_t WT_POS_SEND_MASK =				512;
-const uint16_t GRANULAR_POS_SEND_MASK =			1024;
-const uint16_t GRANULAR_LEN_SEND_MASK =			2048;
-const uint16_t GRANULAR_WAVE_SEND_MASK =		4096;
-const uint16_t GRANULAR_LOOP_SEND_MASK =		8192;
+constexpr uint32_t LP1_MASK =						0b00000000000000000000000000000001;
+constexpr uint32_t LP2_MASK =						0b00000000000000000000000000000010;
+constexpr uint32_t FINETUNE_MASK =					0b00000000000000000000000000000100;
+constexpr uint32_t TUNE_MASK =						0b00000000000000000000000000001000;
+constexpr uint32_t VOLUME_MASK =					0b00000000000000000000000000010000;
+constexpr uint32_t PANNING_MASK =					0b00000000000000000000000000100000;
+constexpr uint32_t CUTOFF_MASK =					0b00000000000000000000000001000000;
+constexpr uint32_t RESONANCE_MASK =					0b00000000000000000000000010000000;
+constexpr uint32_t REVERB_SEND_MASK =				0b00000000000000000000000100000000;
+constexpr uint32_t WT_POS_SEND_MASK =				0b00000000000000000000001000000000;
+constexpr uint32_t GRANULAR_POS_SEND_MASK =			0b00000000000000000000010000000000;
+constexpr uint32_t GRANULAR_LEN_SEND_MASK =			0b00000000000000000000100000000000;
+constexpr uint32_t GRANULAR_WAVE_SEND_MASK =		0b00000000000000000001000000000000;
+constexpr uint32_t GRANULAR_LOOP_SEND_MASK =		0b00000000000000000010000000000000;
+constexpr uint32_t LFO_AMP_SEND_MASK =				0b00000000000000000100000000000000;
+constexpr uint32_t LFO_FILTER_SEND_MASK =			0b00000000000000001000000000000000;
+constexpr uint32_t LFO_WT_POS_SEND_MASK =			0b00000000000000010000000000000000;
+constexpr uint32_t LFO_GRAN_POS_SEND_MASK =			0b00000000000000100000000000000000;
+constexpr uint32_t LFO_PANNING_SEND_MASK =			0b00000000000001000000000000000000;
+
 
 const uint8_t MIN_NOTE_OFFSET =					0;
 const uint8_t MAX_NOTE_OFFSET =					13;
@@ -291,6 +297,7 @@ enum envelopeTypes
 
 enum lfoShapeType
 {
+	lfoShapeReverseSaw,
 	lfoShapeSaw,
 	lfoShapeTriangle,
 	lfoShapeSquare,
@@ -645,6 +652,7 @@ struct strMtConfig
 		uint8_t patternDiv;
 		uint8_t radioRegion;
 		uint8_t brightness;
+		uint8_t mtpState;
 	} general;
 
 	struct strInterfaceState

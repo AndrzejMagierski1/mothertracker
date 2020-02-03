@@ -68,10 +68,12 @@ public:
 	void changeMenuListPosition(uint8_t list, int16_t value);
 	void executeSelectedListItem(uint8_t list);
 
+	void configListConfirm(uint8_t list_pos);
+
 
 	void refreshConfigMenu(uint8_t listChanged);
-	void setLabelByMenuItemType(uint8_t label, menu_item_t type);
-	void setActualMenuAction(void (**actionFunct)(void));
+	void setLabelByMenuItemType(uint8_t label, menu_item_t type, uint8_t variant = 0);
+	void setActualMenuAction(void (**actionFunct)(void), void** menu_item);
 
 	void reloadSecondSubmenu();
 
@@ -178,24 +180,17 @@ public:
 	// MULTISEL
 	select_node_t selectNodes[MAX_SELECT_NODES];
 
-	void addNode(editFunct_t funct , uint8_t nodeNum);
-	void removeNode(uint8_t nodeNum);
-	void stepThroughNodes(int16_t value);
-	void clearAllNodes();
-	void cancelMultiFrame();
-
-	uint8_t getListsActive();
-	void setDataForLists(uint8_t listNum, uint8_t max);
-	void listDataForLists(uint8_t listNum, uint8_t nameNum, const char *names);
-
-
-
-
-
 
 
 
 	void changeLabelText(uint8_t labelIdx, const char *text);
+
+
+
+
+
+	void saveConfigToEeprom();
+
 
 };
 

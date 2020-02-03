@@ -816,8 +816,24 @@ void changeEnvAmount(int16_t value)
 void changeLfoShape(int16_t value)
 {
 	if(IE->editorInstrument->lfo[IE->selectedEnvelope].shape + value < 0) IE->editorInstrument->lfo[IE->selectedEnvelope].shape = 0;
-	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].shape + value > 2 ) IE->editorInstrument->lfo[IE->selectedEnvelope].shape = 2;
+	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].shape + value > (lfoShapeMax - 1) ) IE->editorInstrument->lfo[IE->selectedEnvelope].shape = lfoShapeMax - 1;
 	else IE->editorInstrument->lfo[IE->selectedEnvelope].shape += value;
+
+	uint32_t statusByte = 0;
+	switch(IE->selectedEnvelope)
+	{
+		case envAmp: 		statusByte = LFO_AMP_SEND_MASK;					break;
+		case envFilter:		statusByte = LFO_FILTER_SEND_MASK;			 	break;
+		case envWtPos: 		statusByte = LFO_WT_POS_SEND_MASK;				break;
+		case envGranPos:	statusByte = LFO_GRAN_POS_SEND_MASK;			break;
+		case envPan:		statusByte = LFO_PANNING_SEND_MASK; 			break;
+		default: break;
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(statusByte);
+	}
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 
 	IE->showLfoShape();
 }
@@ -826,6 +842,22 @@ void changeLfoSpeed(int16_t value)
 	if(IE->editorInstrument->lfo[IE->selectedEnvelope].speed + value < 0) IE->editorInstrument->lfo[IE->selectedEnvelope].speed = 0;
 	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].speed + value > 19 ) IE->editorInstrument->lfo[IE->selectedEnvelope].speed = 19;
 	else IE->editorInstrument->lfo[IE->selectedEnvelope].speed += value;
+
+	uint32_t statusByte = 0;
+	switch(IE->selectedEnvelope)
+	{
+		case envAmp: 		statusByte = LFO_AMP_SEND_MASK;					break;
+		case envFilter:		statusByte = LFO_FILTER_SEND_MASK;			 	break;
+		case envWtPos: 		statusByte = LFO_WT_POS_SEND_MASK;				break;
+		case envGranPos:	statusByte = LFO_GRAN_POS_SEND_MASK;			break;
+		case envPan:		statusByte = LFO_PANNING_SEND_MASK; 			break;
+		default: break;
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(statusByte);
+	}
+	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 
 	IE->showLfoSpeed();
 }
@@ -838,6 +870,21 @@ void changeLfoAmount(int16_t value)
 	else IE->editorInstrument->lfo[IE->selectedEnvelope].amount += fVal;
 
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
+	uint32_t statusByte = 0;
+	switch(IE->selectedEnvelope)
+	{
+		case envAmp: 		statusByte = LFO_AMP_SEND_MASK;					break;
+		case envFilter:		statusByte = LFO_FILTER_SEND_MASK;			 	break;
+		case envWtPos: 		statusByte = LFO_WT_POS_SEND_MASK;				break;
+		case envGranPos:	statusByte = LFO_GRAN_POS_SEND_MASK;			break;
+		case envPan:		statusByte = LFO_PANNING_SEND_MASK; 			break;
+		default: break;
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		instrumentPlayer[i].setStatusBytes(statusByte);
+	}
 
 	IE->showLfoAmount();
 }

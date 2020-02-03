@@ -186,11 +186,11 @@ uint8_t cParamValueList::update()
 
 
 
-	int16_t  x_pos = posX, y_pos, h_row = 27, x_r_pos; //font->height+8;
-	uint16_t w_bar = width-6; // szerokosc ramki
+	int16_t  x_pos = posX+3, y_pos, h_row = 27; //font->height+8;
+	int16_t  x_pos_end = x_pos + width - 6;
 	uint8_t lines;
 
-	if(list->length > list->linesCount) w_bar = width-13;
+	if(list->length > list->linesCount) x_pos_end -= 7;
 
 	API_LIB_BeginCoProListNoCheck();
     API_CMD_DLSTART();
@@ -238,12 +238,14 @@ uint8_t cParamValueList::update()
 
 		if(!disableBar)
 		{
-			x_pos = posX+3;
+			//x_pos = posX+3;
 			y_pos = posY + (barPos * h_row);
 
 			//ramka
-			if(list->selectionActive)
+			if(list->valueEditActive)
 			{
+				x_pos = x_pos_end - ((x_pos_end-x_pos)/3);
+				//x_pos_end = w_bar/3;
 				API_COLOR(colors[5]);
 			}
 			else
@@ -254,8 +256,8 @@ uint8_t cParamValueList::update()
 			API_LINE_WIDTH(8);
 			API_BEGIN(LINE_STRIP);
 			API_VERTEX2F(x_pos, y_pos);
-			API_VERTEX2F(x_pos + w_bar, y_pos);
-			API_VERTEX2F(x_pos + w_bar, y_pos + h_row);
+			API_VERTEX2F(x_pos_end, y_pos);
+			API_VERTEX2F(x_pos_end, y_pos + h_row);
 			API_VERTEX2F(x_pos, y_pos + h_row);
 			API_VERTEX2F(x_pos, y_pos);
 			API_END();
@@ -264,7 +266,6 @@ uint8_t cParamValueList::update()
 
 		//lista tekstow
 		x_pos = posX+13;
-		x_r_pos = x_pos + w_bar - 20;
 		y_pos = posY+h_row/2;
 
 		lines = (list->length >= list->linesCount)  ? list->linesCount : list->length;
@@ -275,21 +276,27 @@ uint8_t cParamValueList::update()
 		API_COLOR(colors[4]);
 
 		API_SCISSOR_XY(posX, posY);
-		API_SCISSOR_SIZE(w_bar, h_row*list->linesCount);
+		API_SCISSOR_SIZE(x_pos_end-posX, h_row*list->linesCount);
+
+		x_pos_end -= 7;
 
 		for(uint8_t i = 0; i < lines; i++)
 		{
+			char* param = *(list->params + (i +  textListPos));
+			char* value = *(list->values + (i +  textListPos));
+
+
 			API_CMD_TEXT(x_pos,
 					y_pos + (i * h_row),
 					font->handle,
 					OPT_CENTERY,
-					*(list->params + (i +  textListPos)));
+					param);
 
-			API_CMD_TEXT(x_r_pos,
+			API_CMD_TEXT(x_pos_end,
 					y_pos + (i * h_row),
 					font->handle,
 					OPT_RIGHTX | OPT_CENTERY,
-					*(list->values + (i +  textListPos)));
+					value);
 		}
 
 		API_RESTORE_CONTEXT();
@@ -354,31 +361,31 @@ uint8_t cParamValueList::update()
 
 		if(!disableBar)
 		{
-			x_pos = posX+3;
 			y_pos = posY + (barPos * h_row) + (mode ? 0 : listAnimationStep);
-			if(list->length > list->linesCount) w_bar = width-13;
+			//if(list->length > list->linesCount) w_bar = width-13;
 
 			//ramka
-			if(list->selectionActive)
+			if(list->valueEditActive)
 			{
+				x_pos = x_pos_end - ((x_pos_end-x_pos)/3);
 				API_COLOR(colors[5]);
 			}
 			else
 			{
 				API_COLOR(colors[0]);
 			}
+
 			API_LINE_WIDTH(8);
 			API_BEGIN(LINE_STRIP);
 			API_VERTEX2F(x_pos, y_pos);
-			API_VERTEX2F(x_pos + w_bar, y_pos);
-			API_VERTEX2F(x_pos + w_bar, y_pos + h_row);
+			API_VERTEX2F(x_pos_end, y_pos);
+			API_VERTEX2F(x_pos_end, y_pos + h_row);
 			API_VERTEX2F(x_pos, y_pos + h_row);
 			API_VERTEX2F(x_pos, y_pos);
 			API_END();
 		}
 
 		x_pos = posX+13;
-		x_r_pos = x_pos + w_bar - 20;
 		y_pos = posY + h_row/2 + (mode ? ((-1*h_row) - listAnimationStep) : 0);
 
 		API_SAVE_CONTEXT();
@@ -386,7 +393,9 @@ uint8_t cParamValueList::update()
 		API_COLOR(colors[4]);
 
 		API_SCISSOR_XY(posX, posY);
-		API_SCISSOR_SIZE(w_bar, h_row*list->linesCount);
+		API_SCISSOR_SIZE(x_pos_end-posX, h_row*list->linesCount);
+
+		x_pos_end -= 7;
 
 		lines = (list->length >= list->linesCount)  ? list->linesCount : list->length;
 
@@ -406,7 +415,7 @@ uint8_t cParamValueList::update()
 							*(list->params +  i + textListPos ) );
 
 
-					API_CMD_TEXT(x_r_pos,
+					API_CMD_TEXT(x_pos_end,
 							y_pos + (i * h_row),
 							font->handle,
 							OPT_RIGHTX | OPT_CENTERY,
@@ -429,7 +438,7 @@ uint8_t cParamValueList::update()
 							*(list->params + i + table_offset) );
 
 
-					API_CMD_TEXT(x_r_pos,
+					API_CMD_TEXT(x_pos_end,
 							y_pos + (i * h_row),
 							font->handle,
 							OPT_RIGHTX | OPT_CENTERY,
@@ -449,7 +458,7 @@ uint8_t cParamValueList::update()
 						*(list->params + i  + textListPos ) );
 
 
-				API_CMD_TEXT(x_r_pos,
+				API_CMD_TEXT(x_pos_end,
 						y_pos + (i * h_row),
 						font->handle,
 						OPT_RIGHTX | OPT_CENTERY,

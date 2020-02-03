@@ -687,7 +687,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
 	if(SE->isBusy) return 1;
 
-	fileManager.storePatternUndoRevision();
+//	fileManager.storePatternUndoRevision();
 
 	switch (SE->selectedPlace)
 	{

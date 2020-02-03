@@ -87,7 +87,7 @@ public:
 	void modGranularPosition(uint16_t value);
 	void modGranularGrainLength();
 
-	void setStatusBytes(uint16_t value);
+	void setStatusBytes(uint32_t value);
 //	void resetMods();
 	uint8_t getInterfaceEndReleaseFlag();
 	void clearInterfaceEndReleaseFlag();
@@ -299,7 +299,7 @@ private:
 	uint8_t						lastSeqVal[2];
 	int8_t						currentNote;
 	int8_t						currentVelocity;
-	uint16_t 					statusBytes; // 8- reverbSend 7-resonance, 6-cutoff, 5-panning ,4-volume,3-tune,2-fineTune, 1-LP1 , 0-LP2
+	uint32_t 					statusBytes; // 8- reverbSend 7-resonance, 6-cutoff, 5-panning ,4-volume,3-tune,2-fineTune, 1-LP1 , 0-LP2
 	uint8_t 					interfaceEndReleaseFlag = 0;
 	uint8_t 					interfacePlayingEndFlag = 0;
 	uint8_t 					currentPlayState = 0;

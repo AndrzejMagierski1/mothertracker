@@ -154,9 +154,9 @@ void cInstrumentEditor::initDisplayControls()
 
 
 
-	lfoShapeList.linesCount = 3;
+	lfoShapeList.linesCount = lfoShapeMax;
 	lfoShapeList.start = 0;
-	lfoShapeList.length = 3;
+	lfoShapeList.length = lfoShapeMax;
 	lfoShapeList.data = (char**)lfoShapeNames;
 	prop.x = (800/8)*(3)+1;
 	prop.y = 29;

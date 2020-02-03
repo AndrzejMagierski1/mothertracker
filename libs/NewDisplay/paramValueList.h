@@ -12,7 +12,7 @@
 
 struct strParamValueList
 {
-	uint8_t selectionActive;
+	uint8_t valueEditActive;
 	int16_t start;
 	uint16_t length;
 	uint16_t linesCount;
