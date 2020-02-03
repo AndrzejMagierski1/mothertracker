@@ -96,13 +96,12 @@ uint8_t cInterface::detectProjectLoadState()
 //		return 0;
 //	}
 //
-//	// na koniec wlacza mtp i opoznia start o 500 ms
-//	if(mtpd.state == 0)
-//	{
-//		mtpd.state = 1;
-//		startupTimer = 500;
-//		return 0;
-//	}
+	// na koniec wlacza mtp i opoznia start o 500 ms
+	if(mtpd.state == 0)
+	{
+		if(mtConfig.general.mtpState) mtpd.state = 1;
+		//startupTimer = 500;
+	}
 
 	return 1;
 }

@@ -4,6 +4,9 @@
 
 
 
+void eepromUpdate();
+
+
 void readConfigOnce();
 
 void forceSaveConfig();

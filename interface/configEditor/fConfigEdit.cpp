@@ -66,6 +66,8 @@ void cConfigEditor::update()
 		prepareAndFlash();
 	}
 
+	eepromUpdate();
+
 }
 
 void cConfigEditor::start(uint32_t options)
@@ -257,8 +259,6 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 				if(CE->configListShown) CE->selectedPlace = 2;
 				else CE->selectedPlace = 3;
 			}
-
-
 			break;
 		}
 		case 6:
@@ -273,7 +273,6 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 				if(CE->configListShown) CE->selectedPlace = 2;
 				else CE->selectedPlace = 3;
 			}
-
 			break;
 		}
 		case 7:
@@ -281,6 +280,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 			if(CE->configListShown)
 			{
 				if(CE->flashingState) CE->updateFirmware();
+				else CE->configListConfirm(CE->selectedConfigListPosition);
 			}
 			break;
 		}
@@ -588,14 +588,13 @@ uint8_t checkIfFirmwareValid(char *name)
 
 
 	return 0;
-
 }
 
 static uint8_t prepareAndFlash()
 {
-	if(SD.exists("/firmware/_fwinfo")) // plik nie powinien istniec, bootloader sam go usunie
+	if(SD.exists("/Firmware/_fwinfo")) // plik nie powinien istniec, bootloader sam go usunie
 	{
-		SD.remove("/firmware/_fwinfo");
+		SD.remove("/Firmware/_fwinfo");
 	}
 
 	SdFile fwinfo;
@@ -631,6 +630,16 @@ static uint8_t hideFlashingWarning()
 	return 1;
 }
 
+
+
+
+//==============================================================================================================
+
+
+void cConfigEditor::saveConfigToEeprom()
+{
+	saveConfig();
+}
 
 
 
