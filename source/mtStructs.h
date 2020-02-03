@@ -606,7 +606,7 @@ struct strMtConfig
 		uint8_t lineOutLeft; // 13-31
 		uint8_t lineOutRight; //13-31
 
-		uint8_t changeFlag;
+		//uint8_t changeFlag;
 
 	} audioCodecConfig;
 
@@ -616,7 +616,7 @@ struct strMtConfig
 		uint8_t ver_2;
 		uint8_t ver_3;
 		uint8_t beta;
-		uint8_t memoryStructVer;
+		//uint8_t memoryStructVer;
 		uint8_t eepromStructVer;
 
 	} firmware;
@@ -630,8 +630,6 @@ struct strMtConfig
 		uint8_t padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
 
 	} values;
-
-	uint8_t emptyArray1[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
 
 	struct strMIDIValues
 	{
