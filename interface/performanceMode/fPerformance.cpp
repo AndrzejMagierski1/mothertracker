@@ -294,14 +294,29 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 		instrumentPlayer[track].endEndPointPerformanceMode();
 		break;
 	}
-	case mtPerfWavetablePos:
+	case mtPerfGranWtPos: // TODO: polaczyc z "endGranularPositionPerformanceMode"
 	{
 		instrumentPlayer[track].endWavetableWindowPerformanceMode();
 		break;
 	}
-	case mtPerfGranularPos:
+	case mtPerfVolumeLfoSpeed: // TODO:
 	{
-		instrumentPlayer[track].endGranularPositionPerformanceMode();
+		//instrumentPlayer[track].endVolumeLfoRatePositionPerformanceMode();
+		break;
+	}
+	case mtPerfPanningLfoSpeed: // TODO:
+	{
+		//instrumentPlayer[track].endPanningLfoRatePerformanceMode();
+		break;
+	}
+	case mtPerfFilterfoSpeed: // TODO:
+	{
+		//instrumentPlayer[track].endFilterLfoRatePerformanceMode();
+		break;
+	}
+	case mtPerfGranWtfoSpeed: // TODO:
+	{
+		//instrumentPlayer[track].endGranWtLfoRatePerformanceMode();
 		break;
 	}
 	case mtPerfTune:
@@ -403,14 +418,29 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track, uint8_t p
 		instrumentPlayer[track].changeEndPointPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_16BIT,MAX_16BIT));
 		break;
 	}
-	case mtPerfWavetablePos:
+	case mtPerfGranWtPos: //TODO: polaczyc z "changeGranularPositionPerformanceMode"
 	{
 		instrumentPlayer[track].changeWavetableWindowPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_WAVETABLE_WINDOW,MAX_WAVETABLE_WINDOW));
 		break;
 	}
-	case mtPerfGranularPos:
+	case mtPerfVolumeLfoSpeed: //TODO:
 	{
-		instrumentPlayer[track].changeGranularPositionPerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
+		//instrumentPlayer[track].changeVolumeLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
+		break;
+	}
+	case mtPerfPanningLfoSpeed: //TODO:
+	{
+		//instrumentPlayer[track].changePanningLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
+		break;
+	}
+	case mtPerfFilterfoSpeed: //TODO:
+	{
+		//nstrumentPlayer[track].changeFilterLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
+		break;
+	}
+	case mtPerfGranWtfoSpeed: //TODO:
+	{
+		//instrumentPlayer[track].changeGranWtLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
 		break;
 	}
 	case mtPerfTune:
@@ -629,8 +659,6 @@ static  uint8_t functEncoder(int16_t value)
 					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeStartPointPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_16BIT,MAX_16BIT));
 				}
 				break;
-
-				break;
 			}
 			case mtPerfSampleEnd:
 			{
@@ -643,35 +671,65 @@ static  uint8_t functEncoder(int16_t value)
 					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeEndPointPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_16BIT,MAX_16BIT));
 				}
 				break;
-
-				break;
 			}
-			case mtPerfWavetablePos:
+			case mtPerfGranWtPos:
 			{
 				if(FX_VALUE(place) + mod_value > 100) FX_VALUE(place) = 100;
 				else if(FX_VALUE(place) + mod_value < -100) FX_VALUE(place) = -100;
 				else FX_VALUE(place) += mod_value;
 
-				for(uint8_t j = 0; j < 8; j++)
+				for(uint8_t j = 0; j < 8; j++) //TODO poloczyc z "changeGranularPositionPerformanceMode"
 				{
 					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeWavetableWindowPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_WAVETABLE_WINDOW,MAX_WAVETABLE_WINDOW));
 				}
 				break;
-
-				break;
 			}
-			case mtPerfGranularPos:
+			case mtPerfVolumeLfoSpeed:
 			{
-				if(FX_VALUE(place) + mod_value > 100) FX_VALUE(place) = 100;
-				else if(FX_VALUE(place) + mod_value < -100) FX_VALUE(place) = -100;
+				if(FX_VALUE(place) + mod_value > 20) FX_VALUE(place) = 20;
+				else if(FX_VALUE(place) + mod_value < -20) FX_VALUE(place) = -20;
 				else FX_VALUE(place) += mod_value;
 
-				for(uint8_t j = 0; j < 8; j++)
+				for(uint8_t j = 0; j < 8; j++) //TODO
 				{
-					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeGranularPositionPerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
+					if(PM->tracksPerformanceState[j]) /*instrumentPlayer[j].changeVolumeLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255))*/;
 				}
 				break;
+			}
+			case mtPerfPanningLfoSpeed:
+			{
+				if(FX_VALUE(place) + mod_value > 20) FX_VALUE(place) = 20;
+				else if(FX_VALUE(place) + mod_value < -20) FX_VALUE(place) = -20;
+				else FX_VALUE(place) += mod_value;
 
+				for(uint8_t j = 0; j < 8; j++) //TODO
+				{
+					if(PM->tracksPerformanceState[j]) /*instrumentPlayer[j].changePanningLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255))*/;
+				}
+				break;
+			}
+			case mtPerfFilterfoSpeed:
+			{
+				if(FX_VALUE(place) + mod_value > 20) FX_VALUE(place) = 20;
+				else if(FX_VALUE(place) + mod_value < -20) FX_VALUE(place) = -20;
+				else FX_VALUE(place) += mod_value;
+
+				for(uint8_t j = 0; j < 8; j++) //TODO
+				{
+					if(PM->tracksPerformanceState[j]) /*instrumentPlayer[j].changeFilterLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255))*/;
+				}
+				break;
+			}
+			case mtPerfGranWtfoSpeed:
+			{
+				if(FX_VALUE(place) + mod_value > 20) FX_VALUE(place) = 20;
+				else if(FX_VALUE(place) + mod_value < -20) FX_VALUE(place) = -20;
+				else FX_VALUE(place) += mod_value;
+
+				for(uint8_t j = 0; j < 8; j++) //TODO
+				{
+					if(PM->tracksPerformanceState[j]) /*instrumentPlayer[j].changeGranWtLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255))*/;
+				}
 				break;
 			}
 			case mtPerfTune:

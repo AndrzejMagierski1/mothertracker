@@ -408,7 +408,7 @@ void cPerformanceMode::showPerformaceValue(uint8_t place)
 		{
 			if(fx_value == 1) 		strcpy(&fxValuesText[place][slot][0], "Back");
 			else if(fx_value == 2) 	strcpy(&fxValuesText[place][slot][0], "Rnd");
-			else 								strcpy(&fxValuesText[place][slot][0], "Fwd");
+			else 					strcpy(&fxValuesText[place][slot][0], "Fwd");
 			break;
 		}
 
