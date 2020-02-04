@@ -234,6 +234,28 @@ void cConfigEditor::activateLabelsBorder()
 	display.refreshControl(frameControl);
 }
 
+void cConfigEditor::selectSubmenu()
+{
+	selectedPlace = 1;
+	activateLabelsBorder();
+}
+
+void cConfigEditor::selectSecondSubmenu()
+{
+	selectedPlace = 3;
+	activateLabelsBorder();
+}
+
+void cConfigEditor::selectConfigList()
+{
+	selectedPlace = 2;
+	activateLabelsBorder();
+}
+
+
+
+
+
 void cConfigEditor::changeLabelText(uint8_t labelIdx, const char *text)
 {
 	display.setControlText(label[labelIdx], text);
@@ -292,7 +314,7 @@ void cConfigEditor::hideConfigList()
 
 void cConfigEditor::showSubmenu()
 {
-	secondSubmenuShown = 1;
+	submenuShown = 1;
 
 	display.setControlShow(configSubmenuListControl);
 	display.setControlShow(label[2]);
@@ -312,7 +334,7 @@ void cConfigEditor::hideSubmenu()
 
 	display.refreshControl(label[4]);
 
-	secondSubmenuShown = 0;
+	submenuShown = 0;
 }
 
 void cConfigEditor::showSecondSubmenu()

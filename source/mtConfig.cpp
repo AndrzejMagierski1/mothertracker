@@ -308,12 +308,16 @@ void checkConfig()
 
 void resetConfig()
 {
+	// startup ----------------------------------------
+	mtConfig.startup.lastProjectName[0] = 0;
+	mtConfig.startup.startMode = interfaceOpenLastProject;
+	mtConfig.startup.powerState = powerStateSleep;
 
+	// interface ----------------------------------------
 	mtConfig.audioCodecConfig.headphoneVolume = MASTER_VOLUME_DEFAULT;
 	mtConfig.audioCodecConfig.inSelect = inputSelectMic;
 	mtConfig.audioCodecConfig.outSelect = outputSelectHeadphones;
 	mtConfig.audioCodecConfig.inputGain = INPUT_MIC_GAIN_DEFAULT;
-
 	mtConfig.audioCodecConfig.mutedHeadphone = 0;
 	mtConfig.audioCodecConfig.mutedLineOut = 0;
 	mtConfig.audioCodecConfig.lineInLeft = LINE_IN_SENS_LEVEL_DEFAULT;
@@ -321,22 +325,12 @@ void resetConfig()
 	mtConfig.audioCodecConfig.lineOutLeft = LINE_OUT_LEVEL_DEFAULT;
 	mtConfig.audioCodecConfig.lineOutRight = LINE_OUT_LEVEL_DEFAULT;
 
-
-
-	mtConfig.startup.lastProjectName[0] = 0;
-	mtConfig.startup.startMode = interfaceOpenLastProject;
-
-	mtConfig.startup.powerState = powerStateSleep;
-
-	// VALUES
+	// values ----------------------------------------
 	mtConfig.values.padsLightBack = PADS_LIGHT_BACK_DEFAULT;
 	mtConfig.values.padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
 	mtConfig.values.padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
 
-
-	mtConfig.arcanoidHighestScore = 0;
-
-
+	// midi ----------------------------------------
 	for(uint8_t i = 0; i < 10; i++)
 	{
 		mtConfig.midi.ccOut[i] = 0;
@@ -345,11 +339,15 @@ void resetConfig()
 	mtConfig.midi.clkIn = 0;
 	mtConfig.midi.clkOut = 0;
 	mtConfig.midi.transportIn = 0;
-	mtConfig.midi.transportIn = 0;
+	mtConfig.midi.transportOut = 0;
+	mtConfig.midi.notesInMode = 0;
+	mtConfig.midi.notesInChannel = 0;
+	mtConfig.midi.notesOutMode = 0;
+	mtConfig.midi.notesOutChannel = 0;
 
-
+	// general ----------------------------------------
 	mtConfig.general.brightness = 2;
-	mtConfig.general.patternDiv = 3; //4
+	mtConfig.general.patternDiv = 3; // czyli 4
 	mtConfig.general.radioRegion = 0;
 	mtConfig.general.mtpState = 0;
 
@@ -363,19 +361,22 @@ void resetConfig()
 #else
 	mtConfig.debug.debugLogState = 0;
 #endif
+
+	// game ----------------------------------------
+	mtConfig.arcanoidHighestScore = 0;
 }
 
 void firmwareVersionChange()
 {
 
-	Serial.println("Firmware changed!");
+	//Serial.println("Firmware changed!");
 
 }
 
 void memoryStructureChange()
 {
 
-	Serial.println("MEMO_STRUCT changed!");
+	//Serial.println("Memory structure changed!");
 
 }
 
@@ -383,7 +384,7 @@ void memoryStructureChange()
 void eepromStructureChange()
 {
 
-	Serial.println("Eeprom struct changed!");
+	//Serial.println("Eeprom structure changed!");
 
 
 	resetConfig();

@@ -3,8 +3,14 @@
 #include "configEditor/configMenu.h"
 
 
+
 // baza baz
 cMenuGroup menuBase(menuBase, 0, 0, 5);
+//=====================================================================================================================================
+//=====================================================================================================================================
+//=====================================================================================================================================
+//=====================================================================================================================================
+//=====================================================================================================================================
 
 // grupy glowne
 cMenuGroup menuGeneral	(menuBase, 0, "General", 	4);
@@ -23,7 +29,7 @@ const strItemTypeListText setupMtpState 	{ &mtConfig.general.mtpState,  	 2, ptr
 cMenuItem melPatternDiv	(menuGeneral, 		0, "Pattern Divider", 		menuItemTypeValueU8,  &setupPatternDiv);
 cMenuItem melRadioReg	(menuGeneral, 		1, "Radio region",	 		menuTypeItemListText, &setupRadioRegion);
 cMenuItem melDispBright	(menuGeneral, 		2, "Display Brightness", 	menuTypeItemListText, &setupBrightness);
-cMenuItem melMtpState	(menuGeneral, 		3, "MTP State", 			menuTypeItemListText, &setupMtpState);
+cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 			menuTypeItemListText, &setupMtpState);
 
 ///////////////////
 const strItemTypeListText clockInSetup 			{ &mtConfig.midi.clkIn,  			3, ptrClockIn  	};
@@ -87,7 +93,11 @@ cMenuItem melOpenCredits	(menuCredits, 	0, "Credits", 				menuTypeItemLabel, &cr
 
 
 
-//=======================================================================
+//=====================================================================================================================================
+//=====================================================================================================================================
+//=====================================================================================================================================
+//=====================================================================================================================================
+//=====================================================================================================================================
 
 void cConfigEditor::createConfigMenu()
 {
@@ -107,8 +117,6 @@ void cConfigEditor::createMenuBaseList()
 	display.setControlShow(configBasemenuListControl);
 
 }
-
-
 
 void cConfigEditor::reloadSubmenu()
 {
@@ -161,7 +169,6 @@ void cConfigEditor::loadConfigValuesList(strItemTypeListValues* itemSetup)
 //	display.setControlShow(configListControl);
 }
 
-
 void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value)
 {
 	//sprawdzanie czy taka lista wogole dostepna
@@ -171,8 +178,15 @@ void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value)
 	// wykownywanie akcji na zjechanie/ukrycie itemu listy ActionButton
 	uint8_t itemPositionChanged = 0;
 	void (*action_funct)(void) = nullptr;
-	cMenuItem* deselectedMenuItem = nullptr;
-	setActualMenuAction(&action_funct, (void**)(&deselectedMenuItem));
+	cMenuItem* selectedMenuItem = nullptr;
+	uint8_t itemLevel = 0;
+	getSelectedItemInfo(&action_funct, (void**)(&selectedMenuItem), &itemLevel);
+
+	if(selectedMenuItem != nullptr && itemLevel == list && selectedMenuItem->getValueEditState())
+	{
+		chanegeItemValue((void**)(&selectedMenuItem), value);
+		return;
+	}
 
 	if(list == 0)
 	{
@@ -223,11 +237,9 @@ void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value)
 	if(itemPositionChanged)
 	{
 		// odswiezenie menu
-		if(deselectedMenuItem != nullptr) deselectedMenuItem->resetValueEditState();
-
+		//if(selectedMenuItem != nullptr) selectedMenuItem->resetValueEditState();
 		//refreshConfigMenu(list);// to do obadać temat
 		refreshConfigMenu(0);
-
 
 		//schowanie listy wyboru wartosci
 		hideConfigList();
@@ -240,7 +252,10 @@ void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value)
 	}
 }
 
+void cConfigEditor::chanegeItemValue(void** selectedMenuItem, uint8_t value)
+{
 
+}
 
 void cConfigEditor::refreshConfigMenu(uint8_t listChanged)
 {
@@ -319,7 +334,7 @@ void cConfigEditor::setLabelByMenuItemType(uint8_t label, menu_item_t type, uint
 }
 
 
-void cConfigEditor::setActualMenuAction(void (**actionFunct)(void), void** menu_item) // to do cos nie dizala
+void cConfigEditor::getSelectedItemInfo(void (**actionFunct)(void), void** menu_item, uint8_t* item_level) // to do cos nie dizala
 {
 
 	if(menuBase.getSelChild()->type == menuTypeItem)
@@ -328,6 +343,7 @@ void cConfigEditor::setActualMenuAction(void (**actionFunct)(void), void** menu_
 			*actionFunct = ((strItemTypeActionButton*)((cMenuItem*)menuBase.getSelChild())->getItemSetup())->funct2;
 
 		*menu_item = menuBase.getSelChild();
+		*item_level = 0;
 	}
 	else if (menuBase.getSelChild()->type == menuTypeGroup)
 	{
@@ -337,6 +353,7 @@ void cConfigEditor::setActualMenuAction(void (**actionFunct)(void), void** menu_
 				*actionFunct = ((strItemTypeActionButton*)((cMenuItem*)menuBase.getSelChild()->getSelChild())->getItemSetup())->funct2;
 
 			*menu_item = menuBase.getSelChild()->getSelChild();
+			*item_level = 1;
 		}
 		else if (menuBase.getSelChild()->getSelChild()->type == menuTypeGroup)
 		{
@@ -346,6 +363,7 @@ void cConfigEditor::setActualMenuAction(void (**actionFunct)(void), void** menu_
 					*actionFunct = ((strItemTypeActionButton*)((cMenuItem*)menuBase.getSelChild()->getSelChild()->getSelChild())->getItemSetup())->funct2;
 
 				*menu_item = menuBase.getSelChild()->getSelChild()->getSelChild();
+				*item_level = 2;
 			}
 		}
 	}
@@ -402,17 +420,18 @@ void cConfigEditor::configListConfirm(uint8_t list_pos)
 			{
 				strItemTypeListValues* temp_str = (strItemTypeListValues*)selected_child->getItemSetup();
 				if(list_pos <= temp_str->max-temp_str->min) *(temp_str->value) = temp_str->min+list_pos;
+				selectSubmenu();
 				break;
 			}
 			case menuTypeItemListText:
 			{
 				strItemTypeListText* temp_str = (strItemTypeListText*)selected_child->getItemSetup();
 				if(list_pos < temp_str->count) *(temp_str->value) = list_pos;
+				selectSubmenu();
 				break;
 			}
 			default: break;
 		}
-
 
 		saveConfigToEeprom();
 	}
@@ -422,12 +441,9 @@ void cConfigEditor::configListConfirm(uint8_t list_pos)
 	refreshConfigMenu(0);
 }
 
-
-
 void cMenuGroup::execute()
 {
 	if(childs[selectedItem]->type != menuTypeItem) return;
-
 
 	cMenuItem* selected_child = (cMenuItem*)childs[selectedItem];
 

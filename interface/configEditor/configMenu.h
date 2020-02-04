@@ -126,7 +126,6 @@ public:
 		case menuTypeItemLabel:
 			return ((strItemTypeLabel*)itemSetup)->text;
 
-
 		case menuItemTypeEmpty:
 		case menuTypeItemActionButton:
 			return (char*)ptrEmptyName;

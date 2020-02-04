@@ -3,7 +3,7 @@
 #define INTERFACE_INTERFACEFXDESC_H_
 
 
-const char fxDescriptions[FX_COUNT][150] =
+const char fxDescriptions[FX_COUNT][200] =
 {
 	//Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
 	{
@@ -27,7 +27,7 @@ const char fxDescriptions[FX_COUNT][150] =
 	},
 	//Sequencer::strFxConsts::enFxType::FX_TYPE_GLIDE,
 	{
-			""
+			"Sets the time it takes for the pitch of one played note to travel to the pitch of another played note.\n\nValues: from 0 - 50% (0 sec - 1 sec) to 50 - 100% (1 sec - 15 sec)."
 	},
 	//Sequencer::strFxConsts::enFxType::FX_TYPE_TEMPO,
 	{

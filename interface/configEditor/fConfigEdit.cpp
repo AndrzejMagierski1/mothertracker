@@ -178,11 +178,15 @@ void cConfigEditor::setConfigScreenFunct()
 //##############################################################################################
 //###############################        ACTION BUTTONS        #################################
 //##############################################################################################
-//CE->eventFunct(eventActivateImageViewer,CE,0,0);
-
 static uint8_t functActionButton(uint8_t button, uint8_t state)
 {
-	uint8_t updateFrame = 1;
+	if(CE->configPopupActive)
+	{
+
+		 return 1;
+	}
+
+
 	if(state == buttonPress)
 	{
 		switch(button)
@@ -257,7 +261,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 			else
 			{
 				if(CE->configListShown) CE->selectedPlace = 2;
-				else CE->selectedPlace = 3;
+				else if(CE->secondSubmenuShown) CE->selectedPlace = 3;
 			}
 			break;
 		}
@@ -271,7 +275,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 			else
 			{
 				if(CE->configListShown) CE->selectedPlace = 2;
-				else CE->selectedPlace = 3;
+				else if(CE->secondSubmenuShown) CE->selectedPlace = 3;
 			}
 			break;
 		}
@@ -279,9 +283,25 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->configListShown)
 			{
-				if(CE->flashingState) CE->updateFirmware();
-				else CE->configListConfirm(CE->selectedConfigListPosition);
+				if(CE->selectedPlace == 2)
+				{
+					if(CE->flashingState) CE->updateFirmware();
+					else CE->configListConfirm(CE->selectedConfigListPosition);
+				}
+				else
+				{
+					CE->selectedPlace = 2;
+				}
 			}
+			else if(CE->selectedPlace == 3)
+			{
+				CE->executeSelectedListItem(1);
+			}
+			else
+			{
+				if(CE->secondSubmenuShown) CE->selectedPlace = 3;
+			}
+
 			break;
 		}
 
@@ -294,10 +314,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 
 	}
 
-	if(updateFrame)
-	{
-		CE->activateLabelsBorder();
-	}
+	CE->activateLabelsBorder();
 
 	return 1;
 }
@@ -307,7 +324,9 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
+	if(CE->configPopupActive) return 1;
 	if(state != buttonPress) return 1;
+
 
 	if(mtTest.runTestByCombinaion(pad)) 	CE->eventFunct(eventActivateTestingProcedure,CE,0,0);
 
@@ -335,22 +354,42 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 static  uint8_t functEncoder(int16_t value)
 {
-	if(CE->selectionActive) return 1;
+	if(CE->configPopupActive) return 1;
+
+	switch(CE->selectedPlace)
+	{
+	case 0:
+	{
+		CE->changeMenuListPosition(0, value);
+		break;
+	}
+	case 1:
+	{
+		CE->changeMenuListPosition(1, value);
+		break;
+	}
+	case 2:
+	{
+		//if(CE->configListShown) CE->changeConfigListPosition(value);
+		//else CE->changeMenuListPosition(2, value);
+
+		if(CE->configListShown) CE->changeConfigListPosition(value);
+		break;
+	}
+	case 3:
+	{
+		//if(CE->configListShown) CE->changeConfigListPosition(value);
+		//else CE->changeMenuListPosition(2, value);
+
+		CE->changeMenuListPosition(2, value);
+		break;
+	}
 
 
+	default:
+		break;
+	}
 
-
-
-
-
-		switch(CE->selectedPlace)
-		{
-		case 0: 	 break;
-		case 1:		 break;
-		case 2: 	 break;
-		case 3: 	 break;
-
-		}
 
 
 	return 1;
@@ -363,11 +402,11 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functLeft()
 {
-	if(CE->selectionActive) return 1;
-	if(CE->frameData.multiSelActiveNum != 0) return 1;
+	if(CE->configPopupActive) return 1;
 
 
-	if(CE->selectedPlace > 0) CE->selectedPlace--;
+	if(CE->selectedPlace == 3) 		CE->selectedPlace = 1;
+	else if(CE->selectedPlace > 0) 	CE->selectedPlace--;
 
 
 	CE->activateLabelsBorder();
@@ -378,14 +417,36 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
-	if(CE->selectionActive) return 1;
-	if(CE->frameData.multiSelActiveNum != 0) return 1;
+	if(CE->configPopupActive) return 1;
 
 
-	uint8_t maxPlaces;
-	maxPlaces = 3;
-	if(CE->selectedPlace < (maxPlaces-1)) CE->selectedPlace++;
+	if(CE->selectedPlace == 0 && CE->submenuShown)
+	{
+		CE->selectedPlace = 1;
+	}
+	else if(CE->selectedPlace == 1 && CE->secondSubmenuShown)
+	{
+		CE->selectedPlace = 3;
+	}
+	else if(CE->selectedPlace == 1 && CE->configListShown)
+	{
+		CE->selectedPlace = 2;
+	}
+	else if(CE->selectedPlace == 1)
+	{
+		CE->executeSelectedListItem(1);
+	}
+	else if(CE->selectedPlace == 2)
+	{
+		if(CE->configListShown)
+		{
+			CE->configListConfirm(CE->selectedConfigListPosition);
+		}
+	}
+	else if(CE->selectedPlace == 3)
+	{
 
+	}
 
 	CE->activateLabelsBorder();
 
@@ -395,21 +456,38 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
-	if(CE->selectionActive) return 1;
+	if(CE->configPopupActive) return 1;
 
 
-
-
-		switch(CE->selectedPlace)
-		{
-		case 0: 	 break;
-		case 1:		 break;
-		case 2: 	 break;
-		case 3: 	 break;
-
-		case 17: 	break;
-
-		}
+	switch(CE->selectedPlace)
+	{
+	case 0:
+	{
+		CE->changeMenuListPosition(0, -1);
+		break;
+	}
+	case 1:
+	{
+		CE->changeMenuListPosition(1, -1);
+		break;
+	}
+	case 2:
+	{
+		//if(CE->configListShown) CE->changeConfigListPosition(value);
+		//else CE->changeMenuListPosition(2, value);
+		if(CE->configListShown) CE->changeConfigListPosition(-1);
+		break;
+	}
+	case 3:
+	{
+		//if(CE->configListShown) CE->changeConfigListPosition(value);
+		//else CE->changeMenuListPosition(2, value);
+		CE->changeMenuListPosition(2, -1);
+		break;
+	}
+	default:
+		break;
+	}
 
 
 	return 1;
@@ -418,21 +496,37 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
-	if(CE->selectionActive) return 1;
+	if(CE->configPopupActive) return 1;
 
-
-
-
-		switch(CE->selectedPlace)
-		{
-		case 0: 	 break;
-		case 1:		 break;
-		case 2: 	 break;
-		case 3: 	 break;
-
-		case 17: 	break;
-
-		}
+	switch(CE->selectedPlace)
+	{
+	case 0:
+	{
+		CE->changeMenuListPosition(0, 1);
+		break;
+	}
+	case 1:
+	{
+		CE->changeMenuListPosition(1, 1);
+		break;
+	}
+	case 2:
+	{
+		//if(CE->configListShown) CE->changeConfigListPosition(value);
+		//else CE->changeMenuListPosition(2, value);
+		if(CE->configListShown) CE->changeConfigListPosition(1);
+		break;
+	}
+	case 3:
+	{
+		//if(CE->configListShown) CE->changeConfigListPosition(value);
+		//else CE->changeMenuListPosition(2, value);
+		CE->changeMenuListPosition(2, 1);
+		break;
+	}
+	default:
+		break;
+	}
 
 
 	return 1;
@@ -443,7 +537,7 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
-	if(CE->selectionActive) return 1;
+	if(CE->configPopupActive) return 1;
 
 	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
@@ -461,14 +555,14 @@ static  uint8_t functPlayAction()
 
 static  uint8_t functRecAction()
 {
-	if(CE->selectionActive) return 1;
+	if(CE->configPopupActive) return 1;
 
 	return 1;
 }
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(CE->selectionActive) return 1;
+	if(CE->configPopupActive) return 1;
 
 //	if(button != interfaceButtonPerformance) CE->turnOffPerformanceMode();
 //	if(button != interfaceButtonSampleRec) CE->turnOffRadio();
@@ -599,7 +693,7 @@ static uint8_t prepareAndFlash()
 
 	SdFile fwinfo;
 
-	fwinfo = SD.open("/firmware/_fwinfo", FILE_WRITE);
+	fwinfo = SD.open("/Firmware/_fwinfo", FILE_WRITE);
 	fwinfo.write(&CE->firmwareNamesList[CE->selectedConfigListPosition][0], strlen(&CE->firmwareNamesList[CE->selectedConfigListPosition][0]));
 	fwinfo.close();
 
@@ -617,14 +711,14 @@ void cConfigEditor::showFlashingWarning()
 
 		FM->setButtonObj(interfaceButton7, buttonPress, prepareAndFlash);
 		FM->setButtonObj(interfaceButton6, buttonPress, hideFlashingWarning);
-		selectionActive=1;
+		configPopupActive=1;
 		showFirmwareUpdatePopout();
 	}
 }
 
 static uint8_t hideFlashingWarning()
 {
-	CE->selectionActive = 0;
+	CE->configPopupActive = 0;
 	CE->start(0);
 
 	return 1;

@@ -67,17 +67,16 @@ public:
 
 	void changeMenuListPosition(uint8_t list, int16_t value);
 	void executeSelectedListItem(uint8_t list);
+	void chanegeItemValue(void** selectedMenuItem, uint8_t value);
 
 	void configListConfirm(uint8_t list_pos);
 
 
 	void refreshConfigMenu(uint8_t listChanged);
 	void setLabelByMenuItemType(uint8_t label, menu_item_t type, uint8_t variant = 0);
-	void setActualMenuAction(void (**actionFunct)(void), void** menu_item);
+	void getSelectedItemInfo(void (**actionFunct)(void), void** menu_item, uint8_t* item_level);
 
 	void reloadSecondSubmenu();
-
-
 	//
 
 	//-----------------------------------------
@@ -86,6 +85,9 @@ public:
 
 
 	void activateLabelsBorder();
+	void selectSubmenu();
+	void selectSecondSubmenu();
+	void selectConfigList();
 
 	//
 	uint8_t flashingState = 0;
@@ -94,10 +96,7 @@ public:
 	hControl popoutWindowLabel;
 
 
-
-	uint8_t selectionActive;
-
-
+	uint8_t configPopupActive = 0;
 
 
 
@@ -168,6 +167,7 @@ public:
 
 
 
+	uint8_t submenuShown = 0;
 	uint8_t secondSubmenuShown = 0;
 
 
