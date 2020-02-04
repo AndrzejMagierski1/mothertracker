@@ -950,35 +950,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 		if ((player.globalPos > patternLength))
 		{
 			player.globalPos = 0;
-			bool isNextPatternAvailable = 0; // jeśli 0 to song sie skonczyl
 
-			if (player.songMode)
-			{
-				reset_actual_pos();
-				switchRamPatternsNow();
-				isNextPatternAvailable =
-						fileManager.switchNextPatternInSong();
-			}
-
-//			player.onSongEnd = player.onPatternEnd;
-
-			if (x == MINTRACK)
-			{
-				if ((player.onPatternEnd != NULL) && isNextPatternAvailable)
-				player.onPatternEnd();
-
-				else if ((player.onSongEnd != NULL) && !isNextPatternAvailable)
-				{
-					player.onPatternEnd();
-					player.onSongEnd();
-				}
-			}
-
-//			jesli songmode to reszta kodu nie jest potrzebna po zmianie patternu
-			if (player.songMode)
-			{
-				return;
-			}
 		}
 	}
 
@@ -1001,27 +973,35 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 
 			}
 
-//			if (row == 0 && player.songMode)
-//			{
-//				switchRamPatternsNow();
-//				isNextPatternAvailable =
-//						fileManager.switchNextPatternInSong();
-//			}
-//			player.onSongEnd = player.onPatternEnd;
-//
-//			if (x == MINTRACK)
-//			{
-//				if ((player.onPatternEnd != NULL) && !isNextPatternAvailable)
-//				player.onPatternEnd();
-//
-//				else if ((player.onSongEnd != NULL) && isNextPatternAvailable)
-//				{
-//					player.onPatternEnd();
-//					player.onSongEnd();
-//				}
-//			}
+			if (x == MAXTRACK)
+			{
+				bool isNextPatternAvailable = 0; // jeśli 0 to song sie skonczyl
+
+				if (player.songMode)
+				{
+					reset_actual_pos();
+					switchRamPatternsNow();
+					isNextPatternAvailable =
+							fileManager.switchNextPatternInSong();
+				}
+
+				if ((player.onPatternEnd != NULL) && isNextPatternAvailable)
+				player.onPatternEnd();
+
+				else if ((player.onSongEnd != NULL) && !isNextPatternAvailable)
+				{
+					player.onPatternEnd();
+					player.onSongEnd();
+				}
+
+				if (player.songMode && !isNextPatternAvailable)
+				{
+					stop();
+				}
+			}
 
 		}
+
 	}
 	else if (playMode == PLAYMODE_BACKWARD)
 	{
