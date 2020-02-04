@@ -31,8 +31,11 @@ enum mtPerformanceFxes
 	mtPerfSampleStart,
 	mtPerfSampleEnd,
 	mtPerfSamplePlayback,
-	mtPerfWavetablePos,
-	mtPerfGranularPos,
+	mtPerfGranWtPos,
+	mtPerfVolumeLfoSpeed,
+	mtPerfPanningLfoSpeed,
+	mtPerfFilterfoSpeed,
+	mtPerfGranWtfoSpeed,
 	mtPerfStepStutter,
 	mtPerfPatternPlayMode,
 	mtPerfPatternLength,
@@ -41,7 +44,7 @@ enum mtPerformanceFxes
 };
 
 
-const char performanceFxesLabels[performanceFxesCount][20] =
+const char performanceFxesLabels[performanceFxesCount][22] =
 {
 	"",
 	"Volume",
@@ -50,12 +53,15 @@ const char performanceFxesLabels[performanceFxesCount][20] =
 	"Low-pass cutoff",
 	"High-Pass cutoff",
 	"Band-pass cutoff",
-	"Reverb sent",
+	"Reverb send",
 	"Sample start",
 	"Sample end",
 	"Sample playback",
-	"Wavetable pos",
-	"Granular pos",
+	"Gran/Wt positon",
+	"Volume LFO Speed",
+	"Panning LFO Speed",
+	"Filter LFO Speed",
+	"Gran/Wt LFO Speed",
 	"Step stutter",
 	"Pattern play mode",
 	"Pattern length",
@@ -89,6 +95,29 @@ const char performanceStutterLabels[9][20] =
 const uint8_t performancePatternLengthValues[] =
 { 1, 2, 4, 8, 16, 32, 64, 128 };
 
+//const char * const performanceLfoSpeedLabels[20] =
+//{
+//		"6",
+//		"4",
+//		"3",
+//		"2",
+//		"3/2",
+//		"1",
+//		"3/4",
+//		"1/2",
+//		"3/8",
+//		"1/3",
+//		"1/4",
+//		"316",
+//		"1/6",
+//		"1/8",
+//		"/12",
+//		"/16",
+//		"/24",
+//		"/32",
+//		"/48",
+//		"/64"
+//};
 
 class cPerformanceMode: public cModuleBase
 {
