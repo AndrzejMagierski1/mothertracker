@@ -1049,12 +1049,13 @@ static void refreshCopyPasting()
 		uint8_t source = mtProject.song.playlist[SE->copyCurrentData.startPattern + SE->currentCopyElement];
 		uint8_t destination =  mtProject.song.playlist[SE->songPlayerData.selection.startPattern + SE->currentCopyElement];
 
+		fileManager.storeSongUndoRevision(destination);
+
 		fileManager.copySongTracks((char*) "Workspace", source, destination,
 				SE->copyCurrentData.startTrack,
 				SE->songPlayerData.selection.startTrack,
 				SE->copyCurrentData.trackSelectionLength);
 
-		fileManager.storeSongUndoRevision(destination);
 
 		updateBitmaskAfterCopy(
 				&mtProject.values.allPatternsBitmask[source-1],

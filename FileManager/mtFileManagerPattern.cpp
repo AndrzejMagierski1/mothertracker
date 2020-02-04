@@ -2,6 +2,7 @@
 #include "sdram.h"
 #include "core/interfacePopups.h"
 #include "mtCommonBuffer.h"
+#include "debugLog.h"
 
 
 uint8_t patternToLoad = 0;
@@ -202,6 +203,15 @@ void FileManager::storeSongUndoRevision(uint8_t index)
 	}
 	if (undoSong.storedCount > UNDO_SONG_CAPACITY) undoSong.storedCount = UNDO_SONG_CAPACITY;
 
+
+	char line[80];
+	sprintf(line,
+			">>>pattern %d stored: actualIndex: %d, storedCount: %d, redoPossibility: %d",
+			index,
+			undoSong.actualIndex,
+			undoSong.storedCount,
+			undoSong.redoPossibility);
+	debugLog.addLine(line);
 //	Serial.printf(
 //			">>>pattern stored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
 //			undoSong.actualIndex,
@@ -248,6 +258,17 @@ void FileManager::undoSongPattern()
 		updatePatternBitmask(bufferedPatternNumber-1, &undoSongBuffer[undoSong.actualIndex]);
 
 		undoSong.redoPossibility++;
+
+
+		char line[80];
+		sprintf(line,
+				"<<<pattern %d restored: actualIndex: %d, storedCount: %d, redoPossibility: %d",
+				bufferedPatternNumber,
+				undoSong.actualIndex,
+				undoSong.storedCount,
+				undoSong.redoPossibility);
+		debugLog.addLine(line);
+
 //		Serial.printf(
 //				"<<<pattern restored\nactualIndex: %d, storedCount: %d, redoPossibility: %d\n",
 //				undoSong.actualIndex,
@@ -565,6 +586,7 @@ void FileManager::deleteTracks(char *currentProjectPath, uint8_t src, uint8_t tr
 	if(status)
 	{
 		fileManager.storeSongUndoRevision(src);
+
 		for(uint8_t track = 0; track < tracksNum; track++)
 		{
 			sequencer.clearSingleTrack(&songTrackCopy[0].track[track+trackStartSrc]);
