@@ -626,7 +626,6 @@ struct strMtConfig
 	{
 		uint8_t padsLightBack = PADS_LIGHT_BACK_DEFAULT;
 		uint8_t padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
-
 		uint8_t padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
 
 	} values;
