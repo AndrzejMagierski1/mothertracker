@@ -962,6 +962,7 @@ uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 		selectionLength[listInstruments] = 1;
 	}
 
+	mtProject.values.lastUsedInstrument = selectedSlot;
 
 	displayDelete(1);
 	AddEnterOrRename();
