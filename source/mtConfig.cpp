@@ -26,9 +26,9 @@ void eepromUpdate()
 	if(saveFlag  && save_delay > 5000)
 	{
 		saveFlag = 0;
-		save_delay = 0;
 		forceSaveConfig();
 	}
+	if( save_delay > 5000) save_delay = 0;
 }
 
 
@@ -39,8 +39,20 @@ void saveConfig()
 
 void forceSaveConfig()
 {
-	EEPROM.put(CONFIG_EEPROM_ADRESS, &mtConfig);
-	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , mtConfig.startup.lastProjectName);
+	//EEPROM.put(CONFIG_EEPROM_ADRESS, &mtConfig);
+
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.startMode - (uint32_t)&mtConfig) , 		mtConfig.startup.startMode);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , 	mtConfig.startup.lastProjectName);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.powerState - (uint32_t)&mtConfig) ,		mtConfig.startup.powerState);
+
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.audioCodecConfig -  (uint32_t)&mtConfig) , 	mtConfig.audioCodecConfig);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.firmware -  (uint32_t)&mtConfig) , 			mtConfig.firmware);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.values -  (uint32_t)&mtConfig) , 			mtConfig.values);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.midi -  (uint32_t)&mtConfig) , 				mtConfig.midi);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.general -  (uint32_t)&mtConfig) , 			mtConfig.general);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.interface -  (uint32_t)&mtConfig) , 			mtConfig.interface);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.debug -  (uint32_t)&mtConfig) , 				mtConfig.debug);
+	EEPROM.put(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.arcanoidHighestScore - (uint32_t)&mtConfig) , mtConfig.arcanoidHighestScore);
 
 }
 
@@ -79,9 +91,22 @@ void readConfig()
 //	debugLog.addLine("eeprom read");
 //	save_micros = 0;
 
-	EEPROM.get(CONFIG_EEPROM_ADRESS, mtConfig);
+	//EEPROM.get(CONFIG_EEPROM_ADRESS, mtConfig);
 
-	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , mtConfig.startup.lastProjectName);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.startMode - (uint32_t)&mtConfig) , 		mtConfig.startup.startMode);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , 	mtConfig.startup.lastProjectName);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.powerState - (uint32_t)&mtConfig) ,		mtConfig.startup.powerState);
+
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.audioCodecConfig -  (uint32_t)&mtConfig) , 	mtConfig.audioCodecConfig);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.firmware -  (uint32_t)&mtConfig) , 			mtConfig.firmware);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.values -  (uint32_t)&mtConfig) , 			mtConfig.values);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.midi -  (uint32_t)&mtConfig) , 				mtConfig.midi);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.general -  (uint32_t)&mtConfig) , 			mtConfig.general);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.interface -  (uint32_t)&mtConfig) , 			mtConfig.interface);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.debug -  (uint32_t)&mtConfig) , 				mtConfig.debug);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.arcanoidHighestScore - (uint32_t)&mtConfig) , mtConfig.arcanoidHighestScore);
+
+
 //	debugLog.addText(" czas: ");
 //	debugLog.addValue(save_micros);
 //	debugLog.forceRefresh();
@@ -100,7 +125,7 @@ void readConfig()
 		mtConfig.firmware.ver_3		= FV_VER_3;
 		mtConfig.firmware.beta 		= FV_BETA;
 
-		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
+		forceSaveConfig();
 	}
 
 	if (mtConfig.firmware.eepromStructVer != EEPROM_STRUCT_VER)
@@ -108,16 +133,21 @@ void readConfig()
 		eepromStructureChange();
 
 		mtConfig.firmware.eepromStructVer = EEPROM_STRUCT_VER;
-		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
+
+		forceSaveConfig();
 	}
 
-//	if (mtConfig.firmware.memoryStructVer != MEMORY_STRUCT_VER)
-//	{
-//		memoryStructureChange();
-//
-//		mtConfig.firmware.memoryStructVer = MEMORY_STRUCT_VER;
-//		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
-//	}
+
+/*
+	if (mtConfig.firmware.memoryStructVer != MEMORY_STRUCT_VER)
+	{
+		memoryStructureChange();
+
+		mtConfig.firmware.memoryStructVer = MEMORY_STRUCT_VER;
+		EEPROM.put(CONFIG_EEPROM_ADRESS, mtConfig);
+	}
+*/
+
 
 
 
@@ -163,8 +193,6 @@ void checkConfig()
 
 
 
-
-
 	mtConfig.startup.lastProjectName[PROJECT_NAME_SIZE-1] = 0;
 	if(mtConfig.startup.startMode >= interfaceCommandsCount) mtConfig.startup.startMode = interfaceOpenLastProject;
 
@@ -175,7 +203,6 @@ void checkConfig()
 
 
 	// VALUES CHECK
-
 	if(mtConfig.values.padsLightBack > 31)	mtConfig.values.padsLightBack = PADS_LIGHT_BACK_DEFAULT;
 	if(mtConfig.values.padsLightFront > 31)	mtConfig.values.padsLightFront = PADS_LIGHT_FRONT_DEFAULT;
 	if(mtConfig.values.padsLightBackWeek > 31)	mtConfig.values.padsLightBackWeek = PADS_LIGHT_BACK_DEFAULT/2;
@@ -246,7 +273,7 @@ void checkConfig()
 		mtConfig.general.patternDiv = 3; //4
 	}
 
-	if(mtConfig.general.radioRegion > 3)
+	if(mtConfig.general.radioRegion > 2)
 	{
 		mtConfig.general.radioRegion = 0;
 	}
@@ -276,6 +303,7 @@ void checkConfig()
 // TODO dodac zapis spowrotem do configu jesli np przy sprawdzaniu wazne dane sie nie zgadzały
 // TODO
 // TODO
+	forceSaveConfig();
 }
 
 void resetConfig()
