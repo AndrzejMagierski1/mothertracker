@@ -1268,7 +1268,7 @@ int16_t Sequencer::getFxMin(uint8_t fxID)
 	case fx.FX_TYPE_MICROMOVE:
 		return 0;
 	case fx.FX_TYPE_SAMPLE_SLICE:
-		return 1;
+		return 0;
 	case fx.FX_TYPE_TEMPO:
 		return 5;
 	case fx.FX_TYPE_PANNING:
@@ -1351,7 +1351,7 @@ int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
 	case fx.FX_TYPE_MICROTUNING:
 		return actualStep->fx[fxID].value - 99;
 		break;
-	case fx.FX_TYPE_SAMPLE_SLICE:
+	case fx.FX_TYPE_SAMPLE_SLICE: // jawnie od 1, programowo od 0
 		return actualStep->fx[fxID].value + 1;
 		break;
 
