@@ -895,7 +895,6 @@ void Sequencer::setPatternHeader(strPattern * patt)
 	patt->header.size = sizeof(strPattern);
 }
 
-
 void Sequencer::clearPattern(strPattern * patt)
 {
 
@@ -906,7 +905,6 @@ void Sequencer::clearPattern(strPattern * patt)
 	patt->rezerwa4 = 0;
 
 	setPatternHeader(patt);
-
 
 	for (strPattern::strTrack &track : patt->track)
 	{
@@ -1239,6 +1237,8 @@ int16_t Sequencer::getFxMax(uint8_t fxID)
 		return 47;
 	case fx.FX_TYPE_PROGRAM_CHANGE:
 		return 127;
+	case fx.FX_TYPE_REVERSE_PLAYBACK:
+		return 1;
 	case fx.FX_TYPE_ROLL:
 
 		return (fx.ROLL_PERIOD_MAX + 1) * (fx.rollNoteDir_max + 1) - 1;
@@ -1409,6 +1409,10 @@ void Sequencer::makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track,
 		break;
 	case fx.FX_TYPE_OFF:
 		strcpy(ptr, "OFF");
+		break;
+
+	case fx.FX_TYPE_REVERSE_PLAYBACK:
+		strcpy(ptr, val > 0 ? "<<<" : ">>>");
 		break;
 
 	default:
