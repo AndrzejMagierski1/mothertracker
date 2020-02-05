@@ -93,9 +93,9 @@ void readConfig()
 
 	//EEPROM.get(CONFIG_EEPROM_ADRESS, mtConfig);
 
-	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.startMode - (uint32_t)&mtConfig) , 		mtConfig.startup.startMode);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.startup.startMode - (uint32_t)&mtConfig) , 		mtConfig.startup.startMode);
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.lastProjectName - (uint32_t)&mtConfig) , 	mtConfig.startup.lastProjectName);
-	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)mtConfig.startup.powerState - (uint32_t)&mtConfig) ,		mtConfig.startup.powerState);
+	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.startup.powerState - (uint32_t)&mtConfig) ,		mtConfig.startup.powerState);
 
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.audioCodecConfig -  (uint32_t)&mtConfig) , 	mtConfig.audioCodecConfig);
 	EEPROM.get(CONFIG_EEPROM_ADRESS +( (uint32_t)&mtConfig.firmware -  (uint32_t)&mtConfig) , 			mtConfig.firmware);
