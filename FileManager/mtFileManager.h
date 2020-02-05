@@ -10,7 +10,7 @@
 #include "mtSamplesImporter.h"
 #include "mtSamplesCopyier.h"
 
-#define FILEMANAGER_CONSOLELOG 1
+#define FILEMANAGER_CONSOLELOG 0
 
 struct strProjectFileHeader
 {
