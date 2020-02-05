@@ -21,7 +21,7 @@ cMenuGroup menuCredits	(menuBase, 4, "Credits", 	1);
 
 
 // elementy/////////
-const strItemTypeValue8 setupPatternDiv 	{ &mtConfig.general.patternDiv,  1, 1, 16 	 };
+const strItemTypeValue8 setupPatternDiv 	{ &mtConfig.general.patternDiv,  0, 15, 1, 1	 };
 const strItemTypeListText setupRadioRegion	{ &mtConfig.general.radioRegion, 3, ptrRadioRegion };
 const strItemTypeListText setupBrightness 	{ &mtConfig.general.brightness,  3, ptrBrightness  };
 const strItemTypeListText setupMtpState 	{ &mtConfig.general.mtpState,  	 2, ptrMtpState  };
@@ -29,7 +29,7 @@ const strItemTypeListText setupMtpState 	{ &mtConfig.general.mtpState,  	 2, ptr
 cMenuItem melPatternDiv	(menuGeneral, 		0, "Pattern Divider", 		menuItemTypeValueU8,  &setupPatternDiv);
 cMenuItem melRadioReg	(menuGeneral, 		1, "Radio region",	 		menuTypeItemListText, &setupRadioRegion);
 cMenuItem melDispBright	(menuGeneral, 		2, "Display Brightness", 	menuTypeItemListText, &setupBrightness);
-cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 			menuTypeItemListText, &setupMtpState);
+cMenuItem melMtpState	(menuGeneral, 		3, "Files transfer", 		menuTypeItemListText, &setupMtpState);
 
 ///////////////////
 const strItemTypeListText clockInSetup 			{ &mtConfig.midi.clkIn,  			3, ptrClockIn  	};
@@ -50,29 +50,29 @@ cMenuItem melNotsInMode		(menuMidi, 		4, "Notes in mode", 		menuTypeItemListText
 cMenuItem melNotesInChannel	(menuMidi, 		5, "Notes in channnel", 	menuTypeItemListText, &notesOutModeSetup);
 cMenuItem melNotsOutMode	(menuMidi, 		6, "Notes out mode", 		menuTypeItemListText, &notesInChanneletup);
 cMenuItem melNotesOutChannel(menuMidi, 		7, "Notes out channel", 	menuTypeItemListText, &notesOutChannelSetup);
-cMenuGroup menuCCOut		(menuMidi, 		8, "CC out", 		10);
+cMenuGroup menuCCOut		(menuMidi, 		8, "CC out", 		5);
 
-const strItemTypeValue8 setupCC1 		{ &mtConfig.midi.ccOut[0],  1, 0, 127 	 };
-const strItemTypeValue8 setupCC2		{ &mtConfig.midi.ccOut[1],  1, 0, 127 	 };
-const strItemTypeValue8 setupCC3 		{ &mtConfig.midi.ccOut[2],  1, 0, 127 	 };
-const strItemTypeValue8 setupCC4 		{ &mtConfig.midi.ccOut[3],  1, 0, 127 	 };
-const strItemTypeValue8 setupCC5 		{ &mtConfig.midi.ccOut[4],  1, 0, 127 	 };
-const strItemTypeValue8 setupCC6 		{ &mtConfig.midi.ccOut[5],  1, 0, 127 	 };
-const strItemTypeValue8 setupCC7 		{ &mtConfig.midi.ccOut[6],  1, 0, 127 	 };
-const strItemTypeValue8 setupCC8 		{ &mtConfig.midi.ccOut[7],  1, 0, 127 	 };
-const strItemTypeValue8 setupCC9 		{ &mtConfig.midi.ccOut[8],  1, 0, 127 	 };
-const strItemTypeValue8 setupCC10		{ &mtConfig.midi.ccOut[9],  1, 0, 127 	 };
+const strItemTypeValue8 setupCC1 		{ &mtConfig.midi.ccOut[0],  0, 127, 1, 0	 };
+const strItemTypeValue8 setupCC2		{ &mtConfig.midi.ccOut[1],  0, 127, 1, 0	 };
+const strItemTypeValue8 setupCC3 		{ &mtConfig.midi.ccOut[2],  0, 127, 1, 0	 };
+const strItemTypeValue8 setupCC4 		{ &mtConfig.midi.ccOut[3],  0, 127, 1, 0	 };
+const strItemTypeValue8 setupCC5 		{ &mtConfig.midi.ccOut[4],  0, 127, 1, 0	 };
+const strItemTypeValue8 setupCC6 		{ &mtConfig.midi.ccOut[5],  0, 127, 1, 0	 };
+const strItemTypeValue8 setupCC7 		{ &mtConfig.midi.ccOut[6],  0, 127, 1, 0	 };
+const strItemTypeValue8 setupCC8 		{ &mtConfig.midi.ccOut[7],  0, 127, 1, 0	 };
+const strItemTypeValue8 setupCC9 		{ &mtConfig.midi.ccOut[8],  0, 127, 1, 0	 };
+const strItemTypeValue8 setupCC10		{ &mtConfig.midi.ccOut[9],  0, 127, 1, 0	 };
 
-cMenuItem melCC1(menuCCOut, 		0, "CC 1", 	menuItemTypeValueU8, &setupCC1);
-cMenuItem melCC2(menuCCOut, 		1, "CC 2", 	menuItemTypeValueU8, &setupCC2);
-cMenuItem melCC3(menuCCOut, 		2, "CC 3", 	menuItemTypeValueU8, &setupCC3);
-cMenuItem melCC4(menuCCOut, 		3, "CC 4", 	menuItemTypeValueU8, &setupCC4);
-cMenuItem melCC5(menuCCOut, 		4, "CC 5", 	menuItemTypeValueU8, &setupCC5);
-cMenuItem melCC6(menuCCOut, 		5, "CC 6", 	menuItemTypeValueU8, &setupCC6);
-cMenuItem melCC7(menuCCOut, 		6, "CC 7", 	menuItemTypeValueU8, &setupCC7);
-cMenuItem melCC8(menuCCOut, 		7, "CC 8", 	menuItemTypeValueU8, &setupCC8);
-cMenuItem melCC9(menuCCOut, 		8, "CC 9", 	menuItemTypeValueU8, &setupCC9);
-cMenuItem melCC10(menuCCOut, 		9, "CC 10", menuItemTypeValueU8, &setupCC10);
+cMenuItem melCC1(menuCCOut, 		0, "CC A", 	menuItemTypeValueU8, &setupCC1);
+cMenuItem melCC2(menuCCOut, 		1, "CC B", 	menuItemTypeValueU8, &setupCC2);
+cMenuItem melCC3(menuCCOut, 		2, "CC C", 	menuItemTypeValueU8, &setupCC3);
+cMenuItem melCC4(menuCCOut, 		3, "CC D", 	menuItemTypeValueU8, &setupCC4);
+cMenuItem melCC5(menuCCOut, 		4, "CC E", 	menuItemTypeValueU8, &setupCC5);
+//cMenuItem melCC6(menuCCOut, 		5, "CC 6", 	menuItemTypeValueU8, &setupCC6);
+//cMenuItem melCC7(menuCCOut, 		6, "CC 7", 	menuItemTypeValueU8, &setupCC7);
+//cMenuItem melCC8(menuCCOut, 		7, "CC 8", 	menuItemTypeValueU8, &setupCC8);
+//cMenuItem melCC9(menuCCOut, 		8, "CC 9", 	menuItemTypeValueU8, &setupCC9);
+//cMenuItem melCC10(menuCCOut, 		9, "CC 10", menuItemTypeValueU8, &setupCC10);
 
 ///////////
 const strItemTypeActionButton updateFirmwareSetup 	{ firmwareUpgradeActivate, firmwareUpgradeDeactivate };
@@ -87,7 +87,7 @@ const strItemTypeLabel helpSetup 			{ (char*)"" };
 cMenuItem melOpenManual		(menuHelp, 		0, "Open Manual", 			menuTypeItemLabel, &helpSetup);
 
 ///////////
-const strItemTypeLabel creditsSetup 		{ (char*)"Ziejas ;)" };
+const strItemTypeLabel creditsSetup 		{ (char*)"" };
 
 cMenuItem melOpenCredits	(menuCredits, 	0, "Credits", 				menuTypeItemLabel, &creditsSetup);
 
@@ -125,6 +125,7 @@ void cConfigEditor::reloadSubmenu()
 	submenuList.length = menuBase.getSelChild()->getCount();
 	submenuList.params = menuBase.getSelChild()->getNames();
 	submenuList.values = menuBase.getSelChild()->getValues();
+	submenuList.valueEditActive = 0;
 
 	if(menuBase.getSelChild()->getSelChild()->type == menuTypeItem)
 		submenuList.valueEditActive = ((cMenuItem*)menuBase.getSelChild()->getSelChild())->getValueEditState();
@@ -143,6 +144,10 @@ void cConfigEditor::reloadSecondSubmenu()
 		secondSubmenuList.length = menuBase.getSelChild()->getSelChild()->getCount();
 		secondSubmenuList.params = menuBase.getSelChild()->getSelChild()->getNames();
 		secondSubmenuList.values = menuBase.getSelChild()->getSelChild()->getValues();
+		secondSubmenuList.valueEditActive = 0;
+
+		if(menuBase.getSelChild()->getSelChild()->getSelChild()->type == menuTypeItem)
+			secondSubmenuList.valueEditActive = ((cMenuItem*)menuBase.getSelChild()->getSelChild()->getSelChild())->getValueEditState();
 
 		display.setControlData(configSecondSubmenuListControl, &secondSubmenuList);
 		display.refreshControl(configSecondSubmenuListControl);
@@ -169,7 +174,8 @@ void cConfigEditor::loadConfigValuesList(strItemTypeListValues* itemSetup)
 //	display.setControlShow(configListControl);
 }
 
-void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value)
+//source = 0 - encoder, = 1 - klawisze pod ekranem
+void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value, uint8_t source)
 {
 	//sprawdzanie czy taka lista wogole dostepna
 	if(list == 2 && menuBase.getSelChild()->getSelChild()->type != menuTypeGroup) return;
@@ -184,7 +190,9 @@ void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value)
 
 	if(selectedMenuItem != nullptr && itemLevel == list && selectedMenuItem->getValueEditState())
 	{
-		chanegeItemValue((void**)(&selectedMenuItem), value);
+		if(source == 1) value = -value;
+		chanegeItemValue((void*)(selectedMenuItem), value);
+		refreshConfigMenu(0);
 		return;
 	}
 
@@ -196,7 +204,7 @@ void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value)
 		else if(menuBase.selectedItem + value > menuBase.childsCount-1) menuBase.selectedItem = menuBase.childsCount-1;
 		else menuBase.selectedItem += value;
 
-		if( start_position != menuBase.selectedItem) itemPositionChanged++;
+		if(start_position != menuBase.selectedItem) itemPositionChanged++;
 
 		display.setControlValue(configBasemenuListControl, menuBase.selectedItem);
 		display.refreshControl(configBasemenuListControl);
@@ -215,7 +223,7 @@ void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value)
 		display.setControlValue(configSubmenuListControl, menuBase.getSelChild()->selectedItem);
 		display.refreshControl(configSubmenuListControl);
 
-		if( start_position !=  menuBase.getSelChild()->selectedItem) itemPositionChanged++;
+		if(start_position !=  menuBase.getSelChild()->selectedItem) itemPositionChanged++;
 	}
 	else if(list == 2)
 	{
@@ -231,18 +239,18 @@ void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value)
 		display.setControlValue(configSecondSubmenuListControl, *item_selected);
 		display.refreshControl(configSecondSubmenuListControl);
 
-		if( start_position !=  menuBase.getSelChild()->getSelChild()->selectedItem) itemPositionChanged++;
+		if(start_position !=  menuBase.getSelChild()->getSelChild()->selectedItem) itemPositionChanged++;
 	}
 
 	if(itemPositionChanged)
 	{
 		// odswiezenie menu
-		//if(selectedMenuItem != nullptr) selectedMenuItem->resetValueEditState();
+		if(selectedMenuItem != nullptr) selectedMenuItem->resetValueEditState();
 		//refreshConfigMenu(list);// to do obadać temat
 		refreshConfigMenu(0);
 
 		//schowanie listy wyboru wartosci
-		hideConfigList();
+// 		hideConfigList();
 
 		// sprawdzanie czy zmieniono element menu z wczesniejszego typu actionbutton
 		if(action_funct != nullptr)
@@ -252,17 +260,22 @@ void cConfigEditor::changeMenuListPosition(uint8_t list, int16_t value)
 	}
 }
 
-void cConfigEditor::chanegeItemValue(void** selectedMenuItem, uint8_t value)
+void cConfigEditor::chanegeItemValue(void* selectedMenuItem, int16_t value)
 {
+	if(selectedMenuItem == nullptr) return;
+	if(((cMenuItem*)selectedMenuItem)->getItemType() != menuItemTypeValueU8) return; // narazie tylko dla U8
 
+	strItemTypeValue8* itemSetup = (strItemTypeValue8*)((cMenuItem*)selectedMenuItem)->getItemSetup();
+
+	if(*itemSetup->value + value < itemSetup->min) *itemSetup->value  = itemSetup->min;
+	else if(*itemSetup->value + value > itemSetup->max) *itemSetup->value = itemSetup->max;
+	else *itemSetup->value += value;
 }
 
 void cConfigEditor::refreshConfigMenu(uint8_t listChanged)
 {
-	switch(listChanged)
-	{
-	case 0:
-		// 1 lista (base)
+	if(listChanged <= 0)
+	{// 1 lista (base)
 		if(menuBase.getSelChild()->type == menuTypeItem)
 		{
 			//if(((cMenuItem*)menuBase.getSelChild())->valueEditState)
@@ -275,9 +288,9 @@ void cConfigEditor::refreshConfigMenu(uint8_t listChanged)
 			reloadSubmenu();
 			showSubmenu();
 		}
-	case 1:
-		// 2 lista (submenu)
-		if(menuBase.getSelChild()->getSelChild() == nullptr) return;
+	}
+	if(listChanged <= 1)
+	{// 2 lista (submenu)
 		if(menuBase.getSelChild()->getSelChild()->type == menuTypeItem)
 		{
 			cMenuItem* temp_child = (cMenuItem*)menuBase.getSelChild()->getSelChild();
@@ -290,19 +303,28 @@ void cConfigEditor::refreshConfigMenu(uint8_t listChanged)
 			reloadSecondSubmenu();
 			showSecondSubmenu();
 			changeLabelText(4, "");
+
+			//if(menuBase.getSelChild()->getSelChild()->getSelChild() == nullptr) return;
+			cMenuItem* item_child = (cMenuItem*)menuBase.getSelChild()->getSelChild()->getSelChild();
+			setLabelByMenuItemType(7, item_child->getItemType(), item_child->getValueEditState());
+			//setLabelByMenuItemType(7, menuItemTypeValueU8, 0);
 		}
-	case 2:
+	}
+	if(listChanged <= 2)
+	{
+
 		// 3 lista (second submenu)
-		if(menuBase.getSelChild()->getSelChild()->getSelChild() == nullptr) return;
-		if(menuBase.getSelChild()->getSelChild()->getSelChild()->type == menuTypeItem)
+		//if(menuBase.getSelChild()->getSelChild()->getSelChild() == nullptr) return;
+/*		if(item_child->type == menuTypeItem)
 		{
-			cMenuItem* temp_child = (cMenuItem*)menuBase.getSelChild()->getSelChild()->getSelChild();
-			setLabelByMenuItemType(7, temp_child->getItemType(), temp_child->getValueEditState());
+			//cMenuItem* temp_child = (cMenuItem*)menuBase.getSelChild()->getSelChild()->getSelChild();
+			setLabelByMenuItemType(7, ((cMenuItem*)item_child)->getItemType(), ((cMenuItem*)item_child)->getValueEditState());
 		}
-		else if(menuBase.getSelChild()->getSelChild()->getSelChild()->type == menuTypeGroup)
+		else if(item_child->type == menuTypeGroup)
 		{
 			changeLabelText(7,"");
 		}
+*/
 	}
 }
 
@@ -312,9 +334,12 @@ void cConfigEditor::setLabelByMenuItemType(uint8_t label, menu_item_t type, uint
 	switch(type)
 	{
 	case menuItemTypeValueU8:
+	{
 		if(variant == 0) 		changeLabelText(label, "Change");
 		else if(variant == 1) 	changeLabelText(label, "Confirm");
-		break;
+
+	}
+	break;
 	case menuTypeItemListValues:
 		changeLabelText(label,"Change");
 		break;

@@ -116,7 +116,7 @@ public:
 		{
 		case menuItemTypeValueU8:
 		{
-			sprintf(ptrValueText, "%d", *((strItemTypeValue8*)itemSetup)->value);
+			sprintf(ptrValueText, "%d", *((strItemTypeValue8*)itemSetup)->value+((strItemTypeValue8*)itemSetup)->dev);
 			return ptrValueText;
 		}
 		case menuTypeItemListValues:

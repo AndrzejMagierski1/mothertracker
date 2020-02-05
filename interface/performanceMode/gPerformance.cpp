@@ -423,8 +423,10 @@ void cPerformanceMode::showPerformaceValue(uint8_t place)
 			break;
 		}
 
+		// nie wyjatkowe (liczbowe) tu
 		default:
-			if (fx_value == 0) strcpy(&fxValuesText[place][slot][0], "---");
+			if(fx_value == 0) strcpy(&fxValuesText[place][slot][0], "---");
+			else if(fx_value > 0) sprintf(&fxValuesText[place][slot][0],"+%d", fx_value);
 			else sprintf(&fxValuesText[place][slot][0],"%d", fx_value);
 			break;
 		}

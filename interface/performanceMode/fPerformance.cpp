@@ -284,7 +284,7 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 		instrumentPlayer[track].endReverbSendPerformanceMode();
 		break;
 	}
-	case mtPerfSampleStart:
+	case mtPerfSamplePosition: //todo  "Jeden, by wszystkimi rządzić"
 	{
 		instrumentPlayer[track].endStartPointPerformanceMode();
 		break;
@@ -292,11 +292,6 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 	case mtPerfSampleEnd:
 	{
 		instrumentPlayer[track].endEndPointPerformanceMode();
-		break;
-	}
-	case mtPerfGranWtPos: // TODO: polaczyc z "endGranularPositionPerformanceMode"
-	{
-		instrumentPlayer[track].endWavetableWindowPerformanceMode();
 		break;
 	}
 	case mtPerfVolumeLfoSpeed: // TODO:
@@ -408,7 +403,7 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track, uint8_t p
 		instrumentPlayer[track].changeReverbSendPerformanceMode(FX_VALUE(place));
 		break;
 	}
-	case mtPerfSampleStart:
+	case mtPerfSamplePosition: //todo  "Jeden, by wszystkimi rządzić"
 	{
 		instrumentPlayer[track].changeStartPointPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_16BIT,MAX_16BIT));
 		break;
@@ -416,11 +411,6 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track, uint8_t p
 	case mtPerfSampleEnd:
 	{
 		instrumentPlayer[track].changeEndPointPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_16BIT,MAX_16BIT));
-		break;
-	}
-	case mtPerfGranWtPos: //TODO: polaczyc z "changeGranularPositionPerformanceMode"
-	{
-		instrumentPlayer[track].changeWavetableWindowPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_WAVETABLE_WINDOW,MAX_WAVETABLE_WINDOW));
 		break;
 	}
 	case mtPerfVolumeLfoSpeed: //TODO:
@@ -648,7 +638,7 @@ static  uint8_t functEncoder(int16_t value)
 				}
 				break;
 			}
-			case mtPerfSampleStart:
+			case mtPerfSamplePosition: //todo  "Jeden, by wszystkimi rządzić"
 			{
 				if(FX_VALUE(place) + mod_value > 100) FX_VALUE(place) = 100;
 				else if(FX_VALUE(place) + mod_value < -100) FX_VALUE(place) = -100;
@@ -669,18 +659,6 @@ static  uint8_t functEncoder(int16_t value)
 				for(uint8_t j = 0; j < 8; j++)
 				{
 					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeEndPointPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_16BIT,MAX_16BIT));
-				}
-				break;
-			}
-			case mtPerfGranWtPos:
-			{
-				if(FX_VALUE(place) + mod_value > 100) FX_VALUE(place) = 100;
-				else if(FX_VALUE(place) + mod_value < -100) FX_VALUE(place) = -100;
-				else FX_VALUE(place) += mod_value;
-
-				for(uint8_t j = 0; j < 8; j++) //TODO poloczyc z "changeGranularPositionPerformanceMode"
-				{
-					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeWavetableWindowPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_WAVETABLE_WINDOW,MAX_WAVETABLE_WINDOW));
 				}
 				break;
 			}

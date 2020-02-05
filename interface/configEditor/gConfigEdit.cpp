@@ -16,7 +16,7 @@ static uint16_t framesPlacesConfig[4][4]=
 static uint32_t popUpLabelColors[] =
 {
 	0xFFFFFF, // tekst
-	0x0a0a0a, // tło
+	0x222222, // tło
 	one_true_red, // ramka
 };
 
@@ -24,14 +24,6 @@ static uint32_t popUpLabelColors[] =
 void cConfigEditor::initDisplayControls()
 {
 	// inicjalizacja kontrolek
-
-	strControlProperties prop;
-	// ramka
-	prop.style = 0;
-	prop.value = 0;
-	prop.data  = &frameData;
-	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop);
-
 
 	strControlProperties prop9;
 	prop9.x = 400;
@@ -42,6 +34,13 @@ void cConfigEditor::initDisplayControls()
 	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
 	prop9.text = (char*)"";
 	if(popoutWindowLabel == nullptr)  popoutWindowLabel = display.createControl<cLabel>(&prop9);
+
+	strControlProperties prop3;
+	// ramka
+	prop3.style = 0;
+	prop3.value = 0;
+	prop3.data  = &frameData;
+	if(frameControl == nullptr)  frameControl = display.createControl<cFrame>(&prop3);
 
 
 	strControlProperties prop2;
@@ -80,6 +79,7 @@ void cConfigEditor::initDisplayControls()
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.value = 1;
+		prop2.data = nullptr;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
 		prop2.style = 	( controlStyleCenterX | controlStyleFont3);
 		prop2.x = (800/8)*i+(800/16);
@@ -104,7 +104,7 @@ void cConfigEditor::initDisplayControls()
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
 
-
+	strControlProperties prop;
 
 	prop.style = controlStyleBackground;
 	prop.x = (800/8)*0+1;
@@ -125,7 +125,6 @@ void cConfigEditor::initDisplayControls()
 	prop.h = 394;
 	if(configSecondSubmenuListControl == nullptr) configSecondSubmenuListControl = display.createControl<cParamValueList>(&prop);
 
-
 	prop.style = controlStyleBackground;
 	prop.x = (800/8)*5+1;
 	prop.y = 29;
@@ -133,8 +132,8 @@ void cConfigEditor::initDisplayControls()
 	prop.h = 394;
 	if(configListControl == nullptr)  configListControl = display.createControl<cList>(&prop);
 
-
 }
+
 
 
 void cConfigEditor::destroyDisplayControls()
@@ -176,14 +175,13 @@ void cConfigEditor::destroyDisplayControls()
 void cConfigEditor::showDefaultConfigScreen()
 {
 
-	for(uint8_t i = 0; i<7; i++)
+	for(uint8_t i = 0; i<8; i++)
 	{
 		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
-
-		display.setControlHide(barControl[i]);
-		display.refreshControl(barControl[i]);
+		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
 	}
 
 	display.refreshControl(titleBar);
@@ -192,18 +190,8 @@ void cConfigEditor::showDefaultConfigScreen()
 	display.refreshControl(titleLabel);
 
 
-	display.setControlText(label[0], "");
-	display.setControlText(label[1], "");
-	display.setControlText(label[2], "");
-	display.setControlText(label[3], "");
 	display.setControlText(label[4], "Change");
-	display.setControlText(label[5], "");
-	display.setControlText(label[6], "");
-	display.setControlText(label[7], "");
-
-
-	display.setControlHide(label[5]);
-	display.setControlHide(label[6]);
+	display.setControlText(label[7], "Change");
 
 
 	frameData.placesCount = 4;
@@ -283,12 +271,10 @@ void cConfigEditor::showConfigList5(uint8_t start, uint8_t length, char** listTe
 	display.setControlShow(configListControl);
 	display.refreshControl(configListControl);
 
-
 	//display.setControlText(label[7], "");
 	display.setControlShow(label[5]);
 	display.setControlShow(label[6]);
 	display.setControlShow(label[7]);
-
 
 	display.refreshControl(label[7]);
 }
@@ -299,9 +285,7 @@ void cConfigEditor::hideConfigList()
 
 	display.setControlHide(configListControl);
 
-
 	//display.setControlText(label[7], "");
-
 	display.setControlHide(label[5]);
 	display.setControlHide(label[6]);
 	display.setControlHide(label[7]);
@@ -342,12 +326,14 @@ void cConfigEditor::showSecondSubmenu()
 	secondSubmenuShown = 1;
 
 	display.setControlShow(configSecondSubmenuListControl);
+
 	display.setControlShow(label[5]);
 	display.setControlShow(label[6]);
 	display.setControlShow(label[7]);
 
+	display.refreshControl(label[5]);
+	display.refreshControl(label[6]);
 	display.refreshControl(label[7]);
-
 }
 
 void cConfigEditor::hideSecondSubmenu()
@@ -369,15 +355,18 @@ void cConfigEditor::hideSecondSubmenu()
 
 void cConfigEditor::showFirmwareUpdatePopout()
 {
+	updatePopupShown = 1;
+
 	for(uint8_t i = 0 ; i < 8; i++)
 	{
-		display.setControlText(label[i], "");
-		display.setControlShow(label[i]);
+		//display.setControlText(label[i], "");
+		if(i<6) display.setControlHide(label[i]);
+		else display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
 
-	display.setControlText(label[6], "Cancel");
-	display.setControlText(label[7], "Update");
+	display.setControlText(label[6], "Update");
+	display.setControlText(label[7], "Cancel");
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
@@ -406,45 +395,6 @@ void cConfigEditor::hideFirmwareUpdatePopout()
 
 	display.synchronizeRefresh();
 }
-
-void cConfigEditor::resizeLabelConfigDefault()
-{
-	for(int i=0;i<8;i++)
-	{
-		display.setControlText(label[i],"");
-		display.setControlValue(label[i], 0);
-		display.refreshControl(label[i]);
-	}
-}
-
-void cConfigEditor::resizeLabelConfigMaster()
-{
-	for(int i=0;i<8;i++)
-	{
-		display.setControlValue(label[i], 1);
-		display.refreshControl(label[i]);
-	}
-}
-
-void cConfigEditor::resizeFirmwareLabel(uint8_t control)// 0 - revert to normal, 1 - rescale to double label
-{
-	if(control)
-	{
-		//display.setControlPosition(bottomLabel[6],  (800/8)*0+(800/8),  465);
-		display.setControlPosition(label[0],  (800/8)*0+(800/8),  452);
-		//display.setControlSize(bottomLabel[6],  800/4-6,  30);
-		display.setControlSize(label[0],  800/4-6,  58);
-	}
-	else
-	{
-		display.setControlPosition(label[0],  (800/8)*0+(800/16),  452);
-		display.setControlSize(label[0],  800/8-6,  59);
-	}
-
-	display.refreshControl(label[0]);
-
-}
-
 
 
 
