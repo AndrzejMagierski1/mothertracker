@@ -1090,6 +1090,15 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 		}
 	}
 
+	char strBuff[40];
+
+	for (uint8_t i = 0; i < (foundProjectsCount-1)/2; i++)
+	{
+		strcpy(strBuff, locationFilesList[i]);
+		strcpy(locationFilesList[i],locationFilesList[foundProjectsCount-1-i]);
+		strcpy(locationFilesList[foundProjectsCount-i], strBuff);
+	}
+
 
 	locationFilesCount = foundProjectsCount;
 
