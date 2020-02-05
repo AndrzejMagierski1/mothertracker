@@ -39,7 +39,6 @@ void cInterface::openStartupProject()
 		if(!openFromWorkspaceFlag)
 		{
 			//strcpy(currentPatch,"Templates/New/project.mt");
-
 			fileManager.createEmptyTemplateProject((char*)"New");
 
 			fileManager.openProjectStart((char*)"New", projectTypeExample);
@@ -53,6 +52,7 @@ void cInterface::openStartupProject()
 uint8_t cInterface::detectProjectLoadState()
 {
 	uint8_t status = fileManager.getLoadingStatus();
+	uint8_t finalizeLoad = 0;
 
 	if(openFromWorkspaceFlag)
 	{
@@ -89,7 +89,21 @@ uint8_t cInterface::detectProjectLoadState()
 			fileManager.refreshProjectOpening();
 			return 0;
 		}
+		else
+		{
+			finalizeLoad = 1;
+		}
 	}
+
+
+
+	if(finalizeLoad == 1)
+	{
+
+
+	}
+
+
 //
 //	if(startupTimer < 1000) // minimalny czas start screenu
 //	{

@@ -76,12 +76,6 @@ void cConfigEditor::start(uint32_t options)
 
 	mode = options;
 	exitOnButtonRelease = 0;
-//--------------------------------------------------------------------
-
-	createConfigMenu();
-
-
-//--------------------------------------------------------------------
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -101,13 +95,19 @@ void cConfigEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
 
-
-
-
 	selectedPlace = 0;
 
 	showDefaultConfigScreen();
 	setConfigScreenFunct();
+
+
+	//--------------------------------------------------------------------
+
+	createConfigMenu();
+
+
+	//--------------------------------------------------------------------
+
 
 
 	activateLabelsBorder();
@@ -180,10 +180,20 @@ void cConfigEditor::setConfigScreenFunct()
 //##############################################################################################
 static uint8_t functActionButton(uint8_t button, uint8_t state)
 {
-	if(CE->configPopupActive)
+	if(CE->updatePopupShown)
 	{
+		if(state != buttonPress) return 1;
 
-		 return 1;
+		if(button == 6)
+		{
+			CE->updateFirmware();
+		}
+		else if(button == 7)
+		{
+			CE->cancelUpdateFirmware();
+		}
+
+		return 1;
 	}
 
 
@@ -219,7 +229,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 1)
 			{
-				CE->changeMenuListPosition(1, -1);
+				CE->changeMenuListPosition(1, -1, 1);
 			}
 			else
 			{
@@ -231,7 +241,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 		{
 			if(CE->selectedPlace == 1)
 			{
-				CE->changeMenuListPosition(1, 1);
+				CE->changeMenuListPosition(1, 1, 1);
 			}
 			else
 			{
@@ -256,7 +266,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 			if(CE->selectedPlace == 2 || CE->selectedPlace == 3)
 			{
 				if(CE->configListShown) CE->changeConfigListPosition(-1);
-				else CE->changeMenuListPosition(2, -1);
+				else CE->changeMenuListPosition(2, -1, 1);
 			}
 			else
 			{
@@ -270,7 +280,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 			if(CE->selectedPlace == 2 || CE->selectedPlace == 3)
 			{
 				if(CE->configListShown) CE->changeConfigListPosition(1);
-				else CE->changeMenuListPosition(2, 1);
+				else CE->changeMenuListPosition(2, 1, 1);
 			}
 			else
 			{
@@ -285,7 +295,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 			{
 				if(CE->selectedPlace == 2)
 				{
-					if(CE->flashingState) CE->updateFirmware();
+					if(CE->flashingState) CE->showFirmwareUpdatePopout();
 					else CE->configListConfirm(CE->selectedConfigListPosition);
 				}
 				else
@@ -295,7 +305,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 			}
 			else if(CE->selectedPlace == 3)
 			{
-				CE->executeSelectedListItem(1);
+				CE->executeSelectedListItem(2);
 			}
 			else
 			{
@@ -324,7 +334,7 @@ static uint8_t functActionButton(uint8_t button, uint8_t state)
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(CE->configPopupActive) return 1;
+	if(CE->updatePopupShown) return 1;
 	if(state != buttonPress) return 1;
 
 
@@ -354,7 +364,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 static  uint8_t functEncoder(int16_t value)
 {
-	if(CE->configPopupActive) return 1;
+	if(CE->updatePopupShown) return 1;
 
 	switch(CE->selectedPlace)
 	{
@@ -402,7 +412,7 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functLeft()
 {
-	if(CE->configPopupActive) return 1;
+	if(CE->updatePopupShown) return 1;
 
 
 	if(CE->selectedPlace == 3) 		CE->selectedPlace = 1;
@@ -417,7 +427,7 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
-	if(CE->configPopupActive) return 1;
+	if(CE->updatePopupShown) return 1;
 
 
 	if(CE->selectedPlace == 0 && CE->submenuShown)
@@ -445,7 +455,10 @@ static  uint8_t functRight()
 	}
 	else if(CE->selectedPlace == 3)
 	{
-
+		if(CE->secondSubmenuShown)
+		{
+			CE->executeSelectedListItem(2);
+		}
 	}
 
 	CE->activateLabelsBorder();
@@ -456,7 +469,7 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
-	if(CE->configPopupActive) return 1;
+	if(CE->updatePopupShown) return 1;
 
 
 	switch(CE->selectedPlace)
@@ -496,7 +509,7 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
-	if(CE->configPopupActive) return 1;
+	if(CE->updatePopupShown) return 1;
 
 	switch(CE->selectedPlace)
 	{
@@ -534,10 +547,9 @@ static  uint8_t functDown()
 
 
 
-
 static  uint8_t functPlayAction()
 {
-	if(CE->configPopupActive) return 1;
+	if(CE->updatePopupShown) return 1;
 
 	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
@@ -555,14 +567,14 @@ static  uint8_t functPlayAction()
 
 static  uint8_t functRecAction()
 {
-	if(CE->configPopupActive) return 1;
+	if(CE->updatePopupShown) return 1;
 
 	return 1;
 }
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(CE->configPopupActive) return 1;
+	if(CE->updatePopupShown) return 1;
 
 //	if(button != interfaceButtonPerformance) CE->turnOffPerformanceMode();
 //	if(button != interfaceButtonSampleRec) CE->turnOffRadio();
@@ -588,11 +600,9 @@ void firmwareUpgradeActivate()
 
 void firmwareUpgradeDeactivate()
 {
-
-
-	CE->changeLabelText(7, "");
 	CE->hideConfigList();
 
+	CE->changeLabelText(7, "");
 
 
 }
@@ -608,6 +618,16 @@ void cConfigEditor::changeConfigListPosition(int16_t value)
 	display.refreshControl(configListControl);
 
 
+}
+
+
+void cConfigEditor::cancelUpdateFirmware()
+{
+	firmwareUpgradeDeactivate();
+
+	CE->updatePopupShown = 0;
+
+	hideFlashingWarning();
 }
 
 
@@ -700,25 +720,27 @@ static uint8_t prepareAndFlash()
 	pinMode(BOOTLOADER_PIN,OUTPUT);
 	digitalWrite(BOOTLOADER_PIN,LOW);
 
-	while(1);
+	while(1)
+	{
+		delay(1);
+	}
 }
 
 void cConfigEditor::showFlashingWarning()
 {
 	if(firmwareFoundNum)
 	{
-		FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-
-		FM->setButtonObj(interfaceButton7, buttonPress, prepareAndFlash);
-		FM->setButtonObj(interfaceButton6, buttonPress, hideFlashingWarning);
-		configPopupActive=1;
+		//FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+		//FM->setButtonObj(interfaceButton7, buttonPress, prepareAndFlash);
+		//FM->setButtonObj(interfaceButton6, buttonPress, hideFlashingWarning);
+		updatePopupShown=1;
 		showFirmwareUpdatePopout();
 	}
 }
 
 static uint8_t hideFlashingWarning()
 {
-	CE->configPopupActive = 0;
+	CE->updatePopupShown = 0;
 	CE->start(0);
 
 	return 1;

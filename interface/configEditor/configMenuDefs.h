@@ -27,9 +27,10 @@ typedef enum enMenuItemType
 struct strItemTypeValue8
 {
 	uint8_t* value;
-	uint8_t interval;
 	uint8_t min;
 	uint8_t max;
+	uint8_t interval; // narazie nie uzywane
+	uint8_t dev;
 };
 
 struct strItemTypeListValues
@@ -38,7 +39,6 @@ struct strItemTypeListValues
 	uint8_t min;
 	uint8_t max;
 	uint8_t interval; // narazie nie uzywane
-
 };
 
 struct strItemTypeListText

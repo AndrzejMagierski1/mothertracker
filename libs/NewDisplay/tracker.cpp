@@ -44,17 +44,32 @@ static uint32_t defaultColors[] =
 //uint8_t twoParamsOffsetFirst[4] =	{	9,9,9,9,		};
 //uint8_t twoParamsOffsetSecond[4] =	{	50,50,50,50,	};
 
-uint8_t fourParamsOffset[4] =		{	18,  60,  92, 144,	};
-uint8_t twoParamsOffsetFirst[4] =	{	 9,   9,   6,   0,	};
-uint8_t twoParamsOffsetSecond[4] =	{	 0,  65,  55,  55,	};
+uint8_t fourParamsOffset[4] =		{	10,  52,  84, 136,	};
+uint8_t twoParamsOffsetFirst[4] =	{	 5,   5,   2,   0,	};
+uint8_t twoParamsOffsetSecond[4] =	{	 0,  61,  51,  51,	};
 uint8_t oneParamsOffset[4] =		{	35,  40,  30,  30,	};
 
+
+const uint8_t fourParamsSelOffset[4] =	{  2,   44,  76, 128,	};
+const uint8_t fourParamsSelWidth[4] =	{  40,  30,  50,  50,	};
+
+const uint8_t twoParamsSel1Offset[4] =	{   1,   1,   1,   0,	};
+const uint8_t twoParamsSel1Width[4] =	{  40,  30,  47,   0,	};
+
+const uint8_t twoParamsSel2Offset[4] =	{	0,  51,  44,  44,	};
+const uint8_t twoParamsSel2Width[4] =	{	0,  30,  45,  45,	};
+
+const uint8_t oneParamsSelOffset[4] =	{  27,  32,  22,  22,	};
+const uint8_t oneParamsSelWidth[4] =	{  40,  30,  50,  50,	};
+
+
+
 #else
+
 uint8_t fourParamsOffset[4] =		{	18,  60,  92, 144,	};
 uint8_t twoParamsOffsetFirst[4] =	{	 9,   9,   6,   0,	};
 uint8_t twoParamsOffsetSecond[4] =	{	 0,  65,  55,  55,	};
 uint8_t oneParamsOffset[4] =		{	35,  40,  30,  30,	};
-#endif
 
 
 const uint8_t fourParamsSelOffset[4] =	{  10,  52,  84, 136,	};
@@ -71,6 +86,12 @@ const uint8_t oneParamsSelWidth[4] =	{  40,  30,  50,  50,	};
 
 
 const uint8_t paramToStateOffset[4] =	{  1,  2,  4,  8,	};
+
+#endif
+
+
+const uint8_t paramToStateOffset[4] =	{  1,  2,  4,  8,	};
+
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
@@ -796,6 +817,8 @@ void cTracker::rowNumbers()
 	API_BITMAP_HANDLE(fonts[0].handle);
 	API_BEGIN(BITMAPS);
 
+	uint8_t showRigt = !((tracks->popupMode & 4) | (tracks->popupMode & 2));
+
 	for(uint16_t i = 0; i < rowCount; i++)
 	{
 		if(row < 1 || row > tracks->patternLength)
@@ -804,7 +827,7 @@ void cTracker::rowNumbers()
 			continue;
 		}
 		Number2Bitmaps(1, (i*28)+15, 8, 18, row);
-		if(columnsCount == 4) Number2Bitmaps((799-25), posY+(i*28)+15, 8, 18, row); // nie wyswietla prawego jesli popup go zaslania
+		if(showRigt) Number2Bitmaps((799-25), posY+(i*28)+15, 8, 18, row); // nie wyswietla prawego jesli popup go zaslania
 		row++;
 	}
 

@@ -37,7 +37,6 @@ public:
 	cConfigEditor()
 	{
 		label[8] = {nullptr};
-		barControl[8] = {nullptr};
 		editorInstrument = nullptr;
 		frameControl = nullptr;
 		popoutWindowLabel = nullptr;
@@ -65,9 +64,9 @@ public:
 
 
 
-	void changeMenuListPosition(uint8_t list, int16_t value);
+	void changeMenuListPosition(uint8_t list, int16_t value, uint8_t source = 0);
 	void executeSelectedListItem(uint8_t list);
-	void chanegeItemValue(void** selectedMenuItem, uint8_t value);
+	void chanegeItemValue(void* selectedMenuItem, int16_t value);
 
 	void configListConfirm(uint8_t list_pos);
 
@@ -115,8 +114,8 @@ public:
 	char firmwareNamesList[firmware_list_max][firmware_name_length];
 	void listAllFirmwares();
 	void showFlashingWarning();
-	void updateFirmware();;
-
+	void updateFirmware();
+	void cancelUpdateFirmware();
 
 	void showFirmwareUpdatePopout();
 	void hideFirmwareUpdatePopout();
@@ -132,7 +131,6 @@ public:
 	strFrameData frameData;
 
 	hControl label[8];
-	hControl barControl[8];
 
 	hControl configBasemenuListControl;
 	hControl configSubmenuListControl;
@@ -173,6 +171,8 @@ public:
 
 	uint8_t configListShown = 0;
 	uint8_t selectedConfigListPosition = 0;
+
+	uint8_t updatePopupShown = 0;
 
 
 	uint8_t exitOnButtonRelease = 0;
