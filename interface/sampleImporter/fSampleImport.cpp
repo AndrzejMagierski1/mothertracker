@@ -1031,7 +1031,31 @@ void cSampleImporter::listOnlyFolderNames(char* path)
 		}
 	}
 
-	if(foundFolderCount == 0 && dirLevel !=0) // /.. na poczatku jak nie znajdzie zadnego pliku
+	bool notSorted = 1;
+	char strBuff[40];
+	while (notSorted)
+	{
+		notSorted = 0;
+		for (uint8_t a = 0; a < foundFolderCount - 1; a++)
+		{
+
+			if (strcasecmp(locationExplorerList[a], locationExplorerList[a + 1]) > 0)
+			{
+
+				strcpy(strBuff,
+						locationExplorerList[a]);
+
+				strcpy(locationExplorerList[a],
+						locationExplorerList[a + 1]);
+
+				strcpy(locationExplorerList[a + 1],
+						strBuff);
+				notSorted = 1;
+			}
+		}
+	}
+
+	if (foundFolderCount == 0 && dirLevel != 0) // /.. na poczatku jak nie znajdzie zadnego pliku
 	{
 		foundFolderCount =1;
 	}
@@ -1147,6 +1171,30 @@ void cSampleImporter::listOnlyWavFromActualPath(uint8_t startPoint)
 
 			afterFolderNum++;
 			validFiles++;
+		}
+	}
+
+	bool notSorted = 1;
+	char strBuff[40];
+	while (notSorted)
+	{
+		notSorted = 0;
+		for (uint8_t a = startPoint; a < startPoint + filesFound - 1; a++)
+		{
+
+			if (strcasecmp(locationExplorerList[a], locationExplorerList[a + 1]) > 0)
+			{
+
+				strcpy(strBuff,
+						locationExplorerList[a]);
+
+				strcpy(locationExplorerList[a],
+						locationExplorerList[a + 1]);
+
+				strcpy(locationExplorerList[a + 1],
+						strBuff);
+				notSorted = 1;
+			}
 		}
 	}
 
