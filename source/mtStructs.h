@@ -43,7 +43,7 @@ const uint8_t INSTRUMENTS_MAX =        			47;
 
 const uint8_t INSTRUMENTS_COUNT =        		48;
 //const uint8_t SAMPLES_COUNT =            		32;
-const uint8_t PATTERN_LENGTH_MAX 	=			255;
+//const uint8_t PATTERN_LENGTH_MAX 	=			255;
 const float   GLOBAL_TEMPO_MAX 		=			1000;
 
 const uint8_t PATTERN_INDEX_MIN 	=			1;

@@ -101,6 +101,7 @@ void receiveStop();
 void midiForceStep();
 
 void sendCC(uint8_t, uint8_t);
+void sendProgramChange(uint8_t value);
 void sendMidiNoteOn(uint8_t note, uint8_t velo, uint8_t channel);
 void sendMidiNoteOff(uint8_t note, uint8_t velo, uint8_t channel);
 

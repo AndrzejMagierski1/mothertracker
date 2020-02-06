@@ -399,6 +399,10 @@ void Sequencer::play_microStep(uint8_t row)
 				sendCC(4, _fx.value);
 				break;
 
+			case fx.FX_TYPE_PROGRAM_CHANGE:
+				sendProgramChange(_fx.value);
+				break;
+
 			case fx.FX_TYPE_TEMPO:
 				player.performance.tempo = float(_fx.value * 2);
 				break;
