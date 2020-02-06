@@ -219,27 +219,45 @@ public:
 		uint8_t volume;
 		uint32_t wavetablePosition;
 		uint16_t granularPosition;
+
+		uint8_t lfoAmpEnable;
+		uint8_t lfoAmpRate;
+
+		uint8_t lfoCutoffEnable;
+		uint8_t lfoCutoffRate;
+
+		uint8_t lfoWavetablePositionEnable;
+		uint8_t lfoWavetablePositionRate;
+
+		uint8_t lfoGranularPositionEnable;
+		uint8_t lfoGranularPositionRate;
+
+		uint8_t lfoPanningEnable;
+		uint8_t lfoPanningRate;
+
 	} currentPerformanceValues;
 
 
 	struct strPerformanceMod
 	{
-		  int8_t 	volume;
-		  int8_t 	panning;
-		  int8_t 	tune;
-		  int8_t 	reverbSend;
-		  int8_t 	cutoff;
-		  int16_t 	wavetablePosition;
-		  int16_t   granularPosition;
-		  uint8_t 	filterType;
-		  int32_t 	startPoint;
-		  int32_t	endPoint;
+		int8_t 	volume;
+		int8_t 	panning;
+		int8_t 	tune;
+		int8_t 	reverbSend;
+		int8_t 	cutoff;
+		int16_t wavetablePosition;
+		int16_t granularPosition;
+		uint8_t filterType;
+		int32_t startPoint;
+		int32_t	endPoint;
+		int8_t  lfoAmpRate;
+		int8_t  lfoCutoffRate;
+		int8_t  lfoPositionRate;
+		int8_t  lfoPanningRate;
 	} performanceMod;
 
 	struct strInstrumentBasedModValue
 	{
-		int8_t fineTune;
-		uint8_t volume;
 		float cutoff;
 		uint32_t wtPos;
 		uint16_t granPos;
@@ -263,6 +281,11 @@ public:
 	void changeSamplePlaybackPerformanceMode(uint8_t value);
 	void changeWavetableWindowPerformanceMode(int16_t value);
 	void changeGranularPositionPerformanceMode(int16_t value);
+	void changeAmpLfoRatePerformanceMode(int8_t value);
+	void changeCutoffLfoRatePerformanceMode(int8_t value);
+	void changePositionLfoRatePerformanceMode(int8_t value);
+	void changePanningLfoRatePerformanceMode(int8_t value);
+
 
 //*****************************END
 
@@ -278,6 +301,11 @@ public:
 	void endEndPointPerformanceMode();
 	void endWavetableWindowPerformanceMode();
 	void endGranularPositionPerformanceMode();
+	void endAmpLfoRatePerformanceMode();
+	void endCutoffLfoRatePerformanceMode();
+	void endPositionLfoRatePerformanceMode();
+	void endPanningLfoRatePerformanceMode();
+
 
 	void printLog(SdFile * log);
 	void setPassEnvelope(uint8_t state);

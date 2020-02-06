@@ -25,7 +25,7 @@
  */
 
 #include "effect_envelope.h"
-
+#include "Audio.h"
 #define STATE_IDLE	0
 #define STATE_DELAY	1
 #define STATE_ATTACK	2
@@ -38,6 +38,8 @@
 
 void AudioEffectEnvelope::delay(float milliseconds)
 {
+	__disable_irq();
+	AudioNoInterrupts();
 	uint16_t lastDelayCount = delay_count;
 	delay_count = milliseconds2count(milliseconds);
 	if(state == STATE_DELAY)
@@ -48,12 +50,19 @@ void AudioEffectEnvelope::delay(float milliseconds)
 		else if ((count + dif) > 65535) count = 65535;
 		else count += dif;
 	}
+	AudioInterrupts();
+	__enable_irq();
 }
 void  AudioEffectEnvelope::attack(float milliseconds)
 {
+	__disable_irq();
+	AudioNoInterrupts();
+
 	uint16_t lastAttackCount = attack_count;
+
 	attack_count = milliseconds2count(milliseconds);
 	if (attack_count == 0) attack_count = 1;
+
 	if(state == STATE_ATTACK)
 	{
 		int32_t dif = attack_count - lastAttackCount;
@@ -62,11 +71,20 @@ void  AudioEffectEnvelope::attack(float milliseconds)
 		else if ((count + dif) > 65535) count = 65535;
 		else count += dif;
 
-		inc_hires = count ?  0x40000000 / count : 0;
+		int32_t y = 0x40000000 - mult_hires;
+		int32_t x = count;
+
+		if(x < 0) x = 0;
+
+		inc_hires = x ?  y /x : 0;
 	}
+	AudioInterrupts();
+	__enable_irq();
 }
 void  AudioEffectEnvelope::hold(float milliseconds)
 {
+	__disable_irq();
+	AudioNoInterrupts();
 	uint16_t lastHoldCount = hold_count;
 	hold_count = milliseconds2count(milliseconds);
 	if(state == STATE_HOLD)
@@ -77,9 +95,13 @@ void  AudioEffectEnvelope::hold(float milliseconds)
 		else if ((count + dif) > 65535) count = 65535;
 		else count += dif;
 	}
+	AudioInterrupts();
+	__enable_irq();
 }
 void  AudioEffectEnvelope::decay(float milliseconds)
 {
+	__disable_irq();
+	AudioNoInterrupts();
 	uint16_t lastDecayCount = decay_count;
 	decay_count = milliseconds2count(milliseconds);
 	if (decay_count == 0) decay_count = 1;
@@ -91,18 +113,26 @@ void  AudioEffectEnvelope::decay(float milliseconds)
 		else if ((count + dif) > 65535) count = 65535;
 		else count += dif;
 
-		inc_hires = count ? (sustain_mult - 0x40000000) / (int32_t)count : 0 ;
+		inc_hires = count ? (sustain_mult - mult_hires) / (int32_t)count : 0 ;
 	}
+	AudioInterrupts();
+	__enable_irq();
 }
 void  AudioEffectEnvelope::sustain(float level)
 {
+	__disable_irq();
+	AudioNoInterrupts();
 	if (level < 0.0) level = 0;
 	else if (level > 1.0) level = 1.0;
 	sustain_mult = level * 1073741824.0;
 	if(state == STATE_SUSTAIN) mult_hires = sustain_mult;
+	AudioInterrupts();
+	__enable_irq();
 }
 void  AudioEffectEnvelope::release(float milliseconds)
 {
+	__disable_irq();
+	AudioNoInterrupts();
 	uint16_t lastReleaseCount = release_count;
 	release_count = milliseconds2count(milliseconds);
 	if (release_count == 0) release_count = 1;
@@ -116,24 +146,32 @@ void  AudioEffectEnvelope::release(float milliseconds)
 
 		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
 	}
+	AudioInterrupts();
+	__enable_irq();
 }
 
 void AudioEffectEnvelope::noteOn(void)
 {
 	__disable_irq();
 	pressedFlag = 1;
-	if (state == STATE_IDLE || state == STATE_DELAY || release_forced_count == 0) {
+	if (state == STATE_IDLE || state == STATE_DELAY || release_forced_count == 0)
+	{
 		mult_hires = 0;
 		count = delay_count;
-		if (count > 0) {
+		if (count > 0)
+		{
 			state = STATE_DELAY;
 			inc_hires = 0;
-		} else {
+		}
+		else
+		{
 			state = STATE_ATTACK;
 			count = attack_count;
 			inc_hires = 0x40000000 / (int32_t)count;
 		}
-	} else if (state != STATE_FORCED) {
+	}
+	else if (state != STATE_FORCED)
+	{
 		state = STATE_FORCED;
 		count = release_forced_count;
 		inc_hires = (-mult_hires) / (int32_t)count;
@@ -347,6 +385,17 @@ void AudioEffectEnvelope::update(void)
 		// adjust the long-term gain using 30 bit resolution (fix #102)
 		// https://github.com/PaulStoffregen/Audio/issues/102
 		mult_hires += inc_hires;
+		if(mult_hires < 0 )
+		{
+			mult_hires = 0;
+			Serial.println(state); Serial.println(" MH<0");
+		}
+		else if(mult_hires > 0x40000000)
+		{
+			mult_hires = 0;
+			Serial.print(state); Serial.println(" MH>MAX");
+
+		}
 		count--;
 	}
 	transmit(block);
