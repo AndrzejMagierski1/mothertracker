@@ -293,6 +293,7 @@ void cConfigEditor::refreshConfigMenu(uint8_t listChanged)
 	{// 2 lista (submenu)
 		if(menuBase.getSelChild()->getSelChild()->type == menuTypeItem)
 		{
+			hideConfigList();
 			cMenuItem* temp_child = (cMenuItem*)menuBase.getSelChild()->getSelChild();
 			setLabelByMenuItemType(4, temp_child->getItemType(), temp_child->getValueEditState());
 			hideSecondSubmenu();
@@ -300,10 +301,10 @@ void cConfigEditor::refreshConfigMenu(uint8_t listChanged)
 		}
 		else if(menuBase.getSelChild()->getSelChild()->type == menuTypeGroup)
 		{
+			hideConfigList();
 			reloadSecondSubmenu();
 			showSecondSubmenu();
 			changeLabelText(4, "");
-
 			//if(menuBase.getSelChild()->getSelChild()->getSelChild() == nullptr) return;
 			cMenuItem* item_child = (cMenuItem*)menuBase.getSelChild()->getSelChild()->getSelChild();
 			setLabelByMenuItemType(7, item_child->getItemType(), item_child->getValueEditState());
@@ -476,6 +477,7 @@ void cMenuGroup::execute()
 	{
 		case menuItemTypeValueU8:
 			selected_child->valueEditState = !selected_child->valueEditState;
+			if(!selected_child->valueEditState) configEditor.saveConfigToEeprom();
 			configEditor.refreshConfigMenu(0);
 			break;
 		case menuTypeItemListValues:
