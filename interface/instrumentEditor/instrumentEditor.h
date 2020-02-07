@@ -37,7 +37,7 @@ const char envelopesLabels[5][20]=
 {
 		"Volume",
 		"Panning",
-		"Filter",
+		"Cutoff",
 		"Wavetable Position",
 		"Granular Position"
 
