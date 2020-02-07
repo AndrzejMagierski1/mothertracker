@@ -287,14 +287,7 @@ public:
 		int8_t  lfoPanningRate;
 	} performanceMod;
 
-	struct strInstrumentBasedModValue
-	{
-		float cutoff;
-		uint32_t wtPos;
-		uint16_t granPos;
-		int8_t panning;
-	} instrumentBasedMod;
-
+	float currentEnvelopeModification[envMax];
 
 	uint8_t trackControlParameter[(int)controlType::length][(int)parameterList::length];
 //**********************************************************************************************************************************

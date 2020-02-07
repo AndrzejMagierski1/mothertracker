@@ -395,7 +395,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 	/*================================================ENVELOPE FILTER=======================================*/
 	if(mtProject.instrument[instr_idx].filterEnable == filterOn)
 	{
-		instrumentBasedMod.cutoff = mtProject.instrument[instr_idx].cutOff;
+		currentEnvelopeModification[envFilter] = 0;
 		if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable)
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop)
@@ -409,16 +409,12 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 			}
 
 		}
-//		if(mtProject.instrument[currentInstrument_idx].lfo[lfoF].enable)
-//		{
-//			lfoFilterPtr->init(&mtProject.instrument[instr_idx].lfo[lfoF]);
-//		}
 		filterPtr->resonance(mtProject.instrument[instr_idx].resonance + RESONANCE_OFFSET);
 	}
 
 	if(mtProject.instrument[instr_idx].sample.type == mtSampleTypeWavetable)
 	{
-		instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+		currentEnvelopeModification[envWtPos] = 0;
 
 		if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable)
 		{
@@ -436,7 +432,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 	if((mtProject.instrument[instr_idx].sample.type == mtSampleTypeWaveFile) && (mtProject.instrument[instr_idx].playMode == playModeGranular))
 	{
-		instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+		currentEnvelopeModification[envGranPos] = 0;
 		if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable)
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
@@ -452,6 +448,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 	}
 
+	currentEnvelopeModification[envPan] = 0;
 	if(mtProject.instrument[currentInstrument_idx].envelope[envPan].enable)
 	{
 		if(mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
@@ -698,7 +695,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	/*================================================ENVELOPE FILTER=======================================*/
 	if(mtProject.instrument[instr_idx].filterEnable == filterOn)
 	{
-		instrumentBasedMod.cutoff = mtProject.instrument[instr_idx].cutOff;
+		currentEnvelopeModification[envFilter] = 0;
 
 		if((!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoCutoff]) &&
 		(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoCutoff]) &&
@@ -723,7 +720,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	if(mtProject.instrument[instr_idx].sample.type == mtSampleTypeWavetable)
 	{
-		instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+		currentEnvelopeModification[envWtPos] = 0;
 
 		if((!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoWavetablePosition]) &&
 		(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoWavetablePosition]) &&
@@ -756,7 +753,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 
 	if((mtProject.instrument[instr_idx].sample.type == mtSampleTypeWaveFile) && (mtProject.instrument[instr_idx].playMode == playModeGranular))
 	{
-		instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+		currentEnvelopeModification[envGranPos] = 0;
 
 		if((!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoGranularPosition]) &&
 		(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoGranularPosition]) &&
@@ -776,6 +773,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 			}
 		}
 	}
+
+	currentEnvelopeModification[envPan] = 0;
 
 	if(mtProject.instrument[currentInstrument_idx].envelope[envPan].enable)
 	{
@@ -1077,28 +1076,28 @@ void playerEngine::noteOff(int8_t option)
 			 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoCutoff])
 			 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoCutoff]))
 			{
-				instrumentBasedMod.cutoff = mtProject.instrument[currentInstrument_idx].cutOff;
+				currentEnvelopeModification[envFilter] = 0;
 			}
 			if((mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
 			 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoWavetablePosition])
 			 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoWavetablePosition])
 			 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoWavetablePosition]))
 			{
-				instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+				currentEnvelopeModification[envWtPos] = 0;
 			}
 			if((mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
 			 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoGranularPosition])
 			 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoGranularPosition])
 			 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoGranularPosition]))
 			{
-				instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+				currentEnvelopeModification[envGranPos] = 0;
 			}
 			if((mtProject.instrument[currentInstrument_idx].envelope[envPan].enable && mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
 			 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoPanning])
 			 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning])
 			 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoPanning]))
 			{
-				instrumentBasedMod.panning = mtProject.instrument[currentInstrument_idx].panning;
+				currentEnvelopeModification[envPan] = 0;
 			}
 		}
 		else
@@ -1111,32 +1110,31 @@ void playerEngine::noteOff(int8_t option)
 				 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoCutoff])
 				 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoCutoff]))
 				{
-					instrumentBasedMod.cutoff = mtProject.instrument[currentInstrument_idx].cutOff;
+					currentEnvelopeModification[envFilter] = 0;
 				}
 				if((mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
 				 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoWavetablePosition])
 				 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoWavetablePosition])
 				 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoWavetablePosition]))
 				{
-					instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+					currentEnvelopeModification[envWtPos] = 0;
 				}
 				if((mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
 				 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoGranularPosition])
 				 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoGranularPosition])
 				 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoGranularPosition]))
 				{
-					instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+					currentEnvelopeModification[envGranPos] = 0;
 				}
 				if((mtProject.instrument[currentInstrument_idx].envelope[envPan].enable && mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
 				 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoPanning])
 				 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning])
 				 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoPanning]))
 				{
-					instrumentBasedMod.panning = mtProject.instrument[currentInstrument_idx].panning;
+					currentEnvelopeModification[envPan] = 0;
 				}
 			}
 		}
-
 		AudioInterrupts();
 		__enable_irq();
 		break;
@@ -1853,7 +1851,17 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				}
 				else
 				{
-					filterPtr->setCutoff(instrumentBasedMod.cutoff);
+					float localCutoff = mtProject.instrument[currentInstrument_idx].cutOff;
+
+					if(currentEnvelopeModification[envFilter] != 0.0f)
+					{
+						if(localCutoff + currentEnvelopeModification[envFilter] > 1.0f) localCutoff = 1.0;
+						else if(localCutoff + currentEnvelopeModification[envFilter] < 0.0f)  localCutoff = 0.0;
+						else localCutoff += currentEnvelopeModification[envFilter];
+					}
+
+
+					filterPtr->setCutoff(localCutoff);
 					if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
 					else filterConnect();
 				}
@@ -2284,7 +2292,14 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 					else
 					{
 						playMemPtr->clearWavetableWindowFlag();
-						playMemPtr->setWavetableWindow(instrumentBasedMod.wtPos);
+						uint32_t localWtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+
+						int32_t localWtMod = currentEnvelopeModification[envWtPos] * mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber;
+
+						if(localWtPos + localWtMod > mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1 ) localWtPos = mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1;
+						else if(localWtPos + localWtMod < 0 ) localWtPos = 0;
+						else localWtPos += localWtMod;
+						playMemPtr->setWavetableWindow(localWtPos);
 					}
 				}
 			}
@@ -2315,7 +2330,14 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 					else
 					{
 						playMemPtr->clearGranularPosForceFlag();
-						playMemPtr->setGranularPosition(instrumentBasedMod.granPos);
+						uint32_t localGranPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+
+						int32_t localGranMod = currentEnvelopeModification[envGranPos] * MAX_16BIT;
+
+						if(localGranPos + localGranMod > MAX_16BIT ) localGranPos = MAX_16BIT;
+						else if(localGranPos + localGranMod < 0 ) localGranPos = 0;
+						else localGranPos += localGranMod;
+						playMemPtr->setGranularPosition(localGranPos);
 					}
 				}
 			}
@@ -2884,11 +2906,6 @@ void playerEngine::modSeqPoints(uint32_t sp, uint32_t ep)
 
 void playerEngine:: update()
 {
-	float filterMod=0;
-	float wtPositionMod = 0;
-	float granPositionMod = 0;
-	float panningMod = 0;
-
 	currentPlayState = playMemPtr->isPlaying();
 	if(currentPlayState == 0 && lastPlayState == 1)
 	{
@@ -2908,7 +2925,7 @@ void playerEngine:: update()
 		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoCutoff]) ||
 		  (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoCutoff]))
 		{
-			instrumentBasedMod.cutoff = mtProject.instrument[currentInstrument_idx].cutOff;
+			currentEnvelopeModification[envFilter] = 0;
 			envelopePtr[envFilter]->stop();
 		}
 		if((mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)||
@@ -2916,7 +2933,7 @@ void playerEngine:: update()
 		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoWavetablePosition]) ||
 		  (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoWavetablePosition]))
 		{
-			instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+			currentEnvelopeModification[envWtPos] = 0;
 			envelopePtr[envWtPos]->stop();
 		}
 		if((mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)||
@@ -2924,7 +2941,7 @@ void playerEngine:: update()
 		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoGranularPosition]) ||
 		  (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoGranularPosition]))
 		{
-			instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+			currentEnvelopeModification[envGranPos] = 0;
 			envelopePtr[envGranPos]->stop();
 		}
 		if((mtProject.instrument[currentInstrument_idx].envelope[envPan].enable && mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)||
@@ -2932,7 +2949,7 @@ void playerEngine:: update()
 		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning]) ||
 		  (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoPanning]))
 		{
-			instrumentBasedMod.panning = mtProject.instrument[currentInstrument_idx].panning;
+			currentEnvelopeModification[envPan] = 0;
 			envelopePtr[envPan]->stop();
 		}
 	}
@@ -2948,12 +2965,8 @@ void playerEngine:: update()
 		{
 			if((envelopePtr[envFilter]->isKeyPressed() == 1) || (envelopePtr[envFilter]->getPhase() != 0))
 			{
-				filterMod =  envelopePtr[envFilter]->getOut() ;
+				currentEnvelopeModification[envFilter] =  envelopePtr[envFilter]->getOut();
 				statusBytes |= CUTOFF_MASK;
-
-				if(mtProject.instrument[currentInstrument_idx].cutOff + filterMod < 0.0f) instrumentBasedMod.cutoff = 0.0f;
-				else if(mtProject.instrument[currentInstrument_idx].cutOff + filterMod > 1.0f) instrumentBasedMod.cutoff = 1.0f;
-				else instrumentBasedMod.cutoff = mtProject.instrument[currentInstrument_idx].cutOff + filterMod;
 			}
 		}
 	}
@@ -2967,14 +2980,8 @@ void playerEngine:: update()
 		{
 				if((envelopePtr[envWtPos]->isKeyPressed() == 1) || (envelopePtr[envWtPos]->getPhase() != 0))
 				{
-					wtPositionMod = envelopePtr[envWtPos]->getOut();
+					currentEnvelopeModification[envWtPos] = envelopePtr[envWtPos]->getOut();
 					statusBytes |= WT_POS_SEND_MASK;
-
-					int32_t iwtPosisionMod = wtPositionMod * mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber;
-					if(mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow + iwtPosisionMod < 0) instrumentBasedMod.wtPos = 0;
-					else if(mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow + iwtPosisionMod >= mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber)
-						instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1;
-					else instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow + iwtPosisionMod;
 				}
 		}
 	}
@@ -2988,13 +2995,8 @@ void playerEngine:: update()
 		{
 			if((envelopePtr[envGranPos]->isKeyPressed() == 1) || (envelopePtr[envGranPos]->getPhase() != 0))
 			{
-				granPositionMod = envelopePtr[envGranPos]->getOut();
+				currentEnvelopeModification[envGranPos] = envelopePtr[envGranPos]->getOut();
 				statusBytes |= GRANULAR_POS_SEND_MASK;
-
-				int32_t iGranPosisionMod = granPositionMod * MAX_16BIT;
-				if(mtProject.instrument[currentInstrument_idx].granular.currentPosition + iGranPosisionMod < 0) instrumentBasedMod.granPos = 0;
-				else if(mtProject.instrument[currentInstrument_idx].granular.currentPosition + iGranPosisionMod >= MAX_16BIT) instrumentBasedMod.granPos = MAX_16BIT;
-				else instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition + iGranPosisionMod;
 			}
 		}
 	}
@@ -3005,13 +3007,8 @@ void playerEngine:: update()
 	{
 		if((envelopePtr[envPan]->isKeyPressed() == 1) || (envelopePtr[envPan]->getPhase() != 0))
 		{
-			panningMod = envelopePtr[envPan]->getOut();
+			currentEnvelopeModification[envPan] = envelopePtr[envPan]->getOut();
 			statusBytes |= PANNING_MASK;
-
-			int32_t iPanningMod = panningMod * PANNING_MAX;
-			if(mtProject.instrument[currentInstrument_idx].panning + iPanningMod < 0) instrumentBasedMod.panning = 0;
-			else if(mtProject.instrument[currentInstrument_idx].panning + iPanningMod >= MAX_16BIT) instrumentBasedMod.panning = PANNING_MAX;
-			else instrumentBasedMod.panning = mtProject.instrument[currentInstrument_idx].panning + iPanningMod;
 		}
 	}
 
@@ -3093,9 +3090,18 @@ void playerEngine:: update()
 		    &&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning])
 			&&(!trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoPanning]))
 			{
-				instrumentBasedMod.panning = mtProject.instrument[currentInstrument_idx].panning;
+				currentEnvelopeModification[envPan] = 0;
 			}
-			modPanning(instrumentBasedMod.panning);
+
+			int32_t localPanningMod = currentEnvelopeModification[envPan] * PANNING_MAX;
+
+			int16_t localPanning = mtProject.instrument[currentInstrument_idx].panning; //todo: uzaleznic od trybu
+
+			if((int)(localPanning + localPanningMod) < 0) localPanning = 0;
+			else if((int)(localPanning+ localPanningMod) >= PANNING_MAX) localPanning = PANNING_MAX;
+			else localPanning += localPanningMod;
+
+			modPanning(localPanningMod);
 		}
 		if(statusBytes & CUTOFF_MASK)
 		{
@@ -3105,9 +3111,16 @@ void playerEngine:: update()
 			&&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoCutoff])
 			&&(!trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoCutoff]))
 			{
-				instrumentBasedMod.cutoff = mtProject.instrument[currentInstrument_idx].cutOff;
+				currentEnvelopeModification[envFilter] = 0;
 			}
-			modCutoff(instrumentBasedMod.cutoff);
+
+			float localCutoff = mtProject.instrument[currentInstrument_idx].cutOff; //todo: uzaleznic od trybu
+
+			if(mtProject.instrument[currentInstrument_idx].cutOff + currentEnvelopeModification[envFilter] < 0.0f) localCutoff = 0.0f;
+			else if(mtProject.instrument[currentInstrument_idx].cutOff + currentEnvelopeModification[envFilter] > 1.0f) localCutoff = 1.0f;
+			else localCutoff += currentEnvelopeModification[envFilter];
+
+			modCutoff(localCutoff);
 		}
 		if(statusBytes & RESONANCE_MASK)
 		{
@@ -3130,9 +3143,23 @@ void playerEngine:: update()
 			&&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoWavetablePosition])
 			&&(!trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoWavetablePosition]))
 			{
-				instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+				currentEnvelopeModification[envWtPos] = 0;
 			}
-			playMemPtr->setWavetableWindow(instrumentBasedMod.wtPos);
+
+			int32_t localWtPosisionMod = currentEnvelopeModification[envWtPos] * mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber;
+			uint32_t localWtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow; //todo: uzaleznic od trybu
+
+			if( (int)(localWtPos + localWtPosisionMod) < 0)
+			{
+				localWtPos = 0;
+			}
+			else if( (int)(localWtPos+ localWtPosisionMod) > (int)(mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1))
+			{
+				localWtPos = mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1;
+			}
+			else localWtPos += localWtPosisionMod;
+
+			playMemPtr->setWavetableWindow(localWtPos);
 		}
 		if(statusBytes & GRANULAR_POS_SEND_MASK)
 		{
@@ -3142,9 +3169,16 @@ void playerEngine:: update()
 			&&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoGranularPosition])
 			&&(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoGranularPosition]))
 			{
-			instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+				currentEnvelopeModification[envGranPos] = 0;
 			}
-			modGranularPosition(instrumentBasedMod.granPos);
+
+			int32_t localGranPosisionMod = currentEnvelopeModification[envGranPos] * MAX_16BIT;
+			uint16_t localGranPosition = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+			if((int)(localGranPosition + localGranPosisionMod) < 0) localGranPosition = 0;
+			else if((int)(localGranPosition + localGranPosisionMod) >= MAX_16BIT) localGranPosition = MAX_16BIT;
+			else localGranPosition += localGranPosisionMod;
+
+			modGranularPosition(localGranPosition);
 		}
 		if(statusBytes & GRANULAR_LEN_SEND_MASK)
 		{
@@ -3409,7 +3443,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 
 	if(mtProject.instrument[instr_idx].sample.type == mtSampleTypeWavetable)
 	{
-		instrumentBasedMod.wtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+		currentEnvelopeModification[envWtPos] = 0;
 
 		if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable)
 		{
@@ -3427,7 +3461,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 
 	if((mtProject.instrument[instr_idx].sample.type == mtSampleTypeWaveFile) && (mtProject.instrument[instr_idx].playMode == playModeGranular))
 	{
-		instrumentBasedMod.granPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+		currentEnvelopeModification[envGranPos] = 0;
 		if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable)
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
@@ -3932,7 +3966,7 @@ void playerEngine ::changeCutoffPerformanceMode(int8_t value) // przed ta funkcj
 	}
 	else
 	{
-		cutoff = instrumentBasedMod.cutoff;
+		cutoff = mtProject.instrument[currentInstrument_idx].cutOff;
 	}
 
 	if(cutoff*100 + value > 100) currentPerformanceValues.filterCutoff = 1.0;
@@ -4317,7 +4351,7 @@ void playerEngine::endCutoffPerformanceMode()
 	   !trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterCutoff])
 	{
 		if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
-		filterPtr->setCutoff(instrumentBasedMod.cutoff);
+		filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
 	}
 	else
 	{
@@ -4368,7 +4402,7 @@ void playerEngine::endWavetableWindowPerformanceMode()
 	}
 	else
 	{
-		wavetableWindow = instrumentBasedMod.wtPos;
+		wavetableWindow = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
 		playMemPtr->clearWavetableWindowFlag();
 
 	}
@@ -4388,7 +4422,7 @@ void playerEngine::endGranularPositionPerformanceMode()
 	}
 	else
 	{
-		granularPos = instrumentBasedMod.granPos;
+		granularPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
 		playMemPtr->clearGranularPosForceFlag();
 
 	}
@@ -4597,14 +4631,59 @@ void playerEngine::endPanningLfoRatePerformanceMode()
 //************************************************************************************************************
 uint32_t playerEngine::getEnvelopeWtPosMod()
 {
+	if((envelopePtr[envWtPos]->isKeyPressed() == 1) || (envelopePtr[envWtPos]->getPhase() != 0))
+	{
+		uint32_t localWTPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+		int32_t localWTMod = currentEnvelopeModification[envWtPos] * mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber;
 
-	return ((envelopePtr[envWtPos]->isKeyPressed() == 1) || (envelopePtr[envWtPos]->getPhase() != 0)) ? instrumentBasedMod.wtPos : mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+		if( (int)(localWTPos + localWTMod) >  (int)(mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1))
+		{
+			localWTPos = mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1;
+		}
+		else if( (int)(localWTPos + localWTMod) < 0 )
+		{
+			localWTPos = 0;
+		}
+		else
+		{
+			localWTPos += localWTMod ;
+		}
+
+		return localWTPos;
+	}
+	else
+	{
+		return mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+	}
 }
 
 uint32_t playerEngine::getEnvelopeGranPosMod()
 {
 
-	return ((envelopePtr[envGranPos]->isKeyPressed() == 1) || (envelopePtr[envGranPos]->getPhase() != 0)) ? instrumentBasedMod.granPos : mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+	if((envelopePtr[envGranPos]->isKeyPressed() == 1) || (envelopePtr[envGranPos]->getPhase() != 0))
+	{
+		uint32_t localGranPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+		int32_t localGranMod = currentEnvelopeModification[envGranPos] * MAX_16BIT;
+
+		if((int)(localGranPos + localGranMod) >  MAX_16BIT)
+		{
+			localGranPos = MAX_16BIT;
+		}
+		else if((int)(localGranPos + localGranMod) < 0 )
+		{
+			localGranPos = 0;
+		}
+		else
+		{
+			localGranPos += localGranMod ;
+		}
+
+		return localGranPos;
+	}
+	else
+	{
+		return mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+	}
 }
 
 void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo, uint8_t rate)
