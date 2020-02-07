@@ -408,9 +408,9 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track, uint8_t p
 		instrumentPlayer[track].changeReverbSendPerformanceMode(FX_VALUE(place));
 		break;
 	}
-	case mtPerfSamplePosition: //todo  "Jeden, by wszystkimi rządzić"
+	case mtPerfSamplePosition:
 	{
-		instrumentPlayer[track].changeStartPointPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_16BIT,MAX_16BIT));
+		instrumentPlayer[track].changePositionPerformanceMode(FX_VALUE(place));
 		break;
 	}
 	case mtPerfSampleEnd:
@@ -418,11 +418,6 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track, uint8_t p
 		instrumentPlayer[track].changeEndPointPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_16BIT,MAX_16BIT));
 		break;
 	}
-//	case mtPerfWavetablePos:
-//	{
-//		//instrumentPlayer[track].changeVolumeLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
-//		break;
-//	}
 	case mtPerfVolumeLfoSpeed:
 	{
 		instrumentPlayer[track].changeAmpLfoRatePerformanceMode(FX_VALUE(place));
@@ -656,7 +651,7 @@ static  uint8_t functEncoder(int16_t value)
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeStartPointPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_16BIT,MAX_16BIT));
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changePositionPerformanceMode(value);
 				}
 				break;
 			}
@@ -672,18 +667,6 @@ static  uint8_t functEncoder(int16_t value)
 				}
 				break;
 			}
-//			case mtPerfGranWtPos:
-//			{
-//				if(FX_VALUE(place) + mod_value > 20) FX_VALUE(place) = 20;
-//				else if(FX_VALUE(place) + mod_value < -20) FX_VALUE(place) = -20;
-//				else FX_VALUE(place) += mod_value;
-//
-//				for(uint8_t j = 0; j < 8; j++) //TODO
-//				{
-//					if(PM->tracksPerformanceState[j]) /*instrumentPlayer[j].changePanningLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255))*/;
-//				}
-//				break;
-//			}
 			case mtPerfVolumeLfoSpeed:
 			{
 				if(FX_VALUE(place) + mod_value > 20) FX_VALUE(place) = 20;
