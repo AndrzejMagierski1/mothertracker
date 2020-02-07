@@ -473,10 +473,9 @@ void FileManager::getDefaultSong(struct strSong *source)
 
 	memset(source->playlist, 0, SONG_MAX);
 
-	for(uint32_t i = 0; i < 5; i++)
-	{
-		source->playlist[i] = (i+1);
-	}
+
+	source->playlist[0] = 1;
+
 }
 
 void FileManager::getDefaultInstrument(struct strInstrument *source)
