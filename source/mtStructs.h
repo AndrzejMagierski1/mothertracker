@@ -280,21 +280,6 @@ enum envelopesType
 	envMax
 };
 
-
-
-enum envelopeTypes
-{
-	envelopeTypeAmp,
-	envelopeTypePan,
-	envelopeTypeFilter,
-	envelopeTypeWtPos,
-	envelopeTypeGranularPos,
-	envelopeTypePitch,
-
-
-	envelopeTypeMax,
-};
-
 enum lfoShapeType
 {
 	lfoShapeReverseSaw,
@@ -443,13 +428,13 @@ struct strInstrument
 //    uint16_t wavetableFlip;
 //    uint16_t wavetableQuantize;
 
-	envelopeGenerator::strEnv envelope[envelopeTypeMax];
+	envelopeGenerator::strEnv envelope[envMax];
 	struct strEnvBasedLfo
 	{
 		uint8_t shape = 0;
 		uint8_t speed = 0;
 		float 	amount = 1.0;
-	} lfo[envelopeTypeMax];
+	} lfo[envMax];
 //	LFO::strLfo lfo[lfoMax];
 
 	float cutOff;

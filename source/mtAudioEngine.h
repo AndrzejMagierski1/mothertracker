@@ -13,6 +13,30 @@
 #include "mtExporterWAV.h"
 
 
+const float tempoSyncRates[20] =
+{
+	6,
+	4,
+	3,
+	2,
+	1.5,
+	1,
+	0.75,
+	0.5,
+	0.375,
+	0.333333,
+	0.25,
+	0.1875,
+	0.166667,
+	0.125,
+	0.083333,
+	0.0625,
+	0.041667,
+	0.03125,
+	0.020833,
+	0.015625
+};
+
 constexpr uint32_t NOT_MOD_POINTS = 1000000;
 
 extern IntervalTimer updateTimer;
@@ -46,7 +70,6 @@ public:
 
 	friend class playerEngine;
 private:
-	AudioConnection* i2sConnect[2];
 	uint8_t forceSend = 0;
 };
 
@@ -55,12 +78,10 @@ class playerEngine
 {
 public:
 
-	void init(AudioPlayMemory * playMem,envelopeGenerator* envFilter,AudioFilterStateVariable * filter, AudioEffectEnvelope * envAmp, AudioAmplifier * amp,
-			uint8_t panCh, envelopeGenerator* envWtPos, envelopeGenerator * envGranPos, envelopeGenerator * envPanning );
-
+	playerEngine();
 
 	uint8_t noteOn(uint8_t instr_idx,int8_t note, int8_t velocity);
-	uint8_t noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx_id, uint8_t fx_val,uint8_t,uint8_t );
+	uint8_t noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx1_id, uint8_t fx1_val, uint8_t fx2_id, uint8_t fx2_val);
 	void noteOff(int8_t option = -4);
 	void clean();
 
@@ -96,23 +117,33 @@ public:
 	uint32_t getEnvelopeGranPosMod();
 
 	uint32_t getEnvelopeWtPosMod();
-	uint32_t afterEnvelopeWtPos;
 
 	uint16_t getWavePosition();
 	void update();
 	uint8_t noteOnforPrev (uint8_t instr_idx,int8_t note, int8_t velocity);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t type);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note,uint8_t type);
-	AudioEffectEnvelope *       envelopeAmpPtr;
+	AudioEffectEnvelope * envelopeAmpPtr;
 
-	uint8_t 					currentInstrument_idx;
+	uint8_t currentInstrument_idx;
 
-	elapsedMillis ampLfoRefreshTimer;
-	elapsedMillis pitchLfoRefreshTimer;
-	elapsedMillis envelopesRefreshTimer;
+	const uint8_t ENVELOPES_WITHOUT_AMP_MAX = 4;
 
-	const uint8_t LFO_REFRESH_TIME = 5;
-	const uint8_t ENVELOPES_REFRESH_TIME_MS = 10;
+	const uint8_t envelopesWithoutAmpIdx[4] =
+	{
+			envPan,
+			envFilter,
+			envWtPos,
+			envGranPos
+	}; // na potrzeby wykonania czegos w petli - przefiltrowanie enumów z env do aktywnych bez ampa - musi korespondować z envelopesWithoutAmpControlValue
+
+	const uint8_t envelopesWithoutAmpControlValue[4] =
+	{
+			(uint8_t)parameterList::lfoPanning,
+			(uint8_t)parameterList::lfoCutoff,
+			(uint8_t)parameterList::lfoWavetablePosition,
+			(uint8_t)parameterList::lfoGranularPosition
+	}; // na potrzeby wykonania czegos w petli - przefiltrowanie enumów parametrów dla lfo bez ampa - musi korespondować z envelopesWithoutAmpIdx
 
 	enum struct controlType
 	{
@@ -265,7 +296,6 @@ public:
 	} instrumentBasedMod;
 
 
-
 	uint8_t trackControlParameter[(int)controlType::length][(int)parameterList::length];
 //**********************************************************************************************************************************
 //PERFORMANCE MODE
@@ -281,6 +311,9 @@ public:
 	void changeSamplePlaybackPerformanceMode(uint8_t value);
 	void changeWavetableWindowPerformanceMode(int16_t value);
 	void changeGranularPositionPerformanceMode(int16_t value);
+
+	void changePositionPerformanceMode(int16_t value);
+
 	void changeAmpLfoRatePerformanceMode(int8_t value);
 	void changeCutoffLfoRatePerformanceMode(int8_t value);
 	void changePositionLfoRatePerformanceMode(int8_t value);
@@ -301,6 +334,9 @@ public:
 	void endEndPointPerformanceMode();
 	void endWavetableWindowPerformanceMode();
 	void endGranularPositionPerformanceMode();
+
+	void endPositionPerformanceMode();
+
 	void endAmpLfoRatePerformanceMode();
 	void endCutoffLfoRatePerformanceMode();
 	void endPositionLfoRatePerformanceMode();
@@ -315,32 +351,24 @@ private:
 
 	AudioPlayMemory *        	playMemPtr;
 	AudioAmplifier *			ampPtr;
-	envelopeGenerator* 			envelopeFilterPtr;
-	envelopeGenerator* 			envelopeWtPos;
-	envelopeGenerator*			envelopeGranPos;
-	envelopeGenerator*			envelopePanningPtr;
+	envelopeGenerator *			envelopePtr[envMax];
 	AudioFilterStateVariable *	filterPtr;
-	AudioConnection*			conFilterToAmpPtr;
-	AudioConnection*			conPlayToFilterPtr;
-	uint8_t 					numPanChannel;
+	uint8_t 					nChannel;
 	uint8_t						lastSeqFx[2];
 	uint8_t						lastSeqVal[2];
 	int8_t						currentNote;
-	int8_t						currentVelocity;
-	uint32_t 					statusBytes; // 8- reverbSend 7-resonance, 6-cutoff, 5-panning ,4-volume,3-tune,2-fineTune, 1-LP1 , 0-LP2
+	uint32_t 					statusBytes;
 	uint8_t 					interfaceEndReleaseFlag = 0;
 	uint8_t 					interfacePlayingEndFlag = 0;
 	uint8_t 					currentPlayState = 0;
 	uint8_t 					lastPlayState = 0;
-	int8_t						filterTypeSequencer = -1;
-	int8_t 						filterTypePerformanceMode = -1;
 
 	uint8_t 					muteState = 0;
 	uint8_t						onlyReverbMuteState = 0;
 
 	uint8_t 					envelopePassFlag = 0;
 
-	envelopeGenerator::strEnv lfoBasedEnvelope[envelopeTypeMax];
+	envelopeGenerator::strEnv   lfoBasedEnvelope[envMax];
 
 	uint8_t isActiveFlag = 0;
 
