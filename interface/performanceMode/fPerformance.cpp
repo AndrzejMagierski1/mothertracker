@@ -294,24 +294,29 @@ void cPerformanceMode::clearPerformanceValues(uint8_t track, uint8_t fx)
 		instrumentPlayer[track].endEndPointPerformanceMode();
 		break;
 	}
-	case mtPerfVolumeLfoSpeed: // TODO:
+//	case mtPerfWavetablePos:
+//	{
+//		//instrumentPlayer[track].endVolumeLfoRatePositionPerformanceMode();
+//		break;
+//	}
+	case mtPerfVolumeLfoSpeed:
 	{
-		//instrumentPlayer[track].endVolumeLfoRatePositionPerformanceMode();
+		instrumentPlayer[track].endAmpLfoRatePerformanceMode();
 		break;
 	}
-	case mtPerfPanningLfoSpeed: // TODO:
+	case mtPerfPanningLfoSpeed:
 	{
-		//instrumentPlayer[track].endPanningLfoRatePerformanceMode();
+		instrumentPlayer[track].endPanningLfoRatePerformanceMode();
 		break;
 	}
-	case mtPerfFilterfoSpeed: // TODO:
+	case mtPerfFilterfoSpeed:
 	{
-		//instrumentPlayer[track].endFilterLfoRatePerformanceMode();
+		instrumentPlayer[track].endCutoffLfoRatePerformanceMode();
 		break;
 	}
-	case mtPerfGranWtfoSpeed: // TODO:
+	case mtPerfGranWtfoSpeed:
 	{
-		//instrumentPlayer[track].endGranWtLfoRatePerformanceMode();
+		instrumentPlayer[track].endPositionLfoRatePerformanceMode();
 		break;
 	}
 	case mtPerfTune:
@@ -413,24 +418,29 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track, uint8_t p
 		instrumentPlayer[track].changeEndPointPerformanceMode(map(FX_VALUE(place),-100,100,-MAX_16BIT,MAX_16BIT));
 		break;
 	}
-	case mtPerfVolumeLfoSpeed: //TODO:
+//	case mtPerfWavetablePos:
+//	{
+//		//instrumentPlayer[track].changeVolumeLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
+//		break;
+//	}
+	case mtPerfVolumeLfoSpeed:
 	{
-		//instrumentPlayer[track].changeVolumeLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
+		instrumentPlayer[track].changeAmpLfoRatePerformanceMode(FX_VALUE(place));
 		break;
 	}
-	case mtPerfPanningLfoSpeed: //TODO:
+	case mtPerfPanningLfoSpeed:
 	{
-		//instrumentPlayer[track].changePanningLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
+		instrumentPlayer[track].changePanningLfoRatePerformanceMode(FX_VALUE(place));
 		break;
 	}
-	case mtPerfFilterfoSpeed: //TODO:
+	case mtPerfFilterfoSpeed:
 	{
-		//nstrumentPlayer[track].changeFilterLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
+		instrumentPlayer[track].changeCutoffLfoRatePerformanceMode(FX_VALUE(place));
 		break;
 	}
-	case mtPerfGranWtfoSpeed: //TODO:
+	case mtPerfGranWtfoSpeed:
 	{
-		//instrumentPlayer[track].changeGranWtLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255));
+		instrumentPlayer[track].changePositionLfoRatePerformanceMode(FX_VALUE(place));
 		break;
 	}
 	case mtPerfTune:
@@ -662,15 +672,27 @@ static  uint8_t functEncoder(int16_t value)
 				}
 				break;
 			}
+//			case mtPerfGranWtPos:
+//			{
+//				if(FX_VALUE(place) + mod_value > 20) FX_VALUE(place) = 20;
+//				else if(FX_VALUE(place) + mod_value < -20) FX_VALUE(place) = -20;
+//				else FX_VALUE(place) += mod_value;
+//
+//				for(uint8_t j = 0; j < 8; j++) //TODO
+//				{
+//					if(PM->tracksPerformanceState[j]) /*instrumentPlayer[j].changePanningLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255))*/;
+//				}
+//				break;
+//			}
 			case mtPerfVolumeLfoSpeed:
 			{
 				if(FX_VALUE(place) + mod_value > 20) FX_VALUE(place) = 20;
 				else if(FX_VALUE(place) + mod_value < -20) FX_VALUE(place) = -20;
 				else FX_VALUE(place) += mod_value;
 
-				for(uint8_t j = 0; j < 8; j++) //TODO
+				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) /*instrumentPlayer[j].changeVolumeLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255))*/;
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeAmpLfoRatePerformanceMode(FX_VALUE(place));
 				}
 				break;
 			}
@@ -682,7 +704,7 @@ static  uint8_t functEncoder(int16_t value)
 
 				for(uint8_t j = 0; j < 8; j++) //TODO
 				{
-					if(PM->tracksPerformanceState[j]) /*instrumentPlayer[j].changePanningLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255))*/;
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changePanningLfoRatePerformanceMode(FX_VALUE(place));
 				}
 				break;
 			}
@@ -692,9 +714,9 @@ static  uint8_t functEncoder(int16_t value)
 				else if(FX_VALUE(place) + mod_value < -20) FX_VALUE(place) = -20;
 				else FX_VALUE(place) += mod_value;
 
-				for(uint8_t j = 0; j < 8; j++) //TODO
+				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) /*instrumentPlayer[j].changeFilterLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255))*/;
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changeCutoffLfoRatePerformanceMode(FX_VALUE(place));
 				}
 				break;
 			}
@@ -704,9 +726,9 @@ static  uint8_t functEncoder(int16_t value)
 				else if(FX_VALUE(place) + mod_value < -20) FX_VALUE(place) = -20;
 				else FX_VALUE(place) += mod_value;
 
-				for(uint8_t j = 0; j < 8; j++) //TODO
+				for(uint8_t j = 0; j < 8; j++)
 				{
-					if(PM->tracksPerformanceState[j]) /*instrumentPlayer[j].changeGranWtLfoRatePerformanceMode(map(FX_VALUE(place),-100,100,-255,255))*/;
+					if(PM->tracksPerformanceState[j]) instrumentPlayer[j].changePositionLfoRatePerformanceMode(FX_VALUE(place));
 				}
 				break;
 			}

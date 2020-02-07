@@ -260,7 +260,7 @@ void FileManager::undoSongPattern()
 		undoSong.redoPossibility++;
 
 
-		char line[80];
+		char line[82];
 		sprintf(line,
 				"<<<pattern %d restored: actualIndex: %d, storedCount: %d, redoPossibility: %d",
 				bufferedPatternNumber,

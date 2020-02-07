@@ -1,4 +1,3 @@
-
 #include <Arduino.h>
 #include "MIDI.h"
 
@@ -7,7 +6,6 @@
 
 #include "configEditor/configEditor.h"
 #include "patternEditor/patternEditor.h"
-
 
 void midiInit()
 {
@@ -318,6 +316,23 @@ void sendCC(uint8_t internalControl, uint8_t value)
 	{
 		MIDI.sendControlChange(mtConfig.midi.ccOut[internalControl],
 								value,
+								mtConfig.midi.notesOutChannel);
+	}
+}
+
+void sendProgramChange(uint8_t value)
+{
+	if (mtConfig.midi.notesOutMode == notesOut_mode_usb ||
+			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
+	{
+		usbMIDI.sendProgramChange(value,
+									mtConfig.midi.notesOutChannel);
+	}
+
+	if (mtConfig.midi.notesOutMode == notesOut_mode_jack ||
+			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
+	{
+		MIDI.sendProgramChange(value,
 								mtConfig.midi.notesOutChannel);
 	}
 }

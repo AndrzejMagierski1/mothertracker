@@ -2918,14 +2918,33 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 		case 1: // instrument
 		{
-			if (state == buttonPress)
+
+			if (sequencer.isRec())
 			{
-				sendSelection();
-				sequencer.setSelectionInstrument(pad);
+
+				if (state == buttonPress)
+				{
+					sequencer.setSelectionInstrument(pad);
+
+					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
+											Sequencer::STEP_NOTE_DEFAULT,
+											127);
+				}
+				else if (state == buttonRelease)
+				{
+
+					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
+											Sequencer::STEP_NOTE_DEFAULT,
+											0);
+				}
 			}
-			else if (state == buttonRelease)
+			else
 			{
-//				sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID, 0, 0);
+				if (state == buttonPress)
+				{
+					sendSelection();
+					sequencer.setSelectionInstrument(pad);
+				}
 			}
 			break;
 		}

@@ -106,16 +106,16 @@ private:
 	uint8_t passFlag = 0;
 	uint32_t sample12, sample34, sample56, sample78;
 	uint32_t tmp1, tmp2;
-	int16_t * const tmp1Shifted = ((int16_t *)&tmp1) + 1;
-	int16_t * const tmp2Shifted = ((int16_t *)&tmp2) + 1;
-	int16_t * const sample1 = (int16_t *)&sample12;
-	int16_t * const sample2 = ((int16_t *)&sample12) + 1;
-	int16_t * const sample3 = (int16_t *)&sample34;
-	int16_t * const sample4 = ((int16_t *)&sample34) + 1;
-	int16_t * const sample5 = (int16_t *)&sample56;
-	int16_t * const sample6 = ((int16_t *)&sample56) + 1;
-	int16_t * const sample7 = (int16_t *)&sample78;
-	int16_t * const sample8 = ((int16_t *)&sample78) + 1;
+	int16_t * tmp1Shifted = ((int16_t *)&tmp1) + 1;
+	int16_t * tmp2Shifted = ((int16_t *)&tmp2) + 1;
+	int16_t * sample1 = (int16_t *)&sample12;
+	int16_t * sample2 = ((int16_t *)&sample12) + 1;
+	int16_t * sample3 = (int16_t *)&sample34;
+	int16_t * sample4 = ((int16_t *)&sample34) + 1;
+	int16_t * sample5 = (int16_t *)&sample56;
+	int16_t * sample6 = ((int16_t *)&sample56) + 1;
+	int16_t * sample7 = (int16_t *)&sample78;
+	int16_t * sample8 = ((int16_t *)&sample78) + 1;
 
 
 };
