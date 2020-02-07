@@ -293,7 +293,7 @@ void checkConfig()
 	if(mtConfig.debug.debugLogState > 1)
 	{
 #ifdef DEBUG
-		mtConfig.debug.debugLogState = 1;
+		mtConfig.debug.debugLogState = 0; //= 1
 #else
 		mtConfig.debug.debugLogState = 0;
 #endif

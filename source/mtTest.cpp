@@ -345,6 +345,7 @@ void cTest::runAudioTest()
 {
 	if(testPhase == 1)
 	{
+		sequencer.stop();
 		setAudiIO(0);
 		delay(1);
 
@@ -396,6 +397,7 @@ void cTest::runAudioTest()
 
 	else if(testPhase == 7)
 	{
+		sequencer.stop();
 		instrumentPlayer[0].noteOff();
 		instrumentPlayer[0].noteOnforPrev(sdram_effectsBank, 70000, mtSampleTypeWaveFile);
 		testTimer = 0;
@@ -412,6 +414,7 @@ void cTest::runAudioTest()
 	}
 	else if(testPhase == 9)
 	{
+		sequencer.stop();
 		instrumentPlayer[0].noteOff();
 		instrumentPlayer[0].noteOnforPrev(sdram_effectsBank+200000, 70000, mtSampleTypeWaveFile);
 		testTimer = 0;
