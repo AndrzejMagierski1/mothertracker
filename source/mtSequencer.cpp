@@ -11,6 +11,8 @@
 #include "patternEditor/patternEditor.h"
 Sequencer sequencer;
 
+#include "debugLog.h"
+
 inline void timerExternalVector()
 {
 	sequencer.handle_uStep_timer();
@@ -281,7 +283,6 @@ void Sequencer::play_microStep(uint8_t row)
 
 	//	**************************
 	// 	wysyłamy zegar
-	// 	TODO: ogarnąć
 	//	**************************
 
 	if ((playerRow.uStep > 0) && player.isPlay && row == 0 && !player.selectionMode)
@@ -397,6 +398,10 @@ void Sequencer::play_microStep(uint8_t row)
 				break;
 			case fx.FX_TYPE_SEND_CC_E:
 				sendCC(4, _fx.value);
+				break;
+
+			case fx.FX_TYPE_PROGRAM_CHANGE:
+				sendProgramChange(_fx.value);
 				break;
 
 			case fx.FX_TYPE_TEMPO:
@@ -557,7 +562,13 @@ void Sequencer::play_microStep(uint8_t row)
 		playerRow.noteLength = 9999; // w MT nie ma dugości stepa
 		playerRow.noteTimer = 0; // od tej pory timer liczy w górę
 
-		playerRow.stepSent = stepToSend; // buforujemy wysłanego stepa
+		if (stepToSend.note >= 0)
+		{
+			playerRow.stepSent = stepToSend; // buforujemy wysłanego stepa
+		}
+
+//		debugLog.addLine("note: ");
+//		debugLog.addValue(playerRow.stepSent.note);
 
 		// jeśli rolka to nuty są krótsze od stepa
 		if (playerRow.rollIsOn)
@@ -861,7 +872,7 @@ void Sequencer::send_allNotesOff(void)
 		{
 			sendMidiNoteOn(
 					player.track[row].stepSent.note,
-					player.track[row].stepSent.velocity,
+					0,
 					player.track[row].stepSent.instrument - INSTRUMENTS_MAX);
 		}
 	}
@@ -1422,79 +1433,6 @@ void Sequencer::loadNextPattern(uint8_t patternNumber)
 	fileManager.setLoadPattern(patternNumber);
 }
 
-void Sequencer::handleNoteOld(byte channel, byte note, byte velocity)
-{
-	strSelection *sel = &selection;
-	if (!isSelectionCorrect(sel)) return;
-
-// NOTE ON
-	if (velocity != 0)
-	{
-		if (isRec())
-		{
-			for (uint8_t tr = 0; tr < 8; tr++)
-			{
-				strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
-				if (step->note == STEP_NOTE_EMPTY &&
-						step->fx[0].type == 0 &&
-						step->fx[1].type == 0)
-				{
-					step->note = note;
-					step->instrument = mtProject.values.lastUsedInstrument;
-
-					player.track[tr].stepSent.note = note;
-					player.track[tr].noteOpen = 1;
-
-					instrumentPlayer[sel->firstTrack].noteOff();
-					instrumentPlayer[sel->firstTrack].noteOn(
-							step->instrument,
-							step->note,
-							STEP_VELO_DEFAULT);
-
-					step->fx[0].type = fx.FX_TYPE_MICROMOVE;
-					step->fx[0].value = player.uStep;
-					break;
-				}
-			}
-		}
-		else if (!isMultiSelection())
-		{
-			strPattern::strTrack::strStep *step = &seq[player.ramBank].track[sel->firstTrack].step[sel->firstStep];
-			if (isEditMode())
-			{
-
-				if (step->note == STEP_NOTE_EMPTY)
-				{
-					step->instrument = mtProject.values.lastUsedInstrument;
-				}
-				step->note = note;
-			}
-
-			instrumentPlayer[sel->firstTrack].noteOff();
-			instrumentPlayer[sel->firstTrack].noteOn(
-					mtProject.values.lastUsedInstrument,
-					note,
-					STEP_VELO_DEFAULT);
-		}
-	}
-	else // czyli noteOff
-	{
-		if (isRec())
-		{
-			for (uint8_t tr = 0; tr < 8; tr++)
-			{
-				if (player.track[tr].noteOpen && player.track[tr].stepSent.note == note)
-				{
-					instrumentPlayer[tr].noteOff();
-				}
-			}
-		}
-		else if (!isMultiSelection())
-		{
-			instrumentPlayer[sel->firstTrack].noteOff();
-		}
-	}
-}
 void Sequencer::handleNote(byte channel, byte note, byte velocity)
 {
 	strSelection *sel = &selection;
