@@ -352,7 +352,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		{
 			mtPopups.show(4, "Debug log disabled");
 		}
-
+		CE->saveConfigToEeprom();
 	}
 
 
