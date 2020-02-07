@@ -414,7 +414,7 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 		{
 			if(configIsChangedFlag == 1 && sequencer.isStop())
 			{
-				debugLog.addLine("autosave projektu: ");
+				debugLog.addLine("project autosave: ");
 				sd_time_test = 0;
 
 				autoSaveProject();
@@ -435,7 +435,7 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 			{
 				if(instrumentIsChangedFlag[i] == 1 && sequencer.isStop())
 				{
-					debugLog.addLine("autosave instrumentu: ");
+					debugLog.addLine("instrument autosave: ");
 					sd_time_test = 0;
 
 					saveInstrument(i);
@@ -455,7 +455,7 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 		{
 			if(patternIsChangedFlag[mtProject.values.actualPattern] == 1 && sequencer.isStop())
 			{
-				debugLog.addLine("autosave patternu: ");
+				debugLog.addLine("pattern autosave: ");
 				sd_time_test = 0;
 
 				savePattern(mtProject.values.actualPattern);

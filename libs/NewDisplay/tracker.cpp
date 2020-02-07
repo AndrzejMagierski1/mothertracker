@@ -47,7 +47,7 @@ static uint32_t defaultColors[] =
 uint8_t fourParamsOffset[4] =		{	10,  52,  84, 136,	};
 uint8_t twoParamsOffsetFirst[4] =	{	 5,   5,   2,   0,	};
 uint8_t twoParamsOffsetSecond[4] =	{	 0,  61,  51,  51,	};
-uint8_t oneParamsOffset[4] =		{	35,  40,  30,  30,	};
+uint8_t oneParamsOffset[4] =		{	32,  37,  27,  27,	};
 
 
 const uint8_t fourParamsSelOffset[4] =	{  2,   44,  76, 128,	};
@@ -59,7 +59,7 @@ const uint8_t twoParamsSel1Width[4] =	{  40,  30,  47,   0,	};
 const uint8_t twoParamsSel2Offset[4] =	{	0,  51,  44,  44,	};
 const uint8_t twoParamsSel2Width[4] =	{	0,  30,  45,  45,	};
 
-const uint8_t oneParamsSelOffset[4] =	{  27,  32,  22,  22,	};
+const uint8_t oneParamsSelOffset[4] =	{  24,  29,  19,  19,	};
 const uint8_t oneParamsSelWidth[4] =	{  40,  30,  50,  50,	};
 
 

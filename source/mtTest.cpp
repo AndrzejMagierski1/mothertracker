@@ -9,6 +9,7 @@
 #include "Si4703.h"
 #include <Audio.h>
 #include  "mtRecorder.h"
+#include "MTP.h"
 
 #include "mtTest.h"
 
@@ -57,6 +58,7 @@ void cTest::runTestingProcedure(cFunctionMachine* _fm, void (*func)(uint8_t, voi
 
 	radio.setFrequency(93.7);
 
+	mtpd.state = 1;
 	radio.setSeekCallback(radioSeek);
 	tactButtons.setHoldTime(1200);
 	display.disable();
@@ -519,7 +521,7 @@ void cTest::showInputsTest()
 
 void cTest::showUSBTest()
 {
-	showMessage("Is MTP working?", "", "Yes", "No");
+	showMessage("Is File Transfer working?", "", "Yes", "No");
 }
 
 
