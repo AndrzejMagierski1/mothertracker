@@ -126,7 +126,7 @@ void cSampleEditor::initDisplayControls()
 	if(pointsControl == nullptr)  pointsControl = display.createControl<cPoints>(&prop);
 
 
-
+	prop2.colors = nullptr;
 	for(int i = 2; i < 6; i++)
 	{
 		prop2.x = (800/8)*i+1;

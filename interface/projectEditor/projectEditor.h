@@ -60,6 +60,7 @@ public:
 	uint8_t loadProjectValues();
 //-------------------------------------------------------------
 
+	strLabelData labelArrow;
 	strList projectList;
 	strFrameData frameData;
 

@@ -55,6 +55,8 @@ static uint8_t functOpenProjectConfirm();
 static uint8_t functSaveChangesCancelOpen();
 static uint8_t functSaveChangesDontSaveOpen();
 static uint8_t functSaveChangesSaveOpen();
+static uint8_t functProjectListUp();
+static uint8_t functProjectListDown();
 //****************************************************
 //Export
 static uint8_t functExportSong();
@@ -489,6 +491,9 @@ static uint8_t functOpenProject()
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functDelete);
 	PE->FM->setButtonObj(interfaceButton5, buttonPress, functSaveChangesCancelOpen);
 
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functProjectListUp);
+	PE->FM->setButtonObj(interfaceButton1, buttonPress, functProjectListDown);
+
 	PE->projectListActiveFlag = 1;
 
 	return 1;
@@ -776,9 +781,44 @@ static uint8_t functSaveChangesCancelOpen()
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 
-
 	return 1;
 }
+
+static uint8_t functProjectListUp()
+{
+	if(PE->projectListActiveFlag)
+	{
+		if(PE->selectedLocation > 0 )
+		{
+			PE->selectedLocation--;
+
+			PE->refreshProjectCover(300);
+			strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+		}
+		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.refreshControl(PE->fileListControl);
+	}
+	return 1;
+}
+
+static uint8_t functProjectListDown()
+{
+	if(PE->projectListActiveFlag)
+	{
+		if(PE->selectedLocation < PE->locationFilesCount-1 )
+		{
+			PE->selectedLocation++;
+
+			PE->refreshProjectCover(300);
+			strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+		}
+		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.refreshControl(PE->fileListControl);
+	}
+	return 1;
+}
+
+
 static uint8_t functSaveChangesDontSaveOpen()
 {
 	if(PE->isBusyFlag) return 1;

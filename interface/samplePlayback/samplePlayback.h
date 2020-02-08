@@ -68,6 +68,7 @@ public:
 	void showZoomValue();
 	void showPlayModeList();
 	void showTitleBar();
+	void hideUselessControls();
 
 	void setDefaultScreenFunct();
 	void cancelPopups();

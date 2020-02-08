@@ -367,6 +367,18 @@ void cSamplePlayback::showDefaultScreen()
 
 
 //==============================================================================================================
+void cSamplePlayback::hideUselessControls()
+{
+	display.setControlHide(pointsControl);
+	display.setControlHide(playModeListControl);
+	display.setControlHide(slicePointsControl);
+	display.setControlHide(granularCursor);
+	display.setControlHide(progressCursor);
+	display.setControlHide(wtPositionCursor);
+
+}
+
+//==============================================================================================================
 void cSamplePlayback::activateLabelsBorder()
 {
 	if(selectedPlace > frameData.placesCount-1) return;

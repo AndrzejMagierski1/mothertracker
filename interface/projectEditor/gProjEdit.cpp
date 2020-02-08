@@ -48,11 +48,18 @@ void cProjectEditor::initDisplayControls()
 	prop5.text = (char*)"";
 	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop5);
 
+	labelArrow.bitmaps[0].bitmapIndex = displayArrowU;
+	labelArrow.bitmaps[0].xValue =  (800/8)*0+(800/16);
+	labelArrow.bitmaps[0].yValue = 460;
+	labelArrow.bitmaps[1].bitmapIndex = displayArrowD;
+	labelArrow.bitmaps[1].xValue =  (800/8)*1+(800/16);
+	labelArrow.bitmaps[1].yValue = 460;
+
 	for(uint8_t i = 0; i<8; i++)
 	{
 		prop2.value =  1;
 		prop2.colors = interfaceGlobals.activeButtonLabelsColors;
-		prop2.style = 	( controlStyleCenterX );
+		prop2.style = controlStyleCenterX;
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
 		prop2.y = 424;
@@ -195,10 +202,14 @@ void cProjectEditor::showDefaultScreen()
 
 	strcpy(projectCoverName, fileManager.currentProjectName);
 	display.setControlText(titleLabelProjectName, fileManager.currentProjectName);
-
-
 	display.refreshControl(titleLabelProjectName);
 
+	display.setControlData(label[0], &labelArrow);
+	display.setRemoveControlStyle(label[0], controlStyleShowBitmap);
+
+
+	display.setControlPosition(label[0], (800/8)*0+(800/16), -1);
+	display.setControlSize(label[0], 800/8-6, -1);
 
 	//lista
 	display.setControlHide(fileListControl);
@@ -240,6 +251,7 @@ void cProjectEditor::showDefaultScreen()
 		display.refreshControl(label[i]);
 	}
 
+	display.setControlValue(bgLabel, 255);
 	display.refreshControl(bgLabel);
 
 	keyboardManager.deactivateKeyboard();
@@ -293,6 +305,8 @@ void cProjectEditor::showProjectsList()
 	display.setControlShow(fileListControl);
 	display.refreshControl(fileListControl);
 
+	display.setAddControlStyle(label[0], controlStyleShowBitmap);
+
 	for(uint8_t i = 0; i < 8 ; i++)
 	{
 		display.setControlText(label[i], "");
@@ -300,15 +314,21 @@ void cProjectEditor::showProjectsList()
 	}
 
 // bottom labels
+
+	display.setControlPosition(label[0], (800/4)*0+(800/8), -1);
+	display.setControlSize(label[0], 800/4-6, -1);
+	display.setControlText(label[0], "Projects");
 	display.setControlText(label[7], "Open");
 	display.setControlText(label[6], "Delete");
 	display.setControlText(label[5], "Cancel");
-
 
 	for(uint8_t i = 0; i < 8 ; i++)
 	{
 		display.refreshControl(label[i]);
 	}
+
+	display.setControlValue(bgLabel, 252);
+	display.refreshControl(bgLabel);
 
 	display.synchronizeRefresh();
 }

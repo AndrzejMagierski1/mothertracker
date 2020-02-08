@@ -2082,8 +2082,8 @@ static  uint8_t functInstrument(uint8_t state)
 	}
 	else if(state == buttonPress)
 	{
+		SP->hideUselessControls();
 		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
-		//SE->lightUpPadBoard();
 	}
 
 	return 1;
