@@ -2400,12 +2400,12 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 				{
 					if(fx_id == MOST_SIGNIFICANT_FX)
 					{
-						ampPtr->gain( (currentSeqModValues.volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+						if(muteState == 0 ) ampPtr->gain( (currentSeqModValues.volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
 					}
 				}
 				else
 				{
-					ampPtr->gain( (mtProject.instrument[currentInstrument_idx].volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+					if(muteState == 0 ) ampPtr->gain( (mtProject.instrument[currentInstrument_idx].volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
 				}
 			}
 		break;
