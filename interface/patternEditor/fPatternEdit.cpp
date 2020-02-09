@@ -1174,6 +1174,15 @@ void cPatternEditor::changeFillPlace(int8_t diff)
 	setFillPlace(fillPlace+diff, diff);
 }
 
+
+void cPatternEditor::refreshFillPlace()
+{
+	if(editParam == 0 || editParam == 2 || editParam == 3)
+	{
+		if(fillPlace == 2) fillPlace = 1;
+	}
+}
+
 void cPatternEditor::setMuteFunct(uint8_t state)
 {
 	if(state == 0)

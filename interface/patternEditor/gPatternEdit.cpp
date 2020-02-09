@@ -813,7 +813,7 @@ void cPatternEditor::showFillPopup()
 
 	display.refreshControl(bgLabel);
 
-	//setFillPlace(fillPlace);
+	refreshFillPlace();
 	activateFillPopupBorder();
 
 	display.synchronizeRefresh();
