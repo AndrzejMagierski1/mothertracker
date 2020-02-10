@@ -1267,21 +1267,21 @@ uint8_t Sequencer::isStop(void)
 	return player.isStop;
 }
 
-void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
-							uint8_t instrument)
-{
-
-	if (instrument > INSTRUMENTS_MAX)
-	{
-		sendMidiNoteOn(note, velocity, instrument - INSTRUMENTS_MAX);
-
-	}
-	else
-	{
-		instrumentPlayer[track].noteOn(instrument, note, velocity);
-	}
-
-}
+//void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
+//							uint8_t instrument)
+//{
+//
+//	if (instrument > INSTRUMENTS_MAX)
+//	{
+//		sendMidiNoteOn(note, velocity, instrument - INSTRUMENTS_MAX);
+//
+//	}
+//	else
+//	{
+//		instrumentPlayer[track].noteOn(instrument, note, velocity);
+//	}
+//
+//}
 void Sequencer::sendNoteOn(uint8_t track,
 							strPlayer::strPlayerTrack::strSendStep *step)
 {
@@ -1358,35 +1358,35 @@ void Sequencer::sendNoteOff(uint8_t track)
 	instrumentPlayer[track].noteOff();
 }
 
-void Sequencer::blinkNote(uint8_t instrument, uint8_t note, int8_t velocity,
-							uint8_t track)
-{
-	if (player.blink.isOpen)
-	{
-		closeBlinkNote();
-	}
-
-	player.blink.isOpen = 1;
-	player.blink.track = track;
-	player.blink.timer = 0;
-	player.blink.instrument = instrument;
-	player.blink.note = note;
-
-	if (instrument < INSTRUMENTS_COUNT)
-	{
-		instrumentPlayer[track].noteOff();
-		instrumentPlayer[track].noteOn(instrument,
-										note,
-										velocity);
-	}
-	else
-	{
-		// todo: pobrać velo z audio engine
-		if (velocity < 0) velocity = 120;
-
-		sendMidiNoteOn(note, velocity, instrument - INSTRUMENTS_COUNT);
-	}
-}
+//void Sequencer::blinkNote(uint8_t instrument, uint8_t note, int8_t velocity,
+//							uint8_t track)
+//{
+//	if (player.blink.isOpen)
+//	{
+//		closeBlinkNote();
+//	}
+//
+//	player.blink.isOpen = 1;
+//	player.blink.track = track;
+//	player.blink.timer = 0;
+//	player.blink.instrument = instrument;
+//	player.blink.note = note;
+//
+//	if (instrument < INSTRUMENTS_COUNT)
+//	{
+//		instrumentPlayer[track].noteOff();
+//		instrumentPlayer[track].noteOn(instrument,
+//										note,
+//										velocity);
+//	}
+//	else
+//	{
+//		// todo: pobrać velo z audio engine
+//		if (velocity < 0) velocity = 120;
+//
+//		sendMidiNoteOn(note, velocity, instrument - INSTRUMENTS_COUNT);
+//	}
+//}
 
 void Sequencer::blinkSelectedStep()
 {
