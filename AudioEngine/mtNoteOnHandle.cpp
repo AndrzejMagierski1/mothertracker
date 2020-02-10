@@ -1,0 +1,501 @@
+#include "mtAudioEngine.h"
+
+//********************************** NOTE_ON
+uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
+{
+	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
+
+	engine.clearReverb();
+
+	endFx(lastSeqFx[0],0);
+	endFx(lastSeqFx[1],1);
+
+	__disable_irq();
+	AudioNoInterrupts();
+
+	uint8_t status;
+
+	currentInstrument_idx=instr_idx;
+	currentNote=note;
+
+	handleInitNoteOnAllEnvelopes(); // kill + init
+
+	handleNoteOnFilter();
+
+	handleNoteOnGain();
+
+	handleNoteOnPanning();
+
+	handleNoteOnReverbSend();
+
+
+	status = playMemPtr->play(instr_idx,note);
+	envelopeAmpPtr->noteOn();
+
+	for(uint8_t i = 0; i < ENVELOPES_WITHOUT_AMP_MAX; i++)
+	{
+		if(mtProject.instrument[instr_idx].envelope[envelopesWithoutAmpIdx[i]].enable) envelopePtr[envelopesWithoutAmpIdx[i]]->start();
+	}
+
+	__enable_irq();
+	AudioInterrupts();
+	return status;
+}
+//**********************************
+//********************************** NOTE_ON FX
+uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx1_id, uint8_t fx1_val,
+								uint8_t fx2_id, uint8_t fx2_val)
+{
+	if(mtProject.instrument[instr_idx].isActive != 1) return 0;
+
+	__disable_irq();
+	AudioNoInterrupts();
+	uint8_t status;
+
+	currentInstrument_idx=instr_idx;
+	currentNote=note;
+
+	handleInitFxNoteOnAllEnvelopes();
+
+	handleFxNoteOnFilter();
+
+	handleFxNoteOnGain();
+
+	handleFxNoteOnPanning();
+
+	handleFxNoteOnReverbSend();
+
+//********* obsluga performance parametrow obslugiwanych w play_memory
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::endPoint])
+	{
+		changeEndPointPerformanceMode(performanceMod.endPoint);
+	}
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+	{
+		changeStartPointPerformanceMode(performanceMod.startPoint);
+	}
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
+	{
+		changeWavetableWindowPerformanceMode(performanceMod.wavetablePosition);
+	}
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::tune])
+	{
+		changeTunePerformanceMode(performanceMod.tune);
+	}
+//******** seqFx
+	seqFx(fx1_id,fx1_val,0);
+	seqFx(fx2_id,fx2_val,1);
+//*******
+	status = playMemPtr->play(instr_idx,note);
+//******* start env
+	envelopeAmpPtr->noteOn();
+	for(uint8_t i = 0 ; i < ENVELOPES_WITHOUT_AMP_MAX; i++)
+	{
+		if((mtProject.instrument[instr_idx].envelope[envelopesWithoutAmpIdx[i]].enable)
+		|| (trackControlParameter[(int)controlType::sequencerMode][envelopesWithoutAmpControlValue[i]])
+		|| (trackControlParameter[(int)controlType::sequencerMode2][envelopesWithoutAmpControlValue[i]])
+		|| (trackControlParameter[(int)controlType::performanceMode][envelopesWithoutAmpControlValue[i]]))
+		{
+			envelopePtr[envelopesWithoutAmpIdx[i]]->start();
+		}
+	}
+//*******
+	__enable_irq();
+	AudioInterrupts();
+	return status;
+}
+
+//************************************* handle noteOn
+void playerEngine::handleInitNoteOnAllEnvelopes()
+{
+	for(uint8_t i = 0 ; i < ENVELOPES_WITHOUT_AMP_MAX ; i++)
+	{
+		envelopePtr[envelopesWithoutAmpIdx[i]]->kill();
+	}
+
+	handleInitNoteOnAmpEnvelope();
+
+	if(mtProject.instrument[currentInstrument_idx].filterEnable)
+	{
+		handleInitNoteOnEnvelope((uint8_t)envWithoutAmp::filter);
+	}
+
+	if(mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable)
+	{
+		handleInitNoteOnEnvelope((uint8_t)envWithoutAmp::wtPos);
+	}
+
+	if((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWaveFile) && (mtProject.instrument[currentInstrument_idx].playMode == playModeGranular))
+	{
+		handleInitNoteOnEnvelope((uint8_t)envWithoutAmp::granPos);
+	}
+	handleInitNoteOnEnvelope((uint8_t)envWithoutAmp::panning);
+}
+
+void playerEngine::handleNoteOnFilter()
+{
+	if(mtProject.instrument[currentInstrument_idx].filterEnable)
+	{
+		filterConnect();
+		filterPtr->resonance(mtProject.instrument[currentInstrument_idx].resonance + RESONANCE_OFFSET);
+		filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+
+		changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+	}
+	else if(!mtProject.instrument[currentInstrument_idx].filterEnable)
+	{
+		filterDisconnect();
+	}
+}
+
+void playerEngine::handleNoteOnGain()
+{
+	if(muteState == MUTE_DISABLE)
+	{
+		ampPtr->gain(mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount * (mtProject.instrument[currentInstrument_idx].volume/100.0));
+	}
+	else
+	{
+		ampPtr->gain(AMP_MUTED);
+	}
+}
+
+void playerEngine::handleNoteOnPanning()
+{
+	float gainL = 0, gainR = 0;
+
+	if(mtProject.instrument[currentInstrument_idx].panning < 50)
+	{
+		gainR = (mtProject.instrument[currentInstrument_idx].panning) / 50.0;
+		gainL = 1.0;
+	}
+	else if(mtProject.instrument[currentInstrument_idx].panning > 50)
+	{
+		gainR = 1.0;
+		gainL = (100 - mtProject.instrument[currentInstrument_idx].panning)/50.0;
+	}
+	else if(mtProject.instrument[currentInstrument_idx].panning == 50)
+	{
+		gainL = 1.0; gainR = 1.0;
+	}
+
+	mixerL.gain(nChannel,gainL);
+	mixerR.gain(nChannel,gainR);
+
+}
+
+void playerEngine::handleNoteOnReverbSend()
+{
+	if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+	{
+		mixerReverb.gain(nChannel,mtProject.instrument[currentInstrument_idx].reverbSend/100.0);
+	}
+	else
+	{
+		mixerReverb.gain(nChannel,AMP_MUTED);
+	}
+}
+
+void playerEngine::handleInitNoteOnAmpEnvelope()
+{
+	if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+	{
+		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+		{
+			calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp]);
+
+			envelopeAmpPtr->delay(lfoBasedEnvelope[envAmp].delay);
+			envelopeAmpPtr->attack(lfoBasedEnvelope[envAmp].attack);
+			envelopeAmpPtr->hold(lfoBasedEnvelope[envAmp].hold);
+			envelopeAmpPtr->decay(lfoBasedEnvelope[envAmp].decay);
+			envelopeAmpPtr->sustain(lfoBasedEnvelope[envAmp].sustain);
+			envelopeAmpPtr->release(lfoBasedEnvelope[envAmp].release);
+			envelopeAmpPtr->setLoop(lfoBasedEnvelope[envAmp].loop);
+		}
+		else
+		{
+			envelopeAmpPtr->delay(mtProject.instrument[currentInstrument_idx].envelope[envAmp].delay);
+			envelopeAmpPtr->attack(mtProject.instrument[currentInstrument_idx].envelope[envAmp].attack);
+			envelopeAmpPtr->hold(mtProject.instrument[currentInstrument_idx].envelope[envAmp].hold);
+			envelopeAmpPtr->decay(mtProject.instrument[currentInstrument_idx].envelope[envAmp].decay);
+			envelopeAmpPtr->sustain(mtProject.instrument[currentInstrument_idx].envelope[envAmp].sustain);
+			envelopeAmpPtr->release(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release);
+			envelopeAmpPtr->setLoop(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop);
+		}
+	}
+	else
+	{
+		envelopeAmpPtr->delay(0);
+		envelopeAmpPtr->attack(0);
+		envelopeAmpPtr->hold(0);
+		envelopeAmpPtr->decay(0);
+		envelopeAmpPtr->sustain(1.0);
+		envelopeAmpPtr->release(0.0f);
+		envelopeAmpPtr->setLoop(0);
+	}
+}
+
+void playerEngine::handleInitNoteOnEnvelope(uint8_t n)
+{
+	currentEnvelopeModification[envelopesWithoutAmpIdx[n]] = 0;
+	if(mtProject.instrument[currentInstrument_idx].envelope[envelopesWithoutAmpIdx[n]].enable)
+	{
+		if(mtProject.instrument[currentInstrument_idx].envelope[envelopesWithoutAmpIdx[n]].loop)
+		{
+			calcLfoBasedEnvelope(&lfoBasedEnvelope[envelopesWithoutAmpIdx[n]], &mtProject.instrument[currentInstrument_idx].lfo[envelopesWithoutAmpIdx[n]]);
+			envelopePtr[envelopesWithoutAmpIdx[n]]->init(&lfoBasedEnvelope[envelopesWithoutAmpIdx[n]]);
+		}
+		else
+		{
+			envelopePtr[envelopesWithoutAmpIdx[n]]->init(&mtProject.instrument[currentInstrument_idx].envelope[envelopesWithoutAmpIdx[n]]);
+		}
+	}
+}
+//*************************************** FX NOTE ON
+void playerEngine::handleInitFxNoteOnEnvelope(uint8_t n)
+{
+	if((!trackControlParameter[(int)controlType::sequencerMode][envelopesWithoutAmpControlValue[n]]) &&
+	(!trackControlParameter[(int)controlType::sequencerMode2][envelopesWithoutAmpControlValue[n]]) &&
+	(!trackControlParameter[(int)controlType::performanceMode][envelopesWithoutAmpControlValue[n]]))
+	{
+		handleInitNoteOnEnvelope(n);
+	}
+
+	if(mtProject.instrument[currentInstrument_idx].envelope[envelopesWithoutAmpIdx[n]].enable)
+	{
+		if(mtProject.instrument[currentInstrument_idx].envelope[envelopesWithoutAmpIdx[n]].loop)
+		{
+			if(trackControlParameter[(int)controlType::performanceMode][envelopesWithoutAmpControlValue[n]])
+			{
+				switch(n)
+				{
+				case (int)envWithoutAmp::filter:
+
+					changeCutoffLfoRatePerformanceMode(performanceMod.lfoCutoffRate);
+					break;
+				case (int)envWithoutAmp::granPos:
+
+					changePositionLfoRatePerformanceMode(performanceMod.lfoPositionRate);
+					break;
+				case (int)envWithoutAmp::wtPos:
+
+					changePositionLfoRatePerformanceMode(performanceMod.lfoPositionRate);
+					break;
+				case (int)envWithoutAmp::panning:
+
+					changePositionLfoRatePerformanceMode(performanceMod.lfoPanningRate);
+					break;
+				}
+			}
+		}
+	}
+}
+void playerEngine::handleInitFxNoteOnAmpEnvelope()
+{
+	if((!trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]) &&
+	(!trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp]) &&
+	(!trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp]))
+	{
+		handleInitNoteOnAmpEnvelope();
+	}
+	if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+	{
+		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+		{
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp])
+			{
+				changeCutoffLfoRatePerformanceMode(performanceMod.lfoAmpRate);
+			}
+		}
+	}
+
+}
+void playerEngine::handleInitFxNoteOnAllEnvelopes()
+{
+	for(uint8_t i = 0 ; i < ENVELOPES_WITHOUT_AMP_MAX ; i++)
+	{
+		envelopePtr[envelopesWithoutAmpIdx[i]]->kill();
+	}
+
+	handleInitFxNoteOnAmpEnvelope();
+
+	if(mtProject.instrument[currentInstrument_idx].filterEnable)
+	{
+		handleInitFxNoteOnEnvelope((uint8_t)envWithoutAmp::filter);
+	}
+
+	if(mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable)
+	{
+		handleInitFxNoteOnEnvelope((uint8_t)envWithoutAmp::wtPos);
+	}
+
+	if((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWaveFile) && (mtProject.instrument[currentInstrument_idx].playMode == playModeGranular))
+	{
+		handleInitFxNoteOnEnvelope((uint8_t)envWithoutAmp::granPos);
+	}
+	handleInitFxNoteOnEnvelope((uint8_t)envWithoutAmp::panning);
+}
+
+void playerEngine::handleFxNoteOnFilter()
+{
+//***** resonance
+	if(mtProject.instrument[currentInstrument_idx].filterEnable)
+	{
+		filterPtr->resonance(mtProject.instrument[currentInstrument_idx].resonance + RESONANCE_OFFSET);
+	}
+//*****
+//***** cutoff + enable
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
+	{
+		changeCutoffPerformanceMode(performanceMod.cutoff); // włączenie filtra jest w środku
+	}
+	else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterCutoff])
+		|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterCutoff]))
+	{
+		filterConnect();
+		filterPtr->setCutoff(currentSeqModValues.filterCutoff);
+	}
+	else
+	{
+		if(mtProject.instrument[currentInstrument_idx].filterEnable)
+		{
+			filterConnect();
+			filterPtr->setCutoff(mtProject.instrument[currentInstrument_idx].cutOff);
+		}
+		else if(!mtProject.instrument[currentInstrument_idx].filterEnable) filterDisconnect();
+	}
+//*****
+//***** filter type
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterType])
+	{
+		changeFilterTypePerformanceMode(performanceMod.filterType);
+	}
+	else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterType])
+		|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterType]))
+	{
+		changeFilterType(currentSeqModValues.filterType);
+	}
+	else
+	{
+		if(mtProject.instrument[currentInstrument_idx].filterEnable)
+		{
+			changeFilterType(mtProject.instrument[currentInstrument_idx].filterType);
+		}
+	}
+//*****
+}
+
+void playerEngine::handleFxNoteOnGain()
+{
+	float localAmount = 0.0f;
+
+	if( ((mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable) && (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)) ||
+		trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
+		trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
+		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
+	{
+		localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+	}
+	else
+	{
+		localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
+	}
+
+
+	if(muteState == MUTE_DISABLE)
+	{
+		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
+		{
+			changeVolumePerformanceMode(performanceMod.volume);
+		}
+		else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume] ||
+				trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume])
+		{
+			ampPtr->gain( (currentSeqModValues.volume/100.0) * localAmount);
+		}
+		else
+		{
+			ampPtr->gain(localAmount * (mtProject.instrument[currentInstrument_idx].volume/100.0));
+		}
+	}
+	else
+	{
+		ampPtr->gain(AMP_MUTED);
+	}
+}
+
+void playerEngine::handleFxNoteOnPanning()
+{
+	float gainL = 0, gainR = 0;
+
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning])
+	{
+		changePanningPerformanceMode(performanceMod.panning);
+	}
+	else if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::panning]) ||
+		(trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::panning]))
+	{
+		if(currentSeqModValues.panning < 50)
+		{
+			gainR = (currentSeqModValues.panning ) / 50.0;
+			gainL = 1.0;
+		}
+		else if(currentSeqModValues.panning > 50)
+		{
+			gainR = 1.0;
+			gainL = ( 100 - currentSeqModValues.panning) / 50.0;
+		}
+		else if(currentSeqModValues.panning == 50)
+		{
+			gainL = 1.0; gainR = 1.0;
+		}
+
+		mixerL.gain(nChannel,gainL);
+		mixerR.gain(nChannel,gainR);
+	}
+	else
+	{
+		if(mtProject.instrument[currentInstrument_idx].panning < 50)
+		{
+			gainR = (mtProject.instrument[currentInstrument_idx].panning) / 50.0;
+			gainL = 1.0;
+		}
+		else if(mtProject.instrument[currentInstrument_idx].panning > 50)
+		{
+			gainR = 1.0;
+			gainL = (100 - mtProject.instrument[currentInstrument_idx].panning)/50.0;
+		}
+		else if(mtProject.instrument[currentInstrument_idx].panning == 50)
+		{
+			gainL = 1.0; gainR = 1.0;
+		}
+
+		mixerL.gain(nChannel,gainL);
+		mixerR.gain(nChannel,gainR);
+	}
+}
+
+void playerEngine::handleFxNoteOnReverbSend()
+{
+	if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+	{
+		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+		{
+			changeReverbSendPerformanceMode(performanceMod.reverbSend);
+		}
+		else if ((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend])
+			||(trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend]))
+		{
+			mixerReverb.gain(nChannel,currentSeqModValues.reverbSend/100.0);
+		}
+		else
+		{
+			mixerReverb.gain(nChannel,mtProject.instrument[currentInstrument_idx].reverbSend/100.0);
+		}
+	}
+	else
+	{
+		mixerReverb.gain(nChannel,AMP_MUTED);
+	}
+}
+
