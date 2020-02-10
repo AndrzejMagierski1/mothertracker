@@ -596,6 +596,8 @@ void firmwareUpgradeActivate()
 	CE->changeLabelText(7, "Update");
 	CE->showConfigList5(0, CE->firmwareFoundNum, CE->ptrfirmwareNamesList);
 
+	CE->selectConfigList();
+
 }
 
 void firmwareUpgradeDeactivate()
