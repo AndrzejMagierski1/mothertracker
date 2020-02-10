@@ -372,8 +372,8 @@ void cPatternEditor::refreshPattern()
 				{
 					trackerPattern.track[i].row[j].instr[3] = 1;
 
-					char inst0 = (seq->track[i].step[patternPosition - 7 + j].instrument + 3) / 10;
-					char inst1 = (seq->track[i].step[patternPosition - 7 + j].instrument + 3) % 10;
+					char inst0 = (seq->track[i].step[patternPosition - 7 + j].instrument - INSTRUMENTS_COUNT+1) / 10;
+					char inst1 = (seq->track[i].step[patternPosition - 7 + j].instrument - INSTRUMENTS_COUNT+1) % 10;
 
 					trackerPattern.track[i].row[j].instr[0] = inst0 + 48;
 					trackerPattern.track[i].row[j].instr[1] = inst1 + 48;

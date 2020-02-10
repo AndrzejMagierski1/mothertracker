@@ -1507,6 +1507,7 @@ static  uint8_t functActionConfirmSaveLoad()
 		if(!mtProject.instrument[i].isActive)
 		{
 			firstFree = i;
+			mtProject.values.lastUsedInstrument = i;
 			break;
 		}
 	}
