@@ -898,9 +898,10 @@ void cPatternEditor::refreshFillType()
 			display.setControlValue(val2PopupBar, (fillData[editParam].from*100)/(255));
 		}
 
-		refreshFillFrom();
-		refreshFillTo();
 	}
+
+	refreshFillFrom();
+	refreshFillTo();
 
 	display.refreshControl(val1PopupBar);
 	display.refreshControl(val2PopupBar);
