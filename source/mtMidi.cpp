@@ -308,7 +308,7 @@ void sendCC(uint8_t internalControl, uint8_t value)
 	{
 		usbMIDI.sendControlChange(mtConfig.midi.ccOut[internalControl],
 									value,
-									mtConfig.midi.notesOutChannel);
+									mtConfig.midi.notesOutChannel+1);
 	}
 
 	if (mtConfig.midi.notesOutMode == notesOut_mode_jack ||
@@ -316,7 +316,7 @@ void sendCC(uint8_t internalControl, uint8_t value)
 	{
 		MIDI.sendControlChange(mtConfig.midi.ccOut[internalControl],
 								value,
-								mtConfig.midi.notesOutChannel);
+								mtConfig.midi.notesOutChannel+1);
 	}
 }
 
@@ -326,14 +326,14 @@ void sendProgramChange(uint8_t value)
 			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
 	{
 		usbMIDI.sendProgramChange(value,
-									mtConfig.midi.notesOutChannel);
+									mtConfig.midi.notesOutChannel+1);
 	}
 
 	if (mtConfig.midi.notesOutMode == notesOut_mode_jack ||
 			mtConfig.midi.notesOutMode == notesOut_mode_usb_and_jack)
 	{
 		MIDI.sendProgramChange(value,
-								mtConfig.midi.notesOutChannel);
+								mtConfig.midi.notesOutChannel+1);
 	}
 }
 

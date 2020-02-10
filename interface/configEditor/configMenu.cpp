@@ -48,8 +48,8 @@ cMenuItem melTransportIn	(menuMidi, 		2, "Transport in", 			menuTypeItemListText
 cMenuItem melTransportOut	(menuMidi, 		3, "Transport out", 		menuTypeItemListText, &transportOutSetup);
 cMenuItem melNotsInMode		(menuMidi, 		4, "Notes in mode", 		menuTypeItemListText, &notesInModeSetup);
 cMenuItem melNotesInChannel	(menuMidi, 		5, "Notes in channnel", 	menuTypeItemListText, &notesInChanneletup);
-cMenuItem melNotsOutMode	(menuMidi, 		6, "Notes out mode", 		menuTypeItemListText, &notesOutModeSetup);
-cMenuItem melNotesOutChannel(menuMidi, 		7, "Notes out channel", 	menuTypeItemListText, &notesOutChannelSetup);
+cMenuItem melNotsOutMode	(menuMidi, 		6, "MIDI out mode", 		menuTypeItemListText, &notesOutModeSetup);
+cMenuItem melNotesOutChannel(menuMidi, 		7, "CC/PC out channel", 	menuTypeItemListText, &notesOutChannelSetup);
 cMenuGroup menuCCOut		(menuMidi, 		8, "CC out", 		5);
 
 const strItemTypeValue8 setupCC1 		{ &mtConfig.midi.ccOut[0],  0, 127, 1, 0	 };
