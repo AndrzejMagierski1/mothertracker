@@ -93,6 +93,7 @@ public:
 	void activateRandomisePopupBorder();
 	void setFillPlace(uint8_t place, int8_t dir = 0);
 	void changeFillPlace(int8_t diff);
+	void refreshFillPlace();
 
 	void showTempo();
 	void showPattern();

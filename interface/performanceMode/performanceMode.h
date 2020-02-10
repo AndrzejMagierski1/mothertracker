@@ -146,6 +146,7 @@ public:
 	void toggleTrackPerformanceState(uint8_t track);
 	void clearPerformanceValues(uint8_t track, uint8_t fx);
 	void refreshPerformanceValuesForTrack(uint8_t track, uint8_t place);
+	void clearOtherFilterTypes(uint8_t  track, uint8_t choosenType);
 
 	uint8_t wasPatternOntrackChenged(uint8_t track);
 
@@ -208,7 +209,7 @@ public:
 	//--------performance values
 	// gui
 	char fxValuesText[12][4][7] = {0};
-	char trackPaternText[8][14]; // do labeli przyciskow pod ekranem
+	char trackPaternText[8][12]; // do labeli przyciskow pod ekranem
 
 	// funct
 	uint8_t tracksPerformanceState[8] = {0}; // afektowane tracki

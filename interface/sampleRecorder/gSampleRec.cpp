@@ -67,12 +67,12 @@ void cSampleRecorder::initDisplayControls()
 	prop9.x = 400;
 	prop9.colors = popUpLabelColors;
 //	prop.colors = &color[0];
-	prop9.y = 350;
+	prop9.y = 300;
 	//prop.w = 800/4-10;
 //	prop9.style = controlStyleValue_0_100;
 	prop9.h = 100;
 	prop9.w = 800-(10);
-	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
+	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 );
 	prop9.text = (char*)"Changes will be lost. Do you want to continue?";
 	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop9);
 
@@ -218,9 +218,10 @@ void cSampleRecorder::initDisplayControls()
 	prop10.text = (char*)"";
 	prop10.style = 	(controlStyleCenterX | controlStyleCenterY | controlStyleBackground | controlStyleBottomShadow);
 	prop10.x = (800/8)*3-1;
-	prop10.y = 29+394/2;
+	//prop10.y = 29+394/2;
 	prop10.w = 800/4-3;
 	prop10.h = 394;
+	prop10.y = 29;
 	prop10.colors = radioLabelColors;
 	if(radioRdsLabel == nullptr) radioRdsLabel = display.createControl<cLabel>(&prop10);
 
@@ -283,8 +284,6 @@ void cSampleRecorder::destroyDisplayControls()
 	display.destroyControl(selectWindowLabel);
 	selectWindowLabel = nullptr;
 
-	display.destroyControl(notePopoutControl);
-	notePopoutControl = nullptr;
 
 	display.destroyControl(radioRdsLabel);
 	radioRdsLabel = nullptr;
@@ -300,6 +299,7 @@ void cSampleRecorder::showDefaultScreen()
 	for(int i=0;i<8;i++)
 	{
 		display.setControlText(label[i], "");
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
 	}
 
 	//display.setControlShow(bgLabel);

@@ -120,7 +120,7 @@ void cInterfacePopups::initPopupsDisplayControls()
 	strControlProperties prop2;
 	prop2.style = 	(controlStyleCenterY | controlStyleBackground);
 	prop2.x = 30;
-	prop2.y = 13;
+	prop2.y = 0;
 	if(textLabel1 == nullptr) textLabel1 = display.createControl<cLabel>(&prop2);
 	prop2.x = 769;
 	prop2.value = 0;
@@ -202,7 +202,7 @@ void cInterfacePopups::showNotesPopup()
 	display.refreshControl(bgLabel);
 
 	display.setControlText(textLabel1, " Notes");
-	display.setControlPosition(textLabel1, 2, 13);
+	display.setControlPosition(textLabel1, 2, 0);
 	display.setControlSize(textLabel1, 800, 26);
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleFont4);
 	display.refreshControl(textLabel1);
@@ -234,7 +234,7 @@ void cInterfacePopups::showInstrumentsPopup()
 	display.refreshControl(bgLabel);
 
 	display.setControlText(textLabel1, "  Instruments");
-	display.setControlPosition(textLabel1, 600+1, 13);
+	display.setControlPosition(textLabel1, 600+1, 0);
 	display.setControlSize(textLabel1, 200, 26);
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleFont4);
 	display.refreshControl(textLabel1);
@@ -595,7 +595,7 @@ void cInterfacePopups::showActualInstrument()
 
 	display.setControlText(textLabel2,  actualInstrName);
 	display.setControlStyle(textLabel2, controlStyleShow  | controlStyleCenterY);
-	display.setControlPosition(textLabel2, 585, 12);
+	display.setControlPosition(textLabel2, 585, 0);
 	display.refreshControl(textLabel2);
 }
 /*
@@ -699,12 +699,12 @@ void cInterfacePopups::refreshStepPopupDescription()
 	display.setControlText(textLabel2, "Description");
 	display.setControlStyle(textLabel2, controlStyleShow | controlStyleCenterY  | controlStyleFont1  | controlStyleShowBitmap);
 	display.setControlColors(textLabel2, interfaceGlobals.activeButtonLabelsColors);
-	display.setControlPosition(textLabel2, 600+40, 458);
+	display.setControlPosition(textLabel2, 600+40, 445);
 	display.setControlSize(textLabel2, 200, 26);
 
 	if(mtConfig.interface.fxPopupDescription)
 	{
-		display.setControlPosition(textLabel1, 400+1, 13);
+		display.setControlPosition(textLabel1, 400+1, 0);
 		display.setControlSize(textLabel1, 400, 26);
 		display.refreshControl(textLabel1);
 
@@ -730,7 +730,7 @@ void cInterfacePopups::refreshStepPopupDescription()
 	}
 	else
 	{
-		display.setControlPosition(textLabel1, 600+1, 13);
+		display.setControlPosition(textLabel1, 600+1, 0);
 		display.setControlSize(textLabel1, 200, 26);
 		display.refreshControl(textLabel1);
 

@@ -283,7 +283,7 @@ void cPatternEditor::initDisplayControls()
 	prop.style = ( controlStyleCenterY | controlStyleFont4 | controlStyleBackground);
 	prop.colors = nullptr;
 	prop.x = 2;
-	prop.y = 8*28 + 15;
+	prop.y = 8*28;
 	prop.w = 795;
 	prop.h = 27;
 	if(patternPopupTitleLabel == nullptr)  patternPopupTitleLabel = display.createControl<cLabel>(&prop);
@@ -813,7 +813,7 @@ void cPatternEditor::showFillPopup()
 
 	display.refreshControl(bgLabel);
 
-	//setFillPlace(fillPlace);
+	refreshFillPlace();
 	activateFillPopupBorder();
 
 	display.synchronizeRefresh();
