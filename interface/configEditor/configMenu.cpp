@@ -159,6 +159,7 @@ void cConfigEditor::loadConfigTextList(strItemTypeListText* itemSetup)
 {
 	showConfigList5(*itemSetup->value, itemSetup->count, (char**)itemSetup->ptrText);
 	changeLabelText(7, "Select");
+	selectConfigList();
 }
 
 void cConfigEditor::loadConfigValuesList(strItemTypeListValues* itemSetup)
