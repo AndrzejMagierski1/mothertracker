@@ -380,6 +380,8 @@ void cPerformanceMode::refreshPerformanceValuesForTrack(uint8_t track, uint8_t p
 	{
 		//if(FX_VALUE(place) != 0)
 		//{
+			//clearOtherFilterTypes();
+
 			instrumentPlayer[track].changeFilterTypePerformanceMode(1);
 			instrumentPlayer[track].changeCutoffPerformanceMode(FX_VALUE(place));
 		//}
@@ -806,6 +808,16 @@ static  uint8_t functEncoder(int16_t value)
 }
 
 
+void cPerformanceMode::clearOtherFilterTypes(uint8_t  track, uint8_t choosenType)
+{
+	instrumentPlayer[track].endCutoffPerformanceMode();
+	instrumentPlayer[track].endFilterTypePerformanceMode();
+
+
+
+
+
+}
 
 //=========================================================================================================
 static  uint8_t functLeft()

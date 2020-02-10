@@ -78,15 +78,16 @@ void cSongEditor::initDisplayControls()
 
 	prop2.text = (char*)"";
 	prop2.colors = interfaceGlobals.activeLabelsColors;
-	prop2.style = 	(controlStyleCenterX | controlStyleCenterY);
+	prop2.style = 	(controlStyleCenterX | controlStyleFont3);
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
 		prop2.x = (800/8)*i+(800/16);
 		if(i == 5) prop2.x = (800/8)*i+(800/8);
 		prop2.w = 800/8-6;
-		prop2.y = 452;
-		prop2.h =  59;
+		prop2.y = 424;
+		prop2.h =  55;
+		prop2.value =  1;
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
@@ -151,13 +152,19 @@ void cSongEditor::showDefaultScreen()
 	display.setControlText(titleLabel, "Song");
 	display.refreshControl(titleLabel);
 
-	display.setControlValue(label[0], 1);
-	display.setControlValue(label[1], 1);
-	display.setControlValue(label[2], 0);
-	display.setControlValue(label[3], 0);
-	display.setControlValue(label[4], 0);
-	display.setControlValue(label[5], 1);
-	display.setControlValue(label[6], 1);
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+	}
+
+//	display.setControlValue(label[0], 1);
+//	display.setControlValue(label[1], 1);
+//	display.setControlValue(label[2], 0);
+//	display.setControlValue(label[3], 0);
+//	display.setControlValue(label[4], 0);
+//	display.setControlValue(label[5], 1);
+//	display.setControlValue(label[6], 1);
 
 	display.setControlData(label[5], &doubleArrow[0]);
 	display.setControlData(label[6], &doubleArrow[1]);

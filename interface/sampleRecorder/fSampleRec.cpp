@@ -240,7 +240,7 @@ void cSampleRecorder::start(uint32_t options)
 	showSourceList();
 	refreshConfigLists();
 	refreshGain();
-	showZoomValue();
+	//showZoomValue();
 
 	points.selected = 0;
 	clearAllNodes();

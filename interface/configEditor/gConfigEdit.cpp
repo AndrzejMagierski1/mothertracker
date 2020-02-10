@@ -57,31 +57,31 @@ void cConfigEditor::initDisplayControls()
 
 	labelArrow[0].bitmaps[0].bitmapIndex = displayArrowU;
 	labelArrow[0].bitmaps[0].xValue =  (800/8)*0+(800/16);
-	labelArrow[0].bitmaps[0].yValue = 460;
+	labelArrow[0].bitmaps[0].yValue = 447;
 	labelArrow[0].bitmaps[1].bitmapIndex = displayArrowD;
 	labelArrow[0].bitmaps[1].xValue =  (800/8)*1+(800/16);
-	labelArrow[0].bitmaps[1].yValue = 460;
+	labelArrow[0].bitmaps[1].yValue = 447;
 
 	labelArrow[1].bitmaps[0].bitmapIndex = displayArrowU;
 	labelArrow[1].bitmaps[0].xValue =  (800/8)*2+(800/16);
-	labelArrow[1].bitmaps[0].yValue = 460;
+	labelArrow[1].bitmaps[0].yValue = 447;
 	labelArrow[1].bitmaps[1].bitmapIndex = displayArrowD;
 	labelArrow[1].bitmaps[1].xValue =  (800/8)*3+(800/16);
-	labelArrow[1].bitmaps[1].yValue = 460;
+	labelArrow[1].bitmaps[1].yValue = 447;
 
 	labelArrow[2].bitmaps[0].bitmapIndex = displayArrowU;
 	labelArrow[2].bitmaps[0].xValue =  (800/8)*5+(800/16);
-	labelArrow[2].bitmaps[0].yValue = 460;
+	labelArrow[2].bitmaps[0].yValue = 447;
 	labelArrow[2].bitmaps[1].bitmapIndex = displayArrowD;
 	labelArrow[2].bitmaps[1].xValue =  (800/8)*6+(800/16);
-	labelArrow[2].bitmaps[1].yValue = 460;
+	labelArrow[2].bitmaps[1].yValue = 447;
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		prop2.value = 1;
+		prop2.value = 0;
 		prop2.data = nullptr;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
-		prop2.style = 	( controlStyleCenterX | controlStyleFont3);
+		prop2.style = 	( controlStyleCenterX | controlStyleFont3 | controlStyleCenterY);
 		prop2.x = (800/8)*i+(800/16);
 		prop2.w = 800/8-6;
 		prop2.y = 424;
@@ -177,11 +177,11 @@ void cConfigEditor::showDefaultConfigScreen()
 
 	for(uint8_t i = 0; i<8; i++)
 	{
-		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+		//display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 		display.setControlText(label[i], "");
-		display.setControlText2(label[i], "");
+		//display.setControlText2(label[i], "");
 	}
 
 	display.refreshControl(titleBar);

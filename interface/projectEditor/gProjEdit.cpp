@@ -40,7 +40,7 @@ void cProjectEditor::initDisplayControls()
 
 	prop5.x = 400;
 	prop5.colors = popUpLabelColors;
-	prop5.y = 350;
+	prop5.y = 300;
 
 	prop5.h = 100;
 	prop5.w = 800-(10);

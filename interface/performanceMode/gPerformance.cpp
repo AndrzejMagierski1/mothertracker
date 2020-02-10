@@ -99,6 +99,7 @@ void cPerformanceMode::initDisplayControls()
 		prop2.w = 800/8-6;
 		prop2.y = 424;
 		prop2.h =  55;
+		prop2.value =  1;
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 	}
@@ -228,32 +229,23 @@ void cPerformanceMode::showPerformanceFxes()
 	display.setControlText(titleLabel, "Performance FX");
 	display.refreshControl(titleLabel);
 
-	display.setControlValue(label[0], 1);
-	display.setControlValue(label[1], 1);
-	display.setControlValue(label[2], 1);
-	display.setControlValue(label[3], 1);
-	display.setControlValue(label[4], 1);
-	display.setControlValue(label[5], 1);
-	display.setControlValue(label[6], 1);
-	display.setControlValue(label[7], 1);
+	display.setControlText(label[0], "Track 1");
+	display.setControlText(label[1], "Track 2");
+	display.setControlText(label[2], "Track 3");
+	display.setControlText(label[3], "Track 4");
+	display.setControlText(label[4], "Track 5");
+	display.setControlText(label[5], "Track 6");
+	display.setControlText(label[6], "Track 7");
+	display.setControlText(label[7], "Track 8");
 
-//	display.setControlText(label[0], "Track 1");
-//	display.setControlText(label[1], "Track 2");
-//	display.setControlText(label[2], "Track 3");
-//	display.setControlText(label[3], "Track 4");
-//	display.setControlText(label[4], "Track 5");
-//	display.setControlText(label[5], "Track 6");
-//	display.setControlText(label[6], "Track 7");
-//	display.setControlText(label[7], "Track 8");
-
-	display.setControlText(label[0], "Pattern");
-	display.setControlText(label[1], "Pattern");
-	display.setControlText(label[2], "Pattern");
-	display.setControlText(label[3], "Pattern");
-	display.setControlText(label[4], "Pattern");
-	display.setControlText(label[5], "Pattern");
-	display.setControlText(label[6], "Pattern");
-	display.setControlText(label[7], "Pattern");
+//	display.setControlText2(label[0], "Pattern");
+//	display.setControlText2(label[1], "Pattern");
+//	display.setControlText2(label[2], "Pattern");
+//	display.setControlText2(label[3], "Pattern");
+//	display.setControlText2(label[4], "Pattern");
+//	display.setControlText2(label[5], "Pattern");
+//	display.setControlText2(label[6], "Pattern");
+//	display.setControlText2(label[7], "Pattern");
 
 	//-------------------------------------
 
@@ -356,8 +348,8 @@ void cPerformanceMode::showTracksPatterns()
 {
 	for(uint8_t i = 0; i<8; i++)
 	{
-		//sprintf(&trackPaternText[i][0],"Pattern %d", mtProject.values.perfTracksPatterns[i]);
-		sprintf(&trackPaternText[i][0],"%d", mtProject.values.perfTracksPatterns[i]);
+		sprintf(&trackPaternText[i][0],"Patt: %d", mtProject.values.perfTracksPatterns[i]);
+		//sprintf(&trackPaternText[i][0],"%d", mtProject.values.perfTracksPatterns[i]);
 		display.setControlText2(label[i], &trackPaternText[i][0]);
 
 		display.setControlShow(label[i]);

@@ -142,7 +142,7 @@ public:
 	hControl titleBar = nullptr;
 	hControl titleLabel = nullptr;
 	hControl instrumentLabel = nullptr;
-	hControl notePopoutControl = nullptr;
+	//hControl notePopoutControl = nullptr;
 	hControl bgLabel;
 
 //*********************************************

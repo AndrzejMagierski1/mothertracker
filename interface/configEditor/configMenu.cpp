@@ -47,8 +47,8 @@ cMenuItem melClockOut		(menuMidi, 		1, "Clock out",				menuTypeItemListText, &cl
 cMenuItem melTransportIn	(menuMidi, 		2, "Transport in", 			menuTypeItemListText, &transportInSetup);
 cMenuItem melTransportOut	(menuMidi, 		3, "Transport out", 		menuTypeItemListText, &transportOutSetup);
 cMenuItem melNotsInMode		(menuMidi, 		4, "Notes in mode", 		menuTypeItemListText, &notesInModeSetup);
-cMenuItem melNotesInChannel	(menuMidi, 		5, "Notes in channnel", 	menuTypeItemListText, &notesOutModeSetup);
-cMenuItem melNotsOutMode	(menuMidi, 		6, "Notes out mode", 		menuTypeItemListText, &notesInChanneletup);
+cMenuItem melNotesInChannel	(menuMidi, 		5, "Notes in channnel", 	menuTypeItemListText, &notesInChanneletup);
+cMenuItem melNotsOutMode	(menuMidi, 		6, "Notes out mode", 		menuTypeItemListText, &notesOutModeSetup);
 cMenuItem melNotesOutChannel(menuMidi, 		7, "Notes out channel", 	menuTypeItemListText, &notesOutChannelSetup);
 cMenuGroup menuCCOut		(menuMidi, 		8, "CC out", 		5);
 
@@ -484,7 +484,6 @@ void cMenuGroup::execute()
 			configEditor.loadConfigValuesList((strItemTypeListValues*)selected_child->itemSetup);
 			break;
 		case menuTypeItemListText:
-
 			configEditor.loadConfigTextList((strItemTypeListText*)selected_child->itemSetup);
 			break;
 		case menuTypeItemLabel:

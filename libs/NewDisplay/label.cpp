@@ -159,8 +159,16 @@ uint8_t cLabel::update()
 	}
 	if(style & controlStyleCenterY)
 	{
-		border_y = posY - (height/2);
-		text_y = posY - ((lines_step_y*value)/2);
+		//border_y = posY - (height/2);
+
+		if(value == 0)
+		{
+			text_y = posY + (height/2);
+		}
+		else
+		{
+			text_y = posY + ((lines_step_y*value)/2);
+		}
 	}
 
 	if(style & controlStyleBackground)
