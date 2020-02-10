@@ -28,7 +28,7 @@ void cConfigEditor::initDisplayControls()
 	strControlProperties prop9;
 	prop9.x = 400;
 	prop9.colors = popUpLabelColors;
-	prop9.y = 350;
+	prop9.y = 300;
 	prop9.h = 100;
 	prop9.w = 800-10;
 	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
