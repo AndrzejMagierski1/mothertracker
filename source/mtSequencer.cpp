@@ -1003,16 +1003,10 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 				{
 					player.onPatternEnd();
 					player.onSongEnd();
-				}
-
-				if (player.songMode && !isNextPatternAvailable)
-				{
 					stop();
 				}
 			}
-
 		}
-
 	}
 	else if (playMode == PLAYMODE_BACKWARD)
 	{
