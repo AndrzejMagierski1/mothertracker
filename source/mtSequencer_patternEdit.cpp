@@ -1293,10 +1293,6 @@ int16_t Sequencer::getFxDefault(uint8_t fxID)
 		return mtProject.values.globalTempo;
 
 	case fx.FX_TYPE_ROLL:
-		//		case fx.FX_TYPE_ROLL_NOTE_UP:
-//		case fx.FX_TYPE_ROLL_NOTE_DOWN:
-//		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
-
 		return 1;
 
 	case fx.FX_TYPE_PANNING:
@@ -1334,29 +1330,26 @@ int16_t Sequencer::rollValueToPeriod(int16_t value)
 	}
 }
 
-int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
+int16_t Sequencer::getFxValueCorrection(uint8_t type, uint8_t value)
 {
-	strPattern::strTrack::strStep *actualStep = &getActualPattern()->track[track].step[step];
 
-	switch (actualStep->fx[fxID].type)
+	switch (type)
 	{
-	case fx.FX_TYPE_ROLL:
-		return rollValueToPeriod(actualStep->fx[fxID].value);
 	case fx.FX_TYPE_TEMPO:
-		return actualStep->fx[fxID].value * 2;
+		return value * 2;
 		break;
 	case fx.FX_TYPE_PANNING:
-		return actualStep->fx[fxID].value - 50;
+		return value - 50;
 		break;
 	case fx.FX_TYPE_MICROTUNING:
-		return actualStep->fx[fxID].value - 99;
+		return value - 99;
 		break;
 	case fx.FX_TYPE_SAMPLE_SLICE: // jawnie od 1, programowo od 0
-		return actualStep->fx[fxID].value + 1;
+		return value + 1;
 		break;
 
 	default:
-		return actualStep->fx[fxID].value;
+		return value;
 	}
 }
 
@@ -1389,16 +1382,21 @@ void Sequencer::makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track,
 {
 	strPattern::strTrack::strStep *actualStep = &getActualPattern()->track[track].step[step];
 
-	int16_t val = sequencer.getFxValueToView(fxID, track, step);
+	makeFxValLabel(ptr, actualStep->fx[fxID].type, actualStep->fx[fxID].value);
 
-	switch (actualStep->fx[fxID].type)
+}
+void Sequencer::makeFxValLabel(char * ptr, uint8_t fxType, uint8_t value)
+{
+
+	int16_t val = getFxValueCorrection(fxType, value);
+
+	switch (fxType)
 	{
 	case fx.FX_TYPE_ROLL:
 		sprintf(ptr,
-				"%c%.2u",
-				getRollTypeChar(actualStep->fx[fxID].value),
-				rollValueToPeriod(
-						actualStep->fx[fxID].value % (fx.ROLL_PERIOD_MAX + 1)));
+				"%c%2u",
+				getRollTypeChar(value),
+				rollValueToPeriod(value % (fx.ROLL_PERIOD_MAX + 1)));
 		break;
 
 	case fx.FX_TYPE_FILTER_LFO:
@@ -1419,14 +1417,14 @@ void Sequencer::makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track,
 		if (val >= 0)
 		{
 			sprintf(ptr,
-					"%.3i",
+					"%3i",
 					val
 					);
 		}
 		else
 		{
 			sprintf(ptr,
-					"%.2i",
+					"%3i",
 					val
 					);
 		}

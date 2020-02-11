@@ -697,10 +697,12 @@ public:
 	int16_t getFxMin(uint8_t fxID);
 	int16_t getFxDefault(uint8_t fxID);
 	int16_t getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step);
+	int16_t getFxValueCorrection(uint8_t type, uint8_t value);
 	char getRollTypeChar(uint8_t val);
 	uint8_t calcStepLength(uint8_t track, uint8_t step);
 	int16_t rollValueToPeriod(int16_t value);
 	void makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track, uint8_t step);
+	void makeFxValLabel(char * ptr, uint8_t fxType, uint8_t value);
 
 	uint8_t getActualPos()
 	{
