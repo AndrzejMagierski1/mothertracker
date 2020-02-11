@@ -26,6 +26,10 @@ class SdCard
 {
 public:
 
+	bool init();
+
+
+
 	uint8_t exists(const char* path)
 	{
 
@@ -33,10 +37,22 @@ public:
 		return 0;
 	}
 
-	uint8_t mkdir(uint8_t hidden, const char *path, bool pFlag = true)
+	bool mkdir(uint8_t hidden, const char *path, bool pFlag = true)
 	{
-
-		return 0;
+		FRESULT error = f_mkdir(path);
+	    if (error)
+	    {
+	        if (error == FR_EXIST)
+	        {
+	          //  PRINTF("Directory exists.\r\n");
+	        }
+	        else
+	        {
+	          //  PRINTF("Make directory failed.\r\n");
+	            return false;
+	        }
+	    }
+		return true;
 	}
 
 	SdFile open(const char* path, uint8_t oflag = FA_READ);
@@ -72,6 +88,21 @@ public:
 	bool open(const char* path, uint8_t oflag = FA_READ)
 	{
 
+		file = new FIL;
+
+		FRESULT error = f_open(file, path, oflag);
+		if (error)
+		{
+			if (error == FR_EXIST)
+			{
+			   // PRINTF("File exists.\r\n");
+			}
+			else
+			{
+			   // PRINTF("Open file failed.\r\n");
+				return false;
+			}
+		}
 		return true;
 	}
 
@@ -113,10 +144,17 @@ public:
 		return 0;
 	}
 
-	uint8_t close()
+	bool close()
 	{
+		if (f_close(file))
+		{
+		  //  PRINTF("\r\nClose file failed.\r\n");
+			return false;
+		}
 
-		return 0;
+		delete file;
+		file = nullptr;
+		return true;
 	}
 
 
@@ -195,7 +233,7 @@ public:
 
 private:
 
-	FIL* file;
+	FIL* file = nullptr;
 	uint8_t file_state = 0;
 	uint8_t is_directory = 0;
 };

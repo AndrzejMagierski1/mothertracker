@@ -352,7 +352,7 @@ status_t SDMMCHOST_Init(SDMMCHOST_CONFIG *host, void *userData)
     sdhcHost->transfer = SDMMCHOST_TransferFunction;
 
     /* card detect init */
-    SDMMCHOST_CardDetectInit(sdhcHost->base, (userData == NULL) ? NULL : (((sdmmhostcard_usr_param_t *)userData)->cd));
+    //SDMMCHOST_CardDetectInit(sdhcHost->base, (userData == NULL) ? NULL : (((sdmmhostcard_usr_param_t *)userData)->cd));
 
     return kStatus_Success;
 }
