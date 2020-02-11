@@ -29,7 +29,7 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 		mtProject.instrument[instrumentIndex].envelope[envAmp].release = 1000;
 		mtProject.instrument[instrumentIndex].envelope[envAmp].amount = 1.0;
 		mtProject.instrument[instrumentIndex].envelope[envAmp].loop = 0;
-		mtProject.instrument[instrumentIndex].envelope[envAmp].enable = envelopeOn;
+		mtProject.instrument[instrumentIndex].envelope[envAmp].enable = 1;
 
 		mtProject.instrument[instrumentIndex].envelope[envFilter].delay = 0;
 		mtProject.instrument[instrumentIndex].envelope[envFilter].attack = 3000;
@@ -39,7 +39,7 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 		mtProject.instrument[instrumentIndex].envelope[envFilter].release = 1000;
 		mtProject.instrument[instrumentIndex].envelope[envFilter].amount = 1.0;
 		mtProject.instrument[instrumentIndex].envelope[envFilter].loop = 0;
-		mtProject.instrument[instrumentIndex].envelope[envFilter].enable = envelopeOff;
+		mtProject.instrument[instrumentIndex].envelope[envFilter].enable = 0;
 
 		mtProject.instrument[instrumentIndex].envelope[envWtPos].delay = 0;
 		mtProject.instrument[instrumentIndex].envelope[envWtPos].attack = 3000;
@@ -49,7 +49,7 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 		mtProject.instrument[instrumentIndex].envelope[envWtPos].release = 1000;
 		mtProject.instrument[instrumentIndex].envelope[envWtPos].amount = 1.0;
 		mtProject.instrument[instrumentIndex].envelope[envWtPos].loop = 0;
-		mtProject.instrument[instrumentIndex].envelope[envWtPos].enable = envelopeOff;
+		mtProject.instrument[instrumentIndex].envelope[envWtPos].enable = 0;
 
 		mtProject.instrument[instrumentIndex].envelope[envGranPos].delay = 0;
 		mtProject.instrument[instrumentIndex].envelope[envGranPos].attack = 3000;
@@ -59,10 +59,20 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 		mtProject.instrument[instrumentIndex].envelope[envGranPos].release = 1000;
 		mtProject.instrument[instrumentIndex].envelope[envGranPos].amount = 1.0;
 		mtProject.instrument[instrumentIndex].envelope[envGranPos].loop = 0;
-		mtProject.instrument[instrumentIndex].envelope[envGranPos].enable = envelopeOff;
+		mtProject.instrument[instrumentIndex].envelope[envGranPos].enable = 0;
+
+		mtProject.instrument[instrumentIndex].envelope[envPan].delay = 0;
+		mtProject.instrument[instrumentIndex].envelope[envPan].attack = 3000;
+		mtProject.instrument[instrumentIndex].envelope[envPan].hold = 0;
+		mtProject.instrument[instrumentIndex].envelope[envPan].decay = 0;
+		mtProject.instrument[instrumentIndex].envelope[envPan].sustain = 1.0;
+		mtProject.instrument[instrumentIndex].envelope[envPan].release = 1000;
+		mtProject.instrument[instrumentIndex].envelope[envPan].amount = 1.0;
+		mtProject.instrument[instrumentIndex].envelope[envPan].loop = 0;
+		mtProject.instrument[instrumentIndex].envelope[envPan].enable = 0;
 
 		mtProject.instrument[instrumentIndex].cutOff = 1.0;
-		mtProject.instrument[instrumentIndex].filterEnable = filterOff;
+		mtProject.instrument[instrumentIndex].filterEnable = 0;
 		mtProject.instrument[instrumentIndex].filterType = lowPass;
 		mtProject.instrument[instrumentIndex].resonance = 0;
 		mtProject.instrument[instrumentIndex].panning = 50;

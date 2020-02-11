@@ -13,7 +13,7 @@
 
 const uint8_t FV_VER_1	=					0;		// device version
 const uint8_t FV_VER_2 =					9;		// official update
-const uint8_t FV_VER_3 =					6;		// fix version  100 = brak 3 litery
+const uint8_t FV_VER_3 =					7;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
 
 const uint8_t PROJECT_FILE_VERSION 	=		1;		// wersja struktury pliku projektu
@@ -238,17 +238,11 @@ enum mtSampleType
 	mtSampleTypeCount
 };
 
-enum envelopeEnable
-{
-	envelopeOff=0,
-	envelopeOn
-};
-
-enum filterEnable
-{
-	filterOff=0,
-	filterOn
-};
+//enum filterEnable
+//{
+//	filterOff=0,
+//	filterOn
+//};
 
 enum filterType
 {
@@ -259,13 +253,6 @@ enum filterType
 	filterTypeMax
 };
 
-enum filterControlType
-{
-	manualControl,
-	envelopeControlHighPass,
-	envelopeControlLowPass,
-	lfoControl,
-};
 
 enum envelopesType
 {
@@ -329,25 +316,6 @@ enum recorderMode
 };
 //=====================================================================
 //=====================================================================
-
-enum lfoType
-{
-	lfoA,
-	lfoF,
-	lfoP,
-
-
-	lfoMax
-};
-
-enum lfoEnable
-{
-	lfoOff=0,
-	lfoOn
-};
-
-
-
 enum enPlaylist
 {
 	PLAYLIST_EMPTY_SLOT = 0,
