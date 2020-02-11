@@ -154,12 +154,14 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 
 			if (isStepToFillFx(step, offset, fxIndex, fillStep))
 			{
+				// przez float ladniej sie mapuje
+				float tempFloat = map(float(offset + sel->firstStep),
+										sel->firstStep,
+										sel->lastStep,
+										fromVal,
+										toVal);
+				step->fx[fxIndex].value = tempFloat;
 
-				step->fx[fxIndex].value = map(offset + sel->firstStep,
-												sel->firstStep,
-												sel->lastStep,
-												fromVal,
-												toVal);
 				step->fx[fxIndex].type =
 						(fxType >= 0) ? fxType : randomFx();
 				Serial.println(step->fx[fxIndex].type);
