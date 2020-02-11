@@ -681,8 +681,35 @@ void playerEngine:: update()
 				{
 					volume = mtProject.instrument[currentInstrument_idx].volume;
 				}
+				float localAmount = 0.0f;
 
-				ampPtr->gain( (volume/100.0) * (mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount) );
+				if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]  ||
+				   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
+				   trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
+				{
+					localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+				}
+				else
+				{
+					if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+					{
+						if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+						{
+							localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+						}
+						else
+						{
+							localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
+						}
+					}
+					else
+					{
+						localAmount = 1.0f;
+					}
+
+				}
+
+				ampPtr->gain( (volume/100.0) * localAmount );
 			}
 		}
 		if(statusBytes & PANNING_MASK)
@@ -698,7 +725,21 @@ void playerEngine:: update()
 
 			int32_t localPanningMod = currentEnvelopeModification[envPan] * PANNING_MAX;
 
-			int16_t localPanning = mtProject.instrument[currentInstrument_idx].panning; //todo: uzaleznic od trybu
+			int16_t localPanning = 0;
+
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning])
+			{
+				localPanning = currentPerformanceValues.panning;
+			}
+			else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::panning] ||
+					trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::panning])
+			{
+				localPanning = currentSeqModValues.panning;
+			}
+			else
+			{
+				localPanning = mtProject.instrument[currentInstrument_idx].panning;
+			}
 
 			if((int)(localPanning + localPanningMod) < PANNING_MIN) localPanning = PANNING_MIN;
 			else if((int)(localPanning+ localPanningMod) >= PANNING_MAX) localPanning = PANNING_MAX;
@@ -717,7 +758,21 @@ void playerEngine:: update()
 				currentEnvelopeModification[envFilter] = 0;
 			}
 
-			float localCutoff = mtProject.instrument[currentInstrument_idx].cutOff; //todo: uzaleznic od trybu
+			float localCutoff = 0.0f;
+
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::filterCutoff])
+			{
+				localCutoff = currentPerformanceValues.filterCutoff;
+			}
+			else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::filterCutoff] ||
+					trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::filterCutoff])
+			{
+				localCutoff = currentSeqModValues.filterCutoff;
+			}
+			else
+			{
+				localCutoff = mtProject.instrument[currentInstrument_idx].cutOff;
+			}
 
 			if(mtProject.instrument[currentInstrument_idx].cutOff + currentEnvelopeModification[envFilter] < 0.0f) localCutoff = 0.0f;
 			else if(mtProject.instrument[currentInstrument_idx].cutOff + currentEnvelopeModification[envFilter] > 1.0f) localCutoff = 1.0f;
@@ -750,7 +805,21 @@ void playerEngine:: update()
 			}
 
 			int32_t localWtPosisionMod = currentEnvelopeModification[envWtPos] * mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber;
-			uint32_t localWtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow; //todo: uzaleznic od trybu
+			uint32_t localWtPos = 0;
+
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
+			{
+				localWtPos = currentPerformanceValues.wavetablePosition;
+			}
+			else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::wavetablePosition] ||
+					trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::wavetablePosition])
+			{
+				localWtPos = currentSeqModValues.wavetablePosition;
+			}
+			else
+			{
+				localWtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+			}
 
 			if( (int)(localWtPos + localWtPosisionMod) < 0)
 			{
@@ -776,7 +845,22 @@ void playerEngine:: update()
 			}
 
 			int32_t localGranPosisionMod = currentEnvelopeModification[envGranPos] * MAX_16BIT;
-			uint16_t localGranPosition = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+
+			uint16_t localGranPosition = 0;
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])
+			{
+				localGranPosition = currentPerformanceValues.granularPosition;
+			}
+			else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::granularPosition] ||
+					trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::granularPosition])
+			{
+				localGranPosition = currentSeqModValues.granularPosition;
+			}
+			else
+			{
+				localGranPosition = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+			}
+
 			if((int)(localGranPosition + localGranPosisionMod) < 0) localGranPosition = 0;
 			else if((int)(localGranPosition + localGranPosisionMod) >= MAX_16BIT) localGranPosition = MAX_16BIT;
 			else localGranPosition += localGranPosisionMod;
@@ -798,8 +882,6 @@ void playerEngine:: update()
 			statusBytes &= (~GRANULAR_LOOP_SEND_MASK);
 			playMemPtr->setGranularLoopMode(mtProject.instrument[currentInstrument_idx].granular.type);
 		}
-
-
 		if(statusBytes & LFO_AMP_SEND_MASK)
 		{
 			statusBytes &= (~LFO_AMP_SEND_MASK);
@@ -1331,7 +1413,7 @@ void audioEngine::muteReverbSend(uint8_t channel, uint8_t state)
 void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 {
 	if(channel >= 8) return;
-	if(state == 0)
+	if(state == MUTE_DISABLE)
 	{
 		instrumentPlayer[channel].muteState = 0;
 		instrumentPlayer[channel].setStatusBytes(VOLUME_MASK);
@@ -1340,8 +1422,8 @@ void audioEngine::muteTrack(uint8_t channel, uint8_t state)
 	else
 	{
 		instrumentPlayer[channel].muteState = 1;
-		amp[channel].gain(0.0);
-		if(!forceSend) instrumentPlayer[channel].modReverbSend(0);
+		amp[channel].gain(AMP_MUTED);
+		if(!forceSend) instrumentPlayer[channel].modReverbSend(AMP_MUTED);
 	}
 }
 

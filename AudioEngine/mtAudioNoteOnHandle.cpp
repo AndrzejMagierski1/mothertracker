@@ -306,9 +306,27 @@ void playerEngine::handleNoteOnFilter()
 
 void playerEngine::handleNoteOnGain()
 {
+	float localAmount = 0.0f;
+
+	if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+	{
+		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+		{
+			localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+		}
+		else
+		{
+			localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
+		}
+	}
+	else
+	{
+		localAmount = 1.0f;
+	}
+
 	if(muteState == MUTE_DISABLE)
 	{
-		ampPtr->gain(mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount * (mtProject.instrument[currentInstrument_idx].volume/100.0));
+		ampPtr->gain(localAmount * (mtProject.instrument[currentInstrument_idx].volume/100.0));
 	}
 	else
 	{
@@ -554,7 +572,15 @@ void playerEngine::handleFxNoteOnGain()
 	}
 	else
 	{
-		localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
+		if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable))
+		{
+			localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
+		}
+		else
+		{
+			localAmount = 1.0f;
+		}
+
 	}
 
 

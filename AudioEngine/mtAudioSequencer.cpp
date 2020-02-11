@@ -364,8 +364,34 @@ void playerEngine::fxVolume(uint8_t fx_val, uint8_t fx_n)
 	}
 	else
 	{
-		//todo: zrobic zeby amount byl w zaleznosci od lfo/env
-		if(muteState == MUTE_DISABLE ) ampPtr->gain( (currentSeqModValues.volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+		float localAmount = 0.0f;
+
+		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]  ||
+		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
+		   trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
+		{
+			localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+		}
+		else
+		{
+			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+			{
+				if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+				{
+					localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+				}
+				else
+				{
+					localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
+				}
+			}
+			else
+			{
+				localAmount = 1.0f;
+			}
+
+		}
+		if(muteState == MUTE_DISABLE ) ampPtr->gain( (currentSeqModValues.volume/100.0) * localAmount);
 		else ampPtr->gain(AMP_MUTED);
 	}
 }
@@ -939,17 +965,44 @@ void playerEngine::endFxVolume(uint8_t fx_n)
 	}
 	else
 	{
-		//todo: zrobic wykrywanie volume po trybie
+		float localAmount = 0.0f;
+
+		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]  ||
+		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
+		   trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
+		{
+			localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+		}
+		else
+		{
+			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+			{
+				if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+				{
+					localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+				}
+				else
+				{
+					localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
+				}
+			}
+			else
+			{
+				localAmount = 1.0f;
+			}
+
+		}
+
 		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::volume])
 		{
 			if(fx_n == MOST_SIGNIFICANT_FX)
 			{
-				if(muteState == 0 ) ampPtr->gain( (currentSeqModValues.volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+				if(muteState == 0 ) ampPtr->gain( (currentSeqModValues.volume/100.0) * localAmount);
 			}
 		}
 		else
 		{
-			if(muteState == 0 ) ampPtr->gain( (mtProject.instrument[currentInstrument_idx].volume/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+			if(muteState == 0 ) ampPtr->gain( (mtProject.instrument[currentInstrument_idx].volume/100.0) * localAmount);
 		}
 	}
 }

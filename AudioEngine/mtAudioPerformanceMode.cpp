@@ -18,10 +18,37 @@ void playerEngine ::changeVolumePerformanceMode(int8_t value)
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] = 1;
 
-	if(muteState == 0)
-	{
-		ampPtr->gain(currentPerformanceValues.volume/100.0);
+	float localAmount = 0.0f;
 
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]  ||
+	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
+	   trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
+	{
+		localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+	}
+	else
+	{
+		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+		{
+			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+			{
+				localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+			}
+			else
+			{
+				localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
+			}
+		}
+		else
+		{
+			localAmount = 1.0f;
+		}
+
+	}
+
+	if(muteState == MUTE_DISABLE)
+	{
+		ampPtr->gain(currentPerformanceValues.volume/100.0 * localAmount);
 	}
 
 }
@@ -489,9 +516,37 @@ void playerEngine::endVolumePerformanceMode()
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume] = 0;
 
-	if(muteState == 0) //todo: cos mnie tu nie gra
+	if(muteState == MUTE_DISABLE)
 	{
-		ampPtr->gain(mtProject.instrument[currentInstrument_idx].volume/100.0);
+		float localAmount = 0.0f;
+
+		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]  ||
+		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
+		   trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
+		{
+			localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+		}
+		else
+		{
+			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+			{
+				if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+				{
+					localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+				}
+				else
+				{
+					localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
+				}
+			}
+			else
+			{
+				localAmount = 1.0f;
+			}
+
+		}
+
+		ampPtr->gain(mtProject.instrument[currentInstrument_idx].volume/100.0 * localAmount);
 	}
 }
 void playerEngine::endPanningPerformanceMode()
@@ -720,6 +775,15 @@ void playerEngine::endAmpLfoRatePerformanceMode()
 	}
 	else
 	{
+		uint8_t localVol = 0;
+
+		if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume]) ||
+		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume]))
+		{
+			localVol = currentSeqModValues.volume;
+		}
+		else localVol = mtProject.instrument[currentInstrument_idx].volume;
+
 		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
@@ -743,6 +807,9 @@ void playerEngine::endAmpLfoRatePerformanceMode()
 				envelopeAmpPtr->sustain(mtProject.instrument[currentInstrument_idx].envelope[envAmp].sustain);
 				envelopeAmpPtr->release(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release);
 				envelopeAmpPtr->setLoop(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop);
+
+				if(muteState == MUTE_DISABLE ) ampPtr->gain( (localVol/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+				else ampPtr->gain(AMP_MUTED);
 			}
 
 		}
@@ -756,18 +823,9 @@ void playerEngine::endAmpLfoRatePerformanceMode()
 			envelopeAmpPtr->release(0.0f);
 			envelopeAmpPtr->setLoop(0);
 
-			uint8_t localVol = 0;
 
-			if((trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume]) ||
-			  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume]))
-			{
-				localVol = currentSeqModValues.volume;
-			}
-			else localVol = mtProject.instrument[currentInstrument_idx].volume;
-
-
-			if(muteState == 0 ) ampPtr->gain( (localVol/100.0)); //amount = 1;
-			else ampPtr->gain(0.0f);
+			if(muteState == MUTE_DISABLE ) ampPtr->gain( (localVol/100.0)); //amount = 1;
+			else ampPtr->gain(AMP_MUTED);
 		}
 
 	}
