@@ -199,6 +199,9 @@ static status_t SDMMCHOST_CardDetectInit(SDMMCHOST_TYPE *base, const sdmmchost_d
         return kStatus_Fail;
     }
 
+
+
+
 //    if (cdType == kSDMMCHOST_DetectCardByGpioCD)
 //    {
 //
@@ -263,31 +266,31 @@ void cardDetectPinInterruptHandler(uint8_t state)
     SDMMCEVENT_Notify(kSDMMCEVENT_CardDetect);
 }
 
-status_t SDMMCHOST_WaitCardDetectStatus(SDMMCHOST_TYPE *hostBase,
-                                        const sdmmchost_detect_card_t *cd,
-                                        bool waitCardStatus)
-{
-    uint32_t timeout = SDMMCHOST_CARD_DETECT_TIMEOUT;
-
-    if (cd != NULL)
-    {
-        timeout = cd->cdTimeOut_ms;
-    }
-
-    if (waitCardStatus != s_sdInsertedFlag)
-    {
-        /* Wait card inserted. */
-        do
-        {
-            if (!SDMMCEVENT_Wait(kSDMMCEVENT_CardDetect, timeout))
-            {
-                return kStatus_Fail;
-            }
-        } while (waitCardStatus != s_sdInsertedFlag);
-    }
-
-    return kStatus_Success;
-}
+//status_t SDMMCHOST_WaitCardDetectStatus(SDMMCHOST_TYPE *hostBase,
+//                                        const sdmmchost_detect_card_t *cd,
+//                                        bool waitCardStatus)
+//{
+//    uint32_t timeout = SDMMCHOST_CARD_DETECT_TIMEOUT;
+//
+//    if (cd != NULL)
+//    {
+//        timeout = cd->cdTimeOut_ms;
+//    }
+//
+//    if (waitCardStatus != s_sdInsertedFlag)
+//    {
+//        /* Wait card inserted. */
+//        do
+//        {
+//            if (!SDMMCEVENT_Wait(kSDMMCEVENT_CardDetect, timeout))
+//            {
+//                return kStatus_Fail;
+//            }
+//        } while (waitCardStatus != s_sdInsertedFlag);
+//    }
+//
+//    return kStatus_Success;
+//}
 
 bool SDMMCHOST_IsCardPresent(void)
 {

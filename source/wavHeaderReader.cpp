@@ -74,6 +74,9 @@ void readHeader(strWavFileHeader* header, SdFile * wavfile)
 	}
 }
 
+
+/*
+
 void readHeader(strWavFileHeader* header, ExFatFile * wavfile)
 {
 	struct strSubchunkHeader
@@ -217,4 +220,5 @@ void readHeader(strWavFileHeader* header, FatFile * wavfile)
 		return;
 	}
 }
+*/
 

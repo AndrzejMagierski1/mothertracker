@@ -1,6 +1,6 @@
 
 #include "EEPROM.h"
-#include "SD.h"
+//#include "newSd.h"
 #include <display.h>
 
 
@@ -401,18 +401,18 @@ uint8_t buffSize = 255;
 
 void readSdConfig()
 {
-	if(SD.exists("/mtconfig.txt"))
-	{
-		SdFile fConfig;
-		char buff[buffSize+1];
-
-		fConfig = SD.open("/mtconfig.txt", FILE_READ);
-		buffSize = fConfig.read(buff, buffSize);
-		//fConfig.write(&CE->firmwareNamesList[CE->firmwareSelect][0], 13);
-		fConfig.close();
-
-		executeSdConfig(buff);
-	}
+//	if(SD.exists("/mtconfig.txt"))
+//	{
+//		SdFile fConfig;
+//		char buff[buffSize+1];
+//
+//		fConfig = SD.open("/mtconfig.txt", FILE_READ);
+//		buffSize = fConfig.read(buff, buffSize);
+//		//fConfig.write(&CE->firmwareNamesList[CE->firmwareSelect][0], 13);
+//		fConfig.close();
+//
+//		executeSdConfig(buff);
+//	}
 }
 
 

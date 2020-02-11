@@ -9,7 +9,32 @@
 int8_t sdCardInit();
 
 
-extern "C" {
+extern "C"
+{
+
 void cardDetectPinInterruptHandler(uint8_t state);
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif /* LIBS_NEWSD_NEWSD_H_ */

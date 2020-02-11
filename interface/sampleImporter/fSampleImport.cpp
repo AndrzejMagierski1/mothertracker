@@ -1002,7 +1002,7 @@ void cSampleImporter::listOnlyFolderNames(char* path)
 	uint8_t allFilesNum;
 	sdLocation.close();
 	sdLocation.open(path, O_READ); //"/"
-	sdLocation.read();
+	//sdLocation.read();
 
 	if(dirLevel == 0)
 	{
@@ -1589,7 +1589,7 @@ void cSampleImporter::playSdFile()
 	if(!wavHeader)
 	{
 		wavHeader.close();
-		SD.begin(SdioConfig(DMA_SDIO));
+		//SD.begin(SdioConfig(DMA_SDIO));
 		return;
 	}
 

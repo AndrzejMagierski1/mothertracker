@@ -860,7 +860,7 @@ void cTest::playSdFile(const char* filePath)
 	if(!wavHeader)
 	{
 		wavHeader.close();
-		SD.begin(SdioConfig(DMA_SDIO));
+		//SD.begin(SdioConfig(DMA_SDIO));
 		return;
 	}
 

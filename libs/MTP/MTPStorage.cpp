@@ -1,3 +1,6 @@
+
+#include <string.h>
+
 #include "SD.h"
 #include "MTP.h"
 
@@ -5,6 +8,8 @@
 
 
 MTPStorage_SD storage;
+
+void yield(void);
 
 void mtp_lock_storage(bool lock)
 {
