@@ -838,6 +838,8 @@ void Sequencer::playSong(uint8_t fromPos)
 {
 
 	uint8_t patternToStart = fileManager.getSongPattern(fromPos);
+	fileManager.setSongPos(fromPos);
+
 	if (patternToStart == mtProject.values.actualPattern)
 	{
 		fileManager.savePattern(patternToStart);
@@ -845,11 +847,10 @@ void Sequencer::playSong(uint8_t fromPos)
 	else
 	{
 		fileManager.loadPattern(patternToStart);
+		switchRamPatternsNow();
 	}
 
-	fileManager.setSongPos(fromPos);
 
-	switchRamPatternsNow();
 
 	player.songMode = 1;
 	play();
