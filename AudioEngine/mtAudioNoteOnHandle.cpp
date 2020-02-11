@@ -1,4 +1,6 @@
 #include "mtAudioEngine.h"
+#include "mtSequencer.h"
+
 
 //********************************** NOTE_ON
 uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
@@ -103,6 +105,160 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	__enable_irq();
 	AudioInterrupts();
 	return status;
+}
+//********************************** NOTE OFF
+void playerEngine::noteOff(int8_t option)
+{
+	switch (option)
+	{
+		case Sequencer::STEP_NOTE_FADE:		noteOffFade();		 break;
+		case Sequencer::STEP_NOTE_CUT:		noteOffCut();		 break;
+		case Sequencer::STEP_NOTE_OFF:		noteOffOrdinary();	 break;
+	}
+}
+//************************************* handle noteOff
+void playerEngine::noteOffFade()
+{
+	__disable_irq();
+	AudioNoInterrupts();
+	envelopeAmpPtr->release(300);
+	envelopeAmpPtr->noteOff();
+	//lfo ma dzialac do konca fade
+
+	for(uint8_t i = 0; i < ENVELOPES_WITHOUT_AMP_MAX; i++ )
+	{
+		if((!mtProject.instrument[currentInstrument_idx].envelope[envelopesWithoutAmpIdx[i]].loop)
+		 && (!trackControlParameter[(int)controlType::sequencerMode][envelopesWithoutAmpControlValue[i]])
+		 && (!trackControlParameter[(int)controlType::sequencerMode2][envelopesWithoutAmpControlValue[i]])
+		 && (!trackControlParameter[(int)controlType::performanceMode][envelopesWithoutAmpControlValue[i]]))
+		{
+			envelopePtr[envelopesWithoutAmpIdx[i]]->stop();
+		}
+	}
+
+	AudioInterrupts();
+	__enable_irq();
+}
+void playerEngine::noteOffCut()
+{
+	__disable_irq();
+	AudioNoInterrupts();
+	// caly voice i automatyka zabijane
+	envelopeAmpPtr->noteOff();
+	envelopeAmpPtr->setIdle();
+	for(uint8_t i = 0; i < ENVELOPES_WITHOUT_AMP_MAX ; i++)
+	{
+		envelopePtr[envelopesWithoutAmpIdx[i]]->stop();
+		envelopePtr[envelopesWithoutAmpIdx[i]]->killToZero();
+	}
+	playMemPtr->stop();
+
+	AudioInterrupts();
+	__enable_irq();
+}
+void playerEngine::noteOffOrdinary()
+{
+	__disable_irq();
+	AudioNoInterrupts();
+	envelopeAmpPtr->noteOff();
+
+	if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+	 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp])
+	 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp])
+	 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp]))
+	{
+		//amp loop nie ma release wiec wszystko zabijamy od razu
+		for(uint8_t i = 0; i < ENVELOPES_WITHOUT_AMP_MAX ; i++)
+		{
+			envelopePtr[envelopesWithoutAmpIdx[i]]->stop();
+		}
+	}
+	else
+	{
+		//env ampa nie zabija od razu loopow - maja grac do konca env
+
+		for(uint8_t i = 0; i < ENVELOPES_WITHOUT_AMP_MAX; i++ )
+		{
+			if((!mtProject.instrument[currentInstrument_idx].envelope[envelopesWithoutAmpIdx[i]].loop)
+			 && (!trackControlParameter[(int)controlType::sequencerMode][envelopesWithoutAmpControlValue[i]])
+			 && (!trackControlParameter[(int)controlType::sequencerMode2][envelopesWithoutAmpControlValue[i]])
+			 && (!trackControlParameter[(int)controlType::performanceMode][envelopesWithoutAmpControlValue[i]]))
+			{
+				envelopePtr[envelopesWithoutAmpIdx[i]]->stop();
+			}
+		}
+	}
+
+
+	if(!mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+	{
+		playMemPtr->stop();
+		if((mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable && mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop)
+		 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoCutoff])
+		 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoCutoff])
+		 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoCutoff]))
+		{
+			currentEnvelopeModification[envFilter] = 0;
+		}
+		if((mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
+		 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoWavetablePosition])
+		 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoWavetablePosition])
+		 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoWavetablePosition]))
+		{
+			currentEnvelopeModification[envWtPos] = 0;
+		}
+		if((mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
+		 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoGranularPosition])
+		 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoGranularPosition])
+		 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoGranularPosition]))
+		{
+			currentEnvelopeModification[envGranPos] = 0;
+		}
+		if((mtProject.instrument[currentInstrument_idx].envelope[envPan].enable && mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
+		 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoPanning])
+		 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning])
+		 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoPanning]))
+		{
+			currentEnvelopeModification[envPan] = 0;
+		}
+	}
+	else
+	{
+		if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].release == 0.0f) || (envelopePassFlag) || (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) )
+		{
+			playMemPtr->stop();
+			if((mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable && mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop)
+			 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoCutoff])
+			 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoCutoff])
+			 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoCutoff]))
+			{
+				currentEnvelopeModification[envFilter] = 0;
+			}
+			if((mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
+			 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoWavetablePosition])
+			 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoWavetablePosition])
+			 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoWavetablePosition]))
+			{
+				currentEnvelopeModification[envWtPos] = 0;
+			}
+			if((mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
+			 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoGranularPosition])
+			 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoGranularPosition])
+			 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoGranularPosition]))
+			{
+				currentEnvelopeModification[envGranPos] = 0;
+			}
+			if((mtProject.instrument[currentInstrument_idx].envelope[envPan].enable && mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
+			 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoPanning])
+			 || (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning])
+			 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoPanning]))
+			{
+				currentEnvelopeModification[envPan] = 0;
+			}
+		}
+	}
+	AudioInterrupts();
+	__enable_irq();
 }
 
 //************************************* handle noteOn

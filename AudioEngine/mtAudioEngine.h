@@ -376,7 +376,7 @@ private:
 
 	uint8_t isActiveFlag = 0;
 
-//**********************NOTE ON HANDLERS
+//**********************NOTE ON/OFF HANDLERS
 //*****note on fx
 	void handleInitFxNoteOnEnvelope(uint8_t n);
 	void handleInitFxNoteOnAmpEnvelope();
@@ -394,6 +394,59 @@ private:
 	void handleNoteOnGain();
 	void handleNoteOnPanning();
 	void handleNoteOnReverbSend();
+//*****note off
+	void noteOffFade();
+	void noteOffCut();
+	void noteOffOrdinary();
+//*************************************************
+//************************* FX HANDLE
+//******* fx start
+	void fxFilter(uint8_t fx_val, uint8_t fx_n, uint8_t type);
+	void fxGlide(uint8_t fx_val, uint8_t fx_n);
+	void fxFinetune(uint8_t fx_val, uint8_t fx_n);
+	void fxPanning(uint8_t fx_val, uint8_t fx_n);
+	void fxReverbSend(uint8_t fx_val, uint8_t fx_n);
+	void fxReversePlayback(uint8_t fx_val, uint8_t fx_n);
+//***position
+	void fxPosition(uint8_t fx_val, uint8_t fx_n);
+	void fxPositionStartPoint(uint8_t fx_val, uint8_t fx_n);
+	void fxPositionWavetable(uint8_t fx_val, uint8_t fx_n);
+	void fxPositionGranular(uint8_t fx_val, uint8_t fx_n);
+//***
+	void fxVolume(uint8_t fx_val, uint8_t fx_n);
+	void fxSampleSlice(uint8_t fx_val, uint8_t fx_n);
+	void fxVolumeLFO(uint8_t fx_val, uint8_t fx_n);
+	void fxCutoffLFO(uint8_t fx_val, uint8_t fx_n);
+//***position lfo
+	void fxPositionLFO(uint8_t fx_val, uint8_t fx_n);
+	void fxPositionGranularLFO(uint8_t fx_val, uint8_t fx_n);
+	void fxPositionWavetableLFO(uint8_t fx_val, uint8_t fx_n);
+//***
+	void fxPanningLFO(uint8_t fx_val, uint8_t fx_n);
+//*************************************************
+//************************* FX END HANDLE
+	void endFxFilter(uint8_t fx_n);
+	void endFxGlide(uint8_t fx_n);
+	void endFxFinetune(uint8_t fx_n);
+	void endFxPanning(uint8_t fx_n);
+	void endFxReverbSend(uint8_t fx_n);
+	void endFxReversePlayback(uint8_t fx_n);
+//****** position
+	void endFxPosition(uint8_t fx_n);
+	void endFxPositionStartPoint(uint8_t fx_n);
+	void endFxPositionGranular(uint8_t fx_n);
+	void endFxPositionWavetable(uint8_t fx_n);
+//******
+	void endFxVolume(uint8_t fx_n);
+	void endFxSlice(uint8_t fx_n);
+	void endFxVolumeLFO(uint8_t fx_n);
+	void endFxCutoffLFO(uint8_t fx_n);
+//****** position lfo
+	void endFxPositionLFO(uint8_t fx_n);
+	void endFxPositionGranularLFO(uint8_t fx_n);
+	void endFxPositionWavetableLFO(uint8_t fx_n);
+//******
+	void endFxPanningLFO(uint8_t fx_n);
 //*************************************************
 	void changeFilterType(uint8_t type);
 	void filterConnect();
