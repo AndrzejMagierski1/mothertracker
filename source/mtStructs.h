@@ -238,17 +238,11 @@ enum mtSampleType
 	mtSampleTypeCount
 };
 
-enum envelopeEnable
-{
-	envelopeOff=0,
-	envelopeOn
-};
-
-enum filterEnable
-{
-	filterOff=0,
-	filterOn
-};
+//enum filterEnable
+//{
+//	filterOff=0,
+//	filterOn
+//};
 
 enum filterType
 {
@@ -259,13 +253,6 @@ enum filterType
 	filterTypeMax
 };
 
-enum filterControlType
-{
-	manualControl,
-	envelopeControlHighPass,
-	envelopeControlLowPass,
-	lfoControl,
-};
 
 enum envelopesType
 {
@@ -329,25 +316,6 @@ enum recorderMode
 };
 //=====================================================================
 //=====================================================================
-
-enum lfoType
-{
-	lfoA,
-	lfoF,
-	lfoP,
-
-
-	lfoMax
-};
-
-enum lfoEnable
-{
-	lfoOff=0,
-	lfoOn
-};
-
-
-
 enum enPlaylist
 {
 	PLAYLIST_EMPTY_SLOT = 0,

@@ -38,6 +38,10 @@ const float tempoSyncRates[20] =
 };
 
 constexpr uint32_t NOT_MOD_POINTS = 1000000;
+constexpr uint8_t ENVELOPES_WITHOUT_AMP_MAX = 4;
+constexpr uint8_t MUTE_DISABLE = 0;
+constexpr uint8_t MUTE_ENABLE = 1;
+constexpr float AMP_MUTED = 0.0f;
 
 extern IntervalTimer updateTimer;
 
@@ -81,7 +85,7 @@ public:
 	playerEngine();
 
 	uint8_t noteOn(uint8_t instr_idx,int8_t note, int8_t velocity);
-	uint8_t noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx1_id, uint8_t fx1_val, uint8_t fx2_id, uint8_t fx2_val);
+	uint8_t noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, uint8_t fx1_id, uint8_t fx1_val, uint8_t fx2_id, uint8_t fx2_val); // tylko ten note on do nut w sequencerze
 	void noteOff(int8_t option = -4);
 	void clean();
 
@@ -127,9 +131,16 @@ public:
 
 	uint8_t currentInstrument_idx;
 
-	const uint8_t ENVELOPES_WITHOUT_AMP_MAX = 4;
+//********************************************* ujednolicenie obslugi envelope
+	enum struct envWithoutAmp
+	{
+		panning,
+		filter,
+		wtPos,
+		granPos
+	};
 
-	const uint8_t envelopesWithoutAmpIdx[4] =
+	const uint8_t envelopesWithoutAmpIdx[ENVELOPES_WITHOUT_AMP_MAX] =
 	{
 			envPan,
 			envFilter,
@@ -137,14 +148,14 @@ public:
 			envGranPos
 	}; // na potrzeby wykonania czegos w petli - przefiltrowanie enumów z env do aktywnych bez ampa - musi korespondować z envelopesWithoutAmpControlValue
 
-	const uint8_t envelopesWithoutAmpControlValue[4] =
+	const uint8_t envelopesWithoutAmpControlValue[ENVELOPES_WITHOUT_AMP_MAX] =
 	{
 			(uint8_t)parameterList::lfoPanning,
 			(uint8_t)parameterList::lfoCutoff,
 			(uint8_t)parameterList::lfoWavetablePosition,
 			(uint8_t)parameterList::lfoGranularPosition
 	}; // na potrzeby wykonania czegos w petli - przefiltrowanie enumów parametrów dla lfo bez ampa - musi korespondować z envelopesWithoutAmpIdx
-
+//********************************************
 	enum struct controlType
 	{
 		sequencerMode,
@@ -287,14 +298,7 @@ public:
 		int8_t  lfoPanningRate;
 	} performanceMod;
 
-	struct strInstrumentBasedModValue
-	{
-		float cutoff;
-		uint32_t wtPos;
-		uint16_t granPos;
-		int8_t panning;
-	} instrumentBasedMod;
-
+	float currentEnvelopeModification[envMax];
 
 	uint8_t trackControlParameter[(int)controlType::length][(int)parameterList::length];
 //**********************************************************************************************************************************
@@ -372,6 +376,78 @@ private:
 
 	uint8_t isActiveFlag = 0;
 
+//**********************NOTE ON/OFF HANDLERS
+//*****note on fx
+	void handleInitFxNoteOnEnvelope(uint8_t n);
+	void handleInitFxNoteOnAmpEnvelope();
+	void handleInitFxNoteOnAllEnvelopes(); // wywolywany w note on fx
+	void handleInitFxNoteOnFilter();
+	void handleFxNoteOnFilter();
+	void handleFxNoteOnGain();
+	void handleFxNoteOnPanning();
+	void handleFxNoteOnReverbSend();
+//*****note on
+	void handleInitNoteOnEnvelope(uint8_t n);
+	void handleInitNoteOnAmpEnvelope();
+	void handleInitNoteOnAllEnvelopes(); // wywolywany w note on
+	void handleNoteOnFilter();
+	void handleNoteOnGain();
+	void handleNoteOnPanning();
+	void handleNoteOnReverbSend();
+//*****note off
+	void noteOffFade();
+	void noteOffCut();
+	void noteOffOrdinary();
+//*************************************************
+//************************* FX HANDLE
+//******* fx start
+	void fxFilter(uint8_t fx_val, uint8_t fx_n, uint8_t type);
+	void fxGlide(uint8_t fx_val, uint8_t fx_n);
+	void fxFinetune(uint8_t fx_val, uint8_t fx_n);
+	void fxPanning(uint8_t fx_val, uint8_t fx_n);
+	void fxReverbSend(uint8_t fx_val, uint8_t fx_n);
+	void fxReversePlayback(uint8_t fx_val, uint8_t fx_n);
+//***position
+	void fxPosition(uint8_t fx_val, uint8_t fx_n);
+	void fxPositionStartPoint(uint8_t fx_val, uint8_t fx_n);
+	void fxPositionWavetable(uint8_t fx_val, uint8_t fx_n);
+	void fxPositionGranular(uint8_t fx_val, uint8_t fx_n);
+//***
+	void fxVolume(uint8_t fx_val, uint8_t fx_n);
+	void fxSampleSlice(uint8_t fx_val, uint8_t fx_n);
+	void fxVolumeLFO(uint8_t fx_val, uint8_t fx_n);
+	void fxCutoffLFO(uint8_t fx_val, uint8_t fx_n);
+//***position lfo
+	void fxPositionLFO(uint8_t fx_val, uint8_t fx_n);
+	void fxPositionGranularLFO(uint8_t fx_val, uint8_t fx_n);
+	void fxPositionWavetableLFO(uint8_t fx_val, uint8_t fx_n);
+//***
+	void fxPanningLFO(uint8_t fx_val, uint8_t fx_n);
+//*************************************************
+//************************* FX END HANDLE
+	void endFxFilter(uint8_t fx_n);
+	void endFxGlide(uint8_t fx_n);
+	void endFxFinetune(uint8_t fx_n);
+	void endFxPanning(uint8_t fx_n);
+	void endFxReverbSend(uint8_t fx_n);
+	void endFxReversePlayback(uint8_t fx_n);
+//****** position
+	void endFxPosition(uint8_t fx_n);
+	void endFxPositionStartPoint(uint8_t fx_n);
+	void endFxPositionGranular(uint8_t fx_n);
+	void endFxPositionWavetable(uint8_t fx_n);
+//******
+	void endFxVolume(uint8_t fx_n);
+	void endFxSlice(uint8_t fx_n);
+	void endFxVolumeLFO(uint8_t fx_n);
+	void endFxCutoffLFO(uint8_t fx_n);
+//****** position lfo
+	void endFxPositionLFO(uint8_t fx_n);
+	void endFxPositionGranularLFO(uint8_t fx_n);
+	void endFxPositionWavetableLFO(uint8_t fx_n);
+//******
+	void endFxPanningLFO(uint8_t fx_n);
+//*************************************************
 	void changeFilterType(uint8_t type);
 	void filterConnect();
 	void filterDisconnect();

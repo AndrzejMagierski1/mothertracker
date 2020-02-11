@@ -8,7 +8,6 @@ constexpr uint8_t SMOOTHING_SIZE = 100;
 
 void AudioPlayMemory::update(void)
 {
-	//if(!mtProject.instrument[currentInstr_idx].isActive) return;
 
 	audio_block_t *block= nullptr;
 	int16_t *in = nullptr;
