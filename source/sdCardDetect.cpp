@@ -2,7 +2,7 @@
 #include "mtHardware.h"
 
 #include "sdCardDetect.h"
-#include "SD.h"
+#include "newSd.h"
 
 #include "debugLog.h"
 
@@ -38,7 +38,7 @@ void SDCardDetector::update(uint8_t forcedUpdate)
 	{
 		if(isInitialized == 0 && currentState == cardInserted)
 		{
-			if(SD.begin(SdioConfig(DMA_SDIO)))
+			if(sdCardInit() == 0)
 			{
 				isInitialized = 1;
 				if(onChangeSD != nullptr) onChangeSD(1);
@@ -54,11 +54,13 @@ void SDCardDetector::update(uint8_t forcedUpdate)
 	{
 		lastState = cardEjected;
 		isInitialized = 0;
+		cardDetectPinInterruptHandler(0);
 		if(onChangeSD != nullptr) onChangeSD(0);
 	}
 	else if(currentState == cardInserted)
 	{
 		lastState = cardInserted;
+		cardDetectPinInterruptHandler(1);
 		isInitialized = 0;
 	}
 }

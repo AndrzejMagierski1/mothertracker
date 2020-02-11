@@ -69,6 +69,12 @@
 									<listOptionValue builtIn="false" value="../arkanoid"/>
 									<listOptionValue builtIn="false" value="../Exporter"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
+									<listOptionValue builtIn="false" value="../libs/newSD"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/sdmmc/inc"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/drivers"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 								</option>
 								<option id="com.crt.advproject.cpp.hdrlib.53466571" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.cpp.exe.debug.option.optimization.level.2141253513" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.general" valueType="enumerated"/>
@@ -123,6 +129,12 @@
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../Exporter"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
+									<listOptionValue builtIn="false" value="../libs/newSD"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/sdmmc/inc"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/drivers"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 								</option>
 								<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.637294101" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.general" valueType="enumerated"/>
 								<option id="com.crt.advproject.gcc.lto.101578116" name="Enable Link-time optimization (-flto)" superClass="com.crt.advproject.gcc.lto" useByScannerDiscovery="false" value="false" valueType="boolean"/>
@@ -161,6 +173,12 @@
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../Exporter"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
+									<listOptionValue builtIn="false" value="../libs/newSD"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/sdmmc/inc"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/drivers"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 								</option>
 								<option id="com.crt.advproject.gas.arch.731726900" name="Architecture" superClass="com.crt.advproject.gas.arch" useByScannerDiscovery="false" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.gas.fpu.985373801" name="Floating point" superClass="com.crt.advproject.gas.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gas.fpu.fpv4.hard" valueType="enumerated"/>
@@ -171,7 +189,7 @@
 							<tool id="com.crt.advproject.link.cpp.exe.debug.1828960430" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.debug">
 								<option id="com.crt.advproject.link.cpp.thumb.1924014773" name="Thumb mode" superClass="com.crt.advproject.link.cpp.thumb" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="com.crt.advproject.link.memory.load.image.cpp.86267671" name="Plain load image" superClass="com.crt.advproject.link.memory.load.image.cpp" useByScannerDiscovery="false" value="false;" valueType="string"/>
-								<option defaultValue="com.crt.advproject.heapAndStack.mcuXpressoStyle.cpp" id="com.crt.advproject.link.memory.heapAndStack.style.cpp.1073352469" name="Heap and Stack placement" superClass="com.crt.advproject.link.memory.heapAndStack.style.cpp" useByScannerDiscovery="false" value="Default" valueType="enumerated"/>
+								<option defaultValue="com.crt.advproject.heapAndStack.mcuXpressoStyle.cpp" id="com.crt.advproject.link.memory.heapAndStack.style.cpp.1073352469" name="Heap and Stack placement" superClass="com.crt.advproject.link.memory.heapAndStack.style.cpp" useByScannerDiscovery="false" value="com.crt.advproject.heapAndStack.mcuXpressoStyle.cpp" valueType="enumerated"/>
 								<option id="com.crt.advproject.link.memory.heapAndStack.cpp.175755881" name="Heap and Stack options" superClass="com.crt.advproject.link.memory.heapAndStack.cpp" useByScannerDiscovery="false" value="&amp;Heap:Default;Post Data;Default&amp;Stack:Default;End;Default" valueType="string"/>
 								<option id="com.crt.advproject.link.memory.data.cpp.880860456" name="Global data placement" superClass="com.crt.advproject.link.memory.data.cpp" useByScannerDiscovery="false" value="Default" valueType="string"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.crt.advproject.link.memory.sections.cpp.1195667588" name="Extra linker script input sections" superClass="com.crt.advproject.link.memory.sections.cpp" useByScannerDiscovery="false" valueType="stringList"/>
@@ -279,6 +297,12 @@
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../arkanoid"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
+									<listOptionValue builtIn="false" value="../libs/newSD"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/sdmmc/inc"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/drivers"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 								</option>
 								<option id="com.crt.advproject.cpp.arch.1277266838" name="Architecture" superClass="com.crt.advproject.cpp.arch" useByScannerDiscovery="false" value="com.crt.advproject.cpp.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.cpp.hdrlib.615462902" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>
@@ -324,6 +348,12 @@
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
+									<listOptionValue builtIn="false" value="../libs/newSD"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/sdmmc/inc"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/drivers"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 								</option>
 								<option id="com.crt.advproject.gcc.arch.2035563646" name="Architecture" superClass="com.crt.advproject.gcc.arch" useByScannerDiscovery="false" value="com.crt.advproject.gcc.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.gcc.fpu.937380535" name="Floating point" superClass="com.crt.advproject.gcc.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gcc.fpu.fpv4.hard" valueType="enumerated"/>
@@ -359,6 +389,12 @@
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
+									<listOptionValue builtIn="false" value="../libs/newSD"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/sdmmc/inc"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/drivers"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 								</option>
 								<option id="com.crt.advproject.gas.arch.1402598248" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
 								<option id="gnu.both.asm.option.flags.crt.1599692473" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" useByScannerDiscovery="false" value="-c -x assembler-with-cpp -D__NEWLIB__ -D__MK66FX1M0__" valueType="string"/>
@@ -454,10 +490,10 @@
 &lt;vendor&gt;NXP&lt;/vendor&gt;&#13;
 &lt;memory can_program="true" id="Flash" is_ro="true" size="1024" type="Flash"/&gt;&#13;
 &lt;memory id="RAM" size="256" type="RAM"/&gt;&#13;
-&lt;memoryInstance derived_from="Flash" driver="FTFE_4K.cfx" id="PROGRAM_FLASH" location="0x00000000" size="0x00100000"/&gt;&#13;
-&lt;memoryInstance derived_from="RAM" id="SRAM_UPPER" location="0x20000000" size="0x00030000"/&gt;&#13;
-&lt;memoryInstance derived_from="RAM" id="SRAM_LOWER" location="0x1fff0000" size="0x00010000"/&gt;&#13;
-&lt;memoryInstance derived_from="RAM" id="FLEX_RAM" location="0x14000000" size="0x00001000"/&gt;&#13;
+&lt;memoryInstance derived_from="Flash" driver="FTFE_4K.cfx" edited="true" id="PROGRAM_FLASH" location="0x0" size="0x100000"/&gt;&#13;
+&lt;memoryInstance derived_from="RAM" edited="true" id="SRAM_UPPER" location="0x20000000" size="0x30000"/&gt;&#13;
+&lt;memoryInstance derived_from="RAM" edited="true" id="SRAM_LOWER" location="0x1fff0000" size="0x10000"/&gt;&#13;
+&lt;memoryInstance derived_from="RAM" edited="true" id="FLEX_RAM" location="0x14000000" size="0x1000"/&gt;&#13;
 &lt;/chip&gt;&#13;
 &lt;processor&gt;&#13;
 &lt;name gcc_name="cortex-m4"&gt;Cortex-M4&lt;/name&gt;&#13;
@@ -470,6 +506,6 @@
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="com.nxp.mcuxpresso.core.datamodels">
 		<sdkName>SDK_2.x_MK66FX1M0xxx18</sdkName>
-		<sdkVersion>2.6.0</sdkVersion>
+		<sdkVersion>2.7.0</sdkVersion>
 	</storageModule>
 </cproject>

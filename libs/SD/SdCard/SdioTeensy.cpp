@@ -207,12 +207,12 @@ inline bool setSdErrorCode(uint8_t code, uint32_t line) {
 }
 //=============================================================================
 // ISR
-void sdhc_isr() {
-  SDHC_IRQSIGEN = 0;
-  m_irqstat = SDHC_IRQSTAT;
-  SDHC_IRQSTAT = m_irqstat;
-  m_dmaBusy = false;
-}
+//void sdhc_isr() {
+//  SDHC_IRQSIGEN = 0;
+//  m_irqstat = SDHC_IRQSTAT;
+//  SDHC_IRQSTAT = m_irqstat;
+//  m_dmaBusy = false;
+//}
 //=============================================================================
 // Static functions.
 static bool cardAcmd(uint32_t rca, uint32_t xfertyp, uint32_t arg) {
