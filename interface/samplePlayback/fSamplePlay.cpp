@@ -426,6 +426,7 @@ void cSamplePlayback::start(uint32_t options)
 void cSamplePlayback::stop()
 {
 	moduleRefresh = 0;
+	mtPadBoard.releaseAllInstrument();
 }
 
 void cSamplePlayback::setDefaultScreenFunct()
