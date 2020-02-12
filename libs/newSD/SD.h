@@ -41,8 +41,8 @@ public:
 	bool rmdir(const char* path) { return remove(path); }
 
 	uint32_t clusterCount();
-	uint8_t sectorsPerCluster();
-	int32_t freeClusterCount();
+	uint16_t sectorsPerCluster();
+	uint32_t freeClusterCount();
 };
 
 
@@ -71,7 +71,13 @@ public:
 
 	int read(void* buf, uint32_t count)
 	{
-		return 0;
+		UINT read = 0;
+		FRESULT error = f_read(file,buf,count,&read);
+		if (error)
+		{
+			return -1;
+		}
+		return read;
 	}
 
 	int64_t write(const void* buf, uint32_t count)
@@ -87,22 +93,32 @@ public:
 
 	uint32_t write(uint8_t b) {return write(&b, 1);}
 
-	uint8_t seek(uint32_t pos)
+	bool seek(uint32_t pos)
 	{
-
-		return 0;
+		FRESULT error = f_lseek(file, pos);
+		if (error)
+		{
+			return false;
+		}
+		return true;
 	}
 
-	uint8_t seekCur(int64_t offset)
+	bool seekCur(int32_t offset)
 	{
-		return 0;
+		FRESULT error = f_lseek(file, f_tell(file) + offset);
+		if (error)
+		{
+			return false;
+		}
+		return true;
 	}
 
 	bool close()
 	{
 		if (f_close(file))
 		{
-		  //  PRINTF("\r\nClose file failed.\r\n");
+			delete file;
+			file = nullptr;
 			return false;
 		}
 
@@ -139,12 +155,12 @@ public:
 
 	bool isOpen()
 	{
-		return file_state;
+		return file != nullptr;
 	}
 
-	bool available()
+	uint32_t available()
 	{
-		return file_state > 0;
+	    return isOpen() ? f_size(file) - f_tell(file) : 0;
 	}
 
 	bool openNext(SdFile* parent,  uint8_t oflag = FA_READ)
@@ -167,7 +183,7 @@ public:
 
 	uint64_t size()
 	{
-		return file->obj.objsize;
+		return f_size(file);
 	}
 
 	uint8_t getName(char* buf, uint8_t max_length)
@@ -188,6 +204,8 @@ public:
 private:
 
 	FIL* file = nullptr;
+	DIR* directory = nullptr;
+
 	uint8_t file_state = 0;
 	uint8_t is_directory = 0;
 };

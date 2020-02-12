@@ -290,12 +290,12 @@ uint32_t  SdCard::clusterCount()
 	return (g_fileSystem.n_fatent-2);
 }
 
-uint8_t  SdCard::sectorsPerCluster()
+uint16_t  SdCard::sectorsPerCluster()
 {
 	return g_fileSystem.csize;
 }
 
-int32_t  SdCard::freeClusterCount()
+uint32_t  SdCard::freeClusterCount()
 {
     FATFS *fs;
     DWORD fre_clust;//, fre_sect, tot_sect;
