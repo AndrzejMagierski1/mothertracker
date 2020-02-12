@@ -144,7 +144,7 @@ void playerEngine::fxFinetune(uint8_t fx_val, uint8_t fx_n)
 
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
-		currentSeqModValues.fineTune = map(fx_val,0,127,MIN_INSTRUMENT_FINETUNE,MAX_INSTRUMENT_FINETUNE);
+		currentSeqModValues.fineTune = map(fx_val,sequencer.getFxMin(fx_t::FX_TYPE_MICROTUNING),sequencer.getFxMax(fx_t::FX_TYPE_MICROTUNING),MIN_INSTRUMENT_FINETUNE,MAX_INSTRUMENT_FINETUNE);
 	}
 	else if(fx_n == LEAST_SIGNIFICANT_FX)
 	{
@@ -694,23 +694,18 @@ void playerEngine::endFxFinetune(uint8_t fx_n)
 	{
 		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::fineTune])
 		{
-			currentSeqModValues.fineTune = map(lastSeqVal[otherFx_n],0,127,MIN_INSTRUMENT_FINETUNE,MAX_INSTRUMENT_FINETUNE);
+			currentSeqModValues.fineTune = map(lastSeqVal[otherFx_n],sequencer.getFxMin(fx_t::FX_TYPE_MICROTUNING),sequencer.getFxMax(fx_t::FX_TYPE_MICROTUNING),MIN_INSTRUMENT_FINETUNE,MAX_INSTRUMENT_FINETUNE);
 			playMemPtr->setFineTuneForceFlag();
 			playMemPtr->setForcedFineTune(currentSeqModValues.fineTune);
 		}
 	}
 	else
 	{
-		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::fineTune] && !trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoFineTune] )
+		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::fineTune])
 		{
 			playMemPtr->clearFineTuneForceFlag();
 			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
 		}
-	}
-
-	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoFineTune])
-	{
-		playMemPtr->setFineTuneForceFlag();
 	}
 }
 

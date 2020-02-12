@@ -26,6 +26,7 @@
 
 #include "effect_envelope.h"
 #include "Audio.h"
+#include "debugLog.h"
 #define STATE_IDLE	0
 #define STATE_DELAY	1
 #define STATE_ATTACK	2
@@ -388,13 +389,14 @@ void AudioEffectEnvelope::update(void)
 		if(mult_hires < 0 )
 		{
 			mult_hires = 0;
-			Serial.println(state); Serial.println(" MH<0");
+			debugLog.addLine("MH<0 ");
+			debugLog.addValue(state);
 		}
 		else if(mult_hires > 0x40000000)
 		{
-			mult_hires = 0;
-			Serial.print(state); Serial.println(" MH>MAX");
-
+			mult_hires = 0x40000000;
+			debugLog.addLine("MH>MAX ");
+			debugLog.addValue(state);
 		}
 		count--;
 	}
