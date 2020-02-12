@@ -661,6 +661,32 @@ void cConfigEditor::listAllFirmwares()
 			locationFileCount = firmware_list_max;
 		}
 
+		// sortowanie
+
+		bool notSorted = 1;
+		char strBuff[40];
+		while (notSorted)
+		{
+			notSorted = 0;
+			for (uint8_t a = 0; a < locationFileCount - 1; a++)
+			{
+				if (strcasecmp(firmwareNamesList[a],
+								firmwareNamesList[a + 1]) > 0)
+				{
+					strcpy(strBuff,
+							firmwareNamesList[a]);
+
+					strcpy(firmwareNamesList[a],
+							firmwareNamesList[a + 1]);
+
+					strcpy(firmwareNamesList[a + 1],
+							strBuff);
+					notSorted = 1;
+				}
+			}
+		}
+		///
+
 		for(uint8_t i = 0; i < locationFileCount; i++)
 		{
 			if(checkIfFirmwareValid(&firmwareNamesList[i][0]))
