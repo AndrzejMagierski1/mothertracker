@@ -932,13 +932,27 @@ void cPatternEditor::refreshFillFrom()
 	}
 	else if(editParam == 2 || editParam == 3)
 	{
-		int16_t min_fx = sequencer.getFxMin(interfaceGlobals.fxIDs[fillData[editParam].param]);
-		int16_t max_fx = sequencer.getFxMax(interfaceGlobals.fxIDs[fillData[editParam].param]);
+		int16_t min_fx = sequencer.getFxMin(
+				interfaceGlobals.fxIDs[fillData[editParam].param]);
+
+
+		int16_t max_fx = sequencer.getFxMax(
+				interfaceGlobals.fxIDs[fillData[editParam].param]);
+
+
 
 		if(fillData[editParam].from < min_fx) fillData[editParam].from = min_fx;
 		if(fillData[editParam].from > max_fx) fillData[editParam].from = max_fx;
 
-		sprintf(fillText1, "%d", (fillData[editParam].from));
+//		int16_t valToView = sequencer.getFxValueCorrection(
+//				interfaceGlobals.fxIDs[fillData[editParam].param],
+//				fillData[editParam].from);
+
+		sequencer.makeFxValLabel(
+				fillText1,
+				interfaceGlobals.fxIDs[fillData[editParam].param],
+				fillData[editParam].from);
+
 		display.setControlText2(label[4], fillText1);
 
 		display.setControlValue(val1PopupBar, ((fillData[editParam].from-min_fx)*100)/(max_fx-min_fx));
@@ -994,7 +1008,18 @@ void cPatternEditor::refreshFillTo()
 		if(fillData[editParam].to < min_fx) fillData[editParam].to = min_fx;
 		if(fillData[editParam].to > max_fx) fillData[editParam].to = max_fx;
 
-		sprintf(fillText2, "%d", (fillData[editParam].to));
+//		int16_t valToView = sequencer.getFxValueCorrection(
+//				interfaceGlobals.fxIDs[fillData[editParam].param],
+//				fillData[editParam].to);
+//
+//		sprintf(fillText2, "%d", (valToView));
+//
+
+		sequencer.makeFxValLabel(
+						fillText2,
+						interfaceGlobals.fxIDs[fillData[editParam].param],
+						fillData[editParam].to);
+
 		display.setControlText2(label[5], fillText2);
 
 		display.setControlValue(val2PopupBar, ((fillData[editParam].to-min_fx)*100)/(max_fx-min_fx));
