@@ -796,7 +796,9 @@ void Sequencer::setSelectionNote(int16_t value)
 				}
 				step->note = value;
 
-				if (step->note >= 0 && !isRec())
+				if (step->note >= 0
+						&& !isRec()
+						&& !isPlay())
 				{
 //					blinkNote(step->instrument,
 //								step->note,
