@@ -238,3 +238,74 @@ SdFile SdCard::open(const char* path, uint8_t oflag)
 	tmpFile.open(path, oflag);
 	return tmpFile;
 }
+
+
+bool SdCard::mkdir(uint8_t hidden, const char *path, bool pFlag)
+{
+	FRESULT error = f_mkdir(path);
+    if (error)
+    {
+        if (error == FR_EXIST)
+        {
+
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    if(hidden)
+    {
+    	f_chmod (
+    			path, 			/* [IN] Object name */
+				AM_HID,         /* [IN] Attribute flags */
+				AM_HID          /* [IN] Attribute masks */
+    	);
+    }
+
+    return true;
+}
+
+bool SdCard::remove(const char* path)
+{
+	FRESULT error = f_unlink (path);
+    if (error)
+    {
+        if (error == FR_LOCKED)
+        {
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+uint32_t  SdCard::clusterCount()
+{
+	return (g_fileSystem.n_fatent-2);
+}
+
+uint8_t  SdCard::sectorsPerCluster()
+{
+	return g_fileSystem.csize;
+}
+
+int32_t  SdCard::freeClusterCount()
+{
+    FATFS *fs;
+    DWORD fre_clust;//, fre_sect, tot_sect;
+
+    /* Get volume information and free clusters of drive 1 */
+    FRESULT res = f_getfree("2:", &fre_clust, &fs);
+    if (res) return 0;
+
+    /* Get total sectors and free sectors */
+    //tot_sect = (fs->n_fatent - 2) * fs->csize ;
+	//fre_sect = fre_clust * fs->csize;
+	return fre_clust;
+}

@@ -30,52 +30,19 @@ public:
 	void pinsInit();
 
 
-	uint8_t exists(const char* path)
+	bool exists(const char* path)
 	{
-
-
-		return 0;
+		if(f_stat (path,nullptr ) == FR_OK) return true;
+		return false;
 	}
-
-	bool mkdir(uint8_t hidden, const char *path, bool pFlag = true)
-	{
-		FRESULT error = f_mkdir(path);
-	    if (error)
-	    {
-	        if (error == FR_EXIST)
-	        {
-	          //  PRINTF("Directory exists.\r\n");
-	        }
-	        else
-	        {
-	          //  PRINTF("Make directory failed.\r\n");
-	            return false;
-	        }
-	    }
-		return true;
-	}
-
+	bool mkdir(uint8_t hidden, const char *path, bool pFlag = true);
 	SdFile open(const char* path, uint8_t oflag = FA_READ);
+	bool remove(const char* path);
+	bool rmdir(const char* path) { return remove(path); }
 
-
-	bool remove(const char* path)
-	{
-
-		return true;
-	}
-
-	bool rmdir(const char* path)
-	{
-
-		return true;
-	}
-
-
-	uint32_t clusterCount() {return 0;}
-	uint8_t sectorsPerCluster() {return 0;}
-	int32_t freeClusterCount() {return 0;}
-
-
+	uint32_t clusterCount();
+	uint8_t sectorsPerCluster();
+	int32_t freeClusterCount();
 };
 
 
@@ -88,20 +55,19 @@ public:
 	bool open(const char* path, uint8_t oflag = FA_READ);
 
 
-	  uint16_t createFilesList(uint8_t start_line, char list[][40], uint8_t list_length, uint8_t chooseFilter = 0)
-	  {
-			uint16_t count = start_line;
+	uint16_t createFilesList(uint8_t start_line, char list[][40], uint8_t list_length, uint8_t chooseFilter = 0)
+	{
+		uint16_t count = start_line;
 
-			return (count-start_line);
-	  }
+		return (count-start_line);
+	}
 
-	  uint16_t createFilesListShort(uint8_t start_line, char * list,uint8_t list_length,uint8_t nameLength)
-	  {
-			uint16_t count = start_line;
+	uint16_t createFilesListShort(uint8_t start_line, char * list,uint8_t list_length,uint8_t nameLength)
+	{
+		uint16_t count = start_line;
 
-			return count;
-	  }
-
+		return count;
+	}
 
 	int read(void* buf, uint32_t count)
 	{
@@ -227,11 +193,6 @@ private:
 };
 
 
-
-
-
-typedef SdFile ExFatFile;
-typedef SdFile FatFile;
 
 
 
