@@ -27,7 +27,7 @@ class SdCard
 public:
 
 	bool init();
-
+	void pinsInit();
 
 
 	uint8_t exists(const char* path)
@@ -85,26 +85,8 @@ class SdFile
 {
 public:
 
-	bool open(const char* path, uint8_t oflag = FA_READ)
-	{
+	bool open(const char* path, uint8_t oflag = FA_READ);
 
-		file = new FIL;
-
-		FRESULT error = f_open(file, path, oflag);
-		if (error)
-		{
-			if (error == FR_EXIST)
-			{
-			   // PRINTF("File exists.\r\n");
-			}
-			else
-			{
-			   // PRINTF("Open file failed.\r\n");
-				return false;
-			}
-		}
-		return true;
-	}
 
 	  uint16_t createFilesList(uint8_t start_line, char list[][40], uint8_t list_length, uint8_t chooseFilter = 0)
 	  {
@@ -126,9 +108,15 @@ public:
 		return 0;
 	}
 
-	uint32_t write(const void* buf, uint32_t count)
+	int64_t write(const void* buf, uint32_t count)
 	{
-		return 0;
+		UINT written = 0;
+		FRESULT error = f_write(file,buf,count,&written);
+		if (error)
+		{
+			return -1;
+		}
+		return written;
 	}
 
 	uint32_t write(uint8_t b) {return write(&b, 1);}

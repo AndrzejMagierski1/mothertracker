@@ -1548,7 +1548,7 @@ status_t SDHC_TransferNonBlocking(
             base,
             (uint32_t)(dmaMode == kSDHC_DmaModeNo ? kSDHC_DataFlag : kSDHC_DataDMAFlag) | (uint32_t)kSDHC_CommandFlag);
         SDHC_EnableInterruptSignal(base, (uint32_t)(dmaMode == kSDHC_DmaModeNo ? kSDHC_DataFlag : kSDHC_DataDMAFlag) |
-                                             (uint32_t)kSDHC_CommandFlag);
+								   (uint32_t)kSDHC_CommandFlag);
     }
     else
     {

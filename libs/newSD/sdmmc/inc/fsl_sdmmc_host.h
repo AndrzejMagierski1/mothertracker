@@ -26,38 +26,6 @@
 //*******************************************************************************
 
 
-
-#define BOARD_SDHC_BASEADDR SDHC
-#define BOARD_SDHC_CLKSRC kCLOCK_CoreSysClk
-#define BOARD_SDHC_CLK_FREQ 180000000
-#define BOARD_SDHC_IRQ SDHC_IRQn
-#define BOARD_SDHC_CD_GPIO_BASE GPIOD
-#ifndef BOARD_SDHC_CD_GPIO_PIN
-#define BOARD_SDHC_CD_GPIO_PIN 0U
-#endif
-#define BOARD_SDHC_CD_PORT_BASE PORTD
-#define BOARD_SDHC_CD_PORT_IRQ PORTD_IRQn
-#define BOARD_SDHC_CD_PORT_IRQ_HANDLER PORTD_IRQHandler
-#define BOARD_SDHC_CARD_INSERT_CD_LEVEL (1U)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //*******************************************************************************
 //*******************************************************************************
 //*******************************************************************************
