@@ -283,17 +283,34 @@ void playerEngine ::changeFilterTypePerformanceMode(uint8_t mode)
 void playerEngine ::changeSamplePlaybackPerformanceMode(uint8_t value)
 {
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection] = 1;
+
+	performanceMod.reversePlayback = value;
+
 	if(value)
 	{
 		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::samplePlaybeckDirection] ||
-		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::samplePlaybeckDirection]) playMemPtr->clearReverse();
-		else playMemPtr->setReverse();
+		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::samplePlaybeckDirection])
+		{
+			if(currentSeqModValues.reversePlayback) playMemPtr->clearReverse();
+			else playMemPtr->setReverse();
+		}
+		else
+		{
+			playMemPtr->setReverse();
+		}
 	}
 	else
 	{
 		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::samplePlaybeckDirection] ||
-		   trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::samplePlaybeckDirection]) playMemPtr->setReverse();
-		else playMemPtr->clearReverse();
+		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::samplePlaybeckDirection])
+		{
+			if(currentSeqModValues.reversePlayback) playMemPtr->setReverse();
+			else playMemPtr->clearReverse();
+		}
+		else
+		{
+			playMemPtr->clearReverse();
+		}
 	}
 }
 
@@ -688,8 +705,13 @@ void playerEngine::endFilterTypePerformanceMode()
 void playerEngine ::endSamplePlaybackPerformanceMode()
 {
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection] = 0;
+
 	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::samplePlaybeckDirection] ||
-	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::samplePlaybeckDirection] ) playMemPtr->setReverse();
+	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::samplePlaybeckDirection] )
+	{
+		if(currentSeqModValues.reversePlayback) playMemPtr->setReverse();
+		else playMemPtr->clearReverse();
+	}
 	else playMemPtr->clearReverse();
 }
 void playerEngine ::endEndPointPerformanceMode()
