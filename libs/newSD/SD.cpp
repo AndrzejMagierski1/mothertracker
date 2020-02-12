@@ -14,7 +14,7 @@
 #include "debugLog.h"
 
 void enableGPIO(bool enable);
-
+void initSDHC();
 
 SdCard SD;
 
@@ -56,10 +56,11 @@ const TCHAR driverNumberBuffer[3U] = {SDDISK + '0', ':', '/'};
 
 bool SdCard::init()
 {
-	enableGPIO(true);
+	initSDHC();
+	//enableGPIO(true);
 	//pinsInit();
 
-	for(uint32_t i = 0; i< 10000; i++)
+	for(uint32_t i = 0; i< 1000; i++)
 	{
 		__asm__ volatile("nop");
 
@@ -79,13 +80,7 @@ bool SdCard::init()
     }
     /* power off card */
     SD_PowerOffCard(g_sd.host.base, g_sd.usrParam.pwr);
-
-
-    /* wait card insert */
-    //
-
     SD_PowerOnCard(g_sd.host.base, g_sd.usrParam.pwr);
-
 
     FRESULT result = f_mount(&g_fileSystem, driverNumberBuffer, 1U);
 	if (result)
@@ -103,6 +98,7 @@ bool SdCard::init()
 #endif
 
 
+/*
     SdFile test_file;
 
     test_file.open("/test.txt", SD_FILE_WRITE);
@@ -113,6 +109,7 @@ bool SdCard::init()
 
     test_file.close();
 
+*/
 
 
 
