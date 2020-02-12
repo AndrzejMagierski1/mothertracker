@@ -33,7 +33,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 		case fx_t::FX_TYPE_SAMPLE_SLICE:			fxSampleSlice(fx_val, fx_n);			break;
 		case fx_t::FX_TYPE_VOLUME_LFO:				fxVolumeLFO(fx_val, fx_n);				break;
 		case fx_t::FX_TYPE_FILTER_LFO:				fxCutoffLFO(fx_val, fx_n);				break;
-		case fx_t::FX_TYPE_POSITION_LFO:			fxPositionGranularLFO(fx_val, fx_n);	break;
+		case fx_t::FX_TYPE_POSITION_LFO:			fxPositionLFO(fx_val, fx_n);			break;
 		case fx_t::FX_TYPE_PANNING_LFO:				fxPanningLFO(fx_val, fx_n);				break;
 		default: break;
 	}
@@ -49,7 +49,6 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 // swoje operacje na podstawie wartości mniej znaczącego efektu ***/
 void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 {
-	uint8_t otherFx_n = !fx_n;
 	switch(fx_id)
 	{
 		case 0: break;
@@ -145,7 +144,7 @@ void playerEngine::fxFinetune(uint8_t fx_val, uint8_t fx_n)
 
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
-		currentSeqModValues.fineTune = map(fx_val,0,127,MIN_INSTRUMENT_FINETUNE,MAX_INSTRUMENT_FINETUNE);
+		currentSeqModValues.fineTune = map(fx_val,sequencer.getFxMin(fx_t::FX_TYPE_MICROTUNING),sequencer.getFxMax(fx_t::FX_TYPE_MICROTUNING),MIN_INSTRUMENT_FINETUNE,MAX_INSTRUMENT_FINETUNE);
 	}
 	else if(fx_n == LEAST_SIGNIFICANT_FX)
 	{
@@ -222,6 +221,8 @@ void playerEngine::fxReverbSend(uint8_t fx_val, uint8_t fx_n)
 
 void playerEngine::fxReversePlayback(uint8_t fx_val, uint8_t fx_n)
 {
+	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::samplePlaybeckDirection] = 1;
+
 	if(fx_val == 0) return;
 
 	uint8_t otherFx_n = !fx_n;
@@ -237,7 +238,6 @@ void playerEngine::fxReversePlayback(uint8_t fx_val, uint8_t fx_n)
 			playMemPtr->setReverse();
 		}
 	}
-	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::samplePlaybeckDirection] = 1;
 
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection]) playMemPtr->clearReverse();
 }
@@ -694,23 +694,23 @@ void playerEngine::endFxFinetune(uint8_t fx_n)
 	{
 		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::fineTune])
 		{
-			currentSeqModValues.fineTune = map(lastSeqVal[otherFx_n],0,127,MIN_INSTRUMENT_FINETUNE,MAX_INSTRUMENT_FINETUNE);
+			currentSeqModValues.fineTune = map(lastSeqVal[otherFx_n],sequencer.getFxMin(fx_t::FX_TYPE_MICROTUNING),sequencer.getFxMax(fx_t::FX_TYPE_MICROTUNING),MIN_INSTRUMENT_FINETUNE,MAX_INSTRUMENT_FINETUNE);
 			playMemPtr->setFineTuneForceFlag();
 			playMemPtr->setForcedFineTune(currentSeqModValues.fineTune);
 		}
-	}
-	else
-	{
-		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::fineTune] && !trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoFineTune] )
+		else
 		{
 			playMemPtr->clearFineTuneForceFlag();
 			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
 		}
 	}
-
-	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoFineTune])
+	else
 	{
-		playMemPtr->setFineTuneForceFlag();
+		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::fineTune])
+		{
+			playMemPtr->clearFineTuneForceFlag();
+			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
+		}
 	}
 }
 
@@ -791,12 +791,11 @@ void playerEngine::endFxReverbSend(uint8_t fx_n)
 
 void playerEngine::endFxReversePlayback(uint8_t fx_n)
 {
+	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::samplePlaybeckDirection] = 0;
+
 	if(lastSeqVal[fx_n] == 0) return;
 
 	uint8_t otherFx_n = !fx_n;
-
-	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::samplePlaybeckDirection] = 0;
-
 
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection])
 	{
