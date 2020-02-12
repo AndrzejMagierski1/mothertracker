@@ -698,6 +698,11 @@ void playerEngine::endFxFinetune(uint8_t fx_n)
 			playMemPtr->setFineTuneForceFlag();
 			playMemPtr->setForcedFineTune(currentSeqModValues.fineTune);
 		}
+		else
+		{
+			playMemPtr->clearFineTuneForceFlag();
+			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
+		}
 	}
 	else
 	{
