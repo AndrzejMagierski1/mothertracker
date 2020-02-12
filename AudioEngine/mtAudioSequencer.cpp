@@ -223,23 +223,28 @@ void playerEngine::fxReversePlayback(uint8_t fx_val, uint8_t fx_n)
 {
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::samplePlaybeckDirection] = 1;
 
-	if(fx_val == 0) return;
-
 	uint8_t otherFx_n = !fx_n;
+
 
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
-		playMemPtr->setReverse();
+		if(fx_val) playMemPtr->setReverse();
+		else playMemPtr->clearReverse();
+
+		currentSeqModValues.reversePlayback = fx_val;
 	}
 	else if(fx_n == LEAST_SIGNIFICANT_FX)
 	{
 		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::samplePlaybeckDirection])
 		{
-			playMemPtr->setReverse();
+			if(fx_val) playMemPtr->setReverse();
+			else playMemPtr->clearReverse();
+
+			currentSeqModValues.reversePlayback = fx_val;
 		}
 	}
 
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection]) playMemPtr->clearReverse();
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection]) changeSamplePlaybackPerformanceMode(performanceMod.reversePlayback);
 }
 //******* position
 void playerEngine::fxPosition(uint8_t fx_val, uint8_t fx_n)
@@ -797,15 +802,26 @@ void playerEngine::endFxReversePlayback(uint8_t fx_n)
 
 	uint8_t otherFx_n = !fx_n;
 
+	if(fx_n == MOST_SIGNIFICANT_FX)
+	{
+		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
+		{
+			currentSeqModValues.reversePlayback = lastSeqVal[otherFx_n];
+		}
+	}
+
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection])
 	{
-		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::samplePlaybeckDirection]) playMemPtr->setReverse();
-		else playMemPtr->clearReverse();
+		changeSamplePlaybackPerformanceMode(performanceMod.reversePlayback);
 	}
 	else
 	{
-		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::samplePlaybeckDirection]) playMemPtr->clearReverse();
-		else playMemPtr->setReverse();
+		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend]) playMemPtr->clearReverse();
+		else
+		{
+			if(currentSeqModValues.reversePlayback) playMemPtr->setReverse();
+			else playMemPtr->clearReverse();
+		}
 	}
 }
 //******** position

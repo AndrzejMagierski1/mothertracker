@@ -34,7 +34,7 @@ void AudioPlayMemory::update(void)
 			waveTablePosition = wavetableWindowSize * currentWindow;
 		}
 
-		castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
+		castPitchControl = (int32_t) ((reverseDirectionFlag && (sampleType != mtSampleTypeWavetable)) ?  -pitchControl : pitchControl);
 		pitchFraction = pitchControl - (int32_t)pitchControl;
 
 
@@ -52,7 +52,7 @@ void AudioPlayMemory::update(void)
 					if (glideCounter <= sampleConstrains.glide)
 					{
 						pitchControl += glideControl;
-						castPitchControl = (int32_t) (reverseDirectionFlag ?  -pitchControl : pitchControl);
+						castPitchControl = (int32_t) ( (reverseDirectionFlag && (sampleType != mtSampleTypeWavetable)) ?  -pitchControl : pitchControl);
 						pitchFraction = pitchControl - (int32_t)pitchControl;
 						glideCounter++;
 					}
@@ -295,7 +295,7 @@ void AudioPlayMemory::update(void)
 					{
 						iPitchCounter = length;
 					}
-					else if (((iPitchCounter - castPitchControl) <= 0)  && reverseDirectionFlag)
+					else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag && (sampleType != mtSampleTypeWavetable)))
 					{
 						iPitchCounter = 0;
 					}
@@ -759,7 +759,7 @@ void AudioPlayMemory::update(void)
 				{
 					iPitchCounter = length;
 				}
-				else if (((iPitchCounter - castPitchControl) <= 0)  && reverseDirectionFlag)
+				else if (((iPitchCounter - castPitchControl) <= 0)  && (reverseDirectionFlag && (sampleType != mtSampleTypeWavetable)))
 				{
 					iPitchCounter = 0;
 				}

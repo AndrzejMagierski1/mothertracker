@@ -292,6 +292,7 @@ public:
 		uint8_t filterType;
 		int32_t startPoint;
 		int32_t	endPoint;
+		uint8_t reversePlayback;
 		int8_t  lfoAmpRate;
 		int8_t  lfoCutoffRate;
 		int8_t  lfoPositionRate;
