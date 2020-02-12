@@ -13,7 +13,7 @@
 
 #include "debugLog.h"
 
-
+void enableGPIO(bool enable);
 
 
 SdCard SD;
@@ -56,8 +56,8 @@ const TCHAR driverNumberBuffer[3U] = {SDDISK + '0', ':', '/'};
 
 bool SdCard::init()
 {
-
-	pinsInit();
+	enableGPIO(true);
+	//pinsInit();
 
 	for(uint32_t i = 0; i< 10000; i++)
 	{
@@ -230,9 +230,6 @@ void SdCard::pinsInit()
 
 
 }
-
-
-
 
 
 

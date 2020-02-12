@@ -1840,7 +1840,7 @@ status_t SD_CardInit(sd_card_t *card)
     }
 
     /* Set to max frequency in non-high speed mode. */
-    card->busClock_Hz = SDMMCHOST_SET_CARD_CLOCK(card->host.base, card->host.sourceClock_Hz, SD_CLOCK_25MHZ);
+   // card->busClock_Hz = SDMMCHOST_SET_CARD_CLOCK(card->host.base, card->host.sourceClock_Hz, SD_CLOCK_25MHZ);
 
     if (kStatus_Success != SD_SendScr(card))
     {
@@ -1922,7 +1922,7 @@ void SD_PowerOffCard(SDMMCHOST_TYPE *base, const sdmmchost_pwr_card_t *pwr)
 
 status_t SD_WaitCardDetectStatus(SDMMCHOST_TYPE *hostBase, const sdmmchost_detect_card_t *cd, bool waitCardStatus)
 {
-    return 0;//SDMMCHOST_WaitCardDetectStatus(hostBase, cd, waitCardStatus);
+    return SDMMCHOST_WaitCardDetectStatus(hostBase, cd, waitCardStatus);
 }
 
 bool SD_IsCardPresent(sd_card_t *card)
@@ -1932,6 +1932,7 @@ bool SD_IsCardPresent(sd_card_t *card)
 
 status_t SD_Init(sd_card_t *card)
 {
+    assert(card);
 
     if (!card->isHostReady)
     {
@@ -1950,7 +1951,6 @@ status_t SD_Init(sd_card_t *card)
     {
         return kStatus_SDMMC_CardDetectFailed;
     }
-
     SD_PowerOnCard(card->host.base, card->usrParam.pwr);
 
     return SD_CardInit(card);

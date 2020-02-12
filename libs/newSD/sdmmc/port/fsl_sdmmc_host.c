@@ -5,14 +5,26 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-//#include <Arduino.h>
+
 #include "fsl_sdmmc_host.h"
 #include "fsl_sdmmc_event.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-uint8_t digitalRead(uint8_t pin);
-void cardDetectPinInterruptHandler(uint8_t state);
+/* SDHC base address, clock and card detection pin */
+#define BOARD_SDHC_BASEADDR SDHC
+#define BOARD_SDHC_CLKSRC kCLOCK_CoreSysClk
+#define BOARD_SDHC_CLK_FREQ CLOCK_GetFreq(kCLOCK_CoreSysClk)
+#define BOARD_SDHC_IRQ SDHC_IRQn
+#define BOARD_SDHC_CD_GPIO_BASE GPIOD
+#ifndef BOARD_SDHC_CD_GPIO_PIN
+#define BOARD_SDHC_CD_GPIO_PIN 10U
+#endif
+#define BOARD_SDHC_CD_PORT_BASE PORTD
+#define BOARD_SDHC_CD_PORT_IRQ PORTD_IRQn
+#define BOARD_SDHC_CD_PORT_IRQ_HANDLER PORTD_IRQHandler
+#define BOARD_SDHC_CARD_INSERT_CD_LEVEL (1U)
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -153,8 +165,10 @@ static status_t SDMMCHOST_TransferFunction(SDMMCHOST_TYPE *base, SDMMCHOST_TRANS
         error = SDHC_TransferNonBlocking(base, &s_sdhcHandle, s_sdhcAdmaTable, SDHC_ADMA_TABLE_WORDS, content);
     } while (error == kStatus_SDHC_BusyTransferring);
 
+   bool  event_result = SDMMCEVENT_Wait(kSDMMCEVENT_TransferComplete, SDMMCHOST_TRANSFER_COMPLETE_TIMEOUT*10);
+
     if ((error != kStatus_Success) ||
-        (false == SDMMCEVENT_Wait(kSDMMCEVENT_TransferComplete, SDMMCHOST_TRANSFER_COMPLETE_TIMEOUT)) ||
+        (false == event_result) ||
         (!g_sdhcTransferSuccessFlag))
     {
         error = kStatus_Fail;
@@ -199,48 +213,38 @@ static status_t SDMMCHOST_CardDetectInit(SDMMCHOST_TYPE *base, const sdmmchost_d
         return kStatus_Fail;
     }
 
+    if (cdType == kSDMMCHOST_DetectCardByGpioCD)
+    {
+        /* Card detection pin will generate interrupt on either eage */
+        PORT_SetPinInterruptConfig(BOARD_SDHC_CD_PORT_BASE, BOARD_SDHC_CD_GPIO_PIN, kPORT_InterruptEitherEdge);
+        /* set IRQ priority */
+        SDMMCHOST_SET_IRQ_PRIORITY(SDMMCHOST_CARD_DETECT_IRQ, 6U);
+        /* Open card detection pin NVIC. */
+        SDMMCHOST_ENABLE_IRQ(SDMMCHOST_CARD_DETECT_IRQ);
+        /* check card detect status */
+        if (GPIO_PinRead(BOARD_SDHC_CD_GPIO_BASE, BOARD_SDHC_CD_GPIO_PIN) == SDMMCHOST_CARD_INSERT_CD_LEVEL)
+        {
+            cardInsert = true;
+        }
+    }
+    else if (cdType == kSDMMCHOST_DetectCardByHostDATA3)
+    {
+        /* enable card detect through DATA3 */
+        SDMMCHOST_CARD_DETECT_DATA3_ENABLE(base, true);
+        /* enable card detect interrupt */
+        SDMMCHOST_CARD_DETECT_INSERT_ENABLE(base);
+        SDMMCHOST_CARD_DETECT_INSERT_INTERRUPT_ENABLE(base);
 
-
-
-//    if (cdType == kSDMMCHOST_DetectCardByGpioCD)
-//    {
-//
-//
-//        /* Card detection pin will generate interrupt on either eage */
-//        PORT_SetPinInterruptConfig(BOARD_SDHC_CD_PORT_BASE, BOARD_SDHC_CD_GPIO_PIN, kPORT_InterruptEitherEdge);
-//        /* set IRQ priority */
-//        SDMMCHOST_SET_IRQ_PRIORITY(SDMMCHOST_CARD_DETECT_IRQ, 6U);
-//        /* Open card detection pin NVIC. */
-//        SDMMCHOST_ENABLE_IRQ(SDMMCHOST_CARD_DETECT_IRQ);
-//        /* check card detect status */
-//        if (GPIO_PinRead(BOARD_SDHC_CD_GPIO_BASE, BOARD_SDHC_CD_GPIO_PIN) == SDMMCHOST_CARD_INSERT_CD_LEVEL)
-//        {
-//            cardInsert = true;
-//        }
-//
-//    	if (digitalRead(SD_DETECT) == SDMMCHOST_CARD_INSERT_CD_LEVEL)
-//        {
-//            cardInsert = true;
-//        }
-//    }
-//    else if (cdType == kSDMMCHOST_DetectCardByHostDATA3)
-//    {
-//        /* enable card detect through DATA3 */
-//        SDMMCHOST_CARD_DETECT_DATA3_ENABLE(base, true);
-//        /* enable card detect interrupt */
-//        SDMMCHOST_CARD_DETECT_INSERT_ENABLE(base);
-//        SDMMCHOST_CARD_DETECT_INSERT_INTERRUPT_ENABLE(base);
-//
-//        if (SDMMCHOST_CARD_DETECT_INSERT_STATUS(base))
-//        {
-//            cardInsert = true;
-//        }
-//    }
-//    else
-//    {
-//        /* SDHC do not support detect card through CD */
-//        return kStatus_Fail;
-//    }
+        if (SDMMCHOST_CARD_DETECT_INSERT_STATUS(base))
+        {
+            cardInsert = true;
+        }
+    }
+    else
+    {
+        /* SDHC do not support detect card through CD */
+        return kStatus_Fail;
+    }
 
     /* notify application about the card insertion status */
     SDMMCHOST_NotifyCardInsertStatus(cardInsert, cd);
@@ -258,39 +262,44 @@ void SDMMCHOST_Delay(uint32_t milliseconds)
     SDMMCEVENT_Delay(milliseconds);
 }
 
-void cardDetectPinInterruptHandler(uint8_t state)
+void SDMMCHOST_CARD_DETECT_GPIO_INTERRUPT_HANDLER(void)
 {
-
-   // SDMMCHOST_NotifyCardInsertStatus(state, ((sdmmhostcard_usr_param_t *)s_sdhcHandle.userData)->cd);
-
+    if (PORT_GetPinsInterruptFlags(BOARD_SDHC_CD_PORT_BASE) == (1U << BOARD_SDHC_CD_GPIO_PIN))
+    {
+        SDMMCHOST_NotifyCardInsertStatus(
+            GPIO_PinRead(BOARD_SDHC_CD_GPIO_BASE, BOARD_SDHC_CD_GPIO_PIN) == SDMMCHOST_CARD_INSERT_CD_LEVEL,
+            ((sdmmhostcard_usr_param_t *)s_sdhcHandle.userData)->cd);
+    }
+    /* Clear interrupt flag.*/
+    PORT_ClearPinsInterruptFlags(BOARD_SDHC_CD_PORT_BASE, ~0U);
     SDMMCEVENT_Notify(kSDMMCEVENT_CardDetect);
 }
 
-//status_t SDMMCHOST_WaitCardDetectStatus(SDMMCHOST_TYPE *hostBase,
-//                                        const sdmmchost_detect_card_t *cd,
-//                                        bool waitCardStatus)
-//{
-//    uint32_t timeout = SDMMCHOST_CARD_DETECT_TIMEOUT;
-//
-//    if (cd != NULL)
-//    {
-//        timeout = cd->cdTimeOut_ms;
-//    }
-//
-//    if (waitCardStatus != s_sdInsertedFlag)
-//    {
-//        /* Wait card inserted. */
-//        do
-//        {
-//            if (!SDMMCEVENT_Wait(kSDMMCEVENT_CardDetect, timeout))
-//            {
-//                return kStatus_Fail;
-//            }
-//        } while (waitCardStatus != s_sdInsertedFlag);
-//    }
-//
-//    return kStatus_Success;
-//}
+status_t SDMMCHOST_WaitCardDetectStatus(SDMMCHOST_TYPE *hostBase,
+                                        const sdmmchost_detect_card_t *cd,
+                                        bool waitCardStatus)
+{
+    uint32_t timeout = SDMMCHOST_CARD_DETECT_TIMEOUT;
+
+    if (cd != NULL)
+    {
+        timeout = cd->cdTimeOut_ms;
+    }
+
+    if (waitCardStatus != s_sdInsertedFlag)
+    {
+        /* Wait card inserted. */
+        do
+        {
+            if (!SDMMCEVENT_Wait(kSDMMCEVENT_CardDetect, timeout))
+            {
+                return kStatus_Fail;
+            }
+        } while (waitCardStatus != s_sdInsertedFlag);
+    }
+
+    return kStatus_Success;
+}
 
 bool SDMMCHOST_IsCardPresent(void)
 {
@@ -326,7 +335,7 @@ status_t SDMMCHOST_Init(SDMMCHOST_CONFIG *host, void *userData)
     sdhc_transfer_callback_t sdhcCallback = {0};
     sdhc_host_t *sdhcHost                 = (sdhc_host_t *)host;
     /* init event timer */
-    //SDMMCEVENT_InitTimer();
+  //  SDMMCEVENT_InitTimer();
 
     /* Initializes SDHC. */
     sdhcHost->config.cardDetectDat3      = false;
@@ -350,9 +359,8 @@ status_t SDMMCHOST_Init(SDMMCHOST_CONFIG *host, void *userData)
 
     /* Define transfer function. */
     sdhcHost->transfer = SDMMCHOST_TransferFunction;
-
     /* card detect init */
-    //SDMMCHOST_CardDetectInit(sdhcHost->base, (userData == NULL) ? NULL : (((sdmmhostcard_usr_param_t *)userData)->cd));
+    SDMMCHOST_CardDetectInit(sdhcHost->base, (userData == NULL) ? NULL : (((sdmmhostcard_usr_param_t *)userData)->cd));
 
     return kStatus_Success;
 }

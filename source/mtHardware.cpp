@@ -354,3 +354,20 @@ void TactSwitchRead()
 		onPowerButtonChange(0);
 	}
 }
+
+
+
+void enableGPIO(bool enable) {
+  const uint32_t PORT_CLK = PORT_PCR_MUX(4) | PORT_PCR_DSE;
+  const uint32_t PORT_CMD_DATA = PORT_CLK   | PORT_PCR_PE | PORT_PCR_PS;
+  const uint32_t PORT_PUP = PORT_PCR_MUX(1) | PORT_PCR_PE | PORT_PCR_PS;
+
+  PORTE_PCR0 = enable ? PORT_CMD_DATA : PORT_PUP;  // SDHC_D1
+  PORTE_PCR1 = enable ? PORT_CMD_DATA : PORT_PUP;  // SDHC_D0
+  PORTE_PCR2 = enable ? PORT_CLK      : PORT_PUP;  // SDHC_CLK
+  PORTE_PCR3 = enable ? PORT_CMD_DATA : PORT_PUP;  // SDHC_CMD
+  PORTE_PCR4 = enable ? PORT_CMD_DATA : PORT_PUP;  // SDHC_D3
+  PORTE_PCR5 = enable ? PORT_CMD_DATA : PORT_PUP;  // SDHC_D2
+}
+
+
