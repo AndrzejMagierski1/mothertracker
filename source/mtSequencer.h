@@ -692,6 +692,7 @@ public:
 
 	void loadNextPattern(uint8_t patternNumber);
 	void handleNote(byte channel, byte pitch, byte velocity);
+	void handleNote(byte channel, byte pitch, byte velocity, byte source);
 	void handleNoteOld(byte channel, byte pitch, byte velocity);
 	int16_t getFxMax(uint8_t fxID);
 	int16_t getFxMin(uint8_t fxID);
