@@ -650,7 +650,7 @@ void cConfigEditor::listAllFirmwares()
 	uint8_t validFilesCount=0;
 
 	sdLocation.close();
-	if(sdLocation.open("/firmware", O_READ))
+	if(sdLocation.open("/Firmware", O_READ))
 	{
 		locationFileCount = sdLocation.createFilesListShort(0,&firmwareNamesList[0][0], firmware_list_max,firmware_name_length);
 

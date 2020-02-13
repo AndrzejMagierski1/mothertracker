@@ -34,11 +34,11 @@ static FATFS g_fileSystem; /* File system object */
 
 #define BUFFER_SIZE (100U)
 
-SDK_ALIGN(uint8_t g_bufferWrite[SDK_SIZEALIGN(BUFFER_SIZE, SDMMC_DATA_BUFFER_ALIGN_CACHE)],
-          MAX(SDMMC_DATA_BUFFER_ALIGN_CACHE, SDMMCHOST_DMA_BUFFER_ADDR_ALIGN));
-SDK_ALIGN(uint8_t g_bufferRead[SDK_SIZEALIGN(BUFFER_SIZE, SDMMC_DATA_BUFFER_ALIGN_CACHE)],
-          MAX(SDMMC_DATA_BUFFER_ALIGN_CACHE, SDMMCHOST_DMA_BUFFER_ADDR_ALIGN));
-
+//SDK_ALIGN(uint8_t g_bufferWrite[SDK_SIZEALIGN(BUFFER_SIZE, SDMMC_DATA_BUFFER_ALIGN_CACHE)],
+//          MAX(SDMMC_DATA_BUFFER_ALIGN_CACHE, SDMMCHOST_DMA_BUFFER_ADDR_ALIGN));
+//SDK_ALIGN(uint8_t g_bufferRead[SDK_SIZEALIGN(BUFFER_SIZE, SDMMC_DATA_BUFFER_ALIGN_CACHE)],
+//          MAX(SDMMC_DATA_BUFFER_ALIGN_CACHE, SDMMCHOST_DMA_BUFFER_ADDR_ALIGN));
+//
 
 /*! @brief SDMMC host detect card configuration */
 static const sdmmchost_detect_card_t s_sdCardDetect = {
@@ -63,7 +63,6 @@ bool SdCard::init()
 	for(uint32_t i = 0; i< 1000; i++)
 	{
 		__asm__ volatile("nop");
-
 	}
 
     /* Save host information. */
@@ -97,24 +96,31 @@ bool SdCard::init()
     }
 #endif
 
-
-/*
-    SdFile test_file;
-
-    test_file.open("/test.txt", SD_FILE_WRITE);
-
-    char test[5] = "test";
-
-    test_file.write(test,5);
-
-    test_file.close();
-
-*/
-
-
-
     return true;
 }
+
+
+#ifdef DEBUG
+char errorText[100] = "SD report: ";
+char errorNr[7];
+#endif
+
+void reportError(const char* text, uint8_t value)
+{
+#ifdef DEBUG
+	debugLog.setMaxLineCount(10);
+	strncpy(&errorText[11], text, 80);
+	if(value > 0)
+	{
+		sprintf(errorNr, " (%d)", value);
+		strcat(errorText, errorNr);
+	}
+	debugLog.addLine(errorText);
+
+#endif
+}
+
+
 
 
 
@@ -247,21 +253,19 @@ bool SdCard::mkdir(uint8_t hidden, const char *path, bool pFlag)
     {
         if (error == FR_EXIST)
         {
+        	reportError("create dir - exist", error);
 
         }
         else
         {
+        	reportError("create dir - failed", error);
             return false;
         }
     }
 
     if(hidden)
     {
-    	f_chmod (
-    			path, 			/* [IN] Object name */
-				AM_HID,         /* [IN] Attribute flags */
-				AM_HID          /* [IN] Attribute masks */
-    	);
+    	f_chmod (path,AM_HID,AM_HID);
     }
 
     return true;
@@ -274,10 +278,12 @@ bool SdCard::remove(const char* path)
     {
         if (error == FR_LOCKED)
         {
+        	reportError("remove failed - file locked", error);
             return false;
         }
         else
         {
+        	reportError("remove failed", error);
             return false;
         }
     }

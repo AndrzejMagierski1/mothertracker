@@ -138,6 +138,7 @@ void MTPStorage_SD::OpenFileByIndex(uint32_t i, uint8_t mode = O_RDONLY)
 
 void MTPStorage_SD::ScanDir(uint32_t i)
 {
+	/*
 	Record record = ReadIndexRecord(i);
 	if (record.isdir && !record.scanned)
 	{
@@ -173,6 +174,7 @@ void MTPStorage_SD::ScanDir(uint32_t i)
 		record.child = sibling;
 		WriteIndexRecord(i, record);
 	}
+	*/
 }
 
 void MTPStorage_SD::ScanAll()

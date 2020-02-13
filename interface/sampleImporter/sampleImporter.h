@@ -96,7 +96,7 @@ public:
 //	void hideAddWT();
 
 //--------------------------------------------------------------
-	SdFile sdLocation;
+	SdDir sdLocation;
 	static const uint8_t list_length_max = 100;
 	char actualPath[255] = {'/',0};
 	uint8_t dirLevel = 0;

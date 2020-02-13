@@ -4,7 +4,7 @@
 
 
 #include <stdint.h>
-
+#include <string.h>
 
 
 #include "ff.h"
@@ -16,6 +16,8 @@
 
 #define FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_ALWAYS )
 
+
+void reportError(const char* text, uint8_t value);
 
 
 class SdFile;
@@ -40,6 +42,7 @@ public:
 	bool remove(const char* path);
 	bool rmdir(const char* path) { return remove(path); }
 
+
 	uint32_t clusterCount();
 	uint16_t sectorsPerCluster();
 	uint32_t freeClusterCount();
@@ -52,22 +55,30 @@ class SdFile
 {
 public:
 
-	bool open(const char* path, uint8_t oflag = FA_READ);
-
-
-	uint16_t createFilesList(uint8_t start_line, char list[][40], uint8_t list_length, uint8_t chooseFilter = 0)
+	bool open(const char* path, uint8_t oflag = FA_READ)
 	{
-		uint16_t count = start_line;
-
-		return (count-start_line);
+		file = new FIL;
+		FRESULT error = f_open(file, path, oflag);
+		if (error)
+		{
+			if (error == FR_EXIST)
+			{
+	        	reportError("open - file exist", error);
+			}
+			else if (error == FR_TOO_MANY_OPEN_FILES)
+			{
+	        	reportError("open error - too many files opened", error);
+			}
+			else
+			{
+	        	reportError("open - failed", error);
+				close();
+				return false;
+			}
+		}
+		return true;
 	}
 
-	uint16_t createFilesListShort(uint8_t start_line, char * list,uint8_t list_length,uint8_t nameLength)
-	{
-		uint16_t count = start_line;
-
-		return count;
-	}
 
 	int read(void* buf, uint32_t count)
 	{
@@ -75,6 +86,7 @@ public:
 		FRESULT error = f_read(file,buf,count,&read);
 		if (error)
 		{
+			reportError("read - failed", error);
 			return -1;
 		}
 		return read;
@@ -86,6 +98,7 @@ public:
 		FRESULT error = f_write(file,buf,count,&written);
 		if (error)
 		{
+			reportError("write - failed", error);
 			return -1;
 		}
 		return written;
@@ -98,6 +111,7 @@ public:
 		FRESULT error = f_lseek(file, pos);
 		if (error)
 		{
+			reportError("seek - failed", error);
 			return false;
 		}
 		return true;
@@ -108,6 +122,7 @@ public:
 		FRESULT error = f_lseek(file, f_tell(file) + offset);
 		if (error)
 		{
+			reportError("seekCur", error);
 			return false;
 		}
 		return true;
@@ -115,37 +130,57 @@ public:
 
 	bool close()
 	{
-		if (f_close(file))
+		FRESULT error = f_close(file);
+
+		if(file != nullptr)
 		{
 			delete file;
 			file = nullptr;
-			return false;
 		}
 
-		delete file;
-		file = nullptr;
+		if(error)
+		{
+			reportError("close - failed", error);
+			return false;
+		}
 		return true;
 	}
 
 
 	void println()
 	{
-
+		print("\n");
 	}
 
 	void println(const char* text)
 	{
-
+		print(text);
+		println();
 	}
 
 	void print(const char* text)
 	{
-
+		f_puts(text, file);
 	}
 
-	void printf(const char *format, ...)
+	void printf(const char *format, int value)
 	{
+		f_printf(file, format, value);
+	}
 
+	void printf(const char *format, int value1, int value2)
+	{
+		f_printf(file, format, value1, value2);
+	}
+
+	void printf(const char *format, int value1, int value2, int value3)
+	{
+		f_printf(file, format, value1, value2, value3);
+	}
+
+	void printf(const char *format, char* str, int value)
+	{
+		f_printf(file, format, str, value);
 	}
 
 	operator bool()
@@ -163,22 +198,21 @@ public:
 	    return isOpen() ? f_size(file) - f_tell(file) : 0;
 	}
 
-	bool openNext(SdFile* parent,  uint8_t oflag = FA_READ)
-	{
-
-
-		return true;
-	}
-
-	bool isDirectory()
-	{
-		return is_directory > 0;
-	}
-
-	bool isDir()
-	{
-		return is_directory > 0;
-	}
+//	bool openNext(SdFile* parent,  uint8_t oflag = FA_READ)
+//	{
+//
+//
+//		return true;
+//	}
+//	bool isDirectory()
+//	{
+//		return is_directory > 0;
+//	}
+//
+//	bool isDir()
+//	{
+//		return is_directory > 0;
+//	}
 
 
 	uint64_t size()
@@ -186,29 +220,192 @@ public:
 		return f_size(file);
 	}
 
-	uint8_t getName(char* buf, uint8_t max_length)
+/*	uint8_t getName(char* buf, uint8_t max_length)
 	{
+		FILINFO fno;
+		FRESULT error = f_stat("file.txt", &fno);
 
-		return 0;
+		//strncpy( );
+		return max_length;
+	}
+*/
+
+
+
+
+
+
+private:
+//	~SdFile()
+//	{
+//		close();
+//	}
+
+	FIL* file = nullptr;
+
+
+	uint8_t file_state = 0;
+	uint8_t is_directory = 0;
+};
+
+
+
+class SdDir
+{
+public:
+
+	bool open(const char* path, uint8_t oflag = FA_READ)
+	{
+		close();
+		directory = new DIR;
+		FRESULT error =  f_opendir (directory, path);
+		if (error)
+		{
+			reportError("dir open - failed", error);
+			close();
+			return false;
+		}
+		return true;
 	}
 
-
-	bool exists(const char* child)
+	bool close()
 	{
+		FRESULT error = f_closedir(directory);
 
+		if(directory != nullptr)
+		{
+			delete directory;
+			directory = nullptr;
+		}
+
+		if(error)
+		{
+			reportError("dir close - failed", error);
+			return false;
+		}
 		return true;
+	}
+
+	operator bool()
+	{
+		return isOpen();
+	}
+
+	bool isOpen()
+	{
+		return directory != nullptr;
+	}
+
+	bool readItem(char* path, uint8_t* isDir)
+	{
+		FILINFO fno;
+		FRESULT error = f_readdir(directory, &fno);
+		if(error)
+		{
+			reportError("read dir item - failed", error);
+			return false;
+		}
+		else if(!fno.fname[0]) // koniec folderu
+		{
+			return false;
+		}
+
+        if (fno.fattrib & AM_DIR)
+        {
+        	*isDir = 1;
+        }
+        else
+        {
+        	*isDir = 0;
+        }
+
+		strncpy(path, fno.fname, 32);
+		return true;
+	}
+
+/*
+	bool exists(const char* filename)
+	{
+		FRESULT error = f_stat("file.txt", nullptr);
+		if(error)
+		{
+			return false;
+		}
+		return true;
+	}
+*/
+	uint16_t createFilesList(uint8_t start_line, char list[][40], uint8_t list_length, uint8_t chooseFilter = 0)
+	{
+		uint16_t count = start_line;
+		uint8_t n = 0;
+		FILINFO fno;
+		FRESULT error;
+		uint8_t isDir = 0;
+
+		f_readdir(directory, nullptr);
+
+		while (1)
+		{
+			if (n >= list_length) break;
+
+			error = f_readdir(directory, &fno);
+			if(error)
+			{
+				reportError("create list - read dir item - failed", error);
+				break;
+			}
+			else if(!fno.fname[0]) // koniec folderu
+			{
+				break;
+			}
+
+			if (fno.fattrib & AM_HID)
+			{
+				continue;
+			}
+
+	        if (fno.fattrib & AM_DIR)
+	        {
+	        	list[n]
+	        	isDir = 1;
+	        }
+	        else
+	        {
+	        	isDir = 0;
+	        }
+
+	        n++;
+		}
+
+
+
+		f_readdir(directory, nullptr);
+
+		return (count-start_line);
+	}
+
+	uint16_t createFilesListShort(uint8_t start_line, char * list,uint8_t list_length,uint8_t nameLength)
+	{
+		uint16_t count = start_line;
+
+		return count;
 	}
 
 
 
 private:
+//	~SdDir()
+//	{
+//		close();
+//	}
 
-	FIL* file = nullptr;
 	DIR* directory = nullptr;
 
-	uint8_t file_state = 0;
-	uint8_t is_directory = 0;
+
 };
+
+
+
 
 
 

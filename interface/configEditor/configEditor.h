@@ -91,7 +91,7 @@ public:
 	//
 	uint8_t flashingState = 0;
 	uint8_t firmwareFoundNum;
-	SdFile sdLocation;
+	SdDir sdLocation;
 	hControl popoutWindowLabel;
 
 

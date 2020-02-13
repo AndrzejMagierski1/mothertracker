@@ -489,6 +489,8 @@ void cPatternEditor::showFxInfo()
 	if(editParam < 2) return;
 	if(editMode == 0) return;
 
+	debugLog.setMaxLineCount(1);
+
 	seq = sequencer.getPatternToUI();
 	uint8_t type_temp  = interfaceGlobals.fxIdToName(seq->track[trackerPattern.actualTrack].step[trackerPattern.actualStep].fx[1-(editParam-2)].type);
 	if(type_temp > 0 && type_temp < FX_MAX)

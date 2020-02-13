@@ -70,18 +70,18 @@ void cDebugLog::addLine(char text[])
 	if(!mtConfig.debug.debugLogState) return;
 
 	if(logBott == logTop)		logLinesCount = 0;
-	else if(logBott > logTop) 	logLinesCount = (logLinesMax-logBott)+logTop;
+	else if(logBott > logTop) 	logLinesCount = (fifoSize-logBott)+logTop;
 	else						logLinesCount = logTop-logBott;
 
-	if(logLinesCount >= logLinesMax-1)
+	if(logLinesCount >= logLinesMax)
 	{
 		removeBottLine();
 
 		if(logBott == logTop)		logLinesCount = 0;
-		else if(logBott > logTop) 	logLinesCount = (logLinesMax-logBott)+logTop;
+		else if(logBott > logTop) 	logLinesCount = (fifoSize-logBott)+logTop;
 		else						logLinesCount = logTop-logBott;
 
-		if(logLinesCount >= logLinesMax-1) return;
+		if(logLinesCount >= logLinesMax) return;
 	}
 
 	uint16_t strLength = strlen(text) +1;
@@ -95,7 +95,7 @@ void cDebugLog::addLine(char text[])
 	logLine[logTop].time = actualMillis;
 
 	logTop++;
-	if(logTop >= logLinesMax) logTop = 0;
+	if(logTop >= fifoSize) logTop = 0;
 
 	if(display.isIdle()) display.forceAppedStage();
 }
@@ -177,7 +177,7 @@ void cDebugLog::processLog()
 {
 	if(logBott == logTop) return;
 
-	if(logBott > logTop) 	logLinesCount = (logLinesMax-logBott)+logTop;
+	if(logBott > logTop) 	logLinesCount = (fifoSize-logBott)+logTop;
 	else					logLinesCount = logTop-logBott;
 
 
@@ -209,7 +209,7 @@ void cDebugLog::update()
 {
 	if(logBott == logTop) return;
 
-	if(logBott > logTop) 	logLinesCount = (logLinesMax-logBott)+logTop;
+	if(logBott > logTop) 	logLinesCount = (fifoSize-logBott)+logTop;
 	else					logLinesCount = logTop-logBott;
 
 
@@ -242,11 +242,27 @@ void cDebugLog::removeBottLine()
 	delete[] logLine[logBott].text;
 
 	logBott++;
-	if(logBott >= logLinesMax) logBott = 0;
+	if(logBott >= fifoSize) logBott = 0;
 }
 
 
 
+void cDebugLog::setMaxLineCount(uint8_t count)
+{
+	if(logLinesMax == count) return;
+	if(count < 1 || count > fifoSize) return;
+
+	while(1)
+	{
+		if(logBott > logTop) 	logLinesCount = (fifoSize-logBott)+logTop;
+		else					logLinesCount = logTop-logBott;
+
+		if(logLinesCount > count-1) removeBottLine();
+		else break;
+	}
+
+	logLinesMax = count;
+}
 
 
 //--------------------------------------------------------------------------------

@@ -1116,15 +1116,14 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 			strcpy(filePath, folder);
 			strcat(filePath,&locationFilesList[i][0]); //doklej nazwe folderu
 
-			sdLocation.open(filePath, O_READ);
+			strcat(filePath,"/project.mt"); //doklej nazwe folderu
+			//sdLocation.open(filePath, O_READ);
 
-			if(sdLocation.exists("project.mt"))	//tylko jesli w folderze jest plik projektu
+			if(SD.exists(filePath))	//tylko jesli w folderze jest plik projektu
 			{
 				strcpy(&locationFilesList[foundProjectsCount][0],&locationFilesList[i][1]);
-
 				foundProjectsCount++;
 			}
-
 
 			sdLocation.close();
 		}

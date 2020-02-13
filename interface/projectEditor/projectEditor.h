@@ -84,7 +84,7 @@ public:
 
 	void listOnlyFolderNames(const char* folder);
 
-	SdFile sdLocation;
+	SdDir sdLocation;
 	uint8_t selectedLocation;
 	uint16_t locationFilesCount;
 	static const uint8_t files_list_length_max = 100;
