@@ -326,7 +326,7 @@ void playerEngine::handleNoteOnGain()
 
 	if(muteState == MUTE_DISABLE)
 	{
-		ampPtr->gain(localAmount * (mtProject.instrument[currentInstrument_idx].volume/100.0));
+		ampPtr->gain(localAmount * ampLogValues[mtProject.instrument[currentInstrument_idx].volume]);
 	}
 	else
 	{
@@ -593,11 +593,11 @@ void playerEngine::handleFxNoteOnGain()
 		else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume] ||
 				trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume])
 		{
-			ampPtr->gain( (currentSeqModValues.volume/100.0) * localAmount);
+			ampPtr->gain( ampLogValues[currentSeqModValues.volume] * localAmount);
 		}
 		else
 		{
-			ampPtr->gain(localAmount * (mtProject.instrument[currentInstrument_idx].volume/100.0));
+			ampPtr->gain(localAmount * ampLogValues[mtProject.instrument[currentInstrument_idx].volume]);
 		}
 	}
 	else

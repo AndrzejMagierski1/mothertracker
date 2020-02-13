@@ -423,7 +423,7 @@ void playerEngine::fxVolume(uint8_t fx_val, uint8_t fx_n)
 			}
 
 		}
-		if(muteState == MUTE_DISABLE ) ampPtr->gain( (currentSeqModValues.volume/100.0) * localAmount);
+		if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[currentSeqModValues.volume] * localAmount);
 		else ampPtr->gain(AMP_MUTED);
 	}
 }
@@ -1065,12 +1065,12 @@ void playerEngine::endFxVolume(uint8_t fx_n)
 		{
 			if(fx_n == MOST_SIGNIFICANT_FX)
 			{
-				if(muteState == 0 ) ampPtr->gain( (currentSeqModValues.volume/100.0) * localAmount);
+				if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[currentSeqModValues.volume] * localAmount);
 			}
 		}
 		else
 		{
-			if(muteState == 0 ) ampPtr->gain( (mtProject.instrument[currentInstrument_idx].volume/100.0) * localAmount);
+			if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[mtProject.instrument[currentInstrument_idx].volume] * localAmount);
 		}
 	}
 }
@@ -1147,7 +1147,7 @@ void playerEngine::endFxVolumeLFO(uint8_t fx_n)
 				envelopeAmpPtr->release(lfoBasedEnvelope[envAmp].release);
 				envelopeAmpPtr->setLoop(lfoBasedEnvelope[envAmp].loop);
 
-				if(muteState == MUTE_DISABLE ) ampPtr->gain( (localVol/100.0) * lfoBasedEnvelope[envAmp].amount);
+				if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[localVol] * lfoBasedEnvelope[envAmp].amount);
 				else ampPtr->gain(AMP_MUTED);
 			}
 		}
@@ -1167,7 +1167,7 @@ void playerEngine::endFxVolumeLFO(uint8_t fx_n)
 					envelopeAmpPtr->release(lfoBasedEnvelope[envAmp].release);
 					envelopeAmpPtr->setLoop(lfoBasedEnvelope[envAmp].loop);
 
-					if(muteState == MUTE_DISABLE ) ampPtr->gain( (localVol/100.0) * mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount);
+					if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[localVol] * mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount);
 					else ampPtr->gain(AMP_MUTED);
 				}
 				else
@@ -1180,7 +1180,7 @@ void playerEngine::endFxVolumeLFO(uint8_t fx_n)
 					envelopeAmpPtr->release(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release);
 					envelopeAmpPtr->setLoop(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop);
 
-					if(muteState == MUTE_DISABLE ) ampPtr->gain( (localVol/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+					if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[localVol] * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
 					else ampPtr->gain(AMP_MUTED);
 				}
 
@@ -1195,7 +1195,7 @@ void playerEngine::endFxVolumeLFO(uint8_t fx_n)
 				envelopeAmpPtr->release(0.0f);
 				envelopeAmpPtr->setLoop(0);
 
-				if(muteState == MUTE_DISABLE ) ampPtr->gain( (localVol/100.0)); //amount = 1;
+				if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[localVol]); //amount = 1;
 				else ampPtr->gain(AMP_MUTED);
 			}
 		}
