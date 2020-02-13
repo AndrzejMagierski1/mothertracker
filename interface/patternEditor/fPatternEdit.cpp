@@ -2937,14 +2937,16 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
 											Sequencer::STEP_NOTE_DEFAULT,
-											127);
+											127,
+											1);
 				}
 				else if (state == buttonRelease)
 				{
 
 					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
 											Sequencer::STEP_NOTE_DEFAULT,
-											0);
+											0,
+											1);
 				}
 			}
 			else
