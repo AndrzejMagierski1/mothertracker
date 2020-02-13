@@ -2,8 +2,9 @@
 #ifndef SOURCE_WAVHEADERREADER_H_
 #define SOURCE_WAVHEADERREADER_H_
 
+#include <stdint.h>
 
-#include "SD.h"
+class SdFile;
 
 struct strWavFileHeader
 {

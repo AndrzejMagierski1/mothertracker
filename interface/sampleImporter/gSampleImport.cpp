@@ -434,7 +434,7 @@ void cSampleImporter::AddEnterOrRename()
 {
 	if(selectedPlace == 0)
 	{
-		if(locationExplorerList[selectedFile][0] == '/')
+		if(*explorerNames[selectedFile] == '/')
 		{
 			display.setControlText(label[2], "Enter");
 		}
@@ -459,7 +459,7 @@ void cSampleImporter::previewColorControl()
 	uint32_t *colors = interfaceGlobals.activeButtonLabelsColors;
 	if(selectedPlace == 0)
 	{
-		if(locationExplorerList[selectedFile][0] == '/')
+		if(*explorerNames[selectedFile] == '/')
 		{
 			colors = interfaceGlobals.inactiveButtonLabelsColors;
 		}

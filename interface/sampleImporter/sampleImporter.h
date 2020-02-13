@@ -123,7 +123,7 @@ public:
 	uint8_t isWavFile(char* fileName);
 
 	uint16_t locationExplorerCount;
-	char locationExplorerList[list_length_max][40];
+	//char locationExplorerList[list_length_max][40];
 	char *explorerNames[list_length_max];
 	uint8_t selectedFile = 0;
 	char copyingInfo[20];

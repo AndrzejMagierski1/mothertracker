@@ -102,10 +102,10 @@ bool SdCard::init()
 
 #ifdef DEBUG
 char errorText[100] = "SD report: ";
-char errorNr[7];
+char errorNr[9];
 #endif
 
-void reportError(const char* text, uint8_t value)
+void reportError(const char* text, uint16_t value)
 {
 #ifdef DEBUG
 	debugLog.setMaxLineCount(10);

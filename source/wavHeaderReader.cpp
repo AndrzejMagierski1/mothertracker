@@ -1,5 +1,6 @@
 
 #include "wavHeaderReader.h"
+#include "SD.h"
 #include <string.h>
 
 void readHeader(strWavFileHeader* header, SdFile * wavfile)

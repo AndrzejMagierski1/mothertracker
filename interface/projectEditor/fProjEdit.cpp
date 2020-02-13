@@ -214,7 +214,7 @@ void cProjectEditor::update()
 		if(openPopupDelay > 200)
 		{
 			openPopupFlag = 0;
-			fileManager.openProjectStart(&PE->locationFilesList[PE->selectedLocation][0],projectTypeUserMade);
+			fileManager.openProjectStart(PE->filesNames[PE->selectedLocation], projectTypeUserMade);
 			openInProgressFlag = 1;
 		}
 	}
@@ -234,7 +234,7 @@ void cProjectEditor::update()
 		if(deletePopupDelay > 200)
 		{
 			deletePopupFlag = 0;
-			fileManager.deleteProjectStart(&PE->locationFilesList[PE->selectedLocation][0]);
+			fileManager.deleteProjectStart(PE->filesNames[PE->selectedLocation]);
 			deleteInProgressFlag = 1;
 		}
 	}
@@ -473,16 +473,17 @@ static uint8_t functNewProject()
 
 	return 1;
 }
+
 static uint8_t functOpenProject()
 {
 	if(PE->isBusyFlag) return 1;
 
-	PE->listOnlyFolderNames("/Projects/");
+	PE->listOnlyFolderNames("/Projects");
 
 	PE->showProjectsList();
 
 	PE->refreshProjectCover(100);
-	strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+	strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
 
 
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
@@ -498,6 +499,7 @@ static uint8_t functOpenProject()
 
 	return 1;
 }
+
 static uint8_t functSaveProject()
 {
 	if(PE->isBusyFlag) return 1;
@@ -764,7 +766,7 @@ void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 static uint8_t functDelete()
 {
 	if(PE->isBusyFlag) return 1;
-	if(strcmp(fileManager.currentProjectName, &PE->locationFilesList[PE->selectedLocation][0]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
+	if(strcmp(fileManager.currentProjectName, PE->filesNames[PE->selectedLocation]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
 
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functDeleteConfirm);
@@ -793,7 +795,7 @@ static uint8_t functProjectListUp()
 			PE->selectedLocation--;
 
 			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+			strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
 		}
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);
 		display.refreshControl(PE->fileListControl);
@@ -810,7 +812,7 @@ static uint8_t functProjectListDown()
 			PE->selectedLocation++;
 
 			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+			strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
 		}
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);
 		display.refreshControl(PE->fileListControl);
@@ -1100,10 +1102,10 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 {
 	char filePath[256] = {0};
 	strcpy(filePath, folder);
-	strcat(filePath,"/");
+	//strcat(filePath,"/");
 	sdLocation.close();
 	sdLocation.open(folder, O_READ); //"/"
-	locationFilesCount = sdLocation.createFilesList(0,locationFilesList, files_list_length_max);
+	locationFilesCount = sdLocation.createFilesList(0, filesNames, files_list_length_max, 3000, 1);
 	sdLocation.close();
 
 
@@ -1111,21 +1113,21 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 
 	for(uint8_t i = 0; i < locationFilesCount; i++)
 	{
-		if(locationFilesList[i][0] == '/')	//tylko jesli folder
+		if(*filesNames[i] == '/')	//tylko jesli folder
 		{
 			strcpy(filePath, folder);
-			strcat(filePath,&locationFilesList[i][0]); //doklej nazwe folderu
+			strcat(filePath,filesNames[i]); //doklej nazwe folderu
 
 			strcat(filePath,"/project.mt"); //doklej nazwe folderu
 			//sdLocation.open(filePath, O_READ);
 
 			if(SD.exists(filePath))	//tylko jesli w folderze jest plik projektu
 			{
-				strcpy(&locationFilesList[foundProjectsCount][0],&locationFilesList[i][1]);
+				strcpy(filesNames[foundProjectsCount], filesNames[i]);
 				foundProjectsCount++;
 			}
 
-			sdLocation.close();
+			//sdLocation.close();
 		}
 	}
 
@@ -1133,18 +1135,20 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 
 	for (uint8_t i = 0; i < (foundProjectsCount/2); i++)
 	{
-		strcpy(strBuff, locationFilesList[i]);
-		strcpy(locationFilesList[i],locationFilesList[foundProjectsCount-i-1]);
-		strcpy(locationFilesList[foundProjectsCount-i-1], strBuff);
+		std::swap(filesNames[i], filesNames[foundProjectsCount-i-1]);
+
+//		strcpy(strBuff, locationFilesList[i]);
+//		strcpy(locationFilesList[i],locationFilesList[foundProjectsCount-i-1]);
+//		strcpy(locationFilesList[foundProjectsCount-i-1], strBuff);
 	}
 
 
 	locationFilesCount = foundProjectsCount;
 
-	for(uint8_t i = 0; i < locationFilesCount; i++)
-	{
-		filesNames[i] = &locationFilesList[i][0];
-	}
+//	for(uint8_t i = 0; i < locationFilesCount; i++)
+//	{
+//		filesNames[i] = filesNames[i];
+//	}
 
 }
 
@@ -1217,7 +1221,7 @@ static  uint8_t functUp()
 			PE->selectedLocation--;
 
 			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+			strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
 		}
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);
 		display.refreshControl(PE->fileListControl);
@@ -1237,7 +1241,7 @@ static  uint8_t functDown()
 			PE->selectedLocation++;
 
 			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+			strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
 		}
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);
 		display.refreshControl(PE->fileListControl);
@@ -1284,7 +1288,7 @@ static  uint8_t functEncoder(int16_t value)
 		}
 
 		PE->refreshProjectCover(300);
-		strcpy(PE->projectCoverName, &PE->locationFilesList[PE->selectedLocation][0]);
+		strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
 
 		display.setControlValue(PE->fileListControl,PE->selectedLocation);
 		display.refreshControl(PE->fileListControl);

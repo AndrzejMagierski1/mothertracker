@@ -8,6 +8,8 @@
 
 
 #include "ff.h"
+#include "wavHeaderReader.h"
+
 
 //#define SD_FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_NEW | FA_OPEN_APPEND )
 #define SD_FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_ALWAYS )
@@ -17,7 +19,7 @@
 #define FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_ALWAYS )
 
 
-void reportError(const char* text, uint8_t value);
+void reportError(const char* text, uint16_t value);
 
 
 class SdFile;
@@ -57,6 +59,8 @@ public:
 
 	bool open(const char* path, uint8_t oflag = FA_READ)
 	{
+		close();
+
 		file = new FIL;
 		FRESULT error = f_open(file, path, oflag);
 		if (error)
@@ -122,7 +126,7 @@ public:
 		FRESULT error = f_lseek(file, f_tell(file) + offset);
 		if (error)
 		{
-			reportError("seekCur", error);
+			reportError("seekCur - failed", error);
 			return false;
 		}
 		return true;
@@ -138,7 +142,11 @@ public:
 			file = nullptr;
 		}
 
-		if(error)
+		if(error==FR_INVALID_OBJECT)
+		{
+			return false;
+		}
+		else if(error)
 		{
 			reportError("close - failed", error);
 			return false;
@@ -257,14 +265,18 @@ public:
 	bool open(const char* path, uint8_t oflag = FA_READ)
 	{
 		close();
+
 		directory = new DIR;
-		FRESULT error =  f_opendir (directory, path);
+		FRESULT error =  f_opendir(directory, path);
 		if (error)
 		{
 			reportError("dir open - failed", error);
 			close();
 			return false;
 		}
+
+		dir_path = new char[strlen(path)+1];
+		strcpy(dir_path, path);
 		return true;
 	}
 
@@ -278,7 +290,18 @@ public:
 			directory = nullptr;
 		}
 
-		if(error)
+		if(dir_path != nullptr)
+		{
+			delete dir_path;
+			dir_path = nullptr;
+		}
+
+
+		if(error==FR_INVALID_OBJECT)
+		{
+			return false;
+		}
+		else if(error)
 		{
 			reportError("dir close - failed", error);
 			return false;
@@ -334,19 +357,31 @@ public:
 		return true;
 	}
 */
-	uint16_t createFilesList(uint8_t start_line, char list[][40], uint8_t list_length, uint8_t chooseFilter = 0)
+
+	// filter: 0-all, 1-folders only, 2-supported wav only // always ignore hidden files // max_used_memory must be higher than 255
+	uint16_t createFilesList(uint8_t start_line, char** list, uint8_t list_length, uint16_t max_used_memory, uint8_t chooseFilter = 0)
 	{
-		uint16_t count = start_line;
-		uint8_t n = 0;
+		for(uint8_t i = 0; i<list_length; i++) // wyczyszczenie uzytej wczesniej pamieci
+		{
+			delete list[i];
+		}
+
+		uint8_t n = start_line;
+
+		if(max_used_memory < 255) return n;
+
+		char wav_file[255];
+		uint16_t memory_used = 0;
 		FILINFO fno;
 		FRESULT error;
-		uint8_t isDir = 0;
+		SdFile local_file;
 
 		f_readdir(directory, nullptr);
 
 		while (1)
 		{
 			if (n >= list_length) break;
+			if (memory_used > max_used_memory-255) break;
 
 			error = f_readdir(directory, &fno);
 			if(error)
@@ -359,29 +394,64 @@ public:
 				break;
 			}
 
-			if (fno.fattrib & AM_HID)
+			if (fno.fattrib & AM_HID) // ukryty
 			{
 				continue;
 			}
 
-	        if (fno.fattrib & AM_DIR)
+	        if (fno.fattrib & AM_DIR) // folder
 	        {
-	        	list[n]
-	        	isDir = 1;
+	        	uint8_t len = strlen(fno.fname)+2;
+	        	list[n] = new char[len];
+
+	        	strcpy(list[n], "/");
+	        	strcat(list[n], fno.fname);
+
+	        	memory_used += len;
 	        }
-	        else
+	        else // plik
 	        {
-	        	isDir = 0;
+	        	if(chooseFilter == 2) // filtrowanie .wav
+	        	{
+		        	uint8_t wav_len = strlen(fno.fname);
+		        	if(wav_len<5) continue;
+
+					if(((fno.fname[wav_len - 1] != 'V') && (fno.fname[wav_len - 1] != 'v'))
+					|| ((fno.fname[wav_len - 2] != 'A') && (fno.fname[wav_len - 2] != 'a'))
+					|| ((fno.fname[wav_len - 3] != 'W') && (fno.fname[wav_len - 3] != 'w'))
+					||  (fno.fname[wav_len - 4] != '.')) continue;
+
+					if(strlen((dir_path)+wav_len+2) > 255) continue;
+		        	strcpy(wav_file, dir_path);
+		        	strcat(wav_file, "/");
+		        	strcat(wav_file, fno.fname);
+
+	        		if(local_file.open(wav_file))
+	        		{
+						strWavFileHeader localHeader;
+						readHeader(&localHeader, &local_file);
+						local_file.close();
+
+						if ((localHeader.sampleRate != 44100)
+						|| ((localHeader.AudioFormat != 1) && (localHeader.AudioFormat != 3))
+						|| ((localHeader.bitsPerSample != 16) && (localHeader.bitsPerSample != 24) && (localHeader.bitsPerSample != 32)))
+							continue;
+					}
+	        		else continue;
+	        	}
+
+	        	uint8_t len = strlen(fno.fname)+1;
+	        	list[n] = new char[len];
+	        	strcpy(list[n], fno.fname);
+	        	memory_used += len;
 	        }
 
 	        n++;
 		}
 
+		reportError("create list - memory used ", memory_used);
 
-
-		f_readdir(directory, nullptr);
-
-		return (count-start_line);
+		return n;
 	}
 
 	uint16_t createFilesListShort(uint8_t start_line, char * list,uint8_t list_length,uint8_t nameLength)
@@ -400,7 +470,7 @@ private:
 //	}
 
 	DIR* directory = nullptr;
-
+	char* dir_path = nullptr;
 
 };
 
