@@ -2627,8 +2627,8 @@ static uint8_t functTranspose(uint8_t state)
 {
 	//--------------------------------------------------------
 	//TU
-	if(state == buttonPress) functRamTest(1);
-	else if(state == buttonRelease) functRamTest(0);
+//	if(state == buttonPress) functRamTest(1);
+//	else if(state == buttonRelease) functRamTest(0);
 
 
 	//--------------------------------------------------------
