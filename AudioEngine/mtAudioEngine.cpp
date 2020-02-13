@@ -709,7 +709,7 @@ void playerEngine:: update()
 
 				}
 
-				ampPtr->gain( (volume/100.0) * localAmount );
+				ampPtr->gain( ampLogValues[volume] * localAmount );
 			}
 		}
 		if(statusBytes & PANNING_MASK)
@@ -923,7 +923,7 @@ void playerEngine:: update()
 					currentVolume = mtProject.instrument[currentInstrument_idx].volume;
 				}
 
-				ampPtr->gain( (currentVolume/100.0) * lfoBasedEnvelope[envAmp].amount);
+				ampPtr->gain( ampLogValues[currentVolume] * lfoBasedEnvelope[envAmp].amount);
 			}
 		}
 
@@ -1180,14 +1180,10 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	/*======================================================================================================*/
 	/*==================================================GAIN================================================*/
 	float localAmount = mtProject.instrument[instr_idx].envelope[envAmp].loop ? lfoBasedEnvelope[envAmp].amount : mtProject.instrument[instr_idx].envelope[envAmp].amount;
-	if(velocity < 0)
-	{
-		ampPtr->gain(localAmount * (mtProject.instrument[instr_idx].volume/100.0));
-	}
-	else
-	{
-		ampPtr->gain( (velocity/100.0) * localAmount);
-	}
+
+	ampPtr->gain(localAmount * ampLogValues[mtProject.instrument[instr_idx].volume]);
+
+
 	/*======================================================================================================*/
 	/*===============================================PANNING================================================*/
 	if(mtProject.instrument[instr_idx].panning < 50)

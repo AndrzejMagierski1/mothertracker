@@ -91,10 +91,10 @@ const uint16_t  GLIDE_MAX 					=	15000;
 const uint8_t  REVERB_SEND_MIN 				=	0;
 const uint8_t  REVERB_SEND_MAX				=	100;
 
-const uint16_t  ATTACK_MAX 					=	20000; // zastosowane jest dzielenie przez 100 bez floatow wiec wazne zeby wartosci czasowe max env byly podzielne przez 100
-const uint16_t  DECAY_MAX					=	20000;
+const uint16_t  ATTACK_MAX 					=	10000; // zastosowane jest dzielenie przez 100 bez floatow wiec wazne zeby wartosci czasowe max env byly podzielne przez 100
+const uint16_t  DECAY_MAX					=	10000;
 const float  	SUSTAIN_MAX					=	1.0;
-const uint16_t  RELEASE_MAX					=	20000;
+const uint16_t  RELEASE_MAX					=	10000;
 const float  	AMOUNT_MAX					=	1.0;
 const uint16_t ENVELOPE_MICRO_VAL 			= 	100;	// na ile wartosci rozklada sie zakres micro
 const uint16_t ENVELOPE_MICRO_RANGE			= 	1000;

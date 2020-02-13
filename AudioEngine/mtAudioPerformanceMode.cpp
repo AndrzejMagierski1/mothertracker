@@ -48,7 +48,7 @@ void playerEngine ::changeVolumePerformanceMode(int8_t value)
 
 	if(muteState == MUTE_DISABLE)
 	{
-		ampPtr->gain(currentPerformanceValues.volume/100.0 * localAmount);
+		ampPtr->gain(ampLogValues[currentPerformanceValues.volume] * localAmount);
 	}
 
 }
@@ -563,7 +563,7 @@ void playerEngine::endVolumePerformanceMode()
 
 		}
 
-		ampPtr->gain(mtProject.instrument[currentInstrument_idx].volume/100.0 * localAmount);
+		ampPtr->gain(ampLogValues[mtProject.instrument[currentInstrument_idx].volume] * localAmount);
 	}
 }
 void playerEngine::endPanningPerformanceMode()
@@ -830,7 +830,7 @@ void playerEngine::endAmpLfoRatePerformanceMode()
 				envelopeAmpPtr->release(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release);
 				envelopeAmpPtr->setLoop(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop);
 
-				if(muteState == MUTE_DISABLE ) ampPtr->gain( (localVol/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+				if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[localVol] * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
 				else ampPtr->gain(AMP_MUTED);
 			}
 
@@ -846,7 +846,7 @@ void playerEngine::endAmpLfoRatePerformanceMode()
 			envelopeAmpPtr->setLoop(0);
 
 
-			if(muteState == MUTE_DISABLE ) ampPtr->gain( (localVol/100.0)); //amount = 1;
+			if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[localVol]); //amount = 1;
 			else ampPtr->gain(AMP_MUTED);
 		}
 
