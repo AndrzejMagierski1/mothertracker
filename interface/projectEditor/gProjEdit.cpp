@@ -318,9 +318,10 @@ void cProjectEditor::showProjectsList()
 	display.setControlPosition(label[0], (800/4)*0+(800/8), -1);
 	display.setControlSize(label[0], 800/4-6, -1);
 	display.setControlText(label[0], "Projects");
+	display.setControlText(label[2], "Delete");
 	display.setControlText(label[7], "Open");
-	display.setControlText(label[6], "Delete");
-	display.setControlText(label[5], "Cancel");
+	display.setControlText(label[6], "Cancel");
+	display.setControlText(label[5], "");
 
 	for(uint8_t i = 0; i < 8 ; i++)
 	{
@@ -520,6 +521,7 @@ void cProjectEditor::showDeleteLastWindow()
 {
 	display.setControlValue(label[0], 0);
 
+	display.setControlText(label[2], "");
 	display.setControlText(label[5], "");
 	display.setControlText(label[6], "Cancel");
 	display.setControlText(label[7], "Delete");
