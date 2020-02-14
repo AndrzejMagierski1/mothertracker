@@ -29,8 +29,8 @@
 #include <Arduino.h>
 #include "AudioStream.h"
 
-constexpr uint16_t RELEASE_TIME_MIN = 2000;
-constexpr uint16_t RELEASE_TIME_MAX = 5000;
+constexpr uint16_t RELEASE_TIME_MIN = 300;
+constexpr uint16_t RELEASE_TIME_MAX = 4000;
 
 class AudioEffectFreeverb : public AudioStream
 {

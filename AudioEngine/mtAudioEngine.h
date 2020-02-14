@@ -587,6 +587,8 @@ extern AudioMixer9				mixerL,mixerR,mixerReverb;
 extern AudioOutputI2S           i2s1;
 extern AudioBitDepth			bitDepthControl[2];
 
+extern AudioFilterStateVariable filterReverbOut;
+
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;
 extern AudioMixer4              mixerRec;
