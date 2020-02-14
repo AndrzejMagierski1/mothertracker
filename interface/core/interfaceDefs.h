@@ -370,13 +370,13 @@ struct strInterfaceGlobals
 					"d - MIDI CC D",
 					"e - MIDI CC E",
 					"f - MIDI Program Change",
-					"f - MIDI Program Change",
-					"f - MIDI Program Change",
-					"f - MIDI Program Change",
-					"f - MIDI Program Change",
-					"f - MIDI Program Change",
-					"f - MIDI Program Change",
-					"f - MIDI Program Change",
+					" ",
+					" ",
+					" ",
+					" ",
+					" ",
+					" ",
+					" ",
 
 			};
 

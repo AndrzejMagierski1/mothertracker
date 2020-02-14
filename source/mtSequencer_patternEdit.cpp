@@ -4,6 +4,7 @@
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
 #include "mtFileManager.h"
+#include "debugLog.h"
 
 #include "patternEditor/patternEditor.h"
 #include "keyScanner.h"
@@ -575,6 +576,9 @@ void Sequencer::setSelectionFxValueByPad(uint8_t fxIndex, int16_t pad)
 void Sequencer::changeSelectionFxType(uint8_t index, int16_t value)
 {
 
+	if (value > 0) value = 1;
+	else if (value < 0) value = -1;
+
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 	if (index > FX_SLOTS_MAX) return;
@@ -588,11 +592,14 @@ void Sequencer::changeSelectionFxType(uint8_t index, int16_t value)
 				s++, offset++)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
-
 			// jeśli off
-			step->fx[index].type = constrain(step->fx[index].type + value,
+
+			uint8_t name = interfaceGlobals.fxIdToName(step->fx[index].type);
+			name += value;
+
+			step->fx[index].type = constrain(interfaceGlobals.fxNameToId(name),
 												0,
-												200);
+												47);
 			step->fx[index].value = constrain(
 												step->fx[index].value,
 												getFxMin(step->fx[index].type),
