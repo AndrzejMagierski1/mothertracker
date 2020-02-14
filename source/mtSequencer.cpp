@@ -379,7 +379,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 				break;
 			case fx.FX_TYPE_CHANCE:
-				if (random(0, 128) > _fx.value)
+				if (random(0, getFxMax(fx.FX_TYPE_CHANCE)) > _fx.value)
 					playerRow.cancelStep = 1;
 
 				break;
@@ -758,7 +758,9 @@ uint8_t Sequencer::rollValToPeriod(uint8_t rollVal)
 
 void Sequencer::play(void)
 {
+	engine.endAllFx();
 	engine.clearReverb();
+
 	reset_actual_pos();
 
 	player.isStop = 0;
@@ -850,8 +852,6 @@ void Sequencer::playSong(uint8_t fromPos)
 		switchRamPatternsNow();
 	}
 
-
-
 	player.songMode = 1;
 	play();
 }
@@ -912,7 +912,7 @@ void Sequencer::stop(void)
 
 	player.performance.tempo = 0.0;
 
-	engine.endAllFx();
+
 	sendMidiStop();
 }
 
@@ -1430,6 +1430,10 @@ void Sequencer::loadNextPattern(uint8_t patternNumber)
 
 void Sequencer::handleNote(byte channel, byte note, byte velocity)
 {
+	handleNote(channel, note, velocity, 0);
+}
+void Sequencer::handleNote(byte channel, byte note, byte velocity, byte source)
+{
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
 
@@ -1463,7 +1467,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 				if (step->note == STEP_NOTE_EMPTY &&
 						step->fx[0].type == 0 &&
 						step->fx[1].type == 0 &&
-						!player.track[tr].noteOpen)
+						(source == 0 ? !player.track[tr].noteOpen : 1)) // jesli nagrywamy instrument, nie patrz na otwarte nuty
 				{
 					step->note = note;
 					step->instrument = mtProject.values.lastUsedInstrument;
@@ -1479,7 +1483,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 												STEP_VELO_DEFAULT);
 
 					step->fx[0].type = fx.FX_TYPE_MICROMOVE;
-					step->fx[0].value = player.uStep;
+					step->fx[0].value = map(player.uStep + 1, 1, 48, 0, 100);
 					break;
 				}
 			}
@@ -1530,21 +1534,27 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity)
 
 					strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
 
-					if (step->note == STEP_NOTE_EMPTY)
+					if (source == 0) // tylko wtedy dajemy offy
 					{
-						step->note = STEP_NOTE_OFF;
-					}
-					else
-					{
-						if (player.track[0].actual_pos < getActualPattern()->track[0].length)
+						if (step->note == STEP_NOTE_EMPTY)
 						{
-							step = &getActualPattern()->track[tr].step[player.track[0].actual_pos + 1];
 							step->note = STEP_NOTE_OFF;
+							step->fx[0].type = fx.FX_TYPE_MICROMOVE;
+							step->fx[0].value = map(player.uStep, 1, 48, 0,
+													100);
 						}
 						else
 						{
-							step = &getActualPattern()->track[tr].step[0];
-							step->note = STEP_NOTE_OFF;
+							if (player.track[0].actual_pos < getActualPattern()->track[0].length)
+							{
+								step = &getActualPattern()->track[tr].step[player.track[0].actual_pos + 1];
+								step->note = STEP_NOTE_OFF;
+							}
+							else
+							{
+								step = &getActualPattern()->track[tr].step[0];
+								step->note = STEP_NOTE_OFF;
+							}
 						}
 					}
 					break;

@@ -48,7 +48,7 @@ void playerEngine ::changeVolumePerformanceMode(int8_t value)
 
 	if(muteState == MUTE_DISABLE)
 	{
-		ampPtr->gain(currentPerformanceValues.volume/100.0 * localAmount);
+		ampPtr->gain(ampLogValues[currentPerformanceValues.volume] * localAmount);
 	}
 
 }
@@ -283,17 +283,34 @@ void playerEngine ::changeFilterTypePerformanceMode(uint8_t mode)
 void playerEngine ::changeSamplePlaybackPerformanceMode(uint8_t value)
 {
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection] = 1;
+
+	performanceMod.reversePlayback = value;
+
 	if(value)
 	{
 		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::samplePlaybeckDirection] ||
-		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::samplePlaybeckDirection]) playMemPtr->clearReverse();
-		else playMemPtr->setReverse();
+		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::samplePlaybeckDirection])
+		{
+			if(currentSeqModValues.reversePlayback) playMemPtr->clearReverse();
+			else playMemPtr->setReverse();
+		}
+		else
+		{
+			playMemPtr->setReverse();
+		}
 	}
 	else
 	{
 		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::samplePlaybeckDirection] ||
-		   trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::samplePlaybeckDirection]) playMemPtr->setReverse();
-		else playMemPtr->clearReverse();
+		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::samplePlaybeckDirection])
+		{
+			if(currentSeqModValues.reversePlayback) playMemPtr->setReverse();
+			else playMemPtr->clearReverse();
+		}
+		else
+		{
+			playMemPtr->clearReverse();
+		}
 	}
 }
 
@@ -546,7 +563,7 @@ void playerEngine::endVolumePerformanceMode()
 
 		}
 
-		ampPtr->gain(mtProject.instrument[currentInstrument_idx].volume/100.0 * localAmount);
+		ampPtr->gain(ampLogValues[mtProject.instrument[currentInstrument_idx].volume] * localAmount);
 	}
 }
 void playerEngine::endPanningPerformanceMode()
@@ -688,8 +705,13 @@ void playerEngine::endFilterTypePerformanceMode()
 void playerEngine ::endSamplePlaybackPerformanceMode()
 {
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection] = 0;
+
 	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::samplePlaybeckDirection] ||
-	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::samplePlaybeckDirection] ) playMemPtr->setReverse();
+	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::samplePlaybeckDirection] )
+	{
+		if(currentSeqModValues.reversePlayback) playMemPtr->setReverse();
+		else playMemPtr->clearReverse();
+	}
 	else playMemPtr->clearReverse();
 }
 void playerEngine ::endEndPointPerformanceMode()
@@ -808,7 +830,7 @@ void playerEngine::endAmpLfoRatePerformanceMode()
 				envelopeAmpPtr->release(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release);
 				envelopeAmpPtr->setLoop(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop);
 
-				if(muteState == MUTE_DISABLE ) ampPtr->gain( (localVol/100.0) * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
+				if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[localVol] * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
 				else ampPtr->gain(AMP_MUTED);
 			}
 
@@ -824,7 +846,7 @@ void playerEngine::endAmpLfoRatePerformanceMode()
 			envelopeAmpPtr->setLoop(0);
 
 
-			if(muteState == MUTE_DISABLE ) ampPtr->gain( (localVol/100.0)); //amount = 1;
+			if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[localVol]); //amount = 1;
 			else ampPtr->gain(AMP_MUTED);
 		}
 

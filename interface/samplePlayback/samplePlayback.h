@@ -59,7 +59,7 @@ public:
 		pointsControl = nullptr;
 		slicePointsControl = nullptr;
 		label[7] = {nullptr};
-
+		popupLabel = nullptr;
 		lastSampleLength = 0;
 	}
 	virtual ~cSamplePlayback() {}
@@ -102,6 +102,9 @@ public:
 	void calcPlayProgressValue();
 	void activateLabelsBorder();
 
+
+	void showAutoSlicePopup();
+	void hideAutoSlicePopup();
 	strFrameData frameData;
 
 	strLabelData labelArrow;
@@ -119,6 +122,7 @@ public:
 	hControl granularCursor;
 	hControl wtPositionCursor;
 	hControl bgLabel;
+	hControl popupLabel;
 
 
 
@@ -134,6 +138,7 @@ public:
 	uint8_t refreshSlicePoints = 0;
 	uint8_t currentAutoSlice = 0;
 	uint8_t lastAutoSlice = 0;
+	uint8_t autoSlicePopupVisible = 0;
 	uint8_t refreshSpectrumProgress = 0;
 	uint32_t playProgressValue = 0; // 0 - MAX_LEN_RECORD
 	uint16_t playProgressInSpectrum = 0; // 0 - 600

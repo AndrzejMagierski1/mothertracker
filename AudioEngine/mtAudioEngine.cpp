@@ -28,6 +28,8 @@ AudioEffectFreeverb		 reverb;
 AudioEffectLimiter		 limiter[2];
 AudioBitDepth			 bitDepthControl[2];
 
+AudioFilterStateVariable filterReverbOut;
+
 AudioMixer9				 mixerL,mixerR,mixerReverb;
 AudioMixer4              mixerRec;
 AudioMixer9              mixerSourceL,mixerSourceR;
@@ -93,8 +95,12 @@ AudioConnection          connect48(&envelopeAmp[7], 0, &mixerReverb, 7);
 
 AudioConnection          connect49(&mixerReverb,&reverb);
 
-AudioConnection          connect50(&reverb, 0, &mixerL, 8);
-AudioConnection          connect51(&reverb, 0, &mixerR, 8);
+
+AudioConnection          connect82(&reverb, &filterReverbOut);
+AudioConnection          connect83(&reverb, &filterReverbOut);
+
+AudioConnection          connect50(&filterReverbOut, 0, &mixerL, 8);
+AudioConnection          connect51(&filterReverbOut, 0, &mixerR, 8);
 
 AudioConnection          connect57(&mixerL, &bitDepthControl[0]);
 AudioConnection          connect58(&mixerR, &bitDepthControl[1]);
@@ -183,6 +189,11 @@ void audioEngine::init()
 		mixerSourceR.gain(i,1.0);
 		mixerSourceL.gain(i,1.0);
 	}
+
+	filterReverbOut.setType(filterType::lowPass);
+	filterReverbOut.setCutoff(0.5);
+	filterReverbOut.connect();
+
 
 	audioShield.volume(mtProject.values.volume/100.0);
 	audioShield.inputSelect(AUDIO_INPUT_LINEIN);
@@ -709,7 +720,7 @@ void playerEngine:: update()
 
 				}
 
-				ampPtr->gain( (volume/100.0) * localAmount );
+				ampPtr->gain( ampLogValues[volume] * localAmount );
 			}
 		}
 		if(statusBytes & PANNING_MASK)
@@ -923,7 +934,7 @@ void playerEngine:: update()
 					currentVolume = mtProject.instrument[currentInstrument_idx].volume;
 				}
 
-				ampPtr->gain( (currentVolume/100.0) * lfoBasedEnvelope[envAmp].amount);
+				ampPtr->gain( ampLogValues[currentVolume] * lfoBasedEnvelope[envAmp].amount);
 			}
 		}
 
@@ -1180,14 +1191,10 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	/*======================================================================================================*/
 	/*==================================================GAIN================================================*/
 	float localAmount = mtProject.instrument[instr_idx].envelope[envAmp].loop ? lfoBasedEnvelope[envAmp].amount : mtProject.instrument[instr_idx].envelope[envAmp].amount;
-	if(velocity < 0)
-	{
-		ampPtr->gain(localAmount * (mtProject.instrument[instr_idx].volume/100.0));
-	}
-	else
-	{
-		ampPtr->gain( (velocity/100.0) * localAmount);
-	}
+
+	ampPtr->gain(localAmount * ampLogValues[mtProject.instrument[instr_idx].volume]);
+
+
 	/*======================================================================================================*/
 	/*===============================================PANNING================================================*/
 	if(mtProject.instrument[instr_idx].panning < 50)

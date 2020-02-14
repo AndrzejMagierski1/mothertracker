@@ -2629,8 +2629,8 @@ static uint8_t functTranspose(uint8_t state)
 {
 	//--------------------------------------------------------
 	//TU
-	if(state == buttonPress) functRamTest(1);
-	else if(state == buttonRelease) functRamTest(0);
+//	if(state == buttonPress) functRamTest(1);
+//	else if(state == buttonRelease) functRamTest(0);
 
 
 	//--------------------------------------------------------
@@ -2932,21 +2932,23 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 			if (sequencer.isRec())
 			{
-
+				sendSelection();
 				if (state == buttonPress)
 				{
 					sequencer.setSelectionInstrument(pad);
 
 					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
 											Sequencer::STEP_NOTE_DEFAULT,
-											127);
+											127,
+											1);
 				}
 				else if (state == buttonRelease)
 				{
 
 					sequencer.handleNote(Sequencer::MIDI_CHANNEL_GRID,
 											Sequencer::STEP_NOTE_DEFAULT,
-											0);
+											0,
+											1);
 				}
 			}
 			else

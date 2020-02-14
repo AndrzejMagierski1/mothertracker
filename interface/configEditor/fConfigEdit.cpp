@@ -656,6 +656,7 @@ void cConfigEditor::listAllFirmwares()
 
 		sdLocation.close();
 
+
 //		if(locationFileCount > firmware_list_max)
 //		{
 //			locationFileCount = firmware_list_max;
@@ -673,7 +674,41 @@ void cConfigEditor::listAllFirmwares()
 //			}
 //		}
 //
+//		firmwareFoundNum = locationFileCount;
+
+		// sortowanie
+
+		bool notSorted = 1;
+		char strBuff[40];
+		while (notSorted)
+		{
+			notSorted = 0;
+			for (uint8_t a = 0; a < locationFileCount - 1; a++)
+			{
+				if (strcasecmp(ptrfirmwareNamesList[a],
+							   ptrfirmwareNamesList[a + 1]) > 0)
+				{
+					std::swap(ptrfirmwareNamesList[a], ptrfirmwareNamesList[a+1]);
+
+//					strcpy(strBuff,
+//							firmwareNamesList[a]);
+//
+//					strcpy(firmwareNamesList[a],
+//							firmwareNamesList[a + 1]);
+//
+//					strcpy(firmwareNamesList[a + 1],
+//							strBuff);
+					notSorted = 1;
+				}
+			}
+		}
+		///
+
+
+
+
 		firmwareFoundNum = locationFileCount;
+
 	}
 	else
 	{

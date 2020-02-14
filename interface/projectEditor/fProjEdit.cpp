@@ -489,8 +489,8 @@ static uint8_t functOpenProject()
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functOpenProjectConfirm);
-	PE->FM->setButtonObj(interfaceButton6, buttonPress, functDelete);
-	PE->FM->setButtonObj(interfaceButton5, buttonPress, functSaveChangesCancelOpen);
+	PE->FM->setButtonObj(interfaceButton2, buttonPress, functDelete);
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
 
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functProjectListUp);
 	PE->FM->setButtonObj(interfaceButton1, buttonPress, functProjectListDown);

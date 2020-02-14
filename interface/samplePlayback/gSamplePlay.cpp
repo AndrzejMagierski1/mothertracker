@@ -20,9 +20,25 @@ static uint32_t granularColors[] =
 	0x00FFFF
 };
 
+static uint32_t popUpLabelColors[] =
+{
+	0xFFFFFF, // tekst
+	0x0a0a0a, // tło
+	0xFF0000, // ramka
+};
 
 void cSamplePlayback::initDisplayControls()
 {
+	strControlProperties prop3;
+
+	prop3.x = 400;
+	prop3.colors = popUpLabelColors;
+	prop3.y = 300;
+	prop3.h = 100;
+	prop3.w = 800-(10);
+	prop3.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 );
+	if(popupLabel == nullptr)  popupLabel = display.createControl<cLabel>(&prop3);
+
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
 	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
@@ -125,6 +141,8 @@ void cSamplePlayback::initDisplayControls()
 	prop.data = &wtPosition;
 
 	if(wtPositionCursor == nullptr)  wtPositionCursor = display.createControl<cWtProgress>(&prop);
+
+
 }
 
 
@@ -147,6 +165,9 @@ void cSamplePlayback::destroyDisplayControls()
 
 	display.destroyControl(slicePointsControl);
 	slicePointsControl = nullptr;
+
+	display.destroyControl(popupLabel);
+	popupLabel = nullptr;
 
 	display.destroyControl(playModeListControl);
 	playModeListControl = nullptr;
@@ -361,6 +382,9 @@ void cSamplePlayback::showDefaultScreen()
 	display.refreshControl(bgLabel);
 
 
+	display.setControlHide(popupLabel);
+	display.refreshControl(popupLabel);
+
 	display.synchronizeRefresh();
 
 }
@@ -540,6 +564,42 @@ void cSamplePlayback::hideWavetablePositionCursor()
 {
 	display.setControlHide(wtPositionCursor);
 	display.refreshControl(wtPositionCursor);
+}
+
+void cSamplePlayback::showAutoSlicePopup()
+{
+	display.setControlText(popupLabel,(char*)"This action will rewrite the current slices. Do you want to continue?");
+
+	display.setControlText(label[0], "");
+	display.setControlText(label[1], "");
+	display.setControlText(label[2], "");
+	display.setControlText(label[3], "");
+	display.setControlText(label[4], "Cancel");
+	display.setControlText(label[5], "Confirm");
+	display.setControlText(label[6], "");
+
+	display.setControlText2(label[0], "");
+	display.setControlText2(label[1], "");
+	display.setControlText2(label[2], "");
+	display.setControlText2(label[3], "");
+	display.setControlText2(label[4], "");
+	display.setControlText2(label[5], "");
+	display.setRemoveControlStyle(label[6], controlStyleShowBitmap);
+	display.setControlText2(label[6], "");
+
+	display.setControlShow(popupLabel);
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+	display.refreshControl(popupLabel);
+	for(uint8_t i = 0; i < 7; i++)
+	{
+		display.refreshControl(label[i]);
+	}
+	display.synchronizeRefresh();
+}
+void cSamplePlayback::hideAutoSlicePopup()
+{
+	showDefaultScreen();
 }
 
 void cSamplePlayback::showSlicesSelectValue()

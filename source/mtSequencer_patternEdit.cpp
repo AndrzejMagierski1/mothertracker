@@ -4,6 +4,7 @@
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
 #include "mtFileManager.h"
+#include "debugLog.h"
 
 #include "patternEditor/patternEditor.h"
 #include "keyScanner.h"
@@ -154,12 +155,14 @@ void Sequencer::fillLinearFx(int16_t fxIndex,
 
 			if (isStepToFillFx(step, offset, fxIndex, fillStep))
 			{
+				// przez float ladniej sie mapuje
+				float tempFloat = map(float(offset + sel->firstStep),
+										sel->firstStep,
+										sel->lastStep,
+										fromVal,
+										toVal);
+				step->fx[fxIndex].value = tempFloat;
 
-				step->fx[fxIndex].value = map(offset + sel->firstStep,
-												sel->firstStep,
-												sel->lastStep,
-												fromVal,
-												toVal);
 				step->fx[fxIndex].type =
 						(fxType >= 0) ? fxType : randomFx();
 				Serial.println(step->fx[fxIndex].type);
@@ -560,7 +563,10 @@ void Sequencer::setSelectionFxValueByPad(uint8_t fxIndex, int16_t pad)
 											getFxMin(step->fx[fxIndex].type),
 											getFxMax(step->fx[fxIndex].type));
 
-			if (!isMultiSelection() && step->fx[fxIndex].type != 0 && !isRec())
+			if (!isMultiSelection() &&
+					step->fx[fxIndex].type != 0
+					&& !isRec()
+					&& !isPlay())
 			{
 				playSelection();
 			}
@@ -569,6 +575,9 @@ void Sequencer::setSelectionFxValueByPad(uint8_t fxIndex, int16_t pad)
 }
 void Sequencer::changeSelectionFxType(uint8_t index, int16_t value)
 {
+
+	if (value > 0) value = 1;
+	else if (value < 0) value = -1;
 
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
@@ -583,11 +592,14 @@ void Sequencer::changeSelectionFxType(uint8_t index, int16_t value)
 				s++, offset++)
 		{
 			step = &seq[player.ramBank].track[t].step[s];
-
 			// jeśli off
-			step->fx[index].type = constrain(step->fx[index].type + value,
+
+			uint8_t name = interfaceGlobals.fxIdToName(step->fx[index].type);
+			name += value;
+
+			step->fx[index].type = constrain(interfaceGlobals.fxNameToId(name),
 												0,
-												200);
+												47);
 			step->fx[index].value = constrain(
 												step->fx[index].value,
 												getFxMin(step->fx[index].type),
@@ -707,7 +719,8 @@ void Sequencer::setSelectionInstrument(int16_t value)
 //								step->note,
 //								STEP_VELO_DEFAULT,
 //								t);
-					if (!isRec())
+					if (!isRec()
+							&& !isPlay())
 					{
 						playSelection();
 					}
@@ -794,7 +807,9 @@ void Sequencer::setSelectionNote(int16_t value)
 				}
 				step->note = value;
 
-				if (step->note >= 0 && !isRec())
+				if (step->note >= 0
+						&& !isRec()
+						&& !isPlay())
 				{
 //					blinkNote(step->instrument,
 //								step->note,
@@ -1293,10 +1308,6 @@ int16_t Sequencer::getFxDefault(uint8_t fxID)
 		return mtProject.values.globalTempo;
 
 	case fx.FX_TYPE_ROLL:
-		//		case fx.FX_TYPE_ROLL_NOTE_UP:
-//		case fx.FX_TYPE_ROLL_NOTE_DOWN:
-//		case fx.FX_TYPE_ROLL_NOTE_RANDOM:
-
 		return 1;
 
 	case fx.FX_TYPE_PANNING:
@@ -1334,29 +1345,26 @@ int16_t Sequencer::rollValueToPeriod(int16_t value)
 	}
 }
 
-int16_t Sequencer::getFxValueToView(uint8_t fxID, uint8_t track, uint8_t step)
+int16_t Sequencer::getFxValueCorrection(uint8_t type, uint8_t value)
 {
-	strPattern::strTrack::strStep *actualStep = &getActualPattern()->track[track].step[step];
 
-	switch (actualStep->fx[fxID].type)
+	switch (type)
 	{
-	case fx.FX_TYPE_ROLL:
-		return rollValueToPeriod(actualStep->fx[fxID].value);
 	case fx.FX_TYPE_TEMPO:
-		return actualStep->fx[fxID].value * 2;
+		return value * 2;
 		break;
 	case fx.FX_TYPE_PANNING:
-		return actualStep->fx[fxID].value - 50;
+		return value - 50;
 		break;
 	case fx.FX_TYPE_MICROTUNING:
-		return actualStep->fx[fxID].value - 99;
+		return value - 99;
 		break;
 	case fx.FX_TYPE_SAMPLE_SLICE: // jawnie od 1, programowo od 0
-		return actualStep->fx[fxID].value + 1;
+		return value + 1;
 		break;
 
 	default:
-		return actualStep->fx[fxID].value;
+		return value;
 	}
 }
 
@@ -1389,16 +1397,21 @@ void Sequencer::makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track,
 {
 	strPattern::strTrack::strStep *actualStep = &getActualPattern()->track[track].step[step];
 
-	int16_t val = sequencer.getFxValueToView(fxID, track, step);
+	makeFxValLabel(ptr, actualStep->fx[fxID].type, actualStep->fx[fxID].value);
 
-	switch (actualStep->fx[fxID].type)
+}
+void Sequencer::makeFxValLabel(char * ptr, uint8_t fxType, uint8_t value)
+{
+
+	int16_t val = getFxValueCorrection(fxType, value);
+
+	switch (fxType)
 	{
 	case fx.FX_TYPE_ROLL:
 		sprintf(ptr,
-				"%c%.2u",
-				getRollTypeChar(actualStep->fx[fxID].value),
-				rollValueToPeriod(
-						actualStep->fx[fxID].value % (fx.ROLL_PERIOD_MAX + 1)));
+				"%c%2u",
+				getRollTypeChar(value),
+				rollValueToPeriod(value % (fx.ROLL_PERIOD_MAX + 1)));
 		break;
 
 	case fx.FX_TYPE_FILTER_LFO:
@@ -1419,14 +1432,14 @@ void Sequencer::makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track,
 		if (val >= 0)
 		{
 			sprintf(ptr,
-					"%.3i",
+					"%3i",
 					val
 					);
 		}
 		else
 		{
 			sprintf(ptr,
-					"%.2i",
+					"%3i",
 					val
 					);
 		}

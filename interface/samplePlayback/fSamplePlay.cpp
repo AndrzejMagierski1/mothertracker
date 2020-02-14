@@ -41,6 +41,9 @@ static uint8_t functAddSlice();
 static uint8_t functRemoveSlice();
 static uint8_t functAutoSlice();
 
+static uint8_t functConfirmAutoSlice();
+static uint8_t functCancelAutoSlice();
+
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 static uint8_t functShift(uint8_t value);
@@ -294,6 +297,7 @@ void cSamplePlayback::start(uint32_t options)
 
 	//--------------------------------------------------------------------
 
+	autoSlicePopupVisible = 0;
 	loadedInstrumentType =  mtProject.instrument[mtProject.values.lastUsedInstrument].sample.type;
 
 
@@ -426,6 +430,7 @@ void cSamplePlayback::start(uint32_t options)
 void cSamplePlayback::stop()
 {
 	moduleRefresh = 0;
+	mtPadBoard.releaseAllInstrument();
 }
 
 void cSamplePlayback::setDefaultScreenFunct()
@@ -560,6 +565,8 @@ void cSamplePlayback::cancelPopups()
 //==============================================================================================================
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
+	if(SP->autoSlicePopupVisible) return 1;
+
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		SP->startNoteStoppedSeq = 1;
@@ -651,6 +658,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 static  uint8_t functSelectStart(uint8_t state)
 {
+	if(SP->autoSlicePopupVisible) return 1;
 	if((state > buttonPress) && (state != UINT8_MAX)) return 1;
 
 	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeGranular))
@@ -964,6 +972,14 @@ static  uint8_t functSelectZoom()
 	{
 		return 1;
 	}
+	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice))
+	{
+		if(SP->autoSlicePopupVisible)
+		{
+			functConfirmAutoSlice();
+			return 1;
+		}
+	}
 
 	SP->cancelMultiFrame();
 	SP->clearAllNodes();
@@ -981,6 +997,7 @@ static  uint8_t functSelectZoom()
 
 static  uint8_t functPlayMode(uint8_t button)
 {
+	if(SP->autoSlicePopupVisible) return 1;
 	//if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
 	SP->cancelMultiFrame();
 	SP->clearAllNodes();
@@ -1009,6 +1026,7 @@ static  uint8_t functPlayMode(uint8_t button)
 
 static  uint8_t functEncoder(int16_t value)
 {
+	if(SP->autoSlicePopupVisible) return 1;
 	if(SP->frameData.multiSelActiveNum != 0)
 	{
 		SP->stepThroughNodes(value);
@@ -1061,6 +1079,7 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functLeft()
 {
+	if(SP->autoSlicePopupVisible) return 1;
 	if(SP->frameData.multiSelActiveNum != 0) return 1;
 //	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
 
@@ -1129,6 +1148,7 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(SP->autoSlicePopupVisible) return 1;
 	if(SP->frameData.multiSelActiveNum != 0) return 1;
 //	if(SP->loadedInstrumentType != mtSampleTypeWaveFile) return 1;
 
@@ -1200,6 +1220,7 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	if(SP->autoSlicePopupVisible) return 1;
 	if(SP->frameData.multiSelActiveNum != 0)
 	{
 		SP->stepThroughNodes(1);
@@ -1253,6 +1274,7 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	if(SP->autoSlicePopupVisible) return 1;
 	if(SP->frameData.multiSelActiveNum != 0)
 	{
 		SP->stepThroughNodes(-1);
@@ -1334,7 +1356,7 @@ static  uint8_t functRecAction()
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-
+	if(SP->autoSlicePopupVisible) return 1;
 	SP->eventFunct(eventSwitchModule,SP,&button,0);
 
 	return 1;
@@ -1342,6 +1364,7 @@ static uint8_t functSwitchModule(uint8_t button)
 
 static 	uint8_t functPreview(uint8_t state)
 {
+	if(SP->autoSlicePopupVisible) return 1;
 	if((SP->loadedInstrumentType == mtSampleTypeWaveFile) && (SP->editorInstrument->playMode == playModeSlice))
 	{
 		if(state == 1) SP->selectedPlace = 0;
@@ -1768,8 +1791,18 @@ static void modWavetableWindowSize(int16_t value)
 
 	uint8_t lastWavetableWindowsCounter = SP->wavetableWindowsCounter;
 	int8_t localDif;
+	uint8_t localMaxWavetableWindowsCounter = MAX_WAVETABLE_WINDOWS_COUNTER;
+
+	uint16_t tmpWindowSize = 2048;
+
+	while((tmpWindowSize > SP->editorInstrument->sample.length) && (localMaxWavetableWindowsCounter > MIN_WAVETABLE_WINDOWS_COUNTER) )
+	{
+		tmpWindowSize>>=1;
+		localMaxWavetableWindowsCounter--;
+	}
+
 	if(SP->wavetableWindowsCounter + value < MIN_WAVETABLE_WINDOWS_COUNTER) SP->wavetableWindowsCounter  = MIN_WAVETABLE_WINDOWS_COUNTER;
-	else if(SP->wavetableWindowsCounter + value > MAX_WAVETABLE_WINDOWS_COUNTER) SP->wavetableWindowsCounter  = MAX_WAVETABLE_WINDOWS_COUNTER;
+	else if(SP->wavetableWindowsCounter + value > localMaxWavetableWindowsCounter) SP->wavetableWindowsCounter  = localMaxWavetableWindowsCounter;
 	else SP->wavetableWindowsCounter += value;
 
 	localDif = lastWavetableWindowsCounter - SP->wavetableWindowsCounter;
@@ -1835,6 +1868,8 @@ static void modSliceAdjust(int16_t value)
 
 static uint8_t functAddSlice()
 {
+	if(SP->autoSlicePopupVisible) return 1;
+
 	sliceManager.addSlice(SP->editorInstrument);
 	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
 	{
@@ -1849,6 +1884,7 @@ static uint8_t functAddSlice()
 }
 static uint8_t functRemoveSlice()
 {
+	if(SP->autoSlicePopupVisible) return 1;
 	sliceManager.removeSlice(SP->editorInstrument);
 	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
 	{
@@ -1863,6 +1899,20 @@ static uint8_t functRemoveSlice()
 }
 static uint8_t functAutoSlice()
 {
+	if(SP->autoSlicePopupVisible)
+	{
+		functCancelAutoSlice();
+		return 1;
+	}
+	SP->autoSlicePopupVisible = 1;
+	SP->showAutoSlicePopup();
+	return 1;
+}
+
+static uint8_t functConfirmAutoSlice()
+{
+	SP->autoSlicePopupVisible = 0;
+	SP->hideAutoSlicePopup();
 	sliceManager.autoSlice(SP->editorInstrument);
 	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
 	{
@@ -1873,6 +1923,13 @@ static uint8_t functAutoSlice()
 	SP->showSlicesAdjustValue();
 	SP->refreshSlicePoints = 1;
 	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	return 1;
+}
+
+static uint8_t  functCancelAutoSlice()
+{
+	SP->autoSlicePopupVisible = 0;
+	SP->hideAutoSlicePopup();
 	return 1;
 }
 
@@ -2076,6 +2133,7 @@ void cSamplePlayback::calcPlayProgressValue()
 
 static  uint8_t functInstrument(uint8_t state)
 {
+	if(SP->autoSlicePopupVisible) return 1;
 	if(state == buttonRelease)
 	{
 		SP->cancelPopups();
@@ -2091,6 +2149,7 @@ static  uint8_t functInstrument(uint8_t state)
 
 static uint8_t functStepNote(uint8_t value)
 {
+	if(SP->autoSlicePopupVisible) return 1;
 	if(value == buttonRelease)
 	{
 		SP->cancelPopups();

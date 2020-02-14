@@ -11,7 +11,9 @@
 #include "mtHardware.h"
 #include "mtRecorder.h"
 #include "mtExporterWAV.h"
+#include "mtSequencer.h"
 
+typedef Sequencer::strFxConsts fx_t;
 
 const float tempoSyncRates[20] =
 {
@@ -37,6 +39,112 @@ const float tempoSyncRates[20] =
 	0.015625
 };
 
+constexpr uint8_t AMP_LOG_VALUES = 101;
+const float ampLogValues[AMP_LOG_VALUES] =
+{
+		0,
+		0.0043213738,
+		0.0086001718,
+		0.0128372247,
+		0.0170333393,
+		0.0211892991,
+		0.0253058653,
+		0.0293837777,
+		0.0334237555,
+		0.0374264979,
+		0.0413926852,
+		0.0453229788,
+		0.0492180227,
+		0.0530784435,
+		0.0569048513,
+		0.0606978404,
+		0.0644579892,
+		0.0681858617,
+		0.0718820073,
+		0.0755469614,
+		0.079181246,
+		0.0827853703,
+		0.0863598307,
+		0.0899051114,
+		0.0934216852,
+		0.096910013,
+		0.1003705451,
+		0.103803721,
+		0.1072099696,
+		0.1105897103,
+		0.1139433523,
+		0.1172712957,
+		0.1205739312,
+		0.123851641,
+		0.1271047984,
+		0.1303337685,
+		0.1335389084,
+		0.1367205672,
+		0.1398790864,
+		0.1430148003,
+		0.1461280357,
+		0.1492191127,
+		0.1522883444,
+		0.1553360375,
+		0.1583624921,
+		0.1613680022,
+		0.1643528558,
+		0.1673173347,
+		0.1702617154,
+		0.1731862684,
+		0.1760912591,
+		0.1789769473,
+		0.1818435879,
+		0.1846914308,
+		0.1875207208,
+		0.1903316982,
+		0.1931245984,
+		0.1958996524,
+		0.198657087,
+		0.2013971243,
+		0.2041199827,
+		0.206825876,
+		0.2095150145,
+		0.2121876044,
+		0.214843848,
+		0.2174839442,
+		0.220108088,
+		0.2227164711,
+		0.2253092817,
+		0.2278867046,
+		0.2304489214,
+		0.2329961104,
+		0.2355284469,
+		0.2380461031,
+		0.2405492483,
+		0.2430380487,
+		0.2455126678,
+		0.2479732664,
+		0.2504200023,
+		0.252853031,
+		0.2552725051,
+		0.2925088798,
+		0.3297452546,
+		0.3669816293,
+		0.4042180041,
+		0.4414543788,
+		0.4786907536,
+		0.5159271283,
+		0.5531635031,
+		0.5903998778,
+		0.6276362526,
+		0.6648726273,
+		0.702109002,
+		0.7393453768,
+		0.7765817515,
+		0.8138181263,
+		0.851054501,
+		0.8882908758,
+		0.9255272505,
+		0.9627636253,
+		1
+
+};
 constexpr uint32_t NOT_MOD_POINTS = 1000000;
 constexpr uint8_t ENVELOPES_WITHOUT_AMP_MAX = 4;
 constexpr uint8_t MUTE_DISABLE = 0;
@@ -292,6 +400,7 @@ public:
 		uint8_t filterType;
 		int32_t startPoint;
 		int32_t	endPoint;
+		uint8_t reversePlayback;
 		int8_t  lfoAmpRate;
 		int8_t  lfoCutoffRate;
 		int8_t  lfoPositionRate;
@@ -414,6 +523,7 @@ private:
 	void fxPositionGranular(uint8_t fx_val, uint8_t fx_n);
 //***
 	void fxVolume(uint8_t fx_val, uint8_t fx_n);
+	void fxRandomVolume(uint8_t fx_val, uint8_t fx_n);
 	void fxSampleSlice(uint8_t fx_val, uint8_t fx_n);
 	void fxVolumeLFO(uint8_t fx_val, uint8_t fx_n);
 	void fxCutoffLFO(uint8_t fx_val, uint8_t fx_n);
@@ -479,6 +589,8 @@ extern AudioAmplifier           amp[8];
 extern AudioMixer9				mixerL,mixerR,mixerReverb;
 extern AudioOutputI2S           i2s1;
 extern AudioBitDepth			bitDepthControl[2];
+
+extern AudioFilterStateVariable filterReverbOut;
 
 extern AudioInputI2S            i2sIn;
 extern AudioRecordQueue         queue;
