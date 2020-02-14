@@ -523,6 +523,7 @@ private:
 	void fxPositionGranular(uint8_t fx_val, uint8_t fx_n);
 //***
 	void fxVolume(uint8_t fx_val, uint8_t fx_n);
+	void fxRandomVolume(uint8_t fx_val, uint8_t fx_n);
 	void fxSampleSlice(uint8_t fx_val, uint8_t fx_n);
 	void fxVolumeLFO(uint8_t fx_val, uint8_t fx_n);
 	void fxCutoffLFO(uint8_t fx_val, uint8_t fx_n);
