@@ -871,7 +871,7 @@ void playerEngine::endFxReversePlayback(uint8_t fx_n)
 
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
-		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
+		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::samplePlaybeckDirection])
 		{
 			currentSeqModValues.reversePlayback = lastSeqVal[otherFx_n];
 		}
@@ -883,7 +883,7 @@ void playerEngine::endFxReversePlayback(uint8_t fx_n)
 	}
 	else
 	{
-		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend]) playMemPtr->clearReverse();
+		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::samplePlaybeckDirection]) playMemPtr->clearReverse();
 		else
 		{
 			if(currentSeqModValues.reversePlayback) playMemPtr->setReverse();
