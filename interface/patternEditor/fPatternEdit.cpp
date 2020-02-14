@@ -2930,7 +2930,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 			if (sequencer.isRec())
 			{
-
+				sendSelection();
 				if (state == buttonPress)
 				{
 					sequencer.setSelectionInstrument(pad);

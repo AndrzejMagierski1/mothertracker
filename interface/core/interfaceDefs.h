@@ -290,6 +290,15 @@ struct strInterfaceGlobals
 		else
 			return name;
 	}
+	uint8_t fxNameCount()
+	{
+		for (uint8_t count = 1; count < FX_COUNT; count++)
+		{
+			if (fxIDs[count] == 0) return count;
+		}
+
+		return 0;
+	}
 
 
 
@@ -325,13 +334,13 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_D,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_E,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_PROGRAM_CHANGE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_PROGRAM_CHANGE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_PROGRAM_CHANGE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_PROGRAM_CHANGE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_PROGRAM_CHANGE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_PROGRAM_CHANGE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_PROGRAM_CHANGE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_PROGRAM_CHANGE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
 	};
 
 	const char rndFxName[FX_NAME_SIZE+4] = "Random Fx";
