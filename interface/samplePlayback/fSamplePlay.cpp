@@ -1791,8 +1791,18 @@ static void modWavetableWindowSize(int16_t value)
 
 	uint8_t lastWavetableWindowsCounter = SP->wavetableWindowsCounter;
 	int8_t localDif;
+	uint8_t localMaxWavetableWindowsCounter = MAX_WAVETABLE_WINDOWS_COUNTER;
+
+	uint16_t tmpWindowSize = 2048;
+
+	while((tmpWindowSize > SP->editorInstrument->sample.length) && (localMaxWavetableWindowsCounter > MIN_WAVETABLE_WINDOWS_COUNTER) )
+	{
+		tmpWindowSize>>=1;
+		localMaxWavetableWindowsCounter--;
+	}
+
 	if(SP->wavetableWindowsCounter + value < MIN_WAVETABLE_WINDOWS_COUNTER) SP->wavetableWindowsCounter  = MIN_WAVETABLE_WINDOWS_COUNTER;
-	else if(SP->wavetableWindowsCounter + value > MAX_WAVETABLE_WINDOWS_COUNTER) SP->wavetableWindowsCounter  = MAX_WAVETABLE_WINDOWS_COUNTER;
+	else if(SP->wavetableWindowsCounter + value > localMaxWavetableWindowsCounter) SP->wavetableWindowsCounter  = localMaxWavetableWindowsCounter;
 	else SP->wavetableWindowsCounter += value;
 
 	localDif = lastWavetableWindowsCounter - SP->wavetableWindowsCounter;
