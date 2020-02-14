@@ -28,6 +28,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 		case fx_t::FX_TYPE_R31 : break;
 		case fx_t::FX_TYPE_POSITION :			    fxPosition(fx_val, fx_n);				break;
 		case fx_t::FX_TYPE_VELOCITY:				fxVolume(fx_val, fx_n);					break;
+		case fx_t::FX_TYPE_RANDOM_VELOCITY:			fxRandomVolume(fx_val, fx_n);			break;
 		case fx_t::FX_TYPE_SAMPLE_SLICE:			fxSampleSlice(fx_val, fx_n);			break;
 		case fx_t::FX_TYPE_VOLUME_LFO:				fxVolumeLFO(fx_val, fx_n);				break;
 		case fx_t::FX_TYPE_FILTER_LFO:				fxCutoffLFO(fx_val, fx_n);				break;
@@ -70,6 +71,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 		case fx_t::FX_TYPE_R30 : break;
 		case fx_t::FX_TYPE_R31 : break;
 		case fx_t::FX_TYPE_POSITION:					endFxPosition(fx_n);		break;
+		case fx_t::FX_TYPE_RANDOM_VELOCITY:				endFxVolume(fx_n);			break; // dla porządku - wyzej i tak go nadpisze na zwykle velocity
 		case fx_t::FX_TYPE_VELOCITY:					endFxVolume(fx_n);			break;
 		case fx_t::FX_TYPE_SAMPLE_SLICE:				endFxSlice(fx_n);			break;
 		case fx_t::FX_TYPE_VOLUME_LFO:					endFxVolumeLFO(fx_n);		break;
@@ -372,6 +374,28 @@ void playerEngine::fxPositionGranular(uint8_t fx_val, uint8_t fx_n)
 	}
 }
 //*******
+void playerEngine::fxRandomVolume(uint8_t fx_val, uint8_t fx_n)
+{
+	uint8_t localVolume = 0;
+	uint8_t otherFx_n = !fx_n;
+
+	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::volume]) localVolume = currentSeqModValues.volume;
+	else localVolume = mtProject.instrument[currentInstrument_idx].volume;
+
+	int8_t maxFxVol = sequencer.getFxMax(fx_t::FX_TYPE_VELOCITY);
+	int8_t minFxVol = sequencer.getFxMin(fx_t::FX_TYPE_VELOCITY);
+	uint8_t minRand = 0 , maxRand = 0;
+
+	if(localVolume + fx_val > maxFxVol) maxRand = maxFxVol;
+	else maxRand = localVolume + fx_val;
+
+	if(localVolume - fx_val < minFxVol) minRand = minFxVol;
+	else minFxVol = localVolume - fx_val;
+
+	localVolume = random(minRand,maxRand);
+
+	fxVolume(localVolume, fx_n);
+}
 void playerEngine::fxVolume(uint8_t fx_val, uint8_t fx_n)
 {
 	uint8_t otherFx_n = !fx_n;
