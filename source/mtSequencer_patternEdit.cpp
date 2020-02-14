@@ -562,7 +562,10 @@ void Sequencer::setSelectionFxValueByPad(uint8_t fxIndex, int16_t pad)
 											getFxMin(step->fx[fxIndex].type),
 											getFxMax(step->fx[fxIndex].type));
 
-			if (!isMultiSelection() && step->fx[fxIndex].type != 0 && !isRec())
+			if (!isMultiSelection() &&
+					step->fx[fxIndex].type != 0
+					&& !isRec()
+					&& !isPlay())
 			{
 				playSelection();
 			}
@@ -709,7 +712,8 @@ void Sequencer::setSelectionInstrument(int16_t value)
 //								step->note,
 //								STEP_VELO_DEFAULT,
 //								t);
-					if (!isRec())
+					if (!isRec()
+							&& !isPlay())
 					{
 						playSelection();
 					}
