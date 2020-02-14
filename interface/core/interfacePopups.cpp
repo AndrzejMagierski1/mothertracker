@@ -288,7 +288,7 @@ void cInterfacePopups::showFxesPopup()
 
 	instrList.start = selectedActualItem;
 	instrList.linesCount = 15;
-	instrList.length = 48;
+	instrList.length = interfaceGlobals.fxNameCount();
 	instrList.data = (char**)interfaceGlobals.ptrFxNames;
 
 	display.setControlPosition(listControl, 600, 30);
