@@ -320,8 +320,12 @@ static  uint8_t functInstrumentAdd()
 
 	SI->stopPlaying();
 
-	SI->sampleType = mtSampleTypeWaveFile;
-	SI->SelectFile();
+	if(*SI->explorerNames[SI->selectedFile] != '/')
+	{
+		SI->sampleType = mtSampleTypeWaveFile;
+		//SI->addOrReplaceFlag = 1;
+		SI->SelectFile();
+	}
 
 	return 1;
 }
@@ -1161,22 +1165,23 @@ void cSampleImporter::listOnlyWavFromActualPath(uint8_t startPoint)
 
 	uint8_t validFiles = 0;
 
-	for(uint8_t i = startPoint; i < (startPoint + filesFound); i++)
-	{
-		if(checkIfNameValid(explorerNames[i]))
-		{
-			if(afterFolderNum != i) // strcpy takes restricted pointer, passing same pointer = undefined behavior
-			{
-				std::swap(explorerNames[afterFolderNum],explorerNames[i]);
-				//char* tempPtr = explorerNames[afterFolderNum];
-				//explorerNames[afterFolderNum] = explorerNames[i];
-				//explorerNames[i] = tempPtr;
-			}
-
-			afterFolderNum++;
-			validFiles++;
-		}
-	}
+//	for(uint8_t i = startPoint; i < (startPoint + filesFound); i++)
+//	{
+//		if(checkIfNameValid(explorerNames[i]))
+//		{
+//			if(afterFolderNum != i) // strcpy takes restricted pointer, passing same pointer = undefined behavior
+//			{
+//				std::swap(explorerNames[afterFolderNum], explorerNames[i]);
+//				//char* tempPtr = explorerNames[afterFolderNum];
+//				//explorerNames[afterFolderNum] = explorerNames[i];
+//				//explorerNames[i] = tempPtr;
+//			}
+//
+//			afterFolderNum++;
+//			validFiles++;
+//		}
+//	}
+	validFiles = filesFound;
 
 	bool notSorted = 1;
 	char strBuff[40];
@@ -1224,24 +1229,15 @@ void cSampleImporter::listOnlyWavFromActualPath(uint8_t startPoint)
 
 uint8_t cSampleImporter::isWavFile(char* fileName)
 {
-	uint8_t endPos = 0;
-	char temp_name[32];
-	strcpy(temp_name, fileName);
+	uint8_t wav_len = strlen(fileName);
+	if(wav_len<5) return 0;
 
-	while(temp_name[endPos] != 0 && endPos < 19)
-	{
-		if(temp_name[endPos] > 96 && temp_name[endPos] < 123) temp_name[endPos] = temp_name[endPos] - 32;
-		endPos++;
-	}
+	if(((fileName[wav_len - 1] != 'V') && (fileName[wav_len - 1] != 'v'))
+	|| ((fileName[wav_len - 2] != 'A') && (fileName[wav_len - 2] != 'a'))
+	|| ((fileName[wav_len - 3] != 'W') && (fileName[wav_len - 3] != 'w'))
+	||  (fileName[wav_len - 4] != '.')) return 0;
 
-	endPos--;
-
-	if(temp_name[endPos] == 'V' && temp_name[endPos-1] == 'A' && temp_name[endPos-2] == 'W' && temp_name[endPos-3] == '.')
-	{
-		return 1;
-	}
-
-	return 0;
+	return 1;
 }
 
 
@@ -1270,10 +1266,10 @@ void cSampleImporter::listAllFoldersFirst()
 		isBusy = 1; // processDirFileSizes() powinna zdjac flage tutaj ustawiona
 		locationExplorerCount=0;
 
-		for(int i=0;i<list_length_max;i++)
-		{
-			explorerNames[i]=NULL;
-		}
+//		for(int i=0;i<list_length_max;i++)
+//		{
+//			explorerNames[i]=NULL;
+//		}
 
 		openingInProgress = 1;
 
@@ -1282,9 +1278,6 @@ void cSampleImporter::listAllFoldersFirst()
 		listOnlyFolderNames(actualPath);
 		listOnlyWavFromActualPath(locationExplorerCount);
 	}
-
-
-
 
 	showFilesTree();
 }
@@ -1573,7 +1566,7 @@ void cSampleImporter::calculateCopyingProgress()
 void cSampleImporter::playSdFile()
 {
 	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
-//	if(!isWavFile(&locationFileList[selectedFile][0])) return;
+	if(!isWavFile(explorerNames[selectedFile])) return;
 
 	char file_path[255];
 

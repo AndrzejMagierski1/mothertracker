@@ -62,9 +62,9 @@ bool AudioPlaySdMonoWav::play(const char *filename)
 #else 	
 	AudioStartUsingSPI();
 #endif
-	__disable_irq();
+	//__disable_irq();
 	wavfile = SD.open(filename);
-	__enable_irq();
+	//__enable_irq();
 	if (!wavfile) {
 	#if defined(HAS_KINETIS_SDHC)	
 		if (!(SIM_SCGC3 & SIM_SCGC3_SDHC)) AudioStopUsingSPI();

@@ -44,9 +44,9 @@ bool AudioPlaySdRaw::play(const char *filename)
 #else
 	AudioStartUsingSPI();
 #endif
-	__disable_irq();
+	//__disable_irq();
 	rawfile = SD.open(filename);
-	__enable_irq();
+	//__enable_irq();
 	if (!rawfile) {
 		//Serial.println("unable to open file");
 		#if defined(HAS_KINETIS_SDHC)

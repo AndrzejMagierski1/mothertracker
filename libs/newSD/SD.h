@@ -19,8 +19,7 @@
 #define FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_ALWAYS )
 
 
-void reportError(const char* text, uint16_t value);
-
+extern "C" void reportError(const char* text, uint16_t value);
 
 class SdFile;
 
@@ -31,6 +30,7 @@ class SdCard
 public:
 
 	bool init();
+	void stop();
 	void pinsInit();
 
 
@@ -57,31 +57,8 @@ class SdFile
 {
 public:
 
-	bool open(const char* path, uint8_t oflag = FA_READ)
-	{
-		close();
+	bool open(const char* path, uint8_t oflag = FA_READ);
 
-		file = new FIL;
-		FRESULT error = f_open(file, path, oflag);
-		if (error)
-		{
-			if (error == FR_EXIST)
-			{
-	        	reportError("open - file exist", error);
-			}
-			else if (error == FR_TOO_MANY_OPEN_FILES)
-			{
-	        	reportError("open error - too many files opened", error);
-			}
-			else
-			{
-	        	reportError("open - failed", error);
-				close();
-				return false;
-			}
-		}
-		return true;
-	}
 
 
 	int read(void* buf, uint32_t count)
@@ -359,107 +336,8 @@ public:
 */
 
 	// filter: 0-all, 1-folders only, 2-supported wav only // always ignore hidden files // max_used_memory must be higher than 255
-	uint16_t createFilesList(uint8_t start_line, char** list, uint8_t list_length, uint16_t max_used_memory, uint8_t chooseFilter = 0)
-	{
-		for(uint8_t i = 0; i<list_length; i++) // wyczyszczenie uzytej wczesniej pamieci
-		{
-			delete list[i];
-		}
+	uint16_t createFilesList(uint8_t start_line, char** list, uint8_t list_length, uint16_t max_used_memory, uint8_t chooseFilter = 0);
 
-		uint8_t n = start_line;
-
-		if(max_used_memory < 255) return n;
-
-		char wav_file[255];
-		uint16_t memory_used = 0;
-		FILINFO fno;
-		FRESULT error;
-		SdFile local_file;
-
-		f_readdir(directory, nullptr);
-
-		while (1)
-		{
-			if (n >= list_length) break;
-			if (memory_used > max_used_memory-255) break;
-
-			error = f_readdir(directory, &fno);
-			if(error)
-			{
-				reportError("create list - read dir item - failed", error);
-				break;
-			}
-			else if(!fno.fname[0]) // koniec folderu
-			{
-				break;
-			}
-
-			if (fno.fattrib & AM_HID) // ukryty
-			{
-				continue;
-			}
-
-	        if (fno.fattrib & AM_DIR) // folder
-	        {
-	        	uint8_t len = strlen(fno.fname)+2;
-	        	list[n] = new char[len];
-
-	        	strcpy(list[n], "/");
-	        	strcat(list[n], fno.fname);
-
-	        	memory_used += len;
-	        }
-	        else // plik
-	        {
-	        	if(chooseFilter == 2) // filtrowanie .wav
-	        	{
-		        	uint8_t wav_len = strlen(fno.fname);
-		        	if(wav_len<5) continue;
-
-					if(((fno.fname[wav_len - 1] != 'V') && (fno.fname[wav_len - 1] != 'v'))
-					|| ((fno.fname[wav_len - 2] != 'A') && (fno.fname[wav_len - 2] != 'a'))
-					|| ((fno.fname[wav_len - 3] != 'W') && (fno.fname[wav_len - 3] != 'w'))
-					||  (fno.fname[wav_len - 4] != '.')) continue;
-
-					if(strlen((dir_path)+wav_len+2) > 255) continue;
-		        	strcpy(wav_file, dir_path);
-		        	strcat(wav_file, "/");
-		        	strcat(wav_file, fno.fname);
-
-	        		if(local_file.open(wav_file))
-	        		{
-						strWavFileHeader localHeader;
-						readHeader(&localHeader, &local_file);
-						local_file.close();
-
-						if ((localHeader.sampleRate != 44100)
-						|| ((localHeader.AudioFormat != 1) && (localHeader.AudioFormat != 3))
-						|| ((localHeader.bitsPerSample != 16) && (localHeader.bitsPerSample != 24) && (localHeader.bitsPerSample != 32)))
-							continue;
-					}
-	        		else continue;
-	        	}
-
-	        	uint8_t len = strlen(fno.fname)+1;
-	        	list[n] = new char[len];
-	        	strcpy(list[n], fno.fname);
-	        	memory_used += len;
-	        }
-
-	        n++;
-		}
-
-		reportError("create list - memory used ", memory_used);
-
-		return n;
-	}
-
-	uint16_t createFilesListShort(uint8_t start_line, char * list,uint8_t list_length,uint8_t nameLength)
-	{
-		uint16_t count = start_line;
-
-		return count;
-	}
 
 
 

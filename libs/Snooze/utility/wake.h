@@ -401,7 +401,7 @@ extern "C" {
     void startup_early_hook( void ) __attribute__ ((weak, noinline));
     void startup_early_hook( void ) {
 #if defined(KINETISK)
-        WDOG_STCTRLH = WDOG_STCTRLH_ALLOWUPDATE;
+         WDOG_STCTRLH = WDOG_STCTRLH_ALLOWUPDATE;
 #elif defined(KINETISL)
         SIM_COPC = 0;  // disable the watchdog
 #endif

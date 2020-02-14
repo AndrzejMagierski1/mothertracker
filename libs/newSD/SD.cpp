@@ -16,6 +16,8 @@
 void enableGPIO(bool enable);
 void initSDHC();
 
+
+
 SdCard SD;
 
 /*******************************************************************************
@@ -60,10 +62,10 @@ bool SdCard::init()
 	//enableGPIO(true);
 	//pinsInit();
 
-	for(uint32_t i = 0; i< 1000; i++)
-	{
-		__asm__ volatile("nop");
-	}
+//	for(uint32_t i = 0; i< 1000; i++)
+//	{
+//		__asm__ volatile("nop");
+//	}
 
     /* Save host information. */
     g_sd.host.base           = SDHC;
@@ -97,6 +99,13 @@ bool SdCard::init()
 #endif
 
     return true;
+}
+
+void SdCard::stop()
+{
+    f_mount(0, driverNumberBuffer, 0);
+    memset(&g_fileSystem, 0, sizeof(g_fileSystem));
+
 }
 
 
@@ -276,7 +285,11 @@ bool SdCard::remove(const char* path)
 	FRESULT error = f_unlink (path);
     if (error)
     {
-        if (error == FR_LOCKED)
+    	if(error == FR_NO_FILE)
+    	{
+            return false;
+    	}
+    	else if (error == FR_LOCKED)
         {
         	reportError("remove failed - file locked", error);
             return false;
@@ -315,3 +328,129 @@ uint32_t  SdCard::freeClusterCount()
 	//fre_sect = fre_clust * fs->csize;
 	return fre_clust;
 }
+
+
+uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_length, uint16_t max_used_memory, uint8_t chooseFilter)
+{
+	for(uint8_t i = 0; i<list_length; i++) // wyczyszczenie uzytej wczesniej pamieci
+	{
+		delete list[i];
+		list[i] = nullptr;
+	}
+
+	uint8_t n = start_line;
+
+	if(max_used_memory < 255)
+	{
+		reportError("create list - memory max used", max_used_memory);
+		return n;
+	}
+
+	char wav_file[255];
+	uint16_t memory_used = 0;
+	FILINFO fno;
+	FRESULT error;
+	SdFile local_file;
+
+	f_readdir(directory, nullptr);
+
+	while (1)
+	{
+		if (n >= list_length) break;
+		if (memory_used > max_used_memory-255) break;
+
+		error = f_readdir(directory, &fno);
+		if(error)
+		{
+			reportError("create list - read dir item - failed", error);
+			break;
+		}
+		else if(!fno.fname[0]) // koniec folderu
+		{
+			break;
+		}
+
+		if (fno.fattrib & AM_HID) // ukryty
+		{
+			continue;
+		}
+
+        if (fno.fattrib & AM_DIR && chooseFilter != 2) // folder
+        {
+        	uint8_t len = strlen(fno.fname)+2;
+        	list[n] = new char[len];
+
+        	strcpy(list[n], "/");
+        	strcat(list[n], fno.fname);
+
+        	memory_used += len;
+        }
+        else if(chooseFilter == 1) continue;
+        else // plik
+        {
+        	if(chooseFilter == 2) // filtrowanie .wav
+        	{
+	        	uint8_t wav_len = strlen(fno.fname);
+	        	if(wav_len<5) continue;
+
+				if(((fno.fname[wav_len - 1] != 'V') && (fno.fname[wav_len - 1] != 'v'))
+				|| ((fno.fname[wav_len - 2] != 'A') && (fno.fname[wav_len - 2] != 'a'))
+				|| ((fno.fname[wav_len - 3] != 'W') && (fno.fname[wav_len - 3] != 'w'))
+				||  (fno.fname[wav_len - 4] != '.')) continue;
+
+				if(strlen((dir_path)+wav_len+2) > 255) continue;
+	        	strcpy(wav_file, dir_path);
+	        	strcat(wav_file, "/");
+	        	strcat(wav_file, fno.fname);
+
+        		if(local_file.open(wav_file))
+        		{
+					strWavFileHeader localHeader;
+					readHeader(&localHeader, &local_file);
+					local_file.close();
+
+					if ((localHeader.sampleRate != 44100)
+					|| ((localHeader.AudioFormat != 1) && (localHeader.AudioFormat != 3))
+					|| ((localHeader.bitsPerSample != 16) && (localHeader.bitsPerSample != 24) && (localHeader.bitsPerSample != 32)))
+						continue;
+				}
+        		else continue;
+        	}
+        	if(chooseFilter == 3) // filtrowanie ptf
+        	{
+	        	uint8_t wav_len = strlen(fno.fname);
+	        	if(wav_len<5) continue;
+
+				if(fno.fname[wav_len-1] == 'f' && fno.fname[wav_len-2] == 't' && fno.fname[wav_len-3] == 'p' && fno.fname[wav_len-4] == '.')
+				{
+					if(fno.fname[0] == 'P' && fno.fname[1] == 'o' && fno.fname[2] == 'l' && fno.fname[3] == 'y' && fno.fname[4] == 'e' && fno.fname[5] == 'n' && fno.fname[6] == 'd')
+					{
+
+					}
+					else continue;
+				}
+				else if(fno.fname[wav_len-1] == 'x' && fno.fname[wav_len-2] == 'e' && fno.fname[wav_len-3] == 'h' && fno.fname[wav_len-4] == '.')
+				{
+					if(fno.fname[0] == 'm' && fno.fname[1] == 't')
+					{
+
+					}
+					else continue;
+				}
+				else continue;
+        	}
+
+        	uint8_t len = strlen(fno.fname)+1;
+        	list[n] = new char[len];
+        	strcpy(list[n], fno.fname);
+        	memory_used += len;
+        }
+
+        n++;
+	}
+
+
+	return n;
+}
+
+

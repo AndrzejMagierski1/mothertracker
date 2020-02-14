@@ -30,7 +30,7 @@ void FileManager::update()
 	samplesImporter.update();
 	samplesCopyier.update();
 
-	autoSaveWorkspace(0);
+	//autoSaveWorkspace(0);
 
 //******************************************************************************************************
 // SAMPLES IMPORTER - kopiuje pliki do projektu

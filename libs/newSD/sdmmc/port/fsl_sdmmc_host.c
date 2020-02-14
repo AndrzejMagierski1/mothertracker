@@ -8,6 +8,10 @@
 
 #include "fsl_sdmmc_host.h"
 #include "fsl_sdmmc_event.h"
+
+void reportError(const char* text, uint16_t value);
+
+//void reportError(const char* text, uint16_t value);
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -166,6 +170,8 @@ static status_t SDMMCHOST_TransferFunction(SDMMCHOST_TYPE *base, SDMMCHOST_TRANS
     } while (error == kStatus_SDHC_BusyTransferring);
 
    bool  event_result = SDMMCEVENT_Wait(kSDMMCEVENT_TransferComplete, SDMMCHOST_TRANSFER_COMPLETE_TIMEOUT);
+
+
 
     if ((error != kStatus_Success) ||
         (false == event_result) ||
