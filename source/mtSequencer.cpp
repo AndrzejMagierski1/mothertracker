@@ -379,7 +379,7 @@ void Sequencer::play_microStep(uint8_t row)
 
 				break;
 			case fx.FX_TYPE_CHANCE:
-				if (random(0, 128) > _fx.value)
+				if (random(0, getFxMax(fx.FX_TYPE_CHANCE)) > _fx.value)
 					playerRow.cancelStep = 1;
 
 				break;
