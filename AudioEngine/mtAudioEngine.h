@@ -11,7 +11,9 @@
 #include "mtHardware.h"
 #include "mtRecorder.h"
 #include "mtExporterWAV.h"
+#include "mtSequencer.h"
 
+typedef Sequencer::strFxConsts fx_t;
 
 const float tempoSyncRates[20] =
 {

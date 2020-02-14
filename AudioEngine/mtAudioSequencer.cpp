@@ -1,7 +1,5 @@
 #include "mtAudioEngine.h"
-#include "mtSequencer.h"
 
-typedef Sequencer::strFxConsts fx_t;
 
 //Najpierw przepisywane są wartosci seqa nawet gdy aktywny jest performanceMode gdyz i tak trzeba zaktualizowac performanceMode bo bedzie wyliczany na podstawie nowych zmienionych wartosci w sequ
 void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
@@ -49,6 +47,10 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 // swoje operacje na podstawie wartości mniej znaczącego efektu ***/
 void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 {
+	bool isVeloFx = (fx_id == fx_t::FX_TYPE_RANDOM_VELOCITY) || (fx_id == fx_t::FX_TYPE_VELOCITY) || (fx_id == fx_t::FX_TYPE_ROLL);
+
+	if(isVeloFx) fx_id = fx_t::FX_TYPE_VELOCITY;
+
 	switch(fx_id)
 	{
 		case 0: break;
