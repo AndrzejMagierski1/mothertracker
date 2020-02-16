@@ -159,7 +159,7 @@ void cMasterParams::showMasterScreen()
 {
 	display.refreshControl(titleBar);
 
-	display.setControlText(titleLabel, "Master");
+	display.setControlText(titleLabel, "Master 1/2");
 	display.refreshControl(titleLabel);
 
 
@@ -171,6 +171,7 @@ void cMasterParams::showMasterScreen()
 	display.setControlText(label[5], "Limit. R");
 	display.setControlText(label[6], "Limit. T");
 	display.setControlText(label[7], " ");
+	display.setControlText2(label[7], " ");
 
 	resizeToDefaultMaster();
 
@@ -274,6 +275,7 @@ void cMasterParams::resizeToDefaultMaster()
 
 	display.setControlPosition(label[6],  (800/8)*6+(800/16),  -1);
 	display.setControlSize(label[6],  800/8-6,  -1);
+
 
 	for(uint8_t i = 0; i < 8; i++)
 	{
@@ -383,6 +385,57 @@ void cMasterParams::showBitDepth()
 
 	display.setControlText2(label[3], bitDepthVal);
 	display.refreshControl(label[3]);
+}
+
+//mixer
+void cMasterParams::showMixerScreen()
+{
+	display.setControlText(titleLabel, "Mixer 2/2");
+	display.refreshControl(titleLabel);
+
+	if(isSolo)
+	{
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			sprintf(mixerLabel[i],"%s",(char*)"Solo");
+		}
+	}
+	else
+	{
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			sprintf(mixerLabel[i],"%s", mtProject.values.trackMute[i] ? (char*)"Unmute" :(char*)"Mute");
+		}
+	}
+
+	if(displayType == display_t::masterValues)
+	{
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			display.setControlText(label[i],mixerTrackLabel[i]);
+		}
+	}
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.setControlColors(label[i], mtProject.values.trackMute[i] ? interfaceGlobals.inactiveLabelsColors: interfaceGlobals.activeLabelsColors);
+	}
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.setControlText2(label[i],mixerLabel[i]);
+		display.refreshControl(label[i]);
+	}
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		display.setControlHide(barControl[i]);
+		display.refreshControl(barControl[i]);
+	}
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.synchronizeRefresh();
 }
 
 
