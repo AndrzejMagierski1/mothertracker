@@ -46,6 +46,9 @@ static  uint8_t functEncoder(int16_t value);
 static  uint8_t functSwitchModule(uint8_t button);
 static  uint8_t functSwitchModeMaster(uint8_t state);
 
+//mixer
+static uint8_t functSoloMute(uint8_t state);
+static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state);
 
 // MASTER EDIT FUNCTIONS
 void changeVolume(int16_t value);
@@ -65,6 +68,8 @@ void cMasterParams::update()
 void cMasterParams::start(uint32_t options)
 {
 	moduleRefresh = 1;
+
+	displayType = display_t::masterValues;
 
 	mode = options;
 	exitOnButtonRelease = 0;
@@ -179,6 +184,7 @@ void cMasterParams::setMasterScreenFunct()
 
 static  uint8_t functEncoder(int16_t value)
 {
+	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
 	if(MP->frameData.multiSelActiveNum != 0)
 	{
 		MP->stepThroughNodes(value);
@@ -207,6 +213,7 @@ static  uint8_t functEncoder(int16_t value)
 
 static  uint8_t functLeft()
 {
+	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
 	if(MP->frameData.multiSelActiveNum != 0) return 1;
 
 	if(MP->selectedPlace > 0) MP->selectedPlace--;
@@ -219,6 +226,7 @@ static  uint8_t functLeft()
 
 static  uint8_t functRight()
 {
+	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
 	if(MP->frameData.multiSelActiveNum != 0) return 1;
 
 	if(MP->selectedPlace < MP->frameData.placesCount-1) MP->selectedPlace++;
@@ -231,6 +239,7 @@ static  uint8_t functRight()
 
 static  uint8_t functUp()
 {
+	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
 	if(MP->frameData.multiSelActiveNum != 0)
 	{
 		MP->stepThroughNodes(1);
@@ -257,6 +266,7 @@ static  uint8_t functUp()
 
 static  uint8_t functDown()
 {
+	if(MP->displayType == cMasterParams::display_t::mixer) return 1;
 	if(MP->frameData.multiSelActiveNum != 0)
 	{
 		MP->stepThroughNodes(-1);
@@ -593,13 +603,98 @@ static uint8_t functSwitchModule(uint8_t button)
 
 	return 1;
 }
+void cMasterParams::switchToMaster()
+{
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	FM->clearButton(interfaceButtonShift);
 
+	FM->setButtonObj(interfaceButton0, functSelectVolume);
+
+	FM->setButtonObj(interfaceButton1, functSelectReverbSize);
+	FM->setButtonObj(interfaceButton2, functSelectReverbDamping);
+
+	FM->setButtonObj(interfaceButton3, functSelectBitDepth);
+	FM->setButtonObj(interfaceButton4, functSelectLimiterAttack);
+	FM->setButtonObj(interfaceButton5, functSelectLimiterRelease);
+	FM->setButtonObj(interfaceButton6, functSelectLimiterTreshold);
+
+	showMasterScreen();
+	displayType = display_t::masterValues;
+}
+void cMasterParams::switchToMixer()
+{
+	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+
+	FM->setButtonObj(interfaceButton0, functSoloMuteTrack);
+
+	FM->setButtonObj(interfaceButton1, functSoloMuteTrack);
+	FM->setButtonObj(interfaceButton2, functSoloMuteTrack);
+
+	FM->setButtonObj(interfaceButton3, functSoloMuteTrack);
+	FM->setButtonObj(interfaceButton4, functSoloMuteTrack);
+	FM->setButtonObj(interfaceButton5, functSoloMuteTrack);
+	FM->setButtonObj(interfaceButton6, functSoloMuteTrack);
+	FM->setButtonObj(interfaceButton6, functSoloMuteTrack);
+	FM->setButtonObj(interfaceButton7, functSoloMuteTrack);
+
+	FM->setButtonObj(interfaceButtonShift, functSoloMute);
+
+	showMixerScreen();
+	displayType = display_t::mixer;
+}
+
+//mixer
+static uint8_t functSoloMute(uint8_t state)
+{
+	if(MP->displayType == cMasterParams::display_t::masterValues) return 1;
+
+	MP->isSolo = state;
+	MP->showMixerScreen();
+	return 1;
+}
+static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state)
+{
+	if(MP->displayType == cMasterParams::display_t::masterValues) return 1;
+
+	if(state == buttonPress)
+	{
+		if(MP->isSolo)
+		{
+			for(uint8_t i = 0; i < 8; i++)
+			{
+				mtProject.values.trackMute[i] = 1;
+			}
+			mtProject.values.trackMute[n] = 0;
+		}
+		else
+		{
+			mtProject.values.trackMute[n] = !mtProject.values.trackMute[n];
+		}
+
+		for(uint8_t i = 0; i < 8 ; i++)
+		{
+			engine.muteTrack(i, mtProject.values.trackMute[i]);
+		}
+		MP->showMixerScreen();
+
+	}
+	return 1;
+}
 static  uint8_t functSwitchModeMaster(uint8_t state)
 {
 	if(state == buttonPress)
 	{
 		MP->selectedPlace = 0;
 
+		if(MP->displayType == cMasterParams::display_t::masterValues)
+		{
+			MP->switchToMixer();
+		}
+		else if(MP->displayType == cMasterParams::display_t::mixer)
+		{
+			MP->switchToMaster();
+		}
 /*		CE->clearAllNodes();
 		CE->cancelMultiFrame();*/
 
@@ -610,7 +705,7 @@ static  uint8_t functSwitchModeMaster(uint8_t state)
 
 		MP->exitOnButtonRelease = 1;
 		//CE->selectedPlace[mtConfigModeMaster] = 0;
-		MP->activateLabelsBorder();
+//		MP->activateLabelsBorder();
 	}
 	else if(state == buttonRelease)
 	{
