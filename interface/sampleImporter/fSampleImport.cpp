@@ -107,10 +107,8 @@ void cSampleImporter::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-
 	Encoder.setAcceleration(0);
 
-	//selectedFile = 0;
 	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
 	{
 		//mtProject.values.lastUsedInstrument = 0;
@@ -118,7 +116,6 @@ void cSampleImporter::start(uint32_t options)
 	}
 	else
 	{
-
 		selectedSlot = mtProject.values.lastUsedInstrument;
 	}
 
@@ -136,7 +133,6 @@ void cSampleImporter::start(uint32_t options)
 
 	handleMemoryBar();
 
-	activateLabelsBorder();
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -152,11 +148,6 @@ void cSampleImporter::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
 
-	if(!sdCardDetector.isCardInserted())
-	{
-		functSdCard(0);
-		return;
-	}
 
 	showDefaultScreen();
 	setDefaultScreenFunct();
@@ -230,7 +221,6 @@ void cSampleImporter::setDefaultScreenFunct()
 
 	FM->setPadsGlobal(functPads);
 
-	FM->setSdDetection(functSdCard);
 }
 
 
@@ -330,25 +320,6 @@ static  uint8_t functInstrumentAdd()
 	return 1;
 }
 
-//static  uint8_t functInstrumentWavetableAdd()
-//{
-//	if(SI->isBusy) return 1;
-//	uint8_t length = SI->selectionLength ? SI->selectionLength : 1;
-//
-//	for(uint8_t i = 0; i < length; i++ )
-//	{
-//		if( ! SI->currentFolderIsWavetableFlag[SI->selectedFile + i] ) return 1;
-//	}
-//
-//	for(uint8_t i = 0; i < length; i++ )
-//	{
-//		mtProject.instrument[SI->selectedSlot + i].sample.type = mtSampleTypeWavetable;
-//	}
-//	SI->sampleType = mtSampleTypeWavetable;
-//	SI->SelectFile();
-//
-//	return 1;
-//}
 
 static uint8_t functDelete(uint8_t state)
 {
@@ -1035,7 +1006,7 @@ void cSampleImporter::listOnlyFolderNames(char* path)
 //	}
 
 	bool notSorted = 1;
-	char strBuff[40];
+	//char strBuff[40];
 	while (notSorted)
 	{
 		notSorted = 0;
@@ -1060,16 +1031,8 @@ void cSampleImporter::listOnlyFolderNames(char* path)
 		}
 	}
 
-//	if (allFoldersNum == 0 && dirLevel != 0) // /.. na poczatku jak nie znajdzie zadnego pliku
-//	{
-//		allFoldersNum =1;
-//	}
-
 	locationExplorerCount += allFoldersNum;
-//	for(uint8_t i = 0; i < locationExplorerCount; i++)
-//	{
-//		explorerNames[i] = &locationExplorerList[i][0];
-//	}
+
 }
 
 
@@ -1265,11 +1228,6 @@ void cSampleImporter::listAllFoldersFirst()
 	{
 		isBusy = 1; // processDirFileSizes() powinna zdjac flage tutaj ustawiona
 		locationExplorerCount=0;
-
-//		for(int i=0;i<list_length_max;i++)
-//		{
-//			explorerNames[i]=NULL;
-//		}
 
 		openingInProgress = 1;
 
@@ -1565,7 +1523,7 @@ void cSampleImporter::calculateCopyingProgress()
 //==============================================================================================
 void cSampleImporter::playSdFile()
 {
-	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
+	//if(currentCopyStatusFlag || currentLoadStatusFlag) return;
 	if(!isWavFile(explorerNames[selectedFile])) return;
 
 	char file_path[255];
@@ -1936,7 +1894,7 @@ void cSampleImporter::handleSequenceCopyingLoading()
 	{
 		if(currSelectPlace==1)
 		{
-			fileManager.autoSaveWorkspace(1);
+			//fileManager.autoSaveWorkspace(1);
 		}
 
 		//listAllFoldersFirst();//?
@@ -2044,29 +2002,4 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	return 1;
 }
 
-static uint8_t functSdCard(uint8_t state)
-{
-	if(state)
-	{
-		SI->start(0);
-	}
-	else
-	{
-		SI->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-		SI->FM->clearAllPots();
-		SI->FM->clearAllPads();
 
-		SI->FM->clearButton(interfaceButtonLeft);
-		SI->FM->clearButton(interfaceButtonRight);
-		SI->FM->clearButton(interfaceButtonUp);
-		SI->FM->clearButton(interfaceButtonDown);
-		SI->FM->clearButton(interfaceButtonShift);
-		SI->FM->clearButton(interfaceButtonCopy);
-
-		SI->FM->setSdDetection(functSdCard);
-
-		SI->deactivateGui();
-	}
-
-	return 1;
-}

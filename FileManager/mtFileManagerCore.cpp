@@ -30,7 +30,7 @@ void FileManager::update()
 	samplesImporter.update();
 	samplesCopyier.update();
 
-	//autoSaveWorkspace(0);
+	autoSaveWorkspace(0);
 
 //******************************************************************************************************
 // SAMPLES IMPORTER - kopiuje pliki do projektu
@@ -397,10 +397,11 @@ void FileManager::formatSDCard()
 
 void FileManager::delayAutoSave(uint16_t ms)
 {
+	uint32_t temp_time = 10000-ms;
 
-	configChangedRefresh = 10000-ms;
-	instrumentRefresh = 10000-ms;
-	patternRefresh = 10000-ms;
+	if(configChangedRefresh > temp_time) configChangedRefresh = temp_time;
+	if(instrumentRefresh > temp_time) instrumentRefresh = temp_time;
+	if(patternRefresh > temp_time) patternRefresh = temp_time;
 
 }
 
@@ -425,27 +426,27 @@ void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 		}
 	}
 
-	if((instrumentRefresh > 10000) || forcedWorkspaceSave)
-	{
-		instrumentRefresh = 0;
-
-		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
-		{
-			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
-			{
-				if(instrumentIsChangedFlag[i] == 1 && sequencer.isStop())
-				{
-					debugLog.addLine("instrument autosave: ");
-					sd_time_test = 0;
-
-					saveInstrument(i);
-
-					debugLog.addValue(sd_time_test);
-					//debugLog.forceRefresh();
-				}
-			}
-		}
-	}
+//	if((instrumentRefresh > 10000) || forcedWorkspaceSave)
+//	{
+//		instrumentRefresh = 0;
+//
+//		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
+//		{
+//			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
+//			{
+//				if(instrumentIsChangedFlag[i] == 1 && sequencer.isStop())
+//				{
+//					debugLog.addLine("instrument autosave: ");
+//					sd_time_test = 0;
+//
+//					saveInstrument(i);
+//
+//					debugLog.addValue(sd_time_test);
+//					//debugLog.forceRefresh();
+//				}
+//			}
+//		}
+//	}
 
 	if(patternRefresh > 10000 || forcedWorkspaceSave)
 	{

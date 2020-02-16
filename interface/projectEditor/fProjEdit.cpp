@@ -1131,7 +1131,7 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 		}
 	}
 
-	char strBuff[40];
+//	char strBuff[40];
 
 	for (uint8_t i = 0; i < (foundProjectsCount/2); i++)
 	{
@@ -1145,10 +1145,6 @@ void cProjectEditor::listOnlyFolderNames(const char* folder)
 
 	locationFilesCount = foundProjectsCount;
 
-//	for(uint8_t i = 0; i < locationFilesCount; i++)
-//	{
-//		filesNames[i] = filesNames[i];
-//	}
 
 }
 

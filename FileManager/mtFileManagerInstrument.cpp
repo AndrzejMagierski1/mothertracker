@@ -96,7 +96,6 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 	setInstrumentChangeFlag(instrumentIndex);
 	//autoSaveWorkspace(1);
 
-	//setInstrumentChangeFlag(instrumentIndex);
 
 	return 1;
 }

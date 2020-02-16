@@ -120,13 +120,15 @@ void MTPStorage_SD::ConstructFilename(int i, char* out)
 
 void MTPStorage_SD::OpenFileByIndex(uint32_t i, uint8_t mode = O_RDONLY)
 {
-	if (open_file_ == i && mode_ == mode)
-		return;
+	if (open_file_ == i && mode_ == mode) return;
+
 	char filename[256];
 	ConstructFilename(i, filename);
 	mtp_lock_storage(true);
+
 	f_.close();
 	f_ = SD.open(filename, mode);
+
 	open_file_ = i;
 	mode_ = mode;
 	mtp_lock_storage(false);
@@ -138,8 +140,8 @@ void MTPStorage_SD::OpenFileByIndex(uint32_t i, uint8_t mode = O_RDONLY)
 
 void MTPStorage_SD::ScanDir(uint32_t i)
 {
-	/*
-	Record record = ReadIndexRecord(i);
+
+/*	Record record = ReadIndexRecord(i);
 	if (record.isdir && !record.scanned)
 	{
 		OpenFileByIndex(i, O_RDONLY);
@@ -173,8 +175,8 @@ void MTPStorage_SD::ScanDir(uint32_t i)
 		record.scanned = true;
 		record.child = sibling;
 		WriteIndexRecord(i, record);
-	}
-	*/
+	}*/
+
 }
 
 void MTPStorage_SD::ScanAll()

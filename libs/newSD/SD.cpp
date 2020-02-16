@@ -126,6 +126,8 @@ void reportError(const char* text, uint16_t value)
 	}
 	debugLog.addLine(errorText);
 
+	debugLog.forceRefresh();
+
 #endif
 }
 
@@ -334,8 +336,11 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 {
 	for(uint8_t i = 0; i<list_length; i++) // wyczyszczenie uzytej wczesniej pamieci
 	{
-		delete list[i];
-		list[i] = nullptr;
+		if(list[i] != nullptr)
+		{
+			delete list[i];
+			list[i] = nullptr;
+		}
 	}
 
 	uint8_t n = start_line;
@@ -375,76 +380,80 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 			continue;
 		}
 
-        if (fno.fattrib & AM_DIR && chooseFilter != 2) // folder
+        if (chooseFilter == 1) // folder
         {
-        	uint8_t len = strlen(fno.fname)+2;
-        	list[n] = new char[len];
-
-        	strcpy(list[n], "/");
-        	strcat(list[n], fno.fname);
-
-        	memory_used += len;
+        	if(fno.fattrib & AM_DIR == 0) continue;
         }
-        else if(chooseFilter == 1) continue;
-        else // plik
-        {
-        	if(chooseFilter == 2) // filtrowanie .wav
-        	{
-	        	uint8_t wav_len = strlen(fno.fname);
-	        	if(wav_len<5) continue;
+        else if(chooseFilter == 2) // filtrowanie .wav
+		{
+			uint8_t wav_len = strlen(fno.fname);
+			if(wav_len<5) continue;
 
-				if(((fno.fname[wav_len - 1] != 'V') && (fno.fname[wav_len - 1] != 'v'))
-				|| ((fno.fname[wav_len - 2] != 'A') && (fno.fname[wav_len - 2] != 'a'))
-				|| ((fno.fname[wav_len - 3] != 'W') && (fno.fname[wav_len - 3] != 'w'))
-				||  (fno.fname[wav_len - 4] != '.')) continue;
+			if(((fno.fname[wav_len - 1] != 'V') && (fno.fname[wav_len - 1] != 'v'))
+			|| ((fno.fname[wav_len - 2] != 'A') && (fno.fname[wav_len - 2] != 'a'))
+			|| ((fno.fname[wav_len - 3] != 'W') && (fno.fname[wav_len - 3] != 'w'))
+			||  (fno.fname[wav_len - 4] != '.')) continue;
 
-				if(strlen((dir_path)+wav_len+2) > 255) continue;
-	        	strcpy(wav_file, dir_path);
-	        	strcat(wav_file, "/");
-	        	strcat(wav_file, fno.fname);
+			if(strlen((dir_path)+wav_len+2) > 255) continue;
+			strcpy(wav_file, dir_path);
+			strcat(wav_file, "/");
+			strcat(wav_file, fno.fname);
 
-        		if(local_file.open(wav_file))
-        		{
-					strWavFileHeader localHeader;
-					readHeader(&localHeader, &local_file);
-					local_file.close();
+			if(local_file.open(wav_file))
+			{
+				strWavFileHeader localHeader;
+				readHeader(&localHeader, &local_file);
+				local_file.close();
 
-					if ((localHeader.sampleRate != 44100)
-					|| ((localHeader.AudioFormat != 1) && (localHeader.AudioFormat != 3))
-					|| ((localHeader.bitsPerSample != 16) && (localHeader.bitsPerSample != 24) && (localHeader.bitsPerSample != 32)))
-						continue;
-				}
-        		else continue;
-        	}
-        	if(chooseFilter == 3) // filtrowanie ptf
-        	{
-	        	uint8_t wav_len = strlen(fno.fname);
-	        	if(wav_len<5) continue;
+				if ((localHeader.sampleRate != 44100)
+				|| ((localHeader.AudioFormat != 1) && (localHeader.AudioFormat != 3))
+				|| ((localHeader.bitsPerSample != 16) && (localHeader.bitsPerSample != 24) && (localHeader.bitsPerSample != 32)))
+					continue;
+			}
+			else continue;
+		}
+        else if(chooseFilter == 3) // filtrowanie ptf
+		{
+			uint8_t wav_len = strlen(fno.fname);
+			if(wav_len<5) continue;
 
-				if(fno.fname[wav_len-1] == 'f' && fno.fname[wav_len-2] == 't' && fno.fname[wav_len-3] == 'p' && fno.fname[wav_len-4] == '.')
+			if(fno.fname[wav_len-1] == 'f' && fno.fname[wav_len-2] == 't' && fno.fname[wav_len-3] == 'p' && fno.fname[wav_len-4] == '.')
+			{
+				if(fno.fname[0] == 'P' && fno.fname[1] == 'o' && fno.fname[2] == 'l' && fno.fname[3] == 'y' && fno.fname[4] == 'e' && fno.fname[5] == 'n' && fno.fname[6] == 'd')
 				{
-					if(fno.fname[0] == 'P' && fno.fname[1] == 'o' && fno.fname[2] == 'l' && fno.fname[3] == 'y' && fno.fname[4] == 'e' && fno.fname[5] == 'n' && fno.fname[6] == 'd')
-					{
 
-					}
-					else continue;
-				}
-				else if(fno.fname[wav_len-1] == 'x' && fno.fname[wav_len-2] == 'e' && fno.fname[wav_len-3] == 'h' && fno.fname[wav_len-4] == '.')
-				{
-					if(fno.fname[0] == 'm' && fno.fname[1] == 't')
-					{
-
-					}
-					else continue;
 				}
 				else continue;
-        	}
+			}
+			else if(fno.fname[wav_len-1] == 'x' && fno.fname[wav_len-2] == 'e' && fno.fname[wav_len-3] == 'h' && fno.fname[wav_len-4] == '.')
+			{
+				if(fno.fname[0] == 'm' && fno.fname[1] == 't')
+				{
 
-        	uint8_t len = strlen(fno.fname)+1;
-        	list[n] = new char[len];
-        	strcpy(list[n], fno.fname);
-        	memory_used += len;
-        }
+				}
+				else continue;
+			}
+			else continue;
+		}
+
+		uint16_t len = strlen(fno.fname);
+
+		if (fno.fattrib & AM_DIR)	len+=2;
+		else 						len+=1;
+
+		list[n] = new char[len];
+
+		if (fno.fattrib & AM_DIR) // folder
+		{
+			strcpy(list[n], "/");
+			strcat(list[n], fno.fname);
+		}
+		else
+		{
+			strcpy(list[n], fno.fname);
+		}
+
+		memory_used += len;
 
         n++;
 	}

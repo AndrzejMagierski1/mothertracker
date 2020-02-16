@@ -335,7 +335,7 @@ public:
 	}
 */
 
-	// filter: 0-all, 1-folders only, 2-supported wav only // always ignore hidden files // max_used_memory must be higher than 255
+	// filter: 0-all, 1-folders only, 2-supported wav only, 3-ptf // always ignore hidden files // max_used_memory must be higher than 255
 	uint16_t createFilesList(uint8_t start_line, char** list, uint8_t list_length, uint16_t max_used_memory, uint8_t chooseFilter = 0);
 
 

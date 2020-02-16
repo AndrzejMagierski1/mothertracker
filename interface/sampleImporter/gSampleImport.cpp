@@ -261,6 +261,8 @@ void cSampleImporter::showDefaultScreen()
 	AddEnterOrRename();
 	AddNextControl();
 
+	activateLabelsBorder();
+
 	display.synchronizeRefresh();
 
 }

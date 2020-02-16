@@ -29,7 +29,7 @@ enum enDebugLogState
 const uint8_t  fifoSize = 10; //max 21-22
 const uint8_t  logLinesMaxStart = 1; //max 21-22
 const uint16_t  logLineTimeMax = 5000;
-
+const uint16_t  logLineLengthMax = 50;
 //#########################################################################
 //							KLASY
 //#########################################################################
@@ -40,10 +40,8 @@ class cDebugLog
 
 public:
 	//  usable
-	void addLine(char text[]);
-	void addLine(const char text[]) { addLine((char*)text); }
-	void addText(char text[]);
-	void addText(const char text[]) { addText((char*)text); }
+	void addLine(const char text[]);
+	void addText(const char text[]);
 	void addValue(int value);
 
 	void forceRefresh();
@@ -71,7 +69,7 @@ private:
 	struct strLogLine
 	{
 		uint32_t time = 0;
-		char* text;
+		char text[logLineLengthMax];
 	} logLine[fifoSize];
 
 	strFont* logFont = (strFont*)&fonts[0];

@@ -230,8 +230,6 @@ void cPatternEditor::setDefaultScreenFunct()
 	//FM->setButtonObj(interfaceButton7, buttonPress, functUndo);
 
 
-
-
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
 
@@ -2015,7 +2013,7 @@ static  uint8_t functPlayAction()
 		//PTE->trackerPattern.actualStep = 0;
 		PTE->refreshPattern();
 
-		fileManager.autoSaveWorkspace(1);
+		//fileManager.autoSaveWorkspace(1);
 	}
 
 	return 1;

@@ -65,7 +65,7 @@ void cDebugLog::forceRefresh()
 }
 
 
-void cDebugLog::addLine(char text[])
+void cDebugLog::addLine(const char text[])
 {
 	if(!mtConfig.debug.debugLogState) return;
 
@@ -84,15 +84,10 @@ void cDebugLog::addLine(char text[])
 		if(logLinesCount >= logLinesMax) return;
 	}
 
-	uint16_t strLength = strlen(text) +1;
+	//uint16_t strLength = strlen(text);
+	strncpy(logLine[logTop].text, text, logLineLengthMax-1);
 
-	logLine[logTop].text = new char[strLength];
-	if(logLine[logTop].text == nullptr) return;
-
-	memcpy(logLine[logTop].text, text, strLength);
-
-	uint32_t actualMillis = millis();
-	logLine[logTop].time = actualMillis;
+	logLine[logTop].time = millis();
 
 	logTop++;
 	if(logTop >= fifoSize) logTop = 0;
@@ -100,28 +95,23 @@ void cDebugLog::addLine(char text[])
 	if(display.isIdle()) display.forceAppedStage();
 }
 
-void cDebugLog::addText(char text[])
+void cDebugLog::addText(const char text[])
 {
 	if(!mtConfig.debug.debugLogState) return;
 
-	if(logBott == logTop)return;
+	if(logBott == logTop) return;
 
 	uint8_t addIndex = 0;
 	if(logTop == 0) addIndex = logLinesMax-1;
 	else addIndex = logTop-1;
 
-	uint16_t addStrLength = strlen(text) +1;
 	uint16_t oldStrLength = strlen(logLine[addIndex].text);
+	int16_t addStrLength = logLineLengthMax-oldStrLength;
 
-	char* newNext = new char[addStrLength+oldStrLength];
-	if(newNext == nullptr) return;
-
-	memcpy(newNext, logLine[addIndex].text, oldStrLength);
-	memcpy(newNext+oldStrLength, text, addStrLength);
-
-	delete[] logLine[addIndex].text;
-
-	logLine[addIndex].text = newNext;
+	if(addStrLength > 0)
+	{
+		strncat(logLine[addIndex].text, text, addStrLength-1);
+	}
 
 	if(display.isIdle()) display.forceAppedStage();
 }
@@ -213,19 +203,20 @@ void cDebugLog::update()
 	else					logLinesCount = logTop-logBott;
 
 
-	for(uint8_t i = 0; i<logLinesCount; i++)
-	{
-		uint32_t actualMillis = millis();
+	uint32_t actualMillis = millis();
 
+	//for(uint8_t i = 0; i<logLinesCount; i++)
+	//{
 		if(logLine[logBott].time + logLineTimeMax < actualMillis)
 		{
 			removeBottLine();
 
 			if(display.isIdle()) display.forceAppedStage();
 		}
-
 		if(logBott == logTop) return;
-	}
+	//}
+
+
 }
 
 
@@ -238,8 +229,6 @@ uint8_t cDebugLog::toggleState()
 void cDebugLog::removeBottLine()
 {
 	if(logBott == logTop) return;
-
-	delete[] logLine[logBott].text;
 
 	logBott++;
 	if(logBott >= fifoSize) logBott = 0;
