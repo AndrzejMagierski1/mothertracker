@@ -103,8 +103,9 @@ bool SdCard::init()
 
 void SdCard::stop()
 {
-    f_mount(0, driverNumberBuffer, 0);
+    f_mount(0, driverNumberBuffer, 1);
     memset(&g_fileSystem, 0, sizeof(g_fileSystem));
+    initSDHC();
 
 }
 

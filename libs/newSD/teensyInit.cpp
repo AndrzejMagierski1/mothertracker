@@ -1,7 +1,7 @@
 
 #include "kinetis.h"
 
-
+#include "core_pins.h"
 
 void enableGPIO(bool enable) {
   const uint32_t PORT_CLK = PORT_PCR_MUX(4) | PORT_PCR_DSE;
@@ -70,6 +70,7 @@ void setSdclk(uint32_t kHzMax)
 
 void initSDHC()
 {
+
 #ifdef HAS_KINETIS_MPU
 	// Allow SDHC Bus Master access.
 	MPU_RGDAAC0 |= 0x0C000000;
