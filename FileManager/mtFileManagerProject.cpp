@@ -34,7 +34,7 @@ void FileManager::refreshLoadingSamples()
 			char workspacePatch[PATCH_SIZE];
 
 			sprintf(currentPatch, "%s/samples/instr%02d.wav", currentProjectPatch, loadHandle.currSampleIdx);
-			sprintf(workspacePatch," Workspace/samples/instr%02d.wav", loadHandle.currSampleIdx);
+			sprintf(workspacePatch,"Workspace/samples/instr%02d.wav", loadHandle.currSampleIdx);
 
 			samplesCopyier.start(workspacePatch,currentPatch);
 		}
