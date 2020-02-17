@@ -1,5 +1,6 @@
 
 #include "wavHeaderReader.h"
+#include "SD.h"
 #include <string.h>
 
 void readHeader(strWavFileHeader* header, SdFile * wavfile)
@@ -73,6 +74,9 @@ void readHeader(strWavFileHeader* header, SdFile * wavfile)
 		return;
 	}
 }
+
+
+/*
 
 void readHeader(strWavFileHeader* header, ExFatFile * wavfile)
 {
@@ -217,4 +221,5 @@ void readHeader(strWavFileHeader* header, FatFile * wavfile)
 		return;
 	}
 }
+*/
 

@@ -201,7 +201,7 @@ void initHardware()
 
 	//display.turnOn();
 
-	Serial.println(beginTimer);
+	//Serial.println(beginTimer);
 }
 
 void hidSendButtonState(uint16_t button, uint16_t state)
@@ -354,3 +354,5 @@ void TactSwitchRead()
 		onPowerButtonChange(0);
 	}
 }
+
+

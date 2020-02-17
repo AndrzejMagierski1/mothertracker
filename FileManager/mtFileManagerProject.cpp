@@ -601,7 +601,7 @@ void FileManager::refreshDeleting()
 {
 	if(deleteHandle.isDone == 0)
 	{
-		recursiveRemoveProject(&deleteHandle.roots[deleteHandle.lastRoot]);
+		recursiveRemoveProject(&deleteHandle);
 	}
 	else
 	{
@@ -609,63 +609,53 @@ void FileManager::refreshDeleting()
 	}
 }
 
-void FileManager::recursiveRemoveProject(SdFile *source)
+void FileManager::recursiveRemoveProject(delete_handle_t *delete_handle) // todo
 {
-	SdFile temp;
-
-	temp.openNext(source);
-
-	if(temp)
+	uint8_t isDir;
+	//char fileName[32];
+	char path[255];
+	if(delete_handle->dirTree[delete_handle->actualTreeLevel].readItem(delete_handle->dirName, &isDir))
 	{
-		char name[60];
-		temp.getName(name, 60);
+		strcpy(path,delete_handle->deleteSourcePath);
 
-		if(temp.isDir())
+		for(uint8_t i = 0; i<delete_handle->actualTreeLevel; i++)
 		{
-			deleteHandle.addedLength[deleteHandle.lastRoot] = strlen(name);
-			deleteHandle.addedLength[deleteHandle.lastRoot] += 1; /* for slash*/
+			strcat(path,"/");
+			strcat(path,delete_handle->dirName);
+		}
 
-			if(deleteHandle.lastRoot < 9)
+		if(isDir)
+		{
+			if(delete_handle->actualTreeLevel < 9)
 			{
-				deleteHandle.lastRoot++;
+				delete_handle->actualTreeLevel++;
+				deleteHandle.dirTree[deleteHandle.actualTreeLevel].open(path);
 			}
 			else
 			{
-				deleteHandle.isDone = 1;/* abort deleting here as we dont have more space for next subdir*/
+				deleteHandle.isDone = 1; // error - za duzo podpoziomow do skasowwania
 			}
-
-			strcat(deleteHandle.deleteSourcePath, "/");
-			strcat(deleteHandle.deleteSourcePath, name);
-
-			deleteHandle.roots[deleteHandle.lastRoot] = SD.open(deleteHandle.deleteSourcePath);
 		}
 		else
 		{
-			char tempPath[255];
-			strcpy(tempPath, deleteHandle.deleteSourcePath);
-			strcat(tempPath, "/");
-			strcat(tempPath, name);
-
-			SD.remove(tempPath);
+			SD.remove(path);
 		}
 	}
 	else
 	{
-		SD.rmdir(deleteHandle.deleteSourcePath);
-
-		if(deleteHandle.lastRoot)
+		if(delete_handle->actualTreeLevel > 0)
 		{
-			deleteHandle.lastRoot--;
-			/*not more files in this subdir we go back */
-			uint8_t currPathLength = strlen(deleteHandle.deleteSourcePath);
-			memset(&deleteHandle.deleteSourcePath[currPathLength - deleteHandle.addedLength[deleteHandle.lastRoot]], 0 , deleteHandle.addedLength[deleteHandle.lastRoot]);
+			delete_handle->actualTreeLevel--;
 		}
 		else
 		{
+
+
 			deleteHandle.isDone = 1;
-			SD.rmdir(deleteHandle.deleteSourcePath);
 		}
 	}
+
+
 }
 
 void FileManager::deleteProjectStart(const char *projectName)
@@ -675,11 +665,14 @@ void FileManager::deleteProjectStart(const char *projectName)
 	deletingInProgress = 1;
 
 	sprintf(deleteHandle.deleteSourcePath, "Projects/%s", projectName);
-	deleteHandle.roots[deleteHandle.lastRoot] = SD.open(deleteHandle.deleteSourcePath);
 
-	if(deleteHandle.roots[deleteHandle.lastRoot])
+	deleteHandle.dirTree[deleteHandle.actualTreeLevel].open(deleteHandle.deleteSourcePath);
+
+	//deleteHandle.roots[deleteHandle.lastRoot] =
+
+	if(deleteHandle.dirTree[deleteHandle.actualTreeLevel])
 	{
-		recursiveRemoveProject(&deleteHandle.roots[deleteHandle.lastRoot]);
+		recursiveRemoveProject(&deleteHandle);
 	}
 	else
 	{

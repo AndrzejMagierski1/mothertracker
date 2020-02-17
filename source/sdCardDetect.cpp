@@ -38,7 +38,7 @@ void SDCardDetector::update(uint8_t forcedUpdate)
 	{
 		if(isInitialized == 0 && currentState == cardInserted)
 		{
-			if(SD.begin(SdioConfig(DMA_SDIO)))
+			if(SD.init())
 			{
 				isInitialized = 1;
 				if(onChangeSD != nullptr) onChangeSD(1);
@@ -52,6 +52,7 @@ void SDCardDetector::update(uint8_t forcedUpdate)
 	}
 	else if(currentState == cardEjected)
 	{
+		SD.stop();
 		lastState = cardEjected;
 		isInitialized = 0;
 		if(onChangeSD != nullptr) onChangeSD(0);

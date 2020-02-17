@@ -814,7 +814,7 @@ void cTracker::rowNumbers()
 	int16_t row = tracks->actualStep-6;
 
 	API_COLOR(0x555555);
-	API_BITMAP_HANDLE(fonts[0].handle);
+	API_BITMAP_HANDLE(fonts[4].handle);
 	API_BEGIN(BITMAPS);
 
 	uint8_t showRigt = !((tracks->popupMode & 4) | (tracks->popupMode & 2));
@@ -826,8 +826,8 @@ void cTracker::rowNumbers()
 			row++;
 			continue;
 		}
-		Number2Bitmaps(1, (i*28)+15, 8, 18, row);
-		if(showRigt) Number2Bitmaps((799-25), posY+(i*28)+15, 8, 18, row); // nie wyswietla prawego jesli popup go zaslania
+		Number2Bitmaps(4, (i*28)+12, 7, 12, row);
+		if(showRigt) Number2Bitmaps((799-23), posY+(i*28)+12, 7, 12, row); // nie wyswietla prawego jesli popup go zaslania
 		row++;
 	}
 
@@ -1056,7 +1056,7 @@ void cTracker::fxes2()
 //===============================================================================================================================
 //===============================================================================================================================
 //===============================================================================================================================
-inline void draw_char(uint16_t x, uint16_t y, uint8_t charr)
+static inline void draw_char(uint16_t x, uint16_t y, uint8_t charr)
 {
 	if(x > 511 || y > 511)
 	{
@@ -1065,7 +1065,7 @@ inline void draw_char(uint16_t x, uint16_t y, uint8_t charr)
 	}
 	else
 	{
-		API_VERTEX2II(x,y,fonts[0].handle,charr);
+		API_VERTEX2II(x,y,fonts[4].handle,charr);
 	}
 }
 
@@ -1121,17 +1121,17 @@ void Number2Bitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, int16_
 	}
 
 
-	digit =  number/10000;
-	number = number%10000;
-	if(digit > 0) {draw_char(x,y,digit+48); x+=font_x; flag = 1;}
+//	digit =  number/10000;
+//	number = number%10000;
+//	if(digit > 0) {draw_char(x,y,digit+48); x+=font_x; flag = 1;}
 
-	digit =  number/1000;
-	number = number%1000;
-	if(digit > 0 || flag) {draw_char(x,y,digit+48); x+=font_x; flag = 1;}
+//	digit =  number/1000;
+//	number = number%1000;
+//	if(digit > 0 || flag) {draw_char(x,y,digit+48); x+=font_x; flag = 1;}
 
 	digit =  number/100;
 	number = number%100;
-	if(digit > 0 || flag) {draw_char(x,y,digit+48); x+=font_x; flag = 1;}
+	if(digit > 0 || flag) {draw_char(x,y,digit+48); x+=font_x-1; flag = 1;}//skrocony odstep po 1
 
 	digit =  number/10;
 	number = number%10;

@@ -16,6 +16,8 @@
 #include "RobotoMono-Bold_17_L4.h"
 #include "RobotoMono-Light_14_L4.h"
 #include "RobotoMono-Light_17_L4.h"
+#include "RobotoMono-Regular_10_L4.h"
+#include "RobotoMono-Regular_12_L4.h"
 
 // OBRAZY
 #include "poly_logo_160x172_L8.h"
@@ -37,6 +39,7 @@ const strFont fonts[displayFontCount] =
 		{Roboto_Mono_Regular_14_L4,	sizeof(Roboto_Mono_Regular_14_L4),	12,	21000,	21148,	10,	19,	L4,	5,},
 //		{Roboto_Mono_Bold_14_L4,	sizeof(Roboto_Mono_Bold_14_L4),		13,	22000,	22148,	10,	18,	L4,	5,},
 		{Roboto_Mono_Bold_17_L4,	sizeof(Roboto_Mono_Bold_17_L4),		13,	31000,	31148,	12,	22,	L4,	6,},
+		{Roboto_Mono_Regular_12_L4,	sizeof(Roboto_Mono_Regular_12_L4),	14,	43700,	43848,	8,	16,	L4,	4,},
 };
 // handle nie moze byc wikesze niz 14
 

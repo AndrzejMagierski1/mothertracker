@@ -18,7 +18,7 @@
 #undef MAX_SELECT_NODES
 #define MAX_SELECT_NODES	7
 
-const uint8_t firmware_list_max=10;
+const uint8_t firmware_list_max=100;
 const uint8_t firmware_name_length=32;
 
 
@@ -91,7 +91,7 @@ public:
 	//
 	uint8_t flashingState = 0;
 	uint8_t firmwareFoundNum;
-	SdFile sdLocation;
+	SdDir sdLocation;
 	hControl popoutWindowLabel;
 
 
@@ -111,7 +111,7 @@ public:
 
 
 	char* ptrfirmwareNamesList[firmware_list_max];
-	char firmwareNamesList[firmware_list_max][firmware_name_length];
+	//char firmwareNamesList[firmware_list_max][firmware_name_length];
 	void listAllFirmwares();
 	void showFlashingWarning();
 	void updateFirmware();

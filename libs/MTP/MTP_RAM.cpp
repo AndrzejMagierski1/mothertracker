@@ -2,6 +2,8 @@
 #include "SD.h"
 #include "MTP.h"
 
+#include <string.h>
+
 #if USE_RAM
 
 extern uint8_t sdram_mtpIndex[8192];

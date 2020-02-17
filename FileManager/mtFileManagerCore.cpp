@@ -397,10 +397,11 @@ void FileManager::formatSDCard()
 
 void FileManager::delayAutoSave(uint16_t ms)
 {
+	uint32_t temp_time = 10000-ms;
 
-	configChangedRefresh = 10000-ms;
-	instrumentRefresh = 10000-ms;
-	patternRefresh = 10000-ms;
+	if(configChangedRefresh > temp_time) configChangedRefresh = temp_time;
+	if(instrumentRefresh > temp_time) instrumentRefresh = temp_time;
+	if(patternRefresh > temp_time) patternRefresh = temp_time;
 
 }
 

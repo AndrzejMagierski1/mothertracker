@@ -50,12 +50,10 @@ bool AudioPlaySdWavFloat::play(const char *filename)
 #else
 	AudioStartUsingSPI();
 #endif
-	__disable_irq()
-	;
+	//__disable_irq();
 	currentPosition = 0;
 	wavfile = SD.open(filename);
-	__enable_irq()
-	;
+	//__enable_irq();
 	if (!wavfile)
 	{
 #if defined(HAS_KINETIS_SDHC)

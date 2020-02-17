@@ -647,57 +647,68 @@ void cConfigEditor::updateFirmware()
 void cConfigEditor::listAllFirmwares()
 {
 	uint8_t locationFileCount=0;
-	uint8_t validFilesCount=0;
+	//uint8_t validFilesCount=0;
 
 	sdLocation.close();
-	if(sdLocation.open("/firmware", O_READ))
+	if(sdLocation.open("/Firmware", O_READ))
 	{
-		locationFileCount = sdLocation.createFilesListShort(0,&firmwareNamesList[0][0], firmware_list_max,firmware_name_length);
+		locationFileCount = sdLocation.createFilesList(0, ptrfirmwareNamesList, firmware_list_max, 4000, 3);
 
 		sdLocation.close();
 
-		if(locationFileCount > firmware_list_max)
-		{
-			locationFileCount = firmware_list_max;
-		}
+
+//		if(locationFileCount > firmware_list_max)
+//		{
+//			locationFileCount = firmware_list_max;
+//		}
+
+//		for(uint8_t i = 0; i < locationFileCount; i++)
+//		{
+//			if(!checkIfFirmwareValid(ptrfirmwareNamesList[i]))
+//			{
+//				std::swap(ptrfirmwareNamesList[i]);
+//
+//				strncpy(&firmwareNamesList[validFilesCount][0], &firmwareNamesList[i][0], firmware_name_length);
+//				ptrfirmwareNamesList[validFilesCount] = &firmwareNamesList[validFilesCount][0];
+//				validFilesCount++;
+//			}
+//		}
+//
+//		firmwareFoundNum = locationFileCount;
 
 		// sortowanie
 
 		bool notSorted = 1;
-		char strBuff[40];
+//		char strBuff[40];
 		while (notSorted)
 		{
 			notSorted = 0;
 			for (uint8_t a = 0; a < locationFileCount - 1; a++)
 			{
-				if (strcasecmp(firmwareNamesList[a],
-								firmwareNamesList[a + 1]) > 0)
+				if (strcasecmp(ptrfirmwareNamesList[a],
+							   ptrfirmwareNamesList[a + 1]) > 0)
 				{
-					strcpy(strBuff,
-							firmwareNamesList[a]);
+					std::swap(ptrfirmwareNamesList[a], ptrfirmwareNamesList[a+1]);
 
-					strcpy(firmwareNamesList[a],
-							firmwareNamesList[a + 1]);
-
-					strcpy(firmwareNamesList[a + 1],
-							strBuff);
+//					strcpy(strBuff,
+//							firmwareNamesList[a]);
+//
+//					strcpy(firmwareNamesList[a],
+//							firmwareNamesList[a + 1]);
+//
+//					strcpy(firmwareNamesList[a + 1],
+//							strBuff);
 					notSorted = 1;
 				}
 			}
 		}
 		///
 
-		for(uint8_t i = 0; i < locationFileCount; i++)
-		{
-			if(checkIfFirmwareValid(&firmwareNamesList[i][0]))
-			{
-				strncpy(&firmwareNamesList[validFilesCount][0], &firmwareNamesList[i][0], firmware_name_length);
-				ptrfirmwareNamesList[validFilesCount] = &firmwareNamesList[validFilesCount][0];
-				validFilesCount++;
-			}
-		}
 
-		firmwareFoundNum = validFilesCount;
+
+
+		firmwareFoundNum = locationFileCount;
+
 	}
 	else
 	{
@@ -742,7 +753,7 @@ static uint8_t prepareAndFlash()
 	SdFile fwinfo;
 
 	fwinfo = SD.open("/Firmware/_fwinfo", FILE_WRITE);
-	fwinfo.write(&CE->firmwareNamesList[CE->selectedConfigListPosition][0], strlen(&CE->firmwareNamesList[CE->selectedConfigListPosition][0]));
+	fwinfo.write(CE->ptrfirmwareNamesList[CE->selectedConfigListPosition], strlen(CE->ptrfirmwareNamesList[CE->selectedConfigListPosition]));
 	fwinfo.close();
 
 	pinMode(BOOTLOADER_PIN,OUTPUT);

@@ -69,6 +69,12 @@
 									<listOptionValue builtIn="false" value="../arkanoid"/>
 									<listOptionValue builtIn="false" value="../Exporter"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
+									<listOptionValue builtIn="false" value="../libs/newSD"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/sdmmc/inc"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/drivers"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 									<listOptionValue builtIn="false" value="../AudioEngine"/>
 								</option>
 								<option id="com.crt.advproject.cpp.hdrlib.53466571" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>
@@ -118,12 +124,17 @@
 									<listOptionValue builtIn="false" value="../libs/BlinkLed"/>
 									<listOptionValue builtIn="false" value="../libs/FastCRC"/>
 									<listOptionValue builtIn="false" value="../interface"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mothertracker/libs/EEPROM}&quot;"/>
 									<listOptionValue builtIn="false" value="../libs/Snooze"/>
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../Exporter"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
+									<listOptionValue builtIn="false" value="../libs/newSD"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/sdmmc/inc"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/drivers"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 									<listOptionValue builtIn="false" value="../AudioEngine"/>
 								</option>
 								<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.637294101" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.general" valueType="enumerated"/>
@@ -163,6 +174,12 @@
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../Exporter"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
+									<listOptionValue builtIn="false" value="../libs/newSD"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/sdmmc/inc"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/drivers"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 									<listOptionValue builtIn="false" value="../AudioEngine"/>
 								</option>
 								<option id="com.crt.advproject.gas.arch.731726900" name="Architecture" superClass="com.crt.advproject.gas.arch" useByScannerDiscovery="false" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
@@ -174,7 +191,7 @@
 							<tool id="com.crt.advproject.link.cpp.exe.debug.1828960430" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.debug">
 								<option id="com.crt.advproject.link.cpp.thumb.1924014773" name="Thumb mode" superClass="com.crt.advproject.link.cpp.thumb" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="com.crt.advproject.link.memory.load.image.cpp.86267671" name="Plain load image" superClass="com.crt.advproject.link.memory.load.image.cpp" useByScannerDiscovery="false" value="false;" valueType="string"/>
-								<option defaultValue="com.crt.advproject.heapAndStack.mcuXpressoStyle.cpp" id="com.crt.advproject.link.memory.heapAndStack.style.cpp.1073352469" name="Heap and Stack placement" superClass="com.crt.advproject.link.memory.heapAndStack.style.cpp" useByScannerDiscovery="false" value="Default" valueType="enumerated"/>
+								<option defaultValue="com.crt.advproject.heapAndStack.mcuXpressoStyle.cpp" id="com.crt.advproject.link.memory.heapAndStack.style.cpp.1073352469" name="Heap and Stack placement" superClass="com.crt.advproject.link.memory.heapAndStack.style.cpp" useByScannerDiscovery="false" value="com.crt.advproject.heapAndStack.mcuXpressoStyle.cpp" valueType="enumerated"/>
 								<option id="com.crt.advproject.link.memory.heapAndStack.cpp.175755881" name="Heap and Stack options" superClass="com.crt.advproject.link.memory.heapAndStack.cpp" useByScannerDiscovery="false" value="&amp;Heap:Default;Post Data;Default&amp;Stack:Default;End;Default" valueType="string"/>
 								<option id="com.crt.advproject.link.memory.data.cpp.880860456" name="Global data placement" superClass="com.crt.advproject.link.memory.data.cpp" useByScannerDiscovery="false" value="Default" valueType="string"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.crt.advproject.link.memory.sections.cpp.1195667588" name="Extra linker script input sections" superClass="com.crt.advproject.link.memory.sections.cpp" useByScannerDiscovery="false" valueType="stringList"/>
@@ -250,7 +267,7 @@
 									<listOptionValue builtIn="false" value="__NEWLIB__"/>
 									<listOptionValue builtIn="false" value="__MK66FX1M0__"/>
 									<listOptionValue builtIn="false" value="F_CPU=180000000"/>
-									<listOptionValue builtIn="false" value="USB_SERIAL"/>
+									<listOptionValue builtIn="false" value="USB_MIDI"/>
 									<listOptionValue builtIn="false" value="TEENSYDUINO=142"/>
 									<listOptionValue builtIn="false" value="ARDUINO=10805"/>
 									<listOptionValue builtIn="false" value="LAYOUT_US_ENGLISH"/>
@@ -258,6 +275,8 @@
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.28324130" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../source"/>
+									<listOptionValue builtIn="false" value="../libs/radio"/>
+									<listOptionValue builtIn="false" value="../libs/MIDI"/>
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
 									<listOptionValue builtIn="false" value="../libs/Audio"/>
@@ -266,27 +285,39 @@
 									<listOptionValue builtIn="false" value="../libs/Wire"/>
 									<listOptionValue builtIn="false" value="../libs/SPI"/>
 									<listOptionValue builtIn="false" value="../libs/Audio/utility"/>
-									<listOptionValue builtIn="false" value="../libs/SD/utility"/>
 									<listOptionValue builtIn="false" value="../libs/SDRAM"/>
 									<listOptionValue builtIn="false" value="../libs/EEPROM"/>
 									<listOptionValue builtIn="false" value="../libs/FT812"/>
 									<listOptionValue builtIn="false" value="../libs/fonts"/>
 									<listOptionValue builtIn="false" value="../libs/AnalogInputs"/>
+									<listOptionValue builtIn="false" value="../libs/Encoder"/>
 									<listOptionValue builtIn="false" value="../libs/Key"/>
 									<listOptionValue builtIn="false" value="../libs/Display"/>
+									<listOptionValue builtIn="false" value="../libs/NewDisplay"/>
 									<listOptionValue builtIn="false" value="../libs/BlinkLed"/>
 									<listOptionValue builtIn="false" value="../libs/FastCRC"/>
 									<listOptionValue builtIn="false" value="../interface"/>
+									<listOptionValue builtIn="false" value="../libs/ramMonitor"/>
+									<listOptionValue builtIn="false" value="../interface/gui"/>
+									<listOptionValue builtIn="false" value="../interface/funct"/>
 									<listOptionValue builtIn="false" value="../libs/Snooze"/>
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../arkanoid"/>
+									<listOptionValue builtIn="false" value="../Exporter"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
+									<listOptionValue builtIn="false" value="../libs/newSD"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/sdmmc/inc"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/drivers"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 									<listOptionValue builtIn="false" value="../AudioEngine"/>
 								</option>
 								<option id="com.crt.advproject.cpp.arch.1277266838" name="Architecture" superClass="com.crt.advproject.cpp.arch" useByScannerDiscovery="false" value="com.crt.advproject.cpp.target.cm4" valueType="enumerated"/>
 								<option id="com.crt.advproject.cpp.hdrlib.615462902" name="Library headers" superClass="com.crt.advproject.cpp.hdrlib" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.cpp.fpu.1283789444" name="Floating point" superClass="com.crt.advproject.cpp.fpu" useByScannerDiscovery="false" value="com.crt.advproject.cpp.fpu.fpv4.hard" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.other.other.1173607034" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -felide-constructors" valueType="string"/>
 								<inputType id="com.crt.advproject.compiler.cpp.input.1826307263" superClass="com.crt.advproject.compiler.cpp.input"/>
 							</tool>
 							<tool id="com.crt.advproject.gcc.exe.release.1178515777" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.release">
@@ -297,7 +328,7 @@
 									<listOptionValue builtIn="false" value="__NEWLIB__"/>
 									<listOptionValue builtIn="false" value="__MK66FX1M0__"/>
 									<listOptionValue builtIn="false" value="F_CPU=180000000"/>
-									<listOptionValue builtIn="false" value="USB_SERIAL"/>
+									<listOptionValue builtIn="false" value="USB_MIDI"/>
 									<listOptionValue builtIn="false" value="TEENSYDUINO=141"/>
 									<listOptionValue builtIn="false" value="ARDUINO=10805"/>
 									<listOptionValue builtIn="false" value="LAYOUT_US_ENGLISH"/>
@@ -305,6 +336,8 @@
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1850366892" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../source"/>
+									<listOptionValue builtIn="false" value="../libs/radio"/>
+									<listOptionValue builtIn="false" value="../libs/MIDI"/>
 									<listOptionValue builtIn="false" value="../libs"/>
 									<listOptionValue builtIn="false" value="../teensy_core"/>
 									<listOptionValue builtIn="false" value="../libs/Audio"/>
@@ -313,7 +346,6 @@
 									<listOptionValue builtIn="false" value="../libs/Wire"/>
 									<listOptionValue builtIn="false" value="../libs/SPI"/>
 									<listOptionValue builtIn="false" value="../libs/Audio/utility"/>
-									<listOptionValue builtIn="false" value="../libs/SD/utility"/>
 									<listOptionValue builtIn="false" value="../libs/SDRAM"/>
 									<listOptionValue builtIn="false" value="../libs/EEPROM"/>
 									<listOptionValue builtIn="false" value="../libs/FT812"/>
@@ -327,7 +359,14 @@
 									<listOptionValue builtIn="false" value="../libs/Snooze"/>
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
+									<listOptionValue builtIn="false" value="../Exporter"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
+									<listOptionValue builtIn="false" value="../libs/newSD"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/sdmmc/inc"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/drivers"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 									<listOptionValue builtIn="false" value="../AudioEngine"/>
 								</option>
 								<option id="com.crt.advproject.gcc.arch.2035563646" name="Architecture" superClass="com.crt.advproject.gcc.arch" useByScannerDiscovery="false" value="com.crt.advproject.gcc.target.cm4" valueType="enumerated"/>
@@ -364,6 +403,12 @@
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
+									<listOptionValue builtIn="false" value="../libs/newSD"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/sdmmc/inc"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/drivers"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_sd_disk"/>
+									<listOptionValue builtIn="false" value="../libs/newSD/fatfs/source/fsl_ram_disk"/>
 									<listOptionValue builtIn="false" value="../AudioEngine"/>
 								</option>
 								<option id="com.crt.advproject.gas.arch.1402598248" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
@@ -375,7 +420,7 @@
 							<tool id="com.crt.advproject.link.cpp.exe.release.376212141" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.release">
 								<option id="com.crt.advproject.link.cpp.thumb.1283876432" name="Thumb mode" superClass="com.crt.advproject.link.cpp.thumb" value="true" valueType="boolean"/>
 								<option id="com.crt.advproject.link.memory.load.image.cpp.998231332" name="Plain load image" superClass="com.crt.advproject.link.memory.load.image.cpp" useByScannerDiscovery="false" value="false;" valueType="string"/>
-								<option defaultValue="com.crt.advproject.heapAndStack.mcuXpressoStyle.cpp" id="com.crt.advproject.link.memory.heapAndStack.style.cpp.1933896928" name="Heap and Stack placement" superClass="com.crt.advproject.link.memory.heapAndStack.style.cpp" useByScannerDiscovery="false" value="Default" valueType="enumerated"/>
+								<option defaultValue="com.crt.advproject.heapAndStack.mcuXpressoStyle.cpp" id="com.crt.advproject.link.memory.heapAndStack.style.cpp.1933896928" name="Heap and Stack placement" superClass="com.crt.advproject.link.memory.heapAndStack.style.cpp" useByScannerDiscovery="false" value="com.crt.advproject.heapAndStack.mcuXpressoStyle.cpp" valueType="enumerated"/>
 								<option id="com.crt.advproject.link.memory.heapAndStack.cpp.1752696167" name="Heap and Stack options" superClass="com.crt.advproject.link.memory.heapAndStack.cpp" value="&amp;Heap:Default;Post Data;Default&amp;Stack:Default;End;Default" valueType="string"/>
 								<option id="com.crt.advproject.link.memory.data.cpp.1352662759" name="Global data placement" superClass="com.crt.advproject.link.memory.data.cpp" useByScannerDiscovery="false" value="Default" valueType="string"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.crt.advproject.link.memory.sections.cpp.1915233173" name="Extra linker script input sections" superClass="com.crt.advproject.link.memory.sections.cpp" useByScannerDiscovery="false" valueType="stringList"/>
@@ -476,6 +521,6 @@
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="com.nxp.mcuxpresso.core.datamodels">
 		<sdkName>SDK_2.x_MK66FX1M0xxx18</sdkName>
-		<sdkVersion>2.6.0</sdkVersion>
+		<sdkVersion>2.7.0</sdkVersion>
 	</storageModule>
 </cproject>

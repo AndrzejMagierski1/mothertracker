@@ -109,11 +109,10 @@ typedef struct
 
 typedef struct
 {
+	SdDir dirTree[10];
+	char dirName[32];
 	char deleteSourcePath[255];
-	SdFile roots[10];
-	uint8_t lastRoot;
-	uint8_t addedLength[10];
-	uint8_t lastAddedLengthNum;
+	uint8_t actualTreeLevel;
 
 	uint8_t isDone;
 
@@ -289,11 +288,9 @@ private:
 
 
 
-	//uint8_t deleteBuffer[512];
-	//char deletePath[200];
-	//uint8_t deleteCurrPositiionInDir;
+
 	delete_handle_t deleteHandle;
-	void recursiveRemoveProject(SdFile *source);
+	void recursiveRemoveProject(delete_handle_t *helete_handle);
 
 	char deleteProjectName[PROJECT_NAME_SIZE];
 

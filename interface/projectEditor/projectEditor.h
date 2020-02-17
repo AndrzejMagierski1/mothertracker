@@ -82,14 +82,14 @@ public:
 
 	mtKeyboardManager keyboardManager;
 
-	void listOnlyFolderNames(const char* folder);
+	void listProjectsNames(const char* folder);
 
-	SdFile sdLocation;
+	SdDir sdLocation;
 	uint8_t selectedLocation;
-	uint16_t locationFilesCount;
+	uint16_t projectsfoundCount;
 	static const uint8_t files_list_length_max = 100;
-	char locationFilesList[files_list_length_max][40];
-	char *filesNames[files_list_length_max];
+	//char locationFilesList[files_list_length_max][40];
+	char* filesNames[files_list_length_max];
 
 //-------------------------------------------------------------
 	void showEnterNameKeyboard();

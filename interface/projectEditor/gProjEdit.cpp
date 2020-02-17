@@ -297,7 +297,7 @@ void cProjectEditor::showProjectsList()
 	selectedLocation = 0;
 
 	projectList.start = selectedLocation;
-	projectList.length = locationFilesCount;
+	projectList.length = projectsfoundCount;
 	projectList.linesCount = 13;
 	projectList.data = filesNames;
 

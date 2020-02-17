@@ -30,6 +30,9 @@ struct strList
 	special_icon_t icon;
 
 
+	uint8_t lineLengthMax = 0;
+
+
 	char** data;
 
 

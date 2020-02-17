@@ -2,8 +2,9 @@
 #ifndef SOURCE_WAVHEADERREADER_H_
 #define SOURCE_WAVHEADERREADER_H_
 
+#include <stdint.h>
 
-#include "SD.h"
+class SdFile;
 
 struct strWavFileHeader
 {
@@ -26,6 +27,6 @@ struct strWavFileHeader
 };
 
 void readHeader(strWavFileHeader* header, SdFile * wavfile);
-void readHeader(strWavFileHeader* header, ExFatFile * wavfile);
-void readHeader(strWavFileHeader* header, FatFile * wavfile);
+//void readHeader(strWavFileHeader* header, ExFatFile * wavfile);
+//void readHeader(strWavFileHeader* header, FatFile * wavfile);
 #endif /* SOURCE_WAVHEADERREADER_H_ */

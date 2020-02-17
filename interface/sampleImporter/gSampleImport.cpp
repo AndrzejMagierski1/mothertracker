@@ -113,6 +113,7 @@ void cSampleImporter::initDisplayControls()
 	explorerList.length = locationExplorerCount;
 	explorerList.linesCount = 14;
 	explorerList.data = explorerNames;
+	//explorerList.lineLengthMax = 25;
 	prop.x = 0+1;
 	prop.y = 29;
 	prop.w = 800/4-3;
@@ -260,6 +261,8 @@ void cSampleImporter::showDefaultScreen()
 
 	AddEnterOrRename();
 	AddNextControl();
+
+	activateLabelsBorder();
 
 	display.synchronizeRefresh();
 
@@ -434,7 +437,7 @@ void cSampleImporter::AddEnterOrRename()
 {
 	if(selectedPlace == 0)
 	{
-		if(locationExplorerList[selectedFile][0] == '/')
+		if(*explorerNames[selectedFile] == '/')
 		{
 			display.setControlText(label[2], "Enter");
 		}
@@ -459,7 +462,7 @@ void cSampleImporter::previewColorControl()
 	uint32_t *colors = interfaceGlobals.activeButtonLabelsColors;
 	if(selectedPlace == 0)
 	{
-		if(locationExplorerList[selectedFile][0] == '/')
+		if(*explorerNames[selectedFile] == '/')
 		{
 			colors = interfaceGlobals.inactiveButtonLabelsColors;
 		}

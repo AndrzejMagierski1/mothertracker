@@ -26,7 +26,7 @@ const uint32_t imgRamAddress = 670000;
 const uint32_t imgSizeMax = 1000000-imgRamAddress;
 const int32_t imgBufforSize = 5000;
 
-const uint8_t displayFontCount = 4;
+const uint8_t displayFontCount = 5;
 
 
 enum enDisplayBitmaps

@@ -162,7 +162,10 @@ void API_LIB_WriteDataRAMG(const uint8_t *ImgData, uint32_t DataSize, uint32_t D
 uint8_t API_SendString(const char* string, uint32_t length)
 {        
     uint32_t StringLength = 0;
-    if(length == 0) length = strlen(string);
+    uint32_t rl_length = strlen(string);
+    if(length == 0) length = rl_length;
+    else if (length > rl_length) length = rl_length;
+
     uint8_t command_size = 0;
 
     StringLength = (length + 1);
