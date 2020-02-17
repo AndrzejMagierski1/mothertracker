@@ -679,7 +679,7 @@ void cConfigEditor::listAllFirmwares()
 		// sortowanie
 
 		bool notSorted = 1;
-		char strBuff[40];
+//		char strBuff[40];
 		while (notSorted)
 		{
 			notSorted = 0;

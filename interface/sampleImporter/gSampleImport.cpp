@@ -113,6 +113,7 @@ void cSampleImporter::initDisplayControls()
 	explorerList.length = locationExplorerCount;
 	explorerList.linesCount = 14;
 	explorerList.data = explorerNames;
+	//explorerList.lineLengthMax = 25;
 	prop.x = 0+1;
 	prop.y = 29;
 	prop.w = 800/4-3;

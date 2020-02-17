@@ -294,7 +294,8 @@ uint8_t cList::update()
 					y_pos + (i * h_row),
 					font->handle,
 					textStyle | OPT_CENTERY,
-					*(list->data + (i +  textListPos)));
+					*(list->data + (i +  textListPos)),
+					list->lineLengthMax);
 
 			if(list->icon.useSpecialIcons)
 			{
@@ -434,7 +435,8 @@ uint8_t cList::update()
 							y_pos + (i * h_row),
 							font->handle,
 							textStyle | OPT_CENTERY,
-							*(list->data +  i + textListPos ) );
+							*(list->data +  i + textListPos ),
+							list->lineLengthMax);
 
 					if(list->icon.useSpecialIcons)
 					{
@@ -476,7 +478,8 @@ uint8_t cList::update()
 							y_pos + (i * h_row),
 							font->handle,
 							textStyle | OPT_CENTERY,
-							*(list->data + i + table_offset) );
+							*(list->data + i + table_offset),
+							list->lineLengthMax);
 
 					if(list->icon.useSpecialIcons)
 					{
@@ -516,7 +519,8 @@ uint8_t cList::update()
 						y_pos + (i * h_row),
 						font->handle,
 						textStyle | OPT_CENTERY,
-						*(list->data + i  + textListPos ) );
+						*(list->data + i  + textListPos ),
+						list->lineLengthMax);
 
 				if(list->icon.useSpecialIcons)
 				{

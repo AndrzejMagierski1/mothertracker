@@ -764,6 +764,7 @@ status_t SDMMCHOST_Init(SDMMCHOST_CONFIG *host, void *userData);
  * @brief reset host controller.
  * @param host base address.
  */
+//void SDMMCHOST_Reset(void *host);
 void SDMMCHOST_Reset(SDMMCHOST_TYPE *base);
 
 /*!

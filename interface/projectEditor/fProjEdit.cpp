@@ -478,7 +478,7 @@ static uint8_t functOpenProject()
 {
 	if(PE->isBusyFlag) return 1;
 
-	PE->listOnlyFolderNames("/Projects");
+	PE->listProjectsNames("/Projects");
 
 	PE->showProjectsList();
 
@@ -807,7 +807,7 @@ static uint8_t functProjectListDown()
 {
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation < PE->locationFilesCount-1 )
+		if(PE->selectedLocation < PE->projectsfoundCount-1 )
 		{
 			PE->selectedLocation++;
 
@@ -1098,53 +1098,25 @@ static uint8_t functSwitchModule(uint8_t button)
 //======================================================================================================================
 
 
-void cProjectEditor::listOnlyFolderNames(const char* folder)
+void cProjectEditor::listProjectsNames(const char* folder)
 {
 	char filePath[256] = {0};
 	strcpy(filePath, folder);
 	//strcat(filePath,"/");
 	sdLocation.close();
 	sdLocation.open(folder, O_READ); //"/"
-	locationFilesCount = sdLocation.createFilesList(0, filesNames, files_list_length_max, 3000, 1);
+	projectsfoundCount = sdLocation.createProjectsList(filesNames, files_list_length_max, 3000);
 	sdLocation.close();
 
 
-	uint8_t foundProjectsCount = 0;
-
-	for(uint8_t i = 0; i < locationFilesCount; i++)
+	for (uint8_t i = 0; i < (projectsfoundCount/2); i++)
 	{
-		if(*filesNames[i] == '/')	//tylko jesli folder
-		{
-			strcpy(filePath, folder);
-			strcat(filePath,filesNames[i]); //doklej nazwe folderu
-
-			strcat(filePath,"/project.mt"); //doklej nazwe folderu
-			//sdLocation.open(filePath, O_READ);
-
-			if(SD.exists(filePath))	//tylko jesli w folderze jest plik projektu
-			{
-				strcpy(filesNames[foundProjectsCount], filesNames[i]);
-				foundProjectsCount++;
-			}
-
-			//sdLocation.close();
-		}
-	}
-
-//	char strBuff[40];
-
-	for (uint8_t i = 0; i < (foundProjectsCount/2); i++)
-	{
-		std::swap(filesNames[i], filesNames[foundProjectsCount-i-1]);
+		std::swap(filesNames[i], filesNames[projectsfoundCount-i-1]);
 
 //		strcpy(strBuff, locationFilesList[i]);
 //		strcpy(locationFilesList[i],locationFilesList[foundProjectsCount-i-1]);
 //		strcpy(locationFilesList[foundProjectsCount-i-1], strBuff);
 	}
-
-
-	locationFilesCount = foundProjectsCount;
-
 
 }
 
@@ -1232,7 +1204,7 @@ static  uint8_t functDown()
 	if(PE->keyboardManager.getState()) return 1;
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation < PE->locationFilesCount-1 )
+		if(PE->selectedLocation < PE->projectsfoundCount-1 )
 		{
 			PE->selectedLocation++;
 
@@ -1276,7 +1248,7 @@ static  uint8_t functEncoder(int16_t value)
 	{
 		if(value > 0)
 		{
-			if(PE->selectedLocation < PE->locationFilesCount-1 ) PE->selectedLocation++;
+			if(PE->selectedLocation < PE->projectsfoundCount-1 ) PE->selectedLocation++;
 		}
 		else if (value < 0)
 		{

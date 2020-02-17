@@ -176,7 +176,11 @@ void cPatternEditor::start(uint32_t options)
 
 void cPatternEditor::stop()
 {
-//	setPatternChangeFlag();
+	if(sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
+	{
+		fileManager.savePattern(mtProject.values.actualPattern);
+
+	}
 
 	if(fillState) fillState = 0;
 
@@ -807,6 +811,8 @@ void cPatternEditor::setActualPatternLength(int16_t value)
 	showLength();
 
 	refreshPattern();
+
+	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
 }
 
 void cPatternEditor::changeActualPatternEditStep(int16_t value)
@@ -1803,13 +1809,11 @@ static  uint8_t functInstrument(uint8_t state)
 			&& !tactButtons.isButtonPressed(interfaceButtonPattern)
 			&& !PTE->dontShowPopupsUntilButtonRelease)
 	{
-		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
-
-		//PTE->lightUpPadBoard();
-
 		// odswiezenie paternu bez danych zakrytych przez popup
 		PTE->trackerPattern.popupMode |= 2;
 		display.refreshControl(PTE->patternControl);
+
+		mtPopups.showStepPopup(stepPopupInstr, mtProject.values.lastUsedInstrument);
 	}
 	else if(state == buttonRelease)
 	{
@@ -1873,16 +1877,13 @@ static  uint8_t functFx1(uint8_t state)
 
 		PTE->FM->clearButton(interfaceButtonFx1);
 
-		mtProject.values.lastUsedFx = PTE->getStepFx();
-		mtPopups.showStepPopup(stepPopupFx, mtProject.values.lastUsedFx); //PTE->getStepFx()
-
-		//PTE->lightUpPadBoard();
-
 		// odswiezenie paternu bez danych zakrytych przez popup
 		PTE->trackerPattern.popupMode |= 2;
 		if(mtConfig.interface.fxPopupDescription) PTE->trackerPattern.popupMode |= 4;
-
 		display.refreshControl(PTE->patternControl);
+
+		mtProject.values.lastUsedFx = PTE->getStepFx();
+		mtPopups.showStepPopup(stepPopupFx, mtProject.values.lastUsedFx); //PTE->getStepFx()
 	}
 	else if(state == buttonRelease)
 	{
@@ -1936,16 +1937,13 @@ static  uint8_t functFx2(uint8_t state)
 
 		PTE->FM->clearButton(interfaceButtonFx2);
 
-		mtProject.values.lastUsedFx = PTE->getStepFx();
-		mtPopups.showStepPopup(stepPopupFx, mtProject.values.lastUsedFx); //PTE->getStepFx()
-
-		//PTE->lightUpPadBoard();
-
 		// odswiezenie paternu bez danych zakrytych przez popup
 		PTE->trackerPattern.popupMode |= 2;
 		if(mtConfig.interface.fxPopupDescription) PTE->trackerPattern.popupMode |= 4;
-
 		display.refreshControl(PTE->patternControl);
+
+		mtProject.values.lastUsedFx = PTE->getStepFx();
+		mtPopups.showStepPopup(stepPopupFx, mtProject.values.lastUsedFx); //PTE->getStepFx()
 	}
 	else if(state == buttonRelease)
 	{

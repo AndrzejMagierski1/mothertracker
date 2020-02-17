@@ -73,22 +73,28 @@ bool SdCard::init()
     /* card detect type */
     g_sd.usrParam.cd = &s_sdCardDetect;
 
-    /* SD host init function */
+
+//  for(uint8_t i = 0; i<2; i++)
+//  {
+
     if (SD_HostInit(&g_sd) != kStatus_Success)
     {
         //PRINTF("\r\nSD host init fail\r\n");
         return false;
     }
-    /* power off card */
+
     SD_PowerOffCard(g_sd.host.base, g_sd.usrParam.pwr);
     SD_PowerOnCard(g_sd.host.base, g_sd.usrParam.pwr);
 
-    FRESULT result = f_mount(&g_fileSystem, driverNumberBuffer, 1U);
+	FRESULT result = f_mount(&g_fileSystem, driverNumberBuffer, 1U);
 	if (result)
 	{
-
-		return false;
+		//if(i > 0)
+			return false;
 	}
+
+//	else break;
+//	}
 
 #if (FF_FS_RPATH >= 2U)
 	FRESULT error = f_chdrive((char const *)&driverNumberBuffer[0U]);
@@ -105,7 +111,10 @@ void SdCard::stop()
 {
     f_mount(0, driverNumberBuffer, 1);
     memset(&g_fileSystem, 0, sizeof(g_fileSystem));
-    initSDHC();
+
+  // SDMMCHOST_Reset(g_sd.host.base);
+  // SDMMCHOST_Deinit(&(g_sd.host));
+
 
 }
 
@@ -332,7 +341,7 @@ uint32_t  SdCard::freeClusterCount()
 	return fre_clust;
 }
 
-
+// filter: 0-all, 1-folders only, 2-supported wav only, 3-ptf // always ignore hidden files // max_used_memory must be higher than 255
 uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_length, uint16_t max_used_memory, uint8_t chooseFilter)
 {
 	for(uint8_t i = 0; i<list_length; i++) // wyczyszczenie uzytej wczesniej pamieci
@@ -352,7 +361,6 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 		return n;
 	}
 
-	char wav_file[255];
 	uint16_t memory_used = 0;
 	FILINFO fno;
 	FRESULT error;
@@ -383,7 +391,7 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 
         if (chooseFilter == 1) // folder
         {
-        	if(fno.fattrib & AM_DIR == 0) continue;
+        	if((fno.fattrib & AM_DIR) == 0) continue;
         }
         else if(chooseFilter == 2) // filtrowanie .wav
 		{
@@ -395,7 +403,9 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 			|| ((fno.fname[wav_len - 3] != 'W') && (fno.fname[wav_len - 3] != 'w'))
 			||  (fno.fname[wav_len - 4] != '.')) continue;
 
-			if(strlen((dir_path)+wav_len+2) > 255) continue;
+			if((strlen(dir_path)+wav_len) > 253) continue;
+
+			char wav_file[255];
 			strcpy(wav_file, dir_path);
 			strcat(wav_file, "/");
 			strcat(wav_file, fno.fname);
@@ -463,4 +473,80 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 	return n;
 }
 
+
+
+uint16_t SdDir::createProjectsList(char** list, uint8_t list_length, uint16_t max_used_memory)
+{
+	for(uint8_t i = 0; i<list_length; i++) // wyczyszczenie uzytej wczesniej pamieci
+	{
+		if(list[i] != nullptr)
+		{
+			delete list[i];
+			list[i] = nullptr;
+		}
+	}
+
+	uint8_t n = 0;
+
+	if(max_used_memory < 255)
+	{
+		reportError("create list - memory max used", max_used_memory);
+		return n;
+	}
+
+	uint16_t memory_used = 0;
+	FILINFO fno;
+	FRESULT error;
+	SdFile local_file;
+
+	f_readdir(directory, nullptr);
+
+	while (1)
+	{
+		if (n >= list_length) break;
+		if (memory_used > max_used_memory-255) break;
+
+		error = f_readdir(directory, &fno);
+		if(error)
+		{
+			reportError("create list - read dir item - failed", error);
+			break;
+		}
+		else if(!fno.fname[0]) // koniec folderu
+		{
+			break;
+		}
+
+		if (fno.fattrib & AM_HID) // ukryty
+		{
+			continue;
+		}
+
+
+        if((fno.fattrib & AM_DIR) == 0) continue; // nie folder
+        else // folder
+        {
+        	char filePath[256];
+			strcpy(filePath, dir_path);
+			strcat(filePath, "/");
+			strcat(filePath, fno.fname);
+			strcat(filePath,"/project.mt");
+
+			if(!SD.exists(filePath))	//tylko jesli w folderze jest plik projektu
+			{
+				continue;
+			}
+        }
+
+		uint16_t len = strlen(fno.fname)+1;
+		list[n] = new char[len];
+		strcpy(list[n], fno.fname);
+		memory_used += len;
+
+        n++;
+	}
+
+
+	return n;
+}
 

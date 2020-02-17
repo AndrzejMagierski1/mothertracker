@@ -357,7 +357,7 @@ void StringToBitmaps(int16_t x, int16_t y, uint8_t font_x, uint8_t font_y, char*
 
 
 
-inline void draw_char(uint16_t x, uint16_t y, uint8_t charr)
+static inline void draw_char(uint16_t x, uint16_t y, uint8_t charr)
 {
 	if(x > 511 || y > 511)
 	{

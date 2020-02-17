@@ -64,7 +64,6 @@ static  uint8_t functAutoNameRename();
 static uint8_t functDeleteBackspace(uint8_t state);
 
 
-static uint8_t functSdCard(uint8_t state);
 
 static void cancelAnotherSelect();
 

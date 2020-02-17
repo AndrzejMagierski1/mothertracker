@@ -373,7 +373,7 @@ status_t SDMMCHOST_Init(SDMMCHOST_CONFIG *host, void *userData)
 
 void SDMMCHOST_Reset(SDMMCHOST_TYPE *base)
 {
-    /* reserved for future */
+	SDHC_Reset(base, SDHC_SYSCTL_RSTA_MASK, 0xffff);
 }
 
 void SDMMCHOST_Deinit(void *host)

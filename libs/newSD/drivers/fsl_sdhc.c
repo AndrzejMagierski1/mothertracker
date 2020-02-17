@@ -819,7 +819,7 @@ void SDHC_Init(SDHC_Type *base, const sdhc_config_t *config)
 
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Enable SDHC clock. */
-    CLOCK_EnableClock(s_sdhcClock[SDHC_GetInstance(base)]);
+//    CLOCK_EnableClock(s_sdhcClock[SDHC_GetInstance(base)]);
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
     /* Reset SDHC. */
@@ -830,10 +830,10 @@ void SDHC_Init(SDHC_Type *base, const sdhc_config_t *config)
 
     proctl &= ~(SDHC_PROCTL_D3CD_MASK | SDHC_PROCTL_EMODE_MASK | SDHC_PROCTL_DMAS_MASK);
     /* Set DAT3 as card detection pin */
-    if (config->cardDetectDat3)
-    {
-        proctl |= SDHC_PROCTL_D3CD_MASK;
-    }
+//    if (config->cardDetectDat3)
+//    {
+//        proctl |= SDHC_PROCTL_D3CD_MASK;
+//    }
     /* Endian mode and DMA mode */
     proctl |= (SDHC_PROCTL_EMODE(config->endianMode) | SDHC_PROCTL_DMAS(config->dmaMode));
 
