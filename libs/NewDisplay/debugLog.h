@@ -29,7 +29,7 @@ enum enDebugLogState
 const uint8_t  fifoSize = 10; //max 21-22
 const uint8_t  logLinesMaxStart = 1; //max 21-22
 const uint16_t  logLineTimeMax = 5000;
-const uint16_t  logLineLengthMax = 50;
+const uint16_t  logLineLengthMax = 100;
 //#########################################################################
 //							KLASY
 //#########################################################################

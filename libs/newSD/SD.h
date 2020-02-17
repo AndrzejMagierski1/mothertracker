@@ -296,7 +296,7 @@ public:
 		return directory != nullptr;
 	}
 
-	bool readItem(char* path, uint8_t* isDir)
+	bool readItem(char* path, uint8_t* isDir, uint32_t* size)
 	{
 		FILINFO fno;
 		FRESULT error = f_readdir(directory, &fno);
@@ -319,7 +319,9 @@ public:
         	*isDir = 0;
         }
 
-		strncpy(path, fno.fname, 32);
+        if(size != nullptr) *size = fno.fsize;
+
+		strcpy(path, fno.fname);
 		return true;
 	}
 

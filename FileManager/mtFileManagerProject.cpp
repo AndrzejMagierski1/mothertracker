@@ -614,7 +614,7 @@ void FileManager::recursiveRemoveProject(delete_handle_t *delete_handle) // todo
 	uint8_t isDir;
 	//char fileName[32];
 	char path[255];
-	if(delete_handle->dirTree[delete_handle->actualTreeLevel].readItem(delete_handle->dirName, &isDir))
+	if(delete_handle->dirTree[delete_handle->actualTreeLevel].readItem(delete_handle->dirName, &isDir, nullptr))
 	{
 		strcpy(path,delete_handle->deleteSourcePath);
 
