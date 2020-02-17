@@ -46,7 +46,7 @@ void AudioEffectLimiter::update(void)
 		xpeak = (1-coeff) * xpeak + coeff * a;
 
 		localf = threshold/(float)xpeak;
-		f = (localf < 1.0f) ? localf : 1.0;
+		f = (localf < 1.0f) ? localf : 1.0f;
 
 		coeff = (f<g) ? attack : releaseTime;
 

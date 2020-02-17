@@ -62,9 +62,23 @@ public:
 	} displayType;
 	//mixer
 	void showMixerScreen();
+	void showLevelBar(uint8_t n);
 	void switchToMaster();
 	void switchToMixer();
+	void calcTrackLevel(uint8_t n);
+
+	struct strTrackLevel
+	{
+		float measureSum = 0;
+		uint8_t measureCounter = 0;
+		elapsedMicros timer = 0;
+		elapsedMillis redColorTimer = 0;
+		uint8_t value;
+		uint8_t lastValue;
+
+	} trackLevel[8];
 	uint8_t isSolo = 0;
+	int8_t soloTrack = -1;
 	char mixerLabel[8][7];
 	char * const mixerTrackLabel[8] =
 	{

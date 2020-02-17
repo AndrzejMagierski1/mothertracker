@@ -11,7 +11,7 @@
 #include "core/graphicProcessing.h"
 #include "sdCardDetect.h"
 #include "mtRandomNameGenerator.h"
-
+#include "mtGainLevelLogarithmicTab.h"
 
 
 constexpr uint16_t POP_TIME = 200; // czas po jakim nie ma pykniecia przy zmianie z lineIn na mic
@@ -1924,11 +1924,18 @@ void cSampleRecorder::calcLevelBarVal()
 	{
 		levelBarMeasureCounter = 0;
 
-		float localMeasureSum = (measureSum/10)/0.85;
-		if(localMeasureSum < 0.001f) localMeasureSum = 0.001f;
-		uint8_t localLevelToConvert = (((log10(localMeasureSum) + 3.0) * 100.0)/ 3.0);
-		uint8_t localLevel = map(localLevelToConvert,0,117,0,100);
+		uint8_t localMeasureSum = measureSum/0.0085f;
 
+		if(localMeasureSum < 1) localMeasureSum = 1;
+
+		uint8_t localLevel = logarithmicLevelTab[localMeasureSum - 1];
+/*
+ 		bardziej rozbudowane obliczenia dla zrozumienia
+		//float localMeasureSum = (measureSum/10)/0.85;
+//		if(localMeasureSum < 0.001f) localMeasureSum = 0.001f;
+//
+//		uint8_t localLevel = logarithmicLevelTab[ (uint8_t)(localMeasureSum * LOGHARITMIC_LEVEL_TAB_SIZE) - 1];
+*/
 		if(((levelBarTim > 500 )) && (levelBarVal != 0 ))
 		{
 			levelBarTim = 0;
@@ -1938,8 +1945,6 @@ void cSampleRecorder::calcLevelBarVal()
 
 		measureSum = 0;
 	}
-
-
 }
 void cSampleRecorder::calcGainBarVal()
 {

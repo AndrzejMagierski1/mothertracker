@@ -11,7 +11,7 @@
 #include "patternEditor/patternEditor.h"
 
 #include "masterParams/masterParams.h"
-
+#include "mtGainLevelLogarithmicTab.h"
 
 
 cMasterParams masterParams;
@@ -62,6 +62,18 @@ void changeBitDepth(int16_t value);
 
 void cMasterParams::update()
 {
+	if(displayType == display_t::mixer)
+	{
+		for(uint8_t i = 0; i < 8; i++)
+		{
+			calcTrackLevel(i);
+			if(trackLevel[i].value != trackLevel[i].lastValue)
+			{
+				showLevelBar(i);
+			}
+			trackLevel[i].lastValue = trackLevel[i].value;
+		}
+	}
 
 }
 
@@ -644,6 +656,43 @@ void cMasterParams::switchToMixer()
 	displayType = display_t::mixer;
 }
 
+void cMasterParams::calcTrackLevel(uint8_t n)
+{
+	float localTrackLevel = instrumentPlayer[n].getRMSValue();
+	if(localTrackLevel == - 1.0f) return;
+
+	trackLevel[n].measureSum += localTrackLevel;
+	trackLevel[n].measureCounter++;
+
+	if(trackLevel[n].measureCounter == 10)
+	{
+		trackLevel[n].measureCounter = 0;
+
+		uint8_t localMeasureSum = trackLevel[n].measureSum/0.0085f;
+
+		if(localMeasureSum < 1) localMeasureSum = 1;
+
+		uint8_t localLevel = logarithmicLevelTab[localMeasureSum - 1];
+/*
+ 		bardziej rozbudowane obliczenia dla zrozumienia 0.0085 =
+		//float localMeasureSum = (measureSum/10)/0.85;
+//		if(localMeasureSum < 0.001f) localMeasureSum = 0.001f;
+//
+//		uint8_t localLevel = logarithmicLevelTab[ (uint8_t)(localMeasureSum * LOGHARITMIC_LEVEL_TAB_SIZE) - 1];
+*/
+		if(((trackLevel[n].timer > 500 )) && (trackLevel[n].value != 0 ))
+		{
+			trackLevel[n].timer = 0;
+			trackLevel[n].value--;
+			if(n==0) Serial.printf("t: %d val: %d\n", n,trackLevel[n].value );
+		}
+		if(localLevel > trackLevel[n].value) trackLevel[n].value = localLevel;
+
+		trackLevel[n].measureSum = 0;
+	}
+
+}
+
 //mixer
 static uint8_t functSoloMute(uint8_t state)
 {
@@ -661,20 +710,34 @@ static uint8_t functSoloMuteTrack(uint8_t n,uint8_t state)
 	{
 		if(MP->isSolo)
 		{
-			for(uint8_t i = 0; i < 8; i++)
+			if((uint8_t)MP->soloTrack == n)
 			{
-				mtProject.values.trackMute[i] = 1;
+				MP->soloTrack = -1;
+				for(uint8_t i = 0; i < 8; i++)
+				{
+					mtProject.values.trackMute[i] = 0;
+				}
 			}
-			mtProject.values.trackMute[n] = 0;
+			else
+			{
+				for(uint8_t i = 0; i < 8; i++)
+				{
+					mtProject.values.trackMute[i] = 1;
+				}
+				mtProject.values.trackMute[n] = 0;
+				MP->soloTrack = n;
+			}
 		}
 		else
 		{
 			mtProject.values.trackMute[n] = !mtProject.values.trackMute[n];
+			MP->soloTrack = -1;
 		}
 
 		for(uint8_t i = 0; i < 8 ; i++)
 		{
 			engine.muteTrack(i, mtProject.values.trackMute[i]);
+			MP->showLevelBar(i);
 		}
 		MP->showMixerScreen();
 

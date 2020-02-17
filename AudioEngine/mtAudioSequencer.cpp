@@ -739,6 +739,11 @@ void playerEngine::endFxGlide(uint8_t fx_n)
 			currentSeqModValues.glide = (lastSeqVal[otherFx_n] > halfFxGlide) ? map(lastSeqVal[otherFx_n],halfFxGlide,maxFxGlide,1000,GLIDE_MAX) : map(lastSeqVal[otherFx_n],minFxGlide,halfFxGlide,GLIDE_MIN,1000);
 			playMemPtr->setForcedGlide(currentSeqModValues.glide);
 		}
+		else
+		{
+			playMemPtr->clearGlideForceFlag();
+			playMemPtr->setForcedGlide(0);
+		}
 	}
 	else
 	{

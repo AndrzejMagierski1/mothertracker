@@ -24,7 +24,65 @@ static uint16_t framesPlacesConfig[4][4]=
 };
 
 
-
+static uint32_t levelBarColors[][8] =
+{
+	{
+	0xFFFFFF, // kolor glowny
+	0xff0000, // kolor dodatkowy 1 czer
+	0x00ff00, // kolor dodatkowy 2 ziel
+	0x080808, // kontener
+	0x0a0a0a, // tlo
+	},
+	{
+	0xFFFFFF, // kolor glowny
+	0xff0000, // kolor dodatkowy 1 czer
+	0x00ff00, // kolor dodatkowy 2 ziel
+	0x080808, // kontener
+	0x0a0a0a, // tlo
+	},
+	{
+	0xFFFFFF, // kolor glowny
+	0xff0000, // kolor dodatkowy 1 czer
+	0x00ff00, // kolor dodatkowy 2 ziel
+	0x080808, // kontener
+	0x0a0a0a, // tlo
+	},
+	{
+	0xFFFFFF, // kolor glowny
+	0xff0000, // kolor dodatkowy 1 czer
+	0x00ff00, // kolor dodatkowy 2 ziel
+	0x080808, // kontener
+	0x0a0a0a, // tlo
+	},
+	{
+	0xFFFFFF, // kolor glowny
+	0xff0000, // kolor dodatkowy 1 czer
+	0x00ff00, // kolor dodatkowy 2 ziel
+	0x080808, // kontener
+	0x0a0a0a, // tlo
+	},
+	{
+	0xFFFFFF, // kolor glowny
+	0xff0000, // kolor dodatkowy 1 czer
+	0x00ff00, // kolor dodatkowy 2 ziel
+	0x080808, // kontener
+	0x0a0a0a, // tlo
+	},
+	{
+	0xFFFFFF, // kolor glowny
+	0xff0000, // kolor dodatkowy 1 czer
+	0x00ff00, // kolor dodatkowy 2 ziel
+	0x080808, // kontener
+	0x0a0a0a, // tlo
+	},
+	{
+	0xFFFFFF, // kolor glowny
+	0xff0000, // kolor dodatkowy 1 czer
+	0x00ff00, // kolor dodatkowy 2 ziel
+	0x080808, // kontener
+	0x0a0a0a, // tlo
+	},
+};
 
 void cMasterParams::initDisplayControls()
 {
@@ -60,7 +118,7 @@ void cMasterParams::initDisplayControls()
 		prop2.h =  55;
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.colors = nullptr;
+		prop2.colors = levelBarColors[i];
 		prop2.value = 0;
 		prop2.x = (800/8)*i+1;
 		prop2.y = 29;
@@ -100,6 +158,7 @@ void cMasterParams::destroyDisplayControls()
 
 		display.destroyControl(barControl[i]);
 		barControl[i] = nullptr;
+
 	}
 
 	display.destroyControl(bgLabel);
@@ -157,6 +216,12 @@ void cMasterParams::showDefaultConfigScreen()
 
 void cMasterParams::showMasterScreen()
 {
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		levelBarColors[i][0] = 0xFFFFFFFF;
+	}
+
 	display.refreshControl(titleBar);
 
 	display.setControlText(titleLabel, "Master 1/2");
@@ -181,8 +246,14 @@ void cMasterParams::showMasterScreen()
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 
-		if(i<7) display.setControlShow(barControl[i]);
+		if(i<7)
+		{
+			display.setControlShow(barControl[i]);
+		}
 	}
+
+	display.setControlHide(barControl[7]);
+	display.refreshControl(barControl[7]);
 
 	display.refreshControl(bgLabel);
 	display.setControlValue(bgLabel, 255);
@@ -390,14 +461,14 @@ void cMasterParams::showBitDepth()
 //mixer
 void cMasterParams::showMixerScreen()
 {
-	display.setControlText(titleLabel, "Mixer 2/2");
+	display.setControlText(titleLabel, "Master 2/2");
 	display.refreshControl(titleLabel);
 
 	if(isSolo)
 	{
 		for(uint8_t i = 0; i < 8; i++)
 		{
-			sprintf(mixerLabel[i],"%s",(char*)"Solo");
+			sprintf(mixerLabel[i],"%s", soloTrack == i ? (char*)"Unsolo" : (char*)"Solo");
 		}
 	}
 	else
@@ -413,6 +484,7 @@ void cMasterParams::showMixerScreen()
 		for(uint8_t i = 0; i < 8; i++)
 		{
 			display.setControlText(label[i],mixerTrackLabel[i]);
+			showLevelBar(i);
 		}
 	}
 
@@ -426,16 +498,61 @@ void cMasterParams::showMixerScreen()
 		display.setControlText2(label[i],mixerLabel[i]);
 		display.refreshControl(label[i]);
 	}
-	for(uint8_t i = 0; i < 8; i++)
-	{
-		display.setControlHide(barControl[i]);
-		display.refreshControl(barControl[i]);
-	}
+//	for(uint8_t i = 0; i < 8; i++)
+//	{
+//		display.setControlHide(barControl[i]);
+//		display.refreshControl(barControl[i]);
+//	}
 
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
 	display.synchronizeRefresh();
+}
+
+void cMasterParams::showLevelBar(uint8_t n)
+{
+	display.setControlShow(barControl[n]);
+	display.setControlColors(barControl[n], levelBarColors[n]);
+	display.setControlValue(barControl[n], trackLevel[n].value);
+
+
+	if(trackLevel[n].value < 85)
+	{
+		if(trackLevel[n].redColorTimer < 350)
+		{
+			levelBarColors[n][0] = one_true_red;
+		}
+		else
+		{
+			if(trackLevel[n].value > 70)
+			{
+				uint8_t green = map(trackLevel[n].value,70,85,((one_true_green&0xff00)>>8),0);
+				levelBarColors[n][0] = (one_true_red&0xff0000) | (green << 8);
+			}
+			else if(trackLevel[n].value > 60)
+			{
+				uint8_t red = map(trackLevel[n].value,60,70,0,((one_true_red&0xff0000)>>16));
+				levelBarColors[n][0] = (red << 16) | (one_true_green&0xff00);
+			}
+			else
+			{
+				levelBarColors[n][0] = one_true_green;
+			}
+		}
+
+		if(trackLevel[n].redColorTimer > 3000000) trackLevel[n].redColorTimer = 201;
+	}
+	else
+	{
+		trackLevel[n].redColorTimer = 0;
+		levelBarColors[n][0] = one_true_red;
+
+	}
+
+	if(mtProject.values.trackMute[n]) levelBarColors[n][0] = interfaceGlobals.disabledLabelsColors[1];
+
+	display.refreshControl(barControl[n]);
 }
 
 
