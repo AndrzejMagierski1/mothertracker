@@ -24,6 +24,7 @@ AudioPlayMemory          playMem[8];
 AudioEffectEnvelope      envelopeAmp[8];
 AudioAmplifier           amp[8];
 AudioFilterStateVariable filter[8];
+AudioAnalyzeRMS			 trackRMS[8];
 AudioEffectFreeverb		 reverb;
 AudioEffectLimiter		 limiter[2];
 AudioBitDepth			 bitDepthControl[2];
@@ -83,6 +84,17 @@ AudioConnection          connect37(&amp[4], 0, &mixerR, 4);
 AudioConnection          connect38(&amp[5], 0, &mixerR, 5);
 AudioConnection          connect39(&amp[6], 0, &mixerR, 6);
 AudioConnection          connect40(&amp[7], 0, &mixerR, 7);
+
+
+AudioConnection          connect90(&amp[0], &trackRMS[0]);
+AudioConnection          connect91(&amp[1], &trackRMS[1]);
+AudioConnection          connect92(&amp[2], &trackRMS[2]);
+AudioConnection          connect93(&amp[3], &trackRMS[3]);
+AudioConnection          connect94(&amp[4], &trackRMS[4]);
+AudioConnection          connect95(&amp[5], &trackRMS[5]);
+AudioConnection          connect96(&amp[6], &trackRMS[6]);
+AudioConnection          connect97(&amp[7], &trackRMS[7]);
+
 
 AudioConnection          connect41(&envelopeAmp[0], 0, &mixerReverb, 0);
 AudioConnection          connect42(&envelopeAmp[1], 0, &mixerReverb, 1);
@@ -329,7 +341,7 @@ playerEngine::playerEngine()
 	envelopeAmpPtr = &envelopeAmp[nChannel];
 	filterPtr = &filter[nChannel];
 	ampPtr = &amp[nChannel];
-
+	rmsPtr = &trackRMS[nChannel];
 	envelopePtr[envFilter] = &envelopeFilter[nChannel];
 	envelopePtr[envWtPos]= &envelopeWtPosition[nChannel];
 	envelopePtr[envPan] = &envelopePanning[nChannel];
@@ -1605,7 +1617,15 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 	}
 }
 
-
+float playerEngine::getRMSValue()
+{
+	float localVal = - 1.0f;
+	if(rmsPtr->available())
+	{
+		localVal = rmsPtr->read();
+	}
+	return localVal;
+}
 
 void playerEngine::setPassEnvelope(uint8_t state)
 {

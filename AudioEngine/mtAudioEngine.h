@@ -458,6 +458,8 @@ public:
 
 	void printLog(SdFile * log);
 	void setPassEnvelope(uint8_t state);
+
+	float getRMSValue();
 private:
 
 	friend 						audioEngine;
@@ -466,6 +468,7 @@ private:
 	AudioAmplifier *			ampPtr;
 	envelopeGenerator *			envelopePtr[envMax];
 	AudioFilterStateVariable *	filterPtr;
+	AudioAnalyzeRMS *			rmsPtr;
 	uint8_t 					nChannel;
 	uint8_t						lastSeqFx[2];
 	uint8_t						lastSeqVal[2];
@@ -586,6 +589,7 @@ extern AudioEffectEnvelope      envelopeAmp[8];
 extern envelopeGenerator		envelopeFilter[8];
 extern AudioFilterStateVariable filter[8];
 extern AudioAmplifier           amp[8];
+extern AudioAnalyzeRMS			trackRMS[8];
 extern AudioMixer9				mixerL,mixerR,mixerReverb;
 extern AudioOutputI2S           i2s1;
 extern AudioBitDepth			bitDepthControl[2];
