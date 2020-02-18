@@ -60,7 +60,7 @@ public:
 
 	void releaseNoteOn(float milliseconds) {
 		release_forced_count = milliseconds2count(milliseconds);
-		if (release_count == 0) release_count = 1;
+		if (release_forced_count == 0) release_forced_count = 1;
 	}
 	void setLoop(uint8_t state)
 	{
