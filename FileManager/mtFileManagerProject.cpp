@@ -34,7 +34,7 @@ void FileManager::refreshLoadingSamples()
 			char workspacePatch[PATCH_SIZE];
 
 			sprintf(currentPatch, "%s/samples/instr%02d.wav", currentProjectPatch, loadHandle.currSampleIdx);
-			sprintf(workspacePatch," Workspace/samples/instr%02d.wav", loadHandle.currSampleIdx);
+			sprintf(workspacePatch,"Workspace/samples/instr%02d.wav", loadHandle.currSampleIdx);
 
 			samplesCopyier.start(workspacePatch,currentPatch);
 		}
@@ -614,7 +614,7 @@ void FileManager::recursiveRemoveProject(delete_handle_t *delete_handle) // todo
 	uint8_t isDir;
 	//char fileName[32];
 	char path[255];
-	if(delete_handle->dirTree[delete_handle->actualTreeLevel].readItem(delete_handle->dirName, &isDir))
+	if(delete_handle->dirTree[delete_handle->actualTreeLevel].readItem(delete_handle->dirName, &isDir, nullptr))
 	{
 		strcpy(path,delete_handle->deleteSourcePath);
 

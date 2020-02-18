@@ -127,7 +127,23 @@ void MTPStorage_SD::OpenFileByIndex(uint32_t i, uint8_t mode = O_RDONLY)
 	mtp_lock_storage(true);
 
 	f_.close();
-	f_ = SD.open(filename, mode);
+	f_.open(filename, mode);
+
+	open_file_ = i;
+	mode_ = mode;
+	mtp_lock_storage(false);
+}
+
+void MTPStorage_SD::OpenDirByIndex(uint32_t i, uint8_t mode = O_RDONLY)
+{
+	if (open_file_ == i && mode_ == mode) return;
+
+	char filename[256];
+	ConstructFilename(i, filename);
+	mtp_lock_storage(true);
+
+	d_.close();
+	d_.open(filename, mode);
 
 	open_file_ = i;
 	mode_ = mode;
@@ -141,18 +157,19 @@ void MTPStorage_SD::OpenFileByIndex(uint32_t i, uint8_t mode = O_RDONLY)
 void MTPStorage_SD::ScanDir(uint32_t i)
 {
 
-/*	Record record = ReadIndexRecord(i);
+	Record record = ReadIndexRecord(i);
 	if (record.isdir && !record.scanned)
 	{
-		OpenFileByIndex(i, O_RDONLY);
-		if (!f_) return;
+		OpenDirByIndex(i, O_RDONLY);
+		if (!d_) return;
 		int sibling = 0;
 		while (true)
 		{
 			mtp_lock_storage(true);
 			//FsFile child = f_.openNextFile();
-			SdFile child;
-			if (!child.openNext(&f_, O_READ))
+			Record r;
+			uint32_t size;
+			if (!d_.readItem(r.name, &r.isdir, &size))
 			{
 				mtp_lock_storage(false);
 				break;
@@ -160,23 +177,22 @@ void MTPStorage_SD::ScanDir(uint32_t i)
 
 			mtp_lock_storage(false);
 
-			if (!child) break;
+			//if (!child) break;
 
-			Record r;
+			//Record r;
 			r.parent = i;
 			r.sibling = sibling;
-			r.isdir = child.isDirectory();
-			r.child = r.isdir ? 0 : child.size();
+			//r.isdir = child.isDirectory();
+			r.child = r.isdir ? 0 : size;
 			r.scanned = false;
-			child.getName(r.name, 64);
+			//child.getName(r.name, 64);
 			sibling = AppendIndexRecord(r);
-			child.close();
+			//child.close();
 		}
 		record.scanned = true;
 		record.child = sibling;
 		WriteIndexRecord(i, record);
-	}*/
-
+	}
 }
 
 void MTPStorage_SD::ScanAll()
@@ -366,6 +382,7 @@ void MTPStorage_SD::close()
 	mtp_lock_storage(true);
 	uint64_t size = f_.size();
 	f_.close();
+	d_.close();
 	mtp_lock_storage(false);
 	Record r = ReadIndexRecord(open_file_);
 	r.child = size;

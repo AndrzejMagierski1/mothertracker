@@ -95,6 +95,7 @@ private:
   uint8_t mode_ = 0;
   uint32_t open_file_ = 0xFFFFFFFEUL;
   SdFile f_;
+  SdDir d_;
   uint32_t index_entries_ = 0;
 
 
@@ -120,6 +121,7 @@ private:
  Record  ReadIndexRecord(uint32_t i);
  void  ConstructFilename(int i, char* out);
  void  OpenFileByIndex(uint32_t i, uint8_t mode);
+ void  OpenDirByIndex(uint32_t i, uint8_t mode);
  void  GenerateIndex();
  void  ScanDir(uint32_t i);
  void  ScanAll();
