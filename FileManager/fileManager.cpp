@@ -2,7 +2,6 @@
 
 #include "mtStructs.h"
 #include "fileManagerDefs.h"
-#include "mtStructs.h"
 #include "SD.h"
 #include "mtConfig.h"
 
@@ -43,6 +42,10 @@ void cFileManager::updateOpenWorkspaceProject()
 {
 	switch(currentOperationStep)
 	{
+	case 1:
+
+		break;
+
 
 	}
 
@@ -64,6 +67,8 @@ bool cFileManager::loadProjectFromWorkspace()
 	if(!SD.exists(cProjectFileNameInWorkspace)) return false;
 	if(!readProjectFile(cProjectFileNameInWorkspace, &mtProject)) return false;
 
+	//todo dalej w nastepnych update
+
 //	if(loadPattern(mtProject.values.actualPattern))
 //	{
 //		sequencer.switchRamPatternsNow();
@@ -80,49 +85,6 @@ bool cFileManager::loadProjectFromWorkspace()
 
 
 	return true;
-}
-
-bool cFileManager::createNewProjectInWorkspace()
-{
-	createWorkspaceDirs();
-
-
-
-
-
-	return true;
-}
-
-
-bool cFileManager::createWorkspaceDirs()
-{
-	if(!SD.exists(cWorkspacePath))
-	{
-		SD.mkdir(1, cWorkspacePath);
-	}
-
-	if(!SD.exists(cWorkspaceInstrumentsPath))
-	{
-		SD.mkdir(1, cWorkspaceInstrumentsPath);
-	}
-
-	if(!SD.exists(cWorkspacePatternsPath))
-	{
-		SD.mkdir(1, cWorkspacePatternsPath);
-	}
-
-	if(!SD.exists(cWorkspaceSamplesPath))
-	{
-		SD.mkdir(1, cWorkspaceSamplesPath);
-	}
-
-	return true;
-}
-
-
-void clearWorkspace()
-{
-	SD.removeDirWithFiles(cWorkspacePath);
 }
 
 

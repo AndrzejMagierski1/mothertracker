@@ -54,10 +54,6 @@ public:
 
 
 
-
-
-
-
 private:
 	// na cele zewnetrzne (popupy itp)
 	uint8_t status;
@@ -69,15 +65,27 @@ private:
 
 
 	// metody wewnetrzne
-	bool readProjectFile(const char * name, strMtProject * proj);
 
-
+	// workspace
 	void clearWorkspace();
 	void updateOpenWorkspaceProject();
-
-
-	// misc
 	bool createWorkspaceDirs();
+	bool createNewEmptyProjectInWorkspace();
+
+	// project
+	void writeProjectFile(const char* name, strMtProject* proj);
+	bool readProjectFile(const char* name, strMtProject* proj);
+	void getDefaultProject(struct strMtProject* source);
+	void getDefaultSong(struct strSong* source);
+	void getDefaultValues(struct strMtValues* source);
+
+	// pattern
+	bool saveActualPattern(const char* path, uint8_t index);
+	bool writePatternFile(char* filePath, uint8_t* sourcePattern);
+
+	// instrument
+	void getDefaultInstrument(struct strInstrument *source);
+
 
 
 };

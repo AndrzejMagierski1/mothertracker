@@ -32,7 +32,6 @@ void cInterface::openStartupProject()
 
 	////////////////////////////////////////////////////
 	char currentPatch[PATCH_SIZE];
-
 	strcpy(currentPatch,"Workspace/project.mt");
 	if(SD.exists(currentPatch))
 	{
