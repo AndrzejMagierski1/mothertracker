@@ -43,11 +43,14 @@ public:
 	SdFile open(const char* path, uint8_t oflag = FA_READ);
 	bool remove(const char* path);
 	bool rmdir(const char* path) { return remove(path); }
-
+	bool removeDirWithFiles(const char* path);
 
 	uint32_t clusterCount();
 	uint16_t sectorsPerCluster();
 	uint32_t freeClusterCount();
+
+private:
+	FRESULT delete_node(TCHAR* path, UINT sz_buff, FILINFO* fno);
 };
 
 
@@ -228,9 +231,6 @@ private:
 
 	FIL* file = nullptr;
 
-
-	uint8_t file_state = 0;
-	uint8_t is_directory = 0;
 };
 
 
@@ -338,7 +338,6 @@ public:
 */
 
 	uint16_t createFilesList(uint8_t start_line, char** list, uint8_t list_length, uint16_t max_used_memory, uint8_t chooseFilter = 0);
-
 	uint16_t createProjectsList(char** list, uint8_t list_length, uint16_t max_used_memory);
 
 

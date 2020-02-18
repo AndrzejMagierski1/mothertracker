@@ -315,6 +315,62 @@ bool SdCard::remove(const char* path)
     return true;
 }
 
+bool SdCard::removeDirWithFiles(const char* path)
+{
+    char buff[256];
+    FILINFO fno;
+    strcpy(buff, path);
+
+    FRESULT error = delete_node(buff, 255, &fno);
+    if(error)
+    {
+    	reportError("remove dir with files failed", error);
+        return false;
+    }
+    return true;
+}
+
+FRESULT SdCard::delete_node(
+    TCHAR* path,    /* Path name buffer with the sub-directory to delete */
+    UINT sz_buff,   /* Size of path name buffer (items) */
+    FILINFO* fno    /* Name read buffer */
+)
+{
+    UINT i, j;
+    FRESULT fr;
+    DIR dir;
+
+
+    fr = f_opendir(&dir, path); /* Open the directory */
+    if (fr != FR_OK) return fr;
+
+    for (i = 0; path[i]; i++) ; /* Get current path length */
+    path[i++] = _T('/');
+
+    for (;;) {
+        fr = f_readdir(&dir, fno);  /* Get a directory item */
+        if (fr != FR_OK || !fno->fname[0]) break;   /* End of directory? */
+        j = 0;
+        do {    /* Make a path name */
+            if (i + j >= sz_buff) { /* Buffer over flow? */
+                fr = (FRESULT)100; break;    /* Fails with 100 when buffer overflow */
+            }
+            path[i + j] = fno->fname[j];
+        } while (fno->fname[j++]);
+        if (fno->fattrib & AM_DIR) {    /* Item is a directory */
+            fr = delete_node(path, sz_buff, fno);
+        } else {                        /* Item is a file */
+            fr = f_unlink(path);
+        }
+        if (fr != FR_OK) break;
+    }
+
+    path[--i] = 0;  /* Restore the path name */
+    f_closedir(&dir);
+
+    if (fr == FR_OK) fr = f_unlink(path);  /* Delete the empty directory */
+    return fr;
+}
 
 uint32_t  SdCard::clusterCount()
 {

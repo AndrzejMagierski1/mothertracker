@@ -29,8 +29,6 @@
 #include "debugLog.h"
 
 
-//#include "RamMonitor.h"
-
 cInterface mtInterface;
 
 
@@ -96,8 +94,6 @@ cFunctionMachine::strButtonObject cFunctionMachine::buttons		[interfaceButtonsCo
 cFunctionMachine::strPadObject cFunctionMachine::pads			[interfacePadsCount] 	= {0};
 
 
-//RamMonitor ramMonitor;
-//elapsedMillis ramTimer;
 //=======================================================================
 //=======================================================================
 //=======================================================================
@@ -105,7 +101,6 @@ cFunctionMachine::strPadObject cFunctionMachine::pads			[interfacePadsCount] 	= 
 void cInterface::begin()
 {
 	operatingMode = mtOperatingModeStartup;
-	startupTimer = 0;
 
 	for(uint8_t i = 0; i<modulesCount; i++)
 	{
@@ -121,9 +116,6 @@ void cInterface::begin()
 	popupConfig.lineColor[0] = 0xffffff;
 	popupConfig.lineStyle[0] = controlStyleCenterX;
 	mtPopups.config(4, &popupConfig);
-
-
-	//ramMonitor.initialize();
 }
 
 //=======================================================================
@@ -143,19 +135,6 @@ void cInterface::update()
 	mtTest.testLoop();
 
 	debugLog.update();
-
-//	ramMonitor.run();
-//	if(ramTimer > 1000)
-//	{
-//		ramTimer = 0;
-//
-//		debugLog.addLine("Free stack: ");
-//		debugLog.addValue(ramMonitor.stack_free());
-//
-//		debugLog.addText(" Free heap: ");
-//		debugLog.addValue(ramMonitor.heap_free());
-//	}
-
 }
 
 
@@ -169,7 +148,7 @@ void cInterface::processOperatingMode()
 	{
 		case mtOperatingModeStartup:
 		{
-			doStartTasks();
+			doStartTasks(); // odczyt configu, wersji, init controlek popupow, ekran startowy/braku karty
 			operatingMode = mtOperatingModeOpenProject;
 			break;
 		}
@@ -198,7 +177,7 @@ void cInterface::processOperatingMode()
 
 			break;
 		}
-		default: break;
+		default: break; //mtOperatingModeRun
 	}
 }
 

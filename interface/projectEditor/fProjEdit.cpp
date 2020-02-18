@@ -1017,74 +1017,6 @@ static uint8_t functExportGoBack()
 	return 1;
 }
 //===============================================================================================================
-//uint8_t functShowProjectsList()
-//{
-//	PE->listOnlyFolderNames("/Projects/");
-//
-//
-//	PE->showProjectsList();
-//
-//
-//// funkcje
-//	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-//	PE->FM->clearAllPots();
-//
-//	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
-//
-//	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProject);
-//	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList);
-//
-//
-//	return 1;
-//}
-
-
-//uint8_t functShowTemplatesList()
-//{
-//	PE->listOnlyFolderNames("/Templates/");
-//
-//
-//	PE->showTemplatesList();
-//
-//
-//
-//
-//// funkcje
-//	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-//	PE->FM->clearAllPots();
-//
-//	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
-//
-//	PE->FM->setButtonObj(interfaceButton0, buttonPress, functEnterName);
-//	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList);
-//	PE->FM->setButtonObj(interfaceButton4, buttonPress, functCreateNewTemplate);
-//
-//	return 1;
-//}
-
-//uint8_t functCancelList()
-//{
-//	PE->showDefaultScreen();
-//	PE->setDefaultScreenFunct();
-//	return 1;
-//}
-//uint8_t functOpenTemplate()
-//{
-//
-//
-//	PE->showDefaultScreen();
-//	PE->setDefaultScreenFunct();
-//
-//	return 1;
-//}
-
-//uint8_t functCreateNewTemplate()
-//{
-//
-//	functShowTemplatesList();
-//
-//	return 1;
-//}
 
 static uint8_t functSwitchModule(uint8_t button)
 {
@@ -1119,53 +1051,6 @@ void cProjectEditor::listProjectsNames(const char* folder)
 	}
 
 }
-
-//static uint8_t functEnterName()
-//{
-//
-//	char localPatch[PATCH_SIZE];
-//	uint16_t cnt=1;
-//	strcpy(PE->name,"New Project");
-//	sprintf(localPatch,"Projects/%s",PE->name);
-//
-//	while(SD.exists(localPatch))
-//	{
-//	   sprintf(PE->name,"New Project%d",cnt);
-//	   sprintf(localPatch,"Projects/%s",PE->name);
-//
-//	   cnt++;
-//	   if(cnt > 9999)
-//	   {
-//		   memset(PE->name,0,33);
-//		   break;
-//	   }
-//	}
-//
-//	PE->editPosition = strlen(PE->name);
-//	PE->keyboardPosition = BACKSPACE_PAD_1;
-//	PE->lastPressedPad = BACKSPACE_PAD_1;
-//	leds.setLED(BACKSPACE_PAD_1, 1, 31);
-//	leds.setLED(BACKSPACE_PAD_2, 1, 31);
-//
-//
-//	PE->showEnterNameKeyboard();
-//	PE->keyboardActiveFlag = 1;
-//
-//
-//// funkcje
-//	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-//	PE->FM->clearAllPots();
-//
-////	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
-//
-//	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenTemplate);
-//	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList);
-//	PE->FM->setButtonObj(interfaceButton4, buttonPress, functCreateNewTemplate);
-//	PE->FM->setButtonObj(interfaceButtonEnter, buttonPress, functConfirmKey);
-//
-//
-//	return 1;
-//}
 
 static  uint8_t functLeft()
 {

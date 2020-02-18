@@ -601,7 +601,7 @@ void FileManager::refreshDeleting()
 {
 	if(deleteHandle.isDone == 0)
 	{
-		recursiveRemoveProject(&deleteHandle);
+		//recursiveRemoveProject(&deleteHandle);
 	}
 	else
 	{
@@ -670,14 +670,19 @@ void FileManager::deleteProjectStart(const char *projectName)
 
 	//deleteHandle.roots[deleteHandle.lastRoot] =
 
-	if(deleteHandle.dirTree[deleteHandle.actualTreeLevel])
-	{
-		recursiveRemoveProject(&deleteHandle);
-	}
-	else
-	{
-		deletingInProgress = 0;
-	}
+	SD.removeDirWithFiles(deleteHandle.deleteSourcePath);
+
+
+	deleteHandle.isDone = 1;
+
+//	if(deleteHandle.dirTree[deleteHandle.actualTreeLevel])
+//	{
+//		recursiveRemoveProject(&deleteHandle);
+//	}
+//	else
+//	{
+//		deletingInProgress = 0;
+//	}
 }
 
 void FileManager::autoSaveProject()

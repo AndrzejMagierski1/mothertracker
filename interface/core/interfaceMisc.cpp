@@ -5,6 +5,8 @@
 #include "projectEditor/projectEditor.h"
 
 #include "mtFileManager.h"
+#include "fileManager.h"
+
 #include <display.h>
 #include "MTP.h"
 #include "mtSleep.h"
@@ -21,32 +23,37 @@ extern cProjectEditor* PE;
 //==================================================================================================
 void cInterface::openStartupProject()
 {
-	startupTimer = 0;
-
-	if(mtConfig.startup.startMode == interfaceOpenLastProject)
+	if(!newFileManager.loadProjectFromWorkspace())
 	{
-		char currentPatch[PATCH_SIZE];
+		newFileManager.createNewProjectInWorkspace();
+		newFileManager.loadProjectFromWorkspace();
+	}
 
-		strcpy(currentPatch,"Workspace/project.mt");
-		if(SD.exists(currentPatch))
+
+	////////////////////////////////////////////////////
+	char currentPatch[PATCH_SIZE];
+
+	strcpy(currentPatch,"Workspace/project.mt");
+	if(SD.exists(currentPatch))
+	{
+		if(fileManager.loadProjectFromWorkspaceStart())
 		{
-			if(fileManager.loadProjectFromWorkspaceStart())
-			{
-				openFromWorkspaceFlag = 1;
-			}
-		}
-
-		if(!openFromWorkspaceFlag)
-		{
-			//strcpy(currentPatch,"Templates/New/project.mt");
-			fileManager.createEmptyTemplateProject((char*)"New");
-
-			fileManager.openProjectStart((char*)"New", projectTypeExample);
-
-			PE->newProjectNotSavedFlag = 1;
-			strcpy(fileManager.currentProjectName, "New Project");
+			openFromWorkspaceFlag = 1;
 		}
 	}
+
+	if(!openFromWorkspaceFlag)
+	{
+		//strcpy(currentPatch,"Templates/New/project.mt");
+		fileManager.createEmptyTemplateProject((char*)"New");
+
+		fileManager.openProjectStart((char*)"New", projectTypeExample);
+
+		PE->newProjectNotSavedFlag = 1;
+		strcpy(fileManager.currentProjectName, "New Project");
+	}
+
+
 }
 
 uint8_t cInterface::detectProjectLoadState()

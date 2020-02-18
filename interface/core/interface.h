@@ -97,8 +97,6 @@ private:
 
 	uint8_t operatingMode = 0;
 
-	elapsedMillis startupTimer;
-
 
 	hModule onScreenModule = nullptr;
 	uint32_t lastOptions = 0;
