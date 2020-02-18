@@ -43,12 +43,13 @@ void AudioEffectEnvelope::delay(float milliseconds)
 	AudioNoInterrupts();
 	uint16_t lastDelayCount = delay_count;
 	delay_count = milliseconds2count(milliseconds);
+	if (delay_count == 0) delay_count = 1;
 	if(state == STATE_DELAY)
 	{
 		int32_t dif = delay_count - lastDelayCount;
 
-		if((count + dif) < 0 ) count = 0;
-		else if ((count + dif) > 65535) count = 65535;
+		if((int)(count + dif) < 1 ) count = 1;
+		else if ((int)(count + dif) > 65535) count = 65535;
 		else count += dif;
 	}
 	AudioInterrupts();
@@ -68,8 +69,8 @@ void  AudioEffectEnvelope::attack(float milliseconds)
 	{
 		int32_t dif = attack_count - lastAttackCount;
 
-		if((count + dif) < 0 ) count = 0;
-		else if ((count + dif) > 65535) count = 65535;
+		if((int)(count + dif) < 1 ) count = 1;
+		else if ((int)(count + dif) > 65535) count = 65535;
 		else count += dif;
 
 		int32_t y = 0x40000000 - mult_hires;
@@ -78,6 +79,7 @@ void  AudioEffectEnvelope::attack(float milliseconds)
 		if(x < 0) x = 0;
 
 		inc_hires = x ?  y /x : 0;
+
 	}
 	AudioInterrupts();
 	__enable_irq();
@@ -92,9 +94,10 @@ void  AudioEffectEnvelope::hold(float milliseconds)
 	{
 		int32_t dif = hold_count - lastHoldCount;
 
-		if((count + dif) < 0 ) count = 0;
-		else if ((count + dif) > 65535) count = 65535;
+		if((int)(count + dif) < 1 ) count = 1;
+		else if ((int)(count + dif) > 65535) count = 65535;
 		else count += dif;
+
 	}
 	AudioInterrupts();
 	__enable_irq();
@@ -110,11 +113,12 @@ void  AudioEffectEnvelope::decay(float milliseconds)
 	{
 		int32_t dif = decay_count - lastDecayCount;
 
-		if((count + dif) < 0 ) count = 0;
-		else if ((count + dif) > 65535) count = 65535;
+		if((int)(count + dif) < 1 ) count = 1;
+		else if ((int)(count + dif) > 65535) count = 65535;
 		else count += dif;
 
 		inc_hires = count ? (sustain_mult - mult_hires) / (int32_t)count : 0 ;
+
 	}
 	AudioInterrupts();
 	__enable_irq();
@@ -137,15 +141,17 @@ void  AudioEffectEnvelope::release(float milliseconds)
 	uint16_t lastReleaseCount = release_count;
 	release_count = milliseconds2count(milliseconds);
 	if (release_count == 0) release_count = 1;
+
 	if(state == STATE_RELEASE)
 	{
-		int32_t dif = lastReleaseCount - release_count;
+		int32_t dif = release_count - lastReleaseCount;
 
-		if((count + dif) < 0 ) count = 0;
-		else if ((count + dif) > 65535) count = 65535;
+		if( (int)(count + dif) < 1 ) count = 1;
+		else if ((int)(count + dif) > 65535) count = 65535;
 		else count += dif;
 
 		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+
 	}
 	AudioInterrupts();
 	__enable_irq();
@@ -163,12 +169,14 @@ void AudioEffectEnvelope::noteOn(void)
 		{
 			state = STATE_DELAY;
 			inc_hires = 0;
+
 		}
 		else
 		{
 			state = STATE_ATTACK;
 			count = attack_count;
-			inc_hires = 0x40000000 / (int32_t)count;
+			inc_hires = count? 0x40000000 / (int32_t)count : 0;
+
 		}
 	}
 	else if (state != STATE_FORCED)
@@ -178,13 +186,14 @@ void AudioEffectEnvelope::noteOn(void)
 		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
 		mult_hires = (-inc_hires) * count; // powinno zapobiec przechodzeniu przez zero
 	}
+	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
 	__enable_irq();
 }
 
 void AudioEffectEnvelope::noteOff(void)
 {
-	pressedFlag = 0;
 	__disable_irq();
+	pressedFlag = 0;
 	if (state != STATE_IDLE && state != STATE_FORCED) {
 		if(loopFlag)
 		{
@@ -391,16 +400,25 @@ void AudioEffectEnvelope::update(void)
 		if(mult_hires < 0 )
 		{
 			mult_hires = 0;
+			count = 0;
+			debugLog.setMaxLineCount(10);
 			debugLog.addLine("MH<0 ");
 			debugLog.addValue(state);
+			debugLog.addText(" ");
+			debugLog.addValue(count);
 		}
 		else if(mult_hires > 0x40000000)
 		{
 			mult_hires = 0x40000000;
+			count = 0;
+			debugLog.setMaxLineCount(10);
 			debugLog.addLine("MH>MAX ");
 			debugLog.addValue(state);
+			debugLog.addText(" ");
+			debugLog.addValue(count);
 		}
-		count--;
+
+		if(count > 0 ) count--;
 	}
 	transmit(block);
 	AudioStream::release(block);
