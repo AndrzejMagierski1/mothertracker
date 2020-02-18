@@ -92,7 +92,11 @@ void playerEngine ::changePanningPerformanceMode(int8_t value)
 void playerEngine ::changeTunePerformanceMode(int8_t value)
 {
 	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::tune] != 1) && (value == 0)) return;
+
 	performanceMod.tune = value;
+
+	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
+
 	if(mtProject.instrument[currentInstrument_idx].tune + value > MAX_INSTRUMENT_TUNE) currentPerformanceValues.tune = MAX_INSTRUMENT_TUNE;
 	else if(mtProject.instrument[currentInstrument_idx].tune + value < MIN_INSTRUMENT_TUNE) currentPerformanceValues.tune = MIN_INSTRUMENT_TUNE;
 	else currentPerformanceValues.tune = mtProject.instrument[currentInstrument_idx].tune + value;
@@ -131,10 +135,12 @@ void playerEngine ::changeReverbSendPerformanceMode(int8_t value)
 
 void playerEngine::changeStartPointPerformanceMode(int32_t value)
 {
+	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 	changePointsPerformanceMode(value, trackControlParameter[(int)controlType::performanceMode][(int)parameterList::endPoint] ? performanceMod.endPoint : 0);
 }
 void playerEngine::changeEndPointPerformanceMode(int32_t value)
 {
+	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 	changePointsPerformanceMode(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint] ? performanceMod.startPoint : 0, value );
 }
 
@@ -319,6 +325,8 @@ void playerEngine::changeWavetableWindowPerformanceMode(int16_t value)
 	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition] != 1) && (value == 0)) return;
 	performanceMod.wavetablePosition = value;
 
+	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
+
 	uint32_t wavetableWindow;
 
 	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::wavetablePosition] ||
@@ -346,6 +354,8 @@ void playerEngine::changeGranularPositionPerformanceMode(int16_t value)
 {
 	if((trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition] != 1) && (value == 0)) return;
 	performanceMod.granularPosition = value;
+
+	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 
 	uint32_t granularPosition;
 
@@ -599,6 +609,7 @@ void playerEngine::endPanningPerformanceMode()
 void playerEngine::endTunePerformanceMode()
 {
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::tune] = 0;
+	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 	playMemPtr->clearTuneForceFlag(); //blokuje zmiane tuna w playMemory
 
 
@@ -663,7 +674,7 @@ void playerEngine::endPointsPerformanceMode()
 }
 void playerEngine::endStartPointPerformanceMode()
 {
-
+	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::endPoint])
 	{
 		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint] = 0;
@@ -716,6 +727,7 @@ void playerEngine ::endSamplePlaybackPerformanceMode()
 }
 void playerEngine ::endEndPointPerformanceMode()
 {
+	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
 	{
 		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::endPoint] = 0;
@@ -728,6 +740,8 @@ void playerEngine ::endEndPointPerformanceMode()
 void playerEngine::endWavetableWindowPerformanceMode()
 {
 	uint32_t wavetableWindow;
+
+	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 
 	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::wavetablePosition] ||
 	   trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::wavetablePosition])
@@ -748,6 +762,8 @@ void playerEngine::endWavetableWindowPerformanceMode()
 void playerEngine::endGranularPositionPerformanceMode()
 {
 	uint32_t granularPos;
+
+	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 
 	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::granularPosition] ||
 	   trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::granularPosition])

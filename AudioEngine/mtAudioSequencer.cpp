@@ -6,8 +6,9 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 {
 	AudioNoInterrupts();
 	__disable_irq();
-	endFx(lastSeqFx[fx_n],fx_n);
 
+	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
+	endFx(lastSeqFx[fx_n],fx_n);
 	switch(fx_id)
 	{
 		case 0: break; // na 0 mial wywolywac endFx ale wywoluje go zawsze i tak
@@ -52,6 +53,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 
 	if(isVeloFx) fx_id = fx_t::FX_TYPE_VELOCITY;
 
+	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 	switch(fx_id)
 	{
 		case 0: break;
@@ -1027,6 +1029,21 @@ void playerEngine::endFxPositionWavetable(uint8_t fx_n)
 			uint8_t minFxPosition = sequencer.getFxMin(fx_t::FX_TYPE_POSITION);
 
 			currentSeqModValues.wavetablePosition = map(lastSeqVal[otherFx_n],minFxPosition,maxFxPosition,0,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber);
+
+			playMemPtr->setWavetableWindowFlag();
+			playMemPtr->setForcedWavetableWindow(currentSeqModValues.wavetablePosition);
+		}
+		else
+		{
+			playMemPtr->clearWavetableWindowFlag();
+			uint32_t localWtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+
+			int32_t localWtMod = currentEnvelopeModification[envWtPos] * mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber;
+
+			if(localWtPos + localWtMod > mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1 ) localWtPos = mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1;
+			else if(localWtPos + localWtMod < 0 ) localWtPos = 0;
+			else localWtPos += localWtMod;
+			playMemPtr->setWavetableWindow(localWtPos);
 		}
 	}
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])

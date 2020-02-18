@@ -103,6 +103,8 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		}
 	}
 
+
+
 	seqFx(fx1_id,fx1_val,0);
 	seqFx(fx2_id,fx2_val,1);
 //*******
