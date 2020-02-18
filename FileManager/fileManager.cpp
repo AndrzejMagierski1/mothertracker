@@ -84,32 +84,13 @@ bool cFileManager::loadProjectFromWorkspace()
 
 bool cFileManager::createNewProjectInWorkspace()
 {
-	if(!SD.exists("Workspace"))
-	{
-		SD.mkdir(1,"Workspace");
-	}
-
-	if(!SD.exists("Workspace/instruments"))
-	{
-		SD.mkdir(1,"Workspace/instruments");
-	}
-
-	if(!SD.exists("Workspace/patterns"))
-	{
-		SD.mkdir(1,"Workspace/patterns");
-	}
-
-	if(!SD.exists("Workspace/samples"))
-	{
-		SD.mkdir(1,"Workspace/samples");
-	}
+	createWorkspaceDirs();
 
 
 
 
 
-
-
+	return true;
 }
 
 

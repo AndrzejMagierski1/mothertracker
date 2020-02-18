@@ -51,7 +51,6 @@ const char cWorkspaceInstrumentsPath[] = "Workspace/instruments";
 
 const char cProjectFileName[] = "project.mt";
 const char cProjectFileNameInWorkspace[] = "Workspace/project.mt";
-const char cProjectFileNameInWorkspace[] = "Workspace/project.mt";
 
 
 
