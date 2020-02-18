@@ -684,7 +684,6 @@ void cMasterParams::calcTrackLevel(uint8_t n)
 		{
 			trackLevel[n].timer = 0;
 			trackLevel[n].value--;
-			if(n==0) Serial.printf("t: %d val: %d\n", n,trackLevel[n].value );
 		}
 		if(localLevel > trackLevel[n].value) trackLevel[n].value = localLevel;
 

@@ -175,7 +175,8 @@ void AudioEffectEnvelope::noteOn(void)
 	{
 		state = STATE_FORCED;
 		count = release_forced_count;
-		inc_hires = (-mult_hires) / (int32_t)count;
+		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+		mult_hires = (-inc_hires) * count; // powinno zapobiec przechodzeniu przez zero
 	}
 	__enable_irq();
 }
@@ -194,6 +195,7 @@ void AudioEffectEnvelope::noteOff(void)
 		state = STATE_RELEASE;
 		count = release_count;
 		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+		mult_hires = (-inc_hires) * count;
 	}
 	__enable_irq();
 }
