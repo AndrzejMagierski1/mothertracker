@@ -958,6 +958,7 @@ void playerEngine::endFxPositionGranular(uint8_t fx_n)
 	uint8_t otherFx_n = !fx_n;
 
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::granularPosition] = 0;
+
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
 		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::granularPosition])
@@ -966,6 +967,22 @@ void playerEngine::endFxPositionGranular(uint8_t fx_n)
 			uint8_t minFxPosition = sequencer.getFxMin(fx_t::FX_TYPE_POSITION);
 
 			currentSeqModValues.granularPosition = map(lastSeqVal[otherFx_n],minFxPosition,maxFxPosition,0,MAX_16BIT);
+
+			playMemPtr->setGranularPosForceFlag();
+			playMemPtr->setForcedGranularPos(currentSeqModValues.granularPosition);
+			playMemPtr->setGranularPosition(currentSeqModValues.granularPosition);
+		}
+		else
+		{
+			playMemPtr->clearGranularPosForceFlag();
+			uint32_t localGranPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+
+			int32_t localGranMod = currentEnvelopeModification[envGranPos] * MAX_16BIT;
+
+			if(localGranPos + localGranMod > MAX_16BIT ) localGranPos = MAX_16BIT;
+			else if(localGranPos + localGranMod < 0 ) localGranPos = 0;
+			else localGranPos += localGranMod;
+			playMemPtr->setGranularPosition(localGranPos);
 		}
 	}
 	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])

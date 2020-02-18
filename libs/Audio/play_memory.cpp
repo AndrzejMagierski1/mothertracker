@@ -842,7 +842,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	loopPoint2Granular = endGranular - 1;
 
 	granularLoopType = mtProject.instrument[instr_idx].granular.type;
-	currentGranularPosition = mtProject.instrument[instr_idx].granular.currentPosition;
+	currentGranularPosition = granularForcedFlag ? forcedGranularPosition : mtProject.instrument[instr_idx].granular.currentPosition;
 	switch(mtProject.instrument[instr_idx].granular.shape)
 	{
 		case granularShapeSquare: 		granularEnvelopeTab = squareTab; 	break;
@@ -1865,6 +1865,7 @@ void AudioPlayMemory::clearGranularPosForceFlag()
 void AudioPlayMemory::setForcedGranularPos(uint16_t value)
 {
 	forcedGranularPosition = value;
+
 }
 
 
