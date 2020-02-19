@@ -811,9 +811,26 @@ void playerEngine:: update()
 		if(statusBytes & REVERB_SEND_MASK)
 		{
 			statusBytes &= (~REVERB_SEND_MASK);
+
+			uint8_t localReverbSend = 0;
+
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+			{
+				localReverbSend = currentPerformanceValues.reverbSend;
+			}
+			else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend] ||
+					trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend])
+			{
+				localReverbSend = currentSeqModValues.reverbSend;
+			}
+			else
+			{
+				localReverbSend = mtProject.instrument[currentInstrument_idx].reverbSend;
+			}
+
 			if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
 			{
-				modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
+				modReverbSend(localReverbSend);
 			}
 		}
 		if(statusBytes & WT_POS_SEND_MASK)

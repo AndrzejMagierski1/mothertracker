@@ -87,16 +87,13 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 //******** seqFx
 	if(velocity >= 0)
 	{
-		bool isVeloFx1 = (fx1_id == fx_t::FX_TYPE_RANDOM_VELOCITY) || (fx1_id == fx_t::FX_TYPE_VELOCITY) || (fx1_id == fx_t::FX_TYPE_ROLL);
-		bool isVeloFx2 = (fx2_id == fx_t::FX_TYPE_RANDOM_VELOCITY) || (fx2_id == fx_t::FX_TYPE_VELOCITY) || (fx2_id == fx_t::FX_TYPE_ROLL);
-
-		if (isVeloFx1)
+		if (isFxVelocity(fx1_id))
 		{
 			fx1_id = fx_t::FX_TYPE_VELOCITY;
 			fx1_val = velocity;
 		}
 
-		if (isVeloFx2)
+		if (isFxVelocity(fx2_id))
 		{
 			fx2_id = fx_t::FX_TYPE_VELOCITY;
 			fx2_val = velocity;

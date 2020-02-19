@@ -49,9 +49,7 @@ void playerEngine::seqFx(uint8_t fx_id, uint8_t fx_val, uint8_t fx_n)
 // swoje operacje na podstawie wartości mniej znaczącego efektu ***/
 void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 {
-	bool isVeloFx = (fx_id == fx_t::FX_TYPE_RANDOM_VELOCITY) || (fx_id == fx_t::FX_TYPE_VELOCITY) || (fx_id == fx_t::FX_TYPE_ROLL);
-
-	if(isVeloFx) fx_id = fx_t::FX_TYPE_VELOCITY;
+	if(isFxVelocity(fx_id)) fx_id = fx_t::FX_TYPE_VELOCITY;
 
 	playMemPtr->setCurrentInstrIdx(currentInstrument_idx); //play mem dopiero aktualizuje index na play, a czasem korzysta sie wczesniej z funkcji
 	switch(fx_id)
@@ -73,7 +71,7 @@ void playerEngine::endFx(uint8_t fx_id, uint8_t fx_n)
 		case fx_t::FX_TYPE_R30 : break;
 		case fx_t::FX_TYPE_R31 : break;
 		case fx_t::FX_TYPE_POSITION:					endFxPosition(fx_n);		break;
-		case fx_t::FX_TYPE_RANDOM_VELOCITY:				endFxVolume(fx_n);			break; // dla porządku - wyzej i tak go nadpisze na zwykle velocity
+		case fx_t::FX_TYPE_RANDOM_VELOCITY:				endFxRandomVolume(fx_n);	break; // dla porządku - wyzej i tak go nadpisze na zwykle velocity
 		case fx_t::FX_TYPE_VELOCITY:					endFxVolume(fx_n);			break;
 		case fx_t::FX_TYPE_SAMPLE_SLICE:				endFxSlice(fx_n);			break;
 		case fx_t::FX_TYPE_VOLUME_LFO:					endFxVolumeLFO(fx_n);		break;
@@ -147,8 +145,7 @@ void playerEngine::fxGlide(uint8_t fx_val, uint8_t fx_n)
 	}
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::glide] = 1;
 
-	playMemPtr->setGlideForceFlag();
-	playMemPtr->setForcedGlide(currentSeqModValues.glide);
+	setFxGlide();
 }
 
 void playerEngine::fxFinetune(uint8_t fx_val, uint8_t fx_n)
@@ -170,9 +167,7 @@ void playerEngine::fxFinetune(uint8_t fx_val, uint8_t fx_n)
 	}
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::fineTune] = 1;
 
-	playMemPtr->setFineTuneForceFlag();
-	playMemPtr->setForcedFineTune(currentSeqModValues.fineTune);
-	playMemPtr->setFineTune(currentSeqModValues.fineTune, currentNote);
+	setFxFinetune();
 }
 
 void playerEngine::fxPanning(uint8_t fx_val, uint8_t fx_n)
@@ -196,14 +191,7 @@ void playerEngine::fxPanning(uint8_t fx_val, uint8_t fx_n)
 
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::panning] = 1;
 
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning])
-	{
-		changePanningPerformanceMode(performanceMod.panning);
-	}
-	else
-	{
-		modPanning(currentSeqModValues.panning);
-	}
+	setFxPanning();
 }
 
 void playerEngine::fxReverbSend(uint8_t fx_val, uint8_t fx_n)
@@ -227,18 +215,7 @@ void playerEngine::fxReverbSend(uint8_t fx_val, uint8_t fx_n)
 	}
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::reverbSend] = 1;
 
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
-	{
-		changeReverbSendPerformanceMode(performanceMod.reverbSend);
-	}
-	else
-	{
-		if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
-		{
-			modReverbSend(currentSeqModValues.reverbSend);
-		}
-		else modReverbSend(AMP_MUTED);
-	}
+	setFxReverbSend();
 }
 
 void playerEngine::fxReversePlayback(uint8_t fx_val, uint8_t fx_n)
@@ -249,23 +226,17 @@ void playerEngine::fxReversePlayback(uint8_t fx_val, uint8_t fx_n)
 
 	if(fx_n == MOST_SIGNIFICANT_FX)
 	{
-		if(fx_val) playMemPtr->setReverse();
-		else playMemPtr->clearReverse();
-
 		currentSeqModValues.reversePlayback = fx_val;
+		setFxReverse();
 	}
 	else if(fx_n == LEAST_SIGNIFICANT_FX)
 	{
 		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::samplePlaybeckDirection])
 		{
-			if(fx_val) playMemPtr->setReverse();
-			else playMemPtr->clearReverse();
-
 			currentSeqModValues.reversePlayback = fx_val;
+			setFxReverse();
 		}
 	}
-
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection]) changeSamplePlaybackPerformanceMode(performanceMod.reversePlayback);
 }
 //******* position
 void playerEngine::fxPosition(uint8_t fx_val, uint8_t fx_n)
@@ -303,13 +274,7 @@ void playerEngine::fxPositionStartPoint(uint8_t fx_val, uint8_t fx_n)
 		}
 	}
 
-	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::endPoint]) modSeqPoints(currentSeqModValues.startPoint, currentSeqModValues.endPoint);
-	else modSeqPoints(currentSeqModValues.startPoint , NOT_MOD_POINTS);
-
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
-	{
-		changeStartPointPerformanceMode(performanceMod.startPoint);
-	}
+	setFxStartPoint();
 }
 void playerEngine::fxPositionWavetable(uint8_t fx_val, uint8_t fx_n)
 {
@@ -332,16 +297,7 @@ void playerEngine::fxPositionWavetable(uint8_t fx_val, uint8_t fx_n)
 
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::wavetablePosition] = 1;
 
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
-	{
-		changeWavetableWindowPerformanceMode(performanceMod.wavetablePosition);
-	}
-	else
-	{
-		playMemPtr->setWavetableWindowFlag();
-		playMemPtr->setForcedWavetableWindow(currentSeqModValues.wavetablePosition);
-		playMemPtr->setWavetableWindow(currentSeqModValues.wavetablePosition);
-	}
+	setFxPositionWavetable();
 }
 void playerEngine::fxPositionGranular(uint8_t fx_val, uint8_t fx_n)
 {
@@ -364,16 +320,7 @@ void playerEngine::fxPositionGranular(uint8_t fx_val, uint8_t fx_n)
 
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::granularPosition] = 1;
 
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])
-	{
-		changeGranularPositionPerformanceMode(performanceMod.granularPosition);
-	}
-	else
-	{
-		playMemPtr->setGranularPosForceFlag();
-		playMemPtr->setForcedGranularPos(currentSeqModValues.granularPosition);
-		playMemPtr->setGranularPosition(currentSeqModValues.granularPosition);
-	}
+	setFxPositionGranular();
 }
 //*******
 void playerEngine::fxRandomVolume(uint8_t fx_val, uint8_t fx_n)
@@ -392,7 +339,7 @@ void playerEngine::fxRandomVolume(uint8_t fx_val, uint8_t fx_n)
 	else maxRand = localVolume + fx_val;
 
 	if(localVolume - fx_val < minFxVol) minRand = minFxVol;
-	else minFxVol = localVolume - fx_val;
+	else minRand = localVolume - fx_val;
 
 	localVolume = random(minRand,maxRand);
 
@@ -418,42 +365,7 @@ void playerEngine::fxVolume(uint8_t fx_val, uint8_t fx_n)
 		}
 	}
 
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
-	{
-		changeVolumePerformanceMode(performanceMod.volume);
-	}
-	else
-	{
-		float localAmount = 0.0f;
-
-		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]  ||
-		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
-		   trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
-		{
-			localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
-		}
-		else
-		{
-			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
-			{
-				if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
-				{
-					localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
-				}
-				else
-				{
-					localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
-				}
-			}
-			else
-			{
-				localAmount = 1.0f;
-			}
-
-		}
-		if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[currentSeqModValues.volume] * localAmount);
-		else ampPtr->gain(AMP_MUTED);
-	}
+	setFxVolume();
 }
 
 void playerEngine::fxSampleSlice(uint8_t fx_val, uint8_t fx_n)
@@ -474,8 +386,7 @@ void playerEngine::fxSampleSlice(uint8_t fx_val, uint8_t fx_n)
 		}
 	}
 
-	playMemPtr->setSliceForcedFlag();
-	playMemPtr->setForcedSlice(currentSeqModValues.slice);
+	setFxSlice();
 }
 
 void playerEngine::fxVolumeLFO(uint8_t fx_val, uint8_t fx_n)
@@ -543,6 +454,14 @@ void playerEngine::fxCutoffLFO(uint8_t fx_val, uint8_t fx_n)
 	{
 		calcLfoBasedEnvelope(&lfoBasedEnvelope[envFilter], &mtProject.instrument[currentInstrument_idx].lfo[envFilter],currentSeqModValues.lfoCutoffRate);
 		envelopePtr[envFilter]->init(&lfoBasedEnvelope[envFilter]);
+
+		if((envelopePtr[envFilter]->isKeyPressed() != 1) && (envelopePtr[envFilter]->getPhase() == 0)) envelopePtr[envFilter]->start();
+		else if( (!mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop) &&
+				 (!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoCutoff]))
+		{
+			envelopePtr[envFilter]->kill();
+			envelopePtr[envFilter]->start();
+		}
 	}
 }
 //******* position LFO
@@ -585,6 +504,7 @@ void playerEngine::fxPositionGranularLFO(uint8_t fx_val, uint8_t fx_n)
 	{
 		calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[currentInstrument_idx].lfo[envGranPos],currentSeqModValues.lfoGranularPositionRate);
 		envelopePtr[envGranPos]->init(&lfoBasedEnvelope[envGranPos]);
+		if((envelopePtr[envGranPos]->isKeyPressed() != 1) && (envelopePtr[envGranPos]->getPhase() == 0)) envelopePtr[envGranPos]->start();
 	}
 }
 void playerEngine::fxPositionWavetableLFO(uint8_t fx_val, uint8_t fx_n)
@@ -615,6 +535,7 @@ void playerEngine::fxPositionWavetableLFO(uint8_t fx_val, uint8_t fx_n)
 	{
 		calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[currentInstrument_idx].lfo[envWtPos],currentSeqModValues.lfoWavetablePositionRate);
 		envelopePtr[envWtPos]->init(&lfoBasedEnvelope[envWtPos]);
+		if((envelopePtr[envWtPos]->isKeyPressed() != 1) && (envelopePtr[envWtPos]->getPhase() == 0)) envelopePtr[envWtPos]->start();
 	}
 }
 //*********
@@ -645,6 +566,7 @@ void playerEngine::fxPanningLFO(uint8_t fx_val, uint8_t fx_n)
 	{
 		calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[currentInstrument_idx].lfo[envPan],currentSeqModValues.lfoPanningRate);
 		envelopePtr[envPan]->init(&lfoBasedEnvelope[envPan]);
+		if((envelopePtr[envPan]->isKeyPressed() != 1) && (envelopePtr[envPan]->getPhase() == 0)) envelopePtr[envPan]->start();
 	}
 }
 //************************************************************
@@ -739,20 +661,19 @@ void playerEngine::endFxGlide(uint8_t fx_n)
 			uint8_t halfFxGlide = maxFxGlide/2;
 
 			currentSeqModValues.glide = (lastSeqVal[otherFx_n] > halfFxGlide) ? map(lastSeqVal[otherFx_n],halfFxGlide,maxFxGlide,1000,GLIDE_MAX) : map(lastSeqVal[otherFx_n],minFxGlide,halfFxGlide,GLIDE_MIN,1000);
-			playMemPtr->setForcedGlide(currentSeqModValues.glide);
+
+			setFxGlide();
 		}
 		else
 		{
-			playMemPtr->clearGlideForceFlag();
-			playMemPtr->setForcedGlide(0);
+			clearFxGlide();
 		}
 	}
 	else
 	{
 		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::glide])
 		{
-			playMemPtr->clearGlideForceFlag();
-			playMemPtr->setForcedGlide(0);
+			clearFxGlide();
 		}
 	}
 }
@@ -769,22 +690,20 @@ void playerEngine::endFxFinetune(uint8_t fx_n)
 			uint8_t maxFxFinetune = sequencer.getFxMax(fx_t::FX_TYPE_MICROTUNING);
 			uint8_t minFxFinetune = sequencer.getFxMin(fx_t::FX_TYPE_MICROTUNING);
 
-			currentSeqModValues.fineTune = map(lastSeqVal[otherFx_n], minFxFinetune, maxFxFinetune, MIN_INSTRUMENT_FINETUNE,MAX_INSTRUMENT_FINETUNE);
-			playMemPtr->setFineTuneForceFlag();
-			playMemPtr->setForcedFineTune(currentSeqModValues.fineTune);
+			currentSeqModValues.fineTune = map(lastSeqVal[otherFx_n], minFxFinetune, maxFxFinetune, MIN_INSTRUMENT_FINETUNE, MAX_INSTRUMENT_FINETUNE);
+
+			setFxFinetune();
 		}
 		else
 		{
-			playMemPtr->clearFineTuneForceFlag();
-			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
+			clearFxFinetune();
 		}
 	}
 	else
 	{
 		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::fineTune])
 		{
-			playMemPtr->clearFineTuneForceFlag();
-			modFineTune(mtProject.instrument[currentInstrument_idx].fineTune);
+			clearFxFinetune();
 		}
 	}
 }
@@ -795,7 +714,7 @@ void playerEngine::endFxPanning(uint8_t fx_n)
 
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::panning] = 0;
 
-	if(fx_n == MOST_SIGNIFICANT_FX)
+	if(fx_n == MOST_SIGNIFICANT_FX) // Trzeba zaktualizowac wartosci sequencera
 	{
 		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::panning])
 		{
@@ -806,23 +725,13 @@ void playerEngine::endFxPanning(uint8_t fx_n)
 		}
 	}
 
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning])
+	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::panning])
 	{
-		changePanningPerformanceMode(performanceMod.panning);
+		setFxPanning();
 	}
 	else
 	{
-		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::panning])
-		{
-			if(fx_n == MOST_SIGNIFICANT_FX)
-			{
-				modPanning(currentSeqModValues.panning);
-			}
-		}
-		else
-		{
-			modPanning(mtProject.instrument[currentInstrument_idx].panning);
-		}
+		clearFxPanning();
 	}
 }
 
@@ -842,31 +751,14 @@ void playerEngine::endFxReverbSend(uint8_t fx_n)
 			currentSeqModValues.reverbSend = map(lastSeqVal[otherFx_n],minFxReverbSend,maxFxReverbSend,REVERB_SEND_MIN,REVERB_SEND_MAX);
 		}
 	}
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+
+	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
 	{
-		changeReverbSendPerformanceMode(performanceMod.reverbSend);
+		setFxReverbSend();
 	}
 	else
 	{
-		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::reverbSend])
-		{
-			if(fx_n == MOST_SIGNIFICANT_FX)
-			{
-				if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
-				{
-					modReverbSend(currentSeqModValues.reverbSend);
-				}
-				else modReverbSend(AMP_MUTED);
-			}
-		}
-		else
-		{
-			if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
-			{
-				modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
-			}
-			else modReverbSend(AMP_MUTED);
-		}
+		clearFxReverbSend();
 	}
 }
 
@@ -884,18 +776,13 @@ void playerEngine::endFxReversePlayback(uint8_t fx_n)
 		}
 	}
 
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection])
+	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::samplePlaybeckDirection])
 	{
-		changeSamplePlaybackPerformanceMode(performanceMod.reversePlayback);
+		setFxReverse();
 	}
 	else
 	{
-		if(!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::samplePlaybeckDirection]) playMemPtr->clearReverse();
-		else
-		{
-			if(currentSeqModValues.reversePlayback) playMemPtr->setReverse();
-			else playMemPtr->clearReverse();
-		}
+		clearFxReverse();
 	}
 }
 //******** position
@@ -930,30 +817,15 @@ void playerEngine::endFxPositionStartPoint(uint8_t fx_n)
 			currentSeqModValues.startPoint = map(lastSeqVal[otherFx_n],minFxPosition,maxFxPosition,0,MAX_16BIT);
 		}
 	}
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+
+	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::startPoint])
 	{
-		changeStartPointPerformanceMode(performanceMod.startPoint);
+		setFxStartPoint();
 	}
 	else
 	{
-		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::endPoint])
-		{
-			modSeqPoints(NOT_MOD_POINTS,currentSeqModValues.endPoint);
-		}
-		else if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::startPoint])
-		{
-			if(fx_n == MOST_SIGNIFICANT_FX)
-			{
-				modSeqPoints(currentSeqModValues.startPoint, NOT_MOD_POINTS);
-			}
-		}
-		else
-		{
-			playMemPtr->clearPointsForceFlag();
-			playMemPtr->setForcedPoints(-1, -1, -1, -1);
-		}
+		clearFxStartPoint();
 	}
-
 }
 void playerEngine::endFxPositionGranular(uint8_t fx_n)
 {
@@ -969,50 +841,16 @@ void playerEngine::endFxPositionGranular(uint8_t fx_n)
 			uint8_t minFxPosition = sequencer.getFxMin(fx_t::FX_TYPE_POSITION);
 
 			currentSeqModValues.granularPosition = map(lastSeqVal[otherFx_n],minFxPosition,maxFxPosition,0,MAX_16BIT);
-
-			playMemPtr->setGranularPosForceFlag();
-			playMemPtr->setForcedGranularPos(currentSeqModValues.granularPosition);
-			playMemPtr->setGranularPosition(currentSeqModValues.granularPosition);
-		}
-		else
-		{
-			playMemPtr->clearGranularPosForceFlag();
-			uint32_t localGranPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
-
-			int32_t localGranMod = currentEnvelopeModification[envGranPos] * MAX_16BIT;
-
-			if(localGranPos + localGranMod > MAX_16BIT ) localGranPos = MAX_16BIT;
-			else if(localGranPos + localGranMod < 0 ) localGranPos = 0;
-			else localGranPos += localGranMod;
-			playMemPtr->setGranularPosition(localGranPos);
 		}
 	}
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])
+
+	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::granularPosition])
 	{
-		changeWavetableWindowPerformanceMode(performanceMod.granularPosition);
+		setFxPositionGranular();
 	}
 	else
 	{
-		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::granularPosition])
-		{
-			if(fx_n == MOST_SIGNIFICANT_FX)
-			{
-				playMemPtr->setGranularPosForceFlag();
-				playMemPtr->setForcedGranularPos(currentSeqModValues.granularPosition);
-			}
-		}
-		else
-		{
-			playMemPtr->clearGranularPosForceFlag();
-			uint32_t localGranPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
-
-			int32_t localGranMod = currentEnvelopeModification[envGranPos] * MAX_16BIT;
-
-			if(localGranPos + localGranMod > MAX_16BIT ) localGranPos = MAX_16BIT;
-			else if(localGranPos + localGranMod < 0 ) localGranPos = 0;
-			else localGranPos += localGranMod;
-			playMemPtr->setGranularPosition(localGranPos);
-		}
+		clearFxPositionGranular();
 	}
 
 }
@@ -1029,59 +867,31 @@ void playerEngine::endFxPositionWavetable(uint8_t fx_n)
 			uint8_t minFxPosition = sequencer.getFxMin(fx_t::FX_TYPE_POSITION);
 
 			currentSeqModValues.wavetablePosition = map(lastSeqVal[otherFx_n],minFxPosition,maxFxPosition,0,mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber);
-
-			playMemPtr->setWavetableWindowFlag();
-			playMemPtr->setForcedWavetableWindow(currentSeqModValues.wavetablePosition);
-		}
-		else
-		{
-			playMemPtr->clearWavetableWindowFlag();
-			uint32_t localWtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
-
-			int32_t localWtMod = currentEnvelopeModification[envWtPos] * mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber;
-
-			if(localWtPos + localWtMod > mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1 ) localWtPos = mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1;
-			else if(localWtPos + localWtMod < 0 ) localWtPos = 0;
-			else localWtPos += localWtMod;
-			playMemPtr->setWavetableWindow(localWtPos);
 		}
 	}
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
+
+	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::wavetablePosition])
 	{
-		changeWavetableWindowPerformanceMode(performanceMod.wavetablePosition);
+		setFxPositionWavetable();
 	}
 	else
 	{
-		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::wavetablePosition])
-		{
-			if(fx_n == MOST_SIGNIFICANT_FX)
-			{
-				playMemPtr->setWavetableWindowFlag();
-				playMemPtr->setForcedWavetableWindow(currentSeqModValues.wavetablePosition);
-			}
-		}
-		else
-		{
-			playMemPtr->clearWavetableWindowFlag();
-			uint32_t localWtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
-
-			int32_t localWtMod = currentEnvelopeModification[envWtPos] * mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber;
-
-			if(localWtPos + localWtMod > mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1 ) localWtPos = mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1;
-			else if(localWtPos + localWtMod < 0 ) localWtPos = 0;
-			else localWtPos += localWtMod;
-			playMemPtr->setWavetableWindow(localWtPos);
-		}
+		clearFxPositionWavetable();
 	}
 }
 //*******
+void playerEngine::endFxRandomVolume(uint8_t fx_n)
+{
+	endFxVolume(fx_n);
+}
+
 void playerEngine::endFxVolume(uint8_t fx_n)
 {
 	uint8_t otherFx_n = !fx_n;
 
 	trackControlParameter[(int)controlType::sequencerMode + fx_n][(int)parameterList::volume] = 0;
 
-	if(fx_n == MOST_SIGNIFICANT_FX)
+	if(fx_n == MOST_SIGNIFICANT_FX) // Trzeba zaktualizowac wartosci sequencera
 	{
 		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::volume])
 		{
@@ -1092,52 +902,16 @@ void playerEngine::endFxVolume(uint8_t fx_n)
 		}
 	}
 
-	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
+	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::volume])
 	{
-		changeVolumePerformanceMode(performanceMod.volume);
+		setFxVolume();
 	}
 	else
 	{
-		float localAmount = 0.0f;
-
-		if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]  ||
-		   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
-		   trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
-		{
-			localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
-		}
-		else
-		{
-			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
-			{
-				if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
-				{
-					localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
-				}
-				else
-				{
-					localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
-				}
-			}
-			else
-			{
-				localAmount = 1.0f;
-			}
-
-		}
-
-		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::volume])
-		{
-			if(fx_n == MOST_SIGNIFICANT_FX)
-			{
-				if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[currentSeqModValues.volume] * localAmount);
-			}
-		}
-		else
-		{
-			if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[mtProject.instrument[currentInstrument_idx].volume] * localAmount);
-		}
+		clearFxVolume();
 	}
+
+
 }
 
 void playerEngine::endFxSlice(uint8_t fx_n)
@@ -1156,15 +930,11 @@ void playerEngine::endFxSlice(uint8_t fx_n)
 
 	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::slice])
 	{
-		if(fx_n == MOST_SIGNIFICANT_FX)
-		{
-			playMemPtr->setSliceForcedFlag();
-			playMemPtr->setForcedSlice(currentSeqModValues.slice);
-		}
+		setFxSlice();
 	}
 	else
 	{
-		playMemPtr->clearSliceForcedFlag();
+		clearFxSlice();
 	}
 }
 
@@ -1315,6 +1085,7 @@ void playerEngine::endFxCutoffLFO(uint8_t fx_n)
 				}
 
 			}
+
 		}
 	}
 }
@@ -1484,3 +1255,280 @@ void playerEngine::endFxPanningLFO(uint8_t fx_n)
 	}
 }
 
+uint8_t playerEngine::isFxVelocity(uint8_t fx_id)
+{
+	return (fx_id == fx_t::FX_TYPE_VELOCITY) || (fx_id == fx_t::FX_TYPE_ROLL);
+}
+float playerEngine::getMostSignificantAmount()
+{
+	float localAmount = 0.0f;
+
+	if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]  ||
+	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
+	   trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
+	{
+		localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+	}
+	else
+	{
+		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+		{
+			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+			{
+				localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
+			}
+			else
+			{
+				localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
+			}
+		}
+		else
+		{
+			localAmount = 1.0f;
+		}
+
+	}
+
+	return localAmount;
+}
+//****************** FUNKCJE NARZUCAJĄCE WARTOSCI W SILNIKU
+//Przed wywolaniem tych funkcji nalezy przygotowac wartosci:
+// instrumentu, i bieżące z sequencera
+//VELOCITY
+void playerEngine::setFxVolume()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
+	{
+		changeVolumePerformanceMode(performanceMod.volume);
+	}
+	else
+	{
+		float localAmount = getMostSignificantAmount();
+
+		if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[currentSeqModValues.volume] * localAmount);
+		else ampPtr->gain(AMP_MUTED);
+	}
+}
+void playerEngine::clearFxVolume()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
+	{
+		changeVolumePerformanceMode(performanceMod.volume);
+	}
+	else
+	{
+		float localAmount = getMostSignificantAmount();
+
+		if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[mtProject.instrument[currentInstrument_idx].volume] * localAmount);
+		else ampPtr->gain(AMP_MUTED);
+	}
+}
+//PANNING
+void playerEngine::setFxPanning()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning])
+	{
+		changePanningPerformanceMode(performanceMod.panning);
+	}
+	else
+	{
+		modPanning(currentSeqModValues.panning);
+	}
+}
+void playerEngine::clearFxPanning()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::panning])
+	{
+		changePanningPerformanceMode(performanceMod.panning);
+	}
+	else
+	{
+		modPanning(mtProject.instrument[currentInstrument_idx].panning);
+	}
+}
+//FINETUNE
+void playerEngine::setFxFinetune()
+{
+	playMemPtr->setFineTuneForceFlag();
+	playMemPtr->setForcedFineTune(currentSeqModValues.fineTune);
+	playMemPtr->setFineTune(currentSeqModValues.fineTune, currentNote);
+}
+void playerEngine::clearFxFinetune()
+{
+	playMemPtr->clearFineTuneForceFlag();
+	playMemPtr->setFineTune(mtProject.instrument[currentInstrument_idx].fineTune, currentNote);
+}
+//GLIDE
+void playerEngine::setFxGlide()
+{
+	playMemPtr->setGlideForceFlag();
+	playMemPtr->setForcedGlide(currentSeqModValues.glide);
+}
+void playerEngine::clearFxGlide()
+{
+	playMemPtr->clearGlideForceFlag();
+	playMemPtr->setForcedGlide(0);
+}
+//REVERSE
+void playerEngine::setFxReverse()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection])
+	{
+		changeSamplePlaybackPerformanceMode(performanceMod.reversePlayback);
+	}
+	else
+	{
+		if(currentSeqModValues.reversePlayback) playMemPtr->setReverse();
+		else playMemPtr->clearReverse();
+	}
+}
+void playerEngine::clearFxReverse()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::samplePlaybeckDirection])
+	{
+		changeSamplePlaybackPerformanceMode(performanceMod.reversePlayback);
+	}
+	else
+	{
+		playMemPtr->clearReverse();
+	}
+}
+//POSITION GRANULAR
+void playerEngine::setFxPositionGranular()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])
+	{
+		changeGranularPositionPerformanceMode(performanceMod.granularPosition);
+	}
+	else
+	{
+		playMemPtr->setGranularPosForceFlag();
+		playMemPtr->setForcedGranularPos(currentSeqModValues.granularPosition);
+		playMemPtr->setGranularPosition(currentSeqModValues.granularPosition);
+	}
+}
+void playerEngine::clearFxPositionGranular()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::granularPosition])
+	{
+		changeWavetableWindowPerformanceMode(performanceMod.granularPosition);
+	}
+	else
+	{
+		uint32_t localGranPos = mtProject.instrument[currentInstrument_idx].granular.currentPosition;
+
+		int32_t localGranMod = currentEnvelopeModification[envGranPos] * MAX_16BIT;
+
+		if(localGranPos + localGranMod > MAX_16BIT ) localGranPos = MAX_16BIT;
+		else if(localGranPos + localGranMod < 0 ) localGranPos = 0;
+		else localGranPos += localGranMod;
+
+		playMemPtr->clearGranularPosForceFlag();
+		playMemPtr->setGranularPosition(localGranPos);
+	}
+}
+//POSITION WAVETABLE
+void playerEngine::setFxPositionWavetable()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
+	{
+		changeWavetableWindowPerformanceMode(performanceMod.wavetablePosition);
+	}
+	else
+	{
+		playMemPtr->setWavetableWindowFlag();
+		playMemPtr->setForcedWavetableWindow(currentSeqModValues.wavetablePosition);
+		playMemPtr->setWavetableWindow(currentSeqModValues.wavetablePosition);
+	}
+}
+void playerEngine::clearFxPositionWavetable()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::wavetablePosition])
+	{
+		changeWavetableWindowPerformanceMode(performanceMod.wavetablePosition);
+	}
+	else
+	{
+		uint32_t localWtPos = mtProject.instrument[currentInstrument_idx].wavetableCurrentWindow;
+		int32_t localWtMod = currentEnvelopeModification[envWtPos] * mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber;
+
+		if(localWtPos + localWtMod > mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1 ) localWtPos = mtProject.instrument[currentInstrument_idx].sample.wavetableWindowNumber - 1;
+		else if(localWtPos + localWtMod < 0 ) localWtPos = 0;
+		else localWtPos += localWtMod;
+
+		playMemPtr->clearWavetableWindowFlag();
+		playMemPtr->setWavetableWindow(localWtPos);
+	}
+}
+//START POINT
+void playerEngine::setFxStartPoint()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+	{
+		changeStartPointPerformanceMode(performanceMod.startPoint);
+	}
+	else
+	{
+//		if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::endPoint]) modSeqPoints(currentSeqModValues.startPoint, currentSeqModValues.endPoint);
+//		else modSeqPoints(currentSeqModValues.startPoint , NOT_MOD_POINTS);
+		modSeqPoints(currentSeqModValues.startPoint , NOT_MOD_POINTS);
+	}
+}
+void playerEngine::clearFxStartPoint()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::startPoint])
+	{
+		changeStartPointPerformanceMode(performanceMod.startPoint);
+	}
+	else
+	{
+		playMemPtr->clearPointsForceFlag();
+		playMemPtr->setForcedPoints(-1, -1, -1, -1);
+	}
+
+//	if(trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::endPoint])
+//	{
+//		modSeqPoints(NOT_MOD_POINTS,currentSeqModValues.endPoint);
+//	}
+}
+//SLICE
+void playerEngine::setFxSlice()
+{
+	playMemPtr->setSliceForcedFlag();
+	playMemPtr->setForcedSlice(currentSeqModValues.slice);
+}
+void playerEngine::clearFxSlice()
+{
+	playMemPtr->clearSliceForcedFlag();
+}
+//REVERB SEND
+void playerEngine::setFxReverbSend()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+	{
+		changeReverbSendPerformanceMode(performanceMod.reverbSend);
+	}
+	else
+	{
+		if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+		{
+			modReverbSend(currentSeqModValues.reverbSend);
+		}
+		else modReverbSend(AMP_MUTED);
+	}
+}
+void playerEngine::clearFxReverbSend()
+{
+	if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+	{
+		changeReverbSendPerformanceMode(performanceMod.reverbSend);
+	}
+	else
+	{
+		if(((muteState == MUTE_DISABLE) && (onlyReverbMuteState == MUTE_DISABLE)) || (engine.forceSend == 1))
+		{
+			modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
+		}
+		else modReverbSend(AMP_MUTED);
+	}
+}
