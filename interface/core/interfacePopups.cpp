@@ -288,7 +288,7 @@ void cInterfacePopups::showFxesPopup()
 
 	instrList.start = selectedActualItem;
 	instrList.linesCount = 15;
-	instrList.length = interfaceGlobals.fxNameCount();
+	instrList.length = FX_COUNT;
 	instrList.data = (char**)interfaceGlobals.ptrFxNames;
 
 	display.setControlPosition(listControl, 600, 30);
@@ -504,9 +504,11 @@ void cInterfacePopups::changeStepPopupValue(int16_t value, uint8_t dir)
 
 		padsBacklight.setBackLayer(0, 0, selectedActualItem);
 
-		if(selectedActualItem + value < 0) selectedActualItem = 0;
-		else if(selectedActualItem + value > FX_MAX) selectedActualItem = FX_MAX;
-		else selectedActualItem += value;
+
+		selectedActualItem = constrain(selectedActualItem + value,0, FX_COUNT-1);
+//		if(selectedActualItem + value < 0) selectedActualItem = 0;
+//		else if(selectedActualItem + value > FX_COUNT) selectedActualItem = FX_COUNT;
+//		else selectedActualItem += value;
 
 		mtProject.values.lastUsedFx = selectedActualItem;
 
