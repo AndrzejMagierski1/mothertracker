@@ -355,18 +355,21 @@ void Sequencer::play_microStep(uint8_t row)
 			{
 
 			case fx.FX_TYPE_MICROMOVE:
+				killFxOnSlot(fxIndex);
 
 				playerRow.isOffset = 1;
 				playerRow.offsetValue = map(_fx.value + 1, 0, 100, 1, 48);
 
 				break;
 			case fx.FX_TYPE_VELOCITY:
+				killFxOnSlot(fxIndex);
 
 				stepToSend.velocity = _fx.value;
 				stepSent.velocity = stepToSend.velocity;
 
 				break;
 			case fx.FX_TYPE_OFF:
+				killFxOnSlot(fxIndex);
 
 				if (fxIndex == playerRow.rollFxId)
 				{
@@ -379,36 +382,46 @@ void Sequencer::play_microStep(uint8_t row)
 
 				break;
 			case fx.FX_TYPE_CHANCE:
+				killFxOnSlot(fxIndex);
 				if (random(0, getFxMax(fx.FX_TYPE_CHANCE)) > _fx.value)
 					playerRow.cancelStep = 1;
 
 				break;
 
 			case fx.FX_TYPE_SEND_CC_A:
+				killFxOnSlot(fxIndex);
 				sendCC(0, _fx.value);
 				break;
 			case fx.FX_TYPE_SEND_CC_B:
+				killFxOnSlot(fxIndex);
 				sendCC(1, _fx.value);
 				break;
 			case fx.FX_TYPE_SEND_CC_C:
+				killFxOnSlot(fxIndex);
 				sendCC(2, _fx.value);
 				break;
 			case fx.FX_TYPE_SEND_CC_D:
+				killFxOnSlot(fxIndex);
 				sendCC(3, _fx.value);
 				break;
 			case fx.FX_TYPE_SEND_CC_E:
+				killFxOnSlot(fxIndex);
 				sendCC(4, _fx.value);
 				break;
 
 			case fx.FX_TYPE_PROGRAM_CHANGE:
+				killFxOnSlot(fxIndex);
 				sendProgramChange(_fx.value);
 				break;
 
 			case fx.FX_TYPE_TEMPO:
+				killFxOnSlot(fxIndex);
 				player.performance.tempo = float(_fx.value * 2);
+				player.performance.tempoSource = fxIndex;
 				break;
 
 			case fx.FX_TYPE_RANDOM_VELOCITY:
+				killFxOnSlot(fxIndex);
 				stepToSend.velocity = constrain(random(0,
 														_fx.value + 1),
 												0,
@@ -428,6 +441,7 @@ void Sequencer::play_microStep(uint8_t row)
 				case fx.FX_TYPE_NONE:
 					break;
 				case fx.FX_TYPE_ROLL:
+					killFxOnSlot(fxIndex);
 
 					playerRow.rollIsOn = 1;
 					playerRow.rollFxId = fxIndex;
@@ -504,6 +518,7 @@ void Sequencer::play_microStep(uint8_t row)
 			switch (_fx.type)
 			{
 			case fx.FX_TYPE_ROLL:
+			killFxOnSlot(fxIndex);
 
 				playerRow.rollIsOn = 1;
 				playerRow.rollFxId = fxIndex;
@@ -522,6 +537,7 @@ void Sequencer::play_microStep(uint8_t row)
 				break;
 
 			case fx.FX_TYPE_RANDOM_NOTE:
+			killFxOnSlot(fxIndex);
 				stepToSend.note = constrain(
 						random(patternStep.note - _fx.value,
 								patternStep.note + _fx.value + 1),
@@ -529,6 +545,7 @@ void Sequencer::play_microStep(uint8_t row)
 						127);
 				break;
 			case fx.FX_TYPE_RANDOM_INSTRUMENT:
+			killFxOnSlot(fxIndex);
 				if (stepToSend.instrument < INSTRUMENTS_COUNT)
 				{
 					stepToSend.instrument = constrain(
@@ -1148,7 +1165,7 @@ float Sequencer::getActualTempo()
 {
 	float temp_Tempo;
 
-	if (player.performance.tempo > 0.0 && player.performance.tempo < MAX_TEMPO)
+	if (player.performance.tempo > 0.0 && player.performance.tempo <= MAX_TEMPO)
 	temp_Tempo = player.performance.tempo;
 
 	else if (isInternalClock())
@@ -1597,6 +1614,22 @@ void Sequencer::cancelFxes()
 void Sequencer::cancelFxes(int8_t track)
 {
 	player.track[track].rollIsOn = 0;
+}
+
+void Sequencer::killFxOnSlot(uint8_t slot)
+{
+	for (uint8_t a = 0; a <= MAXTRACK; a++)
+	{
+		if (player.track[a].rollFxId == slot)
+		{
+			player.track[a].rollIsOn = 0;
+		}
+
+	}
+	if (player.performance.tempoSource == slot)
+	{
+		player.performance.tempo = 0.0f;
+	}
 }
 
 void Sequencer::setPerformancePatternLength(int8_t length)
