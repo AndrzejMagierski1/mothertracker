@@ -912,7 +912,6 @@ void Sequencer::stop(void)
 
 	player.performance.tempo = 0.0;
 
-
 	sendMidiStop();
 }
 
@@ -1430,9 +1429,9 @@ void Sequencer::loadNextPattern(uint8_t patternNumber)
 
 void Sequencer::handleNote(byte channel, byte note, byte velocity)
 {
-	handleNote(channel, note, velocity, 0);
+	handleNote(channel, note, velocity, -1);
 }
-void Sequencer::handleNote(byte channel, byte note, byte velocity, byte source)
+void Sequencer::handleNote(byte channel, byte note, byte velocity, int8_t pad)
 {
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
@@ -1467,10 +1466,17 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, byte source)
 				if (step->note == STEP_NOTE_EMPTY &&
 						step->fx[0].type == 0 &&
 						step->fx[1].type == 0 &&
-						(source == 0 ? !player.track[tr].noteOpen : 1)) // jesli nagrywamy instrument, nie patrz na otwarte nuty
+						(pad < 0 ? !player.track[tr].noteOpen : 1)) // jesli nagrywamy instrument, nie patrz na otwarte nuty
 				{
 					step->note = note;
-					step->instrument = mtProject.values.lastUsedInstrument;
+					if (pad < 0)
+					{
+						step->instrument = mtProject.values.lastUsedInstrument;
+					}
+					else
+					{
+						step->instrument = pad;
+					}
 
 					player.track[tr].stepSent.note = note;
 					player.track[tr].noteOpen = 1;
@@ -1534,7 +1540,7 @@ void Sequencer::handleNote(byte channel, byte note, byte velocity, byte source)
 
 					strPattern::strTrack::strStep *step = &getActualPattern()->track[tr].step[player.track[0].actual_pos];
 
-					if (source == 0) // tylko wtedy dajemy offy
+					if (pad < 0) // tylko wtedy dajemy offy
 					{
 						if (step->note == STEP_NOTE_EMPTY)
 						{
