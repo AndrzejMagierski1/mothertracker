@@ -227,7 +227,7 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 			if (isStepToFillFx(step, offset, fxIndex, fillStep))
 			{
 
-				step->fx[fxIndex].value = random(fromVal, toVal);
+				step->fx[fxIndex].value = random(fromVal, toVal+1);
 				step->fx[fxIndex].type =
 						(fxType >= 0) ? fxType : randomFx();
 
@@ -522,7 +522,7 @@ void Sequencer::changeSelectionFxValue(uint8_t fxIndex, int16_t value)
 			{
 				step->fx[fxIndex].type = interfaceGlobals.fxNameToId(
 						mtProject.values.lastUsedFx);
-				step->fx[fxIndex].value = getFxDefault(fxIndex);
+				step->fx[fxIndex].value = getFxDefault(step->fx[fxIndex].type);
 			}
 			else
 			{
@@ -1305,7 +1305,7 @@ int16_t Sequencer::getFxDefault(uint8_t fxID)
 	case fx.FX_TYPE_OFF:
 		return 0;
 	case fx.FX_TYPE_TEMPO:
-		return mtProject.values.globalTempo;
+		return 60;
 
 	case fx.FX_TYPE_ROLL:
 		return 1;
@@ -1370,12 +1370,12 @@ int16_t Sequencer::getFxValueCorrection(uint8_t type, uint8_t value)
 
 const char lfoSeqName[20][4] =
 		{
-				"6",
-				"4",
-				"3",
-				"2",
+				"  6",
+				"  4",
+				"  3",
+				"  2",
 				"3/2",
-				"1",
+				"  1",
 				"3/4",
 				"1/2",
 				"3/8",

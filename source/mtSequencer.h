@@ -281,6 +281,7 @@ public:
 	void init_player_timer(void);
 	void cancelFxes(int8_t track);
 	void cancelFxes();
+	void killFxOnSlot(uint8_t slot);
 	uint8_t getRollType(uint8_t value);
 	uint8_t rollValToVolumeOption(uint8_t);
 	uint8_t getRollVelo(uint8_t);
@@ -357,6 +358,7 @@ public:
 		{
 			int8_t patternLength = -1;
 			float tempo = 0.0;
+			int8_t tempoSource = -1;
 		} performance;
 
 		struct strBlink
@@ -692,7 +694,7 @@ public:
 
 	void loadNextPattern(uint8_t patternNumber);
 	void handleNote(byte channel, byte pitch, byte velocity);
-	void handleNote(byte channel, byte pitch, byte velocity, byte source);
+	void handleNote(byte channel, byte pitch, byte velocity, int8_t source);
 	void handleNoteOld(byte channel, byte pitch, byte velocity);
 	int16_t getFxMax(uint8_t fxID);
 	int16_t getFxMin(uint8_t fxID);
