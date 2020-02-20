@@ -66,6 +66,7 @@
 									<listOptionValue builtIn="false" value="../libs/Snooze"/>
 									<listOptionValue builtIn="false" value="../effector"/>
 									<listOptionValue builtIn="false" value="../FileManager"/>
+									<listOptionValue builtIn="false" value="../FileManager/old"/>
 									<listOptionValue builtIn="false" value="../arkanoid"/>
 									<listOptionValue builtIn="false" value="../Exporter"/>
 									<listOptionValue builtIn="false" value="../libs/MTP"/>
