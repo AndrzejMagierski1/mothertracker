@@ -150,7 +150,8 @@ constexpr uint8_t ENVELOPES_WITHOUT_AMP_MAX = 4;
 constexpr uint8_t MUTE_DISABLE = 0;
 constexpr uint8_t MUTE_ENABLE = 1;
 constexpr float AMP_MUTED = 0.0f;
-
+constexpr uint8_t MOST_SIGNIFICANT_FX = 0;
+constexpr uint8_t LEAST_SIGNIFICANT_FX = 1;
 extern IntervalTimer updateTimer;
 
 class audioEngine
@@ -306,9 +307,6 @@ public:
 
 		length
 	};
-
-	const uint8_t MOST_SIGNIFICANT_FX = 0;
-	const uint8_t LEAST_SIGNIFICANT_FX = 1;
 
 	struct strCurrentSeqModValues
 	{
@@ -550,6 +548,7 @@ private:
 	void endFxPositionGranular(uint8_t fx_n);
 	void endFxPositionWavetable(uint8_t fx_n);
 //******
+	void endFxRandomVolume(uint8_t fx_n);
 	void endFxVolume(uint8_t fx_n);
 	void endFxSlice(uint8_t fx_n);
 	void endFxVolumeLFO(uint8_t fx_n);
@@ -561,6 +560,39 @@ private:
 //******
 	void endFxPanningLFO(uint8_t fx_n);
 //*************************************************
+	uint8_t isFxVelocity(uint8_t fx_id);
+	float getMostSignificantAmount();
+//******FUNKCJE NARZUCAJACE WARTOSCI SILNIKOWI
+	void setFxVolume();
+	void clearFxVolume();
+
+	void setFxPanning();
+	void clearFxPanning();
+
+	void setFxFinetune();
+	void clearFxFinetune();
+
+	void setFxGlide();
+	void clearFxGlide();
+
+	void setFxReverse();
+	void clearFxReverse();
+
+	void setFxPositionGranular();
+	void clearFxPositionGranular();
+
+	void setFxPositionWavetable();
+	void clearFxPositionWavetable();
+
+	void setFxStartPoint();
+	void clearFxStartPoint();
+
+	void setFxSlice();
+	void clearFxSlice();
+
+	void setFxReverbSend();
+	void clearFxReverbSend();
+
 	void changeFilterType(uint8_t type);
 	void filterConnect();
 	void filterDisconnect();
