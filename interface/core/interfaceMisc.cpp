@@ -23,89 +23,91 @@ extern cProjectEditor* PE;
 //==================================================================================================
 void cInterface::openStartupProject()
 {
-	if(!newFileManager.loadProjectFromWorkspace())
+	if(!newFileManager.openProjectFromWorkspace())
 	{
 		newFileManager.createNewProjectInWorkspace();
-		newFileManager.loadProjectFromWorkspace();
+		newFileManager.openProjectFromWorkspace();
 	}
 
 
 	////////////////////////////////////////////////////
-	char currentPatch[PATCH_SIZE];
-	strcpy(currentPatch,"Workspace/project.mt");
-	if(SD.exists(currentPatch))
-	{
-		if(fileManager.loadProjectFromWorkspaceStart())
-		{
-			openFromWorkspaceFlag = 1;
-		}
-	}
-
-	if(!openFromWorkspaceFlag)
-	{
-		//strcpy(currentPatch,"Templates/New/project.mt");
-		fileManager.createEmptyTemplateProject((char*)"New");
-
-		fileManager.openProjectStart((char*)"New", projectTypeExample);
-
-		PE->newProjectNotSavedFlag = 1;
-		strcpy(fileManager.currentProjectName, "New Project");
-	}
+//	char currentPatch[PATCH_SIZE];
+//	strcpy(currentPatch,"Workspace/project.mt");
+//	if(SD.exists(currentPatch))
+//	{
+//		if(fileManager.loadProjectFromWorkspaceStart())
+//		{
+//			openFromWorkspaceFlag = 1;
+//		}
+//	}
+//
+//	if(!openFromWorkspaceFlag)
+//	{
+//		//strcpy(currentPatch,"Templates/New/project.mt");
+//		fileManager.createEmptyTemplateProject((char*)"New");
+//
+//		fileManager.openProjectStart((char*)"New", projectTypeExample);
+//
+//		PE->newProjectNotSavedFlag = 1;
+//		strcpy(fileManager.currentProjectName, "New Project");
+//	}
 
 
 }
 
 uint8_t cInterface::detectProjectLoadState()
 {
-	uint8_t status = fileManager.getLoadingStatus();
-	uint8_t finalizeLoad = 0;
+//	uint8_t status = fileManager.getLoadingStatus();
+//	uint8_t finalizeLoad = 0;
+//
+//	if(openFromWorkspaceFlag)
+//	{
+//		if(status)
+//		{
+//			fileManager.refreshLoadProjectFromWorkspace();
+//			return 0;
+//		}
+//		else
+//		{
+//			char currentPatch[PATCH_SIZE];
+//
+//			sprintf(currentPatch,"Projects/%s",mtConfig.startup.lastProjectName);
+//			if(SD.exists(currentPatch))
+//			{
+//				strcpy(fileManager.currentProjectName,mtConfig.startup.lastProjectName);
+//				sprintf(fileManager.currentProjectPatch,"Projects/%s",mtConfig.startup.lastProjectName);
+//
+//				projectEditor.loadProjectValues();
+//			}
+//			else
+//			{
+//				strcpy(fileManager.currentProjectName, "New Project");
+//				PE->newProjectNotSavedFlag = 1;
+//
+//				projectEditor.loadProjectValues();
+//			}
+//		}
+//	}
+//	else
+//	{
+//		if(status)
+//		{
+//			fileManager.refreshProjectOpening();
+//			return 0;
+//		}
+//		else
+//		{
+//			finalizeLoad = 1;
+//		}
+//	}
 
-	if(openFromWorkspaceFlag)
+
+
+	uint8_t startStatus = newFileManager.getStatus();
+
+	if(startStatus != 0)
 	{
-		if(status)
-		{
-			fileManager.refreshLoadProjectFromWorkspace();
-			return 0;
-		}
-		else
-		{
-			char currentPatch[PATCH_SIZE];
-
-			sprintf(currentPatch,"Projects/%s",mtConfig.startup.lastProjectName);
-			if(SD.exists(currentPatch))
-			{
-				strcpy(fileManager.currentProjectName,mtConfig.startup.lastProjectName);
-				sprintf(fileManager.currentProjectPatch,"Projects/%s",mtConfig.startup.lastProjectName);
-
-				projectEditor.loadProjectValues();
-			}
-			else
-			{
-				strcpy(fileManager.currentProjectName, "New Project");
-				PE->newProjectNotSavedFlag = 1;
-
-				projectEditor.loadProjectValues();
-			}
-		}
-	}
-	else
-	{
-		if(status)
-		{
-			fileManager.refreshProjectOpening();
-			return 0;
-		}
-		else
-		{
-			finalizeLoad = 1;
-		}
-	}
-
-
-
-	if(finalizeLoad == 1)
-	{
-
+		return 0;
 
 	}
 

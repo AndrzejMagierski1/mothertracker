@@ -4,6 +4,7 @@
 #include "fileManagerDefs.h"
 #include "SD.h"
 #include "mtConfig.h"
+#include "debugLog.h"
 
 
 #include "fileManager.h"
@@ -12,10 +13,12 @@
 cFileManager newFileManager;
 
 
+
 //====================================================================================
 void cFileManager::update()
 {
 	if(currentOperation == fmNoOperation) return;
+
 
 	switch(currentOperation)
 	{
@@ -35,6 +38,9 @@ void cFileManager::update()
 
 }
 
+
+
+
 //====================================================================================
 //==========================     UPDATEs     =========================================
 //====================================================================================
@@ -42,10 +48,26 @@ void cFileManager::updateOpenWorkspaceProject()
 {
 	switch(currentOperationStep)
 	{
-	case 1:
+		case 0: // projekt
+		{
+			loadProjectFromWorkspace();
+			break;
+		}
+		case 1: // pattern
+		{
+			loadPatternFromWorkspace(mtProject.values.actualPattern);
+			break;
+		}
 
-		break;
 
+
+		default:
+		{
+
+			currentOperationStep = 0;
+			currentOperation = fmNoOperation;
+			break;
+		}
 
 	}
 
@@ -59,13 +81,14 @@ void cFileManager::updateOpenWorkspaceProject()
 //====================================================================================
 //====================================================================================
 //====================================================================================
-bool cFileManager::loadProjectFromWorkspace()
+bool cFileManager::openProjectFromWorkspace()
 {
 	if(currentOperation != fmNoOperation) return false;
 
 	if(!SD.exists(cWorkspacePath)) return false;
 	if(!SD.exists(cProjectFileNameInWorkspace)) return false;
-	if(!readProjectFile(cProjectFileNameInWorkspace, &mtProject)) return false;
+	if(!SD.exists(cProjectFileNameInWorkspace)) return false;
+
 
 	//todo dalej w nastepnych update
 
@@ -80,11 +103,39 @@ bool cFileManager::loadProjectFromWorkspace()
 
 	mtProject.used_memory = 0;
 
-	currentOperationStep = 1;
+	currentOperationStep = 0;
 	currentOperation = fmOpenWorkspaceProject;
 
 
 	return true;
 }
 
+
+
+
+void cFileManager::moveToNextOperationStep()
+{
+	currentOperationStep++;
+}
+
+
+#ifdef DEBUG
+static char errorText[50];
+#endif
+
+void cFileManager::throwError(uint8_t source)
+{
+#ifdef DEBUG
+	debugLog.setMaxLineCount(10);
+	sprintf(errorText,  "File manager error (%d)", source);
+	debugLog.addLine(errorText);
+	debugLog.forceRefresh();
+#endif
+
+
+
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+
+}
 

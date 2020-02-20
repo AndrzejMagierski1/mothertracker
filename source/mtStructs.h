@@ -300,7 +300,8 @@ enum fileType
 {
 	fileTypeProject,
 	fileTypeInstrument,
-	fileTypePattern
+	fileTypePattern,
+	fileTypeSample,
 };
 
 enum projectType

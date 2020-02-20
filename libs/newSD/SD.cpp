@@ -120,11 +120,11 @@ void SdCard::stop()
 
 
 #ifdef DEBUG
-char errorText[100] = "SD report: ";
-char errorNr[9];
+static char errorText[100] = "SD report: ";
+static char errorNr[9];
 #endif
 
-void reportError(const char* text, uint16_t value)
+void reportSdError(const char* text, uint16_t value)
 {
 #ifdef DEBUG
 	debugLog.setMaxLineCount(10);
@@ -274,12 +274,12 @@ bool SdCard::mkdir(uint8_t hidden, const char *path, bool pFlag)
     {
         if (error == FR_EXIST)
         {
-        	reportError("create dir - exist", error);
+        	reportSdError("create dir - exist", error);
 
         }
         else
         {
-        	reportError("create dir - failed", error);
+        	reportSdError("create dir - failed", error);
             return false;
         }
     }
@@ -303,12 +303,12 @@ bool SdCard::remove(const char* path)
     	}
     	else if (error == FR_LOCKED)
         {
-        	reportError("remove failed - file locked", error);
+        	reportSdError("remove failed - file locked", error);
             return false;
         }
         else
         {
-        	reportError("remove failed", error);
+        	reportSdError("remove failed", error);
             return false;
         }
     }
@@ -324,7 +324,7 @@ bool SdCard::removeDirWithFiles(const char* path)
     FRESULT error = delete_node(buff, 255, &fno);
     if(error)
     {
-    	reportError("remove dir with files failed", error);
+    	reportSdError("remove dir with files failed", error);
         return false;
     }
     return true;
@@ -413,7 +413,7 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 
 	if(max_used_memory < 255)
 	{
-		reportError("create list - memory max used", max_used_memory);
+		reportSdError("create list - memory max used", max_used_memory);
 		return n;
 	}
 
@@ -432,7 +432,7 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 		error = f_readdir(directory, &fno);
 		if(error)
 		{
-			reportError("create list - read dir item - failed", error);
+			reportSdError("create list - read dir item - failed", error);
 			break;
 		}
 		else if(!fno.fname[0]) // koniec folderu
@@ -546,7 +546,7 @@ uint16_t SdDir::createProjectsList(char** list, uint8_t list_length, uint16_t ma
 
 	if(max_used_memory < 255)
 	{
-		reportError("create list - memory max used", max_used_memory);
+		reportSdError("create list - memory max used", max_used_memory);
 		return n;
 	}
 
@@ -565,7 +565,7 @@ uint16_t SdDir::createProjectsList(char** list, uint8_t list_length, uint16_t ma
 		error = f_readdir(directory, &fno);
 		if(error)
 		{
-			reportError("create list - read dir item - failed", error);
+			reportSdError("create list - read dir item - failed", error);
 			break;
 		}
 		else if(!fno.fname[0]) // koniec folderu

@@ -10,6 +10,10 @@
 #include "ff.h"
 #include "wavHeaderReader.h"
 
+#ifdef SDK_ALIGN
+#undef SDK_ALIGN
+#endif
+#define SDK_ALIGN(var, alignbytes) var __attribute__((aligned(alignbytes)))
 
 //#define SD_FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_NEW | FA_OPEN_APPEND )
 #define  SD_FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_ALWAYS )
@@ -19,7 +23,7 @@
 #define FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_ALWAYS )
 
 
-extern "C" void reportError(const char* text, uint16_t value);
+void reportSdError(const char* text, uint16_t value);
 
 class SdFile;
 
@@ -64,13 +68,13 @@ public:
 
 
 
-	int read(void* buf, uint32_t count)
+	int32_t read(void* buf, uint32_t count)
 	{
 		UINT read = 0;
 		FRESULT error = f_read(file,buf,count,&read);
 		if (error)
 		{
-			reportError("read - failed", error);
+			reportSdError("read - failed", error);
 			return -1;
 		}
 		return read;
@@ -82,7 +86,7 @@ public:
 		FRESULT error = f_write(file,buf,count,&written);
 		if (error)
 		{
-			reportError("write - failed", error);
+			reportSdError("write - failed", error);
 			return -1;
 		}
 		return written;
@@ -95,7 +99,7 @@ public:
 		FRESULT error = f_lseek(file, pos);
 		if (error)
 		{
-			reportError("seek - failed", error);
+			reportSdError("seek - failed", error);
 			return false;
 		}
 		return true;
@@ -106,7 +110,7 @@ public:
 		FRESULT error = f_lseek(file, f_tell(file) + offset);
 		if (error)
 		{
-			reportError("seekCur - failed", error);
+			reportSdError("seekCur - failed", error);
 			return false;
 		}
 		return true;
@@ -128,7 +132,7 @@ public:
 		}
 		else if(error)
 		{
-			reportError("close - failed", error);
+			reportSdError("close - failed", error);
 			return false;
 		}
 		return true;
@@ -247,7 +251,7 @@ public:
 		FRESULT error =  f_opendir(directory, path);
 		if (error)
 		{
-			reportError("dir open - failed", error);
+			reportSdError("dir open - failed", error);
 			close();
 			return false;
 		}
@@ -280,7 +284,7 @@ public:
 		}
 		else if(error)
 		{
-			reportError("dir close - failed", error);
+			reportSdError("dir close - failed", error);
 			return false;
 		}
 		return true;
@@ -302,7 +306,7 @@ public:
 		FRESULT error = f_readdir(directory, &fno);
 		if(error)
 		{
-			reportError("read dir item - failed", error);
+			reportSdError("read dir item - failed", error);
 			return false;
 		}
 		else if(!fno.fname[0]) // koniec folderu

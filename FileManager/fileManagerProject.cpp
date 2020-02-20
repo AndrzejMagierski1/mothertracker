@@ -12,14 +12,76 @@
 
 
 
-
+#include "fileTransfer.h"
 #include "fileManager.h"
 
 
+__NOINIT(EXTERNAL_RAM) strProjectFile fileManagerProjectBuffer  {0};
 
 
 
-void cFileManager::writeProjectFile(const char * name, strMtProject *proj)
+void cFileManager::loadProjectFromWorkspace()
+{
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(cProjectFileNameInWorkspace, &fileManagerProjectBuffer, sizeof(strProjectFile), fileDivIntoParts);
+
+	if(loadStatus == fileTransferEnd)
+	{
+		if(loadProjectFormFileStruct(&mtProject, &fileManagerProjectBuffer))
+		{
+			moveToNextOperationStep();
+		}
+		else
+		{
+			throwError(1);
+		}
+	}
+	else if(loadStatus >= fileTransferError)
+	{
+		throwError(1);
+	}
+}
+
+bool cFileManager::loadProjectFormFileStruct(strMtProject* project, strProjectFile* pFile)
+{
+	FastCRC32 crcCalc;
+
+	if (pFile->projectDataAndHeader.projectHeader.type != fileTypeProject)
+		return false;
+
+	uint32_t checkCRC = crcCalc.crc32((uint8_t *) &pFile->projectDataAndHeader,
+								sizeof(pFile->projectDataAndHeader));
+
+	if (FILEMANAGER_DEBUGLOG)
+	{
+		char line[44];
+		sprintf(line,
+				"opened project fw.ver: %u.%u.%u, crc %s",
+				pFile->projectDataAndHeader.projectHeader.fwVersion[0],
+				pFile->projectDataAndHeader.projectHeader.fwVersion[1],
+				pFile->projectDataAndHeader.projectHeader.fwVersion[2],
+				checkCRC == pFile->crc ? "ok" : "err"
+						);
+		debugLog.addLine(line);
+	}
+
+
+	if(1)
+	{
+		memcpy(&project->song, &pFile->projectDataAndHeader.project.song, sizeof(strSong));
+		memcpy(&project->values, &pFile->projectDataAndHeader.project.values, sizeof(strMtValues));
+		//*proj=pFile.projectDataAndHeader.project;
+		//mtProject.values=pFile.projectDataAndHeader.project.values;
+		return true;
+	}
+
+	return false;
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void cFileManager::writeProjectFile(const char * name, strMtProject* proj)
 {
 	SD.remove(name);
 
@@ -108,6 +170,10 @@ bool cFileManager::readProjectFile(const char * name, strMtProject * proj)
 	}
 	else return true;
 }
+
+
+
+
 
 
 void cFileManager::getDefaultProject(struct strMtProject *source)

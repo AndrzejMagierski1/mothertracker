@@ -16,7 +16,7 @@ bool SdFile::open(const char* path, uint8_t oflag)
 	if (error)
 	{
 		sprintf(print_string, "open error: %s", path);
-		reportError(print_string, error);
+		reportSdError(print_string, error);
 		close();
 		return false;
 	}

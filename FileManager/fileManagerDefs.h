@@ -3,7 +3,7 @@
 #define FILEMANAGER_FILEMANAGERDEFS_H_
 
 #include <stdint.h>
-
+#include <cr_section_macros.h>
 
 
 struct strProjectFileHeader
@@ -40,6 +40,26 @@ struct strProjectFile
 
 
 
+//
+//enum enTranferFileType
+//{
+//	fileTypeNoType = 0,
+//	fileTypeProject,
+//	fileTypePattern,
+//	fileTypeIntstrument,
+//	fileTypeSample,
+//
+//};
+
+enum enFileManagerErrorSource
+{
+	errorSourceUnknow = 0,
+	errorSourceProject,
+	errorSourcePattern,
+	errorSourceInstrument,
+	errorSourceSample,
+
+};
 
 
 
