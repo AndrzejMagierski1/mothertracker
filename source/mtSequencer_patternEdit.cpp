@@ -227,7 +227,7 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 			if (isStepToFillFx(step, offset, fxIndex, fillStep))
 			{
 
-				step->fx[fxIndex].value = random(fromVal, toVal+1);
+				step->fx[fxIndex].value = random(fromVal, toVal + 1);
 				step->fx[fxIndex].type =
 						(fxType >= 0) ? fxType : randomFx();
 
@@ -1483,5 +1483,14 @@ uint8_t Sequencer::calcStepLength(uint8_t track, uint8_t step)
 	}
 
 	return b;
+}
+
+uint8_t Sequencer::isTrackEngineMuted(uint8_t track)
+{
+	if (track > MAXTRACK)
+	{
+		return 0;
+	}
+	return mtProject.values.trackMute[track];
 }
 
