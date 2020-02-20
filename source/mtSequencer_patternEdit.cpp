@@ -227,7 +227,7 @@ void Sequencer::fillRandomFx(int16_t fxIndex,
 			if (isStepToFillFx(step, offset, fxIndex, fillStep))
 			{
 
-				step->fx[fxIndex].value = random(fromVal, toVal);
+				step->fx[fxIndex].value = random(fromVal, toVal+1);
 				step->fx[fxIndex].type =
 						(fxType >= 0) ? fxType : randomFx();
 
@@ -1370,12 +1370,12 @@ int16_t Sequencer::getFxValueCorrection(uint8_t type, uint8_t value)
 
 const char lfoSeqName[20][4] =
 		{
-				"6",
-				"4",
-				"3",
-				"2",
+				"  6",
+				"  4",
+				"  3",
+				"  2",
 				"3/2",
-				"1",
+				"  1",
 				"3/4",
 				"1/2",
 				"3/8",

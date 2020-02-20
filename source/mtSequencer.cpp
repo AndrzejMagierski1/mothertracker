@@ -1278,21 +1278,6 @@ uint8_t Sequencer::isStop(void)
 	return player.isStop;
 }
 
-//void Sequencer::sendNoteOn(uint8_t track, uint8_t note, uint8_t velocity,
-//							uint8_t instrument)
-//{
-//
-//	if (instrument > INSTRUMENTS_MAX)
-//	{
-//		sendMidiNoteOn(note, velocity, instrument - INSTRUMENTS_MAX);
-//
-//	}
-//	else
-//	{
-//		instrumentPlayer[track].noteOn(instrument, note, velocity);
-//	}
-//
-//}
 void Sequencer::sendNoteOn(uint8_t track,
 							strPlayer::strPlayerTrack::strSendStep *step)
 {
