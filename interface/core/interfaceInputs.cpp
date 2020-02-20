@@ -32,6 +32,11 @@ void cInterface::potChange(uint8_t n, int16_t value)
 //=======================================================================
 void cInterface::buttonChange(uint8_t n, uint8_t value)
 {
+	if(value == 2 && n == interfaceButtonCopy)
+	{
+		display.doScreenShot();
+	}
+
 	if(value == 2 && ( (n >= 25 && n <= 27) || (n >= 30 && n <= 32 ) ) )
 	{
 		uiFM.processButtonsInput(n, 1);

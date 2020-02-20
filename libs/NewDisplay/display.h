@@ -133,6 +133,8 @@ public:
 	uint8_t getImgLoadState() { return img.status; }
 
 
+	void doScreenShot();
+
 	/// grupowe
 	void hideAllControls();
 

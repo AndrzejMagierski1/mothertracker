@@ -25,7 +25,41 @@
 #include "arrowIcons.h"
 
 
+static const uint8_t bytesPerPixel = 2;
+static const uint32_t bmpWidth = 800;
+static const uint32_t bmpHeight = 480;
+static const uint32_t fileHeaderSize = 14;
+static const uint32_t infoHeaderSize = 56;
+static const uint32_t bmpDataSize = bmpWidth*bmpHeight*bytesPerPixel;
+static const uint32_t fileSize = fileHeaderSize + infoHeaderSize + bmpDataSize;
 
+
+static const unsigned char fileHeader[] =
+{
+	'B','M', /// signature
+	(uint8_t)(fileSize),(uint8_t)(fileSize>>8),(uint8_t)(fileSize>>16),(uint8_t)(fileSize>>24), /// image file size in bytes
+	0,0,0,0, /// reserved
+	(uint8_t)(fileHeaderSize + infoHeaderSize),0,0,0, /// start of pixel array
+};
+
+static const unsigned char infoHeader[] =
+{
+	(uint8_t)(infoHeaderSize),0,0,0, /// header size
+	(uint8_t)(bmpWidth),(uint8_t)(bmpWidth>>8),(uint8_t)(bmpWidth>>16),(uint8_t)(bmpWidth>>24), /// image width
+	(uint8_t)(bmpHeight),(uint8_t)(bmpHeight>>8),(uint8_t)(bmpHeight>>16),(uint8_t)(bmpHeight>>24), /// image height
+	1,0, /// number of color planes
+	bytesPerPixel*8,0, /// bits per pixel
+	3,0,0,0, /// compression //(3)
+	0,0,0,0, /// image size
+	0,0,0,0, /// horizontal resolution
+	0,0,0,0, /// vertical resolution
+	0,0,0,0, /// colors in color table
+	0,0,0,0, /// important colors
+	0,0xF8,0,0, /// r
+	0xE0,0x7,0,0, /// g
+	0x1F,0,0,0, /// b
+	0,0,0,0, /// a
+};
 
 
 
@@ -672,6 +706,67 @@ void cDisplay::readImgFromMemory(uint8_t* data, uint32_t size) //todo
 	img.progressMax = img.size/imgBufforSize;
 	img.status = 1;
 }
+
+
+extern uint8_t lcdPclk;
+extern uint8_t lcdRotate;
+void cDisplay::doScreenShot()
+{
+	//EVE_MemWrite8(REG_PCLK, 0);
+	API_LIB_BeginCoProList();
+
+	API_CMD_SNAPSHOT2(RGB565, controlsRamStartAddress, 0, 0, 800, 480);
+	API_LIB_EndCoProList();
+
+	if(!SD.exists("Snapshots")) SD.mkdir(0,"Snapshots");
+
+	char bmpName[32];
+	uint16_t num = 1;
+	sprintf(bmpName, "Snapshots/Snapshot_%03d.bmp", 1);
+	SdFile bmp;
+	while(SD.exists(bmpName))
+	{
+		num++;
+		sprintf(bmpName, "Snapshots/Snapshot_%03d.bmp", num);
+	}
+
+	bmp.open(bmpName, FILE_WRITE);
+
+	bmp.write(fileHeader, fileHeaderSize);
+	bmp.write(infoHeader, infoHeaderSize);
+
+	uint16_t readstep = 0;
+	uint8_t buf[5000];
+	uint16_t line = 0; // 1600 bytes per line
+
+	while(readstep*1600 < bmpDataSize)
+	{
+		API_LIB_ReadDataRAMG(buf, 1600, (controlsRamStartAddress+bmpDataSize-1600)-readstep*1600);
+		bmp.write(buf, 1600);
+		readstep++;
+	}
+
+	API_LIB_ReadDataRAMG(buf, 1600, (controlsRamStartAddress+bmpDataSize-1600)-readstep*1600);
+	bmp.write(buf, 1600);
+
+	bmp.close();
+
+
+	API_LIB_BeginCoProList();
+	API_CMD_MEMZERO(controlsRamStartAddress,600000);
+
+	API_LIB_EndCoProList();
+
+	//EVE_MemWrite8(REG_PCLK, lcdPclk);
+
+	resetControlQueue();
+
+//	for(uint8_t i = 0; i < controlsCount; i++)
+//	{
+//		refreshControl(controlsTable[i]);
+//	}
+}
+
 
 //=====================================================================================================
 // grupowe

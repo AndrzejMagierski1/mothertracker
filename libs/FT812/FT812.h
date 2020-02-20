@@ -93,6 +93,8 @@ void API_LIB_EndCoProList(void);
 void API_LIB_AwaitCoProEmpty(void);
 uint8_t API_LIB_IsCoProEmpty(void);
 void API_LIB_WriteDataRAMG(const uint8_t *ImgData, uint32_t DataSize, uint32_t DestAddress);
+void API_LIB_ReadDataRAMG(uint8_t *ImgData, uint32_t DataSize, uint32_t SourceAddress);
+void API_LIB_ReadBackDataRAMG(uint8_t *ImgData, uint32_t DataSize, uint32_t SourceAddress);
 uint8_t API_SendString(const char* string, uint32_t length);
 void API_LIB_WriteDataToCMD(const uint8_t *ImgData, uint32_t TotalDataSize);
 // Graphics instructions

@@ -93,7 +93,7 @@ void cInterfacePopups::initPopupsDisplayControls()
 	prop.h = 260;
 	prop.colors = nullptr;
 	prop.value = -1;
-	prop.data=&padNamesStruct;
+	prop.data = &padNamesStruct;
 	if(keyboardControl == nullptr)  keyboardControl = display.createControl<cNotePopout>(&prop);
 
 
@@ -103,7 +103,7 @@ void cInterfacePopups::initPopupsDisplayControls()
 	prop3.y = 0;
 	prop3.w = 50;
 	prop3.h = 50;
-	prop3.data = &popupData;
+	prop3.data = nullptr;
 	if(textPopup == nullptr) textPopup = display.createControl<cTextPopup>(&prop3);
 
 
@@ -941,7 +941,7 @@ void cInterfacePopups::show(uint8_t config_slot, char** multiLineText, uint8_t l
 	popupData.multiLineColors = textColors;
 
 	// odsiwezenie kontrolki
-	//display.setControlData(textPopup, &popupData);
+	display.setControlData(textPopup, &popupData);
 	display.setControlPosition(textPopup, globalConfig[config_slot].x, globalConfig[config_slot].y);
 	display.setControlSize(textPopup, globalConfig[config_slot].w, globalConfig[config_slot].h);
 	display.setControlStyle(textPopup, controlStyleShow | controlStyleBackground);
