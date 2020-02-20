@@ -706,6 +706,8 @@ public:
 	int16_t rollValueToPeriod(int16_t value);
 	void makeFxValLabel(char * ptr, uint8_t fxID, uint8_t track, uint8_t step);
 	void makeFxValLabel(char * ptr, uint8_t fxType, uint8_t value);
+	uint8_t isTrackEngineMuted(uint8_t track);
+
 
 	uint8_t getActualPos()
 	{

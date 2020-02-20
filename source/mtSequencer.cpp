@@ -518,7 +518,7 @@ void Sequencer::play_microStep(uint8_t row)
 			switch (_fx.type)
 			{
 			case fx.FX_TYPE_ROLL:
-			killFxOnSlot(fxIndex);
+				killFxOnSlot(fxIndex);
 
 				playerRow.rollIsOn = 1;
 				playerRow.rollFxId = fxIndex;
@@ -537,7 +537,7 @@ void Sequencer::play_microStep(uint8_t row)
 				break;
 
 			case fx.FX_TYPE_RANDOM_NOTE:
-			killFxOnSlot(fxIndex);
+				killFxOnSlot(fxIndex);
 				stepToSend.note = constrain(
 						random(patternStep.note - _fx.value,
 								patternStep.note + _fx.value + 1),
@@ -545,7 +545,7 @@ void Sequencer::play_microStep(uint8_t row)
 						127);
 				break;
 			case fx.FX_TYPE_RANDOM_INSTRUMENT:
-			killFxOnSlot(fxIndex);
+				killFxOnSlot(fxIndex);
 				if (stepToSend.instrument < INSTRUMENTS_COUNT)
 				{
 					stepToSend.instrument = constrain(
@@ -1281,7 +1281,7 @@ uint8_t Sequencer::isStop(void)
 void Sequencer::sendNoteOn(uint8_t track,
 							strPlayer::strPlayerTrack::strSendStep *step)
 {
-
+	if (isTrackEngineMuted(track)) return;
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
 		if (step->velocity == -1)
@@ -1334,6 +1334,7 @@ void Sequencer::sendNoteOff(uint8_t track,
 							strPlayer::strPlayerTrack::strSendStep *step)
 {
 
+	if (isTrackEngineMuted(track)) return;
 	if (step->instrument > INSTRUMENTS_MAX)
 	{
 		sendMidiNoteOff(step->note,
