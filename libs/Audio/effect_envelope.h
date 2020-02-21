@@ -56,7 +56,13 @@ public:
 	void decay(float milliseconds);
 	void sustain(float level);
 	void release(float milliseconds);
-
+	void setSustain()
+	{
+		state = 5;
+		count = 0xFFFF;
+		mult_hires = sustain_mult;
+		inc_hires = 0;
+	}
 
 	void releaseNoteOn(float milliseconds) {
 		release_forced_count = milliseconds2count(milliseconds);

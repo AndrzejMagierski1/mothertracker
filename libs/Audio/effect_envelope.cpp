@@ -242,6 +242,16 @@ void AudioEffectEnvelope::update(void)
 	while (p < end)
 	{
 		// we only care about the state when completing a region
+		if (state == STATE_SUSTAIN)
+		{
+			if(loopFlag && pressedFlag)
+			{
+				count = release_count;
+				state = STATE_RELEASE;
+				inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+			}
+		}
+
 		if (count == 0)
 		{
 			if (state == STATE_ATTACK)

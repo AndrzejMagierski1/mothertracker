@@ -272,7 +272,6 @@ void envelopeGenerator::calc()
 
 		envTemp.tempOutput = constrain(tempOutput, envTemp.killOutput, MAX_OUTPUT);
 		envTemp.maxOutput = envTemp.tempOutput;
-
 		break;
 
 	case phase_hold:
@@ -377,6 +376,82 @@ float envelopeGenerator::getLastOut()
 	return (envTemp.output);
 }
 
+
+void envelopeGenerator::syncTrackerSeq(uint16_t val, float seqSpeed)
+{
+	uint16_t ticksOnPeriod = (6912/3) * syncRate;
+
+	uint16_t stepShift = (startStep % 36) * (6912/12);
+
+	val += stepShift;
+	if(val > 3*6912) val -= 3*6912;
+
+
+	uint16_t currentPointInPhase = val%ticksOnPeriod;
+
+	float lfoFrequency = (240.0/seqSpeed);
+	float periodTime = (1000000 / lfoFrequency) * syncRate;
+
+	if(phaseNumber[0] != -1 && phaseNumber[1] != -1)
+	{
+		if(phaseNumber[0] == phase_attack)
+		{
+			envelope->attack = periodTime/2000;
+		}
+		else if(phaseNumber[0] == phase_hold)
+		{
+			envelope->hold = periodTime/2000;
+		}
+
+		if(phaseNumber[1] == phase_decay)
+		{
+			envelope->decay = periodTime/2000;
+		}
+		else if(phaseNumber[1] == phase_release)
+		{
+			envelope->release = periodTime/2000;
+		}
+
+		if(currentPointInPhase > ticksOnPeriod/2)
+		{
+			envTemp.phase = phaseNumber[1];
+			envTemp.timer = (periodTime/2) * (float)( (float)(currentPointInPhase-ticksOnPeriod/2.0f) /(ticksOnPeriod/2.0f));
+		}
+		else
+		{
+			envTemp.phase = phaseNumber[0];
+			envTemp.timer = (periodTime/2) * (float)((float)(currentPointInPhase) /(ticksOnPeriod/2.0f));
+		}
+	}
+	else if(phaseNumber[0])
+	{
+		if(phaseNumber[0] == phase_attack)
+		{
+			envelope->attack = periodTime/1000;
+		}
+		else if(phaseNumber[0] == phase_hold)
+		{
+			envelope->decay = periodTime/1000;
+		}
+
+		envTemp.phase = phaseNumber[0];
+		envTemp.timer = (periodTime) * (float)((float)currentPointInPhase/ticksOnPeriod);
+	}
+
+}
+void envelopeGenerator::setSyncStartStep(uint16_t n)
+{
+	startStep = n;
+}
+void envelopeGenerator::setPhaseNumbers(int8_t n1, int8_t n2)
+{
+	phaseNumber[0] = n1;
+	phaseNumber[1] = n2;
+}
+void envelopeGenerator::setSyncRate(float sync)
+{
+	syncRate = sync;
+}
 
 
 
