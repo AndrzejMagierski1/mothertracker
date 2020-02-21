@@ -8,7 +8,6 @@
 #include <stdint.h>
 
 
-#include "SD.h"
 
 #include "displayControls.h"
 
@@ -41,6 +40,7 @@
 
 
 #include "displayStructs.h"
+
 
 
 
@@ -182,7 +182,6 @@ private:
 	//png/jpg
 	uint8_t loadImage = 0;
 
-	SdFile imgFile;
 
 	struct imgLoader
 	{
