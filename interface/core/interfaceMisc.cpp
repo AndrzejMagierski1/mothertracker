@@ -105,12 +105,22 @@ uint8_t cInterface::detectProjectLoadState()
 
 	uint8_t startStatus = newFileManager.getStatus();
 
-	if(startStatus != 0)
+	if(startStatus != fmLoadEnd)
 	{
+		if(startStatus == fmLoadError)
+		{
+			newFileManager.clearStatus();
+
+			newFileManager.createNewProjectInWorkspace();
+			newFileManager.openProjectFromWorkspace();
+		}
+
+
 		return 0;
 
 	}
 
+	newFileManager.clearStatus();
 
 //
 //	if(startupTimer < 1000) // minimalny czas start screenu

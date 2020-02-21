@@ -3,6 +3,90 @@
 #include "fileManagerDefs.h"
 #include "SD.h"
 
+#include "FastCRC.h"
+#include "FastCRC_cpu.h"
+#include "FastCRC_tables.h"
 
+#include "mtSequencer.h"
+
+#include "fileTransfer.h"
 #include "fileManager.h"
+
+
+//SDK_ALIGN(uint8_t g_bufferRead[SDK_SIZEALIGN(BUFFER_SIZE, SDMMC_DATA_BUFFER_ALIGN_CACHE)],
+//          MAX(SDMMC_DATA_BUFFER_ALIGN_CACHE, SDMMCHOST_DMA_BUFFER_ADDR_ALIGN));
+
+__NOINIT(EXTERNAL_RAM) strInstrumentFile fileManagerInstrumentBuffer  {0};
+
+
+
+void cFileManager::loadInstrumentsFromWorkspace()
+{
+	char instrumentToLoad[PATCH_SIZE];
+	sprintf(instrumentToLoad, cWorkspaceInstrumentFileFormat, processInstrument);
+
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(instrumentToLoad, (uint8_t*)&fileManagerInstrumentBuffer, sizeof(strInstrument), fileDivIntoParts);
+
+	if(loadStatus == fileTransferEnd)
+	{
+		if(loadInstrumentFormFileStruct(&mtProject.instrument[processInstrument], &fileManagerInstrumentBuffer))
+		{
+			continueInstrumentLoad();
+		}
+		else
+		{
+			instrumentThrowError();
+		}
+	}
+	else if(loadStatus == fileTransferFileNoExist)
+	{
+		memset(mtProject.instrument[processInstrument].sample.file_name, 0, SAMPLE_NAME_SIZE);
+		mtProject.instrument[processInstrument].isActive = 0;
+		continueInstrumentLoad();
+	}
+	else if(loadStatus >= fileTransferError)
+	{
+		instrumentThrowError();
+	}
+}
+
+
+void cFileManager::continueInstrumentLoad()
+{
+	processInstrument++;
+	if(processInstrument >= INSTRUMENTS_COUNT)
+	{
+		processInstrument = 0;
+		moveToNextOperationStep();
+	}
+}
+
+
+bool cFileManager::loadInstrumentFormFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile)
+{
+	if(((strInstrumentFile*)instrumentFile)->instrumentDataAndHeader.instrHeader.type != fileTypeInstrument) return false;
+
+	FastCRC32 crcCalc;
+	uint32_t checkCRC = crcCalc.crc32((uint8_t*)&instrumentFile->instrumentDataAndHeader,
+									  sizeof(strInstrumentFile::strInstrumentDataAndHeader));
+
+	if(checkCRC == ((strInstrumentFile*)instrumentFile)->crc)
+	{
+		memcpy(instrument, &instrumentFile->instrumentDataAndHeader.instrument, sizeof(strInstrument));
+
+		return true;
+	}
+
+
+	return false;
+}
+
+
+void cFileManager::instrumentThrowError()
+{
+	processInstrument = 0;
+
+	throwError(3);
+}
+
 

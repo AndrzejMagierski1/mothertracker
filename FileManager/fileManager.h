@@ -22,6 +22,10 @@ enum fileManagerStatus
 	fmSavingPattern,
 	fmSavingInstrument,
 
+
+	fmLoadEnd,
+	fmLoadError,
+
 };
 
 enum fileManagerOperation
@@ -39,8 +43,10 @@ public:
 	void update();
 
 	//-------------------------------------------------
-	uint8_t getStatus() 	{ return currentOperation; }
+	uint8_t getStatus() 	{ return status; }
 	uint8_t getProgress() 	{ return progress; }
+
+	void clearStatus() 	{ status = fmIdle; }
 
 	//-------------------------------------------------
 	bool openProjectFromWorkspace();
@@ -88,6 +94,7 @@ private:
 	void getDefaultValues(struct strMtValues* source);
 
 	// pattern
+	void loadPatternFromWorkspace(uint8_t index);
 	bool loadPatternFormFileStruct(uint8_t* pattern, uint8_t* patternFile);
 
 	bool writePatternFile(const char* filePath, uint8_t* sourcePattern);
@@ -95,11 +102,24 @@ private:
 	bool saveActualPattern(const char* path, uint8_t index);
 	bool loadPattern(const char* path, uint8_t index);
 	bool loadTrack(uint8_t pattIndex, uint8_t trackIndex);
-	void loadPatternFromWorkspace(uint8_t index);
 
 	// instrument
+	void loadInstrumentsFromWorkspace();
+	bool loadInstrumentFormFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile);
+	void continueInstrumentLoad();
+	void instrumentThrowError();
 	void getDefaultInstrument(struct strInstrument* source);
 
+	uint8_t processInstrument = 0;
+
+	//samples
+	void loadSamplesFromWorkspace();
+
+	void startSampleLoad();
+	void continueSampleLoad();
+	void sampleThrowError();
+	uint8_t sampleLoadPhase = 0;
+	uint8_t processSample = 0;
 
 	//loader
 

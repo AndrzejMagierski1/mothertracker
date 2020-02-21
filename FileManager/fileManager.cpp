@@ -58,12 +58,22 @@ void cFileManager::updateOpenWorkspaceProject()
 			loadPatternFromWorkspace(mtProject.values.actualPattern);
 			break;
 		}
+		case 2: // instruments
+		{
+			loadInstrumentsFromWorkspace();
+			break;
+		}
+		case 3: // samples
+		{
+			loadSamplesFromWorkspace();
+			break;
+		}
 
 
 
 		default:
 		{
-
+			status = fmLoadEnd;
 			currentOperationStep = 0;
 			currentOperation = fmNoOperation;
 			break;
@@ -83,6 +93,7 @@ void cFileManager::updateOpenWorkspaceProject()
 //====================================================================================
 bool cFileManager::openProjectFromWorkspace()
 {
+	if(status != fmIdle) return false;
 	if(currentOperation != fmNoOperation) return false;
 
 	if(!SD.exists(cWorkspacePath)) return false;
@@ -133,7 +144,7 @@ void cFileManager::throwError(uint8_t source)
 #endif
 
 
-
+	status = fmLoadError;
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
 

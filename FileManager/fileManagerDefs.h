@@ -65,9 +65,14 @@ enum enFileManagerErrorSource
 
 
 const char cWorkspacePath[] = "Workspace";
-const char cWorkspaceSamplesPath[] = "Workspace/samples";
-const char cWorkspacePatternsPath[] = "Workspace/patterns";
-const char cWorkspaceInstrumentsPath[] = "Workspace/instruments";
+
+const char cWorkspacePatternsPath[] 		= "Workspace/patterns";
+const char cWorkspacePatternFileFormat[] 	= "Workspace/patterns/pattern_%02d.mtp";
+const char cWorkspaceInstrumentsPath[] 		= "Workspace/instruments";
+const char cWorkspaceInstrumentFileFormat[] = "Workspace/instruments/instrument_%02d.mti";
+const char cWorkspaceSamplesPath[] 			= "Workspace/samples";
+const char cWorkspaceSamplesFilesFormat[] 	= "Workspace/samples/instr%02d.wav";
+
 
 const char cProjectFileName[] = "project.mt";
 const char cProjectFileNameInWorkspace[] = "Workspace/project.mt";

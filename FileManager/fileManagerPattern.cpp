@@ -23,15 +23,16 @@ __NOINIT(EXTERNAL_RAM) Sequencer::strPattern fileManagerPatternBuffer  {0};
 void cFileManager::loadPatternFromWorkspace(uint8_t index)
 {
 	char patternToLoad[PATCH_SIZE];
-	sprintf(patternToLoad, "%s/pattern_%02d.mtp", cWorkspacePatternsPath, index);
+	sprintf(patternToLoad, cWorkspacePatternFileFormat, index);
 	mtProject.values.actualPattern = index;
 
-	uint8_t loadStatus = fileTransfer.loadFileToMemory(patternToLoad, &fileManagerPatternBuffer, sizeof(Sequencer::strPattern), fileDivIntoParts);
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(patternToLoad,  (uint8_t*)&fileManagerPatternBuffer, sizeof(Sequencer::strPattern), fileDivIntoParts);
 
 	if(loadStatus == fileTransferEnd)
 	{
 		if(loadPatternFormFileStruct(sequencer.getPatternToLoadFromFile(), (uint8_t*)&fileManagerPatternBuffer))
 		{
+			sequencer.loadFromFileOK();
 			sequencer.switchRamPatternsNow();
 			moveToNextOperationStep();
 		}
@@ -39,6 +40,11 @@ void cFileManager::loadPatternFromWorkspace(uint8_t index)
 		{
 			throwError(2);
 		}
+	}
+	else if(loadStatus == fileTransferFileNoExist) // brak pliku patternu
+	{
+		sequencer.loadFromFileERROR();
+		continueInstrumentLoad();
 	}
 	else if(loadStatus >= fileTransferError)
 	{
@@ -59,6 +65,7 @@ bool cFileManager::loadPatternFormFileStruct(uint8_t* pattern, uint8_t* patternF
 
 	if (checkCRC == (((Sequencer::strPattern*)patternFile)->crc))
 	{
+		memcpy(pattern, patternFile, sizeof(Sequencer::strPattern));
 		return true;
 		// ok
 	}

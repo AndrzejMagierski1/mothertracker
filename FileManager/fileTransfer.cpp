@@ -21,11 +21,11 @@ cFileTransfer fileTransfer;
 
 
 
-uint8_t cFileTransfer::loadFileToMemory(const char* file, void* memory, uint32_t memSize, uint8_t mode)
+uint8_t cFileTransfer::loadFileToMemory(const char* file, uint8_t* memory, uint32_t memSize, uint8_t mode)
 {
 	if(transferStep == 0)
 	{
-		if(!SD.exists(file)) return fileTransferError;
+		if(!SD.exists(file)) return fileTransferFileNoExist;
 
 		if(transferFile.open(file))
 		{
@@ -39,23 +39,24 @@ uint8_t cFileTransfer::loadFileToMemory(const char* file, void* memory, uint32_t
 
 	if(transferStep == 1)
 	{
-		int32_t result = transferFile.read(memPtr, memStep);
+		int32_t result = transferFile.read(memory+memComplited, memStep);
 
 		if(result >= 0)
 		{
-			memPtr += result;
 			memComplited += result;
-
-			if(memComplited >= memTotal)
+			if(memComplited >= memSize)
 			{
 				transferStep = 2;
+			}
+			else
+			{
+				return fileTransferInProgress;
 			}
 		}
 	}
 
 	if(transferStep == 2)
 	{
-		memory = memPtr;
 		transferStep = 0;
 		transferFile.close();
 		return fileTransferEnd;
@@ -71,5 +72,4 @@ void cFileTransfer::endTransfer()
 {
 
 	transferFile.close();
-	delete (char*)memPtr;
 }

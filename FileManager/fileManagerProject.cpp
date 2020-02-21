@@ -22,7 +22,7 @@ __NOINIT(EXTERNAL_RAM) strProjectFile fileManagerProjectBuffer  {0};
 
 void cFileManager::loadProjectFromWorkspace()
 {
-	uint8_t loadStatus = fileTransfer.loadFileToMemory(cProjectFileNameInWorkspace, &fileManagerProjectBuffer, sizeof(strProjectFile), fileDivIntoParts);
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(cProjectFileNameInWorkspace, (uint8_t*)&fileManagerProjectBuffer, sizeof(strProjectFile), fileDivIntoParts);
 
 	if(loadStatus == fileTransferEnd)
 	{

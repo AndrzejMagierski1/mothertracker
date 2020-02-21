@@ -232,7 +232,6 @@ void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t first
 		{
 			sizeAllFiles += mtProject.instrument[i].sample.length;
 		}
-
 	}
 
 	if(firstLoad) sizeAllFiles = calcSamplesFolderSize();
