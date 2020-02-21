@@ -64,7 +64,10 @@ void Sequencer::handle_uStep_timer(void)
 			handle_nanoStep(0);
 			nanoStep++;
 			if (nanoStep > 6912)
+			{
 				nanoStep = 1;
+				nanoStepMultiplier++;
+			}
 		}
 	}
 	else // external clock
@@ -76,7 +79,10 @@ void Sequencer::handle_uStep_timer(void)
 
 			nanoStep++;
 			if (nanoStep > 6912)
+			{
 				nanoStep = 1;
+				nanoStepMultiplier++;
+			}
 		}
 		else
 		{
@@ -213,7 +219,11 @@ void Sequencer::handle_nanoStep(uint8_t step)
 	{
 		nanoStep++;
 		if (nanoStep > 6912)
+		{
 			nanoStep = 1;
+			nanoStepMultiplier++;
+		}
+
 	}
 
 }
@@ -809,6 +819,7 @@ void Sequencer::play(void)
 	player.isStop = 0;
 	player.isPlay = 1;
 	nanoStep = 1;
+	nanoStepMultiplier = 0;
 
 	player.uStep = 1;
 	for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
@@ -832,6 +843,7 @@ void Sequencer::playSelection(void) // potrzebuje aktualnego zaznaczenia
 	player.isStop = 0;
 	player.isPlay = 1;
 	nanoStep = 1;
+	nanoStepMultiplier = 0;
 
 	player.uStep = 1;
 	for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
@@ -934,6 +946,7 @@ void Sequencer::stop(void)
 	player.selectionMode = 0;
 
 	nanoStep = 1;
+	nanoStepMultiplier = 0;
 
 	for (uint8_t a = MINTRACK; a <= MAXTRACK; a++)
 	{
