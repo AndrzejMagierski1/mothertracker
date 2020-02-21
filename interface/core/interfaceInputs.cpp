@@ -3,8 +3,7 @@
 
 #include "core/interface.h"
 #include "mtLED.h"
-#include "SD.h"
-
+#include "keyScanner.h"
 
 #include "core/interfacePopups.h"
 
@@ -19,6 +18,7 @@
 */
 
 #include "mtFileManager.h"
+
 
 
 //=======================================================================
@@ -45,6 +45,12 @@ void cInterface::buttonChange(uint8_t n, uint8_t value)
 //=======================================================================
 void cInterface::powerButtonChange(uint8_t state)
 {
+	if(state == 1 && tactButtons.isButtonPressed(interfaceButtonShift))
+	{
+		display.doScreenShot();
+	}
+
+
 	uiFM.processPowerButton(state);
 }
 
@@ -76,13 +82,11 @@ void cInterface::SDCardChange(uint8_t state)
 
 	if(state == 0)
 	{
-
 		//debugLog.addLine("karta wyjeta");
 		//mtPopups.show(4, "SD card removed");
 	}
 	else
 	{
-
 		//debugLog.addLine("karta wlozona");
 		//mtPopups.show(4, "SD card inserted");
 	}
