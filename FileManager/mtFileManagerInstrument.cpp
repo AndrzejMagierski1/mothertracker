@@ -90,8 +90,8 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 		writeInstrumentFile(currentPatch, &mtProject.instrument[instrumentIndex]);
 	}
 
-	strcpy(currentPatch,"Workspace/project.mt");
-	writeProjectFile(currentPatch, &mtProject);
+	//strcpy(currentPatch,"Workspace/project.mt");
+	//writeProjectFile(currentPatch, &mtProject);
 
 	setInstrumentChangeFlag(instrumentIndex);
 	//autoSaveWorkspace(1);

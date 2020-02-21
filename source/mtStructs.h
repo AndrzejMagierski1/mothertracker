@@ -13,7 +13,7 @@
 
 const uint8_t FV_VER_1	=					0;		// device version
 const uint8_t FV_VER_2 =					9;		// official update
-const uint8_t FV_VER_3 =					20;		// fix version  100 = brak 3 litery
+const uint8_t FV_VER_3 =					21;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
 
 const uint8_t PROJECT_FILE_VERSION 	=		1;		// wersja struktury pliku projektu
