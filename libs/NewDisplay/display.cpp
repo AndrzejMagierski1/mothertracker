@@ -25,11 +25,11 @@
 #include "arrowIcons.h"
 
 
-static const uint8_t bytesPerPixel = 2;
+static const uint8_t bytesPerPixel = 4;
 static const uint32_t bmpWidth = 800;
 static const uint32_t bmpHeight = 480;
 static const uint32_t fileHeaderSize = 14;
-static const uint32_t infoHeaderSize = 56;
+static const uint32_t infoHeaderSize = 56; //56
 static const uint32_t bmpDataSize = bmpWidth*bmpHeight*bytesPerPixel;
 static const uint32_t fileSize = fileHeaderSize + infoHeaderSize + bmpDataSize;
 
@@ -55,10 +55,14 @@ static const unsigned char infoHeader[] =
 	0,0,0,0, /// vertical resolution
 	0,0,0,0, /// colors in color table
 	0,0,0,0, /// important colors
-	0,0xF8,0,0, /// r
-	0xE0,0x7,0,0, /// g
-	0x1F,0,0,0, /// b
-	0,0,0,0, /// a
+//	0,0xF8,0,0, /// r
+//	0xE0,0x7,0,0, /// g
+//	0x1F,0,0,0, /// b
+//	0,0,0,0, /// a
+	0,0,255,0, /// r
+	0,255,0,0, /// g
+	255,0,0,0, /// b
+	0,0,0,255, /// a
 };
 
 
@@ -712,11 +716,6 @@ extern uint8_t lcdPclk;
 extern uint8_t lcdRotate;
 void cDisplay::doScreenShot()
 {
-	//EVE_MemWrite8(REG_PCLK, 0);
-	API_LIB_BeginCoProList();
-
-	API_CMD_SNAPSHOT2(RGB565, controlsRamStartAddress, 0, 0, 800, 480);
-	API_LIB_EndCoProList();
 
 	if(!SD.exists("Snapshots")) SD.mkdir(0,"Snapshots");
 
@@ -735,19 +734,36 @@ void cDisplay::doScreenShot()
 	bmp.write(fileHeader, fileHeaderSize);
 	bmp.write(infoHeader, infoHeaderSize);
 
+	uint8_t buf[3200];
 	uint16_t readstep = 0;
-	uint8_t buf[5000];
-	uint16_t line = 0; // 1600 bytes per line
 
-	while(readstep*1600 < bmpDataSize)
+	API_LIB_BeginCoProList();
+	API_CMD_SNAPSHOT2(0x20, controlsRamStartAddress, 0, 240, 1600, 240);
+	API_LIB_EndCoProList();
+	API_LIB_AwaitCoProEmpty();
+
+	readstep = 0;
+
+	while(readstep*3200 <= (bmpDataSize/2))
 	{
-		API_LIB_ReadDataRAMG(buf, 1600, (controlsRamStartAddress+bmpDataSize-1600)-readstep*1600);
-		bmp.write(buf, 1600);
+		API_LIB_ReadDataRAMG(buf, 3200, (controlsRamStartAddress+(3200*240)-3200)-readstep*3200);
+		bmp.write(buf, 3200);
 		readstep++;
 	}
 
-	API_LIB_ReadDataRAMG(buf, 1600, (controlsRamStartAddress+bmpDataSize-1600)-readstep*1600);
-	bmp.write(buf, 1600);
+	API_LIB_BeginCoProList();
+	API_CMD_SNAPSHOT2(0x20, controlsRamStartAddress, 0, 0, 1600, 240);
+	API_LIB_EndCoProList();
+	API_LIB_AwaitCoProEmpty();
+
+	readstep = 0;
+
+	while(readstep*3200 <= (bmpDataSize/2))
+	{
+		API_LIB_ReadDataRAMG(buf, 3200, (controlsRamStartAddress+(3200*240)-3200)-readstep*3200);
+		bmp.write(buf, 3200);
+		readstep++;
+	}
 
 	bmp.close();
 
