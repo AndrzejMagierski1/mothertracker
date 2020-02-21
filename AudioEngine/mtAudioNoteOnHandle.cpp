@@ -100,8 +100,6 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		}
 	}
 
-
-
 	seqFx(fx1_id,fx1_val,0);
 	seqFx(fx2_id,fx2_val,1);
 //*******
@@ -116,6 +114,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		|| (trackControlParameter[(int)controlType::performanceMode][envelopesWithoutAmpControlValue[i]]))
 		{
 			envelopePtr[envelopesWithoutAmpIdx[i]]->start();
+			setSyncParamsLFO(i);
 		}
 	}
 //*******
@@ -393,7 +392,7 @@ void playerEngine::handleInitNoteOnAmpEnvelope()
 	{
 		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
 		{
-			calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp]);
+			calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp], mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed );
 
 			envelopeAmpPtr->delay(lfoBasedEnvelope[envAmp].delay);
 			envelopeAmpPtr->attack(lfoBasedEnvelope[envAmp].attack);
@@ -433,7 +432,7 @@ void playerEngine::handleInitNoteOnEnvelope(uint8_t n)
 	{
 		if(mtProject.instrument[currentInstrument_idx].envelope[envelopesWithoutAmpIdx[n]].loop)
 		{
-			calcLfoBasedEnvelope(&lfoBasedEnvelope[envelopesWithoutAmpIdx[n]], &mtProject.instrument[currentInstrument_idx].lfo[envelopesWithoutAmpIdx[n]]);
+			calcLfoBasedEnvelope(&lfoBasedEnvelope[envelopesWithoutAmpIdx[n]], &mtProject.instrument[currentInstrument_idx].lfo[envelopesWithoutAmpIdx[n]],mtProject.instrument[currentInstrument_idx].lfo[envelopesWithoutAmpIdx[n]].speed);
 			envelopePtr[envelopesWithoutAmpIdx[n]]->init(&lfoBasedEnvelope[envelopesWithoutAmpIdx[n]]);
 		}
 		else

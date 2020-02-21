@@ -453,10 +453,10 @@ public:
 	void endPositionLfoRatePerformanceMode();
 	void endPanningLfoRatePerformanceMode();
 
-
+//******testowe
 	void printLog(SdFile * log);
 	void setPassEnvelope(uint8_t state);
-
+//*****************
 	float getRMSValue();
 private:
 
@@ -483,8 +483,18 @@ private:
 	uint8_t 					envelopePassFlag = 0;
 
 	envelopeGenerator::strEnv   lfoBasedEnvelope[envMax];
+	const envelopeGenerator::strEnv passEnvelope = { 1.0,0,0,0,0,1.0,0,0,0};
 
 	uint8_t isActiveFlag = 0;
+
+
+//**********************FUNKCJE POMOCNICZE
+	uint8_t isFxVelocity(uint8_t fx_id);
+	float getMostSignificantAmount();
+	uint8_t getMostSignificantVolume();
+	void initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv * env);
+	uint16_t getSystick24step();
+	void setSyncParamsLFO(uint8_t type);
 
 //**********************NOTE ON/OFF HANDLERS
 //*****note on fx
@@ -559,9 +569,6 @@ private:
 	void endFxPositionWavetableLFO(uint8_t fx_n);
 //******
 	void endFxPanningLFO(uint8_t fx_n);
-//*************************************************
-	uint8_t isFxVelocity(uint8_t fx_id);
-	float getMostSignificantAmount();
 //******FUNKCJE NARZUCAJACE WARTOSCI SILNIKOWI
 	void setFxVolume();
 	void clearFxVolume();
@@ -593,6 +600,15 @@ private:
 	void setFxReverbSend();
 	void clearFxReverbSend();
 
+	void setFxCutoff();
+	void clearFxCutoff();
+	void setFxFilterType();
+	void clearFxFilterType();
+
+	void setFxAmpRateLFO();
+	void clearFxAmpRateLFO();
+	void syncFxAmpLFO();
+
 	void changeFilterType(uint8_t type);
 	void filterConnect();
 	void filterDisconnect();
@@ -600,8 +616,8 @@ private:
 	void changePointsPerformanceMode(int32_t spValue, int32_t epValue);
 	void endPointsPerformanceMode();
 
-	void calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo);
 	void calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo, uint8_t rate);
+
 
 	float fmap(float x, float in_min, float in_max, float out_min, float out_max);
 

@@ -59,8 +59,11 @@ public:
 
 	void putMidiParameter(uint8_t ch, uint8_t parNo, uint8_t value);
 
+	void syncTrackerSeq(uint16_t val, float seqSpeed);
+	void setSyncStartStep(uint16_t n);
+	void setPhaseNumbers(int8_t n1, int8_t n2);
+	void setSyncRate(float sync);
 	
-
 private:
 	float fMap(float x, float in_min, float in_max, float out_min, float out_max);
 
@@ -83,11 +86,11 @@ private:
 
 	} envTemp;
 
-
+	uint16_t startStep = 0;
+	int8_t phaseNumber[2] = {-1,-1};
+	float syncRate = 1;
+	uint16_t periodTime = 0;
 	
-
-
-
 	// uint8_t modTarget = 0;		//	jesli 0 to nieaktywny, jesli 1 to 0 w tablicy
 	// float mod = 0;				// 	tu można wpisać z zewnątrz wartość modulacji
 	// nr fazy
