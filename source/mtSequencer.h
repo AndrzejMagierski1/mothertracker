@@ -310,6 +310,7 @@ public:
 	strGlobalConfig config;
 
 	uint16_t nanoStep = 0;
+	uint16_t nanoStepMultiplier = 0;
 
 	static struct strMidiModes
 	{
@@ -486,6 +487,10 @@ public:
 	}
 
 	float getActualTempo();
+	uint32_t getSeqTimer()
+	{
+		return nanoStep+nanoStepMultiplier*6912;
+	}
 
 // sekwencerowe
 
