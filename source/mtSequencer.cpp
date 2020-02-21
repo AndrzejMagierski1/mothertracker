@@ -361,6 +361,9 @@ void Sequencer::play_microStep(uint8_t row)
 
 				playerRow.isOffset = 1;
 				playerRow.offsetValue = map(_fx.value + 1, 0, 100, 1, 48);
+				playerRow.offsetValue = constrain(playerRow.offsetValue,
+												  0,
+												  47);
 
 				break;
 			case fx.FX_TYPE_VELOCITY:
