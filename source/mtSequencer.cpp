@@ -1345,6 +1345,7 @@ void Sequencer::sendNoteOff(uint8_t track,
 							uint8_t instrument)
 {
 
+	if (isTrackEngineMuted(track)) return;
 	if (instrument > INSTRUMENTS_MAX)
 	{
 		sendMidiNoteOff(note,
