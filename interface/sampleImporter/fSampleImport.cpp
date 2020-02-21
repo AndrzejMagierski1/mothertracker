@@ -106,6 +106,8 @@ void cSampleImporter::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
+	fileManager.disableAutoSaveWorkspace();
+
 	Encoder.setAcceleration(0);
 
 	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
@@ -178,6 +180,9 @@ void cSampleImporter::stop()
 {
 	Encoder.setAcceleration(3);
 	keyboardManager.deinit();
+
+	fileManager.enableAutoSaveWorkspace();
+
 	moduleRefresh = 0;
 }
 

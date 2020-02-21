@@ -405,8 +405,21 @@ void FileManager::delayAutoSave(uint16_t ms)
 
 }
 
+void FileManager::disableAutoSaveWorkspace()
+{
+	isAutosaveActive = 0;
+}
+
+void FileManager::enableAutoSaveWorkspace()
+{
+	isAutosaveActive = 1;
+}
+
+
 void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 {
+	if(!isAutosaveActive) return;
+
 	if(configChangedRefresh > 10000 || forcedWorkspaceSave)
 	{
 		configChangedRefresh = 0;
