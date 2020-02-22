@@ -429,7 +429,7 @@ void envelopeGenerator::syncTrackerSeq(uint16_t val, float seqSpeed)
 		{
 			envelope->attack = periodTime/1000;
 		}
-		else if(phaseNumber[0] == phase_hold)
+		else if(phaseNumber[0] == phase_decay)
 		{
 			envelope->decay = periodTime/1000;
 		}

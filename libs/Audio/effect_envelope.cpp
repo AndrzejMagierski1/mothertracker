@@ -27,6 +27,7 @@
 #include "effect_envelope.h"
 #include "Audio.h"
 #include "debugLog.h"
+
 #define STATE_IDLE	0
 #define STATE_DELAY	1
 #define STATE_ATTACK	2
@@ -235,7 +236,6 @@ void AudioEffectEnvelope::update(void)
 		AudioStream::release(block);
 		return;
 	}
-
 	p = (uint32_t *)(block->data);
 	end = p + AUDIO_BLOCK_SAMPLES/2;
 
@@ -448,4 +448,102 @@ void AudioEffectEnvelope::clearEndReleaseFlag()
 uint8_t AudioEffectEnvelope:: getState()
 {
 	return state;
+}
+
+void AudioEffectEnvelope::syncTrackerSeq(uint16_t val, float seqSpeed)
+{
+	uint16_t ticksOnPeriod = (6912/3) * syncRate;
+
+	uint16_t stepShift = (startStep % 36) * (6912/12);
+
+	val += stepShift;
+	if(val > 3*6912) val -= 3*6912;
+
+
+	uint16_t currentPointInPhase = val % ticksOnPeriod;
+
+	float lfoFrequency = (240.0/seqSpeed);
+	float periodTime = (1000 / lfoFrequency) * syncRate;
+
+	if(phaseNumber[0] != -1 && phaseNumber[1] != -1)
+	{
+		float fullPhaseTime = periodTime/2.0f;
+		uint16_t fullPhaseCount = milliseconds2count(fullPhaseTime);
+
+		if(phaseNumber[0] == STATE_ATTACK)
+		{
+			attack(fullPhaseTime);
+			inc_hires = fullPhaseCount ? 0x40000000/fullPhaseCount : 0;
+		}
+		else if(phaseNumber[0] == STATE_HOLD)
+		{
+			hold(fullPhaseTime);
+			inc_hires = 0;
+		}
+
+		if(phaseNumber[1] == STATE_DECAY)
+		{
+			decay(fullPhaseTime);
+			inc_hires = fullPhaseCount ? -(0x40000000/fullPhaseCount) : 0;
+		}
+		else if(phaseNumber[1] == STATE_RELEASE)
+		{
+			release(fullPhaseTime);
+			inc_hires = fullPhaseCount ? -(0x40000000/fullPhaseCount) : 0;
+			// w normalnym przypadku powinno byc od ostatniego mult_hires - ale  w lfo stan poczatkowy release = 1.0
+		}
+
+		if(currentPointInPhase > ticksOnPeriod/2)
+		{
+			state = phaseNumber[1];
+			count = milliseconds2count((fullPhaseTime) * (float)( (float)(currentPointInPhase-ticksOnPeriod/2.0f) /(ticksOnPeriod/2.0f)));
+			mult_hires = 0x40000000 - (inc_hires * (fullPhaseCount - count));
+		}
+		else
+		{
+			state = phaseNumber[0];
+			count = milliseconds2count((fullPhaseTime) * (float)((float)(currentPointInPhase) /(ticksOnPeriod/2.0f)));
+			if(phaseNumber[0] == STATE_ATTACK)
+			{
+				mult_hires = inc_hires * (fullPhaseCount - count);
+			}
+			else if(phaseNumber[0] == STATE_HOLD)
+			{
+				mult_hires = 0x40000000;
+			}
+		}
+	}
+	else if(phaseNumber[0])
+	{
+		uint16_t fullPhaseCount = milliseconds2count(periodTime);
+
+		state = phaseNumber[0];
+		count = milliseconds2count((periodTime) * (float)((float)currentPointInPhase/ticksOnPeriod));
+
+		if(phaseNumber[0] == STATE_ATTACK)
+		{
+			attack(periodTime);
+			inc_hires = fullPhaseCount ? 0x40000000/fullPhaseCount : 0;
+			mult_hires = inc_hires * (fullPhaseCount - count);
+		}
+		else if(phaseNumber[0] == STATE_DECAY)
+		{
+			decay(periodTime);
+			inc_hires = fullPhaseCount ? -(0x40000000/fullPhaseCount) : 0;
+			mult_hires = 0x40000000 - (inc_hires * (fullPhaseCount - count));
+		}
+	}
+}
+void AudioEffectEnvelope::setSyncStartStep(uint16_t n)
+{
+	startStep = n;
+}
+void AudioEffectEnvelope::setPhaseNumbers(int8_t n1, int8_t n2)
+{
+	phaseNumber[0] = n1;
+	phaseNumber[1] = n2;
+}
+void AudioEffectEnvelope::setSyncRate(float sync)
+{
+	syncRate = sync;
 }
