@@ -1243,13 +1243,6 @@ void playerEngine::initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv 
 	}
 }
 
-uint16_t playerEngine::getSystick24step()
-{
-//	uint16_t step = sequencer.getActualPos();
-	uint16_t result = sequencer.getSeqTimer();
-//	if((step % 24) > 11) result += 6912;
-	return result;
-}
 
 void playerEngine::setSyncParamsLFO(uint8_t type)
 {
@@ -1293,6 +1286,41 @@ void playerEngine::setSyncParamsLFO(uint8_t type)
 		case (int)lfoShapeType::lfoShapeReverseSaw: envelopePtr[envelopesWithoutAmpIdx[type]]->setPhaseNumbers(4, -1);		break;
 		case (int)lfoShapeType::lfoShapeTriangle: envelopePtr[envelopesWithoutAmpIdx[type]]->setPhaseNumbers(2, 4);			break;
 		case (int)lfoShapeType::lfoShapeSquare: envelopePtr[envelopesWithoutAmpIdx[type]]->setPhaseNumbers(3, 6);			break;
+		default:	break;
+		}
+	}
+}
+
+void playerEngine::setSyncParamsAmpLFO()
+{
+	if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) ||
+	  (trackControlParameter[(int)controlType::performanceMode][envAmp]) ||
+	  (trackControlParameter[(int)controlType::sequencerMode][envAmp]) ||
+	  (trackControlParameter[(int)controlType::sequencerMode2][envAmp]))
+	{
+
+		uint8_t localRate = mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed;
+
+		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp])
+		{
+			localRate = currentPerformanceValues.lfoAmpRate;
+		}
+		else if ( (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]) ||
+				  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp]) )
+		{
+			localRate = currentSeqModValues.lfoAmpRate;
+		}
+
+
+		envelopeAmpPtr->setSyncRate(tempoSyncRates[localRate]);
+		envelopeAmpPtr->setSyncStartStep(sequencer.getActualPos());
+
+		switch(mtProject.instrument[currentInstrument_idx].lfo[envAmp].shape)
+		{
+		case (int)lfoShapeType::lfoShapeSaw: envelopeAmpPtr->setPhaseNumbers(2, -1);	 			break;
+		case (int)lfoShapeType::lfoShapeReverseSaw: envelopeAmpPtr->setPhaseNumbers(4, -1);			break;
+		case (int)lfoShapeType::lfoShapeTriangle: envelopeAmpPtr->setPhaseNumbers(2, 4);			break;
+		case (int)lfoShapeType::lfoShapeSquare: envelopeAmpPtr->setPhaseNumbers(3, 6);				break;
 		default:	break;
 		}
 	}

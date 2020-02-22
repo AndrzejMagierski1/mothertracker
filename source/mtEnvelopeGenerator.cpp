@@ -377,15 +377,13 @@ float envelopeGenerator::getLastOut()
 }
 
 
-void envelopeGenerator::syncTrackerSeq(uint16_t val, float seqSpeed)
+void envelopeGenerator::syncTrackerSeq(uint32_t val, float seqSpeed)
 {
 	uint16_t ticksOnPeriod = (6912/3) * syncRate;
 
 	uint16_t stepShift = (startStep % 36) * (6912/12);
 
 	val += stepShift;
-	if(val > 3*6912) val -= 3*6912;
-
 
 	uint16_t currentPointInPhase = val%ticksOnPeriod;
 

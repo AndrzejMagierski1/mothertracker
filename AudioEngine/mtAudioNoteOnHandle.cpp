@@ -106,6 +106,15 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 	status = playMemPtr->play(instr_idx,note);
 //******* start env
 	envelopeAmpPtr->noteOn();
+
+	if((mtProject.instrument[instr_idx].envelope[envAmp].enable)
+	|| (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp])
+	|| (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp])
+	|| (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp]) )
+	{
+		setSyncParamsAmpLFO();
+	}
+
 	for(uint8_t i = 0 ; i < ENVELOPES_WITHOUT_AMP_MAX; i++)
 	{
 		if((mtProject.instrument[instr_idx].envelope[envelopesWithoutAmpIdx[i]].enable)

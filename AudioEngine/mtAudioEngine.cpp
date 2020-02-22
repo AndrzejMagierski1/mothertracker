@@ -233,7 +233,7 @@ void updateAudioEngine()
 
 void audioEngine::update()
 {
-	if(recorder.update() == 0) SR->fullMemoryDuringRecordFlag = 1;
+	if(recorder.update() == 0) SR->fullMemoryDuringRecordFlag = 1; //todo: to interface powinien getowac stan recordera
 
 
 	if(recorder.mode == recorderModeStop)
@@ -581,7 +581,16 @@ void playerEngine:: update()
 		}
 	}
 
-
+	if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
+	{
+		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
+		{
+			if(envelopeAmpPtr->getState() != 0 )
+			{
+				envelopeAmpPtr->syncTrackerSeq(sequencer.getSeqTimer(), sequencer.getActualTempo());
+			}
+		}
+	}
 
 	if(mtProject.instrument[currentInstrument_idx].filterEnable)
 	{
@@ -594,7 +603,7 @@ void playerEngine:: update()
 			{
 				if(sequencer.getSeqState())
 				{
-					envelopePtr[envFilter]->syncTrackerSeq(getSystick24step(), sequencer.getActualTempo());
+					envelopePtr[envFilter]->syncTrackerSeq(sequencer.getSeqTimer(), sequencer.getActualTempo());
 				}
 				currentEnvelopeModification[envFilter] =  envelopePtr[envFilter]->getOut();
 				statusBytes |= CUTOFF_MASK;
@@ -613,7 +622,7 @@ void playerEngine:: update()
 				{
 					if(sequencer.getSeqState())
 					{
-						envelopePtr[envWtPos]->syncTrackerSeq(getSystick24step(), sequencer.getActualTempo());
+						envelopePtr[envWtPos]->syncTrackerSeq(sequencer.getSeqTimer(), sequencer.getActualTempo());
 					}
 					currentEnvelopeModification[envWtPos] = envelopePtr[envWtPos]->getOut();
 					statusBytes |= WT_POS_SEND_MASK;
@@ -632,7 +641,7 @@ void playerEngine:: update()
 			{
 				if(sequencer.getSeqState())
 				{
-					envelopePtr[envGranPos]->syncTrackerSeq(getSystick24step(), sequencer.getActualTempo());
+					envelopePtr[envGranPos]->syncTrackerSeq(sequencer.getSeqTimer(), sequencer.getActualTempo());
 				}
 				currentEnvelopeModification[envGranPos] = envelopePtr[envGranPos]->getOut();
 				statusBytes |= GRANULAR_POS_SEND_MASK;
@@ -648,7 +657,7 @@ void playerEngine:: update()
 		{
 			if(sequencer.getSeqState())
 			{
-				envelopePtr[envPan]->syncTrackerSeq(getSystick24step(), sequencer.getActualTempo());
+				envelopePtr[envPan]->syncTrackerSeq(sequencer.getSeqTimer(), sequencer.getActualTempo());
 			}
 			currentEnvelopeModification[envPan] = envelopePtr[envPan]->getOut();
 			statusBytes |= PANNING_MASK;

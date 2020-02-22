@@ -493,8 +493,8 @@ private:
 	float getMostSignificantAmount();
 	uint8_t getMostSignificantVolume();
 	void initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv * env);
-	uint16_t getSystick24step();
 	void setSyncParamsLFO(uint8_t type);
+	void setSyncParamsAmpLFO();
 
 //**********************NOTE ON/OFF HANDLERS
 //*****note on fx

@@ -118,7 +118,7 @@ void  AudioEffectEnvelope::decay(float milliseconds)
 		else if ((int)(count + dif) > 65535) count = 65535;
 		else count += dif;
 
-		inc_hires = count ? (sustain_mult - mult_hires) / (int32_t)count : 0 ;
+		inc_hires = count ? (sustain_mult - mult_hires) / count : 0 ;
 
 	}
 	AudioInterrupts();
@@ -151,7 +151,7 @@ void  AudioEffectEnvelope::release(float milliseconds)
 		else if ((int)(count + dif) > 65535) count = 65535;
 		else count += dif;
 
-		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+		inc_hires = count ? (-mult_hires) / count : 0;
 
 	}
 	AudioInterrupts();
@@ -176,7 +176,7 @@ void AudioEffectEnvelope::noteOn(void)
 		{
 			state = STATE_ATTACK;
 			count = attack_count;
-			inc_hires = count? 0x40000000 / (int32_t)count : 0;
+			inc_hires = count? 0x40000000 / count : 0;
 
 		}
 	}
@@ -184,7 +184,7 @@ void AudioEffectEnvelope::noteOn(void)
 	{
 		state = STATE_FORCED;
 		count = release_forced_count;
-		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+		inc_hires = count ? (-mult_hires) / count : 0;
 		mult_hires = (-inc_hires) * count; // powinno zapobiec przechodzeniu przez zero
 	}
 	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
@@ -204,7 +204,7 @@ void AudioEffectEnvelope::noteOff(void)
 		}
 		state = STATE_RELEASE;
 		count = release_count;
-		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+		inc_hires = count ? (-mult_hires) / count : 0;
 		mult_hires = (-inc_hires) * count;
 	}
 	__enable_irq();
@@ -248,7 +248,7 @@ void AudioEffectEnvelope::update(void)
 			{
 				count = release_count;
 				state = STATE_RELEASE;
-				inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+				inc_hires = count ? (-mult_hires) /count : 0;
 			}
 		}
 
@@ -266,7 +266,7 @@ void AudioEffectEnvelope::update(void)
 			{
 				state = STATE_DECAY;
 				count = decay_count;
-				inc_hires = count ? (sustain_mult - 0x40000000) / (int32_t)count : 0 ;
+				inc_hires = count ? (sustain_mult - 0x40000000) / count : 0 ;
 				continue;
 			}
 			else if (state == STATE_DECAY)
@@ -275,7 +275,7 @@ void AudioEffectEnvelope::update(void)
 				{
 					count = release_count;
 					state = STATE_RELEASE;
-					inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+					inc_hires = count ? (-mult_hires) / count : 0;
 					continue;
 				}
 				else
@@ -297,7 +297,7 @@ void AudioEffectEnvelope::update(void)
 					//powinienem dać delay state, ale nie jest uzywany w trackerze, a moze tworzyc dodatkowe problemy
 					count = attack_count;
 					state = STATE_ATTACK;
-					inc_hires = count ? 0x40000000 / (int32_t)count : 0;
+					inc_hires = count ? 0x40000000 / count : 0;
 					continue;
 				}
 				else
@@ -450,15 +450,13 @@ uint8_t AudioEffectEnvelope:: getState()
 	return state;
 }
 
-void AudioEffectEnvelope::syncTrackerSeq(uint16_t val, float seqSpeed)
+void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
 {
 	uint16_t ticksOnPeriod = (6912/3) * syncRate;
 
 	uint16_t stepShift = (startStep % 36) * (6912/12);
 
 	val += stepShift;
-	if(val > 3*6912) val -= 3*6912;
-
 
 	uint16_t currentPointInPhase = val % ticksOnPeriod;
 
@@ -470,37 +468,43 @@ void AudioEffectEnvelope::syncTrackerSeq(uint16_t val, float seqSpeed)
 		float fullPhaseTime = periodTime/2.0f;
 		uint16_t fullPhaseCount = milliseconds2count(fullPhaseTime);
 
-		if(phaseNumber[0] == STATE_ATTACK)
-		{
-			attack(fullPhaseTime);
-			inc_hires = fullPhaseCount ? 0x40000000/fullPhaseCount : 0;
-		}
-		else if(phaseNumber[0] == STATE_HOLD)
-		{
-			hold(fullPhaseTime);
-			inc_hires = 0;
-		}
-
-		if(phaseNumber[1] == STATE_DECAY)
-		{
-			decay(fullPhaseTime);
-			inc_hires = fullPhaseCount ? -(0x40000000/fullPhaseCount) : 0;
-		}
-		else if(phaseNumber[1] == STATE_RELEASE)
-		{
-			release(fullPhaseTime);
-			inc_hires = fullPhaseCount ? -(0x40000000/fullPhaseCount) : 0;
-			// w normalnym przypadku powinno byc od ostatniego mult_hires - ale  w lfo stan poczatkowy release = 1.0
-		}
-
 		if(currentPointInPhase > ticksOnPeriod/2)
 		{
+			if(phaseNumber[1] == STATE_DECAY)
+			{
+				decay_count = fullPhaseCount;
+				if (decay_count == 0) decay_count = 1;
+				inc_hires = fullPhaseCount ? -(0x40000000U/fullPhaseCount) : 0;
+			}
+			else if(phaseNumber[1] == STATE_RELEASE)
+			{
+				release_count = fullPhaseCount;
+				if (release_count == 0) release_count = 1;
+				inc_hires = 0;
+				mult_hires = 0;
+				// w normalnym przypadku powinno byc od ostatniego mult_hires - ale  w lfo stan poczatkowy release = 1.0
+			}
+
+
 			state = phaseNumber[1];
 			count = milliseconds2count((fullPhaseTime) * (float)( (float)(currentPointInPhase-ticksOnPeriod/2.0f) /(ticksOnPeriod/2.0f)));
-			mult_hires = 0x40000000 - (inc_hires * (fullPhaseCount - count));
+			mult_hires = 0x40000000 + (inc_hires * (fullPhaseCount - count));
 		}
 		else
 		{
+			if(phaseNumber[0] == STATE_ATTACK)
+			{
+				attack_count = fullPhaseCount;
+				if (attack_count == 0) attack_count = 1;
+				inc_hires = fullPhaseCount ? 0x40000000U/fullPhaseCount : 0;
+			}
+			else if(phaseNumber[0] == STATE_HOLD)
+			{
+				hold_count = fullPhaseCount;
+				if (hold_count == 0) hold_count = 1;
+				inc_hires = 0;
+			}
+
 			state = phaseNumber[0];
 			count = milliseconds2count((fullPhaseTime) * (float)((float)(currentPointInPhase) /(ticksOnPeriod/2.0f)));
 			if(phaseNumber[0] == STATE_ATTACK)
@@ -510,6 +514,7 @@ void AudioEffectEnvelope::syncTrackerSeq(uint16_t val, float seqSpeed)
 			else if(phaseNumber[0] == STATE_HOLD)
 			{
 				mult_hires = 0x40000000;
+				inc_hires = 0;
 			}
 		}
 	}
@@ -522,15 +527,17 @@ void AudioEffectEnvelope::syncTrackerSeq(uint16_t val, float seqSpeed)
 
 		if(phaseNumber[0] == STATE_ATTACK)
 		{
-			attack(periodTime);
-			inc_hires = fullPhaseCount ? 0x40000000/fullPhaseCount : 0;
+			attack_count = fullPhaseCount;
+			if (attack_count == 0) attack_count = 1;
+			inc_hires = fullPhaseCount ? 0x40000000U/fullPhaseCount : 0;
 			mult_hires = inc_hires * (fullPhaseCount - count);
 		}
 		else if(phaseNumber[0] == STATE_DECAY)
 		{
-			decay(periodTime);
-			inc_hires = fullPhaseCount ? -(0x40000000/fullPhaseCount) : 0;
-			mult_hires = 0x40000000 - (inc_hires * (fullPhaseCount - count));
+			decay_count = fullPhaseCount;
+			if (decay_count == 0) decay_count = 1;
+			inc_hires = fullPhaseCount ? -(0x40000000U/fullPhaseCount) : 0;
+			mult_hires = 0x40000000 + (inc_hires * (fullPhaseCount - count));
 		}
 	}
 }
