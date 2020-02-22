@@ -38,17 +38,16 @@ void cFileManager::loadPatternFromWorkspace(uint8_t index)
 		}
 		else
 		{
-			throwError(2);
+			throwError(0);
 		}
 	}
 	else if(loadStatus == fileTransferFileNoExist) // brak pliku patternu
 	{
 		sequencer.loadFromFileERROR();
-		continueInstrumentLoad();
 	}
 	else if(loadStatus >= fileTransferError)
 	{
-		throwError(2);
+		throwError(1);
 	}
 
 }
@@ -57,8 +56,8 @@ bool cFileManager::loadPatternFormFileStruct(uint8_t* pattern, uint8_t* patternF
 {
 	FastCRC32 crcCalc;
 
-	if (((Sequencer::strPattern*)patternFile)->header.type != fileTypePattern)
-		return false;
+	//if (((Sequencer::strPattern*)patternFile)->header.type != fileTypePattern)
+	//	return false;
 
 	uint32_t checkCRC = crcCalc.crc32(patternFile,
 									  sizeof(Sequencer::strPattern) - sizeof(uint32_t));

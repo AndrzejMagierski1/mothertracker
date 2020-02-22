@@ -7,6 +7,8 @@
 #include "debugLog.h"
 
 
+#include "mtSequencer.h"
+
 #include "fileManager.h"
 
 
@@ -48,22 +50,27 @@ void cFileManager::updateOpenWorkspaceProject()
 {
 	switch(currentOperationStep)
 	{
-		case 0: // projekt
+		case 0: // faza przygotowania (obliczanie postepu, clear itp)
+		{
+			loadWorkspaceProjectInit();
+			break;
+		}
+		case 1: // projekt
 		{
 			loadProjectFromWorkspace();
 			break;
 		}
-		case 1: // pattern
+		case 2: // pattern
 		{
 			loadPatternFromWorkspace(mtProject.values.actualPattern);
 			break;
 		}
-		case 2: // instruments
+		case 3: // instruments
 		{
 			loadInstrumentsFromWorkspace();
 			break;
 		}
-		case 3: // samples
+		case 4: // samples
 		{
 			loadSamplesFromWorkspace();
 			break;
@@ -101,18 +108,8 @@ bool cFileManager::openProjectFromWorkspace()
 	if(!SD.exists(cProjectFileNameInWorkspace)) return false;
 
 
-	//todo dalej w nastepnych update
-
-//	if(loadPattern(mtProject.values.actualPattern))
-//	{
-//		sequencer.switchRamPatternsNow();
-//	}
-
-//	memset(&loadFromWorkspaceHandle, 0, sizeof(save_load_handle_t));
-//	moveToNextStage(&loadFromWorkspaceHandle);
-//	loadingInProgress = 1;
-
 	mtProject.used_memory = 0;
+	mtProject.instruments_count = 0;
 
 	currentOperationStep = 0;
 	currentOperation = fmOpenWorkspaceProject;
@@ -121,7 +118,38 @@ bool cFileManager::openProjectFromWorkspace()
 	return true;
 }
 
+void cFileManager::loadWorkspaceProjectInit()
+{
+	calcTotalMemoryToTransfer();
+	moveToNextOperationStep();
+}
 
+void cFileManager::calcTotalMemoryToTransfer()
+{
+	totalMemoryToTranfser = 0;
+	totalMemoryToTranfser += sizeof(strProjectFile);
+	totalMemoryToTranfser += sizeof(Sequencer::strPattern);
+	totalMemoryToTranfser += calcWorkspaceInstrumentsSize();
+	totalMemoryToTranfser += calcWorkspaceSamplesSize();
+
+}
+
+void cFileManager::calcActualMemoryTransfered()
+{
+	if(currentOperationStep > 0) actualMemoryTransfered = sizeof(strProjectFile);
+	if(currentOperationStep > 1) actualMemoryTransfered += sizeof(Sequencer::strPattern);
+	if(currentOperationStep > 2) actualMemoryTransfered += sizeof(strInstrumentFile)*mtProject.instruments_count;
+	if(currentOperationStep > 3) actualMemoryTransfered += getActualSampleMemoryLoaded();
+
+}
+
+
+
+uint8_t cFileManager::getProgress()
+{
+	calcActualMemoryTransfered();
+	return (actualMemoryTransfered < totalMemoryToTranfser) ? (actualMemoryTransfered*100)/totalMemoryToTranfser: 100;
+}
 
 
 void cFileManager::moveToNextOperationStep()
@@ -138,7 +166,7 @@ void cFileManager::throwError(uint8_t source)
 {
 #ifdef DEBUG
 	debugLog.setMaxLineCount(10);
-	sprintf(errorText,  "File manager error (%d)", source);
+	sprintf(errorText,  "File manager error (%d)(%d)(%d)", currentOperation, currentOperationStep, source);
 	debugLog.addLine(errorText);
 	debugLog.forceRefresh();
 #endif

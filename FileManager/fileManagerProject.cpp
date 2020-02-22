@@ -12,6 +12,8 @@
 
 
 
+#include "projectEditor/projectEditor.h"
+
 #include "fileTransfer.h"
 #include "fileManager.h"
 
@@ -28,11 +30,12 @@ void cFileManager::loadProjectFromWorkspace()
 	{
 		if(loadProjectFormFileStruct(&mtProject, &fileManagerProjectBuffer))
 		{
+			projectEditor.loadProjectValues(); // to ważne !!
 			moveToNextOperationStep();
 		}
 		else
 		{
-			throwError(1);
+			throwError(0);
 		}
 	}
 	else if(loadStatus >= fileTransferError)
@@ -76,7 +79,6 @@ bool cFileManager::loadProjectFormFileStruct(strMtProject* project, strProjectFi
 
 	return false;
 }
-
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////

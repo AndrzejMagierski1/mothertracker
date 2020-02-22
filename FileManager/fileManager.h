@@ -44,7 +44,7 @@ public:
 
 	//-------------------------------------------------
 	uint8_t getStatus() 	{ return status; }
-	uint8_t getProgress() 	{ return progress; }
+	uint8_t getProgress();
 
 	void clearStatus() 	{ status = fmIdle; }
 
@@ -69,13 +69,18 @@ private:
 	uint8_t currentOperation;
 	uint8_t currentOperationStep;
 
-
-	strProjectFile* projectFile;
+	// do obliczania progresu
+	uint32_t totalMemoryToTranfser;
+	uint32_t actualMemoryTransfered;
 
 	// metody wewnetrzne
 	void throwError(uint8_t source);
 	void moveToNextOperationStep();
+	void calcTotalMemoryToTransfer();
+	void calcActualMemoryTransfered();
 
+	//init
+	void loadWorkspaceProjectInit();
 
 	// workspace
 	void clearWorkspace();
@@ -110,16 +115,24 @@ private:
 	void instrumentThrowError();
 	void getDefaultInstrument(struct strInstrument* source);
 
-	uint8_t processInstrument = 0;
+	uint32_t calcWorkspaceInstrumentsSize();
+
+	uint8_t currentInstrument = 0;
 
 	//samples
 	void loadSamplesFromWorkspace();
-
 	void startSampleLoad();
 	void continueSampleLoad();
+	void completeLoadedSampleStruct();
+	uint32_t getWaveSizeIfValid(const char *filename);
+	uint32_t calcWorkspaceSamplesSize();
+	uint32_t getActualSampleMemoryLoaded();
 	void sampleThrowError();
+
 	uint8_t sampleLoadPhase = 0;
-	uint8_t processSample = 0;
+	uint8_t currentSample = 0;
+	uint32_t currentSampleSamplesCount = 0; // ilosc probek!!! (int16)
+
 
 	//loader
 

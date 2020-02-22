@@ -4,7 +4,7 @@
 
 
 #include <stdint.h>
-
+#include "wavHeaderReader.h"
 
 enum enTranferFileStatus
 {
@@ -13,6 +13,7 @@ enum enTranferFileStatus
 	fileTransferEnd,
 	fileTransferError,
 	fileTransferFileNoExist,
+	fileTransferFileNoValid,
 
 };
 
@@ -31,19 +32,23 @@ class cFileTransfer
 public:
 	uint8_t getFileTransferStatus();
 	uint8_t loadFileToMemory(const char* file, uint8_t* memory, uint32_t memSize, uint8_t mode);
+	uint8_t loadSampleToMemory(const char* file, int16_t* memory, uint32_t* outSampleCount);
 	uint8_t saveMemoryToFile();
+
+	uint32_t convertAudioData(int16_t* outPtr, int32_t input_size);
+	bool checkSampleValid();
+
+	uint8_t getFileProgress() 		{ return (memComplited*100)/memTotal; }
+	uint32_t getBytesComplited() 	{ return memComplited; }
 	void endTransfer();
 
 private:
+	uint8_t transferStep = 0;
+
 	uint32_t memStep;
 	uint32_t memComplited;
 	uint32_t memTotal;
-
-	uint8_t transferStep = 0;
-
-	SdFile transferFile;
-
-	uint8_t actualFileType;
+	uint32_t convertedDataSize;
 
 };
 

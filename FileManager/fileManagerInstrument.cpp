@@ -23,13 +23,14 @@ __NOINIT(EXTERNAL_RAM) strInstrumentFile fileManagerInstrumentBuffer  {0};
 void cFileManager::loadInstrumentsFromWorkspace()
 {
 	char instrumentToLoad[PATCH_SIZE];
-	sprintf(instrumentToLoad, cWorkspaceInstrumentFileFormat, processInstrument);
+	sprintf(instrumentToLoad, cWorkspaceInstrumentFileFormat, currentInstrument);
 
-	uint8_t loadStatus = fileTransfer.loadFileToMemory(instrumentToLoad, (uint8_t*)&fileManagerInstrumentBuffer, sizeof(strInstrument), fileDivIntoParts);
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(instrumentToLoad, (uint8_t*)&fileManagerInstrumentBuffer, sizeof(strInstrumentFile), fileDivIntoParts);
 
 	if(loadStatus == fileTransferEnd)
 	{
-		if(loadInstrumentFormFileStruct(&mtProject.instrument[processInstrument], &fileManagerInstrumentBuffer))
+		mtProject.instruments_count++;
+		if(loadInstrumentFormFileStruct(&mtProject.instrument[currentInstrument], &fileManagerInstrumentBuffer))
 		{
 			continueInstrumentLoad();
 		}
@@ -40,8 +41,8 @@ void cFileManager::loadInstrumentsFromWorkspace()
 	}
 	else if(loadStatus == fileTransferFileNoExist)
 	{
-		memset(mtProject.instrument[processInstrument].sample.file_name, 0, SAMPLE_NAME_SIZE);
-		mtProject.instrument[processInstrument].isActive = 0;
+		memset(mtProject.instrument[currentInstrument].sample.file_name, 0, SAMPLE_NAME_SIZE);
+		mtProject.instrument[currentInstrument].isActive = 0;
 		continueInstrumentLoad();
 	}
 	else if(loadStatus >= fileTransferError)
@@ -53,10 +54,10 @@ void cFileManager::loadInstrumentsFromWorkspace()
 
 void cFileManager::continueInstrumentLoad()
 {
-	processInstrument++;
-	if(processInstrument >= INSTRUMENTS_COUNT)
+	currentInstrument++;
+	if(currentInstrument >= INSTRUMENTS_COUNT)
 	{
-		processInstrument = 0;
+		currentInstrument = 0;
 		moveToNextOperationStep();
 	}
 }
@@ -84,9 +85,23 @@ bool cFileManager::loadInstrumentFormFileStruct(strInstrument* instrument, strIn
 
 void cFileManager::instrumentThrowError()
 {
-	processInstrument = 0;
+	currentInstrument = 0;
 
-	throwError(3);
+	throwError(0);
 }
 
+
+uint32_t cFileManager::calcWorkspaceInstrumentsSize()
+{
+	char currentPatch[PATCH_SIZE];
+	uint32_t size = 0;
+
+	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++)
+	{
+		sprintf(currentPatch, cWorkspaceInstrumentFileFormat, i);
+		if(SD.exists(currentPatch)) size += sizeof(strInstrumentFile);
+	}
+
+	return size;
+}
 

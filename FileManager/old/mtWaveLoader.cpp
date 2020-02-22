@@ -152,6 +152,7 @@ void WaveLoader::update()
 
 	}
 }
+
 uint32_t WaveLoader::start(const char *filename, int16_t * buf)
 {
 	if(buf == nullptr)

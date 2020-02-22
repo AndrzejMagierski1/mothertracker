@@ -521,8 +521,8 @@ struct strMtProjectRemote
 struct strMtProject
 {
 	strInstrument instrument[INSTRUMENTS_COUNT];
-	uint8_t instruments_count;
-	uint8_t patterns_count;
+	uint8_t instruments_count; // uzywane tylko do oblizania postepu w czasie ladowania
+	uint8_t patterns_count;    // nie uzywane
 
 	strSong song;
 	strMtValues values;
