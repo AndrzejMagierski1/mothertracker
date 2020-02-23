@@ -399,7 +399,7 @@ void FileManager::delayAutoSave(uint16_t ms)
 {
 	uint32_t temp_time = 10000-ms;
 
-	if(configChangedRefresh > temp_time) configChangedRefresh = temp_time;
+	if(projectChangeRefresh > temp_time) projectChangeRefresh = temp_time;
 	if(instrumentRefresh > temp_time) instrumentRefresh = temp_time;
 	if(patternRefresh > temp_time) patternRefresh = temp_time;
 
@@ -407,14 +407,16 @@ void FileManager::delayAutoSave(uint16_t ms)
 
 void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 {
-	if(configChangedRefresh > 10000 || forcedWorkspaceSave)
+	if(projectChangeRefresh > 10000 || forcedWorkspaceSave)
 	{
-		configChangedRefresh = 0;
+		projectChangeRefresh = 0;
 
 		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
 		{
-			if(configIsChangedFlag == 1 && sequencer.isStop())
+			if(projectChangeFlag == 1 && sequencer.isStop())
 			{
+				fileManager.projectChangeFlag = 0;
+
 				debugLog.addLine("project autosave: ");
 				sd_time_test = 0;
 

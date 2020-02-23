@@ -687,7 +687,6 @@ void FileManager::deleteProjectStart(const char *projectName)
 
 void FileManager::autoSaveProject()
 {
-	fileManager.configIsChangedFlag = 0;
 
 	char currentPatch[PATCH_SIZE];
 	strcpy(currentPatch,"Workspace/project.mt");

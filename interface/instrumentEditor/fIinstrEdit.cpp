@@ -1091,7 +1091,7 @@ void changeParamsVelocity(int16_t value)
 void cInstrumentEditor::setProjectSaveFlags()
 {
 	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 }
 
 void cInstrumentEditor::cancelPopups()

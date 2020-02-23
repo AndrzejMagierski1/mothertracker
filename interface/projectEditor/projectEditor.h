@@ -84,12 +84,14 @@ public:
 
 	void listProjectsNames(const char* folder);
 
-	SdDir sdLocation;
-	uint8_t selectedLocation;
-	uint16_t projectsfoundCount;
-	static const uint8_t files_list_length_max = 100;
+	//SdDir sdLocation;
+	//uint16_t projectsfoundCount;
+	//static const uint8_t files_list_length_max = 100;
 	//char locationFilesList[files_list_length_max][40];
-	char* filesNames[files_list_length_max];
+	//char* filesNames[files_list_length_max];
+	uint8_t selectedProject;
+	char** projectsList;
+	uint8_t projectsListLength;
 
 //-------------------------------------------------------------
 	void showEnterNameKeyboard();

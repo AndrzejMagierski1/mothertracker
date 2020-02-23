@@ -62,10 +62,11 @@ enum enFileManagerErrorSource
 };
 
 
+const char cNewProjectName[] = "New Project";
 
 
 const char cWorkspacePath[] = "Workspace";
-
+const char cProjectFileNameInWorkspace[] 	= "Workspace/project.mt";
 const char cWorkspacePatternsPath[] 		= "Workspace/patterns";
 const char cWorkspacePatternFileFormat[] 	= "Workspace/patterns/pattern_%02d.mtp";
 const char cWorkspaceInstrumentsPath[] 		= "Workspace/instruments";
@@ -74,8 +75,19 @@ const char cWorkspaceSamplesPath[] 			= "Workspace/samples";
 const char cWorkspaceSamplesFilesFormat[] 	= "Workspace/samples/instr%02d.wav";
 
 
+const char cProjectsPath[] 					= "Projects";
+const char cProjectFileInProjectsFormat[] 	= "Projects/%s/project.mt";
+const char cProjectsPatternsPath[] 			= "/patterns";
+const char cProjectsPatternFileFormat[] 	= "Projects/%s/patterns/pattern_%02d.mtp";
+const char cProjectsInstrumentsPath[] 		= "/instruments";
+const char cProjectsInstrumentFileFormat[]	= "Projects/%s/instruments/instrument_%02d.mti";
+const char cProjectsSamplesPath[] 			= "/samples";
+const char cProjectsSamplesFilesFormat[] 	= "Projects/%s/samples/instr%02d.wav";
+
+
+
 const char cProjectFileName[] = "project.mt";
-const char cProjectFileNameInWorkspace[] = "Workspace/project.mt";
+
 
 
 

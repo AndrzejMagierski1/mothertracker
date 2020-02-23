@@ -595,6 +595,9 @@ uint16_t SdDir::createProjectsList(char** list, uint8_t list_length, uint16_t ma
         }
 
 		uint16_t len = strlen(fno.fname)+1;
+
+		if(len > 32) continue; // max dlugosc nazwy projektu
+
 		list[n] = new char[len];
 		strcpy(list[n], fno.fname);
 		memory_used += len;

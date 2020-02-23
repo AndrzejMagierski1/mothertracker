@@ -10,8 +10,6 @@
 #include "FastCRC_cpu.h"
 #include "FastCRC_tables.h"
 
-
-
 #include "projectEditor/projectEditor.h"
 
 #include "fileTransfer.h"
@@ -22,15 +20,19 @@ __NOINIT(EXTERNAL_RAM) strProjectFile fileManagerProjectBuffer  {0};
 
 
 
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     LOAD     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
 void cFileManager::loadProjectFromWorkspace()
 {
-	uint8_t loadStatus = fileTransfer.loadFileToMemory(cProjectFileNameInWorkspace, (uint8_t*)&fileManagerProjectBuffer, sizeof(strProjectFile), fileDivIntoParts);
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(cProjectFileNameInWorkspace, (uint8_t*)&fileManagerProjectBuffer, sizeof(strProjectFile), fileWholeOnce); // fileDivIntoParts
 
 	if(loadStatus == fileTransferEnd)
 	{
 		if(loadProjectFormFileStruct(&mtProject, &fileManagerProjectBuffer))
 		{
-			projectEditor.loadProjectValues(); // to ważne !!
+			projectEditor.loadProjectValues();
 			moveToNextOperationStep();
 		}
 		else
@@ -67,9 +69,36 @@ bool cFileManager::loadProjectFormFileStruct(strMtProject* project, strProjectFi
 		debugLog.addLine(line);
 	}
 
+	if(pFile->projectDataAndHeader.projectHeader.fileStructureVersion[0] < PROJECT_FILE_VERSION)
+	{
+		debugLog.setMaxLineCount(2);
+		debugLog.addLine("older version of project file opened");
+	}
+	else if(pFile->projectDataAndHeader.projectHeader.fileStructureVersion[0] > PROJECT_FILE_VERSION)
+	{
+		debugLog.setMaxLineCount(2);
+		debugLog.addLine("newer version of project file opened");
+	}
+
+
+
+
+
 
 	if(1)
 	{
+		if(pFile->projectDataAndHeader.project.projectName[0] == 0)
+		{
+
+		}
+		else
+		{
+			pFile->projectDataAndHeader.project.projectName[PROJECT_NAME_SIZE-1] = 0;
+			strcpy(currentProjectName, pFile->projectDataAndHeader.project.projectName);
+			strcpy(mtConfig.startup.lastProjectName, currentProjectName);
+			sprintf(currentProjectPatch,"Projects/%s", currentProjectName);
+		}
+
 		memcpy(&project->song, &pFile->projectDataAndHeader.project.song, sizeof(strSong));
 		memcpy(&project->values, &pFile->projectDataAndHeader.project.values, sizeof(strMtValues));
 		//*proj=pFile.projectDataAndHeader.project;
@@ -79,6 +108,26 @@ bool cFileManager::loadProjectFormFileStruct(strMtProject* project, strProjectFi
 
 	return false;
 }
+
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     COPY     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::copyProjectToWorkspace()
+{
+	sprintf(currentCopySrcPath, cProjectFileInProjectsFormat, currentProjectName);
+	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, cProjectFileNameInWorkspace);
+
+	if(loadStatus == fileTransferEnd)
+	{
+		moveToNextOperationStep();
+	}
+	else if(loadStatus >= fileTransferError)
+	{
+		throwError(0);
+	}
+}
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +142,7 @@ void cFileManager::writeProjectFile(const char * name, strMtProject* proj)
 
 	memcpy(&projectFile.projectDataAndHeader.project.song, &proj->song, sizeof(strSong));
 	memcpy(&projectFile.projectDataAndHeader.project.values, &proj->values, sizeof(strMtValues));
+	strcpy(projectFile.projectDataAndHeader.project.projectName, currentProjectName);
 
 	projectFile.projectDataAndHeader.projectHeader.id_file[0]='M';
 	projectFile.projectDataAndHeader.projectHeader.id_file[1]='T';

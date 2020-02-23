@@ -190,7 +190,7 @@ static  uint8_t functIncPattern()
 		SE->listPatterns();
 		SE->showPatternsList();
 
-		fileManager.configIsChangedFlag = 1;
+		fileManager.projectChangeFlag = 1;
 		mtProject.values.projectNotSavedFlag = 1;
 	}
 
@@ -222,7 +222,7 @@ static  uint8_t functDecPattern()
 		SE->listPatterns();
 		SE->showPatternsList();
 
-		fileManager.configIsChangedFlag = 1;
+		fileManager.projectChangeFlag = 1;
 		mtProject.values.projectNotSavedFlag = 1;
 	}
 
@@ -271,7 +271,7 @@ static  uint8_t functAddSlot()
 	SE->selectedPlace = 8;
 	SE->activateLabelsBorder();
 
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 
 	return 1;
@@ -322,7 +322,7 @@ static  uint8_t functDeleteSlot()
 	SE->selectedPlace = 8;
 	SE->activateLabelsBorder();
 
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 	return 1;
 }
@@ -1027,7 +1027,7 @@ static void updateBitmaskAfterCopy(uint8_t *src, uint8_t *dest, uint8_t startSrc
 		}
 	}
 
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
@@ -1038,7 +1038,7 @@ static void updateBitmaskAfterDelete(uint8_t *src, uint8_t startSrc, uint8_t len
 		*src &= ~(1 << (bit + startSrc));
 	}
 
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 

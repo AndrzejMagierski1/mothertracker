@@ -198,11 +198,12 @@ public:
 	char currentProjectNameOpenTemplate[PROJECT_NAME_SIZE];
 //**************************************************************************************************************************
 //******************************************************ChangeFlags*********************************************************
-	uint8_t configIsChangedFlag;
-	elapsedMillis configChangedRefresh;
-	uint8_t instrumentIsChangedFlag[48];
-	//uint8_t instrumentForcedSaveFlag;
+	uint8_t projectChangeFlag;
+	elapsedMillis projectChangeRefresh;
+
+	uint8_t instrumentIsChangedFlag[INSTRUMENTS_COUNT];
 	elapsedMillis instrumentRefresh;
+
 	uint8_t patternIsChangedFlag[PATTERN_INDEX_MAX];
 	elapsedMillis patternRefresh;
 //**************************************************************************************************************************

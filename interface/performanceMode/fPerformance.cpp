@@ -224,7 +224,7 @@ uint8_t cPerformanceMode::wasPatternOntrackChenged(uint8_t track)
 void cPerformanceMode::setProjectSaveFlags()
 {
 	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 }
 
 void cPerformanceMode::toggleTrackPerformanceState(uint8_t track)

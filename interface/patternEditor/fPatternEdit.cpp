@@ -732,8 +732,8 @@ void cPatternEditor::changeActualPattern(int16_t value)
 
 
 	// Zapis aktualnego appternu za 10s od ostatniej zmiany
-	fileManager.configChangedRefresh = 0;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeRefresh = 0;
+	fileManager.projectChangeFlag = 1;
 
 
 	fileManager.loadPattern(mtProject.values.actualPattern);
@@ -760,8 +760,8 @@ void cPatternEditor::setActualPattern(int16_t value)
 												PATTERN_INDEX_MAX);
 
 	// Zapis aktualnego appternu za 10s od ostatniej zmiany
-	fileManager.configChangedRefresh = 0;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeRefresh = 0;
+	fileManager.projectChangeFlag = 1;
 
 	fileManager.loadPattern(mtProject.values.actualPattern);
 	sequencer.switchRamPatternsNow();
@@ -1259,7 +1259,7 @@ uint8_t cPatternEditor::isCursorInSelection()
 void cPatternEditor::setProjectSaveFlags()
 {
 	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 }
 
 

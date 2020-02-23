@@ -80,7 +80,7 @@ public:
 		return read;
 	}
 
-	int64_t write(const void* buf, uint32_t count)
+	int32_t write(const void* buf, uint32_t count)
 	{
 		UINT written = 0;
 		FRESULT error = f_write(file,buf,count,&written);

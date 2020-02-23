@@ -294,12 +294,11 @@ void cProjectEditor::deactivateGui()
 void cProjectEditor::showProjectsList()
 {
 // lista
-	selectedLocation = 0;
 
-	projectList.start = selectedLocation;
-	projectList.length = projectsfoundCount;
+	projectList.start = selectedProject;
+	projectList.length = projectsListLength;
 	projectList.linesCount = 13;
-	projectList.data = filesNames;
+	projectList.data = projectsList;
 
 	display.setControlData(fileListControl,  &projectList);
 	display.setControlShow(fileListControl);
@@ -526,7 +525,7 @@ void cProjectEditor::showDeleteLastWindow()
 	display.setControlText(label[6], "Cancel");
 	display.setControlText(label[7], "Delete");
 
-	sprintf(currentInfo,"Do you want to delete project: \"%s\"?", filesNames[selectedLocation]);
+	sprintf(currentInfo,"Do you want to delete project: \"%s\"?", projectsList[selectedProject]);
 
 	display.setControlText(selectWindowLabel, currentInfo);
 	display.setControlShow(selectWindowLabel);

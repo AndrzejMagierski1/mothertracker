@@ -14,6 +14,9 @@
 #include "mtGainLevelLogarithmicTab.h"
 
 
+#include "fileManager.h"
+
+
 cMasterParams masterParams;
 static cMasterParams* MP = &masterParams;
 
@@ -792,7 +795,7 @@ void changeVolume(int16_t value)
 
 	engine.setHeadphonesVolume(mtProject.values.volume);
 	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	MP->showVolume();
 }
 
@@ -804,7 +807,7 @@ void changeReverbRoomSize(int16_t value)
 
 	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
 	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	MP->showReverbSize();
 }
 
@@ -816,7 +819,7 @@ void changeReverbDamping(int16_t value)
 
 	engine.setReverbDamping(mtProject.values.reverbDamping);
 	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	MP->showReverbDamping();
 }
 
@@ -830,7 +833,7 @@ void changeLimiterAttack(int16_t value)
 
 	engine.setLimiterAttack(mtProject.values.limiterAttack);
 	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 
 	MP->showLimiterAttack();
 }
@@ -846,7 +849,7 @@ void changeLimiterRelease(int16_t value)
 
 	engine.setLimiterRelease(mtProject.values.limiterRelease);
 	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	MP->showLimiterRelease();
 }
 
@@ -860,7 +863,7 @@ void changeLimiterTreshold(int16_t value)
 
 	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
 	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	MP->showLimiterTreshold();
 }
 
@@ -879,7 +882,7 @@ void changeBitDepth(int16_t value)
 
 	engine.setBitDepth(mtProject.values.bitDepth);
 	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	MP->showBitDepth();
 }
 
@@ -932,6 +935,8 @@ void cMasterParams::cancelMultiFrame()
 
 	frameData.multiSelActiveNum = 0;
 }
+
+
 
 
 

@@ -13,11 +13,14 @@
 #include "fileTransfer.h"
 
 
-extern uint8_t sdram_writeLoadBuffer[32768];
+const uint16_t READ_WRITE_BUFOR_SIZE = 32768;
+
+extern uint8_t sdram_writeLoadBuffer[READ_WRITE_BUFOR_SIZE];
 
 cFileTransfer fileTransfer;
 
 SdFile transferFile;
+SdFile transferFile2;
 
 strWavFileHeader sampleHead;
 
@@ -49,7 +52,12 @@ uint8_t cFileTransfer::loadFileToMemory(const char* file, uint8_t* memory, uint3
 		if(result >= 0)
 		{
 			memComplited += result;
-			if(memComplited >= memSize)
+
+			if(result == 0) //koniec pliku
+			{
+				transferStep = 2;
+			}
+			else if(memComplited >= memSize) //wczytany wiekszy plik << niebezpieczne przekroczenie pamieci xxx
 			{
 				transferStep = 2;
 			}
@@ -135,6 +143,72 @@ uint8_t cFileTransfer::loadSampleToMemory(const char* file, int16_t* memory, uin
 	transferFile.close();
 	return fileTransferError;
 }
+
+
+uint8_t cFileTransfer::copyFile(const char* src, const char* dest)
+{
+	if(transferStep == 0)
+	{
+		if(!SD.exists(src)) return fileTransferFileNoExist;
+		if(SD.exists(dest))
+		{
+			SD.remove(dest);
+		}
+
+		if(transferFile.open(src))
+		{
+			if(transferFile2.open(dest, FILE_WRITE))
+			{
+				memTotal = transferFile.size();
+				memStep = READ_WRITE_BUFOR_SIZE; // caly mozliwy bufor
+				memComplited = 0;
+				transferStep = 1;
+			}
+		}
+	}
+
+	if(transferStep == 1)
+	{
+		int32_t read_result = transferFile.read(sdram_writeLoadBuffer, memStep);
+
+		if(read_result == 0) // koniec pliku - koncz kopiowanie
+		{
+			transferStep = 2;
+		}
+		else if(read_result > 0)
+		{
+			int32_t write_result = transferFile2.write(sdram_writeLoadBuffer, read_result);
+
+			if(write_result >= 0)
+			{
+				memComplited += write_result;
+				if(write_result < memStep) // koniec pliku
+				{
+					transferStep = 2;
+				}
+				else if (read_result == write_result)
+				{
+					return fileTransferInProgress;
+				}
+			}
+		}
+	}
+
+	if(transferStep == 2)
+	{
+		transferStep = 0;
+		transferFile.close();
+		transferFile2.close();
+		return fileTransferEnd;
+	}
+
+	transferStep = 0;
+	transferFile.close();
+	transferFile2.close();
+	return fileTransferError;
+}
+
+
 
 
 

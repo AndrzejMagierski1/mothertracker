@@ -22,6 +22,7 @@ bool cFileManager::createNewProjectInWorkspace()
 	clearWorkspace();
 	createWorkspaceDirs();
 
+	strcpy(currentProjectName, cNewProjectName);
 
 	getDefaultProject(&mtProject);
 	mtProject.patterns_count++;

@@ -16,6 +16,10 @@ static char sampleToLoad[PATCH_SIZE];
 static int16_t* ptrSampleMemory;
 
 
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     LOAD     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+
 void cFileManager::loadSamplesFromWorkspace()
 {
 	startSampleLoad();
@@ -106,6 +110,45 @@ void cFileManager::continueSampleLoad()
 	currentSample = 0;
 	moveToNextOperationStep();
 }
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     COPY     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::copySamplesToWorkspace()
+{
+	sprintf(currentCopySrcPath, cProjectsSamplesFilesFormat, currentProjectName, currentSample);
+	sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample);
+
+	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, currentCopyDestPath);
+
+	if(loadStatus == fileTransferEnd)
+	{
+		continueSampleProcess();
+	}
+	else if(loadStatus == fileTransferFileNoExist)
+	{
+		continueSampleProcess();
+	}
+	else if(loadStatus >= fileTransferError)
+	{
+		sampleThrowError();
+	}
+}
+
+
+void cFileManager::continueSampleProcess()
+{
+	currentSample++;
+	if(currentSample >= INSTRUMENTS_COUNT)
+	{
+		currentSample = 0;
+		moveToNextOperationStep();
+	}
+}
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     XXXX     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
 
 void cFileManager::sampleThrowError()
 {

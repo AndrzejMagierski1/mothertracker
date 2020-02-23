@@ -107,8 +107,8 @@ private:
 	uint32_t previousModuleOptions = 0;
 
 	// interfaceMisc.cpp -----------------------------
-	uint8_t startSampleLoadingFlag = 0;
-	uint8_t startSampleLoadingProgress = 0;
+	uint8_t minStartTimeCounter = 0;
+	uint8_t startProjectLoadingProgress = 0;
 	hControl startScreenControl = nullptr;
 	strStartScreenData startScreenData;
 

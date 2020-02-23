@@ -14,7 +14,8 @@
 #include "performanceMode/performanceMode.h"
 
 #include "sdCardDetect.h"
-#include "mtFileManager.h"
+
+#include "fileManager.h"
 
 
 
@@ -214,7 +215,7 @@ void cProjectEditor::update()
 		if(openPopupDelay > 200)
 		{
 			openPopupFlag = 0;
-			fileManager.openProjectStart(PE->filesNames[PE->selectedLocation], projectTypeUserMade);
+			fileManager.openProjectStart(PE->projectsList[PE->selectedProject], projectTypeUserMade);
 			openInProgressFlag = 1;
 		}
 	}
@@ -234,7 +235,7 @@ void cProjectEditor::update()
 		if(deletePopupDelay > 200)
 		{
 			deletePopupFlag = 0;
-			fileManager.deleteProjectStart(PE->filesNames[PE->selectedLocation]);
+			fileManager.deleteProjectStart(PE->projectsList[PE->selectedProject]);
 			deleteInProgressFlag = 1;
 		}
 	}
@@ -268,7 +269,7 @@ void cProjectEditor::update()
 void cProjectEditor::start(uint32_t options)
 {
 
-	selectedLocation = 0;
+	selectedProject = 0;
 
 	moduleRefresh = 1;
 
@@ -478,12 +479,14 @@ static uint8_t functOpenProject()
 {
 	if(PE->isBusyFlag) return 1;
 
-	PE->listProjectsNames("/Projects");
+	PE->projectsListLength = newFileManager.getProjectsList(&PE->projectsList);
+
+	PE->selectedProject = 0;
 
 	PE->showProjectsList();
 
 	PE->refreshProjectCover(100);
-	strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
+	strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 
 
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
@@ -732,21 +735,25 @@ static uint8_t functSaveAsOverwriteNo()
 static uint8_t functOpenProjectConfirm()
 {
 	if(PE->isBusyFlag) return 1;
-	if(mtProject.values.projectNotSavedFlag)
+	if(newFileManager.isProjectChanged())
 	{
 		PE->projectListActiveFlag = 0;
 		PE->functShowSaveLastWindowBeforeOpen();
 		return 1;
 	}
 
-	mtProject.values.projectNotSavedFlag = 0;
-	PE->newProjectNotSavedFlag = 0;
+
+
+//	mtProject.values.projectNotSavedFlag = 0;
+//	PE->newProjectNotSavedFlag = 0;
 	PE->projectListActiveFlag = 0;
+//
+//	PE->openPopupDelay = 0;
+//	PE->openPopupFlag = 1;
+//	PE->isBusyFlag = 1;
 
-	PE->openPopupDelay = 0;
-	PE->openPopupFlag = 1;
-	PE->isBusyFlag = 1;
 
+	newFileManager.openProjectFromProjects(PE->selectedProject);
 
 	PE->showDefaultScreen();
 	PE->showProcessingPopup("Opening project");
@@ -766,7 +773,7 @@ void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 static uint8_t functDelete()
 {
 	if(PE->isBusyFlag) return 1;
-	if(strcmp(fileManager.currentProjectName, PE->filesNames[PE->selectedLocation]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
+	if(strcmp(fileManager.currentProjectName, PE->projectsList[PE->selectedProject]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
 
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functDeleteConfirm);
@@ -790,14 +797,14 @@ static uint8_t functProjectListUp()
 {
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation > 0 )
+		if(PE->selectedProject > 0 )
 		{
-			PE->selectedLocation--;
+			PE->selectedProject--;
 
 			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
+			strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 		}
-		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.setControlValue(PE->fileListControl,PE->selectedProject);
 		display.refreshControl(PE->fileListControl);
 	}
 	return 1;
@@ -807,14 +814,14 @@ static uint8_t functProjectListDown()
 {
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation < PE->projectsfoundCount-1 )
+		if(PE->selectedProject < PE->projectsListLength-1 )
 		{
-			PE->selectedLocation++;
+			PE->selectedProject++;
 
 			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
+			strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 		}
-		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.setControlValue(PE->fileListControl,PE->selectedProject);
 		display.refreshControl(PE->fileListControl);
 	}
 	return 1;
@@ -1032,23 +1039,23 @@ static uint8_t functSwitchModule(uint8_t button)
 
 void cProjectEditor::listProjectsNames(const char* folder)
 {
-	char filePath[256] = {0};
-	strcpy(filePath, folder);
-	//strcat(filePath,"/");
-	sdLocation.close();
-	sdLocation.open(folder, O_READ); //"/"
-	projectsfoundCount = sdLocation.createProjectsList(filesNames, files_list_length_max, 3000);
-	sdLocation.close();
-
-
-	for (uint8_t i = 0; i < (projectsfoundCount/2); i++)
-	{
-		std::swap(filesNames[i], filesNames[projectsfoundCount-i-1]);
-
-//		strcpy(strBuff, locationFilesList[i]);
-//		strcpy(locationFilesList[i],locationFilesList[foundProjectsCount-i-1]);
-//		strcpy(locationFilesList[foundProjectsCount-i-1], strBuff);
-	}
+//	char filePath[256] = {0};
+//	strcpy(filePath, folder);
+//	//strcat(filePath,"/");
+//	sdLocation.close();
+//	sdLocation.open(folder, O_READ); //"/"
+//	projectsfoundCount = sdLocation.createProjectsList(filesNames, files_list_length_max, 3000);
+//	sdLocation.close();
+//
+//
+//	for (uint8_t i = 0; i < (projectsfoundCount/2); i++)
+//	{
+//		std::swap(filesNames[i], filesNames[projectsfoundCount-i-1]);
+//
+////		strcpy(strBuff, locationFilesList[i]);
+////		strcpy(locationFilesList[i],locationFilesList[foundProjectsCount-i-1]);
+////		strcpy(locationFilesList[foundProjectsCount-i-1], strBuff);
+//	}
 
 }
 
@@ -1069,14 +1076,14 @@ static  uint8_t functUp()
 	if(PE->keyboardManager.getState()) return 1;
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation > 0 )
+		if(PE->selectedProject > 0 )
 		{
-			PE->selectedLocation--;
+			PE->selectedProject--;
 
 			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
+			strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 		}
-		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.setControlValue(PE->fileListControl,PE->selectedProject);
 		display.refreshControl(PE->fileListControl);
 		return 1;
 	}
@@ -1089,14 +1096,14 @@ static  uint8_t functDown()
 	if(PE->keyboardManager.getState()) return 1;
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation < PE->projectsfoundCount-1 )
+		if(PE->selectedProject < PE->projectsListLength-1 )
 		{
-			PE->selectedLocation++;
+			PE->selectedProject++;
 
 			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
+			strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 		}
-		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.setControlValue(PE->fileListControl,PE->selectedProject);
 		display.refreshControl(PE->fileListControl);
 		return 1;
 	}
@@ -1133,17 +1140,17 @@ static  uint8_t functEncoder(int16_t value)
 	{
 		if(value > 0)
 		{
-			if(PE->selectedLocation < PE->projectsfoundCount-1 ) PE->selectedLocation++;
+			if(PE->selectedProject < PE->projectsListLength-1 ) PE->selectedProject++;
 		}
 		else if (value < 0)
 		{
-			if(PE->selectedLocation > 0 ) PE->selectedLocation--;
+			if(PE->selectedProject > 0 ) PE->selectedProject--;
 		}
 
 		PE->refreshProjectCover(300);
-		strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
+		strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 
-		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.setControlValue(PE->fileListControl,PE->selectedProject);
 		display.refreshControl(PE->fileListControl);
 	}
 	return 1;

@@ -34,9 +34,6 @@ void cInterface::openStartupProject()
 
 uint8_t cInterface::detectProjectLoadState()
 {
-	//debugLog.setMaxLineCount(1);
-	debugLog.addLine("Load progress: ");
-	debugLog.addValue(newFileManager.getProgress());
 
 	uint8_t startStatus = newFileManager.getStatus();
 
@@ -52,6 +49,8 @@ uint8_t cInterface::detectProjectLoadState()
 
 		return 0;
 	}
+
+	if(startProjectLoadingProgress < 100) return 0;
 
 	newFileManager.clearStatus();
 
@@ -95,7 +94,9 @@ void cInterface::initStartScreen()
 //	prop.text = "loading...";
 	if(startScreenControl == nullptr)  startScreenControl = display.createControl<cStartScreen>(&prop);
 
-	display.setControlValue(startScreenControl, startSampleLoadingProgress);
+	minStartTimeCounter = 0;
+	startProjectLoadingProgress = 0;
+	display.setControlValue(startScreenControl, startProjectLoadingProgress);
 	display.setControlText(startScreenControl, projectLoadText);
 	display.refreshControl(startScreenControl);
 
@@ -107,8 +108,16 @@ void cInterface::refreshStartScreen()
 	if(startScreenRefresh < 100) return;
 	startScreenRefresh = 0;
 
+	startProjectLoadingProgress = newFileManager.getProgress();
+	//debugLog.setMaxLineCount(1);
+	debugLog.addLine("Load progress: ");
+	debugLog.addValue(startProjectLoadingProgress);
+	minStartTimeCounter++;
+	 // minimalny czas startu 2sek
+	if(startProjectLoadingProgress > minStartTimeCounter*5) startProjectLoadingProgress = minStartTimeCounter*5;
+
 	display.setControlShow(startScreenControl);
-	display.setControlValue(startScreenControl, startSampleLoadingProgress);
+	display.setControlValue(startScreenControl, startProjectLoadingProgress);
 	display.setControlText(startScreenControl, projectLoadText);
 	display.refreshControl(startScreenControl);
 }

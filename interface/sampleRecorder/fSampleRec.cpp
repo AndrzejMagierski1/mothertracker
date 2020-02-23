@@ -1981,7 +1981,7 @@ void cSampleRecorder::changeRadioFreqBar(int16_t val)
 
 			radio.setFrequency(recorderConfig.radioFreq);
 			mtProject.values.radioFreq = sampleRecorder.recorderConfig.radioFreq;
-			fileManager.configIsChangedFlag = 1;
+			fileManager.projectChangeFlag = 1;
 			mtProject.values.projectNotSavedFlag = 1;
 		}
 	}
@@ -2046,7 +2046,7 @@ void cSampleRecorder::changeGainBar(int16_t val)
 	drawGainBar();
 
 	showGain();
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
@@ -2126,7 +2126,7 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
 
     display.synchronizeRefresh();
     mtProject.values.source =  sampleRecorder.recorderConfig.source;
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 
 }
@@ -2151,7 +2151,7 @@ void cSampleRecorder::changeMonitorSelection(int16_t value)
 	mtProject.values.monitor = sampleRecorder.recorderConfig.monitor;
 	showMonitor();
 
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 
@@ -2266,7 +2266,7 @@ void seek_callback(void)
 
 	SR->displayEmptyRDS();
 
-	fileManager.configIsChangedFlag = 1;
+	fileManager.projectChangeFlag = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 }
 

@@ -20,19 +20,23 @@ __NOINIT(EXTERNAL_RAM) strInstrumentFile fileManagerInstrumentBuffer  {0};
 
 
 
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     LOAD     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+
 void cFileManager::loadInstrumentsFromWorkspace()
 {
 	char instrumentToLoad[PATCH_SIZE];
 	sprintf(instrumentToLoad, cWorkspaceInstrumentFileFormat, currentInstrument);
 
-	uint8_t loadStatus = fileTransfer.loadFileToMemory(instrumentToLoad, (uint8_t*)&fileManagerInstrumentBuffer, sizeof(strInstrumentFile), fileDivIntoParts);
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(instrumentToLoad, (uint8_t*)&fileManagerInstrumentBuffer, sizeof(strInstrumentFile), fileWholeOnce); //fileDivIntoParts
 
 	if(loadStatus == fileTransferEnd)
 	{
 		mtProject.instruments_count++;
 		if(loadInstrumentFormFileStruct(&mtProject.instrument[currentInstrument], &fileManagerInstrumentBuffer))
 		{
-			continueInstrumentLoad();
+			continueInstrumentProcess();
 		}
 		else
 		{
@@ -43,7 +47,7 @@ void cFileManager::loadInstrumentsFromWorkspace()
 	{
 		memset(mtProject.instrument[currentInstrument].sample.file_name, 0, SAMPLE_NAME_SIZE);
 		mtProject.instrument[currentInstrument].isActive = 0;
-		continueInstrumentLoad();
+		continueInstrumentProcess();
 	}
 	else if(loadStatus >= fileTransferError)
 	{
@@ -52,7 +56,7 @@ void cFileManager::loadInstrumentsFromWorkspace()
 }
 
 
-void cFileManager::continueInstrumentLoad()
+void cFileManager::continueInstrumentProcess()
 {
 	currentInstrument++;
 	if(currentInstrument >= INSTRUMENTS_COUNT)
@@ -81,6 +85,32 @@ bool cFileManager::loadInstrumentFormFileStruct(strInstrument* instrument, strIn
 
 	return false;
 }
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     COPY     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::copyInstrumentsToWorkspace()
+{
+	sprintf(currentCopySrcPath, cProjectsInstrumentFileFormat, currentProjectName, currentInstrument);
+	sprintf(currentCopyDestPath, cWorkspaceInstrumentFileFormat, currentInstrument);
+
+	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, currentCopyDestPath);
+
+	if(loadStatus == fileTransferEnd)
+	{
+		mtProject.instruments_count++;
+		continueInstrumentProcess();
+	}
+	else if(loadStatus == fileTransferFileNoExist)
+	{
+		continueInstrumentProcess();
+	}
+	else if(loadStatus >= fileTransferError)
+	{
+		instrumentThrowError();
+	}
+}
+
 
 
 void cFileManager::instrumentThrowError()

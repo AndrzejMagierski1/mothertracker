@@ -20,6 +20,10 @@ __NOINIT(EXTERNAL_RAM) Sequencer::strPattern fileManagerPatternBuffer  {0};
 
 
 
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     LOAD     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+
 void cFileManager::loadPatternFromWorkspace(uint8_t index)
 {
 	char patternToLoad[PATCH_SIZE];
@@ -44,6 +48,7 @@ void cFileManager::loadPatternFromWorkspace(uint8_t index)
 	else if(loadStatus == fileTransferFileNoExist) // brak pliku patternu
 	{
 		sequencer.loadFromFileERROR();
+		moveToNextOperationStep();
 	}
 	else if(loadStatus >= fileTransferError)
 	{
@@ -104,6 +109,46 @@ bool cFileManager::readPatternFile(const char * filePath, uint8_t *destPattern)
 
 	return loadStatus;
 }
+
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     COPY     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::copyPaternsToWorkspace()
+{
+	sprintf(currentCopySrcPath, cProjectsPatternFileFormat, currentProjectName, currentPattern);
+	sprintf(currentCopyDestPath, cWorkspacePatternFileFormat, currentPattern);
+
+	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, currentCopyDestPath);
+
+	if(loadStatus == fileTransferEnd)
+	{
+		continuePatternProcess();
+	}
+	else if(loadStatus == fileTransferFileNoExist)
+	{
+		continuePatternProcess();
+	}
+	else if(loadStatus >= fileTransferError)
+	{
+		currentPattern = 0;
+		throwError(0);
+	}
+}
+
+void cFileManager::continuePatternProcess()
+{
+	currentPattern++;
+	if(currentPattern > PATTERN_INDEX_MAX)
+	{
+		currentPattern = 0;
+		moveToNextOperationStep();
+	}
+}
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     XXXX     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
 
 bool cFileManager::writePatternFile(const char* filePath, uint8_t* sourcePattern)
 {
