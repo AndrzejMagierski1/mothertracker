@@ -58,6 +58,7 @@ public:
 	// flagi zmian
 	void clearChangeFlags();
 	bool isProjectChanged();
+	void setAllChangeFlags();
 
 	//getery
 	bool projectExist(char* name);
@@ -73,7 +74,7 @@ public:
 	// metody glowne
 	bool openProjectFromWorkspace();
 	bool openProjectFromProjects(uint8_t index);
-	bool saveProjectToWorkspace();
+	bool saveProjectToWorkspace(bool forceSaveAll = false);
 	bool saveProjectToProjects();
 
 	bool createNewProjectInWorkspace();
@@ -98,15 +99,19 @@ private:
 	uint8_t currentOperationStep;
 	char currentCopySrcPath[PATCH_SIZE];
 	char currentCopyDestPath[PATCH_SIZE];
+	bool forceOperation;
 
 	// do obliczania progresu
 	uint32_t totalMemoryToTranfser;
 	uint32_t actualMemoryTransfered;
 
 	//flagi zmian w aktywnym projeckie
-	uint8_t projectChangeFlag;
-	uint8_t instrumentIsChangedFlag[INSTRUMENTS_COUNT];
-	uint8_t patternIsChangedFlag[PATTERN_INDEX_MAX];
+	struct strChengesFlags
+	{
+		uint8_t project;
+		uint8_t instrument[INSTRUMENTS_COUNT];
+		uint8_t pattern[PATTERN_INDEX_MAX];
+	} chengesFlags;
 
 	// metody wewnetrzne ------------------------------------
 	void throwError(uint8_t source);
@@ -120,6 +125,8 @@ private:
 
 	void updateCopyProjectsToWorkspace();
 	void updateCopyWorkspaceToProjects();
+
+	void autoSaveProjectToWorkspace();
 
 	void clearWorkspace();
 	bool createWorkspaceDirs();
@@ -140,7 +147,6 @@ private:
 	void loadProjectFileFromWorkspace();
 	void saveProjectFileToWorkspace();
 	void copyProjectFile();
-	void copyProjectFileToProjects();
 
 	bool loadProjectFileFormFileStruct(strMtProject* project, strProjectFile* pFile);
 	bool writeProjectFileToFileStruct(strMtProject* project, strProjectFile* pFile);
@@ -156,8 +162,11 @@ private:
 	void savePatternToWorkspace();
 	void copyPaterns();
 
-	void continuePatternProcess();
 	bool loadPatternFormFileStruct(uint8_t* pattern, uint8_t* patternFile);
+	bool writePatternToFileStruct(uint8_t* pattern, uint8_t* patternFile);
+
+	bool continuePatternProcess();
+
 	bool writePatternFile(const char* filePath, uint8_t* sourcePattern);
 	bool readPatternFile(const char* filePath, uint8_t* destPattern);
 	bool saveActualPattern(const char* path, uint8_t index);
@@ -171,8 +180,11 @@ private:
 	void saveInstrumentsToWorkspace();
 	void copyInstruments();
 
-	void continueInstrumentProcess();
 	bool loadInstrumentFormFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile);
+	bool writeInstrumentToFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile);
+
+	bool continueInstrumentProcess();
+
 	void instrumentThrowError();
 	void getDefaultInstrument(struct strInstrument* source);
 	uint32_t calcWorkspaceInstrumentsSize();
@@ -184,10 +196,12 @@ private:
 	void saveSamplesToWorkspace();
 	void copySamples();
 
-	void startSampleLoad();
 	void completeLoadedSampleStruct();
+
+	void startSampleLoad();
 	void continueSampleLoad();
 	void continueSampleProcess();
+
 	uint32_t getWaveSizeIfValid(const char *filename);
 	uint32_t calcWorkspaceSamplesSize();
 	uint32_t getActualSampleMemoryLoaded();

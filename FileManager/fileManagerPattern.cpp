@@ -57,60 +57,6 @@ void cFileManager::loadPatternFromWorkspace(uint8_t index)
 
 }
 
-bool cFileManager::loadPatternFormFileStruct(uint8_t* pattern, uint8_t* patternFile)
-{
-	FastCRC32 crcCalc;
-
-	//if (((Sequencer::strPattern*)patternFile)->header.type != fileTypePattern)
-	//	return false;
-
-	uint32_t checkCRC = crcCalc.crc32(patternFile,
-									  sizeof(Sequencer::strPattern) - sizeof(uint32_t));
-
-	if (checkCRC == (((Sequencer::strPattern*)patternFile)->crc))
-	{
-		memcpy(pattern, patternFile, sizeof(Sequencer::strPattern));
-		return true;
-		// ok
-	}
-
-	return false;
-}
-
-bool cFileManager::readPatternFile(const char * filePath, uint8_t *destPattern)
-{
-	SdFile file;
-	FastCRC32 crcCalc;
-	uint32_t checkCRC = 0;
-	bool loadStatus = false;
-
-	// na końcu struktury jest crc
-	file.open(filePath);
-
-	if(file)
-	{
-		file.read(destPattern, sizeof(Sequencer::strPattern));
-		file.close();
-
-		checkCRC = crcCalc.crc32(
-				destPattern, sizeof(Sequencer::strPattern) - sizeof(uint32_t));
-
-		if (checkCRC == (((Sequencer::strPattern *) destPattern)->crc))
-		{
-			loadStatus = true;
-			// ok
-		}
-		else
-		{
-			loadStatus = false;
-			// not ok
-		}
-	}
-
-	return loadStatus;
-}
-
-
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     COPY     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
@@ -145,29 +91,98 @@ void cFileManager::copyPaterns()
 }
 
 
-void cFileManager::continuePatternProcess()
-{
-	currentPattern++;
-	if(currentPattern > PATTERN_INDEX_MAX)
-	{
-		currentPattern = 0;
-		moveToNextOperationStep();
-	}
-}
+
 
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     SAVE     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::savePatternToWorkspace()
 {
+	if(chengesFlags.pattern[mtProject.values.actualPattern] == 0) // jesli flaga zmian nie ustawiona omin zapis
+	{
+		moveToNextOperationStep();
+		return;
+	}
 
-	moveToNextOperationStep();
+	if(!writePatternToFileStruct(sequencer.getPatternToSaveToFile(), (uint8_t*)&fileManagerPatternBuffer))
+	{
+		throwError(0);
+	}
+
+	char patternToLoad[PATCH_SIZE];
+	sprintf(patternToLoad, cWorkspacePatternFileFormat, mtProject.values.actualPattern);
+
+	uint8_t saveStatus = fileTransfer.saveMemoryToFile((uint8_t*)&fileManagerPatternBuffer, cProjectFileNameInWorkspace, sizeof(Sequencer::strPattern));
+
+	if(saveStatus == fileTransferEnd)
+	{
+		moveToNextOperationStep();
+	}
+	else// if(saveStatus >= fileTransferError)
+	{
+		throwError(1);
+	}
 }
 
 
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     XXXX     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
+
+bool cFileManager::loadPatternFormFileStruct(uint8_t* pattern, uint8_t* patternFile)
+{
+	FastCRC32 crcCalc;
+
+	//if (((Sequencer::strPattern*)patternFile)->header.type != fileTypePattern)
+	//	return false;
+
+	uint32_t checkCRC = crcCalc.crc32(patternFile,
+									  sizeof(Sequencer::strPattern) - sizeof(uint32_t));
+
+	if (checkCRC == (((Sequencer::strPattern*)patternFile)->crc))
+	{
+		memcpy(pattern, patternFile, sizeof(Sequencer::strPattern));
+		return true;
+		// ok
+	}
+
+	return false;
+}
+
+
+bool cFileManager::writePatternToFileStruct(uint8_t* pattern, uint8_t* patternFile)
+{
+	FastCRC32 crcCalc;
+
+	memcpy(patternFile, pattern, sizeof(Sequencer::strPattern));
+
+	sequencer.setPatternHeader((Sequencer::strPattern*)patternFile);
+
+
+	((Sequencer::strPattern*) patternFile)->crc =
+			crcCalc.crc32(patternFile, sizeof(Sequencer::strPattern) - sizeof(uint32_t));
+
+
+	return true;
+}
+
+
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     XXXX     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+
+bool cFileManager::continuePatternProcess()
+{
+	currentPattern++;
+	if(currentPattern > PATTERN_INDEX_MAX)
+	{
+		currentPattern = 0;
+		moveToNextOperationStep();
+		return false;
+	}
+	return true;
+}
 
 bool cFileManager::writePatternFile(const char* filePath, uint8_t* sourcePattern)
 {
@@ -198,6 +213,38 @@ bool cFileManager::saveActualPattern(const char* path, uint8_t index)
 }
 
 
+bool cFileManager::readPatternFile(const char * filePath, uint8_t *destPattern)
+{
+	SdFile file;
+	FastCRC32 crcCalc;
+	uint32_t checkCRC = 0;
+	bool loadStatus = false;
+
+	// na końcu struktury jest crc
+	file.open(filePath);
+
+	if(file)
+	{
+		file.read(destPattern, sizeof(Sequencer::strPattern));
+		file.close();
+
+		checkCRC = crcCalc.crc32(
+				destPattern, sizeof(Sequencer::strPattern) - sizeof(uint32_t));
+
+		if (checkCRC == (((Sequencer::strPattern *) destPattern)->crc))
+		{
+			loadStatus = true;
+			// ok
+		}
+		else
+		{
+			loadStatus = false;
+			// not ok
+		}
+	}
+
+	return loadStatus;
+}
 
 
 

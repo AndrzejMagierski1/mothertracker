@@ -56,36 +56,6 @@ void cFileManager::loadInstrumentsFromWorkspace()
 }
 
 
-void cFileManager::continueInstrumentProcess()
-{
-	currentInstrument++;
-	if(currentInstrument >= INSTRUMENTS_COUNT)
-	{
-		currentInstrument = 0;
-		moveToNextOperationStep();
-	}
-}
-
-
-bool cFileManager::loadInstrumentFormFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile)
-{
-	if(((strInstrumentFile*)instrumentFile)->instrumentDataAndHeader.instrHeader.type != fileTypeInstrument) return false;
-
-	FastCRC32 crcCalc;
-	uint32_t checkCRC = crcCalc.crc32((uint8_t*)&instrumentFile->instrumentDataAndHeader,
-									  sizeof(strInstrumentFile::strInstrumentDataAndHeader));
-
-	if(checkCRC == ((strInstrumentFile*)instrumentFile)->crc)
-	{
-		memcpy(instrument, &instrumentFile->instrumentDataAndHeader.instrument, sizeof(strInstrument));
-
-		return true;
-	}
-
-
-	return false;
-}
-
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     COPY     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
@@ -124,14 +94,94 @@ void cFileManager::copyInstruments()
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::saveInstrumentsToWorkspace()
 {
+	while(chengesFlags.instrument[currentInstrument] == 0) //znajduje pirwszy pattern z flaga zmian
+	{
+		if(!continueInstrumentProcess()) return; // jesli sprawdzilo wszystkie to koczny
+	}
 
-	moveToNextOperationStep();
+	if(!writeInstrumentToFileStruct(&mtProject.instrument[currentInstrument], &fileManagerInstrumentBuffer))
+	{
+		throwError(0);
+	}
+
+	uint8_t saveStatus = fileTransfer.saveMemoryToFile((uint8_t*)&fileManagerInstrumentBuffer, cProjectFileNameInWorkspace, sizeof(strProjectFile));
+
+	if(saveStatus == fileTransferEnd)
+	{
+		continueInstrumentProcess();
+	}
+	else// if(saveStatus >= fileTransferError)
+	{
+		throwError(1);
+	}
 }
 
 
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     XXXX     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
+
+bool cFileManager::loadInstrumentFormFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile)
+{
+	if(((strInstrumentFile*)instrumentFile)->instrumentDataAndHeader.instrHeader.type != fileTypeInstrument) return false;
+
+	FastCRC32 crcCalc;
+	uint32_t checkCRC = crcCalc.crc32((uint8_t*)&instrumentFile->instrumentDataAndHeader,
+									  sizeof(strInstrumentFile::strInstrumentDataAndHeader));
+
+	if(checkCRC == ((strInstrumentFile*)instrumentFile)->crc)
+	{
+		memcpy(instrument, &instrumentFile->instrumentDataAndHeader.instrument, sizeof(strInstrument));
+
+		return true;
+	}
+
+
+	return false;
+}
+
+
+bool cFileManager::writeInstrumentToFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile)
+{
+	FastCRC32 crcCalc;
+
+	memcpy(&instrumentFile->instrumentDataAndHeader.instrument, instrument, sizeof(strInstrument));
+
+	instrumentFile->instrumentDataAndHeader.instrHeader.id_file[0]='T';
+	instrumentFile->instrumentDataAndHeader.instrHeader.id_file[1]='I';
+	instrumentFile->instrumentDataAndHeader.instrHeader.type = fileTypeInstrument;
+	instrumentFile->instrumentDataAndHeader.instrHeader.fwVersion[0] = FV_VER_1;
+	instrumentFile->instrumentDataAndHeader.instrHeader.fwVersion[1] = FV_VER_2;
+	instrumentFile->instrumentDataAndHeader.instrHeader.fwVersion[2] = FV_VER_3;
+	instrumentFile->instrumentDataAndHeader.instrHeader.fwVersion[3] = FV_VER_1;
+	instrumentFile->instrumentDataAndHeader.instrHeader.fileStructureVersion[0] = INSTRUMENT_FILE_VERSION;
+	instrumentFile->instrumentDataAndHeader.instrHeader.fileStructureVersion[1] = INSTRUMENT_FILE_VERSION;
+	instrumentFile->instrumentDataAndHeader.instrHeader.fileStructureVersion[2] = INSTRUMENT_FILE_VERSION;
+	instrumentFile->instrumentDataAndHeader.instrHeader.fileStructureVersion[3] = INSTRUMENT_FILE_VERSION;
+	instrumentFile->instrumentDataAndHeader.instrHeader.size = sizeof(strInstrument);
+
+	instrumentFile->crc = crcCalc.crc32((uint8_t *)&instrumentFile->instrumentDataAndHeader,
+							sizeof(instrumentFile->instrumentDataAndHeader));
+
+	return true;
+}
+
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     XXXX     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+
+bool cFileManager::continueInstrumentProcess()
+{
+	currentInstrument++;
+	if(currentInstrument >= INSTRUMENTS_COUNT)
+	{
+		currentInstrument = 0;
+		moveToNextOperationStep();
+		return false;
+	}
+	return true;
+}
 
 
 void cFileManager::instrumentThrowError()

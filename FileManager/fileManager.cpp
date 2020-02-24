@@ -16,13 +16,20 @@ cFileManager newFileManager;
 
 SdDir sdLocation;
 
+elapsedMillis autoSaveTimer;
 
 //====================================================================================
 //====================================================================================
 //====================================================================================
 void cFileManager::update()
 {
-	if(currentOperation == fmNoOperation) return;
+	if(currentOperation == fmNoOperation)
+	{
+		autoSaveProjectToWorkspace();
+
+
+		return;
+	}
 
 	switch(currentOperation)
 	{
@@ -141,6 +148,19 @@ void cFileManager::updateCopyWorkspaceToProjects()
 	}
 }
 
+
+void cFileManager::autoSaveProjectToWorkspace()
+{
+	if(autoSaveTimer < 10000) return;
+	autoSaveTimer = 0;
+
+	if(isProjectChanged())
+	{
+		saveProjectToWorkspace();
+	}
+
+}
+
 //====================================================================================
 //====================================================================================
 //====================================================================================
@@ -180,9 +200,16 @@ bool cFileManager::openProjectFromProjects(uint8_t index)
 	return true;
 }
 
-bool cFileManager::saveProjectToWorkspace()
+bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
 {
-	if(!isProjectChanged())	return false; // nie zapisuj jesli nic nie jest zmodyfikowane
+	if(forceSaveAll)
+	{
+		setAllChangeFlags();
+	}
+	else
+	{
+		if(!isProjectChanged())	return false; // nie zapisuj jesli nic nie jest zmodyfikowane
+	}
 
 	status = fmSavingProjectToWorkspace;
 	currentOperationStep = 0;
@@ -216,6 +243,7 @@ uint8_t cFileManager::getProjectsList(char*** list)
 
 	return projectsfoundCount;
 }
+
 
 
 //-----------------------------------------------------------------------------------------------------
@@ -325,45 +353,59 @@ void cFileManager::copyWorkspaceToProjectsFinish()
 
 void cFileManager::clearChangeFlags()
 {
-	projectChangeFlag = 0;
+	chengesFlags.project = 0;
 	for(uint8_t i = 0 ; i< PATTERN_INDEX_MAX; i++)
 	{
-		patternIsChangedFlag[i] = 0;
+		chengesFlags.pattern[i] = 0;
 	}
 	for(uint8_t i = 0 ; i< INSTRUMENTS_COUNT; i++)
 	{
-		instrumentIsChangedFlag[i] = 0;
+		chengesFlags.instrument[i] = 0;
 	}
 }
 
 bool cFileManager::isProjectChanged()
 {
-	if(projectChangeFlag) return true;
+	if(chengesFlags.project) return true;
 	for(uint8_t i = 0 ; i< PATTERN_INDEX_MAX; i++)
 	{
-		if(patternIsChangedFlag[i]) return true;
+		if(chengesFlags.pattern[i]) return true;
 	}
 	for(uint8_t i = 0 ; i< INSTRUMENTS_COUNT; i++)
 	{
-		if(instrumentIsChangedFlag[i]) return true;
+		if(chengesFlags.instrument[i]) return true;
 	}
 
 	 return false;
 }
 
+void cFileManager::setAllChangeFlags()
+{
+	chengesFlags.project = 1;
+	for(uint8_t i = 0 ; i< PATTERN_INDEX_MAX; i++)
+	{
+		chengesFlags.pattern[i] = 1;
+	}
+	for(uint8_t i = 0 ; i< INSTRUMENTS_COUNT; i++)
+	{
+		chengesFlags.instrument[i] = 1;
+	}
+}
+
+
 void cFileManager::setProjectStructChanged()
 {
-	projectChangeFlag = 1;
+	chengesFlags.project = 1;
 }
 
 void cFileManager::setPatternStructChanged(uint8_t pattern)
 {
-	patternIsChangedFlag[pattern] = 1;
+	chengesFlags.pattern[pattern] = 1;
 }
 
 void cFileManager::setInstrumentStructChanged(uint8_t instrument)
 {
-	instrumentIsChangedFlag[instrument] = 1;
+	chengesFlags.instrument[instrument] = 1;
 }
 
 

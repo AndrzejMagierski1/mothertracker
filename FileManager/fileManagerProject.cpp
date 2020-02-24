@@ -79,6 +79,12 @@ void cFileManager::copyProjectFile()
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::saveProjectFileToWorkspace()
 {
+	if(chengesFlags.project == 0) //tylko jesli flaga zmian ustawiona
+	{
+		moveToNextOperationStep();
+		return;
+	}
+
 	if(!writeProjectFileToFileStruct(&mtProject, &fileManagerProjectBuffer))
 	{
 		throwError(0);
