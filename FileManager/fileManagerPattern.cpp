@@ -30,7 +30,7 @@ void cFileManager::loadPatternFromWorkspace(uint8_t index)
 	sprintf(patternToLoad, cWorkspacePatternFileFormat, index);
 	mtProject.values.actualPattern = index;
 
-	uint8_t loadStatus = fileTransfer.loadFileToMemory(patternToLoad,  (uint8_t*)&fileManagerPatternBuffer, sizeof(Sequencer::strPattern), fileDivIntoParts);
+	uint8_t loadStatus = fileTransfer.loadFileToMemory(patternToLoad,  (uint8_t*)&fileManagerPatternBuffer, sizeof(Sequencer::strPattern), fileWholeOnce); //fileDivIntoParts
 
 	if(loadStatus == fileTransferEnd)
 	{
@@ -114,10 +114,18 @@ bool cFileManager::readPatternFile(const char * filePath, uint8_t *destPattern)
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     COPY     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
-void cFileManager::copyPaternsToWorkspace()
+void cFileManager::copyPaterns()
 {
-	sprintf(currentCopySrcPath, cProjectsPatternFileFormat, currentProjectName, currentPattern);
-	sprintf(currentCopyDestPath, cWorkspacePatternFileFormat, currentPattern);
+	if(currentOperation == fmCopyWorkspaceToProjects)
+	{
+		sprintf(currentCopySrcPath, cWorkspacePatternFileFormat, currentPattern);
+		sprintf(currentCopyDestPath, cProjectsPatternFileFormat, currentProjectName, currentPattern);
+	}
+	else
+	{
+		sprintf(currentCopySrcPath, cProjectsPatternFileFormat, currentProjectName, currentPattern);
+		sprintf(currentCopyDestPath, cWorkspacePatternFileFormat, currentPattern);
+	}
 
 	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, currentCopyDestPath);
 
@@ -136,6 +144,7 @@ void cFileManager::copyPaternsToWorkspace()
 	}
 }
 
+
 void cFileManager::continuePatternProcess()
 {
 	currentPattern++;
@@ -145,6 +154,16 @@ void cFileManager::continuePatternProcess()
 		moveToNextOperationStep();
 	}
 }
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     SAVE     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::savePatternToWorkspace()
+{
+
+	moveToNextOperationStep();
+}
+
 
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     XXXX     -----------------------------------------------------------

@@ -26,14 +26,15 @@ void cFileManager::update()
 
 	switch(currentOperation)
 	{
-	case fmOpenWorkspaceProject: 	updateOpenWorkspaceProject(); 		break;
-	case fmCopyProjectToWorkspace: 	updateCopyProjectToWorkspace(); 	break;
+	case fmLoadWorkspaceProject: 		updateLoadProjectFromWorkspace(); 		break;
+	case fmSaveWorkspaceProject: 		updateSaveProjectToWorkspace(); 		break;
+	case fmCopyProjectsToWorkspace: 	updateCopyProjectsToWorkspace(); 		break;
+	case fmCopyWorkspaceToProjects: 	updateCopyWorkspaceToProjects(); 		break;
 
 
 
 
 	}
-
 
 
 }
@@ -44,14 +45,14 @@ void cFileManager::update()
 //====================================================================================
 //==========================     UPDATEs     =========================================
 //====================================================================================
-void cFileManager::updateOpenWorkspaceProject()
+void cFileManager::updateLoadProjectFromWorkspace()
 {
 	switch(currentOperationStep)
 	{
 		case 0: // faza przygotowania (obliczanie postepu, clear itp)
-			loadWorkspaceProjectInit(); break;
+			loadProjectFromWorkspaceInit(); break;
 		case 1: // projekt
-			loadProjectFromWorkspace(); break;
+			loadProjectFileFromWorkspace(); break;
 		case 2: // pattern
 			loadPatternFromWorkspace(mtProject.values.actualPattern); break;
 		case 3: // instruments
@@ -59,7 +60,7 @@ void cFileManager::updateOpenWorkspaceProject()
 		case 4: // samples
 			loadSamplesFromWorkspace(); break;
 		case 5: // wykonczenie
-			loadWorkspaceProjectFinish(); break;
+			loadProjectFromWorkspaceFinish(); break;
 		default:
 			status = fmLoadError;
 			currentOperationStep = 0;
@@ -68,23 +69,22 @@ void cFileManager::updateOpenWorkspaceProject()
 	}
 }
 
-
-void cFileManager::updateCopyProjectToWorkspace()
+void cFileManager::updateSaveProjectToWorkspace()
 {
 	switch(currentOperationStep)
 	{
 		case 0: // faza przygotowania
-			copyProjectToWorkspaceInit(); break;
+			saveProjectToWorkspaceInit(); break;
 		case 1: // projekt
-			copyProjectToWorkspace(); break;
+			saveProjectFileToWorkspace(); break;
 		case 2: // pattern
-			copyPaternsToWorkspace(); break;
+			savePatternToWorkspace(); break;
 		case 3: // instruments
-			copyInstrumentsToWorkspace(); break;
+			saveInstrumentsToWorkspace(); break;
 		case 4: // samples
-			copySamplesToWorkspace(); break;
+			saveSamplesToWorkspace(); break;
 		case 5: // wykonczenie
-			copyProjectToWorkspaceFinish(); break;
+			saveProjectToWorkspaceFinish(); break;
 		default:
 			status = fmCopyError;
 			currentOperationStep = 0;
@@ -93,6 +93,53 @@ void cFileManager::updateCopyProjectToWorkspace()
 	}
 }
 
+void cFileManager::updateCopyProjectsToWorkspace()
+{
+	switch(currentOperationStep)
+	{
+		case 0: // faza przygotowania
+			copyProjectsToWorkspaceInit(); break;
+		case 1: // projekt
+			copyProjectFile(); break;
+		case 2: // pattern
+			copyPaterns(); break;
+		case 3: // instruments
+			copyInstruments(); break;
+		case 4: // samples
+			copySamples(); break;
+		case 5: // wykonczenie
+			copyProjectsToWorkspaceFinish(); break;
+		default:
+			status = fmCopyError;
+			currentOperationStep = 0;
+			currentOperation = fmNoOperation;
+			break;
+	}
+}
+
+void cFileManager::updateCopyWorkspaceToProjects()
+{
+	switch(currentOperationStep)
+	{
+		case 0: // faza przygotowania
+			copyWorkspaceToProjectsInit(); break;
+		case 1: // projekt
+			copyProjectFile(); break;
+		case 2: // pattern
+			copyPaterns(); break;
+		case 3: // instruments
+			copyInstruments(); break;
+		case 4: // samples
+			copySamples(); break;
+		case 5: // wykonczenie
+			copyWorkspaceToProjectsFinish(); break;
+		default:
+			status = fmCopyError;
+			currentOperationStep = 0;
+			currentOperation = fmNoOperation;
+			break;
+	}
+}
 
 //====================================================================================
 //====================================================================================
@@ -111,7 +158,7 @@ bool cFileManager::openProjectFromWorkspace()
 
 	status = fmLoadingProjectfromWorkspace;
 	currentOperationStep = 0;
-	currentOperation = fmOpenWorkspaceProject;
+	currentOperation = fmLoadWorkspaceProject;
 
 	return true;
 }
@@ -128,7 +175,27 @@ bool cFileManager::openProjectFromProjects(uint8_t index)
 
 	status = fmLoadingProjectFromProjects;
 	currentOperationStep = 0;
-	currentOperation = fmCopyProjectToWorkspace;
+	currentOperation = fmCopyProjectsToWorkspace;
+
+	return true;
+}
+
+bool cFileManager::saveProjectToWorkspace()
+{
+	if(!isProjectChanged())	return false; // nie zapisuj jesli nic nie jest zmodyfikowane
+
+	status = fmSavingProjectToWorkspace;
+	currentOperationStep = 0;
+	currentOperation = fmSaveWorkspaceProject;
+
+	return true;
+}
+
+bool cFileManager::saveProjectToProjects()
+{
+	status = fmSavingProjectToProjects;
+	currentOperationStep = 0;
+	currentOperation = fmSaveWorkspaceProject;
 
 	return true;
 }
@@ -155,22 +222,38 @@ uint8_t cFileManager::getProjectsList(char*** list)
 //-----------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------
 
-void cFileManager::loadWorkspaceProjectInit()
+void cFileManager::loadProjectFromWorkspaceInit()
 {
+	// tu czysci flagi zmian plikow bo podczas ladowania moga one zostac ustawione
+	// jezeli np ladowany jest starsza wersja pliku i struktura jest modyfikwoana
+	clearChangeFlags();
+
 	calcTotalMemoryToTransfer();
 	moveToNextOperationStep();
 }
 
 
-void cFileManager::loadWorkspaceProjectFinish()
+void cFileManager::loadProjectFromWorkspaceFinish()
 {
 	//projectEditor.loadProjectValues(); // jest odrazu po otwarciu pliku projektu, gdyz dalszy proces wymaga nie ktorych zmiennych
-	clearChangeFlags();
 
-	if(currentProjectName[0] == 0) // jezeli nie ma nazwyw w pliku na koniec ladowania to
+	// jezeli projekt byl potwierany z Projects i kopiwoany do workspace to
+	// nadpisz nazwe projektu w pliku projektu na taka jak folderu z ktorego byl kopiwoany
+	if(currentProjectName[0] == 0)
 	{
-
+		//	jezeli projekt jest otwierany z workspace na start urzadzenia to pobierz nazwe z pliku projektu
+		strcpy(currentProjectName, projectNamefromProjectFile);
 	}
+	else
+	{
+		// jezeli jest otwierany z folderu Projects to wymys nazwe otwieranego projektu
+		saveProjectFileToWorkspace();
+		//writeProjectFile(cProjectFileNameInWorkspace, &mtProject);
+	}
+
+	strcpy(mtConfig.startup.lastProjectName, currentProjectName);
+	sprintf(currentProjectPatch,"Projects/%s", currentProjectName);
+
 
 
 	status = fmLoadEnd;
@@ -178,23 +261,22 @@ void cFileManager::loadWorkspaceProjectFinish()
 	currentOperation = fmNoOperation;
 }
 
+//-------------------------------------------------------
 
-
-void cFileManager::copyProjectToWorkspaceInit()
+void cFileManager::copyProjectsToWorkspaceInit()
 {
 	// przygotuj workspace
 	clearWorkspace();
 	createWorkspaceDirs();
 
 	//
-
 	moveToNextOperationStep();
 }
 
-void cFileManager::copyProjectToWorkspaceFinish()
+void cFileManager::copyProjectsToWorkspaceFinish()
 {
 	status = fmIdle;					//
-	currentOperation = fmNoOperation;	// takie cwaniactwo pozwala wywolac otwieranie z workspace w tym miejscu
+	currentOperation = fmNoOperation;	// takie cwaniactwo pozwala wywolac otwieranie projektu z workspace w tym miejscu
 
 	if(!openProjectFromWorkspace())
 	{
@@ -205,6 +287,36 @@ void cFileManager::copyProjectToWorkspaceFinish()
 	status = fmLoadingProjectFromProjects; // wymuszenie statusu
 }
 
+//-------------------------------------------------------
+void cFileManager::saveProjectToWorkspaceInit()
+{
+
+	moveToNextOperationStep();
+}
+
+void cFileManager::saveProjectToWorkspaceFinish()
+{
+	clearChangeFlags();
+
+	status = fmSaveEnd;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+}
+
+//-------------------------------------------------------
+void cFileManager::copyWorkspaceToProjectsInit()
+{
+
+	moveToNextOperationStep();
+}
+
+void cFileManager::copyWorkspaceToProjectsFinish()
+{
+
+	status = fmSaveEnd;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+}
 
 
 //-----------------------------------------------------------------------------------------------------
@@ -263,7 +375,18 @@ void cFileManager::setInstrumentStructChanged(uint8_t instrument)
 
 
 
+bool cFileManager::projectExist(char* name)
+{
+	char path[255];
+	sprintf(path,cProjectsPathFormat,name);
 
+	if(SD.exists(path))
+	{
+		return true;
+	}
+
+	return false;
+}
 
 
 

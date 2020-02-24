@@ -209,7 +209,53 @@ uint8_t cFileTransfer::copyFile(const char* src, const char* dest)
 }
 
 
+uint8_t cFileTransfer::saveMemoryToFile(uint8_t* memory, const char* file, uint32_t memSize)
+{
+	if(transferStep == 0)
+	{
+		if(SD.exists(file))
+		{
+			SD.remove(file);
+		}
 
+		if(transferFile.open(file, FILE_WRITE))
+		{
+			memTotal = memSize;
+			memStep = (memSize < READ_WRITE_BUFOR_SIZE) ? memSize : READ_WRITE_BUFOR_SIZE; // maksymalne paczki jak bufor mimo ze nie kozystanie z bufora
+			memComplited = 0;
+			transferStep = 1;
+		}
+	}
+
+	if(transferStep == 1)
+	{
+		int32_t write_result = transferFile.write(memory+memComplited, memStep);
+
+		if(write_result >= 0)
+		{
+			memComplited += write_result;
+			if(memComplited >=  memTotal) // koniec pliku
+			{
+				transferStep = 2;
+			}
+			else if (write_result == memStep)
+			{
+				return fileTransferInProgress;
+			}
+		}
+	}
+
+	if(transferStep == 2)
+	{
+		transferStep = 0;
+		transferFile.close();
+		return fileTransferEnd;
+	}
+
+	transferStep = 0;
+	transferFile.close();
+	return fileTransferError;
+}
 
 
 void cFileTransfer::endTransfer()

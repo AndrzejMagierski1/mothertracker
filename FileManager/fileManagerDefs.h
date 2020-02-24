@@ -40,17 +40,6 @@ struct strProjectFile
 
 
 
-//
-//enum enTranferFileType
-//{
-//	fileTypeNoType = 0,
-//	fileTypeProject,
-//	fileTypePattern,
-//	fileTypeIntstrument,
-//	fileTypeSample,
-//
-//};
-
 enum enFileManagerErrorSource
 {
 	errorSourceUnknow = 0,
@@ -76,6 +65,7 @@ const char cWorkspaceSamplesFilesFormat[] 	= "Workspace/samples/instr%02d.wav";
 
 
 const char cProjectsPath[] 					= "Projects";
+const char cProjectsPathFormat[] 			= "Projects/%s";
 const char cProjectFileInProjectsFormat[] 	= "Projects/%s/project.mt";
 const char cProjectsPatternsPath[] 			= "/patterns";
 const char cProjectsPatternFileFormat[] 	= "Projects/%s/patterns/pattern_%02d.mtp";

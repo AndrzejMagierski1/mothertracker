@@ -27,7 +27,7 @@ __NOINIT(EXTERNAL_RAM) strInstrumentFile fileManagerInstrumentBuffer  {0};
 void cFileManager::loadInstrumentsFromWorkspace()
 {
 	char instrumentToLoad[PATCH_SIZE];
-	sprintf(instrumentToLoad, cWorkspaceInstrumentFileFormat, currentInstrument);
+	sprintf(instrumentToLoad, cWorkspaceInstrumentFileFormat, currentInstrument+1); // numery plikow od 1
 
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(instrumentToLoad, (uint8_t*)&fileManagerInstrumentBuffer, sizeof(strInstrumentFile), fileWholeOnce); //fileDivIntoParts
 
@@ -89,10 +89,18 @@ bool cFileManager::loadInstrumentFormFileStruct(strInstrument* instrument, strIn
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     COPY     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
-void cFileManager::copyInstrumentsToWorkspace()
+void cFileManager::copyInstruments()
 {
-	sprintf(currentCopySrcPath, cProjectsInstrumentFileFormat, currentProjectName, currentInstrument);
-	sprintf(currentCopyDestPath, cWorkspaceInstrumentFileFormat, currentInstrument);
+	if(currentOperation == fmCopyWorkspaceToProjects)
+	{
+		sprintf(currentCopySrcPath, cWorkspaceInstrumentFileFormat, currentInstrument+1);
+		sprintf(currentCopyDestPath, cProjectsInstrumentFileFormat, currentProjectName, currentInstrument+1);
+	}
+	else
+	{
+		sprintf(currentCopySrcPath, cProjectsInstrumentFileFormat, currentProjectName, currentInstrument+1);
+		sprintf(currentCopyDestPath, cWorkspaceInstrumentFileFormat, currentInstrument+1);
+	}
 
 	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, currentCopyDestPath);
 
@@ -111,6 +119,19 @@ void cFileManager::copyInstrumentsToWorkspace()
 	}
 }
 
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     SAVE     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::saveInstrumentsToWorkspace()
+{
+
+	moveToNextOperationStep();
+}
+
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     XXXX     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
 
 
 void cFileManager::instrumentThrowError()

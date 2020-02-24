@@ -71,7 +71,7 @@ void cFileManager::startSampleLoad()
 	mtProject.instrument[currentSample].sample.address = sdram_sampleBank;
 	ptrSampleMemory = mtProject.instrument[currentSample].sample.address;
 
-	sprintf(sampleToLoad, cWorkspaceSamplesFilesFormat, currentSample);
+	sprintf(sampleToLoad, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
 }
 
 void cFileManager::continueSampleLoad()
@@ -99,7 +99,7 @@ void cFileManager::continueSampleLoad()
 		{
 			mtProject.instrument[currentSample].sample.address =
 					mtProject.instrument[currentSample-1].sample.address + mtProject.instrument[currentSample-1].sample.length;
-			sprintf(sampleToLoad, cWorkspaceSamplesFilesFormat, currentSample);
+			sprintf(sampleToLoad, cWorkspaceSamplesFilesFormat, currentSample+1);  // nazwa pliku od 1
 			ptrSampleMemory = mtProject.instrument[currentSample].sample.address;
 
 			return; // nastepny sampel poprosze
@@ -114,10 +114,18 @@ void cFileManager::continueSampleLoad()
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     COPY     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
-void cFileManager::copySamplesToWorkspace()
+void cFileManager::copySamples()
 {
-	sprintf(currentCopySrcPath, cProjectsSamplesFilesFormat, currentProjectName, currentSample);
-	sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample);
+	if(currentOperation == fmCopyWorkspaceToProjects)
+	{
+		sprintf(currentCopySrcPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
+		sprintf(currentCopyDestPath, cProjectsSamplesFilesFormat, currentProjectName, currentSample+1); // nazwa pliku od 1
+	}
+	else
+	{
+		sprintf(currentCopySrcPath, cProjectsSamplesFilesFormat, currentProjectName, currentSample+1); // nazwa pliku od 1
+		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
+	}
 
 	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, currentCopyDestPath);
 
@@ -135,7 +143,6 @@ void cFileManager::copySamplesToWorkspace()
 	}
 }
 
-
 void cFileManager::continueSampleProcess()
 {
 	currentSample++;
@@ -145,6 +152,17 @@ void cFileManager::continueSampleProcess()
 		moveToNextOperationStep();
 	}
 }
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     SAVE     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::saveSamplesToWorkspace()
+{
+
+	moveToNextOperationStep();
+}
+
+
+
 
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     XXXX     -----------------------------------------------------------

@@ -24,13 +24,13 @@ __NOINIT(EXTERNAL_RAM) strProjectFile fileManagerProjectBuffer  {0};
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     LOAD     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
-void cFileManager::loadProjectFromWorkspace()
+void cFileManager::loadProjectFileFromWorkspace()
 {
 	uint8_t loadStatus = fileTransfer.loadFileToMemory(cProjectFileNameInWorkspace, (uint8_t*)&fileManagerProjectBuffer, sizeof(strProjectFile), fileWholeOnce); // fileDivIntoParts
 
 	if(loadStatus == fileTransferEnd)
 	{
-		if(loadProjectFormFileStruct(&mtProject, &fileManagerProjectBuffer))
+		if(loadProjectFileFormFileStruct(&mtProject, &fileManagerProjectBuffer))
 		{
 			projectEditor.loadProjectValues();
 			moveToNextOperationStep();
@@ -46,7 +46,62 @@ void cFileManager::loadProjectFromWorkspace()
 	}
 }
 
-bool cFileManager::loadProjectFormFileStruct(strMtProject* project, strProjectFile* pFile)
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     COPY     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::copyProjectFile()
+{
+	if(currentOperation == fmCopyWorkspaceToProjects)
+	{
+		strcpy(currentCopySrcPath, cProjectFileNameInWorkspace);
+		sprintf(currentCopyDestPath, cProjectFileInProjectsFormat, currentProjectName);
+	}
+	else
+	{
+		sprintf(currentCopySrcPath, cProjectFileInProjectsFormat, currentProjectName);
+		strcpy(currentCopyDestPath, cProjectFileNameInWorkspace);
+	}
+
+	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, currentCopyDestPath);
+
+	if(loadStatus == fileTransferEnd)
+	{
+		moveToNextOperationStep();
+	}
+	else if(loadStatus >= fileTransferError)
+	{
+		throwError(0);
+	}
+}
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     SAVE     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::saveProjectFileToWorkspace()
+{
+	if(!writeProjectFileToFileStruct(&mtProject, &fileManagerProjectBuffer))
+	{
+		throwError(0);
+	}
+
+	uint8_t saveStatus = fileTransfer.saveMemoryToFile((uint8_t*)&fileManagerProjectBuffer, cProjectFileNameInWorkspace, sizeof(strProjectFile));
+
+	if(saveStatus == fileTransferEnd)
+	{
+		moveToNextOperationStep();
+	}
+	else// if(saveStatus >= fileTransferError)
+	{
+		throwError(1);
+	}
+}
+
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     xxxx     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+
+bool cFileManager::loadProjectFileFormFileStruct(strMtProject* project, strProjectFile* pFile)
 {
 	FastCRC32 crcCalc;
 
@@ -81,22 +136,23 @@ bool cFileManager::loadProjectFormFileStruct(strMtProject* project, strProjectFi
 	}
 
 
-
-
-
-
 	if(1)
 	{
 		if(pFile->projectDataAndHeader.project.projectName[0] == 0)
 		{
+			// brak nazwy w pliku projektu
+			// - jesli projekt czytany z workspace to nie mozna powiazac projektu z projektem w folderze Projects
+			// - jeslie projekt czytany z workpace ale po kopiowaniu z folderu Projects
+			//   to nazwa zostanie mu w dalszej czasci ladowania wpisana
+			//
 
+			projectNamefromProjectFile[0] = 0;
 		}
 		else
 		{
+			// tu przepisuje nazwe projektu odczytana z pliku projektu, pozniej jesy to itak weryfikowane
 			pFile->projectDataAndHeader.project.projectName[PROJECT_NAME_SIZE-1] = 0;
-			strcpy(currentProjectName, pFile->projectDataAndHeader.project.projectName);
-			strcpy(mtConfig.startup.lastProjectName, currentProjectName);
-			sprintf(currentProjectPatch,"Projects/%s", currentProjectName);
+			strcpy(projectNamefromProjectFile, pFile->projectDataAndHeader.project.projectName);
 		}
 
 		memcpy(&project->song, &pFile->projectDataAndHeader.project.song, sizeof(strSong));
@@ -110,25 +166,35 @@ bool cFileManager::loadProjectFormFileStruct(strMtProject* project, strProjectFi
 }
 
 
-//------------------------------------------------------------------------------------------------------------------
-//-----------------------------------------     COPY     -----------------------------------------------------------
-//------------------------------------------------------------------------------------------------------------------
-void cFileManager::copyProjectToWorkspace()
+bool cFileManager::writeProjectFileToFileStruct(strMtProject* project, strProjectFile* pFile)
 {
-	sprintf(currentCopySrcPath, cProjectFileInProjectsFormat, currentProjectName);
-	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, cProjectFileNameInWorkspace);
+	FastCRC32 crcCalc;
 
-	if(loadStatus == fileTransferEnd)
-	{
-		moveToNextOperationStep();
-	}
-	else if(loadStatus >= fileTransferError)
-	{
-		throwError(0);
-	}
+	memcpy(&pFile->projectDataAndHeader.project.song, &project->song, sizeof(strSong));
+	memcpy(&pFile->projectDataAndHeader.project.values, &project->values, sizeof(strMtValues));
+	strcpy(pFile->projectDataAndHeader.project.projectName, currentProjectName);
+
+	pFile->projectDataAndHeader.projectHeader.id_file[0]='M';
+	pFile->projectDataAndHeader.projectHeader.id_file[1]='T';
+
+	pFile->projectDataAndHeader.projectHeader.type = fileTypeProject;
+
+	pFile->projectDataAndHeader.projectHeader.fwVersion[0] = FV_VER_1;
+	pFile->projectDataAndHeader.projectHeader.fwVersion[1] = FV_VER_2;
+	pFile->projectDataAndHeader.projectHeader.fwVersion[2] = FV_VER_3;
+	pFile->projectDataAndHeader.projectHeader.fwVersion[3] = FV_VER_1;
+
+	pFile->projectDataAndHeader.projectHeader.fileStructureVersion[0] = PROJECT_FILE_VERSION;
+	pFile->projectDataAndHeader.projectHeader.fileStructureVersion[1] = PROJECT_FILE_VERSION;
+	pFile->projectDataAndHeader.projectHeader.fileStructureVersion[2] = PROJECT_FILE_VERSION;
+	pFile->projectDataAndHeader.projectHeader.fileStructureVersion[3] = PROJECT_FILE_VERSION;
+
+	pFile->projectDataAndHeader.projectHeader.size = sizeof(strProjectFile);
+
+	pFile->crc = crcCalc.crc32((uint8_t *)&pFile->projectDataAndHeader, sizeof(pFile->projectDataAndHeader));
+
+	return true;
 }
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

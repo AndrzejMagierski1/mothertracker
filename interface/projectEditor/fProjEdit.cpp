@@ -512,16 +512,17 @@ static uint8_t functSaveProject()
 		return 1;
 	}
 
-	PE->isBusyFlag = 1;
-	PE->savePopupFlag = 1;
-	PE->savePopupDelay = 0;
+	//PE->isBusyFlag = 1;
+	//PE->savePopupFlag = 1;
+	//PE->savePopupDelay = 0;
+	//mtProject.values.projectNotSavedFlag = 0;
 
-	mtProject.values.projectNotSavedFlag = 0;
+	//if(fileManager.currentProjectName[0]) PE->keyboardManager.fillName(fileManager.currentProjectName);
+	//else PE->keyboardManager.fillName((char *)"New Project");
+	//PE->showProcessingPopup("Saving project");
 
-	if(fileManager.currentProjectName[0]) PE->keyboardManager.fillName(fileManager.currentProjectName);
-	else PE->keyboardManager.fillName((char *)"New Project");
 
-	PE->showProcessingPopup("Saving project");
+	newFileManager.saveProjectToProjects();
 
 	return 1;
 }
@@ -654,24 +655,35 @@ static uint8_t functSaveAsConfirm()
 {
 	if(PE->isBusyFlag) return 1;
 
-	if(fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsChecking) == 0 )
+
+	if(newFileManager.projectExist(PE->keyboardManager.getName()))
 	{
 		PE->functShowOverwriteWindow();
 		return 1;
 	}
 
-	PE->newProjectNotSavedFlag = 0;
-	mtProject.values.projectNotSavedFlag = 0;
+	strcpy(newFileManager.currentProjectName, 	PE->keyboardManager.getName());
+	newFileManager.saveProjectToProjects();
 
 
-	strcpy(fileManager.currentProjectName, 	PE->keyboardManager.getName());
+//	if(fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsChecking) == 0 )
+//	{
+//		PE->functShowOverwriteWindow();
+//		return 1;
+//	}
 
-	PE->savePopupFlag = 1;
-	PE->savePopupDelay = 0;
-	PE->isBusyFlag = 1;
+//	PE->newProjectNotSavedFlag = 0;
+//	mtProject.values.projectNotSavedFlag = 0;
+//
+//
+//	strcpy(fileManager.currentProjectName, 	PE->keyboardManager.getName());
+//
+//	PE->savePopupFlag = 1;
+//	PE->savePopupDelay = 0;
+//	PE->isBusyFlag = 1;
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Saving project");
+	//PE->showProcessingPopup("Saving project");
 
 	return 1;
 }
@@ -697,17 +709,21 @@ static uint8_t functSaveAsOverwriteYes()
 {
 	if(PE->isBusyFlag) return 1;
 
-	fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsOverwrite);
+	strcpy(newFileManager.currentProjectName, PE->keyboardManager.getName());
+	newFileManager.saveProjectToProjects();
 
-	mtProject.values.projectNotSavedFlag = 0;
-
-	PE->newProjectNotSavedFlag = 0;
-	PE->savePopupFlag = 1;
-	PE->savePopupDelay = 0;
-	PE->isBusyFlag = 1;
+	//todo sprawdzanie
+//	fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsOverwrite);
+//
+//	mtProject.values.projectNotSavedFlag = 0;
+//
+//	PE->newProjectNotSavedFlag = 0;
+//	PE->savePopupFlag = 1;
+//	PE->savePopupDelay = 0;
+//	PE->isBusyFlag = 1;
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Saving project");
+	//PE->showProcessingPopup("Saving project");
 
 	return 1;
 }
@@ -756,7 +772,7 @@ static uint8_t functOpenProjectConfirm()
 	newFileManager.openProjectFromProjects(PE->selectedProject);
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Opening project");
+///	PE->showProcessingPopup("Opening project");
 	return 1;
 }
 void cProjectEditor::functShowSaveLastWindowBeforeOpen()

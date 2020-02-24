@@ -33,7 +33,7 @@ public:
 	uint8_t getFileTransferStatus();
 	uint8_t loadFileToMemory(const char* file, uint8_t* memory, uint32_t memSize, uint8_t mode);
 	uint8_t loadSampleToMemory(const char* file, int16_t* memory, uint32_t* outSampleCount);
-	uint8_t saveMemoryToFile();
+	uint8_t saveMemoryToFile(uint8_t* memory, const char* file, uint32_t memSize);
 
 	uint8_t copyFile(const char* src, const char* dest);
 
@@ -47,7 +47,7 @@ public:
 private:
 	uint8_t transferStep = 0;
 
-	uint32_t memStep;
+	int32_t memStep;
 	uint32_t memComplited;
 	uint32_t memTotal;
 	uint32_t convertedDataSize;

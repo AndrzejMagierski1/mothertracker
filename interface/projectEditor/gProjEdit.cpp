@@ -1,6 +1,7 @@
 #include "projectEditor/projectEditor.h"
 
 #include "mtLED.h"
+#include "fileManager.h"
 #include "mtFileManager.h"
 #include "mtExporterWAV.h"
 #include "display.h"
@@ -200,8 +201,8 @@ void cProjectEditor::showDefaultScreen()
 	display.refreshControl(titleLabel);
 
 
-	strcpy(projectCoverName, fileManager.currentProjectName);
-	display.setControlText(titleLabelProjectName, fileManager.currentProjectName);
+	strcpy(projectCoverName, newFileManager.currentProjectName);
+	display.setControlText(titleLabelProjectName, newFileManager.currentProjectName);
 	display.refreshControl(titleLabelProjectName);
 
 	display.setControlData(label[0], &labelArrow);
@@ -501,7 +502,7 @@ void cProjectEditor::showSaveLastWindow()
 	display.setControlText(label[6], "Don't save");
 	display.setControlText(label[7], "Save");
 
-	sprintf(currentInfo,"Do you want to save the changes to \"%s\"?", fileManager.currentProjectName);
+	sprintf(currentInfo,"Do you want to save the changes to \"%s\"?", newFileManager.currentProjectName);
 
 	display.setControlText(selectWindowLabel, currentInfo);
 	display.setControlShow(selectWindowLabel);
