@@ -158,9 +158,11 @@ void  AudioEffectEnvelope::release(float milliseconds)
 	__enable_irq();
 }
 
+
 void AudioEffectEnvelope::noteOn(void)
 {
 	__disable_irq();
+
 	pressedFlag = 1;
 	if (state == STATE_IDLE || state == STATE_DELAY || release_forced_count == 0)
 	{
@@ -428,7 +430,16 @@ void AudioEffectEnvelope::update(void)
 			debugLog.addValue(count);
 		}
 
-		if(count > 0 ) count--;
+		if(count > 0 )
+		{
+			count--;
+		}
+		else
+		{
+			debugLog.setMaxLineCount(10);
+			debugLog.addLine("count = 0 ");
+			debugLog.addValue(state);
+		}
 	}
 	transmit(block);
 	AudioStream::release(block);
