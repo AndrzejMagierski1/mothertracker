@@ -147,6 +147,7 @@ const float ampLogValues[AMP_LOG_VALUES] =
 };
 constexpr uint32_t NOT_MOD_POINTS = 1000000;
 constexpr uint8_t ENVELOPES_WITHOUT_AMP_MAX = 4;
+constexpr uint8_t ACTIVE_ENVELOPES_MAX = envMax - 1 ;
 constexpr uint8_t MUTE_DISABLE = 0;
 constexpr uint8_t MUTE_ENABLE = 1;
 constexpr float AMP_MUTED = 0.0f;
@@ -236,7 +237,6 @@ public:
 	uint8_t noteOnforPrev (uint8_t instr_idx,int8_t note, int8_t velocity);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t type);
 	uint8_t noteOnforPrev (int16_t * addr, uint32_t len, uint8_t note,uint8_t type);
-	AudioEffectEnvelope * envelopeAmpPtr;
 
 	uint8_t currentInstrument_idx;
 
@@ -481,9 +481,9 @@ private:
 	uint8_t						onlyReverbMuteState = 0;
 
 	uint8_t 					envelopePassFlag = 0;
-
 	envelopeGenerator::strEnv   lfoBasedEnvelope[envMax];
 	const envelopeGenerator::strEnv passEnvelope = { 1.0,0,0,0,0,1.0,0,0,0};
+	const envelopeGenerator::strEnv fadeOutEnvelope = { 1.0,0,0,0,0,1.0,300,0,0};
 
 	uint8_t isActiveFlag = 0;
 
@@ -623,34 +623,57 @@ private:
 
 };
 
-
-
-
-extern playerEngine instrumentPlayer[8];
-extern audioEngine engine;
-extern AudioEffectLimiter		limiter[2];
-extern AudioPlaySdWav           playSdWav;
-extern AudioPlaySdWavFloat 		playSdWavFloat;
-extern AudioPlaySdWav24bit 	 	playSdWav24Bit;
+//********************************************************MAIN AUDIO STREAM OBJECTS
+//Audio library stream 8 track
 extern AudioPlayMemory          playMem[8];
-extern AudioEffectEnvelope      envelopeAmp[8];
-extern envelopeGenerator		envelopeFilter[8];
 extern AudioFilterStateVariable filter[8];
 extern AudioAmplifier           amp[8];
-extern AudioAnalyzeRMS			trackRMS[8];
-extern AudioMixer9				mixerL,mixerR,mixerReverb;
-extern AudioOutputI2S           i2s1;
-extern AudioBitDepth			bitDepthControl[2];
-
+//Audio library 8 track level control
+extern AudioAnalyzeRMS			 trackRMS[8];
+//Audio library stream mix
+extern AudioMixer9				 mixerL, mixerR, mixerReverb;
+//Audio library post mix
+extern AudioEffectFreeverb		 reverb;
 extern AudioFilterStateVariable filterReverbOut;
-
+extern AudioBitDepth			 bitDepthControl[2];
+extern AudioEffectLimiter		 limiter[2];
+//external envelopes
+extern envelopeGenerator		 envelopeFilter[8];
+extern envelopeGenerator		 envelopeWtPosition[8];
+extern envelopeGenerator		 envelopeGranPosition[8];
+extern envelopeGenerator		 envelopePanning[8];
+extern envelopeGenerator		 envelopeAmp[8];
+//********************************************************
+//******************************************************** OUT SWITCH (MAIN STREAM + SD PREVIOUS) CONNECTIONS
+//SD previous objects
+extern AudioPlaySdWav           playSdWav;
+extern AudioPlaySdWavFloat		 playSdWavFloat;
+extern AudioPlaySdWav24bit 	 playSdWav24Bit;
+//Test signal generator
+extern AudioSynthWaveform		 testWaveform;
+//Source switch mixers
+extern AudioMixer9              mixerSourceL,mixerSourceR;
+//Device out
+extern AudioOutputI2S           i2sOut;
+//********************************************************
+//******************************************************** RECORD
+//Device In
 extern AudioInputI2S            i2sIn;
-extern AudioRecordQueue         queue;
+//Mix to mono
 extern AudioMixer4              mixerRec;
-extern AudioAnalyzeRMS			rms;
-
-extern AudioRecordQueue		 	exportL, exportR;
-extern AudioAnalyzeRMS			exportRmsL, exportRmsR;
-extern AudioSynthWaveform		testWaveform;
-
+//Rec recive object
+extern AudioRecordQueue         queue;
+//Rec level control
+extern AudioAnalyzeRMS			 recRms;
+//********************************************************
+//******************************************************** EXPORT
+//Export receive object
+extern AudioRecordQueue		 exportL, exportR;
+//Export level control
+extern AudioAnalyzeRMS			 exportRmsL, exportRmsR;
+//******************************************************** MANAGMENT OBJECTS
+extern IntervalTimer updateTimer;
+extern playerEngine instrumentPlayer[8];
+extern audioEngine engine;
+//********************************************************
 #endif /* SOURCE_MTAUDIOENGINE_H_ */

@@ -64,6 +64,9 @@ public:
 	void setPhaseNumbers(int8_t n1, int8_t n2);
 	void setSyncRate(float sync);
 	
+	uint8_t getEndReleaseFlag();
+	void clearEndReleaseFlag();
+
 private:
 	float fMap(float x, float in_min, float in_max, float out_min, float out_max);
 
@@ -72,6 +75,7 @@ private:
 	bool keyPressed = 0;	// triggeruje cały envelope
 	
 	strEnv * envelope;
+	uint8_t isAmp = 1;
 
 	struct strEnvelopeTemp
 	{
@@ -86,6 +90,8 @@ private:
 
 	} envTemp;
 
+	uint8_t endReleaseFlag = 0;
+
 	uint16_t startStep = 0;
 	int8_t phaseNumber[2] = {-1,-1};
 	float syncRate = 1;
@@ -96,13 +102,14 @@ private:
 	// nr fazy
 	enum adsrPhase
 	{
-		phase_nothing,	//0
-		phase_predelay,	//1
-		phase_attack,	//2
-		phase_hold,		//3
-		phase_decay,	//4
-		phase_sustain,	//5
-		phase_release	//6
+		phase_nothing,		 //0
+		phase_predelay,		 //1
+		phase_attack,		 //2
+		phase_hold,			 //3
+		phase_decay,		 //4
+		phase_sustain,		 //5
+		phase_release,		 //6
+		phase_forced_release //7
 	};
 
 	// nr cc parametru

@@ -78,6 +78,7 @@ public:
 		if (n > 1.0f) n = 1.0f;
 		else if (n < 0.0f) n = 0.0f;
 		multiplier = n * 65536.0f;
+
 	}
 private:
 	int32_t multiplier;

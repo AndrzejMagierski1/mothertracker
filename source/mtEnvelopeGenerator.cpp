@@ -22,6 +22,15 @@ void envelopeGenerator::start()
 {
 	// Serial.println("envelope.start()");
 	keyPressed = 1;
+	if(isAmp)
+	{
+		if((envTemp.phase != phase_nothing) && (envTemp.phase != phase_predelay) && (envTemp.phase != phase_forced_release))
+		{
+			envTemp.phase = phase_forced_release;
+			envTemp.maxOutput = envTemp.tempOutput;
+			envTemp.timer = 0;
+		}
+	}
 	calc();
 }
 
@@ -39,11 +48,14 @@ void envelopeGenerator::kill()
 {
 	// gdy jest noteOff i od razu noteOn maszyna stanów nie nadąża przejsc do release -
 	// gdy jest zerowy release bieże 1.0 bo taki jest stan sustaina a powinna 0.0 bo nuta powinna się skonczyc w nieskonczenie krotkim czasie gdy release = 0
-	if((envTemp.phase == phase_sustain) && (envelope->release == 0)) envTemp.killOutput = 0.0f;
-	else  envTemp.killOutput = (envelope->loop) ? 0.0f : envTemp.output;
-	envTemp.phase = phase_nothing;
-	envTemp.timer = 0;
-	keyPressed = 0;
+	if(!isAmp)
+	{
+		if((envTemp.phase == phase_sustain) && (envelope->release == 0)) envTemp.killOutput = 0.0f;
+		else  envTemp.killOutput = (envelope->loop) ? 0.0f : envTemp.output;
+		envTemp.phase = phase_nothing;
+		envTemp.timer = 0;
+		keyPressed = 0;
+	}
 }
 
 void envelopeGenerator::killToZero()
@@ -68,7 +80,7 @@ void envelopeGenerator::calc()
 	float hold 			= (float)envelope->hold * timeMul;
 	float decay 		= (float)envelope->decay * timeMul;
 	float release 		= (float)envelope->release * timeMul;
-
+	float forced_release = 5000; //5ms defaultowego
 	bool _loop 			= envelope->loop;
 
 
@@ -81,6 +93,19 @@ void envelopeGenerator::calc()
 		else
 		{
 			envTemp.timer = 0;
+		}
+	}
+
+	//	FORCED_RELEASE
+	if (envTemp.phase == phase_forced_release)
+	{
+		if (envTemp.timer < forced_release)
+		{
+			envTemp.phase = phase_forced_release;
+		}
+		else
+		{
+			envTemp.phase = phase_predelay;
 		}
 	}
 
@@ -228,6 +253,7 @@ void envelopeGenerator::calc()
 		// etap skończony
 		else
 		{
+			endReleaseFlag = 1;
 			envTemp.timer = 0;
 			envTemp.phase = phase_nothing;
 		}
@@ -247,6 +273,22 @@ void envelopeGenerator::calc()
 
 		envTemp.tempOutput = 0;
 		envTemp.maxOutput = envTemp.tempOutput;
+
+		break;
+
+	case phase_forced_release:
+
+		if((envTemp.maxOutput == 0.0f) && (sustain != 0.0f) && (amount != 0.0f)) envTemp.maxOutput = sustain * amount; //andrzej 2000 - czasem wskakuje od razu w ten stan i jest 0 na envTemp.maxOutput
+
+		if (forced_release > 0)
+		{
+			tempOutput = (1 - (envTemp.timer / forced_release)) * envTemp.maxOutput;
+		}
+		else
+		{
+			tempOutput = 0;
+		}
+		envTemp.tempOutput = constrain(tempOutput, MIN_OUTPUT, MAX_OUTPUT);
 
 		break;
 	case phase_predelay:
@@ -342,7 +384,15 @@ void envelopeGenerator::calc()
 	// }
 	// else
 	// {
-	envTemp.output = _loop ? 2 * constrain(envTemp.tempOutput, MIN_OUTPUT, MAX_OUTPUT) - amount : constrain(envTemp.tempOutput, MIN_OUTPUT, MAX_OUTPUT)  ;
+	if (isAmp)
+	{
+		envTemp.output =  constrain(envTemp.tempOutput, 0.0f, 1.0f);
+	}
+	else
+	{
+		envTemp.output = _loop ? 2 * constrain(envTemp.tempOutput, MIN_OUTPUT, MAX_OUTPUT) - amount : constrain(envTemp.tempOutput, MIN_OUTPUT, MAX_OUTPUT)  ;
+	}
+
 	// }
 
 	// Serial.print("output: ");
@@ -449,6 +499,16 @@ void envelopeGenerator::setPhaseNumbers(int8_t n1, int8_t n2)
 void envelopeGenerator::setSyncRate(float sync)
 {
 	syncRate = sync;
+}
+
+uint8_t envelopeGenerator::getEndReleaseFlag()
+{
+	return endReleaseFlag;
+}
+
+void envelopeGenerator::clearEndReleaseFlag()
+{
+	endReleaseFlag = 0;
 }
 
 

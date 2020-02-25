@@ -32,7 +32,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity)
 
 
 	status = playMemPtr->play(instr_idx,note);
-	envelopeAmpPtr->noteOn();
+	envelopePtr[envAmp]->start();
 
 	for(uint8_t i = 0; i < ENVELOPES_WITHOUT_AMP_MAX; i++)
 	{
@@ -105,7 +105,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 //*******
 	status = playMemPtr->play(instr_idx,note);
 //******* start env
-	envelopeAmpPtr->noteOn();
+	envelopePtr[envAmp]->start();
 
 	if((mtProject.instrument[instr_idx].envelope[envAmp].enable)
 	|| (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp])
@@ -146,8 +146,8 @@ void playerEngine::noteOffFade()
 {
 	__disable_irq();
 	AudioNoInterrupts();
-	envelopeAmpPtr->release(300);
-	envelopeAmpPtr->noteOff();
+	envelopePtr[envAmp]->init((envelopeGenerator::strEnv *)&fadeOutEnvelope);
+	envelopePtr[envAmp]->stop();
 	//lfo ma dzialac do konca fade
 
 	for(uint8_t i = 0; i < ENVELOPES_WITHOUT_AMP_MAX; i++ )
@@ -169,12 +169,10 @@ void playerEngine::noteOffCut()
 	__disable_irq();
 	AudioNoInterrupts();
 	// caly voice i automatyka zabijane
-	envelopeAmpPtr->noteOff();
-	envelopeAmpPtr->setIdle();
-	for(uint8_t i = 0; i < ENVELOPES_WITHOUT_AMP_MAX ; i++)
+	for(uint8_t i = 0; i < ACTIVE_ENVELOPES_MAX ; i++)
 	{
-		envelopePtr[envelopesWithoutAmpIdx[i]]->stop();
-		envelopePtr[envelopesWithoutAmpIdx[i]]->killToZero();
+		envelopePtr[i]->stop();
+		envelopePtr[i]->killToZero();
 	}
 	playMemPtr->stop();
 
@@ -185,7 +183,7 @@ void playerEngine::noteOffOrdinary()
 {
 	__disable_irq();
 	AudioNoInterrupts();
-	envelopeAmpPtr->noteOff();
+	envelopePtr[envAmp]->stop();
 
 	if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
 	 || (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp])
@@ -193,16 +191,16 @@ void playerEngine::noteOffOrdinary()
 	 || (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp]))
 	{
 		//amp loop nie ma release wiec wszystko zabijamy od razu
-		for(uint8_t i = 0; i < ENVELOPES_WITHOUT_AMP_MAX ; i++)
+		for(uint8_t i = envAmp + 1; i < ACTIVE_ENVELOPES_MAX ; i++)
 		{
-			envelopePtr[envelopesWithoutAmpIdx[i]]->stop();
+			envelopePtr[i]->stop();
 		}
 	}
 	else
 	{
 		//env ampa nie zabija od razu loopow - maja grac do konca env
 
-		for(uint8_t i = 0; i < ENVELOPES_WITHOUT_AMP_MAX; i++ )
+		for(uint8_t i = envAmp + 1; i < ENVELOPES_WITHOUT_AMP_MAX; i++ )
 		{
 			if((!mtProject.instrument[currentInstrument_idx].envelope[envelopesWithoutAmpIdx[i]].loop)
 			 && (!trackControlParameter[(int)controlType::sequencerMode][envelopesWithoutAmpControlValue[i]])
@@ -331,27 +329,9 @@ void playerEngine::handleNoteOnFilter()
 
 void playerEngine::handleNoteOnGain()
 {
-	float localAmount = 0.0f;
-
-	if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
-	{
-		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
-		{
-			localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
-		}
-		else
-		{
-			localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
-		}
-	}
-	else
-	{
-		localAmount = 1.0f;
-	}
-
 	if(muteState == MUTE_DISABLE)
 	{
-		ampPtr->gain(localAmount * ampLogValues[mtProject.instrument[currentInstrument_idx].volume]);
+		ampPtr->gain(currentEnvelopeModification[envAmp] * ampLogValues[mtProject.instrument[currentInstrument_idx].volume]);
 	}
 	else
 	{
@@ -403,34 +383,16 @@ void playerEngine::handleInitNoteOnAmpEnvelope()
 		{
 			calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp], mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed );
 
-			envelopeAmpPtr->delay(lfoBasedEnvelope[envAmp].delay);
-			envelopeAmpPtr->attack(lfoBasedEnvelope[envAmp].attack);
-			envelopeAmpPtr->hold(lfoBasedEnvelope[envAmp].hold);
-			envelopeAmpPtr->decay(lfoBasedEnvelope[envAmp].decay);
-			envelopeAmpPtr->sustain(lfoBasedEnvelope[envAmp].sustain);
-			envelopeAmpPtr->release(lfoBasedEnvelope[envAmp].release);
-			envelopeAmpPtr->setLoop(lfoBasedEnvelope[envAmp].loop);
+			envelopePtr[envAmp]->init(&lfoBasedEnvelope[envAmp]);
 		}
 		else
 		{
-			envelopeAmpPtr->delay(mtProject.instrument[currentInstrument_idx].envelope[envAmp].delay);
-			envelopeAmpPtr->attack(mtProject.instrument[currentInstrument_idx].envelope[envAmp].attack);
-			envelopeAmpPtr->hold(mtProject.instrument[currentInstrument_idx].envelope[envAmp].hold);
-			envelopeAmpPtr->decay(mtProject.instrument[currentInstrument_idx].envelope[envAmp].decay);
-			envelopeAmpPtr->sustain(mtProject.instrument[currentInstrument_idx].envelope[envAmp].sustain);
-			envelopeAmpPtr->release(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release);
-			envelopeAmpPtr->setLoop(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop);
+			envelopePtr[envAmp]->init(&mtProject.instrument[currentInstrument_idx].envelope[envAmp]);
 		}
 	}
 	else
 	{
-		envelopeAmpPtr->delay(0);
-		envelopeAmpPtr->attack(0);
-		envelopeAmpPtr->hold(0);
-		envelopeAmpPtr->decay(0);
-		envelopeAmpPtr->sustain(1.0);
-		envelopeAmpPtr->release(0.0f);
-		envelopeAmpPtr->setLoop(0);
+		envelopePtr[envAmp]->init((envelopeGenerator::strEnv *)&passEnvelope);
 	}
 }
 
@@ -586,29 +548,6 @@ void playerEngine::handleFxNoteOnFilter()
 
 void playerEngine::handleFxNoteOnGain()
 {
-	float localAmount = 0.0f;
-
-	if( ((mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable) && (mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)) ||
-		trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
-		trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp] ||
-		trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] )
-	{
-		localAmount = mtProject.instrument[currentInstrument_idx].lfo[envAmp].amount;
-	}
-	else
-	{
-		if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable))
-		{
-			localAmount = mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount;
-		}
-		else
-		{
-			localAmount = 1.0f;
-		}
-
-	}
-
-
 	if(muteState == MUTE_DISABLE)
 	{
 		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::volume])
@@ -618,11 +557,11 @@ void playerEngine::handleFxNoteOnGain()
 		else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::volume] ||
 				trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::volume])
 		{
-			ampPtr->gain( ampLogValues[currentSeqModValues.volume] * localAmount);
+			ampPtr->gain(ampLogValues[currentSeqModValues.volume] * currentEnvelopeModification[envAmp]);
 		}
 		else
 		{
-			ampPtr->gain(localAmount * ampLogValues[mtProject.instrument[currentInstrument_idx].volume]);
+			ampPtr->gain(ampLogValues[mtProject.instrument[currentInstrument_idx].volume] * currentEnvelopeModification[envAmp]);
 		}
 	}
 	else

@@ -1224,13 +1224,7 @@ void playerEngine::initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv 
 {
 	if(n == envAmp)
 	{
-		envelopeAmpPtr->delay(env->delay);
-		envelopeAmpPtr->attack(env->attack);
-		envelopeAmpPtr->hold(env->hold);
-		envelopeAmpPtr->decay(env->decay);
-		envelopeAmpPtr->sustain(env->sustain);
-		envelopeAmpPtr->release(env->release);
-		envelopeAmpPtr->setLoop(env->loop);
+		envelopePtr[envAmp]->init(env);
 
 		uint8_t localVol = getMostSignificantVolume();
 
@@ -1312,15 +1306,15 @@ void playerEngine::setSyncParamsAmpLFO()
 		}
 
 
-		envelopeAmpPtr->setSyncRate(tempoSyncRates[localRate]);
-		envelopeAmpPtr->setSyncStartStep(sequencer.getActualPos());
+		envelopePtr[envAmp]->setSyncRate(tempoSyncRates[localRate]);
+		envelopePtr[envAmp]->setSyncStartStep(sequencer.getActualPos());
 
 		switch(mtProject.instrument[currentInstrument_idx].lfo[envAmp].shape)
 		{
-		case (int)lfoShapeType::lfoShapeSaw: envelopeAmpPtr->setPhaseNumbers(2, -1);	 			break;
-		case (int)lfoShapeType::lfoShapeReverseSaw: envelopeAmpPtr->setPhaseNumbers(4, -1);			break;
-		case (int)lfoShapeType::lfoShapeTriangle: envelopeAmpPtr->setPhaseNumbers(2, 4);			break;
-		case (int)lfoShapeType::lfoShapeSquare: envelopeAmpPtr->setPhaseNumbers(3, 6);				break;
+		case (int)lfoShapeType::lfoShapeSaw: envelopePtr[envAmp]->setPhaseNumbers(2, -1);	 			break;
+		case (int)lfoShapeType::lfoShapeReverseSaw: envelopePtr[envAmp]->setPhaseNumbers(4, -1);		break;
+		case (int)lfoShapeType::lfoShapeTriangle: envelopePtr[envAmp]->setPhaseNumbers(2, 4);			break;
+		case (int)lfoShapeType::lfoShapeSquare: envelopePtr[envAmp]->setPhaseNumbers(3, 6);				break;
 		default:	break;
 		}
 	}
@@ -1660,13 +1654,13 @@ void playerEngine::clearFxAmpRateLFO()
 			else
 			{
 				initEnvelopesParamiters(envAmp,&mtProject.instrument[currentInstrument_idx].envelope[envAmp]);
-				if(envelopeAmpPtr->getState() != 0 ) envelopeAmpPtr->setSustain();
+	//			if(envelopePtr[envAmp]->getPhase() != 0 ) todo: setSustain
 			}
 		}
 		else
 		{
 			initEnvelopesParamiters(envAmp,(envelopeGenerator::strEnv *)&passEnvelope);
-			if(envelopeAmpPtr->getState() != 0 ) envelopeAmpPtr->setSustain();
+			//			if(envelopePtr[envAmp]->getPhase() != 0 ) todo: setSustain
 		}
 	}
 
@@ -1674,7 +1668,7 @@ void playerEngine::clearFxAmpRateLFO()
 
 void playerEngine::syncFxAmpLFO()
 {
-	envelopeAmpPtr->noteOff();
-	envelopeAmpPtr->setIdle();
-	envelopeAmpPtr->noteOn();
+	envelopePtr[envAmp]->stop();
+	envelopePtr[envAmp]->killToZero();
+	envelopePtr[envAmp]->start();
 }

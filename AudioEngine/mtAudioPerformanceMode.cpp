@@ -415,13 +415,8 @@ void playerEngine::changeAmpLfoRatePerformanceMode(int8_t value)
 	else currentPerformanceValues.lfoAmpRate = localAmpRate + value;
 
 	calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp], currentPerformanceValues.lfoAmpRate);
-	envelopeAmpPtr->delay(lfoBasedEnvelope[envAmp].delay);
-	envelopeAmpPtr->attack(lfoBasedEnvelope[envAmp].attack);
-	envelopeAmpPtr->hold(lfoBasedEnvelope[envAmp].hold);
-	envelopeAmpPtr->decay(lfoBasedEnvelope[envAmp].decay);
-	envelopeAmpPtr->sustain(lfoBasedEnvelope[envAmp].sustain);
-	envelopeAmpPtr->release(lfoBasedEnvelope[envAmp].release);
-	envelopeAmpPtr->setLoop(lfoBasedEnvelope[envAmp].loop);
+
+	envelopePtr[envAmp]->init(&lfoBasedEnvelope[envAmp]);
 
 	trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp] = 1;
 
@@ -807,13 +802,7 @@ void playerEngine::endAmpLfoRatePerformanceMode()
 	   trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp])
 	{
 		calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp], currentSeqModValues.lfoAmpRate);
-		envelopeAmpPtr->delay(lfoBasedEnvelope[envAmp].delay);
-		envelopeAmpPtr->attack(lfoBasedEnvelope[envAmp].attack);
-		envelopeAmpPtr->hold(lfoBasedEnvelope[envAmp].hold);
-		envelopeAmpPtr->decay(lfoBasedEnvelope[envAmp].decay);
-		envelopeAmpPtr->sustain(lfoBasedEnvelope[envAmp].sustain);
-		envelopeAmpPtr->release(lfoBasedEnvelope[envAmp].release);
-		envelopeAmpPtr->setLoop(lfoBasedEnvelope[envAmp].loop);
+		envelopePtr[envAmp]->init(&lfoBasedEnvelope[envAmp]);
 	}
 	else
 	{
@@ -831,24 +820,11 @@ void playerEngine::endAmpLfoRatePerformanceMode()
 			if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
 			{
 				calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp],mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed);
-
-				envelopeAmpPtr->delay(lfoBasedEnvelope[envAmp].delay);
-				envelopeAmpPtr->attack(lfoBasedEnvelope[envAmp].attack);
-				envelopeAmpPtr->hold(lfoBasedEnvelope[envAmp].hold);
-				envelopeAmpPtr->decay(lfoBasedEnvelope[envAmp].decay);
-				envelopeAmpPtr->sustain(lfoBasedEnvelope[envAmp].sustain);
-				envelopeAmpPtr->release(lfoBasedEnvelope[envAmp].release);
-				envelopeAmpPtr->setLoop(lfoBasedEnvelope[envAmp].loop);
+				envelopePtr[envAmp]->init(&lfoBasedEnvelope[envAmp]);
 			}
 			else
 			{
-				envelopeAmpPtr->delay(mtProject.instrument[currentInstrument_idx].envelope[envAmp].delay);
-				envelopeAmpPtr->attack(mtProject.instrument[currentInstrument_idx].envelope[envAmp].attack);
-				envelopeAmpPtr->hold(mtProject.instrument[currentInstrument_idx].envelope[envAmp].hold);
-				envelopeAmpPtr->decay(mtProject.instrument[currentInstrument_idx].envelope[envAmp].decay);
-				envelopeAmpPtr->sustain(mtProject.instrument[currentInstrument_idx].envelope[envAmp].sustain);
-				envelopeAmpPtr->release(mtProject.instrument[currentInstrument_idx].envelope[envAmp].release);
-				envelopeAmpPtr->setLoop(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop);
+				envelopePtr[envAmp]->init(&mtProject.instrument[currentInstrument_idx].envelope[envAmp]);
 
 				if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[localVol] * mtProject.instrument[currentInstrument_idx].envelope[envAmp].amount);
 				else ampPtr->gain(AMP_MUTED);
@@ -857,14 +833,7 @@ void playerEngine::endAmpLfoRatePerformanceMode()
 		}
 		else
 		{
-			envelopeAmpPtr->delay(0);
-			envelopeAmpPtr->attack(0);
-			envelopeAmpPtr->hold(0);
-			envelopeAmpPtr->decay(0);
-			envelopeAmpPtr->sustain(1.0);
-			envelopeAmpPtr->release(0.0f);
-			envelopeAmpPtr->setLoop(0);
-
+			envelopePtr[envAmp]->init((envelopeGenerator::strEnv*)&passEnvelope);
 
 			if(muteState == MUTE_DISABLE ) ampPtr->gain( ampLogValues[localVol]); //amount = 1;
 			else ampPtr->gain(AMP_MUTED);
