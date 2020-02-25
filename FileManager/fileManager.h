@@ -11,32 +11,38 @@ const uint8_t FILEMANAGER_DEBUGLOG =  1;
 enum fileManagerStatus
 {
 	fmIdle = 0,
-	fmExploring,
-	fmCopying,
-	fmLoading,
-	fmSaving,
+	fmBrowsingSamples,
+	fmBrowsingProjects,
 
 	fmLoadingProjectfromWorkspace,
 	fmLoadingProjectFromProjects,
 	fmSavingProjectToWorkspace,
 	fmSavingProjectToProjects,
 
-
 	fmLoadEnd,
 	fmSaveEnd,
+	fmBrowseEnd,
 	fmError,
 	fmLoadError,
 	fmSaveError,
 	fmCopyError,
+	fmBrowseError,
+
 };
 
 enum fileManagerOperation
 {
 	fmNoOperation = 0,
 	fmLoadWorkspaceProject,
-	fmSaveWorkspaceProject,
-	fmCopyProjectsToWorkspace,
-	fmCopyWorkspaceToProjects,
+	fmSaveWorkspaceProject,		//2
+	fmCopyProjectsToWorkspace,	//3
+	fmCopyWorkspaceToProjects,	//4
+
+	fmBrowseSamples, 			//5
+	fmBrowseProjects, 			//6
+
+
+
 
 };
 
@@ -63,8 +69,8 @@ public:
 
 	//getery
 	bool projectExist(char* name);
-	uint8_t  getProjectsList(char*** list);
-
+	uint8_t getProjectsList(char*** list);
+	uint8_t getBrowsedFilesList(char*** list);
 
 	//setery
 	void setProjectStructChanged();
@@ -78,12 +84,16 @@ public:
 	bool saveProjectToWorkspace(bool forceSaveAll = false);
 	bool saveProjectToProjects(char* projectNameToSave = nullptr);
 
+	bool browseSdCard(uint8_t index);
+
+
+	// to chyba trzeba zoptymalizowac/wrzucic w petle \/
 	bool createNewProjectInWorkspace();
 
 
+	// to na pozniej \/
 	bool loadWorkspacePattern(uint8_t index);
 	bool saveWorkspacePattern(uint8_t index);
-
 
 	void updatePatternBitmask(uint8_t patternNum);
 	void updatePatternBitmask(uint8_t index, uint8_t* sourcePattern);
@@ -130,6 +140,10 @@ private:
 		uint8_t pattern[PATTERN_INDEX_MAX];
 	} changesFlags;
 
+
+	SdDir sdLocation;
+	SdFile wavfile;
+
 	// metody wewnetrzne ------------------------------------
 	void throwError(uint8_t source);
 	void report(const char* text, uint8_t value = 0);
@@ -137,12 +151,14 @@ private:
 	void calcTotalMemoryToTransfer();
 	void calcActualMemoryTransfered();
 
-	// glowne/workspace ------------------------------------
+	// glowne update / workspace ------------------------------------
 	void updateLoadProjectFromWorkspace();
 	void updateSaveProjectToWorkspace();
-
 	void updateCopyProjectsToWorkspace();
 	void updateCopyWorkspaceToProjects();
+
+	void updateBrowseSamples();
+	void updateBrowseProjects();
 
 	void autoSaveProjectToWorkspace();
 
@@ -229,6 +245,36 @@ private:
 	uint8_t sampleLoadPhase = 0;
 	uint8_t currentSample = 0;
 	uint32_t currentSampleSamplesCount = 0; // ilosc probek!!! (int16)
+
+
+	// browser
+	void browseCurrentLocation();
+	void listOnlyFolderNames();
+	void processDirFileSizes();
+	void listOnlyWavFromActualPath(uint8_t startPoint);
+	void browseFinish();
+	void goUpInActualPath();
+
+	static const uint8_t list_length_max = 100;
+	uint8_t explorerListLength = 0;
+	char *explorerList[list_length_max];
+	char explorerCurrentPath[255] = {'/',0};
+	uint8_t explorerDirLevel = 0;
+
+	static const uint8_t PREVIOUS_POSITION_LIFO = 20;
+	uint8_t explorerPositionTable[PREVIOUS_POSITION_LIFO];
+	uint8_t explorerCurrentPosition;
+
+	uint8_t openCalcStart = 0;
+	uint8_t openCalcEnd = 0;
+	uint8_t openCurrentPos =0;
+
+	uint32_t currentFolderMemoryFileUsage[255];
+
+
+
+
+
 
 //patern undo
 

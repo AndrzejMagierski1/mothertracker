@@ -7,7 +7,7 @@
 #include "mtKeyboardManager.h"
 #include "mtStructs.h"
 
-#define PREVIOUS_POSITION_LIFO	25
+//#define PREVIOUS_POSITION_LIFO	25
 #define MAX_SELECT				48
 
 enum
@@ -96,10 +96,10 @@ public:
 //	void hideAddWT();
 
 //--------------------------------------------------------------
-	SdDir sdLocation;
-	static const uint8_t list_length_max = 100;
-	char actualPath[255] = {'/',0};
-	uint8_t dirLevel = 0;
+	//SdDir sdLocation;
+	//static const uint8_t list_length_max = 100;
+	//char actualPath[255] = {'/',0};
+	//uint8_t dirLevel = 0;
 
 	void BrowseOrAdd();
 	void SelectFile();
@@ -122,9 +122,11 @@ public:
 	void listOnlyWavFromActualPath(uint8_t startPoint);
 	uint8_t isWavFile(char* fileName);
 
-	uint16_t locationExplorerCount;
 	//char locationExplorerList[list_length_max][40];
-	char *explorerNames[list_length_max];
+	//char *explorerNames[list_length_max];
+
+	uint16_t locationExplorerCount;
+	char **explorerNames;
 	uint8_t selectedFile = 0;
 	char copyingInfo[20];
 //--------------------------------------------------------------
@@ -192,8 +194,8 @@ public:
 	void rewindListToBeggining();
 	void moveInstrListToEnd();
 
-	uint8_t explorerPositionTable[PREVIOUS_POSITION_LIFO];
-	uint8_t explorerCurrentPosition;
+	//uint8_t explorerPositionTable[PREVIOUS_POSITION_LIFO];
+	//uint8_t explorerCurrentPosition;
 
 	uint8_t selectionActive[2]={0,0};
 	uint8_t shiftPressed;

@@ -14,7 +14,7 @@
 
 cFileManager newFileManager;
 
-SdDir sdLocation;
+
 
 elapsedMillis autoSaveTimer;
 
@@ -27,7 +27,6 @@ void cFileManager::update()
 	{
 		autoSaveProjectToWorkspace();
 
-
 		return;
 	}
 
@@ -38,6 +37,8 @@ void cFileManager::update()
 	case fmCopyProjectsToWorkspace: 	updateCopyProjectsToWorkspace(); 		break;
 	case fmCopyWorkspaceToProjects: 	updateCopyWorkspaceToProjects(); 		break;
 
+	case fmBrowseSamples: 				updateBrowseSamples(); 					break;
+	case fmBrowseProjects: 				updateBrowseProjects(); 				break;
 
 
 
@@ -149,6 +150,36 @@ void cFileManager::updateCopyWorkspaceToProjects() // fmCopyWorkspaceToProjects 
 }
 
 
+void cFileManager::updateBrowseSamples() //fmBrowseSamples - 5
+{
+	switch(currentOperationStep)
+	{
+		case 0: browseCurrentLocation();  break;
+		case 1: processDirFileSizes(); break;
+
+		default:
+			status = fmBrowseError;
+			currentOperationStep = 0;
+			currentOperation = fmNoOperation;
+			break;
+	}
+}
+
+void cFileManager::updateBrowseProjects() //fmBrowseProjects - 6
+{
+	switch(currentOperationStep)
+	{
+		//case 0: browseCurrentLocation();  break;
+		//case 1: processDirFileSizes(); break;
+
+		default:
+			status = fmBrowseError;
+			currentOperationStep = 0;
+			currentOperation = fmNoOperation;
+			break;
+	}
+}
+
 void cFileManager::autoSaveProjectToWorkspace()
 {
 	if(autoSaveTimer < 10000) return;
@@ -207,7 +238,7 @@ bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
 	}
 	else
 	{
-		if(!isProjectChanged())	return false; // nie zapisuj jesli nic nie jest zmodyfikowane
+		if(!isProjectChanged())	return false; // nie sejwuj jesli nic nie jest zmodyfikowane
 	}
 
 	report("autosave");
@@ -539,7 +570,7 @@ void cFileManager::throwError(uint8_t source)
 #endif
 
 
-	status = fmLoadError;
+	status = fmError;
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
 

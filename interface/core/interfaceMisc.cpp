@@ -39,7 +39,7 @@ uint8_t cInterface::detectProjectLoadState()
 
 	if(startStatus != fmLoadEnd)
 	{
-		if(startStatus == fmLoadError)
+		if(startStatus >= fmError)
 		{
 			newFileManager.clearStatus();
 

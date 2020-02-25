@@ -14,6 +14,7 @@
 
 #include "sdCardDetect.h"
 
+#include "debugLog.h"
 
 
 cSampleImporter sampleImporter;
@@ -72,6 +73,22 @@ static void cancelAnotherSelect();
 
 void cSampleImporter::update()
 {
+
+	uint8_t managerStatus = newFileManager.getStatus();
+
+	if(managerStatus == fmBrowseEnd)
+	{
+		locationExplorerCount = newFileManager.getBrowsedFilesList(&explorerNames);
+		showFilesTree();
+		newFileManager.clearStatus();
+	}
+	else if(managerStatus >=  fmBrowseError)
+	{
+		debugLog.addLine("Browse Error");
+		newFileManager.clearStatus();
+	}
+
+
 	if(fileManager.samplesLoader.getMemoryUsageChangeFlag())
 	{
 		fileManager.samplesLoader.clearMemoryUsageChangeFlag();
@@ -128,7 +145,10 @@ void cSampleImporter::start(uint32_t options)
 		selectedSlot = options - 1;
 	}
 
-	listAllFoldersFirst();
+
+	newFileManager.browseSdCard(0);
+
+	//listAllFoldersFirst();
 
 	listInstrumentSlots();
 	showInstrumentsList();
@@ -978,223 +998,6 @@ uint8_t cSampleImporter::checkIfNameValid(char * name)
 	return isValid;
 }
 //======================================================================================================================
-void cSampleImporter::listOnlyFolderNames(char* path)
-{
-	uint8_t allFoldersNum;
-	sdLocation.close();
-	sdLocation.open(path, O_READ); //"/"
-	//sdLocation.read();
-
-	if(dirLevel == 0)
-	{
-		allFoldersNum = sdLocation.createFilesList(0,explorerNames, list_length_max, 5000, 1);
-	}
-	else
-	{
-		allFoldersNum = sdLocation.createFilesList(1,explorerNames, list_length_max, 5000, 1);
-		explorerNames[0] = new char[4];
-		strcpy(explorerNames[0], "/..");
-	}
-
-	sdLocation.close();
-
-//	uint8_t foundFolderCount = 0;
-//	for(uint8_t i = 0; i < allFilesNum; i++)
-//	{
-//		if(checkIfNameValid(&locationExplorerList[i][0]))
-//		{
-//			if(locationExplorerList[i][0] == '/')	//tylko jesli folder
-//			{
-//				strcpy(&locationExplorerList[foundFolderCount][0],&locationExplorerList[i][0]);
-//				foundFolderCount++;
-//			}
-//		}
-//	}
-
-	bool notSorted = 1;
-	//char strBuff[40];
-	while (notSorted)
-	{
-		notSorted = 0;
-		for (uint8_t a = 0; a < allFoldersNum - 1; a++)
-		{
-
-			if (strcasecmp(explorerNames[a], explorerNames[a + 1]) > 0)
-			{
-				std::swap(explorerNames[a], explorerNames[a+1]);
-
-//				strcpy(strBuff,
-//						explorerNames[a]);
-//
-//				strcpy(explorerNames[a],
-//						explorerNames[a + 1]);
-//
-//				strcpy(explorerNames[a + 1],
-//						strBuff);
-
-				notSorted = 1;
-			}
-		}
-	}
-
-	locationExplorerCount += allFoldersNum;
-
-}
-
-
-/*
-void cSampleImporter::listOnlyWaveNames(char* folder, uint8_t startPoint)
-{
-	char filePath[256] = {0};
-	strcpy(filePath, folder);
-	strcat(filePath,"/");
-	sdLocation.close();
-	sdLocation.open(folder, O_READ); //"/"
-	locationFileCount = sdLocation.createFilesList(0,locationFileList, list_length_max);
-	sdLocation.close();
-
-	uint8_t foundFolderCount = 0;
-
-	for(uint8_t i = 0; i < locationFileCount; i++)
-	{
-		if(locationFileList[i][0] == '/')	//tylko jesli folder
-		{
-			strcpy(filePath, folder);
-			strcat(filePath,&locationFileList[i][0]); //doklej nazwe folderu
-
-			strcpy(&locationFileList[foundFolderCount][0],&locationFileList[i][0]);
-
-			foundFolderCount++;
-		}
-	}
-
-
-	locationFileCount = foundFolderCount;
-
-	for(uint8_t i = startPoint; i < (startPoint+locationFileCount); i++)
-	{
-		fileNames[i] = &locationFileList[i][0];
-	}
-
-}*/
-
-void cSampleImporter::processDirFileSizes()
-{
-	if((openingInProgress == 1))
-	{
-		char filePath[255];
-
-		if(folderIsChanged == 1)
-		{
-			strcpy(filePath, actualPath);
-			if(dirLevel > 0)
-			{
-				strcat(filePath, "/");
-			}
-
-			strcat(filePath, explorerNames[openCurrentPos]);
-			//		fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath,&currentFolderMemoryFileUsage[openCurrentPos],&currentFolderIsWavetableFlag[openCurrentPos]);
-
-			currentFolderMemoryFileUsage[openCurrentPos] = 2 * fileManager.samplesLoader.waveLoader.getInfoAboutWave(filePath);
-		}
-
-		openCurrentPos++;
-
-		uint8_t progress = (((openCurrentPos - openCalcStart) * 100) / (openCalcEnd-openCalcStart));
-
-		showOpeningHorizontalBar(progress);
-
-		if(openCurrentPos == openCalcEnd)
-		{
-			sdLocation.close();
-
-			for(uint8_t i = openCalcStart; i < openCalcEnd; i++)
-			{
-				explorerNames[i] = explorerNames[i];
-			}
-
-			openingInProgress = 0;
-			folderIsChanged = 0;
-			isBusy = 0;
-
-			hideHorizontalBar();
-			showFilesTree();
-		}
-	}
-}
-
-void cSampleImporter::listOnlyWavFromActualPath(uint8_t startPoint)
-{
-	sdLocation.close();
-	sdLocation.open(actualPath, O_READ);
-
-	uint8_t filesFound = sdLocation.createFilesList(0, explorerNames+startPoint, (list_length_max-startPoint), 4000, 2);
-	sdLocation.close();
-	uint8_t afterFolderNum = locationExplorerCount;
-
-	uint8_t validFiles = 0;
-
-//	for(uint8_t i = startPoint; i < (startPoint + filesFound); i++)
-//	{
-//		if(checkIfNameValid(explorerNames[i]))
-//		{
-//			if(afterFolderNum != i) // strcpy takes restricted pointer, passing same pointer = undefined behavior
-//			{
-//				std::swap(explorerNames[afterFolderNum], explorerNames[i]);
-//				//char* tempPtr = explorerNames[afterFolderNum];
-//				//explorerNames[afterFolderNum] = explorerNames[i];
-//				//explorerNames[i] = tempPtr;
-//			}
-//
-//			afterFolderNum++;
-//			validFiles++;
-//		}
-//	}
-	validFiles = filesFound;
-
-	bool notSorted = 1;
-	char strBuff[40];
-	while (notSorted)
-	{
-		notSorted = 0;
-		for (uint8_t a = startPoint; a < startPoint + filesFound - 1; a++)
-		{
-			if (strcasecmp(explorerNames[a], explorerNames[a + 1]) > 0)
-			{
-
-				std::swap(explorerNames[a],explorerNames[a+1]);
-
-//				strcpy(strBuff,
-//						explorerNames[a]);
-//
-//				strcpy(explorerNames[a],
-//						explorerNames[a + 1]);
-//
-//				strcpy(explorerNames[a + 1],
-//						strBuff);
-
-
-				notSorted = 1;
-			}
-		}
-	}
-
-	locationExplorerCount += validFiles;
-
-	if(locationExplorerCount <= startPoint)
-	{
-		isBusy = 0;
-		openingInProgress = 0;
-		showFilesTree();
-	}
-	else
-	{
-		openCalcStart = startPoint;
-		openCalcEnd = locationExplorerCount;
-
-		openCurrentPos = openCalcStart;
-	}
-}
 
 uint8_t cSampleImporter::isWavFile(char* fileName)
 {
@@ -1211,40 +1014,7 @@ uint8_t cSampleImporter::isWavFile(char* fileName)
 
 
 
-void cSampleImporter::goUpInActualPath()
-{
-	uint8_t length = strlen(actualPath);
 
-	actualPath[length] = 0;
-
-	char* ptr = strrchr(actualPath, '/');
-
-	if(ptr == nullptr)
-	{
-		strcpy(actualPath, "/");
-		return;
-	}
-
-	actualPath[(ptr-actualPath)] = 0;
-}
-
-void cSampleImporter::listAllFoldersFirst()
-{
-	if(folderIsChanged)
-	{
-		isBusy = 1; // processDirFileSizes() powinna zdjac flage tutaj ustawiona
-		locationExplorerCount=0;
-
-		openingInProgress = 1;
-
-		//todo: flaga folderIsChanged powinna byc ustawiana gdy karta zostanie wyjeta i wlozona ponownie
-		// - niezaleznie od modulu gdyz ktos moglby zmienic cos na karcie - to samo w przypadku mtp
-		listOnlyFolderNames(actualPath);
-		listOnlyWavFromActualPath(locationExplorerCount);
-	}
-
-	showFilesTree();
-}
 
 void cSampleImporter::BrowseOrAdd()
 {
@@ -1253,64 +1023,7 @@ void cSampleImporter::BrowseOrAdd()
 		if(selectedPlace == 0)
 		{
 			cancelSelect(listFiles);
-
-			if(dirLevel == 0)
-			{
-				dirLevel = 1;
-
-				strcpy(actualPath, explorerNames[selectedFile]);
-
-
-				explorerPositionTable[explorerCurrentPosition]=selectedFile;
-				explorerCurrentPosition++;
-
-				selectedFile=0;
-
-				folderIsChanged = 1;
-				listAllFoldersFirst();
-
-			}
-			else
-			{
-				if(selectedFile > 0)
-				{
-					if(explorerCurrentPosition<PREVIOUS_POSITION_LIFO)
-					{
-						dirLevel++;
-
-						explorerPositionTable[explorerCurrentPosition]=selectedFile;
-						explorerCurrentPosition++;
-
-
-						strcat(actualPath, explorerNames[selectedFile]);
-
-						selectedFile=0;
-
-						folderIsChanged = 1;
-						listAllFoldersFirst();
-					}
-
-				}
-				else
-				{
-					dirLevel--;
-
-					if(dirLevel > 0)
-					{
-						goUpInActualPath();
-					}
-					else
-					{
-						strcpy(actualPath, "/");
-					}
-
-					explorerCurrentPosition--;
-					selectedFile=explorerPositionTable[explorerCurrentPosition];
-
-					folderIsChanged = 1;
-					listAllFoldersFirst();
-				}
-			}
+			newFileManager.browseSdCard(selectedFile);
 		}
 	}
 	else
@@ -1535,7 +1248,7 @@ void cSampleImporter::playSdFile()
 	char file_path[255];
 
 	strcpy(file_path, actualPath);
-	if(dirLevel > 0)strcat(file_path, "/");
+	if(dirLevel > 0) strcat(file_path, "/");
 	strcat(file_path, explorerNames[selectedFile]);
 
 
@@ -1769,16 +1482,9 @@ int16_t cSampleImporter::getSelectionStart(uint8_t whichSelect)
 	return selStart;
 }
 
-char *cSampleImporter::parseNewName(uint8_t num)
+char* cSampleImporter::parseNewName(uint8_t num)
 {
-	if(num<10)
-	{
-		sprintf(instrToCreate,"instr0%d.wav",num);
-	}
-	else
-	{
-		sprintf(instrToCreate,"instr%d.wav",num);
-	}
+	sprintf(instrToCreate,"instr%02d.wav",num);
 
 	return instrToCreate;
 }

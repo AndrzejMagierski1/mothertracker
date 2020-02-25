@@ -11,7 +11,7 @@ extern int16_t sdram_effectsBank[4*1024*1024];
 extern int16_t sdram_sampleBank[4*1024*1024];
 
 
-static SdFile wavfile;
+
 static char sampleToLoad[PATCH_SIZE];
 static int16_t* ptrSampleMemory;
 
