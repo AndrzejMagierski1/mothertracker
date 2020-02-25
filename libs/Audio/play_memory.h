@@ -220,7 +220,7 @@ public:
 	//************Wavetable
 	void setWavetableWindowFlag();
 	void clearWavetableWindowFlag();
-	void setForcedWavetableWindow(int16_t val);
+	void setForcedWavetableWindow(uint32_t val);
 	//*********
 	//************Pointy Loopów
 	void setPointsForceFlag();
@@ -237,6 +237,8 @@ public:
 	void setSliceForcedFlag();
 	void clearSliceForcedFlag();
 	//************************************************
+
+	void setCurrentInstrIdx(uint8_t n);
 private:
 
 	void refreshGranularPosition();

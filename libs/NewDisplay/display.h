@@ -8,7 +8,6 @@
 #include <stdint.h>
 
 
-#include "SD.h"
 
 #include "displayControls.h"
 
@@ -41,6 +40,7 @@
 
 
 #include "displayStructs.h"
+
 
 
 
@@ -133,6 +133,8 @@ public:
 	uint8_t getImgLoadState() { return img.status; }
 
 
+	void doScreenShot();
+
 	/// grupowe
 	void hideAllControls();
 
@@ -180,7 +182,6 @@ private:
 	//png/jpg
 	uint8_t loadImage = 0;
 
-	SdFile imgFile;
 
 	struct imgLoader
 	{

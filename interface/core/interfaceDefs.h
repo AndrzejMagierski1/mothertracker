@@ -334,13 +334,7 @@ struct strInterfaceGlobals
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_D,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_SEND_CC_E,
 			Sequencer::strFxConsts::enFxType::FX_TYPE_PROGRAM_CHANGE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
-			Sequencer::strFxConsts::enFxType::FX_TYPE_NONE,
+
 	};
 
 	const char rndFxName[FX_NAME_SIZE+4] = "Random Fx";
@@ -378,15 +372,7 @@ struct strInterfaceGlobals
 					"c - MIDI CC C",
 					"d - MIDI CC D",
 					"e - MIDI CC E",
-					"f - MIDI Program Change",
-					" ",
-					" ",
-					" ",
-					" ",
-					" ",
-					" ",
-					" ",
-
+					"f - MIDI Program Change"
 			};
 
 	const char *ptrAllFxNames[FX_COUNT+1] =
@@ -423,23 +409,23 @@ struct strInterfaceGlobals
 			&fxNames[28][0],
 			&fxNames[29][0],
 			&fxNames[30][0],
-			&fxNames[31][0],
-			&fxNames[32][0],
-			&fxNames[33][0],
-			&fxNames[34][0],
-			&fxNames[35][0],
-			&fxNames[36][0],
-			&fxNames[37][0],
-			&fxNames[38][0],
-			&fxNames[39][0],
-			&fxNames[40][0],
-			&fxNames[41][0],
-			&fxNames[42][0],
-			&fxNames[43][0],
-			&fxNames[44][0],
-			&fxNames[45][0],
-			&fxNames[46][0],
-			&fxNames[47][0]
+//			&fxNames[31][0],
+//			&fxNames[32][0],
+//			&fxNames[33][0],
+//			&fxNames[34][0],
+//			&fxNames[35][0],
+//			&fxNames[36][0],
+//			&fxNames[37][0],
+//			&fxNames[38][0],
+//			&fxNames[39][0],
+//			&fxNames[40][0],
+//			&fxNames[41][0],
+//			&fxNames[42][0],
+//			&fxNames[43][0],
+//			&fxNames[44][0],
+//			&fxNames[45][0],
+//			&fxNames[46][0],
+//			&fxNames[47][0]
 	};
 
 	const char **ptrFxNames = &ptrAllFxNames[1];

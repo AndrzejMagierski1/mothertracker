@@ -87,16 +87,13 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 //******** seqFx
 	if(velocity >= 0)
 	{
-		bool isVeloFx1 = (fx1_id == fx_t::FX_TYPE_RANDOM_VELOCITY) || (fx1_id == fx_t::FX_TYPE_VELOCITY) || (fx1_id == fx_t::FX_TYPE_ROLL);
-		bool isVeloFx2 = (fx2_id == fx_t::FX_TYPE_RANDOM_VELOCITY) || (fx2_id == fx_t::FX_TYPE_VELOCITY) || (fx2_id == fx_t::FX_TYPE_ROLL);
-
-		if (isVeloFx1)
+		if (isFxVelocity(fx1_id))
 		{
 			fx1_id = fx_t::FX_TYPE_VELOCITY;
 			fx1_val = velocity;
 		}
 
-		if (isVeloFx2)
+		if (isFxVelocity(fx2_id))
 		{
 			fx2_id = fx_t::FX_TYPE_VELOCITY;
 			fx2_val = velocity;
@@ -117,6 +114,7 @@ uint8_t playerEngine :: noteOn (uint8_t instr_idx,int8_t note, int8_t velocity, 
 		|| (trackControlParameter[(int)controlType::performanceMode][envelopesWithoutAmpControlValue[i]]))
 		{
 			envelopePtr[envelopesWithoutAmpIdx[i]]->start();
+			setSyncParamsLFO(i);
 		}
 	}
 //*******
@@ -394,7 +392,7 @@ void playerEngine::handleInitNoteOnAmpEnvelope()
 	{
 		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
 		{
-			calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp]);
+			calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp], mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed );
 
 			envelopeAmpPtr->delay(lfoBasedEnvelope[envAmp].delay);
 			envelopeAmpPtr->attack(lfoBasedEnvelope[envAmp].attack);
@@ -434,7 +432,7 @@ void playerEngine::handleInitNoteOnEnvelope(uint8_t n)
 	{
 		if(mtProject.instrument[currentInstrument_idx].envelope[envelopesWithoutAmpIdx[n]].loop)
 		{
-			calcLfoBasedEnvelope(&lfoBasedEnvelope[envelopesWithoutAmpIdx[n]], &mtProject.instrument[currentInstrument_idx].lfo[envelopesWithoutAmpIdx[n]]);
+			calcLfoBasedEnvelope(&lfoBasedEnvelope[envelopesWithoutAmpIdx[n]], &mtProject.instrument[currentInstrument_idx].lfo[envelopesWithoutAmpIdx[n]],mtProject.instrument[currentInstrument_idx].lfo[envelopesWithoutAmpIdx[n]].speed);
 			envelopePtr[envelopesWithoutAmpIdx[n]]->init(&lfoBasedEnvelope[envelopesWithoutAmpIdx[n]]);
 		}
 		else

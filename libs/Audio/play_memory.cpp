@@ -842,7 +842,7 @@ uint8_t AudioPlayMemory::play(uint8_t instr_idx,int8_t note)
 	loopPoint2Granular = endGranular - 1;
 
 	granularLoopType = mtProject.instrument[instr_idx].granular.type;
-	currentGranularPosition = mtProject.instrument[instr_idx].granular.currentPosition;
+	currentGranularPosition = granularForcedFlag ? forcedGranularPosition : mtProject.instrument[instr_idx].granular.currentPosition;
 	switch(mtProject.instrument[instr_idx].granular.shape)
 	{
 		case granularShapeSquare: 		granularEnvelopeTab = squareTab; 	break;
@@ -1847,10 +1847,9 @@ void AudioPlayMemory::clearWavetableWindowFlag()
 {
 	wavetableWindowForceFlag = 0;
 }
-void AudioPlayMemory::setForcedWavetableWindow(int16_t val)
+void AudioPlayMemory::setForcedWavetableWindow(uint32_t val)
 {
-	if((uint32_t)val >= mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber) forcedWavetableWindow = mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber -1;
-	else if(val < 0) forcedWavetableWindow = 0;
+	if(val >= mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber) forcedWavetableWindow = mtProject.instrument[currentInstr_idx].sample.wavetableWindowNumber -1;
 	else forcedWavetableWindow=val;
 }
 
@@ -1865,6 +1864,7 @@ void AudioPlayMemory::clearGranularPosForceFlag()
 void AudioPlayMemory::setForcedGranularPos(uint16_t value)
 {
 	forcedGranularPosition = value;
+
 }
 
 
@@ -1897,7 +1897,10 @@ void AudioPlayMemory::clearSliceForcedFlag()
 {
 	sliceForcedFlag = 0;
 }
-
+void AudioPlayMemory::setCurrentInstrIdx(uint8_t n)
+{
+	currentInstr_idx = n;
+}
 void AudioPlayMemory::clean(void)
 {
 	if(!playing)

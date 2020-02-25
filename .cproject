@@ -52,15 +52,12 @@
 									<listOptionValue builtIn="false" value="../libs/EEPROM"/>
 									<listOptionValue builtIn="false" value="../libs/FT812"/>
 									<listOptionValue builtIn="false" value="../libs/fonts"/>
-									<listOptionValue builtIn="false" value="../libs/AnalogInputs"/>
 									<listOptionValue builtIn="false" value="../libs/Encoder"/>
 									<listOptionValue builtIn="false" value="../libs/Key"/>
-									<listOptionValue builtIn="false" value="../libs/Display"/>
 									<listOptionValue builtIn="false" value="../libs/NewDisplay"/>
 									<listOptionValue builtIn="false" value="../libs/BlinkLed"/>
 									<listOptionValue builtIn="false" value="../libs/FastCRC"/>
 									<listOptionValue builtIn="false" value="../interface"/>
-									<listOptionValue builtIn="false" value="../libs/ramMonitor"/>
 									<listOptionValue builtIn="false" value="../interface/gui"/>
 									<listOptionValue builtIn="false" value="../interface/funct"/>
 									<listOptionValue builtIn="false" value="../libs/Snooze"/>
@@ -119,9 +116,7 @@
 									<listOptionValue builtIn="false" value="../libs/EEPROM"/>
 									<listOptionValue builtIn="false" value="../libs/FT812"/>
 									<listOptionValue builtIn="false" value="../libs/fonts"/>
-									<listOptionValue builtIn="false" value="../libs/AnalogInputs"/>
 									<listOptionValue builtIn="false" value="../libs/Key"/>
-									<listOptionValue builtIn="false" value="../libs/Display"/>
 									<listOptionValue builtIn="false" value="../libs/BlinkLed"/>
 									<listOptionValue builtIn="false" value="../libs/FastCRC"/>
 									<listOptionValue builtIn="false" value="../interface"/>
@@ -163,9 +158,7 @@
 									<listOptionValue builtIn="false" value="../libs/SDRAM"/>
 									<listOptionValue builtIn="false" value="../libs/FT812"/>
 									<listOptionValue builtIn="false" value="../libs/fonts"/>
-									<listOptionValue builtIn="false" value="../libs/AnalogInputs"/>
 									<listOptionValue builtIn="false" value="../libs/Key"/>
-									<listOptionValue builtIn="false" value="../libs/Display"/>
 									<listOptionValue builtIn="false" value="../libs/BlinkLed"/>
 									<listOptionValue builtIn="false" value="../libs/FastCRC"/>
 									<listOptionValue builtIn="false" value="../interface"/>
@@ -522,6 +515,6 @@
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="com.nxp.mcuxpresso.core.datamodels">
 		<sdkName>SDK_2.x_MK66FX1M0xxx18</sdkName>
-		<sdkVersion>2.7.0</sdkVersion>
+		<sdkVersion>2.5.0</sdkVersion>
 	</storageModule>
 </cproject>

@@ -1,5 +1,6 @@
 #include "mtAudioEngine.h"
 #include "sampleRecorder/sampleRecorder.h"
+#include "mtStructs.h"
 
 extern AudioControlSGTL5000 audioShield;
 static cSampleRecorder* SR = &sampleRecorder;
@@ -591,6 +592,10 @@ void playerEngine:: update()
 		{
 			if((envelopePtr[envFilter]->isKeyPressed() == 1) || (envelopePtr[envFilter]->getPhase() != 0))
 			{
+				if(sequencer.getSeqState())
+				{
+					envelopePtr[envFilter]->syncTrackerSeq(getSystick24step(), sequencer.getActualTempo());
+				}
 				currentEnvelopeModification[envFilter] =  envelopePtr[envFilter]->getOut();
 				statusBytes |= CUTOFF_MASK;
 			}
@@ -606,6 +611,10 @@ void playerEngine:: update()
 		{
 				if((envelopePtr[envWtPos]->isKeyPressed() == 1) || (envelopePtr[envWtPos]->getPhase() != 0))
 				{
+					if(sequencer.getSeqState())
+					{
+						envelopePtr[envWtPos]->syncTrackerSeq(getSystick24step(), sequencer.getActualTempo());
+					}
 					currentEnvelopeModification[envWtPos] = envelopePtr[envWtPos]->getOut();
 					statusBytes |= WT_POS_SEND_MASK;
 				}
@@ -621,6 +630,10 @@ void playerEngine:: update()
 		{
 			if((envelopePtr[envGranPos]->isKeyPressed() == 1) || (envelopePtr[envGranPos]->getPhase() != 0))
 			{
+				if(sequencer.getSeqState())
+				{
+					envelopePtr[envGranPos]->syncTrackerSeq(getSystick24step(), sequencer.getActualTempo());
+				}
 				currentEnvelopeModification[envGranPos] = envelopePtr[envGranPos]->getOut();
 				statusBytes |= GRANULAR_POS_SEND_MASK;
 			}
@@ -633,6 +646,10 @@ void playerEngine:: update()
 	{
 		if((envelopePtr[envPan]->isKeyPressed() == 1) || (envelopePtr[envPan]->getPhase() != 0))
 		{
+			if(sequencer.getSeqState())
+			{
+				envelopePtr[envPan]->syncTrackerSeq(getSystick24step(), sequencer.getActualTempo());
+			}
 			currentEnvelopeModification[envPan] = envelopePtr[envPan]->getOut();
 			statusBytes |= PANNING_MASK;
 		}
@@ -797,8 +814,8 @@ void playerEngine:: update()
 				localCutoff = mtProject.instrument[currentInstrument_idx].cutOff;
 			}
 
-			if(mtProject.instrument[currentInstrument_idx].cutOff + currentEnvelopeModification[envFilter] < 0.0f) localCutoff = 0.0f;
-			else if(mtProject.instrument[currentInstrument_idx].cutOff + currentEnvelopeModification[envFilter] > 1.0f) localCutoff = 1.0f;
+			if(localCutoff + currentEnvelopeModification[envFilter] < 0.0f) localCutoff = 0.0f;
+			else if(localCutoff + currentEnvelopeModification[envFilter] > 1.0f) localCutoff = 1.0f;
 			else localCutoff += currentEnvelopeModification[envFilter];
 
 			modCutoff(localCutoff);
@@ -811,9 +828,26 @@ void playerEngine:: update()
 		if(statusBytes & REVERB_SEND_MASK)
 		{
 			statusBytes &= (~REVERB_SEND_MASK);
+
+			uint8_t localReverbSend = 0;
+
+			if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::reverbSend])
+			{
+				localReverbSend = currentPerformanceValues.reverbSend;
+			}
+			else if(trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::reverbSend] ||
+					trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::reverbSend])
+			{
+				localReverbSend = currentSeqModValues.reverbSend;
+			}
+			else
+			{
+				localReverbSend = mtProject.instrument[currentInstrument_idx].reverbSend;
+			}
+
 			if(((muteState == 0) && (onlyReverbMuteState == 0)) || (engine.forceSend == 1))
 			{
-				modReverbSend(mtProject.instrument[currentInstrument_idx].reverbSend);
+				modReverbSend(localReverbSend);
 			}
 		}
 		if(statusBytes & WT_POS_SEND_MASK)
@@ -916,7 +950,7 @@ void playerEngine:: update()
 			{
 				if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
 				{
-					calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp]);
+					calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[currentInstrument_idx].lfo[envAmp],mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed );
 
 					envelopeAmpPtr->delay(lfoBasedEnvelope[envAmp].delay);
 					envelopeAmpPtr->attack(lfoBasedEnvelope[envAmp].attack);
@@ -963,8 +997,9 @@ void playerEngine:: update()
 				{
 					if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop)
 					{
-						calcLfoBasedEnvelope(&lfoBasedEnvelope[envFilter], &mtProject.instrument[currentInstrument_idx].lfo[envFilter]);
+						calcLfoBasedEnvelope(&lfoBasedEnvelope[envFilter], &mtProject.instrument[currentInstrument_idx].lfo[envFilter],mtProject.instrument[currentInstrument_idx].lfo[envFilter].speed);
 						envelopePtr[envFilter]->init(&lfoBasedEnvelope[envFilter]);
+						setSyncParamsLFO((uint8_t)envWithoutAmp::filter);
 					}
 				}
 			}
@@ -984,8 +1019,9 @@ void playerEngine:: update()
 				{
 					if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
 					{
-						calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[currentInstrument_idx].lfo[envWtPos]);
+						calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[currentInstrument_idx].lfo[envWtPos],mtProject.instrument[currentInstrument_idx].lfo[envWtPos].speed);
 						envelopePtr[envWtPos]->init(&lfoBasedEnvelope[envWtPos]);
+						setSyncParamsLFO((uint8_t)envWithoutAmp::wtPos);
 					}
 				}
 			}
@@ -1003,13 +1039,13 @@ void playerEngine:: update()
 				{
 					if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
 					{
-						calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[currentInstrument_idx].lfo[envGranPos]);
+						calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[currentInstrument_idx].lfo[envGranPos],mtProject.instrument[currentInstrument_idx].lfo[envGranPos].speed);
 						envelopePtr[envGranPos]->init(&lfoBasedEnvelope[envGranPos]);
+						setSyncParamsLFO((uint8_t)envWithoutAmp::granPos);
 					}
 				}
 
 			}
-
 		}
 
 		if(statusBytes & LFO_PANNING_SEND_MASK)
@@ -1023,8 +1059,9 @@ void playerEngine:: update()
 			{
 				if(mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
 				{
-					calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[currentInstrument_idx].lfo[envPan]);
+					calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[currentInstrument_idx].lfo[envPan],mtProject.instrument[currentInstrument_idx].lfo[envPan].speed);
 					envelopePtr[envPan]->init(&lfoBasedEnvelope[envPan]);
+					setSyncParamsLFO((uint8_t)envWithoutAmp::granPos);
 				}
 			}
 
@@ -1087,7 +1124,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	{
 		if(mtProject.instrument[instr_idx].envelope[envAmp].loop)
 		{
-			calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[instr_idx].lfo[envAmp]);
+			calcLfoBasedEnvelope(&lfoBasedEnvelope[envAmp], &mtProject.instrument[instr_idx].lfo[envAmp],mtProject.instrument[instr_idx].lfo[envAmp].speed);
 
 			envelopeAmpPtr->delay(lfoBasedEnvelope[envAmp].delay);
 			envelopeAmpPtr->attack(lfoBasedEnvelope[envAmp].attack);
@@ -1129,7 +1166,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop)
 			{
-				calcLfoBasedEnvelope(&lfoBasedEnvelope[envFilter], &mtProject.instrument[instr_idx].lfo[envFilter]);
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[envFilter], &mtProject.instrument[instr_idx].lfo[envFilter], mtProject.instrument[instr_idx].lfo[envFilter].speed);
 				envelopePtr[envFilter]->init(&lfoBasedEnvelope[envFilter]);
 			}
 			else
@@ -1156,7 +1193,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
 			{
-				calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[instr_idx].lfo[envWtPos]);
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[instr_idx].lfo[envWtPos],mtProject.instrument[instr_idx].lfo[envWtPos].speed);
 				envelopePtr[envWtPos]->init(&lfoBasedEnvelope[envWtPos]);
 			}
 			else
@@ -1173,7 +1210,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 		{
 			if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
 			{
-				calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[instr_idx].lfo[envGranPos]);
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[instr_idx].lfo[envGranPos], mtProject.instrument[instr_idx].lfo[envGranPos].speed);
 				envelopePtr[envGranPos]->init(&lfoBasedEnvelope[envGranPos]);
 			}
 			else
@@ -1189,7 +1226,7 @@ uint8_t playerEngine :: noteOnforPrev (uint8_t instr_idx,int8_t note,int8_t velo
 	{
 		if(mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
 		{
-			calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[instr_idx].lfo[envPan]);
+			calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[instr_idx].lfo[envPan], mtProject.instrument[instr_idx].lfo[envPan].speed);
 			envelopePtr[envPan]->init(&lfoBasedEnvelope[envPan]);
 		}
 		else
@@ -1512,65 +1549,9 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 
 	if(rate > 19) rate = 19;
 
-	float lfoFrequency = sequencer.getActualTempo()/240.0/tempoSyncRates[rate];
+	float lfoFrequency = (240.0/sequencer.getActualTempo());
 
-	float periodTime = 1000 / lfoFrequency;
-
-
-	switch(lfo->shape)
-	{
-	case lfoShapeReverseSaw:
-
-		env->attack = 0;
-		env->decay = periodTime;
-		env->delay = 0;
-		env->sustain = 0.0f;
-		env->hold = 0;
-		env->release = 0;
-
-		break;
-
-	case lfoShapeSaw:
-
-		env->attack = periodTime;
-		env->decay = 0;
-		env->delay = 0;
-		env->sustain = 0.0f;
-		env->hold = 0;
-		env->release = 0;
-
-		break;
-
-	case lfoShapeTriangle:
-
-		env->attack = periodTime/2;
-		env->decay = periodTime/2;;
-		env->delay = 0;
-		env->sustain = 0.0f;
-		env->hold = 0;
-		env->release = 0;
-
-		break;
-	case lfoShapeSquare:
-		env->attack = 0;
-		env->decay = 0 ;
-		env->delay = 0;
-		env->sustain = 0.0f;
-		env->hold = periodTime/2;
-		env->release = periodTime/2;
-		break;
-	}
-}
-
-void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo)
-{
-	env->loop = 1;
-	env->enable = 1;
-	env->amount = lfo->amount;
-
-	float lfoFrequency = sequencer.getActualTempo()/240.0/tempoSyncRates[lfo->speed];
-
-	float periodTime = 1000 / lfoFrequency;
+	float periodTime = (1000 / lfoFrequency) * tempoSyncRates[rate];
 
 
 	switch(lfo->shape)
@@ -1596,6 +1577,7 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 		env->release = 0;
 
 		break;
+
 	case lfoShapeTriangle:
 
 		env->attack = periodTime/2;

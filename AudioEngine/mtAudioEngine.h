@@ -150,7 +150,8 @@ constexpr uint8_t ENVELOPES_WITHOUT_AMP_MAX = 4;
 constexpr uint8_t MUTE_DISABLE = 0;
 constexpr uint8_t MUTE_ENABLE = 1;
 constexpr float AMP_MUTED = 0.0f;
-
+constexpr uint8_t MOST_SIGNIFICANT_FX = 0;
+constexpr uint8_t LEAST_SIGNIFICANT_FX = 1;
 extern IntervalTimer updateTimer;
 
 class audioEngine
@@ -307,9 +308,6 @@ public:
 		length
 	};
 
-	const uint8_t MOST_SIGNIFICANT_FX = 0;
-	const uint8_t LEAST_SIGNIFICANT_FX = 1;
-
 	struct strCurrentSeqModValues
 	{
 	    uint16_t startPoint;
@@ -455,10 +453,10 @@ public:
 	void endPositionLfoRatePerformanceMode();
 	void endPanningLfoRatePerformanceMode();
 
-
+//******testowe
 	void printLog(SdFile * log);
 	void setPassEnvelope(uint8_t state);
-
+//*****************
 	float getRMSValue();
 private:
 
@@ -485,8 +483,18 @@ private:
 	uint8_t 					envelopePassFlag = 0;
 
 	envelopeGenerator::strEnv   lfoBasedEnvelope[envMax];
+	const envelopeGenerator::strEnv passEnvelope = { 1.0,0,0,0,0,1.0,0,0,0};
 
 	uint8_t isActiveFlag = 0;
+
+
+//**********************FUNKCJE POMOCNICZE
+	uint8_t isFxVelocity(uint8_t fx_id);
+	float getMostSignificantAmount();
+	uint8_t getMostSignificantVolume();
+	void initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv * env);
+	uint16_t getSystick24step();
+	void setSyncParamsLFO(uint8_t type);
 
 //**********************NOTE ON/OFF HANDLERS
 //*****note on fx
@@ -550,6 +558,7 @@ private:
 	void endFxPositionGranular(uint8_t fx_n);
 	void endFxPositionWavetable(uint8_t fx_n);
 //******
+	void endFxRandomVolume(uint8_t fx_n);
 	void endFxVolume(uint8_t fx_n);
 	void endFxSlice(uint8_t fx_n);
 	void endFxVolumeLFO(uint8_t fx_n);
@@ -560,7 +569,46 @@ private:
 	void endFxPositionWavetableLFO(uint8_t fx_n);
 //******
 	void endFxPanningLFO(uint8_t fx_n);
-//*************************************************
+//******FUNKCJE NARZUCAJACE WARTOSCI SILNIKOWI
+	void setFxVolume();
+	void clearFxVolume();
+
+	void setFxPanning();
+	void clearFxPanning();
+
+	void setFxFinetune();
+	void clearFxFinetune();
+
+	void setFxGlide();
+	void clearFxGlide();
+
+	void setFxReverse();
+	void clearFxReverse();
+
+	void setFxPositionGranular();
+	void clearFxPositionGranular();
+
+	void setFxPositionWavetable();
+	void clearFxPositionWavetable();
+
+	void setFxStartPoint();
+	void clearFxStartPoint();
+
+	void setFxSlice();
+	void clearFxSlice();
+
+	void setFxReverbSend();
+	void clearFxReverbSend();
+
+	void setFxCutoff();
+	void clearFxCutoff();
+	void setFxFilterType();
+	void clearFxFilterType();
+
+	void setFxAmpRateLFO();
+	void clearFxAmpRateLFO();
+	void syncFxAmpLFO();
+
 	void changeFilterType(uint8_t type);
 	void filterConnect();
 	void filterDisconnect();
@@ -568,8 +616,8 @@ private:
 	void changePointsPerformanceMode(int32_t spValue, int32_t epValue);
 	void endPointsPerformanceMode();
 
-	void calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo);
 	void calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInstrument::strEnvBasedLfo * lfo, uint8_t rate);
+
 
 	float fmap(float x, float in_min, float in_max, float out_min, float out_max);
 

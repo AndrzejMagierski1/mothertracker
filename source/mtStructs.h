@@ -13,7 +13,7 @@
 
 const uint8_t FV_VER_1	=					0;		// device version
 const uint8_t FV_VER_2 =					9;		// official update
-const uint8_t FV_VER_3 =					17;		// fix version  100 = brak 3 litery
+const uint8_t FV_VER_3 =					22;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
 
 const uint8_t PROJECT_FILE_VERSION 	=		1;		// wersja struktury pliku projektu
@@ -49,7 +49,7 @@ const uint8_t PATTERN_INDEX_MAX 	=			255;
 
 const uint8_t FX_MAX 			=        		47;
 const uint8_t FX_MAX_FOR_RANDOM	=        		40;
-const uint8_t FX_COUNT		 	=        		48;
+const uint8_t FX_COUNT		 	=        		31;
 
 const uint8_t FX_VALUE_MAX	=					127;
 

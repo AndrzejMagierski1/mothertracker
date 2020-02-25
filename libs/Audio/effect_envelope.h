@@ -56,11 +56,17 @@ public:
 	void decay(float milliseconds);
 	void sustain(float level);
 	void release(float milliseconds);
-
+	void setSustain()
+	{
+		state = 5;
+		count = 0xFFFF;
+		mult_hires = sustain_mult;
+		inc_hires = 0;
+	}
 
 	void releaseNoteOn(float milliseconds) {
 		release_forced_count = milliseconds2count(milliseconds);
-		if (release_count == 0) release_count = 1;
+		if (release_forced_count == 0) release_forced_count = 1;
 	}
 	void setLoop(uint8_t state)
 	{

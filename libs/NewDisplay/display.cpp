@@ -6,6 +6,7 @@
 #include "elapsedMillis.h"
 
 
+#include "SD.h"
 #include "debugLog.h"
 
 
@@ -23,10 +24,6 @@
 #include "poly_logo_160x172_L8.h"
 #include "songIcons.h"
 #include "arrowIcons.h"
-
-
-
-
 
 
 
@@ -64,6 +61,7 @@ strGetProps getProps;
 
 cDisplay display;
 
+SdFile imgFile;
 
 
 void cDisplay::begin()
@@ -672,6 +670,7 @@ void cDisplay::readImgFromMemory(uint8_t* data, uint32_t size) //todo
 	img.progressMax = img.size/imgBufforSize;
 	img.status = 1;
 }
+
 
 //=====================================================================================================
 // grupowe

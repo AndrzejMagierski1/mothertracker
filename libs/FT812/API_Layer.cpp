@@ -157,6 +157,43 @@ void API_LIB_WriteDataRAMG(const uint8_t *ImgData, uint32_t DataSize, uint32_t D
               
     MCU_CShigh();                                                               // CS high after burst write of image data
 }
+// Read a block of data from the RAM_G
+void API_LIB_ReadDataRAMG(uint8_t *ImgData, uint32_t DataSize, uint32_t SourceAddress)
+{
+    uint16_t DataPointer = 0;
+    uint16_t BitmapDataSize = 0;
+
+    DataPointer = 0;
+
+    MCU_CSlow();                                                                // CS low begins SPI transaction
+    EVE_AddrForRd(SourceAddress);                                                 // Send address to which first value will be written
+
+    while(DataPointer < DataSize)
+    {
+    	ImgData[DataPointer] = EVE_Read8();                                       // Send data byte-by-byte from array
+        DataPointer ++;
+    }
+
+    MCU_CShigh();                                                               // CS high after burst write of image data
+}
+
+
+void API_LIB_ReadBackDataRAMG(uint8_t *ImgData, uint32_t DataSize, uint32_t SourceAddress)
+{
+	int32_t DataPointer = DataSize-1;
+
+    MCU_CSlow();                                                                // CS low begins SPI transaction
+    EVE_AddrForRd(SourceAddress-1);                                                 // Send address to which first value will be written
+
+    while(DataPointer >= 0)
+    {
+    	ImgData[DataPointer] = EVE_Read8();                                       // Send data byte-by-byte from array
+        DataPointer--;
+    }
+
+    MCU_CShigh();                                                               // CS high after burst write of image data
+}
+
 
 // Writes a string over SPI
 uint8_t API_SendString(const char* string, uint32_t length)

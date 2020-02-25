@@ -1125,10 +1125,13 @@ void cPerformanceMode::blinkTrackUntilSwitch()
 
 	if(!continueBlink)
 	{
-		for(uint8_t track = 0; track < 8; track++)
-		{
-			colorTracksLabel(track, 0);
-		}
+//		for(uint8_t track = 0; track < 8; track++)
+//		{
+//			colorTracksLabel(track, 0);
+//		}
+		refreshTrackState = 1;
+
+		refreshTrackPattern = 1;
 
 		refreshBlinkingTrack = 0;
 	}
