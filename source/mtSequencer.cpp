@@ -1216,6 +1216,11 @@ float Sequencer::getActualTempo()
 	return temp_Tempo;
 }
 
+uint32_t  Sequencer::getSeqTimer()
+{
+	return nanoStep+nanoStepMultiplier*6912;
+}
+
 void Sequencer::init_player_timer(void) // MT::refreshTimer
 {
 
