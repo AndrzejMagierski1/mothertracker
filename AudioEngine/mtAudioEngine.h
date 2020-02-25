@@ -153,6 +153,7 @@ constexpr float AMP_MUTED = 0.0f;
 constexpr uint8_t MOST_SIGNIFICANT_FX = 0;
 constexpr uint8_t LEAST_SIGNIFICANT_FX = 1;
 extern IntervalTimer updateTimer;
+constexpr uint8_t ACTIVE_ENVELOPES = envMax - 1;
 
 class audioEngine
 {
@@ -265,6 +266,25 @@ public:
 			(uint8_t)parameterList::lfoGranularPosition
 	}; // na potrzeby wykonania czegos w petli - przefiltrowanie enumów parametrów dla lfo bez ampa - musi korespondować z envelopesWithoutAmpIdx
 //********************************************
+
+	const uint32_t envTargetRefreshMask[envMax] =
+	{
+			0,
+			PANNING_MASK,
+			CUTOFF_MASK,
+			WT_POS_SEND_MASK,
+			GRANULAR_POS_SEND_MASK,
+			0
+	};
+	const uint8_t envelopesControlValue[envMax] =
+	{
+			(uint8_t)parameterList::lfoAmp,
+			(uint8_t)parameterList::lfoPanning,
+			(uint8_t)parameterList::lfoCutoff,
+			(uint8_t)parameterList::lfoWavetablePosition,
+			(uint8_t)parameterList::lfoGranularPosition,
+			0
+	}; // na potrzeby wykonania czegos w petli - przefiltrowanie enumów parametrów dla lfo bez ampa - musi korespondować z envelopesWithoutAmpIdx
 	enum struct controlType
 	{
 		sequencerMode,
@@ -453,6 +473,7 @@ public:
 	void endPositionLfoRatePerformanceMode();
 	void endPanningLfoRatePerformanceMode();
 
+
 //******testowe
 	void printLog(SdFile * log);
 	void setPassEnvelope(uint8_t state);
@@ -518,6 +539,11 @@ private:
 	void noteOffFade();
 	void noteOffCut();
 	void noteOffOrdinary();
+//*************************************************
+//**********************UPDATE HANDLERS
+	void handleUpdateEnvelope(uint8_t type, bool enableCondition);
+	void handleEndReleaseAction();
+
 //*************************************************
 //************************* FX HANDLE
 //******* fx start

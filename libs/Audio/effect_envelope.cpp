@@ -412,7 +412,7 @@ void AudioEffectEnvelope::update(void)
 		if(mult_hires < 0 )
 		{
 			mult_hires = 0;
-			count = 0;
+			count = 1;
 			debugLog.setMaxLineCount(10);
 			debugLog.addLine("MH<0 ");
 			debugLog.addValue(state);
@@ -422,7 +422,7 @@ void AudioEffectEnvelope::update(void)
 		else if(mult_hires > 0x40000000)
 		{
 			mult_hires = 0x40000000;
-			count = 0;
+			count = 1;
 			debugLog.setMaxLineCount(10);
 			debugLog.addLine("MH>MAX ");
 			debugLog.addValue(state);
@@ -463,7 +463,9 @@ uint8_t AudioEffectEnvelope:: getState()
 
 void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
 {
-	uint16_t ticksOnPeriod = (6912/3) * syncRate;
+	if(state == STATE_FORCED) return;
+
+	uint16_t ticksOnPeriod = (6912/12) * syncRate;
 
 	uint16_t stepShift = (startStep % 36) * (6912/12);
 
@@ -471,7 +473,7 @@ void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
 
 	uint16_t currentPointInPhase = val % ticksOnPeriod;
 
-	float lfoFrequency = (240.0/seqSpeed);
+	float lfoFrequency = (seqSpeed/15.0);
 	float periodTime = (1000 / lfoFrequency) * syncRate;
 
 	if(phaseNumber[0] != -1 && phaseNumber[1] != -1)
@@ -481,11 +483,15 @@ void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
 
 		if(currentPointInPhase > ticksOnPeriod/2)
 		{
+			state = phaseNumber[1];
+			count = milliseconds2count((fullPhaseTime) * (float)( (float)(currentPointInPhase-ticksOnPeriod/2.0f) /(ticksOnPeriod/2.0f)));
+
 			if(phaseNumber[1] == STATE_DECAY)
 			{
 				decay_count = fullPhaseCount;
 				if (decay_count == 0) decay_count = 1;
 				inc_hires = fullPhaseCount ? -(0x40000000U/fullPhaseCount) : 0;
+				mult_hires = 0x40000000 + (inc_hires * (fullPhaseCount - count));
 			}
 			else if(phaseNumber[1] == STATE_RELEASE)
 			{
@@ -497,9 +503,6 @@ void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
 			}
 
 
-			state = phaseNumber[1];
-			count = milliseconds2count((fullPhaseTime) * (float)( (float)(currentPointInPhase-ticksOnPeriod/2.0f) /(ticksOnPeriod/2.0f)));
-			mult_hires = 0x40000000 + (inc_hires * (fullPhaseCount - count));
 		}
 		else
 		{
@@ -529,7 +532,7 @@ void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
 			}
 		}
 	}
-	else if(phaseNumber[0])
+	else if(phaseNumber[0] != -1)
 	{
 		uint16_t fullPhaseCount = milliseconds2count(periodTime);
 

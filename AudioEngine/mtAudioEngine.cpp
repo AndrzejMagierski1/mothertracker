@@ -541,129 +541,23 @@ void playerEngine:: update()
 	}
 	lastPlayState = currentPlayState;
 
-	if(envelopeAmpPtr->endRelease())
-	{
-		envelopeAmpPtr->clearEndReleaseFlag();
-		interfaceEndReleaseFlag = 1;
-		playMemPtr->stop();
 
-		if((mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable && mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop)||
-		  (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoCutoff]) ||
-		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoCutoff]) ||
-		  (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoCutoff]))
-		{
-			currentEnvelopeModification[envFilter] = 0;
-			envelopePtr[envFilter]->stop();
-		}
-		if((mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)||
-		  (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoWavetablePosition]) ||
-		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoWavetablePosition]) ||
-		  (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoWavetablePosition]))
-		{
-			currentEnvelopeModification[envWtPos] = 0;
-			envelopePtr[envWtPos]->stop();
-		}
-		if((mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable && mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)||
-		  (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoGranularPosition]) ||
-		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoGranularPosition]) ||
-		  (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoGranularPosition]))
-		{
-			currentEnvelopeModification[envGranPos] = 0;
-			envelopePtr[envGranPos]->stop();
-		}
-		if((mtProject.instrument[currentInstrument_idx].envelope[envPan].enable && mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)||
-		  (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoPanning]) ||
-		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning]) ||
-		  (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoPanning]))
-		{
-			currentEnvelopeModification[envPan] = 0;
-			envelopePtr[envPan]->stop();
-		}
-	}
+//**************HANDLE UPDATE ENVELOPE
+	bool envelopeCondition[ACTIVE_ENVELOPES];
 
-	if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable)
-	{
-		if(mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop)
-		{
-			if(envelopeAmpPtr->getState() != 0 )
-			{
-				envelopeAmpPtr->syncTrackerSeq(sequencer.getSeqTimer(), sequencer.getActualTempo());
-			}
-		}
-	}
+	envelopeCondition[envAmp] = (mtProject.instrument[currentInstrument_idx].envelope[envAmp].enable == 1);
+	envelopeCondition[envFilter] = (mtProject.instrument[currentInstrument_idx].filterEnable == 1);
+	envelopeCondition[envPan] = true;
+	envelopeCondition[envWtPos] = (mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable);
+	envelopeCondition[envGranPos] = ((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWaveFile) &&
+			(mtProject.instrument[currentInstrument_idx].playMode == playModeGranular));
 
-	if(mtProject.instrument[currentInstrument_idx].filterEnable)
+	for(uint8_t i = envAmp; i< ACTIVE_ENVELOPES; i++)
 	{
-		if((mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable)||
-		  (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoCutoff]) ||
-		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoCutoff]) ||
-		  (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoCutoff]))
-		{
-			if((envelopePtr[envFilter]->isKeyPressed() == 1) || (envelopePtr[envFilter]->getPhase() != 0))
-			{
-				if(sequencer.getSeqState())
-				{
-					envelopePtr[envFilter]->syncTrackerSeq(sequencer.getSeqTimer(), sequencer.getActualTempo());
-				}
-				currentEnvelopeModification[envFilter] =  envelopePtr[envFilter]->getOut();
-				statusBytes |= CUTOFF_MASK;
-			}
-		}
+		handleUpdateEnvelope(i, envelopeCondition[i]);
 	}
-
-	if(mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWavetable)
-	{
-		if((mtProject.instrument[currentInstrument_idx].envelope[envWtPos].enable)||
-		  (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoWavetablePosition]) ||
-		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoWavetablePosition]) ||
-		  (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoWavetablePosition]))
-		{
-				if((envelopePtr[envWtPos]->isKeyPressed() == 1) || (envelopePtr[envWtPos]->getPhase() != 0))
-				{
-					if(sequencer.getSeqState())
-					{
-						envelopePtr[envWtPos]->syncTrackerSeq(sequencer.getSeqTimer(), sequencer.getActualTempo());
-					}
-					currentEnvelopeModification[envWtPos] = envelopePtr[envWtPos]->getOut();
-					statusBytes |= WT_POS_SEND_MASK;
-				}
-		}
-	}
-
-	if((mtProject.instrument[currentInstrument_idx].sample.type == mtSampleTypeWaveFile) && (mtProject.instrument[currentInstrument_idx].playMode == playModeGranular))
-	{
-		if((mtProject.instrument[currentInstrument_idx].envelope[envGranPos].enable)||
-		  (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoGranularPosition]) ||
-		  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoGranularPosition]) ||
-		  (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoGranularPosition]))
-		{
-			if((envelopePtr[envGranPos]->isKeyPressed() == 1) || (envelopePtr[envGranPos]->getPhase() != 0))
-			{
-				if(sequencer.getSeqState())
-				{
-					envelopePtr[envGranPos]->syncTrackerSeq(sequencer.getSeqTimer(), sequencer.getActualTempo());
-				}
-				currentEnvelopeModification[envGranPos] = envelopePtr[envGranPos]->getOut();
-				statusBytes |= GRANULAR_POS_SEND_MASK;
-			}
-		}
-	}
-	if((mtProject.instrument[currentInstrument_idx].envelope[envPan].enable)||
-	  (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoPanning]) ||
-	  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoPanning]) ||
-	  (trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoPanning]))
-	{
-		if((envelopePtr[envPan]->isKeyPressed() == 1) || (envelopePtr[envPan]->getPhase() != 0))
-		{
-			if(sequencer.getSeqState())
-			{
-				envelopePtr[envPan]->syncTrackerSeq(sequencer.getSeqTimer(), sequencer.getActualTempo());
-			}
-			currentEnvelopeModification[envPan] = envelopePtr[envPan]->getOut();
-			statusBytes |= PANNING_MASK;
-		}
-	}
-
+//***********************
+	handleEndReleaseAction();
 
 
 	if(statusBytes)
@@ -1558,7 +1452,7 @@ void playerEngine::calcLfoBasedEnvelope(envelopeGenerator::strEnv * env, strInst
 
 	if(rate > 19) rate = 19;
 
-	float lfoFrequency = (240.0/sequencer.getActualTempo());
+	float lfoFrequency = (sequencer.getActualTempo()/15.0);
 
 	float periodTime = (1000 / lfoFrequency) * tempoSyncRates[rate];
 
