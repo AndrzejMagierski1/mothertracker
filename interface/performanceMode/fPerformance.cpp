@@ -6,7 +6,7 @@
 #include "mtPadBoard.h"
 #include "mtPadsBacklight.h"
 #include "core/interfacePopups.h"
-#include "mtFileManager.h"
+#include "fileManager.h"
 #include "mtSequencer.h"
 
 
@@ -223,8 +223,9 @@ uint8_t cPerformanceMode::wasPatternOntrackChenged(uint8_t track)
 
 void cPerformanceMode::setProjectSaveFlags()
 {
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.projectChangeFlag = 1;
+	newFileManager.setProjectStructChanged();
+//	mtProject.values.projectNotSavedFlag = 1;
+//	fileManager.projectChangeFlag = 1;
 }
 
 void cPerformanceMode::toggleTrackPerformanceState(uint8_t track)
@@ -1022,7 +1023,7 @@ static uint8_t functSwitchModule(uint8_t button)
 {
 	if(button != interfaceButtonMaster && sequencer.isPerformanceMode())
 	{
-		fileManager.loadPattern(mtProject.values.actualPattern);
+		newFileManager.loadWorkspacePattern(mtProject.values.actualPattern);
 		sequencer.switchRamPatternsNow();
 		sequencer.exitPerformanceMode();
 	}

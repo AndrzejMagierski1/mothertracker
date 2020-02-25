@@ -94,7 +94,8 @@ void cFileManager::copyInstruments()
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::saveInstrumentsToWorkspace()
 {
-	while(chengesFlags.instrument[currentInstrument] == 0) //znajduje pirwszy pattern z flaga zmian
+	//znajduje pirwszy pattern z flaga zmian i jednoczesnie aktywny
+	while(changesFlags.instrument[currentInstrument] == 0 || mtProject.instrument[currentInstrument].isActive == 0)
 	{
 		if(!continueInstrumentProcess()) return; // jesli sprawdzilo wszystkie to koczny
 	}
@@ -104,7 +105,10 @@ void cFileManager::saveInstrumentsToWorkspace()
 		throwError(0);
 	}
 
-	uint8_t saveStatus = fileTransfer.saveMemoryToFile((uint8_t*)&fileManagerInstrumentBuffer, cProjectFileNameInWorkspace, sizeof(strProjectFile));
+	char instrumentToSave[PATCH_SIZE];
+	sprintf(instrumentToSave, cWorkspaceInstrumentFileFormat, currentInstrument+1); // nazwy instrumentow od numeru 1
+
+	uint8_t saveStatus = fileTransfer.saveMemoryToFile((uint8_t*)&fileManagerInstrumentBuffer, instrumentToSave, sizeof(strInstrumentFile));
 
 	if(saveStatus == fileTransferEnd)
 	{

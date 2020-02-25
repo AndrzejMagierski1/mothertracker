@@ -2,7 +2,7 @@
 
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
 #include "mtSequencer.h"
 #include "mtConfig.h"
 #include "SI4703.h"
@@ -136,7 +136,7 @@ void cMasterParams::turnOffPerformanceMode()
 {
 	if(sequencer.isPerformanceMode())
 	{
-		fileManager.loadPattern(mtProject.values.actualPattern);
+		newFileManager.loadWorkspacePattern(mtProject.values.actualPattern);
 		sequencer.switchRamPatternsNow();
 		sequencer.exitPerformanceMode();
 	}
@@ -155,7 +155,6 @@ void cMasterParams::turnOffRadio()
 
 void cMasterParams::setMasterScreenFunct()
 {
-
 	//funkcje
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
@@ -170,9 +169,6 @@ void cMasterParams::setMasterScreenFunct()
 	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
 
-
-
-
 	FM->setButtonObj(interfaceButton0, functSelectVolume);
 
 	FM->setButtonObj(interfaceButton1, functSelectReverbSize);
@@ -184,10 +180,7 @@ void cMasterParams::setMasterScreenFunct()
 	FM->setButtonObj(interfaceButton6, functSelectLimiterTreshold);
 
 
-
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
-
-
 }
 
 //##############################################################################################
@@ -794,8 +787,9 @@ void changeVolume(int16_t value)
 
 
 	engine.setHeadphonesVolume(mtProject.values.volume);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.projectChangeFlag = 1;
+
+	newFileManager.setProjectStructChanged();
+
 	MP->showVolume();
 }
 
@@ -806,8 +800,9 @@ void changeReverbRoomSize(int16_t value)
 	else mtProject.values.reverbRoomSize += value;
 
 	engine.setReverbRoomsize(mtProject.values.reverbRoomSize);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.projectChangeFlag = 1;
+
+	newFileManager.setProjectStructChanged();
+
 	MP->showReverbSize();
 }
 
@@ -818,8 +813,9 @@ void changeReverbDamping(int16_t value)
 	else mtProject.values.reverbDamping += value;
 
 	engine.setReverbDamping(mtProject.values.reverbDamping);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.projectChangeFlag = 1;
+
+	newFileManager.setProjectStructChanged();
+
 	MP->showReverbDamping();
 }
 
@@ -832,8 +828,8 @@ void changeLimiterAttack(int16_t value)
 	else mtProject.values.limiterAttack += value;
 
 	engine.setLimiterAttack(mtProject.values.limiterAttack);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.projectChangeFlag = 1;
+
+	newFileManager.setProjectStructChanged();
 
 	MP->showLimiterAttack();
 }
@@ -848,8 +844,9 @@ void changeLimiterRelease(int16_t value)
 
 
 	engine.setLimiterRelease(mtProject.values.limiterRelease);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.projectChangeFlag = 1;
+
+	newFileManager.setProjectStructChanged();
+
 	MP->showLimiterRelease();
 }
 
@@ -862,8 +859,9 @@ void changeLimiterTreshold(int16_t value)
 	else mtProject.values.limiterTreshold += value;
 
 	engine.setLimiterTreshold(mtProject.values.limiterTreshold);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.projectChangeFlag = 1;
+
+	newFileManager.setProjectStructChanged();
+
 	MP->showLimiterTreshold();
 }
 
@@ -881,8 +879,8 @@ void changeBitDepth(int16_t value)
 	else mtProject.values.bitDepth += localVal;
 
 	engine.setBitDepth(mtProject.values.bitDepth);
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.projectChangeFlag = 1;
+
+	newFileManager.setProjectStructChanged();
 	MP->showBitDepth();
 }
 

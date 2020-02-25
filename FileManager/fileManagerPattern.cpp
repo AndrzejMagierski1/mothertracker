@@ -98,7 +98,7 @@ void cFileManager::copyPaterns()
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::savePatternToWorkspace()
 {
-	if(chengesFlags.pattern[mtProject.values.actualPattern] == 0) // jesli flaga zmian nie ustawiona omin zapis
+	if(changesFlags.pattern[mtProject.values.actualPattern] == 0) // jesli flaga zmian nie ustawiona omin zapis
 	{
 		moveToNextOperationStep();
 		return;
@@ -109,10 +109,10 @@ void cFileManager::savePatternToWorkspace()
 		throwError(0);
 	}
 
-	char patternToLoad[PATCH_SIZE];
-	sprintf(patternToLoad, cWorkspacePatternFileFormat, mtProject.values.actualPattern);
+	char patternToSave[PATCH_SIZE];
+	sprintf(patternToSave, cWorkspacePatternFileFormat, mtProject.values.actualPattern);
 
-	uint8_t saveStatus = fileTransfer.saveMemoryToFile((uint8_t*)&fileManagerPatternBuffer, cProjectFileNameInWorkspace, sizeof(Sequencer::strPattern));
+	uint8_t saveStatus = fileTransfer.saveMemoryToFile((uint8_t*)&fileManagerPatternBuffer, patternToSave, sizeof(Sequencer::strPattern));
 
 	if(saveStatus == fileTransferEnd)
 	{
@@ -213,6 +213,8 @@ bool cFileManager::saveActualPattern(const char* path, uint8_t index)
 }
 
 
+
+
 bool cFileManager::readPatternFile(const char * filePath, uint8_t *destPattern)
 {
 	SdFile file;
@@ -245,6 +247,60 @@ bool cFileManager::readPatternFile(const char * filePath, uint8_t *destPattern)
 
 	return loadStatus;
 }
+
+bool cFileManager::loadWorkspacePattern(uint8_t index)
+{
+	bool status = false;
+	char patternToLoad[PATCH_SIZE];
+
+	sprintf(patternToLoad, cWorkspacePatternFileFormat, index);
+	mtProject.values.actualPattern = index;
+
+	if(!SD.exists(patternToLoad))
+	{
+		status = false;
+	}
+	else
+	{
+		status = readPatternFile(patternToLoad, sequencer.getPatternToLoadFromFile());
+	}
+
+	if(status)
+	{
+		sequencer.loadFromFileOK();
+	}
+	else
+	{
+		sequencer.loadFromFileERROR();
+	}
+
+	return status;
+}
+
+
+bool cFileManager::saveWorkspacePattern(uint8_t index)
+{
+	char patternToSave[PATCH_SIZE] { 0 };
+	bool status = false;
+
+	if(changesFlags.pattern[index] == 1)
+	{
+		changesFlags.pattern[index] = 0;
+		sprintf(patternToSave, cWorkspacePatternFileFormat, index);
+		status = writePatternFile(patternToSave, sequencer.getPatternToSaveToFile());
+		sequencer.saveToFileDone();
+	}
+
+	return status;
+}
+
+
+
+
+
+
+
+
 
 
 

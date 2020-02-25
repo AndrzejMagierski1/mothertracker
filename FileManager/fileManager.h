@@ -26,6 +26,7 @@ enum fileManagerStatus
 	fmSaveEnd,
 	fmError,
 	fmLoadError,
+	fmSaveError,
 	fmCopyError,
 };
 
@@ -75,19 +76,27 @@ public:
 	bool openProjectFromWorkspace();
 	bool openProjectFromProjects(uint8_t index);
 	bool saveProjectToWorkspace(bool forceSaveAll = false);
-	bool saveProjectToProjects();
+	bool saveProjectToProjects(char* projectNameToSave = nullptr);
 
 	bool createNewProjectInWorkspace();
 
 
+	bool loadWorkspacePattern(uint8_t index);
+	bool saveWorkspacePattern(uint8_t index);
+
+
+	void updatePatternBitmask(uint8_t patternNum);
+	void updatePatternBitmask(uint8_t index, uint8_t* sourcePattern);
+	void storePatternUndoRevision();
+	void storeSongUndoRevision(uint8_t index);
+	void undoSongPattern();
+	void undoPattern();
+	void redoPattern();
 
 	//-------------------------------------------------
 	// globalne
-	char currentProjectPatch[PATCH_SIZE-PROJECT_NAME_SIZE];
-	char currentProjectName[PROJECT_NAME_SIZE] = {0};
-	char projectNamefromProjectFile[PROJECT_NAME_SIZE] = {0};
-	static const uint8_t files_list_length_max = 100;
-	char* projectsNames[files_list_length_max];
+	char* getCurrentProjectName() { return currentProjectName; }
+	char* getCurrentProjectPath() { return currentProjectPatch; }
 
 private:
 	// na cele zewnetrzne (popupy itp)
@@ -101,6 +110,14 @@ private:
 	char currentCopyDestPath[PATCH_SIZE];
 	bool forceOperation;
 
+	// stringi
+	char currentProjectPatch[PATCH_SIZE-PROJECT_NAME_SIZE];
+	char currentProjectName[PROJECT_NAME_SIZE] = {0};
+	char projectNamefromProjectFile[PROJECT_NAME_SIZE] = {0};
+	static const uint8_t files_list_length_max = 100;
+	char* projectsNames[files_list_length_max];
+
+
 	// do obliczania progresu
 	uint32_t totalMemoryToTranfser;
 	uint32_t actualMemoryTransfered;
@@ -111,10 +128,11 @@ private:
 		uint8_t project;
 		uint8_t instrument[INSTRUMENTS_COUNT];
 		uint8_t pattern[PATTERN_INDEX_MAX];
-	} chengesFlags;
+	} changesFlags;
 
 	// metody wewnetrzne ------------------------------------
 	void throwError(uint8_t source);
+	void report(const char* text, uint8_t value = 0);
 	void moveToNextOperationStep();
 	void calcTotalMemoryToTransfer();
 	void calcActualMemoryTransfered();
@@ -211,6 +229,19 @@ private:
 	uint8_t sampleLoadPhase = 0;
 	uint8_t currentSample = 0;
 	uint32_t currentSampleSamplesCount = 0; // ilosc probek!!! (int16)
+
+//patern undo
+
+
+
+	//song
+	uint8_t getNextSongPattern();
+	uint8_t getSongPattern(uint8_t pos);
+	void setSongPos(uint8_t pos);
+	uint8_t resetToFirstSongPattern();
+	bool switchNextPatternInSong();
+	void copySongTracks(char *currentProjectPath, uint8_t src, uint8_t dest, uint8_t trackStartSrc, uint8_t trackStartDest, uint8_t tracksNum);
+	void deleteTracks(char *currentProjectPath, uint8_t src, uint8_t trackStartSrc, uint8_t tracksNum);
 
 
 };

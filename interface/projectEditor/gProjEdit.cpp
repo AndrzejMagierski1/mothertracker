@@ -201,8 +201,8 @@ void cProjectEditor::showDefaultScreen()
 	display.refreshControl(titleLabel);
 
 
-	strcpy(projectCoverName, newFileManager.currentProjectName);
-	display.setControlText(titleLabelProjectName, newFileManager.currentProjectName);
+	strcpy(projectCoverName, newFileManager.getCurrentProjectName());
+	display.setControlText(titleLabelProjectName, newFileManager.getCurrentProjectName());
 	display.refreshControl(titleLabelProjectName);
 
 	display.setControlData(label[0], &labelArrow);
@@ -502,7 +502,7 @@ void cProjectEditor::showSaveLastWindow()
 	display.setControlText(label[6], "Don't save");
 	display.setControlText(label[7], "Save");
 
-	sprintf(currentInfo,"Do you want to save the changes to \"%s\"?", newFileManager.currentProjectName);
+	sprintf(currentInfo,"Do you want to save the changes to \"%s\"?", newFileManager.getCurrentProjectName());
 
 	display.setControlText(selectWindowLabel, currentInfo);
 	display.setControlShow(selectWindowLabel);

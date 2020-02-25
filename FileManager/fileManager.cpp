@@ -52,7 +52,7 @@ void cFileManager::update()
 //====================================================================================
 //==========================     UPDATEs     =========================================
 //====================================================================================
-void cFileManager::updateLoadProjectFromWorkspace()
+void cFileManager::updateLoadProjectFromWorkspace() // fmLoadWorkspaceProject - 1
 {
 	switch(currentOperationStep)
 	{
@@ -76,7 +76,7 @@ void cFileManager::updateLoadProjectFromWorkspace()
 	}
 }
 
-void cFileManager::updateSaveProjectToWorkspace()
+void cFileManager::updateSaveProjectToWorkspace() // fmSaveWorkspaceProject - 2
 {
 	switch(currentOperationStep)
 	{
@@ -93,14 +93,14 @@ void cFileManager::updateSaveProjectToWorkspace()
 		case 5: // wykonczenie
 			saveProjectToWorkspaceFinish(); break;
 		default:
-			status = fmCopyError;
+			status = fmSaveError;
 			currentOperationStep = 0;
 			currentOperation = fmNoOperation;
 			break;
 	}
 }
 
-void cFileManager::updateCopyProjectsToWorkspace()
+void cFileManager::updateCopyProjectsToWorkspace() // fmCopyProjectsToWorkspace - 3
 {
 	switch(currentOperationStep)
 	{
@@ -124,7 +124,7 @@ void cFileManager::updateCopyProjectsToWorkspace()
 	}
 }
 
-void cFileManager::updateCopyWorkspaceToProjects()
+void cFileManager::updateCopyWorkspaceToProjects() // fmCopyWorkspaceToProjects - 4
 {
 	switch(currentOperationStep)
 	{
@@ -154,10 +154,7 @@ void cFileManager::autoSaveProjectToWorkspace()
 	if(autoSaveTimer < 10000) return;
 	autoSaveTimer = 0;
 
-	if(isProjectChanged())
-	{
-		saveProjectToWorkspace();
-	}
+	saveProjectToWorkspace();
 
 }
 
@@ -202,6 +199,8 @@ bool cFileManager::openProjectFromProjects(uint8_t index)
 
 bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
 {
+	if(status != fmIdle) return false;
+
 	if(forceSaveAll)
 	{
 		setAllChangeFlags();
@@ -211,6 +210,8 @@ bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
 		if(!isProjectChanged())	return false; // nie zapisuj jesli nic nie jest zmodyfikowane
 	}
 
+	report("autosave");
+
 	status = fmSavingProjectToWorkspace;
 	currentOperationStep = 0;
 	currentOperation = fmSaveWorkspaceProject;
@@ -218,12 +219,21 @@ bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
 	return true;
 }
 
-bool cFileManager::saveProjectToProjects()
+bool cFileManager::saveProjectToProjects(char* projectNameToSave)
 {
-	status = fmSavingProjectToProjects;
-	currentOperationStep = 0;
-	currentOperation = fmSaveWorkspaceProject;
+	if(status != fmIdle) return false;
 
+	if(projectNameToSave != nullptr)
+	{
+		strcpy(currentProjectName, projectNameToSave);
+	}
+
+
+	saveProjectToWorkspace(true);
+
+	status = fmSavingProjectToProjects;
+//	currentOperationStep = 0;
+//	currentOperation = fmSaveWorkspaceProject;
 	return true;
 }
 
@@ -275,6 +285,7 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 	else
 	{
 		// jezeli jest otwierany z folderu Projects to wymys nazwe otwieranego projektu
+		changesFlags.project = 1;
 		saveProjectFileToWorkspace();
 		//writeProjectFile(cProjectFileNameInWorkspace, &mtProject);
 	}
@@ -326,6 +337,13 @@ void cFileManager::saveProjectToWorkspaceFinish()
 {
 	clearChangeFlags();
 
+	if(status == fmSavingProjectToProjects)
+	{
+		currentOperationStep = 0;
+		currentOperation = fmCopyWorkspaceToProjects;
+		return;
+	}
+
 	status = fmSaveEnd;
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
@@ -334,6 +352,36 @@ void cFileManager::saveProjectToWorkspaceFinish()
 //-------------------------------------------------------
 void cFileManager::copyWorkspaceToProjectsInit()
 {
+	char projectSavePath[PATCH_SIZE];
+
+	if(!SD.exists(cProjectsPath))
+	{
+		SD.mkdir(0, cProjectsPath);
+	}
+
+	sprintf(projectSavePath, cProjectsPathFormat, currentProjectName);
+	if(!SD.exists(projectSavePath))
+	{
+		SD.mkdir(0, projectSavePath);
+	}
+
+	sprintf(projectSavePath, cProjectsPatternsPathFormat, currentProjectName);
+	if(!SD.exists(projectSavePath))
+	{
+		SD.mkdir(0, projectSavePath);
+	}
+
+	sprintf(projectSavePath, cProjectsInstrumentsPathFormat, currentProjectName);
+	if(!SD.exists(projectSavePath))
+	{
+		SD.mkdir(0, projectSavePath);
+	}
+
+	sprintf(projectSavePath, cProjectsSamplesPathFormat, currentProjectName);
+	if(!SD.exists(projectSavePath))
+	{
+		SD.mkdir(0, projectSavePath);
+	}
 
 	moveToNextOperationStep();
 }
@@ -353,27 +401,27 @@ void cFileManager::copyWorkspaceToProjectsFinish()
 
 void cFileManager::clearChangeFlags()
 {
-	chengesFlags.project = 0;
+	changesFlags.project = 0;
 	for(uint8_t i = 0 ; i< PATTERN_INDEX_MAX; i++)
 	{
-		chengesFlags.pattern[i] = 0;
+		changesFlags.pattern[i] = 0;
 	}
 	for(uint8_t i = 0 ; i< INSTRUMENTS_COUNT; i++)
 	{
-		chengesFlags.instrument[i] = 0;
+		changesFlags.instrument[i] = 0;
 	}
 }
 
 bool cFileManager::isProjectChanged()
 {
-	if(chengesFlags.project) return true;
+	if(changesFlags.project) return true;
 	for(uint8_t i = 0 ; i< PATTERN_INDEX_MAX; i++)
 	{
-		if(chengesFlags.pattern[i]) return true;
+		if(changesFlags.pattern[i]) return true;
 	}
 	for(uint8_t i = 0 ; i< INSTRUMENTS_COUNT; i++)
 	{
-		if(chengesFlags.instrument[i]) return true;
+		if(changesFlags.instrument[i]) return true;
 	}
 
 	 return false;
@@ -381,31 +429,31 @@ bool cFileManager::isProjectChanged()
 
 void cFileManager::setAllChangeFlags()
 {
-	chengesFlags.project = 1;
+	changesFlags.project = 1;
 	for(uint8_t i = 0 ; i< PATTERN_INDEX_MAX; i++)
 	{
-		chengesFlags.pattern[i] = 1;
+		changesFlags.pattern[i] = 1;
 	}
 	for(uint8_t i = 0 ; i< INSTRUMENTS_COUNT; i++)
 	{
-		chengesFlags.instrument[i] = 1;
+		changesFlags.instrument[i] = 1;
 	}
 }
 
 
 void cFileManager::setProjectStructChanged()
 {
-	chengesFlags.project = 1;
+	changesFlags.project = 1;
 }
 
 void cFileManager::setPatternStructChanged(uint8_t pattern)
 {
-	chengesFlags.pattern[pattern] = 1;
+	changesFlags.pattern[pattern] = 1;
 }
 
 void cFileManager::setInstrumentStructChanged(uint8_t instrument)
 {
-	chengesFlags.instrument[instrument] = 1;
+	changesFlags.instrument[instrument] = 1;
 }
 
 
@@ -497,3 +545,13 @@ void cFileManager::throwError(uint8_t source)
 
 }
 
+void cFileManager::report(const char* text, uint8_t value)
+{
+#ifdef DEBUG
+	debugLog.setMaxLineCount(10);
+	if(value > 0) sprintf(errorText,  "File manager: %s (%d)", text, value);
+	else sprintf(errorText,  "File manager: %s", text);
+	debugLog.addLine(errorText);
+	debugLog.forceRefresh();
+#endif
+}

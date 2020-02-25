@@ -25,12 +25,18 @@ bool cFileManager::createNewProjectInWorkspace()
 	strcpy(currentProjectName, cNewProjectName);
 
 	getDefaultProject(&mtProject);
-	mtProject.patterns_count++;
+	//mtProject.patterns_count++;
 	mtProject.values.actualPattern = 1;
-	saveActualPattern(cWorkspacePatternsPath, mtProject.values.actualPattern);
+
+	//saveActualPattern(cWorkspacePatternsPath, mtProject.values.actualPattern);
+	changesFlags.pattern[mtProject.values.actualPattern] = 1;
+	savePatternToWorkspace();
 	sequencer.saveToFileDone(); //xxx ?
 
-	writeProjectFile(cProjectFileNameInWorkspace, &mtProject);
+	changesFlags.project = 1;
+	saveProjectFileToWorkspace();
+
+//	writeProjectFile(cProjectFileNameInWorkspace, &mtProject);
 
 	//todo jakas flaga ze nie zapisany?
 

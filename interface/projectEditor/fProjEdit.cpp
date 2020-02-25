@@ -3,7 +3,7 @@
 
 
 #include "projectEditor/projectEditor.h"
-#include "mtFileManager.h"
+///#include "mtFileManager.h"
 #include "mtAudioEngine.h"
 #include "mtLED.h"
 #include "mtExporterWAV.h"
@@ -17,6 +17,7 @@
 
 #include "fileManager.h"
 
+#include "debugLog.h"
 
 
 cProjectEditor projectEditor;
@@ -96,149 +97,176 @@ static uint8_t functStartGameModule()
 
 void cProjectEditor::update()
 {
-	refreshProcessingPopup();
 
-	if(openInProgressFlag || createNewProjectFlag)
+	uint8_t managerStatus = newFileManager.getStatus();
+
+
+	if(managerStatus == fmLoadEnd)
 	{
-		uint8_t loadStatus = fileManager.getLoadingStatus();
-
-		if(loadStatus)
-		{
-			fileManager.refreshProjectOpening();
-		}
-		else
-		{
-			loadProjectValues();
-
-			hideProcessingPopup();
-
-			showDefaultScreen();
-			setDefaultScreenFunct();
-			openInProgressFlag = 0;
-			createNewProjectFlag = 0;
-			isBusyFlag = 0;
-		}
+		debugLog.addLine("Load Finished");
+		newFileManager.clearStatus();
+		setDefaultScreenFunct();
+	}
+	else if(managerStatus == fmSaveEnd)
+	{
+		debugLog.addLine("Save Finished");
+		newFileManager.clearStatus();
+		setDefaultScreenFunct();
+	}
+	else if(managerStatus >=  fmError)
+	{
+		debugLog.addLine("Opretion Error");
+		newFileManager.clearStatus();
+		setDefaultScreenFunct();
 	}
 
-	if(saveInProgressFlag)
-	{
-		uint8_t saveStatus = fileManager.getSavingStatus();
 
-		if(saveStatus)
-		{
-			fileManager.refreshSaveProject();
-		}
-		else
-		{
-			saveInProgressFlag = 0;
-			showDefaultScreen();
-			hideProcessingPopup();
 
-			isBusyFlag = 0;
 
-			if(newProjectOnSaveEndFlag)
-			{
-				newProjectOnSaveEndFlag = 0;
-				functNewProject();
-			}
-			if(openOnSaveEndFlag)
-			{
-				openOnSaveEndFlag = 0;
-				functOpenProjectConfirm();
-			}
 
-			setDefaultScreenFunct();
-		}
-	}
+//	refreshProcessingPopup();
 
-	if(deleteInProgressFlag)
-	{
-		uint8_t deleteStatus = fileManager.getDeletingStatus();
+//	if(openInProgressFlag || createNewProjectFlag)
+//	{
+//		uint8_t loadStatus = fileManager.getLoadingStatus();
+//
+//		if(loadStatus)
+//		{
+//			fileManager.refreshProjectOpening();
+//		}
+//		else
+//		{
+//			loadProjectValues();
+//
+//			hideProcessingPopup();
+//
+//			showDefaultScreen();
+//			setDefaultScreenFunct();
+//			openInProgressFlag = 0;
+//			createNewProjectFlag = 0;
+//			isBusyFlag = 0;
+//		}
+//	}
 
-		if(deleteStatus)
-		{
-			fileManager.refreshDeleting();
-		}
-		else
-		{
-			deleteInProgressFlag = 0;
-			showDefaultScreen();
-			hideProcessingPopup();
+//	if(saveInProgressFlag)
+//	{
+//		uint8_t saveStatus = fileManager.getSavingStatus();
+//
+//		if(saveStatus)
+//		{
+//			fileManager.refreshSaveProject();
+//		}
+//		else
+//		{
+//			saveInProgressFlag = 0;
+//			showDefaultScreen();
+//			hideProcessingPopup();
+//
+//			isBusyFlag = 0;
+//
+//			if(newProjectOnSaveEndFlag)
+//			{
+//				newProjectOnSaveEndFlag = 0;
+//				functNewProject();
+//			}
+//			if(openOnSaveEndFlag)
+//			{
+//				openOnSaveEndFlag = 0;
+//				functOpenProjectConfirm();
+//			}
+//
+//			setDefaultScreenFunct();
+//		}
+//	}
 
-			isBusyFlag = 0;
+//	if(deleteInProgressFlag)
+//	{
+//		uint8_t deleteStatus = fileManager.getDeletingStatus();
+//
+//		if(deleteStatus)
+//		{
+//			fileManager.refreshDeleting();
+//		}
+//		else
+//		{
+//			deleteInProgressFlag = 0;
+//			showDefaultScreen();
+//			hideProcessingPopup();
+//
+//			isBusyFlag = 0;
+//
+//			setDefaultScreenFunct();
+//		}
+//	}
 
-			setDefaultScreenFunct();
-		}
-	}
-
-	if(exportInProgress)
-	{
-		currentExportState = exporter.getState();
-		uint8_t localProgress = exporter.getProgress();
-		if(localProgress >  exportProgress )
-		{
-			exportProgress = localProgress;
-		}
-		showExportingHorizontalBar();
-		if((currentExportState == 0) && (lastExportState != currentExportState))
-		{
-			isBusyFlag = 0;
-			exportInProgress = 0;
-			showExportWindow();
-		}
-
-		lastExportState = currentExportState;
-	}
-
-	if(newProjectPopupDelay > 200)
-	{
-		if(newProjectPopupFlag)
-		{
-			newProjectPopupFlag = 0;
-			fileManager.openProjectStart((char*)"New",projectTypeExample);
-			createNewProjectFlag = 1;
-		}
-	}
-
-	if(savePopupFlag)
-	{
-		if(savePopupDelay > 200)
-		{
-			savePopupFlag = 0;
-			fileManager.startSaveProject();
-			saveInProgressFlag = 1;
-		}
-	}
-
-	if(openPopupFlag)
-	{
-		if(openPopupDelay > 200)
-		{
-			openPopupFlag = 0;
-			fileManager.openProjectStart(PE->projectsList[PE->selectedProject], projectTypeUserMade);
-			openInProgressFlag = 1;
-		}
-	}
-
-	if(newProjectPopupFlag)
-	{
-		if(newProjectPopupDelay > 200)
-		{
-			newProjectPopupFlag = 0;
-			fileManager.openProjectStart((char*)"New",projectTypeExample);
-			createNewProjectFlag = 1;
-		}
-	}
-
-	if(deletePopupFlag)
-	{
-		if(deletePopupDelay > 200)
-		{
-			deletePopupFlag = 0;
-			fileManager.deleteProjectStart(PE->projectsList[PE->selectedProject]);
-			deleteInProgressFlag = 1;
-		}
-	}
+//	if(exportInProgress)
+//	{
+//		currentExportState = exporter.getState();
+//		uint8_t localProgress = exporter.getProgress();
+//		if(localProgress >  exportProgress )
+//		{
+//			exportProgress = localProgress;
+//		}
+//		showExportingHorizontalBar();
+//		if((currentExportState == 0) && (lastExportState != currentExportState))
+//		{
+//			isBusyFlag = 0;
+//			exportInProgress = 0;
+//			showExportWindow();
+//		}
+//
+//		lastExportState = currentExportState;
+//	}
+//
+//	if(newProjectPopupDelay > 200)
+//	{
+//		if(newProjectPopupFlag)
+//		{
+//			newProjectPopupFlag = 0;
+//			fileManager.openProjectStart((char*)"New",projectTypeExample);
+//			createNewProjectFlag = 1;
+//		}
+//	}
+//
+//	if(savePopupFlag)
+//	{
+//		if(savePopupDelay > 200)
+//		{
+//			savePopupFlag = 0;
+//			fileManager.startSaveProject();
+//			saveInProgressFlag = 1;
+//		}
+//	}
+//
+//	if(openPopupFlag)
+//	{
+//		if(openPopupDelay > 200)
+//		{
+//			openPopupFlag = 0;
+//			fileManager.openProjectStart(PE->projectsList[PE->selectedProject], projectTypeUserMade);
+//			openInProgressFlag = 1;
+//		}
+//	}
+//
+//	if(newProjectPopupFlag)
+//	{
+//		if(newProjectPopupDelay > 200)
+//		{
+//			newProjectPopupFlag = 0;
+//			fileManager.openProjectStart((char*)"New",projectTypeExample);
+//			createNewProjectFlag = 1;
+//		}
+//	}
+//
+//	if(deletePopupFlag)
+//	{
+//		if(deletePopupDelay > 200)
+//		{
+//			deletePopupFlag = 0;
+//			fileManager.deleteProjectStart(PE->projectsList[PE->selectedProject]);
+//			deleteInProgressFlag = 1;
+//		}
+//	}
 
 	if(refreshCover)
 	{
@@ -448,28 +476,31 @@ static uint8_t functNewProject()
 		return 1;
 	}
 
-	strcpy(fileManager.currentProjectName, "New Project");
-
-/*	memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
-	memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);*/
-
-
-	char currentPatch[PATCH_SIZE];
-	strcpy(currentPatch,"Templates/New/project.mt");
-
-	fileManager.getDefaultProject(&mtProject);
-	fileManager.createEmptyTemplateProject((char*)"New");
-
-	strcpy(mtConfig.startup.lastProjectName, fileManager.currentProjectName);
-
-
-	PE->isBusyFlag = 1;
 	PE->newProjectNotSavedFlag = 1;
 
-	PE->newProjectPopupDelay = 0;
-	PE->newProjectPopupFlag = 1;
 
-	PE->showProcessingPopup("Creating new project");
+	newFileManager.createNewProjectInWorkspace();
+	newFileManager.openProjectFromWorkspace();
+
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	PE->FM->clearAllPots();
+
+//	strcpy(newFileManager.getCurrentProjectName(), "New Project");
+/*	memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
+	memset(newFileManager.getCurrentProjectName(),0,PROJECT_NAME_SIZE);*/
+
+
+//	char currentPatch[PATCH_SIZE];
+//	strcpy(currentPatch,"Templates/New/project.mt");
+//	fileManager.getDefaultProject(&mtProject);
+//	fileManager.createEmptyTemplateProject((char*)"New");
+//	strcpy(mtConfig.startup.lastProjectName, newFileManager.getCurrentProjectName());
+//
+//	PE->newProjectPopupDelay = 0;
+//	PE->newProjectPopupFlag = 1;
+//	PE->isBusyFlag = 1;
+
+//	PE->showProcessingPopup("Creating new project");
 	PE->showDefaultScreen();
 
 	return 1;
@@ -512,12 +543,15 @@ static uint8_t functSaveProject()
 		return 1;
 	}
 
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	PE->FM->clearAllPots();
+
 	//PE->isBusyFlag = 1;
 	//PE->savePopupFlag = 1;
 	//PE->savePopupDelay = 0;
 	//mtProject.values.projectNotSavedFlag = 0;
 
-	//if(fileManager.currentProjectName[0]) PE->keyboardManager.fillName(fileManager.currentProjectName);
+	//if(newFileManager.getCurrentProjectName()[0]) PE->keyboardManager.fillName(newFileManager.getCurrentProjectName());
 	//else PE->keyboardManager.fillName((char *)"New Project");
 	//PE->showProcessingPopup("Saving project");
 
@@ -538,7 +572,7 @@ static uint8_t functSaveAsProject()
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functConfirmKey);
 	PE->FM->setButtonObj(interfaceButtonInsert, buttonPress, functConfirmKey);
 
-	PE->keyboardManager.fillName(fileManager.currentProjectName);
+	PE->keyboardManager.fillName(newFileManager.getCurrentProjectName());
 	PE->keyboardManager.activateKeyboard();
 
 	PE->showSaveAsKeyboard();
@@ -591,26 +625,31 @@ static uint8_t functSaveChangesDontSaveNewProject()
 
 	PE->newProjectNotSavedFlag = 1;
 
-	strcpy(fileManager.currentProjectName, "New Project");
+	newFileManager.createNewProjectInWorkspace();
+	newFileManager.openProjectFromWorkspace();
+
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	PE->FM->clearAllPots();
+
+//	strcpy(newFileManager.getCurrentProjectName(), "New Project");
 
 /*	memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
-	memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);*/
+	memset(newFileManager.getCurrentProjectName(),0,PROJECT_NAME_SIZE);*/
 
-	char currentPatch[PATCH_SIZE];
-	strcpy(currentPatch,"Templates/New/project.mt");
+//	char currentPatch[PATCH_SIZE];
+//	strcpy(currentPatch,"Templates/New/project.mt");
 
-	fileManager.getDefaultProject(&mtProject);
-	fileManager.createEmptyTemplateProject((char*)"New");
+//	fileManager.getDefaultProject(&mtProject);
+////	fileManager.createEmptyTemplateProject((char*)"New");
 
-	strcpy(mtConfig.startup.lastProjectName, fileManager.currentProjectName);
+//	strcpy(mtConfig.startup.lastProjectName, newFileManager.getCurrentProjectName());
 
-
-	PE->newProjectPopupDelay = 0;
-	PE->newProjectPopupFlag = 1;
-	PE->isBusyFlag = 1;
+//	PE->newProjectPopupDelay = 0;
+//	PE->newProjectPopupFlag = 1;
+//	PE->isBusyFlag = 1;
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Creating new project");
+//	PE->showProcessingPopup("Creating new project");
 
 	return 1;
 }
@@ -626,15 +665,14 @@ static uint8_t functSaveChangesSaveNewProject()
 		return 1;
 	}
 
-	mtProject.values.projectNotSavedFlag = 0;
-
-	PE->newProjectOnSaveEndFlag = 1;
-	PE->savePopupFlag = 1;
-	PE->savePopupDelay = 0;
-	PE->isBusyFlag = 1;
+//	mtProject.values.projectNotSavedFlag = 0;
+//	PE->newProjectOnSaveEndFlag = 1;
+//	PE->savePopupFlag = 1;
+//	PE->savePopupDelay = 0;
+//	PE->isBusyFlag = 1;
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Saving project");
+//	PE->showProcessingPopup("Saving project");
 
 	return 1;
 }
@@ -662,9 +700,11 @@ static uint8_t functSaveAsConfirm()
 		return 1;
 	}
 
-	strcpy(newFileManager.currentProjectName, 	PE->keyboardManager.getName());
-	newFileManager.saveProjectToProjects();
+	newFileManager.saveProjectToProjects(PE->keyboardManager.getName());
 
+
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	PE->FM->clearAllPots();
 
 //	if(fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsChecking) == 0 )
 //	{
@@ -676,7 +716,7 @@ static uint8_t functSaveAsConfirm()
 //	mtProject.values.projectNotSavedFlag = 0;
 //
 //
-//	strcpy(fileManager.currentProjectName, 	PE->keyboardManager.getName());
+//	strcpy(newFileManager.getCurrentProjectName(), 	PE->keyboardManager.getName());
 //
 //	PE->savePopupFlag = 1;
 //	PE->savePopupDelay = 0;
@@ -709,8 +749,7 @@ static uint8_t functSaveAsOverwriteYes()
 {
 	if(PE->isBusyFlag) return 1;
 
-	strcpy(newFileManager.currentProjectName, PE->keyboardManager.getName());
-	newFileManager.saveProjectToProjects();
+	newFileManager.saveProjectToProjects(PE->keyboardManager.getName());
 
 	//todo sprawdzanie
 //	fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsOverwrite);
@@ -789,7 +828,7 @@ void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 static uint8_t functDelete()
 {
 	if(PE->isBusyFlag) return 1;
-	if(strcmp(fileManager.currentProjectName, PE->projectsList[PE->selectedProject]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
+	if(strcmp(newFileManager.getCurrentProjectName(), PE->projectsList[PE->selectedProject]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
 
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functDeleteConfirm);
@@ -918,14 +957,14 @@ static uint8_t functExportSong()
 
 	uint16_t fileCounter = 0;
 
-	sprintf(currentExportPath,"Export/%s/%s_S.wav",fileManager.currentProjectName,fileManager.currentProjectName);
+	sprintf(currentExportPath,"Export/%s/%s_S.wav",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
 	while(SD.exists(currentExportPath))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_S%d.wav",fileManager.currentProjectName,fileManager.currentProjectName,++fileCounter);
+		sprintf(currentExportPath,"Export/%s/%s_S%d.wav",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_S",fileManager.currentProjectName,fileManager.currentProjectName);
-	else sprintf(currentExportPath,"Export/%s/%s_S%d",fileManager.currentProjectName,fileManager.currentProjectName,fileCounter);
+	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
+	else sprintf(currentExportPath,"Export/%s/%s_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),fileCounter);
 
 	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::song);
@@ -943,14 +982,14 @@ static uint8_t functExportSongStems()
 
 	uint16_t fileCounter = 0;
 
-	sprintf(currentExportPath,"Export/%s/%s_Song_S",fileManager.currentProjectName,fileManager.currentProjectName);
+	sprintf(currentExportPath,"Export/%s/%s_Song_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
 	while(SD.exists(currentExportPath))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_Song_S%d",fileManager.currentProjectName,fileManager.currentProjectName,++fileCounter);
+		sprintf(currentExportPath,"Export/%s/%s_Song_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_Song_S",fileManager.currentProjectName,fileManager.currentProjectName);
-	else sprintf(currentExportPath,"%s/%s_Song_S%d",fileManager.currentProjectName,fileManager.currentProjectName,fileCounter);
+	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_Song_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
+	else sprintf(currentExportPath,"%s/%s_Song_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),fileCounter);
 
 	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::songStems);
@@ -969,14 +1008,14 @@ static uint8_t functExportPattern()
 	uint16_t fileCounter = 0;
 	uint16_t namePattern = mtProject.values.actualPattern;
 
-	sprintf(currentExportPath,"Export/%s/%s_P%d.wav",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
+	sprintf(currentExportPath,"Export/%s/%s_P%d.wav",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern);
 	while(SD.exists(currentExportPath))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_P%d_%d.wav",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,++fileCounter);
+		sprintf(currentExportPath,"Export/%s/%s_P%d_%d.wav",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_P%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
-	else sprintf(currentExportPath,"Export/%s/%s_P%d_%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,fileCounter);
+	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_P%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern);
+	else sprintf(currentExportPath,"Export/%s/%s_P%d_%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,fileCounter);
 
 	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::pattern);
@@ -995,14 +1034,14 @@ static uint8_t functExportPatternStems()
 	uint16_t fileCounter = 0;
 	uint16_t namePattern = mtProject.values.actualPattern;
 
-	sprintf(currentExportPath,"Export/%s/%s_P%d_S",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
+	sprintf(currentExportPath,"Export/%s/%s_P%d_S", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern);
 	while(SD.exists(currentExportPath))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_P%d_S%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,++fileCounter);
+		sprintf(currentExportPath,"Export/%s/%s_P%d_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_P%d_S",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
-	else sprintf(currentExportPath,"%s/%s_P%d_S%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,fileCounter);
+	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_P%d_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern);
+	else sprintf(currentExportPath,"%s/%s_P%d_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,fileCounter);
 
 	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::patternStems);

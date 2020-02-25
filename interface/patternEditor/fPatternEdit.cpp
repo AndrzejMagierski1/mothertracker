@@ -2,7 +2,7 @@
 #include "patternEditor/patternEditor.h"
 #include "mtStructs.h"
 
-#include "mtFileManager.h"
+#include "fileManager.h"
 #include "mtAudioEngine.h"
 #include "mtPadBoard.h"
 #include "mtPadsBacklight.h"
@@ -176,11 +176,11 @@ void cPatternEditor::start(uint32_t options)
 
 void cPatternEditor::stop()
 {
-	if(sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
-	{
-		fileManager.savePattern(mtProject.values.actualPattern);
-
-	}
+//	if(sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
+//	{
+//		newFileManager.savePattern(mtProject.values.actualPattern);
+//
+//	}
 
 	if(fillState) fillState = 0;
 
@@ -620,7 +620,7 @@ void cPatternEditor::cancelPopups()
 	uint8_t popup_type = mtPopups.getStepPopupState();
 	if(popup_type != stepPopupNone)
 	{
-		fileManager.storePatternUndoRevision();
+		newFileManager.storePatternUndoRevision();
 
 		if(PTE->editMode == 1 && !insertOnPopupHideDisabled)
 		{
@@ -721,22 +721,13 @@ void cPatternEditor::changeActualPattern(int16_t value)
 {
 	if(sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
 	{
-
-		fileManager.savePattern(mtProject.values.actualPattern);
-
+		newFileManager.saveWorkspacePattern(mtProject.values.actualPattern);
 	}
 
-	mtProject.values.actualPattern = constrain(
-			mtProject.values.actualPattern + value, PATTERN_INDEX_MIN,
-			PATTERN_INDEX_MAX);
+	mtProject.values.actualPattern = constrain(mtProject.values.actualPattern + value,
+											   PATTERN_INDEX_MIN, PATTERN_INDEX_MAX);
 
-
-	// Zapis aktualnego appternu za 10s od ostatniej zmiany
-	fileManager.projectChangeRefresh = 0;
-	fileManager.projectChangeFlag = 1;
-
-
-	fileManager.loadPattern(mtProject.values.actualPattern);
+	newFileManager.loadWorkspacePattern(mtProject.values.actualPattern);
 	sequencer.switchRamPatternsNow();
 
 	readPatternState();
@@ -746,24 +737,16 @@ void cPatternEditor::changeActualPattern(int16_t value)
 }
 void cPatternEditor::setActualPattern(int16_t value)
 {
-
 	if (sequencer.getSeqState() != sequencer.SEQ_STATE_PLAY_PERFORMANCE)
 	{
-
-		fileManager.savePattern(mtProject.values.actualPattern);
-
+		newFileManager.saveWorkspacePattern(mtProject.values.actualPattern);
 	}
 
-	mtProject.values.actualPattern = constrain(
-												value,
+	mtProject.values.actualPattern = constrain( value,
 												PATTERN_INDEX_MIN,
 												PATTERN_INDEX_MAX);
 
-	// Zapis aktualnego appternu za 10s od ostatniej zmiany
-	fileManager.projectChangeRefresh = 0;
-	fileManager.projectChangeFlag = 1;
-
-	fileManager.loadPattern(mtProject.values.actualPattern);
+	newFileManager.loadWorkspacePattern(mtProject.values.actualPattern);
 	sequencer.switchRamPatternsNow();
 
 	readPatternState();
@@ -792,7 +775,7 @@ void cPatternEditor::changeActualPatternLength(int16_t value)
 
 	refreshPattern();
 
-	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+	newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 }
 
 void cPatternEditor::setActualPatternLength(int16_t value)
@@ -812,7 +795,7 @@ void cPatternEditor::setActualPatternLength(int16_t value)
 
 	refreshPattern();
 
-	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+	newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 }
 
 void cPatternEditor::changeActualPatternEditStep(int16_t value)
@@ -824,7 +807,7 @@ void cPatternEditor::changeActualPatternEditStep(int16_t value)
 
 	showStep();
 
-	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+	newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 }
 
 void cPatternEditor::setActualPatternEditStep(int16_t value)
@@ -1258,8 +1241,9 @@ uint8_t cPatternEditor::isCursorInSelection()
 
 void cPatternEditor::setProjectSaveFlags()
 {
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.projectChangeFlag = 1;
+	newFileManager.setProjectStructChanged();
+//	mtProject.values.projectNotSavedFlag = 1;
+//	newFileManager.projectChangeFlag = 1;
 }
 
 
@@ -1278,7 +1262,7 @@ uint8_t functEncoder(int16_t value)
 
 	if(PTE->selectedPlace >= 0)
 	{
-		fileManager.storePatternUndoRevision();
+		newFileManager.storePatternUndoRevision();
 
 		switch(PTE->selectedPlace)
 		{
@@ -1312,7 +1296,7 @@ uint8_t functEncoder(int16_t value)
 	sendSelection();
 	if(tactButtons.isButtonPressed(interfaceButtonShift) || !isMultiSelection())
 	{
-		fileManager.storePatternUndoRevision();
+		newFileManager.storePatternUndoRevision();
 		switch(PTE->editParam)
 		{
 		case 0: sequencer.changeSelectionNote(value); break;
@@ -1334,7 +1318,7 @@ uint8_t functEncoder(int16_t value)
 		}
 		}
 
-		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+		newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 	}
 
 	PTE->lightUpPadBoard();
@@ -1540,7 +1524,7 @@ static  uint8_t functUp()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
-		fileManager.storePatternUndoRevision();
+		newFileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
 		//case 0: PTE->changeActualTempo(1); 			 return 1;
@@ -1636,7 +1620,7 @@ static  uint8_t functDown()
 
 	if(	PTE->selectedPlace >= 0 &&  PTE->selectedPlace < 8)
 	{
-		fileManager.storePatternUndoRevision();
+		newFileManager.storePatternUndoRevision();
 		switch(PTE->selectedPlace)
 		{
 		//case 0: PTE->changeActualTempo(-1); 			return 1;
@@ -2011,7 +1995,7 @@ static  uint8_t functPlayAction()
 		//PTE->trackerPattern.actualStep = 0;
 		PTE->refreshPattern();
 
-		//fileManager.autoSaveWorkspace(1);
+		//newFileManager.autoSaveWorkspace(1);
 	}
 
 	return 1;
@@ -2046,7 +2030,7 @@ static uint8_t functInsertHome(uint8_t state)
 	{
 		if (PTE->editMode == 1)
 		{
-			fileManager.storePatternUndoRevision();
+			newFileManager.storePatternUndoRevision();
 
 			// HOME
 			if(tactButtons.isButtonPressed(interfaceButtonShift))
@@ -2076,7 +2060,7 @@ static uint8_t functInsertHome(uint8_t state)
 				sequencer.insert(&sequencer.selection);
 			}
 
-			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 		}
 
 		PTE->refreshPattern();
@@ -2128,7 +2112,7 @@ static uint8_t functCopyPaste(uint8_t state)
 
 		if (PTE->editMode == 1)
 		{
-			fileManager.storePatternUndoRevision();
+			newFileManager.storePatternUndoRevision();
 
 			if (tactButtons.isButtonPressed(interfaceButtonShift))
 			{
@@ -2144,7 +2128,7 @@ static uint8_t functCopyPaste(uint8_t state)
 				PTE->shiftAction = 1;
 			}
 
-			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 		}
 
 		PTE->refreshPattern();
@@ -2213,8 +2197,8 @@ static uint8_t functDeleteBackspace(uint8_t state)
 				PTE->moveCursorByStep();
 			}
 
-			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
-			fileManager.storePatternUndoRevision();
+			newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+			newFileManager.storePatternUndoRevision();
 		}
 
 		PTE->refreshPattern();
@@ -2432,7 +2416,7 @@ static  uint8_t functFillApply()
 	// zatwierdzanie wypelnienia
 	if(PTE->fillState)
 	{
-		fileManager.storePatternUndoRevision();
+		newFileManager.storePatternUndoRevision();
 		cPatternEditor::strFill * fillData = &PTE->fillData[PTE->editParam];
 		//(void) PTE->fillData[PTE->editParam];
 		//(void) PTE->fillStep;
@@ -2535,8 +2519,8 @@ static  uint8_t functFillApply()
 
 		//--------------------------------------------------------
 		functFillCancel();
-		fileManager.storePatternUndoRevision();
-		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+		newFileManager.storePatternUndoRevision();
+		newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 	}
 
 
@@ -2606,14 +2590,14 @@ uint8_t functInvert()
 	//--------------------------------------------------------
 	//TU
 
-	fileManager.storePatternUndoRevision();
+	newFileManager.storePatternUndoRevision();
 
 	sendSelection();
 	sequencer.invertSelectedSteps(getSelectedElement());
 
 	PTE->refreshPattern();
 
-	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+	newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 
 	//--------------------------------------------------------
 	return 1;
@@ -2639,11 +2623,11 @@ static uint8_t functUndo()
 {
 	if (tactButtons.isButtonPressed(interfaceButtonShift))
 	{
-		fileManager.redoPattern();
+		newFileManager.redoPattern();
 	}
 	else
 	{
-		fileManager.undoPattern();
+		newFileManager.undoPattern();
 	}
 	PTE->refreshPattern();
 	PTE->showPattern();
@@ -2818,7 +2802,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// obsługa przycisków pod ekranem (na poczatku bo dziala tez bez editmode)
 	if (PTE->selectedPlace >= 0)
 	{
-		fileManager.storePatternUndoRevision();
+		newFileManager.storePatternUndoRevision();
 
 		switch (PTE->selectedPlace)
 		{
@@ -2837,7 +2821,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		}
 
 		PTE->lightUpPadBoard();
-		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+		newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 
 		return 1;
 	}
@@ -2886,8 +2870,8 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// wprowadzanie danych
 	if (PTE->editMode == 1 || sequencer.isRec())
 	{
-		fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
-		fileManager.storePatternUndoRevision();
+		newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+		newFileManager.storePatternUndoRevision();
 
 		switch (PTE->editParam)
 		{
@@ -2966,8 +2950,8 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 				uint8_t fx_index = PTE->editParam == 2 ? 1 : 0;
 
 				sendSelection();
-				fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
-				fileManager.storePatternUndoRevision();
+				newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
+				newFileManager.storePatternUndoRevision();
 
 				if((tactButtons.isButtonPressed(interfaceButtonFx1) || tactButtons.isButtonPressed(interfaceButtonFx2))
 						)//&& mtPopups.getStepPopupState() == stepPopupNone)

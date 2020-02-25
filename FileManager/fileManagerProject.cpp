@@ -79,7 +79,7 @@ void cFileManager::copyProjectFile()
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::saveProjectFileToWorkspace()
 {
-	if(chengesFlags.project == 0) //tylko jesli flaga zmian ustawiona
+	if(changesFlags.project == 0) //tylko jesli flaga zmian ustawiona
 	{
 		moveToNextOperationStep();
 		return;
@@ -132,12 +132,12 @@ bool cFileManager::loadProjectFileFormFileStruct(strMtProject* project, strProje
 
 	if(pFile->projectDataAndHeader.projectHeader.fileStructureVersion[0] < PROJECT_FILE_VERSION)
 	{
-		debugLog.setMaxLineCount(2);
+		//debugLog.setMaxLineCount(2);
 		debugLog.addLine("older version of project file opened");
 	}
 	else if(pFile->projectDataAndHeader.projectHeader.fileStructureVersion[0] > PROJECT_FILE_VERSION)
 	{
-		debugLog.setMaxLineCount(2);
+		//debugLog.setMaxLineCount(2);
 		debugLog.addLine("newer version of project file opened");
 	}
 
@@ -156,7 +156,7 @@ bool cFileManager::loadProjectFileFormFileStruct(strMtProject* project, strProje
 		}
 		else
 		{
-			// tu przepisuje nazwe projektu odczytana z pliku projektu, pozniej jesy to itak weryfikowane
+			// tu przepisuje nazwe projektu odczytana z pliku projektu, pozniej jest to itak weryfikowane
 			pFile->projectDataAndHeader.project.projectName[PROJECT_NAME_SIZE-1] = 0;
 			strcpy(projectNamefromProjectFile, pFile->projectDataAndHeader.project.projectName);
 		}
