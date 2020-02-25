@@ -5,6 +5,8 @@
 #include "mtAudioEngine.h"
 #include "core/interfacePopups.h"
 
+#include "fileManager.h"
+
 #include "core/graphicProcessing.h"
 
 #include "mtPadsBacklight.h"
@@ -186,7 +188,8 @@ void cSampleEditor::refreshSampleApplying()
 		refreshSpectrum = 1;
 		effector.setSaveStatus(waitingForSaveInit);
 
-		fileManager.setInstrumentChangeFlag(localInstrNum);
+		//fileManager.setInstrumentChangeFlag(localInstrNum);
+		newFileManager.setInstrumentStructChanged(localInstrNum);
 	}
 }
 

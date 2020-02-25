@@ -2,6 +2,7 @@
 
 #include "sampleImporter/sampleImporter.h"
 #include "mtFileManager.h"
+#include "fileManager.h"
 
 #include "Encoder.h"
 
@@ -106,7 +107,7 @@ void cSampleImporter::start(uint32_t options)
 {
 	moduleRefresh = 1;
 
-	fileManager.disableAutoSaveWorkspace();
+	//fileManager.disableAutoSaveWorkspace();
 
 	Encoder.setAcceleration(0);
 
@@ -181,7 +182,7 @@ void cSampleImporter::stop()
 	Encoder.setAcceleration(3);
 	keyboardManager.deinit();
 
-	fileManager.enableAutoSaveWorkspace();
+	//fileManager.enableAutoSaveWorkspace();
 
 	moduleRefresh = 0;
 }
@@ -489,7 +490,8 @@ static  uint8_t functConfirmRename()
 
 			SI->displayDelete(SI->selectedPlace);
 
-			fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+		//	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+			newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
 			SI->keyboardManager.deactivateKeyboard();
 		}

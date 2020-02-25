@@ -407,67 +407,67 @@ void FileManager::delayAutoSave(uint16_t ms)
 
 void FileManager::autoSaveWorkspace(uint8_t forcedWorkspaceSave)
 {
-	if(projectChangeRefresh > 10000 || forcedWorkspaceSave)
-	{
-		projectChangeRefresh = 0;
+//	if(projectChangeRefresh > 10000 || forcedWorkspaceSave)
+//	{
+//		projectChangeRefresh = 0;
+//
+//		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
+//		{
+//			if(projectChangeFlag == 1 && sequencer.isStop())
+//			{
+//				fileManager.projectChangeFlag = 0;
+//
+//				debugLog.addLine("project autosave: ");
+//				sd_time_test = 0;
+//
+//				autoSaveProject();
+//
+//				debugLog.addValue(sd_time_test);
+//				//debugLog.forceRefresh();
+//			}
+//		}
+//	}
 
-		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
-		{
-			if(projectChangeFlag == 1 && sequencer.isStop())
-			{
-				fileManager.projectChangeFlag = 0;
+//	if((instrumentRefresh > 10000) || forcedWorkspaceSave)
+//	{
+//		instrumentRefresh = 0;
+//
+//		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
+//		{
+//			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
+//			{
+//				if(instrumentIsChangedFlag[i] == 1 && sequencer.isStop())
+//				{
+//					debugLog.addLine("instrument autosave: ");
+//					sd_time_test = 0;
+//
+//					saveInstrument(i);
+//
+//					debugLog.addValue(sd_time_test);
+//					//debugLog.forceRefresh();
+//				}
+//			}
+//		}
+//	}
 
-				debugLog.addLine("project autosave: ");
-				sd_time_test = 0;
-
-				autoSaveProject();
-
-				debugLog.addValue(sd_time_test);
-				//debugLog.forceRefresh();
-			}
-		}
-	}
-
-	if((instrumentRefresh > 10000) || forcedWorkspaceSave)
-	{
-		instrumentRefresh = 0;
-
-		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
-		{
-			for(uint8_t i = 0; i< INSTRUMENTS_COUNT; i++)
-			{
-				if(instrumentIsChangedFlag[i] == 1 && sequencer.isStop())
-				{
-					debugLog.addLine("instrument autosave: ");
-					sd_time_test = 0;
-
-					saveInstrument(i);
-
-					debugLog.addValue(sd_time_test);
-					//debugLog.forceRefresh();
-				}
-			}
-		}
-	}
-
-	if(patternRefresh > 10000 || forcedWorkspaceSave)
-	{
-		patternRefresh = 0;
-
-		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
-		{
-			if(patternIsChangedFlag[mtProject.values.actualPattern] == 1 && sequencer.isStop())
-			{
-				debugLog.addLine("pattern autosave: ");
-				sd_time_test = 0;
-
-				savePattern(mtProject.values.actualPattern);
-
-				debugLog.addValue(sd_time_test);
-				//debugLog.forceRefresh();
-			}
-		}
-	}
+//	if(patternRefresh > 10000 || forcedWorkspaceSave)
+//	{
+//		patternRefresh = 0;
+//
+//		if(savingInProgress == 0 && loadingInProgress == 0 && deletingInProgress == 0)
+//		{
+//			if(patternIsChangedFlag[mtProject.values.actualPattern] == 1 && sequencer.isStop())
+//			{
+//				debugLog.addLine("pattern autosave: ");
+//				sd_time_test = 0;
+//
+//				savePattern(mtProject.values.actualPattern);
+//
+//				debugLog.addValue(sd_time_test);
+//				//debugLog.forceRefresh();
+//			}
+//		}
+//	}
 }
 
 void FileManager::getDefaultSong(struct strSong *source)
