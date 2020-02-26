@@ -502,6 +502,14 @@ void Sequencer::play_microStep(uint8_t row)
 			}
 			fxIndex++;
 		}
+
+
+		 if (patternStep.note == STEP_NOTE_OFF)
+		 {
+			 playerRow.isOffset = 1;
+			 playerRow.offsetValue = 10;
+
+		 }
 	}
 
 	// **************************
@@ -661,6 +669,9 @@ void Sequencer::play_microStep(uint8_t row)
 			playerRow.stepOpen = 0;
 			playerRow.rollIsOn = 0;
 			playerRow.rollPeriod = fx.ROLL_PERIOD_NONE;
+
+
+
 		}
 		else if (patternStep.note == STEP_NOTE_CUT)
 		{
