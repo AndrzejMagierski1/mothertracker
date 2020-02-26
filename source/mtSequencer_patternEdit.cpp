@@ -43,20 +43,15 @@ void Sequencer::fillRandomNotes(int16_t fillStep,
 			step = &seq[player.ramBank].track[t].step[s];
 			if (isStepToFillNote(step, offset, fillStep))
 			{
-//				if (inScale)
-//				{
+				if (step->note == STEP_NOTE_EMPTY)
+				{
+					step->instrument = mtProject.values.lastUsedInstrument;
+				}
 				for (uint8_t a = 0; a <= 100; a -= -1)
 				{
 					step->note = random(from, to + 1);
 					if (isInScale(step->note, root, scale)) break;
 				}
-				step->instrument = mtProject.values.lastUsedInstrument;
-//				}
-//				else
-//				{
-//					step->note = random(from, to + 1);
-//					step->instrument = mtProject.values.lastUsedInstrument;
-//				}
 			}
 		}
 	}
@@ -81,6 +76,10 @@ void Sequencer::fillLinearNotes(int16_t fillStep,
 			step = &seq[player.ramBank].track[t].step[s];
 			if (isStepToFillNote(step, offset, fillStep))
 			{
+				if (step->note == STEP_NOTE_EMPTY)
+				{
+					step->instrument = mtProject.values.lastUsedInstrument;
+				}
 				step->note = map(offset + sel->firstStep,
 									sel->firstStep,
 									sel->lastStep,
@@ -92,7 +91,6 @@ void Sequencer::fillLinearNotes(int16_t fillStep,
 					step->note++;
 				}
 
-				step->instrument = mtProject.values.lastUsedInstrument;
 			}
 		}
 	}
