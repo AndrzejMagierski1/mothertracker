@@ -228,7 +228,7 @@ private:
 	void loadInstrumentsFromWorkspace();
 	void saveInstrumentsToWorkspace();
 	void copyInstruments();
-	void createEmptyInstrumentInWorkspace(uint8_t slot);
+	void createEmptyInstrumentInWorkspace(uint8_t slot, char* name);
 
 	bool loadInstrumentFormFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile);
 	bool writeInstrumentToFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile);

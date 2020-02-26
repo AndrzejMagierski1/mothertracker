@@ -290,12 +290,17 @@ uint8_t cList::update()
 				}
 			}
 
-			API_CMD_TEXT(x_pos,
-					y_pos + (i * h_row),
-					font->handle,
-					textStyle | OPT_CENTERY,
-					*(list->data + (i +  textListPos)),
-					list->lineLengthMax);
+			char** row_text = (list->data + (i +  textListPos));
+
+			if(row_text != nullptr)
+			{
+				API_CMD_TEXT(x_pos,
+						y_pos + (i * h_row),
+						font->handle,
+						textStyle | OPT_CENTERY,
+						*row_text,
+						list->lineLengthMax);
+			}
 
 			if(list->icon.useSpecialIcons)
 			{

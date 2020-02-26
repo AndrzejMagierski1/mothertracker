@@ -145,7 +145,7 @@ void cFileManager::updateImportSamplesToWorkspace()	//fmImportSamplesToWorkspace
 	switch(currentOperationStep)
 	{
 		case 0:		importSamplesToWorkspaceInit(); 						break;
-		case 1:		createEmptyInstrumentInWorkspace(currentInstrument);	break;
+		case 1:		createEmptyInstrumentInWorkspace(currentInstrument, explorerList[importCurrentFile]);	break;
 		case 2:		importSamples();										break;
 		case 3:		importSamplesToWorkspaceFinish(); 						break;
 		default:	stopOperationWithError(fmImportSamplesError); 			break;
@@ -325,6 +325,8 @@ void cFileManager::importSamplesToWorkspaceFinish()
 {
 	importSampleLeft--;
 	importCurrentFile++;
+	currentInstrument++;
+	currentSample++;
 
 	if(importSampleLeft > 0 && currentSample < INSTRUMENTS_COUNT && importCurrentFile < explorerListLength)
 	{
@@ -429,7 +431,7 @@ bool cFileManager::importSamplesToWorkspace(uint8_t fileFrom, uint8_t fileTo, ui
 
 	importCurrentFile = fileFrom;
 
-	importSampleLeft = (fileTo>fileFrom) ? fileTo-fileFrom : 1 ;
+	importSampleLeft = (fileTo>fileFrom) ? fileTo-fileFrom+1 : 1 ;
 
 
 	status = fmImportingSamplesToWorkspace;

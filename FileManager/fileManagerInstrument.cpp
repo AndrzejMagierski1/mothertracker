@@ -124,16 +124,17 @@ void cFileManager::saveInstrumentsToWorkspace()
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     CREATE     ---------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
-void cFileManager::createEmptyInstrumentInWorkspace(uint8_t slot)
+void cFileManager::createEmptyInstrumentInWorkspace(uint8_t slot, char* name)
 {
-	if(mtProject.instrument[slot].isActive)
+	if(mtProject.instrument[slot].isActive == 0)
 	{
-		//nie nadpisuje instrumentu jesli abyl aktywny
-		moveToNextOperationStep();
-		return;
+		// jesli nie aktywny to tworzy domyslna strukture
+		setDefaultActiveInstrument(&mtProject.instrument[slot]);
 	}
 
-	setDefaultActiveInstrument(&mtProject.instrument[slot]);
+	//nadaje nazwe i zapisuje z nowa nazwa zawsze
+	strcpy(mtProject.instrument[slot].sample.file_name, name);
+
 
 	if(!writeInstrumentToFileStruct(&mtProject.instrument[slot], &fileManagerInstrumentBuffer))
 	{

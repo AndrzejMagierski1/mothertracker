@@ -87,16 +87,33 @@ void cSampleImporter::update()
 		previewColorControl();
 		cancelSelect(listFiles);
 		setSelect();
+		isBusy = 0;
+
+		newFileManager.clearStatus();
+	}
+	else if(managerStatus == fmImportSamplesEnd)
+	{
+		SI->listInstrumentSlots();
+		SI->showInstrumentsList();
+		SI->handleMemoryBar();
+		isBusy = 0;
+
+		newFileManager.clearStatus();
+	}
+	else if(managerStatus == fmImportSamplesError)
+	{
+		debugLog.addLine("Sample import Error");
+		isBusy = 0;
 
 		newFileManager.clearStatus();
 	}
 	else if(managerStatus >=  fmBrowseSamplesError)
 	{
 		debugLog.addLine("Browse Error");
+		isBusy = 0;
+
 		newFileManager.clearStatus();
 	}
-
-
 
 	processDeleting();
 }
@@ -104,8 +121,6 @@ void cSampleImporter::update()
 void cSampleImporter::start(uint32_t options)
 {
 	moduleRefresh = 1;
-
-	//fileManager.disableAutoSaveWorkspace();
 
 	Encoder.setAcceleration(0);
 
@@ -127,7 +142,6 @@ void cSampleImporter::start(uint32_t options)
 	}
 
 
-	//selectedFile = 0;
 	newFileManager.browseSdCard(nullptr);
 
 	//listAllFoldersFirst();
@@ -185,8 +199,6 @@ void cSampleImporter::stop()
 {
 	Encoder.setAcceleration(3);
 	keyboardManager.deinit();
-
-	//fileManager.enableAutoSaveWorkspace();
 
 	moduleRefresh = 0;
 }
@@ -988,64 +1000,67 @@ void cSampleImporter::BrowseOrAdd()
 
 void cSampleImporter::SelectFile()
 {
-	if(currentCopyStatusFlag || currentLoadStatusFlag) return;
-
 	if(!fullMemoryFlag)
 	{
-		copyType = 1;
-		isBusy = 1;
 
-		//fileManager.clearAutoLoadFlag();
-
-		if(currSelectPlace==0)
+		bool result = newFileManager.importSamplesToWorkspace(getSelectionStart(listFiles), getSelectionEnd(listFiles), selectedSlot);
+		if(result)
 		{
-			uint8_t position;
-
-			copyElement=0;
-			copyElementMax = selectionLength[listFiles];
-
-			if(copyElementMax==0)
-			{
-				position=selectedFile;
-			}
-			else
-			{
-				position = getSelectionStart(listFiles);
-
-				while(selectedSlot + (copyElementMax-1) >= 48)//sprawdzic
-				{
-					copyElementMax--;
-				}
-			}
-
-			if((copyElement == (copyElementMax-1)) || (copyElementMax == 0))
-			{
-				fileManager.setAutoLoadFlag();
-			}
-
-			fileManager.setStart(selectedSlot);
-
-
-
-//			if(fileManager.assignSampleToInstrument(actualPath, explorerNames[position + copyElement], selectedSlot + copyElement, sampleType) == 0)
+			copyType = 1;
+			isBusy = 1;
+		}
+//
+//
+//		//fileManager.clearAutoLoadFlag();
+//
+//		if(currSelectPlace==0)
+//		{
+//			uint8_t position;
+//
+//			copyElement=0;
+//			copyElementMax = selectionLength[listFiles];
+//
+//			if(copyElementMax==0)
 //			{
-//				if(copyElement == (copyElementMax - 1))
+//				position=selectedFile;
+//			}
+//			else
+//			{
+//				position = getSelectionStart(listFiles);
+//
+//				while(selectedSlot + (copyElementMax-1) >= 48)//sprawdzic
 //				{
-//					isBusy = 0;
+//					copyElementMax--;
 //				}
 //			}
-
-			copyElement++;
-		}
-		else
-		{
-			fileManager.setAutoLoadFlag();
-			fileManager.setStart(selectedSlot);
-
-			newFileManager.importSamplesToWorkspace(getSelectionStart(listFiles), getSelectionEnd(listFiles), selectedSlot);
-
-			//fileManager.assignSampleToInstrument(actualPath, explorerNames[selectedFile], selectedSlot,sampleType);
-		}
+//
+//			if((copyElement == (copyElementMax-1)) || (copyElementMax == 0))
+//			{
+//				//fileManager.setAutoLoadFlag();
+//			}
+//
+//			//fileManager.setStart(selectedSlot);
+//
+//
+//
+////			if(fileManager.assignSampleToInstrument(actualPath, explorerNames[position + copyElement], selectedSlot + copyElement, sampleType) == 0)
+////			{
+////				if(copyElement == (copyElementMax - 1))
+////				{
+////					isBusy = 0;
+////				}
+////			}
+//
+//			copyElement++;
+//		}
+//		else
+//		{
+//			//fileManager.setAutoLoadFlag();
+//			//fileManager.setStart(selectedSlot);
+//
+//
+//			//fileManager.assignSampleToInstrument(actualPath, explorerNames[selectedFile], selectedSlot,sampleType);
+//		}
 	}
 }
 

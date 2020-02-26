@@ -118,8 +118,8 @@ uint8_t cStartScreen::update()
     uint16_t barWidth = (5*width)/7;
     uint16_t barX = posX+ (width/7);
 
-    uint16_t barHeight = (2*height)/7 ;
-    uint16_t barY = posY + ((3*height)/7);
+    uint16_t barHeight = 3 ;
+    uint16_t barY = posY + ((3*height)/6);
 
     uint16_t textX = posX + (width/2);
     uint16_t textY = posY + ((2*height)/7);
@@ -129,25 +129,29 @@ uint8_t cStartScreen::update()
 
 	uint16_t barFillY = (barWidth * value) / 100;
 
+	API_BLEND_FUNC(SRC_ALPHA, ZERO);
 
 	API_COLOR(colors[1]);
 
-	API_LINE_WIDTH(16);
+	API_LINE_WIDTH(8);
 	API_BEGIN(RECTS);
 	API_VERTEX2F(barX+1, barY+1);
 	API_VERTEX2F(barX+barFillY-1, barY+barHeight-1);
 	API_END();
 
-	API_COLOR(colors[1]);
 
-	API_LINE_WIDTH(16);
-	API_BEGIN(LINE_STRIP);
-	API_VERTEX2F(barX, barY);
-	API_VERTEX2F(barX+barWidth, barY);
-	API_VERTEX2F(barX+barWidth, barY+barHeight);
-	API_VERTEX2F(barX, barY+barHeight);
-	API_VERTEX2F(barX, barY);
-	API_END();
+	API_BLEND_FUNC(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+
+	//API_COLOR(colors[1]);
+
+//	API_LINE_WIDTH(16);
+//	API_BEGIN(LINE_STRIP);
+//	API_VERTEX2F(barX, barY);
+//	API_VERTEX2F(barX+barWidth, barY);
+//	API_VERTEX2F(barX+barWidth, barY+barHeight);
+//	API_VERTEX2F(barX, barY+barHeight);
+//	API_VERTEX2F(barX, barY);
+//	API_END();
 
 
 /*
