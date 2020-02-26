@@ -666,8 +666,15 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 				}
 				else if (step->note == STEP_NOTE_EMPTY)
 				{
-					step->note = STEP_NOTE_DEFAULT;
-					step->instrument = mtProject.values.lastUsedInstrument;
+						step->note = STEP_NOTE_DEFAULT;
+					if (value > 0)
+					{
+						step->instrument = mtProject.values.lastUsedInstrument;
+					}
+					else
+					{
+						step->instrument = INSTRUMENTS_MAX + 16;
+					}
 				}
 
 				return;
