@@ -131,6 +131,14 @@ public:
 		{
 			ROLL_PERIOD_MIN = 0,
 			ROLL_PERIOD_NONE = 0,
+			ROLL_PERIOD_16_1,
+			ROLL_PERIOD_12_1,
+			ROLL_PERIOD_8_1,
+			ROLL_PERIOD_6_1,
+			ROLL_PERIOD_4_1,
+			ROLL_PERIOD_3_1,
+			ROLL_PERIOD_2_1,
+
 			ROLL_PERIOD_1_1,
 			ROLL_PERIOD_1_2,
 			ROLL_PERIOD_1_3,
@@ -287,7 +295,7 @@ public:
 	uint8_t getRollVelo(uint8_t);
 	uint8_t getInstrumentVelo(uint8_t);
 
-	inline uint8_t rollValToPeriod(uint8_t rollType);
+	inline uint16_t rollValToPeriod(uint8_t rollType);
 
 	void divChangeQuantize(uint8_t row);
 

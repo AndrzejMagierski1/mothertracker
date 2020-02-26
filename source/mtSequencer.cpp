@@ -776,7 +776,7 @@ Sequencer::strPattern *Sequencer::getPattern()
 	return &seq[player.ramBank];
 }
 
-uint8_t Sequencer::rollValToPeriod(uint8_t rollVal)
+uint16_t Sequencer::rollValToPeriod(uint8_t rollVal)
 {
 
 	rollVal = rollVal % (fx.ROLL_PERIOD_MAX + 1);
@@ -786,12 +786,22 @@ uint8_t Sequencer::rollValToPeriod(uint8_t rollVal)
 		return 0;
 		break;
 
-//	case fx.ROLL_TYPE_4_1:
-//		return 192;
-//	case fx.ROLL_TYPE_3_1:
-//		return 144;
-//	case fx.ROLL_TYPE_2_1:
-//		return 96;
+	case fx.ROLL_PERIOD_16_1:
+		return 16*48;
+	case fx.ROLL_PERIOD_12_1:
+		return 12*48;
+	case fx.ROLL_PERIOD_8_1:
+		return 8*48;
+	case fx.ROLL_PERIOD_6_1:
+		return 6*48;
+	case fx.ROLL_PERIOD_4_1:
+		return 192;
+	case fx.ROLL_PERIOD_3_1:
+		return 144;
+	case fx.ROLL_PERIOD_2_1:
+		return 96;
+
+
 	case fx.ROLL_PERIOD_1_1:
 		return 48;
 	case fx.ROLL_PERIOD_1_2:
