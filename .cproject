@@ -514,6 +514,6 @@
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="com.nxp.mcuxpresso.core.datamodels">
 		<sdkName>SDK_2.x_MK66FX1M0xxx18</sdkName>
-		<sdkVersion>2.5.0</sdkVersion>
+		<sdkVersion>2.7.0</sdkVersion>
 	</storageModule>
 </cproject>

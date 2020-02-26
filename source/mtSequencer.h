@@ -487,10 +487,7 @@ public:
 	}
 
 	float getActualTempo();
-	uint32_t getSeqTimer()
-	{
-		return nanoStep+nanoStepMultiplier*6912;
-	}
+	uint32_t getSeqTimer();
 
 // sekwencerowe
 

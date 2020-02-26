@@ -59,18 +59,19 @@ void envelopeGenerator::calc()
 {
 
 	// values
-	float amount 		= envelope->amount ; 	// float -1 - 1
-	float sustain 		= envelope->sustain ;	// float 0-1
+	amount 		= envelope->amount ; 	// float -1 - 1
+	sustain 		= envelope->sustain ;	// float 0-1
 
 	// time-dependent values
-	float delay 		= (float)envelope->delay * timeMul;
-	float attack 		= (float)envelope->attack * timeMul;
-	float hold 			= (float)envelope->hold * timeMul;
-	float decay 		= (float)envelope->decay * timeMul;
-	float release 		= (float)envelope->release * timeMul;
+	delay 		= (float)envelope->delay * timeMul;
+	attack 		= (float)envelope->attack * timeMul;
+	hold 			= (float)envelope->hold * timeMul;
+	decay 		= (float)envelope->decay * timeMul;
+	release 		= (float)envelope->release * timeMul;
 
-	bool _loop 			= envelope->loop;
+	_loop 			= envelope->loop;
 
+	calcSyncSeq();
 
 	if (envTemp.phase == phase_nothing)
 	{
@@ -377,67 +378,80 @@ float envelopeGenerator::getLastOut()
 }
 
 
-void envelopeGenerator::syncTrackerSeq(uint16_t val, float seqSpeed)
+
+
+void envelopeGenerator::syncTrackerSeq(uint32_t val, float seqSpeed)
 {
-	uint16_t ticksOnPeriod = (6912/3) * syncRate;
+	currentSeqSpeed = seqSpeed;
+	currentSeqTicks = val;
+
+}
+
+void envelopeGenerator::setSync(uint8_t state)
+{
+	syncState = state;
+}
+void envelopeGenerator::calcSyncSeq()
+{
+	if (!syncState) return;
+
+	uint16_t ticksOnPeriod = (6912/12) * syncRate;
 
 	uint16_t stepShift = (startStep % 36) * (6912/12);
 
-	val += stepShift;
-	if(val > 3*6912) val -= 3*6912;
+	currentSeqTicks += stepShift;
 
+	uint16_t currentPointInPhase = currentSeqTicks%ticksOnPeriod;
 
-	uint16_t currentPointInPhase = val%ticksOnPeriod;
-
-	float lfoFrequency = (240.0/seqSpeed);
-	float periodTime = (1000000 / lfoFrequency) * syncRate;
+	float lfoFrequency = (currentSeqSpeed/15.0);
+	float periodTime = (1000000.0f / lfoFrequency) * syncRate;
 
 	if(phaseNumber[0] != -1 && phaseNumber[1] != -1)
 	{
+		float halfPeriod = periodTime/2;
 		if(phaseNumber[0] == phase_attack)
 		{
-			envelope->attack = periodTime/2000;
+			attack = halfPeriod;
 		}
 		else if(phaseNumber[0] == phase_hold)
 		{
-			envelope->hold = periodTime/2000;
+			hold = halfPeriod;
 		}
 
 		if(phaseNumber[1] == phase_decay)
 		{
-			envelope->decay = periodTime/2000;
+			decay = halfPeriod;
 		}
 		else if(phaseNumber[1] == phase_release)
 		{
-			envelope->release = periodTime/2000;
+			release = halfPeriod;
 		}
 
 		if(currentPointInPhase > ticksOnPeriod/2)
 		{
 			envTemp.phase = phaseNumber[1];
-			envTemp.timer = (periodTime/2) * (float)( (float)(currentPointInPhase-ticksOnPeriod/2.0f) /(ticksOnPeriod/2.0f));
+			envTemp.timer = (halfPeriod) * (float)( (float)(currentPointInPhase-ticksOnPeriod/2.0f) /(ticksOnPeriod/2.0f));
 		}
 		else
 		{
 			envTemp.phase = phaseNumber[0];
-			envTemp.timer = (periodTime/2) * (float)((float)(currentPointInPhase) /(ticksOnPeriod/2.0f));
+			envTemp.timer = (halfPeriod) * (float)((float)(currentPointInPhase) /(ticksOnPeriod/2.0f));
 		}
 	}
-	else if(phaseNumber[0])
+	else if(phaseNumber[0] != - 1)
 	{
 		if(phaseNumber[0] == phase_attack)
 		{
-			envelope->attack = periodTime/1000;
+			attack = periodTime;
 		}
-		else if(phaseNumber[0] == phase_hold)
+		else if(phaseNumber[0] == phase_decay)
 		{
-			envelope->decay = periodTime/1000;
+			decay = periodTime;
 		}
 
 		envTemp.phase = phaseNumber[0];
 		envTemp.timer = (periodTime) * (float)((float)currentPointInPhase/ticksOnPeriod);
 	}
-
 }
 void envelopeGenerator::setSyncStartStep(uint16_t n)
 {

@@ -27,6 +27,8 @@
 #include "effect_envelope.h"
 #include "Audio.h"
 #include "debugLog.h"
+#include "mtSequencer.h"
+
 #define STATE_IDLE	0
 #define STATE_DELAY	1
 #define STATE_ATTACK	2
@@ -117,7 +119,7 @@ void  AudioEffectEnvelope::decay(float milliseconds)
 		else if ((int)(count + dif) > 65535) count = 65535;
 		else count += dif;
 
-		inc_hires = count ? (sustain_mult - mult_hires) / (int32_t)count : 0 ;
+		inc_hires = count ? (sustain_mult - mult_hires) / count : 0 ;
 
 	}
 	AudioInterrupts();
@@ -150,16 +152,18 @@ void  AudioEffectEnvelope::release(float milliseconds)
 		else if ((int)(count + dif) > 65535) count = 65535;
 		else count += dif;
 
-		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+		inc_hires = count ? (-mult_hires) / count : 0;
 
 	}
 	AudioInterrupts();
 	__enable_irq();
 }
 
+
 void AudioEffectEnvelope::noteOn(void)
 {
 	__disable_irq();
+
 	pressedFlag = 1;
 	if (state == STATE_IDLE || state == STATE_DELAY || release_forced_count == 0)
 	{
@@ -175,7 +179,7 @@ void AudioEffectEnvelope::noteOn(void)
 		{
 			state = STATE_ATTACK;
 			count = attack_count;
-			inc_hires = count? 0x40000000 / (int32_t)count : 0;
+			inc_hires = count? 0x40000000 / count : 0;
 
 		}
 	}
@@ -183,8 +187,8 @@ void AudioEffectEnvelope::noteOn(void)
 	{
 		state = STATE_FORCED;
 		count = release_forced_count;
-		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
-		mult_hires = (-inc_hires) * count; // powinno zapobiec przechodzeniu przez zero
+		inc_hires = count ? (-mult_hires) / count : 0;
+//		mult_hires = (-inc_hires) * count; // powinno zapobiec przechodzeniu przez zero
 	}
 	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
 	__enable_irq();
@@ -203,7 +207,7 @@ void AudioEffectEnvelope::noteOff(void)
 		}
 		state = STATE_RELEASE;
 		count = release_count;
-		inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+		inc_hires = count ? (-mult_hires) / count : 0;
 		mult_hires = (-inc_hires) * count;
 	}
 	__enable_irq();
@@ -235,7 +239,6 @@ void AudioEffectEnvelope::update(void)
 		AudioStream::release(block);
 		return;
 	}
-
 	p = (uint32_t *)(block->data);
 	end = p + AUDIO_BLOCK_SAMPLES/2;
 
@@ -248,7 +251,7 @@ void AudioEffectEnvelope::update(void)
 			{
 				count = release_count;
 				state = STATE_RELEASE;
-				inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+				inc_hires = count ? (-mult_hires) /count : 0;
 			}
 		}
 
@@ -266,7 +269,7 @@ void AudioEffectEnvelope::update(void)
 			{
 				state = STATE_DECAY;
 				count = decay_count;
-				inc_hires = count ? (sustain_mult - 0x40000000) / (int32_t)count : 0 ;
+				inc_hires = count ? (sustain_mult - 0x40000000) / count : 0 ;
 				continue;
 			}
 			else if (state == STATE_DECAY)
@@ -275,7 +278,7 @@ void AudioEffectEnvelope::update(void)
 				{
 					count = release_count;
 					state = STATE_RELEASE;
-					inc_hires = count ? (-mult_hires) / (int32_t)count : 0;
+					inc_hires = count ? (-mult_hires) / count : 0;
 					continue;
 				}
 				else
@@ -297,7 +300,7 @@ void AudioEffectEnvelope::update(void)
 					//powinienem dać delay state, ale nie jest uzywany w trackerze, a moze tworzyc dodatkowe problemy
 					count = attack_count;
 					state = STATE_ATTACK;
-					inc_hires = count ? 0x40000000 / (int32_t)count : 0;
+					inc_hires = count ? 0x40000000 / count : 0;
 					continue;
 				}
 				else
@@ -333,8 +336,47 @@ void AudioEffectEnvelope::update(void)
 			}
 		}
 
+
 		int32_t mult = mult_hires >> 14; // przeskalowanie na 16 bitow bo 0x40000000 zajmuje 30 bitow
 		int32_t inc = inc_hires >> 17; // podejrzewam ze przeskalowanie na 13 bitow aby suma takich osmiu (3bity) obslugiwala 8 probek (inc_hires wyliczone dla 8 bitowego cyklu)
+		if(inc > 0)
+		{
+			if( (mult + 8 * inc) >= 0x10000)
+			{
+				debugLog.setMaxLineCount(10);
+				debugLog.addLine("mult ");
+				debugLog.addValue(mult);
+				debugLog.addText("inc ");
+				debugLog.addValue(inc);
+				debugLog.addText("state ");
+				debugLog.addValue(state);
+				debugLog.addText("count ");
+				debugLog.addValue(count);
+				inc = (0xFFFF-mult)/8;
+				count = 1;
+
+			}
+
+		}
+		else if(inc < 0)
+		{
+			if( (mult + 8 * inc) < 0)
+			{
+				debugLog.setMaxLineCount(10);
+				debugLog.addLine("mult ");
+				debugLog.addValue(mult);
+				debugLog.addText("inc ");
+				debugLog.addValue(inc);
+				debugLog.addText("state ");
+				debugLog.addValue(state);
+				debugLog.addText("count ");
+				debugLog.addValue(count);
+
+				inc = -mult/8;
+				count = 1;
+			}
+
+		}
 //		sample12 = *p++;
 //		sample34 = *p++;
 //		sample56 = *p++;
@@ -360,6 +402,7 @@ void AudioEffectEnvelope::update(void)
 //		mult += inc;
 //		tmp2 = signed_multiply_32x16t(mult, sample78);
 //		sample78 = pack_16b_16b(tmp2, tmp1);
+
 
 		sample12 = *p;
 		sample34 = *(p+1);
@@ -395,6 +438,8 @@ void AudioEffectEnvelope::update(void)
 		mult+=inc;
 		tmp2 = mult * (*sample8);
 
+
+
 		*sample7 = *tmp1Shifted;
 		*sample8 = *tmp2Shifted;
 
@@ -403,14 +448,13 @@ void AudioEffectEnvelope::update(void)
 		*p++ = sample56;
 		*p++ = sample78;
 
-
 		// adjust the long-term gain using 30 bit resolution (fix #102)
 		// https://github.com/PaulStoffregen/Audio/issues/102
 		mult_hires += inc_hires;
 		if(mult_hires < 0 )
 		{
 			mult_hires = 0;
-			count = 0;
+			count = 1;
 			debugLog.setMaxLineCount(10);
 			debugLog.addLine("MH<0 ");
 			debugLog.addValue(state);
@@ -420,7 +464,7 @@ void AudioEffectEnvelope::update(void)
 		else if(mult_hires > 0x40000000)
 		{
 			mult_hires = 0x40000000;
-			count = 0;
+			count = 1;
 			debugLog.setMaxLineCount(10);
 			debugLog.addLine("MH>MAX ");
 			debugLog.addValue(state);
@@ -428,7 +472,16 @@ void AudioEffectEnvelope::update(void)
 			debugLog.addValue(count);
 		}
 
-		if(count > 0 ) count--;
+		if(count > 0 )
+		{
+			count--;
+		}
+		else
+		{
+			debugLog.setMaxLineCount(10);
+			debugLog.addLine("count = 0 ");
+			debugLog.addValue(state);
+		}
 	}
 	transmit(block);
 	AudioStream::release(block);
@@ -448,4 +501,115 @@ void AudioEffectEnvelope::clearEndReleaseFlag()
 uint8_t AudioEffectEnvelope:: getState()
 {
 	return state;
+}
+
+void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
+{
+	if(state == STATE_FORCED) return;
+
+	AudioNoInterrupts();
+	uint16_t ticksOnPeriod = (6912/12) * syncRate;
+
+	uint16_t stepShift = (startStep % 36) * (6912/12);
+
+	val += stepShift;
+
+	uint16_t currentPointInPhase = val % ticksOnPeriod;
+
+	float lfoFrequency = (seqSpeed/15.0);
+	float periodTime = (1000 / lfoFrequency) * syncRate;
+
+	if(phaseNumber[0] != -1 && phaseNumber[1] != -1)
+	{
+		float fullPhaseTime = periodTime/2.0f;
+		uint16_t fullPhaseCount = milliseconds2count(fullPhaseTime);
+
+		if(currentPointInPhase > ticksOnPeriod/2)
+		{
+			state = phaseNumber[1];
+			count = milliseconds2count((fullPhaseTime) * (float)( (float)(currentPointInPhase-ticksOnPeriod/2.0f) /(ticksOnPeriod/2.0f)));
+			if(count == 0) count = 1;
+
+			if(phaseNumber[1] == STATE_DECAY)
+			{
+				decay_count = fullPhaseCount;
+				if (decay_count == 0) decay_count = 1;
+				inc_hires = fullPhaseCount ? -(0x40000000/fullPhaseCount) : 0;
+				mult_hires = 0x40000000 + (inc_hires * (fullPhaseCount - count));
+			}
+			else if(phaseNumber[1] == STATE_RELEASE)
+			{
+				release_count = fullPhaseCount;
+				if (release_count == 0) release_count = 1;
+				inc_hires = 0;
+				mult_hires = 0;
+				// w normalnym przypadku powinno byc od ostatniego mult_hires - ale  w lfo stan poczatkowy release = 1.0
+			}
+
+
+		}
+		else
+		{
+			if(phaseNumber[0] == STATE_ATTACK)
+			{
+				attack_count = fullPhaseCount;
+				if (attack_count == 0) attack_count = 1;
+				inc_hires = fullPhaseCount ? 0x40000000/fullPhaseCount : 0;
+			}
+			else if(phaseNumber[0] == STATE_HOLD)
+			{
+				hold_count = fullPhaseCount;
+				if (hold_count == 0) hold_count = 1;
+			}
+
+			state = phaseNumber[0];
+			count = milliseconds2count((fullPhaseTime) * (float)((float)(currentPointInPhase) /(ticksOnPeriod/2.0f)));
+			if(count == 0) count = 1;
+			if(phaseNumber[0] == STATE_ATTACK)
+			{
+				mult_hires = inc_hires * (fullPhaseCount - count);
+			}
+			else if(phaseNumber[0] == STATE_HOLD)
+			{
+				mult_hires = 0x40000000;
+				inc_hires = 0;
+			}
+		}
+	}
+	else if(phaseNumber[0] != -1)
+	{
+		uint16_t fullPhaseCount = milliseconds2count(periodTime);
+
+		state = phaseNumber[0];
+		count = milliseconds2count((periodTime) * (float)((float)currentPointInPhase/ticksOnPeriod));
+		if(count == 0) count = 1;
+		if(phaseNumber[0] == STATE_ATTACK)
+		{
+			attack_count = fullPhaseCount;
+			if (attack_count == 0) attack_count = 1;
+			inc_hires = fullPhaseCount ? 0x40000000/fullPhaseCount : 0;
+			mult_hires = inc_hires * (fullPhaseCount - count);
+		}
+		else if(phaseNumber[0] == STATE_DECAY)
+		{
+			decay_count = fullPhaseCount;
+			if (decay_count == 0) decay_count = 1;
+			inc_hires = fullPhaseCount ? -(0x40000000/fullPhaseCount) : 0;
+			mult_hires = 0x40000000 + (inc_hires * (fullPhaseCount - count));
+		}
+	}
+	AudioInterrupts();
+}
+void AudioEffectEnvelope::setSyncStartStep(uint16_t n)
+{
+	startStep = n;
+}
+void AudioEffectEnvelope::setPhaseNumbers(int8_t n1, int8_t n2)
+{
+	phaseNumber[0] = n1;
+	phaseNumber[1] = n2;
+}
+void AudioEffectEnvelope::setSyncRate(float sync)
+{
+	syncRate = sync;
 }

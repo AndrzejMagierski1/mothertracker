@@ -146,13 +146,13 @@ const float ampLogValues[AMP_LOG_VALUES] =
 
 };
 constexpr uint32_t NOT_MOD_POINTS = 1000000;
-constexpr uint8_t ENVELOPES_WITHOUT_AMP_MAX = 4;
 constexpr uint8_t MUTE_DISABLE = 0;
 constexpr uint8_t MUTE_ENABLE = 1;
 constexpr float AMP_MUTED = 0.0f;
 constexpr uint8_t MOST_SIGNIFICANT_FX = 0;
 constexpr uint8_t LEAST_SIGNIFICANT_FX = 1;
 extern IntervalTimer updateTimer;
+constexpr uint8_t ACTIVE_ENVELOPES = envMax - 1;
 
 class audioEngine
 {
@@ -240,31 +240,24 @@ public:
 
 	uint8_t currentInstrument_idx;
 
-//********************************************* ujednolicenie obslugi envelope
-	enum struct envWithoutAmp
+	const uint32_t envTargetRefreshMask[envMax] =
 	{
-		panning,
-		filter,
-		wtPos,
-		granPos
+			0,
+			PANNING_MASK,
+			CUTOFF_MASK,
+			WT_POS_SEND_MASK,
+			GRANULAR_POS_SEND_MASK,
+			0
 	};
-
-	const uint8_t envelopesWithoutAmpIdx[ENVELOPES_WITHOUT_AMP_MAX] =
+	const uint8_t envelopesControlValue[envMax] =
 	{
-			envPan,
-			envFilter,
-			envWtPos,
-			envGranPos
-	}; // na potrzeby wykonania czegos w petli - przefiltrowanie enumów z env do aktywnych bez ampa - musi korespondować z envelopesWithoutAmpControlValue
-
-	const uint8_t envelopesWithoutAmpControlValue[ENVELOPES_WITHOUT_AMP_MAX] =
-	{
+			(uint8_t)parameterList::lfoAmp,
 			(uint8_t)parameterList::lfoPanning,
 			(uint8_t)parameterList::lfoCutoff,
 			(uint8_t)parameterList::lfoWavetablePosition,
-			(uint8_t)parameterList::lfoGranularPosition
-	}; // na potrzeby wykonania czegos w petli - przefiltrowanie enumów parametrów dla lfo bez ampa - musi korespondować z envelopesWithoutAmpIdx
-//********************************************
+			(uint8_t)parameterList::lfoGranularPosition,
+			0
+	};
 	enum struct controlType
 	{
 		sequencerMode,
@@ -453,6 +446,7 @@ public:
 	void endPositionLfoRatePerformanceMode();
 	void endPanningLfoRatePerformanceMode();
 
+
 //******testowe
 	void printLog(SdFile * log);
 	void setPassEnvelope(uint8_t state);
@@ -481,9 +475,22 @@ private:
 	uint8_t						onlyReverbMuteState = 0;
 
 	uint8_t 					envelopePassFlag = 0;
+	float 						currentSeqTempo = 0;
+	float						lastSeqTempo = 0;
 
 	envelopeGenerator::strEnv   lfoBasedEnvelope[envMax];
-	const envelopeGenerator::strEnv passEnvelope = { 1.0,0,0,0,0,1.0,0,0,0};
+	const envelopeGenerator::strEnv passEnvelope =
+	{
+			.amount 	= 1.0,
+			.delay 		= 0,
+			.attack 	= 0,
+			.hold		= 0,
+			.decay		= 0,
+			.sustain 	= 1.0,
+			.release 	= 0,
+			.loop		= 0,
+			.enable		= 1
+	};
 
 	uint8_t isActiveFlag = 0;
 
@@ -493,8 +500,8 @@ private:
 	float getMostSignificantAmount();
 	uint8_t getMostSignificantVolume();
 	void initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv * env);
-	uint16_t getSystick24step();
 	void setSyncParamsLFO(uint8_t type);
+	void setSyncParamsAmpLFO();
 
 //**********************NOTE ON/OFF HANDLERS
 //*****note on fx
@@ -518,6 +525,31 @@ private:
 	void noteOffFade();
 	void noteOffCut();
 	void noteOffOrdinary();
+//*************************************************
+//**********************UPDATE HANDLERS
+	void handleUpdateEndPlayDetect();
+	void handleUpdateEnvelope(uint8_t type, bool enableCondition);
+	void handleUpdateEndReleaseAction();
+	void handleUpdateRefreshLP1();
+	void handleUpdateRefreshLP2();
+	void handleUpdateRefreshFinetune();
+	void handleUpdateRefreshTune();
+	void handleUpdateRefreshVolume();
+	void handleUpdateRefreshPanning();
+	void handleUpdateRefreshCutoff();
+	void handleUpdateRefreshResonance();
+	void handleUpdateRefreshReverb();
+	void handleUpdateRefreshWtPos();
+	void handleUpdateRefreshGranPos();
+	void handleUpdateRefreshGranLen();
+	void handleUpdateRefreshGranWave();
+	void handleUpdateRefreshGranLoop();
+	void handleUpdateRefreshAmpLFO();
+	void handleUpdateRefreshCutoffLFO();
+	void handleUpdateRefreshWtPosLFO();
+	void handleUpdateRefreshGranPosLFO();
+	void handleUpdateRefreshPanningLFO();
+
 //*************************************************
 //************************* FX HANDLE
 //******* fx start
