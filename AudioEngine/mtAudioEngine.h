@@ -146,7 +146,6 @@ const float ampLogValues[AMP_LOG_VALUES] =
 
 };
 constexpr uint32_t NOT_MOD_POINTS = 1000000;
-constexpr uint8_t ENVELOPES_WITHOUT_AMP_MAX = 4;
 constexpr uint8_t MUTE_DISABLE = 0;
 constexpr uint8_t MUTE_ENABLE = 1;
 constexpr float AMP_MUTED = 0.0f;
@@ -241,32 +240,6 @@ public:
 
 	uint8_t currentInstrument_idx;
 
-//********************************************* ujednolicenie obslugi envelope
-	enum struct envWithoutAmp
-	{
-		panning,
-		filter,
-		wtPos,
-		granPos
-	};
-
-	const uint8_t envelopesWithoutAmpIdx[ENVELOPES_WITHOUT_AMP_MAX] =
-	{
-			envPan,
-			envFilter,
-			envWtPos,
-			envGranPos
-	}; // na potrzeby wykonania czegos w petli - przefiltrowanie enumów z env do aktywnych bez ampa - musi korespondować z envelopesWithoutAmpControlValue
-
-	const uint8_t envelopesWithoutAmpControlValue[ENVELOPES_WITHOUT_AMP_MAX] =
-	{
-			(uint8_t)parameterList::lfoPanning,
-			(uint8_t)parameterList::lfoCutoff,
-			(uint8_t)parameterList::lfoWavetablePosition,
-			(uint8_t)parameterList::lfoGranularPosition
-	}; // na potrzeby wykonania czegos w petli - przefiltrowanie enumów parametrów dla lfo bez ampa - musi korespondować z envelopesWithoutAmpIdx
-//********************************************
-
 	const uint32_t envTargetRefreshMask[envMax] =
 	{
 			0,
@@ -284,7 +257,7 @@ public:
 			(uint8_t)parameterList::lfoWavetablePosition,
 			(uint8_t)parameterList::lfoGranularPosition,
 			0
-	}; // na potrzeby wykonania czegos w petli - przefiltrowanie enumów parametrów dla lfo bez ampa - musi korespondować z envelopesWithoutAmpIdx
+	};
 	enum struct controlType
 	{
 		sequencerMode,
@@ -502,9 +475,22 @@ private:
 	uint8_t						onlyReverbMuteState = 0;
 
 	uint8_t 					envelopePassFlag = 0;
+	float 						currentSeqTempo = 0;
+	float						lastSeqTempo = 0;
 
 	envelopeGenerator::strEnv   lfoBasedEnvelope[envMax];
-	const envelopeGenerator::strEnv passEnvelope = { 1.0,0,0,0,0,1.0,0,0,0};
+	const envelopeGenerator::strEnv passEnvelope =
+	{
+			.amount 	= 1.0,
+			.delay 		= 0,
+			.attack 	= 0,
+			.hold		= 0,
+			.decay		= 0,
+			.sustain 	= 1.0,
+			.release 	= 0,
+			.loop		= 0,
+			.enable		= 1
+	};
 
 	uint8_t isActiveFlag = 0;
 
@@ -541,8 +527,28 @@ private:
 	void noteOffOrdinary();
 //*************************************************
 //**********************UPDATE HANDLERS
+	void handleUpdateEndPlayDetect();
 	void handleUpdateEnvelope(uint8_t type, bool enableCondition);
-	void handleEndReleaseAction();
+	void handleUpdateEndReleaseAction();
+	void handleUpdateRefreshLP1();
+	void handleUpdateRefreshLP2();
+	void handleUpdateRefreshFinetune();
+	void handleUpdateRefreshTune();
+	void handleUpdateRefreshVolume();
+	void handleUpdateRefreshPanning();
+	void handleUpdateRefreshCutoff();
+	void handleUpdateRefreshResonance();
+	void handleUpdateRefreshReverb();
+	void handleUpdateRefreshWtPos();
+	void handleUpdateRefreshGranPos();
+	void handleUpdateRefreshGranLen();
+	void handleUpdateRefreshGranWave();
+	void handleUpdateRefreshGranLoop();
+	void handleUpdateRefreshAmpLFO();
+	void handleUpdateRefreshCutoffLFO();
+	void handleUpdateRefreshWtPosLFO();
+	void handleUpdateRefreshGranPosLFO();
+	void handleUpdateRefreshPanningLFO();
 
 //*************************************************
 //************************* FX HANDLE

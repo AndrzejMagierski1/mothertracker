@@ -27,6 +27,7 @@
 #include "effect_envelope.h"
 #include "Audio.h"
 #include "debugLog.h"
+#include "mtSequencer.h"
 
 #define STATE_IDLE	0
 #define STATE_DELAY	1
@@ -187,7 +188,7 @@ void AudioEffectEnvelope::noteOn(void)
 		state = STATE_FORCED;
 		count = release_forced_count;
 		inc_hires = count ? (-mult_hires) / count : 0;
-		mult_hires = (-inc_hires) * count; // powinno zapobiec przechodzeniu przez zero
+//		mult_hires = (-inc_hires) * count; // powinno zapobiec przechodzeniu przez zero
 	}
 	// nie ma dla force bo i tak wyliczy taka sama prosta wygaszania jak byla
 	__enable_irq();
@@ -335,8 +336,47 @@ void AudioEffectEnvelope::update(void)
 			}
 		}
 
+
 		int32_t mult = mult_hires >> 14; // przeskalowanie na 16 bitow bo 0x40000000 zajmuje 30 bitow
 		int32_t inc = inc_hires >> 17; // podejrzewam ze przeskalowanie na 13 bitow aby suma takich osmiu (3bity) obslugiwala 8 probek (inc_hires wyliczone dla 8 bitowego cyklu)
+		if(inc > 0)
+		{
+			if( (mult + 8 * inc) >= 0x10000)
+			{
+				debugLog.setMaxLineCount(10);
+				debugLog.addLine("mult ");
+				debugLog.addValue(mult);
+				debugLog.addText("inc ");
+				debugLog.addValue(inc);
+				debugLog.addText("state ");
+				debugLog.addValue(state);
+				debugLog.addText("count ");
+				debugLog.addValue(count);
+				inc = (0xFFFF-mult)/8;
+				count = 1;
+
+			}
+
+		}
+		else if(inc < 0)
+		{
+			if( (mult + 8 * inc) < 0)
+			{
+				debugLog.setMaxLineCount(10);
+				debugLog.addLine("mult ");
+				debugLog.addValue(mult);
+				debugLog.addText("inc ");
+				debugLog.addValue(inc);
+				debugLog.addText("state ");
+				debugLog.addValue(state);
+				debugLog.addText("count ");
+				debugLog.addValue(count);
+
+				inc = -mult/8;
+				count = 1;
+			}
+
+		}
 //		sample12 = *p++;
 //		sample34 = *p++;
 //		sample56 = *p++;
@@ -362,6 +402,7 @@ void AudioEffectEnvelope::update(void)
 //		mult += inc;
 //		tmp2 = signed_multiply_32x16t(mult, sample78);
 //		sample78 = pack_16b_16b(tmp2, tmp1);
+
 
 		sample12 = *p;
 		sample34 = *(p+1);
@@ -397,6 +438,8 @@ void AudioEffectEnvelope::update(void)
 		mult+=inc;
 		tmp2 = mult * (*sample8);
 
+
+
 		*sample7 = *tmp1Shifted;
 		*sample8 = *tmp2Shifted;
 
@@ -404,7 +447,6 @@ void AudioEffectEnvelope::update(void)
 		*p++ = sample34;
 		*p++ = sample56;
 		*p++ = sample78;
-
 
 		// adjust the long-term gain using 30 bit resolution (fix #102)
 		// https://github.com/PaulStoffregen/Audio/issues/102
@@ -465,6 +507,7 @@ void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
 {
 	if(state == STATE_FORCED) return;
 
+	AudioNoInterrupts();
 	uint16_t ticksOnPeriod = (6912/12) * syncRate;
 
 	uint16_t stepShift = (startStep % 36) * (6912/12);
@@ -485,12 +528,13 @@ void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
 		{
 			state = phaseNumber[1];
 			count = milliseconds2count((fullPhaseTime) * (float)( (float)(currentPointInPhase-ticksOnPeriod/2.0f) /(ticksOnPeriod/2.0f)));
+			if(count == 0) count = 1;
 
 			if(phaseNumber[1] == STATE_DECAY)
 			{
 				decay_count = fullPhaseCount;
 				if (decay_count == 0) decay_count = 1;
-				inc_hires = fullPhaseCount ? -(0x40000000U/fullPhaseCount) : 0;
+				inc_hires = fullPhaseCount ? -(0x40000000/fullPhaseCount) : 0;
 				mult_hires = 0x40000000 + (inc_hires * (fullPhaseCount - count));
 			}
 			else if(phaseNumber[1] == STATE_RELEASE)
@@ -510,17 +554,17 @@ void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
 			{
 				attack_count = fullPhaseCount;
 				if (attack_count == 0) attack_count = 1;
-				inc_hires = fullPhaseCount ? 0x40000000U/fullPhaseCount : 0;
+				inc_hires = fullPhaseCount ? 0x40000000/fullPhaseCount : 0;
 			}
 			else if(phaseNumber[0] == STATE_HOLD)
 			{
 				hold_count = fullPhaseCount;
 				if (hold_count == 0) hold_count = 1;
-				inc_hires = 0;
 			}
 
 			state = phaseNumber[0];
 			count = milliseconds2count((fullPhaseTime) * (float)((float)(currentPointInPhase) /(ticksOnPeriod/2.0f)));
+			if(count == 0) count = 1;
 			if(phaseNumber[0] == STATE_ATTACK)
 			{
 				mult_hires = inc_hires * (fullPhaseCount - count);
@@ -538,22 +582,23 @@ void AudioEffectEnvelope::syncTrackerSeq(uint32_t val, float seqSpeed)
 
 		state = phaseNumber[0];
 		count = milliseconds2count((periodTime) * (float)((float)currentPointInPhase/ticksOnPeriod));
-
+		if(count == 0) count = 1;
 		if(phaseNumber[0] == STATE_ATTACK)
 		{
 			attack_count = fullPhaseCount;
 			if (attack_count == 0) attack_count = 1;
-			inc_hires = fullPhaseCount ? 0x40000000U/fullPhaseCount : 0;
+			inc_hires = fullPhaseCount ? 0x40000000/fullPhaseCount : 0;
 			mult_hires = inc_hires * (fullPhaseCount - count);
 		}
 		else if(phaseNumber[0] == STATE_DECAY)
 		{
 			decay_count = fullPhaseCount;
 			if (decay_count == 0) decay_count = 1;
-			inc_hires = fullPhaseCount ? -(0x40000000U/fullPhaseCount) : 0;
+			inc_hires = fullPhaseCount ? -(0x40000000/fullPhaseCount) : 0;
 			mult_hires = 0x40000000 + (inc_hires * (fullPhaseCount - count));
 		}
 	}
+	AudioInterrupts();
 }
 void AudioEffectEnvelope::setSyncStartStep(uint16_t n)
 {
