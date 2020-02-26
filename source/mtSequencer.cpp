@@ -1347,7 +1347,7 @@ void Sequencer::sendNoteOn(uint8_t track,
 		if (step->velocity == -1)
 		{
 //			todo:
-			uint8_t velo = mtProject.values.midiInstrument[step->instrument - INSTRUMENTS_MAX].velocity;
+			uint8_t velo = mtProject.values.midiInstrument[step->instrument - INSTRUMENTS_COUNT].velocity;
 
 			sendMidiNoteOn(step->note,
 							velo,
