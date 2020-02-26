@@ -21,6 +21,15 @@ bool cFileManager::browseSdCard(uint8_t* index)
 	if(status != fmIdle) return false;
 	if(currentOperation != fmNoOperation) return false;
 
+	if(index == nullptr) // tylko odswiez
+	{
+		status = fmBrowsingSamples;
+		currentOperationStep = 0;
+		currentOperation = fmBrowseSamples;
+
+		return true;
+	}
+
 	if(explorerDirLevel == 0)
 	{
 		explorerDirLevel = 1;
@@ -82,9 +91,10 @@ bool cFileManager::browseSdCard(uint8_t* index)
 }
 
 
-uint8_t cFileManager::getBrowsedFilesList(char*** list)
+uint8_t cFileManager::getBrowsedFilesList(char*** list, uint32_t** memoryList)
 {
 	*list = explorerList;
+	*memoryList = currentFolderMemoryFileUsage;
 
 	return explorerListLength;
 }
@@ -220,7 +230,7 @@ void cFileManager::processDirFileSizes() // wykonywalne w petli
 
 void cFileManager::browseFinish()
 {
-	status = fmBrowseEnd;
+	status = fmBrowseSamplesEnd;
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
 }
@@ -245,6 +255,71 @@ void cFileManager::goUpInActualPath()
 }
 
 
+///====================================================================================================
+///====================================================================================================
+///====================================================================================================
+void cFileManager::browseProjectsLocation()
+{
+
+	sdLocation.close();
+	sdLocation.open(cProjectsPath, O_READ);
+	uint8_t projectsfoundCount = sdLocation.createProjectsList(projectsList, list_length_max, 3000);
+	sdLocation.close();
+
+	for (uint8_t i = 0; i < (projectsfoundCount/2); i++)
+	{
+		std::swap(projectsList[i], projectsList[projectsfoundCount-i-1]);
+	}
+
+	projectsListLength = projectsfoundCount;
+
+	status = fmBrowseProjectsEnd;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+}
 
 
 
+bool cFileManager::browseProjects()
+{
+	status = fmBrowsingProjects;
+	currentOperationStep = 0;
+	currentOperation = fmBrowseProjects;
+
+	return true;
+}
+
+uint8_t cFileManager::getProjectsList(char*** list)
+{
+	*list = projectsList;
+	return projectsListLength;
+}
+
+///====================================================================================================
+///====================================================================================================
+///====================================================================================================
+void cFileManager::browseFirmwaresLocation()
+{
+
+
+	status = fmBrowseFirmwaresEnd;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+}
+
+
+bool cFileManager::browseFirmwares()
+{
+	status = fmBrowsingFirmwares;
+	currentOperationStep = 0;
+	currentOperation = fmBrowseFirmwares;
+
+	return true;
+}
+
+
+uint8_t cFileManager::getFirmwaresList(char*** list)
+{
+	*list = firmwaresList;
+	return firmwaresListLength;
+}

@@ -277,19 +277,6 @@ void cProjectEditor::showDefaultScreen()
 	display.synchronizeRefresh();
 }
 
-//==============================================================================================================
-void cProjectEditor::deactivateGui()
-{
-	showDefaultScreen();
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		display.setControlColors(label[i], interfaceGlobals.inactiveLabelsColors);
-		display.refreshControl(label[i]);
-	}
-
-	display.synchronizeRefresh();
-}
 
 //==============================================================================================================
 void cProjectEditor::showProjectsList()

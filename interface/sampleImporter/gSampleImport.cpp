@@ -259,8 +259,8 @@ void cSampleImporter::showDefaultScreen()
 
 	displayDelete(selectedPlace);
 
-	AddEnterOrRename();
-	AddNextControl();
+	//AddEnterOrRename();
+	//AddNextControl();
 
 	activateLabelsBorder();
 
@@ -524,17 +524,6 @@ void cSampleImporter::deleteColorControl()
 	// refreshowany jest w innej funkcji
 }
 
-//void cSampleImporter::showAddWT()
-//{
-//	display.setControlText(topLabel[2], "Add WT");
-//	display.refreshControl(topLabel[2]);
-//}
-//
-//void cSampleImporter::hideAddWT()
-//{
-//	display.setControlText(topLabel[2], "");
-//	display.refreshControl(topLabel[2]);
-//}
 
 void cSampleImporter::showFileList()
 {

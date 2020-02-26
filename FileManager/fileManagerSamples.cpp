@@ -161,7 +161,32 @@ void cFileManager::saveSamplesToWorkspace()
 	moveToNextOperationStep();
 }
 
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     IMPORT     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::importSamples()
+{
+	sprintf(currentCopySrcPath, "%s/%s", explorerCurrentPath, explorerList[importCurrentFile]); // nazwa pliku od 1
+	sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
 
+	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, currentCopyDestPath);
+
+	if(loadStatus == fileTransferEnd)
+	{
+		moveToNextOperationStep();
+	}
+	else if(loadStatus == fileTransferFileNoExist)
+	{
+		char txtReport[70];
+		sprintf(txtReport, "file to import not exist: %s", explorerList[importCurrentFile]);
+		report(txtReport);
+		moveToNextOperationStep();
+	}
+	else if(loadStatus >= fileTransferError)
+	{
+		sampleThrowError();
+	}
+}
 
 
 //------------------------------------------------------------------------------------------------------------------

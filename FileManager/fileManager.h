@@ -13,6 +13,9 @@ enum fileManagerStatus
 	fmIdle = 0,
 	fmBrowsingSamples,
 	fmBrowsingProjects,
+	fmBrowsingFirmwares,
+
+	fmImportingSamplesToWorkspace,
 
 	fmLoadingProjectfromWorkspace,
 	fmLoadingProjectFromProjects,
@@ -21,12 +24,20 @@ enum fileManagerStatus
 
 	fmLoadEnd,
 	fmSaveEnd,
-	fmBrowseEnd,
+	fmBrowseSamplesEnd,
+	fmBrowseProjectsEnd,
+	fmBrowseFirmwaresEnd,
+
+	fmImportSamplesEnd,
+
 	fmError,
 	fmLoadError,
 	fmSaveError,
 	fmCopyError,
-	fmBrowseError,
+	fmBrowseSamplesError,
+	fmBrowseProjectsError,
+	fmBrowseFirmwaresError,
+	fmImportSamplesError,
 
 };
 
@@ -40,7 +51,9 @@ enum fileManagerOperation
 
 	fmBrowseSamples, 			//5
 	fmBrowseProjects, 			//6
+	fmBrowseFirmwares, 			//7
 
+	fmImportSamplesToWorkspace,	//8
 
 
 
@@ -69,8 +82,9 @@ public:
 
 	//getery
 	bool projectExist(char* name);
+	uint8_t getBrowsedFilesList(char*** list, uint32_t** memoryList);
 	uint8_t getProjectsList(char*** list);
-	uint8_t getBrowsedFilesList(char*** list);
+	uint8_t getFirmwaresList(char*** list);
 
 	//setery
 	void setProjectStructChanged();
@@ -83,13 +97,14 @@ public:
 	bool openProjectFromProjects(uint8_t index);
 	bool saveProjectToWorkspace(bool forceSaveAll = false);
 	bool saveProjectToProjects(char* projectNameToSave = nullptr);
+	bool importSamplesToWorkspace(uint8_t fileFrom, uint8_t fileTo, uint8_t instrumentSlot);
 
-	bool browseSdCard(uint8_t index);
-
+	bool browseSdCard(uint8_t* index);
+	bool browseProjects();
+	bool browseFirmwares();
 
 	// to chyba trzeba zoptymalizowac/wrzucic w petle \/
 	bool createNewProjectInWorkspace();
-
 
 	// to na pozniej \/
 	bool loadWorkspacePattern(uint8_t index);
@@ -124,9 +139,6 @@ private:
 	char currentProjectPatch[PATCH_SIZE-PROJECT_NAME_SIZE];
 	char currentProjectName[PROJECT_NAME_SIZE] = {0};
 	char projectNamefromProjectFile[PROJECT_NAME_SIZE] = {0};
-	static const uint8_t files_list_length_max = 100;
-	char* projectsNames[files_list_length_max];
-
 
 	// do obliczania progresu
 	uint32_t totalMemoryToTranfser;
@@ -156,11 +168,14 @@ private:
 	void updateSaveProjectToWorkspace();
 	void updateCopyProjectsToWorkspace();
 	void updateCopyWorkspaceToProjects();
-
 	void updateBrowseSamples();
 	void updateBrowseProjects();
+	void updateBrowseFirmwares();
+	void updateImportSamplesToWorkspace();
 
 	void autoSaveProjectToWorkspace();
+
+	void stopOperationWithError(uint8_t error);
 
 	void clearWorkspace();
 	bool createWorkspaceDirs();
@@ -213,14 +228,17 @@ private:
 	void loadInstrumentsFromWorkspace();
 	void saveInstrumentsToWorkspace();
 	void copyInstruments();
+	void createEmptyInstrumentInWorkspace(uint8_t slot);
 
 	bool loadInstrumentFormFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile);
 	bool writeInstrumentToFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile);
 
+
 	bool continueInstrumentProcess();
 
 	void instrumentThrowError();
-	void getDefaultInstrument(struct strInstrument* source);
+	void setDefaultActiveInstrument(struct strInstrument* targetInstrument);
+	void getEmptyInstrument(struct strInstrument* source);
 	uint32_t calcWorkspaceInstrumentsSize();
 
 	uint8_t currentInstrument = 0;
@@ -236,6 +254,12 @@ private:
 	void continueSampleLoad();
 	void continueSampleProcess();
 
+	void importSamplesToWorkspaceInit();
+	void importSamples();
+	void importSamplesToWorkspaceFinish();
+
+
+
 	uint32_t getWaveSizeIfValid(const char *filename);
 	uint32_t calcWorkspaceSamplesSize();
 	uint32_t getActualSampleMemoryLoaded();
@@ -246,8 +270,21 @@ private:
 	uint8_t currentSample = 0;
 	uint32_t currentSampleSamplesCount = 0; // ilosc probek!!! (int16)
 
+	uint8_t importCurrentFile;
+	int8_t importSampleLeft;
+	//uint8_t importSampleCurrent;
+	//uint8_t importInstrumentCurrent;
 
 	// browser
+	void browseProjectsLocation();
+	static const uint8_t list_length_max = 100;
+	uint8_t projectsListLength = 0;
+	char* projectsList[list_length_max];
+
+	void browseFirmwaresLocation();
+	uint8_t firmwaresListLength = 0;
+	char* firmwaresList[list_length_max];
+
 	void browseCurrentLocation();
 	void listOnlyFolderNames();
 	void processDirFileSizes();
@@ -255,7 +292,6 @@ private:
 	void browseFinish();
 	void goUpInActualPath();
 
-	static const uint8_t list_length_max = 100;
 	uint8_t explorerListLength = 0;
 	char *explorerList[list_length_max];
 	char explorerCurrentPath[255] = {'/',0};
@@ -269,7 +305,7 @@ private:
 	uint8_t openCalcEnd = 0;
 	uint8_t openCurrentPos =0;
 
-	uint32_t currentFolderMemoryFileUsage[255];
+	uint32_t currentFolderMemoryFileUsage[list_length_max];
 
 
 

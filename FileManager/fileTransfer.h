@@ -36,6 +36,7 @@ public:
 	uint8_t saveMemoryToFile(uint8_t* memory, const char* file, uint32_t memSize);
 
 	uint8_t copyFile(const char* src, const char* dest);
+	uint8_t copySample(const char* src, const char* dest); //todo
 
 	uint32_t convertAudioData(int16_t* outPtr, int32_t input_size);
 	bool checkSampleValid();

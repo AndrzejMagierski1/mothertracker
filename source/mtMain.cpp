@@ -74,7 +74,7 @@ void loop()
 	exporter.update();
 	sliceDetector.update();
 
-	fileManager.update();
+	//fileManager.update();
 	newFileManager.update();
 	recorder.updateSave();
 	mtInterface.update();

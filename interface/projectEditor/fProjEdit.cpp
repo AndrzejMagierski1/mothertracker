@@ -25,7 +25,6 @@ cProjectEditor* PE = &projectEditor;
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
-static uint8_t functSdCard(uint8_t state);
 
 //static uint8_t functShowProjectsList();
 //static uint8_t functShowTemplatesList();
@@ -113,14 +112,20 @@ void cProjectEditor::update()
 		newFileManager.clearStatus();
 		setDefaultScreenFunct();
 	}
+	else if(managerStatus == fmBrowseProjectsEnd)
+	{
+		processProjectList();
+		newFileManager.clearStatus();
+	}
+
+
+
 	else if(managerStatus >=  fmError)
 	{
 		debugLog.addLine("Opretion Error");
 		newFileManager.clearStatus();
 		setDefaultScreenFunct();
 	}
-
-
 
 
 
@@ -317,12 +322,6 @@ void cProjectEditor::start(uint32_t options)
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
 
-	if(!sdCardDetector.isCardInserted())
-	{
-		functSdCard(0);
-		return;
-	}
-
 	showDefaultScreen();
 	setDefaultScreenFunct();
 }
@@ -373,8 +372,6 @@ void cProjectEditor::setDefaultScreenFunct()
 
 	FM->setPadsGlobal(functPads);
 
-
-	FM->setSdDetection(functSdCard);
 }
 //==============================================================================================================
 //==============================================================================================================
@@ -463,6 +460,35 @@ uint8_t cProjectEditor::loadProjectValues()
 
 }
 
+void cProjectEditor::processProjectList()
+{
+
+	PE->projectsListLength = newFileManager.getProjectsList(&PE->projectsList);
+
+	PE->selectedProject = 0;
+
+	PE->showProjectsList();
+
+	PE->refreshProjectCover(100);
+	strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
+
+
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functOpenProjectConfirm);
+	PE->FM->setButtonObj(interfaceButton2, buttonPress, functDelete);
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
+
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functProjectListUp);
+	PE->FM->setButtonObj(interfaceButton1, buttonPress, functProjectListDown);
+
+	PE->projectListActiveFlag = 1;
+
+}
+
+
+
+
 //==============================================================================================================
 //==============================================================================================================
 //==============================================================================================================
@@ -477,6 +503,10 @@ static uint8_t functNewProject()
 	}
 
 	PE->newProjectNotSavedFlag = 1;
+
+	debugLog.setMaxLineCount(5);
+	debugLog.addLine("Creating new Project Started");
+	debugLog.forceRefresh();
 
 
 	newFileManager.createNewProjectInWorkspace();
@@ -510,29 +540,18 @@ static uint8_t functOpenProject()
 {
 	if(PE->isBusyFlag) return 1;
 
-	PE->projectsListLength = newFileManager.getProjectsList(&PE->projectsList);
 
-	PE->selectedProject = 0;
-
-	PE->showProjectsList();
-
-	PE->refreshProjectCover(100);
-	strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
+	newFileManager.browseProjects();
 
 
-	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-
-	PE->FM->setButtonObj(interfaceButton7, buttonPress, functOpenProjectConfirm);
-	PE->FM->setButtonObj(interfaceButton2, buttonPress, functDelete);
-	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
-
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functProjectListUp);
-	PE->FM->setButtonObj(interfaceButton1, buttonPress, functProjectListDown);
-
-	PE->projectListActiveFlag = 1;
 
 	return 1;
 }
+
+
+
+
+
 
 static uint8_t functSaveProject()
 {
@@ -700,6 +719,10 @@ static uint8_t functSaveAsConfirm()
 		return 1;
 	}
 
+	debugLog.setMaxLineCount(5);
+	debugLog.addLine("Save Started");
+	debugLog.forceRefresh();
+
 	newFileManager.saveProjectToProjects(PE->keyboardManager.getName());
 
 
@@ -749,7 +772,14 @@ static uint8_t functSaveAsOverwriteYes()
 {
 	if(PE->isBusyFlag) return 1;
 
+	debugLog.setMaxLineCount(5);
+	debugLog.addLine("Save Started");
+	debugLog.forceRefresh();
+
 	newFileManager.saveProjectToProjects(PE->keyboardManager.getName());
+
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	PE->FM->clearAllPots();
 
 	//todo sprawdzanie
 //	fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsOverwrite);
@@ -797,7 +827,9 @@ static uint8_t functOpenProjectConfirm()
 		return 1;
 	}
 
-
+	debugLog.setMaxLineCount(5);
+	debugLog.addLine("Opening Started");
+	debugLog.forceRefresh();
 
 //	mtProject.values.projectNotSavedFlag = 0;
 //	PE->newProjectNotSavedFlag = 0;
@@ -1092,28 +1124,6 @@ static uint8_t functSwitchModule(uint8_t button)
 //======================================================================================================================
 
 
-void cProjectEditor::listProjectsNames(const char* folder)
-{
-//	char filePath[256] = {0};
-//	strcpy(filePath, folder);
-//	//strcat(filePath,"/");
-//	sdLocation.close();
-//	sdLocation.open(folder, O_READ); //"/"
-//	projectsfoundCount = sdLocation.createProjectsList(filesNames, files_list_length_max, 3000);
-//	sdLocation.close();
-//
-//
-//	for (uint8_t i = 0; i < (projectsfoundCount/2); i++)
-//	{
-//		std::swap(filesNames[i], filesNames[projectsfoundCount-i-1]);
-//
-////		strcpy(strBuff, locationFilesList[i]);
-////		strcpy(locationFilesList[i],locationFilesList[foundProjectsCount-i-1]);
-////		strcpy(locationFilesList[foundProjectsCount-i-1], strBuff);
-//	}
-
-}
-
 static  uint8_t functLeft()
 {
 	PE->keyboardManager.makeMove('a');
@@ -1223,19 +1233,3 @@ void cProjectEditor::refreshProjectCover(uint16_t delay_ms)
 	display.setControlHide(coverImg);
 }
 
-static uint8_t functSdCard(uint8_t state)
-{
-	if(state)
-	{
-		PE->start(0);
-	}
-	else
-	{
-		PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-		PE->FM->clearAllPots();
-		PE->FM->setSdDetection(functSdCard);
-		PE->deactivateGui();
-	}
-
-	return 1;
-}

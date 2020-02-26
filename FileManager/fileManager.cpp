@@ -18,9 +18,9 @@ cFileManager newFileManager;
 
 elapsedMillis autoSaveTimer;
 
-//====================================================================================
-//====================================================================================
-//====================================================================================
+//==========================================================================================================
+//==========================================================================================================
+//==========================================================================================================
 void cFileManager::update()
 {
 	if(currentOperation == fmNoOperation)
@@ -39,8 +39,9 @@ void cFileManager::update()
 
 	case fmBrowseSamples: 				updateBrowseSamples(); 					break;
 	case fmBrowseProjects: 				updateBrowseProjects(); 				break;
+	case fmBrowseFirmwares: 			updateBrowseFirmwares(); 				break;
 
-
+	case fmImportSamplesToWorkspace:	updateImportSamplesToWorkspace(); 		break;
 
 	}
 
@@ -50,30 +51,20 @@ void cFileManager::update()
 
 
 
-//====================================================================================
-//==========================     UPDATEs     =========================================
-//====================================================================================
+//==========================================================================================================
+//==========================     UPDATEs     ===============================================================
+//==========================================================================================================
 void cFileManager::updateLoadProjectFromWorkspace() // fmLoadWorkspaceProject - 1
 {
 	switch(currentOperationStep)
 	{
-		case 0: // faza przygotowania (obliczanie postepu, clear itp)
-			loadProjectFromWorkspaceInit(); break;
-		case 1: // projekt
-			loadProjectFileFromWorkspace(); break;
-		case 2: // pattern
-			loadPatternFromWorkspace(mtProject.values.actualPattern); break;
-		case 3: // instruments
-			loadInstrumentsFromWorkspace(); break;
-		case 4: // samples
-			loadSamplesFromWorkspace(); break;
-		case 5: // wykonczenie
-			loadProjectFromWorkspaceFinish(); break;
-		default:
-			status = fmLoadError;
-			currentOperationStep = 0;
-			currentOperation = fmNoOperation;
-			break;
+		case 0:		loadProjectFromWorkspaceInit(); 		break;// faza przygotowania (obliczanie postepu, clear itp)
+		case 1:		loadProjectFileFromWorkspace(); 		break; // projekt
+		case 2:		loadPatternFromWorkspace(mtProject.values.actualPattern); break;// pattern
+		case 3:		loadInstrumentsFromWorkspace(); 		break; // instruments
+		case 4:		loadSamplesFromWorkspace();				break; // samples
+		case 5:		loadProjectFromWorkspaceFinish(); 		break;// wykonczenie
+		default:	stopOperationWithError(fmLoadError); 	break;
 	}
 }
 
@@ -81,23 +72,13 @@ void cFileManager::updateSaveProjectToWorkspace() // fmSaveWorkspaceProject - 2
 {
 	switch(currentOperationStep)
 	{
-		case 0: // faza przygotowania
-			saveProjectToWorkspaceInit(); break;
-		case 1: // projekt
-			saveProjectFileToWorkspace(); break;
-		case 2: // pattern
-			savePatternToWorkspace(); break;
-		case 3: // instruments
-			saveInstrumentsToWorkspace(); break;
-		case 4: // samples
-			saveSamplesToWorkspace(); break;
-		case 5: // wykonczenie
-			saveProjectToWorkspaceFinish(); break;
-		default:
-			status = fmSaveError;
-			currentOperationStep = 0;
-			currentOperation = fmNoOperation;
-			break;
+		case 0:		saveProjectToWorkspaceInit(); 			break;
+		case 1:		saveProjectFileToWorkspace(); 			break;
+		case 2:		savePatternToWorkspace(); 				break;
+		case 3:		saveInstrumentsToWorkspace(); 			break;
+		case 4:		saveSamplesToWorkspace(); 				break;
+		case 5:		saveProjectToWorkspaceFinish(); 		break;
+		default:	stopOperationWithError(fmSaveError); 	break;
 	}
 }
 
@@ -105,23 +86,13 @@ void cFileManager::updateCopyProjectsToWorkspace() // fmCopyProjectsToWorkspace 
 {
 	switch(currentOperationStep)
 	{
-		case 0: // faza przygotowania
-			copyProjectsToWorkspaceInit(); break;
-		case 1: // projekt
-			copyProjectFile(); break;
-		case 2: // pattern
-			copyPaterns(); break;
-		case 3: // instruments
-			copyInstruments(); break;
-		case 4: // samples
-			copySamples(); break;
-		case 5: // wykonczenie
-			copyProjectsToWorkspaceFinish(); break;
-		default:
-			status = fmCopyError;
-			currentOperationStep = 0;
-			currentOperation = fmNoOperation;
-			break;
+		case 0:		copyProjectsToWorkspaceInit();		 	break;
+		case 1:		copyProjectFile(); 						break;
+		case 2:		copyPaterns(); 							break;
+		case 3:		copyInstruments(); 						break;
+		case 4:		copySamples(); 							break;
+		case 5:		copyProjectsToWorkspaceFinish(); 		break;
+		default:	stopOperationWithError(fmCopyError); 	break;
 	}
 }
 
@@ -129,23 +100,13 @@ void cFileManager::updateCopyWorkspaceToProjects() // fmCopyWorkspaceToProjects 
 {
 	switch(currentOperationStep)
 	{
-		case 0: // faza przygotowania
-			copyWorkspaceToProjectsInit(); break;
-		case 1: // projekt
-			copyProjectFile(); break;
-		case 2: // pattern
-			copyPaterns(); break;
-		case 3: // instruments
-			copyInstruments(); break;
-		case 4: // samples
-			copySamples(); break;
-		case 5: // wykonczenie
-			copyWorkspaceToProjectsFinish(); break;
-		default:
-			status = fmCopyError;
-			currentOperationStep = 0;
-			currentOperation = fmNoOperation;
-			break;
+		case 0:		copyWorkspaceToProjectsInit(); 			break;
+		case 1:		copyProjectFile();						break;
+		case 2:		copyPaterns(); 							break;
+		case 3:		copyInstruments(); 						break;
+		case 4:		copySamples(); 							break;
+		case 5:		copyWorkspaceToProjectsFinish(); 		break;
+		default:	stopOperationWithError(fmCopyError); 	break;
 	}
 }
 
@@ -154,31 +115,44 @@ void cFileManager::updateBrowseSamples() //fmBrowseSamples - 5
 {
 	switch(currentOperationStep)
 	{
-		case 0: browseCurrentLocation();  break;
-		case 1: processDirFileSizes(); break;
-
-		default:
-			status = fmBrowseError;
-			currentOperationStep = 0;
-			currentOperation = fmNoOperation;
-			break;
+		case 0: 	browseCurrentLocation();  						break;
+		case 1: 	processDirFileSizes(); 							break;
+		default:	stopOperationWithError(fmBrowseSamplesError); 	break;
 	}
 }
+
 
 void cFileManager::updateBrowseProjects() //fmBrowseProjects - 6
 {
 	switch(currentOperationStep)
 	{
-		//case 0: browseCurrentLocation();  break;
-		//case 1: processDirFileSizes(); break;
-
-		default:
-			status = fmBrowseError;
-			currentOperationStep = 0;
-			currentOperation = fmNoOperation;
-			break;
+		case 0: 	browseProjectsLocation();  						break;
+		default:	stopOperationWithError(fmBrowseProjectsError); 	break;
 	}
 }
+
+void cFileManager::updateBrowseFirmwares() //fmBrowseFirmwares - 7
+{
+	switch(currentOperationStep)
+	{
+		case 0: 	browseFirmwaresLocation();  					break;
+		default:	stopOperationWithError(fmBrowseFirmwaresError); break;
+	}
+}
+
+void cFileManager::updateImportSamplesToWorkspace()	//fmImportSamplesToWorkspace - 8
+{
+	switch(currentOperationStep)
+	{
+		case 0:		importSamplesToWorkspaceInit(); 						break;
+		case 1:		createEmptyInstrumentInWorkspace(currentInstrument);	break;
+		case 2:		importSamples();										break;
+		case 3:		importSamplesToWorkspaceFinish(); 						break;
+		default:	stopOperationWithError(fmImportSamplesError); 			break;
+	}
+}
+
+
 
 void cFileManager::autoSaveProjectToWorkspace()
 {
@@ -189,108 +163,23 @@ void cFileManager::autoSaveProjectToWorkspace()
 
 }
 
-//====================================================================================
-//====================================================================================
-//====================================================================================
-bool cFileManager::openProjectFromWorkspace()
+
+void cFileManager::moveToNextOperationStep()
 {
-	if(status != fmIdle) return false;
-	if(currentOperation != fmNoOperation) return false;
+	currentOperationStep++;
+}
 
-	if(!SD.exists(cWorkspacePath)) return false;
-	if(!SD.exists(cProjectFileNameInWorkspace)) return false;
-	if(!SD.exists(cProjectFileNameInWorkspace)) return false;
 
-	mtProject.used_memory = 0;
-	mtProject.instruments_count = 0;
-
-	status = fmLoadingProjectfromWorkspace;
+void cFileManager::stopOperationWithError(uint8_t error)
+{
+	status = error;
 	currentOperationStep = 0;
-	currentOperation = fmLoadWorkspaceProject;
-
-	return true;
+	currentOperation = fmNoOperation;
 }
-
-
-bool cFileManager::openProjectFromProjects(uint8_t index)
-{
-	if(status != fmIdle) return false;
-	if(currentOperation != fmNoOperation) return false;
-	if(projectsNames[index] == nullptr) return false;
-
-	//pobranie nazwy otwieranego projektu tu
-	strcpy(currentProjectName, projectsNames[index]);
-
-	status = fmLoadingProjectFromProjects;
-	currentOperationStep = 0;
-	currentOperation = fmCopyProjectsToWorkspace;
-
-	return true;
-}
-
-bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
-{
-	if(status != fmIdle) return false;
-
-	if(forceSaveAll)
-	{
-		setAllChangeFlags();
-	}
-	else
-	{
-		if(!isProjectChanged())	return false; // nie sejwuj jesli nic nie jest zmodyfikowane
-	}
-
-	report("autosave");
-
-	status = fmSavingProjectToWorkspace;
-	currentOperationStep = 0;
-	currentOperation = fmSaveWorkspaceProject;
-
-	return true;
-}
-
-bool cFileManager::saveProjectToProjects(char* projectNameToSave)
-{
-	if(status != fmIdle) return false;
-
-	if(projectNameToSave != nullptr)
-	{
-		strcpy(currentProjectName, projectNameToSave);
-	}
-
-
-	saveProjectToWorkspace(true);
-
-	status = fmSavingProjectToProjects;
-//	currentOperationStep = 0;
-//	currentOperation = fmSaveWorkspaceProject;
-	return true;
-}
-
-uint8_t cFileManager::getProjectsList(char*** list)
-{
-	sdLocation.close();
-	sdLocation.open(cProjectsPath, O_READ);
-	uint8_t projectsfoundCount = sdLocation.createProjectsList(projectsNames, files_list_length_max, 3000);
-	sdLocation.close();
-
-	for (uint8_t i = 0; i < (projectsfoundCount/2); i++)
-	{
-		std::swap(projectsNames[i], projectsNames[projectsfoundCount-i-1]);
-	}
-
-	*list = projectsNames;
-
-	return projectsfoundCount;
-}
-
-
 
 //-----------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------loadProjectFromWorkspace
 void cFileManager::loadProjectFromWorkspaceInit()
 {
 	// tu czysci flagi zmian plikow bo podczas ladowania moga one zostac ustawione
@@ -331,7 +220,7 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 	currentOperation = fmNoOperation;
 }
 
-//-------------------------------------------------------
+//------------------------------------------------------------------------------------------copyProjectsToWorkspace
 
 void cFileManager::copyProjectsToWorkspaceInit()
 {
@@ -345,8 +234,8 @@ void cFileManager::copyProjectsToWorkspaceInit()
 
 void cFileManager::copyProjectsToWorkspaceFinish()
 {
-	status = fmIdle;					//
-	currentOperation = fmNoOperation;	// takie cwaniactwo pozwala wywolac otwieranie projektu z workspace w tym miejscu
+	status = fmIdle;					// takie cwaniactwo pozwala wywolac otwieranie
+	currentOperation = fmNoOperation;	// projektu z workspace w tym miejscu
 
 	if(!openProjectFromWorkspace())
 	{
@@ -357,7 +246,7 @@ void cFileManager::copyProjectsToWorkspaceFinish()
 	status = fmLoadingProjectFromProjects; // wymuszenie statusu
 }
 
-//-------------------------------------------------------
+//-------------------------------------------------------------------------------------------saveProjectToWorkspace
 void cFileManager::saveProjectToWorkspaceInit()
 {
 
@@ -380,7 +269,7 @@ void cFileManager::saveProjectToWorkspaceFinish()
 	currentOperation = fmNoOperation;
 }
 
-//-------------------------------------------------------
+//-----------------------------------------------------------------------------------------copyWorkspaceToProjects
 void cFileManager::copyWorkspaceToProjectsInit()
 {
 	char projectSavePath[PATCH_SIZE];
@@ -424,10 +313,133 @@ void cFileManager::copyWorkspaceToProjectsFinish()
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
 }
+//----------------------------------------------------------------------------------------importSamplesToWorkspace
+void cFileManager::importSamplesToWorkspaceInit()
+{
 
 
+	moveToNextOperationStep();
+}
+
+void cFileManager::importSamplesToWorkspaceFinish()
+{
+	importSampleLeft--;
+	importCurrentFile++;
+
+	if(importSampleLeft > 0 && currentSample < INSTRUMENTS_COUNT && importCurrentFile < explorerListLength)
+	{
+		currentOperationStep = 0;
+		return;
+	}
+
+	status = fmImportSamplesEnd;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+}
+
+//====================================================================================
+//====================================================================================
+//====================================================================================
+bool cFileManager::openProjectFromWorkspace()
+{
+	if(status != fmIdle) return false;
+	if(currentOperation != fmNoOperation) return false;
+
+	if(!SD.exists(cWorkspacePath)) return false;
+	if(!SD.exists(cProjectFileNameInWorkspace)) return false;
+	if(!SD.exists(cProjectFileNameInWorkspace)) return false;
+
+	mtProject.used_memory = 0;
+	mtProject.instruments_count = 0;
+
+	status = fmLoadingProjectfromWorkspace;
+	currentOperationStep = 0;
+	currentOperation = fmLoadWorkspaceProject;
+
+	return true;
+}
+
+bool cFileManager::openProjectFromProjects(uint8_t index)
+{
+	if(status != fmIdle) return false;
+	if(currentOperation != fmNoOperation) return false;
+
+	if(projectsList[index] == nullptr) return false;
+	//pobranie nazwy otwieranego projektu tu
+	strcpy(currentProjectName, projectsList[index]);
+
+	status = fmLoadingProjectFromProjects;
+	currentOperationStep = 0;
+	currentOperation = fmCopyProjectsToWorkspace;
+
+	return true;
+}
+
+bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
+{
+	if(status != fmIdle) return false;
+	if(currentOperation != fmNoOperation) return false;
+
+	if(forceSaveAll)
+	{
+		setAllChangeFlags();
+	}
+	else
+	{
+		if(!isProjectChanged())	return false; // nie sejwuj jesli nic nie jest zmodyfikowane
+	}
+
+	report("Autosave Started");
+
+	status = fmSavingProjectToWorkspace;
+	currentOperationStep = 0;
+	currentOperation = fmSaveWorkspaceProject;
+
+	return true;
+}
+
+bool cFileManager::saveProjectToProjects(char* projectNameToSave)
+{
+	if(status != fmIdle) return false;
+	if(currentOperation != fmNoOperation) return false;
+
+	if(projectNameToSave != nullptr)
+	{
+		strcpy(currentProjectName, projectNameToSave);
+	}
+
+
+	saveProjectToWorkspace(true);
+
+	status = fmSavingProjectToProjects;
+//	currentOperationStep = 0;
+//	currentOperation = fmSaveWorkspaceProject;
+	return true;
+}
+
+bool cFileManager::importSamplesToWorkspace(uint8_t fileFrom, uint8_t fileTo, uint8_t instrumentSlot)
+{
+	if(status != fmIdle) return false;
+	if(currentOperation != fmNoOperation) return false;
+
+	//sprawdzic czy zaznaczone wartosci / nazwy sa poprawne xxx
+
+	currentInstrument = instrumentSlot;
+	currentSample = instrumentSlot;
+
+	importCurrentFile = fileFrom;
+
+	importSampleLeft = (fileTo>fileFrom) ? fileTo-fileFrom : 1 ;
+
+
+	status = fmImportingSamplesToWorkspace;
+	currentOperationStep = 0;
+	currentOperation = fmImportSamplesToWorkspace;
+	return true;
+}
+
 //-----------------------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------------
+//-------------------------------------   FLAGI ZMIAN   -----------------------------------------------
 //-----------------------------------------------------------------------------------------------------
 
 void cFileManager::clearChangeFlags()
@@ -493,6 +505,9 @@ void cFileManager::setInstrumentStructChanged(uint8_t instrument)
 
 
 
+//-----------------------------------------------------------------------------------------------------
+//-------------------------------------                 -----------------------------------------------
+//-----------------------------------------------------------------------------------------------------
 
 
 
@@ -515,7 +530,7 @@ bool cFileManager::projectExist(char* name)
 
 
 //-----------------------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------------
+//----------------------------------------   POSTEP   -------------------------------------------------
 //-----------------------------------------------------------------------------------------------------
 
 
@@ -550,14 +565,13 @@ uint8_t cFileManager::getProgress()
 }
 
 
-void cFileManager::moveToNextOperationStep()
-{
-	currentOperationStep++;
-}
+//-----------------------------------------------------------------------------------------------------
+//-------------------------------------------     ERRORS     ------------------------------------------
+//-----------------------------------------------------------------------------------------------------
 
 
 #ifdef DEBUG
-static char errorText[50];
+static char errorText[100];
 #endif
 
 void cFileManager::throwError(uint8_t source)

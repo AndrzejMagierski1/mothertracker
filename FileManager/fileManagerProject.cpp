@@ -309,7 +309,7 @@ void cFileManager::getDefaultProject(struct strMtProject *source)
 
 	for(uint32_t i = 0; i < INSTRUMENTS_COUNT; i++)
 	{
-		getDefaultInstrument(&source->instrument[i]);
+		getEmptyInstrument(&source->instrument[i]);
 	}
 
 	getDefaultSong(&source->song);
@@ -327,12 +327,7 @@ void cFileManager::getDefaultSong(struct strSong *source)
 
 }
 
-void cFileManager::getDefaultInstrument(struct strInstrument *source)
-{
-	memset((uint8_t*)source, 0, sizeof(strInstrument));
 
-	source->sample.wavetable_window_size = 2048;
-}
 
 void cFileManager::getDefaultValues(struct strMtValues *source)
 {

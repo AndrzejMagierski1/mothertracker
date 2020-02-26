@@ -105,16 +105,14 @@ void cInterface::initStartScreen()
 
 void cInterface::refreshStartScreen()
 {
-	if(startScreenRefresh < 100) return;
+	if(startScreenRefresh < 40) return;
 	startScreenRefresh = 0;
 
 	startProjectLoadingProgress = newFileManager.getProgress();
-	//debugLog.setMaxLineCount(1);
-	debugLog.addLine("Load progress: ");
-	debugLog.addValue(startProjectLoadingProgress);
-	minStartTimeCounter++;
+
 	 // minimalny czas startu 2sek
-	if(startProjectLoadingProgress > minStartTimeCounter*5) startProjectLoadingProgress = minStartTimeCounter*5;
+	minStartTimeCounter++;
+	if(startProjectLoadingProgress > minStartTimeCounter*2) startProjectLoadingProgress = minStartTimeCounter*2;
 
 	display.setControlShow(startScreenControl);
 	display.setControlValue(startScreenControl, startProjectLoadingProgress);

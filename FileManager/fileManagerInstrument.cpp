@@ -122,6 +122,41 @@ void cFileManager::saveInstrumentsToWorkspace()
 
 
 //------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     CREATE     ---------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::createEmptyInstrumentInWorkspace(uint8_t slot)
+{
+	if(mtProject.instrument[slot].isActive)
+	{
+		//nie nadpisuje instrumentu jesli abyl aktywny
+		moveToNextOperationStep();
+		return;
+	}
+
+	setDefaultActiveInstrument(&mtProject.instrument[slot]);
+
+	if(!writeInstrumentToFileStruct(&mtProject.instrument[slot], &fileManagerInstrumentBuffer))
+	{
+		throwError(0);
+	}
+
+	char instrumentToSave[PATCH_SIZE];
+	sprintf(instrumentToSave, cWorkspaceInstrumentFileFormat, slot+1); // nazwy instrumentow od numeru 1
+
+	uint8_t saveStatus = fileTransfer.saveMemoryToFile((uint8_t*)&fileManagerInstrumentBuffer, instrumentToSave, sizeof(strInstrumentFile));
+
+	if(saveStatus == fileTransferEnd)
+	{
+		moveToNextOperationStep();
+	}
+	else// if(saveStatus >= fileTransferError)
+	{
+		throwError(1);
+	}
+
+}
+
+//------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     XXXX     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
 
@@ -210,3 +245,93 @@ uint32_t cFileManager::calcWorkspaceInstrumentsSize()
 	return size;
 }
 
+
+void cFileManager::getEmptyInstrument(struct strInstrument* source)
+{
+	memset((uint8_t*)source, 0, sizeof(strInstrument));
+
+	source->sample.wavetable_window_size = 2048;
+}
+
+
+void cFileManager::setDefaultActiveInstrument(struct strInstrument* targetInstrument)
+{
+	memset((uint8_t*)targetInstrument, 0, sizeof(strInstrument));
+
+	targetInstrument->isActive = 1;
+
+	targetInstrument->startPoint=0;
+	targetInstrument->loopPoint1=1;
+	targetInstrument->loopPoint2=MAX_16BIT-1;
+	targetInstrument->endPoint=MAX_16BIT;
+
+	targetInstrument->wavetableCurrentWindow = 0;
+	targetInstrument->sample.wavetable_window_size = 2048;
+	targetInstrument->playMode = 0;
+
+	targetInstrument->envelope[envAmp].delay = 0;
+	targetInstrument->envelope[envAmp].attack = 0;
+	targetInstrument->envelope[envAmp].hold = 0;
+	targetInstrument->envelope[envAmp].decay = 0;
+	targetInstrument->envelope[envAmp].sustain = 1.0;
+	targetInstrument->envelope[envAmp].release = 1000;
+	targetInstrument->envelope[envAmp].amount = 1.0;
+	targetInstrument->envelope[envAmp].loop = 0;
+	targetInstrument->envelope[envAmp].enable = 1;
+
+	targetInstrument->envelope[envFilter].delay = 0;
+	targetInstrument->envelope[envFilter].attack = 3000;
+	targetInstrument->envelope[envFilter].hold = 0;
+	targetInstrument->envelope[envFilter].decay = 0;
+	targetInstrument->envelope[envFilter].sustain = 1.0;
+	targetInstrument->envelope[envFilter].release = 1000;
+	targetInstrument->envelope[envFilter].amount = 1.0;
+	targetInstrument->envelope[envFilter].loop = 0;
+	targetInstrument->envelope[envFilter].enable = 0;
+
+	targetInstrument->envelope[envWtPos].delay = 0;
+	targetInstrument->envelope[envWtPos].attack = 3000;
+	targetInstrument->envelope[envWtPos].hold = 0;
+	targetInstrument->envelope[envWtPos].decay = 0;
+	targetInstrument->envelope[envWtPos].sustain = 1.0;
+	targetInstrument->envelope[envWtPos].release = 1000;
+	targetInstrument->envelope[envWtPos].amount = 1.0;
+	targetInstrument->envelope[envWtPos].loop = 0;
+	targetInstrument->envelope[envWtPos].enable = 0;
+
+	targetInstrument->envelope[envGranPos].delay = 0;
+	targetInstrument->envelope[envGranPos].attack = 3000;
+	targetInstrument->envelope[envGranPos].hold = 0;
+	targetInstrument->envelope[envGranPos].decay = 0;
+	targetInstrument->envelope[envGranPos].sustain = 1.0;
+	targetInstrument->envelope[envGranPos].release = 1000;
+	targetInstrument->envelope[envGranPos].amount = 1.0;
+	targetInstrument->envelope[envGranPos].loop = 0;
+	targetInstrument->envelope[envGranPos].enable = 0;
+
+	targetInstrument->envelope[envPan].delay = 0;
+	targetInstrument->envelope[envPan].attack = 3000;
+	targetInstrument->envelope[envPan].hold = 0;
+	targetInstrument->envelope[envPan].decay = 0;
+	targetInstrument->envelope[envPan].sustain = 1.0;
+	targetInstrument->envelope[envPan].release = 1000;
+	targetInstrument->envelope[envPan].amount = 1.0;
+	targetInstrument->envelope[envPan].loop = 0;
+	targetInstrument->envelope[envPan].enable = 0;
+
+	targetInstrument->cutOff = 1.0;
+	targetInstrument->filterEnable = 0;
+	targetInstrument->filterType = lowPass;
+	targetInstrument->resonance = 0;
+	targetInstrument->panning = 50;
+	targetInstrument->glide = 0;
+	targetInstrument->volume = 50;
+	targetInstrument->tune = 0;
+	targetInstrument->fineTune = 0;
+
+	targetInstrument->reverbSend = 0;
+
+	targetInstrument->granular.grainLength = 441;
+
+
+}

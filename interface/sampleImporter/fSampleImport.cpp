@@ -76,48 +76,29 @@ void cSampleImporter::update()
 
 	uint8_t managerStatus = newFileManager.getStatus();
 
-	if(managerStatus == fmBrowseEnd)
+	if(managerStatus == fmBrowseSamplesEnd)
 	{
-		locationExplorerCount = newFileManager.getBrowsedFilesList(&explorerNames);
+		locationExplorerCount = newFileManager.getBrowsedFilesList(&explorerNames, &currentFolderMemoryFileUsage);
+
 		showFilesTree();
+		handleMemoryBar();
+		AddEnterOrRename();
+		AddNextControl();
+		previewColorControl();
+		cancelSelect(listFiles);
+		setSelect();
+
 		newFileManager.clearStatus();
 	}
-	else if(managerStatus >=  fmBrowseError)
+	else if(managerStatus >=  fmBrowseSamplesError)
 	{
 		debugLog.addLine("Browse Error");
 		newFileManager.clearStatus();
 	}
 
 
-	if(fileManager.samplesLoader.getMemoryUsageChangeFlag())
-	{
-		fileManager.samplesLoader.clearMemoryUsageChangeFlag();
-		handleMemoryBar();
-	}
-
-	if(fileManager.samplesLoader.getLoadChangeFlag())
-	{
-		fileManager.samplesLoader.clearLoadChangeFlag();
-
-		if(addOrReplaceFlag)
-		{
-			addOrReplaceFlag = 0;
-			changeInstrumentSelection(copyElementMax);
-		}
-
-		listInstrumentSlots();
-		refreshInstrumentsList();
-	}
-
-	handleSequenceCopyingLoading();
-
-	if(firstMemBarLoadFlag==1)
-	{
-		handleMemoryBar();
-	}
 
 	processDeleting();
-	processDirFileSizes();
 }
 
 void cSampleImporter::start(uint32_t options)
@@ -146,14 +127,15 @@ void cSampleImporter::start(uint32_t options)
 	}
 
 
-	newFileManager.browseSdCard(0);
+	//selectedFile = 0;
+	newFileManager.browseSdCard(nullptr);
 
 	//listAllFoldersFirst();
 
 	listInstrumentSlots();
 	showInstrumentsList();
 
-	handleMemoryBar();
+
 
 
 	// ustawienie funkcji
@@ -174,9 +156,9 @@ void cSampleImporter::start(uint32_t options)
 	showDefaultScreen();
 	setDefaultScreenFunct();
 
-	previewColorControl();
+	//previewColorControl();
 
-	cancelSelect(listFiles);
+	//cancelSelect(listFiles);	setSelect();
 	cancelSelect(listInstruments);
 
 /*	if(checkIfValidSelection(selectedFile))
@@ -193,7 +175,9 @@ void cSampleImporter::start(uint32_t options)
 	updateSelection();
 
 	resetInstrSel();
+
 	setSelect();
+
 	displayDelete(selectedPlace);
 }
 
@@ -731,7 +715,7 @@ static  uint8_t functShift(uint8_t state)
 
 		if(SI->selectedPlace == 0)
 		{
-			if(SI->checkIfValidSelection(SI->selectedFile))// nie mozna zaczac zaznaczac od folderu
+			if(*SI->explorerNames[SI->selectedFile] != '/')// nie mozna zaczac zaznaczac od folderu
 			{
 				SI->selectionTab[SI->selectedPlace][SI->selectedFile] = 1;
 			}
@@ -980,40 +964,8 @@ uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 	return 1;
 }
 
-uint8_t cSampleImporter::checkIfNameValid(char * name)
-{
-	uint8_t isValid = 1;
-	uint8_t length;
-	length = strlen(name);
 
-	for(uint8_t i = 0; i < length; i++)
-	{
-		if(name[i] == 0x3F)
-		{
-			isValid = 0;
-			break;
-		}
-	}
-
-	return isValid;
-}
 //======================================================================================================================
-
-uint8_t cSampleImporter::isWavFile(char* fileName)
-{
-	uint8_t wav_len = strlen(fileName);
-	if(wav_len<5) return 0;
-
-	if(((fileName[wav_len - 1] != 'V') && (fileName[wav_len - 1] != 'v'))
-	|| ((fileName[wav_len - 2] != 'A') && (fileName[wav_len - 2] != 'a'))
-	|| ((fileName[wav_len - 3] != 'W') && (fileName[wav_len - 3] != 'w'))
-	||  (fileName[wav_len - 4] != '.')) return 0;
-
-	return 1;
-}
-
-
-
 
 
 void cSampleImporter::BrowseOrAdd()
@@ -1023,7 +975,9 @@ void cSampleImporter::BrowseOrAdd()
 		if(selectedPlace == 0)
 		{
 			cancelSelect(listFiles);
-			newFileManager.browseSdCard(selectedFile);
+			debugLog.addLine("Loading files...");
+			debugLog.forceRefresh();
+			newFileManager.browseSdCard(&selectedFile);
 		}
 	}
 	else
@@ -1041,7 +995,7 @@ void cSampleImporter::SelectFile()
 		copyType = 1;
 		isBusy = 1;
 
-		fileManager.clearAutoLoadFlag();
+		//fileManager.clearAutoLoadFlag();
 
 		if(currSelectPlace==0)
 		{
@@ -1071,13 +1025,15 @@ void cSampleImporter::SelectFile()
 
 			fileManager.setStart(selectedSlot);
 
-			if(fileManager.assignSampleToInstrument(actualPath, explorerNames[position + copyElement], selectedSlot + copyElement, sampleType) == 0)
-			{
-				if(copyElement == (copyElementMax - 1))
-				{
-					isBusy = 0;
-				}
-			}
+
+
+//			if(fileManager.assignSampleToInstrument(actualPath, explorerNames[position + copyElement], selectedSlot + copyElement, sampleType) == 0)
+//			{
+//				if(copyElement == (copyElementMax - 1))
+//				{
+//					isBusy = 0;
+//				}
+//			}
 
 			copyElement++;
 		}
@@ -1085,7 +1041,10 @@ void cSampleImporter::SelectFile()
 		{
 			fileManager.setAutoLoadFlag();
 			fileManager.setStart(selectedSlot);
-			fileManager.assignSampleToInstrument(actualPath, explorerNames[selectedFile], selectedSlot,sampleType);
+
+			newFileManager.importSamplesToWorkspace(getSelectionStart(listFiles), getSelectionEnd(listFiles), selectedSlot);
+
+			//fileManager.assignSampleToInstrument(actualPath, explorerNames[selectedFile], selectedSlot,sampleType);
 		}
 	}
 }
@@ -1243,13 +1202,13 @@ void cSampleImporter::calculateCopyingProgress()
 void cSampleImporter::playSdFile()
 {
 	//if(currentCopyStatusFlag || currentLoadStatusFlag) return;
-	if(!isWavFile(explorerNames[selectedFile])) return;
+//	if(!isWavFile(explorerNames[selectedFile])) return;
 
 	char file_path[255];
 
-	strcpy(file_path, actualPath);
-	if(dirLevel > 0) strcat(file_path, "/");
-	strcat(file_path, explorerNames[selectedFile]);
+//	strcpy(file_path, actualPath);
+//	if(dirLevel > 0) strcat(file_path, "/");
+//	strcat(file_path, explorerNames[selectedFile]);
 
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
@@ -1260,27 +1219,27 @@ void cSampleImporter::playSdFile()
 	stopPlaying();
 
 
-	playMode = playModeSdFile;
-
-	SdFile wavHeader = SD.open(file_path);
-
-	if(!wavHeader)
-	{
-		wavHeader.close();
-		//SD.begin(SdioConfig(DMA_SDIO));
-		return;
-	}
-
-	strWavFileHeader header;
-	readHeader(&header,&wavHeader);
-
-	wavHeader.close();
-	if(header.AudioFormat == 3) playSdWavFloat.play(file_path);
-	else
-	{
-		if(header.bitsPerSample == 16) playSdWav.play(file_path);
-		else if (header.bitsPerSample == 24) playSdWav24Bit.play(file_path);
-	}
+//	playMode = playModeSdFile;
+//
+//	SdFile wavHeader = SD.open(file_path);
+//
+//	if(!wavHeader)
+//	{
+//		wavHeader.close();
+//		//SD.begin(SdioConfig(DMA_SDIO));
+//		return;
+//	}
+//
+//	strWavFileHeader header;
+//	readHeader(&header,&wavHeader);
+//
+//	wavHeader.close();
+//	if(header.AudioFormat == 3) playSdWavFloat.play(file_path);
+//	else
+//	{
+//		if(header.bitsPerSample == 16) playSdWav.play(file_path);
+//		else if (header.bitsPerSample == 24) playSdWav24Bit.play(file_path);
+//	}
 
 
 }
@@ -1347,15 +1306,6 @@ void cSampleImporter::updateSelection()
 	display.refreshControl(instrumentListControl);
 }
 
-bool cSampleImporter::checkIfValidSelection(uint8_t positionToCheck)
-{
-	if(!(*explorerNames[positionToCheck] == '/'))
-	{
-		return true;
-	}
-
-	return false;
-}
 
 uint8_t cSampleImporter::handleSelecting(uint8_t selectStart, uint8_t selectMax, int16_t value, uint8_t fileCheck)
 {
@@ -1470,7 +1420,7 @@ int16_t cSampleImporter::getSelectionStart(uint8_t whichSelect)
 {
 	int16_t selStart = -1;
 
-	for(size_t i = 0; i < 255; i++)
+	for(size_t i = 0; i < 100; i++)
 	{
 		if(selectionTab[whichSelect][i] == 1)
 		{
@@ -1480,6 +1430,33 @@ int16_t cSampleImporter::getSelectionStart(uint8_t whichSelect)
 	}
 
 	return selStart;
+}
+
+int16_t cSampleImporter::getSelectionEnd(uint8_t whichSelect)
+{
+	int16_t selEnd = -1;
+
+	for(int i = 99; i > 0; i--)
+	{
+		if(selectionTab[whichSelect][i] == 1)
+		{
+			selEnd = i;
+			break;
+		}
+	}
+
+	return selEnd;
+}
+
+
+bool cSampleImporter::checkIfValidSelection(uint8_t positionToCheck)
+{
+	if(!(*explorerNames[positionToCheck] == '/'))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 char* cSampleImporter::parseNewName(uint8_t num)
@@ -1546,7 +1523,7 @@ void cSampleImporter::handleSequenceCopyingLoading()
 			{
 				if(copyType == 1)
 				{
-					fileManager.assignSampleToInstrument(actualPath, explorerNames[getSelectionStart(listFiles) + copyElement], selectedSlot + copyElement,sampleType);
+					//fileManager.assignSampleToInstrument(actualPath, explorerNames[getSelectionStart(listFiles) + copyElement], selectedSlot + copyElement,sampleType);
 				}
 				else if(copyType == 2)
 				{

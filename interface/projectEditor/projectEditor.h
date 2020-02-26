@@ -48,12 +48,11 @@ public:
 	void showProjectsList();
 //	void showTemplatesList();
 
-	void deactivateGui();
-	void activateGui();
 
 	void setDefaultScreenFunct();
 
 //-------------------------------------------------------------
+	void processProjectList();
 
 	uint8_t loadSamplesBank();
 
@@ -82,7 +81,7 @@ public:
 
 	mtKeyboardManager keyboardManager;
 
-	void listProjectsNames(const char* folder);
+
 
 	//SdDir sdLocation;
 	//uint16_t projectsfoundCount;

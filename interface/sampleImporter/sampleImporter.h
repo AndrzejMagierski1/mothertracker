@@ -32,6 +32,7 @@ public:
 	virtual ~cSampleImporter() {}
 
 	void showDefaultScreen();
+	void showActualInstrument();
 	void deactivateGui();
 	void showFilesTree();
 	void showInstrumentsList();
@@ -87,61 +88,31 @@ public:
 	uint8_t changeInstrumentSelection(int16_t value);
 
 
-//	void checkWavetableLabel();
 	void AddEnterOrRename();
 
 	void AddNextControl();
 	void AddNextDisplay(uint8_t active);
-//	void showAddWT();
-//	void hideAddWT();
+
 
 //--------------------------------------------------------------
-	//SdDir sdLocation;
-	//static const uint8_t list_length_max = 100;
-	//char actualPath[255] = {'/',0};
-	//uint8_t dirLevel = 0;
-
 	void BrowseOrAdd();
 	void SelectFile();
-	void goUpInActualPath();
-
-// foldery
-	uint8_t checkIfNameValid(char * name);
-	void listOnlyFolderNames(char* path);
-
-/*	uint16_t locationFolderCount;
-	char locationFolderList[list_length_max][40];
-	char *folderNames[list_length_max];
-	uint8_t selectedFolder = 0;*/
-	//char *folderPath;
-
-// pliki wave w wybranym folderze
 
 
-	void listOnlyWaveNames(char* folder,uint8_t startPoint);
-	void listOnlyWavFromActualPath(uint8_t startPoint);
-	uint8_t isWavFile(char* fileName);
-
-	//char locationExplorerList[list_length_max][40];
-	//char *explorerNames[list_length_max];
-
+// pliki wybranym folderze
 	uint16_t locationExplorerCount;
 	char **explorerNames;
 	uint8_t selectedFile = 0;
 	char copyingInfo[20];
+	uint32_t* currentFolderMemoryFileUsage;
+
+
 //--------------------------------------------------------------
 
 // instrumenty
 	void listInstrumentSlots();
-	// przenisone do interfaceGlobals
-	//char slotNames[INSTRUMENTS_COUNT][SAMPLE_NAME_SIZE+4];
-	//char *ptrSlotNames[INSTRUMENTS_COUNT];
 	uint8_t selectedSlot = 0;
 
-//	uint16_t instrumentsCount;
-//	char instrumentsList[list_length_max][20];
-//	char *instrumentsNames[list_length_max];
-//	uint8_t selectedInstrument;
 
 
 //--------------------------------------------------------------
@@ -158,7 +129,6 @@ public:
 	uint8_t copyingProgress = 0;
 	uint8_t lastCopyStatusFlag = 0;
 	uint8_t currentCopyStatusFlag = 0;
-	//uint8_t copyQueue = 0;
 	uint8_t copyElement=0;
 	uint8_t sampleType = 0;
 	uint8_t copyElementMax;
@@ -186,20 +156,15 @@ public:
 
 
 //----------------------------------
-// aktualny instrument na belce tytułowej
-	void showActualInstrument();
-//char actualInstrName[SAMPLE_NAME_SIZE+4];
 	void showFileList();
-	void listAllFoldersFirst();
 	void rewindListToBeggining();
 	void moveInstrListToEnd();
 
-	//uint8_t explorerPositionTable[PREVIOUS_POSITION_LIFO];
-	//uint8_t explorerCurrentPosition;
+
 
 	uint8_t selectionActive[2]={0,0};
 	uint8_t shiftPressed;
-	uint8_t selectionTab[2][255];
+	uint8_t selectionTab[2][100];
 	uint8_t selectionLength[2];
 	uint8_t currSelectPlace=0;
 
@@ -212,6 +177,7 @@ public:
 
 	void cancelSelect(uint8_t placeToCancel);
 	int16_t getSelectionStart(uint8_t whichSelect);
+	int16_t getSelectionEnd(uint8_t whichSelect);
 
 	bool checkIfValidSelection(uint8_t positionToCheck);
 
@@ -220,8 +186,6 @@ public:
 	void calculateFileMemUsage();
 	void calculateMemUsage();
 
-	uint32_t currentFolderMemoryFileUsage[255];
-//	uint8_t currentFolderIsWavetableFlag[255];
 
 	void setSelect();
 	void frameSelectMode(uint8_t place,uint8_t mode);
@@ -250,11 +214,11 @@ public:
 	uint8_t instrDeleted = 0;
 	void processDeleting();
 
-	uint8_t openingInProgress = 0;
-	uint8_t openCalcStart = 0;
-	uint8_t openCalcEnd = 0;
-	uint8_t openCurrentPos =0;
-	void processDirFileSizes();
+//	uint8_t openingInProgress = 0;
+//	uint8_t openCalcStart = 0;
+//	uint8_t openCalcEnd = 0;
+//	uint8_t openCurrentPos =0;
+//	void processDirFileSizes();
 
 	uint8_t folderIsChanged = 1;
 
