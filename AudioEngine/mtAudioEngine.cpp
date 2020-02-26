@@ -197,10 +197,12 @@ void audioEngine::setPassEnvelope(uint8_t state)
 
 void audioEngine::init()
 {
-	for(uint8_t i = 0; i < 4 ; i ++)
+	mixerSourceR.gain(0,1.0);
+	mixerSourceL.gain(0,1.0);
+	for(uint8_t i = 1; i < 4 ; i ++)
 	{
-		mixerSourceR.gain(i,1.0);
-		mixerSourceL.gain(i,1.0);
+		mixerSourceR.gain(i,ampLogValues[50]);
+		mixerSourceL.gain(i,ampLogValues[50] );
 	}
 
 	filterReverbOut.setType(filterType::lowPass);
@@ -745,7 +747,7 @@ uint8_t playerEngine :: noteOnforPrev (int16_t * addr, uint32_t len,uint8_t type
 	engine.clearReverb();
 
 	filterDisconnect();
-	ampPtr->gain(1.0);
+	ampPtr->gain(ampLogValues[50]);
 
 	mixerL.gain(nChannel,1.0);
 	mixerR.gain(nChannel,1.0);
