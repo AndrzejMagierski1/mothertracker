@@ -343,15 +343,6 @@ void AudioEffectEnvelope::update(void)
 		{
 			if( (mult + 8 * inc) >= 0x10000)
 			{
-				debugLog.setMaxLineCount(10);
-				debugLog.addLine("mult ");
-				debugLog.addValue(mult);
-				debugLog.addText("inc ");
-				debugLog.addValue(inc);
-				debugLog.addText("state ");
-				debugLog.addValue(state);
-				debugLog.addText("count ");
-				debugLog.addValue(count);
 				inc = (0xFFFF-mult)/8;
 				count = 1;
 
@@ -362,16 +353,6 @@ void AudioEffectEnvelope::update(void)
 		{
 			if( (mult + 8 * inc) < 0)
 			{
-				debugLog.setMaxLineCount(10);
-				debugLog.addLine("mult ");
-				debugLog.addValue(mult);
-				debugLog.addText("inc ");
-				debugLog.addValue(inc);
-				debugLog.addText("state ");
-				debugLog.addValue(state);
-				debugLog.addText("count ");
-				debugLog.addValue(count);
-
 				inc = -mult/8;
 				count = 1;
 			}
