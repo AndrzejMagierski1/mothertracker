@@ -748,9 +748,10 @@ static  uint8_t functEncoder(int16_t value)
 			}
 			case mtPerfStepStutter:
 			{
-				if(FX_VALUE(place) + mod_value > 8) FX_VALUE(place) = 8;
-				else if(FX_VALUE(place) + mod_value < 0) FX_VALUE(place) = 0;
-				else FX_VALUE(place) += mod_value;
+				FX_VALUE(place) = constrain(FX_VALUE(place) + mod_value,
+											Sequencer::strFxConsts::STUTTER_PERIOD_MIN,
+											Sequencer::strFxConsts::STUTTER_PERIOD_MAX);
+
 
 				for(uint8_t j = 0; j < 8; j++)
 				{
