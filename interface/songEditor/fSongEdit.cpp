@@ -1,10 +1,11 @@
 
 
 #include "songEditor/songEditor.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
 #include "Encoder.h"
+#include "fileManager.h"
 
-
+#include "patternEditor/patternEditor.h" // todo zrobic cos z tym
 
 #include "mtAudioEngine.h"
 #include "keyScanner.h"
@@ -190,8 +191,9 @@ static  uint8_t functIncPattern()
 		SE->listPatterns();
 		SE->showPatternsList();
 
-		fileManager.projectChangeFlag = 1;
-		mtProject.values.projectNotSavedFlag = 1;
+		//fileManager.projectChangeFlag = 1;
+		//mtProject.values.projectNotSavedFlag = 1;
+		newFileManager.setProjectStructChanged();
 	}
 
 	SE->selectedPlace = 8;
@@ -222,8 +224,9 @@ static  uint8_t functDecPattern()
 		SE->listPatterns();
 		SE->showPatternsList();
 
-		fileManager.projectChangeFlag = 1;
-		mtProject.values.projectNotSavedFlag = 1;
+		//fileManager.projectChangeFlag = 1;
+		//mtProject.values.projectNotSavedFlag = 1;
+		newFileManager.setProjectStructChanged();
 	}
 
 	SE->selectedPlace = 8;
@@ -271,8 +274,9 @@ static  uint8_t functAddSlot()
 	SE->selectedPlace = 8;
 	SE->activateLabelsBorder();
 
-	fileManager.projectChangeFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	//fileManager.projectChangeFlag = 1;
+	//mtProject.values.projectNotSavedFlag = 1;
+	newFileManager.setProjectStructChanged();
 
 	return 1;
 }
@@ -322,8 +326,9 @@ static  uint8_t functDeleteSlot()
 	SE->selectedPlace = 8;
 	SE->activateLabelsBorder();
 
-	fileManager.projectChangeFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	//fileManager.projectChangeFlag = 1;
+	//mtProject.values.projectNotSavedFlag = 1;
+	newFileManager.setProjectStructChanged();
 	return 1;
 }
 
@@ -701,7 +706,8 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		break;
 	}
 
-	fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+
+	//newFileManager.setPatternStructChanged(mtProject.values.actualPattern); // todo odkomentowac jesli potrzebne
 
 	return 1;
 
@@ -740,13 +746,14 @@ void cSongEditor::handleEntryIcon()
 
 void cSongEditor::switchToNewPattern()
 {
-	fileManager.savePattern(mtProject.values.actualPattern);
+	newFileManager.saveWorkspacePatternNow(mtProject.values.actualPattern);
+
 
 	mtProject.values.actualPattern = constrain(
 			mtProject.song.playlist[SE->selectedPattern], PATTERN_INDEX_MIN,
 			PATTERN_INDEX_MAX);
 
-	fileManager.loadPattern(mtProject.values.actualPattern);
+	newFileManager.loadWorkspacePatternNow(mtProject.values.actualPattern);
 	sequencer.switchRamPatternsNow();
 }
 
@@ -1027,8 +1034,9 @@ static void updateBitmaskAfterCopy(uint8_t *src, uint8_t *dest, uint8_t startSrc
 		}
 	}
 
-	fileManager.projectChangeFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	//fileManager.projectChangeFlag = 1;
+	//mtProject.values.projectNotSavedFlag = 1;
+	newFileManager.setProjectStructChanged();
 }
 
 static void updateBitmaskAfterDelete(uint8_t *src, uint8_t startSrc, uint8_t length)
@@ -1038,8 +1046,9 @@ static void updateBitmaskAfterDelete(uint8_t *src, uint8_t startSrc, uint8_t len
 		*src &= ~(1 << (bit + startSrc));
 	}
 
-	fileManager.projectChangeFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	//fileManager.projectChangeFlag = 1;
+	//mtProject.values.projectNotSavedFlag = 1;
+	newFileManager.setProjectStructChanged();
 }
 
 static void refreshCopyPasting()
@@ -1049,9 +1058,9 @@ static void refreshCopyPasting()
 		uint8_t source = mtProject.song.playlist[SE->copyCurrentData.startPattern + SE->currentCopyElement];
 		uint8_t destination =  mtProject.song.playlist[SE->songPlayerData.selection.startPattern + SE->currentCopyElement];
 
-		fileManager.storeSongUndoRevision(destination);
+		newFileManager.storeSongUndoRevision(destination);
 
-		fileManager.copySongTracks((char*) "Workspace", source, destination,
+		newFileManager.copySongTracks((char*) "Workspace", source, destination,
 				SE->copyCurrentData.startTrack,
 				SE->songPlayerData.selection.startTrack,
 				SE->copyCurrentData.trackSelectionLength);
@@ -1122,7 +1131,7 @@ static uint8_t functUndo()
 {
 	if(SE->isBusy) return 1;
 
-	fileManager.undoSongPattern();
+	newFileManager.undoSongPattern(); //todo brak save projektu?
 	SE->refreshSongPlayerControl();
 
 	return 1;
@@ -1168,7 +1177,7 @@ static void refreshDeleting()
 	{
 		uint8_t source = mtProject.song.playlist[SE->songPlayerData.selection.startPattern + SE->currentDeleteElement];
 
-		fileManager.deleteTracks((char*) "Workspace", source, SE->songPlayerData.selection.startTrack, SE->songPlayerData.selection.trackSelectionLength);
+		newFileManager.deleteTracks((char*) "Workspace", source, SE->songPlayerData.selection.startTrack, SE->songPlayerData.selection.trackSelectionLength);
 
 		updateBitmaskAfterDelete(&mtProject.values.allPatternsBitmask[source-1], SE->songPlayerData.selection.startTrack, SE->songPlayerData.selection.trackSelectionLength);
 

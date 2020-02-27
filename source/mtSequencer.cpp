@@ -3,7 +3,9 @@
 #include "mtSequencer.h"
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
+#include "fileManager.h"
+
 
 #include "mtMidi.h"
 #include "configEditor/configEditor.h"
@@ -306,7 +308,7 @@ void Sequencer::play_microStep(uint8_t row)
 	{
 		if (playerRow.actual_pos == patternRow.length && player.songMode)
 		{
-			loadNextPattern(fileManager.getNextSongPattern());
+			loadNextPattern(newFileManager.getNextSongPattern());
 		}
 	}
 
@@ -884,8 +886,8 @@ void Sequencer::playPattern(void)
 }
 void Sequencer::playSong(void)
 {
-	fileManager.savePattern(mtProject.values.actualPattern);
-	fileManager.loadPattern(fileManager.resetToFirstSongPattern());
+	newFileManager.saveWorkspacePatternNow(mtProject.values.actualPattern);
+	newFileManager.loadWorkspacePatternNow(newFileManager.resetToFirstSongPattern());
 	switchRamPatternsNow();
 
 	player.songMode = 1;
@@ -894,16 +896,16 @@ void Sequencer::playSong(void)
 void Sequencer::playSong(uint8_t fromPos)
 {
 
-	uint8_t patternToStart = fileManager.getSongPattern(fromPos);
-	fileManager.setSongPos(fromPos);
+	uint8_t patternToStart = newFileManager.getSongPattern(fromPos);
+	newFileManager.setSongPos(fromPos);
 
 	if (patternToStart == mtProject.values.actualPattern)
 	{
-		fileManager.savePattern(patternToStart);
+		newFileManager.saveWorkspacePatternNow(patternToStart);
 	}
 	else
 	{
-		fileManager.loadPattern(patternToStart);
+		newFileManager.loadWorkspacePatternNow(patternToStart);
 		switchRamPatternsNow();
 	}
 
@@ -1032,7 +1034,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 			if (player.track[x].performanceSourcePattern != -1)
 			{
 				enterPerformanceMode();
-				fileManager.loadTrack(player.track[x].performanceSourcePattern,
+				newFileManager.loadTrack(player.track[x].performanceSourcePattern,
 										x);
 				cancelFxes(x);
 
@@ -1049,7 +1051,7 @@ void Sequencer::switchStep(uint8_t row) //przełączamy stepy w zależności od 
 					reset_actual_pos();
 					switchRamPatternsNow();
 					isNextPatternAvailable =
-							fileManager.switchNextPatternInSong();
+							newFileManager.switchNextPatternInSong();
 				}
 
 				if ((player.onPatternEnd != NULL) && isNextPatternAvailable)
@@ -1467,7 +1469,7 @@ void Sequencer::loadNextPattern(uint8_t patternNumber)
 	player.jump.nextPattern = patternNumber;
 	player.jump.jumpNOW = 0;
 
-	fileManager.setLoadPattern(patternNumber);
+	newFileManager.loadWorkspacePattern(patternNumber);
 }
 
 void Sequencer::handleNote(byte channel, byte note, byte velocity)

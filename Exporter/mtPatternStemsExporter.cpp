@@ -1,6 +1,7 @@
 #include "mtPatternStemsExporter.h"
 #include "mtAudioEngine.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
+#include "fileManager.h"
 extern mtExporter exporter;
 
 void mtPatternTrackExporter::start(char * path, uint8_t track_n)

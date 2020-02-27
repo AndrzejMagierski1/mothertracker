@@ -1,7 +1,7 @@
 
 
 #include "sampleImporter/sampleImporter.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
 #include "fileManager.h"
 
 #include "Encoder.h"
@@ -623,7 +623,7 @@ static uint8_t functPaste()
 
 				strcpy(projectSamplePath,"Workspace/samples");
 
-				fileManager.clearAutoLoadFlag();
+				//fileManager.clearAutoLoadFlag();
 
 				/*cut unactive bottom*/
 				while(SI->copyElement < SI->copyElementMax)
@@ -653,12 +653,13 @@ static uint8_t functPaste()
 
 				if(SI->copyElement == (SI->copyElementMax-1))
 				{
-					fileManager.setAutoLoadFlag();
+					//fileManager.setAutoLoadFlag();
 				}
 
-				fileManager.setStart(SI->selectedSlot);
-				fileManager.assignSampleToInstrument(projectSamplePath, SI->parseNewName(SI->instrCopyStart+SI->copyElement), SI->selectedSlot + SI->copyElement, SI->sampleType);
-				memcpy(&mtProject.instrument[SI->selectedSlot+SI->copyElement], &mtProject.instrument[SI->instrCopyStart+SI->copyElement], sizeof(mtProject.instrument[0]));
+				//todo
+				//fileManager.setStart(SI->selectedSlot);
+				//fileManager.assignSampleToInstrument(projectSamplePath, SI->parseNewName(SI->instrCopyStart+SI->copyElement), SI->selectedSlot + SI->copyElement, SI->sampleType);
+				//memcpy(&mtProject.instrument[SI->selectedSlot+SI->copyElement], &mtProject.instrument[SI->instrCopyStart+SI->copyElement], sizeof(mtProject.instrument[0]));
 
 				SI->copyElement++;
 				SI->instrCopied++;
@@ -1205,12 +1206,12 @@ void cSampleImporter::calculateMemUsage()
 
 void cSampleImporter::calculateLoadProgress()
 {
-	loadProgress = fileManager.samplesLoader.getCurrentProgress();
+	//loadProgress = fileManager.samplesLoader.getCurrentProgress();//todo
 }
 
 void cSampleImporter::calculateCopyingProgress()
 {
-	copyingProgress = fileManager.samplesImporter.getProgress();
+	//copyingProgress = fileManager.samplesImporter.getProgress();///todo
 }
 
 //==============================================================================================
@@ -1499,7 +1500,7 @@ uint8_t cSampleImporter::getActiveInstrInSelection()
 void cSampleImporter::handleSequenceCopyingLoading()
 {
 	//////////////////////////////////////COPYING////////////////////////////
-	currentCopyStatusFlag = fileManager.samplesImporter.getState();
+	//currentCopyStatusFlag = fileManager.samplesImporter.getState();
 
 	if(currentCopyStatusFlag)
 	{
@@ -1530,8 +1531,8 @@ void cSampleImporter::handleSequenceCopyingLoading()
 
 			if(copyElement == (copyElementMax-1))
 			{
-				fileManager.setLoadLength(copyElementMax);
-				fileManager.setAutoLoadFlag();
+				//fileManager.setLoadLength(copyElementMax);
+				//fileManager.setAutoLoadFlag();
 			}
 
 			if(copyElement != copyElementMax)
@@ -1547,8 +1548,8 @@ void cSampleImporter::handleSequenceCopyingLoading()
 						//strcpy(projectSamplePath,fileManager.currentProjectPatch);
 						strcpy(projectSamplePath,"Workspace/samples");
 
-						fileManager.assignSampleToInstrument(projectSamplePath, parseNewName(instrCopyStart + copyElement), selectedSlot + copyElement, sampleType);
-						memcpy(&mtProject.instrument[selectedSlot+copyElement], &mtProject.instrument[instrCopyStart+copyElement], sizeof(mtProject.instrument[0]));
+						//fileManager.assignSampleToInstrument(projectSamplePath, parseNewName(instrCopyStart + copyElement), selectedSlot + copyElement, sampleType);
+					//memcpy(&mtProject.instrument[selectedSlot+copyElement], &mtProject.instrument[instrCopyStart+copyElement], sizeof(mtProject.instrument[0]));
 						instrCopied++;
 					}
 				}
@@ -1563,30 +1564,30 @@ void cSampleImporter::handleSequenceCopyingLoading()
 	lastCopyStatusFlag = currentCopyStatusFlag;
 
 	//////////////////////////////////////LOADING////////////////////////////
-	currentLoadStatusFlag = fileManager.samplesLoader.getStateFlag();
+//	currentLoadStatusFlag = fileManager.samplesLoader.getStateFlag();
 	if(currentLoadStatusFlag)
 	{
 		calculateLoadProgress();
 		showLoadHorizontalBar();
 	}
 	if((!currentLoadStatusFlag) && (lastLoadStatusFlag))
-	{
+	{/*
 		if(!fileManager.samplesLoader.getStateFlag())
 		{
 			firstMemBarLoadFlag=2;
 			showDefaultScreen();
 
-/*			for(uint32_t i = selectedSlot ; i < (selectedSlot + copyElementMax); i++)
-			{
-				fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
-			}*/
+			//for(uint32_t i = selectedSlot ; i < (selectedSlot + copyElementMax); i++)
+			//{
+			//	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+			//}
 
 			//fileManager.instrumentForcedSaveFlag = 1;
 
 			mtProject.values.projectNotSavedFlag = 1;
 
 			isBusy = 0;
-		}
+		}*/
 
 		if(firstMemBarLoadFlag == 0)
 		{
@@ -1616,7 +1617,7 @@ void cSampleImporter::processDeleting()
 		if(mtProject.instrument[deleteCurrentPos].isActive)
 		{
 			mtProject.used_memory -= 2* mtProject.instrument[deleteCurrentPos].sample.length;
-			fileManager.deleteInstrument(deleteCurrentPos);
+			//fileManager.deleteInstrument(deleteCurrentPos); //todo delete
 			instrDeleted++;
 		}
 

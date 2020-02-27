@@ -3,7 +3,8 @@
 #include "mtTest.h"
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
+#include "fileManager.h"
 #include "configEditor/configEditor.h"
 #include "mtSequencer.h"
 #include "mtConfig.h"
@@ -124,7 +125,7 @@ void cConfigEditor::turnOffPerformanceMode()
 {
 	if(sequencer.isPerformanceMode())
 	{
-		fileManager.loadPattern(mtProject.values.actualPattern);
+		newFileManager.loadWorkspacePatternNow(mtProject.values.actualPattern);
 		sequencer.switchRamPatternsNow();
 		sequencer.exitPerformanceMode();
 	}

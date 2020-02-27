@@ -44,7 +44,7 @@ enum fileManagerStatus
 enum fileManagerOperation
 {
 	fmNoOperation = 0,
-	fmLoadWorkspaceProject,
+	fmLoadWorkspaceProject,		//1
 	fmSaveWorkspaceProject,		//2
 	fmCopyProjectsToWorkspace,	//3
 	fmCopyWorkspaceToProjects,	//4
@@ -62,7 +62,11 @@ enum fileManagerOperation
 
 struct strProjectFile;
 struct strInstrumentFile;
+class SdDir;
+class SdFile;
 
+extern SdDir sdLocation;
+extern SdFile wavfile;
 
 class cFileManager
 {
@@ -108,7 +112,17 @@ public:
 
 	// to na pozniej \/
 	bool loadWorkspacePattern(uint8_t index);
-	bool saveWorkspacePattern(uint8_t index);
+	bool loadWorkspacePatternNow(uint8_t index);
+	bool saveWorkspacePatternNow(uint8_t index);
+	bool loadTrack(uint8_t pattIndex, uint8_t trackIndex);
+
+	uint8_t getNextSongPattern();
+	uint8_t getSongPattern(uint8_t pos);
+	void setSongPos(uint8_t pos);
+	uint8_t resetToFirstSongPattern();
+	bool switchNextPatternInSong();
+	void copySongTracks(char *currentProjectPath, uint8_t src, uint8_t dest, uint8_t trackStartSrc, uint8_t trackStartDest, uint8_t tracksNum);
+	void deleteTracks(char *currentProjectPath, uint8_t src, uint8_t trackStartSrc, uint8_t tracksNum);
 
 	void updatePatternBitmask(uint8_t patternNum);
 	void updatePatternBitmask(uint8_t index, uint8_t* sourcePattern);
@@ -153,8 +167,8 @@ private:
 	} changesFlags;
 
 
-	SdDir sdLocation;
-	SdFile wavfile;
+	//SdDir* sdLocation;
+	//SdFile* wavfile;
 
 	// metody wewnetrzne ------------------------------------
 	void throwError(uint8_t source);
@@ -220,7 +234,6 @@ private:
 	bool readPatternFile(const char* filePath, uint8_t* destPattern);
 	bool saveActualPattern(const char* path, uint8_t index);
 	bool loadPattern(const char* path, uint8_t index);
-	bool loadTrack(uint8_t pattIndex, uint8_t trackIndex);
 
 	uint16_t currentPattern = 0;
 
@@ -317,13 +330,7 @@ private:
 
 
 	//song
-	uint8_t getNextSongPattern();
-	uint8_t getSongPattern(uint8_t pos);
-	void setSongPos(uint8_t pos);
-	uint8_t resetToFirstSongPattern();
-	bool switchNextPatternInSong();
-	void copySongTracks(char *currentProjectPath, uint8_t src, uint8_t dest, uint8_t trackStartSrc, uint8_t trackStartDest, uint8_t tracksNum);
-	void deleteTracks(char *currentProjectPath, uint8_t src, uint8_t trackStartSrc, uint8_t tracksNum);
+
 
 
 };

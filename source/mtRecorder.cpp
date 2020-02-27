@@ -1,5 +1,5 @@
 #include  "mtRecorder.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
 void Recorder:: startRecording(int16_t * addr)
 {
 	currentAddress = addr;
@@ -162,13 +162,14 @@ void Recorder::updateSave()
 void Recorder::stopSave()
 {
 	saveInProgressFlag = 0;
-	writeOutHeader();
+	//writeOutHeader();
 	if(loadAfterSaveFlag)
 	{
 		loadAfterSaveFlag = 0;
-		fileManager.setAutoLoadFlag();
-		fileManager.setStart(currentIndex);
-		fileManager.assignSampleToInstrument((char*)"Recorded", currentName, currentIndex);
+		//fileManager.setAutoLoadFlag();
+		//fileManager.setStart(currentIndex);
+		//fileManager.assignSampleToInstrument((char*)"Recorded", currentName, currentIndex);
+		//todo
 	}
 }
 uint8_t Recorder::getSaveProgress()

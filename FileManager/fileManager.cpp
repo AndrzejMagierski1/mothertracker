@@ -14,7 +14,8 @@
 
 cFileManager newFileManager;
 
-
+SdDir sdLocation;
+SdFile wavfile;
 
 elapsedMillis autoSaveTimer;
 

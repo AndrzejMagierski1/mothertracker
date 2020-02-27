@@ -136,7 +136,7 @@ void cMasterParams::turnOffPerformanceMode()
 {
 	if(sequencer.isPerformanceMode())
 	{
-		newFileManager.loadWorkspacePattern(mtProject.values.actualPattern);
+		newFileManager.loadWorkspacePatternNow(mtProject.values.actualPattern);
 		sequencer.switchRamPatternsNow();
 		sequencer.exitPerformanceMode();
 	}

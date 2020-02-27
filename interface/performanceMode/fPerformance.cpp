@@ -1023,7 +1023,7 @@ static uint8_t functSwitchModule(uint8_t button)
 {
 	if(button != interfaceButtonMaster && sequencer.isPerformanceMode())
 	{
-		newFileManager.loadWorkspacePattern(mtProject.values.actualPattern);
+		newFileManager.loadWorkspacePatternNow(mtProject.values.actualPattern);
 		sequencer.switchRamPatternsNow();
 		sequencer.exitPerformanceMode();
 	}

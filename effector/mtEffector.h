@@ -1,7 +1,7 @@
 #ifndef SOURCE_MTEFFECTOR_H_
 #define SOURCE_MTEFFECTOR_H_
 
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
 #include "mtAudioEngine.h"
 #include "mtStructs.h"
 #include "mtEffectorChorus.h"

@@ -123,15 +123,15 @@ void cSampleEditor::onExitReload()
 {
 	if(onExitFlag == 1)
 	{
-		uint8_t progress = fileManager.samplesLoader.getCurrentProgress();
-		showHorizontalBar(progress, "Reloading Instruments");
-
-		if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
-		{
-			hideHorizontalBar();
-			onExitFlag = 2;
-			functSwitchModule(exitButton);
-		}
+//todo		uint8_t progress = fileManager.samplesLoader.getCurrentProgress();
+//		showHorizontalBar(progress, "Reloading Instruments");
+//
+//		if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
+//		{
+//			hideHorizontalBar();
+//			onExitFlag = 2;
+//			functSwitchModule(exitButton);
+//		}
 	}
 }
 
@@ -231,15 +231,15 @@ void cSampleEditor::refreshSampleLoading()
 {
 	if(moduleFlags & sampleLoadingActive)
 	{
-		sampleLoadedState = fileManager.samplesLoader.waveLoader.getState();
-
-		if(sampleLoadedState == loaderStateTypeInProgress) // refresh update when in progress
-		{
-			fileManager.samplesLoader.waveLoader.update();
-
-			uint8_t progress = fileManager.samplesLoader.waveLoader.getCurrentWaveProgress();
-			handleQueueProgress(&taskQueue, progress, "Loading sample");
-		}
+//todo		sampleLoadedState = fileManager.samplesLoader.waveLoader.getState();
+//
+//		if(sampleLoadedState == loaderStateTypeInProgress) // refresh update when in progress
+//		{
+//			fileManager.samplesLoader.waveLoader.update();
+//
+//			uint8_t progress = fileManager.samplesLoader.waveLoader.getCurrentWaveProgress();
+//			handleQueueProgress(&taskQueue, progress, "Loading sample");
+//		}
 
 		if((sampleLoadedState == loaderStateTypeEnded) && (lastSampleLoadedState == loaderStateTypeInProgress)) // do when loaded
 		{
@@ -1250,14 +1250,14 @@ static uint8_t functSwitchModule(uint8_t button)
 		{
 			if(SE->effectAppliedFlag)
 			{
-				if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
-				{
-					SE->exitButton = button;
-					SE->moduleFlags |= onExitReloadActive;
-					SE->onExitFlag = 1;
-
-					fileManager.samplesLoader.start(0, (char*)"Workspace/samples");
-				}
+//todo				if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
+//				{
+//					SE->exitButton = button;
+//					SE->moduleFlags |= onExitReloadActive;
+//					SE->onExitFlag = 1;
+//
+//					fileManager.samplesLoader.start(0, (char*)"Workspace/samples");
+//				}
 			}
 			else
 			{

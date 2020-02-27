@@ -248,7 +248,14 @@ bool cFileManager::readPatternFile(const char * filePath, uint8_t *destPattern)
 	return loadStatus;
 }
 
+
 bool cFileManager::loadWorkspacePattern(uint8_t index)
+{
+
+}
+
+
+bool cFileManager::loadWorkspacePatternNow(uint8_t index)
 {
 	bool status = false;
 	char patternToLoad[PATCH_SIZE];
@@ -278,7 +285,7 @@ bool cFileManager::loadWorkspacePattern(uint8_t index)
 }
 
 
-bool cFileManager::saveWorkspacePattern(uint8_t index)
+bool cFileManager::saveWorkspacePatternNow(uint8_t index)
 {
 	char patternToSave[PATCH_SIZE] { 0 };
 	bool status = false;

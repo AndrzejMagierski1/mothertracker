@@ -1,9 +1,12 @@
 #include "mtRenderWAV.h"
 #include "mtAudioEngine.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
+#include "fileManager.h"
 #include "mtExporterWAV.h"
 
 char currentRenderExportPath[PATCH_SIZE];
+
+void sendSelection();
 
 void mtRenderWAV::start(char * path)
 {

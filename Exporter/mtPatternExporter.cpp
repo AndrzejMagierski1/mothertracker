@@ -1,7 +1,8 @@
 #include "mtPatternExporter.h"
 #include "mtAudioEngine.h"
 #include "mtSequencer.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
+#include "fileManager.h"
 void setOnLastExportStep();
 
 void mtPatternExporter::setOnLastStep()
@@ -70,7 +71,7 @@ void mtPatternExporter::start(char * path)
 	sendBuf = buf2;
 	if(!SD.exists("Export")) SD.mkdir(0,"Export");
 
-	sprintf(currentSongExportPath,"Export/%s",fileManager.currentProjectName);
+	sprintf(currentSongExportPath,"Export/%s",newFileManager.getCurrentProjectName());
 	if(!SD.exists(currentSongExportPath)) SD.mkdir(0,currentSongExportPath);
 
 	sprintf(currentSongExportPath,"%s.wav",path);

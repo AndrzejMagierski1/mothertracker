@@ -1,11 +1,16 @@
 #include "mtEffector.h"
 #include "mtPadBoard.h"
 
+//#include "mtFileManager.h"
+#include "fileManager.h"
+
 mtEffector effector;
 
 void mtEffector::loadSample(const char *patch)
 {
-	fileByteSaved = 2 * fileManager.samplesLoader.waveLoader.start(patch,applyBuffer);
+	//load sampel to memory efector //todo
+	//fileByteSaved = 2 * fileManager.samplesLoader.waveLoader.start(patch,applyBuffer);
+
 	if(fileByteSaved == 0) return; //todo: obsluga bledu
 	startAddress=applyBuffer;
 }

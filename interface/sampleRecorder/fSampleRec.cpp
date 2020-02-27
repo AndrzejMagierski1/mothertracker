@@ -6,7 +6,8 @@
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
 #include "mtLED.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
+#include "fileManager.h"
 #include "mtPadsBacklight.h"
 #include "core/graphicProcessing.h"
 #include "sdCardDetect.h"
@@ -1981,8 +1982,9 @@ void cSampleRecorder::changeRadioFreqBar(int16_t val)
 
 			radio.setFrequency(recorderConfig.radioFreq);
 			mtProject.values.radioFreq = sampleRecorder.recorderConfig.radioFreq;
-			fileManager.projectChangeFlag = 1;
-			mtProject.values.projectNotSavedFlag = 1;
+			//fileManager.projectChangeFlag = 1;
+			//mtProject.values.projectNotSavedFlag = 1;
+			newFileManager.setProjectStructChanged();
 		}
 	}
 }
@@ -2046,8 +2048,9 @@ void cSampleRecorder::changeGainBar(int16_t val)
 	drawGainBar();
 
 	showGain();
-	fileManager.projectChangeFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	//fileManager.projectChangeFlag = 1;
+	//mtProject.values.projectNotSavedFlag = 1;
+	newFileManager.setProjectStructChanged();
 }
 
 void cSampleRecorder::changeZoom(int16_t value)
@@ -2126,8 +2129,9 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
 
     display.synchronizeRefresh();
     mtProject.values.source =  sampleRecorder.recorderConfig.source;
-	fileManager.projectChangeFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	//fileManager.projectChangeFlag = 1;
+	//mtProject.values.projectNotSavedFlag = 1;
+	newFileManager.setProjectStructChanged();
 
 }
 
@@ -2151,8 +2155,9 @@ void cSampleRecorder::changeMonitorSelection(int16_t value)
 	mtProject.values.monitor = sampleRecorder.recorderConfig.monitor;
 	showMonitor();
 
-	fileManager.projectChangeFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	//fileManager.projectChangeFlag = 1;
+	//mtProject.values.projectNotSavedFlag = 1;
+	newFileManager.setProjectStructChanged();
 }
 
 static void modStartPoint(int16_t value)
@@ -2266,8 +2271,9 @@ void seek_callback(void)
 
 	SR->displayEmptyRDS();
 
-	fileManager.projectChangeFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	//fileManager.projectChangeFlag = 1;
+	//mtProject.values.projectNotSavedFlag = 1;
+	newFileManager.setProjectStructChanged();
 }
 
 
