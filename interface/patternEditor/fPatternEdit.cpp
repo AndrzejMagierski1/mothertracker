@@ -2870,6 +2870,11 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	// wprowadzanie danych
 	if (PTE->editMode == 1 || sequencer.isRec())
 	{
+		if (state == buttonPress)
+		{
+			fileManager.setPatternChangeFlag(mtProject.values.actualPattern);
+			fileManager.storePatternUndoRevision();
+		}
 		newFileManager.setPatternStructChanged(mtProject.values.actualPattern);
 		newFileManager.storePatternUndoRevision();
 

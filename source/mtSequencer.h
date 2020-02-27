@@ -129,8 +129,16 @@ public:
 
 		enum enRollPeriod
 		{
-			ROLL_PERIOD_MIN = 0,
 			ROLL_PERIOD_NONE = 0,
+			ROLL_PERIOD_MIN = 0,
+//			ROLL_PERIOD_16_1=-7,
+//			ROLL_PERIOD_12_1,
+//			ROLL_PERIOD_8_1,
+//			ROLL_PERIOD_6_1,
+//			ROLL_PERIOD_4_1,
+//			ROLL_PERIOD_3_1,
+//			ROLL_PERIOD_2_1,
+
 			ROLL_PERIOD_1_1,
 			ROLL_PERIOD_1_2,
 			ROLL_PERIOD_1_3,
@@ -140,6 +148,27 @@ public:
 			ROLL_PERIOD_1_12,
 			ROLL_PERIOD_1_16,
 			ROLL_PERIOD_MAX = ROLL_PERIOD_1_16
+		};
+		enum enStutterPeriod
+		{
+			STUTTER_PERIOD_NONE = 0,
+			STUTTER_PERIOD_MIN = 0,
+			STUTTER_PERIOD_16_1,
+			STUTTER_PERIOD_12_1,
+			STUTTER_PERIOD_8_1,
+			STUTTER_PERIOD_6_1,
+			STUTTER_PERIOD_4_1,
+			STUTTER_PERIOD_3_1,
+			STUTTER_PERIOD_2_1,
+			STUTTER_PERIOD_1_1,
+			STUTTER_PERIOD_1_2,
+			STUTTER_PERIOD_1_3,
+			STUTTER_PERIOD_1_4,
+			STUTTER_PERIOD_1_6,
+			STUTTER_PERIOD_1_8,
+			STUTTER_PERIOD_1_12,
+			STUTTER_PERIOD_1_16,
+			STUTTER_PERIOD_MAX = STUTTER_PERIOD_1_16
 		};
 
 		enum enRollDir
@@ -287,7 +316,8 @@ public:
 	uint8_t getRollVelo(uint8_t);
 	uint8_t getInstrumentVelo(uint8_t);
 
-	inline uint8_t rollValToPeriod(uint8_t rollType);
+	inline uint16_t rollValToPeriod(int8_t rollType);
+	inline uint16_t stutterValToPeriod(int8_t rollType);
 
 	void divChangeQuantize(uint8_t row);
 
@@ -487,10 +517,7 @@ public:
 	}
 
 	float getActualTempo();
-	uint32_t getSeqTimer()
-	{
-		return nanoStep+nanoStepMultiplier*6912;
-	}
+	uint32_t getSeqTimer();
 
 // sekwencerowe
 

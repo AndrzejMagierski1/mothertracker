@@ -825,7 +825,7 @@ void changeLfoShape(int16_t value)
 	switch(IE->selectedEnvelope)
 	{
 		case envAmp: 		statusByte = LFO_AMP_SEND_MASK;					break;
-		case envFilter:		statusByte = LFO_FILTER_SEND_MASK;			 	break;
+		case envCutoff:		statusByte = LFO_FILTER_SEND_MASK;			 	break;
 		case envWtPos: 		statusByte = LFO_WT_POS_SEND_MASK;				break;
 		case envGranPos:	statusByte = LFO_GRAN_POS_SEND_MASK;			break;
 		case envPan:		statusByte = LFO_PANNING_SEND_MASK; 			break;
@@ -850,7 +850,7 @@ void changeLfoSpeed(int16_t value)
 	switch(IE->selectedEnvelope)
 	{
 		case envAmp: 		statusByte = LFO_AMP_SEND_MASK;					break;
-		case envFilter:		statusByte = LFO_FILTER_SEND_MASK;			 	break;
+		case envCutoff:		statusByte = LFO_FILTER_SEND_MASK;			 	break;
 		case envWtPos: 		statusByte = LFO_WT_POS_SEND_MASK;				break;
 		case envGranPos:	statusByte = LFO_GRAN_POS_SEND_MASK;			break;
 		case envPan:		statusByte = LFO_PANNING_SEND_MASK; 			break;
@@ -877,7 +877,7 @@ void changeLfoAmount(int16_t value)
 	switch(IE->selectedEnvelope)
 	{
 		case envAmp: 		statusByte = LFO_AMP_SEND_MASK;					break;
-		case envFilter:		statusByte = LFO_FILTER_SEND_MASK;			 	break;
+		case envCutoff:		statusByte = LFO_FILTER_SEND_MASK;			 	break;
 		case envWtPos: 		statusByte = LFO_WT_POS_SEND_MASK;				break;
 		case envGranPos:	statusByte = LFO_GRAN_POS_SEND_MASK;			break;
 		case envPan:		statusByte = LFO_PANNING_SEND_MASK; 			break;

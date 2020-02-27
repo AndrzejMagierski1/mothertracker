@@ -33,15 +33,15 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 		mtProject.instrument[instrumentIndex].envelope[envAmp].loop = 0;
 		mtProject.instrument[instrumentIndex].envelope[envAmp].enable = 1;
 
-		mtProject.instrument[instrumentIndex].envelope[envFilter].delay = 0;
-		mtProject.instrument[instrumentIndex].envelope[envFilter].attack = 3000;
-		mtProject.instrument[instrumentIndex].envelope[envFilter].hold = 0;
-		mtProject.instrument[instrumentIndex].envelope[envFilter].decay = 0;
-		mtProject.instrument[instrumentIndex].envelope[envFilter].sustain = 1.0;
-		mtProject.instrument[instrumentIndex].envelope[envFilter].release = 1000;
-		mtProject.instrument[instrumentIndex].envelope[envFilter].amount = 1.0;
-		mtProject.instrument[instrumentIndex].envelope[envFilter].loop = 0;
-		mtProject.instrument[instrumentIndex].envelope[envFilter].enable = 0;
+		mtProject.instrument[instrumentIndex].envelope[envCutoff].delay = 0;
+		mtProject.instrument[instrumentIndex].envelope[envCutoff].attack = 3000;
+		mtProject.instrument[instrumentIndex].envelope[envCutoff].hold = 0;
+		mtProject.instrument[instrumentIndex].envelope[envCutoff].decay = 0;
+		mtProject.instrument[instrumentIndex].envelope[envCutoff].sustain = 1.0;
+		mtProject.instrument[instrumentIndex].envelope[envCutoff].release = 1000;
+		mtProject.instrument[instrumentIndex].envelope[envCutoff].amount = 1.0;
+		mtProject.instrument[instrumentIndex].envelope[envCutoff].loop = 0;
+		mtProject.instrument[instrumentIndex].envelope[envCutoff].enable = 0;
 
 		mtProject.instrument[instrumentIndex].envelope[envWtPos].delay = 0;
 		mtProject.instrument[instrumentIndex].envelope[envWtPos].attack = 3000;

@@ -391,7 +391,7 @@ void playerEngine::fxVolumeLFO(uint8_t fx_val, uint8_t fx_n)
 	{
 		currentSeqModValues.lfoAmpEnable = 1;
 		currentSeqModValues.lfoAmpRate = fx_val;
-		syncFxAmpLFO();
+		setSyncParamsLFO(envAmp);
 	}
 	else if(fx_n == LEAST_SIGNIFICANT_FX)
 	{
@@ -399,10 +399,9 @@ void playerEngine::fxVolumeLFO(uint8_t fx_val, uint8_t fx_n)
 		{
 			currentSeqModValues.lfoAmpEnable = 1;
 			currentSeqModValues.lfoAmpRate = fx_val;
-			syncFxAmpLFO();
+			setSyncParamsLFO(envAmp);
 		}
 	}
-
 	setFxAmpRateLFO();
 }
 
@@ -431,22 +430,21 @@ void playerEngine::fxCutoffLFO(uint8_t fx_val, uint8_t fx_n)
 	}
 	else
 	{
-		calcLfoBasedEnvelope(&lfoBasedEnvelope[envFilter], &mtProject.instrument[currentInstrument_idx].lfo[envFilter],currentSeqModValues.lfoCutoffRate);
-		envelopePtr[envFilter]->init(&lfoBasedEnvelope[envFilter]);
-
-		if((envelopePtr[envFilter]->isKeyPressed() != 1) && (envelopePtr[envFilter]->getPhase() == 0))
+		calcLfoBasedEnvelope(&lfoBasedEnvelope[envCutoff], &mtProject.instrument[currentInstrument_idx].lfo[envCutoff],currentSeqModValues.lfoCutoffRate);
+		initEnvelopesParamiters(envCutoff, &lfoBasedEnvelope[envCutoff]);
+		if((envelopePtr[envCutoff]->isKeyPressed() != 1) && (envelopePtr[envCutoff]->getPhase() == 0))
 		{
-			envelopePtr[envFilter]->start();
+			envelopePtr[envCutoff]->start();
 		}
-		else if( (!mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop) &&
+		else if( (!mtProject.instrument[currentInstrument_idx].envelope[envCutoff].loop) &&
 				 (!trackControlParameter[(int)controlType::sequencerMode + otherFx_n][(int)parameterList::lfoCutoff]))
 		{
-			envelopePtr[envFilter]->kill();
-			envelopePtr[envFilter]->start();
+			envelopePtr[envCutoff]->kill();
+			envelopePtr[envCutoff]->start();
 		}
 	}
 
-	setSyncParamsLFO((uint8_t)envWithoutAmp::filter);
+	setSyncParamsLFO(envCutoff);
 }
 //******* position LFO
 void playerEngine::fxPositionLFO(uint8_t fx_val, uint8_t fx_n)
@@ -487,14 +485,14 @@ void playerEngine::fxPositionGranularLFO(uint8_t fx_val, uint8_t fx_n)
 	else
 	{
 		calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[currentInstrument_idx].lfo[envGranPos],currentSeqModValues.lfoGranularPositionRate);
-		envelopePtr[envGranPos]->init(&lfoBasedEnvelope[envGranPos]);
+		initEnvelopesParamiters(envGranPos, &lfoBasedEnvelope[envGranPos]);
 		if((envelopePtr[envGranPos]->isKeyPressed() != 1) && (envelopePtr[envGranPos]->getPhase() == 0))
 		{
 			envelopePtr[envGranPos]->start();
 		}
 	}
 
-	setSyncParamsLFO((uint8_t)envWithoutAmp::granPos);
+	setSyncParamsLFO(envGranPos);
 }
 void playerEngine::fxPositionWavetableLFO(uint8_t fx_val, uint8_t fx_n)
 {
@@ -523,14 +521,14 @@ void playerEngine::fxPositionWavetableLFO(uint8_t fx_val, uint8_t fx_n)
 	else
 	{
 		calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[currentInstrument_idx].lfo[envWtPos],currentSeqModValues.lfoWavetablePositionRate);
-		envelopePtr[envWtPos]->init(&lfoBasedEnvelope[envWtPos]);
+		initEnvelopesParamiters(envWtPos, &lfoBasedEnvelope[envWtPos]);
 		if((envelopePtr[envWtPos]->isKeyPressed() != 1) && (envelopePtr[envWtPos]->getPhase() == 0))
 		{
 			envelopePtr[envWtPos]->start();
 		}
 	}
 
-	setSyncParamsLFO((uint8_t)envWithoutAmp::wtPos);
+	setSyncParamsLFO(envWtPos);
 }
 //*********
 void playerEngine::fxPanningLFO(uint8_t fx_val, uint8_t fx_n)
@@ -559,14 +557,14 @@ void playerEngine::fxPanningLFO(uint8_t fx_val, uint8_t fx_n)
 	else
 	{
 		calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[currentInstrument_idx].lfo[envPan],currentSeqModValues.lfoPanningRate);
-		envelopePtr[envPan]->init(&lfoBasedEnvelope[envPan]);
+		initEnvelopesParamiters(envPan, &lfoBasedEnvelope[envPan]);
 		if((envelopePtr[envPan]->isKeyPressed() != 1) && (envelopePtr[envPan]->getPhase() == 0))
 		{
 			envelopePtr[envPan]->start();
 		}
 	}
 
-	setSyncParamsLFO((uint8_t)envWithoutAmp::panning);
+	setSyncParamsLFO(envPan);
 }
 //************************************************************
 //*********************************** END SEQ FX
@@ -934,6 +932,8 @@ void playerEngine::endFxVolumeLFO(uint8_t fx_n)
 	{
 		clearFxAmpRateLFO();
 	}
+
+	setSyncParamsLFO(envAmp);
 }
 
 void playerEngine::endFxCutoffLFO(uint8_t fx_n)
@@ -964,23 +964,22 @@ void playerEngine::endFxCutoffLFO(uint8_t fx_n)
 				currentSeqModValues.lfoCutoffRate = lastSeqVal[otherFx_n];
 				currentSeqModValues.lfoCutoffEnable = 1;
 
-				calcLfoBasedEnvelope(&lfoBasedEnvelope[envFilter], &mtProject.instrument[currentInstrument_idx].lfo[envFilter],currentSeqModValues.lfoCutoffRate);
-
-				envelopePtr[envFilter]->init(&lfoBasedEnvelope[envFilter]);
+				calcLfoBasedEnvelope(&lfoBasedEnvelope[envCutoff], &mtProject.instrument[currentInstrument_idx].lfo[envCutoff],currentSeqModValues.lfoCutoffRate);
+				initEnvelopesParamiters(envCutoff, &lfoBasedEnvelope[envCutoff]);
 			}
 		}
 		else
 		{
-			if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].enable)
+			if(mtProject.instrument[currentInstrument_idx].envelope[envCutoff].enable)
 			{
-				if(mtProject.instrument[currentInstrument_idx].envelope[envFilter].loop)
+				if(mtProject.instrument[currentInstrument_idx].envelope[envCutoff].loop)
 				{
-					calcLfoBasedEnvelope(&lfoBasedEnvelope[envFilter], &mtProject.instrument[currentInstrument_idx].lfo[envFilter], mtProject.instrument[currentInstrument_idx].lfo[envFilter].speed);
-					envelopePtr[envFilter]->init(&lfoBasedEnvelope[envFilter]);
+					calcLfoBasedEnvelope(&lfoBasedEnvelope[envCutoff], &mtProject.instrument[currentInstrument_idx].lfo[envCutoff], mtProject.instrument[currentInstrument_idx].lfo[envCutoff].speed);
+					initEnvelopesParamiters(envCutoff, &lfoBasedEnvelope[envCutoff]);
 				}
 				else
 				{
-					envelopePtr[envFilter]->init(&mtProject.instrument[currentInstrument_idx].envelope[envFilter]);
+					initEnvelopesParamiters(envCutoff, &mtProject.instrument[currentInstrument_idx].envelope[envCutoff]);
 				}
 
 			}
@@ -988,7 +987,7 @@ void playerEngine::endFxCutoffLFO(uint8_t fx_n)
 		}
 	}
 
-	setSyncParamsLFO((uint8_t)envWithoutAmp::filter);
+	setSyncParamsLFO(envCutoff);
 }
 //***** position lfo
 void playerEngine::endFxPositionLFO(uint8_t fx_n)
@@ -1032,8 +1031,7 @@ void playerEngine::endFxPositionGranularLFO(uint8_t fx_n)
 				currentSeqModValues.lfoGranularPositionEnable = 1;
 
 				calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[currentInstrument_idx].lfo[envGranPos],currentSeqModValues.lfoGranularPositionRate);
-
-				envelopePtr[envGranPos]->init(&lfoBasedEnvelope[envGranPos]);
+				initEnvelopesParamiters(envGranPos, &lfoBasedEnvelope[envGranPos]);
 			}
 		}
 		else
@@ -1043,17 +1041,17 @@ void playerEngine::endFxPositionGranularLFO(uint8_t fx_n)
 				if(mtProject.instrument[currentInstrument_idx].envelope[envGranPos].loop)
 				{
 					calcLfoBasedEnvelope(&lfoBasedEnvelope[envGranPos], &mtProject.instrument[currentInstrument_idx].lfo[envGranPos],mtProject.instrument[currentInstrument_idx].lfo[envGranPos].speed);
-					envelopePtr[envGranPos]->init(&lfoBasedEnvelope[envGranPos]);
+					initEnvelopesParamiters(envGranPos, &lfoBasedEnvelope[envGranPos]);
 				}
 				else
 				{
-					envelopePtr[envGranPos]->init(&mtProject.instrument[currentInstrument_idx].envelope[envGranPos]);
+					initEnvelopesParamiters(envGranPos, &mtProject.instrument[currentInstrument_idx].envelope[envGranPos]);
 				}
 			}
 		}
 	}
 
-	setSyncParamsLFO((uint8_t)envWithoutAmp::granPos);
+	setSyncParamsLFO(envGranPos);
 }
 void playerEngine::endFxPositionWavetableLFO(uint8_t fx_n)
 {
@@ -1084,8 +1082,7 @@ void playerEngine::endFxPositionWavetableLFO(uint8_t fx_n)
 				currentSeqModValues.lfoWavetablePositionEnable = 1;
 
 				calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[currentInstrument_idx].lfo[envWtPos],currentSeqModValues.lfoWavetablePositionRate);
-
-				envelopePtr[envWtPos]->init(&lfoBasedEnvelope[envWtPos]);
+				initEnvelopesParamiters(envWtPos, &lfoBasedEnvelope[envWtPos]);
 			}
 		}
 		else
@@ -1095,18 +1092,18 @@ void playerEngine::endFxPositionWavetableLFO(uint8_t fx_n)
 				if(mtProject.instrument[currentInstrument_idx].envelope[envWtPos].loop)
 				{
 					calcLfoBasedEnvelope(&lfoBasedEnvelope[envWtPos], &mtProject.instrument[currentInstrument_idx].lfo[envWtPos],mtProject.instrument[currentInstrument_idx].lfo[envWtPos].speed);
-					envelopePtr[envWtPos]->init(&lfoBasedEnvelope[envWtPos]);
+					initEnvelopesParamiters(envWtPos, &lfoBasedEnvelope[envWtPos]);
 				}
 				else
 				{
-					envelopePtr[envWtPos]->init(&mtProject.instrument[currentInstrument_idx].envelope[envWtPos]);
+					initEnvelopesParamiters(envWtPos, &mtProject.instrument[currentInstrument_idx].envelope[envWtPos]);
 				}
 
 			}
 		}
 	}
 
-	setSyncParamsLFO((uint8_t)envWithoutAmp::wtPos);
+	setSyncParamsLFO(envWtPos);
 }
 //********
 void playerEngine::endFxPanningLFO(uint8_t fx_n)
@@ -1137,8 +1134,7 @@ void playerEngine::endFxPanningLFO(uint8_t fx_n)
 				currentSeqModValues.lfoPanningEnable = 1;
 
 				calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[currentInstrument_idx].lfo[envPan],currentSeqModValues.lfoPanningRate);
-
-				envelopePtr[envPan]->init(&lfoBasedEnvelope[envPan]);
+				initEnvelopesParamiters(envPan, &lfoBasedEnvelope[envPan]);
 			}
 		}
 		else
@@ -1148,18 +1144,18 @@ void playerEngine::endFxPanningLFO(uint8_t fx_n)
 				if(mtProject.instrument[currentInstrument_idx].envelope[envPan].loop)
 				{
 					calcLfoBasedEnvelope(&lfoBasedEnvelope[envPan], &mtProject.instrument[currentInstrument_idx].lfo[envPan],mtProject.instrument[currentInstrument_idx].lfo[envPan].speed);
-					envelopePtr[envPan]->init(&lfoBasedEnvelope[envPan]);
+					initEnvelopesParamiters(envPan, &lfoBasedEnvelope[envPan]);
 				}
 				else
 				{
-					envelopePtr[envPan]->init(&mtProject.instrument[currentInstrument_idx].envelope[envPan]);
+					initEnvelopesParamiters(envPan, &mtProject.instrument[currentInstrument_idx].envelope[envPan]);
 				}
 
 			}
 		}
 	}
 
-	setSyncParamsLFO((uint8_t)envWithoutAmp::panning);
+	setSyncParamsLFO(envPan);
 }
 
 uint8_t playerEngine::isFxVelocity(uint8_t fx_id)
@@ -1243,56 +1239,108 @@ void playerEngine::initEnvelopesParamiters(uint8_t n, envelopeGenerator::strEnv 
 	}
 }
 
-uint16_t playerEngine::getSystick24step()
-{
-//	uint16_t step = sequencer.getActualPos();
-	uint16_t result = sequencer.getSeqTimer();
-//	if((step % 24) > 11) result += 6912;
-	return result;
-}
 
 void playerEngine::setSyncParamsLFO(uint8_t type)
 {
-	if((mtProject.instrument[currentInstrument_idx].envelope[envelopesWithoutAmpIdx[type]].loop) ||
-	  (trackControlParameter[(int)controlType::performanceMode][envelopesWithoutAmpControlValue[type]]) ||
-	  (trackControlParameter[(int)controlType::sequencerMode][envelopesWithoutAmpControlValue[type]]) ||
-	  (trackControlParameter[(int)controlType::sequencerMode2][envelopesWithoutAmpControlValue[type]]))
+	if(type == envAmp)
+	{
+		setSyncParamsAmpLFO();
+	}
+	else
 	{
 
-		uint8_t localRate = mtProject.instrument[currentInstrument_idx].lfo[ envelopesWithoutAmpIdx[type] ].speed;
-
-		if(trackControlParameter[(int)controlType::performanceMode][envelopesWithoutAmpControlValue[type]])
+		if((mtProject.instrument[currentInstrument_idx].envelope[type].loop) ||
+		  (trackControlParameter[(int)controlType::performanceMode][envelopesControlValue[type]]) ||
+		  (trackControlParameter[(int)controlType::sequencerMode][envelopesControlValue[type]]) ||
+		  (trackControlParameter[(int)controlType::sequencerMode2][envelopesControlValue[type]]))
 		{
-			switch(type)
+
+			uint8_t localRate = mtProject.instrument[currentInstrument_idx].lfo[type].speed;
+
+			if(trackControlParameter[(int)controlType::performanceMode][type])
 			{
-				case (int)envWithoutAmp::filter: localRate = currentPerformanceValues.lfoCutoffRate;				break;
-				case (int)envWithoutAmp::granPos: localRate = currentPerformanceValues.lfoGranularPositionRate;		break;
-				case (int)envWithoutAmp::panning: localRate	= currentPerformanceValues.lfoPanningRate;				break;
-				case (int)envWithoutAmp::wtPos: localRate= currentPerformanceValues.lfoWavetablePositionRate;		break;
+				switch(type)
+				{
+					case envCutoff: 	localRate 	= currentPerformanceValues.lfoCutoffRate;					break;
+					case envGranPos: 	localRate 	= currentPerformanceValues.lfoGranularPositionRate;			break;
+					case envPan: 		localRate	= currentPerformanceValues.lfoPanningRate;					break;
+					case envWtPos: 		localRate	= currentPerformanceValues.lfoWavetablePositionRate;		break;
+				}
+			}
+			else if ( (trackControlParameter[(int)controlType::sequencerMode][type]) ||
+					  (trackControlParameter[(int)controlType::sequencerMode2][type]) )
+			{
+				switch(type)
+				{
+					case envCutoff: 	localRate 	= currentSeqModValues.lfoCutoffRate;					break;
+					case envGranPos: 	localRate 	= currentSeqModValues.lfoGranularPositionRate;			break;
+					case envPan: 		localRate	= currentSeqModValues.lfoPanningRate;					break;
+					case envWtPos: 		localRate	= currentSeqModValues.lfoWavetablePositionRate;			break;
+				}
+			}
+
+
+			envelopePtr[type]->setSyncRate(tempoSyncRates[localRate]);
+			envelopePtr[type]->setSyncStartStep(sequencer.getActualPos());
+
+/*			Magiczne liczby:
+			2 - attack,
+			3 - hold,
+			4 - decay,
+			6 - release
+*/
+
+			switch(mtProject.instrument[currentInstrument_idx].lfo[type].shape)
+			{
+			case (int)lfoShapeType::lfoShapeSaw: envelopePtr[type]->setPhaseNumbers(2, -1);	 			break;
+			case (int)lfoShapeType::lfoShapeReverseSaw: envelopePtr[type]->setPhaseNumbers(4, -1);		break;
+			case (int)lfoShapeType::lfoShapeTriangle: envelopePtr[type]->setPhaseNumbers(2, 4);			break;
+			case (int)lfoShapeType::lfoShapeSquare: envelopePtr[type]->setPhaseNumbers(3, 6);			break;
+			default:	break;
 			}
 		}
-		else if ( (trackControlParameter[(int)controlType::sequencerMode][envelopesWithoutAmpControlValue[type]]) ||
-				  (trackControlParameter[(int)controlType::sequencerMode2][envelopesWithoutAmpControlValue[type]]) )
+	}
+
+
+
+}
+
+void playerEngine::setSyncParamsAmpLFO()
+{
+	if((mtProject.instrument[currentInstrument_idx].envelope[envAmp].loop) ||
+	  (trackControlParameter[(int)controlType::performanceMode][envAmp]) ||
+	  (trackControlParameter[(int)controlType::sequencerMode][envAmp]) ||
+	  (trackControlParameter[(int)controlType::sequencerMode2][envAmp]))
+	{
+
+		uint8_t localRate = mtProject.instrument[currentInstrument_idx].lfo[envAmp].speed;
+
+		if(trackControlParameter[(int)controlType::performanceMode][(int)parameterList::lfoAmp])
 		{
-			switch(type)
-			{
-				case (int)envWithoutAmp::filter: localRate = currentSeqModValues.lfoCutoffRate;					break;
-				case (int)envWithoutAmp::granPos: localRate = currentSeqModValues.lfoGranularPositionRate;		break;
-				case (int)envWithoutAmp::panning: localRate	= currentSeqModValues.lfoPanningRate;				break;
-				case (int)envWithoutAmp::wtPos: localRate= currentSeqModValues.lfoWavetablePositionRate;		break;
-			}
+			localRate = currentPerformanceValues.lfoAmpRate;
+		}
+		else if ( (trackControlParameter[(int)controlType::sequencerMode][(int)parameterList::lfoAmp]) ||
+				  (trackControlParameter[(int)controlType::sequencerMode2][(int)parameterList::lfoAmp]) )
+		{
+			localRate = currentSeqModValues.lfoAmpRate;
 		}
 
 
-		envelopePtr[envelopesWithoutAmpIdx[type]]->setSyncRate(tempoSyncRates[localRate]);
-		envelopePtr[envelopesWithoutAmpIdx[type]]->setSyncStartStep(sequencer.getActualPos());
+		envelopeAmpPtr->setSyncRate(tempoSyncRates[localRate]);
+		envelopeAmpPtr->setSyncStartStep(sequencer.getActualPos());
 
-		switch(mtProject.instrument[currentInstrument_idx].lfo[envelopesWithoutAmpIdx[type]].shape)
+/*			Magiczne liczby:
+			2 - attack,
+			3 - hold,
+			4 - decay,
+			6 - release
+*/
+		switch(mtProject.instrument[currentInstrument_idx].lfo[envAmp].shape)
 		{
-		case (int)lfoShapeType::lfoShapeSaw: envelopePtr[envelopesWithoutAmpIdx[type]]->setPhaseNumbers(2, -1);	 			break;
-		case (int)lfoShapeType::lfoShapeReverseSaw: envelopePtr[envelopesWithoutAmpIdx[type]]->setPhaseNumbers(4, -1);		break;
-		case (int)lfoShapeType::lfoShapeTriangle: envelopePtr[envelopesWithoutAmpIdx[type]]->setPhaseNumbers(2, 4);			break;
-		case (int)lfoShapeType::lfoShapeSquare: envelopePtr[envelopesWithoutAmpIdx[type]]->setPhaseNumbers(3, 6);			break;
+		case (int)lfoShapeType::lfoShapeSaw: envelopeAmpPtr->setPhaseNumbers(2, -1);	 			break;
+		case (int)lfoShapeType::lfoShapeReverseSaw: envelopeAmpPtr->setPhaseNumbers(4, -1);			break;
+		case (int)lfoShapeType::lfoShapeTriangle: envelopeAmpPtr->setPhaseNumbers(2, 4);			break;
+		case (int)lfoShapeType::lfoShapeSquare: envelopeAmpPtr->setPhaseNumbers(3, 6);				break;
 		default:	break;
 		}
 	}
@@ -1561,11 +1609,11 @@ void playerEngine::clearFxCutoff()
 	{
 		float localCutoff = mtProject.instrument[currentInstrument_idx].cutOff;
 
-		if(currentEnvelopeModification[envFilter] != 0.0f)
+		if(currentEnvelopeModification[envCutoff] != 0.0f)
 		{
-			if(localCutoff + currentEnvelopeModification[envFilter] > 1.0f) localCutoff = 1.0;
-			else if(localCutoff + currentEnvelopeModification[envFilter] < 0.0f)  localCutoff = 0.0;
-			else localCutoff += currentEnvelopeModification[envFilter];
+			if(localCutoff + currentEnvelopeModification[envCutoff] > 1.0f) localCutoff = 1.0;
+			else if(localCutoff + currentEnvelopeModification[envCutoff] < 0.0f)  localCutoff = 0.0;
+			else localCutoff += currentEnvelopeModification[envCutoff];
 		}
 
 		filterPtr->setCutoff(localCutoff);

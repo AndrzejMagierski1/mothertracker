@@ -74,12 +74,16 @@ const char trackMasterLabels[trackMasterModeCount][5] =
 	"Off",
 };
 
-const char performanceStutterLabels[9][20] =
+const char performanceStutterLabels[16][20] =
 {
 	"Off",
-//	"4",
-//	"3",
-//	"2",
+	"16",
+	"12",
+	"8",
+	"6",
+	"4",
+	"3",
+	"2",
 	"1",
 	"1/2",
 	"1/3",

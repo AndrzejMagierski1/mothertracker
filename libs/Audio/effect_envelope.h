@@ -83,6 +83,12 @@ public:
 	uint8_t endRelease();
 	void clearEndReleaseFlag();
 	uint8_t getState();
+
+	void syncTrackerSeq(uint32_t val, float seqSpeed);
+	void setSyncStartStep(uint16_t n);
+	void setPhaseNumbers(int8_t n1, int8_t n2);
+	void setSyncRate(float sync);
+
 private:
 
 	uint8_t endReleaseFlag=0;
@@ -123,6 +129,10 @@ private:
 	int16_t * sample7 = (int16_t *)&sample78;
 	int16_t * sample8 = ((int16_t *)&sample78) + 1;
 
+	uint16_t startStep = 0;
+	int8_t phaseNumber[2] = {-1,-1};
+	float syncRate = 1;
+	uint16_t periodTime = 0;
 
 };
 

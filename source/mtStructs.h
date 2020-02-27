@@ -256,7 +256,7 @@ enum envelopesType
 {
     envAmp,
 	envPan,
-    envFilter,
+    envCutoff,
 	envWtPos,
 	envGranPos,
     envPitch,
