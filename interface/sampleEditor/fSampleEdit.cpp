@@ -35,7 +35,8 @@ static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 //static uint8_t functShift(uint8_t value);
 
-
+static uint8_t functStopPatternYes();
+static uint8_t functStopPatternNo();
 
 static  uint8_t functEncoder(int16_t value);
 
@@ -279,6 +280,12 @@ uint8_t cSampleEditor::startLoadingSample()
 
 void cSampleEditor::start(uint32_t options)
 {
+	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
+	{
+		showSelectionStopPattern();
+		setPatternStopFunct();
+		return;
+	}
 	moduleRefresh = 1;
 	sampleIsValid = 0;
 
@@ -295,10 +302,7 @@ void cSampleEditor::start(uint32_t options)
 
 	zoom.zoomResolution = INT32_MAX;
 
-	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
-	{
-		sequencer.stop();
-	}
+
 
 	//--------------------------------------------------------------------
 	if(mtProject.values.lastUsedInstrument > INSTRUMENTS_MAX)
@@ -625,8 +629,11 @@ void cSampleEditor::setDefaultScreenFunct()
 	FM->setPadsGlobal(functPads);
 
 }
-
-
+void cSampleEditor::setPatternStopFunct()
+{
+	FM->setButtonObj(interfaceButton6, buttonPress, functStopPatternNo);
+	FM->setButtonObj(interfaceButton7, buttonPress, functStopPatternYes);
+}
 
 //==============================================================================================================
 
@@ -1387,6 +1394,18 @@ static uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 		SE->stopPreview(pad);
 	}
 
+	return 1;
+}
+
+static uint8_t functStopPatternYes()
+{
+	sequencer.stop();
+	SE->start(0);
+	return 1;
+}
+static uint8_t functStopPatternNo()
+{
+	SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
 	return 1;
 }
 
