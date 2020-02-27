@@ -350,11 +350,12 @@ void Sequencer::play_microStep(uint8_t row)
 			randomisedValue = random(lowVal, hiVal + 1);
 		}
 
-		uint8_t fxIndex = 0;
+//		uint8_t fxIndex = 0;
 		uint8_t noMoFx = 0;
-		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
+//		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
+		for (int8_t fxIndex = 1; fxIndex >= 0; fxIndex--)
 		{
-			strPattern::strTrack::strStep::strFx _fx = _fxStep;
+			strPattern::strTrack::strStep::strFx _fx = patternStep.fx[fxIndex];
 
 			if (randomisedValue != -1)
 			{
@@ -372,8 +373,8 @@ void Sequencer::play_microStep(uint8_t row)
 				playerRow.isOffset = 1;
 				playerRow.offsetValue = map(_fx.value + 1, 0, 100, 1, 48);
 				playerRow.offsetValue = constrain(playerRow.offsetValue,
-												  0,
-												  47);
+													0,
+													47);
 
 				break;
 			case fx.FX_TYPE_VELOCITY:
@@ -500,16 +501,15 @@ void Sequencer::play_microStep(uint8_t row)
 					break;
 				}
 			}
-			fxIndex++;
+//			fxIndex++;
 		}
 
+		if (patternStep.note == STEP_NOTE_OFF)
+		{
+			playerRow.isOffset = 1;
+			playerRow.offsetValue = 10;
 
-		 if (patternStep.note == STEP_NOTE_OFF)
-		 {
-			 playerRow.isOffset = 1;
-			 playerRow.offsetValue = 10;
-
-		 }
+		}
 	}
 
 	// **************************
@@ -551,10 +551,11 @@ void Sequencer::play_microStep(uint8_t row)
 		}
 
 		// EFEKTY WŁAŚCIWE
-		uint8_t fxIndex = 0;
-		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
+//		uint8_t fxIndex = 0;
+//		for (strPattern::strTrack::strStep::strFx &_fxStep : patternStep.fx)
+		for (int8_t fxIndex = 1; fxIndex >= 0; fxIndex--)
 		{
-			strPattern::strTrack::strStep::strFx _fx = _fxStep;
+			strPattern::strTrack::strStep::strFx _fx = patternStep.fx[fxIndex];
 
 			if (randomisedValue != -1)
 				_fx.value = randomisedValue;
@@ -611,7 +612,7 @@ void Sequencer::play_microStep(uint8_t row)
 			default:
 				break;
 			}
-			fxIndex -= -1;
+//			fxIndex -= -1;
 		}
 
 		// ustawiamy całego stepa
@@ -670,8 +671,6 @@ void Sequencer::play_microStep(uint8_t row)
 			playerRow.rollIsOn = 0;
 			playerRow.rollPeriod = fx.ROLL_PERIOD_NONE;
 
-
-
 		}
 		else if (patternStep.note == STEP_NOTE_CUT)
 		{
@@ -694,7 +693,7 @@ void Sequencer::play_microStep(uint8_t row)
 		{
 			tempRollType = playerRow.performanceStutter;
 		}
-		if (((playerRow.stepTimer % rollValToPeriod(tempRollType)) == 1))
+		if (((playerRow.stepTimer % stutterValToPeriod(tempRollType)) == 1))
 		{
 			playerRow.stepToSend = playerRow.stepSent;
 			playerRow.noteOpen = 1;
@@ -776,7 +775,7 @@ Sequencer::strPattern *Sequencer::getPattern()
 	return &seq[player.ramBank];
 }
 
-uint16_t Sequencer::rollValToPeriod(uint8_t rollVal)
+uint16_t Sequencer::rollValToPeriod(int8_t rollVal)
 {
 
 	rollVal = rollVal % (fx.ROLL_PERIOD_MAX + 1);
@@ -786,21 +785,20 @@ uint16_t Sequencer::rollValToPeriod(uint8_t rollVal)
 		return 0;
 		break;
 
-	case fx.ROLL_PERIOD_16_1:
-		return 16*48;
-	case fx.ROLL_PERIOD_12_1:
-		return 12*48;
-	case fx.ROLL_PERIOD_8_1:
-		return 8*48;
-	case fx.ROLL_PERIOD_6_1:
-		return 6*48;
-	case fx.ROLL_PERIOD_4_1:
-		return 192;
-	case fx.ROLL_PERIOD_3_1:
-		return 144;
-	case fx.ROLL_PERIOD_2_1:
-		return 96;
-
+//	case fx.ROLL_PERIOD_16_1:
+//		return 16 * 48;
+//	case fx.ROLL_PERIOD_12_1:
+//		return 12 * 48;
+//	case fx.ROLL_PERIOD_8_1:
+//		return 8 * 48;
+//	case fx.ROLL_PERIOD_6_1:
+//		return 6 * 48;
+//	case fx.ROLL_PERIOD_4_1:
+//		return 192;
+//	case fx.ROLL_PERIOD_3_1:
+//		return 144;
+//	case fx.ROLL_PERIOD_2_1:
+//		return 96;
 
 	case fx.ROLL_PERIOD_1_1:
 		return 48;
@@ -822,6 +820,59 @@ uint16_t Sequencer::rollValToPeriod(uint8_t rollVal)
 		return 4;
 		break;
 	case fx.ROLL_PERIOD_1_16:
+		return 3;
+		break;
+	default:
+		return 0;
+	}
+	return 0;
+}
+
+uint16_t Sequencer::stutterValToPeriod(int8_t rollVal)
+{
+
+	rollVal = rollVal % (fx.STUTTER_PERIOD_MAX + 1);
+	switch (rollVal)
+	{
+	case fx.STUTTER_PERIOD_NONE:
+		return 0;
+		break;
+
+	case fx.STUTTER_PERIOD_16_1:
+		return 16 * 48;
+	case fx.STUTTER_PERIOD_12_1:
+		return 12 * 48;
+	case fx.STUTTER_PERIOD_8_1:
+		return 8 * 48;
+	case fx.STUTTER_PERIOD_6_1:
+		return 6 * 48;
+	case fx.STUTTER_PERIOD_4_1:
+		return 192;
+	case fx.STUTTER_PERIOD_3_1:
+		return 144;
+	case fx.STUTTER_PERIOD_2_1:
+		return 96;
+
+	case fx.STUTTER_PERIOD_1_1:
+		return 48;
+	case fx.STUTTER_PERIOD_1_2:
+		return 24;
+	case fx.STUTTER_PERIOD_1_3:
+		return 16;
+		break;
+	case fx.STUTTER_PERIOD_1_4:
+		return 12;
+		break;
+	case fx.STUTTER_PERIOD_1_6:
+		return 8;
+		break;
+	case fx.STUTTER_PERIOD_1_8:
+		return 6;
+		break;
+	case fx.STUTTER_PERIOD_1_12:
+		return 4;
+		break;
+	case fx.STUTTER_PERIOD_1_16:
 		return 3;
 		break;
 	default:
