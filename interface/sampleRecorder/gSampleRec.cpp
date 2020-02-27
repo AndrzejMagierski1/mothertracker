@@ -74,7 +74,7 @@ void cSampleRecorder::initDisplayControls()
 	prop9.w = 800-(10);
 	prop9.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 );
 	prop9.text = (char*)"Changes will be lost. Do you want to continue?";
-	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop9);
+	if(popupWindowLabel == nullptr)  popupWindowLabel = display.createControl<cLabel>(&prop9);
 
 	strControlProperties prop2;
 	prop2.style = 	( controlStyleShow | controlStyleCenterY | controlStyleFont4);
@@ -281,8 +281,8 @@ void cSampleRecorder::destroyDisplayControls()
 	display.destroyControl(saveHorizontalBarControl);
 	saveHorizontalBarControl = nullptr;
 
-	display.destroyControl(selectWindowLabel);
-	selectWindowLabel = nullptr;
+	display.destroyControl(popupWindowLabel);
+	popupWindowLabel = nullptr;
 
 
 	display.destroyControl(radioRdsLabel);
@@ -582,8 +582,8 @@ void cSampleRecorder::showDefaultScreen()
 		showEndPointValue();
 		showStartPointValue();
 	}
-	display.setControlHide(selectWindowLabel);
-	display.refreshControl(selectWindowLabel);
+	display.setControlHide(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }
@@ -851,9 +851,9 @@ void cSampleRecorder::showSelectionWindow()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	display.setControlText(selectWindowLabel,"Changes will be lost. Do you want to continue?");
-	display.setControlShow(selectWindowLabel);
-	display.refreshControl(selectWindowLabel);
+	display.setControlText(popupWindowLabel,"Changes will be lost. Do you want to continue?");
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }
@@ -874,9 +874,9 @@ void cSampleRecorder::showSelectionWindowSave()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	display.setControlText(selectWindowLabel,"This name already exists. Do you want to overwrite it?");
-	display.setControlShow(selectWindowLabel);
-	display.refreshControl(selectWindowLabel);
+	display.setControlText(popupWindowLabel,"This name already exists. Do you want to overwrite it?");
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }
@@ -895,9 +895,9 @@ void cSampleRecorder::showSelectionWindowFullMemory()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	display.setControlText(selectWindowLabel,"The memory is full. Recording has been stopped.");
-	display.setControlShow(selectWindowLabel);
-	display.refreshControl(selectWindowLabel);
+	display.setControlText(popupWindowLabel,"The memory is full. Recording has been stopped.");
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }
@@ -916,9 +916,9 @@ void cSampleRecorder::showSelectionNotEnoughInstruments()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	display.setControlText(selectWindowLabel,"There are not enough instruments");
-	display.setControlShow(selectWindowLabel);
-	display.refreshControl(selectWindowLabel);
+	display.setControlText(popupWindowLabel,"There are not enough instruments");
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }
@@ -937,9 +937,42 @@ void cSampleRecorder::showSelectionNotEnoughMemory()
 	display.setControlHide(frameControl);
 	display.refreshControl(frameControl);
 
-	display.setControlText(selectWindowLabel,"There is not enough Memory in sample bank.");
-	display.setControlShow(selectWindowLabel);
-	display.refreshControl(selectWindowLabel);
+	display.setControlText(popupWindowLabel,"There is not enough Memory in sample bank.");
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
+
+	display.synchronizeRefresh();
+}
+
+void cSampleRecorder::showSelectionStopPattern()
+{
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
+
+		display.refreshControl(label[i]);
+		display.setControlShow(label[i]);
+	}
+
+	display.setControlText(label[7], "Yes");
+	display.setControlText(label[6], "No");
+	display.setControlColors(label[6], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
+
+	display.refreshControl(label[6]);
+	display.refreshControl(label[6]);
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlText(popupWindowLabel,"This action will stop the pattern. Do you want to continue?");
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
+
+	display.setControlValue(bgLabel,255);
+	display.setControlShow(bgLabel);
+	display.refreshControl(bgLabel);
 
 	display.synchronizeRefresh();
 }

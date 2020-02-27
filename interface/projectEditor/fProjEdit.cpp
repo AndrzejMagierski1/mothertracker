@@ -57,6 +57,9 @@ static uint8_t functSaveChangesDontSaveOpen();
 static uint8_t functSaveChangesSaveOpen();
 static uint8_t functProjectListUp();
 static uint8_t functProjectListDown();
+
+static uint8_t functStopPatternYes();
+static uint8_t functStopPatternNo();
 //****************************************************
 //Export
 static uint8_t functExportSong();
@@ -274,18 +277,7 @@ void cProjectEditor::start(uint32_t options)
 
 	keyboardManager.init(keyboardControl,editName);
 
-	// ustawienie funkcji
-	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonSamplePlay, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonSampleEdit, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonSampleRec, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonSampleLoad, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
-	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
+
 
 
 	if(!sdCardDetector.isCardInserted())
@@ -324,6 +316,19 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
 
 */
+	// ustawienie funkcji
+	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonFile, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonConfig, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonMaster, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSamplePlay, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSampleEdit, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSampleRec, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSampleLoad, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
+	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
+
 	FM->setButtonObj(interfaceButton0, buttonPress, functNewProject);
 	FM->setButtonObj(interfaceButton1, buttonPress, functOpenProject);
 	FM->setButtonObj(interfaceButton4, buttonPress, functSaveProject);
@@ -346,6 +351,16 @@ void cProjectEditor::setDefaultScreenFunct()
 
 
 	FM->setSdDetection(functSdCard);
+}
+
+void cProjectEditor::setStopPatternFunct()
+{
+	FM->clearAllButtons();
+	FM->clearAllPots();
+	FM->clearAllPads();
+
+	FM->setButtonObj(interfaceButton6, buttonPress, functStopPatternNo);
+	FM->setButtonObj(interfaceButton7, buttonPress, functStopPatternYes);
 }
 //==============================================================================================================
 //==============================================================================================================
@@ -441,6 +456,13 @@ uint8_t cProjectEditor::loadProjectValues()
 static uint8_t functNewProject()
 {
 	if(PE->isBusyFlag) return 1;
+	if(sequencer.isPlay())
+	{
+		PE->showStopPatternWindow();
+		PE->setStopPatternFunct();
+		PE->stopAction = cProjectEditor::stopActionNewProject;
+		return 1;
+	}
 	if(mtProject.values.projectNotSavedFlag)
 	{
 		PE->functShowSaveLastWindow();
@@ -546,6 +568,13 @@ static uint8_t functSaveAsProject()
 static uint8_t functExport()
 {
 	if(PE->isBusyFlag) return 1;
+	if(sequencer.isPlay())
+	{
+		PE->showStopPatternWindow();
+		PE->setStopPatternFunct();
+		PE->stopAction = cProjectEditor::stopActionExport;
+		return 1;
+	}
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functExportSong);
@@ -731,6 +760,14 @@ static uint8_t functSaveAsOverwriteNo()
 //open
 static uint8_t functOpenProjectConfirm()
 {
+	if(sequencer.isPlay())
+	{
+		PE->showStopPatternWindow();
+		PE->setStopPatternFunct();
+		PE->stopAction = cProjectEditor::stopActionOpen;
+		return 1;
+	}
+
 	if(PE->isBusyFlag) return 1;
 	if(mtProject.values.projectNotSavedFlag)
 	{
@@ -820,6 +857,29 @@ static uint8_t functProjectListDown()
 	return 1;
 }
 
+
+static uint8_t functStopPatternYes()
+{
+
+	sequencer.stop();
+	PE->setDefaultScreenFunct();
+	switch (PE->stopAction)
+	{
+		case cProjectEditor::stopActionOpen: 		functOpenProjectConfirm();		break;
+		case cProjectEditor::stopActionNewProject: 	functNewProject();				break;
+		case cProjectEditor::stopActionExport: 		functExport();					break;
+		default: break;
+	}
+
+
+	return 1;
+}
+static uint8_t functStopPatternNo()
+{
+	PE->setDefaultScreenFunct();
+	PE->showDefaultScreen();
+	return 1;
+}
 
 static uint8_t functSaveChangesDontSaveOpen()
 {

@@ -46,7 +46,7 @@ void cProjectEditor::initDisplayControls()
 	prop5.w = 800-(10);
 	prop5.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 | controlStyleRoundedBorder);
 	prop5.text = (char*)"";
-	if(selectWindowLabel == nullptr)  selectWindowLabel = display.createControl<cLabel>(&prop5);
+	if(popupWindowLabel == nullptr)  popupWindowLabel = display.createControl<cLabel>(&prop5);
 
 	labelArrow.bitmaps[0].bitmapIndex = displayArrowU;
 	labelArrow.bitmaps[0].xValue =  (800/8)*0+(800/16);
@@ -176,8 +176,8 @@ void cProjectEditor::destroyDisplayControls()
 	display.destroyControl(editName);
 	editName = nullptr;
 
-	display.destroyControl(selectWindowLabel);
-	selectWindowLabel = nullptr;
+	display.destroyControl(popupWindowLabel);
+	popupWindowLabel = nullptr;
 
 	display.destroyControl(loadHorizontalBarControl);
 	loadHorizontalBarControl = nullptr;
@@ -261,8 +261,8 @@ void cProjectEditor::showDefaultScreen()
 	display.setControlHide(editName);
 	display.refreshControl(editName);
 
-	display.setControlHide(selectWindowLabel);
-	display.refreshControl(selectWindowLabel);
+	display.setControlHide(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
 
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
@@ -504,9 +504,9 @@ void cProjectEditor::showSaveLastWindow()
 
 	sprintf(currentInfo,"Do you want to save the changes to \"%s\"?", fileManager.currentProjectName);
 
-	display.setControlText(selectWindowLabel, currentInfo);
-	display.setControlShow(selectWindowLabel);
-	display.refreshControl(selectWindowLabel);
+	display.setControlText(popupWindowLabel, currentInfo);
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -528,9 +528,9 @@ void cProjectEditor::showDeleteLastWindow()
 
 	sprintf(currentInfo,"Do you want to delete project: \"%s\"?", filesNames[selectedLocation]);
 
-	display.setControlText(selectWindowLabel, currentInfo);
-	display.setControlShow(selectWindowLabel);
-	display.refreshControl(selectWindowLabel);
+	display.setControlText(popupWindowLabel, currentInfo);
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -555,9 +555,9 @@ void cProjectEditor::showOverwriteWindow()
 
 	sprintf(currentInfo,"Do you want overwrite \"%s\"?", keyboardManager.getName());
 
-	display.setControlText(selectWindowLabel, currentInfo);
-	display.setControlShow(selectWindowLabel);
-	display.refreshControl(selectWindowLabel);
+	display.setControlText(popupWindowLabel, currentInfo);
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
 
 	for(uint8_t i = 0; i<8; i++)
 	{
@@ -567,6 +567,35 @@ void cProjectEditor::showOverwriteWindow()
 
 	display.synchronizeRefresh();
 }
+
+void cProjectEditor::showStopPatternWindow()
+{
+
+	for(uint8_t i=0 ;i < 8; i++)
+	{
+		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
+	}
+
+	display.setControlText(label[7], "Yes");
+	display.setControlText(label[6], "No");
+
+	sprintf(currentInfo,"This action will stop the pattern. Do you want to continue?");
+
+	display.setControlText(popupWindowLabel, currentInfo);
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
+
+	for(uint8_t i = 0; i<8; i++)
+	{
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
+	}
+
+	display.synchronizeRefresh();
+}
+
+
 
 
 void cProjectEditor::showExportingHorizontalBar()
@@ -628,6 +657,9 @@ void cProjectEditor::showExportWindow()
 
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
+
+	display.setControlHide(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }
