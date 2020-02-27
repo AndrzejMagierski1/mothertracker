@@ -121,21 +121,27 @@ void cFileManager::copySamples()
 		sprintf(currentCopySrcPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
 		sprintf(currentCopyDestPath, cProjectsSamplesFilesFormat, currentProjectName, currentSample+1); // nazwa pliku od 1
 	}
-	else
+	else if(currentOperation == fmCopyProjectsToWorkspace)
 	{
 		sprintf(currentCopySrcPath, cProjectsSamplesFilesFormat, currentProjectName, currentSample+1); // nazwa pliku od 1
 		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
+	}
+	else
+	{
+
 	}
 
 	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, currentCopyDestPath);
 
 	if(loadStatus == fileTransferEnd)
 	{
-		continueSampleProcess();
+		//continueSampleProcess();
+		moveToNextOperationStep();
 	}
 	else if(loadStatus == fileTransferFileNoExist)
 	{
-		continueSampleProcess();
+		//continueSampleProcess();
+		moveToNextOperationStep();
 	}
 	else if(loadStatus >= fileTransferError)
 	{
@@ -164,7 +170,7 @@ void cFileManager::saveSamplesToWorkspace()
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     IMPORT     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
-void cFileManager::importSamples()
+void cFileManager::importSamplesToMemory()
 {
 	sprintf(currentCopySrcPath, "%s/%s", explorerCurrentPath, explorerList[importCurrentFile]); // nazwa pliku od 1
 	sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1

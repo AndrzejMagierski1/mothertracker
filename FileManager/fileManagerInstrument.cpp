@@ -66,9 +66,14 @@ void cFileManager::copyInstruments()
 		sprintf(currentCopySrcPath, cWorkspaceInstrumentFileFormat, currentInstrument+1);
 		sprintf(currentCopyDestPath, cProjectsInstrumentFileFormat, currentProjectName, currentInstrument+1);
 	}
-	else
+	else if(currentOperation == fmCopyProjectsToWorkspace)
 	{
 		sprintf(currentCopySrcPath, cProjectsInstrumentFileFormat, currentProjectName, currentInstrument+1);
+		sprintf(currentCopyDestPath, cWorkspaceInstrumentFileFormat, currentInstrument+1);
+	}
+	else //import
+	{
+		sprintf(currentCopySrcPath, "%s/%s", explorerCurrentPath, explorerList[importCurrentFile]); // nazwa pliku od 1
 		sprintf(currentCopyDestPath, cWorkspaceInstrumentFileFormat, currentInstrument+1);
 	}
 
@@ -77,11 +82,13 @@ void cFileManager::copyInstruments()
 	if(loadStatus == fileTransferEnd)
 	{
 		mtProject.instruments_count++;
-		continueInstrumentProcess();
+		//continueInstrumentProcess();
+		moveToNextOperationStep();
 	}
 	else if(loadStatus == fileTransferFileNoExist)
 	{
-		continueInstrumentProcess();
+		//continueInstrumentProcess();
+		moveToNextOperationStep();
 	}
 	else if(loadStatus >= fileTransferError)
 	{
@@ -280,15 +287,15 @@ void cFileManager::setDefaultActiveInstrument(struct strInstrument* targetInstru
 	targetInstrument->envelope[envAmp].loop = 0;
 	targetInstrument->envelope[envAmp].enable = 1;
 
-	targetInstrument->envelope[envFilter].delay = 0;
-	targetInstrument->envelope[envFilter].attack = 3000;
-	targetInstrument->envelope[envFilter].hold = 0;
-	targetInstrument->envelope[envFilter].decay = 0;
-	targetInstrument->envelope[envFilter].sustain = 1.0;
-	targetInstrument->envelope[envFilter].release = 1000;
-	targetInstrument->envelope[envFilter].amount = 1.0;
-	targetInstrument->envelope[envFilter].loop = 0;
-	targetInstrument->envelope[envFilter].enable = 0;
+	targetInstrument->envelope[envCutoff].delay = 0;
+	targetInstrument->envelope[envCutoff].attack = 3000;
+	targetInstrument->envelope[envCutoff].hold = 0;
+	targetInstrument->envelope[envCutoff].decay = 0;
+	targetInstrument->envelope[envCutoff].sustain = 1.0;
+	targetInstrument->envelope[envCutoff].release = 1000;
+	targetInstrument->envelope[envCutoff].amount = 1.0;
+	targetInstrument->envelope[envCutoff].loop = 0;
+	targetInstrument->envelope[envCutoff].enable = 0;
 
 	targetInstrument->envelope[envWtPos].delay = 0;
 	targetInstrument->envelope[envWtPos].attack = 3000;

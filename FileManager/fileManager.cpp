@@ -147,8 +147,9 @@ void cFileManager::updateImportSamplesToWorkspace()	//fmImportSamplesToWorkspace
 	{
 		case 0:		importSamplesToWorkspaceInit(); 						break;
 		case 1:		createEmptyInstrumentInWorkspace(currentInstrument, explorerList[importCurrentFile]);	break;
-		case 2:		importSamples();										break;
-		case 3:		importSamplesToWorkspaceFinish(); 						break;
+		case 2:		copySamples();											break;
+		case 3:		importSamplesToMemory();								break;
+		case 4:		importSamplesToWorkspaceFinish(); 						break;
 		default:	stopOperationWithError(fmImportSamplesError); 			break;
 	}
 }
@@ -235,6 +236,23 @@ void cFileManager::copyProjectsToWorkspaceInit()
 
 void cFileManager::copyProjectsToWorkspaceFinish()
 {
+
+	if(currentInstrument < INSTRUMENTS_COUNT)
+	{
+		currentInstrument++;
+		currentSample++;
+
+		currentOperationStep = 3; //xxx najwazniejsze !
+		return;
+	}
+	else
+	{
+		currentInstrument = 0;
+		currentSample = 0;
+	}
+
+
+
 	status = fmIdle;					// takie cwaniactwo pozwala wywolac otwieranie
 	currentOperation = fmNoOperation;	// projektu z workspace w tym miejscu
 
@@ -309,6 +327,20 @@ void cFileManager::copyWorkspaceToProjectsInit()
 
 void cFileManager::copyWorkspaceToProjectsFinish()
 {
+	if(currentInstrument < INSTRUMENTS_COUNT)
+	{
+		currentInstrument++;
+		currentSample++;
+
+		currentOperationStep = 3; //xxx najwazniejsze
+		return;
+	}
+	else
+	{
+		currentInstrument = 0;
+		currentSample = 0;
+	}
+
 
 	status = fmSaveEnd;
 	currentOperationStep = 0;
@@ -326,14 +358,23 @@ void cFileManager::importSamplesToWorkspaceFinish()
 {
 	importSampleLeft--;
 	importCurrentFile++;
-	currentInstrument++;
-	currentSample++;
 
-	if(importSampleLeft > 0 && currentSample < INSTRUMENTS_COUNT && importCurrentFile < explorerListLength)
+	if(importSampleLeft > 0  && currentSample < INSTRUMENTS_COUNT && importCurrentFile < explorerListLength)
 	{
-		currentOperationStep = 0;
+		currentInstrument++;
+		currentSample++;
+
+		currentOperationStep = 0; //xxx najwazniejsze !
 		return;
 	}
+	else
+	{
+		currentInstrument = 0;
+		currentSample = 0;
+	}
+
+
+
 
 	status = fmImportSamplesEnd;
 	currentOperationStep = 0;
@@ -427,12 +468,37 @@ bool cFileManager::importSamplesToWorkspace(uint8_t fileFrom, uint8_t fileTo, ui
 
 	//sprawdzic czy zaznaczone wartosci / nazwy sa poprawne xxx
 
-	currentInstrument = instrumentSlot;
-	currentSample = instrumentSlot;
-
 	importCurrentFile = fileFrom;
 
-	importSampleLeft = (fileTo>fileFrom) ? fileTo-fileFrom+1 : 1 ;
+	currentInstrument = instrumentSlot;
+	currentSample = instrumentSlot;
+	importStartSlot = instrumentSlot;
+	importEndSlot = instrumentSlot + ((fileTo>fileFrom) ? (fileTo-fileFrom) : 0);
+	if(importEndSlot >= INSTRUMENTS_COUNT) importEndSlot = INSTRUMENTS_COUNT-1; //xxx
+
+	importStartAddress = mtProject.instrument[instrumentSlot].sample.address;
+
+	// oblicz od ktorego instrumentu trzeba bedzie przesunac pamiec
+	// potem zostanie obliczony offset o jaki trzeba bedzie przesunąć
+	// jesli 48 to znaczy ze nie ma sampli do przesuniecia
+	firstSlotToMoveInMemory = importEndSlot+1;
+
+
+	while(firstSlotToMoveInMemory < INSTRUMENTS_COUNT && mtProject.instrument[firstSlotToMoveInMemory].isActive == 0)
+	{
+		firstSlotToMoveInMemory++;
+
+		if(firstSlotToMoveInMemory >= INSTRUMENTS_COUNT)
+		{
+			break;
+		}
+	}
+
+
+
+
+
+	// sprawdzenie czy wystarczy pamieci xxx
 
 
 	status = fmImportingSamplesToWorkspace;

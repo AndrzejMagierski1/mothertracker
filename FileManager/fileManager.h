@@ -268,7 +268,7 @@ private:
 	void continueSampleProcess();
 
 	void importSamplesToWorkspaceInit();
-	void importSamples();
+	void importSamplesToMemory();
 	void importSamplesToWorkspaceFinish();
 
 
@@ -284,9 +284,13 @@ private:
 	uint32_t currentSampleSamplesCount = 0; // ilosc probek!!! (int16)
 
 	uint8_t importCurrentFile;
-	int8_t importSampleLeft;
-	//uint8_t importSampleCurrent;
-	//uint8_t importInstrumentCurrent;
+	int8_t importStartSlot;
+	int8_t importEndSlot;
+	int16_t* importStartAddress;
+	int8_t firstSlotToMoveInMemory;
+
+
+
 
 	// browser
 	void browseProjectsLocation();
