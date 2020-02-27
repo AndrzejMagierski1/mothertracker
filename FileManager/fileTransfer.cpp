@@ -57,7 +57,7 @@ uint8_t cFileTransfer::loadFileToMemory(const char* file, uint8_t* memory, uint3
 			{
 				transferStep = 2;
 			}
-			else if(memComplited >= memSize) //wczytany wiekszy plik << niebezpieczne przekroczenie pamieci xxx
+			else if(memComplited >= memSize) //wczytany wiekszy plik << niebezpieczne przekroczenie pamieci
 			{
 				transferStep = 2;
 			}
@@ -92,7 +92,6 @@ uint8_t cFileTransfer::loadSampleToMemory(const char* file, int16_t* memory, uin
 		{
 			memStep = 32640; // wielokrotnosc 4*6*8 (rozne probkowania stereo w bajtach)
 			memComplited = 0;
-			transferStep = 1;
 			convertedDataSize = 0;
 
 			readHeader(&sampleHead, &transferFile);
@@ -103,6 +102,7 @@ uint8_t cFileTransfer::loadSampleToMemory(const char* file, int16_t* memory, uin
 				return fileTransferFileNoValid;
 			}
 
+			transferStep = 1;
 			memTotal = transferFile.available(); // pobiera wielkosc dopiero po przesciu przez header
 		}
 	}
@@ -196,6 +196,122 @@ uint8_t cFileTransfer::copyFile(const char* src, const char* dest)
 
 	if(transferStep == 2)
 	{
+		transferStep = 0;
+		transferFile.close();
+		transferFile2.close();
+		return fileTransferEnd;
+	}
+
+	transferStep = 0;
+	transferFile.close();
+	transferFile2.close();
+	return fileTransferError;
+}
+
+//todo
+uint8_t cFileTransfer::copySample(const char* src, const char* dest)
+{
+	if(transferStep == 0)
+	{
+		if(!SD.exists(src)) return fileTransferFileNoExist;
+		if(SD.exists(dest))
+		{
+			SD.remove(dest);
+		}
+
+		if(transferFile.open(src))
+		{
+			readHeader(&sampleHead, &transferFile);
+
+			if(!checkSampleValid())
+			{
+				transferFile.close();
+				return fileTransferFileNoValid;
+			}
+
+			if(transferFile2.open(dest, FILE_WRITE))
+			{
+				transferFile2.seek(44);
+				memTotal = transferFile.available(); // pobiera wielkosc dopiero po przesciu przez header
+				memStep = 32640; // wielokrotnosc 4*6*8 (rozne probkowania stereo w bajtach)
+				memComplited = 0;
+				convertedDataSize = 0;
+				transferStep = 1;
+			}
+		}
+	}
+//--------------------------------------------------------
+	if(transferStep == 1)
+	{
+		int32_t read_result = transferFile.read(sdram_writeLoadBuffer, memStep);
+
+		if(read_result == 0) // koniec pliku - koncz kopiowanie
+		{
+			transferStep = 2;
+		}
+		else if(read_result > 0)
+		{
+			uint32_t converted = convertAudioData((int16_t*)sdram_writeLoadBuffer, read_result);
+			if(converted > 0)
+			{
+				int32_t write_result = transferFile2.write(sdram_writeLoadBuffer, converted);
+
+				convertedDataSize += converted;
+				memComplited += read_result;
+
+				if(write_result > 0)
+				{
+					if(memComplited >= memTotal || memComplited >= sampleHead.subchunk2Size) // przekroczenie mniejszego zatrzyma ladowanie
+					{
+						transferStep = 2;
+					}
+					else if (converted == write_result)
+					{
+						return fileTransferInProgress;
+					}
+				}
+			}
+			else
+			{
+				transferStep = 2;
+			}
+		}
+		//else wysypuje error na koncu funkcji \/
+	}
+////--------------------------------------------------------
+//	if(transferStep == 1)
+//	{
+//		int32_t read_result = transferFile.read(sdram_writeLoadBuffer, memStep);
+//
+//		if(read_result == 0) // koniec pliku - koncz kopiowanie
+//		{
+//			transferStep = 2;
+//		}
+//		else if(read_result > 0)
+//		{
+//			int32_t write_result = transferFile2.write(sdram_writeLoadBuffer, read_result);
+//
+//			if(write_result >= 0)
+//			{
+//				memComplited += write_result;
+//				if(write_result < memStep) // koniec pliku
+//				{
+//					transferStep = 2;
+//				}
+//				else if (read_result == write_result)
+//				{
+//					return fileTransferInProgress;
+//				}
+//			}
+//		}
+//	}
+//--------------------------------------------------------
+	if(transferStep == 2)
+	{
+		fillHeader();
+		transferFile2.seek(0);
+		transferFile2.write(&sampleHead, sizeof(sampleHead));
+
 		transferStep = 0;
 		transferFile.close();
 		transferFile2.close();
@@ -313,5 +429,26 @@ bool cFileTransfer::checkSampleValid()
 
 	return true;
 }
+
+void cFileTransfer::fillHeader()
+{
+	memset(&sampleHead, 0, sizeof(sampleHead));
+
+	sampleHead.chunkId = 0x46464952; 																// "RIFF"
+	sampleHead.chunkSize = convertedDataSize + 36;
+	sampleHead.format = 0x45564157;																	// "WAVE"
+	sampleHead.subchunk1Id = 0x20746d66;															// "fmt "
+	sampleHead.subchunk1Size = 16;
+	sampleHead.AudioFormat = 1;
+	sampleHead.numChannels = 1;
+	sampleHead.sampleRate = 44100;
+	sampleHead.bitsPerSample = 16;
+	sampleHead.byteRate = sampleHead.sampleRate * sampleHead.numChannels * (sampleHead.bitsPerSample/8);
+	sampleHead.blockAlign = sampleHead.numChannels * (sampleHead.bitsPerSample/8);
+	sampleHead.subchunk2Id = 0x61746164;															// "data"
+	sampleHead.subchunk2Size = convertedDataSize;
+
+}
+
 
 

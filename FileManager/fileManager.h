@@ -101,7 +101,7 @@ public:
 	bool openProjectFromProjects(uint8_t index);
 	bool saveProjectToWorkspace(bool forceSaveAll = false);
 	bool saveProjectToProjects(char* projectNameToSave = nullptr);
-	bool importSamplesToWorkspace(uint8_t fileFrom, uint8_t fileTo, uint8_t instrumentSlot);
+	bool importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint8_t instrumentSlot);
 
 	bool browseSdCard(uint8_t* index);
 	bool browseProjects();
@@ -268,9 +268,10 @@ private:
 	void continueSampleProcess();
 
 	void importSamplesToWorkspaceInit();
-	void importSamplesToMemory();
+	//void importSamplesToWorkspace();
+	void importSamplesToWorkspaceContinue();
+	void importSampleMoveMemory();
 	void importSamplesToWorkspaceFinish();
-
 
 
 	uint32_t getWaveSizeIfValid(const char *filename);

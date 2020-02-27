@@ -1004,7 +1004,7 @@ void cSampleImporter::SelectFile()
 	if(!fullMemoryFlag)
 	{
 
-		bool result = newFileManager.importSamplesToWorkspace(getSelectionStart(listFiles), getSelectionEnd(listFiles), selectedSlot);
+		bool result = newFileManager.importSamplesToProject(getSelectionStart(listFiles), getSelectionEnd(listFiles), selectedSlot);
 		if(result)
 		{
 			copyType = 1;

@@ -146,10 +146,12 @@ void cFileManager::updateImportSamplesToWorkspace()	//fmImportSamplesToWorkspace
 	switch(currentOperationStep)
 	{
 		case 0:		importSamplesToWorkspaceInit(); 						break;
-		case 1:		createEmptyInstrumentInWorkspace(currentInstrument, explorerList[importCurrentFile]);	break;
-		case 2:		copySamples();											break;
-		case 3:		importSamplesToMemory();								break;
-		case 4:		importSamplesToWorkspaceFinish(); 						break;
+		case 1:		copySamples();											break;
+		case 2:		createEmptyInstrumentInWorkspace(currentInstrument, explorerList[importCurrentFile]);	break;
+		case 3:		importSamplesToWorkspaceContinue(); 					break;
+		//case 4:		importSamplesToWorkspace();								break;
+		case 4:		importSampleMoveMemory();								break;
+		case 5:		importSamplesToWorkspaceFinish();						break;
 		default:	stopOperationWithError(fmImportSamplesError); 			break;
 	}
 }
@@ -356,22 +358,6 @@ void cFileManager::importSamplesToWorkspaceInit()
 
 void cFileManager::importSamplesToWorkspaceFinish()
 {
-	importSampleLeft--;
-	importCurrentFile++;
-
-	if(importSampleLeft > 0  && currentSample < INSTRUMENTS_COUNT && importCurrentFile < explorerListLength)
-	{
-		currentInstrument++;
-		currentSample++;
-
-		currentOperationStep = 0; //xxx najwazniejsze !
-		return;
-	}
-	else
-	{
-		currentInstrument = 0;
-		currentSample = 0;
-	}
 
 
 
@@ -461,7 +447,7 @@ bool cFileManager::saveProjectToProjects(char* projectNameToSave)
 	return true;
 }
 
-bool cFileManager::importSamplesToWorkspace(uint8_t fileFrom, uint8_t fileTo, uint8_t instrumentSlot)
+bool cFileManager::importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint8_t instrumentSlot)
 {
 	if(status != fmIdle) return false;
 	if(currentOperation != fmNoOperation) return false;

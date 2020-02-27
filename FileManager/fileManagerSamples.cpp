@@ -126,12 +126,13 @@ void cFileManager::copySamples()
 		sprintf(currentCopySrcPath, cProjectsSamplesFilesFormat, currentProjectName, currentSample+1); // nazwa pliku od 1
 		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
 	}
-	else
+	else // import
 	{
-
+		sprintf(currentCopySrcPath, "%s/%s", explorerCurrentPath, explorerList[importCurrentFile]); // nazwa pliku od 1
+		sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1);
 	}
 
-	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, currentCopyDestPath);
+	uint8_t loadStatus = fileTransfer.copySample(currentCopySrcPath, currentCopyDestPath);
 
 	if(loadStatus == fileTransferEnd)
 	{
@@ -170,30 +171,31 @@ void cFileManager::saveSamplesToWorkspace()
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     IMPORT     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
-void cFileManager::importSamplesToMemory()
+void cFileManager::importSamplesToWorkspaceContinue()
 {
-	sprintf(currentCopySrcPath, "%s/%s", explorerCurrentPath, explorerList[importCurrentFile]); // nazwa pliku od 1
-	sprintf(currentCopyDestPath, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
+	importCurrentFile++;
 
-	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, currentCopyDestPath);
+	if(currentSample >= importEndSlot  && currentSample < INSTRUMENTS_COUNT && importCurrentFile < explorerListLength)
+	{
+		currentInstrument++;
+		currentSample++;
 
-	if(loadStatus == fileTransferEnd)
-	{
-		moveToNextOperationStep();
+		currentOperationStep = 0; //xxx najwazniejsze !
+		return;
 	}
-	else if(loadStatus == fileTransferFileNoExist)
+	else
 	{
-		char txtReport[70];
-		sprintf(txtReport, "file to import not exist: %s", explorerList[importCurrentFile]);
-		report(txtReport);
-		moveToNextOperationStep();
+		currentInstrument = 0;
+		currentSample = 0;
 	}
-	else if(loadStatus >= fileTransferError)
-	{
-		sampleThrowError();
-	}
+
+	moveToNextOperationStep();
 }
 
+void cFileManager::importSampleMoveMemory()
+{
+
+}
 
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     XXXX     -----------------------------------------------------------

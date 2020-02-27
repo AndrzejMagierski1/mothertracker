@@ -36,13 +36,15 @@ public:
 	uint8_t saveMemoryToFile(uint8_t* memory, const char* file, uint32_t memSize);
 
 	uint8_t copyFile(const char* src, const char* dest);
-	uint8_t copySample(const char* src, const char* dest); //todo
+	uint8_t copySample(const char* src, const char* dest);
 
 	uint32_t convertAudioData(int16_t* outPtr, int32_t input_size);
 	bool checkSampleValid();
+	void fillHeader();
 
-	uint8_t getFileProgress() 		{ return (memComplited*100)/memTotal; }
-	uint32_t getBytesComplited() 	{ return memComplited; }
+	uint8_t getFileProgress() 			{ return (memComplited*100)/memTotal; }
+	uint32_t getBytesComplited() 		{ return memComplited; }
+	uint32_t getConvertedSampleSize() 	{ return convertedDataSize; }
 	void endTransfer();
 
 private:

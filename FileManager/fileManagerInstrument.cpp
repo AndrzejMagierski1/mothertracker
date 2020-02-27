@@ -71,11 +71,11 @@ void cFileManager::copyInstruments()
 		sprintf(currentCopySrcPath, cProjectsInstrumentFileFormat, currentProjectName, currentInstrument+1);
 		sprintf(currentCopyDestPath, cWorkspaceInstrumentFileFormat, currentInstrument+1);
 	}
-	else //import
-	{
-		sprintf(currentCopySrcPath, "%s/%s", explorerCurrentPath, explorerList[importCurrentFile]); // nazwa pliku od 1
-		sprintf(currentCopyDestPath, cWorkspaceInstrumentFileFormat, currentInstrument+1);
-	}
+//	else //import
+//	{
+//		sprintf(currentCopySrcPath, "%s/%s", explorerCurrentPath, explorerList[importCurrentFile]); // nazwa pliku od 1
+//		sprintf(currentCopyDestPath, cWorkspaceInstrumentFileFormat, currentInstrument+1);
+//	}
 
 	uint8_t loadStatus = fileTransfer.copyFile(currentCopySrcPath, currentCopyDestPath);
 
