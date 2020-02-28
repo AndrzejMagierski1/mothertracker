@@ -102,7 +102,7 @@ void cProjectEditor::update()
 
 	if(managerStatus == fmLoadEnd)
 	{
-		debugLog.addLine("Load Finished");
+		debugLog.addLine("Opening Finished");
 		newFileManager.clearStatus();
 		setDefaultScreenFunct();
 	}

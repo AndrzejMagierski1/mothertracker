@@ -9,106 +9,60 @@
 
 extern int16_t sdram_effectsBank[4*1024*1024];
 extern int16_t sdram_sampleBank[4*1024*1024];
+extern uint8_t sdram_writeLoadBuffer[READ_WRITE_BUFOR_SIZE];
 
 
 
-static char sampleToLoad[PATCH_SIZE];
+static char sampleToLoad[WORKSPACE_SAMPLES_FORMAT_MAX_LENGTH];
 static int16_t* ptrSampleMemory;
 
 
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     LOAD     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
-
 void cFileManager::loadSamplesFromWorkspace()
 {
-	startSampleLoad();
-	if(sampleLoadPhase > 1) continueSampleLoad(); // omija dalsze ladowanie pliku/ow jezeli byl jakis sygnal ze trzeba to zrobic
+	if(currentSample >= INSTRUMENTS_COUNT) { moveToNextOperationStep(); return;} //zabiezpeiczenie
+	if(!sampleInProgress) startSampleLoad(); // wykonaj funkcje tylko 1 raz
 
 	uint8_t loadStatus = fileTransfer.loadSampleToMemory(sampleToLoad, ptrSampleMemory, &currentSampleSamplesCount);
 
-	if(loadStatus == fileTransferEnd)
+	if(loadStatus == fileTransferEnd && currentSampleSamplesCount > 0)
 	{
-		continueSampleLoad();
+		mtProject.used_memory += currentSampleSamplesCount*2; // zwieksz uzycie pamieci
+		completeLoadedSampleStruct(true); // wypelnij strukture dodanego sampla dodatkowymi danymi
+		lastActiveInstrument = currentSample; // do ustalania przydzielania pamieci
+		sampleInProgress = 0;
+		moveToNextOperationStep();
 	}
-	else if(loadStatus == fileTransferFileNoExist || loadStatus == fileTransferFileNoValid)
+	else if(loadStatus == fileTransferFileNoExist || loadStatus == fileTransferFileNoValid || loadStatus == fileTransferEnd)
 	{
-		currentSampleSamplesCount  = 0;
-		continueSampleLoad();
+		completeLoadedSampleStruct(false);
+		sampleInProgress = 0;
+		moveToNextOperationStep();
 	}
 	else if(loadStatus >= fileTransferError)
 	{
-		instrumentThrowError();
+		sampleThrowError();
 	}
 }
 
 void cFileManager::startSampleLoad()
 {
-	// wykonaj funkcje tylko 1 raz
-	if(sampleLoadPhase != 0) return;
-	sampleLoadPhase = 1;
+	sampleInProgress = 1;
 
-	mtProject.used_memory = 0; // uzycie = 0 na start
-
-	// zawsze od 0 !!!
-	currentSample = 0;
-
-	// znajdz pierwszy aktywny ktory trzeba wczytac, na podstawie wczytanych wczesniej plikow instrumentow
-	while(mtProject.instrument[currentSample].isActive == 0)
+	if(currentSample == 0)
 	{
-		currentSample++;
-		if(currentSample >= INSTRUMENTS_COUNT)
-		{
-			// jesl nie znaleziono zadnego aktywnego to nie ma co robic i odrazu konczy ladowanie sampli
-			sampleLoadPhase = 2; // << wymusi wywolanie continueSampleLoad();
-			return;
-		}
+		mtProject.instrument[0].sample.length = 0;
+		mtProject.instrument[0].sample.address = sdram_sampleBank;
 	}
 
-	// przygotowanie strukturey pierwszego sampla do zaladowania
-	mtProject.instrument[currentSample].sample.length = 0;
-	mtProject.instrument[currentSample].sample.wavetable_window_size = 0;
-	mtProject.instrument[currentSample].sample.address = sdram_sampleBank;
+	mtProject.instrument[currentSample].sample.address =
+			mtProject.instrument[lastActiveInstrument].sample.address + mtProject.instrument[lastActiveInstrument].sample.length;
+
 	ptrSampleMemory = mtProject.instrument[currentSample].sample.address;
 
-	sprintf(sampleToLoad, cWorkspaceSamplesFilesFormat, currentSample+1); // nazwa pliku od 1
-}
-
-void cFileManager::continueSampleLoad()
-{
-	if(currentSample < INSTRUMENTS_COUNT) // zakoncz ladowanie jesli currentSample >= 48
-	{
-		// przetworz zaladowany sampel
-		if(currentSampleSamplesCount == 0) // jesli jakis blad np brak pliku wav
-		{
-			memset(mtProject.instrument[currentSample].sample.file_name, 0, SAMPLE_NAME_SIZE);
-			mtProject.instrument[currentSample].isActive = 0;
-			mtProject.instrument[currentSample].sample.length = 0;
-			mtProject.instrument[currentSample].sample.wavetable_window_size = 0;
-		}
-		else
-		{
-			mtProject.used_memory += currentSampleSamplesCount*2; // zwieksz uzycie pamieci
-
-			completeLoadedSampleStruct(); // wypelnij strukture dodanego sampla dodatkowymi danymi
-		}
-
-		// przygotuj struktury na nastepny sampel
-		currentSample++;
-		if(currentSample < INSTRUMENTS_COUNT) // zakoncz ladowanie jesli currentSample >= 48
-		{
-			mtProject.instrument[currentSample].sample.address =
-					mtProject.instrument[currentSample-1].sample.address + mtProject.instrument[currentSample-1].sample.length;
-			sprintf(sampleToLoad, cWorkspaceSamplesFilesFormat, currentSample+1);  // nazwa pliku od 1
-			ptrSampleMemory = mtProject.instrument[currentSample].sample.address;
-
-			return; // nastepny sampel poprosze
-		}
-	}
-	// koncz ladowanie sampli
-	sampleLoadPhase = 0;
-	currentSample = 0;
-	moveToNextOperationStep();
+	sprintf(sampleToLoad, cWorkspaceSamplesFilesFormat, currentSample+1);
 }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -171,29 +125,55 @@ void cFileManager::saveSamplesToWorkspace()
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     IMPORT     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
-void cFileManager::importSamplesToWorkspaceContinue()
-{
-	importCurrentFile++;
 
-	if(currentSample >= importEndSlot  && currentSample < INSTRUMENTS_COUNT && importCurrentFile < explorerListLength)
-	{
-		currentInstrument++;
-		currentSample++;
-
-		currentOperationStep = 0; //xxx najwazniejsze !
-		return;
-	}
-	else
-	{
-		currentInstrument = 0;
-		currentSample = 0;
-	}
-
-	moveToNextOperationStep();
-}
 
 void cFileManager::importSampleMoveMemory()
 {
+	moveToNextOperationStep();
+	if(firstSlotToMoveInMemory >= 48) // nie ma sampli do przesuniecia w pamieci
+	{
+		return;
+	}
+
+	uint8_t last_instrument_to_move = firstSlotToMoveInMemory;
+	uint8_t i = firstSlotToMoveInMemory;
+
+	// znajdz ostatni instrument do przesuniecia
+	while(i < INSTRUMENTS_COUNT )
+	{
+		if(mtProject.instrument[i].isActive == 1)
+		{
+			last_instrument_to_move = i;
+		}
+
+		i++;
+	}
+
+	// wyznacz przesuniecie i blok do przesuniecia
+	uint32_t memory_offset = fileTransfer.getConvertedSampleSize();
+	uint8_t* begining_address = (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
+	uint8_t* end_address = (uint8_t*)mtProject.instrument[last_instrument_to_move].sample.address
+									+ mtProject.instrument[last_instrument_to_move].sample.length*2;
+
+	int32_t memory_size = end_address-begining_address;
+
+	// przesuń
+	do
+	{
+		if(READ_WRITE_BUFOR_SIZE <= memory_size)
+		{
+			memcpy(sdram_writeLoadBuffer, begining_address+memory_size, READ_WRITE_BUFOR_SIZE);
+			memory_size -= READ_WRITE_BUFOR_SIZE;
+			memcpy(memory_offset+begining_address+memory_size, sdram_writeLoadBuffer, READ_WRITE_BUFOR_SIZE);
+		}
+		else
+		{
+			memcpy(sdram_writeLoadBuffer, begining_address+memory_size, memory_size);
+			memory_size = 0;
+			memcpy(memory_offset+begining_address+memory_size, sdram_writeLoadBuffer, memory_size);
+		}
+	}
+	while(memory_size <= 0);
 
 }
 
@@ -203,18 +183,30 @@ void cFileManager::importSampleMoveMemory()
 
 void cFileManager::sampleThrowError()
 {
-	sampleLoadPhase = 0;
+	sampleInProgress = 0;
 	currentSample = 0;
 
 	throwError(0);
 }
 
-void cFileManager::completeLoadedSampleStruct()
+void cFileManager::completeLoadedSampleStruct(bool success)
 {
+	if(success == false)
+	{
+		memset(mtProject.instrument[currentSample].sample.file_name, 0, SAMPLE_NAME_SIZE);
+		mtProject.instrument[currentSample].isActive = 0;
+		mtProject.instrument[currentSample].sample.length = 0;
+		mtProject.instrument[currentSample].sample.wavetable_window_size = 0;
+
+		return;
+	}
+
+
 	mtProject.instrument[currentSample].isActive = 1;
 	mtProject.instrument[currentSample].sample.length = currentSampleSamplesCount;
 
-	if(mtProject.instrument[currentSample].granular.grainLength > mtProject.instrument[currentSample].sample.length) mtProject.instrument[currentSample].granular.grainLength = mtProject.instrument[currentSample].sample.length;
+	if(mtProject.instrument[currentSample].granular.grainLength > mtProject.instrument[currentSample].sample.length)
+			mtProject.instrument[currentSample].granular.grainLength = mtProject.instrument[currentSample].sample.length;
 
 	if(mtProject.instrument[currentSample].playMode == playModeWavetable)
 	{

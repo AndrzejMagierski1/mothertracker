@@ -100,20 +100,16 @@ void cSampleImporter::update()
 
 		newFileManager.clearStatus();
 	}
-	else if(managerStatus == fmImportSamplesError)
+	else if(managerStatus >=  fmError)
 	{
-		debugLog.addLine("Sample import Error");
+		debugLog.addLine("Operation Error");
 		isBusy = 0;
 
 		newFileManager.clearStatus();
 	}
-	else if(managerStatus >=  fmBrowseSamplesError)
-	{
-		debugLog.addLine("Browse Error");
-		isBusy = 0;
 
-		newFileManager.clearStatus();
-	}
+
+
 
 	processDeleting();
 }
@@ -358,6 +354,7 @@ static uint8_t functDelete(uint8_t state)
 	return 1;
 }
 
+//todo
 static  uint8_t functInstrumentDelete()
 {
 
@@ -384,9 +381,9 @@ static  uint8_t functInstrumentDelete()
 
 		if(SI->instrToDelete > 0)
 		{
-			SI->deleteInProgress = 1;
-			SI->deleteCurrentPos = SI->deleteStart;
-			SI->isBusy = 1; // processDeleting() powinna zdjac blokade
+			//SI->deleteInProgress = 1;
+			//SI->deleteCurrentPos = SI->deleteStart;
+			//SI->isBusy = 1; // processDeleting() powinna zdjac blokade
 		}
 	}
 
@@ -988,7 +985,7 @@ void cSampleImporter::BrowseOrAdd()
 		if(selectedPlace == 0)
 		{
 			cancelSelect(listFiles);
-			debugLog.addLine("Loading files...");
+			debugLog.addLine("Loading files list...");
 			debugLog.forceRefresh();
 			newFileManager.browseSdCard(&selectedFile);
 		}
@@ -1234,6 +1231,7 @@ void cSampleImporter::playSdFile()
 
 	stopPlaying();
 
+	newFileManager.previevSamplefromSD(selectedFile);
 
 //	playMode = playModeSdFile;
 //
@@ -1285,9 +1283,7 @@ void cSampleImporter::stopPlaying()
 {
 	if(playMode == playModeSdFile)
 	{
-		playSdWav.stop();
-		playSdWavFloat.stop();
-		playSdWav24Bit.stop();
+		newFileManager.stopPrevievSamplefromSD();
 	}
 	else if(playMode == playModeSampleBank)
 	{

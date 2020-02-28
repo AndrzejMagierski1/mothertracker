@@ -16,6 +16,7 @@ enum fileManagerStatus
 	fmBrowsingFirmwares,
 
 	fmImportingSamplesToWorkspace,
+	fmPreviewSampleFromSd,
 
 	fmLoadingProjectfromWorkspace,
 	fmLoadingProjectFromProjects,
@@ -29,6 +30,7 @@ enum fileManagerStatus
 	fmBrowseFirmwaresEnd,
 
 	fmImportSamplesEnd,
+
 
 	fmError,
 	fmLoadError,
@@ -54,6 +56,7 @@ enum fileManagerOperation
 	fmBrowseFirmwares, 			//7
 
 	fmImportSamplesToWorkspace,	//8
+	fmPreviewSamplesFromSD,		//9
 
 
 
@@ -106,6 +109,9 @@ public:
 	bool browseSdCard(uint8_t* index);
 	bool browseProjects();
 	bool browseFirmwares();
+
+	bool previevSamplefromSD(uint8_t index);
+	bool stopPrevievSamplefromSD();
 
 	// to chyba trzeba zoptymalizowac/wrzucic w petle \/
 	bool createNewProjectInWorkspace();
@@ -174,6 +180,7 @@ private:
 	void throwError(uint8_t source);
 	void report(const char* text, uint8_t value = 0);
 	void moveToNextOperationStep();
+	void skipNextOperationStep();
 	void calcTotalMemoryToTransfer();
 	void calcActualMemoryTransfered();
 
@@ -247,6 +254,7 @@ private:
 	bool writeInstrumentToFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile);
 
 
+	void setCurrentInstrumentToFirstActiveAfterCurrent();
 	bool continueInstrumentProcess();
 
 	void instrumentThrowError();
@@ -255,13 +263,14 @@ private:
 	uint32_t calcWorkspaceInstrumentsSize();
 
 	uint8_t currentInstrument = 0;
+	uint8_t lastActiveInstrument = 0; // do przydzielania pamieci
 
 	//samples ------------------------------------
 	void loadSamplesFromWorkspace();
 	void saveSamplesToWorkspace();
 	void copySamples();
 
-	void completeLoadedSampleStruct();
+	void completeLoadedSampleStruct(bool success);
 
 	void startSampleLoad();
 	void continueSampleLoad();
@@ -280,15 +289,17 @@ private:
 	void sampleThrowError();
 
 
-	uint8_t sampleLoadPhase = 0;
+	uint8_t sampleInProgress = 0;
 	uint8_t currentSample = 0;
 	uint32_t currentSampleSamplesCount = 0; // ilosc probek!!! (int16)
+
+	uint32_t importSamplesSize = 0;
 
 	uint8_t importCurrentFile;
 	int8_t importStartSlot;
 	int8_t importEndSlot;
-	int16_t* importStartAddress;
 	int8_t firstSlotToMoveInMemory;
+
 
 
 
@@ -324,6 +335,10 @@ private:
 	uint8_t openCurrentPos =0;
 
 	uint32_t currentFolderMemoryFileUsage[list_length_max];
+
+
+	// preview sample
+
 
 
 

@@ -23,9 +23,10 @@ __NOINIT(EXTERNAL_RAM) strInstrumentFile fileManagerInstrumentBuffer  {0};
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     LOAD     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
-
 void cFileManager::loadInstrumentsFromWorkspace()
 {
+	if(currentSample >= INSTRUMENTS_COUNT) { skipNextOperationStep(); return; }//zabiezpeiczenie
+
 	char instrumentToLoad[PATCH_SIZE];
 	sprintf(instrumentToLoad, cWorkspaceInstrumentFileFormat, currentInstrument+1); // numery plikow od 1
 
@@ -36,18 +37,21 @@ void cFileManager::loadInstrumentsFromWorkspace()
 		mtProject.instruments_count++;
 		if(loadInstrumentFormFileStruct(&mtProject.instrument[currentInstrument], &fileManagerInstrumentBuffer))
 		{
-			continueInstrumentProcess();
+			mtProject.instrument[currentInstrument].isActive = 1;
+			moveToNextOperationStep();
 		}
 		else
 		{
-			instrumentThrowError();
+			memset(mtProject.instrument[currentInstrument].sample.file_name, 0, SAMPLE_NAME_SIZE);
+			mtProject.instrument[currentInstrument].isActive = 0;
+			skipNextOperationStep(); //xxx pomija nastepny krok czyli ladowanie sampla <uważać>
 		}
 	}
 	else if(loadStatus == fileTransferFileNoExist)
 	{
 		memset(mtProject.instrument[currentInstrument].sample.file_name, 0, SAMPLE_NAME_SIZE);
 		mtProject.instrument[currentInstrument].isActive = 0;
-		continueInstrumentProcess();
+		skipNextOperationStep(); //xxx pomija nastepny krok czyli ladowanie sampla <uważać>
 	}
 	else if(loadStatus >= fileTransferError)
 	{
@@ -101,12 +105,6 @@ void cFileManager::copyInstruments()
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::saveInstrumentsToWorkspace()
 {
-	//znajduje pirwszy pattern z flaga zmian i jednoczesnie aktywny
-	while(changesFlags.instrument[currentInstrument] == 0 || mtProject.instrument[currentInstrument].isActive == 0)
-	{
-		if(!continueInstrumentProcess()) return; // jesli sprawdzilo wszystkie to koczny
-	}
-
 	if(!writeInstrumentToFileStruct(&mtProject.instrument[currentInstrument], &fileManagerInstrumentBuffer))
 	{
 		throwError(0);
@@ -119,7 +117,7 @@ void cFileManager::saveInstrumentsToWorkspace()
 
 	if(saveStatus == fileTransferEnd)
 	{
-		continueInstrumentProcess();
+		skipNextOperationStep();   // ominac sample bo nie zapisuje sie sampli
 	}
 	else// if(saveStatus >= fileTransferError)
 	{
@@ -217,22 +215,36 @@ bool cFileManager::writeInstrumentToFileStruct(strInstrument* instrument, strIns
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     XXXX     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
+//
+//bool cFileManager::continueInstrumentProcess()
+//{
+//	currentInstrument++;
+//	if(currentInstrument >= INSTRUMENTS_COUNT)
+//	{
+//		currentInstrument = 0;
+//		moveToNextOperationStep();
+//		return false;
+//	}
+//	return true;
+//}
 
-bool cFileManager::continueInstrumentProcess()
+
+
+void cFileManager::setCurrentInstrumentToFirstActiveAfterCurrent()
 {
-	currentInstrument++;
-	if(currentInstrument >= INSTRUMENTS_COUNT)
+	//znajduje pierwszy instrument z flaga zmian i jednoczesnie aktywny
+	while(changesFlags.instrument[currentInstrument] == 0 || mtProject.instrument[currentInstrument].isActive == 0)
 	{
-		currentInstrument = 0;
-		moveToNextOperationStep();
-		return false;
+		currentInstrument++; // jesli sprawdzilo wszystkie to koczny
+		if(currentInstrument >= INSTRUMENTS_COUNT) break;
 	}
-	return true;
 }
+
 
 
 void cFileManager::instrumentThrowError()
 {
+
 	currentInstrument = 0;
 
 	throwError(0);

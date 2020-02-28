@@ -79,6 +79,9 @@ const char cProjectsSamplesFilesFormat[] 	= "Projects/%s/samples/instr%02d.wav";
 const char cProjectFileName[] = "project.mt";
 
 
+const uint8_t WORKSPACE_PATH_LENGTH = 11; // z ukosnikiem
+const uint8_t WORKSPACE_SAMPLES_PATH_LENGTH = WORKSPACE_PATH_LENGTH+9;
+const uint8_t WORKSPACE_SAMPLES_FORMAT_MAX_LENGTH = 32;
 
 
 

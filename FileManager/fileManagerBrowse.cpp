@@ -196,7 +196,6 @@ void cFileManager::processDirFileSizes() // wykonywalne w petli
 {
 	char filePath[255];
 
-
 	strcpy(filePath, explorerCurrentPath);
 	if(explorerDirLevel > 0)
 	{

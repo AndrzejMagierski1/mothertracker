@@ -24,8 +24,13 @@ enum enTranferFileMode
 };
 
 
-const uint16_t memoryReadPerPart = 512;
+extern "C" {
+extern void *memcpy (void *dst, const void *src, size_t count);
+}
 
+
+const uint16_t memoryReadPerPart = 512;
+const uint16_t READ_WRITE_BUFOR_SIZE = 32768;
 
 class cFileTransfer
 {
@@ -45,16 +50,18 @@ public:
 	uint8_t getFileProgress() 			{ return (memComplited*100)/memTotal; }
 	uint32_t getBytesComplited() 		{ return memComplited; }
 	uint32_t getConvertedSampleSize() 	{ return convertedDataSize; }
+	void resetConvertedSampleSize() 	{ convertedDataSize = 0; }
 	void endTransfer();
 
 private:
 	uint8_t transferStep = 0;
 
-	int32_t memStep;
+	uint32_t memStep;
 	uint32_t memComplited;
 	uint32_t memTotal;
 	uint32_t convertedDataSize;
 
+	uint8_t conversionEnabled;
 };
 
 

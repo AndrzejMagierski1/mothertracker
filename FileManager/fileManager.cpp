@@ -10,7 +10,9 @@
 #include "mtSequencer.h"
 
 #include "fileManager.h"
+#include "fileTransfer.h"
 
+extern int16_t sdram_sampleBank[4*1024*1024];
 
 cFileManager newFileManager;
 
@@ -43,7 +45,9 @@ void cFileManager::update()
 	case fmBrowseFirmwares: 			updateBrowseFirmwares(); 				break;
 
 	case fmImportSamplesToWorkspace:	updateImportSamplesToWorkspace(); 		break;
+	case fmPreviewSamplesFromSD:												break;
 
+	default: break;
 	}
 
 
@@ -149,14 +153,13 @@ void cFileManager::updateImportSamplesToWorkspace()	//fmImportSamplesToWorkspace
 		case 1:		copySamples();											break;
 		case 2:		createEmptyInstrumentInWorkspace(currentInstrument, explorerList[importCurrentFile]);	break;
 		case 3:		importSamplesToWorkspaceContinue(); 					break;
-		//case 4:		importSamplesToWorkspace();								break;
 		case 4:		importSampleMoveMemory();								break;
-		case 5:		importSamplesToWorkspaceFinish();						break;
+		case 5:		loadInstrumentsFromWorkspace(); 						break; // instruments
+		case 6:		loadSamplesFromWorkspace();								break; // samples
+		case 7:		importSamplesToWorkspaceFinish();						break;
 		default:	stopOperationWithError(fmImportSamplesError); 			break;
 	}
 }
-
-
 
 void cFileManager::autoSaveProjectToWorkspace()
 {
@@ -167,10 +170,15 @@ void cFileManager::autoSaveProjectToWorkspace()
 
 }
 
-
 void cFileManager::moveToNextOperationStep()
 {
 	currentOperationStep++;
+}
+
+
+void cFileManager::skipNextOperationStep()
+{
+	currentOperationStep+=2;
 }
 
 
@@ -190,6 +198,18 @@ void cFileManager::loadProjectFromWorkspaceInit()
 	// jezeli np ladowany jest starsza wersja pliku i struktura jest modyfikwoana
 	clearChangeFlags();
 
+	currentInstrument = 0;
+	currentSample = 0;
+
+
+	//todo to tu nie dziala bo ladowanie instrumentow nadpisuje to
+	mtProject.instrument[0].sample.length = 0;
+	mtProject.instrument[0].sample.address = sdram_sampleBank;
+	lastActiveInstrument = 0;
+
+	mtProject.used_memory = 0;
+
+
 	calcTotalMemoryToTransfer();
 	moveToNextOperationStep();
 }
@@ -197,7 +217,14 @@ void cFileManager::loadProjectFromWorkspaceInit()
 
 void cFileManager::loadProjectFromWorkspaceFinish()
 {
-	//projectEditor.loadProjectValues(); // jest odrazu po otwarciu pliku projektu, gdyz dalszy proces wymaga nie ktorych zmiennych
+	if(currentInstrument < INSTRUMENTS_COUNT-1)
+	{
+		currentInstrument++;
+		currentSample++;
+
+		currentOperationStep = 3; //xxx najwazniejsze !
+		return;
+	}
 
 	// jezeli projekt byl potwierany z Projects i kopiwoany do workspace to
 	// nadpisz nazwe projektu w pliku projektu na taka jak folderu z ktorego byl kopiwoany
@@ -211,7 +238,7 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 		// jezeli jest otwierany z folderu Projects to wymys nazwe otwieranego projektu
 		changesFlags.project = 1;
 		saveProjectFileToWorkspace();
-		//writeProjectFile(cProjectFileNameInWorkspace, &mtProject);
+		changesFlags.project = 0;
 	}
 
 	strcpy(mtConfig.startup.lastProjectName, currentProjectName);
@@ -232,14 +259,16 @@ void cFileManager::copyProjectsToWorkspaceInit()
 	clearWorkspace();
 	createWorkspaceDirs();
 
+	currentInstrument = 0;
+	currentSample = 0;
+
 	//
 	moveToNextOperationStep();
 }
 
 void cFileManager::copyProjectsToWorkspaceFinish()
 {
-
-	if(currentInstrument < INSTRUMENTS_COUNT)
+	if(currentInstrument < INSTRUMENTS_COUNT-1)
 	{
 		currentInstrument++;
 		currentSample++;
@@ -247,12 +276,6 @@ void cFileManager::copyProjectsToWorkspaceFinish()
 		currentOperationStep = 3; //xxx najwazniejsze !
 		return;
 	}
-	else
-	{
-		currentInstrument = 0;
-		currentSample = 0;
-	}
-
 
 
 	status = fmIdle;					// takie cwaniactwo pozwala wywolac otwieranie
@@ -270,12 +293,23 @@ void cFileManager::copyProjectsToWorkspaceFinish()
 //-------------------------------------------------------------------------------------------saveProjectToWorkspace
 void cFileManager::saveProjectToWorkspaceInit()
 {
+	currentInstrument = 0;
+	setCurrentInstrumentToFirstActiveAfterCurrent();
 
 	moveToNextOperationStep();
 }
 
 void cFileManager::saveProjectToWorkspaceFinish()
 {
+	if(currentInstrument < INSTRUMENTS_COUNT-1)
+	{
+		currentInstrument++;
+		currentSample++;
+
+		currentOperationStep = 3; //xxx najwazniejsze !
+		return;
+	}
+
 	clearChangeFlags();
 
 	if(status == fmSavingProjectToProjects)
@@ -285,7 +319,7 @@ void cFileManager::saveProjectToWorkspaceFinish()
 		return;
 	}
 
-	status = fmSaveEnd;
+	status = fmIdle; //xxx zamiast fmSaveEnd
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
 }
@@ -324,23 +358,21 @@ void cFileManager::copyWorkspaceToProjectsInit()
 		SD.mkdir(0, projectSavePath);
 	}
 
+	currentInstrument = 0;
+	currentSample = 0;
+
 	moveToNextOperationStep();
 }
 
 void cFileManager::copyWorkspaceToProjectsFinish()
 {
-	if(currentInstrument < INSTRUMENTS_COUNT)
+	if(currentInstrument < INSTRUMENTS_COUNT-1)
 	{
 		currentInstrument++;
 		currentSample++;
 
 		currentOperationStep = 3; //xxx najwazniejsze
 		return;
-	}
-	else
-	{
-		currentInstrument = 0;
-		currentSample = 0;
 	}
 
 
@@ -356,11 +388,41 @@ void cFileManager::importSamplesToWorkspaceInit()
 	moveToNextOperationStep();
 }
 
+void cFileManager::importSamplesToWorkspaceContinue()
+{
+	importCurrentFile++;
+
+	importSamplesSize +=  fileTransfer.getConvertedSampleSize();
+	fileTransfer.resetConvertedSampleSize();
+
+	if(currentSample < importEndSlot  && currentSample < INSTRUMENTS_COUNT && importCurrentFile < explorerListLength)
+	{
+		currentInstrument++;
+		currentSample++;
+
+		currentOperationStep = 0; //xxx najwazniejsze !
+		return;
+	}
+	else
+	{
+		currentInstrument = importStartSlot;
+		currentSample = importStartSlot;
+	}
+
+	moveToNextOperationStep();
+}
+
 void cFileManager::importSamplesToWorkspaceFinish()
 {
 
+	if(currentInstrument < importEndSlot && currentInstrument < INSTRUMENTS_COUNT-1)
+	{
+		currentInstrument++;
+		currentSample++;
 
-
+		currentOperationStep = 5; //xxx najwazniejsze !
+		return;
+	}
 
 	status = fmImportSamplesEnd;
 	currentOperationStep = 0;
@@ -462,7 +524,6 @@ bool cFileManager::importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint
 	importEndSlot = instrumentSlot + ((fileTo>fileFrom) ? (fileTo-fileFrom) : 0);
 	if(importEndSlot >= INSTRUMENTS_COUNT) importEndSlot = INSTRUMENTS_COUNT-1; //xxx
 
-	importStartAddress = mtProject.instrument[instrumentSlot].sample.address;
 
 	// oblicz od ktorego instrumentu trzeba bedzie przesunac pamiec
 	// potem zostanie obliczony offset o jaki trzeba bedzie przesunąć
@@ -638,6 +699,9 @@ void cFileManager::throwError(uint8_t source)
 	debugLog.forceRefresh();
 #endif
 
+	currentSample = 0;
+	currentInstrument = 0;
+	currentPattern = 0;
 
 	status = fmError;
 	currentOperationStep = 0;

@@ -13,7 +13,7 @@
 #include "fileTransfer.h"
 
 
-const uint16_t READ_WRITE_BUFOR_SIZE = 32768;
+
 
 extern uint8_t sdram_writeLoadBuffer[READ_WRITE_BUFOR_SIZE];
 
@@ -102,6 +102,10 @@ uint8_t cFileTransfer::loadSampleToMemory(const char* file, int16_t* memory, uin
 				return fileTransferFileNoValid;
 			}
 
+			//wylacznie konwersji kiedy format juz sie zgadza
+			if(sampleHead.bitsPerSample == 16 && sampleHead.numChannels == 1 && sampleHead.AudioFormat == 1) conversionEnabled = 0;
+			else  conversionEnabled = 1;
+
 			transferStep = 1;
 			memTotal = transferFile.available(); // pobiera wielkosc dopiero po przesciu przez header
 		}
@@ -113,7 +117,15 @@ uint8_t cFileTransfer::loadSampleToMemory(const char* file, int16_t* memory, uin
 
 		if(result >= 0)
 		{
-			convertedDataSize += convertAudioData(memory+convertedDataSize, result);
+			if(conversionEnabled)
+			{
+				convertedDataSize += convertAudioData(memory+convertedDataSize, result); // tu convertedDataSize to ilosc probek
+			}
+			else
+			{
+				memcpy(memory+convertedDataSize, sdram_writeLoadBuffer, result);
+				convertedDataSize += result/2;
+			}
 
 			memComplited += result;
 			if(memComplited >= memTotal || memComplited >= sampleHead.subchunk2Size) // przekroczenie mniejszego zatrzyma ladowanie
@@ -233,8 +245,14 @@ uint8_t cFileTransfer::copySample(const char* src, const char* dest)
 			{
 				transferFile2.seek(44);
 				memTotal = transferFile.available(); // pobiera wielkosc dopiero po przesciu przez header
+				memTotal = (memTotal < sampleHead.subchunk2Size) ? memTotal : sampleHead.subchunk2Size;
 				memStep = 32640; // wielokrotnosc 4*6*8 (rozne probkowania stereo w bajtach)
 				memComplited = 0;
+
+				//wylacznie konwersji kiedy format juz sie zgadza
+				if(sampleHead.bitsPerSample == 16 && sampleHead.numChannels == 1 && sampleHead.AudioFormat == 1) conversionEnabled = 0;
+				else  conversionEnabled = 1;
+
 				convertedDataSize = 0;
 				transferStep = 1;
 			}
@@ -243,6 +261,7 @@ uint8_t cFileTransfer::copySample(const char* src, const char* dest)
 //--------------------------------------------------------
 	if(transferStep == 1)
 	{
+		if(memTotal-memComplited < memStep) memStep = memTotal-memComplited;
 		int32_t read_result = transferFile.read(sdram_writeLoadBuffer, memStep);
 
 		if(read_result == 0) // koniec pliku - koncz kopiowanie
@@ -251,12 +270,21 @@ uint8_t cFileTransfer::copySample(const char* src, const char* dest)
 		}
 		else if(read_result > 0)
 		{
-			uint32_t converted = convertAudioData((int16_t*)sdram_writeLoadBuffer, read_result);
-			if(converted > 0)
+			int32_t converted_bytes;
+			if(conversionEnabled)
 			{
-				int32_t write_result = transferFile2.write(sdram_writeLoadBuffer, converted);
+				converted_bytes = convertAudioData((int16_t*)sdram_writeLoadBuffer, read_result) * 2; // liczba probek razy wielkosc probki !
+			}
+			else
+			{
+				converted_bytes = read_result;
+			}
 
-				convertedDataSize += converted;
+			if(converted_bytes > 0)
+			{
+				int32_t write_result = transferFile2.write(sdram_writeLoadBuffer, converted_bytes);
+
+				convertedDataSize += converted_bytes;  // tu convertedDataSize to ilsoc bajtow
 				memComplited += read_result;
 
 				if(write_result > 0)
@@ -265,7 +293,7 @@ uint8_t cFileTransfer::copySample(const char* src, const char* dest)
 					{
 						transferStep = 2;
 					}
-					else if (converted == write_result)
+					else if (converted_bytes == write_result)
 					{
 						return fileTransferInProgress;
 					}
@@ -278,33 +306,6 @@ uint8_t cFileTransfer::copySample(const char* src, const char* dest)
 		}
 		//else wysypuje error na koncu funkcji \/
 	}
-////--------------------------------------------------------
-//	if(transferStep == 1)
-//	{
-//		int32_t read_result = transferFile.read(sdram_writeLoadBuffer, memStep);
-//
-//		if(read_result == 0) // koniec pliku - koncz kopiowanie
-//		{
-//			transferStep = 2;
-//		}
-//		else if(read_result > 0)
-//		{
-//			int32_t write_result = transferFile2.write(sdram_writeLoadBuffer, read_result);
-//
-//			if(write_result >= 0)
-//			{
-//				memComplited += write_result;
-//				if(write_result < memStep) // koniec pliku
-//				{
-//					transferStep = 2;
-//				}
-//				else if (read_result == write_result)
-//				{
-//					return fileTransferInProgress;
-//				}
-//			}
-//		}
-//	}
 //--------------------------------------------------------
 	if(transferStep == 2)
 	{
@@ -379,11 +380,12 @@ void cFileTransfer::endTransfer()
 	transferFile.close();
 }
 
+uint32_t czas;
+
 //zwraca wielkosc w probkach
 uint32_t cFileTransfer::convertAudioData(int16_t* outPtr, int32_t input_size)
 {
 	uint8_t bytes_per_sample = (sampleHead.bitsPerSample/8)*sampleHead.numChannels;
-
 	if(input_size < bytes_per_sample) return 0; // nie obliczaj jezeli przekazano za malo danych
 
 	uint32_t samplesToConvert = input_size/bytes_per_sample;
