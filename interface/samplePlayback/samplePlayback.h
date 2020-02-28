@@ -156,7 +156,7 @@ public:
 
 	char zoomTextValue[7];
 
-	char sliceSelectTextValue[5];
+	char sliceSelectTextValue[11];
 	char sliceAdjustTextValue[9];
 
 	strTrackerSpectrum spectrum;
