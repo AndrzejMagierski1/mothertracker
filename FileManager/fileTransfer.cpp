@@ -423,7 +423,7 @@ bool cFileTransfer::checkSampleValid()
 	if((sampleHead.format != 1163280727)
 	||((sampleHead.AudioFormat != 1) && (sampleHead.AudioFormat != 3))
 	||((sampleHead.bitsPerSample != 16) && (sampleHead.bitsPerSample != 24) && (sampleHead.bitsPerSample != 32))
-	||((sampleHead.numChannels != 1) && (sampleHead.bitsPerSample != 2))
+	||((sampleHead.numChannels != 1) && (sampleHead.numChannels != 2))
 	||  sampleHead.sampleRate != 44100)
 	{
 		return false;

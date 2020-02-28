@@ -46,6 +46,9 @@ void cFileManager::update()
 
 	case fmImportSamplesToWorkspace:	updateImportSamplesToWorkspace(); 		break;
 	case fmPreviewSamplesFromSD:												break;
+	case fmDeleteInstruments:			updateDeleteInstruments(); 				break;
+
+	case fmLoadWorkspacePattern:		updateLoadWorkspacePattern(); 			break;
 
 	default: break;
 	}
@@ -153,13 +156,37 @@ void cFileManager::updateImportSamplesToWorkspace()	//fmImportSamplesToWorkspace
 		case 1:		copySamples();											break;
 		case 2:		createEmptyInstrumentInWorkspace(currentInstrument, explorerList[importCurrentFile]);	break;
 		case 3:		importSamplesToWorkspaceContinue(); 					break;
-		case 4:		importSampleMoveMemory();								break;
+		case 4:		moveSampleMemory();										break;
 		case 5:		loadInstrumentsFromWorkspace(); 						break; // instruments
 		case 6:		loadSamplesFromWorkspace();								break; // samples
 		case 7:		importSamplesToWorkspaceFinish();						break;
 		default:	stopOperationWithError(fmImportSamplesError); 			break;
 	}
 }
+
+void cFileManager::updateDeleteInstruments() //fmDeleteInstruments - 10
+{
+	switch(currentOperationStep)
+	{
+		case 0: 	deleteInstrumentsFromWorkspace();  					break;
+		case 1:		deleteSamplesFromWorkspace();						break;
+		case 2: 	moveSampleMemory();									break;
+		case 3:		deleteInstrumentsFromWorkspaceFinish();				break;
+		default:	stopOperationWithError(fmDeleteInstrumentsError); 	break;
+	}
+}
+
+void cFileManager::updateLoadWorkspacePattern() //fmLoadWorkspacePattern - 11
+{
+	switch(currentOperationStep)
+	{
+		case 0: 	savePatternToWorkspace();								 	break;
+		case 1: 	loadPatternFromWorkspace(currentPattern); 					break;
+		case 2:		loadPatternFromWorkspaceFinish();							break;
+		default:	stopOperationWithError(fmDeleteInstrumentsError); 			break;
+	}
+}
+
 
 void cFileManager::autoSaveProjectToWorkspace()
 {
@@ -429,6 +456,25 @@ void cFileManager::importSamplesToWorkspaceFinish()
 	currentOperation = fmNoOperation;
 }
 
+//---------------------------------------------------------------------------------------- deleteInstrumentsFromWorkspace
+void cFileManager::deleteInstrumentsFromWorkspaceFinish()
+{
+
+	status = fmDeleteInstrumentsEnd;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+}
+
+//---------------------------------------------------------------------------------------- loadPatternFromWorkspace
+void cFileManager::loadPatternFromWorkspaceFinish()
+{
+
+	status = fmIdle;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+}
+
+
 //====================================================================================
 //====================================================================================
 //====================================================================================
@@ -511,8 +557,8 @@ bool cFileManager::saveProjectToProjects(char* projectNameToSave)
 
 bool cFileManager::importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint8_t instrumentSlot)
 {
-	if(status != fmIdle) return false;
-	if(currentOperation != fmNoOperation) return false;
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
 	//sprawdzic czy zaznaczone wartosci / nazwy sa poprawne xxx
 
@@ -528,24 +574,10 @@ bool cFileManager::importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint
 	// oblicz od ktorego instrumentu trzeba bedzie przesunac pamiec
 	// potem zostanie obliczony offset o jaki trzeba bedzie przesunąć
 	// jesli 48 to znaczy ze nie ma sampli do przesuniecia
-	firstSlotToMoveInMemory = importEndSlot+1;
-
-
-	while(firstSlotToMoveInMemory < INSTRUMENTS_COUNT && mtProject.instrument[firstSlotToMoveInMemory].isActive == 0)
-	{
-		firstSlotToMoveInMemory++;
-
-		if(firstSlotToMoveInMemory >= INSTRUMENTS_COUNT)
-		{
-			break;
-		}
-	}
-
-
-
-
+	calcFirstSlotToMoveInMemory(importEndSlot+1);
 
 	// sprawdzenie czy wystarczy pamieci xxx
+
 
 
 	status = fmImportingSamplesToWorkspace;
@@ -553,6 +585,46 @@ bool cFileManager::importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint
 	currentOperation = fmImportSamplesToWorkspace;
 	return true;
 }
+
+
+bool cFileManager::deleteInstruments(uint8_t instrumentSlotFrom, uint8_t instrumentSlotTo)
+{
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
+
+	currentInstrument = instrumentSlotFrom;
+	currentSample = instrumentSlotFrom;
+	deleteEndInstrument = instrumentSlotTo;
+	deleteEndSample = instrumentSlotTo;
+
+	// oblicz od ktorego instrumentu trzeba bedzie przesunac pamiec
+	// potem zostanie obliczony offset o jaki trzeba bedzie przesunąć
+	// jesli 48 to znaczy ze nie ma sampli do przesuniecia
+	calcFirstSlotToMoveInMemory(instrumentSlotTo+1);
+
+
+
+	status = fmDeleteingInstruments;
+	currentOperationStep = 0;
+	currentOperation = fmDeleteInstruments;
+	return true;
+}
+
+
+
+bool cFileManager::loadWorkspacePattern(uint8_t index)
+{
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
+
+	currentPattern = index;
+
+	status = fmLoadingPatternFromWorkspace;
+	currentOperationStep = 0;
+	currentOperation = fmLoadWorkspacePattern;
+	return true;
+}
+
 
 //-----------------------------------------------------------------------------------------------------
 //-------------------------------------   FLAGI ZMIAN   -----------------------------------------------

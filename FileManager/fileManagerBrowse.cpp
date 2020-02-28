@@ -18,8 +18,8 @@
 
 bool cFileManager::browseSdCard(uint8_t* index)
 {
-	if(status != fmIdle) return false;
-	if(currentOperation != fmNoOperation) return false;
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
 	if(index == nullptr) // tylko odswiez
 	{
@@ -259,9 +259,14 @@ void cFileManager::goUpInActualPath()
 ///====================================================================================================
 void cFileManager::browseProjectsLocation()
 {
-
 	sdLocation.close();
-	sdLocation.open(cProjectsPath, O_READ);
+
+	if(!sdLocation.open(cProjectsPath, O_READ))
+	{
+		stopOperationWithError(fmBrowseProjectsError);
+		return;
+	}
+
 	uint8_t projectsfoundCount = sdLocation.createProjectsList(projectsList, list_length_max, 3000);
 	sdLocation.close();
 
@@ -281,6 +286,9 @@ void cFileManager::browseProjectsLocation()
 
 bool cFileManager::browseProjects()
 {
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
+
 	status = fmBrowsingProjects;
 	currentOperationStep = 0;
 	currentOperation = fmBrowseProjects;
@@ -299,6 +307,35 @@ uint8_t cFileManager::getProjectsList(char*** list)
 ///====================================================================================================
 void cFileManager::browseFirmwaresLocation()
 {
+	sdLocation.close();
+
+	if(!sdLocation.open("Firmware", O_READ))
+	{
+		stopOperationWithError(fmBrowseFirmwaresError);
+		return;
+	}
+
+	uint8_t locationFileCount = sdLocation.createFilesList(0, firmwaresList, list_length_max, 4000, 3);
+
+	sdLocation.close();
+
+	bool notSorted = 1;
+	while (notSorted)
+	{
+		notSorted = 0;
+		for (uint8_t a = 0; a < locationFileCount - 1; a++)
+		{
+			if (strcasecmp(firmwaresList[a],
+					firmwaresList[a + 1]) > 0)
+			{
+				std::swap(firmwaresList[a], firmwaresList[a+1]);
+
+				notSorted = 1;
+			}
+		}
+	}
+
+	firmwaresListLength = locationFileCount;
 
 
 	status = fmBrowseFirmwaresEnd;

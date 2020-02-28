@@ -100,6 +100,15 @@ void cSampleImporter::update()
 
 		newFileManager.clearStatus();
 	}
+	else if(managerStatus == fmDeleteInstrumentsEnd)
+	{
+		SI->listInstrumentSlots();
+		SI->showInstrumentsList();
+		SI->handleMemoryBar();
+		isBusy = 0;
+
+		newFileManager.clearStatus();
+	}
 	else if(managerStatus >=  fmError)
 	{
 		debugLog.addLine("Operation Error");
@@ -193,6 +202,7 @@ void cSampleImporter::start(uint32_t options)
 
 void cSampleImporter::stop()
 {
+	stopPlaying();
 	Encoder.setAcceleration(3);
 	keyboardManager.deinit();
 
@@ -228,7 +238,7 @@ void cSampleImporter::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButton4, preview);
 
 	//FM->setButtonObj(interfaceButton4, buttonPress, functChangeInstrument);
-	FM->setButtonObj(interfaceButton5, buttonPress, functInstrumentDelete);
+	//FM->setButtonObj(interfaceButton5, buttonPress, functInstrumentDelete);
 
 	FM->setButtonObj(interfaceButton6, buttonPress, functChangeInstrument);
 	FM->setButtonObj(interfaceButton7, buttonPress, functChangeInstrument);
@@ -354,37 +364,34 @@ static uint8_t functDelete(uint8_t state)
 	return 1;
 }
 
-//todo
+
 static  uint8_t functInstrumentDelete()
 {
+	if(SI->selectedPlace != 1) return 1;
 
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.stop();
 	}
-
 	SI->stopPlaying();
 
-	if(SI->selectedPlace == 1)
+	uint8_t deleteStart = SI->getSelectionStart(listInstruments);
+	uint8_t deleteEnd = SI->getSelectionEnd(listInstruments);
+
+	if(deleteStart >= INSTRUMENTS_COUNT|| deleteEnd >= INSTRUMENTS_COUNT || deleteEnd < deleteStart) return 1;
+
+	uint8_t instrToDeleteCount = 0;
+	for(uint8_t i = deleteStart; i <= deleteEnd; i++)
 	{
-		SI->deleteStart = SI->getSelectionStart(listInstruments);
-		SI->instrToDelete = 0;
-		SI->instrDeleted = 0;
-
-		for(uint32_t i = SI->deleteStart; i < (SI->deleteStart + SI->selectionLength[listInstruments]); i++)
+		if(mtProject.instrument[i].isActive)
 		{
-			if(mtProject.instrument[i].isActive)
-			{
-				SI->instrToDelete++;
-			}
+			instrToDeleteCount++;
 		}
+	}
 
-		if(SI->instrToDelete > 0)
-		{
-			//SI->deleteInProgress = 1;
-			//SI->deleteCurrentPos = SI->deleteStart;
-			//SI->isBusy = 1; // processDeleting() powinna zdjac blokade
-		}
+	if(instrToDeleteCount > 0)
+	{
+		newFileManager.deleteInstruments(SI->getSelectionStart(listInstruments), SI->getSelectionEnd(listInstruments));
 	}
 
 	return 1;
@@ -1217,7 +1224,7 @@ void cSampleImporter::playSdFile()
 	//if(currentCopyStatusFlag || currentLoadStatusFlag) return;
 //	if(!isWavFile(explorerNames[selectedFile])) return;
 
-	char file_path[255];
+//	char file_path[255];
 
 //	strcpy(file_path, actualPath);
 //	if(dirLevel > 0) strcat(file_path, "/");
@@ -1233,7 +1240,7 @@ void cSampleImporter::playSdFile()
 
 	newFileManager.previevSamplefromSD(selectedFile);
 
-//	playMode = playModeSdFile;
+	playMode = playModeSdFile;
 //
 //	SdFile wavHeader = SD.open(file_path);
 //

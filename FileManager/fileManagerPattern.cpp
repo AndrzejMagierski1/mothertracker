@@ -116,6 +116,7 @@ void cFileManager::savePatternToWorkspace()
 
 	if(saveStatus == fileTransferEnd)
 	{
+		sequencer.saveToFileDone();
 		moveToNextOperationStep();
 	}
 	else// if(saveStatus >= fileTransferError)
@@ -248,11 +249,6 @@ bool cFileManager::readPatternFile(const char * filePath, uint8_t *destPattern)
 	return loadStatus;
 }
 
-
-bool cFileManager::loadWorkspacePattern(uint8_t index)
-{
-
-}
 
 
 bool cFileManager::loadWorkspacePatternNow(uint8_t index)

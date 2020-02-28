@@ -86,7 +86,7 @@ void cProjectEditor::initDisplayControls()
 	strControlProperties prop;
 	prop.x = 1;
 	prop.y = 29;
-	prop.w = (800/4)-3;
+	prop.w = (800/8*3)-3;
 	prop.h = 394;
 	prop.style = controlStyleBackground;
 	prop.data = &projectList;

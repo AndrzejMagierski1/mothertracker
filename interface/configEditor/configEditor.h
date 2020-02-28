@@ -110,7 +110,7 @@ public:
 	void hideSecondSubmenu();
 
 
-	char* ptrfirmwareNamesList[firmware_list_max];
+	char** ptrfirmwareNamesList;
 	//char firmwareNamesList[firmware_list_max][firmware_name_length];
 	void listAllFirmwares();
 	void showFlashingWarning();

@@ -14,23 +14,23 @@ enum fileManagerStatus
 	fmBrowsingSamples,
 	fmBrowsingProjects,
 	fmBrowsingFirmwares,
-
 	fmImportingSamplesToWorkspace,
+	fmDeleteingInstruments,
 	fmPreviewSampleFromSd,
-
 	fmLoadingProjectfromWorkspace,
 	fmLoadingProjectFromProjects,
 	fmSavingProjectToWorkspace,
 	fmSavingProjectToProjects,
+	fmLoadingPatternFromWorkspace,
 
 	fmLoadEnd,
 	fmSaveEnd,
 	fmBrowseSamplesEnd,
 	fmBrowseProjectsEnd,
 	fmBrowseFirmwaresEnd,
-
 	fmImportSamplesEnd,
-
+	fmDeleteInstrumentsEnd,
+	fmLoadPatternEnd,
 
 	fmError,
 	fmLoadError,
@@ -40,6 +40,8 @@ enum fileManagerStatus
 	fmBrowseProjectsError,
 	fmBrowseFirmwaresError,
 	fmImportSamplesError,
+	fmDeleteInstrumentsError,
+	fmLoadPatternError,
 
 };
 
@@ -57,7 +59,9 @@ enum fileManagerOperation
 
 	fmImportSamplesToWorkspace,	//8
 	fmPreviewSamplesFromSD,		//9
+	fmDeleteInstruments,		//10
 
+	fmLoadWorkspacePattern,		//11
 
 
 };
@@ -113,11 +117,16 @@ public:
 	bool previevSamplefromSD(uint8_t index);
 	bool stopPrevievSamplefromSD();
 
+	bool deleteInstruments(uint8_t instrumentSlotFrom, uint8_t instrumentSlotTo);
+
+	bool loadWorkspacePattern(uint8_t index);
+
+
 	// to chyba trzeba zoptymalizowac/wrzucic w petle \/
 	bool createNewProjectInWorkspace();
 
 	// to na pozniej \/
-	bool loadWorkspacePattern(uint8_t index);
+
 	bool loadWorkspacePatternNow(uint8_t index);
 	bool saveWorkspacePatternNow(uint8_t index);
 	bool loadTrack(uint8_t pattIndex, uint8_t trackIndex);
@@ -193,6 +202,8 @@ private:
 	void updateBrowseProjects();
 	void updateBrowseFirmwares();
 	void updateImportSamplesToWorkspace();
+	void updateDeleteInstruments();
+	void updateLoadWorkspacePattern();
 
 	void autoSaveProjectToWorkspace();
 
@@ -237,6 +248,8 @@ private:
 
 	bool continuePatternProcess();
 
+	void loadPatternFromWorkspaceFinish();
+
 	bool writePatternFile(const char* filePath, uint8_t* sourcePattern);
 	bool readPatternFile(const char* filePath, uint8_t* destPattern);
 	bool saveActualPattern(const char* path, uint8_t index);
@@ -249,11 +262,13 @@ private:
 	void saveInstrumentsToWorkspace();
 	void copyInstruments();
 	void createEmptyInstrumentInWorkspace(uint8_t slot, char* name);
+	void deleteInstrumentsFromWorkspace();
+
 
 	bool loadInstrumentFormFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile);
 	bool writeInstrumentToFileStruct(strInstrument* instrument, strInstrumentFile* instrumentFile);
 
-
+	void calcFirstSlotToMoveInMemory(uint8_t calcStartSlot);
 	void setCurrentInstrumentToFirstActiveAfterCurrent();
 	bool continueInstrumentProcess();
 
@@ -264,24 +279,25 @@ private:
 
 	uint8_t currentInstrument = 0;
 	uint8_t lastActiveInstrument = 0; // do przydzielania pamieci
+	uint8_t deleteEndInstrument;
 
 	//samples ------------------------------------
 	void loadSamplesFromWorkspace();
 	void saveSamplesToWorkspace();
 	void copySamples();
+	void deleteSamplesFromWorkspace();
 
 	void completeLoadedSampleStruct(bool success);
 
 	void startSampleLoad();
-	void continueSampleLoad();
-	void continueSampleProcess();
+
+	void moveSampleMemory();
 
 	void importSamplesToWorkspaceInit();
-	//void importSamplesToWorkspace();
 	void importSamplesToWorkspaceContinue();
-	void importSampleMoveMemory();
 	void importSamplesToWorkspaceFinish();
 
+	void deleteInstrumentsFromWorkspaceFinish();
 
 	uint32_t getWaveSizeIfValid(const char *filename);
 	uint32_t calcWorkspaceSamplesSize();
@@ -292,6 +308,7 @@ private:
 	uint8_t sampleInProgress = 0;
 	uint8_t currentSample = 0;
 	uint32_t currentSampleSamplesCount = 0; // ilosc probek!!! (int16)
+	uint8_t deleteEndSample;
 
 	uint32_t importSamplesSize = 0;
 

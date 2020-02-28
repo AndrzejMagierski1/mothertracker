@@ -60,6 +60,28 @@ static uint8_t hideFlashingWarning();
 
 void cConfigEditor::update()
 {
+	uint8_t managerStatus = newFileManager.getStatus();
+
+
+	if(managerStatus == fmBrowseFirmwaresEnd)
+	{
+		firmwareFoundNum = newFileManager.getFirmwaresList(&ptrfirmwareNamesList);
+		CE->listAllFirmwares();
+		CE->flashingState = 1;
+		CE->changeLabelText(7, "Update");
+		CE->showConfigList5(0, firmwareFoundNum, ptrfirmwareNamesList);
+		CE->selectConfigList();
+		newFileManager.clearStatus();
+	}
+	else if(managerStatus >=  fmError)
+	{
+		debugLog.addLine("Opretion Error");
+		newFileManager.clearStatus();
+		//setDefaultScreenFunct();
+	}
+
+
+
 
 	if(processUpdate)
 	{
@@ -590,14 +612,8 @@ static uint8_t functSwitchModule(uint8_t button)
 
 void firmwareUpgradeActivate()
 {
-	CE->listAllFirmwares();
+	newFileManager.browseFirmwares();
 
-	CE->flashingState = 1;
-
-	CE->changeLabelText(7, "Update");
-	CE->showConfigList5(0, CE->firmwareFoundNum, CE->ptrfirmwareNamesList);
-
-	CE->selectConfigList();
 
 }
 

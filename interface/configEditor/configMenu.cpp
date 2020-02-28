@@ -355,7 +355,7 @@ void cConfigEditor::setLabelByMenuItemType(uint8_t label, menu_item_t type, uint
 		changeLabelText(label,"");
 		break;
 	case menuTypeItemActionButton:
-		changeLabelText(label,"Run");
+		changeLabelText(label,"Enter");
 		break;
 	}
 }

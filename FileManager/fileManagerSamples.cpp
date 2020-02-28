@@ -104,15 +104,7 @@ void cFileManager::copySamples()
 	}
 }
 
-void cFileManager::continueSampleProcess()
-{
-	currentSample++;
-	if(currentSample >= INSTRUMENTS_COUNT)
-	{
-		currentSample = 0;
-		moveToNextOperationStep();
-	}
-}
+
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     SAVE     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
@@ -127,7 +119,30 @@ void cFileManager::saveSamplesToWorkspace()
 //------------------------------------------------------------------------------------------------------------------
 
 
-void cFileManager::importSampleMoveMemory()
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     DELETE     ---------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::deleteSamplesFromWorkspace()
+{
+	for(uint8_t sampl = currentSample; sampl <= deleteEndSample; sampl++)
+	{
+		char file_path[WORKSPACE_SAMPLES_FORMAT_MAX_LENGTH];
+		sprintf(file_path, cWorkspaceSamplesFilesFormat, sampl+1);
+
+		if(SD.exists(file_path))
+		{
+			SD.remove(file_path);
+		}
+	}
+	moveToNextOperationStep();
+}
+
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     XXXX     -----------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::moveSampleMemory()
 {
 	moveToNextOperationStep();
 	if(firstSlotToMoveInMemory >= 48) // nie ma sampli do przesuniecia w pamieci
@@ -150,7 +165,29 @@ void cFileManager::importSampleMoveMemory()
 	}
 
 	// wyznacz przesuniecie i blok do przesuniecia
-	uint32_t memory_offset = fileTransfer.getConvertedSampleSize();
+
+	int32_t memory_offset;
+	if(currentOperation == fmImportSamplesToWorkspace)
+	{
+		memory_offset = fileTransfer.getConvertedSampleSize();
+	}
+	else if(currentOperation == fmDeleteInstruments)
+	{
+		if(currentInstrument > 0)
+		{
+			memory_offset = (mtProject.instrument[currentInstrument-1].sample.address
+							+ mtProject.instrument[currentInstrument-1].sample.length*2)
+							- mtProject.instrument[firstSlotToMoveInMemory].sample.address;
+		}
+		else
+		{
+			memory_offset = sdram_sampleBank - mtProject.instrument[firstSlotToMoveInMemory].sample.address;
+		}
+
+	}
+
+
+
 	uint8_t* begining_address = (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
 	uint8_t* end_address = (uint8_t*)mtProject.instrument[last_instrument_to_move].sample.address
 									+ mtProject.instrument[last_instrument_to_move].sample.length*2;

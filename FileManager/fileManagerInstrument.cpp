@@ -163,6 +163,29 @@ void cFileManager::createEmptyInstrumentInWorkspace(uint8_t slot, char* name)
 }
 
 //------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------     DELETE     ---------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
+void cFileManager::deleteInstrumentsFromWorkspace()
+{
+	for(uint8_t instr = currentInstrument; instr <= deleteEndInstrument; instr++)
+	{
+		char file_path[WORKSPACE_INSTRUMENTS_FORMAT_MAX_LENGTH];
+		sprintf(file_path, cWorkspaceInstrumentFileFormat, instr+1);
+
+		if(SD.exists(file_path))
+		{
+			SD.remove(file_path);
+		}
+
+		// clear project struct
+		setDefaultActiveInstrument(&mtProject.instrument[instr]);
+		mtProject.instrument[instr].sample.file_name[0] = 0;
+		mtProject.instrument[instr].isActive = 0;
+	}
+	moveToNextOperationStep();
+}
+
+//------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     XXXX     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
 
@@ -215,19 +238,25 @@ bool cFileManager::writeInstrumentToFileStruct(strInstrument* instrument, strIns
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------     XXXX     -----------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
-//
-//bool cFileManager::continueInstrumentProcess()
-//{
-//	currentInstrument++;
-//	if(currentInstrument >= INSTRUMENTS_COUNT)
-//	{
-//		currentInstrument = 0;
-//		moveToNextOperationStep();
-//		return false;
-//	}
-//	return true;
-//}
 
+
+void cFileManager::calcFirstSlotToMoveInMemory(uint8_t calcStartSlot)
+{
+	// oblicz od ktorego instrumentu trzeba bedzie przesunac pamiec
+	// potem zostanie obliczony offset o jaki trzeba bedzie przesunąć
+	// jesli 48 to znaczy ze nie ma sampli do przesuniecia
+	firstSlotToMoveInMemory = calcStartSlot;
+
+	while(firstSlotToMoveInMemory < INSTRUMENTS_COUNT && mtProject.instrument[firstSlotToMoveInMemory].isActive == 0)
+	{
+		firstSlotToMoveInMemory++;
+
+		if(firstSlotToMoveInMemory >= INSTRUMENTS_COUNT)
+		{
+			break;
+		}
+	}
+}
 
 
 void cFileManager::setCurrentInstrumentToFirstActiveAfterCurrent()
