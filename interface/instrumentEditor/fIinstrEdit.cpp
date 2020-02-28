@@ -198,6 +198,9 @@ void cInstrumentEditor::start(uint32_t options)
 		}
 		case mtInstEditModeEnv:
 		{
+			if ((!IE->editorInstrument->envelope[IE->selectedEnvelope].enable) && (IE->selectedPlace[IE->mode] > 1)) IE->selectedPlace[IE->mode] = 1;
+
+
 			if(paramsMode == mtInstEditMidi)
 			{
 				display.hideAllControls();
@@ -273,6 +276,19 @@ void cInstrumentEditor::clearDefaultScreenFunct()
 static uint8_t functSelectParams(uint8_t button, uint8_t state)
 {
 	uint8_t mode_places = button + IE->mode*10;
+
+	if(IE->mode == mtInstEditModeEnv)
+	{
+		if((button > 2) && (!IE->editorInstrument->envelope[IE->selectedEnvelope].enable)) return 1;
+	}
+
+	if( IE->mode == mtInstEditModeParams)
+	{
+		if( (button == 5) || (button == 6) )
+		{
+			if(!IE->editorInstrument->filterEnable) return 1;
+		}
+	}
 
 	if(IE->paramsMode == mtInstEditMidi) mode_places = button+20;
 
@@ -459,6 +475,17 @@ static  uint8_t functLeft()
 
 	if(IE->selectedPlace[IE->mode] > 0) IE->selectedPlace[IE->mode]--;
 
+	if( IE->mode == mtInstEditModeParams)
+	{
+		if(IE->selectedPlace[IE->mode] == 6)
+		{
+			if(!IE->editorInstrument->filterEnable)
+			{
+				IE->selectedPlace[IE->mode] = 4;
+			}
+		}
+	}
+
 	IE->activateLabelsBorder();
 
 	return 1;
@@ -470,7 +497,24 @@ static  uint8_t functRight()
 	if(IE->frameData.multiSelActiveNum != 0) return 1;
 
 	if(IE->selectedPlace[IE->mode] < IE->frameData.placesCount-1) IE->selectedPlace[IE->mode]++;
-	if((IE->selectedPlace[IE->mode] > 4) && ( IE->mode == mtInstEditModeEnv) && (IE->editorInstrument->envelope[IE->selectedEnvelope].loop)) IE->selectedPlace[IE->mode] = 4;
+
+	if( IE->mode == mtInstEditModeParams)
+	{
+		if(IE->selectedPlace[IE->mode] == 5)
+		{
+			if(!IE->editorInstrument->filterEnable)
+			{
+				IE->selectedPlace[IE->mode] = 7;
+			}
+		}
+	}
+
+	if(IE->mode == mtInstEditModeEnv)
+	{
+		if ((!IE->editorInstrument->envelope[IE->selectedEnvelope].enable) && (IE->selectedPlace[IE->mode] > 1)) IE->selectedPlace[IE->mode] = 1;
+		else if((IE->selectedPlace[IE->mode] > 4) && (IE->editorInstrument->envelope[IE->selectedEnvelope].loop)) IE->selectedPlace[IE->mode] = 4;
+	}
+
 	IE->activateLabelsBorder();
 
 	return 1;
@@ -723,6 +767,8 @@ void changeEnvState(int16_t value)
 
 void changeEnvAttack(int16_t value)
 {
+	if(!IE->editorInstrument->envelope[IE->selectedEnvelope].enable) return;
+
 	uint16_t localCurrentValue = IE->editorInstrument->envelope[IE->selectedEnvelope].attack > ENVELOPE_MICRO_RANGE ?
 			map(IE->editorInstrument->envelope[IE->selectedEnvelope].attack,ENVELOPE_MICRO_RANGE,ATTACK_MAX,ENVELOPE_MICRO_VAL,ENVELOPE_MICRO_VAL + ((ATTACK_MAX - ENVELOPE_MICRO_RANGE)/100)):
 			map(IE->editorInstrument->envelope[IE->selectedEnvelope].attack,0,ENVELOPE_MICRO_RANGE,0,ENVELOPE_MICRO_VAL);
@@ -742,6 +788,8 @@ void changeEnvAttack(int16_t value)
 
 void changeEnvDecay(int16_t value)
 {
+	if(!IE->editorInstrument->envelope[IE->selectedEnvelope].enable) return;
+
 	uint16_t localCurrentValue = IE->editorInstrument->envelope[IE->selectedEnvelope].decay > ENVELOPE_MICRO_RANGE ?
 			map(IE->editorInstrument->envelope[IE->selectedEnvelope].decay,ENVELOPE_MICRO_RANGE,DECAY_MAX,ENVELOPE_MICRO_VAL,ENVELOPE_MICRO_VAL + ((DECAY_MAX - ENVELOPE_MICRO_RANGE)/100)):
 			map(IE->editorInstrument->envelope[IE->selectedEnvelope].decay,0,ENVELOPE_MICRO_RANGE,0,ENVELOPE_MICRO_VAL);
@@ -761,6 +809,8 @@ void changeEnvDecay(int16_t value)
 
 void changeEnvSustain(int16_t value)
 {
+	if(!IE->editorInstrument->envelope[IE->selectedEnvelope].enable) return;
+
 	float fVal = value * 0.01;
 
 	if(IE->editorInstrument->envelope[IE->selectedEnvelope].sustain + fVal < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].sustain = 0;
@@ -774,6 +824,8 @@ void changeEnvSustain(int16_t value)
 
 void changeEnvRelease(int16_t value)
 {
+	if(!IE->editorInstrument->envelope[IE->selectedEnvelope].enable) return;
+
 	uint16_t localCurrentValue = IE->editorInstrument->envelope[IE->selectedEnvelope].release > ENVELOPE_MICRO_RANGE ?
 			map(IE->editorInstrument->envelope[IE->selectedEnvelope].release,ENVELOPE_MICRO_RANGE,RELEASE_MAX,ENVELOPE_MICRO_VAL,ENVELOPE_MICRO_VAL + ((RELEASE_MAX - ENVELOPE_MICRO_RANGE)/100)):
 			map(IE->editorInstrument->envelope[IE->selectedEnvelope].release,0,ENVELOPE_MICRO_RANGE,0,ENVELOPE_MICRO_VAL);
@@ -793,6 +845,8 @@ void changeEnvRelease(int16_t value)
 
 void changeEnvAmount(int16_t value)
 {
+	if(!IE->editorInstrument->envelope[IE->selectedEnvelope].enable) return;
+
 	float fVal = value * 0.01;
 
 	if(IE->editorInstrument->envelope[IE->selectedEnvelope].amount + fVal < 0) IE->editorInstrument->envelope[IE->selectedEnvelope].amount = 0;
@@ -938,6 +992,8 @@ void changeFilterCutOff(int16_t value)
 //	if(bgB + value < 0) bgB = 0;
 //	else if(bgB + value > 128 ) bgB = 128;
 //	else bgB += value;
+
+	if(!IE->editorInstrument->filterEnable) return;
 	float fVal = value * 0.01;
 
 	if(IE->editorInstrument->cutOff + fVal < MIN_CUTOFF) IE->editorInstrument->cutOff = MIN_CUTOFF;
@@ -958,6 +1014,8 @@ void changeFilterCutOff(int16_t value)
 
 void changeFilterResonance(int16_t value)
 {
+	if(!IE->editorInstrument->filterEnable) return;
+
 	float fVal = value * (RESONANCE_MAX-RESONANCE_MIN)/100;
 
 	if(IE->editorInstrument->resonance + fVal < RESONANCE_MIN) IE->editorInstrument->resonance = RESONANCE_MIN;

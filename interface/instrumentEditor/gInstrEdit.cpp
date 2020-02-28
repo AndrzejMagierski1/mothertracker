@@ -26,6 +26,28 @@ static uint16_t framesPlacesAutomation[7][4] =
 	{(800/8)*7+1, 29, 800/8-3, 391},
 };
 
+static uint32_t localActiveBarColors[] =
+{
+	0xFFFFFF, // kolor glowny
+	0xff0000, // kolor dodatkowy 1 czer
+	0x00ff00, // kolor dodatkowy 2 ziel
+	0x080808, // kontener
+	0x0a0a0a, // tlo
+};
+
+static uint32_t localInactiveBarColors[] =
+{
+	0x222222, // kolor glowny
+	0xff0000, // kolor dodatkowy 1 czer
+	0x00ff00, // kolor dodatkowy 2 ziel
+	0x080808, // kontener
+	0x0a0a0a, // tlo
+};
+
+
+
+
+
 void cInstrumentEditor::initDisplayControls()
 {
 	strControlProperties prop2;
@@ -97,7 +119,7 @@ void cInstrumentEditor::initDisplayControls()
 
 		if(label[i] == nullptr) label[i] = display.createControl<cLabel>(&prop2);
 
-		prop2.colors = nullptr;
+		prop2.colors = localActiveBarColors;
 		prop2.x = (800/8)*i+1;
 		prop2.y = 29;
 		prop2.w = 800/8-3;
@@ -261,6 +283,12 @@ void cInstrumentEditor::showInstrumentEnv()
 	showTitleBar();
 	refreshFramePosition();
 
+	for ( uint8_t i = 0; i < 8; i++ )
+	{
+		display.setControlColors(label[i],interfaceGlobals.activeLabelsColors);
+		display.setControlColors(barControl[i],localActiveBarColors);
+	}
+
 	//**********************************   WSPOLNE DLA LFO I ENV
 	display.setControlHide(label[0]);
 	display.setControlHide(label[1]);
@@ -393,6 +421,12 @@ void cInstrumentEditor::showInstrumentParams()
 
 	refreshFramePosition();
 
+	for ( uint8_t i = 0; i < 8; i++ )
+	{
+		display.setControlColors(label[i],interfaceGlobals.activeLabelsColors);
+		display.setControlColors(barControl[i],localActiveBarColors);
+	}
+
 	display.setControlValue(label[0], 1);
 	display.setControlValue(label[1], 1);
 	display.setControlValue(label[2], 1);
@@ -444,6 +478,7 @@ void cInstrumentEditor::showInstrumentParams()
 	display.setControlShow(barControl[5]);
 	display.setControlShow(barControl[6]);
 	display.setControlShow(barControl[7]);
+
 
 	display.setControlHide(envelopesListControl);
 	display.setControlHide(envStateListControl);
@@ -585,12 +620,18 @@ void cInstrumentEditor::showEnvState()
 
 void cInstrumentEditor::showEnvAttack()
 {
-	uint8_t length;
+	sprintf(envAttack,"%.3fs",(float)(editorInstrument->envelope[selectedEnvelope].attack/1000.0f));
 
-	sprintf(envAttack,"%.3f",(float)(editorInstrument->envelope[selectedEnvelope].attack/1000.0f));
-	length=strlen(envAttack);
-	envAttack[length]='s';
-	envAttack[length+1]=0;
+	if(editorInstrument->envelope[selectedEnvelope].enable)
+	{
+		display.setControlColors(label[3], interfaceGlobals.activeLabelsColors);
+		display.setControlColors(barControl[3],localActiveBarColors );
+	}
+	else
+	{
+		display.setControlColors(label[3], interfaceGlobals.inactiveLabelsColors);
+		display.setControlColors(barControl[3], localInactiveBarColors);
+	}
 
 	display.setControlText2(label[3], envAttack);
 	display.refreshControl(label[3]);
@@ -606,12 +647,18 @@ void cInstrumentEditor::showEnvAttack()
 
 void cInstrumentEditor::showEnvDecay()
 {
-	uint8_t length;
+	sprintf(envDecay,"%.3fs",(float)(editorInstrument->envelope[selectedEnvelope].decay/1000.0f));
 
-	sprintf(envDecay,"%.3f",(float)(editorInstrument->envelope[selectedEnvelope].decay/1000.0f));
-	length=strlen(envDecay);
-	envDecay[length]='s';
-	envDecay[length+1]=0;
+	if(editorInstrument->envelope[selectedEnvelope].enable)
+	{
+		display.setControlColors(label[4], interfaceGlobals.activeLabelsColors);
+		display.setControlColors(barControl[4],localActiveBarColors );
+	}
+	else
+	{
+		display.setControlColors(label[4], interfaceGlobals.inactiveLabelsColors);
+		display.setControlColors(barControl[4],localInactiveBarColors );
+	}
 
 	display.setControlText2(label[4], envDecay);
 	display.refreshControl(label[4]);
@@ -627,6 +674,18 @@ void cInstrumentEditor::showEnvDecay()
 void cInstrumentEditor::showEnvSustain()
 {
 	sprintf(envSustain,"%.0f",(float)(editorInstrument->envelope[selectedEnvelope].sustain*100));
+
+	if(editorInstrument->envelope[selectedEnvelope].enable)
+	{
+		display.setControlColors(label[5], interfaceGlobals.activeLabelsColors);
+		display.setControlColors(barControl[5],localActiveBarColors );
+	}
+	else
+	{
+		display.setControlColors(label[5], interfaceGlobals.inactiveLabelsColors);
+		display.setControlColors(barControl[5],localInactiveBarColors );
+	}
+
 	display.setControlText2(label[5], envSustain);
 	display.refreshControl(label[5]);
 
@@ -636,12 +695,18 @@ void cInstrumentEditor::showEnvSustain()
 
 void cInstrumentEditor::showEnvRelease()
 {
-	uint8_t length;
+	sprintf(envRelease,"%.3fs",(float)(editorInstrument->envelope[selectedEnvelope].release/1000.0f));
 
-	sprintf(envRelease,"%.3f",(float)(editorInstrument->envelope[selectedEnvelope].release/1000.0f));
-	length=strlen(envRelease);
-	envRelease[length]='s';
-	envRelease[length+1]=0;
+	if(editorInstrument->envelope[selectedEnvelope].enable)
+	{
+		display.setControlColors(label[6], interfaceGlobals.activeLabelsColors);
+		display.setControlColors(barControl[6],localActiveBarColors );
+	}
+	else
+	{
+		display.setControlColors(label[6], interfaceGlobals.inactiveLabelsColors);
+		display.setControlColors(barControl[6],localInactiveBarColors );
+	}
 
 	display.setControlText2(label[6], envRelease);
 	display.refreshControl(label[6]);
@@ -657,6 +722,18 @@ void cInstrumentEditor::showEnvRelease()
 void cInstrumentEditor::showEnvAmount()
 {
 	sprintf(envAmount,"%.0f",(float)(editorInstrument->envelope[selectedEnvelope].amount*100));
+
+	if(editorInstrument->envelope[selectedEnvelope].enable)
+	{
+		display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
+		display.setControlColors(barControl[7],localActiveBarColors );
+	}
+	else
+	{
+		display.setControlColors(label[7], interfaceGlobals.inactiveLabelsColors);
+		display.setControlColors(barControl[7],localInactiveBarColors );
+	}
+
 	display.setControlText2(label[7], envAmount);
 	display.refreshControl(label[7]);
 
@@ -789,6 +866,9 @@ void cInstrumentEditor::showFilterType()
 	//display.setControlValue(IE->filterModeListControl, IE->filterModeListPos);
 	display.setControlShow(filterModeListControl);
 	display.refreshControl(filterModeListControl);
+
+	showFilterCutOff();
+	showFilterResonance();
 }
 
 void cInstrumentEditor::showFilterCutOff()
@@ -796,6 +876,18 @@ void cInstrumentEditor::showFilterCutOff()
 	uint8_t temp_cutoff = (editorInstrument->cutOff*100);
 
 	sprintf(cutoffVal,"%d", temp_cutoff);
+
+	if(editorInstrument->filterEnable)
+	{
+		display.setControlColors(label[5], interfaceGlobals.activeLabelsColors);
+		display.setControlColors(barControl[5],localActiveBarColors );
+	}
+	else
+	{
+		display.setControlColors(label[5], interfaceGlobals.inactiveLabelsColors);
+		display.setControlColors(barControl[5], localInactiveBarColors);
+	}
+
 	display.setControlText2(label[5], cutoffVal);
 	display.refreshControl(label[5]);
 
@@ -808,6 +900,19 @@ void cInstrumentEditor::showFilterResonance()
 	uint8_t temp_resonance = ((editorInstrument->resonance - RESONANCE_MIN)/(RESONANCE_MAX-RESONANCE_MIN))*100;
 
 	sprintf(resonanceVal,"%d", temp_resonance);
+
+	if(editorInstrument->filterEnable)
+	{
+		display.setControlColors(label[6], interfaceGlobals.activeLabelsColors);
+		display.setControlColors(barControl[6],localActiveBarColors );
+	}
+	else
+	{
+		display.setControlColors(label[6], interfaceGlobals.inactiveLabelsColors);
+		display.setControlColors(barControl[6], localInactiveBarColors);
+	}
+
+
 	display.setControlText2(label[6], resonanceVal);
 	display.refreshControl(label[6]);
 
