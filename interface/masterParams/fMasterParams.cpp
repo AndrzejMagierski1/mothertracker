@@ -306,6 +306,8 @@ static  uint8_t functDown()
 
 static  uint8_t functPlayAction()
 {
+	MP->turnOffRadio();
+
 	if(sequencer.getSeqState() == Sequencer::SEQ_STATE_STOP)
 	{
 		sequencer.play();
@@ -668,11 +670,11 @@ void cMasterParams::calcTrackLevel(uint8_t n)
 	{
 		trackLevel[n].measureCounter = 0;
 
-		uint8_t localMeasureSum = trackLevel[n].measureSum/0.0085f;
+		uint16_t localMeasureSum = trackLevel[n].measureSum * 100;
 
 		if(localMeasureSum < 1) localMeasureSum = 1;
 
-		uint8_t localLevel = logarithmicLevelTab[localMeasureSum - 1];
+		uint8_t localLevel = masterLevelTab[localMeasureSum - 1];
 /*
  		bardziej rozbudowane obliczenia dla zrozumienia 0.0085 =
 		//float localMeasureSum = (measureSum/10)/0.85;
@@ -680,12 +682,13 @@ void cMasterParams::calcTrackLevel(uint8_t n)
 //
 //		uint8_t localLevel = logarithmicLevelTab[ (uint8_t)(localMeasureSum * LOGHARITMIC_LEVEL_TAB_SIZE) - 1];
 */
+		if(n == 0) Serial.printf("MeasureSum: %0.03f, localLevel: %d, trackLevel: %d\n",trackLevel[n].measureSum, localLevel, trackLevel[n].value);
 		if(((trackLevel[n].timer > 500 )) && (trackLevel[n].value != 0 ))
 		{
 			trackLevel[n].timer = 0;
 			trackLevel[n].value--;
 		}
-		if(localLevel > trackLevel[n].value) trackLevel[n].value = localLevel;
+		if(localLevel > (trackLevel[n].value + 1 )) trackLevel[n].value = localLevel;
 
 		trackLevel[n].measureSum = 0;
 	}

@@ -516,8 +516,11 @@ void cMasterParams::showLevelBar(uint8_t n)
 	display.setControlColors(barControl[n], levelBarColors[n]);
 	display.setControlValue(barControl[n], trackLevel[n].value);
 
+	constexpr uint8_t RED_COLOR_LEVEL = 95;
+	constexpr uint8_t LEVEL_TRESHOLD_UP = 80;
+	constexpr uint8_t LEVEL_TRESHOLD_LOW = 60;
 
-	if(trackLevel[n].value < 85)
+	if(trackLevel[n].value < RED_COLOR_LEVEL)
 	{
 		if(trackLevel[n].redColorTimer < 350)
 		{
@@ -525,14 +528,14 @@ void cMasterParams::showLevelBar(uint8_t n)
 		}
 		else
 		{
-			if(trackLevel[n].value > 70)
+			if(trackLevel[n].value > LEVEL_TRESHOLD_UP)
 			{
-				uint8_t green = map(trackLevel[n].value,70,85,((one_true_green&0xff00)>>8),0);
+				uint8_t green = map(trackLevel[n].value,LEVEL_TRESHOLD_UP,RED_COLOR_LEVEL,((one_true_green&0xff00)>>8),0);
 				levelBarColors[n][0] = (one_true_red&0xff0000) | (green << 8);
 			}
-			else if(trackLevel[n].value > 60)
+			else if(trackLevel[n].value > LEVEL_TRESHOLD_LOW)
 			{
-				uint8_t red = map(trackLevel[n].value,60,70,0,((one_true_red&0xff0000)>>16));
+				uint8_t red = map(trackLevel[n].value,LEVEL_TRESHOLD_LOW,LEVEL_TRESHOLD_UP,0,((one_true_red&0xff0000)>>16));
 				levelBarColors[n][0] = (red << 16) | (one_true_green&0xff00);
 			}
 			else
