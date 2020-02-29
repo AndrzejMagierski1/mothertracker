@@ -183,7 +183,7 @@ void cFileManager::updateLoadWorkspacePattern() //fmLoadWorkspacePattern - 11
 		case 0: 	savePatternToWorkspace();								 	break;
 		case 1: 	loadPatternFromWorkspace(currentPattern); 					break;
 		case 2:		loadPatternFromWorkspaceFinish();							break;
-		default:	stopOperationWithError(fmDeleteInstrumentsError); 			break;
+		default:	stopOperationWithError(fmLoadPatternError); 			break;
 	}
 }
 
