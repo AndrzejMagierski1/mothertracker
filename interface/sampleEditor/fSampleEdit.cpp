@@ -147,11 +147,11 @@ void cSampleEditor::resetAllEffectsState()
 
 void cSampleEditor::refreshSampleApplying()
 {
-	save_stages_t status;
+	mtEffector::enSaveStatus status;
 
 	status = effector.getSaveStatus();
 
-	if(status == saving)
+	if(status == mtEffector::enSaveStatus::saving)
 	{
 		uint8_t progress = effector.saveUpdate();
 
@@ -164,7 +164,7 @@ void cSampleEditor::refreshSampleApplying()
 			handleQueueProgress(&taskQueue, progress, "Undoing");
 		}
 	}
-	else if(status == saveDone)
+	else if(status == mtEffector::enSaveStatus::saveDone)
 	{
 		resetAllEffectsState();
 
@@ -185,7 +185,7 @@ void cSampleEditor::refreshSampleApplying()
 		}
 
 		refreshSpectrum = 1;
-		effector.setSaveStatus(waitingForSaveInit);
+		effector.setSaveStatus(mtEffector::enSaveStatus::waitingForSaveInit);
 
 		fileManager.setInstrumentChangeFlag(localInstrNum);
 	}

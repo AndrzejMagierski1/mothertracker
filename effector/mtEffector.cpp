@@ -1,12 +1,12 @@
 #include "mtEffector.h"
 #include "mtPadBoard.h"
-
+#include "wavHeaderReader.h"
 mtEffector effector;
 
 void mtEffector::loadSample(const char *patch)
 {
-	fileByteSaved = 2 * fileManager.samplesLoader.waveLoader.start(patch,applyBuffer);
-	if(fileByteSaved == 0) return; //todo: obsluga bledu
+	bytesSaved = 2 * fileManager.samplesLoader.waveLoader.start(patch,applyBuffer);
+	if(bytesSaved == 0) return; //todo: obsluga bledu
 	startAddress=applyBuffer;
 }
 
@@ -18,8 +18,8 @@ void mtEffector::play(uint16_t start, uint16_t stop, uint8_t pad)
 
 	if(voiceToTake < 0) return;
 
-	length =(uint32_t)((uint32_t)stop * (float)(fileByteSaved/2)/MAX_16BIT);
-	addressShift = (uint32_t)( (uint32_t)start * (float)(fileByteSaved/2)/MAX_16BIT);
+	length =(uint32_t)((uint32_t)stop * (float)(bytesSaved/2)/MAX_16BIT);
+	addressShift = (uint32_t)( (uint32_t)start * (float)(bytesSaved/2)/MAX_16BIT);
 
 	mtPadBoard.startInstrument(pad, startAddress + addressShift, length - addressShift);
 }
@@ -42,18 +42,18 @@ void mtEffector::trim(uint16_t a, uint16_t b)
 	uint32_t lengthShift;
 	int16_t * localEffectAddress = previewBuffer;
 
-	addressShift = (uint32_t)((uint32_t)a * (float)(fileByteSaved/2)/MAX_16BIT);
-	lengthShift = (uint32_t)((uint32_t)b * (float)(fileByteSaved)/MAX_16BIT);
+	addressShift = (uint32_t)((uint32_t)a * (float)(bytesSaved/2)/MAX_16BIT);
+	lengthShift = (uint32_t)((uint32_t)b * (float)(bytesSaved)/MAX_16BIT);
 
-	undoCropLength = fileByteSaved;
+	undoCropLength = bytesSaved;
 	undoCropStart = startAddress;
 
 	startAddress += addressShift;
-	fileByteSaved = (lengthShift - 2*addressShift);
+	bytesSaved = (lengthShift - 2*addressShift);
 
-	affterEffectLength = fileByteSaved;
+	affterEffectLength = bytesSaved;
 
-	memcpy(localEffectAddress,startAddress,fileByteSaved);
+	memcpy(localEffectAddress,startAddress,bytesSaved);
 }
 
 void mtEffector::clearMainBuffer()
@@ -67,7 +67,7 @@ void mtEffector::clearMainBuffer()
 
 void mtEffector::undoTrim()
 {
-	fileByteSaved = undoCropLength;
+	bytesSaved = undoCropLength;
 	startAddress = undoCropStart;
 }
 
@@ -87,8 +87,8 @@ void mtEffector::reverse(uint16_t start, uint16_t end)
 	undoReverseStart = start;
 	undoReverseEnd = end;
 
-	localStartShift = (uint32_t)((uint32_t)start * (float)(fileByteSaved/2)/MAX_16BIT);
-	localEndShift = (uint32_t)((uint32_t)end * (float)(fileByteSaved/2)/MAX_16BIT);
+	localStartShift = (uint32_t)((uint32_t)start * (float)(bytesSaved/2)/MAX_16BIT);
+	localEndShift = (uint32_t)((uint32_t)end * (float)(bytesSaved/2)/MAX_16BIT);
 
 	localStartAddress = startAddress + localStartShift;
 	localEndAddress = startAddress + localEndShift;
@@ -100,23 +100,23 @@ void mtEffector::reverse(uint16_t start, uint16_t end)
 		localEndAddress--;
 	}
 
-	affterEffectLength = fileByteSaved;
+	affterEffectLength = bytesSaved;
 }
 
 void mtEffector::save(const char *patch)
 {
-	if((saveStage == waitingForSaveInit) || (saveStage == saveDone))
+	if((saveStatus == enSaveStatus::waitingForSaveInit) || (saveStatus == enSaveStatus::saveDone))
 	{
 		if(SD.exists(patch)) SD.remove(patch);
 
-		saveLength=fileByteSaved;
-		saveLengthMax=fileByteSaved;
+		saveLength=bytesSaved;
+		saveLengthMax=bytesSaved;
 
 		file = SD.open(patch, FILE_WRITE);
 
 		file.seek(44);
 		currentAddress=startAddress;
-		saveStage = saving;
+		saveStatus = enSaveStatus::saving;
 	}
 }
 
@@ -124,7 +124,7 @@ uint8_t mtEffector::saveUpdate()
 {
 	uint8_t progress = 0;
 
-	if(saveStage == saving)
+	if(saveStatus == enSaveStatus::saving)
 	{
 		if(saveLength >= 2048)
 		{
@@ -136,7 +136,7 @@ uint8_t mtEffector::saveUpdate()
 		{
 			file.write(currentAddress,saveLength);
 			writeOutHeader();
-			saveStage = saveDone;
+			saveStatus = enSaveStatus::saveDone;
 			saveLength = 0;
 		}
 
@@ -147,14 +147,14 @@ uint8_t mtEffector::saveUpdate()
 	return progress;
 }
 
-save_stages_t mtEffector::getSaveStatus()
+mtEffector::enSaveStatus mtEffector::getSaveStatus()
 {
-	return saveStage;
+	return saveStatus;
 }
 
-void mtEffector::setSaveStatus(save_stages_t status)
+void mtEffector::setSaveStatus(enSaveStatus status)
 {
-	saveStage = status;
+	saveStatus = status;
 }
 
 void mtEffector::setEffects()
@@ -164,63 +164,38 @@ void mtEffector::setEffects()
 	int16_t * localAddress = startAddress ;
 	int16_t * localEffectAddress = startAddressEffect;
 
-	fileByteSaved = 2*affterEffectLength;
+	bytesSaved = 2*affterEffectLength;
 
 	memcpy(localAddress,localEffectAddress,2*localLength);
 }
 
 void mtEffector::writeOutHeader()
 {
-	Subchunk2Size = fileByteSaved;
-	ChunkSize = Subchunk2Size + 36;
+	strWavFileHeader header;
+
+	header.chunkId = 0x46464952; 																// "RIFF"
+	header.chunkSize = bytesSaved + 36;
+	header.format = 0x45564157;																	// "WAVE"
+	header.subchunk1Id = 0x20746d66;															// "fmt "
+	header.subchunk1Size = 16;
+	header.AudioFormat = 1;
+	header.numChannels = 1;
+	header.sampleRate = 44100;
+	header.bitsPerSample = 16;
+	header.byteRate = header.sampleRate * header.numChannels * (header.bitsPerSample/8);
+	header.blockAlign = header.numChannels * (header.bitsPerSample/8);
+	header.subchunk2Id = 0x61746164;															// "data"
+	header.subchunk2Size = bytesSaved;
+
+
 	file.seek(0);
-	file.write("RIFF",4);
-	byte1 = ChunkSize & 0xff;
-	byte2 = (ChunkSize >> 8) & 0xff;
-	byte3 = (ChunkSize >> 16) & 0xff;
-	byte4 = (ChunkSize >> 24) & 0xff;
-	file.write(byte1);  file.write(byte2);  file.write(byte3);  file.write(byte4);
-	file.write("WAVE",4);
-	file.write("fmt ",4);
-	byte1 = Subchunk1Size & 0xff;
-	byte2 = (Subchunk1Size >> 8) & 0xff;
-	byte3 = (Subchunk1Size >> 16) & 0xff;
-	byte4 = (Subchunk1Size >> 24) & 0xff;
-	file.write(byte1);  file.write(byte2);  file.write(byte3);  file.write(byte4);
-	byte1 = AudioFormat & 0xff;
-	byte2 = (AudioFormat >> 8) & 0xff;
-	file.write(byte1);  file.write(byte2);
-	byte1 = numChannels & 0xff;
-	byte2 = (numChannels >> 8) & 0xff;
-	file.write(byte1);  file.write(byte2);
-	byte1 = sampleRate & 0xff;
-	byte2 = (sampleRate >> 8) & 0xff;
-	byte3 = (sampleRate >> 16) & 0xff;
-	byte4 = (sampleRate >> 24) & 0xff;
-	file.write(byte1);  file.write(byte2);  file.write(byte3);  file.write(byte4);
-	byte1 = byteRate & 0xff;
-	byte2 = (byteRate >> 8) & 0xff;
-	byte3 = (byteRate >> 16) & 0xff;
-	byte4 = (byteRate >> 24) & 0xff;
-	file.write(byte1);  file.write(byte2);  file.write(byte3);  file.write(byte4);
-	byte1 = blockAlign & 0xff;
-	byte2 = (blockAlign >> 8) & 0xff;
-	file.write(byte1);  file.write(byte2);
-	byte1 = bitsPerSample & 0xff;
-	byte2 = (bitsPerSample >> 8) & 0xff;
-	file.write(byte1);  file.write(byte2);
-	file.write("data",4);
-	byte1 = Subchunk2Size & 0xff;
-	byte2 = (Subchunk2Size >> 8) & 0xff;
-	byte3 = (Subchunk2Size >> 16) & 0xff;
-	byte4 = (Subchunk2Size >> 24) & 0xff;
-	file.write(byte1);  file.write(byte2);  file.write(byte3);  file.write(byte4);
+	file.write(&header,sizeof(header));
 	file.close();
 }
 
 int32_t mtEffector::getLength()
 {
-	return fileByteSaved;
+	return bytesSaved;
 }
 
 int16_t * mtEffector:: getAddress()

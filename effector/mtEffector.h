@@ -14,22 +14,22 @@
 
 #define UNDO_QUEUE		10
 
-typedef enum
-{
-	waitingForSaveInit,
-	saving,
-	saveDone
-}save_stages_t;
+
 
 class mtEffector
 {
-
-
 public:
-	mtEffector(void)
+	mtEffector()
 	{
 		startAddressEffect = previewBuffer;
 	}
+
+	enum struct enSaveStatus
+	{
+		waitingForSaveInit,
+		saving,
+		saveDone
+	};
 
 	void loadSample(const char *patch);
 	void play(uint16_t start, uint16_t stop, uint8_t pad);
@@ -41,8 +41,8 @@ public:
 	void undoReverse();
 	void save(const char *patch);
 	uint8_t saveUpdate();
-	save_stages_t getSaveStatus();
-	void setSaveStatus(save_stages_t status);
+	enSaveStatus getSaveStatus();
+	void setSaveStatus(enSaveStatus status);
 	void setEffects();
 	void clearMainBuffer();
 
@@ -69,22 +69,12 @@ private:
 	int16_t * startAddressEffect;
 	uint32_t affterEffectLength; // w probkach
 
-	uint32_t ChunkSize = 0L;
-	uint32_t Subchunk1Size = 16;
-	uint32_t AudioFormat = 1;
-	uint32_t numChannels = 1;
-	uint32_t sampleRate = 44100;
-	uint32_t bitsPerSample = 16;
-	uint32_t byteRate = sampleRate*numChannels*(bitsPerSample/8);
-	uint32_t blockAlign = numChannels*bitsPerSample/8;
-	uint32_t Subchunk2Size = 0;
-	int32_t fileByteSaved = 0; // w bajtach
-	uint32_t NumSamples = 0;
-	uint8_t byte1, byte2, byte3, byte4;
+
+	int32_t bytesSaved = 0; // w bajtach
 
 	uint32_t saveLength;
 	uint32_t saveLengthMax;
-	save_stages_t saveStage;
+	enSaveStatus saveStatus;
 
 	uint32_t undoCropLength;
 	int16_t *undoCropStart;
