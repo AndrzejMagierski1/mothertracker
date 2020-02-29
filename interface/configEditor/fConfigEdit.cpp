@@ -69,8 +69,8 @@ void cConfigEditor::update()
 		CE->listAllFirmwares();
 		CE->flashingState = 1;
 		CE->changeLabelText(7, "Update");
-		CE->showConfigList5(0, firmwareFoundNum, ptrfirmwareNamesList);
-		CE->selectConfigList();
+		CE->showConfigList5(3, 0, firmwareFoundNum, ptrfirmwareNamesList);
+		CE->selectSecondSubmenu();
 		newFileManager.clearStatus();
 	}
 	else if(managerStatus >=  fmError)

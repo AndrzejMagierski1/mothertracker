@@ -72,24 +72,21 @@ public:
 
 	void toggleStepPopupDescription();
 
+
+	//-------------------------------------
+	// blocking/progress
+	void showProgressPopup(const char* text);
+	void changePopupProgress(uint8_t value);
+	void hideProgressPopup();
+
+
 	//-------------------------------------
 	// global popups functs
-	void show(uint8_t config_slot, char* line1);
-	void show(uint8_t config_slot, const char* line1)
-	{ show(config_slot, (char*) line1); }
 
-	void show(uint8_t config_slot, char* line1, char* line2);
-	void show(uint8_t config_slot, const char* line1, const char* line2)
-	{ show(config_slot, (char*) line1, (char*) line2); }
-
-	void show(uint8_t config_slot, char* line1, char* line2, char* line3);
-	void show(uint8_t config_slot, const char* line1, const char* line2, const char* line3)
-	{ show(config_slot, (char*) line1, (char*) line2, (char*) line3); }
-
-	void show(uint8_t config_slot, char* line1, char* line2, char* line3, char* line4);
-	void show(uint8_t config_slot, const char* line1, const char* line2, const char* line3, const char* line4)
-	{ show(config_slot, (char*) line1, (char*) line2, (char*) line3, (char*) line4); }
-
+	void show(uint8_t config_slot, const char* line1);
+	void show(uint8_t config_slot, const char* line1, const char* line2);
+	void show(uint8_t config_slot, const char* line1, const char* line2, const char* line3);
+	void show(uint8_t config_slot, const char* line1, const char* line2, const char* line3, const char* line4);
 	void show(uint8_t config_slot, char** multiLineText, uint8_t lines_count);
 	void hide();
 
@@ -99,7 +96,7 @@ public:
 
 private:
 
-	//-------------------------------------
+	//----------------------------------------------------------
 	// step
 	void setPopupFunct();
 
@@ -137,7 +134,7 @@ private:
 
 	uint8_t stepPopupState = 0;
 
-	//-------------------------------------
+	//-------------------------------------------------------------
 	// global
 
 	hControl textPopup;
@@ -161,6 +158,11 @@ private:
 
 	elapsedMillis popupTimer;
 	uint8_t globalPopupDisplayTime = 0;
+
+
+	//-----------------------------------------------------------
+	// blocking / progress popup
+
 
 };
 

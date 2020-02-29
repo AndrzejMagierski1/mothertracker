@@ -99,7 +99,7 @@ public:
 
 
 
-	void showConfigList5(uint8_t start, uint8_t length, char** listText);
+	void showConfigList5(uint8_t list_width, uint8_t start, uint8_t length, char** listText);
 	void hideConfigList();
 
 	void changeConfigListPosition(int16_t value);

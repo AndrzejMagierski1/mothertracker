@@ -255,12 +255,23 @@ void cConfigEditor::changeLabelText(uint8_t labelIdx, const char *text)
 
 
 
-void cConfigEditor::showConfigList5(uint8_t start, uint8_t length, char** listText)
+void cConfigEditor::showConfigList5(uint8_t list_width, uint8_t start, uint8_t length, char** listText)
 {
 	configListShown = 1;
 	selectedConfigListPosition = start;
 
 	display.setControlPosition(configListControl, (800/8)*5+1,  -1);
+
+	if(list_width == 3)
+	{
+		display.setControlSize(configListControl, ((800/8)*3)-3,  -1);
+		frameData.places[2] =&framesPlacesConfig[3][0];
+	}
+	else //2
+	{
+		display.setControlSize(configListControl, ((800/8)*2)-3,  -1);
+		frameData.places[2] = &framesPlacesConfig[2][0];
+	}
 
 	configList.linesCount = 13;
 	configList.start = start;
@@ -278,6 +289,8 @@ void cConfigEditor::showConfigList5(uint8_t start, uint8_t length, char** listTe
 
 	display.refreshControl(label[7]);
 }
+
+
 
 void cConfigEditor::hideConfigList()
 {

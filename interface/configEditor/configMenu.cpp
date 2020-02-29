@@ -157,7 +157,7 @@ void cConfigEditor::reloadSecondSubmenu()
 
 void cConfigEditor::loadConfigTextList(strItemTypeListText* itemSetup)
 {
-	showConfigList5(*itemSetup->value, itemSetup->count, (char**)itemSetup->ptrText);
+	showConfigList5(2, *itemSetup->value, itemSetup->count, (char**)itemSetup->ptrText);
 	changeLabelText(7, "Select");
 	selectConfigList();
 }

@@ -35,12 +35,13 @@ extern  cPatternEditor patternEditor;
 //	0xFFFFFF,	//	 fontList
 //};
 //
-//static uint32_t listBgTitleLabelColors[] =
-//{
-//	0x000000, // tekst
-//	0xFFFFFF, // tło
-//	0xFF0000, // ramka
-//};
+static uint32_t progressPopupColors[4] =
+{
+	0xffffff, // tekst
+	0x222222, // tło
+	one_true_red, // ramka
+	0xFFFFFF, // tekst2
+};
 
 static uint32_t listBgLabelColors[] =
 {
@@ -204,6 +205,7 @@ void cInterfacePopups::showNotesPopup()
 	display.setControlText(textLabel1, " Notes");
 	display.setControlPosition(textLabel1, 2, 0);
 	display.setControlSize(textLabel1, 800, 26);
+	display.setControlValue(textLabel1, 0);
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleFont4);
 	display.refreshControl(textLabel1);
 
@@ -236,6 +238,7 @@ void cInterfacePopups::showInstrumentsPopup()
 	display.setControlText(textLabel1, "  Instruments");
 	display.setControlPosition(textLabel1, 600+1, 0);
 	display.setControlSize(textLabel1, 200, 26);
+	display.setControlValue(textLabel1, 0);
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleFont4);
 	display.refreshControl(textLabel1);
 
@@ -274,6 +277,7 @@ void cInterfacePopups::showFxesPopup()
 	display.refreshControl(bgLabel);
 
 	display.setControlText(textLabel1, "  Fx");
+	display.setControlValue(textLabel1, 0);
 	//display.setControlPosition(textLabel1, 600+1, 13);
 	//display.setControlSize(textLabel1, 200, 26);
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleFont4);
@@ -708,6 +712,7 @@ void cInterfacePopups::refreshStepPopupDescription()
 	{
 		display.setControlPosition(textLabel1, 400+1, 0);
 		display.setControlSize(textLabel1, 400, 26);
+		display.setControlValue(textLabel1, 0);
 		display.refreshControl(textLabel1);
 
 		display.setControlSize(bgLabel, 400, 450);
@@ -734,8 +739,8 @@ void cInterfacePopups::refreshStepPopupDescription()
 	{
 		display.setControlPosition(textLabel1, 600+1, 0);
 		display.setControlSize(textLabel1, 200, 26);
+		display.setControlValue(textLabel1, 0);
 		display.refreshControl(textLabel1);
-
 		display.setControlPosition(bgLabel, 600+2, 29);
 		display.setControlSize(bgLabel, 200, 450); //419
 		display.refreshControl(bgLabel);
@@ -885,36 +890,36 @@ void hide();
 //	configuracja wygladu popupu
 void config(slot, struktura_konfigutracji);
 */
-void cInterfacePopups::show(uint8_t config_slot, char* line1)
+void cInterfacePopups::show(uint8_t config_slot, const char* line1)
 {
-	textLines[0] = line1;
+	textLines[0] = (char*)line1;
 
 	show(config_slot, textLines, 1);
 }
 
-void cInterfacePopups::show(uint8_t config_slot, char* line1, char* line2)
+void cInterfacePopups::show(uint8_t config_slot, const char* line1, const char* line2)
 {
-	textLines[0] = line1;
-	textLines[1] = line2;
+	textLines[0] = (char*)line1;
+	textLines[1] = (char*)line2;
 
 	show(config_slot, textLines, 2);
 }
 
-void cInterfacePopups::show(uint8_t config_slot, char* line1, char* line2, char* line3)
+void cInterfacePopups::show(uint8_t config_slot, const char* line1, const char* line2, const char* line3)
 {
-	textLines[0] = line1;
-	textLines[1] = line2;
-	textLines[2] = line3;
+	textLines[0] = (char*)line1;
+	textLines[1] = (char*)line2;
+	textLines[2] = (char*)line3;
 
 	show(config_slot, textLines, 3);
 }
 
-void cInterfacePopups::show(uint8_t config_slot, char* line1, char* line2, char* line3, char* line4)
+void cInterfacePopups::show(uint8_t config_slot, const char* line1, const char* line2, const char* line3, const char* line4)
 {
-	textLines[0] = line1;
-	textLines[1] = line2;
-	textLines[2] = line3;
-	textLines[3] = line4;
+	textLines[0] = (char*)line1;
+	textLines[1] = (char*)line2;
+	textLines[2] = (char*)line3;
+	textLines[3] = (char*)line4;
 
 	show(config_slot, textLines, 4);
 }
@@ -966,6 +971,41 @@ void cInterfacePopups::config(uint8_t slot, strPopupStyleConfig* config)
 
 	memcpy(&globalConfig[slot] ,config, sizeof(strPopupStyleConfig));
 }
+
+
+//##############################################################################################################
+//##############################################################################################################
+//##############################################################################################################
+void cInterfacePopups::showProgressPopup(const char* text)
+{
+	display.setControlPosition(textLabel1, 400, 190);
+	display.setControlSize(textLabel1,  300, 70);
+	display.setControlText(textLabel1, text);
+	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterX | controlStyleBackground | controlStyleFont3);
+	display.setControlColors(textLabel1, progressPopupColors);
+	display.setControlValue(textLabel1, 1);
+//
+//	display.setControlPosition(bgLabel, 250, 210);
+//	display.setControlSize(bgLabel,  300, 60);
+//	display.setControlText(bgLabel, "");
+//	display.setControlColors(bgLabel, listBgLabelColors);
+
+//	display.refreshControl(bgLabel);
+	display.refreshControl(textLabel1);
+}
+
+void cInterfacePopups::changePopupProgress(uint8_t value)
+{
+
+}
+
+void cInterfacePopups::hideProgressPopup()
+{
+	display.setControlHide(textLabel1);
+	display.setControlHide(bgLabel);
+	display.refreshControl(bgLabel);
+}
+
 
 
 

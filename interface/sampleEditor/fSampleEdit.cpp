@@ -84,39 +84,39 @@ static uint8_t editLimiterRelease(int16_t value);
 
 void cSampleEditor::update()
 {
-	if(refreshSpectrum)
-	{
-		refreshSpectrum = 0;
-
-		if(sampleIsValid)
-		{
-			showCurrentSpectrum(effector.getLength()/2, effector.getAddress());
-		}
-		else
-		{
-			GP.processSpectrum(editorInstrument, &zoom, &spectrum);
-		}
-
-		display.refreshControl(spectrumControl);
-	}
-
-	if(refreshPoints)
-	{
-		refreshPoints = 0;
-
-		processPoints();
-		display.refreshControl(pointsControl);
-	}
-
-	handleTasks(&taskQueue, 0);
-
-	refreshPlayingProgress();
-	refreshSampleLoading();
-	refreshSampleApplying();
-
-	updateEffectProcessing();
-
-	onExitReload();
+//	if(refreshSpectrum)
+//	{
+//		refreshSpectrum = 0;
+//
+//		if(sampleIsValid)
+//		{
+//			showCurrentSpectrum(effector.getLength()/2, effector.getAddress());
+//		}
+//		else
+//		{
+//			GP.processSpectrum(editorInstrument, &zoom, &spectrum);
+//		}
+//
+//		display.refreshControl(spectrumControl);
+//	}
+//
+//	if(refreshPoints)
+//	{
+//		refreshPoints = 0;
+//
+//		processPoints();
+//		display.refreshControl(pointsControl);
+//	}
+//
+//	handleTasks(&taskQueue, 0);
+//
+//	refreshPlayingProgress();
+//	refreshSampleLoading();
+//	refreshSampleApplying();
+//
+//	updateEffectProcessing();
+//
+//	onExitReload();
 }
 
 void cSampleEditor::onExitReload()
@@ -240,21 +240,21 @@ void cSampleEditor::refreshSampleLoading()
 //			uint8_t progress = fileManager.samplesLoader.waveLoader.getCurrentWaveProgress();
 //			handleQueueProgress(&taskQueue, progress, "Loading sample");
 //		}
-
-		if((sampleLoadedState == loaderStateTypeEnded) && (lastSampleLoadedState == loaderStateTypeInProgress)) // do when loaded
-		{
-			// after first load change crop and reverse stage
-			effectControl[effectCrop].effectStage = eNotAffecting;
-			effectControl[effectReverse].effectStage = eNotAffecting;
-			processOrPreview(effectControl[effectReverse].effectStage);
-
-			moduleFlags &= ~sampleLoadingActive;
-			sampleIsValid = 1;
-
-			finishTask(&taskQueue, tLoadSample);
-		}
-
-		lastSampleLoadedState = sampleLoadedState;
+//
+//		if((sampleLoadedState == loaderStateTypeEnded) && (lastSampleLoadedState == loaderStateTypeInProgress)) // do when loaded
+//		{
+//			// after first load change crop and reverse stage
+//			effectControl[effectCrop].effectStage = eNotAffecting;
+//			effectControl[effectReverse].effectStage = eNotAffecting;
+//			processOrPreview(effectControl[effectReverse].effectStage);
+//
+//			moduleFlags &= ~sampleLoadingActive;
+//			sampleIsValid = 1;
+//
+//			finishTask(&taskQueue, tLoadSample);
+//		}
+//
+//		lastSampleLoadedState = sampleLoadedState;
 	}
 }
 
@@ -282,6 +282,7 @@ uint8_t cSampleEditor::startLoadingSample()
 
 void cSampleEditor::start(uint32_t options)
 {
+/*
 	moduleRefresh = 1;
 	sampleIsValid = 0;
 
@@ -336,7 +337,7 @@ void cSampleEditor::start(uint32_t options)
 
 	points.endPoint = endPoint;
 	points.startPoint = startPoint;
-
+*/
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -360,6 +361,7 @@ void cSampleEditor::start(uint32_t options)
 	processPoints();
 
 	activateLabelsBorder();
+
 
 }
 

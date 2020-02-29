@@ -105,7 +105,7 @@ void cFileManager::browseCurrentLocation()
 	explorerListLength = 0;
 
 	listOnlyFolderNames();
-	listOnlyWavFromActualPath(explorerListLength);
+	moveToNextOperationStep();
 }
 
 
@@ -150,43 +150,89 @@ void cFileManager::listOnlyFolderNames()
 
 
 
-void cFileManager::listOnlyWavFromActualPath(uint8_t startPoint)
+void cFileManager::listOnlyWavFromActualPath()
 {
-	sdLocation.close();
-	sdLocation.open(explorerCurrentPath, O_READ);
 
-	uint8_t filesFound = sdLocation.createFilesList(0, explorerList+startPoint, (list_length_max-startPoint), 4000, 2);
-	sdLocation.close();
-	uint8_t afterFolderNum = explorerListLength;
-
-	bool notSorted = 1;
-	while (notSorted)
+	if(listWavStage == 0) // stage 0
 	{
-		notSorted = 0;
-		for (uint8_t a = startPoint; a < startPoint + filesFound - 1; a++)
+		sdLocation.close();
+		sdLocation.open(explorerCurrentPath, O_READ);
+
+		uint8_t filesFound = sdLocation.createFilesList(0, explorerList+explorerListLength, (list_length_max-explorerListLength), 4000, 2);
+		sdLocation.close();
+
+		if(filesFound == 0) // nie ma plikow wav w folderze - koncz listowanie
 		{
-			if (strcasecmp(explorerList[a], explorerList[a + 1]) > 0)
+			browseFinish();
+			return;
+		}
+
+		openCalcStart = explorerListLength;
+		openCurrentPos = openCalcStart;
+		explorerListLength += filesFound;
+		openCalcEnd = explorerListLength;
+
+		listWavStage = 1;
+	}
+	else if(listWavStage == 1) // stage 1 - przefiltruj znalezione wav o nie obslugiwane
+	{
+
+		char wav_file[255];
+		strcpy(wav_file, explorerCurrentPath);
+		strcat(wav_file, "/");
+		strcat(wav_file, explorerList[openCurrentPos]);
+
+		if(wavfile.open(wav_file))
+		{
+			strWavFileHeader localHeader;
+			readHeader(&localHeader, &wavfile);
+			wavfile.close();
+
+			if ((localHeader.sampleRate != 44100)
+			|| ((localHeader.AudioFormat != 1) && (localHeader.AudioFormat != 3))
+			|| ((localHeader.bitsPerSample != 16) && (localHeader.bitsPerSample != 24) && (localHeader.bitsPerSample != 32)))
 			{
-				std::swap(explorerList[a], explorerList[a+1]);
-				notSorted = 1;
+				std::swap(explorerList[openCurrentPos], explorerList[explorerListLength-1]);
+
+				explorerListLength--;
 			}
+			else
+			{
+				openCurrentPos++;
+				if(openCurrentPos >= explorerListLength)
+				{
+					listWavStage = 2;
+				}
+			}
+
+		}
+		else
+		{
+			if(openCurrentPos > 0)	explorerListLength = openCurrentPos-1;
+			else explorerListLength = 0;
+			browseFinish();
+			listWavStage = 0;
 		}
 	}
-
-	explorerListLength += filesFound;
-
-	if(explorerListLength <= startPoint)
+	else //  stage 2 - posortuj alfabetycznie
 	{
-		// finisz
-		browseFinish();
-	}
-	else
-	{
-		openCalcStart = startPoint;
-		openCalcEnd = explorerListLength;
+		bool notSorted = 1;
+		while (notSorted)
+		{
+			notSorted = 0;
+			for (uint8_t a = openCalcStart; a < explorerListLength - 1; a++)
+			{
+				if (strcasecmp(explorerList[a], explorerList[a + 1]) > 0)
+				{
+					std::swap(explorerList[a], explorerList[a+1]);
+					notSorted = 1;
+				}
+			}
+		}
+
 		openCurrentPos = openCalcStart;
-
 		moveToNextOperationStep();
+		listWavStage = 0;
 	}
 }
 
@@ -208,21 +254,14 @@ void cFileManager::processDirFileSizes() // wykonywalne w petli
 
 	openCurrentPos++;
 
-	uint8_t progress = (((openCurrentPos - openCalcStart) * 100) / (openCalcEnd-openCalcStart));
+	//uint8_t progress = (((openCurrentPos - openCalcStart) * 100) / (openCalcEnd-openCalcStart));
+	//todo progress
 
-	//showOpeningHorizontalBar(progress); //todo progress
-
-	if(openCurrentPos == openCalcEnd)
+	if(openCurrentPos >= explorerListLength)
 	{
 		sdLocation.close();
 
-		for(uint8_t i = openCalcStart; i < openCalcEnd; i++)
-		{
-			explorerList[i] = explorerList[i];
-		}
-
 		browseFinish();
-
 		//finisz
 	}
 }

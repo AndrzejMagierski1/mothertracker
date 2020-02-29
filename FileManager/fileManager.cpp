@@ -124,7 +124,8 @@ void cFileManager::updateBrowseSamples() //fmBrowseSamples - 5
 	switch(currentOperationStep)
 	{
 		case 0: 	browseCurrentLocation();  						break;
-		case 1: 	processDirFileSizes(); 							break;
+		case 1: 	listOnlyWavFromActualPath();					break;
+		case 2: 	processDirFileSizes(); 							break;
 		default:	stopOperationWithError(fmBrowseSamplesError); 	break;
 	}
 }

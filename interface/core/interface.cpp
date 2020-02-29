@@ -135,6 +135,8 @@ void cInterface::update()
 	mtTest.testLoop();
 
 	debugLog.update();
+
+	commonThingsUpdate();
 }
 
 
@@ -280,7 +282,6 @@ void cInterface::activateModule(hModule module, uint32_t options)
 	uiFM.clearAllButtons();
 	uiFM.clearAllPots();
 	uiFM.clearAllPads();
-	uiFM.clearSdDetection();
 
 	module->initDisplayControls();
 	module->start(options);
@@ -294,7 +295,6 @@ void cInterface::deactivateModule(hModule module)
 	uiFM.clearAllButtons();
 	uiFM.clearAllPots();
 	uiFM.clearAllPads();
-	uiFM.clearSdDetection();
 
 	module->stop();
 	mtPopups.hideStepPopups();

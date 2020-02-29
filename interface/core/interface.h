@@ -67,6 +67,7 @@ public:
 	void refreshDisplayShutdown();
 	void hideDisplayShutdown();
 
+	void commonThingsUpdate();
 
 	// interfaceInputs.cpp -----------------------------
 	void potChange(uint8_t n, int16_t value);
@@ -112,7 +113,6 @@ private:
 	hControl startScreenControl = nullptr;
 	strStartScreenData startScreenData;
 
-
 	hControl turnOffProgressBar = nullptr;
 	char turnOffText[20];
 
@@ -128,7 +128,8 @@ private:
 	uint8_t isBooted = 0;
 	uint32_t globalActionPriority;
 
-
+	uint8_t fileManagerPopupEnabled = 0;
+	uint8_t fileManagerPopupState = 0;
 };
 
 

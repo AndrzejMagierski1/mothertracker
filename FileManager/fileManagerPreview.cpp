@@ -57,6 +57,8 @@ bool cFileManager::previevSamplefromSD(uint8_t index)
 
 bool cFileManager::stopPrevievSamplefromSD()
 {
+	if(status != fmPreviewSampleFromSd && currentOperation != fmPreviewSamplesFromSD) return false;
+
 	playSdWav.stop();
 	playSdWavFloat.stop();
 	playSdWav24Bit.stop();

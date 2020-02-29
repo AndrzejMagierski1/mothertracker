@@ -291,6 +291,14 @@ uint32_t cFileManager::calcWorkspaceSamplesSize()
 
 uint32_t cFileManager::getWaveSizeIfValid(const char *filename)
 {
+	uint8_t wav_len = strlen(filename);
+	if(wav_len<5) return 0;
+
+	if(((filename[wav_len - 1] != 'V') && (filename[wav_len - 1] != 'v'))
+	|| ((filename[wav_len - 2] != 'A') && (filename[wav_len - 2] != 'a'))
+	|| ((filename[wav_len - 3] != 'W') && (filename[wav_len - 3] != 'w'))
+	||  (filename[wav_len - 4] != '.')) return 0;
+
 	if(!SD.exists(filename)) return 0;
 
 	wavfile.open(filename);

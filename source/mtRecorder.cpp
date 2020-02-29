@@ -162,7 +162,7 @@ void Recorder::updateSave()
 void Recorder::stopSave()
 {
 	saveInProgressFlag = 0;
-	//writeOutHeader();
+	writeOutHeader();
 	if(loadAfterSaveFlag)
 	{
 		loadAfterSaveFlag = 0;

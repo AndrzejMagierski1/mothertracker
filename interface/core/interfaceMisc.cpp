@@ -54,17 +54,14 @@ uint8_t cInterface::detectProjectLoadState()
 
 	newFileManager.clearStatus();
 
-//
-//	if(startupTimer < 1000) // minimalny czas start screenu
-//	{
-//		return 0;
-//	}
-//
-	// na koniec wlacza mtp i opoznia start o 500 ms
+
+	// taski na koniec otwierania projektu startowego
+
+	fileManagerPopupEnabled = 1;
+
 	if(mtpd.state == 0)
 	{
 		if(mtConfig.general.mtpState) mtpd.state = 1;
-		//startupTimer = 500;
 	}
 
 	return 1;
@@ -231,6 +228,70 @@ void cInterface::hideDisplayShutdown()
 	display.destroyControl(turnOffProgressBar);
 	turnOffProgressBar = nullptr;
 }
+
+
+
+
+void cInterface::commonThingsUpdate()
+{
+
+	if(fileManagerPopupEnabled)
+	{
+		uint8_t managerStatus = newFileManager.getStatus();
+
+		if(managerStatus > fmIdle &&  managerStatus <  fmLoadEnd)
+		{
+			if(fileManagerPopupState == 0) // pokaz popup
+			{
+				int8_t text_index = -1;
+
+				switch(managerStatus)
+				{
+				case fmBrowsingSamples           	: text_index = 0;	break;
+				case fmBrowsingProjects          	: text_index = 1;	break;
+				case fmBrowsingFirmwares         	: text_index = 2;	break;
+				case fmImportingSamplesToWorkspace	: text_index = 3;	break;
+				case fmDeleteingInstruments      	: text_index = 4;	break;
+				case fmPreviewSampleFromSd       	: text_index = 5;	break;
+				case fmLoadingProjectfromWorkspace	: text_index = 6;	break;
+				case fmLoadingProjectFromProjects	: text_index = 7;	break;
+				case fmSavingProjectToWorkspace  	: text_index = 8;	break;
+				case fmSavingProjectToProjects   	: text_index = 9;	break;
+				case fmLoadingPatternFromWorkspace	: 	break;
+				}
+
+
+				if(text_index >= 0)
+				{
+					fileManagerPopupState = 1;
+					mtPopups.showProgressPopup(&fileManagerPopupText[text_index][0]);
+				}
+			}
+			else // przetwarzaj popup - progress
+			{
+
+			}
+
+		}
+		else // zniknij popup
+		{
+			if(fileManagerPopupState == 1)
+			{
+				mtPopups.hideProgressPopup();
+				fileManagerPopupState = 0;
+			}
+		}
+	}
+
+
+
+
+
+}
+
+
+
+
 
 
 

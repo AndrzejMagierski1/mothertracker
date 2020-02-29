@@ -73,7 +73,7 @@ public:
 	void clearButtonsRange(uint8_t from, uint8_t to);
 	void clearButton(uint8_t button);
 
-	void clearSdDetection();
+
 
 	void setPotObj(uint8_t objectID, uint8_t(*funct)(int16_t), hControl control);
 	void setPotObj(int8_t objectID, uint8_t* param, uint8_t min, uint8_t max, uint8_t step, hControl control);
@@ -113,13 +113,11 @@ public:
 	void setPadObj(uint8_t objectID, uint8_t(*funct)(uint8_t,int16_t), hControl control);
 	void setPadsGlobal(uint8_t(*funct)(uint8_t,uint8_t,int16_t));
 
-	void setSdDetection(uint8_t(*funct)(uint8_t));
 
 	void processButtonsInput(uint8_t button, uint8_t state);
 	void processPotsInput(uint8_t pot, int16_t value);
 	void processPadsInput(uint8_t pad, uint8_t state, int16_t velo);
 	void processPadsInput(uint8_t pad, uint8_t state, int8_t x, int8_t y, int16_t velo);
-	void processSdDetectInput(uint8_t state);
 	void processPowerButton(uint8_t state);
 
 private:
@@ -169,7 +167,6 @@ private:
 	uint8_t padsGlobalState = 0;
 	uint8_t (*padsGlobalFunct)(uint8_t,uint8_t,int16_t) = nullptr;
 
-	uint8_t (*sdDetectFunct)(uint8_t) = nullptr;
 
 	uint8_t state;
 

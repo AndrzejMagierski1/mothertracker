@@ -351,7 +351,7 @@ void cSampleImporter::showLoadHorizontalBar()
 
 void cSampleImporter::showCopyingHorizontalBar()
 {
-	if(copyElementMax > 1) sprintf(copyingInfo, "Copying %d/%d ...",copyElement,copyElementMax);
+	if(copyElementsCount > 1) sprintf(copyingInfo, "Copying %d/%d ...",copyElement,copyElementsCount);
 	else strcpy(copyingInfo,"copying...");
 	display.setControlValue(loadHorizontalBarControl, copyingProgress);
 	display.setControlText(loadHorizontalBarControl, copyingInfo);

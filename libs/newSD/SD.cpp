@@ -461,6 +461,9 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 
 			if((strlen(dir_path)+wav_len) > 253) continue;
 
+
+/*
+
 			char wav_file[255];
 			strcpy(wav_file, dir_path);
 			strcat(wav_file, "/");
@@ -478,6 +481,7 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 					continue;
 			}
 			else continue;
+*/
 		}
         else if(chooseFilter == 3) // filtrowanie ptf
 		{

@@ -81,7 +81,7 @@ public:
 	void update();
 
 	//-------------------------------------------------
-	uint8_t getStatus() 	{ return status; }
+	inline uint8_t getStatus() 	{ return status; }
 	uint8_t getProgress();
 
 	void clearStatus() 	{ status = fmIdle; }
@@ -334,7 +334,7 @@ private:
 	void browseCurrentLocation();
 	void listOnlyFolderNames();
 	void processDirFileSizes();
-	void listOnlyWavFromActualPath(uint8_t startPoint);
+	void listOnlyWavFromActualPath();
 	void browseFinish();
 	void goUpInActualPath();
 
@@ -342,6 +342,9 @@ private:
 	char *explorerList[list_length_max];
 	char explorerCurrentPath[255] = {'/',0};
 	uint8_t explorerDirLevel = 0;
+
+	uint8_t listWavStage = 0;
+
 
 	static const uint8_t PREVIOUS_POSITION_LIFO = 20;
 	uint8_t explorerPositionTable[PREVIOUS_POSITION_LIFO];

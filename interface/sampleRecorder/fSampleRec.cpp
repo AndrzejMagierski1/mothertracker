@@ -344,8 +344,6 @@ void cSampleRecorder::setDefaultScreenFunct()
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
 
-	FM->setSdDetection(functSdCard);
-
 }
 
 //==============================================================================================================

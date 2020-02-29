@@ -198,7 +198,20 @@ enum interfacePopups
 
 };
 
-
+const char fileManagerPopupText[][30] =
+{
+		"Loading files list",
+		"Loading projects list",
+		"Loading firmwares list",
+		"Importing sample to Project",
+		"Deleting Instruments",
+		"Sample playback",
+		"Loading project",
+		"Loading project",
+		"Saving project",
+		"Saving project",
+		"Loading pattern",
+};
 //-------------------------------------------------------------
 
 

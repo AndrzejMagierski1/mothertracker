@@ -37,7 +37,7 @@ void cFileManager::loadPatternFromWorkspace(uint8_t index)
 		if(loadPatternFormFileStruct(sequencer.getPatternToLoadFromFile(), (uint8_t*)&fileManagerPatternBuffer))
 		{
 			sequencer.loadFromFileOK();
-			sequencer.switchRamPatternsNow();
+			//sequencer.switchRamPatternsNow();
 			moveToNextOperationStep();
 		}
 		else
