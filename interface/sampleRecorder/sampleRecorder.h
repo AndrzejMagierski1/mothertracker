@@ -79,7 +79,7 @@ public:
 		 keyboardControl = nullptr;
 		 editName = nullptr;
 		 saveHorizontalBarControl = nullptr;
-		 selectWindowLabel = nullptr;
+		 popupWindowLabel = nullptr;
 
 	}
 	virtual ~cSampleRecorder() {}
@@ -136,7 +136,7 @@ public:
 	hControl keyboardControl;
 	hControl editName;
 	hControl saveHorizontalBarControl;
-	hControl selectWindowLabel;
+	hControl popupWindowLabel;
 	hControl progressCursor;
 	hControl radioRdsLabel;
 	hControl titleBar = nullptr;
@@ -280,8 +280,10 @@ uint8_t cropCounter = 0;
 	void showSelectionWindow();
 	void showSelectionNotEnoughInstruments();
 	void showSelectionNotEnoughMemory();
+	void showSelectionStopPattern();
 	uint8_t notEnoughInstrumentsFlag = 0;
 	uint8_t notEnoughMemoryFlag = 0;
+	uint8_t patternIsPlayingFlag = 0;
 
 
 	uint8_t selectionWindowFlag = 0;

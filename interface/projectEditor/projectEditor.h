@@ -71,7 +71,7 @@ public:
 	hControl titleLabel = nullptr;
 	hControl titleLabelProjectName = nullptr;
 	hControl instrumentLabel = nullptr;
-	hControl selectWindowLabel = nullptr;
+	hControl popupWindowLabel = nullptr;
 	hControl loadHorizontalBarControl = nullptr;
 	hControl popupLabel = nullptr;
 	hControl coverImg = nullptr;
@@ -109,6 +109,8 @@ public:
 	void showExportingHorizontalBar();
 	void showSaveAsKeyboard();
 	void showOverwriteWindow();
+	void showStopPatternWindow();
+	void setStopPatternFunct();
 	void showExportWindow();
 	void showLabelDuringExport();
 
@@ -166,6 +168,13 @@ public:
 	uint8_t currentExportState = 0;
 	uint8_t lastExportState = 0;
 
+	enum stopAction
+	{
+		stopActionOpen = 1,
+		stopActionNewProject,
+		stopActionExport
+	};
+	uint8_t stopAction = 0;
 
 	// cover projektu
 	uint8_t refreshCover = 0;

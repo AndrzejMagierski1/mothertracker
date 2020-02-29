@@ -2,7 +2,12 @@
 
 #include "sampleEditor.h"
 
-
+static uint32_t popUpLabelColors[] =
+{
+	0xFFFFFF, // tekst
+	0x0a0a0a, // tło
+	0xFF0000, // ramka
+};
 static uint16_t framesPlacesNoBars[7][4] =
 {
 		{0, 0, 0, 0},
@@ -31,15 +36,26 @@ static uint16_t framesPlacesWithBars[7][4] =
 void cSampleEditor::initDisplayControls()
 {
 
-	strControlProperties prop6;
+	strControlProperties prop3;
 
-	prop6.x = 190;
-	prop6.y = 170;
-	prop6.style = controlStyleValue_0_100;
-	prop6.h = 100;
-	prop6.w = 420;
+	prop3.x = 400;
+	prop3.colors = popUpLabelColors;
+	prop3.y = 300;
+	prop3.h = 100;
+	prop3.w = 800-(10);
+	prop3.style = 	( controlStyleBackground | controlStyleCenterX | controlStyleCenterY | controlStyleFont2 );
+	prop3.text = nullptr;
+	if(popupWindowLabel == nullptr)  popupWindowLabel = display.createControl<cLabel>(&prop3);
 
-	if(processHorizontalBarControl == nullptr)  processHorizontalBarControl = display.createControl<cHorizontalBar>(&prop6);
+	strControlProperties prop4;
+
+	prop4.x = 190;
+	prop4.y = 170;
+	prop4.style = controlStyleValue_0_100;
+	prop4.h = 100;
+	prop4.w = 420;
+
+	if(processHorizontalBarControl == nullptr)  processHorizontalBarControl = display.createControl<cHorizontalBar>(&prop4);
 
 	// inicjalizacja kontrolek
 	strControlProperties prop2;
@@ -70,7 +86,7 @@ void cSampleEditor::initDisplayControls()
 	labelArrow.bitmaps[1].xValue =  (800/8)*7+(800/16);
 	labelArrow.bitmaps[1].yValue = 460;
 
-	for(uint8_t i = 0; i<6; i++)
+	for(uint8_t i = 0; i < 6; i++)
 	{
 		prop2.value = 1;
 		prop2.colors = interfaceGlobals.activeLabelsColors;
@@ -86,7 +102,8 @@ void cSampleEditor::initDisplayControls()
 	prop2.x = (800/4)*3+(800/8);
 	prop2.w = 800/4-6;
 	if(label[6] == nullptr) label[6] = display.createControl<cLabel>(&prop2);
-
+	prop2.value = 0;
+	if(label[7] == nullptr) label[7] = display.createControl<cLabel>(&prop2);
 
 	prop2.text = nullptr;
 	prop2.colors = interfaceGlobals.activeBgLabelsColors;
@@ -188,6 +205,9 @@ void cSampleEditor::destroyDisplayControls()
 	display.destroyControl(processHorizontalBarControl);
 	processHorizontalBarControl = nullptr;
 
+	display.destroyControl(popupWindowLabel);
+	popupWindowLabel = nullptr;
+
 	display.destroyControl(progressCursor);
 	progressCursor  = nullptr;
 }
@@ -243,17 +263,30 @@ void cSampleEditor::showDefaultScreen()
 
 	showEffectScreen(&effectControl[currSelEffect]);
 
-
-	for(uint8_t i = 0; i<7; i++)
+	for(uint8_t i = 0; i<6; i++)
 	{
 		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
-		display.setControlShow(label[i]);
-		display.refreshControl(label[i]);
+		display.setControlPosition(label[i], (800/8)*i+(800/16), 424);
+		display.setControlSize(label[i], 800/8-6, 55);
 
 		display.setControlShow(label[i]);
 		display.refreshControl(label[i]);
 	}
 
+	display.setControlStyle2(label[6], controlStyleCenterX | controlStyleFont2);
+	display.setControlPosition(label[6], (800/4)*3+(800/8), 424);
+	display.setControlSize(label[6], 800/4-6, 55);
+	display.setControlShow(label[6]);
+	display.refreshControl(label[6]);
+
+
+	display.setControlValue(label[7], 0);
+	display.setControlHide(label[7]);
+	display.refreshControl(label[7]);
+
+	display.setControlHide(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
+	display.setControlValue(bgLabel,127);
 	display.refreshControl(bgLabel);
 
 
@@ -265,6 +298,44 @@ void cSampleEditor::showDefaultScreen()
 
 	display.synchronizeRefresh();
 
+}
+
+void  cSampleEditor::showSelectionStopPattern()
+{
+	for(uint8_t i = 0 ; i < 8; i++)
+	{
+		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
+
+		display.setControlPosition(label[i], (800/8)*i+(800/16), 424);
+		display.setControlSize(label[i], 800/8-6, 55);
+		display.setControlStyle(label[i], ( controlStyleCenterX | controlStyleFont3 ));
+		display.setControlValue(label[i],1);
+
+		display.refreshControl(label[i]);
+		display.setControlShow(label[i]);
+	}
+
+	display.setControlText(label[7], "Yes");
+	display.setControlText(label[6], "No");
+	display.setControlColors(label[6], interfaceGlobals.activeLabelsColors);
+	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
+
+	display.refreshControl(label[6]);
+	display.refreshControl(label[6]);
+
+	display.setControlHide(frameControl);
+	display.refreshControl(frameControl);
+
+	display.setControlText(popupWindowLabel,"This action will stop the pattern. Do you want to continue?");
+	display.setControlShow(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
+
+	display.setControlValue(bgLabel,255);
+	display.setControlShow(bgLabel);
+	display.refreshControl(bgLabel);
+
+	display.synchronizeRefresh();
 }
 
 void cSampleEditor::showEffectScreen(effect_handle_t *screenCfg)

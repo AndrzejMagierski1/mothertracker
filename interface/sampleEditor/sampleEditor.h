@@ -160,14 +160,17 @@ public:
 		spectrumControl = nullptr;
 		pointsControl = nullptr;
 		label[8] = {nullptr};
+		popupWindowLabel = nullptr;
 	}
 	virtual ~cSampleEditor() {}
 
 	void showDefaultScreen();
+	void showSelectionStopPattern();
 	void showEffectsList();
 	void showTitleBar();
 
 	void setDefaultScreenFunct();
+	void setPatternStopFunct();
 	void cancelPopups();
 
 
@@ -195,6 +198,7 @@ public:
 	hControl processHorizontalBarControl = nullptr;
 	hControl progressCursor = nullptr;
 	hControl bgLabel;
+	hControl popupWindowLabel;
 
 
 	uint8_t selectedPlace = 6;

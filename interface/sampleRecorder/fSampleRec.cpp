@@ -1,5 +1,4 @@
 
-
 #include "sampleRecorder/sampleRecorder.h"
 #include "mtRecorder.h"
 #include "Si4703.h"
@@ -87,7 +86,6 @@ static uint8_t functStepNote(uint8_t value);
 static void modStartPoint(int16_t value);
 static void modEndPoint(int16_t value);
 
-static uint8_t functSdCard(uint8_t state);
 
 void seek_callback(void);
 
@@ -216,13 +214,18 @@ void cSampleRecorder::update()
 
 void cSampleRecorder::start(uint32_t options)
 {
+	if(sequencer.isPlay())
+	{
+		patternIsPlayingFlag = 1;
+		showSelectionStopPattern();
+		setDefaultScreenFunct();
+		return;
+	}
+
 	moduleRefresh = 1;
 	dontTurnOffRadio = 0;
 //--------------------------------------------------------------------
-	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
-	{
-	   sequencer.stop();
-	}
+
 
 	FM->setPadsGlobal(functPads);
 
@@ -887,6 +890,7 @@ static  uint8_t functActionButton0(uint8_t s)
 {
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowFlag) return 1;
+	if(SR->patternIsPlayingFlag == 1) return 1;
 
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard)
 	{
@@ -964,7 +968,7 @@ static  uint8_t functActionButton1(uint8_t state)
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
-
+	if(SR->patternIsPlayingFlag == 1) return 1;
 
 	if(state == buttonPress || state == buttonRelease)
 	{
@@ -989,6 +993,7 @@ static  uint8_t functActionButton2(uint8_t state)
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
+	if(SR->patternIsPlayingFlag == 1) return 1;
 
 	if(state == buttonPress || state == buttonRelease)
 	{
@@ -1013,6 +1018,7 @@ static  uint8_t functActionButton3()
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
+	if(SR->patternIsPlayingFlag == 1) return 1;
 
 	if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton3();
 	switch(SR->currentScreen)
@@ -1030,6 +1036,7 @@ static  uint8_t functActionButton4()
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
+	if(SR->patternIsPlayingFlag == 1) return 1;
 
 	switch(SR->currentScreen)
 	{
@@ -1046,6 +1053,8 @@ static  uint8_t functActionButton5()
 	if(SR->selectionWindowFlag == 1) return 1;
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
+	if(SR->patternIsPlayingFlag == 1) return 1;
+
 	if((SR->currentScreen == cSampleRecorder::screenTypeConfig) && (SR->currentScreen != cSampleRecorder::screenTypeKeyboard)) functSelectButton5();
 	switch(SR->currentScreen)
 	{
@@ -1061,6 +1070,12 @@ static  uint8_t functActionButton6()
 {
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
+	if(SR->patternIsPlayingFlag == 1)
+	{
+		SR->patternIsPlayingFlag = 0;
+		SR->eventFunct(eventSwitchToPreviousModule,SR,0,0);
+		return 1;
+	}
 
 	if(SR->selectionWindowFlag == 1)
 	{
@@ -1092,6 +1107,13 @@ static  uint8_t functActionButton7()
 	else if(SR->selectedPlace == 2)
 	{
 		SR->points.selected = selectEnd;
+	}
+	if(SR->patternIsPlayingFlag == 1)
+	{
+		SR->patternIsPlayingFlag = 0;
+		sequencer.stop();
+		SR->start(0);
+		return 1;
 	}
 
 	if(SR->selectionWindowFlag == 1)
@@ -1179,6 +1201,7 @@ static  uint8_t functActionButton7()
 //==============================================================================================================
 static uint8_t functDeleteBackspace(uint8_t state)
 {
+	if(SR->patternIsPlayingFlag == 1) return 1;
 	if((state == buttonPress) || (state == buttonHold))
 	{
 		SR->keyboardManager.makeBackspace();
@@ -1611,6 +1634,7 @@ static  uint8_t functActionZoom()
 static  uint8_t functEncoder(int16_t value)
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->patternIsPlayingFlag == 1) return 1;
 
 	if(SR->currentScreen == cSampleRecorder::screenTypeConfig)
 	{
@@ -1669,6 +1693,7 @@ static  uint8_t functEncoder(int16_t value)
 static  uint8_t functLeft()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->patternIsPlayingFlag == 1) return 1;
 	if(SR->frameData.multiSelActiveNum != 0) return 1;
 
 	SR->keyboardManager.makeMove('a');
@@ -1755,6 +1780,7 @@ static  uint8_t functLeft()
 static  uint8_t functRight()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->patternIsPlayingFlag == 1) return 1;
 	if(SR->frameData.multiSelActiveNum != 0) return 1;
 
 	SR->keyboardManager.makeMove('d');
@@ -1843,6 +1869,7 @@ static  uint8_t functRight()
 static  uint8_t functUp()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->patternIsPlayingFlag == 1) return 1;
 
 	SR->keyboardManager.makeMove('w');
 	if(SR->keyboardManager.getState()) return 1;
@@ -1865,6 +1892,7 @@ static  uint8_t functUp()
 static  uint8_t functDown()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
+	if(SR->patternIsPlayingFlag == 1) return 1;
 
 	SR->keyboardManager.makeMove('s');
 	if(SR->keyboardManager.getState()) return 1;
@@ -2248,6 +2276,8 @@ static uint8_t stopPlaying(uint8_t value)
 static uint8_t functInsert()
 {
 	if(SR->selectionWindowFlag) return 1;
+	if(SR->patternIsPlayingFlag == 1) return 1;
+
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) functConfirmKey();
 	return 1;
 }
@@ -2277,6 +2307,8 @@ void seek_callback(void)
 
 static uint8_t functStepNote(uint8_t value)
 {
+	if(SR->patternIsPlayingFlag == 1) return 1;
+
 	if(value == buttonRelease)
 	{
 		if(SR->currentScreen==0)
@@ -2380,10 +2412,3 @@ void cSampleRecorder::cancelMultiFrame()
 }
 ///////////////////////////////////////////////////////////////////////////
 
-static uint8_t functSdCard(uint8_t state)
-{
-	SR->showDefaultScreen();
-
-
-	return 1;
-}

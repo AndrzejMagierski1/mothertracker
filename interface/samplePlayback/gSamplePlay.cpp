@@ -604,7 +604,7 @@ void cSamplePlayback::hideAutoSlicePopup()
 
 void cSamplePlayback::showSlicesSelectValue()
 {
-	sprintf(sliceSelectTextValue, "%d", editorInstrument->selectedSlice + 1);
+	sprintf(sliceSelectTextValue, "%d of %d", editorInstrument->selectedSlice + 1,editorInstrument->sliceNumber < 1 ?  1 : editorInstrument->sliceNumber );
 
 	display.setControlText2(label[0], sliceSelectTextValue);
 	display.setControlShow(label[0]);
