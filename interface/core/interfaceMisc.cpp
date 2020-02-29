@@ -255,7 +255,7 @@ void cInterface::commonThingsUpdate()
 				case fmPreviewSampleFromSd       	: text_index = 5;	break;
 				case fmLoadingProjectfromWorkspace	: text_index = 6;	break;
 				case fmLoadingProjectFromProjects	: text_index = 7;	break;
-				case fmSavingProjectToWorkspace  	: text_index = 8;	break;
+				case fmSavingProjectToWorkspace  	: 	break;
 				case fmSavingProjectToProjects   	: text_index = 9;	break;
 				case fmLoadingPatternFromWorkspace	: 	break;
 				}

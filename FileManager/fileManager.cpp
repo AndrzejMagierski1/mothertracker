@@ -272,7 +272,7 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 	strcpy(mtConfig.startup.lastProjectName, currentProjectName);
 	sprintf(currentProjectPatch,"Projects/%s", currentProjectName);
 
-
+	sequencer.switchRamPatternsNow();
 
 	status = fmLoadEnd;
 	currentOperationStep = 0;
@@ -626,6 +626,21 @@ bool cFileManager::loadWorkspacePattern(uint8_t index)
 	return true;
 }
 
+bool cFileManager::deleteProject(uint8_t index)
+{
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
+
+	if(index >= projectsListLength) return false;
+	if(strcmp(projectsList[index], currentProjectName) == 0) return false;
+
+	char project_dir[255];
+	sprintf(project_dir, cProjectsPathFormat, projectsList[index]);
+
+	SD.removeDirWithFiles(project_dir);
+
+	return true;
+}
 
 //-----------------------------------------------------------------------------------------------------
 //-------------------------------------   FLAGI ZMIAN   -----------------------------------------------

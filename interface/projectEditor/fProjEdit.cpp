@@ -1029,13 +1029,15 @@ static uint8_t functDeleteConfirm()
 {
 	if(PE->isBusyFlag) return 1;
 
-	PE->deletePopupFlag = 1;
-	PE->deletePopupDelay = 0;
-	PE->isBusyFlag = 1;
+//	PE->deletePopupFlag = 1;
+//	PE->deletePopupDelay = 0;
+//	PE->isBusyFlag = 1;
 
+	newFileManager.deleteProject(PE->selectedProject);
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Deleting project");
+	PE->setDefaultScreenFunct();
+//	PE->showProcessingPopup("Deleting project");
 	return 1;
 }
 //===============================================================================================================

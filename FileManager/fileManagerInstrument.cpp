@@ -105,6 +105,12 @@ void cFileManager::copyInstruments()
 //------------------------------------------------------------------------------------------------------------------
 void cFileManager::saveInstrumentsToWorkspace()
 {
+	if(changesFlags.instrument[currentInstrument] == 0 || mtProject.instrument[currentInstrument].isActive == 0) // jesli flaga zmian nie ustawiona omin zapis
+	{
+		skipNextOperationStep();
+		return;
+	}
+
 	if(!writeInstrumentToFileStruct(&mtProject.instrument[currentInstrument], &fileManagerInstrumentBuffer))
 	{
 		throwError(0);

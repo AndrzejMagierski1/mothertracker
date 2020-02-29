@@ -121,6 +121,8 @@ public:
 
 	bool loadWorkspacePattern(uint8_t index);
 
+	bool deleteProject(uint8_t index);
+
 
 	// to chyba trzeba zoptymalizowac/wrzucic w petle \/
 	bool createNewProjectInWorkspace();
