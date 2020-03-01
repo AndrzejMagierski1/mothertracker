@@ -791,7 +791,7 @@ static uint8_t functSaveAsConfirm()
 //		return 1;
 //	}
 
-//	PE->newProjectNotSavedFlag = 0;
+	PE->newProjectNotSavedFlag = 0;
 //	mtProject.values.projectNotSavedFlag = 0;
 //
 //

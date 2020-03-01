@@ -16,7 +16,7 @@
 #include "fileManager.h"
 
 
-__NOINIT(EXTERNAL_RAM) strProjectFile fileManagerProjectBuffer  {0};
+__NOINIT(EXTERNAL_RAM) strProjectFile fileManagerProjectBuffer {0};
 
 
 
@@ -203,97 +203,6 @@ bool cFileManager::writeProjectFileToFileStruct(strMtProject* project, strProjec
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void cFileManager::writeProjectFile(const char * name, strMtProject* proj)
-{
-	SD.remove(name);
-
-	SdFile file;
-	FastCRC32 crcCalc;
-	strProjectFile projectFile;
-
-	memcpy(&projectFile.projectDataAndHeader.project.song, &proj->song, sizeof(strSong));
-	memcpy(&projectFile.projectDataAndHeader.project.values, &proj->values, sizeof(strMtValues));
-	strcpy(projectFile.projectDataAndHeader.project.projectName, currentProjectName);
-
-	projectFile.projectDataAndHeader.projectHeader.id_file[0]='M';
-	projectFile.projectDataAndHeader.projectHeader.id_file[1]='T';
-
-	projectFile.projectDataAndHeader.projectHeader.type = fileTypeProject;
-
-	projectFile.projectDataAndHeader.projectHeader.fwVersion[0] = FV_VER_1;
-	projectFile.projectDataAndHeader.projectHeader.fwVersion[1] = FV_VER_2;
-	projectFile.projectDataAndHeader.projectHeader.fwVersion[2] = FV_VER_3;
-	projectFile.projectDataAndHeader.projectHeader.fwVersion[3] = FV_VER_1;
-
-//	char line[15];
-//	sprintf(line,
-//			"fw.ver: %u.%u.%u",
-//			projectFile.projectDataAndHeader.projectHeader.fwVersion[0],
-//			projectFile.projectDataAndHeader.projectHeader.fwVersion[1],
-//			projectFile.projectDataAndHeader.projectHeader.fwVersion[2]
-//			);
-//	debugLog.addLine(line);
-
-	projectFile.projectDataAndHeader.projectHeader.fileStructureVersion[0] = PROJECT_FILE_VERSION;
-	projectFile.projectDataAndHeader.projectHeader.fileStructureVersion[1] = PROJECT_FILE_VERSION;
-	projectFile.projectDataAndHeader.projectHeader.fileStructureVersion[2] = PROJECT_FILE_VERSION;
-	projectFile.projectDataAndHeader.projectHeader.fileStructureVersion[3] = PROJECT_FILE_VERSION;
-
-	projectFile.projectDataAndHeader.projectHeader.size = sizeof(projectFile);
-
-	projectFile.crc = crcCalc.crc32((uint8_t *)&projectFile.projectDataAndHeader,sizeof(projectFile.projectDataAndHeader));
-
-	file.open(name, FILE_WRITE);
-	file.write((uint8_t *)&projectFile, sizeof(projectFile));
-	file.close();
-}
-
-
-bool cFileManager::readProjectFile(const char * name, strMtProject * proj)
-{
-	if(!SD.exists(name)) return 0;
-	SdFile file;
-	FastCRC32 crcCalc;
-	uint32_t checkCRC=0;
-
-	strProjectFile projectFile;
-
-	file=SD.open(name);
-	file.read((uint8_t*)&projectFile, sizeof(projectFile));
-	//file.read((uint8_t*)&pattBitmask, sizeof(strPatternsBitmask));
-	file.close();
-
-	if (projectFile.projectDataAndHeader.projectHeader.type != fileTypeProject)
-		return false;
-
-	checkCRC = crcCalc.crc32((uint8_t *) &projectFile.projectDataAndHeader,
-								sizeof(projectFile.projectDataAndHeader));
-
-	if (FILEMANAGER_DEBUGLOG)
-	{
-		char line[44];
-		sprintf(line,
-				"opened project fw.ver: %u.%u.%u, crc %s",
-				projectFile.projectDataAndHeader.projectHeader.fwVersion[0],
-				projectFile.projectDataAndHeader.projectHeader.fwVersion[1],
-				projectFile.projectDataAndHeader.projectHeader.fwVersion[2],
-				checkCRC == projectFile.crc ? "ok" : "err"
-						);
-		debugLog.addLine(line);
-	}
-
-
-	if(1)
-	{
-		memcpy(&proj->song, &projectFile.projectDataAndHeader.project.song, sizeof(strSong));
-		memcpy(&proj->values, &projectFile.projectDataAndHeader.project.values, sizeof(strMtValues));
-		//*proj=projectFile.projectDataAndHeader.project;
-		//mtProject.values=projectFile.projectDataAndHeader.project.values;
-		return false;
-	}
-	else return true;
-}
 
 
 

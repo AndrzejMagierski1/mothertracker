@@ -9,7 +9,11 @@
 
 extern int16_t sdram_effectsBank[4*1024*1024];
 extern int16_t sdram_sampleBank[4*1024*1024];
+
+
+#define READ_WRITE_BUFOR_SIZE 32640
 extern uint8_t sdram_writeLoadBuffer[READ_WRITE_BUFOR_SIZE];
+//extern uint8_t sdram_writeLoadBuffer2[READ_WRITE_BUFOR_SIZE];
 
 
 
@@ -210,7 +214,7 @@ void cFileManager::moveSampleMemory()
 			memcpy(memory_offset+begining_address+memory_size, sdram_writeLoadBuffer, memory_size);
 		}
 	}
-	while(memory_size <= 0);
+	while(memory_size > 0);
 
 }
 

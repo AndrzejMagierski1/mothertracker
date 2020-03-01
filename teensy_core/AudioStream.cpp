@@ -340,12 +340,12 @@ void software_isr(void) // AudioStream::update_all()
 		debugLog.addLine("Audio mem exceed limit ");
 		debugLog.addValue(AudioStream::memory_used);
 	}
-	if(apoloniuszTajmer > 2200)
-	{
-		debugLog.addLine("Audio exceed limit ");
-		debugLog.addValue(apoloniuszTajmer);
-//		debugLog.forceRefresh(); // wymuszenie odswiezneia jesli ma byc odrazu a nei w petli glownej
-	}
+//	if(apoloniuszTajmer > 2200)
+//	{
+//		debugLog.addLine("Audio exceed limit ");
+//		debugLog.addValue(apoloniuszTajmer);
+////		debugLog.forceRefresh(); // wymuszenie odswiezneia jesli ma byc odrazu a nei w petli glownej
+//	}
 
 
 }

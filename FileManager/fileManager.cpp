@@ -340,12 +340,15 @@ void cFileManager::saveProjectToWorkspaceFinish()
 
 	clearChangeFlags();
 
-	if(status == fmSavingProjectToProjects)
-	{
-		currentOperationStep = 0;
-		currentOperation = fmCopyWorkspaceToProjects;
-		return;
-	}
+//	if(status == fmSavingProjectToProjects)
+//	{
+//		currentOperationStep = 0;
+//		currentOperation = fmCopyWorkspaceToProjects;
+//		return;
+//	}
+
+	debugLog.setMaxLineCount(10);
+	debugLog.addLine("autosave end");
 
 	status = fmIdle; //xxx zamiast fmSaveEnd
 	currentOperationStep = 0;
@@ -528,7 +531,9 @@ bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
 		if(!isProjectChanged())	return false; // nie sejwuj jesli nic nie jest zmodyfikowane
 	}
 
-	report("Autosave Started");
+	//report("Autosave Started");
+	debugLog.setMaxLineCount(10);
+	debugLog.addLine("autosave start");
 
 	status = fmSavingProjectToWorkspace;
 	currentOperationStep = 0;
@@ -539,8 +544,8 @@ bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
 
 bool cFileManager::saveProjectToProjects(char* projectNameToSave)
 {
-	if(status != fmIdle) return false;
-	if(currentOperation != fmNoOperation) return false;
+	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
 
 	if(projectNameToSave != nullptr)
 	{
@@ -548,11 +553,11 @@ bool cFileManager::saveProjectToProjects(char* projectNameToSave)
 	}
 
 
-	saveProjectToWorkspace(true);
+	//saveProjectToWorkspace(true);//xxx
 
 	status = fmSavingProjectToProjects;
-//	currentOperationStep = 0;
-//	currentOperation = fmSaveWorkspaceProject;
+	currentOperationStep = 0;
+	currentOperation = fmCopyWorkspaceToProjects;//fmSaveWorkspaceProject;
 	return true;
 }
 

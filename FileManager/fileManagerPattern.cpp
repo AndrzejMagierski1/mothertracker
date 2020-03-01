@@ -16,7 +16,7 @@
 //SDK_ALIGN(uint8_t g_bufferRead[SDK_SIZEALIGN(BUFFER_SIZE, SDMMC_DATA_BUFFER_ALIGN_CACHE)],
 //          MAX(SDMMC_DATA_BUFFER_ALIGN_CACHE, SDMMCHOST_DMA_BUFFER_ADDR_ALIGN));
 
-__NOINIT(EXTERNAL_RAM) Sequencer::strPattern fileManagerPatternBuffer  {0};
+__NOINIT(EXTERNAL_RAM) Sequencer::strPattern fileManagerPatternBuffer {0};
 
 
 

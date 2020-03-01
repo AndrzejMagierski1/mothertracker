@@ -14,8 +14,8 @@
 
 
 
-
-extern uint8_t sdram_writeLoadBuffer[READ_WRITE_BUFOR_SIZE];
+//#define READ_WRITE_BUFOR_SIZE 32640
+//extern uint8_t sdram_writeLoadBuffer[READ_WRITE_BUFOR_SIZE];
 
 cFileTransfer fileTransfer;
 
@@ -24,8 +24,8 @@ SdFile transferFile2;
 
 strWavFileHeader sampleHead;
 
-
-
+#define READ_WRITE_BUFOR_SIZE 9600
+extern uint8_t g_bufferReadWrite[READ_WRITE_BUFOR_SIZE];
 
 
 uint8_t cFileTransfer::loadFileToMemory(const char* file, uint8_t* memory, uint32_t memSize, uint8_t mode)
@@ -90,7 +90,7 @@ uint8_t cFileTransfer::loadSampleToMemory(const char* file, int16_t* memory, uin
 
 		if(transferFile.open(file))
 		{
-			memStep = 32640; // wielokrotnosc 4*6*8 (rozne probkowania stereo w bajtach)
+			memStep = READ_WRITE_BUFOR_SIZE; // wielokrotnosc 4*6*8 (rozne probkowania stereo w bajtach)
 			memComplited = 0;
 			convertedDataSize = 0;
 
@@ -113,7 +113,7 @@ uint8_t cFileTransfer::loadSampleToMemory(const char* file, int16_t* memory, uin
 
 	if(transferStep == 1)
 	{
-		int32_t result = transferFile.read(sdram_writeLoadBuffer, memStep);
+		int32_t result = transferFile.read(g_bufferReadWrite, memStep);
 
 		if(result >= 0)
 		{
@@ -123,7 +123,7 @@ uint8_t cFileTransfer::loadSampleToMemory(const char* file, int16_t* memory, uin
 			}
 			else
 			{
-				memcpy(memory+convertedDataSize, sdram_writeLoadBuffer, result);
+				memcpy(memory+convertedDataSize, g_bufferReadWrite, result);
 				convertedDataSize += result/2;
 			}
 
@@ -181,7 +181,7 @@ uint8_t cFileTransfer::copyFile(const char* src, const char* dest)
 
 	if(transferStep == 1)
 	{
-		int32_t read_result = transferFile.read(sdram_writeLoadBuffer, memStep);
+		int32_t read_result = transferFile.read(g_bufferReadWrite, memStep);
 
 		if(read_result == 0) // koniec pliku - koncz kopiowanie
 		{
@@ -189,7 +189,7 @@ uint8_t cFileTransfer::copyFile(const char* src, const char* dest)
 		}
 		else if(read_result > 0)
 		{
-			int32_t write_result = transferFile2.write(sdram_writeLoadBuffer, read_result);
+			int32_t write_result = transferFile2.write(g_bufferReadWrite, read_result);
 
 			if(write_result >= 0)
 			{
@@ -246,7 +246,7 @@ uint8_t cFileTransfer::copySample(const char* src, const char* dest)
 				transferFile2.seek(44);
 				memTotal = transferFile.available(); // pobiera wielkosc dopiero po przesciu przez header
 				memTotal = (memTotal < sampleHead.subchunk2Size) ? memTotal : sampleHead.subchunk2Size;
-				memStep = 32640; // wielokrotnosc 4*6*8 (rozne probkowania stereo w bajtach)
+				memStep = READ_WRITE_BUFOR_SIZE; // wielokrotnosc 4*6*8 (rozne probkowania stereo w bajtach)
 				memComplited = 0;
 
 				//wylacznie konwersji kiedy format juz sie zgadza
@@ -262,7 +262,7 @@ uint8_t cFileTransfer::copySample(const char* src, const char* dest)
 	if(transferStep == 1)
 	{
 		if(memTotal-memComplited < memStep) memStep = memTotal-memComplited;
-		int32_t read_result = transferFile.read(sdram_writeLoadBuffer, memStep);
+		int32_t read_result = transferFile.read(g_bufferReadWrite, memStep);
 
 		if(read_result == 0) // koniec pliku - koncz kopiowanie
 		{
@@ -273,7 +273,7 @@ uint8_t cFileTransfer::copySample(const char* src, const char* dest)
 			int32_t converted_bytes;
 			if(conversionEnabled)
 			{
-				converted_bytes = convertAudioData((int16_t*)sdram_writeLoadBuffer, read_result) * 2; // liczba probek razy wielkosc probki !
+				converted_bytes = convertAudioData((int16_t*)g_bufferReadWrite, read_result) * 2; // liczba probek razy wielkosc probki !
 			}
 			else
 			{
@@ -282,7 +282,7 @@ uint8_t cFileTransfer::copySample(const char* src, const char* dest)
 
 			if(converted_bytes > 0)
 			{
-				int32_t write_result = transferFile2.write(sdram_writeLoadBuffer, converted_bytes);
+				int32_t write_result = transferFile2.write(g_bufferReadWrite, converted_bytes);
 
 				convertedDataSize += converted_bytes;  // tu convertedDataSize to ilsoc bajtow
 				memComplited += read_result;
@@ -393,7 +393,7 @@ uint32_t cFileTransfer::convertAudioData(int16_t* outPtr, int32_t input_size)
 
 	if(sampleHead.AudioFormat == 1) //pcm 16/24bity
 	{
-		uint8_t* ptrTemp = (uint8_t*)sdram_writeLoadBuffer;
+		uint8_t* ptrTemp = (uint8_t*)g_bufferReadWrite;
 		if(sampleHead.bitsPerSample == 24) ptrTemp += 1; //uciecie LSB
 
 		for(uint32_t i = 0; i < samplesToConvert; i++)
@@ -404,7 +404,7 @@ uint32_t cFileTransfer::convertAudioData(int16_t* outPtr, int32_t input_size)
 	}
 	else if(sampleHead.AudioFormat == 3) //float 32bity
 	{
-		float *buf = (float*)sdram_writeLoadBuffer;
+		float *buf = (float*)g_bufferReadWrite;
 		uint8_t floates_per_sample = bytes_per_sample/4;
 
 		for(uint32_t i = 0; i < samplesToConvert; i++)

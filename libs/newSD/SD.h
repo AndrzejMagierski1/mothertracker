@@ -13,7 +13,7 @@
 #ifdef SDK_ALIGN
 #undef SDK_ALIGN
 #endif
-#define SDK_ALIGN(var, alignbytes) var __attribute__((aligned(alignbytes)))
+
 
 //#define SD_FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_NEW | FA_OPEN_APPEND )
 #define  SD_FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_ALWAYS )
@@ -67,32 +67,10 @@ public:
 	bool open(const char* path, uint8_t oflag = FA_READ);
 
 
-
-	int32_t read(void* buf, uint32_t count)
-	{
-		UINT read = 0;
-		FRESULT error = f_read(file,buf,count,&read);
-		if (error)
-		{
-			reportSdError("read - failed", error);
-			return -1;
-		}
-		return read;
-	}
-
-	int32_t write(const void* buf, uint32_t count)
-	{
-		UINT written = 0;
-		FRESULT error = f_write(file,buf,count,&written);
-		if (error)
-		{
-			reportSdError("write - failed", error);
-			return -1;
-		}
-		return written;
-	}
-
+	int32_t read(void* buf, uint32_t count);
+	int32_t write(const void* buf, uint32_t count);
 	uint32_t write(uint8_t b) {return write(&b, 1);}
+
 
 	bool seek(uint32_t pos)
 	{
@@ -235,6 +213,7 @@ private:
 
 	FIL* file = nullptr;
 
+	const char* path_for_report;
 };
 
 
@@ -350,6 +329,7 @@ private:
 //	{
 //		close();
 //	}
+
 
 	DIR* directory = nullptr;
 	char* dir_path = nullptr;

@@ -39,11 +39,25 @@ bool cFileManager::previevSamplefromSD(uint8_t index)
 
 	wavfile.close();
 
-	if(header.AudioFormat == 3) playSdWavFloat.play(filePath);
+	debugLog.setMaxLineCount(5);
+
+	if(header.AudioFormat == 3)
+	{
+		playSdWavFloat.play(filePath);
+		debugLog.addLine("preview float wav");
+	}
 	else
 	{
-		if(header.bitsPerSample == 16) playSdWav.play(filePath);
-		else if (header.bitsPerSample == 24) playSdWav24Bit.play(filePath);
+		if(header.bitsPerSample == 16)
+		{
+			playSdWav.play(filePath);
+			debugLog.addLine("preview 16bit wav");
+		}
+		else if (header.bitsPerSample == 24)
+		{
+			playSdWav24Bit.play(filePath);
+			debugLog.addLine("preview 24bit wav");
+		}
 	}
 
 

@@ -6,15 +6,6 @@
 #include "sdram.h"
 
 
-
-
-//__NOINIT(EXTERNAL_RAM) uint16_t sdram_writeBuffer[SDRAM_EXAMPLE_DATALEN];
-//__NOINIT(EXTERNAL_RAM) uint16_t sdram_writeBuffer2[SDRAM_EXAMPLE_DATALEN];
-//uint16_t internall_writeBuffer[SDRAM_EXAMPLE_DATALEN];
-
-
-
-
 int Extern_SDRAM_Init(void)
 {
 

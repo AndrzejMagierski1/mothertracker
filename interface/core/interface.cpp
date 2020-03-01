@@ -39,7 +39,8 @@ strInterfaceGlobals interfaceGlobals;
 
 __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[SAMPLE_MEMORY_MAX/2];
 __NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[SAMPLE_MEMORY_MAX/2];
-__NOINIT(EXTERNAL_RAM) uint8_t sdram_writeLoadBuffer[32768];
+__NOINIT(EXTERNAL_RAM) uint8_t sdram_writeLoadBuffer[32640]; // 32768
+//__NOINIT(EXTERNAL_RAM) uint8_t sdram_writeLoadBuffer2[32768];
 
 __NOINIT(EXTERNAL_RAM) uint8_t sdram_mtpIndex[8192];
 
