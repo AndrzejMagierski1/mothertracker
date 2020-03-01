@@ -4,11 +4,13 @@
 #include "stdint.h"
 #include "mtDataCopyier.h"
 
+constexpr uint32_t LOAD_BLOCK_SIZE_IN_SAMPLES = 8192;
+extern const uint32_t SAMPLE_EFFECTOR_LENGTH_MAX;
+extern int16_t sdram_effectsBank[15*256*1024];
 
 class mtEffect
 {
 public:
-	struct strProcessing;
 
 	mtEffect();
 
@@ -35,7 +37,9 @@ public:
 		copyingBeforeProcessing,
 		processingSelection,
 		copyingAfterProcessing
-	} processingState;
+	};
+
+	uint8_t processingState;
 
 	bool 	endProcessingState = false;
 	bool	startProcessingSelection();
@@ -86,16 +90,21 @@ protected:
 			int16_t * addr;
 			uint32_t length;
 		} area, selection;
-	} processed, confirmed;
+	};
+
+	strMemoryAreaWithSelection processed =
+	{ .area = { sdram_effectsBank + SAMPLE_EFFECTOR_LENGTH_MAX, 0},
+	  .selection = { sdram_effectsBank + SAMPLE_EFFECTOR_LENGTH_MAX, 0},
+	};
+
+	strMemoryAreaWithSelection confirmed =
+	{ .area = { sdram_effectsBank, 0},
+	  .selection = { sdram_effectsBank, 0},
+	};
 
 private:
 
-	struct strLoadParams
-	{
-		int16_t * currentDstAddr = nullptr;
-		int16_t * currentSrcAddr = nullptr;
-		strProcessing processParams;
-	} load;
+	strProcessing loadProcessParams;
 
 	struct strSaveParams
 	{
