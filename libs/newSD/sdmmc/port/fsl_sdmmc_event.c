@@ -83,10 +83,13 @@ bool SDMMCEVENT_Wait(sdmmc_event_t eventType, uint32_t timeoutMilliseconds)
 
     if (timeoutMilliseconds && event)
     {
-        startTime = systick_millis_count;
+    	volatile uint32_t ret = systick_millis_count; // single aligned 32 bit is atomic;
+
+    	startTime = ret;
         do
         {
-            elapsedTime = (systick_millis_count - startTime);
+        	ret = systick_millis_count;
+        	elapsedTime = (ret - startTime);
         } while ((*event == 0U) && (elapsedTime < timeoutMilliseconds));
         *event = 0U;
 
@@ -125,10 +128,14 @@ void SDMMCEVENT_Delete(sdmmc_event_t eventType)
 
 void SDMMCEVENT_Delay(uint32_t milliseconds)
 {
-    uint32_t startTime = systick_millis_count;
+    volatile uint32_t startTime = systick_millis_count;
     uint32_t periodTime = 0;
-    while (periodTime < milliseconds)
+
+	volatile uint32_t ret;
+
+	while (periodTime < milliseconds)
     {
-        periodTime = systick_millis_count - startTime;
+		ret = systick_millis_count;
+		periodTime = ret - startTime;
     }
 }

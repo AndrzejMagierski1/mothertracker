@@ -1407,13 +1407,15 @@ static status_t SD_Write(sd_card_t *card,
         (blockSize > card->host.capability.maxBlockLength) || (blockSize % 4U))
     {
         SDMMC_LOG("\r\nError: write with parameter, block size %d is not support", blockSize);
+
         return kStatus_SDMMC_CardNotSupport;
     }
 
     /* Wait for the card write process complete because of that card read process and write process use one buffer.*/
     if (kStatus_Success != SD_WaitWriteComplete(card))
     {
-        return kStatus_SDMMC_WaitWriteCompleteFailed;
+        asm("NOP");
+    	return kStatus_SDMMC_WaitWriteCompleteFailed;
     }
 
     /* Wait for the card's buffer to be not full to write to improve the write performance. */
