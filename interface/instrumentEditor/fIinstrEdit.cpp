@@ -9,7 +9,8 @@
 
 #include "core/interfacePopups.h"
 
-#include "mtFileManager.h"
+#include "fileManager.h"
+//#include "mtFileManager.h"
 
 
 cInstrumentEditor instrumentEditor;
@@ -760,8 +761,9 @@ void changeEnvState(int16_t value)
 //	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].enable + value > 1 ) IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
 //	else IE->editorInstrument->envelope[IE->selectedEnvelope].enable += value;
 
-	IE->showInstrumentEnv();
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
+	IE->showInstrumentEnv();
 	IE->showEnvState();
 }
 
@@ -781,7 +783,7 @@ void changeEnvAttack(int16_t value)
 			map(localCurrentValue,ENVELOPE_MICRO_VAL,ENVELOPE_MICRO_VAL + ( (ATTACK_MAX - ENVELOPE_MICRO_RANGE)/100),ENVELOPE_MICRO_RANGE,ATTACK_MAX):
 			map(localCurrentValue,0,ENVELOPE_MICRO_VAL,0,ENVELOPE_MICRO_RANGE);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
 	IE->showEnvAttack();
 }
@@ -802,7 +804,7 @@ void changeEnvDecay(int16_t value)
 			map(localCurrentValue,ENVELOPE_MICRO_VAL ,ENVELOPE_MICRO_VAL + ( (DECAY_MAX - ENVELOPE_MICRO_RANGE)/100),ENVELOPE_MICRO_RANGE,DECAY_MAX):
 			map(localCurrentValue,0,ENVELOPE_MICRO_VAL,0,ENVELOPE_MICRO_RANGE);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
 	IE->showEnvDecay();
 }
@@ -817,7 +819,7 @@ void changeEnvSustain(int16_t value)
 	else if(IE->editorInstrument->envelope[IE->selectedEnvelope].sustain + fVal > SUSTAIN_MAX ) IE->editorInstrument->envelope[IE->selectedEnvelope].sustain = SUSTAIN_MAX;
 	else IE->editorInstrument->envelope[IE->selectedEnvelope].sustain += fVal;
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
 	IE->showEnvSustain();
 }
@@ -838,7 +840,7 @@ void changeEnvRelease(int16_t value)
 			map(localCurrentValue,ENVELOPE_MICRO_VAL, ENVELOPE_MICRO_VAL + ( (RELEASE_MAX - ENVELOPE_MICRO_RANGE)/100),ENVELOPE_MICRO_RANGE,RELEASE_MAX):
 			map(localCurrentValue,0,ENVELOPE_MICRO_VAL,0,ENVELOPE_MICRO_RANGE);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
 	IE->showEnvRelease();
 }
@@ -862,7 +864,7 @@ void changeEnvAmount(int16_t value)
 		IE->editorInstrument->envelope[IE->selectedEnvelope].enable = 1;
 	}
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
 	IE->showEnvAmount();
 }
@@ -887,7 +889,8 @@ void changeLfoShape(int16_t value)
 	{
 		instrumentPlayer[i].setStatusBytes(statusByte);
 	}
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
 	IE->showLfoShape();
 }
@@ -911,7 +914,8 @@ void changeLfoSpeed(int16_t value)
 	{
 		instrumentPlayer[i].setStatusBytes(statusByte);
 	}
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
 	IE->showLfoSpeed();
 }
@@ -922,8 +926,6 @@ void changeLfoAmount(int16_t value)
 	if(IE->editorInstrument->lfo[IE->selectedEnvelope].amount + fVal < 0) IE->editorInstrument->lfo[IE->selectedEnvelope].amount = 0;
 	else if(IE->editorInstrument->lfo[IE->selectedEnvelope].amount + fVal > AMOUNT_MAX ) IE->editorInstrument->lfo[IE->selectedEnvelope].amount = AMOUNT_MAX;
 	else IE->editorInstrument->lfo[IE->selectedEnvelope].amount += fVal;
-
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 
 	uint32_t statusByte = 0;
 	switch(IE->selectedEnvelope)
@@ -939,6 +941,8 @@ void changeLfoAmount(int16_t value)
 	{
 		instrumentPlayer[i].setStatusBytes(statusByte);
 	}
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
 	IE->showLfoAmount();
 }
@@ -982,9 +986,9 @@ void changeFilterFilterType(int16_t value)
 		IE->editorInstrument->filterType = bandPass;
 	}
 
-	IE->showFilterType();
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	IE->showFilterType();
 }
 
 void changeFilterCutOff(int16_t value)
@@ -1007,9 +1011,9 @@ void changeFilterCutOff(int16_t value)
 		instrumentPlayer[i].setStatusBytes(CUTOFF_MASK);
 	}
 
-	IE->showFilterCutOff();
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	IE->showFilterCutOff();
 }
 
 void changeFilterResonance(int16_t value)
@@ -1027,9 +1031,9 @@ void changeFilterResonance(int16_t value)
 		instrumentPlayer[i].setStatusBytes(RESONANCE_MASK);
 	}
 
-	IE->showFilterResonance();
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	IE->showFilterResonance();
 }
 
 void changeParamsVolume(int16_t value)
@@ -1043,9 +1047,9 @@ void changeParamsVolume(int16_t value)
 		instrumentPlayer[i].setStatusBytes(VOLUME_MASK);
 	}
 
-	IE->showParamsVolume();
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	IE->showParamsVolume();
 }
 
 void changeParamsTune(int16_t value)
@@ -1059,9 +1063,9 @@ void changeParamsTune(int16_t value)
 		instrumentPlayer[i].setStatusBytes(TUNE_MASK);
 	}
 
-	IE->showParamsTune();
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	IE->showParamsTune();
 }
 
 void changeParamsFineTune(int16_t value)
@@ -1075,9 +1079,9 @@ void changeParamsFineTune(int16_t value)
 		instrumentPlayer[i].setStatusBytes(FINETUNE_MASK);
 	}
 
-	IE->showParamsFineTune();
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	IE->showParamsFineTune();
 }
 
 void changeParamsGlide(int16_t value)
@@ -1088,9 +1092,9 @@ void changeParamsGlide(int16_t value)
 	else if(IE->editorInstrument->glide + value > GLIDE_MAX ) IE->editorInstrument->glide = GLIDE_MAX;
 	else IE->editorInstrument->glide += value;
 
-	IE->showParamsGlide();
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	IE->showParamsGlide();
 }
 
 void changeParamsPanning(int16_t value)
@@ -1105,9 +1109,9 @@ void changeParamsPanning(int16_t value)
 		instrumentPlayer[i].setStatusBytes(PANNING_MASK);
 	}
 
-	IE->showParamsPanning();
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	IE->showParamsPanning();
 }
 
 
@@ -1122,9 +1126,9 @@ void changeParamsReverbSend(int16_t value)
 		instrumentPlayer[i].setStatusBytes(REVERB_SEND_MASK);
 	}
 
-	IE->showParamsReverbSend();
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	IE->showParamsReverbSend();
 }
 
 
@@ -1139,18 +1143,12 @@ void changeParamsVelocity(int16_t value)
 
 	IE->showParamsVelocity();
 
-	IE->setProjectSaveFlags();
+	newFileManager.setProjectStructChanged();
 }
 
 
 //======================================================================================================================
 //==============================================================================================
-
-void cInstrumentEditor::setProjectSaveFlags()
-{
-	mtProject.values.projectNotSavedFlag = 1;
-	fileManager.configIsChangedFlag = 1;
-}
 
 void cInstrumentEditor::cancelPopups()
 {

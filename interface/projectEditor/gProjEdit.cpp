@@ -1,7 +1,9 @@
+
 #include "projectEditor/projectEditor.h"
 
 #include "mtLED.h"
-#include "mtFileManager.h"
+#include "fileManager.h"
+//#include "mtFileManager.h"
 #include "mtExporterWAV.h"
 #include "display.h"
 
@@ -85,7 +87,7 @@ void cProjectEditor::initDisplayControls()
 	strControlProperties prop;
 	prop.x = 1;
 	prop.y = 29;
-	prop.w = (800/4)-3;
+	prop.w = (800/8*3)-3;
 	prop.h = 394;
 	prop.style = controlStyleBackground;
 	prop.data = &projectList;
@@ -200,8 +202,8 @@ void cProjectEditor::showDefaultScreen()
 	display.refreshControl(titleLabel);
 
 
-	strcpy(projectCoverName, fileManager.currentProjectName);
-	display.setControlText(titleLabelProjectName, fileManager.currentProjectName);
+	strcpy(projectCoverName, newFileManager.getCurrentProjectName());
+	display.setControlText(titleLabelProjectName, newFileManager.getCurrentProjectName());
 	display.refreshControl(titleLabelProjectName);
 
 	display.setControlData(label[0], &labelArrow);
@@ -276,30 +278,16 @@ void cProjectEditor::showDefaultScreen()
 	display.synchronizeRefresh();
 }
 
-//==============================================================================================================
-void cProjectEditor::deactivateGui()
-{
-	showDefaultScreen();
-
-	for(uint8_t i = 0; i<8; i++)
-	{
-		display.setControlColors(label[i], interfaceGlobals.inactiveLabelsColors);
-		display.refreshControl(label[i]);
-	}
-
-	display.synchronizeRefresh();
-}
 
 //==============================================================================================================
 void cProjectEditor::showProjectsList()
 {
 // lista
-	selectedLocation = 0;
 
-	projectList.start = selectedLocation;
-	projectList.length = projectsfoundCount;
+	projectList.start = selectedProject;
+	projectList.length = projectsListLength;
 	projectList.linesCount = 13;
-	projectList.data = filesNames;
+	projectList.data = projectsList;
 
 	display.setControlData(fileListControl,  &projectList);
 	display.setControlShow(fileListControl);
@@ -502,7 +490,7 @@ void cProjectEditor::showSaveLastWindow()
 	display.setControlText(label[6], "Don't save");
 	display.setControlText(label[7], "Save");
 
-	sprintf(currentInfo,"Do you want to save the changes to \"%s\"?", fileManager.currentProjectName);
+	sprintf(currentInfo,"Do you want to save the changes to \"%s\"?", newFileManager.getCurrentProjectName());
 
 	display.setControlText(popupWindowLabel, currentInfo);
 	display.setControlShow(popupWindowLabel);
@@ -526,7 +514,7 @@ void cProjectEditor::showDeleteLastWindow()
 	display.setControlText(label[6], "Cancel");
 	display.setControlText(label[7], "Delete");
 
-	sprintf(currentInfo,"Do you want to delete project: \"%s\"?", filesNames[selectedLocation]);
+	sprintf(currentInfo,"Do you want to delete project: \"%s\"?", projectsList[selectedProject]);
 
 	display.setControlText(popupWindowLabel, currentInfo);
 	display.setControlShow(popupWindowLabel);
@@ -595,9 +583,6 @@ void cProjectEditor::showStopPatternWindow()
 	display.synchronizeRefresh();
 }
 
-
-
-
 void cProjectEditor::showExportingHorizontalBar()
 {
 
@@ -623,6 +608,9 @@ void cProjectEditor::showExportingHorizontalBar()
 	display.setControlText(loadHorizontalBarControl, currentInfo);
 	display.setControlShow(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
+
+	display.setControlHide(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
 }
 
 
@@ -657,9 +645,6 @@ void cProjectEditor::showExportWindow()
 
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
-
-	display.setControlHide(popupWindowLabel);
-	display.refreshControl(popupWindowLabel);
 
 	display.synchronizeRefresh();
 }

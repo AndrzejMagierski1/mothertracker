@@ -17,7 +17,6 @@
 
 */
 
-#include "mtFileManager.h"
 
 
 
@@ -26,7 +25,6 @@ void cInterface::potChange(uint8_t n, int16_t value)
 {
 	uiFM.processPotsInput(n, value);
 
-	fileManager.delayAutoSave(2000);
 }
 
 //=======================================================================
@@ -77,20 +75,4 @@ void cInterface::padHold(uint8_t n)
 }
 
 //=======================================================================
-void cInterface::SDCardChange(uint8_t state)
-{
-
-	if(state == 0)
-	{
-		//debugLog.addLine("karta wyjeta");
-		//mtPopups.show(4, "SD card removed");
-	}
-	else
-	{
-		//debugLog.addLine("karta wlozona");
-		//mtPopups.show(4, "SD card inserted");
-	}
-
-	uiFM.processSdDetectInput(state);
-}
 

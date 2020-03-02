@@ -157,7 +157,7 @@ void cConfigEditor::reloadSecondSubmenu()
 
 void cConfigEditor::loadConfigTextList(strItemTypeListText* itemSetup)
 {
-	showConfigList5(*itemSetup->value, itemSetup->count, (char**)itemSetup->ptrText);
+	showConfigList5(2, *itemSetup->value, itemSetup->count, (char**)itemSetup->ptrText);
 	changeLabelText(7, "Select");
 	selectConfigList();
 }
@@ -355,7 +355,7 @@ void cConfigEditor::setLabelByMenuItemType(uint8_t label, menu_item_t type, uint
 		changeLabelText(label,"");
 		break;
 	case menuTypeItemActionButton:
-		changeLabelText(label,"Run");
+		changeLabelText(label,"Enter");
 		break;
 	}
 }

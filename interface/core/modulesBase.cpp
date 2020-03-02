@@ -23,8 +23,6 @@ void cFunctionMachine::clearAll()  // stara wersja
 
 	}
 
-	sdDetectFunct = nullptr;
-
 	potsCleared = 1;
 	buttonsCleared = 1;
 	padsCleared = 1;
@@ -58,11 +56,6 @@ void cFunctionMachine::clearButton(uint8_t button)
 	memset( (uint8_t*)(buttons+button),0,sizeof(strButtonObject));
 }
 
-
-void cFunctionMachine::clearSdDetection()
-{
-	sdDetectFunct = nullptr;
-}
 
 void cFunctionMachine::clearAllPots()
 {
@@ -224,10 +217,7 @@ void cFunctionMachine::setPadsGlobal(uint8_t(*funct)(uint8_t,uint8_t,int16_t))
 }
 
 //==================================================================================================================
-void cFunctionMachine::setSdDetection(uint8_t(*funct)(uint8_t))
-{
-	sdDetectFunct = funct;
-}
+
 
 //==================================================================================================================
 void cFunctionMachine::processButtonsInput(uint8_t button, uint8_t state)
@@ -347,14 +337,6 @@ void cFunctionMachine::processPadsInput(uint8_t pad, uint8_t state, int8_t x, in
 
 }
 
-
-void cFunctionMachine::processSdDetectInput(uint8_t state)
-{
-	if(sdDetectFunct != nullptr)
-	{
-		if(sdDetectFunct(state) == 0) sdDetectFunct = nullptr;
-	}
-}
 
 
 void cFunctionMachine::processPowerButton(uint8_t state)

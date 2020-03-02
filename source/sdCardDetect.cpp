@@ -45,7 +45,7 @@ void SDCardDetector::update(uint8_t forcedUpdate)
 			}
 			else
 			{
-				debugLog.addLine("blad inicjalizacji karty sd");
+				debugLog.addLine("SD init failed");
 			}
 		}
 		return;

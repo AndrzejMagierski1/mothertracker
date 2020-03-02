@@ -7,7 +7,8 @@
 #include "core/interfacePopups.h"
 
 #include "core/graphicProcessing.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
+#include "fileManager.h"
 #include "mtSliceManager.h"
 
 cSamplePlayback samplePlayback;
@@ -213,6 +214,8 @@ void cSamplePlayback::update()
 		if(editorInstrument->playMode == playModeSlice) processSlicePoints();
 
 		display.refreshControl(slicePointsControl);
+
+		newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
 		refreshSlicePoints = 0;
 	}
@@ -1554,13 +1557,13 @@ static void changePlayModeSelection(int16_t value)
 	}
 
 
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
 
 	display.setControlValue(SP->playModeListControl, SP->editorInstrument->playMode + SP->editorInstrument->sample.type);
 	display.refreshControl(SP->playModeListControl);
 
 	SP->showDefaultScreen();
-
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 static void modStartPoint(int16_t value)
@@ -1623,9 +1626,10 @@ static void modStartPoint(int16_t value)
 	SP->zoom.lastChangedPoint = 1;
 	SP->refreshPoints = 1;
 
-	SP->showStartPointValue();
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
+	SP->showStartPointValue();
 }
 
 static void modEndPoint(int16_t value)
@@ -1689,9 +1693,9 @@ static void modEndPoint(int16_t value)
 	SP->zoom.lastChangedPoint = 2;
 	SP->refreshPoints = 1;
 
-	SP->showEndPointValue();
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	SP->showEndPointValue();
 }
 
 static void modLoopPoint1(int16_t value)
@@ -1718,9 +1722,9 @@ static void modLoopPoint1(int16_t value)
 	SP->zoom.lastChangedPoint = 3;
 	SP->refreshPoints = 1;
 
-	SP->showLoopPoint1Value();
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	SP->showLoopPoint1Value();
 }
 
 static void modLoopPoint2(int16_t value)
@@ -1746,9 +1750,10 @@ static void modLoopPoint2(int16_t value)
 	SP->zoom.zoomPosition = SP->editorInstrument->loopPoint2;
 	SP->zoom.lastChangedPoint = 4;
 	SP->refreshPoints = 1;
-	SP->showLoopPoint2Value();
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
+	SP->showLoopPoint2Value();
 }
 
 void cSamplePlayback::processWavetableCursor(uint32_t position)
@@ -1777,8 +1782,7 @@ static void modWavetablePostion(int32_t value)
 	SP->showWavetablePosition();
 	SP->refreshSpectrum = 1;
 
-
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 }
 
 static void modWavetableWindowSize(int16_t value)
@@ -1825,8 +1829,7 @@ static void modWavetableWindowSize(int16_t value)
 	SP->showWavetableWindowSize();
 	SP->refreshSpectrum = 1;
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
-	//instrumentPlayer[0].instrumentBasedMod.wtPos;
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 }
 
 static void modSliceSelect(int16_t value)
@@ -1844,10 +1847,11 @@ static void modSliceSelect(int16_t value)
 		if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
 	}
 
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
 	SP->showSlicesSelectValue();
 	SP->showSlicesAdjustValue();
 	SP->refreshSlicePoints = 1;
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 static void modSliceAdjust(int16_t value)
 {
@@ -1861,9 +1865,10 @@ static void modSliceAdjust(int16_t value)
 		if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
 	}
 
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
 	SP->showSlicesAdjustValue();
 	SP->refreshSlicePoints = 1;
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 }
 
 static uint8_t functAddSlice()
@@ -1876,10 +1881,13 @@ static uint8_t functAddSlice()
 		SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
 		if((SP->zoom.zoomPosition > SP->zoom.zoomEnd) || (SP->zoom.zoomPosition < SP->zoom.zoomStart)) SP->refreshSpectrum = 1;
 	}
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
 	SP->showSlicesSelectValue();
 	SP->showSlicesAdjustValue();
 	SP->refreshSlicePoints = 1;
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
 	return 1;
 }
 static uint8_t functRemoveSlice()
@@ -1894,7 +1902,9 @@ static uint8_t functRemoveSlice()
 	SP->showSlicesSelectValue();
 	SP->showSlicesAdjustValue();
 	SP->refreshSlicePoints = 1;
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
 	return 1;
 }
 static uint8_t functAutoSlice()
@@ -1913,7 +1923,9 @@ static uint8_t functConfirmAutoSlice()
 {
 	SP->autoSlicePopupVisible = 0;
 	SP->hideAutoSlicePopup();
+
 	sliceManager.autoSlice(SP->editorInstrument);
+
 	if((SP->editorInstrument->playMode == playModeSlice) && (SP->editorInstrument->sample.type == mtSampleTypeWaveFile) )
 	{
 		SP->zoom.zoomPosition = (SP->editorInstrument->sliceNumber > 0 ) ? SP->editorInstrument->slices[SP->editorInstrument->selectedSlice] : 0;
@@ -1922,7 +1934,7 @@ static uint8_t functConfirmAutoSlice()
 	SP->showSlicesSelectValue();
 	SP->showSlicesAdjustValue();
 	SP->refreshSlicePoints = 1;
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
 	return 1;
 }
 
@@ -1950,7 +1962,9 @@ static void modGranularLength(int16_t value)
 		instrumentPlayer[i].setStatusBytes(GRANULAR_LEN_SEND_MASK);
 	}
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
 }
 static void modGranularShape(int16_t value)
 {
@@ -1963,7 +1977,9 @@ static void modGranularShape(int16_t value)
 	{
 		instrumentPlayer[i].setStatusBytes(GRANULAR_WAVE_SEND_MASK);
 	}
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
+
 }
 static void modGranularLoopType(int16_t value)
 {
@@ -1977,7 +1993,8 @@ static void modGranularLoopType(int16_t value)
 	{
 		instrumentPlayer[i].setStatusBytes(GRANULAR_LOOP_SEND_MASK);
 	}
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 }
 static void modGranularPosition(int16_t value)
 {
@@ -1996,7 +2013,7 @@ static void modGranularPosition(int16_t value)
 		instrumentPlayer[i].setStatusBytes(GRANULAR_POS_SEND_MASK);
 	}
 
-	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
+	newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
 }
 
 static uint8_t functShift(uint8_t value)

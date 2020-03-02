@@ -709,6 +709,10 @@ void ResetHandler(void)
 	//volatile int count;
 
 #ifdef KINETISK
+
+
+
+
 	WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;
 	WDOG_UNLOCK = WDOG_UNLOCK_SEQ2;
 	__asm__ volatile ("nop");

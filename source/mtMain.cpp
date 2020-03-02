@@ -12,7 +12,8 @@
 #include "mtPadsBacklight.h"
 #include "mtSleep.h"
 #include "mtExporterWAV.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
+#include "fileManager.h"
 #include "mtSliceDetector.h"
 #include "mtMidi.h"
 
@@ -72,8 +73,9 @@ void loop()
 
 	exporter.update();
 	sliceDetector.update();
-//	engine.update();
-	fileManager.update();
+
+	//fileManager.update();
+	newFileManager.update();
 	recorder.updateSave();
 	mtInterface.update();
 

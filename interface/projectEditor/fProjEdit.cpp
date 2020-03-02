@@ -1,9 +1,10 @@
+
 #include <mtRandomNameGenerator.h>
 #include "mtSliceDetector.h"
 
 
 #include "projectEditor/projectEditor.h"
-#include "mtFileManager.h"
+///#include "mtFileManager.h"
 #include "mtAudioEngine.h"
 #include "mtLED.h"
 #include "mtExporterWAV.h"
@@ -14,8 +15,10 @@
 #include "performanceMode/performanceMode.h"
 
 #include "sdCardDetect.h"
-#include "mtFileManager.h"
 
+#include "fileManager.h"
+
+#include "debugLog.h"
 
 
 cProjectEditor projectEditor;
@@ -23,7 +26,6 @@ cProjectEditor* PE = &projectEditor;
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
-static uint8_t functSdCard(uint8_t state);
 
 //static uint8_t functShowProjectsList();
 //static uint8_t functShowTemplatesList();
@@ -57,9 +59,6 @@ static uint8_t functSaveChangesDontSaveOpen();
 static uint8_t functSaveChangesSaveOpen();
 static uint8_t functProjectListUp();
 static uint8_t functProjectListDown();
-
-static uint8_t functStopPatternYes();
-static uint8_t functStopPatternNo();
 //****************************************************
 //Export
 static uint8_t functExportSong();
@@ -72,6 +71,9 @@ static uint8_t functExportGoBack();
 //****************************************************
 static uint8_t functSwitchModule(uint8_t button);
 
+
+static uint8_t functStopPatternYes();
+static uint8_t functStopPatternNo();
 
 static  uint8_t functLeft();
 static  uint8_t functRight();
@@ -98,149 +100,182 @@ static uint8_t functStartGameModule()
 
 void cProjectEditor::update()
 {
-	refreshProcessingPopup();
 
-	if(openInProgressFlag || createNewProjectFlag)
+	uint8_t managerStatus = newFileManager.getStatus();
+
+
+	if(managerStatus == fmLoadEnd)
 	{
-		uint8_t loadStatus = fileManager.getLoadingStatus();
-
-		if(loadStatus)
-		{
-			fileManager.refreshProjectOpening();
-		}
-		else
-		{
-			loadProjectValues();
-
-			hideProcessingPopup();
-
-			showDefaultScreen();
-			setDefaultScreenFunct();
-			openInProgressFlag = 0;
-			createNewProjectFlag = 0;
-			isBusyFlag = 0;
-		}
+		debugLog.addLine("Opening Finished");
+		newFileManager.clearStatus();
+		setDefaultScreenFunct();
+	}
+	else if(managerStatus == fmSaveEnd)
+	{
+		debugLog.addLine("Save Finished");
+		newFileManager.clearStatus();
+		setDefaultScreenFunct();
+	}
+	else if(managerStatus == fmBrowseProjectsEnd)
+	{
+		processProjectList();
+		newFileManager.clearStatus();
 	}
 
-	if(saveInProgressFlag)
+
+
+	else if(managerStatus >=  fmError)
 	{
-		uint8_t saveStatus = fileManager.getSavingStatus();
-
-		if(saveStatus)
-		{
-			fileManager.refreshSaveProject();
-		}
-		else
-		{
-			saveInProgressFlag = 0;
-			showDefaultScreen();
-			hideProcessingPopup();
-
-			isBusyFlag = 0;
-
-			if(newProjectOnSaveEndFlag)
-			{
-				newProjectOnSaveEndFlag = 0;
-				functNewProject();
-			}
-			if(openOnSaveEndFlag)
-			{
-				openOnSaveEndFlag = 0;
-				functOpenProjectConfirm();
-			}
-
-			setDefaultScreenFunct();
-		}
+		debugLog.addLine("Opretion Error");
+		newFileManager.clearStatus();
+		setDefaultScreenFunct();
 	}
 
-	if(deleteInProgressFlag)
-	{
-		uint8_t deleteStatus = fileManager.getDeletingStatus();
 
-		if(deleteStatus)
-		{
-			fileManager.refreshDeleting();
-		}
-		else
-		{
-			deleteInProgressFlag = 0;
-			showDefaultScreen();
-			hideProcessingPopup();
 
-			isBusyFlag = 0;
+//	refreshProcessingPopup();
 
-			setDefaultScreenFunct();
-		}
-	}
+//	if(openInProgressFlag || createNewProjectFlag)
+//	{
+//		uint8_t loadStatus = fileManager.getLoadingStatus();
+//
+//		if(loadStatus)
+//		{
+//			fileManager.refreshProjectOpening();
+//		}
+//		else
+//		{
+//			loadProjectValues();
+//
+//			hideProcessingPopup();
+//
+//			showDefaultScreen();
+//			setDefaultScreenFunct();
+//			openInProgressFlag = 0;
+//			createNewProjectFlag = 0;
+//			isBusyFlag = 0;
+//		}
+//	}
 
-	if(exportInProgress)
-	{
-		currentExportState = exporter.getState();
-		uint8_t localProgress = exporter.getProgress();
-		if(localProgress >  exportProgress )
-		{
-			exportProgress = localProgress;
-		}
-		showExportingHorizontalBar();
-		if((currentExportState == 0) && (lastExportState != currentExportState))
-		{
-			isBusyFlag = 0;
-			exportInProgress = 0;
-			showExportWindow();
-		}
+//	if(saveInProgressFlag)
+//	{
+//		uint8_t saveStatus = fileManager.getSavingStatus();
+//
+//		if(saveStatus)
+//		{
+//			fileManager.refreshSaveProject();
+//		}
+//		else
+//		{
+//			saveInProgressFlag = 0;
+//			showDefaultScreen();
+//			hideProcessingPopup();
+//
+//			isBusyFlag = 0;
+//
+//			if(newProjectOnSaveEndFlag)
+//			{
+//				newProjectOnSaveEndFlag = 0;
+//				functNewProject();
+//			}
+//			if(openOnSaveEndFlag)
+//			{
+//				openOnSaveEndFlag = 0;
+//				functOpenProjectConfirm();
+//			}
+//
+//			setDefaultScreenFunct();
+//		}
+//	}
 
-		lastExportState = currentExportState;
-	}
+//	if(deleteInProgressFlag)
+//	{
+//		uint8_t deleteStatus = fileManager.getDeletingStatus();
+//
+//		if(deleteStatus)
+//		{
+//			fileManager.refreshDeleting();
+//		}
+//		else
+//		{
+//			deleteInProgressFlag = 0;
+//			showDefaultScreen();
+//			hideProcessingPopup();
+//
+//			isBusyFlag = 0;
+//
+//			setDefaultScreenFunct();
+//		}
+//	}
 
-	if(newProjectPopupDelay > 200)
-	{
-		if(newProjectPopupFlag)
-		{
-			newProjectPopupFlag = 0;
-			fileManager.openProjectStart((char*)"New",projectTypeExample);
-			createNewProjectFlag = 1;
-		}
-	}
-
-	if(savePopupFlag)
-	{
-		if(savePopupDelay > 200)
-		{
-			savePopupFlag = 0;
-			fileManager.startSaveProject();
-			saveInProgressFlag = 1;
-		}
-	}
-
-	if(openPopupFlag)
-	{
-		if(openPopupDelay > 200)
-		{
-			openPopupFlag = 0;
-			fileManager.openProjectStart(PE->filesNames[PE->selectedLocation], projectTypeUserMade);
-			openInProgressFlag = 1;
-		}
-	}
-
-	if(newProjectPopupFlag)
-	{
-		if(newProjectPopupDelay > 200)
-		{
-			newProjectPopupFlag = 0;
-			fileManager.openProjectStart((char*)"New",projectTypeExample);
-			createNewProjectFlag = 1;
-		}
-	}
-
-	if(deletePopupFlag)
-	{
-		if(deletePopupDelay > 200)
-		{
-			deletePopupFlag = 0;
-			fileManager.deleteProjectStart(PE->filesNames[PE->selectedLocation]);
-			deleteInProgressFlag = 1;
-		}
-	}
+//	if(exportInProgress)
+//	{
+//		currentExportState = exporter.getState();
+//		uint8_t localProgress = exporter.getProgress();
+//		if(localProgress >  exportProgress )
+//		{
+//			exportProgress = localProgress;
+//		}
+//		showExportingHorizontalBar();
+//		if((currentExportState == 0) && (lastExportState != currentExportState))
+//		{
+//			isBusyFlag = 0;
+//			exportInProgress = 0;
+//			showExportWindow();
+//		}
+//
+//		lastExportState = currentExportState;
+//	}
+//
+//	if(newProjectPopupDelay > 200)
+//	{
+//		if(newProjectPopupFlag)
+//		{
+//			newProjectPopupFlag = 0;
+//			fileManager.openProjectStart((char*)"New",projectTypeExample);
+//			createNewProjectFlag = 1;
+//		}
+//	}
+//
+//	if(savePopupFlag)
+//	{
+//		if(savePopupDelay > 200)
+//		{
+//			savePopupFlag = 0;
+//			fileManager.startSaveProject();
+//			saveInProgressFlag = 1;
+//		}
+//	}
+//
+//	if(openPopupFlag)
+//	{
+//		if(openPopupDelay > 200)
+//		{
+//			openPopupFlag = 0;
+//			fileManager.openProjectStart(PE->projectsList[PE->selectedProject], projectTypeUserMade);
+//			openInProgressFlag = 1;
+//		}
+//	}
+//
+//	if(newProjectPopupFlag)
+//	{
+//		if(newProjectPopupDelay > 200)
+//		{
+//			newProjectPopupFlag = 0;
+//			fileManager.openProjectStart((char*)"New",projectTypeExample);
+//			createNewProjectFlag = 1;
+//		}
+//	}
+//
+//	if(deletePopupFlag)
+//	{
+//		if(deletePopupDelay > 200)
+//		{
+//			deletePopupFlag = 0;
+//			fileManager.deleteProjectStart(PE->projectsList[PE->selectedProject]);
+//			deleteInProgressFlag = 1;
+//		}
+//	}
 
 	if(refreshCover)
 	{
@@ -271,20 +306,12 @@ void cProjectEditor::update()
 void cProjectEditor::start(uint32_t options)
 {
 
-	selectedLocation = 0;
+	selectedProject = 0;
 
 	moduleRefresh = 1;
 
 	keyboardManager.init(keyboardControl,editName);
 
-
-
-
-	if(!sdCardDetector.isCardInserted())
-	{
-		functSdCard(0);
-		return;
-	}
 
 	showDefaultScreen();
 	setDefaultScreenFunct();
@@ -329,6 +356,7 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonSong, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPattern, buttonPress, functSwitchModule);
 
+
 	FM->setButtonObj(interfaceButton0, buttonPress, functNewProject);
 	FM->setButtonObj(interfaceButton1, buttonPress, functOpenProject);
 	FM->setButtonObj(interfaceButton4, buttonPress, functSaveProject);
@@ -349,18 +377,6 @@ void cProjectEditor::setDefaultScreenFunct()
 
 	FM->setPadsGlobal(functPads);
 
-
-	FM->setSdDetection(functSdCard);
-}
-
-void cProjectEditor::setStopPatternFunct()
-{
-	FM->clearAllButtons();
-	FM->clearAllPots();
-	FM->clearAllPads();
-
-	FM->setButtonObj(interfaceButton6, buttonPress, functStopPatternNo);
-	FM->setButtonObj(interfaceButton7, buttonPress, functStopPatternYes);
 }
 //==============================================================================================================
 //==============================================================================================================
@@ -449,63 +465,17 @@ uint8_t cProjectEditor::loadProjectValues()
 
 }
 
-//==============================================================================================================
-//==============================================================================================================
-//==============================================================================================================
-//Nowe podejscie ekran główny
-static uint8_t functNewProject()
+void cProjectEditor::processProjectList()
 {
-	if(PE->isBusyFlag) return 1;
-	if(sequencer.isPlay())
-	{
-		PE->showStopPatternWindow();
-		PE->setStopPatternFunct();
-		PE->stopAction = cProjectEditor::stopActionNewProject;
-		return 1;
-	}
-	if(mtProject.values.projectNotSavedFlag)
-	{
-		PE->functShowSaveLastWindow();
-		return 1;
-	}
 
-	strcpy(fileManager.currentProjectName, "New Project");
+	PE->projectsListLength = newFileManager.getProjectsList(&PE->projectsList);
 
-/*	memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
-	memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);*/
-
-
-	char currentPatch[PATCH_SIZE];
-	strcpy(currentPatch,"Templates/New/project.mt");
-
-	fileManager.getDefaultProject(&mtProject);
-	fileManager.createEmptyTemplateProject((char*)"New");
-
-	strcpy(mtConfig.startup.lastProjectName, fileManager.currentProjectName);
-
-
-	PE->isBusyFlag = 1;
-	PE->newProjectNotSavedFlag = 1;
-
-	PE->newProjectPopupDelay = 0;
-	PE->newProjectPopupFlag = 1;
-
-	PE->showProcessingPopup("Creating new project");
-	PE->showDefaultScreen();
-
-	return 1;
-}
-
-static uint8_t functOpenProject()
-{
-	if(PE->isBusyFlag) return 1;
-
-	PE->listProjectsNames("/Projects");
+	PE->selectedProject = 0;
 
 	PE->showProjectsList();
 
 	PE->refreshProjectCover(100);
-	strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
+	strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 
 
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
@@ -519,8 +489,116 @@ static uint8_t functOpenProject()
 
 	PE->projectListActiveFlag = 1;
 
+}
+
+//==============================================================================================================
+//==============================================================================================================
+
+void cProjectEditor::setStopPatternFunct()
+{
+	FM->clearAllButtons();
+	FM->clearAllPots();
+	FM->clearAllPads();
+
+	FM->setButtonObj(interfaceButton6, buttonPress, functStopPatternNo);
+	FM->setButtonObj(interfaceButton7, buttonPress, functStopPatternYes);
+}
+
+static uint8_t functStopPatternYes()
+{
+
+	sequencer.stop();
+	PE->setDefaultScreenFunct();
+	switch (PE->stopAction)
+	{
+		case cProjectEditor::stopActionOpen: 		functOpenProjectConfirm();		break;
+		case cProjectEditor::stopActionNewProject: 	functNewProject();				break;
+		case cProjectEditor::stopActionExport: 		functExport();					break;
+		default: break;
+	}
+
+
 	return 1;
 }
+static uint8_t functStopPatternNo()
+{
+	PE->setDefaultScreenFunct();
+	PE->showDefaultScreen();
+	return 1;
+}
+
+//==============================================================================================================
+//==============================================================================================================
+//==============================================================================================================
+//Nowe podejscie ekran główny
+static uint8_t functNewProject()
+{
+	if(PE->isBusyFlag) return 1;
+
+	if(sequencer.isPlay())
+	{
+		PE->showStopPatternWindow();
+		PE->setStopPatternFunct();
+		PE->stopAction = cProjectEditor::stopActionNewProject;
+		return 1;
+	}
+
+	if(mtProject.values.projectNotSavedFlag)
+	{
+		PE->functShowSaveLastWindow();
+		return 1;
+	}
+
+	PE->newProjectNotSavedFlag = 1;
+
+	debugLog.setMaxLineCount(5);
+	debugLog.addLine("Creating new Project Started");
+	debugLog.forceRefresh();
+
+
+	newFileManager.createNewProjectInWorkspace();
+	newFileManager.openProjectFromWorkspace();
+
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	PE->FM->clearAllPots();
+
+//	strcpy(newFileManager.getCurrentProjectName(), "New Project");
+/*	memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
+	memset(newFileManager.getCurrentProjectName(),0,PROJECT_NAME_SIZE);*/
+
+
+//	char currentPatch[PATCH_SIZE];
+//	strcpy(currentPatch,"Templates/New/project.mt");
+//	fileManager.getDefaultProject(&mtProject);
+//	fileManager.createEmptyTemplateProject((char*)"New");
+//	strcpy(mtConfig.startup.lastProjectName, newFileManager.getCurrentProjectName());
+//
+//	PE->newProjectPopupDelay = 0;
+//	PE->newProjectPopupFlag = 1;
+//	PE->isBusyFlag = 1;
+
+//	PE->showProcessingPopup("Creating new project");
+	PE->showDefaultScreen();
+
+	return 1;
+}
+
+static uint8_t functOpenProject()
+{
+	if(PE->isBusyFlag) return 1;
+
+
+	newFileManager.browseProjects();
+
+
+
+	return 1;
+}
+
+
+
+
+
 
 static uint8_t functSaveProject()
 {
@@ -531,16 +609,20 @@ static uint8_t functSaveProject()
 		return 1;
 	}
 
-	PE->isBusyFlag = 1;
-	PE->savePopupFlag = 1;
-	PE->savePopupDelay = 0;
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	PE->FM->clearAllPots();
 
-	mtProject.values.projectNotSavedFlag = 0;
+	//PE->isBusyFlag = 1;
+	//PE->savePopupFlag = 1;
+	//PE->savePopupDelay = 0;
+	//mtProject.values.projectNotSavedFlag = 0;
 
-	if(fileManager.currentProjectName[0]) PE->keyboardManager.fillName(fileManager.currentProjectName);
-	else PE->keyboardManager.fillName((char *)"New Project");
+	//if(newFileManager.getCurrentProjectName()[0]) PE->keyboardManager.fillName(newFileManager.getCurrentProjectName());
+	//else PE->keyboardManager.fillName((char *)"New Project");
+	//PE->showProcessingPopup("Saving project");
 
-	PE->showProcessingPopup("Saving project");
+
+	newFileManager.saveProjectToProjects();
 
 	return 1;
 }
@@ -556,7 +638,7 @@ static uint8_t functSaveAsProject()
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functConfirmKey);
 	PE->FM->setButtonObj(interfaceButtonInsert, buttonPress, functConfirmKey);
 
-	PE->keyboardManager.fillName(fileManager.currentProjectName);
+	PE->keyboardManager.fillName(newFileManager.getCurrentProjectName());
 	PE->keyboardManager.activateKeyboard();
 
 	PE->showSaveAsKeyboard();
@@ -568,6 +650,7 @@ static uint8_t functSaveAsProject()
 static uint8_t functExport()
 {
 	if(PE->isBusyFlag) return 1;
+
 	if(sequencer.isPlay())
 	{
 		PE->showStopPatternWindow();
@@ -575,6 +658,7 @@ static uint8_t functExport()
 		PE->stopAction = cProjectEditor::stopActionExport;
 		return 1;
 	}
+
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functExportSong);
@@ -616,26 +700,31 @@ static uint8_t functSaveChangesDontSaveNewProject()
 
 	PE->newProjectNotSavedFlag = 1;
 
-	strcpy(fileManager.currentProjectName, "New Project");
+	newFileManager.createNewProjectInWorkspace();
+	newFileManager.openProjectFromWorkspace();
+
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	PE->FM->clearAllPots();
+
+//	strcpy(newFileManager.getCurrentProjectName(), "New Project");
 
 /*	memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
-	memset(fileManager.currentProjectName,0,PROJECT_NAME_SIZE);*/
+	memset(newFileManager.getCurrentProjectName(),0,PROJECT_NAME_SIZE);*/
 
-	char currentPatch[PATCH_SIZE];
-	strcpy(currentPatch,"Templates/New/project.mt");
+//	char currentPatch[PATCH_SIZE];
+//	strcpy(currentPatch,"Templates/New/project.mt");
 
-	fileManager.getDefaultProject(&mtProject);
-	fileManager.createEmptyTemplateProject((char*)"New");
+//	fileManager.getDefaultProject(&mtProject);
+////	fileManager.createEmptyTemplateProject((char*)"New");
 
-	strcpy(mtConfig.startup.lastProjectName, fileManager.currentProjectName);
+//	strcpy(mtConfig.startup.lastProjectName, newFileManager.getCurrentProjectName());
 
-
-	PE->newProjectPopupDelay = 0;
-	PE->newProjectPopupFlag = 1;
-	PE->isBusyFlag = 1;
+//	PE->newProjectPopupDelay = 0;
+//	PE->newProjectPopupFlag = 1;
+//	PE->isBusyFlag = 1;
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Creating new project");
+//	PE->showProcessingPopup("Creating new project");
 
 	return 1;
 }
@@ -651,15 +740,14 @@ static uint8_t functSaveChangesSaveNewProject()
 		return 1;
 	}
 
-	mtProject.values.projectNotSavedFlag = 0;
-
-	PE->newProjectOnSaveEndFlag = 1;
-	PE->savePopupFlag = 1;
-	PE->savePopupDelay = 0;
-	PE->isBusyFlag = 1;
+//	mtProject.values.projectNotSavedFlag = 0;
+//	PE->newProjectOnSaveEndFlag = 1;
+//	PE->savePopupFlag = 1;
+//	PE->savePopupDelay = 0;
+//	PE->isBusyFlag = 1;
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Saving project");
+//	PE->showProcessingPopup("Saving project");
 
 	return 1;
 }
@@ -680,24 +768,41 @@ static uint8_t functSaveAsConfirm()
 {
 	if(PE->isBusyFlag) return 1;
 
-	if(fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsChecking) == 0 )
+
+	if(newFileManager.projectExist(PE->keyboardManager.getName()))
 	{
 		PE->functShowOverwriteWindow();
 		return 1;
 	}
 
+	debugLog.setMaxLineCount(5);
+	debugLog.addLine("Save Started");
+	debugLog.forceRefresh();
+
+	newFileManager.saveProjectToProjects(PE->keyboardManager.getName());
+
+
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	PE->FM->clearAllPots();
+
+//	if(fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsChecking) == 0 )
+//	{
+//		PE->functShowOverwriteWindow();
+//		return 1;
+//	}
+
 	PE->newProjectNotSavedFlag = 0;
-	mtProject.values.projectNotSavedFlag = 0;
-
-
-	strcpy(fileManager.currentProjectName, 	PE->keyboardManager.getName());
-
-	PE->savePopupFlag = 1;
-	PE->savePopupDelay = 0;
-	PE->isBusyFlag = 1;
+//	mtProject.values.projectNotSavedFlag = 0;
+//
+//
+//	strcpy(newFileManager.getCurrentProjectName(), 	PE->keyboardManager.getName());
+//
+//	PE->savePopupFlag = 1;
+//	PE->savePopupDelay = 0;
+//	PE->isBusyFlag = 1;
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Saving project");
+	//PE->showProcessingPopup("Saving project");
 
 	return 1;
 }
@@ -723,17 +828,27 @@ static uint8_t functSaveAsOverwriteYes()
 {
 	if(PE->isBusyFlag) return 1;
 
-	fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsOverwrite);
+	debugLog.setMaxLineCount(5);
+	debugLog.addLine("Save Started");
+	debugLog.forceRefresh();
 
-	mtProject.values.projectNotSavedFlag = 0;
+	newFileManager.saveProjectToProjects(PE->keyboardManager.getName());
 
-	PE->newProjectNotSavedFlag = 0;
-	PE->savePopupFlag = 1;
-	PE->savePopupDelay = 0;
-	PE->isBusyFlag = 1;
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+	PE->FM->clearAllPots();
+
+	//todo sprawdzanie
+//	fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsOverwrite);
+//
+//	mtProject.values.projectNotSavedFlag = 0;
+//
+//	PE->newProjectNotSavedFlag = 0;
+//	PE->savePopupFlag = 1;
+//	PE->savePopupDelay = 0;
+//	PE->isBusyFlag = 1;
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Saving project");
+	//PE->showProcessingPopup("Saving project");
 
 	return 1;
 }
@@ -760,6 +875,8 @@ static uint8_t functSaveAsOverwriteNo()
 //open
 static uint8_t functOpenProjectConfirm()
 {
+	if(PE->isBusyFlag) return 1;
+
 	if(sequencer.isPlay())
 	{
 		PE->showStopPatternWindow();
@@ -768,25 +885,30 @@ static uint8_t functOpenProjectConfirm()
 		return 1;
 	}
 
-	if(PE->isBusyFlag) return 1;
-	if(mtProject.values.projectNotSavedFlag)
+	if(newFileManager.isProjectChanged())
 	{
 		PE->projectListActiveFlag = 0;
 		PE->functShowSaveLastWindowBeforeOpen();
 		return 1;
 	}
 
-	mtProject.values.projectNotSavedFlag = 0;
-	PE->newProjectNotSavedFlag = 0;
+	debugLog.setMaxLineCount(5);
+	debugLog.addLine("Opening Started");
+	debugLog.forceRefresh();
+
+//	mtProject.values.projectNotSavedFlag = 0;
+//	PE->newProjectNotSavedFlag = 0;
 	PE->projectListActiveFlag = 0;
+//
+//	PE->openPopupDelay = 0;
+//	PE->openPopupFlag = 1;
+//	PE->isBusyFlag = 1;
 
-	PE->openPopupDelay = 0;
-	PE->openPopupFlag = 1;
-	PE->isBusyFlag = 1;
 
+	newFileManager.openProjectFromProjects(PE->selectedProject);
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Opening project");
+///	PE->showProcessingPopup("Opening project");
 	return 1;
 }
 void cProjectEditor::functShowSaveLastWindowBeforeOpen()
@@ -803,7 +925,7 @@ void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 static uint8_t functDelete()
 {
 	if(PE->isBusyFlag) return 1;
-	if(strcmp(fileManager.currentProjectName, PE->filesNames[PE->selectedLocation]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
+	if(strcmp(newFileManager.getCurrentProjectName(), PE->projectsList[PE->selectedProject]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
 
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
 	PE->FM->setButtonObj(interfaceButton7, buttonPress, functDeleteConfirm);
@@ -827,14 +949,14 @@ static uint8_t functProjectListUp()
 {
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation > 0 )
+		if(PE->selectedProject > 0 )
 		{
-			PE->selectedLocation--;
+			PE->selectedProject--;
 
 			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
+			strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 		}
-		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.setControlValue(PE->fileListControl,PE->selectedProject);
 		display.refreshControl(PE->fileListControl);
 	}
 	return 1;
@@ -844,42 +966,19 @@ static uint8_t functProjectListDown()
 {
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation < PE->projectsfoundCount-1 )
+		if(PE->selectedProject < PE->projectsListLength-1 )
 		{
-			PE->selectedLocation++;
+			PE->selectedProject++;
 
 			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
+			strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 		}
-		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.setControlValue(PE->fileListControl,PE->selectedProject);
 		display.refreshControl(PE->fileListControl);
 	}
 	return 1;
 }
 
-
-static uint8_t functStopPatternYes()
-{
-
-	sequencer.stop();
-	PE->setDefaultScreenFunct();
-	switch (PE->stopAction)
-	{
-		case cProjectEditor::stopActionOpen: 		functOpenProjectConfirm();		break;
-		case cProjectEditor::stopActionNewProject: 	functNewProject();				break;
-		case cProjectEditor::stopActionExport: 		functExport();					break;
-		default: break;
-	}
-
-
-	return 1;
-}
-static uint8_t functStopPatternNo()
-{
-	PE->setDefaultScreenFunct();
-	PE->showDefaultScreen();
-	return 1;
-}
 
 static uint8_t functSaveChangesDontSaveOpen()
 {
@@ -930,13 +1029,15 @@ static uint8_t functDeleteConfirm()
 {
 	if(PE->isBusyFlag) return 1;
 
-	PE->deletePopupFlag = 1;
-	PE->deletePopupDelay = 0;
-	PE->isBusyFlag = 1;
+//	PE->deletePopupFlag = 1;
+//	PE->deletePopupDelay = 0;
+//	PE->isBusyFlag = 1;
 
+	newFileManager.deleteProject(PE->selectedProject);
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Deleting project");
+	PE->setDefaultScreenFunct();
+//	PE->showProcessingPopup("Deleting project");
 	return 1;
 }
 //===============================================================================================================
@@ -955,14 +1056,14 @@ static uint8_t functExportSong()
 
 	uint16_t fileCounter = 0;
 
-	sprintf(currentExportPath,"Export/%s/%s_S.wav",fileManager.currentProjectName,fileManager.currentProjectName);
+	sprintf(currentExportPath,"Export/%s/%s_S.wav",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
 	while(SD.exists(currentExportPath))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_S%d.wav",fileManager.currentProjectName,fileManager.currentProjectName,++fileCounter);
+		sprintf(currentExportPath,"Export/%s/%s_S%d.wav",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_S",fileManager.currentProjectName,fileManager.currentProjectName);
-	else sprintf(currentExportPath,"Export/%s/%s_S%d",fileManager.currentProjectName,fileManager.currentProjectName,fileCounter);
+	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
+	else sprintf(currentExportPath,"Export/%s/%s_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),fileCounter);
 
 	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::song);
@@ -980,14 +1081,14 @@ static uint8_t functExportSongStems()
 
 	uint16_t fileCounter = 0;
 
-	sprintf(currentExportPath,"Export/%s/%s_Song_S",fileManager.currentProjectName,fileManager.currentProjectName);
+	sprintf(currentExportPath,"Export/%s/%s_Song_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
 	while(SD.exists(currentExportPath))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_Song_S%d",fileManager.currentProjectName,fileManager.currentProjectName,++fileCounter);
+		sprintf(currentExportPath,"Export/%s/%s_Song_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_Song_S",fileManager.currentProjectName,fileManager.currentProjectName);
-	else sprintf(currentExportPath,"%s/%s_Song_S%d",fileManager.currentProjectName,fileManager.currentProjectName,fileCounter);
+	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_Song_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
+	else sprintf(currentExportPath,"%s/%s_Song_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),fileCounter);
 
 	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::songStems);
@@ -1006,14 +1107,14 @@ static uint8_t functExportPattern()
 	uint16_t fileCounter = 0;
 	uint16_t namePattern = mtProject.values.actualPattern;
 
-	sprintf(currentExportPath,"Export/%s/%s_P%d.wav",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
+	sprintf(currentExportPath,"Export/%s/%s_P%d.wav",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern);
 	while(SD.exists(currentExportPath))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_P%d_%d.wav",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,++fileCounter);
+		sprintf(currentExportPath,"Export/%s/%s_P%d_%d.wav",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_P%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
-	else sprintf(currentExportPath,"Export/%s/%s_P%d_%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,fileCounter);
+	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_P%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern);
+	else sprintf(currentExportPath,"Export/%s/%s_P%d_%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,fileCounter);
 
 	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::pattern);
@@ -1032,14 +1133,14 @@ static uint8_t functExportPatternStems()
 	uint16_t fileCounter = 0;
 	uint16_t namePattern = mtProject.values.actualPattern;
 
-	sprintf(currentExportPath,"Export/%s/%s_P%d_S",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
+	sprintf(currentExportPath,"Export/%s/%s_P%d_S", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern);
 	while(SD.exists(currentExportPath))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_P%d_S%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,++fileCounter);
+		sprintf(currentExportPath,"Export/%s/%s_P%d_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_P%d_S",fileManager.currentProjectName,fileManager.currentProjectName,namePattern);
-	else sprintf(currentExportPath,"%s/%s_P%d_S%d",fileManager.currentProjectName,fileManager.currentProjectName,namePattern,fileCounter);
+	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_P%d_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern);
+	else sprintf(currentExportPath,"%s/%s_P%d_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,fileCounter);
 
 	PE->showLabelDuringExport();
 	exporter.start(currentExportPath, mtExporter::exportType::patternStems);
@@ -1077,74 +1178,6 @@ static uint8_t functExportGoBack()
 	return 1;
 }
 //===============================================================================================================
-//uint8_t functShowProjectsList()
-//{
-//	PE->listOnlyFolderNames("/Projects/");
-//
-//
-//	PE->showProjectsList();
-//
-//
-//// funkcje
-//	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-//	PE->FM->clearAllPots();
-//
-//	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
-//
-//	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenProject);
-//	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList);
-//
-//
-//	return 1;
-//}
-
-
-//uint8_t functShowTemplatesList()
-//{
-//	PE->listOnlyFolderNames("/Templates/");
-//
-//
-//	PE->showTemplatesList();
-//
-//
-//
-//
-//// funkcje
-//	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-//	PE->FM->clearAllPots();
-//
-//	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
-//
-//	PE->FM->setButtonObj(interfaceButton0, buttonPress, functEnterName);
-//	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList);
-//	PE->FM->setButtonObj(interfaceButton4, buttonPress, functCreateNewTemplate);
-//
-//	return 1;
-//}
-
-//uint8_t functCancelList()
-//{
-//	PE->showDefaultScreen();
-//	PE->setDefaultScreenFunct();
-//	return 1;
-//}
-//uint8_t functOpenTemplate()
-//{
-//
-//
-//	PE->showDefaultScreen();
-//	PE->setDefaultScreenFunct();
-//
-//	return 1;
-//}
-
-//uint8_t functCreateNewTemplate()
-//{
-//
-//	functShowTemplatesList();
-//
-//	return 1;
-//}
 
 static uint8_t functSwitchModule(uint8_t button)
 {
@@ -1157,75 +1190,6 @@ static uint8_t functSwitchModule(uint8_t button)
 }
 //======================================================================================================================
 
-
-void cProjectEditor::listProjectsNames(const char* folder)
-{
-	char filePath[256] = {0};
-	strcpy(filePath, folder);
-	//strcat(filePath,"/");
-	sdLocation.close();
-	sdLocation.open(folder, O_READ); //"/"
-	projectsfoundCount = sdLocation.createProjectsList(filesNames, files_list_length_max, 3000);
-	sdLocation.close();
-
-
-	for (uint8_t i = 0; i < (projectsfoundCount/2); i++)
-	{
-		std::swap(filesNames[i], filesNames[projectsfoundCount-i-1]);
-
-//		strcpy(strBuff, locationFilesList[i]);
-//		strcpy(locationFilesList[i],locationFilesList[foundProjectsCount-i-1]);
-//		strcpy(locationFilesList[foundProjectsCount-i-1], strBuff);
-	}
-
-}
-
-//static uint8_t functEnterName()
-//{
-//
-//	char localPatch[PATCH_SIZE];
-//	uint16_t cnt=1;
-//	strcpy(PE->name,"New Project");
-//	sprintf(localPatch,"Projects/%s",PE->name);
-//
-//	while(SD.exists(localPatch))
-//	{
-//	   sprintf(PE->name,"New Project%d",cnt);
-//	   sprintf(localPatch,"Projects/%s",PE->name);
-//
-//	   cnt++;
-//	   if(cnt > 9999)
-//	   {
-//		   memset(PE->name,0,33);
-//		   break;
-//	   }
-//	}
-//
-//	PE->editPosition = strlen(PE->name);
-//	PE->keyboardPosition = BACKSPACE_PAD_1;
-//	PE->lastPressedPad = BACKSPACE_PAD_1;
-//	leds.setLED(BACKSPACE_PAD_1, 1, 31);
-//	leds.setLED(BACKSPACE_PAD_2, 1, 31);
-//
-//
-//	PE->showEnterNameKeyboard();
-//	PE->keyboardActiveFlag = 1;
-//
-//
-//// funkcje
-//	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-//	PE->FM->clearAllPots();
-//
-////	PE->FM->setPotObj(interfacePot0, &PE->selectedLocation, 0, PE->locationFilesCount-1, 1, PE->fileListControl);
-//
-//	PE->FM->setButtonObj(interfaceButton0, buttonPress, functOpenTemplate);
-//	PE->FM->setButtonObj(interfaceButton1, buttonPress, functCancelList);
-//	PE->FM->setButtonObj(interfaceButton4, buttonPress, functCreateNewTemplate);
-//	PE->FM->setButtonObj(interfaceButtonEnter, buttonPress, functConfirmKey);
-//
-//
-//	return 1;
-//}
 
 static  uint8_t functLeft()
 {
@@ -1244,14 +1208,14 @@ static  uint8_t functUp()
 	if(PE->keyboardManager.getState()) return 1;
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation > 0 )
+		if(PE->selectedProject > 0 )
 		{
-			PE->selectedLocation--;
+			PE->selectedProject--;
 
 			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
+			strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 		}
-		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.setControlValue(PE->fileListControl,PE->selectedProject);
 		display.refreshControl(PE->fileListControl);
 		return 1;
 	}
@@ -1264,14 +1228,14 @@ static  uint8_t functDown()
 	if(PE->keyboardManager.getState()) return 1;
 	if(PE->projectListActiveFlag)
 	{
-		if(PE->selectedLocation < PE->projectsfoundCount-1 )
+		if(PE->selectedProject < PE->projectsListLength-1 )
 		{
-			PE->selectedLocation++;
+			PE->selectedProject++;
 
 			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
+			strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 		}
-		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.setControlValue(PE->fileListControl,PE->selectedProject);
 		display.refreshControl(PE->fileListControl);
 		return 1;
 	}
@@ -1308,17 +1272,17 @@ static  uint8_t functEncoder(int16_t value)
 	{
 		if(value > 0)
 		{
-			if(PE->selectedLocation < PE->projectsfoundCount-1 ) PE->selectedLocation++;
+			if(PE->selectedProject < PE->projectsListLength-1 ) PE->selectedProject++;
 		}
 		else if (value < 0)
 		{
-			if(PE->selectedLocation > 0 ) PE->selectedLocation--;
+			if(PE->selectedProject > 0 ) PE->selectedProject--;
 		}
 
 		PE->refreshProjectCover(300);
-		strcpy(PE->projectCoverName, PE->filesNames[PE->selectedLocation]);
+		strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 
-		display.setControlValue(PE->fileListControl,PE->selectedLocation);
+		display.setControlValue(PE->fileListControl,PE->selectedProject);
 		display.refreshControl(PE->fileListControl);
 	}
 	return 1;
@@ -1334,21 +1298,4 @@ void cProjectEditor::refreshProjectCover(uint16_t delay_ms)
 	PE->coverDelay = 2000-delay_ms;
 
 	display.setControlHide(coverImg);
-}
-
-static uint8_t functSdCard(uint8_t state)
-{
-	if(state)
-	{
-		PE->start(0);
-	}
-	else
-	{
-		PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-		PE->FM->clearAllPots();
-		PE->FM->setSdDetection(functSdCard);
-		PE->deactivateGui();
-	}
-
-	return 1;
 }

@@ -67,6 +67,7 @@ public:
 	void refreshDisplayShutdown();
 	void hideDisplayShutdown();
 
+	void commonThingsUpdate();
 
 	// interfaceInputs.cpp -----------------------------
 	void potChange(uint8_t n, int16_t value);
@@ -97,8 +98,6 @@ private:
 
 	uint8_t operatingMode = 0;
 
-	elapsedMillis startupTimer;
-
 
 	hModule onScreenModule = nullptr;
 	uint32_t lastOptions = 0;
@@ -109,11 +108,10 @@ private:
 	uint32_t previousModuleOptions = 0;
 
 	// interfaceMisc.cpp -----------------------------
-	uint8_t startSampleLoadingFlag = 0;
-	uint8_t startSampleLoadingProgress = 0;
+	uint8_t minStartTimeCounter = 0;
+	uint8_t startProjectLoadingProgress = 0;
 	hControl startScreenControl = nullptr;
 	strStartScreenData startScreenData;
-
 
 	hControl turnOffProgressBar = nullptr;
 	char turnOffText[20];
@@ -130,7 +128,8 @@ private:
 	uint8_t isBooted = 0;
 	uint32_t globalActionPriority;
 
-
+	uint8_t fileManagerPopupEnabled = 0;
+	uint8_t fileManagerPopupState = 0;
 };
 
 

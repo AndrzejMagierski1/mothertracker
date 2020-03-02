@@ -9,13 +9,11 @@ uint8_t patternToLoad = 0;
 //__NOINIT(EXTERNAL_RAM) uint8_t undo_Bank[1024*1024];
 #define UNDO_CAPACITY 20
 #define UNDO_SONG_CAPACITY 5
-__NOINIT(EXTERNAL_RAM) Sequencer::strPattern undoPatternBuffer[UNDO_CAPACITY] { 0 };
-__NOINIT(EXTERNAL_RAM) uint8_t undoPatternBufferIndexes[UNDO_CAPACITY] { 0 };
-
-__NOINIT(EXTERNAL_RAM) Sequencer::strPattern undoSongBuffer[UNDO_SONG_CAPACITY] { 0 };
-__NOINIT(EXTERNAL_RAM) uint8_t undoSongBufferIndexes[UNDO_SONG_CAPACITY] { 0 };
-
-__NOINIT(EXTERNAL_RAM) Sequencer::strPattern songTrackCopy[2] {0};
+extern Sequencer::strPattern undoPatternBuffer[UNDO_CAPACITY];
+extern uint8_t undoPatternBufferIndexes[UNDO_CAPACITY] ;
+extern Sequencer::strPattern undoSongBuffer[UNDO_SONG_CAPACITY];
+extern uint8_t undoSongBufferIndexes[UNDO_SONG_CAPACITY];
+extern Sequencer::strPattern songTrackCopy[2];
 
 struct strUndo
 {
@@ -637,7 +635,7 @@ void FileManager::setPatternChangeFlag(uint8_t num)
 	patternIsChangedFlag[num] = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 	mtProject.values.patternsToSave[num] = 1;
-	configIsChangedFlag = 1;
+	projectChangeFlag = 1;
 
 	updatePatternBitmask(num);
 }
@@ -648,7 +646,7 @@ void FileManager::setInstrumentChangeFlag(uint8_t num)
 	instrumentIsChangedFlag[num] = 1;
 	mtProject.values.projectNotSavedFlag = 1;
 	mtProject.values.instrumentsToSave[num] = 1;
-	configIsChangedFlag = 1;
+	projectChangeFlag = 1;
 
 }
 

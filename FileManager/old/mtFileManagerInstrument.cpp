@@ -1,5 +1,7 @@
 #include "mtFileManager.h"
 
+#include "fileManager.h"
+
 uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t instrumentIndex, uint8_t type)
 {
 	uint8_t status =  samplesImporter.start(filePatch, name, (char*)"Workspace", instrumentIndex, type);
@@ -93,7 +95,8 @@ uint8_t FileManager::assignSampleToInstrument(char* filePatch, char* name,int8_t
 	//strcpy(currentPatch,"Workspace/project.mt");
 	//writeProjectFile(currentPatch, &mtProject);
 
-	setInstrumentChangeFlag(instrumentIndex);
+	//setInstrumentChangeFlag(instrumentIndex);
+	newFileManager.setInstrumentStructChanged(instrumentIndex);
 	//autoSaveWorkspace(1);
 
 

@@ -5,6 +5,8 @@
 #include "mtAudioEngine.h"
 #include "core/interfacePopups.h"
 
+#include "fileManager.h"
+
 #include "core/graphicProcessing.h"
 
 #include "mtPadsBacklight.h"
@@ -83,54 +85,54 @@ static uint8_t editLimiterRelease(int16_t value);
 
 void cSampleEditor::update()
 {
-	if(refreshSpectrum)
-	{
-		refreshSpectrum = 0;
-
-		if(sampleIsValid)
-		{
-			showCurrentSpectrum(effector.getLength()/2, effector.getAddress());
-		}
-		else
-		{
-			GP.processSpectrum(editorInstrument, &zoom, &spectrum);
-		}
-
-		display.refreshControl(spectrumControl);
-	}
-
-	if(refreshPoints)
-	{
-		refreshPoints = 0;
-
-		processPoints();
-		display.refreshControl(pointsControl);
-	}
-
-	handleTasks(&taskQueue, 0);
-
-	refreshPlayingProgress();
-	refreshSampleLoading();
-	refreshSampleApplying();
-
-	updateEffectProcessing();
-
-	onExitReload();
+//	if(refreshSpectrum)
+//	{
+//		refreshSpectrum = 0;
+//
+//		if(sampleIsValid)
+//		{
+//			showCurrentSpectrum(effector.getLength()/2, effector.getAddress());
+//		}
+//		else
+//		{
+//			GP.processSpectrum(editorInstrument, &zoom, &spectrum);
+//		}
+//
+//		display.refreshControl(spectrumControl);
+//	}
+//
+//	if(refreshPoints)
+//	{
+//		refreshPoints = 0;
+//
+//		processPoints();
+//		display.refreshControl(pointsControl);
+//	}
+//
+//	handleTasks(&taskQueue, 0);
+//
+//	refreshPlayingProgress();
+//	refreshSampleLoading();
+//	refreshSampleApplying();
+//
+//	updateEffectProcessing();
+//
+//	onExitReload();
 }
 
 void cSampleEditor::onExitReload()
 {
 	if(onExitFlag == 1)
 	{
-		uint8_t progress = fileManager.samplesLoader.getCurrentProgress();
-		showHorizontalBar(progress, "Reloading Instruments");
-
-		if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
-		{
-			hideHorizontalBar();
-			onExitFlag = 2;
-			functSwitchModule(exitButton);
-		}
+//todo		uint8_t progress = fileManager.samplesLoader.getCurrentProgress();
+//		showHorizontalBar(progress, "Reloading Instruments");
+//
+//		if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
+//		{
+//			hideHorizontalBar();
+//			onExitFlag = 2;
+//			functSwitchModule(exitButton);
+//		}
 	}
 }
 
@@ -187,7 +189,8 @@ void cSampleEditor::refreshSampleApplying()
 		refreshSpectrum = 1;
 		effector.setSaveStatus(waitingForSaveInit);
 
-		fileManager.setInstrumentChangeFlag(localInstrNum);
+		//fileManager.setInstrumentChangeFlag(localInstrNum);
+		newFileManager.setInstrumentStructChanged(localInstrNum);
 	}
 }
 
@@ -229,30 +232,30 @@ void cSampleEditor::refreshSampleLoading()
 {
 	if(moduleFlags & sampleLoadingActive)
 	{
-		sampleLoadedState = fileManager.samplesLoader.waveLoader.getState();
-
-		if(sampleLoadedState == loaderStateTypeInProgress) // refresh update when in progress
-		{
-			fileManager.samplesLoader.waveLoader.update();
-
-			uint8_t progress = fileManager.samplesLoader.waveLoader.getCurrentWaveProgress();
-			handleQueueProgress(&taskQueue, progress, "Loading sample");
-		}
-
-		if((sampleLoadedState == loaderStateTypeEnded) && (lastSampleLoadedState == loaderStateTypeInProgress)) // do when loaded
-		{
-			// after first load change crop and reverse stage
-			effectControl[effectCrop].effectStage = eNotAffecting;
-			effectControl[effectReverse].effectStage = eNotAffecting;
-			processOrPreview(effectControl[effectReverse].effectStage);
-
-			moduleFlags &= ~sampleLoadingActive;
-			sampleIsValid = 1;
-
-			finishTask(&taskQueue, tLoadSample);
-		}
-
-		lastSampleLoadedState = sampleLoadedState;
+//todo		sampleLoadedState = fileManager.samplesLoader.waveLoader.getState();
+//
+//		if(sampleLoadedState == loaderStateTypeInProgress) // refresh update when in progress
+//		{
+//			fileManager.samplesLoader.waveLoader.update();
+//
+//			uint8_t progress = fileManager.samplesLoader.waveLoader.getCurrentWaveProgress();
+//			handleQueueProgress(&taskQueue, progress, "Loading sample");
+//		}
+//
+//		if((sampleLoadedState == loaderStateTypeEnded) && (lastSampleLoadedState == loaderStateTypeInProgress)) // do when loaded
+//		{
+//			// after first load change crop and reverse stage
+//			effectControl[effectCrop].effectStage = eNotAffecting;
+//			effectControl[effectReverse].effectStage = eNotAffecting;
+//			processOrPreview(effectControl[effectReverse].effectStage);
+//
+//			moduleFlags &= ~sampleLoadingActive;
+//			sampleIsValid = 1;
+//
+//			finishTask(&taskQueue, tLoadSample);
+//		}
+//
+//		lastSampleLoadedState = sampleLoadedState;
 	}
 }
 
@@ -280,12 +283,15 @@ uint8_t cSampleEditor::startLoadingSample()
 
 void cSampleEditor::start(uint32_t options)
 {
+
 	if(sequencer.getSeqState() != Sequencer::SEQ_STATE_STOP)
 	{
 		showSelectionStopPattern();
 		setPatternStopFunct();
 		return;
 	}
+
+/*
 	moduleRefresh = 1;
 	sampleIsValid = 0;
 
@@ -301,7 +307,6 @@ void cSampleEditor::start(uint32_t options)
 	lastPreviewEffect = (effect_t)UINT32_MAX;// this will force new calculation on effect on each entry
 
 	zoom.zoomResolution = INT32_MAX;
-
 
 
 	//--------------------------------------------------------------------
@@ -337,7 +342,7 @@ void cSampleEditor::start(uint32_t options)
 
 	points.endPoint = endPoint;
 	points.startPoint = startPoint;
-
+*/
 
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
@@ -361,6 +366,7 @@ void cSampleEditor::start(uint32_t options)
 	processPoints();
 
 	activateLabelsBorder();
+
 
 }
 
@@ -629,6 +635,7 @@ void cSampleEditor::setDefaultScreenFunct()
 	FM->setPadsGlobal(functPads);
 
 }
+
 void cSampleEditor::setPatternStopFunct()
 {
 	FM->setButtonObj(interfaceButton6, buttonPress, functStopPatternNo);
@@ -1254,14 +1261,14 @@ static uint8_t functSwitchModule(uint8_t button)
 		{
 			if(SE->effectAppliedFlag)
 			{
-				if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
-				{
-					SE->exitButton = button;
-					SE->moduleFlags |= onExitReloadActive;
-					SE->onExitFlag = 1;
-
-					fileManager.samplesLoader.start(0, (char*)"Workspace/samples");
-				}
+//todo				if(fileManager.samplesLoader.getStateFlag() == loaderStateTypeEnded)
+//				{
+//					SE->exitButton = button;
+//					SE->moduleFlags |= onExitReloadActive;
+//					SE->onExitFlag = 1;
+//
+//					fileManager.samplesLoader.start(0, (char*)"Workspace/samples");
+//				}
 			}
 			else
 			{
@@ -1408,6 +1415,7 @@ static uint8_t functStopPatternNo()
 	SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
 	return 1;
 }
+
 
 void cSampleEditor::updateEffectValues(effect_handle_t *effect, uint8_t barNum)
 {
@@ -2155,6 +2163,4 @@ static uint8_t editLimiterRelease(int16_t value)
 
 	return ((SE->mLimiterRelease * 100) / LIMITER_RELEASE_MAX);
 }
-
-
 

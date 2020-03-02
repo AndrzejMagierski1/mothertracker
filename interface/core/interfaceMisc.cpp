@@ -4,10 +4,13 @@
 
 #include "projectEditor/projectEditor.h"
 
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
+#include "fileManager.h"
+
 #include <display.h>
 #include "MTP.h"
 #include "mtSleep.h"
+#include "debugLog.h"
 
 
 elapsedMillis startScreenRefresh;
@@ -21,100 +24,44 @@ extern cProjectEditor* PE;
 //==================================================================================================
 void cInterface::openStartupProject()
 {
-	startupTimer = 0;
-
-	if(mtConfig.startup.startMode == interfaceOpenLastProject)
+	if(!newFileManager.openProjectFromWorkspace())
 	{
-		char currentPatch[PATCH_SIZE];
-
-		strcpy(currentPatch,"Workspace/project.mt");
-		if(SD.exists(currentPatch))
-		{
-			if(fileManager.loadProjectFromWorkspaceStart())
-			{
-				openFromWorkspaceFlag = 1;
-			}
-		}
-
-		if(!openFromWorkspaceFlag)
-		{
-			//strcpy(currentPatch,"Templates/New/project.mt");
-			fileManager.createEmptyTemplateProject((char*)"New");
-
-			fileManager.openProjectStart((char*)"New", projectTypeExample);
-
-			PE->newProjectNotSavedFlag = 1;
-			strcpy(fileManager.currentProjectName, "New Project");
-		}
+		newFileManager.createNewProjectInWorkspace();
+		newFileManager.openProjectFromWorkspace();
 	}
+
 }
 
 uint8_t cInterface::detectProjectLoadState()
 {
-	uint8_t status = fileManager.getLoadingStatus();
-	uint8_t finalizeLoad = 0;
 
-	if(openFromWorkspaceFlag)
+	uint8_t startStatus = newFileManager.getStatus();
+
+	if(startStatus != fmLoadEnd)
 	{
-		if(status)
+		if(startStatus >= fmError)
 		{
-			fileManager.refreshLoadProjectFromWorkspace();
-			return 0;
-		}
-		else
-		{
-			char currentPatch[PATCH_SIZE];
+			newFileManager.clearStatus();
 
-			sprintf(currentPatch,"Projects/%s",mtConfig.startup.lastProjectName);
-			if(SD.exists(currentPatch))
-			{
-				strcpy(fileManager.currentProjectName,mtConfig.startup.lastProjectName);
-				sprintf(fileManager.currentProjectPatch,"Projects/%s",mtConfig.startup.lastProjectName);
+			newFileManager.createNewProjectInWorkspace();
+			newFileManager.openProjectFromWorkspace();
+		}
 
-				projectEditor.loadProjectValues();
-			}
-			else
-			{
-				strcpy(fileManager.currentProjectName, "New Project");
-				PE->newProjectNotSavedFlag = 1;
-
-				projectEditor.loadProjectValues();
-			}
-		}
-	}
-	else
-	{
-		if(status)
-		{
-			fileManager.refreshProjectOpening();
-			return 0;
-		}
-		else
-		{
-			finalizeLoad = 1;
-		}
+		return 0;
 	}
 
+	if(startProjectLoadingProgress < 100) return 0;
+
+	newFileManager.clearStatus();
 
 
-	if(finalizeLoad == 1)
-	{
+	// taski na koniec otwierania projektu startowego
 
+	fileManagerPopupEnabled = 1;
 
-	}
-
-
-//
-//	if(startupTimer < 1000) // minimalny czas start screenu
-//	{
-//		return 0;
-//	}
-//
-	// na koniec wlacza mtp i opoznia start o 500 ms
 	if(mtpd.state == 0)
 	{
 		if(mtConfig.general.mtpState) mtpd.state = 1;
-		//startupTimer = 500;
 	}
 
 	return 1;
@@ -144,7 +91,9 @@ void cInterface::initStartScreen()
 //	prop.text = "loading...";
 	if(startScreenControl == nullptr)  startScreenControl = display.createControl<cStartScreen>(&prop);
 
-	display.setControlValue(startScreenControl, startSampleLoadingProgress);
+	minStartTimeCounter = 0;
+	startProjectLoadingProgress = 0;
+	display.setControlValue(startScreenControl, startProjectLoadingProgress);
 	display.setControlText(startScreenControl, projectLoadText);
 	display.refreshControl(startScreenControl);
 
@@ -153,11 +102,17 @@ void cInterface::initStartScreen()
 
 void cInterface::refreshStartScreen()
 {
-	if(startScreenRefresh < 100) return;
+	if(startScreenRefresh < 40) return;
 	startScreenRefresh = 0;
 
+	startProjectLoadingProgress = newFileManager.getProgress();
+
+	 // minimalny czas startu 2sek
+	minStartTimeCounter++;
+	if(startProjectLoadingProgress > minStartTimeCounter*2) startProjectLoadingProgress = minStartTimeCounter*2;
+
 	display.setControlShow(startScreenControl);
-	display.setControlValue(startScreenControl, startSampleLoadingProgress);
+	display.setControlValue(startScreenControl, startProjectLoadingProgress);
 	display.setControlText(startScreenControl, projectLoadText);
 	display.refreshControl(startScreenControl);
 }
@@ -273,6 +228,70 @@ void cInterface::hideDisplayShutdown()
 	display.destroyControl(turnOffProgressBar);
 	turnOffProgressBar = nullptr;
 }
+
+
+
+
+void cInterface::commonThingsUpdate()
+{
+
+	if(fileManagerPopupEnabled)
+	{
+		uint8_t managerStatus = newFileManager.getStatus();
+
+		if(managerStatus > fmIdle &&  managerStatus <  fmLoadEnd)
+		{
+			if(fileManagerPopupState == 0) // pokaz popup
+			{
+				int8_t text_index = -1;
+
+				switch(managerStatus)
+				{
+				case fmBrowsingSamples           	: text_index = 0;	break;
+				case fmBrowsingProjects          	: text_index = 1;	break;
+				case fmBrowsingFirmwares         	: text_index = 2;	break;
+				case fmImportingSamplesToWorkspace	: text_index = 3;	break;
+				case fmDeleteingInstruments      	: text_index = 4;	break;
+				case fmPreviewSampleFromSd       	: text_index = 5;	break;
+				case fmLoadingProjectfromWorkspace	: text_index = 6;	break;
+				case fmLoadingProjectFromProjects	: text_index = 7;	break;
+				case fmSavingProjectToWorkspace  	: 	break;
+				case fmSavingProjectToProjects   	: text_index = 9;	break;
+				case fmLoadingPatternFromWorkspace	: 	break;
+				}
+
+
+				if(text_index >= 0)
+				{
+					fileManagerPopupState = 1;
+					mtPopups.showProgressPopup(&fileManagerPopupText[text_index][0]);
+				}
+			}
+			else // przetwarzaj popup - progress
+			{
+
+			}
+
+		}
+		else // zniknij popup
+		{
+			if(fileManagerPopupState == 1)
+			{
+				mtPopups.hideProgressPopup();
+				fileManagerPopupState = 0;
+			}
+		}
+	}
+
+
+
+
+
+}
+
+
+
+
 
 
 

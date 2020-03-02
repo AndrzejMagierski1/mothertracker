@@ -215,7 +215,7 @@ void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t first
 		filesToLoad = 1;
 	}
 */
-
+	// przeliczanie adresu nowow ladowanego sampla na podstawie wczesniejszych sampli jesli startowy > 0
 	for(uint8_t i = 0; i < startIndex; i++)
 	{
 		if(mtProject.instrument[i].isActive)
@@ -226,13 +226,13 @@ void SamplesLoader::start(uint8_t startIndex, char * projectPatch, uint8_t first
 		}
 	}
 
+	// obliczanie dlugosci wszsytkich plikow po miejscu wstawiania
 	for(uint8_t i = startIndex + 1; i < INSTRUMENTS_COUNT; i ++)
 	{
 		if(mtProject.instrument[i].isActive)
 		{
 			sizeAllFiles += mtProject.instrument[i].sample.length;
 		}
-
 	}
 
 	if(firstLoad) sizeAllFiles = calcSamplesFolderSize();

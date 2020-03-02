@@ -1,12 +1,12 @@
 
-
 #include "sampleRecorder/sampleRecorder.h"
 #include "mtRecorder.h"
 #include "Si4703.h"
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
 #include "mtLED.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
+#include "fileManager.h"
 #include "mtPadsBacklight.h"
 #include "core/graphicProcessing.h"
 #include "sdCardDetect.h"
@@ -86,7 +86,6 @@ static uint8_t functStepNote(uint8_t value);
 static void modStartPoint(int16_t value);
 static void modEndPoint(int16_t value);
 
-static uint8_t functSdCard(uint8_t state);
 
 void seek_callback(void);
 
@@ -293,8 +292,6 @@ void cSampleRecorder::start(uint32_t options)
 	engine.setHeadphonesVolume(mtProject.values.volume * 0.85);
 
 	mtPadBoard.configureInstrumentPlayer(8);
-
-
 }
 
 
@@ -349,8 +346,6 @@ void cSampleRecorder::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonDelete, functDeleteBackspace);
 
 	FM->setPotObj(interfacePot0, functEncoder, nullptr);
-
-	FM->setSdDetection(functSdCard);
 
 }
 
@@ -975,7 +970,6 @@ static  uint8_t functActionButton1(uint8_t state)
 	if(SR->selectionWindowSaveFlag == 1) return 1;
 	if(SR->patternIsPlayingFlag == 1) return 1;
 
-
 	if(state == buttonPress || state == buttonRelease)
 	{
 		if(SR->currentScreen != cSampleRecorder::screenTypeKeyboard) functSelectButton1(state);
@@ -1060,6 +1054,7 @@ static  uint8_t functActionButton5()
 	if(SR->fullMemoryWindowFlag) return 1;
 	if(SR->selectionWindowSaveFlag == 1) return 1;
 	if(SR->patternIsPlayingFlag == 1) return 1;
+
 	if((SR->currentScreen == cSampleRecorder::screenTypeConfig) && (SR->currentScreen != cSampleRecorder::screenTypeKeyboard)) functSelectButton5();
 	switch(SR->currentScreen)
 	{
@@ -1785,8 +1780,8 @@ static  uint8_t functLeft()
 static  uint8_t functRight()
 {
 	if(SR->selectionWindowFlag == 1) return 1;
-	if(SR->frameData.multiSelActiveNum != 0) return 1;
 	if(SR->patternIsPlayingFlag == 1) return 1;
+	if(SR->frameData.multiSelActiveNum != 0) return 1;
 
 	SR->keyboardManager.makeMove('d');
 	if(SR->keyboardManager.getState()) return 1;
@@ -2013,8 +2008,9 @@ void cSampleRecorder::changeRadioFreqBar(int16_t val)
 
 			radio.setFrequency(recorderConfig.radioFreq);
 			mtProject.values.radioFreq = sampleRecorder.recorderConfig.radioFreq;
-			fileManager.configIsChangedFlag = 1;
-			mtProject.values.projectNotSavedFlag = 1;
+			//fileManager.projectChangeFlag = 1;
+			//mtProject.values.projectNotSavedFlag = 1;
+			newFileManager.setProjectStructChanged();
 		}
 	}
 }
@@ -2078,8 +2074,9 @@ void cSampleRecorder::changeGainBar(int16_t val)
 	drawGainBar();
 
 	showGain();
-	fileManager.configIsChangedFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	//fileManager.projectChangeFlag = 1;
+	//mtProject.values.projectNotSavedFlag = 1;
+	newFileManager.setProjectStructChanged();
 }
 
 void cSampleRecorder::changeZoom(int16_t value)
@@ -2158,8 +2155,9 @@ void cSampleRecorder::changeSourceSelection(int16_t value)
 
     display.synchronizeRefresh();
     mtProject.values.source =  sampleRecorder.recorderConfig.source;
-	fileManager.configIsChangedFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	//fileManager.projectChangeFlag = 1;
+	//mtProject.values.projectNotSavedFlag = 1;
+	newFileManager.setProjectStructChanged();
 
 }
 
@@ -2183,8 +2181,9 @@ void cSampleRecorder::changeMonitorSelection(int16_t value)
 	mtProject.values.monitor = sampleRecorder.recorderConfig.monitor;
 	showMonitor();
 
-	fileManager.configIsChangedFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	//fileManager.projectChangeFlag = 1;
+	//mtProject.values.projectNotSavedFlag = 1;
+	newFileManager.setProjectStructChanged();
 }
 
 static void modStartPoint(int16_t value)
@@ -2278,6 +2277,7 @@ static uint8_t functInsert()
 {
 	if(SR->selectionWindowFlag) return 1;
 	if(SR->patternIsPlayingFlag == 1) return 1;
+
 	if(SR->currentScreen == cSampleRecorder::screenTypeKeyboard) functConfirmKey();
 	return 1;
 }
@@ -2299,14 +2299,16 @@ void seek_callback(void)
 
 	SR->displayEmptyRDS();
 
-	fileManager.configIsChangedFlag = 1;
-	mtProject.values.projectNotSavedFlag = 1;
+	//fileManager.projectChangeFlag = 1;
+	//mtProject.values.projectNotSavedFlag = 1;
+	newFileManager.setProjectStructChanged();
 }
 
 
 static uint8_t functStepNote(uint8_t value)
 {
 	if(SR->patternIsPlayingFlag == 1) return 1;
+
 	if(value == buttonRelease)
 	{
 		if(SR->currentScreen==0)
@@ -2398,6 +2400,7 @@ void cSampleRecorder::clearAllNodes()
 	}
 }
 
+
 void cSampleRecorder::cancelMultiFrame()
 {
 	for(uint8_t i = 0; i < MAX_SELECT_NODES; i++)
@@ -2409,10 +2412,3 @@ void cSampleRecorder::cancelMultiFrame()
 }
 ///////////////////////////////////////////////////////////////////////////
 
-static uint8_t functSdCard(uint8_t state)
-{
-	if(SR->patternIsPlayingFlag == 1) return 1;
-	SR->showDefaultScreen();
-
-	return 1;
-}

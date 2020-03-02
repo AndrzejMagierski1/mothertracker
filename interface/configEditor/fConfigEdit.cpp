@@ -3,7 +3,8 @@
 #include "mtTest.h"
 #include "mtPadBoard.h"
 #include "mtAudioEngine.h"
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
+#include "fileManager.h"
 #include "configEditor/configEditor.h"
 #include "mtSequencer.h"
 #include "mtConfig.h"
@@ -59,6 +60,28 @@ static uint8_t hideFlashingWarning();
 
 void cConfigEditor::update()
 {
+	uint8_t managerStatus = newFileManager.getStatus();
+
+
+	if(managerStatus == fmBrowseFirmwaresEnd)
+	{
+		firmwareFoundNum = newFileManager.getFirmwaresList(&ptrfirmwareNamesList);
+		CE->listAllFirmwares();
+		CE->flashingState = 1;
+		CE->changeLabelText(7, "Update");
+		CE->showConfigList5(3, 0, firmwareFoundNum, ptrfirmwareNamesList);
+		CE->selectSecondSubmenu();
+		newFileManager.clearStatus();
+	}
+	else if(managerStatus >=  fmError)
+	{
+		debugLog.addLine("Opretion Error");
+		newFileManager.clearStatus();
+		//setDefaultScreenFunct();
+	}
+
+
+
 
 	if(processUpdate)
 	{
@@ -124,7 +147,7 @@ void cConfigEditor::turnOffPerformanceMode()
 {
 	if(sequencer.isPerformanceMode())
 	{
-		fileManager.loadPattern(mtProject.values.actualPattern);
+		newFileManager.loadWorkspacePatternNow(mtProject.values.actualPattern);
 		sequencer.switchRamPatternsNow();
 		sequencer.exitPerformanceMode();
 	}
@@ -589,14 +612,8 @@ static uint8_t functSwitchModule(uint8_t button)
 
 void firmwareUpgradeActivate()
 {
-	CE->listAllFirmwares();
+	newFileManager.browseFirmwares();
 
-	CE->flashingState = 1;
-
-	CE->changeLabelText(7, "Update");
-	CE->showConfigList5(0, CE->firmwareFoundNum, CE->ptrfirmwareNamesList);
-
-	CE->selectConfigList();
 
 }
 

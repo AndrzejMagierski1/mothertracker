@@ -16,7 +16,7 @@
 #include "game/game.h"
 #include "masterParams/masterParams.h"
 
-#include "mtFileManager.h"
+//#include "mtFileManager.h"
 #include "mtTest.h"
 #include "mtStructs.h"
 #include "mtConfig.h"
@@ -29,8 +29,6 @@
 #include "debugLog.h"
 
 
-//#include "RamMonitor.h"
-
 cInterface mtInterface;
 
 
@@ -41,7 +39,8 @@ strInterfaceGlobals interfaceGlobals;
 
 __NOINIT(EXTERNAL_RAM) int16_t sdram_sampleBank[SAMPLE_MEMORY_MAX/2];
 __NOINIT(EXTERNAL_RAM) int16_t sdram_effectsBank[SAMPLE_MEMORY_MAX/2];
-__NOINIT(EXTERNAL_RAM) uint8_t sdram_writeLoadBuffer[32768];
+__NOINIT(EXTERNAL_RAM) uint8_t sdram_writeLoadBuffer[32640]; // 32768
+//__NOINIT(EXTERNAL_RAM) uint8_t sdram_writeLoadBuffer2[32768];
 
 __NOINIT(EXTERNAL_RAM) uint8_t sdram_mtpIndex[8192];
 
@@ -96,8 +95,6 @@ cFunctionMachine::strButtonObject cFunctionMachine::buttons		[interfaceButtonsCo
 cFunctionMachine::strPadObject cFunctionMachine::pads			[interfacePadsCount] 	= {0};
 
 
-//RamMonitor ramMonitor;
-//elapsedMillis ramTimer;
 //=======================================================================
 //=======================================================================
 //=======================================================================
@@ -105,7 +102,6 @@ cFunctionMachine::strPadObject cFunctionMachine::pads			[interfacePadsCount] 	= 
 void cInterface::begin()
 {
 	operatingMode = mtOperatingModeStartup;
-	startupTimer = 0;
 
 	for(uint8_t i = 0; i<modulesCount; i++)
 	{
@@ -121,9 +117,6 @@ void cInterface::begin()
 	popupConfig.lineColor[0] = 0xffffff;
 	popupConfig.lineStyle[0] = controlStyleCenterX;
 	mtPopups.config(4, &popupConfig);
-
-
-	//ramMonitor.initialize();
 }
 
 //=======================================================================
@@ -144,18 +137,7 @@ void cInterface::update()
 
 	debugLog.update();
 
-//	ramMonitor.run();
-//	if(ramTimer > 1000)
-//	{
-//		ramTimer = 0;
-//
-//		debugLog.addLine("Free stack: ");
-//		debugLog.addValue(ramMonitor.stack_free());
-//
-//		debugLog.addText(" Free heap: ");
-//		debugLog.addValue(ramMonitor.heap_free());
-//	}
-
+	commonThingsUpdate();
 }
 
 
@@ -169,7 +151,7 @@ void cInterface::processOperatingMode()
 	{
 		case mtOperatingModeStartup:
 		{
-			doStartTasks();
+			doStartTasks(); // odczyt configu, wersji, init controlek popupow, ekran startowy/braku karty
 			operatingMode = mtOperatingModeOpenProject;
 			break;
 		}
@@ -198,7 +180,7 @@ void cInterface::processOperatingMode()
 
 			break;
 		}
-		default: break;
+		default: break; //mtOperatingModeRun
 	}
 }
 
@@ -301,7 +283,6 @@ void cInterface::activateModule(hModule module, uint32_t options)
 	uiFM.clearAllButtons();
 	uiFM.clearAllPots();
 	uiFM.clearAllPads();
-	uiFM.clearSdDetection();
 
 	module->initDisplayControls();
 	module->start(options);
@@ -315,7 +296,6 @@ void cInterface::deactivateModule(hModule module)
 	uiFM.clearAllButtons();
 	uiFM.clearAllPots();
 	uiFM.clearAllPads();
-	uiFM.clearSdDetection();
 
 	module->stop();
 	mtPopups.hideStepPopups();

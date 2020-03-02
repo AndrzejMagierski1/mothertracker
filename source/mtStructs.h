@@ -13,13 +13,11 @@
 
 const uint8_t FV_VER_1	=					0;		// device version
 const uint8_t FV_VER_2 =					9;		// official update
-const uint8_t FV_VER_3 =					24;		// fix version  100 = brak 3 litery
+const uint8_t FV_VER_3 =					30;		// fix version  100 = brak 3 litery
 const uint8_t FV_BETA 	=					1;		// 0/1 - dopisek beta
 
 const uint8_t PROJECT_FILE_VERSION 	=		1;		// wersja struktury pliku projektu
-const uint8_t INSTRUMENT_FILE_VERSION 	=	1;		// wersja struktury pliku projektu
-
-
+const uint8_t INSTRUMENT_FILE_VERSION 	=	1;		// wersja struktury pliku instrumentu
 const uint8_t PATTERN_FILE_VERSION =		1;
 const uint8_t EEPROM_STRUCT_VER =			1;
 
@@ -300,7 +298,8 @@ enum fileType
 {
 	fileTypeProject,
 	fileTypeInstrument,
-	fileTypePattern
+	fileTypePattern,
+	fileTypeSample,
 };
 
 enum projectType
@@ -514,14 +513,15 @@ struct strMtProjectRemote
 {
 	strSong song;
 	strMtValues values;
+	char projectName[PROJECT_NAME_SIZE]; // uzywane tlyko zeby rozpoznac projekt w workspace
 
 };
 //-------------------------------------------------
 struct strMtProject
 {
 	strInstrument instrument[INSTRUMENTS_COUNT];
-	uint8_t instruments_count;
-	uint8_t patterns_count;
+	uint8_t instruments_count; // uzywane tylko do oblizania postepu w czasie ladowania
+	uint8_t patterns_count;    // nie uzywane
 
 	strSong song;
 	strMtValues values;

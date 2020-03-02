@@ -10,16 +10,20 @@
 #include "ff.h"
 #include "wavHeaderReader.h"
 
+#ifdef SDK_ALIGN
+#undef SDK_ALIGN
+#endif
+
 
 //#define SD_FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_NEW | FA_OPEN_APPEND )
-#define SD_FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_ALWAYS )
+#define  SD_FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_ALWAYS )
 #define  O_RDONLY FA_READ
 #define  O_READ FA_READ
 
 #define FILE_WRITE  ( FA_READ | FA_WRITE | FA_CREATE_ALWAYS )
 
 
-extern "C" void reportError(const char* text, uint16_t value);
+void reportSdError(const char* text, uint16_t value);
 
 class SdFile;
 
@@ -43,11 +47,14 @@ public:
 	SdFile open(const char* path, uint8_t oflag = FA_READ);
 	bool remove(const char* path);
 	bool rmdir(const char* path) { return remove(path); }
-
+	bool removeDirWithFiles(const char* path);
 
 	uint32_t clusterCount();
 	uint16_t sectorsPerCluster();
 	uint32_t freeClusterCount();
+
+private:
+	FRESULT delete_node(TCHAR* path, UINT sz_buff, FILINFO* fno);
 };
 
 
@@ -60,39 +67,17 @@ public:
 	bool open(const char* path, uint8_t oflag = FA_READ);
 
 
-
-	int read(void* buf, uint32_t count)
-	{
-		UINT read = 0;
-		FRESULT error = f_read(file,buf,count,&read);
-		if (error)
-		{
-			reportError("read - failed", error);
-			return -1;
-		}
-		return read;
-	}
-
-	int64_t write(const void* buf, uint32_t count)
-	{
-		UINT written = 0;
-		FRESULT error = f_write(file,buf,count,&written);
-		if (error)
-		{
-			reportError("write - failed", error);
-			return -1;
-		}
-		return written;
-	}
-
+	int32_t read(void* buf, uint32_t count);
+	int32_t write(const void* buf, uint32_t count);
 	uint32_t write(uint8_t b) {return write(&b, 1);}
+
 
 	bool seek(uint32_t pos)
 	{
 		FRESULT error = f_lseek(file, pos);
 		if (error)
 		{
-			reportError("seek - failed", error);
+			reportSdError("seek - failed", error);
 			return false;
 		}
 		return true;
@@ -103,7 +88,7 @@ public:
 		FRESULT error = f_lseek(file, f_tell(file) + offset);
 		if (error)
 		{
-			reportError("seekCur - failed", error);
+			reportSdError("seekCur - failed", error);
 			return false;
 		}
 		return true;
@@ -125,7 +110,7 @@ public:
 		}
 		else if(error)
 		{
-			reportError("close - failed", error);
+			reportSdError("close - failed", error);
 			return false;
 		}
 		return true;
@@ -228,9 +213,7 @@ private:
 
 	FIL* file = nullptr;
 
-
-	uint8_t file_state = 0;
-	uint8_t is_directory = 0;
+	const char* path_for_report;
 };
 
 
@@ -247,7 +230,7 @@ public:
 		FRESULT error =  f_opendir(directory, path);
 		if (error)
 		{
-			reportError("dir open - failed", error);
+			reportSdError("dir open - failed", error);
 			close();
 			return false;
 		}
@@ -280,7 +263,7 @@ public:
 		}
 		else if(error)
 		{
-			reportError("dir close - failed", error);
+			reportSdError("dir close - failed", error);
 			return false;
 		}
 		return true;
@@ -302,7 +285,7 @@ public:
 		FRESULT error = f_readdir(directory, &fno);
 		if(error)
 		{
-			reportError("read dir item - failed", error);
+			reportSdError("read dir item - failed", error);
 			return false;
 		}
 		else if(!fno.fname[0]) // koniec folderu
@@ -338,7 +321,6 @@ public:
 */
 
 	uint16_t createFilesList(uint8_t start_line, char** list, uint8_t list_length, uint16_t max_used_memory, uint8_t chooseFilter = 0);
-
 	uint16_t createProjectsList(char** list, uint8_t list_length, uint16_t max_used_memory);
 
 
@@ -347,6 +329,7 @@ private:
 //	{
 //		close();
 //	}
+
 
 	DIR* directory = nullptr;
 	char* dir_path = nullptr;
