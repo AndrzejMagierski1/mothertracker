@@ -131,7 +131,7 @@ public:
 		{
 			ROLL_PERIOD_NONE = 0,
 			ROLL_PERIOD_MIN = 0,
-//			ROLL_PERIOD_16_1=-7,
+			//			ROLL_PERIOD_16_1=-7,
 //			ROLL_PERIOD_12_1,
 //			ROLL_PERIOD_8_1,
 //			ROLL_PERIOD_6_1,
@@ -667,6 +667,10 @@ public:
 	void changeSelectionFxType(uint8_t index, int16_t value);
 	void changeSelectionNote(int16_t value);
 	void changeSelectionInstrument(int16_t value);
+	uint8_t getInstrumentPosInOrder(int8_t value);
+	uint8_t getInstrumentFromOrder(int8_t value);
+	uint8_t changeInstrumentInSpecificOrder(int8_t actualValue,
+														int16_t delta);
 
 	void setSelectionFxType(uint8_t index, int16_t value);
 	void setSelectionFxValueByPad(uint8_t index, int16_t value);
@@ -740,7 +744,6 @@ public:
 	void makeFxValLabel(char * ptr, uint8_t fxType, uint8_t value);
 	uint8_t isTrackEngineMuted(uint8_t track);
 
-
 	uint8_t getActualPos()
 	{
 		return player.track[0].actual_pos;
@@ -752,6 +755,17 @@ public:
 
 	void alignToGlobalPos();
 	void alignToGlobalPos(uint8_t);
+
+	uint8_t changeInstrumentOrder[48 + 16] = {
+			63, 62, 61, 60,
+			59, 58, 57, 56, 55, 54, 53, 52,
+			51, 50, 49, 48,
+			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+			12, 13, 14, 15, 16, 17, 18, 19,
+			20, 21, 22, 23, 24, 25, 26, 27,
+			28, 29, 30, 31, 32, 33, 34, 35,
+			36, 37, 38, 39, 40, 41, 42, 43,
+			44, 45, 46, 47, };
 };
 
 extern Sequencer sequencer;

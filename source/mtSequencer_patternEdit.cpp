@@ -631,8 +631,39 @@ void Sequencer::setSelectionFxType(uint8_t fxIndex, int16_t value)
 	}
 }
 
+uint8_t Sequencer::getInstrumentPosInOrder(int8_t value)
+{
+	for (uint8_t a = 0; a < 48 + 16; a++)
+	{
+		if (changeInstrumentOrder[a] == value)
+		{
+			return a;
+		}
+	}
+	return 0;
+}
+uint8_t Sequencer::getInstrumentFromOrder(int8_t value)
+{
+	value = constrain(value,
+						0,
+						47 + 16);
+	return changeInstrumentOrder[value];
+}
+uint8_t Sequencer::changeInstrumentInSpecificOrder(int8_t actualValue,
+													int16_t delta)
+{
+	delta = constrain(delta, -5,5);
+	return constrain(
+			getInstrumentFromOrder(
+					getInstrumentPosInOrder(actualValue) + delta),
+			0,
+			INSTRUMENTS_MAX + 16);
+}
+
 void Sequencer::changeSelectionInstrument(int16_t value)
 {
+
+//	value = constrain(value, -1, 1);
 
 	strSelection *sel = &selection;
 	if (!isSelectionCorrect(sel)) return;
@@ -652,13 +683,9 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 				if (step->note >= 0)
 				{
 
-					step->instrument = constrain(step->instrument + value,
-													0,
-													INSTRUMENTS_MAX + 16);
-//					blinkNote(step->instrument,
-//								step->note,
-//								STEP_VELO_DEFAULT,
-//								t);
+					step->instrument = changeInstrumentInSpecificOrder(
+							step->instrument, value);
+
 					if (!(player.isPlay && !player.selectionMode))
 						playSelection();
 
@@ -666,15 +693,10 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 				}
 				else if (step->note == STEP_NOTE_EMPTY)
 				{
-						step->note = STEP_NOTE_DEFAULT;
-					if (value > 0)
-					{
-						step->instrument = mtProject.values.lastUsedInstrument;
-					}
-					else
-					{
-						step->instrument = INSTRUMENTS_MAX + 16;
-					}
+					step->note = STEP_NOTE_DEFAULT;
+
+					step->instrument = mtProject.values.lastUsedInstrument;
+
 				}
 
 				return;
@@ -683,9 +705,8 @@ void Sequencer::changeSelectionInstrument(int16_t value)
 			{
 				if (step->note >= 0)
 				{
-					step->instrument = constrain(step->instrument + value,
-													0,
-													INSTRUMENTS_MAX + 16);
+					step->instrument = changeInstrumentInSpecificOrder(
+							step->instrument, value);
 				}
 
 			}
