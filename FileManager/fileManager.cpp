@@ -340,15 +340,16 @@ void cFileManager::saveProjectToWorkspaceFinish()
 
 	clearChangeFlags();
 
-//	if(status == fmSavingProjectToProjects)
-//	{
-//		currentOperationStep = 0;
-//		currentOperation = fmCopyWorkspaceToProjects;
-//		return;
-//	}
 
 	debugLog.setMaxLineCount(10);
 	debugLog.addLine("autosave end");
+
+	if(status == fmSavingProjectToProjects)
+	{
+		currentOperationStep = 0;
+		currentOperation = fmCopyWorkspaceToProjects;
+		return;
+	}
 
 	status = fmIdle; //xxx zamiast fmSaveEnd
 	currentOperationStep = 0;
@@ -552,8 +553,17 @@ bool cFileManager::saveProjectToProjects(char* projectNameToSave)
 		strcpy(currentProjectName, projectNameToSave);
 	}
 
+	// wymus zapis projektu z nowa nazwa w workspace
+	changesFlags.project = 1;
 
-	//saveProjectToWorkspace(true);//xxx
+	if(saveProjectToWorkspace(false))//xxx true? // zapisuj workpace jesli potrzeba
+	{
+		status = fmSavingProjectToProjects;
+		currentOperationStep = 0;
+		currentOperation = fmSaveWorkspaceProject;//fmSaveWorkspaceProject;
+		return true;
+	}
+
 
 	status = fmSavingProjectToProjects;
 	currentOperationStep = 0;

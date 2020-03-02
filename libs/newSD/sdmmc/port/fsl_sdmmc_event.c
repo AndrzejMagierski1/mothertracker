@@ -74,6 +74,8 @@ bool SDMMCEVENT_Create(sdmmc_event_t eventType)
     }
 }
 
+#include "cserial.h"
+
 bool SDMMCEVENT_Wait(sdmmc_event_t eventType, uint32_t timeoutMilliseconds)
 {
     uint32_t startTime;
@@ -89,6 +91,13 @@ bool SDMMCEVENT_Wait(sdmmc_event_t eventType, uint32_t timeoutMilliseconds)
             elapsedTime = (systick_millis_count - startTime);
         } while ((*event == 0U) && (elapsedTime < timeoutMilliseconds));
         *event = 0U;
+
+        if(elapsedTime > 499)
+        {
+        	clog_println("################    SD timeout: ");
+        	clog_print_val(elapsedTime);
+        	clog_print("     ################");
+        }
 
         return ((elapsedTime < timeoutMilliseconds) ? true : false);
     }
