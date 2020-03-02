@@ -233,7 +233,7 @@ void cFileManager::loadProjectFromWorkspaceInit()
 	//todo to tu nie dziala bo ladowanie instrumentow nadpisuje to
 	mtProject.instrument[0].sample.length = 0;
 	mtProject.instrument[0].sample.address = sdram_sampleBank;
-	lastActiveInstrument = 0;
+	//lastActiveInstrument = 0;
 
 	mtProject.used_memory = 0;
 
@@ -415,7 +415,7 @@ void cFileManager::copyWorkspaceToProjectsFinish()
 //----------------------------------------------------------------------------------------importSamplesToWorkspace
 void cFileManager::importSamplesToWorkspaceInit()
 {
-
+	importSamplesSize = 0;
 
 	moveToNextOperationStep();
 }
@@ -464,6 +464,20 @@ void cFileManager::importSamplesToWorkspaceFinish()
 //---------------------------------------------------------------------------------------- deleteInstrumentsFromWorkspace
 void cFileManager::deleteInstrumentsFromWorkspaceFinish()
 {
+	// clear project struct - dopiero na koncu po przesówaniu pamieci
+	for(uint8_t instr = currentInstrument; instr <= deleteEndInstrument; instr++)
+	{
+		if(mtProject.instrument[instr].isActive == 1)
+		{
+			mtProject.used_memory -= mtProject.instrument[instr].sample.length*2;
+		}
+
+		setDefaultActiveInstrument(&mtProject.instrument[instr]);
+		mtProject.instrument[instr].sample.file_name[0] = 0;
+		mtProject.instrument[instr].isActive = 0;
+	}
+
+
 
 	status = fmDeleteInstrumentsEnd;
 	currentOperationStep = 0;
@@ -585,7 +599,7 @@ bool cFileManager::importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint
 	importStartSlot = instrumentSlot;
 	importEndSlot = instrumentSlot + ((fileTo>fileFrom) ? (fileTo-fileFrom) : 0);
 	if(importEndSlot >= INSTRUMENTS_COUNT) importEndSlot = INSTRUMENTS_COUNT-1; //xxx
-
+	//findLastActiveInstrumentBeforeCurrent();
 
 	// oblicz od ktorego instrumentu trzeba bedzie przesunac pamiec
 	// potem zostanie obliczony offset o jaki trzeba bedzie przesunąć

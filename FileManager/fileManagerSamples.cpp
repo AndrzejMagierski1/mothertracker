@@ -35,7 +35,7 @@ void cFileManager::loadSamplesFromWorkspace()
 	{
 		mtProject.used_memory += currentSampleSamplesCount*2; // zwieksz uzycie pamieci
 		completeLoadedSampleStruct(true); // wypelnij strukture dodanego sampla dodatkowymi danymi
-		lastActiveInstrument = currentSample; // do ustalania przydzielania pamieci
+		//lastActiveInstrument = currentSample; // do ustalania przydzielania pamieci
 		sampleInProgress = 0;
 		moveToNextOperationStep();
 	}
@@ -55,14 +55,26 @@ void cFileManager::startSampleLoad()
 {
 	sampleInProgress = 1;
 
+	mtProject.instrument[0].sample.address = sdram_sampleBank;
+
 	if(currentSample == 0)
 	{
 		mtProject.instrument[0].sample.length = 0;
-		mtProject.instrument[0].sample.address = sdram_sampleBank;
 	}
+	else
+	{
+		uint8_t activeBefore = currentInstrument-1;
 
-	mtProject.instrument[currentSample].sample.address =
-			mtProject.instrument[lastActiveInstrument].sample.address + mtProject.instrument[lastActiveInstrument].sample.length;
+		while(mtProject.instrument[activeBefore].isActive == 0)
+		{
+			if(activeBefore == 0) break;
+			activeBefore--; // jesli sprawdzilo wszystkie to koczny
+		}
+
+		mtProject.instrument[currentSample].sample.address =
+				mtProject.instrument[activeBefore].sample.address + mtProject.instrument[activeBefore].sample.length;
+
+	}
 
 	ptrSampleMemory = mtProject.instrument[currentSample].sample.address;
 
@@ -170,22 +182,21 @@ void cFileManager::moveSampleMemory()
 
 	// wyznacz przesuniecie i blok do przesuniecia
 
-	int32_t memory_offset;
+	int32_t memory_offset = 0;
 	if(currentOperation == fmImportSamplesToWorkspace)
 	{
-		memory_offset = fileTransfer.getConvertedSampleSize();
+		memory_offset = importSamplesSize;
 	}
 	else if(currentOperation == fmDeleteInstruments)
 	{
 		if(currentInstrument > 0)
 		{
-			memory_offset = (mtProject.instrument[currentInstrument-1].sample.address
-							+ mtProject.instrument[currentInstrument-1].sample.length*2)
-							- mtProject.instrument[firstSlotToMoveInMemory].sample.address;
+			memory_offset = (uint8_t*)mtProject.instrument[currentInstrument].sample.address
+							- (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
 		}
 		else
 		{
-			memory_offset = sdram_sampleBank - mtProject.instrument[firstSlotToMoveInMemory].sample.address;
+			memory_offset = (uint8_t*)sdram_sampleBank - (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
 		}
 
 	}
@@ -198,23 +209,38 @@ void cFileManager::moveSampleMemory()
 
 	int32_t memory_size = end_address-begining_address;
 
+	int32_t stepSize = READ_WRITE_BUFOR_SIZE;
+	if(memory_offset > 0 && stepSize > memory_offset) stepSize = memory_offset;
+
 	// przesuń
 	do
 	{
-		if(READ_WRITE_BUFOR_SIZE <= memory_size)
+		if(memory_size >= stepSize)
 		{
-			memcpy(sdram_writeLoadBuffer, begining_address+memory_size, READ_WRITE_BUFOR_SIZE);
-			memory_size -= READ_WRITE_BUFOR_SIZE;
-			memcpy(memory_offset+begining_address+memory_size, sdram_writeLoadBuffer, READ_WRITE_BUFOR_SIZE);
+			memcpy(sdram_writeLoadBuffer, begining_address+memory_size, stepSize);
+			memory_size -= stepSize;
+			memcpy(begining_address+memory_size+memory_offset, sdram_writeLoadBuffer, stepSize);
 		}
 		else
 		{
-			memcpy(sdram_writeLoadBuffer, begining_address+memory_size, memory_size);
+			stepSize = memory_size;
+			memcpy(sdram_writeLoadBuffer, begining_address+memory_size, stepSize);
 			memory_size = 0;
-			memcpy(memory_offset+begining_address+memory_size, sdram_writeLoadBuffer, memory_size);
+			memcpy(memory_offset+begining_address+memory_size, sdram_writeLoadBuffer, stepSize);
 		}
 	}
 	while(memory_size > 0);
+
+
+
+	// zmien adresy przesunietch instrumentów
+	for(uint8_t i = firstSlotToMoveInMemory; i<=last_instrument_to_move; i++)
+	{
+		if(mtProject.instrument[i].isActive)
+		{
+			mtProject.instrument[i].sample.address = mtProject.instrument[i].sample.address + memory_offset/2;
+		}
+	}
 
 }
 

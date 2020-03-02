@@ -75,6 +75,7 @@ void cInterfacePopups::initPopupsDisplayControls()
 	popupList.linesCount = 16;
 	popupList.length = 16;
 	popupList.data = interfaceGlobals.ptrIntrumentsNames;
+	popupList.lineLengthMax = 22;
 	//prop.style = controlStyleBackground;
 	prop.x = (800/4)*(3)+5;
 	prop.y = 40;
@@ -204,6 +205,7 @@ void cInterfacePopups::showNotesPopup()
 
 	display.setControlText(textLabel1, " Notes");
 	display.setControlPosition(textLabel1, 2, 0);
+	display.setControlColors(textLabel1, titleBgLabelColors);//xxx
 	display.setControlSize(textLabel1, 800, 26);
 	display.setControlValue(textLabel1, 0);
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleFont4);
@@ -236,6 +238,7 @@ void cInterfacePopups::showInstrumentsPopup()
 	display.refreshControl(bgLabel);
 
 	display.setControlText(textLabel1, "  Instruments");
+	display.setControlColors(textLabel1, titleBgLabelColors);//xxx
 	display.setControlPosition(textLabel1, 600+1, 0);
 	display.setControlSize(textLabel1, 200, 26);
 	display.setControlValue(textLabel1, 0);
@@ -278,8 +281,9 @@ void cInterfacePopups::showFxesPopup()
 
 	display.setControlText(textLabel1, "  Fx");
 	display.setControlValue(textLabel1, 0);
-	//display.setControlPosition(textLabel1, 600+1, 13);
-	//display.setControlSize(textLabel1, 200, 26);
+	display.setControlColors(textLabel1, titleBgLabelColors);//xxx
+//	display.setControlPosition(textLabel1, 600+1, 0);
+//	display.setControlSize(textLabel1, 200, 26);
 	display.setControlStyle(textLabel1, controlStyleShow | controlStyleCenterY | controlStyleBackground | controlStyleFont4);
 	display.refreshControl(textLabel1);
 
@@ -713,6 +717,7 @@ void cInterfacePopups::refreshStepPopupDescription()
 		display.setControlPosition(textLabel1, 400+1, 0);
 		display.setControlSize(textLabel1, 400, 26);
 		display.setControlValue(textLabel1, 0);
+		display.setControlColors(textLabel1, titleBgLabelColors);//xxx
 		display.refreshControl(textLabel1);
 
 		display.setControlSize(bgLabel, 400, 450);
@@ -1002,8 +1007,8 @@ void cInterfacePopups::changePopupProgress(uint8_t value)
 void cInterfacePopups::hideProgressPopup()
 {
 	display.setControlHide(textLabel1);
-	display.setControlHide(bgLabel);
-	display.refreshControl(bgLabel);
+	//display.setControlHide(bgLabel);
+	display.refreshControl(textLabel1);
 }
 
 

@@ -157,11 +157,11 @@ void cSampleImporter::start(uint32_t options)
 	{
 		showFilesTree();
 		handleMemoryBar();
-		AddEnterOrRename();
-		AddNextControl();
 		previewColorControl();
 		cancelSelect(listFiles);
 		setSelect();
+
+
 	}
 
 
@@ -280,7 +280,7 @@ static  uint8_t functChangeFolder(uint8_t button)
 	SI->AddNextControl();
 	SI->AddEnterOrRename();
 	SI->previewColorControl();
-	SI->displayDelete(SI->selectedPlace);
+	//SI->displayDelete(SI->selectedPlace);
 
 	SI->activateLabelsBorder();
 
@@ -311,10 +311,10 @@ static  uint8_t functChangeInstrument(uint8_t button)
 
 	SI->selectedPlace = 1;
 
-	SI->displayDelete(1);
+	//SI->displayDelete(1);
 	SI->AddEnterOrRename();
 	SI->previewColorControl();
-	SI->displayDelete(SI->selectedPlace);
+	//SI->displayDelete(SI->selectedPlace);
 
 	SI->activateLabelsBorder();
 
@@ -502,7 +502,7 @@ static  uint8_t functConfirmRename()
 			SI->setDefaultScreenFunct();
 			SI->showDefaultScreen();
 
-			SI->displayDelete(SI->selectedPlace);
+			//SI->displayDelete(SI->selectedPlace);
 
 		//	fileManager.setInstrumentChangeFlag(mtProject.values.lastUsedInstrument);
 			newFileManager.setInstrumentStructChanged(mtProject.values.lastUsedInstrument);
@@ -528,7 +528,7 @@ static  uint8_t functCancelRename()
 	SI->setDefaultScreenFunct();
 	SI->showDefaultScreen();
 
-	SI->displayDelete(SI->selectedPlace);
+	//SI->displayDelete(SI->selectedPlace);
 
 	return 1;
 }
@@ -731,7 +731,7 @@ static  uint8_t functLeft()
 		}
 
 		SI->handleMemoryBar();
-		SI->displayDelete(0);
+		//SI->displayDelete(0);
 		SI->resetInstrSel();
 		SI->FM->clearButton(interfaceButton2);
 		SI->FM->setButtonObj(interfaceButton2, buttonPress, functEnter);
@@ -766,7 +766,7 @@ static  uint8_t functRight()
 		SI->selectionTab[listInstruments][SI->selectedSlot] = 1;
 		SI->selectedPlace++;
 
-		SI->displayDelete(1);
+		//SI->displayDelete(1);
 		SI->FM->clearButton(interfaceButton2);
 		SI->FM->setButtonObj(interfaceButton2, buttonPress, functRename);
 
@@ -914,7 +914,7 @@ uint8_t cSampleImporter::changeInstrumentSelection(int16_t value)
 
 	mtProject.values.lastUsedInstrument = selectedSlot;
 
-	displayDelete(1);
+	//displayDelete(1);
 	AddEnterOrRename();
 	updateSelection();
 

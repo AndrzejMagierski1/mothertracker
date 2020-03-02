@@ -272,6 +272,7 @@ private:
 
 	void calcFirstSlotToMoveInMemory(uint8_t calcStartSlot);
 	void setCurrentInstrumentToFirstActiveAfterCurrent();
+	void findLastActiveInstrumentBeforeCurrent();
 	bool continueInstrumentProcess();
 
 	void instrumentThrowError();

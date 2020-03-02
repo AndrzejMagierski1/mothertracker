@@ -183,10 +183,10 @@ void cFileManager::deleteInstrumentsFromWorkspace()
 			SD.remove(file_path);
 		}
 
-		// clear project struct
-		setDefaultActiveInstrument(&mtProject.instrument[instr]);
-		mtProject.instrument[instr].sample.file_name[0] = 0;
-		mtProject.instrument[instr].isActive = 0;
+		// clear project struct - nie tu bo potrzebne sa te dane w dalszej czesci procesu np. do przesówania pamięci
+		//setDefaultActiveInstrument(&mtProject.instrument[instr]);
+		//mtProject.instrument[instr].sample.file_name[0] = 0;
+		//mtProject.instrument[instr].isActive = 0;
 	}
 	moveToNextOperationStep();
 }
@@ -263,6 +263,24 @@ void cFileManager::calcFirstSlotToMoveInMemory(uint8_t calcStartSlot)
 		}
 	}
 }
+
+
+
+
+//
+//void cFileManager::findLastActiveInstrumentBeforeCurrent()
+//{
+//	// znajduje ostanti aktywny istrument poprzedzajacy currentInstrument
+//	// jezli nie znadzie ustawia: lastActiveInstrument = 0
+//	if(currentInstrument > 0)  lastActiveInstrument = currentInstrument-1;
+//	else { lastActiveInstrument = 0; return; }
+//
+//	while(mtProject.instrument[lastActiveInstrument].isActive == 0)
+//	{
+//		lastActiveInstrument--; // jesli sprawdzilo wszystkie to koczny
+//		if(lastActiveInstrument == 0) break;
+//	}
+//}
 
 
 void cFileManager::setCurrentInstrumentToFirstActiveAfterCurrent()
