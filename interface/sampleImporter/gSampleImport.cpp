@@ -325,7 +325,7 @@ void cSampleImporter::refreshInstrumentsList()
 	display.refreshControl(instrumentListControl);
 }
 
-void cSampleImporter::showMemoryUsage()
+void cSampleImporter::showMemoryUsage()//xxx
 {
 
 	if(!fullMemoryFlag)
@@ -335,6 +335,11 @@ void cSampleImporter::showMemoryUsage()
 		display.setControlData(memoryBarControl,&memoryUsageAdd);
 		display.setControlShow(memoryBarControl);
 		display.refreshControl(memoryBarControl);
+
+		sprintf(memoryUsageValue, "%d%c", memoryUsage,'%');
+		display.setControlText2(label[5], memoryUsageValue);
+		display.refreshControl(label[5]);
+
 	}
 	else
 	{
@@ -344,6 +349,10 @@ void cSampleImporter::showMemoryUsage()
 		display.setControlData(memoryBarControl,(strCompareValue *)&memoryUsageAddOnMemoryFull);
 		display.setControlShow(memoryBarControl);
 		display.refreshControl(memoryBarControl);
+
+
+		display.setControlText2(label[5], "100%");
+		display.refreshControl(label[5]);
 	}
 }
 

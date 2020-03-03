@@ -23,6 +23,8 @@ enum fileManagerStatus
 	fmSavingProjectToProjects,
 	fmLoadingPatternFromWorkspace,
 
+
+
 	fmLoadEnd,
 	fmSaveEnd,
 	fmBrowseSamplesEnd,
@@ -31,6 +33,8 @@ enum fileManagerStatus
 	fmImportSamplesEnd,
 	fmDeleteInstrumentsEnd,
 	fmLoadPatternEnd,
+
+
 
 	fmError,
 	fmLoadError,
