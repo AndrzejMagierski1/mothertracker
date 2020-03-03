@@ -1329,7 +1329,7 @@ void cSampleImporter::cancelSelect(uint8_t placeToCancel)
 
 int16_t cSampleImporter::getSelectionStart(uint8_t whichSelect)
 {
-	int16_t selStart = -1;
+	int16_t selStart = SI->maxListLength;
 
 	for(size_t i = 0; i < SI->maxListLength; i++)
 	{
@@ -1345,9 +1345,9 @@ int16_t cSampleImporter::getSelectionStart(uint8_t whichSelect)
 
 int16_t cSampleImporter::getSelectionEnd(uint8_t whichSelect)
 {
-	int16_t selEnd = -1;
+	int16_t selEnd = 0;
 
-	for(int i = SI->maxListLength-1; i > 0; i--)
+	for(int i = SI->maxListLength-1; i > 1; i--)
 	{
 		if(selectionTab[whichSelect][i] == 1)
 		{

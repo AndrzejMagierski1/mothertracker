@@ -295,6 +295,7 @@ private:
 	void startSampleLoad();
 
 	void moveSampleMemory();
+	void moveMemory(uint8_t* memoryStart, uint8_t* memoryEnd, int32_t memoryOffset);
 
 	void importSamplesToWorkspaceInit();
 	void importSamplesToWorkspaceContinue();
