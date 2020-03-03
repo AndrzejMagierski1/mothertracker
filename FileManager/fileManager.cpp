@@ -417,6 +417,20 @@ void cFileManager::importSamplesToWorkspaceInit()
 {
 	importSamplesSize = 0;
 
+	// kasowanie zuzycia pamieci przez nadpisywane instrumenty
+	for(uint8_t instr = importStartSlot; instr <= importEndSlot; instr++)
+	{
+		if(mtProject.instrument[instr].isActive == 1)
+		{
+			mtProject.used_memory -= mtProject.instrument[instr].sample.length*2;
+		}
+
+		// pewnie jakies dane potrzebna beda w dalszych krokach wiec lepiej nie zerowac
+//		setDefaultActiveInstrument(&mtProject.instrument[instr]);
+//		mtProject.instrument[instr].sample.file_name[0] = 0;
+//		mtProject.instrument[instr].isActive = 0;
+	}
+
 	moveToNextOperationStep();
 }
 
@@ -432,7 +446,7 @@ void cFileManager::importSamplesToWorkspaceContinue()
 		currentInstrument++;
 		currentSample++;
 
-		currentOperationStep = 0; //xxx najwazniejsze !
+		currentOperationStep = 1; //xxx najwazniejsze !
 		return;
 	}
 	else

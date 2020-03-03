@@ -190,6 +190,8 @@ public:
 	void handleMemoryBar();
 	void calculateFileMemUsage();
 	void calculateMemUsage();
+	char memoryUsageValue[8];
+
 
 
 	void setSelect();

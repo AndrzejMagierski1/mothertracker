@@ -198,9 +198,7 @@ void cFileManager::moveSampleMemory()
 		{
 			memory_offset = (uint8_t*)sdram_sampleBank - (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
 		}
-
 	}
-
 
 
 	uint8_t* begining_address = (uint8_t*)mtProject.instrument[firstSlotToMoveInMemory].sample.address;
@@ -212,14 +210,13 @@ void cFileManager::moveSampleMemory()
 
 
 	// zmien adresy przesunietch instrumentów
-	for(uint8_t i = firstSlotToMoveInMemory; i<=last_instrument_to_move; i++) // memory_offset = 0
+	for(uint8_t i = firstSlotToMoveInMemory; i<=last_instrument_to_move; i++)
 	{
 		if(mtProject.instrument[i].isActive)
 		{
-			mtProject.instrument[i].sample.address = mtProject.instrument[i].sample.address + (memory_offset/2);
+			mtProject.instrument[i].sample.address = (int16_t*)(((uint8_t*) mtProject.instrument[i].sample.address) + memory_offset);
 		}
 	}
-
 }
 
 
