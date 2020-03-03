@@ -352,7 +352,10 @@ static uint8_t functDelete(uint8_t state)
 	}
 	else
 	{
-		functInstrumentDelete();
+		if(state == buttonPress)
+		{
+			functInstrumentDelete();
+		}
 	}
 
 	return 1;
@@ -372,7 +375,7 @@ static  uint8_t functInstrumentDelete()
 	uint8_t deleteStart = SI->getSelectionStart(listInstruments);
 	uint8_t deleteEnd = SI->getSelectionEnd(listInstruments);
 
-	if(deleteStart >= INSTRUMENTS_COUNT|| deleteEnd >= INSTRUMENTS_COUNT || deleteEnd < deleteStart) return 1;
+	if(deleteStart >= INSTRUMENTS_COUNT || deleteEnd >= INSTRUMENTS_COUNT || deleteEnd < deleteStart) return 1;
 
 	uint8_t instrToDeleteCount = 0;
 	for(uint8_t i = deleteStart; i <= deleteEnd; i++)
@@ -1329,7 +1332,7 @@ void cSampleImporter::cancelSelect(uint8_t placeToCancel)
 
 int16_t cSampleImporter::getSelectionStart(uint8_t whichSelect)
 {
-	int16_t selStart = -1;
+	int16_t selStart = SI->maxListLength;
 
 	for(size_t i = 0; i < SI->maxListLength; i++)
 	{
@@ -1345,7 +1348,7 @@ int16_t cSampleImporter::getSelectionStart(uint8_t whichSelect)
 
 int16_t cSampleImporter::getSelectionEnd(uint8_t whichSelect)
 {
-	int16_t selEnd = -1;
+	int16_t selEnd = 0;
 
 	for(int i = SI->maxListLength-1; i > 0; i--)
 	{
