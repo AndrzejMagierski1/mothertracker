@@ -1330,6 +1330,8 @@ uint8_t functEncoder(int16_t value)
 
 static  uint8_t functShift(uint8_t state)
 {
+	if(PTE->fillState) return 1;
+
 	if(state == buttonPress)
 	{
 		if(mtPopups.getStepPopupState() != stepPopupNone) // ukrywa popup nuta...fx jesli jest wyswietlany

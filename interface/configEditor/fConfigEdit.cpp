@@ -143,26 +143,6 @@ void cConfigEditor::stop()
 	moduleRefresh = 0;
 }
 
-void cConfigEditor::turnOffPerformanceMode()
-{
-	if(sequencer.isPerformanceMode())
-	{
-		newFileManager.loadWorkspacePatternNow(mtProject.values.actualPattern);
-		sequencer.switchRamPatternsNow();
-		sequencer.exitPerformanceMode();
-	}
-
-	engine.performanceModeEndAll();
-
-}
-
-void cConfigEditor::turnOffRadio()
-{
-	audioShield.headphoneSourceSelect(0);
-	radio.clearRDS();
-	radio.resetSeekCallback();
-	engine.setHeadphonesVolume(mtProject.values.volume);
-}
 
 void cConfigEditor::setConfigScreenFunct()
 {
