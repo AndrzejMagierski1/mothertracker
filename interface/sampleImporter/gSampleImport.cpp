@@ -113,7 +113,7 @@ void cSampleImporter::initDisplayControls()
 	explorerList.length = locationExplorerCount;
 	explorerList.linesCount = 14;
 	explorerList.data = explorerNames;
-	//explorerList.lineLengthMax = 25;
+	explorerList.lineLengthMax = 22;
 	prop.x = 0+1;
 	prop.y = 29;
 	prop.w = 800/4-3;
@@ -125,6 +125,7 @@ void cSampleImporter::initDisplayControls()
 	instrumentList.linesCount = 14;
 	instrumentList.start = 0;
 	instrumentList.length = 0;
+	instrumentList.lineLengthMax = 22;
 	prop.x = (800/4)*3+1;
 	prop.data = &instrumentList;
 	if(instrumentListControl == nullptr)  instrumentListControl = display.createControl<cList>(&prop);
@@ -257,10 +258,15 @@ void cSampleImporter::showDefaultScreen()
 	display.setControlHide(editName);
 	display.refreshControl(editName);
 
-	displayDelete(selectedPlace);
+	//displayDelete(selectedPlace);
 
-	//AddEnterOrRename();
-	//AddNextControl();
+	if(locationExplorerCount != 0)
+	{
+
+		AddEnterOrRename();
+		AddNextControl();
+
+	}
 
 	activateLabelsBorder();
 
@@ -572,22 +578,22 @@ void cSampleImporter::frameSelectMode(uint8_t place,uint8_t mode)
 	}
 }
 
-void cSampleImporter::displayDelete(uint8_t onOff)
-{
-	if(onOff)
-	{
-		display.setControlText(label[5], "Delete");
-		deleteColorControl();
-	}
-	else
-	{
-		display.setControlText(label[5], "");
-	}
-
-	display.refreshControl(label[5]);
-	//display.synchronizeRefresh();
-}
-
+//void cSampleImporter::displayDelete(uint8_t onOff)
+//{
+//	if(onOff)
+//	{
+//		display.setControlText(label[5], "Delete");
+//		deleteColorControl();
+//	}
+//	else
+//	{
+//		display.setControlText(label[5], "");
+//	}
+//
+//	display.refreshControl(label[5]);
+//	//display.synchronizeRefresh();
+//}
+//
 
 
 

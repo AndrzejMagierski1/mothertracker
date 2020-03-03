@@ -80,7 +80,7 @@ const char cProjectFileName[] = "project.mt";
 
 
 
-const uint8_t WORKSPACE_SAMPLES_FORMAT_MAX_LENGTH = 33;
+const uint8_t WORKSPACE_SAMPLES_FORMAT_MAX_LENGTH = 37;
 
 const uint8_t WORKSPACE_INSTRUMENTS_FORMAT_MAX_LENGTH = 43;
 
