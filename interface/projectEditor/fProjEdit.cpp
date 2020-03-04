@@ -92,7 +92,6 @@ static uint8_t functDeleteConfirm();
 
 static uint8_t functStartGameModule()
 {
-	if(PE->isBusyFlag) return 1;
 	PE->eventFunct(eventActivateGameModule,PE,0,0);
 	return 1;
 }
@@ -123,10 +122,7 @@ void cProjectEditor::update()
 	}
 	else if(managerStatus == fmExportSoundEnd)
 	{
-		PE->exportInProgress = 0;
-		PE->isBusyFlag = 0;
 		PE->showExportWindow();
-
 		newFileManager.clearStatus();
 	}
 
@@ -542,8 +538,6 @@ static uint8_t functStopPatternNo()
 //Nowe podejscie ekran główny
 static uint8_t functNewProject()
 {
-	if(PE->isBusyFlag) return 1;
-
 	if(sequencer.isPlay())
 	{
 		PE->showStopPatternWindow();
@@ -594,7 +588,6 @@ static uint8_t functNewProject()
 
 static uint8_t functOpenProject()
 {
-	if(PE->isBusyFlag) return 1;
 
 
 	newFileManager.browseProjects();
@@ -611,7 +604,6 @@ static uint8_t functOpenProject()
 
 static uint8_t functSaveProject()
 {
-	if(PE->isBusyFlag) return 1;
 	if(PE->newProjectNotSavedFlag)
 	{
 		functSaveAsProject();
@@ -638,7 +630,6 @@ static uint8_t functSaveProject()
 
 static uint8_t functSaveAsProject()
 {
-	if(PE->isBusyFlag) return 1;
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
 	PE->FM->setButtonObj(interfaceButton5, buttonPress, functSaveAsAutoName);
@@ -658,7 +649,6 @@ static uint8_t functSaveAsProject()
 
 static uint8_t functExport()
 {
-	if(PE->isBusyFlag) return 1;
 
 	if(sequencer.isPlay())
 	{
@@ -697,7 +687,6 @@ void cProjectEditor::functShowSaveLastWindow()
 
 static uint8_t functSaveChangesCancelNewProject()
 {
-	if(PE->isBusyFlag) return 1;
 	PE->setDefaultScreenFunct();
 
 	PE->showDefaultScreen();
@@ -705,7 +694,6 @@ static uint8_t functSaveChangesCancelNewProject()
 }
 static uint8_t functSaveChangesDontSaveNewProject()
 {
-	if(PE->isBusyFlag) return 1;
 
 	PE->newProjectNotSavedFlag = 1;
 
@@ -739,7 +727,6 @@ static uint8_t functSaveChangesDontSaveNewProject()
 }
 static uint8_t functSaveChangesSaveNewProject()
 {
-	if(PE->isBusyFlag) return 1;
 	if(PE->newProjectNotSavedFlag)
 	{
 		PE->showDefaultScreen();
@@ -765,7 +752,6 @@ static uint8_t functSaveChangesSaveNewProject()
 
 static uint8_t functSaveAsCancel()
 {
-	if(PE->isBusyFlag) return 1;
 	PE->setDefaultScreenFunct();
 
 	PE->showDefaultScreen();
@@ -775,8 +761,6 @@ static uint8_t functSaveAsCancel()
 
 static uint8_t functSaveAsConfirm()
 {
-	if(PE->isBusyFlag) return 1;
-
 
 	if(newFileManager.projectExist(PE->keyboardManager.getName()))
 	{
@@ -835,8 +819,6 @@ void cProjectEditor::functShowOverwriteWindow()
 
 static uint8_t functSaveAsOverwriteYes()
 {
-	if(PE->isBusyFlag) return 1;
-
 	debugLog.setMaxLineCount(5);
 	debugLog.addLine("Save Started");
 	debugLog.forceRefresh();
@@ -864,7 +846,6 @@ static uint8_t functSaveAsOverwriteYes()
 
 static uint8_t functSaveAsOverwriteNo()
 {
-	if(PE->isBusyFlag) return 1;
 	PE->showDefaultScreen();
 
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
@@ -884,8 +865,6 @@ static uint8_t functSaveAsOverwriteNo()
 //open
 static uint8_t functOpenProjectConfirm()
 {
-	if(PE->isBusyFlag) return 1;
-
 	if(sequencer.isPlay())
 	{
 		PE->showStopPatternWindow();
@@ -933,7 +912,6 @@ void cProjectEditor::functShowSaveLastWindowBeforeOpen()
 
 static uint8_t functDelete()
 {
-	if(PE->isBusyFlag) return 1;
 	if(strcmp(newFileManager.getCurrentProjectName(), PE->projectsList[PE->selectedProject]) == 0) return 1; // nie mozna usunac aktualnie uzywanego projektu
 
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
@@ -946,7 +924,6 @@ static uint8_t functDelete()
 
 static uint8_t functSaveChangesCancelOpen()
 {
-	if(PE->isBusyFlag) return 1;
 	PE->projectListActiveFlag = 0;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
@@ -991,8 +968,6 @@ static uint8_t functProjectListDown()
 
 static uint8_t functSaveChangesDontSaveOpen()
 {
-	if(PE->isBusyFlag) return 1;
-
 	mtProject.values.projectNotSavedFlag = 0;
 
 	PE->newProjectNotSavedFlag = 0;
@@ -1000,16 +975,13 @@ static uint8_t functSaveChangesDontSaveOpen()
 
 	PE->openPopupDelay = 0;
 	PE->openPopupFlag = 1;
-	PE->isBusyFlag = 1;
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Opening project");
 
 	return 1;
 }
 static uint8_t functSaveChangesSaveOpen()
 {
-	if(PE->isBusyFlag) return 1;
 	if(PE->newProjectNotSavedFlag)
 	{
 		PE->showDefaultScreen();
@@ -1026,7 +998,6 @@ static uint8_t functSaveChangesSaveOpen()
 
 	PE->savePopupFlag = 1;
 	PE->savePopupDelay = 0;
-	PE->isBusyFlag = 1;
 
 	PE->showDefaultScreen();
 	PE->showProcessingPopup("Saving project");
@@ -1036,17 +1007,11 @@ static uint8_t functSaveChangesSaveOpen()
 
 static uint8_t functDeleteConfirm()
 {
-	if(PE->isBusyFlag) return 1;
-
-//	PE->deletePopupFlag = 1;
-//	PE->deletePopupDelay = 0;
-//	PE->isBusyFlag = 1;
-
 	newFileManager.deleteProject(PE->selectedProject);
 
 	PE->showDefaultScreen();
 	PE->setDefaultScreenFunct();
-//	PE->showProcessingPopup("Deleting project");
+
 	return 1;
 }
 //===============================================================================================================
@@ -1055,131 +1020,57 @@ char currentExportPath[PATCH_SIZE];
 
 static uint8_t functExportSong()
 {
-	if(PE->isBusyFlag) return 1;
-	if(PE->exportInProgress) return 1;
-
-
-
 	if(newFileManager.exportSound(exportSong))
 	{
-		PE->isBusyFlag = 1;
-		PE->exportInProgress = 1;
-		PE->exportProgress = 0;
-		PE->currentExportType = (int)exportSong;
-
 		PE->showLabelDuringExport();
 	}
-
 
 	return 1;
 }
 static uint8_t functExportSongStems()
 {
-	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
-	if(PE->isBusyFlag) return 1;
-
-	PE->isBusyFlag = 1;
-	PE->exportInProgress = 1;
-	PE->exportProgress = 0;
-	PE->currentExportType = (int)exportSongStems;
-
-	uint16_t fileCounter = 0;
-
-	sprintf(currentExportPath,"Export/%s/%s_Song_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
-	while(SD.exists(currentExportPath))
+	if(newFileManager.exportSound(exportSongStems))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_Song_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),++fileCounter);
-		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+		PE->showLabelDuringExport();
 	}
 
-
-	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_Song_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
-	else sprintf(currentExportPath,"%s/%s_Song_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),fileCounter);
-
-	PE->showLabelDuringExport();
-	exporter.start(currentExportPath, exportSongStems);
 	return 1;
 }
 static uint8_t functExportPattern()
 {
-	if(PE->isBusyFlag) return 1;
-	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
-
-	PE->isBusyFlag = 1;
-	PE->exportInProgress = 1;
-	PE->exportProgress = 0;
-	PE->currentExportType = (int)exportPattern;
-
-	uint16_t fileCounter = 0;
-	uint16_t namePattern = mtProject.values.actualPattern;
-
-	sprintf(currentExportPath,"Export/%s/%s_P%d.wav",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern);
-	while(SD.exists(currentExportPath))
+	if(newFileManager.exportSound(exportPattern))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_P%d_%d.wav",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,++fileCounter);
-		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+		PE->showLabelDuringExport();
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_P%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern);
-	else sprintf(currentExportPath,"Export/%s/%s_P%d_%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,fileCounter);
 
-	PE->showLabelDuringExport();
-	exporter.start(currentExportPath, exportPattern);
 	return 1;
 }
 static uint8_t functExportPatternStems()
 {
-	if(PE->isBusyFlag) return 1;
-	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
-
-	PE->isBusyFlag = 1;
-	PE->exportInProgress = 1;
-	PE->exportProgress = 0;
-	PE->currentExportType = (int)exportPatternStems;
-
-	uint16_t fileCounter = 0;
-	uint16_t namePattern = mtProject.values.actualPattern;
-
-	sprintf(currentExportPath,"Export/%s/%s_P%d_S", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern);
-	while(SD.exists(currentExportPath))
+	if(newFileManager.exportSound(exportPatternStems))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_P%d_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,++fileCounter);
-		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
+		PE->showLabelDuringExport();
 	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_P%d_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern);
-	else sprintf(currentExportPath,"%s/%s_P%d_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,fileCounter);
 
-	PE->showLabelDuringExport();
-	exporter.start(currentExportPath, exportPatternStems);
 	return 1;
 }
 static uint8_t functExportToMOD()
 {
-	if(PE->isBusyFlag) return 1;
-	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
+
 
 	return 1;
 }
 
 static uint8_t functExportCancel()
 {
+	newFileManager.exportSoundCancel();
 
+	PE->showExportWindow();
 	return 1;
 }
 
 static uint8_t functExportGoBack()
 {
-
-	if((PE->exportInProgress) || (PE->isBusyFlag))
-	{
-		newFileManager.exportSoundCancel();
-
-		PE->exportInProgress = 0;
-		PE->isBusyFlag = 0;
-		PE->showExportWindow();
-		return 1;
-	}
-
-	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 	PE->setDefaultScreenFunct();
 	PE->showDefaultScreen();
 	return 1;
@@ -1189,8 +1080,6 @@ static uint8_t functExportGoBack()
 static uint8_t functSwitchModule(uint8_t button)
 {
 
-	if(PE->isBusyFlag) return 1;
-	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
 	PE->eventFunct(eventSwitchModule,PE,&button,0);
 
 	return 1;
@@ -1266,7 +1155,6 @@ static uint8_t functDeleteBackspace(uint8_t state)
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
-	if(PE->isBusyFlag) return 1;
 
 	PE->keyboardManager.onPadChange(pad, state);
 	return 1;
@@ -1274,7 +1162,6 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 
 static  uint8_t functEncoder(int16_t value)
 {
-	if(PE->isBusyFlag) return 1;
 	if(PE->projectListActiveFlag)
 	{
 		if(value > 0)

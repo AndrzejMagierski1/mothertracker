@@ -258,7 +258,11 @@ void cInterface::commonThingsUpdate()
 				case fmSavingProjectToWorkspace  	: 	break;
 				case fmSavingProjectToProjects   	: text_index = 10;	break;
 				case fmLoadingPatternFromWorkspace	: 	break;
-				case fmExportingSound				: text_index = 11;	break;
+				case fmExportingSoundSong			: text_index = 12;	break;
+				case fmExportingSoundSongStems		: text_index = 13;	break;
+				case fmExportingSoundPattern		: text_index = 14;	break;
+				case fmExportingSoundPatternStems	: text_index = 15;	break;
+				case fmExportingSoundRenderSelection: text_index = 16;	break;
 
 				default: text_index = 0; break;
 				}
@@ -272,6 +276,7 @@ void cInterface::commonThingsUpdate()
 			}
 			else // przetwarzaj popup - progress
 			{
+				//elapsed millis tu uzuc
 
 			}
 

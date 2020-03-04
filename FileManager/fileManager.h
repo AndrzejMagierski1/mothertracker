@@ -22,7 +22,11 @@ enum fileManagerStatus
 	fmSavingProjectToWorkspace,
 	fmSavingProjectToProjects,
 	fmLoadingPatternFromWorkspace,
-	fmExportingSound,
+	fmExportingSoundSong,
+	fmExportingSoundSongStems,
+	fmExportingSoundPattern,
+	fmExportingSoundPatternStems,
+	fmExportingSoundRenderSelection,
 
 
 
@@ -376,6 +380,7 @@ private:
 	// export sound
 	void exportSoundEnd();
 	void exportSoundGetStatus();
+	uint8_t getExportProgress();
 
 	// preview sample
 

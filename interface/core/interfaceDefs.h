@@ -212,7 +212,13 @@ const char fileManagerPopupText[][30] =
 		"Saving project",
 		"Saving project",
 		"Loading pattern",
-		"Exporting",
+		"Exporting Song",
+		"Exporting Song Stems",
+		"Exporting Pattern",
+		"Exporting Pattern Stems",
+		"Exporting Selection",
+
+
 };
 //-------------------------------------------------------------
 

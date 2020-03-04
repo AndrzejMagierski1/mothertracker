@@ -16,16 +16,6 @@ enum mtProjectStartMode
 
 };
 
-enum struct exportType
-{
-	song,
-	songStems,
-	pattern,
-	patternStems
-};
-
-
-
 
 
 class cProjectEditor: public cModuleBase
@@ -161,8 +151,7 @@ public:
 	char currentInfo[100];
 	char currentPatchProjectName[PATCH_SIZE];
 
-	uint8_t isBusyFlag = 0;
-	uint8_t exportInProgress = 0;
+
 	uint8_t exportProgress = 0;
 	uint8_t currentExportType; //0 - song, 1 - song stems, 2 - pattern, 3 - pattern stems
 	uint8_t currentExportState = 0;
