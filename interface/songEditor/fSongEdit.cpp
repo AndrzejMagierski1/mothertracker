@@ -1029,8 +1029,8 @@ static  uint8_t functSwitchModeSong(uint8_t state)
 		if(SE->exitOnButtonRelease) SE->eventFunct(eventSwitchToPreviousModule,SE,0,0);
 		else
 		{
-			 ///xxx tu dodac mozna wylaczanie performance
-			// jesli ma byc wlaczony tlyko jesli sie przytrzymuej song zeby zmienic tempo
+			SE->selectedPlace = 8;
+			SE->activateLabelsBorder();
 		}
 	}
 
