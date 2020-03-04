@@ -22,6 +22,7 @@ enum fileManagerStatus
 	fmSavingProjectToWorkspace,
 	fmSavingProjectToProjects,
 	fmLoadingPatternFromWorkspace,
+	fmExportingSound,
 
 
 
@@ -33,6 +34,7 @@ enum fileManagerStatus
 	fmImportSamplesEnd,
 	fmDeleteInstrumentsEnd,
 	fmLoadPatternEnd,
+	fmExportSoundEnd,
 
 
 
@@ -46,6 +48,7 @@ enum fileManagerStatus
 	fmImportSamplesError,
 	fmDeleteInstrumentsError,
 	fmLoadPatternError,
+	fmExportSoundError,
 
 };
 
@@ -66,6 +69,8 @@ enum fileManagerOperation
 	fmDeleteInstruments,		//10
 
 	fmLoadWorkspacePattern,		//11
+
+	fmExportSound,				//12
 
 
 };
@@ -127,6 +132,8 @@ public:
 
 	bool deleteProject(uint8_t index);
 
+	bool exportSound(uint8_t mode);
+	bool exportSoundCancel();
 
 	// to chyba trzeba zoptymalizowac/wrzucic w petle \/
 	bool createNewProjectInWorkspace();
@@ -210,6 +217,7 @@ private:
 	void updateImportSamplesToWorkspace();
 	void updateDeleteInstruments();
 	void updateLoadWorkspacePattern();
+	void updateExportSound();
 
 	void autoSaveProjectToWorkspace();
 
@@ -364,6 +372,10 @@ private:
 
 	uint32_t currentFolderMemoryFileUsage[list_length_max];
 
+
+	// export sound
+	void exportSoundEnd();
+	void exportSoundGetStatus();
 
 	// preview sample
 

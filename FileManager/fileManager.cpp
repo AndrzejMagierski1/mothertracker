@@ -6,7 +6,7 @@
 #include "mtConfig.h"
 #include "debugLog.h"
 
-
+#include "mtExporterWAV.h"
 #include "mtSequencer.h"
 
 #include "fileManager.h"
@@ -49,6 +49,11 @@ void cFileManager::update()
 	case fmDeleteInstruments:			updateDeleteInstruments(); 				break;
 
 	case fmLoadWorkspacePattern:		updateLoadWorkspacePattern(); 			break;
+
+	case fmExportSound: 				updateExportSound();					break;
+
+
+
 
 	default: break;
 	}
@@ -184,9 +189,20 @@ void cFileManager::updateLoadWorkspacePattern() //fmLoadWorkspacePattern - 11
 		case 0: 	savePatternToWorkspace();								 	break;
 		case 1: 	loadPatternFromWorkspace(currentPattern); 					break;
 		case 2:		loadPatternFromWorkspaceFinish();							break;
-		default:	stopOperationWithError(fmLoadPatternError); 			break;
+		default:	stopOperationWithError(fmLoadPatternError); 				break;
 	}
 }
+
+void cFileManager::updateExportSound() //fmExportSound - 12
+{
+	switch(currentOperationStep)
+	{
+		case 0: 	exportSoundGetStatus(); 									break;
+		case 1:		exportSoundEnd();											break;
+		default:	stopOperationWithError(fmExportSoundError); 				break;
+	}
+}
+
 
 
 void cFileManager::autoSaveProjectToWorkspace()

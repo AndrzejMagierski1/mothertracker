@@ -121,6 +121,14 @@ void cProjectEditor::update()
 		processProjectList();
 		newFileManager.clearStatus();
 	}
+	else if(managerStatus == fmExportSoundEnd)
+	{
+		PE->exportInProgress = 0;
+		PE->isBusyFlag = 0;
+		PE->showExportWindow();
+
+		newFileManager.clearStatus();
+	}
 
 
 
@@ -520,6 +528,7 @@ static uint8_t functStopPatternYes()
 
 	return 1;
 }
+
 static uint8_t functStopPatternNo()
 {
 	PE->setDefaultScreenFunct();
@@ -1047,26 +1056,21 @@ char currentExportPath[PATCH_SIZE];
 static uint8_t functExportSong()
 {
 	if(PE->isBusyFlag) return 1;
-	if(PE->openInProgressFlag || PE->saveInProgressFlag || PE->exportInProgress) return 1;
+	if(PE->exportInProgress) return 1;
 
-	PE->isBusyFlag = 1;
-	PE->exportInProgress = 1;
-	PE->exportProgress = 0;
-	PE->currentExportType = (int)exportType::song;
 
-	uint16_t fileCounter = 0;
 
-	sprintf(currentExportPath,"Export/%s/%s_S.wav",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
-	while(SD.exists(currentExportPath))
+	if(newFileManager.exportSound(exportSong))
 	{
-		sprintf(currentExportPath,"Export/%s/%s_S%d.wav",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),++fileCounter);
-		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
-	}
-	if(fileCounter == 0 ) sprintf(currentExportPath,"Export/%s/%s_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
-	else sprintf(currentExportPath,"Export/%s/%s_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),fileCounter);
+		PE->isBusyFlag = 1;
+		PE->exportInProgress = 1;
+		PE->exportProgress = 0;
+		PE->currentExportType = (int)exportSong;
 
-	PE->showLabelDuringExport();
-	exporter.start(currentExportPath, mtExporter::exportType::song);
+		PE->showLabelDuringExport();
+	}
+
+
 	return 1;
 }
 static uint8_t functExportSongStems()
@@ -1077,7 +1081,7 @@ static uint8_t functExportSongStems()
 	PE->isBusyFlag = 1;
 	PE->exportInProgress = 1;
 	PE->exportProgress = 0;
-	PE->currentExportType = (int)exportType::songStems;
+	PE->currentExportType = (int)exportSongStems;
 
 	uint16_t fileCounter = 0;
 
@@ -1087,11 +1091,13 @@ static uint8_t functExportSongStems()
 		sprintf(currentExportPath,"Export/%s/%s_Song_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),++fileCounter);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
+
+
 	if(fileCounter == 0 ) sprintf(currentExportPath,"%s/%s_Song_S",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName());
 	else sprintf(currentExportPath,"%s/%s_Song_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),fileCounter);
 
 	PE->showLabelDuringExport();
-	exporter.start(currentExportPath, mtExporter::exportType::songStems);
+	exporter.start(currentExportPath, exportSongStems);
 	return 1;
 }
 static uint8_t functExportPattern()
@@ -1102,7 +1108,7 @@ static uint8_t functExportPattern()
 	PE->isBusyFlag = 1;
 	PE->exportInProgress = 1;
 	PE->exportProgress = 0;
-	PE->currentExportType = (int)exportType::pattern;
+	PE->currentExportType = (int)exportPattern;
 
 	uint16_t fileCounter = 0;
 	uint16_t namePattern = mtProject.values.actualPattern;
@@ -1117,7 +1123,7 @@ static uint8_t functExportPattern()
 	else sprintf(currentExportPath,"Export/%s/%s_P%d_%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,fileCounter);
 
 	PE->showLabelDuringExport();
-	exporter.start(currentExportPath, mtExporter::exportType::pattern);
+	exporter.start(currentExportPath, exportPattern);
 	return 1;
 }
 static uint8_t functExportPatternStems()
@@ -1128,7 +1134,7 @@ static uint8_t functExportPatternStems()
 	PE->isBusyFlag = 1;
 	PE->exportInProgress = 1;
 	PE->exportProgress = 0;
-	PE->currentExportType = (int)exportType::patternStems;
+	PE->currentExportType = (int)exportPatternStems;
 
 	uint16_t fileCounter = 0;
 	uint16_t namePattern = mtProject.values.actualPattern;
@@ -1143,7 +1149,7 @@ static uint8_t functExportPatternStems()
 	else sprintf(currentExportPath,"%s/%s_P%d_S%d",newFileManager.getCurrentProjectName(),newFileManager.getCurrentProjectName(),namePattern,fileCounter);
 
 	PE->showLabelDuringExport();
-	exporter.start(currentExportPath, mtExporter::exportType::patternStems);
+	exporter.start(currentExportPath, exportPatternStems);
 	return 1;
 }
 static uint8_t functExportToMOD()
@@ -1165,7 +1171,8 @@ static uint8_t functExportGoBack()
 
 	if((PE->exportInProgress) || (PE->isBusyFlag))
 	{
-		exporter.cancel();
+		newFileManager.exportSoundCancel();
+
 		PE->exportInProgress = 0;
 		PE->isBusyFlag = 0;
 		PE->showExportWindow();

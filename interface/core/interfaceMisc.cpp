@@ -247,17 +247,20 @@ void cInterface::commonThingsUpdate()
 
 				switch(managerStatus)
 				{
-				case fmBrowsingSamples           	: text_index = 0;	break;
-				case fmBrowsingProjects          	: text_index = 1;	break;
-				case fmBrowsingFirmwares         	: text_index = 2;	break;
-				case fmImportingSamplesToWorkspace	: text_index = 3;	break;
-				case fmDeleteingInstruments      	: text_index = 4;	break;
-				case fmPreviewSampleFromSd       	: text_index = 5;	break;
-				case fmLoadingProjectfromWorkspace	: text_index = 6;	break;
-				case fmLoadingProjectFromProjects	: text_index = 7;	break;
+				case fmBrowsingSamples           	: text_index = 1;	break;
+				case fmBrowsingProjects          	: text_index = 2;	break;
+				case fmBrowsingFirmwares         	: text_index = 3;	break;
+				case fmImportingSamplesToWorkspace	: text_index = 4;	break;
+				case fmDeleteingInstruments      	: text_index = 5;	break;
+				case fmPreviewSampleFromSd       	: text_index = 6;	break;
+				case fmLoadingProjectfromWorkspace	: text_index = 7;	break;
+				case fmLoadingProjectFromProjects	: text_index = 8;	break;
 				case fmSavingProjectToWorkspace  	: 	break;
-				case fmSavingProjectToProjects   	: text_index = 9;	break;
+				case fmSavingProjectToProjects   	: text_index = 10;	break;
 				case fmLoadingPatternFromWorkspace	: 	break;
+				case fmExportingSound				: text_index = 11;	break;
+
+				default: text_index = 0; break;
 				}
 
 

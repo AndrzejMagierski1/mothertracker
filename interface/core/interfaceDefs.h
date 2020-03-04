@@ -200,6 +200,7 @@ enum interfacePopups
 
 const char fileManagerPopupText[][30] =
 {
+		"",
 		"Loading files list",
 		"Loading projects list",
 		"Loading firmwares list",
@@ -211,6 +212,7 @@ const char fileManagerPopupText[][30] =
 		"Saving project",
 		"Saving project",
 		"Loading pattern",
+		"Exporting",
 };
 //-------------------------------------------------------------
 

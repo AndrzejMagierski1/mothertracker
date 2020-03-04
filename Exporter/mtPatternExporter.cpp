@@ -17,7 +17,7 @@ void mtPatternExporter::setOnLastStep()
 
 void mtPatternExporter::finish()
 {
-	__disable_irq();
+	//__disable_irq();
 	if(status != exportStatus::exportFinished)
 	{
 		while ((exportL.available() >= 1) && (exportR.available() >= 1 ))
@@ -30,9 +30,9 @@ void mtPatternExporter::finish()
 		if(position != 0)
 		{
 			switchBuffer();
-			__disable_irq();
+			//__disable_irq();
 			byteRecorded += wavExport.write(sendBuf,2 * position);
-			__enable_irq();
+			//__enable_irq();
 
 			position=0;
 		}
@@ -59,7 +59,7 @@ void mtPatternExporter::finish()
 		wavExport.close();
 
 	}
-	__enable_irq()
+	//__enable_irq()
 }
 char currentSongExportPath[PATCH_SIZE];
 
@@ -129,9 +129,9 @@ void mtPatternExporter::refresh()
 			if(position == SEND_BUF_SIZE)
 			{
 				switchBuffer();
-				__disable_irq();
+				//__disable_irq();
 				byteRecorded += wavExport.write(sendBuf,2 * SEND_BUF_SIZE);
-				__enable_irq();
+				//__enable_irq();
 
 				position=0;
 			}
