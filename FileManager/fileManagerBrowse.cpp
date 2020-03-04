@@ -342,6 +342,58 @@ uint8_t cFileManager::getProjectsList(char*** list)
 }
 
 ///====================================================================================================
+///==================================MODZ==============================================================
+///====================================================================================================
+void cFileManager::browseModsLocation()
+{
+	sdLocation.close();
+
+	if (!sdLocation.open(cModsPath, O_READ))
+	{
+		stopOperationWithError(fmBrowseModsError);
+		return;
+	}
+
+	uint8_t modsfoundCount = sdLocation.createFilesList(
+			0,
+			modsList,
+			list_length_max,
+			3000,
+			SdDir::enListFileFilter_mod);
+	sdLocation.close();
+
+	for (uint8_t i = 0; i < (modsfoundCount / 2); i++)
+	{
+		std::swap(modsList[i], modsList[modsfoundCount - i - 1]);
+	}
+
+	modsListLength = modsfoundCount;
+
+	status = fmBrowseModsEnd;
+	currentOperationStep = 0;
+	currentOperation = fmNoOperation;
+}
+
+bool cFileManager::browseMods()
+{
+	if (status != fmIdle && status != fmSavingProjectToWorkspace) return false;
+	if (currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject)
+		return false;
+
+	status = fmBrowsingMods;
+	currentOperationStep = 0;
+	currentOperation = fmBrowseMods;
+
+	return true;
+}
+
+uint8_t cFileManager::getModsList(char*** list)
+{
+	*list = modsList;
+	return modsListLength;
+}
+
+///====================================================================================================
 ///====================================================================================================
 ///====================================================================================================
 void cFileManager::browseFirmwaresLocation()

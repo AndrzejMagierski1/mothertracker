@@ -42,6 +42,7 @@ void cFileManager::update()
 
 	case fmBrowseSamples: 				updateBrowseSamples(); 					break;
 	case fmBrowseProjects: 				updateBrowseProjects(); 				break;
+	case fmBrowseMods: 					updateBrowseMods(); 					break;
 	case fmBrowseFirmwares: 			updateBrowseFirmwares(); 				break;
 
 	case fmImportSamplesToWorkspace:	updateImportSamplesToWorkspace(); 		break;
@@ -137,6 +138,15 @@ void cFileManager::updateBrowseProjects() //fmBrowseProjects - 6
 	{
 		case 0: 	browseProjectsLocation();  						break;
 		default:	stopOperationWithError(fmBrowseProjectsError); 	break;
+	}
+}
+
+void cFileManager::updateBrowseMods() //fmBrowseProjects - 6
+{
+	switch(currentOperationStep)
+	{
+		case 0: 	browseModsLocation();  						break;
+		default:	stopOperationWithError(fmBrowseModsError); 	break;
 	}
 }
 

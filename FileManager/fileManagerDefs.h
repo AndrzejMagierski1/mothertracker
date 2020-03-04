@@ -74,6 +74,7 @@ const char cProjectsInstrumentFileFormat[]	= "Projects/%s/instruments/instrument
 const char cProjectsSamplesPathFormat[] 	= "Projects/%s/samples";
 const char cProjectsSamplesFilesFormat[] 	= "Projects/%s/samples/instr%02d.wav";
 
+const char cModsPath[] 						= "Mod";
 
 
 const char cProjectFileName[] = "project.mt";

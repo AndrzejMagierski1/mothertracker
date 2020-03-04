@@ -36,6 +36,7 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 //Nowe podejście - ekran główny
 static uint8_t functNewProject();
 static uint8_t functOpenProject();
+static uint8_t functImportMod();
 static uint8_t functSaveProject();
 static uint8_t functSaveAsProject();
 static uint8_t functExport();
@@ -119,6 +120,11 @@ void cProjectEditor::update()
 	else if(managerStatus == fmBrowseProjectsEnd)
 	{
 		processProjectList();
+		newFileManager.clearStatus();
+	}
+	else if(managerStatus == fmBrowseModsEnd)
+	{
+		processModsList();
 		newFileManager.clearStatus();
 	}
 
@@ -359,6 +365,7 @@ void cProjectEditor::setDefaultScreenFunct()
 
 	FM->setButtonObj(interfaceButton0, buttonPress, functNewProject);
 	FM->setButtonObj(interfaceButton1, buttonPress, functOpenProject);
+	FM->setButtonObj(interfaceButton2, buttonPress, functImportMod);
 	FM->setButtonObj(interfaceButton4, buttonPress, functSaveProject);
 	FM->setButtonObj(interfaceButton5, buttonPress, functSaveAsProject);
 	FM->setButtonObj(interfaceButton6, buttonPress, functExport);
@@ -490,6 +497,31 @@ void cProjectEditor::processProjectList()
 	PE->projectListActiveFlag = 1;
 
 }
+void cProjectEditor::processModsList()
+{
+
+	PE->modsListLength = newFileManager.getModsList(&PE->modsList);
+
+	PE->selectedMod = 0;
+
+	PE->showModsList();
+
+//	PE->refreshProjectCover(100);
+//	strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
+
+
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functOpenProjectConfirm);
+	PE->FM->setButtonObj(interfaceButton2, buttonPress, functDelete);
+	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
+
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functProjectListUp);
+	PE->FM->setButtonObj(interfaceButton1, buttonPress, functProjectListDown);
+
+	PE->projectListActiveFlag = 1;
+
+}
 
 //==============================================================================================================
 //==============================================================================================================
@@ -579,6 +611,18 @@ static uint8_t functNewProject()
 
 //	PE->showProcessingPopup("Creating new project");
 	PE->showDefaultScreen();
+
+	return 1;
+}
+//==============================================================================================================
+//==============================================================================================================
+//==============================================================================================================
+
+static uint8_t functImportMod()
+{
+	if (PE->isBusyFlag) return 1;
+
+	newFileManager.browseMods();
 
 	return 1;
 }

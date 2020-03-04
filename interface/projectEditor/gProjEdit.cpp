@@ -321,6 +321,47 @@ void cProjectEditor::showProjectsList()
 
 	display.synchronizeRefresh();
 }
+void cProjectEditor::showModsList()
+{
+// lista
+
+	projectList.start = selectedMod;
+	projectList.length = modsListLength;
+	projectList.linesCount = 13;
+	projectList.data = modsList;
+
+	display.setControlData(fileListControl,  &projectList);
+	display.setControlShow(fileListControl);
+	display.refreshControl(fileListControl);
+
+	display.setAddControlStyle(label[0], controlStyleShowBitmap);
+
+	for(uint8_t i = 0; i < 8 ; i++)
+	{
+		display.setControlText(label[i], "");
+		display.setControlText2(label[i], "");
+	}
+
+// bottom labels
+
+	display.setControlPosition(label[0], (800/4)*0+(800/8), -1);
+	display.setControlSize(label[0], 800/4-6, -1);
+	display.setControlText(label[0], "Projects");
+	display.setControlText(label[2], "Delete");
+	display.setControlText(label[7], "Open");
+	display.setControlText(label[6], "Cancel");
+	display.setControlText(label[5], "");
+
+	for(uint8_t i = 0; i < 8 ; i++)
+	{
+		display.refreshControl(label[i]);
+	}
+
+	display.setControlValue(bgLabel, 252);
+	display.refreshControl(bgLabel);
+
+	display.synchronizeRefresh();
+}
 
 
 //void cProjectEditor::showTemplatesList()

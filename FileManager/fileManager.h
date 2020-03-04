@@ -13,6 +13,7 @@ enum fileManagerStatus
 	fmIdle = 0,
 	fmBrowsingSamples,
 	fmBrowsingProjects,
+	fmBrowsingMods,
 	fmBrowsingFirmwares,
 	fmImportingSamplesToWorkspace,
 	fmDeleteingInstruments,
@@ -29,6 +30,7 @@ enum fileManagerStatus
 	fmSaveEnd,
 	fmBrowseSamplesEnd,
 	fmBrowseProjectsEnd,
+	fmBrowseModsEnd,
 	fmBrowseFirmwaresEnd,
 	fmImportSamplesEnd,
 	fmDeleteInstrumentsEnd,
@@ -42,6 +44,7 @@ enum fileManagerStatus
 	fmCopyError,
 	fmBrowseSamplesError,
 	fmBrowseProjectsError,
+	fmBrowseModsError,
 	fmBrowseFirmwaresError,
 	fmImportSamplesError,
 	fmDeleteInstrumentsError,
@@ -59,13 +62,14 @@ enum fileManagerOperation
 
 	fmBrowseSamples, 			//5
 	fmBrowseProjects, 			//6
-	fmBrowseFirmwares, 			//7
+	fmBrowseMods, 				//7
+	fmBrowseFirmwares, 			//8
 
-	fmImportSamplesToWorkspace,	//8
-	fmPreviewSamplesFromSD,		//9
-	fmDeleteInstruments,		//10
+	fmImportSamplesToWorkspace,	//9
+	fmPreviewSamplesFromSD,		//10
+	fmDeleteInstruments,		//11
 
-	fmLoadWorkspacePattern,		//11
+	fmLoadWorkspacePattern,		//12
 
 
 };
@@ -99,6 +103,7 @@ public:
 	bool projectExist(char* name);
 	uint8_t getBrowsedFilesList(char*** list, uint32_t** memoryList);
 	uint8_t getProjectsList(char*** list);
+	uint8_t getModsList(char*** list);
 	uint8_t getFirmwaresList(char*** list);
 
 	//setery
@@ -116,6 +121,7 @@ public:
 
 	bool browseSdCard(uint8_t* index);
 	bool browseProjects();
+	bool browseMods();
 	bool browseFirmwares();
 
 	bool previevSamplefromSD(uint8_t index);
@@ -206,6 +212,7 @@ private:
 	void updateCopyWorkspaceToProjects();
 	void updateBrowseSamples();
 	void updateBrowseProjects();
+	void updateBrowseMods();
 	void updateBrowseFirmwares();
 	void updateImportSamplesToWorkspace();
 	void updateDeleteInstruments();
@@ -338,6 +345,10 @@ private:
 	void browseFirmwaresLocation();
 	uint8_t firmwaresListLength = 0;
 	char* firmwaresList[list_length_max];
+
+	void browseModsLocation();
+	uint8_t modsListLength = 0;
+	char* modsList[list_length_max];
 
 	void browseCurrentLocation();
 	void listOnlyFolderNames();

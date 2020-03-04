@@ -46,6 +46,7 @@ public:
 //-------------------------------------------------------------
 	void showDefaultScreen();
 	void showProjectsList();
+	void showModsList();
 //	void showTemplatesList();
 
 
@@ -53,6 +54,7 @@ public:
 
 //-------------------------------------------------------------
 	void processProjectList();
+	void processModsList();
 
 	uint8_t loadSamplesBank();
 
@@ -91,6 +93,11 @@ public:
 	uint8_t selectedProject;
 	char** projectsList;
 	uint8_t projectsListLength;
+
+	uint8_t selectedMod;
+	char** modsList;
+	uint8_t modsListLength;
+
 
 //-------------------------------------------------------------
 	void showEnterNameKeyboard();
