@@ -228,7 +228,7 @@ void cProjectEditor::showDefaultScreen()
 
 	display.setControlText(label[0], "New");
 	display.setControlText(label[1], "Open");
-	display.setControlText(label[2], "");
+	display.setControlText(label[2], "Import mod");
 	display.setControlText(label[3], "");
 	display.setControlText(label[4], "Save");
 	display.setControlText(label[5], "Save As");

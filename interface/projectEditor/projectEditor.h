@@ -165,6 +165,7 @@ public:
 	uint8_t openOnSaveEndFlag = 0;
 	//uint8_t saveingProgress = 0;
 	uint8_t projectListActiveFlag = 0;
+	uint8_t modsListActiveFlag = 0;
 	char currentInfo[100];
 	char currentPatchProjectName[PATCH_SIZE];
 

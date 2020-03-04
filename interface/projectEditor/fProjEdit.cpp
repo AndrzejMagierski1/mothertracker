@@ -82,6 +82,8 @@ static  uint8_t functUp();
 static  uint8_t functDown();
 static  uint8_t functConfirmKey();
 
+static  uint8_t makeMoveOnActiveList(int16_t moveDir);
+
 static uint8_t functDeleteBackspace(uint8_t state);
 
 static  uint8_t functEncoder(int16_t value);
@@ -519,7 +521,7 @@ void cProjectEditor::processModsList()
 	PE->FM->setButtonObj(interfaceButton0, buttonPress, functProjectListUp);
 	PE->FM->setButtonObj(interfaceButton1, buttonPress, functProjectListDown);
 
-	PE->projectListActiveFlag = 1;
+	PE->modsListActiveFlag = 1;
 
 }
 
@@ -991,35 +993,13 @@ static uint8_t functSaveChangesCancelOpen()
 
 static uint8_t functProjectListUp()
 {
-	if(PE->projectListActiveFlag)
-	{
-		if(PE->selectedProject > 0 )
-		{
-			PE->selectedProject--;
-
-			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
-		}
-		display.setControlValue(PE->fileListControl,PE->selectedProject);
-		display.refreshControl(PE->fileListControl);
-	}
+	makeMoveOnActiveList(-1);
 	return 1;
 }
 
 static uint8_t functProjectListDown()
 {
-	if(PE->projectListActiveFlag)
-	{
-		if(PE->selectedProject < PE->projectsListLength-1 )
-		{
-			PE->selectedProject++;
-
-			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
-		}
-		display.setControlValue(PE->fileListControl,PE->selectedProject);
-		display.refreshControl(PE->fileListControl);
-	}
+	makeMoveOnActiveList(1);
 	return 1;
 }
 
@@ -1246,42 +1226,49 @@ static  uint8_t functRight()
 	PE->keyboardManager.makeMove('d');
 	return 1;
 }
-static  uint8_t functUp()
+
+static uint8_t functUp()
 {
 	PE->keyboardManager.makeMove('w');
-	if(PE->keyboardManager.getState()) return 1;
-	if(PE->projectListActiveFlag)
-	{
-		if(PE->selectedProject > 0 )
-		{
-			PE->selectedProject--;
+	if (PE->keyboardManager.getState()) return 1;
 
-			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
-		}
-		display.setControlValue(PE->fileListControl,PE->selectedProject);
-		display.refreshControl(PE->fileListControl);
-		return 1;
-	}
+	makeMoveOnActiveList(-1);
 
 	return 1;
 }
-static  uint8_t functDown()
+static uint8_t functDown()
 {
 	PE->keyboardManager.makeMove('s');
-	if(PE->keyboardManager.getState()) return 1;
-	if(PE->projectListActiveFlag)
-	{
-		if(PE->selectedProject < PE->projectsListLength-1 )
-		{
-			PE->selectedProject++;
+	if (PE->keyboardManager.getState()) return 1;
 
-			PE->refreshProjectCover(300);
-			strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
-		}
-		display.setControlValue(PE->fileListControl,PE->selectedProject);
+	makeMoveOnActiveList(1);
+
+	return 1;
+}
+
+static  uint8_t makeMoveOnActiveList(int16_t moveDir)
+{
+	moveDir = constrain(moveDir, -5, 5);
+	if (PE->modsListActiveFlag)
+	{
+		PE->selectedMod = constrain(int16_t (PE->selectedMod) + moveDir,
+									0,
+									PE->modsListLength - 1);
+
+		display.setControlValue(PE->fileListControl, PE->selectedMod);
 		display.refreshControl(PE->fileListControl);
-		return 1;
+	}
+	if (PE->projectListActiveFlag)
+	{
+		PE->selectedProject = constrain(PE->selectedProject + moveDir,
+											0,
+											PE->projectsListLength - 1);
+
+		PE->refreshProjectCover(300);
+		strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
+
+		display.setControlValue(PE->fileListControl, PE->selectedProject);
+		display.refreshControl(PE->fileListControl);
 	}
 	return 1;
 }
@@ -1312,23 +1299,9 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 static  uint8_t functEncoder(int16_t value)
 {
 	if(PE->isBusyFlag) return 1;
-	if(PE->projectListActiveFlag)
-	{
-		if(value > 0)
-		{
-			if(PE->selectedProject < PE->projectsListLength-1 ) PE->selectedProject++;
-		}
-		else if (value < 0)
-		{
-			if(PE->selectedProject > 0 ) PE->selectedProject--;
-		}
 
-		PE->refreshProjectCover(300);
-		strcpy(PE->projectCoverName, PE->projectsList[PE->selectedProject]);
 
-		display.setControlValue(PE->fileListControl,PE->selectedProject);
-		display.refreshControl(PE->fileListControl);
-	}
+	makeMoveOnActiveList(value);
 	return 1;
 }
 
