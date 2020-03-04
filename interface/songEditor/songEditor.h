@@ -53,6 +53,7 @@ public:
 
 	void showPatternsList();
 
+	void turnOffPerformanceMode();
 
 	void activateLabelsBorder();
 

@@ -1022,13 +1022,13 @@ static uint8_t functShift(uint8_t value)
 
 static uint8_t functSwitchModule(uint8_t button)
 {
-	if(button != interfaceButtonMaster && sequencer.isPerformanceMode())
+	if(button != interfaceButtonMaster && button != interfaceButtonSong && sequencer.isPerformanceMode())
 	{
 		newFileManager.loadWorkspacePatternNow(mtProject.values.actualPattern);
 		sequencer.switchRamPatternsNow();
 		sequencer.exitPerformanceMode();
 	}
-	else if(button == interfaceButtonMaster)
+	else if(button == interfaceButtonMaster || button == interfaceButtonSong)
 	{
 		PM->dontClearPerformanceMode = 1;
 	}

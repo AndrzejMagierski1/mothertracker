@@ -1330,6 +1330,8 @@ uint8_t functEncoder(int16_t value)
 
 static  uint8_t functShift(uint8_t state)
 {
+	if(PTE->fillState) return 1;
+
 	if(state == buttonPress)
 	{
 		if(mtPopups.getStepPopupState() != stepPopupNone) // ukrywa popup nuta...fx jesli jest wyswietlany
@@ -3071,7 +3073,11 @@ void cPatternEditor::changePatternViewMode(uint8_t param)
 	if(patternViewMode == 0 || param == 0) return;  // standardowy widok 4 parametrow
 	if(patternViewMode & (1 << (param-1))) return; // juz widac wybrany parametr to nic nie rob
 
-	patternViewMode = (1<<(param-1)) | (1<<(previousEditParam));
+	uint8_t param_count = (patternViewMode & 1) +  ((patternViewMode>>1) & 1) + ((patternViewMode>>2) & 1) + ((patternViewMode>>3) & 1);
+
+	if(param_count > 1) patternViewMode = (1<<(param-1)) | (1<<(previousEditParam));
+	else if(param_count == 1) patternViewMode = (1<<(param-1));
+	else return;
 
 	display.setControlValue(PTE->patternControl, PTE->patternViewMode);
 	display.refreshControl(PTE->patternControl);

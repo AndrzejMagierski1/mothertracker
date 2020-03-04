@@ -50,8 +50,8 @@ public:
 	void showDefaultConfigScreen();
 	void showMasterScreen();
 
-	void turnOffPerformanceMode();
-	void turnOffRadio();
+	//void turnOffPerformanceMode();
+	//void turnOffRadio();
 
 
 
