@@ -2,35 +2,18 @@
 #define EFFECTOR_MTEFFECT_H_
 
 #include "stdint.h"
-#include "mtDataCopyier.h"
 
-constexpr uint32_t LOAD_BLOCK_SIZE_IN_SAMPLES = 8192;
+class mtDataCopyier;
+extern mtDataCopyier globalDataCopyier;
+
 extern const uint32_t SAMPLE_EFFECTOR_LENGTH_MAX;
 extern int16_t sdram_effectsBank[15*256*1024];
 
-class mtEffect
+constexpr uint32_t PROCESSED_BLOCK_LENGTH = 8192;
+
+class mtEffect //todo: dopisac procedure przekopiowujaca struktury przy zmianie obiektu na inny
 {
 public:
-
-	mtEffect();
-
-//***********LOAD
-	bool startLoad(uint8_t instr_idx);
-	void updateLoad();
-	bool getLoadState();
-	uint8_t getLoadProgress();
-//***********
-//***********APPLY
-	void startApply();
-//***********
-//***********SAVE
-	bool startSave(uint8_t instr_idx);
-	void updateSave();
-	bool getSaveState();
-	uint8_t getSaveProgress();
-//***********
-//***********PROCESSING
-
 	enum enProcessingState
 	{
 		idle,
@@ -39,6 +22,45 @@ public:
 		copyingAfterProcessing
 	};
 
+	enum loadResult
+	{
+		loadIsAlreadyActive,
+		instrTooLong,
+		instrIsNotActive,
+		loadSuccessfull
+	};
+
+	enum enOperationType
+	{
+		operationTypeIdle,
+		operationTypeLoading,
+		operationTypeProcessing,
+		operationTypeSaveing
+	} operationType;
+
+	mtEffect();
+	void update();
+
+//***********LOAD
+	loadResult startLoad(uint8_t instr_idx);
+	void updateLoad();
+	bool getLoadState();
+	uint8_t getLoadProgress();
+	void clearIsLoadedData();
+//***********
+//***********APPLY
+	void startApply();
+//***********
+//***********UNDO
+	void startUndo();
+//***********
+//***********SAVE
+	bool startSave(uint8_t instr_idx);
+	void updateSave();
+	bool getSaveState();
+	uint8_t getSaveProgress();
+//***********
+//***********PROCESSING
 	uint8_t processingState;
 
 	bool 	endProcessingState = false;
@@ -46,7 +68,10 @@ public:
 	void 	updateProcessingSelection();
 	bool	startCopying();
 	uint8_t getProcessSelectionProgress();
-	bool getProcessSelectionState();
+	bool 	getProcessSelectionState();
+	bool 	startCommonProcess();
+	void 	updateCommonProcess();
+	void 	updateCopying();
 //***********PREVIEW GETTERS
 	int16_t * const getAddresToPreview();
 	uint32_t getLengthToPreview();
@@ -63,7 +88,9 @@ public:
 //***********
 //***********VIRTUAL PROCESSING
 	virtual bool startProcess();
-	virtual void updateProcess();
+	virtual int32_t updateProcess();
+	virtual bool getProcessState();
+	virtual uint32_t getExpectedProcessLength(uint32_t selectLen);
 //***********
 protected:
 	struct strProcessing
@@ -75,13 +102,11 @@ protected:
 
 	struct strProcessingParams
 	{
+		bool isLoadedData = false;
 		bool isApplyOnEnd = false;
 		strProcessing processParams;
 	} processing;
 
-	bool isUpdateProcessing = true;
-
-	mtDataCopyier dataCopyier;
 
 	struct strMemoryAreaWithSelection
 	{
@@ -104,7 +129,12 @@ protected:
 
 private:
 
-	strProcessing loadProcessParams;
+	struct strLoadingParams
+	{
+		bool isProcessOnEnd = false;
+		strProcessing processParams;
+	} loading;
+
 
 	struct strSaveParams
 	{
@@ -118,7 +148,12 @@ private:
 		bool isProcessData = false;
 	} apply;
 
+	struct strUndo
+	{
+		bool isEnable = false;
+	} undo;
 
+	mtDataCopyier *const dataCopyier = &globalDataCopyier;
 
 	bool getState(strProcessing * ptr);
 	uint8_t getProgress(strProcessing * ptr);

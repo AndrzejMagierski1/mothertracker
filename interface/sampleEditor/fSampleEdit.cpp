@@ -8,7 +8,7 @@
 #include "core/graphicProcessing.h"
 
 #include "mtPadsBacklight.h"
-
+#include "mtSampleEditorEngine.h"
 
 
 cSampleEditor sampleEditor;

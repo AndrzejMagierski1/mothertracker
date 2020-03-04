@@ -1,5 +1,3 @@
-
-
 #include "sampleEditor.h"
 
 static uint32_t popUpLabelColors[] =

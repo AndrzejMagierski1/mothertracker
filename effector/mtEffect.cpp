@@ -1,34 +1,70 @@
 #include "mtEffect.h"
 #include "mtStructs.h"
+#include "mtDataCopyier.h"
 
-
-
-
-mtEffect::mtEffect(): dataCopyier(LOAD_BLOCK_SIZE_IN_SAMPLES)
+mtEffect::mtEffect()
 {
 
 }
-//***********LOAD
-bool mtEffect::startLoad(uint8_t instr_idx)
+
+void mtEffect::update()
 {
-	if(!mtProject.instrument[instr_idx].isActive) return false;
+	switch(operationType)
+	{
+	case enOperationType::operationTypeLoading:		 	 updateLoad();					break;
+	case enOperationType::operationTypeProcessing:		 updateProcessingSelection(); 	break;
+	case enOperationType::operationTypeSaveing: 		 updateSave();					break;
+	default: break;
+	}
+}
+//***********LOAD
+mtEffect::loadResult mtEffect::startLoad(uint8_t instr_idx)
+{
+	if(mtProject.instrument[instr_idx].sample.length > SAMPLE_EFFECTOR_LENGTH_MAX) return loadResult::instrTooLong;
+	if(!mtProject.instrument[instr_idx].isActive) return loadResult::instrIsNotActive;
+	if(dataCopyier->getState()) return loadResult::loadIsAlreadyActive;
+
+	operationType = enOperationType::operationTypeLoading;
+
+	loading.processParams.currentProgressValue = 0;
+	loading.processParams.maxProgressValue = mtProject.instrument[instr_idx].sample.length;
+	loading.processParams.state = 1;
+
+	dataCopyier->start(mtProject.instrument[instr_idx].sample.address, confirmed.area.addr, mtProject.instrument[instr_idx].sample.length);
 
 
-
-	return true;
+	return loadResult::loadSuccessfull;
 
 }
 void mtEffect::updateLoad()
 {
+	if(!loading.processParams.state) return;
+
+	int32_t blockSize = dataCopyier->update();
+
+	if(blockSize != - 1) loading.processParams.currentProgressValue += blockSize;
+
+	loading.processParams.state = dataCopyier->getState();
+	if(!loading.processParams.state)
+	{
+		operationType = enOperationType::operationTypeIdle;
+		processing.isLoadedData = true;
+		if(loading.isProcessOnEnd) startProcessingSelection();
+	}
 
 }
 bool mtEffect::getLoadState()
 {
-	return getState(&loadProcessParams);
+	return getState(&loading.processParams);
 }
 uint8_t mtEffect::getLoadProgress()
 {
-	return getProgress(&loadProcessParams);
+	return getProgress(&loading.processParams);
+}
+
+void mtEffect::clearIsLoadedData()
+{
+	processing.isLoadedData = false;
 }
 //***********
 //***********APPLY
@@ -36,20 +72,42 @@ void mtEffect::startApply()
 {
 	if(!apply.isProcessData)
 	{
-		startProcess();
+		startProcessingSelection();
 		processing.isApplyOnEnd = 1;
 		return;
 	}
+
+	strMemoryAreaWithSelection tmp = processed;
+	processed = confirmed;
+	confirmed = tmp;
+
+	undo.isEnable = 1;
+	apply.isProcessData = 0;
+}
+//***********
+//***********APPLY
+void mtEffect::startUndo()
+{
+	if(!undo.isEnable) return;
+
+	strMemoryAreaWithSelection tmp = processed;
+	processed = confirmed;
+	confirmed = tmp;
+
+	undo.isEnable = 0;
+	apply.isProcessData = 1;
 }
 //***********
 //***********SAVE
 bool mtEffect::startSave(uint8_t instr_idx)
 {
+	operationType = enOperationType::operationTypeSaveing;
 	//todo: waiting for ziejas SD library
 	return true;
 }
 void mtEffect::updateSave()
 {
+	//operationType = enOperationType::operationTypeIdle; //na zakonczenie save
 	//todo: waiting for ziejas SD library
 }
 bool mtEffect::getSaveState()
@@ -62,9 +120,30 @@ uint8_t mtEffect::getSaveProgress()
 }
 //***********
 //***********PROCESSING
+
 bool mtEffect::startProcessingSelection()
 {
+	if(!processing.isLoadedData)
+	{
+		loading.isProcessOnEnd = true;
+		startLoad(mtProject.values.lastUsedInstrument);
+		return false;
+	}
+
 	if(processingState != enProcessingState::idle) return false;
+	uint32_t expectedSelectLen = getExpectedProcessLength(confirmed.selection.length);
+	int32_t dif = confirmed.selection.length - expectedSelectLen;
+
+	if(confirmed.area.length + dif > SAMPLE_EFFECTOR_LENGTH_MAX ) return false;
+
+	processed.selection.addr = processed.area.addr + (uint32_t)(confirmed.selection.addr - confirmed.area.addr);
+	processed.selection.length = expectedSelectLen;
+	processed.area.length = confirmed.area.length + (processed.selection.length - confirmed.selection.length);
+
+	processing.processParams.currentProgressValue = 0;
+	processing.processParams.maxProgressValue = expectedSelectLen;
+	processing.processParams.state = true;
+
 	endProcessingState = true;
 
 	return true;
@@ -74,19 +153,38 @@ void mtEffect::updateProcessingSelection()
 	switch(processingState)
 	{
 		case enProcessingState::idle: break;
-		case enProcessingState::copyingBeforeProcessing: 	 break;
-		case enProcessingState::processingSelection:		 break;
-		case enProcessingState::copyingAfterProcessing: 	 break;
+		case enProcessingState::copyingBeforeProcessing:	updateCopying();		break;
+		case enProcessingState::processingSelection:		updateCommonProcess();	break;
+		case enProcessingState::copyingAfterProcessing:		updateCopying();		break;
 		default: break;
 	}
 
 	if(endProcessingState)
 	{
+		endProcessingState = 0;
+
 		switch(processingState)
 		{
-		case enProcessingState::idle: break;
-		case enProcessingState::copyingBeforeProcessing: startProcess();	break;
-		case enProcessingState::processingSelection:	 break;
+		case enProcessingState::idle:
+			dataCopyier->start(confirmed.area.addr,
+							   processed.area.addr,
+							  (uint32_t)(confirmed.selection.addr - confirmed.area.addr) );
+			break;
+		case enProcessingState::copyingBeforeProcessing:
+			startCommonProcess();
+			break;
+		case enProcessingState::processingSelection:
+			dataCopyier->start((int16_t*)(confirmed.selection.addr + confirmed.selection.length) ,
+							   (int16_t *)(processed.selection.addr + processed.selection.length),
+							   confirmed.area.length - (confirmed.selection.length + (uint32_t)(confirmed.selection.addr - confirmed.area.addr)) );
+			break;
+		case enProcessingState::copyingAfterProcessing:
+			processing.processParams.state = false;
+			apply.isProcessData = 1;
+			undo.isEnable = 0;
+			operationType = enOperationType::operationTypeIdle;
+			if(processing.isApplyOnEnd) startApply();
+			break;
 		}
 
 		if(processingState != enProcessingState::copyingAfterProcessing) processingState++;
@@ -101,14 +199,41 @@ bool mtEffect::getProcessSelectionState()
 {
 	return getState(&processing.processParams);
 }
+
+
+bool mtEffect::startCommonProcess()
+{
+	operationType = enOperationType::operationTypeProcessing;
+	startProcess();
+
+	return true;
+}
+void mtEffect::updateCommonProcess()
+{
+
+	int32_t blockSize = updateProcess();
+
+	if(blockSize != - 1) processing.processParams.currentProgressValue += blockSize;
+
+	if(!getProcessState()) endProcessingState = true;
+}
+
+void mtEffect::updateCopying()
+{
+	int32_t blockSize = dataCopyier->update();
+
+	if(blockSize != - 1) processing.processParams.currentProgressValue += blockSize;
+
+	if(!dataCopyier->getState()) endProcessingState = true;
+}
 //***********PREVIEW GETTERS
 int16_t * const mtEffect::getAddresToPreview()
 {
-	return processed.area.addr;
+	return processed.selection.addr;
 }
 uint32_t mtEffect::getLengthToPreview()
 {
-	return processed.area.length;
+	return processed.selection.length;
 }
 //***********
 //***********PLAY GETTERS
@@ -134,8 +259,8 @@ void mtEffect::changeSelectionRange(uint16_t a, uint16_t b)
 		b = temp;
 	}
 
-	length = (uint32_t)((uint32_t) b * (float)(confirmed.area.length/2)/MAX_16BIT);
-	addressShift = (uint32_t)( (uint32_t) a * (float)(confirmed.area.length/2)/MAX_16BIT);
+	length = (uint32_t)((uint32_t) b * (float)(confirmed.area.length)/MAX_16BIT);
+	addressShift = (uint32_t)( (uint32_t) a * (float)(confirmed.area.length)/MAX_16BIT);
 
 	confirmed.selection.addr = confirmed.area.addr + addressShift;
 	confirmed.selection.length = length - addressShift;

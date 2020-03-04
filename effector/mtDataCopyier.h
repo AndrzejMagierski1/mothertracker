@@ -2,11 +2,14 @@
 #define EFFECTOR_MTDATACOPYIER_H_
 #include "stdint.h"
 
+class mtEffect;
+
 class mtDataCopyier
 {
 public:
 	mtDataCopyier(uint32_t blockSize);
 	void start(int16_t * src, int16_t * dst, uint32_t len);
+	bool getState();
 	int32_t update();
 private:
 	int16_t * currentSrc = nullptr;
@@ -16,6 +19,7 @@ private:
 	uint32_t  blockSizeInSamples;
 	bool state;
 };
+
 
 
 #endif /* EFFECTOR_MTDATACOPYIER_H_ */

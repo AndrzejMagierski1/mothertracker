@@ -13,6 +13,7 @@
 #define MAX_DATA_BARS	4
 #define BAR_MIN_POS		2
 
+
 typedef enum
 {
 	noSpectrum,
@@ -151,12 +152,7 @@ public:
 
 	cSampleEditor()
 	{
-//		inActiveInstrumentsCount = 0;
-//		inActiveInstrumentIndex = 0;
 		editorInstrument = nullptr;
-//		openedInstrFromActive = 0;
-//		openedInstrumentIndex = 0;
-
 		spectrumControl = nullptr;
 		pointsControl = nullptr;
 		label[8] = {nullptr};
