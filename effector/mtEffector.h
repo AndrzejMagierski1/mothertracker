@@ -83,7 +83,7 @@ private:
 	uint16_t undoReverseEnd;
 
 	int16_t * const applyBuffer = sdram_effectsBank;
-	int16_t * const previewBuffer = sdram_effectsBank + SAMPLE_EFFECTOR_LENGTH_MAX;
+	int16_t * const previewBuffer = sdram_effectsBank + 0 ; //SAMPLE_EFFECTOR_LENGTH_MAX;
 
 	SdFile file;
 };

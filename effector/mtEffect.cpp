@@ -2,11 +2,6 @@
 #include "mtStructs.h"
 #include "mtDataCopyier.h"
 
-mtEffect::mtEffect()
-{
-
-}
-
 void mtEffect::update()
 {
 	switch(operationType)
@@ -275,4 +270,27 @@ uint8_t mtEffect::getProgress(strProcessing * ptr)
 {
 	return (100 * ptr->currentProgressValue)/ ptr->maxProgressValue;
 }
+//***********VIRTUAL SET PARAMS
+void  mtEffect::setParams(void * ptr)
+{
 
+}
+//***********
+//***********VIRTUAL PROCESSING
+bool mtEffect::startProcess()
+{
+	return true;
+}
+int32_t mtEffect::updateProcess()
+{
+	return 0;
+};
+bool mtEffect::getProcessState()
+{
+	return true;
+};
+uint32_t mtEffect::getExpectedProcessLength(uint32_t selectLen)
+{
+	return 0;
+};
+//***********

@@ -178,6 +178,9 @@ public:
 
 	uint8_t startLoadingSample();
 
+
+
+
 	strFrameData frameData;
 	strLabelData labelArrow;
 

@@ -2,14 +2,13 @@
 #define EFFECTOR_MTEFFECT_H_
 
 #include "stdint.h"
-
+#include "mtStructs.h"
 class mtDataCopyier;
 extern mtDataCopyier globalDataCopyier;
 
-extern const uint32_t SAMPLE_EFFECTOR_LENGTH_MAX;
+constexpr uint32_t SAMPLE_EFFECTOR_LENGTH_MAX =  (15*128*1024);
 extern int16_t sdram_effectsBank[15*256*1024];
 
-constexpr uint32_t PROCESSED_BLOCK_LENGTH = 8192;
 
 class mtEffect //todo: dopisac procedure przekopiowujaca struktury przy zmianie obiektu na inny
 {
@@ -38,7 +37,6 @@ public:
 		operationTypeSaveing
 	} operationType;
 
-	mtEffect();
 	void update();
 
 //***********LOAD

@@ -45,6 +45,8 @@ bool mtEffectDelay::startProcess()
 
 	lastVoiceIdx = maxVoiceNumber - 1;
 
+	return true;
+
 }
 int32_t mtEffectDelay::updateProcess()
 {
@@ -52,7 +54,7 @@ int32_t mtEffectDelay::updateProcess()
 
 	int32_t processedBlockLength = 0;
 
-	for(int i = 0; i < PROCESSED_BLOCK_LENGTH; i++)
+	for(uint32_t i = 0; i < 8192; i++)
 	{
 		if( ( sourceVoicePointer[lastVoiceIdx] < lastSrcAddr ) && (processedSamples <= SAMPLE_EFFECTOR_LENGTH_MAX))
 		{

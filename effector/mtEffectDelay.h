@@ -14,7 +14,7 @@ class mtEffectDelay : public mtEffect
 {
 public:
 //***********VIRTUAL SET PARAMS
-	void setParams(void * ptr);
+	void setParams(void * ptr) override;
 //***********
 //***********VIRTUAL PROCESSING
 	bool startProcess() override;
@@ -35,9 +35,7 @@ private:
 
 	uint8_t firstActiveVoiceIdx = 0;
 	uint8_t lastActiveVoiceIdx = 0;
-	uint32_t processedSamples=0;
-
-	uint32_t maxLoad;
+	uint32_t processedSamples = 0;
 
 	bool state = false;
 };
