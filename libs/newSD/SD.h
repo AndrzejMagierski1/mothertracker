@@ -320,6 +320,16 @@ public:
 	}
 */
 
+
+	enum enListFileFilter
+	{
+		enListFileFilter_all,
+		enListFileFilter_folder,
+		enListFileFilter_wave,
+		enListFileFilter_firmware,
+		enListFileFilter_mod,
+	};
+
 	uint16_t createFilesList(uint8_t start_line, char** list, uint8_t list_length, uint16_t max_used_memory, uint8_t chooseFilter = 0);
 	uint16_t createProjectsList(char** list, uint8_t list_length, uint16_t max_used_memory);
 

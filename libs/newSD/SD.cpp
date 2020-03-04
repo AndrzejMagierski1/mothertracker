@@ -6,6 +6,7 @@
 
 
 #include "SD.h"
+#include "ctype.h"
 
 
 #include "diskio.h"
@@ -445,66 +446,83 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 			continue;
 		}
 
-        if (chooseFilter == 1) // folder
-        {
-        	if((fno.fattrib & AM_DIR) == 0) continue;
-        }
-        else if(chooseFilter == 2) // filtrowanie .wav
+
+		uint8_t filenameLen = strlen(fno.fname);
+		switch (chooseFilter)
 		{
-			uint8_t wav_len = strlen(fno.fname);
-			if(wav_len<5) continue;
+		case enListFileFilter_all:
+			// do nothing
+			break;
 
-			if(((fno.fname[wav_len - 1] != 'V') && (fno.fname[wav_len - 1] != 'v'))
-			|| ((fno.fname[wav_len - 2] != 'A') && (fno.fname[wav_len - 2] != 'a'))
-			|| ((fno.fname[wav_len - 3] != 'W') && (fno.fname[wav_len - 3] != 'w'))
-			||  (fno.fname[wav_len - 4] != '.')) continue;
+		case enListFileFilter_folder:
+			if ((fno.fattrib & AM_DIR) == 0) continue;
+			break;
 
-			if((strlen(dir_path)+wav_len) > 253) continue;
+		case enListFileFilter_wave:
+			if (filenameLen < 5) continue;
 
+			if (((fno.fname[filenameLen - 1] != 'V') && (fno.fname[filenameLen - 1] != 'v'))
+					|| ((fno.fname[filenameLen - 2] != 'A') && (fno.fname[filenameLen - 2] != 'a'))
+					|| ((fno.fname[filenameLen - 3] != 'W') && (fno.fname[filenameLen - 3] != 'w'))
+					|| (fno.fname[filenameLen - 4] != '.')) continue;
 
-/*
+			if ((strlen(dir_path) + filenameLen) > 253) continue;
 
-			char wav_file[255];
-			strcpy(wav_file, dir_path);
-			strcat(wav_file, "/");
-			strcat(wav_file, fno.fname);
+			/*
 
-			if(local_file.open(wav_file))
+			 char wav_file[255];
+			 strcpy(wav_file, dir_path);
+			 strcat(wav_file, "/");
+			 strcat(wav_file, fno.fname);
+
+			 if(local_file.open(wav_file))
+			 {
+			 strWavFileHeader localHeader;
+			 readHeader(&localHeader, &local_file);
+			 local_file.close();
+
+			 if ((localHeader.sampleRate != 44100)
+			 || ((localHeader.AudioFormat != 1) && (localHeader.AudioFormat != 3))
+			 || ((localHeader.bitsPerSample != 16) && (localHeader.bitsPerSample != 24) && (localHeader.bitsPerSample != 32)))
+			 continue;
+			 }
+			 else continue;
+			 */
+		case enListFileFilter_firmware:
+			if (filenameLen < 5) continue;
+
+			if (fno.fname[filenameLen - 1] == 'f' && fno.fname[filenameLen - 2] == 't' && fno.fname[filenameLen - 3] == 'p' && fno.fname[filenameLen - 4] == '.')
 			{
-				strWavFileHeader localHeader;
-				readHeader(&localHeader, &local_file);
-				local_file.close();
+				if (fno.fname[0] == 'P' && fno.fname[1] == 'o' && fno.fname[2] == 'l' && fno.fname[3] == 'y' && fno.fname[4] == 'e' && fno.fname[5] == 'n' && fno.fname[6] == 'd')
+				{
 
-				if ((localHeader.sampleRate != 44100)
-				|| ((localHeader.AudioFormat != 1) && (localHeader.AudioFormat != 3))
-				|| ((localHeader.bitsPerSample != 16) && (localHeader.bitsPerSample != 24) && (localHeader.bitsPerSample != 32)))
+				}
+				else
 					continue;
 			}
-			else continue;
-*/
-		}
-        else if(chooseFilter == 3) // filtrowanie ptf
-		{
-			uint8_t wav_len = strlen(fno.fname);
-			if(wav_len<5) continue;
-
-			if(fno.fname[wav_len-1] == 'f' && fno.fname[wav_len-2] == 't' && fno.fname[wav_len-3] == 'p' && fno.fname[wav_len-4] == '.')
+			else if (fno.fname[filenameLen - 1] == 'x' && fno.fname[filenameLen - 2] == 'e' && fno.fname[filenameLen - 3] == 'h' && fno.fname[filenameLen - 4] == '.')
 			{
-				if(fno.fname[0] == 'P' && fno.fname[1] == 'o' && fno.fname[2] == 'l' && fno.fname[3] == 'y' && fno.fname[4] == 'e' && fno.fname[5] == 'n' && fno.fname[6] == 'd')
+				if (fno.fname[0] == 'm' && fno.fname[1] == 't')
 				{
 
 				}
-				else continue;
+				else
+					continue;
 			}
-			else if(fno.fname[wav_len-1] == 'x' && fno.fname[wav_len-2] == 'e' && fno.fname[wav_len-3] == 'h' && fno.fname[wav_len-4] == '.')
-			{
-				if(fno.fname[0] == 'm' && fno.fname[1] == 't')
-				{
+			else
+				continue;
 
-				}
-				else continue;
+		case enListFileFilter_mod:
+			char lowCase[255];
+			strcpy(lowCase, fno.fname);
+			for (uint16_t a = 0; a < 255; a++)
+			{
+				lowCase[a] = tolower(lowCase[a]);
+				if (lowCase[a] == 0) break;
 			}
-			else continue;
+
+			if (strstr(lowCase, ".mod\0") == NULL) continue;
+			break;
 		}
 
 		uint16_t len = strlen(fno.fname);
