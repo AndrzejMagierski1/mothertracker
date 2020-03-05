@@ -55,6 +55,7 @@ static uint8_t functSaveAsOverwriteNo();
 //****************************************************
 //Open
 static uint8_t functOpenProjectConfirm();
+static uint8_t functImportModConfirm();
 static uint8_t functSaveChangesCancelOpen();
 static uint8_t functSaveChangesDontSaveOpen();
 static uint8_t functSaveChangesSaveOpen();
@@ -514,7 +515,7 @@ void cProjectEditor::processModsList()
 
 	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 
-	PE->FM->setButtonObj(interfaceButton7, buttonPress, functOpenProjectConfirm);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functImportModConfirm);
 	PE->FM->setButtonObj(interfaceButton2, buttonPress, functDelete);
 	PE->FM->setButtonObj(interfaceButton6, buttonPress, functSaveChangesCancelOpen);
 
@@ -952,6 +953,49 @@ static uint8_t functOpenProjectConfirm()
 
 
 	newFileManager.openProjectFromProjects(PE->selectedProject);
+
+	PE->showDefaultScreen();
+///	PE->showProcessingPopup("Opening project");
+	return 1;
+}
+static uint8_t functImportModConfirm()
+{
+	if(PE->isBusyFlag) return 1;
+
+	if(sequencer.isPlay())
+	{
+		PE->showStopPatternWindow();
+		PE->setStopPatternFunct();
+		PE->stopAction = cProjectEditor::stopActionImportMod;
+		return 1;
+	}
+
+	if(newFileManager.isProjectChanged())
+	{
+		PE->projectListActiveFlag = 0;
+		PE->functShowSaveLastWindowBeforeOpen();
+		return 1;
+	}
+
+	debugLog.setMaxLineCount(5);
+	debugLog.addLine("Import Started");
+	debugLog.forceRefresh();
+
+//	mtProject.values.projectNotSavedFlag = 0;
+//	PE->newProjectNotSavedFlag = 0;
+	PE->modsListActiveFlag = 0;
+//
+//	PE->openPopupDelay = 0;
+//	PE->openPopupFlag = 1;
+//	PE->isBusyFlag = 1;
+
+	newFileManager.createNewProjectInWorkspace();
+	newFileManager.openProjectFromWorkspace();
+
+
+
+
+	newFileManager.importModAfterLoadNewProject(PE->selectedMod);
 
 	PE->showDefaultScreen();
 ///	PE->showProcessingPopup("Opening project");

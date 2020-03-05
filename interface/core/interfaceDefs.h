@@ -211,6 +211,7 @@ const char fileManagerPopupText[][30] =
 		"Saving project",
 		"Saving project",
 		"Loading pattern",
+		"Importing mod file",
 };
 //-------------------------------------------------------------
 

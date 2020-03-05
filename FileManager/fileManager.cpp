@@ -51,6 +51,8 @@ void cFileManager::update()
 
 	case fmLoadWorkspacePattern:		updateLoadWorkspacePattern(); 			break;
 
+	case fmImportModFile:				updateImportModFile(); 			break;
+
 	default: break;
 	}
 
@@ -75,6 +77,22 @@ void cFileManager::updateLoadProjectFromWorkspace() // fmLoadWorkspaceProject - 
 		case 5:		loadProjectFromWorkspaceFinish(); 		break;// wykonczenie
 		default:	stopOperationWithError(fmLoadError); 	break;
 	}
+}
+
+void cFileManager::updateImportModFile()
+{
+	switch (currentOperationStep)
+	{
+	case 0:		importModFileInit();							break;
+	case 1:		importModFileInstruments();						break;
+	case 2:		importModFilePatterns();						break;
+	case 3:		importModFileWaves();							break;
+	case 4:		importModFileFinish();							break;
+	default:
+		importModFileError();
+		stopOperationWithError(fmImportModError);		break;
+	}
+
 }
 
 void cFileManager::updateSaveProjectToWorkspace() // fmSaveWorkspaceProject - 2
@@ -284,9 +302,18 @@ void cFileManager::loadProjectFromWorkspaceFinish()
 
 	sequencer.switchRamPatternsNow();
 
-	status = fmLoadEnd;
-	currentOperationStep = 0;
-	currentOperation = fmNoOperation;
+	if (importModFileAfterNewProject)
+	{
+		status = fmImportingMod;
+		currentOperationStep = 0;
+		currentOperation = fmImportModFile;
+	}
+	else
+	{
+		status = fmLoadEnd;
+		currentOperationStep = 0;
+		currentOperation = fmNoOperation;
+	}
 }
 
 //------------------------------------------------------------------------------------------copyProjectsToWorkspace
@@ -555,6 +582,38 @@ bool cFileManager::openProjectFromProjects(uint8_t index)
 
 	return true;
 }
+
+bool cFileManager::importModAfterLoadNewProject(uint8_t index)
+{
+//	if(status != fmIdle) return false;
+//	if(currentOperation != fmNoOperation) return false;
+
+	if (modsList[index] == nullptr) return false;
+	//pobranie nazwy otwieranego projektu tu
+
+	strcpy(modToImportFilename, modsList[index]);
+
+	char modName[20] { 0 };
+	for (uint8_t a = 0; a < sizeof(modName); a++)
+	{
+		if (modToImportFilename[a] != '.')
+		{
+			modName[a] = modToImportFilename[a];
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	strcpy(currentProjectName, modName);
+
+	importModFileAfterNewProject = 1;
+
+	return true;
+}
+
+
 
 bool cFileManager::saveProjectToWorkspace(bool forceSaveAll)
 {

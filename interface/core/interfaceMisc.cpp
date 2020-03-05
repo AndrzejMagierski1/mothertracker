@@ -258,6 +258,7 @@ void cInterface::commonThingsUpdate()
 				case fmSavingProjectToWorkspace  	: 	break;
 				case fmSavingProjectToProjects   	: text_index = 9;	break;
 				case fmLoadingPatternFromWorkspace	: 	break;
+				case fmImportingMod   				: text_index = 10;	break;
 				}
 
 

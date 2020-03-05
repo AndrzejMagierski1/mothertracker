@@ -20,6 +20,7 @@ enum fileManagerStatus
 	fmPreviewSampleFromSd,
 	fmLoadingProjectfromWorkspace,
 	fmLoadingProjectFromProjects,
+	fmImportingMod,
 	fmSavingProjectToWorkspace,
 	fmSavingProjectToProjects,
 	fmLoadingPatternFromWorkspace,
@@ -40,6 +41,7 @@ enum fileManagerStatus
 
 	fmError,
 	fmLoadError,
+	fmImportModError,
 	fmSaveError,
 	fmCopyError,
 	fmBrowseSamplesError,
@@ -70,6 +72,10 @@ enum fileManagerOperation
 	fmDeleteInstruments,		//11
 
 	fmLoadWorkspacePattern,		//12
+
+
+
+	fmImportModFile,			//13
 
 
 };
@@ -115,6 +121,7 @@ public:
 	// metody glowne
 	bool openProjectFromWorkspace();
 	bool openProjectFromProjects(uint8_t index);
+	bool importModAfterLoadNewProject(uint8_t index);
 	bool saveProjectToWorkspace(bool forceSaveAll = false);
 	bool saveProjectToProjects(char* projectNameToSave = nullptr);
 	bool importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint8_t instrumentSlot);
@@ -207,6 +214,7 @@ private:
 
 	// glowne update / workspace ------------------------------------
 	void updateLoadProjectFromWorkspace();
+	void updateImportModFile();
 	void updateSaveProjectToWorkspace();
 	void updateCopyProjectsToWorkspace();
 	void updateCopyWorkspaceToProjects();
@@ -379,9 +387,16 @@ private:
 	// preview sample
 
 
+	// import mod
+	void importModFileInit();
+	void importModFileInstruments();
+	void importModFilePatterns();
+	void importModFileWaves();
+	void importModFileFinish();
+	void importModFileError();
+	bool importModFileAfterNewProject = 0;
 
-
-
+	char modToImportFilename[255];
 
 
 //patern undo

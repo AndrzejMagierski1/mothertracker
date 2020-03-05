@@ -180,7 +180,8 @@ public:
 	{
 		stopActionOpen = 1,
 		stopActionNewProject,
-		stopActionExport
+		stopActionExport,
+		stopActionImportMod
 	};
 	uint8_t stopAction = 0;
 
