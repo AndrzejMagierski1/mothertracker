@@ -1,6 +1,9 @@
 #include "sampleEditor/sampleEditor.h"
 #include "core/graphicProcessing.h"
 #include "mtSequencer.h"
+#include "mtPadBoard.h"
+#include "mtPadsBacklight.h"
+#include "mtAudioEngine.h"
 
 cSampleEditor sampleEditor;
 
@@ -56,6 +59,7 @@ void cSampleEditor::start(uint32_t options)
 	screenType = mainScreen;
 
 	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
+	//dostosowac to tak zeby byl editorInstrument ktory zawsze ma dobre parametry
 
 	if(editorInstrument->isActive)
 	{
@@ -93,6 +97,10 @@ void cSampleEditor::update()
 	{
 		needRefreshSpectrum = 0;
 		refreshSpectrum();
+	}
+	if(needRefreshPlayhead)
+	{
+		refreshPlayhead();
 	}
 }
 
@@ -187,6 +195,28 @@ void cSampleEditor::reloadEndPointText()
 void cSampleEditor::reloadZoomText()
 {
 	sprintf(zoomText, "%.2f", zoom.zoomValue);
+}
+void cSampleEditor::reloadPlayheadValue()
+{
+	constexpr uint16_t PLAYHEAD_REFRESH_CONSTRAIN_US = 3000;
+
+	if( refreshPlayheadTimer > PLAYHEAD_REFRESH_CONSTRAIN_US)
+	{
+		refreshPlayheadTimer = 0;
+
+		uint16_t playheadValue_16BIT = (uint16_t)((instrumentPlayer[0].getWavePosition() * ((selection.endPoint - selection.startPoint) / (float)MAX_16BIT)) + selection.startPoint);
+
+		if(zoom.zoomValue == 1.0) playheadValue = (600 *  playheadValue_16BIT)/MAX_16BIT;
+		else if(zoom.zoomValue > 1.0)
+		{
+			if((int32_t)playheadValue_16BIT < zoom.zoomStart || (int32_t)playheadValue_16BIT > zoom.zoomEnd) playheadValue = 0;
+			else
+			{
+				playheadValue = map(playheadValue_16BIT, zoom.zoomStart, zoom.zoomEnd, 0 , 600);
+			}
+		}
+		needShowPlayhead = 1;
+	}
 }
 
 
@@ -303,6 +333,17 @@ void cSampleEditor::refreshSpectrum()
 	GP.processSpectrum( &spectrumParams, &zoom, &spectrumData);
 	showSpectrum();
 }
+
+void cSampleEditor::refreshPlayhead()
+{
+	reloadPlayheadValue();
+	if(needShowPlayhead)
+	{
+		needShowPlayhead = 0;
+		display.setControlValue(playhead, playheadValue);
+		showPlayhead();
+	}
+}
 //*******************
 
 //******************* PARAMETERS MODIFICATORS
@@ -343,6 +384,11 @@ void cSampleEditor::modEndPoint(int16_t val)
 	else if(selection.endPoint + val < 0) selection.endPoint = 0;
 	else selection.endPoint += val;
 
+	if(selection.startPoint > selection.endPoint)
+	{
+		selection.endPoint = selection.startPoint + 1;
+	}
+
 	bool isZoomActive = (zoom.zoomValue > 1) ;
 	bool isNewPointChanged = zoom.lastChangedPoint != 2;
 	bool isPointDisplayed = (selection.endPoint < zoom.zoomStart || selection.endPoint > zoom.zoomEnd);
@@ -377,6 +423,24 @@ static uint8_t functSwitchModule(uint8_t button)
 
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 {
+	if(state == 1)
+	{
+		if(mtPadBoard.getEmptyVoice() == 0) SE->needRefreshPlayhead = 1;
+
+		padsBacklight.setFrontLayer(1,20, pad);
+		mtPadBoard.startInstrument(pad,SE->editorInstrument->sample.address,SE->editorInstrument->sample.length);
+	}
+	else if(state == 0)
+	{
+		if(mtPadBoard.getVoiceTakenByPad(pad) == 0)
+		{
+			SE->needRefreshPlayhead = 0;
+			SE->hidePlayhead();
+		}
+
+		padsBacklight.setFrontLayer(0,0, pad);
+		mtPadBoard.stopInstrument(pad);
+	}
 	return 1;
 }
 

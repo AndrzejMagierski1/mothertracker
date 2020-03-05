@@ -237,8 +237,7 @@ void cSampleEditor::showMainScreen()
 
 	showSpectrumPoints();
 
-	display.setControlHide(playhead);
-	display.refreshControl(playhead);
+	hidePlayhead();
 //frame
 	if(editorInstrument->isActive) 	showFrame();
 	else
@@ -310,4 +309,14 @@ void cSampleEditor::showSpectrum()
 {
 	display.setControlShow(spectrum);
 	display.refreshControl(spectrum);
+}
+void cSampleEditor::showPlayhead()
+{
+	display.setControlShow(playhead);
+	display.refreshControl(playhead);
+}
+void cSampleEditor::hidePlayhead()
+{
+	display.setControlHide(playhead);
+	display.refreshControl(playhead);
 }

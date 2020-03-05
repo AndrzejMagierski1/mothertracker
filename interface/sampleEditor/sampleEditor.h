@@ -41,6 +41,7 @@ public:
 	void reloadStartPointText();
 	void reloadEndPointText();
 	void reloadZoomText();
+	void reloadPlayheadValue();
 
 //*******************
 //*******************CORE GRAPHIC FUNCTIONS
@@ -57,6 +58,8 @@ public:
 	void showSpectrumPoints();
 	void showFrame();
 	void showSpectrum();
+	void showPlayhead();
+	void hidePlayhead();
 //*******************
 //******************* REFRESH - RELOAD + DISPLAY
 	void refreshSpectrumPoints();
@@ -65,6 +68,7 @@ public:
 	void refreshZoom();
 	void refreshEffectList();
 	void refreshSpectrum();
+	void refreshPlayhead();
 //*******************
 //******************* PARAMETERS MODIFICATORS
 //MainScreen
@@ -149,6 +153,10 @@ public:
 	} selection;
 
 	uint8_t needRefreshSpectrum;
+	uint8_t needRefreshPlayhead; // globalnie w update
+	uint8_t needShowPlayhead; // wewnetrznie w odswiezaniu
+	uint16_t playheadValue;
+	elapsedMicros refreshPlayheadTimer;
 
 //*********************
 //********************MULTI-SCREEN DISPLAY HANDLING
