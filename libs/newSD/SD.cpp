@@ -488,6 +488,7 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 			 }
 			 else continue;
 			 */
+			break;
 		case enListFileFilter_firmware:
 			if (filenameLen < 5) continue;
 
@@ -511,6 +512,8 @@ uint16_t SdDir::createFilesList(uint8_t start_line, char** list, uint8_t list_le
 			}
 			else
 				continue;
+
+			break;
 
 		case enListFileFilter_mod:
 			char lowCase[255];
