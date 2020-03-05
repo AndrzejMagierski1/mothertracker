@@ -40,7 +40,7 @@ public:
 
 
 	void setDefaultScreenFunct();
-
+	void setExportWindowFuncts();
 //-------------------------------------------------------------
 	void processProjectList();
 

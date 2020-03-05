@@ -23,7 +23,7 @@
 //=======================================================================
 void cInterface::potChange(uint8_t n, int16_t value)
 {
-	uiFM.processPotsInput(n, value);
+	FM->processPotsInput(n, value);
 
 }
 
@@ -34,30 +34,31 @@ void cInterface::buttonChange(uint8_t n, uint8_t value)
 
 	if(value == 2 && ( (n >= 25 && n <= 27) || (n >= 30 && n <= 32 ) ) )
 	{
-		uiFM.processButtonsInput(n, 1);
+		FM->processButtonsInput(n, 1);
 	}
 	else
 	{
-		uiFM.processButtonsInput(n, value);
+		FM->processButtonsInput(n, value);
 	}
 }
 
 //=======================================================================
 void cInterface::powerButtonChange(uint8_t state)
 {
+	if(FM->isPowerButtonBlocked()) return;
 	if(state == 1 && tactButtons.isButtonPressed(interfaceButtonShift))
 	{
 		display.doScreenShot();
 	}
 
 
-	uiFM.processPowerButton(state);
+	//FM->processPowerButton(state);
 }
 
 //=======================================================================
 void cInterface::padPressed(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 {
-	uiFM.processPadsInput(n, 1, velo);
+	FM->processPadsInput(n, 1, velo);
 
 //	leds.setLEDgrid(n,1,31);
 }
@@ -65,7 +66,7 @@ void cInterface::padPressed(uint8_t n, int8_t x, int8_t y, uint8_t velo)
 //=======================================================================
 void cInterface::padReleased(uint8_t n)
 {
-	uiFM.processPadsInput(n, 0, 0);
+	FM->processPadsInput(n, 0, 0);
 
 //	leds.setLEDgrid(n,0,31);
 }
@@ -73,7 +74,7 @@ void cInterface::padReleased(uint8_t n)
 //=======================================================================
 void cInterface::padHold(uint8_t n)
 {
-	uiFM.processPadsInput(n, 2, 0);
+	FM->processPadsInput(n, 2, 0);
 }
 
 //=======================================================================

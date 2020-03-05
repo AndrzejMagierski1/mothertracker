@@ -27,11 +27,6 @@ cProjectEditor* PE = &projectEditor;
 static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo);
 
 
-//static uint8_t functShowProjectsList();
-//static uint8_t functShowTemplatesList();
-//static uint8_t functCancelList();
-//static uint8_t functOpenTemplate();
-//static uint8_t functCreateNewTemplate();
 //****************************************************
 //Nowe podejście - ekran główny
 static uint8_t functNewProject();
@@ -102,37 +97,32 @@ void cProjectEditor::update()
 
 	uint8_t managerStatus = newFileManager.getStatus();
 
-
-	if(managerStatus == fmLoadEnd)
-	{
-		debugLog.addLine("Opening Finished");
-		newFileManager.clearStatus();
-		setDefaultScreenFunct();
-	}
-	else if(managerStatus == fmSaveEnd)
-	{
-		debugLog.addLine("Save Finished");
-		newFileManager.clearStatus();
-		setDefaultScreenFunct();
-	}
-	else if(managerStatus == fmBrowseProjectsEnd)
+	if(managerStatus == fmBrowseProjectsEnd)
 	{
 		processProjectList();
+		FM->unblockAllInputs();
 		newFileManager.clearStatus();
 	}
 	else if(managerStatus == fmExportSoundEnd)
 	{
 		PE->showExportWindow();
+		FM->unblockAllInputs();
 		newFileManager.clearStatus();
 	}
-
-
-
+	else if(managerStatus >= fmLoadEnd && managerStatus < fmError)
+	{
+		setDefaultScreenFunct();
+		showDefaultScreen();
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
+	}
 	else if(managerStatus >=  fmError)
 	{
 		debugLog.addLine("Opretion Error");
-		newFileManager.clearStatus();
 		setDefaultScreenFunct();
+		showDefaultScreen();
+		FM->unblockAllInputs();
+		newFileManager.clearStatus();
 	}
 
 
@@ -333,20 +323,8 @@ void cProjectEditor::setDefaultScreenFunct()
 	//funkcje
 	FM->clearButtonsRange(interfaceButton0,interfaceButton7);
 	FM->clearAllPots();
-/*
-	FM->setButtonObj(interfaceButtonPlay, buttonPress, functPlayAction);
-	FM->setButtonObj(interfaceButtonRec, buttonPress, functRecAction);
 
-	FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeft);
-	FM->setButtonObj(interfaceButtonRight, buttonPress, functRight);
-	FM->setButtonObj(interfaceButtonUp, buttonPress, functUp);
-	FM->setButtonObj(interfaceButtonDown, buttonPress, functDown);
 
-	FM->setButtonObj(interfaceButtonEnter, buttonPress, functEnter);
-	FM->setButtonObj(interfaceButtonShift, functShift);
-	FM->setButtonObj(interfaceButtonEncoder, buttonPress, functEnter);
-
-*/
 	// ustawienie funkcji
 	FM->setButtonObj(interfaceButtonParams, buttonPress, functSwitchModule);
 	FM->setButtonObj(interfaceButtonPerformance, buttonPress, functSwitchModule);
@@ -382,6 +360,20 @@ void cProjectEditor::setDefaultScreenFunct()
 	FM->setPadsGlobal(functPads);
 
 }
+
+
+void cProjectEditor::setExportWindowFuncts()
+{
+	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
+
+	PE->FM->setButtonObj(interfaceButton0, buttonPress, functExportSong);
+	PE->FM->setButtonObj(interfaceButton1, buttonPress, functExportSongStems);
+	PE->FM->setButtonObj(interfaceButton2, buttonPress, functExportPattern);
+	PE->FM->setButtonObj(interfaceButton3, buttonPress, functExportPatternStems);
+	PE->FM->setButtonObj(interfaceButton4, buttonPress, functExportToMOD);
+	PE->FM->setButtonObj(interfaceButton7, buttonPress, functExportGoBack);
+}
+
 //==============================================================================================================
 //==============================================================================================================
 
@@ -554,33 +546,12 @@ static uint8_t functNewProject()
 
 	PE->newProjectNotSavedFlag = 1;
 
-	debugLog.setMaxLineCount(5);
-	debugLog.addLine("Creating new Project Started");
-	debugLog.forceRefresh();
-
 
 	newFileManager.createNewProjectInWorkspace();
 	newFileManager.openProjectFromWorkspace();
 
-	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-	PE->FM->clearAllPots();
+	//PE->FM->blockAllInputs();
 
-//	strcpy(newFileManager.getCurrentProjectName(), "New Project");
-/*	memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
-	memset(newFileManager.getCurrentProjectName(),0,PROJECT_NAME_SIZE);*/
-
-
-//	char currentPatch[PATCH_SIZE];
-//	strcpy(currentPatch,"Templates/New/project.mt");
-//	fileManager.getDefaultProject(&mtProject);
-//	fileManager.createEmptyTemplateProject((char*)"New");
-//	strcpy(mtConfig.startup.lastProjectName, newFileManager.getCurrentProjectName());
-//
-//	PE->newProjectPopupDelay = 0;
-//	PE->newProjectPopupFlag = 1;
-//	PE->isBusyFlag = 1;
-
-//	PE->showProcessingPopup("Creating new project");
 	PE->showDefaultScreen();
 
 	return 1;
@@ -600,8 +571,6 @@ static uint8_t functOpenProject()
 
 
 
-
-
 static uint8_t functSaveProject()
 {
 	if(PE->newProjectNotSavedFlag)
@@ -610,8 +579,8 @@ static uint8_t functSaveProject()
 		return 1;
 	}
 
-	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-	PE->FM->clearAllPots();
+
+	PE->FM->blockAllInputs();
 
 	//PE->isBusyFlag = 1;
 	//PE->savePopupFlag = 1;
@@ -649,7 +618,6 @@ static uint8_t functSaveAsProject()
 
 static uint8_t functExport()
 {
-
 	if(sequencer.isPlay())
 	{
 		PE->showStopPatternWindow();
@@ -658,16 +626,7 @@ static uint8_t functExport()
 		return 1;
 	}
 
-	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-
-	PE->FM->setButtonObj(interfaceButton0, buttonPress, functExportSong);
-	PE->FM->setButtonObj(interfaceButton1, buttonPress, functExportSongStems);
-	PE->FM->setButtonObj(interfaceButton2, buttonPress, functExportPattern);
-	PE->FM->setButtonObj(interfaceButton3, buttonPress, functExportPatternStems);
-	PE->FM->setButtonObj(interfaceButton4, buttonPress, functExportToMOD);
-	PE->FM->setButtonObj(interfaceButton5, buttonPress, functExportCancel);
-	PE->FM->setButtonObj(interfaceButton7, buttonPress, functExportGoBack);
-
+	PE->setExportWindowFuncts();
 	PE->showExportWindow();
 	return 1;
 }
@@ -700,28 +659,11 @@ static uint8_t functSaveChangesDontSaveNewProject()
 	newFileManager.createNewProjectInWorkspace();
 	newFileManager.openProjectFromWorkspace();
 
-	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-	PE->FM->clearAllPots();
 
-//	strcpy(newFileManager.getCurrentProjectName(), "New Project");
+	PE->FM->blockAllInputs();
 
-/*	memset(fileManager.currentProjectPatch,0,PATCH_SIZE);
-	memset(newFileManager.getCurrentProjectName(),0,PROJECT_NAME_SIZE);*/
-
-//	char currentPatch[PATCH_SIZE];
-//	strcpy(currentPatch,"Templates/New/project.mt");
-
-//	fileManager.getDefaultProject(&mtProject);
-////	fileManager.createEmptyTemplateProject((char*)"New");
-
-//	strcpy(mtConfig.startup.lastProjectName, newFileManager.getCurrentProjectName());
-
-//	PE->newProjectPopupDelay = 0;
-//	PE->newProjectPopupFlag = 1;
-//	PE->isBusyFlag = 1;
 
 	PE->showDefaultScreen();
-//	PE->showProcessingPopup("Creating new project");
 
 	return 1;
 }
@@ -768,34 +710,17 @@ static uint8_t functSaveAsConfirm()
 		return 1;
 	}
 
-	debugLog.setMaxLineCount(5);
-	debugLog.addLine("Save Started");
-	debugLog.forceRefresh();
 
 	newFileManager.saveProjectToProjects(PE->keyboardManager.getName());
 
 
-	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-	PE->FM->clearAllPots();
 
-//	if(fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsChecking) == 0 )
-//	{
-//		PE->functShowOverwriteWindow();
-//		return 1;
-//	}
+	PE->FM->blockAllInputs();
+
 
 	PE->newProjectNotSavedFlag = 0;
-//	mtProject.values.projectNotSavedFlag = 0;
-//
-//
-//	strcpy(newFileManager.getCurrentProjectName(), 	PE->keyboardManager.getName());
-//
-//	PE->savePopupFlag = 1;
-//	PE->savePopupDelay = 0;
-//	PE->isBusyFlag = 1;
 
 	PE->showDefaultScreen();
-	//PE->showProcessingPopup("Saving project");
 
 	return 1;
 }
@@ -819,27 +744,11 @@ void cProjectEditor::functShowOverwriteWindow()
 
 static uint8_t functSaveAsOverwriteYes()
 {
-	debugLog.setMaxLineCount(5);
-	debugLog.addLine("Save Started");
-	debugLog.forceRefresh();
-
 	newFileManager.saveProjectToProjects(PE->keyboardManager.getName());
 
-	PE->FM->clearButtonsRange(interfaceButton0,interfaceButton7);
-	PE->FM->clearAllPots();
-
-	//todo sprawdzanie
-//	fileManager.prepareSaveAs(PE->keyboardManager.getName(),FileManager::saveAsOverwrite);
-//
-//	mtProject.values.projectNotSavedFlag = 0;
-//
-//	PE->newProjectNotSavedFlag = 0;
-//	PE->savePopupFlag = 1;
-//	PE->savePopupDelay = 0;
-//	PE->isBusyFlag = 1;
+	PE->FM->blockAllInputs();
 
 	PE->showDefaultScreen();
-	//PE->showProcessingPopup("Saving project");
 
 	return 1;
 }
@@ -880,23 +789,12 @@ static uint8_t functOpenProjectConfirm()
 		return 1;
 	}
 
-	debugLog.setMaxLineCount(5);
-	debugLog.addLine("Opening Started");
-	debugLog.forceRefresh();
-
-//	mtProject.values.projectNotSavedFlag = 0;
-//	PE->newProjectNotSavedFlag = 0;
 	PE->projectListActiveFlag = 0;
-//
-//	PE->openPopupDelay = 0;
-//	PE->openPopupFlag = 1;
-//	PE->isBusyFlag = 1;
-
 
 	newFileManager.openProjectFromProjects(PE->selectedProject);
 
+	PE->FM->blockAllInputs();
 	PE->showDefaultScreen();
-///	PE->showProcessingPopup("Opening project");
 	return 1;
 }
 void cProjectEditor::functShowSaveLastWindowBeforeOpen()
@@ -993,14 +891,8 @@ static uint8_t functSaveChangesSaveOpen()
 
 	mtProject.values.projectNotSavedFlag = 0;
 
-	PE->openOnSaveEndFlag = 1;
-	PE->projectListActiveFlag = 0;
-
-	PE->savePopupFlag = 1;
-	PE->savePopupDelay = 0;
 
 	PE->showDefaultScreen();
-	PE->showProcessingPopup("Saving project");
 
 	return 1;
 }
@@ -1022,6 +914,9 @@ static uint8_t functExportSong()
 {
 	if(newFileManager.exportSound(exportSong))
 	{
+		PE->FM->setButtonObj(interfaceButton7, buttonPress, functExportCancel);
+		PE->FM->blockAllInputsExcept(interfaceButton7);
+
 		PE->showLabelDuringExport();
 	}
 
@@ -1031,6 +926,9 @@ static uint8_t functExportSongStems()
 {
 	if(newFileManager.exportSound(exportSongStems))
 	{
+		PE->FM->setButtonObj(interfaceButton7, buttonPress, functExportCancel);
+		PE->FM->blockAllInputsExcept(interfaceButton7);
+
 		PE->showLabelDuringExport();
 	}
 
@@ -1040,6 +938,9 @@ static uint8_t functExportPattern()
 {
 	if(newFileManager.exportSound(exportPattern))
 	{
+		PE->FM->setButtonObj(interfaceButton7, buttonPress, functExportCancel);
+		PE->FM->blockAllInputsExcept(interfaceButton7);
+
 		PE->showLabelDuringExport();
 	}
 
@@ -1049,6 +950,9 @@ static uint8_t functExportPatternStems()
 {
 	if(newFileManager.exportSound(exportPatternStems))
 	{
+		PE->FM->setButtonObj(interfaceButton7, buttonPress, functExportCancel);
+		PE->FM->blockAllInputsExcept(interfaceButton7);
+
 		PE->showLabelDuringExport();
 	}
 

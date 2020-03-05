@@ -106,17 +106,21 @@ void cFileManager::copySamples()
 
 	if(loadStatus == fileTransferEnd)
 	{
-		//continueSampleProcess();
 		moveToNextOperationStep();
 	}
 	else if(loadStatus == fileTransferFileNoExist)
 	{
-		//continueSampleProcess();
+		memset(mtProject.instrument[currentSample].sample.file_name, 0, SAMPLE_NAME_SIZE);
+		mtProject.instrument[currentSample].isActive = 0;
 		moveToNextOperationStep();
 	}
 	else if(loadStatus >= fileTransferError)
 	{
-		sampleThrowError();
+		memset(mtProject.instrument[currentSample].sample.file_name, 0, SAMPLE_NAME_SIZE);
+		mtProject.instrument[currentSample].isActive = 0;
+		moveToNextOperationStep();
+		//uszkodzony plik wav - "od-aktywuj" instrument ale nie wyrzucaj bledu
+		//sampleThrowError();
 	}
 }
 

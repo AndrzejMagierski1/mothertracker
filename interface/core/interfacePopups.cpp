@@ -360,17 +360,17 @@ void cInterfacePopups::hideStepPopups()
 
 		display.setControlHide(textBox);
 
-		mtInterface.uiFM.clearButton(interfaceButtonRec);
-//		mtInterface.uiFM.clearButton(interfaceButtonShift);
-//		mtInterface.uiFM.clearButton(interfaceButtonEnter);
+		mtInterface.FM->clearButton(interfaceButtonRec);
+//		mtInterface.FM->clearButton(interfaceButtonShift);
+//		mtInterface.FM->clearButton(interfaceButtonEnter);
 
-		mtInterface.uiFM.clearButton(interfaceButtonLeft);
-		mtInterface.uiFM.clearButton(interfaceButtonRight);
-		mtInterface.uiFM.clearButton(interfaceButtonUp);
-		mtInterface.uiFM.clearButton(interfaceButtonDown);
+		mtInterface.FM->clearButton(interfaceButtonLeft);
+		mtInterface.FM->clearButton(interfaceButtonRight);
+		mtInterface.FM->clearButton(interfaceButtonUp);
+		mtInterface.FM->clearButton(interfaceButtonDown);
 
-		mtInterface.uiFM.clearAllPots();
-		mtInterface.uiFM.clearAllPads();
+		mtInterface.FM->clearAllPots();
+		mtInterface.FM->clearAllPads();
 	}
 
 	padsBacklight.clearAllPads(0, 1, 1);
@@ -381,42 +381,42 @@ void cInterfacePopups::setPopupFunct()
 	switch(stepPopupState)
 	{
 	case stepPopupNote:
-		mtInterface.uiFM.clearButton(interfaceButtonInstr);
-		mtInterface.uiFM.clearButton(interfaceButtonFx1);
-		mtInterface.uiFM.clearButton(interfaceButtonFx2);
+		mtInterface.FM->clearButton(interfaceButtonInstr);
+		mtInterface.FM->clearButton(interfaceButtonFx1);
+		mtInterface.FM->clearButton(interfaceButtonFx2);
 		break;
 	case stepPopupInstr:
-		mtInterface.uiFM.clearButton(interfaceButtonNote);
-		mtInterface.uiFM.clearButton(interfaceButtonFx1);
-		mtInterface.uiFM.clearButton(interfaceButtonFx2);
+		mtInterface.FM->clearButton(interfaceButtonNote);
+		mtInterface.FM->clearButton(interfaceButtonFx1);
+		mtInterface.FM->clearButton(interfaceButtonFx2);
 		break;
 	case stepPopupFx:
-		mtInterface.uiFM.clearButton(interfaceButtonNote);
-		mtInterface.uiFM.clearButton(interfaceButtonInstr);
-		mtInterface.uiFM.setButtonObj(interfaceButton6, buttonPress, functDescriptionButton);
-		mtInterface.uiFM.setButtonObj(interfaceButton7, buttonPress, functDescriptionButton);
+		mtInterface.FM->clearButton(interfaceButtonNote);
+		mtInterface.FM->clearButton(interfaceButtonInstr);
+		mtInterface.FM->setButtonObj(interfaceButton6, buttonPress, functDescriptionButton);
+		mtInterface.FM->setButtonObj(interfaceButton7, buttonPress, functDescriptionButton);
 		break;
 	default:	break;
 	}
 
-	mtInterface.uiFM.clearButton(interfaceButtonRec);
-//	mtInterface.uiFM.clearButton(interfaceButtonShift);
-//	mtInterface.uiFM.clearButton(interfaceButtonEnter);
+	mtInterface.FM->clearButton(interfaceButtonRec);
+//	mtInterface.FM->clearButton(interfaceButtonShift);
+//	mtInterface.FM->clearButton(interfaceButtonEnter);
 
-	mtInterface.uiFM.clearButtonsRange(interfaceButton0,interfaceButton5);
+	mtInterface.FM->clearButtonsRange(interfaceButton0,interfaceButton5);
 
-	mtInterface.uiFM.setPotObj(interfacePot0, functEncoderPopup, nullptr);
-
-
+	mtInterface.FM->setPotObj(interfacePot0, functEncoderPopup, nullptr);
 
 
-	mtInterface.uiFM.setButtonObj(interfaceButtonLeft, buttonPress, functLeftPopup);
-	//mtInterface.uiFM.setButtonObj(interfaceButton5, buttonPress, functInvert);
-	mtInterface.uiFM.setButtonObj(interfaceButtonRight, buttonPress, functRightPopup);
-	mtInterface.uiFM.setButtonObj(interfaceButtonUp, buttonPress, functUpPopup);
-	mtInterface.uiFM.setButtonObj(interfaceButtonDown, buttonPress, functDownPopup);
 
-	mtInterface.uiFM.setPadsGlobal(functPadsPopup);
+
+	mtInterface.FM->setButtonObj(interfaceButtonLeft, buttonPress, functLeftPopup);
+	//mtInterface.FM->setButtonObj(interfaceButton5, buttonPress, functInvert);
+	mtInterface.FM->setButtonObj(interfaceButtonRight, buttonPress, functRightPopup);
+	mtInterface.FM->setButtonObj(interfaceButtonUp, buttonPress, functUpPopup);
+	mtInterface.FM->setButtonObj(interfaceButtonDown, buttonPress, functDownPopup);
+
+	mtInterface.FM->setPadsGlobal(functPadsPopup);
 }
 //=====================================================================================================
 //

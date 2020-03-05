@@ -72,7 +72,6 @@ static void cancelAnotherSelect();
 
 void cSampleImporter::update()
 {
-
 	uint8_t managerStatus = newFileManager.getStatus();
 
 	if(managerStatus == fmBrowseSamplesEnd)

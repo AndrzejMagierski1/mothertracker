@@ -51,6 +51,7 @@ void cFileManager::update()
 	case fmLoadWorkspacePattern:		updateLoadWorkspacePattern(); 			break;
 
 	case fmExportSound: 				updateExportSound();					break;
+	case fmSaveRecordedSound: 			updateSaveRecordedSound();				break;
 
 
 
@@ -200,6 +201,16 @@ void cFileManager::updateExportSound() //fmExportSound - 12
 		case 0: 	exportSoundGetStatus(); 									break;
 		case 1:		exportSoundEnd();											break;
 		default:	stopOperationWithError(fmExportSoundError); 				break;
+	}
+}
+
+void cFileManager::updateSaveRecordedSound() //  //fmSaveRecordedSound - 13
+{
+	switch(currentOperationStep)
+	{
+		case 0: 	saveRecording(); 											break;
+		//case 1:		exportSoundEnd();										break;
+		default:	stopOperationWithError(fmSaveRecordedError); 				break;
 	}
 }
 
@@ -517,8 +528,13 @@ void cFileManager::deleteInstrumentsFromWorkspaceFinish()
 //---------------------------------------------------------------------------------------- loadPatternFromWorkspace
 void cFileManager::loadPatternFromWorkspaceFinish()
 {
+	if(status == fmExportingSoundSong || status == fmExportingSoundSongStems)
+	{
+		currentOperationStep = 0;
+		currentOperation = fmExportSound;
+		return;
+	}
 
-	status = fmIdle;
 	currentOperationStep = 0;
 	currentOperation = fmNoOperation;
 }
@@ -674,12 +690,21 @@ bool cFileManager::deleteInstruments(uint8_t instrumentSlotFrom, uint8_t instrum
 
 bool cFileManager::loadWorkspacePattern(uint8_t index)
 {
-	if(status != fmIdle && status != fmSavingProjectToWorkspace) return false;
-	if(currentOperation != fmNoOperation && currentOperation != fmSaveWorkspaceProject) return false;
+	// to wyjatek który moze byc wywolywany podczas exportu songa
+	if(status != fmIdle
+			&& status != fmExportingSoundSong
+			&& status != fmExportingSoundSongStems
+			&& status != fmSavingProjectToWorkspace) return false;
+	if(currentOperation != fmNoOperation
+			&& currentOperation != fmExportSound
+			&& currentOperation != fmSaveWorkspaceProject) return false;
 
 	currentPattern = index;
 
-	status = fmLoadingPatternFromWorkspace;
+	if(status != fmExportingSoundSong || status != fmExportingSoundSongStems)
+	{
+		status = fmLoadingPatternFromWorkspace;
+	}
 	currentOperationStep = 0;
 	currentOperation = fmLoadWorkspacePattern;
 	return true;

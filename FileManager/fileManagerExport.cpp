@@ -104,10 +104,10 @@ static bool getSongExportFileName(char* path)
 {
 	uint16_t fileCounter = 0;
 
-	sprintf(path, "Export/%s/%s_Song%4d.wav", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
+	sprintf(path, "Export/%s/%s_Song%04d.wav", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
 	while(SD.exists(path))
 	{
-		sprintf(path, "Export/%s/%s_Song%4d.wav", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
+		sprintf(path, "Export/%s/%s_Song%04d.wav", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
 		if(fileCounter > 9999) return false; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
 
@@ -118,10 +118,10 @@ static bool getSongStemsExportFolderName(char* path)
 {
 	uint16_t fileCounter = 0;
 
-	sprintf(path, "Export/%s/%s_Song_S%4d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
+	sprintf(path, "Export/%s/%s_Song_S%04d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
 	while(SD.exists(path))
 	{
-		sprintf(path, "Export/%s/%s_Song_S%4d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
+		sprintf(path, "Export/%s/%s_Song_S%04d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
 		if(fileCounter > 9999) return false; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
 
@@ -133,10 +133,10 @@ static bool getPatternExportFileName(char* path)
 	uint16_t namePattern = mtProject.values.actualPattern;
 	uint16_t fileCounter = 0;
 
-	sprintf(path, "Export/%s/%s_P%d_%4d.wav", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern, fileCounter++);
+	sprintf(path, "Export/%s/%s_P%d_%04d.wav", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern, fileCounter++);
 	while(SD.exists(path))
 	{
-		sprintf(path, "Export/%s/%s_P%d_%4d.wav", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern, fileCounter++);
+		sprintf(path, "Export/%s/%s_P%d_%04d.wav", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern, fileCounter++);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
 
@@ -148,10 +148,10 @@ static bool getPatternStemsExportFolderName(char* path)
 	uint16_t namePattern = mtProject.values.actualPattern;
 	uint16_t fileCounter = 0;
 
-	sprintf(path, "Export/%s/%s_P%d_S%4d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern, fileCounter++);
+	sprintf(path, "Export/%s/%s_P%d_S%04d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern, fileCounter++);
 	while(SD.exists(path))
 	{
-		sprintf(path, "Export/%s/%s_P%d_S%4d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern, fileCounter++);
+		sprintf(path, "Export/%s/%s_P%d_S%04d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern, fileCounter++);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
 
@@ -162,10 +162,10 @@ static bool getRenderSelectionExportFileName(char* path)
 {
 	uint16_t fileCounter = 0;
 
-	sprintf(path, "Export/%s/%s_Sel%4d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
+	sprintf(path, "Export/%s/%s_Sel%04d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
 	while(SD.exists(path))
 	{
-		sprintf(path, "Export/%s/%s_Sel%4d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
+		sprintf(path, "Export/%s/%s_Sel%04d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
 		if(fileCounter > 9999) return 1; // jak ktos zapisze jeden projekt 10000 razy to należy mu się medal z ziemniaka todo: obsłużyć jakoś
 	}
 

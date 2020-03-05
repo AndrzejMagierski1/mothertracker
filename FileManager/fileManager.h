@@ -27,6 +27,8 @@ enum fileManagerStatus
 	fmExportingSoundPattern,
 	fmExportingSoundPatternStems,
 	fmExportingSoundRenderSelection,
+	fmSavingRecordedSound,
+	fmSavingImportingRecordedSound,
 
 
 
@@ -39,6 +41,7 @@ enum fileManagerStatus
 	fmDeleteInstrumentsEnd,
 	fmLoadPatternEnd,
 	fmExportSoundEnd,
+	fmSaveRecordedSoundEnd,
 
 
 
@@ -53,6 +56,7 @@ enum fileManagerStatus
 	fmDeleteInstrumentsError,
 	fmLoadPatternError,
 	fmExportSoundError,
+	fmSaveRecordedError,
 
 };
 
@@ -75,7 +79,7 @@ enum fileManagerOperation
 	fmLoadWorkspacePattern,		//11
 
 	fmExportSound,				//12
-
+	fmSaveRecordedSound,		//13
 
 };
 
@@ -97,7 +101,7 @@ public:
 	inline uint8_t getStatus() 	{ return status; }
 	uint8_t getProgress();
 
-	void clearStatus() 	{ status = fmIdle; }
+	void clearStatus() 	{ if(status >= fmLoadEnd) status = fmIdle; }
 
 	// flagi zmian
 	void clearChangeFlags();
@@ -138,6 +142,7 @@ public:
 
 	bool exportSound(uint8_t mode);
 	bool exportSoundCancel();
+	bool saveSound(uint32_t length);
 
 	// to chyba trzeba zoptymalizowac/wrzucic w petle \/
 	bool createNewProjectInWorkspace();
@@ -222,6 +227,7 @@ private:
 	void updateDeleteInstruments();
 	void updateLoadWorkspacePattern();
 	void updateExportSound();
+	void updateSaveRecordedSound();
 
 	void autoSaveProjectToWorkspace();
 
@@ -381,6 +387,9 @@ private:
 	void exportSoundEnd();
 	void exportSoundGetStatus();
 	uint8_t getExportProgress();
+
+	// recording
+	void saveRecording();
 
 	// preview sample
 

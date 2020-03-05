@@ -33,7 +33,7 @@ static  uint8_t functUp();
 static  uint8_t functDown();
 
 //static uint8_t functEnter();
-static uint8_t functDeleteBackspace(uint8_t state);
+static  uint8_t functDeleteBackspace(uint8_t state);
 
 static  uint8_t functSelectButton0();
 static  uint8_t functSelectButton1(uint8_t state);
@@ -54,8 +54,8 @@ static  uint8_t functActionButton5();
 static  uint8_t functActionButton6();
 static  uint8_t functActionButton7();
 
-static uint8_t functActionSource();
-static uint8_t functActionGain();
+static  uint8_t functActionSource();
+static  uint8_t functActionGain();
 static  uint8_t functActionMonitor();
 static  uint8_t functActionRecord();
 static  uint8_t functActionRadioFreq();
@@ -74,14 +74,14 @@ static  uint8_t functActionConfirmSave();
 static  uint8_t functActionEndPoint();
 static  uint8_t functActionStartPoint();
 static  uint8_t functActionZoom();
-static uint8_t functConfirmKey();
-static uint8_t functInsert();
+static  uint8_t functConfirmKey();
+static  uint8_t functInsert();
 
 static  uint8_t functEncoder(int16_t value);
 
 static  uint8_t functSwitchModule(uint8_t button);
 
-static uint8_t functStepNote(uint8_t value);
+static  uint8_t functStepNote(uint8_t value);
 
 static void modStartPoint(int16_t value);
 static void modEndPoint(int16_t value);
@@ -413,225 +413,7 @@ void cSampleRecorder::processPoints()
 
 }
 
-/*
-void cSampleRecorder::processSpectrum1()
-{
 
-
-	if(recorder.getLength() == 0)
-	{
-		for(uint16_t i = 0; i < 600; i++)
-		{
-			spectrum.upperData[i] = 0;
-			spectrum.lowerData[i] = 0;
-		}
-
-		return;
-	}
-	if(recordInProgressFlag)
-	{
-		int16_t * sampleData = recorder.getStartAddress();
-		uint32_t resolution = recorder.getLength() / 600;
-
-		if(resolution < 1) resolution = 1;
-
-		uint16_t offset_pixel = 0;
-
-		zoomWidth = MAX_16BIT;
-		zoomStart = 0;
-		zoomEnd = MAX_16BIT;
-
-		int16_t up = 0;
-		int16_t low = 0;
-		uint32_t step = 0;
-
-		for(uint16_t i = offset_pixel; i < 600; i++)
-		{
-			low = up = 0;
-
-			for(uint16_t j = 0; j < resolution; j++)
-			{
-				int16_t sample = *(sampleData+step+j);
-
-
-				if(sample > up)  up = sample;
-				else if(sample < low) low = sample;
-
-			}
-			step+= resolution;
-
-			up = up/300;
-			low = low/300;
-
-			spectrum.upperData[i] =  up;
-			spectrum.lowerData[i] = low;
-
-		}
-
-		if(resolution <= 1) spectrum.spectrumType = 1;
-		else spectrum.spectrumType = 0;
-		return;
-	}
-
-
-	// uwaga tu wazna kolejnosc + do sprawdzenia
-//	if()
-//	{
-//		for(uint16_t i = 0; i < 600; i++)
-//		{
-//			spectrum.upperData[i] = 0;
-//			spectrum.lowerData[i] = 0;
-//		}
-//
-//		return;
-//	}
-
-	uint16_t offset_pixel;
-	int16_t * sampleData;
-
-
-
-	uint32_t resolution;
-
-
-	switch(lastChangedPoint)
-	{
-		case 0: zoomPosition = startPoint; break; //MAX_16BIT/2; break;
-
-		case 1:
-			zoomPosition = startPoint;
-		break;
-		case 2:
-			zoomPosition = endPoint;
-		break;
-
-		default: zoomPosition = startPoint; break; //MAX_16BIT/2; break;
-	}
-
-
-
-
-
-
-
-	if(zoomValue > 1.0)
-	{
-		zoomWidth = (MAX_16BIT/zoomValue);
-		zoomStart =  zoomPosition - zoomWidth/2;
-		zoomEnd = zoomPosition + zoomWidth/2;
-
-		if(zoomStart < 0)
-		{
-			zoomEnd = zoomWidth;
-			zoomStart = 0;
-			offset_pixel = ((zoomPosition-zoomStart) * 599) / zoomWidth;
-		}
-		else if(zoomEnd > MAX_16BIT)
-		{
-			zoomEnd = MAX_16BIT;
-			zoomStart = MAX_16BIT-zoomWidth;
-			offset_pixel = ((zoomPosition-zoomStart) * 599) / zoomWidth;
-		}
-		else
-		{
-			offset_pixel = ((zoomPosition-zoomStart) * 599) / zoomWidth;
-		}
-
-
-		uint32_t offset = ((float)zoomPosition/MAX_16BIT) * recorder.getLength();
-
-		sampleData = recorder.getStartAddress() + offset;
-
-		resolution = (((float)zoomWidth/MAX_16BIT) * recorder.getLength() ) / 600;
-
-
-//		Serial.print(zoomValue);
-//		Serial.print("   ");
-//		Serial.print(zoomStart);
-//		Serial.print("   ");
-//		Serial.print(zoomEnd);
-//		Serial.print("   ");
-//
-//		Serial.println();
-
-	}
-	else
-	{
-
-		offset_pixel = 0;
-		zoomWidth = MAX_16BIT;
-		zoomStart = 0;
-		zoomEnd = MAX_16BIT;
-		sampleData = recorder.getStartAddress();;
-		resolution = recorder.getLength() / 600;
-	}
-
-
-	if(resolution < 1) resolution = 1;
-
-
-	int16_t up = 0;
-	int16_t low = 0;
-
-	uint32_t step = 0;
-
-
-
-	if(offset_pixel > 0)
-	{
-		for(int16_t i = offset_pixel-1; i >= 0; i--)
-		{
-			low = up = 0;
-
-			for(uint16_t j = 0; j < resolution; j++)
-			{
-				int16_t sample = *(sampleData-step+j);
-
-				if(sample > up)  up = sample;
-				else if(sample < low) low = sample;
-
-			}
-			step+= resolution;
-
-			up = up/300;
-			low = low/300;
-
-			spectrum.upperData[i] =  up;
-			spectrum.lowerData[i] = low;
-		}
-	}
-
-	up = 0;
-	low = 0;
-	step = 0;
-
-
-	for(uint16_t i = offset_pixel; i < 600; i++)
-	{
-		low = up = 0; // *(sampleData+step);
-
-		for(uint16_t j = 0; j < resolution; j++)
-		{
-			int16_t sample = *(sampleData+step+j);
-
-
-			if(sample > up)  up = sample;
-			else if(sample < low) low = sample;
-
-		}
-		step+= resolution;
-
-		up = up/300;
-		low = low/300;
-
-		spectrum.upperData[i] =  up;
-		spectrum.lowerData[i] = low;
-	}
-
-	if(resolution <= 1) spectrum.spectrumType = 1;
-	else spectrum.spectrumType = 0;
-
-}*/
 
 void cSampleRecorder::listSource()
 {
@@ -1540,20 +1322,20 @@ static  uint8_t functActionConfirmSaveLoad()
 	}
 	else
 	{
-		 sprintf(localName,"%s.wav",SR->keyboardManager.getName());
+		sprintf(localName,"%s.wav",SR->keyboardManager.getName());
 
-		 if(recorder.startSaveLoad(SR->keyboardManager.getName(), firstFree) == 0)
-		 {
-			 SR->selectionWindowSaveFlag = 1;
-			 SR->keyboardManager.deactivateKeyboard();
-			 SR->showSelectionWindowSave();
-			 return 0 ;
-		 }
-		 else
-		 {
-			 SR->keyboardManager.deactivateKeyboard();
-			 SR->saveInProgressFlag = 1;
-		 }
+		if(recorder.startSaveLoad(SR->keyboardManager.getName(), firstFree) == 0)
+		{
+			SR->selectionWindowSaveFlag = 1;
+			SR->keyboardManager.deactivateKeyboard();
+			SR->showSelectionWindowSave();
+			return 0 ;
+		}
+		else
+		{
+			SR->keyboardManager.deactivateKeyboard();
+			SR->saveInProgressFlag = 1;
+		}
 
 
 		SR->forceSwitchModule = 1;

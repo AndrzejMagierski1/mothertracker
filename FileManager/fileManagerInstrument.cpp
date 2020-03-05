@@ -55,7 +55,11 @@ void cFileManager::loadInstrumentsFromWorkspace()
 	}
 	else if(loadStatus >= fileTransferError)
 	{
-		instrumentThrowError();
+		memset(mtProject.instrument[currentInstrument].sample.file_name, 0, SAMPLE_NAME_SIZE);
+		mtProject.instrument[currentInstrument].isActive = 0;
+		skipNextOperationStep();
+		//uszkodzony plik wav - pomin uszkodzony instrument ale nie wyrzucaj bledu
+		//instrumentThrowError();
 	}
 }
 

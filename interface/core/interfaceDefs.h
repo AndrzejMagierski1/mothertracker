@@ -108,10 +108,6 @@ enum mtInterfaceButtonsDef
 enum mtInterfacePotsDef
 {
 	interfacePot0,
-	interfacePot1,
-	interfacePot2,
-	interfacePot3,
-	interfacePot4,
 
 	interfacePotsCount
 };
