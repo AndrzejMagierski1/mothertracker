@@ -208,9 +208,15 @@ void cFileManager::updateSaveRecordedSound() //  //fmSaveRecordedSound - 13
 {
 	switch(currentOperationStep)
 	{
-		case 0: 	saveRecording(); 											break;
-		//case 1:		exportSoundEnd();										break;
-		default:	stopOperationWithError(fmSaveRecordedError); 				break;
+		case 0: 	saveRecording(); 										break;
+		case 1:		copySamples();											break;
+		case 2:		createEmptyInstrumentInWorkspace(currentInstrument, explorerList[importCurrentFile]);	break;
+		case 3:		importSamplesToWorkspaceContinue(); 					break;
+		case 4:		moveSampleMemory();										break;
+		case 5:		loadInstrumentsFromWorkspace(); 						break;
+		case 6:		loadSamplesFromWorkspace();								break;
+		case 7:		importSamplesToWorkspaceFinish();						break;
+		default:	stopOperationWithError(fmSaveRecordedError); 			break;
 	}
 }
 
@@ -654,13 +660,14 @@ bool cFileManager::importSamplesToProject(uint8_t fileFrom, uint8_t fileTo, uint
 
 	// sprawdzenie czy wystarczy pamieci xxx
 
-
-
 	status = fmImportingSamplesToWorkspace;
 	currentOperationStep = 0;
 	currentOperation = fmImportSamplesToWorkspace;
 	return true;
 }
+
+
+
 
 
 bool cFileManager::deleteInstruments(uint8_t instrumentSlotFrom, uint8_t instrumentSlotTo)

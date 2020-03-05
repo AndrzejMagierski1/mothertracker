@@ -160,21 +160,24 @@ void cSampleRecorder::update()
 	}
 	radio.stateMachineSeek();
 
-	if(saveInProgressFlag)
-	{
-//		recorder.updateSave();
-		showSaveHorizontalBar();
-		if(recorder.getSaveState() == 0)
-		{
-			saveInProgressFlag = 0;
 
-			hideSaveHorizontalBar();
-			currentScreen = screenTypeConfig;
-			showDefaultScreen();
-			if(SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
-			else audioShield.headphoneSourceSelect(1);
-		}
+	uint8_t managerStatus = newFileManager.getStatus();
+
+	if(managerStatus == fmSaveRecordedSoundEnd)
+	{
+		//saveProgress = recorder.getSaveProgress();
+		//showSaveHorizontalBar();
+		saveInProgressFlag = 0;
+		hideSaveHorizontalBar();
+		currentScreen = screenTypeConfig;
+		showDefaultScreen();
+		if(SR->recorderConfig.monitor) audioShield.headphoneSourceSelect(0);
+		else audioShield.headphoneSourceSelect(1);
+
+		newFileManager.clearStatus();
 	}
+
+
 	if(notEnoughInstrumentsFlag)
 	{
 		notEnoughInstrumentsFlag = 0;
@@ -685,7 +688,9 @@ static  uint8_t functActionButton0(uint8_t s)
 		SR->selectionWindowSaveFlag = 0;
 		if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeNormal)
 		{
-			recorder.startSave(SR->keyboardManager.getName(),1);
+			char filePath[70];
+			sprintf(filePath, "Recorded/%s.wav",SR->keyboardManager.getName());
+			newFileManager.saveRecordedSound(filePath, -1);
 		}
 		else if(SR->saveOrSaveloadFlag == cSampleRecorder::saveTypeLoad)
 		{
@@ -710,7 +715,9 @@ static  uint8_t functActionButton0(uint8_t s)
 				return 0;
 			}
 
-			recorder.startSaveLoad(SR->keyboardManager.getName(), firstFree, 1 );
+			char filePath[70];
+			sprintf(filePath, "Recorded/%s.wav",SR->keyboardManager.getName());
+			newFileManager.saveRecordedSound(filePath, firstFree);
 		}
 
 		SR->saveInProgressFlag = 1;
@@ -1244,25 +1251,21 @@ static  uint8_t functActionSave()
 	SR->currentScreen = cSampleRecorder::screenTypeKeyboard;
 
 	char localPatch[70];
-	uint16_t cnt=1;
+	uint16_t cnt = 1;
+	char keyboardName[MAX_NAME_LENGTH];
 
 	do
 	{
-		char keyboardName[MAX_NAME_LENGTH];
-		sprintf(keyboardName, "recording%d", cnt);
-		SR->keyboardManager.fillName(keyboardName);
+		sprintf(keyboardName, "recording%04d", cnt);
 		sprintf(localPatch, "Recorded/%s.wav", keyboardName);
-
 		cnt++;
 		if(cnt > 9999)
 		{
-			memset(keyboardName, 0, MAX_NAME_LENGTH);
-			SR->keyboardManager.fillName(keyboardName);
 			break;
 		}
-
 	} while(SD.exists(localPatch));
 
+	SR->keyboardManager.fillName(keyboardName);
 	SR->keyboardManager.activateKeyboard();
 
 	SR->showDefaultScreen();
@@ -1272,7 +1275,11 @@ static  uint8_t functActionSave()
 static  uint8_t functActionConfirmSave()
 {
 	SR->saveOrSaveloadFlag = cSampleRecorder::saveTypeNormal;
-	if(recorder.startSave(SR->keyboardManager.getName()) == 0)
+
+	char filePath[70];
+	sprintf(filePath, "Recorded/%s.wav",SR->keyboardManager.getName());
+
+	if(SD.exists(filePath))
 	{
 		 SR->selectionWindowSaveFlag = 1;
 		 SR->keyboardManager.deactivateKeyboard();
@@ -1280,8 +1287,9 @@ static  uint8_t functActionConfirmSave()
 	}
 	else
 	{
-		 SR->saveInProgressFlag = 1;
-		 SR->keyboardManager.deactivateKeyboard();
+
+		newFileManager.saveRecordedSound(filePath, -1);
+		SR->keyboardManager.deactivateKeyboard();
 	}
 
 	return 1;
@@ -1305,7 +1313,6 @@ static  uint8_t functActionConfirmSaveLoad()
 		return 0;
 	}
 	int8_t firstFree = -1;
-	char localName[37];
 
 	for(uint8_t i = 0; i < INSTRUMENTS_COUNT; i++ )
 	{
@@ -1323,9 +1330,9 @@ static  uint8_t functActionConfirmSaveLoad()
 	}
 	else
 	{
-		sprintf(localName,"%s.wav",SR->keyboardManager.getName());
-
-		if(recorder.startSaveLoad(SR->keyboardManager.getName(), firstFree) == 0)
+		char filePath[70];
+		sprintf(filePath, "Recorded/%s.wav",SR->keyboardManager.getName());
+		if(SD.exists(filePath))
 		{
 			SR->selectionWindowSaveFlag = 1;
 			SR->keyboardManager.deactivateKeyboard();
@@ -1334,17 +1341,16 @@ static  uint8_t functActionConfirmSaveLoad()
 		}
 		else
 		{
+			newFileManager.saveRecordedSound(filePath, -1);
 			SR->keyboardManager.deactivateKeyboard();
 			SR->saveInProgressFlag = 1;
 		}
-
 
 		SR->forceSwitchModule = 1;
 
 		firstFree++;
 		uint8_t button = interfaceButtonSampleLoad;
-		SR->eventFunct(eventSwitchModule,SR,&button,&firstFree);
-//		functSwitchModule(interfaceButtonSampleLoad);
+		SR->eventFunct(eventSwitchModule, SR, &button, &firstFree);
 	}
 
 	return 0;

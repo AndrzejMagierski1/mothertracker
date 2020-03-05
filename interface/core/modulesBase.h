@@ -93,27 +93,6 @@ public:
 
 	void setPotObj(uint8_t objectID, uint8_t(*funct)(int16_t), hControl control);
 	void setPotObj(int8_t objectID, uint8_t* param, uint8_t min, uint8_t max, uint8_t step, hControl control);
-	void setPotObj(int8_t objectID, uint16_t* param, uint16_t min, uint16_t max, uint16_t step, hControl control);
-/*
-	template <typename T>
-	void setPotObj(uint8_t objectID, T* param, T min, T max, T step, hControl control)
-	{
-
-	}
-*/
-	template <typename T>
-	void setPotObjControlValue(uint8_t objectID, T* param, T min, T max, T step, hControl control)
-	{
-/*
-		<T>paramChange* struct =  new <T>paramChange;
-
-		pots[objectID].funct1 = <T>changeParam;
-		pots[objectID].control = control;
-
-		pots[objectID].mode = 1;
-*/
-	}
-
 
 
 	void setButtonObj(uint8_t objectID, uint8_t state, uint8_t(*funct)(void));

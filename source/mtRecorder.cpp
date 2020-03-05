@@ -94,50 +94,19 @@ void Recorder::undo(int16_t * address, uint32_t length)
 	recByteSaved = 2*length; //zamieniam probki na bajty
 }
 
-uint8_t Recorder::startSave(char * name, uint8_t type)
+uint8_t Recorder::startSave(char * name)
 {
-	char currentPatch[PATCH_SIZE];
-
-
-	if(!SD.exists("Recorded")) SD.mkdir(0,"Recorded");
-
-	strcpy(currentPatch,"Recorded/");
-	strcat(currentPatch,name);
-	strcat(currentPatch,".wav");
-
 	saveLength=recByteSaved;
 
-	if(type == 0)
-	{
-		if (SD.exists(currentPatch)) return 0;
-	}
-	else if(type == 1)
-	{
-		if (SD.exists(currentPatch)) SD.remove(currentPatch);
-	}
-
 	saveInProgressFlag = 1;
-	rec = SD.open(currentPatch, SD_FILE_WRITE);
-
-	rec.write(currentPatch,sizeof(header)); //tablica ktora byla pod reka aby ustawic seek na 44 - funkcja seek powodowala blad
+	rec.open(name, SD_FILE_WRITE);
+	//rec.write(name,sizeof(header)); //tablica ktora byla pod reka aby ustawic seek na 44 - funkcja seek powodowala blad
+	rec.seek(44);
 	currentAddress=startAddress;
 
 	return 1;
 }
 
-uint8_t Recorder::startSaveLoad(char * name, uint8_t idx, uint8_t type)
-{
-	uint8_t status = startSave(name,type);
-
-
-	if(!status) return 0;
-
-	sprintf(currentName,"%s.wav",name);
-	currentIndex = idx;
-	loadAfterSaveFlag = 1;
-
-	return 1;
-}
 
 void Recorder::updateSave()
 {
@@ -159,19 +128,13 @@ void Recorder::updateSave()
 		}
 	}
 }
+
 void Recorder::stopSave()
 {
 	saveInProgressFlag = 0;
 	writeOutHeader();
-	if(loadAfterSaveFlag)
-	{
-		loadAfterSaveFlag = 0;
-		//fileManager.setAutoLoadFlag();
-		//fileManager.setStart(currentIndex);
-		//fileManager.assignSampleToInstrument((char*)"Recorded", currentName, currentIndex);
-		//todo
-	}
 }
+
 uint8_t Recorder::getSaveProgress()
 {
 	return recByteSaved > 0 ? ((recByteSaved - saveLength)*100)/recByteSaved : 0;

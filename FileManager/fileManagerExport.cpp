@@ -102,7 +102,7 @@ uint8_t cFileManager::getExportProgress()
 
 static bool getSongExportFileName(char* path)
 {
-	uint16_t fileCounter = 0;
+	uint16_t fileCounter = 1;
 
 	sprintf(path, "Export/%s/%s_Song%04d.wav", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
 	while(SD.exists(path))
@@ -116,7 +116,7 @@ static bool getSongExportFileName(char* path)
 
 static bool getSongStemsExportFolderName(char* path)
 {
-	uint16_t fileCounter = 0;
+	uint16_t fileCounter = 1;
 
 	sprintf(path, "Export/%s/%s_Song_S%04d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
 	while(SD.exists(path))
@@ -131,7 +131,7 @@ static bool getSongStemsExportFolderName(char* path)
 static bool getPatternExportFileName(char* path)
 {
 	uint16_t namePattern = mtProject.values.actualPattern;
-	uint16_t fileCounter = 0;
+	uint16_t fileCounter = 1;
 
 	sprintf(path, "Export/%s/%s_P%d_%04d.wav", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern, fileCounter++);
 	while(SD.exists(path))
@@ -146,7 +146,7 @@ static bool getPatternExportFileName(char* path)
 static bool getPatternStemsExportFolderName(char* path)
 {
 	uint16_t namePattern = mtProject.values.actualPattern;
-	uint16_t fileCounter = 0;
+	uint16_t fileCounter = 1;
 
 	sprintf(path, "Export/%s/%s_P%d_S%04d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), namePattern, fileCounter++);
 	while(SD.exists(path))
@@ -160,7 +160,7 @@ static bool getPatternStemsExportFolderName(char* path)
 
 static bool getRenderSelectionExportFileName(char* path)
 {
-	uint16_t fileCounter = 0;
+	uint16_t fileCounter = 1;
 
 	sprintf(path, "Export/%s/%s_Sel%04d", newFileManager.getCurrentProjectName(), newFileManager.getCurrentProjectName(), fileCounter++);
 	while(SD.exists(path))

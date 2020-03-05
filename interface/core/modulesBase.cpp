@@ -61,8 +61,6 @@ void cFunctionMachine::clearAllPots()
 {
 	if(potsCleared) return;
 
-	delete  (paramChange<uint8_t>*)pots[0].paramStruct;
-
 	memset((uint8_t *)pots,0,sizeof(strPotObject)*potsCount);
 
 	potsCleared = 1;
@@ -121,44 +119,6 @@ void cFunctionMachine::setPotObj(uint8_t objectID, uint8_t(*funct)(int16_t), hCo
 	potsCleared = 0;
 }
 
-//==================================================================================================================
-void cFunctionMachine::setPotObj(int8_t objectID, uint8_t* param, uint8_t min, uint8_t max, uint8_t step, hControl control)
-{
-	delete  (paramChange<uint8_t>*)pots[objectID].paramStruct;
-
-	paramChange<uint8_t>* strparam = new paramChange<uint8_t>;
-	strparam->ptr = param;
-	strparam->min = min;
-	strparam->max = max;
-	strparam->step = step;
-
-	pots[objectID].paramStruct = strparam;
-
-	pots[objectID].control = control;
-
-	pots[objectID].mode = 2;
-
-	potsCleared = 0;
-}
-
-void cFunctionMachine::setPotObj(int8_t objectID, uint16_t* param, uint16_t min, uint16_t max, uint16_t step, hControl control)
-{
-	delete  (paramChange<uint16_t>*)pots[objectID].paramStruct;
-
-	paramChange<uint16_t>* strparam = new paramChange<uint16_t>;
-	strparam->ptr = param;
-	strparam->min = min;
-	strparam->max = max;
-	strparam->step = step;
-
-	pots[objectID].paramStruct = strparam;
-
-	pots[objectID].control = control;
-
-	pots[objectID].mode = 3;
-
-	potsCleared = 0;
-}
 //==================================================================================================================
 
 // przypisuje funkcje na okreslony stan przycisku bez argumentow

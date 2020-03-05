@@ -142,7 +142,7 @@ public:
 
 	bool exportSound(uint8_t mode);
 	bool exportSoundCancel();
-	bool saveSound(uint32_t length);
+	bool saveRecordedSound(char* fileName, int8_t importSlot);
 
 	// to chyba trzeba zoptymalizowac/wrzucic w petle \/
 	bool createNewProjectInWorkspace();
@@ -390,7 +390,8 @@ private:
 
 	// recording
 	void saveRecording();
-
+	void saveRecordingEnd();
+	uint8_t recordingImportSlot;
 	// preview sample
 
 
