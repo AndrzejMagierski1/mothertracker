@@ -1248,18 +1248,19 @@ static  uint8_t functActionSave()
 
 	do
 	{
-	   char keyboardName[MAX_NAME_LENGTH];
-	   sprintf(keyboardName, "recording%d",cnt);
-	   SR->keyboardManager.fillName(keyboardName);
-	   sprintf(localPatch,"Recorded/%s.wav",keyboardName);
+		char keyboardName[MAX_NAME_LENGTH];
+		sprintf(keyboardName, "recording%d", cnt);
+		SR->keyboardManager.fillName(keyboardName);
+		sprintf(localPatch, "Recorded/%s.wav", keyboardName);
 
-	   cnt++;
-	   if(cnt > 9999)
-	   {
-		   memset(keyboardName,0,MAX_NAME_LENGTH);
-		   SR->keyboardManager.fillName(keyboardName);
-		   break;
-	   }
+		cnt++;
+		if(cnt > 9999)
+		{
+			memset(keyboardName, 0, MAX_NAME_LENGTH);
+			SR->keyboardManager.fillName(keyboardName);
+			break;
+		}
+
 	} while(SD.exists(localPatch));
 
 	SR->keyboardManager.activateKeyboard();

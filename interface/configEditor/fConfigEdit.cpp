@@ -132,7 +132,6 @@ void cConfigEditor::start(uint32_t options)
 	//--------------------------------------------------------------------
 
 
-
 	activateLabelsBorder();
 }
 
