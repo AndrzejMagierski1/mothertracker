@@ -646,6 +646,9 @@ void cProjectEditor::showExportWindow()
 	display.setControlHide(loadHorizontalBarControl);
 	display.refreshControl(loadHorizontalBarControl);
 
+	display.setControlHide(popupWindowLabel);
+	display.refreshControl(popupWindowLabel);
+
 	display.synchronizeRefresh();
 }
 

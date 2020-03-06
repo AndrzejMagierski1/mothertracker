@@ -102,10 +102,16 @@ void cSongEditor::initDisplayControls()
 	prop2.h =  55;
 	if(bgLabel == nullptr) bgLabel = display.createControl<cBgLabel>(&prop2);
 
-	prop.x = 12;
-	prop.y = 40 + 27;
-	prop.w = 600;
-	prop.h = 300;
+//	prop.x = 12;
+//	prop.y = 40 + 27;
+//	prop.w = 600;
+//	prop.h = 300;
+
+	prop.x = 0+1;
+	prop.y = 29;
+	prop.w = ((800/8)*7)-3;
+	prop.h = 394;
+	prop.style = controlStyleBackground;
 
 	if(songPlayerControl == nullptr)  songPlayerControl = display.createControl<cSongPlayer>(&prop);
 }
