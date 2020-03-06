@@ -33,8 +33,11 @@ public:
 	void setCommonFunctions();
 	void setMainScreenFunctions();
 	void setParamsScreenFunctions();
+	void switchScreen(enScreenType s);
 
 //******************* OPERATION FOR GRAPHIC
+	void prepareDisplayDataMainScreen();
+
 	void reloadInstrumentName();
 	void reloadFrameData(enScreenType s);
 	void reloadPointsData();
@@ -43,7 +46,10 @@ public:
 	void reloadZoomText();
 	void reloadPlayheadValue();
 	void reloadCurrentEffect();
-
+//params screen
+	void prepareDisplayDataParamsScreen();
+	void reloadParamiterValueText(uint8_t n);
+	void reloadParamiterBarValue(uint8_t n);
 //*******************
 //*******************CORE GRAPHIC FUNCTIONS
 	virtual void initDisplayControls() override;
@@ -57,12 +63,15 @@ public:
 	void showEndPointText();
 	void showZoomText();
 	void showSpectrumPoints();
+	void hideSpectrumPoints();
 	void showFrame();
 	void showSpectrum();
+	void hideSpectrum();
 	void showPlayhead();
 	void hidePlayhead();
 	void showEffectList();
 	void hideEffectList();
+
 //*******************
 //******************* REFRESH - RELOAD + DISPLAY
 	void refreshSpectrumPoints();
@@ -137,12 +146,27 @@ public:
 		 { (800/8)*7+(800/16), 460, displayArrowD}  // bitmaps[1]
 		}
 	};
+
+	uint8_t paramsBarValue[6];
+
 //labelsTxt
 	char currentInstrumentName[SAMPLE_NAME_SIZE+6];
 	char startPointText[11];
 	char endPointText[11];
 	char zoomText[7];
 
+//params screen
+	char paramiterValueLabel[6][11];
+
+	char * const paramiterValueLabelPtr[6] =
+	{
+			&paramiterValueLabel[0][0],
+			&paramiterValueLabel[1][0],
+			&paramiterValueLabel[2][0],
+			&paramiterValueLabel[3][0],
+			&paramiterValueLabel[4][0],
+			&paramiterValueLabel[5][0],
+	};
 //*********************
 
 
@@ -170,6 +194,9 @@ public:
 
 	struct strEffectDisplayParams
 	{
+		int iParameter[6];
+		float fParameter[6];
+
 		uint8_t paramsNumber;
 		const char * const * labelsText;
 		const char * paramsType; //'f' = float 'd' = int
@@ -185,6 +212,7 @@ public:
 	} effectDisplayParams[editorEffectMax] =
 	{
 			{
+				{0,500,0,0,0,0},{0.001,0,0,0,0,0}, //start values
 				2,delayParams::labelText,delayParams::paramsType,
 				delayParams::iUpConstrain,delayParams::fUpConstrain,
 				delayParams::iDownConstrain,delayParams::fDownConstrain,
@@ -192,6 +220,7 @@ public:
 			},
 
 			{
+				{16,44100,0,0,0,0},{0,0,0,0,0,0}, //start values
 				2,bitcrusherParams::labelText,bitcrusherParams::paramsType,
 				bitcrusherParams::iUpConstrain,bitcrusherParams::fUpConstrain,
 				bitcrusherParams::iDownConstrain,bitcrusherParams::fDownConstrain,

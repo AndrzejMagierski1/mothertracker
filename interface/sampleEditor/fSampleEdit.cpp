@@ -18,6 +18,17 @@ static uint16_t mainScreenFramePlaces[4][4] =
 };
 
 
+static uint16_t paramsScreenFramePlaces[6][4] =
+{
+		{(800/8)*0+1, 31, 800/8-3, 394},
+		{(800/8)*1+1, 31, 800/8-3, 394},
+		{(800/8)*2+1, 31, 800/8-3, 394},
+		{(800/8)*3+1, 31, 800/8-3, 394},
+		{(800/8)*4+1, 31, 800/8-3, 394},
+		{(800/8)*5+1, 31, 800/8-3, 394},
+};
+
+
 
 //************************************************************************** ACTION FUNCTIONS DECLARATIONS
 static  uint8_t functSwitchModule(uint8_t button);
@@ -77,18 +88,9 @@ void cSampleEditor::start(uint32_t options)
 	setMainScreenFunctions();
 	setCommonFunctions();
 
-	reloadCurrentEffect();
-
-	reloadInstrumentName();
-	reloadStartPointText();
-	reloadEndPointText();
-	reloadZoomText();
-	reloadPointsData();
-	reloadFrameData(screenType);
-
-	GP.processSpectrum( &spectrumParams, &zoom, &spectrumData);
 
 
+	prepareDisplayDataMainScreen();
 	showMainScreen();
 
 
@@ -171,6 +173,34 @@ void cSampleEditor::setParamsScreenFunctions()
 	if(!editorInstrument->isActive) return;
 }
 
+void cSampleEditor::switchScreen(enScreenType s)
+{
+	if(s == mainScreen)
+	{
+		prepareDisplayDataMainScreen();
+		showMainScreen();
+	}
+	else if(s == effectParamsScreen)
+	{
+		prepareDisplayDataParamsScreen();
+		showEffectParamsScreen();
+	}
+
+	//todo: dolozyc funkcje
+}
+
+void cSampleEditor::prepareDisplayDataMainScreen()
+{
+	reloadCurrentEffect();
+	reloadInstrumentName();
+	reloadStartPointText();
+	reloadEndPointText();
+	reloadZoomText();
+	reloadPointsData();
+	reloadFrameData(screenType);
+
+	GP.processSpectrum( &spectrumParams, &zoom, &spectrumData);
+}
 void cSampleEditor::reloadInstrumentName()
 {
 	if(!editorInstrument->isActive)
@@ -247,6 +277,15 @@ void cSampleEditor::reloadFrameData(enScreenType s)
 			frameData.places[i] = &mainScreenFramePlaces[i][0];
 		}
 	}
+	else if(s == effectParamsScreen)
+	{
+		frameData.placesCount = 6;
+
+		for ( uint8_t i = 0; i < frameData.placesCount; i++ )
+		{
+			frameData.places[i] = &paramsScreenFramePlaces[i][0];
+		}
+	}
 }
 void cSampleEditor::reloadPointsData()
 {
@@ -312,6 +351,49 @@ void cSampleEditor::reloadPointsData()
 	else spectrumPointsData.endPoint = -1;
 
 }
+
+//params screen
+
+void cSampleEditor::prepareDisplayDataParamsScreen()
+{
+	for(uint8_t i = 0; i < effectDisplayParams[currentEffectIdx].paramsNumber; i++)
+	{
+		reloadParamiterValueText(i);
+		reloadParamiterBarValue(i);
+		reloadFrameData(effectParamsScreen);
+	}
+}
+void cSampleEditor::reloadParamiterValueText(uint8_t n)
+{
+	if(n >= effectDisplayParams[currentEffectIdx].paramsNumber) return;
+
+	if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'd')
+	{
+		int displayedValue = effectDisplayParams[currentEffectIdx].iParameter[n] * effectDisplayParams[currentEffectIdx].displayMult[n];
+		sprintf(paramiterValueLabelPtr[n], "%d", displayedValue);
+	}
+	else if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'f')
+	{
+		float displayedValue = effectDisplayParams[currentEffectIdx].fParameter[n] * effectDisplayParams[currentEffectIdx].displayMult[n];
+		sprintf(paramiterValueLabelPtr[n], "%.3f", displayedValue);
+	}
+}
+
+void cSampleEditor::reloadParamiterBarValue(uint8_t n)
+{
+	if(n >= effectDisplayParams[currentEffectIdx].paramsNumber) return;
+
+	if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'd')
+	{
+		paramsBarValue[n] = map(effectDisplayParams[currentEffectIdx].iParameter[n],effectDisplayParams[currentEffectIdx].iDownConstrain[n],effectDisplayParams[currentEffectIdx].iUpConstrain[n], 0, 100);
+	}
+	else if(effectDisplayParams[currentEffectIdx].paramsType[n] == 'f')
+	{
+		paramsBarValue[n] = (((effectDisplayParams[currentEffectIdx].fParameter[n] - effectDisplayParams[currentEffectIdx].fDownConstrain[n]) * 100)
+		/(effectDisplayParams[currentEffectIdx].fUpConstrain[n] - effectDisplayParams[currentEffectIdx].fDownConstrain[n]) );
+	}
+}
+
 //******************* REFRESH - RELOAD + DISPLAY
 void cSampleEditor::refreshSpectrumPoints()
 {
@@ -448,7 +530,18 @@ void cSampleEditor::modSelectedEffect(int16_t val)
 //************************************************************************** ACTION FUNCTIONS
 static uint8_t functSwitchModule(uint8_t button)
 {
-	SE->eventFunct(eventSwitchModule,SE,&button,0);
+
+	if(button == interfaceButtonSampleEdit)
+	{
+		if(SE->screenType == cSampleEditor::mainScreen) SE->screenType = cSampleEditor::effectParamsScreen;
+		else if(SE->screenType == cSampleEditor::effectParamsScreen) SE->screenType = cSampleEditor::mainScreen;
+
+		SE->switchScreen(SE->screenType);
+	}
+	else
+	{
+		SE->eventFunct(eventSwitchModule,SE,&button,0);
+	}
 	return 1;
 }
 
@@ -458,8 +551,14 @@ static  uint8_t functPads(uint8_t pad, uint8_t state, int16_t velo)
 	{
 		if(mtPadBoard.getEmptyVoice() == 0) SE->needRefreshPlayhead = 1;
 
+		uint32_t length;
+		uint32_t addressShift;
+		length =(uint32_t)((uint32_t)SE->selection.endPoint * (float)(SE->editorInstrument->sample.length)/MAX_16BIT);
+
+		addressShift = (uint32_t)( (uint32_t)SE->selection.startPoint * (float)(SE->editorInstrument->sample.length)/MAX_16BIT);
+
 		padsBacklight.setFrontLayer(1,20, pad);
-		mtPadBoard.startInstrument(pad,SE->editorInstrument->sample.address,SE->editorInstrument->sample.length);
+		mtPadBoard.startInstrument(pad,SE->editorInstrument->sample.address + addressShift,length - addressShift);
 	}
 	else if(state == 0)
 	{

@@ -277,7 +277,94 @@ void cSampleEditor::showMainScreen()
 }
 void cSampleEditor::showEffectParamsScreen()
 {
+//Bars
+	for (uint8_t i = 0; i < 8; i++ )
+	{
+		if( i < effectDisplayParams[currentEffectIdx].paramsNumber)
+		{
+			display.setControlValue(bar[i],paramsBarValue[i]);
+			display.setControlShow(bar[i]);
+		}
+		else
+		{
+			display.setControlHide(bar[i]);
+		}
+		display.refreshControl(bar[i]);
+	}
+//Labels
 
+	for ( uint8_t i = 0; i < 6; i++ )
+	{
+		if( i < effectDisplayParams[currentEffectIdx].paramsNumber)
+		{
+			display.setControlText(label[i],  effectDisplayParams[currentEffectIdx].labelsText[i]);
+			display.setControlText2(label[i], paramiterValueLabelPtr[i]);
+		}
+		else
+		{
+			display.setControlText(label[i], "");
+			display.setControlText2(label[i],"");
+		}
+	}
+	display.setControlText(label[6], "Preview");
+	display.setControlText(label[7], "Apply");
+	display.setControlText2(label[6], "");
+	display.setControlText2(label[7], "");
+
+
+
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		if(editorInstrument->isActive) display.setControlColors(label[i],interfaceGlobals.activeLabelsColors);
+		else display.setControlColors(label[i],interfaceGlobals.inactiveLabelsColors);
+	}
+
+	for (uint8_t i = 0; i < 8; i++ )
+	{
+		display.setControlStyle(label[i],  controlStyleCenterX | controlStyleFont3);
+		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
+		display.setControlPosition(label[i], (800/8)*i+(800/16), 424);
+		display.setControlSize(label[i], 800/8-6, 55);
+		display.setControlShow(label[i]);
+		display.refreshControl(label[i]);
+	}
+
+//List
+	hideEffectList();
+//Waveform
+	hideSpectrum();
+
+	hideSpectrumPoints();
+
+	hidePlayhead();
+//frame
+	if(editorInstrument->isActive) 	showFrame();
+	else
+	{
+		display.setControlHide(frame);
+		display.refreshControl(frame);
+	}
+//title label
+	display.setControlShow(titleBar);
+	display.refreshControl(titleBar);
+
+	display.setControlShow(titleLabel);
+	display.setControlText(titleLabel, "Sample Editor 2/2");
+	display.refreshControl(titleLabel);
+
+	showInstrumentName();
+//popups
+	display.setControlHide(popupLabel);
+	display.refreshControl(popupLabel);
+	display.setControlHide(popupProgressBar);
+	display.refreshControl(popupLabel);
+//background label
+
+	display.setControlValue(bgLabel,0b11111111);
+	display.setControlShow(bgLabel);
+	display.refreshControl(bgLabel);
+
+	display.synchronizeRefresh();
 }
 
 void cSampleEditor::showInstrumentName()
@@ -306,6 +393,13 @@ void cSampleEditor::showSpectrumPoints()
 	display.setControlShow(spectrumPoints);
 	display.refreshControl(spectrumPoints);
 }
+
+void cSampleEditor::hideSpectrumPoints()
+{
+	display.setControlHide(spectrumPoints);
+	display.refreshControl(spectrumPoints);
+}
+
 void cSampleEditor::showFrame()
 {
 	display.setControlValue(frame, selectedPlace[screenType]);
@@ -315,6 +409,12 @@ void cSampleEditor::showFrame()
 void cSampleEditor::showSpectrum()
 {
 	display.setControlShow(spectrum);
+	display.refreshControl(spectrum);
+}
+
+void cSampleEditor::hideSpectrum()
+{
+	display.setControlHide(spectrum);
 	display.refreshControl(spectrum);
 }
 void cSampleEditor::showPlayhead()

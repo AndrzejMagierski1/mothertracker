@@ -21,14 +21,14 @@ namespace delayParams
 
 	const char paramsType[2] = {'f','d'};
 
-	int iUpConstrain[2] = { 5000 , 0};
-	float fUpConstrain[2]= {0.0, 0.95};
+	int iUpConstrain[2] = { 0  , 5000};
+	float fUpConstrain[2]= {0.95, 0 };
 
-	int iDownConstrain[2] = { 1 , 0};
-	float fDownConstrain[2]= {0.0, 0.01};
+	int iDownConstrain[2] = { 0 , 1};
+	float fDownConstrain[2]= {0.01, 0.0};
 
 	float changeStep[2] = { 5 , 0.01};
-	float displayMult[2] = {0.001, 1};
+	float displayMult[2] = {1, 1};
 }
 
 namespace bitcrusherParams
