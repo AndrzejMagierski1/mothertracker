@@ -16,7 +16,7 @@ bool mtEffectBitcrusher::startProcess()
 	srcAddr = confirmed.selection.addr;
 	dstAddr = processed.selection.addr;
 
-	int n = (AUDIO_SAMPLE_RATE_EXACT / effectBitcrusherParams.rate) + 0.5;
+	int n = (44117.64706 / effectBitcrusherParams.rate) + 0.5;
 	if (n < 1) n = 1;
 	else if (n > 64) n = 64;
 	sampleStep = n;
@@ -35,31 +35,96 @@ int32_t mtEffectBitcrusher::updateProcess()
 	int32_t processedBlockLength = 0;
 
 	uint32_t sampleSquidge, sampleSqueeze;
-	int16_t	* localAddress = srcAddr;
 
-	for(uint32_t i = 0; i < 8192; i++)
+
+	if(state)
 	{
-		if( (processedSamples <= length ) && (processedSamples <= SAMPLE_EFFECTOR_LENGTH_MAX) )
+		if (crushBits == 16 && sampleStep <= 1)
 		{
-			if (crushBits == 16 && sampleStep <= 1) //todo: zmienic zeby robil oddzielna petle a nie za kazdym razem sprawdzal
+			for(uint16_t i = 0; i < 8192; i++)
 			{
-					*dstAddr++=*srcAddr++;
-					processedBlockLength++;
-			}
-			else
-			{
-				//todo: na razie nie dokonczone po prostu na potrzeby projektu
+				*dstAddr++ = *srcAddr++;
+				processedBlockLength++;
+
+				if(processedBlockLength + processedSamples > length)
+				{
+					state = 0;
+					break;
+				}
 			}
 		}
 		else
 		{
-			state = false;
-			processed.selection.length = processedSamples; //redundancy
-			processed.area.length = confirmed.area.length + (processed.selection.length - confirmed.selection.length); //redundancy
+			if (sampleStep <= 1)
+			{
+				for (uint16_t i = 0; i < 8192; i++)
+				{
+					//szift w prawo i lewo czysci bity lsb
+					sampleSquidge = *srcAddr++ >> (16 - crushBits);
+
+					*dstAddr++ = sampleSquidge << (16 - crushBits);
+					processedBlockLength++;
+
+					if(processedBlockLength + processedSamples > length)
+					{
+						state = 0;
+						break;
+					}
+				}
+			}
+			else if (crushBits == 16)
+			{
+				uint32_t i = 0;
+				while (i < 8192)
+				{
+					sampleSqueeze = *srcAddr;
+					for (int j = 0; j < sampleStep && i < 8192; j++)
+					{
+						*dstAddr++ = sampleSqueeze;
+						srcAddr++;
+						i++;
+						processedBlockLength++;
+
+						if(processedBlockLength + processedSamples > length)
+						{
+							state = 0;
+							break;
+						}
+					}
+				}
+			}
+			else
+			{
+				uint32_t i = 0;
+				while (i < 8192)
+				{
+					sampleSqueeze = *srcAddr;
+					for (int j = 0; j < sampleStep && i < 8192; j++)
+					{
+						sampleSquidge = sampleSqueeze >> (16 - crushBits);
+						*dstAddr++ = sampleSquidge << (16 - crushBits);
+						srcAddr++;
+						i++;
+						processedBlockLength++;
+
+						if(processedBlockLength + processedSamples > length)
+						{
+							state = 0;
+							break;
+						}
+					}
+				}
+			}
 		}
 	}
 
 	processedSamples += processedBlockLength;
+
+	if(!state)
+	{
+		processed.selection.length = processedSamples; //redundancy
+		processed.area.length = confirmed.area.length + (processed.selection.length - confirmed.selection.length); //redundancy
+	}
 
 	return processedBlockLength;
 }

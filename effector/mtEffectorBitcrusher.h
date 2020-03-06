@@ -28,6 +28,9 @@ class mtBitcrusher
 
 	uint32_t startLength;
 
+	uint8_t requireProcessing;
+	uint32_t loadProgress;
+
 };
 
 extern mtBitcrusher effectorBitcrusher;
