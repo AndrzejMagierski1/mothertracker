@@ -38,7 +38,7 @@ public:
 	} operationType;
 
 	void update();
-
+	void switchEffect(mtEffect * lastEffect);
 //***********LOAD
 	loadResult startLoad(uint8_t instr_idx);
 	void updateLoad();
@@ -90,6 +90,11 @@ public:
 	virtual bool getProcessState();
 	virtual uint32_t getExpectedProcessLength(uint32_t selectLen);
 //***********
+	struct strUndo
+	{
+		bool isEnable = false;
+	} undo;
+
 protected:
 	struct strProcessing
 	{
@@ -146,10 +151,6 @@ private:
 		bool isProcessData = false;
 	} apply;
 
-	struct strUndo
-	{
-		bool isEnable = false;
-	} undo;
 
 	mtDataCopyier *const dataCopyier = &globalDataCopyier;
 

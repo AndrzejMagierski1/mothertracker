@@ -3,7 +3,8 @@
 
 char * const effectNamesLabels[editorEffectMax] =
 {
-		(char*)"Delay"
+		(char*)"Delay",
+		(char*)"Bitcrusher"
 };
 
 static uint32_t popupLabelColors[] =
@@ -210,6 +211,13 @@ void cSampleEditor::showMainScreen()
 		else display.setControlColors(label[i],interfaceGlobals.inactiveLabelsColors);
 	}
 
+	if(editorInstrument->isActive)
+	{
+		if(!currentEffect->undo.isEnable) display.setControlColors(label[3],interfaceGlobals.inactiveLabelsColors);
+	}
+
+
+
 	for (uint8_t i = 0; i < 6; i++ )
 	{
 		display.setControlStyle2(label[i], controlStyleCenterX | controlStyleFont2);
@@ -230,8 +238,7 @@ void cSampleEditor::showMainScreen()
 	display.setControlHide(label[7]);
 	display.refreshControl(label[7]);
 //List
-	display.setControlShow(effectList);
-	display.refreshControl(effectList);
+	refreshEffectList();
 //Waveform
 	showSpectrum();
 
@@ -319,4 +326,14 @@ void cSampleEditor::hidePlayhead()
 {
 	display.setControlHide(playhead);
 	display.refreshControl(playhead);
+}
+void cSampleEditor::showEffectList()
+{
+	display.setControlShow(effectList);
+	display.refreshControl(effectList);
+}
+void cSampleEditor::hideEffectList()
+{
+	display.setControlHide(effectList);
+	display.refreshControl(effectList);
 }

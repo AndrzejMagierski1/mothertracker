@@ -58,8 +58,10 @@ void cSampleEditor::start(uint32_t options)
 
 	screenType = mainScreen;
 
-	editorInstrument = &mtProject.instrument[mtProject.values.lastUsedInstrument];
-	//dostosowac to tak zeby byl editorInstrument ktory zawsze ma dobre parametry
+	editorInstrument->isActive = mtProject.instrument[mtProject.values.lastUsedInstrument].isActive;
+	editorInstrument->sample.address = mtProject.instrument[mtProject.values.lastUsedInstrument].sample.address;
+	editorInstrument->sample.length = mtProject.instrument[mtProject.values.lastUsedInstrument].sample.length;
+	strcpy((char *)&editorInstrument->sample.file_name, (char *)&mtProject.instrument[mtProject.values.lastUsedInstrument].sample.file_name);
 
 	if(editorInstrument->isActive)
 	{
@@ -74,6 +76,8 @@ void cSampleEditor::start(uint32_t options)
 
 	setMainScreenFunctions();
 	setCommonFunctions();
+
+	reloadCurrentEffect();
 
 	reloadInstrumentName();
 	reloadStartPointText();
@@ -171,11 +175,11 @@ void cSampleEditor::reloadInstrumentName()
 {
 	if(!editorInstrument->isActive)
 	{
-		sprintf(currentInstrumentName,"%d. Empty slot",mtProject.values.lastUsedInstrument);
+		sprintf(currentInstrumentName,"%d. Empty slot",mtProject.values.lastUsedInstrument + 1);
 	}
 	else
 	{
-		sprintf(currentInstrumentName,"%d. %s",mtProject.values.lastUsedInstrument, editorInstrument->sample.file_name);
+		sprintf(currentInstrumentName,"%d. %s",mtProject.values.lastUsedInstrument + 1, editorInstrument->sample.file_name);
 	}
 }
 void cSampleEditor::reloadStartPointText()
@@ -219,6 +223,18 @@ void cSampleEditor::reloadPlayheadValue()
 	}
 }
 
+void cSampleEditor::reloadCurrentEffect()
+{
+	currentEffect = sampleEditorEffect[currentEffectIdx];
+
+	if((currentEffect != lastEffect) && (lastEffect != nullptr))
+	{
+		currentEffect->switchEffect(lastEffect);
+	}
+
+	lastEffect = currentEffect;
+
+}
 
 void cSampleEditor::reloadFrameData(enScreenType s)
 {
@@ -325,7 +341,8 @@ void cSampleEditor::refreshZoom()
 }
 void cSampleEditor::refreshEffectList()
 {
-
+	display.setControlValue(effectList, currentEffectIdx);
+	showEffectList();
 }
 
 void cSampleEditor::refreshSpectrum()
@@ -412,6 +429,20 @@ void cSampleEditor::modZoom(int16_t val)
 	refreshSpectrumPoints();
 	needRefreshSpectrum = 1;
 }
+
+void cSampleEditor::modSelectedEffect(int16_t val)
+{
+	uint8_t lastEffectIdx = currentEffectIdx;
+
+	if(currentEffectIdx + val > (editorEffectMax - 1 )) currentEffectIdx = editorEffectMax - 1;
+	else if(currentEffectIdx + val < 0) currentEffectIdx = 0;
+	else currentEffectIdx += val;
+
+	if(currentEffectIdx != lastEffectIdx)
+	{
+		refreshEffectList();
+	}
+}
 //*******************
 
 //************************************************************************** ACTION FUNCTIONS
@@ -464,12 +495,26 @@ static  uint8_t functMainScreenRight()
 }
 static  uint8_t functMainScreenUp()
 {
-
+	switch(SE->selectedPlace[cSampleEditor::mainScreen])
+	{
+		case cSampleEditor::startPointPlace : 	SE->modStartPoint(1);		break;
+		case cSampleEditor::endPointPlace : 	SE->modEndPoint(1);			break;
+		case cSampleEditor::zoomPlace : 		SE->modZoom(1);				break;
+		case cSampleEditor::effectPlaces :		SE->modSelectedEffect(-1);   break;
+		default: break;
+	}
 	return 1;
 }
 static  uint8_t functMainScreenDown()
 {
-
+	switch(SE->selectedPlace[cSampleEditor::mainScreen])
+	{
+		case cSampleEditor::startPointPlace : 	SE->modStartPoint(-1);		break;
+		case cSampleEditor::endPointPlace : 	SE->modEndPoint(-1);			break;
+		case cSampleEditor::zoomPlace : 		SE->modZoom(-1);				break;
+		case cSampleEditor::effectPlaces :		SE->modSelectedEffect(1);   break;
+		default: break;
+	}
 	return 1;
 }
 static  uint8_t functMainScreenEncoder(int16_t value)
@@ -479,7 +524,7 @@ static  uint8_t functMainScreenEncoder(int16_t value)
 		case cSampleEditor::startPointPlace : 	SE->modStartPoint(value);		break;
 		case cSampleEditor::endPointPlace : 	SE->modEndPoint(value);			break;
 		case cSampleEditor::zoomPlace : 		SE->modZoom(value);				break;
-		case cSampleEditor::effectPlaces : break;
+		case cSampleEditor::effectPlaces :		SE->modSelectedEffect(value);   break;
 		default: break;
 	}
 
@@ -528,7 +573,7 @@ static  uint8_t functListUp()
 	}
 	else
 	{
-
+		SE->modSelectedEffect(-1);
 	}
 
 	return 1;
@@ -545,7 +590,7 @@ static 	uint8_t functListDown()
 	}
 	else
 	{
-
+		SE->modSelectedEffect(1);
 	}
 
 	return 1;

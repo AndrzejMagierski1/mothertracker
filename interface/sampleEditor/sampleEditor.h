@@ -42,6 +42,7 @@ public:
 	void reloadEndPointText();
 	void reloadZoomText();
 	void reloadPlayheadValue();
+	void reloadCurrentEffect();
 
 //*******************
 //*******************CORE GRAPHIC FUNCTIONS
@@ -60,6 +61,8 @@ public:
 	void showSpectrum();
 	void showPlayhead();
 	void hidePlayhead();
+	void showEffectList();
+	void hideEffectList();
 //*******************
 //******************* REFRESH - RELOAD + DISPLAY
 	void refreshSpectrumPoints();
@@ -75,6 +78,7 @@ public:
 	void modStartPoint(int16_t val);
 	void modEndPoint(int16_t val);
 	void modZoom(int16_t val);
+	void modSelectedEffect(int16_t val);
 //*******************
 	cSampleEditor()
 	{
@@ -163,9 +167,47 @@ public:
 	enScreenType screenType = mainScreen;
 	uint8_t selectedEffect = editorEffectDelay;
 	uint8_t selectedPlace[2];
+
+	struct strEffectDisplayParams
+	{
+		uint8_t paramsNumber;
+		const char * const * labelsText;
+		const char * paramsType; //'f' = float 'd' = int
+
+		int * iUpConstrain;
+		float * fUpConstrain;
+
+		int * iDownConstrain;
+		float * fDownConstrain;
+
+		float * changeStep;
+		float * displayMult;
+	} effectDisplayParams[editorEffectMax] =
+	{
+			{
+				2,delayParams::labelText,delayParams::paramsType,
+				delayParams::iUpConstrain,delayParams::fUpConstrain,
+				delayParams::iDownConstrain,delayParams::fDownConstrain,
+				delayParams::changeStep,delayParams::displayMult
+			},
+
+			{
+				2,bitcrusherParams::labelText,bitcrusherParams::paramsType,
+				bitcrusherParams::iUpConstrain,bitcrusherParams::fUpConstrain,
+				bitcrusherParams::iDownConstrain,bitcrusherParams::fDownConstrain,
+				bitcrusherParams::changeStep,bitcrusherParams::displayMult
+			}
+	};
+
 //*********************
 //********************CURRENT INSTRUMENT HANDLING
-	strInstrument * editorInstrument = nullptr;
+	strInstrument	sampleEditInstrument;
+	strInstrument * const editorInstrument = &sampleEditInstrument;
+//*********************
+//********************EFFECT LIST HANDLING
+	uint8_t currentEffectIdx;
+	mtEffect * currentEffect = nullptr;
+	mtEffect * lastEffect = nullptr;
 //*********************
 };
 

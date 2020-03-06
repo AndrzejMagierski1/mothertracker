@@ -12,6 +12,17 @@ void mtEffect::update()
 	default: break;
 	}
 }
+
+void mtEffect::switchEffect(mtEffect * lastEffect)
+{
+	memcpy(&this->processing, &lastEffect->processing, sizeof(this->processing));
+	memcpy(&this->processed, &lastEffect->processed, sizeof(this->processed));
+	memcpy(&this->confirmed, &lastEffect->confirmed, sizeof(this->confirmed));
+	memcpy(&this->loading, &lastEffect->loading, sizeof(this->loading));
+	memcpy(&this->save, &lastEffect->save, sizeof(this->save));
+	memcpy(&this->apply, &lastEffect->apply, sizeof(this->apply));
+	memcpy(&this->undo, &lastEffect->undo, sizeof(this->undo));
+}
 //***********LOAD
 mtEffect::loadResult mtEffect::startLoad(uint8_t instr_idx)
 {
