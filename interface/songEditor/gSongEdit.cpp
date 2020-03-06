@@ -77,7 +77,7 @@ void cSongEditor::initDisplayControls()
 	doubleArrow[1].bitmaps[0].yValue = 460;
 
 	prop2.text = (char*)"";
-	prop2.colors = interfaceGlobals.activeLabelsColors;
+	prop2.colors = interfaceGlobals.activeButtonLabelsColors;
 	prop2.style = 	(controlStyleCenterX | controlStyleFont3);
 
 	for(uint8_t i = 0; i < 8; i++)
@@ -178,17 +178,19 @@ void cSongEditor::showDefaultScreen()
 	display.setAddControlStyle(label[6], controlStyleShowBitmap);
 
 
-	display.setControlText(label[0], "Add");
-	display.setControlText2(label[0], "Row");
+	display.setControlText(label[0], "Play");
+	display.setControlText2(label[0], "Pattern");
 
-	display.setControlText(label[1], "Delete");
-	display.setControlText2(label[1], "Row");
+	display.setControlText(label[1], "Play");
+	display.setControlText2(label[1], "Song");
 
-	display.setControlText(label[2], "Copy");
+	display.setControlText(label[2], "Undo");
 
-	display.setControlText(label[3], "Paste");
+	display.setControlText(label[3], "Add");
+	display.setControlText2(label[3], "Slot");
 
-	display.setControlText(label[4], "Undo");
+	display.setControlText(label[4], "Delete");
+	display.setControlText2(label[4], "Slot");
 
 	display.setControlText2(label[5], "");
 	display.setControlText(label[5], "Pattern");
@@ -197,6 +199,7 @@ void cSongEditor::showDefaultScreen()
 	display.setControlText2(label[6], "");
 
 	display.setControlText2(label[7], "Tempo");
+	display.setControlColors(label[7], interfaceGlobals.activeLabelsColors);
 
 	showTempoValue();
 	//showPatternLengthValue();

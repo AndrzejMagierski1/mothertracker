@@ -22,7 +22,7 @@ static uint32_t defaultColors[] =
 
 static char tracksNames[8][8] = {"Track 1","Track 2","Track 3","Track 4","Track 5","Track 6","Track 7","Track 8"};
 static char* patternLabel = (char*)"Pattern";
-static char* rowLabel	= (char*)"Row";
+static char* rowLabel	= (char*)"Slot";
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
@@ -622,26 +622,26 @@ uint8_t cSongPlayer::showList()
 void cSongPlayer::drawBlocks()
 {
 	API_COLOR(0xFFFFFF);
-	API_LINE_WIDTH(8);
-	API_BEGIN(RECTS);
-
-	uint8_t maxPatternsVisible = (controlData->songLength > MAX_PATTERNS_VISIBLE) ? MAX_PATTERNS_VISIBLE : controlData->songLength;
-
-	for(size_t pattern = 0; pattern < maxPatternsVisible; pattern++)
-	{
-		for(size_t track = 0; track < MAX_TRACKS_PER_PATTERN; track++)
-		{
-			uint16_t localX, localY;
-			localX = posX + track*(BLOCK_WIDTH + SPACING_X) + 10;
-			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y) + 33;
-
-			API_VERTEX2F(localX, localY);
-			API_VERTEX2F((localX + BLOCK_WIDTH), (localY + BLOCK_HEIGHT));
-
-		}
-	}
-
-	API_END();
+//	API_LINE_WIDTH(8);
+//	API_BEGIN(RECTS);
+//
+//	uint8_t maxPatternsVisible = (controlData->songLength > MAX_PATTERNS_VISIBLE) ? MAX_PATTERNS_VISIBLE : controlData->songLength;
+//
+//	for(size_t pattern = 0; pattern < maxPatternsVisible; pattern++)
+//	{
+//		for(size_t track = 0; track < MAX_TRACKS_PER_PATTERN; track++)
+//		{
+//			uint16_t localX, localY;
+//			localX = posX + track*(BLOCK_WIDTH + SPACING_X) + 10;
+//			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y) + 33;
+//
+//			API_VERTEX2F(localX, localY);
+//			API_VERTEX2F((localX + BLOCK_WIDTH), (localY + BLOCK_HEIGHT));
+//
+//		}
+//	}
+//
+//	API_END();
 
 	for(size_t track = 0; track < MAX_TRACKS_PER_PATTERN; track++)
 	{
@@ -672,13 +672,20 @@ void cSongPlayer::fillBlocks()
 		{
 			uint16_t localX, localY;
 
-			localX = posX + track*(BLOCK_WIDTH + SPACING_X) +10;
-			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y) +33;
+			localX = posX + track*(BLOCK_WIDTH + SPACING_X) + 10;
+			localY = posY + pattern*(BLOCK_HEIGHT + SPACING_Y) + 33;
 
 			if(!(data & (1 << track)))
 			{
-				API_VERTEX2F((localX + 1), (localY + 1));
-				API_VERTEX2F((localX + BLOCK_WIDTH - 1), (localY + BLOCK_HEIGHT - 1));
+				API_COLOR(0x000000);
+				API_VERTEX2F((localX), (localY));
+				API_VERTEX2F((localX + BLOCK_WIDTH), (localY + BLOCK_HEIGHT));
+			}
+			else
+			{
+				API_COLOR(0x222222);
+				API_VERTEX2F((localX), (localY));
+				API_VERTEX2F((localX + BLOCK_WIDTH), (localY + BLOCK_HEIGHT));
 			}
 
 			calculateSelection(pattern, track, localX, localY, localX + BLOCK_WIDTH, localY + BLOCK_HEIGHT);

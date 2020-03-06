@@ -16,6 +16,8 @@ cSongEditor songEditor;
 static cSongEditor* SE = &songEditor;
 
 
+static  uint8_t functPlayPattern();
+static  uint8_t functPlaySong();
 static  uint8_t functIncPattern();
 static  uint8_t functDecPattern();
 static  uint8_t functDeleteSlot();
@@ -49,6 +51,7 @@ static void updateBitmaskAfterCopy(uint8_t *src, uint8_t *dest, uint8_t startSrc
 
 static uint8_t functCopy();
 static uint8_t functPaste();
+
 static uint8_t functUndo();
 
 static uint8_t functDelete();
@@ -162,14 +165,15 @@ void cSongEditor::setDefaultScreenFunct()
 	FM->setButtonObj(interfaceButtonShift, functShift);
 
 
-	FM->setButtonObj(interfaceButton0, buttonPress, functAddSlot);
-	FM->setButtonObj(interfaceButton1, buttonPress, functDeleteSlot);
-	FM->setButtonObj(interfaceButton2, buttonPress, functCopy);
-	FM->setButtonObj(interfaceButton3, buttonPress, functPaste);
-	FM->setButtonObj(interfaceButton4, buttonPress, functUndo);
+	FM->setButtonObj(interfaceButton4, buttonPress, functAddSlot);
+	FM->setButtonObj(interfaceButton5, buttonPress, functDeleteSlot);
+	FM->setButtonObj(interfaceButton0, buttonPress, functPlayPattern);
+	FM->setButtonObj(interfaceButton1, buttonPress, functPlaySong);
+	FM->setButtonObj(interfaceButton3, buttonPress, functUndo);
 
-	FM->setButtonObj(interfaceButton6, buttonPress, functIncPattern);
-	FM->setButtonObj(interfaceButton5, buttonPress, functDecPattern);
+	//FM->setButtonObj(interfaceButton6, buttonPress, functIncPattern);
+	//FM->setButtonObj(interfaceButton5, buttonPress, functDecPattern);
+
 	FM->setButtonObj(interfaceButton7, buttonPress, functTempo);
 	FM->setButtonObj(interfaceButtonCopy, buttonPress, functCopyPaste);
 	FM->setButtonObj(interfaceButtonDelete, buttonPress, functDelete);
@@ -184,6 +188,19 @@ void cSongEditor::setDefaultScreenFunct()
 
 
 //==============================================================================================================
+
+static  uint8_t functPlayPattern()
+{
+
+	return 1;
+}
+
+static  uint8_t functPlaySong()
+{
+
+	return 1;
+}
+
 
 static  uint8_t functIncPattern()
 {
